@@ -1,0 +1,17 @@
+version 2
+run General-0-20130921-02:52:43-26775
+attr configname General
+attr datetime 20130921-02:52:43
+attr experiment General
+attr inifile omnetpp.ini
+attr iterationvars ""
+attr iterationvars2 $repetition=0
+attr measurement ""
+attr network ned.Network
+attr processid 26775
+attr repetition 0
+attr replication #0
+attr resultdir results
+attr runnumber 0
+attr seedset 0
+

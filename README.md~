@@ -1,0 +1,8 @@
+C3PO
+====
+
+go to TraCIScenarioManager.h and find void executeOneTimestep();
+change it into virtual void executeOneTimestep();
+
+go to TraCIScenarioManager.cc and find method init_traci()
+add (apiVersion == 6) to the if list!

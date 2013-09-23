@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on Fri 20 Sep 2013 02:03:59 PM PDT by SUMO gui Version dev-SVN-r14700
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo-sim.org/xsd/sumo-gui.exeConfiguration.xsd">
+
+    <input>
+        <net-file value="/home/mani/Desktop/C3PO/sumo/scenario3-KraussFixed/hello.net.xml"/>
+        <route-files value="/home/mani/Desktop/C3PO/sumo/scenario3-KraussFixed/hello.rou.xml"/>
+    </input>
+
+    <output>
+        <netstate-dump value="/home/mani/Desktop/C3PO/sumo/scenario3-KraussFixed/dump.txt"/>
+        <save-state.prefix value="/home/mani/Desktop/C3PO/sumo/scenario3-KraussFixed/state"/>
+    </output>
+
+    <time>
+        <begin value="0"/>
+        <end value="-1"/>
+        <step-length value="0.1"/>
+    </time>
+
+    <report>
+        <verbose value="true"/>
+    </report>
+
+</configuration>

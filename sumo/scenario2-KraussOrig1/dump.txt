@@ -1,0 +1,1901 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on Sat Sep 21 02:53:24 2013 by SUMO sumo Version dev-SVN-r14700
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo-sim.org/xsd/sumoConfiguration.xsd">
+
+    <input>
+        <net-file value="hello.net.xml"/>
+        <route-files value="hello.rou.xml"/>
+    </input>
+
+    <output>
+        <netstate-dump value="/home/mani/Desktop/C3PO/sumo/scenario2-KraussOrig1/dump.txt"/>
+        <save-state.prefix value="state"/>
+    </output>
+
+    <time>
+        <begin value="0"/>
+        <end value="-1"/>
+        <step-length value="0.1"/>
+    </time>
+
+    <report>
+        <verbose value="true"/>
+    </report>
+
+    <traci_server>
+        <remote-port value="42911"/>
+    </traci_server>
+
+    <random_number>
+        <random value="false"/>
+        <seed value="0"/>
+    </random_number>
+
+</configuration>
+-->
+
+<netstate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo-sim.org/xsd/netstate_file.xsd">
+    <timestep time="0.00"/>
+    <timestep time="0.10"/>
+    <timestep time="0.20"/>
+    <timestep time="0.30"/>
+    <timestep time="0.40"/>
+    <timestep time="0.50"/>
+    <timestep time="0.60"/>
+    <timestep time="0.70"/>
+    <timestep time="0.80"/>
+    <timestep time="0.90"/>
+    <timestep time="1.00">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="Manual" pos="5.10" speed="0.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="1.10">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="Manual" pos="5.12" speed="0.20"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="1.20">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="Manual" pos="5.16" speed="0.40"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="1.30">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="Manual" pos="5.22" speed="0.60"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="1.40">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="Manual" pos="5.30" speed="0.80"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="1.50">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="Manual" pos="5.40" speed="1.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="1.60">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="Manual" pos="5.52" speed="1.20"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="1.70">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="Manual" pos="5.66" speed="1.40"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="1.80">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="Manual" pos="5.82" speed="1.60"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="1.90">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="Manual" pos="6.00" speed="1.80"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="2.00">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="Manual" pos="6.20" speed="2.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="2.10">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="Manual" pos="6.42" speed="2.20"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="2.20">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="Manual" pos="6.66" speed="2.40"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="2.30">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="Manual" pos="6.92" speed="2.60"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="2.40">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="Manual" pos="7.20" speed="2.80"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="2.50">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="Manual" pos="7.50" speed="3.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="2.60">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="Manual" pos="7.82" speed="3.20"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="2.70">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="Manual" pos="8.16" speed="3.40"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="2.80">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="Manual" pos="8.52" speed="3.60"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="2.90">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="Manual" pos="8.90" speed="3.80"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="3.00">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="Manual" pos="9.30" speed="4.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="3.10">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="Manual" pos="9.72" speed="4.20"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="3.20">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="Manual" pos="10.16" speed="4.40"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="3.30">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="Manual" pos="10.62" speed="4.60"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="3.40">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="Manual" pos="11.10" speed="4.80"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="3.50">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="Manual" pos="11.60" speed="5.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="3.60">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="Manual" pos="12.12" speed="5.20"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="3.70">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="Manual" pos="12.66" speed="5.40"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="3.80">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="Manual" pos="13.22" speed="5.60"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="3.90">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="Manual" pos="13.80" speed="5.80"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="4.00">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="Manual" pos="14.40" speed="6.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="4.10">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="Manual" pos="15.02" speed="6.20"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="4.20">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="Manual" pos="15.66" speed="6.40"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="4.30">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="Manual" pos="16.32" speed="6.60"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="4.40">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="Manual" pos="17.00" speed="6.80"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="4.50">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="Manual" pos="17.70" speed="7.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="4.60">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="Manual" pos="18.42" speed="7.20"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="4.70">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="Manual" pos="19.16" speed="7.40"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="4.80">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="Manual" pos="19.92" speed="7.60"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="4.90">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="Manual" pos="20.70" speed="7.80"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="5.00">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="5.10" speed="0.00"/>
+                <vehicle id="Manual" pos="21.50" speed="8.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="5.10">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="5.12" speed="0.20"/>
+                <vehicle id="Manual" pos="22.32" speed="8.20"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="5.20">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="5.16" speed="0.40"/>
+                <vehicle id="Manual" pos="23.16" speed="8.40"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="5.30">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="5.22" speed="0.60"/>
+                <vehicle id="Manual" pos="24.02" speed="8.60"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="5.40">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="5.30" speed="0.80"/>
+                <vehicle id="Manual" pos="24.90" speed="8.80"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="5.50">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="5.40" speed="1.00"/>
+                <vehicle id="Manual" pos="25.80" speed="9.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="5.60">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="5.52" speed="1.20"/>
+                <vehicle id="Manual" pos="26.72" speed="9.20"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="5.70">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="5.66" speed="1.40"/>
+                <vehicle id="Manual" pos="27.66" speed="9.40"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="5.80">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="5.82" speed="1.60"/>
+                <vehicle id="Manual" pos="28.62" speed="9.60"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="5.90">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="6.00" speed="1.80"/>
+                <vehicle id="Manual" pos="29.60" speed="9.80"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="6.00">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="6.20" speed="2.00"/>
+                <vehicle id="Manual" pos="30.60" speed="10.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="6.10">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="6.42" speed="2.20"/>
+                <vehicle id="Manual" pos="31.62" speed="10.20"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="6.20">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="6.66" speed="2.40"/>
+                <vehicle id="Manual" pos="32.66" speed="10.40"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="6.30">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="6.92" speed="2.60"/>
+                <vehicle id="Manual" pos="33.72" speed="10.60"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="6.40">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="7.20" speed="2.80"/>
+                <vehicle id="Manual" pos="34.80" speed="10.80"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="6.50">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="7.50" speed="3.00"/>
+                <vehicle id="Manual" pos="35.90" speed="11.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="6.60">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="7.82" speed="3.20"/>
+                <vehicle id="Manual" pos="37.02" speed="11.20"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="6.70">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="8.16" speed="3.40"/>
+                <vehicle id="Manual" pos="38.16" speed="11.40"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="6.80">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="8.52" speed="3.60"/>
+                <vehicle id="Manual" pos="39.32" speed="11.60"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="6.90">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="8.90" speed="3.80"/>
+                <vehicle id="Manual" pos="40.50" speed="11.80"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="7.00">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="9.30" speed="4.00"/>
+                <vehicle id="Manual" pos="41.70" speed="12.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="7.10">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="9.72" speed="4.20"/>
+                <vehicle id="Manual" pos="42.92" speed="12.20"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="7.20">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="10.16" speed="4.40"/>
+                <vehicle id="Manual" pos="44.16" speed="12.40"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="7.30">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="10.62" speed="4.60"/>
+                <vehicle id="Manual" pos="45.42" speed="12.60"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="7.40">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="11.10" speed="4.80"/>
+                <vehicle id="Manual" pos="46.70" speed="12.80"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="7.50">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="11.60" speed="5.00"/>
+                <vehicle id="Manual" pos="48.00" speed="13.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="7.60">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="12.12" speed="5.20"/>
+                <vehicle id="Manual" pos="49.32" speed="13.20"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="7.70">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="12.66" speed="5.40"/>
+                <vehicle id="Manual" pos="50.66" speed="13.40"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="7.80">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="13.22" speed="5.60"/>
+                <vehicle id="Manual" pos="52.02" speed="13.60"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="7.90">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="13.80" speed="5.80"/>
+                <vehicle id="Manual" pos="53.40" speed="13.80"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="8.00">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="14.40" speed="6.00"/>
+                <vehicle id="Manual" pos="54.80" speed="14.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="8.10">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="15.02" speed="6.20"/>
+                <vehicle id="Manual" pos="56.22" speed="14.20"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="8.20">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="15.66" speed="6.40"/>
+                <vehicle id="Manual" pos="57.66" speed="14.40"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="8.30">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="16.32" speed="6.60"/>
+                <vehicle id="Manual" pos="59.12" speed="14.60"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="8.40">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="17.00" speed="6.80"/>
+                <vehicle id="Manual" pos="60.60" speed="14.80"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="8.50">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="17.70" speed="7.00"/>
+                <vehicle id="Manual" pos="62.10" speed="15.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="8.60">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="18.42" speed="7.20"/>
+                <vehicle id="Manual" pos="63.62" speed="15.20"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="8.70">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="19.16" speed="7.40"/>
+                <vehicle id="Manual" pos="65.16" speed="15.40"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="8.80">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="19.92" speed="7.60"/>
+                <vehicle id="Manual" pos="66.72" speed="15.60"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="8.90">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="20.70" speed="7.80"/>
+                <vehicle id="Manual" pos="68.30" speed="15.80"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="9.00">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="21.50" speed="8.00"/>
+                <vehicle id="Manual" pos="69.90" speed="16.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="9.10">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="22.32" speed="8.20"/>
+                <vehicle id="Manual" pos="71.52" speed="16.20"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="9.20">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="23.16" speed="8.40"/>
+                <vehicle id="Manual" pos="73.16" speed="16.40"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="9.30">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="24.02" speed="8.60"/>
+                <vehicle id="Manual" pos="74.82" speed="16.60"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="9.40">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="24.90" speed="8.80"/>
+                <vehicle id="Manual" pos="76.50" speed="16.80"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="9.50">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="25.80" speed="9.00"/>
+                <vehicle id="Manual" pos="78.20" speed="17.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="9.60">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="26.72" speed="9.20"/>
+                <vehicle id="Manual" pos="79.92" speed="17.20"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="9.70">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="27.66" speed="9.40"/>
+                <vehicle id="Manual" pos="81.66" speed="17.40"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="9.80">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="28.62" speed="9.60"/>
+                <vehicle id="Manual" pos="83.42" speed="17.60"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="9.90">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="ACC" pos="29.60" speed="9.80"/>
+                <vehicle id="Manual" pos="85.20" speed="17.80"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="10.00">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="5.10" speed="0.00"/>
+                <vehicle id="ACC" pos="30.60" speed="10.00"/>
+                <vehicle id="Manual" pos="87.00" speed="18.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="10.10">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="5.12" speed="0.20"/>
+                <vehicle id="ACC" pos="31.62" speed="10.20"/>
+                <vehicle id="Manual" pos="88.82" speed="18.20"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="10.20">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="5.16" speed="0.40"/>
+                <vehicle id="ACC" pos="32.66" speed="10.40"/>
+                <vehicle id="Manual" pos="90.66" speed="18.40"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="10.30">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="5.22" speed="0.60"/>
+                <vehicle id="ACC" pos="33.72" speed="10.60"/>
+                <vehicle id="Manual" pos="92.52" speed="18.60"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="10.40">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="5.30" speed="0.80"/>
+                <vehicle id="ACC" pos="34.80" speed="10.80"/>
+                <vehicle id="Manual" pos="94.40" speed="18.80"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="10.50">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="5.40" speed="1.00"/>
+                <vehicle id="ACC" pos="35.90" speed="11.00"/>
+                <vehicle id="Manual" pos="96.30" speed="19.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="10.60">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="5.52" speed="1.20"/>
+                <vehicle id="ACC" pos="37.02" speed="11.20"/>
+                <vehicle id="Manual" pos="98.22" speed="19.20"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="10.70">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="5.66" speed="1.40"/>
+                <vehicle id="ACC" pos="38.16" speed="11.40"/>
+                <vehicle id="Manual" pos="100.16" speed="19.40"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="10.80">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="5.82" speed="1.60"/>
+                <vehicle id="ACC" pos="39.32" speed="11.60"/>
+                <vehicle id="Manual" pos="102.12" speed="19.60"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="10.90">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="6.00" speed="1.80"/>
+                <vehicle id="ACC" pos="40.50" speed="11.80"/>
+                <vehicle id="Manual" pos="104.10" speed="19.80"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="11.00">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="6.20" speed="2.00"/>
+                <vehicle id="ACC" pos="41.70" speed="12.00"/>
+                <vehicle id="Manual" pos="106.10" speed="20.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="11.10">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="6.42" speed="2.20"/>
+                <vehicle id="ACC" pos="42.92" speed="12.20"/>
+                <vehicle id="Manual" pos="108.12" speed="20.20"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="11.20">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="6.66" speed="2.40"/>
+                <vehicle id="ACC" pos="44.16" speed="12.40"/>
+                <vehicle id="Manual" pos="110.16" speed="20.40"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="11.30">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="6.92" speed="2.60"/>
+                <vehicle id="ACC" pos="45.42" speed="12.60"/>
+                <vehicle id="Manual" pos="112.22" speed="20.60"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="11.40">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="7.20" speed="2.80"/>
+                <vehicle id="ACC" pos="46.70" speed="12.80"/>
+                <vehicle id="Manual" pos="114.30" speed="20.80"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="11.50">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="7.50" speed="3.00"/>
+                <vehicle id="ACC" pos="48.00" speed="13.00"/>
+                <vehicle id="Manual" pos="116.40" speed="21.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="11.60">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="7.82" speed="3.20"/>
+                <vehicle id="ACC" pos="49.32" speed="13.20"/>
+                <vehicle id="Manual" pos="118.52" speed="21.20"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="11.70">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="8.16" speed="3.40"/>
+                <vehicle id="ACC" pos="50.66" speed="13.40"/>
+                <vehicle id="Manual" pos="120.66" speed="21.40"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="11.80">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="8.52" speed="3.60"/>
+                <vehicle id="ACC" pos="52.02" speed="13.60"/>
+                <vehicle id="Manual" pos="122.82" speed="21.60"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="11.90">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="8.90" speed="3.80"/>
+                <vehicle id="ACC" pos="53.40" speed="13.80"/>
+                <vehicle id="Manual" pos="125.00" speed="21.80"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="12.00">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="9.30" speed="4.00"/>
+                <vehicle id="ACC" pos="54.80" speed="14.00"/>
+                <vehicle id="Manual" pos="127.20" speed="22.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="12.10">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="9.72" speed="4.20"/>
+                <vehicle id="ACC" pos="56.22" speed="14.20"/>
+                <vehicle id="Manual" pos="129.42" speed="22.20"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="12.20">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="10.16" speed="4.40"/>
+                <vehicle id="ACC" pos="57.66" speed="14.40"/>
+                <vehicle id="Manual" pos="131.66" speed="22.40"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="12.30">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="10.62" speed="4.60"/>
+                <vehicle id="ACC" pos="59.12" speed="14.60"/>
+                <vehicle id="Manual" pos="133.92" speed="22.60"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="12.40">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="11.10" speed="4.80"/>
+                <vehicle id="ACC" pos="60.60" speed="14.80"/>
+                <vehicle id="Manual" pos="136.20" speed="22.80"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="12.50">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="11.60" speed="5.00"/>
+                <vehicle id="ACC" pos="62.10" speed="15.00"/>
+                <vehicle id="Manual" pos="138.50" speed="23.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="12.60">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="12.12" speed="5.20"/>
+                <vehicle id="ACC" pos="63.62" speed="15.20"/>
+                <vehicle id="Manual" pos="140.82" speed="23.20"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="12.70">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="12.66" speed="5.40"/>
+                <vehicle id="ACC" pos="65.16" speed="15.40"/>
+                <vehicle id="Manual" pos="143.16" speed="23.40"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="12.80">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="13.22" speed="5.60"/>
+                <vehicle id="ACC" pos="66.72" speed="15.60"/>
+                <vehicle id="Manual" pos="145.52" speed="23.60"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="12.90">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="13.80" speed="5.80"/>
+                <vehicle id="ACC" pos="68.30" speed="15.80"/>
+                <vehicle id="Manual" pos="147.90" speed="23.80"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="13.00">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="14.40" speed="6.00"/>
+                <vehicle id="ACC" pos="69.90" speed="16.00"/>
+                <vehicle id="Manual" pos="150.30" speed="24.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="13.10">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="15.02" speed="6.20"/>
+                <vehicle id="ACC" pos="71.52" speed="16.20"/>
+                <vehicle id="Manual" pos="152.72" speed="24.20"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="13.20">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="15.66" speed="6.40"/>
+                <vehicle id="ACC" pos="73.16" speed="16.40"/>
+                <vehicle id="Manual" pos="155.16" speed="24.40"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="13.30">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="16.32" speed="6.60"/>
+                <vehicle id="ACC" pos="74.82" speed="16.60"/>
+                <vehicle id="Manual" pos="157.62" speed="24.60"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="13.40">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="17.00" speed="6.80"/>
+                <vehicle id="ACC" pos="76.50" speed="16.80"/>
+                <vehicle id="Manual" pos="160.10" speed="24.80"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="13.50">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="17.70" speed="7.00"/>
+                <vehicle id="ACC" pos="78.20" speed="17.00"/>
+                <vehicle id="Manual" pos="162.60" speed="25.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="13.60">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="18.42" speed="7.20"/>
+                <vehicle id="ACC" pos="79.92" speed="17.20"/>
+                <vehicle id="Manual" pos="165.12" speed="25.20"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="13.70">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="19.16" speed="7.40"/>
+                <vehicle id="ACC" pos="81.66" speed="17.40"/>
+                <vehicle id="Manual" pos="167.66" speed="25.40"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="13.80">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="19.92" speed="7.60"/>
+                <vehicle id="ACC" pos="83.42" speed="17.60"/>
+                <vehicle id="Manual" pos="170.22" speed="25.60"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="13.90">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="20.70" speed="7.80"/>
+                <vehicle id="ACC" pos="85.20" speed="17.80"/>
+                <vehicle id="Manual" pos="172.80" speed="25.80"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="14.00">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="21.50" speed="8.00"/>
+                <vehicle id="ACC" pos="87.00" speed="18.00"/>
+                <vehicle id="Manual" pos="175.40" speed="26.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="14.10">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="22.32" speed="8.20"/>
+                <vehicle id="ACC" pos="88.82" speed="18.20"/>
+                <vehicle id="Manual" pos="178.02" speed="26.20"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="14.20">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="23.16" speed="8.40"/>
+                <vehicle id="ACC" pos="90.66" speed="18.40"/>
+                <vehicle id="Manual" pos="180.66" speed="26.40"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="14.30">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="24.02" speed="8.60"/>
+                <vehicle id="ACC" pos="92.52" speed="18.60"/>
+                <vehicle id="Manual" pos="183.32" speed="26.60"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="14.40">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="24.90" speed="8.80"/>
+                <vehicle id="ACC" pos="94.40" speed="18.80"/>
+                <vehicle id="Manual" pos="186.00" speed="26.80"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="14.50">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="25.80" speed="9.00"/>
+                <vehicle id="ACC" pos="96.30" speed="19.00"/>
+                <vehicle id="Manual" pos="188.70" speed="27.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="14.60">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="26.72" speed="9.20"/>
+                <vehicle id="ACC" pos="98.22" speed="19.20"/>
+                <vehicle id="Manual" pos="191.42" speed="27.20"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="14.70">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="27.66" speed="9.40"/>
+                <vehicle id="ACC" pos="100.16" speed="19.40"/>
+                <vehicle id="Manual" pos="194.16" speed="27.40"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="14.80">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="28.62" speed="9.60"/>
+                <vehicle id="ACC" pos="102.12" speed="19.60"/>
+                <vehicle id="Manual" pos="196.92" speed="27.60"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="14.90">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="29.60" speed="9.80"/>
+                <vehicle id="ACC" pos="104.10" speed="19.80"/>
+                <vehicle id="Manual" pos="199.70" speed="27.80"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="15.00">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="30.60" speed="10.00"/>
+                <vehicle id="ACC" pos="106.10" speed="20.00"/>
+                <vehicle id="Manual" pos="202.50" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="15.10">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="31.62" speed="10.20"/>
+                <vehicle id="ACC" pos="108.12" speed="20.20"/>
+                <vehicle id="Manual" pos="205.30" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="15.20">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="32.66" speed="10.40"/>
+                <vehicle id="ACC" pos="110.16" speed="20.40"/>
+                <vehicle id="Manual" pos="208.10" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="15.30">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="33.72" speed="10.60"/>
+                <vehicle id="ACC" pos="112.22" speed="20.60"/>
+                <vehicle id="Manual" pos="210.90" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="15.40">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="34.80" speed="10.80"/>
+                <vehicle id="ACC" pos="114.30" speed="20.80"/>
+                <vehicle id="Manual" pos="213.70" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="15.50">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="35.90" speed="11.00"/>
+                <vehicle id="ACC" pos="116.40" speed="21.00"/>
+                <vehicle id="Manual" pos="216.50" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="15.60">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="37.02" speed="11.20"/>
+                <vehicle id="ACC" pos="118.52" speed="21.20"/>
+                <vehicle id="Manual" pos="219.30" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="15.70">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="38.16" speed="11.40"/>
+                <vehicle id="ACC" pos="120.66" speed="21.40"/>
+                <vehicle id="Manual" pos="222.10" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="15.80">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="39.32" speed="11.60"/>
+                <vehicle id="ACC" pos="122.82" speed="21.60"/>
+                <vehicle id="Manual" pos="224.90" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="15.90">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="40.50" speed="11.80"/>
+                <vehicle id="ACC" pos="125.00" speed="21.80"/>
+                <vehicle id="Manual" pos="227.70" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="16.00">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="41.70" speed="12.00"/>
+                <vehicle id="ACC" pos="127.20" speed="22.00"/>
+                <vehicle id="Manual" pos="230.50" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="16.10">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="42.92" speed="12.20"/>
+                <vehicle id="ACC" pos="129.42" speed="22.20"/>
+                <vehicle id="Manual" pos="233.30" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="16.20">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="44.16" speed="12.40"/>
+                <vehicle id="ACC" pos="131.66" speed="22.40"/>
+                <vehicle id="Manual" pos="236.10" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="16.30">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="45.42" speed="12.60"/>
+                <vehicle id="ACC" pos="133.92" speed="22.60"/>
+                <vehicle id="Manual" pos="238.90" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="16.40">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="46.70" speed="12.80"/>
+                <vehicle id="ACC" pos="136.20" speed="22.80"/>
+                <vehicle id="Manual" pos="241.70" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="16.50">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="48.00" speed="13.00"/>
+                <vehicle id="ACC" pos="138.50" speed="23.00"/>
+                <vehicle id="Manual" pos="244.50" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="16.60">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="49.32" speed="13.20"/>
+                <vehicle id="ACC" pos="140.82" speed="23.20"/>
+                <vehicle id="Manual" pos="247.30" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="16.70">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="50.66" speed="13.40"/>
+                <vehicle id="ACC" pos="143.16" speed="23.40"/>
+                <vehicle id="Manual" pos="250.10" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="16.80">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="52.02" speed="13.60"/>
+                <vehicle id="ACC" pos="145.52" speed="23.60"/>
+                <vehicle id="Manual" pos="252.90" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="16.90">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="53.40" speed="13.80"/>
+                <vehicle id="ACC" pos="147.90" speed="23.80"/>
+                <vehicle id="Manual" pos="255.70" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="17.00">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="54.80" speed="14.00"/>
+                <vehicle id="ACC" pos="150.30" speed="24.00"/>
+                <vehicle id="Manual" pos="258.50" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="17.10">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="56.22" speed="14.20"/>
+                <vehicle id="ACC" pos="152.72" speed="24.20"/>
+                <vehicle id="Manual" pos="261.30" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="17.20">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="57.66" speed="14.40"/>
+                <vehicle id="ACC" pos="155.16" speed="24.40"/>
+                <vehicle id="Manual" pos="264.10" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="17.30">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="59.12" speed="14.60"/>
+                <vehicle id="ACC" pos="157.62" speed="24.60"/>
+                <vehicle id="Manual" pos="266.90" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="17.40">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="60.60" speed="14.80"/>
+                <vehicle id="ACC" pos="160.10" speed="24.80"/>
+                <vehicle id="Manual" pos="269.70" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="17.50">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="62.10" speed="15.00"/>
+                <vehicle id="ACC" pos="162.60" speed="25.00"/>
+                <vehicle id="Manual" pos="272.50" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="17.60">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="63.62" speed="15.20"/>
+                <vehicle id="ACC" pos="165.12" speed="25.20"/>
+                <vehicle id="Manual" pos="275.30" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="17.70">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="65.16" speed="15.40"/>
+                <vehicle id="ACC" pos="167.66" speed="25.40"/>
+                <vehicle id="Manual" pos="278.10" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="17.80">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="66.72" speed="15.60"/>
+                <vehicle id="ACC" pos="170.22" speed="25.60"/>
+                <vehicle id="Manual" pos="280.90" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="17.90">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="68.30" speed="15.80"/>
+                <vehicle id="ACC" pos="172.80" speed="25.80"/>
+                <vehicle id="Manual" pos="283.70" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="18.00">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="69.90" speed="16.00"/>
+                <vehicle id="ACC" pos="175.40" speed="26.00"/>
+                <vehicle id="Manual" pos="286.50" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="18.10">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="71.52" speed="16.20"/>
+                <vehicle id="ACC" pos="178.02" speed="26.20"/>
+                <vehicle id="Manual" pos="289.30" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="18.20">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="73.16" speed="16.40"/>
+                <vehicle id="ACC" pos="180.66" speed="26.40"/>
+                <vehicle id="Manual" pos="292.10" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="18.30">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="74.82" speed="16.60"/>
+                <vehicle id="ACC" pos="183.32" speed="26.60"/>
+                <vehicle id="Manual" pos="294.90" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="18.40">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="76.50" speed="16.80"/>
+                <vehicle id="ACC" pos="186.00" speed="26.80"/>
+                <vehicle id="Manual" pos="297.70" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="18.50">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="78.20" speed="17.00"/>
+                <vehicle id="ACC" pos="188.70" speed="27.00"/>
+                <vehicle id="Manual" pos="300.50" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="18.60">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="79.92" speed="17.20"/>
+                <vehicle id="ACC" pos="191.42" speed="27.20"/>
+                <vehicle id="Manual" pos="303.30" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="18.70">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="81.66" speed="17.40"/>
+                <vehicle id="ACC" pos="194.16" speed="27.40"/>
+                <vehicle id="Manual" pos="306.10" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="18.80">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="83.42" speed="17.60"/>
+                <vehicle id="ACC" pos="196.92" speed="27.60"/>
+                <vehicle id="Manual" pos="308.90" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="18.90">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="85.20" speed="17.80"/>
+                <vehicle id="ACC" pos="199.70" speed="27.80"/>
+                <vehicle id="Manual" pos="311.70" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="19.00">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="87.00" speed="18.00"/>
+                <vehicle id="ACC" pos="202.50" speed="28.00"/>
+                <vehicle id="Manual" pos="314.50" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="19.10">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="88.82" speed="18.20"/>
+                <vehicle id="ACC" pos="205.30" speed="28.00"/>
+                <vehicle id="Manual" pos="317.30" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="19.20">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="90.66" speed="18.40"/>
+                <vehicle id="ACC" pos="208.10" speed="28.00"/>
+                <vehicle id="Manual" pos="320.10" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="19.30">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="92.52" speed="18.60"/>
+                <vehicle id="ACC" pos="210.90" speed="28.00"/>
+                <vehicle id="Manual" pos="322.90" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="19.40">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="94.40" speed="18.80"/>
+                <vehicle id="ACC" pos="213.70" speed="28.00"/>
+                <vehicle id="Manual" pos="325.70" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="19.50">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="96.30" speed="19.00"/>
+                <vehicle id="ACC" pos="216.50" speed="28.00"/>
+                <vehicle id="Manual" pos="328.50" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="19.60">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="98.22" speed="19.20"/>
+                <vehicle id="ACC" pos="219.30" speed="28.00"/>
+                <vehicle id="Manual" pos="331.30" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="19.70">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="100.16" speed="19.40"/>
+                <vehicle id="ACC" pos="222.10" speed="28.00"/>
+                <vehicle id="Manual" pos="334.10" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="19.80">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="102.12" speed="19.60"/>
+                <vehicle id="ACC" pos="224.90" speed="28.00"/>
+                <vehicle id="Manual" pos="336.90" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="19.90">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="104.10" speed="19.80"/>
+                <vehicle id="ACC" pos="227.70" speed="28.00"/>
+                <vehicle id="Manual" pos="339.70" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="20.00">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="106.10" speed="20.00"/>
+                <vehicle id="ACC" pos="230.50" speed="28.00"/>
+                <vehicle id="Manual" pos="342.50" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="20.10">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="108.12" speed="20.20"/>
+                <vehicle id="ACC" pos="233.30" speed="28.00"/>
+                <vehicle id="Manual" pos="345.30" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="20.20">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="110.16" speed="20.40"/>
+                <vehicle id="ACC" pos="236.10" speed="28.00"/>
+                <vehicle id="Manual" pos="348.10" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="20.30">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="112.22" speed="20.60"/>
+                <vehicle id="ACC" pos="238.90" speed="28.00"/>
+                <vehicle id="Manual" pos="350.90" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="20.40">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="114.30" speed="20.80"/>
+                <vehicle id="ACC" pos="241.70" speed="28.00"/>
+                <vehicle id="Manual" pos="353.70" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="20.50">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="116.40" speed="21.00"/>
+                <vehicle id="ACC" pos="244.50" speed="28.00"/>
+                <vehicle id="Manual" pos="356.50" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="20.60">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="118.52" speed="21.20"/>
+                <vehicle id="ACC" pos="247.30" speed="28.00"/>
+                <vehicle id="Manual" pos="359.30" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="20.70">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="120.66" speed="21.40"/>
+                <vehicle id="ACC" pos="250.10" speed="28.00"/>
+                <vehicle id="Manual" pos="362.10" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="20.80">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="122.82" speed="21.60"/>
+                <vehicle id="ACC" pos="252.90" speed="28.00"/>
+                <vehicle id="Manual" pos="364.90" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="20.90">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="125.00" speed="21.80"/>
+                <vehicle id="ACC" pos="255.70" speed="28.00"/>
+                <vehicle id="Manual" pos="367.70" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="21.00">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="127.20" speed="22.00"/>
+                <vehicle id="ACC" pos="258.50" speed="28.00"/>
+                <vehicle id="Manual" pos="370.50" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="21.10">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="129.42" speed="22.20"/>
+                <vehicle id="ACC" pos="261.30" speed="28.00"/>
+                <vehicle id="Manual" pos="373.30" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="21.20">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="131.66" speed="22.40"/>
+                <vehicle id="ACC" pos="264.10" speed="28.00"/>
+                <vehicle id="Manual" pos="376.10" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="21.30">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="133.92" speed="22.60"/>
+                <vehicle id="ACC" pos="266.90" speed="28.00"/>
+                <vehicle id="Manual" pos="378.90" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="21.40">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="136.20" speed="22.80"/>
+                <vehicle id="ACC" pos="269.70" speed="28.00"/>
+                <vehicle id="Manual" pos="381.70" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="21.50">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="138.50" speed="23.00"/>
+                <vehicle id="ACC" pos="272.50" speed="28.00"/>
+                <vehicle id="Manual" pos="384.50" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="21.60">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="140.82" speed="23.20"/>
+                <vehicle id="ACC" pos="275.30" speed="28.00"/>
+                <vehicle id="Manual" pos="387.30" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="21.70">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="143.16" speed="23.40"/>
+                <vehicle id="ACC" pos="278.10" speed="28.00"/>
+                <vehicle id="Manual" pos="390.10" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="21.80">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="145.52" speed="23.60"/>
+                <vehicle id="ACC" pos="280.90" speed="28.00"/>
+                <vehicle id="Manual" pos="392.90" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="21.90">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="147.90" speed="23.80"/>
+                <vehicle id="ACC" pos="283.70" speed="28.00"/>
+                <vehicle id="Manual" pos="395.70" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="22.00">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="150.30" speed="24.00"/>
+                <vehicle id="ACC" pos="286.50" speed="28.00"/>
+                <vehicle id="Manual" pos="398.50" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="22.10">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="152.72" speed="24.20"/>
+                <vehicle id="ACC" pos="289.30" speed="28.00"/>
+                <vehicle id="Manual" pos="401.30" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="22.20">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="155.16" speed="24.40"/>
+                <vehicle id="ACC" pos="292.10" speed="28.00"/>
+                <vehicle id="Manual" pos="404.10" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="22.30">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="157.62" speed="24.60"/>
+                <vehicle id="ACC" pos="294.90" speed="28.00"/>
+                <vehicle id="Manual" pos="406.90" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="22.40">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="160.10" speed="24.80"/>
+                <vehicle id="ACC" pos="297.70" speed="28.00"/>
+                <vehicle id="Manual" pos="409.70" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="22.50">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="162.60" speed="25.00"/>
+                <vehicle id="ACC" pos="300.50" speed="28.00"/>
+                <vehicle id="Manual" pos="412.50" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="22.60">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="165.12" speed="25.20"/>
+                <vehicle id="ACC" pos="303.30" speed="28.00"/>
+                <vehicle id="Manual" pos="415.30" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="22.70">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="167.66" speed="25.40"/>
+                <vehicle id="ACC" pos="306.10" speed="28.00"/>
+                <vehicle id="Manual" pos="418.10" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="22.80">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="170.22" speed="25.60"/>
+                <vehicle id="ACC" pos="308.90" speed="28.00"/>
+                <vehicle id="Manual" pos="420.90" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+    <timestep time="22.90">
+        <edge id="1to2">
+            <lane id="1to2_0">
+                <vehicle id="CACC" pos="172.80" speed="25.80"/>
+                <vehicle id="ACC" pos="311.70" speed="28.00"/>
+                <vehicle id="Manual" pos="423.70" speed="28.00"/>
+            </lane>
+        </edge>
+    </timestep>
+</netstate>
