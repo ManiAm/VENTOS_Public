@@ -13,8 +13,9 @@ class MyTraCI : public TraCIScenarioManagerLaunchd
 	public:
 		virtual ~MyTraCI();
 		virtual void initialize(int stage);
+        virtual void init_traci();
+        virtual void executeOneTimestep();
 		virtual void finish();
-		virtual void executeOneTimestep();
 
 	private:
 	    FILE *f1;

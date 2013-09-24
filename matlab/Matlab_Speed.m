@@ -8,10 +8,10 @@ path = '';
 fig = 0;
 hf = zeros(1,4);
 
-for s=1:3    
+for s=1:1    
     
     if(s == 1)
-        path = '../2.Result/speed-gap-22MSCFModel_OptimalSpeed.txt';
+        path = '../results/speed-gap.txt';
         figureName = 'Optimal Speed';
     elseif(s == 2)
         path = '../2.Result/speed-gap-21MSCFModel_KraussFixed.txt';

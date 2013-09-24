@@ -40,14 +40,53 @@ void MyTraCI::initialize(int stage)
 }
 
 
+
+void MyTraCI::init_traci()
+{
+    TraCIScenarioManagerLaunchd::init_traci();
+
+    {
+        // query road network boundaries
+        TraCIBuffer buf = queryTraCI(CMD_GET_SIM_VARIABLE, TraCIBuffer() << static_cast<uint8_t>(VAR_NET_BOUNDING_BOX) << std::string("sim0"));
+        uint8_t cmdLength_resp;
+        buf >> cmdLength_resp;
+
+        uint8_t commandId_resp;
+        buf >> commandId_resp;
+        ASSERT(commandId_resp == RESPONSE_GET_SIM_VARIABLE);
+
+        uint8_t variableId_resp;
+        buf >> variableId_resp;
+        ASSERT(variableId_resp == VAR_NET_BOUNDING_BOX);
+
+        std::string simId;
+        buf >> simId;
+
+        uint8_t typeId_resp;
+        buf >> typeId_resp;
+        ASSERT(typeId_resp == TYPE_BOUNDINGBOX);
+
+        double x1; buf >> x1;
+        double y1; buf >> y1;
+        double x2; buf >> x2;
+        double y2; buf >> y2;
+
+        ASSERT(buf.eof());
+
+        netbounds1 = TraCICoord(x1, y1);
+        netbounds2 = TraCICoord(x2, y2);
+
+        MYDEBUG << "Default playground size is " << world->getPgs()->x << " by " << world->getPgs()->y << endl;
+        MYDEBUG << "Change into " << traci2omnet(netbounds2).x << " by " << traci2omnet(netbounds1).y << endl;
+    }
+}
+
+
+
 void MyTraCI::executeOneTimestep()
 {
-    // change the speed of manual driving vehicle
-    AccelDecelManual();
-
     TraCIScenarioManager::executeOneTimestep();
 
-    // SUMO simulation has advances 1 TS
     // Now we write the result into file
 
     uint32_t vehicles = commandGetNoVehicles();
@@ -64,13 +103,30 @@ void MyTraCI::executeOneTimestep()
         writeToFile(vID, vleaderID);
         vleaderID = i->c_str();
     }
+
+    // change the speed of manual driving vehicle
+    AccelDecelManual();
 }
 
 
 void MyTraCI::AccelDecelManual()
 {
-
-
+    if( simTime().dbl() == 30 )
+    {
+        commandSetSpeed(std::string("Manual"), (double) 2.0);
+    }
+    else if(simTime().dbl() == 50)
+    {
+        commandSetSpeed(std::string("Manual"),(double) 20.0);
+    }
+    else if(simTime().dbl() == 70)
+    {
+        commandSetSpeed(std::string("Manual"),(double) 2.0);
+    }
+    else if(simTime().dbl() == 90)
+    {
+        commandSetSpeed(std::string("Manual"),(double) 20.0);
+    }
 }
 
 
