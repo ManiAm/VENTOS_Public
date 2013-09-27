@@ -13,3 +13,5 @@ change it to virtual void executeOneTimestep();
 
 2) go to TraCIScenarioManager.cc and find method init_traci()
 add (apiVersion == 6) to the if list!
+
+Note: you can also comment the MYDEBUG line in TraCIScenarioManager::receiveTraCIMessage() and also TraCIScenarioManager::sendTraCIMessage to make the output console less messy :)

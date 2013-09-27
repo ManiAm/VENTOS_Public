@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for C3PO
 #
 # This file was generated with the command:
-#  opp_makemake -f -O out -d application -X. -L../veins/out/$(CONFIGNAME)/src/modules -L../veins/out/$(CONFIGNAME)/tests/testUtils -L../veins/out/$(CONFIGNAME)/src/base -L./out/$(CONFIGNAME)/application -lmiximmodules -lmiximtestUtils -lmiximbase -KVEINS_PROJ=../veins
+#  opp_makemake -f -O out -d application -X. -L../veins/out/$(CONFIGNAME)/src/modules -L../veins/out/$(CONFIGNAME)/tests/testUtils -L../veins/out/$(CONFIGNAME)/src/base -L./out/$(CONFIGNAME)/application/msg -L./out/$(CONFIGNAME)/application -lmiximmodules -lmiximtestUtils -lmiximbase -KVEINS_PROJ=../veins
 #
 
 # Name of target to be created (-o option)
@@ -17,8 +17,8 @@ USERIF_LIBS = $(ALL_ENV_LIBS) # that is, $(TKENV_LIBS) $(CMDENV_LIBS)
 EXTRA_OBJS =
 
 # Additional libraries (-L, -l options)
-LIBS = -L../veins/out/$(CONFIGNAME)/src/modules -L../veins/out/$(CONFIGNAME)/tests/testUtils -L../veins/out/$(CONFIGNAME)/src/base -Lout/$(CONFIGNAME)/application  -lmiximmodules -lmiximtestUtils -lmiximbase
-LIBS += -Wl,-rpath,`abspath ../veins/out/$(CONFIGNAME)/src/modules` -Wl,-rpath,`abspath ../veins/out/$(CONFIGNAME)/tests/testUtils` -Wl,-rpath,`abspath ../veins/out/$(CONFIGNAME)/src/base` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application`
+LIBS = -L../veins/out/$(CONFIGNAME)/src/modules -L../veins/out/$(CONFIGNAME)/tests/testUtils -L../veins/out/$(CONFIGNAME)/src/base -Lout/$(CONFIGNAME)/application/msg -Lout/$(CONFIGNAME)/application  -lmiximmodules -lmiximtestUtils -lmiximbase
+LIBS += -Wl,-rpath,`abspath ../veins/out/$(CONFIGNAME)/src/modules` -Wl,-rpath,`abspath ../veins/out/$(CONFIGNAME)/tests/testUtils` -Wl,-rpath,`abspath ../veins/out/$(CONFIGNAME)/src/base` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application/msg` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application`
 
 # Output directory
 PROJECT_OUTPUT_DIR = out

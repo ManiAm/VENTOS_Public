@@ -2,15 +2,14 @@
 #ifndef ApplV_H
 #define ApplV_H
 
-#include "BaseWaveApplLayer.h"
-#include "mobility/traci/TraCIMobility.h"
+#include "BaseApplV.h"
 
-class ApplV : public BaseWaveApplLayer {
+class ApplV : public BaseApplV
+{
 	public:
 		virtual void initialize(int stage);
 
 	protected:
-		TraCIMobility* traci;
 		AnnotationManager* annotations;
 		simtime_t lastDroveAt;
 		bool sentMessage;
@@ -20,6 +19,11 @@ class ApplV : public BaseWaveApplLayer {
 		virtual void onData(WaveShortMessage* wsm);
 		void sendMessage(std::string blockedRoadId);
 		virtual void handlePositionUpdate(cObject* obj);
+
+        std::string  getLeader();
+        double  getGap(std::string, std::string);
+        bool isBeaconFromLeader(WaveShortMessage*);
+        void updateParamsSumo(WaveShortMessage*);
 };
 
 #endif

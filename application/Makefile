@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for libapplication
 #
 # This file was generated with the command:
-#  opp_makemake -f --make-so -o application -O out -I../../veins/src/modules/application/ieee80211p -I../../veins/src/modules/messages -I../../veins/src/modules/obstacle -I../../veins/src/modules -I../../veins/src/base/modules -I../../veins/src/modules/utility -I../../veins/src/base/utils -I../../veins/src/base/messages -I../../veins/src/base/phyLayer -I../../veins/src/modules/phy -I../../veins/src/modules/mac/ieee80211p -I../../veins/src/base/connectionManager -I../../veins/src/modules/analogueModel -L../../veins/out/$(CONFIGNAME)/src/modules -L../../veins/out/$(CONFIGNAME)/tests/testUtils -L../../veins/out/$(CONFIGNAME)/src/base -lmiximbase -lmiximmodules -lmiximmodules -lmiximtestUtils -lmiximbase -KVEINS_PROJ=../../veins
+#  opp_makemake -f --make-so -o application -O out -d msg -I../../veins/src/modules/messages -I../../veins/src/modules/obstacle -I../../veins/src/modules -I../../veins/src/base/modules -I../../veins/src/modules/utility -Imsg -I../../veins/src/base/messages -I../../veins/src/base/utils -I../../veins/src/base/phyLayer -I../../veins/src/modules/phy -I../../veins/src/modules/mac/ieee80211p -I../../veins/src/base/connectionManager -I../../veins/src/modules/analogueModel -L../../veins/out/$(CONFIGNAME)/src/modules -L../../veins/out/$(CONFIGNAME)/tests/testUtils -L../../veins/out/$(CONFIGNAME)/src/base -L../out/$(CONFIGNAME)/application/msg -lmsg -lmiximbase -lmiximmodules -lmiximmodules -lmiximtestUtils -lmiximbase -KVEINS_PROJ=../../veins
 #
 
 # Name of target to be created (-o option)
@@ -10,14 +10,14 @@ TARGET = libapplication$(SHARED_LIB_SUFFIX)
 
 # C++ include paths (with -I)
 INCLUDE_PATH = \
-    -I../../veins/src/modules/application/ieee80211p \
     -I../../veins/src/modules/messages \
     -I../../veins/src/modules/obstacle \
     -I../../veins/src/modules \
     -I../../veins/src/base/modules \
     -I../../veins/src/modules/utility \
-    -I../../veins/src/base/utils \
+    -Imsg \
     -I../../veins/src/base/messages \
+    -I../../veins/src/base/utils \
     -I../../veins/src/base/phyLayer \
     -I../../veins/src/modules/phy \
     -I../../veins/src/modules/mac/ieee80211p \
@@ -29,8 +29,8 @@ INCLUDE_PATH = \
 EXTRA_OBJS =
 
 # Additional libraries (-L, -l options)
-LIBS = -L../../veins/out/$(CONFIGNAME)/src/modules -L../../veins/out/$(CONFIGNAME)/tests/testUtils -L../../veins/out/$(CONFIGNAME)/src/base  -lmiximbase -lmiximmodules -lmiximmodules -lmiximtestUtils -lmiximbase
-LIBS += -Wl,-rpath,`abspath ../../veins/out/$(CONFIGNAME)/src/modules` -Wl,-rpath,`abspath ../../veins/out/$(CONFIGNAME)/tests/testUtils` -Wl,-rpath,`abspath ../../veins/out/$(CONFIGNAME)/src/base`
+LIBS = -L../../veins/out/$(CONFIGNAME)/src/modules -L../../veins/out/$(CONFIGNAME)/tests/testUtils -L../../veins/out/$(CONFIGNAME)/src/base -L../out/$(CONFIGNAME)/application/msg  -lmsg -lmiximbase -lmiximmodules -lmiximmodules -lmiximtestUtils -lmiximbase
+LIBS += -Wl,-rpath,`abspath ../../veins/out/$(CONFIGNAME)/src/modules` -Wl,-rpath,`abspath ../../veins/out/$(CONFIGNAME)/tests/testUtils` -Wl,-rpath,`abspath ../../veins/out/$(CONFIGNAME)/src/base` -Wl,-rpath,`abspath ../out/$(CONFIGNAME)/application/msg`
 
 # Output directory
 PROJECT_OUTPUT_DIR = ../out
@@ -38,7 +38,7 @@ PROJECTRELATIVE_PATH = application
 O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Object files for local .cc and .msg files
-OBJS = $O/ApplV.o $O/MyTraCI.o
+OBJS = $O/ApplV.o $O/MyTraCI.o $O/BaseApplV.o
 
 # Message files
 MSGFILES =
@@ -93,13 +93,19 @@ endif
 all: $O/$(TARGET)
 	$(Q)$(LN) $O/$(TARGET) .
 
-$O/$(TARGET): $(OBJS)  $(wildcard $(EXTRA_OBJS)) Makefile
+$O/$(TARGET): $(OBJS) submakedirs $(wildcard $(EXTRA_OBJS)) Makefile
 	@$(MKPATH) $O
 	@echo Creating shared library: $@
 	$(Q)$(SHLIB_LD) -o $O/$(TARGET)  $(OBJS) $(EXTRA_OBJS) $(AS_NEEDED_OFF) $(WHOLE_ARCHIVE_ON) $(LIBS) $(WHOLE_ARCHIVE_OFF) $(OMNETPP_LIBS) $(LDFLAGS)
 	$(Q)$(SHLIB_POSTPROCESS) $O/$(TARGET)
 
-.PHONY: all clean cleanall depend msgheaders
+submakedirs:  msg_dir
+
+.PHONY: all clean cleanall depend msgheaders  msg
+msg: msg_dir
+
+msg_dir:
+	cd msg && $(MAKE) all
 
 .SUFFIXES: .cc
 
@@ -113,6 +119,7 @@ $O/%.o: %.cc $(COPTS_FILE)
 	$(Q)$(MSGC) -s _m.cc $(MSGCOPTS) $?
 
 msgheaders: $(MSGFILES:.msg=_m.h)
+	$(Q)cd msg && $(MAKE) msgheaders
 
 clean:
 	$(qecho) Cleaning...
@@ -120,16 +127,22 @@ clean:
 	$(Q)-rm -f application application.exe libapplication.so libapplication.a libapplication.dll libapplication.dylib
 	$(Q)-rm -f ./*_m.cc ./*_m.h
 
+	-$(Q)cd msg && $(MAKE) clean
+
 cleanall: clean
 	$(Q)-rm -rf $(PROJECT_OUTPUT_DIR)
 
 depend:
 	$(qecho) Creating dependencies...
 	$(Q)$(MAKEDEPEND) $(INCLUDE_PATH) -f Makefile -P\$$O/ -- $(MSG_CC_FILES)  ./*.cc
+	$(Q)-cd msg && if [ -f Makefile ]; then $(MAKE) depend; fi
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 $O/ApplV.o: ApplV.cc \
 	ApplV.h \
+	BaseApplV.h \
+	MyTraCI.h \
+	msg/WaveShortMessage_m.h \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
 	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
@@ -151,13 +164,49 @@ $O/ApplV.o: ApplV.cc \
 	$(VEINS_PROJ)/src/base/utils/PassedMessage.h \
 	$(VEINS_PROJ)/src/base/utils/SimpleAddress.h \
 	$(VEINS_PROJ)/src/base/utils/miximkerneldefs.h \
-	$(VEINS_PROJ)/src/modules/application/ieee80211p/BaseWaveApplLayer.h \
 	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
 	$(VEINS_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
-	$(VEINS_PROJ)/src/modules/messages/WaveShortMessage_m.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManagerLaunchd.h \
+	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
+	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
+	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
+	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
+$O/BaseApplV.o: BaseApplV.cc \
+	BaseApplV.h \
+	MyTraCI.h \
+	msg/WaveShortMessage_m.h \
+	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
+	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
+	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
+	$(VEINS_PROJ)/src/base/messages/MacPkt_m.h \
+	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
+	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
+	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
+	$(VEINS_PROJ)/src/base/modules/BaseMobility.h \
+	$(VEINS_PROJ)/src/base/modules/BaseModule.h \
+	$(VEINS_PROJ)/src/base/modules/BaseWorldUtility.h \
+	$(VEINS_PROJ)/src/base/modules/BatteryAccess.h \
+	$(VEINS_PROJ)/src/base/utils/Coord.h \
+	$(VEINS_PROJ)/src/base/utils/FWMath.h \
+	$(VEINS_PROJ)/src/base/utils/FindModule.h \
+	$(VEINS_PROJ)/src/base/utils/HostState.h \
+	$(VEINS_PROJ)/src/base/utils/MiXiMDefs.h \
+	$(VEINS_PROJ)/src/base/utils/Move.h \
+	$(VEINS_PROJ)/src/base/utils/NetwToMacControlInfo.h \
+	$(VEINS_PROJ)/src/base/utils/PassedMessage.h \
+	$(VEINS_PROJ)/src/base/utils/SimpleAddress.h \
+	$(VEINS_PROJ)/src/base/utils/miximkerneldefs.h \
+	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
+	$(VEINS_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManagerLaunchd.h \
 	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
 	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
 	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \

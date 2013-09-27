@@ -40,7 +40,6 @@ void MyTraCI::initialize(int stage)
 }
 
 
-
 void MyTraCI::init_traci()
 {
     TraCIScenarioManagerLaunchd::init_traci();
@@ -82,7 +81,6 @@ void MyTraCI::init_traci()
 }
 
 
-
 void MyTraCI::executeOneTimestep()
 {
     TraCIScenarioManager::executeOneTimestep();
@@ -93,6 +91,7 @@ void MyTraCI::executeOneTimestep()
     if(vehicles == 0)
         return;
 
+    // get a list of all vehicles in the network
     std::list<std::string> list = commandGetVehicleList();
 
     std::string vleaderID = "";
@@ -194,6 +193,24 @@ double MyTraCI::commandGetVehicleLength(std::string nodeId)
 }
 
 
+double MyTraCI::commandGetVehicleMaxDecel(std::string nodeId)
+{
+    return genericGetDouble(CMD_GET_VEHICLETYPE_VARIABLE, nodeId, VAR_DECEL, RESPONSE_GET_VEHICLETYPE_VARIABLE);
+}
+
+
+std::list<std::string> MyTraCI::commandGetVehiclesOnLane(std::string laneId)
+{
+    return genericGetStringList(CMD_GET_LANE_VARIABLE, laneId, LAST_STEP_VEHICLE_ID_LIST, RESPONSE_GET_LANE_VARIABLE);
+}
+
+
+Coord MyTraCI::commandGetVehiclePos(std::string nodeId)
+{
+    return genericGetCoordv2(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_POSITION, RESPONSE_GET_VEHICLE_VARIABLE);
+}
+
+
 uint32_t MyTraCI::genericGetInt32(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId)
 {
     uint8_t resultTypeId = TYPE_INTEGER;
@@ -219,6 +236,37 @@ uint32_t MyTraCI::genericGetInt32(uint8_t commandId, std::string objectId, uint8
     ASSERT(buf.eof());
 
     return res;
+}
+
+
+// the same as genericGetCoordv, but no conversion to omnet++ coordinates at the end
+Coord MyTraCI::genericGetCoordv2(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId)
+{
+    uint8_t resultTypeId = POSITION_2D;
+    double x;
+    double y;
+
+    TraCIBuffer buf = queryTraCI(commandId, TraCIBuffer() << variableId << objectId);
+
+    uint8_t cmdLength; buf >> cmdLength;
+    if (cmdLength == 0) {
+        uint32_t cmdLengthX;
+        buf >> cmdLengthX;
+    }
+    uint8_t commandId_r; buf >> commandId_r;
+    ASSERT(commandId_r == responseId);
+    uint8_t varId; buf >> varId;
+    ASSERT(varId == variableId);
+    std::string objectId_r; buf >> objectId_r;
+    ASSERT(objectId_r == objectId);
+    uint8_t resType_r; buf >> resType_r;
+    ASSERT(resType_r == resultTypeId);
+    buf >> x;
+    buf >> y;
+
+    ASSERT(buf.eof());
+
+    return Coord(x, y);
 }
 
 
