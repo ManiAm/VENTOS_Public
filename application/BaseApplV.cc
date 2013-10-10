@@ -32,12 +32,15 @@ void BaseApplV::initialize(int stage)
         traci = TraCIMobilityAccess().get(getParentModule());
         manager = FindModule<MyTraCI*>::findGlobalModule();
 
+        SUMOvID = traci->getExternalId();
+        SUMOvType = manager->commandGetVehicleType(SUMOvID);
+
 		//simulate asynchronous channel access
 		double offSet = dblrand() * (par("beaconInterval").doubleValue()/2);
 		offSet = offSet + floor(offSet/0.050)*0.050;
 		individualOffset = dblrand() * maxOffset;
 
-		if (sendBeacons)
+		if (sendBeacons && SUMOvType == "TypeCACC")
 		{
 			scheduleAt(simTime() + offSet, sendBeaconEvt);
 		}
@@ -113,6 +116,9 @@ void BaseApplV::sendWSM(WaveShortMessage* wsm)
 
 WaveShortMessage*  BaseApplV::prepareWSM(std::string name, int lengthBits, t_channel channel, int priority, int rcvId, int serial)
 {
+    if (SUMOvType != "TypeCACC")
+        throw cRuntimeError("Only CACC vehicles can send beacon!");
+
 	WaveShortMessage* wsm = new WaveShortMessage(name.c_str());
 
 	wsm->addBitLength(headerLength);
@@ -135,24 +141,27 @@ WaveShortMessage*  BaseApplV::prepareWSM(std::string name, int lengthBits, t_cha
 	wsm->setRecipientAddress(rcvId);
 
 	// get the current position (from sumo)
-    std::string vID = traci->getExternalId();
-	Coord cord = manager->commandGetVehiclePos(vID);
+	Coord cord = manager->commandGetVehiclePos(SUMOvID);
 	wsm->setPos(cord);
 
 	// get current speed from sumo
-	wsm->setSpeed( manager->commandGetVehicleSpeed(vID) );
+	wsm->setSpeed( manager->commandGetVehicleSpeed(SUMOvID) );
+
+    //get current acceleration
+	// todo:
+    wsm->setAccel(2);
 
 	// get maxDecel of vehicle
-	std::string vType = manager->commandGetVehicleType(vID);
+	std::string vType = manager->commandGetVehicleType(SUMOvID);
 	wsm->setMaxDecel( manager->commandGetVehicleMaxDecel(vType) );
 
 	// get current lane
-    wsm->setLane( manager->commandGetLaneId(vID).c_str() );
+    wsm->setLane( manager->commandGetLaneId(SUMOvID).c_str() );
 
 	// wsm->setSerial(serial);
     //wsm->setTimestamp(simTime());
 
-    DBG << "## Created  " << wsm->getName() << " msg ..." << std::endl;
+    DBG << "## Created beacon msg for vehicle: " << SUMOvID << std::endl;
     printMsg(wsm);
 
 	return wsm;
@@ -176,6 +185,7 @@ void BaseApplV::printMsg(WaveShortMessage* wsm)
     DBG << wsm->getRecipientAddress() << " | ";
     DBG << wsm->getPos() << " | ";
     DBG << wsm->getSpeed() << " | ";
+    DBG << wsm->getAccel() << " | ";
     DBG << wsm->getMaxDecel() << " | ";
     DBG << wsm->getLane() << std::endl;
 }
@@ -200,5 +210,4 @@ BaseApplV::~BaseApplV()
 {
 
 }
-
 

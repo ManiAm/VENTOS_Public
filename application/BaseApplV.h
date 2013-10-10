@@ -62,6 +62,11 @@ class BaseApplV : public BaseApplLayer
 		int mySCH;
 		int myId;
 
+		// vehicle id in sumo
+		std::string SUMOvID;
+		// vehicle type in sumo
+        std::string SUMOvType;
+
 		cMessage* sendBeaconEvt;
 
         TraCIMobility* traci;

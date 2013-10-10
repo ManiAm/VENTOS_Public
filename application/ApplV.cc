@@ -20,18 +20,23 @@ void ApplV::initialize(int stage)
 
 void ApplV::onBeacon(WaveShortMessage* wsm)
 {
+    // vehicles other than CACC should ignore the received beacon
+    if(SUMOvType != "TypeCACC")
+        return;
+
     DBG << "## Received beacon ..." << std::endl;
     printMsg(wsm);
 
     DBG << "Check if beacon is from leading vehicle ..." << std::endl;
     bool result = isBeaconFromLeader(wsm);
 
-    // update the parameters of this vehicle in sumo
+    // update the parameters of this vehicle in SUMO
     if(result)
         updateParamsSumo(wsm);
 
 
-/*
+
+    /*
     DBG << "Received beacon priority  " << wsm->getPriority() << " at " << simTime() << std::endl;
     int senderId = wsm->getSenderAddress();
 
@@ -88,11 +93,8 @@ void ApplV::handlePositionUpdate(cObject* obj)
 
 std::string  ApplV::getLeader()
 {
-    // get the sumo id of the current vehicle
-    std::string vID = traci->getExternalId();
-
     // get the lane id (like 1to2_0)
-    std::string laneID = manager->commandGetLaneId(vID);
+    std::string laneID = manager->commandGetLaneId(SUMOvID);
 
     // get a list of all vehicles on this lane (left to right)
     std::list<std::string> list = manager->commandGetVehiclesOnLane(laneID);
@@ -103,7 +105,7 @@ std::string  ApplV::getLeader()
     {
         std::string currentID = i->c_str();
 
-        if(currentID == vID)
+        if(currentID == SUMOvID)
             return vleaderID;
 
         vleaderID = i->c_str();
@@ -113,13 +115,14 @@ std::string  ApplV::getLeader()
 }
 
 
-double ApplV::getGap(std::string vID, std::string vleaderID)
+// get the gap to the leading vehicle using sonar
+double ApplV::getGap(std::string vleaderID)
 {
     if(vleaderID == "")
         return -1;
 
     std::string leaderType = manager->commandGetVehicleType(vleaderID);
-    double gap = manager->commandGetLanePosition(vleaderID) - manager->commandGetLanePosition(vID) - manager->commandGetVehicleLength(leaderType);
+    double gap = manager->commandGetLanePosition(vleaderID) - manager->commandGetLanePosition(SUMOvID) - manager->commandGetVehicleLength(leaderType);
 
     return gap;
 }
@@ -129,9 +132,8 @@ bool ApplV::isBeaconFromLeader(WaveShortMessage* wsm)
 {
     // step 1: check if a leading vehicle is present
 
-    std::string vID = traci->getExternalId();
-    std::string vleaderID = getLeader();
-    double gap = getGap(vID, getLeader());
+    // use our sonar to compute the gap
+    double gap = getGap(getLeader());
 
     if(gap == -1)
     {
@@ -141,10 +143,10 @@ bool ApplV::isBeaconFromLeader(WaveShortMessage* wsm)
 
     // step 2: is it on the same lane?
 
-    std::string myLane = manager->commandGetLaneId(vID);
+    std::string myLane = manager->commandGetLaneId(SUMOvID);
     std::string beaconLane = wsm->getLane();
 
-    DBG << "I am on lane " << manager->commandGetLaneId(vID) << ", and other vehicle is on lane " << wsm->getLane() << std::endl;
+    DBG << "I am on lane " << manager->commandGetLaneId(SUMOvID) << ", and other vehicle is on lane " << wsm->getLane() << std::endl;
 
     if( myLane != beaconLane )
     {
@@ -156,11 +158,11 @@ bool ApplV::isBeaconFromLeader(WaveShortMessage* wsm)
 
     // step 3: is the distance equal to gap?
 
-    Coord cord = manager->commandGetVehiclePos(vID);
+    Coord cord = manager->commandGetVehiclePos(SUMOvID);
     double dist = sqrt( pow(cord.x - wsm->getPos().x, 2) +  pow(cord.y - wsm->getPos().y, 2) );
 
     // subtract the length of the leading vehicle from dist
-    std::string vleaderType = manager->commandGetVehicleType(vleaderID);
+    std::string vleaderType = manager->commandGetVehicleType(getLeader());
     dist = dist - manager->commandGetVehicleLength(vleaderType);
 
     DBG << "distance is " << dist << ", and gap is " << gap << std::endl;

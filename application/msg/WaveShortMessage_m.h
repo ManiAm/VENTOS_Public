@@ -47,6 +47,7 @@
  * 	int recipientAddress = -1;
  * 	Coord pos;
  * 	double speed;
+ * 	double accel;
  * 	double maxDecel;
  * 	string lane;
  * 	
@@ -71,6 +72,7 @@ class WaveShortMessage : public ::cPacket
     int recipientAddress_var;
     Coord pos_var;
     double speed_var;
+    double accel_var;
     double maxDecel_var;
     opp_string lane_var;
 
@@ -118,6 +120,8 @@ class WaveShortMessage : public ::cPacket
     virtual void setPos(const Coord& pos);
     virtual double getSpeed() const;
     virtual void setSpeed(double speed);
+    virtual double getAccel() const;
+    virtual void setAccel(double accel);
     virtual double getMaxDecel() const;
     virtual void setMaxDecel(double maxDecel);
     virtual const char * getLane() const;

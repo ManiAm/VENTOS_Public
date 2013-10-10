@@ -30,6 +30,7 @@ packet WaveShortMessage
 	int recipientAddress = -1;
 	Coord pos;
 	double speed;
+	double accel;
 	double maxDecel;
 	string lane;
 	

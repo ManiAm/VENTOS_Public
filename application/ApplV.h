@@ -21,7 +21,7 @@ class ApplV : public BaseApplV
 		virtual void handlePositionUpdate(cObject* obj);
 
         std::string  getLeader();
-        double  getGap(std::string, std::string);
+        double  getGap(std::string);
         bool isBeaconFromLeader(WaveShortMessage*);
         void updateParamsSumo(WaveShortMessage*);
 };

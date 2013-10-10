@@ -46,6 +46,7 @@ WaveShortMessage::WaveShortMessage(const char *name, int kind) : cPacket(name,ki
     this->senderAddress_var = 0;
     this->recipientAddress_var = -1;
     this->speed_var = 0;
+    this->accel_var = 0;
     this->maxDecel_var = 0;
     this->lane_var = 0;
 }
@@ -82,6 +83,7 @@ void WaveShortMessage::copy(const WaveShortMessage& other)
     this->recipientAddress_var = other.recipientAddress_var;
     this->pos_var = other.pos_var;
     this->speed_var = other.speed_var;
+    this->accel_var = other.accel_var;
     this->maxDecel_var = other.maxDecel_var;
     this->lane_var = other.lane_var;
 }
@@ -102,6 +104,7 @@ void WaveShortMessage::parsimPack(cCommBuffer *b)
     doPacking(b,this->recipientAddress_var);
     doPacking(b,this->pos_var);
     doPacking(b,this->speed_var);
+    doPacking(b,this->accel_var);
     doPacking(b,this->maxDecel_var);
     doPacking(b,this->lane_var);
 }
@@ -122,6 +125,7 @@ void WaveShortMessage::parsimUnpack(cCommBuffer *b)
     doUnpacking(b,this->recipientAddress_var);
     doUnpacking(b,this->pos_var);
     doUnpacking(b,this->speed_var);
+    doUnpacking(b,this->accel_var);
     doUnpacking(b,this->maxDecel_var);
     doUnpacking(b,this->lane_var);
 }
@@ -256,6 +260,16 @@ void WaveShortMessage::setSpeed(double speed)
     this->speed_var = speed;
 }
 
+double WaveShortMessage::getAccel() const
+{
+    return accel_var;
+}
+
+void WaveShortMessage::setAccel(double accel)
+{
+    this->accel_var = accel;
+}
+
 double WaveShortMessage::getMaxDecel() const
 {
     return maxDecel_var;
@@ -323,7 +337,7 @@ const char *WaveShortMessageDescriptor::getProperty(const char *propertyname) co
 int WaveShortMessageDescriptor::getFieldCount(void *object) const
 {
     cClassDescriptor *basedesc = getBaseClassDescriptor();
-    return basedesc ? 15+basedesc->getFieldCount(object) : 15;
+    return basedesc ? 16+basedesc->getFieldCount(object) : 16;
 }
 
 unsigned int WaveShortMessageDescriptor::getFieldTypeFlags(void *object, int field) const
@@ -350,8 +364,9 @@ unsigned int WaveShortMessageDescriptor::getFieldTypeFlags(void *object, int fie
         FD_ISEDITABLE,
         FD_ISEDITABLE,
         FD_ISEDITABLE,
+        FD_ISEDITABLE,
     };
-    return (field>=0 && field<15) ? fieldTypeFlags[field] : 0;
+    return (field>=0 && field<16) ? fieldTypeFlags[field] : 0;
 }
 
 const char *WaveShortMessageDescriptor::getFieldName(void *object, int field) const
@@ -376,10 +391,11 @@ const char *WaveShortMessageDescriptor::getFieldName(void *object, int field) co
         "recipientAddress",
         "pos",
         "speed",
+        "accel",
         "maxDecel",
         "lane",
     };
-    return (field>=0 && field<15) ? fieldNames[field] : NULL;
+    return (field>=0 && field<16) ? fieldNames[field] : NULL;
 }
 
 int WaveShortMessageDescriptor::findField(void *object, const char *fieldName) const
@@ -399,8 +415,9 @@ int WaveShortMessageDescriptor::findField(void *object, const char *fieldName) c
     if (fieldName[0]=='r' && strcmp(fieldName, "recipientAddress")==0) return base+10;
     if (fieldName[0]=='p' && strcmp(fieldName, "pos")==0) return base+11;
     if (fieldName[0]=='s' && strcmp(fieldName, "speed")==0) return base+12;
-    if (fieldName[0]=='m' && strcmp(fieldName, "maxDecel")==0) return base+13;
-    if (fieldName[0]=='l' && strcmp(fieldName, "lane")==0) return base+14;
+    if (fieldName[0]=='a' && strcmp(fieldName, "accel")==0) return base+13;
+    if (fieldName[0]=='m' && strcmp(fieldName, "maxDecel")==0) return base+14;
+    if (fieldName[0]=='l' && strcmp(fieldName, "lane")==0) return base+15;
     return basedesc ? basedesc->findField(object, fieldName) : -1;
 }
 
@@ -427,9 +444,10 @@ const char *WaveShortMessageDescriptor::getFieldTypeString(void *object, int fie
         "Coord",
         "double",
         "double",
+        "double",
         "string",
     };
-    return (field>=0 && field<15) ? fieldTypeStrings[field] : NULL;
+    return (field>=0 && field<16) ? fieldTypeStrings[field] : NULL;
 }
 
 const char *WaveShortMessageDescriptor::getFieldProperty(void *object, int field, const char *propertyname) const
@@ -482,8 +500,9 @@ std::string WaveShortMessageDescriptor::getFieldAsString(void *object, int field
         case 10: return long2string(pp->getRecipientAddress());
         case 11: {std::stringstream out; out << pp->getPos(); return out.str();}
         case 12: return double2string(pp->getSpeed());
-        case 13: return double2string(pp->getMaxDecel());
-        case 14: return oppstring2string(pp->getLane());
+        case 13: return double2string(pp->getAccel());
+        case 14: return double2string(pp->getMaxDecel());
+        case 15: return oppstring2string(pp->getLane());
         default: return "";
     }
 }
@@ -510,8 +529,9 @@ bool WaveShortMessageDescriptor::setFieldAsString(void *object, int field, int i
         case 9: pp->setSenderAddress(string2long(value)); return true;
         case 10: pp->setRecipientAddress(string2long(value)); return true;
         case 12: pp->setSpeed(string2double(value)); return true;
-        case 13: pp->setMaxDecel(string2double(value)); return true;
-        case 14: pp->setLane((value)); return true;
+        case 13: pp->setAccel(string2double(value)); return true;
+        case 14: pp->setMaxDecel(string2double(value)); return true;
+        case 15: pp->setLane((value)); return true;
         default: return false;
     }
 }
@@ -540,8 +560,9 @@ const char *WaveShortMessageDescriptor::getFieldStructName(void *object, int fie
         NULL,
         NULL,
         NULL,
+        NULL,
     };
-    return (field>=0 && field<15) ? fieldStructNames[field] : NULL;
+    return (field>=0 && field<16) ? fieldStructNames[field] : NULL;
 }
 
 void *WaveShortMessageDescriptor::getFieldStructPointer(void *object, int field, int i) const
