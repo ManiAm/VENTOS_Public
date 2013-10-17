@@ -34,8 +34,6 @@ void ApplV::onBeacon(WaveShortMessage* wsm)
     if(result)
         updateParamsSumo(wsm);
 
-
-
     /*
     DBG << "Received beacon priority  " << wsm->getPriority() << " at " << simTime() << std::endl;
     int senderId = wsm->getSenderAddress();
@@ -186,6 +184,4 @@ void ApplV::updateParamsSumo(WaveShortMessage* wsm)
 
 
 }
-
-
 
