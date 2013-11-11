@@ -43,13 +43,15 @@
  * 	
  * 	string wsmData = "Some Data";
  * 
- * 	int senderAddress = 0;
- * 	int recipientAddress = -1;
+ * 	string sender;
+ * 	string recipient;
  * 	Coord pos;
  * 	double speed;
  * 	double accel;
  * 	double maxDecel;
  * 	string lane;
+ * 	int platoonID;
+ * 	bool isPlatoonLeader;
  * 	
  * 	
  *     
@@ -68,13 +70,15 @@ class WaveShortMessage : public ::cPacket
     opp_string psc_var;
     int wsmLength_var;
     opp_string wsmData_var;
-    int senderAddress_var;
-    int recipientAddress_var;
+    opp_string sender_var;
+    opp_string recipient_var;
     Coord pos_var;
     double speed_var;
     double accel_var;
     double maxDecel_var;
     opp_string lane_var;
+    int platoonID_var;
+    bool isPlatoonLeader_var;
 
   private:
     void copy(const WaveShortMessage& other);
@@ -111,10 +115,10 @@ class WaveShortMessage : public ::cPacket
     virtual void setWsmLength(int wsmLength);
     virtual const char * getWsmData() const;
     virtual void setWsmData(const char * wsmData);
-    virtual int getSenderAddress() const;
-    virtual void setSenderAddress(int senderAddress);
-    virtual int getRecipientAddress() const;
-    virtual void setRecipientAddress(int recipientAddress);
+    virtual const char * getSender() const;
+    virtual void setSender(const char * sender);
+    virtual const char * getRecipient() const;
+    virtual void setRecipient(const char * recipient);
     virtual Coord& getPos();
     virtual const Coord& getPos() const {return const_cast<WaveShortMessage*>(this)->getPos();}
     virtual void setPos(const Coord& pos);
@@ -126,6 +130,10 @@ class WaveShortMessage : public ::cPacket
     virtual void setMaxDecel(double maxDecel);
     virtual const char * getLane() const;
     virtual void setLane(const char * lane);
+    virtual int getPlatoonID() const;
+    virtual void setPlatoonID(int platoonID);
+    virtual bool getIsPlatoonLeader() const;
+    virtual void setIsPlatoonLeader(bool isPlatoonLeader);
 };
 
 inline void doPacking(cCommBuffer *b, WaveShortMessage& obj) {obj.parsimPack(b);}

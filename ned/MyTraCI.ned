@@ -7,6 +7,9 @@ simple MyTraCI extends TraCIScenarioManagerLaunchd
     parameters:
         @class(MyTraCI);
         @display("i=block/network2");
+        
+        bool exTrajectory = default(false);
+        string trajectory;
 
 }
 

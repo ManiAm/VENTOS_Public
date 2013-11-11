@@ -43,12 +43,14 @@ WaveShortMessage::WaveShortMessage(const char *name, int kind) : cPacket(name,ki
     this->psc_var = "Service with some Data";
     this->wsmLength_var = 0;
     this->wsmData_var = "Some Data";
-    this->senderAddress_var = 0;
-    this->recipientAddress_var = -1;
+    this->sender_var = 0;
+    this->recipient_var = 0;
     this->speed_var = 0;
     this->accel_var = 0;
     this->maxDecel_var = 0;
     this->lane_var = 0;
+    this->platoonID_var = 0;
+    this->isPlatoonLeader_var = 0;
 }
 
 WaveShortMessage::WaveShortMessage(const WaveShortMessage& other) : cPacket(other)
@@ -79,13 +81,15 @@ void WaveShortMessage::copy(const WaveShortMessage& other)
     this->psc_var = other.psc_var;
     this->wsmLength_var = other.wsmLength_var;
     this->wsmData_var = other.wsmData_var;
-    this->senderAddress_var = other.senderAddress_var;
-    this->recipientAddress_var = other.recipientAddress_var;
+    this->sender_var = other.sender_var;
+    this->recipient_var = other.recipient_var;
     this->pos_var = other.pos_var;
     this->speed_var = other.speed_var;
     this->accel_var = other.accel_var;
     this->maxDecel_var = other.maxDecel_var;
     this->lane_var = other.lane_var;
+    this->platoonID_var = other.platoonID_var;
+    this->isPlatoonLeader_var = other.isPlatoonLeader_var;
 }
 
 void WaveShortMessage::parsimPack(cCommBuffer *b)
@@ -100,13 +104,15 @@ void WaveShortMessage::parsimPack(cCommBuffer *b)
     doPacking(b,this->psc_var);
     doPacking(b,this->wsmLength_var);
     doPacking(b,this->wsmData_var);
-    doPacking(b,this->senderAddress_var);
-    doPacking(b,this->recipientAddress_var);
+    doPacking(b,this->sender_var);
+    doPacking(b,this->recipient_var);
     doPacking(b,this->pos_var);
     doPacking(b,this->speed_var);
     doPacking(b,this->accel_var);
     doPacking(b,this->maxDecel_var);
     doPacking(b,this->lane_var);
+    doPacking(b,this->platoonID_var);
+    doPacking(b,this->isPlatoonLeader_var);
 }
 
 void WaveShortMessage::parsimUnpack(cCommBuffer *b)
@@ -121,13 +127,15 @@ void WaveShortMessage::parsimUnpack(cCommBuffer *b)
     doUnpacking(b,this->psc_var);
     doUnpacking(b,this->wsmLength_var);
     doUnpacking(b,this->wsmData_var);
-    doUnpacking(b,this->senderAddress_var);
-    doUnpacking(b,this->recipientAddress_var);
+    doUnpacking(b,this->sender_var);
+    doUnpacking(b,this->recipient_var);
     doUnpacking(b,this->pos_var);
     doUnpacking(b,this->speed_var);
     doUnpacking(b,this->accel_var);
     doUnpacking(b,this->maxDecel_var);
     doUnpacking(b,this->lane_var);
+    doUnpacking(b,this->platoonID_var);
+    doUnpacking(b,this->isPlatoonLeader_var);
 }
 
 int WaveShortMessage::getWsmVersion() const
@@ -220,24 +228,24 @@ void WaveShortMessage::setWsmData(const char * wsmData)
     this->wsmData_var = wsmData;
 }
 
-int WaveShortMessage::getSenderAddress() const
+const char * WaveShortMessage::getSender() const
 {
-    return senderAddress_var;
+    return sender_var.c_str();
 }
 
-void WaveShortMessage::setSenderAddress(int senderAddress)
+void WaveShortMessage::setSender(const char * sender)
 {
-    this->senderAddress_var = senderAddress;
+    this->sender_var = sender;
 }
 
-int WaveShortMessage::getRecipientAddress() const
+const char * WaveShortMessage::getRecipient() const
 {
-    return recipientAddress_var;
+    return recipient_var.c_str();
 }
 
-void WaveShortMessage::setRecipientAddress(int recipientAddress)
+void WaveShortMessage::setRecipient(const char * recipient)
 {
-    this->recipientAddress_var = recipientAddress;
+    this->recipient_var = recipient;
 }
 
 Coord& WaveShortMessage::getPos()
@@ -290,6 +298,26 @@ void WaveShortMessage::setLane(const char * lane)
     this->lane_var = lane;
 }
 
+int WaveShortMessage::getPlatoonID() const
+{
+    return platoonID_var;
+}
+
+void WaveShortMessage::setPlatoonID(int platoonID)
+{
+    this->platoonID_var = platoonID;
+}
+
+bool WaveShortMessage::getIsPlatoonLeader() const
+{
+    return isPlatoonLeader_var;
+}
+
+void WaveShortMessage::setIsPlatoonLeader(bool isPlatoonLeader)
+{
+    this->isPlatoonLeader_var = isPlatoonLeader;
+}
+
 class WaveShortMessageDescriptor : public cClassDescriptor
 {
   public:
@@ -337,7 +365,7 @@ const char *WaveShortMessageDescriptor::getProperty(const char *propertyname) co
 int WaveShortMessageDescriptor::getFieldCount(void *object) const
 {
     cClassDescriptor *basedesc = getBaseClassDescriptor();
-    return basedesc ? 16+basedesc->getFieldCount(object) : 16;
+    return basedesc ? 18+basedesc->getFieldCount(object) : 18;
 }
 
 unsigned int WaveShortMessageDescriptor::getFieldTypeFlags(void *object, int field) const
@@ -365,8 +393,10 @@ unsigned int WaveShortMessageDescriptor::getFieldTypeFlags(void *object, int fie
         FD_ISEDITABLE,
         FD_ISEDITABLE,
         FD_ISEDITABLE,
+        FD_ISEDITABLE,
+        FD_ISEDITABLE,
     };
-    return (field>=0 && field<16) ? fieldTypeFlags[field] : 0;
+    return (field>=0 && field<18) ? fieldTypeFlags[field] : 0;
 }
 
 const char *WaveShortMessageDescriptor::getFieldName(void *object, int field) const
@@ -387,15 +417,17 @@ const char *WaveShortMessageDescriptor::getFieldName(void *object, int field) co
         "psc",
         "wsmLength",
         "wsmData",
-        "senderAddress",
-        "recipientAddress",
+        "sender",
+        "recipient",
         "pos",
         "speed",
         "accel",
         "maxDecel",
         "lane",
+        "platoonID",
+        "isPlatoonLeader",
     };
-    return (field>=0 && field<16) ? fieldNames[field] : NULL;
+    return (field>=0 && field<18) ? fieldNames[field] : NULL;
 }
 
 int WaveShortMessageDescriptor::findField(void *object, const char *fieldName) const
@@ -411,13 +443,15 @@ int WaveShortMessageDescriptor::findField(void *object, const char *fieldName) c
     if (fieldName[0]=='p' && strcmp(fieldName, "psc")==0) return base+6;
     if (fieldName[0]=='w' && strcmp(fieldName, "wsmLength")==0) return base+7;
     if (fieldName[0]=='w' && strcmp(fieldName, "wsmData")==0) return base+8;
-    if (fieldName[0]=='s' && strcmp(fieldName, "senderAddress")==0) return base+9;
-    if (fieldName[0]=='r' && strcmp(fieldName, "recipientAddress")==0) return base+10;
+    if (fieldName[0]=='s' && strcmp(fieldName, "sender")==0) return base+9;
+    if (fieldName[0]=='r' && strcmp(fieldName, "recipient")==0) return base+10;
     if (fieldName[0]=='p' && strcmp(fieldName, "pos")==0) return base+11;
     if (fieldName[0]=='s' && strcmp(fieldName, "speed")==0) return base+12;
     if (fieldName[0]=='a' && strcmp(fieldName, "accel")==0) return base+13;
     if (fieldName[0]=='m' && strcmp(fieldName, "maxDecel")==0) return base+14;
     if (fieldName[0]=='l' && strcmp(fieldName, "lane")==0) return base+15;
+    if (fieldName[0]=='p' && strcmp(fieldName, "platoonID")==0) return base+16;
+    if (fieldName[0]=='i' && strcmp(fieldName, "isPlatoonLeader")==0) return base+17;
     return basedesc ? basedesc->findField(object, fieldName) : -1;
 }
 
@@ -439,15 +473,17 @@ const char *WaveShortMessageDescriptor::getFieldTypeString(void *object, int fie
         "string",
         "int",
         "string",
-        "int",
-        "int",
+        "string",
+        "string",
         "Coord",
         "double",
         "double",
         "double",
         "string",
+        "int",
+        "bool",
     };
-    return (field>=0 && field<16) ? fieldTypeStrings[field] : NULL;
+    return (field>=0 && field<18) ? fieldTypeStrings[field] : NULL;
 }
 
 const char *WaveShortMessageDescriptor::getFieldProperty(void *object, int field, const char *propertyname) const
@@ -496,13 +532,15 @@ std::string WaveShortMessageDescriptor::getFieldAsString(void *object, int field
         case 6: return oppstring2string(pp->getPsc());
         case 7: return long2string(pp->getWsmLength());
         case 8: return oppstring2string(pp->getWsmData());
-        case 9: return long2string(pp->getSenderAddress());
-        case 10: return long2string(pp->getRecipientAddress());
+        case 9: return oppstring2string(pp->getSender());
+        case 10: return oppstring2string(pp->getRecipient());
         case 11: {std::stringstream out; out << pp->getPos(); return out.str();}
         case 12: return double2string(pp->getSpeed());
         case 13: return double2string(pp->getAccel());
         case 14: return double2string(pp->getMaxDecel());
         case 15: return oppstring2string(pp->getLane());
+        case 16: return long2string(pp->getPlatoonID());
+        case 17: return bool2string(pp->getIsPlatoonLeader());
         default: return "";
     }
 }
@@ -526,12 +564,14 @@ bool WaveShortMessageDescriptor::setFieldAsString(void *object, int field, int i
         case 6: pp->setPsc((value)); return true;
         case 7: pp->setWsmLength(string2long(value)); return true;
         case 8: pp->setWsmData((value)); return true;
-        case 9: pp->setSenderAddress(string2long(value)); return true;
-        case 10: pp->setRecipientAddress(string2long(value)); return true;
+        case 9: pp->setSender((value)); return true;
+        case 10: pp->setRecipient((value)); return true;
         case 12: pp->setSpeed(string2double(value)); return true;
         case 13: pp->setAccel(string2double(value)); return true;
         case 14: pp->setMaxDecel(string2double(value)); return true;
         case 15: pp->setLane((value)); return true;
+        case 16: pp->setPlatoonID(string2long(value)); return true;
+        case 17: pp->setIsPlatoonLeader(string2bool(value)); return true;
         default: return false;
     }
 }
@@ -561,8 +601,10 @@ const char *WaveShortMessageDescriptor::getFieldStructName(void *object, int fie
         NULL,
         NULL,
         NULL,
+        NULL,
+        NULL,
     };
-    return (field>=0 && field<16) ? fieldStructNames[field] : NULL;
+    return (field>=0 && field<18) ? fieldStructNames[field] : NULL;
 }
 
 void *WaveShortMessageDescriptor::getFieldStructPointer(void *object, int field, int i) const

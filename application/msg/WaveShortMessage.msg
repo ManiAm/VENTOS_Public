@@ -26,13 +26,15 @@ packet WaveShortMessage
 	//Data of Wave Short Message
 	string wsmData = "Some Data";
 
-	int senderAddress = 0;
-	int recipientAddress = -1;
+	string sender;
+	string recipient;
 	Coord pos;
 	double speed;
 	double accel;
 	double maxDecel;
 	string lane;
+	int platoonID;
+	bool isPlatoonLeader;
 	
 	// int serial = 0;
     // simtime_t timestamp = 0;
