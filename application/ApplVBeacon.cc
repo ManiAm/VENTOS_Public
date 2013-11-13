@@ -9,6 +9,13 @@ void ApplVBeacon::initialize(int stage)
 
 	if (stage == 0)
 	{
+        // packet loss ratio
+        PLR = par("PLR");
+
+        modeSwitch = par("modeSwitch").boolValue();
+        // set modeSwitch parameter in Sumo
+        manager->commandSetModeSwitch(SUMOvID, modeSwitch);
+
         // beaconing parameters
         sendBeacons = par("sendBeacons").boolValue();
         beaconInterval = par("beaconInterval").doubleValue();
@@ -23,7 +30,7 @@ void ApplVBeacon::initialize(int stage)
 
         sendBeaconEvt = new cMessage("beacon evt", SEND_BEACON_EVT);
 
-        if (sendBeacons && SUMOvType == "TypeCACC")
+        if (sendBeacons && (SUMOvType == "TypeCACC1" || SUMOvType == "TypeCACC2") )
         {
             scheduleAt(simTime() + offSet, sendBeaconEvt);
         }
@@ -66,7 +73,7 @@ void ApplVBeacon::handleSelfMsg(cMessage* msg)
         {
             WaveShortMessage* beaconMsg = prepareBeacon("beacon", beaconLengthBits, type_CCH, beaconPriority, 0);
 
-            DBG << "## Created beacon msg for vehicle: " << SUMOvID << std::endl;
+            EV << "## Created beacon msg for vehicle: " << SUMOvID << std::endl;
             printBeaconContent(beaconMsg);
 
             // send it
@@ -83,7 +90,7 @@ void ApplVBeacon::handleSelfMsg(cMessage* msg)
 
 WaveShortMessage*  ApplVBeacon::prepareBeacon(std::string name, int lengthBits, t_channel channel, int priority, int rcvId, int serial)
 {
-    if (SUMOvType != "TypeCACC")
+    if (SUMOvType != "TypeCACC1" && SUMOvType != "TypeCACC2")
     {
         throw cRuntimeError("Only CACC vehicles can send beacon!");
     }
@@ -137,60 +144,56 @@ WaveShortMessage*  ApplVBeacon::prepareBeacon(std::string name, int lengthBits, 
 // print beacon fields (for debugging purposes)
 void ApplVBeacon::printBeaconContent(WaveShortMessage* wsm)
 {
-    DBG << wsm->getWsmVersion() << " | ";
-    DBG << wsm->getSecurityType() << " | ";
-    DBG << wsm->getChannelNumber() << " | ";
-    DBG << wsm->getDataRate() << " | ";
-    DBG << wsm->getPriority() << " | ";
-    DBG << wsm->getPsid() << " | ";
-    DBG << wsm->getPsc() << " | ";
-    DBG << wsm->getWsmLength() << " | ";
-    DBG << wsm->getWsmData() << " ||| ";
+    EV << wsm->getWsmVersion() << " | ";
+    EV << wsm->getSecurityType() << " | ";
+    EV << wsm->getChannelNumber() << " | ";
+    EV << wsm->getDataRate() << " | ";
+    EV << wsm->getPriority() << " | ";
+    EV << wsm->getPsid() << " | ";
+    EV << wsm->getPsc() << " | ";
+    EV << wsm->getWsmLength() << " | ";
+    EV << wsm->getWsmData() << " ||| ";
 
-    DBG << wsm->getSender() << " | ";
-    DBG << wsm->getRecipient() << " | ";
-    DBG << wsm->getPos() << " | ";
-    DBG << wsm->getSpeed() << " | ";
-    DBG << wsm->getAccel() << " | ";
-    DBG << wsm->getMaxDecel() << " | ";
-    DBG << wsm->getLane() << " | ";
-    DBG << wsm->getPlatoonID() << " | ";
-    DBG << wsm->getIsPlatoonLeader() << std::endl;
+    EV << wsm->getSender() << " | ";
+    EV << wsm->getRecipient() << " | ";
+    EV << wsm->getPos() << " | ";
+    EV << wsm->getSpeed() << " | ";
+    EV << wsm->getAccel() << " | ";
+    EV << wsm->getMaxDecel() << " | ";
+    EV << wsm->getLane() << " | ";
+    EV << wsm->getPlatoonID() << " | ";
+    EV << wsm->getIsPlatoonLeader() << std::endl;
 }
 
 
 void ApplVBeacon::onBeacon(WaveShortMessage* wsm)
 {
     // vehicles other than CACC should ignore the received beacon
-    if(SUMOvType != "TypeCACC")
+    if(SUMOvType != "TypeCACC1" && SUMOvType != "TypeCACC2")
         return;
 
-    // ignore the received beacon (testing mode switch)
-    if(simTime().dbl() >= 39 && SUMOvID == "CACC3")
+    // ignore the received beacon (simulate packet loss in application layer)
+    if(SUMOvID == "CACC10")
     {
-        //return;
+        double p = dblrand();  // random number in [0,1)
+
+        if( p < (PLR/100) )
+            return;
     }
 
-    DBG << "## " << SUMOvID << " received beacon ..." << std::endl;
+    EV << "## " << SUMOvID << " received beacon ..." << std::endl;
     printBeaconContent(wsm);
 
-    DBG << "Check if beacon is from leading vehicle ..." << std::endl;
+    EV << "Check if beacon is from leading vehicle ..." << std::endl;
     bool result = isBeaconFromLeading(wsm);
 
     // update the parameters of this vehicle in SUMO
     if(result)
     {
-        // set the speed
-        manager->commandSetLeading(0x15, SUMOvID, (double)wsm->getSpeed());
-        DBG << "Leading vehicle speed = " << (double)wsm->getSpeed() << std::endl;
+        char buffer [100];
+        sprintf (buffer, "%f#%f#%f", (double)wsm->getSpeed(), (double)wsm->getAccel(), (double)wsm->getMaxDecel());
 
-        // set the Accel
-        manager->commandSetLeading(0x17, SUMOvID, (double)wsm->getAccel());
-        DBG << "Leading vehicle accel = " << (double)wsm->getAccel() << std::endl;
-
-        // set the MaxDecel
-        manager->commandSetLeading(0x16, SUMOvID, (double)wsm->getMaxDecel());
-        DBG << "Leading vehicle maxDecel = " << (double)wsm->getMaxDecel() << std::endl;
+        manager->commandSetPreceding(SUMOvID, buffer);
     }
 
 
@@ -295,7 +298,7 @@ bool ApplVBeacon::isBeaconFromLeading(WaveShortMessage* wsm)
 
     if(gap == -1)
     {
-        DBG << "This vehicle has no leading vehicle (gap = -1)" << std::endl;
+        EV << "This vehicle has no leading vehicle (gap = -1)" << std::endl;
         return false;
     }
 
@@ -304,15 +307,15 @@ bool ApplVBeacon::isBeaconFromLeading(WaveShortMessage* wsm)
     std::string myLane = manager->commandGetLaneId(SUMOvID);
     std::string beaconLane = wsm->getLane();
 
-    DBG << "I am on lane " << manager->commandGetLaneId(SUMOvID) << ", and other vehicle is on lane " << wsm->getLane() << std::endl;
+    EV << "I am on lane " << manager->commandGetLaneId(SUMOvID) << ", and other vehicle is on lane " << wsm->getLane() << std::endl;
 
     if( myLane != beaconLane )
     {
-        DBG << "Not on the same lane!" << std::endl;
+        EV << "Not on the same lane!" << std::endl;
         return false;
     }
 
-    DBG << "We are on the same lane!" << std::endl;
+    EV << "We are on the same lane!" << std::endl;
 
     // step 3: is the distance equal to gap?
 
@@ -323,19 +326,19 @@ bool ApplVBeacon::isBeaconFromLeading(WaveShortMessage* wsm)
     std::string vleaderType = manager->commandGetVehicleType(getLeading());
     dist = dist - manager->commandGetVehicleLength(vleaderType);
 
-    DBG << "my coord (x,y): " << cord.x << "," << cord.y << std::endl;
-    DBG << "other coord (x,y): " << wsm->getPos().x << "," << wsm->getPos().y << std::endl;
-    DBG << "distance is " << dist << ", and gap is " << gap << std::endl;
+    EV << "my coord (x,y): " << cord.x << "," << cord.y << std::endl;
+    EV << "other coord (x,y): " << wsm->getPos().x << "," << wsm->getPos().y << std::endl;
+    EV << "distance is " << dist << ", and gap is " << gap << std::endl;
 
     double diff = abs(dist - gap);
 
     if(diff > 0.01)
     {
-        DBG << "distance does not match the gap!" << std::endl;
+        EV << "distance does not match the gap!" << std::endl;
         return false;
     }
 
-    DBG << "This beacon is from the leading vehicle!" << std::endl;
+    EV << "This beacon is from the leading vehicle!" << std::endl;
     return true;
 }
 

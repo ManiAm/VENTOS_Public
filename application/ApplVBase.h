@@ -11,9 +11,6 @@
 #include <WaveAppToMac1609_4Interface.h>
 #include "MyTraCI.h"
 
-#ifndef DBG
-#define DBG EV
-#endif
 
 class ApplVBase : public BaseApplLayer
 {

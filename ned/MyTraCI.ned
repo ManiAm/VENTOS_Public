@@ -8,8 +8,7 @@ simple MyTraCI extends TraCIScenarioManagerLaunchd
         @class(MyTraCI);
         @display("i=block/network2");
         
-        bool exTrajectory = default(false);
+        int trajectoryMode = default(1);
         string trajectory;
-
 }
 

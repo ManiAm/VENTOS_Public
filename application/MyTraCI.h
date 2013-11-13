@@ -31,16 +31,25 @@ class MyTraCI : public TraCIScenarioManagerLaunchd
         Coord commandGetVehiclePos(std::string);
 
         // we add these setters to veins
-        void commandSetLeading(uint8_t, std::string, double);
+        void commandSetPreceding(std::string, std::string);
+        void commandSetPlatoonLeader(std::string, std::string);
+        void commandSetModeSwitch(std::string, bool);
 
 	private:
 	    FILE *f1;
 	    static int index;
-	    bool exTrajectory;
+
+	    int trajectoryMode;
 	    std::string trajectory;
 
-	    void AccelDecelManual();
-        void writeToFile(std::string, std::string);
+        FILE *f2;
+	    static int fileLine;
+	    static bool endOfFile;
+
+	    void AccelDecel();
+	    void ExTrajectory();
+	    void writeToFile();
+        void writeToFilePerVehicle(std::string, std::string);
 
         uint32_t genericGetInt32(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
         Coord genericGetCoordv2(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);

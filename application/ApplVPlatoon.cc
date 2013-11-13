@@ -47,7 +47,7 @@ void ApplVPlatoon::handleSelfMsg(cMessage* msg)
             // fill-in the fields related to platoon
             WaveShortMessage* beaconMsg = fillBeaconPlatoon(Msg);
 
-            DBG << "## Created beacon msg for vehicle: " << SUMOvID << std::endl;
+            EV << "## Created beacon msg for vehicle: " << SUMOvID << std::endl;
             printBeaconContent(beaconMsg);
 
             // send it
@@ -74,16 +74,18 @@ WaveShortMessage* ApplVPlatoon::fillBeaconPlatoon(WaveShortMessage *wsm)
 void ApplVPlatoon::onBeacon(WaveShortMessage* wsm)
 {
     // vehicles other than CACC should ignore the received beacon
-    if(SUMOvType != "TypeCACC")
+    if(SUMOvType != "TypeCACC1" && SUMOvType != "TypeCACC2")
         return;
 
+    // in one_vehicle_look_ahead (i.e. No platooning) we should only
+    // get information from our proceeding vehicle
     if(one_vehicle_look_ahead)
     {
         ApplVBeacon::onBeacon(wsm);
         return;
     }
 
-    DBG << "## " << SUMOvID << " received beacon ..." << std::endl;
+    EV << "## " << SUMOvID << " received beacon ..." << std::endl;
     printBeaconContent(wsm);
 
     bool update = false;
@@ -95,7 +97,7 @@ void ApplVPlatoon::onBeacon(WaveShortMessage* wsm)
         {
             if(wsm->getPlatoonID() != -1 && wsm->getIsPlatoonLeader())
             {
-                DBG << "This beacon is from a platoon leader. I will join ..." << std::endl;
+                EV << "This beacon is from a platoon leader. I will join ..." << std::endl;
 
                 platoonID = wsm->getPlatoonID();
                 platoonLeaderID = wsm->getSender();
@@ -108,7 +110,7 @@ void ApplVPlatoon::onBeacon(WaveShortMessage* wsm)
             // update the platoonLeaderID
             if(wsm->getIsPlatoonLeader())
             {
-                DBG << "This beacon is from my platoon leader ..." << std::endl;
+                EV << "This beacon is from my platoon leader ..." << std::endl;
 
                 platoonLeaderID = wsm->getSender();
                 update = true;
@@ -124,17 +126,11 @@ void ApplVPlatoon::onBeacon(WaveShortMessage* wsm)
     // update the parameters of this vehicle in SUMO
     if(update)
     {
-        // set the speed
-        manager->commandSetLeading(0x15, SUMOvID, (double)wsm->getSpeed());
-        DBG << "Platoon leader speed = " << (double)wsm->getSpeed() << std::endl;
+        char buffer [100];
+        sprintf (buffer, "%f#%f#%f", (double)wsm->getSpeed(), (double)wsm->getAccel(), (double)wsm->getMaxDecel());
 
-        // set the Accel
-        manager->commandSetLeading(0x17, SUMOvID, (double)wsm->getAccel());
-        DBG << "Platoon leader accel = " << (double)wsm->getAccel() << std::endl;
-
-        // set the MaxDecel
-        manager->commandSetLeading(0x16, SUMOvID, (double)wsm->getMaxDecel());
-        DBG << "Platoon leader maxDecel = " << (double)wsm->getMaxDecel() << std::endl;
+        manager->commandSetPreceding(SUMOvID, buffer);
+        //manager->commandSetPlatoonLeader(SUMOvID, buffer);
      }
 }
 

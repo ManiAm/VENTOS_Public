@@ -16,6 +16,9 @@ class ApplVBeacon : public ApplVBase
 		simtime_t lastDroveAt;
 		bool sentMessage;
 
+        bool modeSwitch;
+        double PLR;
+
 		bool sendBeacons;
 		double beaconInterval;
 		double maxOffset;

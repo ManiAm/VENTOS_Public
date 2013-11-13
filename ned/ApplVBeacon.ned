@@ -5,6 +5,9 @@ simple ApplVBeacon extends ApplVBase
     parameters:
         @class(ApplVBeacon);
         @display("i=block/app2");
+        
+        double PLR = default(0);
+        bool modeSwitch = default(true);
                 
         bool sendBeacons = default(false); //tell the applayer to periodically send beacons
         volatile double beaconInterval = default(1s) @unit(s); //the intervall between 2 beacon messages

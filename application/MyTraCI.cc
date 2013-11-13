@@ -10,6 +10,9 @@
 Define_Module(MyTraCI);
 
 int MyTraCI::index = 1;
+int MyTraCI::fileLine = 0;
+bool MyTraCI::endOfFile = false;
+
 
 MyTraCI::~MyTraCI()
 {
@@ -23,8 +26,13 @@ void MyTraCI::initialize(int stage)
 
     if(stage ==0)
     {
-        exTrajectory = par("exTrajectory").boolValue();
+        trajectoryMode = par("trajectoryMode").longValue();
         trajectory = par("trajectory").stringValue();
+
+        f2 = fopen ("sumo/EX_Trajectory.txt", "r");
+
+        if ( f2 == NULL )
+            error("external trajectory file does not exists!");
     }
 
 }
@@ -37,12 +45,10 @@ void MyTraCI::init_traci()
     // making sure that platoonLeader exists in the sumo
 
 
-
     // send command to sumo-GUI
 
 
-
-    // todo: change file name to the CFModel typeid(veh.getCarFollowModel()).name()
+    // ---------------------------------------------
     char fName [50];
     sprintf (fName, "%s.txt", "results/speed-gap");
 
@@ -69,8 +75,30 @@ void MyTraCI::executeOneTimestep()
 {
     TraCIScenarioManager::executeOneTimestep();
 
-    // Now we write the result into file
+    EV << "### Sumo advanced to " << getCurrentTimeMs() / 1000. << std::endl;
 
+    // Now we write the result into file
+    writeToFile();
+
+    if(trajectoryMode == 0)
+    {
+        // no trajectory
+    }
+    // trajectory accel/decel at specific times
+    else if(trajectoryMode == 1)
+    {
+        AccelDecel();
+    }
+    // trajectory accel/decel based on external file
+    else if(trajectoryMode == 2)
+    {
+        ExTrajectory();
+    }
+}
+
+
+void MyTraCI::writeToFile()
+{
     std::string vleaderID = "";
 
     // get all lanes in the network
@@ -84,7 +112,7 @@ void MyTraCI::executeOneTimestep()
         for(std::list<std::string>::reverse_iterator k = list2.rbegin(); k != list2.rend(); ++k)
         {
             std::string vID = k->c_str();
-            writeToFile(vID, vleaderID);
+            writeToFilePerVehicle(vID, vleaderID);
             vleaderID = k->c_str();
         }
     }
@@ -92,43 +120,11 @@ void MyTraCI::executeOneTimestep()
     // increase index after writing data for all vehicles
     if (commandGetNoVehicles() > 0)
         index++;
-
-    if(!exTrajectory)
-    {
-        // change the speed of manual driving vehicle
-        AccelDecelManual();
-    }
-    else
-    {
-        // todo:
-
-    }
-}
-
-
-void MyTraCI::AccelDecelManual()
-{
-    if( simTime().dbl() == 30 )
-    {
-        commandSetSpeed(trajectory, (double) 0);
-    }
-    else if(simTime().dbl() == 80)
-    {
-        commandSetSpeed(trajectory,(double) 20.0);
-    }
-    else if(simTime().dbl() == 130)
-    {
-        commandSetSpeed(trajectory,(double) 0);
-    }
-    else if(simTime().dbl() == 180)
-    {
-        commandSetSpeed(trajectory,(double) 20.0);
-    }
 }
 
 
 // vID is current vehicle, vleaderID is the leader (if present)
-void MyTraCI::writeToFile(std::string vID, std::string vleaderID)
+void MyTraCI::writeToFilePerVehicle(std::string vID, std::string vleaderID)
 {
     double speed = commandGetVehicleSpeed(vID);
     double pos = commandGetLanePosition(vID);
@@ -160,6 +156,68 @@ void MyTraCI::writeToFile(std::string vID, std::string vleaderID)
     fprintf (f1, "%-10.2f \n", timeGap);
 
     fflush(f1);
+}
+
+
+void MyTraCI::AccelDecel()
+{
+    if( simTime().dbl() == 30 )
+    {
+        commandSetSpeed(trajectory, (double) 0);
+    }
+    else if(simTime().dbl() == 70)
+    {
+        commandSetSpeed(trajectory,(double) 20.0);
+    }
+    else if(simTime().dbl() == 120)
+    {
+        commandSetSpeed(trajectory,(double) 0);
+    }
+    else if(simTime().dbl() == 170)
+    {
+        commandSetSpeed(trajectory,(double) 20.0);
+    }
+}
+
+
+void MyTraCI::ExTrajectory()
+{
+    if(simTime().dbl() < 30)
+    {
+        return;
+    }
+    else if(simTime().dbl() == 30)
+    {
+        commandSetSpeed(trajectory, (double) 0);
+        return;
+    }
+    else if(simTime().dbl() < 70)
+    {
+        return;
+    }
+
+    if(endOfFile)
+        return;
+
+    fileLine++;  // a static variable
+    char line [128];  // maximum line size
+    double speed = 0;
+
+    char *result = fgets (line, sizeof line, f2);
+
+    if (result == NULL)
+    {
+        endOfFile = true;
+        return;
+    }
+
+    speed = atof(line);
+
+    commandSetSpeed(trajectory, speed);
+
+
+
+    //EV << "### line " << fileLine << ": " << speed << std::endl;
 }
 
 
@@ -298,11 +356,32 @@ Coord MyTraCI::genericGetCoordv2(uint8_t commandId, std::string objectId, uint8_
 // setter methods added to the veins
 // ##################################
 
-void MyTraCI::commandSetLeading(uint8_t variableId, std::string nodeId, double value)
+void MyTraCI::commandSetPreceding(std::string nodeId, std::string value)
 {
-    uint8_t variableType = TYPE_DOUBLE;
+    uint8_t variableId = 0x15;
+    uint8_t variableType = TYPE_STRING;
 
     TraCIBuffer buf = queryTraCI(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
+    ASSERT(buf.eof());
+}
+
+
+void MyTraCI::commandSetPlatoonLeader(std::string nodeId, std::string value)
+{
+    uint8_t variableId = 0x16;
+    uint8_t variableType = TYPE_STRING;
+
+    TraCIBuffer buf = queryTraCI(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
+    ASSERT(buf.eof());
+}
+
+
+void MyTraCI::commandSetModeSwitch(std::string nodeId, bool value)
+{
+    uint8_t variableId = 0x17;
+    uint8_t variableType = TYPE_INTEGER;
+
+    TraCIBuffer buf = queryTraCI(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << (int)value);
     ASSERT(buf.eof());
 }
 
@@ -310,6 +389,8 @@ void MyTraCI::commandSetLeading(uint8_t variableId, std::string nodeId, double v
 void MyTraCI::finish()
 {
     TraCIScenarioManagerLaunchd::finish();
+
     fclose(f1);
+    fclose(f2);
 }
 
