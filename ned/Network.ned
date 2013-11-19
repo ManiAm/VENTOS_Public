@@ -36,6 +36,10 @@ network Network
             parameters:
                 @display("p=456,58");
         }
+        statistics: Statistics {
+            parameters:
+                @display("p=49,147;i=block/timer");
+        }
 
     connections allowunconnected:
 }

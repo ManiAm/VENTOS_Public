@@ -30,7 +30,7 @@ void ApplVBeacon::initialize(int stage)
 
         sendBeaconEvt = new cMessage("beacon evt", SEND_BEACON_EVT);
 
-        if (sendBeacons && (SUMOvType == "TypeCACC1" || SUMOvType == "TypeCACC2") )
+        if (sendBeacons && isCACC() )
         {
             scheduleAt(simTime() + offSet, sendBeaconEvt);
         }
@@ -90,7 +90,7 @@ void ApplVBeacon::handleSelfMsg(cMessage* msg)
 
 WaveShortMessage*  ApplVBeacon::prepareBeacon(std::string name, int lengthBits, t_channel channel, int priority, int rcvId, int serial)
 {
-    if (SUMOvType != "TypeCACC1" && SUMOvType != "TypeCACC2")
+    if ( !isCACC() )
     {
         throw cRuntimeError("Only CACC vehicles can send beacon!");
     }
@@ -117,7 +117,7 @@ WaveShortMessage*  ApplVBeacon::prepareBeacon(std::string name, int lengthBits, 
     // wsm->setTimestamp(simTime());
 
     // fill in the sender/receiver fields
-    wsm->setSender(SUMOvID.c_str());
+    wsm->setSender(myFullId);
     wsm->setRecipient("broadcast");
 
     // get the current position (from sumo)
@@ -169,7 +169,7 @@ void ApplVBeacon::printBeaconContent(WaveShortMessage* wsm)
 void ApplVBeacon::onBeacon(WaveShortMessage* wsm)
 {
     // vehicles other than CACC should ignore the received beacon
-    if(SUMOvType != "TypeCACC1" && SUMOvType != "TypeCACC2")
+    if( !isCACC() )
         return;
 
     // ignore the received beacon (simulate packet loss in application layer)
@@ -178,7 +178,25 @@ void ApplVBeacon::onBeacon(WaveShortMessage* wsm)
         double p = dblrand();  // random number in [0,1)
 
         if( p < (PLR/100) )
+        {
+            bool result = isBeaconFromLeading(wsm);
+
+            if(result)
+            {
+                // a beacon from preceding vehicle is drooped
+                simsignal_t Signal_beaconD = registerSignal("beaconD");
+                nodePtr->emit(Signal_beaconD, 1);
+            }
+            else
+            {
+                // a beacon from other vehicle is drooped
+                simsignal_t Signal_beaconD = registerSignal("beaconD");
+                nodePtr->emit(Signal_beaconD, 2);
+            }
+
+            // now return from this function
             return;
+        }
     }
 
     EV << "## " << SUMOvID << " received beacon ..." << std::endl;
@@ -187,13 +205,26 @@ void ApplVBeacon::onBeacon(WaveShortMessage* wsm)
     EV << "Check if beacon is from leading vehicle ..." << std::endl;
     bool result = isBeaconFromLeading(wsm);
 
-    // update the parameters of this vehicle in SUMO
+    // beacon is from leading vehicle
+    // 1) update the parameters of this vehicle in SUMO
+    // 2) signal to statistics
     if(result)
     {
         char buffer [100];
         sprintf (buffer, "%f#%f#%f", (double)wsm->getSpeed(), (double)wsm->getAccel(), (double)wsm->getMaxDecel());
-
         manager->commandSetPreceding(SUMOvID, buffer);
+
+        // a beacon from the proceeding vehicle is received
+        data *pair = new data(wsm->getSender());
+        simsignal_t Signal_beaconP = registerSignal("beaconP");
+        nodePtr->emit(Signal_beaconP, pair);
+    }
+    else
+    {
+        // a beacon from other vehicles is received
+        data *pair = new data(wsm->getSender());
+        simsignal_t Signal_beaconO = registerSignal("beaconO");
+        nodePtr->emit(Signal_beaconO, pair);
     }
 
 
@@ -330,9 +361,9 @@ bool ApplVBeacon::isBeaconFromLeading(WaveShortMessage* wsm)
     EV << "other coord (x,y): " << wsm->getPos().x << "," << wsm->getPos().y << std::endl;
     EV << "distance is " << dist << ", and gap is " << gap << std::endl;
 
-    double diff = abs(dist - gap);
+    double diff = fabs(dist - gap);
 
-    if(diff > 0.01)
+    if(diff > 0.001)
     {
         EV << "distance does not match the gap!" << std::endl;
         return false;

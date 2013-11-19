@@ -11,6 +11,8 @@
 #include <WaveAppToMac1609_4Interface.h>
 #include "MyTraCI.h"
 
+#include "ExtraClasses.h"
+
 
 class ApplVBase : public BaseApplLayer
 {
@@ -38,12 +40,15 @@ class ApplVBase : public BaseApplLayer
 
 		virtual WaveShortMessage* prepareData(std::string name, int dataLengthBits, t_channel channel, int priority, int rcvId, int serial=0);
 		virtual void sendWSM(WaveShortMessage* wsm);
+		bool isCACC();
 
 	protected:
+	    cModule *nodePtr;   // pointer to the Node
         WaveAppToMac1609_4Interface* myMac;
 
         int mySCH;
 		int myId;
+		const char *myFullId;
         Coord curPosition;
 
         TraCIMobility* traci;

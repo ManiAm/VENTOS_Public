@@ -11,13 +11,18 @@
       <carFollowing-ACC MaxAccel="3.0" MaxDecel="5.0" T_g="1.54" tau="0.5" ComfAccel="2.0" ComfDecel="3.0" K_sc="0.4" K_v="1.0" K_g="5.0" V_int="30.0" />
   </vType>
 
+  <!-- CACC vehicle (trajectory for testing stability) -->
+  <vType id="TypeCACC0" length="5.0" minGap="2.0" maxSpeed="30.0" >
+      <carFollowing-CACC MaxAccel="1.5" MaxDecel="2.0" T_g="0.71" tau="0.4" ComfAccel="2.0" ComfDecel="3.0" K_sc="0.4" K_v="0.99" K_g="4.08" K_a="0.66" V_int="30.0" />
+  </vType>
+
   <!-- CACC vehicle (representing a normal vehicle) that uses CACC CFModel -->
   <vType id="TypeCACC1" length="5.0" minGap="2.0" maxSpeed="30.0" >
       <carFollowing-CACC MaxAccel="3.0" MaxDecel="5.0" T_g="0.71" tau="0.4" ComfAccel="2.0" ComfDecel="3.0" K_sc="0.4" K_v="0.99" K_g="4.08" K_a="0.66" V_int="30.0" />
   </vType>
   
-    <!-- CACC vehicle (representing a truck, bus, etc) that uses CACC CFModel -->
-    <vType id="TypeCACC2" length="5.0" minGap="2.0" maxSpeed="30.0" >
+  <!-- CACC vehicle (representing a truck, bus, etc) that uses CACC CFModel -->
+  <vType id="TypeCACC2" length="5.0" minGap="2.0" maxSpeed="30.0" >
       <carFollowing-CACC MaxAccel="3.0" MaxDecel="3.0" T_g="0.71" tau="0.4" ComfAccel="2.0" ComfDecel="3.0" K_sc="0.4" K_v="0.99" K_g="4.08" K_a="0.66" V_int="30.0" />
   </vType>
 

@@ -5,12 +5,10 @@
 #include <iostream>
 #include <fstream>
 
-#define MYDEBUG EV
-
 Define_Module(MyTraCI);
 
+bool MyTraCI::reached = false;
 int MyTraCI::index = 1;
-int MyTraCI::fileLine = 0;
 bool MyTraCI::endOfFile = false;
 
 
@@ -26,13 +24,24 @@ void MyTraCI::initialize(int stage)
 
     if(stage ==0)
     {
+        // get the ptr of the current module
+        nodePtr = FindModule<>::findHost(this);
+        if(nodePtr == NULL)
+            error("can not get a pointer to the module.");
+
         trajectoryMode = par("trajectoryMode").longValue();
         trajectory = par("trajectory").stringValue();
+        terminate = par("terminate").doubleValue();
 
         f2 = fopen ("sumo/EX_Trajectory.txt", "r");
 
         if ( f2 == NULL )
             error("external trajectory file does not exists!");
+
+        f3 = fopen ("sumo/Stability_Test.txt", "r");
+
+        if ( f3 == NULL )
+            error("Stability test file does not exists!");
     }
 
 }
@@ -49,13 +58,21 @@ void MyTraCI::init_traci()
 
 
     // ---------------------------------------------
+
     char fName [50];
-    sprintf (fName, "%s.txt", "results/speed-gap");
+
+    if( ev.isGUI() )
+    {
+        sprintf (fName, "%s.txt", "results/gui/speed-gap");
+    }
+    else
+    {
+        // get the current run number
+        int currentRun = ev.getConfigEx()->getActiveRunNumber();
+        sprintf (fName, "%s_%d.txt", "results/cmd/speed-gap", currentRun);
+    }
 
     f1 = fopen (fName, "w");
-
-    // write global information
-    fprintf (f1, "Number of vehicles: %d \n\n", commandGetNoVehicles());
 
     // write header
     fprintf (f1, "%-10s","index");
@@ -77,7 +94,8 @@ void MyTraCI::executeOneTimestep()
 
     EV << "### Sumo advanced to " << getCurrentTimeMs() / 1000. << std::endl;
 
-    // Now we write the result into file
+    // One simulation step is done!
+    // We write the parameters of all vehicles that are present now into the file
     writeToFile();
 
     if(trajectoryMode == 0)
@@ -87,12 +105,31 @@ void MyTraCI::executeOneTimestep()
     // trajectory accel/decel at specific times
     else if(trajectoryMode == 1)
     {
-        AccelDecel();
+        AccelDecel(5.0);
     }
-    // trajectory accel/decel based on external file
+    // trajectory accel/extreme decel at specific times
     else if(trajectoryMode == 2)
     {
+        AccelDecel(0.);
+    }
+    // trajectory accel/decel based on external file
+    else if(trajectoryMode == 3)
+    {
         ExTrajectory();
+    }
+    // trajectory accel/decel (for testing stability)
+    else if(trajectoryMode == 4)
+    {
+        StabilityTest();
+    }
+
+    if(simTime().dbl() >= terminate)
+    {
+        // send termination signal to statistics
+        // statistic will perform some post-processing and
+        // then terminates the simulation
+        simsignal_t Signal_terminate = registerSignal("terminate");
+        nodePtr->emit(Signal_terminate, 1);
     }
 }
 
@@ -159,29 +196,123 @@ void MyTraCI::writeToFilePerVehicle(std::string vID, std::string vleaderID)
 }
 
 
-void MyTraCI::AccelDecel()
+void MyTraCI::AccelDecel(double speed)
 {
-    if( simTime().dbl() == 30 )
+    if(!reached)
     {
-        commandSetSpeed(trajectory, (double) 0);
+        double pos = commandGetLanePosition(trajectory);
+
+        if(pos < 100)
+            return;
+        // stop at x = 100, waiting for other vehicles
+        else
+        {
+            commandSetSpeed(trajectory, (double) 0);
+            reached = true;
+            return;
+        }
     }
-    else if(simTime().dbl() == 70)
+
+    if( simTime().dbl() == 40 )
     {
-        commandSetSpeed(trajectory,(double) 20.0);
+        commandSetSpeed(trajectory, (double) 20.0);
     }
-    else if(simTime().dbl() == 120)
+    else if(simTime().dbl() == 80)
     {
-        commandSetSpeed(trajectory,(double) 0);
+        commandSetSpeed(trajectory, speed);
     }
-    else if(simTime().dbl() == 170)
+    else if(simTime().dbl() == 110)
     {
-        commandSetSpeed(trajectory,(double) 20.0);
+        commandSetSpeed(trajectory, (double) 20.0);
+    }
+    else if(simTime().dbl() == 150)
+    {
+        commandSetSpeed(trajectory, speed);
     }
 }
 
 
 void MyTraCI::ExTrajectory()
 {
+    if(endOfFile)
+        return;
+
+    if(!reached)
+    {
+        double pos = commandGetLanePosition(trajectory);
+
+        if(pos < 100)
+            return;
+        // stop at x = 100, waiting for other vehicles
+        else
+        {
+            commandSetSpeed(trajectory, (double) 0);
+            reached = true;
+            return;
+        }
+    }
+
+    if( simTime().dbl() == 40 )
+    {
+        commandSetSpeed(trajectory, (double) 13.86);
+    }
+    else if(simTime().dbl() < 80)
+    {
+        return;
+    }
+
+    char line [20];  // maximum line size
+    char *result = fgets (line, sizeof line, f2);
+
+    if (result == NULL)
+    {
+        endOfFile = true;
+        return;
+    }
+
+    commandSetSpeed(trajectory, atof(line));
+}
+
+
+void MyTraCI::StabilityTest()
+{
+    if(!reached)
+    {
+        double pos = commandGetLanePosition(trajectory);
+
+        if(pos < 200)
+            return;
+        // stop at x = 100, waiting for other vehicles
+        else
+        {
+            commandSetSpeed(trajectory, (double) 0);
+            reached = true;
+            return;
+        }
+    }
+
+    if( simTime().dbl() == 60 )
+    {
+        commandSetSpeed(trajectory, (double) 20.0);
+    }
+    else if(simTime().dbl() == 80)
+    {
+        commandSetSpeed(trajectory, (double) 5.0);
+    }
+    else if(simTime().dbl() == 110)
+    {
+        commandSetSpeed(trajectory, (double) 20.0);
+    }
+    else if(simTime().dbl() == 150)
+    {
+        commandSetSpeed(trajectory, (double) 5.0);
+    }
+
+
+/*
+    if(endOfFile)
+        return;
+
     if(simTime().dbl() < 30)
     {
         return;
@@ -191,19 +322,18 @@ void MyTraCI::ExTrajectory()
         commandSetSpeed(trajectory, (double) 0);
         return;
     }
-    else if(simTime().dbl() < 70)
+    else if(simTime().dbl() == 70)
+    {
+        commandSetSpeed(trajectory, (double) 24.5);
+        return;
+    }
+    else if(simTime().dbl() < 110)
     {
         return;
     }
 
-    if(endOfFile)
-        return;
-
-    fileLine++;  // a static variable
-    char line [128];  // maximum line size
-    double speed = 0;
-
-    char *result = fgets (line, sizeof line, f2);
+    char line [20];  // maximum line size
+    char *result = fgets (line, sizeof line, f3);
 
     if (result == NULL)
     {
@@ -211,19 +341,14 @@ void MyTraCI::ExTrajectory()
         return;
     }
 
-    speed = atof(line);
-
-    commandSetSpeed(trajectory, speed);
-
-
-
-    //EV << "### line " << fileLine << ": " << speed << std::endl;
+    commandSetSpeed(trajectory, atof(line));
+    */
 }
 
 
-// ##################################
+// #################################
 // getter methods added to the veins
-// ##################################
+// #################################
 
 uint32_t MyTraCI::commandGetNoVehicles()
 {
@@ -294,6 +419,15 @@ Coord MyTraCI::commandGetVehiclePos(std::string nodeId)
 }
 
 
+void MyTraCI::commandTerminate()
+{
+        TraCIBuffer buf = queryTraCI(CMD_CLOSE, TraCIBuffer() << 0);
+
+        uint32_t count;
+        buf >> count;
+}
+
+
 uint32_t MyTraCI::genericGetInt32(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId)
 {
     uint8_t resultTypeId = TYPE_INTEGER;
@@ -352,9 +486,31 @@ Coord MyTraCI::genericGetCoordv2(uint8_t commandId, std::string objectId, uint8_
     return Coord(x, y);
 }
 
-// ##################################
+// #################################
 // setter methods added to the veins
-// ##################################
+// #################################
+
+// todo: remove this?
+void MyTraCI::commandSetMaxAccel(std::string nodeId, double value)
+{
+    uint8_t variableId = VAR_ACCEL;
+    uint8_t variableType = TYPE_DOUBLE;
+
+    TraCIBuffer buf = queryTraCI(CMD_SET_VEHICLETYPE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
+    ASSERT(buf.eof());
+}
+
+
+// todo: remove this?
+void MyTraCI::commandSetMaxDecel(std::string nodeId, double value)
+{
+    uint8_t variableId = VAR_DECEL;
+    uint8_t variableType = TYPE_DOUBLE;
+
+    TraCIBuffer buf = queryTraCI(CMD_SET_VEHICLETYPE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
+    ASSERT(buf.eof());
+}
+
 
 void MyTraCI::commandSetPreceding(std::string nodeId, std::string value)
 {
@@ -392,5 +548,6 @@ void MyTraCI::finish()
 
     fclose(f1);
     fclose(f2);
+    fclose(f3);
 }
 

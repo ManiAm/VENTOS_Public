@@ -29,25 +29,35 @@ class MyTraCI : public TraCIScenarioManagerLaunchd
         double commandGetVehicleMaxDecel(std::string);
         std::list<std::string> commandGetVehiclesOnLane(std::string);
         Coord commandGetVehiclePos(std::string);
+        void commandTerminate();
 
         // we add these setters to veins
+        void commandSetMaxAccel(std::string, double);
+        void commandSetMaxDecel(std::string, double);
         void commandSetPreceding(std::string, std::string);
         void commandSetPlatoonLeader(std::string, std::string);
         void commandSetModeSwitch(std::string, bool);
 
 	private:
+        cModule *nodePtr;   // pointer to the Node
+
 	    FILE *f1;
 	    static int index;
 
 	    int trajectoryMode;
 	    std::string trajectory;
+	    double terminate;
+
+	    static bool reached;
 
         FILE *f2;
-	    static int fileLine;
+        FILE *f3;
 	    static bool endOfFile;
 
-	    void AccelDecel();
+	    void AccelDecel(double);
 	    void ExTrajectory();
+	    void StabilityTest();
+
 	    void writeToFile();
         void writeToFilePerVehicle(std::string, std::string);
 

@@ -1,14 +1,14 @@
 version 2
-run nodebug-0-20131112-19:17:51-12766
+run nodebug-0-20131117-21:55:31-9750
 attr configname nodebug
-attr datetime 20131112-19:17:51
+attr datetime 20131117-21:55:31
 attr experiment nodebug
 attr inifile omnetpp.ini
 attr iterationvars ""
 attr iterationvars2 $repetition=0
 attr measurement ""
 attr network ned.Network
-attr processid 12766
+attr processid 9750
 attr repetition 0
 attr replication #0
 attr resultdir results

@@ -1,0 +1,12 @@
+Total Number of received beacons from preceding vehicle
+
+vehicle   beacons   
+V[1]       1946       
+V[2]       1877       
+V[3]       1717       
+V[4]       1704       
+V[5]       1748       
+V[6]       1705       
+V[7]       1644       
+V[8]       1535       
+V[9]       397        

@@ -74,7 +74,7 @@ WaveShortMessage* ApplVPlatoon::fillBeaconPlatoon(WaveShortMessage *wsm)
 void ApplVPlatoon::onBeacon(WaveShortMessage* wsm)
 {
     // vehicles other than CACC should ignore the received beacon
-    if(SUMOvType != "TypeCACC1" && SUMOvType != "TypeCACC2")
+    if( !isCACC() )
         return;
 
     // in one_vehicle_look_ahead (i.e. No platooning) we should only

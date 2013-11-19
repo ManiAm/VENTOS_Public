@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for libapplication
 #
 # This file was generated with the command:
-#  opp_makemake -f --make-so -o application -O out -d msg -I../../veins/src/modules/messages -I../../veins/src/modules/obstacle -I../../veins/src/modules -I../../veins/src/base/modules -I../../veins/src/modules/utility -Imsg -I../../veins/src/base/messages -I../../veins/src/base/utils -I../../veins/src/base/phyLayer -I../../veins/src/modules/phy -I../../veins/src/modules/mac/ieee80211p -I../../veins/src/base/connectionManager -I../../veins/src/modules/analogueModel -L../../veins/out/$(CONFIGNAME)/src/modules -L../../veins/out/$(CONFIGNAME)/tests/testUtils -L../../veins/out/$(CONFIGNAME)/src/base -L../out/$(CONFIGNAME)/application/msg -lmsg -lmiximbase -lmiximmodules -lmiximmodules -lmiximtestUtils -lmiximbase -KVEINS_PROJ=../../veins
+#  opp_makemake -f --make-so -o application -O out -d msg -I../../veins/src/modules/messages -I../../veins/src/modules/obstacle -I../../veins/src/modules -I../../veins/src/base/modules -I../../veins/src/modules/utility -Imsg -I../../veins/src/base/utils -I../../veins/src/base/messages -I../../veins/src/base/phyLayer -I../../veins/src/modules/phy -I../../veins/src/modules/mac/ieee80211p -I../../veins/src/base/connectionManager -I../../veins/src/modules/analogueModel -L../../veins/out/$(CONFIGNAME)/src/modules -L../../veins/out/$(CONFIGNAME)/tests/testUtils -L../../veins/out/$(CONFIGNAME)/src/base -L../out/$(CONFIGNAME)/application/msg -lmsg -lmiximbase -lmiximmodules -lmiximmodules -lmiximtestUtils -lmiximbase -KVEINS_PROJ=../../veins
 #
 
 # Name of target to be created (-o option)
@@ -16,8 +16,8 @@ INCLUDE_PATH = \
     -I../../veins/src/base/modules \
     -I../../veins/src/modules/utility \
     -Imsg \
-    -I../../veins/src/base/messages \
     -I../../veins/src/base/utils \
+    -I../../veins/src/base/messages \
     -I../../veins/src/base/phyLayer \
     -I../../veins/src/modules/phy \
     -I../../veins/src/modules/mac/ieee80211p \
@@ -38,7 +38,7 @@ PROJECTRELATIVE_PATH = application
 O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Object files for local .cc and .msg files
-OBJS = $O/ApplVBase.o $O/ApplVPlatoon.o $O/ApplVBeacon.o $O/MyTraCI.o
+OBJS = $O/ApplVBase.o $O/ApplVPlatoon.o $O/ApplVBeacon.o $O/Statistics.o $O/MyTraCI.o
 
 # Message files
 MSGFILES =
@@ -140,6 +140,7 @@ depend:
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 $O/ApplVBase.o: ApplVBase.cc \
 	ApplVBase.h \
+	ExtraClasses.h \
 	MyTraCI.h \
 	msg/WaveShortMessage_m.h \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
@@ -177,6 +178,7 @@ $O/ApplVBase.o: ApplVBase.cc \
 $O/ApplVBeacon.o: ApplVBeacon.cc \
 	ApplVBase.h \
 	ApplVBeacon.h \
+	ExtraClasses.h \
 	MyTraCI.h \
 	msg/WaveShortMessage_m.h \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
@@ -215,6 +217,7 @@ $O/ApplVPlatoon.o: ApplVPlatoon.cc \
 	ApplVBase.h \
 	ApplVBeacon.h \
 	ApplVPlatoon.h \
+	ExtraClasses.h \
 	MyTraCI.h \
 	msg/WaveShortMessage_m.h \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
@@ -264,6 +267,34 @@ $O/MyTraCI.o: MyTraCI.cc \
 	$(VEINS_PROJ)/src/base/utils/HostState.h \
 	$(VEINS_PROJ)/src/base/utils/MiXiMDefs.h \
 	$(VEINS_PROJ)/src/base/utils/Move.h \
+	$(VEINS_PROJ)/src/base/utils/miximkerneldefs.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManagerLaunchd.h \
+	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
+	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
+	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
+$O/Statistics.o: Statistics.cc \
+	ExtraClasses.h \
+	MyTraCI.h \
+	Statistics.h \
+	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
+	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
+	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
+	$(VEINS_PROJ)/src/base/modules/BaseMobility.h \
+	$(VEINS_PROJ)/src/base/modules/BaseModule.h \
+	$(VEINS_PROJ)/src/base/modules/BaseWorldUtility.h \
+	$(VEINS_PROJ)/src/base/modules/BatteryAccess.h \
+	$(VEINS_PROJ)/src/base/utils/Coord.h \
+	$(VEINS_PROJ)/src/base/utils/FWMath.h \
+	$(VEINS_PROJ)/src/base/utils/FindModule.h \
+	$(VEINS_PROJ)/src/base/utils/HostState.h \
+	$(VEINS_PROJ)/src/base/utils/MiXiMDefs.h \
+	$(VEINS_PROJ)/src/base/utils/Move.h \
+	$(VEINS_PROJ)/src/base/utils/NetwControlInfo.h \
+	$(VEINS_PROJ)/src/base/utils/SimpleAddress.h \
 	$(VEINS_PROJ)/src/base/utils/miximkerneldefs.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIConstants.h \

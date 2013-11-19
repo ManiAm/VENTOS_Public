@@ -10,5 +10,6 @@ simple MyTraCI extends TraCIScenarioManagerLaunchd
         
         int trajectoryMode = default(1);
         string trajectory;
+        double terminate = default(200s) @unit(s);
 }
 
