@@ -47,6 +47,7 @@ class ApplVBeacon : public ApplVBase
         virtual void sendWSM(WaveShortMessage*);
 
 	private:
+        bool dropBeacon();
         std::string  getLeading();
         double  getGap(std::string);
         bool isBeaconFromLeading(WaveShortMessage*);

@@ -90,14 +90,27 @@ void MyTraCI::init_traci()
 
 void MyTraCI::executeOneTimestep()
 {
+    EV << "### Sending Command to SUMO to perform simulation for TS = " << (getCurrentTimeMs()/1000.) << std::endl;
+
     TraCIScenarioManager::executeOneTimestep();
 
-    EV << "### Sumo advanced to " << getCurrentTimeMs() / 1000. << std::endl;
+    EV << "### SUMO completed simulation for TS = " << (getCurrentTimeMs()/1000.) << std::endl;
 
-    // One simulation step is done!
     // We write the parameters of all vehicles that are present now into the file
     writeToFile();
 
+    if(simTime().dbl() >= terminate)
+    {
+        // send termination signal to statistics
+        // statistic will perform some post-processing and
+        // then terminates the simulation
+        simsignal_t Signal_terminate = registerSignal("terminate");
+        nodePtr->emit(Signal_terminate, 1);
+    }
+
+    // ################
+    // trajectory mode
+    // ################
     if(trajectoryMode == 0)
     {
         // no trajectory
@@ -121,15 +134,6 @@ void MyTraCI::executeOneTimestep()
     else if(trajectoryMode == 4)
     {
         StabilityTest();
-    }
-
-    if(simTime().dbl() >= terminate)
-    {
-        // send termination signal to statistics
-        // statistic will perform some post-processing and
-        // then terminates the simulation
-        simsignal_t Signal_terminate = registerSignal("terminate");
-        nodePtr->emit(Signal_terminate, 1);
     }
 }
 
@@ -207,7 +211,7 @@ void MyTraCI::AccelDecel(double speed)
         // stop at x = 100, waiting for other vehicles
         else
         {
-            commandSetSpeed(trajectory, (double) 0);
+            commandSetSpeed(trajectory, (double) 0.);
             reached = true;
             return;
         }

@@ -1,4 +1,4 @@
 Total Number of dropped beacons from other vehicles
 
 vehicle   beacons   
-V[9]       5494       
+V[9]       584        

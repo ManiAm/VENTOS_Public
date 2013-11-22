@@ -54,7 +54,32 @@ void ApplVBeacon::handleLowerMsg(cMessage* msg)
 
     if (std::string(wsm->getName()) == "beacon")
     {
-        onBeacon(wsm);
+        // vehicles other than CACC should ignore the received beacon
+        if( isCACC() )
+        {
+            if( !dropBeacon() )
+            {
+                onBeacon(wsm);
+            }
+            // report the dropped beacon to statistics
+            else
+            {
+                bool result = isBeaconFromLeading(wsm);
+
+                if(result)
+                {
+                    // a beacon from preceding vehicle is drooped
+                    simsignal_t Signal_beaconD = registerSignal("beaconD");
+                    nodePtr->emit(Signal_beaconD, 1);
+                }
+                else
+                {
+                    // a beacon from other vehicle is drooped
+                    simsignal_t Signal_beaconD = registerSignal("beaconD");
+                    nodePtr->emit(Signal_beaconD, 2);
+                }
+            }
+        }
     }
     else if (std::string(wsm->getName()) == "data")
     {
@@ -166,39 +191,41 @@ void ApplVBeacon::printBeaconContent(WaveShortMessage* wsm)
 }
 
 
-void ApplVBeacon::onBeacon(WaveShortMessage* wsm)
+// simulate packet loss in application layer
+bool ApplVBeacon::dropBeacon()
 {
-    // vehicles other than CACC should ignore the received beacon
-    if( !isCACC() )
-        return;
-
-    // ignore the received beacon (simulate packet loss in application layer)
+    // drop the beacon only in the last vehicle
     if(SUMOvID == "CACC10")
     {
-        double p = dblrand();  // random number in [0,1)
+        if(simTime().dbl() >= 37)
+        {
+            return true;
+        }
+        else
+            return false;
 
+
+
+
+        // random number in [0,1)
+        double p = dblrand();
+
+        // drop the beacon
         if( p < (PLR/100) )
         {
-            bool result = isBeaconFromLeading(wsm);
-
-            if(result)
-            {
-                // a beacon from preceding vehicle is drooped
-                simsignal_t Signal_beaconD = registerSignal("beaconD");
-                nodePtr->emit(Signal_beaconD, 1);
-            }
-            else
-            {
-                // a beacon from other vehicle is drooped
-                simsignal_t Signal_beaconD = registerSignal("beaconD");
-                nodePtr->emit(Signal_beaconD, 2);
-            }
-
-            // now return from this function
-            return;
+            return true;
         }
+        // keep the beacon
+        else
+            return false;
     }
 
+    return false;
+}
+
+
+void ApplVBeacon::onBeacon(WaveShortMessage* wsm)
+{
     EV << "## " << SUMOvID << " received beacon ..." << std::endl;
     printBeaconContent(wsm);
 
@@ -211,7 +238,7 @@ void ApplVBeacon::onBeacon(WaveShortMessage* wsm)
     if(result)
     {
         char buffer [100];
-        sprintf (buffer, "%f#%f#%f", (double)wsm->getSpeed(), (double)wsm->getAccel(), (double)wsm->getMaxDecel());
+        sprintf (buffer, "%f#%f#%f#%f", (double)wsm->getSpeed(), (double)wsm->getAccel(), (double)wsm->getMaxDecel(), (simTime().dbl())*1000);
         manager->commandSetPreceding(SUMOvID, buffer);
 
         // a beacon from the proceeding vehicle is received
@@ -399,5 +426,4 @@ ApplVBeacon::~ApplVBeacon()
 {
 
 }
-
 
