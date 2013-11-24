@@ -32,7 +32,7 @@ network Network
                 playgroundSizeZ = playgroundSizeZ;
                 @display("p=38,58;i=misc/globe");
         }
-        manager: MyTraCI {
+        manager: TraCI_App {
             parameters:
                 @display("p=456,58");
         }

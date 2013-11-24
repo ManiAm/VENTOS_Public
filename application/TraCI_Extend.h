@@ -1,6 +1,6 @@
 
-#ifndef MyTraCI_H
-#define MyTraCI_H
+#ifndef TraCIEXTEND_H
+#define TraCIEXTEND_H
 
 #include <omnetpp.h>
 #include "mobility/traci/TraCIScenarioManagerLaunchd.h"
@@ -8,13 +8,14 @@
 #include "mobility/traci/TraCIConstants.h"
 
 
-class MyTraCI : public TraCIScenarioManagerLaunchd
+class TraCI_Extend : public TraCIScenarioManagerLaunchd
 {
 	public:
-		virtual ~MyTraCI();
+		virtual ~TraCI_Extend();
 		virtual void initialize(int stage);
+        virtual void handleSelfMsg(cMessage *msg);
+
         virtual void init_traci();
-        virtual void executeOneTimestep();
 		virtual void finish();
 
 		// we add these getters to the veins
@@ -37,32 +38,18 @@ class MyTraCI : public TraCIScenarioManagerLaunchd
         void commandSetPreceding(std::string, std::string);
         void commandSetPlatoonLeader(std::string, std::string);
         void commandSetModeSwitch(std::string, bool);
+        void commandSetGUIZoom(double);
+        void commandSetGUITrack(std::string);
+        void commandSetGUIOffset(double, double);
 
 	private:
-        cModule *nodePtr;   // pointer to the Node
-
-	    FILE *f1;
-	    static int index;
-
-	    int trajectoryMode;
-	    std::string trajectory;
-	    double terminate;
-
-	    static bool reached;
-
-        FILE *f2;
-        FILE *f3;
-	    static bool endOfFile;
-
-	    void AccelDecel(double);
-	    void ExTrajectory();
-	    void StabilityTest();
-
-	    void writeToFile();
-        void writeToFilePerVehicle(std::string, std::string);
-
         uint32_t genericGetInt32(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
         Coord genericGetCoordv2(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
+
+        cMessage* updataGUI;
+        bool tracking;
+        std::string trackingV;
+        double trackingInterval;
 };
 
 

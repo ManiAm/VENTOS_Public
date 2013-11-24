@@ -1,11 +1,10 @@
 
 package c3po.ned;
-import org.mixim.modules.mobility.traci.TraCIScenarioManagerLaunchd;
 
-simple MyTraCI extends TraCIScenarioManagerLaunchd
+simple TraCI_App extends TraCI_Extend
 {
     parameters:
-        @class(MyTraCI);
+        @class(TraCI_App);
         @display("i=block/network2");
         
         int trajectoryMode = default(1);

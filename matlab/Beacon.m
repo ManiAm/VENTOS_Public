@@ -73,7 +73,7 @@ ylabel('Dropped beacons (proceeding)', 'FontSize', 19);
 
  % set the x-axis limit
  %set( gca, 'XLim', [25.7 29] );
- set( gca, 'XLim', [25.7 50] );
+ set( gca, 'XLim', [75 90] );
  
  set(gca,'ytick',0:20);
  
@@ -101,7 +101,7 @@ xlabel('Simulation Step', 'FontSize', 19);
 ylabel('Dropped beacons (others)', 'FontSize', 19);
 
  % set the x-axis limit
- set(gca, 'XLim', [25.7 29]);
+ set(gca, 'XLim', [75 90]);
  
  set(gca,'ytick',0:20);
  

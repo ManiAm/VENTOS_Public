@@ -29,7 +29,7 @@ void Statistics::initialize(int stage)
 
         // get a pointer to the manager module
         cModule *module = simulation.getSystemModule()->getSubmodule("manager");
-        manager = static_cast<MyTraCI *>(module);
+        manager = static_cast<TraCI_Extend *>(module);
 
         terminate = module->par("terminate").doubleValue();
         updateInterval = module->par("updateInterval").doubleValue();

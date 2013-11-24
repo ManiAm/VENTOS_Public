@@ -25,7 +25,7 @@ void ApplVBase::initialize(int stage)
         findHost()->subscribe(mobilityStateChangedSignal, this);
 
         traci = TraCIMobilityAccess().get(getParentModule());
-        manager = FindModule<MyTraCI*>::findGlobalModule();
+        manager = FindModule<TraCI_Extend*>::findGlobalModule();
 
         // vehicle id in sumo
         SUMOvID = traci->getExternalId();

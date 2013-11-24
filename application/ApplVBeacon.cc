@@ -122,7 +122,10 @@ WaveShortMessage*  ApplVBeacon::prepareBeacon(std::string name, int lengthBits, 
 
     WaveShortMessage* wsm = new WaveShortMessage(name.c_str());
 
+    // add header length
     wsm->addBitLength(headerLength);
+
+    // add payload length
     wsm->addBitLength(lengthBits);
 
     wsm->setWsmVersion(1);
@@ -194,10 +197,11 @@ void ApplVBeacon::printBeaconContent(WaveShortMessage* wsm)
 // simulate packet loss in application layer
 bool ApplVBeacon::dropBeacon()
 {
+
     // drop the beacon only in the last vehicle
     if(SUMOvID == "CACC10")
     {
-        if(simTime().dbl() >= 37)
+        if(simTime().dbl() >= 99)
         {
             return true;
         }

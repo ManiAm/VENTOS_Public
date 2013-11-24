@@ -15,7 +15,7 @@
 #include <iostream>
 #include <fstream>
 
-#include <MyTraCI.h>
+#include <TraCI_Extend.h>
 
 
 class Statistics : public BaseModule
@@ -37,7 +37,7 @@ class Statistics : public BaseModule
       int getNodeIndex(const char*);
       int findInVector(std::vector<NodeEntry *>, const char *);
 
-      MyTraCI *manager;
+      TraCI_Extend *manager;
 
       double updateInterval;
       double terminate;

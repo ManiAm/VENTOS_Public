@@ -22,7 +22,7 @@ module vehicle
                 @display("p=130,108");
         }
 
-        nic: Nic80211p {
+        nic: Nic80211p_Mod {
             parameters:
                 @display("p=60,166");
         }

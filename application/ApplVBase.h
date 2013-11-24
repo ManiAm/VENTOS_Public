@@ -9,7 +9,7 @@
 #include <msg/WaveShortMessage_m.h>
 #include <ChannelAccess.h>
 #include <WaveAppToMac1609_4Interface.h>
-#include "MyTraCI.h"
+#include "TraCI_Extend.h"
 
 #include "ExtraClasses.h"
 
@@ -52,7 +52,7 @@ class ApplVBase : public BaseApplLayer
         Coord curPosition;
 
         TraCIMobility* traci;
-        mutable MyTraCI* manager;
+        mutable TraCI_Extend* manager;
 
 		std::string SUMOvID;
         std::string SUMOvType;
