@@ -198,6 +198,15 @@ void ApplVBeacon::printBeaconContent(WaveShortMessage* wsm)
 bool ApplVBeacon::dropBeacon()
 {
 
+    if(simTime().dbl() >= 99)
+    {
+        return true;
+    }
+    else
+        return false;
+
+
+
     // drop the beacon only in the last vehicle
     if(SUMOvID == "CACC10")
     {
