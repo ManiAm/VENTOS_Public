@@ -6,7 +6,10 @@ simple ApplVBeacon extends ApplVBase
         @class(ApplVBeacon);
         @display("i=block/app2");
         
-        double PLR = default(0);
+        double droppT = default(0s) @unit(s);
+        string droppV = default("");
+        double plr = default(0);
+        
         bool modeSwitch = default(true);
                 
         bool sendBeacons = default(false); //tell the applayer to periodically send beacons

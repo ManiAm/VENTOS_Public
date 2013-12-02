@@ -1,6 +1,5 @@
 
 
-// used to send data from CA to magic cars
 class data : public cObject, noncopyable
 {
   public:
@@ -10,6 +9,36 @@ class data : public cObject, noncopyable
     {
         strcpy(this->name, str);
     }
+};
+
+
+class MacStat : public cObject, noncopyable
+{
+  public:
+    std::vector<long> vec;
+
+    MacStat( std::vector<long> v)
+    {
+        vec.swap(v);
+    }
+};
+
+
+class MacStatEntry
+{
+public:
+  char name1[10];
+  int nodeID;  // is used to sort the vector (used as a key)
+  simtime_t time;
+  std::vector<long> MacStatsVec;
+
+  MacStatEntry(const char *str, int id, simtime_t t, std::vector<long> v)
+  {
+      strcpy(this->name1, str);
+      this->nodeID = id;
+      this->time = t;
+      MacStatsVec.swap(v);
+  }
 };
 
 

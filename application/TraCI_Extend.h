@@ -27,6 +27,7 @@ class TraCI_Extend : public TraCIScenarioManagerLaunchd
         double commandGetVehicleAccel(std::string);
         std::string commandGetVehicleType(std::string);
         double commandGetVehicleLength(std::string);
+        double commandGetVehicleLength_Type(std::string);
         double commandGetVehicleMaxDecel(std::string);
         std::list<std::string> commandGetVehiclesOnLane(std::string);
         Coord commandGetVehiclePos(std::string);

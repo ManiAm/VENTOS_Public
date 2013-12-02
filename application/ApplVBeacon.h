@@ -17,7 +17,9 @@ class ApplVBeacon : public ApplVBase
 		bool sentMessage;
 
         bool modeSwitch;
-        double PLR;
+        double droppT;
+        std::string droppV;
+        double plr;
 
 		bool sendBeacons;
 		double beaconInterval;
@@ -47,7 +49,7 @@ class ApplVBeacon : public ApplVBase
         virtual void sendWSM(WaveShortMessage*);
 
 	private:
-        bool dropBeacon();
+        bool dropBeacon(double, std::string, double);
         std::string  getLeading();
         double  getGap(std::string);
         bool isBeaconFromLeading(WaveShortMessage*);

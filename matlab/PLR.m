@@ -2,11 +2,13 @@ clear all;
 clc;   % position the cursor at the top of the screen
 %clf;   %  closes the figure window
 
+NoRun = 6;
+
 % -------------------------------------------------------------------
 
 path = '';
 
-for s=1:5
+for s=1:NoRun
     path = sprintf('%s_%d.txt','../results/cmd/speed-gap', s-1);    
     file_id = fopen(path);
     formatSpec = '%d %s %f %f %f %f %f %f';
@@ -73,7 +75,7 @@ set(gcf,'name','Packet Loss Impact on Stability');
 handle = plot(vehiclesTS,lastV,'LineWidth', 3);
 
 % set the x-axis limit
-set( gca, 'XLim', [0 150] );
+set( gca, 'XLim', [0 180] );
     
 % set the y-axis limit
 %set( gca, 'YLim', [0 30] );
@@ -89,11 +91,12 @@ grid on;
 
 % set the name for each line
 set(handle(1),'Displayname', 'PLR = 0');
-set(handle(2),'Displayname', 'PLR = 40');
-set(handle(3),'Displayname', 'PLR = 50');
+set(handle(2),'Displayname', 'PLR = 20');
+set(handle(3),'Displayname', 'PLR = 40');
 set(handle(4),'Displayname', 'PLR = 60');
-set(handle(5),'Displayname', 'PLR = 70');
-set(handle(6),'Displayname', 'Trajectory');
+set(handle(5),'Displayname', 'PLR = 80');
+set(handle(6),'Displayname', 'PLR = 100');
+set(handle(7),'Displayname', 'Trajectory');
 
 % set the legend
 legend(handle, 'Location','NorthEastOutside');

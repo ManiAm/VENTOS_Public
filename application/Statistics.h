@@ -36,6 +36,7 @@ class Statistics : public BaseModule
       std::vector<NodeEntry *> SortByID(std::vector<NodeEntry *>);
       int getNodeIndex(const char*);
       int findInVector(std::vector<NodeEntry *>, const char *);
+      int findInVector(std::vector<MacStatEntry *>, const char *);
 
       TraCI_Extend *manager;
 
@@ -47,6 +48,8 @@ class Statistics : public BaseModule
 	  simsignal_t Signal_beaconP;
 	  simsignal_t Signal_beaconO;
 	  simsignal_t Signal_beaconD;
+
+	  simsignal_t Signal_MacStats;
 
       std::vector<NodeEntry *> Vec_BeaconsP;    // beacons from proceeding
       std::vector<NodeEntry *> Vec_BeaconsO;    // beacons from other vehicles
@@ -60,6 +63,8 @@ class Statistics : public BaseModule
 
       std::vector<NodeEntry *> beaconsDO_interval;
       std::vector<NodeEntry *> beaconsDP_interval;
+
+      std::vector<MacStatEntry *> Vec_MacStat;
 };
 
 #endif

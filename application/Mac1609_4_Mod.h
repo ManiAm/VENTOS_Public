@@ -3,6 +3,7 @@
 #define ___MAC1609_4_MOD_H_
 
 #include <Mac1609_4.h>
+#include <ExtraClasses.h>
 
 class Mac1609_4_Mod : public Mac1609_4
 {
@@ -23,7 +24,9 @@ class Mac1609_4_Mod : public Mac1609_4
         virtual void finish();
 
 	private:
-        void MacStatistics();
+        void print_MacStatistics();
+
+        cModule *nodePtr;   // pointer to the Node
 };
 
 #endif

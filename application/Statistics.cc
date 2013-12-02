@@ -21,11 +21,14 @@ void Statistics::initialize(int stage)
         Signal_beaconO = registerSignal("beaconO");
         Signal_beaconD = registerSignal("beaconD");
 
+        Signal_MacStats = registerSignal("MacStats");
+
         // now subscribe locally to all these signals
         simulation.getSystemModule()->subscribe("terminate", this);
         simulation.getSystemModule()->subscribe("beaconP", this);
         simulation.getSystemModule()->subscribe("beaconO", this);
         simulation.getSystemModule()->subscribe("beaconD", this);
+        simulation.getSystemModule()->subscribe("MacStats", this);
 
         // get a pointer to the manager module
         cModule *module = simulation.getSystemModule()->getSubmodule("manager");
@@ -117,6 +120,26 @@ void Statistics::receiveSignal(cComponent *source, simsignal_t signalID, cObject
 
         NodeEntry *tmp = new NodeEntry(source->getFullName(), m->name, nodeIndex, -1, simTime());
         Vec_BeaconsO.push_back(tmp);
+    }
+    else if(signalID == Signal_MacStats)
+    {
+        MacStat *m = static_cast<MacStat *>(obj);
+        if (m == NULL) return;
+
+        int counter = findInVector(Vec_MacStat, source->getFullName());
+
+        // its a new entry, so we add it.
+        if(counter == -1)
+        {
+            MacStatEntry *tmp = new MacStatEntry(source->getFullName(), nodeIndex, simTime(), m->vec);
+            Vec_MacStat.push_back(tmp);
+        }
+        // if found, just update the existing fields
+        else
+        {
+            Vec_MacStat[counter]->time = simTime();
+            Vec_MacStat[counter]->MacStatsVec = m->vec;
+        }
     }
 }
 
@@ -243,6 +266,17 @@ void Statistics::printStatistics()
     EV << "The simulation completed at " << simTime().dbl() << endl;
     EV << "******************************************************" << endl;
 
+    for(unsigned int i=0; i<Vec_MacStat.size(); i++)
+    {
+        EV << "Mac statistics for " << Vec_MacStat[i]->name1 << ": " << endl;
+
+        for(unsigned int j=0; j<Vec_MacStat[i]->MacStatsVec.size(); j++)
+        {
+            EV << Vec_MacStat[i]->MacStatsVec[j] << endl;
+        }
+
+        EV << endl;
+    }
 }
 
 
@@ -460,6 +494,27 @@ int Statistics::getNodeIndex(const char *ModName)
 
 
 int Statistics::findInVector(std::vector<NodeEntry *> Vec, const char *name)
+{
+    unsigned int counter;    // for counter
+    bool found = false;
+
+    for(counter=0; counter<Vec.size(); counter++)
+    {
+        if( strcmp(Vec[counter]->name1, name) == 0 )
+        {
+            found = true;
+            break;
+        }
+    }
+
+    if(!found)
+        return -1;
+    else
+        return counter;
+}
+
+
+int Statistics::findInVector(std::vector<MacStatEntry *> Vec, const char *name)
 {
     unsigned int counter;    // for counter
     bool found = false;

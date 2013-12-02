@@ -1,0 +1,12 @@
+Total Number of dropped beacons from preceding vehicle
+
+vehicle   beacons   
+V[1]       824        
+V[9]       810        
+V[2]       844        
+V[3]       834        
+V[5]       830        
+V[4]       830        
+V[6]       831        
+V[8]       816        
+V[7]       820        

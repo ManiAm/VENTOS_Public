@@ -260,6 +260,7 @@ $O/ApplVPlatoon.o: ApplVPlatoon.cc \
 	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
 	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
 $O/Mac1609_4_Mod.o: Mac1609_4_Mod.cc \
+	ExtraClasses.h \
 	Mac1609_4_Mod.h \
 	msg/WaveShortMessage_m.h \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \

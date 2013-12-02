@@ -33,7 +33,6 @@ class TraCI_App : public TraCI_Extend
 	    double old_speed;
 
         FILE *f2;
-        FILE *f3;
 	    bool endOfFile;
 
         void writeToFile();
@@ -44,7 +43,6 @@ class TraCI_App : public TraCI_Extend
 	    void AccelDecelZikZak(double, double);
         void AccelDecelPeriodic(double, double, double);
 	    void ExTrajectory();
-	    void StabilityTest();
 };
 
 

@@ -47,10 +47,10 @@ void TraCI_Extend::init_traci()
     TraCIScenarioManagerLaunchd::init_traci();
 
     // zoom-in GUI
-    commandSetGUIZoom(767.);
+    //commandSetGUIZoom(767.);
 
     // adjust windows
-    commandSetGUIOffset(200., 0.);
+   // commandSetGUIOffset(200., 0.);
 
     // track the vehicle only if tracking is on
     if(tracking)
@@ -111,13 +111,19 @@ std::string TraCI_Extend::commandGetVehicleType(std::string nodeId)
 
 double TraCI_Extend::commandGetVehicleLength(std::string nodeId)
 {
+    return genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_LENGTH, RESPONSE_GET_VEHICLE_VARIABLE);
+}
+
+
+double TraCI_Extend::commandGetVehicleLength_Type(std::string nodeId)
+{
     return genericGetDouble(CMD_GET_VEHICLETYPE_VARIABLE, nodeId, VAR_LENGTH, RESPONSE_GET_VEHICLETYPE_VARIABLE);
 }
 
 
 double TraCI_Extend::commandGetVehicleMaxDecel(std::string nodeId)
 {
-    return genericGetDouble(CMD_GET_VEHICLETYPE_VARIABLE, nodeId, VAR_DECEL, RESPONSE_GET_VEHICLETYPE_VARIABLE);
+    return genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_DECEL, RESPONSE_GET_VEHICLE_VARIABLE);
 }
 
 
@@ -204,24 +210,22 @@ Coord TraCI_Extend::genericGetCoordv2(uint8_t commandId, std::string objectId, u
 // setter methods added to the veins
 // #################################
 
-// todo: remove this?
 void TraCI_Extend::commandSetMaxAccel(std::string nodeId, double value)
 {
     uint8_t variableId = VAR_ACCEL;
     uint8_t variableType = TYPE_DOUBLE;
 
-    TraCIBuffer buf = queryTraCI(CMD_SET_VEHICLETYPE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
+    TraCIBuffer buf = queryTraCI(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
     ASSERT(buf.eof());
 }
 
 
-// todo: remove this?
 void TraCI_Extend::commandSetMaxDecel(std::string nodeId, double value)
 {
     uint8_t variableId = VAR_DECEL;
     uint8_t variableType = TYPE_DOUBLE;
 
-    TraCIBuffer buf = queryTraCI(CMD_SET_VEHICLETYPE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
+    TraCIBuffer buf = queryTraCI(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
     ASSERT(buf.eof());
 }
 

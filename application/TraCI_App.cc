@@ -34,11 +34,6 @@ void TraCI_App::initialize(int stage)
         if ( f2 == NULL )
             error("external trajectory file does not exists!");
 
-        f3 = fopen ("sumo/Stability_Test.txt", "r");
-
-        if ( f3 == NULL )
-            error("Stability test file does not exists!");
-
         reached = false;
         index = 1;
         endOfFile = false;
@@ -92,12 +87,6 @@ void TraCI_App::executeOneTimestep()
     TraCIScenarioManager::executeOneTimestep();
 
     EV << "### SUMO completed simulation for TS = " << (getCurrentTimeMs()/1000.) << std::endl;
-
-
-
-
-
-
 
     // We write the parameters of all vehicles that are present now into the file
     writeToFile();
@@ -154,8 +143,7 @@ void TraCI_App::writeToFilePerVehicle(std::string vID, std::string vleaderID)
 
     if(vleaderID != "")
     {
-        std::string leaderType = commandGetVehicleType(vleaderID);
-        gap = commandGetLanePosition(vleaderID) - commandGetLanePosition(vID) - commandGetVehicleLength(leaderType);
+        gap = commandGetLanePosition(vleaderID) - commandGetLanePosition(vID) - commandGetVehicleLength(vleaderID);
     }
 
     // calculate timeGap (if leading is present)
@@ -198,38 +186,44 @@ void TraCI_App::Trajectory()
         {
             // no trajectory
         }
-        // accel/decel at specific times
         else if(trajectoryMode == 1)
         {
             AccelDecel(5.0);
         }
-        // accel/extreme decel at specific times
         else if(trajectoryMode == 2)
         {
             AccelDecel(0.);
         }
-        // zik-zak
+        // stability test
         else if(trajectoryMode == 3)
+        {
+            // todo:
+            // we change the maxDecel and maxAccel of trajectory to lower values (it does not touch the boundaries)
+            // note: when we change maxDecel or maxAccel of a vehicle, its type will be changes!
+            // we have to make sure the trajectory entered into the simulation
+            // and we have to change maxDeccel and maxAccel only once
+            if(simTime().dbl() == 35)
+            {
+                commandSetMaxAccel(trajectory, 1.5);
+                commandSetMaxDecel(trajectory, 2.);
+            }
+
+            AccelDecel(5.0);
+        }
+        else if(trajectoryMode == 4)
         {
             AccelDecelZikZak(5., 20.);
         }
-        // periodic
-        else if(trajectoryMode == 4)
+        else if(trajectoryMode == 5)
         {
             // param 1: offset
             // param 2: amplitude
             // param 3: omega
             AccelDecelPeriodic(10., 10., 0.2);
         }
-        // accel/decel based on external file
-        else if(trajectoryMode == 5)
-        {
-            ExTrajectory();
-        }
-        // accel/decel (for testing stability)
         else if(trajectoryMode == 6)
         {
-            StabilityTest();
+            ExTrajectory();
         }
     }
 }
@@ -333,69 +327,11 @@ void TraCI_App::ExTrajectory()
 }
 
 
-void TraCI_App::StabilityTest()
-{
-    if( simTime().dbl() == 60 )
-    {
-        commandSetSpeed(trajectory, 20.);
-    }
-    else if(simTime().dbl() == 80)
-    {
-        commandSetSpeed(trajectory, 5.);
-    }
-    else if(simTime().dbl() == 110)
-    {
-        commandSetSpeed(trajectory, 20.);
-    }
-    else if(simTime().dbl() == 150)
-    {
-        commandSetSpeed(trajectory, 5.);
-    }
-
-
-/*
-    if(endOfFile)
-        return;
-
-    if(simTime().dbl() < 30)
-    {
-        return;
-    }
-    else if(simTime().dbl() == 30)
-    {
-        commandSetSpeed(trajectory, (double) 0);
-        return;
-    }
-    else if(simTime().dbl() == 70)
-    {
-        commandSetSpeed(trajectory, (double) 24.5);
-        return;
-    }
-    else if(simTime().dbl() < 110)
-    {
-        return;
-    }
-
-    char line [20];  // maximum line size
-    char *result = fgets (line, sizeof line, f3);
-
-    if (result == NULL)
-    {
-        endOfFile = true;
-        return;
-    }
-
-    commandSetSpeed(trajectory, atof(line));
-    */
-}
-
-
 void TraCI_App::finish()
 {
     TraCI_Extend::finish();
 
     fclose(f1);
     fclose(f2);
-    fclose(f3);
 }
 

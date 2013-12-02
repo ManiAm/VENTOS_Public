@@ -1,0 +1,12 @@
+Total Number of received beacons from preceding vehicle
+
+vehicle   beacons   
+V[1]       982        
+V[2]       955        
+V[3]       925        
+V[4]       911        
+V[5]       854        
+V[6]       829        
+V[7]       837        
+V[8]       780        
+V[9]       712        

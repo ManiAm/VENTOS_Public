@@ -1,0 +1,13 @@
+Total Number of received beacons from other vehicle
+
+vehicle   beacons   
+V[0]       7439       
+V[2]       6458       
+V[1]       6457       
+V[3]       6430       
+V[4]       6357       
+V[5]       6302       
+V[6]       6182       
+V[7]       6006       
+V[8]       5860       
+V[9]       5696       

@@ -9,7 +9,10 @@ void Mac1609_4_Mod::initialize(int stage)
 
 	if (stage == 0)
 	{
-
+        // get the ptr of the current module
+        nodePtr = FindModule<>::findHost(this);
+        if(nodePtr == NULL)
+            error("can not get a pointer to the module.");
 	}
 }
 
@@ -34,8 +37,27 @@ void Mac1609_4_Mod::handleUpperMsg(cMessage* msg)
 {
     Mac1609_4::handleUpperMsg(msg);
 
-    MacStatistics();
+    // print_MacStatistics();
 
+    // send signal to statistics
+    std::vector<long> MacStats;
+
+    MacStats.push_back(statsDroppedPackets);
+    MacStats.push_back(statsNumTooLittleTime);
+    MacStats.push_back(statsNumInternalContention);
+    MacStats.push_back(statsNumBackoff);
+    MacStats.push_back(statsSlotsBackoff);
+    MacStats.push_back(statsTotalBusyTime.dbl());
+    MacStats.push_back(statsSentPackets);
+    MacStats.push_back(statsSNIRLostPackets);
+    MacStats.push_back(statsTXRXLostPackets);
+    MacStats.push_back(statsReceivedPackets);
+    MacStats.push_back(statsReceivedBroadcasts);
+
+    MacStat *vec = new MacStat(MacStats);
+
+    simsignal_t Signal_MacStats = registerSignal("MacStats");
+    nodePtr->emit(Signal_MacStats, vec);
 }
 
 
@@ -55,7 +77,7 @@ void Mac1609_4_Mod::handleLowerMsg(cMessage* msg)
 }
 
 
-void Mac1609_4_Mod::MacStatistics()
+void Mac1609_4_Mod::print_MacStatistics()
 {
     EV << "####### Mac stats: " << endl;
 
@@ -69,14 +91,6 @@ void Mac1609_4_Mod::MacStatistics()
     EV << "TotalBusyTime: " << statsTotalBusyTime << endl;
 
     EV << "SentPackets: " << statsSentPackets << endl;
-
-    if(statsSNIRLostPackets >= 1)
-    {
-        double t = simTime().dbl();
-        std::string v = getParentModule()->getParentModule()->getFullName();   // v name
-        int i = 0;
-    }
-
 
     EV << "SNIRLostPackets: " << statsSNIRLostPackets << endl;   // A packet was not received due to biterrors
     EV << "TXRXLostPackets: " << statsTXRXLostPackets << endl;   // A packet was not received because we were sending while receiving

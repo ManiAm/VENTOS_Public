@@ -9,8 +9,9 @@ void ApplVBeacon::initialize(int stage)
 
 	if (stage == 0)
 	{
-        // packet loss ratio
-        PLR = par("PLR");
+        droppT = par("droppT").doubleValue();
+        droppV = par("droppV").stringValue();
+        plr = par("plr").doubleValue();
 
         modeSwitch = par("modeSwitch").boolValue();
         // set modeSwitch parameter in Sumo
@@ -57,7 +58,7 @@ void ApplVBeacon::handleLowerMsg(cMessage* msg)
         // vehicles other than CACC should ignore the received beacon
         if( isCACC() )
         {
-            if( !dropBeacon() )
+            if( !dropBeacon(droppT, droppV, plr) )
             {
                 onBeacon(wsm);
             }
@@ -159,8 +160,7 @@ WaveShortMessage*  ApplVBeacon::prepareBeacon(std::string name, int lengthBits, 
     wsm->setAccel( manager->commandGetVehicleAccel(SUMOvID) );
 
     // get maxDecel of vehicle
-    std::string vType = manager->commandGetVehicleType(SUMOvID);
-    wsm->setMaxDecel( manager->commandGetVehicleMaxDecel(vType) );
+    wsm->setMaxDecel( manager->commandGetVehicleMaxDecel(SUMOvID) );
 
     // get current lane
     wsm->setLane( manager->commandGetLaneId(SUMOvID).c_str() );
@@ -195,45 +195,27 @@ void ApplVBeacon::printBeaconContent(WaveShortMessage* wsm)
 
 
 // simulate packet loss in application layer
-bool ApplVBeacon::dropBeacon()
+bool ApplVBeacon::dropBeacon(double time, std::string vehicle, double plr)
 {
-
-    if(simTime().dbl() >= 99)
+    if(simTime().dbl() >= time)
     {
-        return true;
+        // vehicle == "" --> drop beacon in all vehicles
+        // vehicle == SUMOvID --> drop beacon only in specified vehicle
+        if (vehicle == "" || vehicle == SUMOvID)
+        {
+            // random number in [0,1)
+            double p = dblrand();
+
+            if( p < (plr/100) )
+                return true;   // drop the beacon
+            else
+                return false;  // keep the beacon
+        }
+        else
+            return false;
     }
     else
         return false;
-
-
-
-    // drop the beacon only in the last vehicle
-    if(SUMOvID == "CACC10")
-    {
-        if(simTime().dbl() >= 99)
-        {
-            return true;
-        }
-        else
-            return false;
-
-
-
-
-        // random number in [0,1)
-        double p = dblrand();
-
-        // drop the beacon
-        if( p < (PLR/100) )
-        {
-            return true;
-        }
-        // keep the beacon
-        else
-            return false;
-    }
-
-    return false;
 }
 
 
@@ -353,8 +335,7 @@ double ApplVBeacon::getGap(std::string vleaderID)
     if(vleaderID == "")
         return -1;
 
-    std::string leaderType = manager->commandGetVehicleType(vleaderID);
-    double gap = manager->commandGetLanePosition(vleaderID) - manager->commandGetLanePosition(SUMOvID) - manager->commandGetVehicleLength(leaderType);
+    double gap = manager->commandGetLanePosition(vleaderID) - manager->commandGetLanePosition(SUMOvID) - manager->commandGetVehicleLength(vleaderID);
 
     return gap;
 }
@@ -394,8 +375,7 @@ bool ApplVBeacon::isBeaconFromLeading(WaveShortMessage* wsm)
     double dist = sqrt( pow(cord.x - wsm->getPos().x, 2) +  pow(cord.y - wsm->getPos().y, 2) );
 
     // subtract the length of the leading vehicle from dist
-    std::string vleaderType = manager->commandGetVehicleType(getLeading());
-    dist = dist - manager->commandGetVehicleLength(vleaderType);
+    dist = dist - manager->commandGetVehicleLength(getLeading());
 
     EV << "my coord (x,y): " << cord.x << "," << cord.y << std::endl;
     EV << "other coord (x,y): " << wsm->getPos().x << "," << wsm->getPos().y << std::endl;

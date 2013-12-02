@@ -81,7 +81,7 @@ for s=1:1
     handle1 = plot(vehiclesTS,vehiclesSpeed,'LineWidth', 3);
 
     % set the x-axis limit
-    set( gca, 'XLim', [0 150] );
+    set( gca, 'XLim', [0 180] );
     
     % set the y-axis limit
     %set( gca, 'YLim', [0 30] );
@@ -121,7 +121,7 @@ for s=1:1
     handle2 = plot(vehiclesTS,vehiclesTimeGap,'LineWidth', 3);
 
     % set the x-axis limit
-    set( gca, 'XLim', [0 200] );
+    set( gca, 'XLim', [0 180] );
     
     % set the y-axis limit
     %set( gca, 'YLim', [0 120] );
@@ -158,7 +158,7 @@ for s=1:1
     handle3 = plot(vehiclesTS,vehiclesAccel,'LineWidth', 3);
 
     % set the x-axis limit
-    set( gca, 'XLim', [0 200] );
+    set( gca, 'XLim', [0 180] );
     
     % set the y-axis limit
    % set( gca, 'YLim', [0 30] );
