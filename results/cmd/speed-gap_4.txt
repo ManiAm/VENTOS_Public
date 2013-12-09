@@ -1,2 +1,0 @@
-index     vehicle   timeStep    speed     accel       pos         gap       timeGap   
-

@@ -13,15 +13,18 @@ Fsize = 25;
 %x1 = 38.9;
 %x2 = 180;
 
-x1 = 77;
-x2 = 150;
+%x1 = 77;
+%x2 = 150;
+
+x1 = 39.5;
+x2 = 75;
 
 for s=1:2    
     
     if(s == 1)
-        path = '../results/gui/speed-gapACC.txt';
+        path = '../results/gui/speed-gap1.2.txt';
     elseif(s == 2)
-        path = '../results/gui/speed-gapCACC.txt';
+        path = '../results/gui/speed-gap0.8.txt';
     end
     
     file_id = fopen(path);
@@ -77,7 +80,7 @@ figure(1);
 set(gcf,'name','Speed');
 % set(gcf,'name','Myfigure','numbertitle','off')
 
-subaxis(2,1,1,'SpacingVert',0.13,'MA',0.02,'MB',0.1,'MR',0.02,'ML',0.06); 
+subaxis(1,2,1,'SpacingHoriz',0.06,'MA',0.02,'MB',0.1,'MR',0.02,'ML',0.06); 
 
 handle1 = plot(vehiclesTS,vehicleSpeedAll(:,:,1),'LineWidth', 3);
 
@@ -100,7 +103,7 @@ set(handle1(1), 'LineStyle', '-.');
 
 annotation('textbox',...
     [0.85 0.86 0.08 0.07],...
-    'String',{'ACC'},...
+    'String',{'Tg=0.8'},...
     'FitBoxToText','on',...
     'FontSize',Fsize,...
     'FontName','Arial',...
@@ -119,7 +122,7 @@ annotation('textbox',...
 
 
 
-subaxis(2,1,2);
+subaxis(1,2,2);
 
 handle1 = plot(vehiclesTS,vehicleSpeedAll(:,:,2),'LineWidth', 3);
 
@@ -141,8 +144,8 @@ grid on;
 set(handle1(1), 'LineStyle', '-.');
 
 annotation('textbox',...
-    [0.85 0.35 0.08 0.07],...
-    'String',{'CACC'},...
+    [0.36 0.86 0.08 0.07],...
+    'String',{'Tg=1.2'},...
     'FitBoxToText','on',...
     'FontSize',Fsize,...
     'FontName','Arial',...

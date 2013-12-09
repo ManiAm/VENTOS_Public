@@ -31,18 +31,22 @@ class TraCI_App : public TraCI_Extend
 
 	    bool reached;
 	    double old_speed;
+	    double old_time;
 
         FILE *f2;
 	    bool endOfFile;
+
+	    double warmUpX;
+	    double warmUpT;
 
         void writeToFile();
         void writeToFilePerVehicle(std::string, std::string);
 
 	    void Trajectory();
-	    void AccelDecel(double);
-	    void AccelDecelZikZak(double, double);
-        void AccelDecelPeriodic(double, double, double);
-	    void ExTrajectory();
+	    void AccelDecel(double, double, double);
+	    void AccelDecelZikZak(double, double, double);
+        void AccelDecelPeriodic(double, double, double, double);
+	    void ExTrajectory(double);
 };
 
 

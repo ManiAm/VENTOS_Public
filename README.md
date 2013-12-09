@@ -1,15 +1,23 @@
-C3PO
-====
+VENTOS (Vehicular NeTwork Open Simulator)
+=========================================
 
-Open this project in OMNET++
+Open this project in OMNET++. Download OMNET++ from "http://www.omnetpp.org/".
 
-You need 'veins framework' which can be downloaded from here:
-http://veins.car2x.org/
 
 Pre-requisites
 --------------
 
-To be able to run C3PO project, you should make these modification in veins:
+This project uses the following softwares and packages:
+
+1) SUMO: SUMO is an open source, microscopic, continuous-space, discrete-time road traffic simulator, developed at German Aerospace Center. We implemeted multiple car following models in SUMO. You can download the SUMO from "http://sumo-sim.org/wiki/Main_Page".
+
+2) Veins framework: We used Veins to connect SUMO to OMNET++ using TraCI interface, as well as using IEEE 802.11p protocol in data-link layer. You can download Veins from "http://veins.car2x.org".
+
+
+Changing Code
+-------------
+
+To be able to run C3PO project, you should make these modification in Veins:
 
 1) go to TraCIScenarioManager.h and find void executeOneTimestep()
 change it to virtual void executeOneTimestep();
@@ -19,7 +27,8 @@ add (apiVersion == 6) to the if list!
 
 3) [optional] comment the MYDEBUG line in TraCIScenarioManager::receiveTraCIMessage() and also TraCIScenarioManager::sendTraCIMessage to make the output console less messy :)
 
-Running the project
+
+Running the Project
 -------------------
 
 Go to the veins folder and look for a python script called sumo-launchd.py. You need to run this python script using the following command:
@@ -31,3 +40,5 @@ The bove command runs the command-line version of sumo. Thus you will not be abl
          python sumo-launchd.py -vv -c sumo-guiD
 
 After running the above script, run the C3PO project in omnet++. Simulation parameters are all in the omnet.ini file.
+
+

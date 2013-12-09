@@ -81,7 +81,7 @@ for s=1:1
     handle1 = plot(vehiclesTS,vehiclesSpeed,'LineWidth', 3);
 
     % set the x-axis limit
-    set( gca, 'XLim', [0 180] );
+    set( gca, 'XLim', [0 100] );
     
     % set the y-axis limit
     %set( gca, 'YLim', [0 30] );

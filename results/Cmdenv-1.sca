@@ -1,19 +1,19 @@
 version 2
-run Cmdenv-1-20131125-06:20:17-20402
+run Cmdenv-1-20131203-02:21:08-3765
 attr configname Cmdenv
-attr datetime 20131125-06:20:17
+attr datetime 20131203-02:21:08
 attr experiment Cmdenv
 attr inifile omnetpp.ini
-attr iterationvars $plr=20
-attr iterationvars2 "$plr=20, $repetition=0"
-attr measurement $plr=20
+attr iterationvars $plr=30
+attr iterationvars2 "$plr=30, $repetition=0"
+attr measurement $plr=30
 attr network ned.Network
-attr plr 20
-attr processid 20402
+attr plr 30
+attr processid 3765
 attr repetition 0
 attr replication #0
 attr resultdir results
 attr runnumber 1
 attr seedset 1
 
-scalar . 	plr 	20
+scalar . 	plr 	30
