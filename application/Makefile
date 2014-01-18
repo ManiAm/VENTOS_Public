@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for libapplication
 #
 # This file was generated with the command:
-#  opp_makemake -f --make-so -o application -O out -d msg -I../../veins/src/modules/messages -I../../veins/src/modules/obstacle -I../../veins/src/modules -I../../veins/src/base/modules -I../../veins/src/modules/utility -Imsg -I../../veins/src/base/utils -I../../veins/src/base/messages -I../../veins/src/base/phyLayer -I../../veins/src/modules/phy -I../../veins/src/modules/mac/ieee80211p -I../../veins/src/base/connectionManager -I../../veins/src/modules/analogueModel -L../../veins/out/$(CONFIGNAME)/src/modules -L../../veins/out/$(CONFIGNAME)/tests/testUtils -L../../veins/out/$(CONFIGNAME)/src/base -L../out/$(CONFIGNAME)/application/msg -lmsg -lmiximbase -lmiximmodules -lmiximmodules -lmiximtestUtils -lmiximbase -KVEINS_PROJ=../../veins
+#  opp_makemake -f --make-so -o application -O out -d msg -I../../veins/src/modules/messages -I../../veins/src/modules/obstacle -I../../veins/src/modules -I../../veins/src/base/modules -I../../veins/src/modules/utility -I../../veins/src/base/utils -I../../veins/src/base/messages -I../../veins/src/base/phyLayer -Imsg -I../../veins/src/modules/phy -I../../veins/src/modules/mac/ieee80211p -I../../veins/src/base/connectionManager -I../../veins/src/modules/analogueModel -L../../veins/out/$(CONFIGNAME)/src/modules -L../../veins/out/$(CONFIGNAME)/tests/testUtils -L../../veins/out/$(CONFIGNAME)/src/base -L../out/$(CONFIGNAME)/application/msg -lmsg -lmiximbase -lmiximmodules -lmiximmodules -lmiximtestUtils -lmiximbase -KVEINS_PROJ=../../veins
 #
 
 # Name of target to be created (-o option)
@@ -15,10 +15,10 @@ INCLUDE_PATH = \
     -I../../veins/src/modules \
     -I../../veins/src/base/modules \
     -I../../veins/src/modules/utility \
-    -Imsg \
     -I../../veins/src/base/utils \
     -I../../veins/src/base/messages \
     -I../../veins/src/base/phyLayer \
+    -Imsg \
     -I../../veins/src/modules/phy \
     -I../../veins/src/modules/mac/ieee80211p \
     -I../../veins/src/base/connectionManager \

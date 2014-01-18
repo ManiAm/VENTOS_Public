@@ -1,12 +1,12 @@
 #
-# OMNeT++/OMNEST Makefile for C3PO
+# OMNeT++/OMNEST Makefile for VENTOS
 #
 # This file was generated with the command:
-#  opp_makemake -f -O out -d application -X. -L../veins/out/$(CONFIGNAME)/src/modules -L../veins/out/$(CONFIGNAME)/tests/testUtils -L../veins/out/$(CONFIGNAME)/src/base -L./out/$(CONFIGNAME)/application/msg -L./out/$(CONFIGNAME)/application -lmiximmodules -lmiximtestUtils -lmiximbase -KVEINS_PROJ=../veins
+#  opp_makemake -f -O out -d application -X. -L../veins/out/$(CONFIGNAME)/src/modules -L../veins/out/$(CONFIGNAME)/tests/testUtils -L../veins/out/$(CONFIGNAME)/src/base -L./out/$(CONFIGNAME)/application -L./out/$(CONFIGNAME)/application/msg -lmiximmodules -lmiximtestUtils -lmiximbase -KVEINS_PROJ=../veins
 #
 
 # Name of target to be created (-o option)
-TARGET = C3PO$(EXE_SUFFIX)
+TARGET = VENTOS$(EXE_SUFFIX)
 
 # User interface (uncomment one) (-u option)
 USERIF_LIBS = $(ALL_ENV_LIBS) # that is, $(TKENV_LIBS) $(CMDENV_LIBS)
@@ -17,8 +17,8 @@ USERIF_LIBS = $(ALL_ENV_LIBS) # that is, $(TKENV_LIBS) $(CMDENV_LIBS)
 EXTRA_OBJS =
 
 # Additional libraries (-L, -l options)
-LIBS = -L../veins/out/$(CONFIGNAME)/src/modules -L../veins/out/$(CONFIGNAME)/tests/testUtils -L../veins/out/$(CONFIGNAME)/src/base -Lout/$(CONFIGNAME)/application/msg -Lout/$(CONFIGNAME)/application  -lmiximmodules -lmiximtestUtils -lmiximbase
-LIBS += -Wl,-rpath,`abspath ../veins/out/$(CONFIGNAME)/src/modules` -Wl,-rpath,`abspath ../veins/out/$(CONFIGNAME)/tests/testUtils` -Wl,-rpath,`abspath ../veins/out/$(CONFIGNAME)/src/base` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application/msg` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application`
+LIBS = -L../veins/out/$(CONFIGNAME)/src/modules -L../veins/out/$(CONFIGNAME)/tests/testUtils -L../veins/out/$(CONFIGNAME)/src/base -Lout/$(CONFIGNAME)/application -Lout/$(CONFIGNAME)/application/msg  -lmiximmodules -lmiximtestUtils -lmiximbase
+LIBS += -Wl,-rpath,`abspath ../veins/out/$(CONFIGNAME)/src/modules` -Wl,-rpath,`abspath ../veins/out/$(CONFIGNAME)/tests/testUtils` -Wl,-rpath,`abspath ../veins/out/$(CONFIGNAME)/src/base` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application/msg`
 
 # Output directory
 PROJECT_OUTPUT_DIR = out
@@ -91,7 +91,7 @@ msgheaders:
 clean:
 	$(qecho) Cleaning...
 	$(Q)-rm -rf $O
-	$(Q)-rm -f C3PO C3PO.exe libC3PO.so libC3PO.a libC3PO.dll libC3PO.dylib
+	$(Q)-rm -f VENTOS VENTOS.exe libVENTOS.so libVENTOS.a libVENTOS.dll libVENTOS.dylib
 
 	-$(Q)cd application && $(MAKE) clean
 

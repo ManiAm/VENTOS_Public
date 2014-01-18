@@ -32,6 +32,8 @@ class TraCI_Extend : public TraCIScenarioManagerLaunchd
         std::list<std::string> commandGetVehiclesOnLane(std::string);
         Coord commandGetVehiclePos(std::string);
         void commandTerminate();
+        std::string commandGetLeading_M(std::string);
+        std::string commandGetLeading(std::string);
 
         // we add these setters to veins
         void commandSetMaxAccel(std::string, double);

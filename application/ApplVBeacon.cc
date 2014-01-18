@@ -305,30 +305,6 @@ void ApplVBeacon::handlePositionUpdate(cObject* obj)
 }
 
 
-std::string  ApplVBeacon::getLeading()
-{
-    // get the lane id (like 1to2_0)
-    std::string laneID = manager->commandGetLaneId(SUMOvID);
-
-    // get a list of all vehicles on this lane (left to right)
-    std::list<std::string> list = manager->commandGetVehiclesOnLane(laneID);
-
-    std::string vleaderID = "";
-
-    for(std::list<std::string>::reverse_iterator i = list.rbegin(); i != list.rend(); ++i)
-    {
-        std::string currentID = i->c_str();
-
-        if(currentID == SUMOvID)
-            return vleaderID;
-
-        vleaderID = i->c_str();
-    }
-
-    return "";
-}
-
-
 // get the gap to the leading vehicle using sonar
 double ApplVBeacon::getGap(std::string vleaderID)
 {
@@ -345,8 +321,10 @@ bool ApplVBeacon::isBeaconFromLeading(WaveShortMessage* wsm)
 {
     // step 1: check if a leading vehicle is present
 
+    std::string vleaderID = manager->commandGetLeading_M(SUMOvID);
+
     // use our sonar to compute the gap
-    double gap = getGap(getLeading());
+    double gap = getGap(vleaderID);
 
     if(gap == -1)
     {
@@ -375,7 +353,7 @@ bool ApplVBeacon::isBeaconFromLeading(WaveShortMessage* wsm)
     double dist = sqrt( pow(cord.x - wsm->getPos().x, 2) +  pow(cord.y - wsm->getPos().y, 2) );
 
     // subtract the length of the leading vehicle from dist
-    dist = dist - manager->commandGetVehicleLength(getLeading());
+    dist = dist - manager->commandGetVehicleLength(vleaderID);
 
     EV << "my coord (x,y): " << cord.x << "," << cord.y << std::endl;
     EV << "other coord (x,y): " << wsm->getPos().x << "," << wsm->getPos().y << std::endl;

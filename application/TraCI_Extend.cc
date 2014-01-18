@@ -46,6 +46,8 @@ void TraCI_Extend::init_traci()
 {
     TraCIScenarioManagerLaunchd::init_traci();
 
+    // todo: use TraCI command, and check if we are running in gui mode
+
     // zoom-in GUI
     //commandSetGUIZoom(767.);
 
@@ -146,6 +148,42 @@ void TraCI_Extend::commandTerminate()
         uint32_t count;
         buf >> count;
 }
+
+
+std::string TraCI_Extend::commandGetLeading_M(std::string nodeId)
+{
+    // get the lane id (like 1to2_0)
+    std::string laneID = commandGetLaneId(nodeId);
+
+    // get a list of all vehicles on this lane (left to right)
+    std::list<std::string> list = commandGetVehiclesOnLane(laneID);
+
+    std::string vleaderID = "";
+
+    for(std::list<std::string>::reverse_iterator i = list.rbegin(); i != list.rend(); ++i)
+    {
+        std::string currentID = i->c_str();
+
+        if(currentID == nodeId)
+            return vleaderID;
+
+        vleaderID = i->c_str();
+    }
+
+    return "";
+}
+
+
+// todo: get leader information from sumo using new traCI command
+// check, maybe we can get the gap to leading vehicle as well.
+// if yes, remove the getGap method in ApplVBeacon as well!
+std::string TraCI_Extend::commandGetLeading(std::string nodeId)
+{
+
+    return "";
+}
+
+
 
 
 uint32_t TraCI_Extend::genericGetInt32(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId)

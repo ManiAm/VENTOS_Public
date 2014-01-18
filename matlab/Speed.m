@@ -1,4 +1,5 @@
 clear all;
+close all;
 clc;   % position the cursor at the top of the screen
 %clf;   %  closes the figure window
 
@@ -81,10 +82,10 @@ for s=1:1
     handle1 = plot(vehiclesTS,vehiclesSpeed,'LineWidth', 3);
 
     % set the x-axis limit
-    set( gca, 'XLim', [0 100] );
+    set( gca, 'XLim', [0 221] );
     
     % set the y-axis limit
-    %set( gca, 'YLim', [0 30] );
+    set( gca, 'YLim', [0 35] );
 
     % set font size
     set(gca, 'FontSize', 19);
@@ -94,6 +95,19 @@ for s=1:1
     ylabel('Speed (m/s)', 'FontSize', 19);
 
     grid on;
+    
+    set(handle1(1), 'LineStyle', '-.');
+    
+    [n , ~] = size(handle1);
+    
+    %{
+    color = 0;
+    
+    for j=2:n
+        set(handle1(j), 'Color', hsv2rgb([0 0 color]) );     
+        color = color + 0.111;
+    end   
+    %}
 
     % set the name for each line
     %set(handle1(1),'Displayname', 'Manual');

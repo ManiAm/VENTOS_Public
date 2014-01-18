@@ -193,9 +193,10 @@ void TraCI_App::Trajectory()
             // start time, min speed, max speed
             AccelDecel(warmUpT, 5., 20.);
         }
+        // extreme case
         else if(trajectoryMode == 2)
         {
-            AccelDecel(warmUpT, 0., 20.);
+            AccelDecel(warmUpT, 0., 30.);
         }
         // stability test
         else if(trajectoryMode == 3)
@@ -271,47 +272,6 @@ void TraCI_App::AccelDecel(double startT, double minV, double maxV)
             }
         }
     }
-
-
-/*
-    if( simTime().dbl() == 40 )
-    {
-        commandSetSpeed(trajectory, maxV);
-    }
-    else if(simTime().dbl() == 80)
-    {
-        commandSetSpeed(trajectory, minV);
-    }
-    else if(simTime().dbl() == 110)
-    {
-        commandSetSpeed(trajectory, maxV);
-    }
-    else if(simTime().dbl() == 150)
-    {
-        commandSetSpeed(trajectory, minV);
-    }
-    else if(simTime().dbl() == 180)
-    {
-        commandSetSpeed(trajectory, maxV);
-    }
-    else if(simTime().dbl() == 220)
-    {
-        commandSetSpeed(trajectory, minV);
-    }
-    else if(simTime().dbl() == 244)
-    {
-        commandSetSpeed(trajectory, maxV);
-    }
-    else if(simTime().dbl() == 284)
-    {
-        commandSetSpeed(trajectory, minV);
-    }
-    else if(simTime().dbl() == 308)
-    {
-        commandSetSpeed(trajectory, maxV);
-    }
-    */
-
 }
 
 

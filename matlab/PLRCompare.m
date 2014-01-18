@@ -97,14 +97,14 @@ ylabel('Speed (m/s)', 'FontSize', 19);
 
 grid on;
 
-set(handle1(5), 'LineStyle', '-.');
+set(handle(5), 'LineStyle', '-.');
 
 % set the name for each line
-set(handle(1),'Displayname', 'PLR = 0');
-set(handle(2),'Displayname', 'PLR = 40');
-set(handle(3),'Displayname', 'PLR = 60');
-set(handle(4),'Displayname', 'PLR = 80');
-set(handle(5),'Displayname', 'Trajectory');
+set(handle(1),'Displayname', 'PLR = 0%');
+set(handle(2),'Displayname', 'PLR = 40%');
+set(handle(3),'Displayname', 'PLR = 60%');
+set(handle(4),'Displayname', 'PLR = 80%');
+set(handle(5),'Displayname', 'Veh0 Speed Profile');
 
 % set the legend
 legend(handle, 'Location','NorthEastOutside');
@@ -134,7 +134,7 @@ ylabel('Accel (m/s^2)', 'FontSize', 19);
 
 grid on;
 
-set(handle1(5), 'LineStyle', '-.');
+set(handle(5), 'LineStyle', '-.');
 
 % set the name for each line
 set(handle(1),'Displayname', 'PLR = 0');

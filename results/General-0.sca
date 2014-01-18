@@ -1,14 +1,14 @@
 version 2
-run General-0-20131204-22:31:32-13849
+run General-0-20140115-17:44:39-5401
 attr configname General
-attr datetime 20131204-22:31:32
+attr datetime 20140115-17:44:39
 attr experiment General
 attr inifile omnetpp.ini
 attr iterationvars ""
 attr iterationvars2 $repetition=0
 attr measurement ""
 attr network ned.Network
-attr processid 13849
+attr processid 5401
 attr repetition 0
 attr replication #0
 attr resultdir results
