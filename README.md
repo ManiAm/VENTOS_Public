@@ -39,7 +39,7 @@ Find the Tooltips group on the Specific tab, and change the settings to black fo
 
         export TCL_LIBRARY=/usr/share/tcltk/tcl8.5
 
-**Step 6:** In the OMNeT++ directory, type the following command. The configure script detects installed software and configuration of your system. It writes the results into the Makefile.inc file, which will be read by the makefiles during the build process. Pay close attention to warnings! (ignore warnings regarding Akaroa!).
+**Step 6:** In the OMNeT++ directory, type the following command. The configure script detects installed software and configuration of your system. It writes the results into the Makefile.inc file, which will be read by the makefiles during the build process. Pay close attention to errors and warnings! (ignore warnings regarding Akaroa!).
 
         ./configure
 
@@ -152,14 +152,7 @@ It will ask your username/password, and then receives a copy of the project.
 Install SUMO
 ------------
 
-**Step 1:** Download the SUMO from "http://sumo-sim.org/wiki/Main_Page".
-
-
-
-
-
-
-
+Follow the instructions in Sumo repository.
 
 
 Running the Project
