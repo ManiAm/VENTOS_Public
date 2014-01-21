@@ -177,16 +177,10 @@ After running the above script, DO NOT close the terminal window. Leave it open.
 Choose 'OMNET++ Simulation' and click on 'New launch configuration' button. Give this configuration a name like C3PO. In Executable, choose opp_run and in 'Config name' choose a configuration from drop down list like General. Leave the rest of the options to default. Click Apply and then click Run. OMNET++ tries to compile/build the project, and then run it.
 
 
-Updating VENTOS folder
-----------------------
+git push/pull
+-------------
 
-This project has multiple collaborators. Collaborators are able to modify the code in the VENTOS repository.
-
-
-
-Committing your changes
------------------------
-
+This project has multiple collaborators, nad they are able to modify the code in the VENTOS repository.
 
 
 
