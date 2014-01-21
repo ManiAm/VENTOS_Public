@@ -3,11 +3,11 @@ VENTOS
 
 VENTOS (VEhicular NeTwork Open Simulator) is a novel integrated open-source simulator for studying traffic flows in vehicular ad-hoc networks. VENTOS is the main tool in C3PO research. More information here: "http://www.ece.ucdavis.edu/rubinet/projects/c3po.html". This project uses the following softwares and packages:
 
-**OMNET++:** OMNET++ is a network simulator.
+**OMNET++:** OMNET++ is a network simulator, and is used for detailed packet-level simulations.
 
 **Veins framework:** We used Veins to connect SUMO to OMNET++ using TraCI interface, as well as using IEEE 802.11p protocol in data-link layer.
 
-**SUMO:** SUMO is an open source, microscopic, continuous-space, discrete-time road traffic simulator, developed at German Aerospace Center. We implemeted multiple car following models in SUMO.
+**SUMO:** SUMO is an open source, microscopic, continuous-space, discrete-time road traffic simulator, developed at German Aerospace Center. We implemented multiple car following models in SUMO.
 
 
 Install OMNET++
@@ -21,7 +21,7 @@ Install OMNET++
         tcl-dev tk-dev blt libxml2-dev zlib1g-dev default-jre \
         doxygen graphviz libwebkitgtk-1.0-0 openmpi-bin libopenmpi-dev libpcap-dev
 
-**Step 3:** The default tooltip background color in Ubuntu is black, which causes certain tooltips in the OMNeT++ IDE to become unreadable (black-on-black). This annoyance can be resolved by changing the tooltip colors in Ubuntu. Install gnome-color-chooser:
+**Step 3:** The default tool-tip background color in Ubuntu is black, which causes certain tool-tips in the OMNeT++ IDE to become unreadable (black-on-black). This annoyance can be resolved by changing the tool-tip colors in Ubuntu. Install gnome-color-chooser:
 
         sudo apt-get install gnome-color-chooser
 
@@ -29,9 +29,9 @@ Run it:
  
         gnome-color-chooser
 
-Find the Tooltips group on the Specific tab, and change the settings to black foreground over pale yellow background. Click Apply.
+Find the tool-tips group on the Specific tab, and change the settings to black foreground over pale yellow background. Click Apply.
 
-**Step 4:** OMNeT++ requires that its bin directory should be in the PATH. You should add a line something like this to your .bashrc (note that you should change the path if you installed omnet++ in a different directoy):
+**Step 4:** OMNeT++ requires that its bin directory be in the PATH. You should add the following line to your .bashrc (note that you should change the path if you installed OMNET++ in a different directory):
 
         export PATH=$PATH:/home/mani/Desktop/omnetpp-4.3.1/bin
 
@@ -43,7 +43,7 @@ Find the Tooltips group on the Specific tab, and change the settings to black fo
 
         ./configure
 
-**Step 7:** Now you can compile OMNET++ by using make. Compiling takes some time, so relax and grab a cup of coffe!
+**Step 7:** Now you can compile OMNET++ by using make. Compiling takes some time, so relax and grab a cup of coffee!
 
         make
 
@@ -56,9 +56,9 @@ Find the Tooltips group on the Specific tab, and change the settings to black fo
 
         omnetpp
 
-The first time you run OMNET++, Eclipse IDE asks you to select a workspace. Select the folder that you will use to store all your project files (Veins, VENTOS, INET, etc). If you have intention to store all your projects on desktop, then change the workspace to dekstop. Also check "Use this as the default and do not ask again".
+The first time you run OMNET++, Eclipse IDE asks you to select a workspace. Select the folder that you will use to store all your project files (Veins, VENTOS, INET, etc). If you have intention to store all your projects on desktop, then change the workspace to desktop. Also check "Use this as the default and do not ask again".
 
-"Introduction to OMNET++" page will apear. Click on "Workbench" to pop up the Eclipse IDE environment.
+"Introduction to OMNET++" page will appear. Click on "Workbench" to pop up the Eclipse IDE environment.
 
 Then it ask you to install INET framework or import some examples into your workspace. Uncheck them both since we do not need them for the time being.
 
@@ -80,13 +80,13 @@ Veins is on github, and you should clone it into your computer.
 
          sudo apt-get install git
 
-**Step 2:** Create a directory on your computer (say Veins on desktop). In terminal, navigate to this folder , and issue the following commnand:
+**Step 2:** Create a directory on your computer (say Veins on desktop). In terminal, navigate to this folder , and issue the following command:
 
          git clone https://github.com/sommer/mixim-sommer
 
 **Step 3:** Now you can import Veins project into the OMNET++ IDE. Choose "File->Import" from the menu. Choose "General->Existing Projects into Workspace" from the upcoming dialog and proceed with "Next". Choose "Select root directory" and select the Veins folder. "mixim" should appear in the "Projects". Unselect "Copy project into workspace" if the Veins folder is already in your workspace. Click "Finish".
 
-**Step 4:** To build the Veins project, right-click on the project and choose "Build Project". Wait for a while and then check the Console windows at the bottom of the Eclipse IDE to make sure no errors occured. At the end you should see a message like this:
+**Step 4:** To build the Veins project, right-click on the project and choose "Build Project". Wait for a while and then check the Console windows at the bottom of the Eclipse IDE to make sure no errors occurred. At the end you should see a message like this:
 
           00::04:42 Build Finished (took 2m:23s.177ms)
 
@@ -100,7 +100,7 @@ Install Veins (from its website)
 
 **Step 2:** In OMNET++, choose "File->Import" from the menu. Choose "General->Existing Projects into Workspace" from the upcoming dialog and proceed with "Next". Choose "Select archive file" and select the download Veins file. "mixim (veins-2.1)" should appear in the "Projects". At last click "Finish". Now you can delete the downloaded veins file.
 
-**Step 3:** To build the veins project, right-click on the project and choose "Build Project". Wait for a while and then check the Console windows at the bottom of the Eclipse IDE to make sure no errors occured. At the end you should see a message like this:
+**Step 3:** To build the veins project, right-click on the project and choose "Build Project". Wait for a while and then check the Console windows at the bottom of the Eclipse IDE to make sure no errors occurred. At the end you should see a message like this:
 
           00::04:42 Build Finished (took 2m:23s.177ms)
 
@@ -110,9 +110,9 @@ Modify Veins source code
 
 To be able to run C3PO project, you should make some modifications in Veins source code:
 
-**Step 1:** In the IDE, open Veins project and go to src/modules/mobility/traci/TraCIScenarioManager.h and find void executeOneTimestep(), and then change it to virtual void executeOneTimestep();
+**Step 1:** In the IDE, open Veins project and go to src/modules/mobility/traci/TraCIScenarioManager.h file. Find 'void executeOneTimestep()', and then change it to virtual void executeOneTimestep();
 
-**Step 2:** go to src/modules/mobility/traci/TraCIScenarioManager.cc and find method init_traci(). In the body of the method, find the if statement and change it from 
+**Step 2:** go to src/modules/mobility/traci/TraCIScenarioManager.cc and find method 'init_traci()'. In the body of the method, find the if statement and change it from 
 
 		if ((apiVersion == 3) || (apiVersion == 5)) {
 			MYDEBUG << "TraCI server \"" << serverVersion << "\" reports API version " << apiVersion << endl;
@@ -126,7 +126,7 @@ to
 
 **Step 3:** [optional] comment the MYDEBUG line in TraCIScenarioManager::receiveTraCIMessage() and also TraCIScenarioManager::sendTraCIMessage to make the output console less messy :)
 
-After these modifications, build the Veins project again. Build is done fast this time!
+After these modifications, build the Veins project again. Build is done much faster this time!
 
 
 Import VENTOS
@@ -138,7 +138,7 @@ VENTOS project is on github, and you should clone it into your computer.
 
          sudo apt-get install git
 
-**Step 2:** Create a directory on your computer (say VENTOS on desktop). In terminal, navigate to this folder , and issue the following commnand:
+**Step 2:** Create a directory on your computer (say VENTOS on desktop). In terminal, navigate to this folder, and issue the following commnand:
 
          git clone https://github.com/ManiAm/VENTOS
 
@@ -152,49 +152,7 @@ It will ask your username/password, and then receives a copy of the project.
 Install SUMO
 ------------
 
-**Step 1:** Install these packages in Ubuntu
-
-        sudo apt-get install libgdal1-dev proj libxerces-c2-dev libfox-1.6-dev libgl1-mesa-dev libglu1-mesa-dev
-
-**Step 2:** Ubuntu 12.04 does not ship with libgdal.so, only with libgdal1.7.0.so. So, create a symbolic link:
-
-        sudo ln -s /usr/lib/libgdal1.7.0.so /usr/lib/libgdal.so
-
-**Step 3:** In the downloaded folder from sumo svn, there are two important files:
-
-configure.ac and Makefile.am
-
-From configure.ac, we should generate configure script, and from makefile.am, we should generate makefile.in. Then we should use configure script to generate makefile from makefile.in. makefile is the important file that is used for compilation. Look at the diagram below:
-
-####################################################
-#                                                                                                                  
-#  makefile.am ---automake---> makefile.in ---configure---> makefile ---make--->     
-#                                                                                                                  
-#  configure.ac ---autoconf---> configure                                                           
-#  configure.in --> old usage                                                                                                                
-####################################################
-
-Fortunately, sumo developers provide us with a Makefile.cvs file that eases the mentioned process. First, install these two packages:
-
-        sudo apt-get install automake 1.11.1 autoconf 2.68
-
-Then run the following coomand to generate makefile.in and configure script.
-
-        sudo make -f Makefile.cvs
-
-
-**Step 4:** Now we can run the configure script:
-
-        ./configure
-
-Since we want to import the project into netbeans, netbeans will run the configure script any way. So we should only specify the script parameters in netbeans. Go to File | New Project | C/C++ | C/C++ Project with Existing Source. Then click Browse and select sumo folder. In the 'Select Configuration Mode', click on Custom, and hit next. Then choose 'using makefile generated by configure script'. Change the 'Configure Argument' to this:
-
-        --enable-debug --with-fox-includes=/usr/include/fox-1.6 --with-gdal-includes=/usr/include/gdal --with-proj-libraries=/usr --with-gdal-libraries=/usr --with-proj-gdal
-
-updated:
---enable-debug --with-fox-includes=/usr/include/fox-1.6 --with-proj-libraries=/usr --with-proj-gdal
-
-Note that we used --enable-debug which disables level-2 compiler optimization (-O2) and is suitable for debugging purposes. Click Next several times, and hit Finish at the end. Netbeans runs configure script, and then make clean and then compiles the code. At the end of this step a folder called nbproject is created in the sumo folder.
+Follow the instructions in Sumo repository.
 
 
 Running the Project
@@ -210,7 +168,7 @@ The bove command runs the command-line version of sumo. Thus you will not be abl
 
 After running the above script, DO NOT close the terminal window. Leave it open.
 
-**Step 2:** In the VENTOS project go to the sumo folder and open sumo_launchd.xml, and make sure 'basedire path' is set correctly.
+**Step 2:** In the VENTOS project go to the sumo folder and open sumo_launchd.xml, and make sure 'basedire path' is set correctly. Basically, it should point to the folder that contains all your sumo files (network file, traffic-demand file, and also config file).
 
 **Step 3:** Now you can run the VENTOS project. To do this, right click on the omnetpp.ini file in the IDE and choose: 
 
@@ -222,6 +180,7 @@ Choose 'OMNET++ Simulation' and click on 'New launch configuration' button. Give
 Updating VENTOS folder
 ----------------------
 
+This project has multiple collaborators. Collaborators are able to modify the code in the VENTOS repository.
 
 
 
