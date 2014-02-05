@@ -45,6 +45,9 @@ class TraCI_Extend : public TraCIScenarioManagerLaunchd
         void commandSetGUITrack(std::string);
         void commandSetGUIOffset(double, double);
 
+        // add vehicle
+        void commandAddVehicleN(std::string, std::string, std::string, int32_t);
+
 	private:
         uint32_t genericGetInt32(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
         Coord genericGetCoordv2(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);

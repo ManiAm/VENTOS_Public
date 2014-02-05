@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.sf.net/xsd/routes_file.xsd">
+
+  <!-- ACC vehicle -->
+  <vType id="TypeACC1" length="5.0" minGap="2.0" maxSpeed="30.0" >
+      <carFollowing-ACC MaxAccel="3.0" MaxDecel="5.0" T_g="1.54" tau="0.5" ComfAccel="2.0" ComfDecel="3.0" K_sc="0.4" K_v="1.0" K_g="5.0" V_int="30.0" />
+  </vType>
+  
+    <!-- ACC vehicle -->
+  <vType id="TypeACC2" length="5.0" minGap="2.0" maxSpeed="30.0" >
+      <carFollowing-ACC MaxAccel="3.0" MaxDecel="5.0" T_g="1.54" tau="0.5" ComfAccel="2.0" ComfDecel="3.0" K_sc="0.4" K_v="1.0" K_g="5.0" V_int="30.0" />
+  </vType>
+  
+
+  <!-- CACC vehicle (leader) -->
+  <vType id="TypeCACC1" length="5.0" minGap="2.0" maxSpeed="30.0" >
+      <carFollowing-CACC MaxAccel="3.0" MaxDecel="5.0" T_g="3.5" tau="0.4" ComfAccel="2.0" ComfDecel="3.0" K_sc="0.4" K_v="0.99" K_g="4.08" K_a="0.66" V_int="30.0" />
+  </vType>
+  
+  <!-- CACC vehicle (following) -->
+  <vType id="TypeCACC2" length="5.0" minGap="2.0" maxSpeed="30.0" >
+      <carFollowing-CACC MaxAccel="3.0" MaxDecel="5.0" T_g="0.55" tau="0.4" ComfAccel="2.0" ComfDecel="3.0" K_sc="0.4" K_v="0.99" K_g="4.08" K_a="0.66" V_int="30.0" />
+  </vType>
+
+  <route id="route1" edges="1to2 2to3" />
+
+</routes>

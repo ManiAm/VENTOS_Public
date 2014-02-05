@@ -14,6 +14,7 @@ class TraCI_App : public TraCI_Extend
 	public:
 		virtual ~TraCI_App();
 		virtual void initialize(int stage);
+        virtual void handleSelfMsg(cMessage *msg);
 
         virtual void init_traci();
         virtual void executeOneTimestep();
@@ -25,23 +26,30 @@ class TraCI_App : public TraCI_Extend
 	    FILE *f1;
 	    int index;
 
+        int platoonSize;
+        int platoonNumber;
+	    int totalVehicles;
+
+        double warmUpT; // the time that warm-up phase finishes
+        bool IsWarmUpFinished;
+        cMessage* warmupFinish;
+
 	    int trajectoryMode;
 	    std::string trajectory;
 	    double terminate;
 
-	    bool reached;
 	    double old_speed;
 	    double old_time;
 
         FILE *f2;
 	    bool endOfFile;
 
-	    double warmUpX;
-	    double warmUpT;
+	    void add_vehicle();
 
         void writeToFile();
         void writeToFilePerVehicle(std::string, std::string);
 
+        bool warmUpFinished();
 	    void Trajectory();
 	    void AccelDecel(double, double, double);
 	    void AccelDecelZikZak(double, double, double);

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!-- debug config -->
 <launch>
-    <basedir path="/home/mani/Desktop/VENTOS/sumo/CACC-ACC-Manual" />
+    <basedir path="/home/mani/Desktop/VENTOS/sumo/CACC_Platoon" />
 	<copy file="hello.net.xml" />
 	<copy file="hello.rou.xml" />
 	<copy file="hello.sumo.cfg" type="config" />

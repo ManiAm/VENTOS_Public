@@ -25,26 +25,48 @@ void TraCI_App::initialize(int stage)
         if(nodePtr == NULL)
             error("can not get a pointer to the module.");
 
+        platoonSize = par("platoonSize").longValue();
+        platoonNumber = par("platoonNumber").longValue();
+
+        totalVehicles = platoonSize * platoonNumber;
+
         trajectoryMode = par("trajectoryMode").longValue();
         trajectory = par("trajectory").stringValue();
-        terminate = par("terminate").doubleValue();
 
-        warmUpX = par("warmUpX").doubleValue();
-        warmUpT = par("warmUpT").doubleValue();
+        terminate = par("terminate").doubleValue();
 
         f2 = fopen ("sumo/EX_Trajectory.txt", "r");
 
         if ( f2 == NULL )
             error("external trajectory file does not exists!");
 
-        reached = false;
+        IsWarmUpFinished = false;
+
         index = 1;
         endOfFile = false;
         old_speed = -1;
+
+        warmupFinish = new cMessage("warmupFinish", 1);
     }
 }
 
 
+void TraCI_App::handleSelfMsg(cMessage *msg)
+{
+    if (msg == warmupFinish)
+    {
+        IsWarmUpFinished = true;
+        warmUpT = simTime().dbl();  // the time that warm-up phase finishes
+        Trajectory();
+    }
+    else
+    {
+        TraCI_Extend::handleSelfMsg(msg);
+    }
+}
+
+
+// this method is called once!
 void TraCI_App::init_traci()
 {
     TraCI_Extend::init_traci();
@@ -80,6 +102,31 @@ void TraCI_App::init_traci()
     fprintf (f1, "%-10s\n\n","timeGap");
 
     fflush(f1);
+
+    // add vehicles into sumo
+    add_vehicle();
+}
+
+
+void TraCI_App::add_vehicle()
+{
+    for(int i=1; i<=totalVehicles; i++)
+    {
+        char vehicleName[10];
+        sprintf(vehicleName, "CACC%d", i);
+        int depart = 1000 * i;
+
+        if( (i-1) % platoonSize == 0 )
+        {
+            // platoon leader
+            commandAddVehicleN(vehicleName,"TypeCACC1","route1",depart);
+        }
+        else
+        {
+            // following vehicle
+            commandAddVehicleN(vehicleName,"TypeCACC2","route1",depart);
+        }
+    }
 }
 
 
@@ -103,8 +150,13 @@ void TraCI_App::executeOneTimestep()
         nodePtr->emit(Signal_terminate, 1);
     }
 
-    // do the trajectory
-    Trajectory();
+    // check if warm-up phase is finished
+    if ( warmUpFinished() )
+    {
+        // start moving vehicle based on
+        // a specific trajectory
+        Trajectory();
+    }
 }
 
 
@@ -169,65 +221,81 @@ void TraCI_App::writeToFilePerVehicle(std::string vID, std::string vleaderID)
 }
 
 
-void TraCI_App::Trajectory()
+// check if warm-up phase is finished
+bool TraCI_App::warmUpFinished()
 {
-    // no trajectory
-    if(trajectoryMode == 0)
-        return;
+    if(IsWarmUpFinished)
+        return true;
 
-    if(!reached)
-    {
-        double pos = commandGetLanePosition(trajectory);
+    if( warmupFinish->isScheduled() )
+        return false;
 
-        // stop at warmUpX, waiting for other vehicles
-        if(pos >= warmUpX)
-        {
-            commandSetSpeed(trajectory, 0.);
-            reached = true;
-        }
-    }
+    double pos = commandGetLanePosition(trajectory);
+
+    if( pos < (totalVehicles * 9) ) // the position that first vehicle will stop!
+        return false;
     else
     {
-        if(trajectoryMode == 1)
-        {
-            // start time, min speed, max speed
-            AccelDecel(warmUpT, 5., 20.);
-        }
-        // extreme case
-        else if(trajectoryMode == 2)
-        {
-            AccelDecel(warmUpT, 0., 30.);
-        }
-        // stability test
-        else if(trajectoryMode == 3)
-        {
-            // todo:
-            // we change the maxDecel and maxAccel of trajectory to lower values (it does not touch the boundaries)
-            // note1: when we change maxDecel or maxAccel of a vehicle, its type will be changes!
-            // note2: we have to make sure the trajectory entered into the simulation, before changing MaxAccel and MaxDecel
-            // note3: and we have to change maxDeccel and maxAccel only once!
-            if( simTime().dbl() == (warmUpT-5) )
-            {
-                commandSetMaxAccel(trajectory, 1.5);
-                commandSetMaxDecel(trajectory, 2.);
-            }
+        // start breaking at warmUpX, and stop (waiting for other vehicles)
+        commandSetSpeed(trajectory, 0.);
+    }
 
-            AccelDecel(warmUpT, 5., 20.);
-        }
-        else if(trajectoryMode == 4)
+    // now check if all vehicles are departed
+    if( commandGetNoVehicles() == (unsigned int)totalVehicles )
+    {
+        // wait for more 15 seconds
+        scheduleAt(simTime() + 15., warmupFinish);
+    }
+
+    return false;
+}
+
+
+void TraCI_App::Trajectory()
+{
+    if(trajectoryMode == 0)
+    {
+        // no trajectory
+        return;
+    }
+    else if(trajectoryMode == 1)
+    {
+        // start time, min speed, max speed
+        AccelDecel(warmUpT, 5., 20.);
+    }
+    // extreme case
+    else if(trajectoryMode == 2)
+    {
+        AccelDecel(warmUpT, 0., 30.);
+    }
+    // stability test
+    else if(trajectoryMode == 3)
+    {
+        // we change the maxDecel and maxAccel of trajectory to lower values (it does not touch the boundaries)
+        // note1: when we change maxDecel or maxAccel of a vehicle, its type will be changes!
+        // note2: we have to make sure the trajectory entered into the simulation, before changing MaxAccel and MaxDecel
+        // note3: and we have to change maxDeccel and maxAccel only once!
+        if( simTime().dbl() == warmUpT )
         {
-            AccelDecelZikZak(warmUpT, 5., 20.);
+            commandSetMaxAccel(trajectory, 1.5);
+            commandSetMaxDecel(trajectory, 2.);
         }
-        else if(trajectoryMode == 5)
-        {
-            // A sin(Wt) + C
-            // start time, offset (C), amplitude (A), omega (W)
-            AccelDecelPeriodic(warmUpT, 10., 10., 0.2);
-        }
-        else if(trajectoryMode == 6)
-        {
-            ExTrajectory(warmUpT);
-        }
+
+        AccelDecel(warmUpT+5, 5., 20.);
+    }
+    else if(trajectoryMode == 4)
+    {
+        AccelDecelZikZak(warmUpT, 5., 20.);
+    }
+    else if(trajectoryMode == 5)
+    {
+        // A sin(Wt) + C
+        // start time, offset (C), amplitude (A), omega (W)
+        AccelDecelPeriodic(warmUpT, 10., 10., 0.2);
+    }
+    else if(trajectoryMode == 6)
+    {
+        ExTrajectory(warmUpT);
     }
 }
 

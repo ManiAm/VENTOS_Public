@@ -7,8 +7,8 @@ simple TraCI_App extends TraCI_Extend
         @class(TraCI_App);
         @display("i=block/network2");
         
-        double warmUpX = default(200m) @unit(m);
-        double warmUpT = default(100s) @unit(s);
+        int platoonSize = default(5);
+        int platoonNumber = default(3);
         
         int trajectoryMode = default(1);
         string trajectory;

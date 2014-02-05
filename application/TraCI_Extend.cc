@@ -184,8 +184,6 @@ std::string TraCI_Extend::commandGetLeading(std::string nodeId)
 }
 
 
-
-
 uint32_t TraCI_Extend::genericGetInt32(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId)
 {
     uint8_t resultTypeId = TYPE_INTEGER;
@@ -328,6 +326,33 @@ void TraCI_Extend::commandSetGUIOffset(double x, double y)
     uint8_t variableType = POSITION_2D;
 
     TraCIBuffer buf = queryTraCI(CMD_SET_GUI_VARIABLE, TraCIBuffer() << variableId << viewID << variableType << x << y);
+    ASSERT(buf.eof());
+}
+
+
+void TraCI_Extend::commandAddVehicleN(std::string vehicleId, std::string vehicleTypeId, std::string routeId, int32_t depart)
+{
+    uint8_t variableId = ADD;
+    uint8_t variableType = TYPE_COMPOUND;
+    uint8_t variableTypeS = TYPE_STRING;
+    uint8_t variableTypeI = TYPE_INTEGER;
+    uint8_t variableTypeD = TYPE_DOUBLE;
+    uint8_t variableTypeB = TYPE_BYTE;
+
+    TraCIBuffer buf = queryTraCI(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << vehicleId << variableType << (int32_t) 6
+                                                                         << variableTypeS
+                                                                         << vehicleTypeId
+                                                                         << variableTypeS
+                                                                         << routeId
+                                                                         << variableTypeI
+                                                                         << depart  // departure time
+                                                                         << variableTypeD
+                                                                         << 0.   // departure position
+                                                                         << variableTypeD
+                                                                         << 0.   // departure speed
+                                                                         << variableTypeB
+                                                                         << (uint8_t) 0  // departure lane
+                                                                         );
     ASSERT(buf.eof());
 }
 
