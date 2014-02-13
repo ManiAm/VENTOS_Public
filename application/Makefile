@@ -44,8 +44,11 @@ OBJS = \
     $O/ApplVBeacon.o \
     $O/TraCI_Extend.o \
     $O/Statistics.o \
+    $O/Warmup.o \
     $O/Mac1609_4_Mod.o \
-    $O/TraCI_App.o
+    $O/TraCI_App.o \
+    $O/AddVehicle.o \
+    $O/SpeedProfile.o
 
 # Message files
 MSGFILES =
@@ -145,6 +148,31 @@ depend:
 	$(Q)-cd msg && if [ -f Makefile ]; then $(MAKE) depend; fi
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
+$O/AddVehicle.o: AddVehicle.cc \
+	AddVehicle.h \
+	TraCI_Extend.h \
+	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
+	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
+	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
+	$(VEINS_PROJ)/src/base/modules/BaseMobility.h \
+	$(VEINS_PROJ)/src/base/modules/BaseModule.h \
+	$(VEINS_PROJ)/src/base/modules/BaseWorldUtility.h \
+	$(VEINS_PROJ)/src/base/modules/BatteryAccess.h \
+	$(VEINS_PROJ)/src/base/utils/Coord.h \
+	$(VEINS_PROJ)/src/base/utils/FWMath.h \
+	$(VEINS_PROJ)/src/base/utils/FindModule.h \
+	$(VEINS_PROJ)/src/base/utils/HostState.h \
+	$(VEINS_PROJ)/src/base/utils/MiXiMDefs.h \
+	$(VEINS_PROJ)/src/base/utils/Move.h \
+	$(VEINS_PROJ)/src/base/utils/miximkerneldefs.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManagerLaunchd.h \
+	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
+	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
+	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
 $O/ApplVBase.o: ApplVBase.cc \
 	ApplVBase.h \
 	ExtraClasses.h \
@@ -315,6 +343,31 @@ $O/Mac1609_4_Mod.o: Mac1609_4_Mod.cc \
 	$(VEINS_PROJ)/src/modules/phy/PhyLayer80211p.h \
 	$(VEINS_PROJ)/src/modules/phy/SNRThresholdDecider.h \
 	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h
+$O/SpeedProfile.o: SpeedProfile.cc \
+	SpeedProfile.h \
+	TraCI_Extend.h \
+	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
+	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
+	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
+	$(VEINS_PROJ)/src/base/modules/BaseMobility.h \
+	$(VEINS_PROJ)/src/base/modules/BaseModule.h \
+	$(VEINS_PROJ)/src/base/modules/BaseWorldUtility.h \
+	$(VEINS_PROJ)/src/base/modules/BatteryAccess.h \
+	$(VEINS_PROJ)/src/base/utils/Coord.h \
+	$(VEINS_PROJ)/src/base/utils/FWMath.h \
+	$(VEINS_PROJ)/src/base/utils/FindModule.h \
+	$(VEINS_PROJ)/src/base/utils/HostState.h \
+	$(VEINS_PROJ)/src/base/utils/MiXiMDefs.h \
+	$(VEINS_PROJ)/src/base/utils/Move.h \
+	$(VEINS_PROJ)/src/base/utils/miximkerneldefs.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManagerLaunchd.h \
+	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
+	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
+	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
 $O/Statistics.o: Statistics.cc \
 	ExtraClasses.h \
 	Statistics.h \
@@ -344,8 +397,11 @@ $O/Statistics.o: Statistics.cc \
 	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
 	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
 $O/TraCI_App.o: TraCI_App.cc \
+	AddVehicle.h \
+	SpeedProfile.h \
 	TraCI_App.h \
 	TraCI_Extend.h \
+	Warmup.h \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
 	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
@@ -370,6 +426,33 @@ $O/TraCI_App.o: TraCI_App.cc \
 	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
 $O/TraCI_Extend.o: TraCI_Extend.cc \
 	TraCI_Extend.h \
+	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
+	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
+	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
+	$(VEINS_PROJ)/src/base/modules/BaseMobility.h \
+	$(VEINS_PROJ)/src/base/modules/BaseModule.h \
+	$(VEINS_PROJ)/src/base/modules/BaseWorldUtility.h \
+	$(VEINS_PROJ)/src/base/modules/BatteryAccess.h \
+	$(VEINS_PROJ)/src/base/utils/Coord.h \
+	$(VEINS_PROJ)/src/base/utils/FWMath.h \
+	$(VEINS_PROJ)/src/base/utils/FindModule.h \
+	$(VEINS_PROJ)/src/base/utils/HostState.h \
+	$(VEINS_PROJ)/src/base/utils/MiXiMDefs.h \
+	$(VEINS_PROJ)/src/base/utils/Move.h \
+	$(VEINS_PROJ)/src/base/utils/miximkerneldefs.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManagerLaunchd.h \
+	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
+	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
+	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
+$O/Warmup.o: Warmup.cc \
+	AddVehicle.h \
+	SpeedProfile.h \
+	TraCI_Extend.h \
+	Warmup.h \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
 	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \

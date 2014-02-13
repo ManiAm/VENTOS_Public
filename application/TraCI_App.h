@@ -7,6 +7,9 @@
 #include "mobility/traci/TraCIMobility.h"
 #include "mobility/traci/TraCIConstants.h"
 #include "TraCI_Extend.h"
+#include "AddVehicle.h"
+#include "SpeedProfile.h"
+#include "Warmup.h"
 
 
 class TraCI_App : public TraCI_Extend
@@ -15,46 +18,27 @@ class TraCI_App : public TraCI_Extend
 		virtual ~TraCI_App();
 		virtual void initialize(int stage);
         virtual void handleSelfMsg(cMessage *msg);
+		virtual void finish();
 
         virtual void init_traci();
         virtual void executeOneTimestep();
-		virtual void finish();
 
 	private:
-        cModule *nodePtr;   // pointer to the Node
 
+        // NED variables
+        cModule *nodePtr;   // pointer to the Node
+        AddVehicle *AddVehiclePtr;
+        SpeedProfile *SpeedProfilePtr;
+        Warmup *WarmupPtr;
+
+	    // class variables
 	    FILE *f1;
 	    int index;
-
-        int platoonSize;
-        int platoonNumber;
-	    int totalVehicles;
-
-        double warmUpT; // the time that warm-up phase finishes
-        bool IsWarmUpFinished;
-        cMessage* warmupFinish;
-
-	    int trajectoryMode;
-	    std::string trajectory;
 	    double terminate;
 
-	    double old_speed;
-	    double old_time;
-
-        FILE *f2;
-	    bool endOfFile;
-
-	    void add_vehicle();
-
+	    // methods
         void writeToFile();
         void writeToFilePerVehicle(std::string, std::string);
-
-        bool warmUpFinished();
-	    void Trajectory();
-	    void AccelDecel(double, double, double);
-	    void AccelDecelZikZak(double, double, double);
-        void AccelDecelPeriodic(double, double, double, double);
-	    void ExTrajectory(double);
 };
 
 

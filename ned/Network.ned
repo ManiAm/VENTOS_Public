@@ -34,7 +34,19 @@ network Network
         }
         manager: TraCI_App {
             parameters:
-                @display("p=456,58");
+                @display("p=141,147");
+        }
+        addvehicle: AddVehicle {
+            parameters:
+                @display("p=223,147");
+        }
+        warmup: Warmup {
+            parameters:
+                @display("p=311,147");
+        }
+        speedprofile: SpeedProfile {
+            parameters:
+                @display("p=402,147");
         }
         statistics: Statistics {
             parameters:
