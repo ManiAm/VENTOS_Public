@@ -2,9 +2,9 @@
 #ifndef ApplVPlatoon_H
 #define ApplVPlatoon_H
 
-#include "ApplVBeacon.h"
+#include "ApplVBeaconPlatoonLeader.h"
 
-class ApplVPlatoon : public ApplVBeacon
+class ApplVPlatoon : public ApplVBeaconPlatoonLeader
 {
 	public:
         ~ApplVPlatoon();
@@ -12,23 +12,27 @@ class ApplVPlatoon : public ApplVBeacon
         virtual void finish();
 
 	protected:
-        /** @brief handle messages from below */
         virtual void handleLowerMsg(cMessage* msg);
-        /** @brief handle self messages */
         virtual void handleSelfMsg(cMessage* msg);
-        /** @brief handle position updates */
         virtual void handlePositionUpdate(cObject* obj);
 
 		virtual void onBeacon(WaveShortMessage* wsm);
 		virtual void onData(WaveShortMessage* wsm);
 
-        WaveShortMessage* fillBeaconPlatoon(WaveShortMessage *);
+        void sendMessage(std::string);
 
 	private:
-        bool isPlatoonLeader;
-        long platoonID;
-        std::string platoonLeaderID;
-        bool one_vehicle_look_ahead;
+        // NED variables
+        bool platoonFormation;
+        int dataLengthBits;
+        bool dataOnSch;
+        int dataPriority;
+
+        // Class variables
+        int platoonSize;
+        int maxPlatoonSize;
+        simtime_t lastDroveAt;
+        bool sentMessage;
 };
 
 #endif

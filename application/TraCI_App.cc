@@ -93,6 +93,35 @@ void TraCI_App::init_traci()
 
     fflush(f1);
 
+    // ---------------------------------------------
+
+    char fName2 [50];
+
+    if( ev.isGUI() )
+    {
+        sprintf (fName2, "%s.txt", "results/gui/loop-detector");
+    }
+    else
+    {
+        // get the current run number
+        int currentRun = ev.getConfigEx()->getActiveRunNumber();
+        sprintf (fName2, "%s_%d.txt", "results/cmd/loop-detector", currentRun);
+    }
+
+    f2 = fopen (fName2, "w");
+
+    // write header
+    fprintf (f2, "%-20s","timeStep");
+    fprintf (f2, "%-20s","loopDetector");
+    fprintf (f2, "%-20s","vehicleName");
+    fprintf (f2, "%-20s","vehicleEntryTime");
+    fprintf (f2, "%-20s","vehicleExitTime");
+    fprintf (f2, "%-22s\n\n","vehicleSpeed");
+
+    fflush(f2);
+
+    // --------------------------------------------
+
     // add vehicles dynamically into SUMO
     AddVehiclePtr->Add();
 }
@@ -108,6 +137,9 @@ void TraCI_App::executeOneTimestep()
 
     // We write the parameters of all vehicles that are present now into the file
     writeToFile();
+
+    // We write the status of induction loops into the file
+    inductionLoops();
 
     if(simTime().dbl() >= terminate)
     {
@@ -190,9 +222,42 @@ void TraCI_App::writeToFilePerVehicle(std::string vID, std::string vleaderID)
 }
 
 
+// todo:
+void TraCI_App::inductionLoops()
+{
+    // get all loop detectors
+    std::list<std::string> str = commandGetLoopDetectorList();
+
+    // for each loop detector
+    for (std::list<std::string>::iterator it=str.begin(); it != str.end(); ++it)
+    {
+        uint32_t n1 = commandGetLoopDetectorCount(*it);
+
+        // only if this loop detector detected a vehicle
+        if(n1 == 1)
+        {
+            fprintf ( f2, "%-20.2f ", simTime().dbl() );
+            fprintf ( f2, "%-20s ", (*it).c_str() );
+            fprintf ( f2, "%-20s ", commandGetLoopDetectorVehicleList(*it).front().c_str() );
+            fprintf ( f2, "%-20.2f ", -1. );
+            fprintf ( f2, "%-20.2f ", -1. );
+            fprintf ( f2, "%-20.2f \n", commandGetLoopDetectorSpeed(*it) );
+        }
+    }
+
+    fflush(f2);
+
+
+  //  std::list<std::string> str2 = commandGetLoopDetectorVehicleData("detector1");
+  //  for (std::list<std::string>::iterator it=str2.begin(); it != str2.end(); ++it)
+  //      EV << "data ###########  " << *it;
+}
+
+
 void TraCI_App::finish()
 {
     TraCI_Extend::finish();
     fclose(f1);
+    fclose(f2);
 }
 

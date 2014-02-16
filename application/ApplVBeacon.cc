@@ -9,20 +9,22 @@ void ApplVBeacon::initialize(int stage)
 
 	if (stage == 0)
 	{
-        droppT = par("droppT").doubleValue();
-        droppV = par("droppV").stringValue();
-        plr = par("plr").doubleValue();
-
-        modeSwitch = par("modeSwitch").boolValue();
-        // set modeSwitch parameter in Sumo
-        manager->commandSetModeSwitch(SUMOvID, modeSwitch);
-
-        // beaconing parameters
+        // NED variables (beaconing parameters)
         sendBeacons = par("sendBeacons").boolValue();
         beaconInterval = par("beaconInterval").doubleValue();
         maxOffset = par("maxOffset").doubleValue();
         beaconLengthBits = par("beaconLengthBits").longValue();
         beaconPriority = par("beaconPriority").longValue();
+
+        // NED variables (packet loss ratio)
+        droppT = par("droppT").doubleValue();
+        droppV = par("droppV").stringValue();
+        plr = par("plr").doubleValue();
+
+        // NED variable
+        modeSwitch = par("modeSwitch").boolValue();
+
+        // Class variables
 
         // simulate asynchronous channel access
         double offSet = dblrand() * (beaconInterval/2);
@@ -30,17 +32,13 @@ void ApplVBeacon::initialize(int stage)
         individualOffset = dblrand() * maxOffset;
 
         sendBeaconEvt = new cMessage("beacon evt", SEND_BEACON_EVT);
-
         if (sendBeacons && isCACC() )
         {
             scheduleAt(simTime() + offSet, sendBeaconEvt);
         }
 
-		annotations = AnnotationManagerAccess().getIfExists();
-		ASSERT(annotations);
-
-		sentMessage = false;
-		lastDroveAt = simTime();
+        // set modeSwitch parameter in Sumo
+        manager->commandSetModeSwitch(SUMOvID, modeSwitch);
 	}
 }
 
@@ -60,9 +58,9 @@ void ApplVBeacon::handleLowerMsg(cMessage* msg)
         {
             if( !dropBeacon(droppT, droppV, plr) )
             {
-                onBeacon(wsm);
+                ApplVBeacon::onBeacon(wsm);
             }
-            // report the dropped beacon to statistics
+            // drop the beacon, and report it to statistics
             else
             {
                 bool result = isBeaconFromLeading(wsm);
@@ -82,9 +80,9 @@ void ApplVBeacon::handleLowerMsg(cMessage* msg)
             }
         }
     }
-    else if (std::string(wsm->getName()) == "data")
+    else
     {
-        onData(wsm);
+        error("Unknown message received in ApplVBeacon!");
     }
 }
 
@@ -103,7 +101,7 @@ void ApplVBeacon::handleSelfMsg(cMessage* msg)
             printBeaconContent(beaconMsg);
 
             // send it
-            sendWSM(beaconMsg);
+            sendDelayedDown(beaconMsg,individualOffset);
 
             // schedule for next beacon broadcast
             scheduleAt(simTime() + beaconInterval, sendBeaconEvt);
@@ -118,7 +116,7 @@ WaveShortMessage*  ApplVBeacon::prepareBeacon(std::string name, int lengthBits, 
 {
     if ( !isCACC() )
     {
-        throw cRuntimeError("Only CACC vehicles can send beacon!");
+        error("Only CACC vehicles can send beacon!");
     }
 
     WaveShortMessage* wsm = new WaveShortMessage(name.c_str());
@@ -134,7 +132,9 @@ WaveShortMessage*  ApplVBeacon::prepareBeacon(std::string name, int lengthBits, 
 
     switch (channel)
     {
-        case type_SCH: wsm->setChannelNumber(Channels::SCH1); break; //will be rewritten at Mac1609_4 to actual Service Channel. This is just so no controlInfo is needed
+        // will be rewritten at Mac1609_4 to actual Service Channel.
+        // This is just so no controlInfo is needed
+        case type_SCH: wsm->setChannelNumber(Channels::SCH1); break;
         case type_CCH: wsm->setChannelNumber(Channels::CCH); break;
     }
 
@@ -149,20 +149,20 @@ WaveShortMessage*  ApplVBeacon::prepareBeacon(std::string name, int lengthBits, 
     wsm->setSender(myFullId);
     wsm->setRecipient("broadcast");
 
-    // get the current position (from sumo)
+    // set current position
     Coord cord = manager->commandGetVehiclePos(SUMOvID);
     wsm->setPos(cord);
 
-    // get current speed from sumo
+    // set current speed
     wsm->setSpeed( manager->commandGetVehicleSpeed(SUMOvID) );
 
-    // get current acceleration
+    // set current acceleration
     wsm->setAccel( manager->commandGetVehicleAccel(SUMOvID) );
 
-    // get maxDecel of vehicle
+    // set maxDecel
     wsm->setMaxDecel( manager->commandGetVehicleMaxDecel(SUMOvID) );
 
-    // get current lane
+    // set current lane
     wsm->setLane( manager->commandGetLaneId(SUMOvID).c_str() );
 
     return wsm;
@@ -248,39 +248,12 @@ void ApplVBeacon::onBeacon(WaveShortMessage* wsm)
         simsignal_t Signal_beaconO = registerSignal("beaconO");
         nodePtr->emit(Signal_beaconO, pair);
     }
-
-
-    /*
-    DBG << "Received beacon priority  " << wsm->getPriority() << " at " << simTime() << std::endl;
-    int senderId = wsm->getSenderAddress();
-
-    if (sendData)
-    {
-        t_channel channel = dataOnSch ? type_SCH : type_CCH;
-        sendWSM(prepareWSM("data", dataLengthBits, channel, dataPriority, senderId,2));
-    }
-    */
 }
 
 
 void ApplVBeacon::onData(WaveShortMessage* wsm)
 {
-	findHost()->getDisplayString().updateWith("r=16,green");
-	annotations->scheduleErase(1, annotations->drawLine(wsm->getPos(), traci->getPositionAt(simTime()), "blue"));
-
-	if (traci->getRoadId()[0] != ':') traci->commandChangeRoute(wsm->getWsmData(), 9999);
-	if (!sentMessage) sendMessage(wsm->getWsmData());
-}
-
-
-void ApplVBeacon::sendMessage(std::string blockedRoadId)
-{
-	sentMessage = true;
-
-	//t_channel channel = dataOnSch ? type_SCH : type_CCH;
-	//WaveShortMessage* wsm = prepareWSM("data", dataLengthBits, channel, dataPriority, -1,2);
-	//wsm->setWsmData(blockedRoadId.c_str());
-	//sendWSM(wsm);
+    error("ApplVBeacon can not handle data. Something is wrong!");
 }
 
 
@@ -288,20 +261,6 @@ void ApplVBeacon::sendMessage(std::string blockedRoadId)
 void ApplVBeacon::handlePositionUpdate(cObject* obj)
 {
     ApplVBase::handlePositionUpdate(obj);
-
-	// stopped for at least 10s?
-	if (traci->getSpeed() < 1)
-	{
-		if (simTime() - lastDroveAt >= 10)
-		{
-			findHost()->getDisplayString().updateWith("r=16,red");
-			//if (!sentMessage) sendMessage(traci->getRoadId());
-		}
-	}
-	else
-	{
-		lastDroveAt = simTime();
-	}
 }
 
 
@@ -372,12 +331,6 @@ bool ApplVBeacon::isBeaconFromLeading(WaveShortMessage* wsm)
 }
 
 
-void ApplVBeacon::sendWSM(WaveShortMessage* wsm)
-{
-    sendDelayedDown(wsm,individualOffset);
-}
-
-
 void ApplVBeacon::finish()
 {
     if (sendBeaconEvt->isScheduled())
@@ -388,8 +341,6 @@ void ApplVBeacon::finish()
     {
         delete sendBeaconEvt;
     }
-
-    findHost()->unsubscribe(mobilityStateChangedSignal, this);
 }
 
 

@@ -61,8 +61,14 @@ void AddVehicle::Add()
 
 void AddVehicle::Scenario1()
 {
+    for(int i=1; i<=totalVehicles; i++)
+    {
+        char vehicleName[10];
+        sprintf(vehicleName, "CACC%d", i);
+        int depart = 1000 * i;
 
-
+        manager->commandAddVehicleN(vehicleName,"TypeCACC","route1",depart);
+    }
 }
 
 
@@ -77,14 +83,14 @@ void AddVehicle::Scenario2()
         if( (i-1) % platoonSize == 0 )
         {
             // platoon leader
-          //  manager->commandAddVehicleN(vehicleName,"TypeCACC1","route1",depart);
-            manager->commandAddVehicleN(vehicleName,"TypeACC1","route1",depart);
+         //   manager->commandAddVehicleN(vehicleName,"TypeCACC1","route1",depart);
+            manager->commandAddVehicleN(vehicleName,"TypeACC","route1",depart);
         }
         else
         {
             // following vehicle
-         //   manager->commandAddVehicleN(vehicleName,"TypeCACC2","route1",depart);
-            manager->commandAddVehicleN(vehicleName,"TypeACC1","route1",depart);
+        //    manager->commandAddVehicleN(vehicleName,"TypeCACC2","route1",depart);
+            manager->commandAddVehicleN(vehicleName,"TypeACC","route1",depart);
         }
     }
 }

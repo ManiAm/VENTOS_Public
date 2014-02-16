@@ -4,6 +4,7 @@
     <basedir path="/home/mani/Desktop/VENTOS/sumo/CACC_Platoon" />
 	<copy file="hello.net.xml" />
 	<copy file="hello.rou.xml" />
+    <copy file="hello.loopDetector.xml" />
 	<copy file="hello.sumo.cfg" type="config" />
 </launch>
 

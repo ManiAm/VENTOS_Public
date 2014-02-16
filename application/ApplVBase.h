@@ -38,29 +38,23 @@ class ApplVBase : public BaseApplLayer
 		/** @brief handle position updates */
 		virtual void handlePositionUpdate(cObject* obj);
 
-		virtual WaveShortMessage* prepareData(std::string name, int dataLengthBits, t_channel channel, int priority, int rcvId, int serial=0);
 		virtual void sendWSM(WaveShortMessage* wsm);
 		bool isCACC();
 
 	protected:
+		// NED variables
 	    cModule *nodePtr;   // pointer to the Node
         WaveAppToMac1609_4Interface* myMac;
-
-        int mySCH;
-		int myId;
-		const char *myFullId;
-        Coord curPosition;
-
         TraCIMobility* traci;
         mutable TraCI_Extend* manager;
+        AnnotationManager* annotations;
 
-		std::string SUMOvID;
+        // Class variables
+        int myId;
+		const char *myFullId;
+	    std::string SUMOvID;
         std::string SUMOvType;
-
-        bool sendData;
-        int dataLengthBits;
-        bool dataOnSch;
-        int dataPriority;
+        Coord curPosition;  // current position from mobility module (not from sumo)
 };
 
 #endif

@@ -6,7 +6,10 @@ simple ApplVPlatoon extends ApplVBeacon
         @class(ApplVPlatoon);
         @display("i=block/app2");
                 
-        bool one_vehicle_look_ahead = default(false);
-        string platoonLeaderID;
-        int platoonID;
+        int maxPlatoonSize;
+        
+        bool platoonFormation = default(false);  //whether this applayer should send data
+        int dataLengthBits = default(1024bit) @unit(bit); //the length of a data packet
+        bool dataOnSch = default(true); //tells the applayer whether to use a service channel for datapackets or the control channel
+        int dataPriority = default(3); //the access category for data packets
 }

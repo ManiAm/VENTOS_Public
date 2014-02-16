@@ -34,11 +34,13 @@ class TraCI_App : public TraCI_Extend
 	    // class variables
 	    FILE *f1;
 	    int index;
+	    FILE *f2;
 	    double terminate;
 
 	    // methods
         void writeToFile();
         void writeToFilePerVehicle(std::string, std::string);
+        void inductionLoops();
 };
 
 

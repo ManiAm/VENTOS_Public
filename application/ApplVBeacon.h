@@ -12,31 +12,28 @@ class ApplVBeacon : public ApplVBase
         virtual void finish();
 
 	protected:
-		AnnotationManager* annotations;
-		simtime_t lastDroveAt;
-		bool sentMessage;
-
-        bool modeSwitch;
-        double droppT;
-        std::string droppV;
-        double plr;
-
-		bool sendBeacons;
+        // NED variables (beaconing parameters)
+        bool sendBeacons;
 		double beaconInterval;
 		double maxOffset;
         int beaconLengthBits;
         int beaconPriority;
 
-        simtime_t individualOffset;
+        // NED variables (packet loss ratio)
+        double droppT;
+        std::string droppV;
+        double plr;
 
+        // NED variable
+        bool modeSwitch;
+
+        // Class variables
+        simtime_t individualOffset;
         cMessage* sendBeaconEvt;
 
-	protected:
-        /** @brief handle messages from below */
+        // Methods
         virtual void handleLowerMsg(cMessage*);
-        /** @brief handle self messages */
         virtual void handleSelfMsg(cMessage*);
-        /** @brief handle position updates */
         virtual void handlePositionUpdate(cObject*);
 
 		virtual void onBeacon(WaveShortMessage*);
@@ -44,13 +41,10 @@ class ApplVBeacon : public ApplVBase
 
         WaveShortMessage* prepareBeacon(std::string, int, t_channel, int, int, int serial=0);
         void printBeaconContent(WaveShortMessage*);
-
-		void sendMessage(std::string);
-        virtual void sendWSM(WaveShortMessage*);
+        bool dropBeacon(double, std::string, double);
 
 	private:
-        bool dropBeacon(double, std::string, double);
-        double  getGap(std::string);
+        double getGap(std::string);
         bool isBeaconFromLeading(WaveShortMessage*);
 };
 

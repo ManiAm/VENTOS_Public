@@ -17,29 +17,26 @@ void ApplVBase::initialize(int stage)
 		myMac = FindModule<WaveAppToMac1609_4Interface*>::findSubModule(getParentModule());
 		assert(myMac);
 
-		// vehicle id in omnet++
-		myId = getParentModule()->getIndex();
+        traci = TraCIMobilityAccess().get(getParentModule());
+        manager = FindModule<TraCI_Extend*>::findGlobalModule();
 
-		myFullId = getParentModule()->getFullName();
+        annotations = AnnotationManagerAccess().getIfExists();
+        ASSERT(annotations);
+
+        headerLength = par("headerLength").longValue();
 
         findHost()->subscribe(mobilityStateChangedSignal, this);
 
-        traci = TraCIMobilityAccess().get(getParentModule());
-        manager = FindModule<TraCI_Extend*>::findGlobalModule();
+        // vehicle id in omnet++
+		myId = getParentModule()->getIndex();
+
+		myFullId = getParentModule()->getFullName();
 
         // vehicle id in sumo
         SUMOvID = traci->getExternalId();
 
         // vehicle type in sumo
         SUMOvType = manager->commandGetVehicleType(SUMOvID);
-
-        headerLength = par("headerLength").longValue();
-
-        // data parameters
-        sendData = par("sendData").boolValue();
-        dataLengthBits = par("dataLengthBits").longValue();
-        dataOnSch = par("dataOnSch").boolValue();
-        dataPriority = par("dataPriority").longValue();
 	}
 }
 
@@ -85,21 +82,15 @@ void ApplVBase::handlePositionUpdate(cObject* obj)
 }
 
 
-WaveShortMessage*  ApplVBase::prepareData(std::string name, int lengthBits, t_channel channel, int priority, int rcvId, int serial)
-{
-    return NULL;
-}
-
-
 void ApplVBase::sendWSM(WaveShortMessage* wsm)
 {
-
+    error("sendWSM of ApplVBase should not be called!");
 }
 
 
 bool ApplVBase::isCACC()
 {
-    if(SUMOvType == "TypeCACC0" || SUMOvType == "TypeCACC1" || SUMOvType == "TypeCACC2")
+    if(SUMOvType == "TypeCACC" || SUMOvType == "TypeCACC0" || SUMOvType == "TypeCACC1" || SUMOvType == "TypeCACC2")
         return true;
     else
         return false;
