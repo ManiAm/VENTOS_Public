@@ -51,7 +51,7 @@
  * 	double maxDecel;
  * 	string lane;
  * 	int platoonID;
- * 	bool isPlatoonLeader;
+ * 	int platoonDepth;
  * 	
  * 	
  *     
@@ -78,7 +78,7 @@ class WaveShortMessage : public ::cPacket
     double maxDecel_var;
     opp_string lane_var;
     int platoonID_var;
-    bool isPlatoonLeader_var;
+    int platoonDepth_var;
 
   private:
     void copy(const WaveShortMessage& other);
@@ -132,8 +132,8 @@ class WaveShortMessage : public ::cPacket
     virtual void setLane(const char * lane);
     virtual int getPlatoonID() const;
     virtual void setPlatoonID(int platoonID);
-    virtual bool getIsPlatoonLeader() const;
-    virtual void setIsPlatoonLeader(bool isPlatoonLeader);
+    virtual int getPlatoonDepth() const;
+    virtual void setPlatoonDepth(int platoonDepth);
 };
 
 inline void doPacking(cCommBuffer *b, WaveShortMessage& obj) {obj.parsimPack(b);}

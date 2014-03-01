@@ -190,7 +190,7 @@ void ApplVBeacon::printBeaconContent(WaveShortMessage* wsm)
     EV << wsm->getMaxDecel() << " | ";
     EV << wsm->getLane() << " | ";
     EV << wsm->getPlatoonID() << " | ";
-    EV << wsm->getIsPlatoonLeader() << std::endl;
+    EV << wsm->getPlatoonDepth() << std::endl;
 }
 
 
@@ -282,12 +282,9 @@ bool ApplVBeacon::isBeaconFromLeading(WaveShortMessage* wsm)
 
     std::string vleaderID = manager->commandGetLeading_M(SUMOvID);
 
-    // use our sonar to compute the gap
-    double gap = getGap(vleaderID);
-
-    if(gap == -1)
+    if(vleaderID == "")
     {
-        EV << "This vehicle has no leading vehicle (gap = -1)" << std::endl;
+        EV << "This vehicle has no leading vehicle." << std::endl;
         return false;
     }
 
@@ -313,6 +310,9 @@ bool ApplVBeacon::isBeaconFromLeading(WaveShortMessage* wsm)
 
     // subtract the length of the leading vehicle from dist
     dist = dist - manager->commandGetVehicleLength(vleaderID);
+
+    // use our sonar to compute the gap
+    double gap = getGap(vleaderID);
 
     EV << "my coord (x,y): " << cord.x << "," << cord.y << std::endl;
     EV << "other coord (x,y): " << wsm->getPos().x << "," << wsm->getPos().y << std::endl;

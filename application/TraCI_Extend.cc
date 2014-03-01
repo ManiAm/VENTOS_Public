@@ -17,48 +17,18 @@ TraCI_Extend::~TraCI_Extend()
 void TraCI_Extend::initialize(int stage)
 {
     TraCIScenarioManagerLaunchd::initialize(stage);
-
-    updataGUI = new cMessage("updataGUI", 1);
-
-    tracking = par("tracking").boolValue();
-    trackingV = par("trackingV").stdstringValue();
-    trackingInterval = par("trackingInterval").doubleValue();
 }
 
 
 void TraCI_Extend::handleSelfMsg(cMessage *msg)
 {
-    if (msg == updataGUI)
-    {
-        Coord co = commandGetVehiclePos(trackingV);
-        commandSetGUIOffset(co.x, co.y);
-
-        scheduleAt(simTime() + trackingInterval, updataGUI);
-    }
-    else
-    {
-        TraCIScenarioManager::handleSelfMsg(msg);
-    }
+    TraCIScenarioManager::handleSelfMsg(msg);
 }
 
 
 void TraCI_Extend::init_traci()
 {
     TraCIScenarioManagerLaunchd::init_traci();
-
-    // todo: use TraCI command, and check if we are running in gui mode
-
-    // zoom-in GUI
-    //commandSetGUIZoom(767.);
-
-    // adjust windows
-   // commandSetGUIOffset(200., 0.);
-
-    // track the vehicle only if tracking is on
-    if(tracking)
-    {
-        scheduleAt(simTime(), updataGUI);
-    }
 }
 
 
@@ -183,6 +153,18 @@ std::list<std::string> TraCI_Extend::commandGetLoopDetectorVehicleList(std::stri
 std::list<std::string> TraCI_Extend::commandGetLoopDetectorVehicleData(std::string loopId)
 {
     return genericGetComplex(CMD_GET_INDUCTIONLOOP_VARIABLE, loopId, 0x17, RESPONSE_GET_INDUCTIONLOOP_VARIABLE);
+}
+
+
+double TraCI_Extend::commandGetLoopDetectorEntryTime(std::string loopId)
+{
+    return genericGetDouble(CMD_GET_INDUCTIONLOOP_VARIABLE, loopId, 0x03, RESPONSE_GET_INDUCTIONLOOP_VARIABLE);
+}
+
+
+double TraCI_Extend::commandGetLoopDetectorLeaveTime(std::string loopId)
+{
+    return genericGetDouble(CMD_GET_INDUCTIONLOOP_VARIABLE, loopId, 0x04, RESPONSE_GET_INDUCTIONLOOP_VARIABLE);
 }
 
 

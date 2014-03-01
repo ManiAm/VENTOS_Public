@@ -5,21 +5,22 @@ Define_Module(ApplVPlatoon);
 
 void ApplVPlatoon::initialize(int stage)
 {
-    ApplVBeacon::initialize(stage);
+    ApplVBeaconPlatoonLeader::initialize(stage);
 
 	if (stage == 0)
 	{
-	    maxPlatoonSize = par("maxPlatoonSize").longValue();
-
-        // platoon formation msg
+	    // NED variables (platoon formation)
         platoonFormation = par("platoonFormation").boolValue();
+        maxPlatoonSize = par("maxPlatoonSize").longValue();
 
+        // NED variables (platoon messages)
         dataLengthBits = par("dataLengthBits").longValue();
         dataOnSch = par("dataOnSch").boolValue();
         dataPriority = par("dataPriority").longValue();
 
         sentMessage = false;
         lastDroveAt = simTime();
+        vehicleState = state_idle;
 	}
 }
 
@@ -32,35 +33,42 @@ void ApplVPlatoon::handleLowerMsg(cMessage* msg)
 
     if (std::string(wsm->getName()) == "beacon")
     {
-        if(one_vehicle_look_ahead)
+        if(platoonFormation)
         {
-            ApplVBeacon::handleLowerMsg(msg);
+            ApplVPlatoon::onBeacon(wsm);
         }
         else
         {
-            //onBeacon(msg);
+            ApplVBeaconPlatoonLeader::handleLowerMsg(msg);
         }
     }
     else if (std::string(wsm->getName()) == "data")
     {
-        onData(wsm);
+        if(platoonFormation)
+        {
+            ApplVPlatoon::onData(wsm);
+        }
     }
-
-
-    ApplVBeacon::handleLowerMsg(msg);
-
+    else
+    {
+        error("Unknown message received in ApplVPlatoon!");
+    }
 }
 
 
 void ApplVPlatoon::handleSelfMsg(cMessage* msg)
 {
-
-
+    ApplVBeaconPlatoonLeader::handleSelfMsg(msg);
 }
 
 
 void ApplVPlatoon::onBeacon(WaveShortMessage* wsm)
 {
+    if(!platoonFormation)
+    {
+        error("platoonFormation is off in ApplVPlatoon::onBeacon");
+    }
+
 
 
 }
@@ -68,6 +76,14 @@ void ApplVPlatoon::onBeacon(WaveShortMessage* wsm)
 
 void ApplVPlatoon::onData(WaveShortMessage* wsm)
 {
+    if(!platoonFormation)
+    {
+        error("platoonFormation is off in ApplVPlatoon::onData");
+    }
+
+
+
+
 
     findHost()->getDisplayString().updateWith("r=16,green");
     annotations->scheduleErase(1, annotations->drawLine(wsm->getPos(), traci->getPositionAt(simTime()), "blue"));
@@ -118,6 +134,29 @@ void ApplVPlatoon::handlePositionUpdate(cObject* obj)
     {
         lastDroveAt = simTime();
     }
+}
+
+
+void ApplVPlatoon::FSMchangeState()
+{
+    if(vehicleState == state_idle)
+    {
+        // check for leading vehicle
+        std::string vleaderID = manager->commandGetLeading_M(SUMOvID);
+
+        if(vleaderID == "")
+        {
+            EV << "This vehicle has no leading vehicle." << std::endl;
+        }
+
+
+    }
+    else if(true)
+    {
+
+    }
+
+
 }
 
 

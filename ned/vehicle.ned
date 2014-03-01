@@ -7,12 +7,12 @@ import org.mixim.modules.nic.Nic80211p;
 module vehicle
 {
     parameters:
-        string applType; //type of the application layer
+     //   string applType; //type of the application layer
         string mobilityType; //type of the mobility module
     gates:
         input radioIn; // gate for sendDirect
     submodules:
-        appl: <applType> like IBaseApplLayer {
+        appl: ApplVPlatoon {    // <applType> like IBaseApplLayer {
             parameters:
                 @display("p=60,50");
         }

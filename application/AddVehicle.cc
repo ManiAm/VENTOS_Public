@@ -44,7 +44,7 @@ void AddVehicle::handleMessage(cMessage *msg)
 
 void AddVehicle::Add()
 {
-    // if dynamic adding is not on, return
+    // if dynamic adding is off, return
     if (!on)
         return;
 

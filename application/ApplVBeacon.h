@@ -44,8 +44,8 @@ class ApplVBeacon : public ApplVBase
         bool dropBeacon(double, std::string, double);
 
 	private:
-        double getGap(std::string);
         bool isBeaconFromLeading(WaveShortMessage*);
+        double getGap(std::string);
 };
 
 #endif

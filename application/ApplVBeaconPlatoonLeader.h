@@ -18,7 +18,7 @@ class ApplVBeaconPlatoonLeader : public ApplVBeacon
         int platoonID;
 
         // Class variables
-        bool isPlatoonLeader;
+        bool myPlatoonDepth;
 
         // Methods
         virtual void handleLowerMsg(cMessage*);

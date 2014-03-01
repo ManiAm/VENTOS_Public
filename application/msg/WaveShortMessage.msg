@@ -34,7 +34,7 @@ packet WaveShortMessage
 	double maxDecel;
 	string lane;
 	int platoonID;
-	bool isPlatoonLeader;
+	int platoonDepth;
 	
 	// int serial = 0;
     // simtime_t timestamp = 0;

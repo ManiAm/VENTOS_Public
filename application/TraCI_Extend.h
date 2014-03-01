@@ -36,6 +36,8 @@ class TraCI_Extend : public TraCIScenarioManagerLaunchd
         double commandGetLoopDetectorSpeed(std::string);
         std::list<std::string> commandGetLoopDetectorVehicleList(std::string);
         std::list<std::string> commandGetLoopDetectorVehicleData(std::string);
+        double commandGetLoopDetectorEntryTime(std::string);   // new defined command
+        double commandGetLoopDetectorLeaveTime(std::string);   // new defined command
 
         // CMD_GET_VEHICLETYPE_VARIABLE
         double commandGetVehicleLength_Type(std::string);
@@ -67,11 +69,6 @@ class TraCI_Extend : public TraCIScenarioManagerLaunchd
         uint32_t genericGetInt32(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
         Coord genericGetCoordv2(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
         std::list<std::string> genericGetComplex(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
-
-        cMessage* updataGUI;
-        bool tracking;
-        std::string trackingV;
-        double trackingInterval;
 };
 
 

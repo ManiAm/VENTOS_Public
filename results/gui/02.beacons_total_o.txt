@@ -1,3 +1,13 @@
 Total Number of received beacons from other vehicle
 
 vehicle   beacons   
+V[0]       25688      
+V[1]       21098      
+V[2]       21725      
+V[3]       21966      
+V[4]       21846      
+V[5]       21165      
+V[6]       21114      
+V[7]       21720      
+V[8]       21464      
+V[9]       21928      

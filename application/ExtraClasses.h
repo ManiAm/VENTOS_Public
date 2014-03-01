@@ -3,7 +3,7 @@
 class data : public cObject, noncopyable
 {
   public:
-    char name[10];
+    char name[20];
 
     data(const char *str)
     {
@@ -27,7 +27,7 @@ class MacStat : public cObject, noncopyable
 class MacStatEntry
 {
 public:
-  char name1[10];
+  char name1[20];
   int nodeID;  // is used to sort the vector (used as a key)
   simtime_t time;
   std::vector<long> MacStatsVec;
@@ -45,10 +45,10 @@ public:
 class NodeEntry
 {
   public:
-	char name1[10];
+	char name1[20];
     int nodeID;  // is used to sort the vector (used as a key)
 
-    char name2[10];
+    char name2[20];
     int count;
 	simtime_t time;
 
@@ -62,3 +62,28 @@ class NodeEntry
 		this->time = t;
 	}
 };
+
+
+class LoopDetector
+{
+  public:
+    char detectorName[20];
+    char vehicleName[20];
+    double entryTime;
+    double leaveTime;
+    double entrySpeed;
+    double leaveSpeed;
+
+    LoopDetector( const char *str1, const char *str2, double entryT, double leaveT, double entryS, double leaveS )
+    {
+        strcpy(this->detectorName, str1);
+        strcpy(this->vehicleName, str2);
+
+        this->entryTime = entryT;
+        this->leaveTime = leaveT;
+
+        this->entrySpeed = entryS;
+        this->leaveSpeed = leaveS;
+    }
+};
+

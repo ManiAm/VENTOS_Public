@@ -439,6 +439,7 @@ $O/Statistics.o: Statistics.cc \
 	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
 $O/TraCI_App.o: TraCI_App.cc \
 	AddVehicle.h \
+	ExtraClasses.h \
 	SpeedProfile.h \
 	TraCI_App.h \
 	TraCI_Extend.h \

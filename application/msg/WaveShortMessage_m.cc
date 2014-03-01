@@ -50,7 +50,7 @@ WaveShortMessage::WaveShortMessage(const char *name, int kind) : cPacket(name,ki
     this->maxDecel_var = 0;
     this->lane_var = 0;
     this->platoonID_var = 0;
-    this->isPlatoonLeader_var = 0;
+    this->platoonDepth_var = 0;
 }
 
 WaveShortMessage::WaveShortMessage(const WaveShortMessage& other) : cPacket(other)
@@ -89,7 +89,7 @@ void WaveShortMessage::copy(const WaveShortMessage& other)
     this->maxDecel_var = other.maxDecel_var;
     this->lane_var = other.lane_var;
     this->platoonID_var = other.platoonID_var;
-    this->isPlatoonLeader_var = other.isPlatoonLeader_var;
+    this->platoonDepth_var = other.platoonDepth_var;
 }
 
 void WaveShortMessage::parsimPack(cCommBuffer *b)
@@ -112,7 +112,7 @@ void WaveShortMessage::parsimPack(cCommBuffer *b)
     doPacking(b,this->maxDecel_var);
     doPacking(b,this->lane_var);
     doPacking(b,this->platoonID_var);
-    doPacking(b,this->isPlatoonLeader_var);
+    doPacking(b,this->platoonDepth_var);
 }
 
 void WaveShortMessage::parsimUnpack(cCommBuffer *b)
@@ -135,7 +135,7 @@ void WaveShortMessage::parsimUnpack(cCommBuffer *b)
     doUnpacking(b,this->maxDecel_var);
     doUnpacking(b,this->lane_var);
     doUnpacking(b,this->platoonID_var);
-    doUnpacking(b,this->isPlatoonLeader_var);
+    doUnpacking(b,this->platoonDepth_var);
 }
 
 int WaveShortMessage::getWsmVersion() const
@@ -308,14 +308,14 @@ void WaveShortMessage::setPlatoonID(int platoonID)
     this->platoonID_var = platoonID;
 }
 
-bool WaveShortMessage::getIsPlatoonLeader() const
+int WaveShortMessage::getPlatoonDepth() const
 {
-    return isPlatoonLeader_var;
+    return platoonDepth_var;
 }
 
-void WaveShortMessage::setIsPlatoonLeader(bool isPlatoonLeader)
+void WaveShortMessage::setPlatoonDepth(int platoonDepth)
 {
-    this->isPlatoonLeader_var = isPlatoonLeader;
+    this->platoonDepth_var = platoonDepth;
 }
 
 class WaveShortMessageDescriptor : public cClassDescriptor
@@ -425,7 +425,7 @@ const char *WaveShortMessageDescriptor::getFieldName(void *object, int field) co
         "maxDecel",
         "lane",
         "platoonID",
-        "isPlatoonLeader",
+        "platoonDepth",
     };
     return (field>=0 && field<18) ? fieldNames[field] : NULL;
 }
@@ -451,7 +451,7 @@ int WaveShortMessageDescriptor::findField(void *object, const char *fieldName) c
     if (fieldName[0]=='m' && strcmp(fieldName, "maxDecel")==0) return base+14;
     if (fieldName[0]=='l' && strcmp(fieldName, "lane")==0) return base+15;
     if (fieldName[0]=='p' && strcmp(fieldName, "platoonID")==0) return base+16;
-    if (fieldName[0]=='i' && strcmp(fieldName, "isPlatoonLeader")==0) return base+17;
+    if (fieldName[0]=='p' && strcmp(fieldName, "platoonDepth")==0) return base+17;
     return basedesc ? basedesc->findField(object, fieldName) : -1;
 }
 
@@ -481,7 +481,7 @@ const char *WaveShortMessageDescriptor::getFieldTypeString(void *object, int fie
         "double",
         "string",
         "int",
-        "bool",
+        "int",
     };
     return (field>=0 && field<18) ? fieldTypeStrings[field] : NULL;
 }
@@ -540,7 +540,7 @@ std::string WaveShortMessageDescriptor::getFieldAsString(void *object, int field
         case 14: return double2string(pp->getMaxDecel());
         case 15: return oppstring2string(pp->getLane());
         case 16: return long2string(pp->getPlatoonID());
-        case 17: return bool2string(pp->getIsPlatoonLeader());
+        case 17: return long2string(pp->getPlatoonDepth());
         default: return "";
     }
 }
@@ -571,7 +571,7 @@ bool WaveShortMessageDescriptor::setFieldAsString(void *object, int field, int i
         case 14: pp->setMaxDecel(string2double(value)); return true;
         case 15: pp->setLane((value)); return true;
         case 16: pp->setPlatoonID(string2long(value)); return true;
-        case 17: pp->setIsPlatoonLeader(string2bool(value)); return true;
+        case 17: pp->setPlatoonDepth(string2long(value)); return true;
         default: return false;
     }
 }

@@ -19,8 +19,8 @@ Fsize = 25;
 %x1 = 77;
 %x2 = 150;
 
-x1 = 39.5;
-x2 = 75;
+x1 = 90;
+x2 = 120;
 
 %x1 = 130;
 %x2 = 221;
@@ -28,9 +28,9 @@ x2 = 75;
 for s=1:2   
     
     if(s == 1)
-        path = '../results/gui/speed-gap0.71.txt';
+        path = '../results/gui/speed-gap-vl-true.txt';
     elseif(s == 2)
-        path = '../results/gui/speed-gap0.4.txt';
+        path = '../results/gui/speed-gap-vl-false.txt';
     elseif(s == 3)
         path = '../results/gui/speed-gapCACC.txt';
     end

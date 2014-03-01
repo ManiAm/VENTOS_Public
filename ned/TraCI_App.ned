@@ -8,5 +8,9 @@ simple TraCI_App extends TraCI_Extend
         @display("i=block/network2");
         
         double terminate = default(200s) @unit(s);
+        
+        bool tracking;
+        string trackingV;
+        double trackingInterval;
 }
 

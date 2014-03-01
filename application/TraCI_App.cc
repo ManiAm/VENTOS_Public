@@ -18,7 +18,7 @@ void TraCI_App::initialize(int stage)
 {
     TraCI_Extend::initialize(stage);
 
-    if(stage ==0)
+    if(stage == 0)
     {
         // get the ptr of the current module
         nodePtr = FindModule<>::findHost(this);
@@ -45,14 +45,59 @@ void TraCI_App::initialize(int stage)
 
         terminate = par("terminate").doubleValue();
 
+        tracking = par("tracking").boolValue();
+        trackingV = par("trackingV").stdstringValue();
+        trackingInterval = par("trackingInterval").doubleValue();
+
+        updataGUI = new cMessage("updataGUI", 1);
+
         index = 1;
+    }
+    else if(stage == 1)
+    {
+        char fName [50];
+
+        if( ev.isGUI() )
+        {
+            sprintf (fName, "%s.txt", "results/gui/speed-gap");
+        }
+        else
+        {
+            // get the current run number
+            int currentRun = ev.getConfigEx()->getActiveRunNumber();
+            sprintf (fName, "%s_%d.txt", "results/cmd/speed-gap", currentRun);
+        }
+
+        f1 = fopen (fName, "w");
+
+        // write header
+        fprintf (f1, "%-10s","index");
+        fprintf (f1, "%-10s","vehicle");
+        fprintf (f1, "%-12s","timeStep");
+        fprintf (f1, "%-10s","speed");
+        fprintf (f1, "%-12s","accel");
+        fprintf (f1, "%-12s","pos");
+        fprintf (f1, "%-10s","gap");
+        fprintf (f1, "%-10s\n\n","timeGap");
+
+        fflush(f1);
     }
 }
 
 
 void TraCI_App::handleSelfMsg(cMessage *msg)
 {
-    TraCI_Extend::handleSelfMsg(msg);
+    if (msg == updataGUI)
+    {
+        Coord co = commandGetVehiclePos(trackingV);
+        commandSetGUIOffset(co.x, co.y);
+
+        scheduleAt(simTime() + trackingInterval, updataGUI);
+    }
+    else
+    {
+        TraCI_Extend::handleSelfMsg(msg);
+    }
 }
 
 
@@ -61,66 +106,24 @@ void TraCI_App::init_traci()
 {
     TraCI_Extend::init_traci();
 
+    // todo:
     // making sure that platoonLeader exists in the sumo
 
 
-    // ---------------------------------------------
+    // todo:
+    // use TraCI command, and check if we are running in gui mode
 
-    char fName [50];
+    // zoom-in GUI
+    //commandSetGUIZoom(767.);
 
-    if( ev.isGUI() )
+    // adjust windows
+   // commandSetGUIOffset(200., 0.);
+
+    // track the vehicle only if tracking is on
+    if(tracking)
     {
-        sprintf (fName, "%s.txt", "results/gui/speed-gap");
+        scheduleAt(simTime(), updataGUI);
     }
-    else
-    {
-        // get the current run number
-        int currentRun = ev.getConfigEx()->getActiveRunNumber();
-        sprintf (fName, "%s_%d.txt", "results/cmd/speed-gap", currentRun);
-    }
-
-    f1 = fopen (fName, "w");
-
-    // write header
-    fprintf (f1, "%-10s","index");
-    fprintf (f1, "%-10s","vehicle");
-    fprintf (f1, "%-12s","timeStep");
-    fprintf (f1, "%-10s","speed");
-    fprintf (f1, "%-12s","accel");
-    fprintf (f1, "%-12s","pos");
-    fprintf (f1, "%-10s","gap");
-    fprintf (f1, "%-10s\n\n","timeGap");
-
-    fflush(f1);
-
-    // ---------------------------------------------
-
-    char fName2 [50];
-
-    if( ev.isGUI() )
-    {
-        sprintf (fName2, "%s.txt", "results/gui/loop-detector");
-    }
-    else
-    {
-        // get the current run number
-        int currentRun = ev.getConfigEx()->getActiveRunNumber();
-        sprintf (fName2, "%s_%d.txt", "results/cmd/loop-detector", currentRun);
-    }
-
-    f2 = fopen (fName2, "w");
-
-    // write header
-    fprintf (f2, "%-20s","timeStep");
-    fprintf (f2, "%-20s","loopDetector");
-    fprintf (f2, "%-20s","vehicleName");
-    fprintf (f2, "%-20s","vehicleEntryTime");
-    fprintf (f2, "%-20s","vehicleExitTime");
-    fprintf (f2, "%-22s\n\n","vehicleSpeed");
-
-    fflush(f2);
-
-    // --------------------------------------------
 
     // add vehicles dynamically into SUMO
     AddVehiclePtr->Add();
@@ -135,14 +138,19 @@ void TraCI_App::executeOneTimestep()
 
     EV << "### SUMO completed simulation for TS = " << (getCurrentTimeMs()/1000.) << std::endl;
 
-    // We write the parameters of all vehicles that are present now into the file
-    writeToFile();
+    // collecting data from all vehicles in each timeStep and
+    // then write it into a file each time
+    vehiclesData();
 
-    // We write the status of induction loops into the file
+    // collecting induction loop data in each timeStep
     inductionLoops();
 
     if(simTime().dbl() >= terminate)
     {
+        // write the collected induction loop data to
+        // a file before terminating simulation
+        writeToFile_InductionLoop();
+
         // send termination signal to statistics
         // statistic will perform some post-processing and
         // then terminates the simulation
@@ -161,7 +169,7 @@ void TraCI_App::executeOneTimestep()
 }
 
 
-void TraCI_App::writeToFile()
+void TraCI_App::vehiclesData()
 {
     std::string vleaderID = "";
 
@@ -176,7 +184,7 @@ void TraCI_App::writeToFile()
         for(std::list<std::string>::reverse_iterator k = list2.rbegin(); k != list2.rend(); ++k)
         {
             std::string vID = k->c_str();
-            writeToFilePerVehicle(vID, vleaderID);
+            writeToFile_PerVehicle(vID, vleaderID);
             vleaderID = k->c_str();
         }
     }
@@ -188,7 +196,7 @@ void TraCI_App::writeToFile()
 
 
 // vID is current vehicle, vleaderID is the leader (if present)
-void TraCI_App::writeToFilePerVehicle(std::string vID, std::string vleaderID)
+void TraCI_App::writeToFile_PerVehicle(std::string vID, std::string vleaderID)
 {
     double speed = commandGetVehicleSpeed(vID);
     double pos = commandGetLanePosition(vID);
@@ -222,7 +230,6 @@ void TraCI_App::writeToFilePerVehicle(std::string vID, std::string vleaderID)
 }
 
 
-// todo:
 void TraCI_App::inductionLoops()
 {
     // get all loop detectors
@@ -231,26 +238,95 @@ void TraCI_App::inductionLoops()
     // for each loop detector
     for (std::list<std::string>::iterator it=str.begin(); it != str.end(); ++it)
     {
-        uint32_t n1 = commandGetLoopDetectorCount(*it);
-
         // only if this loop detector detected a vehicle
-        if(n1 == 1)
+        if( commandGetLoopDetectorCount(*it) == 1 )
         {
-            fprintf ( f2, "%-20.2f ", simTime().dbl() );
-            fprintf ( f2, "%-20s ", (*it).c_str() );
-            fprintf ( f2, "%-20s ", commandGetLoopDetectorVehicleList(*it).front().c_str() );
-            fprintf ( f2, "%-20.2f ", -1. );
-            fprintf ( f2, "%-20.2f ", -1. );
-            fprintf ( f2, "%-20.2f \n", commandGetLoopDetectorSpeed(*it) );
+            char vehicleName[20];
+            strcpy( vehicleName, commandGetLoopDetectorVehicleList(*it).front().c_str() );
+
+            double entryT = commandGetLoopDetectorEntryTime(*it);
+            double leaveT = commandGetLoopDetectorLeaveTime(*it);
+            double entrySpeed = commandGetLoopDetectorSpeed(*it);
+            double leaveSpeed = commandGetLoopDetectorSpeed(*it);
+
+            int counter = findInVector(Vec_loopDetectors, (*it).c_str(), vehicleName);
+
+            // its a new entry, so we add it.
+            if(counter == -1)
+            {
+                LoopDetector *tmp = new LoopDetector( (*it).c_str(), vehicleName, entryT, leaveT, entrySpeed, leaveSpeed );
+                Vec_loopDetectors.push_back(tmp);
+            }
+            // if found, just update the leave time and leave speed
+            else
+            {
+                Vec_loopDetectors[counter]->leaveTime = leaveT;
+                Vec_loopDetectors[counter]->leaveSpeed = leaveSpeed;
+            }
+        }
+    }
+}
+
+
+void TraCI_App::writeToFile_InductionLoop()
+{
+    char fName2 [50];
+
+    if( ev.isGUI() )
+    {
+        sprintf (fName2, "%s.txt", "results/gui/loop-detector");
+    }
+    else
+    {
+        // get the current run number
+        int currentRun = ev.getConfigEx()->getActiveRunNumber();
+        sprintf (fName2, "%s_%d.txt", "results/cmd/loop-detector", currentRun);
+    }
+
+    f2 = fopen (fName2, "w");
+
+    // write header
+    fprintf (f2, "%-20s","loopDetector");
+    fprintf (f2, "%-20s","vehicleName");
+    fprintf (f2, "%-20s","vehicleEntryTime");
+    fprintf (f2, "%-20s","vehicleLeaveTime");
+    fprintf (f2, "%-22s","vehicleEntrySpeed");
+    fprintf (f2, "%-22s\n\n","vehicleLeaveSpeed");
+
+    // write body
+    for(unsigned int k=0; k<Vec_loopDetectors.size(); k++)
+    {
+        fprintf ( f2, "%-20s ", Vec_loopDetectors[k]->detectorName );
+        fprintf ( f2, "%-20s ", Vec_loopDetectors[k]->vehicleName );
+        fprintf ( f2, "%-20.2f ", Vec_loopDetectors[k]->entryTime );
+        fprintf ( f2, "%-20.2f ", Vec_loopDetectors[k]->leaveTime );
+        fprintf ( f2, "%-20.2f ", Vec_loopDetectors[k]->entrySpeed );
+        fprintf ( f2, "%-20.2f ", Vec_loopDetectors[k]->leaveSpeed );
+        fprintf ( f2, "\n" );
+    }
+
+    fclose(f2);
+}
+
+
+int TraCI_App::findInVector( std::vector<LoopDetector *> Vec, const char *detectorName, const char *vehicleName )
+{
+    unsigned int counter;
+    bool found = false;
+
+    for(counter = 0; counter < Vec.size(); counter++)
+    {
+        if( strcmp(Vec[counter]->detectorName, detectorName) == 0 && strcmp(Vec[counter]->vehicleName, vehicleName) == 0)
+        {
+            found = true;
+            break;
         }
     }
 
-    fflush(f2);
-
-
-  //  std::list<std::string> str2 = commandGetLoopDetectorVehicleData("detector1");
-  //  for (std::list<std::string>::iterator it=str2.begin(); it != str2.end(); ++it)
-  //      EV << "data ###########  " << *it;
+    if(!found)
+        return -1;
+    else
+        return counter;
 }
 
 
@@ -258,6 +334,5 @@ void TraCI_App::finish()
 {
     TraCI_Extend::finish();
     fclose(f1);
-    fclose(f2);
 }
 

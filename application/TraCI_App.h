@@ -6,6 +6,7 @@
 #include "mobility/traci/TraCIScenarioManagerLaunchd.h"
 #include "mobility/traci/TraCIMobility.h"
 #include "mobility/traci/TraCIConstants.h"
+#include "ExtraClasses.h"
 #include "TraCI_Extend.h"
 #include "AddVehicle.h"
 #include "SpeedProfile.h"
@@ -17,6 +18,10 @@ class TraCI_App : public TraCI_Extend
 	public:
 		virtual ~TraCI_App();
 		virtual void initialize(int stage);
+	    virtual int numInitStages() const
+	    {
+	        return 2;
+	    }
         virtual void handleSelfMsg(cMessage *msg);
 		virtual void finish();
 
@@ -31,16 +36,25 @@ class TraCI_App : public TraCI_Extend
         SpeedProfile *SpeedProfilePtr;
         Warmup *WarmupPtr;
 
+        // NED variables (GUI tracking)
+        bool tracking;
+        std::string trackingV;
+        double trackingInterval;
+
 	    // class variables
 	    FILE *f1;
 	    int index;
 	    FILE *f2;
 	    double terminate;
+        cMessage* updataGUI;
+        std::vector<LoopDetector *> Vec_loopDetectors;
 
 	    // methods
-        void writeToFile();
-        void writeToFilePerVehicle(std::string, std::string);
+        void vehiclesData();
+        void writeToFile_PerVehicle(std::string, std::string);
         void inductionLoops();
+        void writeToFile_InductionLoop();
+        int findInVector(std::vector<LoopDetector *> , const char *, const char *);
 };
 
 

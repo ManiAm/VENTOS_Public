@@ -12,7 +12,7 @@ hf = zeros(1,4);
 for s=1:1    
     
     if(s == 1)
-        path = '../results/gui/speed-gap.txt';
+        path = '../results/gui/speed-gap-vl-true.txt';
         figureName = 'Optimal Speed';
     elseif(s == 2)
         path = '../2.Result/speed-gap-21MSCFModel_KraussFixed.txt';
