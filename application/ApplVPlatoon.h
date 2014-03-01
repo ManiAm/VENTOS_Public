@@ -4,6 +4,7 @@
 
 #include "ApplVBeaconPlatoonLeader.h"
 
+
 class ApplVPlatoon : public ApplVBeaconPlatoonLeader
 {
 	public:
@@ -16,8 +17,8 @@ class ApplVPlatoon : public ApplVBeaconPlatoonLeader
         virtual void handleSelfMsg(cMessage* msg);
         virtual void handlePositionUpdate(cObject* obj);
 
-		virtual void onBeacon(WaveShortMessage* wsm);
-		virtual void onData(WaveShortMessage* wsm);
+		virtual void onBeacon(Beacon* wsm);
+		virtual void onData(PlatoonMsg* wsm);
 
 		void FSMchangeState();
         void sendMessage(std::string);
@@ -32,12 +33,16 @@ class ApplVPlatoon : public ApplVBeaconPlatoonLeader
 
         // Class variables
         int platoonSize;
+        Beacon* myLeadingBeacon;  // a copy of leading beacon
+        cMessage* TIMER1;
+        cMessage* TIMER2;
 
         simtime_t lastDroveAt;
         bool sentMessage;
 
-        enum PlatoonStates
+        enum messages
         {
+            // platoon states
             state_idle,
             state_wait_for_beacon,
             stateT_create_new_platoon,   // transient
@@ -48,10 +53,12 @@ class ApplVPlatoon : public ApplVBeaconPlatoonLeader
             stateT_handle_JOIN_request,        // transient
             stateT_handle_CHANGE_Tg_request,   // transient
 
-            timer_
+            // timers
+            timer_wait_for_beacon_from_leading,
+            timer_wait_for_JOIN_response
         };
 
-        PlatoonStates vehicleState;
+        messages vehicleState;
 };
 
 #endif

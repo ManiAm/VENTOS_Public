@@ -36,15 +36,15 @@ class ApplVBeacon : public ApplVBase
         virtual void handleSelfMsg(cMessage*);
         virtual void handlePositionUpdate(cObject*);
 
-		virtual void onBeacon(WaveShortMessage*);
-		virtual void onData(WaveShortMessage*);
+		virtual void onBeacon(Beacon*);
+		virtual void onData(PlatoonMsg*);
 
-        WaveShortMessage* prepareBeacon(std::string, int, t_channel, int, int, int serial=0);
-        void printBeaconContent(WaveShortMessage*);
+		Beacon* prepareBeacon(std::string, int, t_channel, int, int, int serial=0);
+        void printBeaconContent(Beacon*);
         bool dropBeacon(double, std::string, double);
 
 	private:
-        bool isBeaconFromLeading(WaveShortMessage*);
+        bool isBeaconFromLeading(Beacon*);
         double getGap(std::string);
 };
 

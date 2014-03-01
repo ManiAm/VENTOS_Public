@@ -5,7 +5,7 @@ cplusplus {{
 
 class noncobject Coord;
 
-packet WaveShortMessage 
+packet WaveShortMessage
 {
 	//Version of the Wave Short Message
 	int wsmVersion = 0;
@@ -25,7 +25,14 @@ packet WaveShortMessage
 	int wsmLength;
 	//Data of Wave Short Message
 	string wsmData = "Some Data";
+	
+	// int serial = 0;
+    // simtime_t timestamp = 0;
+};
 
+
+packet Beacon extends WaveShortMessage 
+{
 	string sender;
 	string recipient;
 	Coord pos;
@@ -33,9 +40,18 @@ packet WaveShortMessage
 	double accel;
 	double maxDecel;
 	string lane;
-	int platoonID;
+	string platoonID;
 	int platoonDepth;
-	
-	// int serial = 0;
-    // simtime_t timestamp = 0;
-}
+};
+
+
+packet PlatoonMsg extends WaveShortMessage 
+{
+    int req_res_type;
+    string vehicleID;
+    string sendingPlatoonID;
+    string receivingPlatoonID;
+    int value;
+};
+
+

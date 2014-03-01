@@ -14,8 +14,7 @@ class ApplVBeaconPlatoonLeader : public ApplVBeacon
 	protected:
         // NED variables
         bool one_vehicle_look_ahead;
-        std::string platoonLeaderID;
-        int platoonID;
+        std::string platoonID;
 
         // Class variables
         bool myPlatoonDepth;
@@ -25,13 +24,13 @@ class ApplVBeaconPlatoonLeader : public ApplVBeacon
         virtual void handleSelfMsg(cMessage*);
         virtual void handlePositionUpdate(cObject*);
 
-		virtual void onBeacon(WaveShortMessage*);
-		virtual void onData(WaveShortMessage*);
+		virtual void onBeacon(Beacon*);
+		virtual void onData(PlatoonMsg*);
 
-        WaveShortMessage* fillBeaconPlatoon(WaveShortMessage *);
+		Beacon* fillBeaconPlatoon(Beacon *);
 
 	private:
-        bool isBeaconFromPlatoonLeader(WaveShortMessage*);
+        bool isBeaconFromPlatoonLeader(Beacon*);
 };
 
 #endif

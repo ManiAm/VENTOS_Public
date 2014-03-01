@@ -2,27 +2,14 @@
 # OMNeT++/OMNEST Makefile for libmsg
 #
 # This file was generated with the command:
-#  opp_makemake -f --make-so -o msg -O out -I../../../veins/src/modules/messages -I../../../veins/src/modules -I../../../veins/src/modules/obstacle -I../../../veins/src/base/modules -I../../../veins/src/modules/utility -I../../../veins/src/base/utils -I../../../veins/src/base/messages -I../../../veins/src/base/phyLayer -I../../../veins/src/modules/phy -I../../../veins/src/modules/mac/ieee80211p -I../../../veins/src/base/connectionManager -I../../../veins/src/modules/analogueModel -L../../../veins/out/$(CONFIGNAME)/src/modules -L../../../veins/out/$(CONFIGNAME)/tests/testUtils -L../../../veins/out/$(CONFIGNAME)/src/base -L../../out/$(CONFIGNAME)/application -lmiximmodules -lmiximtestUtils -lmiximbase -KVEINS_PROJ=../../../veins
+#  opp_makemake -f --make-so -o msg -O out -I../../../veins/src/base/utils -L../../../veins/out/$(CONFIGNAME)/src/modules -L../../../veins/out/$(CONFIGNAME)/tests/testUtils -L../../../veins/out/$(CONFIGNAME)/src/base -L../../out/$(CONFIGNAME)/application -lmiximmodules -lmiximtestUtils -lmiximbase -KVEINS_PROJ=../../../veins
 #
 
 # Name of target to be created (-o option)
 TARGET = libmsg$(SHARED_LIB_SUFFIX)
 
 # C++ include paths (with -I)
-INCLUDE_PATH = \
-    -I../../../veins/src/modules/messages \
-    -I../../../veins/src/modules \
-    -I../../../veins/src/modules/obstacle \
-    -I../../../veins/src/base/modules \
-    -I../../../veins/src/modules/utility \
-    -I../../../veins/src/base/utils \
-    -I../../../veins/src/base/messages \
-    -I../../../veins/src/base/phyLayer \
-    -I../../../veins/src/modules/phy \
-    -I../../../veins/src/modules/mac/ieee80211p \
-    -I../../../veins/src/base/connectionManager \
-    -I../../../veins/src/modules/analogueModel \
-    -I.
+INCLUDE_PATH = -I../../../veins/src/base/utils -I.
 
 # Additional object and library files to link with
 EXTRA_OBJS =
@@ -37,11 +24,11 @@ PROJECTRELATIVE_PATH = application/msg
 O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Object files for local .cc and .msg files
-OBJS = $O/WaveShortMessage_m.o
+OBJS = $O/Messages_m.o
 
 # Message files
 MSGFILES = \
-    WaveShortMessage.msg
+    Messages.msg
 
 # Other makefile variables (-K)
 VEINS_PROJ=../../../veins
@@ -128,11 +115,10 @@ depend:
 	$(Q)$(MAKEDEPEND) $(INCLUDE_PATH) -f Makefile -P\$$O/ -- $(MSG_CC_FILES)  ./*.cc
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
-$O/WaveShortMessage_m.o: WaveShortMessage_m.cc \
-	WaveShortMessage_m.h \
+$O/Messages_m.o: Messages_m.cc \
+	Messages_m.h \
 	$(VEINS_PROJ)/src/base/utils/Coord.h \
 	$(VEINS_PROJ)/src/base/utils/FWMath.h \
 	$(VEINS_PROJ)/src/base/utils/MiXiMDefs.h \
-	$(VEINS_PROJ)/src/base/utils/miximkerneldefs.h \
-	$(VEINS_PROJ)/src/modules/messages/WaveShortMessage_m.h
+	$(VEINS_PROJ)/src/base/utils/miximkerneldefs.h
 

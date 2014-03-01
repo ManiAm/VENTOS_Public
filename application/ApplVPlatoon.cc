@@ -21,6 +21,9 @@ void ApplVPlatoon::initialize(int stage)
         sentMessage = false;
         lastDroveAt = simTime();
         vehicleState = state_idle;
+
+        TIMER1 = new cMessage("timer_wait_for_beacon_from_leading", timer_wait_for_beacon_from_leading);
+        TIMER2 = new cMessage("timer_wait_for_JOIN_response", timer_wait_for_JOIN_response);
 	}
 }
 
@@ -35,6 +38,7 @@ void ApplVPlatoon::handleLowerMsg(cMessage* msg)
     {
         if(platoonFormation)
         {
+            Beacon* wsm = dynamic_cast<Beacon*>(msg);
             ApplVPlatoon::onBeacon(wsm);
         }
         else
@@ -46,6 +50,7 @@ void ApplVPlatoon::handleLowerMsg(cMessage* msg)
     {
         if(platoonFormation)
         {
+            PlatoonMsg* wsm = dynamic_cast<PlatoonMsg*>(msg);
             ApplVPlatoon::onData(wsm);
         }
     }
@@ -59,34 +64,97 @@ void ApplVPlatoon::handleLowerMsg(cMessage* msg)
 void ApplVPlatoon::handleSelfMsg(cMessage* msg)
 {
     ApplVBeaconPlatoonLeader::handleSelfMsg(msg);
+
+    if (msg == TIMER1)
+    {
+        if(vehicleState == state_wait_for_beacon)
+        {
+            vehicleState = stateT_create_new_platoon;
+            FSMchangeState();
+            return;
+        }
+    }
+    else if (msg == TIMER2)
+    {
+        if(vehicleState == state_ask_to_join)
+        {
+            vehicleState = stateT_create_new_platoon;
+            FSMchangeState();
+            return;
+        }
+    }
 }
 
 
-void ApplVPlatoon::onBeacon(WaveShortMessage* wsm)
+void ApplVPlatoon::onBeacon(Beacon* wsm)
 {
     if(!platoonFormation)
     {
         error("platoonFormation is off in ApplVPlatoon::onBeacon");
     }
 
-
-
+    if( vehicleState == state_wait_for_beacon && TIMER1->isScheduled() )
+    {
+        vehicleState = state_ask_to_join;
+        cancelEvent(TIMER1);
+        myLeadingBeacon = wsm->dup();  // store a copy of beacon for future use
+        // todo: send JOIN request
+        scheduleAt(simTime() + 1., TIMER2);
+    }
 }
 
 
-void ApplVPlatoon::onData(WaveShortMessage* wsm)
+void ApplVPlatoon::onData(PlatoonMsg* wsm)
 {
     if(!platoonFormation)
     {
         error("platoonFormation is off in ApplVPlatoon::onData");
     }
 
+    // todo:
+    if (wsm == NULL /*JOIN_REJECT*/)
+    {
+        if(vehicleState == state_ask_to_join)
+        {
+            vehicleState = stateT_create_new_platoon;
+            cancelEvent(TIMER2);
+            FSMchangeState();
+            return;
+        }
+    }
+    // todo:
+    else if (wsm == NULL /*JOIN_ACCEPT*/)
+    {
+        if(vehicleState == state_ask_to_join)
+        {
+            vehicleState = stateT_joining;
+            FSMchangeState();
+            return;
+        }
+    }
+    // todo:
+    else if(wsm == NULL /*JOIN_request*/)
+    {
+        if(vehicleState == state_platoonLeader)
+        {
+            if(platoonSize == maxPlatoonSize)
+            {
+                // todo: send JOIN_REJECT
+            }
+            else
+            {
+                // todo: send JOIN_ACCEPT
+                ++platoonSize;
+                // todo: send CHANGE_Tg
+            }
+        }
+    }
 
 
 
 
     findHost()->getDisplayString().updateWith("r=16,green");
-    annotations->scheduleErase(1, annotations->drawLine(wsm->getPos(), traci->getPositionAt(simTime()), "blue"));
+  //  annotations->scheduleErase(1, annotations->drawLine(wsm->getPos(), traci->getPositionAt(simTime()), "blue"));
 
     if (traci->getRoadId()[0] != ':') traci->commandChangeRoute(wsm->getWsmData(), 9999);
     if (!sentMessage) sendMessage(wsm->getWsmData());
@@ -139,6 +207,7 @@ void ApplVPlatoon::handlePositionUpdate(cObject* obj)
 
 void ApplVPlatoon::FSMchangeState()
 {
+    // #######################################################################
     if(vehicleState == state_idle)
     {
         // check for leading vehicle
@@ -147,16 +216,49 @@ void ApplVPlatoon::FSMchangeState()
         if(vleaderID == "")
         {
             EV << "This vehicle has no leading vehicle." << std::endl;
+            vehicleState = stateT_create_new_platoon;
+            FSMchangeState();
+            return;
         }
-
-
+        else
+        {
+            vehicleState = state_wait_for_beacon;
+            FSMchangeState();
+            return;
+        }
     }
-    else if(true)
+    // #######################################################################
+    else if(vehicleState == state_wait_for_beacon)
     {
-
+        // waiting for a beacon from leading vehicle
+        scheduleAt(simTime() + 1., TIMER1);
+        return;
     }
+    // #######################################################################
+    else if(vehicleState == stateT_create_new_platoon)
+    {
+        manager->commandSetTg(SUMOvID, 3.5);
+        platoonID = SUMOvID;
+        myPlatoonDepth = 0;
+        platoonSize = 1;
 
+        vehicleState = state_platoonLeader;
+        FSMchangeState();
+        return;
+    }
+    // #######################################################################
+    else if(vehicleState == stateT_joining)
+    {
+        cancelEvent(TIMER2);
+        manager->commandSetSpeed(SUMOvID, 30.);
+        manager->commandSetTg(SUMOvID, 0.55);
+        platoonID = myLeadingBeacon->getPlatoonID();
+        myPlatoonDepth = myLeadingBeacon->getPlatoonDepth() + 1;
 
+        vehicleState = state_platoonMember;
+        FSMchangeState();
+        return;
+    }
 }
 
 
@@ -170,4 +272,3 @@ ApplVPlatoon::~ApplVPlatoon()
 {
 
 }
-

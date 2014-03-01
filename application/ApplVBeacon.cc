@@ -47,8 +47,8 @@ void ApplVBeacon::handleLowerMsg(cMessage* msg)
 {
     ApplVBase::handleLowerMsg(msg);
 
-    // make sure msg is of type WaveShortMessage
-    WaveShortMessage* wsm = dynamic_cast<WaveShortMessage*>(msg);
+    // make sure msg is of type Beacon
+    Beacon* wsm = dynamic_cast<Beacon*>(msg);
     ASSERT(wsm);
 
     if (std::string(wsm->getName()) == "beacon")
@@ -95,7 +95,7 @@ void ApplVBeacon::handleSelfMsg(cMessage* msg)
     {
         case SEND_BEACON_EVT:
         {
-            WaveShortMessage* beaconMsg = prepareBeacon("beacon", beaconLengthBits, type_CCH, beaconPriority, 0);
+            Beacon* beaconMsg = prepareBeacon("beacon", beaconLengthBits, type_CCH, beaconPriority, 0);
 
             EV << "## Created beacon msg for vehicle: " << SUMOvID << std::endl;
             printBeaconContent(beaconMsg);
@@ -112,14 +112,14 @@ void ApplVBeacon::handleSelfMsg(cMessage* msg)
 }
 
 
-WaveShortMessage*  ApplVBeacon::prepareBeacon(std::string name, int lengthBits, t_channel channel, int priority, int rcvId, int serial)
+Beacon*  ApplVBeacon::prepareBeacon(std::string name, int lengthBits, t_channel channel, int priority, int rcvId, int serial)
 {
     if ( !isCACC() )
     {
         error("Only CACC vehicles can send beacon!");
     }
 
-    WaveShortMessage* wsm = new WaveShortMessage(name.c_str());
+    Beacon* wsm = new Beacon(name.c_str());
 
     // add header length
     wsm->addBitLength(headerLength);
@@ -170,7 +170,7 @@ WaveShortMessage*  ApplVBeacon::prepareBeacon(std::string name, int lengthBits, 
 
 
 // print beacon fields (for debugging purposes)
-void ApplVBeacon::printBeaconContent(WaveShortMessage* wsm)
+void ApplVBeacon::printBeaconContent(Beacon* wsm)
 {
     EV << wsm->getWsmVersion() << " | ";
     EV << wsm->getSecurityType() << " | ";
@@ -219,7 +219,7 @@ bool ApplVBeacon::dropBeacon(double time, std::string vehicle, double plr)
 }
 
 
-void ApplVBeacon::onBeacon(WaveShortMessage* wsm)
+void ApplVBeacon::onBeacon(Beacon* wsm)
 {
     EV << "## " << SUMOvID << " received beacon ..." << std::endl;
     printBeaconContent(wsm);
@@ -251,7 +251,7 @@ void ApplVBeacon::onBeacon(WaveShortMessage* wsm)
 }
 
 
-void ApplVBeacon::onData(WaveShortMessage* wsm)
+void ApplVBeacon::onData(PlatoonMsg* wsm)
 {
     error("ApplVBeacon can not handle data. Something is wrong!");
 }
@@ -276,7 +276,7 @@ double ApplVBeacon::getGap(std::string vleaderID)
 }
 
 
-bool ApplVBeacon::isBeaconFromLeading(WaveShortMessage* wsm)
+bool ApplVBeacon::isBeaconFromLeading(Beacon* wsm)
 {
     // step 1: check if a leading vehicle is present
 

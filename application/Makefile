@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for libapplication
 #
 # This file was generated with the command:
-#  opp_makemake -f --make-so -o application -O out -d msg -I../../veins/src/modules/messages -I../../veins/src/modules/obstacle -I../../veins/src/modules -I../../veins/src/base/modules -I../../veins/src/modules/utility -I../../veins/src/base/utils -I../../veins/src/base/messages -I../../veins/src/base/phyLayer -Imsg -I../../veins/src/modules/phy -I../../veins/src/modules/mac/ieee80211p -I../../veins/src/base/connectionManager -I../../veins/src/modules/analogueModel -L../../veins/out/$(CONFIGNAME)/src/modules -L../../veins/out/$(CONFIGNAME)/tests/testUtils -L../../veins/out/$(CONFIGNAME)/src/base -L../out/$(CONFIGNAME)/application/msg -lmsg -lmiximbase -lmiximmodules -lmiximmodules -lmiximtestUtils -lmiximbase -KVEINS_PROJ=../../veins
+#  opp_makemake -f --make-so -o application -O out -d msg -I../../veins/src/modules/messages -I../../veins/src/modules -I../../veins/src/modules/obstacle -I../../veins/src/base/modules -I../../veins/src/modules/utility -I../../veins/src/base/utils -I../../veins/src/base/messages -I../../veins/src/base/phyLayer -I../../veins/src/modules/phy -I../../veins/src/modules/mac/ieee80211p -I../../veins/src/base/connectionManager -I../../veins/src/modules/analogueModel -L../../veins/out/$(CONFIGNAME)/src/modules -L../../veins/out/$(CONFIGNAME)/tests/testUtils -L../../veins/out/$(CONFIGNAME)/src/base -L../out/$(CONFIGNAME)/application/msg -lmsg -lmiximbase -lmiximmodules -lmiximmodules -lmiximtestUtils -lmiximbase -KVEINS_PROJ=../../veins
 #
 
 # Name of target to be created (-o option)
@@ -11,14 +11,13 @@ TARGET = libapplication$(SHARED_LIB_SUFFIX)
 # C++ include paths (with -I)
 INCLUDE_PATH = \
     -I../../veins/src/modules/messages \
-    -I../../veins/src/modules/obstacle \
     -I../../veins/src/modules \
+    -I../../veins/src/modules/obstacle \
     -I../../veins/src/base/modules \
     -I../../veins/src/modules/utility \
     -I../../veins/src/base/utils \
     -I../../veins/src/base/messages \
     -I../../veins/src/base/phyLayer \
-    -Imsg \
     -I../../veins/src/modules/phy \
     -I../../veins/src/modules/mac/ieee80211p \
     -I../../veins/src/base/connectionManager \
@@ -178,7 +177,7 @@ $O/ApplVBase.o: ApplVBase.cc \
 	ApplVBase.h \
 	ExtraClasses.h \
 	TraCI_Extend.h \
-	msg/WaveShortMessage_m.h \
+	msg/Messages_m.h \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
 	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
@@ -216,7 +215,7 @@ $O/ApplVBeacon.o: ApplVBeacon.cc \
 	ApplVBeacon.h \
 	ExtraClasses.h \
 	TraCI_Extend.h \
-	msg/WaveShortMessage_m.h \
+	msg/Messages_m.h \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
 	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
@@ -255,7 +254,7 @@ $O/ApplVBeaconPlatoonLeader.o: ApplVBeaconPlatoonLeader.cc \
 	ApplVBeaconPlatoonLeader.h \
 	ExtraClasses.h \
 	TraCI_Extend.h \
-	msg/WaveShortMessage_m.h \
+	msg/Messages_m.h \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
 	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
@@ -295,7 +294,7 @@ $O/ApplVPlatoon.o: ApplVPlatoon.cc \
 	ApplVPlatoon.h \
 	ExtraClasses.h \
 	TraCI_Extend.h \
-	msg/WaveShortMessage_m.h \
+	msg/Messages_m.h \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
 	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
@@ -331,7 +330,6 @@ $O/ApplVPlatoon.o: ApplVPlatoon.cc \
 $O/Mac1609_4_Mod.o: Mac1609_4_Mod.cc \
 	ExtraClasses.h \
 	Mac1609_4_Mod.h \
-	msg/WaveShortMessage_m.h \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
 	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \

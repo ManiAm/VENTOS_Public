@@ -6,7 +6,7 @@
 #include <BaseApplLayer.h>
 #include <Consts80211p.h>
 #include <Mac80211Pkt_m.h>
-#include <msg/WaveShortMessage_m.h>
+#include <msg/Messages_m.h>
 #include <ChannelAccess.h>
 #include <WaveAppToMac1609_4Interface.h>
 #include "TraCI_Extend.h"
@@ -38,7 +38,7 @@ class ApplVBase : public BaseApplLayer
 		/** @brief handle position updates */
 		virtual void handlePositionUpdate(cObject* obj);
 
-		virtual void sendWSM(WaveShortMessage* wsm);
+		virtual void sendWSM(Beacon * wsm);
 		bool isCACC();
 
 	protected:

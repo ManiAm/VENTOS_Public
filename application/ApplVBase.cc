@@ -60,18 +60,8 @@ void ApplVBase::handleLowerMsg(cMessage* msg)
 
 void ApplVBase::handleSelfMsg(cMessage* msg)
 {
-    /*
-    switch (msg->getKind())
-    {
 
-        default:
-        {
-            if (msg)
-                DBG << "APP: Error: Got Self Message of unknown kind! Name: " << msg->getName() << endl;
-            break;
-        }
-    }
-    */
+
 }
 
 
@@ -82,7 +72,7 @@ void ApplVBase::handlePositionUpdate(cObject* obj)
 }
 
 
-void ApplVBase::sendWSM(WaveShortMessage* wsm)
+void ApplVBase::sendWSM(Beacon* wsm)
 {
     error("sendWSM of ApplVBase should not be called!");
 }

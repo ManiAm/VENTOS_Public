@@ -10,20 +10,17 @@ void ApplVBeaconPlatoonLeader::initialize(int stage)
 	if (stage == 0)
 	{
         one_vehicle_look_ahead = par("one_vehicle_look_ahead");
-        platoonLeaderID = par("platoonLeaderID").stringValue();
-        platoonID = par("platoonID").longValue();
+        platoonID = par("platoonID").stringValue();
 
-        if(SUMOvID == platoonLeaderID)
+        if(SUMOvID == platoonID)
         {
             myPlatoonDepth = 0;
-            // platoonID       : got the value from above.
-            // platoonLeaderID : got the value from above.
         }
+        // we are not part of a platoon (yet!)
         else
         {
             myPlatoonDepth = -1;
-            platoonID = -1;         // we are not part of a platoon (yet!).
-            platoonLeaderID = "";   // we do not know the platoon leader (yet!).
+            platoonID = "";
         }
 	}
 }
@@ -37,8 +34,8 @@ void ApplVBeaconPlatoonLeader::handleLowerMsg(cMessage* msg)
         return;
     }
 
-    // make sure msg is of type WaveShortMessage
-    WaveShortMessage* wsm = dynamic_cast<WaveShortMessage*>(msg);
+    // make sure msg is of type Beacon
+    Beacon* wsm = dynamic_cast<Beacon*>(msg);
     ASSERT(wsm);
 
     if (std::string(wsm->getName()) == "beacon")
@@ -87,10 +84,10 @@ void ApplVBeaconPlatoonLeader::handleSelfMsg(cMessage* msg)
 
     if (msg->getKind() == SEND_BEACON_EVT)
     {
-        WaveShortMessage* Msg = ApplVBeacon::prepareBeacon("beacon", beaconLengthBits, type_CCH, beaconPriority, 0);
+        Beacon* Msg = ApplVBeacon::prepareBeacon("beacon", beaconLengthBits, type_CCH, beaconPriority, 0);
 
         // fill-in the fields related to platoon
-        WaveShortMessage* beaconMsg = fillBeaconPlatoon(Msg);
+        Beacon* beaconMsg = fillBeaconPlatoon(Msg);
 
         EV << "## Created beacon msg for vehicle: " << SUMOvID << std::endl;
         ApplVBeacon::printBeaconContent(beaconMsg);
@@ -104,9 +101,9 @@ void ApplVBeaconPlatoonLeader::handleSelfMsg(cMessage* msg)
 }
 
 
-WaveShortMessage* ApplVBeaconPlatoonLeader::fillBeaconPlatoon(WaveShortMessage *wsm)
+Beacon* ApplVBeaconPlatoonLeader::fillBeaconPlatoon(Beacon *wsm)
 {
-    wsm->setPlatoonID(platoonID);
+    wsm->setPlatoonID(platoonID.c_str());
     wsm->setPlatoonDepth(myPlatoonDepth);
 
     return wsm;
@@ -114,7 +111,7 @@ WaveShortMessage* ApplVBeaconPlatoonLeader::fillBeaconPlatoon(WaveShortMessage *
 
 
 // for "one_vehicle_look_ahead = false" case only
-void ApplVBeaconPlatoonLeader::onBeacon(WaveShortMessage* wsm)
+void ApplVBeaconPlatoonLeader::onBeacon(Beacon* wsm)
 {
     // vehicles other than CACC should ignore the received beacon
     if( !isCACC() )
@@ -130,14 +127,12 @@ void ApplVBeaconPlatoonLeader::onBeacon(WaveShortMessage* wsm)
     bool update = false;
 
     // I am not part of any platoon yet!
-    if(platoonID == -1)
+    if(platoonID == "")
     {
-        if(wsm->getPlatoonID() != -1 && wsm->getPlatoonDepth() == 0)
+        if(std::string(wsm->getPlatoonID()) != "" && wsm->getPlatoonDepth() == 0)
         {
             EV << "This beacon is from a platoon leader. I will join ..." << std::endl;
-
             platoonID = wsm->getPlatoonID();
-            platoonLeaderID = wsm->getSender();
             update = true;
         }
     }
@@ -149,9 +144,6 @@ void ApplVBeaconPlatoonLeader::onBeacon(WaveShortMessage* wsm)
         if(wsm->getPlatoonDepth() == 0)
         {
             EV << "This beacon is from my platoon leader ..." << std::endl;
-
-            // update the platoonLeaderID
-            platoonLeaderID = wsm->getSender();
             update = true;
         }
     }
@@ -184,7 +176,7 @@ void ApplVBeaconPlatoonLeader::onBeacon(WaveShortMessage* wsm)
 }
 
 
-void ApplVBeaconPlatoonLeader::onData(WaveShortMessage* wsm)
+void ApplVBeaconPlatoonLeader::onData(PlatoonMsg* wsm)
 {
     error("ApplVBeaconPlatoonLeader can not handle data. Something is wrong!");
 }
@@ -197,7 +189,7 @@ void ApplVBeaconPlatoonLeader::handlePositionUpdate(cObject* obj)
 }
 
 
-bool ApplVBeaconPlatoonLeader::isBeaconFromPlatoonLeader(WaveShortMessage* wsm)
+bool ApplVBeaconPlatoonLeader::isBeaconFromPlatoonLeader(Beacon* wsm)
 {
     // check if a platoon leader is sending this
     if( wsm->getPlatoonDepth() == 0 )
