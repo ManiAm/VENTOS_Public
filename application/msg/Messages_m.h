@@ -177,22 +177,24 @@ inline void doUnpacking(cCommBuffer *b, Beacon& obj) {obj.parsimUnpack(b);}
  * <pre>
  * packet PlatoonMsg extends WaveShortMessage 
  * {
+ *     string sender;
+ * 	string recipient;
  *     int req_res_type;
- *     string vehicleID;
  *     string sendingPlatoonID;
  *     string receivingPlatoonID;
- *     int value;
+ *     double value;
  * };
  * </pre>
  */
 class PlatoonMsg : public ::WaveShortMessage
 {
   protected:
+    opp_string sender_var;
+    opp_string recipient_var;
     int req_res_type_var;
-    opp_string vehicleID_var;
     opp_string sendingPlatoonID_var;
     opp_string receivingPlatoonID_var;
-    int value_var;
+    double value_var;
 
   private:
     void copy(const PlatoonMsg& other);
@@ -211,16 +213,18 @@ class PlatoonMsg : public ::WaveShortMessage
     virtual void parsimUnpack(cCommBuffer *b);
 
     // field getter/setter methods
+    virtual const char * getSender() const;
+    virtual void setSender(const char * sender);
+    virtual const char * getRecipient() const;
+    virtual void setRecipient(const char * recipient);
     virtual int getReq_res_type() const;
     virtual void setReq_res_type(int req_res_type);
-    virtual const char * getVehicleID() const;
-    virtual void setVehicleID(const char * vehicleID);
     virtual const char * getSendingPlatoonID() const;
     virtual void setSendingPlatoonID(const char * sendingPlatoonID);
     virtual const char * getReceivingPlatoonID() const;
     virtual void setReceivingPlatoonID(const char * receivingPlatoonID);
-    virtual int getValue() const;
-    virtual void setValue(int value);
+    virtual double getValue() const;
+    virtual void setValue(double value);
 };
 
 inline void doPacking(cCommBuffer *b, PlatoonMsg& obj) {obj.parsimPack(b);}

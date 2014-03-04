@@ -95,7 +95,7 @@ void ApplVBeacon::handleSelfMsg(cMessage* msg)
     {
         case SEND_BEACON_EVT:
         {
-            Beacon* beaconMsg = prepareBeacon("beacon", beaconLengthBits, type_CCH, beaconPriority, 0);
+            Beacon* beaconMsg = prepareBeacon();
 
             EV << "## Created beacon msg for vehicle: " << SUMOvID << std::endl;
             printBeaconContent(beaconMsg);
@@ -112,34 +112,28 @@ void ApplVBeacon::handleSelfMsg(cMessage* msg)
 }
 
 
-Beacon*  ApplVBeacon::prepareBeacon(std::string name, int lengthBits, t_channel channel, int priority, int rcvId, int serial)
+Beacon*  ApplVBeacon::prepareBeacon()
 {
     if ( !isCACC() )
     {
         error("Only CACC vehicles can send beacon!");
     }
 
-    Beacon* wsm = new Beacon(name.c_str());
+    Beacon* wsm = new Beacon("beacon");
 
     // add header length
     wsm->addBitLength(headerLength);
 
     // add payload length
-    wsm->addBitLength(lengthBits);
+    wsm->addBitLength(beaconLengthBits);
 
     wsm->setWsmVersion(1);
     wsm->setSecurityType(1);
 
-    switch (channel)
-    {
-        // will be rewritten at Mac1609_4 to actual Service Channel.
-        // This is just so no controlInfo is needed
-        case type_SCH: wsm->setChannelNumber(Channels::SCH1); break;
-        case type_CCH: wsm->setChannelNumber(Channels::CCH); break;
-    }
+    wsm->setChannelNumber(Channels::CCH);
 
     wsm->setDataRate(1);
-    wsm->setPriority(priority);
+    wsm->setPriority(beaconPriority);
     wsm->setPsid(0);
 
     // wsm->setSerial(serial);
@@ -248,12 +242,6 @@ void ApplVBeacon::onBeacon(Beacon* wsm)
         simsignal_t Signal_beaconO = registerSignal("beaconO");
         nodePtr->emit(Signal_beaconO, pair);
     }
-}
-
-
-void ApplVBeacon::onData(PlatoonMsg* wsm)
-{
-    error("ApplVBeacon can not handle data. Something is wrong!");
 }
 
 

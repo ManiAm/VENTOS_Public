@@ -24,12 +24,24 @@ void ApplVPlatoon::initialize(int stage)
 
         TIMER1 = new cMessage("timer_wait_for_beacon_from_leading", timer_wait_for_beacon_from_leading);
         TIMER2 = new cMessage("timer_wait_for_JOIN_response", timer_wait_for_JOIN_response);
+
+        FSMchangeState();
 	}
 }
 
 
 void ApplVPlatoon::handleLowerMsg(cMessage* msg)
 {
+    uint8_t* color = manager->commandGetVehicleColor(SUMOvID);
+
+    uint8_t R = color[0];
+    uint8_t G = color[1];
+    uint8_t B = color[2];
+    uint8_t A = color[3];
+
+    manager->commandSetVehicleColor(SUMOvID, 255, 255, 0, 100);
+
+
     // make sure msg is of type WaveShortMessage
     WaveShortMessage* wsm = dynamic_cast<WaveShortMessage*>(msg);
     ASSERT(wsm);
@@ -39,6 +51,8 @@ void ApplVPlatoon::handleLowerMsg(cMessage* msg)
         if(platoonFormation)
         {
             Beacon* wsm = dynamic_cast<Beacon*>(msg);
+            ASSERT(wsm);
+
             ApplVPlatoon::onBeacon(wsm);
         }
         else
@@ -51,6 +65,8 @@ void ApplVPlatoon::handleLowerMsg(cMessage* msg)
         if(platoonFormation)
         {
             PlatoonMsg* wsm = dynamic_cast<PlatoonMsg*>(msg);
+            ASSERT(wsm);
+
             ApplVPlatoon::onData(wsm);
         }
     }
@@ -98,7 +114,13 @@ void ApplVPlatoon::onBeacon(Beacon* wsm)
         vehicleState = state_ask_to_join;
         cancelEvent(TIMER1);
         myLeadingBeacon = wsm->dup();  // store a copy of beacon for future use
-        // todo: send JOIN request
+
+        // send JOIN request
+        PlatoonMsg* dataMsg = prepareData(wsm->getSender(), JOIN_request, wsm->getPlatoonID(), -1);
+        EV << "## Created JOIN request in vehicle: " << SUMOvID << std::endl;
+        printDataContent(dataMsg);
+        sendDelayedDown(dataMsg,individualOffset);
+
         scheduleAt(simTime() + 1., TIMER2);
     }
 }
@@ -111,8 +133,7 @@ void ApplVPlatoon::onData(PlatoonMsg* wsm)
         error("platoonFormation is off in ApplVPlatoon::onData");
     }
 
-    // todo:
-    if (wsm == NULL /*JOIN_REJECT*/)
+    if (wsm->getReq_res_type() == JOIN_REJECT_response)
     {
         if(vehicleState == state_ask_to_join)
         {
@@ -122,8 +143,7 @@ void ApplVPlatoon::onData(PlatoonMsg* wsm)
             return;
         }
     }
-    // todo:
-    else if (wsm == NULL /*JOIN_ACCEPT*/)
+    else if (wsm->getReq_res_type() == JOIN_ACCEPT_response)
     {
         if(vehicleState == state_ask_to_join)
         {
@@ -132,32 +152,58 @@ void ApplVPlatoon::onData(PlatoonMsg* wsm)
             return;
         }
     }
-    // todo:
-    else if(wsm == NULL /*JOIN_request*/)
+    else if(wsm->getReq_res_type() == JOIN_request)
     {
         if(vehicleState == state_platoonLeader)
         {
             if(platoonSize == maxPlatoonSize)
             {
-                // todo: send JOIN_REJECT
+                // send JOIN_REJECT
+                PlatoonMsg* dataMsg = prepareData(wsm->getSender(), JOIN_REJECT_response, wsm->getSendingPlatoonID(), -1);
+                EV << "## Created JOIN_REJECT response in vehicle: " << SUMOvID << std::endl;
+                printDataContent(dataMsg);
+                sendDelayedDown(dataMsg,individualOffset);
             }
             else
             {
-                // todo: send JOIN_ACCEPT
+                // send JOIN_ACCEPT
+                PlatoonMsg* dataMsg1 = prepareData(wsm->getSender(), JOIN_ACCEPT_response, wsm->getSendingPlatoonID(), -1);
+                EV << "## Created JOIN_ACCEPT response in vehicle: " << SUMOvID << std::endl;
+                printDataContent(dataMsg1);
+                sendDelayedDown(dataMsg1,individualOffset);
+
                 ++platoonSize;
-                // todo: send CHANGE_Tg
+
+                // send CHANGE_Tg
+                // todo: make it dynamic
+                double newTg = 0.55;
+                PlatoonMsg* dataMsg2 = prepareData("broadcast", CHANGE_Tg, platoonID, newTg);
+                EV << "## Created CHANGE_Tg  message in vehicle: " << SUMOvID << std::endl;
+                printDataContent(dataMsg2);
+                sendDelayedDown(dataMsg2,individualOffset);
             }
+        }
+    }
+    else if(wsm->getReq_res_type() == CHANGE_Tg)
+    {
+        // check if this is coming from my platoon leader
+        if( std::string(wsm->getReceivingPlatoonID()) == platoonID )
+        {
+            manager->commandSetTg(SUMOvID, wsm->getValue());
         }
     }
 
 
 
 
-    findHost()->getDisplayString().updateWith("r=16,green");
+
+
+   // findHost()->getDisplayString().updateWith("r=16,green");
+
   //  annotations->scheduleErase(1, annotations->drawLine(wsm->getPos(), traci->getPositionAt(simTime()), "blue"));
 
-    if (traci->getRoadId()[0] != ':') traci->commandChangeRoute(wsm->getWsmData(), 9999);
-    if (!sentMessage) sendMessage(wsm->getWsmData());
+  //  if (traci->getRoadId()[0] != ':') traci->commandChangeRoute(wsm->getWsmData(), 9999);
+  //  if (!sentMessage) sendMessage(wsm->getWsmData());
 
 
     /*
@@ -194,7 +240,7 @@ void ApplVPlatoon::handlePositionUpdate(cObject* obj)
     {
         if (simTime() - lastDroveAt >= 10)
         {
-            findHost()->getDisplayString().updateWith("r=16,red");
+           // findHost()->getDisplayString().updateWith("r=16,red");
             // if (!sentMessage) sendMessage( traci->getRoadId() );
         }
     }
@@ -207,6 +253,8 @@ void ApplVPlatoon::handlePositionUpdate(cObject* obj)
 
 void ApplVPlatoon::FSMchangeState()
 {
+    EV << "### " << SUMOvID << " : current status is : " << vehicleState << endl;
+
     // #######################################################################
     if(vehicleState == state_idle)
     {
@@ -242,6 +290,8 @@ void ApplVPlatoon::FSMchangeState()
         myPlatoonDepth = 0;
         platoonSize = 1;
 
+        nodePtr->getDisplayString().updateWith("i2=status/checkmark,green");
+
         vehicleState = state_platoonLeader;
         FSMchangeState();
         return;
@@ -259,6 +309,70 @@ void ApplVPlatoon::FSMchangeState()
         FSMchangeState();
         return;
     }
+}
+
+
+PlatoonMsg*  ApplVPlatoon::prepareData(std::string receiver, int type, std::string receivingPlatoonID, int value)
+{
+    if(!platoonFormation)
+    {
+        error("platoonFormation is off in ApplVPlatoon::prepareData");
+    }
+
+    PlatoonMsg* wsm = new PlatoonMsg("data");
+
+    // add header length
+    wsm->addBitLength(headerLength);
+
+    // add payload length
+    wsm->addBitLength(dataLengthBits);
+
+    wsm->setWsmVersion(1);
+    wsm->setSecurityType(1);
+
+    if(dataOnSch)
+    {
+        wsm->setChannelNumber(Channels::SCH1);
+    }
+    else
+    {
+        wsm->setChannelNumber(Channels::CCH);
+    }
+
+    wsm->setDataRate(1);
+    wsm->setPriority(dataPriority);
+    wsm->setPsid(0);
+
+    wsm->setSender(SUMOvID.c_str());
+    wsm->setRecipient(receiver.c_str());
+    wsm->setReq_res_type(type);
+    wsm->setSendingPlatoonID(platoonID.c_str());
+    wsm->setReceivingPlatoonID(receivingPlatoonID.c_str());
+    wsm->setValue(value);
+
+    return wsm;
+}
+
+
+// print data message fields (for debugging purposes)
+void ApplVPlatoon::printDataContent(PlatoonMsg* wsm)
+{
+    EV << wsm->getWsmVersion() << " | ";
+    EV << wsm->getSecurityType() << " | ";
+    EV << wsm->getChannelNumber() << " | ";
+    EV << wsm->getDataRate() << " | ";
+    EV << wsm->getPriority() << " | ";
+    EV << wsm->getPsid() << " | ";
+    EV << wsm->getPsc() << " | ";
+    EV << wsm->getWsmLength() << " | ";
+    EV << wsm->getWsmData() << " ||| ";
+
+    EV << wsm->getSender() << " | ";
+    EV << wsm->getRecipient() << " | ";
+    EV << wsm->getReq_res_type() << " | ";
+    EV << wsm->getSendingPlatoonID() << " | ";
+    EV << wsm->getReceivingPlatoonID() << " | ";
+    EV << wsm->getValue() << std::endl;
 }
 
 

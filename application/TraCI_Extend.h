@@ -29,6 +29,7 @@ class TraCI_Extend : public TraCIScenarioManagerLaunchd
         Coord commandGetVehiclePos(std::string);
         std::string commandGetLeading(std::string);
         std::string commandGetLeading_M(std::string);
+        uint8_t * commandGetVehicleColor(std::string);
 
         // CMD_GET_INDUCTIONLOOP_VARIABLE
         std::list<std::string> commandGetLoopDetectorList();
@@ -55,9 +56,10 @@ class TraCI_Extend : public TraCIScenarioManagerLaunchd
         void commandSetMaxDecel(std::string, double);
         void commandSetTg(std::string, double);
         void commandAddVehicleN(std::string, std::string, std::string, int32_t);
-        void commandSetPreceding(std::string, std::string);       // new defined command
-        void commandSetPlatoonLeader(std::string, std::string);  // new defined command
-        void commandSetModeSwitch(std::string, bool);   // new defined command
+        void commandSetPreceding(std::string, std::string);         // new defined command
+        void commandSetPlatoonLeader(std::string, std::string);    // new defined command
+        void commandSetModeSwitch(std::string, bool);              // new defined command
+        void commandSetVehicleColor(std::string, uint8_t, uint8_t, uint8_t, uint8_t);
 
         // CMD_SET_GUI_VARIABLE
         void commandSetGUIZoom(double);
@@ -69,6 +71,7 @@ class TraCI_Extend : public TraCIScenarioManagerLaunchd
         uint32_t genericGetInt32(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
         Coord genericGetCoordv2(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
         std::list<std::string> genericGetComplex(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
+        uint8_t* genericGetArrayUnsignedInt(uint8_t, std::string, uint8_t, uint8_t);
 };
 
 

@@ -36,10 +36,9 @@ class ApplVBeacon : public ApplVBase
         virtual void handleSelfMsg(cMessage*);
         virtual void handlePositionUpdate(cObject*);
 
-		virtual void onBeacon(Beacon*);
-		virtual void onData(PlatoonMsg*);
+        virtual void onBeacon(Beacon*);
 
-		Beacon* prepareBeacon(std::string, int, t_channel, int, int, int serial=0);
+		Beacon* prepareBeacon();
         void printBeaconContent(Beacon*);
         bool dropBeacon(double, std::string, double);
 

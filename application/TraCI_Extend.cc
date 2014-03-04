@@ -121,6 +121,13 @@ std::string TraCI_Extend::commandGetLeading_M(std::string nodeId)
 }
 
 
+uint8_t* TraCI_Extend::commandGetVehicleColor(std::string nodeId)
+{
+    return genericGetArrayUnsignedInt(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_COLOR, RESPONSE_GET_VEHICLE_VARIABLE);
+}
+
+
+
 // ###############################
 // CMD_GET_INDUCTIONLOOP_VARIABLE
 // ###############################
@@ -339,6 +346,39 @@ std::list<std::string> TraCI_Extend::genericGetComplex(uint8_t commandId, std::s
 }
 
 
+uint8_t* TraCI_Extend::genericGetArrayUnsignedInt(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId)
+{
+    uint8_t resultTypeId = TYPE_COLOR;
+    uint8_t* color = new uint8_t[4]; // RGBA
+
+    TraCIBuffer buf = queryTraCI(commandId, TraCIBuffer() << variableId << objectId);
+
+    uint8_t cmdLength; buf >> cmdLength;
+    if (cmdLength == 0) {
+        uint32_t cmdLengthX;
+        buf >> cmdLengthX;
+    }
+    uint8_t commandId_r; buf >> commandId_r;
+    ASSERT(commandId_r == responseId);
+    uint8_t varId; buf >> varId;
+    ASSERT(varId == variableId);
+    std::string objectId_r; buf >> objectId_r;
+    ASSERT(objectId_r == objectId);
+    uint8_t resType_r; buf >> resType_r;
+    ASSERT(resType_r == resultTypeId);
+
+    // now we start getting real data that we are looking for
+    buf >> color[0];
+    buf >> color[1];
+    buf >> color[2];
+    buf >> color[3];
+
+    ASSERT(buf.eof());
+
+    return color;
+}
+
+
 // #########################
 // CMD_SET_VEHICLE_VARIABLE
 // #########################
@@ -427,6 +467,21 @@ void TraCI_Extend::commandSetModeSwitch(std::string nodeId, bool value)
     uint8_t variableType = TYPE_INTEGER;
 
     TraCIBuffer buf = queryTraCI(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << (int)value);
+    ASSERT(buf.eof());
+}
+
+
+void TraCI_Extend::commandSetVehicleColor(std::string nodeId, uint8_t R, uint8_t G, uint8_t B, uint8_t A)
+{
+    uint8_t variableId = VAR_COLOR;
+    uint8_t variableType = TYPE_UBYTE;
+
+    TraCIBuffer buf = queryTraCI(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId
+                                                                                       << variableType << R
+                                                                                       << variableType << G
+                                                                                       << variableType << B
+                                                                                       << variableType << A
+                                                                                       );
     ASSERT(buf.eof());
 }
 

@@ -25,7 +25,6 @@ class ApplVBeaconPlatoonLeader : public ApplVBeacon
         virtual void handlePositionUpdate(cObject*);
 
 		virtual void onBeacon(Beacon*);
-		virtual void onData(PlatoonMsg*);
 
 		Beacon* fillBeaconPlatoon(Beacon *);
 

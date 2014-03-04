@@ -47,11 +47,11 @@ packet Beacon extends WaveShortMessage
 
 packet PlatoonMsg extends WaveShortMessage 
 {
+    string sender;
+	string recipient;
     int req_res_type;
-    string vehicleID;
     string sendingPlatoonID;
     string receivingPlatoonID;
-    int value;
+    double value;
 };
-
 

@@ -20,6 +20,9 @@ class ApplVPlatoon : public ApplVBeaconPlatoonLeader
 		virtual void onBeacon(Beacon* wsm);
 		virtual void onData(PlatoonMsg* wsm);
 
+		PlatoonMsg* prepareData(std::string, int, std::string, int);
+        void printDataContent(PlatoonMsg*);
+
 		void FSMchangeState();
         void sendMessage(std::string);
 
@@ -43,15 +46,22 @@ class ApplVPlatoon : public ApplVBeaconPlatoonLeader
         enum messages
         {
             // platoon states
-            state_idle,
-            state_wait_for_beacon,
-            stateT_create_new_platoon,   // transient
-            state_ask_to_join,
-            stateT_joining,              // transient
-            state_platoonLeader,
-            state_platoonMember,
-            stateT_handle_JOIN_request,        // transient
-            stateT_handle_CHANGE_Tg_request,   // transient
+            state_idle,                        // 0
+            state_wait_for_beacon,             // 1
+            stateT_create_new_platoon,         // 2  transient
+            state_ask_to_join,                 // 3
+            stateT_joining,                    // 4  transient
+            state_platoonLeader,               // 5
+            state_platoonMember,               // 6
+            stateT_handle_JOIN_request,        // 7  transient
+            stateT_handle_CHANGE_Tg_request,   // 8  transient
+
+            // platoon msg
+            JOIN_request,
+            JOIN_ACCEPT_response,
+            JOIN_REJECT_response,
+            CHANGE_Tg,
+            LEAVE_request,
 
             // timers
             timer_wait_for_beacon_from_leading,

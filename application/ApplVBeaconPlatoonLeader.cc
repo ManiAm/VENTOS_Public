@@ -34,7 +34,6 @@ void ApplVBeaconPlatoonLeader::handleLowerMsg(cMessage* msg)
         return;
     }
 
-    // make sure msg is of type Beacon
     Beacon* wsm = dynamic_cast<Beacon*>(msg);
     ASSERT(wsm);
 
@@ -84,7 +83,7 @@ void ApplVBeaconPlatoonLeader::handleSelfMsg(cMessage* msg)
 
     if (msg->getKind() == SEND_BEACON_EVT)
     {
-        Beacon* Msg = ApplVBeacon::prepareBeacon("beacon", beaconLengthBits, type_CCH, beaconPriority, 0);
+        Beacon* Msg = ApplVBeacon::prepareBeacon();
 
         // fill-in the fields related to platoon
         Beacon* beaconMsg = fillBeaconPlatoon(Msg);
@@ -173,12 +172,6 @@ void ApplVBeaconPlatoonLeader::onBeacon(Beacon* wsm)
         simsignal_t Signal_beaconO = registerSignal("beaconO");
         nodePtr->emit(Signal_beaconO, pair);
     }
-}
-
-
-void ApplVBeaconPlatoonLeader::onData(PlatoonMsg* wsm)
-{
-    error("ApplVBeaconPlatoonLeader can not handle data. Something is wrong!");
 }
 
 
