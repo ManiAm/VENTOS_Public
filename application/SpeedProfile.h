@@ -3,7 +3,6 @@
 #define SPEEDPROFILE
 
 #include <omnetpp.h>
-#include "mobility/traci/TraCIScenarioManagerLaunchd.h"
 #include "mobility/traci/TraCIMobility.h"
 #include "mobility/traci/TraCIConstants.h"
 #include "TraCI_Extend.h"

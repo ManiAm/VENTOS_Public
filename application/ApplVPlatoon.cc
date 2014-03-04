@@ -32,6 +32,7 @@ void ApplVPlatoon::initialize(int stage)
 
 void ApplVPlatoon::handleLowerMsg(cMessage* msg)
 {
+    /*
     uint8_t* color = manager->commandGetVehicleColor(SUMOvID);
 
     uint8_t R = color[0];
@@ -40,7 +41,7 @@ void ApplVPlatoon::handleLowerMsg(cMessage* msg)
     uint8_t A = color[3];
 
     manager->commandSetVehicleColor(SUMOvID, 255, 255, 0, 100);
-
+*/
 
     // make sure msg is of type WaveShortMessage
     WaveShortMessage* wsm = dynamic_cast<WaveShortMessage*>(msg);

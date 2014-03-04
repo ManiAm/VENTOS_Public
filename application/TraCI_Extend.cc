@@ -2,8 +2,13 @@
 #include "TraCI_Extend.h"
 
 #include <sstream>
-#include <iostream>
 #include <fstream>
+#include <iostream>
+
+#include <limits.h> /* PATH_MAX */
+#include <stdio.h>
+#include <stdlib.h>
+
 
 Define_Module(TraCI_Extend);
 
@@ -14,9 +19,52 @@ TraCI_Extend::~TraCI_Extend()
 }
 
 
+// bypass initialize in TraCIScenarioManagerLaunchd
 void TraCI_Extend::initialize(int stage)
 {
-    TraCIScenarioManagerLaunchd::initialize(stage);
+    if (stage != 1)
+    {
+        TraCIScenarioManager::initialize(stage);
+        return;
+    }
+
+    launchConfig = par("launchConfig").xmlValue();
+    seed = par("seed");
+
+    cXMLElementList SUMOfiles = launchConfig->getElementsByTagName("sumoFiles");
+    if (SUMOfiles.size() != 1)
+    {
+        error("sumoFiles tag is missing in sumo_launchd");
+    }
+    else
+    {
+        std::string VENTOSdirectory = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+        std::string SUMOdirectory = SUMOfiles.at(0)->getAttribute("folder");
+        std::string SUMOfullDirectory = VENTOSdirectory + std::string("sumo/") + SUMOdirectory;
+        EV << "### SUMO files are in: " << SUMOfullDirectory << endl;
+
+        cXMLElement* basedir_node = new cXMLElement("basedir", __FILE__, launchConfig);
+        basedir_node->setAttribute("path", SUMOfullDirectory.c_str());
+        launchConfig->appendChild(basedir_node);
+    }
+
+    cXMLElementList seed_nodes = launchConfig->getElementsByTagName("seed");
+    if (seed_nodes.size() == 0)
+    {
+        if (seed == -1)
+        {
+            // default seed is current repetition
+            const char* seed_s = cSimulation::getActiveSimulation()->getEnvir()->getConfigEx()->getVariable(CFGVAR_RUNNUMBER);
+            seed = atoi(seed_s);
+        }
+
+        std::stringstream ss; ss << seed;
+        cXMLElement* seed_node = new cXMLElement("seed", __FILE__, launchConfig);
+        seed_node->setAttribute("value", ss.str().c_str());
+        launchConfig->appendChild(seed_node);
+    }
+
+    TraCIScenarioManager::initialize(stage);
 }
 
 
