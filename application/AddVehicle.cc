@@ -61,11 +61,13 @@ void AddVehicle::Add()
 
 void AddVehicle::Scenario1()
 {
+    int depart = 0;
+
     for(int i=1; i<=totalVehicles; i++)
     {
         char vehicleName[10];
         sprintf(vehicleName, "CACC%d", i);
-        int depart = 1000 * i;
+        depart = depart + 10000;
 
         manager->commandAddVehicleN(vehicleName,"TypeCACC","route1",depart);
     }

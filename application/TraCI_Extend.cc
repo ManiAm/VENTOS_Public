@@ -607,6 +607,7 @@ void TraCI_Extend::commandSetMaxDecel(std::string nodeId, double value)
 }
 
 
+// this changes vehicle type!
 void TraCI_Extend::commandSetTg(std::string nodeId, double value)
 {
     uint8_t variableId = VAR_TAU;
