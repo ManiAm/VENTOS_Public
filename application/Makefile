@@ -47,6 +47,7 @@ OBJS = \
     $O/Mac1609_4_Mod.o \
     $O/TraCI_App.o \
     $O/ApplVBeaconPlatoonLeader.o \
+    $O/TraCIColor.o \
     $O/AddVehicle.o \
     $O/SpeedProfile.o
 
@@ -429,6 +430,8 @@ $O/Statistics.o: Statistics.cc \
 	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
 	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
 	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
+$O/TraCIColor.o: TraCIColor.cc \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h
 $O/TraCI_App.o: TraCI_App.cc \
 	AddVehicle.h \
 	ExtraClasses.h \

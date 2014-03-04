@@ -2,10 +2,10 @@
 package c3po.ned;
 
 import org.mixim.modules.phy.PhyLayer80211p;
+//import org.car2x.veins.modules.phy.PhyLayer80211p;
 
-// modify mac1609_4
 
-module Nic80211p_Mod
+module Nic80211p_Mod  // Mod : modified
 {
     gates:
         input upperLayerIn; // to upper layers

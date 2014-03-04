@@ -338,7 +338,7 @@ double* TraCI_Extend::commandGetNetworkBoundary()
 
 
 // ########################
-// control-related commands
+// Control-related commands
 // ########################
 
 void TraCI_Extend::commandTerminate()
@@ -374,9 +374,9 @@ void TraCI_Extend::commandSendFile(std::string contents)
 }
 
 
-// #####################
+// ######################
 // subscription commands
-// #####################
+// ######################
 
 void TraCI_Extend::commandSubscribeSimulation()
 {
@@ -675,19 +675,16 @@ void TraCI_Extend::commandSetModeSwitch(std::string nodeId, bool value)
 }
 
 
-void TraCI_Extend::commandSetVehicleColor(std::string nodeId, uint8_t R, uint8_t G, uint8_t B, uint8_t A)
+void TraCI_Extend::commandSetVehicleColor(std::string nodeId, TraCIColor& color)
 {
-    uint8_t variableId = VAR_COLOR;
-    uint8_t variableType = TYPE_UBYTE;
+   TraCIBuffer p;
+   p << static_cast<uint8_t>(VAR_COLOR);
+   p << nodeId;
+   p << static_cast<uint8_t>(TYPE_COLOR) << color.red << color.green << color.blue << color.alpha;
+   TraCIBuffer buf = queryTraCI(CMD_SET_VEHICLE_VARIABLE, p);
 
-    TraCIBuffer buf = queryTraCI(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId
-                                                                                       << variableType << R
-                                                                                       << variableType << G
-                                                                                       << variableType << B
-                                                                                       << variableType << A
-                                                                                       );
-    ASSERT(buf.eof());
-}
+   ASSERT(buf.eof());
+ }
 
 
 // #####################

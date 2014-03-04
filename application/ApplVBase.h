@@ -10,6 +10,7 @@
 #include <ChannelAccess.h>
 #include <WaveAppToMac1609_4Interface.h>
 #include "TraCI_Extend.h"
+#include "mobility/traci/TraCIColor.h"
 
 #include "ExtraClasses.h"
 

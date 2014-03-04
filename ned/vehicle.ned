@@ -4,6 +4,9 @@ package c3po.ned;
 import org.mixim.base.modules.*;
 import org.mixim.modules.nic.Nic80211p;
 
+//import org.car2x.veins.base.modules.*;
+//import org.car2x.veins.modules.nic.Nic80211p;
+
 module vehicle
 {
     parameters:

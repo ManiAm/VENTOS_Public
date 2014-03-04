@@ -5,6 +5,7 @@
 #include <omnetpp.h>
 #include "mobility/traci/TraCIMobility.h"
 #include "mobility/traci/TraCIConstants.h"
+#include "mobility/traci/TraCIColor.h"
 
 
 class TraCI_Extend : public TraCIScenarioManager
@@ -66,7 +67,7 @@ class TraCI_Extend : public TraCIScenarioManager
         void commandSetPreceding(std::string, std::string);         // new defined command
         void commandSetPlatoonLeader(std::string, std::string);    // new defined command
         void commandSetModeSwitch(std::string, bool);              // new defined command
-        void commandSetVehicleColor(std::string, uint8_t, uint8_t, uint8_t, uint8_t);
+        void commandSetVehicleColor(std::string nodeId, TraCIColor& color);
 
         // CMD_SET_GUI_VARIABLE
         void commandSetGUIZoom(double);
