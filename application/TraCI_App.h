@@ -20,7 +20,7 @@ class TraCI_App : public TraCI_Extend
 		virtual void initialize(int stage);
 	    virtual int numInitStages() const
 	    {
-	        return 2;
+	        return 3;
 	    }
         virtual void handleSelfMsg(cMessage *msg);
 		virtual void finish();

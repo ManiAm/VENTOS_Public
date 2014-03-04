@@ -3,12 +3,11 @@
 #define TraCIEXTEND_H
 
 #include <omnetpp.h>
-#include "mobility/traci/TraCIScenarioManagerLaunchd.h"
 #include "mobility/traci/TraCIMobility.h"
 #include "mobility/traci/TraCIConstants.h"
 
 
-class TraCI_Extend : public TraCIScenarioManagerLaunchd
+class TraCI_Extend : public TraCIScenarioManager
 {
 	public:
 		virtual ~TraCI_Extend();
@@ -48,8 +47,16 @@ class TraCI_Extend : public TraCIScenarioManagerLaunchd
         std::list<std::string> commandGetVehicleLaneList(std::string);
         std::list<std::string> commandGetVehiclesOnLane(std::string);
 
+        // CMD_GET_SIM_VARIABLE
+        double* commandGetNetworkBoundary();
+
         // control-related commands
         void commandTerminate();
+        void commandSendFile(std::string);
+
+        // subscription commands
+        void commandSubscribeSimulation();
+        void commandSubscribeVehicle();
 
         // CMD_SET_VEHICLE_VARIABLE
         void commandSetMaxAccel(std::string, double);
@@ -65,6 +72,10 @@ class TraCI_Extend : public TraCIScenarioManagerLaunchd
         void commandSetGUIZoom(double);
         void commandSetGUITrack(std::string);
         void commandSetGUIOffset(double, double);
+
+	protected:
+        cXMLElement* launchConfig; /**< launch configuration to send to sumo-launchd */
+        int seed; /**< seed value to set in launch configuration, if missing (-1: current run number) */
 
 	private:
         // generic methods for getters

@@ -1,14 +1,8 @@
 
 #include "TraCI_Extend.h"
-
 #include <sstream>
 #include <fstream>
 #include <iostream>
-
-#include <limits.h> /* PATH_MAX */
-#include <stdio.h>
-#include <stdlib.h>
-
 
 Define_Module(TraCI_Extend);
 
@@ -19,52 +13,53 @@ TraCI_Extend::~TraCI_Extend()
 }
 
 
-// bypass initialize in TraCIScenarioManagerLaunchd
 void TraCI_Extend::initialize(int stage)
 {
-    if (stage != 1)
-    {
-        TraCIScenarioManager::initialize(stage);
-        return;
-    }
+    TraCIScenarioManager::initialize(stage);
 
-    launchConfig = par("launchConfig").xmlValue();
-    seed = par("seed");
-
-    cXMLElementList SUMOfiles = launchConfig->getElementsByTagName("sumoFiles");
-    if (SUMOfiles.size() != 1)
+    if (stage == 1)
     {
-        error("sumoFiles tag is missing in sumo_launchd");
-    }
-    else
-    {
-        std::string VENTOSdirectory = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-        std::string SUMOdirectory = SUMOfiles.at(0)->getAttribute("folder");
-        std::string SUMOfullDirectory = VENTOSdirectory + std::string("sumo/") + SUMOdirectory;
-        EV << "### SUMO files are in: " << SUMOfullDirectory << endl;
+        launchConfig = par("launchConfig").xmlValue();
+        seed = par("seed");
 
-        cXMLElement* basedir_node = new cXMLElement("basedir", __FILE__, launchConfig);
-        basedir_node->setAttribute("path", SUMOfullDirectory.c_str());
-        launchConfig->appendChild(basedir_node);
-    }
-
-    cXMLElementList seed_nodes = launchConfig->getElementsByTagName("seed");
-    if (seed_nodes.size() == 0)
-    {
-        if (seed == -1)
+        cXMLElementList SUMOfiles = launchConfig->getElementsByTagName("sumoFiles");
+        if (SUMOfiles.size() != 1)
         {
-            // default seed is current repetition
-            const char* seed_s = cSimulation::getActiveSimulation()->getEnvir()->getConfigEx()->getVariable(CFGVAR_RUNNUMBER);
-            seed = atoi(seed_s);
+            error("sumoFiles tag is missing in sumo_launchd");
+        }
+        else
+        {
+            std::string VENTOSdirectory = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+            std::string SUMOdirectory = SUMOfiles.at(0)->getAttribute("folder");
+            std::string SUMOfullDirectory = VENTOSdirectory + std::string("sumo/") + SUMOdirectory;
+            EV << "### SUMO files are in: " << SUMOfullDirectory << endl;
+
+            cXMLElement* basedir_node = new cXMLElement("basedir", __FILE__, launchConfig);
+            basedir_node->setAttribute("path", SUMOfullDirectory.c_str());
+            launchConfig->appendChild(basedir_node);
         }
 
-        std::stringstream ss; ss << seed;
-        cXMLElement* seed_node = new cXMLElement("seed", __FILE__, launchConfig);
-        seed_node->setAttribute("value", ss.str().c_str());
-        launchConfig->appendChild(seed_node);
-    }
+        cXMLElementList seed_nodes = launchConfig->getElementsByTagName("seed");
+        if (seed_nodes.size() == 0)
+        {
+            if (seed == -1)
+            {
+                // default seed is current repetition
+                const char* seed_s = cSimulation::getActiveSimulation()->getEnvir()->getConfigEx()->getVariable(CFGVAR_RUNNUMBER);
+                seed = atoi(seed_s);
+            }
 
-    TraCIScenarioManager::initialize(stage);
+            std::stringstream ss; ss << seed;
+            cXMLElement* seed_node = new cXMLElement("seed", __FILE__, launchConfig);
+            seed_node->setAttribute("value", ss.str().c_str());
+            launchConfig->appendChild(seed_node);
+        }
+    }
+    else if(stage == 2)
+    {
+        // todo: here we can put the equivalent python
+        // code to create the server process
+    }
 }
 
 
@@ -76,7 +71,65 @@ void TraCI_Extend::handleSelfMsg(cMessage *msg)
 
 void TraCI_Extend::init_traci()
 {
-    TraCIScenarioManagerLaunchd::init_traci();
+    // get the version of Python launchd
+    std::pair<uint32_t, std::string> version = commandGetVersion();
+    uint32_t apiVersion = version.first;
+    std::string serverVersion = version.second;
+    EV << "TraCI launchd reports apiVersion: " << apiVersion << " and serverVersion: " << serverVersion << endl;
+    ASSERT(apiVersion == 1);
+
+    // send the launchConfig to SUMO
+    std::string contents = launchConfig->tostr(0);
+    commandSendFile(contents);
+
+    // call commandGetVersion again to
+    // get the version of SUMO TraCI server
+    std::pair<uint32_t, std::string> version2 = commandGetVersion();
+    uint32_t apiVersion2 = version2.first;
+    std::string serverVersion2 = version2.second;
+    EV << "TraCI server reports apiVersion: " << apiVersion2 << " and serverVersion: " << serverVersion2 << endl;
+    if ( !(apiVersion2 == 3 || apiVersion2 == 5 || apiVersion2 == 6 || apiVersion2 == 7 || apiVersion2 == 8) )
+        error("TraCI server is unsupported.");
+
+    // get network boundaries from SUMO
+    double* bounds = commandGetNetworkBoundary();
+    EV << "TraCI reports network boundaries (" << bounds[0] << ", " << bounds[1] << ")-(" << bounds[2] << ", " << bounds[3] << ")" << endl;
+
+    // change to OMNET++ coordinates
+    netbounds1 = TraCICoord(bounds[0], bounds[1]);
+    netbounds2 = TraCICoord(bounds[2], bounds[3]);
+    if ((traci2omnet(netbounds2).x > world->getPgs()->x) || (traci2omnet(netbounds1).y > world->getPgs()->y))
+        EV << "WARNING: Playground size (" << world->getPgs()->x << ", " << world->getPgs()->y << ") might be too small for vehicle at network bounds (" << traci2omnet(netbounds2).x << ", " << traci2omnet(netbounds1).y << ")" << endl;
+
+    // subscribe to list of departed and arrived vehicles, as well as simulation time
+    commandSubscribeSimulation();
+
+    // subscribe to list of vehicle ids
+    commandSubscribeVehicle();
+
+    ObstacleControl* obstacles = ObstacleControlAccess().getIfExists();
+
+    if (obstacles)
+    {
+        // get list of polygons
+        std::list<std::string> ids = commandGetPolygonIds();
+
+        for (std::list<std::string>::iterator i = ids.begin(); i != ids.end(); ++i)
+        {
+            std::string id = *i;
+            std::string typeId = commandGetPolygonTypeId(id);
+
+            if (typeId == "building")
+            {
+                std::list<Coord> coords = commandGetPolygonShape(id);
+                Obstacle obs(id, 9, .4); // each building gets attenuation of 9 dB per wall, 0.4 dB per meter
+                std::vector<Coord> shape;
+                std::copy(coords.begin(), coords.end(), std::back_inserter(shape));
+                obs.setShape(shape);
+                obstacles->add(obs);
+            }
+        }
+    }
 }
 
 
@@ -257,6 +310,33 @@ std::list<std::string> TraCI_Extend::commandGetVehiclesOnLane(std::string laneId
 }
 
 
+// ####################
+// CMD_GET_SIM_VARIABLE
+// ####################
+double* TraCI_Extend::commandGetNetworkBoundary()
+{
+    // query road network boundaries
+    TraCIBuffer buf = queryTraCI(CMD_GET_SIM_VARIABLE, TraCIBuffer() << static_cast<uint8_t>(VAR_NET_BOUNDING_BOX) << std::string("sim0"));
+
+    uint8_t cmdLength_resp; buf >> cmdLength_resp;
+    uint8_t commandId_resp; buf >> commandId_resp; ASSERT(commandId_resp == RESPONSE_GET_SIM_VARIABLE);
+    uint8_t variableId_resp; buf >> variableId_resp; ASSERT(variableId_resp == VAR_NET_BOUNDING_BOX);
+    std::string simId; buf >> simId;
+    uint8_t typeId_resp; buf >> typeId_resp; ASSERT(typeId_resp == TYPE_BOUNDINGBOX);
+
+    double *boundaries = new double[4] ;
+
+    buf >> boundaries[0];
+    buf >> boundaries[1];
+    buf >> boundaries[2];
+    buf >> boundaries[3];
+
+    ASSERT(buf.eof());
+
+    return boundaries;
+}
+
+
 // ########################
 // control-related commands
 // ########################
@@ -267,6 +347,82 @@ void TraCI_Extend::commandTerminate()
 
         uint32_t count;
         buf >> count;
+}
+
+
+void TraCI_Extend::commandSendFile(std::string contents)
+{
+    uint8_t commandId = 0x75;
+    TraCIBuffer buf;
+    buf << std::string("sumo-launchd.launch.xml") << contents;
+    sendTraCIMessage(makeTraCICommand(commandId, buf));
+
+    TraCIBuffer obuf(receiveTraCIMessage());
+    uint8_t cmdLength; obuf >> cmdLength;
+    uint8_t commandResp; obuf >> commandResp;
+    if (commandResp != commandId)
+    {
+        error("Expected response to command %d, but got one for command %d", commandId, commandResp);
+    }
+
+    uint8_t result; obuf >> result;
+    std::string description; obuf >> description;
+    if (result != RTYPE_OK)
+    {
+        EV << "Warning: Received non-OK response from TraCI server to command " << commandId << ":" << description.c_str() << std::endl;
+    }
+}
+
+
+// #####################
+// subscription commands
+// #####################
+
+void TraCI_Extend::commandSubscribeSimulation()
+{
+    uint32_t beginTime = 0;
+    uint32_t endTime = 0x7FFFFFFF;
+    std::string objectId = "";
+    uint8_t variableNumber = 5;
+    uint8_t variable1 = VAR_DEPARTED_VEHICLES_IDS;
+    uint8_t variable2 = VAR_ARRIVED_VEHICLES_IDS;
+    uint8_t variable3 = VAR_TIME_STEP;
+    uint8_t variable4 = VAR_TELEPORT_STARTING_VEHICLES_IDS;
+    uint8_t variable5 = VAR_TELEPORT_ENDING_VEHICLES_IDS;
+
+    TraCIBuffer buf = queryTraCI(CMD_SUBSCRIBE_SIM_VARIABLE, TraCIBuffer() << beginTime << endTime
+                                                                                        << objectId
+                                                                                        << variableNumber
+                                                                                        << variable1
+                                                                                        << variable2
+                                                                                        << variable3
+                                                                                        << variable4
+                                                                                        << variable5
+                                                                                        );
+
+    processSubcriptionResult(buf);
+
+    ASSERT(buf.eof());
+}
+
+
+void TraCI_Extend::commandSubscribeVehicle()
+{
+    uint32_t beginTime = 0;
+    uint32_t endTime = 0x7FFFFFFF;
+    std::string objectId = "";
+    uint8_t variableNumber = 1;
+    uint8_t variable1 = ID_LIST;
+
+    TraCIBuffer buf = queryTraCI(CMD_SUBSCRIBE_VEHICLE_VARIABLE, TraCIBuffer() << beginTime << endTime
+                                                                                            << objectId
+                                                                                            << variableNumber
+                                                                                            << variable1
+                                                                                            );
+
+    processSubcriptionResult(buf);
+
+    ASSERT(buf.eof());
 }
 
 
@@ -574,6 +730,6 @@ void TraCI_Extend::commandSetGUIOffset(double x, double y)
 
 void TraCI_Extend::finish()
 {
-    TraCIScenarioManagerLaunchd::finish();
+
 }
 
