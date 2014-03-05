@@ -3,10 +3,10 @@ package c3po.ned;
 import org.mixim.modules.mobility.traci.TraCIScenarioManagerLaunchd;
 //import org.car2x.veins.modules.mobility.traci.TraCIScenarioManagerLaunchd;
 
-simple AddVehicle
+simple VehicleAdd
 {
     parameters:
-        @class(AddVehicle);
+        @class(VehicleAdd);
         @display("i=block/network2");
         
         bool on = default(true);

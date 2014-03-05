@@ -8,7 +8,7 @@
 #include "mobility/traci/TraCIConstants.h"
 #include "ExtraClasses.h"
 #include "TraCI_Extend.h"
-#include "AddVehicle.h"
+#include "VehicleAdd.h"
 #include "SpeedProfile.h"
 #include "Warmup.h"
 
@@ -32,7 +32,7 @@ class TraCI_App : public TraCI_Extend
 
         // NED variables
         cModule *nodePtr;   // pointer to the Node
-        AddVehicle *AddVehiclePtr;
+        VehicleAdd *AddVehiclePtr;
         SpeedProfile *SpeedProfilePtr;
         Warmup *WarmupPtr;
 

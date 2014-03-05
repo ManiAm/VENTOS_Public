@@ -7,7 +7,7 @@
 #include "mobility/traci/TraCIMobility.h"
 #include "mobility/traci/TraCIConstants.h"
 #include "TraCI_Extend.h"
-#include "AddVehicle.h"
+#include "VehicleAdd.h"
 #include "SpeedProfile.h"
 
 
@@ -27,7 +27,7 @@ class Warmup : public cSimpleModule
         // NED variables
         cModule *nodePtr;       // pointer to the Node module
         TraCI_Extend *manager;  // pointer to the TraCI module
-        AddVehicle *AddVehiclePtr;
+        VehicleAdd *AddVehiclePtr;
         bool on;
         std::string leadingVehicle;
         double stopPosition;  // the position that first vehicle should stop waiting for others

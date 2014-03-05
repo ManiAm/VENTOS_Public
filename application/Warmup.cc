@@ -28,8 +28,8 @@ void Warmup::initialize(int stage)
         manager = static_cast<TraCI_Extend *>(module);
 
         // get the ptr of the AddVehicle module
-        module = simulation.getSystemModule()->getSubmodule("addvehicle");
-        AddVehiclePtr = static_cast<AddVehicle *>(module);
+        module = simulation.getSystemModule()->getSubmodule("vehicleAdd");
+        AddVehiclePtr = static_cast<VehicleAdd *>(module);
         if(AddVehiclePtr == NULL)
             error("can not get a pointer to the AddVehicle module.");
 

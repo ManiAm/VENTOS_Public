@@ -1,20 +1,20 @@
 
-#include "AddVehicle.h"
+#include "VehicleAdd.h"
 
 #include <sstream>
 #include <iostream>
 #include <fstream>
 
-Define_Module(AddVehicle);
+Define_Module(VehicleAdd);
 
 
-AddVehicle::~AddVehicle()
+VehicleAdd::~VehicleAdd()
 {
 
 }
 
 
-void AddVehicle::initialize(int stage)
+void VehicleAdd::initialize(int stage)
 {
     if(stage ==0)
     {
@@ -36,13 +36,13 @@ void AddVehicle::initialize(int stage)
 }
 
 
-void AddVehicle::handleMessage(cMessage *msg)
+void VehicleAdd::handleMessage(cMessage *msg)
 {
 
 }
 
 
-void AddVehicle::Add()
+void VehicleAdd::Add()
 {
     // if dynamic adding is off, return
     if (!on)
@@ -59,7 +59,7 @@ void AddVehicle::Add()
 }
 
 
-void AddVehicle::Scenario1()
+void VehicleAdd::Scenario1()
 {
     int depart = 0;
 
@@ -74,7 +74,7 @@ void AddVehicle::Scenario1()
 }
 
 
-void AddVehicle::Scenario2()
+void VehicleAdd::Scenario2()
 {
     for(int i=1; i<=totalVehicles; i++)
     {
@@ -98,7 +98,7 @@ void AddVehicle::Scenario2()
 }
 
 
-void AddVehicle::finish()
+void VehicleAdd::finish()
 {
 
 

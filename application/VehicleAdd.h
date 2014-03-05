@@ -1,6 +1,6 @@
 
-#ifndef ADDVEHICLE
-#define ADDVEHICLE
+#ifndef VEHICLEADD
+#define VEHICLEADD
 
 #include <omnetpp.h>
 #include "mobility/traci/TraCIScenarioManagerLaunchd.h"
@@ -9,10 +9,10 @@
 #include "TraCI_Extend.h"
 
 
-class AddVehicle : public cSimpleModule
+class VehicleAdd : public cSimpleModule
 {
 	public:
-		virtual ~AddVehicle();
+		virtual ~VehicleAdd();
 		virtual void initialize(int stage);
         virtual void handleMessage(cMessage *msg);
 		virtual void finish();

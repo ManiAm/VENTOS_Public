@@ -46,7 +46,7 @@ network Network
             parameters:
                 @display("p=141,147");
         }
-        addvehicle: AddVehicle {
+        vehicleAdd: VehicleAdd {
             parameters:
                 @display("p=223,147");
         }
