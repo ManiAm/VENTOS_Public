@@ -69,6 +69,9 @@ class ApplVPlatoon : public ApplVBeaconPlatoonLeader
         };
 
         messages vehicleState;
+
+        // colors of platoon members
+        int *pickColor;
 };
 
 #endif

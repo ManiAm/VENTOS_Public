@@ -25,6 +25,16 @@ void ApplVPlatoon::initialize(int stage)
         TIMER1 = new cMessage("timer_wait_for_beacon_from_leading", timer_wait_for_beacon_from_leading);
         TIMER2 = new cMessage("timer_wait_for_JOIN_response", timer_wait_for_JOIN_response);
 
+        int offset = 255 / (maxPlatoonSize-2);
+        pickColor = new int[maxPlatoonSize];
+        pickColor[0] = -1;
+        int count = 0;
+        for(int i = 1; i < maxPlatoonSize; i++)
+        {
+            pickColor[i] = count;
+            count = count + offset;
+        }
+
         FSMchangeState();
 	}
 }
@@ -99,7 +109,8 @@ void ApplVPlatoon::onBeacon(Beacon* wsm)
         error("platoonFormation is off in ApplVPlatoon::onBeacon");
     }
 
-    if( vehicleState == state_wait_for_beacon && TIMER1->isScheduled() )
+    // waiting for a beacon from our leading vehicle
+    if( vehicleState == state_wait_for_beacon && TIMER1->isScheduled() && ApplVBeacon::isBeaconFromLeading(wsm) )
     {
         vehicleState = state_ask_to_join;
         cancelEvent(TIMER1);
@@ -107,9 +118,9 @@ void ApplVPlatoon::onBeacon(Beacon* wsm)
 
         // send JOIN request
         PlatoonMsg* dataMsg = prepareData(wsm->getSender(), JOIN_request, wsm->getPlatoonID(), -1);
-        EV << "## Created JOIN request in vehicle: " << SUMOvID << std::endl;
         printDataContent(dataMsg);
         sendDelayedDown(dataMsg,individualOffset);
+        EV << "### " << SUMOvID << ": sent JOIN request." << endl;
 
         scheduleAt(simTime() + 1., TIMER2);
     }
@@ -150,17 +161,17 @@ void ApplVPlatoon::onData(PlatoonMsg* wsm)
             {
                 // send JOIN_REJECT
                 PlatoonMsg* dataMsg = prepareData(wsm->getSender(), JOIN_REJECT_response, wsm->getSendingPlatoonID(), -1);
-                EV << "## Created JOIN_REJECT response in vehicle: " << SUMOvID << std::endl;
                 printDataContent(dataMsg);
                 sendDelayedDown(dataMsg,individualOffset);
+                EV << "### " << SUMOvID << ": sent JOIN_REJECT." << endl;
             }
             else
             {
                 // send JOIN_ACCEPT
                 PlatoonMsg* dataMsg1 = prepareData(wsm->getSender(), JOIN_ACCEPT_response, wsm->getSendingPlatoonID(), -1);
-                EV << "## Created JOIN_ACCEPT response in vehicle: " << SUMOvID << std::endl;
                 printDataContent(dataMsg1);
                 sendDelayedDown(dataMsg1,individualOffset);
+                EV << "### " << SUMOvID << ": sent JOIN_ACCEPT." << endl;
 
                 ++platoonSize;
 
@@ -168,9 +179,9 @@ void ApplVPlatoon::onData(PlatoonMsg* wsm)
                 // todo: make it dynamic
                 double newTg = 0.55;
                 PlatoonMsg* dataMsg2 = prepareData("broadcast", CHANGE_Tg, platoonID, newTg);
-                EV << "## Created CHANGE_Tg  message in vehicle: " << SUMOvID << std::endl;
                 printDataContent(dataMsg2);
                 sendDelayedDown(dataMsg2,individualOffset);
+                EV << "### " << SUMOvID << ": sent CHANGE_Tg with value " << newTg << endl;
             }
         }
     }
@@ -243,11 +254,10 @@ void ApplVPlatoon::handlePositionUpdate(cObject* obj)
 
 void ApplVPlatoon::FSMchangeState()
 {
-    EV << "### " << SUMOvID << " : current status is : " << vehicleState << endl;
-
-    // #######################################################################
     if(vehicleState == state_idle)
     {
+        EV << "### " << SUMOvID << ": current vehicle status is idle." << endl;
+
         // check for leading vehicle
         std::string vleaderID = manager->commandGetLeading_M(SUMOvID);
 
@@ -268,6 +278,8 @@ void ApplVPlatoon::FSMchangeState()
     // #######################################################################
     else if(vehicleState == state_wait_for_beacon)
     {
+        EV << "### " << SUMOvID << ": current vehicle status is wait_for_beacon." << endl;
+
         // waiting for a beacon from leading vehicle
         scheduleAt(simTime() + 1., TIMER1);
         return;
@@ -275,6 +287,8 @@ void ApplVPlatoon::FSMchangeState()
     // #######################################################################
     else if(vehicleState == stateT_create_new_platoon)
     {
+        EV << "### " << SUMOvID << ": current vehicle status is create-new_platoon." << endl;
+
         manager->commandSetTg(SUMOvID, 3.5);
         platoonID = SUMOvID;
         myPlatoonDepth = 0;
@@ -291,18 +305,28 @@ void ApplVPlatoon::FSMchangeState()
     // #######################################################################
     else if(vehicleState == stateT_joining)
     {
+        EV << "### " << SUMOvID << ": current vehicle status is joining." << endl;
+
         cancelEvent(TIMER2);
         manager->commandSetSpeed(SUMOvID, 30.);
         manager->commandSetTg(SUMOvID, 0.55);
         platoonID = myLeadingBeacon->getPlatoonID();
         myPlatoonDepth = myLeadingBeacon->getPlatoonDepth() + 1;
 
-        TraCIColor newColor = TraCIColor::fromTkColor("blue");
+        TraCIColor newColor = TraCIColor(pickColor[myPlatoonDepth], pickColor[myPlatoonDepth], 255, 255);
         manager->commandSetVehicleColor(SUMOvID, newColor);
 
         vehicleState = state_platoonMember;
         FSMchangeState();
         return;
+    }
+    else if(vehicleState == state_platoonLeader)
+    {
+        EV << "### " << SUMOvID << ": current vehicle status is platoonLeader with depth " << myPlatoonDepth << endl;
+    }
+    else if(vehicleState == state_platoonMember)
+    {
+        EV << "### " << SUMOvID << ": current vehicle status is platoonMember with depth " << myPlatoonDepth << endl;
     }
 }
 

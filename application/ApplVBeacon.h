@@ -42,7 +42,6 @@ class ApplVBeacon : public ApplVBase
         void printBeaconContent(Beacon*);
         bool dropBeacon(double, std::string, double);
 
-	private:
         bool isBeaconFromLeading(Beacon*);
         double getGap(std::string);
 };

@@ -17,7 +17,7 @@ class ApplVBeaconPlatoonLeader : public ApplVBeacon
         std::string platoonID;
 
         // Class variables
-        bool myPlatoonDepth;
+        int myPlatoonDepth;
 
         // Methods
         virtual void handleLowerMsg(cMessage*);
