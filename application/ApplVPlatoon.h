@@ -27,6 +27,8 @@ class ApplVPlatoon : public ApplVBeacon
 		virtual void onBeacon(Beacon*);
 
         bool isBeaconFromMyPlatoonLeader(Beacon*);
+        bool isBeaconFromLeading(Beacon*);
+        double getGap(std::string);
 };
 
 #endif

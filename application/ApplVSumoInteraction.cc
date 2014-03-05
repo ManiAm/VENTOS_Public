@@ -58,6 +58,31 @@ void ApplVSumoInteraction::handleLowerMsg(cMessage* msg)
 }
 
 
+// simulate packet loss in application layer
+bool ApplVSumoInteraction::dropBeacon(double time, std::string vehicle, double plr)
+{
+    if(simTime().dbl() >= time)
+    {
+        // vehicle == "" --> drop beacon in all vehicles
+        // vehicle == SUMOvID --> drop beacon only in specified vehicle
+        if (vehicle == "" || vehicle == SUMOvID)
+        {
+            // random number in [0,1)
+            double p = dblrand();
+
+            if( p < (plr/100) )
+                return true;   // drop the beacon
+            else
+                return false;  // keep the beacon
+        }
+        else
+            return false;
+    }
+    else
+        return false;
+}
+
+
 void ApplVSumoInteraction::reportDropToStatistics(Beacon* wsm)
 {
     if(one_vehicle_look_ahead)
@@ -109,18 +134,18 @@ void ApplVSumoInteraction::onBeacon(Beacon* wsm)
     EV << "## " << SUMOvID << " received beacon ..." << endl;
     ApplVBeacon::printBeaconContent(wsm);
 
-    // now pass it down
+    // pass it down
     ApplVPlatoonFormation::onBeacon(wsm);
 
     bool result;
 
     if(one_vehicle_look_ahead)
     {
-        result =  ApplVPlatoonFormation::isBeaconFromLeading(wsm);
+        result = ApplVPlatoonFormation::isBeaconFromLeading(wsm);
     }
     else
     {
-        result =  ApplVPlatoon::isBeaconFromMyPlatoonLeader(wsm);
+        result = ApplVPlatoon::isBeaconFromMyPlatoonLeader(wsm);
     }
 
     // send results to SUMO if result = true
@@ -147,7 +172,6 @@ void ApplVSumoInteraction::onBeacon(Beacon* wsm)
 
 void ApplVSumoInteraction::onData(PlatoonMsg* wsm)
 {
-    // pass it down
     ApplVPlatoonFormation::onData(wsm);
 }
 
@@ -156,31 +180,6 @@ void ApplVSumoInteraction::onData(PlatoonMsg* wsm)
 void ApplVSumoInteraction::handlePositionUpdate(cObject* obj)
 {
     ApplVPlatoonFormation::handlePositionUpdate(obj);
-}
-
-
-// simulate packet loss in application layer
-bool ApplVSumoInteraction::dropBeacon(double time, std::string vehicle, double plr)
-{
-    if(simTime().dbl() >= time)
-    {
-        // vehicle == "" --> drop beacon in all vehicles
-        // vehicle == SUMOvID --> drop beacon only in specified vehicle
-        if (vehicle == "" || vehicle == SUMOvID)
-        {
-            // random number in [0,1)
-            double p = dblrand();
-
-            if( p < (plr/100) )
-                return true;   // drop the beacon
-            else
-                return false;  // keep the beacon
-        }
-        else
-            return false;
-    }
-    else
-        return false;
 }
 
 

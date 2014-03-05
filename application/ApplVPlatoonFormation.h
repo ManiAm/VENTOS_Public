@@ -25,9 +25,6 @@ class ApplVPlatoonFormation : public ApplVPlatoon
 
 		void FSMchangeState();
 
-        bool isBeaconFromLeading(Beacon*);
-        double getGap(std::string);
-
 	private:
         // NED variables
         bool platoonFormation;
