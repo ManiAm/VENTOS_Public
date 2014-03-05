@@ -80,6 +80,9 @@ void ApplVBase::sendWSM(Beacon* wsm)
 
 bool ApplVBase::isCACC()
 {
+    // todo: correct this!
+    return true;
+
     if(SUMOvType == "TypeCACC" || SUMOvType == "TypeCACC0" || SUMOvType == "TypeCACC1" || SUMOvType == "TypeCACC2")
         return true;
     else

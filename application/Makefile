@@ -40,14 +40,15 @@ O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 OBJS = \
     $O/ApplVBase.o \
     $O/ApplVPlatoon.o \
+    $O/ApplVPlatoonFormation.o \
     $O/ApplVBeacon.o \
     $O/TraCI_Extend.o \
     $O/Statistics.o \
     $O/Warmup.o \
     $O/Mac1609_4_Mod.o \
     $O/TraCI_App.o \
-    $O/ApplVBeaconPlatoonLeader.o \
     $O/TraCIColor.o \
+    $O/ApplVSumoInteraction.o \
     $O/AddVehicle.o \
     $O/SpeedProfile.o
 
@@ -247,10 +248,10 @@ $O/ApplVBeacon.o: ApplVBeacon.cc \
 	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
 	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
 	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
-$O/ApplVBeaconPlatoonLeader.o: ApplVBeaconPlatoonLeader.cc \
+$O/ApplVPlatoon.o: ApplVPlatoon.cc \
 	ApplVBase.h \
 	ApplVBeacon.h \
-	ApplVBeaconPlatoonLeader.h \
+	ApplVPlatoon.h \
 	ExtraClasses.h \
 	TraCI_Extend.h \
 	msg/Messages_m.h \
@@ -285,11 +286,51 @@ $O/ApplVBeaconPlatoonLeader.o: ApplVBeaconPlatoonLeader.cc \
 	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
 	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
 	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
-$O/ApplVPlatoon.o: ApplVPlatoon.cc \
+$O/ApplVPlatoonFormation.o: ApplVPlatoonFormation.cc \
 	ApplVBase.h \
 	ApplVBeacon.h \
-	ApplVBeaconPlatoonLeader.h \
 	ApplVPlatoon.h \
+	ApplVPlatoonFormation.h \
+	ExtraClasses.h \
+	TraCI_Extend.h \
+	msg/Messages_m.h \
+	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
+	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
+	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
+	$(VEINS_PROJ)/src/base/messages/MacPkt_m.h \
+	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
+	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
+	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
+	$(VEINS_PROJ)/src/base/modules/BaseMobility.h \
+	$(VEINS_PROJ)/src/base/modules/BaseModule.h \
+	$(VEINS_PROJ)/src/base/modules/BaseWorldUtility.h \
+	$(VEINS_PROJ)/src/base/modules/BatteryAccess.h \
+	$(VEINS_PROJ)/src/base/utils/Coord.h \
+	$(VEINS_PROJ)/src/base/utils/FWMath.h \
+	$(VEINS_PROJ)/src/base/utils/FindModule.h \
+	$(VEINS_PROJ)/src/base/utils/HostState.h \
+	$(VEINS_PROJ)/src/base/utils/MiXiMDefs.h \
+	$(VEINS_PROJ)/src/base/utils/Move.h \
+	$(VEINS_PROJ)/src/base/utils/NetwToMacControlInfo.h \
+	$(VEINS_PROJ)/src/base/utils/PassedMessage.h \
+	$(VEINS_PROJ)/src/base/utils/SimpleAddress.h \
+	$(VEINS_PROJ)/src/base/utils/miximkerneldefs.h \
+	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
+	$(VEINS_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
+	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
+	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
+	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
+	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
+$O/ApplVSumoInteraction.o: ApplVSumoInteraction.cc \
+	ApplVBase.h \
+	ApplVBeacon.h \
+	ApplVPlatoon.h \
+	ApplVPlatoonFormation.h \
+	ApplVSumoInteraction.h \
 	ExtraClasses.h \
 	TraCI_Extend.h \
 	msg/Messages_m.h \

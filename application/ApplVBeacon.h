@@ -19,14 +19,6 @@ class ApplVBeacon : public ApplVBase
         int beaconLengthBits;
         int beaconPriority;
 
-        // NED variables (packet loss ratio)
-        double droppT;
-        std::string droppV;
-        double plr;
-
-        // NED variable
-        bool modeSwitch;
-
         // Class variables
         simtime_t individualOffset;
         cMessage* sendBeaconEvt;
@@ -40,10 +32,6 @@ class ApplVBeacon : public ApplVBase
 
 		Beacon* prepareBeacon();
         void printBeaconContent(Beacon*);
-        bool dropBeacon(double, std::string, double);
-
-        bool isBeaconFromLeading(Beacon*);
-        double getGap(std::string);
 };
 
 #endif
