@@ -154,7 +154,7 @@ It will ask your username/password, and then receives a copy of the project.
 Install SUMO
 ------------
 
-Follow the instructions in Sumo repository.
+Follow the instructions in SUMOm repository, here "https://github.com/ManiAm/SUMOm"
 
 
 Running the Project
