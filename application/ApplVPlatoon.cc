@@ -164,7 +164,7 @@ bool ApplVPlatoon::isBeaconFromLeading(Beacon* wsm)
     // subtract the length of the leading vehicle from dist
     dist = dist - manager->commandGetVehicleLength(vleaderID);
 
-    // use our sonar to compute the gap
+    // use our sonar to get the gap
     double gap = getGap(vleaderID);
 
     EV << "my coord (x,y): " << cord.x << "," << cord.y << std::endl;

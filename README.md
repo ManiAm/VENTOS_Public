@@ -1,13 +1,27 @@
 VENTOS
 ======
 
-VENTOS (VEhicular NeTwork Open Simulator) is a novel integrated open-source simulator for studying traffic flows in vehicular ad-hoc networks. VENTOS is the main tool in C3PO research. More information here: "http://www.ece.ucdavis.edu/rubinet/projects/c3po.html". This project uses the following softwares and packages:
+
+VENTOS (VEhicular NeTwork Open Simulator) is an integrated C++ simulator for studding traffic flows in Vehicular Ad-hoc Networks (VANETs). VENTOS is the main tool in C3PO research. More information here: "http://www.ece.ucdavis.edu/rubinet/projects/c3po.html". Some of its features are listed below:
+
+* car-following models specifically for manual driving, ACC and CACC
+* mode switch between ACC, CACC
+* study the local/string stability in a platoon
+* study the effect of Packet Loss Ratio (PLR) on string stability
+* creating different platoon formation (join, leave, merge, etc)
+* lane-changing models in multi-lane scenarios
+* simulation of mix traffic scenarios (cars, trucks, etc)
+* testing different speed profiles
+* IEEE 802.11p protocol for V2V and I2V communications
+* physical-layer modeling based on MiXiM frameworkless
+
+VENTOS is made up of many different modules including:
 
 **OMNET++:** OMNET++ is a network simulator, and is used for detailed packet-level simulations.
 
 **Veins framework:** We used Veins to connect SUMO to OMNET++ using TraCI interface, as well as using IEEE 802.11p protocol in data-link layer.
 
-**SUMO:** SUMO is an open source, microscopic, continuous-space, discrete-time road traffic simulator, developed at German Aerospace Center. We implemented multiple car following models in SUMO.
+**Simulation of Urban Mobility (SUMO):** SUMO is an open source, microscopic, continuous-space, discrete-time road traffic simulator, developed at German Aerospace Center. We implemented multiple car following models in SUMO.
 
 
 Install OMNET++

@@ -112,19 +112,7 @@ To be able to run C3PO project, you should make some modifications in Veins sour
 
 **Step 1:** In the IDE, open Veins project and go to src/modules/mobility/traci/TraCIScenarioManager.h file. Find 'void executeOneTimestep()', and then change it to virtual void executeOneTimestep();
 
-**Step 2:** go to src/modules/mobility/traci/TraCIScenarioManager.cc and find method 'init_traci()'. In the body of the method, find the if statement and change it from 
-
-		if ((apiVersion == 3) || (apiVersion == 5)) {
-			MYDEBUG << "TraCI server \"" << serverVersion << "\" reports API version " << apiVersion << endl;
-		}
-
-to
-
-		if ((apiVersion == 3) || (apiVersion == 5) || (apiVersion == 6) || (apiVersion == 7) ) {
-			MYDEBUG << "TraCI server \"" << serverVersion << "\" reports API version " << apiVersion << endl;
-		}
-
-**Step 3:** [optional] comment the MYDEBUG line in TraCIScenarioManager::receiveTraCIMessage() and also TraCIScenarioManager::sendTraCIMessage to make the output console less messy :)
+**Step 2:** [optional] comment the MYDEBUG line in TraCIScenarioManager::receiveTraCIMessage() and also TraCIScenarioManager::sendTraCIMessage to make the output console less messy :)
 
 After these modifications, build the Veins project again. Build is done much faster this time!
 

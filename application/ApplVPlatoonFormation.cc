@@ -20,6 +20,15 @@ void ApplVPlatoonFormation::initialize(int stage)
         dataOnSch = par("dataOnSch").boolValue();
         dataPriority = par("dataPriority").longValue();
 
+        // only if platoonFormation is on
+        // otherwise, ApplVPlatoon will initialize these accordingly
+        if( platoonFormation )
+        {
+            myPlatoonDepth = -1;
+            platoonID = "";
+            platoonSize = -1;
+        }
+
         vehicleState = state_idle;
 
         TIMER1 = new cMessage("timer_wait_for_beacon_from_leading", timer_wait_for_beacon_from_leading);
@@ -166,12 +175,13 @@ void ApplVPlatoonFormation::onData(PlatoonMsg* wsm)
                 ++platoonSize;
 
                 // send CHANGE_Tg
-                // todo: make it dynamic
-                double newTg = 0.55;
-                PlatoonMsg* dataMsg2 = prepareData("broadcast", CHANGE_Tg, platoonID, newTg);
-                printDataContent(dataMsg2);
-                sendDelayedDown(dataMsg2,individualOffset);
-                EV << "### " << SUMOvID << ": sent CHANGE_Tg with value " << newTg << endl;
+                if( platoonSize > floor(maxPlatoonSize / 2) )
+                {
+                    PlatoonMsg* dataMsg2 = prepareData("broadcast", CHANGE_Tg, platoonID, 0.6);
+                    printDataContent(dataMsg2);
+                    sendDelayedDown(dataMsg2,individualOffset);
+                    EV << "### " << SUMOvID << ": sent CHANGE_Tg with value " << 0.6 << endl;
+                }
             }
         }
     }

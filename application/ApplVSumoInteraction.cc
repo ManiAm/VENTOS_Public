@@ -87,7 +87,7 @@ void ApplVSumoInteraction::reportDropToStatistics(Beacon* wsm)
 {
     if(one_vehicle_look_ahead)
     {
-        bool result =  ApplVPlatoonFormation::isBeaconFromLeading(wsm);
+        bool result =  ApplVPlatoon::isBeaconFromLeading(wsm);
 
         if(result)
         {
@@ -141,7 +141,7 @@ void ApplVSumoInteraction::onBeacon(Beacon* wsm)
 
     if(one_vehicle_look_ahead)
     {
-        result = ApplVPlatoonFormation::isBeaconFromLeading(wsm);
+        result = ApplVPlatoon::isBeaconFromLeading(wsm);
     }
     else
     {
