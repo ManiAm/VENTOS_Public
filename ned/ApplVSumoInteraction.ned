@@ -10,5 +10,6 @@ simple ApplVSumoInteraction extends ApplVPlatoonFormation
         string droppV = default("");
         double plr = default(0);
         
+        bool SUMOdebug = default(false);
         bool modeSwitch = default(true);
 }

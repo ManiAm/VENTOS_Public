@@ -696,12 +696,12 @@ void TraCI_Extend::commandSetPreceding(std::string nodeId, std::string value)
 }
 
 
-void TraCI_Extend::commandSetPlatoonLeader(std::string nodeId, std::string value)
+void TraCI_Extend::commandSetDebug(std::string nodeId, bool value)
 {
     uint8_t variableId = 0x16;
-    uint8_t variableType = TYPE_STRING;
+    uint8_t variableType = TYPE_INTEGER;
 
-    TraCIBuffer buf = queryTraCI(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
+    TraCIBuffer buf = queryTraCI(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << (int)value);
     ASSERT(buf.eof());
 }
 

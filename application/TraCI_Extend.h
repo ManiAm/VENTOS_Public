@@ -66,7 +66,7 @@ class TraCI_Extend : public TraCIScenarioManager
         void commandSetTg(std::string, double);
         void commandAddVehicleN(std::string, std::string, std::string, int32_t);
         void commandSetPreceding(std::string, std::string);         // new defined command
-        void commandSetPlatoonLeader(std::string, std::string);    // new defined command
+        void commandSetDebug(std::string, bool);                    // new defined command
         void commandSetModeSwitch(std::string, bool);              // new defined command
         void commandSetVehicleColor(std::string nodeId, TraCIColor& color);
 

@@ -16,8 +16,12 @@ void ApplVSumoInteraction::initialize(int stage)
 
         // NED variable
         modeSwitch = par("modeSwitch").boolValue();
+        SUMOdebug = par("SUMOdebug").boolValue();
 
-        // set modeSwitch parameter in Sumo
+        // set debug in SUMO
+        manager->commandSetDebug(SUMOvID, SUMOdebug);
+
+        // set modeSwitch in SUMO
         manager->commandSetModeSwitch(SUMOvID, modeSwitch);
 	}
 }

@@ -18,6 +18,7 @@ class ApplVSumoInteraction : public ApplVPlatoonFormation
         double plr;
 
         // NED variable
+        bool SUMOdebug;
         bool modeSwitch;
 
         // Methods
