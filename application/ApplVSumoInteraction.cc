@@ -5,7 +5,7 @@ Define_Module(ApplVSumoInteraction);
 
 void ApplVSumoInteraction::initialize(int stage)
 {
-    ApplVPlatoonFormation::initialize(stage);
+    ApplVPlatoonFormation2::initialize(stage);
 
 	if (stage == 0)
 	{
@@ -129,7 +129,7 @@ void ApplVSumoInteraction::reportDropToStatistics(Beacon* wsm)
 
 void ApplVSumoInteraction::handleSelfMsg(cMessage* msg)
 {
-    ApplVPlatoonFormation::handleSelfMsg(msg);
+    ApplVPlatoonFormation2::handleSelfMsg(msg);
 }
 
 
@@ -139,7 +139,7 @@ void ApplVSumoInteraction::onBeacon(Beacon* wsm)
     ApplVBeacon::printBeaconContent(wsm);
 
     // pass it down
-    ApplVPlatoonFormation::onBeacon(wsm);
+    ApplVPlatoonFormation2::onBeacon(wsm);
 
     bool result;
 
@@ -190,14 +190,14 @@ void ApplVSumoInteraction::onBeacon(Beacon* wsm)
 
 void ApplVSumoInteraction::onData(PlatoonMsg* wsm)
 {
-    ApplVPlatoonFormation::onData(wsm);
+    ApplVPlatoonFormation2::onData(wsm);
 }
 
 
 // is called, every time the position of vehicle changes
 void ApplVSumoInteraction::handlePositionUpdate(cObject* obj)
 {
-    ApplVPlatoonFormation::handlePositionUpdate(obj);
+    ApplVPlatoonFormation2::handlePositionUpdate(obj);
 }
 
 

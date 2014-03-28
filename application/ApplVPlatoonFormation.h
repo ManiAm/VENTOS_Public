@@ -1,6 +1,6 @@
 
-#ifndef ApplVPlatoon_H
-#define ApplVPlatoon_H
+#ifndef ApplVPlatoonFORMATION_H
+#define ApplVPlatoonFORMATION_H
 
 #include "ApplVPlatoon.h"
 
@@ -25,7 +25,7 @@ class ApplVPlatoonFormation : public ApplVPlatoon
 
 		void FSMchangeState();
 
-	private:
+	protected:
         // NED variables
         bool platoonFormation;
         int maxPlatoonSize;
