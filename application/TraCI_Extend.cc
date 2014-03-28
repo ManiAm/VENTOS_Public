@@ -174,6 +174,12 @@ double TraCI_Extend::commandGetVehicleLength(std::string nodeId)
 }
 
 
+double TraCI_Extend::commandGetVehicleMinGap(std::string nodeId)
+{
+    return genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_MINGAP, RESPONSE_GET_VEHICLE_VARIABLE);
+}
+
+
 double TraCI_Extend::commandGetVehicleMaxDecel(std::string nodeId)
 {
     return genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_DECEL, RESPONSE_GET_VEHICLE_VARIABLE);
@@ -186,19 +192,58 @@ Coord TraCI_Extend::commandGetVehiclePos(std::string nodeId)
 }
 
 
-// todo: get leader information from sumo using new traCI command (VAR_LEADER)
-// CMD_GET_VEHICLE_VARIABLE
-// check, maybe we can get the gap to leading vehicle as well.
-// if yes, remove the getGap method in ApplVBeacon as well!
-std::string TraCI_Extend::commandGetLeading(std::string nodeId)
+std::vector<std::string> TraCI_Extend::commandGetLeading(std::string nodeId, double look_ahead_distance)
 {
+    uint8_t requestTypeId = TYPE_DOUBLE;
+    uint8_t resultTypeId = TYPE_COMPOUND;
+    uint8_t variableId = 0x68;
+    uint8_t responseId = RESPONSE_GET_VEHICLE_VARIABLE;
 
-    return "";
+    TraCIBuffer buf = queryTraCI(CMD_GET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << requestTypeId << look_ahead_distance);
+
+    uint8_t cmdLength; buf >> cmdLength;
+    if (cmdLength == 0) {
+        uint32_t cmdLengthX;
+        buf >> cmdLengthX;
+    }
+    uint8_t commandId_r; buf >> commandId_r;
+    ASSERT(commandId_r == responseId);
+    uint8_t varId; buf >> varId;
+    ASSERT(varId == variableId);
+    std::string objectId_r; buf >> objectId_r;
+    ASSERT(objectId_r == nodeId);
+
+    uint8_t resType_r; buf >> resType_r;
+    ASSERT(resType_r == resultTypeId);
+    uint32_t count; buf >> count;
+
+    // now we start getting real data that we are looking for
+    std::vector<std::string> res;
+
+    uint8_t dType; buf >> dType;
+    std::string id; buf >> id;
+    res.push_back(id);
+
+    uint8_t dType2; buf >> dType2;
+    double len; buf >> len;
+
+    // the distance does not include minGap
+    // we will add minGap to the len
+    len = len + commandGetVehicleMinGap(nodeId);
+
+    // now convert len to string
+    std::ostringstream s;
+    s << len;
+    res.push_back(s.str());
+
+    ASSERT(buf.eof());
+
+    return res;
 }
 
 
-// my own method!
-std::string TraCI_Extend::commandGetLeading_M(std::string nodeId)
+// my own method! [deprecated!]
+std::string TraCI_Extend::commandGetLeading_old(std::string nodeId)
 {
     // get the lane id (like 1to2_0)
     std::string laneID = commandGetLaneId(nodeId);
@@ -260,7 +305,62 @@ std::list<std::string> TraCI_Extend::commandGetLoopDetectorVehicleList(std::stri
 // return value is complex
 std::list<std::string> TraCI_Extend::commandGetLoopDetectorVehicleData(std::string loopId)
 {
-    return genericGetComplex(CMD_GET_INDUCTIONLOOP_VARIABLE, loopId, 0x17, RESPONSE_GET_INDUCTIONLOOP_VARIABLE);
+    uint8_t resultTypeId = TYPE_COMPOUND;   // note: type is compound!
+    uint8_t variableId = 0x17;
+    uint8_t responseId = RESPONSE_GET_INDUCTIONLOOP_VARIABLE;
+
+    TraCIBuffer buf = queryTraCI(CMD_GET_INDUCTIONLOOP_VARIABLE, TraCIBuffer() << variableId << loopId);
+
+    uint8_t cmdLength; buf >> cmdLength;
+    if (cmdLength == 0) {
+        uint32_t cmdLengthX;
+        buf >> cmdLengthX;
+    }
+    uint8_t commandId_r; buf >> commandId_r;
+    ASSERT(commandId_r == responseId);
+    uint8_t varId; buf >> varId;
+    ASSERT(varId == variableId);
+    std::string objectId_r; buf >> objectId_r;
+    ASSERT(objectId_r == loopId);
+
+    uint8_t resType_r; buf >> resType_r;
+    ASSERT(resType_r == resultTypeId);
+    uint32_t count; buf >> count;
+
+    // now we start getting real data that we are looking for
+    std::list<std::string> res;
+
+    // res.push_back(id);
+
+    for (uint32_t i = 0; i < count; i++)
+    {
+        uint8_t dType; buf >> dType;
+        std::string id; buf >> id;
+        if ( buf.eof() )
+            break;
+        else
+            EV << "-- " << id;
+
+        uint8_t dType2; buf >> dType2;
+        double len; buf >> len;
+        EV << "-- " << len;
+
+        uint8_t dType3; buf >> dType3;
+        double entryTime; buf >> entryTime;
+        EV << "-- " << entryTime;
+
+        uint8_t dType4; buf >> dType4;
+        double leaveTime; buf >> leaveTime;
+        EV << "-- " << leaveTime;
+
+        uint8_t dType5; buf >> dType5;
+        std::string vehicleTypeID; buf >> vehicleTypeID;
+        EV << "-- " << vehicleTypeID;
+    }
+
+    //  ASSERT(buf.eof());
+
+    return res;
 }
 
 
@@ -313,6 +413,7 @@ std::list<std::string> TraCI_Extend::commandGetVehiclesOnLane(std::string laneId
 // ####################
 // CMD_GET_SIM_VARIABLE
 // ####################
+
 double* TraCI_Extend::commandGetNetworkBoundary()
 {
     // query road network boundaries
@@ -399,7 +500,6 @@ void TraCI_Extend::commandSubscribeSimulation()
                                                                                         << variable4
                                                                                         << variable5
                                                                                         );
-
     processSubcriptionResult(buf);
 
     ASSERT(buf.eof());
@@ -419,7 +519,6 @@ void TraCI_Extend::commandSubscribeVehicle()
                                                                                             << variableNumber
                                                                                             << variable1
                                                                                             );
-
     processSubcriptionResult(buf);
 
     ASSERT(buf.eof());
@@ -488,65 +587,6 @@ Coord TraCI_Extend::genericGetCoordv2(uint8_t commandId, std::string objectId, u
     ASSERT(buf.eof());
 
     return Coord(x, y);
-}
-
-
-std::list<std::string> TraCI_Extend::genericGetComplex(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId)
-{
-    uint8_t resultTypeId = TYPE_COMPOUND;   // note: type is compound!
-
-    TraCIBuffer buf = queryTraCI(commandId, TraCIBuffer() << variableId << objectId);
-
-    uint8_t cmdLength; buf >> cmdLength;
-    if (cmdLength == 0) {
-        uint32_t cmdLengthX;
-        buf >> cmdLengthX;
-    }
-    uint8_t commandId_r; buf >> commandId_r;
-    ASSERT(commandId_r == responseId);
-    uint8_t varId; buf >> varId;
-    ASSERT(varId == variableId);
-    std::string objectId_r; buf >> objectId_r;
-    ASSERT(objectId_r == objectId);
-
-    uint8_t resType_r; buf >> resType_r;
-    ASSERT(resType_r == resultTypeId);
-    uint32_t count; buf >> count;
-
-    // now we start getting real data that we are looking for
-    std::list<std::string> res;
-
-    // res.push_back(id);
-
-    for (uint32_t i = 0; i < count; i++)
-    {
-        uint8_t dType; buf >> dType;
-        std::string id; buf >> id;
-        if ( buf.eof() )
-            break;
-        else
-            EV << "-- " << id;
-
-        uint8_t dType2; buf >> dType2;
-        double len; buf >> len;
-        EV << "-- " << len;
-
-        uint8_t dType3; buf >> dType3;
-        double entryTime; buf >> entryTime;
-        EV << "-- " << entryTime;
-
-        uint8_t dType4; buf >> dType4;
-        double leaveTime; buf >> leaveTime;
-        EV << "-- " << leaveTime;
-
-        uint8_t dType5; buf >> dType5;
-        std::string vehicleTypeID; buf >> vehicleTypeID;
-        EV << "-- " << vehicleTypeID;
-    }
-
-  //  ASSERT(buf.eof());
-
-    return res;
 }
 
 

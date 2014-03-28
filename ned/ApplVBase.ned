@@ -10,6 +10,7 @@ simple ApplVBase like IBaseApplLayer
         
         int headerLength = default(88bit) @unit(bit); //header length of the application        
         bool debug = default(false); //whether to print debug output
+        double sonarDist = default(900);
 
     gates:
         input lowerLayerIn;    // from mac layer

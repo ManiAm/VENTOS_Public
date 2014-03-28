@@ -49,6 +49,7 @@ class ApplVBase : public BaseApplLayer
         TraCIMobility* traci;
         mutable TraCI_Extend* manager;
         AnnotationManager* annotations;
+        double sonarDist;
 
         // Class variables
         int myId;

@@ -28,7 +28,6 @@ class ApplVPlatoon : public ApplVBeacon
 
         bool isBeaconFromMyPlatoonLeader(Beacon*);
         bool isBeaconFromLeading(Beacon*);
-        double getGap(std::string);
 };
 
 #endif

@@ -117,23 +117,13 @@ bool ApplVPlatoon::isBeaconFromMyPlatoonLeader(Beacon* wsm)
 }
 
 
-// get the gap to the leading vehicle using sonar
-double ApplVPlatoon::getGap(std::string vleaderID)
-{
-    if(vleaderID == "")
-        return -1;
-
-    double gap = manager->commandGetLanePosition(vleaderID) - manager->commandGetLanePosition(SUMOvID) - manager->commandGetVehicleLength(vleaderID);
-
-    return gap;
-}
-
-
 bool ApplVPlatoon::isBeaconFromLeading(Beacon* wsm)
 {
     // step 1: check if a leading vehicle is present
 
-    std::string vleaderID = manager->commandGetLeading_M(SUMOvID);
+    std::vector<std::string> vleaderIDnew = manager->commandGetLeading(SUMOvID, sonarDist);
+    std::string vleaderID = vleaderIDnew[0];
+    double gap = atof( vleaderIDnew[1].c_str() );
 
     if(vleaderID == "")
     {
@@ -163,9 +153,6 @@ bool ApplVPlatoon::isBeaconFromLeading(Beacon* wsm)
 
     // subtract the length of the leading vehicle from dist
     dist = dist - manager->commandGetVehicleLength(vleaderID);
-
-    // use our sonar to get the gap
-    double gap = getGap(vleaderID);
 
     EV << "my coord (x,y): " << cord.x << "," << cord.y << std::endl;
     EV << "other coord (x,y): " << wsm->getPos().x << "," << wsm->getPos().y << std::endl;

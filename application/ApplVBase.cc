@@ -23,6 +23,8 @@ void ApplVBase::initialize(int stage)
         annotations = AnnotationManagerAccess().getIfExists();
         ASSERT(annotations);
 
+        sonarDist = par("sonarDist").doubleValue();
+
         headerLength = par("headerLength").longValue();
 
         findHost()->subscribe(mobilityStateChangedSignal, this);

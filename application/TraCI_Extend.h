@@ -25,10 +25,11 @@ class TraCI_Extend : public TraCIScenarioManager
         double commandGetVehicleAccel(std::string);
         std::string commandGetVehicleType(std::string);
         double commandGetVehicleLength(std::string);
+        double commandGetVehicleMinGap(std::string);
         double commandGetVehicleMaxDecel(std::string);
         Coord commandGetVehiclePos(std::string);
-        std::string commandGetLeading(std::string);
-        std::string commandGetLeading_M(std::string);
+        std::vector<std::string> commandGetLeading(std::string, double);
+        std::string commandGetLeading_old(std::string);
         uint8_t * commandGetVehicleColor(std::string);
 
         // CMD_GET_INDUCTIONLOOP_VARIABLE
@@ -82,7 +83,6 @@ class TraCI_Extend : public TraCIScenarioManager
         // generic methods for getters
         uint32_t genericGetInt32(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
         Coord genericGetCoordv2(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
-        std::list<std::string> genericGetComplex(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
         uint8_t* genericGetArrayUnsignedInt(uint8_t, std::string, uint8_t, uint8_t);
 };
 

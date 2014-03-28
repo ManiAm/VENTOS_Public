@@ -210,7 +210,8 @@ void ApplVPlatoonFormation::FSMchangeState()
         EV << "### " << SUMOvID << ": current vehicle status is idle." << endl;
 
         // check for leading vehicle
-        std::string vleaderID = manager->commandGetLeading_M(SUMOvID);
+        std::vector<std::string> res = manager->commandGetLeading(SUMOvID, sonarDist);
+        std::string vleaderID = res[0];
 
         if(vleaderID == "")
         {
@@ -263,12 +264,6 @@ void ApplVPlatoonFormation::FSMchangeState()
         manager->commandSetTg(SUMOvID, 0.55);
         platoonID = myLeadingBeacon->getPlatoonID();
         myPlatoonDepth = myLeadingBeacon->getPlatoonDepth() + 1;
-
-        if(SUMOvID == "CACC3")
-        {
-            EV << "hello";
-        }
-
 
         TraCIColor newColor = TraCIColor(pickColor[myPlatoonDepth], pickColor[myPlatoonDepth], 255, 255);
         manager->commandSetVehicleColor(SUMOvID, newColor);
