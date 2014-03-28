@@ -139,20 +139,34 @@ void ApplVSumoInteraction::onBeacon(Beacon* wsm)
 
     bool result;
 
-    if(one_vehicle_look_ahead)
+    // I am platoon leader
+    // get data from leading vehicle
+    if(myPlatoonDepth == 0)
     {
         result = ApplVPlatoon::isBeaconFromLeading(wsm);
     }
+    // I am platoon member
     else
     {
-        result = ApplVPlatoon::isBeaconFromMyPlatoonLeader(wsm);
+        // one_vehicle_look_ahead = on
+        // get data from leading vehicle
+        if(one_vehicle_look_ahead)
+        {
+            result = ApplVPlatoon::isBeaconFromLeading(wsm);
+        }
+        // one_vehicle_look_ahead = off
+        // get data from platoon leader
+        else
+        {
+            result = ApplVPlatoon::isBeaconFromMyPlatoonLeader(wsm);
+        }
     }
 
     // send results to SUMO if result = true
     if(result)
     {
-        char buffer [100];
-        sprintf (buffer, "%f#%f#%f#%f", (double)wsm->getSpeed(), (double)wsm->getAccel(), (double)wsm->getMaxDecel(), (simTime().dbl())*1000);
+        char buffer [200];
+        sprintf (buffer, "%f#%f#%f#%f#%s", (double)wsm->getSpeed(), (double)wsm->getAccel(), (double)wsm->getMaxDecel(), (simTime().dbl())*1000, wsm->getSender() );
         manager->commandSetPreceding(SUMOvID, buffer);
 
         // a beacon from the leading vehicle or platoon leader is received
