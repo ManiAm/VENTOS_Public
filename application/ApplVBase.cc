@@ -23,6 +23,8 @@ void ApplVBase::initialize(int stage)
         annotations = AnnotationManagerAccess().getIfExists();
         ASSERT(annotations);
 
+        VANETenabled = par("VANETenabled").boolValue();
+
         sonarDist = par("sonarDist").doubleValue();
 
         headerLength = par("headerLength").longValue();
@@ -80,11 +82,8 @@ void ApplVBase::sendWSM(Beacon* wsm)
 }
 
 
-bool ApplVBase::isCACC()
+bool ApplVBase::isCACCvehicle()
 {
-    // todo: correct this!
-    return true;
-
     if(SUMOvType == "TypeCACC" || SUMOvType == "TypeCACC0" || SUMOvType == "TypeCACC1" || SUMOvType == "TypeCACC2")
         return true;
     else

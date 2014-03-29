@@ -41,7 +41,6 @@ void ApplVPlatoonFormation2::onData(PlatoonMsg* wsm)
     ApplVPlatoonFormation::onData(wsm);
 
 
-
 }
 
 
@@ -61,6 +60,7 @@ void ApplVPlatoonFormation2::FSMchangeState()
 
 void ApplVPlatoonFormation2::finish()
 {
+    ApplVPlatoonFormation::finish();
 
 }
 

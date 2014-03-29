@@ -2,9 +2,9 @@
 #ifndef ApplVSUMOINTERACTION_H
 #define ApplVSUMOINTERACTION_H
 
-#include "ApplVPlatoonFormation2.h"
+#include "ApplVPlatoonFormation3.h"
 
-class ApplVSumoInteraction : public ApplVPlatoonFormation2
+class ApplVSumoInteraction : public ApplVPlatoonFormation3
 {
 	public:
         ~ApplVSumoInteraction();

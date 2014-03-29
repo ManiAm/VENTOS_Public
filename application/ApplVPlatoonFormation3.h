@@ -1,16 +1,16 @@
 
-#ifndef ApplVPlatoonFORMATION2_H
-#define ApplVPlatoonFORMATION2_H
+#ifndef ApplVPlatoonFORMATION3_H
+#define ApplVPlatoonFORMATION3_H
 
-// platoon leave
+// platoon merge
 
-#include "ApplVPlatoonFormation.h"
+#include "ApplVPlatoonFormation2.h"
 
 
-class ApplVPlatoonFormation2 : public ApplVPlatoonFormation
+class ApplVPlatoonFormation3 : public ApplVPlatoonFormation2
 {
 	public:
-        ~ApplVPlatoonFormation2();
+        ~ApplVPlatoonFormation3();
 		virtual void initialize(int stage);
         virtual void finish();
 

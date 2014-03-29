@@ -56,6 +56,10 @@ void VehicleAdd::Add()
     {
         Scenario2();
     }
+    else if(mode == 3)
+    {
+        Scenario3();
+    }
 }
 
 
@@ -94,6 +98,21 @@ void VehicleAdd::Scenario2()
         //    manager->commandAddVehicleN(vehicleName,"TypeCACC2","route1",depart);
             manager->commandAddVehicleN(vehicleName,"TypeACC","route1",depart);
         }
+    }
+}
+
+
+void VehicleAdd::Scenario3()
+{
+    int depart = 0;
+
+    for(int i=1; i<=totalVehicles; i++)
+    {
+        char vehicleName[10];
+        sprintf(vehicleName, "CACC%d", i);
+        depart = depart + 10000;
+
+        manager->commandAddVehicleN(vehicleName,"TypeKrauss","route1",depart);
     }
 }
 

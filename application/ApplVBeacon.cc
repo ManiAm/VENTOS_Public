@@ -24,7 +24,7 @@ void ApplVBeacon::initialize(int stage)
         individualOffset = dblrand() * maxOffset;
 
         sendBeaconEvt = new cMessage("beacon evt", SEND_BEACON_EVT);
-        if (sendBeacons && isCACC() )
+        if (sendBeacons && VANETenabled )
         {
             scheduleAt(simTime() + offSet, sendBeaconEvt);
         }
@@ -60,9 +60,9 @@ void ApplVBeacon::handleSelfMsg(cMessage* msg)
 
 Beacon*  ApplVBeacon::prepareBeacon()
 {
-    if ( !isCACC() )
+    if (!VANETenabled)
     {
-        error("Only CACC vehicles can send beacon!");
+        error("Only VANETenabled vehicles can send beacon!");
     }
 
     Beacon* wsm = new Beacon("beacon");

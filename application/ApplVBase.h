@@ -40,7 +40,7 @@ class ApplVBase : public BaseApplLayer
 		virtual void handlePositionUpdate(cObject* obj);
 
 		virtual void sendWSM(Beacon * wsm);
-		bool isCACC();
+		bool isCACCvehicle();
 
 	protected:
 		// NED variables
@@ -49,6 +49,7 @@ class ApplVBase : public BaseApplLayer
         TraCIMobility* traci;
         mutable TraCI_Extend* manager;
         AnnotationManager* annotations;
+        bool VANETenabled;
         double sonarDist;
 
         // Class variables

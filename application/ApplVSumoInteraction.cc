@@ -5,7 +5,7 @@ Define_Module(ApplVSumoInteraction);
 
 void ApplVSumoInteraction::initialize(int stage)
 {
-    ApplVPlatoonFormation2::initialize(stage);
+    ApplVPlatoonFormation3::initialize(stage);
 
 	if (stage == 0)
 	{
@@ -15,8 +15,8 @@ void ApplVSumoInteraction::initialize(int stage)
         plr = par("plr").doubleValue();
 
         // NED variable
-        modeSwitch = par("modeSwitch").boolValue();
         SUMOdebug = par("SUMOdebug").boolValue();
+        modeSwitch = par("modeSwitch").boolValue();
 
         // set debug in SUMO
         manager->commandSetDebug(SUMOvID, SUMOdebug);
@@ -36,7 +36,7 @@ void ApplVSumoInteraction::handleLowerMsg(cMessage* msg)
     if (std::string(wsm->getName()) == "beacon")
     {
         // vehicles other than CACC should ignore the received beacon
-        if( !isCACC() )
+        if( !VANETenabled )
             return;
 
         Beacon* wsm = dynamic_cast<Beacon*>(msg);
@@ -129,7 +129,7 @@ void ApplVSumoInteraction::reportDropToStatistics(Beacon* wsm)
 
 void ApplVSumoInteraction::handleSelfMsg(cMessage* msg)
 {
-    ApplVPlatoonFormation2::handleSelfMsg(msg);
+    ApplVPlatoonFormation3::handleSelfMsg(msg);
 }
 
 
@@ -139,7 +139,7 @@ void ApplVSumoInteraction::onBeacon(Beacon* wsm)
     ApplVBeacon::printBeaconContent(wsm);
 
     // pass it down
-    ApplVPlatoonFormation2::onBeacon(wsm);
+    ApplVPlatoonFormation3::onBeacon(wsm);
 
     bool result;
 
@@ -167,7 +167,7 @@ void ApplVSumoInteraction::onBeacon(Beacon* wsm)
     }
 
     // send results to SUMO if result = true
-    if(result)
+    if( result && isCACCvehicle() )
     {
         char buffer [200];
         sprintf (buffer, "%f#%f#%f#%f#%s", (double)wsm->getSpeed(), (double)wsm->getAccel(), (double)wsm->getMaxDecel(), (simTime().dbl())*1000, wsm->getSender() );
@@ -190,20 +190,20 @@ void ApplVSumoInteraction::onBeacon(Beacon* wsm)
 
 void ApplVSumoInteraction::onData(PlatoonMsg* wsm)
 {
-    ApplVPlatoonFormation2::onData(wsm);
+    ApplVPlatoonFormation3::onData(wsm);
 }
 
 
 // is called, every time the position of vehicle changes
 void ApplVSumoInteraction::handlePositionUpdate(cObject* obj)
 {
-    ApplVPlatoonFormation2::handlePositionUpdate(obj);
+    ApplVPlatoonFormation3::handlePositionUpdate(obj);
 }
 
 
 void ApplVSumoInteraction::finish()
 {
-
+    ApplVPlatoonFormation3::finish();
 }
 
 

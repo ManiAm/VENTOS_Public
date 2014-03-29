@@ -349,7 +349,7 @@ void ApplVPlatoonFormation::printDataContent(PlatoonMsg* wsm)
 
 void ApplVPlatoonFormation::finish()
 {
-
+    ApplVPlatoon::finish();
 }
 
 

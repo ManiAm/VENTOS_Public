@@ -173,7 +173,7 @@ bool ApplVPlatoon::isBeaconFromLeading(Beacon* wsm)
 
 void ApplVPlatoon::finish()
 {
-
+    ApplVBeacon::finish();
 }
 
 
