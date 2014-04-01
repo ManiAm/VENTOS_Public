@@ -11,6 +11,7 @@
 #include "VehicleAdd.h"
 #include "SpeedProfile.h"
 #include "Warmup.h"
+#include "TrafficLight.h"
 
 
 class TraCI_App : public TraCI_Extend
@@ -35,6 +36,7 @@ class TraCI_App : public TraCI_Extend
         VehicleAdd *AddVehiclePtr;
         SpeedProfile *SpeedProfilePtr;
         Warmup *WarmupPtr;
+        TrafficLight *tlPtr;
 
         // NED variables (GUI tracking)
         bool tracking;

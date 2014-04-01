@@ -1,4 +1,5 @@
-
+#ifndef EXTRA_H
+#define EXTRA_H
 
 class data : public cObject, noncopyable
 {
@@ -86,4 +87,6 @@ class LoopDetector
         this->leaveSpeed = leaveS;
     }
 };
+
+#endif
 

@@ -23,7 +23,7 @@ network Network
         double playgroundSizeX @unit(m); // x size of the area the nodes are in (in meters)
         double playgroundSizeY @unit(m); // y size of the area the nodes are in (in meters)
         double playgroundSizeZ @unit(m); // z size of the area the nodes are in (in meters)
-        @display("bgb=540,200");
+        @display("bgb=540,319");
     submodules:
         obstacles: ObstacleControl {
             @display("p=262,58");
@@ -61,6 +61,10 @@ network Network
         statistics: Statistics {
             parameters:
                 @display("p=49,147;i=block/timer");
+        }
+        trafficLight: TrafficLight {
+            parameters:
+                @display("p=49,246;i=block/broadcast");
         }
 
     connections allowunconnected:

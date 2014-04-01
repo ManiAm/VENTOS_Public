@@ -43,6 +43,12 @@ void TraCI_App::initialize(int stage)
         if(WarmupPtr == NULL)
             error("can not get a pointer to the Warmup module.");
 
+        // get the ptr of the Traffic Light module
+        module = simulation.getSystemModule()->getSubmodule("trafficLight");
+        tlPtr = static_cast<TrafficLight *>(module);
+        if(tlPtr == NULL)
+            error("can not get a pointer to the TrafficLight module.");
+
         terminate = par("terminate").doubleValue();
 
         tracking = par("tracking").boolValue();
@@ -166,6 +172,8 @@ void TraCI_App::executeOneTimestep()
         // we can start speed profiling
         SpeedProfilePtr->Change();
     }
+
+    tlPtr->Execute();
 }
 
 
