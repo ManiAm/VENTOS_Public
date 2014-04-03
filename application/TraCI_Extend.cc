@@ -192,6 +192,12 @@ Coord TraCI_Extend::commandGetVehiclePos(std::string nodeId)
 }
 
 
+uint32_t TraCI_Extend::commandGetLaneIndex(std::string nodeId)
+{
+    return genericGetInt32(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_LANE_INDEX, RESPONSE_GET_VEHICLE_VARIABLE);
+}
+
+
 std::vector<std::string> TraCI_Extend::commandGetLeading(std::string nodeId, double look_ahead_distance)
 {
     uint8_t requestTypeId = TYPE_DOUBLE;
@@ -726,6 +732,71 @@ void TraCI_Extend::commandSetVehicleColor(std::string nodeId, TraCIColor& color)
 
    ASSERT(buf.eof());
  }
+
+
+void TraCI_Extend::commandRemoveVehicle(std::string nodeId, uint8_t reason)
+{
+    uint8_t variableId = REMOVE;
+    uint8_t variableType = TYPE_BYTE;
+
+    TraCIBuffer buf = queryTraCI(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << reason);
+    ASSERT(buf.eof());
+
+    activeVehicleCount--;
+    TraCIScenarioManager::deleteModule(nodeId);
+}
+
+
+void TraCI_Extend::commandStopNodeExtended(std::string nodeId, std::string edgeId, double stopPos, uint8_t laneId, double waitT, uint8_t flag)
+{
+    uint8_t variableId = CMD_STOP;
+    uint8_t variableType = TYPE_COMPOUND;
+    int32_t count = 5;
+    uint8_t edgeIdT = TYPE_STRING;
+    uint8_t stopPosT = TYPE_DOUBLE;
+    uint8_t stopLaneT = TYPE_BYTE;
+    uint8_t durationT = TYPE_INTEGER;
+    uint32_t duration = waitT * 1000;
+    uint8_t flagT = TYPE_BYTE;
+
+    TraCIBuffer buf = queryTraCI(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId
+                                                                                       << variableType << count
+                                                                                       << edgeIdT << edgeId
+                                                                                       << stopPosT << stopPos
+                                                                                       << stopLaneT << laneId
+                                                                                       << durationT << duration
+                                                                                       << flagT << flag
+                                                                                       );
+    ASSERT(buf.eof());
+}
+
+
+void TraCI_Extend::commandSetvClass(std::string nodeId, std::string vClass)
+{
+    uint8_t variableId = VAR_VEHICLECLASS;
+    uint8_t variableType = TYPE_STRING;
+
+    TraCIBuffer buf = queryTraCI(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << vClass);
+    ASSERT(buf.eof());
+}
+
+
+void TraCI_Extend::commandChangeLane(std::string nodeId, uint8_t laneId, double duration)
+{
+    uint8_t variableId = CMD_CHANGELANE;
+    uint8_t variableType = TYPE_COMPOUND;
+    int32_t count = 2;
+    uint8_t laneIdT = TYPE_BYTE;
+    uint8_t durationT = TYPE_INTEGER;
+    uint32_t durationMS = duration * 1000;
+
+    TraCIBuffer buf = queryTraCI(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId
+                                                                                       << variableType << count
+                                                                                       << laneIdT << laneId
+                                                                                       << durationT << durationMS
+                                                                                       );
+    ASSERT(buf.eof());
+}
 
 
 // #####################

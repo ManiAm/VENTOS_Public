@@ -1,6 +1,6 @@
 package c3po.ned;
 
-simple ApplVSumoInteraction extends ApplVPlatoonFormation
+simple ApplVSumoInteraction extends ApplVPlatoonFormation2
 {
     parameters:
         @class(ApplVSumoInteraction);

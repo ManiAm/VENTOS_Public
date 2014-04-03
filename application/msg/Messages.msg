@@ -1,9 +1,12 @@
 
 cplusplus {{
 #include <Coord.h>
+#include <deque> 
+typedef std::deque<std::string> stringQueue;
 }}
 
 class noncobject Coord;
+class noncobject stringQueue;
 
 packet WaveShortMessage
 {
@@ -52,6 +55,8 @@ packet PlatoonMsg extends WaveShortMessage
     int req_res_type;
     string sendingPlatoonID;
     string receivingPlatoonID;
-    double value;
+    double dblValue;
+    string strValue;
+    stringQueue queueValue;    
 };
 

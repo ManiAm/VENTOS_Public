@@ -15,6 +15,8 @@
 
 // cplusplus {{
 #include <Coord.h>
+#include <deque> 
+typedef std::deque<std::string> stringQueue;
 // }}
 
 
@@ -182,7 +184,9 @@ inline void doUnpacking(cCommBuffer *b, Beacon& obj) {obj.parsimUnpack(b);}
  *     int req_res_type;
  *     string sendingPlatoonID;
  *     string receivingPlatoonID;
- *     double value;
+ *     double dblValue;
+ *     string strValue;
+ *     stringQueue queueValue;    
  * };
  * </pre>
  */
@@ -194,7 +198,9 @@ class PlatoonMsg : public ::WaveShortMessage
     int req_res_type_var;
     opp_string sendingPlatoonID_var;
     opp_string receivingPlatoonID_var;
-    double value_var;
+    double dblValue_var;
+    opp_string strValue_var;
+    stringQueue queueValue_var;
 
   private:
     void copy(const PlatoonMsg& other);
@@ -223,8 +229,13 @@ class PlatoonMsg : public ::WaveShortMessage
     virtual void setSendingPlatoonID(const char * sendingPlatoonID);
     virtual const char * getReceivingPlatoonID() const;
     virtual void setReceivingPlatoonID(const char * receivingPlatoonID);
-    virtual double getValue() const;
-    virtual void setValue(double value);
+    virtual double getDblValue() const;
+    virtual void setDblValue(double dblValue);
+    virtual const char * getStrValue() const;
+    virtual void setStrValue(const char * strValue);
+    virtual stringQueue& getQueueValue();
+    virtual const stringQueue& getQueueValue() const {return const_cast<PlatoonMsg*>(this)->getQueueValue();}
+    virtual void setQueueValue(const stringQueue& queueValue);
 };
 
 inline void doPacking(cCommBuffer *b, PlatoonMsg& obj) {obj.parsimPack(b);}

@@ -173,6 +173,7 @@ void ApplVPlatoonFormation::onData(PlatoonMsg* wsm)
                 EV << "### " << SUMOvID << ": sent JOIN_ACCEPT." << endl;
 
                 ++platoonSize;
+                queue.push_back( wsm->getSender() );
 
                 // send CHANGE_Tg
                 if( platoonSize > floor(maxPlatoonSize / 2) )
@@ -190,7 +191,7 @@ void ApplVPlatoonFormation::onData(PlatoonMsg* wsm)
         // check if this is coming from my platoon leader
         if( std::string(wsm->getReceivingPlatoonID()) == platoonID )
         {
-            manager->commandSetTg(SUMOvID, wsm->getValue());
+            manager->commandSetTg(SUMOvID, wsm->getDblValue());
         }
     }
 }
@@ -245,6 +246,7 @@ void ApplVPlatoonFormation::FSMchangeState()
         platoonID = SUMOvID;
         myPlatoonDepth = 0;
         platoonSize = 1;
+        queue.clear();
 
         // nodePtr->getDisplayString().updateWith("i2=status/checkmark,green");
         TraCIColor newColor = TraCIColor::fromTkColor("red");
@@ -274,16 +276,16 @@ void ApplVPlatoonFormation::FSMchangeState()
     }
     else if(vehicleState == state_platoonLeader)
     {
-        EV << "### " << SUMOvID << ": current vehicle status is platoonLeader with depth " << myPlatoonDepth << endl;
+        EV << "### " << SUMOvID << ": current vehicle status is platoonLeader." << endl;
     }
     else if(vehicleState == state_platoonMember)
     {
-        EV << "### " << SUMOvID << ": current vehicle status is platoonMember with depth " << myPlatoonDepth << endl;
+        EV << "### " << SUMOvID << ": current vehicle status is platoonMember." << endl;
     }
 }
 
 
-PlatoonMsg*  ApplVPlatoonFormation::prepareData(std::string receiver, int type, std::string receivingPlatoonID, int value)
+PlatoonMsg*  ApplVPlatoonFormation::prepareData(std::string receiver, int type, std::string receivingPlatoonID, double dblValue, std::string strValue, std::deque<std::string> vecValue)
 {
     if(!platoonFormation)
     {
@@ -319,7 +321,9 @@ PlatoonMsg*  ApplVPlatoonFormation::prepareData(std::string receiver, int type, 
     wsm->setReq_res_type(type);
     wsm->setSendingPlatoonID(platoonID.c_str());
     wsm->setReceivingPlatoonID(receivingPlatoonID.c_str());
-    wsm->setValue(value);
+    wsm->setDblValue(dblValue);
+    wsm->setStrValue(strValue.c_str());
+    wsm->setQueueValue(vecValue);
 
     return wsm;
 }
@@ -343,7 +347,8 @@ void ApplVPlatoonFormation::printDataContent(PlatoonMsg* wsm)
     EV << wsm->getReq_res_type() << " | ";
     EV << wsm->getSendingPlatoonID() << " | ";
     EV << wsm->getReceivingPlatoonID() << " | ";
-    EV << wsm->getValue() << std::endl;
+    EV << wsm->getDblValue() << " | ";
+    EV << wsm->getStrValue() << std::endl;
 }
 
 

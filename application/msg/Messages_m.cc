@@ -846,7 +846,8 @@ PlatoonMsg::PlatoonMsg(const char *name, int kind) : WaveShortMessage(name,kind)
     this->req_res_type_var = 0;
     this->sendingPlatoonID_var = 0;
     this->receivingPlatoonID_var = 0;
-    this->value_var = 0;
+    this->dblValue_var = 0;
+    this->strValue_var = 0;
 }
 
 PlatoonMsg::PlatoonMsg(const PlatoonMsg& other) : WaveShortMessage(other)
@@ -873,7 +874,9 @@ void PlatoonMsg::copy(const PlatoonMsg& other)
     this->req_res_type_var = other.req_res_type_var;
     this->sendingPlatoonID_var = other.sendingPlatoonID_var;
     this->receivingPlatoonID_var = other.receivingPlatoonID_var;
-    this->value_var = other.value_var;
+    this->dblValue_var = other.dblValue_var;
+    this->strValue_var = other.strValue_var;
+    this->queueValue_var = other.queueValue_var;
 }
 
 void PlatoonMsg::parsimPack(cCommBuffer *b)
@@ -884,7 +887,9 @@ void PlatoonMsg::parsimPack(cCommBuffer *b)
     doPacking(b,this->req_res_type_var);
     doPacking(b,this->sendingPlatoonID_var);
     doPacking(b,this->receivingPlatoonID_var);
-    doPacking(b,this->value_var);
+    doPacking(b,this->dblValue_var);
+    doPacking(b,this->strValue_var);
+    doPacking(b,this->queueValue_var);
 }
 
 void PlatoonMsg::parsimUnpack(cCommBuffer *b)
@@ -895,7 +900,9 @@ void PlatoonMsg::parsimUnpack(cCommBuffer *b)
     doUnpacking(b,this->req_res_type_var);
     doUnpacking(b,this->sendingPlatoonID_var);
     doUnpacking(b,this->receivingPlatoonID_var);
-    doUnpacking(b,this->value_var);
+    doUnpacking(b,this->dblValue_var);
+    doUnpacking(b,this->strValue_var);
+    doUnpacking(b,this->queueValue_var);
 }
 
 const char * PlatoonMsg::getSender() const
@@ -948,14 +955,34 @@ void PlatoonMsg::setReceivingPlatoonID(const char * receivingPlatoonID)
     this->receivingPlatoonID_var = receivingPlatoonID;
 }
 
-double PlatoonMsg::getValue() const
+double PlatoonMsg::getDblValue() const
 {
-    return value_var;
+    return dblValue_var;
 }
 
-void PlatoonMsg::setValue(double value)
+void PlatoonMsg::setDblValue(double dblValue)
 {
-    this->value_var = value;
+    this->dblValue_var = dblValue;
+}
+
+const char * PlatoonMsg::getStrValue() const
+{
+    return strValue_var.c_str();
+}
+
+void PlatoonMsg::setStrValue(const char * strValue)
+{
+    this->strValue_var = strValue;
+}
+
+stringQueue& PlatoonMsg::getQueueValue()
+{
+    return queueValue_var;
+}
+
+void PlatoonMsg::setQueueValue(const stringQueue& queueValue)
+{
+    this->queueValue_var = queueValue;
 }
 
 class PlatoonMsgDescriptor : public cClassDescriptor
@@ -1005,7 +1032,7 @@ const char *PlatoonMsgDescriptor::getProperty(const char *propertyname) const
 int PlatoonMsgDescriptor::getFieldCount(void *object) const
 {
     cClassDescriptor *basedesc = getBaseClassDescriptor();
-    return basedesc ? 6+basedesc->getFieldCount(object) : 6;
+    return basedesc ? 8+basedesc->getFieldCount(object) : 8;
 }
 
 unsigned int PlatoonMsgDescriptor::getFieldTypeFlags(void *object, int field) const
@@ -1023,8 +1050,10 @@ unsigned int PlatoonMsgDescriptor::getFieldTypeFlags(void *object, int field) co
         FD_ISEDITABLE,
         FD_ISEDITABLE,
         FD_ISEDITABLE,
+        FD_ISEDITABLE,
+        FD_ISCOMPOUND,
     };
-    return (field>=0 && field<6) ? fieldTypeFlags[field] : 0;
+    return (field>=0 && field<8) ? fieldTypeFlags[field] : 0;
 }
 
 const char *PlatoonMsgDescriptor::getFieldName(void *object, int field) const
@@ -1041,9 +1070,11 @@ const char *PlatoonMsgDescriptor::getFieldName(void *object, int field) const
         "req_res_type",
         "sendingPlatoonID",
         "receivingPlatoonID",
-        "value",
+        "dblValue",
+        "strValue",
+        "queueValue",
     };
-    return (field>=0 && field<6) ? fieldNames[field] : NULL;
+    return (field>=0 && field<8) ? fieldNames[field] : NULL;
 }
 
 int PlatoonMsgDescriptor::findField(void *object, const char *fieldName) const
@@ -1055,7 +1086,9 @@ int PlatoonMsgDescriptor::findField(void *object, const char *fieldName) const
     if (fieldName[0]=='r' && strcmp(fieldName, "req_res_type")==0) return base+2;
     if (fieldName[0]=='s' && strcmp(fieldName, "sendingPlatoonID")==0) return base+3;
     if (fieldName[0]=='r' && strcmp(fieldName, "receivingPlatoonID")==0) return base+4;
-    if (fieldName[0]=='v' && strcmp(fieldName, "value")==0) return base+5;
+    if (fieldName[0]=='d' && strcmp(fieldName, "dblValue")==0) return base+5;
+    if (fieldName[0]=='s' && strcmp(fieldName, "strValue")==0) return base+6;
+    if (fieldName[0]=='q' && strcmp(fieldName, "queueValue")==0) return base+7;
     return basedesc ? basedesc->findField(object, fieldName) : -1;
 }
 
@@ -1074,8 +1107,10 @@ const char *PlatoonMsgDescriptor::getFieldTypeString(void *object, int field) co
         "string",
         "string",
         "double",
+        "string",
+        "stringQueue",
     };
-    return (field>=0 && field<6) ? fieldTypeStrings[field] : NULL;
+    return (field>=0 && field<8) ? fieldTypeStrings[field] : NULL;
 }
 
 const char *PlatoonMsgDescriptor::getFieldProperty(void *object, int field, const char *propertyname) const
@@ -1120,7 +1155,9 @@ std::string PlatoonMsgDescriptor::getFieldAsString(void *object, int field, int 
         case 2: return long2string(pp->getReq_res_type());
         case 3: return oppstring2string(pp->getSendingPlatoonID());
         case 4: return oppstring2string(pp->getReceivingPlatoonID());
-        case 5: return double2string(pp->getValue());
+        case 5: return double2string(pp->getDblValue());
+        case 6: return oppstring2string(pp->getStrValue());
+        case 7: {std::stringstream out; out << pp->getQueueValue(); return out.str();}
         default: return "";
     }
 }
@@ -1140,7 +1177,8 @@ bool PlatoonMsgDescriptor::setFieldAsString(void *object, int field, int i, cons
         case 2: pp->setReq_res_type(string2long(value)); return true;
         case 3: pp->setSendingPlatoonID((value)); return true;
         case 4: pp->setReceivingPlatoonID((value)); return true;
-        case 5: pp->setValue(string2double(value)); return true;
+        case 5: pp->setDblValue(string2double(value)); return true;
+        case 6: pp->setStrValue((value)); return true;
         default: return false;
     }
 }
@@ -1160,8 +1198,10 @@ const char *PlatoonMsgDescriptor::getFieldStructName(void *object, int field) co
         NULL,
         NULL,
         NULL,
+        NULL,
+        "stringQueue",
     };
-    return (field>=0 && field<6) ? fieldStructNames[field] : NULL;
+    return (field>=0 && field<8) ? fieldStructNames[field] : NULL;
 }
 
 void *PlatoonMsgDescriptor::getFieldStructPointer(void *object, int field, int i) const
@@ -1174,6 +1214,7 @@ void *PlatoonMsgDescriptor::getFieldStructPointer(void *object, int field, int i
     }
     PlatoonMsg *pp = (PlatoonMsg *)object; (void)pp;
     switch (field) {
+        case 7: return (void *)(&pp->getQueueValue()); break;
         default: return NULL;
     }
 }

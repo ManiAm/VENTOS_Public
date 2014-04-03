@@ -18,6 +18,8 @@ void ApplVBeacon::initialize(int stage)
 
         // Class variables
 
+        disableBeaconing = false;
+
         // simulate asynchronous channel access
         double offSet = dblrand() * (beaconInterval/2);
         offSet = offSet + floor(offSet/0.050)*0.050;
@@ -42,7 +44,7 @@ void ApplVBeacon::handleSelfMsg(cMessage* msg)
 {
     ApplVBase::handleSelfMsg(msg);
 
-    if (msg->getKind() == SEND_BEACON_EVT)
+    if (msg->getKind() == SEND_BEACON_EVT && !disableBeaconing)
     {
         Beacon* beaconMsg = prepareBeacon();
 
@@ -50,7 +52,7 @@ void ApplVBeacon::handleSelfMsg(cMessage* msg)
         printBeaconContent(beaconMsg);
 
         // send it
-        sendDelayedDown(beaconMsg,individualOffset);
+        sendDelayedDown(beaconMsg, individualOffset);
 
         // schedule for next beacon broadcast
         scheduleAt(simTime() + beaconInterval, sendBeaconEvt);

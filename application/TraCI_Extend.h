@@ -28,6 +28,7 @@ class TraCI_Extend : public TraCIScenarioManager
         double commandGetVehicleMinGap(std::string);
         double commandGetVehicleMaxDecel(std::string);
         Coord commandGetVehiclePos(std::string);
+        uint32_t commandGetLaneIndex(std::string);
         std::vector<std::string> commandGetLeading(std::string, double);
         std::string commandGetLeading_old(std::string);
         uint8_t * commandGetVehicleColor(std::string);
@@ -69,6 +70,10 @@ class TraCI_Extend : public TraCIScenarioManager
         void commandSetDebug(std::string, bool);                    // new defined command
         void commandSetModeSwitch(std::string, bool);              // new defined command
         void commandSetVehicleColor(std::string nodeId, TraCIColor& color);
+        void commandRemoveVehicle(std::string, uint8_t);
+        void commandStopNodeExtended(std::string, std::string, double, uint8_t, double, uint8_t);
+        void commandSetvClass(std::string, std::string);
+        void commandChangeLane(std::string, uint8_t, double);
 
         // CMD_SET_GUI_VARIABLE
         void commandSetGUIZoom(double);

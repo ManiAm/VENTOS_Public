@@ -26,9 +26,14 @@ class ApplVPlatoonFormation2 : public ApplVPlatoonFormation
 
 	private:
         // NED variables
-
+		bool platoonLeaderLeave;
+		bool platoonMemberLeave;
+        double timer3Value;
 
         // Class variables
+        cMessage* EventTimer1;
+        cMessage* EventTimer2;
+        cMessage* TIMER3;
 
 };
 

@@ -22,6 +22,7 @@ class ApplVBeacon : public ApplVBase
         // Class variables
         simtime_t individualOffset;
         cMessage* sendBeaconEvt;
+        bool disableBeaconing;
 
         // Methods
         virtual void handleLowerMsg(cMessage*);
