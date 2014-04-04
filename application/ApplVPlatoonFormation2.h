@@ -34,7 +34,6 @@ class ApplVPlatoonFormation2 : public ApplVPlatoonFormation
         cMessage* EventTimer1;
         cMessage* EventTimer2;
         cMessage* TIMER3;
-
 };
 
 #endif

@@ -66,7 +66,7 @@ class TraCI_Extend : public TraCIScenarioManager
         void commandSetMaxDecel(std::string, double);
         void commandSetTg(std::string, double);
         void commandAddVehicleN(std::string, std::string, std::string, int32_t);
-        void commandSetPreceding(std::string, std::string);         // new defined command
+        void commandSetCFParameters(std::string, std::string);      // new defined command
         void commandSetDebug(std::string, bool);                    // new defined command
         void commandSetModeSwitch(std::string, bool);              // new defined command
         void commandSetVehicleColor(std::string nodeId, TraCIColor& color);
@@ -74,6 +74,8 @@ class TraCI_Extend : public TraCIScenarioManager
         void commandStopNodeExtended(std::string, std::string, double, uint8_t, double, uint8_t);
         void commandSetvClass(std::string, std::string);
         void commandChangeLane(std::string, uint8_t, double);
+        void commandSetErrorGap(std::string, double);             // new defined command
+        void commandSetErrorRelSpeed(std::string, double);       // new defined command
 
         // CMD_SET_GUI_VARIABLE
         void commandSetGUIZoom(double);

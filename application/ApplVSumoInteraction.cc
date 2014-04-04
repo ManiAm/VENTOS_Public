@@ -17,12 +17,14 @@ void ApplVSumoInteraction::initialize(int stage)
         // NED variable
         SUMOdebug = par("SUMOdebug").boolValue();
         modeSwitch = par("modeSwitch").boolValue();
+        errorGap = par("errorGap");
+        errorRelSpeed = par("errorRelSpeed");
 
-        // set debug in SUMO
+        // set parameters in SUMO
         manager->commandSetDebug(SUMOvID, SUMOdebug);
-
-        // set modeSwitch in SUMO
         manager->commandSetModeSwitch(SUMOvID, modeSwitch);
+        manager->commandSetErrorGap(SUMOvID, errorGap);
+        manager->commandSetErrorRelSpeed(SUMOvID, errorRelSpeed);
 	}
 }
 
@@ -171,7 +173,7 @@ void ApplVSumoInteraction::onBeacon(Beacon* wsm)
     {
         char buffer [200];
         sprintf (buffer, "%f#%f#%f#%f#%s", (double)wsm->getSpeed(), (double)wsm->getAccel(), (double)wsm->getMaxDecel(), (simTime().dbl())*1000, wsm->getSender() );
-        manager->commandSetPreceding(SUMOvID, buffer);
+        manager->commandSetCFParameters(SUMOvID, buffer);
 
         // a beacon from the leading vehicle or platoon leader is received
         data *pair = new data(wsm->getSender());

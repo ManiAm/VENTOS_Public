@@ -692,7 +692,7 @@ void TraCI_Extend::commandAddVehicleN(std::string vehicleId, std::string vehicle
 }
 
 
-void TraCI_Extend::commandSetPreceding(std::string nodeId, std::string value)
+void TraCI_Extend::commandSetCFParameters(std::string nodeId, std::string value)
 {
     uint8_t variableId = 0x15;
     uint8_t variableType = TYPE_STRING;
@@ -795,6 +795,26 @@ void TraCI_Extend::commandChangeLane(std::string nodeId, uint8_t laneId, double 
                                                                                        << laneIdT << laneId
                                                                                        << durationT << durationMS
                                                                                        );
+    ASSERT(buf.eof());
+}
+
+
+void TraCI_Extend::commandSetErrorGap(std::string nodeId, double value)
+{
+    uint8_t variableId = 0x20;
+    uint8_t variableType = TYPE_DOUBLE;
+
+    TraCIBuffer buf = queryTraCI(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
+    ASSERT(buf.eof());
+}
+
+
+void TraCI_Extend::commandSetErrorRelSpeed(std::string nodeId, double value)
+{
+    uint8_t variableId = 0x21;
+    uint8_t variableType = TYPE_DOUBLE;
+
+    TraCIBuffer buf = queryTraCI(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
     ASSERT(buf.eof());
 }
 

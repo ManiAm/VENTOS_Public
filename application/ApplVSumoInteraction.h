@@ -20,6 +20,8 @@ class ApplVSumoInteraction : public ApplVPlatoonFormation3
         // NED variable
         bool SUMOdebug;
         bool modeSwitch;
+        double errorGap;
+        double errorRelSpeed;
 
         // Methods
         virtual void handleLowerMsg(cMessage*);
