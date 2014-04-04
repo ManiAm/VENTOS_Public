@@ -20,6 +20,9 @@ class ApplVSumoInteraction : public ApplVPlatoonFormation3
         // NED variable
         bool SUMOdebug;
         bool modeSwitch;
+
+        // NED variables (measurement error)
+        bool measurementError;
         double errorGap;
         double errorRelSpeed;
 

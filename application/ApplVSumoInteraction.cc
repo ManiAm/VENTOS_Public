@@ -17,14 +17,26 @@ void ApplVSumoInteraction::initialize(int stage)
         // NED variable
         SUMOdebug = par("SUMOdebug").boolValue();
         modeSwitch = par("modeSwitch").boolValue();
+
+        // NED variables (measurement errors)
+        measurementError = par("measurementError");
         errorGap = par("errorGap");
         errorRelSpeed = par("errorRelSpeed");
 
         // set parameters in SUMO
         manager->commandSetDebug(SUMOvID, SUMOdebug);
         manager->commandSetModeSwitch(SUMOvID, modeSwitch);
-        manager->commandSetErrorGap(SUMOvID, errorGap);
-        manager->commandSetErrorRelSpeed(SUMOvID, errorRelSpeed);
+
+        if(measurementError)
+        {
+            manager->commandSetErrorGap(SUMOvID, errorGap);
+            manager->commandSetErrorRelSpeed(SUMOvID, errorRelSpeed);
+        }
+        else
+        {
+            manager->commandSetErrorGap(SUMOvID, 0.);
+            manager->commandSetErrorRelSpeed(SUMOvID, 0.);
+        }
 	}
 }
 

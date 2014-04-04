@@ -12,6 +12,8 @@ simple ApplVSumoInteraction extends ApplVPlatoonFormation2
         
         bool SUMOdebug = default(false);
         bool modeSwitch = default(true);
+        
+        bool measurementError;
         double errorGap;
         double errorRelSpeed;
 }
