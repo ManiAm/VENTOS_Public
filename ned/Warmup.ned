@@ -10,7 +10,7 @@ simple Warmup
         @display("i=block/network2");
         
         bool on = default(false);
-        string leadingVehicle;
+        string laneId;
         double stopPosition;   
         double waitingTime;     
 }

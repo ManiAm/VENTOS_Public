@@ -29,7 +29,7 @@ class Warmup : public cSimpleModule
         TraCI_Extend *manager;  // pointer to the TraCI module
         VehicleAdd *AddVehiclePtr;
         bool on;
-        std::string leadingVehicle;
+        std::string laneId;
         double stopPosition;  // the position that first vehicle should stop waiting for others
         double waitingTime;
         int totalVehicles;

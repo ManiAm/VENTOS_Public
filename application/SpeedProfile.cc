@@ -29,7 +29,7 @@ void SpeedProfile::initialize(int stage)
         manager = static_cast<TraCI_Extend *>(module);
 
         on = par("on").boolValue();
-        profileVehicle = par("profileVehicle").stringValue();
+        laneId = par("laneId").stringValue();
         mode = par("mode").longValue();
         minSpeed = par("minSpeed").doubleValue();
         normalSpeed = par("normalSpeed").doubleValue();
@@ -69,6 +69,14 @@ void SpeedProfile::Change()
 
     if(startTime < 0)
         error("startTime is less than 0 in SpeedProfile.");
+
+    // who is leading?
+    std::list<std::string> veh = manager->commandGetVehiclesOnLane(laneId);
+
+    if(veh.empty())
+        return;
+
+    profileVehicle = veh.back();
 
     // #############################################
     // checking which SpeedProfile mode is selected?

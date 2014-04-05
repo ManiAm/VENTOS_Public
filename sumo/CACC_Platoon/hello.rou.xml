@@ -3,7 +3,7 @@
 
   <!-- ACC vehicle -->
   <vType id="TypeACC" length="5.0" minGap="2.0" maxSpeed="30.0" vClass="transport">
-      <carFollowing-ACC MaxAccel="3.0" MaxDecel="5.0" T_g="1.54" tau="0.5" ComfAccel="2.0" ComfDecel="3.0" K_sc="0.4" K_v="1.0" K_g="5.0" V_int="30.0" />
+      <carFollowing-ACC MaxAccel="3.0" MaxDecel="5.0" T_g="1.1" tau="0.5" ComfAccel="2.0" ComfDecel="3.0" K_sc="0.4" K_v="1.0" K_g="5.0" V_int="30.0" />
   </vType>  
 
   <!-- CACC vehicle -->

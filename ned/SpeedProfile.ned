@@ -10,7 +10,7 @@ simple SpeedProfile
         @display("i=block/network2");
         
         bool on = default(false);
-        string profileVehicle;
+        string laneId;
         int mode = default(1);        
         double minSpeed;
         double normalSpeed;

@@ -36,7 +36,7 @@ void Warmup::initialize(int stage)
         totalVehicles = AddVehiclePtr->par("totalVehicles").longValue();
 
         on = par("on").boolValue();
-        leadingVehicle = par("leadingVehicle").stringValue(); // todo: make it automatic
+        laneId = par("laneId").stringValue();
         stopPosition = par("stopPosition").doubleValue();
         waitingTime = par("waitingTime").doubleValue();
 
@@ -76,6 +76,14 @@ bool Warmup::DoWarmup()
 
     if(startTime < 0)
         error("startTime is less than 0 in Warmup.");
+
+    // who is leading?
+    std::list<std::string> veh = manager->commandGetVehiclesOnLane(laneId);
+
+    if(veh.empty())
+        return false;
+
+    std::string leadingVehicle = veh.back();
 
     double pos = manager->commandGetLanePosition(leadingVehicle);
 
