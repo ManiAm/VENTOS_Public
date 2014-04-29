@@ -12,7 +12,7 @@ hf = zeros(1,4);
 for s=1:1    
     
     if(s == 1)
-        path = '../results/gui/speed-gap.txt';
+        path = '../results/gui/speed-gap-CACC-Tg=0.8.txt';
         figureName = 'Optimal Speed';
     elseif(s == 2)
         path = '../2.Result/speed-gap-21MSCFModel_KraussFixed.txt';
@@ -82,7 +82,7 @@ for s=1:1
     handle1 = plot(vehiclesTS,vehiclesSpeed,'LineWidth', 3);
 
     % set the x-axis limit
-    set( gca, 'XLim', [0 221] );
+    set( gca, 'XLim', [0 600] );
     
     % set the y-axis limit
     set( gca, 'YLim', [0 35] );
