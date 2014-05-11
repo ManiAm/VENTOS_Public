@@ -19,7 +19,7 @@ void ApplVPlatoonFormation2::initialize(int stage)
 
 	    if(SUMOvID == "CACC1")
 	    {
-            scheduleAt(simTime() + 120, EventTimer1);
+            scheduleAt(simTime() + 200, EventTimer1);
 	    }
 	}
 }
@@ -131,10 +131,16 @@ void ApplVPlatoonFormation2::onData(PlatoonMsg* wsm)
         platoonID = newPlatoonID;
         myPlatoonDepth--;
 
+        // todo:
+        // we can update the blue color of the platoon members here
+
         if(myPlatoonDepth == 0)
         {
             TraCIColor newColor = TraCIColor::fromTkColor("red");
             manager->commandSetVehicleColor(SUMOvID, newColor);
+
+            // now we are platoon leader
+            vehicleState = state_platoonLeader;
         }
     }
 }
@@ -153,15 +159,19 @@ void ApplVPlatoonFormation2::FSMchangeState()
 
     if(vehicleState == state_parked)
     {
-        EV << "### " << SUMOvID << ": current vehicle status is parked." << endl;
-
         // park the car
         manager->commandSetvClass(SUMOvID, "ignoring");
         manager->commandChangeLane(SUMOvID, 1, 5);
         manager->commandSetSpeed(SUMOvID, 0.);
 
-        // disable beaconing
-        disableBeaconing = true;
+        // pause beaconing
+        pauseBeaconing = true;
+
+        // change the color to yellow
+        TraCIColor newColor = TraCIColor::fromTkColor("yellow");
+        manager->commandSetVehicleColor(SUMOvID, newColor);
+
+        EV << "### " << SUMOvID << ": current vehicle status is parked." << endl;
     }
     else if(vehicleState == state_wait_for_new_PL)
     {

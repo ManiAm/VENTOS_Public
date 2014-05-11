@@ -18,7 +18,7 @@ void ApplVBeacon::initialize(int stage)
 
         // Class variables
 
-        disableBeaconing = false;
+        pauseBeaconing = false;
 
         // simulate asynchronous channel access
         double offSet = dblrand() * (beaconInterval/2);
@@ -44,15 +44,18 @@ void ApplVBeacon::handleSelfMsg(cMessage* msg)
 {
     ApplVBase::handleSelfMsg(msg);
 
-    if (msg->getKind() == SEND_BEACON_EVT && !disableBeaconing)
+    if (msg->getKind() == SEND_BEACON_EVT)
     {
-        Beacon* beaconMsg = prepareBeacon();
+        if(!pauseBeaconing)
+        {
+            Beacon* beaconMsg = prepareBeacon();
 
-        EV << "## Created beacon msg for vehicle: " << SUMOvID << std::endl;
-        printBeaconContent(beaconMsg);
+            EV << "## Created beacon msg for vehicle: " << SUMOvID << std::endl;
+            printBeaconContent(beaconMsg);
 
-        // send it
-        sendDelayedDown(beaconMsg, individualOffset);
+            // send it
+            sendDelayedDown(beaconMsg, individualOffset);
+        }
 
         // schedule for next beacon broadcast
         scheduleAt(simTime() + beaconInterval, sendBeaconEvt);

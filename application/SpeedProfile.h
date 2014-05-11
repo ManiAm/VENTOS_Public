@@ -34,6 +34,7 @@ class SpeedProfile : public cSimpleModule
 
 	    // class variables
         std::string profileVehicle;
+        std::string lastProfileVehicle;
 	    double old_speed;
 	    double old_time;
 	    double startTime;  // the time that speed profiling starts

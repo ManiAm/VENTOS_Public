@@ -44,6 +44,7 @@ void SpeedProfile::initialize(int stage)
         startTime = -1;
         endOfFile = false;
         old_speed = -1;
+        lastProfileVehicle = "";
     }
 }
 
@@ -77,6 +78,16 @@ void SpeedProfile::Change()
         return;
 
     profileVehicle = veh.back();
+
+    // when the profileVehicle leaves the current lane, for the new profileVehicle,
+    // speed profiling should re-start from current simulation time.
+    if(lastProfileVehicle != "" && profileVehicle != lastProfileVehicle)
+    {
+        startTime = simTime().dbl();
+    }
+
+    lastProfileVehicle = profileVehicle;
+
 
     // #############################################
     // checking which SpeedProfile mode is selected?
