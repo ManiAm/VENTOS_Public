@@ -664,7 +664,7 @@ void TraCI_Extend::commandSetTg(std::string nodeId, double value)
 }
 
 
-void TraCI_Extend::commandAddVehicleN(std::string vehicleId, std::string vehicleTypeId, std::string routeId, int32_t depart)
+void TraCI_Extend::commandAddVehicleN(std::string vehicleId, std::string vehicleTypeId, std::string routeId, int32_t depart, double pos, double speed, uint8_t lane)
 {
     uint8_t variableId = ADD;
     uint8_t variableType = TYPE_COMPOUND;
@@ -680,13 +680,13 @@ void TraCI_Extend::commandAddVehicleN(std::string vehicleId, std::string vehicle
                                                                          << variableTypeS
                                                                          << routeId
                                                                          << variableTypeI
-                                                                         << depart  // departure time
+                                                                         << depart        // departure time
                                                                          << variableTypeD
-                                                                         << 0.   // departure position
+                                                                         << pos           // departure position
                                                                          << variableTypeD
-                                                                         << 0.   // departure speed
+                                                                         << speed         // departure speed
                                                                          << variableTypeB
-                                                                         << (uint8_t) 0  // departure lane
+                                                                         << lane          // departure lane
                                                                          );
     ASSERT(buf.eof());
 }

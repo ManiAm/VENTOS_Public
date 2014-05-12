@@ -77,7 +77,7 @@ void VehicleAdd::Scenario1()
         sprintf(vehicleName, "Krauss%d", i);
         depart = depart + 10000;
 
-        manager->commandAddVehicleN(vehicleName, "TypeKrauss", "route1", depart);
+        manager->commandAddVehicleN(vehicleName, "TypeKrauss", "route1", depart, 0, 0, 0);
     }
 }
 
@@ -92,7 +92,7 @@ void VehicleAdd::Scenario2()
         sprintf(vehicleName, "ACC%d", i);
         depart = depart + 10000;
 
-        manager->commandAddVehicleN(vehicleName, "TypeACC", "route1", depart);
+        manager->commandAddVehicleN(vehicleName, "TypeACC", "route1", depart, 0, 0, 0);
     }
 }
 
@@ -107,7 +107,7 @@ void VehicleAdd::Scenario3()
          sprintf(vehicleName, "CACC%d", i);
          depart = depart + 10000;
 
-         manager->commandAddVehicleN(vehicleName, "TypeCACC", "route1", depart);
+         manager->commandAddVehicleN(vehicleName, "TypeCACC", "route1", depart, 0, 0, 1);  // insert into lane 1
      }
 }
 
@@ -124,13 +124,13 @@ void VehicleAdd::Scenario4()
         {
             // platoon leader
          //   manager->commandAddVehicleN(vehicleName,"TypeCACC1","route1",depart);
-            manager->commandAddVehicleN(vehicleName,"TypeACC","route1",depart);
+            manager->commandAddVehicleN(vehicleName,"TypeACC","route1",depart, 0, 0, 0);
         }
         else
         {
             // following vehicle
         //    manager->commandAddVehicleN(vehicleName,"TypeCACC2","route1",depart);
-            manager->commandAddVehicleN(vehicleName,"TypeACC","route1",depart);
+            manager->commandAddVehicleN(vehicleName,"TypeACC","route1",depart, 0, 0, 0);
         }
     }
 }

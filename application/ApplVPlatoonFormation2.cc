@@ -161,7 +161,7 @@ void ApplVPlatoonFormation2::FSMchangeState()
     {
         // park the car
         manager->commandSetvClass(SUMOvID, "ignoring");
-        manager->commandChangeLane(SUMOvID, 1, 5);
+        manager->commandChangeLane(SUMOvID, 0, 5);   // change to lane 0
         manager->commandSetSpeed(SUMOvID, 0.);
 
         // pause beaconing
