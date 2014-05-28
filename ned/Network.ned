@@ -67,6 +67,10 @@ network Network
                 @display("p=49,246;i=block/broadcast");
         }
 
+        adversary: Adversary {
+            parameters:
+                @display("p=143,250;i=old/comp_a");
+        }
     connections allowunconnected:
 }
 
