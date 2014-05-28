@@ -308,8 +308,7 @@ std::list<std::string> TraCI_Extend::commandGetLoopDetectorVehicleList(std::stri
 }
 
 
-// return value is complex
-std::list<std::string> TraCI_Extend::commandGetLoopDetectorVehicleData(std::string loopId)
+std::vector<std::string> TraCI_Extend::commandGetLoopDetectorVehicleData(std::string loopId)
 {
     uint8_t resultTypeId = TYPE_COMPOUND;   // note: type is compound!
     uint8_t variableId = 0x17;
@@ -334,52 +333,54 @@ std::list<std::string> TraCI_Extend::commandGetLoopDetectorVehicleData(std::stri
     uint32_t count; buf >> count;
 
     // now we start getting real data that we are looking for
-    std::list<std::string> res;
+    std::vector<std::string> res;
+    std::ostringstream strs;
 
-    // res.push_back(id);
+    // number of information packets (in 'No' variable)
+    uint8_t typeI; buf >> typeI;
+    uint32_t No; buf >> No;
 
-    for (uint32_t i = 0; i < count; i++)
+    for (uint32_t i = 1; i <= No; i++)
     {
-        uint8_t dType; buf >> dType;
-        std::string id; buf >> id;
-        if ( buf.eof() )
-            break;
-        else
-            EV << "-- " << id;
+        // get vehicle id
+        uint8_t typeS1; buf >> typeS1;
+        std::string vId; buf >> vId;
+        res.push_back(vId);
 
+        // get vehicle length
         uint8_t dType2; buf >> dType2;
         double len; buf >> len;
-        EV << "-- " << len;
+        strs.str("");
+        strs << len;
+        res.push_back( strs.str() );
 
+        // entryTime
         uint8_t dType3; buf >> dType3;
         double entryTime; buf >> entryTime;
-        EV << "-- " << entryTime;
+        strs.str("");
+        strs << entryTime;
+        res.push_back( strs.str() );
 
+        // leaveTime
         uint8_t dType4; buf >> dType4;
         double leaveTime; buf >> leaveTime;
-        EV << "-- " << leaveTime;
+        strs.str("");
+        strs << leaveTime;
+        res.push_back( strs.str() );
 
+        // vehicle type
         uint8_t dType5; buf >> dType5;
         std::string vehicleTypeID; buf >> vehicleTypeID;
-        EV << "-- " << vehicleTypeID;
+        strs.str("");
+        strs << vehicleTypeID;
+        res.push_back( strs.str() );
     }
 
-    //  ASSERT(buf.eof());
+    ASSERT(buf.eof());
 
     return res;
 }
 
-
-double TraCI_Extend::commandGetLoopDetectorEntryTime(std::string loopId)
-{
-    return genericGetDouble(CMD_GET_INDUCTIONLOOP_VARIABLE, loopId, 0x03, RESPONSE_GET_INDUCTIONLOOP_VARIABLE);
-}
-
-
-double TraCI_Extend::commandGetLoopDetectorLeaveTime(std::string loopId)
-{
-    return genericGetDouble(CMD_GET_INDUCTIONLOOP_VARIABLE, loopId, 0x04, RESPONSE_GET_INDUCTIONLOOP_VARIABLE);
-}
 
 
 // ############################

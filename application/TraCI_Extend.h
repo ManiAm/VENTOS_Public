@@ -38,9 +38,7 @@ class TraCI_Extend : public TraCIScenarioManager
         uint32_t commandGetLoopDetectorCount(std::string);
         double commandGetLoopDetectorSpeed(std::string);
         std::list<std::string> commandGetLoopDetectorVehicleList(std::string);
-        std::list<std::string> commandGetLoopDetectorVehicleData(std::string);
-        double commandGetLoopDetectorEntryTime(std::string);   // new defined command
-        double commandGetLoopDetectorLeaveTime(std::string);   // new defined command
+        std::vector<std::string> commandGetLoopDetectorVehicleData(std::string);
 
         // CMD_GET_VEHICLETYPE_VARIABLE
         double commandGetVehicleLength_Type(std::string);

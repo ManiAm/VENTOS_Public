@@ -19,7 +19,7 @@ void ApplVPlatoonFormation2::initialize(int stage)
 
 	    if(SUMOvID == "CACC1")
 	    {
-            scheduleAt(simTime() + 200, EventTimer1);
+            scheduleAt(simTime() + 250, EventTimer1);
 	    }
 	}
 }

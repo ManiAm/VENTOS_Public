@@ -13,10 +13,10 @@ detector2            CACC4                135.51               135.77           
 detector1            CACC7                136.32               136.60               17.74                17.88                
 detector2            CACC5                136.66               136.92               19.36                19.41                
 detector1            CACC8                137.51               137.78               18.38                18.44                
-detector2            CACC6                137.82               138.07               19.47                19.51                
+detector2            CACC6                137.82               138.08               19.47                19.51                
 detector1            CACC9                138.70               138.96               18.71                18.86                
 detector2            CACC7                138.97               139.23               19.57                19.62                
 detector1            CACC10               139.88               140.14               19.16                19.10                
 detector2            CACC8                140.13               140.38               19.67                19.69                
-detector2            CACC9                141.28               141.53               19.72                19.74                
+detector2            CACC9                141.28               141.54               19.72                19.74                
 detector2            CACC10               142.44               142.69               19.74                19.77                

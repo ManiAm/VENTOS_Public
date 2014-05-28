@@ -249,27 +249,26 @@ void TraCI_App::inductionLoops()
         // only if this loop detector detected a vehicle
         if( commandGetLoopDetectorCount(*it) == 1 )
         {
-            char vehicleName[20];
-            strcpy( vehicleName, commandGetLoopDetectorVehicleList(*it).front().c_str() );
+            std::vector<std::string>  st = commandGetLoopDetectorVehicleData(*it);
 
-            double entryT = commandGetLoopDetectorEntryTime(*it);
-            double leaveT = commandGetLoopDetectorLeaveTime(*it);
-            double entrySpeed = commandGetLoopDetectorSpeed(*it);
-            double leaveSpeed = commandGetLoopDetectorSpeed(*it);
+            std::string vehicleName = st.at(0);
+            double entryT = atof( st.at(2).c_str() );
+            double leaveT = atof( st.at(3).c_str() );
+            double speed = commandGetLoopDetectorSpeed(*it);  // vehicle speed at current moment
 
-            int counter = findInVector(Vec_loopDetectors, (*it).c_str(), vehicleName);
+            int counter = findInVector(Vec_loopDetectors, (*it).c_str(), vehicleName.c_str());
 
             // its a new entry, so we add it.
             if(counter == -1)
             {
-                LoopDetector *tmp = new LoopDetector( (*it).c_str(), vehicleName, entryT, leaveT, entrySpeed, leaveSpeed );
+                LoopDetector *tmp = new LoopDetector( (*it).c_str(), vehicleName.c_str(), entryT, -1, speed, -1 );
                 Vec_loopDetectors.push_back(tmp);
             }
             // if found, just update the leave time and leave speed
             else
             {
                 Vec_loopDetectors[counter]->leaveTime = leaveT;
-                Vec_loopDetectors[counter]->leaveSpeed = leaveSpeed;
+                Vec_loopDetectors[counter]->leaveSpeed = speed;
             }
         }
     }
