@@ -39,7 +39,7 @@ class ApplAdversary : public BaseApplLayer
 		/** @brief handle position updates */
 		virtual void handlePositionUpdate(cObject* obj);
 
-		virtual void sendWSM(Beacon * wsm);
+		void FalsificationAttack(Beacon * wsm);
 
 	protected:
 		// NED variables

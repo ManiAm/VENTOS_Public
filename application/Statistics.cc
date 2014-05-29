@@ -14,6 +14,15 @@ void Statistics::initialize(int stage)
 {
     if(stage == 0)
 	{
+        // get a pointer to the manager module
+        cModule *module = simulation.getSystemModule()->getSubmodule("manager");
+        manager = static_cast<TraCI_Extend *>(module);
+        terminate = module->par("terminate").doubleValue();
+        updateInterval = module->par("updateInterval").doubleValue();
+
+        printBeaconsStatistics = par("printBeaconsStatistics").boolValue();
+
+
         // register signals
         Signal_terminate = registerSignal("terminate");
 
@@ -29,13 +38,6 @@ void Statistics::initialize(int stage)
         simulation.getSystemModule()->subscribe("beaconO", this);
         simulation.getSystemModule()->subscribe("beaconD", this);
         simulation.getSystemModule()->subscribe("MacStats", this);
-
-        // get a pointer to the manager module
-        cModule *module = simulation.getSystemModule()->getSubmodule("manager");
-        manager = static_cast<TraCI_Extend *>(module);
-
-        terminate = module->par("terminate").doubleValue();
-        updateInterval = module->par("updateInterval").doubleValue();
     }
 }
 
@@ -70,7 +72,8 @@ void Statistics::receiveSignal(cComponent *source, simsignal_t signalID, long i)
 
 	    printStatistics();
 
-	    printToFile();
+	    if(printBeaconsStatistics)
+	        printToFile();
 
 	    // close TraCI connection
 	   // manager->commandTerminate();

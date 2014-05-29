@@ -38,10 +38,11 @@ class Statistics : public BaseModule
       int findInVector(std::vector<NodeEntry *>, const char *);
       int findInVector(std::vector<MacStatEntry *>, const char *);
 
+      // NED variables
       TraCI_Extend *manager;
-
       double updateInterval;
       double terminate;
+      bool printBeaconsStatistics;
 
       simsignal_t Signal_terminate;
 

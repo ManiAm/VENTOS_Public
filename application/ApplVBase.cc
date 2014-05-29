@@ -76,12 +76,6 @@ void ApplVBase::handlePositionUpdate(cObject* obj)
 }
 
 
-void ApplVBase::sendWSM(Beacon* wsm)
-{
-    error("sendWSM of ApplVBase should not be called!");
-}
-
-
 bool ApplVBase::isCACCvehicle()
 {
     if(SUMOvType == "TypeCACC" || SUMOvType == "TypeCACC0" || SUMOvType == "TypeCACC1" || SUMOvType == "TypeCACC2")

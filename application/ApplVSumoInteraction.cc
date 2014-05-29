@@ -158,12 +158,12 @@ void ApplVSumoInteraction::onBeacon(Beacon* wsm)
     bool result;
 
     // I am platoon leader
-    // get data from leading vehicle
+    // get data from my leading vehicle
     if(myPlatoonDepth == 0)
     {
         result = ApplVPlatoon::isBeaconFromLeading(wsm);
     }
-    // I am platoon member
+    // I am follower
     else
     {
         // one_vehicle_look_ahead = on

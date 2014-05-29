@@ -39,7 +39,6 @@ class ApplVBase : public BaseApplLayer
 		/** @brief handle position updates */
 		virtual void handlePositionUpdate(cObject* obj);
 
-		virtual void sendWSM(Beacon * wsm);
 		bool isCACCvehicle();
 
 	protected:

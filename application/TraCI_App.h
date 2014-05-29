@@ -38,6 +38,10 @@ class TraCI_App : public TraCI_Extend
         Warmup *WarmupPtr;
         TrafficLight *tlPtr;
 
+        // NEW variables
+        bool collectVehiclesData;
+        bool collectInductionLoopData;
+
         // NED variables (GUI tracking)
         bool tracking;
         std::string trackingV;

@@ -23,53 +23,54 @@ network Network
         double playgroundSizeX @unit(m); // x size of the area the nodes are in (in meters)
         double playgroundSizeY @unit(m); // y size of the area the nodes are in (in meters)
         double playgroundSizeZ @unit(m); // z size of the area the nodes are in (in meters)
-        @display("bgb=540,319");
+        // do not put @display here!
+        // it automatically adjust itself based on the playground size in ini
     submodules:
         obstacles: ObstacleControl {
-            @display("p=262,58");
+            @display("p=274,283");
         }
         annotations: AnnotationManager {
-            @display("p=357,58");
+            @display("p=369,283");
         }
         connectionManager: ConnectionManager {
             parameters:
-                @display("p=141,58;i=abstract/multicast");
+                @display("p=153,283;i=abstract/multicast");
         }
         world: BaseWorldUtility {
             parameters:
                 playgroundSizeX = playgroundSizeX;
                 playgroundSizeY = playgroundSizeY;
                 playgroundSizeZ = playgroundSizeZ;
-                @display("p=38,58;i=misc/globe");
+                @display("p=50,283;i=misc/globe");
         }
         manager: TraCI_App {
             parameters:
-                @display("p=141,147");
+                @display("p=153,372");
         }
         vehicleAdd: VehicleAdd {
             parameters:
-                @display("p=223,147");
+                @display("p=235,372");
         }
         warmup: Warmup {
             parameters:
-                @display("p=311,147");
+                @display("p=323,372");
         }
         speedprofile: SpeedProfile {
             parameters:
-                @display("p=402,147");
+                @display("p=414,372");
         }
         statistics: Statistics {
             parameters:
-                @display("p=49,147;i=block/timer");
+                @display("p=61,372;i=block/timer");
         }
         trafficLight: TrafficLight {
             parameters:
-                @display("p=49,246;i=block/broadcast");
+                @display("p=61,471;i=block/broadcast");
         }
 
         adversary: Adversary {
             parameters:
-                @display("p=143,250;i=old/comp_a");
+                @display("p=155,475;i=old/comp_a");
         }
     connections allowunconnected:
 }

@@ -49,6 +49,9 @@ void TraCI_App::initialize(int stage)
         if(tlPtr == NULL)
             error("can not get a pointer to the TrafficLight module.");
 
+        collectVehiclesData = par("collectVehiclesData");
+        collectInductionLoopData = par("collectInductionLoopData");
+
         terminate = par("terminate").doubleValue();
 
         tracking = par("tracking").boolValue();
@@ -61,32 +64,35 @@ void TraCI_App::initialize(int stage)
     }
     else if(stage == 1)
     {
-        char fName [50];
-
-        if( ev.isGUI() )
+        if(collectVehiclesData)
         {
-            sprintf (fName, "%s.txt", "results/gui/speed-gap");
+            char fName [50];
+
+            if( ev.isGUI() )
+            {
+                sprintf (fName, "%s.txt", "results/gui/speed-gap");
+            }
+            else
+            {
+                // get the current run number
+                int currentRun = ev.getConfigEx()->getActiveRunNumber();
+                sprintf (fName, "%s_%d.txt", "results/cmd/speed-gap", currentRun);
+            }
+
+            f1 = fopen (fName, "w");
+
+            // write header
+            fprintf (f1, "%-10s","index");
+            fprintf (f1, "%-10s","vehicle");
+            fprintf (f1, "%-12s","timeStep");
+            fprintf (f1, "%-10s","speed");
+            fprintf (f1, "%-12s","accel");
+            fprintf (f1, "%-12s","pos");
+            fprintf (f1, "%-10s","gap");
+            fprintf (f1, "%-10s\n\n","timeGap");
+
+            fflush(f1);
         }
-        else
-        {
-            // get the current run number
-            int currentRun = ev.getConfigEx()->getActiveRunNumber();
-            sprintf (fName, "%s_%d.txt", "results/cmd/speed-gap", currentRun);
-        }
-
-        f1 = fopen (fName, "w");
-
-        // write header
-        fprintf (f1, "%-10s","index");
-        fprintf (f1, "%-10s","vehicle");
-        fprintf (f1, "%-12s","timeStep");
-        fprintf (f1, "%-10s","speed");
-        fprintf (f1, "%-12s","accel");
-        fprintf (f1, "%-12s","pos");
-        fprintf (f1, "%-10s","gap");
-        fprintf (f1, "%-10s\n\n","timeGap");
-
-        fflush(f1);
     }
 }
 
@@ -146,16 +152,19 @@ void TraCI_App::executeOneTimestep()
 
     // collecting data from all vehicles in each timeStep and
     // then write it into a file each time
-    vehiclesData();
+    if(collectVehiclesData)
+        vehiclesData();
 
     // collecting induction loop data in each timeStep
-    inductionLoops();
+    if(collectInductionLoopData)
+        inductionLoops();
 
     if(simTime().dbl() >= terminate)
     {
         // write the collected induction loop data to
         // a file before terminating simulation
-        writeToFile_InductionLoop();
+        if(collectInductionLoopData)
+            writeToFile_InductionLoop();
 
         // send termination signal to statistics
         // statistic will perform some post-processing and
@@ -173,6 +182,7 @@ void TraCI_App::executeOneTimestep()
         SpeedProfilePtr->Change();
     }
 
+    // run traffic light module
     tlPtr->Execute();
 }
 

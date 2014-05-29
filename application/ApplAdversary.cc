@@ -46,13 +46,35 @@ void ApplAdversary::receiveSignal(cComponent* source, simsignal_t signalID, cObj
 
 void ApplAdversary::handleLowerMsg(cMessage* msg)
 {
+    // make sure msg is of type WaveShortMessage
+    WaveShortMessage* wsm = dynamic_cast<WaveShortMessage*>(msg);
+    ASSERT(wsm);
 
+    if ( std::string(wsm->getName()) == "beacon" )
+    {
+        Beacon* wsm = dynamic_cast<Beacon*>(msg);
+        ASSERT(wsm);
+
+        EV << "######### received a beacon!" << endl;
+
+        if(on)
+        {
+            FalsificationAttack(wsm);
+        }
+    }
+    else if( std::string(wsm->getName()) == "data" )
+    {
+        PlatoonMsg* wsm = dynamic_cast<PlatoonMsg*>(msg);
+        ASSERT(wsm);
+
+        error("data received!");
+
+    }
 }
 
 
 void ApplAdversary::handleSelfMsg(cMessage* msg)
 {
-
 
 }
 
@@ -64,9 +86,18 @@ void ApplAdversary::handlePositionUpdate(cObject* obj)
 }
 
 
-void ApplAdversary::sendWSM(Beacon* wsm)
+void ApplAdversary::FalsificationAttack(Beacon* wsm)
 {
-    error("sendWSM of ApplVBase should not be called!");
+    // duplicate the received beacon
+    Beacon* FalseMsg = wsm->dup();
+
+    // alter the acceleration field
+    FalseMsg->setAccel(6.);
+
+    // send it
+    sendDelayedDown(FalseMsg, 0.);
+
+    EV << "## Altered msg is sent." << endl;
 }
 
 
