@@ -21,24 +21,23 @@ void TraCI_Extend::initialize(int stage)
     {
         launchConfig = par("launchConfig").xmlValue();
         seed = par("seed");
+        SUMOfiles = par("SUMOfiles").stringValue();
 
-        cXMLElementList SUMOfiles = launchConfig->getElementsByTagName("sumoFiles");
-        if (SUMOfiles.size() != 1)
+        if(SUMOfiles == "")
         {
-            error("sumoFiles tag is missing in sumo_launchd");
-        }
-        else
-        {
-            std::string VENTOSdirectory = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-            std::string SUMOdirectory = SUMOfiles.at(0)->getAttribute("folder");
-            std::string SUMOfullDirectory = VENTOSdirectory + std::string("sumo/") + SUMOdirectory;
-            EV << "### SUMO files are in: " << SUMOfullDirectory << endl;
-
-            cXMLElement* basedir_node = new cXMLElement("basedir", __FILE__, launchConfig);
-            basedir_node->setAttribute("path", SUMOfullDirectory.c_str());
-            launchConfig->appendChild(basedir_node);
+            error("SUMO files directory is not specified!");
         }
 
+        std::string VENTOSdirectory = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+
+        // for example: /home/mani/Desktop/VENTOS/sumo/CACC_Platoon
+        std::string SUMOfullDirectory = VENTOSdirectory + SUMOfiles;
+
+        cXMLElement* basedir_node = new cXMLElement("basedir", __FILE__, launchConfig);
+        basedir_node->setAttribute("path", SUMOfullDirectory.c_str());
+        launchConfig->appendChild(basedir_node);
+
+        // getting the seed
         cXMLElementList seed_nodes = launchConfig->getElementsByTagName("seed");
         if (seed_nodes.size() == 0)
         {

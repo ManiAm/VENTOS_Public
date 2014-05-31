@@ -1,3 +1,4 @@
+
 clear all;
 close all;
 clc;   % position the cursor at the top of the screen
@@ -8,6 +9,7 @@ clc;   % position the cursor at the top of the screen
 path = '';
 fig = 0;
 hf = zeros(1,4);
+xLimit = 600;
 
 for s=1:1    
     
@@ -72,6 +74,8 @@ for s=1:1
     end
 
     % ---------------------------------------------------------------
+    
+    % speed profile of vehicles    
 
     figure('units','normalized','outerposition',[0 0 1 1]);
     fig = fig + 1;
@@ -82,7 +86,7 @@ for s=1:1
     handle1 = plot(vehiclesTS,vehiclesSpeed,'LineWidth', 3);
 
     % set the x-axis limit
-    set( gca, 'XLim', [0 600] );
+    set( gca, 'XLim', [0 xLimit] );
     
     % set the y-axis limit
     set( gca, 'YLim', [0 35] );
@@ -96,6 +100,7 @@ for s=1:1
 
     grid on;
     
+    % speed profile of first vehicle (dashed line)
     set(handle1(1), 'LineStyle', '-.');
     
     [n , ~] = size(handle1);
@@ -108,14 +113,15 @@ for s=1:1
         color = color + 0.111;
     end   
     %}
-
+    
     % set the name for each line
-    %set(handle1(1),'Displayname', 'Manual');
-    %set(handle1(2),'Displayname', 'ACC');
-    %set(handle1(3),'Displayname', 'CACC');
-
+    for i=1:vNumber
+        name = sprintf('veh %2d', i);
+        set(handle1(i),'Displayname', name);   
+    end
+    
     % set the legend
-    %legend(handle1, 'Location','NorthEastOutside');
+    legend(handle1, 'Location','NorthEastOutside');    
 
     % save the figure as fig to restore it later
     % saveas(gcf,'figure1.fig');
@@ -126,6 +132,8 @@ for s=1:1
     print('-dpng', '-r300', figName);
 
     % ----------------------------------------------------------------
+    
+    % time gap of vehicles 
 
     figure('units','normalized','outerposition',[0 0 1 1]);
     fig = fig + 1;
@@ -135,7 +143,7 @@ for s=1:1
     handle2 = plot(vehiclesTS,vehiclesTimeGap,'LineWidth', 3);
 
     % set the x-axis limit
-    set( gca, 'XLim', [0 180] );
+    set( gca, 'XLim', [0 xLimit] );
     
     % set the y-axis limit
     %set( gca, 'YLim', [0 120] );
@@ -147,15 +155,21 @@ for s=1:1
     xlabel('Simulation Time (s)', 'FontSize', 19);
     ylabel('TimeGap (m)', 'FontSize', 19);
 
-    grid on;
-
+    grid on;   
+    
+    % speed profile of first vehicle (dashed line)
+    set(handle2(1), 'LineStyle', '-.');
+    
+    [n , ~] = size(handle2);
+    
     % set the name for each line
-    %set(handle2(1),'Displayname', 'Manual');
-    %set(handle2(2),'Displayname', 'ACC');
-    %set(handle2(3),'Displayname', 'CACC');
-
+    for i=1:vNumber
+        name = sprintf('veh %2d', i);
+        set(handle2(i),'Displayname', name);   
+    end    
+    
     % set the legend
-    %legend(handle2, 'Location','NorthEastOutside');
+    legend(handle2, 'Location','NorthEastOutside');
 
     % save the figure as a png file
     set(gcf, 'PaperPositionMode', 'auto');
@@ -163,6 +177,8 @@ for s=1:1
     print('-dpng', '-r300', figName);
     
     % ---------------------------------------------------------------
+    
+    % acceleration of vehicles 
         
     figure('units','normalized','outerposition',[0 0 1 1]);
     fig = fig + 1;
@@ -172,7 +188,7 @@ for s=1:1
     handle3 = plot(vehiclesTS,vehiclesAccel,'LineWidth', 3);
 
     % set the x-axis limit
-    set( gca, 'XLim', [0 180] );
+    set( gca, 'XLim', [0 xLimit] );
     
     % set the y-axis limit
    % set( gca, 'YLim', [0 30] );
@@ -185,14 +201,15 @@ for s=1:1
     ylabel('Acceleration (m/s^2)', 'FontSize', 19);
 
     grid on;
-
+    
     % set the name for each line
-    %set(handle3(1),'Displayname', 'Manual');
-    %set(handle3(2),'Displayname', 'ACC');
-    %set(handle3(3),'Displayname', 'CACC');
-
+    for i=1:vNumber
+        name = sprintf('veh %2d', i);
+        set(handle3(i),'Displayname', name);   
+    end    
+    
     % set the legend
-    %legend(handle3, 'Location','NorthEastOutside');
+    legend(handle3, 'Location','NorthEastOutside');
 
     % save the figure as fig to restore it later
     % saveas(gcf,'figure1.fig');
@@ -206,9 +223,9 @@ end
 
 % -------------------------------------------------------------------
 
-figs2subplots([hf(1) hf(7)],[2 1],{1,2});
+%figs2subplots([hf(1) hf(7)],[2 1],{1,2});
 
 
-figs2subplots([hf(4) hf(7)],[2 1],{1,2});
+%figs2subplots([hf(4) hf(7)],[2 1],{1,2});
 
 
