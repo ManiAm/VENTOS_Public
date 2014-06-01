@@ -12,8 +12,10 @@ module vehicle
     parameters:
         //   string applType; //type of the application layer
         string mobilityType; //type of the mobility module
+        
     gates:
         input radioIn; // gate for sendDirect
+        
     submodules:
         appl: ApplVSumoInteraction {    // <applType> like IBaseApplLayer {
             parameters:

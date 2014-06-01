@@ -434,9 +434,9 @@ void *WaveShortMessageDescriptor::getFieldStructPointer(void *object, int field,
     }
 }
 
-Register_Class(Beacon);
+Register_Class(BeaconVehicle);
 
-Beacon::Beacon(const char *name, int kind) : WaveShortMessage(name,kind)
+BeaconVehicle::BeaconVehicle(const char *name, int kind) : WaveShortMessage(name,kind)
 {
     this->sender_var = 0;
     this->recipient_var = 0;
@@ -448,16 +448,16 @@ Beacon::Beacon(const char *name, int kind) : WaveShortMessage(name,kind)
     this->platoonDepth_var = 0;
 }
 
-Beacon::Beacon(const Beacon& other) : WaveShortMessage(other)
+BeaconVehicle::BeaconVehicle(const BeaconVehicle& other) : WaveShortMessage(other)
 {
     copy(other);
 }
 
-Beacon::~Beacon()
+BeaconVehicle::~BeaconVehicle()
 {
 }
 
-Beacon& Beacon::operator=(const Beacon& other)
+BeaconVehicle& BeaconVehicle::operator=(const BeaconVehicle& other)
 {
     if (this==&other) return *this;
     WaveShortMessage::operator=(other);
@@ -465,7 +465,7 @@ Beacon& Beacon::operator=(const Beacon& other)
     return *this;
 }
 
-void Beacon::copy(const Beacon& other)
+void BeaconVehicle::copy(const BeaconVehicle& other)
 {
     this->sender_var = other.sender_var;
     this->recipient_var = other.recipient_var;
@@ -478,7 +478,7 @@ void Beacon::copy(const Beacon& other)
     this->platoonDepth_var = other.platoonDepth_var;
 }
 
-void Beacon::parsimPack(cCommBuffer *b)
+void BeaconVehicle::parsimPack(cCommBuffer *b)
 {
     WaveShortMessage::parsimPack(b);
     doPacking(b,this->sender_var);
@@ -492,7 +492,7 @@ void Beacon::parsimPack(cCommBuffer *b)
     doPacking(b,this->platoonDepth_var);
 }
 
-void Beacon::parsimUnpack(cCommBuffer *b)
+void BeaconVehicle::parsimUnpack(cCommBuffer *b)
 {
     WaveShortMessage::parsimUnpack(b);
     doUnpacking(b,this->sender_var);
@@ -506,101 +506,101 @@ void Beacon::parsimUnpack(cCommBuffer *b)
     doUnpacking(b,this->platoonDepth_var);
 }
 
-const char * Beacon::getSender() const
+const char * BeaconVehicle::getSender() const
 {
     return sender_var.c_str();
 }
 
-void Beacon::setSender(const char * sender)
+void BeaconVehicle::setSender(const char * sender)
 {
     this->sender_var = sender;
 }
 
-const char * Beacon::getRecipient() const
+const char * BeaconVehicle::getRecipient() const
 {
     return recipient_var.c_str();
 }
 
-void Beacon::setRecipient(const char * recipient)
+void BeaconVehicle::setRecipient(const char * recipient)
 {
     this->recipient_var = recipient;
 }
 
-Coord& Beacon::getPos()
+Coord& BeaconVehicle::getPos()
 {
     return pos_var;
 }
 
-void Beacon::setPos(const Coord& pos)
+void BeaconVehicle::setPos(const Coord& pos)
 {
     this->pos_var = pos;
 }
 
-double Beacon::getSpeed() const
+double BeaconVehicle::getSpeed() const
 {
     return speed_var;
 }
 
-void Beacon::setSpeed(double speed)
+void BeaconVehicle::setSpeed(double speed)
 {
     this->speed_var = speed;
 }
 
-double Beacon::getAccel() const
+double BeaconVehicle::getAccel() const
 {
     return accel_var;
 }
 
-void Beacon::setAccel(double accel)
+void BeaconVehicle::setAccel(double accel)
 {
     this->accel_var = accel;
 }
 
-double Beacon::getMaxDecel() const
+double BeaconVehicle::getMaxDecel() const
 {
     return maxDecel_var;
 }
 
-void Beacon::setMaxDecel(double maxDecel)
+void BeaconVehicle::setMaxDecel(double maxDecel)
 {
     this->maxDecel_var = maxDecel;
 }
 
-const char * Beacon::getLane() const
+const char * BeaconVehicle::getLane() const
 {
     return lane_var.c_str();
 }
 
-void Beacon::setLane(const char * lane)
+void BeaconVehicle::setLane(const char * lane)
 {
     this->lane_var = lane;
 }
 
-const char * Beacon::getPlatoonID() const
+const char * BeaconVehicle::getPlatoonID() const
 {
     return platoonID_var.c_str();
 }
 
-void Beacon::setPlatoonID(const char * platoonID)
+void BeaconVehicle::setPlatoonID(const char * platoonID)
 {
     this->platoonID_var = platoonID;
 }
 
-int Beacon::getPlatoonDepth() const
+int BeaconVehicle::getPlatoonDepth() const
 {
     return platoonDepth_var;
 }
 
-void Beacon::setPlatoonDepth(int platoonDepth)
+void BeaconVehicle::setPlatoonDepth(int platoonDepth)
 {
     this->platoonDepth_var = platoonDepth;
 }
 
-class BeaconDescriptor : public cClassDescriptor
+class BeaconVehicleDescriptor : public cClassDescriptor
 {
   public:
-    BeaconDescriptor();
-    virtual ~BeaconDescriptor();
+    BeaconVehicleDescriptor();
+    virtual ~BeaconVehicleDescriptor();
 
     virtual bool doesSupport(cObject *obj) const;
     virtual const char *getProperty(const char *propertyname) const;
@@ -619,34 +619,34 @@ class BeaconDescriptor : public cClassDescriptor
     virtual void *getFieldStructPointer(void *object, int field, int i) const;
 };
 
-Register_ClassDescriptor(BeaconDescriptor);
+Register_ClassDescriptor(BeaconVehicleDescriptor);
 
-BeaconDescriptor::BeaconDescriptor() : cClassDescriptor("Beacon", "WaveShortMessage")
+BeaconVehicleDescriptor::BeaconVehicleDescriptor() : cClassDescriptor("BeaconVehicle", "WaveShortMessage")
 {
 }
 
-BeaconDescriptor::~BeaconDescriptor()
+BeaconVehicleDescriptor::~BeaconVehicleDescriptor()
 {
 }
 
-bool BeaconDescriptor::doesSupport(cObject *obj) const
+bool BeaconVehicleDescriptor::doesSupport(cObject *obj) const
 {
-    return dynamic_cast<Beacon *>(obj)!=NULL;
+    return dynamic_cast<BeaconVehicle *>(obj)!=NULL;
 }
 
-const char *BeaconDescriptor::getProperty(const char *propertyname) const
+const char *BeaconVehicleDescriptor::getProperty(const char *propertyname) const
 {
     cClassDescriptor *basedesc = getBaseClassDescriptor();
     return basedesc ? basedesc->getProperty(propertyname) : NULL;
 }
 
-int BeaconDescriptor::getFieldCount(void *object) const
+int BeaconVehicleDescriptor::getFieldCount(void *object) const
 {
     cClassDescriptor *basedesc = getBaseClassDescriptor();
     return basedesc ? 9+basedesc->getFieldCount(object) : 9;
 }
 
-unsigned int BeaconDescriptor::getFieldTypeFlags(void *object, int field) const
+unsigned int BeaconVehicleDescriptor::getFieldTypeFlags(void *object, int field) const
 {
     cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -668,7 +668,7 @@ unsigned int BeaconDescriptor::getFieldTypeFlags(void *object, int field) const
     return (field>=0 && field<9) ? fieldTypeFlags[field] : 0;
 }
 
-const char *BeaconDescriptor::getFieldName(void *object, int field) const
+const char *BeaconVehicleDescriptor::getFieldName(void *object, int field) const
 {
     cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -690,7 +690,7 @@ const char *BeaconDescriptor::getFieldName(void *object, int field) const
     return (field>=0 && field<9) ? fieldNames[field] : NULL;
 }
 
-int BeaconDescriptor::findField(void *object, const char *fieldName) const
+int BeaconVehicleDescriptor::findField(void *object, const char *fieldName) const
 {
     cClassDescriptor *basedesc = getBaseClassDescriptor();
     int base = basedesc ? basedesc->getFieldCount(object) : 0;
@@ -706,7 +706,7 @@ int BeaconDescriptor::findField(void *object, const char *fieldName) const
     return basedesc ? basedesc->findField(object, fieldName) : -1;
 }
 
-const char *BeaconDescriptor::getFieldTypeString(void *object, int field) const
+const char *BeaconVehicleDescriptor::getFieldTypeString(void *object, int field) const
 {
     cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -728,7 +728,7 @@ const char *BeaconDescriptor::getFieldTypeString(void *object, int field) const
     return (field>=0 && field<9) ? fieldTypeStrings[field] : NULL;
 }
 
-const char *BeaconDescriptor::getFieldProperty(void *object, int field, const char *propertyname) const
+const char *BeaconVehicleDescriptor::getFieldProperty(void *object, int field, const char *propertyname) const
 {
     cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -741,7 +741,7 @@ const char *BeaconDescriptor::getFieldProperty(void *object, int field, const ch
     }
 }
 
-int BeaconDescriptor::getArraySize(void *object, int field) const
+int BeaconVehicleDescriptor::getArraySize(void *object, int field) const
 {
     cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -749,13 +749,13 @@ int BeaconDescriptor::getArraySize(void *object, int field) const
             return basedesc->getArraySize(object, field);
         field -= basedesc->getFieldCount(object);
     }
-    Beacon *pp = (Beacon *)object; (void)pp;
+    BeaconVehicle *pp = (BeaconVehicle *)object; (void)pp;
     switch (field) {
         default: return 0;
     }
 }
 
-std::string BeaconDescriptor::getFieldAsString(void *object, int field, int i) const
+std::string BeaconVehicleDescriptor::getFieldAsString(void *object, int field, int i) const
 {
     cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -763,7 +763,7 @@ std::string BeaconDescriptor::getFieldAsString(void *object, int field, int i) c
             return basedesc->getFieldAsString(object,field,i);
         field -= basedesc->getFieldCount(object);
     }
-    Beacon *pp = (Beacon *)object; (void)pp;
+    BeaconVehicle *pp = (BeaconVehicle *)object; (void)pp;
     switch (field) {
         case 0: return oppstring2string(pp->getSender());
         case 1: return oppstring2string(pp->getRecipient());
@@ -778,7 +778,7 @@ std::string BeaconDescriptor::getFieldAsString(void *object, int field, int i) c
     }
 }
 
-bool BeaconDescriptor::setFieldAsString(void *object, int field, int i, const char *value) const
+bool BeaconVehicleDescriptor::setFieldAsString(void *object, int field, int i, const char *value) const
 {
     cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -786,7 +786,7 @@ bool BeaconDescriptor::setFieldAsString(void *object, int field, int i, const ch
             return basedesc->setFieldAsString(object,field,i,value);
         field -= basedesc->getFieldCount(object);
     }
-    Beacon *pp = (Beacon *)object; (void)pp;
+    BeaconVehicle *pp = (BeaconVehicle *)object; (void)pp;
     switch (field) {
         case 0: pp->setSender((value)); return true;
         case 1: pp->setRecipient((value)); return true;
@@ -800,7 +800,7 @@ bool BeaconDescriptor::setFieldAsString(void *object, int field, int i, const ch
     }
 }
 
-const char *BeaconDescriptor::getFieldStructName(void *object, int field) const
+const char *BeaconVehicleDescriptor::getFieldStructName(void *object, int field) const
 {
     cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -822,7 +822,7 @@ const char *BeaconDescriptor::getFieldStructName(void *object, int field) const
     return (field>=0 && field<9) ? fieldStructNames[field] : NULL;
 }
 
-void *BeaconDescriptor::getFieldStructPointer(void *object, int field, int i) const
+void *BeaconVehicleDescriptor::getFieldStructPointer(void *object, int field, int i) const
 {
     cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -830,7 +830,7 @@ void *BeaconDescriptor::getFieldStructPointer(void *object, int field, int i) co
             return basedesc->getFieldStructPointer(object, field, i);
         field -= basedesc->getFieldCount(object);
     }
-    Beacon *pp = (Beacon *)object; (void)pp;
+    BeaconVehicle *pp = (BeaconVehicle *)object; (void)pp;
     switch (field) {
         case 2: return (void *)(&pp->getPos()); break;
         default: return NULL;

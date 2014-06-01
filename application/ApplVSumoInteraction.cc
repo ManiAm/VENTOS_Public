@@ -15,7 +15,7 @@ void ApplVSumoInteraction::initialize(int stage)
         plr = par("plr").doubleValue();
 
         // NED variable
-        SUMOdebug = par("SUMOdebug").boolValue();
+        SUMOvehicleDebug = par("SUMOvehicleDebug").boolValue();
         modeSwitch = par("modeSwitch").boolValue();
 
         // NED variables (measurement errors)
@@ -24,7 +24,7 @@ void ApplVSumoInteraction::initialize(int stage)
         errorRelSpeed = par("errorRelSpeed");
 
         // set parameters in SUMO
-        manager->commandSetDebug(SUMOvID, SUMOdebug);
+        manager->commandSetDebug(SUMOvID, SUMOvehicleDebug);
         manager->commandSetModeSwitch(SUMOvID, modeSwitch);
 
         if(measurementError)
@@ -47,18 +47,18 @@ void ApplVSumoInteraction::handleLowerMsg(cMessage* msg)
     WaveShortMessage* wsm = dynamic_cast<WaveShortMessage*>(msg);
     ASSERT(wsm);
 
-    if (std::string(wsm->getName()) == "beacon")
+    if (std::string(wsm->getName()) == "beaconVehicle")
     {
         // vehicles other than CACC should ignore the received beacon
         if( !VANETenabled )
             return;
 
-        Beacon* wsm = dynamic_cast<Beacon*>(msg);
+        BeaconVehicle* wsm = dynamic_cast<BeaconVehicle*>(msg);
         ASSERT(wsm);
 
         if( !dropBeacon(droppT, droppV, plr) )
         {
-            ApplVSumoInteraction::onBeacon(wsm);
+            ApplVSumoInteraction::onBeaconVehicle(wsm);
         }
         // drop the beacon, and report it to statistics
         else
@@ -66,7 +66,7 @@ void ApplVSumoInteraction::handleLowerMsg(cMessage* msg)
             reportDropToStatistics(wsm);
         }
     }
-    else if(std::string(wsm->getName()) == "data")
+    else if(std::string(wsm->getName()) == "platoonMsg")
     {
         PlatoonMsg* wsm = dynamic_cast<PlatoonMsg*>(msg);
         ASSERT(wsm);
@@ -101,7 +101,7 @@ bool ApplVSumoInteraction::dropBeacon(double time, std::string vehicle, double p
 }
 
 
-void ApplVSumoInteraction::reportDropToStatistics(Beacon* wsm)
+void ApplVSumoInteraction::reportDropToStatistics(BeaconVehicle* wsm)
 {
     if(one_vehicle_look_ahead)
     {
@@ -147,13 +147,13 @@ void ApplVSumoInteraction::handleSelfMsg(cMessage* msg)
 }
 
 
-void ApplVSumoInteraction::onBeacon(Beacon* wsm)
+void ApplVSumoInteraction::onBeaconVehicle(BeaconVehicle* wsm)
 {
     EV << "## " << SUMOvID << " received beacon ..." << endl;
     ApplVBeacon::printBeaconContent(wsm);
 
     // pass it down
-    ApplVPlatoonFormation3::onBeacon(wsm);
+    ApplVPlatoonFormation3::onBeaconVehicle(wsm);
 
     bool result;
 

@@ -21,14 +21,14 @@ void ApplAdversary::initialize(int stage)
 
         manager = FindModule<TraCI_Extend*>::findGlobalModule();
 
-        on = par("on").boolValue();
-
         findHost()->subscribe(mobilityStateChangedSignal, this);
 
         // vehicle id in omnet++
 		myId = getParentModule()->getIndex();
 
 		myFullId = getParentModule()->getFullName();
+
+		FalsificationAttack = par("FalsificationAttack").boolValue();
 	}
 }
 
@@ -50,19 +50,19 @@ void ApplAdversary::handleLowerMsg(cMessage* msg)
     WaveShortMessage* wsm = dynamic_cast<WaveShortMessage*>(msg);
     ASSERT(wsm);
 
-    if ( std::string(wsm->getName()) == "beacon" )
+    if ( std::string(wsm->getName()) == "beaconVehicle" )
     {
-        Beacon* wsm = dynamic_cast<Beacon*>(msg);
+        BeaconVehicle* wsm = dynamic_cast<BeaconVehicle*>(msg);
         ASSERT(wsm);
 
         EV << "######### received a beacon!" << endl;
 
-        if(on)
+        if(FalsificationAttack)
         {
-            FalsificationAttack(wsm);
+            DoFalsificationAttack(wsm);
         }
     }
-    else if( std::string(wsm->getName()) == "data" )
+    else if( std::string(wsm->getName()) == "platoonMsg" )
     {
         PlatoonMsg* wsm = dynamic_cast<PlatoonMsg*>(msg);
         ASSERT(wsm);
@@ -86,10 +86,10 @@ void ApplAdversary::handlePositionUpdate(cObject* obj)
 }
 
 
-void ApplAdversary::FalsificationAttack(Beacon* wsm)
+void ApplAdversary::DoFalsificationAttack(BeaconVehicle* wsm)
 {
     // duplicate the received beacon
-    Beacon* FalseMsg = wsm->dup();
+    BeaconVehicle* FalseMsg = wsm->dup();
 
     // alter the acceleration field
     FalseMsg->setAccel(6.);

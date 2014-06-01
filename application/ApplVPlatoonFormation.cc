@@ -66,7 +66,7 @@ void ApplVPlatoonFormation::handleSelfMsg(cMessage* msg)
 
     if (msg->getKind() == SEND_BEACON_EVT)
     {
-        Beacon* Msg = ApplVBeacon::prepareBeacon();
+        BeaconVehicle* Msg = ApplVBeacon::prepareBeacon();
 
         // fill-in the related fields to platoon
         Msg->setPlatoonID(platoonID.c_str());
@@ -102,11 +102,11 @@ void ApplVPlatoonFormation::handleSelfMsg(cMessage* msg)
 }
 
 
-void ApplVPlatoonFormation::onBeacon(Beacon* wsm)
+void ApplVPlatoonFormation::onBeaconVehicle(BeaconVehicle* wsm)
 {
     if(!platoonFormation)
     {
-        ApplVPlatoon::onBeacon(wsm);
+        ApplVPlatoon::onBeaconVehicle(wsm);
         return;
     }
 
@@ -292,7 +292,7 @@ PlatoonMsg*  ApplVPlatoonFormation::prepareData(std::string receiver, int type, 
         error("platoonFormation is off in ApplVPlatoon::prepareData");
     }
 
-    PlatoonMsg* wsm = new PlatoonMsg("data");
+    PlatoonMsg* wsm = new PlatoonMsg("platoonMsg");
 
     // add header length
     wsm->addBitLength(headerLength);

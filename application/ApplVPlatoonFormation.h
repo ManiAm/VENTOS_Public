@@ -17,7 +17,7 @@ class ApplVPlatoonFormation : public ApplVPlatoon
         virtual void handleSelfMsg(cMessage* msg);
         virtual void handlePositionUpdate(cObject* obj);
 
-		virtual void onBeacon(Beacon* wsm);
+		virtual void onBeaconVehicle(BeaconVehicle* wsm);
 		virtual void onData(PlatoonMsg* wsm);
 
 		PlatoonMsg* prepareData( std::string, int, std::string, double db = -1, std::string str = "", std::deque<std::string> vec = std::deque<std::string>() );
@@ -37,7 +37,7 @@ class ApplVPlatoonFormation : public ApplVPlatoon
 
         // Class variables
         int platoonSize;
-        Beacon* myLeadingBeacon;  // a copy of leading beacon
+        BeaconVehicle* myLeadingBeacon;  // a copy of leading beacon
         cMessage* TIMER1;
         cMessage* TIMER2;
 

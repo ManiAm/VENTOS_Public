@@ -28,9 +28,9 @@ void ApplVPlatoonFormation3::handleSelfMsg(cMessage* msg)
 }
 
 
-void ApplVPlatoonFormation3::onBeacon(Beacon* wsm)
+void ApplVPlatoonFormation3::onBeaconVehicle(BeaconVehicle* wsm)
 {
-    ApplVPlatoonFormation2::onBeacon(wsm);
+    ApplVPlatoonFormation2::onBeaconVehicle(wsm);
 
 
 }

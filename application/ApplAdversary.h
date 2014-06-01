@@ -39,14 +39,14 @@ class ApplAdversary : public BaseApplLayer
 		/** @brief handle position updates */
 		virtual void handlePositionUpdate(cObject* obj);
 
-		void FalsificationAttack(Beacon * wsm);
+		void DoFalsificationAttack(BeaconVehicle * wsm);
 
 	protected:
 		// NED variables
 	    cModule *nodePtr;   // pointer to the Node
         WaveAppToMac1609_4Interface* myMac;
         mutable TraCI_Extend* manager;
-        bool on;
+        bool FalsificationAttack;
 
         // Class variables
         int myId;

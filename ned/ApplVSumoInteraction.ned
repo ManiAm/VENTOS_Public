@@ -10,7 +10,7 @@ simple ApplVSumoInteraction extends ApplVPlatoonFormation2
         string droppV = default("");
         double plr = default(0);
         
-        bool SUMOdebug = default(false);
+        bool SUMOvehicleDebug = default(false);
         bool modeSwitch = default(true);
         
         bool measurementError;

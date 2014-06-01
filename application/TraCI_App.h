@@ -56,6 +56,8 @@ class TraCI_App : public TraCI_Extend
         std::vector<LoopDetector *> Vec_loopDetectors;
 
 	    // methods
+        void AddAdversaryModule();
+        void AddRSUModules();
         void vehiclesData();
         void writeToFile_PerVehicle(std::string, std::string);
         void inductionLoops();

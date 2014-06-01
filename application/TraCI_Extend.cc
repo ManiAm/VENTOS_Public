@@ -23,14 +23,16 @@ void TraCI_Extend::initialize(int stage)
         seed = par("seed");
         SUMOfiles = par("SUMOfiles").stringValue();
 
+        // example: sumo/CACC_Platoon
         if(SUMOfiles == "")
         {
             error("SUMO files directory is not specified!");
         }
 
+        // example: /home/mani/Desktop/VENTOS
         std::string VENTOSdirectory = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
 
-        // for example: /home/mani/Desktop/VENTOS/sumo/CACC_Platoon
+        // example: /home/mani/Desktop/VENTOS/sumo/CACC_Platoon
         std::string SUMOfullDirectory = VENTOSdirectory + SUMOfiles;
 
         cXMLElement* basedir_node = new cXMLElement("basedir", __FILE__, launchConfig);

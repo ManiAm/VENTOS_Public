@@ -49,10 +49,10 @@ void TraCI_App::initialize(int stage)
         if(tlPtr == NULL)
             error("can not get a pointer to the TrafficLight module.");
 
+        terminate = par("terminate").doubleValue();
+
         collectVehiclesData = par("collectVehiclesData");
         collectInductionLoopData = par("collectInductionLoopData");
-
-        terminate = par("terminate").doubleValue();
 
         tracking = par("tracking").boolValue();
         trackingV = par("trackingV").stdstringValue();
@@ -64,6 +64,10 @@ void TraCI_App::initialize(int stage)
     }
     else if(stage == 1)
     {
+        AddAdversaryModule();
+
+        AddRSUModules();
+
         if(collectVehiclesData)
         {
             char fName [50];
@@ -97,19 +101,34 @@ void TraCI_App::initialize(int stage)
 }
 
 
-void TraCI_App::handleSelfMsg(cMessage *msg)
+void TraCI_App::AddAdversaryModule()
 {
-    if (msg == updataGUI)
-    {
-        Coord co = commandGetVehiclePos(trackingV);
-        commandSetGUIOffset(co.x, co.y);
+    // create the adversary module into the simulation
+    bool adversary = par("adversary").boolValue();
 
-        scheduleAt(simTime() + trackingInterval, updataGUI);
-    }
-    else
-    {
-        TraCI_Extend::handleSelfMsg(msg);
-    }
+    if(!adversary)
+        return;
+
+    cModule* parentMod = getParentModule();
+    if (!parentMod) error("Parent Module not found");
+
+    cModuleType* nodeType = cModuleType::get("c3po.ned.Adversary");
+    if (!nodeType) error("Module Type c3po.ned.vehicle not found");
+
+    cModule* mod = nodeType->create("adversary", parentMod);
+    mod->finalizeParameters();
+    mod->getDisplayString().parse("i=old/comp_a");
+    mod->buildInside();
+    mod->scheduleStart(simTime());
+
+    mod->callInitialize();
+}
+
+
+void TraCI_App::AddRSUModules()
+{
+
+
 }
 
 
@@ -139,6 +158,22 @@ void TraCI_App::init_traci()
 
     // add vehicles dynamically into SUMO
     AddVehiclePtr->Add();
+}
+
+
+void TraCI_App::handleSelfMsg(cMessage *msg)
+{
+    if (msg == updataGUI)
+    {
+        Coord co = commandGetVehiclePos(trackingV);
+        commandSetGUIOffset(co.x, co.y);
+
+        scheduleAt(simTime() + trackingInterval, updataGUI);
+    }
+    else
+    {
+        TraCI_Extend::handleSelfMsg(msg);
+    }
 }
 
 

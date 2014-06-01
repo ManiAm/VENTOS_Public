@@ -19,7 +19,7 @@ class ApplVPlatoonFormation2 : public ApplVPlatoonFormation
         virtual void handleSelfMsg(cMessage* msg);
         virtual void handlePositionUpdate(cObject* obj);
 
-		virtual void onBeacon(Beacon* wsm);
+		virtual void onBeaconVehicle(BeaconVehicle* wsm);
 		virtual void onData(PlatoonMsg* wsm);
 
 		void FSMchangeState();

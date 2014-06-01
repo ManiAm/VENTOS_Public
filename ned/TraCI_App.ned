@@ -15,5 +15,7 @@ simple TraCI_App extends TraCI_Extend
         bool tracking;
         string trackingV;
         double trackingInterval;
+        
+        bool adversary;
 }
 

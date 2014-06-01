@@ -18,7 +18,7 @@ class ApplVSumoInteraction : public ApplVPlatoonFormation3
         double plr;
 
         // NED variable
-        bool SUMOdebug;
+        bool SUMOvehicleDebug;
         bool modeSwitch;
 
         // NED variables (measurement error)
@@ -31,11 +31,11 @@ class ApplVSumoInteraction : public ApplVPlatoonFormation3
         virtual void handleSelfMsg(cMessage*);
         virtual void handlePositionUpdate(cObject*);
 
-		virtual void onBeacon(Beacon*);
+		virtual void onBeaconVehicle(BeaconVehicle*);
         virtual void onData(PlatoonMsg* wsm);
 
         bool dropBeacon(double time, std::string vehicle, double plr);
-        void reportDropToStatistics(Beacon* wsm);
+        void reportDropToStatistics(BeaconVehicle* wsm);
 };
 
 #endif

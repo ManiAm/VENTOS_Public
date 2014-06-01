@@ -48,7 +48,7 @@ void ApplVBeacon::handleSelfMsg(cMessage* msg)
     {
         if(!pauseBeaconing)
         {
-            Beacon* beaconMsg = prepareBeacon();
+            BeaconVehicle* beaconMsg = prepareBeacon();
 
             EV << "## Created beacon msg for vehicle: " << SUMOvID << std::endl;
             printBeaconContent(beaconMsg);
@@ -63,14 +63,14 @@ void ApplVBeacon::handleSelfMsg(cMessage* msg)
 }
 
 
-Beacon*  ApplVBeacon::prepareBeacon()
+BeaconVehicle*  ApplVBeacon::prepareBeacon()
 {
     if (!VANETenabled)
     {
         error("Only VANETenabled vehicles can send beacon!");
     }
 
-    Beacon* wsm = new Beacon("beacon");
+    BeaconVehicle* wsm = new BeaconVehicle("beaconVehicle");
 
     // add header length
     wsm->addBitLength(headerLength);
@@ -115,7 +115,7 @@ Beacon*  ApplVBeacon::prepareBeacon()
 
 
 // print beacon fields (for debugging purposes)
-void ApplVBeacon::printBeaconContent(Beacon* wsm)
+void ApplVBeacon::printBeaconContent(BeaconVehicle* wsm)
 {
     EV << wsm->getWsmVersion() << " | ";
     EV << wsm->getSecurityType() << " | ";
@@ -139,7 +139,7 @@ void ApplVBeacon::printBeaconContent(Beacon* wsm)
 }
 
 
-void ApplVBeacon::onBeacon(Beacon* wsm)
+void ApplVBeacon::onBeaconVehicle(BeaconVehicle* wsm)
 {
     error("ApplVBeacon should not receive any beacon!");
 }

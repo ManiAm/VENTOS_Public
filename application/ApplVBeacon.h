@@ -29,10 +29,10 @@ class ApplVBeacon : public ApplVBase
         virtual void handleSelfMsg(cMessage*);
         virtual void handlePositionUpdate(cObject*);
 
-        virtual void onBeacon(Beacon*);
+        virtual void onBeaconVehicle(BeaconVehicle*);
 
-		Beacon* prepareBeacon();
-        void printBeaconContent(Beacon*);
+        BeaconVehicle* prepareBeacon();
+        void printBeaconContent(BeaconVehicle*);
 };
 
 #endif

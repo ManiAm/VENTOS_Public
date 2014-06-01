@@ -65,9 +65,9 @@ void ApplVPlatoonFormation2::handleSelfMsg(cMessage* msg)
 }
 
 
-void ApplVPlatoonFormation2::onBeacon(Beacon* wsm)
+void ApplVPlatoonFormation2::onBeaconVehicle(BeaconVehicle* wsm)
 {
-    ApplVPlatoonFormation::onBeacon(wsm);
+    ApplVPlatoonFormation::onBeaconVehicle(wsm);
 
 
 }

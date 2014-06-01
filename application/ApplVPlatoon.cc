@@ -42,7 +42,7 @@ void ApplVPlatoon::handleSelfMsg(cMessage* msg)
 
     if (msg->getKind() == SEND_BEACON_EVT)
     {
-        Beacon* Msg = ApplVBeacon::prepareBeacon();
+        BeaconVehicle* Msg = ApplVBeacon::prepareBeacon();
 
         // fill-in the related fields to platoon
         Msg->setPlatoonID(platoonID.c_str());
@@ -60,7 +60,7 @@ void ApplVPlatoon::handleSelfMsg(cMessage* msg)
 }
 
 
-void ApplVPlatoon::onBeacon(Beacon* wsm)
+void ApplVPlatoon::onBeaconVehicle(BeaconVehicle* wsm)
 {
     // I am platoon leader and I do not care about the received beacon!
     if(myPlatoonDepth == 0)
@@ -101,7 +101,7 @@ void ApplVPlatoon::handlePositionUpdate(cObject* obj)
 }
 
 
-bool ApplVPlatoon::isBeaconFromMyPlatoonLeader(Beacon* wsm)
+bool ApplVPlatoon::isBeaconFromMyPlatoonLeader(BeaconVehicle* wsm)
 {
     // check if a platoon leader is sending this
     if( wsm->getPlatoonDepth() == 0 )
@@ -117,7 +117,7 @@ bool ApplVPlatoon::isBeaconFromMyPlatoonLeader(Beacon* wsm)
 }
 
 
-bool ApplVPlatoon::isBeaconFromLeading(Beacon* wsm)
+bool ApplVPlatoon::isBeaconFromLeading(BeaconVehicle* wsm)
 {
     // step 1: check if a leading vehicle is present
 

@@ -34,7 +34,7 @@ packet WaveShortMessage
 };
 
 
-packet Beacon extends WaveShortMessage 
+packet BeaconVehicle extends WaveShortMessage 
 {
 	string sender;
 	string recipient;

@@ -24,10 +24,10 @@ class ApplVPlatoon : public ApplVBeacon
         virtual void handleSelfMsg(cMessage*);
         virtual void handlePositionUpdate(cObject*);
 
-		virtual void onBeacon(Beacon*);
+		virtual void onBeaconVehicle(BeaconVehicle*);
 
-        bool isBeaconFromMyPlatoonLeader(Beacon*);
-        bool isBeaconFromLeading(Beacon*);
+        bool isBeaconFromMyPlatoonLeader(BeaconVehicle*);
+        bool isBeaconFromLeading(BeaconVehicle*);
 };
 
 #endif

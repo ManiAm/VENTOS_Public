@@ -106,7 +106,7 @@ inline void doUnpacking(cCommBuffer *b, WaveShortMessage& obj) {obj.parsimUnpack
 /**
  * Class generated from <tt>msg/Messages.msg</tt> by opp_msgc.
  * <pre>
- * packet Beacon extends WaveShortMessage 
+ * packet BeaconVehicle extends WaveShortMessage 
  * {
  * 	string sender;
  * 	string recipient;
@@ -120,7 +120,7 @@ inline void doUnpacking(cCommBuffer *b, WaveShortMessage& obj) {obj.parsimUnpack
  * };
  * </pre>
  */
-class Beacon : public ::WaveShortMessage
+class BeaconVehicle : public ::WaveShortMessage
 {
   protected:
     opp_string sender_var;
@@ -134,18 +134,18 @@ class Beacon : public ::WaveShortMessage
     int platoonDepth_var;
 
   private:
-    void copy(const Beacon& other);
+    void copy(const BeaconVehicle& other);
 
   protected:
     // protected and unimplemented operator==(), to prevent accidental usage
-    bool operator==(const Beacon&);
+    bool operator==(const BeaconVehicle&);
 
   public:
-    Beacon(const char *name=NULL, int kind=0);
-    Beacon(const Beacon& other);
-    virtual ~Beacon();
-    Beacon& operator=(const Beacon& other);
-    virtual Beacon *dup() const {return new Beacon(*this);}
+    BeaconVehicle(const char *name=NULL, int kind=0);
+    BeaconVehicle(const BeaconVehicle& other);
+    virtual ~BeaconVehicle();
+    BeaconVehicle& operator=(const BeaconVehicle& other);
+    virtual BeaconVehicle *dup() const {return new BeaconVehicle(*this);}
     virtual void parsimPack(cCommBuffer *b);
     virtual void parsimUnpack(cCommBuffer *b);
 
@@ -155,7 +155,7 @@ class Beacon : public ::WaveShortMessage
     virtual const char * getRecipient() const;
     virtual void setRecipient(const char * recipient);
     virtual Coord& getPos();
-    virtual const Coord& getPos() const {return const_cast<Beacon*>(this)->getPos();}
+    virtual const Coord& getPos() const {return const_cast<BeaconVehicle*>(this)->getPos();}
     virtual void setPos(const Coord& pos);
     virtual double getSpeed() const;
     virtual void setSpeed(double speed);
@@ -171,8 +171,8 @@ class Beacon : public ::WaveShortMessage
     virtual void setPlatoonDepth(int platoonDepth);
 };
 
-inline void doPacking(cCommBuffer *b, Beacon& obj) {obj.parsimPack(b);}
-inline void doUnpacking(cCommBuffer *b, Beacon& obj) {obj.parsimUnpack(b);}
+inline void doPacking(cCommBuffer *b, BeaconVehicle& obj) {obj.parsimPack(b);}
+inline void doUnpacking(cCommBuffer *b, BeaconVehicle& obj) {obj.parsimUnpack(b);}
 
 /**
  * Class generated from <tt>msg/Messages.msg</tt> by opp_msgc.
