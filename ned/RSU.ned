@@ -7,7 +7,7 @@ import org.mixim.modules.nic.Nic80211p;
 //import org.car2x.veins.base.modules.*;
 //import org.car2x.veins.modules.nic.Nic80211p;
 
-module rsu
+module RSU
 {
     parameters:
 

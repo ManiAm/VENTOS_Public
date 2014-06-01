@@ -16,6 +16,8 @@ simple TraCI_App extends TraCI_Extend
         string trackingV;
         double trackingInterval;
         
-        bool adversary;
+        bool adversary = default(false);        
+        bool RSU = default(false);    
+        string RSUfile = default(""); 
 }
 

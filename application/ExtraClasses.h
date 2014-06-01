@@ -88,5 +88,21 @@ class LoopDetector
     }
 };
 
+
+class RSUEntry
+{
+  public:
+      char name[20];
+      double coordX;
+      double coordY;
+
+      RSUEntry(const char *str1, double x, double y)
+      {
+          strcpy(this->name, str1);
+          this->coordX = x;
+          this->coordY = y;
+      }
+};
+
 #endif
 

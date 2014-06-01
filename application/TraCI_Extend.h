@@ -83,7 +83,9 @@ class TraCI_Extend : public TraCIScenarioManager
 	protected:
         cXMLElement* launchConfig; /**< launch configuration to send to sumo-launchd */
         int seed; /**< seed value to set in launch configuration, if missing (-1: current run number) */
-        std::string SUMOfiles;
+        std::string VENTOSdirectory;
+        std::string SUMOfilesDir;
+        std::string SUMOfullDirectory;
 
 	private:
         // generic methods for getters

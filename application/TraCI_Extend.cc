@@ -21,19 +21,19 @@ void TraCI_Extend::initialize(int stage)
     {
         launchConfig = par("launchConfig").xmlValue();
         seed = par("seed");
-        SUMOfiles = par("SUMOfiles").stringValue();
+        SUMOfilesDir = par("SUMOfilesDir").stringValue();
 
         // example: sumo/CACC_Platoon
-        if(SUMOfiles == "")
+        if(SUMOfilesDir == "")
         {
             error("SUMO files directory is not specified!");
         }
 
         // example: /home/mani/Desktop/VENTOS
-        std::string VENTOSdirectory = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+        VENTOSdirectory = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
 
         // example: /home/mani/Desktop/VENTOS/sumo/CACC_Platoon
-        std::string SUMOfullDirectory = VENTOSdirectory + SUMOfiles;
+        SUMOfullDirectory = VENTOSdirectory + SUMOfilesDir;
 
         cXMLElement* basedir_node = new cXMLElement("basedir", __FILE__, launchConfig);
         basedir_node->setAttribute("path", SUMOfullDirectory.c_str());
@@ -381,7 +381,6 @@ std::vector<std::string> TraCI_Extend::commandGetLoopDetectorVehicleData(std::st
 
     return res;
 }
-
 
 
 // ############################

@@ -10,12 +10,11 @@ import org.mixim.modules.nic.Nic80211p;
 module Adversary
 {
     parameters:
-        //   string applType; //type of the application layer
         string mobilityType; //type of the mobility module
     gates:
         input radioIn; // gate for sendDirect
     submodules:
-        appl: ApplAdversary {    // <applType> like IBaseApplLayer {
+        appl: ApplAdversary {  
             parameters:
                 @display("p=60,50");
         }

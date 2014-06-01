@@ -13,6 +13,10 @@
 #include "Warmup.h"
 #include "TrafficLight.h"
 
+#include "rapidxml-1.13/rapidxml.hpp"
+#include "rapidxml-1.13/rapidxml_utils.hpp"
+
+using namespace rapidxml;
 
 class TraCI_App : public TraCI_Extend
 {
@@ -58,6 +62,7 @@ class TraCI_App : public TraCI_Extend
 	    // methods
         void AddAdversaryModule();
         void AddRSUModules();
+        std::list<Coord> getCirclePoints(RSUEntry*, double);
         void vehiclesData();
         void writeToFile_PerVehicle(std::string, std::string);
         void inductionLoops();

@@ -8,8 +8,6 @@ simple ApplRSU like IBaseApplLayer
     parameters:
         @class(ApplRSU);
         
-        bool on = default(false);        
-        string RSUfile = default(""); 
         int headerLength = default(88bit) @unit(bit); // header length of the application     
         bool debug = default(false); //whether to print debug output
         

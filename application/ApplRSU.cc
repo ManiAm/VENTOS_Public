@@ -1,6 +1,8 @@
 
 #include "ApplRSU.h"
 
+Define_Module(ApplRSU);
+
 void ApplRSU::initialize(int stage)
 {
 	BaseApplLayer::initialize(stage);
