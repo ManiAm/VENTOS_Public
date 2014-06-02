@@ -14,6 +14,7 @@ using namespace boost;
 
 #include "rapidxml-1.13/rapidxml.hpp"
 #include "rapidxml-1.13/rapidxml_utils.hpp"
+#include "rapidxml-1.13/rapidxml_print.hpp"
 using namespace rapidxml;
 
 
@@ -97,10 +98,9 @@ class TraCI_Extend : public TraCIScenarioManager
         void commandAddCirclePoly(std::string, std::string, TraCIColor, Coord, double);
 
 	protected:
-        cXMLElement* launchConfig; /**< launch configuration to send to sumo-launchd */
         int seed; /**< seed value to set in launch configuration, if missing (-1: current run number) */
-        std::string VENTOSdirectory;
-        std::string SUMOfilesDir;
+        std::string VENTOSfullDirectory;
+        std::string SUMODirectory;
         std::string SUMOfullDirectory;
         std::deque<RSUEntry*> RSUs;
 
@@ -109,6 +109,8 @@ class TraCI_Extend : public TraCIScenarioManager
         uint32_t genericGetInt32(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
         Coord genericGetCoordv2(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
         uint8_t* genericGetArrayUnsignedInt(uint8_t, std::string, uint8_t, uint8_t);
+
+        std::string createLaunch();
 };
 
 

@@ -16,7 +16,7 @@ simple TraCI_Extend
         string moduleDisplayString = default("i=misc/node2;is=vs;r=0,,#707070,1");  // module displayString to be used in the simulation for each managed vehicle
         string host = default("localhost");  // sumo-launchd.py server hostname
         int port = default(9999);  // sumo-launchd.py server port
-        xml launchConfig; // launch configuration to send to sumo-launchd.py
+
         int seed = default(-1); // seed value to set in launch configuration, if missing (-1: current run number)
         bool autoShutdown = default(true);  // Shutdown module as soon as no more vehicles are in the simulation
         int margin = default(25);  // margin to add to all received vehicle positions
@@ -24,6 +24,7 @@ simple TraCI_Extend
         string roiRects = default("");  // which rectangles (e.g. "0,0-10,10 20,20-30,30) are considered to consitute the region of interest, if not empty
         double penetrationRate = default(1); //the probability of a vehicle being equipped with Car2X technology
         
-        string SUMOfilesDir = default("");
+        string SUMODirectory = default("");
+        string launchFile = default("");
 }
 

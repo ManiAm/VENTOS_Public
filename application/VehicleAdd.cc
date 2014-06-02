@@ -29,6 +29,7 @@ void VehicleAdd::initialize(int stage)
 
         on = par("on").boolValue();
         mode = par("mode").longValue();
+
         platoonSize = par("platoonSize").longValue();
         platoonNumber = par("platoonNumber").longValue();
         totalVehicles = par("totalVehicles").longValue();
@@ -75,9 +76,11 @@ void VehicleAdd::Scenario1()
     {
         char vehicleName[10];
         sprintf(vehicleName, "Krauss%d", i);
-        depart = depart + 10000;
+        depart = depart + 1000;
 
-        manager->commandAddVehicleN(vehicleName, "TypeKrauss", "route1", depart, 0, 0, 0);
+        uint8_t lane = intrand(3);  // random number in [0,3)
+
+        manager->commandAddVehicleN(vehicleName, "TypeManual", "route1", depart, 0, 0, lane);
     }
 }
 

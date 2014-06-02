@@ -5,6 +5,7 @@
 #include <iostream>
 #include <fstream>
 
+
 Define_Module(TraCI_App);
 
 
@@ -166,7 +167,18 @@ void TraCI_App::AddRSUModules()
     // ####################################
 
     std::string RSUfile = par("RSUfile").stringValue();
-    std::string RSUfilePath = VENTOSdirectory + RSUfile;
+    std::string RSUfilePath = SUMOfullDirectory + "/" + RSUfile;
+
+    // check if the file exists!
+    if ( FILE *file = fopen(RSUfilePath.c_str(), "r") )
+    {
+        // everything is good!
+    }
+    else
+    {
+        error("RSU file does not exist in %s", RSUfilePath.c_str());
+    }
+
     std::deque<RSUEntry*> RSUs = commandReadRSUsCoord(RSUfilePath);
 
     // ################################
@@ -196,10 +208,13 @@ void TraCI_App::AddRSUModules()
     // Step 3: create a polygon for radio circle in SUMO
     // ##################################################
 
+    // get the radius of an RSU
+    cModule *module = simulation.getSystemModule()->getSubmodule("RSU", 0);
+    double radius = atof( module->getDisplayString().getTagArg("r",0) );
+
     for(int i = 0; i < NoRSUs; i++)
     {
         Coord *center = new Coord(RSUs[i]->coordX, RSUs[i]->coordY);
-        double radius = 400;
         commandAddCirclePoly(RSUs[i]->name, "RSU", TraCIColor::fromTkColor("blue"), center, radius);
     }
 }

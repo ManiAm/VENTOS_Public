@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<RSUs>
+
+    <poly id="RSU1" type="RSU" center="500,14"/>
+    <poly id="RSU2" type="RSU" center="1400,14"/>
+    <poly id="RSU3" type="RSU" center="2300,14"/>    
+    <poly id="RSU4" type="RSU" center="3200,14"/>
+    <poly id="RSU5" type="RSU" center="4100,14"/>
+    <poly id="RSU6" type="RSU" center="5000,14"/>
+    
+</RSUs>

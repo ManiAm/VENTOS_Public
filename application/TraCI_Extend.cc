@@ -4,6 +4,9 @@
 #include <fstream>
 #include <iostream>
 
+#include <sys/types.h>
+#include <sys/stat.h>
+
 Define_Module(TraCI_Extend);
 
 
@@ -19,54 +22,25 @@ void TraCI_Extend::initialize(int stage)
 
     if (stage == 1)
     {
-        launchConfig = par("launchConfig").xmlValue();
         seed = par("seed");
-        SUMOfilesDir = par("SUMOfilesDir").stringValue();
 
-        // example: sumo/CACC_Platoon
-        if(SUMOfilesDir == "")
-        {
+        // sumo/CACC_Platoon
+        SUMODirectory = par("SUMODirectory").stringValue();
+
+        if(SUMODirectory == "")
             error("SUMO files directory is not specified!");
-        }
 
-        // example: /home/mani/Desktop/VENTOS
-        VENTOSdirectory = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+        // /home/mani/Desktop/VENTOS
+        VENTOSfullDirectory = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
 
-        // example: /home/mani/Desktop/VENTOS/sumo/CACC_Platoon
-        SUMOfullDirectory = VENTOSdirectory + SUMOfilesDir;
-
-        cXMLElement* basedir_node = new cXMLElement("basedir", __FILE__, launchConfig);
-        basedir_node->setAttribute("path", SUMOfullDirectory.c_str());
-        launchConfig->appendChild(basedir_node);
-
-        // getting the seed
-        cXMLElementList seed_nodes = launchConfig->getElementsByTagName("seed");
-        if (seed_nodes.size() == 0)
-        {
-            if (seed == -1)
-            {
-                // default seed is current repetition
-                const char* seed_s = cSimulation::getActiveSimulation()->getEnvir()->getConfigEx()->getVariable(CFGVAR_RUNNUMBER);
-                seed = atoi(seed_s);
-            }
-
-            std::stringstream ss; ss << seed;
-            cXMLElement* seed_node = new cXMLElement("seed", __FILE__, launchConfig);
-            seed_node->setAttribute("value", ss.str().c_str());
-            launchConfig->appendChild(seed_node);
-        }
+        // /home/mani/Desktop/VENTOS/sumo/CACC_Platoon
+        SUMOfullDirectory = VENTOSfullDirectory + SUMODirectory;
     }
     else if(stage == 2)
     {
         // todo: here we can put the equivalent python
         // code to create the server process
     }
-}
-
-
-void TraCI_Extend::handleSelfMsg(cMessage *msg)
-{
-    TraCIScenarioManager::handleSelfMsg(msg);
 }
 
 
@@ -79,12 +53,10 @@ void TraCI_Extend::init_traci()
     EV << "TraCI launchd reports apiVersion: " << apiVersion << " and serverVersion: " << serverVersion << endl;
     ASSERT(apiVersion == 1);
 
-    // send the launchConfig to SUMO
-    std::string contents = launchConfig->tostr(0);
-    commandSendFile(contents);
+    std::string str = createLaunch();
+    commandSendFile( str );   // send the launchConfig to SUMO
 
-    // call commandGetVersion again to
-    // get the version of SUMO TraCI server
+    // call commandGetVersion again to get the version of SUMO TraCI server
     std::pair<uint32_t, std::string> version2 = commandGetVersion();
     uint32_t apiVersion2 = version2.first;
     std::string serverVersion2 = version2.second;
@@ -131,6 +103,67 @@ void TraCI_Extend::init_traci()
             }
         }
     }
+}
+
+
+std::string TraCI_Extend::createLaunch()
+{
+    std::string launchFile = par("launchFile").stringValue();
+    std::string launchFullPath = SUMOfullDirectory + "/" + launchFile;
+
+    file<> xmlFile( launchFullPath.c_str() );
+    xml_document<> doc;
+    doc.parse<0>(xmlFile.data());
+
+    // create a node called basedir
+    xml_node<> *basedir = doc.allocate_node(node_element, "basedir");
+
+    // append basedir to the launch
+    xml_node<> *node = doc.first_node("launch");
+    node->append_node(basedir);
+
+    // append attribute to basedir
+    xml_attribute<> *attr = doc.allocate_attribute("path", SUMOfullDirectory.c_str());
+    basedir->append_attribute(attr);
+
+    if (seed == -1)
+    {
+        // default seed is current repetition
+        const char* seed_s = cSimulation::getActiveSimulation()->getEnvir()->getConfigEx()->getVariable(CFGVAR_RUNNUMBER);
+        seed = atoi(seed_s);
+    }
+
+    // create a node called seed
+    xml_node<> *seedN = doc.allocate_node(node_element, "seed");
+
+    // append seed to the launch
+    xml_node<> *node1 = doc.first_node("launch");
+    node1->append_node(seedN);
+
+    // append attribute to seed
+    std::stringstream ss; ss << seed;
+    xml_attribute<> *attr1 = doc.allocate_attribute( "value", ss.str().c_str() );
+    seedN->append_attribute(attr1);
+
+    // todo:
+
+    // write the new file
+    std::string newLaunchFullPath = SUMOfullDirectory + "/updated_" + launchFile;
+    std::ofstream file_stored( newLaunchFullPath.c_str() );
+    file_stored << doc;
+    file_stored.close();
+
+    std::ifstream t(newLaunchFullPath.c_str());
+    std::stringstream buffer;
+    buffer << t.rdbuf();
+
+    return buffer.str();
+}
+
+
+void TraCI_Extend::handleSelfMsg(cMessage *msg)
+{
+    TraCIScenarioManager::handleSelfMsg(msg);
 }
 
 
@@ -426,9 +459,9 @@ std::deque<RSUEntry*> TraCI_Extend::commandReadRSUsCoord(std::string RSUfilePath
     file<> xmlFile( RSUfilePath.c_str() );        // Convert our file to a rapid-xml readable object
     xml_document<> doc;                           // Build a rapidxml doc
     doc.parse<0>(xmlFile.data());                 // Fill it with data from our file
-    xml_node<> *node = doc.first_node("RSUs");  // Parse up to the "shapes" declaration
+    xml_node<> *node = doc.first_node("RSUs");    // Parse up to the "RSUs" declaration
 
-    for(node = node->first_node("poly"); node; node = node->next_sibling()) // For each node in nodes
+    for(node = node->first_node("poly"); node; node = node->next_sibling())
     {
         std::string RSUname = "";
         std::string RSUtype = "";
