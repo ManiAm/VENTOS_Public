@@ -6,6 +6,15 @@
 #include "mobility/traci/TraCIMobility.h"
 #include "mobility/traci/TraCIConstants.h"
 #include "mobility/traci/TraCIColor.h"
+#include "ExtraClasses.h"
+#include <deque>
+
+#include <boost/tokenizer.hpp>
+using namespace boost;
+
+#include "rapidxml-1.13/rapidxml.hpp"
+#include "rapidxml-1.13/rapidxml_utils.hpp"
+using namespace rapidxml;
 
 
 class TraCI_Extend : public TraCIScenarioManager
@@ -48,6 +57,10 @@ class TraCI_Extend : public TraCIScenarioManager
         std::list<std::string> commandGetVehicleLaneList(std::string);
         std::list<std::string> commandGetVehiclesOnLane(std::string);
 
+        // RSU
+        std::deque<RSUEntry*> commandReadRSUsCoord(std::string);
+        Coord* commandGetRSUsCoord(unsigned int);
+
         // CMD_GET_SIM_VARIABLE
         double* commandGetNetworkBoundary();
 
@@ -80,12 +93,16 @@ class TraCI_Extend : public TraCIScenarioManager
         void commandSetGUITrack(std::string);
         void commandSetGUIOffset(double, double);
 
+        // Polygon
+        void commandAddCirclePoly(std::string, std::string, TraCIColor, Coord, double);
+
 	protected:
         cXMLElement* launchConfig; /**< launch configuration to send to sumo-launchd */
         int seed; /**< seed value to set in launch configuration, if missing (-1: current run number) */
         std::string VENTOSdirectory;
         std::string SUMOfilesDir;
         std::string SUMOfullDirectory;
+        std::deque<RSUEntry*> RSUs;
 
 	private:
         // generic methods for getters

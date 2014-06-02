@@ -177,6 +177,53 @@ inline void doUnpacking(cCommBuffer *b, BeaconVehicle& obj) {obj.parsimUnpack(b)
 /**
  * Class generated from <tt>msg/Messages.msg</tt> by opp_msgc.
  * <pre>
+ * packet BeaconRSU extends WaveShortMessage 
+ * {
+ * 	string sender;
+ * 	string recipient;
+ * 	Coord pos;
+ * };
+ * </pre>
+ */
+class BeaconRSU : public ::WaveShortMessage
+{
+  protected:
+    opp_string sender_var;
+    opp_string recipient_var;
+    Coord pos_var;
+
+  private:
+    void copy(const BeaconRSU& other);
+
+  protected:
+    // protected and unimplemented operator==(), to prevent accidental usage
+    bool operator==(const BeaconRSU&);
+
+  public:
+    BeaconRSU(const char *name=NULL, int kind=0);
+    BeaconRSU(const BeaconRSU& other);
+    virtual ~BeaconRSU();
+    BeaconRSU& operator=(const BeaconRSU& other);
+    virtual BeaconRSU *dup() const {return new BeaconRSU(*this);}
+    virtual void parsimPack(cCommBuffer *b);
+    virtual void parsimUnpack(cCommBuffer *b);
+
+    // field getter/setter methods
+    virtual const char * getSender() const;
+    virtual void setSender(const char * sender);
+    virtual const char * getRecipient() const;
+    virtual void setRecipient(const char * recipient);
+    virtual Coord& getPos();
+    virtual const Coord& getPos() const {return const_cast<BeaconRSU*>(this)->getPos();}
+    virtual void setPos(const Coord& pos);
+};
+
+inline void doPacking(cCommBuffer *b, BeaconRSU& obj) {obj.parsimPack(b);}
+inline void doUnpacking(cCommBuffer *b, BeaconRSU& obj) {obj.parsimUnpack(b);}
+
+/**
+ * Class generated from <tt>msg/Messages.msg</tt> by opp_msgc.
+ * <pre>
  * packet PlatoonMsg extends WaveShortMessage 
  * {
  *     string sender;

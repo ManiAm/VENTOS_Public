@@ -48,6 +48,14 @@ packet BeaconVehicle extends WaveShortMessage
 };
 
 
+packet BeaconRSU extends WaveShortMessage 
+{
+	string sender;
+	string recipient;
+	Coord pos;
+};
+
+
 packet PlatoonMsg extends WaveShortMessage 
 {
     string sender;

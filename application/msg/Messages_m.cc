@@ -837,6 +837,283 @@ void *BeaconVehicleDescriptor::getFieldStructPointer(void *object, int field, in
     }
 }
 
+Register_Class(BeaconRSU);
+
+BeaconRSU::BeaconRSU(const char *name, int kind) : WaveShortMessage(name,kind)
+{
+    this->sender_var = 0;
+    this->recipient_var = 0;
+}
+
+BeaconRSU::BeaconRSU(const BeaconRSU& other) : WaveShortMessage(other)
+{
+    copy(other);
+}
+
+BeaconRSU::~BeaconRSU()
+{
+}
+
+BeaconRSU& BeaconRSU::operator=(const BeaconRSU& other)
+{
+    if (this==&other) return *this;
+    WaveShortMessage::operator=(other);
+    copy(other);
+    return *this;
+}
+
+void BeaconRSU::copy(const BeaconRSU& other)
+{
+    this->sender_var = other.sender_var;
+    this->recipient_var = other.recipient_var;
+    this->pos_var = other.pos_var;
+}
+
+void BeaconRSU::parsimPack(cCommBuffer *b)
+{
+    WaveShortMessage::parsimPack(b);
+    doPacking(b,this->sender_var);
+    doPacking(b,this->recipient_var);
+    doPacking(b,this->pos_var);
+}
+
+void BeaconRSU::parsimUnpack(cCommBuffer *b)
+{
+    WaveShortMessage::parsimUnpack(b);
+    doUnpacking(b,this->sender_var);
+    doUnpacking(b,this->recipient_var);
+    doUnpacking(b,this->pos_var);
+}
+
+const char * BeaconRSU::getSender() const
+{
+    return sender_var.c_str();
+}
+
+void BeaconRSU::setSender(const char * sender)
+{
+    this->sender_var = sender;
+}
+
+const char * BeaconRSU::getRecipient() const
+{
+    return recipient_var.c_str();
+}
+
+void BeaconRSU::setRecipient(const char * recipient)
+{
+    this->recipient_var = recipient;
+}
+
+Coord& BeaconRSU::getPos()
+{
+    return pos_var;
+}
+
+void BeaconRSU::setPos(const Coord& pos)
+{
+    this->pos_var = pos;
+}
+
+class BeaconRSUDescriptor : public cClassDescriptor
+{
+  public:
+    BeaconRSUDescriptor();
+    virtual ~BeaconRSUDescriptor();
+
+    virtual bool doesSupport(cObject *obj) const;
+    virtual const char *getProperty(const char *propertyname) const;
+    virtual int getFieldCount(void *object) const;
+    virtual const char *getFieldName(void *object, int field) const;
+    virtual int findField(void *object, const char *fieldName) const;
+    virtual unsigned int getFieldTypeFlags(void *object, int field) const;
+    virtual const char *getFieldTypeString(void *object, int field) const;
+    virtual const char *getFieldProperty(void *object, int field, const char *propertyname) const;
+    virtual int getArraySize(void *object, int field) const;
+
+    virtual std::string getFieldAsString(void *object, int field, int i) const;
+    virtual bool setFieldAsString(void *object, int field, int i, const char *value) const;
+
+    virtual const char *getFieldStructName(void *object, int field) const;
+    virtual void *getFieldStructPointer(void *object, int field, int i) const;
+};
+
+Register_ClassDescriptor(BeaconRSUDescriptor);
+
+BeaconRSUDescriptor::BeaconRSUDescriptor() : cClassDescriptor("BeaconRSU", "WaveShortMessage")
+{
+}
+
+BeaconRSUDescriptor::~BeaconRSUDescriptor()
+{
+}
+
+bool BeaconRSUDescriptor::doesSupport(cObject *obj) const
+{
+    return dynamic_cast<BeaconRSU *>(obj)!=NULL;
+}
+
+const char *BeaconRSUDescriptor::getProperty(const char *propertyname) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    return basedesc ? basedesc->getProperty(propertyname) : NULL;
+}
+
+int BeaconRSUDescriptor::getFieldCount(void *object) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    return basedesc ? 3+basedesc->getFieldCount(object) : 3;
+}
+
+unsigned int BeaconRSUDescriptor::getFieldTypeFlags(void *object, int field) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getFieldTypeFlags(object, field);
+        field -= basedesc->getFieldCount(object);
+    }
+    static unsigned int fieldTypeFlags[] = {
+        FD_ISEDITABLE,
+        FD_ISEDITABLE,
+        FD_ISCOMPOUND,
+    };
+    return (field>=0 && field<3) ? fieldTypeFlags[field] : 0;
+}
+
+const char *BeaconRSUDescriptor::getFieldName(void *object, int field) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getFieldName(object, field);
+        field -= basedesc->getFieldCount(object);
+    }
+    static const char *fieldNames[] = {
+        "sender",
+        "recipient",
+        "pos",
+    };
+    return (field>=0 && field<3) ? fieldNames[field] : NULL;
+}
+
+int BeaconRSUDescriptor::findField(void *object, const char *fieldName) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    int base = basedesc ? basedesc->getFieldCount(object) : 0;
+    if (fieldName[0]=='s' && strcmp(fieldName, "sender")==0) return base+0;
+    if (fieldName[0]=='r' && strcmp(fieldName, "recipient")==0) return base+1;
+    if (fieldName[0]=='p' && strcmp(fieldName, "pos")==0) return base+2;
+    return basedesc ? basedesc->findField(object, fieldName) : -1;
+}
+
+const char *BeaconRSUDescriptor::getFieldTypeString(void *object, int field) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getFieldTypeString(object, field);
+        field -= basedesc->getFieldCount(object);
+    }
+    static const char *fieldTypeStrings[] = {
+        "string",
+        "string",
+        "Coord",
+    };
+    return (field>=0 && field<3) ? fieldTypeStrings[field] : NULL;
+}
+
+const char *BeaconRSUDescriptor::getFieldProperty(void *object, int field, const char *propertyname) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getFieldProperty(object, field, propertyname);
+        field -= basedesc->getFieldCount(object);
+    }
+    switch (field) {
+        default: return NULL;
+    }
+}
+
+int BeaconRSUDescriptor::getArraySize(void *object, int field) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getArraySize(object, field);
+        field -= basedesc->getFieldCount(object);
+    }
+    BeaconRSU *pp = (BeaconRSU *)object; (void)pp;
+    switch (field) {
+        default: return 0;
+    }
+}
+
+std::string BeaconRSUDescriptor::getFieldAsString(void *object, int field, int i) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getFieldAsString(object,field,i);
+        field -= basedesc->getFieldCount(object);
+    }
+    BeaconRSU *pp = (BeaconRSU *)object; (void)pp;
+    switch (field) {
+        case 0: return oppstring2string(pp->getSender());
+        case 1: return oppstring2string(pp->getRecipient());
+        case 2: {std::stringstream out; out << pp->getPos(); return out.str();}
+        default: return "";
+    }
+}
+
+bool BeaconRSUDescriptor::setFieldAsString(void *object, int field, int i, const char *value) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->setFieldAsString(object,field,i,value);
+        field -= basedesc->getFieldCount(object);
+    }
+    BeaconRSU *pp = (BeaconRSU *)object; (void)pp;
+    switch (field) {
+        case 0: pp->setSender((value)); return true;
+        case 1: pp->setRecipient((value)); return true;
+        default: return false;
+    }
+}
+
+const char *BeaconRSUDescriptor::getFieldStructName(void *object, int field) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getFieldStructName(object, field);
+        field -= basedesc->getFieldCount(object);
+    }
+    static const char *fieldStructNames[] = {
+        NULL,
+        NULL,
+        "Coord",
+    };
+    return (field>=0 && field<3) ? fieldStructNames[field] : NULL;
+}
+
+void *BeaconRSUDescriptor::getFieldStructPointer(void *object, int field, int i) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getFieldStructPointer(object, field, i);
+        field -= basedesc->getFieldCount(object);
+    }
+    BeaconRSU *pp = (BeaconRSU *)object; (void)pp;
+    switch (field) {
+        case 2: return (void *)(&pp->getPos()); break;
+        default: return NULL;
+    }
+}
+
 Register_Class(PlatoonMsg);
 
 PlatoonMsg::PlatoonMsg(const char *name, int kind) : WaveShortMessage(name,kind)

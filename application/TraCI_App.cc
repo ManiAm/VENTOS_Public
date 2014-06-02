@@ -5,9 +5,6 @@
 #include <iostream>
 #include <fstream>
 
-#include <boost/tokenizer.hpp>
-using namespace boost;
-
 Define_Module(TraCI_App);
 
 
@@ -164,72 +161,13 @@ void TraCI_App::AddRSUModules()
     if(!RSU)
         return;
 
-    // ######################################################
-    // Step 1: read the xml file containing the RSU locations
-    // ######################################################
+    // ####################################
+    // Step 1: read RSU locations from file
+    // ####################################
 
-    std::deque<RSUEntry*> RSUs;
-    std::string RSUfilePath = VENTOSdirectory + par("RSUfile").stringValue();
-
-    file<> xmlFile( RSUfilePath.c_str() );        // Convert our file to a rapid-xml readable object
-    xml_document<> doc;                           // Build a rapidxml doc
-    doc.parse<0>(xmlFile.data());                 // Fill it with data from our file
-    xml_node<> *node = doc.first_node("RSUs");  // Parse up to the "shapes" declaration
-
-    for(node = node->first_node("poly"); node; node = node->next_sibling()) // For each node in nodes
-    {
-        std::string RSUname = "";
-        std::string RSUtype = "";
-        std::string RSUcoordinates = "";
-        int readCount = 1;
-
-        // For each node, iterate over its attributes until we reach "shape"
-        for(xml_attribute<> *attr = node->first_attribute(); attr; attr = attr->next_attribute())
-        {
-            if(readCount == 1)
-            {
-                RSUname = attr->value();
-            }
-            else if(readCount == 2)
-            {
-                RSUtype = attr->value();
-            }
-            else if(readCount == 3)
-            {
-                RSUcoordinates = attr->value();
-            }
-
-            readCount++;
-        }
-
-        // tokenize coordinates
-        int readCount2 = 1;
-        double x;
-        double y;
-        char_separator<char> sep(",");
-        tokenizer< char_separator<char> > tokens(RSUcoordinates, sep);
-
-        for(tokenizer< char_separator<char> >::iterator beg=tokens.begin(); beg!=tokens.end();++beg)
-        {
-            if(readCount2 == 1)
-            {
-                x = std::atof( (*beg).c_str() );
-            }
-            else if(readCount2 == 2)
-            {
-                y = std::atof( (*beg).c_str() );
-            }
-
-            readCount2++;
-        }
-
-        // convert to OMNET++ coordinates
-        Coord pos = traci2omnet(TraCICoord(x, y));
-
-        // add it into queue
-        RSUEntry *entry = new RSUEntry(RSUname.c_str(), pos.x, pos.y);
-        RSUs.push_back(entry);
-    }
+    std::string RSUfile = par("RSUfile").stringValue();
+    std::string RSUfilePath = VENTOSdirectory + RSUfile;
+    std::deque<RSUEntry*> RSUs = commandReadRSUsCoord(RSUfilePath);
 
     // ################################
     // Step 2: create RSUs into OMNET++
@@ -242,13 +180,13 @@ void TraCI_App::AddRSUModules()
 
     cModuleType* nodeType = cModuleType::get("c3po.ned.RSU");
 
+    // We only create RSUs in OMNET++ without moving them to
+    // the correct coordinate
     for(int i = 0; i < NoRSUs; i++)
     {
         cModule* mod = nodeType->create("RSU", parentMod, NoRSUs, i);
         mod->finalizeParameters();
         mod->getDisplayString().updateWith("i=device/antennatower");
-        mod->getDisplayString().setTagArg("p", 0, RSUs[i]->coordX);
-        mod->getDisplayString().setTagArg("p", 1, RSUs[i]->coordY);
         mod->buildInside();
         mod->scheduleStart(simTime());
         mod->callInitialize();
@@ -260,31 +198,10 @@ void TraCI_App::AddRSUModules()
 
     for(int i = 0; i < NoRSUs; i++)
     {
-        // calculate the radio circle
-        double radious = 400;
-        std::list<Coord> circlePoints = getCirclePoints(RSUs[i], radious);
-
-        // create polygon in SUMO
-        commandAddPolygon(RSUs[i]->name, "RSU", TraCIColor::fromTkColor("blue"), 0, 1, circlePoints);
+        Coord *center = new Coord(RSUs[i]->coordX, RSUs[i]->coordY);
+        double radius = 400;
+        commandAddCirclePoly(RSUs[i]->name, "RSU", TraCIColor::fromTkColor("blue"), center, radius);
     }
-}
-
-
-std::list<Coord> TraCI_App::getCirclePoints(RSUEntry *RSU, double radius)
-{
-    std::list<Coord> points;
-
-    // Convert from degrees to radians via multiplication by PI/180
-    for(int angleInDegrees = 0; angleInDegrees <= 360; angleInDegrees = angleInDegrees + 10)
-    {
-        double x = (double)( radius * std::cos(angleInDegrees * 3.14 / 180) ) + RSU->coordX;
-        double y = (double)( radius * std::sin(angleInDegrees * 3.14 / 180) ) + RSU->coordY;
-
-        Coord *p = new Coord(x, y);
-        points.push_back(p);
-    }
-
-    return points;
 }
 
 

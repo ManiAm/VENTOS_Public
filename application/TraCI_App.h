@@ -6,17 +6,12 @@
 #include "mobility/traci/TraCIScenarioManagerLaunchd.h"
 #include "mobility/traci/TraCIMobility.h"
 #include "mobility/traci/TraCIConstants.h"
-#include "ExtraClasses.h"
 #include "TraCI_Extend.h"
 #include "VehicleAdd.h"
 #include "SpeedProfile.h"
 #include "Warmup.h"
 #include "TrafficLight.h"
 
-#include "rapidxml-1.13/rapidxml.hpp"
-#include "rapidxml-1.13/rapidxml_utils.hpp"
-
-using namespace rapidxml;
 
 class TraCI_App : public TraCI_Extend
 {

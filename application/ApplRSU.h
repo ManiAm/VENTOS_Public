@@ -37,15 +37,30 @@ class ApplRSU : public BaseApplLayer
 		/** @brief handle self messages */
 		virtual void handleSelfMsg(cMessage* msg);
 
+        virtual void onBeaconVehicle(BeaconVehicle*);
+        virtual void onBeaconRSU(BeaconRSU*);
+
+        BeaconRSU* prepareBeacon();
+        void printBeaconContent(BeaconRSU*);
+
 	protected:
 		// NED variables
 	    cModule *nodePtr;   // pointer to the Node
         WaveAppToMac1609_4Interface* myMac;
         mutable TraCI_Extend* manager;
 
+        // NED variables (beaconing parameters)
+        bool sendBeacons;
+        double beaconInterval;
+        double maxOffset;
+        int beaconLengthBits;
+        int beaconPriority;
+
         // Class variables
         int myId;
 		const char *myFullId;
+        simtime_t individualOffset;
+        cMessage* sendBeaconEvt;
 };
 
 #endif

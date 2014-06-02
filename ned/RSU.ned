@@ -10,6 +10,7 @@ import org.mixim.modules.nic.Nic80211p;
 module RSU
 {
     parameters:
+         string mobilityType; //type of the mobility module
 
     gates:
         input radioIn; // gate for sendDirect
@@ -29,6 +30,11 @@ module RSU
             parameters:
                 @display("p=60,166");
         }
+        
+        mobility: <mobilityType> like IMobility {
+            parameters:
+                @display("p=130,172;i=block/cogwheel");
+        }
 
     connections:
         nic.upperLayerOut --> appl.lowerLayerIn;
@@ -37,5 +43,4 @@ module RSU
         nic.upperControlIn <-- appl.lowerControlOut;
 
         radioIn --> nic.radioIn;
-
 }

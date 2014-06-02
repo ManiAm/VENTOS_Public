@@ -417,6 +417,86 @@ std::list<std::string> TraCI_Extend::commandGetVehiclesOnLane(std::string laneId
 }
 
 
+// ########################
+// RSU
+// ########################
+
+std::deque<RSUEntry*> TraCI_Extend::commandReadRSUsCoord(std::string RSUfilePath)
+{
+    file<> xmlFile( RSUfilePath.c_str() );        // Convert our file to a rapid-xml readable object
+    xml_document<> doc;                           // Build a rapidxml doc
+    doc.parse<0>(xmlFile.data());                 // Fill it with data from our file
+    xml_node<> *node = doc.first_node("RSUs");  // Parse up to the "shapes" declaration
+
+    for(node = node->first_node("poly"); node; node = node->next_sibling()) // For each node in nodes
+    {
+        std::string RSUname = "";
+        std::string RSUtype = "";
+        std::string RSUcoordinates = "";
+        int readCount = 1;
+
+        // For each node, iterate over its attributes until we reach "shape"
+        for(xml_attribute<> *attr = node->first_attribute(); attr; attr = attr->next_attribute())
+        {
+            if(readCount == 1)
+            {
+                RSUname = attr->value();
+            }
+            else if(readCount == 2)
+            {
+                RSUtype = attr->value();
+            }
+            else if(readCount == 3)
+            {
+                RSUcoordinates = attr->value();
+            }
+
+            readCount++;
+        }
+
+        // tokenize coordinates
+        int readCount2 = 1;
+        double x;
+        double y;
+        char_separator<char> sep(",");
+        tokenizer< char_separator<char> > tokens(RSUcoordinates, sep);
+
+        for(tokenizer< char_separator<char> >::iterator beg=tokens.begin(); beg!=tokens.end();++beg)
+        {
+            if(readCount2 == 1)
+            {
+                x = std::atof( (*beg).c_str() );
+            }
+            else if(readCount2 == 2)
+            {
+                y = std::atof( (*beg).c_str() );
+            }
+
+            readCount2++;
+        }
+
+        // add it into queue (with TraCI coordinates)
+        RSUEntry *entry = new RSUEntry(RSUname.c_str(), x, y);
+        RSUs.push_back(entry);
+    }
+
+    return RSUs;
+}
+
+
+Coord* TraCI_Extend::commandGetRSUsCoord(unsigned int index)
+{
+    if( RSUs.size() == 0 )
+        error("No RSUs have been initialized!");
+
+    if( index < 0 || index >= RSUs.size() )
+        error("index out of bound!");
+
+    Coord* point = new Coord(RSUs[index]->coordX, RSUs[index]->coordY);
+    return point;
+}
+
+
 // ####################
 // CMD_GET_SIM_VARIABLE
 // ####################
@@ -855,6 +935,29 @@ void TraCI_Extend::commandSetGUIOffset(double x, double y)
 
     TraCIBuffer buf = queryTraCI(CMD_SET_GUI_VARIABLE, TraCIBuffer() << variableId << viewID << variableType << x << y);
     ASSERT(buf.eof());
+}
+
+
+// #####################
+// Polygon
+// #####################
+
+void TraCI_Extend::commandAddCirclePoly(std::string name, std::string type, TraCIColor color, Coord center, double radius)
+{
+    std::list<Coord> circlePoints;
+
+    // Convert from degrees to radians via multiplication by PI/180
+    for(int angleInDegrees = 0; angleInDegrees <= 360; angleInDegrees = angleInDegrees + 10)
+    {
+        double x = (double)( radius * std::cos(angleInDegrees * 3.14 / 180) ) + center.x;
+        double y = (double)( radius * std::sin(angleInDegrees * 3.14 / 180) ) + center.y;
+
+        Coord *p = new Coord(x, y);
+        circlePoints.push_back(p);
+    }
+
+    // create polygon in SUMO
+    commandAddPolygon(name, type, color, 0, 1, circlePoints);
 }
 
 
