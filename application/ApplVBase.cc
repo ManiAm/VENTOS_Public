@@ -23,10 +23,6 @@ void ApplVBase::initialize(int stage)
         annotations = AnnotationManagerAccess().getIfExists();
         ASSERT(annotations);
 
-        VANETenabled = par("VANETenabled").boolValue();
-
-        sonarDist = par("sonarDist").doubleValue();
-
         headerLength = par("headerLength").longValue();
 
         findHost()->subscribe(mobilityStateChangedSignal, this);
@@ -41,6 +37,11 @@ void ApplVBase::initialize(int stage)
 
         // vehicle type in sumo
         SUMOvType = manager->commandGetVehicleType(SUMOvID);
+
+        platoonID = "";
+        myPlatoonDepth = -1;
+        platoonSize = -1;
+        queue.clear();
 	}
 }
 

@@ -1,16 +1,16 @@
 
-#ifndef ApplVPlatoonFORMATION3_H
-#define ApplVPlatoonFORMATION3_H
+#ifndef ApplVPlatoonFORMATION2_H
+#define ApplVPlatoonFORMATION2_H
 
-// platoon merge
+// platoon leave
 
-#include "ApplVPlatoonFormation2.h"
+#include "zApplVPlatoonFormation.h"
 
 
-class ApplVPlatoonFormation3 : public ApplVPlatoonFormation2
+class ApplVPlatoonFormation2 : public ApplVPlatoonFormation
 {
 	public:
-        ~ApplVPlatoonFormation3();
+        ~ApplVPlatoonFormation2();
 		virtual void initialize(int stage);
         virtual void finish();
 
@@ -26,10 +26,14 @@ class ApplVPlatoonFormation3 : public ApplVPlatoonFormation2
 
 	private:
         // NED variables
-
+		bool platoonLeaderLeave;
+		bool platoonMemberLeave;
+        double timer3Value;
 
         // Class variables
-
+        cMessage* EventTimer1;
+        cMessage* EventTimer2;
+        cMessage* TIMER3;
 };
 
 #endif

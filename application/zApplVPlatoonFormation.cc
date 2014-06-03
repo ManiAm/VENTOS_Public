@@ -1,11 +1,11 @@
 
-#include "ApplVPlatoonFormation.h"
+#include "zApplVPlatoonFormation.h"
 
 Define_Module(ApplVPlatoonFormation);
 
 void ApplVPlatoonFormation::initialize(int stage)
 {
-    ApplVPlatoon::initialize(stage);
+    // ApplVPlatoon::initialize(stage);
 
 	if (stage == 0)
 	{
@@ -60,7 +60,7 @@ void ApplVPlatoonFormation::handleSelfMsg(cMessage* msg)
 {
     if(!platoonFormation)
     {
-        ApplVPlatoon::handleSelfMsg(msg);
+        // ApplVPlatoon::handleSelfMsg(msg);
         return;
     }
 
@@ -106,12 +106,12 @@ void ApplVPlatoonFormation::onBeaconVehicle(BeaconVehicle* wsm)
 {
     if(!platoonFormation)
     {
-        ApplVPlatoon::onBeaconVehicle(wsm);
+        // ApplVPlatoon::onBeaconVehicle(wsm);
         return;
     }
 
     // waiting for a beacon from our leading vehicle
-    if( vehicleState == state_wait_for_beacon && TIMER1->isScheduled() && ApplVPlatoon::isBeaconFromLeading(wsm) )
+    if( vehicleState == state_wait_for_beacon && TIMER1->isScheduled() /* && ApplVPlatoon::isBeaconFromLeading(wsm)*/ )
     {
         vehicleState = state_ask_to_join;
         cancelEvent(TIMER1);
@@ -200,7 +200,7 @@ void ApplVPlatoonFormation::onData(PlatoonMsg* wsm)
 // is called, every time the position of vehicle changes
 void ApplVPlatoonFormation::handlePositionUpdate(cObject* obj)
 {
-    ApplVPlatoon::handlePositionUpdate(obj);
+    // ApplVPlatoon::handlePositionUpdate(obj);
 }
 
 
@@ -354,7 +354,7 @@ void ApplVPlatoonFormation::printDataContent(PlatoonMsg* wsm)
 
 void ApplVPlatoonFormation::finish()
 {
-    ApplVPlatoon::finish();
+    // ApplVPlatoon::finish();
 }
 
 

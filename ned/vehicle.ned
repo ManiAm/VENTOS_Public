@@ -17,7 +17,7 @@ module vehicle
         input radioIn; // gate for sendDirect
         
     submodules:
-        appl: ApplVSumoInteraction {    // <applType> like IBaseApplLayer {
+        appl: ApplVManager {    // <applType> like IBaseApplLayer {
             parameters:
                 @display("p=60,50");
         }

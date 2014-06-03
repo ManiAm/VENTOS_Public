@@ -1,6 +1,6 @@
 package c3po.ned;
 
-simple ApplVPlatoonFormation extends ApplVPlatoon
+simple ApplVPlatoonFormation extends ApplVManager
 {
     parameters:
         @class(ApplVPlatoonFormation);

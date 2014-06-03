@@ -1,10 +1,12 @@
 package c3po.ned;
 
-simple ApplVSumoInteraction extends ApplVPlatoonFormation2
+simple ApplVManager extends ApplVBeacon
 {
     parameters:
-        @class(ApplVSumoInteraction);
+        @class(ApplVManager);
         @display("i=block/app2");
+        
+        double sonarDist = default(900);
         
         double droppT = default(0s) @unit(s);
         string droppV = default("");
@@ -16,4 +18,9 @@ simple ApplVSumoInteraction extends ApplVPlatoonFormation2
         bool measurementError;
         double errorGap;
         double errorRelSpeed;
+        
+        int mode = default(0);
+        
+        string preDefinedPlatoonID;
+        bool one_vehicle_look_ahead = default(false);
 }

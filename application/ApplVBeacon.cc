@@ -9,6 +9,9 @@ void ApplVBeacon::initialize(int stage)
 
 	if (stage == 0)
 	{
+	    // NED
+        VANETenabled = par("VANETenabled").boolValue();
+
         // NED variables (beaconing parameters)
         sendBeacons = par("sendBeacons").boolValue();
         beaconInterval = par("beaconInterval").doubleValue();

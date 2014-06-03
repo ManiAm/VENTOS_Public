@@ -12,6 +12,9 @@ class ApplVBeacon : public ApplVBase
         virtual void finish();
 
 	protected:
+        // NED
+        bool VANETenabled;
+
         // NED variables (beaconing parameters)
         bool sendBeacons;
 		double beaconInterval;

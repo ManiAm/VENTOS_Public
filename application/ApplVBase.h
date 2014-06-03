@@ -48,8 +48,6 @@ class ApplVBase : public BaseApplLayer
         TraCIMobility* traci;
         mutable TraCI_Extend* manager;
         AnnotationManager* annotations;
-        bool VANETenabled;
-        double sonarDist;
 
         // Class variables
         int myId;
@@ -57,6 +55,11 @@ class ApplVBase : public BaseApplLayer
 	    std::string SUMOvID;
         std::string SUMOvType;
         Coord curPosition;  // current position from mobility module (not from sumo)
+
+        std::string platoonID;
+        int myPlatoonDepth;
+        int platoonSize;
+        std::deque<std::string> queue;
 };
 
 #endif

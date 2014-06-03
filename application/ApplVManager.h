@@ -1,17 +1,21 @@
 
-#ifndef ApplVSUMOINTERACTION_H
-#define ApplVSUMOINTERACTION_H
+#ifndef ApplVMANAGER_H
+#define ApplVMANAGER_H
 
-#include "ApplVPlatoonFormation3.h"
+#include "ApplVBeacon.h"
 
-class ApplVSumoInteraction : public ApplVPlatoonFormation3
+class ApplVManager : public ApplVBeacon
 {
 	public:
-        ~ApplVSumoInteraction();
+        ~ApplVManager();
 		virtual void initialize(int stage);
         virtual void finish();
 
 	protected:
+
+        // NED variables
+        double sonarDist;
+
         // NED variables (packet loss ratio)
         double droppT;
         std::string droppV;
@@ -26,6 +30,13 @@ class ApplVSumoInteraction : public ApplVPlatoonFormation3
         double errorGap;
         double errorRelSpeed;
 
+        // NED variables
+        int mode;
+        bool one_vehicle_look_ahead;
+
+        // NED
+        std::string preDefinedPlatoonID;
+
         // Methods
         virtual void handleLowerMsg(cMessage*);
         virtual void handleSelfMsg(cMessage*);
@@ -36,6 +47,8 @@ class ApplVSumoInteraction : public ApplVPlatoonFormation3
 
         bool dropBeacon(double time, std::string vehicle, double plr);
         void reportDropToStatistics(BeaconVehicle* wsm);
+        bool isBeaconFromLeading(BeaconVehicle*);
+        bool isBeaconFromMyPlatoonLeader(BeaconVehicle*);
 };
 
 #endif

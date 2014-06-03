@@ -2,10 +2,10 @@
 #ifndef ApplVPlatoonFORMATION_H
 #define ApplVPlatoonFORMATION_H
 
-#include "ApplVPlatoon.h"
+#include "ApplVManager.h"
 
 
-class ApplVPlatoonFormation : public ApplVPlatoon
+class ApplVPlatoonFormation : public ApplVManager
 {
 	public:
         ~ApplVPlatoonFormation();
