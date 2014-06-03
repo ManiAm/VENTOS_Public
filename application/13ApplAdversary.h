@@ -1,6 +1,6 @@
 
-#ifndef APPLRSU_H_
-#define APPLRSU_H_
+#ifndef APPLADVERSARY_H_
+#define APPLADVERSARY_H_
 
 #include <map>
 #include <BaseApplLayer.h>
@@ -9,16 +9,15 @@
 #include <msg/Messages_m.h>
 #include <ChannelAccess.h>
 #include <WaveAppToMac1609_4Interface.h>
-#include "TraCI_Extend.h"
+#include "15TraCI_Extend.h"
 #include "mobility/traci/TraCIColor.h"
+#include "01ExtraClasses.h"
 
-#include "ExtraClasses.h"
 
-
-class ApplRSU : public BaseApplLayer
+class ApplAdversary : public BaseApplLayer
 {
 	public:
-		~ApplRSU();
+		~ApplAdversary();
 		virtual void initialize(int stage);
 		virtual void finish();
 		virtual void receiveSignal(cComponent* source, simsignal_t signalID, cObject* obj);
@@ -36,31 +35,22 @@ class ApplRSU : public BaseApplLayer
 		virtual void handleLowerMsg(cMessage* msg);
 		/** @brief handle self messages */
 		virtual void handleSelfMsg(cMessage* msg);
+		/** @brief handle position updates */
+		virtual void handlePositionUpdate(cObject* obj);
 
-        virtual void onBeaconVehicle(BeaconVehicle*);
-        virtual void onBeaconRSU(BeaconRSU*);
-
-        BeaconRSU* prepareBeacon();
-        void printBeaconContent(BeaconRSU*);
+		void DoFalsificationAttack(BeaconVehicle * wsm);
 
 	protected:
 		// NED variables
 	    cModule *nodePtr;   // pointer to the Node
         WaveAppToMac1609_4Interface* myMac;
         mutable TraCI_Extend* manager;
-
-        // NED variables (beaconing parameters)
-        bool sendBeacons;
-        double beaconInterval;
-        double maxOffset;
-        int beaconLengthBits;
-        int beaconPriority;
+        bool FalsificationAttack;
 
         // Class variables
         int myId;
 		const char *myFullId;
-        simtime_t individualOffset;
-        cMessage* sendBeaconEvt;
+        Coord curPosition;  // current position from mobility module (not from sumo)
 };
 
 #endif

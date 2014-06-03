@@ -2,7 +2,7 @@
 #ifndef ApplVPlatoonFORMATION_H
 #define ApplVPlatoonFORMATION_H
 
-#include "ApplVManager.h"
+#include "06ApplVManager.h"
 
 
 class ApplVPlatoonFormation : public ApplVManager
@@ -31,6 +31,7 @@ class ApplVPlatoonFormation : public ApplVManager
         int maxPlatoonSize;
         double timer1Value;
         double timer2Value;
+
         int dataLengthBits;
         bool dataOnSch;
         int dataPriority;

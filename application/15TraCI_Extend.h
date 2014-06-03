@@ -6,7 +6,7 @@
 #include "mobility/traci/TraCIMobility.h"
 #include "mobility/traci/TraCIConstants.h"
 #include "mobility/traci/TraCIColor.h"
-#include "ExtraClasses.h"
+#include "01ExtraClasses.h"
 #include <deque>
 
 #include <boost/tokenizer.hpp>
@@ -77,6 +77,7 @@ class TraCI_Extend : public TraCIScenarioManager
         void commandSetMaxAccel(std::string, double);
         void commandSetMaxDecel(std::string, double);
         void commandSetTg(std::string, double);
+        void commandSetLaneChangeMode(std::string, int32_t);
         void commandAddVehicleN(std::string, std::string, std::string, int32_t, double, double, uint8_t);
         void commandSetCFParameters(std::string, std::string);      // new defined command
         void commandSetDebug(std::string, bool);                    // new defined command

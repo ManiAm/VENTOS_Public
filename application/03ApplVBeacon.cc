@@ -1,5 +1,5 @@
 
-#include "ApplVBeacon.h"
+#include "03ApplVBeacon.h"
 
 Define_Module(ApplVBeacon);
 
@@ -11,6 +11,7 @@ void ApplVBeacon::initialize(int stage)
 	{
 	    // NED
         VANETenabled = par("VANETenabled").boolValue();
+        mode = par("mode").longValue();
 
         // NED variables (beaconing parameters)
         sendBeacons = par("sendBeacons").boolValue();
@@ -18,10 +19,6 @@ void ApplVBeacon::initialize(int stage)
         maxOffset = par("maxOffset").doubleValue();
         beaconLengthBits = par("beaconLengthBits").longValue();
         beaconPriority = par("beaconPriority").longValue();
-
-        // Class variables
-
-        pauseBeaconing = false;
 
         // simulate asynchronous channel access
         double offSet = dblrand() * (beaconInterval/2);
@@ -33,13 +30,35 @@ void ApplVBeacon::initialize(int stage)
         {
             scheduleAt(simTime() + offSet, sendBeaconEvt);
         }
+
+        pauseBeaconing = false;
+
+        platoonID = "";
+        myPlatoonDepth = -1;
+        platoonSize = -1;
+        queue.clear();
+
+        // pre-defined platoon
+        if(mode == 2)
+        {
+            preDefinedPlatoonID = par("preDefinedPlatoonID").stringValue();
+
+            // I am the platoon leader
+            if(SUMOvID == preDefinedPlatoonID)
+            {
+                platoonID = SUMOvID;
+                myPlatoonDepth = 0;
+                // platoonSize;
+                // queue;
+            }
+        }
 	}
 }
 
 
-void ApplVBeacon::handleLowerMsg(cMessage* msg)
+void ApplVBeacon::setVANETenabled(bool b)
 {
-    error("ApplVBeacon should not receive any lower message!");
+    VANETenabled = b;
 }
 
 
@@ -53,11 +72,18 @@ void ApplVBeacon::handleSelfMsg(cMessage* msg)
         {
             BeaconVehicle* beaconMsg = prepareBeacon();
 
+            if(mode == 1 || mode == 2 || mode == 3)
+            {
+                // fill-in the related fields to platoon
+                beaconMsg->setPlatoonID(platoonID.c_str());
+                beaconMsg->setPlatoonDepth(myPlatoonDepth);
+            }
+
             EV << "## Created beacon msg for vehicle: " << SUMOvID << std::endl;
-            printBeaconContent(beaconMsg);
+            ApplVBeacon::printBeaconContent(beaconMsg);
 
             // send it
-            sendDelayedDown(beaconMsg, individualOffset);
+            sendDelayedDown(beaconMsg,individualOffset);
         }
 
         // schedule for next beacon broadcast
@@ -139,12 +165,6 @@ void ApplVBeacon::printBeaconContent(BeaconVehicle* wsm)
     EV << wsm->getLane() << " | ";
     EV << wsm->getPlatoonID() << " | ";
     EV << wsm->getPlatoonDepth() << std::endl;
-}
-
-
-void ApplVBeacon::onBeaconVehicle(BeaconVehicle* wsm)
-{
-    error("ApplVBeacon should not receive any beacon!");
 }
 
 

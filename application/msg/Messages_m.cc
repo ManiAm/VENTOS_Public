@@ -1114,6 +1114,283 @@ void *BeaconRSUDescriptor::getFieldStructPointer(void *object, int field, int i)
     }
 }
 
+Register_Class(LaneChangeCountMsg);
+
+LaneChangeCountMsg::LaneChangeCountMsg(const char *name, int kind) : WaveShortMessage(name,kind)
+{
+    this->sender_var = 0;
+    this->recipient_var = 0;
+}
+
+LaneChangeCountMsg::LaneChangeCountMsg(const LaneChangeCountMsg& other) : WaveShortMessage(other)
+{
+    copy(other);
+}
+
+LaneChangeCountMsg::~LaneChangeCountMsg()
+{
+}
+
+LaneChangeCountMsg& LaneChangeCountMsg::operator=(const LaneChangeCountMsg& other)
+{
+    if (this==&other) return *this;
+    WaveShortMessage::operator=(other);
+    copy(other);
+    return *this;
+}
+
+void LaneChangeCountMsg::copy(const LaneChangeCountMsg& other)
+{
+    this->sender_var = other.sender_var;
+    this->recipient_var = other.recipient_var;
+    this->queueValue_var = other.queueValue_var;
+}
+
+void LaneChangeCountMsg::parsimPack(cCommBuffer *b)
+{
+    WaveShortMessage::parsimPack(b);
+    doPacking(b,this->sender_var);
+    doPacking(b,this->recipient_var);
+    doPacking(b,this->queueValue_var);
+}
+
+void LaneChangeCountMsg::parsimUnpack(cCommBuffer *b)
+{
+    WaveShortMessage::parsimUnpack(b);
+    doUnpacking(b,this->sender_var);
+    doUnpacking(b,this->recipient_var);
+    doUnpacking(b,this->queueValue_var);
+}
+
+const char * LaneChangeCountMsg::getSender() const
+{
+    return sender_var.c_str();
+}
+
+void LaneChangeCountMsg::setSender(const char * sender)
+{
+    this->sender_var = sender;
+}
+
+const char * LaneChangeCountMsg::getRecipient() const
+{
+    return recipient_var.c_str();
+}
+
+void LaneChangeCountMsg::setRecipient(const char * recipient)
+{
+    this->recipient_var = recipient;
+}
+
+stringQueue& LaneChangeCountMsg::getQueueValue()
+{
+    return queueValue_var;
+}
+
+void LaneChangeCountMsg::setQueueValue(const stringQueue& queueValue)
+{
+    this->queueValue_var = queueValue;
+}
+
+class LaneChangeCountMsgDescriptor : public cClassDescriptor
+{
+  public:
+    LaneChangeCountMsgDescriptor();
+    virtual ~LaneChangeCountMsgDescriptor();
+
+    virtual bool doesSupport(cObject *obj) const;
+    virtual const char *getProperty(const char *propertyname) const;
+    virtual int getFieldCount(void *object) const;
+    virtual const char *getFieldName(void *object, int field) const;
+    virtual int findField(void *object, const char *fieldName) const;
+    virtual unsigned int getFieldTypeFlags(void *object, int field) const;
+    virtual const char *getFieldTypeString(void *object, int field) const;
+    virtual const char *getFieldProperty(void *object, int field, const char *propertyname) const;
+    virtual int getArraySize(void *object, int field) const;
+
+    virtual std::string getFieldAsString(void *object, int field, int i) const;
+    virtual bool setFieldAsString(void *object, int field, int i, const char *value) const;
+
+    virtual const char *getFieldStructName(void *object, int field) const;
+    virtual void *getFieldStructPointer(void *object, int field, int i) const;
+};
+
+Register_ClassDescriptor(LaneChangeCountMsgDescriptor);
+
+LaneChangeCountMsgDescriptor::LaneChangeCountMsgDescriptor() : cClassDescriptor("LaneChangeCountMsg", "WaveShortMessage")
+{
+}
+
+LaneChangeCountMsgDescriptor::~LaneChangeCountMsgDescriptor()
+{
+}
+
+bool LaneChangeCountMsgDescriptor::doesSupport(cObject *obj) const
+{
+    return dynamic_cast<LaneChangeCountMsg *>(obj)!=NULL;
+}
+
+const char *LaneChangeCountMsgDescriptor::getProperty(const char *propertyname) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    return basedesc ? basedesc->getProperty(propertyname) : NULL;
+}
+
+int LaneChangeCountMsgDescriptor::getFieldCount(void *object) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    return basedesc ? 3+basedesc->getFieldCount(object) : 3;
+}
+
+unsigned int LaneChangeCountMsgDescriptor::getFieldTypeFlags(void *object, int field) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getFieldTypeFlags(object, field);
+        field -= basedesc->getFieldCount(object);
+    }
+    static unsigned int fieldTypeFlags[] = {
+        FD_ISEDITABLE,
+        FD_ISEDITABLE,
+        FD_ISCOMPOUND,
+    };
+    return (field>=0 && field<3) ? fieldTypeFlags[field] : 0;
+}
+
+const char *LaneChangeCountMsgDescriptor::getFieldName(void *object, int field) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getFieldName(object, field);
+        field -= basedesc->getFieldCount(object);
+    }
+    static const char *fieldNames[] = {
+        "sender",
+        "recipient",
+        "queueValue",
+    };
+    return (field>=0 && field<3) ? fieldNames[field] : NULL;
+}
+
+int LaneChangeCountMsgDescriptor::findField(void *object, const char *fieldName) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    int base = basedesc ? basedesc->getFieldCount(object) : 0;
+    if (fieldName[0]=='s' && strcmp(fieldName, "sender")==0) return base+0;
+    if (fieldName[0]=='r' && strcmp(fieldName, "recipient")==0) return base+1;
+    if (fieldName[0]=='q' && strcmp(fieldName, "queueValue")==0) return base+2;
+    return basedesc ? basedesc->findField(object, fieldName) : -1;
+}
+
+const char *LaneChangeCountMsgDescriptor::getFieldTypeString(void *object, int field) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getFieldTypeString(object, field);
+        field -= basedesc->getFieldCount(object);
+    }
+    static const char *fieldTypeStrings[] = {
+        "string",
+        "string",
+        "stringQueue",
+    };
+    return (field>=0 && field<3) ? fieldTypeStrings[field] : NULL;
+}
+
+const char *LaneChangeCountMsgDescriptor::getFieldProperty(void *object, int field, const char *propertyname) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getFieldProperty(object, field, propertyname);
+        field -= basedesc->getFieldCount(object);
+    }
+    switch (field) {
+        default: return NULL;
+    }
+}
+
+int LaneChangeCountMsgDescriptor::getArraySize(void *object, int field) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getArraySize(object, field);
+        field -= basedesc->getFieldCount(object);
+    }
+    LaneChangeCountMsg *pp = (LaneChangeCountMsg *)object; (void)pp;
+    switch (field) {
+        default: return 0;
+    }
+}
+
+std::string LaneChangeCountMsgDescriptor::getFieldAsString(void *object, int field, int i) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getFieldAsString(object,field,i);
+        field -= basedesc->getFieldCount(object);
+    }
+    LaneChangeCountMsg *pp = (LaneChangeCountMsg *)object; (void)pp;
+    switch (field) {
+        case 0: return oppstring2string(pp->getSender());
+        case 1: return oppstring2string(pp->getRecipient());
+        case 2: {std::stringstream out; out << pp->getQueueValue(); return out.str();}
+        default: return "";
+    }
+}
+
+bool LaneChangeCountMsgDescriptor::setFieldAsString(void *object, int field, int i, const char *value) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->setFieldAsString(object,field,i,value);
+        field -= basedesc->getFieldCount(object);
+    }
+    LaneChangeCountMsg *pp = (LaneChangeCountMsg *)object; (void)pp;
+    switch (field) {
+        case 0: pp->setSender((value)); return true;
+        case 1: pp->setRecipient((value)); return true;
+        default: return false;
+    }
+}
+
+const char *LaneChangeCountMsgDescriptor::getFieldStructName(void *object, int field) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getFieldStructName(object, field);
+        field -= basedesc->getFieldCount(object);
+    }
+    static const char *fieldStructNames[] = {
+        NULL,
+        NULL,
+        "stringQueue",
+    };
+    return (field>=0 && field<3) ? fieldStructNames[field] : NULL;
+}
+
+void *LaneChangeCountMsgDescriptor::getFieldStructPointer(void *object, int field, int i) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getFieldStructPointer(object, field, i);
+        field -= basedesc->getFieldCount(object);
+    }
+    LaneChangeCountMsg *pp = (LaneChangeCountMsg *)object; (void)pp;
+    switch (field) {
+        case 2: return (void *)(&pp->getQueueValue()); break;
+        default: return NULL;
+    }
+}
+
 Register_Class(PlatoonMsg);
 
 PlatoonMsg::PlatoonMsg(const char *name, int kind) : WaveShortMessage(name,kind)

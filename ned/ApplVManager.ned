@@ -1,6 +1,6 @@
 package c3po.ned;
 
-simple ApplVManager extends ApplVBeacon
+simple ApplVManager extends ApplV_AID
 {
     parameters:
         @class(ApplVManager);
@@ -19,8 +19,5 @@ simple ApplVManager extends ApplVBeacon
         double errorGap;
         double errorRelSpeed;
         
-        int mode = default(0);
-        
-        string preDefinedPlatoonID;
         bool one_vehicle_look_ahead = default(false);
 }

@@ -1,5 +1,5 @@
 
-#include "TraCI_App.h"
+#include "16TraCI_App.h"
 
 #include <sstream>
 #include <iostream>
@@ -170,11 +170,8 @@ void TraCI_App::AddRSUModules()
     std::string RSUfilePath = SUMOfullDirectory + "/" + RSUfile;
 
     // check if the file exists!
-    if ( FILE *file = fopen(RSUfilePath.c_str(), "r") )
-    {
-        // everything is good!
-    }
-    else
+    FILE *file = fopen(RSUfilePath.c_str(), "r");
+    if (!file)
     {
         error("RSU file does not exist in %s", RSUfilePath.c_str());
     }

@@ -1,17 +1,18 @@
 
-#include "ApplVManager.h"
+#include "06ApplVManager.h"
 
 Define_Module(ApplVManager);
 
 void ApplVManager::initialize(int stage)
 {
-    ApplVBeacon::initialize(stage);
+    ApplVPlatoonMg::initialize(stage);
 
 	if (stage == 0)
 	{
-        // NED variable
+        // NED variables
         SUMOvehicleDebug = par("SUMOvehicleDebug").boolValue();
         modeSwitch = par("modeSwitch").boolValue();
+        sonarDist = par("sonarDist").doubleValue();
 
         // set parameters in SUMO
         manager->commandSetDebug(SUMOvID, SUMOvehicleDebug);
@@ -22,13 +23,10 @@ void ApplVManager::initialize(int stage)
         droppV = par("droppV").stringValue();
         plr = par("plr").doubleValue();
 
-        // NED
-        sonarDist = par("sonarDist").doubleValue();
-
         // NED variables (measurement errors)
-        measurementError = par("measurementError");
-        errorGap = par("errorGap");
-        errorRelSpeed = par("errorRelSpeed");
+        measurementError = par("measurementError").boolValue();
+        errorGap = par("errorGap").doubleValue();
+        errorRelSpeed = par("errorRelSpeed").doubleValue();
 
         if(measurementError)
         {
@@ -42,53 +40,14 @@ void ApplVManager::initialize(int stage)
         }
 
 	    // NED variables
-	    mode = par("mode").longValue();
         one_vehicle_look_ahead = par("one_vehicle_look_ahead");
-
-	    // pre-defined platoon
-	    if(mode == 2)
-	    {
-	        preDefinedPlatoonID = par("preDefinedPlatoonID").stringValue();
-
-	        // I am the platoon leader
-	        if(SUMOvID == preDefinedPlatoonID)
-	        {
-	            platoonID = SUMOvID;
-	            myPlatoonDepth = 0;
-	            // platoonSize;
-	            // queue;
-	        }
-	    }
 	}
 }
 
 
 void ApplVManager::handleSelfMsg(cMessage* msg)
 {
-    if (msg->getKind() == SEND_BEACON_EVT)
-    {
-        if(mode == 0)
-        {
-            ApplVBeacon::handleSelfMsg(msg);
-        }
-        else if(mode == 1 || mode == 2 || mode == 3)
-        {
-            BeaconVehicle* Msg = ApplVBeacon::prepareBeacon();
-
-            // fill-in the related fields to platoon
-            Msg->setPlatoonID(platoonID.c_str());
-            Msg->setPlatoonDepth(myPlatoonDepth);
-
-            EV << "## Created beacon msg for vehicle: " << SUMOvID << std::endl;
-            ApplVBeacon::printBeaconContent(Msg);
-
-            // send it
-            sendDelayedDown(Msg,individualOffset);
-
-            // schedule for next beacon broadcast
-            scheduleAt(simTime() + beaconInterval, sendBeaconEvt);
-        }
-    }
+    ApplVPlatoonMg::handleSelfMsg(msg);
 }
 
 
@@ -116,6 +75,13 @@ void ApplVManager::handleLowerMsg(cMessage* msg)
         {
             reportDropToStatistics(wsm);
         }
+    }
+    else if (std::string(wsm->getName()) == "beaconRSU")
+    {
+        BeaconRSU* wsm = dynamic_cast<BeaconRSU*>(msg);
+        ASSERT(wsm);
+
+        ApplVManager::onBeaconRSU(wsm);
     }
     else if(std::string(wsm->getName()) == "platoonMsg")
     {
@@ -157,7 +123,7 @@ void ApplVManager::reportDropToStatistics(BeaconVehicle* wsm)
     // todo:
     if(one_vehicle_look_ahead)
     {
-        bool result =  ApplVManager::isBeaconFromLeading(wsm);
+        bool result =  isBeaconFromLeading(wsm);
 
         if(result)
         {
@@ -174,7 +140,7 @@ void ApplVManager::reportDropToStatistics(BeaconVehicle* wsm)
     }
     else
     {
-        bool result = ApplVManager::isBeaconFromMyPlatoonLeader(wsm);
+        bool result = isBeaconFromMyPlatoonLeader(wsm);
 
         // todo:
         if(result)
@@ -195,6 +161,9 @@ void ApplVManager::reportDropToStatistics(BeaconVehicle* wsm)
 
 void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
 {
+    // pass it down
+    ApplVPlatoonMg::onBeaconVehicle(wsm);
+
     EV << "## " << SUMOvID << " received beacon ..." << endl;
     ApplVBeacon::printBeaconContent(wsm);
 
@@ -209,7 +178,7 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
     // CACC stream
     else if(mode == 1)
     {
-        result = ApplVManager::isBeaconFromLeading(wsm);
+        result = isBeaconFromLeading(wsm);
     }
     // predefined platoon
     else if(mode == 2)
@@ -218,7 +187,7 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
         // get data from my leading vehicle
         if(myPlatoonDepth == 0)
         {
-            result = ApplVManager::isBeaconFromLeading(wsm);
+            result = isBeaconFromLeading(wsm);
         }
         // I am follower
         else
@@ -226,12 +195,12 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
             // get data from my leading vehicle
             if(one_vehicle_look_ahead)
             {
-                result = ApplVManager::isBeaconFromLeading(wsm);
+                result = isBeaconFromLeading(wsm);
             }
             // get data from the platoon leader
             else
             {
-                result = ApplVManager::isBeaconFromMyPlatoonLeader(wsm);
+                result = isBeaconFromMyPlatoonLeader(wsm);
             }
 
             // I am not part of any platoon yet!
@@ -268,19 +237,19 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
         // get data from my leading vehicle
         if(myPlatoonDepth == 0)
         {
-            result = ApplVManager::isBeaconFromLeading(wsm);
+            result = isBeaconFromLeading(wsm);
         }
         // I am follower
         // get data from my leading vehicle
         else if(one_vehicle_look_ahead)
         {
-            result = ApplVManager::isBeaconFromLeading(wsm);
+            result = isBeaconFromLeading(wsm);
         }
         // I am follower
         // get data from the platoon leader
         else
         {
-            result = ApplVManager::isBeaconFromMyPlatoonLeader(wsm);
+            result = isBeaconFromMyPlatoonLeader(wsm);
         }
     }
 
@@ -306,15 +275,20 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
 }
 
 
+void ApplVManager::onBeaconRSU(BeaconRSU* wsm)
+{
+    // pass it down
+    ApplVPlatoonMg::onBeaconRSU(wsm);
+
+
+}
+
+
 void ApplVManager::onData(PlatoonMsg* wsm)
 {
-    // todo:
+    // pass it down
+    ApplVPlatoonMg::onData(wsm);
 
-    if(mode == 3)
-    {
-
-    }
-    // ApplVPlatoonFormation2::onData(wsm);
 }
 
 
@@ -397,13 +371,13 @@ bool ApplVManager::isBeaconFromMyPlatoonLeader(BeaconVehicle* wsm)
 // is called, every time the position of vehicle changes
 void ApplVManager::handlePositionUpdate(cObject* obj)
 {
-    ApplVBeacon::handlePositionUpdate(obj);
+    ApplVPlatoonMg::handlePositionUpdate(obj);
 }
 
 
 void ApplVManager::finish()
 {
-    ApplVBeacon::finish();
+    ApplVPlatoonMg::finish();
 }
 
 

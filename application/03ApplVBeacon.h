@@ -2,7 +2,7 @@
 #ifndef ApplVBeacon_H
 #define ApplVBeacon_H
 
-#include "ApplVBase.h"
+#include "02ApplVBase.h"
 
 class ApplVBeacon : public ApplVBase
 {
@@ -11,9 +11,13 @@ class ApplVBeacon : public ApplVBase
 		virtual void initialize(int stage);
         virtual void finish();
 
+        void setVANETenabled(bool);
+
 	protected:
         // NED
         bool VANETenabled;
+        int mode;
+        std::string preDefinedPlatoonID;
 
         // NED variables (beaconing parameters)
         bool sendBeacons;
@@ -27,12 +31,14 @@ class ApplVBeacon : public ApplVBase
         cMessage* sendBeaconEvt;
         bool pauseBeaconing;
 
+        std::string platoonID;
+        int myPlatoonDepth;
+        int platoonSize;
+        std::deque<std::string> queue;
+
         // Methods
-        virtual void handleLowerMsg(cMessage*);
         virtual void handleSelfMsg(cMessage*);
         virtual void handlePositionUpdate(cObject*);
-
-        virtual void onBeaconVehicle(BeaconVehicle*);
 
         BeaconVehicle* prepareBeacon();
         void printBeaconContent(BeaconVehicle*);

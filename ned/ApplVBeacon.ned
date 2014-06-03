@@ -7,6 +7,8 @@ simple ApplVBeacon extends ApplVBase
         @display("i=block/app2");
         
         bool VANETenabled = default(true);
+        int mode = default(0);
+        string preDefinedPlatoonID;
                 
         bool sendBeacons = default(false); //tell the applayer to periodically send beacons
         volatile double beaconInterval = default(1s) @unit(s); //the intervall between 2 beacon messages

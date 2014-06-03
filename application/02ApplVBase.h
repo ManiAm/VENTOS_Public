@@ -1,6 +1,6 @@
 
-#ifndef APPLADVERSARY_H_
-#define APPLADVERSARY_H_
+#ifndef APPLVBASE_H_
+#define APPLVBASE_H_
 
 #include <map>
 #include <BaseApplLayer.h>
@@ -9,16 +9,15 @@
 #include <msg/Messages_m.h>
 #include <ChannelAccess.h>
 #include <WaveAppToMac1609_4Interface.h>
-#include "TraCI_Extend.h"
+#include "15TraCI_Extend.h"
 #include "mobility/traci/TraCIColor.h"
+#include "01ExtraClasses.h"
 
-#include "ExtraClasses.h"
 
-
-class ApplAdversary : public BaseApplLayer
+class ApplVBase : public BaseApplLayer
 {
 	public:
-		~ApplAdversary();
+		~ApplVBase();
 		virtual void initialize(int stage);
 		virtual void finish();
 		virtual void receiveSignal(cComponent* source, simsignal_t signalID, cObject* obj);
@@ -32,25 +31,24 @@ class ApplAdversary : public BaseApplLayer
 	protected:
 		static const simsignalwrap_t mobilityStateChangedSignal;
 
-		/** @brief handle messages from below */
-		virtual void handleLowerMsg(cMessage* msg);
-		/** @brief handle self messages */
 		virtual void handleSelfMsg(cMessage* msg);
-		/** @brief handle position updates */
 		virtual void handlePositionUpdate(cObject* obj);
 
-		void DoFalsificationAttack(BeaconVehicle * wsm);
+		bool isCACCvehicle();
 
 	protected:
 		// NED variables
 	    cModule *nodePtr;   // pointer to the Node
         WaveAppToMac1609_4Interface* myMac;
+        TraCIMobility* traci;
         mutable TraCI_Extend* manager;
-        bool FalsificationAttack;
+        AnnotationManager* annotations;
 
         // Class variables
         int myId;
 		const char *myFullId;
+	    std::string SUMOvID;
+        std::string SUMOvType;
         Coord curPosition;  // current position from mobility module (not from sumo)
 };
 

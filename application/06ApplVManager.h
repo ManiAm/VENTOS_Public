@@ -2,9 +2,9 @@
 #ifndef ApplVMANAGER_H
 #define ApplVMANAGER_H
 
-#include "ApplVBeacon.h"
+#include "05ApplVPlatoonMg.h"
 
-class ApplVManager : public ApplVBeacon
+class ApplVManager : public ApplVPlatoonMg
 {
 	public:
         ~ApplVManager();
@@ -31,11 +31,7 @@ class ApplVManager : public ApplVBeacon
         double errorRelSpeed;
 
         // NED variables
-        int mode;
         bool one_vehicle_look_ahead;
-
-        // NED
-        std::string preDefinedPlatoonID;
 
         // Methods
         virtual void handleLowerMsg(cMessage*);
@@ -43,7 +39,10 @@ class ApplVManager : public ApplVBeacon
         virtual void handlePositionUpdate(cObject*);
 
 		virtual void onBeaconVehicle(BeaconVehicle*);
+        virtual void onBeaconRSU(BeaconRSU*);
         virtual void onData(PlatoonMsg* wsm);
+
+	private:
 
         bool dropBeacon(double time, std::string vehicle, double plr);
         void reportDropToStatistics(BeaconVehicle* wsm);

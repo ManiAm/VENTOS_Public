@@ -4,7 +4,7 @@
 
 #include "MiXiMDefs.h"
 #include "BaseMobility.h"
-#include "TraCI_Extend.h"
+#include "15TraCI_Extend.h"
 
 class MIXIM_API RSUMobility : public BaseMobility
 {

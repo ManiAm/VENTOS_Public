@@ -10,8 +10,4 @@ simple ApplVPlatoonFormation extends ApplVManager
         int maxPlatoonSize;
         double timer1Value = default(1s) @unit(s);
         double timer2Value = default(1s) @unit(s);
-        
-        int dataLengthBits = default(1024bit) @unit(bit); //the length of a data packet
-        bool dataOnSch = default(true); //tells the applayer whether to use a service channel for datapackets or the control channel
-        int dataPriority = default(3); //the access category for data packets
 }

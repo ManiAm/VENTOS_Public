@@ -1,5 +1,5 @@
 
-#include "ApplVBase.h"
+#include "02ApplVBase.h"
 
 const simsignalwrap_t ApplVBase::mobilityStateChangedSignal = simsignalwrap_t(MIXIM_SIGNAL_MOBILITY_CHANGE_NAME);
 
@@ -37,11 +37,6 @@ void ApplVBase::initialize(int stage)
 
         // vehicle type in sumo
         SUMOvType = manager->commandGetVehicleType(SUMOvID);
-
-        platoonID = "";
-        myPlatoonDepth = -1;
-        platoonSize = -1;
-        queue.clear();
 	}
 }
 
@@ -57,15 +52,8 @@ void ApplVBase::receiveSignal(cComponent* source, simsignal_t signalID, cObject*
 }
 
 
-void ApplVBase::handleLowerMsg(cMessage* msg)
-{
-
-}
-
-
 void ApplVBase::handleSelfMsg(cMessage* msg)
 {
-
 
 }
 

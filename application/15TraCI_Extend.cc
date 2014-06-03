@@ -1,5 +1,5 @@
 
-#include "TraCI_Extend.h"
+#include "15TraCI_Extend.h"
 #include <sstream>
 #include <fstream>
 #include <iostream>
@@ -774,6 +774,15 @@ void TraCI_Extend::commandSetTg(std::string nodeId, double value)
     uint8_t variableType = TYPE_DOUBLE;
 
     TraCIBuffer buf = queryTraCI(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
+    ASSERT(buf.eof());
+}
+
+
+void TraCI_Extend::commandSetLaneChangeMode(std::string nodeId, int32_t bitset)
+{
+    uint8_t variableId = 0xb6;
+    uint8_t variableType = TYPE_INTEGER;
+    TraCIBuffer buf = queryTraCI(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << bitset);
     ASSERT(buf.eof());
 }
 

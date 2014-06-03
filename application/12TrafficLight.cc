@@ -1,5 +1,5 @@
 
-#include "TrafficLight.h"
+#include "12TrafficLight.h"
 
 #include <sstream>
 #include <iostream>
@@ -52,7 +52,7 @@ void TrafficLight::Execute()
 
     // get a pointer to vehicle CACC1
     cModule *module = simulation.getSystemModule()->getSubmodule("CACC1");
-    ApplVSumoInteraction *car = static_cast<ApplVSumoInteraction *>(module);
+    ApplVManager *car = static_cast<ApplVManager *>(module);
 
 
 }

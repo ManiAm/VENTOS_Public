@@ -1,6 +1,6 @@
 
-#ifndef APPLVBASE_H_
-#define APPLVBASE_H_
+#ifndef APPLRSU_H_
+#define APPLRSU_H_
 
 #include <map>
 #include <BaseApplLayer.h>
@@ -9,16 +9,15 @@
 #include <msg/Messages_m.h>
 #include <ChannelAccess.h>
 #include <WaveAppToMac1609_4Interface.h>
-#include "TraCI_Extend.h"
+#include "15TraCI_Extend.h"
 #include "mobility/traci/TraCIColor.h"
+#include "01ExtraClasses.h"
 
-#include "ExtraClasses.h"
 
-
-class ApplVBase : public BaseApplLayer
+class ApplRSU : public BaseApplLayer
 {
 	public:
-		~ApplVBase();
+		~ApplRSU();
 		virtual void initialize(int stage);
 		virtual void finish();
 		virtual void receiveSignal(cComponent* source, simsignal_t signalID, cObject* obj);
@@ -34,32 +33,34 @@ class ApplVBase : public BaseApplLayer
 
 		/** @brief handle messages from below */
 		virtual void handleLowerMsg(cMessage* msg);
+
 		/** @brief handle self messages */
 		virtual void handleSelfMsg(cMessage* msg);
-		/** @brief handle position updates */
-		virtual void handlePositionUpdate(cObject* obj);
 
-		bool isCACCvehicle();
+        virtual void onBeaconVehicle(BeaconVehicle*);
+        virtual void onBeaconRSU(BeaconRSU*);
+
+        BeaconRSU* prepareBeacon();
+        void printBeaconContent(BeaconRSU*);
 
 	protected:
 		// NED variables
 	    cModule *nodePtr;   // pointer to the Node
         WaveAppToMac1609_4Interface* myMac;
-        TraCIMobility* traci;
         mutable TraCI_Extend* manager;
-        AnnotationManager* annotations;
+
+        // NED variables (beaconing parameters)
+        bool sendBeacons;
+        double beaconInterval;
+        double maxOffset;
+        int beaconLengthBits;
+        int beaconPriority;
 
         // Class variables
         int myId;
 		const char *myFullId;
-	    std::string SUMOvID;
-        std::string SUMOvType;
-        Coord curPosition;  // current position from mobility module (not from sumo)
-
-        std::string platoonID;
-        int myPlatoonDepth;
-        int platoonSize;
-        std::deque<std::string> queue;
+        simtime_t individualOffset;
+        cMessage* sendBeaconEvt;
 };
 
 #endif

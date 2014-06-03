@@ -1,5 +1,5 @@
 
-#include "VehicleAdd.h"
+#include "07VehicleAdd.h"
 
 #include <sstream>
 #include <iostream>
@@ -68,6 +68,7 @@ void VehicleAdd::Add()
 }
 
 
+// for incident detection
 void VehicleAdd::Scenario1()
 {
     int depart = 0;
@@ -76,12 +77,23 @@ void VehicleAdd::Scenario1()
     {
         char vehicleName[10];
         sprintf(vehicleName, "Krauss%d", i);
-        depart = depart + 1000;
+        depart = depart + 3000;
 
         uint8_t lane = intrand(3);  // random number in [0,3)
 
         manager->commandAddVehicleN(vehicleName, "TypeManual", "route1", depart, 0, 0, lane);
     }
+
+    // now we add a vehicle as obstacle
+    manager->commandAddVehicleN("obstacle", "TypeObstacle", "route1", 500, 300, 0, 1);
+
+    // make it stop on the lane!
+    manager->commandSetSpeed("obstacle", 0.);
+    manager->commandSetLaneChangeMode("obstacle", 0);
+
+    // change the color to blue
+    TraCIColor newColor = TraCIColor::fromTkColor("red");
+    manager->commandSetVehicleColor("obstacle", newColor);
 }
 
 

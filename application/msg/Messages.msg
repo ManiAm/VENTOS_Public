@@ -56,6 +56,14 @@ packet BeaconRSU extends WaveShortMessage
 };
 
 
+packet LaneChangeCountMsg extends WaveShortMessage 
+{
+    string sender;
+	string recipient;
+    stringQueue queueValue;  
+};
+
+
 packet PlatoonMsg extends WaveShortMessage 
 {
     string sender;
