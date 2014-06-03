@@ -2,9 +2,9 @@
 
 <shapes>
 
-    <poly id="point1" type="unknown" color="1,0,0" fill="1" layer="0" shape="200,-22 709,345.57 769,345.57"/>
+    <poly id="point1" type="building" color="1,0,0" fill="1" layer="0" shape="200,-22 709,345.57 769,345.57"/>
     
-    <poi id="point2" type="unknown" color="1,0,0" fill="1" layer="1" lane="1to2_2" pos="100"/>
+    <poi id="point2" type="building" color="1,0,0" fill="1" layer="1" lane="1to2_2" pos="100"/>
 
 </shapes>
 
