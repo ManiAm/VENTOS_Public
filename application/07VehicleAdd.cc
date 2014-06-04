@@ -85,7 +85,7 @@ void VehicleAdd::Scenario1()
     }
 
     // now we add a vehicle as obstacle
-    manager->commandAddVehicleN("obstacle", "TypeObstacle", "route1", 500, 300, 0, 1);
+    manager->commandAddVehicleN("obstacle", "TypeObstacle", "route1", 50, 800, 0, 1);
 
     // make it stop on the lane!
     manager->commandSetSpeed("obstacle", 0.);

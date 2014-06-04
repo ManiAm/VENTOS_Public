@@ -1,6 +1,9 @@
 
 #include "10ApplRSU.h"
 
+
+MatrixXi ApplRSU::tableCount;
+
 Define_Module(ApplRSU);
 
 void ApplRSU::initialize(int stage)
@@ -42,6 +45,10 @@ void ApplRSU::initialize(int stage)
         {
             scheduleAt(simTime() + offSet, sendBeaconEvt);
         }
+
+        // todo: change n and m dynamically!
+        tableCount = MatrixXi::Zero(3, 2000);
+        tableProb = MatrixXd::Constant(3, 2000, 0.1);
 	}
 	else if(stage==1)
 	{
@@ -59,7 +66,18 @@ void ApplRSU::receiveSignal(cComponent* source, simsignal_t signalID, cObject* o
 
 void ApplRSU::handleLowerMsg(cMessage* msg)
 {
-    // error("ApplRSU should not receive any lower message!");
+    // make sure msg is of type WaveShortMessage
+    WaveShortMessage* wsm = dynamic_cast<WaveShortMessage*>(msg);
+    ASSERT(wsm);
+
+    // receive a lane change msg
+    if(std::string(wsm->getName()) == "laneChangeMsg")
+    {
+        LaneChangeMsg* wsm = dynamic_cast<LaneChangeMsg*>(msg);
+        ASSERT(wsm);
+
+        ApplRSU::onLaneChange(wsm);
+    }
 }
 
 
@@ -144,6 +162,84 @@ void ApplRSU::onBeaconVehicle(BeaconVehicle* wsm)
 void ApplRSU::onBeaconRSU(BeaconRSU* wsm)
 {
     error("ApplVBeacon should not receive any beacon!");
+}
+
+
+void ApplRSU::onLaneChange(LaneChangeMsg* wsm)
+{
+    std::deque<std::string> input = wsm->getLaneChange();
+
+    for(unsigned int i = 0; i < input.size(); i++)
+    {
+        // tokenize
+        int readCount = 1;
+        char_separator<char> sep("#", "", keep_empty_tokens);
+        tokenizer< char_separator<char> > tokens(input[i], sep);
+
+        std::string fromLane;
+        std::string toLane;
+        double fromX;
+        double toX;
+        double time;
+
+        for(tokenizer< char_separator<char> >::iterator beg=tokens.begin(); beg!=tokens.end();++beg)
+        {
+            if(readCount == 1)
+            {
+                fromLane = (*beg);
+               //EV << "token 1: " << fromLane << endl;
+            }
+            else if(readCount == 2)
+            {
+                toLane = (*beg);
+               //EV << "token 2: " << toLane << endl;
+            }
+            else if(readCount == 3)
+            {
+                fromX = std::atof( (*beg).c_str() );
+               //EV << "token 3: " << x << endl;
+            }
+            else if(readCount == 4)
+            {
+                toX = std::atof( (*beg).c_str() );
+                //EV << "token 4: " << y << endl;
+            }
+            else if(readCount == 5)
+            {
+                time = std::atof( (*beg).c_str() );
+               //EV << "token 5: " << time << endl;
+            }
+
+            readCount++;
+        }
+
+        // todo: change them dynamically
+        int index_N_start = std::floor(fromX / 5);
+        int index_N_end = std::floor(toX / 5);
+        int index_M = -1;
+
+        if(fromLane == "")
+            fromLane = toLane;
+
+        if(fromLane == "1to2_0")
+        {
+            index_M = 0;
+        }
+        else if(fromLane == "1to2_1")
+        {
+            index_M = 1;
+        }
+        else if(fromLane == "1to2_2")
+        {
+            index_M = 2;
+        }
+
+        // increase all corresponding indices in tableCount by 1
+        for(int j = index_N_start; j <= index_N_end; j++)
+        {
+            tableCount(index_M, j) = tableCount(index_M, j) + 1;
+        }
+    }
 }
 
 

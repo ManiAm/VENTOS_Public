@@ -224,34 +224,34 @@ inline void doUnpacking(cCommBuffer *b, BeaconRSU& obj) {obj.parsimUnpack(b);}
 /**
  * Class generated from <tt>msg/Messages.msg</tt> by opp_msgc.
  * <pre>
- * packet LaneChangeCountMsg extends WaveShortMessage 
+ * packet LaneChangeMsg extends WaveShortMessage 
  * {
  *     string sender;
  * 	string recipient;
- *     stringQueue queueValue;  
+ *     stringQueue laneChange;  
  * };
  * </pre>
  */
-class LaneChangeCountMsg : public ::WaveShortMessage
+class LaneChangeMsg : public ::WaveShortMessage
 {
   protected:
     opp_string sender_var;
     opp_string recipient_var;
-    stringQueue queueValue_var;
+    stringQueue laneChange_var;
 
   private:
-    void copy(const LaneChangeCountMsg& other);
+    void copy(const LaneChangeMsg& other);
 
   protected:
     // protected and unimplemented operator==(), to prevent accidental usage
-    bool operator==(const LaneChangeCountMsg&);
+    bool operator==(const LaneChangeMsg&);
 
   public:
-    LaneChangeCountMsg(const char *name=NULL, int kind=0);
-    LaneChangeCountMsg(const LaneChangeCountMsg& other);
-    virtual ~LaneChangeCountMsg();
-    LaneChangeCountMsg& operator=(const LaneChangeCountMsg& other);
-    virtual LaneChangeCountMsg *dup() const {return new LaneChangeCountMsg(*this);}
+    LaneChangeMsg(const char *name=NULL, int kind=0);
+    LaneChangeMsg(const LaneChangeMsg& other);
+    virtual ~LaneChangeMsg();
+    LaneChangeMsg& operator=(const LaneChangeMsg& other);
+    virtual LaneChangeMsg *dup() const {return new LaneChangeMsg(*this);}
     virtual void parsimPack(cCommBuffer *b);
     virtual void parsimUnpack(cCommBuffer *b);
 
@@ -260,13 +260,13 @@ class LaneChangeCountMsg : public ::WaveShortMessage
     virtual void setSender(const char * sender);
     virtual const char * getRecipient() const;
     virtual void setRecipient(const char * recipient);
-    virtual stringQueue& getQueueValue();
-    virtual const stringQueue& getQueueValue() const {return const_cast<LaneChangeCountMsg*>(this)->getQueueValue();}
-    virtual void setQueueValue(const stringQueue& queueValue);
+    virtual stringQueue& getLaneChange();
+    virtual const stringQueue& getLaneChange() const {return const_cast<LaneChangeMsg*>(this)->getLaneChange();}
+    virtual void setLaneChange(const stringQueue& laneChange);
 };
 
-inline void doPacking(cCommBuffer *b, LaneChangeCountMsg& obj) {obj.parsimPack(b);}
-inline void doUnpacking(cCommBuffer *b, LaneChangeCountMsg& obj) {obj.parsimUnpack(b);}
+inline void doPacking(cCommBuffer *b, LaneChangeMsg& obj) {obj.parsimPack(b);}
+inline void doUnpacking(cCommBuffer *b, LaneChangeMsg& obj) {obj.parsimUnpack(b);}
 
 /**
  * Class generated from <tt>msg/Messages.msg</tt> by opp_msgc.

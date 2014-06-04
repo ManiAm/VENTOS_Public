@@ -1,0 +1,21 @@
+version 2
+run incidentDetection-0-20140604-04:01:00-24493
+attr PlatoonNumber 1
+attr PlatoonSize 2000
+attr configname incidentDetection
+attr datetime 20140604-04:01:00
+attr experiment incidentDetection
+attr inifile omnetpp.ini
+attr iterationvars "$PlatoonSize=2000, $PlatoonNumber=1"
+attr iterationvars2 "$PlatoonSize=2000, $PlatoonNumber=1, $repetition=0"
+attr measurement "$PlatoonSize=2000, $PlatoonNumber=1"
+attr network ned.Network
+attr processid 24493
+attr repetition 0
+attr replication #0
+attr resultdir results
+attr runnumber 0
+attr seedset 0
+
+scalar . 	PlatoonNumber 	1
+scalar . 	PlatoonSize 	2000

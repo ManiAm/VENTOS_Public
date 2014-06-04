@@ -13,6 +13,12 @@
 #include "mobility/traci/TraCIColor.h"
 #include "01ExtraClasses.h"
 
+#include <boost/tokenizer.hpp>
+using namespace boost;
+
+#include <Eigen/Dense>
+using namespace Eigen;
+
 
 class ApplRSU : public BaseApplLayer
 {
@@ -39,6 +45,7 @@ class ApplRSU : public BaseApplLayer
 
         virtual void onBeaconVehicle(BeaconVehicle*);
         virtual void onBeaconRSU(BeaconRSU*);
+        virtual void onLaneChange(LaneChangeMsg*);
 
         BeaconRSU* prepareBeacon();
         void printBeaconContent(BeaconRSU*);
@@ -61,6 +68,9 @@ class ApplRSU : public BaseApplLayer
 		const char *myFullId;
         simtime_t individualOffset;
         cMessage* sendBeaconEvt;
+
+        static MatrixXi tableCount;
+        MatrixXd tableProb;
 };
 
 #endif

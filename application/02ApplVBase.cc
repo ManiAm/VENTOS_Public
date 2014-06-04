@@ -25,8 +25,6 @@ void ApplVBase::initialize(int stage)
 
         headerLength = par("headerLength").longValue();
 
-        findHost()->subscribe(mobilityStateChangedSignal, this);
-
         // vehicle id in omnet++
 		myId = getParentModule()->getIndex();
 
@@ -37,6 +35,9 @@ void ApplVBase::initialize(int stage)
 
         // vehicle type in sumo
         SUMOvType = manager->commandGetVehicleType(SUMOvID);
+
+        if(SUMOvType != "TypeObstacle")
+            findHost()->subscribe(mobilityStateChangedSignal, this);
 	}
 }
 

@@ -11,8 +11,6 @@ class ApplVBeacon : public ApplVBase
 		virtual void initialize(int stage);
         virtual void finish();
 
-        void setVANETenabled(bool);
-
 	protected:
         // NED
         bool VANETenabled;

@@ -2,14 +2,14 @@
 # OMNeT++/OMNEST Makefile for libmsg
 #
 # This file was generated with the command:
-#  opp_makemake -f --make-so -o msg -O out -I../../../veins/src/base/utils -L../../../veins/out/$(CONFIGNAME)/src/modules -L../../../veins/out/$(CONFIGNAME)/tests/testUtils -L../../../veins/out/$(CONFIGNAME)/src/base -L../../out/$(CONFIGNAME)/application -lmiximmodules -lmiximtestUtils -lmiximbase -KVEINS_PROJ=../../../veins
+#  opp_makemake -f --make-so -o msg -O out -I/home/mani/Desktop/VENTOS/eigen3 -I../../../veins/src/base/utils -L../../../veins/out/$(CONFIGNAME)/src/modules -L../../../veins/out/$(CONFIGNAME)/tests/testUtils -L../../../veins/out/$(CONFIGNAME)/src/base -L../../out/$(CONFIGNAME)/application -lmiximmodules -lmiximtestUtils -lmiximbase -KVEINS_PROJ=../../../veins
 #
 
 # Name of target to be created (-o option)
 TARGET = libmsg$(SHARED_LIB_SUFFIX)
 
 # C++ include paths (with -I)
-INCLUDE_PATH = -I../../../veins/src/base/utils -I.
+INCLUDE_PATH = -I../../eigen3 -I../../../veins/src/base/utils -I.
 
 # Additional object and library files to link with
 EXTRA_OBJS =

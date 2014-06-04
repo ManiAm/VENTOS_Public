@@ -7,6 +7,7 @@
 #include "mobility/traci/TraCIMobility.h"
 #include "mobility/traci/TraCIConstants.h"
 #include "15TraCI_Extend.h"
+#include "06ApplVManager.h"
 
 
 class VehicleAdd : public cSimpleModule

@@ -10,7 +10,15 @@ void ApplVBeacon::initialize(int stage)
 	if (stage == 0)
 	{
 	    // NED
-        VANETenabled = par("VANETenabled").boolValue();
+	    if(SUMOvType != "TypeObstacle")
+	    {
+            VANETenabled = par("VANETenabled").boolValue();
+	    }
+	    else
+	    {
+	        VANETenabled = false;
+	    }
+
         mode = par("mode").longValue();
 
         // NED variables (beaconing parameters)
@@ -26,7 +34,7 @@ void ApplVBeacon::initialize(int stage)
         individualOffset = dblrand() * maxOffset;
 
         sendBeaconEvt = new cMessage("beacon evt", SEND_BEACON_EVT);
-        if (sendBeacons && VANETenabled )
+        if (sendBeacons && VANETenabled && SUMOvType != "TypeObstacle")
         {
             scheduleAt(simTime() + offSet, sendBeaconEvt);
         }
@@ -53,12 +61,6 @@ void ApplVBeacon::initialize(int stage)
             }
         }
 	}
-}
-
-
-void ApplVBeacon::setVANETenabled(bool b)
-{
-    VANETenabled = b;
 }
 
 

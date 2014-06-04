@@ -3,6 +3,7 @@
 #define ApplVAID_H
 
 #include "03ApplVBeacon.h"
+#include "Messages_m.h"
 
 class ApplV_AID : public ApplVBeacon
 {
@@ -28,8 +29,15 @@ class ApplV_AID : public ApplVBeacon
         virtual void onBeaconRSU(BeaconRSU*);
         virtual void onData(PlatoonMsg* wsm);
 
+        LaneChangeMsg* prepareData( std::string, std::deque<std::string> );
+        void printDataContent(LaneChangeMsg*);
+
         // class variables
-        std::string lastLane;
+        std::string fromLane;
+        std::string toLane;
+        double fromX;
+        double toX;
+
         std::deque<std::string> laneChanges;
 };
 
