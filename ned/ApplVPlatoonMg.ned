@@ -1,7 +1,7 @@
 package c3po.ned;
 
 
-simple ApplVPlatoonMg extends ApplV_AID
+simple ApplVPlatoonMg extends ApplVAID
 {
     parameters:
         @class(ApplVPlatoonMg); 

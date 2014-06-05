@@ -1,10 +1,10 @@
 package c3po.ned;
 
 
-simple ApplV_AID extends ApplVBeacon
+simple ApplVAID extends ApplVBeacon
 {
     parameters:
-        @class(ApplV_AID);       
+        @class(ApplVAID);       
         
         int dataLengthBits = default(1024bit) @unit(bit); //the length of a data packet
         bool dataOnSch = default(true); //tells the applayer whether to use a service channel for datapackets or the control channel

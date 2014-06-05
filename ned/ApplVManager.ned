@@ -1,6 +1,6 @@
 package c3po.ned;
 
-simple ApplVManager extends ApplV_AID
+simple ApplVManager extends ApplVPlatoonMg
 {
     parameters:
         @class(ApplVManager);

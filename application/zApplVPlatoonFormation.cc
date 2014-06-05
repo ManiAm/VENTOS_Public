@@ -191,7 +191,7 @@ void ApplVPlatoonFormation::onData(PlatoonMsg* wsm)
         // check if this is coming from my platoon leader
         if( std::string(wsm->getReceivingPlatoonID()) == platoonID )
         {
-            manager->commandSetTg(SUMOvID, wsm->getDblValue());
+            TraCI->commandSetTg(SUMOvID, wsm->getDblValue());
         }
     }
 }
@@ -211,7 +211,7 @@ void ApplVPlatoonFormation::FSMchangeState()
         EV << "### " << SUMOvID << ": current vehicle status is idle." << endl;
 
         // check for leading vehicle
-        std::vector<std::string> res = manager->commandGetLeading(SUMOvID, sonarDist);
+        std::vector<std::string> res = TraCI->commandGetLeading(SUMOvID, sonarDist);
         std::string vleaderID = res[0];
 
         if(vleaderID == "")
@@ -242,7 +242,7 @@ void ApplVPlatoonFormation::FSMchangeState()
     {
         EV << "### " << SUMOvID << ": current vehicle status is create-new_platoon." << endl;
 
-        manager->commandSetTg(SUMOvID, 3.5);
+        TraCI->commandSetTg(SUMOvID, 3.5);
         platoonID = SUMOvID;
         myPlatoonDepth = 0;
         platoonSize = 1;
@@ -250,7 +250,7 @@ void ApplVPlatoonFormation::FSMchangeState()
 
         // nodePtr->getDisplayString().updateWith("i2=status/checkmark,green");
         TraCIColor newColor = TraCIColor::fromTkColor("red");
-        manager->commandSetVehicleColor(SUMOvID, newColor);
+        TraCI->commandSetVehicleColor(SUMOvID, newColor);
 
         vehicleState = state_platoonLeader;
         FSMchangeState();
@@ -262,13 +262,13 @@ void ApplVPlatoonFormation::FSMchangeState()
         EV << "### " << SUMOvID << ": current vehicle status is joining." << endl;
 
         cancelEvent(TIMER2);
-        manager->commandSetSpeed(SUMOvID, 30.);
-        manager->commandSetTg(SUMOvID, 0.55);
+        TraCI->commandSetSpeed(SUMOvID, 30.);
+        TraCI->commandSetTg(SUMOvID, 0.55);
         platoonID = myLeadingBeacon->getPlatoonID();
         myPlatoonDepth = myLeadingBeacon->getPlatoonDepth() + 1;
 
         TraCIColor newColor = TraCIColor(pickColor[myPlatoonDepth], pickColor[myPlatoonDepth], 255, 255);
-        manager->commandSetVehicleColor(SUMOvID, newColor);
+        TraCI->commandSetVehicleColor(SUMOvID, newColor);
 
         vehicleState = state_platoonMember;
         FSMchangeState();

@@ -8,5 +8,7 @@
     <poly id="RSU4" type="RSU" center="3200,14"/>
     <poly id="RSU5" type="RSU" center="4100,14"/>
     <poly id="RSU6" type="RSU" center="5000,14"/>
+    <poly id="RSU7" type="RSU" center="5900,14"/>
+    <poly id="RSU8" type="RSU" center="6800,14"/>
     
 </RSUs>
