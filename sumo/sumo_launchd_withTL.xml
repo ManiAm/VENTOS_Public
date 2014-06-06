@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<!-- debug config -->
+<launch>
+    <sumoFiles folder="square" />
+	<copy file="hello.net.xml" />
+	<copy file="hello.rou.xml" />
+    <copy file="hello.loopDetector.xml" />
+	<copy file="hello.sumo.cfg" type="config" />
+</launch>
+
