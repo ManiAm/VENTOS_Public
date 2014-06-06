@@ -38,7 +38,7 @@ void Router::initialize(int stage)
         string nodeFile = VENTOSfullDirectory + SUMODirectory + "/hello.nod.xml";
         string edgeFile = VENTOSfullDirectory + SUMODirectory + "/hello.edg.xml";
 
-        file<> xmlFile( nodeFile.c_str() );   // Convert our file to a rapid-xml readable object
+        file<> xmlFile( nodeFile.c_str() ); // Convert our file to a rapid-xml readable object
         xml_document<> doc;                 // Build a rapidxml doc
         doc.parse<0>(xmlFile.data());       // Fill it with data from our file
         xml_node<> *node = doc.first_node("nodes"); // Parse up to the "nodes" declaration
@@ -136,17 +136,15 @@ void Router::receiveSignal(cComponent *source, simsignal_t signalID, cObject *ob
         {
             if(s->getRequestType() == 0)    //If this is a path request
             {
-                if(recalculateCount == 0 || simTime().dbl() - lastUpdateTime >= 10)   //If we haven't gotten edge weights yet or it's been longer than 10 seconds since an update
+                if(recalculateCount == 0 || simTime().dbl() - lastUpdateTime >= 10)   //Move this to an internal timer
                     updateWeights();
 
                 list<string> info = getRoute(s->getEdge(), s->getNode());
-                /*
-                cout << "Got route:" << endl;
-                for(list<string>::iterator it = info.begin(); it != info.end(); it++)
-                    cout << *it << endl;
-                */
-                simsignal_t Signal_router = registerSignal("router");//Prepare to send a router message
+                //cout << "Got route:" << endl;
+                //for(list<string>::iterator it = info.begin(); it != info.end(); it++)
+                //    cout << *it << endl;
 
+                simsignal_t Signal_router = registerSignal("router");//Prepare to send a router message
                 //Systemdata wants string edge, string node, string sender, int requestType, string recipient, list<string> edgeList
                 nodePtr->emit(Signal_router, new systemData("", "", "router", 0, s->getSender(), info));
             }
@@ -217,12 +215,6 @@ void Router::updateWeights()
 
 list<string> Router::getRoute(string begin, string end)
 {
-    /*
-    list<string> retu;
-    retu.push_back("2to3");
-    return retu;
-    */
-
     reset();    //Set up for a new path calculation.  Hopefully I can avoid doing this in the future
 
     priority_queue<Node*> heap;                     // Build a heap of lowest-cost nodes

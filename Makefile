@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for VENTOS
 #
 # This file was generated with the command:
-#  opp_makemake -f -O out -d application -X. -I/home/mani/Desktop/VENTOS/eigen-3.2.1 -I/home/mani/Desktop/VENTOS/rapidxml-1.13 -L../veins/out/$(CONFIGNAME)/src/modules -L../veins/out/$(CONFIGNAME)/tests/testUtils -L../veins/out/$(CONFIGNAME)/src/base -L./out/$(CONFIGNAME)/application -L./out/$(CONFIGNAME)/application/msg -lmiximmodules -lmiximtestUtils -lmiximbase -KVEINS_PROJ=../veins
+#  opp_makemake -f -O out -d application -X. -I/home/dylan/vgrid/VENTOS/eigen-3.2.1 -I/home/dylan/vgrid/VENTOS/rapidxml-1.13 -L../mixim-sommer/out/$(CONFIGNAME)/src/modules -L../mixim-sommer/out/$(CONFIGNAME)/src/base -L../mixim-sommer/out/$(CONFIGNAME)/tests/testUtils -L./out/$(CONFIGNAME)/application -L./out/$(CONFIGNAME)/application/msg -lmiximmodules -lmiximbase -lmiximtestUtils -KMIXIM_SOMMER_PROJ=../mixim-sommer
 #
 
 # Name of target to be created (-o option)
@@ -17,8 +17,8 @@ USERIF_LIBS = $(ALL_ENV_LIBS) # that is, $(TKENV_LIBS) $(CMDENV_LIBS)
 EXTRA_OBJS =
 
 # Additional libraries (-L, -l options)
-LIBS = -L../veins/out/$(CONFIGNAME)/src/modules -L../veins/out/$(CONFIGNAME)/tests/testUtils -L../veins/out/$(CONFIGNAME)/src/base -Lout/$(CONFIGNAME)/application -Lout/$(CONFIGNAME)/application/msg  -lmiximmodules -lmiximtestUtils -lmiximbase
-LIBS += -Wl,-rpath,`abspath ../veins/out/$(CONFIGNAME)/src/modules` -Wl,-rpath,`abspath ../veins/out/$(CONFIGNAME)/tests/testUtils` -Wl,-rpath,`abspath ../veins/out/$(CONFIGNAME)/src/base` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application/msg`
+LIBS = -L../mixim-sommer/out/$(CONFIGNAME)/src/modules -L../mixim-sommer/out/$(CONFIGNAME)/src/base -L../mixim-sommer/out/$(CONFIGNAME)/tests/testUtils -Lout/$(CONFIGNAME)/application -Lout/$(CONFIGNAME)/application/msg  -lmiximmodules -lmiximbase -lmiximtestUtils
+LIBS += -Wl,-rpath,`abspath ../mixim-sommer/out/$(CONFIGNAME)/src/modules` -Wl,-rpath,`abspath ../mixim-sommer/out/$(CONFIGNAME)/src/base` -Wl,-rpath,`abspath ../mixim-sommer/out/$(CONFIGNAME)/tests/testUtils` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application/msg`
 
 # Output directory
 PROJECT_OUTPUT_DIR = out
@@ -26,7 +26,7 @@ PROJECTRELATIVE_PATH =
 O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Other makefile variables (-K)
-VEINS_PROJ=../veins
+MIXIM_SOMMER_PROJ=../mixim-sommer
 
 #------------------------------------------------------------------------------
 

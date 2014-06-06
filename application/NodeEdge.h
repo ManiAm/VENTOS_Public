@@ -33,16 +33,13 @@ public:
 class Lane
 {
 public:
-
     string id;
     double length;
     Lane(string i, double l);
-
 };
 
 class Edge  //Edge in our graph.  Will need more data later
 {
-
 public:
 
     //Node variables

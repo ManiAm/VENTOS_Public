@@ -1,6 +1,5 @@
 #include "ApplV_03_System.h"
 
-//Temporary:
 #include "rapidxml.hpp"
 #include "rapidxml_utils.hpp"
 using namespace rapidxml;
@@ -39,11 +38,6 @@ void ApplVSystem::initialize(int stage)
         xml_node<> *node = doc.first_node("vehicles");     // Parse up to the "nodes" declaration
 
         for(node = node->first_node("vehicle"); node->first_attribute()->value() != SUMOvID; node = node->next_sibling()){} //Find our vehicle in the .xml
-        /*
-        xml_attribute<> *attr = node->first_attribute();    //Navigate to the right attribute
-        attr = attr->next_attribute();
-        attr = attr->next_attribute();
-        attr = attr->next_attribute();*/
 
         xml_attribute<> *attr = node->first_attribute()->next_attribute()->next_attribute()->next_attribute();  //Navigate to the destination attribute
         if((string)attr->name() == "destination")  //Double-check
@@ -67,21 +61,12 @@ void ApplVSystem::initialize(int stage)
 
 void ApplVSystem::receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj) //Ran upon receiving signals
 {
-
     if(signalID == Signal_router)   //If the signal is of type router
     {
         systemData *s = static_cast<systemData *>(obj); //Cast to usable data
         if(string(s->getSender()) == "router" && string(s->getRecipient()) == SUMOvID) //If sent from the router and to this vehicle
         {
             list<string> temp = s->getInfo(); //Copy the info from the signal (breaks if we don't do this, for some reason)
-
-            /*
-            cout << "Setting " << s->getRecipient() << "'s route to:" << endl; //DEBUG
-            int i = 0;
-            for(list<string>::iterator it = temp.begin(); it != temp.end(); it++)
-                cout << ++i << ": " << *it << endl;
-            */
-
             TraCI->commandSetRouteFromList(s->getRecipient(), temp);  //Update this vehicle's path with the proper info
         }
     }
@@ -112,11 +97,8 @@ void ApplVSystem::handleSelfMsg(cMessage* msg)  //Internal messages to self
     if (msg->getKind() == SEND_SYSTEMMSG_EVT && requestRoutes)  //If it's a system message
     {
         simsignal_t Signal_system = registerSignal("system"); //Prepare to send a system message
-        //cout << "Emitting with edge " << manager->commandGetEdgeId(SUMOvID) << " and node " << targetNode << endl; // DEBUG
-
         //Systemdata wants string edge, string node, string sender, int requestType, string recipient, list<string> edgeList
         nodePtr->emit(Signal_system, new systemData(TraCI->commandGetEdgeId(SUMOvID), targetNode, SUMOvID, 0, string("system")));
-
         scheduleAt(simTime() + requestInterval, sendSystemMsgEvt);// schedule for next beacon broadcast
     }
 }
@@ -224,5 +206,5 @@ void ApplVSystem::finish()
 
 ApplVSystem::~ApplVSystem()
 {
-simulation.getSystemModule()->unsubscribe("router",this);
+    simulation.getSystemModule()->unsubscribe("router",this);
 }

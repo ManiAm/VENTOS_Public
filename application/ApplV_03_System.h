@@ -21,7 +21,7 @@ class ApplVSystem : public ApplVBeacon
         bool requestRoutes;         //like sendBeacons;
         double requestInterval;     //like beaconInterval;
         double maxOffsetSystem;     //From beacon maxOffset
-        int systemMsgLengthBits;    //Not sure how to derive this, yet
+        int systemMsgLengthBits;
         int systemMsgPriority;      //like beaconPriority
 
         // Class variables
@@ -34,13 +34,10 @@ class ApplVSystem : public ApplVBeacon
         // Methods
         virtual void handleSelfMsg(cMessage*);
         virtual void handlePositionUpdate(cObject*);
-
         virtual void onBeaconVehicle(BeaconVehicle*);
         virtual void onBeaconRSU(BeaconRSU*);
         virtual void onData(PlatoonMsg* wsm);
-
         virtual void onSystemMsg(SystemMsg*);
-
         SystemMsg* prepareSystemMsg();
         void printSystemMsgContent(SystemMsg*);
 };
