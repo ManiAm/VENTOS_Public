@@ -79,6 +79,7 @@ packet PlatoonMsg extends WaveShortMessage
     stringQueue queueValue;    
 };
 
+
 packet SystemMsg extends WaveShortMessage
 {
     string sender;
@@ -87,6 +88,7 @@ packet SystemMsg extends WaveShortMessage
     string edge;
     int target;
 };
+
 
 packet RouterMsg extends WaveShortMessage
 {

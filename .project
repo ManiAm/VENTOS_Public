@@ -3,7 +3,7 @@
 	<name>C3PO</name>
 	<comment></comment>
 	<projects>
-		<project>mixim-sommer</project>
+		<project>veins</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

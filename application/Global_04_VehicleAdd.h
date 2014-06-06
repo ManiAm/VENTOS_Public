@@ -12,6 +12,8 @@
 #include <iostream>
 #include <fstream>
 
+using namespace std;
+
 
 class VehicleAdd : public cSimpleModule
 {

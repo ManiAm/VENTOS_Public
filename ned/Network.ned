@@ -65,12 +65,11 @@ network Network
         }
         trafficLight: TrafficLight {
             parameters:
-                @display("p=61,207;i=block/broadcast");
+                @display("p=153,459;i=block/broadcast");
         }
-
         router: Router {
             parameters:
-                @display("p=153,207;i=block/dispatch");
+                @display("p=61,459;i=block/dispatch");
         }
 
     connections allowunconnected:

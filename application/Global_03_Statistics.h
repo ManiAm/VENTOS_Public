@@ -17,6 +17,7 @@
 #include <Eigen/Dense>
 using namespace Eigen;
 
+using namespace std;
 
 class Statistics : public BaseModule
 {

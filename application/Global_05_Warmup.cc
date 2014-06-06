@@ -75,12 +75,12 @@ bool Warmup::DoWarmup()
         error("startTime is less than 0 in Warmup.");
 
     // who is leading?
-    std::list<std::string> veh = TraCI->commandGetVehiclesOnLane(laneId);
+    list<string> veh = TraCI->commandGetVehiclesOnLane(laneId);
 
     if(veh.empty())
         return false;
 
-    std::string leadingVehicle = veh.back();
+    string leadingVehicle = veh.back();
 
     double pos = TraCI->commandGetLanePosition(leadingVehicle);
 

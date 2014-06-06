@@ -1,5 +1,5 @@
 
-#include "ApplV_03_AID.h"
+#include "ApplV_04_AID.h"
 
 
 Define_Module(ApplV_AID);
@@ -65,7 +65,7 @@ void ApplV_AID::onData(PlatoonMsg* wsm)
 }
 
 
-LaneChangeMsg*  ApplV_AID::prepareData(std::string receiver, std::deque<std::string> vecValue)
+LaneChangeMsg*  ApplV_AID::prepareData(string receiver, deque<string> vecValue)
 {
     LaneChangeMsg* wsm = new LaneChangeMsg("laneChangeMsg");
 
@@ -114,7 +114,7 @@ void ApplV_AID::printDataContent(LaneChangeMsg* wsm)
     EV << wsm->getSender() << " | ";
     EV << wsm->getRecipient() << " | ";
 
-    std::deque<std::string> tmp = wsm->getLaneChange();
+    deque<string> tmp = wsm->getLaneChange();
 
     for(unsigned int i = 0; i< tmp.size(); i++)
     {
@@ -136,7 +136,7 @@ void ApplV_AID::handlePositionUpdate(cObject* obj)
     // if we change lane
     if(fromLane != toLane)
     {
-        std::ostringstream str;
+        ostringstream str;
         toX =  ( TraCI->commandGetVehiclePos(SUMOvID) ).x;
         str << fromLane <<  "#" << toLane << "#" << fromX << "#" << toX << "#" << simTime().dbl();
         laneChanges.push_back( str.str() );

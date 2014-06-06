@@ -2,7 +2,7 @@
 #ifndef ApplVMANAGER_H
 #define ApplVMANAGER_H
 
-#include "ApplV_04_PlatoonMg.h"
+#include "ApplV_05_PlatoonMg.h"
 
 class ApplVManager : public ApplVPlatoonMg
 {

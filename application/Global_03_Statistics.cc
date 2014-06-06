@@ -481,11 +481,11 @@ void Statistics::printToFile()
 // returns the index of a node. for example gets V[10] as input and returns 10
 int Statistics::getNodeIndex(const char *ModName)
 {
-    std::ostringstream oss;
+    ostringstream oss;
 
     for(int h=0 ; ModName[h] != NULL ; h++)
     {
-        if ( std::isdigit(ModName[h]) )
+        if ( isdigit(ModName[h]) )
         {
             oss << ModName[h];
         }
@@ -497,7 +497,7 @@ int Statistics::getNodeIndex(const char *ModName)
 }
 
 
-int Statistics::findInVector(std::vector<NodeEntry *> Vec, const char *name)
+int Statistics::findInVector(vector<NodeEntry *> Vec, const char *name)
 {
     unsigned int counter;    // for counter
     bool found = false;
@@ -518,7 +518,7 @@ int Statistics::findInVector(std::vector<NodeEntry *> Vec, const char *name)
 }
 
 
-int Statistics::findInVector(std::vector<MacStatEntry *> Vec, const char *name)
+int Statistics::findInVector(vector<MacStatEntry *> Vec, const char *name)
 {
     unsigned int counter;    // for counter
     bool found = false;
@@ -539,7 +539,7 @@ int Statistics::findInVector(std::vector<MacStatEntry *> Vec, const char *name)
 }
 
 
-std::vector<NodeEntry *> Statistics::SortByID(std::vector<NodeEntry *> vec)
+vector<NodeEntry *> Statistics::SortByID(vector<NodeEntry *> vec)
 {
     if(vec.size() == 0)
         return vec;
@@ -549,7 +549,7 @@ std::vector<NodeEntry *> Statistics::SortByID(std::vector<NodeEntry *> vec)
         for(unsigned int j = i+1; j<vec.size(); j++)
         {
             if( vec[i]->nodeID > vec[j]->nodeID)
-                std::swap(vec[i], vec[j]);
+                swap(vec[i], vec[j]);
         }
     }
 
@@ -570,7 +570,7 @@ void Statistics::printAID()
     if(RSUptr == NULL)
         return;
 
-    std::ostringstream fileName;
+    ostringstream fileName;
 
     if( ev.isGUI() )
     {
@@ -583,7 +583,7 @@ void Statistics::printAID()
         fileName << "results/gui/AID_tableCount_" << currentRun << ".txt";
     }
 
-    std::ofstream file( fileName.str().c_str() );
+    ofstream file( fileName.str().c_str() );
 
     if (file.is_open())
     {

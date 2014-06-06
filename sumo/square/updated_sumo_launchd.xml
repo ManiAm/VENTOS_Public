@@ -2,7 +2,7 @@
 	<copy file="hello.net.xml"/>
 	<copy file="hello.rou.xml"/>
 	<copy file="hello.sumo.cfg" type="config"/>
-	<basedir path="/home/dylan/vgrid/VENTOS/sumo/square"/>
+	<basedir path="/home/mani/Desktop/VENTOS/sumo/square"/>
 	<seed value="0"/>
 </launch>
 

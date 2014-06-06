@@ -50,7 +50,7 @@ void ApplAdversary::handleLowerMsg(cMessage* msg)
     WaveShortMessage* wsm = dynamic_cast<WaveShortMessage*>(msg);
     ASSERT(wsm);
 
-    if ( std::string(wsm->getName()) == "beaconVehicle" )
+    if ( string(wsm->getName()) == "beaconVehicle" )
     {
         BeaconVehicle* wsm = dynamic_cast<BeaconVehicle*>(msg);
         ASSERT(wsm);
@@ -62,7 +62,7 @@ void ApplAdversary::handleLowerMsg(cMessage* msg)
             DoFalsificationAttack(wsm);
         }
     }
-    else if( std::string(wsm->getName()) == "platoonMsg" )
+    else if( string(wsm->getName()) == "platoonMsg" )
     {
         PlatoonMsg* wsm = dynamic_cast<PlatoonMsg*>(msg);
         ASSERT(wsm);

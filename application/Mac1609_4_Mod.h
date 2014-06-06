@@ -5,6 +5,8 @@
 #include <Mac1609_4.h>
 #include <Appl.h>
 
+using namespace std;
+
 class Mac1609_4_Mod : public Mac1609_4
 {
 	public:

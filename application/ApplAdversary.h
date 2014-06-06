@@ -14,6 +14,8 @@
 #include "Global_01_TraCI_Extend.h"
 #include "mobility/traci/TraCIColor.h"
 
+using namespace std;
+
 
 class ApplAdversary : public BaseApplLayer
 {

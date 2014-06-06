@@ -17,6 +17,8 @@ using namespace boost;
 #include <rapidxml_print.hpp>
 using namespace rapidxml;
 
+using namespace std;
+
 
 class TraCI_Extend : public TraCIScenarioManager
 {

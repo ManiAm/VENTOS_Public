@@ -162,8 +162,8 @@ void TraCI_App::AddRSUModules()
     // Step 1: read RSU locations from file
     // ####################################
 
-    std::string RSUfile = par("RSUfile").stringValue();
-    std::string RSUfilePath = SUMOfullDirectory + "/" + RSUfile;
+    string RSUfile = par("RSUfile").stringValue();
+    string RSUfilePath = SUMOfullDirectory + "/" + RSUfile;
 
     // check if the file exists!
     FILE *file = fopen(RSUfilePath.c_str(), "r");
@@ -172,7 +172,7 @@ void TraCI_App::AddRSUModules()
         error("RSU file does not exist in %s", RSUfilePath.c_str());
     }
 
-    std::deque<RSUEntry*> RSUs = commandReadRSUsCoord(RSUfilePath);
+    deque<RSUEntry*> RSUs = commandReadRSUsCoord(RSUfilePath);
 
     // ################################
     // Step 2: create RSUs into OMNET++
@@ -231,11 +231,11 @@ void TraCI_App::handleSelfMsg(cMessage *msg)
 
 void TraCI_App::executeOneTimestep()
 {
-    EV << "### Sending Command to SUMO to perform simulation for TS = " << (getCurrentTimeMs()/1000.) << std::endl;
+    EV << "### Sending Command to SUMO to perform simulation for TS = " << (getCurrentTimeMs()/1000.) << endl;
 
     TraCIScenarioManager::executeOneTimestep();
 
-    EV << "### SUMO completed simulation for TS = " << (getCurrentTimeMs()/1000.) << std::endl;
+    EV << "### SUMO completed simulation for TS = " << (getCurrentTimeMs()/1000.) << endl;
 
     // collecting data from all vehicles in each timeStep and
     // then write it into a file each time
@@ -276,19 +276,19 @@ void TraCI_App::executeOneTimestep()
 
 void TraCI_App::vehiclesData()
 {
-    std::string vleaderID = "";
+    string vleaderID = "";
 
     // get all lanes in the network
-    std::list<std::string> list = commandGetLaneList();
+    list<string> myList = commandGetLaneList();
 
-    for(std::list<std::string>::iterator i = list.begin(); i != list.end(); ++i)
+    for(list<string>::iterator i = myList.begin(); i != myList.end(); ++i)
     {
         // get all vehicles on lane i
-        std::list<std::string> list2 = commandGetVehicleLaneList( i->c_str() );
+        list<string> myList2 = commandGetVehicleLaneList( i->c_str() );
 
-        for(std::list<std::string>::reverse_iterator k = list2.rbegin(); k != list2.rend(); ++k)
+        for(list<string>::reverse_iterator k = myList2.rbegin(); k != myList2.rend(); ++k)
         {
-            std::string vID = k->c_str();
+            string vID = k->c_str();
             writeToFile_PerVehicle(vID, vleaderID);
             vleaderID = k->c_str();
         }
@@ -301,7 +301,7 @@ void TraCI_App::vehiclesData()
 
 
 // vID is current vehicle, vleaderID is the leader (if present)
-void TraCI_App::writeToFile_PerVehicle(std::string vID, std::string vleaderID)
+void TraCI_App::writeToFile_PerVehicle(string vID, string vleaderID)
 {
     double speed = commandGetVehicleSpeed(vID);
     double pos = commandGetLanePosition(vID);
@@ -338,17 +338,17 @@ void TraCI_App::writeToFile_PerVehicle(std::string vID, std::string vleaderID)
 void TraCI_App::inductionLoops()
 {
     // get all loop detectors
-    std::list<std::string> str = commandGetLoopDetectorList();
+    list<string> str = commandGetLoopDetectorList();
 
     // for each loop detector
-    for (std::list<std::string>::iterator it=str.begin(); it != str.end(); ++it)
+    for (list<string>::iterator it=str.begin(); it != str.end(); ++it)
     {
         // only if this loop detector detected a vehicle
         if( commandGetLoopDetectorCount(*it) == 1 )
         {
-            std::vector<std::string>  st = commandGetLoopDetectorVehicleData(*it);
+            vector<string>  st = commandGetLoopDetectorVehicleData(*it);
 
-            std::string vehicleName = st.at(0);
+            string vehicleName = st.at(0);
             double entryT = atof( st.at(2).c_str() );
             double leaveT = atof( st.at(3).c_str() );
             double speed = commandGetLoopDetectorSpeed(*it);  // vehicle speed at current moment
@@ -413,7 +413,7 @@ void TraCI_App::writeToFile_InductionLoop()
 }
 
 
-int TraCI_App::findInVector( std::vector<LoopDetector *> Vec, const char *detectorName, const char *vehicleName )
+int TraCI_App::findInVector( vector<LoopDetector *> Vec, const char *detectorName, const char *vehicleName )
 {
     unsigned int counter;
     bool found = false;

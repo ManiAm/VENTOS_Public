@@ -9,6 +9,8 @@
 #include "NodeEdge.h"
 #include "ApplV_02_Beacon.h"
 
+using namespace std;
+
 class Router : public BaseModule    //Responsible for routing cars in our system.  Should only be one of these.
 {
 protected:

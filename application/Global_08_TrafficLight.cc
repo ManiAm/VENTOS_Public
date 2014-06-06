@@ -1,5 +1,5 @@
 
-#include "Global_07_TrafficLight.h"
+#include "Global_08_TrafficLight.h"
 
 
 Define_Module(TrafficLight);
@@ -39,10 +39,10 @@ void TrafficLight::Execute()
     EV << "simulation time is: " << simTime().dbl() << endl;
 
     // get all loop detectors
-    std::list<std::string> str = TraCI->commandGetLoopDetectorList();
+    list<string> str = TraCI->commandGetLoopDetectorList();
 
     // for each loop detector
-    for (std::list<std::string>::iterator it=str.begin(); it != str.end(); ++it)
+    for (list<string>::iterator it=str.begin(); it != str.end(); ++it)
     {
         EV << "loop detector name: " << *it << endl;
     }

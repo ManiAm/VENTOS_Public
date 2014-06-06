@@ -6,6 +6,8 @@
 #include "BaseMobility.h"
 #include "Global_01_TraCI_Extend.h"
 
+using namespace std;
+
 class MIXIM_API RSUMobility : public BaseMobility
 {
   public:

@@ -81,7 +81,7 @@ void ApplVBeacon::handleSelfMsg(cMessage* msg)
                 beaconMsg->setPlatoonDepth(myPlatoonDepth);
             }
 
-            EV << "## Created beacon msg for vehicle: " << SUMOvID << std::endl;
+            EV << "## Created beacon msg for vehicle: " << SUMOvID << endl;
             ApplVBeacon::printBeaconContent(beaconMsg);
 
             // send it
@@ -166,7 +166,7 @@ void ApplVBeacon::printBeaconContent(BeaconVehicle* wsm)
     EV << wsm->getMaxDecel() << " | ";
     EV << wsm->getLane() << " | ";
     EV << wsm->getPlatoonID() << " | ";
-    EV << wsm->getPlatoonDepth() << std::endl;
+    EV << wsm->getPlatoonDepth() << endl;
 }
 
 

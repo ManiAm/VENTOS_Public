@@ -15,6 +15,8 @@
 #include <iostream>
 #include <fstream>
 
+using namespace std;
+
 
 class Warmup : public cSimpleModule
 {

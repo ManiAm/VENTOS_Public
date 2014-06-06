@@ -72,7 +72,7 @@ void ApplRSU::handleLowerMsg(cMessage* msg)
     ASSERT(wsm);
 
     // receive a lane change msg
-    if(std::string(wsm->getName()) == "laneChangeMsg")
+    if(string(wsm->getName()) == "laneChangeMsg")
     {
         LaneChangeMsg* wsm = dynamic_cast<LaneChangeMsg*>(msg);
         ASSERT(wsm);
@@ -88,7 +88,7 @@ void ApplRSU::handleSelfMsg(cMessage* msg)
     {
         BeaconRSU* beaconMsg = prepareBeacon();
 
-        EV << "## Created beacon msg for " << myFullId << std::endl;
+        EV << "## Created beacon msg for " << myFullId << endl;
         printBeaconContent(beaconMsg);
 
         // send it
@@ -149,7 +149,7 @@ void ApplRSU::printBeaconContent(BeaconRSU* wsm)
 
     EV << wsm->getSender() << " | ";
     EV << wsm->getRecipient() << " | ";
-    EV << wsm->getPos() << std::endl;
+    EV << wsm->getPos() << endl;
 }
 
 
@@ -168,7 +168,7 @@ void ApplRSU::onBeaconRSU(BeaconRSU* wsm)
 
 void ApplRSU::onLaneChange(LaneChangeMsg* wsm)
 {
-    std::deque<std::string> input = wsm->getLaneChange();
+    deque<string> input = wsm->getLaneChange();
 
     for(unsigned int i = 0; i < input.size(); i++)
     {
@@ -177,8 +177,8 @@ void ApplRSU::onLaneChange(LaneChangeMsg* wsm)
         char_separator<char> sep("#", "", keep_empty_tokens);
         tokenizer< char_separator<char> > tokens(input[i], sep);
 
-        std::string fromLane;
-        std::string toLane;
+        string fromLane;
+        string toLane;
         double fromX;
         double toX;
         double time;
@@ -197,17 +197,17 @@ void ApplRSU::onLaneChange(LaneChangeMsg* wsm)
             }
             else if(readCount == 3)
             {
-                fromX = std::atof( (*beg).c_str() );
+                fromX = atof( (*beg).c_str() );
                //EV << "token 3: " << x << endl;
             }
             else if(readCount == 4)
             {
-                toX = std::atof( (*beg).c_str() );
+                toX = atof( (*beg).c_str() );
                 //EV << "token 4: " << y << endl;
             }
             else if(readCount == 5)
             {
-                time = std::atof( (*beg).c_str() );
+                time = atof( (*beg).c_str() );
                //EV << "token 5: " << time << endl;
             }
 
@@ -215,8 +215,8 @@ void ApplRSU::onLaneChange(LaneChangeMsg* wsm)
         }
 
         // todo: change them dynamically
-        int index_N_start = std::floor(fromX / 5);
-        int index_N_end = std::floor(toX / 5);
+        int index_N_start = floor(fromX / 5);
+        int index_N_end = floor(toX / 5);
         int index_M = -1;
 
         if(fromLane == "")

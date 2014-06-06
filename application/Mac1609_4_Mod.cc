@@ -40,7 +40,7 @@ void Mac1609_4_Mod::handleUpperMsg(cMessage* msg)
     // print_MacStatistics();
 
     // send signal to statistics
-    std::vector<long> MacStats;
+    vector<long> MacStats;
 
     MacStats.push_back(statsDroppedPackets);
     MacStats.push_back(statsNumTooLittleTime);

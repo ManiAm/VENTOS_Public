@@ -1,20 +1,16 @@
-#include "ApplV_02a_System.h"
-#include <msg/Messages_m.h>
-#include <list>
+#include "ApplV_03_System.h"
+
 
 //Temporary:
 #include "rapidxml.hpp"
 #include "rapidxml_utils.hpp"
 #include <iostream>
-#include <list>
-
 
 Define_Module(ApplVSystem);
 
 
 void ApplVSystem::initialize(int stage)
 {
-
     ApplVBeacon::initialize(stage); //Initialize lower-levels
 
     if (stage == 0)
@@ -50,7 +46,7 @@ void ApplVSystem::initialize(int stage)
         attr = attr->next_attribute();*/
 
         xml_attribute<> *attr = node->first_attribute()->next_attribute()->next_attribute()->next_attribute();  //Navigate to the destination attribute
-        if((std::string)attr->name() == "destination")  //Double-check
+        if((string)attr->name() == "destination")  //Double-check
            targetNode = attr->value(); //And save it
         else
             error("XML formatted wrong! Some vehicle was missing its destination!");
@@ -64,27 +60,30 @@ void ApplVSystem::initialize(int stage)
             scheduleAt(simTime() + systemOffset, sendSystemMsgEvt); //Schedule them to start sending
     }
 }
+
+
 void ApplVSystem::receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj) //Ran upon receiving signals
 {
 
     if(signalID == Signal_router)   //If the signal is of type router
     {
         systemData *s = static_cast<systemData *>(obj); //Cast to usable data
-        if(std::string(s->getSender()) == "router" && std::string(s->getRecipient()) == SUMOvID) //If sent from the router and to this vehicle
+        if(string(s->getSender()) == "router" && string(s->getRecipient()) == SUMOvID) //If sent from the router and to this vehicle
         {
-            std::list<std::string> temp = s->getInfo(); //Copy the info from the signal (breaks if we don't do this, for some reason)
+            list<string> temp = s->getInfo(); //Copy the info from the signal (breaks if we don't do this, for some reason)
 
             /*
-            std::cout << "Setting " << s->getRecipient() << "'s route to:" << endl; //DEBUG
+            cout << "Setting " << s->getRecipient() << "'s route to:" << endl; //DEBUG
             int i = 0;
-            for(std::list<std::string>::iterator it = temp.begin(); it != temp.end(); it++)
-                std::cout << ++i << ": " << *it << endl;
+            for(list<string>::iterator it = temp.begin(); it != temp.end(); it++)
+                cout << ++i << ": " << *it << endl;
             */
 
             TraCI->commandSetRouteFromList(s->getRecipient(), temp);  //Update this vehicle's path with the proper info
         }
     }
 }
+
 
 void ApplVSystem::onBeaconVehicle(BeaconVehicle* wsm)
 {
@@ -105,16 +104,15 @@ void ApplVSystem::onData(PlatoonMsg* wsm)
 
 void ApplVSystem::handleSelfMsg(cMessage* msg)  //Internal messages to self
 {
-
     ApplVBeacon::handleSelfMsg(msg);    //Pass it down
 
     if (msg->getKind() == SEND_SYSTEMMSG_EVT && requestRoutes)  //If it's a system message
     {
         simsignal_t Signal_system = registerSignal("system"); //Prepare to send a system message
-        //std::cout << "Emitting with edge " << manager->commandGetEdgeId(SUMOvID) << " and node " << targetNode << endl; // DEBUG
+        //cout << "Emitting with edge " << manager->commandGetEdgeId(SUMOvID) << " and node " << targetNode << endl; // DEBUG
 
         //Systemdata wants string edge, string node, string sender, int requestType, string recipient, list<string> edgeList
-        nodePtr->emit(Signal_system, new systemData(TraCI->commandGetEdgeId(SUMOvID), targetNode, SUMOvID, 0, std::string("system")));
+        nodePtr->emit(Signal_system, new systemData(TraCI->commandGetEdgeId(SUMOvID), targetNode, SUMOvID, 0, string("system")));
 
         scheduleAt(simTime() + requestInterval, sendSystemMsgEvt);// schedule for next beacon broadcast
     }

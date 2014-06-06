@@ -1,4 +1,4 @@
-#include "Router.h"
+#include "Global_07_Router.h"
 #include "rapidxml.hpp"
 #include "rapidxml_utils.hpp"
 #include "ApplV_02_Beacon.h"
@@ -134,7 +134,7 @@ void Router::receiveSignal(cComponent *source, simsignal_t signalID, cObject *ob
     if(signalID == Signal_system) //Check if it's the right kind of symbol
     {
         systemData *s = static_cast<systemData *>(obj); //Cast to a systemData class
-        if(std::string(s->getRecipient()) == "system")  //If this is the intended target
+        if(string(s->getRecipient()) == "system")  //If this is the intended target
         {
             if(s->getRequestType() == 0)    //If this is a path request
             {

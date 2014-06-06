@@ -20,6 +20,8 @@ using namespace boost;
 #include <Eigen/Dense>
 using namespace Eigen;
 
+using namespace std;
+
 
 class ApplRSU : public BaseApplLayer
 {

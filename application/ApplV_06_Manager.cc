@@ -1,5 +1,5 @@
 
-#include "ApplV_05_Manager.h"
+#include "ApplV_06_Manager.h"
 
 Define_Module(ApplVManager);
 
@@ -61,7 +61,7 @@ void ApplVManager::handleLowerMsg(cMessage* msg)
     WaveShortMessage* wsm = dynamic_cast<WaveShortMessage*>(msg);
     ASSERT(wsm);
 
-    if (std::string(wsm->getName()) == "beaconVehicle")
+    if (string(wsm->getName()) == "beaconVehicle")
     {
         BeaconVehicle* wsm = dynamic_cast<BeaconVehicle*>(msg);
         ASSERT(wsm);
@@ -76,14 +76,14 @@ void ApplVManager::handleLowerMsg(cMessage* msg)
             reportDropToStatistics(wsm);
         }
     }
-    else if (std::string(wsm->getName()) == "beaconRSU")
+    else if (string(wsm->getName()) == "beaconRSU")
     {
         BeaconRSU* wsm = dynamic_cast<BeaconRSU*>(msg);
         ASSERT(wsm);
 
         ApplVManager::onBeaconRSU(wsm);
     }
-    else if(std::string(wsm->getName()) == "platoonMsg")
+    else if(string(wsm->getName()) == "platoonMsg")
     {
         PlatoonMsg* wsm = dynamic_cast<PlatoonMsg*>(msg);
         ASSERT(wsm);
@@ -94,7 +94,7 @@ void ApplVManager::handleLowerMsg(cMessage* msg)
 
 
 // simulate packet loss in application layer
-bool ApplVManager::dropBeacon(double time, std::string vehicle, double plr)
+bool ApplVManager::dropBeacon(double time, string vehicle, double plr)
 {
     if(simTime().dbl() >= time)
     {
@@ -206,9 +206,9 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
             // I am not part of any platoon yet!
             if(platoonID == "")
             {
-                if( std::string(wsm->getPlatoonID()) != "" && wsm->getPlatoonDepth() == 0 )
+                if( string(wsm->getPlatoonID()) != "" && wsm->getPlatoonDepth() == 0 )
                 {
-                    EV << "This beacon is from a platoon leader. I will join ..." << std::endl;
+                    EV << "This beacon is from a platoon leader. I will join ..." << endl;
                     platoonID = wsm->getPlatoonID();
 
                     // change the color to blue
@@ -221,10 +221,10 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
             else if( isBeaconFromMyPlatoonLeader(wsm) )
             {
                 // do nothing!
-                EV << "This beacon is from my platoon leader ..." << std::endl;
+                EV << "This beacon is from my platoon leader ..." << endl;
             }
             // I received a beacon from another platoon
-            else if( std::string(wsm->getPlatoonID()) != platoonID )
+            else if( string(wsm->getPlatoonID()) != platoonID )
             {
                 // ignore the beacon msg
             }
@@ -296,30 +296,30 @@ bool ApplVManager::isBeaconFromLeading(BeaconVehicle* wsm)
 {
     // step 1: check if a leading vehicle is present
 
-    std::vector<std::string> vleaderIDnew = TraCI->commandGetLeading(SUMOvID, sonarDist);
-    std::string vleaderID = vleaderIDnew[0];
+    vector<string> vleaderIDnew = TraCI->commandGetLeading(SUMOvID, sonarDist);
+    string vleaderID = vleaderIDnew[0];
     double gap = atof( vleaderIDnew[1].c_str() );
 
     if(vleaderID == "")
     {
-        EV << "This vehicle has no leading vehicle." << std::endl;
+        EV << "This vehicle has no leading vehicle." << endl;
         return false;
     }
 
     // step 2: is it on the same lane?
 
-    std::string myLane = TraCI->commandGetLaneId(SUMOvID);
-    std::string beaconLane = wsm->getLane();
+    string myLane = TraCI->commandGetLaneId(SUMOvID);
+    string beaconLane = wsm->getLane();
 
-    EV << "I am on lane " << TraCI->commandGetLaneId(SUMOvID) << ", and other vehicle is on lane " << wsm->getLane() << std::endl;
+    EV << "I am on lane " << TraCI->commandGetLaneId(SUMOvID) << ", and other vehicle is on lane " << wsm->getLane() << endl;
 
     if( myLane != beaconLane )
     {
-        EV << "Not on the same lane!" << std::endl;
+        EV << "Not on the same lane!" << endl;
         return false;
     }
 
-    EV << "We are on the same lane!" << std::endl;
+    EV << "We are on the same lane!" << endl;
 
     // step 3: is the distance equal to gap?
 
@@ -329,25 +329,25 @@ bool ApplVManager::isBeaconFromLeading(BeaconVehicle* wsm)
     // subtract the length of the leading vehicle from dist
     dist = dist - TraCI->commandGetVehicleLength(vleaderID);
 
-    EV << "my coord (x,y): " << cord.x << "," << cord.y << std::endl;
-    EV << "other coord (x,y): " << wsm->getPos().x << "," << wsm->getPos().y << std::endl;
-    EV << "distance is " << dist << ", and gap is " << gap << std::endl;
+    EV << "my coord (x,y): " << cord.x << "," << cord.y << endl;
+    EV << "other coord (x,y): " << wsm->getPos().x << "," << wsm->getPos().y << endl;
+    EV << "distance is " << dist << ", and gap is " << gap << endl;
 
     double diff = fabs(dist - gap);
 
     if(diff > 0.001)
     {
-        EV << "distance does not match the gap!" << std::endl;
+        EV << "distance does not match the gap!" << endl;
         return false;
     }
 
     if(cord.x > wsm->getPos().x)
     {
-        EV << "beacon is coming from behind!" << std::endl;
+        EV << "beacon is coming from behind!" << endl;
         return false;
     }
 
-    EV << "This beacon is from the leading vehicle!" << std::endl;
+    EV << "This beacon is from the leading vehicle!" << endl;
     return true;
 }
 
@@ -358,7 +358,7 @@ bool ApplVManager::isBeaconFromMyPlatoonLeader(BeaconVehicle* wsm)
     if( wsm->getPlatoonDepth() == 0 )
     {
         // check if this is actually my platoon leader
-        if( std::string(wsm->getPlatoonID()) == platoonID)
+        if( string(wsm->getPlatoonID()) == platoonID)
         {
             return true;
         }

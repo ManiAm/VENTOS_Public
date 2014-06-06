@@ -1,16 +1,16 @@
 version 2
-run Router-0-20140605-18:26:41-16157
+run Router-0-20140605-21:02:26-11535
 attr PlatoonNumber 1
 attr PlatoonSize 10
 attr configname Router
-attr datetime 20140605-18:26:41
+attr datetime 20140605-21:02:26
 attr experiment Router
 attr inifile omnetpp.ini
 attr iterationvars "$PlatoonSize=10, $PlatoonNumber=1"
 attr iterationvars2 "$PlatoonSize=10, $PlatoonNumber=1, $repetition=0"
 attr measurement "$PlatoonSize=10, $PlatoonNumber=1"
 attr network ned.Network
-attr processid 16157
+attr processid 11535
 attr repetition 0
 attr replication #0
 attr resultdir results
