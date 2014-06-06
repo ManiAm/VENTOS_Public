@@ -490,14 +490,26 @@ $O/Global_01_TraCI_Extend.o: Global_01_TraCI_Extend.cc \
 	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
 $O/Global_02_TraCI_App.o: Global_02_TraCI_App.cc \
 	Appl.h \
+	ApplV_01_Base.h \
+	ApplV_02_Beacon.h \
+	ApplV_03_System.h \
+	ApplV_04_AID.h \
+	ApplV_05_PlatoonMg.h \
+	ApplV_06_Manager.h \
 	Global_01_TraCI_Extend.h \
 	Global_02_TraCI_App.h \
 	Global_04_VehicleAdd.h \
 	Global_05_Warmup.h \
 	Global_06_SpeedProfile.h \
+	Global_08_TrafficLight.h \
+	msg/Messages_m.h \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
+	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
 	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
+	$(VEINS_PROJ)/src/base/messages/MacPkt_m.h \
+	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
 	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
+	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
 	$(VEINS_PROJ)/src/base/modules/BaseMobility.h \
 	$(VEINS_PROJ)/src/base/modules/BaseModule.h \
 	$(VEINS_PROJ)/src/base/modules/BaseWorldUtility.h \
@@ -508,7 +520,12 @@ $O/Global_02_TraCI_App.o: Global_02_TraCI_App.cc \
 	$(VEINS_PROJ)/src/base/utils/HostState.h \
 	$(VEINS_PROJ)/src/base/utils/MiXiMDefs.h \
 	$(VEINS_PROJ)/src/base/utils/Move.h \
+	$(VEINS_PROJ)/src/base/utils/NetwToMacControlInfo.h \
+	$(VEINS_PROJ)/src/base/utils/PassedMessage.h \
+	$(VEINS_PROJ)/src/base/utils/SimpleAddress.h \
 	$(VEINS_PROJ)/src/base/utils/miximkerneldefs.h \
+	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
+	$(VEINS_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
@@ -516,6 +533,7 @@ $O/Global_02_TraCI_App.o: Global_02_TraCI_App.cc \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManagerLaunchd.h \
 	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
 	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
+	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
 	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
 $O/Global_03_Statistics.o: Global_03_Statistics.cc \
 	Appl.h \
@@ -557,11 +575,22 @@ $O/Global_03_Statistics.o: Global_03_Statistics.cc \
 	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
 $O/Global_04_VehicleAdd.o: Global_04_VehicleAdd.cc \
 	Appl.h \
+	ApplV_01_Base.h \
+	ApplV_02_Beacon.h \
+	ApplV_03_System.h \
+	ApplV_04_AID.h \
+	ApplV_05_PlatoonMg.h \
+	ApplV_06_Manager.h \
 	Global_01_TraCI_Extend.h \
 	Global_04_VehicleAdd.h \
+	msg/Messages_m.h \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
+	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
 	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
+	$(VEINS_PROJ)/src/base/messages/MacPkt_m.h \
+	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
 	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
+	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
 	$(VEINS_PROJ)/src/base/modules/BaseMobility.h \
 	$(VEINS_PROJ)/src/base/modules/BaseModule.h \
 	$(VEINS_PROJ)/src/base/modules/BaseWorldUtility.h \
@@ -572,7 +601,12 @@ $O/Global_04_VehicleAdd.o: Global_04_VehicleAdd.cc \
 	$(VEINS_PROJ)/src/base/utils/HostState.h \
 	$(VEINS_PROJ)/src/base/utils/MiXiMDefs.h \
 	$(VEINS_PROJ)/src/base/utils/Move.h \
+	$(VEINS_PROJ)/src/base/utils/NetwToMacControlInfo.h \
+	$(VEINS_PROJ)/src/base/utils/PassedMessage.h \
+	$(VEINS_PROJ)/src/base/utils/SimpleAddress.h \
 	$(VEINS_PROJ)/src/base/utils/miximkerneldefs.h \
+	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
+	$(VEINS_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
@@ -580,16 +614,28 @@ $O/Global_04_VehicleAdd.o: Global_04_VehicleAdd.cc \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManagerLaunchd.h \
 	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
 	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
+	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
 	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
 $O/Global_05_Warmup.o: Global_05_Warmup.cc \
 	Appl.h \
+	ApplV_01_Base.h \
+	ApplV_02_Beacon.h \
+	ApplV_03_System.h \
+	ApplV_04_AID.h \
+	ApplV_05_PlatoonMg.h \
+	ApplV_06_Manager.h \
 	Global_01_TraCI_Extend.h \
 	Global_04_VehicleAdd.h \
 	Global_05_Warmup.h \
 	Global_06_SpeedProfile.h \
+	msg/Messages_m.h \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
+	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
 	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
+	$(VEINS_PROJ)/src/base/messages/MacPkt_m.h \
+	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
 	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
+	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
 	$(VEINS_PROJ)/src/base/modules/BaseMobility.h \
 	$(VEINS_PROJ)/src/base/modules/BaseModule.h \
 	$(VEINS_PROJ)/src/base/modules/BaseWorldUtility.h \
@@ -600,7 +646,12 @@ $O/Global_05_Warmup.o: Global_05_Warmup.cc \
 	$(VEINS_PROJ)/src/base/utils/HostState.h \
 	$(VEINS_PROJ)/src/base/utils/MiXiMDefs.h \
 	$(VEINS_PROJ)/src/base/utils/Move.h \
+	$(VEINS_PROJ)/src/base/utils/NetwToMacControlInfo.h \
+	$(VEINS_PROJ)/src/base/utils/PassedMessage.h \
+	$(VEINS_PROJ)/src/base/utils/SimpleAddress.h \
 	$(VEINS_PROJ)/src/base/utils/miximkerneldefs.h \
+	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
+	$(VEINS_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
@@ -608,6 +659,7 @@ $O/Global_05_Warmup.o: Global_05_Warmup.cc \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManagerLaunchd.h \
 	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
 	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
+	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
 	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
 $O/Global_06_SpeedProfile.o: Global_06_SpeedProfile.cc \
 	Appl.h \

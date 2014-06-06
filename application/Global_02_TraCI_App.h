@@ -11,7 +11,7 @@
 #include "Global_04_VehicleAdd.h"
 #include "Global_05_Warmup.h"
 #include "Global_06_SpeedProfile.h"
-#include "Global_07_TrafficLight.h"
+#include "Global_08_TrafficLight.h"
 
 #include <sstream>
 #include <iostream>

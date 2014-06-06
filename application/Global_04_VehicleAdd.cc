@@ -154,7 +154,6 @@ void VehicleAdd::Scenario4()
 
 void VehicleAdd::Scenario5()
 {
-
     using namespace rapidxml;               // Using the rapidxml library to parse our files
     file<> xmlFile((xmlFileName + ".veh.xml").c_str());    // Convert our file to a rapid-xml readable object
     xml_document<> doc;                     // Build a rapidxml doc
@@ -185,8 +184,6 @@ void VehicleAdd::Scenario5()
             case 4:
                 depart = atoi(attr->value());
                 break;
-
-
             }
             readCount++;
         }
@@ -199,7 +196,6 @@ void VehicleAdd::Scenario5()
         bool foundRoute = 0;
         for(list<string>::iterator it = routeList.begin(); it != routeList.end(); it++)   //Loop through them
         {
-
             //cout << "Found route " << *it << endl;
             if(*it == origin)   //If we find the route named after this vehicle's starting edge, do nothing
             {
@@ -214,14 +210,12 @@ void VehicleAdd::Scenario5()
             TraCI->commandAddRoute(origin, startRoute);   //And add it to the simulation
         }
 
-
         //cout << "Routes" << endl;
         //for(list<string>::iterator it = routeList.begin(); it != routeList.end(); it++)
         //    cout << *it << endl;
 
         //commandAddVehicleRouter wants string id, string type, string (edge) origin, string (node) destination, double (time) depart, and string routename
         TraCI->commandAddVehicleN(id, type, origin, 1000 * depart, 0, 0, 0);  //Send a TraCI add call -- might not need to be *1000.
-
     }
 }
 
