@@ -29,7 +29,6 @@ void VehicleAdd::initialize(int stage)
         platoonSize = par("platoonSize").longValue();
         platoonNumber = par("platoonNumber").longValue();
         totalVehicles = par("totalVehicles").longValue();
-        xmlFileName = par("xmlFileName").stringValue();
     }
 }
 
@@ -154,10 +153,13 @@ void VehicleAdd::Scenario4()
 
 void VehicleAdd::Scenario5()
 {
-    using namespace rapidxml;               // Using the rapidxml library to parse our files
-    file<> xmlFile((xmlFileName + ".veh.xml").c_str());    // Convert our file to a rapid-xml readable object
-    xml_document<> doc;                     // Build a rapidxml doc
-    doc.parse<0>(xmlFile.data());           // Fill it with data from our file
+    string SUMODirectory = simulation.getSystemModule()->par("SUMODirectory").stringValue();
+    string VENTOSfullDirectory = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+    string xmlFileName = VENTOSfullDirectory + SUMODirectory + "/Vehicles.xml";
+
+    file<> xmlFile( xmlFileName.c_str() );     // Convert our file to a rapid-xml readable object
+    xml_document<> doc;                        // Build a rapidxml doc
+    doc.parse<0>(xmlFile.data());              // Fill it with data from our file
     xml_node<> *node = doc.first_node("vehicles"); // Parse up to the "nodes" declaration
 
     string id, type, origin, destination;

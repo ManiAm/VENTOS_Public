@@ -9,6 +9,7 @@
 #include "NodeEdge.h"
 #include "ApplV_02_Beacon.h"
 
+using namespace rapidxml;
 using namespace std;
 
 class Router : public BaseModule    //Responsible for routing cars in our system.  Should only be one of these.
@@ -21,12 +22,12 @@ protected:
 
     double getEdgeMeanSpeed(Edge* edge);    //Get the mean speed of all lanes on an edge
     void updateWeights();   //Recalculates edge weights
-    double lastUpdateTime;  //The last time updateWeights() ran
-    int recalculateCount;   //How many times updateWeights() has ran
+    double lastUpdateTime;    //The last time updateWeights() ran
+    int recalculateCount;     //How many times updateWeights() has ran
 
     void reset();   //Resets the pathing info on all nodes
-    list<string> getRoute(string begin, string end); // Returns a list of edges between origin and destination,
-                                                     // or an empty list if they're not connected
+    list<string> getRoute(string begin, string end);  // Returns a list of edges between origin and destination,
+                                                       // or an empty list if they're not connected
     //Internal functions
     virtual void initialize(int);
     virtual void receiveSignal(cComponent *, simsignal_t, cObject *);

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <vehicles xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.sf.net/xsd/nodes_file.xsd">
+
   <vehicle id="v1" type="TypeManual" origin="00to11" destination="22" depart="1" />
   <vehicle id="v2" type="TypeManual" origin="00to11" destination="22" depart="2" />
 

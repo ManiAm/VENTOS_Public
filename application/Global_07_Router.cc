@@ -28,18 +28,17 @@ void Router::initialize(int stage)
         if(nodePtr == NULL || manager == NULL)
             error("can not get a pointer to the module.");
 
-
         //register signals
         Signal_system = registerSignal("system");
         simulation.getSystemModule()->subscribe("system", this);
 
-        string rootFile = par("rootFilePath").stringValue();
-        string nodeFile = rootFile + ".nod.xml";
-        string edgeFile = rootFile + ".edg.xml";
+        // get the rootFilePath
+        string SUMODirectory = simulation.getSystemModule()->par("SUMODirectory").stringValue();
+        string VENTOSfullDirectory = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+        string nodeFile = VENTOSfullDirectory + SUMODirectory + "/hello.nod.xml";
+        string edgeFile = VENTOSfullDirectory + SUMODirectory + "/hello.edg.xml";
 
-
-        using namespace rapidxml;           // Using the rapidxml library to parse our files
-        file<> xmlFile(nodeFile.c_str());   // Convert our file to a rapid-xml readable object
+        file<> xmlFile( nodeFile.c_str() );   // Convert our file to a rapid-xml readable object
         xml_document<> doc;                 // Build a rapidxml doc
         doc.parse<0>(xmlFile.data());       // Fill it with data from our file
         xml_node<> *node = doc.first_node("nodes"); // Parse up to the "nodes" declaration
@@ -47,7 +46,6 @@ void Router::initialize(int stage)
         double xVal, yVal;
         for(node = node->first_node("node"); node; node = node->next_sibling()) // For each node in nodes
         {
-
             type = "";  //Reset type, in case this node doesn't have one
             int readCount = 0;
             for(xml_attribute<> *attr = node->first_attribute(); attr; attr = attr->next_attribute())//For each attribute, read in to the right variable
@@ -80,7 +78,7 @@ void Router::initialize(int stage)
         sort(nodes.begin(), nodes.end(), NodeIDSort);   //Sort them, for binary searches later on
 
 
-        xmlFile = file<>(edgeFile.c_str()); // Identical to above, but for edges
+        xmlFile = file<>( edgeFile.c_str() ); // Identical to above, but for edges
         doc.parse<0>(xmlFile.data());
         node = doc.first_node("edges");
         string idVal, fromVal, toVal;

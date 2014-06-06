@@ -12,6 +12,7 @@
 #include <iostream>
 #include <fstream>
 
+using namespace rapidxml;
 using namespace std;
 
 
@@ -36,8 +37,6 @@ class VehicleAdd : public cSimpleModule
         int platoonSize;
         int platoonNumber;
 	    int totalVehicles;
-
-	    std::string xmlFileName;
 
 	    // methods
 	    void Scenario1();

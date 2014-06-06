@@ -1,9 +1,10 @@
 #include "ApplV_03_System.h"
 
-
 //Temporary:
 #include "rapidxml.hpp"
 #include "rapidxml_utils.hpp"
+using namespace rapidxml;
+
 #include <iostream>
 
 Define_Module(ApplVSystem);
@@ -24,19 +25,18 @@ void ApplVSystem::initialize(int stage)
         maxOffset = par("maxSystemOffset").doubleValue();
         systemMsgLengthBits = par("systemMsgLengthBits").longValue();
         systemMsgPriority = par("systemMsgPriority").longValue();
-        rootFilePath = par("rootFilePath").stringValue();
 
-
-        //Slightly offset all vehicles (0-4 seconds)
-        double systemOffset = dblrand() * 2 + 2;
+        // get the rootFilePath
+        string SUMODirectory = simulation.getSystemModule()->par("SUMODirectory").stringValue();
+        string VENTOSfullDirectory = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+        string rootFilePath = VENTOSfullDirectory + SUMODirectory + "/Vehicles.xml";
 
         // Routing
         //Temporary fix to get a vehicle's target: get it from the xml
-        using namespace rapidxml;                               // Using the rapidxml library to parse our files
-        file<> xmlFile((rootFilePath + ".veh.xml").c_str());    // Convert our file to a rapid-xml readable object
-        xml_document<> doc;                                     // Build a rapidxml doc
-        doc.parse<0>(xmlFile.data());                           // Fill it with data from our file
-        xml_node<> *node = doc.first_node("vehicles");          // Parse up to the "nodes" declaration
+        file<> xmlFile( (rootFilePath).c_str() );          // Convert our file to a rapid-xml readable object
+        xml_document<> doc;                                // Build a rapidxml doc
+        doc.parse<0>(xmlFile.data());                      // Fill it with data from our file
+        xml_node<> *node = doc.first_node("vehicles");     // Parse up to the "nodes" declaration
 
         for(node = node->first_node("vehicle"); node->first_attribute()->value() != SUMOvID; node = node->next_sibling()){} //Find our vehicle in the .xml
         /*
@@ -54,6 +54,9 @@ void ApplVSystem::initialize(int stage)
         //Register to receive signals from the router
         Signal_router = registerSignal("router");
         simulation.getSystemModule()->subscribe("router", this);
+
+        //Slightly offset all vehicles (0-4 seconds)
+        double systemOffset = dblrand() * 2 + 2;
 
         sendSystemMsgEvt = new cMessage("systemmsg evt", SEND_SYSTEMMSG_EVT);   //Create a new internal message
         if (requestRoutes) //&& VANETenabled ) //If this vehicle is supposed to send system messages

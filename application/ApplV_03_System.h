@@ -24,14 +24,11 @@ class ApplVSystem : public ApplVBeacon
         int systemMsgLengthBits;    //Not sure how to derive this, yet
         int systemMsgPriority;      //like beaconPriority
 
-
-
         // Class variables
         simtime_t individualOffset;
         cMessage* sendSystemMsgEvt;
 
         // Routing
-        std::string rootFilePath;
         std::string targetNode;
 
         // Methods

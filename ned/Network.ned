@@ -23,6 +23,9 @@ network Network
         double playgroundSizeX @unit(m); // x size of the area the nodes are in (in meters)
         double playgroundSizeY @unit(m); // y size of the area the nodes are in (in meters)
         double playgroundSizeZ @unit(m); // z size of the area the nodes are in (in meters)
+        
+        string SUMODirectory = default(""); // location of SUMO .ned and .rou files
+        
         // do not put @display here!
         // it automatically adjust itself based on the playground size in ini
     submodules:

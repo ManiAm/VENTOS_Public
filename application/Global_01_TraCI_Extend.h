@@ -107,8 +107,6 @@ class TraCI_Extend : public TraCIScenarioManager
 
 	protected:
         int seed; /**< seed value to set in launch configuration, if missing (-1: current run number) */
-        std::string VENTOSfullDirectory;
-        std::string SUMODirectory;
         std::string SUMOfullDirectory;
         std::deque<RSUEntry*> RSUs;
 

@@ -25,13 +25,13 @@ void TraCI_Extend::initialize(int stage)
         seed = par("seed");
 
         // sumo/CACC_Platoon
-        SUMODirectory = par("SUMODirectory").stringValue();
+        string SUMODirectory = simulation.getSystemModule()->par("SUMODirectory").stringValue();
 
         if(SUMODirectory == "")
             error("SUMO files directory is not specified!");
 
         // /home/mani/Desktop/VENTOS
-        VENTOSfullDirectory = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+        string VENTOSfullDirectory = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
 
         // /home/mani/Desktop/VENTOS/sumo/CACC_Platoon
         SUMOfullDirectory = VENTOSfullDirectory + SUMODirectory;

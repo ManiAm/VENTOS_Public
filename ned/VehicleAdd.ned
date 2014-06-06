@@ -13,8 +13,6 @@ simple VehicleAdd
         int mode;
         int platoonSize = default(5);
         int platoonNumber = default(3);
-        int totalVehicles;    
-        
-        string xmlFileName;
+        int totalVehicles;
 }
 

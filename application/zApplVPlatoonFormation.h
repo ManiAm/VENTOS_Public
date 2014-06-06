@@ -2,7 +2,7 @@
 #ifndef ApplVPlatoonFORMATION_H
 #define ApplVPlatoonFORMATION_H
 
-#include "ApplV_05_Manager.h"
+#include "ApplV_06_Manager.h"
 
 
 class ApplVPlatoonFormation : public ApplVManager
