@@ -313,6 +313,25 @@ uint8_t* TraCI_Extend::commandGetVehicleColor(string nodeId)
 }
 
 
+// ############################
+// CMD_GET_VEHICLETYPE_VARIABLE
+// ############################
+
+double TraCI_Extend::commandGetVehicleLength_Type(string nodeId)
+{
+    return genericGetDouble(CMD_GET_VEHICLETYPE_VARIABLE, nodeId, VAR_LENGTH, RESPONSE_GET_VEHICLETYPE_VARIABLE);
+}
+
+
+// ######################
+// CMD_GET_ROUTE_VARIABLE
+// ######################
+
+list<string> TraCI_Extend::commandGetRouteIds()
+{
+    return genericGetStringList(CMD_GET_ROUTE_VARIABLE, "", 0x00, RESPONSE_GET_ROUTE_VARIABLE);
+}
+
 
 // ###############################
 // CMD_GET_INDUCTIONLOOP_VARIABLE
@@ -413,16 +432,6 @@ vector<string> TraCI_Extend::commandGetLoopDetectorVehicleData(string loopId)
     ASSERT(buf.eof());
 
     return res;
-}
-
-
-// ############################
-// CMD_GET_VEHICLETYPE_VARIABLE
-// ############################
-
-double TraCI_Extend::commandGetVehicleLength_Type(string nodeId)
-{
-    return genericGetDouble(CMD_GET_VEHICLETYPE_VARIABLE, nodeId, VAR_LENGTH, RESPONSE_GET_VEHICLETYPE_VARIABLE);
 }
 
 
@@ -770,8 +779,6 @@ void TraCI_Extend::commandAddRoute(string name, list<string> route)
 // CMD_SET_VEHICLE_VARIABLE
 // #########################
 
-
-
 void TraCI_Extend::commandSetRouteFromList(string id, list<string> value)
 {
     uint8_t variableId = VAR_ROUTE;
@@ -829,10 +836,6 @@ void TraCI_Extend::commandSetLaneChangeMode(string nodeId, int32_t bitset)
     ASSERT(buf.eof());
 }
 
-list<string> TraCI_Extend::commandGetRouteIds()
-{
-    return genericGetStringList(CMD_GET_ROUTE_VARIABLE, "", 0x00, RESPONSE_GET_ROUTE_VARIABLE);
-}
 
 void TraCI_Extend::commandAddVehicleN(string vehicleId, string vehicleTypeId, string routeId, int32_t depart, double pos, double speed, uint8_t lane)
 {

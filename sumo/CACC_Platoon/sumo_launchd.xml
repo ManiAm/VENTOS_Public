@@ -4,6 +4,7 @@
 	<copy file="3hello.net.xml" />
 	<copy file="4hello.rou.xml" />
     <copy file="5hello.loopDetector.xml" />
+    <copy file="gui-settings.cfg" />
 	<copy file="6hello.sumo.cfg" type="config" />
 </launch>
 

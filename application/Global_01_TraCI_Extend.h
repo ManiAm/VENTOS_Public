@@ -30,11 +30,6 @@ class TraCI_Extend : public TraCIScenarioManager
         virtual void init_traci();
 		virtual void finish();
 
-		//IN PROGRESS:
-		void commandAddRoute(std::string name, std::list<std::string> route);
-		std::list<std::string> commandGetRouteIds();
-		void commandSetRouteFromList(std::string id, std::list<std::string> value);
-
         // CMD_GET_VEHICLE_VARIABLE
         uint32_t commandGetNoVehicles();
         std::list<std::string> commandGetVehicleList();
@@ -50,15 +45,18 @@ class TraCI_Extend : public TraCIScenarioManager
         std::string commandGetLeading_old(std::string);
         uint8_t * commandGetVehicleColor(std::string);
 
+        // CMD_GET_VEHICLETYPE_VARIABLE
+        double commandGetVehicleLength_Type(std::string);
+
+        // CMD_GET_ROUTE_VARIABLE
+        std::list<std::string> commandGetRouteIds();
+
         // CMD_GET_INDUCTIONLOOP_VARIABLE
         std::list<std::string> commandGetLoopDetectorList();
         uint32_t commandGetLoopDetectorCount(std::string);
         double commandGetLoopDetectorSpeed(std::string);
         std::list<std::string> commandGetLoopDetectorVehicleList(std::string);
         std::vector<std::string> commandGetLoopDetectorVehicleData(std::string);
-
-        // CMD_GET_VEHICLETYPE_VARIABLE
-        double commandGetVehicleLength_Type(std::string);
 
         // CMD_GET_LANE_VARIABLE
         std::list<std::string> commandGetLaneList();
@@ -80,7 +78,11 @@ class TraCI_Extend : public TraCIScenarioManager
         void commandSubscribeSimulation();
         void commandSubscribeVehicle();
 
+        // CMD_SET_ROUTE_VARIABLE
+        void commandAddRoute(std::string name, std::list<std::string> route);
+
         // CMD_SET_VEHICLE_VARIABLE
+        void commandSetRouteFromList(std::string id, std::list<std::string> value);
         void commandSetMaxAccel(std::string, double);
         void commandSetMaxDecel(std::string, double);
         void commandSetTg(std::string, double);
