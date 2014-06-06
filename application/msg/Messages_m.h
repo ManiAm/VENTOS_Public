@@ -15,8 +15,10 @@
 
 // cplusplus {{
 #include <Coord.h>
-#include <deque> 
+#include <deque>
+#include <list> 
 typedef std::deque<std::string> stringQueue;
+typedef std::list<std::string> stringList;
 // }}
 
 
@@ -334,6 +336,103 @@ class PlatoonMsg : public ::WaveShortMessage
 
 inline void doPacking(cCommBuffer *b, PlatoonMsg& obj) {obj.parsimPack(b);}
 inline void doUnpacking(cCommBuffer *b, PlatoonMsg& obj) {obj.parsimUnpack(b);}
+
+/**
+ * Class generated from <tt>msg/Messages.msg</tt> by opp_msgc.
+ * <pre>
+ * packet SystemMsg extends WaveShortMessage
+ * {
+ *     string sender;
+ * 	string recipient;
+ *     int requestType;	
+ *     string edge;
+ *     int target;
+ * };
+ * </pre>
+ */
+class SystemMsg : public ::WaveShortMessage
+{
+  protected:
+    opp_string sender_var;
+    opp_string recipient_var;
+    int requestType_var;
+    opp_string edge_var;
+    int target_var;
+
+  private:
+    void copy(const SystemMsg& other);
+
+  protected:
+    // protected and unimplemented operator==(), to prevent accidental usage
+    bool operator==(const SystemMsg&);
+
+  public:
+    SystemMsg(const char *name=NULL, int kind=0);
+    SystemMsg(const SystemMsg& other);
+    virtual ~SystemMsg();
+    SystemMsg& operator=(const SystemMsg& other);
+    virtual SystemMsg *dup() const {return new SystemMsg(*this);}
+    virtual void parsimPack(cCommBuffer *b);
+    virtual void parsimUnpack(cCommBuffer *b);
+
+    // field getter/setter methods
+    virtual const char * getSender() const;
+    virtual void setSender(const char * sender);
+    virtual const char * getRecipient() const;
+    virtual void setRecipient(const char * recipient);
+    virtual int getRequestType() const;
+    virtual void setRequestType(int requestType);
+    virtual const char * getEdge() const;
+    virtual void setEdge(const char * edge);
+    virtual int getTarget() const;
+    virtual void setTarget(int target);
+};
+
+inline void doPacking(cCommBuffer *b, SystemMsg& obj) {obj.parsimPack(b);}
+inline void doUnpacking(cCommBuffer *b, SystemMsg& obj) {obj.parsimUnpack(b);}
+
+/**
+ * Class generated from <tt>msg/Messages.msg</tt> by opp_msgc.
+ * <pre>
+ * packet RouterMsg extends WaveShortMessage
+ * {
+ *   	string recipient;
+ *   	stringList info; 
+ * };
+ * </pre>
+ */
+class RouterMsg : public ::WaveShortMessage
+{
+  protected:
+    opp_string recipient_var;
+    stringList info_var;
+
+  private:
+    void copy(const RouterMsg& other);
+
+  protected:
+    // protected and unimplemented operator==(), to prevent accidental usage
+    bool operator==(const RouterMsg&);
+
+  public:
+    RouterMsg(const char *name=NULL, int kind=0);
+    RouterMsg(const RouterMsg& other);
+    virtual ~RouterMsg();
+    RouterMsg& operator=(const RouterMsg& other);
+    virtual RouterMsg *dup() const {return new RouterMsg(*this);}
+    virtual void parsimPack(cCommBuffer *b);
+    virtual void parsimUnpack(cCommBuffer *b);
+
+    // field getter/setter methods
+    virtual const char * getRecipient() const;
+    virtual void setRecipient(const char * recipient);
+    virtual stringList& getInfo();
+    virtual const stringList& getInfo() const {return const_cast<RouterMsg*>(this)->getInfo();}
+    virtual void setInfo(const stringList& info);
+};
+
+inline void doPacking(cCommBuffer *b, RouterMsg& obj) {obj.parsimPack(b);}
+inline void doUnpacking(cCommBuffer *b, RouterMsg& obj) {obj.parsimUnpack(b);}
 
 
 #endif // _MESSAGES_M_H_

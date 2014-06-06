@@ -2,9 +2,9 @@
 #ifndef ApplVAID_H
 #define ApplVAID_H
 
-#include "ApplV_02_Beacon.h"
+#include "ApplV_02a_System.h"
 
-class ApplV_AID : public ApplVBeacon
+class ApplV_AID : public ApplVSystem
 {
 	public:
         ~ApplV_AID();

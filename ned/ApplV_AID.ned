@@ -1,7 +1,7 @@
 package c3po.ned;
 
 
-simple ApplVAID extends ApplVBeacon
+simple ApplVAID extends ApplVSystem
 {
     parameters:
         @class(ApplVAID);       

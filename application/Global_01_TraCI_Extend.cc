@@ -742,10 +742,53 @@ uint8_t* TraCI_Extend::genericGetArrayUnsignedInt(uint8_t commandId, std::string
     return color;
 }
 
+// #########################
+// CMD_SET_ROUTE_VARIABLE
+// #########################
+
+void TraCI_Extend::commandAddRoute(std::string name, std::list<std::string> route)
+{
+    uint8_t variableId = ADD;
+    uint8_t variableTypeS = TYPE_STRINGLIST;
+
+    TraCIBuffer buffer;
+    buffer << variableId << name << variableTypeS << (int32_t)route.size();
+    for(std::list<std::string>::iterator str = route.begin(); str != route.end(); str++)
+    {
+        buffer << (int32_t)str->length();
+        for(unsigned int i = 0; i < str->length(); i++)
+            buffer << (int8_t)(*str)[i];
+    }
+
+    TraCIBuffer buf = queryTraCI(CMD_SET_ROUTE_VARIABLE, buffer);
+    ASSERT(buf.eof());
+
+}
+
 
 // #########################
 // CMD_SET_VEHICLE_VARIABLE
 // #########################
+
+
+
+void TraCI_Extend::commandSetRouteFromList(std::string id, std::list<std::string> value)
+{
+    uint8_t variableId = VAR_ROUTE;
+    uint8_t variableTypeSList = TYPE_STRINGLIST;
+
+    TraCIBuffer buffer;
+    buffer << variableId << id << variableTypeSList << (int32_t)value.size();
+    for(std::list<std::string>::iterator str = value.begin(); str != value.end(); str++)
+    {
+        buffer << (int32_t)str->length();
+        for(unsigned int i = 0; i < str->length(); i++)
+            buffer << (int8_t)(*str)[i];
+    }
+    TraCIBuffer buf = queryTraCI(CMD_SET_VEHICLE_VARIABLE, buffer);
+    ASSERT(buf.eof());
+}
+
 
 void TraCI_Extend::commandSetMaxAccel(std::string nodeId, double value)
 {
@@ -786,6 +829,10 @@ void TraCI_Extend::commandSetLaneChangeMode(std::string nodeId, int32_t bitset)
     ASSERT(buf.eof());
 }
 
+std::list<std::string> TraCI_Extend::commandGetRouteIds()
+{
+    return genericGetStringList(CMD_GET_ROUTE_VARIABLE, "", 0x00, RESPONSE_GET_ROUTE_VARIABLE);
+}
 
 void TraCI_Extend::commandAddVehicleN(std::string vehicleId, std::string vehicleTypeId, std::string routeId, int32_t depart, double pos, double speed, uint8_t lane)
 {

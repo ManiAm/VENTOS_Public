@@ -28,6 +28,11 @@ class TraCI_Extend : public TraCIScenarioManager
         virtual void init_traci();
 		virtual void finish();
 
+		//IN PROGRESS:
+		void commandAddRoute(std::string name, std::list<std::string> route);
+		std::list<std::string> commandGetRouteIds();
+		void commandSetRouteFromList(std::string id, std::list<std::string> value);
+
         // CMD_GET_VEHICLE_VARIABLE
         uint32_t commandGetNoVehicles();
         std::list<std::string> commandGetVehicleList();

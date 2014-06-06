@@ -29,6 +29,7 @@ void VehicleAdd::initialize(int stage)
         platoonSize = par("platoonSize").longValue();
         platoonNumber = par("platoonNumber").longValue();
         totalVehicles = par("totalVehicles").longValue();
+        xmlFileName = par("xmlFileName").stringValue();
     }
 }
 
@@ -60,6 +61,10 @@ void VehicleAdd::Add()
     else if(mode == 4)
     {
         Scenario4();
+    }
+    else if(mode == 5)
+    {
+        Scenario5();
     }
 }
 
@@ -144,6 +149,79 @@ void VehicleAdd::Scenario4()
         //    TraCI->commandAddVehicleN(vehicleName,"TypeCACC2","route1",depart);
             TraCI->commandAddVehicleN(vehicleName, "TypeACC", "route1", depart, 0, 0, 0);
         }
+    }
+}
+
+void VehicleAdd::Scenario5()
+{
+
+    using namespace rapidxml;               // Using the rapidxml library to parse our files
+    file<> xmlFile((xmlFileName + ".veh.xml").c_str());    // Convert our file to a rapid-xml readable object
+    xml_document<> doc;                     // Build a rapidxml doc
+    doc.parse<0>(xmlFile.data());           // Fill it with data from our file
+    xml_node<> *node = doc.first_node("vehicles"); // Parse up to the "nodes" declaration
+
+    std::string id, type, origin, destination;
+    int depart;
+    for(node = node->first_node("vehicle"); node; node = node->next_sibling()) // For each vehicle
+    {
+        int readCount = 0;
+        for(xml_attribute<> *attr = node->first_attribute(); attr; attr = attr->next_attribute())//For each attribute
+        {
+            switch(readCount)   //Read that attribute to the right variable
+            {
+            case 0:
+                id = attr->value();
+                break;
+            case 1:
+                type = attr->value();
+                break;
+            case 2:
+                origin = attr->value();
+                break;
+            case 3:
+                destination = attr->value();
+                break;
+            case 4:
+                depart = atoi(attr->value());
+                break;
+
+
+            }
+            readCount++;
+        }
+        if(readCount < 5)
+        {
+            error("XML formatted wrong! Not enough elements given for some vehicle.");
+        }
+
+        std::list<std::string> routeList = TraCI->commandGetRouteIds();   //Get all the routes so far
+        bool foundRoute = 0;
+        for(std::list<std::string>::iterator it = routeList.begin(); it != routeList.end(); it++)   //Loop through them
+        {
+
+            //std::cout << "Found route " << *it << endl;
+            if(*it == origin)   //If we find the route named after this vehicle's starting edge, do nothing
+            {
+                foundRoute = 1;
+            }
+        }
+        if(!foundRoute) //Otherwise, build a new route
+        {
+            //std::cout << "Made route " << origin << endl;
+            std::list<std::string> startRoute;
+            startRoute.push_back(origin);   //With just the starting edge
+            TraCI->commandAddRoute(origin, startRoute);   //And add it to the simulation
+        }
+
+
+        //std::cout << "Routes" << endl;
+        //for(std::list<std::string>::iterator it = routeList.begin(); it != routeList.end(); it++)
+        //    std::cout << *it << endl;
+
+        //commandAddVehicleRouter wants string id, string type, string (edge) origin, string (node) destination, double (time) depart, and string routename
+        TraCI->commandAddVehicleN(id, type, origin, 1000 * depart, 0, 0, 0);  //Send a TraCI add call -- might not need to be *1000.
+
     }
 }
 

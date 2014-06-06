@@ -35,11 +35,14 @@ class VehicleAdd : public cSimpleModule
         int platoonNumber;
 	    int totalVehicles;
 
+	    std::string xmlFileName;
+
 	    // methods
 	    void Scenario1();
         void Scenario2();
         void Scenario3();
         void Scenario4();
+        void Scenario5();
 };
 
 

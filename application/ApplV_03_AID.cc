@@ -6,7 +6,7 @@ Define_Module(ApplV_AID);
 
 void ApplV_AID::initialize(int stage)
 {
-    ApplVBeacon::initialize(stage);
+    ApplVSystem::initialize(stage);
 
 	if (stage == 0)
 	{
@@ -30,18 +30,20 @@ void ApplV_AID::initialize(int stage)
 // handle my own SelfMsg
 void ApplV_AID::handleSelfMsg(cMessage* msg)
 {
-    ApplVBeacon::handleSelfMsg(msg);
+    ApplVSystem::handleSelfMsg(msg);
 }
 
 
 void ApplV_AID::onBeaconVehicle(BeaconVehicle* wsm)
 {
-
+    ApplVSystem::onBeaconVehicle(wsm);
 }
 
 
 void ApplV_AID::onBeaconRSU(BeaconRSU* wsm)
 {
+    ApplVSystem::onBeaconRSU(wsm);
+
     // I received a beacon from RSU
     // send my laneChanges
     if( !laneChanges.empty() )
@@ -59,7 +61,7 @@ void ApplV_AID::onBeaconRSU(BeaconRSU* wsm)
 
 void ApplV_AID::onData(PlatoonMsg* wsm)
 {
-
+    ApplVSystem::onData(wsm);
 }
 
 
@@ -127,7 +129,7 @@ void ApplV_AID::printDataContent(LaneChangeMsg* wsm)
 // is called, every time the position of vehicle changes
 void ApplV_AID::handlePositionUpdate(cObject* obj)
 {
-    ApplVBeacon::handlePositionUpdate(obj);
+    ApplVSystem::handlePositionUpdate(obj);
 
     toLane = TraCI->commandGetLaneId(SUMOvID);
 
@@ -147,7 +149,7 @@ void ApplV_AID::handlePositionUpdate(cObject* obj)
 
 void ApplV_AID::finish()
 {
-    ApplVBeacon::finish();
+    ApplVSystem::finish();
 }
 
 

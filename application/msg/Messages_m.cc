@@ -1773,4 +1773,580 @@ void *PlatoonMsgDescriptor::getFieldStructPointer(void *object, int field, int i
     }
 }
 
+Register_Class(SystemMsg);
+
+SystemMsg::SystemMsg(const char *name, int kind) : WaveShortMessage(name,kind)
+{
+    this->sender_var = 0;
+    this->recipient_var = 0;
+    this->requestType_var = 0;
+    this->edge_var = 0;
+    this->target_var = 0;
+}
+
+SystemMsg::SystemMsg(const SystemMsg& other) : WaveShortMessage(other)
+{
+    copy(other);
+}
+
+SystemMsg::~SystemMsg()
+{
+}
+
+SystemMsg& SystemMsg::operator=(const SystemMsg& other)
+{
+    if (this==&other) return *this;
+    WaveShortMessage::operator=(other);
+    copy(other);
+    return *this;
+}
+
+void SystemMsg::copy(const SystemMsg& other)
+{
+    this->sender_var = other.sender_var;
+    this->recipient_var = other.recipient_var;
+    this->requestType_var = other.requestType_var;
+    this->edge_var = other.edge_var;
+    this->target_var = other.target_var;
+}
+
+void SystemMsg::parsimPack(cCommBuffer *b)
+{
+    WaveShortMessage::parsimPack(b);
+    doPacking(b,this->sender_var);
+    doPacking(b,this->recipient_var);
+    doPacking(b,this->requestType_var);
+    doPacking(b,this->edge_var);
+    doPacking(b,this->target_var);
+}
+
+void SystemMsg::parsimUnpack(cCommBuffer *b)
+{
+    WaveShortMessage::parsimUnpack(b);
+    doUnpacking(b,this->sender_var);
+    doUnpacking(b,this->recipient_var);
+    doUnpacking(b,this->requestType_var);
+    doUnpacking(b,this->edge_var);
+    doUnpacking(b,this->target_var);
+}
+
+const char * SystemMsg::getSender() const
+{
+    return sender_var.c_str();
+}
+
+void SystemMsg::setSender(const char * sender)
+{
+    this->sender_var = sender;
+}
+
+const char * SystemMsg::getRecipient() const
+{
+    return recipient_var.c_str();
+}
+
+void SystemMsg::setRecipient(const char * recipient)
+{
+    this->recipient_var = recipient;
+}
+
+int SystemMsg::getRequestType() const
+{
+    return requestType_var;
+}
+
+void SystemMsg::setRequestType(int requestType)
+{
+    this->requestType_var = requestType;
+}
+
+const char * SystemMsg::getEdge() const
+{
+    return edge_var.c_str();
+}
+
+void SystemMsg::setEdge(const char * edge)
+{
+    this->edge_var = edge;
+}
+
+int SystemMsg::getTarget() const
+{
+    return target_var;
+}
+
+void SystemMsg::setTarget(int target)
+{
+    this->target_var = target;
+}
+
+class SystemMsgDescriptor : public cClassDescriptor
+{
+  public:
+    SystemMsgDescriptor();
+    virtual ~SystemMsgDescriptor();
+
+    virtual bool doesSupport(cObject *obj) const;
+    virtual const char *getProperty(const char *propertyname) const;
+    virtual int getFieldCount(void *object) const;
+    virtual const char *getFieldName(void *object, int field) const;
+    virtual int findField(void *object, const char *fieldName) const;
+    virtual unsigned int getFieldTypeFlags(void *object, int field) const;
+    virtual const char *getFieldTypeString(void *object, int field) const;
+    virtual const char *getFieldProperty(void *object, int field, const char *propertyname) const;
+    virtual int getArraySize(void *object, int field) const;
+
+    virtual std::string getFieldAsString(void *object, int field, int i) const;
+    virtual bool setFieldAsString(void *object, int field, int i, const char *value) const;
+
+    virtual const char *getFieldStructName(void *object, int field) const;
+    virtual void *getFieldStructPointer(void *object, int field, int i) const;
+};
+
+Register_ClassDescriptor(SystemMsgDescriptor);
+
+SystemMsgDescriptor::SystemMsgDescriptor() : cClassDescriptor("SystemMsg", "WaveShortMessage")
+{
+}
+
+SystemMsgDescriptor::~SystemMsgDescriptor()
+{
+}
+
+bool SystemMsgDescriptor::doesSupport(cObject *obj) const
+{
+    return dynamic_cast<SystemMsg *>(obj)!=NULL;
+}
+
+const char *SystemMsgDescriptor::getProperty(const char *propertyname) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    return basedesc ? basedesc->getProperty(propertyname) : NULL;
+}
+
+int SystemMsgDescriptor::getFieldCount(void *object) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    return basedesc ? 5+basedesc->getFieldCount(object) : 5;
+}
+
+unsigned int SystemMsgDescriptor::getFieldTypeFlags(void *object, int field) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getFieldTypeFlags(object, field);
+        field -= basedesc->getFieldCount(object);
+    }
+    static unsigned int fieldTypeFlags[] = {
+        FD_ISEDITABLE,
+        FD_ISEDITABLE,
+        FD_ISEDITABLE,
+        FD_ISEDITABLE,
+        FD_ISEDITABLE,
+    };
+    return (field>=0 && field<5) ? fieldTypeFlags[field] : 0;
+}
+
+const char *SystemMsgDescriptor::getFieldName(void *object, int field) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getFieldName(object, field);
+        field -= basedesc->getFieldCount(object);
+    }
+    static const char *fieldNames[] = {
+        "sender",
+        "recipient",
+        "requestType",
+        "edge",
+        "target",
+    };
+    return (field>=0 && field<5) ? fieldNames[field] : NULL;
+}
+
+int SystemMsgDescriptor::findField(void *object, const char *fieldName) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    int base = basedesc ? basedesc->getFieldCount(object) : 0;
+    if (fieldName[0]=='s' && strcmp(fieldName, "sender")==0) return base+0;
+    if (fieldName[0]=='r' && strcmp(fieldName, "recipient")==0) return base+1;
+    if (fieldName[0]=='r' && strcmp(fieldName, "requestType")==0) return base+2;
+    if (fieldName[0]=='e' && strcmp(fieldName, "edge")==0) return base+3;
+    if (fieldName[0]=='t' && strcmp(fieldName, "target")==0) return base+4;
+    return basedesc ? basedesc->findField(object, fieldName) : -1;
+}
+
+const char *SystemMsgDescriptor::getFieldTypeString(void *object, int field) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getFieldTypeString(object, field);
+        field -= basedesc->getFieldCount(object);
+    }
+    static const char *fieldTypeStrings[] = {
+        "string",
+        "string",
+        "int",
+        "string",
+        "int",
+    };
+    return (field>=0 && field<5) ? fieldTypeStrings[field] : NULL;
+}
+
+const char *SystemMsgDescriptor::getFieldProperty(void *object, int field, const char *propertyname) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getFieldProperty(object, field, propertyname);
+        field -= basedesc->getFieldCount(object);
+    }
+    switch (field) {
+        default: return NULL;
+    }
+}
+
+int SystemMsgDescriptor::getArraySize(void *object, int field) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getArraySize(object, field);
+        field -= basedesc->getFieldCount(object);
+    }
+    SystemMsg *pp = (SystemMsg *)object; (void)pp;
+    switch (field) {
+        default: return 0;
+    }
+}
+
+std::string SystemMsgDescriptor::getFieldAsString(void *object, int field, int i) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getFieldAsString(object,field,i);
+        field -= basedesc->getFieldCount(object);
+    }
+    SystemMsg *pp = (SystemMsg *)object; (void)pp;
+    switch (field) {
+        case 0: return oppstring2string(pp->getSender());
+        case 1: return oppstring2string(pp->getRecipient());
+        case 2: return long2string(pp->getRequestType());
+        case 3: return oppstring2string(pp->getEdge());
+        case 4: return long2string(pp->getTarget());
+        default: return "";
+    }
+}
+
+bool SystemMsgDescriptor::setFieldAsString(void *object, int field, int i, const char *value) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->setFieldAsString(object,field,i,value);
+        field -= basedesc->getFieldCount(object);
+    }
+    SystemMsg *pp = (SystemMsg *)object; (void)pp;
+    switch (field) {
+        case 0: pp->setSender((value)); return true;
+        case 1: pp->setRecipient((value)); return true;
+        case 2: pp->setRequestType(string2long(value)); return true;
+        case 3: pp->setEdge((value)); return true;
+        case 4: pp->setTarget(string2long(value)); return true;
+        default: return false;
+    }
+}
+
+const char *SystemMsgDescriptor::getFieldStructName(void *object, int field) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getFieldStructName(object, field);
+        field -= basedesc->getFieldCount(object);
+    }
+    static const char *fieldStructNames[] = {
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+    };
+    return (field>=0 && field<5) ? fieldStructNames[field] : NULL;
+}
+
+void *SystemMsgDescriptor::getFieldStructPointer(void *object, int field, int i) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getFieldStructPointer(object, field, i);
+        field -= basedesc->getFieldCount(object);
+    }
+    SystemMsg *pp = (SystemMsg *)object; (void)pp;
+    switch (field) {
+        default: return NULL;
+    }
+}
+
+Register_Class(RouterMsg);
+
+RouterMsg::RouterMsg(const char *name, int kind) : WaveShortMessage(name,kind)
+{
+    this->recipient_var = 0;
+}
+
+RouterMsg::RouterMsg(const RouterMsg& other) : WaveShortMessage(other)
+{
+    copy(other);
+}
+
+RouterMsg::~RouterMsg()
+{
+}
+
+RouterMsg& RouterMsg::operator=(const RouterMsg& other)
+{
+    if (this==&other) return *this;
+    WaveShortMessage::operator=(other);
+    copy(other);
+    return *this;
+}
+
+void RouterMsg::copy(const RouterMsg& other)
+{
+    this->recipient_var = other.recipient_var;
+    this->info_var = other.info_var;
+}
+
+void RouterMsg::parsimPack(cCommBuffer *b)
+{
+    WaveShortMessage::parsimPack(b);
+    doPacking(b,this->recipient_var);
+    doPacking(b,this->info_var);
+}
+
+void RouterMsg::parsimUnpack(cCommBuffer *b)
+{
+    WaveShortMessage::parsimUnpack(b);
+    doUnpacking(b,this->recipient_var);
+    doUnpacking(b,this->info_var);
+}
+
+const char * RouterMsg::getRecipient() const
+{
+    return recipient_var.c_str();
+}
+
+void RouterMsg::setRecipient(const char * recipient)
+{
+    this->recipient_var = recipient;
+}
+
+stringList& RouterMsg::getInfo()
+{
+    return info_var;
+}
+
+void RouterMsg::setInfo(const stringList& info)
+{
+    this->info_var = info;
+}
+
+class RouterMsgDescriptor : public cClassDescriptor
+{
+  public:
+    RouterMsgDescriptor();
+    virtual ~RouterMsgDescriptor();
+
+    virtual bool doesSupport(cObject *obj) const;
+    virtual const char *getProperty(const char *propertyname) const;
+    virtual int getFieldCount(void *object) const;
+    virtual const char *getFieldName(void *object, int field) const;
+    virtual int findField(void *object, const char *fieldName) const;
+    virtual unsigned int getFieldTypeFlags(void *object, int field) const;
+    virtual const char *getFieldTypeString(void *object, int field) const;
+    virtual const char *getFieldProperty(void *object, int field, const char *propertyname) const;
+    virtual int getArraySize(void *object, int field) const;
+
+    virtual std::string getFieldAsString(void *object, int field, int i) const;
+    virtual bool setFieldAsString(void *object, int field, int i, const char *value) const;
+
+    virtual const char *getFieldStructName(void *object, int field) const;
+    virtual void *getFieldStructPointer(void *object, int field, int i) const;
+};
+
+Register_ClassDescriptor(RouterMsgDescriptor);
+
+RouterMsgDescriptor::RouterMsgDescriptor() : cClassDescriptor("RouterMsg", "WaveShortMessage")
+{
+}
+
+RouterMsgDescriptor::~RouterMsgDescriptor()
+{
+}
+
+bool RouterMsgDescriptor::doesSupport(cObject *obj) const
+{
+    return dynamic_cast<RouterMsg *>(obj)!=NULL;
+}
+
+const char *RouterMsgDescriptor::getProperty(const char *propertyname) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    return basedesc ? basedesc->getProperty(propertyname) : NULL;
+}
+
+int RouterMsgDescriptor::getFieldCount(void *object) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    return basedesc ? 2+basedesc->getFieldCount(object) : 2;
+}
+
+unsigned int RouterMsgDescriptor::getFieldTypeFlags(void *object, int field) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getFieldTypeFlags(object, field);
+        field -= basedesc->getFieldCount(object);
+    }
+    static unsigned int fieldTypeFlags[] = {
+        FD_ISEDITABLE,
+        FD_ISCOMPOUND,
+    };
+    return (field>=0 && field<2) ? fieldTypeFlags[field] : 0;
+}
+
+const char *RouterMsgDescriptor::getFieldName(void *object, int field) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getFieldName(object, field);
+        field -= basedesc->getFieldCount(object);
+    }
+    static const char *fieldNames[] = {
+        "recipient",
+        "info",
+    };
+    return (field>=0 && field<2) ? fieldNames[field] : NULL;
+}
+
+int RouterMsgDescriptor::findField(void *object, const char *fieldName) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    int base = basedesc ? basedesc->getFieldCount(object) : 0;
+    if (fieldName[0]=='r' && strcmp(fieldName, "recipient")==0) return base+0;
+    if (fieldName[0]=='i' && strcmp(fieldName, "info")==0) return base+1;
+    return basedesc ? basedesc->findField(object, fieldName) : -1;
+}
+
+const char *RouterMsgDescriptor::getFieldTypeString(void *object, int field) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getFieldTypeString(object, field);
+        field -= basedesc->getFieldCount(object);
+    }
+    static const char *fieldTypeStrings[] = {
+        "string",
+        "stringList",
+    };
+    return (field>=0 && field<2) ? fieldTypeStrings[field] : NULL;
+}
+
+const char *RouterMsgDescriptor::getFieldProperty(void *object, int field, const char *propertyname) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getFieldProperty(object, field, propertyname);
+        field -= basedesc->getFieldCount(object);
+    }
+    switch (field) {
+        default: return NULL;
+    }
+}
+
+int RouterMsgDescriptor::getArraySize(void *object, int field) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getArraySize(object, field);
+        field -= basedesc->getFieldCount(object);
+    }
+    RouterMsg *pp = (RouterMsg *)object; (void)pp;
+    switch (field) {
+        default: return 0;
+    }
+}
+
+std::string RouterMsgDescriptor::getFieldAsString(void *object, int field, int i) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getFieldAsString(object,field,i);
+        field -= basedesc->getFieldCount(object);
+    }
+    RouterMsg *pp = (RouterMsg *)object; (void)pp;
+    switch (field) {
+        case 0: return oppstring2string(pp->getRecipient());
+        case 1: {std::stringstream out; out << pp->getInfo(); return out.str();}
+        default: return "";
+    }
+}
+
+bool RouterMsgDescriptor::setFieldAsString(void *object, int field, int i, const char *value) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->setFieldAsString(object,field,i,value);
+        field -= basedesc->getFieldCount(object);
+    }
+    RouterMsg *pp = (RouterMsg *)object; (void)pp;
+    switch (field) {
+        case 0: pp->setRecipient((value)); return true;
+        default: return false;
+    }
+}
+
+const char *RouterMsgDescriptor::getFieldStructName(void *object, int field) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getFieldStructName(object, field);
+        field -= basedesc->getFieldCount(object);
+    }
+    static const char *fieldStructNames[] = {
+        NULL,
+        "stringList",
+    };
+    return (field>=0 && field<2) ? fieldStructNames[field] : NULL;
+}
+
+void *RouterMsgDescriptor::getFieldStructPointer(void *object, int field, int i) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getFieldStructPointer(object, field, i);
+        field -= basedesc->getFieldCount(object);
+    }
+    RouterMsg *pp = (RouterMsg *)object; (void)pp;
+    switch (field) {
+        case 1: return (void *)(&pp->getInfo()); break;
+        default: return NULL;
+    }
+}
+
 

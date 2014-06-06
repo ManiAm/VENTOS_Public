@@ -1,7 +1,62 @@
 #ifndef Appl_H
 #define Appl_H
 
+#include<list>
 
+class systemData : public cObject, noncopyable
+{
+
+    std::string edge;
+    std::string node;
+    std::string sender;
+    int requestType;
+    std::string recipient;
+    std::list<std::string> edgeList;
+
+public:
+    systemData(std::string e, std::string n, std::string s, int r, std::string re)
+    {
+        edge = e;
+        node = n;
+        sender = s;
+        requestType = r;
+        recipient = re;
+    }
+
+    systemData(std::string e, std::string n, std::string s, int r, std::string re, std::list<std::string> el)
+    {
+        edge = e;
+        node = n;
+        sender = s;
+        requestType = r;
+        recipient = re;
+        edgeList = el;
+    }
+    std::string getEdge()
+    {
+        return edge;
+    }
+    std::string getNode()
+    {
+        return node;
+    }
+    const char* getSender()
+    {
+        return sender.c_str();
+    }
+    int getRequestType()
+    {
+        return requestType;
+    }
+    const char* getRecipient()
+    {
+        return recipient.c_str();
+    }
+    std::list<std::string> getInfo()
+    {
+        return edgeList;
+    }
+};
 
 class data : public cObject, noncopyable
 {

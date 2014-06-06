@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for libapplication
 #
 # This file was generated with the command:
-#  opp_makemake -f --make-so -o application -O out -d msg -I/home/mani/Desktop/VENTOS/eigen-3.2.1 -I/home/mani/Desktop/VENTOS/rapidxml-1.13 -I../../veins/src/modules/messages -I../../veins/src/modules -I../../veins/src/modules/obstacle -I../../veins/src/base/modules -I../../veins/src/modules/utility -I../../veins/src/base/utils -I../../veins/src/base/messages -I../../veins/src/base/phyLayer -I../../veins/src/modules/phy -I../../veins/src/modules/mac/ieee80211p -I../../veins/src/base/connectionManager -I../../veins/src/modules/analogueModel -L../../veins/out/$(CONFIGNAME)/src/modules -L../../veins/out/$(CONFIGNAME)/tests/testUtils -L../../veins/out/$(CONFIGNAME)/src/base -L../out/$(CONFIGNAME)/application/msg -lmsg -lmiximbase -lmiximmodules -lmiximmodules -lmiximtestUtils -lmiximbase -KVEINS_PROJ=../../veins
+#  opp_makemake -f --make-so -o application -O out -d msg -I/home/dylan/vgrid/VENTOS/eigen-3.2.1 -I/home/dylan/vgrid/VENTOS/rapidxml-1.13 -I../../mixim-sommer/src/modules/analogueModel -I../../mixim-sommer/src/modules/mac/ieee80211p -I../../mixim-sommer/src/modules/phy -I../../mixim-sommer/src/modules/messages -I../../mixim-sommer/src/base/utils -I../../mixim-sommer/src/base/phyLayer -I../../mixim-sommer/src/modules/utility -I../../mixim-sommer/src/modules -I../../mixim-sommer/src/base/modules -I../../mixim-sommer/src/base/messages -I../../mixim-sommer/src/base/connectionManager -I../../mixim-sommer/src/modules/obstacle -L../../mixim-sommer/out/$(CONFIGNAME)/src/modules -L../../mixim-sommer/out/$(CONFIGNAME)/src/base -L../../mixim-sommer/out/$(CONFIGNAME)/tests/testUtils -L../out/$(CONFIGNAME)/application/msg -lmsg -lmiximbase -lmiximmodules -lmiximmodules -lmiximbase -lmiximtestUtils -KMIXIM_SOMMER_PROJ=../../mixim-sommer
 #
 
 # Name of target to be created (-o option)
@@ -12,26 +12,26 @@ TARGET = libapplication$(SHARED_LIB_SUFFIX)
 INCLUDE_PATH = \
     -I../eigen-3.2.1 \
     -I../rapidxml-1.13 \
-    -I../../veins/src/modules/messages \
-    -I../../veins/src/modules \
-    -I../../veins/src/modules/obstacle \
-    -I../../veins/src/base/modules \
-    -I../../veins/src/modules/utility \
-    -I../../veins/src/base/utils \
-    -I../../veins/src/base/messages \
-    -I../../veins/src/base/phyLayer \
-    -I../../veins/src/modules/phy \
-    -I../../veins/src/modules/mac/ieee80211p \
-    -I../../veins/src/base/connectionManager \
-    -I../../veins/src/modules/analogueModel \
+    -I../../mixim-sommer/src/modules/analogueModel \
+    -I../../mixim-sommer/src/modules/mac/ieee80211p \
+    -I../../mixim-sommer/src/modules/phy \
+    -I../../mixim-sommer/src/modules/messages \
+    -I../../mixim-sommer/src/base/utils \
+    -I../../mixim-sommer/src/base/phyLayer \
+    -I../../mixim-sommer/src/modules/utility \
+    -I../../mixim-sommer/src/modules \
+    -I../../mixim-sommer/src/base/modules \
+    -I../../mixim-sommer/src/base/messages \
+    -I../../mixim-sommer/src/base/connectionManager \
+    -I../../mixim-sommer/src/modules/obstacle \
     -I.
 
 # Additional object and library files to link with
 EXTRA_OBJS =
 
 # Additional libraries (-L, -l options)
-LIBS = -L../../veins/out/$(CONFIGNAME)/src/modules -L../../veins/out/$(CONFIGNAME)/tests/testUtils -L../../veins/out/$(CONFIGNAME)/src/base -L../out/$(CONFIGNAME)/application/msg  -lmsg -lmiximbase -lmiximmodules -lmiximmodules -lmiximtestUtils -lmiximbase
-LIBS += -Wl,-rpath,`abspath ../../veins/out/$(CONFIGNAME)/src/modules` -Wl,-rpath,`abspath ../../veins/out/$(CONFIGNAME)/tests/testUtils` -Wl,-rpath,`abspath ../../veins/out/$(CONFIGNAME)/src/base` -Wl,-rpath,`abspath ../out/$(CONFIGNAME)/application/msg`
+LIBS = -L../../mixim-sommer/out/$(CONFIGNAME)/src/modules -L../../mixim-sommer/out/$(CONFIGNAME)/src/base -L../../mixim-sommer/out/$(CONFIGNAME)/tests/testUtils -L../out/$(CONFIGNAME)/application/msg  -lmsg -lmiximbase -lmiximmodules -lmiximmodules -lmiximbase -lmiximtestUtils
+LIBS += -Wl,-rpath,`abspath ../../mixim-sommer/out/$(CONFIGNAME)/src/modules` -Wl,-rpath,`abspath ../../mixim-sommer/out/$(CONFIGNAME)/src/base` -Wl,-rpath,`abspath ../../mixim-sommer/out/$(CONFIGNAME)/tests/testUtils` -Wl,-rpath,`abspath ../out/$(CONFIGNAME)/application/msg`
 
 # Output directory
 PROJECT_OUTPUT_DIR = ../out
@@ -40,31 +40,34 @@ O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Object files for local .cc and .msg files
 OBJS = \
-    $O/Global_03_Statistics.o \
-    $O/zApplVPlatoonFormation2.o \
-    $O/RSUMobility.o \
-    $O/zApplVPlatoonFormation.o \
-    $O/Global_02_TraCI_App.o \
-    $O/Mac1609_4_Mod.o \
-    $O/Global_04_VehicleAdd.o \
-    $O/Global_07_TrafficLight.o \
-    $O/ApplV_02_Beacon.o \
-    $O/TraCIColor.o \
-    $O/Global_01_TraCI_Extend.o \
-    $O/ApplRSU.o \
-    $O/ApplAdversary.o \
-    $O/ApplV_05_Manager.o \
-    $O/ApplV_01_Base.o \
     $O/Global_05_Warmup.o \
-    $O/ApplV_04_PlatoonMg.o \
+    $O/RSUMobility.o \
+    $O/ApplV_05_Manager.o \
+    $O/Mac1609_4_Mod.o \
+    $O/Global_07_TrafficLight.o \
+    $O/Router.o \
+    $O/ApplV_01_Base.o \
+    $O/zApplVPlatoonFormation2.o \
+    $O/ApplRSU.o \
     $O/Global_06_SpeedProfile.o \
-    $O/ApplV_03_AID.o
+    $O/NodeEdge.o \
+    $O/Global_03_Statistics.o \
+    $O/ApplV_03_AID.o \
+    $O/Global_04_VehicleAdd.o \
+    $O/Global_02_TraCI_App.o \
+    $O/TraCIColor.o \
+    $O/zApplVPlatoonFormation.o \
+    $O/ApplV_02_Beacon.o \
+    $O/ApplV_04_PlatoonMg.o \
+    $O/ApplV_02a_System.o \
+    $O/ApplAdversary.o \
+    $O/Global_01_TraCI_Extend.o
 
 # Message files
 MSGFILES =
 
 # Other makefile variables (-K)
-VEINS_PROJ=../../veins
+MIXIM_SOMMER_PROJ=../../mixim-sommer
 
 #------------------------------------------------------------------------------
 
@@ -163,291 +166,333 @@ $O/ApplAdversary.o: ApplAdversary.cc \
 	ApplAdversary.h \
 	Global_01_TraCI_Extend.h \
 	msg/Messages_m.h \
-	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
-	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
-	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
-	$(VEINS_PROJ)/src/base/messages/MacPkt_m.h \
-	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
-	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
-	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
-	$(VEINS_PROJ)/src/base/modules/BaseMobility.h \
-	$(VEINS_PROJ)/src/base/modules/BaseModule.h \
-	$(VEINS_PROJ)/src/base/modules/BaseWorldUtility.h \
-	$(VEINS_PROJ)/src/base/modules/BatteryAccess.h \
-	$(VEINS_PROJ)/src/base/utils/Coord.h \
-	$(VEINS_PROJ)/src/base/utils/FWMath.h \
-	$(VEINS_PROJ)/src/base/utils/FindModule.h \
-	$(VEINS_PROJ)/src/base/utils/HostState.h \
-	$(VEINS_PROJ)/src/base/utils/MiXiMDefs.h \
-	$(VEINS_PROJ)/src/base/utils/Move.h \
-	$(VEINS_PROJ)/src/base/utils/NetwToMacControlInfo.h \
-	$(VEINS_PROJ)/src/base/utils/PassedMessage.h \
-	$(VEINS_PROJ)/src/base/utils/SimpleAddress.h \
-	$(VEINS_PROJ)/src/base/utils/miximkerneldefs.h \
-	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
-	$(VEINS_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
-	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
-	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
-	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
-	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/ChannelAccess.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/NicEntry.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/messages/MacPkt_m.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseApplLayer.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseBattery.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseLayer.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseMobility.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseModule.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseWorldUtility.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BatteryAccess.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/Coord.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/FWMath.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/FindModule.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/HostState.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/MiXiMDefs.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/Move.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/NetwToMacControlInfo.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/PassedMessage.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/SimpleAddress.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/miximkerneldefs.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIColor.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/obstacle/Obstacle.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/obstacle/ObstacleControl.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/utility/Consts80211p.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/world/annotations/AnnotationManager.h
 $O/ApplRSU.o: ApplRSU.cc \
 	Appl.h \
 	ApplRSU.h \
 	Global_01_TraCI_Extend.h \
 	msg/Messages_m.h \
-	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
-	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
-	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
-	$(VEINS_PROJ)/src/base/messages/MacPkt_m.h \
-	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
-	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
-	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
-	$(VEINS_PROJ)/src/base/modules/BaseMobility.h \
-	$(VEINS_PROJ)/src/base/modules/BaseModule.h \
-	$(VEINS_PROJ)/src/base/modules/BaseWorldUtility.h \
-	$(VEINS_PROJ)/src/base/modules/BatteryAccess.h \
-	$(VEINS_PROJ)/src/base/utils/Coord.h \
-	$(VEINS_PROJ)/src/base/utils/FWMath.h \
-	$(VEINS_PROJ)/src/base/utils/FindModule.h \
-	$(VEINS_PROJ)/src/base/utils/HostState.h \
-	$(VEINS_PROJ)/src/base/utils/MiXiMDefs.h \
-	$(VEINS_PROJ)/src/base/utils/Move.h \
-	$(VEINS_PROJ)/src/base/utils/NetwToMacControlInfo.h \
-	$(VEINS_PROJ)/src/base/utils/PassedMessage.h \
-	$(VEINS_PROJ)/src/base/utils/SimpleAddress.h \
-	$(VEINS_PROJ)/src/base/utils/miximkerneldefs.h \
-	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
-	$(VEINS_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
-	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
-	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
-	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
-	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/ChannelAccess.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/NicEntry.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/messages/MacPkt_m.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseApplLayer.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseBattery.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseLayer.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseMobility.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseModule.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseWorldUtility.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BatteryAccess.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/Coord.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/FWMath.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/FindModule.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/HostState.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/MiXiMDefs.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/Move.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/NetwToMacControlInfo.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/PassedMessage.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/SimpleAddress.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/miximkerneldefs.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIColor.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/obstacle/Obstacle.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/obstacle/ObstacleControl.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/utility/Consts80211p.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/world/annotations/AnnotationManager.h
 $O/ApplV_01_Base.o: ApplV_01_Base.cc \
 	Appl.h \
 	ApplV_01_Base.h \
 	Global_01_TraCI_Extend.h \
 	msg/Messages_m.h \
-	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
-	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
-	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
-	$(VEINS_PROJ)/src/base/messages/MacPkt_m.h \
-	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
-	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
-	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
-	$(VEINS_PROJ)/src/base/modules/BaseMobility.h \
-	$(VEINS_PROJ)/src/base/modules/BaseModule.h \
-	$(VEINS_PROJ)/src/base/modules/BaseWorldUtility.h \
-	$(VEINS_PROJ)/src/base/modules/BatteryAccess.h \
-	$(VEINS_PROJ)/src/base/utils/Coord.h \
-	$(VEINS_PROJ)/src/base/utils/FWMath.h \
-	$(VEINS_PROJ)/src/base/utils/FindModule.h \
-	$(VEINS_PROJ)/src/base/utils/HostState.h \
-	$(VEINS_PROJ)/src/base/utils/MiXiMDefs.h \
-	$(VEINS_PROJ)/src/base/utils/Move.h \
-	$(VEINS_PROJ)/src/base/utils/NetwToMacControlInfo.h \
-	$(VEINS_PROJ)/src/base/utils/PassedMessage.h \
-	$(VEINS_PROJ)/src/base/utils/SimpleAddress.h \
-	$(VEINS_PROJ)/src/base/utils/miximkerneldefs.h \
-	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
-	$(VEINS_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
-	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
-	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
-	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
-	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/ChannelAccess.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/NicEntry.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/messages/MacPkt_m.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseApplLayer.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseBattery.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseLayer.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseMobility.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseModule.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseWorldUtility.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BatteryAccess.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/Coord.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/FWMath.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/FindModule.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/HostState.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/MiXiMDefs.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/Move.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/NetwToMacControlInfo.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/PassedMessage.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/SimpleAddress.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/miximkerneldefs.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIColor.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/obstacle/Obstacle.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/obstacle/ObstacleControl.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/utility/Consts80211p.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/world/annotations/AnnotationManager.h
 $O/ApplV_02_Beacon.o: ApplV_02_Beacon.cc \
 	Appl.h \
 	ApplV_01_Base.h \
 	ApplV_02_Beacon.h \
 	Global_01_TraCI_Extend.h \
 	msg/Messages_m.h \
-	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
-	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
-	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
-	$(VEINS_PROJ)/src/base/messages/MacPkt_m.h \
-	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
-	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
-	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
-	$(VEINS_PROJ)/src/base/modules/BaseMobility.h \
-	$(VEINS_PROJ)/src/base/modules/BaseModule.h \
-	$(VEINS_PROJ)/src/base/modules/BaseWorldUtility.h \
-	$(VEINS_PROJ)/src/base/modules/BatteryAccess.h \
-	$(VEINS_PROJ)/src/base/utils/Coord.h \
-	$(VEINS_PROJ)/src/base/utils/FWMath.h \
-	$(VEINS_PROJ)/src/base/utils/FindModule.h \
-	$(VEINS_PROJ)/src/base/utils/HostState.h \
-	$(VEINS_PROJ)/src/base/utils/MiXiMDefs.h \
-	$(VEINS_PROJ)/src/base/utils/Move.h \
-	$(VEINS_PROJ)/src/base/utils/NetwToMacControlInfo.h \
-	$(VEINS_PROJ)/src/base/utils/PassedMessage.h \
-	$(VEINS_PROJ)/src/base/utils/SimpleAddress.h \
-	$(VEINS_PROJ)/src/base/utils/miximkerneldefs.h \
-	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
-	$(VEINS_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
-	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
-	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
-	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
-	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/ChannelAccess.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/NicEntry.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/messages/MacPkt_m.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseApplLayer.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseBattery.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseLayer.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseMobility.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseModule.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseWorldUtility.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BatteryAccess.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/Coord.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/FWMath.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/FindModule.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/HostState.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/MiXiMDefs.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/Move.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/NetwToMacControlInfo.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/PassedMessage.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/SimpleAddress.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/miximkerneldefs.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIColor.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/obstacle/Obstacle.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/obstacle/ObstacleControl.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/utility/Consts80211p.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/world/annotations/AnnotationManager.h
+$O/ApplV_02a_System.o: ApplV_02a_System.cc \
+	Appl.h \
+	ApplV_01_Base.h \
+	ApplV_02_Beacon.h \
+	ApplV_02a_System.h \
+	Global_01_TraCI_Extend.h \
+	msg/Messages_m.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/ChannelAccess.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/NicEntry.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/messages/MacPkt_m.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseApplLayer.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseBattery.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseLayer.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseMobility.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseModule.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseWorldUtility.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BatteryAccess.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/Coord.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/FWMath.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/FindModule.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/HostState.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/MiXiMDefs.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/Move.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/NetwToMacControlInfo.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/PassedMessage.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/SimpleAddress.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/miximkerneldefs.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIColor.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/obstacle/Obstacle.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/obstacle/ObstacleControl.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/utility/Consts80211p.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/world/annotations/AnnotationManager.h
 $O/ApplV_03_AID.o: ApplV_03_AID.cc \
 	Appl.h \
 	ApplV_01_Base.h \
 	ApplV_02_Beacon.h \
+	ApplV_02a_System.h \
 	ApplV_03_AID.h \
 	Global_01_TraCI_Extend.h \
 	msg/Messages_m.h \
-	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
-	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
-	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
-	$(VEINS_PROJ)/src/base/messages/MacPkt_m.h \
-	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
-	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
-	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
-	$(VEINS_PROJ)/src/base/modules/BaseMobility.h \
-	$(VEINS_PROJ)/src/base/modules/BaseModule.h \
-	$(VEINS_PROJ)/src/base/modules/BaseWorldUtility.h \
-	$(VEINS_PROJ)/src/base/modules/BatteryAccess.h \
-	$(VEINS_PROJ)/src/base/utils/Coord.h \
-	$(VEINS_PROJ)/src/base/utils/FWMath.h \
-	$(VEINS_PROJ)/src/base/utils/FindModule.h \
-	$(VEINS_PROJ)/src/base/utils/HostState.h \
-	$(VEINS_PROJ)/src/base/utils/MiXiMDefs.h \
-	$(VEINS_PROJ)/src/base/utils/Move.h \
-	$(VEINS_PROJ)/src/base/utils/NetwToMacControlInfo.h \
-	$(VEINS_PROJ)/src/base/utils/PassedMessage.h \
-	$(VEINS_PROJ)/src/base/utils/SimpleAddress.h \
-	$(VEINS_PROJ)/src/base/utils/miximkerneldefs.h \
-	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
-	$(VEINS_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
-	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
-	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
-	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
-	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/ChannelAccess.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/NicEntry.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/messages/MacPkt_m.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseApplLayer.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseBattery.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseLayer.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseMobility.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseModule.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseWorldUtility.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BatteryAccess.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/Coord.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/FWMath.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/FindModule.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/HostState.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/MiXiMDefs.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/Move.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/NetwToMacControlInfo.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/PassedMessage.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/SimpleAddress.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/miximkerneldefs.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIColor.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/obstacle/Obstacle.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/obstacle/ObstacleControl.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/utility/Consts80211p.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/world/annotations/AnnotationManager.h
 $O/ApplV_04_PlatoonMg.o: ApplV_04_PlatoonMg.cc \
 	Appl.h \
 	ApplV_01_Base.h \
 	ApplV_02_Beacon.h \
+	ApplV_02a_System.h \
 	ApplV_03_AID.h \
 	ApplV_04_PlatoonMg.h \
 	Global_01_TraCI_Extend.h \
 	msg/Messages_m.h \
-	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
-	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
-	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
-	$(VEINS_PROJ)/src/base/messages/MacPkt_m.h \
-	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
-	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
-	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
-	$(VEINS_PROJ)/src/base/modules/BaseMobility.h \
-	$(VEINS_PROJ)/src/base/modules/BaseModule.h \
-	$(VEINS_PROJ)/src/base/modules/BaseWorldUtility.h \
-	$(VEINS_PROJ)/src/base/modules/BatteryAccess.h \
-	$(VEINS_PROJ)/src/base/utils/Coord.h \
-	$(VEINS_PROJ)/src/base/utils/FWMath.h \
-	$(VEINS_PROJ)/src/base/utils/FindModule.h \
-	$(VEINS_PROJ)/src/base/utils/HostState.h \
-	$(VEINS_PROJ)/src/base/utils/MiXiMDefs.h \
-	$(VEINS_PROJ)/src/base/utils/Move.h \
-	$(VEINS_PROJ)/src/base/utils/NetwToMacControlInfo.h \
-	$(VEINS_PROJ)/src/base/utils/PassedMessage.h \
-	$(VEINS_PROJ)/src/base/utils/SimpleAddress.h \
-	$(VEINS_PROJ)/src/base/utils/miximkerneldefs.h \
-	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
-	$(VEINS_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
-	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
-	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
-	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
-	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/ChannelAccess.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/NicEntry.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/messages/MacPkt_m.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseApplLayer.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseBattery.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseLayer.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseMobility.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseModule.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseWorldUtility.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BatteryAccess.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/Coord.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/FWMath.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/FindModule.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/HostState.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/MiXiMDefs.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/Move.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/NetwToMacControlInfo.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/PassedMessage.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/SimpleAddress.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/miximkerneldefs.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIColor.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/obstacle/Obstacle.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/obstacle/ObstacleControl.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/utility/Consts80211p.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/world/annotations/AnnotationManager.h
 $O/ApplV_05_Manager.o: ApplV_05_Manager.cc \
 	Appl.h \
 	ApplV_01_Base.h \
 	ApplV_02_Beacon.h \
+	ApplV_02a_System.h \
 	ApplV_03_AID.h \
 	ApplV_04_PlatoonMg.h \
 	ApplV_05_Manager.h \
 	Global_01_TraCI_Extend.h \
 	msg/Messages_m.h \
-	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
-	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
-	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
-	$(VEINS_PROJ)/src/base/messages/MacPkt_m.h \
-	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
-	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
-	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
-	$(VEINS_PROJ)/src/base/modules/BaseMobility.h \
-	$(VEINS_PROJ)/src/base/modules/BaseModule.h \
-	$(VEINS_PROJ)/src/base/modules/BaseWorldUtility.h \
-	$(VEINS_PROJ)/src/base/modules/BatteryAccess.h \
-	$(VEINS_PROJ)/src/base/utils/Coord.h \
-	$(VEINS_PROJ)/src/base/utils/FWMath.h \
-	$(VEINS_PROJ)/src/base/utils/FindModule.h \
-	$(VEINS_PROJ)/src/base/utils/HostState.h \
-	$(VEINS_PROJ)/src/base/utils/MiXiMDefs.h \
-	$(VEINS_PROJ)/src/base/utils/Move.h \
-	$(VEINS_PROJ)/src/base/utils/NetwToMacControlInfo.h \
-	$(VEINS_PROJ)/src/base/utils/PassedMessage.h \
-	$(VEINS_PROJ)/src/base/utils/SimpleAddress.h \
-	$(VEINS_PROJ)/src/base/utils/miximkerneldefs.h \
-	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
-	$(VEINS_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
-	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
-	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
-	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
-	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/ChannelAccess.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/NicEntry.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/messages/MacPkt_m.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseApplLayer.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseBattery.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseLayer.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseMobility.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseModule.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseWorldUtility.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BatteryAccess.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/Coord.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/FWMath.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/FindModule.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/HostState.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/MiXiMDefs.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/Move.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/NetwToMacControlInfo.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/PassedMessage.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/SimpleAddress.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/miximkerneldefs.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIColor.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/obstacle/Obstacle.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/obstacle/ObstacleControl.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/utility/Consts80211p.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/world/annotations/AnnotationManager.h
 $O/Global_01_TraCI_Extend.o: Global_01_TraCI_Extend.cc \
 	Appl.h \
 	Global_01_TraCI_Extend.h \
-	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
-	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
-	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
-	$(VEINS_PROJ)/src/base/modules/BaseMobility.h \
-	$(VEINS_PROJ)/src/base/modules/BaseModule.h \
-	$(VEINS_PROJ)/src/base/modules/BaseWorldUtility.h \
-	$(VEINS_PROJ)/src/base/modules/BatteryAccess.h \
-	$(VEINS_PROJ)/src/base/utils/Coord.h \
-	$(VEINS_PROJ)/src/base/utils/FWMath.h \
-	$(VEINS_PROJ)/src/base/utils/FindModule.h \
-	$(VEINS_PROJ)/src/base/utils/HostState.h \
-	$(VEINS_PROJ)/src/base/utils/MiXiMDefs.h \
-	$(VEINS_PROJ)/src/base/utils/Move.h \
-	$(VEINS_PROJ)/src/base/utils/miximkerneldefs.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
-	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
-	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
-	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/NicEntry.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseBattery.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseMobility.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseModule.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseWorldUtility.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BatteryAccess.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/Coord.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/FWMath.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/FindModule.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/HostState.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/MiXiMDefs.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/Move.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/miximkerneldefs.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIColor.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/obstacle/Obstacle.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/obstacle/ObstacleControl.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/world/annotations/AnnotationManager.h
 $O/Global_02_TraCI_App.o: Global_02_TraCI_App.cc \
 	Appl.h \
 	ApplV_01_Base.h \
 	ApplV_02_Beacon.h \
+	ApplV_02a_System.h \
 	ApplV_03_AID.h \
 	ApplV_04_PlatoonMg.h \
 	ApplV_05_Manager.h \
@@ -458,122 +503,124 @@ $O/Global_02_TraCI_App.o: Global_02_TraCI_App.cc \
 	Global_06_SpeedProfile.h \
 	Global_07_TrafficLight.h \
 	msg/Messages_m.h \
-	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
-	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
-	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
-	$(VEINS_PROJ)/src/base/messages/MacPkt_m.h \
-	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
-	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
-	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
-	$(VEINS_PROJ)/src/base/modules/BaseMobility.h \
-	$(VEINS_PROJ)/src/base/modules/BaseModule.h \
-	$(VEINS_PROJ)/src/base/modules/BaseWorldUtility.h \
-	$(VEINS_PROJ)/src/base/modules/BatteryAccess.h \
-	$(VEINS_PROJ)/src/base/utils/Coord.h \
-	$(VEINS_PROJ)/src/base/utils/FWMath.h \
-	$(VEINS_PROJ)/src/base/utils/FindModule.h \
-	$(VEINS_PROJ)/src/base/utils/HostState.h \
-	$(VEINS_PROJ)/src/base/utils/MiXiMDefs.h \
-	$(VEINS_PROJ)/src/base/utils/Move.h \
-	$(VEINS_PROJ)/src/base/utils/NetwToMacControlInfo.h \
-	$(VEINS_PROJ)/src/base/utils/PassedMessage.h \
-	$(VEINS_PROJ)/src/base/utils/SimpleAddress.h \
-	$(VEINS_PROJ)/src/base/utils/miximkerneldefs.h \
-	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
-	$(VEINS_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManagerLaunchd.h \
-	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
-	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
-	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
-	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/ChannelAccess.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/NicEntry.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/messages/MacPkt_m.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseApplLayer.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseBattery.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseLayer.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseMobility.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseModule.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseWorldUtility.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BatteryAccess.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/Coord.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/FWMath.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/FindModule.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/HostState.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/MiXiMDefs.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/Move.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/NetwToMacControlInfo.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/PassedMessage.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/SimpleAddress.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/miximkerneldefs.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIColor.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIScenarioManagerLaunchd.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/obstacle/Obstacle.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/obstacle/ObstacleControl.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/utility/Consts80211p.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/world/annotations/AnnotationManager.h
 $O/Global_03_Statistics.o: Global_03_Statistics.cc \
 	Appl.h \
 	ApplRSU.h \
 	Global_01_TraCI_Extend.h \
 	Global_03_Statistics.h \
 	msg/Messages_m.h \
-	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
-	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
-	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
-	$(VEINS_PROJ)/src/base/messages/MacPkt_m.h \
-	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
-	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
-	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
-	$(VEINS_PROJ)/src/base/modules/BaseMobility.h \
-	$(VEINS_PROJ)/src/base/modules/BaseModule.h \
-	$(VEINS_PROJ)/src/base/modules/BaseWorldUtility.h \
-	$(VEINS_PROJ)/src/base/modules/BatteryAccess.h \
-	$(VEINS_PROJ)/src/base/utils/Coord.h \
-	$(VEINS_PROJ)/src/base/utils/FWMath.h \
-	$(VEINS_PROJ)/src/base/utils/FindModule.h \
-	$(VEINS_PROJ)/src/base/utils/HostState.h \
-	$(VEINS_PROJ)/src/base/utils/MiXiMDefs.h \
-	$(VEINS_PROJ)/src/base/utils/Move.h \
-	$(VEINS_PROJ)/src/base/utils/NetwControlInfo.h \
-	$(VEINS_PROJ)/src/base/utils/NetwToMacControlInfo.h \
-	$(VEINS_PROJ)/src/base/utils/PassedMessage.h \
-	$(VEINS_PROJ)/src/base/utils/SimpleAddress.h \
-	$(VEINS_PROJ)/src/base/utils/miximkerneldefs.h \
-	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
-	$(VEINS_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
-	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
-	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
-	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
-	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/ChannelAccess.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/NicEntry.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/messages/MacPkt_m.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseApplLayer.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseBattery.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseLayer.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseMobility.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseModule.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseWorldUtility.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BatteryAccess.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/Coord.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/FWMath.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/FindModule.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/HostState.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/MiXiMDefs.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/Move.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/NetwControlInfo.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/NetwToMacControlInfo.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/PassedMessage.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/SimpleAddress.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/miximkerneldefs.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIColor.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/obstacle/Obstacle.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/obstacle/ObstacleControl.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/utility/Consts80211p.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/world/annotations/AnnotationManager.h
 $O/Global_04_VehicleAdd.o: Global_04_VehicleAdd.cc \
 	Appl.h \
 	ApplV_01_Base.h \
 	ApplV_02_Beacon.h \
+	ApplV_02a_System.h \
 	ApplV_03_AID.h \
 	ApplV_04_PlatoonMg.h \
 	ApplV_05_Manager.h \
 	Global_01_TraCI_Extend.h \
 	Global_04_VehicleAdd.h \
 	msg/Messages_m.h \
-	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
-	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
-	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
-	$(VEINS_PROJ)/src/base/messages/MacPkt_m.h \
-	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
-	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
-	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
-	$(VEINS_PROJ)/src/base/modules/BaseMobility.h \
-	$(VEINS_PROJ)/src/base/modules/BaseModule.h \
-	$(VEINS_PROJ)/src/base/modules/BaseWorldUtility.h \
-	$(VEINS_PROJ)/src/base/modules/BatteryAccess.h \
-	$(VEINS_PROJ)/src/base/utils/Coord.h \
-	$(VEINS_PROJ)/src/base/utils/FWMath.h \
-	$(VEINS_PROJ)/src/base/utils/FindModule.h \
-	$(VEINS_PROJ)/src/base/utils/HostState.h \
-	$(VEINS_PROJ)/src/base/utils/MiXiMDefs.h \
-	$(VEINS_PROJ)/src/base/utils/Move.h \
-	$(VEINS_PROJ)/src/base/utils/NetwToMacControlInfo.h \
-	$(VEINS_PROJ)/src/base/utils/PassedMessage.h \
-	$(VEINS_PROJ)/src/base/utils/SimpleAddress.h \
-	$(VEINS_PROJ)/src/base/utils/miximkerneldefs.h \
-	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
-	$(VEINS_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManagerLaunchd.h \
-	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
-	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
-	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
-	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/ChannelAccess.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/NicEntry.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/messages/MacPkt_m.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseApplLayer.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseBattery.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseLayer.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseMobility.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseModule.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseWorldUtility.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BatteryAccess.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/Coord.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/FWMath.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/FindModule.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/HostState.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/MiXiMDefs.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/Move.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/NetwToMacControlInfo.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/PassedMessage.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/SimpleAddress.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/miximkerneldefs.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIColor.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIScenarioManagerLaunchd.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/obstacle/Obstacle.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/obstacle/ObstacleControl.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/utility/Consts80211p.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/world/annotations/AnnotationManager.h
 $O/Global_05_Warmup.o: Global_05_Warmup.cc \
 	Appl.h \
 	ApplV_01_Base.h \
 	ApplV_02_Beacon.h \
+	ApplV_02a_System.h \
 	ApplV_03_AID.h \
 	ApplV_04_PlatoonMg.h \
 	ApplV_05_Manager.h \
@@ -582,232 +629,276 @@ $O/Global_05_Warmup.o: Global_05_Warmup.cc \
 	Global_05_Warmup.h \
 	Global_06_SpeedProfile.h \
 	msg/Messages_m.h \
-	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
-	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
-	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
-	$(VEINS_PROJ)/src/base/messages/MacPkt_m.h \
-	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
-	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
-	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
-	$(VEINS_PROJ)/src/base/modules/BaseMobility.h \
-	$(VEINS_PROJ)/src/base/modules/BaseModule.h \
-	$(VEINS_PROJ)/src/base/modules/BaseWorldUtility.h \
-	$(VEINS_PROJ)/src/base/modules/BatteryAccess.h \
-	$(VEINS_PROJ)/src/base/utils/Coord.h \
-	$(VEINS_PROJ)/src/base/utils/FWMath.h \
-	$(VEINS_PROJ)/src/base/utils/FindModule.h \
-	$(VEINS_PROJ)/src/base/utils/HostState.h \
-	$(VEINS_PROJ)/src/base/utils/MiXiMDefs.h \
-	$(VEINS_PROJ)/src/base/utils/Move.h \
-	$(VEINS_PROJ)/src/base/utils/NetwToMacControlInfo.h \
-	$(VEINS_PROJ)/src/base/utils/PassedMessage.h \
-	$(VEINS_PROJ)/src/base/utils/SimpleAddress.h \
-	$(VEINS_PROJ)/src/base/utils/miximkerneldefs.h \
-	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
-	$(VEINS_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManagerLaunchd.h \
-	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
-	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
-	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
-	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/ChannelAccess.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/NicEntry.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/messages/MacPkt_m.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseApplLayer.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseBattery.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseLayer.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseMobility.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseModule.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseWorldUtility.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BatteryAccess.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/Coord.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/FWMath.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/FindModule.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/HostState.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/MiXiMDefs.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/Move.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/NetwToMacControlInfo.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/PassedMessage.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/SimpleAddress.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/miximkerneldefs.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIColor.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIScenarioManagerLaunchd.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/obstacle/Obstacle.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/obstacle/ObstacleControl.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/utility/Consts80211p.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/world/annotations/AnnotationManager.h
 $O/Global_06_SpeedProfile.o: Global_06_SpeedProfile.cc \
 	Appl.h \
 	Global_01_TraCI_Extend.h \
 	Global_06_SpeedProfile.h \
-	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
-	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
-	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
-	$(VEINS_PROJ)/src/base/modules/BaseMobility.h \
-	$(VEINS_PROJ)/src/base/modules/BaseModule.h \
-	$(VEINS_PROJ)/src/base/modules/BaseWorldUtility.h \
-	$(VEINS_PROJ)/src/base/modules/BatteryAccess.h \
-	$(VEINS_PROJ)/src/base/utils/Coord.h \
-	$(VEINS_PROJ)/src/base/utils/FWMath.h \
-	$(VEINS_PROJ)/src/base/utils/FindModule.h \
-	$(VEINS_PROJ)/src/base/utils/HostState.h \
-	$(VEINS_PROJ)/src/base/utils/MiXiMDefs.h \
-	$(VEINS_PROJ)/src/base/utils/Move.h \
-	$(VEINS_PROJ)/src/base/utils/miximkerneldefs.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
-	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
-	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
-	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/NicEntry.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseBattery.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseMobility.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseModule.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseWorldUtility.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BatteryAccess.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/Coord.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/FWMath.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/FindModule.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/HostState.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/MiXiMDefs.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/Move.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/miximkerneldefs.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIColor.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/obstacle/Obstacle.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/obstacle/ObstacleControl.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/world/annotations/AnnotationManager.h
 $O/Global_07_TrafficLight.o: Global_07_TrafficLight.cc \
 	Appl.h \
 	ApplV_01_Base.h \
 	ApplV_02_Beacon.h \
+	ApplV_02a_System.h \
 	ApplV_03_AID.h \
 	ApplV_04_PlatoonMg.h \
 	ApplV_05_Manager.h \
 	Global_01_TraCI_Extend.h \
 	Global_07_TrafficLight.h \
 	msg/Messages_m.h \
-	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
-	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
-	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
-	$(VEINS_PROJ)/src/base/messages/MacPkt_m.h \
-	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
-	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
-	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
-	$(VEINS_PROJ)/src/base/modules/BaseMobility.h \
-	$(VEINS_PROJ)/src/base/modules/BaseModule.h \
-	$(VEINS_PROJ)/src/base/modules/BaseWorldUtility.h \
-	$(VEINS_PROJ)/src/base/modules/BatteryAccess.h \
-	$(VEINS_PROJ)/src/base/utils/Coord.h \
-	$(VEINS_PROJ)/src/base/utils/FWMath.h \
-	$(VEINS_PROJ)/src/base/utils/FindModule.h \
-	$(VEINS_PROJ)/src/base/utils/HostState.h \
-	$(VEINS_PROJ)/src/base/utils/MiXiMDefs.h \
-	$(VEINS_PROJ)/src/base/utils/Move.h \
-	$(VEINS_PROJ)/src/base/utils/NetwToMacControlInfo.h \
-	$(VEINS_PROJ)/src/base/utils/PassedMessage.h \
-	$(VEINS_PROJ)/src/base/utils/SimpleAddress.h \
-	$(VEINS_PROJ)/src/base/utils/miximkerneldefs.h \
-	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
-	$(VEINS_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManagerLaunchd.h \
-	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
-	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
-	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
-	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/ChannelAccess.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/NicEntry.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/messages/MacPkt_m.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseApplLayer.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseBattery.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseLayer.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseMobility.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseModule.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseWorldUtility.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BatteryAccess.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/Coord.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/FWMath.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/FindModule.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/HostState.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/MiXiMDefs.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/Move.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/NetwToMacControlInfo.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/PassedMessage.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/SimpleAddress.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/miximkerneldefs.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIColor.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIScenarioManagerLaunchd.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/obstacle/Obstacle.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/obstacle/ObstacleControl.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/utility/Consts80211p.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/world/annotations/AnnotationManager.h
 $O/Mac1609_4_Mod.o: Mac1609_4_Mod.cc \
 	Appl.h \
 	Mac1609_4_Mod.h \
-	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
-	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
-	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
-	$(VEINS_PROJ)/src/base/messages/AirFrame_m.h \
-	$(VEINS_PROJ)/src/base/messages/ChannelSenseRequest_m.h \
-	$(VEINS_PROJ)/src/base/messages/MacPkt_m.h \
-	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
-	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
-	$(VEINS_PROJ)/src/base/modules/BaseMacLayer.h \
-	$(VEINS_PROJ)/src/base/modules/BaseMobility.h \
-	$(VEINS_PROJ)/src/base/modules/BaseModule.h \
-	$(VEINS_PROJ)/src/base/modules/BaseWorldUtility.h \
-	$(VEINS_PROJ)/src/base/modules/BatteryAccess.h \
-	$(VEINS_PROJ)/src/base/phyLayer/AnalogueModel.h \
-	$(VEINS_PROJ)/src/base/phyLayer/BaseDecider.h \
-	$(VEINS_PROJ)/src/base/phyLayer/BasePhyLayer.h \
-	$(VEINS_PROJ)/src/base/phyLayer/ChannelInfo.h \
-	$(VEINS_PROJ)/src/base/phyLayer/ChannelState.h \
-	$(VEINS_PROJ)/src/base/phyLayer/Decider.h \
-	$(VEINS_PROJ)/src/base/phyLayer/DeciderToPhyInterface.h \
-	$(VEINS_PROJ)/src/base/phyLayer/Interpolation.h \
-	$(VEINS_PROJ)/src/base/phyLayer/MacToPhyControlInfo.h \
-	$(VEINS_PROJ)/src/base/phyLayer/MacToPhyInterface.h \
-	$(VEINS_PROJ)/src/base/phyLayer/Mapping.h \
-	$(VEINS_PROJ)/src/base/phyLayer/MappingBase.h \
-	$(VEINS_PROJ)/src/base/phyLayer/MappingUtils.h \
-	$(VEINS_PROJ)/src/base/phyLayer/PhyUtils.h \
-	$(VEINS_PROJ)/src/base/phyLayer/Signal_.h \
-	$(VEINS_PROJ)/src/base/utils/Coord.h \
-	$(VEINS_PROJ)/src/base/utils/FWMath.h \
-	$(VEINS_PROJ)/src/base/utils/FindModule.h \
-	$(VEINS_PROJ)/src/base/utils/HostState.h \
-	$(VEINS_PROJ)/src/base/utils/MiXiMDefs.h \
-	$(VEINS_PROJ)/src/base/utils/Move.h \
-	$(VEINS_PROJ)/src/base/utils/NetwToMacControlInfo.h \
-	$(VEINS_PROJ)/src/base/utils/PassedMessage.h \
-	$(VEINS_PROJ)/src/base/utils/SimpleAddress.h \
-	$(VEINS_PROJ)/src/base/utils/miximkerneldefs.h \
-	$(VEINS_PROJ)/src/modules/analogueModel/JakesFading.h \
-	$(VEINS_PROJ)/src/modules/analogueModel/LogNormalShadowing.h \
-	$(VEINS_PROJ)/src/modules/analogueModel/SimplePathlossModel.h \
-	$(VEINS_PROJ)/src/modules/mac/ieee80211p/Mac1609_4.h \
-	$(VEINS_PROJ)/src/modules/mac/ieee80211p/Mac80211pToPhy11pInterface.h \
-	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
-	$(VEINS_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
-	$(VEINS_PROJ)/src/modules/messages/WaveShortMessage_m.h \
-	$(VEINS_PROJ)/src/modules/phy/Decider80211p.h \
-	$(VEINS_PROJ)/src/modules/phy/Decider80211pToPhy80211pInterface.h \
-	$(VEINS_PROJ)/src/modules/phy/PhyLayer.h \
-	$(VEINS_PROJ)/src/modules/phy/PhyLayer80211p.h \
-	$(VEINS_PROJ)/src/modules/phy/SNRThresholdDecider.h \
-	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/ChannelAccess.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/NicEntry.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/messages/AirFrame_m.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/messages/ChannelSenseRequest_m.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/messages/MacPkt_m.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseBattery.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseLayer.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseMacLayer.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseMobility.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseModule.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseWorldUtility.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BatteryAccess.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/phyLayer/AnalogueModel.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/phyLayer/BaseDecider.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/phyLayer/BasePhyLayer.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/phyLayer/ChannelInfo.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/phyLayer/ChannelState.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/phyLayer/Decider.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/phyLayer/DeciderToPhyInterface.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/phyLayer/Interpolation.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/phyLayer/MacToPhyControlInfo.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/phyLayer/MacToPhyInterface.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/phyLayer/Mapping.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/phyLayer/MappingBase.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/phyLayer/MappingUtils.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/phyLayer/PhyUtils.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/phyLayer/Signal_.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/Coord.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/FWMath.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/FindModule.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/HostState.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/MiXiMDefs.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/Move.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/NetwToMacControlInfo.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/PassedMessage.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/SimpleAddress.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/miximkerneldefs.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/analogueModel/JakesFading.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/analogueModel/LogNormalShadowing.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/analogueModel/SimplePathlossModel.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mac/ieee80211p/Mac1609_4.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mac/ieee80211p/Mac80211pToPhy11pInterface.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/messages/WaveShortMessage_m.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/phy/Decider80211p.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/phy/Decider80211pToPhy80211pInterface.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/phy/PhyLayer.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/phy/PhyLayer80211p.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/phy/SNRThresholdDecider.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/utility/Consts80211p.h
+$O/NodeEdge.o: NodeEdge.cc \
+	NodeEdge.h
 $O/RSUMobility.o: RSUMobility.cc \
 	Appl.h \
 	Global_01_TraCI_Extend.h \
 	RSUMobility.h \
-	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
-	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
-	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
-	$(VEINS_PROJ)/src/base/modules/BaseMobility.h \
-	$(VEINS_PROJ)/src/base/modules/BaseModule.h \
-	$(VEINS_PROJ)/src/base/modules/BaseWorldUtility.h \
-	$(VEINS_PROJ)/src/base/modules/BatteryAccess.h \
-	$(VEINS_PROJ)/src/base/utils/Coord.h \
-	$(VEINS_PROJ)/src/base/utils/FWMath.h \
-	$(VEINS_PROJ)/src/base/utils/FindModule.h \
-	$(VEINS_PROJ)/src/base/utils/HostState.h \
-	$(VEINS_PROJ)/src/base/utils/MiXiMDefs.h \
-	$(VEINS_PROJ)/src/base/utils/Move.h \
-	$(VEINS_PROJ)/src/base/utils/miximkerneldefs.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
-	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
-	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
-	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/NicEntry.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseBattery.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseMobility.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseModule.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseWorldUtility.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BatteryAccess.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/Coord.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/FWMath.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/FindModule.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/HostState.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/MiXiMDefs.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/Move.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/miximkerneldefs.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIColor.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/obstacle/Obstacle.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/obstacle/ObstacleControl.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/world/annotations/AnnotationManager.h
+$O/Router.o: Router.cc \
+	Appl.h \
+	ApplV_01_Base.h \
+	ApplV_02_Beacon.h \
+	Global_01_TraCI_Extend.h \
+	NodeEdge.h \
+	Router.h \
+	msg/Messages_m.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/ChannelAccess.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/NicEntry.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/messages/MacPkt_m.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseApplLayer.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseBattery.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseLayer.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseMobility.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseModule.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseWorldUtility.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BatteryAccess.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/Coord.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/FWMath.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/FindModule.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/HostState.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/MiXiMDefs.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/Move.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/NetwToMacControlInfo.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/PassedMessage.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/SimpleAddress.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/miximkerneldefs.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIColor.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/obstacle/Obstacle.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/obstacle/ObstacleControl.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/utility/Consts80211p.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/world/annotations/AnnotationManager.h
 $O/TraCIColor.o: TraCIColor.cc \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIColor.h
 $O/zApplVPlatoonFormation.o: zApplVPlatoonFormation.cc \
 	Appl.h \
 	ApplV_01_Base.h \
 	ApplV_02_Beacon.h \
+	ApplV_02a_System.h \
 	ApplV_03_AID.h \
 	ApplV_04_PlatoonMg.h \
 	ApplV_05_Manager.h \
 	Global_01_TraCI_Extend.h \
 	msg/Messages_m.h \
 	zApplVPlatoonFormation.h \
-	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
-	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
-	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
-	$(VEINS_PROJ)/src/base/messages/MacPkt_m.h \
-	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
-	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
-	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
-	$(VEINS_PROJ)/src/base/modules/BaseMobility.h \
-	$(VEINS_PROJ)/src/base/modules/BaseModule.h \
-	$(VEINS_PROJ)/src/base/modules/BaseWorldUtility.h \
-	$(VEINS_PROJ)/src/base/modules/BatteryAccess.h \
-	$(VEINS_PROJ)/src/base/utils/Coord.h \
-	$(VEINS_PROJ)/src/base/utils/FWMath.h \
-	$(VEINS_PROJ)/src/base/utils/FindModule.h \
-	$(VEINS_PROJ)/src/base/utils/HostState.h \
-	$(VEINS_PROJ)/src/base/utils/MiXiMDefs.h \
-	$(VEINS_PROJ)/src/base/utils/Move.h \
-	$(VEINS_PROJ)/src/base/utils/NetwToMacControlInfo.h \
-	$(VEINS_PROJ)/src/base/utils/PassedMessage.h \
-	$(VEINS_PROJ)/src/base/utils/SimpleAddress.h \
-	$(VEINS_PROJ)/src/base/utils/miximkerneldefs.h \
-	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
-	$(VEINS_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
-	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
-	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
-	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
-	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/ChannelAccess.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/NicEntry.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/messages/MacPkt_m.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseApplLayer.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseBattery.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseLayer.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseMobility.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseModule.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseWorldUtility.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BatteryAccess.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/Coord.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/FWMath.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/FindModule.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/HostState.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/MiXiMDefs.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/Move.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/NetwToMacControlInfo.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/PassedMessage.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/SimpleAddress.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/miximkerneldefs.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIColor.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/obstacle/Obstacle.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/obstacle/ObstacleControl.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/utility/Consts80211p.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/world/annotations/AnnotationManager.h
 $O/zApplVPlatoonFormation2.o: zApplVPlatoonFormation2.cc \
 	Appl.h \
 	ApplV_01_Base.h \
 	ApplV_02_Beacon.h \
+	ApplV_02a_System.h \
 	ApplV_03_AID.h \
 	ApplV_04_PlatoonMg.h \
 	ApplV_05_Manager.h \
@@ -815,35 +906,35 @@ $O/zApplVPlatoonFormation2.o: zApplVPlatoonFormation2.cc \
 	msg/Messages_m.h \
 	zApplVPlatoonFormation.h \
 	zApplVPlatoonFormation2.h \
-	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
-	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
-	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
-	$(VEINS_PROJ)/src/base/messages/MacPkt_m.h \
-	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
-	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
-	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
-	$(VEINS_PROJ)/src/base/modules/BaseMobility.h \
-	$(VEINS_PROJ)/src/base/modules/BaseModule.h \
-	$(VEINS_PROJ)/src/base/modules/BaseWorldUtility.h \
-	$(VEINS_PROJ)/src/base/modules/BatteryAccess.h \
-	$(VEINS_PROJ)/src/base/utils/Coord.h \
-	$(VEINS_PROJ)/src/base/utils/FWMath.h \
-	$(VEINS_PROJ)/src/base/utils/FindModule.h \
-	$(VEINS_PROJ)/src/base/utils/HostState.h \
-	$(VEINS_PROJ)/src/base/utils/MiXiMDefs.h \
-	$(VEINS_PROJ)/src/base/utils/Move.h \
-	$(VEINS_PROJ)/src/base/utils/NetwToMacControlInfo.h \
-	$(VEINS_PROJ)/src/base/utils/PassedMessage.h \
-	$(VEINS_PROJ)/src/base/utils/SimpleAddress.h \
-	$(VEINS_PROJ)/src/base/utils/miximkerneldefs.h \
-	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
-	$(VEINS_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
-	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
-	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
-	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
-	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/ChannelAccess.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/connectionManager/NicEntry.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/messages/MacPkt_m.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseApplLayer.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseBattery.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseLayer.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseMobility.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseModule.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BaseWorldUtility.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/modules/BatteryAccess.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/Coord.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/FWMath.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/FindModule.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/HostState.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/MiXiMDefs.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/Move.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/NetwToMacControlInfo.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/PassedMessage.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/SimpleAddress.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/miximkerneldefs.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIColor.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/obstacle/Obstacle.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/obstacle/ObstacleControl.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/utility/Consts80211p.h \
+	$(MIXIM_SOMMER_PROJ)/src/modules/world/annotations/AnnotationManager.h
 

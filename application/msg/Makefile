@@ -2,21 +2,21 @@
 # OMNeT++/OMNEST Makefile for libmsg
 #
 # This file was generated with the command:
-#  opp_makemake -f --make-so -o msg -O out -I/home/mani/Desktop/VENTOS/eigen-3.2.1 -I/home/mani/Desktop/VENTOS/rapidxml-1.13 -I../../../veins/src/base/utils -L../../../veins/out/$(CONFIGNAME)/src/modules -L../../../veins/out/$(CONFIGNAME)/tests/testUtils -L../../../veins/out/$(CONFIGNAME)/src/base -L../../out/$(CONFIGNAME)/application -lmiximmodules -lmiximtestUtils -lmiximbase -KVEINS_PROJ=../../../veins
+#  opp_makemake -f --make-so -o msg -O out -I/home/dylan/vgrid/VENTOS/eigen-3.2.1 -I/home/dylan/vgrid/VENTOS/rapidxml-1.13 -I../../../mixim-sommer/src/base/utils -L../../../mixim-sommer/out/$(CONFIGNAME)/src/modules -L../../../mixim-sommer/out/$(CONFIGNAME)/src/base -L../../../mixim-sommer/out/$(CONFIGNAME)/tests/testUtils -L../../out/$(CONFIGNAME)/application -lmiximmodules -lmiximbase -lmiximtestUtils -KMIXIM_SOMMER_PROJ=../../../mixim-sommer
 #
 
 # Name of target to be created (-o option)
 TARGET = libmsg$(SHARED_LIB_SUFFIX)
 
 # C++ include paths (with -I)
-INCLUDE_PATH = -I../../eigen-3.2.1 -I../../rapidxml-1.13 -I../../../veins/src/base/utils -I.
+INCLUDE_PATH = -I../../eigen-3.2.1 -I../../rapidxml-1.13 -I../../../mixim-sommer/src/base/utils -I.
 
 # Additional object and library files to link with
 EXTRA_OBJS =
 
 # Additional libraries (-L, -l options)
-LIBS = -L../../../veins/out/$(CONFIGNAME)/src/modules -L../../../veins/out/$(CONFIGNAME)/tests/testUtils -L../../../veins/out/$(CONFIGNAME)/src/base -L../../out/$(CONFIGNAME)/application  -lmiximmodules -lmiximtestUtils -lmiximbase
-LIBS += -Wl,-rpath,`abspath ../../../veins/out/$(CONFIGNAME)/src/modules` -Wl,-rpath,`abspath ../../../veins/out/$(CONFIGNAME)/tests/testUtils` -Wl,-rpath,`abspath ../../../veins/out/$(CONFIGNAME)/src/base` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application`
+LIBS = -L../../../mixim-sommer/out/$(CONFIGNAME)/src/modules -L../../../mixim-sommer/out/$(CONFIGNAME)/src/base -L../../../mixim-sommer/out/$(CONFIGNAME)/tests/testUtils -L../../out/$(CONFIGNAME)/application  -lmiximmodules -lmiximbase -lmiximtestUtils
+LIBS += -Wl,-rpath,`abspath ../../../mixim-sommer/out/$(CONFIGNAME)/src/modules` -Wl,-rpath,`abspath ../../../mixim-sommer/out/$(CONFIGNAME)/src/base` -Wl,-rpath,`abspath ../../../mixim-sommer/out/$(CONFIGNAME)/tests/testUtils` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application`
 
 # Output directory
 PROJECT_OUTPUT_DIR = ../../out
@@ -31,7 +31,7 @@ MSGFILES = \
     Messages.msg
 
 # Other makefile variables (-K)
-VEINS_PROJ=../../../veins
+MIXIM_SOMMER_PROJ=../../../mixim-sommer
 
 #------------------------------------------------------------------------------
 
@@ -117,8 +117,8 @@ depend:
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 $O/Messages_m.o: Messages_m.cc \
 	Messages_m.h \
-	$(VEINS_PROJ)/src/base/utils/Coord.h \
-	$(VEINS_PROJ)/src/base/utils/FWMath.h \
-	$(VEINS_PROJ)/src/base/utils/MiXiMDefs.h \
-	$(VEINS_PROJ)/src/base/utils/miximkerneldefs.h
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/Coord.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/FWMath.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/MiXiMDefs.h \
+	$(MIXIM_SOMMER_PROJ)/src/base/utils/miximkerneldefs.h
 
