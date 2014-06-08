@@ -25,9 +25,6 @@ void VehicleAdd::initialize(int stage)
 
         on = par("on").boolValue();
         mode = par("mode").longValue();
-
-        platoonSize = par("platoonSize").longValue();
-        platoonNumber = par("platoonNumber").longValue();
         totalVehicles = par("totalVehicles").longValue();
     }
 }
@@ -45,14 +42,17 @@ void VehicleAdd::Add()
     if (!on)
         return;
 
+    // incident detection
     if(mode == 1)
     {
         Scenario1();
     }
+    // all ACC
     else if(mode == 2)
     {
         Scenario2();
     }
+    // all CACC
     else if(mode == 3)
     {
         Scenario3();
@@ -61,10 +61,6 @@ void VehicleAdd::Add()
     {
         Scenario4();
     }
-    else if(mode == 5)
-    {
-        Scenario5();
-    }
     else
     {
         error("not a valid mode!");
@@ -72,7 +68,6 @@ void VehicleAdd::Add()
 }
 
 
-// for incident detection
 void VehicleAdd::Scenario1()
 {
     int depart = 0;
@@ -80,13 +75,13 @@ void VehicleAdd::Scenario1()
     for(int i=1; i<=totalVehicles; i++)
     {
         char vehicleName[10];
-        sprintf(vehicleName, "Krauss%d", i);
+        sprintf(vehicleName, "Veh%d", i);
         depart = depart + 9000;
 
         uint8_t lane = intrand(3);  // random number in [0,3)
 
         TraCI->commandAddVehicleN(vehicleName, "TypeManual", "route1", depart, 0, 0, lane);
-        TraCI->commandSetLaneChangeMode(vehicleName, 0b1000100101);
+        TraCI->commandSetLaneChangeMode(vehicleName, 0b1000010101 /*0b1000100101*/);
     }
 
     // now we add a vehicle as obstacle
@@ -133,29 +128,6 @@ void VehicleAdd::Scenario3()
 
 
 void VehicleAdd::Scenario4()
-{
-    for(int i=1; i<=totalVehicles; i++)
-    {
-        char vehicleName[10];
-        sprintf(vehicleName, "CACC%d", i);
-        int depart = 1000 * i;
-
-        if( (i-1) % platoonSize == 0 )
-        {
-            // platoon leader
-         //   TraCI->commandAddVehicleN(vehicleName,"TypeCACC1","route1",depart);
-            TraCI->commandAddVehicleN(vehicleName, "TypeACC", "route1", depart, 0, 0, 0);
-        }
-        else
-        {
-            // following vehicle
-        //    TraCI->commandAddVehicleN(vehicleName,"TypeCACC2","route1",depart);
-            TraCI->commandAddVehicleN(vehicleName, "TypeACC", "route1", depart, 0, 0, 0);
-        }
-    }
-}
-
-void VehicleAdd::Scenario5()
 {
     boost::filesystem::path SUMODirectory = simulation.getSystemModule()->par("SUMODirectory").stringValue();
     boost::filesystem::path VENTOSfullDirectory = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();

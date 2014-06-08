@@ -262,7 +262,7 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
     }
 
     // send results to SUMO if result = true
-    if( result && isCACCvehicle() )
+    if(result)
     {
         char buffer [200];
         sprintf (buffer, "%f#%f#%f#%f#%s", (double)wsm->getSpeed(), (double)wsm->getAccel(), (double)wsm->getMaxDecel(), (simTime().dbl())*1000, wsm->getSender() );

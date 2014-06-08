@@ -24,17 +24,12 @@ void Warmup::initialize(int stage)
         cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
         TraCI = static_cast<TraCI_Extend *>(module);
 
-        // get the ptr of the AddVehicle module
-        module = simulation.getSystemModule()->getSubmodule("vehicleAdd");
-        AddVehiclePtr = static_cast<VehicleAdd *>(module);
-        if(AddVehiclePtr == NULL)
-            error("can not get a pointer to the AddVehicle module.");
-
-        totalVehicles = AddVehiclePtr->par("totalVehicles").longValue();
+        // get totoal vehicles from AddVehicle module
+        totalVehicles = simulation.getSystemModule()->getSubmodule("vehicleAdd")->par("totalVehicles").longValue();
 
         on = par("on").boolValue();
         laneId = par("laneId").stringValue();
-        stopPosition = par("stopPosition").doubleValue();
+        stopPosition = totalVehicles * par("stopPosition").doubleValue();
         waitingTime = par("waitingTime").doubleValue();
 
         startTime = -1;

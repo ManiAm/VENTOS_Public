@@ -66,15 +66,6 @@ void ApplVBase::handlePositionUpdate(cObject* obj)
 }
 
 
-bool ApplVBase::isCACCvehicle()
-{
-    if(SUMOvType == "TypeCACC" || SUMOvType == "TypeCACC0" || SUMOvType == "TypeCACC1" || SUMOvType == "TypeCACC2")
-        return true;
-    else
-        return false;
-}
-
-
 void ApplVBase::finish()
 {
 	findHost()->unsubscribe(mobilityStateChangedSignal, this);

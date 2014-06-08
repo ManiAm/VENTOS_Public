@@ -34,7 +34,7 @@ void ApplVBeacon::initialize(int stage)
         individualOffset = dblrand() * maxOffset;
 
         sendBeaconEvt = new cMessage("beacon evt", SEND_BEACON_EVT);
-        if (sendBeacons && VANETenabled && SUMOvType != "TypeObstacle")
+        if (VANETenabled && sendBeacons)
         {
             scheduleAt(simTime() + offSet, sendBeaconEvt);
         }
@@ -51,13 +51,12 @@ void ApplVBeacon::initialize(int stage)
         {
             preDefinedPlatoonID = par("preDefinedPlatoonID").stringValue();
 
-            // I am the platoon leader
+            // I am the platoon leader.
             if(SUMOvID == preDefinedPlatoonID)
             {
+                // we only set these two!
                 platoonID = SUMOvID;
                 myPlatoonDepth = 0;
-                // platoonSize;
-                // queue;
             }
         }
 	}

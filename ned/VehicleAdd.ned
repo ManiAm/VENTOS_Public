@@ -11,8 +11,6 @@ simple VehicleAdd
         
         bool on = default(true);
         int mode;
-        int platoonSize = default(5);
-        int platoonNumber = default(3);
         int totalVehicles;
 }
 

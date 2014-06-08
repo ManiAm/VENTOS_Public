@@ -38,8 +38,6 @@ class ApplVBase : public BaseApplLayer
 		virtual void handleSelfMsg(cMessage* msg);
 		virtual void handlePositionUpdate(cObject* obj);
 
-		bool isCACCvehicle();
-
 	protected:
 		// NED variables
 	    cModule *nodePtr;   // pointer to the Node

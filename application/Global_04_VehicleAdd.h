@@ -34,8 +34,6 @@ class VehicleAdd : public cSimpleModule
         TraCI_Extend *TraCI;  // pointer to the TraCI module
         bool on;
         int mode;
-        int platoonSize;
-        int platoonNumber;
 	    int totalVehicles;
 
 	    // methods
@@ -43,7 +41,6 @@ class VehicleAdd : public cSimpleModule
         void Scenario2();
         void Scenario3();
         void Scenario4();
-        void Scenario5();
 };
 
 
