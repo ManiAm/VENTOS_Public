@@ -64,7 +64,7 @@ class TraCI_App : public TraCI_Extend
         void AddRSUModules();
         list<Coord> getCirclePoints(RSUEntry*, double);
         void vehiclesData();
-        void writeToFile_PerVehicle(string, string);
+        void writeToFile_PerVehicle(string, string, string);
         void inductionLoops();
         void writeToFile_InductionLoop();
         int findInVector(vector<LoopDetector *> , const char *, const char *);

@@ -25,18 +25,18 @@ for s=1:1
     end
     
     file_id = fopen(path);
-    formatSpec = '%d %s %f %f %f %f %f %f';
-    C_text = textscan(file_id, formatSpec, 'HeaderLines', 4);
+    formatSpec = '%d %f %s %s %f %s %f %f %f %f';
+    C_text = textscan(file_id, formatSpec, 'HeaderLines', 2);
     fclose(file_id);
 
     % ---------------------------------------------------------------
     
     indices = C_text{1,1};
-    vehicles = C_text{1,2};
-    timeSteps = C_text{1,3};
-    speeds = C_text{1,4};
-    accel = C_text{1,5};
-    timeGaps = C_text{1,8};
+    timeSteps = C_text{1,2};
+    vehicles = C_text{1,3};    
+    speeds = C_text{1,7};
+    accel = C_text{1,8};
+    timeGaps = C_text{1,10};
 
     % ---------------------------------------------------------------
     
@@ -72,6 +72,8 @@ for s=1:1
         vehiclesAccel(index,vNumber) = accel(i,1);
         vehiclesTimeGap(index,vNumber) = timeGaps(i,1);  
     end
+    
+    [~, VehNumbers] = size(vIDs);
 
     % ---------------------------------------------------------------
     
@@ -115,7 +117,7 @@ for s=1:1
     %}
     
     % set the name for each line
-    for i=1:vNumber
+    for i=1:VehNumbers
         name = sprintf('veh %2d', i);
         set(handle1(i),'Displayname', name);   
     end
@@ -163,7 +165,7 @@ for s=1:1
     [n , ~] = size(handle2);
     
     % set the name for each line
-    for i=1:vNumber
+    for i=1:VehNumbers
         name = sprintf('veh %2d', i);
         set(handle2(i),'Displayname', name);   
     end    
@@ -203,7 +205,7 @@ for s=1:1
     grid on;
     
     % set the name for each line
-    for i=1:vNumber
+    for i=1:VehNumbers
         name = sprintf('veh %2d', i);
         set(handle3(i),'Displayname', name);   
     end    

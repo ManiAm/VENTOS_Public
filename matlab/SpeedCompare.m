@@ -39,16 +39,16 @@ for s=1:2
     end
     
     file_id = fopen(path);
-    formatSpec = '%d %s %f %f %f %f %f %f';
-    C_text = textscan(file_id, formatSpec, 'HeaderLines', 4);
+    formatSpec = '%d %f %s %s %f %s %f %f %f %f';
+    C_text = textscan(file_id, formatSpec, 'HeaderLines', 2);
     fclose(file_id);
 
     % ---------------------------------------------------------------
     
     indices = C_text{1,1};
-    vehicles = C_text{1,2};
-    timeSteps = C_text{1,3};
-    speeds = C_text{1,4};
+    timeSteps = C_text{1,2};    
+    vehicles = C_text{1,3};
+    speeds = C_text{1,7};    
 
     % ---------------------------------------------------------------
     

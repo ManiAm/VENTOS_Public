@@ -82,11 +82,13 @@ void TraCI_App::initialize(int stage)
 
             // write header
             fprintf (f1, "%-10s","index");
-            fprintf (f1, "%-10s","vehicle");
             fprintf (f1, "%-12s","timeStep");
-            fprintf (f1, "%-10s","speed");
+            fprintf (f1, "%-15s","vehicleName");
+            fprintf (f1, "%-17s","vehicleType");
+            fprintf (f1, "%-11s","pos");
+            fprintf (f1, "%-12s","lane");
+            fprintf (f1, "%-12s","speed");
             fprintf (f1, "%-12s","accel");
-            fprintf (f1, "%-12s","pos");
             fprintf (f1, "%-10s","gap");
             fprintf (f1, "%-10s\n\n","timeGap");
 
@@ -290,23 +292,28 @@ void TraCI_App::vehiclesData()
         for(list<string>::reverse_iterator k = myList2.rbegin(); k != myList2.rend(); ++k)
         {
             string vID = k->c_str();
-            writeToFile_PerVehicle(vID, vleaderID);
+            string vType = commandGetVehicleType(vID);
+            writeToFile_PerVehicle(vID, vType, vleaderID);
             vleaderID = k->c_str();
         }
     }
 
     // increase index after writing data for all vehicles
     if (commandGetNoVehicles() > 0)
+    {
         index++;
+        fprintf(f1, "\n");
+    }
 }
 
 
 // vID is current vehicle, vleaderID is the leader (if present)
-void TraCI_App::writeToFile_PerVehicle(string vID, string vleaderID)
+void TraCI_App::writeToFile_PerVehicle(string vID, string vType, string vleaderID)
 {
     double speed = commandGetVehicleSpeed(vID);
     double pos = commandGetLanePosition(vID);
     double accel = commandGetVehicleAccel(vID);
+    string lane = commandGetLaneId(vID);
 
     // calculate gap (if leading is present)
     double gap = -1;
@@ -324,11 +331,13 @@ void TraCI_App::writeToFile_PerVehicle(string vID, string vleaderID)
 
     // write the current vehicle data into file
     fprintf (f1, "%-10d ", index);
-    fprintf (f1, "%-10s ", vID.c_str());
     fprintf (f1, "%-10.2f ", ( simTime()-updateInterval).dbl() );
+    fprintf (f1, "%-15s ", vID.c_str());
+    fprintf (f1, "%-15s ", vType.c_str());
+    fprintf (f1, "%-10.2f ", pos);
+    fprintf (f1, "%-12s ", lane.c_str());
     fprintf (f1, "%-10.2f ", speed);
     fprintf (f1, "%-10.2f ", accel);
-    fprintf (f1, "%-10.2f ", pos);
     fprintf (f1, "%-10.2f ", gap);
     fprintf (f1, "%-10.2f \n", timeGap);
 
