@@ -9,13 +9,26 @@
 #include "Appl.h"
 #include <deque>
 
-#include <boost/tokenizer.hpp>
-using namespace boost;
-
 #include <rapidxml.hpp>
 #include <rapidxml_utils.hpp>
 #include <rapidxml_print.hpp>
 using namespace rapidxml;
+
+// un-defining ev!
+// why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header
+#undef ev
+#include "boost/filesystem.hpp"
+#define ev  (*cSimulation::getActiveEnvir())
+
+#include <Eigen/Dense>
+using namespace Eigen;
+
+// adding this after including Eigen header
+// why? http://stackoverflow.com/questions/5327325/conflict-between-boost-opencv-and-eigen-libraries
+using namespace boost::filesystem;
+
+#include <boost/tokenizer.hpp>
+using namespace boost;
 
 using namespace std;
 
@@ -32,39 +45,39 @@ class TraCI_Extend : public TraCIScenarioManager
 
         // CMD_GET_VEHICLE_VARIABLE
         uint32_t commandGetNoVehicles();
-        std::list<std::string> commandGetVehicleList();
-        double commandGetVehicleSpeed(std::string);
-        double commandGetVehicleAccel(std::string);
-        std::string commandGetVehicleType(std::string);
-        double commandGetVehicleLength(std::string);
-        double commandGetVehicleMinGap(std::string);
-        double commandGetVehicleMaxDecel(std::string);
-        Coord commandGetVehiclePos(std::string);
-        uint32_t commandGetLaneIndex(std::string);
-        std::vector<std::string> commandGetLeading(std::string, double);
-        std::string commandGetLeading_old(std::string);
-        uint8_t * commandGetVehicleColor(std::string);
+        list<string> commandGetVehicleList();
+        double commandGetVehicleSpeed(string);
+        double commandGetVehicleAccel(string);
+        string commandGetVehicleType(string);
+        double commandGetVehicleLength(string);
+        double commandGetVehicleMinGap(string);
+        double commandGetVehicleMaxDecel(string);
+        Coord commandGetVehiclePos(string);
+        uint32_t commandGetLaneIndex(string);
+        vector<string> commandGetLeading(string, double);
+        string commandGetLeading_old(string);
+        uint8_t * commandGetVehicleColor(string);
 
         // CMD_GET_VEHICLETYPE_VARIABLE
-        double commandGetVehicleLength_Type(std::string);
+        double commandGetVehicleLength_Type(string);
 
         // CMD_GET_ROUTE_VARIABLE
-        std::list<std::string> commandGetRouteIds();
+        list<string> commandGetRouteIds();
 
         // CMD_GET_INDUCTIONLOOP_VARIABLE
-        std::list<std::string> commandGetLoopDetectorList();
-        uint32_t commandGetLoopDetectorCount(std::string);
-        double commandGetLoopDetectorSpeed(std::string);
-        std::list<std::string> commandGetLoopDetectorVehicleList(std::string);
-        std::vector<std::string> commandGetLoopDetectorVehicleData(std::string);
+        list<string> commandGetLoopDetectorList();
+        uint32_t commandGetLoopDetectorCount(string);
+        double commandGetLoopDetectorSpeed(string);
+        list<string> commandGetLoopDetectorVehicleList(string);
+        vector<string> commandGetLoopDetectorVehicleData(string);
 
         // CMD_GET_LANE_VARIABLE
-        std::list<std::string> commandGetLaneList();
-        std::list<std::string> commandGetVehicleLaneList(std::string);
-        std::list<std::string> commandGetVehiclesOnLane(std::string);
+        list<string> commandGetLaneList();
+        list<string> commandGetVehicleLaneList(string);
+        list<string> commandGetVehiclesOnLane(string);
 
         // RSU
-        std::deque<RSUEntry*> commandReadRSUsCoord(std::string);
+        deque<RSUEntry*> commandReadRSUsCoord(string);
         Coord* commandGetRSUsCoord(unsigned int);
 
         // CMD_GET_SIM_VARIABLE
@@ -72,53 +85,53 @@ class TraCI_Extend : public TraCIScenarioManager
 
         // control-related commands
         void commandTerminate();
-        void commandSendFile(std::string);
+        void commandSendFile(string);
 
         // subscription commands
         void commandSubscribeSimulation();
         void commandSubscribeVehicle();
 
         // CMD_SET_ROUTE_VARIABLE
-        void commandAddRoute(std::string name, std::list<std::string> route);
+        void commandAddRoute(string name, list<string> route);
 
         // CMD_SET_VEHICLE_VARIABLE
-        void commandSetRouteFromList(std::string id, std::list<std::string> value);
-        void commandSetMaxAccel(std::string, double);
-        void commandSetMaxDecel(std::string, double);
-        void commandSetTg(std::string, double);
-        void commandSetLaneChangeMode(std::string, int32_t);
-        void commandAddVehicleN(std::string, std::string, std::string, int32_t, double, double, uint8_t);
-        void commandSetCFParameters(std::string, std::string);      // new defined command
-        void commandSetDebug(std::string, bool);                    // new defined command
-        void commandSetModeSwitch(std::string, bool);              // new defined command
-        void commandSetVehicleColor(std::string nodeId, TraCIColor& color);
-        void commandRemoveVehicle(std::string, uint8_t);
-        void commandStopNodeExtended(std::string, std::string, double, uint8_t, double, uint8_t);
-        void commandSetvClass(std::string, std::string);
-        void commandChangeLane(std::string, uint8_t, double);
-        void commandSetErrorGap(std::string, double);             // new defined command
-        void commandSetErrorRelSpeed(std::string, double);       // new defined command
+        void commandSetRouteFromList(string id, list<string> value);
+        void commandSetMaxAccel(string, double);
+        void commandSetMaxDecel(string, double);
+        void commandSetTg(string, double);
+        void commandSetLaneChangeMode(string, int32_t);
+        void commandAddVehicleN(string, string, string, int32_t, double, double, uint8_t);
+        void commandSetCFParameters(string, string);      // new defined command
+        void commandSetDebug(string, bool);                    // new defined command
+        void commandSetModeSwitch(string, bool);              // new defined command
+        void commandSetVehicleColor(string nodeId, TraCIColor& color);
+        void commandRemoveVehicle(string, uint8_t);
+        void commandStopNodeExtended(string, string, double, uint8_t, double, uint8_t);
+        void commandSetvClass(string, string);
+        void commandChangeLane(string, uint8_t, double);
+        void commandSetErrorGap(string, double);             // new defined command
+        void commandSetErrorRelSpeed(string, double);       // new defined command
 
         // CMD_SET_GUI_VARIABLE
         void commandSetGUIZoom(double);
-        void commandSetGUITrack(std::string);
+        void commandSetGUITrack(string);
         void commandSetGUIOffset(double, double);
 
         // Polygon
-        void commandAddCirclePoly(std::string, std::string, TraCIColor, Coord, double);
+        void commandAddCirclePoly(string, string, TraCIColor, Coord, double);
 
 	protected:
         int seed; /**< seed value to set in launch configuration, if missing (-1: current run number) */
-        std::string SUMOfullDirectory;
-        std::deque<RSUEntry*> RSUs;
+        boost::filesystem::path SUMOfullDirectory;
+        deque<RSUEntry*> RSUs;
 
 	private:
         // generic methods for getters
-        uint32_t genericGetInt32(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
-        Coord genericGetCoordv2(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
-        uint8_t* genericGetArrayUnsignedInt(uint8_t, std::string, uint8_t, uint8_t);
+        uint32_t genericGetInt32(uint8_t commandId, string objectId, uint8_t variableId, uint8_t responseId);
+        Coord genericGetCoordv2(uint8_t commandId, string objectId, uint8_t variableId, uint8_t responseId);
+        uint8_t* genericGetArrayUnsignedInt(uint8_t, string, uint8_t, uint8_t);
 
-        std::string createLaunch();
+        string createLaunch();
 };
 
 

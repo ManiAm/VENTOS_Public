@@ -1,16 +1,4 @@
 #include "Global_07_Router.h"
-#include "rapidxml.hpp"
-#include "rapidxml_utils.hpp"
-#include "ApplV_02_Beacon.h"
-
-#include <msg/Messages_m.h>
-#include <iostream>  // For testing - remove
-#include <iomanip>   // For operator<< code
-#include <queue>     // For pathing
-#include <climits>   // For INT_MAX
-#include <algorithm> // For sort
-#include <sstream>   // For getline() in stringToList
-#include <Global_01_TraCI_Extend.h>
 
 Define_Module(Router);
 
@@ -33,10 +21,10 @@ void Router::initialize(int stage)
         simulation.getSystemModule()->subscribe("system", this);
 
         // get the rootFilePath
-        string SUMODirectory = simulation.getSystemModule()->par("SUMODirectory").stringValue();
-        string VENTOSfullDirectory = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-        string nodeFile = VENTOSfullDirectory + SUMODirectory + "/hello.nod.xml";
-        string edgeFile = VENTOSfullDirectory + SUMODirectory + "/hello.edg.xml";
+        boost::filesystem::path SUMODirectory = simulation.getSystemModule()->par("SUMODirectory").stringValue();
+        boost::filesystem::path VENTOSfullDirectory = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+        string nodeFile = (VENTOSfullDirectory / SUMODirectory / "/hello.nod.xml").string();
+        string edgeFile = (VENTOSfullDirectory / SUMODirectory / "/hello.edg.xml").string();
 
         file<> xmlFile( nodeFile.c_str() ); // Convert our file to a rapid-xml readable object
         xml_document<> doc;                 // Build a rapidxml doc

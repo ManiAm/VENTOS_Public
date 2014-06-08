@@ -26,9 +26,9 @@ void ApplVSystem::initialize(int stage)
         systemMsgPriority = par("systemMsgPriority").longValue();
 
         // get the rootFilePath
-        string SUMODirectory = simulation.getSystemModule()->par("SUMODirectory").stringValue();
-        string VENTOSfullDirectory = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-        string rootFilePath = VENTOSfullDirectory + SUMODirectory + "/Vehicles.xml";
+        boost::filesystem::path SUMODirectory = simulation.getSystemModule()->par("SUMODirectory").stringValue();
+        boost::filesystem::path VENTOSfullDirectory = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+        string rootFilePath = (VENTOSfullDirectory / SUMODirectory / "/Vehicles.xml").string();
 
         // Routing
         //Temporary fix to get a vehicle's target: get it from the xml

@@ -18,7 +18,7 @@ class ApplVManager : public ApplVPlatoonMg
 
         // NED variables (packet loss ratio)
         double droppT;
-        std::string droppV;
+        string droppV;
         double plr;
 
         // NED variable
@@ -44,7 +44,7 @@ class ApplVManager : public ApplVPlatoonMg
 
 	private:
 
-        bool dropBeacon(double time, std::string vehicle, double plr);
+        bool dropBeacon(double time, string vehicle, double plr);
         void reportDropToStatistics(BeaconVehicle* wsm);
         bool isBeaconFromLeading(BeaconVehicle*);
         bool isBeaconFromMyPlatoonLeader(BeaconVehicle*);

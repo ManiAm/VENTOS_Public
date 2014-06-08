@@ -15,7 +15,7 @@ class ApplVBeacon : public ApplVBase
         // NED
         bool VANETenabled;
         int mode;
-        std::string preDefinedPlatoonID;
+        string preDefinedPlatoonID;
 
         // NED variables (beaconing parameters)
         bool sendBeacons;
@@ -29,10 +29,10 @@ class ApplVBeacon : public ApplVBase
         cMessage* sendBeaconEvt;
         bool pauseBeaconing;
 
-        std::string platoonID;
+        string platoonID;
         int myPlatoonDepth;
         int platoonSize;
-        std::deque<std::string> queue;
+        deque<string> queue;
 
         // Methods
         virtual void handleSelfMsg(cMessage*);

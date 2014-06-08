@@ -14,9 +14,6 @@
 #include <ApplRSU.h>
 #include <stdlib.h>
 
-#include <Eigen/Dense>
-using namespace Eigen;
-
 using namespace std;
 
 class Statistics : public BaseModule
@@ -34,10 +31,10 @@ class Statistics : public BaseModule
 	  void postProcess();
 	  void printStatistics();
       void printToFile();
-      std::vector<NodeEntry *> SortByID(std::vector<NodeEntry *>);
+      vector<NodeEntry *> SortByID(vector<NodeEntry *>);
       int getNodeIndex(const char*);
-      int findInVector(std::vector<NodeEntry *>, const char *);
-      int findInVector(std::vector<MacStatEntry *>, const char *);
+      int findInVector(vector<NodeEntry *>, const char *);
+      int findInVector(vector<MacStatEntry *>, const char *);
       void printAID();
 
       // NED variables
@@ -54,20 +51,20 @@ class Statistics : public BaseModule
 
 	  simsignal_t Signal_MacStats;
 
-      std::vector<NodeEntry *> Vec_BeaconsP;    // beacons from proceeding
-      std::vector<NodeEntry *> Vec_BeaconsO;    // beacons from other vehicles
-      std::vector<NodeEntry *> Vec_BeaconsDP;   // Doped beacons from preceding vehicle
-      std::vector<NodeEntry *> Vec_BeaconsDO;   // Doped beacons from other vehicles
+      vector<NodeEntry *> Vec_BeaconsP;    // beacons from proceeding
+      vector<NodeEntry *> Vec_BeaconsO;    // beacons from other vehicles
+      vector<NodeEntry *> Vec_BeaconsDP;   // Doped beacons from preceding vehicle
+      vector<NodeEntry *> Vec_BeaconsDO;   // Doped beacons from other vehicles
 
-      std::vector<NodeEntry *> totalBeaconsP;
-      std::vector<NodeEntry *> totalBeaconsO;
-      std::vector<NodeEntry *> totalBeaconsDP;
-      std::vector<NodeEntry *> totalBeaconsDO;
+      vector<NodeEntry *> totalBeaconsP;
+      vector<NodeEntry *> totalBeaconsO;
+      vector<NodeEntry *> totalBeaconsDP;
+      vector<NodeEntry *> totalBeaconsDO;
 
-      std::vector<NodeEntry *> beaconsDO_interval;
-      std::vector<NodeEntry *> beaconsDP_interval;
+      vector<NodeEntry *> beaconsDO_interval;
+      vector<NodeEntry *> beaconsDP_interval;
 
-      std::vector<MacStatEntry *> Vec_MacStat;
+      vector<MacStatEntry *> Vec_MacStat;
 };
 
 #endif

@@ -65,6 +65,10 @@ void VehicleAdd::Add()
     {
         Scenario5();
     }
+    else
+    {
+        error("not a valid mode!");
+    }
 }
 
 
@@ -153,9 +157,9 @@ void VehicleAdd::Scenario4()
 
 void VehicleAdd::Scenario5()
 {
-    string SUMODirectory = simulation.getSystemModule()->par("SUMODirectory").stringValue();
-    string VENTOSfullDirectory = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-    string xmlFileName = VENTOSfullDirectory + SUMODirectory + "/Vehicles.xml";
+    boost::filesystem::path SUMODirectory = simulation.getSystemModule()->par("SUMODirectory").stringValue();
+    boost::filesystem::path VENTOSfullDirectory = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+    string xmlFileName = (VENTOSfullDirectory / SUMODirectory / "/Vehicles.xml").string();
 
     file<> xmlFile( xmlFileName.c_str() );     // Convert our file to a rapid-xml readable object
     xml_document<> doc;                        // Build a rapidxml doc

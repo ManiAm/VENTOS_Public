@@ -134,6 +134,10 @@ void SpeedProfile::Change()
     {
         ExTrajectory(startTime);
     }
+    else
+    {
+        error("not a valid mode!");
+    }
 }
 
 

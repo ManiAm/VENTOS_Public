@@ -44,6 +44,10 @@ void ApplV_AID::onBeaconRSU(BeaconRSU* wsm)
 {
     ApplVSystem::onBeaconRSU(wsm);
 
+    // if incident detection is not on, return
+    if(!AID)
+        return;
+
     // I received a beacon from RSU
     // send my laneChanges
     if( !laneChanges.empty() )
@@ -130,6 +134,10 @@ void ApplV_AID::printDataContent(LaneChangeMsg* wsm)
 void ApplV_AID::handlePositionUpdate(cObject* obj)
 {
     ApplVSystem::handlePositionUpdate(obj);
+
+    // if incident detection is not on, return
+    if(!AID)
+        return;
 
     toLane = TraCI->commandGetLaneId(SUMOvID);
 

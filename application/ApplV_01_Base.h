@@ -51,8 +51,8 @@ class ApplVBase : public BaseApplLayer
         // Class variables
         int myId;
 		const char *myFullId;
-	    std::string SUMOvID;
-        std::string SUMOvType;
+	    string SUMOvID;
+        string SUMOvType;
         Coord curPosition;  // current position from mobility module (not from sumo)
 };
 

@@ -2,19 +2,20 @@
 #define Appl_H
 
 #include<list>
+using namespace std;
 
 class systemData : public cObject, noncopyable
 {
 
-    std::string edge;
-    std::string node;
-    std::string sender;
+    string edge;
+    string node;
+    string sender;
     int requestType;
-    std::string recipient;
-    std::list<std::string> edgeList;
+    string recipient;
+    list<string> edgeList;
 
 public:
-    systemData(std::string e, std::string n, std::string s, int r, std::string re)
+    systemData(string e, string n, string s, int r, string re)
     {
         edge = e;
         node = n;
@@ -23,7 +24,7 @@ public:
         recipient = re;
     }
 
-    systemData(std::string e, std::string n, std::string s, int r, std::string re, std::list<std::string> el)
+    systemData(string e, string n, string s, int r, string re, list<string> el)
     {
         edge = e;
         node = n;
@@ -32,11 +33,11 @@ public:
         recipient = re;
         edgeList = el;
     }
-    std::string getEdge()
+    string getEdge()
     {
         return edge;
     }
-    std::string getNode()
+    string getNode()
     {
         return node;
     }
@@ -52,7 +53,7 @@ public:
     {
         return recipient.c_str();
     }
-    std::list<std::string> getInfo()
+    list<string> getInfo()
     {
         return edgeList;
     }
@@ -73,9 +74,9 @@ class data : public cObject, noncopyable
 class MacStat : public cObject, noncopyable
 {
   public:
-    std::vector<long> vec;
+    vector<long> vec;
 
-    MacStat( std::vector<long> v)
+    MacStat( vector<long> v)
     {
         vec.swap(v);
     }
@@ -88,9 +89,9 @@ public:
   char name1[20];
   int nodeID;  // is used to sort the vector (used as a key)
   simtime_t time;
-  std::vector<long> MacStatsVec;
+  vector<long> MacStatsVec;
 
-  MacStatEntry(const char *str, int id, simtime_t t, std::vector<long> v)
+  MacStatEntry(const char *str, int id, simtime_t t, vector<long> v)
   {
       strcpy(this->name1, str);
       this->nodeID = id;

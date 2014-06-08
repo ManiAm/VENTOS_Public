@@ -32,15 +32,15 @@ class SpeedProfile : public cSimpleModule
         TraCI_Extend *TraCI;
         bool on;
 	    int mode;
-	    std::string laneId;
+	    string laneId;
 	    double minSpeed;
         double normalSpeed;
         double maxSpeed;
         double switchTime;
 
 	    // class variables
-        std::string profileVehicle;
-        std::string lastProfileVehicle;
+        string profileVehicle;
+        string lastProfileVehicle;
 	    double old_speed;
 	    double old_time;
 	    double startTime;  // the time that speed profiling starts

@@ -90,6 +90,10 @@ void ApplVManager::handleLowerMsg(cMessage* msg)
 
         ApplVManager::onData(wsm);
     }
+    else
+    {
+        delete msg;
+    }
 }
 
 
@@ -251,6 +255,10 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
         {
             result = isBeaconFromMyPlatoonLeader(wsm);
         }
+    }
+    else
+    {
+        error("not a valid mode!");
     }
 
     // send results to SUMO if result = true

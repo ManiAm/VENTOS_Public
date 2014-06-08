@@ -80,16 +80,16 @@ void ApplVPlatoonFormation2::onData(PlatoonMsg* wsm)
     if (wsm->getReq_res_type() == NEW_LEADER_ACCEPT_response)
     {
         // check if NEW_LEADER_ACCEPT_response is sent to me (it is unicast)
-        if(std::string(wsm->getRecipient()) == SUMOvID)
+        if(string(wsm->getRecipient()) == SUMOvID)
         {
             // check if the new PL is sending this
-            if(std::string(wsm->getSender()) == queue.front())
+            if(string(wsm->getSender()) == queue.front())
             {
                 if(vehicleState == state_wait_for_new_PL)
                 {
                     cancelEvent(TIMER3);
 
-                    std::string newPL = queue.front();
+                    string newPL = queue.front();
 
                     // send CHANGE_PL
                     PlatoonMsg* dataMsg = ApplVPlatoonFormation::prepareData("broadcast", CHANGE_PL, platoonID, -1, newPL);
@@ -104,10 +104,10 @@ void ApplVPlatoonFormation2::onData(PlatoonMsg* wsm)
             }
         }
     }
-    else if(wsm->getReq_res_type() == NEW_LEADER_request && std::string(wsm->getSender()) == platoonID)
+    else if(wsm->getReq_res_type() == NEW_LEADER_request && string(wsm->getSender()) == platoonID)
     {
         // check if NEW_LEADER_request is sent to me (it is unicast)
-        if(std::string(wsm->getRecipient()) == SUMOvID)
+        if(string(wsm->getRecipient()) == SUMOvID)
         {
             if(vehicleState == state_platoonMember)
             {
@@ -125,9 +125,9 @@ void ApplVPlatoonFormation2::onData(PlatoonMsg* wsm)
             }
         }
     }
-    else if(wsm->getReq_res_type() == CHANGE_PL && std::string(wsm->getSender()) == platoonID)
+    else if(wsm->getReq_res_type() == CHANGE_PL && string(wsm->getSender()) == platoonID)
     {
-        std::string newPlatoonID = wsm->getStrValue();
+        string newPlatoonID = wsm->getStrValue();
         platoonID = newPlatoonID;
         myPlatoonDepth--;
 
@@ -177,7 +177,7 @@ void ApplVPlatoonFormation2::FSMchangeState()
     {
         EV << "### " << SUMOvID << ": current vehicle status is wait_for_new_PL." << endl;
 
-        std::string newPL = queue.front();
+        string newPL = queue.front();
 
         // send NEW_LEADER request
         PlatoonMsg* dataMsg = ApplVPlatoonFormation::prepareData(newPL, NEW_LEADER_request, platoonID, -1, "", queue);

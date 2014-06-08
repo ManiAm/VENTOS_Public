@@ -29,7 +29,7 @@ class ApplVSystem : public ApplVBeacon
         cMessage* sendSystemMsgEvt;
 
         // Routing
-        std::string targetNode;
+        string targetNode;
 
         // Methods
         virtual void handleSelfMsg(cMessage*);

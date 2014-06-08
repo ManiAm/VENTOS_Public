@@ -20,7 +20,7 @@ class ApplVPlatoonFormation : public ApplVManager
 		virtual void onBeaconVehicle(BeaconVehicle* wsm);
 		virtual void onData(PlatoonMsg* wsm);
 
-		PlatoonMsg* prepareData( std::string, int, std::string, double db = -1, std::string str = "", std::deque<std::string> vec = std::deque<std::string>() );
+		PlatoonMsg* prepareData( string, int, string, double db = -1, string str = "", deque<string> vec = deque<string>() );
         void printDataContent(PlatoonMsg*);
 
 		void FSMchangeState();
@@ -83,7 +83,7 @@ class ApplVPlatoonFormation : public ApplVManager
         // colors of platoon members
         int *pickColor;
 
-        std::deque<std::string> queue;
+        deque<string> queue;
 };
 
 #endif

@@ -24,17 +24,15 @@ void TraCI_Extend::initialize(int stage)
     {
         seed = par("seed");
 
-        // sumo/CACC_Platoon
-        string SUMODirectory = simulation.getSystemModule()->par("SUMODirectory").stringValue();
+        boost::filesystem::path SUMODirectory = simulation.getSystemModule()->par("SUMODirectory").stringValue();
+        boost::filesystem::path VENTOSfullDirectory = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+        SUMOfullDirectory = VENTOSfullDirectory / SUMODirectory;   //home/mani/Desktop/VENTOS/sumo/CACC_Platoon
 
-        if(SUMODirectory == "")
-            error("SUMO files directory is not specified!");
-
-        // /home/mani/Desktop/VENTOS
-        string VENTOSfullDirectory = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-
-        // /home/mani/Desktop/VENTOS/sumo/CACC_Platoon
-        SUMOfullDirectory = VENTOSfullDirectory + SUMODirectory;
+        // check if this directory is valid?
+        if( !exists( SUMOfullDirectory ) )
+        {
+            error("SUMO directory is not valid! Check it again.");
+        }
     }
     else if(stage == 2)
     {
@@ -109,9 +107,9 @@ void TraCI_Extend::init_traci()
 string TraCI_Extend::createLaunch()
 {
     string launchFile = par("launchFile").stringValue();
-    string launchFullPath = SUMOfullDirectory + "/" + launchFile;
+    boost::filesystem::path launchFullPath = SUMOfullDirectory / launchFile;
 
-    file<> xmlFile( launchFullPath.c_str() );
+    file<> xmlFile( launchFullPath.string().c_str() );
     xml_document<> doc;
     doc.parse<0>(xmlFile.data());
 
@@ -148,12 +146,13 @@ string TraCI_Extend::createLaunch()
     // todo:
 
     // write the new file
-    string newLaunchFullPath = SUMOfullDirectory + "/updated_" + launchFile;
-    ofstream file_stored( newLaunchFullPath.c_str() );
+    string newFileName = "updated_" + launchFile;
+    boost::filesystem::path newLaunchFullPath = SUMOfullDirectory / newFileName;
+    ofstream file_stored( newLaunchFullPath.string().c_str() );
     file_stored << doc;
     file_stored.close();
 
-    ifstream t(newLaunchFullPath.c_str());
+    ifstream t(newLaunchFullPath.string().c_str());
     stringstream buffer;
     buffer << t.rdbuf();
 

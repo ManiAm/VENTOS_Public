@@ -5,6 +5,7 @@
 	<copy file="4hello.rou.xml" />
     <copy file="5hello.loopDetector.xml" />
     <copy file="6hello.obstacles.xml" />    
+    <copy file="gui-settings.cfg" />
 	<copy file="8hello.sumo.cfg" type="config" />
 </launch>
 

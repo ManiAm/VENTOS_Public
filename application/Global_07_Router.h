@@ -5,9 +5,21 @@
 #include<list>
 #include<fstream>
 
+#include <iostream>  // For testing - remove
+#include <iomanip>   // For operator<< code
+#include <queue>     // For pathing
+#include <climits>   // For INT_MAX
+#include <algorithm> // For sort
+#include <sstream>   // For getline() in stringToList
+
 #include <BaseModule.h>
 #include "NodeEdge.h"
 #include "ApplV_02_Beacon.h"
+#include "Global_01_TraCI_Extend.h"
+#include <msg/Messages_m.h>
+
+#include "rapidxml.hpp"
+#include "rapidxml_utils.hpp"
 
 using namespace rapidxml;
 using namespace std;

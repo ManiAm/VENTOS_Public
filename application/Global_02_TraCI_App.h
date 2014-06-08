@@ -48,26 +48,26 @@ class TraCI_App : public TraCI_Extend
 
         // NED variables (GUI tracking)
         bool tracking;
-        std::string trackingV;
+        string trackingV;
         double trackingInterval;
 
 	    // class variables
-	    FILE *f1;
+        FILE *f1;
 	    int index;
 	    FILE *f2;
 	    double terminate;
         cMessage* updataGUI;
-        std::vector<LoopDetector *> Vec_loopDetectors;
+        vector<LoopDetector *> Vec_loopDetectors;
 
 	    // methods
         void AddAdversaryModule();
         void AddRSUModules();
-        std::list<Coord> getCirclePoints(RSUEntry*, double);
+        list<Coord> getCirclePoints(RSUEntry*, double);
         void vehiclesData();
-        void writeToFile_PerVehicle(std::string, std::string);
+        void writeToFile_PerVehicle(string, string);
         void inductionLoops();
         void writeToFile_InductionLoop();
-        int findInVector(std::vector<LoopDetector *> , const char *, const char *);
+        int findInVector(vector<LoopDetector *> , const char *, const char *);
 };
 
 

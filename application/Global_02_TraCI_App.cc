@@ -63,20 +63,22 @@ void TraCI_App::initialize(int stage)
     {
         if(collectVehiclesData)
         {
-            char fName [50];
+            boost::filesystem::path filePath;
 
             if( ev.isGUI() )
             {
-                sprintf (fName, "%s.txt", "results/gui/speed-gap");
+                filePath = "results/gui/speed-gap.txt";
             }
             else
             {
                 // get the current run number
                 int currentRun = ev.getConfigEx()->getActiveRunNumber();
-                sprintf (fName, "%s_%d.txt", "results/cmd/speed-gap", currentRun);
+                ostringstream fileName;
+                fileName << "speed-gap_" << currentRun << ".txt";
+                filePath = "results/cmd" + fileName.str();
             }
 
-            f1 = fopen (fName, "w");
+            f1 = fopen (filePath.string().c_str(), "w");
 
             // write header
             fprintf (f1, "%-10s","index");
@@ -163,16 +165,15 @@ void TraCI_App::AddRSUModules()
     // ####################################
 
     string RSUfile = par("RSUfile").stringValue();
-    string RSUfilePath = SUMOfullDirectory + "/" + RSUfile;
+    boost::filesystem::path RSUfilePath = SUMOfullDirectory / RSUfile;
 
-    // check if the file exists!
-    FILE *file = fopen(RSUfilePath.c_str(), "r");
-    if (!file)
+    // check if this file is valid?
+    if( !exists( RSUfilePath ) )
     {
-        error("RSU file does not exist in %s", RSUfilePath.c_str());
+        error("RSU file does not exist in %s", RSUfilePath.string().c_str());
     }
 
-    deque<RSUEntry*> RSUs = commandReadRSUsCoord(RSUfilePath);
+    deque<RSUEntry*> RSUs = commandReadRSUsCoord(RSUfilePath.string());
 
     // ################################
     // Step 2: create RSUs into OMNET++

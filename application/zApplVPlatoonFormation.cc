@@ -72,7 +72,7 @@ void ApplVPlatoonFormation::handleSelfMsg(cMessage* msg)
         Msg->setPlatoonID(platoonID.c_str());
         Msg->setPlatoonDepth(myPlatoonDepth);
 
-        EV << "## Created beacon msg for vehicle: " << SUMOvID << std::endl;
+        EV << "## Created beacon msg for vehicle: " << SUMOvID << endl;
         ApplVBeacon::printBeaconContent(Msg);
 
         // send it
@@ -189,7 +189,7 @@ void ApplVPlatoonFormation::onData(PlatoonMsg* wsm)
     else if(wsm->getReq_res_type() == CHANGE_Tg)
     {
         // check if this is coming from my platoon leader
-        if( std::string(wsm->getReceivingPlatoonID()) == platoonID )
+        if( string(wsm->getReceivingPlatoonID()) == platoonID )
         {
             TraCI->commandSetTg(SUMOvID, wsm->getDblValue());
         }
@@ -211,12 +211,12 @@ void ApplVPlatoonFormation::FSMchangeState()
         EV << "### " << SUMOvID << ": current vehicle status is idle." << endl;
 
         // check for leading vehicle
-        std::vector<std::string> res = TraCI->commandGetLeading(SUMOvID, sonarDist);
-        std::string vleaderID = res[0];
+        vector<string> res = TraCI->commandGetLeading(SUMOvID, sonarDist);
+        string vleaderID = res[0];
 
         if(vleaderID == "")
         {
-            EV << "This vehicle has no leading vehicle." << std::endl;
+            EV << "This vehicle has no leading vehicle." << endl;
             vehicleState = stateT_create_new_platoon;
             FSMchangeState();
             return;
@@ -285,7 +285,7 @@ void ApplVPlatoonFormation::FSMchangeState()
 }
 
 
-PlatoonMsg*  ApplVPlatoonFormation::prepareData(std::string receiver, int type, std::string receivingPlatoonID, double dblValue, std::string strValue, std::deque<std::string> vecValue)
+PlatoonMsg*  ApplVPlatoonFormation::prepareData(string receiver, int type, string receivingPlatoonID, double dblValue, string strValue, deque<string> vecValue)
 {
     if(!platoonFormation)
     {
@@ -348,7 +348,7 @@ void ApplVPlatoonFormation::printDataContent(PlatoonMsg* wsm)
     EV << wsm->getSendingPlatoonID() << " | ";
     EV << wsm->getReceivingPlatoonID() << " | ";
     EV << wsm->getDblValue() << " | ";
-    EV << wsm->getStrValue() << std::endl;
+    EV << wsm->getStrValue() << endl;
 }
 
 

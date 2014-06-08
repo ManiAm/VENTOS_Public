@@ -14,12 +14,6 @@
 #include "Global_01_TraCI_Extend.h"
 #include "mobility/traci/TraCIColor.h"
 
-#include <boost/tokenizer.hpp>
-using namespace boost;
-
-#include <Eigen/Dense>
-using namespace Eigen;
-
 using namespace std;
 
 
