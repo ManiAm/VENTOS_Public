@@ -10,7 +10,10 @@ simple ApplAdversary like IBaseApplLayer
         
         int headerLength = default(88bit) @unit(bit); // header length of the application   
         bool on = default(false); 
-        bool FalsificationAttack = default(false);    
+        double AttackT;
+        bool falsificationAttack = default(false);  
+        bool replayAttck = default(false); 
+        bool jammingAttck = default(false);  
 
     gates:
         input lowerLayerIn;    // from mac layer

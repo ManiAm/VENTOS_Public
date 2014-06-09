@@ -40,5 +40,4 @@ module Adversary
         nic.upperControlIn <-- appl.lowerControlOut;
 
         radioIn --> nic.radioIn;
-
 }

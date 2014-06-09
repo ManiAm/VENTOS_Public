@@ -175,17 +175,17 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
 
     // stand-alone vehicle
     // ignore the received beacon!
-    if(mode == 0)
+    if(mode == 1)
     {
 
     }
     // CACC stream
-    else if(mode == 1)
+    else if(mode == 2)
     {
         result = isBeaconFromLeading(wsm);
     }
     // predefined platoon
-    else if(mode == 2)
+    else if(mode == 3)
     {
         // I am platoon leader
         // get data from my leading vehicle
@@ -235,7 +235,7 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
         }
     }
     // platoon formation
-    else if(mode == 3)
+    else if(mode == 4)
     {
         // I am platoon leader
         // get data from my leading vehicle

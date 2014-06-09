@@ -32,25 +32,29 @@ class ApplAdversary : public BaseApplLayer
 		};
 
 	protected:
-		static const simsignalwrap_t mobilityStateChangedSignal;
-
-		/** @brief handle messages from below */
 		virtual void handleLowerMsg(cMessage* msg);
-		/** @brief handle self messages */
 		virtual void handleSelfMsg(cMessage* msg);
-		/** @brief handle position updates */
 		virtual void handlePositionUpdate(cObject* obj);
 
-		void DoFalsificationAttack(BeaconVehicle * wsm);
+	private:
+        void DoFalsificationAttack(BeaconVehicle * wsm);
+        void DoReplayAttack(BeaconVehicle * wsm);
+        void DoJammingAttack(BeaconVehicle * wsm);
 
 	protected:
 		// NED variables
 	    cModule *nodePtr;   // pointer to the Node
         WaveAppToMac1609_4Interface* myMac;
         mutable TraCI_Extend* TraCI;
-        bool FalsificationAttack;
+
+        // NED variables
+        double AttackT;
+        bool falsificationAttack;
+        bool replayAttck;
+        bool jammingAttck;
 
         // Class variables
+        static const simsignalwrap_t mobilityStateChangedSignal;
         int myId;
 		const char *myFullId;
         Coord curPosition;  // current position from mobility module (not from sumo)

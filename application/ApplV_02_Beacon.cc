@@ -47,7 +47,7 @@ void ApplVBeacon::initialize(int stage)
         queue.clear();
 
         // pre-defined platoon
-        if(mode == 2)
+        if(mode == 3)
         {
             preDefinedPlatoonID = par("preDefinedPlatoonID").stringValue();
 
@@ -73,7 +73,7 @@ void ApplVBeacon::handleSelfMsg(cMessage* msg)
         {
             BeaconVehicle* beaconMsg = prepareBeacon();
 
-            if(mode == 1 || mode == 2 || mode == 3)
+            if(mode == 2 || mode == 3 || mode == 4)
             {
                 // fill-in the related fields to platoon
                 beaconMsg->setPlatoonID(platoonID.c_str());

@@ -28,7 +28,10 @@ void ApplAdversary::initialize(int stage)
 
 		myFullId = getParentModule()->getFullName();
 
-		FalsificationAttack = par("FalsificationAttack").boolValue();
+		AttackT = par("AttackT").doubleValue();
+		falsificationAttack = par("falsificationAttack").boolValue();
+		replayAttck = par("replayAttck").boolValue();
+		jammingAttck = par("jammingAttck").boolValue();
 	}
 }
 
@@ -39,13 +42,17 @@ void ApplAdversary::receiveSignal(cComponent* source, simsignal_t signalID, cObj
 
     if (signalID == mobilityStateChangedSignal)
     {
-        handlePositionUpdate(obj);
+        ApplAdversary::handlePositionUpdate(obj);
     }
 }
 
 
 void ApplAdversary::handleLowerMsg(cMessage* msg)
 {
+    // Attack time has not arrived yet!
+    if(simTime().dbl() < AttackT)
+        return;
+
     // make sure msg is of type WaveShortMessage
     WaveShortMessage* wsm = dynamic_cast<WaveShortMessage*>(msg);
     ASSERT(wsm);
@@ -57,9 +64,17 @@ void ApplAdversary::handleLowerMsg(cMessage* msg)
 
         EV << "######### received a beacon!" << endl;
 
-        if(FalsificationAttack)
+        if(falsificationAttack)
         {
             DoFalsificationAttack(wsm);
+        }
+        else if(replayAttck)
+        {
+            DoReplayAttack(wsm);
+        }
+        else if(jammingAttck)
+        {
+            DoJammingAttack(wsm);
         }
     }
     else if( string(wsm->getName()) == "platoonMsg" )
@@ -67,8 +82,7 @@ void ApplAdversary::handleLowerMsg(cMessage* msg)
         PlatoonMsg* wsm = dynamic_cast<PlatoonMsg*>(msg);
         ASSERT(wsm);
 
-        error("data received!");
-
+        // ignore it!
     }
 }
 
@@ -79,13 +93,7 @@ void ApplAdversary::handleSelfMsg(cMessage* msg)
 }
 
 
-void ApplAdversary::handlePositionUpdate(cObject* obj)
-{
-    ChannelMobilityPtrType const mobility = check_and_cast<ChannelMobilityPtrType>(obj);
-    curPosition = mobility->getCurrentPosition();
-}
-
-
+// adversary get a msg, modifies the acceleration and re-send it
 void ApplAdversary::DoFalsificationAttack(BeaconVehicle* wsm)
 {
     // duplicate the received beacon
@@ -98,6 +106,34 @@ void ApplAdversary::DoFalsificationAttack(BeaconVehicle* wsm)
     sendDelayedDown(FalseMsg, 0.);
 
     EV << "## Altered msg is sent." << endl;
+}
+
+
+// adversary get a msg and re-send it with a delay (without altering the content)
+void ApplAdversary::DoReplayAttack(BeaconVehicle * wsm)
+{
+    // duplicate the received beacon
+    BeaconVehicle* FalseMsg = wsm->dup();
+
+    // send it with delay
+    double delay = 10;
+    sendDelayedDown(FalseMsg, delay);
+
+    EV << "## Altered msg is sent with delay of " << delay << endl;
+}
+
+
+void ApplAdversary::DoJammingAttack(BeaconVehicle * wsm)
+{
+
+
+}
+
+
+void ApplAdversary::handlePositionUpdate(cObject* obj)
+{
+    ChannelMobilityPtrType const mobility = check_and_cast<ChannelMobilityPtrType>(obj);
+    curPosition = mobility->getCurrentPosition();
 }
 
 
