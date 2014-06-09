@@ -12,9 +12,13 @@ VENTOS (VEhicular NeTwork Open Simulator) is an integrated C++ simulator for stu
 * testing different speed profiles
 * study the local/string stability
 * study the effect of Packet Loss Ratio (PLR) on string stability
-* Implementing a platoon management protocol that supports these maneuvers: entry, merge, split, follower leave, leader leave
+* Implementing a platoon management protocol that supports these maneuvers: 
+  1) entry 2) merge 3) split 4) follower leave 5) platoon leader leave
+* studing differenr security attacks using 'adversary module'
+* supports 'Automatic Incident Detection' in highway / arterial
 * IEEE 802.11p protocol for V2V and I2V communications
 * physical-layer modeling based on MiXiM framework
+
 
 VENTOS is made up of many different modules including:
 
