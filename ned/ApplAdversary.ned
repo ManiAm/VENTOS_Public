@@ -12,8 +12,8 @@ simple ApplAdversary like IBaseApplLayer
         bool on = default(false); 
         double AttackT;
         bool falsificationAttack = default(false);  
-        bool replayAttck = default(false); 
-        bool jammingAttck = default(false);  
+        bool replayAttack = default(false); 
+        bool jammingAttack = default(false);  
 
     gates:
         input lowerLayerIn;    // from mac layer

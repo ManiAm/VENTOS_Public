@@ -33,10 +33,10 @@ void ApplVBeacon::initialize(int stage)
         offSet = offSet + floor(offSet/0.050)*0.050;
         individualOffset = dblrand() * maxOffset;
 
-        sendBeaconEvt = new cMessage("beacon evt", SEND_BEACON_EVT);
+        VehicleBeaconEvt = new cMessage("BeaconEvt", KIND_TIMER);
         if (VANETenabled && sendBeacons)
         {
-            scheduleAt(simTime() + offSet, sendBeaconEvt);
+            scheduleAt(simTime() + offSet, VehicleBeaconEvt);
         }
 
         pauseBeaconing = false;
@@ -67,7 +67,7 @@ void ApplVBeacon::handleSelfMsg(cMessage* msg)
 {
     ApplVBase::handleSelfMsg(msg);
 
-    if (msg->getKind() == SEND_BEACON_EVT)
+    if (msg == VehicleBeaconEvt)
     {
         if(!pauseBeaconing)
         {
@@ -88,7 +88,7 @@ void ApplVBeacon::handleSelfMsg(cMessage* msg)
         }
 
         // schedule for next beacon broadcast
-        scheduleAt(simTime() + beaconInterval, sendBeaconEvt);
+        scheduleAt(simTime() + beaconInterval, VehicleBeaconEvt);
     }
 }
 
@@ -178,13 +178,13 @@ void ApplVBeacon::handlePositionUpdate(cObject* obj)
 
 void ApplVBeacon::finish()
 {
-    if (sendBeaconEvt->isScheduled())
+    if (VehicleBeaconEvt->isScheduled())
     {
-        cancelAndDelete(sendBeaconEvt);
+        cancelAndDelete(VehicleBeaconEvt);
     }
     else
     {
-        delete sendBeaconEvt;
+        delete VehicleBeaconEvt;
     }
 }
 

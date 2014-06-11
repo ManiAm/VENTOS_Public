@@ -64,7 +64,7 @@ void ApplVPlatoonFormation::handleSelfMsg(cMessage* msg)
         return;
     }
 
-    if (msg->getKind() == SEND_BEACON_EVT)
+    if (msg == VehicleBeaconEvt)
     {
         BeaconVehicle* Msg = ApplVBeacon::prepareBeacon();
 
@@ -79,7 +79,7 @@ void ApplVPlatoonFormation::handleSelfMsg(cMessage* msg)
         sendDelayedDown(Msg,individualOffset);
 
         // schedule for next beacon broadcast
-        scheduleAt(simTime() + beaconInterval, sendBeaconEvt);
+        scheduleAt(simTime() + beaconInterval, VehicleBeaconEvt);
     }
     else if (msg == TIMER1)
     {

@@ -28,7 +28,7 @@ class ApplRSU : public BaseApplLayer
 		enum WaveApplMessageKinds
 		{
 			SERVICE_PROVIDER = LAST_BASE_APPL_MESSAGE_KIND,
-			SEND_BEACON_EVT
+			KIND_TIMER
 		};
 
 		// are declared public to be accessible by Statistics
@@ -38,10 +38,7 @@ class ApplRSU : public BaseApplLayer
 	protected:
 		static const simsignalwrap_t mobilityStateChangedSignal;
 
-		/** @brief handle messages from below */
 		virtual void handleLowerMsg(cMessage* msg);
-
-		/** @brief handle self messages */
 		virtual void handleSelfMsg(cMessage* msg);
 
         virtual void onBeaconVehicle(BeaconVehicle*);
@@ -68,7 +65,7 @@ class ApplRSU : public BaseApplLayer
         int myId;
 		const char *myFullId;
         simtime_t individualOffset;
-        cMessage* sendBeaconEvt;
+        cMessage* RSUBeaconEvt;
 };
 
 #endif

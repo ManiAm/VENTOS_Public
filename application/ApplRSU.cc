@@ -41,10 +41,10 @@ void ApplRSU::initialize(int stage)
         offSet = offSet + floor(offSet/0.050)*0.050;
         individualOffset = dblrand() * maxOffset;
 
-        sendBeaconEvt = new cMessage("beacon evt", SEND_BEACON_EVT);
+        RSUBeaconEvt = new cMessage("RSUBeaconEvt", KIND_TIMER);
         if (sendBeacons)
         {
-            scheduleAt(simTime() + offSet, sendBeaconEvt);
+            scheduleAt(simTime() + offSet, RSUBeaconEvt);
         }
 
         // todo: change n and m dynamically!
@@ -84,7 +84,7 @@ void ApplRSU::handleLowerMsg(cMessage* msg)
 
 void ApplRSU::handleSelfMsg(cMessage* msg)
 {
-    if (msg->getKind() == SEND_BEACON_EVT)
+    if (msg == RSUBeaconEvt)
     {
         BeaconRSU* beaconMsg = prepareBeacon();
 
@@ -95,7 +95,7 @@ void ApplRSU::handleSelfMsg(cMessage* msg)
         sendDelayedDown(beaconMsg, individualOffset);
 
         // schedule for next beacon broadcast
-        scheduleAt(simTime() + beaconInterval, sendBeaconEvt);
+        scheduleAt(simTime() + beaconInterval, RSUBeaconEvt);
     }
 }
 

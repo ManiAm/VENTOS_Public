@@ -30,8 +30,16 @@ void ApplAdversary::initialize(int stage)
 
 		AttackT = par("AttackT").doubleValue();
 		falsificationAttack = par("falsificationAttack").boolValue();
-		replayAttck = par("replayAttck").boolValue();
-		jammingAttck = par("jammingAttck").boolValue();
+		replayAttack = par("replayAttack").boolValue();
+		jammingAttack = par("jammingAttack").boolValue();
+
+        JammingEvt = new cMessage("Jamming Event");
+        JammingInterval = TraCI->par("updateInterval").doubleValue();
+
+        if(jammingAttack)
+	    {
+            scheduleAt(simTime() + JammingInterval, JammingEvt);
+	    }
 	}
 }
 
@@ -43,6 +51,19 @@ void ApplAdversary::receiveSignal(cComponent* source, simsignal_t signalID, cObj
     if (signalID == mobilityStateChangedSignal)
     {
         ApplAdversary::handlePositionUpdate(obj);
+    }
+}
+
+
+void ApplAdversary::handleSelfMsg(cMessage* msg)
+{
+    if(msg == JammingEvt)
+    {
+        if(simTime().dbl() >= AttackT)
+            DoJammingAttack();
+
+        // schedule for next jamming attack
+        scheduleAt(simTime() + JammingInterval, JammingEvt);
     }
 }
 
@@ -68,13 +89,9 @@ void ApplAdversary::handleLowerMsg(cMessage* msg)
         {
             DoFalsificationAttack(wsm);
         }
-        else if(replayAttck)
+        else if(replayAttack)
         {
             DoReplayAttack(wsm);
-        }
-        else if(jammingAttck)
-        {
-            DoJammingAttack(wsm);
         }
     }
     else if( string(wsm->getName()) == "platoonMsg" )
@@ -87,12 +104,6 @@ void ApplAdversary::handleLowerMsg(cMessage* msg)
 }
 
 
-void ApplAdversary::handleSelfMsg(cMessage* msg)
-{
-
-}
-
-
 // adversary get a msg, modifies the acceleration and re-send it
 void ApplAdversary::DoFalsificationAttack(BeaconVehicle* wsm)
 {
@@ -100,7 +111,11 @@ void ApplAdversary::DoFalsificationAttack(BeaconVehicle* wsm)
     BeaconVehicle* FalseMsg = wsm->dup();
 
     // alter the acceleration field
-    FalseMsg->setAccel(6.);
+    // FalseMsg->setAccel(6.);
+
+    // alter the position field
+    Coord newCord = new Coord(0,0);
+    FalseMsg->setPos(newCord);
 
     // send it
     sendDelayedDown(FalseMsg, 0.);
@@ -123,7 +138,7 @@ void ApplAdversary::DoReplayAttack(BeaconVehicle * wsm)
 }
 
 
-void ApplAdversary::DoJammingAttack(BeaconVehicle * wsm)
+void ApplAdversary::DoJammingAttack()
 {
 
 

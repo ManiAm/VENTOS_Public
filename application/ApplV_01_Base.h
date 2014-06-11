@@ -28,8 +28,7 @@ class ApplVBase : public BaseApplLayer
 		enum WaveApplMessageKinds
 		{
 			SERVICE_PROVIDER = LAST_BASE_APPL_MESSAGE_KIND,
-			SEND_BEACON_EVT,
-			SEND_SYSTEMMSG_EVT,
+			KIND_TIMER
 		};
 
 	protected:

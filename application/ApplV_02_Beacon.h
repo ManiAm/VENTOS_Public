@@ -26,7 +26,7 @@ class ApplVBeacon : public ApplVBase
 
         // Class variables
         simtime_t individualOffset;
-        cMessage* sendBeaconEvt;
+        cMessage* VehicleBeaconEvt;
         bool pauseBeaconing;
 
         string platoonID;

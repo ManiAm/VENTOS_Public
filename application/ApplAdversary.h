@@ -28,7 +28,7 @@ class ApplAdversary : public BaseApplLayer
 		enum WaveApplMessageKinds
 		{
 			SERVICE_PROVIDER = LAST_BASE_APPL_MESSAGE_KIND,
-			SEND_BEACON_EVT
+			KIND_TIMER
 		};
 
 	protected:
@@ -39,7 +39,7 @@ class ApplAdversary : public BaseApplLayer
 	private:
         void DoFalsificationAttack(BeaconVehicle * wsm);
         void DoReplayAttack(BeaconVehicle * wsm);
-        void DoJammingAttack(BeaconVehicle * wsm);
+        void DoJammingAttack();
 
 	protected:
 		// NED variables
@@ -50,14 +50,16 @@ class ApplAdversary : public BaseApplLayer
         // NED variables
         double AttackT;
         bool falsificationAttack;
-        bool replayAttck;
-        bool jammingAttck;
+        bool replayAttack;
+        bool jammingAttack;
 
         // Class variables
         static const simsignalwrap_t mobilityStateChangedSignal;
         int myId;
 		const char *myFullId;
         Coord curPosition;  // current position from mobility module (not from sumo)
+        cMessage* JammingEvt;
+        double JammingInterval;
 };
 
 #endif

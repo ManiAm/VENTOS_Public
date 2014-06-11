@@ -52,7 +52,7 @@ void ApplVSystem::initialize(int stage)
         //Slightly offset all vehicles (0-4 seconds)
         double systemOffset = dblrand() * 2 + 2;
 
-        sendSystemMsgEvt = new cMessage("systemmsg evt", SEND_SYSTEMMSG_EVT);   //Create a new internal message
+        sendSystemMsgEvt = new cMessage("systemmsg evt", KIND_TIMER);   //Create a new internal message
         if (requestRoutes) //&& VANETenabled ) //If this vehicle is supposed to send system messages
             scheduleAt(simTime() + systemOffset, sendSystemMsgEvt); //Schedule them to start sending
     }
@@ -94,7 +94,7 @@ void ApplVSystem::handleSelfMsg(cMessage* msg)  //Internal messages to self
 {
     ApplVBeacon::handleSelfMsg(msg);    //Pass it down
 
-    if (msg->getKind() == SEND_SYSTEMMSG_EVT && requestRoutes)  //If it's a system message
+    if (msg == sendSystemMsgEvt && requestRoutes)  //If it's a system message
     {
         simsignal_t Signal_system = registerSignal("system"); //Prepare to send a system message
         //Systemdata wants string edge, string node, string sender, int requestType, string recipient, list<string> edgeList
