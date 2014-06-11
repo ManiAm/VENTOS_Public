@@ -566,16 +566,16 @@ double* TraCI_Extend::commandGetNetworkBoundary()
 }
 
 
-// ########################
+// #########################
 // Control-related commands
-// ########################
+// #########################
 
 void TraCI_Extend::commandTerminate()
 {
-        TraCIBuffer buf = queryTraCI(CMD_CLOSE, TraCIBuffer() << 0);
+    TraCIBuffer buf = queryTraCI(CMD_CLOSE, TraCIBuffer() << 0);
 
-        uint32_t count;
-        buf >> count;
+    uint32_t count;
+    buf >> count;
 }
 
 
@@ -1050,6 +1050,30 @@ void TraCI_Extend::commandAddCirclePoly(string name, string type, TraCIColor col
     // create polygon in SUMO
     commandAddPolygon(name, type, color, 0, 1, circlePoints);
 }
+
+
+// ######################
+// CMD_SET_EDGE_VARIABLE
+// ######################
+
+void TraCI_Extend::commandSetEdgeGlobalTravelTime(string edgeId, int32_t beginT, int32_t endT, double value)
+{
+    uint8_t variableId = VAR_EDGE_TRAVELTIME;
+    uint8_t variableType = TYPE_COMPOUND;
+    int32_t count = 3;
+    uint8_t valueI = TYPE_INTEGER;
+    uint8_t valueD = TYPE_DOUBLE;
+
+    TraCIBuffer buf = queryTraCI(CMD_SET_EDGE_VARIABLE, TraCIBuffer() << variableId << edgeId
+                                                                                    << variableType << count
+                                                                                    << valueI << beginT
+                                                                                    << valueI << endT
+                                                                                    << valueD << value
+                                                                                    );
+    ASSERT(buf.eof());
+}
+
+
 
 
 void TraCI_Extend::finish()

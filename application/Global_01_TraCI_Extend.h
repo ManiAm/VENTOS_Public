@@ -120,6 +120,9 @@ class TraCI_Extend : public TraCIScenarioManager
         // Polygon
         void commandAddCirclePoly(string, string, TraCIColor, Coord, double);
 
+        //
+        void commandSetEdgeGlobalTravelTime(string, int32_t, int32_t, double);
+
 	protected:
         int seed; /**< seed value to set in launch configuration, if missing (-1: current run number) */
         boost::filesystem::path SUMOfullDirectory;

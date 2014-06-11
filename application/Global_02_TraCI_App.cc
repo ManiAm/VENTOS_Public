@@ -46,69 +46,58 @@ void TraCI_App::initialize(int stage)
         if(tlPtr == NULL)
             error("can not get a pointer to the TrafficLight module.");
 
-        terminate = par("terminate").doubleValue();
+        // get the ptr of the Statistics module
+        module = simulation.getSystemModule()->getSubmodule("statistics");
+        StatPtr = static_cast<Statistics *>(module);
+        if(StatPtr == NULL)
+            error("can not get a pointer to the Statistics module.");
 
-        collectVehiclesData = par("collectVehiclesData");
-        collectInductionLoopData = par("collectInductionLoopData");
+        terminate = par("terminate").doubleValue();
 
         tracking = par("tracking").boolValue();
         trackingV = par("trackingV").stdstringValue();
         trackingInterval = par("trackingInterval").doubleValue();
 
         updataGUI = new cMessage("updataGUI", 1);
-
-        index = 1;
     }
-    else if(stage == 1)
+}
+
+
+void TraCI_App::handleSelfMsg(cMessage *msg)
+{
+    if (msg == updataGUI)
     {
-        if(collectVehiclesData)
-        {
-            boost::filesystem::path filePath;
+        Coord co = commandGetVehiclePos(trackingV);
+        commandSetGUIOffset(co.x, co.y);
 
-            if( ev.isGUI() )
-            {
-                filePath = "results/gui/speed-gap.txt";
-            }
-            else
-            {
-                // get the current run number
-                int currentRun = ev.getConfigEx()->getActiveRunNumber();
-                ostringstream fileName;
-                fileName << "speed-gap_" << currentRun << ".txt";
-                filePath = "results/cmd" + fileName.str();
-            }
-
-            f1 = fopen (filePath.string().c_str(), "w");
-
-            // write header
-            fprintf (f1, "%-10s","index");
-            fprintf (f1, "%-12s","timeStep");
-            fprintf (f1, "%-15s","vehicleName");
-            fprintf (f1, "%-17s","vehicleType");
-            fprintf (f1, "%-11s","pos");
-            fprintf (f1, "%-12s","lane");
-            fprintf (f1, "%-12s","speed");
-            fprintf (f1, "%-12s","accel");
-            fprintf (f1, "%-10s","gap");
-            fprintf (f1, "%-10s\n\n","timeGap");
-
-            fflush(f1);
-        }
+        scheduleAt(simTime() + trackingInterval, updataGUI);
+    }
+    else
+    {
+        TraCI_Extend::handleSelfMsg(msg);
     }
 }
 
 
 // this method is called once!
-// TraCI is up and running :)
+// in this method TraCI is up and running :)
 void TraCI_App::init_traci()
 {
     TraCI_Extend::init_traci();
 
     // create adversary node into the network
-    AddAdversaryModule();
+    bool adversary = par("adversary").boolValue();
+    if(adversary)
+        AddAdversaryModule();
 
     // create RSU modules in the network
-    AddRSUModules();
+    bool RSU = par("RSU").boolValue();
+    if(RSU)
+        AddRSUModules();
+
+    // add vehicles dynamically into SUMO
+    AddVehiclePtr->Add();
+
 
     // todo:
     // making sure that platoonLeader exists in the sumo
@@ -128,19 +117,11 @@ void TraCI_App::init_traci()
     {
         scheduleAt(simTime(), updataGUI);
     }
-
-    // add vehicles dynamically into SUMO
-    AddVehiclePtr->Add();
 }
 
 
 void TraCI_App::AddAdversaryModule()
 {
-    bool adversary = par("adversary").boolValue();
-
-    if(!adversary)
-        return;
-
     cModule* parentMod = getParentModule();
     if (!parentMod) error("Parent Module not found");
 
@@ -157,11 +138,6 @@ void TraCI_App::AddAdversaryModule()
 
 void TraCI_App::AddRSUModules()
 {
-    bool RSU = par("RSU").boolValue();
-
-    if(!RSU)
-        return;
-
     // ####################################
     // Step 1: read RSU locations from file
     // ####################################
@@ -216,22 +192,6 @@ void TraCI_App::AddRSUModules()
 }
 
 
-void TraCI_App::handleSelfMsg(cMessage *msg)
-{
-    if (msg == updataGUI)
-    {
-        Coord co = commandGetVehiclePos(trackingV);
-        commandSetGUIOffset(co.x, co.y);
-
-        scheduleAt(simTime() + trackingInterval, updataGUI);
-    }
-    else
-    {
-        TraCI_Extend::handleSelfMsg(msg);
-    }
-}
-
-
 void TraCI_App::executeOneTimestep()
 {
     EV << "### Sending Command to SUMO to perform simulation for TS = " << (getCurrentTimeMs()/1000.) << endl;
@@ -240,32 +200,21 @@ void TraCI_App::executeOneTimestep()
 
     EV << "### SUMO completed simulation for TS = " << (getCurrentTimeMs()/1000.) << endl;
 
-    // collecting data from all vehicles in each timeStep and
-    // then write it into a file each time
-    if(collectVehiclesData)
-        vehiclesData();
+    // write the statistics
+    bool simulationDone = (simTime().dbl() >= terminate) ? true : false;
+    StatPtr->executeOneTimestep(simulationDone);
 
-    // collecting induction loop data in each timeStep
-    if(collectInductionLoopData)
-        inductionLoops();
-
-    if(simTime().dbl() >= terminate)
+    if(simulationDone)
     {
-        // write the collected induction loop data to
-        // a file before terminating simulation
-        if(collectInductionLoopData)
-            writeToFile_InductionLoop();
+        // close TraCI connection
+        commandTerminate();
 
-        // send termination signal to statistics
-        // statistic will perform some post-processing and
-        // then terminates the simulation
-        simsignal_t Signal_terminate = registerSignal("terminate");
-        nodePtr->emit(Signal_terminate, 1);
+        // then terminate
+        endSimulation();
     }
 
-    bool finished = WarmupPtr->DoWarmup();
-
     // check if warm-up phase is finished
+    bool finished = WarmupPtr->DoWarmup();
     if (finished)
     {
         // we can start speed profiling
@@ -277,176 +226,8 @@ void TraCI_App::executeOneTimestep()
 }
 
 
-void TraCI_App::vehiclesData()
-{
-    string vleaderID = "";
-
-    // get all lanes in the network
-    list<string> myList = commandGetLaneList();
-
-    for(list<string>::iterator i = myList.begin(); i != myList.end(); ++i)
-    {
-        // get all vehicles on lane i
-        list<string> myList2 = commandGetVehicleLaneList( i->c_str() );
-
-        for(list<string>::reverse_iterator k = myList2.rbegin(); k != myList2.rend(); ++k)
-        {
-            string vID = k->c_str();
-            string vType = commandGetVehicleType(vID);
-            writeToFile_PerVehicle(vID, vType, vleaderID);
-            vleaderID = k->c_str();
-        }
-    }
-
-    // increase index after writing data for all vehicles
-    if (commandGetNoVehicles() > 0)
-    {
-        index++;
-        fprintf(f1, "\n");
-    }
-}
-
-
-// vID is current vehicle, vleaderID is the leader (if present)
-void TraCI_App::writeToFile_PerVehicle(string vID, string vType, string vleaderID)
-{
-    double speed = commandGetVehicleSpeed(vID);
-    double pos = commandGetLanePosition(vID);
-    double accel = commandGetVehicleAccel(vID);
-    string lane = commandGetLaneId(vID);
-
-    // calculate gap (if leading is present)
-    double gap = -1;
-
-    if(vleaderID != "")
-    {
-        gap = commandGetLanePosition(vleaderID) - commandGetLanePosition(vID) - commandGetVehicleLength(vleaderID);
-    }
-
-    // calculate timeGap (if leading is present)
-    double timeGap = -1;
-
-    if(vleaderID != "" && speed != 0)
-        timeGap = gap / speed;
-
-    // write the current vehicle data into file
-    fprintf (f1, "%-10d ", index);
-    fprintf (f1, "%-10.2f ", ( simTime()-updateInterval).dbl() );
-    fprintf (f1, "%-15s ", vID.c_str());
-    fprintf (f1, "%-15s ", vType.c_str());
-    fprintf (f1, "%-10.2f ", pos);
-    fprintf (f1, "%-12s ", lane.c_str());
-    fprintf (f1, "%-10.2f ", speed);
-    fprintf (f1, "%-10.2f ", accel);
-    fprintf (f1, "%-10.2f ", gap);
-    fprintf (f1, "%-10.2f \n", timeGap);
-
-    fflush(f1);
-}
-
-
-void TraCI_App::inductionLoops()
-{
-    // get all loop detectors
-    list<string> str = commandGetLoopDetectorList();
-
-    // for each loop detector
-    for (list<string>::iterator it=str.begin(); it != str.end(); ++it)
-    {
-        // only if this loop detector detected a vehicle
-        if( commandGetLoopDetectorCount(*it) == 1 )
-        {
-            vector<string>  st = commandGetLoopDetectorVehicleData(*it);
-
-            string vehicleName = st.at(0);
-            double entryT = atof( st.at(2).c_str() );
-            double leaveT = atof( st.at(3).c_str() );
-            double speed = commandGetLoopDetectorSpeed(*it);  // vehicle speed at current moment
-
-            int counter = findInVector(Vec_loopDetectors, (*it).c_str(), vehicleName.c_str());
-
-            // its a new entry, so we add it.
-            if(counter == -1)
-            {
-                LoopDetector *tmp = new LoopDetector( (*it).c_str(), vehicleName.c_str(), entryT, -1, speed, -1 );
-                Vec_loopDetectors.push_back(tmp);
-            }
-            // if found, just update the leave time and leave speed
-            else
-            {
-                Vec_loopDetectors[counter]->leaveTime = leaveT;
-                Vec_loopDetectors[counter]->leaveSpeed = speed;
-            }
-        }
-    }
-}
-
-
-void TraCI_App::writeToFile_InductionLoop()
-{
-    char fName2 [50];
-
-    if( ev.isGUI() )
-    {
-        sprintf (fName2, "%s.txt", "results/gui/loop-detector");
-    }
-    else
-    {
-        // get the current run number
-        int currentRun = ev.getConfigEx()->getActiveRunNumber();
-        sprintf (fName2, "%s_%d.txt", "results/cmd/loop-detector", currentRun);
-    }
-
-    f2 = fopen (fName2, "w");
-
-    // write header
-    fprintf (f2, "%-20s","loopDetector");
-    fprintf (f2, "%-20s","vehicleName");
-    fprintf (f2, "%-20s","vehicleEntryTime");
-    fprintf (f2, "%-20s","vehicleLeaveTime");
-    fprintf (f2, "%-22s","vehicleEntrySpeed");
-    fprintf (f2, "%-22s\n\n","vehicleLeaveSpeed");
-
-    // write body
-    for(unsigned int k=0; k<Vec_loopDetectors.size(); k++)
-    {
-        fprintf ( f2, "%-20s ", Vec_loopDetectors[k]->detectorName );
-        fprintf ( f2, "%-20s ", Vec_loopDetectors[k]->vehicleName );
-        fprintf ( f2, "%-20.2f ", Vec_loopDetectors[k]->entryTime );
-        fprintf ( f2, "%-20.2f ", Vec_loopDetectors[k]->leaveTime );
-        fprintf ( f2, "%-20.2f ", Vec_loopDetectors[k]->entrySpeed );
-        fprintf ( f2, "%-20.2f ", Vec_loopDetectors[k]->leaveSpeed );
-        fprintf ( f2, "\n" );
-    }
-
-    fclose(f2);
-}
-
-
-int TraCI_App::findInVector( vector<LoopDetector *> Vec, const char *detectorName, const char *vehicleName )
-{
-    unsigned int counter;
-    bool found = false;
-
-    for(counter = 0; counter < Vec.size(); counter++)
-    {
-        if( strcmp(Vec[counter]->detectorName, detectorName) == 0 && strcmp(Vec[counter]->vehicleName, vehicleName) == 0)
-        {
-            found = true;
-            break;
-        }
-    }
-
-    if(!found)
-        return -1;
-    else
-        return counter;
-}
-
-
 void TraCI_App::finish()
 {
     TraCI_Extend::finish();
-    fclose(f1);
 }
 

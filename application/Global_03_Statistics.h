@@ -27,6 +27,8 @@ class Statistics : public BaseModule
 	  virtual void receiveSignal(cComponent *, simsignal_t, long);
 	  virtual void receiveSignal(cComponent *, simsignal_t, cObject *);
 
+	  void executeOneTimestep(bool);
+
   private:
 	  void postProcess();
 	  void printStatistics();
@@ -37,20 +39,35 @@ class Statistics : public BaseModule
       int findInVector(vector<MacStatEntry *>, const char *);
       void printAID();
 
+      void vehiclesData();
+      void writeToFile_PerVehicle(string, string, string);
+      void inductionLoops();
+      void writeToFile_InductionLoop();
+      int findInVector(vector<LoopDetector *> , const char *, const char *);
+
       // NED variables
       TraCI_Extend *TraCI;
       double updateInterval;
       double terminate;
+
+      // NED variables
+      bool collectVehiclesData;
+      bool collectInductionLoopData;
       bool printBeaconsStatistics;
+      bool printIncidentDetection;
 
-      simsignal_t Signal_terminate;
+      // class variables
+      int index;
+      FILE *VehicleDataFile;
 
+      // class variables (signals)
 	  simsignal_t Signal_beaconP;
 	  simsignal_t Signal_beaconO;
 	  simsignal_t Signal_beaconD;
 
 	  simsignal_t Signal_MacStats;
 
+	  // class variables (vectors)
       vector<NodeEntry *> Vec_BeaconsP;    // beacons from proceeding
       vector<NodeEntry *> Vec_BeaconsO;    // beacons from other vehicles
       vector<NodeEntry *> Vec_BeaconsDP;   // Doped beacons from preceding vehicle
@@ -65,6 +82,8 @@ class Statistics : public BaseModule
       vector<NodeEntry *> beaconsDP_interval;
 
       vector<MacStatEntry *> Vec_MacStat;
+
+      vector<LoopDetector *> Vec_loopDetectors;
 };
 
 #endif

@@ -5,8 +5,8 @@ simple Statistics
     parameters:
         @class(Statistics);
         
+        bool collectVehiclesData;
+        bool collectInductionLoopData;
         bool printBeaconsStatistics;
-        
-    gates:
-
+        bool printIncidentDetection;
 }

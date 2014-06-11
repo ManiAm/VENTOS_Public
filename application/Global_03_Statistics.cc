@@ -19,12 +19,14 @@ void Statistics::initialize(int stage)
         terminate = module->par("terminate").doubleValue();
         updateInterval = module->par("updateInterval").doubleValue();
 
+        collectVehiclesData = par("collectVehiclesData");
+        collectInductionLoopData = par("collectInductionLoopData");
         printBeaconsStatistics = par("printBeaconsStatistics").boolValue();
+        printIncidentDetection = par("printIncidentDetection").boolValue();
 
+        index = 1;
 
         // register signals
-        Signal_terminate = registerSignal("terminate");
-
         Signal_beaconP = registerSignal("beaconP");
         Signal_beaconO = registerSignal("beaconO");
         Signal_beaconD = registerSignal("beaconD");
@@ -32,11 +34,46 @@ void Statistics::initialize(int stage)
         Signal_MacStats = registerSignal("MacStats");
 
         // now subscribe locally to all these signals
-        simulation.getSystemModule()->subscribe("terminate", this);
         simulation.getSystemModule()->subscribe("beaconP", this);
         simulation.getSystemModule()->subscribe("beaconO", this);
         simulation.getSystemModule()->subscribe("beaconD", this);
         simulation.getSystemModule()->subscribe("MacStats", this);
+    }
+    else if(stage == 1)
+    {
+        if(collectVehiclesData)
+        {
+            boost::filesystem::path filePath;
+
+            if( ev.isGUI() )
+            {
+                filePath = "results/gui/speed-gap.txt";
+            }
+            else
+            {
+                // get the current run number
+                int currentRun = ev.getConfigEx()->getActiveRunNumber();
+                ostringstream fileName;
+                fileName << "speed-gap_" << currentRun << ".txt";
+                filePath = "results/cmd" + fileName.str();
+            }
+
+            VehicleDataFile = fopen (filePath.string().c_str(), "w");
+
+            // write header
+            fprintf (VehicleDataFile, "%-10s","index");
+            fprintf (VehicleDataFile, "%-12s","timeStep");
+            fprintf (VehicleDataFile, "%-15s","vehicleName");
+            fprintf (VehicleDataFile, "%-17s","vehicleType");
+            fprintf (VehicleDataFile, "%-11s","pos");
+            fprintf (VehicleDataFile, "%-12s","lane");
+            fprintf (VehicleDataFile, "%-12s","speed");
+            fprintf (VehicleDataFile, "%-12s","accel");
+            fprintf (VehicleDataFile, "%-10s","gap");
+            fprintf (VehicleDataFile, "%-10s\n\n","timeGap");
+
+            fflush(VehicleDataFile);
+        }
     }
 }
 
@@ -48,6 +85,41 @@ void Statistics::handleMessage(cMessage *msg)
 }
 
 
+void Statistics::executeOneTimestep(bool simulationDone)
+{
+    // collecting data from all vehicles in each timeStep and
+    // then write it into a file each time
+    if(collectVehiclesData)
+        vehiclesData();
+
+    // collecting induction loop data in each timeStep
+    if(collectInductionLoopData)
+        inductionLoops();
+
+    if(simulationDone)
+    {
+        // sort the vectors by node ID:
+        //Vec_BeaconsP = SortByID(Vec_BeaconsP);
+        //Vec_BeaconsO = SortByID(Vec_BeaconsO);
+        //Vec_BeaconsDP = SortByID(Vec_BeaconsDP);
+        //Vec_BeaconsDO = SortByID(Vec_BeaconsDO);
+
+        postProcess();
+
+        printStatistics();
+
+        if(printBeaconsStatistics)
+            printToFile();
+
+        if(printIncidentDetection)
+            printAID();
+
+        if(collectInductionLoopData)
+            writeToFile_InductionLoop();
+    }
+}
+
+
 void Statistics::receiveSignal(cComponent *source, simsignal_t signalID, long i)
 {
 	Enter_Method_Silent();
@@ -56,33 +128,9 @@ void Statistics::receiveSignal(cComponent *source, simsignal_t signalID, long i)
     EV << " from module " << source->getFullName();
 	EV << " with value " << i << endl;
 
-    int nodeIndex = getNodeIndex(source ->getFullName());
+    int nodeIndex = getNodeIndex(source->getFullName());
 
-    // signal from MyTraCI
-	if(signalID == Signal_terminate)
-	{
-	    // sort the vectors by node ID:
-	    //Vec_BeaconsP = SortByID(Vec_BeaconsP);
-	    //Vec_BeaconsO = SortByID(Vec_BeaconsO);
-	    //Vec_BeaconsDP = SortByID(Vec_BeaconsDP);
-	    //Vec_BeaconsDO = SortByID(Vec_BeaconsDO);
-
-	    postProcess();
-
-	    printStatistics();
-
-	    if(printBeaconsStatistics)
-	        printToFile();
-
-	    printAID();
-
-	    // close TraCI connection
-	   // TraCI->commandTerminate();
-
-	    // then terminate
-	    endSimulation();
-	}
-	else if(signalID == Signal_beaconD)
+	if(signalID == Signal_beaconD)
 	{
 	    // from preceding
 	    if(i==1)
@@ -559,7 +607,7 @@ vector<NodeEntry *> Statistics::SortByID(vector<NodeEntry *> vec)
 
 void Statistics::printAID()
 {
-    // get a pointer to vehicle CACC1
+    // get a pointer to any RSU
     cModule *module = simulation.getSystemModule()->getSubmodule("RSU", 0);
 
     if(module == NULL)
@@ -594,8 +642,189 @@ void Statistics::printAID()
 }
 
 
+
+
+
+
+
+
+
+
+// todo:
+
+void Statistics::vehiclesData()
+{
+    string vleaderID = "";
+
+    // get all lanes in the network
+    list<string> myList = TraCI->commandGetLaneList();
+
+    for(list<string>::iterator i = myList.begin(); i != myList.end(); ++i)
+    {
+        // get all vehicles on lane i
+        list<string> myList2 = TraCI->commandGetVehicleLaneList( i->c_str() );
+
+        for(list<string>::reverse_iterator k = myList2.rbegin(); k != myList2.rend(); ++k)
+        {
+            string vID = k->c_str();
+            string vType = TraCI->commandGetVehicleType(vID);
+            writeToFile_PerVehicle(vID, vType, vleaderID);
+            vleaderID = k->c_str();
+        }
+    }
+
+    // increase index after writing data for all vehicles
+    if (TraCI->commandGetNoVehicles() > 0)
+    {
+        index++;
+        fprintf(VehicleDataFile, "\n");
+    }
+}
+
+
+// vID is current vehicle, vleaderID is the leader (if present)
+void Statistics::writeToFile_PerVehicle(string vID, string vType, string vleaderID)
+{
+    double speed = TraCI->commandGetVehicleSpeed(vID);
+    double pos = TraCI->commandGetLanePosition(vID);
+    double accel = TraCI->commandGetVehicleAccel(vID);
+    string lane = TraCI->commandGetLaneId(vID);
+
+    // calculate gap (if leading is present)
+    double gap = -1;
+
+    if(vleaderID != "")
+    {
+        gap = TraCI->commandGetLanePosition(vleaderID) - TraCI->commandGetLanePosition(vID) - TraCI->commandGetVehicleLength(vleaderID);
+    }
+
+    // calculate timeGap (if leading is present)
+    double timeGap = -1;
+
+    if(vleaderID != "" && speed != 0)
+        timeGap = gap / speed;
+
+    // write the current vehicle data into file
+    fprintf (VehicleDataFile, "%-10d ", index);
+    fprintf (VehicleDataFile, "%-10.2f ", ( simTime()-updateInterval).dbl() );
+    fprintf (VehicleDataFile, "%-15s ", vID.c_str());
+    fprintf (VehicleDataFile, "%-15s ", vType.c_str());
+    fprintf (VehicleDataFile, "%-10.2f ", pos);
+    fprintf (VehicleDataFile, "%-12s ", lane.c_str());
+    fprintf (VehicleDataFile, "%-10.2f ", speed);
+    fprintf (VehicleDataFile, "%-10.2f ", accel);
+    fprintf (VehicleDataFile, "%-10.2f ", gap);
+    fprintf (VehicleDataFile, "%-10.2f \n", timeGap);
+
+    fflush(VehicleDataFile);
+}
+
+
+void Statistics::inductionLoops()
+{
+    // get all loop detectors
+    list<string> str = TraCI->commandGetLoopDetectorList();
+
+    // for each loop detector
+    for (list<string>::iterator it=str.begin(); it != str.end(); ++it)
+    {
+        // only if this loop detector detected a vehicle
+        if( TraCI->commandGetLoopDetectorCount(*it) == 1 )
+        {
+            vector<string>  st = TraCI->commandGetLoopDetectorVehicleData(*it);
+
+            string vehicleName = st.at(0);
+            double entryT = atof( st.at(2).c_str() );
+            double leaveT = atof( st.at(3).c_str() );
+            double speed = TraCI->commandGetLoopDetectorSpeed(*it);  // vehicle speed at current moment
+
+            int counter = findInVector(Vec_loopDetectors, (*it).c_str(), vehicleName.c_str());
+
+            // its a new entry, so we add it.
+            if(counter == -1)
+            {
+                LoopDetector *tmp = new LoopDetector( (*it).c_str(), vehicleName.c_str(), entryT, -1, speed, -1 );
+                Vec_loopDetectors.push_back(tmp);
+            }
+            // if found, just update the leave time and leave speed
+            else
+            {
+                Vec_loopDetectors[counter]->leaveTime = leaveT;
+                Vec_loopDetectors[counter]->leaveSpeed = speed;
+            }
+        }
+    }
+}
+
+
+void Statistics::writeToFile_InductionLoop()
+{
+    char fName2 [50];
+
+    if( ev.isGUI() )
+    {
+        sprintf (fName2, "%s.txt", "results/gui/loop-detector");
+    }
+    else
+    {
+        // get the current run number
+        int currentRun = ev.getConfigEx()->getActiveRunNumber();
+        sprintf (fName2, "%s_%d.txt", "results/cmd/loop-detector", currentRun);
+    }
+
+    FILE *InductionLoopFile = fopen (fName2, "w");
+
+    // write header
+    fprintf (InductionLoopFile, "%-20s","loopDetector");
+    fprintf (InductionLoopFile, "%-20s","vehicleName");
+    fprintf (InductionLoopFile, "%-20s","vehicleEntryTime");
+    fprintf (InductionLoopFile, "%-20s","vehicleLeaveTime");
+    fprintf (InductionLoopFile, "%-22s","vehicleEntrySpeed");
+    fprintf (InductionLoopFile, "%-22s\n\n","vehicleLeaveSpeed");
+
+    // write body
+    for(unsigned int k=0; k<Vec_loopDetectors.size(); k++)
+    {
+        fprintf ( InductionLoopFile, "%-20s ", Vec_loopDetectors[k]->detectorName );
+        fprintf ( InductionLoopFile, "%-20s ", Vec_loopDetectors[k]->vehicleName );
+        fprintf ( InductionLoopFile, "%-20.2f ", Vec_loopDetectors[k]->entryTime );
+        fprintf ( InductionLoopFile, "%-20.2f ", Vec_loopDetectors[k]->leaveTime );
+        fprintf ( InductionLoopFile, "%-20.2f ", Vec_loopDetectors[k]->entrySpeed );
+        fprintf ( InductionLoopFile, "%-20.2f ", Vec_loopDetectors[k]->leaveSpeed );
+        fprintf ( InductionLoopFile, "\n" );
+    }
+
+    fclose(InductionLoopFile);
+}
+
+
+int Statistics::findInVector( vector<LoopDetector *> Vec, const char *detectorName, const char *vehicleName )
+{
+    unsigned int counter;
+    bool found = false;
+
+    for(counter = 0; counter < Vec.size(); counter++)
+    {
+        if( strcmp(Vec[counter]->detectorName, detectorName) == 0 && strcmp(Vec[counter]->vehicleName, vehicleName) == 0)
+        {
+            found = true;
+            break;
+        }
+    }
+
+    if(!found)
+        return -1;
+    else
+        return counter;
+}
+
+
+
+
 void Statistics::finish()
 {
+    if(collectVehiclesData)
+        fclose(VehicleDataFile);
 
 }
 

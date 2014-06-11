@@ -8,6 +8,7 @@
 #include "mobility/traci/TraCIConstants.h"
 
 #include "Global_01_TraCI_Extend.h"
+#include "Global_03_Statistics.h"
 #include "Global_04_VehicleAdd.h"
 #include "Global_05_Warmup.h"
 #include "Global_06_SpeedProfile.h"
@@ -34,6 +35,10 @@ class TraCI_App : public TraCI_Extend
         virtual void executeOneTimestep();
 
 	private:
+        void AddAdversaryModule();
+        void AddRSUModules();
+
+	private:
 
         // NED variables
         cModule *nodePtr;   // pointer to the Node
@@ -41,33 +46,18 @@ class TraCI_App : public TraCI_Extend
         SpeedProfile *SpeedProfilePtr;
         Warmup *WarmupPtr;
         TrafficLight *tlPtr;
+        Statistics *StatPtr;
 
-        // NEW variables
-        bool collectVehiclesData;
-        bool collectInductionLoopData;
+        // NED variable
+        double terminate;
 
-        // NED variables (GUI tracking)
+        // NED variables (GUI)
         bool tracking;
         string trackingV;
         double trackingInterval;
 
 	    // class variables
-        FILE *f1;
-	    int index;
-	    FILE *f2;
-	    double terminate;
         cMessage* updataGUI;
-        vector<LoopDetector *> Vec_loopDetectors;
-
-	    // methods
-        void AddAdversaryModule();
-        void AddRSUModules();
-        list<Coord> getCirclePoints(RSUEntry*, double);
-        void vehiclesData();
-        void writeToFile_PerVehicle(string, string, string);
-        void inductionLoops();
-        void writeToFile_InductionLoop();
-        int findInVector(vector<LoopDetector *> , const char *, const char *);
 };
 
 

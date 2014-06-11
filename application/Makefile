@@ -490,6 +490,7 @@ $O/Global_01_TraCI_Extend.o: Global_01_TraCI_Extend.cc \
 	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
 $O/Global_02_TraCI_App.o: Global_02_TraCI_App.cc \
 	Appl.h \
+	ApplRSU.h \
 	ApplV_01_Base.h \
 	ApplV_02_Beacon.h \
 	ApplV_03_System.h \
@@ -498,6 +499,7 @@ $O/Global_02_TraCI_App.o: Global_02_TraCI_App.cc \
 	ApplV_06_Manager.h \
 	Global_01_TraCI_Extend.h \
 	Global_02_TraCI_App.h \
+	Global_03_Statistics.h \
 	Global_04_VehicleAdd.h \
 	Global_05_Warmup.h \
 	Global_06_SpeedProfile.h \
@@ -520,6 +522,7 @@ $O/Global_02_TraCI_App.o: Global_02_TraCI_App.cc \
 	$(VEINS_PROJ)/src/base/utils/HostState.h \
 	$(VEINS_PROJ)/src/base/utils/MiXiMDefs.h \
 	$(VEINS_PROJ)/src/base/utils/Move.h \
+	$(VEINS_PROJ)/src/base/utils/NetwControlInfo.h \
 	$(VEINS_PROJ)/src/base/utils/NetwToMacControlInfo.h \
 	$(VEINS_PROJ)/src/base/utils/PassedMessage.h \
 	$(VEINS_PROJ)/src/base/utils/SimpleAddress.h \
