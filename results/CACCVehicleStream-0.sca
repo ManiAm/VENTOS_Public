@@ -1,14 +1,14 @@
 version 2
-run CACCVehicleStream-0-20140610-22:41:03-15248
+run CACCVehicleStream-0-20140611-01:56:09-8399
 attr configname CACCVehicleStream
-attr datetime 20140610-22:41:03
+attr datetime 20140611-01:56:09
 attr experiment CACCVehicleStream
 attr inifile omnetpp.ini
 attr iterationvars ""
 attr iterationvars2 $repetition=0
 attr measurement ""
 attr network ned.Network
-attr processid 15248
+attr processid 8399
 attr repetition 0
 attr replication #0
 attr resultdir results

@@ -1,14 +1,14 @@
 version 2
-run incidentDetection-0-20140610-23:03:47-18838
+run incidentDetection-0-20140611-01:55:31-8366
 attr configname incidentDetection
-attr datetime 20140610-23:03:47
+attr datetime 20140611-01:55:31
 attr experiment incidentDetection
 attr inifile omnetpp.ini
 attr iterationvars ""
 attr iterationvars2 $repetition=0
 attr measurement ""
 attr network ned.Network
-attr processid 18838
+attr processid 8366
 attr repetition 0
 attr replication #0
 attr resultdir results

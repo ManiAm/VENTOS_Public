@@ -58,7 +58,10 @@ void TraCI_App::initialize(int stage)
         trackingV = par("trackingV").stdstringValue();
         trackingInterval = par("trackingInterval").doubleValue();
 
-        updataGUI = new cMessage("updataGUI", 1);
+        if(tracking)
+        {
+            updataGUI = new cMessage("updataGUI", 1);
+        }
     }
 }
 

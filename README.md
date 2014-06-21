@@ -2,7 +2,7 @@ VENTOS
 ======
 
 
-VENTOS (VEhicular NeTwork Open Simulator) is an integrated C++ simulator for studding traffic flows in Vehicular Ad-hoc Networks (VANETs). VENTOS is the main tool in C3PO research. More information here: "http://www.ece.ucdavis.edu/rubinet/projects/c3po.html". Some of its features are listed below:
+VENTOS (VEhicular NeTwork Open Simulator) is an integrated C++ simulator for studding traffic flows in Vehicular Ad-hoc Networks (VANETs). VENTOS is the main tool in C3PO research. More information [here](http://www.ece.ucdavis.edu/rubinet/projects/c3po.html ""). Some of its features are listed below:
 
 * car-following models specifically for manual driving, ACC and CACC
 * lane-changing models in multi-lane scenarios
@@ -19,6 +19,11 @@ VENTOS (VEhicular NeTwork Open Simulator) is an integrated C++ simulator for stu
 * IEEE 802.11p protocol for V2V and I2V communications
 * physical-layer modeling based on MiXiM framework
 
+<p align="center">
+  <img src="https://dl.dropboxusercontent.com/u/5153771/simulation.png" alt="Simulation Output" style="width: 110%"/>
+</p>
+
+---
 
 VENTOS is made up of many different modules including:
 
@@ -35,6 +40,8 @@ VENTOS is made up of many different modules including:
 **RapidXML:** RapidXml is an attempt to create the fastest XML parser possible, while retaining useability, portability and reasonable W3C compatibility. It is an in-situ parser written in modern C++, with parsing speed approaching that of strlen function executed on the same data.
 
 **OpenSSL library:** OpenSSL is an open-source implementation of the SSL and TLS protocols. The core library, written in the C programming language, implements the basic cryptographic functions and provides various utility functions. We use OpenSSL library to sign and verify different messages. In Ubuntu, you can install libssl-dev package.
+
+---
 
 
 Install OMNET++
@@ -122,6 +129,10 @@ Install Veins (from its website)
 --------------------------------
 
 **This method is not recommended, and we suggest you to get Veins from its git repository. Check the previous section.**
+
+<p align="center">
+  <img src="https://dl.dropboxusercontent.com/u/5153771/angry-no.png" alt="Simulation Output" style="width: 15%"/>
+</p>
 
 **Step 1:** Download Veins from "http://veins.car2x.org" to a location like desktop (without extracting it).
 

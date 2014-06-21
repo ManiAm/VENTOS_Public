@@ -79,6 +79,8 @@ void ApplRSU::handleLowerMsg(cMessage* msg)
 
         ApplRSU::onLaneChange(wsm);
     }
+
+    delete msg;
 }
 
 

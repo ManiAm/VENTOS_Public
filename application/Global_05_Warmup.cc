@@ -34,7 +34,11 @@ void Warmup::initialize(int stage)
 
         startTime = -1;
         IsWarmUpFinished = false;
-        warmupFinish = new cMessage("warmupFinish", 1);
+
+        if(on)
+        {
+            warmupFinish = new cMessage("warmupFinish", 1);
+        }
     }
 }
 

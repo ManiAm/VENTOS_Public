@@ -90,10 +90,8 @@ void ApplVManager::handleLowerMsg(cMessage* msg)
 
         ApplVManager::onData(wsm);
     }
-    else
-    {
-        delete msg;
-    }
+
+    delete msg;
 }
 
 
