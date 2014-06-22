@@ -41,6 +41,7 @@ class VehicleAdd : public cSimpleModule
         void Scenario2();
         void Scenario3();
         void Scenario4();
+        void Scenario5();
 };
 
 

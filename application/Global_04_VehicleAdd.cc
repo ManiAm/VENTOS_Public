@@ -61,6 +61,10 @@ void VehicleAdd::Add()
     {
         Scenario4();
     }
+    else if(mode == 5)
+    {
+        Scenario5();
+    }
     else
     {
         error("not a valid mode!");
@@ -107,7 +111,7 @@ void VehicleAdd::Scenario2()
         sprintf(vehicleName, "ACC%d", i);
         depart = depart + 10000;
 
-        TraCI->commandAddVehicleN(vehicleName, "TypeACC", "route1", depart, 0, 0, 0);
+        TraCI->commandAddVehicleN(vehicleName, "TypeACC", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
     }
 }
 
@@ -122,7 +126,7 @@ void VehicleAdd::Scenario3()
          sprintf(vehicleName, "CACC%d", i);
          depart = depart + 10000;
 
-         TraCI->commandAddVehicleN(vehicleName, "TypeCACC", "route1", depart, 0, 0, 1);  // insert into lane 1
+         TraCI->commandAddVehicleN(vehicleName, "TypeCACC", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
      }
 }
 
@@ -193,8 +197,23 @@ void VehicleAdd::Scenario4()
         //    cout << *it << endl;
 
         //commandAddVehicleRouter wants string id, string type, string (edge) origin, string (node) destination, double (time) depart, and string routename
-        TraCI->commandAddVehicleN(id, type, origin, 1000 * depart, 0, 0, 0);  //Send a TraCI add call -- might not need to be *1000.
+        TraCI->commandAddVehicleN(id, type, origin, 1000 * depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);  //Send a TraCI add call -- might not need to be *1000.
     }
+}
+
+
+void VehicleAdd::Scenario5()
+{
+    int depart = 0;
+
+     for(int i=1; i<=totalVehicles; i++)
+     {
+         char vehicleName[10];
+         sprintf(vehicleName, "CACC%d", i);
+         depart = depart + 10000;
+
+         TraCI->commandAddVehicleN(vehicleName, "TypeCACC", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
+     }
 }
 
 

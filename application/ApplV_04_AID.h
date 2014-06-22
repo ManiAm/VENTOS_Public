@@ -16,10 +16,6 @@ class ApplV_AID : public ApplVSystem
         // NED
         bool AID;
 
-        int dataLengthBits;
-        bool dataOnSch;
-        int dataPriority;
-
         // Methods
         virtual void handleSelfMsg(cMessage*);
         virtual void handlePositionUpdate(cObject*);

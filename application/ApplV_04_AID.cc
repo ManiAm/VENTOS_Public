@@ -12,11 +12,6 @@ void ApplV_AID::initialize(int stage)
 	{
         AID = par("AID").boolValue();
 
-        // NED variables (data messages)
-        dataLengthBits = par("dataLengthBits").longValue();
-        dataOnSch = par("dataOnSch").boolValue();
-        dataPriority = par("dataPriority").longValue();
-
         fromLane = "";
         toLane = "";
         fromX = 0;

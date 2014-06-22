@@ -28,6 +28,11 @@ void ApplVBeacon::initialize(int stage)
         beaconLengthBits = par("beaconLengthBits").longValue();
         beaconPriority = par("beaconPriority").longValue();
 
+        // NED variables (data parameters)
+        dataLengthBits = par("dataLengthBits").longValue();
+        dataOnSch = par("dataOnSch").boolValue();
+        dataPriority = par("dataPriority").longValue();
+
         // simulate asynchronous channel access
         double offSet = dblrand() * (beaconInterval/2);
         offSet = offSet + floor(offSet/0.050)*0.050;

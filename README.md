@@ -1,7 +1,6 @@
 VENTOS
 ======
 
-
 VENTOS (VEhicular NeTwork Open Simulator) is an integrated C++ simulator for studding traffic flows in Vehicular Ad-hoc Networks (VANETs). VENTOS is the main tool in C3PO research. More information [here](http://www.ece.ucdavis.edu/rubinet/projects/c3po.html ""). Some of its features are listed below:
 
 * car-following models specifically for manual driving, ACC and CACC
@@ -35,7 +34,7 @@ VENTOS is made up of many different modules including:
 
 **Eigen library:** Eigen is a C++ template library for linear algebra: matrices, vectors, numerical solvers, and related algorithms. We use this library for matrix calculations. Eigen is a header only library.
 
-**Boost library:** Boost provides free peer-reviewed portable C++ source libraries which can be found here: http://www.boost.org/doc/libs/. We are using boost tokenizer, filesystem, etc. In Ubuntu, make sure to install libboost-filesystem1.48-dev, and libboost-system1.48-dev packages.
+**Boost library:** Boost provides free peer-reviewed portable C++ source libraries which can be found [here](http://www.boost.org/doc/libs/ ""). We are using boost tokenizer, filesystem, etc. In Ubuntu, make sure to install libboost-filesystem1.48-dev, and libboost-system1.48-dev packages.
 
 **RapidXML:** RapidXml is an attempt to create the fastest XML parser possible, while retaining useability, portability and reasonable W3C compatibility. It is an in-situ parser written in modern C++, with parsing speed approaching that of strlen function executed on the same data.
 
@@ -131,7 +130,7 @@ Install Veins (from its website)
 **This method is not recommended, and we suggest you to get Veins from its git repository. Check the previous section.**
 
 <p align="center">
-  <img src="https://dl.dropboxusercontent.com/u/5153771/angry-no.png" alt="Simulation Output" style="width: 15%"/>
+  <img src="https://dl.dropboxusercontent.com/u/5153771/angry-no.png" alt="Simulation Output" style="width: 10%"/>
 </p>
 
 **Step 1:** Download Veins from "http://veins.car2x.org" to a location like desktop (without extracting it).
@@ -178,7 +177,8 @@ It will ask your username/password, and then receives a copy of the project.
 Install SUMO
 ------------
 
-Follow the instructions in SUMOm repository, here "https://github.com/ManiAm/SUMOm" and then come back :)
+Follow the instructions in SUMOm repository, [here](https://github.com/ManiAm/SUMOm "") and then come back :)
+
 
 
 Running the Project

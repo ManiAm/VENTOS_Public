@@ -24,6 +24,11 @@ class ApplVBeacon : public ApplVBase
         int beaconLengthBits;
         int beaconPriority;
 
+        // NED variables (data message parameters)
+        int dataLengthBits;
+        bool dataOnSch;
+        int dataPriority;
+
         // Class variables
         simtime_t individualOffset;
         cMessage* VehicleBeaconEvt;
