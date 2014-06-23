@@ -86,7 +86,7 @@ bool Warmup::DoWarmup()
     if(pos >= stopPosition)
     {
         // start breaking at stopPosition, and stop (waiting for other vehicles)
-        TraCI->getCommandInterface()->setSpeed(leadingVehicle, 0.);
+        TraCI->commandSetSpeed(leadingVehicle, 0.);
 
         // get # of vehicles that have entered simulation so far
         int n = TraCI->commandGetNoVehicles();

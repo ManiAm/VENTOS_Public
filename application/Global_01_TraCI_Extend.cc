@@ -782,6 +782,15 @@ void TraCI_Extend::commandSetRouteFromList(string id, list<string> value)
 }
 
 
+void TraCI_Extend::commandSetSpeed(string nodeId, double speed)
+{
+    uint8_t variableId = VAR_SPEED;
+    uint8_t variableType = TYPE_DOUBLE;
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << speed);
+    ASSERT(buf.eof());
+}
+
+
 void TraCI_Extend::commandSetMaxAccel(string nodeId, double value)
 {
     uint8_t variableId = VAR_ACCEL;

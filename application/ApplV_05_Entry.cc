@@ -9,7 +9,7 @@ void ApplVPlatoonMg::entryManeuver()
         // go to the special lane
         TraCI->commandSetvClass(SUMOvID, "ignoring");
         TraCI->commandChangeLane(SUMOvID, 0, 5);   // change to lane 0
-        TraCI->getCommandInterface()->setSpeed(SUMOvID, 0.);
+        TraCI->commandSetSpeed(SUMOvID, 0.);
     }
 
 

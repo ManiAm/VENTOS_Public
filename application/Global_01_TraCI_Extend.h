@@ -97,6 +97,7 @@ class TraCI_Extend : public TraCIScenarioManager
 
         // CMD_SET_VEHICLE_VARIABLE
         void commandSetRouteFromList(string id, list<string> value);
+        void commandSetSpeed(string nodeId, double);
         void commandSetMaxAccel(string, double);
         void commandSetMaxDecel(string, double);
         void commandSetTg(string, double);

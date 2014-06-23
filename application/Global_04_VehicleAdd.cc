@@ -92,7 +92,7 @@ void VehicleAdd::Scenario1()
     TraCI->commandAddVehicleN("obstacle", "TypeObstacle", "route1", 50, 3200, 0, 1);
 
     // make it stop on the lane!
-    TraCI->getCommandInterface()->setSpeed("obstacle", 0.);
+    TraCI->commandSetSpeed("obstacle", 0.);
     TraCI->commandSetLaneChangeMode("obstacle", 0);
 
     // change the color to blue
