@@ -114,8 +114,8 @@ void ApplAdversary::DoFalsificationAttack(BeaconVehicle* wsm)
     // FalseMsg->setAccel(6.);
 
     // alter the position field
-    Coord newCord = new Coord(0,0);
-    FalseMsg->setPos(newCord);
+    Coord *newCord = new Coord(0,0);
+    FalseMsg->setPos(*newCord);
 
     // send it
     sendDelayedDown(FalseMsg, 0.);

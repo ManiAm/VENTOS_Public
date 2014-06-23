@@ -25,20 +25,20 @@ void RSUMobility::initialize(int stage)
         myFullId = getParentModule()->getFullName();
 
         // get TraCI coordinates
-        Coord SUMOpos = TraCI->commandGetRSUsCoord(myId);
+        Coord *SUMOpos = TraCI->commandGetRSUsCoord(myId);
 
         Coord pos = world->getRandomPosition();
 
         // read coordinates from parameters if available
-        pos.x = SUMOpos.x;
-        pos.y = SUMOpos.y;
+        pos.x = SUMOpos->x;
+        pos.y = SUMOpos->x;
         pos.z = 0;
 
         // set start-position and start-time (i.e. current simulation-time) of the Move
         move.setStart(pos);
 
         //check whether position is within the playground
-        if (!move.getStartPos().isInBoundary(Coord::ZERO, world->getPgs())) {
+        if ( !isInBoundary(move.getStartPos(), Coord::ZERO, *world->getPgs()) ) {
             error("node position specified in omnetpp.ini exceeds playgroundsize");
         }
 
@@ -46,6 +46,14 @@ void RSUMobility::initialize(int stage)
         move.setSpeed(0);
         move.setDirectionByVector(Coord::ZERO);
     }
+}
+
+
+bool RSUMobility::isInBoundary(Coord c, Coord lowerBound, Coord upperBound)
+{
+    return  lowerBound.x <= c.x && c.x <= upperBound.x &&
+            lowerBound.y <= c.y && c.y <= upperBound.y &&
+            lowerBound.z <= c.z && c.z <= upperBound.z;
 }
 
 

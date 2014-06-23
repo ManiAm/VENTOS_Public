@@ -7,6 +7,17 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+struct traci2omnet_functor : public std::unary_function<TraCICoord, Coord> {
+    traci2omnet_functor(const TraCIScenarioManager& m) : manager(m) {}
+
+    Coord operator()(const TraCICoord& coord) const {
+        return manager.traci2omnet(coord);
+    }
+
+    const TraCIScenarioManager& manager;
+};
+
+
 Define_Module(TraCI_Extend);
 
 
@@ -45,22 +56,28 @@ void TraCI_Extend::initialize(int stage)
 void TraCI_Extend::init_traci()
 {
     // get the version of Python launchd
-    pair<uint32_t, string> version = commandGetVersion();
+    pair<uint32_t, string> version = getCommandInterface()->getVersion();
     uint32_t apiVersion = version.first;
     string serverVersion = version.second;
     EV << "TraCI launchd reports apiVersion: " << apiVersion << " and serverVersion: " << serverVersion << endl;
     ASSERT(apiVersion == 1);
 
+    // ---------------------------------------------------
+
     string str = createLaunch();
     commandSendFile( str );   // send the launchConfig to SUMO
 
+    // ---------------------------------------------------
+
     // call commandGetVersion again to get the version of SUMO TraCI server
-    pair<uint32_t, string> version2 = commandGetVersion();
+    pair<uint32_t, string> version2 = getCommandInterface()->getVersion();
     uint32_t apiVersion2 = version2.first;
     string serverVersion2 = version2.second;
     EV << "TraCI server reports apiVersion: " << apiVersion2 << " and serverVersion: " << serverVersion2 << endl;
     if ( !(apiVersion2 == 3 || apiVersion2 == 5 || apiVersion2 == 6 || apiVersion2 == 7 || apiVersion2 == 8) )
         error("TraCI server is unsupported.");
+
+    // ---------------------------------------------------
 
     // get network boundaries from SUMO
     double* bounds = commandGetNetworkBoundary();
@@ -72,6 +89,8 @@ void TraCI_Extend::init_traci()
     if ((traci2omnet(netbounds2).x > world->getPgs()->x) || (traci2omnet(netbounds1).y > world->getPgs()->y))
         EV << "WARNING: Playground size (" << world->getPgs()->x << ", " << world->getPgs()->y << ") might be too small for vehicle at network bounds (" << traci2omnet(netbounds2).x << ", " << traci2omnet(netbounds1).y << ")" << endl;
 
+    // ---------------------------------------------------
+
     // subscribe to list of departed and arrived vehicles, as well as simulation time
     commandSubscribeSimulation();
 
@@ -79,25 +98,25 @@ void TraCI_Extend::init_traci()
     commandSubscribeVehicle();
 
     ObstacleControl* obstacles = ObstacleControlAccess().getIfExists();
-
     if (obstacles)
     {
-        // get list of polygons
-        list<string> ids = commandGetPolygonIds();
-
-        for (list<string>::iterator i = ids.begin(); i != ids.end(); ++i)
         {
-            string id = *i;
-            string typeId = commandGetPolygonTypeId(id);
-
-            if (typeId == "building")
+            // get list of polygons
+            std::list<std::string> ids = getCommandInterface()->getPolygonIds();
+            for (std::list<std::string>::iterator i = ids.begin(); i != ids.end(); ++i)
             {
-                list<Coord> coords = commandGetPolygonShape(id);
-                Obstacle obs(id, 9, .4); // each building gets attenuation of 9 dB per wall, 0.4 dB per meter
-                vector<Coord> shape;
-                std::copy( coords.begin(), coords.end(), back_inserter(shape) );
-                obs.setShape(shape);
-                obstacles->add(obs);
+                std::string id = *i;
+                std::string typeId = getCommandInterface()->getPolygonTypeId(id);
+
+                if (typeId == "building")
+                {
+                    std::list<TraCICoord> coords = getCommandInterface()->getPolygonShape(id);
+                    Obstacle obs(id, 9, .4); // each building gets attenuation of 9 dB per wall, 0.4 dB per meter
+                    std::vector<Coord> shape;
+                    std::transform(coords.begin(), coords.end(), std::back_inserter(shape), traci2omnet_functor(*this));
+                    obs.setShape(shape);
+                    obstacles->add(obs);
+                }
             }
         }
     }
@@ -172,50 +191,50 @@ void TraCI_Extend::handleSelfMsg(cMessage *msg)
 
 uint32_t TraCI_Extend::commandGetNoVehicles()
 {
-    return genericGetInt32(CMD_GET_VEHICLE_VARIABLE, "", ID_COUNT, RESPONSE_GET_VEHICLE_VARIABLE);
+    return getCommandInterface()->genericGetInt(CMD_GET_VEHICLE_VARIABLE, "", ID_COUNT, RESPONSE_GET_VEHICLE_VARIABLE);
 }
 
 
 // gets a list of all vehicles in the network (alphabetically!!!)
 list<string> TraCI_Extend::commandGetVehicleList()
 {
-    return genericGetStringList(CMD_GET_VEHICLE_VARIABLE, "", ID_LIST, RESPONSE_GET_VEHICLE_VARIABLE);
+    return getCommandInterface()->genericGetStringList(CMD_GET_VEHICLE_VARIABLE, "", ID_LIST, RESPONSE_GET_VEHICLE_VARIABLE);
 }
 
 
 double TraCI_Extend::commandGetVehicleSpeed(string nodeId)
 {
-    return genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_SPEED, RESPONSE_GET_VEHICLE_VARIABLE);
+    return getCommandInterface()->genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_SPEED, RESPONSE_GET_VEHICLE_VARIABLE);
 }
 
 
 double TraCI_Extend::commandGetVehicleAccel(string nodeId)
 {
-    return genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, 0x41, RESPONSE_GET_VEHICLE_VARIABLE);
+    return getCommandInterface()->genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, 0x41, RESPONSE_GET_VEHICLE_VARIABLE);
 }
 
 
 string TraCI_Extend::commandGetVehicleType(string nodeId)
 {
-    return genericGetString(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_TYPE, RESPONSE_GET_VEHICLE_VARIABLE);
+    return getCommandInterface()->genericGetString(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_TYPE, RESPONSE_GET_VEHICLE_VARIABLE);
 }
 
 
 double TraCI_Extend::commandGetVehicleLength(string nodeId)
 {
-    return genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_LENGTH, RESPONSE_GET_VEHICLE_VARIABLE);
+    return getCommandInterface()->genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_LENGTH, RESPONSE_GET_VEHICLE_VARIABLE);
 }
 
 
 double TraCI_Extend::commandGetVehicleMinGap(string nodeId)
 {
-    return genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_MINGAP, RESPONSE_GET_VEHICLE_VARIABLE);
+    return getCommandInterface()->genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_MINGAP, RESPONSE_GET_VEHICLE_VARIABLE);
 }
 
 
 double TraCI_Extend::commandGetVehicleMaxDecel(string nodeId)
 {
-    return genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_DECEL, RESPONSE_GET_VEHICLE_VARIABLE);
+    return getCommandInterface()->genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_DECEL, RESPONSE_GET_VEHICLE_VARIABLE);
 }
 
 
@@ -227,7 +246,7 @@ Coord TraCI_Extend::commandGetVehiclePos(string nodeId)
 
 uint32_t TraCI_Extend::commandGetLaneIndex(string nodeId)
 {
-    return genericGetInt32(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_LANE_INDEX, RESPONSE_GET_VEHICLE_VARIABLE);
+    return getCommandInterface()->genericGetInt(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_LANE_INDEX, RESPONSE_GET_VEHICLE_VARIABLE);
 }
 
 
@@ -238,7 +257,7 @@ vector<string> TraCI_Extend::commandGetLeading(string nodeId, double look_ahead_
     uint8_t variableId = 0x68;
     uint8_t responseId = RESPONSE_GET_VEHICLE_VARIABLE;
 
-    TraCIBuffer buf = queryTraCI(CMD_GET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << requestTypeId << look_ahead_distance);
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_GET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << requestTypeId << look_ahead_distance);
 
     uint8_t cmdLength; buf >> cmdLength;
     if (cmdLength == 0) {
@@ -285,7 +304,7 @@ vector<string> TraCI_Extend::commandGetLeading(string nodeId, double look_ahead_
 string TraCI_Extend::commandGetLeading_old(string nodeId)
 {
     // get the lane id (like 1to2_0)
-    string laneID = commandGetLaneId(nodeId);
+    string laneID = getCommandInterface()->getLaneId(nodeId);
 
     // get a list of all vehicles on this lane (left to right)
     list<string> myList = commandGetVehiclesOnLane(laneID);
@@ -318,7 +337,7 @@ uint8_t* TraCI_Extend::commandGetVehicleColor(string nodeId)
 
 double TraCI_Extend::commandGetVehicleLength_Type(string nodeId)
 {
-    return genericGetDouble(CMD_GET_VEHICLETYPE_VARIABLE, nodeId, VAR_LENGTH, RESPONSE_GET_VEHICLETYPE_VARIABLE);
+    return getCommandInterface()->genericGetDouble(CMD_GET_VEHICLETYPE_VARIABLE, nodeId, VAR_LENGTH, RESPONSE_GET_VEHICLETYPE_VARIABLE);
 }
 
 
@@ -328,7 +347,7 @@ double TraCI_Extend::commandGetVehicleLength_Type(string nodeId)
 
 list<string> TraCI_Extend::commandGetRouteIds()
 {
-    return genericGetStringList(CMD_GET_ROUTE_VARIABLE, "", 0x00, RESPONSE_GET_ROUTE_VARIABLE);
+    return getCommandInterface()->genericGetStringList(CMD_GET_ROUTE_VARIABLE, "", 0x00, RESPONSE_GET_ROUTE_VARIABLE);
 }
 
 
@@ -338,25 +357,25 @@ list<string> TraCI_Extend::commandGetRouteIds()
 
 list<string> TraCI_Extend::commandGetLoopDetectorList()
 {
-    return genericGetStringList(CMD_GET_INDUCTIONLOOP_VARIABLE, "", 0x00, RESPONSE_GET_INDUCTIONLOOP_VARIABLE);
+    return getCommandInterface()->genericGetStringList(CMD_GET_INDUCTIONLOOP_VARIABLE, "", 0x00, RESPONSE_GET_INDUCTIONLOOP_VARIABLE);
 }
 
 
 uint32_t TraCI_Extend::commandGetLoopDetectorCount(string loopId)
 {
-    return genericGetInt32(CMD_GET_INDUCTIONLOOP_VARIABLE, loopId, 0x10, RESPONSE_GET_INDUCTIONLOOP_VARIABLE);
+    return getCommandInterface()->genericGetInt(CMD_GET_INDUCTIONLOOP_VARIABLE, loopId, 0x10, RESPONSE_GET_INDUCTIONLOOP_VARIABLE);
 }
 
 
 double TraCI_Extend::commandGetLoopDetectorSpeed(string loopId)
 {
-    return genericGetDouble(CMD_GET_INDUCTIONLOOP_VARIABLE, loopId, 0x11, RESPONSE_GET_INDUCTIONLOOP_VARIABLE);
+    return getCommandInterface()->genericGetDouble(CMD_GET_INDUCTIONLOOP_VARIABLE, loopId, 0x11, RESPONSE_GET_INDUCTIONLOOP_VARIABLE);
 }
 
 
 list<string> TraCI_Extend::commandGetLoopDetectorVehicleList(string loopId)
 {
-    return genericGetStringList(CMD_GET_INDUCTIONLOOP_VARIABLE, loopId, 0x12, RESPONSE_GET_INDUCTIONLOOP_VARIABLE);
+    return getCommandInterface()->genericGetStringList(CMD_GET_INDUCTIONLOOP_VARIABLE, loopId, 0x12, RESPONSE_GET_INDUCTIONLOOP_VARIABLE);
 }
 
 
@@ -366,7 +385,7 @@ vector<string> TraCI_Extend::commandGetLoopDetectorVehicleData(string loopId)
     uint8_t variableId = 0x17;
     uint8_t responseId = RESPONSE_GET_INDUCTIONLOOP_VARIABLE;
 
-    TraCIBuffer buf = queryTraCI(CMD_GET_INDUCTIONLOOP_VARIABLE, TraCIBuffer() << variableId << loopId);
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_GET_INDUCTIONLOOP_VARIABLE, TraCIBuffer() << variableId << loopId);
 
     uint8_t cmdLength; buf >> cmdLength;
     if (cmdLength == 0) {
@@ -441,20 +460,20 @@ vector<string> TraCI_Extend::commandGetLoopDetectorVehicleData(string loopId)
 // gets a list of all lanes in the network
 list<string> TraCI_Extend::commandGetLaneList()
 {
-    return genericGetStringList(CMD_GET_LANE_VARIABLE, "", ID_LIST, RESPONSE_GET_LANE_VARIABLE);
+    return getCommandInterface()->genericGetStringList(CMD_GET_LANE_VARIABLE, "", ID_LIST, RESPONSE_GET_LANE_VARIABLE);
 }
 
 
 // gets a list of all lanes in the network
 list<string> TraCI_Extend::commandGetVehicleLaneList(string edgeId)
 {
-    return genericGetStringList(CMD_GET_LANE_VARIABLE, edgeId, LAST_STEP_VEHICLE_ID_LIST, RESPONSE_GET_LANE_VARIABLE);
+    return getCommandInterface()->genericGetStringList(CMD_GET_LANE_VARIABLE, edgeId, LAST_STEP_VEHICLE_ID_LIST, RESPONSE_GET_LANE_VARIABLE);
 }
 
 
 list<string> TraCI_Extend::commandGetVehiclesOnLane(string laneId)
 {
-    return genericGetStringList(CMD_GET_LANE_VARIABLE, laneId, LAST_STEP_VEHICLE_ID_LIST, RESPONSE_GET_LANE_VARIABLE);
+    return getCommandInterface()->genericGetStringList(CMD_GET_LANE_VARIABLE, laneId, LAST_STEP_VEHICLE_ID_LIST, RESPONSE_GET_LANE_VARIABLE);
 }
 
 
@@ -525,7 +544,7 @@ deque<RSUEntry*> TraCI_Extend::commandReadRSUsCoord(string RSUfilePath)
 }
 
 
-Coord* TraCI_Extend::commandGetRSUsCoord(unsigned int index)
+Coord *TraCI_Extend::commandGetRSUsCoord(unsigned int index)
 {
     if( RSUs.size() == 0 )
         error("No RSUs have been initialized!");
@@ -533,7 +552,7 @@ Coord* TraCI_Extend::commandGetRSUsCoord(unsigned int index)
     if( index < 0 || index >= RSUs.size() )
         error("index out of bound!");
 
-    Coord* point = new Coord(RSUs[index]->coordX, RSUs[index]->coordY);
+    Coord *point = new Coord(RSUs[index]->coordX, RSUs[index]->coordY);
     return point;
 }
 
@@ -545,7 +564,7 @@ Coord* TraCI_Extend::commandGetRSUsCoord(unsigned int index)
 double* TraCI_Extend::commandGetNetworkBoundary()
 {
     // query road network boundaries
-    TraCIBuffer buf = queryTraCI(CMD_GET_SIM_VARIABLE, TraCIBuffer() << static_cast<uint8_t>(VAR_NET_BOUNDING_BOX) << string("sim0"));
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_GET_SIM_VARIABLE, TraCIBuffer() << static_cast<uint8_t>(VAR_NET_BOUNDING_BOX) << string("sim0"));
 
     uint8_t cmdLength_resp; buf >> cmdLength_resp;
     uint8_t commandId_resp; buf >> commandId_resp; ASSERT(commandId_resp == RESPONSE_GET_SIM_VARIABLE);
@@ -572,7 +591,7 @@ double* TraCI_Extend::commandGetNetworkBoundary()
 
 void TraCI_Extend::commandTerminate()
 {
-    TraCIBuffer buf = queryTraCI(CMD_CLOSE, TraCIBuffer() << 0);
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_CLOSE, TraCIBuffer() << 0);
 
     uint32_t count;
     buf >> count;
@@ -584,9 +603,9 @@ void TraCI_Extend::commandSendFile(string contents)
     uint8_t commandId = 0x75;
     TraCIBuffer buf;
     buf << string("sumo-launchd.launch.xml") << contents;
-    sendTraCIMessage(makeTraCICommand(commandId, buf));
+    getCommandInterface()->connection.sendMessage(makeTraCICommand(commandId, buf));
 
-    TraCIBuffer obuf(receiveTraCIMessage());
+    TraCIBuffer obuf( getCommandInterface()->connection.receiveMessage() );
     uint8_t cmdLength; obuf >> cmdLength;
     uint8_t commandResp; obuf >> commandResp;
     if (commandResp != commandId)
@@ -611,23 +630,18 @@ void TraCI_Extend::commandSubscribeSimulation()
 {
     uint32_t beginTime = 0;
     uint32_t endTime = 0x7FFFFFFF;
-    string objectId = "";
-    uint8_t variableNumber = 5;
+    std::string objectId = "";
+    uint8_t variableNumber = 7;
     uint8_t variable1 = VAR_DEPARTED_VEHICLES_IDS;
     uint8_t variable2 = VAR_ARRIVED_VEHICLES_IDS;
     uint8_t variable3 = VAR_TIME_STEP;
     uint8_t variable4 = VAR_TELEPORT_STARTING_VEHICLES_IDS;
     uint8_t variable5 = VAR_TELEPORT_ENDING_VEHICLES_IDS;
+    uint8_t variable6 = VAR_PARKING_STARTING_VEHICLES_IDS;
+    uint8_t variable7 = VAR_PARKING_ENDING_VEHICLES_IDS;
 
-    TraCIBuffer buf = queryTraCI(CMD_SUBSCRIBE_SIM_VARIABLE, TraCIBuffer() << beginTime << endTime
-                                                                                        << objectId
-                                                                                        << variableNumber
-                                                                                        << variable1
-                                                                                        << variable2
-                                                                                        << variable3
-                                                                                        << variable4
-                                                                                        << variable5
-                                                                                        );
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SUBSCRIBE_SIM_VARIABLE, TraCIBuffer() << beginTime << endTime << objectId << variableNumber << variable1 << variable2 << variable3 << variable4 << variable5 << variable6 << variable7);
+
     processSubcriptionResult(buf);
 
     ASSERT(buf.eof());
@@ -642,7 +656,7 @@ void TraCI_Extend::commandSubscribeVehicle()
     uint8_t variableNumber = 1;
     uint8_t variable1 = ID_LIST;
 
-    TraCIBuffer buf = queryTraCI(CMD_SUBSCRIBE_VEHICLE_VARIABLE, TraCIBuffer() << beginTime << endTime
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SUBSCRIBE_VEHICLE_VARIABLE, TraCIBuffer() << beginTime << endTime
                                                                                             << objectId
                                                                                             << variableNumber
                                                                                             << variable1
@@ -657,34 +671,6 @@ void TraCI_Extend::commandSubscribeVehicle()
 // generic methods for getters
 // ############################
 
-uint32_t TraCI_Extend::genericGetInt32(uint8_t commandId, string objectId, uint8_t variableId, uint8_t responseId)
-{
-    uint8_t resultTypeId = TYPE_INTEGER;
-    uint32_t res;
-
-    TraCIBuffer buf = TraCIScenarioManager::queryTraCI(commandId, TraCIBuffer() << variableId << objectId);
-
-    uint8_t cmdLength; buf >> cmdLength;
-    if (cmdLength == 0) {
-        uint32_t cmdLengthX;
-        buf >> cmdLengthX;
-    }
-    uint8_t commandId_r; buf >> commandId_r;
-    ASSERT(commandId_r == responseId);
-    uint8_t varId; buf >> varId;
-    ASSERT(varId == variableId);
-    string objectId_r; buf >> objectId_r;
-    ASSERT(objectId_r == objectId);
-    uint8_t resType_r; buf >> resType_r;
-    ASSERT(resType_r == resultTypeId);
-    buf >> res;
-
-    ASSERT(buf.eof());
-
-    return res;
-}
-
-
 // same as genericGetCoordv, but no conversion to omnet++ coordinates at the end
 Coord TraCI_Extend::genericGetCoordv2(uint8_t commandId, string objectId, uint8_t variableId, uint8_t responseId)
 {
@@ -692,7 +678,7 @@ Coord TraCI_Extend::genericGetCoordv2(uint8_t commandId, string objectId, uint8_
     double x;
     double y;
 
-    TraCIBuffer buf = queryTraCI(commandId, TraCIBuffer() << variableId << objectId);
+    TraCIBuffer buf = getCommandInterface()->connection.query(commandId, TraCIBuffer() << variableId << objectId);
 
     uint8_t cmdLength; buf >> cmdLength;
     if (cmdLength == 0) {
@@ -723,7 +709,7 @@ uint8_t* TraCI_Extend::genericGetArrayUnsignedInt(uint8_t commandId, string obje
     uint8_t resultTypeId = TYPE_COLOR;
     uint8_t* color = new uint8_t[4]; // RGBA
 
-    TraCIBuffer buf = queryTraCI(commandId, TraCIBuffer() << variableId << objectId);
+    TraCIBuffer buf = getCommandInterface()->connection.query(commandId, TraCIBuffer() << variableId << objectId);
 
     uint8_t cmdLength; buf >> cmdLength;
     if (cmdLength == 0) {
@@ -768,7 +754,7 @@ void TraCI_Extend::commandAddRoute(string name, list<string> route)
             buffer << (int8_t)(*str)[i];
     }
 
-    TraCIBuffer buf = queryTraCI(CMD_SET_ROUTE_VARIABLE, buffer);
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_ROUTE_VARIABLE, buffer);
     ASSERT(buf.eof());
 
 }
@@ -791,7 +777,7 @@ void TraCI_Extend::commandSetRouteFromList(string id, list<string> value)
         for(unsigned int i = 0; i < str->length(); i++)
             buffer << (int8_t)(*str)[i];
     }
-    TraCIBuffer buf = queryTraCI(CMD_SET_VEHICLE_VARIABLE, buffer);
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, buffer);
     ASSERT(buf.eof());
 }
 
@@ -801,7 +787,7 @@ void TraCI_Extend::commandSetMaxAccel(string nodeId, double value)
     uint8_t variableId = VAR_ACCEL;
     uint8_t variableType = TYPE_DOUBLE;
 
-    TraCIBuffer buf = queryTraCI(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
     ASSERT(buf.eof());
 }
 
@@ -811,7 +797,7 @@ void TraCI_Extend::commandSetMaxDecel(string nodeId, double value)
     uint8_t variableId = VAR_DECEL;
     uint8_t variableType = TYPE_DOUBLE;
 
-    TraCIBuffer buf = queryTraCI(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
     ASSERT(buf.eof());
 }
 
@@ -822,7 +808,7 @@ void TraCI_Extend::commandSetTg(string nodeId, double value)
     uint8_t variableId = VAR_TAU;
     uint8_t variableType = TYPE_DOUBLE;
 
-    TraCIBuffer buf = queryTraCI(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
     ASSERT(buf.eof());
 }
 
@@ -831,7 +817,7 @@ void TraCI_Extend::commandSetLaneChangeMode(string nodeId, int32_t bitset)
 {
     uint8_t variableId = 0xb6;
     uint8_t variableType = TYPE_INTEGER;
-    TraCIBuffer buf = queryTraCI(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << bitset);
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << bitset);
     ASSERT(buf.eof());
 }
 
@@ -845,7 +831,7 @@ void TraCI_Extend::commandAddVehicleN(string vehicleId, string vehicleTypeId, st
     uint8_t variableTypeD = TYPE_DOUBLE;
     uint8_t variableTypeB = TYPE_BYTE;
 
-    TraCIBuffer buf = queryTraCI(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << vehicleId
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << vehicleId
                                                                          << variableType << (int32_t) 6
                                                                          << variableTypeS
                                                                          << vehicleTypeId
@@ -869,7 +855,7 @@ void TraCI_Extend::commandSetCFParameters(string nodeId, string value)
     uint8_t variableId = 0x15;
     uint8_t variableType = TYPE_STRING;
 
-    TraCIBuffer buf = queryTraCI(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
     ASSERT(buf.eof());
 }
 
@@ -879,7 +865,7 @@ void TraCI_Extend::commandSetDebug(string nodeId, bool value)
     uint8_t variableId = 0x16;
     uint8_t variableType = TYPE_INTEGER;
 
-    TraCIBuffer buf = queryTraCI(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << (int)value);
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << (int)value);
     ASSERT(buf.eof());
 }
 
@@ -889,7 +875,7 @@ void TraCI_Extend::commandSetModeSwitch(string nodeId, bool value)
     uint8_t variableId = 0x17;
     uint8_t variableType = TYPE_INTEGER;
 
-    TraCIBuffer buf = queryTraCI(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << (int)value);
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << (int)value);
     ASSERT(buf.eof());
 }
 
@@ -900,7 +886,7 @@ void TraCI_Extend::commandSetVehicleColor(string nodeId, TraCIColor& color)
    p << static_cast<uint8_t>(VAR_COLOR);
    p << nodeId;
    p << static_cast<uint8_t>(TYPE_COLOR) << color.red << color.green << color.blue << color.alpha;
-   TraCIBuffer buf = queryTraCI(CMD_SET_VEHICLE_VARIABLE, p);
+   TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, p);
 
    ASSERT(buf.eof());
  }
@@ -911,7 +897,7 @@ void TraCI_Extend::commandRemoveVehicle(string nodeId, uint8_t reason)
     uint8_t variableId = REMOVE;
     uint8_t variableType = TYPE_BYTE;
 
-    TraCIBuffer buf = queryTraCI(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << reason);
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << reason);
     ASSERT(buf.eof());
 
     activeVehicleCount--;
@@ -931,7 +917,7 @@ void TraCI_Extend::commandStopNodeExtended(string nodeId, string edgeId, double 
     uint32_t duration = waitT * 1000;
     uint8_t flagT = TYPE_BYTE;
 
-    TraCIBuffer buf = queryTraCI(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId
                                                                                        << variableType << count
                                                                                        << edgeIdT << edgeId
                                                                                        << stopPosT << stopPos
@@ -948,7 +934,7 @@ void TraCI_Extend::commandSetvClass(string nodeId, string vClass)
     uint8_t variableId = VAR_VEHICLECLASS;
     uint8_t variableType = TYPE_STRING;
 
-    TraCIBuffer buf = queryTraCI(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << vClass);
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << vClass);
     ASSERT(buf.eof());
 }
 
@@ -962,7 +948,7 @@ void TraCI_Extend::commandChangeLane(string nodeId, uint8_t laneId, double durat
     uint8_t durationT = TYPE_INTEGER;
     uint32_t durationMS = duration * 1000;
 
-    TraCIBuffer buf = queryTraCI(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId
                                                                                        << variableType << count
                                                                                        << laneIdT << laneId
                                                                                        << durationT << durationMS
@@ -976,7 +962,7 @@ void TraCI_Extend::commandSetErrorGap(string nodeId, double value)
     uint8_t variableId = 0x20;
     uint8_t variableType = TYPE_DOUBLE;
 
-    TraCIBuffer buf = queryTraCI(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
     ASSERT(buf.eof());
 }
 
@@ -986,7 +972,7 @@ void TraCI_Extend::commandSetErrorRelSpeed(string nodeId, double value)
     uint8_t variableId = 0x21;
     uint8_t variableType = TYPE_DOUBLE;
 
-    TraCIBuffer buf = queryTraCI(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
     ASSERT(buf.eof());
 }
 
@@ -1001,7 +987,7 @@ void TraCI_Extend::commandSetGUIZoom(double value)
     string viewID = "View #0";
     uint8_t variableType = TYPE_DOUBLE;
 
-    TraCIBuffer buf = queryTraCI(CMD_SET_GUI_VARIABLE, TraCIBuffer() << variableId << viewID << variableType << value);
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_GUI_VARIABLE, TraCIBuffer() << variableId << viewID << variableType << value);
     ASSERT(buf.eof());
 }
 
@@ -1013,7 +999,7 @@ void TraCI_Extend::commandSetGUITrack(string nodeId)
     string viewID = "View #0";
     uint8_t variableType = TYPE_STRING;
 
-    TraCIBuffer buf = queryTraCI(CMD_SET_GUI_VARIABLE, TraCIBuffer() << variableId << viewID << variableType << nodeId);
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_GUI_VARIABLE, TraCIBuffer() << variableId << viewID << variableType << nodeId);
     ASSERT(buf.eof());
 }
 
@@ -1024,7 +1010,7 @@ void TraCI_Extend::commandSetGUIOffset(double x, double y)
     string viewID = "View #0";
     uint8_t variableType = POSITION_2D;
 
-    TraCIBuffer buf = queryTraCI(CMD_SET_GUI_VARIABLE, TraCIBuffer() << variableId << viewID << variableType << x << y);
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_GUI_VARIABLE, TraCIBuffer() << variableId << viewID << variableType << x << y);
     ASSERT(buf.eof());
 }
 
@@ -1033,22 +1019,21 @@ void TraCI_Extend::commandSetGUIOffset(double x, double y)
 // Polygon
 // #####################
 
-void TraCI_Extend::commandAddCirclePoly(string name, string type, TraCIColor color, Coord center, double radius)
+void TraCI_Extend::commandAddCirclePoly(string name, string type, const TraCIColor& color, Coord *center, double radius)
 {
-    list<Coord> circlePoints;
+    list<TraCICoord> circlePoints;
 
     // Convert from degrees to radians via multiplication by PI/180
     for(int angleInDegrees = 0; angleInDegrees <= 360; angleInDegrees = angleInDegrees + 10)
     {
-        double x = (double)( radius * cos(angleInDegrees * 3.14 / 180) ) + center.x;
-        double y = (double)( radius * sin(angleInDegrees * 3.14 / 180) ) + center.y;
+        double x = (double)( radius * cos(angleInDegrees * 3.14 / 180) ) + center->x;
+        double y = (double)( radius * sin(angleInDegrees * 3.14 / 180) ) + center->y;
 
-        Coord *p = new Coord(x, y);
-        circlePoints.push_back(p);
+        circlePoints.push_back(TraCICoord(x, y));
     }
 
     // create polygon in SUMO
-    commandAddPolygon(name, type, color, 0, 1, circlePoints);
+    getCommandInterface()->addPolygon(name, type, color, 0, 1, circlePoints);
 }
 
 
@@ -1064,7 +1049,7 @@ void TraCI_Extend::commandSetEdgeGlobalTravelTime(string edgeId, int32_t beginT,
     uint8_t valueI = TYPE_INTEGER;
     uint8_t valueD = TYPE_DOUBLE;
 
-    TraCIBuffer buf = queryTraCI(CMD_SET_EDGE_VARIABLE, TraCIBuffer() << variableId << edgeId
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_EDGE_VARIABLE, TraCIBuffer() << variableId << edgeId
                                                                                     << variableType << count
                                                                                     << valueI << beginT
                                                                                     << valueI << endT

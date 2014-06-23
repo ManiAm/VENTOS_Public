@@ -15,6 +15,8 @@ class MIXIM_API RSUMobility : public BaseMobility
     virtual void initialize(int);
 
   protected:
+    bool isInBoundary(Coord c, Coord lowerBound, Coord upperBound);
+
     /** @brief Calculate the target position to move to*/
     virtual void setTargetPosition();
 

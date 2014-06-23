@@ -162,7 +162,7 @@ void ApplVPlatoonFormation2::FSMchangeState()
         // park the car
         TraCI->commandSetvClass(SUMOvID, "ignoring");
         TraCI->commandChangeLane(SUMOvID, 0, 5);   // change to lane 0
-        TraCI->commandSetSpeed(SUMOvID, 0.);
+        TraCI->getCommandInterface()->setSpeed(SUMOvID, 0.);
 
         // pause beaconing
         pauseBeaconing = true;

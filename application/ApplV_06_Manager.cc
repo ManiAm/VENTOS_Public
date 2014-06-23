@@ -314,10 +314,10 @@ bool ApplVManager::isBeaconFromLeading(BeaconVehicle* wsm)
 
     // step 2: is it on the same lane?
 
-    string myLane = TraCI->commandGetLaneId(SUMOvID);
+    string myLane = TraCI->getCommandInterface()->getLaneId(SUMOvID);
     string beaconLane = wsm->getLane();
 
-    EV << "I am on lane " << TraCI->commandGetLaneId(SUMOvID) << ", and other vehicle is on lane " << wsm->getLane() << endl;
+    EV << "I am on lane " << TraCI->getCommandInterface()->getLaneId(SUMOvID) << ", and other vehicle is on lane " << wsm->getLane() << endl;
 
     if( myLane != beaconLane )
     {

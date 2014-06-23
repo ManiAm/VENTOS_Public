@@ -1,7 +1,6 @@
 package c3po.ned;
-import org.mixim.base.modules.IBaseApplLayer;
-//import org.car2x.veins.base.modules.IBaseApplLayer;
 
+import org.car2x.veins.base.modules.IBaseApplLayer;
 
 simple ApplAdversary like IBaseApplLayer
 {

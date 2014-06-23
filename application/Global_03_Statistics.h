@@ -4,7 +4,6 @@
 
 #include <omnetpp.h>
 #include "FindModule.h"
-#include "NetwControlInfo.h"
 #include <BaseModule.h>
 #include <Appl.h>
 #include <sstream>

@@ -167,7 +167,7 @@ double Router::getEdgeMeanSpeed(Edge *edge)
     double sum = 0;
     for(vector<Lane>::iterator it = edge->lanes.begin(); it != edge->lanes.end(); it++)
     {
-        sum += (it->length / manager->commandGetLaneMeanSpeed(it->id));
+        sum += (it->length / manager->getCommandInterface()->getLaneMeanSpeed(it->id));
     }
     return sum / edge->lanes.size();
 }
@@ -178,11 +178,11 @@ void Router::updateWeights()
 
     if(recalculateCount == 0)   //If this is the first time, link lanes to edges and set origCost
     {
-        list<string> lanes = manager->commandGetLaneIds();  //Get every lane
+        list<string> lanes = manager->getCommandInterface()->getLaneIds();  //Get every lane
         for(list<string>::iterator laneID = lanes.begin(); laneID != lanes.end(); laneID++)   //For every lane in the simulation
         {
-            Lane *l = new Lane(*laneID, manager->commandGetLaneLength(*laneID));    //Build a lane object, with its id and length
-            Edge *e = binarySearch(&edges, manager->commandGetLaneEdgeId(*laneID)); //Link it to its edge
+            Lane *l = new Lane(*laneID, manager->getCommandInterface()->getLaneLength(*laneID));    //Build a lane object, with its id and length
+            Edge *e = binarySearch(&edges, manager->getCommandInterface()->getLaneEdgeId(*laneID)); //Link it to its edge
             e->lanes.push_back(*l);
         }
         for(vector<Edge>::iterator edge = edges.begin(); edge != edges.end(); edge++)   //For every edge

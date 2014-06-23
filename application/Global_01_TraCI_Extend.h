@@ -3,9 +3,9 @@
 #define TraCIEXTEND_H
 
 #include <omnetpp.h>
-#include "mobility/traci/TraCIMobility.h"
-#include "mobility/traci/TraCIConstants.h"
-#include "mobility/traci/TraCIColor.h"
+#include "modules/mobility/traci/TraCIMobility.h"
+#include "modules/mobility/traci/TraCIConstants.h"
+#include "modules/mobility/traci/TraCIColor.h"
 #include "Appl.h"
 #include <deque>
 
@@ -31,6 +31,7 @@ using namespace boost::filesystem;
 using namespace boost;
 
 using namespace std;
+using namespace Veins;
 
 
 class TraCI_Extend : public TraCIScenarioManager
@@ -56,7 +57,7 @@ class TraCI_Extend : public TraCIScenarioManager
         uint32_t commandGetLaneIndex(string);
         vector<string> commandGetLeading(string, double);
         string commandGetLeading_old(string);
-        uint8_t * commandGetVehicleColor(string);
+        uint8_t* commandGetVehicleColor(string);
 
         // CMD_GET_VEHICLETYPE_VARIABLE
         double commandGetVehicleLength_Type(string);
@@ -78,7 +79,7 @@ class TraCI_Extend : public TraCIScenarioManager
 
         // RSU
         deque<RSUEntry*> commandReadRSUsCoord(string);
-        Coord* commandGetRSUsCoord(unsigned int);
+        Coord *commandGetRSUsCoord(unsigned int);
 
         // CMD_GET_SIM_VARIABLE
         double* commandGetNetworkBoundary();
@@ -102,8 +103,8 @@ class TraCI_Extend : public TraCIScenarioManager
         void commandSetLaneChangeMode(string, int32_t);
         void commandAddVehicleN(string, string, string, int32_t, double, double, uint8_t);
         void commandSetCFParameters(string, string);      // new defined command
-        void commandSetDebug(string, bool);                    // new defined command
-        void commandSetModeSwitch(string, bool);              // new defined command
+        void commandSetDebug(string, bool);               // new defined command
+        void commandSetModeSwitch(string, bool);         // new defined command
         void commandSetVehicleColor(string nodeId, TraCIColor& color);
         void commandRemoveVehicle(string, uint8_t);
         void commandStopNodeExtended(string, string, double, uint8_t, double, uint8_t);
@@ -118,7 +119,7 @@ class TraCI_Extend : public TraCIScenarioManager
         void commandSetGUIOffset(double, double);
 
         // Polygon
-        void commandAddCirclePoly(string, string, TraCIColor, Coord, double);
+        void commandAddCirclePoly(string, string, const TraCIColor& color, Coord*, double);
 
         //
         void commandSetEdgeGlobalTravelTime(string, int32_t, int32_t, double);
@@ -130,7 +131,6 @@ class TraCI_Extend : public TraCIScenarioManager
 
 	private:
         // generic methods for getters
-        uint32_t genericGetInt32(uint8_t commandId, string objectId, uint8_t variableId, uint8_t responseId);
         Coord genericGetCoordv2(uint8_t commandId, string objectId, uint8_t variableId, uint8_t responseId);
         uint8_t* genericGetArrayUnsignedInt(uint8_t, string, uint8_t, uint8_t);
 

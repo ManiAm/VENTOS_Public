@@ -686,16 +686,16 @@ void Statistics::vehiclesData()
 void Statistics::writeToFile_PerVehicle(string vID, string vType, string vleaderID)
 {
     double speed = TraCI->commandGetVehicleSpeed(vID);
-    double pos = TraCI->commandGetLanePosition(vID);
+    double pos = TraCI->getCommandInterface()->getLanePosition(vID);
     double accel = TraCI->commandGetVehicleAccel(vID);
-    string lane = TraCI->commandGetLaneId(vID);
+    string lane = TraCI->getCommandInterface()->getLaneId(vID);
 
     // calculate gap (if leading is present)
     double gap = -1;
 
     if(vleaderID != "")
     {
-        gap = TraCI->commandGetLanePosition(vleaderID) - TraCI->commandGetLanePosition(vID) - TraCI->commandGetVehicleLength(vleaderID);
+        gap = TraCI->getCommandInterface()->getLanePosition(vleaderID) - TraCI->getCommandInterface()->getLanePosition(vID) - TraCI->commandGetVehicleLength(vleaderID);
     }
 
     // calculate timeGap (if leading is present)

@@ -1,11 +1,8 @@
 
 package c3po.ned;
 
-import org.mixim.base.modules.*;
-import org.mixim.modules.nic.Nic80211p;
-
-//import org.car2x.veins.base.modules.*;
-//import org.car2x.veins.modules.nic.Nic80211p;
+import org.car2x.veins.base.modules.*;
+import org.car2x.veins.modules.nic.Nic80211p;
 
 module RSU
 {
@@ -19,11 +16,6 @@ module RSU
         appl: ApplRSU {
             parameters:
                 @display("p=60,50");
-        }
-
-        arp: BaseArp {
-            parameters:
-                @display("p=130,108");
         }
 
         nic: Nic80211p_Mod {

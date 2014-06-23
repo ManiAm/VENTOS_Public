@@ -102,7 +102,7 @@ void ApplRSU::handleSelfMsg(cMessage* msg)
 }
 
 
-BeaconRSU*  ApplRSU::prepareBeacon()
+BeaconRSU* ApplRSU::prepareBeacon()
 {
     BeaconRSU* wsm = new BeaconRSU("beaconRSU");
 
@@ -129,8 +129,8 @@ BeaconRSU*  ApplRSU::prepareBeacon()
     wsm->setRecipient("broadcast");
 
     // set current position
-    Coord SUMOpos = TraCI->commandGetRSUsCoord(myId);
-    wsm->setPos(SUMOpos);
+    Coord *SUMOpos = TraCI->commandGetRSUsCoord(myId);
+    wsm->setPos(*SUMOpos);
 
     return wsm;
 }

@@ -262,7 +262,7 @@ void ApplVPlatoonFormation::FSMchangeState()
         EV << "### " << SUMOvID << ": current vehicle status is joining." << endl;
 
         cancelEvent(TIMER2);
-        TraCI->commandSetSpeed(SUMOvID, 30.);
+        TraCI->getCommandInterface()->setSpeed(SUMOvID, 30.);
         TraCI->commandSetTg(SUMOvID, 0.55);
         platoonID = myLeadingBeacon->getPlatoonID();
         myPlatoonDepth = myLeadingBeacon->getPlatoonDepth() + 1;

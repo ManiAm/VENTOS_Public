@@ -1,8 +1,7 @@
 
 package c3po.ned;
 
-import org.mixim.modules.phy.PhyLayer80211p;
-//import org.car2x.veins.modules.phy.PhyLayer80211p;
+import org.car2x.veins.modules.phy.PhyLayer80211p;
 
 
 module Nic80211p_Mod  // Mod : modified

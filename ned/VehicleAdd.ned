@@ -1,7 +1,7 @@
 
 package c3po.ned;
-import org.mixim.modules.mobility.traci.TraCIScenarioManagerLaunchd;
-//import org.car2x.veins.modules.mobility.traci.TraCIScenarioManagerLaunchd;
+
+import org.car2x.veins.modules.mobility.traci.TraCIScenarioManagerLaunchd;
 
 simple VehicleAdd
 {

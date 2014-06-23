@@ -5,7 +5,7 @@ simple TraCI_Extend
 {
     parameters:
         @class(TraCI_Extend);
-        @display("i=block/network2");
+        @display("i=block/network2");        
         
         bool debug = default(false);  // emit debug messages?
         double connectAt @unit("s") = default(0s);  // when to connect to TraCI server (must be the initial timestep of the server)
@@ -23,6 +23,9 @@ simple TraCI_Extend
         string roiRoads = default("");  // which roads (e.g. "hwy1 hwy2") are considered to consitute the region of interest, if not empty
         string roiRects = default("");  // which rectangles (e.g. "0,0-10,10 20,20-30,30) are considered to consitute the region of interest, if not empty
         double penetrationRate = default(1); //the probability of a vehicle being equipped with Car2X technology
+        int numVehicles = default(0);
+        bool useRouteDistributions = default(false);
+        int vehicleRngIndex = default(0); // index of the RNG stream to be used, all random numbers concerning the managed vehicles
         
         // modified!
         string launchFile = default("");

@@ -115,29 +115,11 @@ Veins is on github, and you should clone it into your computer.
 
 **Step 2:** Create a directory on your computer (say Veins on desktop). In terminal, navigate to this folder , and issue the following command:
 
-         git clone https://github.com/sommer/mixim-sommer
+         git clone https://github.com/sommer/veins
 
-**Step 3:** Now you can import Veins project into the OMNET++ IDE. Choose "File->Import" from the menu. Choose "General->Existing Projects into Workspace" from the upcoming dialog and proceed with "Next". Choose "Select root directory" and select the Veins folder. "mixim" should appear in the "Projects". Unselect "Copy project into workspace" if the Veins folder is already in your workspace. Click "Finish".
+**Step 3:** Now you can import Veins project into the OMNET++ IDE. Choose "File->Import" from the menu. Choose "General->Existing Projects into Workspace" from the upcoming dialog and proceed with "Next". Choose "Select root directory" and select the Veins folder. "veins" should appear in the "Projects". Unselect "Copy project into workspace" if the Veins folder is already in your workspace. Click "Finish".
 
 **Step 4:** To build the Veins project, right-click on the project and choose "Build Project". Wait for a while and then check the Console windows at the bottom of the Eclipse IDE to make sure no errors occurred. At the end you should see a message like this:
-
-          00::04:42 Build Finished (took 2m:23s.177ms)
-
-
-Install Veins (from its website)
---------------------------------
-
-**This method is not recommended, and we suggest you to get Veins from its git repository. Check the previous section.**
-
-<p align="center">
-  <img src="https://dl.dropboxusercontent.com/u/5153771/angry-no.png" alt="Simulation Output" style="width: 10%"/>
-</p>
-
-**Step 1:** Download Veins from "http://veins.car2x.org" to a location like desktop (without extracting it).
-
-**Step 2:** In OMNET++, choose "File->Import" from the menu. Choose "General->Existing Projects into Workspace" from the upcoming dialog and proceed with "Next". Choose "Select archive file" and select the download Veins file. "mixim (veins-2.1)" should appear in the "Projects". At last click "Finish". Now you can delete the downloaded veins file.
-
-**Step 3:** To build the veins project, right-click on the project and choose "Build Project". Wait for a while and then check the Console windows at the bottom of the Eclipse IDE to make sure no errors occurred. At the end you should see a message like this:
 
           00::04:42 Build Finished (took 2m:23s.177ms)
 
@@ -149,7 +131,9 @@ To be able to run C3PO project, you should make some modifications in Veins sour
 
 **Step 1:** In the IDE, open Veins project and go to src/modules/mobility/traci/TraCIScenarioManager.h file. Find 'void executeOneTimestep()', and then change it to virtual void executeOneTimestep();
 
-**Step 2:** [optional] comment the MYDEBUG line in TraCIScenarioManager::receiveTraCIMessage() and also TraCIScenarioManager::sendTraCIMessage to make the output console less messy :)
+**Step 2:** go to src/modules/mobility/traci/TraCICommandInterface.h file. Change access modifier private into public!
+
+**Step 3:** [optional] comment the MYDEBUG line in TraCIScenarioManager::receiveTraCIMessage() and also TraCIScenarioManager::sendTraCIMessage to make the output console less messy :)
 
 After these modifications, build the Veins project again. Build is done much faster this time!
 

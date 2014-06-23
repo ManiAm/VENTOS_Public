@@ -1,7 +1,7 @@
 
 package c3po.ned;
 
-import org.mixim.base.modules.BaseMobility;
+import org.car2x.veins.base.modules.BaseMobility;
 
 simple RSUMobility extends BaseMobility
 {
