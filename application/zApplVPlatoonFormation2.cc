@@ -92,7 +92,7 @@ void ApplVPlatoonFormation2::onData(PlatoonMsg* wsm)
                     string newPL = queue.front();
 
                     // send CHANGE_PL
-                    PlatoonMsg* dataMsg = ApplVPlatoonFormation::prepareData("broadcast", CHANGE_PL, platoonID, -1, newPL);
+                    PlatoonMsg* dataMsg = ApplVPlatoonFormation::prepareData("broadcast", CHANGE_PL, plnID, -1, newPL);
                     printDataContent(dataMsg);
                     sendDelayedDown(dataMsg,individualOffset);
                     EV << "### " << SUMOvID << ": sent CHANGE_PL." << endl;
@@ -104,7 +104,7 @@ void ApplVPlatoonFormation2::onData(PlatoonMsg* wsm)
             }
         }
     }
-    else if(wsm->getReq_res_type() == NEW_LEADER_request && string(wsm->getSender()) == platoonID)
+    else if(wsm->getReq_res_type() == NEW_LEADER_request && string(wsm->getSender()) == plnID)
     {
         // check if NEW_LEADER_request is sent to me (it is unicast)
         if(string(wsm->getRecipient()) == SUMOvID)
@@ -116,7 +116,7 @@ void ApplVPlatoonFormation2::onData(PlatoonMsg* wsm)
                 queue.pop_front();
 
                 // send NEW_LEADER_ACCEPT_response
-                PlatoonMsg* dataMsg = ApplVPlatoonFormation::prepareData(wsm->getSender(), NEW_LEADER_ACCEPT_response, platoonID);
+                PlatoonMsg* dataMsg = ApplVPlatoonFormation::prepareData(wsm->getSender(), NEW_LEADER_ACCEPT_response, plnID);
                 printDataContent(dataMsg);
                 sendDelayedDown(dataMsg,individualOffset);
                 EV << "### " << SUMOvID << ": sent NEW_LEADER_ACCEPT_response." << endl;
@@ -125,16 +125,16 @@ void ApplVPlatoonFormation2::onData(PlatoonMsg* wsm)
             }
         }
     }
-    else if(wsm->getReq_res_type() == CHANGE_PL && string(wsm->getSender()) == platoonID)
+    else if(wsm->getReq_res_type() == CHANGE_PL && string(wsm->getSender()) == plnID)
     {
         string newPlatoonID = wsm->getStrValue();
-        platoonID = newPlatoonID;
-        myPlatoonDepth--;
+        plnID = newPlatoonID;
+        myPlnDepth--;
 
         // todo:
         // we can update the blue color of the platoon members here
 
-        if(myPlatoonDepth == 0)
+        if(myPlnDepth == 0)
         {
             TraCIColor newColor = TraCIColor::fromTkColor("red");
             TraCI->commandSetVehicleColor(SUMOvID, newColor);
@@ -180,7 +180,7 @@ void ApplVPlatoonFormation2::FSMchangeState()
         string newPL = queue.front();
 
         // send NEW_LEADER request
-        PlatoonMsg* dataMsg = ApplVPlatoonFormation::prepareData(newPL, NEW_LEADER_request, platoonID, -1, "", queue);
+        PlatoonMsg* dataMsg = ApplVPlatoonFormation::prepareData(newPL, NEW_LEADER_request, plnID, -1, "", queue);
         printDataContent(dataMsg);
         sendDelayedDown(dataMsg,individualOffset);
         EV << "### " << SUMOvID << ": sent NEW_LEADER request." << endl;

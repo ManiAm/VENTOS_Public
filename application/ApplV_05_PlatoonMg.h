@@ -67,11 +67,11 @@ class ApplVPlatoonMg : public ApplV_AID
         void splitManeuver();
         void splitFSM();
 
-        void platoonLeaderLeaveManeuver();
-        void platoonLeaderLeaveFSM();
+        void followerLeaveManeuver();
+        void followerLeaveFSM();
 
-        void platoonMemberLeaveManeuver();
-        void platoonMemberLeaveFSM();
+        void leaderLeaveManeuver();
+        void leaderLeaveFSM();
 };
 
 #endif

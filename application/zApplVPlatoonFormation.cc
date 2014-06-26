@@ -24,8 +24,8 @@ void ApplVPlatoonFormation::initialize(int stage)
         // otherwise, ApplVPlatoon will initialize these accordingly
         if( platoonFormation )
         {
-            myPlatoonDepth = -1;
-            platoonID = "";
+            myPlnDepth = -1;
+            plnID = "";
             platoonSize = -1;
         }
 
@@ -69,8 +69,8 @@ void ApplVPlatoonFormation::handleSelfMsg(cMessage* msg)
         BeaconVehicle* Msg = ApplVBeacon::prepareBeacon();
 
         // fill-in the related fields to platoon
-        Msg->setPlatoonID(platoonID.c_str());
-        Msg->setPlatoonDepth(myPlatoonDepth);
+        Msg->setPlatoonID(plnID.c_str());
+        Msg->setPlatoonDepth(myPlnDepth);
 
         EV << "## Created beacon msg for vehicle: " << SUMOvID << endl;
         ApplVBeacon::printBeaconContent(Msg);
@@ -178,7 +178,7 @@ void ApplVPlatoonFormation::onData(PlatoonMsg* wsm)
                 // send CHANGE_Tg
                 if( platoonSize > floor(maxPlatoonSize / 2) )
                 {
-                    PlatoonMsg* dataMsg2 = prepareData("broadcast", CHANGE_Tg, platoonID, 0.6);
+                    PlatoonMsg* dataMsg2 = prepareData("broadcast", CHANGE_Tg, plnID, 0.6);
                     printDataContent(dataMsg2);
                     sendDelayedDown(dataMsg2,individualOffset);
                     EV << "### " << SUMOvID << ": sent CHANGE_Tg with value " << 0.6 << endl;
@@ -189,7 +189,7 @@ void ApplVPlatoonFormation::onData(PlatoonMsg* wsm)
     else if(wsm->getReq_res_type() == CHANGE_Tg)
     {
         // check if this is coming from my platoon leader
-        if( string(wsm->getReceivingPlatoonID()) == platoonID )
+        if( string(wsm->getReceivingPlatoonID()) == plnID )
         {
             TraCI->commandSetTg(SUMOvID, wsm->getDblValue());
         }
@@ -243,8 +243,8 @@ void ApplVPlatoonFormation::FSMchangeState()
         EV << "### " << SUMOvID << ": current vehicle status is create-new_platoon." << endl;
 
         TraCI->commandSetTg(SUMOvID, 3.5);
-        platoonID = SUMOvID;
-        myPlatoonDepth = 0;
+        plnID = SUMOvID;
+        myPlnDepth = 0;
         platoonSize = 1;
         queue.clear();
 
@@ -264,10 +264,10 @@ void ApplVPlatoonFormation::FSMchangeState()
         cancelEvent(TIMER2);
         TraCI->commandSetSpeed(SUMOvID, 30.);
         TraCI->commandSetTg(SUMOvID, 0.55);
-        platoonID = myLeadingBeacon->getPlatoonID();
-        myPlatoonDepth = myLeadingBeacon->getPlatoonDepth() + 1;
+        plnID = myLeadingBeacon->getPlatoonID();
+        myPlnDepth = myLeadingBeacon->getPlatoonDepth() + 1;
 
-        TraCIColor newColor = TraCIColor(pickColor[myPlatoonDepth], pickColor[myPlatoonDepth], 255, 255);
+        TraCIColor newColor = TraCIColor(pickColor[myPlnDepth], pickColor[myPlnDepth], 255, 255);
         TraCI->commandSetVehicleColor(SUMOvID, newColor);
 
         vehicleState = state_platoonMember;
@@ -319,7 +319,7 @@ PlatoonMsg*  ApplVPlatoonFormation::prepareData(string receiver, int type, strin
     wsm->setSender(SUMOvID.c_str());
     wsm->setRecipient(receiver.c_str());
     wsm->setReq_res_type(type);
-    wsm->setSendingPlatoonID(platoonID.c_str());
+    wsm->setSendingPlatoonID(plnID.c_str());
     wsm->setReceivingPlatoonID(receivingPlatoonID.c_str());
     wsm->setDblValue(dblValue);
     wsm->setStrValue(strValue.c_str());

@@ -26,7 +26,7 @@ void ApplVPlatoonMg::initialize(int stage)
 
         // entry manuever
         EntryManeuverEvt = new cMessage("EntryEvt", KIND_TIMER);
-        double offset = dblrand() * 30;
+        double offset = dblrand() * 10;
         scheduleAt(simTime() + offset, EntryManeuverEvt);
 	}
 }

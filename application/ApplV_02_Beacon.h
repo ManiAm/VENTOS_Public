@@ -34,10 +34,10 @@ class ApplVBeacon : public ApplVBase
         cMessage* VehicleBeaconEvt;
         bool pauseBeaconing;
 
-        string platoonID;
-        int myPlatoonDepth;
-        int platoonSize;
-        deque<string> queue;
+        string plnID;
+        int myPlnDepth;
+        int plnSize;
+        deque<string> plnMembersList;
 
         // Methods
         virtual void handleSelfMsg(cMessage*);

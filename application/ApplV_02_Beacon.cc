@@ -46,10 +46,10 @@ void ApplVBeacon::initialize(int stage)
 
         pauseBeaconing = false;
 
-        platoonID = "";
-        myPlatoonDepth = -1;
-        platoonSize = -1;
-        queue.clear();
+        plnID = "";
+        myPlnDepth = -1;
+        plnSize = -1;
+        plnMembersList.clear();
 
         // pre-defined platoon
         if(mode == 3)
@@ -60,8 +60,8 @@ void ApplVBeacon::initialize(int stage)
             if(SUMOvID == preDefinedPlatoonID)
             {
                 // we only set these two!
-                platoonID = SUMOvID;
-                myPlatoonDepth = 0;
+                plnID = SUMOvID;
+                myPlnDepth = 0;
             }
         }
 	}
@@ -81,8 +81,8 @@ void ApplVBeacon::handleSelfMsg(cMessage* msg)
             if(mode == 2 || mode == 3 || mode == 4)
             {
                 // fill-in the related fields to platoon
-                beaconMsg->setPlatoonID(platoonID.c_str());
-                beaconMsg->setPlatoonDepth(myPlatoonDepth);
+                beaconMsg->setPlatoonID(plnID.c_str());
+                beaconMsg->setPlatoonDepth(myPlnDepth);
             }
 
             EV << "## Created beacon msg for vehicle: " << SUMOvID << endl;

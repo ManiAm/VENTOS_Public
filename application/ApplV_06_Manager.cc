@@ -187,7 +187,7 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
     {
         // I am platoon leader
         // get data from my leading vehicle
-        if(myPlatoonDepth == 0)
+        if(myPlnDepth == 0)
         {
             result = isBeaconFromLeading(wsm);
         }
@@ -206,12 +206,12 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
             }
 
             // I am not part of any platoon yet!
-            if(platoonID == "")
+            if(plnID == "")
             {
                 if( string(wsm->getPlatoonID()) != "" && wsm->getPlatoonDepth() == 0 )
                 {
                     EV << "This beacon is from a platoon leader. I will join ..." << endl;
-                    platoonID = wsm->getPlatoonID();
+                    plnID = wsm->getPlatoonID();
 
                     // change the color to blue
                     TraCIColor newColor = TraCIColor::fromTkColor("blue");
@@ -226,7 +226,7 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
                 EV << "This beacon is from my platoon leader ..." << endl;
             }
             // I received a beacon from another platoon
-            else if( string(wsm->getPlatoonID()) != platoonID )
+            else if( string(wsm->getPlatoonID()) != plnID )
             {
                 // ignore the beacon msg
             }
@@ -237,7 +237,7 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
     {
         // I am platoon leader
         // get data from my leading vehicle
-        if(myPlatoonDepth == 0)
+        if(myPlnDepth == 0)
         {
             result = isBeaconFromLeading(wsm);
         }
@@ -364,7 +364,7 @@ bool ApplVManager::isBeaconFromMyPlatoonLeader(BeaconVehicle* wsm)
     if( wsm->getPlatoonDepth() == 0 )
     {
         // check if this is actually my platoon leader
-        if( string(wsm->getPlatoonID()) == platoonID)
+        if( string(wsm->getPlatoonID()) == plnID)
         {
             return true;
         }

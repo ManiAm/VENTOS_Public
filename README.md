@@ -104,8 +104,8 @@ or you can create an application launcher:
         make install-menu-item
 
 
-Install Veins (from git repository)
------------------------------------
+Install Veins
+-------------
 
 Veins is on github, and you should clone it into your computer.
 

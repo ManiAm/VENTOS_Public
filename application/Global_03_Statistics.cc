@@ -155,7 +155,7 @@ void Statistics::receiveSignal(cComponent *source, simsignal_t signalID, cObject
     EV << "*** Statistics module received signal " << signalID;
     EV << " from module " << source->getFullName() << endl;
 
-    int nodeIndex = getNodeIndex(source ->getFullName());
+    int nodeIndex = getNodeIndex(source->getFullName());
 
     if(signalID == Signal_beaconP)
     {
