@@ -37,6 +37,7 @@ class TraCI_App : public TraCI_Extend
 	private:
         void AddAdversaryModule();
         void AddRSUModules();
+        void TrackingGUI();
 
 	private:
 
@@ -53,8 +54,13 @@ class TraCI_App : public TraCI_Extend
 
         // NED variables (GUI)
         bool tracking;
-        string trackingV;
+        double zoom;
+        double initialWindowsOffset;
         double trackingInterval;
+        int trackingMode;
+        string trackingV;
+        string trackingLane;
+        double windowsOffset;
 
 	    // class variables
         cMessage* updataGUI;

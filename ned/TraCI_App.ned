@@ -9,12 +9,17 @@ simple TraCI_App extends TraCI_Extend
         
         double terminate = default(200s) @unit(s);
         
-        bool tracking;
-        string trackingV;
-        double trackingInterval;
-        
         bool adversary = default(false);        
         bool RSU = default(false);    
         string RSUfile = default(""); 
+        
+        bool tracking;
+        double zoom;
+        double initialWindowsOffset;
+        double trackingInterval;
+        int trackingMode;
+        string trackingV;
+        string trackingLane;
+        double windowsOffset;
 }
 

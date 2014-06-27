@@ -477,6 +477,22 @@ list<string> TraCI_Extend::commandGetVehiclesOnLane(string laneId)
 }
 
 
+// #####################
+// CMD_SET_GUI_VARIABLE
+// #####################
+
+Coord TraCI_Extend::commandGetGUIOffset()
+{
+    return genericGetCoordv2(CMD_GET_GUI_VARIABLE, "View #0", VAR_VIEW_OFFSET, RESPONSE_GET_GUI_VARIABLE);
+}
+
+
+vector<double> TraCI_Extend::commandGetGUIBoundry()
+{
+    return genericGetBoundingBox(CMD_GET_GUI_VARIABLE, "View #0", VAR_VIEW_BOUNDARY, RESPONSE_GET_GUI_VARIABLE);
+}
+
+
 // ########################
 // RSU
 // ########################
@@ -701,6 +717,50 @@ Coord TraCI_Extend::genericGetCoordv2(uint8_t commandId, string objectId, uint8_
     ASSERT(buf.eof());
 
     return Coord(x, y);
+}
+
+
+// Boundary Box (4 doubles)
+vector<double> TraCI_Extend::genericGetBoundingBox(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId)
+{
+    uint8_t resultTypeId = TYPE_BOUNDINGBOX;
+    double LowerLeftX;
+    double LowerLeftY;
+    double UpperRightX;
+    double UpperRightY;
+    vector<double> res;
+
+    TraCIBuffer buf = getCommandInterface()->connection.query(commandId, TraCIBuffer() << variableId << objectId);
+
+    uint8_t cmdLength; buf >> cmdLength;
+    if (cmdLength == 0) {
+        uint32_t cmdLengthX;
+        buf >> cmdLengthX;
+    }
+    uint8_t commandId_r; buf >> commandId_r;
+    ASSERT(commandId_r == responseId);
+    uint8_t varId; buf >> varId;
+    ASSERT(varId == variableId);
+    std::string objectId_r; buf >> objectId_r;
+    ASSERT(objectId_r == objectId);
+    uint8_t resType_r; buf >> resType_r;
+    ASSERT(resType_r == resultTypeId);
+
+    buf >> LowerLeftX;
+    res.push_back(LowerLeftX);
+
+    buf >> LowerLeftY;
+    res.push_back(LowerLeftY);
+
+    buf >> UpperRightX;
+    res.push_back(UpperRightX);
+
+    buf >> UpperRightY;
+    res.push_back(UpperRightY);
+
+    ASSERT(buf.eof());
+
+    return res;
 }
 
 
@@ -1001,6 +1061,17 @@ void TraCI_Extend::commandSetGUIZoom(double value)
 }
 
 
+void TraCI_Extend::commandSetGUIOffset(double x, double y)
+{
+    uint8_t variableId = VAR_VIEW_OFFSET;
+    string viewID = "View #0";
+    uint8_t variableType = POSITION_2D;
+
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_GUI_VARIABLE, TraCIBuffer() << variableId << viewID << variableType << x << y);
+    ASSERT(buf.eof());
+}
+
+
 // very slow!
 void TraCI_Extend::commandSetGUITrack(string nodeId)
 {
@@ -1009,17 +1080,6 @@ void TraCI_Extend::commandSetGUITrack(string nodeId)
     uint8_t variableType = TYPE_STRING;
 
     TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_GUI_VARIABLE, TraCIBuffer() << variableId << viewID << variableType << nodeId);
-    ASSERT(buf.eof());
-}
-
-
-void TraCI_Extend::commandSetGUIOffset(double x, double y)
-{
-    uint8_t variableId = VAR_VIEW_OFFSET;
-    string viewID = "View #0";
-    uint8_t variableType = POSITION_2D;
-
-    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_GUI_VARIABLE, TraCIBuffer() << variableId << viewID << variableType << x << y);
     ASSERT(buf.eof());
 }
 

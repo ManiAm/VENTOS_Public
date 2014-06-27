@@ -77,6 +77,10 @@ class TraCI_Extend : public TraCIScenarioManager
         list<string> commandGetVehicleLaneList(string);
         list<string> commandGetVehiclesOnLane(string);
 
+        // CMD_GET_GUI_VARIABLE
+        Coord commandGetGUIOffset();
+        vector<double> commandGetGUIBoundry();
+
         // RSU
         deque<RSUEntry*> commandReadRSUsCoord(string);
         Coord *commandGetRSUsCoord(unsigned int);
@@ -133,6 +137,7 @@ class TraCI_Extend : public TraCIScenarioManager
 	private:
         // generic methods for getters
         Coord genericGetCoordv2(uint8_t commandId, string objectId, uint8_t variableId, uint8_t responseId);
+        vector<double> genericGetBoundingBox(uint8_t commandId, string objectId, uint8_t variableId, uint8_t responseId);
         uint8_t* genericGetArrayUnsignedInt(uint8_t, string, uint8_t, uint8_t);
 
         string createLaunch();

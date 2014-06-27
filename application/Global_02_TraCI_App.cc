@@ -53,15 +53,6 @@ void TraCI_App::initialize(int stage)
             error("can not get a pointer to the Statistics module.");
 
         terminate = par("terminate").doubleValue();
-
-        tracking = par("tracking").boolValue();
-        trackingV = par("trackingV").stdstringValue();
-        trackingInterval = par("trackingInterval").doubleValue();
-
-        if(tracking)
-        {
-            updataGUI = new cMessage("updataGUI", 1);
-        }
     }
 }
 
@@ -70,10 +61,7 @@ void TraCI_App::handleSelfMsg(cMessage *msg)
 {
     if (msg == updataGUI)
     {
-        Coord co = commandGetVehiclePos(trackingV);
-        commandSetGUIOffset(co.x, co.y);
-
-        scheduleAt(simTime() + trackingInterval, updataGUI);
+        TrackingGUI();
     }
     else
     {
@@ -101,24 +89,40 @@ void TraCI_App::init_traci()
     // add vehicles dynamically into SUMO
     AddVehiclePtr->Add();
 
+    // track vehicles in SUMO GUI
+    tracking = par("tracking").boolValue();
 
     // todo:
-    // making sure that platoonLeader exists in the sumo
+    // use TraCI command, and check if we are running in GUI mode
 
-
-    // todo:
-    // use TraCI command, and check if we are running in gui mode
-
-    // zoom-in GUI
-    //commandSetGUIZoom(767.);
-
-    // adjust windows
-   // commandSetGUIOffset(200., 0.);
-
-    // track the vehicle only if tracking is on
     if(tracking)
     {
-        scheduleAt(simTime(), updataGUI);
+        zoom = par("zoom").doubleValue();
+        if(zoom < 0)
+            error("zoom value is not correct!");
+
+        initialWindowsOffset = par("initialWindowsOffset").doubleValue();
+        if(initialWindowsOffset < 0)
+            error("Initial Windows Offset value is not correct!");
+
+        trackingInterval = par("trackingInterval").doubleValue();
+        if(trackingInterval <= 0)
+            error("Tracking interval should be positive!");
+
+        trackingMode = par("trackingMode").longValue();
+        trackingV = par("trackingV").stdstringValue();
+        trackingLane = par("trackingLane").stringValue();
+        windowsOffset = par("windowsOffset").doubleValue();
+
+        updataGUI = new cMessage("updataGUI", 1);
+
+        // zoom-in GUI
+        commandSetGUIZoom(zoom);
+
+        // adjust Windows initially
+        commandSetGUIOffset(initialWindowsOffset, 0.);
+
+        TrackingGUI();
     }
 }
 
@@ -192,6 +196,49 @@ void TraCI_App::AddRSUModules()
         Coord *center = new Coord(RSUs[i]->coordX, RSUs[i]->coordY);
         commandAddCirclePoly(RSUs[i]->name, "RSU", TraCIColor::fromTkColor("blue"), center, radius);
     }
+}
+
+
+void TraCI_App::TrackingGUI()
+{
+    if(trackingMode == 1)
+    {
+        // get vehicle position in SUMO coordinates
+        Coord co = commandGetVehiclePos(trackingV);
+
+        if(co.x > 0)
+            commandSetGUIOffset(co.x, co.y);
+    }
+    else if(trackingMode == 2)
+    {
+        // get a list of vehicles on this lane!
+        list<string> myList = commandGetVehicleLaneList(trackingLane.c_str());
+
+        if(!myList.empty())
+        {
+            // get iterator to the end
+            list<string>::iterator it = myList.end();
+
+            // iterator pointing to the last element
+            --it;
+
+            // first inserted vehicle on this lane
+            string lastVehicleId = *it;
+
+            Coord lastVehiclePos = commandGetVehiclePos(lastVehicleId);
+
+            // get GUI windows boundary
+            vector<double> windowsFrame = commandGetGUIBoundry();
+
+            // vehicle goes out of frame?
+            if(lastVehiclePos.x > windowsFrame[2] || lastVehiclePos.y > windowsFrame[3])
+            {
+                commandSetGUIOffset(windowsFrame[0] + windowsOffset, 0);
+            }
+        }
+    }
+
+    scheduleAt(simTime() + trackingInterval, updataGUI);
 }
 
 
