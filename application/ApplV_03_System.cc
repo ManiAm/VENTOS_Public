@@ -90,6 +90,7 @@ void ApplVSystem::onData(PlatoonMsg* wsm)
 
 }
 
+
 void ApplVSystem::handleSelfMsg(cMessage* msg)  //Internal messages to self
 {
     ApplVBeacon::handleSelfMsg(msg);    //Pass it down

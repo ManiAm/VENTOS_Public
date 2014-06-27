@@ -13,7 +13,7 @@ module RSU
         input radioIn; // gate for sendDirect
         
     submodules:
-        appl: ApplRSU {
+        appl: ApplRSUManager {
             parameters:
                 @display("p=60,50");
         }

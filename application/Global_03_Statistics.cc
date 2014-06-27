@@ -613,7 +613,7 @@ void Statistics::printAID()
     if(module == NULL)
         return;
 
-    ApplRSU *RSUptr = static_cast<ApplRSU *>(module);
+    ApplRSUManager *RSUptr = static_cast<ApplRSUManager *>(module);
 
     if(RSUptr == NULL)
         return;
