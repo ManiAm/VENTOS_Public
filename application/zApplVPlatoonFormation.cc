@@ -250,7 +250,7 @@ void ApplVPlatoonFormation::FSMchangeState()
 
         // nodePtr->getDisplayString().updateWith("i2=status/checkmark,green");
         TraCIColor newColor = TraCIColor::fromTkColor("red");
-        TraCI->commandSetVehicleColor(SUMOvID, newColor);
+        TraCI->getCommandInterface()->setColor(SUMOvID, newColor);
 
         vehicleState = state_platoonLeader;
         FSMchangeState();
@@ -268,7 +268,7 @@ void ApplVPlatoonFormation::FSMchangeState()
         myPlnDepth = myLeadingBeacon->getPlatoonDepth() + 1;
 
         TraCIColor newColor = TraCIColor(pickColor[myPlnDepth], pickColor[myPlnDepth], 255, 255);
-        TraCI->commandSetVehicleColor(SUMOvID, newColor);
+        TraCI->getCommandInterface()->setColor(SUMOvID, newColor);
 
         vehicleState = state_platoonMember;
         FSMchangeState();

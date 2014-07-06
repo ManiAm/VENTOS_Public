@@ -24,7 +24,7 @@ void ApplVPlatoonMg::initialize(int stage)
 
         vehicleState = state_idle;
 
-        // entry manuever
+        // entry maneuver
         EntryManeuverEvt = new cMessage("EntryEvt", KIND_TIMER);
         double offset = dblrand() * 10;
         scheduleAt(simTime() + offset, EntryManeuverEvt);

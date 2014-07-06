@@ -137,7 +137,7 @@ void ApplVPlatoonFormation2::onData(PlatoonMsg* wsm)
         if(myPlnDepth == 0)
         {
             TraCIColor newColor = TraCIColor::fromTkColor("red");
-            TraCI->commandSetVehicleColor(SUMOvID, newColor);
+            TraCI->getCommandInterface()->setColor(SUMOvID, newColor);
 
             // now we are platoon leader
             vehicleState = state_platoonLeader;
@@ -169,7 +169,7 @@ void ApplVPlatoonFormation2::FSMchangeState()
 
         // change the color to yellow
         TraCIColor newColor = TraCIColor::fromTkColor("yellow");
-        TraCI->commandSetVehicleColor(SUMOvID, newColor);
+        TraCI->getCommandInterface()->setColor(SUMOvID, newColor);
 
         EV << "### " << SUMOvID << ": current vehicle status is parked." << endl;
     }

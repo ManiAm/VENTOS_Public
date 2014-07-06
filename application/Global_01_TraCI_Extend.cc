@@ -960,18 +960,6 @@ void TraCI_Extend::commandSetModeSwitch(string nodeId, bool value)
 }
 
 
-void TraCI_Extend::commandSetVehicleColor(string nodeId, TraCIColor& color)
-{
-   TraCIBuffer p;
-   p << static_cast<uint8_t>(VAR_COLOR);
-   p << nodeId;
-   p << static_cast<uint8_t>(TYPE_COLOR) << color.red << color.green << color.blue << color.alpha;
-   TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, p);
-
-   ASSERT(buf.eof());
- }
-
-
 void TraCI_Extend::commandRemoveVehicle(string nodeId, uint8_t reason)
 {
     uint8_t variableId = REMOVE;

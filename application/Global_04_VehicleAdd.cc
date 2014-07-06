@@ -97,7 +97,7 @@ void VehicleAdd::Scenario1()
 
     // change the color to blue
     TraCIColor newColor = TraCIColor::fromTkColor("red");
-    TraCI->commandSetVehicleColor("obstacle", newColor);
+    TraCI->getCommandInterface()->setColor("obstacle", newColor);
 }
 
 
