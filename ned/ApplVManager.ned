@@ -6,8 +6,6 @@ simple ApplVManager extends ApplVPlatoonMg
         @class(ApplVManager);
         @display("i=block/app2");
         
-        double sonarDist = default(900);
-        
         double droppT = default(0s) @unit(s);
         string droppV = default("");
         double plr = default(0);

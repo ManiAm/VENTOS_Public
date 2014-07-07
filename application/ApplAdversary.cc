@@ -118,7 +118,7 @@ void ApplAdversary::DoFalsificationAttack(BeaconVehicle* wsm)
     FalseMsg->setPos(*newCord);
 
     // send it
-    sendDelayedDown(FalseMsg, 0.);
+    sendDelayed(FalseMsg, 0., lowerLayerOut);
 
     EV << "## Altered msg is sent." << endl;
 }
@@ -132,7 +132,7 @@ void ApplAdversary::DoReplayAttack(BeaconVehicle * wsm)
 
     // send it with delay
     double delay = 10;
-    sendDelayedDown(FalseMsg, delay);
+    sendDelayed(FalseMsg, delay, lowerLayerOut);
 
     EV << "## Altered msg is sent with delay of " << delay << endl;
 }

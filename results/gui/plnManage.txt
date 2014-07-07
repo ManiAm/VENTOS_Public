@@ -1,0 +1,1086 @@
+timeStep    sender         receiver         type                     sendingPlnID        recPlnID            
+
+18.44      CACC1           -                 state_platoonLeader            -                  -                   
+29.95      CACC2           -                 state_platoonLeader            -                  -                   
+31.29      CACC3           -                 state_platoonLeader            -                  -                   
+31.33      CACC3           -                 state_sendMergeReq             -                  -                   
+
+31.33      CACC3           CACC1             MERGE_REQ                      CACC3              CACC1               
+
+31.33      CACC3           -                 state_waitForMergeReply        -                  -                   
+31.33      CACC1           -                 state_sendMergeAccept          -                  -                   
+
+31.33      CACC1           CACC3             MERGE_ACCEPT                   CACC1              CACC3               
+
+31.33      CACC1           -                 state_waitForMergeDone         -                  -                   
+31.34      CACC3           -                 state_mergeAccepted            -                  -                   
+31.34      CACC3           -                 state_sendMergeDone            -                  -                   
+
+31.34      CACC3           CACC1             MERGE_DONE                     CACC1              CACC1               
+
+31.34      CACC3           -                 state_platoonMember            -                  -                   
+31.34      CACC1           -                 state_mergeDone                -                  -                   
+31.34      CACC1           -                 state_platoonLeader            -                  -                   
+41.34      CACC4           -                 state_platoonLeader            -                  -                   
+41.41      CACC4           -                 state_sendMergeReq             -                  -                   
+
+41.41      CACC4           CACC1             MERGE_REQ                      CACC4              CACC1               
+
+41.41      CACC4           -                 state_waitForMergeReply        -                  -                   
+41.41      CACC1           -                 state_sendMergeAccept          -                  -                   
+
+41.41      CACC1           CACC4             MERGE_ACCEPT                   CACC1              CACC4               
+
+41.41      CACC1           -                 state_waitForMergeDone         -                  -                   
+41.41      CACC4           -                 state_mergeAccepted            -                  -                   
+41.41      CACC4           -                 state_sendMergeDone            -                  -                   
+
+41.41      CACC4           CACC1             MERGE_DONE                     CACC1              CACC1               
+
+41.41      CACC4           -                 state_platoonMember            -                  -                   
+41.41      CACC1           -                 state_mergeDone                -                  -                   
+
+41.41      CACC1           multicast         CHANGE_Tg                      CACC1              CACC1               
+
+41.41      CACC1           -                 state_platoonLeader            -                  -                   
+53.36      CACC5           -                 state_platoonLeader            -                  -                   
+53.41      CACC5           -                 state_sendMergeReq             -                  -                   
+
+53.41      CACC5           CACC1             MERGE_REQ                      CACC5              CACC1               
+
+53.41      CACC5           -                 state_waitForMergeReply        -                  -                   
+53.41      CACC1           -                 state_sendMergeAccept          -                  -                   
+
+53.41      CACC1           CACC5             MERGE_ACCEPT                   CACC1              CACC5               
+
+53.41      CACC1           -                 state_waitForMergeDone         -                  -                   
+53.41      CACC5           -                 state_mergeAccepted            -                  -                   
+53.41      CACC5           -                 state_sendMergeDone            -                  -                   
+
+53.41      CACC5           CACC1             MERGE_DONE                     CACC1              CACC1               
+
+53.41      CACC5           -                 state_platoonMember            -                  -                   
+53.41      CACC1           -                 state_mergeDone                -                  -                   
+
+53.41      CACC1           multicast         CHANGE_Tg                      CACC1              CACC1               
+
+53.41      CACC1           -                 state_platoonLeader            -                  -                   
+63.05      CACC6           -                 state_platoonLeader            -                  -                   
+63.14      CACC6           -                 state_sendMergeReq             -                  -                   
+
+63.14      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+63.14      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+63.14      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+63.14      CACC6           -                 state_platoonLeader            -                  -                   
+63.24      CACC6           -                 state_sendMergeReq             -                  -                   
+
+63.24      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+63.24      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+63.24      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+63.24      CACC6           -                 state_platoonLeader            -                  -                   
+63.34      CACC6           -                 state_sendMergeReq             -                  -                   
+
+63.34      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+63.34      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+63.34      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+63.34      CACC6           -                 state_platoonLeader            -                  -                   
+63.44      CACC6           -                 state_sendMergeReq             -                  -                   
+
+63.44      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+63.44      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+63.44      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+63.44      CACC6           -                 state_platoonLeader            -                  -                   
+63.54      CACC6           -                 state_sendMergeReq             -                  -                   
+
+63.54      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+63.54      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+63.54      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+63.54      CACC6           -                 state_platoonLeader            -                  -                   
+63.64      CACC6           -                 state_sendMergeReq             -                  -                   
+
+63.64      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+63.64      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+63.64      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+63.64      CACC6           -                 state_platoonLeader            -                  -                   
+63.74      CACC6           -                 state_sendMergeReq             -                  -                   
+
+63.74      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+63.74      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+63.74      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+63.74      CACC6           -                 state_platoonLeader            -                  -                   
+63.84      CACC6           -                 state_sendMergeReq             -                  -                   
+
+63.84      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+63.84      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+63.84      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+63.84      CACC6           -                 state_platoonLeader            -                  -                   
+63.94      CACC6           -                 state_sendMergeReq             -                  -                   
+
+63.94      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+63.94      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+63.94      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+63.94      CACC6           -                 state_platoonLeader            -                  -                   
+64.04      CACC6           -                 state_sendMergeReq             -                  -                   
+
+64.04      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+64.04      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+64.04      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+64.04      CACC6           -                 state_platoonLeader            -                  -                   
+64.14      CACC6           -                 state_sendMergeReq             -                  -                   
+
+64.14      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+64.14      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+64.14      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+64.14      CACC6           -                 state_platoonLeader            -                  -                   
+64.24      CACC6           -                 state_sendMergeReq             -                  -                   
+
+64.24      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+64.24      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+64.24      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+64.24      CACC6           -                 state_platoonLeader            -                  -                   
+64.34      CACC6           -                 state_sendMergeReq             -                  -                   
+
+64.34      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+64.34      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+64.34      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+64.34      CACC6           -                 state_platoonLeader            -                  -                   
+64.44      CACC6           -                 state_sendMergeReq             -                  -                   
+
+64.44      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+64.44      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+64.44      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+64.44      CACC6           -                 state_platoonLeader            -                  -                   
+64.54      CACC6           -                 state_sendMergeReq             -                  -                   
+
+64.54      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+64.54      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+64.54      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+64.54      CACC6           -                 state_platoonLeader            -                  -                   
+64.64      CACC6           -                 state_sendMergeReq             -                  -                   
+
+64.64      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+64.64      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+64.64      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+64.64      CACC6           -                 state_platoonLeader            -                  -                   
+64.74      CACC6           -                 state_sendMergeReq             -                  -                   
+
+64.74      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+64.74      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+64.74      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+64.74      CACC6           -                 state_platoonLeader            -                  -                   
+64.84      CACC6           -                 state_sendMergeReq             -                  -                   
+
+64.84      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+64.84      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+64.84      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+64.84      CACC6           -                 state_platoonLeader            -                  -                   
+64.94      CACC6           -                 state_sendMergeReq             -                  -                   
+
+64.94      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+64.94      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+64.94      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+64.94      CACC6           -                 state_platoonLeader            -                  -                   
+65.04      CACC6           -                 state_sendMergeReq             -                  -                   
+
+65.04      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+65.04      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+65.04      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+65.04      CACC6           -                 state_platoonLeader            -                  -                   
+65.14      CACC6           -                 state_sendMergeReq             -                  -                   
+
+65.14      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+65.14      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+65.14      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+65.14      CACC6           -                 state_platoonLeader            -                  -                   
+65.24      CACC6           -                 state_sendMergeReq             -                  -                   
+
+65.24      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+65.24      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+65.24      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+65.24      CACC6           -                 state_platoonLeader            -                  -                   
+65.34      CACC6           -                 state_sendMergeReq             -                  -                   
+
+65.34      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+65.34      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+65.34      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+65.34      CACC6           -                 state_platoonLeader            -                  -                   
+65.44      CACC6           -                 state_sendMergeReq             -                  -                   
+
+65.44      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+65.44      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+65.44      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+65.44      CACC6           -                 state_platoonLeader            -                  -                   
+65.54      CACC6           -                 state_sendMergeReq             -                  -                   
+
+65.54      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+65.54      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+65.54      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+65.54      CACC6           -                 state_platoonLeader            -                  -                   
+65.64      CACC6           -                 state_sendMergeReq             -                  -                   
+
+65.64      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+65.64      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+65.64      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+65.64      CACC6           -                 state_platoonLeader            -                  -                   
+65.74      CACC6           -                 state_sendMergeReq             -                  -                   
+
+65.74      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+65.74      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+65.74      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+65.74      CACC6           -                 state_platoonLeader            -                  -                   
+65.84      CACC6           -                 state_sendMergeReq             -                  -                   
+
+65.84      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+65.84      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+65.84      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+65.84      CACC6           -                 state_platoonLeader            -                  -                   
+65.94      CACC6           -                 state_sendMergeReq             -                  -                   
+
+65.94      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+65.94      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+65.94      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+65.94      CACC6           -                 state_platoonLeader            -                  -                   
+66.04      CACC6           -                 state_sendMergeReq             -                  -                   
+
+66.04      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+66.04      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+66.04      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+66.04      CACC6           -                 state_platoonLeader            -                  -                   
+66.14      CACC6           -                 state_sendMergeReq             -                  -                   
+
+66.14      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+66.14      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+66.14      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+66.14      CACC6           -                 state_platoonLeader            -                  -                   
+66.24      CACC6           -                 state_sendMergeReq             -                  -                   
+
+66.24      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+66.24      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+66.24      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+66.24      CACC6           -                 state_platoonLeader            -                  -                   
+66.34      CACC6           -                 state_sendMergeReq             -                  -                   
+
+66.34      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+66.34      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+66.34      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+66.34      CACC6           -                 state_platoonLeader            -                  -                   
+66.44      CACC6           -                 state_sendMergeReq             -                  -                   
+
+66.44      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+66.44      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+66.44      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+66.44      CACC6           -                 state_platoonLeader            -                  -                   
+66.54      CACC6           -                 state_sendMergeReq             -                  -                   
+
+66.54      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+66.54      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+66.54      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+66.54      CACC6           -                 state_platoonLeader            -                  -                   
+66.64      CACC6           -                 state_sendMergeReq             -                  -                   
+
+66.64      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+66.64      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+66.64      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+66.64      CACC6           -                 state_platoonLeader            -                  -                   
+66.74      CACC6           -                 state_sendMergeReq             -                  -                   
+
+66.74      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+66.74      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+66.74      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+66.74      CACC6           -                 state_platoonLeader            -                  -                   
+66.84      CACC6           -                 state_sendMergeReq             -                  -                   
+
+66.84      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+66.84      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+66.84      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+66.84      CACC6           -                 state_platoonLeader            -                  -                   
+66.94      CACC6           -                 state_sendMergeReq             -                  -                   
+
+66.94      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+66.94      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+66.94      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+66.94      CACC6           -                 state_platoonLeader            -                  -                   
+67.04      CACC6           -                 state_sendMergeReq             -                  -                   
+
+67.04      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+67.04      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+67.04      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+67.04      CACC6           -                 state_platoonLeader            -                  -                   
+67.14      CACC6           -                 state_sendMergeReq             -                  -                   
+
+67.14      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+67.14      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+67.14      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+67.14      CACC6           -                 state_platoonLeader            -                  -                   
+67.24      CACC6           -                 state_sendMergeReq             -                  -                   
+
+67.24      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+67.24      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+67.24      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+67.24      CACC6           -                 state_platoonLeader            -                  -                   
+67.34      CACC6           -                 state_sendMergeReq             -                  -                   
+
+67.34      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+67.34      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+67.34      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+67.34      CACC6           -                 state_platoonLeader            -                  -                   
+67.44      CACC6           -                 state_sendMergeReq             -                  -                   
+
+67.44      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+67.44      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+67.44      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+67.44      CACC6           -                 state_platoonLeader            -                  -                   
+67.54      CACC6           -                 state_sendMergeReq             -                  -                   
+
+67.54      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+67.54      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+67.54      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+67.54      CACC6           -                 state_platoonLeader            -                  -                   
+67.64      CACC6           -                 state_sendMergeReq             -                  -                   
+
+67.64      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+67.64      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+67.64      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+67.64      CACC6           -                 state_platoonLeader            -                  -                   
+67.74      CACC6           -                 state_sendMergeReq             -                  -                   
+
+67.74      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+67.74      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+67.74      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+67.74      CACC6           -                 state_platoonLeader            -                  -                   
+67.84      CACC6           -                 state_sendMergeReq             -                  -                   
+
+67.84      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+67.84      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+67.84      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+67.84      CACC6           -                 state_platoonLeader            -                  -                   
+67.94      CACC6           -                 state_sendMergeReq             -                  -                   
+
+67.94      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+67.94      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+67.94      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+67.94      CACC6           -                 state_platoonLeader            -                  -                   
+68.04      CACC6           -                 state_sendMergeReq             -                  -                   
+
+68.04      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+68.04      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+68.04      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+68.04      CACC6           -                 state_platoonLeader            -                  -                   
+68.14      CACC6           -                 state_sendMergeReq             -                  -                   
+
+68.14      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+68.14      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+68.14      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+68.14      CACC6           -                 state_platoonLeader            -                  -                   
+68.24      CACC6           -                 state_sendMergeReq             -                  -                   
+
+68.24      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+68.24      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+68.24      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+68.24      CACC6           -                 state_platoonLeader            -                  -                   
+68.34      CACC6           -                 state_sendMergeReq             -                  -                   
+
+68.34      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+68.34      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+68.34      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+68.34      CACC6           -                 state_platoonLeader            -                  -                   
+68.44      CACC6           -                 state_sendMergeReq             -                  -                   
+
+68.44      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+68.44      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+68.44      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+68.44      CACC6           -                 state_platoonLeader            -                  -                   
+68.54      CACC6           -                 state_sendMergeReq             -                  -                   
+
+68.54      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+68.54      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+68.54      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+68.54      CACC6           -                 state_platoonLeader            -                  -                   
+68.64      CACC6           -                 state_sendMergeReq             -                  -                   
+
+68.64      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+68.64      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+68.64      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+68.64      CACC6           -                 state_platoonLeader            -                  -                   
+68.74      CACC6           -                 state_sendMergeReq             -                  -                   
+
+68.74      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+68.74      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+68.74      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+68.74      CACC6           -                 state_platoonLeader            -                  -                   
+68.84      CACC6           -                 state_sendMergeReq             -                  -                   
+
+68.84      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+68.84      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+68.84      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+68.84      CACC6           -                 state_platoonLeader            -                  -                   
+68.94      CACC6           -                 state_sendMergeReq             -                  -                   
+
+68.94      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+68.94      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+68.94      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+68.94      CACC6           -                 state_platoonLeader            -                  -                   
+69.04      CACC6           -                 state_sendMergeReq             -                  -                   
+
+69.04      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+69.04      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+69.04      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+69.04      CACC6           -                 state_platoonLeader            -                  -                   
+69.14      CACC6           -                 state_sendMergeReq             -                  -                   
+
+69.14      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+69.14      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+69.14      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+69.14      CACC6           -                 state_platoonLeader            -                  -                   
+69.24      CACC6           -                 state_sendMergeReq             -                  -                   
+
+69.24      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+69.24      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+69.24      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+69.24      CACC6           -                 state_platoonLeader            -                  -                   
+69.34      CACC6           -                 state_sendMergeReq             -                  -                   
+
+69.34      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+69.34      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+69.34      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+69.34      CACC6           -                 state_platoonLeader            -                  -                   
+69.44      CACC6           -                 state_sendMergeReq             -                  -                   
+
+69.44      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+69.44      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+69.44      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+69.44      CACC6           -                 state_platoonLeader            -                  -                   
+69.54      CACC6           -                 state_sendMergeReq             -                  -                   
+
+69.54      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+69.54      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+69.54      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+69.54      CACC6           -                 state_platoonLeader            -                  -                   
+69.64      CACC6           -                 state_sendMergeReq             -                  -                   
+
+69.64      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+69.64      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+69.64      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+69.64      CACC6           -                 state_platoonLeader            -                  -                   
+69.74      CACC6           -                 state_sendMergeReq             -                  -                   
+
+69.74      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+69.74      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+69.74      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+69.74      CACC6           -                 state_platoonLeader            -                  -                   
+69.84      CACC6           -                 state_sendMergeReq             -                  -                   
+
+69.84      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+69.84      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+69.84      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+69.84      CACC6           -                 state_platoonLeader            -                  -                   
+69.94      CACC6           -                 state_sendMergeReq             -                  -                   
+
+69.94      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+69.94      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+69.94      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+69.94      CACC6           -                 state_platoonLeader            -                  -                   
+70.04      CACC6           -                 state_sendMergeReq             -                  -                   
+
+70.04      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+70.04      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+70.04      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+70.04      CACC6           -                 state_platoonLeader            -                  -                   
+70.14      CACC6           -                 state_sendMergeReq             -                  -                   
+
+70.14      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+70.14      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+70.14      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+70.14      CACC6           -                 state_platoonLeader            -                  -                   
+70.24      CACC6           -                 state_sendMergeReq             -                  -                   
+
+70.24      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+70.24      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+70.24      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+70.24      CACC6           -                 state_platoonLeader            -                  -                   
+70.34      CACC6           -                 state_sendMergeReq             -                  -                   
+
+70.34      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+70.34      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+70.34      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+70.34      CACC6           -                 state_platoonLeader            -                  -                   
+70.44      CACC6           -                 state_sendMergeReq             -                  -                   
+
+70.44      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+70.44      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+70.44      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+70.44      CACC6           -                 state_platoonLeader            -                  -                   
+70.54      CACC6           -                 state_sendMergeReq             -                  -                   
+
+70.54      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+70.54      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+70.54      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+70.54      CACC6           -                 state_platoonLeader            -                  -                   
+70.64      CACC6           -                 state_sendMergeReq             -                  -                   
+
+70.64      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+70.64      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+70.64      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+70.64      CACC6           -                 state_platoonLeader            -                  -                   
+70.74      CACC6           -                 state_sendMergeReq             -                  -                   
+
+70.74      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+70.74      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+70.74      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+70.74      CACC6           -                 state_platoonLeader            -                  -                   
+70.84      CACC6           -                 state_sendMergeReq             -                  -                   
+
+70.84      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+70.84      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+70.84      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+70.84      CACC6           -                 state_platoonLeader            -                  -                   
+70.94      CACC6           -                 state_sendMergeReq             -                  -                   
+
+70.94      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+70.94      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+70.94      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+70.94      CACC6           -                 state_platoonLeader            -                  -                   
+71.04      CACC6           -                 state_sendMergeReq             -                  -                   
+
+71.04      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+71.04      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+71.04      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+71.04      CACC6           -                 state_platoonLeader            -                  -                   
+71.14      CACC6           -                 state_sendMergeReq             -                  -                   
+
+71.14      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+71.14      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+71.14      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+71.14      CACC6           -                 state_platoonLeader            -                  -                   
+71.24      CACC6           -                 state_sendMergeReq             -                  -                   
+
+71.24      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+71.24      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+71.24      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+71.24      CACC6           -                 state_platoonLeader            -                  -                   
+71.34      CACC6           -                 state_sendMergeReq             -                  -                   
+
+71.34      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+71.34      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+71.34      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+71.34      CACC6           -                 state_platoonLeader            -                  -                   
+71.44      CACC6           -                 state_sendMergeReq             -                  -                   
+
+71.44      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+71.44      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+71.44      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+71.44      CACC6           -                 state_platoonLeader            -                  -                   
+71.54      CACC6           -                 state_sendMergeReq             -                  -                   
+
+71.54      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+71.54      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+71.54      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+71.54      CACC6           -                 state_platoonLeader            -                  -                   
+71.64      CACC6           -                 state_sendMergeReq             -                  -                   
+
+71.64      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+71.64      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+71.64      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+71.64      CACC6           -                 state_platoonLeader            -                  -                   
+71.74      CACC6           -                 state_sendMergeReq             -                  -                   
+
+71.74      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+71.74      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+71.74      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+71.74      CACC6           -                 state_platoonLeader            -                  -                   
+71.84      CACC6           -                 state_sendMergeReq             -                  -                   
+
+71.84      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+71.84      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+71.84      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+71.84      CACC6           -                 state_platoonLeader            -                  -                   
+71.94      CACC6           -                 state_sendMergeReq             -                  -                   
+
+71.94      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+71.94      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+71.94      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+71.94      CACC6           -                 state_platoonLeader            -                  -                   
+72.04      CACC6           -                 state_sendMergeReq             -                  -                   
+
+72.04      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+72.04      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+72.04      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+72.04      CACC6           -                 state_platoonLeader            -                  -                   
+72.14      CACC6           -                 state_sendMergeReq             -                  -                   
+
+72.14      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+72.14      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+72.14      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+72.14      CACC6           -                 state_platoonLeader            -                  -                   
+72.24      CACC6           -                 state_sendMergeReq             -                  -                   
+
+72.24      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+72.24      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+72.24      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+72.24      CACC6           -                 state_platoonLeader            -                  -                   
+72.34      CACC6           -                 state_sendMergeReq             -                  -                   
+
+72.34      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+72.34      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+72.34      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+72.34      CACC6           -                 state_platoonLeader            -                  -                   
+72.44      CACC6           -                 state_sendMergeReq             -                  -                   
+
+72.44      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+72.44      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+72.44      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+72.44      CACC6           -                 state_platoonLeader            -                  -                   
+72.54      CACC6           -                 state_sendMergeReq             -                  -                   
+
+72.54      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+72.54      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+72.54      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+72.54      CACC6           -                 state_platoonLeader            -                  -                   
+72.64      CACC6           -                 state_sendMergeReq             -                  -                   
+
+72.64      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+72.64      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+72.64      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+72.64      CACC6           -                 state_platoonLeader            -                  -                   
+72.74      CACC6           -                 state_sendMergeReq             -                  -                   
+
+72.74      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+72.74      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+72.74      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+72.74      CACC6           -                 state_platoonLeader            -                  -                   
+72.84      CACC6           -                 state_sendMergeReq             -                  -                   
+
+72.84      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+72.84      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+72.84      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+72.84      CACC6           -                 state_platoonLeader            -                  -                   
+72.94      CACC6           -                 state_sendMergeReq             -                  -                   
+
+72.94      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+72.94      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+72.94      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+72.94      CACC6           -                 state_platoonLeader            -                  -                   
+73.04      CACC6           -                 state_sendMergeReq             -                  -                   
+
+73.04      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+73.04      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+73.04      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+73.04      CACC6           -                 state_platoonLeader            -                  -                   
+73.11      CACC7           -                 state_platoonLeader            -                  -                   
+73.13      CACC7           -                 state_sendMergeReq             -                  -                   
+
+73.13      CACC7           CACC2             MERGE_REQ                      CACC7              CACC2               
+
+73.13      CACC7           -                 state_waitForMergeReply        -                  -                   
+73.14      CACC2           -                 state_sendMergeAccept          -                  -                   
+
+73.14      CACC2           CACC7             MERGE_ACCEPT                   CACC2              CACC7               
+
+73.14      CACC2           -                 state_waitForMergeDone         -                  -                   
+73.14      CACC7           -                 state_mergeAccepted            -                  -                   
+73.14      CACC7           -                 state_sendMergeDone            -                  -                   
+
+73.14      CACC7           CACC2             MERGE_DONE                     CACC2              CACC2               
+
+73.14      CACC7           -                 state_platoonMember            -                  -                   
+73.14      CACC6           -                 state_sendMergeReq             -                  -                   
+
+73.14      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+73.14      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+73.14      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+73.14      CACC2           -                 state_mergeDone                -                  -                   
+73.14      CACC2           -                 state_platoonLeader            -                  -                   
+73.14      CACC6           -                 state_platoonLeader            -                  -                   
+73.24      CACC6           -                 state_sendMergeReq             -                  -                   
+
+73.24      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+73.24      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+73.24      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+73.24      CACC6           -                 state_platoonLeader            -                  -                   
+73.34      CACC6           -                 state_sendMergeReq             -                  -                   
+
+73.34      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+73.34      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+73.34      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+73.34      CACC6           -                 state_platoonLeader            -                  -                   
+73.44      CACC6           -                 state_sendMergeReq             -                  -                   
+
+73.44      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+73.44      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+73.44      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+73.44      CACC6           -                 state_platoonLeader            -                  -                   
+73.54      CACC6           -                 state_sendMergeReq             -                  -                   
+
+73.54      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+73.54      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+73.54      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+73.54      CACC6           -                 state_platoonLeader            -                  -                   
+73.64      CACC6           -                 state_sendMergeReq             -                  -                   
+
+73.64      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+73.64      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+73.64      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+73.64      CACC6           -                 state_platoonLeader            -                  -                   
+73.74      CACC6           -                 state_sendMergeReq             -                  -                   
+
+73.74      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+73.74      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+73.74      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+73.74      CACC6           -                 state_platoonLeader            -                  -                   
+73.84      CACC6           -                 state_sendMergeReq             -                  -                   
+
+73.84      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+73.84      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+73.84      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+73.84      CACC6           -                 state_platoonLeader            -                  -                   
+73.94      CACC6           -                 state_sendMergeReq             -                  -                   
+
+73.94      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+73.94      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+73.94      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+73.94      CACC6           -                 state_platoonLeader            -                  -                   
+74.04      CACC6           -                 state_sendMergeReq             -                  -                   
+
+74.04      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+74.04      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+74.04      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+74.04      CACC6           -                 state_platoonLeader            -                  -                   
+74.14      CACC6           -                 state_sendMergeReq             -                  -                   
+
+74.14      CACC6           CACC1             MERGE_REQ                      CACC6              CACC1               
+
+74.14      CACC6           -                 state_waitForMergeReply        -                  -                   
+
+74.14      CACC1           CACC6             MERGE_REJECT                   CACC1              CACC6               
+
+74.14      CACC6           -                 state_platoonLeader            -                  -                   

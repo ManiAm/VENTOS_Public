@@ -2,36 +2,41 @@
 #include "ApplV_05_PlatoonMg.h"
 
 
-void ApplVPlatoonMg::entryManeuver()
+void ApplVPlatoonMg::entry_handleSelfMsg(cMessage* msg)
+{
+    // start the Entry maneuver
+    if(msg == entryManeuverEvt)
+    {
+        entry_FSM();
+    }
+}
+
+
+void ApplVPlatoonMg::entry_FSM()
 {
     if(vehicleState == state_idle)
     {
         TraCI->commandSetvClass(SUMOvID, "vip");   // change vClass
         TraCI->commandChangeLane(SUMOvID, 1, 5);   // change to lane 1 (special lane)
-        TraCI->commandSetSpeed(SUMOvID, 20.);      // set speed to 20 m/s
+        TraCI->commandSetSpeed(SUMOvID, 5.);       // set speed to 5 m/s
 
+        // make it a free agent
         plnID = SUMOvID;
         myPlnDepth = 0;
         plnSize = 1;
         plnMembersList.push_back(SUMOvID);
+        TraCI->commandSetTg(SUMOvID, 3.5);
 
-        // change the color to red
-        TraCIColor newColor = TraCIColor::fromTkColor("red");
-        TraCI->getCommandInterface()->setColor(SUMOvID, newColor);
+        // myPlnDepth has changed! update the color
+        updateColor();
+
+        // change state to platoon leader
+        vehicleState = state_platoonLeader;
+
+        // report to statistics
+        CurrentVehicleState *state = new CurrentVehicleState(SUMOvID.c_str(), stateToStr(vehicleState));
+        simsignal_t Signal_VehicleState = registerSignal("VehicleState");
+        nodePtr->emit(Signal_VehicleState, state);
     }
-
-
-
 }
-
-
-void ApplVPlatoonMg::entryFSM()
-{
-
-
-
-}
-
-
-
 

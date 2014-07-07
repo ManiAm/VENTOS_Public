@@ -277,7 +277,7 @@ inline void doUnpacking(cCommBuffer *b, LaneChangeMsg& obj) {obj.parsimUnpack(b)
  * {
  *     string sender;
  * 	string recipient;
- *     int req_res_type;
+ *     int type;
  *     string sendingPlatoonID;
  *     string receivingPlatoonID;
  *     double dblValue;
@@ -291,7 +291,7 @@ class PlatoonMsg : public ::WaveShortMessage
   protected:
     opp_string sender_var;
     opp_string recipient_var;
-    int req_res_type_var;
+    int type_var;
     opp_string sendingPlatoonID_var;
     opp_string receivingPlatoonID_var;
     double dblValue_var;
@@ -319,8 +319,8 @@ class PlatoonMsg : public ::WaveShortMessage
     virtual void setSender(const char * sender);
     virtual const char * getRecipient() const;
     virtual void setRecipient(const char * recipient);
-    virtual int getReq_res_type() const;
-    virtual void setReq_res_type(int req_res_type);
+    virtual int getType() const;
+    virtual void setType(int type);
     virtual const char * getSendingPlatoonID() const;
     virtual void setSendingPlatoonID(const char * sendingPlatoonID);
     virtual const char * getReceivingPlatoonID() const;

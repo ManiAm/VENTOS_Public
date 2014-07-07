@@ -77,7 +77,7 @@ void ApplVPlatoonFormation2::onData(PlatoonMsg* wsm)
 {
     ApplVPlatoonFormation::onData(wsm);
 
-    if (wsm->getReq_res_type() == NEW_LEADER_ACCEPT_response)
+    if (wsm->getType() == NEW_LEADER_ACCEPT_response)
     {
         // check if NEW_LEADER_ACCEPT_response is sent to me (it is unicast)
         if(string(wsm->getRecipient()) == SUMOvID)
@@ -104,7 +104,7 @@ void ApplVPlatoonFormation2::onData(PlatoonMsg* wsm)
             }
         }
     }
-    else if(wsm->getReq_res_type() == NEW_LEADER_request && string(wsm->getSender()) == plnID)
+    else if(wsm->getType() == NEW_LEADER_request && string(wsm->getSender()) == plnID)
     {
         // check if NEW_LEADER_request is sent to me (it is unicast)
         if(string(wsm->getRecipient()) == SUMOvID)
@@ -125,7 +125,7 @@ void ApplVPlatoonFormation2::onData(PlatoonMsg* wsm)
             }
         }
     }
-    else if(wsm->getReq_res_type() == CHANGE_PL && string(wsm->getSender()) == plnID)
+    else if(wsm->getType() == CHANGE_PL && string(wsm->getSender()) == plnID)
     {
         string newPlatoonID = wsm->getStrValue();
         plnID = newPlatoonID;

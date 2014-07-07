@@ -52,12 +52,14 @@ class Statistics : public BaseModule
       // NED variables
       bool collectVehiclesData;
       bool collectInductionLoopData;
+      bool collectPlnManagerData;
       bool printBeaconsStatistics;
       bool printIncidentDetection;
 
       // class variables
       int index;
       FILE *VehicleDataFile;
+      FILE *MsgSentFile;
 
       // class variables (signals)
 	  simsignal_t Signal_beaconP;
@@ -65,6 +67,8 @@ class Statistics : public BaseModule
 	  simsignal_t Signal_beaconD;
 
 	  simsignal_t Signal_MacStats;
+	  simsignal_t Signal_SentPlatoonMsg;
+	  simsignal_t Signal_VehicleState;
 
 	  // class variables (vectors)
       vector<NodeEntry *> Vec_BeaconsP;    // beacons from proceeding

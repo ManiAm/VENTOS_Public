@@ -25,7 +25,6 @@ class ApplVSystem : public ApplVBeacon
         int systemMsgPriority;      //like beaconPriority
 
         // Class variables
-        simtime_t individualOffset;
         cMessage* sendSystemMsgEvt;
 
         // Routing

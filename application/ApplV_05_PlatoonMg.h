@@ -21,57 +21,108 @@ class ApplVPlatoonMg : public ApplV_AID
         virtual void onData(PlatoonMsg* wsm);
 
         // NED variables
-        int maxPlatoonSize;
+        int maxPlnSize;
+        int optPlnSize;
 
         // Variables
-        enum messages
+        enum states
         {
-            // vehicle states (platoon formation)
-            state_idle,                        // 0
-            state_wait_for_beacon,             // 1
-            stateT_create_new_platoon,         // 2  transient
-            state_ask_to_join,                 // 3
-            stateT_joining,                    // 4  transient
-            state_platoonLeader,               // 5
-            state_platoonMember,               // 6
-            stateT_handle_JOIN_request,        // 7  transient
+            state_idle,
+            state_platoonLeader,
+            state_platoonMember,
+
+            // merge states
+            state_sendMergeReq,
+            state_waitForMergeReply,
+            state_mergeAccepted,
+            state_sendMergeDone,
+            state_notifyFollowers,
+            state_waitForAllAcks,
+            state_sendMergeAccept,
+            state_waitForMergeDone,
+            state_mergeDone,
+
+
+
+
+
+            state_wait_for_beacon,
+            stateT_create_new_platoon,    //  transient
+            state_ask_to_join,
+            stateT_joining,               // transient
+            stateT_handle_JOIN_request,   // transient
 
             // vehicle states (platoon leader/member leave)
             state_wait_for_new_PL,
             state_change_PL,
             state_parked,
-
-            // platoon formation messages
-            JOIN_request,
-            JOIN_ACCEPT_response,
-            JOIN_REJECT_response,
-            CHANGE_Tg,
-
-            // platoon leader/member leave messages
-            NEW_LEADER_request,
-            NEW_LEADER_ACCEPT_response,
-            CHANGE_PL,
         };
 
-        messages vehicleState;
-        cMessage* EntryManeuverEvt;
+        enum uCommands
+        {
+            MERGE_REQ,
+            MERGE_ACCEPT,
+            MERGE_REJECT,
+            MERGE_DONE,
+
+            CHANGE_PL,
+            CHANGE_Tg,
+
+            SPLIT_REQ,
+            SPLIT_ACCEPT,
+            SPLIT_REJECT,
+            SPLIT_DONE,
+
+            LEAVE_REQ,
+            LEAVE_REJECT,
+
+            VOTE_LEADER,
+            ELECTED_LEADER,
+
+            DISSOLVE,
+
+            ACK,
+        };
+
+        states vehicleState;
+
+	public:
+        const char* stateToStr(int);
+        const char* uCommandToStr(int);
+
+	private:
+        cMessage* entryManeuverEvt;
+        bool busy;
+
+        int leadingPlnDepth;
+        string leadingPlnID;
+        deque<string> secondPlnMembersList;
+
+        cMessage* plnTIMER1;
+        cMessage* plnTIMER2;
+        cMessage* plnTIMER3;
+        cMessage* plnTIMER4;
 
 	private:
         // Methods
-        void entryManeuver();
-        void entryFSM();
+        PlatoonMsg* prepareData( string, uCommands, string, double db = -1, string str = "", deque<string> vec = deque<string>() );
+        void printDataContent(PlatoonMsg*);
+        void updateColor();
 
-        void mergeManeuver();
-        void mergeFSM();
+        void entry_handleSelfMsg(cMessage* msg);
+        void entry_FSM();
 
-        void splitManeuver();
-        void splitFSM();
+        void merge_handleSelfMsg(cMessage* msg);
+        void merge_BeaconFSM(BeaconVehicle *wsm = NULL);
+        void merge_DataFSM(PlatoonMsg *wsm = NULL);
+        void RemoveFollowerFromList(string);
 
-        void followerLeaveManeuver();
-        void followerLeaveFSM();
+        void split_handleSelfMsg(cMessage* msg);
+        void split_BeaconFSM(BeaconVehicle *wsm = NULL);
+        void split_DataFSM(PlatoonMsg *wsm = NULL);
 
-        void leaderLeaveManeuver();
-        void leaderLeaveFSM();
+        void followerLeave_FSM();
+        void leaderLeave_FSM();
 };
 
 #endif

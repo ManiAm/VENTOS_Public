@@ -1397,7 +1397,7 @@ PlatoonMsg::PlatoonMsg(const char *name, int kind) : WaveShortMessage(name,kind)
 {
     this->sender_var = 0;
     this->recipient_var = 0;
-    this->req_res_type_var = 0;
+    this->type_var = 0;
     this->sendingPlatoonID_var = 0;
     this->receivingPlatoonID_var = 0;
     this->dblValue_var = 0;
@@ -1425,7 +1425,7 @@ void PlatoonMsg::copy(const PlatoonMsg& other)
 {
     this->sender_var = other.sender_var;
     this->recipient_var = other.recipient_var;
-    this->req_res_type_var = other.req_res_type_var;
+    this->type_var = other.type_var;
     this->sendingPlatoonID_var = other.sendingPlatoonID_var;
     this->receivingPlatoonID_var = other.receivingPlatoonID_var;
     this->dblValue_var = other.dblValue_var;
@@ -1438,7 +1438,7 @@ void PlatoonMsg::parsimPack(cCommBuffer *b)
     WaveShortMessage::parsimPack(b);
     doPacking(b,this->sender_var);
     doPacking(b,this->recipient_var);
-    doPacking(b,this->req_res_type_var);
+    doPacking(b,this->type_var);
     doPacking(b,this->sendingPlatoonID_var);
     doPacking(b,this->receivingPlatoonID_var);
     doPacking(b,this->dblValue_var);
@@ -1451,7 +1451,7 @@ void PlatoonMsg::parsimUnpack(cCommBuffer *b)
     WaveShortMessage::parsimUnpack(b);
     doUnpacking(b,this->sender_var);
     doUnpacking(b,this->recipient_var);
-    doUnpacking(b,this->req_res_type_var);
+    doUnpacking(b,this->type_var);
     doUnpacking(b,this->sendingPlatoonID_var);
     doUnpacking(b,this->receivingPlatoonID_var);
     doUnpacking(b,this->dblValue_var);
@@ -1479,14 +1479,14 @@ void PlatoonMsg::setRecipient(const char * recipient)
     this->recipient_var = recipient;
 }
 
-int PlatoonMsg::getReq_res_type() const
+int PlatoonMsg::getType() const
 {
-    return req_res_type_var;
+    return type_var;
 }
 
-void PlatoonMsg::setReq_res_type(int req_res_type)
+void PlatoonMsg::setType(int type)
 {
-    this->req_res_type_var = req_res_type;
+    this->type_var = type;
 }
 
 const char * PlatoonMsg::getSendingPlatoonID() const
@@ -1621,7 +1621,7 @@ const char *PlatoonMsgDescriptor::getFieldName(void *object, int field) const
     static const char *fieldNames[] = {
         "sender",
         "recipient",
-        "req_res_type",
+        "type",
         "sendingPlatoonID",
         "receivingPlatoonID",
         "dblValue",
@@ -1637,7 +1637,7 @@ int PlatoonMsgDescriptor::findField(void *object, const char *fieldName) const
     int base = basedesc ? basedesc->getFieldCount(object) : 0;
     if (fieldName[0]=='s' && strcmp(fieldName, "sender")==0) return base+0;
     if (fieldName[0]=='r' && strcmp(fieldName, "recipient")==0) return base+1;
-    if (fieldName[0]=='r' && strcmp(fieldName, "req_res_type")==0) return base+2;
+    if (fieldName[0]=='t' && strcmp(fieldName, "type")==0) return base+2;
     if (fieldName[0]=='s' && strcmp(fieldName, "sendingPlatoonID")==0) return base+3;
     if (fieldName[0]=='r' && strcmp(fieldName, "receivingPlatoonID")==0) return base+4;
     if (fieldName[0]=='d' && strcmp(fieldName, "dblValue")==0) return base+5;
@@ -1706,7 +1706,7 @@ std::string PlatoonMsgDescriptor::getFieldAsString(void *object, int field, int 
     switch (field) {
         case 0: return oppstring2string(pp->getSender());
         case 1: return oppstring2string(pp->getRecipient());
-        case 2: return long2string(pp->getReq_res_type());
+        case 2: return long2string(pp->getType());
         case 3: return oppstring2string(pp->getSendingPlatoonID());
         case 4: return oppstring2string(pp->getReceivingPlatoonID());
         case 5: return double2string(pp->getDblValue());
@@ -1728,7 +1728,7 @@ bool PlatoonMsgDescriptor::setFieldAsString(void *object, int field, int i, cons
     switch (field) {
         case 0: pp->setSender((value)); return true;
         case 1: pp->setRecipient((value)); return true;
-        case 2: pp->setReq_res_type(string2long(value)); return true;
+        case 2: pp->setType(string2long(value)); return true;
         case 3: pp->setSendingPlatoonID((value)); return true;
         case 4: pp->setReceivingPlatoonID((value)); return true;
         case 5: pp->setDblValue(string2double(value)); return true;

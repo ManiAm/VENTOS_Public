@@ -8,6 +8,7 @@ simple ApplVBeacon extends ApplVBase
         
         bool VANETenabled = default(true);
         int mode = default(0);
+        double sonarDist = default(900);
         string preDefinedPlatoonID;
                 
         bool sendBeacons = default(false); //tell the applayer to periodically send beacons

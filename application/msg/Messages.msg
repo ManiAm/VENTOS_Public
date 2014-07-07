@@ -71,7 +71,7 @@ packet PlatoonMsg extends WaveShortMessage
 {
     string sender;
 	string recipient;
-    int req_res_type;
+    int type;
     string sendingPlatoonID;
     string receivingPlatoonID;
     double dblValue;

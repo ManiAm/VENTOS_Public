@@ -7,14 +7,9 @@ simple ApplVPlatoonMg extends ApplVAID
         @class(ApplVPlatoonMg); 
         
         int maxPlatoonSize;
+        int optPlatoonSize;
+        
       //  int entryMode;
       //  double entryT;
         
-        
-       // double timer1Value = default(1s) @unit(s);
-       // double timer2Value = default(1s) @unit(s);
-        
-       // bool platoonLeaderLeave = true; 
-       // bool platoonMemberLeave = true;   
-       // double timer3Value = default(1s) @unit(s);
 }

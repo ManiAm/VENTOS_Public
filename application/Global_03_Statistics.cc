@@ -21,6 +21,7 @@ void Statistics::initialize(int stage)
 
         collectVehiclesData = par("collectVehiclesData");
         collectInductionLoopData = par("collectInductionLoopData");
+        collectPlnManagerData = par("collectPlnManagerData");
         printBeaconsStatistics = par("printBeaconsStatistics").boolValue();
         printIncidentDetection = par("printIncidentDetection").boolValue();
 
@@ -32,12 +33,16 @@ void Statistics::initialize(int stage)
         Signal_beaconD = registerSignal("beaconD");
 
         Signal_MacStats = registerSignal("MacStats");
+        Signal_SentPlatoonMsg = registerSignal("SentPlatoonMsg");
+        Signal_VehicleState = registerSignal("VehicleState");
 
         // now subscribe locally to all these signals
         simulation.getSystemModule()->subscribe("beaconP", this);
         simulation.getSystemModule()->subscribe("beaconO", this);
         simulation.getSystemModule()->subscribe("beaconD", this);
         simulation.getSystemModule()->subscribe("MacStats", this);
+        simulation.getSystemModule()->subscribe("SentPlatoonMsg", this);
+        simulation.getSystemModule()->subscribe("VehicleState", this);
     }
     else if(stage == 1)
     {
@@ -73,6 +78,36 @@ void Statistics::initialize(int stage)
             fprintf (VehicleDataFile, "%-10s\n\n","timeGap");
 
             fflush(VehicleDataFile);
+        }
+
+        if(collectPlnManagerData)
+        {
+            boost::filesystem::path filePath;
+
+            if( ev.isGUI() )
+            {
+                filePath = "results/gui/plnManage.txt";
+            }
+            else
+            {
+                // get the current run number
+                int currentRun = ev.getConfigEx()->getActiveRunNumber();
+                ostringstream fileName;
+                fileName << "plnManage_" << currentRun << ".txt";
+                filePath = "results/cmd" + fileName.str();
+            }
+
+            MsgSentFile = fopen (filePath.string().c_str(), "w");
+
+            // write header
+            fprintf (MsgSentFile, "%-12s","timeStep");
+            fprintf (MsgSentFile, "%-15s","sender");
+            fprintf (MsgSentFile, "%-17s","receiver");
+            fprintf (MsgSentFile, "%-25s","type");
+            fprintf (MsgSentFile, "%-20s","sendingPlnID");
+            fprintf (MsgSentFile, "%-20s\n\n","recPlnID");
+
+            fflush(MsgSentFile);
         }
     }
 }
@@ -130,7 +165,7 @@ void Statistics::receiveSignal(cComponent *source, simsignal_t signalID, long i)
 
     int nodeIndex = getNodeIndex(source->getFullName());
 
-	if(signalID == Signal_beaconD)
+    if(signalID == Signal_beaconD)
 	{
 	    // from preceding
 	    if(i==1)
@@ -157,7 +192,37 @@ void Statistics::receiveSignal(cComponent *source, simsignal_t signalID, cObject
 
     int nodeIndex = getNodeIndex(source->getFullName());
 
-    if(signalID == Signal_beaconP)
+    if(collectPlnManagerData && signalID == Signal_VehicleState)
+    {
+        CurrentVehicleState *state = dynamic_cast<CurrentVehicleState*>(obj);
+        ASSERT(state);
+
+        // write the current vehicle data into file
+        fprintf (MsgSentFile, "%-10.2f ", ( simTime()-updateInterval).dbl() );
+        fprintf (MsgSentFile, "%-15s ", state->name);
+        fprintf (MsgSentFile, "%-17s ", "-");
+        fprintf (MsgSentFile, "%-30s ", state->state);
+        fprintf (MsgSentFile, "%-18s ", "-");
+        fprintf (MsgSentFile, "%-20s\n", "-");
+
+        fflush(MsgSentFile);
+    }
+    else if(collectPlnManagerData && signalID == Signal_SentPlatoonMsg)
+    {
+        CurrentPlnMsg* plnMsg = dynamic_cast<CurrentPlnMsg*>(obj);
+        ASSERT(plnMsg);
+
+        // write the current vehicle data into file
+        fprintf (MsgSentFile, "\n%-10.2f ", ( simTime()-updateInterval).dbl() );
+        fprintf (MsgSentFile, "%-15s ", plnMsg->sender);
+        fprintf (MsgSentFile, "%-17s ", plnMsg->receiver);
+        fprintf (MsgSentFile, "%-30s ", plnMsg->type);
+        fprintf (MsgSentFile, "%-18s ", plnMsg->sendingPlnID);
+        fprintf (MsgSentFile, "%-20s\n\n", plnMsg->receivingPlnID);
+
+        fflush(MsgSentFile);
+    }
+    else if(signalID == Signal_beaconP)
     {
         data *m = static_cast<data *>(obj);
         if (m == NULL) return;
@@ -640,8 +705,6 @@ void Statistics::printAID()
 
     file.close();
 }
-
-
 
 
 

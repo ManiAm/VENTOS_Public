@@ -7,6 +7,7 @@ simple Statistics
         
         bool collectVehiclesData;
         bool collectInductionLoopData;
+        bool collectPlnManagerData;
         bool printBeaconsStatistics;
         bool printIncidentDetection;
 }

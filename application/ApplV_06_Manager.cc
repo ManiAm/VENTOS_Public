@@ -12,7 +12,6 @@ void ApplVManager::initialize(int stage)
         // NED variables
         SUMOvehicleDebug = par("SUMOvehicleDebug").boolValue();
         modeSwitch = par("modeSwitch").boolValue();
-        sonarDist = par("sonarDist").doubleValue();
 
         // set parameters in SUMO
         TraCI->commandSetDebug(SUMOvID, SUMOvehicleDebug);
@@ -295,82 +294,6 @@ void ApplVManager::onData(PlatoonMsg* wsm)
     // pass it down
     ApplVPlatoonMg::onData(wsm);
 
-}
-
-
-bool ApplVManager::isBeaconFromLeading(BeaconVehicle* wsm)
-{
-    // step 1: check if a leading vehicle is present
-
-    vector<string> vleaderIDnew = TraCI->commandGetLeading(SUMOvID, sonarDist);
-    string vleaderID = vleaderIDnew[0];
-    double gap = atof( vleaderIDnew[1].c_str() );
-
-    if(vleaderID == "")
-    {
-        EV << "This vehicle has no leading vehicle." << endl;
-        return false;
-    }
-
-    // step 2: is it on the same lane?
-
-    string myLane = TraCI->getCommandInterface()->getLaneId(SUMOvID);
-    string beaconLane = wsm->getLane();
-
-    EV << "I am on lane " << TraCI->getCommandInterface()->getLaneId(SUMOvID) << ", and other vehicle is on lane " << wsm->getLane() << endl;
-
-    if( myLane != beaconLane )
-    {
-        EV << "Not on the same lane!" << endl;
-        return false;
-    }
-
-    EV << "We are on the same lane!" << endl;
-
-    // step 3: is the distance equal to gap?
-
-    Coord cord = TraCI->commandGetVehiclePos(SUMOvID);
-    double dist = sqrt( pow(cord.x - wsm->getPos().x, 2) +  pow(cord.y - wsm->getPos().y, 2) );
-
-    // subtract the length of the leading vehicle from dist
-    dist = dist - TraCI->commandGetVehicleLength(vleaderID);
-
-    EV << "my coord (x,y): " << cord.x << "," << cord.y << endl;
-    EV << "other coord (x,y): " << wsm->getPos().x << "," << wsm->getPos().y << endl;
-    EV << "distance is " << dist << ", and gap is " << gap << endl;
-
-    double diff = fabs(dist - gap);
-
-    if(diff > 0.001)
-    {
-        EV << "distance does not match the gap!" << endl;
-        return false;
-    }
-
-    if(cord.x > wsm->getPos().x)
-    {
-        EV << "beacon is coming from behind!" << endl;
-        return false;
-    }
-
-    EV << "This beacon is from the leading vehicle!" << endl;
-    return true;
-}
-
-
-bool ApplVManager::isBeaconFromMyPlatoonLeader(BeaconVehicle* wsm)
-{
-    // check if a platoon leader is sending this
-    if( wsm->getPlatoonDepth() == 0 )
-    {
-        // check if this is actually my platoon leader
-        if( string(wsm->getPlatoonID()) == plnID)
-        {
-            return true;
-        }
-    }
-
-    return false;
 }
 
 

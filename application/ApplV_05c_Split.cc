@@ -2,21 +2,22 @@
 #include "ApplV_05_PlatoonMg.h"
 
 
-void ApplVPlatoonMg::splitManeuver()
+void ApplVPlatoonMg::split_handleSelfMsg(cMessage* msg)
 {
 
+}
+
+
+void ApplVPlatoonMg::split_BeaconFSM(BeaconVehicle *wsm)
+{
 
 
 }
 
 
-void ApplVPlatoonMg::splitFSM()
+void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
 {
 
 
-
 }
-
-
-
 

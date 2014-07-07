@@ -13,9 +13,6 @@ class ApplVManager : public ApplVPlatoonMg
 
 	protected:
 
-        // NED variables
-        double sonarDist;
-
         // NED variables (packet loss ratio)
         double droppT;
         string droppV;
@@ -43,11 +40,8 @@ class ApplVManager : public ApplVPlatoonMg
         virtual void onData(PlatoonMsg* wsm);
 
 	private:
-
         bool dropBeacon(double time, string vehicle, double plr);
         void reportDropToStatistics(BeaconVehicle* wsm);
-        bool isBeaconFromLeading(BeaconVehicle*);
-        bool isBeaconFromMyPlatoonLeader(BeaconVehicle*);
 };
 
 #endif

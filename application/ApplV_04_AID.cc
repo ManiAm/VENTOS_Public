@@ -49,7 +49,7 @@ void ApplV_AID::onBeaconRSU(BeaconRSU* wsm)
     {
         LaneChangeMsg* dataMsg = ApplV_AID::prepareData(wsm->getSender(), laneChanges);
         ApplV_AID::printDataContent(dataMsg);
-        sendDelayedDown(dataMsg, individualOffset);
+        sendDelayed(dataMsg, individualOffset, lowerLayerOut);
         EV << "### " << SUMOvID << ": sent ClaneChangeMsg message." << endl;
 
         laneChanges.clear();

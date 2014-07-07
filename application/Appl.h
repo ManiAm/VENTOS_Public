@@ -162,5 +162,39 @@ class RSUEntry
       }
 };
 
+
+class CurrentPlnMsg : public cObject, noncopyable
+{
+  public:
+      char sender[20];
+      char receiver[20];
+      char type[30];
+      char sendingPlnID[20];
+      char receivingPlnID[20];
+
+      CurrentPlnMsg(const char *str1, const char *str2, const char *str3, const char *str4, const char *str5)
+      {
+          strcpy(this->sender, str1);
+          strcpy(this->receiver, str2);
+          strcpy(this->type, str3);
+          strcpy(this->sendingPlnID, str4);
+          strcpy(this->receivingPlnID, str5);
+      }
+};
+
+
+class CurrentVehicleState : public cObject, noncopyable
+{
+  public:
+      char name[20];
+      char state[40];
+
+      CurrentVehicleState(const char *str1, const char *str2)
+      {
+          strcpy(this->name, str1);
+          strcpy(this->state, str2);
+      }
+};
+
 #endif
 

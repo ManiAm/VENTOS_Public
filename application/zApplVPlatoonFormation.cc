@@ -133,7 +133,7 @@ void ApplVPlatoonFormation::onData(PlatoonMsg* wsm)
     if(!platoonFormation)
         return;
 
-    if (wsm->getReq_res_type() == JOIN_REJECT_response)
+    if (wsm->getType() == JOIN_REJECT_response)
     {
         if(vehicleState == state_ask_to_join)
         {
@@ -143,7 +143,7 @@ void ApplVPlatoonFormation::onData(PlatoonMsg* wsm)
             return;
         }
     }
-    else if (wsm->getReq_res_type() == JOIN_ACCEPT_response)
+    else if (wsm->getType() == JOIN_ACCEPT_response)
     {
         if(vehicleState == state_ask_to_join)
         {
@@ -152,7 +152,7 @@ void ApplVPlatoonFormation::onData(PlatoonMsg* wsm)
             return;
         }
     }
-    else if(wsm->getReq_res_type() == JOIN_request)
+    else if(wsm->getType() == JOIN_request)
     {
         if(vehicleState == state_platoonLeader)
         {
@@ -186,7 +186,7 @@ void ApplVPlatoonFormation::onData(PlatoonMsg* wsm)
             }
         }
     }
-    else if(wsm->getReq_res_type() == CHANGE_Tg)
+    else if(wsm->getType() == CHANGE_Tg)
     {
         // check if this is coming from my platoon leader
         if( string(wsm->getReceivingPlatoonID()) == plnID )
@@ -318,7 +318,7 @@ PlatoonMsg*  ApplVPlatoonFormation::prepareData(string receiver, int type, strin
 
     wsm->setSender(SUMOvID.c_str());
     wsm->setRecipient(receiver.c_str());
-    wsm->setReq_res_type(type);
+    wsm->setType(type);
     wsm->setSendingPlatoonID(plnID.c_str());
     wsm->setReceivingPlatoonID(receivingPlatoonID.c_str());
     wsm->setDblValue(dblValue);
@@ -344,7 +344,7 @@ void ApplVPlatoonFormation::printDataContent(PlatoonMsg* wsm)
 
     EV << wsm->getSender() << " | ";
     EV << wsm->getRecipient() << " | ";
-    EV << wsm->getReq_res_type() << " | ";
+    EV << wsm->getType() << " | ";
     EV << wsm->getSendingPlatoonID() << " | ";
     EV << wsm->getReceivingPlatoonID() << " | ";
     EV << wsm->getDblValue() << " | ";

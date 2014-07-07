@@ -15,6 +15,7 @@ class ApplVBeacon : public ApplVBase
         // NED
         bool VANETenabled;
         int mode;
+        double sonarDist;
         string preDefinedPlatoonID;
 
         // NED variables (beaconing parameters)
@@ -39,12 +40,15 @@ class ApplVBeacon : public ApplVBase
         int plnSize;
         deque<string> plnMembersList;
 
-        // Methods
+protected:
         virtual void handleSelfMsg(cMessage*);
         virtual void handlePositionUpdate(cObject*);
 
         BeaconVehicle* prepareBeacon();
         void printBeaconContent(BeaconVehicle*);
+
+        bool isBeaconFromLeading(BeaconVehicle*);
+        bool isBeaconFromMyPlatoonLeader(BeaconVehicle*);
 };
 
 #endif

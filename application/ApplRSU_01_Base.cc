@@ -64,7 +64,7 @@ void ApplRSUBase::handleSelfMsg(cMessage* msg)
         printBeaconContent(beaconMsg);
 
         // send it
-        sendDelayedDown(beaconMsg, individualOffset);
+        sendDelayed(beaconMsg, individualOffset, lowerLayerOut);
 
         // schedule for next beacon broadcast
         scheduleAt(simTime() + beaconInterval, RSUBeaconEvt);
