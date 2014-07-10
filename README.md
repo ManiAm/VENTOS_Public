@@ -4,15 +4,13 @@ VENTOS
 VENTOS (VEhicular NeTwork Open Simulator) is an integrated C++ simulator for studding traffic flows in Vehicular Ad-hoc Networks (VANETs). VENTOS is the main tool in C3PO research. More information [here](http://www.ece.ucdavis.edu/rubinet/projects/c3po.html ""). Some of its features are listed below:
 
 * car-following models specifically for manual driving, ACC and CACC
-* lane-changing models in multi-lane scenarios
 * mode switch between ACC, CACC
 * simulation of 'CACC vehicle stream' and 'CACC platoon'
+* Implementing a platoon management protocol that supports different maneuvers such as merge, split, entry, follower leave, platoon leader leave
 * simulation of mix traffic scenarios (cars, trucks, etc)
 * testing different speed profiles
 * study the local/string stability
 * study the effect of Packet Loss Ratio (PLR) on string stability
-* Implementing a platoon management protocol that supports these maneuvers: 
-  1) entry 2) merge 3) split 4) follower leave 5) platoon leader leave
 * studing differenr security attacks using 'adversary module'
 * supports 'Automatic Incident Detection' in highway / arterial
 * IEEE 802.11p protocol for V2V and I2V communications
@@ -21,6 +19,8 @@ VENTOS (VEhicular NeTwork Open Simulator) is an integrated C++ simulator for stu
 <p align="center">
   <img src="https://dl.dropboxusercontent.com/u/5153771/simulation.png" alt="Simulation Output" style="width: 110%"/>
 </p>
+
+Watch simulation videos from [here](https://www.youtube.com/user/RubinetLab "").
 
 ---
 
@@ -32,16 +32,15 @@ VENTOS is made up of many different modules including:
 
 **Simulation of Urban Mobility (SUMO):** SUMO is an open source, microscopic, continuous-space, discrete-time road traffic simulator, developed at German Aerospace Center. We implemented multiple car following models in SUMO.
 
-**Eigen library:** Eigen is a C++ template library for linear algebra: matrices, vectors, numerical solvers, and related algorithms. We use this library for matrix calculations. Eigen is a header only library.
+**Eigen library:** Eigen is a C++ template library for linear algebra: matrices, vectors, numerical solvers, and related algorithms. We use this library for matrix calculations. Eigen is a header only library, and is included in VENTOS.
 
-**Boost library:** Boost provides free peer-reviewed portable C++ source libraries which can be found [here](http://www.boost.org/doc/libs/ ""). We are using boost tokenizer, filesystem, etc. In Ubuntu, make sure to install libboost-filesystem1.48-dev, and libboost-system1.48-dev packages.
+**RapidXML:** RapidXml is an attempt to create the fastest XML parser possible, while retaining useability, portability and reasonable W3C compatibility. It is an in-situ parser written in modern C++, with parsing speed approaching that of strlen function executed on the same data. RapidXML is a header only library, and is included in VENTOS.
 
-**RapidXML:** RapidXml is an attempt to create the fastest XML parser possible, while retaining useability, portability and reasonable W3C compatibility. It is an in-situ parser written in modern C++, with parsing speed approaching that of strlen function executed on the same data.
+**Boost library:** Boost provides free peer-reviewed portable C++ source libraries which can be found [here](http://www.boost.org/doc/libs/ ""). We are using boost tokenizer, filesystem, etc. In Ubuntu, make sure to install `libboost-filesystem1.48-dev`, and `libboost-system1.48-dev` packages.
 
-**OpenSSL library:** OpenSSL is an open-source implementation of the SSL and TLS protocols. The core library, written in the C programming language, implements the basic cryptographic functions and provides various utility functions. We use OpenSSL library to sign and verify different messages. In Ubuntu, you can install libssl-dev package.
+**OpenSSL library:** OpenSSL is an open-source implementation of the SSL and TLS protocols. The core library, written in the C programming language, implements the basic cryptographic functions and provides various utility functions. We use OpenSSL library to sign and verify different messages. In Ubuntu, make sure to install `libssl-dev` package.
 
 ---
-
 
 Install OMNET++
 ---------------
@@ -72,7 +71,7 @@ Find the tool-tips group on the Specific tab, and change the settings to black f
 
         export TCL_LIBRARY=/usr/share/tcltk/tcl8.5
 
-**Step 6:** In the OMNeT++ directory, type the following command. The configure script detects installed software and configuration of your system. It writes the results into the Makefile.inc file, which will be read by the makefiles during the build process. Pay close attention to errors and warnings! (ignore warnings regarding Akaroa!).
+**Step 6:** In the OMNeT++ directory, type the following command. The configure script detects installed software and configuration of your system. It writes the results into the `Makefile.inc` file, which will be read by the makefiles during the build process. Pay close attention to errors and warnings! (ignore warnings regarding Akaroa!).
 
         ./configure
 
