@@ -14,6 +14,7 @@
 #include "Global_06_Warmup.h"
 #include "Global_07_SpeedProfile.h"
 #include "Global_09_TrafficLight.h"
+#include "Global_10_Tracking.h"
 
 #include <sstream>
 #include <iostream>
@@ -51,19 +52,6 @@ class TraCI_App : public TraCI_Extend
 
         // NED variable
         double terminate;
-
-        // NED variables (GUI)
-        bool tracking;
-        double zoom;
-        double initialWindowsOffset;
-        double trackingInterval;
-        int trackingMode;
-        string trackingV;
-        string trackingLane;
-        double windowsOffset;
-
-	    // class variables
-        cMessage* updataGUI;
 };
 
 

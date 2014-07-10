@@ -1,7 +1,6 @@
 
 package c3po.ned;
 
-import org.car2x.veins.modules.mobility.traci.TraCIScenarioManagerLaunchd;
 
 simple RSUAdd
 {

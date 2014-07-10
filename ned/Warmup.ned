@@ -1,7 +1,6 @@
 
 package c3po.ned;
-//import org.mixim.modules.mobility.traci.TraCIScenarioManagerLaunchd;
-package org.car2x.veins.modules.mobility.traci.TraCIScenarioManagerLaunchd;
+
 
 simple Warmup
 {

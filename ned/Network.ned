@@ -13,9 +13,9 @@ network Network
         double playgroundSizeX @unit(m); // x size of the area the nodes are in (in meters)
         double playgroundSizeY @unit(m); // y size of the area the nodes are in (in meters)
         double playgroundSizeZ @unit(m); // z size of the area the nodes are in (in meters)
-        
+
         string SUMODirectory = default(""); // location of SUMO .ned and .rou files
-        
+
         // do not put @display here!
         // it automatically adjust itself based on the playground size in ini
     submodules:
@@ -38,19 +38,23 @@ network Network
         }
         TraCI: TraCI_App {
             parameters:
-                @display("p=153,372");
+                @display("p=145,372");
+        }
+        Tracking: Tracking {
+            parameters:
+                @display("p=221,372");
         }
         vehicleAdd: VehicleAdd {
             parameters:
-                @display("p=235,372");
+                @display("p=301,372");
         }
         warmup: Warmup {
             parameters:
-                @display("p=323,372");
+                @display("p=61,459");
         }
         speedprofile: SpeedProfile {
             parameters:
-                @display("p=414,372");
+                @display("p=145,459");
         }
         statistics: Statistics {
             parameters:
@@ -58,15 +62,15 @@ network Network
         }
         trafficLight: TrafficLight {
             parameters:
-                @display("p=153,459;i=block/broadcast");
+                @display("p=313,459;i=block/broadcast");
         }
         router: Router {
             parameters:
-                @display("p=61,459;i=block/dispatch");
+                @display("p=235,459;i=block/dispatch");
         }
-        RSUAdd : RSUAdd {
+        RSUAdd: RSUAdd {
             parameters:
-                @display("p=235,372");            
+                @display("p=381,372");
         }
 
     connections allowunconnected:
