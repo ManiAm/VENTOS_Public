@@ -26,6 +26,7 @@ void VehicleAdd::initialize(int stage)
         on = par("on").boolValue();
         mode = par("mode").longValue();
         totalVehicles = par("totalVehicles").longValue();
+        lambda = par("lambda").longValue();
     }
 }
 
@@ -204,13 +205,19 @@ void VehicleAdd::Scenario4()
 
 void VehicleAdd::Scenario5()
 {
-    int depart = 0;
+    // get simulation time step from TraCI module
+    cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
+    ASSERT(module);
+    double timeStep = module->par("updateInterval").doubleValue();
+
+    // change from "veh/h" to "veh/timeStep"
+    lambda = lambda / (3600. * timeStep);
 
      for(int i=1; i<=totalVehicles; i++)
      {
          char vehicleName[10];
          sprintf(vehicleName, "CACC%d", i);
-         depart = depart + 10000;
+         int depart = poisson(lambda);
 
          TraCI->commandAddVehicleN(vehicleName, "TypeCACC", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
      }

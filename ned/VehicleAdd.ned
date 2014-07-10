@@ -12,5 +12,6 @@ simple VehicleAdd
         bool on = default(true);
         int mode;
         int totalVehicles;
+        int lambda;
 }
 

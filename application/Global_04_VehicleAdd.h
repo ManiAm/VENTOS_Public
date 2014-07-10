@@ -35,6 +35,7 @@ class VehicleAdd : public cSimpleModule
         bool on;
         int mode;
 	    int totalVehicles;
+	    int lambda;
 
 	    // methods
 	    void Scenario1();
