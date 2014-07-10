@@ -22,23 +22,17 @@ void TraCI_App::initialize(int stage)
         if(nodePtr == NULL)
             error("can not get a pointer to the module.");
 
-        // get the ptr of the AddVehicle module
-        cModule *module = simulation.getSystemModule()->getSubmodule("vehicleAdd");
-        AddVehiclePtr = static_cast<VehicleAdd *>(module);
-        if(AddVehiclePtr == NULL)
-            error("can not get a pointer to the AddVehicle module.");
+        // get the ptr of the Warmup module
+        cModule *module = simulation.getSystemModule()->getSubmodule("warmup");
+        WarmupPtr = static_cast<Warmup *>(module);
+        if(WarmupPtr == NULL)
+            error("can not get a pointer to the Warmup module.");
 
         // get the ptr of the SpeedProfile module
         module = simulation.getSystemModule()->getSubmodule("speedprofile");
         SpeedProfilePtr = static_cast<SpeedProfile *>(module);
         if(SpeedProfilePtr == NULL)
             error("can not get a pointer to the SpeedProfile module.");
-
-        // get the ptr of the Warmup module
-        module = simulation.getSystemModule()->getSubmodule("warmup");
-        WarmupPtr = static_cast<Warmup *>(module);
-        if(WarmupPtr == NULL)
-            error("can not get a pointer to the Warmup module.");
 
         // get the ptr of the Traffic Light module
         module = simulation.getSystemModule()->getSubmodule("trafficLight");
@@ -76,18 +70,24 @@ void TraCI_App::init_traci()
 {
     TraCI_Extend::init_traci();
 
+    // get the ptr of the AddVehicle module
+    cModule *module = simulation.getSystemModule()->getSubmodule("vehicleAdd");
+    VehicleAdd *AddVehiclePtr = static_cast<VehicleAdd *>(module);
+    if(AddVehiclePtr == NULL)
+        error("can not get a pointer to the AddVehicle module.");
+    AddVehiclePtr->Add();  // add vehicles dynamically into SUMO
+
+    // get the ptr of the AddRSU module
+    module = simulation.getSystemModule()->getSubmodule("RSUAdd");
+    RSUAdd *AddRSUPtr = static_cast<RSUAdd *>(module);
+    if(AddRSUPtr == NULL)
+        error("can not get a pointer to the AddRSU module.");
+    AddRSUPtr->Add();  // add RSUs into SUMO
+
     // create adversary node into the network
     bool adversary = par("adversary").boolValue();
     if(adversary)
         AddAdversaryModule();
-
-    // create RSU modules in the network
-    bool RSU = par("RSU").boolValue();
-    if(RSU)
-        AddRSUModules();
-
-    // add vehicles dynamically into SUMO
-    AddVehiclePtr->Add();
 
     // track vehicles in SUMO GUI
     tracking = par("tracking").boolValue();
@@ -140,62 +140,6 @@ void TraCI_App::AddAdversaryModule()
     mod->buildInside();
     mod->scheduleStart(simTime());
     mod->callInitialize();
-}
-
-
-void TraCI_App::AddRSUModules()
-{
-    // ####################################
-    // Step 1: read RSU locations from file
-    // ####################################
-
-    string RSUfile = par("RSUfile").stringValue();
-    boost::filesystem::path RSUfilePath = SUMOfullDirectory / RSUfile;
-
-    // check if this file is valid?
-    if( !exists( RSUfilePath ) )
-    {
-        error("RSU file does not exist in %s", RSUfilePath.string().c_str());
-    }
-
-    deque<RSUEntry*> RSUs = commandReadRSUsCoord(RSUfilePath.string());
-
-    // ################################
-    // Step 2: create RSUs into OMNET++
-    // ################################
-
-    int NoRSUs = RSUs.size();
-
-    cModule* parentMod = getParentModule();
-    if (!parentMod) error("Parent Module not found");
-
-    cModuleType* nodeType = cModuleType::get("c3po.ned.RSU");
-
-    // We only create RSUs in OMNET++ without moving them to
-    // the correct coordinate
-    for(int i = 0; i < NoRSUs; i++)
-    {
-        cModule* mod = nodeType->create("RSU", parentMod, NoRSUs, i);
-        mod->finalizeParameters();
-        mod->getDisplayString().updateWith("i=device/antennatower");
-        mod->buildInside();
-        mod->scheduleStart(simTime());
-        mod->callInitialize();
-    }
-
-    // ##################################################
-    // Step 3: create a polygon for radio circle in SUMO
-    // ##################################################
-
-    // get the radius of an RSU
-    cModule *module = simulation.getSystemModule()->getSubmodule("RSU", 0);
-    double radius = atof( module->getDisplayString().getTagArg("r",0) );
-
-    for(int i = 0; i < NoRSUs; i++)
-    {
-        Coord *center = new Coord(RSUs[i]->coordX, RSUs[i]->coordY);
-        commandAddCirclePoly(RSUs[i]->name, "RSU", TraCIColor::fromTkColor("blue"), center, radius);
-    }
 }
 
 

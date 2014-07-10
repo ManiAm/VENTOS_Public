@@ -64,6 +64,10 @@ network Network
             parameters:
                 @display("p=61,459;i=block/dispatch");
         }
+        RSUAdd : RSUAdd {
+            parameters:
+                @display("p=235,372");            
+        }
 
     connections allowunconnected:
 }

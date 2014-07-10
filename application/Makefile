@@ -41,18 +41,20 @@ O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Object files for local .cc and .msg files
 OBJS = \
+    $O/Global_05_RSUAdd.o \
     $O/ApplV_05e_LeaderLeave.o \
     $O/Global_03_Statistics.o \
     $O/zApplVPlatoonFormation2.o \
     $O/NodeEdge.o \
     $O/RSUMobility.o \
     $O/ApplV_05b_Merge.o \
+    $O/Global_07_SpeedProfile.o \
+    $O/Global_08_Router.o \
     $O/ApplV_06_Manager.o \
     $O/zApplVPlatoonFormation.o \
     $O/Global_02_TraCI_App.o \
     $O/Mac1609_4_Mod.o \
     $O/ApplV_05a_Entry.o \
-    $O/Global_07_Router.o \
     $O/ApplRSU_01_Base.o \
     $O/Global_04_VehicleAdd.o \
     $O/ApplV_05c_Split.o \
@@ -64,11 +66,10 @@ OBJS = \
     $O/ApplAdversary.o \
     $O/ApplV_05_PlatoonMg.o \
     $O/ApplRSU_03_Manager.o \
-    $O/Global_08_TrafficLight.o \
+    $O/Global_09_TrafficLight.o \
     $O/ApplV_01_Base.o \
     $O/ApplRSU_02_AID.o \
-    $O/Global_05_Warmup.o \
-    $O/Global_06_SpeedProfile.o
+    $O/Global_06_Warmup.o
 
 # Message files
 MSGFILES =
@@ -849,9 +850,10 @@ $O/Global_02_TraCI_App.o: Global_02_TraCI_App.cc \
 	Global_02_TraCI_App.h \
 	Global_03_Statistics.h \
 	Global_04_VehicleAdd.h \
-	Global_05_Warmup.h \
-	Global_06_SpeedProfile.h \
-	Global_08_TrafficLight.h \
+	Global_05_RSUAdd.h \
+	Global_06_Warmup.h \
+	Global_07_SpeedProfile.h \
+	Global_09_TrafficLight.h \
 	msg/Messages_m.h \
 	$(VEINSGIT_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
 	$(VEINSGIT_PROJ)/src/base/connectionManager/ChannelAccess.h \
@@ -979,7 +981,7 @@ $O/Global_04_VehicleAdd.o: Global_04_VehicleAdd.cc \
 	$(VEINSGIT_PROJ)/src/modules/obstacle/ObstacleControl.h \
 	$(VEINSGIT_PROJ)/src/modules/utility/Consts80211p.h \
 	$(VEINSGIT_PROJ)/src/modules/world/annotations/AnnotationManager.h
-$O/Global_05_Warmup.o: Global_05_Warmup.cc \
+$O/Global_05_RSUAdd.o: Global_05_RSUAdd.cc \
 	Appl.h \
 	ApplV_01_Base.h \
 	ApplV_02_Beacon.h \
@@ -988,9 +990,7 @@ $O/Global_05_Warmup.o: Global_05_Warmup.cc \
 	ApplV_05_PlatoonMg.h \
 	ApplV_06_Manager.h \
 	Global_01_TraCI_Extend.h \
-	Global_04_VehicleAdd.h \
-	Global_05_Warmup.h \
-	Global_06_SpeedProfile.h \
+	Global_05_RSUAdd.h \
 	msg/Messages_m.h \
 	$(VEINSGIT_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
 	$(VEINSGIT_PROJ)/src/base/connectionManager/ChannelAccess.h \
@@ -1028,10 +1028,59 @@ $O/Global_05_Warmup.o: Global_05_Warmup.cc \
 	$(VEINSGIT_PROJ)/src/modules/obstacle/ObstacleControl.h \
 	$(VEINSGIT_PROJ)/src/modules/utility/Consts80211p.h \
 	$(VEINSGIT_PROJ)/src/modules/world/annotations/AnnotationManager.h
-$O/Global_06_SpeedProfile.o: Global_06_SpeedProfile.cc \
+$O/Global_06_Warmup.o: Global_06_Warmup.cc \
+	Appl.h \
+	ApplV_01_Base.h \
+	ApplV_02_Beacon.h \
+	ApplV_03_System.h \
+	ApplV_04_AID.h \
+	ApplV_05_PlatoonMg.h \
+	ApplV_06_Manager.h \
+	Global_01_TraCI_Extend.h \
+	Global_04_VehicleAdd.h \
+	Global_06_Warmup.h \
+	Global_07_SpeedProfile.h \
+	msg/Messages_m.h \
+	$(VEINSGIT_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
+	$(VEINSGIT_PROJ)/src/base/connectionManager/ChannelAccess.h \
+	$(VEINSGIT_PROJ)/src/base/connectionManager/NicEntry.h \
+	$(VEINSGIT_PROJ)/src/base/messages/MacPkt_m.h \
+	$(VEINSGIT_PROJ)/src/base/modules/BaseApplLayer.h \
+	$(VEINSGIT_PROJ)/src/base/modules/BaseBattery.h \
+	$(VEINSGIT_PROJ)/src/base/modules/BaseLayer.h \
+	$(VEINSGIT_PROJ)/src/base/modules/BaseMobility.h \
+	$(VEINSGIT_PROJ)/src/base/modules/BaseModule.h \
+	$(VEINSGIT_PROJ)/src/base/modules/BaseWorldUtility.h \
+	$(VEINSGIT_PROJ)/src/base/modules/BatteryAccess.h \
+	$(VEINSGIT_PROJ)/src/base/utils/FindModule.h \
+	$(VEINSGIT_PROJ)/src/base/utils/HostState.h \
+	$(VEINSGIT_PROJ)/src/base/utils/MiXiMDefs.h \
+	$(VEINSGIT_PROJ)/src/base/utils/Move.h \
+	$(VEINSGIT_PROJ)/src/base/utils/NetwToMacControlInfo.h \
+	$(VEINSGIT_PROJ)/src/base/utils/PassedMessage.h \
+	$(VEINSGIT_PROJ)/src/base/utils/SimpleAddress.h \
+	$(VEINSGIT_PROJ)/src/base/utils/miximkerneldefs.h \
+	$(VEINSGIT_PROJ)/src/inet/Coord.h \
+	$(VEINSGIT_PROJ)/src/inet/FWMath.h \
+	$(VEINSGIT_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
+	$(VEINSGIT_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
+	$(VEINSGIT_PROJ)/src/modules/mobility/traci/TraCIBuffer.h \
+	$(VEINSGIT_PROJ)/src/modules/mobility/traci/TraCIColor.h \
+	$(VEINSGIT_PROJ)/src/modules/mobility/traci/TraCICommandInterface.h \
+	$(VEINSGIT_PROJ)/src/modules/mobility/traci/TraCIConnection.h \
+	$(VEINSGIT_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
+	$(VEINSGIT_PROJ)/src/modules/mobility/traci/TraCICoord.h \
+	$(VEINSGIT_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
+	$(VEINSGIT_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
+	$(VEINSGIT_PROJ)/src/modules/mobility/traci/TraCIScenarioManagerLaunchd.h \
+	$(VEINSGIT_PROJ)/src/modules/obstacle/Obstacle.h \
+	$(VEINSGIT_PROJ)/src/modules/obstacle/ObstacleControl.h \
+	$(VEINSGIT_PROJ)/src/modules/utility/Consts80211p.h \
+	$(VEINSGIT_PROJ)/src/modules/world/annotations/AnnotationManager.h
+$O/Global_07_SpeedProfile.o: Global_07_SpeedProfile.cc \
 	Appl.h \
 	Global_01_TraCI_Extend.h \
-	Global_06_SpeedProfile.h \
+	Global_07_SpeedProfile.h \
 	$(VEINSGIT_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
 	$(VEINSGIT_PROJ)/src/base/connectionManager/NicEntry.h \
 	$(VEINSGIT_PROJ)/src/base/modules/BaseBattery.h \
@@ -1057,12 +1106,12 @@ $O/Global_06_SpeedProfile.o: Global_06_SpeedProfile.cc \
 	$(VEINSGIT_PROJ)/src/modules/obstacle/Obstacle.h \
 	$(VEINSGIT_PROJ)/src/modules/obstacle/ObstacleControl.h \
 	$(VEINSGIT_PROJ)/src/modules/world/annotations/AnnotationManager.h
-$O/Global_07_Router.o: Global_07_Router.cc \
+$O/Global_08_Router.o: Global_08_Router.cc \
 	Appl.h \
 	ApplV_01_Base.h \
 	ApplV_02_Beacon.h \
 	Global_01_TraCI_Extend.h \
-	Global_07_Router.h \
+	Global_08_Router.h \
 	NodeEdge.h \
 	msg/Messages_m.h \
 	$(VEINSGIT_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
@@ -1100,7 +1149,7 @@ $O/Global_07_Router.o: Global_07_Router.cc \
 	$(VEINSGIT_PROJ)/src/modules/obstacle/ObstacleControl.h \
 	$(VEINSGIT_PROJ)/src/modules/utility/Consts80211p.h \
 	$(VEINSGIT_PROJ)/src/modules/world/annotations/AnnotationManager.h
-$O/Global_08_TrafficLight.o: Global_08_TrafficLight.cc \
+$O/Global_09_TrafficLight.o: Global_09_TrafficLight.cc \
 	Appl.h \
 	ApplV_01_Base.h \
 	ApplV_02_Beacon.h \
@@ -1109,7 +1158,7 @@ $O/Global_08_TrafficLight.o: Global_08_TrafficLight.cc \
 	ApplV_05_PlatoonMg.h \
 	ApplV_06_Manager.h \
 	Global_01_TraCI_Extend.h \
-	Global_08_TrafficLight.h \
+	Global_09_TrafficLight.h \
 	msg/Messages_m.h \
 	$(VEINSGIT_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
 	$(VEINSGIT_PROJ)/src/base/connectionManager/ChannelAccess.h \
