@@ -134,13 +134,13 @@ string TraCI_Extend::createLaunch()
     // create a node called basedir
     xml_node<> *basedir = doc.allocate_node(node_element, "basedir");
 
-    // append basedir to the launch
-    xml_node<> *node = doc.first_node("launch");
-    node->append_node(basedir);
-
     // append attribute to basedir
     xml_attribute<> *attr = doc.allocate_attribute("path", SUMOfullDirectory.c_str());
     basedir->append_attribute(attr);
+
+    // append basedir to the launch
+    xml_node<> *node = doc.first_node("launch");
+    node->append_node(basedir);
 
     if (seed == -1)
     {
@@ -152,14 +152,15 @@ string TraCI_Extend::createLaunch()
     // create a node called seed
     xml_node<> *seedN = doc.allocate_node(node_element, "seed");
 
-    // append seed to the launch
-    xml_node<> *node1 = doc.first_node("launch");
-    node1->append_node(seedN);
-
     // append attribute to seed
     stringstream ss; ss << seed;
     xml_attribute<> *attr1 = doc.allocate_attribute( "value", ss.str().c_str() );
     seedN->append_attribute(attr1);
+
+    // append seed to the launch
+    xml_node<> *node1 = doc.first_node("launch");
+    node1->append_node(seedN);
+
 
     // todo:
 

@@ -5,6 +5,6 @@
 	<copy file="gui-settings.cfg"/>
 	<copy file="6hello.sumo.cfg" type="config"/>
 	<basedir path="/home/mani/Desktop/VENTOS/sumo/Platoon_Manag"/>
-	<seed value="u"/>
+	<seed value="0"/>
 </launch>
 
