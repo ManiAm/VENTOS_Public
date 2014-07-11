@@ -44,14 +44,12 @@ OBJS = \
     $O/Global_05_RSUAdd.o \
     $O/ApplV_05e_LeaderLeave.o \
     $O/Global_03_Statistics.o \
-    $O/zApplVPlatoonFormation2.o \
     $O/NodeEdge.o \
     $O/RSUMobility.o \
     $O/ApplV_05b_Merge.o \
     $O/Global_07_SpeedProfile.o \
     $O/Global_08_Router.o \
     $O/ApplV_06_Manager.o \
-    $O/zApplVPlatoonFormation.o \
     $O/Global_02_TraCI_App.o \
     $O/Mac1609_4_Mod.o \
     $O/ApplV_05a_Entry.o \
@@ -1329,98 +1327,5 @@ $O/RSUMobility.o: RSUMobility.cc \
 	$(VEINSGIT_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
 	$(VEINSGIT_PROJ)/src/modules/obstacle/Obstacle.h \
 	$(VEINSGIT_PROJ)/src/modules/obstacle/ObstacleControl.h \
-	$(VEINSGIT_PROJ)/src/modules/world/annotations/AnnotationManager.h
-$O/zApplVPlatoonFormation.o: zApplVPlatoonFormation.cc \
-	Appl.h \
-	ApplV_01_Base.h \
-	ApplV_02_Beacon.h \
-	ApplV_03_System.h \
-	ApplV_04_AID.h \
-	ApplV_05_PlatoonMg.h \
-	ApplV_06_Manager.h \
-	Global_01_TraCI_Extend.h \
-	msg/Messages_m.h \
-	zApplVPlatoonFormation.h \
-	$(VEINSGIT_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
-	$(VEINSGIT_PROJ)/src/base/connectionManager/ChannelAccess.h \
-	$(VEINSGIT_PROJ)/src/base/connectionManager/NicEntry.h \
-	$(VEINSGIT_PROJ)/src/base/messages/MacPkt_m.h \
-	$(VEINSGIT_PROJ)/src/base/modules/BaseApplLayer.h \
-	$(VEINSGIT_PROJ)/src/base/modules/BaseBattery.h \
-	$(VEINSGIT_PROJ)/src/base/modules/BaseLayer.h \
-	$(VEINSGIT_PROJ)/src/base/modules/BaseMobility.h \
-	$(VEINSGIT_PROJ)/src/base/modules/BaseModule.h \
-	$(VEINSGIT_PROJ)/src/base/modules/BaseWorldUtility.h \
-	$(VEINSGIT_PROJ)/src/base/modules/BatteryAccess.h \
-	$(VEINSGIT_PROJ)/src/base/utils/FindModule.h \
-	$(VEINSGIT_PROJ)/src/base/utils/HostState.h \
-	$(VEINSGIT_PROJ)/src/base/utils/MiXiMDefs.h \
-	$(VEINSGIT_PROJ)/src/base/utils/Move.h \
-	$(VEINSGIT_PROJ)/src/base/utils/NetwToMacControlInfo.h \
-	$(VEINSGIT_PROJ)/src/base/utils/PassedMessage.h \
-	$(VEINSGIT_PROJ)/src/base/utils/SimpleAddress.h \
-	$(VEINSGIT_PROJ)/src/base/utils/miximkerneldefs.h \
-	$(VEINSGIT_PROJ)/src/inet/Coord.h \
-	$(VEINSGIT_PROJ)/src/inet/FWMath.h \
-	$(VEINSGIT_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
-	$(VEINSGIT_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
-	$(VEINSGIT_PROJ)/src/modules/mobility/traci/TraCIBuffer.h \
-	$(VEINSGIT_PROJ)/src/modules/mobility/traci/TraCIColor.h \
-	$(VEINSGIT_PROJ)/src/modules/mobility/traci/TraCICommandInterface.h \
-	$(VEINSGIT_PROJ)/src/modules/mobility/traci/TraCIConnection.h \
-	$(VEINSGIT_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
-	$(VEINSGIT_PROJ)/src/modules/mobility/traci/TraCICoord.h \
-	$(VEINSGIT_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
-	$(VEINSGIT_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
-	$(VEINSGIT_PROJ)/src/modules/obstacle/Obstacle.h \
-	$(VEINSGIT_PROJ)/src/modules/obstacle/ObstacleControl.h \
-	$(VEINSGIT_PROJ)/src/modules/utility/Consts80211p.h \
-	$(VEINSGIT_PROJ)/src/modules/world/annotations/AnnotationManager.h
-$O/zApplVPlatoonFormation2.o: zApplVPlatoonFormation2.cc \
-	Appl.h \
-	ApplV_01_Base.h \
-	ApplV_02_Beacon.h \
-	ApplV_03_System.h \
-	ApplV_04_AID.h \
-	ApplV_05_PlatoonMg.h \
-	ApplV_06_Manager.h \
-	Global_01_TraCI_Extend.h \
-	msg/Messages_m.h \
-	zApplVPlatoonFormation.h \
-	zApplVPlatoonFormation2.h \
-	$(VEINSGIT_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
-	$(VEINSGIT_PROJ)/src/base/connectionManager/ChannelAccess.h \
-	$(VEINSGIT_PROJ)/src/base/connectionManager/NicEntry.h \
-	$(VEINSGIT_PROJ)/src/base/messages/MacPkt_m.h \
-	$(VEINSGIT_PROJ)/src/base/modules/BaseApplLayer.h \
-	$(VEINSGIT_PROJ)/src/base/modules/BaseBattery.h \
-	$(VEINSGIT_PROJ)/src/base/modules/BaseLayer.h \
-	$(VEINSGIT_PROJ)/src/base/modules/BaseMobility.h \
-	$(VEINSGIT_PROJ)/src/base/modules/BaseModule.h \
-	$(VEINSGIT_PROJ)/src/base/modules/BaseWorldUtility.h \
-	$(VEINSGIT_PROJ)/src/base/modules/BatteryAccess.h \
-	$(VEINSGIT_PROJ)/src/base/utils/FindModule.h \
-	$(VEINSGIT_PROJ)/src/base/utils/HostState.h \
-	$(VEINSGIT_PROJ)/src/base/utils/MiXiMDefs.h \
-	$(VEINSGIT_PROJ)/src/base/utils/Move.h \
-	$(VEINSGIT_PROJ)/src/base/utils/NetwToMacControlInfo.h \
-	$(VEINSGIT_PROJ)/src/base/utils/PassedMessage.h \
-	$(VEINSGIT_PROJ)/src/base/utils/SimpleAddress.h \
-	$(VEINSGIT_PROJ)/src/base/utils/miximkerneldefs.h \
-	$(VEINSGIT_PROJ)/src/inet/Coord.h \
-	$(VEINSGIT_PROJ)/src/inet/FWMath.h \
-	$(VEINSGIT_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
-	$(VEINSGIT_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
-	$(VEINSGIT_PROJ)/src/modules/mobility/traci/TraCIBuffer.h \
-	$(VEINSGIT_PROJ)/src/modules/mobility/traci/TraCIColor.h \
-	$(VEINSGIT_PROJ)/src/modules/mobility/traci/TraCICommandInterface.h \
-	$(VEINSGIT_PROJ)/src/modules/mobility/traci/TraCIConnection.h \
-	$(VEINSGIT_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
-	$(VEINSGIT_PROJ)/src/modules/mobility/traci/TraCICoord.h \
-	$(VEINSGIT_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
-	$(VEINSGIT_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
-	$(VEINSGIT_PROJ)/src/modules/obstacle/Obstacle.h \
-	$(VEINSGIT_PROJ)/src/modules/obstacle/ObstacleControl.h \
-	$(VEINSGIT_PROJ)/src/modules/utility/Consts80211p.h \
 	$(VEINSGIT_PROJ)/src/modules/world/annotations/AnnotationManager.h
 
