@@ -14,21 +14,31 @@ void ApplVPlatoonMg::initialize(int stage)
 	{
 	    maxPlnSize = par("maxPlatoonSize").longValue();
         optPlnSize = par("optPlatoonSize").longValue();
+        mergeEnabled = par("mergeEnabled").boolValue();
+        splitEnabled = par("splitEnabled").boolValue();
 
         vehicleState = state_idle;
         busy = false;
 
         // used in entry maneuver
+        // ----------------------
         entryManeuverEvt = new cMessage("EntryEvt", KIND_TIMER);
         double offset = dblrand() * 10;
-        scheduleAt(simTime() + offset, entryManeuverEvt);
+        scheduleAt(simTime() + offset, entryManeuverEvt); // todo: no offset for now!
+
+        plnTIMER0 = new cMessage("listening to beacons", KIND_TIMER);
+        plnTIMER0a = new cMessage("wait for lane change", KIND_TIMER);
+
+        leastDistFront = DBL_MAX;
+        leastDistBack = DBL_MAX;
 
         // used in merge maneuver
+        // ----------------------
         leadingPlnID = "";
         leadingPlnDepth = -1;
 
-        // used in merge maneuver
         plnTIMER1 = new cMessage("wait for merge reply", KIND_TIMER);
+        plnTIMER1a = new cMessage("wait to catchup", KIND_TIMER);
         plnTIMER2 = new cMessage("wait for followers ack", KIND_TIMER);
         plnTIMER3 = new cMessage("wait for merge done", KIND_TIMER);
 	}
@@ -41,8 +51,8 @@ void ApplVPlatoonMg::handleSelfMsg(cMessage* msg)
     ApplV_AID::handleSelfMsg(msg);
 
     entry_handleSelfMsg(msg);
-    merge_handleSelfMsg(msg);
-    split_handleSelfMsg(msg);
+    if(mergeEnabled) merge_handleSelfMsg(msg);
+    if(splitEnabled) split_handleSelfMsg(msg);
 }
 
 
@@ -51,8 +61,15 @@ void ApplVPlatoonMg::onBeaconVehicle(BeaconVehicle* wsm)
     // pass it down!
     ApplV_AID::onBeaconVehicle(wsm);
 
-    merge_BeaconFSM(wsm);
-    split_BeaconFSM(wsm);
+    // todo:
+    if(simTime().dbl() >= 50)
+    {
+        optPlnSize = 8;
+    }
+
+    entry_BeaconFSM(wsm);
+    if(mergeEnabled) merge_BeaconFSM(wsm);
+    if(splitEnabled) split_BeaconFSM(wsm);
 }
 
 
@@ -68,8 +85,8 @@ void ApplVPlatoonMg::onData(PlatoonMsg* wsm)
     // pass it down!
     ApplV_AID::onData(wsm);
 
-    merge_DataFSM(wsm);
-    split_DataFSM(wsm);
+    if(mergeEnabled) merge_DataFSM(wsm);
+    if(splitEnabled) split_DataFSM(wsm);
 }
 
 
@@ -173,12 +190,12 @@ void ApplVPlatoonMg::updateColor()
 }
 
 
-const char* ApplVPlatoonMg::stateToStr(int s)
+const string ApplVPlatoonMg::stateToStr(int s)
 {
     const char * statesStrings[] = {
         "state_idle",
-        "state_platoonLeader", "state_platoonMember",
-        "state_sendMergeReq", "state_waitForMergeReply", "state_mergeAccepted",
+        "state_platoonLeader", "state_platoonMember", "state_monitoring", "state_waitForLaneChange",
+        "state_sendMergeReq", "state_waitForMergeReply", "state_mergeAccepted", "state_waitForCatchup",
         "state_sendMergeDone", "state_notifyFollowers",
         "state_state_waitForAllAcks", "state_sendMergeAccept",
         "state_waitForMergeDone", "state_mergeDone"
@@ -188,7 +205,7 @@ const char* ApplVPlatoonMg::stateToStr(int s)
 }
 
 
-const char* ApplVPlatoonMg::uCommandToStr(int c)
+const string ApplVPlatoonMg::uCommandToStr(int c)
 {
     const char * uCommandStrings[] = {
         "MERGE_REQ", "MERGE_ACCEPT",

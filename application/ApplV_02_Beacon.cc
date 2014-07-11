@@ -52,6 +52,10 @@ void ApplVBeacon::initialize(int stage)
         plnSize = -1;
         plnMembersList.clear();
 
+        WATCH(plnID);
+        WATCH(myPlnDepth);
+        WATCH(plnSize);
+
         // pre-defined platoon
         if(mode == 3)
         {

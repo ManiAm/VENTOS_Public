@@ -9,7 +9,6 @@ simple ApplVPlatoonMg extends ApplVAID
         int maxPlatoonSize;
         int optPlatoonSize;
         
-      //  int entryMode;
-      //  double entryT;
-        
+        bool mergeEnabled;
+        bool splitEnabled;        
 }

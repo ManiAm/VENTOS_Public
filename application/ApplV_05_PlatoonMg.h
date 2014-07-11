@@ -23,6 +23,8 @@ class ApplVPlatoonMg : public ApplV_AID
         // NED variables
         int maxPlnSize;
         int optPlnSize;
+        bool mergeEnabled;
+        bool splitEnabled;
 
         // Variables
         enum states
@@ -31,10 +33,15 @@ class ApplVPlatoonMg : public ApplV_AID
             state_platoonLeader,
             state_platoonMember,
 
+            // entry states
+            state_monitoring,
+            state_waitForLaneChange,
+
             // merge states
             state_sendMergeReq,
             state_waitForMergeReply,
             state_mergeAccepted,
+            state_waitForCatchup,
             state_sendMergeDone,
             state_notifyFollowers,
             state_waitForAllAcks,
@@ -87,18 +94,29 @@ class ApplVPlatoonMg : public ApplV_AID
         states vehicleState;
 
 	public:
-        const char* stateToStr(int);
-        const char* uCommandToStr(int);
+        const string stateToStr(int);
+        const string uCommandToStr(int);
 
 	private:
-        cMessage* entryManeuverEvt;
         bool busy;
 
+        // entry
+        cMessage* entryManeuverEvt;
+        double leastDistFront;
+        double leastDistBack;
+        NearestVehicle *leastFront;
+        NearestVehicle *leastBack;
+
+        cMessage* plnTIMER0;
+        cMessage* plnTIMER0a;
+
+        // merge
         int leadingPlnDepth;
         string leadingPlnID;
         deque<string> secondPlnMembersList;
 
         cMessage* plnTIMER1;
+        cMessage* plnTIMER1a;
         cMessage* plnTIMER2;
         cMessage* plnTIMER3;
         cMessage* plnTIMER4;
@@ -110,7 +128,8 @@ class ApplVPlatoonMg : public ApplV_AID
         void updateColor();
 
         void entry_handleSelfMsg(cMessage* msg);
-        void entry_FSM();
+        void entry_BeaconFSM(BeaconVehicle *wsm);
+        bool SafeToChangeLane();
 
         void merge_handleSelfMsg(cMessage* msg);
         void merge_BeaconFSM(BeaconVehicle *wsm = NULL);

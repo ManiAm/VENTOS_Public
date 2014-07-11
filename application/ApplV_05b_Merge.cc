@@ -11,11 +11,47 @@ void ApplVPlatoonMg::merge_handleSelfMsg(cMessage* msg)
             vehicleState = state_sendMergeReq;
 
             // report to statistics
-            CurrentVehicleState *state = new CurrentVehicleState(SUMOvID.c_str(), stateToStr(vehicleState));
+            CurrentVehicleState *state = new CurrentVehicleState(SUMOvID.c_str(), stateToStr(vehicleState).c_str());
             simsignal_t Signal_VehicleState = registerSignal("VehicleState");
             nodePtr->emit(Signal_VehicleState, state);
 
             merge_BeaconFSM();
+        }
+    }
+    else if(msg == plnTIMER1a)
+    {
+        if(vehicleState == state_waitForCatchup)
+        {
+            // todo:
+            // check gap to the last follower
+            if(true)
+            {
+                // free agent
+                if(plnSize == 1)
+                {
+                    vehicleState = state_sendMergeDone;
+
+                    // report to statistics
+                    CurrentVehicleState *state = new CurrentVehicleState(SUMOvID.c_str(), stateToStr(vehicleState).c_str());
+                    simsignal_t Signal_VehicleState = registerSignal("VehicleState");
+                    nodePtr->emit(Signal_VehicleState, state);
+
+                    merge_DataFSM();
+                }
+                else
+                {
+                    vehicleState = state_notifyFollowers;
+
+                    // report to statistics
+                    CurrentVehicleState *state = new CurrentVehicleState(SUMOvID.c_str(), stateToStr(vehicleState).c_str());
+                    simsignal_t Signal_VehicleState = registerSignal("VehicleState");
+                    nodePtr->emit(Signal_VehicleState, state);
+
+                    merge_DataFSM();
+                }
+            }
+            else
+                scheduleAt(simTime() + 1., plnTIMER1a);
         }
     }
     else if(msg == plnTIMER2)
@@ -25,7 +61,7 @@ void ApplVPlatoonMg::merge_handleSelfMsg(cMessage* msg)
             vehicleState = state_notifyFollowers;
 
             // report to statistics
-            CurrentVehicleState *state = new CurrentVehicleState(SUMOvID.c_str(), stateToStr(vehicleState));
+            CurrentVehicleState *state = new CurrentVehicleState(SUMOvID.c_str(), stateToStr(vehicleState).c_str());
             simsignal_t Signal_VehicleState = registerSignal("VehicleState");
             nodePtr->emit(Signal_VehicleState, state);
 
@@ -39,7 +75,7 @@ void ApplVPlatoonMg::merge_handleSelfMsg(cMessage* msg)
             vehicleState = state_sendMergeAccept;
 
             // report to statistics
-            CurrentVehicleState *state = new CurrentVehicleState(SUMOvID.c_str(), stateToStr(vehicleState));
+            CurrentVehicleState *state = new CurrentVehicleState(SUMOvID.c_str(), stateToStr(vehicleState).c_str());
             simsignal_t Signal_VehicleState = registerSignal("VehicleState");
             nodePtr->emit(Signal_VehicleState, state);
 
@@ -59,7 +95,7 @@ void ApplVPlatoonMg::merge_BeaconFSM(BeaconVehicle* wsm)
             vehicleState = state_sendMergeReq;
 
             // report to statistics
-            CurrentVehicleState *state = new CurrentVehicleState(SUMOvID.c_str(), stateToStr(vehicleState));
+            CurrentVehicleState *state = new CurrentVehicleState(SUMOvID.c_str(), stateToStr(vehicleState).c_str());
             simsignal_t Signal_VehicleState = registerSignal("VehicleState");
             nodePtr->emit(Signal_VehicleState, state);
 
@@ -75,6 +111,19 @@ void ApplVPlatoonMg::merge_BeaconFSM(BeaconVehicle* wsm)
             leadingPlnDepth = wsm->getPlatoonDepth();
         }
 
+        // if its not a valid leader id!
+        if(leadingPlnID == "")
+        {
+            vehicleState = state_platoonLeader;
+
+            // report to statistics
+            CurrentVehicleState *state = new CurrentVehicleState(SUMOvID.c_str(), stateToStr(vehicleState).c_str());
+            simsignal_t Signal_VehicleState = registerSignal("VehicleState");
+            nodePtr->emit(Signal_VehicleState, state);
+
+            return;
+        }
+
         // send a unicast MERGE_REQ to its platoon leader
         PlatoonMsg* dataMsg = prepareData(leadingPlnID, MERGE_REQ, leadingPlnID, -1, "", plnMembersList);
         EV << "### " << SUMOvID << ": sent MERGE_REQ." << endl;
@@ -82,14 +131,14 @@ void ApplVPlatoonMg::merge_BeaconFSM(BeaconVehicle* wsm)
         sendDelayed(dataMsg, individualOffset, lowerLayerOut);
 
         // report to statistics
-        CurrentPlnMsg *plnMsg = new CurrentPlnMsg(dataMsg->getSender(), dataMsg->getRecipient(), uCommandToStr(dataMsg->getType()), dataMsg->getSendingPlatoonID(), dataMsg->getReceivingPlatoonID());
+        CurrentPlnMsg *plnMsg = new CurrentPlnMsg(dataMsg->getSender(), dataMsg->getRecipient(), uCommandToStr(dataMsg->getType()).c_str(), dataMsg->getSendingPlatoonID(), dataMsg->getReceivingPlatoonID());
         simsignal_t Signal_SentPlatoonMsg = registerSignal("SentPlatoonMsg");
         nodePtr->emit(Signal_SentPlatoonMsg, plnMsg);
 
         vehicleState = state_waitForMergeReply;
 
         // report to statistics
-        CurrentVehicleState *state = new CurrentVehicleState(SUMOvID.c_str(), stateToStr(vehicleState));
+        CurrentVehicleState *state = new CurrentVehicleState(SUMOvID.c_str(), stateToStr(vehicleState).c_str());
         simsignal_t Signal_VehicleState = registerSignal("VehicleState");
         nodePtr->emit(Signal_VehicleState, state);
 
@@ -106,11 +155,10 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
         if (wsm->getType() == MERGE_REJECT && wsm->getSender() == leadingPlnID)
         {
             cancelEvent(plnTIMER1);
-            //leadingPlnDepth = -1;
             vehicleState = state_platoonLeader;
 
             // report to statistics
-            CurrentVehicleState *state = new CurrentVehicleState(SUMOvID.c_str(), stateToStr(vehicleState));
+            CurrentVehicleState *state = new CurrentVehicleState(SUMOvID.c_str(), stateToStr(vehicleState).c_str());
             simsignal_t Signal_VehicleState = registerSignal("VehicleState");
             nodePtr->emit(Signal_VehicleState, state);
         }
@@ -119,7 +167,7 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
             vehicleState = state_mergeAccepted;
 
             // report to statistics
-            CurrentVehicleState *state = new CurrentVehicleState(SUMOvID.c_str(), stateToStr(vehicleState));
+            CurrentVehicleState *state = new CurrentVehicleState(SUMOvID.c_str(), stateToStr(vehicleState).c_str());
             simsignal_t Signal_VehicleState = registerSignal("VehicleState");
             nodePtr->emit(Signal_VehicleState, state);
 
@@ -132,28 +180,31 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
         TraCI->commandSetTg(SUMOvID, 0.55);
         TraCI->commandSetSpeed(SUMOvID, 30.);  // catch-up
 
-        // free agent
-        if(plnSize == 1)
+        // now we should wait until we catch-up completely
+        vehicleState = state_waitForCatchup;
+
+        // report to statistics
+        CurrentVehicleState *state = new CurrentVehicleState(SUMOvID.c_str(), stateToStr(vehicleState).c_str());
+        simsignal_t Signal_VehicleState = registerSignal("VehicleState");
+        nodePtr->emit(Signal_VehicleState, state);
+
+        scheduleAt(simTime() + 1., plnTIMER1a);
+    }
+    else if(vehicleState == state_waitForCatchup)
+    {
+        if (wsm->getType() == MERGE_REQ && wsm->getRecipient() == plnID)
         {
-            vehicleState = state_sendMergeDone;
+            // send MERGE_REJECT
+            PlatoonMsg* dataMsg = prepareData(wsm->getSender(), MERGE_REJECT, wsm->getSendingPlatoonID());
+            EV << "### " << SUMOvID << ": sent MERGE_REJECT." << endl;
+            printDataContent(dataMsg);
+            sendDelayed(dataMsg, individualOffset, lowerLayerOut);
 
             // report to statistics
-            CurrentVehicleState *state = new CurrentVehicleState(SUMOvID.c_str(), stateToStr(vehicleState));
-            simsignal_t Signal_VehicleState = registerSignal("VehicleState");
-            nodePtr->emit(Signal_VehicleState, state);
-
-            merge_DataFSM();
-        }
-        else
-        {
-            vehicleState = state_notifyFollowers;
-
-            // report to statistics
-            CurrentVehicleState *state = new CurrentVehicleState(SUMOvID.c_str(), stateToStr(vehicleState));
-            simsignal_t Signal_VehicleState = registerSignal("VehicleState");
-            nodePtr->emit(Signal_VehicleState, state);
-
-            merge_DataFSM();
+            string str = uCommandToStr(dataMsg->getType()) + " (busy)";
+            CurrentPlnMsg *plnMsg = new CurrentPlnMsg(dataMsg->getSender(), dataMsg->getRecipient(), str.c_str(), dataMsg->getSendingPlatoonID(), dataMsg->getReceivingPlatoonID());
+            simsignal_t Signal_SentPlatoonMsg = registerSignal("SentPlatoonMsg");
+            nodePtr->emit(Signal_SentPlatoonMsg, plnMsg);
         }
     }
     else if(vehicleState == state_sendMergeDone)
@@ -162,8 +213,6 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
         myPlnDepth = leadingPlnDepth + 1;
         plnSize = -1;
         plnMembersList.clear();
-
-        //leadingPlnDepth = -1;
 
         // update follower color
         updateColor();
@@ -175,14 +224,14 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
         sendDelayed(dataMsg, individualOffset, lowerLayerOut);
 
         // report to statistics
-        CurrentPlnMsg *plnMsg = new CurrentPlnMsg(dataMsg->getSender(), dataMsg->getRecipient(), uCommandToStr(dataMsg->getType()), dataMsg->getSendingPlatoonID(), dataMsg->getReceivingPlatoonID());
+        CurrentPlnMsg *plnMsg = new CurrentPlnMsg(dataMsg->getSender(), dataMsg->getRecipient(), uCommandToStr(dataMsg->getType()).c_str(), dataMsg->getSendingPlatoonID(), dataMsg->getReceivingPlatoonID());
         simsignal_t Signal_SentPlatoonMsg = registerSignal("SentPlatoonMsg");
         nodePtr->emit(Signal_SentPlatoonMsg, plnMsg);
 
         vehicleState = state_platoonMember;
 
         // report to statistics
-        CurrentVehicleState *state = new CurrentVehicleState(SUMOvID.c_str(), stateToStr(vehicleState));
+        CurrentVehicleState *state = new CurrentVehicleState(SUMOvID.c_str(), stateToStr(vehicleState).c_str());
         simsignal_t Signal_VehicleState = registerSignal("VehicleState");
         nodePtr->emit(Signal_VehicleState, state);
     }
@@ -195,14 +244,14 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
         sendDelayed(dataMsg, individualOffset, lowerLayerOut);
 
         // report to statistics
-        CurrentPlnMsg *plnMsg = new CurrentPlnMsg(dataMsg->getSender(), dataMsg->getRecipient(), uCommandToStr(dataMsg->getType()), dataMsg->getSendingPlatoonID(), dataMsg->getReceivingPlatoonID());
+        CurrentPlnMsg *plnMsg = new CurrentPlnMsg(dataMsg->getSender(), dataMsg->getRecipient(), uCommandToStr(dataMsg->getType()).c_str(), dataMsg->getSendingPlatoonID(), dataMsg->getReceivingPlatoonID());
         simsignal_t Signal_SentPlatoonMsg = registerSignal("SentPlatoonMsg");
         nodePtr->emit(Signal_SentPlatoonMsg, plnMsg);
 
         vehicleState = state_waitForAllAcks;
 
         // report to statistics
-        CurrentVehicleState *state = new CurrentVehicleState(SUMOvID.c_str(), stateToStr(vehicleState));
+        CurrentVehicleState *state = new CurrentVehicleState(SUMOvID.c_str(), stateToStr(vehicleState).c_str());
         simsignal_t Signal_VehicleState = registerSignal("VehicleState");
         nodePtr->emit(Signal_VehicleState, state);
 
@@ -223,7 +272,7 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
                 vehicleState = state_sendMergeDone;
 
                 // report to statistics
-                CurrentVehicleState *state = new CurrentVehicleState(SUMOvID.c_str(), stateToStr(vehicleState));
+                CurrentVehicleState *state = new CurrentVehicleState(SUMOvID.c_str(), stateToStr(vehicleState).c_str());
                 simsignal_t Signal_VehicleState = registerSignal("VehicleState");
                 nodePtr->emit(Signal_VehicleState, state);
 
@@ -246,7 +295,7 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
             sendDelayed(dataMsg, individualOffset, lowerLayerOut);
 
             // report to statistics
-            CurrentPlnMsg *plnMsg = new CurrentPlnMsg(dataMsg->getSender(), dataMsg->getRecipient(), uCommandToStr(dataMsg->getType()), dataMsg->getSendingPlatoonID(), dataMsg->getReceivingPlatoonID());
+            CurrentPlnMsg *plnMsg = new CurrentPlnMsg(dataMsg->getSender(), dataMsg->getRecipient(), uCommandToStr(dataMsg->getType()).c_str(), dataMsg->getSendingPlatoonID(), dataMsg->getReceivingPlatoonID());
             simsignal_t Signal_SentPlatoonMsg = registerSignal("SentPlatoonMsg");
             nodePtr->emit(Signal_SentPlatoonMsg, plnMsg);
         }
@@ -261,7 +310,7 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
         {
             int finalPlnSize =  wsm->getQueueValue().size() + plnSize;
 
-            if(busy || finalPlnSize >= optPlnSize)
+            if(busy || finalPlnSize > optPlnSize)
             {
                 // send MERGE_REJECT
                 PlatoonMsg* dataMsg = prepareData(wsm->getSender(), MERGE_REJECT, wsm->getSendingPlatoonID());
@@ -270,7 +319,10 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
                 sendDelayed(dataMsg, individualOffset, lowerLayerOut);
 
                 // report to statistics
-                CurrentPlnMsg *plnMsg = new CurrentPlnMsg(dataMsg->getSender(), dataMsg->getRecipient(), uCommandToStr(dataMsg->getType()), dataMsg->getSendingPlatoonID(), dataMsg->getReceivingPlatoonID());
+                string str;
+                if(busy) str = uCommandToStr(dataMsg->getType()) + " (busy)";
+                else str = uCommandToStr(dataMsg->getType()) + " (optPlnSize)";
+                CurrentPlnMsg *plnMsg = new CurrentPlnMsg(dataMsg->getSender(), dataMsg->getRecipient(), str.c_str(), dataMsg->getSendingPlatoonID(), dataMsg->getReceivingPlatoonID());
                 simsignal_t Signal_SentPlatoonMsg = registerSignal("SentPlatoonMsg");
                 nodePtr->emit(Signal_SentPlatoonMsg, plnMsg);
             }
@@ -282,7 +334,7 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
                 vehicleState = state_sendMergeAccept;
 
                 // report to statistics
-                CurrentVehicleState *state = new CurrentVehicleState(SUMOvID.c_str(), stateToStr(vehicleState));
+                CurrentVehicleState *state = new CurrentVehicleState(SUMOvID.c_str(), stateToStr(vehicleState).c_str());
                 simsignal_t Signal_VehicleState = registerSignal("VehicleState");
                 nodePtr->emit(Signal_VehicleState, state);
 
@@ -293,13 +345,13 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
     else if(vehicleState == state_sendMergeAccept)
     {
         // send MERGE_ACCEPT
-        PlatoonMsg* dataMsg = prepareData(wsm->getSender(), MERGE_ACCEPT, wsm->getSendingPlatoonID());
+        PlatoonMsg* dataMsg = prepareData(secondPlnMembersList.front().c_str(), MERGE_ACCEPT, secondPlnMembersList.front().c_str());
         EV << "### " << SUMOvID << ": sent MERGE_ACCEPT." << endl;
         printDataContent(dataMsg);
         sendDelayed(dataMsg, individualOffset, lowerLayerOut);
 
         // report to statistics
-        CurrentPlnMsg *plnMsg = new CurrentPlnMsg(dataMsg->getSender(), dataMsg->getRecipient(), uCommandToStr(dataMsg->getType()), dataMsg->getSendingPlatoonID(), dataMsg->getReceivingPlatoonID());
+        CurrentPlnMsg *plnMsg = new CurrentPlnMsg(dataMsg->getSender(), dataMsg->getRecipient(), uCommandToStr(dataMsg->getType()).c_str(), dataMsg->getSendingPlatoonID(), dataMsg->getReceivingPlatoonID());
         simsignal_t Signal_SentPlatoonMsg = registerSignal("SentPlatoonMsg");
         nodePtr->emit(Signal_SentPlatoonMsg, plnMsg);
 
@@ -309,7 +361,7 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
         vehicleState = state_waitForMergeDone;
 
         // report to statistics
-        CurrentVehicleState *state = new CurrentVehicleState(SUMOvID.c_str(), stateToStr(vehicleState));
+        CurrentVehicleState *state = new CurrentVehicleState(SUMOvID.c_str(), stateToStr(vehicleState).c_str());
         simsignal_t Signal_VehicleState = registerSignal("VehicleState");
         nodePtr->emit(Signal_VehicleState, state);
 
@@ -323,7 +375,7 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
             vehicleState = state_mergeDone;
 
             // report to statistics
-            CurrentVehicleState *state = new CurrentVehicleState(SUMOvID.c_str(), stateToStr(vehicleState));
+            CurrentVehicleState *state = new CurrentVehicleState(SUMOvID.c_str(), stateToStr(vehicleState).c_str());
             simsignal_t Signal_VehicleState = registerSignal("VehicleState");
             nodePtr->emit(Signal_VehicleState, state);
 
@@ -345,7 +397,7 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
             sendDelayed(dataMsg, individualOffset, lowerLayerOut);
 
             // report to statistics
-            CurrentPlnMsg *plnMsg = new CurrentPlnMsg(dataMsg->getSender(), dataMsg->getRecipient(), uCommandToStr(dataMsg->getType()), dataMsg->getSendingPlatoonID(), dataMsg->getReceivingPlatoonID());
+            CurrentPlnMsg *plnMsg = new CurrentPlnMsg(dataMsg->getSender(), dataMsg->getRecipient(), uCommandToStr(dataMsg->getType()).c_str(), dataMsg->getSendingPlatoonID(), dataMsg->getReceivingPlatoonID());
             simsignal_t Signal_SentPlatoonMsg = registerSignal("SentPlatoonMsg");
             nodePtr->emit(Signal_SentPlatoonMsg, plnMsg);
         }
@@ -355,7 +407,7 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
         vehicleState = state_platoonLeader;
 
         // report to statistics
-        CurrentVehicleState *state = new CurrentVehicleState(SUMOvID.c_str(), stateToStr(vehicleState));
+        CurrentVehicleState *state = new CurrentVehicleState(SUMOvID.c_str(), stateToStr(vehicleState).c_str());
         simsignal_t Signal_VehicleState = registerSignal("VehicleState");
         nodePtr->emit(Signal_VehicleState, state);
     }

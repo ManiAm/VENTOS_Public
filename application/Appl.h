@@ -154,11 +154,27 @@ class RSUEntry
       double coordX;
       double coordY;
 
-      RSUEntry(const char *str1, double x, double y)
+      RSUEntry(const char *str, double x, double y)
       {
-          strcpy(this->name, str1);
+          strcpy(this->name, str);
           this->coordX = x;
           this->coordY = y;
+      }
+};
+
+
+class NearestVehicle
+{
+  public:
+      char name[20];
+      int depth;
+      double dist;
+
+      NearestVehicle(const char *str, int n, double x)
+      {
+          strcpy(this->name, str);
+          this->depth = n;
+          this->dist = x;
       }
 };
 
