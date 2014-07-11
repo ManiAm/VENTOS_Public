@@ -22,9 +22,8 @@ void ApplVPlatoonMg::merge_handleSelfMsg(cMessage* msg)
     {
         if(vehicleState == state_waitForCatchup)
         {
-            // todo:
             // check gap to the last follower
-            if(true)
+            if( CatchupDone() )
             {
                 // free agent
                 if(plnSize == 1)
@@ -111,8 +110,8 @@ void ApplVPlatoonMg::merge_BeaconFSM(BeaconVehicle* wsm)
             leadingPlnDepth = wsm->getPlatoonDepth();
         }
 
-        // if its not a valid leader id!
-        if(leadingPlnID == "")
+        // if its not a valid leader id or depth!
+        if(leadingPlnID == "" || leadingPlnDepth == -1)
         {
             vehicleState = state_platoonLeader;
 
@@ -192,6 +191,8 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
     }
     else if(vehicleState == state_waitForCatchup)
     {
+        // if we are in waitForCatchup and receive a
+        // MERGE_REQ then we should reject it!
         if (wsm->getType() == MERGE_REQ && wsm->getRecipient() == plnID)
         {
             // send MERGE_REJECT
@@ -284,10 +285,6 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
     {
         if (wsm->getType() == CHANGE_PL && wsm->getSender() == plnID)
         {
-            plnID = wsm->getStrValue();
-            myPlnDepth = myPlnDepth + wsm->getDblValue();
-            updateColor();
-
             // send ACK
             PlatoonMsg* dataMsg = prepareData(wsm->getSender(), ACK, wsm->getSendingPlatoonID());
             EV << "### " << SUMOvID << ": sent ACK." << endl;
@@ -298,6 +295,11 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
             CurrentPlnMsg *plnMsg = new CurrentPlnMsg(dataMsg->getSender(), dataMsg->getRecipient(), uCommandToStr(dataMsg->getType()).c_str(), dataMsg->getSendingPlatoonID(), dataMsg->getReceivingPlatoonID());
             simsignal_t Signal_SentPlatoonMsg = registerSignal("SentPlatoonMsg");
             nodePtr->emit(Signal_SentPlatoonMsg, plnMsg);
+
+            // these should be updated after sending ACK!
+            plnID = wsm->getStrValue();
+            myPlnDepth = myPlnDepth + wsm->getDblValue();
+            updateColor();
         }
         else if(wsm->getType() == CHANGE_Tg && wsm->getSender() == plnID)
         {
@@ -433,6 +435,14 @@ void ApplVPlatoonMg::RemoveFollowerFromList(string followerID)
         plnMembersList.erase(plnMembersList.begin() + i);
         plnSize--;
     }
+}
+
+
+// todo:
+bool ApplVPlatoonMg::CatchupDone()
+{
+
+    return true;
 }
 
 

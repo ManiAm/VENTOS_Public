@@ -24,10 +24,9 @@ void ApplVPlatoonMg::initialize(int stage)
         // ----------------------
         entryManeuverEvt = new cMessage("EntryEvt", KIND_TIMER);
         double offset = dblrand() * 10;
-        scheduleAt(simTime() + offset, entryManeuverEvt); // todo: no offset for now!
+        scheduleAt(simTime() + 4., entryManeuverEvt); // todo: no offset for now!
 
         plnTIMER0 = new cMessage("listening to beacons", KIND_TIMER);
-        plnTIMER0a = new cMessage("wait for lane change", KIND_TIMER);
 
         leastDistFront = DBL_MAX;
         leastDistBack = DBL_MAX;
@@ -64,7 +63,7 @@ void ApplVPlatoonMg::onBeaconVehicle(BeaconVehicle* wsm)
     // todo:
     if(simTime().dbl() >= 50)
     {
-        optPlnSize = 8;
+        optPlnSize = 13;
     }
 
     entry_BeaconFSM(wsm);
@@ -194,7 +193,7 @@ const string ApplVPlatoonMg::stateToStr(int s)
 {
     const char * statesStrings[] = {
         "state_idle",
-        "state_platoonLeader", "state_platoonMember", "state_monitoring", "state_waitForLaneChange",
+        "state_platoonLeader", "state_platoonMember", "state_waitForLaneChange",
         "state_sendMergeReq", "state_waitForMergeReply", "state_mergeAccepted", "state_waitForCatchup",
         "state_sendMergeDone", "state_notifyFollowers",
         "state_state_waitForAllAcks", "state_sendMergeAccept",

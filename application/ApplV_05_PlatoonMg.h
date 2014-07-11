@@ -34,7 +34,6 @@ class ApplVPlatoonMg : public ApplV_AID
             state_platoonMember,
 
             // entry states
-            state_monitoring,
             state_waitForLaneChange,
 
             // merge states
@@ -108,7 +107,6 @@ class ApplVPlatoonMg : public ApplV_AID
         NearestVehicle *leastBack;
 
         cMessage* plnTIMER0;
-        cMessage* plnTIMER0a;
 
         // merge
         int leadingPlnDepth;
@@ -129,12 +127,12 @@ class ApplVPlatoonMg : public ApplV_AID
 
         void entry_handleSelfMsg(cMessage* msg);
         void entry_BeaconFSM(BeaconVehicle *wsm);
-        bool SafeToChangeLane();
 
         void merge_handleSelfMsg(cMessage* msg);
         void merge_BeaconFSM(BeaconVehicle *wsm = NULL);
         void merge_DataFSM(PlatoonMsg *wsm = NULL);
         void RemoveFollowerFromList(string);
+        bool CatchupDone();
 
         void split_handleSelfMsg(cMessage* msg);
         void split_BeaconFSM(BeaconVehicle *wsm = NULL);
