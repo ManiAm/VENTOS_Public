@@ -55,25 +55,20 @@ void TraCI_Extend::initialize(int stage)
 
 void TraCI_Extend::init_traci()
 {
-    {
     // get the version of Python launchd
     pair<uint32_t, string> version = getCommandInterface()->getVersion();
     uint32_t apiVersion = version.first;
     string serverVersion = version.second;
     EV << "TraCI launchd reports apiVersion: " << apiVersion << " and serverVersion: " << serverVersion << endl;
     ASSERT(apiVersion == 1);
-    }
 
     // ---------------------------------------------------
 
-    {
     string str = createLaunch();
     commandSendFile( str );   // send the launchConfig to SUMO
-    }
 
     // ---------------------------------------------------
 
-    {
     // call commandGetVersion again to get the version of SUMO TraCI server
     pair<uint32_t, string> version2 = getCommandInterface()->getVersion();
     uint32_t apiVersion2 = version2.first;
@@ -81,11 +76,9 @@ void TraCI_Extend::init_traci()
     EV << "TraCI server reports apiVersion: " << apiVersion2 << " and serverVersion: " << serverVersion2 << endl;
     if ( !(apiVersion2 == 3 || apiVersion2 == 5 || apiVersion2 == 6 || apiVersion2 == 7 || apiVersion2 == 8) )
         error("TraCI server is unsupported.");
-    }
 
     // ---------------------------------------------------
 
-    {
     // get network boundaries from SUMO
     double* bounds = commandGetNetworkBoundary();
     EV << "TraCI reports network boundaries (" << bounds[0] << ", " << bounds[1] << ")-(" << bounds[2] << ", " << bounds[3] << ")" << endl;
@@ -95,18 +88,13 @@ void TraCI_Extend::init_traci()
     netbounds2 = TraCICoord(bounds[2], bounds[3]);
     if ((traci2omnet(netbounds2).x > world->getPgs()->x) || (traci2omnet(netbounds1).y > world->getPgs()->y))
         EV << "WARNING: Playground size (" << world->getPgs()->x << ", " << world->getPgs()->y << ") might be too small for vehicle at network bounds (" << traci2omnet(netbounds2).x << ", " << traci2omnet(netbounds1).y << ")" << endl;
-    }
     // ---------------------------------------------------
 
-    {
     // subscribe to list of departed and arrived vehicles, as well as simulation time
     commandSubscribeSimulation();
-    }
 
-    {
     // subscribe to list of vehicle ids
     commandSubscribeVehicle();
-    }
 
     ObstacleControl* obstacles = ObstacleControlAccess().getIfExists();
     if (obstacles)
@@ -890,6 +878,21 @@ void TraCI_Extend::commandSetTg(string nodeId, double value)
 
     TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
     ASSERT(buf.eof());
+}
+
+
+int32_t TraCI_Extend::commandMakeLaneChangeMode(uint8_t TraciLaneChangePriority, uint8_t RightDriveLC, uint8_t SpeedGainLC, uint8_t CooperativeLC, uint8_t StrategicLC)
+{
+    // only two less-significant bits are needed
+    StrategicLC = StrategicLC & 3;
+    CooperativeLC = CooperativeLC & 3;
+    SpeedGainLC = SpeedGainLC & 3;
+    RightDriveLC = RightDriveLC & 3;
+    TraciLaneChangePriority = TraciLaneChangePriority & 3;
+
+    int32_t bitset = StrategicLC + (CooperativeLC << 2) + (SpeedGainLC << 4) + (RightDriveLC << 6) + (TraciLaneChangePriority << 8);
+
+    return bitset;
 }
 
 

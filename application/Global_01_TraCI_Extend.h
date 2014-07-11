@@ -105,6 +105,7 @@ class TraCI_Extend : public TraCIScenarioManager
         void commandSetMaxAccel(string, double);
         void commandSetMaxDecel(string, double);
         void commandSetTg(string, double);
+        int32_t commandMakeLaneChangeMode(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t);
         void commandSetLaneChangeMode(string, int32_t);
         void commandAddVehicleN(string, string, string, int32_t, double, double, uint8_t);
         void commandSetCFParameters(string, string);      // new defined command

@@ -17,7 +17,11 @@ void ApplVPlatoonMg::entry_FSM()
     if(vehicleState == state_idle)
     {
         TraCI->commandSetvClass(SUMOvID, "vip");   // change vClass
+
+        int32_t bitset = TraCI->commandMakeLaneChangeMode(10, 01, 01, 01, 01);
+        TraCI->commandSetLaneChangeMode(SUMOvID, bitset);  // lane change mode
         TraCI->commandChangeLane(SUMOvID, 1, 5);   // change to lane 1 (special lane)
+
         TraCI->commandSetSpeed(SUMOvID, 5.);       // set speed to 5 m/s
 
         // make it a free agent
