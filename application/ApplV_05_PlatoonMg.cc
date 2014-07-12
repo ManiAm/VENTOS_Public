@@ -23,7 +23,7 @@ void ApplVPlatoonMg::initialize(int stage)
         // used in entry maneuver
         // ----------------------
         entryManeuverEvt = new cMessage("EntryEvt", KIND_TIMER);
-        double offset = dblrand() * 10;
+        //double offset = dblrand() * 10;
         scheduleAt(simTime() + 4., entryManeuverEvt); // todo: no offset for now!
 
         plnTIMER0 = new cMessage("listening to beacons", KIND_TIMER);
@@ -36,10 +36,10 @@ void ApplVPlatoonMg::initialize(int stage)
         leadingPlnID = "";
         leadingPlnDepth = -1;
 
-        plnTIMER1 = new cMessage("wait for merge reply", KIND_TIMER);
+        plnTIMER1  = new cMessage("wait for merge reply", KIND_TIMER);
         plnTIMER1a = new cMessage("wait to catchup", KIND_TIMER);
-        plnTIMER2 = new cMessage("wait for followers ack", KIND_TIMER);
-        plnTIMER3 = new cMessage("wait for merge done", KIND_TIMER);
+        plnTIMER2  = new cMessage("wait for followers ack", KIND_TIMER);
+        plnTIMER3  = new cMessage("wait for merge done", KIND_TIMER);
 	}
 }
 
@@ -61,7 +61,7 @@ void ApplVPlatoonMg::onBeaconVehicle(BeaconVehicle* wsm)
     ApplV_AID::onBeaconVehicle(wsm);
 
     // todo:
-    if(simTime().dbl() >= 50)
+    if(simTime().dbl() >= 40)
     {
         optPlnSize = 13;
     }
@@ -165,6 +165,7 @@ void ApplVPlatoonMg::printDataContent(PlatoonMsg* wsm)
 
 
 // change follower blue color to show depth
+// only platoon leader can call this!
 void ApplVPlatoonMg::updateColorDepth()
 {
     if(vehicleState != state_platoonLeader)

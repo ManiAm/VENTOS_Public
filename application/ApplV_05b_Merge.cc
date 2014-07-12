@@ -23,7 +23,7 @@ void ApplVPlatoonMg::merge_handleSelfMsg(cMessage* msg)
         if(vehicleState == state_waitForCatchup)
         {
             // check gap to the last follower
-            if( CatchupDone() )
+            if( CatchUpDone() )
             {
                 // free agent
                 if(plnSize == 1)
@@ -50,7 +50,7 @@ void ApplVPlatoonMg::merge_handleSelfMsg(cMessage* msg)
                 }
             }
             else
-                scheduleAt(simTime() + 1., plnTIMER1a);
+                scheduleAt(simTime() + 0.5, plnTIMER1a);
         }
     }
     else if(msg == plnTIMER2)
@@ -103,7 +103,7 @@ void ApplVPlatoonMg::merge_BeaconFSM(BeaconVehicle* wsm)
     }
     else if(vehicleState == state_sendMergeReq)
     {
-        // save these values from beacon of leading vehicle
+        // save these values from the received beacon from my preceding vehicle
         if(wsm != NULL)
         {
             leadingPlnID = wsm->getPlatoonID();
@@ -438,11 +438,23 @@ void ApplVPlatoonMg::RemoveFollowerFromList(string followerID)
 }
 
 
-// todo:
-bool ApplVPlatoonMg::CatchupDone()
+bool ApplVPlatoonMg::CatchUpDone()
 {
+    // we use our sonar to check the gap
+    vector<string> vleaderIDnew = TraCI->commandGetLeading(SUMOvID, sonarDist);
+    string vleaderID = vleaderIDnew[0];
+    double gap = atof( vleaderIDnew[1].c_str() );
 
-    return true;
+//    double timeGap = 0.55; // TraCI->commandGetVehicleMinGap(SUMOvID);
+//    double speed = TraCI->commandGetVehicleSpeed(SUMOvID);
+//    double minGap = TraCI->commandGetVehicleMinGap(SUMOvID);
+//
+//    double catchupGap = (timeGap * speed) + minGap;
+
+    if(gap < 10)
+        return true;
+
+    return false;
 }
 
 

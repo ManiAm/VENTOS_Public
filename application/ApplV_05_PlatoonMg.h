@@ -47,21 +47,6 @@ class ApplVPlatoonMg : public ApplV_AID
             state_sendMergeAccept,
             state_waitForMergeDone,
             state_mergeDone,
-
-
-
-
-
-            state_wait_for_beacon,
-            stateT_create_new_platoon,    //  transient
-            state_ask_to_join,
-            stateT_joining,               // transient
-            stateT_handle_JOIN_request,   // transient
-
-            // vehicle states (platoon leader/member leave)
-            state_wait_for_new_PL,
-            state_change_PL,
-            state_parked,
         };
 
         enum uCommands
@@ -109,8 +94,8 @@ class ApplVPlatoonMg : public ApplV_AID
         cMessage* plnTIMER0;
 
         // merge
-        int leadingPlnDepth;
         string leadingPlnID;
+        int leadingPlnDepth;
         deque<string> secondPlnMembersList;
 
         cMessage* plnTIMER1;
@@ -132,7 +117,7 @@ class ApplVPlatoonMg : public ApplV_AID
         void merge_BeaconFSM(BeaconVehicle *wsm = NULL);
         void merge_DataFSM(PlatoonMsg *wsm = NULL);
         void RemoveFollowerFromList(string);
-        bool CatchupDone();
+        bool CatchUpDone();
 
         void split_handleSelfMsg(cMessage* msg);
         void split_BeaconFSM(BeaconVehicle *wsm = NULL);
