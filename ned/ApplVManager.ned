@@ -16,6 +16,4 @@ simple ApplVManager extends ApplVPlatoonMg
         bool measurementError;
         double errorGap;
         double errorRelSpeed;
-        
-        bool one_vehicle_look_ahead = default(false);
 }

@@ -19,7 +19,8 @@ void ApplVBeacon::initialize(int stage)
 	        VANETenabled = false;
 	    }
 
-        mode = par("mode").longValue();
+	    controlMode = par("controlMode").longValue();
+	    plnMode = par("plnMode").longValue();
         sonarDist = par("sonarDist").doubleValue();
 
         // NED variables (beaconing parameters)
@@ -55,20 +56,6 @@ void ApplVBeacon::initialize(int stage)
         WATCH(plnID);
         WATCH(myPlnDepth);
         WATCH(plnSize);
-
-        // pre-defined platoon
-        if(mode == 3)
-        {
-            preDefinedPlatoonID = par("preDefinedPlatoonID").stringValue();
-
-            // I am the platoon leader.
-            if(SUMOvID == preDefinedPlatoonID)
-            {
-                // we only set these two!
-                plnID = SUMOvID;
-                myPlnDepth = 0;
-            }
-        }
 	}
 }
 
@@ -83,7 +70,7 @@ void ApplVBeacon::handleSelfMsg(cMessage* msg)
         {
             BeaconVehicle* beaconMsg = prepareBeacon();
 
-            if(mode == 2 || mode == 3 || mode == 4)
+            if(controlMode != 1)
             {
                 // fill-in the related fields to platoon
                 beaconMsg->setPlatoonID(plnID.c_str());
@@ -254,6 +241,8 @@ bool ApplVBeacon::isBeaconFromMyPlatoonLeader(BeaconVehicle* wsm)
         // check if this is actually my platoon leader
         if( string(wsm->getPlatoonID()) == plnID)
         {
+            // note: we should not check myPlnDepth != 0
+            // in predefined platoon, we do not use depth!
             return true;
         }
     }

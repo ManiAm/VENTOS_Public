@@ -14,7 +14,8 @@ class ApplVBeacon : public ApplVBase
 	protected:
         // NED
         bool VANETenabled;
-        int mode;
+        int controlMode;
+        int plnMode;
         double sonarDist;
         string preDefinedPlatoonID;
 

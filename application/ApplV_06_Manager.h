@@ -27,9 +27,6 @@ class ApplVManager : public ApplVPlatoonMg
         double errorGap;
         double errorRelSpeed;
 
-        // NED variables
-        bool one_vehicle_look_ahead;
-
         // Methods
         virtual void handleLowerMsg(cMessage*);
         virtual void handleSelfMsg(cMessage*);

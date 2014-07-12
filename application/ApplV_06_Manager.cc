@@ -37,9 +37,6 @@ void ApplVManager::initialize(int stage)
             TraCI->commandSetErrorGap(SUMOvID, 0.);
             TraCI->commandSetErrorRelSpeed(SUMOvID, 0.);
         }
-
-	    // NED variables
-        one_vehicle_look_ahead = par("one_vehicle_look_ahead");
 	}
 }
 
@@ -122,7 +119,7 @@ bool ApplVManager::dropBeacon(double time, string vehicle, double plr)
 void ApplVManager::reportDropToStatistics(BeaconVehicle* wsm)
 {
     // todo:
-    if(one_vehicle_look_ahead)
+    if(true /*one_vehicle_look_ahead*/)
     {
         bool result =  isBeaconFromLeading(wsm);
 
@@ -172,90 +169,43 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
 
     // stand-alone vehicle
     // ignore the received beacon!
-    if(mode == 1)
+    if(controlMode == 1)
     {
 
     }
-    // CACC stream
-    else if(mode == 2)
+    // one-vehicle look-ahead
+    else if(controlMode == 2)
     {
         result = isBeaconFromLeading(wsm);
     }
-    // predefined platoon
-    else if(mode == 3)
+    // from platoon leader
+    else if(controlMode == 3)
     {
+        if(plnMode == 1)
+            error("no platoon leader is present! check plnMode!");
+
         // I am platoon leader
         // get data from my leading vehicle
         if(myPlnDepth == 0)
         {
             result = isBeaconFromLeading(wsm);
         }
-        // I am follower
-        else
-        {
-            // get data from my leading vehicle
-            if(one_vehicle_look_ahead)
-            {
-                result = isBeaconFromLeading(wsm);
-            }
-            // get data from the platoon leader
-            else
-            {
-                result = isBeaconFromMyPlatoonLeader(wsm);
-            }
-
-            // I am not part of any platoon yet!
-            if(plnID == "")
-            {
-                if( string(wsm->getPlatoonID()) != "" && wsm->getPlatoonDepth() == 0 )
-                {
-                    EV << "This beacon is from a platoon leader. I will join ..." << endl;
-                    plnID = wsm->getPlatoonID();
-
-                    // change the color to blue
-                    TraCIColor newColor = TraCIColor::fromTkColor("blue");
-                    TraCI->getCommandInterface()->setColor(SUMOvID, newColor);
-                }
-            }
-            // platoonID != "" which means I am already part of a platoon
-            // if the beacon is from my platoon leader
-            else if( isBeaconFromMyPlatoonLeader(wsm) )
-            {
-                // do nothing!
-                EV << "This beacon is from my platoon leader ..." << endl;
-            }
-            // I received a beacon from another platoon
-            else if( string(wsm->getPlatoonID()) != plnID )
-            {
-                // ignore the beacon msg
-            }
-        }
-    }
-    // platoon formation
-    else if(mode == 4)
-    {
-        // I am platoon leader
-        // get data from my leading vehicle
-        if(myPlnDepth == 0)
-        {
-            result = isBeaconFromLeading(wsm);
-        }
-        // I am follower
-        // get data from my leading vehicle
-        else if(one_vehicle_look_ahead)
-        {
-            result = isBeaconFromLeading(wsm);
-        }
-        // I am follower
-        // get data from the platoon leader
+        // I am a follower
+        // get data from my platoon leader
         else
         {
             result = isBeaconFromMyPlatoonLeader(wsm);
         }
     }
+    // bi-directional control
+    else if(controlMode == 4)
+    {
+
+
+    }
     else
     {
-        error("not a valid mode!");
+        error("not a valid control mode!");
     }
 
     // send results to SUMO if result = true

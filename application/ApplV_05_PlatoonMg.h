@@ -47,6 +47,9 @@ class ApplVPlatoonMg : public ApplV_AID
             state_sendMergeAccept,
             state_waitForMergeDone,
             state_mergeDone,
+
+            // split states
+            state_sendSplitReq,
         };
 
         enum uCommands
@@ -98,14 +101,21 @@ class ApplVPlatoonMg : public ApplV_AID
         int leadingPlnDepth;
         deque<string> secondPlnMembersList;
 
+        cMessage* mgrTIMER;
         cMessage* plnTIMER1;
         cMessage* plnTIMER1a;
         cMessage* plnTIMER2;
         cMessage* plnTIMER3;
+
         cMessage* plnTIMER4;
+        cMessage* plnTIMER5;
+        cMessage* plnTIMER6;
+        cMessage* plnTIMER7;
+        cMessage* plnTIMER8;
 
 	private:
         // Methods
+        void Coordinator();
         PlatoonMsg* prepareData( string, uCommands, string, double db = -1, string str = "", deque<string> vec = deque<string>() );
         void printDataContent(PlatoonMsg*);
         void updateColorDepth();

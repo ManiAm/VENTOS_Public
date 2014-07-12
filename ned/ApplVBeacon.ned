@@ -7,7 +7,8 @@ simple ApplVBeacon extends ApplVBase
         @display("i=block/app2");
         
         bool VANETenabled = default(true);
-        int mode = default(0);
+        int controlMode = default(0);
+        int plnMode = default(0);
         double sonarDist = default(900);
         string preDefinedPlatoonID;
                 
