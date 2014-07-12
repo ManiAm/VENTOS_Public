@@ -37,8 +37,9 @@ void ApplVPlatoonMg::entry_handleSelfMsg(cMessage* msg)
             plnMembersList.push_back(SUMOvID);
             TraCI->commandSetTg(SUMOvID, 3.5);
 
-            // myPlnDepth has changed! update the color
-            updateColor();
+            // change color to red!
+            TraCIColor newColor = TraCIColor::fromTkColor("red");
+            TraCI->getCommandInterface()->setColor(SUMOvID, newColor);
 
             // change state to platoon leader
             vehicleState = state_platoonLeader;
@@ -59,5 +60,4 @@ void ApplVPlatoonMg::entry_BeaconFSM(BeaconVehicle* wsm)
 
 
 }
-
 

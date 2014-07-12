@@ -164,27 +164,33 @@ void ApplVPlatoonMg::printDataContent(PlatoonMsg* wsm)
 }
 
 
-// upon changing myPlnDepth, this method should be called!
-void ApplVPlatoonMg::updateColor()
+// change follower blue color to show depth
+void ApplVPlatoonMg::updateColorDepth()
 {
-    // non-platooned vehicle
-    if(myPlnDepth == -1)
+    if(vehicleState != state_platoonLeader)
+        error("followers is not allowed to call updateColorDepth method!");
+
+    if(plnSize <= 0)
+        error("plnSize is not right!");
+
+    if(plnSize == 1)
+        return;
+
+    int offset = 255 / (plnSize-1);
+    int *pickColor = new int[plnSize];
+    pickColor[0] = -1;
+    int count = 0;
+    for(int i = 1; i < plnSize; i++)
     {
-        TraCIColor newColor = TraCIColor::fromTkColor("yellow");
-        TraCI->getCommandInterface()->setColor(SUMOvID, newColor);
+        pickColor[i] = count;
+        count = count + offset;
     }
-    // platoon leader
-    else if(myPlnDepth == 0)
+
+    // leader has all the followers in plnMembersList list
+    for(unsigned int depth = 1; depth < plnMembersList.size(); depth++)
     {
-        TraCIColor newColor = TraCIColor::fromTkColor("red");
-        TraCI->getCommandInterface()->setColor(SUMOvID, newColor);
-    }
-    // follower
-    else if(myPlnDepth >= 1)
-    {
-        // todo
-        TraCIColor newColor = TraCIColor::fromTkColor("blue");
-        TraCI->getCommandInterface()->setColor(SUMOvID, newColor);
+        TraCIColor newColor = TraCIColor(pickColor[depth], pickColor[depth], 255, 255);
+        TraCI->getCommandInterface()->setColor(plnMembersList[depth], newColor);
     }
 }
 

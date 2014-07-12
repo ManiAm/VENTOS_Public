@@ -215,9 +215,6 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
         plnSize = -1;
         plnMembersList.clear();
 
-        // update follower color
-        updateColor();
-
         // send unicast MERGE_DONE
         PlatoonMsg* dataMsg = prepareData(plnID, MERGE_DONE, plnID);
         EV << "### " << SUMOvID << ": sent MERGE_DONE." << endl;
@@ -299,7 +296,6 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
             // these should be updated after sending ACK!
             plnID = wsm->getStrValue();
             myPlnDepth = myPlnDepth + wsm->getDblValue();
-            updateColor();
         }
         else if(wsm->getType() == CHANGE_Tg && wsm->getSender() == plnID)
         {
@@ -412,6 +408,10 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
         CurrentVehicleState *state = new CurrentVehicleState(SUMOvID.c_str(), stateToStr(vehicleState).c_str());
         simsignal_t Signal_VehicleState = registerSignal("VehicleState");
         nodePtr->emit(Signal_VehicleState, state);
+
+        // now that plnSize is chabged, we should
+        // change the color of the followers
+        updateColorDepth();
     }
 }
 

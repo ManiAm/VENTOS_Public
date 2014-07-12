@@ -123,7 +123,7 @@ class ApplVPlatoonMg : public ApplV_AID
         // Methods
         PlatoonMsg* prepareData( string, uCommands, string, double db = -1, string str = "", deque<string> vec = deque<string>() );
         void printDataContent(PlatoonMsg*);
-        void updateColor();
+        void updateColorDepth();
 
         void entry_handleSelfMsg(cMessage* msg);
         void entry_BeaconFSM(BeaconVehicle *wsm);
