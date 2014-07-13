@@ -1296,3 +1296,165 @@ timeStep    sender         receiver         type                     sendingPlnI
 34.25      CACC6           CACC11            MERGE_REJECT (optPlnSize)      CACC6              CACC11              
 
 34.26      CACC11          -                 state_platoonLeader            -                  -                   
+34.35      CACC11          -                 state_sendMergeReq             -                  -                   
+
+34.35      CACC11          CACC6             MERGE_REQ                      CACC11             CACC6               
+
+34.35      CACC11          -                 state_waitForMergeReply        -                  -                   
+
+34.35      CACC6           CACC11            MERGE_REJECT (optPlnSize)      CACC6              CACC11              
+
+34.36      CACC11          -                 state_platoonLeader            -                  -                   
+34.45      CACC11          -                 state_sendMergeReq             -                  -                   
+
+34.45      CACC11          CACC6             MERGE_REQ                      CACC11             CACC6               
+
+34.45      CACC11          -                 state_waitForMergeReply        -                  -                   
+
+34.45      CACC6           CACC11            MERGE_REJECT (optPlnSize)      CACC6              CACC11              
+
+34.46      CACC11          -                 state_platoonLeader            -                  -                   
+34.55      CACC11          -                 state_sendMergeReq             -                  -                   
+
+34.55      CACC11          CACC6             MERGE_REQ                      CACC11             CACC6               
+
+34.55      CACC11          -                 state_waitForMergeReply        -                  -                   
+
+34.55      CACC6           CACC11            MERGE_REJECT (optPlnSize)      CACC6              CACC11              
+
+34.56      CACC11          -                 state_platoonLeader            -                  -                   
+34.65      CACC11          -                 state_sendMergeReq             -                  -                   
+
+34.65      CACC11          CACC6             MERGE_REQ                      CACC11             CACC6               
+
+34.65      CACC11          -                 state_waitForMergeReply        -                  -                   
+
+34.65      CACC6           CACC11            MERGE_REJECT (optPlnSize)      CACC6              CACC11              
+
+34.66      CACC11          -                 state_platoonLeader            -                  -                   
+34.75      CACC11          -                 state_sendMergeReq             -                  -                   
+
+34.75      CACC11          CACC6             MERGE_REQ                      CACC11             CACC6               
+
+34.75      CACC11          -                 state_waitForMergeReply        -                  -                   
+
+34.75      CACC6           CACC11            MERGE_REJECT (optPlnSize)      CACC6              CACC11              
+
+34.76      CACC11          -                 state_platoonLeader            -                  -                   
+34.85      CACC11          -                 state_sendMergeReq             -                  -                   
+
+34.85      CACC11          CACC6             MERGE_REQ                      CACC11             CACC6               
+
+34.85      CACC11          -                 state_waitForMergeReply        -                  -                   
+
+34.85      CACC6           CACC11            MERGE_REJECT (optPlnSize)      CACC6              CACC11              
+
+34.86      CACC11          -                 state_platoonLeader            -                  -                   
+34.95      CACC11          -                 state_sendMergeReq             -                  -                   
+
+34.95      CACC11          CACC6             MERGE_REQ                      CACC11             CACC6               
+
+34.95      CACC11          -                 state_waitForMergeReply        -                  -                   
+
+34.95      CACC6           CACC11            MERGE_REJECT (optPlnSize)      CACC6              CACC11              
+
+34.96      CACC11          -                 state_platoonLeader            -                  -                   
+35.05      CACC11          -                 state_sendMergeReq             -                  -                   
+
+35.05      CACC11          CACC6             MERGE_REQ                      CACC11             CACC6               
+
+35.05      CACC11          -                 state_waitForMergeReply        -                  -                   
+
+35.05      CACC6           CACC11            MERGE_REJECT (optPlnSize)      CACC6              CACC11              
+
+35.06      CACC11          -                 state_platoonLeader            -                  -                   
+35.15      CACC11          -                 state_sendMergeReq             -                  -                   
+
+35.15      CACC11          CACC6             MERGE_REQ                      CACC11             CACC6               
+
+35.15      CACC11          -                 state_waitForMergeReply        -                  -                   
+
+35.15      CACC6           CACC11            MERGE_REJECT (optPlnSize)      CACC6              CACC11              
+
+35.16      CACC11          -                 state_platoonLeader            -                  -                   
+35.25      CACC11          -                 state_sendMergeReq             -                  -                   
+
+35.25      CACC11          CACC6             MERGE_REQ                      CACC11             CACC6               
+
+35.25      CACC11          -                 state_waitForMergeReply        -                  -                   
+
+35.25      CACC6           CACC11            MERGE_REJECT (optPlnSize)      CACC6              CACC11              
+
+35.26      CACC11          -                 state_platoonLeader            -                  -                   
+35.35      CACC11          -                 state_sendMergeReq             -                  -                   
+
+35.35      CACC11          CACC6             MERGE_REQ                      CACC11             CACC6               
+
+35.35      CACC11          -                 state_waitForMergeReply        -                  -                   
+
+35.35      CACC6           CACC11            MERGE_REJECT (optPlnSize)      CACC6              CACC11              
+
+35.36      CACC11          -                 state_platoonLeader            -                  -                   
+35.45      CACC11          -                 state_sendMergeReq             -                  -                   
+
+35.45      CACC11          CACC6             MERGE_REQ                      CACC11             CACC6               
+
+35.45      CACC11          -                 state_waitForMergeReply        -                  -                   
+
+35.45      CACC6           CACC11            MERGE_REJECT (optPlnSize)      CACC6              CACC11              
+
+35.46      CACC11          -                 state_platoonLeader            -                  -                   
+35.55      CACC11          -                 state_sendMergeReq             -                  -                   
+
+35.55      CACC11          CACC6             MERGE_REQ                      CACC11             CACC6               
+
+35.55      CACC11          -                 state_waitForMergeReply        -                  -                   
+
+35.55      CACC6           CACC11            MERGE_REJECT (optPlnSize)      CACC6              CACC11              
+
+35.56      CACC11          -                 state_platoonLeader            -                  -                   
+35.65      CACC11          -                 state_sendMergeReq             -                  -                   
+
+35.65      CACC11          CACC6             MERGE_REQ                      CACC11             CACC6               
+
+35.65      CACC11          -                 state_waitForMergeReply        -                  -                   
+
+35.65      CACC6           CACC11            MERGE_REJECT (optPlnSize)      CACC6              CACC11              
+
+35.66      CACC11          -                 state_platoonLeader            -                  -                   
+35.75      CACC11          -                 state_sendMergeReq             -                  -                   
+
+35.75      CACC11          CACC6             MERGE_REQ                      CACC11             CACC6               
+
+35.75      CACC11          -                 state_waitForMergeReply        -                  -                   
+
+35.75      CACC6           CACC11            MERGE_REJECT (optPlnSize)      CACC6              CACC11              
+
+35.76      CACC11          -                 state_platoonLeader            -                  -                   
+35.85      CACC11          -                 state_sendMergeReq             -                  -                   
+
+35.85      CACC11          CACC6             MERGE_REQ                      CACC11             CACC6               
+
+35.85      CACC11          -                 state_waitForMergeReply        -                  -                   
+
+35.85      CACC6           CACC11            MERGE_REJECT (optPlnSize)      CACC6              CACC11              
+
+35.86      CACC11          -                 state_platoonLeader            -                  -                   
+35.95      CACC11          -                 state_sendMergeReq             -                  -                   
+
+35.95      CACC11          CACC6             MERGE_REQ                      CACC11             CACC6               
+
+35.95      CACC11          -                 state_waitForMergeReply        -                  -                   
+
+35.95      CACC6           CACC11            MERGE_REJECT (optPlnSize)      CACC6              CACC11              
+
+35.96      CACC11          -                 state_platoonLeader            -                  -                   
+36.05      CACC11          -                 state_sendMergeReq             -                  -                   
+
+36.05      CACC11          CACC6             MERGE_REQ                      CACC11             CACC6               
+
+36.05      CACC11          -                 state_waitForMergeReply        -                  -                   
+
+36.05      CACC6           CACC11            MERGE_REJECT (optPlnSize)      CACC6              CACC11              
+
+36.06      CACC11          -                 state_platoonLeader            -                  -                   

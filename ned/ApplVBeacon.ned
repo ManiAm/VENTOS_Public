@@ -10,7 +10,6 @@ simple ApplVBeacon extends ApplVBase
         int controlMode = default(0);
         int plnMode = default(0);
         double sonarDist = default(900);
-        string preDefinedPlatoonID;
                 
         bool sendBeacons = default(false); //tell the applayer to periodically send beacons
         volatile double beaconInterval = default(1s) @unit(s); //the intervall between 2 beacon messages

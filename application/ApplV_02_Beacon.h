@@ -17,7 +17,6 @@ class ApplVBeacon : public ApplVBase
         int controlMode;
         int plnMode;
         double sonarDist;
-        string preDefinedPlatoonID;
 
         // NED variables (beaconing parameters)
         bool sendBeacons;
