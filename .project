@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>C3PO</name>
+	<name>VENTOS</name>
 	<comment></comment>
 	<projects>
-		<project>veinsGit</project>
+		<project>Veins</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

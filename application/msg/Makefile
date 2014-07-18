@@ -2,21 +2,21 @@
 # OMNeT++/OMNEST Makefile for libmsg
 #
 # This file was generated with the command:
-#  opp_makemake -f --make-so -o msg -O out -I/home/mani/Desktop/VENTOS/eigen-3.2.1 -I/home/mani/Desktop/VENTOS/rapidxml-1.13 -I../../../veinsGit/src/inet -I../../../veinsGit/src/base/utils -L../../../veinsGit/out/$(CONFIGNAME)/src -L../../out/$(CONFIGNAME)/application -lveinsGit -KVEINSGIT_PROJ=../../../veinsGit
+#  opp_makemake -f --make-so -o msg -O out -I/home/mani/Desktop/VENTOS/eigen-3.2.1 -I/home/mani/Desktop/VENTOS/rapidxml-1.13 -I../../../Veins/src/inet -I../../../Veins/src/base/utils -L../../../Veins/out/$(CONFIGNAME)/src -L../../out/$(CONFIGNAME)/application -lVeins -KVEINS_PROJ=../../../Veins
 #
 
 # Name of target to be created (-o option)
 TARGET = libmsg$(SHARED_LIB_SUFFIX)
 
 # C++ include paths (with -I)
-INCLUDE_PATH = -I../../eigen-3.2.1 -I../../rapidxml-1.13 -I../../../veinsGit/src/inet -I../../../veinsGit/src/base/utils -I.
+INCLUDE_PATH = -I../../eigen-3.2.1 -I../../rapidxml-1.13 -I../../../Veins/src/inet -I../../../Veins/src/base/utils -I.
 
 # Additional object and library files to link with
 EXTRA_OBJS =
 
 # Additional libraries (-L, -l options)
-LIBS = -L../../../veinsGit/out/$(CONFIGNAME)/src -L../../out/$(CONFIGNAME)/application  -lveinsGit
-LIBS += -Wl,-rpath,`abspath ../../../veinsGit/out/$(CONFIGNAME)/src` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application`
+LIBS = -L../../../Veins/out/$(CONFIGNAME)/src -L../../out/$(CONFIGNAME)/application  -lVeins
+LIBS += -Wl,-rpath,`abspath ../../../Veins/out/$(CONFIGNAME)/src` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application`
 
 # Output directory
 PROJECT_OUTPUT_DIR = ../../out
@@ -31,7 +31,7 @@ MSGFILES = \
     Messages.msg
 
 # Other makefile variables (-K)
-VEINSGIT_PROJ=../../../veinsGit
+VEINS_PROJ=../../../Veins
 
 #------------------------------------------------------------------------------
 
@@ -117,8 +117,8 @@ depend:
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 $O/Messages_m.o: Messages_m.cc \
 	Messages_m.h \
-	$(VEINSGIT_PROJ)/src/base/utils/MiXiMDefs.h \
-	$(VEINSGIT_PROJ)/src/base/utils/miximkerneldefs.h \
-	$(VEINSGIT_PROJ)/src/inet/Coord.h \
-	$(VEINSGIT_PROJ)/src/inet/FWMath.h
+	$(VEINS_PROJ)/src/base/utils/MiXiMDefs.h \
+	$(VEINS_PROJ)/src/base/utils/miximkerneldefs.h \
+	$(VEINS_PROJ)/src/inet/Coord.h \
+	$(VEINS_PROJ)/src/inet/FWMath.h
 

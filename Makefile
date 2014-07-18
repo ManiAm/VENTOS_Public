@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for VENTOS
 #
 # This file was generated with the command:
-#  opp_makemake -f -O out -d application -X. -I/home/mani/Desktop/VENTOS/eigen-3.2.1 -I/home/mani/Desktop/VENTOS/rapidxml-1.13 -L../veinsGit/out/$(CONFIGNAME)/src -L./out/$(CONFIGNAME)/application -L./out/$(CONFIGNAME)/application/msg -lveinsGit -KVEINSGIT_PROJ=../veinsGit
+#  opp_makemake -f -O out -d application -X. -I/home/mani/Desktop/VENTOS/eigen-3.2.1 -I/home/mani/Desktop/VENTOS/rapidxml-1.13 -L../Veins/out/$(CONFIGNAME)/src -L./out/$(CONFIGNAME)/application -L./out/$(CONFIGNAME)/application/msg -lVeins -KVEINS_PROJ=../Veins
 #
 
 # Name of target to be created (-o option)
@@ -17,8 +17,8 @@ USERIF_LIBS = $(ALL_ENV_LIBS) # that is, $(TKENV_LIBS) $(CMDENV_LIBS)
 EXTRA_OBJS =
 
 # Additional libraries (-L, -l options)
-LIBS = -L../veinsGit/out/$(CONFIGNAME)/src -Lout/$(CONFIGNAME)/application -Lout/$(CONFIGNAME)/application/msg  -lveinsGit
-LIBS += -Wl,-rpath,`abspath ../veinsGit/out/$(CONFIGNAME)/src` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application/msg`
+LIBS = -L../Veins/out/$(CONFIGNAME)/src -Lout/$(CONFIGNAME)/application -Lout/$(CONFIGNAME)/application/msg  -lVeins
+LIBS += -Wl,-rpath,`abspath ../Veins/out/$(CONFIGNAME)/src` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application/msg`
 
 # Output directory
 PROJECT_OUTPUT_DIR = out
@@ -26,7 +26,7 @@ PROJECTRELATIVE_PATH =
 O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Other makefile variables (-K)
-VEINSGIT_PROJ=../veinsGit
+VEINS_PROJ=../Veins
 
 #------------------------------------------------------------------------------
 

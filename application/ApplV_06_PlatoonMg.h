@@ -12,7 +12,6 @@ class ApplVPlatoonMg : public ApplVPlatoonFormed
         virtual void finish();
 
 	protected:
-        // Methods
         virtual void handleSelfMsg(cMessage*);
         virtual void handlePositionUpdate(cObject*);
 
