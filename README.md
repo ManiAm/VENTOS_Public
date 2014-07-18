@@ -1,7 +1,25 @@
 VENTOS
 ======
 
-VENTOS (VEhicular NeTwork Open Simulator) is an integrated C++ simulator for studding traffic flows in Vehicular Ad-hoc Networks (VANETs). VENTOS is the main tool in C3PO research. More information [here](http://www.ece.ucdavis.edu/rubinet/projects/c3po.html ""). Some of its features are listed below:
+VENTOS (VEhicular NeTwork Open Simulator) is an integrated C++ simulator for studding traffic flows in Vehicular Ad-hoc Networks (VANETs). VENTOS is the main tool in [C3PO](http://www.ece.ucdavis.edu/rubinet/projects/c3po.html "") research. It is made up of many different modules including:
+
+**OMNET++:** OMNET++ is a network simulator, and is used for detailed packet-level simulations.
+
+**Veins framework:** We used Veins to connect SUMO to OMNET++ using TraCI interface, as well as using IEEE 802.11p protocol in data-link layer.
+
+**Simulation of Urban Mobility (SUMO):** SUMO is an open source, microscopic, continuous-space, discrete-time road traffic simulator, developed at German Aerospace Center. We implemented multiple car following models in SUMO.
+
+**Eigen library:** Eigen is a C++ template library for linear algebra: matrices, vectors, numerical solvers, and related algorithms. We use this library for matrix calculations. Eigen is a header only library, and is included in VENTOS.
+
+**RapidXML:** RapidXml is an attempt to create the fastest XML parser possible, while retaining useability, portability and reasonable W3C compatibility. It is an in-situ parser written in modern C++, with parsing speed approaching that of strlen function executed on the same data. RapidXML is a header only library, and is included in VENTOS.
+
+**Boost library:** Boost provides free peer-reviewed portable C++ source libraries which can be found [here](http://www.boost.org/doc/libs/ ""). We are using boost tokenizer, filesystem, etc. In Ubuntu, make sure to install `libboost-filesystem1.48-dev`, and `libboost-system1.48-dev` packages.
+
+**OpenSSL library:** OpenSSL is an open-source implementation of the SSL and TLS protocols. The core library, written in the C programming language, implements the basic cryptographic functions and provides various utility functions. We use OpenSSL library to sign and verify different messages. In Ubuntu, make sure to install `libssl-dev` package.
+
+
+Features
+--------
 
 * car-following models specifically for manual driving, ACC and CACC
 * mode switch between ACC, CACC
@@ -22,25 +40,10 @@ VENTOS (VEhicular NeTwork Open Simulator) is an integrated C++ simulator for stu
 
 Watch simulation videos from [here](https://www.youtube.com/user/RubinetLab "").
 
----
 
-VENTOS is made up of many different modules including:
+Getting Started
+---------------
 
-**OMNET++:** OMNET++ is a network simulator, and is used for detailed packet-level simulations.
-
-**Veins framework:** We used Veins to connect SUMO to OMNET++ using TraCI interface, as well as using IEEE 802.11p protocol in data-link layer.
-
-**Simulation of Urban Mobility (SUMO):** SUMO is an open source, microscopic, continuous-space, discrete-time road traffic simulator, developed at German Aerospace Center. We implemented multiple car following models in SUMO.
-
-**Eigen library:** Eigen is a C++ template library for linear algebra: matrices, vectors, numerical solvers, and related algorithms. We use this library for matrix calculations. Eigen is a header only library, and is included in VENTOS.
-
-**RapidXML:** RapidXml is an attempt to create the fastest XML parser possible, while retaining useability, portability and reasonable W3C compatibility. It is an in-situ parser written in modern C++, with parsing speed approaching that of strlen function executed on the same data. RapidXML is a header only library, and is included in VENTOS.
-
-**Boost library:** Boost provides free peer-reviewed portable C++ source libraries which can be found [here](http://www.boost.org/doc/libs/ ""). We are using boost tokenizer, filesystem, etc. In Ubuntu, make sure to install `libboost-filesystem1.48-dev`, and `libboost-system1.48-dev` packages.
-
-**OpenSSL library:** OpenSSL is an open-source implementation of the SSL and TLS protocols. The core library, written in the C programming language, implements the basic cryptographic functions and provides various utility functions. We use OpenSSL library to sign and verify different messages. In Ubuntu, make sure to install `libssl-dev` package.
-
----
 
 Install OMNET++
 ---------------
