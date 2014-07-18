@@ -69,12 +69,20 @@ void ApplVPlatoonMg::merge_BeaconFSM(BeaconVehicle* wsm)
     if(vehicleState == state_platoonLeader)
     {
         // can we merge?
-        if(plnSize < optPlnSize && isBeaconFromLeading(wsm))
+        if(plnSize < optPlnSize)
         {
-            vehicleState = state_sendMergeReq;
-            reportStateToStat();
+            if(isBeaconFromLeading(wsm))
+            {
+                int finalPlnSize = wsm->getPlatoonDepth() + 1 + plnSize;
 
-            merge_BeaconFSM(wsm);
+                if(finalPlnSize <= optPlnSize)
+                {
+                    vehicleState = state_sendMergeReq;
+                    reportStateToStat();
+
+                    merge_BeaconFSM(wsm);
+                }
+            }
         }
     }
     else if(vehicleState == state_sendMergeReq)
