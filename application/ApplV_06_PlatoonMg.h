@@ -29,16 +29,16 @@ class ApplVPlatoonMg : public ApplVPlatoonFormed
         // Variables
         enum states
         {
-            state_idle,
-            state_platoonLeader,
-            state_platoonMember,
+            state_idle,           // 0
+            state_platoonLeader,  // 1
+            state_platoonMember,  // 2
 
             // entry states
             state_waitForLaneChange,
 
             // merge states
             state_sendMergeReq,
-            state_waitForMergeReply,
+            state_waitForMergeReply,  // 5
             state_mergeAccepted,
             state_waitForCatchup,
             state_sendMergeDone,
@@ -49,7 +49,16 @@ class ApplVPlatoonMg : public ApplVPlatoonFormed
             state_mergeDone,
 
             // split states
-            state_sendSplitReq,
+            state_sendSplitReq,     // 14
+            state_waitForSplitReply,
+            state_makeItFreeAgent,
+            state_waitForAck,
+            state_splitDone,
+            state_changePL,
+            state_waitForAllAcks2,  // 20
+            state_waitForCHANGEPL,
+            state_sendingACK,
+            state_waitForSplitDone,
         };
 
         enum uCommands
@@ -80,10 +89,6 @@ class ApplVPlatoonMg : public ApplVPlatoonFormed
 
         states vehicleState;
 
-	public:
-        const string stateToStr(int);
-        const string uCommandToStr(int);
-
 	private:
         bool busy;
 
@@ -101,6 +106,11 @@ class ApplVPlatoonMg : public ApplVPlatoonFormed
         int leadingPlnDepth;
         deque<string> secondPlnMembersList;
 
+        // split
+        string splittingVehicle;
+        int splittingDepth;
+        string oldPlnID;
+
         cMessage* mgrTIMER;
         cMessage* plnTIMER1;
         cMessage* plnTIMER1a;
@@ -114,24 +124,33 @@ class ApplVPlatoonMg : public ApplVPlatoonFormed
         cMessage* plnTIMER8;
 
 	private:
-        // Methods
         void Coordinator();
         PlatoonMsg* prepareData( string, uCommands, string, double db = -1, string str = "", deque<string> vec = deque<string>() );
         void printDataContent(PlatoonMsg*);
         void updateColorDepth();
 
-        void entry_handleSelfMsg(cMessage* msg);
-        void entry_BeaconFSM(BeaconVehicle *wsm);
+        void reportStateToStat();
+        void reportCommandToStat(PlatoonMsg*);
+        const string stateToStr(int);
+        const string uCommandToStr(int);
+
+        void common_handleSelfMsg(cMessage* msg);
+        void common_BeaconFSM(BeaconVehicle *wsm = NULL);
+        void common_DataFSM(PlatoonMsg *wsm = NULL);
 
         void merge_handleSelfMsg(cMessage* msg);
         void merge_BeaconFSM(BeaconVehicle *wsm = NULL);
         void merge_DataFSM(PlatoonMsg *wsm = NULL);
-        void RemoveFollowerFromList(string);
+        void RemoveFollowerFromList_Merge(string);
         bool CatchUpDone();
 
         void split_handleSelfMsg(cMessage* msg);
         void split_BeaconFSM(BeaconVehicle *wsm = NULL);
         void split_DataFSM(PlatoonMsg *wsm = NULL);
+        void RemoveFollowerFromList_Split(string);
+
+        void entry_handleSelfMsg(cMessage* msg);
+        void entry_BeaconFSM(BeaconVehicle *wsm);
 
         void followerLeave_FSM();
         void leaderLeave_FSM();

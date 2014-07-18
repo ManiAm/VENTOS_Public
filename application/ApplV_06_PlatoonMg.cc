@@ -23,6 +23,9 @@ void ApplVPlatoonMg::initialize(int stage)
         mgrTIMER = new cMessage("manager", KIND_TIMER);
         scheduleAt(simTime() + 0.1, mgrTIMER);
 
+        WATCH(vehicleState);
+        WATCH(busy);
+
         // used in entry maneuver
         // ----------------------
         entryManeuverEvt = new cMessage("EntryEvt", KIND_TIMER);
@@ -43,7 +46,15 @@ void ApplVPlatoonMg::initialize(int stage)
 
         // used in split maneuver
         // ----------------------
+        splittingVehicle = "";
+        splittingDepth = -1;
+        oldPlnID = "";
+
         plnTIMER4  = new cMessage("wait for split reply", KIND_TIMER);
+        plnTIMER6  = new cMessage("wait for free agent ACK", KIND_TIMER);
+        plnTIMER7  = new cMessage("wait for all ACKs", KIND_TIMER);
+        plnTIMER8  = new cMessage("wait for split done", KIND_TIMER);
+        plnTIMER5  = new cMessage("wait for change_pl", KIND_TIMER);
 	}
 }
 
@@ -58,9 +69,10 @@ void ApplVPlatoonMg::handleSelfMsg(cMessage* msg)
 
     if(msg == mgrTIMER) Coordinator();
 
-    entry_handleSelfMsg(msg);
     if(mergeEnabled) merge_handleSelfMsg(msg);
     if(splitEnabled) split_handleSelfMsg(msg);
+    common_handleSelfMsg(msg);
+    entry_handleSelfMsg(msg);
 }
 
 
@@ -72,9 +84,10 @@ void ApplVPlatoonMg::onBeaconVehicle(BeaconVehicle* wsm)
     if(plnMode != 3)
         return;
 
-    entry_BeaconFSM(wsm);
     if(mergeEnabled) merge_BeaconFSM(wsm);
     if(splitEnabled) split_BeaconFSM(wsm);
+    common_BeaconFSM(wsm);
+    entry_BeaconFSM(wsm);
 }
 
 
@@ -95,25 +108,41 @@ void ApplVPlatoonMg::onData(PlatoonMsg* wsm)
 
     if(mergeEnabled) merge_DataFSM(wsm);
     if(splitEnabled) split_DataFSM(wsm);
+    common_DataFSM(wsm);
 }
 
 
 void ApplVPlatoonMg::Coordinator()
 {
-    if(simTime().dbl() >= 40)
+    if(simTime().dbl() >= 37)
     {
         optPlnSize = 13;
     }
 
+    if(simTime().dbl() >= 77)
+    {
+        optPlnSize = 4;
+    }
+
+    if(simTime().dbl() >= 87)
+    {
+        optPlnSize = 10;
+    }
+
+    if(simTime().dbl() >= 94)
+    {
+        optPlnSize = 3;
+    }
+    if(simTime().dbl() >= 140)
+    {
+        optPlnSize = 2;
+    }
+
     // check if we can split
-    if(vehicleState == state_platoonLeader && plnSize > optPlnSize)
+    if(!busy && vehicleState == state_platoonLeader && plnSize > optPlnSize)
     {
         vehicleState = state_sendSplitReq;
-
-        // report to statistics
-        CurrentVehicleState *state = new CurrentVehicleState(SUMOvID.c_str(), stateToStr(vehicleState).c_str());
-        simsignal_t Signal_VehicleState = registerSignal("VehicleState");
-        nodePtr->emit(Signal_VehicleState, state);
+        reportStateToStat();
 
         busy = true;
 
@@ -223,19 +252,40 @@ void ApplVPlatoonMg::updateColorDepth()
 }
 
 
+void ApplVPlatoonMg::reportStateToStat()
+{
+    CurrentVehicleState *state = new CurrentVehicleState(SUMOvID.c_str(), stateToStr(vehicleState).c_str());
+    simsignal_t Signal_VehicleState = registerSignal("VehicleState");
+    nodePtr->emit(Signal_VehicleState, state);
+}
+
+
 const string ApplVPlatoonMg::stateToStr(int s)
 {
     const char * statesStrings[] = {
-        "state_idle",
-        "state_platoonLeader", "state_platoonMember", "state_waitForLaneChange",
+        "state_idle", "state_platoonLeader", "state_platoonMember",
+
+        "state_waitForLaneChange",
+
         "state_sendMergeReq", "state_waitForMergeReply", "state_mergeAccepted", "state_waitForCatchup",
         "state_sendMergeDone", "state_notifyFollowers",
         "state_state_waitForAllAcks", "state_sendMergeAccept",
         "state_waitForMergeDone", "state_mergeDone",
-        "state_sendSplitReq",
+
+        "state_sendSplitReq", "state_waitForSplitReply", "state_makeItFreeAgent",
+        "state_waitForAck", "state_splitDone", "state_changePL", "state_waitForAllAcks2",
+        "state_waitForCHANGEPL", "state_sendingACK", "state_waitForSplitDone",
     };
 
     return statesStrings[s];
+}
+
+
+void ApplVPlatoonMg::reportCommandToStat(PlatoonMsg* dataMsg)
+{
+    CurrentPlnMsg *plnMsg = new CurrentPlnMsg(dataMsg->getSender(), dataMsg->getRecipient(), uCommandToStr(dataMsg->getType()).c_str(), dataMsg->getSendingPlatoonID(), dataMsg->getReceivingPlatoonID());
+    simsignal_t Signal_SentPlatoonMsg = registerSignal("SentPlatoonMsg");
+    nodePtr->emit(Signal_SentPlatoonMsg, plnMsg);
 }
 
 
