@@ -4,7 +4,7 @@
 	<copy file="5hello.loopDetector.xml"/>
 	<copy file="gui-settings.cfg"/>
 	<copy file="6hello.sumo.cfg" type="config"/>
-	<basedir path="/home/mani/Desktop/VENTOS/sumo/CACC_Platoon"/>
+	<basedir path="/home/mani/Desktop/VENTOS/sumo/CACC_Stream"/>
 	<seed value="0"/>
 </launch>
 

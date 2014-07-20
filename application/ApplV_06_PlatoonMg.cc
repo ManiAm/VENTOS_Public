@@ -38,7 +38,6 @@ void ApplVPlatoonMg::initialize(int stage)
         // ----------------------
         leadingPlnID = "";
         leadingPlnDepth = -1;
-        mergeCaller = -1;
 
         plnTIMER1  = new cMessage("wait for merge reply", KIND_TIMER);
         plnTIMER1a = new cMessage("wait to catchup", KIND_TIMER);

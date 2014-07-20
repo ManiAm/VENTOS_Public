@@ -83,8 +83,6 @@ void ApplVPlatoonMg::merge_BeaconFSM(BeaconVehicle* wsm)
 
                 if(finalPlnSize <= optPlnSize)
                 {
-                    mergeCaller = -1;
-
                     vehicleState = state_sendMergeReq;
                     reportStateToStat();
 
@@ -302,17 +300,7 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
         // change the color of the followers
         updateColorDepth();
 
-        if(mergeCaller == -1)
-        {
-            busy = false;
-        }
-        // follower leave had called merge
-        else if(mergeCaller == 0)
-        {
-            // we should not set busy to false. Follower leave is on-going
-            // todo:
-
-        }
+        busy = false;
     }
 }
 
