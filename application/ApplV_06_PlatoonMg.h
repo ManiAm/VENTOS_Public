@@ -58,6 +58,7 @@ class ApplVPlatoonMg : public ApplVPlatoonFormed
             state_waitForCHANGEPL,
             state_sendingACK,
             state_waitForSplitDone,
+            state_waitForGap,
         };
 
         enum uCommands
@@ -121,6 +122,7 @@ class ApplVPlatoonMg : public ApplVPlatoonFormed
         cMessage* plnTIMER6;
         cMessage* plnTIMER7;
         cMessage* plnTIMER8;
+        cMessage* plnTIMER8a;
 
 	private:
         void Coordinator();
@@ -147,6 +149,7 @@ class ApplVPlatoonMg : public ApplVPlatoonFormed
         void split_BeaconFSM(BeaconVehicle *wsm = NULL);
         void split_DataFSM(PlatoonMsg *wsm = NULL);
         void RemoveFollowerFromList_Split(string);
+        bool GapDone();
 
         void entry_handleSelfMsg(cMessage* msg);
         void entry_BeaconFSM(BeaconVehicle *wsm);

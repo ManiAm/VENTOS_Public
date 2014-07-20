@@ -53,8 +53,9 @@ void ApplVPlatoonMg::initialize(int stage)
         plnTIMER4  = new cMessage("wait for split reply", KIND_TIMER);
         plnTIMER6  = new cMessage("wait for free agent ACK", KIND_TIMER);
         plnTIMER7  = new cMessage("wait for all ACKs", KIND_TIMER);
-        plnTIMER8  = new cMessage("wait for split done", KIND_TIMER);
         plnTIMER5  = new cMessage("wait for change_pl", KIND_TIMER);
+        plnTIMER8  = new cMessage("wait for split done", KIND_TIMER);
+        plnTIMER8a  = new cMessage("wait for enough gap", KIND_TIMER);
 	}
 }
 
@@ -124,16 +125,16 @@ void ApplVPlatoonMg::Coordinator()
         optPlnSize = 4;
     }
 
-    if(simTime().dbl() >= 87)
+    if(simTime().dbl() >= 94)
     {
         optPlnSize = 10;
     }
 
-    if(simTime().dbl() >= 94)
+    if(simTime().dbl() >= 131)
     {
         optPlnSize = 3;
     }
-    if(simTime().dbl() >= 140)
+    if(simTime().dbl() >= 188)
     {
         optPlnSize = 2;
     }
@@ -224,9 +225,6 @@ void ApplVPlatoonMg::printDataContent(PlatoonMsg* wsm)
 // only platoon leader can call this!
 void ApplVPlatoonMg::updateColorDepth()
 {
-    if(vehicleState != state_platoonLeader)
-        error("followers is not allowed to call updateColorDepth method!");
-
     if(plnSize <= 0)
         error("plnSize is not right!");
 
@@ -274,7 +272,7 @@ const string ApplVPlatoonMg::stateToStr(int s)
 
         "state_sendSplitReq", "state_waitForSplitReply", "state_makeItFreeAgent",
         "state_waitForAck", "state_splitDone", "state_changePL", "state_waitForAllAcks2",
-        "state_waitForCHANGEPL", "state_sendingACK", "state_waitForSplitDone",
+        "state_waitForCHANGEPL", "state_sendingACK", "state_waitForSplitDone", "state_waitForGap",
     };
 
     return statesStrings[s];

@@ -49,6 +49,16 @@ void ApplVPlatoonMg::split_handleSelfMsg(cMessage* msg)
             split_DataFSM();
         }
     }
+    else if(msg == plnTIMER8a)
+    {
+        if( GapDone() )
+        {
+            vehicleState = state_platoonLeader;
+            reportStateToStat();
+        }
+        else
+            scheduleAt(simTime() + 0.5, plnTIMER8a);
+    }
 }
 
 
@@ -274,10 +284,12 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
 
             plnSize = plnMembersList.size();
 
-            vehicleState = state_platoonLeader;
+            updateColorDepth();
+
+            vehicleState = state_waitForGap;
             reportStateToStat();
 
-            updateColorDepth();
+            scheduleAt(simTime() + .5, plnTIMER8a);
         }
     }
 }
@@ -302,5 +314,19 @@ void ApplVPlatoonMg::RemoveFollowerFromList_Split(string followerID)
         plnMembersList.erase(plnMembersList.begin() + i);
         plnSize--;
     }
+}
+
+
+bool ApplVPlatoonMg::GapDone()
+{
+    // we use our sonar to check the gap
+    vector<string> vleaderIDnew = TraCI->commandGetLeading(SUMOvID, sonarDist);
+    string vleaderID = vleaderIDnew[0];
+    double gap = atof( vleaderIDnew[1].c_str() );
+
+    if(gap > 20)
+        return true;
+
+    return false;
 }
 
