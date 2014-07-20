@@ -4,6 +4,9 @@
 
 void ApplVPlatoonMg::split_handleSelfMsg(cMessage* msg)
 {
+    if(!splitEnabled)
+        return;
+
     if(msg == plnTIMER4)
     {
         vehicleState = state_sendSplitReq;
@@ -25,6 +28,9 @@ void ApplVPlatoonMg::split_handleSelfMsg(cMessage* msg)
     {
         if(vehicleState == state_waitForAllAcks2)
         {
+            TotalACKsRx = 0;
+            TotalPLSent = 0;
+
             vehicleState = state_changePL;
             reportStateToStat();
 
@@ -35,7 +41,7 @@ void ApplVPlatoonMg::split_handleSelfMsg(cMessage* msg)
     {
         if(vehicleState == state_waitForCHANGEPL)
         {
-            vehicleState = state_platoonMember;
+            vehicleState = state_platoonFollower;
             reportStateToStat();
         }
     }
@@ -64,6 +70,8 @@ void ApplVPlatoonMg::split_handleSelfMsg(cMessage* msg)
 
 void ApplVPlatoonMg::split_BeaconFSM(BeaconVehicle *wsm)
 {
+    if(!splitEnabled)
+        return;
 
 
 }
@@ -71,19 +79,19 @@ void ApplVPlatoonMg::split_BeaconFSM(BeaconVehicle *wsm)
 
 void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
 {
+    if(!splitEnabled)
+        return;
+
     if(vehicleState == state_sendSplitReq)
     {
-        splittingDepth = optPlnSize;
-
         if(plnSize == -1)
             error("WTH! platoon size is -1!");
 
+        // check if splittingDepth is valid
         if(splittingDepth <= 0 || splittingDepth >= plnSize)
             error("splitting depth is wrong!");
 
-        // get the name of the vehicle
-        splittingVehicle = plnMembersList[splittingDepth];
-
+        // check if splittingVehicle is valid
         if(splittingVehicle == "")
             error("splitting vehicle is not known!");
 
@@ -157,6 +165,8 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
         plnSize = splittingDepth;
         plnMembersList.pop_back();
 
+        updateColorDepth();
+
         if(plnSize < (maxPlnSize / 2))
         {
             // decrease Tg
@@ -167,8 +177,6 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
             reportCommandToStat(dataMsg);
         }
 
-        busy = false;
-
         // send unicast SPLIT_DONE
         PlatoonMsg* dataMsg = prepareData(splittingVehicle, SPLIT_DONE, plnID, -1, "", secondPlnMembersList);
         EV << "### " << SUMOvID << ": sent SPLIT_DONE." << endl;
@@ -176,10 +184,29 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
         sendDelayed(dataMsg, individualOffset, lowerLayerOut);
         reportCommandToStat(dataMsg);
 
-        vehicleState = state_platoonLeader;
-        reportStateToStat();
+        if(splitCaller == -1)
+        {
+            busy = false;
 
-        updateColorDepth();
+            vehicleState = state_platoonLeader;
+            reportStateToStat();
+        }
+        // leader leave had called split
+        // we should not set busy to false; leader leave is on-going
+        else if(splitCaller == 0)
+        {
+            vehicleState = state_splitCompleted;
+            reportStateToStat();
+
+            leaderLeave_DataFSM();
+        }
+        // follower leave had called split
+        // we should not set busy to false; follower leave is on-going
+        else if(splitCaller == 1)
+        {
+            vehicleState = state_platoonLeader;
+            reportStateToStat();
+        }
     }
     else if(vehicleState == state_changePL)
     {
@@ -191,12 +218,14 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
             printDataContent(dataMsg);
             sendDelayed(dataMsg, individualOffset, lowerLayerOut);
             reportCommandToStat(dataMsg);
+
+            TotalPLSent++;
         }
 
         vehicleState = state_waitForAllAcks2;
         reportStateToStat();
 
-        scheduleAt(simTime() + 5., plnTIMER7);
+        scheduleAt(simTime() + 1., plnTIMER7);
     }
     else if(vehicleState == state_waitForAllAcks2)
     {
@@ -205,10 +234,15 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
             string followerID = wsm->getSender();
             RemoveFollowerFromList_Split(followerID);
 
+            TotalACKsRx++;
+
             // all followers ACK-ed
-            if(plnSize -1 == optPlnSize)
+            if(TotalACKsRx == TotalPLSent)
             {
                 cancelEvent(plnTIMER7);
+                TotalACKsRx = 0;
+                TotalPLSent = 0;
+
                 vehicleState = state_splitDone;
                 reportStateToStat();
 
@@ -216,7 +250,7 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
             }
         }
     }
-    else if(vehicleState == state_platoonMember)
+    else if(vehicleState == state_platoonFollower)
     {
         // splitting vehicle receives a SPLIT_REQ
         if (wsm->getType() == SPLIT_REQ && wsm->getRecipient() == SUMOvID)
@@ -277,7 +311,6 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
         if(wsm->getType() == SPLIT_DONE && wsm->getSender() == oldPlnID && wsm->getRecipient() == SUMOvID)
         {
             cancelEvent(plnTIMER8);
-            TraCI->commandSetTg(SUMOvID, 3.5);
 
             plnMembersList.clear();
             plnMembersList = wsm->getQueueValue();
@@ -286,9 +319,13 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
 
             updateColorDepth();
 
+            TraCI->commandSetTg(SUMOvID, 3.5);
+            TraCI->commandSetSpeed(SUMOvID, 5.);
+
             vehicleState = state_waitForGap;
             reportStateToStat();
 
+            // check each 0.5s to see if the gap is big enough
             scheduleAt(simTime() + .5, plnTIMER8a);
         }
     }
@@ -324,7 +361,7 @@ bool ApplVPlatoonMg::GapDone()
     string vleaderID = vleaderIDnew[0];
     double gap = atof( vleaderIDnew[1].c_str() );
 
-    if(gap > 20)
+    if(vleaderID == "" || gap > 20)
         return true;
 
     return false;

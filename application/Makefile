@@ -46,17 +46,17 @@ OBJS = \
     $O/ApplV_06a_Merge.o \
     $O/NodeEdge.o \
     $O/RSUMobility.o \
-    $O/ApplV_06f_LeaderLeave.o \
     $O/ApplV_06d_Entry.o \
     $O/Global_07_SpeedProfile.o \
     $O/ApplV_06_PlatoonMg.o \
     $O/ApplV_07_Manager.o \
     $O/Global_08_Router.o \
     $O/ApplV_06b_Split.o \
-    $O/ApplV_06e_FollowerLeave.o \
+    $O/ApplV_06e_LeaderLeave.o \
     $O/Global_02_TraCI_App.o \
     $O/ApplV_05_PlatoonFormed.o \
     $O/Mac1609_4_Mod.o \
+    $O/ApplV_06f_FollowerLeave.o \
     $O/ApplRSU_01_Base.o \
     $O/Global_04_VehicleAdd.o \
     $O/ApplV_03_System.o \
@@ -768,7 +768,7 @@ $O/ApplV_06d_Entry.o: ApplV_06d_Entry.cc \
 	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
 	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
 	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
-$O/ApplV_06e_FollowerLeave.o: ApplV_06e_FollowerLeave.cc \
+$O/ApplV_06e_LeaderLeave.o: ApplV_06e_LeaderLeave.cc \
 	Appl.h \
 	ApplV_01_Base.h \
 	ApplV_02_Beacon.h \
@@ -813,7 +813,7 @@ $O/ApplV_06e_FollowerLeave.o: ApplV_06e_FollowerLeave.cc \
 	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
 	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
 	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
-$O/ApplV_06f_LeaderLeave.o: ApplV_06f_LeaderLeave.cc \
+$O/ApplV_06f_FollowerLeave.o: ApplV_06f_FollowerLeave.cc \
 	Appl.h \
 	ApplV_01_Base.h \
 	ApplV_02_Beacon.h \

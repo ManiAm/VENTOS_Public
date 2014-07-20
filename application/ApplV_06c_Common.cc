@@ -18,7 +18,7 @@ void ApplVPlatoonMg::common_BeaconFSM(BeaconVehicle* wsm)
 
 void ApplVPlatoonMg::common_DataFSM(PlatoonMsg* wsm)
 {
-    if(vehicleState == state_platoonMember)
+    if(vehicleState == state_platoonFollower)
     {
         if ( wsm->getType() == CHANGE_PL && wsm->getSender() == plnID && (string(wsm->getRecipient()) == "multicast" || wsm->getRecipient() == SUMOvID) )
         {

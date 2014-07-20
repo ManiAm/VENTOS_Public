@@ -10,5 +10,7 @@ simple ApplVPlatoonMg extends ApplVPlatoonFormed
         int optPlatoonSize;
         
         bool mergeEnabled;
-        bool splitEnabled;        
+        bool splitEnabled;  
+        bool followerLeaveEnabled;
+        bool leaderLeaveEnabled;      
 }

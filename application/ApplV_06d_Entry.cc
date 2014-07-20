@@ -33,6 +33,8 @@ void ApplVPlatoonMg::entry_handleSelfMsg(cMessage* msg)
             plnMembersList.push_back(SUMOvID);
             TraCI->commandSetTg(SUMOvID, 3.5);
 
+            busy = false;
+
             // change color to red!
             TraCIColor newColor = TraCIColor::fromTkColor("red");
             TraCI->getCommandInterface()->setColor(SUMOvID, newColor);
@@ -48,6 +50,13 @@ void ApplVPlatoonMg::entry_handleSelfMsg(cMessage* msg)
 
 
 void ApplVPlatoonMg::entry_BeaconFSM(BeaconVehicle* wsm)
+{
+
+
+}
+
+
+void ApplVPlatoonMg::entry_DataFSM(PlatoonMsg *wsm)
 {
 
 

@@ -8,18 +8,18 @@ void ApplVPlatoonMg::initialize(int stage)
 {
     ApplVPlatoonFormed::initialize(stage);
 
-	if (stage == 0)
+	if (stage == 0 && plnMode == 3)
 	{
-	    if(plnMode != 3)
-	        return;
-
 	    maxPlnSize = par("maxPlatoonSize").longValue();
         optPlnSize = par("optPlatoonSize").longValue();
         mergeEnabled = par("mergeEnabled").boolValue();
         splitEnabled = par("splitEnabled").boolValue();
+        followerLeaveEnabled = par("followerLeaveEnabled").boolValue();
+        leaderLeaveEnabled = par("leaderLeaveEnabled").boolValue();
 
         vehicleState = state_idle;
         busy = false;
+
         mgrTIMER = new cMessage("manager", KIND_TIMER);
         scheduleAt(simTime() + 0.1, mgrTIMER);
 
@@ -38,6 +38,7 @@ void ApplVPlatoonMg::initialize(int stage)
         // ----------------------
         leadingPlnID = "";
         leadingPlnDepth = -1;
+        mergeCaller = -1;
 
         plnTIMER1  = new cMessage("wait for merge reply", KIND_TIMER);
         plnTIMER1a = new cMessage("wait to catchup", KIND_TIMER);
@@ -49,13 +50,26 @@ void ApplVPlatoonMg::initialize(int stage)
         splittingVehicle = "";
         splittingDepth = -1;
         oldPlnID = "";
+        TotalPLSent = 0;
+        TotalACKsRx = 0;
+        splitCaller = -1;
 
         plnTIMER4  = new cMessage("wait for split reply", KIND_TIMER);
         plnTIMER6  = new cMessage("wait for free agent ACK", KIND_TIMER);
         plnTIMER7  = new cMessage("wait for all ACKs", KIND_TIMER);
         plnTIMER5  = new cMessage("wait for change_pl", KIND_TIMER);
         plnTIMER8  = new cMessage("wait for split done", KIND_TIMER);
-        plnTIMER8a  = new cMessage("wait for enough gap", KIND_TIMER);
+        plnTIMER8a = new cMessage("wait for enough gap", KIND_TIMER);
+
+        // used in leader leave
+        // --------------------
+        plnTIMER9 = new cMessage("wait for VOTE reply", KIND_TIMER);
+
+        // used in follower leave
+        // ----------------------
+        plnTIMER10 = new cMessage("wait for leave reply", KIND_TIMER);
+        plnTIMER11 = new cMessage("wait for split completion", KIND_TIMER);
+        plnTIMER12 = new cMessage("wait for the first split completion", KIND_TIMER);
 	}
 }
 
@@ -70,10 +84,12 @@ void ApplVPlatoonMg::handleSelfMsg(cMessage* msg)
 
     if(msg == mgrTIMER) Coordinator();
 
-    if(mergeEnabled) merge_handleSelfMsg(msg);
-    if(splitEnabled) split_handleSelfMsg(msg);
+    merge_handleSelfMsg(msg);
+    split_handleSelfMsg(msg);
     common_handleSelfMsg(msg);
     entry_handleSelfMsg(msg);
+    leaderLeave_handleSelfMsg(msg);
+    followerLeave_handleSelfMsg(msg);
 }
 
 
@@ -85,10 +101,12 @@ void ApplVPlatoonMg::onBeaconVehicle(BeaconVehicle* wsm)
     if(plnMode != 3)
         return;
 
-    if(mergeEnabled) merge_BeaconFSM(wsm);
-    if(splitEnabled) split_BeaconFSM(wsm);
+    merge_BeaconFSM(wsm);
+    split_BeaconFSM(wsm);
     common_BeaconFSM(wsm);
     entry_BeaconFSM(wsm);
+    leaderLeave_BeaconFSM(wsm);
+    followerLeave_BeaconFSM(wsm);
 }
 
 
@@ -96,6 +114,9 @@ void ApplVPlatoonMg::onBeaconRSU(BeaconRSU* wsm)
 {
     // pass it down!
     ApplVPlatoonFormed::onBeaconRSU(wsm);
+
+    if(plnMode != 3)
+        return;
 }
 
 
@@ -107,47 +128,108 @@ void ApplVPlatoonMg::onData(PlatoonMsg* wsm)
     if(plnMode != 3)
         return;
 
-    if(mergeEnabled) merge_DataFSM(wsm);
-    if(splitEnabled) split_DataFSM(wsm);
+    merge_DataFSM(wsm);
+    split_DataFSM(wsm);
     common_DataFSM(wsm);
+    entry_DataFSM(wsm);
+    leaderLeave_DataFSM(wsm);
+    followerLeave_DataFSM(wsm);
 }
 
 
 void ApplVPlatoonMg::Coordinator()
 {
-    if(simTime().dbl() >= 37)
-    {
-        optPlnSize = 13;
-    }
-
-    if(simTime().dbl() >= 77)
-    {
-        optPlnSize = 4;
-    }
-
-    if(simTime().dbl() >= 94)
-    {
-        optPlnSize = 10;
-    }
-
-    if(simTime().dbl() >= 131)
-    {
-        optPlnSize = 3;
-    }
-    if(simTime().dbl() >= 188)
-    {
-        optPlnSize = 2;
-    }
+//    if(simTime().dbl() >= 37)
+//    {
+//        optPlnSize = 13;
+//    }
+//
+//    if(simTime().dbl() >= 77)
+//    {
+//        optPlnSize = 4;
+//    }
+//
+//    if(simTime().dbl() >= 94)
+//    {
+//        optPlnSize = 10;
+//    }
+//
+//    if(simTime().dbl() >= 131)
+//    {
+//        optPlnSize = 3;
+//    }
+//    if(simTime().dbl() >= 188)
+//    {
+//        optPlnSize = 2;
+//    }
 
     // check if we can split
-    if(!busy && vehicleState == state_platoonLeader && plnSize > optPlnSize)
+    if(vehicleState == state_platoonLeader)
     {
-        vehicleState = state_sendSplitReq;
-        reportStateToStat();
+        if(!busy && splitEnabled && plnSize > optPlnSize)
+        {
+            splittingDepth = optPlnSize;
+            splittingVehicle = plnMembersList[splittingDepth];
+            splitCaller = -1;
 
-        busy = true;
+            busy = true;
 
-        split_DataFSM();
+            vehicleState = state_sendSplitReq;
+            reportStateToStat();
+
+            split_DataFSM();
+        }
+    }
+
+    // leader leaves
+    if(simTime().dbl() == 26)
+    {
+        if(vehicleState == state_platoonLeader)
+        {
+            if(!busy && leaderLeaveEnabled && plnSize > 1)
+            {
+                busy = true;
+
+                vehicleState = state_sendVoteLeader;
+                reportStateToStat();
+
+                leaderLeave_DataFSM();
+            }
+        }
+    }
+
+    // last follower leaves
+    if(simTime().dbl() == 67)
+    {
+        if(vehicleState == state_platoonFollower && myPlnDepth == 4)
+        {
+            if(!busy && followerLeaveEnabled)
+            {
+                busy = true;
+
+                vehicleState = state_sendLeaveReq;
+                reportStateToStat();
+
+                followerLeave_DataFSM();
+            }
+        }
+    }
+
+    // middle follower leaves
+    if(simTime().dbl() == 120)
+    {
+        if(vehicleState == state_platoonFollower && myPlnDepth == 2)
+        {
+            if(!busy && followerLeaveEnabled)
+            {
+                busy = true;
+
+                vehicleState = state_sendLeaveReq;
+                reportStateToStat();
+
+                followerLeave_DataFSM();
+            }
+        }
     }
 
     scheduleAt(simTime() + 0.1, mgrTIMER);
@@ -261,7 +343,7 @@ void ApplVPlatoonMg::reportStateToStat()
 const string ApplVPlatoonMg::stateToStr(int s)
 {
     const char * statesStrings[] = {
-        "state_idle", "state_platoonLeader", "state_platoonMember",
+        "state_idle", "state_platoonLeader", "state_platoonFollower",
 
         "state_waitForLaneChange",
 
@@ -273,6 +355,10 @@ const string ApplVPlatoonMg::stateToStr(int s)
         "state_sendSplitReq", "state_waitForSplitReply", "state_makeItFreeAgent",
         "state_waitForAck", "state_splitDone", "state_changePL", "state_waitForAllAcks2",
         "state_waitForCHANGEPL", "state_sendingACK", "state_waitForSplitDone", "state_waitForGap",
+
+        "state_sendVoteLeader", "state_waitForVoteReply", "state_splitCompleted",
+
+        "state_sendLeaveReq", "state_waitForLeaveReply", "state_secondSplit",
     };
 
     return statesStrings[s];
@@ -290,14 +376,12 @@ void ApplVPlatoonMg::reportCommandToStat(PlatoonMsg* dataMsg)
 const string ApplVPlatoonMg::uCommandToStr(int c)
 {
     const char * uCommandStrings[] = {
-        "MERGE_REQ", "MERGE_ACCEPT",
-        "MERGE_REJECT", "MERGE_DONE",
+        "MERGE_REQ", "MERGE_ACCEPT", "MERGE_REJECT", "MERGE_DONE",
+        "SPLIT_REQ", "SPLIT_ACCEPT", "SPLIT_REJECT", "SPLIT_DONE",
         "CHANGE_PL", "CHANGE_Tg",
-        "SPLIT_REQ", "SPLIT_ACCEPT",
-        "SPLIT_REJECT", "SPLIT_DONE",
-        "LEAVE_REQ", "LEAVE_REJECT",
-        "VOTE_LEADER", "ELECTED_LEADER",
-        "DISSOLVE", "ACK"
+        "VOTE_LEADER", "ELECTED_LEADER", "DISSOLVE",
+        "LEAVE_REQ", "LEAVE_ACCEPT", "LEAVE_REJECT",
+        "ACK",
     };
 
     return uCommandStrings[c];

@@ -22,15 +22,18 @@ class ApplVPlatoonMg : public ApplVPlatoonFormed
         // NED variables
         int maxPlnSize;
         int optPlnSize;
+
         bool mergeEnabled;
         bool splitEnabled;
+        bool followerLeaveEnabled;
+        bool leaderLeaveEnabled;
 
         // Variables
         enum states
         {
-            state_idle,           // 0
-            state_platoonLeader,  // 1
-            state_platoonMember,  // 2
+            state_idle,             // 0
+            state_platoonLeader,    // 1
+            state_platoonFollower,  // 2
 
             // entry states
             state_waitForLaneChange,
@@ -48,17 +51,28 @@ class ApplVPlatoonMg : public ApplVPlatoonFormed
             state_mergeDone,
 
             // split states
-            state_sendSplitReq,     // 14
+            state_sendSplitReq,      // 14
             state_waitForSplitReply,
             state_makeItFreeAgent,
             state_waitForAck,
             state_splitDone,
             state_changePL,
-            state_waitForAllAcks2,  // 20
+            state_waitForAllAcks2,   // 20
             state_waitForCHANGEPL,
             state_sendingACK,
             state_waitForSplitDone,
             state_waitForGap,
+
+            // leader leave
+            state_sendVoteLeader,
+            state_waitForVoteReply,
+            state_splitCompleted,
+
+            // follower leave
+            state_sendLeaveReq,
+            state_waitForLeaveReply,
+            state_secondSplit,
+
         };
 
         enum uCommands
@@ -68,21 +82,21 @@ class ApplVPlatoonMg : public ApplVPlatoonFormed
             MERGE_REJECT,
             MERGE_DONE,
 
-            CHANGE_PL,
-            CHANGE_Tg,
-
             SPLIT_REQ,
             SPLIT_ACCEPT,
             SPLIT_REJECT,
             SPLIT_DONE,
 
-            LEAVE_REQ,
-            LEAVE_REJECT,
+            CHANGE_PL,
+            CHANGE_Tg,
 
             VOTE_LEADER,
             ELECTED_LEADER,
-
             DISSOLVE,
+
+            LEAVE_REQ,
+            LEAVE_ACCEPT,
+            LEAVE_REJECT,
 
             ACK,
         };
@@ -105,11 +119,7 @@ class ApplVPlatoonMg : public ApplVPlatoonFormed
         string leadingPlnID;
         int leadingPlnDepth;
         deque<string> secondPlnMembersList;
-
-        // split
-        string splittingVehicle;
-        int splittingDepth;
-        string oldPlnID;
+        int mergeCaller;
 
         cMessage* mgrTIMER;
         cMessage* plnTIMER1;
@@ -117,12 +127,28 @@ class ApplVPlatoonMg : public ApplVPlatoonFormed
         cMessage* plnTIMER2;
         cMessage* plnTIMER3;
 
+        // split
+        string splittingVehicle;
+        int splittingDepth;
+        string oldPlnID;
+        int TotalPLSent;
+        int TotalACKsRx;
+        int splitCaller;
+
         cMessage* plnTIMER4;
         cMessage* plnTIMER5;
         cMessage* plnTIMER6;
         cMessage* plnTIMER7;
         cMessage* plnTIMER8;
         cMessage* plnTIMER8a;
+
+        // leader leave
+        cMessage* plnTIMER9;
+
+        // follower leave
+        cMessage* plnTIMER10;
+        cMessage* plnTIMER11;
+        cMessage* plnTIMER12;
 
 	private:
         void Coordinator();
@@ -153,9 +179,15 @@ class ApplVPlatoonMg : public ApplVPlatoonFormed
 
         void entry_handleSelfMsg(cMessage* msg);
         void entry_BeaconFSM(BeaconVehicle *wsm);
+        void entry_DataFSM(PlatoonMsg *wsm = NULL);
 
-        void followerLeave_FSM();
-        void leaderLeave_FSM();
+        void leaderLeave_handleSelfMsg(cMessage* msg);
+        void leaderLeave_BeaconFSM(BeaconVehicle *wsm = NULL);
+        void leaderLeave_DataFSM(PlatoonMsg *wsm = NULL);
+
+        void followerLeave_handleSelfMsg(cMessage* msg);
+        void followerLeave_BeaconFSM(BeaconVehicle *wsm = NULL);
+        void followerLeave_DataFSM(PlatoonMsg *wsm = NULL);
 };
 
 #endif

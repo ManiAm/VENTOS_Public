@@ -4,6 +4,9 @@
 
 void ApplVPlatoonMg::merge_handleSelfMsg(cMessage* msg)
 {
+    if(!mergeEnabled)
+        return;
+
     if(msg == plnTIMER1)
     {
         if(vehicleState == state_waitForMergeReply)
@@ -66,10 +69,13 @@ void ApplVPlatoonMg::merge_handleSelfMsg(cMessage* msg)
 
 void ApplVPlatoonMg::merge_BeaconFSM(BeaconVehicle* wsm)
 {
+    if(!mergeEnabled)
+        return;
+
     if(vehicleState == state_platoonLeader)
     {
         // can we merge?
-        if(plnSize < optPlnSize)
+        if(!busy && plnSize < optPlnSize)
         {
             if(isBeaconFromLeading(wsm))
             {
@@ -77,6 +83,8 @@ void ApplVPlatoonMg::merge_BeaconFSM(BeaconVehicle* wsm)
 
                 if(finalPlnSize <= optPlnSize)
                 {
+                    mergeCaller = -1;
+
                     vehicleState = state_sendMergeReq;
                     reportStateToStat();
 
@@ -121,6 +129,9 @@ void ApplVPlatoonMg::merge_BeaconFSM(BeaconVehicle* wsm)
 
 void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
 {
+    if(!mergeEnabled)
+        return;
+
     if(vehicleState == state_waitForMergeReply)
     {
         if (wsm->getType() == MERGE_REJECT && wsm->getSender() == leadingPlnID)
@@ -177,7 +188,7 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
         sendDelayed(dataMsg, individualOffset, lowerLayerOut);
         reportCommandToStat(dataMsg);
 
-        vehicleState = state_platoonMember;
+        vehicleState = state_platoonFollower;
         reportStateToStat();
     }
     else if(vehicleState == state_notifyFollowers)
@@ -284,14 +295,24 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
             reportCommandToStat(dataMsg);
         }
 
-        busy = false;
-
         vehicleState = state_platoonLeader;
         reportStateToStat();
 
         // now that plnSize is changed, we should
         // change the color of the followers
         updateColorDepth();
+
+        if(mergeCaller == -1)
+        {
+            busy = false;
+        }
+        // follower leave had called merge
+        else if(mergeCaller == 0)
+        {
+            // we should not set busy to false. Follower leave is on-going
+            // todo:
+
+        }
     }
 }
 
@@ -331,7 +352,7 @@ bool ApplVPlatoonMg::CatchUpDone()
 //
 //    double catchupGap = (timeGap * speed) + minGap;
 
-    if(gap < 10)
+    if(vleaderID == "" || gap < 10)
         return true;
 
     return false;
