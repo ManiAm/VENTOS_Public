@@ -117,6 +117,7 @@ class ApplVPlatoonMg : public ApplVPlatoonFormed
         cMessage* plnTIMER0;
 
         // merge
+        int mergeReqAttempts;
         string leadingPlnID;
         int leadingPlnDepth;
         deque<string> secondPlnMembersList;

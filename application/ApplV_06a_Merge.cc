@@ -11,10 +11,21 @@ void ApplVPlatoonMg::merge_handleSelfMsg(cMessage* msg)
     {
         if(vehicleState == state_waitForMergeReply)
         {
-            vehicleState = state_sendMergeReq;
-            reportStateToStat();
+            // leader does not response after three re-attempts!
+            if(mergeReqAttempts >= 3)
+            {
+                mergeReqAttempts = 0;
 
-            merge_BeaconFSM();
+                vehicleState = state_platoonLeader;
+                reportStateToStat();
+            }
+            else
+            {
+                vehicleState = state_sendMergeReq;
+                reportStateToStat();
+
+                merge_BeaconFSM();
+            }
         }
     }
     else if(msg == plnTIMER1a)
@@ -116,6 +127,8 @@ void ApplVPlatoonMg::merge_BeaconFSM(BeaconVehicle* wsm)
         sendDelayed(dataMsg, individualOffset, lowerLayerOut);
         reportCommandToStat(dataMsg);
 
+        mergeReqAttempts++;
+
         vehicleState = state_waitForMergeReply;
         reportStateToStat();
 
@@ -132,6 +145,8 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
 
     if(vehicleState == state_waitForMergeReply)
     {
+        mergeReqAttempts = 0;
+
         if (wsm->getType() == MERGE_REJECT && wsm->getSender() == leadingPlnID)
         {
             cancelEvent(plnTIMER1);

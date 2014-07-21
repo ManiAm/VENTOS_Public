@@ -351,348 +351,124 @@ timeStep    sender         receiver         type                     sendingPlnI
 131.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
 
 131.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-132.51     CACC4           -                 state_sendMergeReq             -                  -                   
+132.51     CACC4           -                 state_platoonLeader            -                  -                   
+132.61     CACC4           -                 state_sendMergeReq             -                  -                   
 
-132.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
+132.61     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
 
-132.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-133.51     CACC4           -                 state_sendMergeReq             -                  -                   
+132.61     CACC4           -                 state_waitForMergeReply        -                  -                   
+133.61     CACC4           -                 state_sendMergeReq             -                  -                   
 
-133.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
+133.61     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
 
-133.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-134.51     CACC4           -                 state_sendMergeReq             -                  -                   
+133.61     CACC4           -                 state_waitForMergeReply        -                  -                   
+134.61     CACC4           -                 state_sendMergeReq             -                  -                   
 
-134.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
+134.61     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
 
-134.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-135.51     CACC4           -                 state_sendMergeReq             -                  -                   
+134.61     CACC4           -                 state_waitForMergeReply        -                  -                   
+135.61     CACC4           -                 state_platoonLeader            -                  -                   
+135.61     CACC4           -                 state_sendMergeReq             -                  -                   
 
-135.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
+135.61     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
 
-135.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-136.51     CACC4           -                 state_sendMergeReq             -                  -                   
+135.61     CACC4           -                 state_waitForMergeReply        -                  -                   
+136.61     CACC4           -                 state_sendMergeReq             -                  -                   
 
-136.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
+136.61     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
 
-136.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-137.51     CACC4           -                 state_sendMergeReq             -                  -                   
+136.61     CACC4           -                 state_waitForMergeReply        -                  -                   
+137.61     CACC4           -                 state_sendMergeReq             -                  -                   
 
-137.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
+137.61     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
 
-137.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-138.51     CACC4           -                 state_sendMergeReq             -                  -                   
+137.61     CACC4           -                 state_waitForMergeReply        -                  -                   
+138.61     CACC4           -                 state_platoonLeader            -                  -                   
+138.71     CACC4           -                 state_sendMergeReq             -                  -                   
 
-138.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
+138.71     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
 
-138.51     CACC4           -                 state_waitForMergeReply        -                  -                   
+138.71     CACC4           -                 state_waitForMergeReply        -                  -                   
 138.95     CACC3           -                 state_platoonLeader            -                  -                   
 
 138.95     CACC3           CACC2             GAP_CREATED                    CACC3              CACC2               
 
 139.41     CACC3           -                 state_idle                     -                  -                   
-139.51     CACC4           -                 state_sendMergeReq             -                  -                   
+139.71     CACC4           -                 state_sendMergeReq             -                  -                   
 
-139.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
+139.71     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
 
-139.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-140.51     CACC4           -                 state_sendMergeReq             -                  -                   
+139.71     CACC4           -                 state_waitForMergeReply        -                  -                   
+140.71     CACC4           -                 state_sendMergeReq             -                  -                   
 
-140.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
+140.71     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
 
-140.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-141.51     CACC4           -                 state_sendMergeReq             -                  -                   
+140.71     CACC4           -                 state_waitForMergeReply        -                  -                   
+141.71     CACC4           -                 state_sendMergeReq             -                  -                   
 
-141.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
+141.71     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
 
-141.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-142.51     CACC4           -                 state_sendMergeReq             -                  -                   
+141.71     CACC4           -                 state_waitForMergeReply        -                  -                   
+142.71     CACC4           -                 state_platoonLeader            -                  -                   
+142.75     CACC4           -                 state_sendMergeReq             -                  -                   
 
-142.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
+142.75     CACC4           CACC2             MERGE_REQ                      CACC4              CACC2               
 
-142.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-143.51     CACC4           -                 state_sendMergeReq             -                  -                   
+142.75     CACC4           -                 state_waitForMergeReply        -                  -                   
+142.75     CACC2           -                 state_sendMergeAccept          -                  -                   
 
-143.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
+142.75     CACC2           CACC4             MERGE_ACCEPT                   CACC2              CACC4               
 
-143.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-144.51     CACC4           -                 state_sendMergeReq             -                  -                   
+142.75     CACC2           -                 state_waitForMergeDone         -                  -                   
+142.76     CACC4           -                 state_mergeAccepted            -                  -                   
+142.76     CACC4           -                 state_waitForCatchup           -                  -                   
+143.75     CACC2           -                 state_sendMergeAccept          -                  -                   
 
-144.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
+143.75     CACC2           CACC4             MERGE_ACCEPT                   CACC2              CACC4               
 
-144.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-145.51     CACC4           -                 state_sendMergeReq             -                  -                   
+143.75     CACC2           -                 state_waitForMergeDone         -                  -                   
+144.75     CACC2           -                 state_sendMergeAccept          -                  -                   
 
-145.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
+144.75     CACC2           CACC4             MERGE_ACCEPT                   CACC2              CACC4               
 
-145.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-146.51     CACC4           -                 state_sendMergeReq             -                  -                   
+144.75     CACC2           -                 state_waitForMergeDone         -                  -                   
+145.75     CACC2           -                 state_sendMergeAccept          -                  -                   
 
-146.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
+145.75     CACC2           CACC4             MERGE_ACCEPT                   CACC2              CACC4               
 
-146.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-147.51     CACC4           -                 state_sendMergeReq             -                  -                   
+145.75     CACC2           -                 state_waitForMergeDone         -                  -                   
+146.75     CACC2           -                 state_sendMergeAccept          -                  -                   
 
-147.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
+146.75     CACC2           CACC4             MERGE_ACCEPT                   CACC2              CACC4               
 
-147.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-148.51     CACC4           -                 state_sendMergeReq             -                  -                   
+146.75     CACC2           -                 state_waitForMergeDone         -                  -                   
+147.75     CACC2           -                 state_sendMergeAccept          -                  -                   
 
-148.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
+147.75     CACC2           CACC4             MERGE_ACCEPT                   CACC2              CACC4               
 
-148.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-149.51     CACC4           -                 state_sendMergeReq             -                  -                   
+147.75     CACC2           -                 state_waitForMergeDone         -                  -                   
+148.75     CACC2           -                 state_sendMergeAccept          -                  -                   
 
-149.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
+148.75     CACC2           CACC4             MERGE_ACCEPT                   CACC2              CACC4               
 
-149.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-150.51     CACC4           -                 state_sendMergeReq             -                  -                   
+148.75     CACC2           -                 state_waitForMergeDone         -                  -                   
+149.75     CACC2           -                 state_sendMergeAccept          -                  -                   
 
-150.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
+149.75     CACC2           CACC4             MERGE_ACCEPT                   CACC2              CACC4               
 
-150.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-151.51     CACC4           -                 state_sendMergeReq             -                  -                   
+149.75     CACC2           -                 state_waitForMergeDone         -                  -                   
+149.76     CACC4           -                 state_notifyFollowers          -                  -                   
 
-151.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
+149.76     CACC4           multicast         CHANGE_PL                      CACC4              CACC2               
 
-151.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-152.51     CACC4           -                 state_sendMergeReq             -                  -                   
+149.76     CACC4           -                 state_state_waitForAllAcks     -                  -                   
 
-152.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
+149.76     CACC5           CACC4             ACK                            CACC4              CACC4               
 
-152.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-153.51     CACC4           -                 state_sendMergeReq             -                  -                   
+149.76     CACC4           -                 state_sendMergeDone            -                  -                   
 
-153.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
+149.76     CACC4           CACC2             MERGE_DONE                     CACC2              CACC2               
 
-153.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-154.51     CACC4           -                 state_sendMergeReq             -                  -                   
-
-154.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
-
-154.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-155.51     CACC4           -                 state_sendMergeReq             -                  -                   
-
-155.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
-
-155.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-156.51     CACC4           -                 state_sendMergeReq             -                  -                   
-
-156.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
-
-156.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-157.51     CACC4           -                 state_sendMergeReq             -                  -                   
-
-157.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
-
-157.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-158.51     CACC4           -                 state_sendMergeReq             -                  -                   
-
-158.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
-
-158.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-159.51     CACC4           -                 state_sendMergeReq             -                  -                   
-
-159.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
-
-159.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-160.51     CACC4           -                 state_sendMergeReq             -                  -                   
-
-160.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
-
-160.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-161.51     CACC4           -                 state_sendMergeReq             -                  -                   
-
-161.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
-
-161.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-162.51     CACC4           -                 state_sendMergeReq             -                  -                   
-
-162.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
-
-162.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-163.51     CACC4           -                 state_sendMergeReq             -                  -                   
-
-163.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
-
-163.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-164.51     CACC4           -                 state_sendMergeReq             -                  -                   
-
-164.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
-
-164.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-165.51     CACC4           -                 state_sendMergeReq             -                  -                   
-
-165.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
-
-165.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-166.51     CACC4           -                 state_sendMergeReq             -                  -                   
-
-166.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
-
-166.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-167.51     CACC4           -                 state_sendMergeReq             -                  -                   
-
-167.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
-
-167.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-168.51     CACC4           -                 state_sendMergeReq             -                  -                   
-
-168.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
-
-168.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-169.51     CACC4           -                 state_sendMergeReq             -                  -                   
-
-169.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
-
-169.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-170.51     CACC4           -                 state_sendMergeReq             -                  -                   
-
-170.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
-
-170.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-171.51     CACC4           -                 state_sendMergeReq             -                  -                   
-
-171.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
-
-171.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-172.51     CACC4           -                 state_sendMergeReq             -                  -                   
-
-172.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
-
-172.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-173.51     CACC4           -                 state_sendMergeReq             -                  -                   
-
-173.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
-
-173.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-174.51     CACC4           -                 state_sendMergeReq             -                  -                   
-
-174.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
-
-174.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-175.51     CACC4           -                 state_sendMergeReq             -                  -                   
-
-175.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
-
-175.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-176.51     CACC4           -                 state_sendMergeReq             -                  -                   
-
-176.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
-
-176.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-177.51     CACC4           -                 state_sendMergeReq             -                  -                   
-
-177.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
-
-177.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-178.51     CACC4           -                 state_sendMergeReq             -                  -                   
-
-178.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
-
-178.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-179.51     CACC4           -                 state_sendMergeReq             -                  -                   
-
-179.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
-
-179.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-180.51     CACC4           -                 state_sendMergeReq             -                  -                   
-
-180.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
-
-180.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-181.51     CACC4           -                 state_sendMergeReq             -                  -                   
-
-181.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
-
-181.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-182.51     CACC4           -                 state_sendMergeReq             -                  -                   
-
-182.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
-
-182.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-183.51     CACC4           -                 state_sendMergeReq             -                  -                   
-
-183.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
-
-183.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-184.51     CACC4           -                 state_sendMergeReq             -                  -                   
-
-184.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
-
-184.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-185.51     CACC4           -                 state_sendMergeReq             -                  -                   
-
-185.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
-
-185.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-186.51     CACC4           -                 state_sendMergeReq             -                  -                   
-
-186.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
-
-186.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-187.51     CACC4           -                 state_sendMergeReq             -                  -                   
-
-187.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
-
-187.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-188.51     CACC4           -                 state_sendMergeReq             -                  -                   
-
-188.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
-
-188.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-189.51     CACC4           -                 state_sendMergeReq             -                  -                   
-
-189.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
-
-189.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-190.51     CACC4           -                 state_sendMergeReq             -                  -                   
-
-190.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
-
-190.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-191.51     CACC4           -                 state_sendMergeReq             -                  -                   
-
-191.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
-
-191.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-192.51     CACC4           -                 state_sendMergeReq             -                  -                   
-
-192.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
-
-192.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-193.51     CACC4           -                 state_sendMergeReq             -                  -                   
-
-193.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
-
-193.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-194.51     CACC4           -                 state_sendMergeReq             -                  -                   
-
-194.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
-
-194.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-195.51     CACC4           -                 state_sendMergeReq             -                  -                   
-
-195.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
-
-195.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-196.51     CACC4           -                 state_sendMergeReq             -                  -                   
-
-196.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
-
-196.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-197.51     CACC4           -                 state_sendMergeReq             -                  -                   
-
-197.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
-
-197.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-198.51     CACC4           -                 state_sendMergeReq             -                  -                   
-
-198.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
-
-198.51     CACC4           -                 state_waitForMergeReply        -                  -                   
-199.51     CACC4           -                 state_sendMergeReq             -                  -                   
-
-199.51     CACC4           CACC3             MERGE_REQ                      CACC4              CACC3               
-
-199.51     CACC4           -                 state_waitForMergeReply        -                  -                   
+149.76     CACC4           -                 state_platoonFollower          -                  -                   
+149.76     CACC2           -                 state_mergeDone                -                  -                   
+149.76     CACC2           -                 state_platoonLeader            -                  -                   

@@ -36,6 +36,7 @@ void ApplVPlatoonMg::initialize(int stage)
 
         // used in merge maneuver
         // ----------------------
+        mergeReqAttempts = 0;
         leadingPlnID = "";
         leadingPlnDepth = -1;
 
