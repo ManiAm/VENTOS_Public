@@ -61,6 +61,14 @@ void ApplVPlatoonMg::split_handleSelfMsg(cMessage* msg)
         {
             vehicleState = state_platoonLeader;
             reportStateToStat();
+
+            // send a unicast GAP_CREATED to the old leader
+            // we need this in follower leave only. Other maneuvers ignore this
+            PlatoonMsg* dataMsg = prepareData(oldPlnID, GAP_CREATED, oldPlnID);
+            EV << "### " << SUMOvID << ": sent GAP_CREATED." << endl;
+            printDataContent(dataMsg);
+            sendDelayed(dataMsg, individualOffset, lowerLayerOut);
+            reportCommandToStat(dataMsg);
         }
         else
             scheduleAt(simTime() + 0.5, plnTIMER8a);

@@ -66,9 +66,9 @@ void ApplVPlatoonMg::initialize(int stage)
 
         // used in follower leave
         // ----------------------
+        RemainingSplits = 0;
         plnTIMER10 = new cMessage("wait for leave reply", KIND_TIMER);
         plnTIMER11 = new cMessage("wait for split completion", KIND_TIMER);
-        plnTIMER12 = new cMessage("wait for the first split completion", KIND_TIMER);
 	}
 }
 
@@ -138,6 +138,25 @@ void ApplVPlatoonMg::onData(PlatoonMsg* wsm)
 
 void ApplVPlatoonMg::Coordinator()
 {
+    // check if we can split
+    if(vehicleState == state_platoonLeader)
+    {
+        if(!busy && splitEnabled && plnSize > optPlnSize)
+        {
+            splittingDepth = optPlnSize;
+            splittingVehicle = plnMembersList[splittingDepth];
+            splitCaller = -1;
+
+            busy = true;
+
+            vehicleState = state_sendSplitReq;
+            reportStateToStat();
+
+            split_DataFSM();
+        }
+    }
+
+
 //    if(simTime().dbl() >= 37)
 //    {
 //        optPlnSize = 13;
@@ -162,23 +181,7 @@ void ApplVPlatoonMg::Coordinator()
 //        optPlnSize = 2;
 //    }
 
-    // check if we can split
-    if(vehicleState == state_platoonLeader)
-    {
-        if(!busy && splitEnabled && plnSize > optPlnSize)
-        {
-            splittingDepth = optPlnSize;
-            splittingVehicle = plnMembersList[splittingDepth];
-            splitCaller = -1;
 
-            busy = true;
-
-            vehicleState = state_sendSplitReq;
-            reportStateToStat();
-
-            split_DataFSM();
-        }
-    }
 
     // leader leaves
     if(simTime().dbl() == 26)
@@ -217,7 +220,7 @@ void ApplVPlatoonMg::Coordinator()
     // middle follower leaves
     if(simTime().dbl() == 120)
     {
-        if(vehicleState == state_platoonFollower && myPlnDepth == 2)
+        if(vehicleState == state_platoonFollower && myPlnDepth == 1)
         {
             if(!busy && followerLeaveEnabled)
             {
@@ -379,7 +382,7 @@ const string ApplVPlatoonMg::uCommandToStr(int c)
         "SPLIT_REQ", "SPLIT_ACCEPT", "SPLIT_REJECT", "SPLIT_DONE",
         "CHANGE_PL", "CHANGE_Tg",
         "VOTE_LEADER", "ELECTED_LEADER", "DISSOLVE",
-        "LEAVE_REQ", "LEAVE_ACCEPT", "LEAVE_REJECT",
+        "LEAVE_REQ", "LEAVE_ACCEPT", "LEAVE_REJECT", "GAP_CREATED",
         "ACK",
     };
 

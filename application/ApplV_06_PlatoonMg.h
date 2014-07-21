@@ -97,6 +97,7 @@ class ApplVPlatoonMg : public ApplVPlatoonFormed
             LEAVE_REQ,
             LEAVE_ACCEPT,
             LEAVE_REJECT,
+            GAP_CREATED,
 
             ACK,
         };
@@ -145,9 +146,9 @@ class ApplVPlatoonMg : public ApplVPlatoonFormed
         cMessage* plnTIMER9;
 
         // follower leave
+        int RemainingSplits;
         cMessage* plnTIMER10;
         cMessage* plnTIMER11;
-        cMessage* plnTIMER12;
 
 	private:
         void Coordinator();

@@ -44,19 +44,6 @@ void ApplVPlatoonMg::followerLeave_handleSelfMsg(cMessage* msg)
         else
             scheduleAt(simTime() + .5, plnTIMER11);
     }
-    else if(msg == plnTIMER12)
-    {
-        // check if the first split is done?
-        if(vehicleState == state_platoonLeader)
-        {
-            vehicleState = state_secondSplit;
-            reportStateToStat();
-
-            followerLeave_DataFSM();
-        }
-        else
-            scheduleAt(simTime() + .5, plnTIMER12);
-    }
 }
 
 
@@ -124,8 +111,11 @@ void ApplVPlatoonMg::followerLeave_DataFSM(PlatoonMsg *wsm)
                 error("depth of the follower is not right!");
 
             // last follower wants to leave
+            // one split is enough
             if(wsm->getDblValue() + 1 == plnSize)
             {
+                RemainingSplits = 1;
+
                 splittingDepth = wsm->getDblValue();
                 splittingVehicle = plnMembersList[splittingDepth];
                 splitCaller = 1;  // Notifying split that follower leave is the caller
@@ -136,8 +126,12 @@ void ApplVPlatoonMg::followerLeave_DataFSM(PlatoonMsg *wsm)
                 split_DataFSM();
             }
             // middle follower wants to leave
+            // we need two splits
             else
             {
+                RemainingSplits = 2;
+
+                // start the first split
                 splittingDepth = wsm->getDblValue() + 1;
                 splittingVehicle = plnMembersList[splittingDepth];
                 splitCaller = 1;  // Notifying split that follower leave is the caller
@@ -146,21 +140,32 @@ void ApplVPlatoonMg::followerLeave_DataFSM(PlatoonMsg *wsm)
                 reportStateToStat();
 
                 split_DataFSM();
-
-                scheduleAt(simTime() + .5, plnTIMER12);
             }
         }
-    }
-    else if(vehicleState == state_secondSplit)
-    {
-        splittingDepth = plnSize - 1;
-        splittingVehicle = plnMembersList[splittingDepth];
-        splitCaller = 1;  // Notifying split that follower leave is the caller
+        // leader receives a GAP_CREATED
+        else if(wsm->getType() == GAP_CREATED && wsm->getRecipient() == SUMOvID)
+        {
+            RemainingSplits--;
 
-        vehicleState = state_sendSplitReq;
-        reportStateToStat();
+            if(RemainingSplits == 0)
+            {
+                // no more splits are needed. We are done!
+            }
+            else if(RemainingSplits == 1)
+            {
+                // start the second split
+                splittingDepth = plnSize - 1;
+                splittingVehicle = plnMembersList[splittingDepth];
+                splitCaller = 1;  // Notifying split that follower leave is the caller
 
-        split_DataFSM();
+                vehicleState = state_sendSplitReq;
+                reportStateToStat();
+
+                split_DataFSM();
+            }
+            else
+                error("RemainingSplits value is not correct!");
+        }
     }
 }
 
