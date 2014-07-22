@@ -5,9 +5,9 @@ VENTOS (VEhicular NeTwork Open Simulator) is an integrated C++ simulator for stu
 
 **OMNET++:** OMNET++ is a network simulator, and is used for detailed packet-level simulations.
 
-**Veins framework:** We used Veins to connect SUMO to OMNET++ using TraCI interface, as well as using IEEE 802.11p protocol in data-link layer.
+**Veins framework:** We used Veins to connect SUMO to OMNET++ using TraCI interface, as well as using IEEE 802.11p protocol in data-link layer for V2V, I2V and V2I wireless communications. More information [here](http://veins.car2x.org/ "").
 
-**Simulation of Urban Mobility (SUMO):** SUMO is an open source, microscopic, continuous-space, discrete-time road traffic simulator, developed at German Aerospace Center. We implemented multiple car following models in SUMO.
+**Simulation of Urban Mobility (SUMO):** SUMO is an open source, microscopic, continuous-space, discrete-time road traffic simulator, developed at German Aerospace Center. We have implemented multiple car following models in SUMO. SUMO is as powerfull as a [Sumo wrestler](https://www.youtube.com/watch?v=dW7n2UP60bk "") :)
 
 **Eigen library:** Eigen is a C++ template library for linear algebra: matrices, vectors, numerical solvers, and related algorithms. We use this library for matrix calculations. Eigen is a header only library, and is included in VENTOS.
 
@@ -25,14 +25,11 @@ Features
 * mode switch between ACC, CACC
 * simulation of 'CACC vehicle stream' and 'CACC platoon'
 * Implementing a platoon management protocol that supports different maneuvers such as merge, split, entry, follower leave, platoon leader leave
-* simulation of mix traffic scenarios (cars, trucks, etc)
 * testing different speed profiles
 * study the local/string stability
 * study the effect of Packet Loss Ratio (PLR) on string stability
 * studing differenr security attacks using 'adversary module'
 * supports 'Automatic Incident Detection' in highway / arterial
-* IEEE 802.11p protocol for V2V and I2V communications
-* physical-layer modeling based on MiXiM framework
 
 <p align="center">
   <img src="https://dl.dropboxusercontent.com/u/5153771/simulation.png" alt="Simulation Output" style="width: 110%"/>
