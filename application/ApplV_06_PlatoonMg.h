@@ -106,14 +106,15 @@ class ApplVPlatoonMg : public ApplVPlatoonFormed
 
 	private:
         bool busy;
+        cMessage* mgrTIMER;
 
         // entry
-        cMessage* entryManeuverEvt;
         double leastDistFront;
         double leastDistBack;
         NearestVehicle *leastFront;
         NearestVehicle *leastBack;
 
+        cMessage* entryManeuverEvt;
         cMessage* plnTIMER0;
 
         // merge
@@ -122,7 +123,6 @@ class ApplVPlatoonMg : public ApplVPlatoonFormed
         int leadingPlnDepth;
         deque<string> secondPlnMembersList;
 
-        cMessage* mgrTIMER;
         cMessage* plnTIMER1;
         cMessage* plnTIMER1a;
         cMessage* plnTIMER2;
@@ -148,6 +148,7 @@ class ApplVPlatoonMg : public ApplVPlatoonFormed
 
         // follower leave
         int RemainingSplits;
+
         cMessage* plnTIMER10;
         cMessage* plnTIMER11;
 

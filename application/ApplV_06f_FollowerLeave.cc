@@ -163,8 +163,6 @@ void ApplVPlatoonMg::followerLeave_DataFSM(PlatoonMsg *wsm)
 
                 split_DataFSM();
             }
-            else
-                error("RemainingSplits value is not correct!");
         }
     }
 }
