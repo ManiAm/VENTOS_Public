@@ -13,9 +13,9 @@ VENTOS (VEhicular NeTwork Open Simulator) is an integrated C++ simulator for stu
 
 **RapidXML:** RapidXml is an attempt to create the fastest XML parser possible, while retaining useability, portability and reasonable W3C compatibility. It is an in-situ parser written in modern C++, with parsing speed approaching that of strlen function executed on the same data. RapidXML is a header only library, and is included in VENTOS.
 
-**Boost library:** Boost provides free peer-reviewed portable C++ source libraries which can be found [here](http://www.boost.org/doc/libs/ ""). We are using boost tokenizer, filesystem, etc. In Ubuntu, make sure to install `libboost-filesystem1.48-dev`, and `libboost-system1.48-dev` packages.
+**Boost library:** Boost provides free peer-reviewed portable C++ source libraries which can be found [here](http://www.boost.org/doc/libs/ ""). We are using boost tokenizer, filesystem, etc.
 
-**OpenSSL library:** OpenSSL is an open-source implementation of the SSL and TLS protocols. The core library, written in the C programming language, implements the basic cryptographic functions and provides various utility functions. We use OpenSSL library to sign and verify different messages. In Ubuntu, make sure to install `libssl-dev` package.
+**OpenSSL library:** OpenSSL is an open-source implementation of the SSL and TLS protocols. The core library, written in the C programming language, implements the basic cryptographic functions and provides various utility functions. We use OpenSSL library to sign and verify different messages.
 
 
 Features
@@ -40,6 +40,8 @@ Watch simulation videos from [here](https://www.youtube.com/user/RubinetLab "").
 
 Getting Started
 ---------------
+
+Follow the instructions in [SUMOm repository](https://github.com/ManiAm/SUMOm "") and then come back :)
 
 
 Install OMNET++
@@ -103,8 +105,8 @@ or you can create an application launcher:
         make install-menu-item
 
 
-Install Veins
--------------
+Import Veins
+------------
 
 Veins is on github, and you should clone it into your computer.
 
@@ -140,8 +142,6 @@ After these modifications, build the Veins project again. Build is done much fas
 Import VENTOS
 -------------
 
-VENTOS project is on github, and you should clone it into your computer.
-
 **Step 1:** install the git package (if you have not done it before):
 
          sudo apt-get install git
@@ -152,16 +152,17 @@ VENTOS project is on github, and you should clone it into your computer.
 
 It will ask your username/password, and then receives a copy of the project.
 
-**Step 3:** Now you can import VENTOS project into the OMNET++ IDE. Choose "File->Import" from the menu. Choose "General->Existing Projects into Workspace" from the upcoming dialog and proceed with "Next". Choose "Select root directory" and select the VENTOS folder. "C3PO" should appear in the "Projects". Unselect "Copy project into workspace" if the VENTOS folder is already in your workspace. Click "Finish".
+**Step 3:** Now you can import VENTOS project into the OMNET++ IDE. Choose "File->Import" from the menu. Choose "General->Existing Projects into Workspace" from the upcoming dialog and proceed with "Next". Choose "Select root directory" and select the VENTOS folder. "VENTOS" should appear in the "Projects". Unselect "Copy project into workspace" if the VENTOS folder is already in your workspace. Click "Finish".
 
-**Step 4:** Right click on C3PO project and click Properties. Go to 'Project References' and make sure mixim is selected.
+**Step 4:** Right click on VENTOS project and click Properties. Go to 'Project References' and make sure Veins is selected.
 
+**Step 5:** Make sure you have these packages installed:
 
-Install SUMO
-------------
+`libboost-filesystem1.48-dev`
 
-Follow the instructions in SUMOm repository, [here](https://github.com/ManiAm/SUMOm "") and then come back :)
+`libboost-system1.48-dev`
 
+`libssl-dev`
 
 
 Running the Project
