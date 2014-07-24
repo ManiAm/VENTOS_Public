@@ -24,20 +24,22 @@ class RSUAdd : public cSimpleModule
         virtual void handleMessage(cMessage *msg);
 		virtual void finish();
 
-	public:
-        void Add();
+        void Add();  // should be public!
+        Coord *commandGetRSUsCoord(unsigned int);  // should be public!
 
 	private:
+        deque<RSUEntry*> commandReadRSUsCoord(string);
+        void commandAddCirclePoly(string, string, const TraCIColor& color, Coord*, double);
+        void Scenario1();
 
+	private:
         // NED variables
         cModule *nodePtr;   // pointer to the Node
         TraCI_Extend *TraCI;  // pointer to the TraCI module
-        boost::filesystem::path SUMOfullDirectory;
         bool on;
         int mode;
-
-        // methods
-        void Scenario1();
+        boost::filesystem::path SUMOfullDirectory;
+        deque<RSUEntry*> RSUs;
 };
 
 

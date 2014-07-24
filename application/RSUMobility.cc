@@ -18,14 +18,22 @@ void RSUMobility::initialize(int stage)
         if(nodePtr == NULL)
             error("can not get a pointer to the module.");
 
-        TraCI = FindModule<TraCI_Extend*>::findGlobalModule();
+        // get a pointer to the TraCI module
+        cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
+        TraCI = static_cast<TraCI_Extend *>(module);
+
+        // get a pointer to the RSUAdd module
+        module = simulation.getSystemModule()->getSubmodule("RSUAdd");
+        RSUAddPtr = static_cast<RSUAdd *>(module);
+        if(RSUAddPtr == NULL)
+            error("can not get a pointer to the RSUAdd module.");
 
         // vehicle id in omnet++
         myId = getParentModule()->getIndex();
         myFullId = getParentModule()->getFullName();
 
-        // get TraCI coordinates
-        Coord *SUMOpos = TraCI->commandGetRSUsCoord(myId);
+        // get my TraCI coordinates
+        Coord *SUMOpos = RSUAddPtr->commandGetRSUsCoord(myId);
 
         Coord pos = world->getRandomPosition();
 

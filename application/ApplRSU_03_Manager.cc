@@ -16,7 +16,7 @@ void ApplRSUManager::initialize(int stage)
 
 void ApplRSUManager::handleSelfMsg(cMessage* msg)
 {
-
+    ApplRSUAID::handleSelfMsg(msg);
 
 }
 

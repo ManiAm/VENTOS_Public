@@ -81,20 +81,11 @@ class TraCI_Extend : public TraCIScenarioManager
         Coord commandGetGUIOffset();
         vector<double> commandGetGUIBoundry();
 
-        // RSU
-        deque<RSUEntry*> commandReadRSUsCoord(string);
-        Coord *commandGetRSUsCoord(unsigned int);
-
         // CMD_GET_SIM_VARIABLE
         double* commandGetNetworkBoundary();
 
         // control-related commands
         void commandTerminate();
-        void commandSendFile(string);
-
-        // subscription commands
-        void commandSubscribeSimulation();
-        void commandSubscribeVehicle();
 
         // CMD_SET_ROUTE_VARIABLE
         void commandAddRoute(string name, list<string> route);
@@ -123,24 +114,19 @@ class TraCI_Extend : public TraCIScenarioManager
         void commandSetGUITrack(string);
         void commandSetGUIOffset(double, double);
 
-        // Polygon
-        void commandAddCirclePoly(string, string, const TraCIColor& color, Coord*, double);
-
         //
         void commandSetEdgeGlobalTravelTime(string, int32_t, int32_t, double);
 
-	protected:
-        int seed; /**< seed value to set in launch configuration, if missing (-1: current run number) */
-        boost::filesystem::path SUMOfullDirectory;
-        deque<RSUEntry*> RSUs;
-
 	private:
+        void sendLaunchFile();
+
         // generic methods for getters
         Coord genericGetCoordv2(uint8_t commandId, string objectId, uint8_t variableId, uint8_t responseId);
         vector<double> genericGetBoundingBox(uint8_t commandId, string objectId, uint8_t variableId, uint8_t responseId);
         uint8_t* genericGetArrayUnsignedInt(uint8_t, string, uint8_t, uint8_t);
 
-        string createLaunch();
+	protected:
+        boost::filesystem::path SUMOfullDirectory;
 };
 
 

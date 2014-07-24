@@ -5,6 +5,7 @@
 #include "MiXiMDefs.h"
 #include "BaseMobility.h"
 #include "Global_01_TraCI_Extend.h"
+#include "Global_05_RSUAdd.h"
 
 using namespace std;
 
@@ -25,7 +26,8 @@ class MIXIM_API RSUMobility : public BaseMobility
 
     // NED variables
     cModule *nodePtr;   // pointer to the Node
-    mutable TraCI_Extend* TraCI;
+    TraCI_Extend *TraCI;
+    RSUAdd *RSUAddPtr;
 
     // Class variables
     int myId;

@@ -214,7 +214,15 @@ $O/ApplAdversary.o: ApplAdversary.cc \
 $O/ApplRSU_01_Base.o: ApplRSU_01_Base.cc \
 	Appl.h \
 	ApplRSU_01_Base.h \
+	ApplV_01_Base.h \
+	ApplV_02_Beacon.h \
+	ApplV_03_System.h \
+	ApplV_04_AID.h \
+	ApplV_05_PlatoonFormed.h \
+	ApplV_06_PlatoonMg.h \
+	ApplV_07_Manager.h \
 	Global_01_TraCI_Extend.h \
+	Global_05_RSUAdd.h \
 	msg/Messages_m.h \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
@@ -247,6 +255,7 @@ $O/ApplRSU_01_Base.o: ApplRSU_01_Base.cc \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICoord.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManagerLaunchd.h \
 	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
 	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
 	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
@@ -255,7 +264,15 @@ $O/ApplRSU_02_AID.o: ApplRSU_02_AID.cc \
 	Appl.h \
 	ApplRSU_01_Base.h \
 	ApplRSU_02_AID.h \
+	ApplV_01_Base.h \
+	ApplV_02_Beacon.h \
+	ApplV_03_System.h \
+	ApplV_04_AID.h \
+	ApplV_05_PlatoonFormed.h \
+	ApplV_06_PlatoonMg.h \
+	ApplV_07_Manager.h \
 	Global_01_TraCI_Extend.h \
+	Global_05_RSUAdd.h \
 	msg/Messages_m.h \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
@@ -288,6 +305,7 @@ $O/ApplRSU_02_AID.o: ApplRSU_02_AID.cc \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICoord.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManagerLaunchd.h \
 	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
 	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
 	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
@@ -297,7 +315,15 @@ $O/ApplRSU_03_Manager.o: ApplRSU_03_Manager.cc \
 	ApplRSU_01_Base.h \
 	ApplRSU_02_AID.h \
 	ApplRSU_03_Manager.h \
+	ApplV_01_Base.h \
+	ApplV_02_Beacon.h \
+	ApplV_03_System.h \
+	ApplV_04_AID.h \
+	ApplV_05_PlatoonFormed.h \
+	ApplV_06_PlatoonMg.h \
+	ApplV_07_Manager.h \
 	Global_01_TraCI_Extend.h \
+	Global_05_RSUAdd.h \
 	msg/Messages_m.h \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
@@ -330,6 +356,7 @@ $O/ApplRSU_03_Manager.o: ApplRSU_03_Manager.cc \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICoord.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManagerLaunchd.h \
 	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
 	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
 	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
@@ -1009,8 +1036,16 @@ $O/Global_03_Statistics.o: Global_03_Statistics.cc \
 	ApplRSU_01_Base.h \
 	ApplRSU_02_AID.h \
 	ApplRSU_03_Manager.h \
+	ApplV_01_Base.h \
+	ApplV_02_Beacon.h \
+	ApplV_03_System.h \
+	ApplV_04_AID.h \
+	ApplV_05_PlatoonFormed.h \
+	ApplV_06_PlatoonMg.h \
+	ApplV_07_Manager.h \
 	Global_01_TraCI_Extend.h \
 	Global_03_Statistics.h \
+	Global_05_RSUAdd.h \
 	msg/Messages_m.h \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
@@ -1043,6 +1078,7 @@ $O/Global_03_Statistics.o: Global_03_Statistics.cc \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICoord.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManagerLaunchd.h \
 	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
 	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
 	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
@@ -1419,11 +1455,24 @@ $O/NodeEdge.o: NodeEdge.cc \
 	NodeEdge.h
 $O/RSUMobility.o: RSUMobility.cc \
 	Appl.h \
+	ApplV_01_Base.h \
+	ApplV_02_Beacon.h \
+	ApplV_03_System.h \
+	ApplV_04_AID.h \
+	ApplV_05_PlatoonFormed.h \
+	ApplV_06_PlatoonMg.h \
+	ApplV_07_Manager.h \
 	Global_01_TraCI_Extend.h \
+	Global_05_RSUAdd.h \
 	RSUMobility.h \
+	msg/Messages_m.h \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
+	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
 	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
+	$(VEINS_PROJ)/src/base/messages/MacPkt_m.h \
+	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
 	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
+	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
 	$(VEINS_PROJ)/src/base/modules/BaseMobility.h \
 	$(VEINS_PROJ)/src/base/modules/BaseModule.h \
 	$(VEINS_PROJ)/src/base/modules/BaseWorldUtility.h \
@@ -1432,9 +1481,14 @@ $O/RSUMobility.o: RSUMobility.cc \
 	$(VEINS_PROJ)/src/base/utils/HostState.h \
 	$(VEINS_PROJ)/src/base/utils/MiXiMDefs.h \
 	$(VEINS_PROJ)/src/base/utils/Move.h \
+	$(VEINS_PROJ)/src/base/utils/NetwToMacControlInfo.h \
+	$(VEINS_PROJ)/src/base/utils/PassedMessage.h \
+	$(VEINS_PROJ)/src/base/utils/SimpleAddress.h \
 	$(VEINS_PROJ)/src/base/utils/miximkerneldefs.h \
 	$(VEINS_PROJ)/src/inet/Coord.h \
 	$(VEINS_PROJ)/src/inet/FWMath.h \
+	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
+	$(VEINS_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIBuffer.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICommandInterface.h \
@@ -1443,7 +1497,9 @@ $O/RSUMobility.o: RSUMobility.cc \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICoord.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManagerLaunchd.h \
 	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
 	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
+	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
 	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
 

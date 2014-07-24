@@ -13,6 +13,7 @@
 #include <WaveAppToMac1609_4Interface.h>
 #include "Global_01_TraCI_Extend.h"
 #include "mobility/traci/TraCIColor.h"
+#include "Global_05_RSUAdd.h"
 
 using namespace std;
 
@@ -44,6 +45,7 @@ class ApplRSUBase : public BaseApplLayer
 	    cModule *nodePtr;   // pointer to the Node
         WaveAppToMac1609_4Interface* myMac;
         mutable TraCI_Extend* TraCI;
+        RSUAdd *RSUAddPtr;
 
         // NED variables (beaconing parameters)
         bool sendBeacons;

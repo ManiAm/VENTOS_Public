@@ -18,7 +18,15 @@ void ApplRSUBase::initialize(int stage)
 		myMac = FindModule<WaveAppToMac1609_4Interface*>::findSubModule(getParentModule());
 		assert(myMac);
 
-		TraCI = FindModule<TraCI_Extend*>::findGlobalModule();
+        // get a pointer to the TraCI module
+        cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
+        TraCI = static_cast<TraCI_Extend *>(module);
+
+        // get a pointer to the RSUAdd module
+        module = simulation.getSystemModule()->getSubmodule("RSUAdd");
+        RSUAddPtr = static_cast<RSUAdd *>(module);
+        if(RSUAddPtr == NULL)
+            error("can not get a pointer to the RSUAdd module.");
 
         headerLength = par("headerLength").longValue();
 
@@ -98,8 +106,8 @@ BeaconRSU* ApplRSUBase::prepareBeacon()
     wsm->setSender(myFullId);
     wsm->setRecipient("broadcast");
 
-    // set current position
-    Coord *SUMOpos = TraCI->commandGetRSUsCoord(myId);
+    // set my current position
+    Coord *SUMOpos = RSUAddPtr->commandGetRSUsCoord(myId);
     wsm->setPos(*SUMOpos);
 
     return wsm;

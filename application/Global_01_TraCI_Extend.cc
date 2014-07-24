@@ -7,16 +7,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-struct traci2omnet_functor : public std::unary_function<TraCICoord, Coord> {
-    traci2omnet_functor(const TraCIScenarioManager& m) : manager(m) {}
-
-    Coord operator()(const TraCICoord& coord) const {
-        return manager.traci2omnet(coord);
-    }
-
-    const TraCIScenarioManager& manager;
-};
-
 
 Define_Module(TraCI_Extend);
 
@@ -33,8 +23,6 @@ void TraCI_Extend::initialize(int stage)
 
     if (stage == 1)
     {
-        seed = par("seed");
-
         boost::filesystem::path SUMODirectory = simulation.getSystemModule()->par("SUMODirectory").stringValue();
         boost::filesystem::path VENTOSfullDirectory = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
         SUMOfullDirectory = VENTOSfullDirectory / SUMODirectory;   //home/mani/Desktop/VENTOS/sumo/CACC_Platoon
@@ -45,11 +33,12 @@ void TraCI_Extend::initialize(int stage)
             error("SUMO directory is not valid! Check it again.");
         }
     }
-    else if(stage == 2)
-    {
-        // todo: here we can put the equivalent python
-        // code to create the server process
-    }
+}
+
+
+void TraCI_Extend::handleSelfMsg(cMessage *msg)
+{
+    TraCIScenarioManager::handleSelfMsg(msg);
 }
 
 
@@ -62,67 +51,14 @@ void TraCI_Extend::init_traci()
     EV << "TraCI launchd reports apiVersion: " << apiVersion << " and serverVersion: " << serverVersion << endl;
     ASSERT(apiVersion == 1);
 
-    // ---------------------------------------------------
+    // send the launch file to python script
+    sendLaunchFile();
 
-    string str = createLaunch();
-    commandSendFile( str );   // send the launchConfig to SUMO
-
-    // ---------------------------------------------------
-
-    // call commandGetVersion again to get the version of SUMO TraCI server
-    pair<uint32_t, string> version2 = getCommandInterface()->getVersion();
-    uint32_t apiVersion2 = version2.first;
-    string serverVersion2 = version2.second;
-    EV << "TraCI server reports apiVersion: " << apiVersion2 << " and serverVersion: " << serverVersion2 << endl;
-    if ( !(apiVersion2 == 3 || apiVersion2 == 5 || apiVersion2 == 6 || apiVersion2 == 7 || apiVersion2 == 8) )
-        error("TraCI server is unsupported.");
-
-    // ---------------------------------------------------
-
-    // get network boundaries from SUMO
-    double* bounds = commandGetNetworkBoundary();
-    EV << "TraCI reports network boundaries (" << bounds[0] << ", " << bounds[1] << ")-(" << bounds[2] << ", " << bounds[3] << ")" << endl;
-
-    // change to OMNET++ coordinates
-    netbounds1 = TraCICoord(bounds[0], bounds[1]);
-    netbounds2 = TraCICoord(bounds[2], bounds[3]);
-    if ((traci2omnet(netbounds2).x > world->getPgs()->x) || (traci2omnet(netbounds1).y > world->getPgs()->y))
-        EV << "WARNING: Playground size (" << world->getPgs()->x << ", " << world->getPgs()->y << ") might be too small for vehicle at network bounds (" << traci2omnet(netbounds2).x << ", " << traci2omnet(netbounds1).y << ")" << endl;
-    // ---------------------------------------------------
-
-    // subscribe to list of departed and arrived vehicles, as well as simulation time
-    commandSubscribeSimulation();
-
-    // subscribe to list of vehicle ids
-    commandSubscribeVehicle();
-
-    ObstacleControl* obstacles = ObstacleControlAccess().getIfExists();
-    if (obstacles)
-    {
-        {
-            // get list of polygons
-            std::list<std::string> ids = getCommandInterface()->getPolygonIds();
-            for (std::list<std::string>::iterator i = ids.begin(); i != ids.end(); ++i)
-            {
-                std::string id = *i;
-                std::string typeId = getCommandInterface()->getPolygonTypeId(id);
-
-                if (typeId == "building")
-                {
-                    std::list<TraCICoord> coords = getCommandInterface()->getPolygonShape(id);
-                    Obstacle obs(id, 9, .4); // each building gets attenuation of 9 dB per wall, 0.4 dB per meter
-                    std::vector<Coord> shape;
-                    std::transform(coords.begin(), coords.end(), std::back_inserter(shape), traci2omnet_functor(*this));
-                    obs.setShape(shape);
-                    obstacles->add(obs);
-                }
-            }
-        }
-    }
+    TraCIScenarioManager::init_traci();
 }
 
 
-string TraCI_Extend::createLaunch()
+void TraCI_Extend::sendLaunchFile()
 {
     string launchFile = par("launchFile").stringValue();
     boost::filesystem::path launchFullPath = SUMOfullDirectory / launchFile;
@@ -141,6 +77,9 @@ string TraCI_Extend::createLaunch()
     // append basedir to the launch
     xml_node<> *node = doc.first_node("launch");
     node->append_node(basedir);
+
+    // seed value to set in launch configuration, if missing (-1: current run number)
+    int seed = par("seed");
 
     if (seed == -1)
     {
@@ -161,8 +100,8 @@ string TraCI_Extend::createLaunch()
     xml_node<> *node1 = doc.first_node("launch");
     node1->append_node(seedN);
 
-
     // todo:
+    // -------------------------------------------------------
 
     // write the new file
     string newFileName = "updated_" + launchFile;
@@ -175,13 +114,30 @@ string TraCI_Extend::createLaunch()
     stringstream buffer;
     buffer << t.rdbuf();
 
-    return buffer.str();
-}
+    string contents = buffer.str();
 
+    // --------------------------------------------------------
 
-void TraCI_Extend::handleSelfMsg(cMessage *msg)
-{
-    TraCIScenarioManager::handleSelfMsg(msg);
+    // send the string of the launch file to python
+    uint8_t commandId = 0x75;
+    TraCIBuffer buf;
+    buf << string("sumo-launchd.launch.xml") << contents;
+    getCommandInterface()->connection.sendMessage(makeTraCICommand(commandId, buf));
+
+    TraCIBuffer obuf( getCommandInterface()->connection.receiveMessage() );
+    uint8_t cmdLength; obuf >> cmdLength;
+    uint8_t commandResp; obuf >> commandResp;
+    if (commandResp != commandId)
+    {
+        error("Expected response to command %d, but got one for command %d", commandId, commandResp);
+    }
+
+    uint8_t result; obuf >> result;
+    string description; obuf >> description;
+    if (result != RTYPE_OK)
+    {
+        EV << "Warning: Received non-OK response from TraCI server to command " << commandId << ":" << description.c_str() << endl;
+    }
 }
 
 
@@ -493,86 +449,6 @@ vector<double> TraCI_Extend::commandGetGUIBoundry()
 }
 
 
-// ########################
-// RSU
-// ########################
-
-deque<RSUEntry*> TraCI_Extend::commandReadRSUsCoord(string RSUfilePath)
-{
-    file<> xmlFile( RSUfilePath.c_str() );        // Convert our file to a rapid-xml readable object
-    xml_document<> doc;                           // Build a rapidxml doc
-    doc.parse<0>(xmlFile.data());                 // Fill it with data from our file
-    xml_node<> *node = doc.first_node("RSUs");    // Parse up to the "RSUs" declaration
-
-    for(node = node->first_node("poly"); node; node = node->next_sibling())
-    {
-        string RSUname = "";
-        string RSUtype = "";
-        string RSUcoordinates = "";
-        int readCount = 1;
-
-        // For each node, iterate over its attributes until we reach "shape"
-        for(xml_attribute<> *attr = node->first_attribute(); attr; attr = attr->next_attribute())
-        {
-            if(readCount == 1)
-            {
-                RSUname = attr->value();
-            }
-            else if(readCount == 2)
-            {
-                RSUtype = attr->value();
-            }
-            else if(readCount == 3)
-            {
-                RSUcoordinates = attr->value();
-            }
-
-            readCount++;
-        }
-
-        // tokenize coordinates
-        int readCount2 = 1;
-        double x;
-        double y;
-        char_separator<char> sep(",");
-        tokenizer< char_separator<char> > tokens(RSUcoordinates, sep);
-
-        for(tokenizer< char_separator<char> >::iterator beg=tokens.begin(); beg!=tokens.end();++beg)
-        {
-            if(readCount2 == 1)
-            {
-                x = atof( (*beg).c_str() );
-            }
-            else if(readCount2 == 2)
-            {
-                y = atof( (*beg).c_str() );
-            }
-
-            readCount2++;
-        }
-
-        // add it into queue (with TraCI coordinates)
-        RSUEntry *entry = new RSUEntry(RSUname.c_str(), x, y);
-        RSUs.push_back(entry);
-    }
-
-    return RSUs;
-}
-
-
-Coord *TraCI_Extend::commandGetRSUsCoord(unsigned int index)
-{
-    if( RSUs.size() == 0 )
-        error("No RSUs have been initialized!");
-
-    if( index < 0 || index >= RSUs.size() )
-        error("index out of bound!");
-
-    Coord *point = new Coord(RSUs[index]->coordX, RSUs[index]->coordY);
-    return point;
-}
-
-
 // ####################
 // CMD_GET_SIM_VARIABLE
 // ####################
@@ -611,75 +487,6 @@ void TraCI_Extend::commandTerminate()
 
     uint32_t count;
     buf >> count;
-}
-
-
-void TraCI_Extend::commandSendFile(string contents)
-{
-    uint8_t commandId = 0x75;
-    TraCIBuffer buf;
-    buf << string("sumo-launchd.launch.xml") << contents;
-    getCommandInterface()->connection.sendMessage(makeTraCICommand(commandId, buf));
-
-    TraCIBuffer obuf( getCommandInterface()->connection.receiveMessage() );
-    uint8_t cmdLength; obuf >> cmdLength;
-    uint8_t commandResp; obuf >> commandResp;
-    if (commandResp != commandId)
-    {
-        error("Expected response to command %d, but got one for command %d", commandId, commandResp);
-    }
-
-    uint8_t result; obuf >> result;
-    string description; obuf >> description;
-    if (result != RTYPE_OK)
-    {
-        EV << "Warning: Received non-OK response from TraCI server to command " << commandId << ":" << description.c_str() << endl;
-    }
-}
-
-
-// ######################
-// subscription commands
-// ######################
-
-void TraCI_Extend::commandSubscribeSimulation()
-{
-    uint32_t beginTime = 0;
-    uint32_t endTime = 0x7FFFFFFF;
-    std::string objectId = "";
-    uint8_t variableNumber = 7;
-    uint8_t variable1 = VAR_DEPARTED_VEHICLES_IDS;
-    uint8_t variable2 = VAR_ARRIVED_VEHICLES_IDS;
-    uint8_t variable3 = VAR_TIME_STEP;
-    uint8_t variable4 = VAR_TELEPORT_STARTING_VEHICLES_IDS;
-    uint8_t variable5 = VAR_TELEPORT_ENDING_VEHICLES_IDS;
-    uint8_t variable6 = VAR_PARKING_STARTING_VEHICLES_IDS;
-    uint8_t variable7 = VAR_PARKING_ENDING_VEHICLES_IDS;
-
-    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SUBSCRIBE_SIM_VARIABLE, TraCIBuffer() << beginTime << endTime << objectId << variableNumber << variable1 << variable2 << variable3 << variable4 << variable5 << variable6 << variable7);
-
-    processSubcriptionResult(buf);
-
-    ASSERT(buf.eof());
-}
-
-
-void TraCI_Extend::commandSubscribeVehicle()
-{
-    uint32_t beginTime = 0;
-    uint32_t endTime = 0x7FFFFFFF;
-    string objectId = "";
-    uint8_t variableNumber = 1;
-    uint8_t variable1 = ID_LIST;
-
-    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SUBSCRIBE_VEHICLE_VARIABLE, TraCIBuffer() << beginTime << endTime
-                                                                                            << objectId
-                                                                                            << variableNumber
-                                                                                            << variable1
-                                                                                            );
-    processSubcriptionResult(buf);
-
-    ASSERT(buf.eof());
 }
 
 
@@ -1084,28 +891,6 @@ void TraCI_Extend::commandSetGUITrack(string nodeId)
 
     TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_GUI_VARIABLE, TraCIBuffer() << variableId << viewID << variableType << nodeId);
     ASSERT(buf.eof());
-}
-
-
-// #####################
-// Polygon
-// #####################
-
-void TraCI_Extend::commandAddCirclePoly(string name, string type, const TraCIColor& color, Coord *center, double radius)
-{
-    list<TraCICoord> circlePoints;
-
-    // Convert from degrees to radians via multiplication by PI/180
-    for(int angleInDegrees = 0; angleInDegrees <= 360; angleInDegrees = angleInDegrees + 10)
-    {
-        double x = (double)( radius * cos(angleInDegrees * 3.14 / 180) ) + center->x;
-        double y = (double)( radius * sin(angleInDegrees * 3.14 / 180) ) + center->y;
-
-        circlePoints.push_back(TraCICoord(x, y));
-    }
-
-    // create polygon in SUMO
-    getCommandInterface()->addPolygon(name, type, color, 0, 1, circlePoints);
 }
 
 
