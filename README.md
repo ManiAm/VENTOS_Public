@@ -178,9 +178,7 @@ The bove command runs the command-line version of sumo. Thus you will not be abl
 
 After running the above script, DO NOT close the terminal window. Leave it open.
 
-**Step 2:** In the VENTOS project go to the sumo folder and open sumo_launchd.xml, and make sure 'basedire path' is set correctly. Basically, it should point to the folder that contains all your sumo files (network file, traffic-demand file, and also config file).
-
-**Step 3:** Now you can run the VENTOS project. To do this, right click on the omnetpp.ini file in the IDE and choose: 
+**Step 2:** Now you can run the VENTOS project. To do this, right click on the omnetpp.ini file in the IDE and choose: 
 
          "Run as" -> "Run configurations..."
 

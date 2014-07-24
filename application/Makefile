@@ -70,7 +70,8 @@ OBJS = \
     $O/ApplV_01_Base.o \
     $O/ApplRSU_02_AID.o \
     $O/Global_06_Warmup.o \
-    $O/ApplV_06c_Common.o
+    $O/ApplV_06c_Common.o \
+    $O/ConstSpeedMobility.o
 
 # Message files
 MSGFILES =
@@ -904,6 +905,19 @@ $O/ApplV_07_Manager.o: ApplV_07_Manager.cc \
 	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
 	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
 	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
+$O/ConstSpeedMobility.o: ConstSpeedMobility.cc \
+	ConstSpeedMobility.h \
+	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
+	$(VEINS_PROJ)/src/base/modules/BaseMobility.h \
+	$(VEINS_PROJ)/src/base/modules/BaseModule.h \
+	$(VEINS_PROJ)/src/base/modules/BaseWorldUtility.h \
+	$(VEINS_PROJ)/src/base/modules/BatteryAccess.h \
+	$(VEINS_PROJ)/src/base/utils/HostState.h \
+	$(VEINS_PROJ)/src/base/utils/MiXiMDefs.h \
+	$(VEINS_PROJ)/src/base/utils/Move.h \
+	$(VEINS_PROJ)/src/base/utils/miximkerneldefs.h \
+	$(VEINS_PROJ)/src/inet/Coord.h \
+	$(VEINS_PROJ)/src/inet/FWMath.h
 $O/Global_01_TraCI_Extend.o: Global_01_TraCI_Extend.cc \
 	Appl.h \
 	Global_01_TraCI_Extend.h \
