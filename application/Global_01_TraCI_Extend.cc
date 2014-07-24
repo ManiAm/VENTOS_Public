@@ -100,23 +100,10 @@ void TraCI_Extend::sendLaunchFile()
     xml_node<> *node1 = doc.first_node("launch");
     node1->append_node(seedN);
 
-    // todo:
-    // -------------------------------------------------------
-
-    // write the new file
-    string newFileName = "updated_" + launchFile;
-    boost::filesystem::path newLaunchFullPath = SUMOfullDirectory / newFileName;
-    ofstream file_stored( newLaunchFullPath.string().c_str() );
-    file_stored << doc;
-    file_stored.close();
-
-    ifstream t(newLaunchFullPath.string().c_str());
-    stringstream buffer;
-    buffer << t.rdbuf();
-
-    string contents = buffer.str();
-
-    // --------------------------------------------------------
+    // convert to string
+    std::stringstream os;
+    os << doc;
+    string contents = os.str();
 
     // send the string of the launch file to python
     uint8_t commandId = 0x75;
