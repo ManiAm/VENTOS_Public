@@ -2,11 +2,6 @@
 #ifndef TraCI_APP
 #define TraCI_APP
 
-#include <omnetpp.h>
-#include "mobility/traci/TraCIScenarioManagerLaunchd.h"
-#include "mobility/traci/TraCIMobility.h"
-#include "mobility/traci/TraCIConstants.h"
-
 #include "Global_01_TraCI_Extend.h"
 #include "Global_03_Tracking.h"
 #include "Global_04_Statistics.h"
@@ -15,10 +10,6 @@
 #include "Global_08_Warmup.h"
 #include "Global_09_SpeedProfile.h"
 #include "Global_11_TrafficLight.h"
-
-#include <sstream>
-#include <iostream>
-#include <fstream>
 
 
 class TraCI_App : public TraCI_Extend

@@ -2,12 +2,11 @@
 #ifndef TraCIEXTEND_H
 #define TraCIEXTEND_H
 
-#include <omnetpp.h>
-#include "modules/mobility/traci/TraCIMobility.h"
+#include "modules/mobility/traci/TraCIScenarioManager.h"
+#include "modules/mobility/traci/TraCICommandInterface.h"
 #include "modules/mobility/traci/TraCIConstants.h"
-#include "modules/mobility/traci/TraCIColor.h"
+
 #include "Appl.h"
-#include <deque>
 
 #include <rapidxml.hpp>
 #include <rapidxml_utils.hpp>

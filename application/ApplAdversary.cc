@@ -16,8 +16,8 @@ void ApplAdversary::initialize(int stage)
         if(nodePtr == NULL)
             error("can not get a pointer to the module.");
 
-		myMac = FindModule<WaveAppToMac1609_4Interface*>::findSubModule(getParentModule());
-		assert(myMac);
+        myMac = FindModule<WaveAppToMac1609_4Interface*>::findSubModule(getParentModule());
+        assert(myMac);
 
 		TraCI = FindModule<TraCI_Extend*>::findGlobalModule();
 

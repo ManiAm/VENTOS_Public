@@ -2,19 +2,11 @@
 #ifndef SPEEDPROFILE
 #define SPEEDPROFILE
 
-#include <omnetpp.h>
-#include "mobility/traci/TraCIMobility.h"
-#include "mobility/traci/TraCIConstants.h"
+#include "BaseModule.h"
 #include "Global_01_TraCI_Extend.h"
 
-#include <sstream>
-#include <iostream>
-#include <fstream>
 
-using namespace std;
-
-
-class SpeedProfile : public cSimpleModule
+class SpeedProfile : public BaseModule
 {
 	public:
 		virtual ~SpeedProfile();

@@ -2,18 +2,10 @@
 #ifndef STATISTICS_H
 #define STATISTICS_H
 
-#include <omnetpp.h>
-#include "FindModule.h"
-#include <BaseModule.h>
 #include <Appl.h>
-#include <sstream>
-#include <iostream>
-#include <fstream>
 #include "Global_01_TraCI_Extend.h"
 #include <ApplRSU_03_Manager.h>
-#include <stdlib.h>
 
-using namespace std;
 
 class Statistics : public BaseModule
 {

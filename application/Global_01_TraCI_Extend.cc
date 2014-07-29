@@ -1,12 +1,5 @@
 
 #include "Global_01_TraCI_Extend.h"
-#include <sstream>
-#include <fstream>
-#include <iostream>
-
-#include <sys/types.h>
-#include <sys/stat.h>
-
 
 Define_Module(TraCI_Extend);
 

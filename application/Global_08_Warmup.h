@@ -2,23 +2,12 @@
 #ifndef WARMPUP
 #define WARMPUP
 
-#include <omnetpp.h>
-#include "mobility/traci/TraCIScenarioManagerLaunchd.h"
-#include "mobility/traci/TraCIMobility.h"
-#include "mobility/traci/TraCIConstants.h"
-
 #include "Global_01_TraCI_Extend.h"
 #include "Global_06_VehicleAdd.h"
 #include "Global_09_SpeedProfile.h"
 
-#include <sstream>
-#include <iostream>
-#include <fstream>
 
-using namespace std;
-
-
-class Warmup : public cSimpleModule
+class Warmup : public BaseModule
 {
 	public:
 		virtual ~Warmup();

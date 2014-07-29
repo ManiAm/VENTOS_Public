@@ -1,11 +1,5 @@
 #include "ApplV_03_System.h"
 
-#include "rapidxml.hpp"
-#include "rapidxml_utils.hpp"
-using namespace rapidxml;
-
-#include <iostream>
-
 Define_Module(ApplVSystem);
 
 

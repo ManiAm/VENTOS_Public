@@ -3,15 +3,12 @@
 #define APPLVBASE_H_
 
 #include <BaseApplLayer.h>
-#include "Appl.h"
-
-#include <map>
-#include <Consts80211p.h>
-#include <Mac80211Pkt_m.h>
 #include <ChannelAccess.h>
 #include <WaveAppToMac1609_4Interface.h>
+#include "modules/mobility/traci/TraCIMobility.h"
+
+#include "Appl.h"
 #include "Global_01_TraCI_Extend.h"
-#include "mobility/traci/TraCIColor.h"
 
 using namespace std;
 

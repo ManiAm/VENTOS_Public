@@ -2,21 +2,11 @@
 #ifndef VEHICLEADD
 #define VEHICLEADD
 
-#include <omnetpp.h>
-#include "mobility/traci/TraCIScenarioManagerLaunchd.h"
-#include "mobility/traci/TraCIMobility.h"
-#include "mobility/traci/TraCIConstants.h"
 #include "Global_01_TraCI_Extend.h"
 #include "ApplV_07_Manager.h"
-#include <sstream>
-#include <iostream>
-#include <fstream>
-
-using namespace rapidxml;
-using namespace std;
 
 
-class VehicleAdd : public cSimpleModule
+class VehicleAdd : public BaseModule
 {
 	public:
 		virtual ~VehicleAdd();

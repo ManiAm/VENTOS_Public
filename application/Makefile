@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for libapplication
 #
 # This file was generated with the command:
-#  opp_makemake -f --make-so -o application -O out -d msg -I/home/mani/Desktop/VENTOS/eigen-3.2.1 -I/home/mani/Desktop/VENTOS/rapidxml-1.13 -I../../Veins/src/modules/utility -I../../Veins/src/modules/phy -I../../Veins/src/modules/analogueModel -I../../Veins/src/base/modules -I../../Veins/src/modules -I../../Veins/src/modules/mac/ieee80211p -I../../Veins/src/base/messages -I../../Veins/src/modules/messages -I../../Veins/src/base/connectionManager -I../../Veins/src/inet -I../../Veins/src -I../../Veins/src/base/utils -I../../Veins/src/base/phyLayer -L../../Veins/out/$(CONFIGNAME)/src -L../out/$(CONFIGNAME)/application/msg -lboost_filesystem -lboost_system -lmsg -lVeins -KVEINS_PROJ=../../Veins
+#  opp_makemake -f --make-so -o application -O out -d msg -I/home/mani/Desktop/VENTOS/eigen-3.2.1 -I/home/mani/Desktop/VENTOS/rapidxml-1.13 -I../../Veins/src/modules/utility -I../../Veins/src/modules/phy -I../../Veins/src/base/modules -I../../Veins/src/modules/analogueModel -I../../Veins/src/modules/mac/ieee80211p -I../../Veins/src/base/messages -I../../Veins/src/modules/messages -I../../Veins/src/base/connectionManager -I../../Veins/src/inet -I../../Veins/src -I../../Veins/src/base/utils -I../../Veins/src/base/phyLayer -L../../Veins/out/$(CONFIGNAME)/src -L../out/$(CONFIGNAME)/application/msg -lboost_filesystem -lboost_system -lmsg -lVeins -KVEINS_PROJ=../../Veins
 #
 
 # Name of target to be created (-o option)
@@ -14,9 +14,8 @@ INCLUDE_PATH = \
     -I../rapidxml-1.13 \
     -I../../Veins/src/modules/utility \
     -I../../Veins/src/modules/phy \
-    -I../../Veins/src/modules/analogueModel \
     -I../../Veins/src/base/modules \
-    -I../../Veins/src/modules \
+    -I../../Veins/src/modules/analogueModel \
     -I../../Veins/src/modules/mac/ieee80211p \
     -I../../Veins/src/base/messages \
     -I../../Veins/src/modules/messages \
@@ -180,7 +179,6 @@ $O/ApplAdversary.o: ApplAdversary.cc \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
 	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
-	$(VEINS_PROJ)/src/base/messages/MacPkt_m.h \
 	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
 	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
 	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
@@ -199,14 +197,12 @@ $O/ApplAdversary.o: ApplAdversary.cc \
 	$(VEINS_PROJ)/src/inet/Coord.h \
 	$(VEINS_PROJ)/src/inet/FWMath.h \
 	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
-	$(VEINS_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIBuffer.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICommandInterface.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIConnection.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICoord.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
 	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
 	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
@@ -228,7 +224,6 @@ $O/ApplRSU_01_Base.o: ApplRSU_01_Base.cc \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
 	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
-	$(VEINS_PROJ)/src/base/messages/MacPkt_m.h \
 	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
 	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
 	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
@@ -247,7 +242,6 @@ $O/ApplRSU_01_Base.o: ApplRSU_01_Base.cc \
 	$(VEINS_PROJ)/src/inet/Coord.h \
 	$(VEINS_PROJ)/src/inet/FWMath.h \
 	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
-	$(VEINS_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIBuffer.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICommandInterface.h \
@@ -256,7 +250,6 @@ $O/ApplRSU_01_Base.o: ApplRSU_01_Base.cc \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICoord.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManagerLaunchd.h \
 	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
 	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
 	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
@@ -278,7 +271,6 @@ $O/ApplRSU_02_AID.o: ApplRSU_02_AID.cc \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
 	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
-	$(VEINS_PROJ)/src/base/messages/MacPkt_m.h \
 	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
 	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
 	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
@@ -297,7 +289,6 @@ $O/ApplRSU_02_AID.o: ApplRSU_02_AID.cc \
 	$(VEINS_PROJ)/src/inet/Coord.h \
 	$(VEINS_PROJ)/src/inet/FWMath.h \
 	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
-	$(VEINS_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIBuffer.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICommandInterface.h \
@@ -306,7 +297,6 @@ $O/ApplRSU_02_AID.o: ApplRSU_02_AID.cc \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICoord.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManagerLaunchd.h \
 	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
 	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
 	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
@@ -329,7 +319,6 @@ $O/ApplRSU_03_Manager.o: ApplRSU_03_Manager.cc \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
 	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
-	$(VEINS_PROJ)/src/base/messages/MacPkt_m.h \
 	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
 	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
 	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
@@ -348,7 +337,6 @@ $O/ApplRSU_03_Manager.o: ApplRSU_03_Manager.cc \
 	$(VEINS_PROJ)/src/inet/Coord.h \
 	$(VEINS_PROJ)/src/inet/FWMath.h \
 	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
-	$(VEINS_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIBuffer.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICommandInterface.h \
@@ -357,7 +345,6 @@ $O/ApplRSU_03_Manager.o: ApplRSU_03_Manager.cc \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICoord.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManagerLaunchd.h \
 	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
 	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
 	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
@@ -370,7 +357,6 @@ $O/ApplV_01_Base.o: ApplV_01_Base.cc \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
 	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
-	$(VEINS_PROJ)/src/base/messages/MacPkt_m.h \
 	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
 	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
 	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
@@ -389,7 +375,6 @@ $O/ApplV_01_Base.o: ApplV_01_Base.cc \
 	$(VEINS_PROJ)/src/inet/Coord.h \
 	$(VEINS_PROJ)/src/inet/FWMath.h \
 	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
-	$(VEINS_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIBuffer.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICommandInterface.h \
@@ -411,7 +396,6 @@ $O/ApplV_02_Beacon.o: ApplV_02_Beacon.cc \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
 	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
-	$(VEINS_PROJ)/src/base/messages/MacPkt_m.h \
 	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
 	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
 	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
@@ -430,7 +414,6 @@ $O/ApplV_02_Beacon.o: ApplV_02_Beacon.cc \
 	$(VEINS_PROJ)/src/inet/Coord.h \
 	$(VEINS_PROJ)/src/inet/FWMath.h \
 	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
-	$(VEINS_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIBuffer.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICommandInterface.h \
@@ -453,7 +436,6 @@ $O/ApplV_03_System.o: ApplV_03_System.cc \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
 	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
-	$(VEINS_PROJ)/src/base/messages/MacPkt_m.h \
 	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
 	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
 	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
@@ -472,7 +454,6 @@ $O/ApplV_03_System.o: ApplV_03_System.cc \
 	$(VEINS_PROJ)/src/inet/Coord.h \
 	$(VEINS_PROJ)/src/inet/FWMath.h \
 	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
-	$(VEINS_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIBuffer.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICommandInterface.h \
@@ -496,7 +477,6 @@ $O/ApplV_04_AID.o: ApplV_04_AID.cc \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
 	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
-	$(VEINS_PROJ)/src/base/messages/MacPkt_m.h \
 	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
 	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
 	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
@@ -515,7 +495,6 @@ $O/ApplV_04_AID.o: ApplV_04_AID.cc \
 	$(VEINS_PROJ)/src/inet/Coord.h \
 	$(VEINS_PROJ)/src/inet/FWMath.h \
 	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
-	$(VEINS_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIBuffer.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICommandInterface.h \
@@ -540,7 +519,6 @@ $O/ApplV_05_PlatoonFormed.o: ApplV_05_PlatoonFormed.cc \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
 	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
-	$(VEINS_PROJ)/src/base/messages/MacPkt_m.h \
 	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
 	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
 	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
@@ -559,7 +537,6 @@ $O/ApplV_05_PlatoonFormed.o: ApplV_05_PlatoonFormed.cc \
 	$(VEINS_PROJ)/src/inet/Coord.h \
 	$(VEINS_PROJ)/src/inet/FWMath.h \
 	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
-	$(VEINS_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIBuffer.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICommandInterface.h \
@@ -585,7 +562,6 @@ $O/ApplV_06_PlatoonMg.o: ApplV_06_PlatoonMg.cc \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
 	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
-	$(VEINS_PROJ)/src/base/messages/MacPkt_m.h \
 	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
 	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
 	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
@@ -604,7 +580,6 @@ $O/ApplV_06_PlatoonMg.o: ApplV_06_PlatoonMg.cc \
 	$(VEINS_PROJ)/src/inet/Coord.h \
 	$(VEINS_PROJ)/src/inet/FWMath.h \
 	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
-	$(VEINS_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIBuffer.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICommandInterface.h \
@@ -630,7 +605,6 @@ $O/ApplV_06a_Merge.o: ApplV_06a_Merge.cc \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
 	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
-	$(VEINS_PROJ)/src/base/messages/MacPkt_m.h \
 	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
 	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
 	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
@@ -649,7 +623,6 @@ $O/ApplV_06a_Merge.o: ApplV_06a_Merge.cc \
 	$(VEINS_PROJ)/src/inet/Coord.h \
 	$(VEINS_PROJ)/src/inet/FWMath.h \
 	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
-	$(VEINS_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIBuffer.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICommandInterface.h \
@@ -675,7 +648,6 @@ $O/ApplV_06b_Split.o: ApplV_06b_Split.cc \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
 	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
-	$(VEINS_PROJ)/src/base/messages/MacPkt_m.h \
 	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
 	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
 	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
@@ -694,7 +666,6 @@ $O/ApplV_06b_Split.o: ApplV_06b_Split.cc \
 	$(VEINS_PROJ)/src/inet/Coord.h \
 	$(VEINS_PROJ)/src/inet/FWMath.h \
 	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
-	$(VEINS_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIBuffer.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICommandInterface.h \
@@ -720,7 +691,6 @@ $O/ApplV_06c_Common.o: ApplV_06c_Common.cc \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
 	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
-	$(VEINS_PROJ)/src/base/messages/MacPkt_m.h \
 	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
 	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
 	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
@@ -739,7 +709,6 @@ $O/ApplV_06c_Common.o: ApplV_06c_Common.cc \
 	$(VEINS_PROJ)/src/inet/Coord.h \
 	$(VEINS_PROJ)/src/inet/FWMath.h \
 	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
-	$(VEINS_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIBuffer.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICommandInterface.h \
@@ -765,7 +734,6 @@ $O/ApplV_06d_Entry.o: ApplV_06d_Entry.cc \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
 	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
-	$(VEINS_PROJ)/src/base/messages/MacPkt_m.h \
 	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
 	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
 	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
@@ -784,7 +752,6 @@ $O/ApplV_06d_Entry.o: ApplV_06d_Entry.cc \
 	$(VEINS_PROJ)/src/inet/Coord.h \
 	$(VEINS_PROJ)/src/inet/FWMath.h \
 	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
-	$(VEINS_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIBuffer.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICommandInterface.h \
@@ -810,7 +777,6 @@ $O/ApplV_06e_LeaderLeave.o: ApplV_06e_LeaderLeave.cc \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
 	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
-	$(VEINS_PROJ)/src/base/messages/MacPkt_m.h \
 	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
 	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
 	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
@@ -829,7 +795,6 @@ $O/ApplV_06e_LeaderLeave.o: ApplV_06e_LeaderLeave.cc \
 	$(VEINS_PROJ)/src/inet/Coord.h \
 	$(VEINS_PROJ)/src/inet/FWMath.h \
 	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
-	$(VEINS_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIBuffer.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICommandInterface.h \
@@ -855,7 +820,6 @@ $O/ApplV_06f_FollowerLeave.o: ApplV_06f_FollowerLeave.cc \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
 	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
-	$(VEINS_PROJ)/src/base/messages/MacPkt_m.h \
 	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
 	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
 	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
@@ -874,7 +838,6 @@ $O/ApplV_06f_FollowerLeave.o: ApplV_06f_FollowerLeave.cc \
 	$(VEINS_PROJ)/src/inet/Coord.h \
 	$(VEINS_PROJ)/src/inet/FWMath.h \
 	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
-	$(VEINS_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIBuffer.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICommandInterface.h \
@@ -901,7 +864,6 @@ $O/ApplV_07_Manager.o: ApplV_07_Manager.cc \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
 	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
-	$(VEINS_PROJ)/src/base/messages/MacPkt_m.h \
 	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
 	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
 	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
@@ -920,7 +882,6 @@ $O/ApplV_07_Manager.o: ApplV_07_Manager.cc \
 	$(VEINS_PROJ)/src/inet/Coord.h \
 	$(VEINS_PROJ)/src/inet/FWMath.h \
 	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
-	$(VEINS_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIBuffer.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICommandInterface.h \
@@ -952,15 +913,9 @@ $O/Global_01_TraCI_Extend.o: Global_01_TraCI_Extend.cc \
 	msg/Messages_m.h \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
-	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
-	$(VEINS_PROJ)/src/base/modules/BaseMobility.h \
-	$(VEINS_PROJ)/src/base/modules/BaseModule.h \
 	$(VEINS_PROJ)/src/base/modules/BaseWorldUtility.h \
-	$(VEINS_PROJ)/src/base/modules/BatteryAccess.h \
 	$(VEINS_PROJ)/src/base/utils/FindModule.h \
-	$(VEINS_PROJ)/src/base/utils/HostState.h \
 	$(VEINS_PROJ)/src/base/utils/MiXiMDefs.h \
-	$(VEINS_PROJ)/src/base/utils/Move.h \
 	$(VEINS_PROJ)/src/base/utils/miximkerneldefs.h \
 	$(VEINS_PROJ)/src/inet/Coord.h \
 	$(VEINS_PROJ)/src/inet/FWMath.h \
@@ -970,7 +925,6 @@ $O/Global_01_TraCI_Extend.o: Global_01_TraCI_Extend.cc \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIConnection.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICoord.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
 	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
 	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
@@ -1000,7 +954,6 @@ $O/Global_02_TraCI_App.o: Global_02_TraCI_App.cc \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
 	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
-	$(VEINS_PROJ)/src/base/messages/MacPkt_m.h \
 	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
 	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
 	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
@@ -1019,7 +972,6 @@ $O/Global_02_TraCI_App.o: Global_02_TraCI_App.cc \
 	$(VEINS_PROJ)/src/inet/Coord.h \
 	$(VEINS_PROJ)/src/inet/FWMath.h \
 	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
-	$(VEINS_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIBuffer.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICommandInterface.h \
@@ -1028,58 +980,34 @@ $O/Global_02_TraCI_App.o: Global_02_TraCI_App.cc \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICoord.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManagerLaunchd.h \
 	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
 	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
 	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
 	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
 $O/Global_03_Tracking.o: Global_03_Tracking.cc \
 	Appl.h \
-	ApplV_01_Base.h \
-	ApplV_02_Beacon.h \
-	ApplV_03_System.h \
-	ApplV_04_AID.h \
-	ApplV_05_PlatoonFormed.h \
-	ApplV_06_PlatoonMg.h \
-	ApplV_07_Manager.h \
 	Global_01_TraCI_Extend.h \
 	Global_03_Tracking.h \
 	msg/Messages_m.h \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
-	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
 	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
-	$(VEINS_PROJ)/src/base/messages/MacPkt_m.h \
-	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
-	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
-	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
-	$(VEINS_PROJ)/src/base/modules/BaseMobility.h \
 	$(VEINS_PROJ)/src/base/modules/BaseModule.h \
 	$(VEINS_PROJ)/src/base/modules/BaseWorldUtility.h \
-	$(VEINS_PROJ)/src/base/modules/BatteryAccess.h \
 	$(VEINS_PROJ)/src/base/utils/FindModule.h \
 	$(VEINS_PROJ)/src/base/utils/HostState.h \
 	$(VEINS_PROJ)/src/base/utils/MiXiMDefs.h \
-	$(VEINS_PROJ)/src/base/utils/Move.h \
-	$(VEINS_PROJ)/src/base/utils/NetwToMacControlInfo.h \
-	$(VEINS_PROJ)/src/base/utils/PassedMessage.h \
-	$(VEINS_PROJ)/src/base/utils/SimpleAddress.h \
 	$(VEINS_PROJ)/src/base/utils/miximkerneldefs.h \
 	$(VEINS_PROJ)/src/inet/Coord.h \
 	$(VEINS_PROJ)/src/inet/FWMath.h \
-	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
-	$(VEINS_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIBuffer.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICommandInterface.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIConnection.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICoord.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManagerLaunchd.h \
 	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
 	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
-	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
 	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
 $O/Global_04_Statistics.o: Global_04_Statistics.cc \
 	Appl.h \
@@ -1100,7 +1028,6 @@ $O/Global_04_Statistics.o: Global_04_Statistics.cc \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
 	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
-	$(VEINS_PROJ)/src/base/messages/MacPkt_m.h \
 	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
 	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
 	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
@@ -1119,7 +1046,6 @@ $O/Global_04_Statistics.o: Global_04_Statistics.cc \
 	$(VEINS_PROJ)/src/inet/Coord.h \
 	$(VEINS_PROJ)/src/inet/FWMath.h \
 	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
-	$(VEINS_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIBuffer.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICommandInterface.h \
@@ -1128,62 +1054,34 @@ $O/Global_04_Statistics.o: Global_04_Statistics.cc \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICoord.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManagerLaunchd.h \
 	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
 	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
 	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
 	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
 $O/Global_05_Plotter.o: Global_05_Plotter.cc \
 	Appl.h \
-	ApplRSU_01_Base.h \
-	ApplRSU_02_AID.h \
-	ApplRSU_03_Manager.h \
-	ApplV_01_Base.h \
-	ApplV_02_Beacon.h \
-	ApplV_03_System.h \
-	ApplV_04_AID.h \
-	ApplV_05_PlatoonFormed.h \
-	ApplV_06_PlatoonMg.h \
-	ApplV_07_Manager.h \
 	Global_01_TraCI_Extend.h \
 	Global_05_Plotter.h \
-	Global_07_RSUAdd.h \
 	msg/Messages_m.h \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
-	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
 	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
-	$(VEINS_PROJ)/src/base/messages/MacPkt_m.h \
-	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
-	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
-	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
-	$(VEINS_PROJ)/src/base/modules/BaseMobility.h \
 	$(VEINS_PROJ)/src/base/modules/BaseModule.h \
 	$(VEINS_PROJ)/src/base/modules/BaseWorldUtility.h \
-	$(VEINS_PROJ)/src/base/modules/BatteryAccess.h \
 	$(VEINS_PROJ)/src/base/utils/FindModule.h \
 	$(VEINS_PROJ)/src/base/utils/HostState.h \
 	$(VEINS_PROJ)/src/base/utils/MiXiMDefs.h \
-	$(VEINS_PROJ)/src/base/utils/Move.h \
-	$(VEINS_PROJ)/src/base/utils/NetwToMacControlInfo.h \
-	$(VEINS_PROJ)/src/base/utils/PassedMessage.h \
-	$(VEINS_PROJ)/src/base/utils/SimpleAddress.h \
 	$(VEINS_PROJ)/src/base/utils/miximkerneldefs.h \
 	$(VEINS_PROJ)/src/inet/Coord.h \
 	$(VEINS_PROJ)/src/inet/FWMath.h \
-	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
-	$(VEINS_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIBuffer.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICommandInterface.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIConnection.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICoord.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManagerLaunchd.h \
 	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
 	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
-	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
 	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
 $O/Global_06_VehicleAdd.o: Global_06_VehicleAdd.cc \
 	Appl.h \
@@ -1200,7 +1098,6 @@ $O/Global_06_VehicleAdd.o: Global_06_VehicleAdd.cc \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
 	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
-	$(VEINS_PROJ)/src/base/messages/MacPkt_m.h \
 	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
 	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
 	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
@@ -1219,7 +1116,6 @@ $O/Global_06_VehicleAdd.o: Global_06_VehicleAdd.cc \
 	$(VEINS_PROJ)/src/inet/Coord.h \
 	$(VEINS_PROJ)/src/inet/FWMath.h \
 	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
-	$(VEINS_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIBuffer.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICommandInterface.h \
@@ -1228,7 +1124,6 @@ $O/Global_06_VehicleAdd.o: Global_06_VehicleAdd.cc \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICoord.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManagerLaunchd.h \
 	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
 	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
 	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
@@ -1248,7 +1143,6 @@ $O/Global_07_RSUAdd.o: Global_07_RSUAdd.cc \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
 	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
-	$(VEINS_PROJ)/src/base/messages/MacPkt_m.h \
 	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
 	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
 	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
@@ -1267,7 +1161,6 @@ $O/Global_07_RSUAdd.o: Global_07_RSUAdd.cc \
 	$(VEINS_PROJ)/src/inet/Coord.h \
 	$(VEINS_PROJ)/src/inet/FWMath.h \
 	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
-	$(VEINS_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIBuffer.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICommandInterface.h \
@@ -1276,7 +1169,6 @@ $O/Global_07_RSUAdd.o: Global_07_RSUAdd.cc \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICoord.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManagerLaunchd.h \
 	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
 	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
 	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
@@ -1298,7 +1190,6 @@ $O/Global_08_Warmup.o: Global_08_Warmup.cc \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
 	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
-	$(VEINS_PROJ)/src/base/messages/MacPkt_m.h \
 	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
 	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
 	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
@@ -1317,7 +1208,6 @@ $O/Global_08_Warmup.o: Global_08_Warmup.cc \
 	$(VEINS_PROJ)/src/inet/Coord.h \
 	$(VEINS_PROJ)/src/inet/FWMath.h \
 	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
-	$(VEINS_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIBuffer.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICommandInterface.h \
@@ -1326,7 +1216,6 @@ $O/Global_08_Warmup.o: Global_08_Warmup.cc \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICoord.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManagerLaunchd.h \
 	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
 	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
 	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
@@ -1338,15 +1227,11 @@ $O/Global_09_SpeedProfile.o: Global_09_SpeedProfile.cc \
 	msg/Messages_m.h \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
-	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
-	$(VEINS_PROJ)/src/base/modules/BaseMobility.h \
 	$(VEINS_PROJ)/src/base/modules/BaseModule.h \
 	$(VEINS_PROJ)/src/base/modules/BaseWorldUtility.h \
-	$(VEINS_PROJ)/src/base/modules/BatteryAccess.h \
 	$(VEINS_PROJ)/src/base/utils/FindModule.h \
 	$(VEINS_PROJ)/src/base/utils/HostState.h \
 	$(VEINS_PROJ)/src/base/utils/MiXiMDefs.h \
-	$(VEINS_PROJ)/src/base/utils/Move.h \
 	$(VEINS_PROJ)/src/base/utils/miximkerneldefs.h \
 	$(VEINS_PROJ)/src/inet/Coord.h \
 	$(VEINS_PROJ)/src/inet/FWMath.h \
@@ -1356,7 +1241,6 @@ $O/Global_09_SpeedProfile.o: Global_09_SpeedProfile.cc \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIConnection.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICoord.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
 	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
 	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
@@ -1372,7 +1256,6 @@ $O/Global_10_Router.o: Global_10_Router.cc \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
 	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
-	$(VEINS_PROJ)/src/base/messages/MacPkt_m.h \
 	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
 	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
 	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
@@ -1391,7 +1274,6 @@ $O/Global_10_Router.o: Global_10_Router.cc \
 	$(VEINS_PROJ)/src/inet/Coord.h \
 	$(VEINS_PROJ)/src/inet/FWMath.h \
 	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
-	$(VEINS_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIBuffer.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICommandInterface.h \
@@ -1419,7 +1301,6 @@ $O/Global_11_TrafficLight.o: Global_11_TrafficLight.cc \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
 	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
-	$(VEINS_PROJ)/src/base/messages/MacPkt_m.h \
 	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
 	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
 	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
@@ -1438,7 +1319,6 @@ $O/Global_11_TrafficLight.o: Global_11_TrafficLight.cc \
 	$(VEINS_PROJ)/src/inet/Coord.h \
 	$(VEINS_PROJ)/src/inet/FWMath.h \
 	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
-	$(VEINS_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIBuffer.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICommandInterface.h \
@@ -1447,7 +1327,6 @@ $O/Global_11_TrafficLight.o: Global_11_TrafficLight.cc \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICoord.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManagerLaunchd.h \
 	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
 	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
 	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
@@ -1523,7 +1402,6 @@ $O/RSUMobility.o: RSUMobility.cc \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
 	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
-	$(VEINS_PROJ)/src/base/messages/MacPkt_m.h \
 	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
 	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
 	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
@@ -1542,7 +1420,6 @@ $O/RSUMobility.o: RSUMobility.cc \
 	$(VEINS_PROJ)/src/inet/Coord.h \
 	$(VEINS_PROJ)/src/inet/FWMath.h \
 	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
-	$(VEINS_PROJ)/src/modules/messages/Mac80211Pkt_m.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIBuffer.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICommandInterface.h \
@@ -1551,7 +1428,6 @@ $O/RSUMobility.o: RSUMobility.cc \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICoord.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
 	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
-	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManagerLaunchd.h \
 	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
 	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
 	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
