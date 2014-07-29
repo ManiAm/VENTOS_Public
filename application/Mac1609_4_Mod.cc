@@ -15,6 +15,14 @@ void Mac1609_4_Mod::initialize(int stage)
         nodePtr = FindModule<>::findHost(this);
         if(nodePtr == NULL)
             error("can not get a pointer to the module.");
+
+        // get the ptr of the Statistics module
+        cModule *module = simulation.getSystemModule()->getSubmodule("statistics");
+        StatPtr = static_cast<Statistics *>(module);
+        if(StatPtr == NULL)
+            error("can not get a pointer to the Statistics module.");
+
+        collectMAClayerData = StatPtr->par("collectMAClayerData").boolValue();
 	}
 }
 
@@ -31,9 +39,13 @@ void Mac1609_4_Mod::handleUpperControl(cMessage* msg)
 }
 
 
+// all messages from application layer are sent to this method!
 void Mac1609_4_Mod::handleUpperMsg(cMessage* msg)
 {
     Mac1609_4::handleUpperMsg(msg);
+
+    if(!collectMAClayerData)
+        return;
 
     // send signal to statistics
     vector<long> MacStats;
@@ -55,10 +67,10 @@ void Mac1609_4_Mod::handleUpperMsg(cMessage* msg)
     MacStats.push_back(statsReceivedPackets);  // Received a data packet addressed to me
     MacStats.push_back(statsReceivedBroadcasts);  // Received a broadcast data packet
 
-//    MacStat *vec = new MacStat(MacStats);
-//
-//    simsignal_t Signal_MacStats = registerSignal("MacStats");
-//    nodePtr->emit(Signal_MacStats, vec);
+    MacStat *vec = new MacStat(MacStats);
+
+    simsignal_t Signal_MacStats = registerSignal("MacStats");
+    nodePtr->emit(Signal_MacStats, vec);
 }
 
 

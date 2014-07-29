@@ -14,96 +14,19 @@
 #endif
 
 // cplusplus {{
+#include "modules/messages/WaveShortMessage_m.h"
+
 #include <Coord.h>
+
 #include <deque>
-#include <list> 
 typedef std::deque<std::string> stringQueue;
+
+#include <list>
 typedef std::list<std::string> stringList;
 // }}
 
 
-
-/**
- * Class generated from <tt>msg/Messages.msg</tt> by opp_msgc.
- * <pre>
- * packet WaveShortMessage
- * {
- * 	
- * 	int wsmVersion = 0;
- * 	
- * 	int securityType = 0;
- * 	
- * 	int channelNumber;
- * 	
- * 	int dataRate = 1;
- * 	
- * 	int priority = 3;
- * 	
- * 	int psid = 0;
- * 	
- * 	string psc = "Service with some Data";
- * 	
- * 	int wsmLength;
- * 	
- * 	string wsmData = "Some Data";
- * 	
- * 	
- *     
- * };
- * </pre>
- */
-class WaveShortMessage : public ::cPacket
-{
-  protected:
-    int wsmVersion_var;
-    int securityType_var;
-    int channelNumber_var;
-    int dataRate_var;
-    int priority_var;
-    int psid_var;
-    opp_string psc_var;
-    int wsmLength_var;
-    opp_string wsmData_var;
-
-  private:
-    void copy(const WaveShortMessage& other);
-
-  protected:
-    // protected and unimplemented operator==(), to prevent accidental usage
-    bool operator==(const WaveShortMessage&);
-
-  public:
-    WaveShortMessage(const char *name=NULL, int kind=0);
-    WaveShortMessage(const WaveShortMessage& other);
-    virtual ~WaveShortMessage();
-    WaveShortMessage& operator=(const WaveShortMessage& other);
-    virtual WaveShortMessage *dup() const {return new WaveShortMessage(*this);}
-    virtual void parsimPack(cCommBuffer *b);
-    virtual void parsimUnpack(cCommBuffer *b);
-
-    // field getter/setter methods
-    virtual int getWsmVersion() const;
-    virtual void setWsmVersion(int wsmVersion);
-    virtual int getSecurityType() const;
-    virtual void setSecurityType(int securityType);
-    virtual int getChannelNumber() const;
-    virtual void setChannelNumber(int channelNumber);
-    virtual int getDataRate() const;
-    virtual void setDataRate(int dataRate);
-    virtual int getPriority() const;
-    virtual void setPriority(int priority);
-    virtual int getPsid() const;
-    virtual void setPsid(int psid);
-    virtual const char * getPsc() const;
-    virtual void setPsc(const char * psc);
-    virtual int getWsmLength() const;
-    virtual void setWsmLength(int wsmLength);
-    virtual const char * getWsmData() const;
-    virtual void setWsmData(const char * wsmData);
-};
-
-inline void doPacking(cCommBuffer *b, WaveShortMessage& obj) {obj.parsimPack(b);}
-inline void doUnpacking(cCommBuffer *b, WaveShortMessage& obj) {obj.parsimUnpack(b);}
+namespace VENTOS {
 
 /**
  * Class generated from <tt>msg/Messages.msg</tt> by opp_msgc.
@@ -434,5 +357,6 @@ class RouterMsg : public ::WaveShortMessage
 inline void doPacking(cCommBuffer *b, RouterMsg& obj) {obj.parsimPack(b);}
 inline void doUnpacking(cCommBuffer *b, RouterMsg& obj) {obj.parsimUnpack(b);}
 
+}; // end namespace VENTOS
 
 #endif // _MESSAGES_M_H_

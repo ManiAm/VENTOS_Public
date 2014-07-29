@@ -2,14 +2,20 @@
 # OMNeT++/OMNEST Makefile for libmsg
 #
 # This file was generated with the command:
-#  opp_makemake -f --make-so -o msg -O out -I/home/mani/Desktop/VENTOS/eigen-3.2.1 -I/home/mani/Desktop/VENTOS/rapidxml-1.13 -I../../../Veins/src/inet -I../../../Veins/src/base/utils -L../../../Veins/out/$(CONFIGNAME)/src -L../../out/$(CONFIGNAME)/application -lVeins -KVEINS_PROJ=../../../Veins
+#  opp_makemake -f --make-so -o msg -O out -I/home/mani/Desktop/VENTOS/eigen-3.2.1 -I/home/mani/Desktop/VENTOS/rapidxml-1.13 -I../../../Veins/src/inet -I../../../Veins/src -I../../../Veins/src/base/utils -L../../../Veins/out/$(CONFIGNAME)/src -L../../out/$(CONFIGNAME)/application -lVeins -KVEINS_PROJ=../../../Veins
 #
 
 # Name of target to be created (-o option)
 TARGET = libmsg$(SHARED_LIB_SUFFIX)
 
 # C++ include paths (with -I)
-INCLUDE_PATH = -I../../eigen-3.2.1 -I../../rapidxml-1.13 -I../../../Veins/src/inet -I../../../Veins/src/base/utils -I.
+INCLUDE_PATH = \
+    -I../../eigen-3.2.1 \
+    -I../../rapidxml-1.13 \
+    -I../../../Veins/src/inet \
+    -I../../../Veins/src \
+    -I../../../Veins/src/base/utils \
+    -I.
 
 # Additional object and library files to link with
 EXTRA_OBJS =
@@ -120,5 +126,6 @@ $O/Messages_m.o: Messages_m.cc \
 	$(VEINS_PROJ)/src/base/utils/MiXiMDefs.h \
 	$(VEINS_PROJ)/src/base/utils/miximkerneldefs.h \
 	$(VEINS_PROJ)/src/inet/Coord.h \
-	$(VEINS_PROJ)/src/inet/FWMath.h
+	$(VEINS_PROJ)/src/inet/FWMath.h \
+	$(VEINS_PROJ)/src/modules/messages/WaveShortMessage_m.h
 

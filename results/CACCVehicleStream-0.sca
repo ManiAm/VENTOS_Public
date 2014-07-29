@@ -1,0 +1,17 @@
+version 2
+run CACCVehicleStream-0-20140729-12:13:04-7792
+attr configname CACCVehicleStream
+attr datetime 20140729-12:13:04
+attr experiment CACCVehicleStream
+attr inifile omnetpp.ini
+attr iterationvars ""
+attr iterationvars2 $repetition=0
+attr measurement ""
+attr network ned.Network
+attr processid 7792
+attr repetition 0
+attr replication #0
+attr resultdir results
+attr runnumber 0
+attr seedset 0
+

@@ -6,6 +6,8 @@
 
 using namespace std;
 
+namespace VENTOS {
+
 class systemData : public cObject, noncopyable
 {
 
@@ -269,6 +271,7 @@ class plnManagement
           strcpy(this->receivingPlnID, str5);
       }
 };
+}
 
 #endif
 

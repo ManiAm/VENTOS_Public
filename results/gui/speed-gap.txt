@@ -1,355 +1,1402 @@
 index     timeStep    vehicleName    vehicleType      lane        pos        speed       accel       gap       timeGap   
 
 
-1          0.00       CACC1           TypeCACC        1to2_0       0.00       0.00       0.00       -1.00      -1.00      
+1          10.00      CACC1           TypeCACC        1to2_0       0.00       0.00       0.00       -1.00      -1.00      
 
-2          0.10       CACC1           TypeCACC        1to2_0       0.03       0.30       3.00       -1.00      -1.00      
+2          10.10      CACC1           TypeCACC        1to2_0       0.03       0.30       3.00       -1.00      -1.00      
 
-3          0.20       CACC1           TypeCACC        1to2_0       0.09       0.60       3.00       -1.00      -1.00      
+3          10.20      CACC1           TypeCACC        1to2_0       0.09       0.60       3.00       -1.00      -1.00      
 
-4          0.30       CACC1           TypeCACC        1to2_0       0.18       0.90       3.00       -1.00      -1.00      
+4          10.30      CACC1           TypeCACC        1to2_0       0.18       0.90       3.00       -1.00      -1.00      
 
-5          0.40       CACC1           TypeCACC        1to2_0       0.30       1.20       3.00       -1.00      -1.00      
+5          10.40      CACC1           TypeCACC        1to2_0       0.30       1.20       3.00       -1.00      -1.00      
 
-6          0.50       CACC1           TypeCACC        1to2_0       0.45       1.50       3.00       -1.00      -1.00      
+6          10.50      CACC1           TypeCACC        1to2_0       0.45       1.50       3.00       -1.00      -1.00      
 
-7          0.60       CACC1           TypeCACC        1to2_0       0.63       1.80       3.00       -1.00      -1.00      
+7          10.60      CACC1           TypeCACC        1to2_0       0.63       1.80       3.00       -1.00      -1.00      
 
-8          0.70       CACC1           TypeCACC        1to2_0       0.84       2.10       3.00       -1.00      -1.00      
+8          10.70      CACC1           TypeCACC        1to2_0       0.84       2.10       3.00       -1.00      -1.00      
 
-9          0.80       CACC1           TypeCACC        1to2_0       1.08       2.40       3.00       -1.00      -1.00      
+9          10.80      CACC1           TypeCACC        1to2_0       1.08       2.40       3.00       -1.00      -1.00      
 
-10         0.90       CACC1           TypeCACC        1to2_0       1.35       2.70       3.00       -1.00      -1.00      
+10         10.90      CACC1           TypeCACC        1to2_0       1.35       2.70       3.00       -1.00      -1.00      
 
-11         1.00       CACC1           TypeCACC        1to2_0       1.65       3.00       3.00       -1.00      -1.00      
+11         11.00      CACC1           TypeCACC        1to2_0       1.65       3.00       3.00       -1.00      -1.00      
 
-12         1.10       CACC1           TypeCACC        1to2_0       1.98       3.30       3.00       -1.00      -1.00      
+12         11.10      CACC1           TypeCACC        1to2_0       1.98       3.30       3.00       -1.00      -1.00      
 
-13         1.20       CACC1           TypeCACC        1to2_0       2.34       3.60       3.00       -1.00      -1.00      
+13         11.20      CACC1           TypeCACC        1to2_0       2.34       3.60       3.00       -1.00      -1.00      
 
-14         1.30       CACC1           TypeCACC        1to2_0       2.73       3.90       3.00       -1.00      -1.00      
+14         11.30      CACC1           TypeCACC        1to2_0       2.73       3.90       3.00       -1.00      -1.00      
 
-15         1.40       CACC1           TypeCACC        1to2_0       3.15       4.20       3.00       -1.00      -1.00      
+15         11.40      CACC1           TypeCACC        1to2_0       3.15       4.20       3.00       -1.00      -1.00      
 
-16         1.50       CACC1           TypeCACC        1to2_0       3.60       4.50       3.00       -1.00      -1.00      
+16         11.50      CACC1           TypeCACC        1to2_0       3.60       4.50       3.00       -1.00      -1.00      
 
-17         1.60       CACC1           TypeCACC        1to2_0       4.08       4.80       3.00       -1.00      -1.00      
+17         11.60      CACC1           TypeCACC        1to2_0       4.08       4.80       3.00       -1.00      -1.00      
 
-18         1.70       CACC1           TypeCACC        1to2_0       4.59       5.10       3.00       -1.00      -1.00      
+18         11.70      CACC1           TypeCACC        1to2_0       4.59       5.10       3.00       -1.00      -1.00      
 
-19         1.80       CACC1           TypeCACC        1to2_0       5.13       5.40       3.00       -1.00      -1.00      
+19         11.80      CACC1           TypeCACC        1to2_0       5.13       5.40       3.00       -1.00      -1.00      
 
-20         1.90       CACC1           TypeCACC        1to2_0       5.70       5.70       3.00       -1.00      -1.00      
+20         11.90      CACC1           TypeCACC        1to2_0       5.70       5.70       3.00       -1.00      -1.00      
 
-21         2.00       CACC1           TypeCACC        1to2_0       6.30       6.00       3.00       -1.00      -1.00      
+21         12.00      CACC1           TypeCACC        1to2_0       6.30       6.00       3.00       -1.00      -1.00      
 
-22         2.10       CACC1           TypeCACC        1to2_0       6.93       6.30       3.00       -1.00      -1.00      
+22         12.10      CACC1           TypeCACC        1to2_0       6.93       6.30       3.00       -1.00      -1.00      
 
-23         2.20       CACC1           TypeCACC        1to2_0       7.59       6.60       3.00       -1.00      -1.00      
-23         2.20       CACC2           TypeCACC        1to2_0       0.00       0.00       0.00       2.59       -1.00      
+23         12.20      CACC1           TypeCACC        1to2_0       7.59       6.60       3.00       -1.00      -1.00      
 
-24         2.30       CACC1           TypeCACC        1to2_0       8.28       6.90       3.00       -1.00      -1.00      
-24         2.30       CACC2           TypeCACC        1to2_0       0.00       0.02       0.20       3.28       167.85     
+24         12.30      CACC1           TypeCACC        1to2_0       8.28       6.90       3.00       -1.00      -1.00      
 
-25         2.40       CACC1           TypeCACC        1to2_0       9.00       7.20       3.00       -1.00      -1.00      
-25         2.40       CACC2           TypeCACC        1to2_0       0.01       0.13       1.10       3.99       30.72      
+25         12.40      CACC1           TypeCACC        1to2_0       9.00       7.20       3.00       -1.00      -1.00      
 
-26         2.50       CACC1           TypeCACC        1to2_0       9.75       7.50       3.00       -1.00      -1.00      
-26         2.50       CACC2           TypeCACC        1to2_0       0.05       0.33       2.00       4.70       14.26      
+26         12.50      CACC1           TypeCACC        1to2_0       9.75       7.50       3.00       -1.00      -1.00      
 
-27         2.60       CACC1           TypeCACC        1to2_0       10.53      7.80       3.00       -1.00      -1.00      
-27         2.60       CACC2           TypeCACC        1to2_0       0.10       0.53       2.00       5.43       10.25      
+27         12.60      CACC1           TypeCACC        1to2_0       10.53      7.80       3.00       -1.00      -1.00      
 
-28         2.70       CACC1           TypeCACC        1to2_0       11.34      8.10       3.00       -1.00      -1.00      
-28         2.70       CACC2           TypeCACC        1to2_0       0.17       0.73       2.00       6.17       8.45       
+28         12.70      CACC1           TypeCACC        1to2_0       11.34      8.10       3.00       -1.00      -1.00      
 
-29         2.80       CACC1           TypeCACC        1to2_0       12.18      8.40       3.00       -1.00      -1.00      
-29         2.80       CACC2           TypeCACC        1to2_0       0.27       0.93       2.00       6.91       7.44       
+29         12.80      CACC1           TypeCACC        1to2_0       12.18      8.40       3.00       -1.00      -1.00      
 
-30         2.90       CACC1           TypeCACC        1to2_0       13.05      8.70       3.00       -1.00      -1.00      
-30         2.90       CACC2           TypeCACC        1to2_0       0.38       1.13       2.00       7.67       6.79       
+30         12.90      CACC1           TypeCACC        1to2_0       13.05      8.70       3.00       -1.00      -1.00      
 
-31         3.00       CACC1           TypeCACC        1to2_0       13.95      9.00       3.00       -1.00      -1.00      
-31         3.00       CACC2           TypeCACC        1to2_0       0.51       1.33       2.00       8.44       6.35       
+31         13.00      CACC1           TypeCACC        1to2_0       13.95      9.00       3.00       -1.00      -1.00      
 
-32         3.10       CACC1           TypeCACC        1to2_0       14.88      9.30       3.00       -1.00      -1.00      
-32         3.10       CACC2           TypeCACC        1to2_0       0.67       1.53       2.00       9.21       6.02       
+32         13.10      CACC1           TypeCACC        1to2_0       14.88      9.30       3.00       -1.00      -1.00      
 
-33         3.20       CACC1           TypeCACC        1to2_0       15.84      9.60       3.00       -1.00      -1.00      
-33         3.20       CACC2           TypeCACC        1to2_0       0.84       1.73       2.00       10.00      5.78       
+33         13.20      CACC1           TypeCACC        1to2_0       15.84      9.60       3.00       -1.00      -1.00      
 
-34         3.30       CACC1           TypeCACC        1to2_0       16.83      9.90       3.00       -1.00      -1.00      
-34         3.30       CACC2           TypeCACC        1to2_0       1.03       1.93       2.00       10.80      5.60       
+34         13.30      CACC1           TypeCACC        1to2_0       16.83      9.90       3.00       -1.00      -1.00      
 
-35         3.40       CACC1           TypeCACC        1to2_0       17.85      10.20      3.00       -1.00      -1.00      
-35         3.40       CACC2           TypeCACC        1to2_0       1.24       2.13       2.00       11.61      5.45       
+35         13.40      CACC1           TypeCACC        1to2_0       17.85      10.20      3.00       -1.00      -1.00      
 
-36         3.50       CACC1           TypeCACC        1to2_0       18.90      10.50      3.00       -1.00      -1.00      
-36         3.50       CACC2           TypeCACC        1to2_0       1.48       2.33       2.00       12.42      5.33       
+36         13.50      CACC1           TypeCACC        1to2_0       18.90      10.50      3.00       -1.00      -1.00      
 
-37         3.60       CACC1           TypeCACC        1to2_0       19.98      10.80      3.00       -1.00      -1.00      
-37         3.60       CACC2           TypeCACC        1to2_0       1.73       2.53       2.00       13.25      5.24       
+37         13.60      CACC1           TypeCACC        1to2_0       19.98      10.80      3.00       -1.00      -1.00      
 
-38         3.70       CACC1           TypeCACC        1to2_0       21.09      11.10      3.00       -1.00      -1.00      
-38         3.70       CACC2           TypeCACC        1to2_0       2.00       2.73       2.00       14.09      5.16       
+38         13.70      CACC1           TypeCACC        1to2_0       21.09      11.10      3.00       -1.00      -1.00      
 
-39         3.80       CACC1           TypeCACC        1to2_0       22.23      11.40      3.00       -1.00      -1.00      
-39         3.80       CACC2           TypeCACC        1to2_0       2.30       2.93       2.00       14.93      5.10       
+39         13.80      CACC1           TypeCACC        1to2_0       22.23      11.40      3.00       -1.00      -1.00      
 
-40         3.90       CACC1           TypeCACC        1to2_0       23.40      11.70      3.00       -1.00      -1.00      
-40         3.90       CACC2           TypeCACC        1to2_0       2.61       3.13       2.00       15.79      5.05       
+40         13.90      CACC1           TypeCACC        1to2_0       23.40      11.70      3.00       -1.00      -1.00      
 
-41         4.00       CACC2           TypeCACC        1to2_0       2.94       3.33       2.00       -1.00      -1.00      
-41         4.00       CACC1           TypeCACC@CACC1  1to2_1       24.52      11.20      -5.00      -1.00      -1.00      
+41         14.00      CACC1           TypeCACC        1to2_0       24.60      12.00      3.00       -1.00      -1.00      
 
-42         4.10       CACC2           TypeCACC        1to2_0       3.31       3.63       3.00       -1.00      -1.00      
-42         4.10       CACC1           TypeCACC@CACC1  1to2_1       25.59      10.70      -5.00      -1.00      -1.00      
+42         14.10      CACC1           TypeCACC        1to2_0       25.83      12.30      3.00       -1.00      -1.00      
 
-43         4.20       CACC2           TypeCACC        1to2_0       3.70       3.93       3.00       -1.00      -1.00      
-43         4.20       CACC1           TypeCACC@CACC1  1to2_1       26.61      10.20      -5.00      -1.00      -1.00      
+43         14.20      CACC1           TypeCACC        1to2_0       27.09      12.60      3.00       -1.00      -1.00      
 
-44         4.30       CACC2           TypeCACC        1to2_0       4.12       4.23       3.00       -1.00      -1.00      
-44         4.30       CACC1           TypeCACC@CACC1  1to2_1       27.58      9.70       -5.00      -1.00      -1.00      
+44         14.30      CACC1           TypeCACC        1to2_0       28.38      12.90      3.00       -1.00      -1.00      
 
-45         4.40       CACC2           TypeCACC        1to2_0       4.57       4.53       3.00       -1.00      -1.00      
-45         4.40       CACC1           TypeCACC@CACC1  1to2_1       28.50      9.20       -5.00      -1.00      -1.00      
+45         14.40      CACC1           TypeCACC        1to2_0       29.70      13.20      3.00       -1.00      -1.00      
 
-46         4.50       CACC2           TypeCACC        1to2_0       5.06       4.83       3.00       -1.00      -1.00      
-46         4.50       CACC1           TypeCACC@CACC1  1to2_1       29.37      8.70       -5.00      -1.00      -1.00      
+46         14.50      CACC1           TypeCACC        1to2_0       31.05      13.50      3.00       -1.00      -1.00      
 
-47         4.60       CACC2           TypeCACC        1to2_0       5.57       5.13       3.00       -1.00      -1.00      
-47         4.60       CACC1           TypeCACC@CACC1  1to2_1       30.19      8.20       -5.00      -1.00      -1.00      
+47         14.60      CACC1           TypeCACC        1to2_0       32.43      13.80      3.00       -1.00      -1.00      
 
-48         4.70       CACC2           TypeCACC        1to2_0       6.11       5.43       3.00       -1.00      -1.00      
-48         4.70       CACC1           TypeCACC@CACC1  1to2_1       30.96      7.70       -5.00      -1.00      -1.00      
+48         14.70      CACC1           TypeCACC        1to2_0       33.84      14.10      3.00       -1.00      -1.00      
 
-49         4.80       CACC2           TypeCACC        1to2_0       6.69       5.73       3.00       -1.00      -1.00      
-49         4.80       CACC1           TypeCACC@CACC1  1to2_1       31.68      7.20       -5.00      -1.00      -1.00      
+49         14.80      CACC1           TypeCACC        1to2_0       35.28      14.40      3.00       -1.00      -1.00      
 
-50         4.90       CACC2           TypeCACC        1to2_0       7.29       6.03       3.00       -1.00      -1.00      
-50         4.90       CACC3           TypeCACC        1to2_0       0.00       0.00       0.00       2.29       -1.00      
-50         4.90       CACC1           TypeCACC@CACC1  1to2_1       32.35      6.70       -5.00      -1.00      -1.00      
+50         14.90      CACC1           TypeCACC        1to2_0       36.75      14.70      3.00       -1.00      -1.00      
 
-51         5.00       CACC2           TypeCACC        1to2_0       7.92       6.33       3.00       -1.00      -1.00      
-51         5.00       CACC3           TypeCACC        1to2_0       0.00       0.00       0.00       2.92       -1.00      
-51         5.00       CACC1           TypeCACC@CACC1  1to2_1       32.97      6.20       -5.00      -1.00      -1.00      
+51         15.00      CACC1           TypeCACC        1to2_0       38.25      15.00      3.00       -1.00      -1.00      
 
-52         5.10       CACC2           TypeCACC        1to2_0       8.59       6.63       3.00       -1.00      -1.00      
-52         5.10       CACC3           TypeCACC        1to2_0       0.00       0.05       0.47       3.58       76.62      
-52         5.10       CACC1           TypeCACC@CACC1  1to2_1       33.54      5.70       -5.00      -1.00      -1.00      
+52         15.10      CACC1           TypeCACC        1to2_0       39.78      15.30      3.00       -1.00      -1.00      
 
-53         5.20       CACC2           TypeCACC        1to2_0       9.28       6.93       3.00       -1.00      -1.00      
-53         5.20       CACC3           TypeCACC        1to2_0       0.02       0.20       1.53       4.25       21.34      
-53         5.20       CACC1           TypeCACC@CACC1  1to2_1       34.06      5.20       -5.00      -1.00      -1.00      
+53         15.20      CACC1           TypeCACC        1to2_0       41.34      15.60      3.00       -1.00      -1.00      
 
-54         5.30       CACC2           TypeCACC        1to2_0       10.00      7.23       3.00       -1.00      -1.00      
-54         5.30       CACC3           TypeCACC        1to2_0       0.06       0.40       2.00       4.94       12.36      
-54         5.30       CACC1           TypeCACC@CACC1  1to2_1       34.56      5.00       -2.00      -1.00      -1.00      
+54         15.30      CACC1           TypeCACC        1to2_0       42.93      15.90      3.00       -1.00      -1.00      
 
-55         5.40       CACC2           TypeCACC        1to2_0       10.75      7.53       3.00       -1.00      -1.00      
-55         5.40       CACC3           TypeCACC        1to2_0       0.12       0.60       2.00       5.63       9.39       
-55         5.40       CACC1           TypeCACC@CACC1  1to2_1       35.06      5.00       0.00       -1.00      -1.00      
+55         15.40      CACC1           TypeCACC        1to2_0       44.55      16.20      3.00       -1.00      -1.00      
 
-56         5.50       CACC2           TypeCACC        1to2_0       11.54      7.83       3.00       -1.00      -1.00      
-56         5.50       CACC3           TypeCACC        1to2_0       0.20       0.80       2.00       6.33       7.92       
-56         5.50       CACC1           TypeCACC@CACC1  1to2_1       35.56      5.00       0.00       -1.00      -1.00      
+56         15.50      CACC1           TypeCACC        1to2_0       46.20      16.50      3.00       -1.00      -1.00      
 
-57         5.60       CACC2           TypeCACC        1to2_0       12.35      8.13       3.00       -1.00      -1.00      
-57         5.60       CACC3           TypeCACC        1to2_0       0.30       1.00       2.00       7.05       7.05       
-57         5.60       CACC1           TypeCACC@CACC1  1to2_1       36.06      5.00       0.00       -1.00      -1.00      
+57         15.60      CACC1           TypeCACC        1to2_0       47.88      16.80      3.00       -1.00      -1.00      
 
-58         5.70       CACC2           TypeCACC        1to2_0       13.19      8.43       3.00       -1.00      -1.00      
-58         5.70       CACC3           TypeCACC        1to2_0       0.42       1.20       2.00       7.77       6.48       
-58         5.70       CACC1           TypeCACC@CACC1  1to2_1       36.56      5.00       0.00       -1.00      -1.00      
+58         15.70      CACC1           TypeCACC        1to2_0       49.59      17.10      3.00       -1.00      -1.00      
 
-59         5.80       CACC2           TypeCACC        1to2_0       14.07      8.73       3.00       -1.00      -1.00      
-59         5.80       CACC3           TypeCACC        1to2_0       0.56       1.40       2.00       8.50       6.08       
-59         5.80       CACC1           TypeCACC@CACC1  1to2_1       37.06      5.00       0.00       -1.00      -1.00      
+59         15.80      CACC1           TypeCACC        1to2_0       51.33      17.40      3.00       -1.00      -1.00      
 
-60         5.90       CACC2           TypeCACC        1to2_0       14.97      9.03       3.00       -1.00      -1.00      
-60         5.90       CACC3           TypeCACC        1to2_0       0.72       1.60       2.00       9.24       5.78       
-60         5.90       CACC1           TypeCACC@CACC1  1to2_1       37.56      5.00       0.00       -1.00      -1.00      
+60         15.90      CACC1           TypeCACC        1to2_0       53.10      17.70      3.00       -1.00      -1.00      
 
-61         6.00       CACC2           TypeCACC        1to2_0       15.90      9.33       3.00       -1.00      -1.00      
-61         6.00       CACC3           TypeCACC        1to2_0       0.90       1.80       2.00       10.00      5.56       
-61         6.00       CACC1           TypeCACC@CACC1  1to2_1       38.06      5.00       0.00       -1.00      -1.00      
+61         16.00      CACC1           TypeCACC        1to2_0       54.90      18.00      3.00       -1.00      -1.00      
 
-62         6.10       CACC2           TypeCACC        1to2_0       16.86      9.63       3.00       -1.00      -1.00      
-62         6.10       CACC3           TypeCACC        1to2_0       1.10       2.00       2.00       10.76      5.38       
-62         6.10       CACC1           TypeCACC@CACC1  1to2_1       38.56      5.00       0.00       -1.00      -1.00      
+62         16.10      CACC1           TypeCACC        1to2_0       56.73      18.30      3.00       -1.00      -1.00      
 
-63         6.20       CACC3           TypeCACC        1to2_0       1.32       2.20       2.00       -1.00      -1.00      
-63         6.20       CACC1           TypeCACC@CACC1  1to2_1       39.06      5.00       0.00       -1.00      -1.00      
-63         6.20       CACC2           TypeCACC@CACC2  1to2_1       17.78      9.13       -5.00      16.28      1.78       
+63         16.20      CACC1           TypeCACC        1to2_0       58.59      18.60      3.00       -1.00      -1.00      
 
-64         6.30       CACC3           TypeCACC        1to2_0       1.57       2.50       3.00       -1.00      -1.00      
-64         6.30       CACC1           TypeCACC@CACC1  1to2_1       39.56      5.00       0.00       -1.00      -1.00      
-64         6.30       CACC2           TypeCACC@CACC2  1to2_1       18.64      8.63       -5.00      15.92      1.84       
+64         16.30      CACC1           TypeCACC        1to2_0       60.48      18.90      3.00       -1.00      -1.00      
 
-65         6.40       CACC3           TypeCACC        1to2_0       1.85       2.80       3.00       -1.00      -1.00      
-65         6.40       CACC1           TypeCACC@CACC1  1to2_1       40.06      5.00       0.00       -1.00      -1.00      
-65         6.40       CACC2           TypeCACC@CACC2  1to2_1       19.49      8.47       -1.61      15.57      1.84       
+65         16.40      CACC1           TypeCACC        1to2_0       62.40      19.20      3.00       -1.00      -1.00      
 
-66         6.50       CACC3           TypeCACC        1to2_0       2.16       3.10       3.00       -1.00      -1.00      
-66         6.50       CACC1           TypeCACC@CACC1  1to2_1       40.56      5.00       0.00       -1.00      -1.00      
-66         6.50       CACC2           TypeCACC@CACC2  1to2_1       20.34      8.56       0.94       15.22      1.78       
-
-67         6.60       CACC3           TypeCACC        1to2_0       2.50       3.40       3.00       -1.00      -1.00      
-67         6.60       CACC1           TypeCACC@CACC1  1to2_1       41.06      5.00       0.00       -1.00      -1.00      
-67         6.60       CACC2           TypeCACC@CACC2  1to2_1       21.22      8.76       2.00       14.84      1.69       
-
-68         6.70       CACC3           TypeCACC        1to2_0       2.87       3.70       3.00       -1.00      -1.00      
-68         6.70       CACC1           TypeCACC@CACC1  1to2_1       41.56      5.00       0.00       -1.00      -1.00      
-68         6.70       CACC2           TypeCACC@CACC2  1to2_1       22.12      8.96       2.00       14.44      1.61       
-
-69         6.80       CACC3           TypeCACC        1to2_0       3.27       4.00       3.00       -1.00      -1.00      
-69         6.80       CACC1           TypeCACC@CACC1  1to2_1       42.06      5.00       0.00       -1.00      -1.00      
-69         6.80       CACC2           TypeCACC@CACC2  1to2_1       23.03      9.16       2.00       14.03      1.53       
-
-70         6.90       CACC3           TypeCACC        1to2_0       3.70       4.30       3.00       -1.00      -1.00      
-70         6.90       CACC1           TypeCACC@CACC1  1to2_1       42.56      5.00       0.00       -1.00      -1.00      
-70         6.90       CACC2           TypeCACC@CACC2  1to2_1       23.97      9.36       2.00       13.59      1.45       
-
-71         7.00       CACC3           TypeCACC        1to2_0       4.16       4.60       3.00       -1.00      -1.00      
-71         7.00       CACC1           TypeCACC@CACC1  1to2_1       43.06      5.00       0.00       -1.00      -1.00      
-71         7.00       CACC2           TypeCACC@CACC2  1to2_1       24.93      9.56       2.00       13.13      1.37       
-
-72         7.10       CACC3           TypeCACC        1to2_0       4.65       4.90       3.00       -1.00      -1.00      
-72         7.10       CACC1           TypeCACC@CACC1  1to2_1       43.56      5.00       0.00       -1.00      -1.00      
-72         7.10       CACC2           TypeCACC@CACC2  1to2_1       25.90      9.76       2.00       12.66      1.30       
-
-73         7.20       CACC3           TypeCACC        1to2_0       5.17       5.20       3.00       -1.00      -1.00      
-73         7.20       CACC1           TypeCACC@CACC1  1to2_1       44.06      5.00       0.00       -1.00      -1.00      
-73         7.20       CACC2           TypeCACC@CACC2  1to2_1       26.90      9.96       2.00       12.16      1.22       
-
-74         7.30       CACC3           TypeCACC        1to2_0       5.72       5.50       3.00       -1.00      -1.00      
-74         7.30       CACC1           TypeCACC@CACC1  1to2_1       44.56      5.00       0.00       -1.00      -1.00      
-74         7.30       CACC2           TypeCACC@CACC2  1to2_1       27.91      10.16      2.00       11.65      1.15       
-
-75         7.40       CACC3           TypeCACC        1to2_0       6.30       5.80       3.00       -1.00      -1.00      
-75         7.40       CACC1           TypeCACC@CACC1  1to2_1       45.06      5.00       0.00       -1.00      -1.00      
-75         7.40       CACC2           TypeCACC@CACC2  1to2_1       28.88      9.66       -5.00      11.18      1.16       
-
-76         7.50       CACC3           TypeCACC        1to2_0       6.91       6.10       3.00       -1.00      -1.00      
-76         7.50       CACC1           TypeCACC@CACC1  1to2_1       45.56      5.00       0.00       -1.00      -1.00      
-76         7.50       CACC2           TypeCACC@CACC2  1to2_1       29.82      9.36       -3.00      10.74      1.15       
-
-77         7.60       CACC3           TypeCACC        1to2_0       7.55       6.40       3.00       -1.00      -1.00      
-77         7.60       CACC4           TypeCACC        1to2_0       0.00       0.00       0.00       2.55       -1.00      
-77         7.60       CACC1           TypeCACC@CACC1  1to2_1       46.06      5.00       0.00       -1.00      -1.00      
-77         7.60       CACC2           TypeCACC@CACC2  1to2_1       30.74      9.19       -1.70      10.32      1.12       
-
-78         7.70       CACC3           TypeCACC        1to2_0       8.22       6.70       3.00       -1.00      -1.00      
-78         7.70       CACC4           TypeCACC        1to2_0       0.00       0.01       0.11       3.22       298.86     
-78         7.70       CACC1           TypeCACC@CACC1  1to2_1       46.56      5.00       0.00       -1.00      -1.00      
-78         7.70       CACC2           TypeCACC@CACC2  1to2_1       31.65      9.09       -1.02      9.91       1.09       
-
-79         7.80       CACC3           TypeCACC        1to2_0       8.92       7.00       3.00       -1.00      -1.00      
-79         7.80       CACC4           TypeCACC        1to2_0       0.01       0.10       0.94       3.91       37.46      
-79         7.80       CACC1           TypeCACC@CACC1  1to2_1       47.06      5.00       0.00       -1.00      -1.00      
-79         7.80       CACC2           TypeCACC@CACC2  1to2_1       32.55      9.01       -0.85      9.51       1.06       
-
-80         7.90       CACC3           TypeCACC        1to2_0       9.65       7.30       3.00       -1.00      -1.00      
-80         7.90       CACC4           TypeCACC        1to2_0       0.04       0.30       2.00       4.61       15.15      
-80         7.90       CACC1           TypeCACC@CACC1  1to2_1       47.56      5.00       0.00       -1.00      -1.00      
-80         7.90       CACC2           TypeCACC@CACC2  1to2_1       33.44      8.90       -1.05      9.12       1.03       
-
-81         8.00       CACC3           TypeCACC        1to2_0       10.41      7.60       3.00       -1.00      -1.00      
-81         8.00       CACC4           TypeCACC        1to2_0       0.09       0.50       2.00       5.32       10.55      
-81         8.00       CACC1           TypeCACC@CACC1  1to2_1       48.06      5.00       0.00       -1.00      -1.00      
-81         8.00       CACC2           TypeCACC@CACC2  1to2_1       34.28      8.40       -5.00      8.78       1.05       
-
-82         8.10       CACC3           TypeCACC        1to2_0       11.20      7.90       3.00       -1.00      -1.00      
-82         8.10       CACC4           TypeCACC        1to2_0       0.16       0.70       2.00       6.04       8.57       
-82         8.10       CACC1           TypeCACC@CACC1  1to2_1       48.56      5.00       0.00       -1.00      -1.00      
-82         8.10       CACC2           TypeCACC@CACC2  1to2_1       35.09      8.10       -3.00      8.47       1.05       
-
-83         8.20       CACC3           TypeCACC        1to2_0       12.02      8.20       3.00       -1.00      -1.00      
-83         8.20       CACC4           TypeCACC        1to2_0       0.25       0.90       2.00       6.77       7.48       
-83         8.20       CACC1           TypeCACC@CACC1  1to2_1       49.06      5.00       0.00       -1.00      -1.00      
-83         8.20       CACC2           TypeCACC@CACC2  1to2_1       35.87      7.80       -3.00      8.19       1.05       
-
-84         8.30       CACC3           TypeCACC        1to2_0       12.87      8.50       3.00       -1.00      -1.00      
-84         8.30       CACC4           TypeCACC        1to2_0       0.36       1.10       2.00       7.51       6.80       
-84         8.30       CACC1           TypeCACC@CACC1  1to2_1       49.56      5.00       0.00       -1.00      -1.00      
-84         8.30       CACC2           TypeCACC@CACC2  1to2_1       36.62      7.50       -3.00      7.94       1.06       
-
-85         8.40       CACC3           TypeCACC        1to2_0       13.75      8.80       3.00       -1.00      -1.00      
-85         8.40       CACC4           TypeCACC        1to2_0       0.49       1.30       2.00       8.26       6.33       
-85         8.40       CACC1           TypeCACC@CACC1  1to2_1       50.06      5.00       0.00       -1.00      -1.00      
-85         8.40       CACC2           TypeCACC@CACC2  1to2_1       37.34      7.20       -3.00      7.72       1.07       
-
-86         8.50       CACC3           TypeCACC        1to2_0       14.66      9.10       3.00       -1.00      -1.00      
-86         8.50       CACC4           TypeCACC        1to2_0       0.64       1.50       2.00       9.02       5.99       
-86         8.50       CACC1           TypeCACC@CACC1  1to2_1       50.56      5.00       0.00       -1.00      -1.00      
-86         8.50       CACC2           TypeCACC@CACC2  1to2_1       38.03      6.90       -3.00      7.53       1.09       
-
-87         8.60       CACC3           TypeCACC        1to2_0       15.60      9.40       3.00       -1.00      -1.00      
-87         8.60       CACC4           TypeCACC        1to2_0       0.82       1.70       2.00       9.79       5.74       
-87         8.60       CACC1           TypeCACC@CACC1  1to2_1       51.06      5.00       0.00       -1.00      -1.00      
-87         8.60       CACC2           TypeCACC@CACC2  1to2_1       38.69      6.60       -2.99      7.37       1.12       
-
-88         8.70       CACC3           TypeCACC        1to2_0       16.57      9.70       3.00       -1.00      -1.00      
-88         8.70       CACC4           TypeCACC        1to2_0       1.01       1.90       2.00       10.57      5.55       
-88         8.70       CACC1           TypeCACC@CACC1  1to2_1       51.56      5.00       0.00       -1.00      -1.00      
-88         8.70       CACC2           TypeCACC@CACC2  1to2_1       39.32      6.31       -2.90      7.24       1.15       
-
-89         8.80       CACC3           TypeCACC        1to2_0       17.57      10.00      3.00       -1.00      -1.00      
-89         8.80       CACC4           TypeCACC        1to2_0       1.22       2.10       2.00       11.36      5.40       
-89         8.80       CACC1           TypeCACC@CACC1  1to2_1       52.06      5.00       0.00       -1.00      -1.00      
-89         8.80       CACC2           TypeCACC@CACC2  1to2_1       39.92      6.04       -2.73      7.14       1.18       
-
-90         8.90       CACC4           TypeCACC        1to2_0       1.45       2.30       2.00       -1.00      -1.00      
-90         8.90       CACC1           TypeCACC@CACC1  1to2_1       52.56      5.00       0.00       -1.00      -1.00      
-90         8.90       CACC2           TypeCACC@CACC2  1to2_1       40.50      5.79       -2.49      7.06       1.22       
-90         8.90       CACC3           TypeCACC@CACC3  1to2_1       18.52      9.50       -5.00      16.98      1.79       
-
-91         9.00       CACC4           TypeCACC        1to2_0       1.71       2.60       3.00       -1.00      -1.00      
-91         9.00       CACC1           TypeCACC@CACC1  1to2_1       53.06      5.00       0.00       -1.00      -1.00      
-91         9.00       CACC2           TypeCACC@CACC2  1to2_1       41.06      5.57       -2.19      7.00       1.26       
-91         9.00       CACC3           TypeCACC@CACC3  1to2_1       19.42      9.00       -5.00      16.64      1.85       
-
-92         9.10       CACC4           TypeCACC        1to2_0       2.00       2.90       3.00       -1.00      -1.00      
-92         9.10       CACC1           TypeCACC@CACC1  1to2_1       53.56      5.00       0.00       -1.00      -1.00      
-92         9.10       CACC2           TypeCACC@CACC2  1to2_1       41.60      5.39       -1.85      6.96       1.29       
-92         9.10       CACC3           TypeCACC@CACC3  1to2_1       20.31      8.83       -1.65      16.29      1.84       
-
-93         9.20       CACC4           TypeCACC        1to2_0       2.32       3.20       3.00       -1.00      -1.00      
-93         9.20       CACC1           TypeCACC@CACC1  1to2_1       54.06      5.00       0.00       -1.00      -1.00      
-93         9.20       CACC2           TypeCACC@CACC2  1to2_1       42.12      5.24       -1.48      6.94       1.33       
-93         9.20       CACC3           TypeCACC@CACC3  1to2_1       21.20      8.92       0.88       15.92      1.78       
-
-94         9.30       CACC4           TypeCACC        1to2_0       2.67       3.50       3.00       -1.00      -1.00      
-94         9.30       CACC1           TypeCACC@CACC1  1to2_1       54.56      5.00       0.00       -1.00      -1.00      
-94         9.30       CACC2           TypeCACC@CACC2  1to2_1       42.63      5.13       -1.11      6.93       1.35       
-94         9.30       CACC3           TypeCACC@CACC3  1to2_1       22.11      9.12       2.00       15.52      1.70       
-
-95         9.40       CACC4           TypeCACC        1to2_0       3.05       3.80       3.00       -1.00      -1.00      
-95         9.40       CACC1           TypeCACC@CACC1  1to2_1       55.06      5.00       0.00       -1.00      -1.00      
-95         9.40       CACC2           TypeCACC@CACC2  1to2_1       43.14      5.05       -0.75      6.92       1.37       
-95         9.40       CACC3           TypeCACC@CACC3  1to2_1       23.04      9.32       2.00       15.10      1.62       
-
-96         9.50       CACC4           TypeCACC        1to2_0       3.46       4.10       3.00       -1.00      -1.00      
-96         9.50       CACC1           TypeCACC@CACC1  1to2_1       55.56      5.00       0.00       -1.00      -1.00      
-96         9.50       CACC2           TypeCACC@CACC2  1to2_1       43.64      5.01       -0.43      6.92       1.38       
-96         9.50       CACC3           TypeCACC@CACC3  1to2_1       23.99      9.52       2.00       14.64      1.54       
-
-97         9.60       CACC4           TypeCACC        1to2_0       3.90       4.40       3.00       -1.00      -1.00      
-97         9.60       CACC1           TypeCACC@CACC1  1to2_1       56.06      5.00       0.00       -1.00      -1.00      
-97         9.60       CACC2           TypeCACC@CACC2  1to2_1       44.14      4.99       -0.15      6.92       1.39       
-97         9.60       CACC3           TypeCACC@CACC3  1to2_1       24.97      9.72       2.00       14.17      1.46       
-
-98         9.70       CACC4           TypeCACC        1to2_0       4.37       4.70       3.00       -1.00      -1.00      
-98         9.70       CACC1           TypeCACC@CACC1  1to2_1       56.56      5.00       0.00       -1.00      -1.00      
-98         9.70       CACC2           TypeCACC@CACC2  1to2_1       44.64      5.00       0.07       6.92       1.38       
-98         9.70       CACC3           TypeCACC@CACC3  1to2_1       25.96      9.92       2.00       13.68      1.38       
-
-99         9.80       CACC4           TypeCACC        1to2_0       4.87       5.00       3.00       -1.00      -1.00      
-99         9.80       CACC1           TypeCACC@CACC1  1to2_1       57.06      5.00       0.00       -1.00      -1.00      
-99         9.80       CACC2           TypeCACC@CACC2  1to2_1       45.14      5.02       0.22       6.92       1.38       
-99         9.80       CACC3           TypeCACC@CACC3  1to2_1       26.97      10.12      2.00       13.17      1.30       
-
-100        9.90       CACC4           TypeCACC        1to2_0       5.40       5.30       3.00       -1.00      -1.00      
-100        9.90       CACC1           TypeCACC@CACC1  1to2_1       57.56      5.00       0.00       -1.00      -1.00      
-100        9.90       CACC2           TypeCACC@CACC2  1to2_1       45.65      5.05       0.32       6.91       1.37       
-100        9.90       CACC3           TypeCACC@CACC3  1to2_1       28.00      10.32      2.00       12.64      1.22       
+66         16.50      CACC1           TypeCACC        1to2_0       64.35      19.50      3.00       -1.00      -1.00      
+
+67         16.60      CACC1           TypeCACC        1to2_0       66.33      19.80      3.00       -1.00      -1.00      
+
+68         16.70      CACC1           TypeCACC        1to2_0       68.34      20.10      3.00       -1.00      -1.00      
+
+69         16.80      CACC1           TypeCACC        1to2_0       70.38      20.40      3.00       -1.00      -1.00      
+
+70         16.90      CACC1           TypeCACC        1to2_0       72.45      20.70      3.00       -1.00      -1.00      
+
+71         17.00      CACC1           TypeCACC        1to2_0       74.55      21.00      3.00       -1.00      -1.00      
+
+72         17.10      CACC1           TypeCACC        1to2_0       76.68      21.30      3.00       -1.00      -1.00      
+
+73         17.20      CACC1           TypeCACC        1to2_0       78.84      21.60      3.00       -1.00      -1.00      
+
+74         17.30      CACC1           TypeCACC        1to2_0       81.03      21.90      3.00       -1.00      -1.00      
+
+75         17.40      CACC1           TypeCACC        1to2_0       83.25      22.20      3.00       -1.00      -1.00      
+
+76         17.50      CACC1           TypeCACC        1to2_0       85.50      22.50      3.00       -1.00      -1.00      
+
+77         17.60      CACC1           TypeCACC        1to2_0       87.78      22.80      3.00       -1.00      -1.00      
+
+78         17.70      CACC1           TypeCACC        1to2_0       90.09      23.10      3.00       -1.00      -1.00      
+
+79         17.80      CACC1           TypeCACC        1to2_0       92.35      22.60      -5.00      -1.00      -1.00      
+
+80         17.90      CACC1           TypeCACC        1to2_0       94.56      22.10      -5.00      -1.00      -1.00      
+
+81         18.00      CACC1           TypeCACC        1to2_0       96.72      21.60      -5.00      -1.00      -1.00      
+
+82         18.10      CACC1           TypeCACC        1to2_0       98.83      21.10      -5.00      -1.00      -1.00      
+
+83         18.20      CACC1           TypeCACC        1to2_0       100.89     20.60      -5.00      -1.00      -1.00      
+
+84         18.30      CACC1           TypeCACC        1to2_0       102.90     20.10      -5.00      -1.00      -1.00      
+
+85         18.40      CACC1           TypeCACC        1to2_0       104.86     19.60      -5.00      -1.00      -1.00      
+
+86         18.50      CACC1           TypeCACC        1to2_0       106.77     19.10      -5.00      -1.00      -1.00      
+
+87         18.60      CACC1           TypeCACC        1to2_0       108.63     18.60      -5.00      -1.00      -1.00      
+
+88         18.70      CACC1           TypeCACC        1to2_0       110.44     18.10      -5.00      -1.00      -1.00      
+
+89         18.80      CACC1           TypeCACC        1to2_0       112.20     17.60      -5.00      -1.00      -1.00      
+
+90         18.90      CACC1           TypeCACC        1to2_0       113.91     17.10      -5.00      -1.00      -1.00      
+
+91         19.00      CACC1           TypeCACC        1to2_0       115.57     16.60      -5.00      -1.00      -1.00      
+
+92         19.10      CACC1           TypeCACC        1to2_0       117.18     16.10      -5.00      -1.00      -1.00      
+
+93         19.20      CACC1           TypeCACC        1to2_0       118.74     15.60      -5.00      -1.00      -1.00      
+
+94         19.30      CACC1           TypeCACC        1to2_0       120.25     15.10      -5.00      -1.00      -1.00      
+
+95         19.40      CACC1           TypeCACC        1to2_0       121.71     14.60      -5.00      -1.00      -1.00      
+
+96         19.50      CACC1           TypeCACC        1to2_0       123.12     14.10      -5.00      -1.00      -1.00      
+
+97         19.60      CACC1           TypeCACC        1to2_0       124.48     13.60      -5.00      -1.00      -1.00      
+
+98         19.70      CACC1           TypeCACC        1to2_0       125.79     13.10      -5.00      -1.00      -1.00      
+
+99         19.80      CACC1           TypeCACC        1to2_0       127.05     12.60      -5.00      -1.00      -1.00      
+
+100        19.90      CACC1           TypeCACC        1to2_0       128.26     12.10      -5.00      -1.00      -1.00      
+
+101        20.00      CACC1           TypeCACC        1to2_0       129.42     11.60      -5.00      -1.00      -1.00      
+101        20.00      CACC2           TypeCACC        1to2_0       0.00       0.00       0.00       124.42     -1.00      
+
+102        20.10      CACC1           TypeCACC        1to2_0       130.53     11.10      -5.00      -1.00      -1.00      
+102        20.10      CACC2           TypeCACC        1to2_0       0.02       0.20       2.00       125.51     627.55     
+
+103        20.20      CACC1           TypeCACC        1to2_0       131.59     10.60      -5.00      -1.00      -1.00      
+103        20.20      CACC2           TypeCACC        1to2_0       0.06       0.40       2.00       126.53     316.32     
+
+104        20.30      CACC1           TypeCACC        1to2_0       132.60     10.10      -5.00      -1.00      -1.00      
+104        20.30      CACC2           TypeCACC        1to2_0       0.12       0.60       2.00       127.48     212.47     
+
+105        20.40      CACC1           TypeCACC        1to2_0       133.56     9.60       -5.00      -1.00      -1.00      
+105        20.40      CACC2           TypeCACC        1to2_0       0.20       0.80       2.00       128.36     160.45     
+
+106        20.50      CACC1           TypeCACC        1to2_0       134.47     9.10       -5.00      -1.00      -1.00      
+106        20.50      CACC2           TypeCACC        1to2_0       0.30       1.00       2.00       129.17     129.17     
+
+107        20.60      CACC1           TypeCACC        1to2_0       135.33     8.60       -5.00      -1.00      -1.00      
+107        20.60      CACC2           TypeCACC        1to2_0       0.42       1.20       2.00       129.91     108.26     
+
+108        20.70      CACC1           TypeCACC        1to2_0       136.14     8.10       -5.00      -1.00      -1.00      
+108        20.70      CACC2           TypeCACC        1to2_0       0.56       1.40       2.00       130.58     93.27      
+
+109        20.80      CACC1           TypeCACC        1to2_0       136.90     7.60       -5.00      -1.00      -1.00      
+109        20.80      CACC2           TypeCACC        1to2_0       0.72       1.60       2.00       131.18     81.99      
+
+110        20.90      CACC1           TypeCACC        1to2_0       137.61     7.10       -5.00      -1.00      -1.00      
+110        20.90      CACC2           TypeCACC        1to2_0       0.90       1.80       2.00       131.71     73.17      
+
+111        21.00      CACC1           TypeCACC        1to2_0       138.27     6.60       -5.00      -1.00      -1.00      
+111        21.00      CACC2           TypeCACC        1to2_0       1.10       2.00       2.00       132.17     66.09      
+
+112        21.10      CACC1           TypeCACC        1to2_0       138.88     6.10       -5.00      -1.00      -1.00      
+112        21.10      CACC2           TypeCACC        1to2_0       1.32       2.20       2.00       132.56     60.25      
+
+113        21.20      CACC1           TypeCACC        1to2_0       139.44     5.60       -5.00      -1.00      -1.00      
+113        21.20      CACC2           TypeCACC        1to2_0       1.56       2.40       2.00       132.88     55.37      
+
+114        21.30      CACC1           TypeCACC        1to2_0       139.95     5.10       -5.00      -1.00      -1.00      
+114        21.30      CACC2           TypeCACC        1to2_0       1.82       2.60       2.00       133.13     51.20      
+
+115        21.40      CACC1           TypeCACC        1to2_0       140.41     4.60       -5.00      -1.00      -1.00      
+115        21.40      CACC2           TypeCACC        1to2_0       2.10       2.80       2.00       133.31     47.61      
+
+116        21.50      CACC1           TypeCACC        1to2_0       140.82     4.10       -5.00      -1.00      -1.00      
+116        21.50      CACC2           TypeCACC        1to2_0       2.40       3.00       2.00       133.42     44.47      
+
+117        21.60      CACC1           TypeCACC        1to2_0       141.18     3.60       -5.00      -1.00      -1.00      
+117        21.60      CACC2           TypeCACC        1to2_0       2.72       3.20       2.00       133.46     41.71      
+
+118        21.70      CACC1           TypeCACC        1to2_0       141.49     3.10       -5.00      -1.00      -1.00      
+118        21.70      CACC2           TypeCACC        1to2_0       3.06       3.40       2.00       133.43     39.24      
+
+119        21.80      CACC1           TypeCACC        1to2_0       141.75     2.60       -5.00      -1.00      -1.00      
+119        21.80      CACC2           TypeCACC        1to2_0       3.42       3.60       2.00       133.33     37.04      
+
+120        21.90      CACC1           TypeCACC        1to2_0       141.96     2.10       -5.00      -1.00      -1.00      
+120        21.90      CACC2           TypeCACC        1to2_0       3.80       3.80       2.00       133.16     35.04      
+
+121        22.00      CACC1           TypeCACC        1to2_0       142.12     1.60       -5.00      -1.00      -1.00      
+121        22.00      CACC2           TypeCACC        1to2_0       4.20       4.00       2.00       132.92     33.23      
+
+122        22.10      CACC1           TypeCACC        1to2_0       142.23     1.10       -5.00      -1.00      -1.00      
+122        22.10      CACC2           TypeCACC        1to2_0       4.62       4.20       2.00       132.61     31.57      
+
+123        22.20      CACC1           TypeCACC        1to2_0       142.29     0.60       -5.00      -1.00      -1.00      
+123        22.20      CACC2           TypeCACC        1to2_0       5.06       4.40       2.00       132.23     30.05      
+
+124        22.30      CACC1           TypeCACC        1to2_0       142.30     0.10       -5.00      -1.00      -1.00      
+124        22.30      CACC2           TypeCACC        1to2_0       5.52       4.60       2.00       131.78     28.65      
+
+125        22.40      CACC1           TypeCACC        1to2_0       142.30     0.00       -1.00      -1.00      -1.00      
+125        22.40      CACC2           TypeCACC        1to2_0       6.00       4.80       2.00       131.30     27.35      
+
+126        22.50      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+126        22.50      CACC2           TypeCACC        1to2_0       6.50       5.00       2.00       130.80     26.16      
+
+127        22.60      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+127        22.60      CACC2           TypeCACC        1to2_0       7.02       5.20       2.00       130.28     25.05      
+
+128        22.70      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+128        22.70      CACC2           TypeCACC        1to2_0       7.56       5.40       2.00       129.74     24.03      
+
+129        22.80      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+129        22.80      CACC2           TypeCACC        1to2_0       8.12       5.60       2.00       129.18     23.07      
+
+130        22.90      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+130        22.90      CACC2           TypeCACC        1to2_0       8.70       5.80       2.00       128.60     22.17      
+
+131        23.00      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+131        23.00      CACC2           TypeCACC        1to2_0       9.30       6.00       2.00       128.00     21.33      
+
+132        23.10      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+132        23.10      CACC2           TypeCACC        1to2_0       9.92       6.20       2.00       127.38     20.55      
+
+133        23.20      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+133        23.20      CACC2           TypeCACC        1to2_0       10.56      6.40       2.00       126.74     19.80      
+
+134        23.30      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+134        23.30      CACC2           TypeCACC        1to2_0       11.22      6.60       2.00       126.08     19.10      
+
+135        23.40      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+135        23.40      CACC2           TypeCACC        1to2_0       11.90      6.80       2.00       125.40     18.44      
+
+136        23.50      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+136        23.50      CACC2           TypeCACC        1to2_0       12.60      7.00       2.00       124.70     17.81      
+
+137        23.60      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+137        23.60      CACC2           TypeCACC        1to2_0       13.32      7.20       2.00       123.98     17.22      
+
+138        23.70      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+138        23.70      CACC2           TypeCACC        1to2_0       14.06      7.40       2.00       123.24     16.65      
+
+139        23.80      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+139        23.80      CACC2           TypeCACC        1to2_0       14.82      7.60       2.00       122.48     16.12      
+
+140        23.90      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+140        23.90      CACC2           TypeCACC        1to2_0       15.60      7.80       2.00       121.70     15.60      
+
+141        24.00      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+141        24.00      CACC2           TypeCACC        1to2_0       16.40      8.00       2.00       120.90     15.11      
+
+142        24.10      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+142        24.10      CACC2           TypeCACC        1to2_0       17.22      8.20       2.00       120.08     14.64      
+
+143        24.20      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+143        24.20      CACC2           TypeCACC        1to2_0       18.06      8.40       2.00       119.24     14.20      
+
+144        24.30      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+144        24.30      CACC2           TypeCACC        1to2_0       18.92      8.60       2.00       118.38     13.77      
+
+145        24.40      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+145        24.40      CACC2           TypeCACC        1to2_0       19.80      8.80       2.00       117.50     13.35      
+
+146        24.50      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+146        24.50      CACC2           TypeCACC        1to2_0       20.70      9.00       2.00       116.60     12.96      
+
+147        24.60      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+147        24.60      CACC2           TypeCACC        1to2_0       21.62      9.20       2.00       115.68     12.57      
+
+148        24.70      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+148        24.70      CACC2           TypeCACC        1to2_0       22.56      9.40       2.00       114.74     12.21      
+
+149        24.80      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+149        24.80      CACC2           TypeCACC        1to2_0       23.52      9.60       2.00       113.78     11.85      
+
+150        24.90      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+150        24.90      CACC2           TypeCACC        1to2_0       24.50      9.80       2.00       112.80     11.51      
+
+151        25.00      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+151        25.00      CACC2           TypeCACC        1to2_0       25.50      10.00      2.00       111.80     11.18      
+
+152        25.10      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+152        25.10      CACC2           TypeCACC        1to2_0       26.52      10.20      2.00       110.78     10.86      
+
+153        25.20      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+153        25.20      CACC2           TypeCACC        1to2_0       27.56      10.40      2.00       109.74     10.55      
+
+154        25.30      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+154        25.30      CACC2           TypeCACC        1to2_0       28.62      10.60      2.00       108.68     10.25      
+
+155        25.40      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+155        25.40      CACC2           TypeCACC        1to2_0       29.70      10.80      2.00       107.60     9.96       
+
+156        25.50      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+156        25.50      CACC2           TypeCACC        1to2_0       30.80      11.00      2.00       106.50     9.68       
+
+157        25.60      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+157        25.60      CACC2           TypeCACC        1to2_0       31.92      11.20      2.00       105.38     9.41       
+
+158        25.70      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+158        25.70      CACC2           TypeCACC        1to2_0       33.06      11.40      2.00       104.24     9.14       
+
+159        25.80      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+159        25.80      CACC2           TypeCACC        1to2_0       34.22      11.60      2.00       103.08     8.89       
+
+160        25.90      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+160        25.90      CACC2           TypeCACC        1to2_0       35.40      11.80      2.00       101.90     8.64       
+
+161        26.00      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+161        26.00      CACC2           TypeCACC        1to2_0       36.60      12.00      2.00       100.70     8.39       
+
+162        26.10      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+162        26.10      CACC2           TypeCACC        1to2_0       37.82      12.20      2.00       99.48      8.15       
+
+163        26.20      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+163        26.20      CACC2           TypeCACC        1to2_0       39.06      12.40      2.00       98.24      7.92       
+
+164        26.30      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+164        26.30      CACC2           TypeCACC        1to2_0       40.32      12.60      2.00       96.98      7.70       
+
+165        26.40      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+165        26.40      CACC2           TypeCACC        1to2_0       41.60      12.80      2.00       95.70      7.48       
+
+166        26.50      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+166        26.50      CACC2           TypeCACC        1to2_0       42.90      13.00      2.00       94.40      7.26       
+
+167        26.60      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+167        26.60      CACC2           TypeCACC        1to2_0       44.22      13.20      2.00       93.08      7.05       
+
+168        26.70      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+168        26.70      CACC2           TypeCACC        1to2_0       45.56      13.40      2.00       91.74      6.85       
+
+169        26.80      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+169        26.80      CACC2           TypeCACC        1to2_0       46.92      13.60      2.00       90.38      6.65       
+
+170        26.90      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+170        26.90      CACC2           TypeCACC        1to2_0       48.30      13.80      2.00       89.00      6.45       
+
+171        27.00      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+171        27.00      CACC2           TypeCACC        1to2_0       49.70      14.00      2.00       87.60      6.26       
+
+172        27.10      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+172        27.10      CACC2           TypeCACC        1to2_0       51.12      14.20      2.00       86.18      6.07       
+
+173        27.20      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+173        27.20      CACC2           TypeCACC        1to2_0       52.56      14.40      2.00       84.74      5.88       
+
+174        27.30      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+174        27.30      CACC2           TypeCACC        1to2_0       54.02      14.60      2.00       83.28      5.70       
+
+175        27.40      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+175        27.40      CACC2           TypeCACC        1to2_0       55.50      14.80      2.00       81.80      5.53       
+
+176        27.50      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+176        27.50      CACC2           TypeCACC        1to2_0       57.00      15.00      2.00       80.30      5.35       
+
+177        27.60      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+177        27.60      CACC2           TypeCACC        1to2_0       58.52      15.20      2.00       78.78      5.18       
+
+178        27.70      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+178        27.70      CACC2           TypeCACC        1to2_0       60.06      15.40      2.00       77.24      5.02       
+
+179        27.80      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+179        27.80      CACC2           TypeCACC        1to2_0       61.62      15.60      2.00       75.68      4.85       
+
+180        27.90      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+180        27.90      CACC2           TypeCACC        1to2_0       63.20      15.80      2.00       74.10      4.69       
+
+181        28.00      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+181        28.00      CACC2           TypeCACC        1to2_0       64.80      16.00      2.00       72.50      4.53       
+
+182        28.10      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+182        28.10      CACC2           TypeCACC        1to2_0       66.42      16.20      2.00       70.88      4.38       
+
+183        28.20      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+183        28.20      CACC2           TypeCACC        1to2_0       68.06      16.40      2.00       69.24      4.22       
+
+184        28.30      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+184        28.30      CACC2           TypeCACC        1to2_0       69.72      16.60      2.00       67.58      4.07       
+
+185        28.40      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+185        28.40      CACC2           TypeCACC        1to2_0       71.40      16.80      2.00       65.90      3.92       
+
+186        28.50      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+186        28.50      CACC2           TypeCACC        1to2_0       73.10      17.00      2.00       64.20      3.78       
+
+187        28.60      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+187        28.60      CACC2           TypeCACC        1to2_0       74.82      17.20      2.00       62.48      3.63       
+
+188        28.70      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+188        28.70      CACC2           TypeCACC        1to2_0       76.56      17.40      2.00       60.74      3.49       
+
+189        28.80      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+189        28.80      CACC2           TypeCACC        1to2_0       78.32      17.60      2.00       58.98      3.35       
+
+190        28.90      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+190        28.90      CACC2           TypeCACC        1to2_0       80.10      17.80      2.00       57.20      3.21       
+
+191        29.00      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+191        29.00      CACC2           TypeCACC        1to2_0       81.90      18.00      2.00       55.40      3.08       
+
+192        29.10      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+192        29.10      CACC2           TypeCACC        1to2_0       83.72      18.20      2.00       53.58      2.94       
+
+193        29.20      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+193        29.20      CACC2           TypeCACC        1to2_0       85.56      18.40      2.00       51.74      2.81       
+
+194        29.30      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+194        29.30      CACC2           TypeCACC        1to2_0       87.42      18.60      2.00       49.88      2.68       
+
+195        29.40      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+195        29.40      CACC2           TypeCACC        1to2_0       89.30      18.80      2.00       48.00      2.55       
+
+196        29.50      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+196        29.50      CACC2           TypeCACC        1to2_0       91.20      19.00      2.00       46.10      2.43       
+
+197        29.60      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+197        29.60      CACC2           TypeCACC        1to2_0       93.12      19.20      2.00       44.18      2.30       
+
+198        29.70      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+198        29.70      CACC2           TypeCACC        1to2_0       95.06      19.40      2.00       42.24      2.18       
+
+199        29.80      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+199        29.80      CACC2           TypeCACC        1to2_0       96.95      18.90      -5.00      40.35      2.13       
+
+200        29.90      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+200        29.90      CACC2           TypeCACC        1to2_0       98.79      18.40      -5.00      38.51      2.09       
+
+201        30.00      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+201        30.00      CACC2           TypeCACC        1to2_0       100.58     17.90      -5.00      36.72      2.05       
+201        30.00      CACC3           TypeCACC        1to2_0       0.00       0.00       0.00       95.58      -1.00      
+
+202        30.10      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+202        30.10      CACC2           TypeCACC        1to2_0       102.32     17.40      -5.00      34.98      2.01       
+202        30.10      CACC3           TypeCACC        1to2_0       0.02       0.20       2.00       97.30      486.50     
+
+203        30.20      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+203        30.20      CACC2           TypeCACC        1to2_0       104.01     16.90      -5.00      33.29      1.97       
+203        30.20      CACC3           TypeCACC        1to2_0       0.06       0.40       2.00       98.95      247.38     
+
+204        30.30      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+204        30.30      CACC2           TypeCACC        1to2_0       105.68     16.66      -2.44      31.62      1.90       
+204        30.30      CACC3           TypeCACC        1to2_0       0.12       0.60       2.00       100.56     167.59     
+
+205        30.40      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+205        30.40      CACC2           TypeCACC        1to2_0       107.29     16.16      -5.00      30.01      1.86       
+205        30.40      CACC3           TypeCACC        1to2_0       0.20       0.80       2.00       102.09     127.61     
+
+206        30.50      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+206        30.50      CACC2           TypeCACC        1to2_0       108.86     15.66      -5.00      28.44      1.82       
+206        30.50      CACC3           TypeCACC        1to2_0       0.30       1.00       2.00       103.56     103.56     
+
+207        30.60      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+207        30.60      CACC2           TypeCACC        1to2_0       110.37     15.16      -5.00      26.93      1.78       
+207        30.60      CACC3           TypeCACC        1to2_0       0.42       1.20       2.00       104.95     87.46      
+
+208        30.70      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+208        30.70      CACC2           TypeCACC        1to2_0       111.84     14.66      -5.00      25.46      1.74       
+208        30.70      CACC3           TypeCACC        1to2_0       0.56       1.40       2.00       106.28     75.91      
+
+209        30.80      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+209        30.80      CACC2           TypeCACC        1to2_0       113.25     14.16      -5.00      24.05      1.70       
+209        30.80      CACC3           TypeCACC        1to2_0       0.72       1.60       2.00       107.53     67.21      
+
+210        30.90      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+210        30.90      CACC2           TypeCACC        1to2_0       114.62     13.66      -5.00      22.68      1.66       
+210        30.90      CACC3           TypeCACC        1to2_0       0.90       1.80       2.00       108.72     60.40      
+
+211        31.00      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+211        31.00      CACC2           TypeCACC        1to2_0       115.93     13.16      -5.00      21.37      1.62       
+211        31.00      CACC3           TypeCACC        1to2_0       1.10       2.00       2.00       109.83     54.92      
+
+212        31.10      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+212        31.10      CACC2           TypeCACC        1to2_0       117.20     12.66      -5.00      20.10      1.59       
+212        31.10      CACC3           TypeCACC        1to2_0       1.32       2.20       2.00       110.88     50.40      
+
+213        31.20      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+213        31.20      CACC2           TypeCACC        1to2_0       118.42     12.16      -5.00      18.88      1.55       
+213        31.20      CACC3           TypeCACC        1to2_0       1.56       2.40       2.00       111.86     46.61      
+
+214        31.30      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+214        31.30      CACC2           TypeCACC        1to2_0       119.58     11.66      -5.00      17.72      1.52       
+214        31.30      CACC3           TypeCACC        1to2_0       1.82       2.60       2.00       112.76     43.37      
+
+215        31.40      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+215        31.40      CACC2           TypeCACC        1to2_0       120.70     11.16      -5.00      16.60      1.49       
+215        31.40      CACC3           TypeCACC        1to2_0       2.10       2.80       2.00       113.60     40.57      
+
+216        31.50      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+216        31.50      CACC2           TypeCACC        1to2_0       121.79     10.97      -1.87      15.51      1.41       
+216        31.50      CACC3           TypeCACC        1to2_0       2.40       3.00       2.00       114.39     38.13      
+
+217        31.60      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+217        31.60      CACC2           TypeCACC        1to2_0       122.84     10.47      -5.00      14.46      1.38       
+217        31.60      CACC3           TypeCACC        1to2_0       2.72       3.20       2.00       115.12     35.98      
+
+218        31.70      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+218        31.70      CACC2           TypeCACC        1to2_0       123.84     9.97       -5.00      13.46      1.35       
+218        31.70      CACC3           TypeCACC        1to2_0       3.06       3.40       2.00       115.78     34.05      
+
+219        31.80      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+219        31.80      CACC2           TypeCACC        1to2_0       124.78     9.47       -5.00      12.52      1.32       
+219        31.80      CACC3           TypeCACC        1to2_0       3.42       3.60       2.00       116.36     32.32      
+
+220        31.90      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+220        31.90      CACC2           TypeCACC        1to2_0       125.68     8.97       -5.00      11.62      1.30       
+220        31.90      CACC3           TypeCACC        1to2_0       3.80       3.80       2.00       116.88     30.76      
+
+221        32.00      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+221        32.00      CACC2           TypeCACC        1to2_0       126.53     8.47       -5.00      10.77      1.27       
+221        32.00      CACC3           TypeCACC        1to2_0       4.20       4.00       2.00       117.33     29.33      
+
+222        32.10      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+222        32.10      CACC2           TypeCACC        1to2_0       127.33     7.97       -5.00      9.97       1.25       
+222        32.10      CACC3           TypeCACC        1to2_0       4.62       4.20       2.00       117.71     28.03      
+
+223        32.20      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+223        32.20      CACC2           TypeCACC        1to2_0       128.07     7.47       -5.00      9.23       1.24       
+223        32.20      CACC3           TypeCACC        1to2_0       5.06       4.40       2.00       118.01     26.82      
+
+224        32.30      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+224        32.30      CACC2           TypeCACC        1to2_0       128.77     6.97       -5.00      8.53       1.22       
+224        32.30      CACC3           TypeCACC        1to2_0       5.52       4.60       2.00       118.25     25.71      
+
+225        32.40      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+225        32.40      CACC2           TypeCACC        1to2_0       129.42     6.47       -5.00      7.88       1.22       
+225        32.40      CACC3           TypeCACC        1to2_0       6.00       4.80       2.00       118.42     24.67      
+
+226        32.50      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+226        32.50      CACC2           TypeCACC        1to2_0       130.03     6.17       -3.00      7.27       1.18       
+226        32.50      CACC3           TypeCACC        1to2_0       6.50       5.00       2.00       118.53     23.71      
+
+227        32.60      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+227        32.60      CACC2           TypeCACC        1to2_0       130.60     5.67       -5.00      6.70       1.18       
+227        32.60      CACC3           TypeCACC        1to2_0       7.02       5.20       2.00       118.58     22.80      
+
+228        32.70      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+228        32.70      CACC2           TypeCACC        1to2_0       131.12     5.17       -5.00      6.18       1.20       
+228        32.70      CACC3           TypeCACC        1to2_0       7.56       5.40       2.00       118.56     21.95      
+
+229        32.80      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+229        32.80      CACC2           TypeCACC        1to2_0       131.58     4.67       -5.00      5.72       1.22       
+229        32.80      CACC3           TypeCACC        1to2_0       8.12       5.60       2.00       118.46     21.15      
+
+230        32.90      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+230        32.90      CACC2           TypeCACC        1to2_0       132.02     4.37       -3.00      5.28       1.21       
+230        32.90      CACC3           TypeCACC        1to2_0       8.70       5.80       2.00       118.32     20.40      
+
+231        33.00      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+231        33.00      CACC2           TypeCACC        1to2_0       132.41     3.87       -5.00      4.89       1.26       
+231        33.00      CACC3           TypeCACC        1to2_0       9.30       6.00       2.00       118.11     19.68      
+
+232        33.10      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+232        33.10      CACC2           TypeCACC        1to2_0       132.77     3.57       -3.00      4.53       1.27       
+232        33.10      CACC3           TypeCACC        1to2_0       9.92       6.20       2.00       117.84     19.01      
+
+233        33.20      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+233        33.20      CACC2           TypeCACC        1to2_0       133.07     3.07       -5.00      4.23       1.38       
+233        33.20      CACC3           TypeCACC        1to2_0       10.56      6.40       2.00       117.51     18.36      
+
+234        33.30      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+234        33.30      CACC2           TypeCACC        1to2_0       133.33     2.57       -5.00      3.97       1.55       
+234        33.30      CACC3           TypeCACC        1to2_0       11.22      6.60       2.00       117.11     17.74      
+
+235        33.40      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+235        33.40      CACC2           TypeCACC        1to2_0       133.56     2.27       -3.00      3.74       1.65       
+235        33.40      CACC3           TypeCACC        1to2_0       11.90      6.80       2.00       116.66     17.16      
+
+236        33.50      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+236        33.50      CACC2           TypeCACC        1to2_0       133.75     1.97       -3.00      3.55       1.80       
+236        33.50      CACC3           TypeCACC        1to2_0       12.60      7.00       2.00       116.15     16.59      
+
+237        33.60      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+237        33.60      CACC2           TypeCACC        1to2_0       133.90     1.47       -5.00      3.40       2.31       
+237        33.60      CACC3           TypeCACC        1to2_0       13.32      7.20       2.00       115.58     16.05      
+
+238        33.70      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+238        33.70      CACC2           TypeCACC        1to2_0       134.02     1.17       -3.00      3.28       2.81       
+238        33.70      CACC3           TypeCACC        1to2_0       14.06      7.40       2.00       114.96     15.53      
+
+239        33.80      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+239        33.80      CACC2           TypeCACC        1to2_0       134.10     0.87       -3.00      3.20       3.68       
+239        33.80      CACC3           TypeCACC        1to2_0       14.82      7.60       2.00       114.28     15.04      
+
+240        33.90      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+240        33.90      CACC2           TypeCACC        1to2_0       134.16     0.57       -3.00      3.14       5.51       
+240        33.90      CACC3           TypeCACC        1to2_0       15.60      7.80       2.00       113.56     14.56      
+
+241        34.00      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+241        34.00      CACC2           TypeCACC        1to2_0       134.19     0.27       -3.00      3.11       11.55      
+241        34.00      CACC3           TypeCACC        1to2_0       16.40      8.00       2.00       112.79     14.10      
+
+242        34.10      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+242        34.10      CACC2           TypeCACC        1to2_0       134.19     0.00       -2.69      3.11       -1.00      
+242        34.10      CACC3           TypeCACC        1to2_0       17.22      8.20       2.00       111.97     13.65      
+
+243        34.20      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+243        34.20      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+243        34.20      CACC3           TypeCACC        1to2_0       18.06      8.40       2.00       111.13     13.23      
+
+244        34.30      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+244        34.30      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+244        34.30      CACC3           TypeCACC        1to2_0       18.92      8.60       2.00       110.27     12.82      
+
+245        34.40      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+245        34.40      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+245        34.40      CACC3           TypeCACC        1to2_0       19.80      8.80       2.00       109.39     12.43      
+
+246        34.50      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+246        34.50      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+246        34.50      CACC3           TypeCACC        1to2_0       20.70      9.00       2.00       108.49     12.05      
+
+247        34.60      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+247        34.60      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+247        34.60      CACC3           TypeCACC        1to2_0       21.62      9.20       2.00       107.57     11.69      
+
+248        34.70      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+248        34.70      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+248        34.70      CACC3           TypeCACC        1to2_0       22.56      9.40       2.00       106.63     11.34      
+
+249        34.80      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+249        34.80      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+249        34.80      CACC3           TypeCACC        1to2_0       23.52      9.60       2.00       105.67     11.01      
+
+250        34.90      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+250        34.90      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+250        34.90      CACC3           TypeCACC        1to2_0       24.50      9.80       2.00       104.69     10.68      
+
+251        35.00      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+251        35.00      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+251        35.00      CACC3           TypeCACC        1to2_0       25.50      10.00      2.00       103.69     10.37      
+
+252        35.10      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+252        35.10      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+252        35.10      CACC3           TypeCACC        1to2_0       26.52      10.20      2.00       102.67     10.07      
+
+253        35.20      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+253        35.20      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+253        35.20      CACC3           TypeCACC        1to2_0       27.56      10.40      2.00       101.63     9.77       
+
+254        35.30      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+254        35.30      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+254        35.30      CACC3           TypeCACC        1to2_0       28.62      10.60      2.00       100.57     9.49       
+
+255        35.40      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+255        35.40      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+255        35.40      CACC3           TypeCACC        1to2_0       29.70      10.80      2.00       99.49      9.21       
+
+256        35.50      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+256        35.50      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+256        35.50      CACC3           TypeCACC        1to2_0       30.80      11.00      2.00       98.39      8.94       
+
+257        35.60      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+257        35.60      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+257        35.60      CACC3           TypeCACC        1to2_0       31.92      11.20      2.00       97.27      8.68       
+
+258        35.70      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+258        35.70      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+258        35.70      CACC3           TypeCACC        1to2_0       33.06      11.40      2.00       96.13      8.43       
+
+259        35.80      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+259        35.80      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+259        35.80      CACC3           TypeCACC        1to2_0       34.22      11.60      2.00       94.97      8.19       
+
+260        35.90      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+260        35.90      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+260        35.90      CACC3           TypeCACC        1to2_0       35.40      11.80      2.00       93.79      7.95       
+
+261        36.00      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+261        36.00      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+261        36.00      CACC3           TypeCACC        1to2_0       36.60      12.00      2.00       92.59      7.72       
+
+262        36.10      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+262        36.10      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+262        36.10      CACC3           TypeCACC        1to2_0       37.82      12.20      2.00       91.37      7.49       
+
+263        36.20      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+263        36.20      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+263        36.20      CACC3           TypeCACC        1to2_0       39.06      12.40      2.00       90.13      7.27       
+
+264        36.30      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+264        36.30      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+264        36.30      CACC3           TypeCACC        1to2_0       40.32      12.60      2.00       88.87      7.05       
+
+265        36.40      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+265        36.40      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+265        36.40      CACC3           TypeCACC        1to2_0       41.60      12.80      2.00       87.59      6.84       
+
+266        36.50      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+266        36.50      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+266        36.50      CACC3           TypeCACC        1to2_0       42.90      13.00      2.00       86.29      6.64       
+
+267        36.60      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+267        36.60      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+267        36.60      CACC3           TypeCACC        1to2_0       44.22      13.20      2.00       84.97      6.44       
+
+268        36.70      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+268        36.70      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+268        36.70      CACC3           TypeCACC        1to2_0       45.56      13.40      2.00       83.63      6.24       
+
+269        36.80      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+269        36.80      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+269        36.80      CACC3           TypeCACC        1to2_0       46.92      13.60      2.00       82.27      6.05       
+
+270        36.90      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+270        36.90      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+270        36.90      CACC3           TypeCACC        1to2_0       48.30      13.80      2.00       80.89      5.86       
+
+271        37.00      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+271        37.00      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+271        37.00      CACC3           TypeCACC        1to2_0       49.70      14.00      2.00       79.49      5.68       
+
+272        37.10      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+272        37.10      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+272        37.10      CACC3           TypeCACC        1to2_0       51.12      14.20      2.00       78.07      5.50       
+
+273        37.20      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+273        37.20      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+273        37.20      CACC3           TypeCACC        1to2_0       52.56      14.40      2.00       76.63      5.32       
+
+274        37.30      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+274        37.30      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+274        37.30      CACC3           TypeCACC        1to2_0       54.02      14.60      2.00       75.17      5.15       
+
+275        37.40      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+275        37.40      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+275        37.40      CACC3           TypeCACC        1to2_0       55.50      14.80      2.00       73.69      4.98       
+
+276        37.50      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+276        37.50      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+276        37.50      CACC3           TypeCACC        1to2_0       57.00      15.00      2.00       72.19      4.81       
+
+277        37.60      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+277        37.60      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+277        37.60      CACC3           TypeCACC        1to2_0       58.52      15.20      2.00       70.67      4.65       
+
+278        37.70      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+278        37.70      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+278        37.70      CACC3           TypeCACC        1to2_0       60.06      15.40      2.00       69.13      4.49       
+
+279        37.80      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+279        37.80      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+279        37.80      CACC3           TypeCACC        1to2_0       61.62      15.60      2.00       67.57      4.33       
+
+280        37.90      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+280        37.90      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+280        37.90      CACC3           TypeCACC        1to2_0       63.20      15.80      2.00       65.99      4.18       
+
+281        38.00      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+281        38.00      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+281        38.00      CACC3           TypeCACC        1to2_0       64.80      16.00      2.00       64.39      4.02       
+
+282        38.10      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+282        38.10      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+282        38.10      CACC3           TypeCACC        1to2_0       66.42      16.20      2.00       62.77      3.87       
+
+283        38.20      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+283        38.20      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+283        38.20      CACC3           TypeCACC        1to2_0       68.06      16.40      2.00       61.13      3.73       
+
+284        38.30      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+284        38.30      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+284        38.30      CACC3           TypeCACC        1to2_0       69.72      16.60      2.00       59.47      3.58       
+
+285        38.40      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+285        38.40      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+285        38.40      CACC3           TypeCACC        1to2_0       71.40      16.80      2.00       57.79      3.44       
+
+286        38.50      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+286        38.50      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+286        38.50      CACC3           TypeCACC        1to2_0       73.10      17.00      2.00       56.09      3.30       
+
+287        38.60      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+287        38.60      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+287        38.60      CACC3           TypeCACC        1to2_0       74.82      17.20      2.00       54.37      3.16       
+
+288        38.70      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+288        38.70      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+288        38.70      CACC3           TypeCACC        1to2_0       76.56      17.40      2.00       52.63      3.02       
+
+289        38.80      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+289        38.80      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+289        38.80      CACC3           TypeCACC        1to2_0       78.32      17.60      2.00       50.87      2.89       
+
+290        38.90      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+290        38.90      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+290        38.90      CACC3           TypeCACC        1to2_0       80.10      17.80      2.00       49.09      2.76       
+
+291        39.00      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+291        39.00      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+291        39.00      CACC3           TypeCACC        1to2_0       81.90      18.00      2.00       47.29      2.63       
+
+292        39.10      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+292        39.10      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+292        39.10      CACC3           TypeCACC        1to2_0       83.72      18.20      2.00       45.47      2.50       
+
+293        39.20      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+293        39.20      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+293        39.20      CACC3           TypeCACC        1to2_0       85.56      18.40      2.00       43.63      2.37       
+
+294        39.30      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+294        39.30      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+294        39.30      CACC3           TypeCACC        1to2_0       87.42      18.60      2.00       41.77      2.25       
+
+295        39.40      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+295        39.40      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+295        39.40      CACC3           TypeCACC        1to2_0       89.30      18.80      2.00       39.89      2.12       
+
+296        39.50      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+296        39.50      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+296        39.50      CACC3           TypeCACC        1to2_0       91.13      18.30      -5.00      38.06      2.08       
+
+297        39.60      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+297        39.60      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+297        39.60      CACC3           TypeCACC        1to2_0       92.91      17.80      -5.00      36.28      2.04       
+
+298        39.70      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+298        39.70      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+298        39.70      CACC3           TypeCACC        1to2_0       94.64      17.30      -5.00      34.55      2.00       
+
+299        39.80      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+299        39.80      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+299        39.80      CACC3           TypeCACC        1to2_0       96.32      16.80      -5.00      32.87      1.96       
+
+300        39.90      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+300        39.90      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+300        39.90      CACC3           TypeCACC        1to2_0       97.95      16.30      -5.00      31.24      1.92       
+
+301        40.00      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+301        40.00      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+301        40.00      CACC3           TypeCACC        1to2_0       99.56      16.06      -2.38      29.63      1.84       
+301        40.00      CACC4           TypeCACC        1to2_0       0.00       0.00       0.00       94.56      -1.00      
+
+302        40.10      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+302        40.10      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+302        40.10      CACC3           TypeCACC        1to2_0       101.11     15.56      -5.00      28.08      1.80       
+302        40.10      CACC4           TypeCACC        1to2_0       0.02       0.20       2.00       96.09      480.46     
+
+303        40.20      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+303        40.20      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+303        40.20      CACC3           TypeCACC        1to2_0       102.62     15.06      -5.00      26.57      1.76       
+303        40.20      CACC4           TypeCACC        1to2_0       0.06       0.40       2.00       97.56      243.90     
+
+304        40.30      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+304        40.30      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+304        40.30      CACC3           TypeCACC        1to2_0       104.07     14.56      -5.00      25.11      1.72       
+304        40.30      CACC4           TypeCACC        1to2_0       0.12       0.60       2.00       98.95      164.92     
+
+305        40.40      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+305        40.40      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+305        40.40      CACC3           TypeCACC        1to2_0       105.48     14.06      -5.00      23.71      1.69       
+305        40.40      CACC4           TypeCACC        1to2_0       0.20       0.80       2.00       100.28     125.35     
+
+306        40.50      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+306        40.50      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+306        40.50      CACC3           TypeCACC        1to2_0       106.84     13.56      -5.00      22.35      1.65       
+306        40.50      CACC4           TypeCACC        1to2_0       0.30       1.00       2.00       101.54     101.54     
+
+307        40.60      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+307        40.60      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+307        40.60      CACC3           TypeCACC        1to2_0       108.14     13.06      -5.00      21.04      1.61       
+307        40.60      CACC4           TypeCACC        1to2_0       0.42       1.20       2.00       102.72     85.60      
+
+308        40.70      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+308        40.70      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+308        40.70      CACC3           TypeCACC        1to2_0       109.40     12.56      -5.00      19.79      1.58       
+308        40.70      CACC4           TypeCACC        1to2_0       0.56       1.40       2.00       103.84     74.17      
+
+309        40.80      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+309        40.80      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+309        40.80      CACC3           TypeCACC        1to2_0       110.61     12.06      -5.00      18.58      1.54       
+309        40.80      CACC4           TypeCACC        1to2_0       0.72       1.60       2.00       104.89     65.55      
+
+310        40.90      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+310        40.90      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+310        40.90      CACC3           TypeCACC        1to2_0       111.76     11.56      -5.00      17.43      1.51       
+310        40.90      CACC4           TypeCACC        1to2_0       0.90       1.80       2.00       105.86     58.81      
+
+311        41.00      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+311        41.00      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+311        41.00      CACC3           TypeCACC        1to2_0       112.87     11.06      -5.00      16.32      1.48       
+311        41.00      CACC4           TypeCACC        1to2_0       1.10       2.00       2.00       106.77     53.38      
+
+312        41.10      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+312        41.10      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+312        41.10      CACC3           TypeCACC        1to2_0       113.92     10.56      -5.00      15.26      1.45       
+312        41.10      CACC4           TypeCACC        1to2_0       1.32       2.20       2.00       107.60     48.91      
+
+313        41.20      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+313        41.20      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+313        41.20      CACC3           TypeCACC        1to2_0       114.96     10.32      -2.42      14.23      1.38       
+313        41.20      CACC4           TypeCACC        1to2_0       1.56       2.40       2.00       108.40     45.16      
+
+314        41.30      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+314        41.30      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+314        41.30      CACC3           TypeCACC        1to2_0       115.94     9.82       -5.00      13.25      1.35       
+314        41.30      CACC4           TypeCACC        1to2_0       1.82       2.60       2.00       109.12     41.97      
+
+315        41.40      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+315        41.40      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+315        41.40      CACC3           TypeCACC        1to2_0       116.87     9.32       -5.00      12.32      1.32       
+315        41.40      CACC4           TypeCACC        1to2_0       2.10       2.80       2.00       109.77     39.20      
+
+316        41.50      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+316        41.50      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+316        41.50      CACC3           TypeCACC        1to2_0       117.75     8.82       -5.00      11.44      1.30       
+316        41.50      CACC4           TypeCACC        1to2_0       2.40       3.00       2.00       110.35     36.78      
+
+317        41.60      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+317        41.60      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+317        41.60      CACC3           TypeCACC        1to2_0       118.58     8.32       -5.00      10.60      1.27       
+317        41.60      CACC4           TypeCACC        1to2_0       2.72       3.20       2.00       110.86     34.65      
+
+318        41.70      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+318        41.70      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+318        41.70      CACC3           TypeCACC        1to2_0       119.37     7.82       -5.00      9.82       1.26       
+318        41.70      CACC4           TypeCACC        1to2_0       3.06       3.40       2.00       111.31     32.74      
+
+319        41.80      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+319        41.80      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+319        41.80      CACC3           TypeCACC        1to2_0       120.10     7.32       -5.00      9.09       1.24       
+319        41.80      CACC4           TypeCACC        1to2_0       3.42       3.60       2.00       111.68     31.02      
+
+320        41.90      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+320        41.90      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+320        41.90      CACC3           TypeCACC        1to2_0       120.78     6.82       -5.00      8.41       1.23       
+320        41.90      CACC4           TypeCACC        1to2_0       3.80       3.80       2.00       111.98     29.47      
+
+321        42.00      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+321        42.00      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+321        42.00      CACC3           TypeCACC        1to2_0       121.43     6.52       -3.00      7.76       1.19       
+321        42.00      CACC4           TypeCACC        1to2_0       4.20       4.00       2.00       112.23     28.06      
+
+322        42.10      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+322        42.10      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+322        42.10      CACC3           TypeCACC        1to2_0       122.03     6.02       -5.00      7.15       1.19       
+322        42.10      CACC4           TypeCACC        1to2_0       4.62       4.20       2.00       112.42     26.77      
+
+323        42.20      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+323        42.20      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+323        42.20      CACC3           TypeCACC        1to2_0       122.59     5.52       -5.00      6.60       1.20       
+323        42.20      CACC4           TypeCACC        1to2_0       5.06       4.40       2.00       112.53     25.57      
+
+324        42.30      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+324        42.30      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+324        42.30      CACC3           TypeCACC        1to2_0       123.11     5.22       -3.00      6.08       1.16       
+324        42.30      CACC4           TypeCACC        1to2_0       5.52       4.60       2.00       112.59     24.48      
+
+325        42.40      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+325        42.40      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+325        42.40      CACC3           TypeCACC        1to2_0       123.58     4.72       -5.00      5.61       1.19       
+325        42.40      CACC4           TypeCACC        1to2_0       6.00       4.80       2.00       112.58     23.45      
+
+326        42.50      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+326        42.50      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+326        42.50      CACC3           TypeCACC        1to2_0       124.00     4.22       -5.00      5.18       1.23       
+326        42.50      CACC4           TypeCACC        1to2_0       6.50       5.00       2.00       112.50     22.50      
+
+327        42.60      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+327        42.60      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+327        42.60      CACC3           TypeCACC        1to2_0       124.37     3.72       -5.00      4.81       1.29       
+327        42.60      CACC4           TypeCACC        1to2_0       7.02       5.20       2.00       112.36     21.61      
+
+328        42.70      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+328        42.70      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+328        42.70      CACC3           TypeCACC        1to2_0       124.72     3.42       -3.00      4.47       1.31       
+328        42.70      CACC4           TypeCACC        1to2_0       7.56       5.40       2.00       112.16     20.77      
+
+329        42.80      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+329        42.80      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+329        42.80      CACC3           TypeCACC        1to2_0       125.01     2.92       -5.00      4.18       1.43       
+329        42.80      CACC4           TypeCACC        1to2_0       8.12       5.60       2.00       111.89     19.98      
+
+330        42.90      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+330        42.90      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+330        42.90      CACC3           TypeCACC        1to2_0       125.27     2.62       -3.00      3.92       1.49       
+330        42.90      CACC4           TypeCACC        1to2_0       8.70       5.80       2.00       111.57     19.24      
+
+331        43.00      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+331        43.00      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+331        43.00      CACC3           TypeCACC        1to2_0       125.48     2.12       -5.00      3.70       1.75       
+331        43.00      CACC4           TypeCACC        1to2_0       9.30       6.00       2.00       111.18     18.53      
+
+332        43.10      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+332        43.10      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+332        43.10      CACC3           TypeCACC        1to2_0       125.67     1.82       -3.00      3.52       1.94       
+332        43.10      CACC4           TypeCACC        1to2_0       9.92       6.20       2.00       110.75     17.86      
+
+333        43.20      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+333        43.20      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+333        43.20      CACC3           TypeCACC        1to2_0       125.82     1.52       -3.00      3.37       2.22       
+333        43.20      CACC4           TypeCACC        1to2_0       10.56      6.40       2.00       110.26     17.23      
+
+334        43.30      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+334        43.30      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+334        43.30      CACC3           TypeCACC        1to2_0       125.92     1.02       -5.00      3.27       3.20       
+334        43.30      CACC4           TypeCACC        1to2_0       11.22      6.60       2.00       109.70     16.62      
+
+335        43.40      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+335        43.40      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+335        43.40      CACC3           TypeCACC        1to2_0       125.99     0.72       -3.00      3.20       4.44       
+335        43.40      CACC4           TypeCACC        1to2_0       11.90      6.80       2.00       109.09     16.04      
+
+336        43.50      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+336        43.50      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+336        43.50      CACC3           TypeCACC        1to2_0       126.03     0.42       -3.00      3.15       7.51       
+336        43.50      CACC4           TypeCACC        1to2_0       12.60      7.00       2.00       108.43     15.49      
+
+337        43.60      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+337        43.60      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+337        43.60      CACC3           TypeCACC        1to2_0       126.05     0.12       -3.00      3.14       26.12      
+337        43.60      CACC4           TypeCACC        1to2_0       13.32      7.20       2.00       107.72     14.96      
+
+338        43.70      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+338        43.70      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+338        43.70      CACC3           TypeCACC        1to2_0       126.05     0.00       -1.20      3.14       -1.00      
+338        43.70      CACC4           TypeCACC        1to2_0       14.06      7.40       2.00       106.98     14.46      
+
+339        43.80      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+339        43.80      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+339        43.80      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+339        43.80      CACC4           TypeCACC        1to2_0       14.82      7.60       2.00       106.22     13.98      
+
+340        43.90      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+340        43.90      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+340        43.90      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+340        43.90      CACC4           TypeCACC        1to2_0       15.60      7.80       2.00       105.44     13.52      
+
+341        44.00      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+341        44.00      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+341        44.00      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+341        44.00      CACC4           TypeCACC        1to2_0       16.40      8.00       2.00       104.64     13.08      
+
+342        44.10      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+342        44.10      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+342        44.10      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+342        44.10      CACC4           TypeCACC        1to2_0       17.22      8.20       2.00       103.83     12.66      
+
+343        44.20      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+343        44.20      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+343        44.20      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+343        44.20      CACC4           TypeCACC        1to2_0       18.06      8.40       2.00       102.98     12.26      
+
+344        44.30      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+344        44.30      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+344        44.30      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+344        44.30      CACC4           TypeCACC        1to2_0       18.92      8.60       2.00       102.12     11.87      
+
+345        44.40      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+345        44.40      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+345        44.40      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+345        44.40      CACC4           TypeCACC        1to2_0       19.80      8.80       2.00       101.25     11.51      
+
+346        44.50      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+346        44.50      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+346        44.50      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+346        44.50      CACC4           TypeCACC        1to2_0       20.70      9.00       2.00       100.34     11.15      
+
+347        44.60      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+347        44.60      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+347        44.60      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+347        44.60      CACC4           TypeCACC        1to2_0       21.62      9.20       2.00       99.43      10.81      
+
+348        44.70      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+348        44.70      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+348        44.70      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+348        44.70      CACC4           TypeCACC        1to2_0       22.56      9.40       2.00       98.49      10.48      
+
+349        44.80      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+349        44.80      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+349        44.80      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+349        44.80      CACC4           TypeCACC        1to2_0       23.52      9.60       2.00       97.53      10.16      
+
+350        44.90      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+350        44.90      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+350        44.90      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+350        44.90      CACC4           TypeCACC        1to2_0       24.50      9.80       2.00       96.55      9.85       
+
+351        45.00      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+351        45.00      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+351        45.00      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+351        45.00      CACC4           TypeCACC        1to2_0       25.50      10.00      2.00       95.55      9.55       
+
+352        45.10      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+352        45.10      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+352        45.10      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+352        45.10      CACC4           TypeCACC        1to2_0       26.52      10.20      2.00       94.53      9.27       
+
+353        45.20      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+353        45.20      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+353        45.20      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+353        45.20      CACC4           TypeCACC        1to2_0       27.56      10.40      2.00       93.49      8.99       
+
+354        45.30      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+354        45.30      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+354        45.30      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+354        45.30      CACC4           TypeCACC        1to2_0       28.62      10.60      2.00       92.43      8.72       
+
+355        45.40      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+355        45.40      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+355        45.40      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+355        45.40      CACC4           TypeCACC        1to2_0       29.70      10.80      2.00       91.35      8.46       
+
+356        45.50      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+356        45.50      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+356        45.50      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+356        45.50      CACC4           TypeCACC        1to2_0       30.80      11.00      2.00       90.25      8.20       
+
+357        45.60      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+357        45.60      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+357        45.60      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+357        45.60      CACC4           TypeCACC        1to2_0       31.92      11.20      2.00       89.13      7.96       
+
+358        45.70      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+358        45.70      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+358        45.70      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+358        45.70      CACC4           TypeCACC        1to2_0       33.06      11.40      2.00       87.99      7.72       
+
+359        45.80      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+359        45.80      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+359        45.80      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+359        45.80      CACC4           TypeCACC        1to2_0       34.22      11.60      2.00       86.83      7.48       
+
+360        45.90      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+360        45.90      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+360        45.90      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+360        45.90      CACC4           TypeCACC        1to2_0       35.40      11.80      2.00       85.65      7.26       
+
+361        46.00      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+361        46.00      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+361        46.00      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+361        46.00      CACC4           TypeCACC        1to2_0       36.60      12.00      2.00       84.45      7.04       
+
+362        46.10      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+362        46.10      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+362        46.10      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+362        46.10      CACC4           TypeCACC        1to2_0       37.82      12.20      2.00       83.23      6.82       
+
+363        46.20      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+363        46.20      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+363        46.20      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+363        46.20      CACC4           TypeCACC        1to2_0       39.06      12.40      2.00       81.99      6.61       
+
+364        46.30      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+364        46.30      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+364        46.30      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+364        46.30      CACC4           TypeCACC        1to2_0       40.32      12.60      2.00       80.73      6.41       
+
+365        46.40      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+365        46.40      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+365        46.40      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+365        46.40      CACC4           TypeCACC        1to2_0       41.60      12.80      2.00       79.45      6.21       
+
+366        46.50      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+366        46.50      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+366        46.50      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+366        46.50      CACC4           TypeCACC        1to2_0       42.90      13.00      2.00       78.15      6.01       
+
+367        46.60      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+367        46.60      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+367        46.60      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+367        46.60      CACC4           TypeCACC        1to2_0       44.22      13.20      2.00       76.83      5.82       
+
+368        46.70      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+368        46.70      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+368        46.70      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+368        46.70      CACC4           TypeCACC        1to2_0       45.56      13.40      2.00       75.49      5.63       
+
+369        46.80      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+369        46.80      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+369        46.80      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+369        46.80      CACC4           TypeCACC        1to2_0       46.92      13.60      2.00       74.13      5.45       
+
+370        46.90      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+370        46.90      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+370        46.90      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+370        46.90      CACC4           TypeCACC        1to2_0       48.30      13.80      2.00       72.75      5.27       
+
+371        47.00      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+371        47.00      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+371        47.00      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+371        47.00      CACC4           TypeCACC        1to2_0       49.70      14.00      2.00       71.35      5.10       
+
+372        47.10      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+372        47.10      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+372        47.10      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+372        47.10      CACC4           TypeCACC        1to2_0       51.12      14.20      2.00       69.93      4.92       
+
+373        47.20      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+373        47.20      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+373        47.20      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+373        47.20      CACC4           TypeCACC        1to2_0       52.56      14.40      2.00       68.49      4.76       
+
+374        47.30      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+374        47.30      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+374        47.30      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+374        47.30      CACC4           TypeCACC        1to2_0       54.02      14.60      2.00       67.03      4.59       
+
+375        47.40      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+375        47.40      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+375        47.40      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+375        47.40      CACC4           TypeCACC        1to2_0       55.50      14.80      2.00       65.55      4.43       
+
+376        47.50      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+376        47.50      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+376        47.50      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+376        47.50      CACC4           TypeCACC        1to2_0       57.00      15.00      2.00       64.05      4.27       
+
+377        47.60      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+377        47.60      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+377        47.60      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+377        47.60      CACC4           TypeCACC        1to2_0       58.52      15.20      2.00       62.53      4.11       
+
+378        47.70      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+378        47.70      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+378        47.70      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+378        47.70      CACC4           TypeCACC        1to2_0       60.06      15.40      2.00       60.99      3.96       
+
+379        47.80      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+379        47.80      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+379        47.80      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+379        47.80      CACC4           TypeCACC        1to2_0       61.62      15.60      2.00       59.43      3.81       
+
+380        47.90      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+380        47.90      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+380        47.90      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+380        47.90      CACC4           TypeCACC        1to2_0       63.20      15.80      2.00       57.85      3.66       
+
+381        48.00      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+381        48.00      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+381        48.00      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+381        48.00      CACC4           TypeCACC        1to2_0       64.80      16.00      2.00       56.25      3.52       
+
+382        48.10      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+382        48.10      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+382        48.10      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+382        48.10      CACC4           TypeCACC        1to2_0       66.42      16.20      2.00       54.63      3.37       
+
+383        48.20      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+383        48.20      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+383        48.20      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+383        48.20      CACC4           TypeCACC        1to2_0       68.06      16.40      2.00       52.99      3.23       
+
+384        48.30      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+384        48.30      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+384        48.30      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+384        48.30      CACC4           TypeCACC        1to2_0       69.72      16.60      2.00       51.33      3.09       
+
+385        48.40      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+385        48.40      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+385        48.40      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+385        48.40      CACC4           TypeCACC        1to2_0       71.40      16.80      2.00       49.65      2.96       
+
+386        48.50      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+386        48.50      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+386        48.50      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+386        48.50      CACC4           TypeCACC        1to2_0       73.10      17.00      2.00       47.95      2.82       
+
+387        48.60      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+387        48.60      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+387        48.60      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+387        48.60      CACC4           TypeCACC        1to2_0       74.82      17.20      2.00       46.23      2.69       
+
+388        48.70      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+388        48.70      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+388        48.70      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+388        48.70      CACC4           TypeCACC        1to2_0       76.56      17.40      2.00       44.49      2.56       
+
+389        48.80      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+389        48.80      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+389        48.80      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+389        48.80      CACC4           TypeCACC        1to2_0       78.32      17.60      2.00       42.73      2.43       
+
+390        48.90      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+390        48.90      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+390        48.90      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+390        48.90      CACC4           TypeCACC        1to2_0       80.10      17.80      2.00       40.95      2.30       
+
+391        49.00      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+391        49.00      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+391        49.00      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+391        49.00      CACC4           TypeCACC        1to2_0       81.90      18.00      2.00       39.15      2.17       
+
+392        49.10      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+392        49.10      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+392        49.10      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+392        49.10      CACC4           TypeCACC        1to2_0       83.72      18.20      2.00       37.33      2.05       
+
+393        49.20      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+393        49.20      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+393        49.20      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+393        49.20      CACC4           TypeCACC        1to2_0       85.49      17.70      -5.00      35.56      2.01       
+
+394        49.30      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+394        49.30      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+394        49.30      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+394        49.30      CACC4           TypeCACC        1to2_0       87.21      17.20      -5.00      33.84      1.97       
+
+395        49.40      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+395        49.40      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+395        49.40      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+395        49.40      CACC4           TypeCACC        1to2_0       88.88      16.70      -5.00      32.17      1.93       
+
+396        49.50      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+396        49.50      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+396        49.50      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+396        49.50      CACC4           TypeCACC        1to2_0       90.50      16.20      -5.00      30.55      1.89       
+
+397        49.60      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+397        49.60      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+397        49.60      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+397        49.60      CACC4           TypeCACC        1to2_0       92.07      15.70      -5.00      28.98      1.85       
+
+398        49.70      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+398        49.70      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+398        49.70      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+398        49.70      CACC4           TypeCACC        1to2_0       93.59      15.20      -5.00      27.46      1.81       
+
+399        49.80      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+399        49.80      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+399        49.80      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+399        49.80      CACC4           TypeCACC        1to2_0       95.06      14.70      -5.00      25.99      1.77       
+
+400        49.90      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       -1.00      -1.00      
+400        49.90      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       3.11       -1.00      
+400        49.90      CACC3           TypeCACC        1to2_0       126.05     0.00       0.00       3.14       -1.00      
+400        49.90      CACC4           TypeCACC        1to2_0       96.48      14.20      -5.00      24.57      1.73       
