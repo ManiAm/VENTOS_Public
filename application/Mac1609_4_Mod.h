@@ -1,9 +1,9 @@
 
-#ifndef ___MAC1609_4_MOD_H_
-#define ___MAC1609_4_MOD_H_
+#ifndef _MAC1609_4_MOD_H_
+#define _MAC1609_4_MOD_H_
 
 #include <Mac1609_4.h>
-#include <Appl.h>
+//#include <Appl.h>
 
 using namespace std;
 
@@ -26,8 +26,6 @@ class Mac1609_4_Mod : public Mac1609_4
         virtual void finish();
 
 	private:
-        void print_MacStatistics();
-
         cModule *nodePtr;   // pointer to the Node
 };
 

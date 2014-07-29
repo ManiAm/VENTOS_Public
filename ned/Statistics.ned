@@ -5,6 +5,7 @@ simple Statistics
     parameters:
         @class(Statistics);
         
+        bool collectMAClayerData;
         bool collectVehiclesData;
         bool collectInductionLoopData;
         bool collectPlnManagerData;

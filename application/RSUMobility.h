@@ -5,7 +5,7 @@
 #include "MiXiMDefs.h"
 #include "BaseMobility.h"
 #include "Global_01_TraCI_Extend.h"
-#include "Global_05_RSUAdd.h"
+#include "Global_07_RSUAdd.h"
 
 using namespace std;
 

@@ -8,7 +8,6 @@
 #include <map>
 #include <Consts80211p.h>
 #include <Mac80211Pkt_m.h>
-#include <msg/Messages_m.h>
 #include <ChannelAccess.h>
 #include <WaveAppToMac1609_4Interface.h>
 #include "Global_01_TraCI_Extend.h"

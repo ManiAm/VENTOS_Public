@@ -17,6 +17,8 @@ VENTOS (VEhicular NeTwork Open Simulator) is an integrated C++ simulator for stu
 
 **OpenSSL library:** OpenSSL is an open-source implementation of the SSL and TLS protocols. The core library, written in the C programming language, implements the basic cryptographic functions and provides various utility functions. We use OpenSSL library to sign and verify different messages.
 
+**Gnuplot:** Gnuplot is a portable command-line driven graphing utility.
+
 
 Features
 --------
@@ -163,6 +165,8 @@ It will ask your username/password, and then receives a copy of the project.
 `libboost-system1.48-dev`
 
 `libssl-dev`
+
+`gnuplot`
 
 
 Running the Project

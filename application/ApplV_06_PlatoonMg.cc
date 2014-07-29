@@ -370,7 +370,7 @@ const string ApplVPlatoonMg::stateToStr(int s)
 
 void ApplVPlatoonMg::reportCommandToStat(PlatoonMsg* dataMsg)
 {
-    CurrentPlnMsg *plnMsg = new CurrentPlnMsg(dataMsg->getSender(), dataMsg->getRecipient(), uCommandToStr(dataMsg->getType()).c_str(), dataMsg->getSendingPlatoonID(), dataMsg->getReceivingPlatoonID());
+    CurrentPlnMsg *plnMsg = new CurrentPlnMsg(dataMsg, uCommandToStr(dataMsg->getType()).c_str());
     simsignal_t Signal_SentPlatoonMsg = registerSignal("SentPlatoonMsg");
     nodePtr->emit(Signal_SentPlatoonMsg, plnMsg);
 }
