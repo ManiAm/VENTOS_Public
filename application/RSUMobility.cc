@@ -3,8 +3,9 @@
 
 #include <FWMath.h>
 
+namespace VENTOS {
 
-Define_Module(RSUMobility);
+Define_Module(VENTOS::RSUMobility);
 
 
 void RSUMobility::initialize(int stage)
@@ -82,5 +83,6 @@ void RSUMobility::setTargetPosition()
 void RSUMobility::makeMove()
 {
 
+}
 }
 

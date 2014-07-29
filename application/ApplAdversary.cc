@@ -1,9 +1,11 @@
 
 #include "ApplAdversary.h"
 
+namespace VENTOS {
+
 const simsignalwrap_t ApplAdversary::mobilityStateChangedSignal = simsignalwrap_t(MIXIM_SIGNAL_MOBILITY_CHANGE_NAME);
 
-Define_Module(ApplAdversary);
+Define_Module(VENTOS::ApplAdversary);
 
 void ApplAdversary::initialize(int stage)
 {
@@ -160,6 +162,8 @@ void ApplAdversary::finish()
 
 ApplAdversary::~ApplAdversary()
 {
+
+}
 
 }
 

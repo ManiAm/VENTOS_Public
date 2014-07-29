@@ -6,6 +6,7 @@
 #include <Appl.h>
 #include "Global_01_TraCI_Extend.h"
 
+namespace VENTOS {
 
 class Plotter : public BaseModule
 {
@@ -23,5 +24,6 @@ class Plotter : public BaseModule
       bool on;
       FILE *pipe;
 };
+}
 
 #endif

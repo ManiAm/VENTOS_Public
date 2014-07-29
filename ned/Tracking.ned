@@ -5,7 +5,7 @@ package c3po.ned;
 simple Tracking
 {
     parameters:
-        @class(Tracking);
+        @class(VENTOS::Tracking);
         @display("i=block/network2");
         
         bool on = default(true);

@@ -5,6 +5,8 @@
 
 using namespace std;
 
+namespace VENTOS {
+
 class EdgePair;
 class Edge;
 
@@ -103,5 +105,6 @@ public:
     bool operator<(EdgePair &rhs);
     bool operator>(EdgePair &rhs);
 };
+}
 
 #endif

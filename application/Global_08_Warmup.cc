@@ -1,8 +1,9 @@
 
 #include "Global_08_Warmup.h"
 
+namespace VENTOS {
 
-Define_Module(Warmup);
+Define_Module(VENTOS::Warmup);
 
 
 Warmup::~Warmup()
@@ -106,5 +107,6 @@ void Warmup::finish()
 {
 
 
+}
 }
 

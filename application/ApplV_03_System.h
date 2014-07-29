@@ -4,9 +4,10 @@
 
 #include "ApplV_02_Beacon.h"
 
+namespace VENTOS {
+
 class ApplVSystem : public ApplVBeacon
 {
-
     simsignal_t Signal_router;
 
     public:
@@ -40,6 +41,7 @@ class ApplVSystem : public ApplVBeacon
         SystemMsg* prepareSystemMsg();
         void printSystemMsgContent(SystemMsg*);
 };
+}
 
 #endif
 

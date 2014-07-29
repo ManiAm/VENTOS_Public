@@ -4,6 +4,8 @@
 
 #include "ApplV_06_PlatoonMg.h"
 
+namespace VENTOS {
+
 class ApplVManager : public ApplVPlatoonMg
 {
 	public:
@@ -40,5 +42,6 @@ class ApplVManager : public ApplVPlatoonMg
         bool dropBeacon(double time, string vehicle, double plr);
         void reportDropToStatistics(BeaconVehicle* wsm);
 };
+}
 
 #endif

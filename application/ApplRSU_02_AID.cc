@@ -1,10 +1,12 @@
 
 #include "ApplRSU_02_AID.h"
 
+namespace VENTOS {
+
 MatrixXi ApplRSUAID::tableCount;
 MatrixXd ApplRSUAID::tableProb;
 
-Define_Module(ApplRSUAID);
+Define_Module(VENTOS::ApplRSUAID);
 
 void ApplRSUAID::initialize(int stage)
 {
@@ -123,5 +125,6 @@ void ApplRSUAID::finish()
 ApplRSUAID::~ApplRSUAID()
 {
 
+}
 }
 

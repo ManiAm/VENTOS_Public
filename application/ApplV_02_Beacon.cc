@@ -1,7 +1,9 @@
 
 #include "ApplV_02_Beacon.h"
 
-Define_Module(ApplVBeacon);
+namespace VENTOS {
+
+Define_Module(VENTOS::ApplVBeacon);
 
 void ApplVBeacon::initialize(int stage)
 {
@@ -267,5 +269,6 @@ void ApplVBeacon::finish()
 ApplVBeacon::~ApplVBeacon()
 {
 
+}
 }
 

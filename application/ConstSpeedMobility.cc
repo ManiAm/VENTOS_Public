@@ -22,9 +22,9 @@
 
 #include <FWMath.h>
 
+namespace VENTOS {
 
-Define_Module(ConstSpeedMobility);
-
+Define_Module(VENTOS::ConstSpeedMobility);
 
 /**
  * Reads the updateInterval and the velocity
@@ -138,3 +138,4 @@ void ConstSpeedMobility::fixIfHostGetsOutside()
     handleIfOutside( PLACERANDOMLY, stepTarget, targetPos, stepSize, dummy );
 }
 */
+}

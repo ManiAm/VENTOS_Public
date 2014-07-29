@@ -6,6 +6,7 @@
 #include "Global_01_TraCI_Extend.h"
 #include <ApplRSU_03_Manager.h>
 
+namespace VENTOS {
 
 class Statistics : public BaseModule
 {
@@ -92,5 +93,6 @@ class Statistics : public BaseModule
       vector<NodeEntry *> beaconsDO_interval;
       vector<NodeEntry *> beaconsDP_interval;
 };
+}
 
 #endif

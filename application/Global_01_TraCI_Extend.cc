@@ -1,8 +1,9 @@
 
 #include "Global_01_TraCI_Extend.h"
 
-Define_Module(TraCI_Extend);
+namespace VENTOS {
 
+Define_Module(VENTOS::TraCI_Extend);
 
 TraCI_Extend::~TraCI_Extend()
 {
@@ -903,3 +904,4 @@ void TraCI_Extend::finish()
 
 }
 
+}

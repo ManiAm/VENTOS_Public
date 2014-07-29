@@ -4,7 +4,7 @@ package c3po.ned;
 simple ApplVPlatoonMg extends ApplVPlatoonFormed
 {
     parameters:
-        @class(ApplVPlatoonMg); 
+        @class(VENTOS::ApplVPlatoonMg); 
         
         int maxPlatoonSize;
         int optPlatoonSize;

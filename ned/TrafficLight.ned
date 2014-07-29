@@ -4,7 +4,7 @@ package c3po.ned;
 simple TrafficLight
 {
     parameters:
-        @class(TrafficLight);
+        @class(VENTOS::TrafficLight);
         @display("i=block/network2");
         
 

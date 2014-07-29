@@ -1,8 +1,9 @@
 
 #include "Global_11_TrafficLight.h"
 
+namespace VENTOS {
 
-Define_Module(TrafficLight);
+Define_Module(VENTOS::TrafficLight);
 
 
 TrafficLight::~TrafficLight()
@@ -59,5 +60,6 @@ void TrafficLight::finish()
 {
 
 
+}
 }
 

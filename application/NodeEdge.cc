@@ -1,8 +1,10 @@
-#include<iostream>
-#include<climits>   //For INT_MAX
-#include<iomanip>   //For setw()
+#include <iostream>
+#include <climits>   //For INT_MAX
+#include <iomanip>   //For setw()
 
 #include "NodeEdge.h"
+
+namespace VENTOS {
 
 Node::Node(string idVal, double xVal, double yVal, string typeVal) // Build a node
 {
@@ -105,6 +107,8 @@ bool NodeIDSort(const Node &n1, const Node &n2)
 bool EdgeIDSort(const Edge &e1, const Edge &e2)
 {
     return e1.id < e2.id;
+}
+
 }
 
 

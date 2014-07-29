@@ -24,6 +24,8 @@
 #include "MiXiMDefs.h"
 #include "BaseMobility.h"
 
+namespace VENTOS {
+
 /**
  * @brief Controls all movement related things of a host
  *
@@ -69,5 +71,6 @@ class MIXIM_API ConstSpeedMobility : public BaseMobility
 
     //    void fixIfHostGetsOutside();
 };
+}
 
 #endif

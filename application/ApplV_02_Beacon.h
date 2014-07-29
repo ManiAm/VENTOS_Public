@@ -4,6 +4,8 @@
 
 #include "ApplV_01_Base.h"
 
+namespace VENTOS {
+
 class ApplVBeacon : public ApplVBase
 {
 	public:
@@ -50,5 +52,6 @@ protected:
         bool isBeaconFromLeading(BeaconVehicle*);
         bool isBeaconFromMyPlatoonLeader(BeaconVehicle*);
 };
+}
 
 #endif

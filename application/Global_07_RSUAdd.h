@@ -5,6 +5,7 @@
 #include "Global_01_TraCI_Extend.h"
 #include "ApplV_07_Manager.h"
 
+namespace VENTOS {
 
 class RSUAdd : public BaseModule
 {
@@ -31,6 +32,6 @@ class RSUAdd : public BaseModule
         boost::filesystem::path SUMOfullDirectory;
         deque<RSUEntry*> RSUs;
 };
-
+}
 
 #endif

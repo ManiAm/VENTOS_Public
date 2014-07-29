@@ -12,6 +12,7 @@
 
 using namespace std;
 
+namespace VENTOS {
 
 class ApplVBase : public BaseApplLayer
 {
@@ -48,5 +49,6 @@ class ApplVBase : public BaseApplLayer
         string SUMOvType;
         Coord curPosition;  // current position from mobility module (not from sumo)
 };
+}
 
 #endif

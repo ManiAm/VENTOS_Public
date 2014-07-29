@@ -4,6 +4,8 @@
 
 #include "ApplV_04_AID.h"
 
+namespace VENTOS {
+
 class ApplVPlatoonFormed : public ApplV_AID
 {
 	public:
@@ -23,5 +25,6 @@ class ApplVPlatoonFormed : public ApplV_AID
 	protected:
         string preDefinedPlatoonID;
 };
+}
 
 #endif

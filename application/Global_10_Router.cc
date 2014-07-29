@@ -1,6 +1,8 @@
 #include "Global_10_Router.h"
 
-Define_Module(Router);
+namespace VENTOS {
+
+Define_Module(VENTOS::Router);
 
 void Router::initialize(int stage)
 {
@@ -258,4 +260,4 @@ Router::~Router()
 {
 
 }
-
+}

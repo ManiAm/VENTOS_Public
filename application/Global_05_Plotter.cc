@@ -1,7 +1,9 @@
 
 #include <Global_05_Plotter.h>
 
-Define_Module(Plotter);
+namespace VENTOS {
+
+Define_Module(VENTOS::Plotter);
 
 // Note that gnuplot binary must be on the path
 // and on Windows we need to use the piped version of gnuplot
@@ -105,4 +107,5 @@ void Plotter::finish()
 Plotter::~Plotter()
 {
 
+}
 }

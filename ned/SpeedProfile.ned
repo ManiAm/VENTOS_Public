@@ -5,7 +5,7 @@ package c3po.ned;
 simple SpeedProfile
 {
     parameters:
-        @class(SpeedProfile);
+        @class(VENTOS::SpeedProfile);
         @display("i=block/network2");
         
         bool on = default(false);

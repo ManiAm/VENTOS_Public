@@ -1,8 +1,9 @@
 
 #include "Global_02_TraCI_App.h"
 
+namespace VENTOS {
 
-Define_Module(TraCI_App);
+Define_Module(VENTOS::TraCI_App);
 
 
 TraCI_App::~TraCI_App()
@@ -144,5 +145,7 @@ void TraCI_App::executeOneTimestep()
 void TraCI_App::finish()
 {
     TraCI_Extend::finish();
+}
+
 }
 

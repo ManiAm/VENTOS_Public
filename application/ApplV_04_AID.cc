@@ -1,8 +1,9 @@
 
 #include "ApplV_04_AID.h"
 
+namespace VENTOS {
 
-Define_Module(ApplV_AID);
+Define_Module(VENTOS::ApplV_AID);
 
 void ApplV_AID::initialize(int stage)
 {
@@ -159,5 +160,6 @@ void ApplV_AID::finish()
 ApplV_AID::~ApplV_AID()
 {
 
+}
 }
 

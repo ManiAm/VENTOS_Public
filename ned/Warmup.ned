@@ -5,7 +5,7 @@ package c3po.ned;
 simple Warmup
 {
     parameters:
-        @class(Warmup);
+        @class(VENTOS::Warmup);
         @display("i=block/network2");
         
         bool on = default(false);

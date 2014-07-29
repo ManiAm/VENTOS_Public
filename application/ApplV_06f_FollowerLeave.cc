@@ -1,6 +1,7 @@
 
 #include "ApplV_06_PlatoonMg.h"
 
+namespace VENTOS {
 
 void ApplVPlatoonMg::followerLeave_handleSelfMsg(cMessage* msg)
 {
@@ -167,3 +168,4 @@ void ApplVPlatoonMg::followerLeave_DataFSM(PlatoonMsg *wsm)
     }
 }
 
+}

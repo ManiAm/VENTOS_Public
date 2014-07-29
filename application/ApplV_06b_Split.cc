@@ -1,6 +1,7 @@
 
 #include "ApplV_06_PlatoonMg.h"
 
+namespace VENTOS {
 
 void ApplVPlatoonMg::split_handleSelfMsg(cMessage* msg)
 {
@@ -374,4 +375,4 @@ bool ApplVPlatoonMg::GapDone()
 
     return false;
 }
-
+}

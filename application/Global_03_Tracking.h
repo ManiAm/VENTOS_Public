@@ -5,6 +5,7 @@
 #include "BaseModule.h"
 #include "Global_01_TraCI_Extend.h"
 
+namespace VENTOS {
 
 class Tracking : public BaseModule
 {
@@ -40,5 +41,6 @@ class Tracking : public BaseModule
         void TrackingGUI();
 };
 
+}
 
 #endif

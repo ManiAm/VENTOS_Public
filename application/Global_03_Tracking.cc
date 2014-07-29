@@ -1,8 +1,9 @@
 
 #include "Global_03_Tracking.h"
 
-Define_Module(Tracking);
+Define_Module(VENTOS::Tracking);
 
+namespace VENTOS {
 
 Tracking::~Tracking()
 {
@@ -124,5 +125,6 @@ void Tracking::TrackingGUI()
 void Tracking::finish()
 {
 
+}
 }
 

@@ -4,7 +4,7 @@ package c3po.ned;
 simple TraCI_Extend
 {
     parameters:
-        @class(TraCI_Extend);
+        @class(VENTOS::TraCI_Extend);
         @display("i=block/network2");        
         
         bool debug = default(false);  // emit debug messages?

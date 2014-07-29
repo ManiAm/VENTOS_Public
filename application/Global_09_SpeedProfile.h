@@ -5,6 +5,7 @@
 #include "BaseModule.h"
 #include "Global_01_TraCI_Extend.h"
 
+namespace VENTOS {
 
 class SpeedProfile : public BaseModule
 {
@@ -45,6 +46,6 @@ class SpeedProfile : public BaseModule
         void AccelDecelPeriodic(double, double, double, double);
 	    void ExTrajectory(double);
 };
-
+}
 
 #endif

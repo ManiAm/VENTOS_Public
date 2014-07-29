@@ -7,7 +7,7 @@
 #include "Global_01_TraCI_Extend.h"
 #include "Global_07_RSUAdd.h"
 
-using namespace std;
+namespace VENTOS {
 
 class MIXIM_API RSUMobility : public BaseMobility
 {
@@ -33,5 +33,6 @@ class MIXIM_API RSUMobility : public BaseMobility
     int myId;
     const char *myFullId;
 };
+}
 
 #endif

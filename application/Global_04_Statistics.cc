@@ -1,7 +1,9 @@
 
 #include <Global_04_Statistics.h>
 
-Define_Module(Statistics);
+namespace VENTOS {
+
+Define_Module(VENTOS::Statistics);
 
 Statistics::Statistics()
 {
@@ -937,5 +939,7 @@ void Statistics::finish()
 
 Statistics::~Statistics()
 {
+
+}
 
 }

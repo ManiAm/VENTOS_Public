@@ -3,7 +3,7 @@ package c3po.ned;
 simple Statistics
 {
     parameters:
-        @class(Statistics);
+        @class(VENTOS::Statistics);
         
         bool collectMAClayerData;
         bool collectVehiclesData;

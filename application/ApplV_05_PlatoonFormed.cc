@@ -1,7 +1,9 @@
 
 #include "ApplV_05_PlatoonFormed.h"
 
-Define_Module(ApplVPlatoonFormed);
+namespace VENTOS {
+
+Define_Module(VENTOS::ApplVPlatoonFormed);
 
 void ApplVPlatoonFormed::initialize(int stage)
 {
@@ -99,5 +101,6 @@ void ApplVPlatoonFormed::finish()
 ApplVPlatoonFormed::~ApplVPlatoonFormed()
 {
 
+}
 }
 

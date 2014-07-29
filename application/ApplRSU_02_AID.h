@@ -4,6 +4,8 @@
 
 #include <ApplRSU_01_Base.h>
 
+namespace VENTOS {
+
 class ApplRSUAID : public ApplRSUBase
 {
 	public:
@@ -22,5 +24,6 @@ class ApplRSUAID : public ApplRSUBase
         virtual void onBeaconRSU(BeaconRSU*);
         virtual void onData(LaneChangeMsg*);
 };
+}
 
 #endif

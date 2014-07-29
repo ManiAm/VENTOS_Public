@@ -5,6 +5,7 @@
 #include "Global_01_TraCI_Extend.h"
 #include "ApplV_07_Manager.h"
 
+namespace VENTOS {
 
 class VehicleAdd : public BaseModule
 {
@@ -34,6 +35,6 @@ class VehicleAdd : public BaseModule
         void Scenario4();
         void Scenario5();
 };
-
+}
 
 #endif

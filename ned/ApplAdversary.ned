@@ -5,7 +5,7 @@ import org.car2x.veins.base.modules.IBaseApplLayer;
 simple ApplAdversary like IBaseApplLayer
 {
     parameters:
-        @class(ApplAdversary);
+        @class(VENTOS::ApplAdversary);
         
         int headerLength = default(88bit) @unit(bit); // header length of the application   
         bool on = default(false); 

@@ -2,12 +2,13 @@
 #include "Global_09_SpeedProfile.h"
 
 
-Define_Module(SpeedProfile);
+namespace VENTOS {
+
+Define_Module(VENTOS::SpeedProfile);
 
 
 SpeedProfile::~SpeedProfile()
 {
-
 
 }
 
@@ -274,5 +275,6 @@ void SpeedProfile::ExTrajectory(double startT)
 void SpeedProfile::finish()
 {
     fclose(f2);
+}
 }
 

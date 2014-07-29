@@ -1,7 +1,9 @@
 
 #include "ApplV_07_Manager.h"
 
-Define_Module(ApplVManager);
+namespace VENTOS {
+
+Define_Module(VENTOS::ApplVManager);
 
 void ApplVManager::initialize(int stage)
 {
@@ -262,6 +264,8 @@ void ApplVManager::finish()
 
 ApplVManager::~ApplVManager()
 {
+
+}
 
 }
 

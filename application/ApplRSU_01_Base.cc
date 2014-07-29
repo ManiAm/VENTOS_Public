@@ -1,7 +1,9 @@
 
 #include "ApplRSU_01_Base.h"
 
-Define_Module(ApplRSUBase);
+namespace VENTOS {
+
+Define_Module(VENTOS::ApplRSUBase);
 
 
 void ApplRSUBase::initialize(int stage)
@@ -142,5 +144,6 @@ void ApplRSUBase::finish()
 ApplRSUBase::~ApplRSUBase()
 {
 
+}
 }
 

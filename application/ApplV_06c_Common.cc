@@ -1,6 +1,7 @@
 
 #include "ApplV_06_PlatoonMg.h"
 
+namespace VENTOS {
 
 void ApplVPlatoonMg::common_handleSelfMsg(cMessage* msg)
 {
@@ -38,5 +39,7 @@ void ApplVPlatoonMg::common_DataFSM(PlatoonMsg* wsm)
             TraCI->commandSetTg(SUMOvID, wsm->getDblValue());
         }
     }
+}
+
 }
 

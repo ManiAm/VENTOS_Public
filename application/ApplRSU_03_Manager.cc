@@ -1,7 +1,9 @@
 
 #include "ApplRSU_03_Manager.h"
 
-Define_Module(ApplRSUManager);
+namespace VENTOS {
+
+Define_Module(VENTOS::ApplRSUManager);
 
 void ApplRSUManager::initialize(int stage)
 {
@@ -80,5 +82,6 @@ void ApplRSUManager::finish()
 ApplRSUManager::~ApplRSUManager()
 {
 
+}
 }
 

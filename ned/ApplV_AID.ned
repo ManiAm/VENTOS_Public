@@ -4,7 +4,7 @@ package c3po.ned;
 simple ApplVAID extends ApplVSystem
 {
     parameters:
-        @class(ApplVAID);       
+        @class(VENTOS::ApplVAID);       
                      
         bool AID = default(false);
 }

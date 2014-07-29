@@ -1,6 +1,7 @@
 
 #include "ApplV_06_PlatoonMg.h"
 
+namespace VENTOS {
 
 void ApplVPlatoonMg::entry_handleSelfMsg(cMessage* msg)
 {
@@ -62,3 +63,4 @@ void ApplVPlatoonMg::entry_DataFSM(PlatoonMsg *wsm)
 
 }
 
+}

@@ -1,6 +1,7 @@
 
 #include "ApplV_06_PlatoonMg.h"
 
+namespace VENTOS {
 
 void ApplVPlatoonMg::leaderLeave_handleSelfMsg(cMessage* msg)
 {
@@ -105,3 +106,4 @@ void ApplVPlatoonMg::leaderLeave_DataFSM(PlatoonMsg *wsm)
     }
 }
 
+}

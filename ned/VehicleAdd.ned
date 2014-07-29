@@ -5,7 +5,7 @@ package c3po.ned;
 simple VehicleAdd
 {
     parameters:
-        @class(VehicleAdd);
+        @class(VENTOS::VehicleAdd);
         @display("i=block/network2");
         
         bool on = default(true);

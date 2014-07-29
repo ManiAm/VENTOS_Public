@@ -3,7 +3,7 @@ package c3po.ned;
 simple ApplVManager extends ApplVPlatoonMg
 {
     parameters:
-        @class(ApplVManager);
+        @class(VENTOS::ApplVManager);
         @display("i=block/app2");
         
         double droppT = default(0s) @unit(s);

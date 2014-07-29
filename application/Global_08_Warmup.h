@@ -6,6 +6,7 @@
 #include "Global_06_VehicleAdd.h"
 #include "Global_09_SpeedProfile.h"
 
+namespace VENTOS {
 
 class Warmup : public BaseModule
 {
@@ -38,6 +39,6 @@ class Warmup : public BaseModule
         // methods
         bool warmUpFinished();
 };
-
+}
 
 #endif

@@ -3,7 +3,7 @@ package c3po.ned;
 simple ApplVBeacon extends ApplVBase
 {
     parameters:
-        @class(ApplVBeacon);
+        @class(VENTOS::ApplVBeacon);
         @display("i=block/app2");
         
         bool VANETenabled = default(true);

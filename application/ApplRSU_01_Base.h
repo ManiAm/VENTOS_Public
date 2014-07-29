@@ -11,6 +11,7 @@
 
 using namespace std;
 
+namespace VENTOS {
 
 class ApplRSUBase : public BaseApplLayer
 {
@@ -54,5 +55,6 @@ class ApplRSUBase : public BaseApplLayer
         simtime_t individualOffset;
         cMessage* RSUBeaconEvt;
 };
+}
 
 #endif

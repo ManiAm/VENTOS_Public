@@ -11,6 +11,7 @@
 
 using namespace std;
 
+namespace VENTOS {
 
 class ApplAdversary : public BaseApplLayer
 {
@@ -56,5 +57,6 @@ class ApplAdversary : public BaseApplLayer
         cMessage* JammingEvt;
         double JammingInterval;
 };
+}
 
 #endif

@@ -1,8 +1,9 @@
 
 #include "Global_06_VehicleAdd.h"
 
-Define_Module(VehicleAdd);
+namespace VENTOS {
 
+Define_Module(VENTOS::VehicleAdd);
 
 VehicleAdd::~VehicleAdd()
 {
@@ -229,4 +230,4 @@ void VehicleAdd::finish()
 
 
 }
-
+}

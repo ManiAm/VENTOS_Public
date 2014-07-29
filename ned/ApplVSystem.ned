@@ -3,7 +3,7 @@ package c3po.ned;
 simple ApplVSystem extends ApplVBeacon
 {
     parameters:
-        @class(ApplVSystem);
+        @class(VENTOS::ApplVSystem);
         @display("i=block/app2");
                 
         bool requestRoutes = default(false); //tell the applayer to periodically send beacons

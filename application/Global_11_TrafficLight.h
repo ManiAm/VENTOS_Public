@@ -5,8 +5,7 @@
 #include "Global_01_TraCI_Extend.h"
 #include "ApplV_07_Manager.h"
 
-
-using namespace std;
+namespace VENTOS {
 
 class TrafficLight : public BaseModule
 {
@@ -24,6 +23,7 @@ class TrafficLight : public BaseModule
         cModule *nodePtr;   // pointer to the Node
         TraCI_Extend *TraCI;  // pointer to the TraCI module
 };
+}
 
 
 #endif

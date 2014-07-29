@@ -1,8 +1,9 @@
 
 #include "ApplV_06_PlatoonMg.h"
 
-Define_Module(ApplVPlatoonMg);
+namespace VENTOS {
 
+Define_Module(VENTOS::ApplVPlatoonMg);
 
 void ApplVPlatoonMg::initialize(int stage)
 {
@@ -408,5 +409,6 @@ void ApplVPlatoonMg::finish()
 ApplVPlatoonMg::~ApplVPlatoonMg()
 {
 
+}
 }
 

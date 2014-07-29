@@ -4,6 +4,8 @@
 
 #include "ApplV_03_System.h"
 
+namespace VENTOS {
+
 class ApplV_AID : public ApplVSystem
 {
 	public:
@@ -35,5 +37,6 @@ class ApplV_AID : public ApplVSystem
 
         deque<string> laneChanges;
 };
+}
 
 #endif

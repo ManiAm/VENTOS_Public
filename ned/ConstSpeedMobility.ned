@@ -41,7 +41,7 @@ import org.car2x.veins.base.modules.BaseMobility;
 simple ConstSpeedMobility extends BaseMobility
 {
     parameters:
-        @class(ConstSpeedMobility);
+        @class(VENTOS::ConstSpeedMobility);
         bool debug = default(false); // debug switch
         double speed @unit(mps) = default(0 mps); // speed of the host (in m/s)
         double updateInterval @unit(s) = default(1 s); // time interval to update the hosts position (seconds)

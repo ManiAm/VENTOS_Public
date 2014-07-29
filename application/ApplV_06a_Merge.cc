@@ -1,6 +1,7 @@
 
 #include "ApplV_06_PlatoonMg.h"
 
+namespace VENTOS {
 
 void ApplVPlatoonMg::merge_handleSelfMsg(cMessage* msg)
 {
@@ -359,6 +360,7 @@ bool ApplVPlatoonMg::CatchUpDone()
         return true;
 
     return false;
+}
 }
 
 

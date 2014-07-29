@@ -11,6 +11,7 @@
 #include "Global_09_SpeedProfile.h"
 #include "Global_11_TrafficLight.h"
 
+namespace VENTOS {
 
 class TraCI_App : public TraCI_Extend
 {
@@ -44,6 +45,6 @@ class TraCI_App : public TraCI_Extend
         // NED variable
         double terminate;
 };
-
+}
 
 #endif

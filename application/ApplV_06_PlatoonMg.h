@@ -4,6 +4,8 @@
 
 #include "ApplV_05_PlatoonFormed.h"
 
+namespace VENTOS {
+
 class ApplVPlatoonMg : public ApplVPlatoonFormed
 {
 	public:
@@ -191,5 +193,6 @@ class ApplVPlatoonMg : public ApplVPlatoonFormed
         void followerLeave_BeaconFSM(BeaconVehicle *wsm = NULL);
         void followerLeave_DataFSM(PlatoonMsg *wsm = NULL);
 };
+}
 
 #endif

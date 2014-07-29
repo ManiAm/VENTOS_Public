@@ -1,7 +1,9 @@
 
 #include "Global_07_RSUAdd.h"
 
-Define_Module(RSUAdd);
+namespace VENTOS {
+
+Define_Module(VENTOS::RSUAdd);
 
 
 RSUAdd::~RSUAdd()
@@ -206,5 +208,6 @@ void RSUAdd::finish()
 {
 
 
+}
 }
 

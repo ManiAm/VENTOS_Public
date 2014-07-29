@@ -32,6 +32,7 @@ using namespace boost;
 using namespace std;
 using namespace Veins;
 
+namespace VENTOS {
 
 class TraCI_Extend : public TraCIScenarioManager
 {
@@ -128,5 +129,6 @@ class TraCI_Extend : public TraCIScenarioManager
         boost::filesystem::path SUMOfullDirectory;
 };
 
+}
 
 #endif

@@ -23,6 +23,8 @@
 using namespace rapidxml;
 using namespace std;
 
+namespace VENTOS {
+
 class Router : public BaseModule    //Responsible for routing cars in our system.  Should only be one of these.
 {
 protected:
@@ -53,5 +55,6 @@ public:
     Router();
     ~Router();
 };
+}
 
 #endif

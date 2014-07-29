@@ -1,7 +1,8 @@
 #include "ApplV_03_System.h"
 
-Define_Module(ApplVSystem);
+namespace VENTOS {
 
+Define_Module(VENTOS::ApplVSystem);
 
 void ApplVSystem::initialize(int stage)
 {
@@ -202,4 +203,5 @@ void ApplVSystem::finish()
 ApplVSystem::~ApplVSystem()
 {
     simulation.getSystemModule()->unsubscribe("router",this);
+}
 }

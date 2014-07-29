@@ -1,7 +1,9 @@
 
 #include "Mac1609_4_Mod.h"
 
-Define_Module(Mac1609_4_Mod);
+namespace VENTOS {
+
+Define_Module(VENTOS::Mac1609_4_Mod);
 
 void Mac1609_4_Mod::initialize(int stage)
 {
@@ -79,5 +81,6 @@ void Mac1609_4_Mod::finish()
     //clean up queues.
 
     // todo: do not let record queue!
+}
 }
 
