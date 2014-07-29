@@ -72,6 +72,10 @@ network Network
             parameters:
                 @display("p=381,372");
         }
+        plotter: Plotter {
+            parameters:
+                @display("p=61,548;i=block/app");
+        }
 
     connections allowunconnected:
 }
