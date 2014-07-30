@@ -48,7 +48,7 @@ Watch simulation videos from [here](https://www.youtube.com/user/RubinetLab "").
 Getting Started
 ---------------
 
-Follow the instructions in [SUMOm repository](https://github.com/ManiAm/SUMOm "") and then come back :)
+VENTOS framework is developed in Ubuntu OS, and we have not tested it under Windows (yet!). This section shows you how to install VENTOS and its prerequisites step by step on Ubuntu 12.04 or 14.04 machine. Before continuing, make sure that you have installed SUMO from [this repository](https://github.com/ManiAm/SUMOm "").
 
 
 Install OMNET++
