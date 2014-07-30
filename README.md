@@ -17,12 +17,7 @@ VENTOS (VEhicular NeTwork Open Simulator) is an integrated C++ simulator for stu
 
 **OpenSSL library:** OpenSSL is an open-source implementation of the SSL and TLS protocols. The core library, written in the C programming language, implements the basic cryptographic functions and provides various utility functions. We use OpenSSL library to sign and verify different messages.
 
-**Gnuplot:** Gnuplot is a portable command-line driven interactive plotting program. Install Gnuplot 4.6:
-
-    sudo add-apt-repository ppa:gladky-anton/precise-backports
-    sudo apt-get update
-    sudo apt-get install gnuplot
-    sudo apt-get install gnuplot-x11
+**Gnuplot:** Gnuplot is a portable command-line driven interactive plotting program.
 
 
 Features
@@ -131,17 +126,13 @@ Veins is on github, and you should clone it into your computer.
 
           00::04:42 Build Finished (took 2m:23s.177ms)
 
+Now make these modifications in Veins source code:
 
-Modify Veins source code
-------------------------
+**Step 5:** In the IDE, open Veins project and go to src/modules/mobility/traci/TraCIScenarioManager.h file. Find 'void executeOneTimestep()', and then change it to virtual void executeOneTimestep();
 
-To be able to run C3PO project, you should make some modifications in Veins source code:
+**Step 6:** go to src/modules/mobility/traci/TraCICommandInterface.h file. Change access modifier private into public!
 
-**Step 1:** In the IDE, open Veins project and go to src/modules/mobility/traci/TraCIScenarioManager.h file. Find 'void executeOneTimestep()', and then change it to virtual void executeOneTimestep();
-
-**Step 2:** go to src/modules/mobility/traci/TraCICommandInterface.h file. Change access modifier private into public!
-
-**Step 3:** [optional] comment the MYDEBUG line in TraCIScenarioManager::receiveTraCIMessage() and also TraCIScenarioManager::sendTraCIMessage to make the output console less messy :)
+**Step 7:** [optional] comment the MYDEBUG line in TraCIScenarioManager::receiveTraCIMessage() and also TraCIScenarioManager::sendTraCIMessage to make the output console less messy :)
 
 After these modifications, build the Veins project again. Build is done much faster this time!
 
@@ -170,6 +161,13 @@ It will ask your username/password, and then receives a copy of the project.
 `libboost-system1.48-dev`
 
 `libssl-dev`
+
+**Step 6:** Install Gnuplot 4.6:
+
+    sudo add-apt-repository ppa:gladky-anton/precise-backports
+    sudo apt-get update
+    sudo apt-get install gnuplot
+    sudo apt-get install gnuplot-x11
 
 
 Running the Project
