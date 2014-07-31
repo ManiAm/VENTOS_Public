@@ -6,6 +6,22 @@
 
 namespace VENTOS {
 
+class NearestVehicle
+{
+  public:
+      char name[20];
+      int depth;
+      double dist;
+
+      NearestVehicle(const char *str, int n, double x)
+      {
+          strcpy(this->name, str);
+          this->depth = n;
+          this->dist = x;
+      }
+};
+
+
 class ApplVPlatoonMg : public ApplVPlatoonFormed
 {
 	public:
@@ -163,35 +179,43 @@ class ApplVPlatoonMg : public ApplVPlatoonFormed
         void printDataContent(PlatoonMsg*);
         void updateColorDepth();
 
+        // Reporting to statistics
         void reportStateToStat();
         void reportCommandToStat(PlatoonMsg*);
+        void reportManeuverToStat(string, string, string);
         const string stateToStr(int);
         const string uCommandToStr(int);
 
-        void common_handleSelfMsg(cMessage* msg);
-        void common_BeaconFSM(BeaconVehicle *wsm = NULL);
-        void common_DataFSM(PlatoonMsg *wsm = NULL);
-
+        // merge
         void merge_handleSelfMsg(cMessage* msg);
         void merge_BeaconFSM(BeaconVehicle *wsm = NULL);
         void merge_DataFSM(PlatoonMsg *wsm = NULL);
         void RemoveFollowerFromList_Merge(string);
         bool CatchUpDone();
 
+        // split
         void split_handleSelfMsg(cMessage* msg);
         void split_BeaconFSM(BeaconVehicle *wsm = NULL);
         void split_DataFSM(PlatoonMsg *wsm = NULL);
         void RemoveFollowerFromList_Split(string);
         bool GapDone();
 
+        // common operations in maneuvers
+        void common_handleSelfMsg(cMessage* msg);
+        void common_BeaconFSM(BeaconVehicle *wsm = NULL);
+        void common_DataFSM(PlatoonMsg *wsm = NULL);
+
+        // entry
         void entry_handleSelfMsg(cMessage* msg);
         void entry_BeaconFSM(BeaconVehicle *wsm);
         void entry_DataFSM(PlatoonMsg *wsm = NULL);
 
+        // leader leave
         void leaderLeave_handleSelfMsg(cMessage* msg);
         void leaderLeave_BeaconFSM(BeaconVehicle *wsm = NULL);
         void leaderLeave_DataFSM(PlatoonMsg *wsm = NULL);
 
+        // follower leave
         void followerLeave_handleSelfMsg(cMessage* msg);
         void followerLeave_BeaconFSM(BeaconVehicle *wsm = NULL);
         void followerLeave_DataFSM(PlatoonMsg *wsm = NULL);

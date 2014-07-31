@@ -405,6 +405,14 @@ const string ApplVPlatoonMg::uCommandToStr(int c)
 }
 
 
+void ApplVPlatoonMg::reportManeuverToStat(string from, string to, string maneuver)
+{
+    PlnManeuver *com = new PlnManeuver(from.c_str(), to.c_str(), maneuver.c_str());
+    simsignal_t Signal_PlnManeuver = registerSignal("PlnManeuver");
+    nodePtr->emit(Signal_PlnManeuver, com);
+}
+
+
 // is called, every time the position of vehicle changes
 void ApplVPlatoonMg::handlePositionUpdate(cObject* obj)
 {
@@ -423,5 +431,6 @@ ApplVPlatoonMg::~ApplVPlatoonMg()
 {
 
 }
+
 }
 

@@ -63,6 +63,8 @@ void ApplVPlatoonMg::split_handleSelfMsg(cMessage* msg)
             vehicleState = state_platoonLeader;
             reportStateToStat();
 
+            reportManeuverToStat(SUMOvID, "-", "Split_End");
+
             // send a unicast GAP_CREATED to the old leader
             // we need this in follower leave only. Other maneuvers ignore this
             PlatoonMsg* dataMsg = prepareData(oldPlnID, GAP_CREATED, oldPlnID);
@@ -124,6 +126,8 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
 
             vehicleState = state_makeItFreeAgent;
             reportStateToStat();
+
+            reportManeuverToStat(splittingVehicle, "-", "Split_Start");
 
             split_DataFSM();
         }

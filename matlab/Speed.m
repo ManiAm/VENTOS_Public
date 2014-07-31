@@ -25,8 +25,8 @@ for s=1:1
     end
     
     file_id = fopen(path);
-    formatSpec = '%d %f %s %s %f %s %f %f %f %f';
-    C_text = textscan(file_id, formatSpec, 'HeaderLines', 2);
+    formatSpec = '%d %f %s %s %s %f %f %f %f %f';
+    C_text = textscan(file_id, formatSpec, 'HeaderLines', 1);
     fclose(file_id);
 
     % ---------------------------------------------------------------

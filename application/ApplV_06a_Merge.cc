@@ -133,6 +133,8 @@ void ApplVPlatoonMg::merge_BeaconFSM(BeaconVehicle* wsm)
         vehicleState = state_waitForMergeReply;
         reportStateToStat();
 
+        reportManeuverToStat(SUMOvID, leadingPlnID, "Merge_Request");
+
         // start plnTIMER1
         scheduleAt(simTime() + 1., plnTIMER1);
     }
@@ -151,13 +153,18 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
         if (wsm->getType() == MERGE_REJECT && wsm->getSender() == leadingPlnID)
         {
             cancelEvent(plnTIMER1);
+
             vehicleState = state_platoonLeader;
             reportStateToStat();
+
+            reportManeuverToStat(SUMOvID, "-", "Merge_Reject");
         }
         else if(wsm->getType() == MERGE_ACCEPT && wsm->getSender() == leadingPlnID)
         {
             vehicleState = state_mergeAccepted;
             reportStateToStat();
+
+            reportManeuverToStat(SUMOvID, "-", "Merge_Start");
 
             merge_DataFSM();
         }
@@ -204,6 +211,8 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
 
         vehicleState = state_platoonFollower;
         reportStateToStat();
+
+        reportManeuverToStat(SUMOvID, "-", "Merge_End");
     }
     else if(vehicleState == state_notifyFollowers)
     {

@@ -846,3 +846,40 @@ timeStep    sender         receiver         type                     sendingPlnI
 97.55      CACC1           -                 state_mergeDone                -                  -                   
 97.55      CACC1           multicast         CHANGE_Tg                      CACC1              CACC1               
 97.55      CACC1           -                 state_platoonLeader            -                  -                   
+
+131.10     CACC1           -                 state_sendSplitReq             -                  -                   
+131.10     CACC1           CACC4             SPLIT_REQ                      CACC1              CACC1               
+131.10     CACC1           -                 state_waitForSplitReply        -                  -                   
+
+131.10     CACC4           CACC1             SPLIT_ACCEPT                   CACC1              CACC1               
+131.10     CACC4           -                 state_waitForCHANGEPL          -                  -                   
+
+131.11     CACC1           -                 state_makeItFreeAgent          -                  -                   
+131.11     CACC1           CACC4             CHANGE_PL                      CACC1              CACC1               
+131.11     CACC1           -                 state_waitForAck               -                  -                   
+
+131.11     CACC4           -                 state_sendingACK               -                  -                   
+131.11     CACC4           CACC1             ACK                            CACC4              CACC4               
+131.11     CACC4           -                 state_waitForSplitDone         -                  -                   
+
+131.12     CACC1           -                 state_changePL                 -                  -                   
+131.12     CACC1           CACC5             CHANGE_PL                      CACC1              CACC1               
+131.12     CACC1           CACC6             CHANGE_PL                      CACC1              CACC1               
+131.12     CACC1           CACC7             CHANGE_PL                      CACC1              CACC1               
+131.12     CACC1           CACC8             CHANGE_PL                      CACC1              CACC1               
+131.12     CACC1           -                 state_waitForAllAcks2          -                  -                   
+
+131.12     CACC5           CACC1             ACK                            CACC1              CACC1               
+
+131.12     CACC6           CACC1             ACK                            CACC1              CACC1               
+
+131.12     CACC7           CACC1             ACK                            CACC1              CACC1               
+
+131.12     CACC8           CACC1             ACK                            CACC1              CACC1               
+
+131.13     CACC1           -                 state_splitDone                -                  -                   
+131.13     CACC1           multicast         CHANGE_Tg                      CACC1              CACC1               
+131.13     CACC1           CACC4             SPLIT_DONE                     CACC1              CACC1               
+131.13     CACC1           -                 state_platoonLeader            -                  -                   
+
+131.13     CACC4           -                 state_waitForGap               -                  -                   

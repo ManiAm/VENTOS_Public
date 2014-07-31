@@ -7,6 +7,22 @@
 
 namespace VENTOS {
 
+class RSUEntry
+{
+  public:
+      char name[20];
+      double coordX;
+      double coordY;
+
+      RSUEntry(const char *str, double x, double y)
+      {
+          strcpy(this->name, str);
+          this->coordX = x;
+          this->coordY = y;
+      }
+};
+
+
 class RSUAdd : public BaseModule
 {
 	public:

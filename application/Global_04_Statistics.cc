@@ -36,8 +36,10 @@ void Statistics::initialize(int stage)
         Signal_beaconD = registerSignal("beaconD");
 
         Signal_MacStats = registerSignal("MacStats");
+
         Signal_SentPlatoonMsg = registerSignal("SentPlatoonMsg");
         Signal_VehicleState = registerSignal("VehicleState");
+        Signal_PlnManeuver = registerSignal("PlnManeuver");
 
         // now subscribe locally to all these signals
         simulation.getSystemModule()->subscribe("beaconP", this);
@@ -46,6 +48,7 @@ void Statistics::initialize(int stage)
         simulation.getSystemModule()->subscribe("MacStats", this);
         simulation.getSystemModule()->subscribe("SentPlatoonMsg", this);
         simulation.getSystemModule()->subscribe("VehicleState", this);
+        simulation.getSystemModule()->subscribe("PlnManeuver", this);
     }
 }
 
@@ -59,41 +62,38 @@ void Statistics::handleMessage(cMessage *msg)
 
 void Statistics::executeOneTimestep(bool simulationDone)
 {
-    // collecting data from all vehicles in each timeStep
+    if(collectMAClayerData)
+        MAClayerToFile();
+
     if(collectVehiclesData)
-        vehiclesData();
+    {
+        vehiclesData();   // collecting data from all vehicles in each timeStep
+        vehiclesDataToFile();  // write what we have collected so far
+    }
 
-    // collecting induction loop data in each timeStep
     if(collectInductionLoopData)
-        inductionLoops();
+    {
+        inductionLoops();    // collecting induction loop data in each timeStep
+        inductionLoopToFile();  // write what we have collected so far
+    }
 
-    // right what we have collected so far about
-    // platoon management data
     if(collectPlnManagerData)
-        plnManageToFile();
+    {
+        plnManageToFile();  // write what we have collected so far
+        plnStatToFile();
+    }
 
+    if(printIncidentDetection)
+        incidentDetectionToFile();
+
+    // todo:
     if(simulationDone)
     {
-        if(collectVehiclesData)
-            vehiclesDataToFile();
-
-        if(collectInductionLoopData)
-            inductionLoopToFile();
-
-        if(printIncidentDetection)
-            incidentDetectionToFile();
-
-        if(collectMAClayerData)
-            MAClayerToFile();
-
-        if(collectPlnManagerData)
-            plnManageToFile();
-
         // sort the vectors by node ID:
-        //Vec_BeaconsP = SortByID(Vec_BeaconsP);
-        //Vec_BeaconsO = SortByID(Vec_BeaconsO);
-        //Vec_BeaconsDP = SortByID(Vec_BeaconsDP);
-        //Vec_BeaconsDO = SortByID(Vec_BeaconsDO);
+        // Vec_BeaconsP = SortByID(Vec_BeaconsP);
+        // Vec_BeaconsO = SortByID(Vec_BeaconsO);
+        // Vec_BeaconsDP = SortByID(Vec_BeaconsDP);
+        // Vec_BeaconsDO = SortByID(Vec_BeaconsDO);
 
         postProcess();
 
@@ -437,6 +437,52 @@ void Statistics::plnManageToFile()
 }
 
 
+void Statistics::plnStatToFile()
+{
+    boost::filesystem::path filePath;
+
+    if( ev.isGUI() )
+    {
+        filePath = "results/gui/plnStat.txt";
+    }
+    else
+    {
+        // get the current run number
+        int currentRun = ev.getConfigEx()->getActiveRunNumber();
+        ostringstream fileName;
+        fileName << "plnStat_" << currentRun << ".txt";
+        filePath = "results/cmd" + fileName.str();
+    }
+
+    FILE *filePtr = fopen (filePath.string().c_str(), "w");
+
+    // write header
+    fprintf (filePtr, "%-12s","timeStep");
+    fprintf (filePtr, "%-20s","from platoon");
+    fprintf (filePtr, "%-20s","to platoon");
+    fprintf (filePtr, "%-20s\n\n","comment");
+
+    string oldPln = "";
+
+    // write body
+    for(unsigned int k=0; k<Vec_plnStat.size(); k++)
+    {
+        if(Vec_plnStat[k]->from != oldPln)
+        {
+            fprintf(filePtr, "\n");
+            oldPln = Vec_plnStat[k]->from;
+        }
+
+        fprintf (filePtr, "%-10.2f ", Vec_plnStat[k]->time);
+        fprintf (filePtr, "%-20s ", Vec_plnStat[k]->from);
+        fprintf (filePtr, "%-20s ", Vec_plnStat[k]->to);
+        fprintf (filePtr, "%-20s\n", Vec_plnStat[k]->maneuver);
+    }
+
+    fclose(filePtr);
+}
+
+
 void Statistics::receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj)
 {
     Enter_Method_Silent();
@@ -482,6 +528,16 @@ void Statistics::receiveSignal(cComponent *source, simsignal_t signalID, cObject
         plnManagement *tmp = new plnManagement(simTime().dbl(), plnMsg->msg->getSender(), plnMsg->msg->getRecipient(), plnMsg->type, plnMsg->msg->getSendingPlatoonID(), plnMsg->msg->getReceivingPlatoonID());
         Vec_plnManagement.push_back(tmp);
     }
+    else if(collectPlnManagerData && signalID == Signal_PlnManeuver)
+    {
+        PlnManeuver* com = dynamic_cast<PlnManeuver*>(obj);
+        ASSERT(com);
+
+        plnStat *tmp = new plnStat(simTime().dbl(), com->from, com->to, com->maneuver);
+        Vec_plnStat.push_back(tmp);
+    }
+
+    // todo
     else if(signalID == Signal_beaconP)
     {
         data *m = static_cast<data *>(obj);

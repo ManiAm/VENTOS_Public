@@ -6,7 +6,153 @@
 #include "Global_01_TraCI_Extend.h"
 #include <ApplRSU_03_Manager.h>
 
+
 namespace VENTOS {
+
+class MacStatEntry
+{
+public:
+  char name[20];
+  int nodeID;  // is used to sort the vector (used as a key)
+  double time;
+  vector<long> MacStatsVec;
+
+  MacStatEntry(const char *str, int id, double t, vector<long> v)
+  {
+      strcpy(this->name, str);
+      this->nodeID = id;
+      this->time = t;
+      MacStatsVec.swap(v);
+  }
+};
+
+
+class NodeEntry
+{
+  public:
+    char name1[20];
+    int nodeID;  // is used to sort the vector (used as a key)
+
+    char name2[20];
+    int count;
+    simtime_t time;
+
+    NodeEntry(const char *str1, const char *str2, int id, int n, simtime_t t)
+    {
+        strcpy(this->name1, str1);
+        this->nodeID = id;
+
+        strcpy(this->name2, str2);
+        this->count = n;
+        this->time = t;
+    }
+};
+
+
+class VehicleData
+{
+  public:
+    int index;
+    double time;
+
+    char vehicleName[20];
+    char vehicleType[20];
+
+    char lane[20];
+    double pos;
+
+    double speed;
+    double accel;
+    double gap;
+    double timeGap;
+
+    VehicleData(int i, double d1,
+                 const char *str1, const char *str2,
+                 const char *str3, double d2,
+                 double d3, double d4, double d5, double d6)
+    {
+        this->index = i;
+        this->time = d1;
+
+        strcpy(this->vehicleName, str1);
+        strcpy(this->vehicleType, str2);
+
+        strcpy(this->lane, str3);
+        this->pos = d2;
+
+        this->speed = d3;
+        this->accel = d4;
+        this->gap = d5;
+        this->timeGap = d6;
+    }
+};
+
+
+class LoopDetector
+{
+  public:
+    char detectorName[20];
+    char vehicleName[20];
+    double entryTime;
+    double leaveTime;
+    double entrySpeed;
+    double leaveSpeed;
+
+    LoopDetector( const char *str1, const char *str2, double entryT, double leaveT, double entryS, double leaveS )
+    {
+        strcpy(this->detectorName, str1);
+        strcpy(this->vehicleName, str2);
+
+        this->entryTime = entryT;
+        this->leaveTime = leaveT;
+
+        this->entrySpeed = entryS;
+        this->leaveSpeed = leaveS;
+    }
+};
+
+
+class plnManagement
+{
+  public:
+      double time;
+      char sender[20];
+      char receiver[20];
+      char type[30];
+      char sendingPlnID[20];
+      char receivingPlnID[20];
+
+      plnManagement(double t, const char *str1, const char *str2, const char *str3, const char *str4, const char *str5)
+      {
+          this->time = t;
+
+          strcpy(this->sender, str1);
+          strcpy(this->receiver, str2);
+          strcpy(this->type, str3);
+          strcpy(this->sendingPlnID, str4);
+          strcpy(this->receivingPlnID, str5);
+      }
+};
+
+
+class plnStat
+{
+  public:
+      double time;
+      char from[20];
+      char to[20];
+      char maneuver[20];
+
+      plnStat(double d, const char *str1, const char *str2, const char *str3)
+      {
+          this->time = d;
+
+          strcpy(this->from, str1);
+          strcpy(this->to, str2);
+          strcpy(this->maneuver, str3);
+      }
+};
+
 
 class Statistics : public BaseModule
 {
@@ -35,6 +181,9 @@ class Statistics : public BaseModule
       void MAClayerToFile();
 
       void plnManageToFile();
+      void plnStatToFile();
+
+
 
 
 
@@ -71,14 +220,17 @@ class Statistics : public BaseModule
 	  simsignal_t Signal_beaconD;
 
 	  simsignal_t Signal_MacStats;
+
 	  simsignal_t Signal_SentPlatoonMsg;
 	  simsignal_t Signal_VehicleState;
+	  simsignal_t Signal_PlnManeuver;
 
 	  // class variables (vectors)
       vector<VehicleData *> Vec_vehiclesData;
       vector<LoopDetector *> Vec_loopDetectors;
       vector<MacStatEntry *> Vec_MacStat;
-      vector<plnManagement*> Vec_plnManagement;
+      vector<plnManagement *> Vec_plnManagement;
+      vector<plnStat *> Vec_plnStat;
 
       vector<NodeEntry *> Vec_BeaconsP;    // beacons from proceeding
       vector<NodeEntry *> Vec_BeaconsO;    // beacons from other vehicles
