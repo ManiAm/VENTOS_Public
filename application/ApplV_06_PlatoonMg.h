@@ -156,6 +156,9 @@ class ApplVPlatoonMg : public ApplVPlatoonFormed
 
 	private:
         void Coordinator();
+        void scenario1();
+        void scenario2();
+
         PlatoonMsg* prepareData( string, uCommands, string, double db = -1, string str = "", deque<string> vec = deque<string>() );
         void printDataContent(PlatoonMsg*);
         void updateColorDepth();

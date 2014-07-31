@@ -238,7 +238,7 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
     }
     else if(vehicleState == state_waitForAllAcks2)
     {
-        if (wsm->getType() == ACK && wsm->getSendingPlatoonID() == plnID && wsm->getReceivingPlatoonID() == plnID)
+        if (wsm->getType() == ACK && wsm->getReceivingPlatoonID() == plnID)
         {
             string followerID = wsm->getSender();
             RemoveFollowerFromList_Split(followerID);

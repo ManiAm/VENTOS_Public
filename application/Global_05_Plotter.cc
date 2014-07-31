@@ -5,13 +5,6 @@ namespace VENTOS {
 
 Define_Module(VENTOS::Plotter);
 
-// Note that gnuplot binary must be on the path
-// and on Windows we need to use the piped version of gnuplot
-#ifdef WIN32
-    #define GNUPLOT_NAME "pgnuplot -persist"
-#else
-    #define GNUPLOT_NAME "gnuplot"
-#endif
 
 Plotter::Plotter()
 {
@@ -33,31 +26,35 @@ void Plotter::initialize(int stage)
         TraCI = static_cast<TraCI_Extend *>(module);
 
         #ifdef WIN32
-            pipe = _popen(GNUPLOT_NAME, "w");
+            pipe = _popen("pgnuplot -persist", "w");
         #else
-            pipe = popen(GNUPLOT_NAME, "w");
+            pipe = popen("gnuplot", "w");
         #endif
 
         if(pipe == NULL)
             error("Could not open pipe!");
 
 
-
         // set the terminal
         // persist: keep the windows open even on simulation termination
         // noraise: updating is done in the background
-        fprintf(pipe, "set term wx 0 noraise\n");
+        fprintf(pipe, "set term wxt enhanced 0 noraise\n");
 
         fprintf(pipe, "set title 'minimum'\n");
         fprintf(pipe, "set xlabel 'Sim Time'\n");
         fprintf(pipe, "set ylabel 'Vehicle Speed'\n");
 
-        // plot type
+        // The "-" is used to specify that the data follows the plot command.
         fprintf(pipe, "plot '-' with lines\n");
 
-        // loop over the data [0,...,9]. data terminated with \n
-        for(int i = 0; i < 10; i++)
-            fprintf(pipe, "%d\n", i);
+        // loop over the data. Data terminated with \n
+        for(int i = 1, j=0; i < 100; i = i*2, j++)
+            fprintf(pipe, "%d %d\n", j, i);
+
+
+//        // loop over the data. data terminated with \n
+//        for(int i = 1, j=0; i < 1000; i = i*4, j++)
+//            fprintf(pipe, "%d %d\n", j, i);
 
         // termination character
         fprintf(pipe, "%s\n", "e");
@@ -65,13 +62,11 @@ void Plotter::initialize(int stage)
         // flush the pipe
         fflush(pipe);
 
-        fprintf(pipe, "set multiplot\n");
+      //  fprintf(pipe, "set multiplot\n");
 
-        fprintf(pipe, "plot 2*x\n");
+     //   fprintf(pipe, "plot 2*x\n");
 
-        fflush(pipe);
-
-
+     //   fflush(pipe);
     }
 }
 

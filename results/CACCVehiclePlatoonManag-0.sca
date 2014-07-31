@@ -1,14 +1,14 @@
 version 2
-run CACCVehiclePlatoonManag-0-20140729-12:11:14-7595
+run CACCVehiclePlatoonManag-0-20140731-09:51:36-9562
 attr configname CACCVehiclePlatoonManag
-attr datetime 20140729-12:11:14
+attr datetime 20140731-09:51:36
 attr experiment CACCVehiclePlatoonManag
 attr inifile omnetpp.ini
 attr iterationvars ""
 attr iterationvars2 $repetition=0
 attr measurement ""
 attr network ned.Network
-attr processid 7595
+attr processid 9562
 attr repetition 0
 attr replication #0
 attr resultdir results

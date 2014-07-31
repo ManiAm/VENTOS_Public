@@ -158,33 +158,48 @@ void ApplVPlatoonMg::Coordinator()
         }
     }
 
+    // merge and split
+    scenario1();
 
-//    if(simTime().dbl() >= 37)
-//    {
-//        optPlnSize = 13;
-//    }
-//
-//    if(simTime().dbl() >= 77)
-//    {
-//        optPlnSize = 4;
-//    }
-//
-//    if(simTime().dbl() >= 94)
-//    {
-//        optPlnSize = 10;
-//    }
-//
-//    if(simTime().dbl() >= 131)
-//    {
-//        optPlnSize = 3;
-//    }
-//    if(simTime().dbl() >= 188)
-//    {
-//        optPlnSize = 2;
-//    }
+    // leave
+    //scenario2();
+
+    scheduleAt(simTime() + 0.1, mgrTIMER);
+}
 
 
+// merge and split
+void ApplVPlatoonMg::scenario1()
+{
+    if(simTime().dbl() >= 37)
+    {
+        optPlnSize = 13;
+    }
 
+    if(simTime().dbl() >= 77)
+    {
+        optPlnSize = 4;
+    }
+
+    if(simTime().dbl() >= 94)
+    {
+        optPlnSize = 10;
+    }
+
+    if(simTime().dbl() >= 131)
+    {
+        optPlnSize = 3;
+    }
+    if(simTime().dbl() >= 188)
+    {
+        optPlnSize = 2;
+    }
+}
+
+
+// leave
+void ApplVPlatoonMg::scenario2()
+{
     // leader leaves
     if(simTime().dbl() == 26)
     {
@@ -235,8 +250,6 @@ void ApplVPlatoonMg::Coordinator()
             }
         }
     }
-
-    scheduleAt(simTime() + 0.1, mgrTIMER);
 }
 
 

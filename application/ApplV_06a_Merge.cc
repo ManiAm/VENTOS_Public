@@ -280,8 +280,8 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
         vehicleState = state_waitForMergeDone;
         reportStateToStat();
 
-        // start plnTIMER3
-        scheduleAt(simTime() + 1., plnTIMER3);
+        // start plnTIMER3 (we wait for 5 seconds!)
+        scheduleAt(simTime() + 5., plnTIMER3);
     }
     else if(vehicleState == state_waitForMergeDone)
     {

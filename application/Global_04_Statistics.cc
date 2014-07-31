@@ -67,6 +67,11 @@ void Statistics::executeOneTimestep(bool simulationDone)
     if(collectInductionLoopData)
         inductionLoops();
 
+    // right what we have collected so far about
+    // platoon management data
+    if(collectPlnManagerData)
+        plnManageToFile();
+
     if(simulationDone)
     {
         if(collectVehiclesData)
@@ -406,11 +411,19 @@ void Statistics::plnManageToFile()
     fprintf (filePtr, "%-20s","sendingPlnID");
     fprintf (filePtr, "%-20s\n\n","recPlnID");
 
+    string oldSender = "";
+    double oldTime = -1;
+
     // write body
     for(unsigned int k=0; k<Vec_plnManagement.size(); k++)
     {
-        if(string(Vec_plnManagement[k]->receiver) != "-")
+        // make the log more readable :)
+        if(string(Vec_plnManagement[k]->sender) != oldSender || Vec_plnManagement[k]->time != oldTime)
+        {
             fprintf(filePtr, "\n");
+            oldSender = Vec_plnManagement[k]->sender;
+            oldTime = Vec_plnManagement[k]->time;
+        }
 
         fprintf (filePtr, "%-10.2f ", Vec_plnManagement[k]->time);
         fprintf (filePtr, "%-15s ", Vec_plnManagement[k]->sender);
@@ -418,9 +431,6 @@ void Statistics::plnManageToFile()
         fprintf (filePtr, "%-30s ", Vec_plnManagement[k]->type);
         fprintf (filePtr, "%-18s ", Vec_plnManagement[k]->sendingPlnID);
         fprintf (filePtr, "%-20s\n", Vec_plnManagement[k]->receivingPlnID);
-
-        if(string(Vec_plnManagement[k]->sendingPlnID) != "-")
-            fprintf(filePtr, "\n");
     }
 
     fclose(filePtr);
