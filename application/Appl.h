@@ -63,6 +63,7 @@ public:
 };
 
 
+// for beacons
 class data : public cObject, noncopyable
 {
   public:

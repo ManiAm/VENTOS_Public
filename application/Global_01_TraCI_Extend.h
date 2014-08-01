@@ -49,6 +49,7 @@ class TraCI_Extend : public TraCIScenarioManager
         list<string> commandGetVehicleList();
         double commandGetVehicleSpeed(string);
         double commandGetVehicleAccel(string);
+        int commandGetCFMode(string);
         string commandGetVehicleType(string);
         double commandGetVehicleLength(string);
         double commandGetVehicleMinGap(string);

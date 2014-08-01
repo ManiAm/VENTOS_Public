@@ -125,11 +125,52 @@ void Statistics::vehiclesData()
 
 void Statistics::saveVehicleData(string vID)
 {
+    double timeStep = (simTime()-updateInterval).dbl();
     string vType = TraCI->commandGetVehicleType(vID);
-    double speed = TraCI->commandGetVehicleSpeed(vID);
-    double pos = TraCI->getCommandInterface()->getLanePosition(vID);
-    double accel = TraCI->commandGetVehicleAccel(vID);
     string lane = TraCI->getCommandInterface()->getLaneId(vID);
+    double pos = TraCI->getCommandInterface()->getLanePosition(vID);
+    double speed = TraCI->commandGetVehicleSpeed(vID);
+    double accel = TraCI->commandGetVehicleAccel(vID);
+    int CFMode_Enum = TraCI->commandGetCFMode(vID);
+    string CFMode;
+
+    enum CFMODES {
+        Mode_Undefined,
+        Mode_NoData,
+        Mode_DataLoss,
+        Mode_SpeedControl,
+        Mode_GapControl,
+        Mode_EmergencyBrake,
+        Mode_Stopped
+    };
+
+    switch(CFMode_Enum)
+    {
+    case Mode_Undefined:
+        CFMode = "Undefined";
+        break;
+    case Mode_NoData:
+        CFMode = "NoData";
+        break;
+    case Mode_DataLoss:
+        CFMode = "DataLoss";
+        break;
+    case Mode_SpeedControl:
+        CFMode = "SpeedControl";
+        break;
+    case Mode_GapControl:
+        CFMode = "GapControl";
+        break;
+    case Mode_EmergencyBrake:
+        CFMode = "EmergencyBrake";
+        break;
+    case Mode_Stopped:
+        CFMode = "Stopped";
+        break;
+    default:
+        error("Not a valid CFModel!");
+        break;
+    }
 
     // get the gap
     vector<string> vleaderIDnew = TraCI->commandGetLeading(vID, 900);
@@ -145,10 +186,11 @@ void Statistics::saveVehicleData(string vID)
     if(vleaderID != "" && speed != 0)
         timeGap = gap / speed;
 
-    VehicleData *tmp = new VehicleData(index, (simTime()-updateInterval).dbl(),
+    VehicleData *tmp = new VehicleData(index, timeStep,
                                        vID.c_str(), vType.c_str(),
                                        lane.c_str(), pos,
-                                       speed, accel, gap, timeGap);
+                                       speed, accel, CFMode.c_str(),
+                                       gap, timeGap);
     Vec_vehiclesData.push_back(tmp);
 }
 
@@ -181,6 +223,7 @@ void Statistics::vehiclesDataToFile()
     fprintf (filePtr, "%-11s","pos");
     fprintf (filePtr, "%-12s","speed");
     fprintf (filePtr, "%-12s","accel");
+    fprintf (filePtr, "%-20s","CFMode");
     fprintf (filePtr, "%-10s","gap");
     fprintf (filePtr, "%-10s\n\n","timeGap");
 
@@ -203,6 +246,7 @@ void Statistics::vehiclesDataToFile()
         fprintf (filePtr, "%-10.2f ", Vec_vehiclesData[k]->pos);
         fprintf (filePtr, "%-10.2f ", Vec_vehiclesData[k]->speed);
         fprintf (filePtr, "%-10.2f ", Vec_vehiclesData[k]->accel);
+        fprintf (filePtr, "%-20s", Vec_vehiclesData[k]->CFMode);
         fprintf (filePtr, "%-10.2f ", Vec_vehiclesData[k]->gap);
         fprintf (filePtr, "%-10.2f \n", Vec_vehiclesData[k]->timeGap);
     }
@@ -586,6 +630,7 @@ void Statistics::receiveSignal(cComponent *source, simsignal_t signalID, long i)
 }
 
 
+// todo
 void Statistics::postProcess()
 {
     for(unsigned int k=0; k<Vec_BeaconsP.size(); k++)
@@ -698,7 +743,6 @@ void Statistics::postProcess()
         intervalE = intervalE + updateInterval;
     }
 }
-
 
 
 void Statistics::printToFile()
@@ -998,7 +1042,6 @@ vector<NodeEntry *> Statistics::SortByID(vector<NodeEntry *> vec)
 
 void Statistics::finish()
 {
-
 
 }
 

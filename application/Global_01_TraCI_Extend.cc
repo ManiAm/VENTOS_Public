@@ -147,7 +147,13 @@ double TraCI_Extend::commandGetVehicleSpeed(string nodeId)
 
 double TraCI_Extend::commandGetVehicleAccel(string nodeId)
 {
-    return getCommandInterface()->genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, 0x41, RESPONSE_GET_VEHICLE_VARIABLE);
+    return getCommandInterface()->genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, 0x70, RESPONSE_GET_VEHICLE_VARIABLE);
+}
+
+
+int TraCI_Extend::commandGetCFMode(string nodeId)
+{
+    return getCommandInterface()->genericGetInt(CMD_GET_VEHICLE_VARIABLE, nodeId, 0x71, RESPONSE_GET_VEHICLE_VARIABLE);
 }
 
 

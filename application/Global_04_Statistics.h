@@ -63,13 +63,16 @@ class VehicleData
 
     double speed;
     double accel;
+    char CFMode[30];
+
     double gap;
     double timeGap;
 
     VehicleData(int i, double d1,
                  const char *str1, const char *str2,
                  const char *str3, double d2,
-                 double d3, double d4, double d5, double d6)
+                 double d3, double d4, const char *str4,
+                 double d5, double d6)
     {
         this->index = i;
         this->time = d1;
@@ -82,6 +85,8 @@ class VehicleData
 
         this->speed = d3;
         this->accel = d4;
+        strcpy(this->CFMode, str4);
+
         this->gap = d5;
         this->timeGap = d6;
     }
