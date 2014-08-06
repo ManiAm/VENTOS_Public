@@ -67,6 +67,11 @@ void VehicleAdd::Add()
     {
         Scenario5();
     }
+    // bi-directional control
+    else if(mode == 6)
+    {
+        Scenario6();
+    }
     else
     {
         error("not a valid mode!");
@@ -221,6 +226,21 @@ void VehicleAdd::Scenario5()
          int depart = poisson(lambda);
 
          TraCI->commandAddVehicleN(vehicleName, "TypeCACC", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
+     }
+}
+
+
+void VehicleAdd::Scenario6()
+{
+    int depart = 0;
+
+     for(int i=1; i<=totalVehicles; i++)
+     {
+         char vehicleName[10];
+         sprintf(vehicleName, "CACC%d", i);
+         depart = depart + 10000;
+
+         TraCI->commandAddVehicleN(vehicleName, "TypeBiDi", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
      }
 }
 

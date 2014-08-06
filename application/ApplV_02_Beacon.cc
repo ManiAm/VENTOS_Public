@@ -181,6 +181,13 @@ bool ApplVBeacon::isBeaconFromLeading(BeaconVehicle* wsm)
 
     vector<string> vleaderIDnew = TraCI->commandGetLeading(SUMOvID, sonarDist);
     string vleaderID = vleaderIDnew[0];
+
+    if( vleaderID == string(wsm->getSender()) )
+        return true;
+    else
+        return false;
+
+    /*
     double gap = atof( vleaderIDnew[1].c_str() );
 
     if(vleaderID == "")
@@ -232,6 +239,7 @@ bool ApplVBeacon::isBeaconFromLeading(BeaconVehicle* wsm)
 
     EV << "This beacon is from the leading vehicle!" << endl;
     return true;
+    */
 }
 
 

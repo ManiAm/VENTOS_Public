@@ -1,814 +1,670 @@
 index     timeStep    vehicleName    vehicleType      lane        pos        speed       accel       CFMode              gap       timeGap   
 
 
-1          10.00      CACC1           TypeCACC        1to2_0       0.00       0.00       0.00       Undefined           -1.00      -1.00      
+1          10.00      CACC1           TypeBiDi        1to2_0       0.00       0.00       0.00       Undefined           -1.00      -1.00      
 
-2          10.10      CACC1           TypeCACC        1to2_0       0.03       0.30       3.00       Undefined           -1.00      -1.00      
+2          10.10      CACC1           TypeBiDi        1to2_0       0.03       0.30       3.00       Undefined           -1.00      -1.00      
 
-3          10.20      CACC1           TypeCACC        1to2_0       0.09       0.60       3.00       Undefined           -1.00      -1.00      
+3          10.20      CACC1           TypeBiDi        1to2_0       0.09       0.60       3.00       Undefined           -1.00      -1.00      
 
-4          10.30      CACC1           TypeCACC        1to2_0       0.18       0.90       3.00       Undefined           -1.00      -1.00      
+4          10.30      CACC1           TypeBiDi        1to2_0       0.18       0.90       3.00       Undefined           -1.00      -1.00      
 
-5          10.40      CACC1           TypeCACC        1to2_0       0.30       1.20       3.00       Undefined           -1.00      -1.00      
+5          10.40      CACC1           TypeBiDi        1to2_0       0.30       1.20       3.00       Undefined           -1.00      -1.00      
 
-6          10.50      CACC1           TypeCACC        1to2_0       0.45       1.50       3.00       Undefined           -1.00      -1.00      
+6          10.50      CACC1           TypeBiDi        1to2_0       0.45       1.50       3.00       Undefined           -1.00      -1.00      
 
-7          10.60      CACC1           TypeCACC        1to2_0       0.63       1.80       3.00       Undefined           -1.00      -1.00      
+7          10.60      CACC1           TypeBiDi        1to2_0       0.63       1.80       3.00       Undefined           -1.00      -1.00      
 
-8          10.70      CACC1           TypeCACC        1to2_0       0.84       2.10       3.00       Undefined           -1.00      -1.00      
+8          10.70      CACC1           TypeBiDi        1to2_0       0.84       2.10       3.00       Undefined           -1.00      -1.00      
 
-9          10.80      CACC1           TypeCACC        1to2_0       1.08       2.40       3.00       Undefined           -1.00      -1.00      
+9          10.80      CACC1           TypeBiDi        1to2_0       1.08       2.40       3.00       Undefined           -1.00      -1.00      
 
-10         10.90      CACC1           TypeCACC        1to2_0       1.35       2.70       3.00       Undefined           -1.00      -1.00      
+10         10.90      CACC1           TypeBiDi        1to2_0       1.35       2.70       3.00       Undefined           -1.00      -1.00      
 
-11         11.00      CACC1           TypeCACC        1to2_0       1.65       3.00       3.00       Undefined           -1.00      -1.00      
+11         11.00      CACC1           TypeBiDi        1to2_0       1.65       3.00       3.00       Undefined           -1.00      -1.00      
 
-12         11.10      CACC1           TypeCACC        1to2_0       1.98       3.30       3.00       Undefined           -1.00      -1.00      
+12         11.10      CACC1           TypeBiDi        1to2_0       1.98       3.30       3.00       Undefined           -1.00      -1.00      
 
-13         11.20      CACC1           TypeCACC        1to2_0       2.34       3.60       3.00       Undefined           -1.00      -1.00      
+13         11.20      CACC1           TypeBiDi        1to2_0       2.34       3.60       3.00       Undefined           -1.00      -1.00      
 
-14         11.30      CACC1           TypeCACC        1to2_0       2.73       3.90       3.00       Undefined           -1.00      -1.00      
+14         11.30      CACC1           TypeBiDi        1to2_0       2.73       3.90       3.00       Undefined           -1.00      -1.00      
 
-15         11.40      CACC1           TypeCACC        1to2_0       3.15       4.20       3.00       Undefined           -1.00      -1.00      
+15         11.40      CACC1           TypeBiDi        1to2_0       3.15       4.20       3.00       Undefined           -1.00      -1.00      
 
-16         11.50      CACC1           TypeCACC        1to2_0       3.60       4.50       3.00       Undefined           -1.00      -1.00      
+16         11.50      CACC1           TypeBiDi        1to2_0       3.60       4.50       3.00       Undefined           -1.00      -1.00      
 
-17         11.60      CACC1           TypeCACC        1to2_0       4.08       4.80       3.00       Undefined           -1.00      -1.00      
+17         11.60      CACC1           TypeBiDi        1to2_0       4.08       4.80       3.00       Undefined           -1.00      -1.00      
 
-18         11.70      CACC1           TypeCACC        1to2_0       4.59       5.10       3.00       Undefined           -1.00      -1.00      
+18         11.70      CACC1           TypeBiDi        1to2_0       4.59       5.10       3.00       Undefined           -1.00      -1.00      
 
-19         11.80      CACC1           TypeCACC        1to2_0       5.13       5.40       3.00       Undefined           -1.00      -1.00      
+19         11.80      CACC1           TypeBiDi        1to2_0       5.13       5.40       3.00       Undefined           -1.00      -1.00      
 
-20         11.90      CACC1           TypeCACC        1to2_0       5.70       5.70       3.00       Undefined           -1.00      -1.00      
+20         11.90      CACC1           TypeBiDi        1to2_0       5.70       5.70       3.00       Undefined           -1.00      -1.00      
 
-21         12.00      CACC1           TypeCACC        1to2_0       6.30       6.00       3.00       Undefined           -1.00      -1.00      
+21         12.00      CACC1           TypeBiDi        1to2_0       6.30       6.00       3.00       Undefined           -1.00      -1.00      
 
-22         12.10      CACC1           TypeCACC        1to2_0       6.93       6.30       3.00       Undefined           -1.00      -1.00      
+22         12.10      CACC1           TypeBiDi        1to2_0       6.93       6.30       3.00       Undefined           -1.00      -1.00      
 
-23         12.20      CACC1           TypeCACC        1to2_0       7.59       6.60       3.00       Undefined           -1.00      -1.00      
+23         12.20      CACC1           TypeBiDi        1to2_0       7.59       6.60       3.00       Undefined           -1.00      -1.00      
 
-24         12.30      CACC1           TypeCACC        1to2_0       8.28       6.90       3.00       Undefined           -1.00      -1.00      
+24         12.30      CACC1           TypeBiDi        1to2_0       8.28       6.90       3.00       Undefined           -1.00      -1.00      
 
-25         12.40      CACC1           TypeCACC        1to2_0       9.00       7.20       3.00       Undefined           -1.00      -1.00      
+25         12.40      CACC1           TypeBiDi        1to2_0       9.00       7.20       3.00       Undefined           -1.00      -1.00      
 
-26         12.50      CACC1           TypeCACC        1to2_0       9.75       7.50       3.00       Undefined           -1.00      -1.00      
+26         12.50      CACC1           TypeBiDi        1to2_0       9.75       7.50       3.00       Undefined           -1.00      -1.00      
 
-27         12.60      CACC1           TypeCACC        1to2_0       10.53      7.80       3.00       Undefined           -1.00      -1.00      
+27         12.60      CACC1           TypeBiDi        1to2_0       10.53      7.80       3.00       Undefined           -1.00      -1.00      
 
-28         12.70      CACC1           TypeCACC        1to2_0       11.34      8.10       3.00       Undefined           -1.00      -1.00      
+28         12.70      CACC1           TypeBiDi        1to2_0       11.34      8.10       3.00       Undefined           -1.00      -1.00      
 
-29         12.80      CACC1           TypeCACC        1to2_0       12.18      8.40       3.00       Undefined           -1.00      -1.00      
+29         12.80      CACC1           TypeBiDi        1to2_0       12.18      8.40       3.00       Undefined           -1.00      -1.00      
 
-30         12.90      CACC1           TypeCACC        1to2_0       13.05      8.70       3.00       Undefined           -1.00      -1.00      
+30         12.90      CACC1           TypeBiDi        1to2_0       13.05      8.70       3.00       Undefined           -1.00      -1.00      
 
-31         13.00      CACC1           TypeCACC        1to2_0       13.95      9.00       3.00       Undefined           -1.00      -1.00      
+31         13.00      CACC1           TypeBiDi        1to2_0       13.95      9.00       3.00       Undefined           -1.00      -1.00      
 
-32         13.10      CACC1           TypeCACC        1to2_0       14.88      9.30       3.00       Undefined           -1.00      -1.00      
+32         13.10      CACC1           TypeBiDi        1to2_0       14.88      9.30       3.00       Undefined           -1.00      -1.00      
 
-33         13.20      CACC1           TypeCACC        1to2_0       15.84      9.60       3.00       Undefined           -1.00      -1.00      
+33         13.20      CACC1           TypeBiDi        1to2_0       15.84      9.60       3.00       Undefined           -1.00      -1.00      
 
-34         13.30      CACC1           TypeCACC        1to2_0       16.83      9.90       3.00       Undefined           -1.00      -1.00      
+34         13.30      CACC1           TypeBiDi        1to2_0       16.83      9.90       3.00       Undefined           -1.00      -1.00      
 
-35         13.40      CACC1           TypeCACC        1to2_0       17.85      10.20      3.00       Undefined           -1.00      -1.00      
+35         13.40      CACC1           TypeBiDi        1to2_0       17.85      10.20      3.00       Undefined           -1.00      -1.00      
 
-36         13.50      CACC1           TypeCACC        1to2_0       18.90      10.50      3.00       Undefined           -1.00      -1.00      
+36         13.50      CACC1           TypeBiDi        1to2_0       18.90      10.50      3.00       Undefined           -1.00      -1.00      
 
-37         13.60      CACC1           TypeCACC        1to2_0       19.98      10.80      3.00       Undefined           -1.00      -1.00      
+37         13.60      CACC1           TypeBiDi        1to2_0       19.98      10.80      3.00       Undefined           -1.00      -1.00      
 
-38         13.70      CACC1           TypeCACC        1to2_0       21.09      11.10      3.00       Undefined           -1.00      -1.00      
+38         13.70      CACC1           TypeBiDi        1to2_0       21.09      11.10      3.00       Undefined           -1.00      -1.00      
 
-39         13.80      CACC1           TypeCACC        1to2_0       22.23      11.40      3.00       Undefined           -1.00      -1.00      
+39         13.80      CACC1           TypeBiDi        1to2_0       22.23      11.40      3.00       Undefined           -1.00      -1.00      
 
-40         13.90      CACC1           TypeCACC        1to2_0       23.40      11.70      3.00       Undefined           -1.00      -1.00      
+40         13.90      CACC1           TypeBiDi        1to2_0       23.40      11.70      3.00       Undefined           -1.00      -1.00      
 
-41         14.00      CACC1           TypeCACC        1to2_0       24.60      12.00      3.00       Undefined           -1.00      -1.00      
+41         14.00      CACC1           TypeBiDi        1to2_0       24.60      12.00      3.00       Undefined           -1.00      -1.00      
 
-42         14.10      CACC1           TypeCACC        1to2_0       25.83      12.30      3.00       Undefined           -1.00      -1.00      
+42         14.10      CACC1           TypeBiDi        1to2_0       25.83      12.30      3.00       Undefined           -1.00      -1.00      
 
-43         14.20      CACC1           TypeCACC        1to2_0       27.09      12.60      3.00       Undefined           -1.00      -1.00      
+43         14.20      CACC1           TypeBiDi        1to2_0       27.09      12.60      3.00       Undefined           -1.00      -1.00      
 
-44         14.30      CACC1           TypeCACC        1to2_0       28.38      12.90      3.00       Undefined           -1.00      -1.00      
+44         14.30      CACC1           TypeBiDi        1to2_0       28.38      12.90      3.00       Undefined           -1.00      -1.00      
 
-45         14.40      CACC1           TypeCACC        1to2_0       29.70      13.20      3.00       Undefined           -1.00      -1.00      
+45         14.40      CACC1           TypeBiDi        1to2_0       29.70      13.20      3.00       Undefined           -1.00      -1.00      
 
-46         14.50      CACC1           TypeCACC        1to2_0       31.05      13.50      3.00       Undefined           -1.00      -1.00      
+46         14.50      CACC1           TypeBiDi        1to2_0       31.05      13.50      3.00       Undefined           -1.00      -1.00      
 
-47         14.60      CACC1           TypeCACC        1to2_0       32.43      13.80      3.00       Undefined           -1.00      -1.00      
+47         14.60      CACC1           TypeBiDi        1to2_0       32.43      13.80      3.00       Undefined           -1.00      -1.00      
 
-48         14.70      CACC1           TypeCACC        1to2_0       33.84      14.10      3.00       Undefined           -1.00      -1.00      
+48         14.70      CACC1           TypeBiDi        1to2_0       33.84      14.10      3.00       Undefined           -1.00      -1.00      
 
-49         14.80      CACC1           TypeCACC        1to2_0       35.28      14.40      3.00       Undefined           -1.00      -1.00      
+49         14.80      CACC1           TypeBiDi        1to2_0       35.28      14.40      3.00       Undefined           -1.00      -1.00      
 
-50         14.90      CACC1           TypeCACC        1to2_0       36.75      14.70      3.00       Undefined           -1.00      -1.00      
+50         14.90      CACC1           TypeBiDi        1to2_0       36.75      14.70      3.00       Undefined           -1.00      -1.00      
 
-51         15.00      CACC1           TypeCACC        1to2_0       38.25      15.00      3.00       Undefined           -1.00      -1.00      
+51         15.00      CACC1           TypeBiDi        1to2_0       38.25      15.00      3.00       Undefined           -1.00      -1.00      
 
-52         15.10      CACC1           TypeCACC        1to2_0       39.78      15.30      3.00       Undefined           -1.00      -1.00      
+52         15.10      CACC1           TypeBiDi        1to2_0       39.78      15.30      3.00       Undefined           -1.00      -1.00      
 
-53         15.20      CACC1           TypeCACC        1to2_0       41.34      15.60      3.00       Undefined           -1.00      -1.00      
+53         15.20      CACC1           TypeBiDi        1to2_0       41.34      15.60      3.00       Undefined           -1.00      -1.00      
 
-54         15.30      CACC1           TypeCACC        1to2_0       42.93      15.90      3.00       Undefined           -1.00      -1.00      
+54         15.30      CACC1           TypeBiDi        1to2_0       42.93      15.90      3.00       Undefined           -1.00      -1.00      
 
-55         15.40      CACC1           TypeCACC        1to2_0       44.55      16.20      3.00       Undefined           -1.00      -1.00      
+55         15.40      CACC1           TypeBiDi        1to2_0       44.55      16.20      3.00       Undefined           -1.00      -1.00      
 
-56         15.50      CACC1           TypeCACC        1to2_0       46.20      16.50      3.00       Undefined           -1.00      -1.00      
+56         15.50      CACC1           TypeBiDi        1to2_0       46.20      16.50      3.00       Undefined           -1.00      -1.00      
 
-57         15.60      CACC1           TypeCACC        1to2_0       47.88      16.80      3.00       Undefined           -1.00      -1.00      
+57         15.60      CACC1           TypeBiDi        1to2_0       47.88      16.80      3.00       Undefined           -1.00      -1.00      
 
-58         15.70      CACC1           TypeCACC        1to2_0       49.59      17.10      3.00       Undefined           -1.00      -1.00      
+58         15.70      CACC1           TypeBiDi        1to2_0       49.59      17.10      3.00       Undefined           -1.00      -1.00      
 
-59         15.80      CACC1           TypeCACC        1to2_0       51.33      17.40      3.00       Undefined           -1.00      -1.00      
+59         15.80      CACC1           TypeBiDi        1to2_0       51.33      17.40      3.00       Undefined           -1.00      -1.00      
 
-60         15.90      CACC1           TypeCACC        1to2_0       53.10      17.70      3.00       Undefined           -1.00      -1.00      
+60         15.90      CACC1           TypeBiDi        1to2_0       53.10      17.70      3.00       Undefined           -1.00      -1.00      
 
-61         16.00      CACC1           TypeCACC        1to2_0       54.90      18.00      3.00       Undefined           -1.00      -1.00      
+61         16.00      CACC1           TypeBiDi        1to2_0       54.90      18.00      3.00       Undefined           -1.00      -1.00      
 
-62         16.10      CACC1           TypeCACC        1to2_0       56.73      18.30      3.00       Undefined           -1.00      -1.00      
+62         16.10      CACC1           TypeBiDi        1to2_0       56.73      18.30      3.00       Undefined           -1.00      -1.00      
 
-63         16.20      CACC1           TypeCACC        1to2_0       58.59      18.60      3.00       Undefined           -1.00      -1.00      
+63         16.20      CACC1           TypeBiDi        1to2_0       58.59      18.60      3.00       Undefined           -1.00      -1.00      
 
-64         16.30      CACC1           TypeCACC        1to2_0       60.48      18.90      3.00       Undefined           -1.00      -1.00      
+64         16.30      CACC1           TypeBiDi        1to2_0       60.48      18.90      3.00       Undefined           -1.00      -1.00      
 
-65         16.40      CACC1           TypeCACC        1to2_0       62.40      19.20      3.00       Undefined           -1.00      -1.00      
+65         16.40      CACC1           TypeBiDi        1to2_0       62.40      19.20      3.00       Undefined           -1.00      -1.00      
 
-66         16.50      CACC1           TypeCACC        1to2_0       64.35      19.50      3.00       Undefined           -1.00      -1.00      
+66         16.50      CACC1           TypeBiDi        1to2_0       64.35      19.50      3.00       Undefined           -1.00      -1.00      
 
-67         16.60      CACC1           TypeCACC        1to2_0       66.33      19.80      3.00       Undefined           -1.00      -1.00      
+67         16.60      CACC1           TypeBiDi        1to2_0       66.33      19.80      3.00       Undefined           -1.00      -1.00      
 
-68         16.70      CACC1           TypeCACC        1to2_0       68.34      20.10      3.00       Undefined           -1.00      -1.00      
+68         16.70      CACC1           TypeBiDi        1to2_0       68.34      20.10      3.00       Undefined           -1.00      -1.00      
 
-69         16.80      CACC1           TypeCACC        1to2_0       70.38      20.40      3.00       Undefined           -1.00      -1.00      
+69         16.80      CACC1           TypeBiDi        1to2_0       70.38      20.40      3.00       Undefined           -1.00      -1.00      
 
-70         16.90      CACC1           TypeCACC        1to2_0       72.45      20.70      3.00       Undefined           -1.00      -1.00      
+70         16.90      CACC1           TypeBiDi        1to2_0       72.45      20.70      3.00       Undefined           -1.00      -1.00      
 
-71         17.00      CACC1           TypeCACC        1to2_0       74.55      21.00      3.00       Undefined           -1.00      -1.00      
+71         17.00      CACC1           TypeBiDi        1to2_0       74.55      21.00      3.00       Undefined           -1.00      -1.00      
 
-72         17.10      CACC1           TypeCACC        1to2_0       76.68      21.30      3.00       Undefined           -1.00      -1.00      
+72         17.10      CACC1           TypeBiDi        1to2_0       76.68      21.30      3.00       Undefined           -1.00      -1.00      
 
-73         17.20      CACC1           TypeCACC        1to2_0       78.84      21.60      3.00       Undefined           -1.00      -1.00      
+73         17.20      CACC1           TypeBiDi        1to2_0       78.84      21.60      3.00       Undefined           -1.00      -1.00      
 
-74         17.30      CACC1           TypeCACC        1to2_0       81.03      21.90      3.00       Undefined           -1.00      -1.00      
+74         17.30      CACC1           TypeBiDi        1to2_0       81.03      21.90      3.00       Undefined           -1.00      -1.00      
 
-75         17.40      CACC1           TypeCACC        1to2_0       83.25      22.20      3.00       Undefined           -1.00      -1.00      
+75         17.40      CACC1           TypeBiDi        1to2_0       83.25      22.20      3.00       Undefined           -1.00      -1.00      
 
-76         17.50      CACC1           TypeCACC        1to2_0       85.50      22.50      3.00       Undefined           -1.00      -1.00      
+76         17.50      CACC1           TypeBiDi        1to2_0       85.50      22.50      3.00       Undefined           -1.00      -1.00      
 
-77         17.60      CACC1           TypeCACC        1to2_0       87.78      22.80      3.00       Undefined           -1.00      -1.00      
+77         17.60      CACC1           TypeBiDi        1to2_0       87.78      22.80      3.00       Undefined           -1.00      -1.00      
 
-78         17.70      CACC1           TypeCACC        1to2_0       90.09      23.10      3.00       Undefined           -1.00      -1.00      
+78         17.70      CACC1           TypeBiDi        1to2_0       90.09      23.10      3.00       Undefined           -1.00      -1.00      
 
-79         17.80      CACC1           TypeCACC        1to2_0       92.35      22.60      -5.00      Undefined           -1.00      -1.00      
+79         17.80      CACC1           TypeBiDi        1to2_0       92.35      22.60      -5.00      Undefined           -1.00      -1.00      
 
-80         17.90      CACC1           TypeCACC        1to2_0       94.56      22.10      -5.00      Undefined           -1.00      -1.00      
+80         17.90      CACC1           TypeBiDi        1to2_0       94.56      22.10      -5.00      Undefined           -1.00      -1.00      
 
-81         18.00      CACC1           TypeCACC        1to2_0       96.72      21.60      -5.00      Undefined           -1.00      -1.00      
+81         18.00      CACC1           TypeBiDi        1to2_0       96.72      21.60      -5.00      Undefined           -1.00      -1.00      
 
-82         18.10      CACC1           TypeCACC        1to2_0       98.83      21.10      -5.00      Undefined           -1.00      -1.00      
+82         18.10      CACC1           TypeBiDi        1to2_0       98.83      21.10      -5.00      Undefined           -1.00      -1.00      
 
-83         18.20      CACC1           TypeCACC        1to2_0       100.89     20.60      -5.00      Undefined           -1.00      -1.00      
+83         18.20      CACC1           TypeBiDi        1to2_0       100.89     20.60      -5.00      Undefined           -1.00      -1.00      
 
-84         18.30      CACC1           TypeCACC        1to2_0       102.90     20.10      -5.00      Undefined           -1.00      -1.00      
+84         18.30      CACC1           TypeBiDi        1to2_0       102.90     20.10      -5.00      Undefined           -1.00      -1.00      
 
-85         18.40      CACC1           TypeCACC        1to2_0       104.86     19.60      -5.00      Undefined           -1.00      -1.00      
+85         18.40      CACC1           TypeBiDi        1to2_0       104.86     19.60      -5.00      Undefined           -1.00      -1.00      
 
-86         18.50      CACC1           TypeCACC        1to2_0       106.77     19.10      -5.00      Undefined           -1.00      -1.00      
+86         18.50      CACC1           TypeBiDi        1to2_0       106.77     19.10      -5.00      Undefined           -1.00      -1.00      
 
-87         18.60      CACC1           TypeCACC        1to2_0       108.63     18.60      -5.00      Undefined           -1.00      -1.00      
+87         18.60      CACC1           TypeBiDi        1to2_0       108.63     18.60      -5.00      Undefined           -1.00      -1.00      
 
-88         18.70      CACC1           TypeCACC        1to2_0       110.44     18.10      -5.00      Undefined           -1.00      -1.00      
+88         18.70      CACC1           TypeBiDi        1to2_0       110.44     18.10      -5.00      Undefined           -1.00      -1.00      
 
-89         18.80      CACC1           TypeCACC        1to2_0       112.20     17.60      -5.00      Undefined           -1.00      -1.00      
+89         18.80      CACC1           TypeBiDi        1to2_0       112.20     17.60      -5.00      Undefined           -1.00      -1.00      
 
-90         18.90      CACC1           TypeCACC        1to2_0       113.91     17.10      -5.00      Undefined           -1.00      -1.00      
+90         18.90      CACC1           TypeBiDi        1to2_0       113.91     17.10      -5.00      Undefined           -1.00      -1.00      
 
-91         19.00      CACC1           TypeCACC        1to2_0       115.57     16.60      -5.00      Undefined           -1.00      -1.00      
+91         19.00      CACC1           TypeBiDi        1to2_0       115.57     16.60      -5.00      Undefined           -1.00      -1.00      
 
-92         19.10      CACC1           TypeCACC        1to2_0       117.18     16.10      -5.00      Undefined           -1.00      -1.00      
+92         19.10      CACC1           TypeBiDi        1to2_0       117.18     16.10      -5.00      Undefined           -1.00      -1.00      
 
-93         19.20      CACC1           TypeCACC        1to2_0       118.74     15.60      -5.00      Undefined           -1.00      -1.00      
+93         19.20      CACC1           TypeBiDi        1to2_0       118.74     15.60      -5.00      Undefined           -1.00      -1.00      
 
-94         19.30      CACC1           TypeCACC        1to2_0       120.25     15.10      -5.00      Undefined           -1.00      -1.00      
+94         19.30      CACC1           TypeBiDi        1to2_0       120.25     15.10      -5.00      Undefined           -1.00      -1.00      
 
-95         19.40      CACC1           TypeCACC        1to2_0       121.71     14.60      -5.00      Undefined           -1.00      -1.00      
+95         19.40      CACC1           TypeBiDi        1to2_0       121.71     14.60      -5.00      Undefined           -1.00      -1.00      
 
-96         19.50      CACC1           TypeCACC        1to2_0       123.12     14.10      -5.00      Undefined           -1.00      -1.00      
+96         19.50      CACC1           TypeBiDi        1to2_0       123.12     14.10      -5.00      Undefined           -1.00      -1.00      
 
-97         19.60      CACC1           TypeCACC        1to2_0       124.48     13.60      -5.00      Undefined           -1.00      -1.00      
+97         19.60      CACC1           TypeBiDi        1to2_0       124.48     13.60      -5.00      Undefined           -1.00      -1.00      
 
-98         19.70      CACC1           TypeCACC        1to2_0       125.79     13.10      -5.00      Undefined           -1.00      -1.00      
+98         19.70      CACC1           TypeBiDi        1to2_0       125.79     13.10      -5.00      Undefined           -1.00      -1.00      
 
-99         19.80      CACC1           TypeCACC        1to2_0       127.05     12.60      -5.00      Undefined           -1.00      -1.00      
+99         19.80      CACC1           TypeBiDi        1to2_0       127.05     12.60      -5.00      Undefined           -1.00      -1.00      
 
-100        19.90      CACC1           TypeCACC        1to2_0       128.26     12.10      -5.00      Undefined           -1.00      -1.00      
+100        19.90      CACC1           TypeBiDi        1to2_0       128.26     12.10      -5.00      Undefined           -1.00      -1.00      
 
-101        20.00      CACC1           TypeCACC        1to2_0       129.42     11.60      -5.00      Undefined           -1.00      -1.00      
-101        20.00      CACC2           TypeCACC        1to2_0       0.00       0.00       0.00       SpeedControl        124.42     -1.00      
+101        20.00      CACC1           TypeBiDi        1to2_0       129.42     11.60      -5.00      Undefined           -1.00      -1.00      
+101        20.00      CACC2           TypeBiDi        1to2_0       0.00       0.00       0.00       SpeedControl        124.42     -1.00      
 
-102        20.10      CACC1           TypeCACC        1to2_0       130.53     11.10      -5.00      Undefined           -1.00      -1.00      
-102        20.10      CACC2           TypeCACC        1to2_0       0.02       0.20       2.00       SpeedControl        125.51     627.55     
+102        20.10      CACC1           TypeBiDi        1to2_0       130.53     11.10      -5.00      Undefined           -1.00      -1.00      
+102        20.10      CACC2           TypeBiDi        1to2_0       0.02       0.20       2.00       SpeedControl        125.51     627.55     
 
-103        20.20      CACC1           TypeCACC        1to2_0       131.59     10.60      -5.00      Undefined           -1.00      -1.00      
-103        20.20      CACC2           TypeCACC        1to2_0       0.06       0.40       2.00       SpeedControl        126.53     316.32     
+103        20.20      CACC1           TypeBiDi        1to2_0       131.59     10.60      -5.00      Undefined           -1.00      -1.00      
+103        20.20      CACC2           TypeBiDi        1to2_0       0.06       0.40       2.00       SpeedControl        126.53     316.32     
 
-104        20.30      CACC1           TypeCACC        1to2_0       132.60     10.10      -5.00      Undefined           -1.00      -1.00      
-104        20.30      CACC2           TypeCACC        1to2_0       0.12       0.60       2.00       SpeedControl        127.48     212.47     
+104        20.30      CACC1           TypeBiDi        1to2_0       132.60     10.10      -5.00      Undefined           -1.00      -1.00      
+104        20.30      CACC2           TypeBiDi        1to2_0       0.12       0.60       2.00       SpeedControl        127.48     212.47     
 
-105        20.40      CACC1           TypeCACC        1to2_0       133.56     9.60       -5.00      Undefined           -1.00      -1.00      
-105        20.40      CACC2           TypeCACC        1to2_0       0.20       0.80       2.00       SpeedControl        128.36     160.45     
+105        20.40      CACC1           TypeBiDi        1to2_0       133.56     9.60       -5.00      Undefined           -1.00      -1.00      
+105        20.40      CACC2           TypeBiDi        1to2_0       0.20       0.80       2.00       SpeedControl        128.36     160.45     
 
-106        20.50      CACC1           TypeCACC        1to2_0       134.47     9.10       -5.00      Undefined           -1.00      -1.00      
-106        20.50      CACC2           TypeCACC        1to2_0       0.30       1.00       2.00       SpeedControl        129.17     129.17     
+106        20.50      CACC1           TypeBiDi        1to2_0       134.47     9.10       -5.00      Undefined           -1.00      -1.00      
+106        20.50      CACC2           TypeBiDi        1to2_0       0.30       1.00       2.00       SpeedControl        129.17     129.17     
 
-107        20.60      CACC1           TypeCACC        1to2_0       135.33     8.60       -5.00      Undefined           -1.00      -1.00      
-107        20.60      CACC2           TypeCACC        1to2_0       0.42       1.20       2.00       SpeedControl        129.91     108.26     
+107        20.60      CACC1           TypeBiDi        1to2_0       135.33     8.60       -5.00      Undefined           -1.00      -1.00      
+107        20.60      CACC2           TypeBiDi        1to2_0       0.42       1.20       2.00       SpeedControl        129.91     108.26     
 
-108        20.70      CACC1           TypeCACC        1to2_0       136.14     8.10       -5.00      Undefined           -1.00      -1.00      
-108        20.70      CACC2           TypeCACC        1to2_0       0.56       1.40       2.00       SpeedControl        130.58     93.27      
+108        20.70      CACC1           TypeBiDi        1to2_0       136.14     8.10       -5.00      Undefined           -1.00      -1.00      
+108        20.70      CACC2           TypeBiDi        1to2_0       0.56       1.40       2.00       SpeedControl        130.58     93.27      
 
-109        20.80      CACC1           TypeCACC        1to2_0       136.90     7.60       -5.00      Undefined           -1.00      -1.00      
-109        20.80      CACC2           TypeCACC        1to2_0       0.72       1.60       2.00       SpeedControl        131.18     81.99      
+109        20.80      CACC1           TypeBiDi        1to2_0       136.90     7.60       -5.00      Undefined           -1.00      -1.00      
+109        20.80      CACC2           TypeBiDi        1to2_0       0.72       1.60       2.00       SpeedControl        131.18     81.99      
 
-110        20.90      CACC1           TypeCACC        1to2_0       137.61     7.10       -5.00      Undefined           -1.00      -1.00      
-110        20.90      CACC2           TypeCACC        1to2_0       0.90       1.80       2.00       SpeedControl        131.71     73.17      
+110        20.90      CACC1           TypeBiDi        1to2_0       137.61     7.10       -5.00      Undefined           -1.00      -1.00      
+110        20.90      CACC2           TypeBiDi        1to2_0       0.90       1.80       2.00       SpeedControl        131.71     73.17      
 
-111        21.00      CACC1           TypeCACC        1to2_0       138.27     6.60       -5.00      Undefined           -1.00      -1.00      
-111        21.00      CACC2           TypeCACC        1to2_0       1.10       2.00       2.00       SpeedControl        132.17     66.09      
+111        21.00      CACC1           TypeBiDi        1to2_0       138.27     6.60       -5.00      Undefined           -1.00      -1.00      
+111        21.00      CACC2           TypeBiDi        1to2_0       1.10       2.00       2.00       SpeedControl        132.17     66.09      
 
-112        21.10      CACC1           TypeCACC        1to2_0       138.88     6.10       -5.00      Undefined           -1.00      -1.00      
-112        21.10      CACC2           TypeCACC        1to2_0       1.32       2.20       2.00       SpeedControl        132.56     60.25      
+112        21.10      CACC1           TypeBiDi        1to2_0       138.88     6.10       -5.00      Undefined           -1.00      -1.00      
+112        21.10      CACC2           TypeBiDi        1to2_0       1.32       2.20       2.00       SpeedControl        132.56     60.25      
 
-113        21.20      CACC1           TypeCACC        1to2_0       139.44     5.60       -5.00      Undefined           -1.00      -1.00      
-113        21.20      CACC2           TypeCACC        1to2_0       1.56       2.40       2.00       SpeedControl        132.88     55.37      
+113        21.20      CACC1           TypeBiDi        1to2_0       139.44     5.60       -5.00      Undefined           -1.00      -1.00      
+113        21.20      CACC2           TypeBiDi        1to2_0       1.56       2.40       2.00       SpeedControl        132.88     55.37      
 
-114        21.30      CACC1           TypeCACC        1to2_0       139.95     5.10       -5.00      Undefined           -1.00      -1.00      
-114        21.30      CACC2           TypeCACC        1to2_0       1.82       2.60       2.00       SpeedControl        133.13     51.20      
+114        21.30      CACC1           TypeBiDi        1to2_0       139.95     5.10       -5.00      Undefined           -1.00      -1.00      
+114        21.30      CACC2           TypeBiDi        1to2_0       1.82       2.60       2.00       SpeedControl        133.13     51.20      
 
-115        21.40      CACC1           TypeCACC        1to2_0       140.41     4.60       -5.00      Undefined           -1.00      -1.00      
-115        21.40      CACC2           TypeCACC        1to2_0       2.10       2.80       2.00       SpeedControl        133.31     47.61      
+115        21.40      CACC1           TypeBiDi        1to2_0       140.41     4.60       -5.00      Undefined           -1.00      -1.00      
+115        21.40      CACC2           TypeBiDi        1to2_0       2.10       2.80       2.00       SpeedControl        133.31     47.61      
 
-116        21.50      CACC1           TypeCACC        1to2_0       140.82     4.10       -5.00      Undefined           -1.00      -1.00      
-116        21.50      CACC2           TypeCACC        1to2_0       2.40       3.00       2.00       SpeedControl        133.42     44.47      
+116        21.50      CACC1           TypeBiDi        1to2_0       140.82     4.10       -5.00      Undefined           -1.00      -1.00      
+116        21.50      CACC2           TypeBiDi        1to2_0       2.40       3.00       2.00       SpeedControl        133.42     44.47      
 
-117        21.60      CACC1           TypeCACC        1to2_0       141.18     3.60       -5.00      Undefined           -1.00      -1.00      
-117        21.60      CACC2           TypeCACC        1to2_0       2.72       3.20       2.00       SpeedControl        133.46     41.71      
+117        21.60      CACC1           TypeBiDi        1to2_0       141.18     3.60       -5.00      Undefined           -1.00      -1.00      
+117        21.60      CACC2           TypeBiDi        1to2_0       2.72       3.20       2.00       SpeedControl        133.46     41.71      
 
-118        21.70      CACC1           TypeCACC        1to2_0       141.49     3.10       -5.00      Undefined           -1.00      -1.00      
-118        21.70      CACC2           TypeCACC        1to2_0       3.06       3.40       2.00       SpeedControl        133.43     39.24      
+118        21.70      CACC1           TypeBiDi        1to2_0       141.49     3.10       -5.00      Undefined           -1.00      -1.00      
+118        21.70      CACC2           TypeBiDi        1to2_0       3.06       3.40       2.00       SpeedControl        133.43     39.24      
 
-119        21.80      CACC1           TypeCACC        1to2_0       141.75     2.60       -5.00      Undefined           -1.00      -1.00      
-119        21.80      CACC2           TypeCACC        1to2_0       3.42       3.60       2.00       SpeedControl        133.33     37.04      
+119        21.80      CACC1           TypeBiDi        1to2_0       141.75     2.60       -5.00      Undefined           -1.00      -1.00      
+119        21.80      CACC2           TypeBiDi        1to2_0       3.42       3.60       2.00       SpeedControl        133.33     37.04      
 
-120        21.90      CACC1           TypeCACC        1to2_0       141.96     2.10       -5.00      Undefined           -1.00      -1.00      
-120        21.90      CACC2           TypeCACC        1to2_0       3.80       3.80       2.00       SpeedControl        133.16     35.04      
+120        21.90      CACC1           TypeBiDi        1to2_0       141.96     2.10       -5.00      Undefined           -1.00      -1.00      
+120        21.90      CACC2           TypeBiDi        1to2_0       3.80       3.80       2.00       SpeedControl        133.16     35.04      
 
-121        22.00      CACC1           TypeCACC        1to2_0       142.12     1.60       -5.00      Undefined           -1.00      -1.00      
-121        22.00      CACC2           TypeCACC        1to2_0       4.20       4.00       2.00       SpeedControl        132.92     33.23      
+121        22.00      CACC1           TypeBiDi        1to2_0       142.12     1.60       -5.00      Undefined           -1.00      -1.00      
+121        22.00      CACC2           TypeBiDi        1to2_0       4.20       4.00       2.00       SpeedControl        132.92     33.23      
 
-122        22.10      CACC1           TypeCACC        1to2_0       142.23     1.10       -5.00      Undefined           -1.00      -1.00      
-122        22.10      CACC2           TypeCACC        1to2_0       4.62       4.20       2.00       SpeedControl        132.61     31.57      
+122        22.10      CACC1           TypeBiDi        1to2_0       142.23     1.10       -5.00      Undefined           -1.00      -1.00      
+122        22.10      CACC2           TypeBiDi        1to2_0       4.62       4.20       2.00       SpeedControl        132.61     31.57      
 
-123        22.20      CACC1           TypeCACC        1to2_0       142.29     0.60       -5.00      Undefined           -1.00      -1.00      
-123        22.20      CACC2           TypeCACC        1to2_0       5.06       4.40       2.00       SpeedControl        132.23     30.05      
+123        22.20      CACC1           TypeBiDi        1to2_0       142.29     0.60       -5.00      Undefined           -1.00      -1.00      
+123        22.20      CACC2           TypeBiDi        1to2_0       5.06       4.40       2.00       SpeedControl        132.23     30.05      
 
-124        22.30      CACC1           TypeCACC        1to2_0       142.30     0.10       -5.00      Undefined           -1.00      -1.00      
-124        22.30      CACC2           TypeCACC        1to2_0       5.52       4.60       2.00       SpeedControl        131.78     28.65      
+124        22.30      CACC1           TypeBiDi        1to2_0       142.30     0.10       -5.00      Undefined           -1.00      -1.00      
+124        22.30      CACC2           TypeBiDi        1to2_0       5.52       4.60       2.00       SpeedControl        131.78     28.65      
 
-125        22.40      CACC1           TypeCACC        1to2_0       142.30     0.00       -1.00      Undefined           -1.00      -1.00      
-125        22.40      CACC2           TypeCACC        1to2_0       6.00       4.80       2.00       SpeedControl        131.30     27.35      
+125        22.40      CACC1           TypeBiDi        1to2_0       142.30     0.00       -1.00      Undefined           -1.00      -1.00      
+125        22.40      CACC2           TypeBiDi        1to2_0       6.00       4.80       2.00       SpeedControl        131.30     27.35      
 
-126        22.50      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-126        22.50      CACC2           TypeCACC        1to2_0       6.50       5.00       2.00       SpeedControl        130.80     26.16      
+126        22.50      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+126        22.50      CACC2           TypeBiDi        1to2_0       6.50       5.00       2.00       SpeedControl        130.80     26.16      
 
-127        22.60      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-127        22.60      CACC2           TypeCACC        1to2_0       7.02       5.20       2.00       SpeedControl        130.28     25.05      
+127        22.60      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+127        22.60      CACC2           TypeBiDi        1to2_0       7.02       5.20       2.00       SpeedControl        130.28     25.05      
 
-128        22.70      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-128        22.70      CACC2           TypeCACC        1to2_0       7.56       5.40       2.00       SpeedControl        129.74     24.03      
+128        22.70      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+128        22.70      CACC2           TypeBiDi        1to2_0       7.56       5.40       2.00       SpeedControl        129.74     24.03      
 
-129        22.80      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-129        22.80      CACC2           TypeCACC        1to2_0       8.12       5.60       2.00       SpeedControl        129.18     23.07      
+129        22.80      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+129        22.80      CACC2           TypeBiDi        1to2_0       8.12       5.60       2.00       SpeedControl        129.18     23.07      
 
-130        22.90      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-130        22.90      CACC2           TypeCACC        1to2_0       8.70       5.80       2.00       SpeedControl        128.60     22.17      
+130        22.90      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+130        22.90      CACC2           TypeBiDi        1to2_0       8.70       5.80       2.00       SpeedControl        128.60     22.17      
 
-131        23.00      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-131        23.00      CACC2           TypeCACC        1to2_0       9.30       6.00       2.00       SpeedControl        128.00     21.33      
+131        23.00      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+131        23.00      CACC2           TypeBiDi        1to2_0       9.30       6.00       2.00       SpeedControl        128.00     21.33      
 
-132        23.10      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-132        23.10      CACC2           TypeCACC        1to2_0       9.92       6.20       2.00       SpeedControl        127.38     20.55      
+132        23.10      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+132        23.10      CACC2           TypeBiDi        1to2_0       9.92       6.20       2.00       SpeedControl        127.38     20.55      
 
-133        23.20      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-133        23.20      CACC2           TypeCACC        1to2_0       10.56      6.40       2.00       SpeedControl        126.74     19.80      
+133        23.20      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+133        23.20      CACC2           TypeBiDi        1to2_0       10.56      6.40       2.00       SpeedControl        126.74     19.80      
 
-134        23.30      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-134        23.30      CACC2           TypeCACC        1to2_0       11.22      6.60       2.00       SpeedControl        126.08     19.10      
+134        23.30      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+134        23.30      CACC2           TypeBiDi        1to2_0       11.22      6.60       2.00       SpeedControl        126.08     19.10      
 
-135        23.40      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-135        23.40      CACC2           TypeCACC        1to2_0       11.90      6.80       2.00       SpeedControl        125.40     18.44      
+135        23.40      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+135        23.40      CACC2           TypeBiDi        1to2_0       11.90      6.80       2.00       SpeedControl        125.40     18.44      
 
-136        23.50      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-136        23.50      CACC2           TypeCACC        1to2_0       12.60      7.00       2.00       SpeedControl        124.70     17.81      
+136        23.50      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+136        23.50      CACC2           TypeBiDi        1to2_0       12.60      7.00       2.00       SpeedControl        124.70     17.81      
 
-137        23.60      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-137        23.60      CACC2           TypeCACC        1to2_0       13.32      7.20       2.00       SpeedControl        123.98     17.22      
+137        23.60      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+137        23.60      CACC2           TypeBiDi        1to2_0       13.32      7.20       2.00       SpeedControl        123.98     17.22      
 
-138        23.70      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-138        23.70      CACC2           TypeCACC        1to2_0       14.06      7.40       2.00       SpeedControl        123.24     16.65      
+138        23.70      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+138        23.70      CACC2           TypeBiDi        1to2_0       14.06      7.40       2.00       SpeedControl        123.24     16.65      
 
-139        23.80      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-139        23.80      CACC2           TypeCACC        1to2_0       14.82      7.60       2.00       SpeedControl        122.48     16.12      
+139        23.80      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+139        23.80      CACC2           TypeBiDi        1to2_0       14.82      7.60       2.00       SpeedControl        122.48     16.12      
 
-140        23.90      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-140        23.90      CACC2           TypeCACC        1to2_0       15.60      7.80       2.00       SpeedControl        121.70     15.60      
+140        23.90      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+140        23.90      CACC2           TypeBiDi        1to2_0       15.60      7.80       2.00       SpeedControl        121.70     15.60      
 
-141        24.00      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-141        24.00      CACC2           TypeCACC        1to2_0       16.40      8.00       2.00       SpeedControl        120.90     15.11      
+141        24.00      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+141        24.00      CACC2           TypeBiDi        1to2_0       16.40      8.00       2.00       SpeedControl        120.90     15.11      
 
-142        24.10      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-142        24.10      CACC2           TypeCACC        1to2_0       17.22      8.20       2.00       SpeedControl        120.08     14.64      
+142        24.10      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+142        24.10      CACC2           TypeBiDi        1to2_0       17.22      8.20       2.00       SpeedControl        120.08     14.64      
 
-143        24.20      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-143        24.20      CACC2           TypeCACC        1to2_0       18.06      8.40       2.00       SpeedControl        119.24     14.20      
+143        24.20      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+143        24.20      CACC2           TypeBiDi        1to2_0       18.06      8.40       2.00       SpeedControl        119.24     14.20      
 
-144        24.30      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-144        24.30      CACC2           TypeCACC        1to2_0       18.92      8.60       2.00       SpeedControl        118.38     13.77      
+144        24.30      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+144        24.30      CACC2           TypeBiDi        1to2_0       18.92      8.60       2.00       SpeedControl        118.38     13.77      
 
-145        24.40      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-145        24.40      CACC2           TypeCACC        1to2_0       19.80      8.80       2.00       SpeedControl        117.50     13.35      
+145        24.40      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+145        24.40      CACC2           TypeBiDi        1to2_0       19.80      8.80       2.00       SpeedControl        117.50     13.35      
 
-146        24.50      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-146        24.50      CACC2           TypeCACC        1to2_0       20.70      9.00       2.00       SpeedControl        116.60     12.96      
+146        24.50      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+146        24.50      CACC2           TypeBiDi        1to2_0       20.70      9.00       2.00       SpeedControl        116.60     12.96      
 
-147        24.60      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-147        24.60      CACC2           TypeCACC        1to2_0       21.62      9.20       2.00       SpeedControl        115.68     12.57      
+147        24.60      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+147        24.60      CACC2           TypeBiDi        1to2_0       21.62      9.20       2.00       SpeedControl        115.68     12.57      
 
-148        24.70      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-148        24.70      CACC2           TypeCACC        1to2_0       22.56      9.40       2.00       SpeedControl        114.74     12.21      
+148        24.70      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+148        24.70      CACC2           TypeBiDi        1to2_0       22.56      9.40       2.00       SpeedControl        114.74     12.21      
 
-149        24.80      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-149        24.80      CACC2           TypeCACC        1to2_0       23.52      9.60       2.00       SpeedControl        113.78     11.85      
+149        24.80      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+149        24.80      CACC2           TypeBiDi        1to2_0       23.52      9.60       2.00       SpeedControl        113.78     11.85      
 
-150        24.90      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-150        24.90      CACC2           TypeCACC        1to2_0       24.50      9.80       2.00       SpeedControl        112.80     11.51      
+150        24.90      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+150        24.90      CACC2           TypeBiDi        1to2_0       24.50      9.80       2.00       SpeedControl        112.80     11.51      
 
-151        25.00      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-151        25.00      CACC2           TypeCACC        1to2_0       25.50      10.00      2.00       SpeedControl        111.80     11.18      
+151        25.00      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+151        25.00      CACC2           TypeBiDi        1to2_0       25.50      10.00      2.00       SpeedControl        111.80     11.18      
 
-152        25.10      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-152        25.10      CACC2           TypeCACC        1to2_0       26.52      10.20      2.00       SpeedControl        110.78     10.86      
+152        25.10      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+152        25.10      CACC2           TypeBiDi        1to2_0       26.52      10.20      2.00       SpeedControl        110.78     10.86      
 
-153        25.20      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-153        25.20      CACC2           TypeCACC        1to2_0       27.56      10.40      2.00       SpeedControl        109.74     10.55      
+153        25.20      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+153        25.20      CACC2           TypeBiDi        1to2_0       27.56      10.40      2.00       SpeedControl        109.74     10.55      
 
-154        25.30      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-154        25.30      CACC2           TypeCACC        1to2_0       28.62      10.60      2.00       SpeedControl        108.68     10.25      
+154        25.30      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+154        25.30      CACC2           TypeBiDi        1to2_0       28.62      10.60      2.00       SpeedControl        108.68     10.25      
 
-155        25.40      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-155        25.40      CACC2           TypeCACC        1to2_0       29.70      10.80      2.00       SpeedControl        107.60     9.96       
+155        25.40      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+155        25.40      CACC2           TypeBiDi        1to2_0       29.70      10.80      2.00       SpeedControl        107.60     9.96       
 
-156        25.50      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-156        25.50      CACC2           TypeCACC        1to2_0       30.80      11.00      2.00       SpeedControl        106.50     9.68       
+156        25.50      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+156        25.50      CACC2           TypeBiDi        1to2_0       30.80      11.00      2.00       SpeedControl        106.50     9.68       
 
-157        25.60      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-157        25.60      CACC2           TypeCACC        1to2_0       31.92      11.20      2.00       SpeedControl        105.38     9.41       
+157        25.60      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+157        25.60      CACC2           TypeBiDi        1to2_0       31.92      11.20      2.00       SpeedControl        105.38     9.41       
 
-158        25.70      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-158        25.70      CACC2           TypeCACC        1to2_0       33.06      11.40      2.00       SpeedControl        104.24     9.14       
+158        25.70      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+158        25.70      CACC2           TypeBiDi        1to2_0       33.06      11.40      2.00       SpeedControl        104.24     9.14       
 
-159        25.80      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-159        25.80      CACC2           TypeCACC        1to2_0       34.22      11.60      2.00       SpeedControl        103.08     8.89       
+159        25.80      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+159        25.80      CACC2           TypeBiDi        1to2_0       34.22      11.60      2.00       SpeedControl        103.08     8.89       
 
-160        25.90      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-160        25.90      CACC2           TypeCACC        1to2_0       35.40      11.80      2.00       SpeedControl        101.90     8.64       
+160        25.90      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+160        25.90      CACC2           TypeBiDi        1to2_0       35.40      11.80      2.00       SpeedControl        101.90     8.64       
 
-161        26.00      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-161        26.00      CACC2           TypeCACC        1to2_0       36.60      12.00      2.00       SpeedControl        100.70     8.39       
+161        26.00      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+161        26.00      CACC2           TypeBiDi        1to2_0       36.60      12.00      2.00       SpeedControl        100.70     8.39       
 
-162        26.10      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-162        26.10      CACC2           TypeCACC        1to2_0       37.82      12.20      2.00       SpeedControl        99.48      8.15       
+162        26.10      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+162        26.10      CACC2           TypeBiDi        1to2_0       37.82      12.20      2.00       SpeedControl        99.48      8.15       
 
-163        26.20      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-163        26.20      CACC2           TypeCACC        1to2_0       39.06      12.40      2.00       SpeedControl        98.24      7.92       
+163        26.20      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+163        26.20      CACC2           TypeBiDi        1to2_0       39.06      12.40      2.00       SpeedControl        98.24      7.92       
 
-164        26.30      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-164        26.30      CACC2           TypeCACC        1to2_0       40.32      12.60      2.00       SpeedControl        96.98      7.70       
+164        26.30      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+164        26.30      CACC2           TypeBiDi        1to2_0       40.32      12.60      2.00       SpeedControl        96.98      7.70       
 
-165        26.40      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-165        26.40      CACC2           TypeCACC        1to2_0       41.60      12.80      2.00       SpeedControl        95.70      7.48       
+165        26.40      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+165        26.40      CACC2           TypeBiDi        1to2_0       41.60      12.80      2.00       SpeedControl        95.70      7.48       
 
-166        26.50      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-166        26.50      CACC2           TypeCACC        1to2_0       42.90      13.00      2.00       SpeedControl        94.40      7.26       
+166        26.50      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+166        26.50      CACC2           TypeBiDi        1to2_0       42.90      13.00      2.00       SpeedControl        94.40      7.26       
 
-167        26.60      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-167        26.60      CACC2           TypeCACC        1to2_0       44.22      13.20      2.00       SpeedControl        93.08      7.05       
+167        26.60      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+167        26.60      CACC2           TypeBiDi        1to2_0       44.22      13.20      2.00       SpeedControl        93.08      7.05       
 
-168        26.70      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-168        26.70      CACC2           TypeCACC        1to2_0       45.56      13.40      2.00       SpeedControl        91.74      6.85       
+168        26.70      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+168        26.70      CACC2           TypeBiDi        1to2_0       45.56      13.40      2.00       SpeedControl        91.74      6.85       
 
-169        26.80      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-169        26.80      CACC2           TypeCACC        1to2_0       46.92      13.60      2.00       SpeedControl        90.38      6.65       
+169        26.80      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+169        26.80      CACC2           TypeBiDi        1to2_0       46.92      13.60      2.00       SpeedControl        90.38      6.65       
 
-170        26.90      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-170        26.90      CACC2           TypeCACC        1to2_0       48.30      13.80      2.00       SpeedControl        89.00      6.45       
+170        26.90      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+170        26.90      CACC2           TypeBiDi        1to2_0       48.30      13.80      2.00       SpeedControl        89.00      6.45       
 
-171        27.00      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-171        27.00      CACC2           TypeCACC        1to2_0       49.70      14.00      2.00       SpeedControl        87.60      6.26       
+171        27.00      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+171        27.00      CACC2           TypeBiDi        1to2_0       49.70      14.00      2.00       SpeedControl        87.60      6.26       
 
-172        27.10      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-172        27.10      CACC2           TypeCACC        1to2_0       51.12      14.20      2.00       SpeedControl        86.18      6.07       
+172        27.10      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+172        27.10      CACC2           TypeBiDi        1to2_0       51.12      14.20      2.00       SpeedControl        86.18      6.07       
 
-173        27.20      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-173        27.20      CACC2           TypeCACC        1to2_0       52.56      14.40      2.00       SpeedControl        84.74      5.88       
+173        27.20      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+173        27.20      CACC2           TypeBiDi        1to2_0       52.56      14.40      2.00       SpeedControl        84.74      5.88       
 
-174        27.30      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-174        27.30      CACC2           TypeCACC        1to2_0       54.02      14.60      2.00       SpeedControl        83.28      5.70       
+174        27.30      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+174        27.30      CACC2           TypeBiDi        1to2_0       54.02      14.60      2.00       SpeedControl        83.28      5.70       
 
-175        27.40      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-175        27.40      CACC2           TypeCACC        1to2_0       55.50      14.80      2.00       SpeedControl        81.80      5.53       
+175        27.40      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+175        27.40      CACC2           TypeBiDi        1to2_0       55.50      14.80      2.00       SpeedControl        81.80      5.53       
 
-176        27.50      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-176        27.50      CACC2           TypeCACC        1to2_0       57.00      15.00      2.00       SpeedControl        80.30      5.35       
+176        27.50      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+176        27.50      CACC2           TypeBiDi        1to2_0       57.00      15.00      2.00       SpeedControl        80.30      5.35       
 
-177        27.60      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-177        27.60      CACC2           TypeCACC        1to2_0       58.52      15.20      2.00       SpeedControl        78.78      5.18       
+177        27.60      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+177        27.60      CACC2           TypeBiDi        1to2_0       58.52      15.20      2.00       SpeedControl        78.78      5.18       
 
-178        27.70      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-178        27.70      CACC2           TypeCACC        1to2_0       60.06      15.40      2.00       SpeedControl        77.24      5.02       
+178        27.70      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+178        27.70      CACC2           TypeBiDi        1to2_0       60.06      15.40      2.00       SpeedControl        77.24      5.02       
 
-179        27.80      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-179        27.80      CACC2           TypeCACC        1to2_0       61.62      15.60      2.00       SpeedControl        75.68      4.85       
+179        27.80      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+179        27.80      CACC2           TypeBiDi        1to2_0       61.62      15.60      2.00       SpeedControl        75.68      4.85       
 
-180        27.90      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-180        27.90      CACC2           TypeCACC        1to2_0       63.20      15.80      2.00       SpeedControl        74.10      4.69       
+180        27.90      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+180        27.90      CACC2           TypeBiDi        1to2_0       63.20      15.80      2.00       SpeedControl        74.10      4.69       
 
-181        28.00      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-181        28.00      CACC2           TypeCACC        1to2_0       64.80      16.00      2.00       SpeedControl        72.50      4.53       
+181        28.00      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+181        28.00      CACC2           TypeBiDi        1to2_0       64.80      16.00      2.00       SpeedControl        72.50      4.53       
 
-182        28.10      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-182        28.10      CACC2           TypeCACC        1to2_0       66.42      16.20      2.00       SpeedControl        70.88      4.38       
+182        28.10      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+182        28.10      CACC2           TypeBiDi        1to2_0       66.42      16.20      2.00       SpeedControl        70.88      4.38       
 
-183        28.20      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-183        28.20      CACC2           TypeCACC        1to2_0       68.06      16.40      2.00       SpeedControl        69.24      4.22       
+183        28.20      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+183        28.20      CACC2           TypeBiDi        1to2_0       68.06      16.40      2.00       SpeedControl        69.24      4.22       
 
-184        28.30      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-184        28.30      CACC2           TypeCACC        1to2_0       69.72      16.60      2.00       SpeedControl        67.58      4.07       
+184        28.30      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+184        28.30      CACC2           TypeBiDi        1to2_0       69.72      16.60      2.00       SpeedControl        67.58      4.07       
 
-185        28.40      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-185        28.40      CACC2           TypeCACC        1to2_0       71.40      16.80      2.00       SpeedControl        65.90      3.92       
+185        28.40      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+185        28.40      CACC2           TypeBiDi        1to2_0       71.40      16.80      2.00       SpeedControl        65.90      3.92       
 
-186        28.50      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-186        28.50      CACC2           TypeCACC        1to2_0       73.10      17.00      2.00       SpeedControl        64.20      3.78       
+186        28.50      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+186        28.50      CACC2           TypeBiDi        1to2_0       73.10      17.00      2.00       SpeedControl        64.20      3.78       
 
-187        28.60      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-187        28.60      CACC2           TypeCACC        1to2_0       74.82      17.20      2.00       SpeedControl        62.48      3.63       
+187        28.60      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+187        28.60      CACC2           TypeBiDi        1to2_0       74.82      17.20      2.00       SpeedControl        62.48      3.63       
 
-188        28.70      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-188        28.70      CACC2           TypeCACC        1to2_0       76.56      17.40      2.00       SpeedControl        60.74      3.49       
+188        28.70      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+188        28.70      CACC2           TypeBiDi        1to2_0       76.56      17.40      2.00       SpeedControl        60.74      3.49       
 
-189        28.80      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-189        28.80      CACC2           TypeCACC        1to2_0       78.32      17.60      2.00       SpeedControl        58.98      3.35       
+189        28.80      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+189        28.80      CACC2           TypeBiDi        1to2_0       78.32      17.60      2.00       SpeedControl        58.98      3.35       
 
-190        28.90      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-190        28.90      CACC2           TypeCACC        1to2_0       80.10      17.80      2.00       SpeedControl        57.20      3.21       
+190        28.90      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+190        28.90      CACC2           TypeBiDi        1to2_0       80.10      17.80      2.00       SpeedControl        57.20      3.21       
 
-191        29.00      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-191        29.00      CACC2           TypeCACC        1to2_0       81.90      18.00      2.00       SpeedControl        55.40      3.08       
+191        29.00      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+191        29.00      CACC2           TypeBiDi        1to2_0       81.90      18.00      2.00       SpeedControl        55.40      3.08       
 
-192        29.10      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-192        29.10      CACC2           TypeCACC        1to2_0       83.72      18.20      2.00       SpeedControl        53.58      2.94       
+192        29.10      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+192        29.10      CACC2           TypeBiDi        1to2_0       83.72      18.20      2.00       SpeedControl        53.58      2.94       
 
-193        29.20      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-193        29.20      CACC2           TypeCACC        1to2_0       85.56      18.40      2.00       SpeedControl        51.74      2.81       
+193        29.20      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+193        29.20      CACC2           TypeBiDi        1to2_0       85.56      18.40      2.00       SpeedControl        51.74      2.81       
 
-194        29.30      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-194        29.30      CACC2           TypeCACC        1to2_0       87.42      18.60      2.00       SpeedControl        49.88      2.68       
+194        29.30      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+194        29.30      CACC2           TypeBiDi        1to2_0       87.42      18.60      2.00       SpeedControl        49.88      2.68       
 
-195        29.40      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-195        29.40      CACC2           TypeCACC        1to2_0       89.30      18.80      2.00       SpeedControl        48.00      2.55       
+195        29.40      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+195        29.40      CACC2           TypeBiDi        1to2_0       89.30      18.80      2.00       SpeedControl        48.00      2.55       
 
-196        29.50      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-196        29.50      CACC2           TypeCACC        1to2_0       91.20      19.00      2.00       SpeedControl        46.10      2.43       
+196        29.50      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+196        29.50      CACC2           TypeBiDi        1to2_0       91.20      19.00      2.00       SpeedControl        46.10      2.43       
 
-197        29.60      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-197        29.60      CACC2           TypeCACC        1to2_0       93.12      19.20      2.00       SpeedControl        44.18      2.30       
+197        29.60      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+197        29.60      CACC2           TypeBiDi        1to2_0       93.12      19.20      2.00       SpeedControl        44.18      2.30       
 
-198        29.70      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-198        29.70      CACC2           TypeCACC        1to2_0       95.06      19.40      2.00       SpeedControl        42.24      2.18       
+198        29.70      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+198        29.70      CACC2           TypeBiDi        1to2_0       95.06      19.40      2.00       SpeedControl        42.24      2.18       
 
-199        29.80      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-199        29.80      CACC2           TypeCACC        1to2_0       96.95      18.90      -5.00      EmergencyBrake      40.35      2.13       
+199        29.80      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+199        29.80      CACC2           TypeBiDi        1to2_0       96.95      18.90      -5.00      EmergencyBrake      40.35      2.13       
 
-200        29.90      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-200        29.90      CACC2           TypeCACC        1to2_0       98.79      18.40      -5.00      EmergencyBrake      38.51      2.09       
+200        29.90      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+200        29.90      CACC2           TypeBiDi        1to2_0       98.79      18.40      -5.00      EmergencyBrake      38.51      2.09       
 
-201        30.00      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-201        30.00      CACC2           TypeCACC        1to2_0       100.58     17.90      -5.00      EmergencyBrake      36.72      2.05       
-201        30.00      CACC3           TypeCACC        1to2_0       0.00       0.00       0.00       SpeedControl        95.58      -1.00      
+201        30.00      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+201        30.00      CACC2           TypeBiDi        1to2_0       100.58     17.90      -5.00      EmergencyBrake      36.72      2.05       
+201        30.00      CACC3           TypeBiDi        1to2_0       0.00       0.00       0.00       SpeedControl        95.58      -1.00      
 
-202        30.10      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-202        30.10      CACC2           TypeCACC        1to2_0       102.32     17.40      -5.00      EmergencyBrake      34.98      2.01       
-202        30.10      CACC3           TypeCACC        1to2_0       0.02       0.20       2.00       SpeedControl        97.30      486.50     
+202        30.10      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+202        30.10      CACC2           TypeBiDi        1to2_0       102.32     17.40      -5.00      EmergencyBrake      34.98      2.01       
+202        30.10      CACC3           TypeBiDi        1to2_0       0.02       0.20       2.00       SpeedControl        97.30      486.50     
 
-203        30.20      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-203        30.20      CACC2           TypeCACC        1to2_0       104.01     16.90      -5.00      EmergencyBrake      33.29      1.97       
-203        30.20      CACC3           TypeCACC        1to2_0       0.06       0.40       2.00       SpeedControl        98.95      247.38     
+203        30.20      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+203        30.20      CACC2           TypeBiDi        1to2_0       104.01     16.90      -5.00      EmergencyBrake      33.29      1.97       
+203        30.20      CACC3           TypeBiDi        1to2_0       0.06       0.40       2.00       SpeedControl        98.95      247.38     
 
-204        30.30      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-204        30.30      CACC2           TypeCACC        1to2_0       105.68     16.66      -2.44      SpeedControl        31.62      1.90       
-204        30.30      CACC3           TypeCACC        1to2_0       0.12       0.60       2.00       SpeedControl        100.56     167.59     
+204        30.30      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+204        30.30      CACC2           TypeBiDi        1to2_0       105.68     16.66      -2.44      SpeedControl        31.62      1.90       
+204        30.30      CACC3           TypeBiDi        1to2_0       0.12       0.60       2.00       SpeedControl        100.56     167.59     
 
-205        30.40      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-205        30.40      CACC2           TypeCACC        1to2_0       107.29     16.16      -5.00      EmergencyBrake      30.01      1.86       
-205        30.40      CACC3           TypeCACC        1to2_0       0.20       0.80       2.00       SpeedControl        102.09     127.61     
+205        30.40      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+205        30.40      CACC2           TypeBiDi        1to2_0       107.29     16.16      -5.00      EmergencyBrake      30.01      1.86       
+205        30.40      CACC3           TypeBiDi        1to2_0       0.20       0.80       2.00       SpeedControl        102.09     127.61     
 
-206        30.50      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-206        30.50      CACC2           TypeCACC        1to2_0       108.86     15.66      -5.00      EmergencyBrake      28.44      1.82       
-206        30.50      CACC3           TypeCACC        1to2_0       0.30       1.00       2.00       SpeedControl        103.56     103.56     
+206        30.50      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+206        30.50      CACC2           TypeBiDi        1to2_0       108.86     15.66      -5.00      EmergencyBrake      28.44      1.82       
+206        30.50      CACC3           TypeBiDi        1to2_0       0.30       1.00       2.00       SpeedControl        103.56     103.56     
 
-207        30.60      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-207        30.60      CACC2           TypeCACC        1to2_0       110.37     15.16      -5.00      EmergencyBrake      26.93      1.78       
-207        30.60      CACC3           TypeCACC        1to2_0       0.42       1.20       2.00       SpeedControl        104.95     87.46      
+207        30.60      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+207        30.60      CACC2           TypeBiDi        1to2_0       110.37     15.16      -5.00      EmergencyBrake      26.93      1.78       
+207        30.60      CACC3           TypeBiDi        1to2_0       0.42       1.20       2.00       SpeedControl        104.95     87.46      
 
-208        30.70      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-208        30.70      CACC2           TypeCACC        1to2_0       111.84     14.66      -5.00      EmergencyBrake      25.46      1.74       
-208        30.70      CACC3           TypeCACC        1to2_0       0.56       1.40       2.00       SpeedControl        106.28     75.91      
+208        30.70      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+208        30.70      CACC2           TypeBiDi        1to2_0       111.84     14.66      -5.00      EmergencyBrake      25.46      1.74       
+208        30.70      CACC3           TypeBiDi        1to2_0       0.56       1.40       2.00       SpeedControl        106.28     75.91      
 
-209        30.80      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-209        30.80      CACC2           TypeCACC        1to2_0       113.25     14.16      -5.00      EmergencyBrake      24.05      1.70       
-209        30.80      CACC3           TypeCACC        1to2_0       0.72       1.60       2.00       SpeedControl        107.53     67.21      
+209        30.80      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+209        30.80      CACC2           TypeBiDi        1to2_0       113.25     14.16      -5.00      EmergencyBrake      24.05      1.70       
+209        30.80      CACC3           TypeBiDi        1to2_0       0.72       1.60       2.00       SpeedControl        107.53     67.21      
 
-210        30.90      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-210        30.90      CACC2           TypeCACC        1to2_0       114.62     13.66      -5.00      EmergencyBrake      22.68      1.66       
-210        30.90      CACC3           TypeCACC        1to2_0       0.90       1.80       2.00       SpeedControl        108.72     60.40      
+210        30.90      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+210        30.90      CACC2           TypeBiDi        1to2_0       114.62     13.66      -5.00      EmergencyBrake      22.68      1.66       
+210        30.90      CACC3           TypeBiDi        1to2_0       0.90       1.80       2.00       SpeedControl        108.72     60.40      
 
-211        31.00      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-211        31.00      CACC2           TypeCACC        1to2_0       115.93     13.16      -5.00      EmergencyBrake      21.37      1.62       
-211        31.00      CACC3           TypeCACC        1to2_0       1.10       2.00       2.00       SpeedControl        109.83     54.92      
+211        31.00      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+211        31.00      CACC2           TypeBiDi        1to2_0       115.93     13.16      -5.00      EmergencyBrake      21.37      1.62       
+211        31.00      CACC3           TypeBiDi        1to2_0       1.10       2.00       2.00       SpeedControl        109.83     54.92      
 
-212        31.10      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-212        31.10      CACC2           TypeCACC        1to2_0       117.20     12.66      -5.00      EmergencyBrake      20.10      1.59       
-212        31.10      CACC3           TypeCACC        1to2_0       1.32       2.20       2.00       SpeedControl        110.88     50.40      
+212        31.10      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+212        31.10      CACC2           TypeBiDi        1to2_0       117.20     12.66      -5.00      EmergencyBrake      20.10      1.59       
+212        31.10      CACC3           TypeBiDi        1to2_0       1.32       2.20       2.00       SpeedControl        110.88     50.40      
 
-213        31.20      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-213        31.20      CACC2           TypeCACC        1to2_0       118.42     12.16      -5.00      EmergencyBrake      18.88      1.55       
-213        31.20      CACC3           TypeCACC        1to2_0       1.56       2.40       2.00       SpeedControl        111.86     46.61      
+213        31.20      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+213        31.20      CACC2           TypeBiDi        1to2_0       118.42     12.16      -5.00      EmergencyBrake      18.88      1.55       
+213        31.20      CACC3           TypeBiDi        1to2_0       1.56       2.40       2.00       SpeedControl        111.86     46.61      
 
-214        31.30      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-214        31.30      CACC2           TypeCACC        1to2_0       119.58     11.66      -5.00      EmergencyBrake      17.72      1.52       
-214        31.30      CACC3           TypeCACC        1to2_0       1.82       2.60       2.00       SpeedControl        112.76     43.37      
+214        31.30      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+214        31.30      CACC2           TypeBiDi        1to2_0       119.58     11.66      -5.00      EmergencyBrake      17.72      1.52       
+214        31.30      CACC3           TypeBiDi        1to2_0       1.82       2.60       2.00       SpeedControl        112.76     43.37      
 
-215        31.40      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-215        31.40      CACC2           TypeCACC        1to2_0       120.70     11.16      -5.00      EmergencyBrake      16.60      1.49       
-215        31.40      CACC3           TypeCACC        1to2_0       2.10       2.80       2.00       SpeedControl        113.60     40.57      
+215        31.40      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+215        31.40      CACC2           TypeBiDi        1to2_0       120.70     11.16      -5.00      EmergencyBrake      16.60      1.49       
+215        31.40      CACC3           TypeBiDi        1to2_0       2.10       2.80       2.00       SpeedControl        113.60     40.57      
 
-216        31.50      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-216        31.50      CACC2           TypeCACC        1to2_0       121.79     10.97      -1.87      SpeedControl        15.51      1.41       
-216        31.50      CACC3           TypeCACC        1to2_0       2.40       3.00       2.00       SpeedControl        114.39     38.13      
+216        31.50      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+216        31.50      CACC2           TypeBiDi        1to2_0       121.79     10.97      -1.87      SpeedControl        15.51      1.41       
+216        31.50      CACC3           TypeBiDi        1to2_0       2.40       3.00       2.00       SpeedControl        114.39     38.13      
 
-217        31.60      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-217        31.60      CACC2           TypeCACC        1to2_0       122.84     10.47      -5.00      EmergencyBrake      14.46      1.38       
-217        31.60      CACC3           TypeCACC        1to2_0       2.72       3.20       2.00       SpeedControl        115.12     35.98      
+217        31.60      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+217        31.60      CACC2           TypeBiDi        1to2_0       122.84     10.47      -5.00      EmergencyBrake      14.46      1.38       
+217        31.60      CACC3           TypeBiDi        1to2_0       2.72       3.20       2.00       SpeedControl        115.12     35.98      
 
-218        31.70      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-218        31.70      CACC2           TypeCACC        1to2_0       123.84     9.97       -5.00      EmergencyBrake      13.46      1.35       
-218        31.70      CACC3           TypeCACC        1to2_0       3.06       3.40       2.00       SpeedControl        115.78     34.05      
+218        31.70      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+218        31.70      CACC2           TypeBiDi        1to2_0       123.84     9.97       -5.00      EmergencyBrake      13.46      1.35       
+218        31.70      CACC3           TypeBiDi        1to2_0       3.06       3.40       2.00       SpeedControl        115.78     34.05      
 
-219        31.80      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-219        31.80      CACC2           TypeCACC        1to2_0       124.78     9.47       -5.00      EmergencyBrake      12.52      1.32       
-219        31.80      CACC3           TypeCACC        1to2_0       3.42       3.60       2.00       SpeedControl        116.36     32.32      
+219        31.80      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+219        31.80      CACC2           TypeBiDi        1to2_0       124.78     9.47       -5.00      EmergencyBrake      12.52      1.32       
+219        31.80      CACC3           TypeBiDi        1to2_0       3.42       3.60       2.00       SpeedControl        116.36     32.32      
 
-220        31.90      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-220        31.90      CACC2           TypeCACC        1to2_0       125.68     8.97       -5.00      EmergencyBrake      11.62      1.30       
-220        31.90      CACC3           TypeCACC        1to2_0       3.80       3.80       2.00       SpeedControl        116.88     30.76      
+220        31.90      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+220        31.90      CACC2           TypeBiDi        1to2_0       125.68     8.97       -5.00      EmergencyBrake      11.62      1.30       
+220        31.90      CACC3           TypeBiDi        1to2_0       3.80       3.80       2.00       SpeedControl        116.88     30.76      
 
-221        32.00      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-221        32.00      CACC2           TypeCACC        1to2_0       126.53     8.47       -5.00      EmergencyBrake      10.77      1.27       
-221        32.00      CACC3           TypeCACC        1to2_0       4.20       4.00       2.00       SpeedControl        117.33     29.33      
+221        32.00      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+221        32.00      CACC2           TypeBiDi        1to2_0       126.53     8.47       -5.00      EmergencyBrake      10.77      1.27       
+221        32.00      CACC3           TypeBiDi        1to2_0       4.20       4.00       2.00       SpeedControl        117.33     29.33      
 
-222        32.10      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-222        32.10      CACC2           TypeCACC        1to2_0       127.33     7.97       -5.00      EmergencyBrake      9.97       1.25       
-222        32.10      CACC3           TypeCACC        1to2_0       4.62       4.20       2.00       SpeedControl        117.71     28.03      
+222        32.10      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+222        32.10      CACC2           TypeBiDi        1to2_0       127.33     7.97       -5.00      EmergencyBrake      9.97       1.25       
+222        32.10      CACC3           TypeBiDi        1to2_0       4.62       4.20       2.00       SpeedControl        117.71     28.03      
 
-223        32.20      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-223        32.20      CACC2           TypeCACC        1to2_0       128.07     7.47       -5.00      EmergencyBrake      9.23       1.24       
-223        32.20      CACC3           TypeCACC        1to2_0       5.06       4.40       2.00       SpeedControl        118.01     26.82      
+223        32.20      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+223        32.20      CACC2           TypeBiDi        1to2_0       128.07     7.47       -5.00      EmergencyBrake      9.23       1.24       
+223        32.20      CACC3           TypeBiDi        1to2_0       5.06       4.40       2.00       SpeedControl        118.01     26.82      
 
-224        32.30      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-224        32.30      CACC2           TypeCACC        1to2_0       128.77     6.97       -5.00      EmergencyBrake      8.53       1.22       
-224        32.30      CACC3           TypeCACC        1to2_0       5.52       4.60       2.00       SpeedControl        118.25     25.71      
+224        32.30      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+224        32.30      CACC2           TypeBiDi        1to2_0       128.77     6.97       -5.00      EmergencyBrake      8.53       1.22       
+224        32.30      CACC3           TypeBiDi        1to2_0       5.52       4.60       2.00       SpeedControl        118.25     25.71      
 
-225        32.40      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-225        32.40      CACC2           TypeCACC        1to2_0       129.42     6.47       -5.00      EmergencyBrake      7.88       1.22       
-225        32.40      CACC3           TypeCACC        1to2_0       6.00       4.80       2.00       SpeedControl        118.42     24.67      
+225        32.40      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+225        32.40      CACC2           TypeBiDi        1to2_0       129.42     6.47       -5.00      EmergencyBrake      7.88       1.22       
+225        32.40      CACC3           TypeBiDi        1to2_0       6.00       4.80       2.00       SpeedControl        118.42     24.67      
 
-226        32.50      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-226        32.50      CACC2           TypeCACC        1to2_0       130.03     6.17       -3.00      GapControl          7.27       1.18       
-226        32.50      CACC3           TypeCACC        1to2_0       6.50       5.00       2.00       SpeedControl        118.53     23.71      
+226        32.50      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+226        32.50      CACC2           TypeBiDi        1to2_0       130.05     6.33       -1.40      SpeedControl        7.25       1.15       
+226        32.50      CACC3           TypeBiDi        1to2_0       6.50       5.00       2.00       SpeedControl        118.55     23.71      
 
-227        32.60      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-227        32.60      CACC2           TypeCACC        1to2_0       130.60     5.67       -5.00      EmergencyBrake      6.70       1.18       
-227        32.60      CACC3           TypeCACC        1to2_0       7.02       5.20       2.00       SpeedControl        118.58     22.80      
+227        32.60      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+227        32.60      CACC2           TypeBiDi        1to2_0       130.63     5.83       -5.00      EmergencyBrake      6.67       1.14       
+227        32.60      CACC3           TypeBiDi        1to2_0       7.02       5.20       2.00       SpeedControl        118.61     22.81      
 
-228        32.70      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-228        32.70      CACC2           TypeCACC        1to2_0       131.12     5.17       -5.00      EmergencyBrake      6.18       1.20       
-228        32.70      CACC3           TypeCACC        1to2_0       7.56       5.40       2.00       SpeedControl        118.56     21.95      
+228        32.70      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+228        32.70      CACC2           TypeBiDi        1to2_0       131.17     5.33       -5.00      EmergencyBrake      6.13       1.15       
+228        32.70      CACC3           TypeBiDi        1to2_0       7.56       5.40       2.00       SpeedControl        118.61     21.96      
 
-229        32.80      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-229        32.80      CACC2           TypeCACC        1to2_0       131.58     4.67       -5.00      EmergencyBrake      5.72       1.22       
-229        32.80      CACC3           TypeCACC        1to2_0       8.12       5.60       2.00       SpeedControl        118.46     21.15      
+229        32.80      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+229        32.80      CACC2           TypeBiDi        1to2_0       131.65     4.83       -5.00      EmergencyBrake      5.65       1.17       
+229        32.80      CACC3           TypeBiDi        1to2_0       8.12       5.60       2.00       SpeedControl        118.53     21.17      
 
-230        32.90      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-230        32.90      CACC2           TypeCACC        1to2_0       132.02     4.37       -3.00      GapControl          5.28       1.21       
-230        32.90      CACC3           TypeCACC        1to2_0       8.70       5.80       2.00       SpeedControl        118.32     20.40      
+230        32.90      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+230        32.90      CACC2           TypeBiDi        1to2_0       132.08     4.33       -5.00      EmergencyBrake      5.22       1.21       
+230        32.90      CACC3           TypeBiDi        1to2_0       8.70       5.80       2.00       SpeedControl        118.38     20.41      
 
-231        33.00      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-231        33.00      CACC2           TypeCACC        1to2_0       132.41     3.87       -5.00      EmergencyBrake      4.89       1.26       
-231        33.00      CACC3           TypeCACC        1to2_0       9.30       6.00       2.00       SpeedControl        118.11     19.68      
+231        33.00      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+231        33.00      CACC2           TypeBiDi        1to2_0       132.46     3.83       -5.00      EmergencyBrake      4.84       1.26       
+231        33.00      CACC3           TypeBiDi        1to2_0       9.30       6.00       2.00       SpeedControl        118.16     19.69      
 
-232        33.10      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-232        33.10      CACC2           TypeCACC        1to2_0       132.77     3.57       -3.00      GapControl          4.53       1.27       
-232        33.10      CACC3           TypeCACC        1to2_0       9.92       6.20       2.00       SpeedControl        117.84     19.01      
+232        33.10      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+232        33.10      CACC2           TypeBiDi        1to2_0       132.80     3.33       -5.00      EmergencyBrake      4.50       1.35       
+232        33.10      CACC3           TypeBiDi        1to2_0       9.92       6.20       2.00       SpeedControl        117.88     19.01      
 
-233        33.20      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-233        33.20      CACC2           TypeCACC        1to2_0       133.07     3.07       -5.00      EmergencyBrake      4.23       1.38       
-233        33.20      CACC3           TypeCACC        1to2_0       10.56      6.40       2.00       SpeedControl        117.51     18.36      
+233        33.20      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+233        33.20      CACC2           TypeBiDi        1to2_0       133.12     3.22       -1.08      SpeedControl        4.18       1.30       
+233        33.20      CACC3           TypeBiDi        1to2_0       10.56      6.40       2.00       SpeedControl        117.56     18.37      
 
-234        33.30      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-234        33.30      CACC2           TypeCACC        1to2_0       133.33     2.57       -5.00      EmergencyBrake      3.97       1.55       
-234        33.30      CACC3           TypeCACC        1to2_0       11.22      6.60       2.00       SpeedControl        117.11     17.74      
+234        33.30      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+234        33.30      CACC2           TypeBiDi        1to2_0       133.39     2.72       -5.00      EmergencyBrake      3.91       1.44       
+234        33.30      CACC3           TypeBiDi        1to2_0       11.22      6.60       2.00       SpeedControl        117.17     17.75      
 
-235        33.40      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-235        33.40      CACC2           TypeCACC        1to2_0       133.56     2.27       -3.00      GapControl          3.74       1.65       
-235        33.40      CACC3           TypeCACC        1to2_0       11.90      6.80       2.00       SpeedControl        116.66     17.16      
+235        33.40      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+235        33.40      CACC2           TypeBiDi        1to2_0       133.61     2.22       -5.00      EmergencyBrake      3.69       1.66       
+235        33.40      CACC3           TypeBiDi        1to2_0       11.90      6.80       2.00       SpeedControl        116.71     17.16      
 
-236        33.50      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-236        33.50      CACC2           TypeCACC        1to2_0       133.75     1.97       -3.00      GapControl          3.55       1.80       
-236        33.50      CACC3           TypeCACC        1to2_0       12.60      7.00       2.00       SpeedControl        116.15     16.59      
+236        33.50      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+236        33.50      CACC2           TypeBiDi        1to2_0       133.79     1.72       -5.00      EmergencyBrake      3.51       2.04       
+236        33.50      CACC3           TypeBiDi        1to2_0       12.60      7.00       2.00       SpeedControl        116.19     16.60      
 
-237        33.60      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-237        33.60      CACC2           TypeCACC        1to2_0       133.90     1.47       -5.00      EmergencyBrake      3.40       2.31       
-237        33.60      CACC3           TypeCACC        1to2_0       13.32      7.20       2.00       SpeedControl        115.58     16.05      
+237        33.60      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+237        33.60      CACC2           TypeBiDi        1to2_0       133.95     1.63       -0.92      SpeedControl        3.35       2.06       
+237        33.60      CACC3           TypeBiDi        1to2_0       13.32      7.20       2.00       SpeedControl        115.63     16.06      
 
-238        33.70      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-238        33.70      CACC2           TypeCACC        1to2_0       134.02     1.17       -3.00      GapControl          3.28       2.81       
-238        33.70      CACC3           TypeCACC        1to2_0       14.06      7.40       2.00       SpeedControl        114.96     15.53      
+238        33.70      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+238        33.70      CACC2           TypeBiDi        1to2_0       134.06     1.13       -5.00      EmergencyBrake      3.24       2.87       
+238        33.70      CACC3           TypeBiDi        1to2_0       14.06      7.40       2.00       SpeedControl        115.00     15.54      
 
-239        33.80      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-239        33.80      CACC2           TypeCACC        1to2_0       134.10     0.87       -3.00      GapControl          3.20       3.68       
-239        33.80      CACC3           TypeCACC        1to2_0       14.82      7.60       2.00       SpeedControl        114.28     15.04      
+239        33.80      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+239        33.80      CACC2           TypeBiDi        1to2_0       134.12     0.63       -5.00      EmergencyBrake      3.18       5.05       
+239        33.80      CACC3           TypeBiDi        1to2_0       14.82      7.60       2.00       SpeedControl        114.31     15.04      
 
-240        33.90      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-240        33.90      CACC2           TypeCACC        1to2_0       134.16     0.57       -3.00      GapControl          3.14       5.51       
-240        33.90      CACC3           TypeCACC        1to2_0       15.60      7.80       2.00       SpeedControl        113.56     14.56      
+240        33.90      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+240        33.90      CACC2           TypeBiDi        1to2_0       134.18     0.55       -0.81      SpeedControl        3.12       5.69       
+240        33.90      CACC3           TypeBiDi        1to2_0       15.60      7.80       2.00       SpeedControl        113.58     14.56      
 
-241        34.00      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-241        34.00      CACC2           TypeCACC        1to2_0       134.19     0.27       -3.00      GapControl          3.11       11.55      
-241        34.00      CACC3           TypeCACC        1to2_0       16.40      8.00       2.00       SpeedControl        112.79     14.10      
+241        34.00      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+241        34.00      CACC2           TypeBiDi        1to2_0       134.25     0.75       2.00       SpeedControl        3.05       4.07       
+241        34.00      CACC3           TypeBiDi        1to2_0       16.40      8.00       2.00       SpeedControl        112.85     14.11      
 
-242        34.10      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-242        34.10      CACC2           TypeCACC        1to2_0       134.19     0.00       -2.69      Stopped             3.11       -1.00      
-242        34.10      CACC3           TypeCACC        1to2_0       17.22      8.20       2.00       SpeedControl        111.97     13.65      
-
-243        34.20      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-243        34.20      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       Stopped             3.11       -1.00      
-243        34.20      CACC3           TypeCACC        1to2_0       18.06      8.40       2.00       SpeedControl        111.13     13.23      
-
-244        34.30      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-244        34.30      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       Stopped             3.11       -1.00      
-244        34.30      CACC3           TypeCACC        1to2_0       18.92      8.60       2.00       SpeedControl        110.27     12.82      
-
-245        34.40      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-245        34.40      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       Stopped             3.11       -1.00      
-245        34.40      CACC3           TypeCACC        1to2_0       19.80      8.80       2.00       SpeedControl        109.39     12.43      
-
-246        34.50      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-246        34.50      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       Stopped             3.11       -1.00      
-246        34.50      CACC3           TypeCACC        1to2_0       20.70      9.00       2.00       SpeedControl        108.49     12.05      
-
-247        34.60      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-247        34.60      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       Stopped             3.11       -1.00      
-247        34.60      CACC3           TypeCACC        1to2_0       21.62      9.20       2.00       SpeedControl        107.57     11.69      
-
-248        34.70      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-248        34.70      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       Stopped             3.11       -1.00      
-248        34.70      CACC3           TypeCACC        1to2_0       22.56      9.40       2.00       SpeedControl        106.63     11.34      
-
-249        34.80      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-249        34.80      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       Stopped             3.11       -1.00      
-249        34.80      CACC3           TypeCACC        1to2_0       23.52      9.60       2.00       SpeedControl        105.67     11.01      
-
-250        34.90      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-250        34.90      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       Stopped             3.11       -1.00      
-250        34.90      CACC3           TypeCACC        1to2_0       24.50      9.80       2.00       SpeedControl        104.69     10.68      
-
-251        35.00      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-251        35.00      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       Stopped             3.11       -1.00      
-251        35.00      CACC3           TypeCACC        1to2_0       25.50      10.00      2.00       SpeedControl        103.69     10.37      
-
-252        35.10      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-252        35.10      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       Stopped             3.11       -1.00      
-252        35.10      CACC3           TypeCACC        1to2_0       26.52      10.20      2.00       SpeedControl        102.67     10.07      
-
-253        35.20      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-253        35.20      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       Stopped             3.11       -1.00      
-253        35.20      CACC3           TypeCACC        1to2_0       27.56      10.40      2.00       SpeedControl        101.63     9.77       
-
-254        35.30      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-254        35.30      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       Stopped             3.11       -1.00      
-254        35.30      CACC3           TypeCACC        1to2_0       28.62      10.60      2.00       SpeedControl        100.57     9.49       
-
-255        35.40      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-255        35.40      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       Stopped             3.11       -1.00      
-255        35.40      CACC3           TypeCACC        1to2_0       29.70      10.80      2.00       SpeedControl        99.49      9.21       
-
-256        35.50      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-256        35.50      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       Stopped             3.11       -1.00      
-256        35.50      CACC3           TypeCACC        1to2_0       30.80      11.00      2.00       SpeedControl        98.39      8.94       
-
-257        35.60      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-257        35.60      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       Stopped             3.11       -1.00      
-257        35.60      CACC3           TypeCACC        1to2_0       31.92      11.20      2.00       SpeedControl        97.27      8.68       
-
-258        35.70      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-258        35.70      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       Stopped             3.11       -1.00      
-258        35.70      CACC3           TypeCACC        1to2_0       33.06      11.40      2.00       SpeedControl        96.13      8.43       
-
-259        35.80      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-259        35.80      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       Stopped             3.11       -1.00      
-259        35.80      CACC3           TypeCACC        1to2_0       34.22      11.60      2.00       SpeedControl        94.97      8.19       
-
-260        35.90      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-260        35.90      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       Stopped             3.11       -1.00      
-260        35.90      CACC3           TypeCACC        1to2_0       35.40      11.80      2.00       SpeedControl        93.79      7.95       
-
-261        36.00      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-261        36.00      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       Stopped             3.11       -1.00      
-261        36.00      CACC3           TypeCACC        1to2_0       36.60      12.00      2.00       SpeedControl        92.59      7.72       
-
-262        36.10      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-262        36.10      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       Stopped             3.11       -1.00      
-262        36.10      CACC3           TypeCACC        1to2_0       37.82      12.20      2.00       SpeedControl        91.37      7.49       
-
-263        36.20      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-263        36.20      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       Stopped             3.11       -1.00      
-263        36.20      CACC3           TypeCACC        1to2_0       39.06      12.40      2.00       SpeedControl        90.13      7.27       
-
-264        36.30      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-264        36.30      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       Stopped             3.11       -1.00      
-264        36.30      CACC3           TypeCACC        1to2_0       40.32      12.60      2.00       SpeedControl        88.87      7.05       
-
-265        36.40      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-265        36.40      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       Stopped             3.11       -1.00      
-265        36.40      CACC3           TypeCACC        1to2_0       41.60      12.80      2.00       SpeedControl        87.59      6.84       
-
-266        36.50      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-266        36.50      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       Stopped             3.11       -1.00      
-266        36.50      CACC3           TypeCACC        1to2_0       42.90      13.00      2.00       SpeedControl        86.29      6.64       
-
-267        36.60      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-267        36.60      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       Stopped             3.11       -1.00      
-267        36.60      CACC3           TypeCACC        1to2_0       44.22      13.20      2.00       SpeedControl        84.97      6.44       
-
-268        36.70      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-268        36.70      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       Stopped             3.11       -1.00      
-268        36.70      CACC3           TypeCACC        1to2_0       45.56      13.40      2.00       SpeedControl        83.63      6.24       
-
-269        36.80      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-269        36.80      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       Stopped             3.11       -1.00      
-269        36.80      CACC3           TypeCACC        1to2_0       46.92      13.60      2.00       SpeedControl        82.27      6.05       
-
-270        36.90      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-270        36.90      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       Stopped             3.11       -1.00      
-270        36.90      CACC3           TypeCACC        1to2_0       48.30      13.80      2.00       SpeedControl        80.89      5.86       
-
-271        37.00      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-271        37.00      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       Stopped             3.11       -1.00      
-271        37.00      CACC3           TypeCACC        1to2_0       49.70      14.00      2.00       SpeedControl        79.49      5.68       
-
-272        37.10      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-272        37.10      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       Stopped             3.11       -1.00      
-272        37.10      CACC3           TypeCACC        1to2_0       51.12      14.20      2.00       SpeedControl        78.07      5.50       
-
-273        37.20      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-273        37.20      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       Stopped             3.11       -1.00      
-273        37.20      CACC3           TypeCACC        1to2_0       52.56      14.40      2.00       SpeedControl        76.63      5.32       
-
-274        37.30      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-274        37.30      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       Stopped             3.11       -1.00      
-274        37.30      CACC3           TypeCACC        1to2_0       54.02      14.60      2.00       SpeedControl        75.17      5.15       
-
-275        37.40      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-275        37.40      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       Stopped             3.11       -1.00      
-275        37.40      CACC3           TypeCACC        1to2_0       55.50      14.80      2.00       SpeedControl        73.69      4.98       
-
-276        37.50      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-276        37.50      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       Stopped             3.11       -1.00      
-276        37.50      CACC3           TypeCACC        1to2_0       57.00      15.00      2.00       SpeedControl        72.19      4.81       
-
-277        37.60      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-277        37.60      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       Stopped             3.11       -1.00      
-277        37.60      CACC3           TypeCACC        1to2_0       58.52      15.20      2.00       SpeedControl        70.67      4.65       
-
-278        37.70      CACC1           TypeCACC        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
-278        37.70      CACC2           TypeCACC        1to2_0       134.19     0.00       0.00       Stopped             3.11       -1.00      
-278        37.70      CACC3           TypeCACC        1to2_0       60.06      15.40      2.00       SpeedControl        69.13      4.49       
+242        34.10      CACC1           TypeBiDi        1to2_0       142.30     0.00       0.00       Undefined           -1.00      -1.00      
+242        34.10      CACC2           TypeBiDi        1to2_0       134.28     0.25       -5.00      EmergencyBrake      3.02       12.18      
+242        34.10      CACC3           TypeBiDi        1to2_0       17.22      8.20       2.00       SpeedControl        112.06     13.67      

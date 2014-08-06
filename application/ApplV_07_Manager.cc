@@ -18,6 +18,7 @@ void ApplVManager::initialize(int stage)
         // set parameters in SUMO
         TraCI->commandSetDebug(SUMOvID, SUMOvehicleDebug);
         TraCI->commandSetModeSwitch(SUMOvID, modeSwitch);
+        TraCI->commandSetControlMode(SUMOvID, controlMode);
 
         // NED variables (packet loss ratio)
         droppT = par("droppT").doubleValue();
@@ -178,7 +179,12 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
     // one-vehicle look-ahead
     else if(controlMode == 2)
     {
-        result = isBeaconFromLeading(wsm);
+        if( isBeaconFromLeading(wsm) )
+        {
+            char buffer [200];
+            sprintf (buffer, "%f#%f#%f#%f#%s#%s", (double)wsm->getSpeed(), (double)wsm->getAccel(), (double)wsm->getMaxDecel(), (simTime().dbl())*1000, wsm->getSender(), "preceding");
+            TraCI->commandSetCFParameters(SUMOvID, buffer);
+        }
     }
     // from platoon leader
     else if(controlMode == 3)
@@ -190,45 +196,53 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
         // get data from my leading vehicle
         if(myPlnDepth == 0)
         {
-            result = isBeaconFromLeading(wsm);
+            if( isBeaconFromLeading(wsm) )
+            {
+                char buffer [200];
+                sprintf (buffer, "%f#%f#%f#%f#%s#%s", (double)wsm->getSpeed(), (double)wsm->getAccel(), (double)wsm->getMaxDecel(), (simTime().dbl())*1000, wsm->getSender(), "preceding");
+                TraCI->commandSetCFParameters(SUMOvID, buffer);
+            }
         }
         // I am a follower
         // get data from my platoon leader
         else
         {
-            result = isBeaconFromMyPlatoonLeader(wsm);
+            if( isBeaconFromMyPlatoonLeader(wsm) )
+            {
+                char buffer [200];
+                sprintf (buffer, "%f#%f#%f#%f#%s#%s", (double)wsm->getSpeed(), (double)wsm->getAccel(), (double)wsm->getMaxDecel(), (simTime().dbl())*1000, wsm->getSender(), "leader");
+                TraCI->commandSetCFParameters(SUMOvID, buffer);
+            }
         }
-    }
-    // bi-directional control
-    else if(controlMode == 4)
-    {
-
-
     }
     else
     {
         error("not a valid control mode!");
     }
 
-    // send results to SUMO if result = true
-    if(result)
-    {
-        char buffer [200];
-        sprintf (buffer, "%f#%f#%f#%f#%s", (double)wsm->getSpeed(), (double)wsm->getAccel(), (double)wsm->getMaxDecel(), (simTime().dbl())*1000, wsm->getSender() );
-        TraCI->commandSetCFParameters(SUMOvID, buffer);
 
-        // a beacon from the leading vehicle or platoon leader is received
-        data *pair = new data(wsm->getSender());
-        simsignal_t Signal_beaconP = registerSignal("beaconP");
-        nodePtr->emit(Signal_beaconP, pair);
-    }
-    else
-    {
-        // a beacon from other vehicles is received
-        data *pair = new data(wsm->getSender());
-        simsignal_t Signal_beaconO = registerSignal("beaconO");
-        nodePtr->emit(Signal_beaconO, pair);
-    }
+
+
+
+//    // send results to SUMO if result = true
+//    if(result)
+//    {
+//        char buffer [200];
+//        sprintf (buffer, "%f#%f#%f#%f#%s", (double)wsm->getSpeed(), (double)wsm->getAccel(), (double)wsm->getMaxDecel(), (simTime().dbl())*1000, wsm->getSender() );
+//        TraCI->commandSetCFParameters(SUMOvID, buffer);
+//
+//        // a beacon from the leading vehicle or platoon leader is received
+//        data *pair = new data(wsm->getSender());
+//        simsignal_t Signal_beaconP = registerSignal("beaconP");
+//        nodePtr->emit(Signal_beaconP, pair);
+//    }
+//    else
+//    {
+//        // a beacon from other vehicles is received
+//        data *pair = new data(wsm->getSender());
+//        simsignal_t Signal_beaconO = registerSignal("beaconO");
+//        nodePtr->emit(Signal_beaconO, pair);
+//    }
 }
 
 

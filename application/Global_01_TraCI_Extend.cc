@@ -758,6 +758,16 @@ void TraCI_Extend::commandSetModeSwitch(string nodeId, bool value)
 }
 
 
+void TraCI_Extend::commandSetControlMode(string nodeId, int value)
+{
+    uint8_t variableId = 0x18;
+    uint8_t variableType = TYPE_INTEGER;
+
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
+    ASSERT(buf.eof());
+}
+
+
 void TraCI_Extend::commandRemoveVehicle(string nodeId, uint8_t reason)
 {
     uint8_t variableId = REMOVE;

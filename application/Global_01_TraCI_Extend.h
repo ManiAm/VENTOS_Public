@@ -103,6 +103,7 @@ class TraCI_Extend : public TraCIScenarioManager
         void commandSetCFParameters(string, string);      // new defined command
         void commandSetDebug(string, bool);               // new defined command
         void commandSetModeSwitch(string, bool);         // new defined command
+        void commandSetControlMode(string, int);         // new defined command
         void commandRemoveVehicle(string, uint8_t);
         void commandStopNodeExtended(string, string, double, uint8_t, double, uint8_t);
         void commandSetvClass(string, string);

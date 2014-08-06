@@ -25,8 +25,8 @@ for s=1:1
     end
     
     file_id = fopen(path);
-    formatSpec = '%d %f %s %s %s %f %f %f %f %f';
-    C_text = textscan(file_id, formatSpec, 'HeaderLines', 1);
+    formatSpec = '%d %f %s %s %s %f %f %f %s %f %f';
+    C_text = textscan(file_id, formatSpec, 'HeaderLines', 3);
     fclose(file_id);
 
     % ---------------------------------------------------------------
@@ -36,7 +36,7 @@ for s=1:1
     vehicles = C_text{1,3};    
     speeds = C_text{1,7};
     accel = C_text{1,8};
-    timeGaps = C_text{1,10};
+    timeGaps = C_text{1,11};
 
     % ---------------------------------------------------------------
     
@@ -133,7 +133,7 @@ for s=1:1
     figName = sprintf('figure%d',fig);
     print('-dpng', '-r300', figName);
 
-    % ----------------------------------------------------------------
+    % --------------------------------------------------------------
     
     % time gap of vehicles 
 
