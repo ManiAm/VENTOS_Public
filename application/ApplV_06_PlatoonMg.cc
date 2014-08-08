@@ -5,6 +5,12 @@ namespace VENTOS {
 
 Define_Module(VENTOS::ApplVPlatoonMg);
 
+ApplVPlatoonMg::~ApplVPlatoonMg()
+{
+
+}
+
+
 void ApplVPlatoonMg::initialize(int stage)
 {
     ApplVPlatoonFormed::initialize(stage);
@@ -72,6 +78,20 @@ void ApplVPlatoonMg::initialize(int stage)
         plnTIMER10 = new cMessage("wait for leave reply", KIND_TIMER);
         plnTIMER11 = new cMessage("wait for split completion", KIND_TIMER);
 	}
+}
+
+
+void ApplVPlatoonMg::finish()
+{
+    ApplVPlatoonFormed::finish();
+}
+
+
+// is called, every time the position of vehicle changes
+void ApplVPlatoonMg::handlePositionUpdate(cObject* obj)
+{
+    // pass it down!
+    ApplVPlatoonFormed::handlePositionUpdate(obj);
 }
 
 
@@ -410,26 +430,6 @@ void ApplVPlatoonMg::reportManeuverToStat(string from, string to, string maneuve
     PlnManeuver *com = new PlnManeuver(from.c_str(), to.c_str(), maneuver.c_str());
     simsignal_t Signal_PlnManeuver = registerSignal("PlnManeuver");
     nodePtr->emit(Signal_PlnManeuver, com);
-}
-
-
-// is called, every time the position of vehicle changes
-void ApplVPlatoonMg::handlePositionUpdate(cObject* obj)
-{
-    // pass it down!
-    ApplVPlatoonFormed::handlePositionUpdate(obj);
-}
-
-
-void ApplVPlatoonMg::finish()
-{
-    ApplVPlatoonFormed::finish();
-}
-
-
-ApplVPlatoonMg::~ApplVPlatoonMg()
-{
-
 }
 
 }

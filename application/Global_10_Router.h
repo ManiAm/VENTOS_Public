@@ -27,6 +27,10 @@ namespace VENTOS {
 
 class Router : public BaseModule    //Responsible for routing cars in our system.  Should only be one of these.
 {
+public:
+    ~Router();
+    friend ostream& operator<<(ostream& os, Router &rhs);
+
 protected:
     //Routing code
     vector<Edge> edges;         //Edges in our graph
@@ -49,11 +53,6 @@ protected:
     cModule *nodePtr;               // pointer to the Node
     mutable TraCI_Extend* manager;  //Link to TraCI
     simsignal_t Signal_system;      //Receives signals to here
-
-public:
-    friend ostream& operator<<(ostream& os, Router &rhs);
-    Router();
-    ~Router();
 };
 }
 

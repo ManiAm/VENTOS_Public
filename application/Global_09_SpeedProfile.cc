@@ -47,9 +47,14 @@ void SpeedProfile::initialize(int stage)
 }
 
 
+void SpeedProfile::finish()
+{
+    fclose(f2);
+}
+
+
 void SpeedProfile::handleMessage(cMessage *msg)
 {
-
 
 }
 
@@ -271,10 +276,5 @@ void SpeedProfile::ExTrajectory(double startT)
     TraCI->commandSetSpeed(profileVehicle, atof(line));
 }
 
-
-void SpeedProfile::finish()
-{
-    fclose(f2);
-}
 }
 

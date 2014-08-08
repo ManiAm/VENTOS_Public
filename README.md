@@ -51,44 +51,28 @@ Install OMNET++
 
 **Step 1:** Download OMNET++ from "http://www.omnetpp.org/". Then extract the file to a location, say your desktop (make sure the folder that you extract OMNET++ file into, does not have space). You can find installation instructions in doc/InstallGuide.pdf file.
 
-**Step 2:** Install these packages in Ubuntu
+**Step 2:** OMNeT++ requires that its bin directory be in the PATH. You should add the following line to your .bashrc (note that you should change the path if you installed OMNET++ in a different directory):
 
-        sudo apt-get install build-essential gcc g++ bison flex perl \
-        tcl-dev tk-dev blt libxml2-dev zlib1g-dev default-jre \
-        doxygen graphviz libwebkitgtk-1.0-0 openmpi-bin libopenmpi-dev libpcap-dev
+        export PATH=$PATH:/home/mani/Desktop/omnetpp-4.5/bin
 
-**Step 3:** The default tool-tip background color in Ubuntu is black, which causes certain tool-tips in the OMNeT++ IDE to become unreadable (black-on-black). This annoyance can be resolved by changing the tool-tip colors in Ubuntu. Install gnome-color-chooser:
-
-        sudo apt-get install gnome-color-chooser
-
-Run it:
- 
-        gnome-color-chooser
-
-Find the tool-tips group on the Specific tab, and change the settings to black foreground over pale yellow background. Click Apply.
-
-**Step 4:** OMNeT++ requires that its bin directory be in the PATH. You should add the following line to your .bashrc (note that you should change the path if you installed OMNET++ in a different directory):
-
-        export PATH=$PATH:/home/mani/Desktop/omnetpp-4.3.1/bin
-
-**Step 5:** Set the TCL_LIBRARY environment variable like following in .bashrc. Without this, Tkenv (the GUI runtime environment) may be unable to find the BLT library.
+**Step 3:** Set the TCL_LIBRARY environment variable like following in .bashrc. Without this, Tkenv (the GUI runtime environment) may be unable to find the BLT library.
 
         export TCL_LIBRARY=/usr/share/tcltk/tcl8.5
 
-**Step 6:** In the OMNeT++ directory, type the following command. The configure script detects installed software and configuration of your system. It writes the results into the `Makefile.inc` file, which will be read by the makefiles during the build process. Pay close attention to errors and warnings! (ignore warnings regarding Akaroa!).
+**Step 4:** In the OMNeT++ directory, type the following command. The configure script detects installed software and configuration of your system. It writes the results into the `Makefile.inc` file, which will be read by the makefiles during the build process. Pay close attention to errors and warnings! (ignore warnings regarding Akaroa!).
 
         ./configure
 
-**Step 7:** Now you can compile OMNET++ by using make. Compiling takes some time, so relax and grab a cup of coffee!
+**Step 5:** Now you can compile OMNET++ by using make. Compiling takes some time, so relax and grab a cup of coffee!
 
         make
 
-**Step 8:** You can now verify that the sample simulations run correctly. For example, the dyna simulation is started by entering the following commands. First we go to the sample/dyna folder, and then we run it.
+**Step 6:** You can now verify that the sample simulations run correctly. For example, the dyna simulation is started by entering the following commands. First we go to the sample/dyna folder, and then we run it.
 
         cd samples/dyna
         ./dyna
 
-**Step 9:** You can run the IDE by typing the following command in the terminal:
+**Step 7:** You can run the IDE by typing the following command in the terminal:
 
         omnetpp
 
@@ -98,7 +82,7 @@ The first time you run OMNET++, Eclipse IDE asks you to select a workspace. Sele
 
 Then it ask you to install INET framework or import some examples into your workspace. Uncheck them both since we do not need them for the time being.
 
-**Step 10:** You can also create a shortcut of OMNET++ on your desktop. To do this type the following command in OMNET++ directory.
+**Step 8:** You can also create a shortcut of OMNET++ on your desktop. To do this type the following command in OMNET++ directory.
 
         make install-desktop-icon
 

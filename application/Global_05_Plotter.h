@@ -11,7 +11,6 @@ namespace VENTOS {
 class Plotter : public BaseModule
 {
   public:
-      Plotter();
       virtual ~Plotter();
       virtual void finish();
       virtual void initialize(int);

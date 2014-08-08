@@ -5,6 +5,12 @@ namespace VENTOS {
 
 Define_Module(VENTOS::ApplVBeacon);
 
+ApplVBeacon::~ApplVBeacon()
+{
+
+}
+
+
 void ApplVBeacon::initialize(int stage)
 {
     ApplVBase::initialize(stage);
@@ -59,6 +65,21 @@ void ApplVBeacon::initialize(int stage)
         WATCH(myPlnDepth);
         WATCH(plnSize);
 	}
+}
+
+
+void ApplVBeacon::finish()
+{
+    ApplVBase::finish();
+
+    if (VehicleBeaconEvt->isScheduled())
+    {
+        cancelAndDelete(VehicleBeaconEvt);
+    }
+    else
+    {
+        delete VehicleBeaconEvt;
+    }
 }
 
 
@@ -260,23 +281,5 @@ bool ApplVBeacon::isBeaconFromMyPlatoonLeader(BeaconVehicle* wsm)
     return false;
 }
 
-
-void ApplVBeacon::finish()
-{
-    if (VehicleBeaconEvt->isScheduled())
-    {
-        cancelAndDelete(VehicleBeaconEvt);
-    }
-    else
-    {
-        delete VehicleBeaconEvt;
-    }
-}
-
-
-ApplVBeacon::~ApplVBeacon()
-{
-
-}
 }
 

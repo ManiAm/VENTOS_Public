@@ -8,6 +8,12 @@ MatrixXd ApplRSUAID::tableProb;
 
 Define_Module(VENTOS::ApplRSUAID);
 
+ApplRSUAID::~ApplRSUAID()
+{
+
+}
+
+
 void ApplRSUAID::initialize(int stage)
 {
 	ApplRSUBase::initialize(stage);
@@ -18,6 +24,12 @@ void ApplRSUAID::initialize(int stage)
         tableCount = MatrixXi::Zero(3, 2000);
         tableProb = MatrixXd::Constant(3, 2000, 0.1);
 	}
+}
+
+
+void ApplRSUAID::finish()
+{
+    ApplRSUBase::finish();
 }
 
 
@@ -115,16 +127,5 @@ void ApplRSUAID::onData(LaneChangeMsg* wsm)
     }
 }
 
-
-void ApplRSUAID::finish()
-{
-    ApplRSUBase::finish();
-}
-
-
-ApplRSUAID::~ApplRSUAID()
-{
-
-}
 }
 

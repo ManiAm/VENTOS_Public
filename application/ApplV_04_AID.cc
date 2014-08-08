@@ -5,6 +5,12 @@ namespace VENTOS {
 
 Define_Module(VENTOS::ApplV_AID);
 
+ApplV_AID::~ApplV_AID()
+{
+
+}
+
+
 void ApplV_AID::initialize(int stage)
 {
     ApplVSystem::initialize(stage);
@@ -20,6 +26,12 @@ void ApplV_AID::initialize(int stage)
 
         laneChanges.clear();
 	}
+}
+
+
+void ApplV_AID::finish()
+{
+    ApplVSystem::finish();
 }
 
 
@@ -150,16 +162,5 @@ void ApplV_AID::handlePositionUpdate(cObject* obj)
     }
 }
 
-
-void ApplV_AID::finish()
-{
-    ApplVSystem::finish();
-}
-
-
-ApplV_AID::~ApplV_AID()
-{
-
-}
 }
 

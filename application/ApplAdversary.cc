@@ -7,6 +7,11 @@ const simsignalwrap_t ApplAdversary::mobilityStateChangedSignal = simsignalwrap_
 
 Define_Module(VENTOS::ApplAdversary);
 
+ApplAdversary::~ApplAdversary()
+{
+
+}
+
 void ApplAdversary::initialize(int stage)
 {
 	BaseApplLayer::initialize(stage);
@@ -43,6 +48,12 @@ void ApplAdversary::initialize(int stage)
             scheduleAt(simTime() + JammingInterval, JammingEvt);
 	    }
 	}
+}
+
+
+void ApplAdversary::finish()
+{
+    findHost()->unsubscribe(mobilityStateChangedSignal, this);
 }
 
 
@@ -106,6 +117,13 @@ void ApplAdversary::handleLowerMsg(cMessage* msg)
 }
 
 
+void ApplAdversary::handlePositionUpdate(cObject* obj)
+{
+    ChannelMobilityPtrType const mobility = check_and_cast<ChannelMobilityPtrType>(obj);
+    curPosition = mobility->getCurrentPosition();
+}
+
+
 // adversary get a msg, modifies the acceleration and re-send it
 void ApplAdversary::DoFalsificationAttack(BeaconVehicle* wsm)
 {
@@ -146,24 +164,4 @@ void ApplAdversary::DoJammingAttack()
 
 }
 
-
-void ApplAdversary::handlePositionUpdate(cObject* obj)
-{
-    ChannelMobilityPtrType const mobility = check_and_cast<ChannelMobilityPtrType>(obj);
-    curPosition = mobility->getCurrentPosition();
 }
-
-
-void ApplAdversary::finish()
-{
-	findHost()->unsubscribe(mobilityStateChangedSignal, this);
-}
-
-
-ApplAdversary::~ApplAdversary()
-{
-
-}
-
-}
-

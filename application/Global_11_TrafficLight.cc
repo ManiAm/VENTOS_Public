@@ -28,6 +28,12 @@ void TrafficLight::initialize(int stage)
 }
 
 
+void TrafficLight::finish()
+{
+
+}
+
+
 void TrafficLight::handleMessage(cMessage *msg)
 {
 
@@ -55,11 +61,5 @@ void TrafficLight::Execute()
 
 }
 
-
-void TrafficLight::finish()
-{
-
-
-}
 }
 

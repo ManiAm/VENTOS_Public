@@ -5,11 +5,11 @@ namespace VENTOS {
 
 Define_Module(VENTOS::Statistics);
 
-Statistics::Statistics()
+
+Statistics::~Statistics()
 {
 
 }
-
 
 void Statistics::initialize(int stage)
 {
@@ -50,6 +50,12 @@ void Statistics::initialize(int stage)
         simulation.getSystemModule()->subscribe("VehicleState", this);
         simulation.getSystemModule()->subscribe("PlnManeuver", this);
     }
+}
+
+
+void Statistics::finish()
+{
+
 }
 
 
@@ -1039,16 +1045,5 @@ vector<NodeEntry *> Statistics::SortByID(vector<NodeEntry *> vec)
     return vec;
 }
 
-
-void Statistics::finish()
-{
-
-}
-
-
-Statistics::~Statistics()
-{
-
-}
 
 }

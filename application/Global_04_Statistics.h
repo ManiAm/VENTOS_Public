@@ -162,7 +162,6 @@ class plnStat
 class Statistics : public BaseModule
 {
   public:
-      Statistics();
       virtual ~Statistics();
       virtual void finish();
       virtual void initialize(int);

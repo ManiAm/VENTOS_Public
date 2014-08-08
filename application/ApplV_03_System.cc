@@ -4,6 +4,12 @@ namespace VENTOS {
 
 Define_Module(VENTOS::ApplVSystem);
 
+ApplVSystem::~ApplVSystem()
+{
+
+}
+
+
 void ApplVSystem::initialize(int stage)
 {
     ApplVBeacon::initialize(stage); //Initialize lower-levels
@@ -51,6 +57,26 @@ void ApplVSystem::initialize(int stage)
         if (requestRoutes) //&& VANETenabled ) //If this vehicle is supposed to send system messages
             scheduleAt(simTime() + systemOffset, sendSystemMsgEvt); //Schedule them to start sending
     }
+}
+
+
+void ApplVSystem::finish()
+{
+    ApplVBeacon::finish();
+
+    if(requestRoutes)
+    {
+        if (sendSystemMsgEvt->isScheduled())
+        {
+            cancelAndDelete(sendSystemMsgEvt);
+        }
+        else
+        {
+            delete sendSystemMsgEvt;
+        }
+    }
+
+    simulation.getSystemModule()->unsubscribe("router",this);
 }
 
 
@@ -181,27 +207,4 @@ void ApplVSystem::handlePositionUpdate(cObject* obj)
     ApplVBeacon::handlePositionUpdate(obj);
 }
 
-
-void ApplVSystem::finish()
-{
-    ApplVBeacon::finish();
-
-    if(requestRoutes)
-    {
-        if (sendSystemMsgEvt->isScheduled())
-        {
-            cancelAndDelete(sendSystemMsgEvt);
-        }
-        else
-        {
-            delete sendSystemMsgEvt;
-        }
-    }
-}
-
-
-ApplVSystem::~ApplVSystem()
-{
-    simulation.getSystemModule()->unsubscribe("router",this);
-}
 }

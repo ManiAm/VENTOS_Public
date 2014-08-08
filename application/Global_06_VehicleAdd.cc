@@ -32,6 +32,13 @@ void VehicleAdd::initialize(int stage)
 }
 
 
+void VehicleAdd::finish()
+{
+
+
+}
+
+
 void VehicleAdd::handleMessage(cMessage *msg)
 {
 
@@ -245,9 +252,4 @@ void VehicleAdd::Scenario6()
 }
 
 
-void VehicleAdd::finish()
-{
-
-
-}
 }

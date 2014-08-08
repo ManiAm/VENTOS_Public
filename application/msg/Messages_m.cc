@@ -1,5 +1,5 @@
 //
-// Generated file, do not edit! Created by opp_msgc 4.3 from msg/Messages.msg.
+// Generated file, do not edit! Created by opp_msgc 4.5 from msg/Messages.msg.
 //
 
 // Disable warnings about unused variables, empty switch stmts, etc:
@@ -12,9 +12,8 @@
 #include <sstream>
 #include "Messages_m.h"
 
-// Template rule which fires if a struct or class doesn't have operator<<
-template<typename T>
-std::ostream& operator<<(std::ostream& out,const T&) {return out;}
+USING_NAMESPACE
+
 
 // Another default rule (prevents compiler from choosing base class' doPacking())
 template<typename T>
@@ -31,9 +30,33 @@ void doUnpacking(cCommBuffer *, T& t) {
 
 namespace VENTOS {
 
+// Template rule for outputting std::vector<T> types
+template<typename T, typename A>
+inline std::ostream& operator<<(std::ostream& out, const std::vector<T,A>& vec)
+{
+    out.put('{');
+    for(typename std::vector<T,A>::const_iterator it = vec.begin(); it != vec.end(); ++it)
+    {
+        if (it != vec.begin()) {
+            out.put(','); out.put(' ');
+        }
+        out << *it;
+    }
+    out.put('}');
+    
+    char buf[32];
+    sprintf(buf, " (size=%u)", (unsigned int)vec.size());
+    out.write(buf, strlen(buf));
+    return out;
+}
+
+// Template rule which fires if a struct or class doesn't have operator<<
+template<typename T>
+inline std::ostream& operator<<(std::ostream& out,const T&) {return out;}
+
 Register_Class(BeaconVehicle);
 
-BeaconVehicle::BeaconVehicle(const char *name, int kind) : WaveShortMessage(name,kind)
+BeaconVehicle::BeaconVehicle(const char *name, int kind) : ::WaveShortMessage(name,kind)
 {
     this->sender_var = 0;
     this->recipient_var = 0;
@@ -45,7 +68,7 @@ BeaconVehicle::BeaconVehicle(const char *name, int kind) : WaveShortMessage(name
     this->platoonDepth_var = 0;
 }
 
-BeaconVehicle::BeaconVehicle(const BeaconVehicle& other) : WaveShortMessage(other)
+BeaconVehicle::BeaconVehicle(const BeaconVehicle& other) : ::WaveShortMessage(other)
 {
     copy(other);
 }
@@ -57,7 +80,7 @@ BeaconVehicle::~BeaconVehicle()
 BeaconVehicle& BeaconVehicle::operator=(const BeaconVehicle& other)
 {
     if (this==&other) return *this;
-    WaveShortMessage::operator=(other);
+    ::WaveShortMessage::operator=(other);
     copy(other);
     return *this;
 }
@@ -77,7 +100,7 @@ void BeaconVehicle::copy(const BeaconVehicle& other)
 
 void BeaconVehicle::parsimPack(cCommBuffer *b)
 {
-    WaveShortMessage::parsimPack(b);
+    ::WaveShortMessage::parsimPack(b);
     doPacking(b,this->sender_var);
     doPacking(b,this->recipient_var);
     doPacking(b,this->pos_var);
@@ -91,7 +114,7 @@ void BeaconVehicle::parsimPack(cCommBuffer *b)
 
 void BeaconVehicle::parsimUnpack(cCommBuffer *b)
 {
-    WaveShortMessage::parsimUnpack(b);
+    ::WaveShortMessage::parsimUnpack(b);
     doUnpacking(b,this->sender_var);
     doUnpacking(b,this->recipient_var);
     doUnpacking(b,this->pos_var);
@@ -405,18 +428,10 @@ const char *BeaconVehicleDescriptor::getFieldStructName(void *object, int field)
             return basedesc->getFieldStructName(object, field);
         field -= basedesc->getFieldCount(object);
     }
-    static const char *fieldStructNames[] = {
-        NULL,
-        NULL,
-        "Coord",
-        NULL,
-        NULL,
-        NULL,
-        NULL,
-        NULL,
-        NULL,
+    switch (field) {
+        case 2: return opp_typename(typeid(Coord));
+        default: return NULL;
     };
-    return (field>=0 && field<9) ? fieldStructNames[field] : NULL;
 }
 
 void *BeaconVehicleDescriptor::getFieldStructPointer(void *object, int field, int i) const
@@ -436,13 +451,13 @@ void *BeaconVehicleDescriptor::getFieldStructPointer(void *object, int field, in
 
 Register_Class(BeaconRSU);
 
-BeaconRSU::BeaconRSU(const char *name, int kind) : WaveShortMessage(name,kind)
+BeaconRSU::BeaconRSU(const char *name, int kind) : ::WaveShortMessage(name,kind)
 {
     this->sender_var = 0;
     this->recipient_var = 0;
 }
 
-BeaconRSU::BeaconRSU(const BeaconRSU& other) : WaveShortMessage(other)
+BeaconRSU::BeaconRSU(const BeaconRSU& other) : ::WaveShortMessage(other)
 {
     copy(other);
 }
@@ -454,7 +469,7 @@ BeaconRSU::~BeaconRSU()
 BeaconRSU& BeaconRSU::operator=(const BeaconRSU& other)
 {
     if (this==&other) return *this;
-    WaveShortMessage::operator=(other);
+    ::WaveShortMessage::operator=(other);
     copy(other);
     return *this;
 }
@@ -468,7 +483,7 @@ void BeaconRSU::copy(const BeaconRSU& other)
 
 void BeaconRSU::parsimPack(cCommBuffer *b)
 {
-    WaveShortMessage::parsimPack(b);
+    ::WaveShortMessage::parsimPack(b);
     doPacking(b,this->sender_var);
     doPacking(b,this->recipient_var);
     doPacking(b,this->pos_var);
@@ -476,7 +491,7 @@ void BeaconRSU::parsimPack(cCommBuffer *b)
 
 void BeaconRSU::parsimUnpack(cCommBuffer *b)
 {
-    WaveShortMessage::parsimUnpack(b);
+    ::WaveShortMessage::parsimUnpack(b);
     doUnpacking(b,this->sender_var);
     doUnpacking(b,this->recipient_var);
     doUnpacking(b,this->pos_var);
@@ -688,12 +703,10 @@ const char *BeaconRSUDescriptor::getFieldStructName(void *object, int field) con
             return basedesc->getFieldStructName(object, field);
         field -= basedesc->getFieldCount(object);
     }
-    static const char *fieldStructNames[] = {
-        NULL,
-        NULL,
-        "Coord",
+    switch (field) {
+        case 2: return opp_typename(typeid(Coord));
+        default: return NULL;
     };
-    return (field>=0 && field<3) ? fieldStructNames[field] : NULL;
 }
 
 void *BeaconRSUDescriptor::getFieldStructPointer(void *object, int field, int i) const
@@ -713,13 +726,13 @@ void *BeaconRSUDescriptor::getFieldStructPointer(void *object, int field, int i)
 
 Register_Class(LaneChangeMsg);
 
-LaneChangeMsg::LaneChangeMsg(const char *name, int kind) : WaveShortMessage(name,kind)
+LaneChangeMsg::LaneChangeMsg(const char *name, int kind) : ::WaveShortMessage(name,kind)
 {
     this->sender_var = 0;
     this->recipient_var = 0;
 }
 
-LaneChangeMsg::LaneChangeMsg(const LaneChangeMsg& other) : WaveShortMessage(other)
+LaneChangeMsg::LaneChangeMsg(const LaneChangeMsg& other) : ::WaveShortMessage(other)
 {
     copy(other);
 }
@@ -731,7 +744,7 @@ LaneChangeMsg::~LaneChangeMsg()
 LaneChangeMsg& LaneChangeMsg::operator=(const LaneChangeMsg& other)
 {
     if (this==&other) return *this;
-    WaveShortMessage::operator=(other);
+    ::WaveShortMessage::operator=(other);
     copy(other);
     return *this;
 }
@@ -745,7 +758,7 @@ void LaneChangeMsg::copy(const LaneChangeMsg& other)
 
 void LaneChangeMsg::parsimPack(cCommBuffer *b)
 {
-    WaveShortMessage::parsimPack(b);
+    ::WaveShortMessage::parsimPack(b);
     doPacking(b,this->sender_var);
     doPacking(b,this->recipient_var);
     doPacking(b,this->laneChange_var);
@@ -753,7 +766,7 @@ void LaneChangeMsg::parsimPack(cCommBuffer *b)
 
 void LaneChangeMsg::parsimUnpack(cCommBuffer *b)
 {
-    WaveShortMessage::parsimUnpack(b);
+    ::WaveShortMessage::parsimUnpack(b);
     doUnpacking(b,this->sender_var);
     doUnpacking(b,this->recipient_var);
     doUnpacking(b,this->laneChange_var);
@@ -965,12 +978,10 @@ const char *LaneChangeMsgDescriptor::getFieldStructName(void *object, int field)
             return basedesc->getFieldStructName(object, field);
         field -= basedesc->getFieldCount(object);
     }
-    static const char *fieldStructNames[] = {
-        NULL,
-        NULL,
-        "stringQueue",
+    switch (field) {
+        case 2: return opp_typename(typeid(stringQueue));
+        default: return NULL;
     };
-    return (field>=0 && field<3) ? fieldStructNames[field] : NULL;
 }
 
 void *LaneChangeMsgDescriptor::getFieldStructPointer(void *object, int field, int i) const
@@ -990,7 +1001,7 @@ void *LaneChangeMsgDescriptor::getFieldStructPointer(void *object, int field, in
 
 Register_Class(PlatoonMsg);
 
-PlatoonMsg::PlatoonMsg(const char *name, int kind) : WaveShortMessage(name,kind)
+PlatoonMsg::PlatoonMsg(const char *name, int kind) : ::WaveShortMessage(name,kind)
 {
     this->sender_var = 0;
     this->recipient_var = 0;
@@ -1001,7 +1012,7 @@ PlatoonMsg::PlatoonMsg(const char *name, int kind) : WaveShortMessage(name,kind)
     this->strValue_var = 0;
 }
 
-PlatoonMsg::PlatoonMsg(const PlatoonMsg& other) : WaveShortMessage(other)
+PlatoonMsg::PlatoonMsg(const PlatoonMsg& other) : ::WaveShortMessage(other)
 {
     copy(other);
 }
@@ -1013,7 +1024,7 @@ PlatoonMsg::~PlatoonMsg()
 PlatoonMsg& PlatoonMsg::operator=(const PlatoonMsg& other)
 {
     if (this==&other) return *this;
-    WaveShortMessage::operator=(other);
+    ::WaveShortMessage::operator=(other);
     copy(other);
     return *this;
 }
@@ -1032,7 +1043,7 @@ void PlatoonMsg::copy(const PlatoonMsg& other)
 
 void PlatoonMsg::parsimPack(cCommBuffer *b)
 {
-    WaveShortMessage::parsimPack(b);
+    ::WaveShortMessage::parsimPack(b);
     doPacking(b,this->sender_var);
     doPacking(b,this->recipient_var);
     doPacking(b,this->type_var);
@@ -1045,7 +1056,7 @@ void PlatoonMsg::parsimPack(cCommBuffer *b)
 
 void PlatoonMsg::parsimUnpack(cCommBuffer *b)
 {
-    WaveShortMessage::parsimUnpack(b);
+    ::WaveShortMessage::parsimUnpack(b);
     doUnpacking(b,this->sender_var);
     doUnpacking(b,this->recipient_var);
     doUnpacking(b,this->type_var);
@@ -1342,17 +1353,10 @@ const char *PlatoonMsgDescriptor::getFieldStructName(void *object, int field) co
             return basedesc->getFieldStructName(object, field);
         field -= basedesc->getFieldCount(object);
     }
-    static const char *fieldStructNames[] = {
-        NULL,
-        NULL,
-        NULL,
-        NULL,
-        NULL,
-        NULL,
-        NULL,
-        "stringQueue",
+    switch (field) {
+        case 7: return opp_typename(typeid(stringQueue));
+        default: return NULL;
     };
-    return (field>=0 && field<8) ? fieldStructNames[field] : NULL;
 }
 
 void *PlatoonMsgDescriptor::getFieldStructPointer(void *object, int field, int i) const
@@ -1372,7 +1376,7 @@ void *PlatoonMsgDescriptor::getFieldStructPointer(void *object, int field, int i
 
 Register_Class(SystemMsg);
 
-SystemMsg::SystemMsg(const char *name, int kind) : WaveShortMessage(name,kind)
+SystemMsg::SystemMsg(const char *name, int kind) : ::WaveShortMessage(name,kind)
 {
     this->sender_var = 0;
     this->recipient_var = 0;
@@ -1381,7 +1385,7 @@ SystemMsg::SystemMsg(const char *name, int kind) : WaveShortMessage(name,kind)
     this->target_var = 0;
 }
 
-SystemMsg::SystemMsg(const SystemMsg& other) : WaveShortMessage(other)
+SystemMsg::SystemMsg(const SystemMsg& other) : ::WaveShortMessage(other)
 {
     copy(other);
 }
@@ -1393,7 +1397,7 @@ SystemMsg::~SystemMsg()
 SystemMsg& SystemMsg::operator=(const SystemMsg& other)
 {
     if (this==&other) return *this;
-    WaveShortMessage::operator=(other);
+    ::WaveShortMessage::operator=(other);
     copy(other);
     return *this;
 }
@@ -1409,7 +1413,7 @@ void SystemMsg::copy(const SystemMsg& other)
 
 void SystemMsg::parsimPack(cCommBuffer *b)
 {
-    WaveShortMessage::parsimPack(b);
+    ::WaveShortMessage::parsimPack(b);
     doPacking(b,this->sender_var);
     doPacking(b,this->recipient_var);
     doPacking(b,this->requestType_var);
@@ -1419,7 +1423,7 @@ void SystemMsg::parsimPack(cCommBuffer *b)
 
 void SystemMsg::parsimUnpack(cCommBuffer *b)
 {
-    WaveShortMessage::parsimUnpack(b);
+    ::WaveShortMessage::parsimUnpack(b);
     doUnpacking(b,this->sender_var);
     doUnpacking(b,this->recipient_var);
     doUnpacking(b,this->requestType_var);
@@ -1666,14 +1670,9 @@ const char *SystemMsgDescriptor::getFieldStructName(void *object, int field) con
             return basedesc->getFieldStructName(object, field);
         field -= basedesc->getFieldCount(object);
     }
-    static const char *fieldStructNames[] = {
-        NULL,
-        NULL,
-        NULL,
-        NULL,
-        NULL,
+    switch (field) {
+        default: return NULL;
     };
-    return (field>=0 && field<5) ? fieldStructNames[field] : NULL;
 }
 
 void *SystemMsgDescriptor::getFieldStructPointer(void *object, int field, int i) const
@@ -1692,12 +1691,12 @@ void *SystemMsgDescriptor::getFieldStructPointer(void *object, int field, int i)
 
 Register_Class(RouterMsg);
 
-RouterMsg::RouterMsg(const char *name, int kind) : WaveShortMessage(name,kind)
+RouterMsg::RouterMsg(const char *name, int kind) : ::WaveShortMessage(name,kind)
 {
     this->recipient_var = 0;
 }
 
-RouterMsg::RouterMsg(const RouterMsg& other) : WaveShortMessage(other)
+RouterMsg::RouterMsg(const RouterMsg& other) : ::WaveShortMessage(other)
 {
     copy(other);
 }
@@ -1709,7 +1708,7 @@ RouterMsg::~RouterMsg()
 RouterMsg& RouterMsg::operator=(const RouterMsg& other)
 {
     if (this==&other) return *this;
-    WaveShortMessage::operator=(other);
+    ::WaveShortMessage::operator=(other);
     copy(other);
     return *this;
 }
@@ -1722,14 +1721,14 @@ void RouterMsg::copy(const RouterMsg& other)
 
 void RouterMsg::parsimPack(cCommBuffer *b)
 {
-    WaveShortMessage::parsimPack(b);
+    ::WaveShortMessage::parsimPack(b);
     doPacking(b,this->recipient_var);
     doPacking(b,this->info_var);
 }
 
 void RouterMsg::parsimUnpack(cCommBuffer *b)
 {
-    WaveShortMessage::parsimUnpack(b);
+    ::WaveShortMessage::parsimUnpack(b);
     doUnpacking(b,this->recipient_var);
     doUnpacking(b,this->info_var);
 }
@@ -1924,11 +1923,10 @@ const char *RouterMsgDescriptor::getFieldStructName(void *object, int field) con
             return basedesc->getFieldStructName(object, field);
         field -= basedesc->getFieldCount(object);
     }
-    static const char *fieldStructNames[] = {
-        NULL,
-        "stringList",
+    switch (field) {
+        case 1: return opp_typename(typeid(stringList));
+        default: return NULL;
     };
-    return (field>=0 && field<2) ? fieldStructNames[field] : NULL;
 }
 
 void *RouterMsgDescriptor::getFieldStructPointer(void *object, int field, int i) const

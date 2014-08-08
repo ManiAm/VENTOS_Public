@@ -4,10 +4,19 @@ namespace VENTOS {
 
 Define_Module(VENTOS::Router);
 
+Router::~Router()
+{
+
+}
+
+
 void Router::initialize(int stage)
 {
     if(stage == 0)
     {
+        recalculateCount = 0;
+        lastUpdateTime = 0;
+
         enableRouting = par("enableRouting").boolValue();
         if(!enableRouting)
             return;
@@ -115,6 +124,7 @@ void Router::initialize(int stage)
         sort(edges.begin(), edges.end(), EdgeIDSort);//, EdgeIDSort);   //Sort the edges for our binary searches later
     } // if stage == 0
 }
+
 
 void Router::receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj)
 {
@@ -250,14 +260,4 @@ list<string> Router::getRoute(string begin, string end)
     return ret;
 }
 
-Router::Router()
-{
-    recalculateCount = 0;
-    lastUpdateTime = 0;
-}
-
-Router::~Router()
-{
-
-}
 }

@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for libapplication
 #
 # This file was generated with the command:
-#  opp_makemake -f --make-so -o application -O out -d msg -I/home/mani/Desktop/VENTOS/eigen-3.2.1 -I/home/mani/Desktop/VENTOS/rapidxml-1.13 -I../../Veins/src/modules/utility -I../../Veins/src/modules/phy -I../../Veins/src/base/modules -I../../Veins/src/modules/analogueModel -I../../Veins/src/modules/mac/ieee80211p -I../../Veins/src/base/messages -I../../Veins/src/modules/messages -I../../Veins/src/base/connectionManager -I../../Veins/src/inet -I../../Veins/src -I../../Veins/src/base/utils -I../../Veins/src/base/phyLayer -L../../Veins/out/$(CONFIGNAME)/src -L../out/$(CONFIGNAME)/application/msg -lboost_filesystem -lboost_system -lmsg -lVeins -KVEINS_PROJ=../../Veins
+#  opp_makemake -f --make-so -o application -O out -d msg -I/home/mani/Desktop/VENTOS/eigen-3.2.1 -I/home/mani/Desktop/VENTOS/rapidxml-1.13 -I../../Veins/src/modules/utility -I../../Veins/src/modules/phy -I../../Veins/src/base/modules -I../../Veins/src/modules/analogueModel -I../../Veins/src/modules/mac/ieee80211p -I../../Veins/src/base/messages -I../../Veins/src/modules/messages -I../../Veins/src/base/connectionManager -I../../Veins/src/inet -I../../Veins/src -I../../Veins/src/base/utils -I../../Veins/src/base/phyLayer -L../../Veins/out/$$\(CONFIGNAME\)/src -L../out/$$\(CONFIGNAME\)/application/msg -lboost_filesystem -lboost_system -lmsg -lVeins -KVEINS_PROJ=../../Veins
 #
 
 # Name of target to be created (-o option)
@@ -145,7 +145,7 @@ msg_dir:
 $O/%.o: %.cc $(COPTS_FILE)
 	@$(MKPATH) $(dir $@)
 	$(qecho) "$<"
-	$(Q)$(CXX) -c $(COPTS) -o $@ $<
+	$(Q)$(CXX) -c $(CXXFLAGS) $(COPTS) -o $@ $<
 
 %_m.cc %_m.h: %.msg
 	$(qecho) MSGC: $<

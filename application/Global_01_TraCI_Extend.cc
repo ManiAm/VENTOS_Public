@@ -30,6 +30,12 @@ void TraCI_Extend::initialize(int stage)
 }
 
 
+void TraCI_Extend::finish()
+{
+
+}
+
+
 void TraCI_Extend::handleSelfMsg(cMessage *msg)
 {
     TraCIScenarioManager::handleSelfMsg(msg);
@@ -912,12 +918,5 @@ void TraCI_Extend::commandSetEdgeGlobalTravelTime(string edgeId, int32_t beginT,
     ASSERT(buf.eof());
 }
 
-
-
-
-void TraCI_Extend::finish()
-{
-
-}
 
 }

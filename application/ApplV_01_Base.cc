@@ -7,6 +7,12 @@ const simsignalwrap_t ApplVBase::mobilityStateChangedSignal = simsignalwrap_t(MI
 
 Define_Module(VENTOS::ApplVBase);
 
+ApplVBase::~ApplVBase()
+{
+
+}
+
+
 void ApplVBase::initialize(int stage)
 {
 	BaseApplLayer::initialize(stage);
@@ -46,6 +52,12 @@ void ApplVBase::initialize(int stage)
 }
 
 
+void ApplVBase::finish()
+{
+    findHost()->unsubscribe(mobilityStateChangedSignal, this);
+}
+
+
 void ApplVBase::receiveSignal(cComponent* source, simsignal_t signalID, cObject* obj)
 {
     Enter_Method_Silent();
@@ -69,16 +81,5 @@ void ApplVBase::handlePositionUpdate(cObject* obj)
     curPosition = mobility->getCurrentPosition();
 }
 
-
-void ApplVBase::finish()
-{
-	findHost()->unsubscribe(mobilityStateChangedSignal, this);
-}
-
-
-ApplVBase::~ApplVBase()
-{
-
-}
 }
 

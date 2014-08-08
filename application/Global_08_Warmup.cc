@@ -44,6 +44,13 @@ void Warmup::initialize(int stage)
 }
 
 
+void Warmup::finish()
+{
+
+
+}
+
+
 void Warmup::handleMessage(cMessage *msg)
 {
     if (msg == warmupFinish)
@@ -102,11 +109,5 @@ bool Warmup::DoWarmup()
     return false;
 }
 
-
-void Warmup::finish()
-{
-
-
-}
 }
 

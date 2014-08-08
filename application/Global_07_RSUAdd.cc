@@ -35,6 +35,12 @@ void RSUAdd::initialize(int stage)
 }
 
 
+void RSUAdd::finish()
+{
+
+}
+
+
 void RSUAdd::handleMessage(cMessage *msg)
 {
 
@@ -203,11 +209,5 @@ void RSUAdd::Scenario1()
     }
 }
 
-
-void RSUAdd::finish()
-{
-
-
-}
 }
 

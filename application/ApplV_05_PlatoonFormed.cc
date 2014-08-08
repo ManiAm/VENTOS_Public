@@ -5,6 +5,12 @@ namespace VENTOS {
 
 Define_Module(VENTOS::ApplVPlatoonFormed);
 
+ApplVPlatoonFormed::~ApplVPlatoonFormed()
+{
+
+}
+
+
 void ApplVPlatoonFormed::initialize(int stage)
 {
     ApplV_AID::initialize(stage);
@@ -24,6 +30,12 @@ void ApplVPlatoonFormed::initialize(int stage)
 	        myPlnDepth = 0;
 	    }
 	}
+}
+
+
+void ApplVPlatoonFormed::finish()
+{
+    ApplV_AID::finish();
 }
 
 
@@ -91,16 +103,5 @@ void ApplVPlatoonFormed::handlePositionUpdate(cObject* obj)
     ApplV_AID::handlePositionUpdate(obj);
 }
 
-
-void ApplVPlatoonFormed::finish()
-{
-    ApplV_AID::finish();
-}
-
-
-ApplVPlatoonFormed::~ApplVPlatoonFormed()
-{
-
-}
 }
 

@@ -5,6 +5,12 @@ namespace VENTOS {
 
 Define_Module(VENTOS::ApplRSUManager);
 
+ApplRSUManager::~ApplRSUManager()
+{
+
+}
+
+
 void ApplRSUManager::initialize(int stage)
 {
 	ApplRSUAID::initialize(stage);
@@ -13,6 +19,12 @@ void ApplRSUManager::initialize(int stage)
 	{
 
 	}
+}
+
+
+void ApplRSUManager::finish()
+{
+    ApplRSUAID::finish();
 }
 
 
@@ -72,16 +84,5 @@ void ApplRSUManager::onData(LaneChangeMsg* wsm)
     ApplRSUAID::onData(wsm);
 }
 
-
-void ApplRSUManager::finish()
-{
-    ApplRSUAID::finish();
-}
-
-
-ApplRSUManager::~ApplRSUManager()
-{
-
-}
 }
 

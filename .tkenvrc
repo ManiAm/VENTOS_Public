@@ -1,3 +1,4 @@
-# Partial Tkenv config file -- see $HOME/.tkenvrc as well
-inspector "Network" "Network" "2" "607x336+1658+124:normal"
+# Partial OMNeT++/Tkenv config file -- see $HOME/.tkenvrc as well
+config default-configname	{}
+config default-runnumber	{}
 

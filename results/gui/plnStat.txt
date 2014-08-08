@@ -5,30 +5,18 @@ timeStep    from platoon        to platoon          comment
 6.43       CACC2                -                    Merge_Start         
 7.93       CACC2                -                    Merge_End           
 
-9.15       CACC3                CACC1                Merge_Request       
-9.16       CACC3                -                    Merge_Start         
-10.66      CACC3                -                    Merge_End           
+9.05       CACC3                CACC1                Merge_Request       
+9.06       CACC3                -                    Merge_Start         
+10.56      CACC3                -                    Merge_End           
 
-11.81      CACC4                CACC1                Merge_Request       
-11.81      CACC4                -                    Merge_Start         
-13.81      CACC4                -                    Merge_End           
+11.51      CACC4                CACC1                Merge_Request       
+11.51      CACC4                -                    Merge_Start         
+13.51      CACC4                -                    Merge_End           
 
-14.43      CACC5                CACC1                Merge_Request       
-14.44      CACC5                -                    Merge_Start         
-16.94      CACC5                -                    Merge_End           
+14.14      CACC5                CACC1                Merge_Request       
+14.15      CACC5                -                    Merge_Start         
 
-20.22      CACC7                CACC6                Merge_Request       
-20.23      CACC7                -                    Merge_Start         
-21.23      CACC7                -                    Merge_End           
+16.63      CACC6                CACC5                Merge_Request       
+16.63      CACC6                -                    Merge_Reject        
 
-22.55      CACC8                CACC6                Merge_Request       
-22.56      CACC8                -                    Merge_Start         
-23.56      CACC8                -                    Merge_End           
-
-25.55      CACC9                CACC6                Merge_Request       
-25.56      CACC9                -                    Merge_Start         
-26.56      CACC9                -                    Merge_End           
-
-27.81      CACC10               CACC6                Merge_Request       
-27.81      CACC10               -                    Merge_Start         
-29.31      CACC10               -                    Merge_End           
+16.65      CACC5                -                    Merge_End           

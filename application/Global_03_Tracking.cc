@@ -48,6 +48,12 @@ void Tracking::initialize(int stage)
 }
 
 
+void Tracking::finish()
+{
+
+}
+
+
 void Tracking::Start()
 {
     // todo:
@@ -121,10 +127,5 @@ void Tracking::TrackingGUI()
     scheduleAt(simTime() + trackingInterval, updataGUI);
 }
 
-
-void Tracking::finish()
-{
-
-}
 }
 

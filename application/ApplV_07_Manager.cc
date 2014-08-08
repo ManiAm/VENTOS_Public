@@ -5,6 +5,12 @@ namespace VENTOS {
 
 Define_Module(VENTOS::ApplVManager);
 
+ApplVManager::~ApplVManager()
+{
+
+}
+
+
 void ApplVManager::initialize(int stage)
 {
     ApplVPlatoonMg::initialize(stage);
@@ -41,6 +47,12 @@ void ApplVManager::initialize(int stage)
             TraCI->commandSetErrorRelSpeed(SUMOvID, 0.);
         }
 	}
+}
+
+
+void ApplVManager::finish()
+{
+    ApplVPlatoonMg::finish();
 }
 
 
@@ -269,17 +281,6 @@ void ApplVManager::handlePositionUpdate(cObject* obj)
     ApplVPlatoonMg::handlePositionUpdate(obj);
 }
 
-
-void ApplVManager::finish()
-{
-    ApplVPlatoonMg::finish();
-}
-
-
-ApplVManager::~ApplVManager()
-{
-
-}
 
 }
 

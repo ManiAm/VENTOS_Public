@@ -52,6 +52,12 @@ void TraCI_App::initialize(int stage)
 }
 
 
+void TraCI_App::finish()
+{
+    TraCI_Extend::finish();
+}
+
+
 void TraCI_App::handleSelfMsg(cMessage *msg)
 {
     TraCI_Extend::handleSelfMsg(msg);
@@ -141,11 +147,6 @@ void TraCI_App::executeOneTimestep()
     tlPtr->Execute();
 }
 
-
-void TraCI_App::finish()
-{
-    TraCI_Extend::finish();
-}
 
 }
 

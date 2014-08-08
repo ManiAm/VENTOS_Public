@@ -5,6 +5,11 @@ namespace VENTOS {
 
 Define_Module(VENTOS::ApplRSUBase);
 
+ApplRSUBase::~ApplRSUBase()
+{
+
+}
+
 
 void ApplRSUBase::initialize(int stage)
 {
@@ -54,6 +59,12 @@ void ApplRSUBase::initialize(int stage)
             scheduleAt(simTime() + offSet, RSUBeaconEvt);
         }
 	}
+}
+
+
+void ApplRSUBase::finish()
+{
+    BaseApplLayer::finish();
 }
 
 
@@ -134,16 +145,5 @@ void ApplRSUBase::printBeaconContent(BeaconRSU* wsm)
     EV << wsm->getPos() << endl;
 }
 
-
-void ApplRSUBase::finish()
-{
-    BaseApplLayer::finish();
-}
-
-
-ApplRSUBase::~ApplRSUBase()
-{
-
-}
 }
 

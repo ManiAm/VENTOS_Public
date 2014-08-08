@@ -27,6 +27,16 @@ void Mac1609_4_Mod::initialize(int stage)
 }
 
 
+void Mac1609_4_Mod::finish()
+{
+    Mac1609_4::finish();
+
+    //clean up queues.
+
+    // todo: do not let record queue!
+}
+
+
 void Mac1609_4_Mod::handleSelfMsg(cMessage* msg)
 {
     Mac1609_4::handleSelfMsg(msg);
@@ -85,14 +95,5 @@ void Mac1609_4_Mod::handleLowerMsg(cMessage* msg)
     Mac1609_4::handleLowerMsg(msg);
 }
 
-
-void Mac1609_4_Mod::finish()
-{
-    Mac1609_4::finish();
-
-    //clean up queues.
-
-    // todo: do not let record queue!
-}
 }
 

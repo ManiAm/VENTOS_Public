@@ -6,7 +6,7 @@ namespace VENTOS {
 Define_Module(VENTOS::Plotter);
 
 
-Plotter::Plotter()
+Plotter::~Plotter()
 {
 
 }
@@ -71,6 +71,19 @@ void Plotter::initialize(int stage)
 }
 
 
+void Plotter::finish()
+{
+    if(!on)
+        return;
+
+    #ifdef WIN32
+        _pclose(pipe);
+    #else
+        pclose(pipe);
+    #endif
+}
+
+
 void Plotter::handleMessage(cMessage *msg)
 {
 
@@ -85,22 +98,4 @@ void Plotter::speedProfile()
 
 }
 
-
-void Plotter::finish()
-{
-    if(!on)
-        return;
-
-    #ifdef WIN32
-        _pclose(pipe);
-    #else
-        pclose(pipe);
-    #endif
-}
-
-
-Plotter::~Plotter()
-{
-
-}
 }
