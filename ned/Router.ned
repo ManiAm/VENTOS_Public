@@ -6,6 +6,8 @@ simple Router
     parameters:
         @class(VENTOS::Router);
         @display("i=block/network2");  
+        
+        bool enableRouting = default(false);
       
         double leftTurnCost;
         double rightTurnCost;
@@ -13,7 +15,5 @@ simple Router
         double uTurnCost;
         double TLLookahead;
         int timePeriod;
-        
-        bool enableRouting = default(false); // build router-side networks 
 }
 

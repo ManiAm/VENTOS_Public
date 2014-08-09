@@ -11,6 +11,7 @@ Statistics::~Statistics()
 
 }
 
+
 void Statistics::initialize(int stage)
 {
     if(stage == 0)
