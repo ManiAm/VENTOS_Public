@@ -60,10 +60,6 @@ network Network
             parameters:
                 @display("p=61,372;i=block/timer");
         }
-        trafficLight: TrafficLight {
-            parameters:
-                @display("p=313,459;i=block/broadcast");
-        }
         router: Router {
             parameters:
                 @display("p=235,459;i=block/dispatch");

@@ -9,7 +9,6 @@
 #include "Global_07_RSUAdd.h"
 #include "Global_08_Warmup.h"
 #include "Global_09_SpeedProfile.h"
-#include "Global_11_TrafficLight.h"
 
 namespace VENTOS {
 
@@ -39,7 +38,6 @@ class TraCI_App : public TraCI_Extend
         cModule *nodePtr;   // pointer to the Node
         Warmup *WarmupPtr;
         SpeedProfile *SpeedProfilePtr;
-        TrafficLight *tlPtr;
         Statistics *StatPtr;
 
         // NED variable
