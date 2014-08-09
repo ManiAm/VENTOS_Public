@@ -192,10 +192,20 @@ $O/Hypertree.o: Hypertree.cc \
 	Hypertree.h
 $O/Net.o: Net.cc \
 	../core/Appl.h \
+	../core/ApplRSU_01_Base.h \
+	../core/ApplRSU_02_AID.h \
+	../core/ApplRSU_03_Manager.h \
 	../core/ApplV_01_Base.h \
 	../core/ApplV_02_Beacon.h \
+	../core/ApplV_04_AID.h \
+	../core/ApplV_05_PlatoonFormed.h \
+	../core/ApplV_06_PlatoonMg.h \
+	../core/ApplV_07_Manager.h \
 	../core/Global_01_TraCI_Extend.h \
+	../core/Global_04_Statistics.h \
+	../core/Global_07_RSUAdd.h \
 	../msg/Messages_m.h \
+	ApplVSystem.h \
 	Edge.h \
 	Histogram.h \
 	Hypertree.h \
@@ -242,10 +252,20 @@ $O/Node.o: Node.cc \
 	Node.h
 $O/Router.o: Router.cc \
 	../core/Appl.h \
+	../core/ApplRSU_01_Base.h \
+	../core/ApplRSU_02_AID.h \
+	../core/ApplRSU_03_Manager.h \
 	../core/ApplV_01_Base.h \
 	../core/ApplV_02_Beacon.h \
+	../core/ApplV_04_AID.h \
+	../core/ApplV_05_PlatoonFormed.h \
+	../core/ApplV_06_PlatoonMg.h \
+	../core/ApplV_07_Manager.h \
 	../core/Global_01_TraCI_Extend.h \
+	../core/Global_04_Statistics.h \
+	../core/Global_07_RSUAdd.h \
 	../msg/Messages_m.h \
+	ApplVSystem.h \
 	Edge.h \
 	Histogram.h \
 	Hypertree.h \

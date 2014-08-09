@@ -8,7 +8,7 @@
 #include <algorithm> // For sort
 
 #include "Router.h"
-#include "Global_01_TraCI_Extend.h"
+#include "Global_04_Statistics.h"
 #include "Histogram.h"
 #include "rapidxml.hpp"
 #include "rapidxml_utils.hpp"
@@ -30,6 +30,7 @@ public:
     Net(string fileName);
     ~Net();
 };
+
 }
 
 #endif

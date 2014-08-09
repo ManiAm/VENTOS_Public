@@ -7,9 +7,9 @@
 
 using namespace std;
 
+namespace VENTOS {
+
 class Edge;
-
-
 
 class Node;
 
@@ -58,6 +58,8 @@ template<typename T, typename R>    //Handy generic binary search for a sorted v
 T* binarySearch(vector<T*> &v, R idVal)
 {
     return binarySearch(v, idVal, 0, v.size());
+}
+
 }
 
 #endif

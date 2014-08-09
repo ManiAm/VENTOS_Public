@@ -23,12 +23,15 @@ void Statistics::initialize(int stage)
 
         collectMAClayerData = par("collectMAClayerData").boolValue();
         collectVehiclesData = par("collectVehiclesData").boolValue();
+        collectLaneCostsData = par("collectLaneCostsData").boolValue();
         collectInductionLoopData = par("collectInductionLoopData").boolValue();
         collectPlnManagerData = par("collectPlnManagerData").boolValue();
         printBeaconsStatistics = par("printBeaconsStatistics").boolValue();
         printIncidentDetection = par("printIncidentDetection").boolValue();
 
         index = 1;
+
+        parseHistogramFile();
 
         // register signals
         Signal_beaconP = registerSignal("beaconP");
@@ -77,6 +80,9 @@ void Statistics::executeOneTimestep(bool simulationDone)
         vehiclesDataToFile();  // write what we have collected so far
     }
 
+    if(collectLaneCostsData)
+        laneCostsData();
+
     if(collectInductionLoopData)
     {
         inductionLoops();    // collecting induction loop data in each timeStep
@@ -106,6 +112,31 @@ void Statistics::executeOneTimestep(bool simulationDone)
         if(printBeaconsStatistics)
             printToFile();
     }
+}
+
+
+void Statistics::parseHistogramFile()
+{
+    cout << "Parsing" << endl;
+    ifstream inFile;
+    string VENTOSfullDirectory = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+    string SUMODirectory = simulation.getSystemModule()->par("SUMODirectory").stringValue();
+    string fileName = VENTOSfullDirectory + SUMODirectory + "/edgeWeights.txt";
+    inFile.open(fileName.c_str());
+
+    string edgeName;
+    int count;
+    double val;
+    while(inFile >> edgeName)
+    {
+        inFile >> count;
+        for(int i = 0; i < count; i++)
+        {
+            inFile >> val;
+            edgeHistograms[edgeName].insert(val);
+        }
+    }
+    inFile.close();
 }
 
 
@@ -258,6 +289,39 @@ void Statistics::vehiclesDataToFile()
     }
 
     fclose(filePtr);
+}
+
+
+void Statistics::laneCostsData()
+{
+    list<string> vList = TraCI->commandGetVehicleList();
+
+    for(list<string>::iterator it = vList.begin(); it != vList.end(); it++) //Look at each vehicle
+    {
+        string curEdge = TraCI->getCommandInterface()->getEdgeId(*it); //The edge it's currently on
+        if(TraCI->getCommandInterface()->getLanePosition(*it) * 1.05 > TraCI->getCommandInterface()->getLaneLength(TraCI->getCommandInterface()->getLaneId(*it)))
+            curEdge = "";
+        string prevEdge = vehicleEdges[*it];    //The last edge we saw it on
+        if(vehicleEdges.find(*it) == vehicleEdges.end())    //If we haven't yet seen this vehicle
+        {
+            vehicleEdges[*it] = curEdge;           //Initialize its current edge
+            vehicleTimes[*it] = simTime().dbl();       //And current time
+        }
+
+        if(prevEdge != curEdge)
+        {
+            //cout << "Adding " << getCurrentTimeMs()/1000. - vehicleTimes[*it] << " to " << prevEdge << endl;
+            edgeHistograms[prevEdge].insert(simTime().dbl() - vehicleTimes[*it]);
+            vehicleEdges[*it] = curEdge;
+            vehicleTimes[*it] = simTime().dbl();
+            cout << *it << " moves to edge " << curEdge << " at time " << simTime().dbl() << endl;
+        }
+        //Loop through each vehicle here.  Get its current lane.  Compare that to the
+        //last-seen lane for that vehicle. If they differ, the vehicle has changed lanes.
+        //Document this.
+
+        //cout << "Doing this at " << getCurrentTimeMs()/1000. << " on vehicle " << k->c_str() << endl;
+    }
 }
 
 

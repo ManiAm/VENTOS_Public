@@ -172,10 +172,15 @@ class Statistics : public BaseModule
 
 	  void executeOneTimestep(bool); // should be public
 
+      std::map<string, Histogram> edgeHistograms; // should be public
+
   private:
       void vehiclesData();
       void saveVehicleData(string);
       void vehiclesDataToFile();
+
+      void parseHistogramFile();
+      void laneCostsData();
 
       void inductionLoops();
       void inductionLoopToFile();
@@ -210,6 +215,7 @@ class Statistics : public BaseModule
       // NED variables
       bool collectMAClayerData;
       bool collectVehiclesData;
+      bool collectLaneCostsData;
       bool collectInductionLoopData;
       bool collectPlnManagerData;
       bool printBeaconsStatistics;
@@ -217,6 +223,10 @@ class Statistics : public BaseModule
 
       // class variables
       int index;
+
+      // Edge weight-gathering
+      std::map<string, string> vehicleEdges;
+      std::map<string, double> vehicleTimes;
 
       // class variables (signals)
 	  simsignal_t Signal_beaconP;

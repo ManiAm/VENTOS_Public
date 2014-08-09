@@ -46,10 +46,6 @@ class TraCI_Extend : public TraCIScenarioManager
         virtual void init_traci();
 		virtual void finish();
 
-		// todo:
-        // Edge weight-gathering
-        std::map<string, Histogram> edgeHistograms;
-
         // CMD_GET_VEHICLE_VARIABLE
         uint32_t commandGetNoVehicles();
         list<string> commandGetVehicleList();

@@ -13,7 +13,7 @@ Net::Net(string netFile)
     transitions = new map<string, vector<int>* >;
     turnTypes = new map<string, char>;
 
-    TraCI_Extend* manager = FindModule<TraCI_Extend*>::findGlobalModule();
+    Statistics* statPtr = FindModule<Statistics*>::findGlobalModule();
 
     file <> xmlFile(netFile.c_str());   //Make a new rapidXML document to parse
     xml_document<> doc;
@@ -108,7 +108,7 @@ Net::Net(string netFile)
         }
         Node* from = binarySearch(nodes, fromVal);  //Get a pointer to the start node
         Node* to = binarySearch(nodes, toVal);      //Get a pointer to the end node
-        Edge* e = new Edge(id, from, to, priority, lanesVec, &(*(manager->edgeHistograms.find(id))).second);
+        Edge* e = new Edge(id, from, to, priority, lanesVec, &(*(statPtr->edgeHistograms.find(id))).second);
         from->outEdges.push_back(e);   //Add the edge to the start node's list
         edges.push_back(e);         //And to the list of all edges
     }   //For every edge
@@ -155,4 +155,4 @@ Net::Net(string netFile)
     }
 }
 
-}
+} // end of namespace
