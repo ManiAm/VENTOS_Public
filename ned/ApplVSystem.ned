@@ -11,4 +11,6 @@ simple ApplVSystem extends ApplVBeacon
         double maxSystemOffset = default(0.1s) @unit(s); //the maximum delay of messages sent down to avoid synchronous channel access
         int systemMsgLengthBits = default(256bit) @unit(bit); //the length of a beacon packet
         int systemMsgPriority = default(3); //the access category of the beacon messages
+        
+		bool useDijkstrasRouting = default(true);
 }

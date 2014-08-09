@@ -1,0 +1,3 @@
+<vehicles>
+   <vehicle id="v0" type="TypeManual" origin="0/0to0/1" destination="4/3to4/4" depart="10" />
+</vehicles>

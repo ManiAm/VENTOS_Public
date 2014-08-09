@@ -1,0 +1,16 @@
+<edges>
+    <edge id="start" from="s" to="00" priority="3" numLanes="1" speed="10" />
+    <edge id="00to01" from="00" to="01" priority="3" numLanes="2" speed="10" />
+    <edge id="00to10" from="00" to="10" priority="3" numLanes="2" speed="10" />
+    <edge id="01to11" from="01" to="11" priority="3" numLanes="2" speed="10" />
+    <edge id="10to11" from="10" to="11" priority="3" numLanes="2" speed="10" />
+    <edge id="11to12" from="11" to="12" priority="3" numLanes="2" speed="10" />
+    <edge id="11to21" from="11" to="21" priority="3" numLanes="2" speed="10" />
+    <edge id="12to22" from="12" to="22" priority="3" numLanes="2" speed="10" />
+    <edge id="21to22" from="21" to="22" priority="3" numLanes="2" speed="10" />
+    <edge id="01to02" from="01" to="02" priority="3" numLanes="2" speed="1" />
+    <edge id="10to20" from="10" to="20" priority="3" numLanes="2" speed="1" />
+    <edge id="20to21" from="20" to="21" priority="3" numLanes="2" speed="1" />
+    <edge id="02to12" from="02" to="12" priority="3" numLanes="2" speed="1" />
+    <edge id="end" from="22" to="e" priority="3" numLanes="1" speed="10" />
+</edges>

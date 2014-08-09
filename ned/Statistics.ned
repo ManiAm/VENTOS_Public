@@ -11,4 +11,5 @@ simple Statistics
         bool collectPlnManagerData;
         bool printBeaconsStatistics;
         bool printIncidentDetection;
+        bool collectLaneCostsData;
 }

@@ -3,6 +3,7 @@
 #define ApplVSystem_H
 
 #include "ApplV_02_Beacon.h"
+#include "Hypertree.h"
 
 namespace VENTOS {
 
@@ -24,12 +25,14 @@ class ApplVSystem : public ApplVBeacon
         double maxOffsetSystem;     //From beacon maxOffset
         int systemMsgLengthBits;
         int systemMsgPriority;      //like beaconPriority
+        bool useDijkstrasRouting;
 
         // Class variables
         cMessage* sendSystemMsgEvt;
 
         // Routing
         string targetNode;
+        Hypertree* ht;
 
         // Methods
         virtual void handleSelfMsg(cMessage*);

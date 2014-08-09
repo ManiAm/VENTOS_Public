@@ -1,5 +1,5 @@
 //
-// Generated file, do not edit! Created by opp_msgc 4.5 from msg/Messages.msg.
+// Generated file, do not edit! Created by opp_msgc 4.5 from Messages.msg.
 //
 
 #ifndef _VENTOS_MESSAGES_M_H_
@@ -29,7 +29,7 @@ typedef std::list<std::string> stringList;
 namespace VENTOS {
 
 /**
- * Class generated from <tt>msg/Messages.msg</tt> by opp_msgc.
+ * Class generated from <tt>Messages.msg</tt> by opp_msgc.
  * <pre>
  * packet BeaconVehicle extends WaveShortMessage 
  * {
@@ -100,7 +100,7 @@ inline void doPacking(cCommBuffer *b, BeaconVehicle& obj) {obj.parsimPack(b);}
 inline void doUnpacking(cCommBuffer *b, BeaconVehicle& obj) {obj.parsimUnpack(b);}
 
 /**
- * Class generated from <tt>msg/Messages.msg</tt> by opp_msgc.
+ * Class generated from <tt>Messages.msg</tt> by opp_msgc.
  * <pre>
  * packet BeaconRSU extends WaveShortMessage 
  * {
@@ -147,7 +147,7 @@ inline void doPacking(cCommBuffer *b, BeaconRSU& obj) {obj.parsimPack(b);}
 inline void doUnpacking(cCommBuffer *b, BeaconRSU& obj) {obj.parsimUnpack(b);}
 
 /**
- * Class generated from <tt>msg/Messages.msg</tt> by opp_msgc.
+ * Class generated from <tt>Messages.msg</tt> by opp_msgc.
  * <pre>
  * packet LaneChangeMsg extends WaveShortMessage 
  * {
@@ -194,7 +194,7 @@ inline void doPacking(cCommBuffer *b, LaneChangeMsg& obj) {obj.parsimPack(b);}
 inline void doUnpacking(cCommBuffer *b, LaneChangeMsg& obj) {obj.parsimUnpack(b);}
 
 /**
- * Class generated from <tt>msg/Messages.msg</tt> by opp_msgc.
+ * Class generated from <tt>Messages.msg</tt> by opp_msgc.
  * <pre>
  * packet PlatoonMsg extends WaveShortMessage 
  * {
@@ -261,7 +261,7 @@ inline void doPacking(cCommBuffer *b, PlatoonMsg& obj) {obj.parsimPack(b);}
 inline void doUnpacking(cCommBuffer *b, PlatoonMsg& obj) {obj.parsimUnpack(b);}
 
 /**
- * Class generated from <tt>msg/Messages.msg</tt> by opp_msgc.
+ * Class generated from <tt>Messages.msg</tt> by opp_msgc.
  * <pre>
  * packet SystemMsg extends WaveShortMessage
  * {
@@ -315,7 +315,7 @@ inline void doPacking(cCommBuffer *b, SystemMsg& obj) {obj.parsimPack(b);}
 inline void doUnpacking(cCommBuffer *b, SystemMsg& obj) {obj.parsimUnpack(b);}
 
 /**
- * Class generated from <tt>msg/Messages.msg</tt> by opp_msgc.
+ * Class generated from <tt>Messages.msg</tt> by opp_msgc.
  * <pre>
  * packet RouterMsg extends WaveShortMessage
  * {

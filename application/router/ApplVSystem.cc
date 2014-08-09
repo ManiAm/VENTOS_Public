@@ -1,4 +1,4 @@
-#include "ApplV_03_System.h"
+#include "ApplVSystem.h"
 
 namespace VENTOS {
 
@@ -25,6 +25,7 @@ void ApplVSystem::initialize(int stage)
         maxOffset = par("maxSystemOffset").doubleValue();
         systemMsgLengthBits = par("systemMsgLengthBits").longValue();
         systemMsgPriority = par("systemMsgPriority").longValue();
+        useDijkstrasRouting = par("useDijkstrasRouting").boolValue();
 
         // get the rootFilePath
         boost::filesystem::path SUMODirectory = simulation.getSystemModule()->par("SUMODirectory").stringValue();
@@ -87,8 +88,8 @@ void ApplVSystem::receiveSignal(cComponent *source, simsignal_t signalID, cObjec
         systemData *s = static_cast<systemData *>(obj); //Cast to usable data
         if(string(s->getSender()) == "router" && string(s->getRecipient()) == SUMOvID) //If sent from the router and to this vehicle
         {
-            list<string> temp = s->getInfo(); //Copy the info from the signal (breaks if we don't do this, for some reason)
-            TraCI->commandSetRouteFromList(s->getRecipient(), temp);  //Update this vehicle's path with the proper info
+            list<string> sRoute = s->getInfo(); //Copy the info from the signal (breaks if we don't do this, for some reason)
+            TraCI->commandSetRouteFromList(s->getRecipient(), sRoute);  //Update this vehicle's path with the proper info
         }
     }
 }
@@ -120,8 +121,17 @@ void ApplVSystem::handleSelfMsg(cMessage* msg)  //Internal messages to self
     {
         simsignal_t Signal_system = registerSignal("system"); //Prepare to send a system message
         //Systemdata wants string edge, string node, string sender, int requestType, string recipient, list<string> edgeList
-        nodePtr->emit(Signal_system, new systemData(TraCI->getCommandInterface()->getEdgeId(SUMOvID), targetNode, SUMOvID, 0, string("system")));
-        scheduleAt(simTime() + requestInterval, sendSystemMsgEvt);// schedule for next beacon broadcast
+        if(useDijkstrasRouting)
+        {
+            nodePtr->emit(Signal_system, new systemData(TraCI->getCommandInterface()->getEdgeId(SUMOvID), targetNode, SUMOvID, 0, string("system")));
+            scheduleAt(simTime() + requestInterval, sendSystemMsgEvt);// schedule for next beacon broadcast
+        }
+        else
+        {
+            nodePtr->emit(Signal_system, new systemData(TraCI->getCommandInterface()->getEdgeId(SUMOvID), targetNode, SUMOvID, 1, string("system")));
+            scheduleAt(simTime() + 1, sendSystemMsgEvt);// schedule for next beacon broadcast
+        }
+
     }
 }
 

@@ -7,6 +7,8 @@
 #include "modules/mobility/traci/TraCIConstants.h"
 
 #include "Appl.h"
+// todo:
+#include "Histogram.h"
 
 #include <rapidxml.hpp>
 #include <rapidxml_utils.hpp>
@@ -43,6 +45,10 @@ class TraCI_Extend : public TraCIScenarioManager
 
         virtual void init_traci();
 		virtual void finish();
+
+		// todo:
+        // Edge weight-gathering
+        std::map<string, Histogram> edgeHistograms;
 
         // CMD_GET_VEHICLE_VARIABLE
         uint32_t commandGetNoVehicles();

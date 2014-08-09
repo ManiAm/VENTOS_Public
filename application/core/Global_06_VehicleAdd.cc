@@ -157,7 +157,7 @@ void VehicleAdd::Scenario4()
     xml_node<> *node = doc.first_node("vehicles"); // Parse up to the "nodes" declaration
 
     string id, type, origin, destination;
-    int depart;
+    double depart;
     for(node = node->first_node("vehicle"); node; node = node->next_sibling()) // For each vehicle
     {
         int readCount = 0;
@@ -178,7 +178,7 @@ void VehicleAdd::Scenario4()
                 destination = attr->value();
                 break;
             case 4:
-                depart = atoi(attr->value());
+                depart = atof(attr->value());
                 break;
             }
             readCount++;
@@ -211,7 +211,7 @@ void VehicleAdd::Scenario4()
         //    cout << *it << endl;
 
         //commandAddVehicleRouter wants string id, string type, string (edge) origin, string (node) destination, double (time) depart, and string routename
-        TraCI->commandAddVehicleN(id, type, origin, 1000 * depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);  //Send a TraCI add call -- might not need to be *1000.
+        TraCI->commandAddVehicleN(id, type, origin, 1000 * depart, 0, 0, 0);  //Send a TraCI add call -- might not need to be *1000.
     }
 }
 
