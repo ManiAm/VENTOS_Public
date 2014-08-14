@@ -12,4 +12,5 @@ simple Statistics
         bool printBeaconsStatistics;
         bool printIncidentDetection;
         bool collectLaneCostsData;
+        bool collectVehicleTimeData;
 }

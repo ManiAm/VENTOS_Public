@@ -132,9 +132,9 @@ double Router::turnTypeCost(string key)
 
 double Router::TLCost(double time, Edge* start, Edge* end)
 {
-    if(start->to->type == "traffic_light")
-        return timeToPhase(start->to->tl, time, nextAcceptingPhase(time, start, end));
-    else
+    //if(start->to->type == "traffic_light")
+    //    return timeToPhase(start->to->tl, time, nextAcceptingPhase(time, start, end));
+    //else
         return turnTypeCost(start->id + end->id);
 }
 
@@ -334,13 +334,27 @@ Hypertree* Router::buildHypertree(int startTime, int endTime, string destination
             Node* i = (*ijEdge)->from;                                  //Set i to be the predecessor node
             for(vector<Edge*>::iterator hiEdge = i->inEdges.begin(); hiEdge != i->inEdges.end(); hiEdge++)  //For each predecessor to i, hiEdge
             {
+                Histogram* hist = (*ijEdge)->travelTimes;
                 Node* h = (*hiEdge)->from;  //Set h to be the predecessor node
                 for(int t = startTime; t <= endTime; t++)   //For every time step of interest
                 {
-                    double TLDelay = timeToPhase(i->tl, t, nextAcceptingPhase(t, *hiEdge, *ijEdge));
-                    double edgeCost = (*ijEdge)->getCost();
-                    double endLabel = ht->label[key(i, j, t + TLDelay + edgeCost)];
-                    double n = TLDelay + edgeCost + endLabel;
+
+                    double TLDelay = timeToPhase(i->tl, t, nextAcceptingPhase(t, *hiEdge, *ijEdge));    //The tldely is the time to the next accepting phase between (h, i) and (i, j)
+                    double n = 0;
+                    if(hist->count > 0)
+                    {
+                        for(map<int, int>::iterator val = hist->data.begin(); val != hist->data.end(); val++)   //For each unique entry in the history of edge travel times
+                        {
+                            int travelTime = val->first;                //Set travel time
+                            double prob = hist->percentAt(travelTime);  //And calculate its probability
+                            double endLabel = ht->label[key(i, j, t + TLDelay + travelTime)];   //The endlabel is the label after (i, j) after we've gone through the TL and traveled (i,j)
+                            n += (TLDelay + travelTime + endLabel) * prob;  //Add this weight multiplied by its probability
+                        }
+                    }
+                    else
+                    {
+                        n = TLDelay + (*ijEdge)->getCost() + ht->label[key(i, j, t + TLDelay + (*ijEdge)->getCost())];
+                    }
 
                     if (n < ht->label[key(h, i, t)])            //If the newly calculated label is better
                     {

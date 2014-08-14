@@ -2,7 +2,7 @@
     #define HISTOGRAM_H
 
 #include <vector>
-#include <set>
+#include <map>
 #include <iostream>
 
 using namespace std;
@@ -11,17 +11,13 @@ namespace VENTOS {
 
 class Histogram
 {
-protected:
-
 public:
-    multiset<int> data;
+    map<int, int> data;
+    int count;
     double average;
-    multiset<int>::iterator insert(int d);
-    double percentBelow(int d);
-    double percentAbove(int d);
-    double percentBetween(int low, int high);
+    void insert(int d);
     double percentAt(int d);
-    friend ostream& operator<<(ostream& os, const Histogram& h);
+    friend ostream& operator<<(ostream& os, Histogram& h);
 
     Histogram();
 };

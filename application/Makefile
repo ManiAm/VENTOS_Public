@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for libapplication
 #
 # This file was generated with the command:
-#  opp_makemake -f --make-so -o application -O out -d msg -d core -d router -I/home/mani/Desktop/VENTOS/eigen-3.2.1 -I/home/mani/Desktop/VENTOS/rapidxml-1.13 -L../../Veins/out/$$\(CONFIGNAME\)/src -L../out/$$\(CONFIGNAME\)/application/msg -L../out/$$\(CONFIGNAME\)/application/core -L../out/$$\(CONFIGNAME\)/application/router -lrouter -lcore -lVeins -KVEINS_PROJ=../../Veins
+#  opp_makemake -f --make-so -o application -O out -d core -d router -d msg -I/home/dylan/vgrid/VENTOS/eigen-3.2.1 -I/home/dylan/vgrid/VENTOS/rapidxml-1.13 -L../../veins/out/$$\(CONFIGNAME\)/src -L../out/$$\(CONFIGNAME\)/application/core -L../out/$$\(CONFIGNAME\)/application/router -L../out/$$\(CONFIGNAME\)/application/msg -lrouter -lcore -lveins -KVEINS_PROJ=../../veins
 #
 
 # Name of target to be created (-o option)
@@ -15,8 +15,8 @@ INCLUDE_PATH = -I../eigen-3.2.1 -I../rapidxml-1.13 -I.
 EXTRA_OBJS =
 
 # Additional libraries (-L, -l options)
-LIBS = -L../../Veins/out/$(CONFIGNAME)/src -L../out/$(CONFIGNAME)/application/msg -L../out/$(CONFIGNAME)/application/core -L../out/$(CONFIGNAME)/application/router  -lrouter -lcore -lVeins
-LIBS += -Wl,-rpath,`abspath ../../Veins/out/$(CONFIGNAME)/src` -Wl,-rpath,`abspath ../out/$(CONFIGNAME)/application/msg` -Wl,-rpath,`abspath ../out/$(CONFIGNAME)/application/core` -Wl,-rpath,`abspath ../out/$(CONFIGNAME)/application/router`
+LIBS = -L../../veins/out/$(CONFIGNAME)/src -L../out/$(CONFIGNAME)/application/core -L../out/$(CONFIGNAME)/application/router -L../out/$(CONFIGNAME)/application/msg  -lrouter -lcore -lveins
+LIBS += -Wl,-rpath,`abspath ../../veins/out/$(CONFIGNAME)/src` -Wl,-rpath,`abspath ../out/$(CONFIGNAME)/application/core` -Wl,-rpath,`abspath ../out/$(CONFIGNAME)/application/router` -Wl,-rpath,`abspath ../out/$(CONFIGNAME)/application/msg`
 
 # Output directory
 PROJECT_OUTPUT_DIR = ../out
@@ -30,7 +30,7 @@ OBJS =
 MSGFILES =
 
 # Other makefile variables (-K)
-VEINS_PROJ=../../Veins
+VEINS_PROJ=../../veins
 
 #------------------------------------------------------------------------------
 
@@ -85,21 +85,21 @@ $O/$(TARGET): $(OBJS) submakedirs $(wildcard $(EXTRA_OBJS)) Makefile
 	$(Q)$(SHLIB_LD) -o $O/$(TARGET)  $(OBJS) $(EXTRA_OBJS) $(AS_NEEDED_OFF) $(WHOLE_ARCHIVE_ON) $(LIBS) $(WHOLE_ARCHIVE_OFF) $(OMNETPP_LIBS) $(LDFLAGS)
 	$(Q)$(SHLIB_POSTPROCESS) $O/$(TARGET)
 
-submakedirs:  msg_dir core_dir router_dir
+submakedirs:  core_dir router_dir msg_dir
 
-.PHONY: all clean cleanall depend msgheaders  msg core router
-msg: msg_dir
+.PHONY: all clean cleanall depend msgheaders  core router msg
 core: core_dir
 router: router_dir
-
-msg_dir:
-	cd msg && $(MAKE) all
+msg: msg_dir
 
 core_dir:
 	cd core && $(MAKE) all
 
 router_dir:
 	cd router && $(MAKE) all
+
+msg_dir:
+	cd msg && $(MAKE) all
 
 .SUFFIXES: .cc
 
@@ -113,9 +113,9 @@ $O/%.o: %.cc $(COPTS_FILE)
 	$(Q)$(MSGC) -s _m.cc $(MSGCOPTS) $?
 
 msgheaders: $(MSGFILES:.msg=_m.h)
-	$(Q)cd msg && $(MAKE) msgheaders
 	$(Q)cd core && $(MAKE) msgheaders
 	$(Q)cd router && $(MAKE) msgheaders
+	$(Q)cd msg && $(MAKE) msgheaders
 
 clean:
 	$(qecho) Cleaning...
@@ -123,9 +123,9 @@ clean:
 	$(Q)-rm -f application application.exe libapplication.so libapplication.a libapplication.dll libapplication.dylib
 	$(Q)-rm -f ./*_m.cc ./*_m.h
 
-	-$(Q)cd msg && $(MAKE) clean
 	-$(Q)cd core && $(MAKE) clean
 	-$(Q)cd router && $(MAKE) clean
+	-$(Q)cd msg && $(MAKE) clean
 
 cleanall: clean
 	$(Q)-rm -rf $(PROJECT_OUTPUT_DIR)
@@ -133,9 +133,9 @@ cleanall: clean
 depend:
 	$(qecho) Creating dependencies...
 	$(Q)$(MAKEDEPEND) $(INCLUDE_PATH) -f Makefile -P\$$O/ -- $(MSG_CC_FILES)  ./*.cc
-	$(Q)-cd msg && if [ -f Makefile ]; then $(MAKE) depend; fi
 	$(Q)-cd core && if [ -f Makefile ]; then $(MAKE) depend; fi
 	$(Q)-cd router && if [ -f Makefile ]; then $(MAKE) depend; fi
+	$(Q)-cd msg && if [ -f Makefile ]; then $(MAKE) depend; fi
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 

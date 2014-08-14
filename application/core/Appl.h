@@ -131,6 +131,21 @@ class PlnManeuver : public cObject, noncopyable
       }
 };
 
+class TimeData : public cObject, noncopyable
+{
+  public:
+      string vName;
+      int time;
+      bool end;
+
+      TimeData(string vName, int time, bool end)
+      {
+          this->vName = vName;
+          this->time = time;
+          this->end = end;
+      }
+};
+
 
 }
 

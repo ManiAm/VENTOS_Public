@@ -1,12 +1,12 @@
 #
-# OMNeT++/OMNEST Makefile for VENTOS
+# OMNeT++/OMNEST Makefile for C3PO
 #
 # This file was generated with the command:
-#  opp_makemake -f -O out -d application -X. -I/home/mani/Desktop/VENTOS/eigen-3.2.1 -I/home/mani/Desktop/VENTOS/rapidxml-1.13 -L../Veins/out/$$\(CONFIGNAME\)/src -L./out/$$\(CONFIGNAME\)/application -L./out/$$\(CONFIGNAME\)/application/msg -L./out/$$\(CONFIGNAME\)/application/core -L./out/$$\(CONFIGNAME\)/application/router -lVeins -KVEINS_PROJ=../Veins
+#  opp_makemake -f -O out -d application -X. -I/home/dylan/vgrid/VENTOS/eigen-3.2.1 -I/home/dylan/vgrid/VENTOS/rapidxml-1.13 -L../veins/out/$$\(CONFIGNAME\)/src -L./out/$$\(CONFIGNAME\)/application/core -L./out/$$\(CONFIGNAME\)/application/router -L./out/$$\(CONFIGNAME\)/application/msg -L./out/$$\(CONFIGNAME\)/application -lveins -KVEINS_PROJ=../veins
 #
 
 # Name of target to be created (-o option)
-TARGET = VENTOS$(EXE_SUFFIX)
+TARGET = C3PO$(EXE_SUFFIX)
 
 # User interface (uncomment one) (-u option)
 USERIF_LIBS = $(ALL_ENV_LIBS) # that is, $(TKENV_LIBS) $(CMDENV_LIBS)
@@ -17,8 +17,8 @@ USERIF_LIBS = $(ALL_ENV_LIBS) # that is, $(TKENV_LIBS) $(CMDENV_LIBS)
 EXTRA_OBJS =
 
 # Additional libraries (-L, -l options)
-LIBS = -L../Veins/out/$(CONFIGNAME)/src -Lout/$(CONFIGNAME)/application -Lout/$(CONFIGNAME)/application/msg -Lout/$(CONFIGNAME)/application/core -Lout/$(CONFIGNAME)/application/router  -lVeins
-LIBS += -Wl,-rpath,`abspath ../Veins/out/$(CONFIGNAME)/src` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application/msg` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application/core` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application/router`
+LIBS = -L../veins/out/$(CONFIGNAME)/src -Lout/$(CONFIGNAME)/application/core -Lout/$(CONFIGNAME)/application/router -Lout/$(CONFIGNAME)/application/msg -Lout/$(CONFIGNAME)/application  -lveins
+LIBS += -Wl,-rpath,`abspath ../veins/out/$(CONFIGNAME)/src` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application/core` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application/router` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application/msg` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application`
 
 # Output directory
 PROJECT_OUTPUT_DIR = out
@@ -26,7 +26,7 @@ PROJECTRELATIVE_PATH =
 O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Other makefile variables (-K)
-VEINS_PROJ=../Veins
+VEINS_PROJ=../veins
 
 #------------------------------------------------------------------------------
 
@@ -91,7 +91,7 @@ msgheaders:
 clean:
 	$(qecho) Cleaning...
 	$(Q)-rm -rf $O
-	$(Q)-rm -f VENTOS VENTOS.exe libVENTOS.so libVENTOS.a libVENTOS.dll libVENTOS.dylib
+	$(Q)-rm -f C3PO C3PO.exe libC3PO.so libC3PO.a libC3PO.dll libC3PO.dylib
 
 	-$(Q)cd application && $(MAKE) clean
 
