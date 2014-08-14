@@ -1,0 +1,9 @@
+<launch>
+	<copy file="hello.net.xml"/>
+	<copy file="hello.rou.xml"/>
+	<copy file="gui-settings.cfg"/>
+	<copy file="hello.sumo.cfg" type="config"/>
+	<basedir path="/home/dylan/vgrid/VENTOS/sumo/biggrid3"/>
+	<seed value="0"/>
+</launch>
+
