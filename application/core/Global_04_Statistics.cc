@@ -109,6 +109,7 @@ void Statistics::executeOneTimestep(bool simulationDone)
     // todo:
     if(simulationDone)
     {
+
         // sort the vectors by node ID:
         // Vec_BeaconsP = SortByID(Vec_BeaconsP);
         // Vec_BeaconsO = SortByID(Vec_BeaconsO);

@@ -26,8 +26,8 @@
 							<tool id="cdt.managedbuild.tool.gnu.archiver.base.1476762375" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
 							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.base.1771810750" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base">
 								<option id="gnu.cpp.compiler.option.include.paths.1752179671" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/C3PO/eigen-3.2.1}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/C3PO/rapidxml-1.13}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/eigen-3.2.1}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/rapidxml-1.13}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1661494006" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
