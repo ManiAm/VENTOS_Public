@@ -21,6 +21,8 @@ void ApplVSystem::initialize(int stage)
         if(!requestRoutes)
             return;
 
+        startTime = simTime().dbl();
+
         requestInterval = par("requestInterval").doubleValue();
         maxOffset = par("maxSystemOffset").doubleValue();
         systemMsgLengthBits = par("systemMsgLengthBits").longValue();
@@ -57,6 +59,9 @@ void ApplVSystem::initialize(int stage)
         sendSystemMsgEvt = new cMessage("systemmsg evt", KIND_TIMER);   //Create a new internal message
         if (requestRoutes) //&& VANETenabled ) //If this vehicle is supposed to send system messages
             scheduleAt(simTime() + systemOffset, sendSystemMsgEvt); //Schedule them to start sending
+
+        Signal_TimeData = registerSignal("TimeData"); //Prepare to send a system message
+        nodePtr->emit(Signal_TimeData, new TimeData(SUMOvID, simTime().dbl(), false));
     }
 }
 
@@ -64,6 +69,11 @@ void ApplVSystem::initialize(int stage)
 void ApplVSystem::finish()
 {
     ApplVBeacon::finish();
+
+    Signal_TimeData = registerSignal("TimeData"); //Prepare to send a system message
+    nodePtr->emit(Signal_TimeData, new TimeData(SUMOvID, simTime().dbl(), true));
+
+    cout << SUMOvID << " took " << simTime().dbl() - startTime << " seconds to complete its route." << endl;
 
     if(requestRoutes)
     {
@@ -91,6 +101,12 @@ void ApplVSystem::receiveSignal(cComponent *source, simsignal_t signalID, cObjec
             list<string> sRoute = s->getInfo(); //Copy the info from the signal (breaks if we don't do this, for some reason)
             TraCI->commandSetRouteFromList(s->getRecipient(), sRoute);  //Update this vehicle's path with the proper info
         }
+    }
+    else if(signalID == Signal_TimeData)
+    {
+        TimeData* tMsg = dynamic_cast<TimeData*>(obj);
+        cout << "Got " << tMsg->time;
+        ASSERT(tMsg);
     }
 }
 

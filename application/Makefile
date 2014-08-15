@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for libapplication
 #
 # This file was generated with the command:
-#  opp_makemake -f --make-so -o application -O out -d msg -d core -d router -I/home/mani/Desktop/VENTOS/eigen-3.2.1 -I/home/mani/Desktop/VENTOS/rapidxml-1.13 -L../../Veins/out/$$\(CONFIGNAME\)/src -L../out/$$\(CONFIGNAME\)/application/msg -L../out/$$\(CONFIGNAME\)/application/core -L../out/$$\(CONFIGNAME\)/application/router -lrouter -lcore -lVeins -KVEINS_PROJ=../../Veins
+#  opp_makemake -f --make-so -o application -O out -d msg -d core -d router -I/home/mani/Desktop/VENTOS/eigen-3.2.1 -I/home/mani/Desktop/VENTOS/rapidxml-1.13 -L../../veins/out/$$\(CONFIGNAME\)/src -L../out/$$\(CONFIGNAME\)/application/msg -L../out/$$\(CONFIGNAME\)/application/core -L../out/$$\(CONFIGNAME\)/application/router -lrouter -lcore -lveins -KVEINS_PROJ=../../veins
 #
 
 # Name of target to be created (-o option)
@@ -15,8 +15,8 @@ INCLUDE_PATH = -I../eigen-3.2.1 -I../rapidxml-1.13 -I.
 EXTRA_OBJS =
 
 # Additional libraries (-L, -l options)
-LIBS = -L../../Veins/out/$(CONFIGNAME)/src -L../out/$(CONFIGNAME)/application/msg -L../out/$(CONFIGNAME)/application/core -L../out/$(CONFIGNAME)/application/router  -lrouter -lcore -lVeins
-LIBS += -Wl,-rpath,`abspath ../../Veins/out/$(CONFIGNAME)/src` -Wl,-rpath,`abspath ../out/$(CONFIGNAME)/application/msg` -Wl,-rpath,`abspath ../out/$(CONFIGNAME)/application/core` -Wl,-rpath,`abspath ../out/$(CONFIGNAME)/application/router`
+LIBS = -L../../veins/out/$(CONFIGNAME)/src -L../out/$(CONFIGNAME)/application/msg -L../out/$(CONFIGNAME)/application/core -L../out/$(CONFIGNAME)/application/router  -lrouter -lcore -lveins
+LIBS += -Wl,-rpath,`abspath ../../veins/out/$(CONFIGNAME)/src` -Wl,-rpath,`abspath ../out/$(CONFIGNAME)/application/msg` -Wl,-rpath,`abspath ../out/$(CONFIGNAME)/application/core` -Wl,-rpath,`abspath ../out/$(CONFIGNAME)/application/router`
 
 # Output directory
 PROJECT_OUTPUT_DIR = ../out
@@ -30,7 +30,7 @@ OBJS =
 MSGFILES =
 
 # Other makefile variables (-K)
-VEINS_PROJ=../../Veins
+VEINS_PROJ=../../veins
 
 #------------------------------------------------------------------------------
 

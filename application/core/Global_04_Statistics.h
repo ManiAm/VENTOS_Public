@@ -173,14 +173,17 @@ class Statistics : public BaseModule
 	  void executeOneTimestep(bool); // should be public
 
       std::map<string, Histogram> edgeHistograms; // should be public
+      std::map<string, int> vehicleTravelTimes;
 
   private:
       void vehiclesData();
       void saveVehicleData(string);
       void vehiclesDataToFile();
 
+      void HistogramsToFile();
       void parseHistogramFile();
       void laneCostsData();
+      void processTravelTimeData();
 
       void inductionLoops();
       void inductionLoopToFile();
@@ -216,6 +219,7 @@ class Statistics : public BaseModule
       bool collectMAClayerData;
       bool collectVehiclesData;
       bool collectLaneCostsData;
+      bool collectVehicleTimeData;
       bool collectInductionLoopData;
       bool collectPlnManagerData;
       bool printBeaconsStatistics;
@@ -238,6 +242,7 @@ class Statistics : public BaseModule
 	  simsignal_t Signal_SentPlatoonMsg;
 	  simsignal_t Signal_VehicleState;
 	  simsignal_t Signal_PlnManeuver;
+	  simsignal_t Signal_TimeData;
 
 	  // class variables (vectors)
       vector<VehicleData *> Vec_vehiclesData;
@@ -259,6 +264,7 @@ class Statistics : public BaseModule
       vector<NodeEntry *> beaconsDO_interval;
       vector<NodeEntry *> beaconsDP_interval;
 };
+
 }
 
 #endif

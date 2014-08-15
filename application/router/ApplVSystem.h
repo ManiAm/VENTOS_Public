@@ -26,6 +26,7 @@ class ApplVSystem : public ApplVBeacon
         int systemMsgLengthBits;
         int systemMsgPriority;      //like beaconPriority
         bool useDijkstrasRouting;
+        int startTime;//Hack
 
         // Class variables
         cMessage* sendSystemMsgEvt;
@@ -33,6 +34,8 @@ class ApplVSystem : public ApplVBeacon
         // Routing
         string targetNode;
         Hypertree* ht;
+
+        simsignal_t Signal_TimeData;
 
         // Methods
         virtual void handleSelfMsg(cMessage*);

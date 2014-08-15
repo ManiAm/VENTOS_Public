@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for librouter
 #
 # This file was generated with the command:
-#  opp_makemake -f --make-so -o router -O out -I/home/mani/Desktop/VENTOS/eigen-3.2.1 -I/home/mani/Desktop/VENTOS/rapidxml-1.13 -I../../../Veins/src/modules/utility -I../../../Veins/src/modules/phy -I../../../Veins/src/base/modules -I../../../Veins/src/modules/analogueModel -I../../../Veins/src/modules/mac/ieee80211p -I../core -I../../../Veins/src/base/messages -I../../../Veins/src/modules/messages -I../../../Veins/src/base/connectionManager -I../../../Veins/src/inet -I.. -I../../../Veins/src -I../../../Veins/src/base/utils -I../../../Veins/src/base/phyLayer -L../../../Veins/out/$$\(CONFIGNAME\)/src -L../../out/$$\(CONFIGNAME\)/application -L../../out/$$\(CONFIGNAME\)/application/msg -L../../out/$$\(CONFIGNAME\)/application/core -lboost_filesystem -lboost_system -lmsg -lVeins -KVEINS_PROJ=../../../Veins
+#  opp_makemake -f --make-so -o router -O out -I/home/mani/Desktop/VENTOS/eigen-3.2.1 -I/home/mani/Desktop/VENTOS/rapidxml-1.13 -I../../../veins/src/modules/messages -I../../../veins/src -I../../../veins/src/base/modules -I../../../veins/src/modules/utility -I../core -I../../../veins/src/base/messages -I../../../veins/src/base/utils -I../../../veins/src/base/phyLayer -I.. -I../../../veins/src/modules/phy -I../../../veins/src/modules/mac/ieee80211p -I../../../veins/src/inet -I../../../veins/src/base/connectionManager -I../../../veins/src/modules/analogueModel -L../../../veins/out/$$\(CONFIGNAME\)/src -L../../out/$$\(CONFIGNAME\)/application -L../../out/$$\(CONFIGNAME\)/application/msg -L../../out/$$\(CONFIGNAME\)/application/core -lboost_filesystem -lboost_system -lmsg -lveins -KVEINS_PROJ=../../../veins
 #
 
 # Name of target to be created (-o option)
@@ -12,28 +12,28 @@ TARGET = librouter$(SHARED_LIB_SUFFIX)
 INCLUDE_PATH = \
     -I../../eigen-3.2.1 \
     -I../../rapidxml-1.13 \
-    -I../../../Veins/src/modules/utility \
-    -I../../../Veins/src/modules/phy \
-    -I../../../Veins/src/base/modules \
-    -I../../../Veins/src/modules/analogueModel \
-    -I../../../Veins/src/modules/mac/ieee80211p \
+    -I../../../veins/src/modules/messages \
+    -I../../../veins/src \
+    -I../../../veins/src/base/modules \
+    -I../../../veins/src/modules/utility \
     -I../core \
-    -I../../../Veins/src/base/messages \
-    -I../../../Veins/src/modules/messages \
-    -I../../../Veins/src/base/connectionManager \
-    -I../../../Veins/src/inet \
+    -I../../../veins/src/base/messages \
+    -I../../../veins/src/base/utils \
+    -I../../../veins/src/base/phyLayer \
     -I.. \
-    -I../../../Veins/src \
-    -I../../../Veins/src/base/utils \
-    -I../../../Veins/src/base/phyLayer \
+    -I../../../veins/src/modules/phy \
+    -I../../../veins/src/modules/mac/ieee80211p \
+    -I../../../veins/src/inet \
+    -I../../../veins/src/base/connectionManager \
+    -I../../../veins/src/modules/analogueModel \
     -I.
 
 # Additional object and library files to link with
 EXTRA_OBJS =
 
 # Additional libraries (-L, -l options)
-LIBS = -L../../../Veins/out/$(CONFIGNAME)/src -L../../out/$(CONFIGNAME)/application -L../../out/$(CONFIGNAME)/application/msg -L../../out/$(CONFIGNAME)/application/core  -lboost_filesystem -lboost_system -lmsg -lVeins
-LIBS += -Wl,-rpath,`abspath ../../../Veins/out/$(CONFIGNAME)/src` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/msg` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/core`
+LIBS = -L../../../veins/out/$(CONFIGNAME)/src -L../../out/$(CONFIGNAME)/application -L../../out/$(CONFIGNAME)/application/msg -L../../out/$(CONFIGNAME)/application/core  -lboost_filesystem -lboost_system -lmsg -lveins
+LIBS += -Wl,-rpath,`abspath ../../../veins/out/$(CONFIGNAME)/src` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/msg` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/core`
 
 # Output directory
 PROJECT_OUTPUT_DIR = ../../out
@@ -55,7 +55,7 @@ OBJS = \
 MSGFILES =
 
 # Other makefile variables (-K)
-VEINS_PROJ=../../../Veins
+VEINS_PROJ=../../../veins
 
 #------------------------------------------------------------------------------
 

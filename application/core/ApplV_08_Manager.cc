@@ -180,8 +180,6 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
     EV << "## " << SUMOvID << " received beacon ..." << endl;
     ApplVBeacon::printBeaconContent(wsm);
 
-    bool result = false;
-
     // stand-alone vehicle
     // ignore the received beacon!
     if(controlMode == 1)

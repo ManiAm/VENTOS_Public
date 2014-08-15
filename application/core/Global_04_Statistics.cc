@@ -24,6 +24,7 @@ void Statistics::initialize(int stage)
 
         collectMAClayerData = par("collectMAClayerData").boolValue();
         collectVehiclesData = par("collectVehiclesData").boolValue();
+        collectVehicleTimeData = par("collectVehicleTimeData").boolValue();
         collectLaneCostsData = par("collectLaneCostsData").boolValue();
         collectInductionLoopData = par("collectInductionLoopData").boolValue();
         collectPlnManagerData = par("collectPlnManagerData").boolValue();
@@ -44,6 +45,7 @@ void Statistics::initialize(int stage)
         Signal_SentPlatoonMsg = registerSignal("SentPlatoonMsg");
         Signal_VehicleState = registerSignal("VehicleState");
         Signal_PlnManeuver = registerSignal("PlnManeuver");
+        Signal_TimeData = registerSignal("TimeData");
 
         // now subscribe locally to all these signals
         simulation.getSystemModule()->subscribe("beaconP", this);
@@ -53,6 +55,7 @@ void Statistics::initialize(int stage)
         simulation.getSystemModule()->subscribe("SentPlatoonMsg", this);
         simulation.getSystemModule()->subscribe("VehicleState", this);
         simulation.getSystemModule()->subscribe("PlnManeuver", this);
+        simulation.getSystemModule()->subscribe("TimeData", this);
     }
 }
 
@@ -102,6 +105,7 @@ void Statistics::executeOneTimestep(bool simulationDone)
     // todo:
     if(simulationDone)
     {
+
         // sort the vectors by node ID:
         // Vec_BeaconsP = SortByID(Vec_BeaconsP);
         // Vec_BeaconsO = SortByID(Vec_BeaconsO);
@@ -112,29 +116,63 @@ void Statistics::executeOneTimestep(bool simulationDone)
 
         if(printBeaconsStatistics)
             printToFile();
+
+        if(collectLaneCostsData)
+            HistogramsToFile();
+
+        if(collectVehicleTimeData)
+            processTravelTimeData();
+    }
+}
+
+
+void Statistics::HistogramsToFile()
+{
+    ofstream outFile;
+    string VENTOSfullDirectory = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+    string SUMODirectory = simulation.getSystemModule()->par("SUMODirectory").stringValue();
+    string fileName = VENTOSfullDirectory + SUMODirectory + "/edgeWeights.txt";
+    outFile.open(fileName.c_str()); //Open the edgeWeights file
+
+    for(map<string, Histogram>::iterator it = edgeHistograms.begin(); it != edgeHistograms.end(); it++) //For each histogram
+    {
+        if(it->first != "") //If it has a name (empty-ID histograms occur when vehicles update in an intersection)
+        {
+            Histogram* hist = &it->second;
+            outFile << it->first << " " << hist->count << endl; //Write the edge ID and its number of data points
+            for(map<int, int>::iterator it2 = hist->data.begin(); it2 != hist->data.end(); it2++)
+            {
+                outFile << it2->first << " " << it2->second << "  ";    //And then write each data point followed by the number of occurrences
+            }
+            outFile << endl;
+        }
     }
 }
 
 
 void Statistics::parseHistogramFile()
 {
-    cout << "Parsing" << endl;
     ifstream inFile;
     string VENTOSfullDirectory = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
     string SUMODirectory = simulation.getSystemModule()->par("SUMODirectory").stringValue();
     string fileName = VENTOSfullDirectory + SUMODirectory + "/edgeWeights.txt";
-    inFile.open(fileName.c_str());
+    inFile.open(fileName.c_str());  //Open the edgeWeights file
 
     string edgeName;
-    int count;
-    double val;
-    while(inFile >> edgeName)
+    while(inFile >> edgeName)   //While there are more edges to read
     {
-        inFile >> count;
-        for(int i = 0; i < count; i++)
+        Histogram* hist = &edgeHistograms[edgeName];//Get the histogram for the edge
+        inFile >> hist->count;                      //And read in the number of data points
+        int edgeCount = 0;
+        while(edgeCount < hist->count)  //While we haven't read in all the data points
         {
-            inFile >> val;
-            edgeHistograms[edgeName].insert(val);
+            int val;
+            int valCount;
+            inFile >> val;      //Read in a value and how many times it occurs
+            inFile >> valCount;
+            hist->data[val] = valCount; //And write this to the histogram
+            hist->average = (hist->average * edgeCount + val * valCount) / (edgeCount + valCount);  //Update the running average
+            edgeCount += valCount;  //And mark we read this many more data points
         }
     }
     inFile.close();
@@ -293,35 +331,42 @@ void Statistics::vehiclesDataToFile()
 }
 
 
+void Statistics::processTravelTimeData()
+{
+    double avg = 0;
+    int count = 0;
+    for(map<string, int>::iterator it = vehicleTravelTimes.begin(); it != vehicleTravelTimes.end(); it++)
+    {
+        count++;
+        avg += it->second;
+    }
+    cout << "Average vehicle travel time was " << avg / count << " seconds." << endl;
+}
+
+
 void Statistics::laneCostsData()
 {
     list<string> vList = TraCI->commandGetVehicleList();
 
     for(list<string>::iterator it = vList.begin(); it != vList.end(); it++) //Look at each vehicle
     {
-        string curEdge = TraCI->getCommandInterface()->getEdgeId(*it); //The edge it's currently on
-        if(TraCI->getCommandInterface()->getLanePosition(*it) * 1.05 > TraCI->getCommandInterface()->getLaneLength(TraCI->getCommandInterface()->getLaneId(*it)))
+        string curEdge = TraCI->getCommandInterface()->getEdgeId(*it);  //The edge it's currently on
+        if(TraCI->getCommandInterface()->getLanePosition(*it) * 1.05 > TraCI->getCommandInterface()->getLaneLength(TraCI->getCommandInterface()->getLaneId(*it)))   //If the vehicle is on (or extremely close to) the end of the lane
             curEdge = "";
         string prevEdge = vehicleEdges[*it];    //The last edge we saw it on
         if(vehicleEdges.find(*it) == vehicleEdges.end())    //If we haven't yet seen this vehicle
         {
             vehicleEdges[*it] = curEdge;           //Initialize its current edge
-            vehicleTimes[*it] = simTime().dbl();       //And current time
+            vehicleTimes[*it] = simTime().dbl();   //And current time
         }
 
-        if(prevEdge != curEdge)
+        if(prevEdge != curEdge) //If we've moved edges
         {
-            //cout << "Adding " << getCurrentTimeMs()/1000. - vehicleTimes[*it] << " to " << prevEdge << endl;
-            edgeHistograms[prevEdge].insert(simTime().dbl() - vehicleTimes[*it]);
-            vehicleEdges[*it] = curEdge;
-            vehicleTimes[*it] = simTime().dbl();
-            cout << *it << " moves to edge " << curEdge << " at time " << simTime().dbl() << endl;
+            edgeHistograms[prevEdge].insert(simTime().dbl() - vehicleTimes[*it]);   //Add the time the vehicle traveled to the data set for that edge
+            vehicleEdges[*it] = curEdge;                                            //And set its edge to the new one
+            vehicleTimes[*it] = simTime().dbl();                                    //And that edges start time to now
+            //cout << *it << " moves to edge " << curEdge << " at time " << simTime().dbl() << endl;  //Print a change
         }
-        //Loop through each vehicle here.  Get its current lane.  Compare that to the
-        //last-seen lane for that vehicle. If they differ, the vehicle has changed lanes.
-        //Document this.
-
-        //cout << "Doing this at " << getCurrentTimeMs()/1000. << " on vehicle " << k->c_str() << endl;
     }
 }
 
@@ -674,6 +719,19 @@ void Statistics::receiveSignal(cComponent *source, simsignal_t signalID, cObject
 
         NodeEntry *tmp = new NodeEntry(source->getFullName(), m->name, nodeIndex, -1, simTime());
         Vec_BeaconsO.push_back(tmp);
+    }
+    else if (collectVehicleTimeData && signalID == Signal_TimeData)
+    {
+        TimeData* tMsg = dynamic_cast<TimeData*>(obj);
+        if(tMsg->end)
+        {
+            vehicleTravelTimes[tMsg->vName] = tMsg->time - vehicleTravelTimes[tMsg->vName];
+        }
+        else
+        {
+            vehicleTravelTimes[tMsg->vName] = tMsg->time;
+        }
+        ASSERT(tMsg);
     }
 }
 

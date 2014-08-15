@@ -3,7 +3,7 @@
 	<name>VENTOS</name>
 	<comment></comment>
 	<projects>
-		<project>Veins</project>
+		<project>veins</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
