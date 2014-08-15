@@ -176,13 +176,7 @@ end
 
 figure(1)
 group = [repmat({'Merge'}, n1, 1); repmat({'Split'}, n2, 1); repmat({'Leader Leave'}, n3, 1); repmat({'Last Follower Leave'}, n4, 1); repmat({'Middle Follower Leave'}, n5, 1)];
-boxplot([mergeStat(:,4); splitStat(:,4); LLeaveStat(:,4); LFLeaveStat(:,4); MFLeaveStat(:,4)], group);
-
-set(findobj(gca,'Type','text'),'FontSize',19);
-
-ylabel('Average duration (s)', 'FontSize', 19);
-
-grid on;
+boxplot([mergeStat(:,4); splitStat(:,4); LLeaveStat(:,4); LFLeaveStat(:,4); MFLeaveStat(:,4)], group)
 
 % ---------------------------------------------------------- 
 % ----------------------------------------------------------
@@ -222,24 +216,27 @@ data(5,1) = mean(MFLeaveStat(:,4));
 Xci(5, 1) = abs( ci(1,1) - mean(MFLeaveStat(:,4)) );
 Xci(5, 2) = abs( ci(2,1) - mean(MFLeaveStat(:,4)) );
 
-% -------------------------------------
+% -----------------------------------------------------------
 
-figure(2)
+figure(3)
 bar(data);
 
-set(gca,'XTickLabel',{'Merge','Split','Leader Leave', 'Last Follower Leave', 'Middle Follower Leave'}', 'FontSize', 19); 
+set(gca,'XTickLabel',{'Merge','Split','Leader Leave', 'Follower Leave'}', 'FontSize', 19); 
 rotateXLabels(gca, 0);  
 
-ylabel('Average duration (s)', 'FontSize', 19);
+ylabel('Duration (s)', 'FontSize', 19);
 
 grid on;
 
 % graph the confident interval
 hold on
-errorbar((1:5), data, Xci(:,1), Xci(:,2), 'r', 'LineWidth', 2, 'LineStyle', 'none')
+errorbar((1:4), data, Xci(:,1), Xci(:,2), 'r', 'LineWidth', 2, 'LineStyle', 'none')
 hold off
 
 
 disp('done!');
+
+
+
 
 

@@ -77,8 +77,10 @@ void ApplVCoordinator::coordinator()
     // leave (youtube)
     //scenario2();
 
-    // measure merge, split, leader/follower leave duration
+    // measure merge, split, leader/follower leave duration for
+    // a platoon of size 10
     scenario3();
+
 
     scheduleAt(simTime() + 0.1, coordination);
 }
@@ -345,6 +347,12 @@ void ApplVCoordinator::scenario3()
             if(SUMOvID == "CACC1")
                 leavePlatoon();
         }
+        else if(simTime().dbl() == 118)
+        {
+            // last follower leaves
+            if(SUMOvID == "CACC10")
+                leavePlatoon();
+        }
     }
     else if(currentRun == 10)
     {
@@ -352,10 +360,14 @@ void ApplVCoordinator::scenario3()
         {
             TraCI->commandSetSpeed("CACC1", 20.);
         }
-        // last vehicle leaves
         else if(simTime().dbl() == 73)
         {
-            if(SUMOvID == "CACC10")
+            if(SUMOvID == "CACC3")
+                leavePlatoon();
+        }
+        else if(simTime().dbl() == 118)
+        {
+            if(SUMOvID == "CACC6")
                 leavePlatoon();
         }
     }
@@ -367,7 +379,12 @@ void ApplVCoordinator::scenario3()
         }
         else if(simTime().dbl() == 73)
         {
-            if(SUMOvID == "CACC3")
+            if(SUMOvID == "CACC7")
+                leavePlatoon();
+        }
+        else if(simTime().dbl() == 118)
+        {
+            if(SUMOvID == "CACC5")
                 leavePlatoon();
         }
     }
@@ -379,53 +396,10 @@ void ApplVCoordinator::scenario3()
         }
         else if(simTime().dbl() == 73)
         {
-            if(SUMOvID == "CACC6")
-                leavePlatoon();
-        }
-    }
-    else if(currentRun == 13)
-    {
-        if(simTime().dbl() == 40)
-        {
-            TraCI->commandSetSpeed("CACC1", 20.);
-        }
-        else if(simTime().dbl() == 73)
-        {
-            if(SUMOvID == "CACC7")
-                leavePlatoon();
-        }
-    }
-    else if(currentRun == 14)
-    {
-        if(simTime().dbl() == 40)
-        {
-            TraCI->commandSetSpeed("CACC1", 20.);
-        }
-        else if(simTime().dbl() == 73)
-        {
-            if(SUMOvID == "CACC5")
-                leavePlatoon();
-        }
-    }
-    else if(currentRun == 15)
-    {
-        if(simTime().dbl() == 40)
-        {
-            TraCI->commandSetSpeed("CACC1", 20.);
-        }
-        else if(simTime().dbl() == 73)
-        {
             if(SUMOvID == "CACC8")
                 leavePlatoon();
         }
-    }
-    else if(currentRun == 16)
-    {
-        if(simTime().dbl() == 40)
-        {
-            TraCI->commandSetSpeed("CACC1", 20.);
-        }
-        else if(simTime().dbl() == 73)
+        else if(simTime().dbl() == 118)
         {
             if(SUMOvID == "CACC4")
                 leavePlatoon();
