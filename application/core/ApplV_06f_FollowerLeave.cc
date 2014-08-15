@@ -94,7 +94,12 @@ void ApplVPlatoonMg::followerLeave_DataFSM(PlatoonMsg *wsm)
         {
             cancelEvent(plnTIMER10);
 
-            reportManeuverToStat(SUMOvID, "-", "FLeave_Start");
+            if(wsm->getDblValue() == 0)
+                reportManeuverToStat(SUMOvID, "-", "MFLeave_Start");
+            else if(wsm->getDblValue() == 1)
+                reportManeuverToStat(SUMOvID, "-", "LFLeave_Start");
+            else
+                error("Unknwon value!");
 
             vehicleState = state_platoonFollower;
             reportStateToStat();
@@ -109,15 +114,20 @@ void ApplVPlatoonMg::followerLeave_DataFSM(PlatoonMsg *wsm)
         // leader receives a LEAVE_REQ
         if (wsm->getType() == LEAVE_REQ && wsm->getRecipient() == SUMOvID)
         {
+            if(wsm->getDblValue() <= 0 || wsm->getDblValue() >= plnSize)
+                error("depth of the follower is not right!");
+
+            busy = true;
+
+            int lastFollower = (wsm->getDblValue() + 1 == plnSize) ? 1 : 0;
+
             // send LEAVE_ACCEPT
-            PlatoonMsg* dataMsg = prepareData(wsm->getSender(), LEAVE_ACCEPT, plnID);
+            // lastFollower notifies the leaving vehicle if it is the last follower or not!
+            PlatoonMsg* dataMsg = prepareData(wsm->getSender(), LEAVE_ACCEPT, plnID, lastFollower);
             EV << "### " << SUMOvID << ": sent LEAVE_ACCEPT." << endl;
             printDataContent(dataMsg);
             sendDelayed(dataMsg, individualOffset, lowerLayerOut);
             reportCommandToStat(dataMsg);
-
-            if(wsm->getDblValue() <= 0 || wsm->getDblValue() >= plnSize)
-                error("depth of the follower is not right!");
 
             // last follower wants to leave
             // one split is enough
@@ -159,6 +169,7 @@ void ApplVPlatoonMg::followerLeave_DataFSM(PlatoonMsg *wsm)
             if(RemainingSplits == 0)
             {
                 // no more splits are needed. We are done!
+                busy = false;
             }
             else if(RemainingSplits == 1)
             {
