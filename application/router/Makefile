@@ -200,7 +200,8 @@ $O/Net.o: Net.cc \
 	../core/ApplV_04_AID.h \
 	../core/ApplV_05_PlatoonFormed.h \
 	../core/ApplV_06_PlatoonMg.h \
-	../core/ApplV_07_Manager.h \
+	../core/ApplV_07_Coordinator.h \
+	../core/ApplV_08_Manager.h \
 	../core/Global_01_TraCI_Extend.h \
 	../core/Global_04_Statistics.h \
 	../core/Global_07_RSUAdd.h \
@@ -260,7 +261,8 @@ $O/Router.o: Router.cc \
 	../core/ApplV_04_AID.h \
 	../core/ApplV_05_PlatoonFormed.h \
 	../core/ApplV_06_PlatoonMg.h \
-	../core/ApplV_07_Manager.h \
+	../core/ApplV_07_Coordinator.h \
+	../core/ApplV_08_Manager.h \
 	../core/Global_01_TraCI_Extend.h \
 	../core/Global_04_Statistics.h \
 	../core/Global_07_RSUAdd.h \

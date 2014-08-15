@@ -39,6 +39,8 @@ void ApplVPlatoonMg::followerLeave_handleSelfMsg(cMessage* msg)
             myPlnDepth = -1;
             busy = false;
 
+            reportManeuverToStat(SUMOvID, "-", "FLeave_End");
+
             vehicleState = state_idle;
             reportStateToStat();
         }
@@ -73,6 +75,8 @@ void ApplVPlatoonMg::followerLeave_DataFSM(PlatoonMsg *wsm)
         vehicleState = state_waitForLeaveReply;
         reportStateToStat();
 
+        reportManeuverToStat(SUMOvID, plnID, "FLeave_Request");
+
         scheduleAt(simTime() + 5., plnTIMER10);
     }
     else if(vehicleState == state_waitForLeaveReply)
@@ -81,12 +85,16 @@ void ApplVPlatoonMg::followerLeave_DataFSM(PlatoonMsg *wsm)
         {
             cancelEvent(plnTIMER10);
 
+            reportManeuverToStat(SUMOvID, "-", "FLeave_Reject");
+
             vehicleState = state_platoonFollower;
             reportStateToStat();
         }
         else if(wsm->getType() == LEAVE_ACCEPT && wsm->getSender() == plnID)
         {
             cancelEvent(plnTIMER10);
+
+            reportManeuverToStat(SUMOvID, "-", "FLeave_Start");
 
             vehicleState = state_platoonFollower;
             reportStateToStat();

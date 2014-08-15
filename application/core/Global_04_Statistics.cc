@@ -239,15 +239,15 @@ void Statistics::vehiclesDataToFile()
 
     if( ev.isGUI() )
     {
-        filePath = "results/gui/speed-gap.txt";
+        filePath = "results/gui/vehicleData.txt";
     }
     else
     {
         // get the current run number
         int currentRun = ev.getConfigEx()->getActiveRunNumber();
         ostringstream fileName;
-        fileName << "speed-gap_" << currentRun << ".txt";
-        filePath = "results/cmd" + fileName.str();
+        fileName << currentRun << "_vehicleData.txt";
+        filePath = "results/cmd/" + fileName.str();
     }
 
     FILE *filePtr = fopen (filePath.string().c_str(), "w");
@@ -365,20 +365,22 @@ void Statistics::inductionLoops()
 
 void Statistics::inductionLoopToFile()
 {
-    char fName2 [50];
+    boost::filesystem::path filePath;
 
     if( ev.isGUI() )
     {
-        sprintf (fName2, "%s.txt", "results/gui/loop-detector");
+        filePath = "results/gui/loopDetector.txt";
     }
     else
     {
         // get the current run number
         int currentRun = ev.getConfigEx()->getActiveRunNumber();
-        sprintf (fName2, "%s_%d.txt", "results/cmd/loop-detector", currentRun);
+        ostringstream fileName;
+        fileName << currentRun << "_loopDetector.txt";
+        filePath = "results/cmd/" + fileName.str();
     }
 
-    FILE *filePtr = fopen (fName2, "w");
+    FILE *filePtr = fopen (filePath.string().c_str(), "w");
 
     // write header
     fprintf (filePtr, "%-20s","loopDetector");
@@ -417,20 +419,22 @@ void Statistics::incidentDetectionToFile()
     if(RSUptr == NULL)
         return;
 
-    ostringstream fileName;
+    boost::filesystem::path filePath;
 
     if( ev.isGUI() )
     {
-        fileName << "results/gui/AID_tableCount.txt";
+        filePath = "results/gui/IncidentTable.txt";
     }
     else
     {
         // get the current run number
         int currentRun = ev.getConfigEx()->getActiveRunNumber();
-        fileName << "results/gui/AID_tableCount_" << currentRun << ".txt";
+        ostringstream fileName;
+        fileName << currentRun << "_IncidentTable.txt";
+        filePath = "results/cmd/" + fileName.str();
     }
 
-    ofstream filePtr( fileName.str().c_str() );
+    ofstream filePtr( filePath.string().c_str() );
 
     if (filePtr.is_open())
     {
@@ -443,20 +447,22 @@ void Statistics::incidentDetectionToFile()
 
 void Statistics::MAClayerToFile()
 {
-    char fName2 [50];
+    boost::filesystem::path filePath;
 
     if( ev.isGUI() )
     {
-        sprintf (fName2, "%s.txt", "results/gui/MAC-data");
+        filePath = "results/gui/MACdata.txt";
     }
     else
     {
         // get the current run number
         int currentRun = ev.getConfigEx()->getActiveRunNumber();
-        sprintf (fName2, "%s_%d.txt", "results/cmd/MAC-data", currentRun);
+        ostringstream fileName;
+        fileName << currentRun << "_MACdata.txt";
+        filePath = "results/cmd/" + fileName.str();
     }
 
-    FILE *filePtr = fopen (fName2, "w");
+    FILE *filePtr = fopen (filePath.string().c_str(), "w");
 
     // write header
     fprintf (filePtr, "%-20s","timeStep");
@@ -512,8 +518,8 @@ void Statistics::plnManageToFile()
         // get the current run number
         int currentRun = ev.getConfigEx()->getActiveRunNumber();
         ostringstream fileName;
-        fileName << "plnManage_" << currentRun << ".txt";
-        filePath = "results/cmd" + fileName.str();
+        fileName << currentRun << "_plnManage.txt";
+        filePath = "results/cmd/" + fileName.str();
     }
 
     FILE *filePtr = fopen (filePath.string().c_str(), "w");
@@ -565,8 +571,8 @@ void Statistics::plnStatToFile()
         // get the current run number
         int currentRun = ev.getConfigEx()->getActiveRunNumber();
         ostringstream fileName;
-        fileName << "plnStat_" << currentRun << ".txt";
-        filePath = "results/cmd" + fileName.str();
+        fileName << currentRun << "_plnStat.txt";
+        filePath = "results/cmd/" + fileName.str();
     }
 
     FILE *filePtr = fopen (filePath.string().c_str(), "w");
@@ -816,6 +822,7 @@ void Statistics::postProcess()
 }
 
 
+// todo
 void Statistics::printToFile()
 {
     char fName [50];

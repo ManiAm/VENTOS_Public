@@ -46,6 +46,9 @@ class ApplVPlatoonMg : public ApplVPlatoonFormed
         bool followerLeaveEnabled;
         bool leaderLeaveEnabled;
 
+        double mergeGap;
+        double splitGap;
+
         // Variables
         enum states
         {
@@ -90,7 +93,6 @@ class ApplVPlatoonMg : public ApplVPlatoonFormed
             state_sendLeaveReq,
             state_waitForLeaveReply,
             state_secondSplit,
-
         };
 
         enum uCommands
@@ -124,7 +126,6 @@ class ApplVPlatoonMg : public ApplVPlatoonFormed
 
 	private:
         bool busy;
-        cMessage* mgrTIMER;
 
         // entry
         double leastDistFront;
@@ -160,6 +161,7 @@ class ApplVPlatoonMg : public ApplVPlatoonFormed
         cMessage* plnTIMER7;
         cMessage* plnTIMER8;
         cMessage* plnTIMER8a;
+        cMessage* mgrTIMER;
 
         // leader leave
         cMessage* plnTIMER9;
@@ -170,11 +172,11 @@ class ApplVPlatoonMg : public ApplVPlatoonFormed
         cMessage* plnTIMER10;
         cMessage* plnTIMER11;
 
-	private:
-        void Coordinator();
-        void scenario1();
-        void scenario2();
+	protected:
+        void splitFromPlatoon(int);
+        void leavePlatoon();
 
+	private:
         PlatoonMsg* prepareData( string, uCommands, string, double db = -1, string str = "", deque<string> vec = deque<string>() );
         void printDataContent(PlatoonMsg*);
         void updateColorDepth();
@@ -197,6 +199,7 @@ class ApplVPlatoonMg : public ApplVPlatoonFormed
         void split_handleSelfMsg(cMessage* msg);
         void split_BeaconFSM(BeaconVehicle *wsm = NULL);
         void split_DataFSM(PlatoonMsg *wsm = NULL);
+        void splitMonitor();
         void RemoveFollowerFromList_Split(string);
         bool GapDone();
 
@@ -220,6 +223,7 @@ class ApplVPlatoonMg : public ApplVPlatoonFormed
         void followerLeave_BeaconFSM(BeaconVehicle *wsm = NULL);
         void followerLeave_DataFSM(PlatoonMsg *wsm = NULL);
 };
+
 }
 
 #endif

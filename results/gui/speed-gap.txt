@@ -1,4 +1,0 @@
-index     timeStep    vehicleName    vehicleType      lane        pos        speed       accel       CFMode              gap       timeGap   
-
-
-1          0.00       v1              TypeManual      0/3to1/3_0   0.00       0.00       0.00       Undefined           -1.00      -1.00      

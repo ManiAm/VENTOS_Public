@@ -19,16 +19,17 @@ void ApplVPlatoonMg::initialize(int stage)
 	{
 	    maxPlnSize = par("maxPlatoonSize").longValue();
         optPlnSize = par("optPlatoonSize").longValue();
+
         mergeEnabled = par("mergeEnabled").boolValue();
         splitEnabled = par("splitEnabled").boolValue();
         followerLeaveEnabled = par("followerLeaveEnabled").boolValue();
         leaderLeaveEnabled = par("leaderLeaveEnabled").boolValue();
 
+        mergeGap = par("mergeGap");
+        splitGap = par("splitGap");
+
         vehicleState = state_idle;
         busy = false;
-
-        mgrTIMER = new cMessage("manager", KIND_TIMER);
-        scheduleAt(simTime() + 0.1, mgrTIMER);
 
         WATCH(vehicleState);
         WATCH(busy);
@@ -68,6 +69,9 @@ void ApplVPlatoonMg::initialize(int stage)
         plnTIMER8  = new cMessage("wait for split done", KIND_TIMER);
         plnTIMER8a = new cMessage("wait for enough gap", KIND_TIMER);
 
+        mgrTIMER = new cMessage("manager", KIND_TIMER);
+        scheduleAt(simTime() + 0.1, mgrTIMER);
+
         // used in leader leave
         // --------------------
         plnTIMER9 = new cMessage("wait for VOTE reply", KIND_TIMER);
@@ -102,8 +106,6 @@ void ApplVPlatoonMg::handleSelfMsg(cMessage* msg)
 
     if(plnMode != 3)
         return;
-
-    if(msg == mgrTIMER) Coordinator();
 
     merge_handleSelfMsg(msg);
     split_handleSelfMsg(msg);
@@ -155,121 +157,6 @@ void ApplVPlatoonMg::onData(PlatoonMsg* wsm)
     entry_DataFSM(wsm);
     leaderLeave_DataFSM(wsm);
     followerLeave_DataFSM(wsm);
-}
-
-
-void ApplVPlatoonMg::Coordinator()
-{
-    // check if we can split
-    if(vehicleState == state_platoonLeader)
-    {
-        if(!busy && splitEnabled && plnSize > optPlnSize)
-        {
-            splittingDepth = optPlnSize;
-            splittingVehicle = plnMembersList[splittingDepth];
-            splitCaller = -1;
-
-            busy = true;
-
-            vehicleState = state_sendSplitReq;
-            reportStateToStat();
-
-            split_DataFSM();
-        }
-    }
-
-    // merge and split
-    scenario1();
-
-    // leave
-    //scenario2();
-
-    scheduleAt(simTime() + 0.1, mgrTIMER);
-}
-
-
-// merge and split
-void ApplVPlatoonMg::scenario1()
-{
-    if(simTime().dbl() >= 37)
-    {
-        optPlnSize = 13;
-    }
-
-    if(simTime().dbl() >= 77)
-    {
-        optPlnSize = 4;
-    }
-
-    if(simTime().dbl() >= 94)
-    {
-        optPlnSize = 10;
-    }
-
-    if(simTime().dbl() >= 131)
-    {
-        optPlnSize = 3;
-    }
-    if(simTime().dbl() >= 188)
-    {
-        optPlnSize = 2;
-    }
-}
-
-
-// leave
-void ApplVPlatoonMg::scenario2()
-{
-    // leader leaves
-    if(simTime().dbl() == 26)
-    {
-        if(vehicleState == state_platoonLeader)
-        {
-            if(!busy && leaderLeaveEnabled && plnSize > 1)
-            {
-                busy = true;
-
-                vehicleState = state_sendVoteLeader;
-                reportStateToStat();
-
-                leaderLeave_DataFSM();
-            }
-        }
-    }
-
-    // last follower leaves
-    if(simTime().dbl() == 67)
-    {
-        if(vehicleState == state_platoonFollower && myPlnDepth == 4)
-        {
-            if(!busy && followerLeaveEnabled)
-            {
-                busy = true;
-
-                vehicleState = state_sendLeaveReq;
-                reportStateToStat();
-
-                followerLeave_DataFSM();
-            }
-        }
-    }
-
-    // middle follower leaves
-    if(simTime().dbl() == 120)
-    {
-        if(vehicleState == state_platoonFollower && myPlnDepth == 1)
-        {
-            if(!busy && followerLeaveEnabled)
-            {
-                busy = true;
-
-                vehicleState = state_sendLeaveReq;
-                reportStateToStat();
-
-                followerLeave_DataFSM();
-            }
-        }
-    }
 }
 
 
@@ -430,6 +317,69 @@ void ApplVPlatoonMg::reportManeuverToStat(string from, string to, string maneuve
     PlnManeuver *com = new PlnManeuver(from.c_str(), to.c_str(), maneuver.c_str());
     simsignal_t Signal_PlnManeuver = registerSignal("PlnManeuver");
     nodePtr->emit(Signal_PlnManeuver, com);
+}
+
+
+// ask the platoon leader to manually initiate split at 'depth'
+// only platoon leader can call this method!
+void ApplVPlatoonMg::splitFromPlatoon(int depth)
+{
+    if(vehicleState == state_platoonLeader)
+    {
+        if(depth >= 1 && depth <= plnSize-1)
+        {
+            if(!busy && splitEnabled)
+            {
+                splittingDepth = depth;
+                splittingVehicle = plnMembersList[splittingDepth];
+                splitCaller = -1;
+
+                busy = true;
+
+                vehicleState = state_sendSplitReq;
+                reportStateToStat();
+
+                split_DataFSM();
+            }
+        }
+        else
+            error("depth of splitting vehicle is invalid!");
+    }
+    else
+        error("only platoon leader can initiate split!");
+}
+
+
+void ApplVPlatoonMg::leavePlatoon()
+{
+    // if I am leader
+    if(vehicleState == state_platoonLeader)
+    {
+        if(!busy && leaderLeaveEnabled && plnSize > 1)
+        {
+            busy = true;
+
+            vehicleState = state_sendVoteLeader;
+            reportStateToStat();
+
+            leaderLeave_DataFSM();
+        }
+    }
+    // if I am follower
+    else if(vehicleState == state_platoonFollower)
+    {
+        if(!busy && followerLeaveEnabled)
+        {
+            busy = true;
+
+            vehicleState = state_sendLeaveReq;
+            reportStateToStat();
+
+            followerLeave_DataFSM();
+        }
+    }
+    else
+        error("vehicle should be in leader or follower states!");
 }
 
 }

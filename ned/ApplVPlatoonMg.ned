@@ -12,5 +12,8 @@ simple ApplVPlatoonMg extends ApplVPlatoonFormed
         bool mergeEnabled;
         bool splitEnabled;  
         bool followerLeaveEnabled;
-        bool leaderLeaveEnabled;      
+        bool leaderLeaveEnabled; 
+        
+        double mergeGap;
+        double splitGap;     
 }

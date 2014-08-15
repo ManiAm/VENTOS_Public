@@ -9,7 +9,7 @@ clc;   % position the cursor at the top of the screen
 path = '';
 fig = 0;
 hf = zeros(1,4);
-xLimit = 600;
+xLimit = 1000;
 
 for s=1:1    
     

@@ -148,10 +148,10 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
 
     if(vehicleState == state_waitForMergeReply)
     {
-        mergeReqAttempts = 0;
-
         if (wsm->getType() == MERGE_REJECT && wsm->getSender() == leadingPlnID)
         {
+            mergeReqAttempts = 0;
+
             cancelEvent(plnTIMER1);
 
             vehicleState = state_platoonLeader;
@@ -161,6 +161,8 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
         }
         else if(wsm->getType() == MERGE_ACCEPT && wsm->getSender() == leadingPlnID)
         {
+            mergeReqAttempts = 0;
+
             vehicleState = state_mergeAccepted;
             reportStateToStat();
 
@@ -365,7 +367,7 @@ bool ApplVPlatoonMg::CatchUpDone()
 //
 //    double catchupGap = (timeGap * speed) + minGap;
 
-    if(vleaderID == "" || gap < 10)
+    if(vleaderID == "" || gap < mergeGap)
         return true;
 
     return false;

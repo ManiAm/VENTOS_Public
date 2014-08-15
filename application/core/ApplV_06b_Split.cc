@@ -8,7 +8,11 @@ void ApplVPlatoonMg::split_handleSelfMsg(cMessage* msg)
     if(!splitEnabled)
         return;
 
-    if(msg == plnTIMER4)
+    if(msg == mgrTIMER)
+    {
+        splitMonitor();
+    }
+    else if(msg == plnTIMER4)
     {
         vehicleState = state_sendSplitReq;
         reportStateToStat();
@@ -66,7 +70,7 @@ void ApplVPlatoonMg::split_handleSelfMsg(cMessage* msg)
             reportManeuverToStat(SUMOvID, "-", "Split_End");
 
             // send a unicast GAP_CREATED to the old leader
-            // we need this in follower leave only. Other maneuvers ignore this
+            // we need this in follower/leader leave only. Other maneuvers ignore this
             PlatoonMsg* dataMsg = prepareData(oldPlnID, GAP_CREATED, oldPlnID);
             EV << "### " << SUMOvID << ": sent GAP_CREATED." << endl;
             printDataContent(dataMsg);
@@ -76,6 +80,30 @@ void ApplVPlatoonMg::split_handleSelfMsg(cMessage* msg)
         else
             scheduleAt(simTime() + 0.5, plnTIMER8a);
     }
+}
+
+
+// check constantly if we can split
+void ApplVPlatoonMg::splitMonitor()
+{
+    if(vehicleState == state_platoonLeader)
+    {
+        if(!busy && splitEnabled && plnSize > optPlnSize)
+        {
+            splittingDepth = optPlnSize;
+            splittingVehicle = plnMembersList[splittingDepth];
+            splitCaller = -1;
+
+            busy = true;
+
+            vehicleState = state_sendSplitReq;
+            reportStateToStat();
+
+            split_DataFSM();
+        }
+    }
+
+    scheduleAt(simTime() + 0.1, mgrTIMER);
 }
 
 
@@ -210,8 +238,6 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
         {
             vehicleState = state_splitCompleted;
             reportStateToStat();
-
-            leaderLeave_DataFSM();
         }
         // follower leave had called split
         // we should not set busy to false; follower leave is on-going
@@ -333,7 +359,7 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
             updateColorDepth();
 
             TraCI->commandSetTg(SUMOvID, 3.5);
-            TraCI->commandSetSpeed(SUMOvID, 5.);
+            TraCI->commandSetSpeed(SUMOvID, 20.); // set to normal speed
 
             vehicleState = state_waitForGap;
             reportStateToStat();
@@ -374,7 +400,7 @@ bool ApplVPlatoonMg::GapDone()
     string vleaderID = vleaderIDnew[0];
     double gap = atof( vleaderIDnew[1].c_str() );
 
-    if(vleaderID == "" || gap > 20)
+    if(vleaderID == "" || gap > splitGap)
         return true;
 
     return false;

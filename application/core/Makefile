@@ -49,8 +49,8 @@ OBJS = \
     $O/Global_05_Plotter.o \
     $O/ApplV_06d_Entry.o \
     $O/ApplV_06_PlatoonMg.o \
-    $O/ApplV_07_Manager.o \
     $O/ApplV_06b_Split.o \
+    $O/ApplV_07_Coordinator.o \
     $O/ApplV_06e_LeaderLeave.o \
     $O/Global_07_RSUAdd.o \
     $O/Global_02_TraCI_App.o \
@@ -62,6 +62,7 @@ OBJS = \
     $O/ApplV_04_AID.o \
     $O/Global_01_TraCI_Extend.o \
     $O/Global_04_Statistics.o \
+    $O/ApplV_08_Manager.o \
     $O/ApplAdversary.o \
     $O/Global_09_SpeedProfile.o \
     $O/Global_03_Tracking.o \
@@ -206,7 +207,8 @@ $O/ApplRSU_01_Base.o: ApplRSU_01_Base.cc \
 	ApplV_04_AID.h \
 	ApplV_05_PlatoonFormed.h \
 	ApplV_06_PlatoonMg.h \
-	ApplV_07_Manager.h \
+	ApplV_07_Coordinator.h \
+	ApplV_08_Manager.h \
 	Global_01_TraCI_Extend.h \
 	Global_07_RSUAdd.h \
 	../msg/Messages_m.h \
@@ -256,7 +258,8 @@ $O/ApplRSU_02_AID.o: ApplRSU_02_AID.cc \
 	ApplV_04_AID.h \
 	ApplV_05_PlatoonFormed.h \
 	ApplV_06_PlatoonMg.h \
-	ApplV_07_Manager.h \
+	ApplV_07_Coordinator.h \
+	ApplV_08_Manager.h \
 	Global_01_TraCI_Extend.h \
 	Global_07_RSUAdd.h \
 	../msg/Messages_m.h \
@@ -307,7 +310,8 @@ $O/ApplRSU_03_Manager.o: ApplRSU_03_Manager.cc \
 	ApplV_04_AID.h \
 	ApplV_05_PlatoonFormed.h \
 	ApplV_06_PlatoonMg.h \
-	ApplV_07_Manager.h \
+	ApplV_07_Coordinator.h \
+	ApplV_08_Manager.h \
 	Global_01_TraCI_Extend.h \
 	Global_07_RSUAdd.h \
 	../msg/Messages_m.h \
@@ -840,14 +844,62 @@ $O/ApplV_06f_FollowerLeave.o: ApplV_06f_FollowerLeave.cc \
 	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
 	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
 	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
-$O/ApplV_07_Manager.o: ApplV_07_Manager.cc \
+$O/ApplV_07_Coordinator.o: ApplV_07_Coordinator.cc \
 	Appl.h \
 	ApplV_01_Base.h \
 	ApplV_02_Beacon.h \
 	ApplV_04_AID.h \
 	ApplV_05_PlatoonFormed.h \
 	ApplV_06_PlatoonMg.h \
-	ApplV_07_Manager.h \
+	ApplV_07_Coordinator.h \
+	Global_01_TraCI_Extend.h \
+	../msg/Messages_m.h \
+	../router/ApplVSystem.h \
+	../router/Histogram.h \
+	../router/Hypertree.h \
+	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
+	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
+	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
+	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
+	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
+	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
+	$(VEINS_PROJ)/src/base/modules/BaseMobility.h \
+	$(VEINS_PROJ)/src/base/modules/BaseModule.h \
+	$(VEINS_PROJ)/src/base/modules/BaseWorldUtility.h \
+	$(VEINS_PROJ)/src/base/modules/BatteryAccess.h \
+	$(VEINS_PROJ)/src/base/utils/FindModule.h \
+	$(VEINS_PROJ)/src/base/utils/HostState.h \
+	$(VEINS_PROJ)/src/base/utils/MiXiMDefs.h \
+	$(VEINS_PROJ)/src/base/utils/Move.h \
+	$(VEINS_PROJ)/src/base/utils/NetwToMacControlInfo.h \
+	$(VEINS_PROJ)/src/base/utils/PassedMessage.h \
+	$(VEINS_PROJ)/src/base/utils/SimpleAddress.h \
+	$(VEINS_PROJ)/src/base/utils/miximkerneldefs.h \
+	$(VEINS_PROJ)/src/inet/Coord.h \
+	$(VEINS_PROJ)/src/inet/FWMath.h \
+	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
+	$(VEINS_PROJ)/src/modules/messages/WaveShortMessage_m.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIBuffer.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICommandInterface.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIConnection.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICoord.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
+	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
+	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
+	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
+	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
+$O/ApplV_08_Manager.o: ApplV_08_Manager.cc \
+	Appl.h \
+	ApplV_01_Base.h \
+	ApplV_02_Beacon.h \
+	ApplV_04_AID.h \
+	ApplV_05_PlatoonFormed.h \
+	ApplV_06_PlatoonMg.h \
+	ApplV_07_Coordinator.h \
+	ApplV_08_Manager.h \
 	Global_01_TraCI_Extend.h \
 	../msg/Messages_m.h \
 	../router/ApplVSystem.h \
@@ -934,7 +986,8 @@ $O/Global_02_TraCI_App.o: Global_02_TraCI_App.cc \
 	ApplV_04_AID.h \
 	ApplV_05_PlatoonFormed.h \
 	ApplV_06_PlatoonMg.h \
-	ApplV_07_Manager.h \
+	ApplV_07_Coordinator.h \
+	ApplV_08_Manager.h \
 	Global_01_TraCI_Extend.h \
 	Global_02_TraCI_App.h \
 	Global_03_Tracking.h \
@@ -1018,7 +1071,8 @@ $O/Global_04_Statistics.o: Global_04_Statistics.cc \
 	ApplV_04_AID.h \
 	ApplV_05_PlatoonFormed.h \
 	ApplV_06_PlatoonMg.h \
-	ApplV_07_Manager.h \
+	ApplV_07_Coordinator.h \
+	ApplV_08_Manager.h \
 	Global_01_TraCI_Extend.h \
 	Global_04_Statistics.h \
 	Global_07_RSUAdd.h \
@@ -1094,7 +1148,8 @@ $O/Global_06_VehicleAdd.o: Global_06_VehicleAdd.cc \
 	ApplV_04_AID.h \
 	ApplV_05_PlatoonFormed.h \
 	ApplV_06_PlatoonMg.h \
-	ApplV_07_Manager.h \
+	ApplV_07_Coordinator.h \
+	ApplV_08_Manager.h \
 	Global_01_TraCI_Extend.h \
 	Global_06_VehicleAdd.h \
 	../msg/Messages_m.h \
@@ -1142,7 +1197,8 @@ $O/Global_07_RSUAdd.o: Global_07_RSUAdd.cc \
 	ApplV_04_AID.h \
 	ApplV_05_PlatoonFormed.h \
 	ApplV_06_PlatoonMg.h \
-	ApplV_07_Manager.h \
+	ApplV_07_Coordinator.h \
+	ApplV_08_Manager.h \
 	Global_01_TraCI_Extend.h \
 	Global_07_RSUAdd.h \
 	../msg/Messages_m.h \
@@ -1190,7 +1246,8 @@ $O/Global_08_Warmup.o: Global_08_Warmup.cc \
 	ApplV_04_AID.h \
 	ApplV_05_PlatoonFormed.h \
 	ApplV_06_PlatoonMg.h \
-	ApplV_07_Manager.h \
+	ApplV_07_Coordinator.h \
+	ApplV_08_Manager.h \
 	Global_01_TraCI_Extend.h \
 	Global_06_VehicleAdd.h \
 	Global_08_Warmup.h \
@@ -1270,7 +1327,8 @@ $O/Mac1609_4_Mod.o: Mac1609_4_Mod.cc \
 	ApplV_04_AID.h \
 	ApplV_05_PlatoonFormed.h \
 	ApplV_06_PlatoonMg.h \
-	ApplV_07_Manager.h \
+	ApplV_07_Coordinator.h \
+	ApplV_08_Manager.h \
 	Global_01_TraCI_Extend.h \
 	Global_04_Statistics.h \
 	Global_07_RSUAdd.h \
@@ -1349,7 +1407,8 @@ $O/RSUMobility.o: RSUMobility.cc \
 	ApplV_04_AID.h \
 	ApplV_05_PlatoonFormed.h \
 	ApplV_06_PlatoonMg.h \
-	ApplV_07_Manager.h \
+	ApplV_07_Coordinator.h \
+	ApplV_08_Manager.h \
 	Global_01_TraCI_Extend.h \
 	Global_07_RSUAdd.h \
 	RSUMobility.h \

@@ -25,7 +25,6 @@ void ApplVPlatoonMg::leaderLeave_BeaconFSM(BeaconVehicle *wsm)
 {
     if(!leaderLeaveEnabled)
         return;
-
 }
 
 
@@ -46,6 +45,8 @@ void ApplVPlatoonMg::leaderLeave_DataFSM(PlatoonMsg *wsm)
         vehicleState = state_waitForVoteReply;
         reportStateToStat();
 
+        reportManeuverToStat(SUMOvID, "-", "LLeave_Start");
+
         scheduleAt(simTime() + 1., plnTIMER9);
     }
     else if(vehicleState == state_waitForVoteReply)
@@ -65,27 +66,32 @@ void ApplVPlatoonMg::leaderLeave_DataFSM(PlatoonMsg *wsm)
             split_DataFSM();
         }
     }
-    // now we can leave the platoon
     else if(vehicleState == state_splitCompleted)
     {
-        TraCI->commandSetvClass(SUMOvID, "private");   // change vClass
+        // now we can leave the platoon
+        if(wsm->getType() == GAP_CREATED && wsm->getRecipient() == SUMOvID)
+        {
+            TraCI->commandSetvClass(SUMOvID, "private");   // change vClass
 
-        int32_t bitset = TraCI->commandMakeLaneChangeMode(10, 01, 01, 01, 01);
-        TraCI->commandSetLaneChangeMode(SUMOvID, bitset);  // alter 'lane change' mode
-        TraCI->commandChangeLane(SUMOvID, 0, 5);   // change to lane 0 (normal lane)
+            int32_t bitset = TraCI->commandMakeLaneChangeMode(10, 01, 01, 01, 01);
+            TraCI->commandSetLaneChangeMode(SUMOvID, bitset);  // alter 'lane change' mode
+            TraCI->commandChangeLane(SUMOvID, 0, 5);   // change to lane 0 (normal lane)
 
-        TraCI->commandSetSpeed(SUMOvID, 15.);
+            TraCI->commandSetSpeed(SUMOvID, 5.);  // slowdown and exit the highway
 
-        // change color to yellow!
-        TraCIColor newColor = TraCIColor::fromTkColor("yellow");
-        TraCI->getCommandInterface()->setColor(SUMOvID, newColor);
+            // change color to yellow!
+            TraCIColor newColor = TraCIColor::fromTkColor("yellow");
+            TraCI->getCommandInterface()->setColor(SUMOvID, newColor);
 
-        plnSize = -1;
-        myPlnDepth = -1;
-        busy = false;
+            plnSize = -1;
+            myPlnDepth = -1;
+            busy = false;
 
-        vehicleState = state_idle;
-        reportStateToStat();
+            reportManeuverToStat(SUMOvID, "-", "LLeave_End");
+
+            vehicleState = state_idle;
+            reportStateToStat();
+        }
     }
     else if(vehicleState == state_platoonFollower)
     {
