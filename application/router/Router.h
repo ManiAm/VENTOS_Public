@@ -32,23 +32,22 @@ protected:
     Net* net;
     map<string, Hypertree*> hypertreeMemo;
 
-    bool enableRouting;         //If false, runs no code
-    double lastUpdateTime;      //The last time updateWeights() ran
-    int timePeriod;
+    bool enableRouting; //If false, runs no code
 
     double leftTurnCost, rightTurnCost, straightCost, uTurnCost, TLLookahead;
 
-    double turnTypeCost(string key);
-    double TLCost(double time, Edge* start, Edge* end);
-    vector<int>* TLTransitionPhases(Edge* start, Edge* end);
-    int currentPhase(TrafficLight* tl, double time, double* timeRemaining = NULL);
-    double timeToPhase(TrafficLight* tl, double time, int phase);
-    int nextAcceptingPhase(double time, Edge* start, Edge* end);
+    double junctionCost(double time, Edge* start, Edge* end);       //If it's a TL, returns the time spent waiting.  If not, returns turnTypeCost
+    double turnTypeCost(Edge* start, Edge* end);                    //Returns the turn penalty on an intersection
+    double timeToPhase(TrafficLight* tl, double time, int phase);   //Returns how long we must wait for a given phase at the given time
+    int nextAcceptingPhase(double time, Edge* start, Edge* end);    //Returns the next phase allowing movement from start to end at the given time
+    vector<int>* TLTransitionPhases(Edge* start, Edge* end);        //Returns a vector of phases allowing movement from start to end
+    int currentPhase(TrafficLight* tl, double time, double* timeRemaining = NULL);  //Returns the current phase of a TL at the given time, and sets timeRemaining if provided
 
     double getEdgeMeanSpeed(Edge* edge);    //Get the mean speed of all lanes on an edge
-    void updateWeights();                   //Recalculates edge weights
-    void reset();                           //Resets the pathing info on all nodes
-    Hypertree* buildHypertree(int startTime, int endTime, string destinationNodeID);
+    void changeTLPhaseDuration(TrafficLight* tl, int phase, int newDuration);
+
+    int timePeriodMax;     //Max time for hypertrees
+    Hypertree* buildHypertree(int startTime, string destinationNodeID);    //Builds a hypertree to the destination, bounded between the start time and timePeriodMax;
     list<string> getRoute(string begin, string end, string vName);      //Returns a list of edges between origin and destination,
                                                                         //or an empty list if they're not connected
 
@@ -57,7 +56,7 @@ protected:
     virtual void receiveSignal(cComponent *, simsignal_t, cObject *);
     SystemMsg* prepareSystemMsg();
 
-    //Message passing stuff
+    //Message passing
     cModule *nodePtr;               // pointer to the Node
     mutable TraCI_Extend* TraCI;  //Link to TraCI
     simsignal_t Signal_system;      //Receives signals to here

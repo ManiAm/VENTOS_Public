@@ -21,6 +21,9 @@ ostream& operator<<(ostream& os, Phase &rhs);
 class TrafficLight
 {
 public:
+    double nextSwitchTime;
+    int phaseBeforeSwitch;
+
     string id;
     string type;
     string programID;

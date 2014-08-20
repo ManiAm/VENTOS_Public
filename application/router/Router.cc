@@ -14,8 +14,6 @@ void Router::initialize(int stage)
 {
     if(stage == 0)
     {
-        lastUpdateTime = 0;
-
         enableRouting = par("enableRouting").boolValue();
         if(!enableRouting)
             return;
@@ -35,7 +33,7 @@ void Router::initialize(int stage)
         straightCost = par("straightCost").doubleValue();
         uTurnCost = par("uTurnCost").doubleValue();
         TLLookahead = par("TLLookahead").doubleValue();
-        timePeriod = par("timePeriod").doubleValue();
+        timePeriodMax = par("timePeriodMax").doubleValue();
 
         // get the file paths
         boost::filesystem::path SUMODirectory = simulation.getSystemModule()->par("SUMODirectory").stringValue();
@@ -49,7 +47,6 @@ void Router::initialize(int stage)
 
 void Router::receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj)
 {
-
     if(signalID == Signal_system) //Check if it's the right kind of symbol q
     {
         systemData *s = static_cast<systemData *>(obj); //Cast to a systemData class
@@ -57,9 +54,6 @@ void Router::receiveSignal(cComponent *source, simsignal_t signalID, cObject *ob
         {
             if(s->getRequestType() == 0)    //Request with dijkstra's routing
             {
-                if(simTime().dbl() - lastUpdateTime >= 10)   //Move this to an internal timer
-                    updateWeights();
-
                 list<string> info = getRoute(s->getEdge(), s->getNode(), s->getSender());
                 simsignal_t Signal_router = registerSignal("router");//Prepare to send a router message
                 //Systemdata wants string edge, string node, string sender, int requestType, string recipient, list<string> edgeList
@@ -76,7 +70,7 @@ void Router::receiveSignal(cComponent *source, simsignal_t signalID, cObject *ob
 
                 Hypertree* ht;
                 if(hypertreeMemo.find(s->getNode()) == hypertreeMemo.end())
-                    hypertreeMemo[s->getNode()] = buildHypertree(simTime().dbl(), timePeriod, targetNode->id);
+                    hypertreeMemo[s->getNode()] = buildHypertree(simTime().dbl(), targetNode->id);
                 ht = hypertreeMemo[s->getNode()];
                 //Get/calculate hypertree ht
                 //info.push_back(/*get next edge from ht*/);
@@ -102,18 +96,9 @@ ostream& operator<<(ostream& os, Router &rhs) // Print a router's network
     return os;
 }
 
-void Router::reset()    //Set all pathing stuff back to defaults
+double Router::turnTypeCost(Edge* start, Edge* end)
 {
-    for(vector<Edge*>::iterator it = net->edges.begin(); it != net->edges.end(); it++)
-    {
-        (*it)->curCost = 1000000;
-        (*it)->best = NULL;
-        (*it)->visited = 0;
-    }
-}
-
-double Router::turnTypeCost(string key)
-{
+    string key = start->id + end->id;
     char type = (*net->turnTypes)[key];
     switch (type)
     {
@@ -130,12 +115,12 @@ double Router::turnTypeCost(string key)
     return 100000;
 }
 
-double Router::TLCost(double time, Edge* start, Edge* end)
+double Router::junctionCost(double time, Edge* start, Edge* end)
 {
-    //if(start->to->type == "traffic_light")
-    //    return timeToPhase(start->to->tl, time, nextAcceptingPhase(time, start, end));
-    //else
-        return turnTypeCost(start->id + end->id);
+    if(start->to->type == "traffic_light")
+        return timeToPhase(start->to->tl, time, nextAcceptingPhase(time, start, end));
+    else
+        return turnTypeCost(start, end);
 }
 
 double Router::getEdgeMeanSpeed(Edge *edge)
@@ -144,15 +129,6 @@ double Router::getEdgeMeanSpeed(Edge *edge)
     for(vector<Lane*>::iterator it = edge->lanes->begin(); it != edge->lanes->end(); it++)  //For every lane on the edge
         sum += ((*it)->length / TraCI->getCommandInterface()->getLaneMeanSpeed((*it)->id));   //Get the mean speed of that lane
     return sum / edge->lanes->size();   //Average them all together
-}
-
-void Router::updateWeights()
-{
-    lastUpdateTime = simTime().dbl();   //We're updating now
-    for(vector<Edge*>::iterator edge = net->edges.begin(); edge != net->edges.end(); edge++)//For every edge in the sim
-    {
-        (*edge)->lastWeight = (getEdgeMeanSpeed(*edge) + (*edge)->origWeight) / 2;  //Get the mean speed of that edge
-    }
 }
 
 class routerCompare //Comparator object for getRoute weighting
@@ -226,21 +202,50 @@ vector<int>* Router::TLTransitionPhases(Edge* start, Edge* end)
 
 int Router::currentPhase(TrafficLight* tl, double time, double* timeRemaining)
 {
-    time -= tl->offset;                 //Remove the TL's offset
-    int mod = time / tl->cycleDuration; //And subtract any full cycles
-    time -= mod * tl->cycleDuration;
+    /*
+     * Assuming that tl->nextSwitchTime is accurate, we always start from there
+     * and work forwards/backwards to the given time
+     */
+    int curPhase = tl->phaseBeforeSwitch;
+    double curTime = tl->nextSwitchTime;
 
-    double n = 0;
-    int i = 0;
-    while(n <= time)
-        n += (*tl->phases)[i++]->duration;
-    i--;
+    if(time < curTime)
+    {
+        //int mod = (curTime - time)/tl->cycleDuration;
+        //curTime -= tl->cycleDuration * mod;
 
+        while(1)
+        {
+            double phaseDur = tl->phases->at(curPhase)->duration;
+            if(curTime - phaseDur <= time)
+                break;
+            curTime -= phaseDur;
+            curPhase--;
+            if(curPhase < 0)
+                curPhase = tl->phases->size() - 1;
+        }
+    }
+    else
+    {
+        //int mod = (time - curTime)/tl->cycleDuration;
+        //curTime -= tl->cycleDuration * mod;
 
+        while(1)
+        {
+            curPhase++;
+            if(curPhase >= tl->phases->size())
+                curPhase = 0;
+            double phaseDur = tl->phases->at(curPhase)->duration;
+            curTime += phaseDur;
+            if(curTime > time)
+                break;
+        }
+    }
+    //Here, curPhase is correct and curTime points to when  that phase ends
     if(timeRemaining)
-        *timeRemaining = n - time;
+       *timeRemaining = curTime - time;
 
-    return i;
+    return curPhase;
 }
 
 double Router::timeToPhase(TrafficLight* tl, double time, int targetPhase)
@@ -291,10 +296,20 @@ int Router::nextAcceptingPhase(double time, Edge* start, Edge* end)
     return -1;
 }
 
-Hypertree* Router::buildHypertree(int startTime, int endTime, string destination)
+void Router::changeTLPhaseDuration(TrafficLight* tl, int phase, int newDuration)
+{
+    int oldDuration = tl->phases->at(phase)->duration;
+    tl->phases->at(phase)->duration = newDuration;
+    tl->cycleDuration += newDuration - oldDuration;
+    TraCI->commandSetPhaseDurationRemaining(tl->id, newDuration * 1000);
+
+    tl->nextSwitchTime = newDuration + tl->cycleDuration;
+    tl->phaseBeforeSwitch = phase;
+}
+
+Hypertree* Router::buildHypertree(int startTime, string destination)
 {
     Hypertree* ht = new Hypertree();
-
     map<string, bool> visited;
     list<Node*> SE;
 
@@ -302,7 +317,7 @@ Hypertree* Router::buildHypertree(int startTime, int endTime, string destination
     {
         Node* i = *node;                            //i is the destination node
         visited[(*node)->id] = 0;                   //Set each node as not visited
-        for(int t = startTime; t <= endTime; t++)   //For every second in the time interval
+        for(int t = startTime; t <= timePeriodMax; t++)   //For every second in the time interval
         {
             for(vector<Edge*>::iterator inEdge = i->inEdges.begin(); inEdge != i->inEdges.end(); inEdge++)  //For every predecessor to i
             {
@@ -314,7 +329,7 @@ Hypertree* Router::buildHypertree(int startTime, int endTime, string destination
     }
     cout << "Searching nodes for " << destination << endl;
     Node* D = binarySearch(net->nodes, destination);    //Find the destination, call it D
-    for(int t = startTime; t <= endTime; t++)           //For every second in the time interval
+    for(int t = startTime; t <= timePeriodMax; t++)           //For every second in the time interval
     {
         for(vector<Edge*>::iterator inEdge = D->inEdges.begin(); inEdge != D->inEdges.end(); inEdge++)  //For every predecessor to D
         {
@@ -336,12 +351,11 @@ Hypertree* Router::buildHypertree(int startTime, int endTime, string destination
             {
                 Histogram* hist = (*ijEdge)->travelTimes;
                 Node* h = (*hiEdge)->from;  //Set h to be the predecessor node
-                for(int t = startTime; t <= endTime; t++)   //For every time step of interest
+                for(int t = startTime; t <= timePeriodMax; t++)   //For every time step of interest
                 {
-
-                    double TLDelay = timeToPhase(i->tl, t, nextAcceptingPhase(t, *hiEdge, *ijEdge));    //The tldely is the time to the next accepting phase between (h, i) and (i, j)
+                    double TLDelay = junctionCost(t, *hiEdge, *ijEdge);//The tldelay is the time to the next accepting phase between (h, i) and (i, j)
                     double n = 0;
-                    if(hist->count > 0)
+                    if(hist->count > 0) //If we have histogram data
                     {
                         for(map<int, int>::iterator val = hist->data.begin(); val != hist->data.end(); val++)   //For each unique entry in the history of edge travel times
                         {
@@ -351,7 +365,7 @@ Hypertree* Router::buildHypertree(int startTime, int endTime, string destination
                             n += (TLDelay + travelTime + endLabel) * prob;  //Add this weight multiplied by its probability
                         }
                     }
-                    else
+                    else    //Otherwise, use the default getCost() function
                     {
                         n = TLDelay + (*ijEdge)->getCost() + ht->label[key(i, j, t + TLDelay + (*ijEdge)->getCost())];
                     }
@@ -359,14 +373,7 @@ Hypertree* Router::buildHypertree(int startTime, int endTime, string destination
                     if (n < ht->label[key(h, i, t)])            //If the newly calculated label is better
                     {
                         ht->label[key(h, i, t)] = n;            //Record the cost for making this transition at this time
-                        for(vector<Edge*>::iterator it = i->outEdges.begin(); it != i->outEdges.end(); it++)    //Find the edge from i to j
-                        {
-                            if((*it)->to == j)
-                            {
-                                ht->transition[key(h, i, t)] = (*it)->id;   //And record it
-                                break;
-                            }
-                        }
+                        ht->transition[key(h, i, t)] = (*ijEdge)->id;
                     }
 
                     if(visited[i->id] == 0) //If i is not in the SE-set
@@ -380,6 +387,7 @@ Hypertree* Router::buildHypertree(int startTime, int endTime, string destination
     }   //While SE list has elements
 
     //Debug stuff!
+
     /*
     int i = 0;
     for(map<string,double>::iterator l = ht->label.begin(); l != ht->label.end(); l++)
@@ -394,7 +402,12 @@ Hypertree* Router::buildHypertree(int startTime, int endTime, string destination
 
 list<string> Router::getRoute(string begin, string end, string vName)
 {
-    reset();
+    for(vector<Edge*>::iterator it = net->edges.begin(); it != net->edges.end(); it++)  //Reset pathing data
+    {
+        (*it)->curCost = 1000000;
+        (*it)->best = NULL;
+        (*it)->visited = 0;
+    }
 
     priority_queue<Edge*, vector<Edge*>, routerCompare> heap;   //Build a priority queue of edge pointers, based on a vector of edge pointers, sorted via routerCompare funciton
     Edge* origin = binarySearch(net->edges, begin);      //Find the origin from its string
@@ -422,7 +435,7 @@ list<string> Router::getRoute(string begin, string end, string vName)
             {
                 //cout << "distanceAlongLane: " << distanceAlongLane << endl;
                 double newCost = parent->curCost + curLaneCost;       //Time to get to the junction is the time we get to the edge plus the edge cost
-                newCost += TLCost(newCost + simTime().dbl(), parent, *child);
+                newCost += junctionCost(newCost + simTime().dbl(), parent, *child);
                 //newCost += TLCost(newCost + simTime().dbl(), simTime().dbl(), parent, *child);     //Time to get through the junction is TLCost
                 //newCost += parent->to->TLCost(newCost + simTime().dbl(), simTime().dbl(), parent, *child);     //Time to get through the junction is TLCost
                 //cout << "   Cost to " << (*child)->id << " is " << newCost << " vs " << (*child)->curCost << endl;

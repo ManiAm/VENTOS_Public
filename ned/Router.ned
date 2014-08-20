@@ -14,6 +14,6 @@ simple Router
         double straightCost;
         double uTurnCost;
         double TLLookahead;
-        int timePeriod;
+        int timePeriodMax;
 }
 

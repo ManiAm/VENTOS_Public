@@ -127,6 +127,78 @@ void TraCI_Extend::sendLaunchFile()
     }
 }
 
+// ###################
+// CMD_GET_TL_VARIABLE
+// ###################
+
+list<string> TraCI_Extend::commandGetTLIDList()
+{
+    return getCommandInterface()->genericGetStringList(CMD_GET_TL_VARIABLE, "",ID_LIST, RESPONSE_GET_TL_VARIABLE);
+}
+
+uint32_t TraCI_Extend::commandGetCurrentPhaseDuration(string TLid)
+{
+    return getCommandInterface()->genericGetInt(CMD_GET_TL_VARIABLE, TLid, TL_PHASE_DURATION, RESPONSE_GET_TL_VARIABLE);
+}
+
+uint32_t TraCI_Extend::commandGetCurrentPhase(string TLid)
+{
+    return getCommandInterface()->genericGetInt(CMD_GET_TL_VARIABLE, TLid, TL_CURRENT_PHASE, RESPONSE_GET_TL_VARIABLE);
+}
+
+string TraCI_Extend::commandGetCurrentProgram(string TLid)
+{
+    return getCommandInterface()->genericGetString(CMD_GET_TL_VARIABLE, TLid, TL_CURRENT_PROGRAM, RESPONSE_GET_TL_VARIABLE);
+}
+
+uint32_t TraCI_Extend::commandGetNextSwitchTime(string TLid)
+{
+    return getCommandInterface()->genericGetInt(CMD_GET_TL_VARIABLE, TLid, TL_NEXT_SWITCH, RESPONSE_GET_TL_VARIABLE);
+}
+
+// ###################
+// CMD_SET_TL_VARIABLE
+// ###################
+
+void TraCI_Extend::commandSetPhase(string TLid, int value)
+{
+    uint8_t variableId = TL_PHASE_INDEX;
+    uint8_t variableType = TYPE_INTEGER;
+
+    //TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_TL_VARIABLE, TraCIBuffer() << static_cast<uint8_t>(TL_PHASE_INDEX) << TLid << static_cast<uint8_t>(TYPE_INTEGER) << value);
+
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_TL_VARIABLE, TraCIBuffer() << variableId << TLid << variableType << value);
+    ASSERT(buf.eof());
+}
+
+void TraCI_Extend::commandSetPhaseDurationRemaining(string TLid, int value)
+{
+    uint8_t variableId = TL_PHASE_DURATION;
+    uint8_t variableType = TYPE_INTEGER;
+
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_TL_VARIABLE, TraCIBuffer() << variableId << TLid << variableType << value);
+    ASSERT(buf.eof());
+}
+
+//TODO, broken right now
+void TraCI_Extend::commandSetPhaseDuration(string TLid, int value)
+{
+    uint8_t variableId = TL_PHASE_DURATION;
+    uint8_t variableType = TYPE_INTEGER;
+
+    double duration = commandGetCurrentPhaseDuration(TLid);
+    cout << "Simtime: " << simTime().dbl() << endl;
+    cout << "Dur: " << duration << endl;
+    double remaining = commandGetNextSwitchTime(TLid) - simTime().dbl() * 1000;
+    cout << "Remaining: " << remaining << endl;
+    value = (value - duration + remaining);
+    cout << "Value: " << value << endl;
+
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_TL_VARIABLE, TraCIBuffer() << variableId << TLid << variableType << value);
+    ASSERT(buf.eof());
+
+}
+
 
 // #########################
 // CMD_GET_VEHICLE_VARIABLE

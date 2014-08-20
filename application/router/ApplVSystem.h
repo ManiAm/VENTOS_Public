@@ -26,7 +26,8 @@ class ApplVSystem : public ApplVBeacon
         int systemMsgLengthBits;
         int systemMsgPriority;      //like beaconPriority
         bool useDijkstrasRouting;
-        int startTime;//Hack
+        int startTime;
+        double routeUpdateInterval;
 
         // Class variables
         cMessage* sendSystemMsgEvt;
