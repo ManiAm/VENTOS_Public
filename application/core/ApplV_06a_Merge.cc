@@ -174,7 +174,7 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
     else if(vehicleState == state_mergeAccepted)
     {
         cancelEvent(plnTIMER1);
-        TraCI->commandSetTg(SUMOvID, 0.55);
+        TraCI->commandSetTg(SUMOvID, TG1);
         TraCI->commandSetSpeed(SUMOvID, 30.);  // catch-up
 
         // now we should wait until we catch-up completely
@@ -313,8 +313,8 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
         if(plnSize > (maxPlnSize / 2))
         {
             // increase Tg
-            PlatoonMsg* dataMsg = prepareData("multicast", CHANGE_Tg, plnID, 0.6);
-            EV << "### " << SUMOvID << ": sent CHANGE_Tg with value " << 0.6 << endl;
+            PlatoonMsg* dataMsg = prepareData("multicast", CHANGE_Tg, plnID, TG2);
+            EV << "### " << SUMOvID << ": sent CHANGE_Tg with value " << TG2 << endl;
             printDataContent(dataMsg);
             sendDelayed(dataMsg, individualOffset, lowerLayerOut);
             reportCommandToStat(dataMsg);

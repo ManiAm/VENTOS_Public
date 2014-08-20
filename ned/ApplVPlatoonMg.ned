@@ -9,11 +9,18 @@ simple ApplVPlatoonMg extends ApplVPlatoonFormed
         int maxPlatoonSize;
         int optPlatoonSize;
         
+        double TP = default(3.5s) @unit(s);
+        double TG1 = default(0.55s) @unit(s);
+        double TG2 = default(0.6s) @unit(s);
+        
+        double mergeGap;
+        double splitGap;  
+        
+        bool entryEnabled;
         bool mergeEnabled;
         bool splitEnabled;  
         bool followerLeaveEnabled;
-        bool leaderLeaveEnabled; 
+        bool leaderLeaveEnabled;   
         
-        double mergeGap;
-        double splitGap;     
+        int coordinationMode = default(-1);
 }

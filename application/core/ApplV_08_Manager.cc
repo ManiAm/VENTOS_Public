@@ -66,7 +66,10 @@ void ApplVManager::handleLowerMsg(cMessage* msg)
 {
     // vehicles other than CACC should ignore the received msg
     if( !VANETenabled )
+    {
+        delete msg;
         return;
+    }
 
     // make sure msg is of type WaveShortMessage
     WaveShortMessage* wsm = dynamic_cast<WaveShortMessage*>(msg);

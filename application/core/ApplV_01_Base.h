@@ -48,6 +48,7 @@ class ApplVBase : public BaseApplLayer
 	    string SUMOvID;
         string SUMOvType;
         Coord curPosition;  // current position from mobility module (not from sumo)
+        double entryTime;
 };
 }
 

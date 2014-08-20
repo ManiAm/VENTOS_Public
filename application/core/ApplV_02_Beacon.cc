@@ -54,8 +54,6 @@ void ApplVBeacon::initialize(int stage)
             scheduleAt(simTime() + offSet, VehicleBeaconEvt);
         }
 
-        pauseBeaconing = false;
-
         plnID = "";
         myPlnDepth = -1;
         plnSize = -1;
@@ -64,6 +62,7 @@ void ApplVBeacon::initialize(int stage)
         WATCH(plnID);
         WATCH(myPlnDepth);
         WATCH(plnSize);
+        WATCH(VANETenabled);
 	}
 }
 
@@ -89,7 +88,7 @@ void ApplVBeacon::handleSelfMsg(cMessage* msg)
 
     if (msg == VehicleBeaconEvt)
     {
-        if(!pauseBeaconing)
+        if(VANETenabled && sendBeacons)
         {
             BeaconVehicle* beaconMsg = prepareBeacon();
 
@@ -115,11 +114,6 @@ void ApplVBeacon::handleSelfMsg(cMessage* msg)
 
 BeaconVehicle*  ApplVBeacon::prepareBeacon()
 {
-    if (!VANETenabled)
-    {
-        error("Only VANETenabled vehicles can send beacon!");
-    }
-
     BeaconVehicle* wsm = new BeaconVehicle("beaconVehicle");
 
     // add header length

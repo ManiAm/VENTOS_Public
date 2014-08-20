@@ -77,7 +77,7 @@ void ApplVPlatoonMg::leaderLeave_DataFSM(PlatoonMsg *wsm)
             TraCI->commandSetLaneChangeMode(SUMOvID, bitset);  // alter 'lane change' mode
             TraCI->commandChangeLane(SUMOvID, 0, 5);   // change to lane 0 (normal lane)
 
-            TraCI->commandSetSpeed(SUMOvID, 5.);  // slowdown and exit the highway
+            TraCI->commandSetSpeed(SUMOvID, 30.);
 
             // change color to yellow!
             TraCIColor newColor = TraCIColor::fromTkColor("yellow");

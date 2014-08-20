@@ -20,6 +20,11 @@ void ApplVPlatoonMg::initialize(int stage)
 	    maxPlnSize = par("maxPlatoonSize").longValue();
         optPlnSize = par("optPlatoonSize").longValue();
 
+        TP = par("TP").doubleValue();    // 3.5
+        TG1 = par("TG1").doubleValue();  // 0.55
+        TG2 = par("TG2").doubleValue();  // 0.6
+
+        entryEnabled = par("entryEnabled").boolValue();
         mergeEnabled = par("mergeEnabled").boolValue();
         splitEnabled = par("splitEnabled").boolValue();
         followerLeaveEnabled = par("followerLeaveEnabled").boolValue();
@@ -36,11 +41,14 @@ void ApplVPlatoonMg::initialize(int stage)
 
         // used in entry maneuver
         // ----------------------
-        entryManeuverEvt = new cMessage("EntryEvt", KIND_TIMER);
-        //double offset = dblrand() * 10;
-        scheduleAt(simTime() + 4., entryManeuverEvt); // todo: no offset for now!
+        if(entryEnabled)
+        {
+            entryManeuverEvt = new cMessage("EntryEvt", KIND_TIMER);
+            //double offset = dblrand() * 10;
+            scheduleAt(simTime() + 4., entryManeuverEvt); // todo: no offset for now!
 
-        plnTIMER0 = new cMessage("listening to beacons", KIND_TIMER);
+            plnTIMER0 = new cMessage("listening to beacons", KIND_TIMER);
+        }
 
         // used in merge maneuver
         // ----------------------

@@ -41,6 +41,11 @@ class ApplVPlatoonMg : public ApplVPlatoonFormed
         int maxPlnSize;
         int optPlnSize;
 
+        double TP;
+        double TG1;
+        double TG2;
+
+        bool entryEnabled;
         bool mergeEnabled;
         bool splitEnabled;
         bool followerLeaveEnabled;
