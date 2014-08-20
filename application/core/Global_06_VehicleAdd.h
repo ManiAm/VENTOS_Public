@@ -26,7 +26,7 @@ class VehicleAdd : public BaseModule
         bool on;
         int mode;
 	    int totalVehicles;
-	    int lambda;
+	    double lambda;
 
 	    // methods
 	    void Scenario1();
@@ -35,7 +35,9 @@ class VehicleAdd : public BaseModule
         void Scenario4();
         void Scenario5();
         void Scenario6();
+        void Scenario7();
 };
+
 }
 
 #endif

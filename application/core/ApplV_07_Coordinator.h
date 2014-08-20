@@ -29,7 +29,9 @@ class ApplVCoordinator : public ApplVPlatoonMg
         void scenario3();
         void scenario4();
 
+        int coordinationMode;
         cMessage* coordination;
+        static double stopTime;
 };
 
 }

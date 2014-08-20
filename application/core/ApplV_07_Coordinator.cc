@@ -4,6 +4,8 @@
 
 namespace VENTOS {
 
+double ApplVCoordinator::stopTime = 100000;
+
 Define_Module(VENTOS::ApplVCoordinator);
 
 ApplVCoordinator::~ApplVCoordinator()
@@ -16,8 +18,10 @@ void ApplVCoordinator::initialize(int stage)
 {
     ApplVPlatoonMg::initialize(stage);
 
-    if (stage == 0)
+    if (stage == 0 && plnMode == 3)
     {
+        coordinationMode = par("coordinationMode").longValue();
+
         coordination = new cMessage("coordination timer", KIND_TIMER);
         scheduleAt(simTime(), coordination);
     }
@@ -72,74 +76,90 @@ void ApplVCoordinator::handlePositionUpdate(cObject* obj)
 void ApplVCoordinator::coordinator()
 {
     // merge and split (youtube)
-    // scenario1();
-
+    if(coordinationMode == 1)
+    {
+        scenario1();
+    }
     // leave (youtube)
-    //scenario2();
-
+    else if(coordinationMode == 2)
+    {
+        scenario2();
+    }
+    // IEEE CSS
+    else if(coordinationMode == 3)
+    {
+        scenario3();
+    }
     // measure merge, split, leader/follower leave duration for
     // a platoon of size 10
-    scenario3();
-
+    else if(coordinationMode == 4)
+    {
+        scenario4();
+    }
+    else
+        error("not a valid coordination mode!");
 
     scheduleAt(simTime() + 0.1, coordination);
 }
 
 
-// merge and split
 void ApplVCoordinator::scenario1()
 {
-    if(simTime().dbl() >= 37)
+    if(simTime().dbl() == 37)
+    {
+        TraCI->commandSetSpeed("CACC1", 20.);
+        TraCI->commandSetSpeed("CACC6", 20.);
+        TraCI->commandSetSpeed("CACC11", 20.);
+    }
+    else if(simTime().dbl() == 59)
     {
         optPlnSize = 13;
     }
-
-    if(simTime().dbl() >= 77)
+    else if(simTime().dbl() == 94)
     {
         optPlnSize = 4;
     }
-
-    if(simTime().dbl() >= 94)
+    else if(simTime().dbl() == 131)
     {
         optPlnSize = 10;
     }
-
-    if(simTime().dbl() >= 131)
+    else if(simTime().dbl() == 188)
     {
         optPlnSize = 3;
     }
-    if(simTime().dbl() >= 188)
+    else if(simTime().dbl() == 200)
     {
         optPlnSize = 2;
     }
 }
 
 
-// leave
 void ApplVCoordinator::scenario2()
 {
-    // leader leaves
     if(simTime().dbl() == 26)
+    {
+        TraCI->commandSetSpeed("CACC1", 20.);
+    }
+    // leader leaves
+    else if(simTime().dbl() == 49)
     {
         if(SUMOvID == "CACC1")
         {
             ApplVPlatoonMg::leavePlatoon();
         }
     }
-
     // last follower leaves
-    if(simTime().dbl() == 67)
+    else if(simTime().dbl() == 68)
     {
-        if(SUMOvID == "CACC5")
+        if(SUMOvID == "CACC6")
         {
             ApplVPlatoonMg::leavePlatoon();
         }
     }
-
     // middle follower leaves
-    if(simTime().dbl() == 120)
+    else if(simTime().dbl() == 80)
     {
-        if(SUMOvID == "CACC2")
+        if(SUMOvID == "CACC3")
         {
             ApplVPlatoonMg::leavePlatoon();
         }
@@ -149,6 +169,66 @@ void ApplVCoordinator::scenario2()
 
 void ApplVCoordinator::scenario3()
 {
+    if(TraCI->commandGetNoVehicles() == 10)
+        stopTime = simTime().dbl();
+
+    // all vehicles entering after the stopTime
+    // are background traffic
+    if(entryTime > stopTime)
+    {
+        entryEnabled = false;
+        VANETenabled = false;
+    }
+
+    if(simTime().dbl() == 40)
+    {
+        TraCI->commandSetSpeed("CACC1", 20.);
+        TraCI->commandSetSpeed("CACC6", 20.);
+    }
+    else if(simTime().dbl() == 55)
+    {
+        optPlnSize = 10;
+    }
+    else if(simTime().dbl() == 77)
+    {
+        optPlnSize = 4;
+    }
+    else if(simTime().dbl() == 100)
+    {
+        optPlnSize = 10;
+    }
+    // leader leaves
+    else if(simTime().dbl() == 140)
+    {
+        if(SUMOvID == "CACC1")
+        {
+            ApplVPlatoonMg::leavePlatoon();
+        }
+    }
+//    // last follower leaves
+//    else if(simTime().dbl() == 160)
+//    {
+//        if(SUMOvID == "CACC5")
+//        {
+//            ApplVPlatoonMg::leavePlatoon();
+//        }
+//    }
+//    // middle follower leaves
+//    else if(simTime().dbl() == 190)
+//    {
+//        if(SUMOvID == "CACC2")
+//        {
+//            ApplVPlatoonMg::leavePlatoon();
+//        }
+//    }
+}
+
+
+void ApplVCoordinator::scenario4()
+{
+    if(ev.isGUI())
+        error("Run coordination mode 3 as command-line, not GUI!");
+
     // get the current run number
     int currentRun = ev.getConfigEx()->getActiveRunNumber();
 

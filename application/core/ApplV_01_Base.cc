@@ -46,6 +46,9 @@ void ApplVBase::initialize(int stage)
         // vehicle type in sumo
         SUMOvType = TraCI->commandGetVehicleType(SUMOvID);
 
+        // store the time of entry
+        entryTime = simTime().dbl();
+
         if(SUMOvType != "TypeObstacle")
             findHost()->subscribe(mobilityStateChangedSignal, this);
 	}

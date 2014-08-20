@@ -79,6 +79,10 @@ void VehicleAdd::Add()
     {
         Scenario6();
     }
+    else if(mode == 7)
+    {
+        Scenario7();
+    }
     else
     {
         error("not a valid mode!");
@@ -218,22 +222,22 @@ void VehicleAdd::Scenario4()
 
 void VehicleAdd::Scenario5()
 {
-    // get simulation time step from TraCI module
-    cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
-    ASSERT(module);
-    double timeStep = module->par("updateInterval").doubleValue();
+    // change from 'veh/h' to 'veh/s'
+    lambda = lambda / 3600;
 
-    // change from "veh/h" to "veh/timeStep"
-    lambda = lambda / (3600. * timeStep);
+    // 1 vehicle per 'interval' milliseconds
+    double interval = (1 / lambda) * 1000;
 
-     for(int i=1; i<=totalVehicles; i++)
-     {
-         char vehicleName[10];
-         sprintf(vehicleName, "CACC%d", i);
-         int depart = poisson(lambda);
+    int depart = 0;
 
-         TraCI->commandAddVehicleN(vehicleName, "TypeCACC", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
-     }
+    for(int i=1; i<=totalVehicles; i++)
+    {
+        char vehicleName[10];
+        sprintf(vehicleName, "CACC%d", i);
+        depart = depart + interval;
+
+        TraCI->commandAddVehicleN(vehicleName, "TypeCACC", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
+    }
 }
 
 
@@ -248,6 +252,30 @@ void VehicleAdd::Scenario6()
          depart = depart + 10000;
 
          TraCI->commandAddVehicleN(vehicleName, "TypeBiDi", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
+     }
+}
+
+
+void VehicleAdd::Scenario7()
+{
+    int depart = 0;
+
+     for(int i=1; i<=10; i++)
+     {
+         char vehicleName[10];
+         sprintf(vehicleName, "CACC%d", i);
+         depart = depart + 1000;
+
+         TraCI->commandAddVehicleN(vehicleName, "TypeCACC", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
+     }
+
+     for(int i=11; i<=100; i++)
+     {
+         char vehicleName[10];
+         sprintf(vehicleName, "CACC%d", i);
+         depart = depart + 10000;
+
+         TraCI->commandAddVehicleN(vehicleName, "TypeCACC", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
      }
 }
 

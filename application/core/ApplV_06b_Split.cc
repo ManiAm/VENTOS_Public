@@ -211,8 +211,8 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
         if(plnSize < (maxPlnSize / 2))
         {
             // decrease Tg
-            PlatoonMsg* dataMsg = prepareData("multicast", CHANGE_Tg, plnID, 0.55);
-            EV << "### " << SUMOvID << ": sent CHANGE_Tg with value " << 0.55 << endl;
+            PlatoonMsg* dataMsg = prepareData("multicast", CHANGE_Tg, plnID, TG1);
+            EV << "### " << SUMOvID << ": sent CHANGE_Tg with value " << TG1 << endl;
             printDataContent(dataMsg);
             sendDelayed(dataMsg, individualOffset, lowerLayerOut);
             reportCommandToStat(dataMsg);
@@ -358,7 +358,7 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
 
             updateColorDepth();
 
-            TraCI->commandSetTg(SUMOvID, 3.5);
+            TraCI->commandSetTg(SUMOvID, TP);
             TraCI->commandSetSpeed(SUMOvID, 20.); // set to normal speed
 
             vehicleState = state_waitForGap;
