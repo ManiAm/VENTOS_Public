@@ -46,6 +46,18 @@ class TraCI_Extend : public TraCIScenarioManager
         virtual void init_traci();
 		virtual void finish();
 
+		// CMD_GET_TL_VARIABLE
+		list<string> commandGetTLIDList();
+		uint32_t commandGetCurrentPhaseDuration(string TLid);
+		uint32_t commandGetCurrentPhase(string TLid);
+		uint32_t commandGetNextSwitchTime(string TLid);
+		string commandGetCurrentProgram(string TLid);
+
+		// CMD_SET_TL_VARIABLE
+		void commandSetPhase(string TLid, int value);
+		void commandSetPhaseDurationRemaining(string TLid, int value);
+		void commandSetPhaseDuration(string TLid, int value);
+
         // CMD_GET_VEHICLE_VARIABLE
         uint32_t commandGetNoVehicles();
         list<string> commandGetVehicleList();

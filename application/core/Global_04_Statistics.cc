@@ -63,6 +63,12 @@ void Statistics::initialize(int stage)
 void Statistics::finish()
 {
 
+    if(collectLaneCostsData)
+        HistogramsToFile();
+
+    if(collectVehicleTimeData)
+        processTravelTimeData();
+
 }
 
 
@@ -116,12 +122,6 @@ void Statistics::executeOneTimestep(bool simulationDone)
 
         if(printBeaconsStatistics)
             printToFile();
-
-        if(collectLaneCostsData)
-            HistogramsToFile();
-
-        if(collectVehicleTimeData)
-            processTravelTimeData();
     }
 }
 

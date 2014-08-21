@@ -25,6 +25,9 @@ TrafficLight::TrafficLight(string idVal, string typeVal, string programIDval, do
     cycleDuration = 0;
     for(vector<Phase*>::iterator it = phasesVec->begin(); it != phasesVec->end(); it++)
         cycleDuration += (*it)->duration;
+
+    nextSwitchTime = phases->at(0)->duration + cycleDuration;
+    phaseBeforeSwitch = 0;
 }
 
 ostream& operator<<(ostream& os, TrafficLight &rhs) // Print a node

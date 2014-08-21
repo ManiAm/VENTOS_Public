@@ -6,12 +6,15 @@ Histogram::Histogram()
 {
     average = 0;
     count = 0;
+    minimum = 100000;
 }
 
 void Histogram::insert(int d)
 {
     average = ((average * data.size()) + d)/ (data.size() + 1);
     count++;
+    if(d < minimum)
+        minimum = d;
 
     if(data.find(d) == data.end())
         data[d] = 1;

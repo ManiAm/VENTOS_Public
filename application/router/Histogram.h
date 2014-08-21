@@ -15,6 +15,8 @@ public:
     map<int, int> data;
     int count;
     double average;
+    int minimum;
+
     void insert(int d);
     double percentAt(int d);
     friend ostream& operator<<(ostream& os, Histogram& h);

@@ -18,6 +18,7 @@ void ApplVSystem::initialize(int stage)
     {
         // NED variables (beaconing parameters)
         requestRoutes = par("requestRoutes").boolValue();
+        routeUpdateInterval = par("routeUpdateInterval").doubleValue();
         if(!requestRoutes)
             return;
 
@@ -145,7 +146,7 @@ void ApplVSystem::handleSelfMsg(cMessage* msg)  //Internal messages to self
         else
         {
             nodePtr->emit(Signal_system, new systemData(TraCI->getCommandInterface()->getEdgeId(SUMOvID), targetNode, SUMOvID, 1, string("system")));
-            scheduleAt(simTime() + 1, sendSystemMsgEvt);// schedule for next beacon broadcast
+            scheduleAt(simTime() + routeUpdateInterval, sendSystemMsgEvt);// schedule for next beacon broadcast
         }
 
     }
