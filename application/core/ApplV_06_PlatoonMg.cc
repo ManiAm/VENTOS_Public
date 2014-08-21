@@ -20,6 +20,7 @@ void ApplVPlatoonMg::initialize(int stage)
 	    maxPlnSize = par("maxPlatoonSize").longValue();
         optPlnSize = par("optPlatoonSize").longValue();
 
+        adaptiveTG = par("adaptiveTG").boolValue();
         TP = par("TP").doubleValue();    // 3.5
         TG1 = par("TG1").doubleValue();  // 0.55
         TG2 = par("TG2").doubleValue();  // 0.6
@@ -38,6 +39,9 @@ void ApplVPlatoonMg::initialize(int stage)
 
         WATCH(vehicleState);
         WATCH(busy);
+
+        // Create a circular buffer with a capacity for 3 integers
+        MyCircularBuffer.set_capacity(3);
 
         // used in entry maneuver
         // ----------------------

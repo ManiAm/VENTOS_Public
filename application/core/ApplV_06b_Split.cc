@@ -62,7 +62,7 @@ void ApplVPlatoonMg::split_handleSelfMsg(cMessage* msg)
     }
     else if(msg == plnTIMER8a)
     {
-        if( GapDone() )
+        if( GapCreated() )
         {
             vehicleState = state_platoonLeader;
             reportStateToStat();
@@ -208,7 +208,7 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
 
         updateColorDepth();
 
-        if(plnSize < (maxPlnSize / 2))
+        if( adaptiveTG && plnSize < (maxPlnSize / 2) )
         {
             // decrease Tg
             PlatoonMsg* dataMsg = prepareData("multicast", CHANGE_Tg, plnID, TG1);
@@ -393,7 +393,7 @@ void ApplVPlatoonMg::RemoveFollowerFromList_Split(string followerID)
 }
 
 
-bool ApplVPlatoonMg::GapDone()
+bool ApplVPlatoonMg::GapCreated()
 {
     // we use our sonar to check the gap
     vector<string> vleaderIDnew = TraCI->commandGetLeading(SUMOvID, sonarDist);
@@ -404,5 +404,17 @@ bool ApplVPlatoonMg::GapDone()
         return true;
 
     return false;
+
+    // todo
+    // store the current gap
+//    MyCircularBuffer.push_back(gap);
+//
+//    for (boost::circular_buffer<int>::iterator it = MyCircularBuffer.begin(); it != MyCircularBuffer.end(); it++)
+//    {
+//        cout << SUMOvID << ": " << *it << ' ';
+//    }
+//
+//    cout << endl;
 }
+
 }

@@ -310,7 +310,7 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
         plnSize = plnSize + secondPlnMembersList.size();
         plnMembersList.insert(plnMembersList.end(), secondPlnMembersList.begin(), secondPlnMembersList.end());
 
-        if(plnSize > (maxPlnSize / 2))
+        if( adaptiveTG && plnSize > (maxPlnSize / 2) )
         {
             // increase Tg
             PlatoonMsg* dataMsg = prepareData("multicast", CHANGE_Tg, plnID, TG2);
@@ -361,17 +361,12 @@ bool ApplVPlatoonMg::CatchUpDone()
     string vleaderID = vleaderIDnew[0];
     double gap = atof( vleaderIDnew[1].c_str() );
 
-//    double timeGap = 0.55; // TraCI->commandGetVehicleMinGap(SUMOvID);
-//    double speed = TraCI->commandGetVehicleSpeed(SUMOvID);
-//    double minGap = TraCI->commandGetVehicleMinGap(SUMOvID);
-//
-//    double catchupGap = (timeGap * speed) + minGap;
-
     if(vleaderID == "" || gap < mergeGap)
         return true;
 
     return false;
 }
+
 }
 
 

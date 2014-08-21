@@ -3,6 +3,7 @@
 #define APPLVPLATOONMG_H
 
 #include "ApplV_05_PlatoonFormed.h"
+#include <boost/circular_buffer.hpp>
 
 namespace VENTOS {
 
@@ -41,6 +42,7 @@ class ApplVPlatoonMg : public ApplVPlatoonFormed
         int maxPlnSize;
         int optPlnSize;
 
+        bool adaptiveTG;
         double TP;
         double TG1;
         double TG2;
@@ -131,6 +133,7 @@ class ApplVPlatoonMg : public ApplVPlatoonFormed
 
 	private:
         bool busy;
+        boost::circular_buffer<int> MyCircularBuffer;
 
         // entry
         double leastDistFront;
@@ -206,7 +209,7 @@ class ApplVPlatoonMg : public ApplVPlatoonFormed
         void split_DataFSM(PlatoonMsg *wsm = NULL);
         void splitMonitor();
         void RemoveFollowerFromList_Split(string);
-        bool GapDone();
+        bool GapCreated();
 
         // common operations in maneuvers
         void common_handleSelfMsg(cMessage* msg);
