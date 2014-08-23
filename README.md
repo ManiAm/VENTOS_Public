@@ -59,6 +59,8 @@ Install OMNET++
 
         export TCL_LIBRARY=/usr/share/tcltk/tcl8.5
 
+In Ubuntu 14.04 use tcl8.6 instead.
+
 **Step 4:** In the OMNeT++ directory, type the following command. The configure script detects installed software and configuration of your system. It writes the results into the `Makefile.inc` file, which will be read by the makefiles during the build process. Pay close attention to errors and warnings! (ignore warnings regarding Akaroa!).
 
         ./configure
@@ -140,9 +142,9 @@ It will ask your username/password, and then receives a copy of the project.
 
 **Step 5:** Make sure you have these packages installed:
 
-`libboost-filesystem1.48-dev`
+`libboost-filesystem1.48-dev` (Ubuntu 12.04) or `libboost-filesystem1.54-dev` (Ubuntu 14.04)
 
-`libboost-system1.48-dev`
+`libboost-system1.48-dev` (Ubuntu 12.04) or `libboost-system1.54-dev` (Ubuntu 14.04)
 
 `libssl-dev`
 

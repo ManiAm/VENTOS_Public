@@ -24,3 +24,11 @@ timeStep    from platoon        to platoon          comment
 23.21      CACC8                CACC6                Merge_Request       
 23.21      CACC8                -                    Merge_Start         
 24.21      CACC8                -                    Merge_End           
+
+25.83      CACC9                CACC6                Merge_Request       
+25.83      CACC9                -                    Merge_Start         
+26.83      CACC9                -                    Merge_End           
+
+28.32      CACC10               CACC6                Merge_Request       
+28.32      CACC10               -                    Merge_Start         
+29.32      CACC10               -                    Merge_End           

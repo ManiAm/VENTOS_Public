@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for VENTOS
 #
 # This file was generated with the command:
-#  opp_makemake -f -O out -d application -X. -I/home/dylan/vgrid/VENTOS/eigen-3.2.1 -I/home/dylan/vgrid/VENTOS/rapidxml-1.13 -L../veins/out/$$\(CONFIGNAME\)/src -L./out/$$\(CONFIGNAME\)/application -L./out/$$\(CONFIGNAME\)/application/msg -L./out/$$\(CONFIGNAME\)/application/core -L./out/$$\(CONFIGNAME\)/application/router -lveins -KVEINS_PROJ=../veins
+#  opp_makemake -f -O out -d application -X. -I/home/mani/Desktop/VENTOS/eigen-3.2.1 -I/home/mani/Desktop/VENTOS/rapidxml-1.13 -L../veins/out/$$\(CONFIGNAME\)/src -L./out/$$\(CONFIGNAME\)/application -L./out/$$\(CONFIGNAME\)/application/msg -L./out/$$\(CONFIGNAME\)/application/core -L./out/$$\(CONFIGNAME\)/application/router -lveins -KVEINS_PROJ=../veins
 #
 
 # Name of target to be created (-o option)

@@ -140,3 +140,51 @@ timeStep    sender         receiver         type                     sendingPlnI
 
 24.22      CACC6           -                 state_mergeDone                -                  -                   
 24.22      CACC6           -                 state_platoonLeader            -                  -                   
+
+25.70      CACC9           -                 state_waitForLaneChange        -                  -                   
+
+25.80      CACC9           -                 state_platoonLeader            -                  -                   
+
+25.83      CACC9           -                 state_sendMergeReq             -                  -                   
+25.83      CACC9           CACC6             MERGE_REQ                      CACC9              CACC6               
+25.83      CACC9           -                 state_waitForMergeReply        -                  -                   
+
+25.83      CACC6           -                 state_sendMergeAccept          -                  -                   
+25.83      CACC6           CACC9             MERGE_ACCEPT                   CACC6              CACC9               
+25.83      CACC6           -                 state_waitForMergeDone         -                  -                   
+
+25.83      CACC9           -                 state_mergeAccepted            -                  -                   
+25.83      CACC9           -                 state_waitForCatchup           -                  -                   
+
+26.83      CACC9           -                 state_sendMergeDone            -                  -                   
+26.83      CACC9           CACC6             MERGE_DONE                     CACC6              CACC6               
+26.83      CACC9           -                 state_platoonFollower          -                  -                   
+
+26.83      CACC6           -                 state_mergeDone                -                  -                   
+26.83      CACC6           -                 state_platoonLeader            -                  -                   
+
+28.20      CACC10          -                 state_waitForLaneChange        -                  -                   
+
+28.30      CACC10          -                 state_platoonLeader            -                  -                   
+
+28.32      CACC10          -                 state_sendMergeReq             -                  -                   
+28.32      CACC10          CACC6             MERGE_REQ                      CACC10             CACC6               
+28.32      CACC10          -                 state_waitForMergeReply        -                  -                   
+
+28.32      CACC6           -                 state_sendMergeAccept          -                  -                   
+28.32      CACC6           CACC10            MERGE_ACCEPT                   CACC6              CACC10              
+28.32      CACC6           -                 state_waitForMergeDone         -                  -                   
+
+28.32      CACC10          -                 state_mergeAccepted            -                  -                   
+28.32      CACC10          -                 state_waitForCatchup           -                  -                   
+
+29.32      CACC10          -                 state_sendMergeDone            -                  -                   
+29.32      CACC10          CACC6             MERGE_DONE                     CACC6              CACC6               
+29.32      CACC10          -                 state_platoonFollower          -                  -                   
+
+29.33      CACC6           -                 state_mergeDone                -                  -                   
+29.33      CACC6           -                 state_platoonLeader            -                  -                   
+
+30.70      CACC11          -                 state_waitForLaneChange        -                  -                   
+
+30.80      CACC11          -                 state_platoonLeader            -                  -                   
