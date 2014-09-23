@@ -1,4 +1,3 @@
-
 package c3po.ned;
 
 import org.car2x.veins.base.connectionManager.ConnectionManager;
@@ -63,6 +62,10 @@ network Network
         router: Router {
             parameters:
                 @display("p=235,459;i=block/dispatch");
+        }
+        TrafficLight: TrafficLight {
+            parameters:
+                @display("p=320,459;i=block/dispatch");
         }
         RSUAdd: RSUAdd {
             parameters:

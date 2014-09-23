@@ -5,6 +5,10 @@
 #include <iostream>
 #include <iomanip>
 
+#include "BaseApplLayer.h"
+#include "Net.h"
+#include "Global_01_TraCI_Extend.h"
+
 using namespace std;
 
 namespace VENTOS {
@@ -18,7 +22,9 @@ public:
 };
 ostream& operator<<(ostream& os, Phase &rhs);
 
-class TrafficLight
+class Net;
+
+class TrafficLight : public cSimpleModule
 {
 public:
     double nextSwitchTime;
@@ -28,9 +34,28 @@ public:
     string type;
     string programID;
     double offset;
-    vector<Phase*>* phases;
-    double cycleDuration;
-    TrafficLight(string idVal, string typeVal, string programIDval, double offsetVal, vector<Phase*>* phasesVec);
+    vector<Phase*> phases;
+    Node* node;
+    Net* net;
+    double cycleDuration;   // this and below should be const
+    double nonTransitionalCycleDuration;
+    void build(string id, string type, string programID, double offset, vector<Phase*>& phases, Net* net);
+    inline int toPhase(int i);
+
+    void HighDensityRecalculate();
+    bool LowDensityRecalculate();
+
+    //Message-passing
+    bool UseTLLogic;
+    bool UseHighDensityLogic;
+    double HighDensityRecalculateFrequency;
+    double LowDensityExtendTime;
+    cMessage* TLEvent;
+    TraCI_Extend *TraCI;
+    virtual void handleMessage(cMessage* msg);  //Internal messages to self;
+    void initialize(int stage);
+    void finish();
+    TrafficLight();
 };
 
 ostream& operator<<(ostream& os, TrafficLight &rhs);

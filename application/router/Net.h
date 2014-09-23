@@ -6,6 +6,7 @@
 #include <iostream>
 #include <sstream>
 #include <algorithm> // For sort
+#include <map>
 
 #include "Router.h"
 #include "Global_04_Statistics.h"
@@ -21,13 +22,17 @@ namespace VENTOS {
 class Net
 {
 public:
-    vector<TrafficLight*> TLs;  //TLs in our graph
-    vector<Edge*> edges;        //Edges in our graph
-    vector<Node*> nodes;        //Nodes in our graph
+
+    map<string, TrafficLight*> TLs;
+    map<string, Edge*> edges;
+    map<string, Node*> nodes;
+
     map<string, vector<int>* >* transitions;  //Given a pair of edge IDs concatenated, returns a vector of TL phases that allow movement between them
     map<string, char>* turnTypes;           //Given a pair of edge IDs concatenated, returns the turn type between those two
 
-    Net(string fileName);
+    cModule* routerMod;
+
+    Net(string fileName, cModule* router);
     ~Net();
 };
 

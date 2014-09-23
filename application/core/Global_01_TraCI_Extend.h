@@ -73,6 +73,7 @@ class TraCI_Extend : public TraCIScenarioManager
         vector<string> commandGetLeading(string, double);
         string commandGetLeading_old(string);
         uint8_t* commandGetVehicleColor(string);
+        double commandGetLanePosition(std::string nodeId);
 
         // CMD_GET_VEHICLETYPE_VARIABLE
         double commandGetVehicleLength_Type(string);

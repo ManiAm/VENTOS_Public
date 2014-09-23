@@ -16,6 +16,7 @@ void Statistics::initialize(int stage)
 {
     if(stage == 0)
 	{
+
         // get a pointer to the TraCI module
         cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
         TraCI = static_cast<TraCI_Extend *>(module);

@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for librouter
 #
 # This file was generated with the command:
-#  opp_makemake -f --make-so -o router -O out -I/home/mani/Desktop/VENTOS/eigen-3.2.1 -I/home/mani/Desktop/VENTOS/rapidxml-1.13 -I../../../veins/src/modules/messages -I../../../veins/src -I../../../veins/src/base/modules -I../../../veins/src/modules/utility -I../core -I../../../veins/src/base/messages -I../../../veins/src/base/utils -I../../../veins/src/base/phyLayer -I.. -I../../../veins/src/modules/phy -I../../../veins/src/modules/mac/ieee80211p -I../../../veins/src/inet -I../../../veins/src/base/connectionManager -I../../../veins/src/modules/analogueModel -L../../../veins/out/$$\(CONFIGNAME\)/src -L../../out/$$\(CONFIGNAME\)/application -L../../out/$$\(CONFIGNAME\)/application/msg -L../../out/$$\(CONFIGNAME\)/application/core -lboost_filesystem -lboost_system -lmsg -lveins -KVEINS_PROJ=../../../veins
+#  opp_makemake -f --make-so -o router -O out -I/home/dylan/vgrid/VENTOS/eigen-3.2.1 -I/home/dylan/vgrid/VENTOS/rapidxml-1.13 -I../../../veins/src/modules/messages -I../../../veins/src -I../../../veins/src/base/modules -I../../../veins/src/modules/utility -I../core -I../../../veins/src/base/messages -I../../../veins/src/base/utils -I../../../veins/src/base/phyLayer -I.. -I../../../veins/src/modules/phy -I../../../veins/src/modules/mac/ieee80211p -I../../../veins/src/inet -I../../../veins/src/base/connectionManager -I../../../veins/src/modules/analogueModel -L../../../veins/out/$$\(CONFIGNAME\)/src -L../../out/$$\(CONFIGNAME\)/application -L../../out/$$\(CONFIGNAME\)/application/msg -L../../out/$$\(CONFIGNAME\)/application/core -lboost_filesystem -lboost_system -lmsg -lveins -KVEINS_PROJ=../../../veins
 #
 
 # Name of target to be created (-o option)
@@ -42,14 +42,14 @@ O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Object files for local .cc and .msg files
 OBJS = \
-    $O/ApplVSystem.o \
-    $O/TrafficLight.o \
     $O/Node.o \
+    $O/Router.o \
     $O/Histogram.o \
     $O/Net.o \
+    $O/TrafficLight.o \
+    $O/ApplVSystem.o \
     $O/Hypertree.o \
-    $O/Edge.o \
-    $O/Router.o
+    $O/Edge.o
 
 # Message files
 MSGFILES =
@@ -311,5 +311,62 @@ $O/Router.o: Router.cc \
 	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
 	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
 $O/TrafficLight.o: TrafficLight.cc \
-	TrafficLight.h
+	../core/Appl.h \
+	../core/ApplRSU_01_Base.h \
+	../core/ApplRSU_02_AID.h \
+	../core/ApplRSU_03_Manager.h \
+	../core/ApplV_01_Base.h \
+	../core/ApplV_02_Beacon.h \
+	../core/ApplV_04_AID.h \
+	../core/ApplV_05_PlatoonFormed.h \
+	../core/ApplV_06_PlatoonMg.h \
+	../core/ApplV_07_Coordinator.h \
+	../core/ApplV_08_Manager.h \
+	../core/Global_01_TraCI_Extend.h \
+	../core/Global_04_Statistics.h \
+	../core/Global_07_RSUAdd.h \
+	../msg/Messages_m.h \
+	ApplVSystem.h \
+	Edge.h \
+	Histogram.h \
+	Hypertree.h \
+	Net.h \
+	Node.h \
+	PathingData.h \
+	Router.h \
+	TrafficLight.h \
+	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
+	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
+	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
+	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
+	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
+	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
+	$(VEINS_PROJ)/src/base/modules/BaseMobility.h \
+	$(VEINS_PROJ)/src/base/modules/BaseModule.h \
+	$(VEINS_PROJ)/src/base/modules/BaseWorldUtility.h \
+	$(VEINS_PROJ)/src/base/modules/BatteryAccess.h \
+	$(VEINS_PROJ)/src/base/utils/FindModule.h \
+	$(VEINS_PROJ)/src/base/utils/HostState.h \
+	$(VEINS_PROJ)/src/base/utils/MiXiMDefs.h \
+	$(VEINS_PROJ)/src/base/utils/Move.h \
+	$(VEINS_PROJ)/src/base/utils/NetwToMacControlInfo.h \
+	$(VEINS_PROJ)/src/base/utils/PassedMessage.h \
+	$(VEINS_PROJ)/src/base/utils/SimpleAddress.h \
+	$(VEINS_PROJ)/src/base/utils/miximkerneldefs.h \
+	$(VEINS_PROJ)/src/inet/Coord.h \
+	$(VEINS_PROJ)/src/inet/FWMath.h \
+	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
+	$(VEINS_PROJ)/src/modules/messages/WaveShortMessage_m.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIBuffer.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICommandInterface.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIConnection.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICoord.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
+	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
+	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
+	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
+	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
 

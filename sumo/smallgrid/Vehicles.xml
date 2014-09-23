@@ -1,0 +1,12 @@
+<vehicles>
+   <vehicle id="v1" type="TypeManual" origin="0/1to0/2" destination="1/2to1/1" depart="0" />
+   <vehicle id="v2" type="TypeManual" origin="2/0to1/0" destination="2/0to2/1" depart="0" />
+   <vehicle id="v3" type="TypeManual" origin="1/1to2/1" destination="1/0to2/0" depart="0" />
+   <vehicle id="v4" type="TypeManual" origin="0/1to0/2" destination="2/1to1/1" depart="0" />
+   <vehicle id="v5" type="TypeManual" origin="1/1to1/2" destination="1/1to1/0" depart="0" />
+   <vehicle id="v6" type="TypeManual" origin="2/1to1/1" destination="2/0to1/0" depart="0" />
+   <vehicle id="v7" type="TypeManual" origin="0/0to0/1" destination="1/1to0/1" depart="0" />
+   <vehicle id="v8" type="TypeManual" origin="1/0to0/0" destination="0/0to0/1" depart="0" />
+   <vehicle id="v9" type="TypeManual" origin="1/1to0/1" destination="0/2to0/1" depart="0" />
+   <vehicle id="v10" type="TypeManual" origin="1/0to2/0" destination="2/2to2/1" depart="0" />
+</vehicles>

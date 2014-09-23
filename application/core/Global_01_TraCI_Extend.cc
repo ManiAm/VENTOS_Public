@@ -351,6 +351,11 @@ uint8_t* TraCI_Extend::commandGetVehicleColor(string nodeId)
     return genericGetArrayUnsignedInt(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_COLOR, RESPONSE_GET_VEHICLE_VARIABLE);
 }
 
+double TraCI_Extend::commandGetLanePosition(std::string nodeId)
+{
+    return getCommandInterface()->genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_LANEPOSITION, RESPONSE_GET_VEHICLE_VARIABLE);
+}
+
 
 // ############################
 // CMD_GET_VEHICLETYPE_VARIABLE
