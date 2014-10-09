@@ -199,52 +199,20 @@ vector<int>* Router::TLTransitionPhases(Edge* start, Edge* end)
     return ret;
 }
 
-int Router::currentPhase(TrafficLight* tl, double time, double* timeRemaining)
+int Router::currentPhaseAtTime(TrafficLight* tl, double time, double* timeRemaining)
 {
-    /*
-     * Assuming that tl->nextSwitchTime is accurate, we always start from there
-     * and work forwards/backwards to the given time
-     */
-    int curPhase = tl->phaseBeforeSwitch;
-    double curTime = tl->nextSwitchTime;
-
-    if(time < curTime)
+    int phase = tl->currentPhase;
+    int curTime = tl->lastSwitchTime + tl->phases[phase]->duration;
+    while(time > curTime)
     {
-        //int mod = (curTime - time)/tl->cycleDuration;
-        //curTime -= tl->cycleDuration * mod;
-
-        while(1)
-        {
-            double phaseDur = tl->phases[curPhase]->duration;
-            if(curTime - phaseDur <= time)
-                break;
-            curTime -= phaseDur;
-            curPhase--;
-            if(curPhase < 0)
-                curPhase = tl->phases.size() - 1;
-        }
+        phase++;
+        if(phase >= tl->phases.size())
+            phase = 0;
+        curTime += tl->phases[phase]->duration;
     }
-    else
-    {
-        //int mod = (time - curTime)/tl->cycleDuration;
-        //curTime -= tl->cycleDuration * mod;
-
-        while(1)
-        {
-            curPhase++;
-            if(curPhase >= tl->phases.size())
-                curPhase = 0;
-            double phaseDur = tl->phases[curPhase]->duration;
-            curTime += phaseDur;
-            if(curTime > time)
-                break;
-        }
-    }
-    //Here, curPhase is correct and curTime points to when  that phase ends
     if(timeRemaining)
-       *timeRemaining = curTime - time;
-
-    return curPhase;
+        *timeRemaining = TraCI->commandGetNextSwitchTime(tl->id) - simTime().dbl();
+    return phase;
 }
 
 double Router::timeToPhase(TrafficLight* tl, double time, int targetPhase)
@@ -252,7 +220,7 @@ double Router::timeToPhase(TrafficLight* tl, double time, int targetPhase)
     const vector<Phase*> phases = (tl->phases);   //The traffic light's phases
 
     double timeRemaining = 0;
-    int curPhase = currentPhase(tl, time, &timeRemaining);
+    int curPhase = currentPhaseAtTime(tl, time, &timeRemaining);
     if(curPhase == targetPhase)
         return 0;
     else
@@ -277,7 +245,7 @@ int Router::nextAcceptingPhase(double time, Edge* start, Edge* end)
     TrafficLight* tl = start->to->tl;               //The traffic-light in question
     const vector<Phase*> phases = tl->phases;   //And its set of phases
 
-    int curPhase = currentPhase(tl, time);
+    int curPhase = currentPhaseAtTime(tl, time);
     int phase = curPhase;
     vector<int>* acceptingPhases = TLTransitionPhases(start, end);  //Grab the vector of accepting phases for the given turn
 
@@ -293,17 +261,6 @@ int Router::nextAcceptingPhase(double time, Edge* start, Edge* end)
         }
     }while(phase != curPhase);  //Break when we're back to the first phase (should never reach here)
     return -1;
-}
-
-void  Router::changeTLPhaseDuration(TrafficLight* tl, int phase, int newDuration)
-{
-    int oldDuration = tl->phases[phase]->duration;
-    tl->phases[phase]->duration = newDuration;
-    tl->cycleDuration += newDuration - oldDuration;
-    TraCI->commandSetPhaseDurationRemaining(tl->id, newDuration * 1000);
-
-    tl->nextSwitchTime = newDuration + tl->cycleDuration;
-    tl->phaseBeforeSwitch = phase;
 }
 
 Hypertree* Router::buildHypertree(int startTime, Node* destination)

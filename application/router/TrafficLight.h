@@ -27,9 +27,6 @@ class Net;
 class TrafficLight : public cSimpleModule
 {
 public:
-    double nextSwitchTime;
-    int phaseBeforeSwitch;
-
     string id;
     string type;
     string programID;
@@ -42,6 +39,10 @@ public:
     void build(string id, string type, string programID, double offset, vector<Phase*>& phases, Net* net);
     inline int toPhase(int i);
 
+    int currentPhase;
+    int lastSwitchTime;
+
+    void changePhaseTimeRemaining(int newDuration, bool permenent = false);
     void HighDensityRecalculate();
     bool LowDensityRecalculate();
 

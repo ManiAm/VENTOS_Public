@@ -1,0 +1,17 @@
+version 2
+run Router-0-20141008-21:28:42-17962
+attr configname Router
+attr datetime 20141008-21:28:42
+attr experiment Router
+attr inifile omnetpp.ini
+attr iterationvars ""
+attr iterationvars2 $repetition=0
+attr measurement ""
+attr network ned.Network
+attr processid 17962
+attr repetition 0
+attr replication #0
+attr resultdir results
+attr runnumber 0
+attr seedset 0
+

@@ -40,10 +40,9 @@ protected:
     double timeToPhase(TrafficLight* tl, double time, int phase);   //Returns how long we must wait for a given phase at the given time
     int nextAcceptingPhase(double time, Edge* start, Edge* end);    //Returns the next phase allowing movement from start to end at the given time
     vector<int>* TLTransitionPhases(Edge* start, Edge* end);        //Returns a vector of phases allowing movement from start to end
-    int currentPhase(TrafficLight* tl, double time, double* timeRemaining = NULL);  //Returns the current phase of a TL at the given time, and sets timeRemaining if provided
+    int currentPhaseAtTime(TrafficLight* tl, double time, double* timeRemaining = NULL);  //Returns the current phase of a TL at the given time, and sets timeRemaining if provided
 
     double getEdgeMeanSpeed(Edge* edge);    //Get the mean speed of all lanes on an edge
-    void changeTLPhaseDuration(TrafficLight* tl, int phase, int newDuration);
 
     int timePeriodMax;     //Max time for hypertrees
     Hypertree* buildHypertree(int startTime, Node* destination);    //Builds a hypertree to the destination, bounded between the start time and timePeriodMax;
