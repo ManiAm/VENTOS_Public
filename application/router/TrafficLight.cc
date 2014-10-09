@@ -69,6 +69,9 @@ void TrafficLight::initialize(int stage)
                 scheduleAt(simTime() + HighDensityRecalculateFrequency, TLEvent); //Schedule them to start sending
             else    //Low Density Logic
                 scheduleAt(1, TLEvent); //At 1s, TraCI communication is accurate and available, so we start then
+
+            TLSwitchEvent = new cMessage("tl switch evt");
+            scheduleAt(1, TLSwitchEvent);
         }
     }
 }
@@ -76,33 +79,41 @@ void TrafficLight::initialize(int stage)
 void TrafficLight::handleMessage(cMessage* msg)  //Internal messages to self
 {
     //if(id == "1/1")
-    cout << id << " got message at " << simTime().dbl() << endl;
 
 
-    TLEvent = new cMessage("tl evt");   //Create a new internal message
-    if (UseHighDensityLogic)
+    if(msg->isName("tl evt"))
     {
-        HighDensityRecalculate();
-        scheduleAt(simTime() + HighDensityRecalculateFrequency, TLEvent); //Schedule them to start sending
-    }
-    else //Low density logic
-    {
-        if(simTime().dbl() == 1)
-            scheduleAt(phases[0]->duration - LowDensityExtendTime, TLEvent);
-            //scheduleAt(TraCI->commandGetNextSwitchTime(id)/1000 - LowDensityExtendTime, TLEvent);
-        else
+        //cout << id << " got tl message at " << simTime().dbl() << endl;
+        TLEvent = new cMessage("tl evt");   //Create a new internal message
+        if (UseHighDensityLogic)
         {
-            if(LowDensityRecalculate()) //Phase duration was changed:
-                scheduleAt(simTime().dbl() + LowDensityExtendTime, TLEvent);    //Wait LowDensityExtendTime, because that's what we added
+            HighDensityRecalculate();
+            scheduleAt(simTime() + HighDensityRecalculateFrequency, TLEvent); //Schedule them to start sending
+        }
+        else //Low density logic
+        {
+            if(simTime().dbl() == 1)
+                scheduleAt(phases[0]->duration - LowDensityExtendTime, TLEvent);
+                //scheduleAt(TraCI->commandGetNextSwitchTime(id)/1000 - LowDensityExtendTime, TLEvent);
             else
-            {   //Phase duration was not changed:
-                double nextEvent = simTime().dbl();
-                int curPhase = TraCI->commandGetCurrentPhase(id);           //The current phase number
-                nextEvent += phases[toPhase(curPhase + 1)]->duration;
-                nextEvent += phases[toPhase(curPhase + 2)]->duration;   //Add the time of the next phases (transition and next phase)
-                scheduleAt(nextEvent, TLEvent);
+            {
+                if(LowDensityRecalculate()) //Phase duration was changed:
+                    scheduleAt(simTime().dbl() + LowDensityExtendTime, TLEvent);    //Wait LowDensityExtendTime, because that's what we added
+                else
+                {   //Phase duration was not changed:
+                    double nextEvent = simTime().dbl();
+                    int curPhase = TraCI->commandGetCurrentPhase(id);           //The current phase number
+                    nextEvent += phases[toPhase(curPhase + 1)]->duration;
+                    nextEvent += phases[toPhase(curPhase + 2)]->duration;   //Add the time of the next phases (transition and next phase)
+                    scheduleAt(nextEvent, TLEvent);
+                }
             }
         }
+    }
+    else if(msg->isName("tl switch evt"))
+    {
+        cout << id << " tl switch message at " << simTime().dbl() << endl;
+
     }
 }
 
@@ -135,9 +146,12 @@ void TrafficLight::HighDensityRecalculate()
         double portion = phaseVehicleCounts[i]/total;
         double duration = portion * nonTransitionalCycleDuration;
 
-        phases[i]->duration = duration;
-
+        phases[i]->duration = duration; //Make sure this has a minimum (3 seconds, probably)
+        //Must either send a fully new TL program (double check where it will leave off)
+        //Or write new message-passing code to manually change the phase durations each time -
+        //  this gives more power, removes getTLPhase() functions
         //Make a call here
+
     }
     //Calculate the proportions of vehicles on each incoming edge, adjust phase times accordingly
 }
@@ -154,23 +168,37 @@ bool TrafficLight::LowDensityRecalculate()    //This function assumes it's alway
      * Reset to previous duration
      */
 
-    vector<Edge*>& edges = net->nodes[id]->inEdges;
+    vector<Edge*>& edges = net->nodes[id]->inEdges; //Get all edges going into the TL
     for(vector<Edge*>::iterator edge = edges.begin(); edge != edges.end(); edge++)
     {
-        vector<Lane*>* lanes = (*edge)->lanes;
+        vector<Lane*>* lanes = (*edge)->lanes; //Get all lanes on each edge
         for(vector<Lane*>::iterator lane = lanes->begin(); lane != lanes->end(); lane++)
         {
-            list<string> vehicleIDs = TraCI->commandGetVehiclesOnLane((*lane)->id);
-            for(list<string>::iterator vehicle = vehicleIDs.begin(); vehicle != vehicleIDs.end(); vehicle++)
+            int curPhase = TraCI->commandGetCurrentPhase(id);   //Check if the lane has a green
+            if(find((*lane)->greenPhases.begin(), (*lane)->greenPhases.end(), curPhase) != (*lane)->greenPhases.end())
             {
-                double pos = TraCI->commandGetLanePosition(*vehicle);
-                double length = net->edges[(*edge)->id]->length;
-                double speed = net->edges[(*edge)->id]->speed;
-                if((length - pos) / speed < 3.0)
+                list<string> vehicleIDs = TraCI->commandGetVehiclesOnLane((*lane)->id); //If so, get all vehicles on this lane
+                for(list<string>::iterator vehicle = vehicleIDs.begin(); vehicle != vehicleIDs.end(); vehicle++)
                 {
-                    //Router::changeTLPhaseDuration(this, );
-                    //Extend here
-                    return true;
+                    cout << TraCI->commandGetVehicleSpeed(*vehicle) << endl;
+                    if(TraCI->commandGetVehicleSpeed(*vehicle) > 0.01)  //If that vehicle is not stationary
+                    {
+                        double pos = TraCI->commandGetLanePosition(*vehicle);
+                        double length = net->edges[(*edge)->id]->length;
+                        double speed = net->edges[(*edge)->id]->speed;
+                        if((length - pos) / speed < LowDensityExtendTime)
+                        {
+                            double remaining = TraCI->commandGetNextSwitchTime(id) - simTime().dbl()*1000 + 1000;
+                            int extend = remaining + LowDensityExtendTime * 1000;
+                            cout << id << ": " << endl;
+                            cout << "Remaining is " << remaining << endl;
+                            cout << "Extending time by " << extend << endl;
+                            TraCI->commandSetPhaseDurationRemaining(id, extend);
+                            //Router::changeTLPhaseDuration(this, );
+                            //Extend here
+                            return true;
+                        }
+                    }
                 }
             }
         }

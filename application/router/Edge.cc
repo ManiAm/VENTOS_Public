@@ -28,6 +28,7 @@ double Edge::getCost()  // This will likely be more complex once weights are imp
 {
     if(travelTimes->average != 0)
         return travelTimes->average;
+    cout << "using length / speed" << endl;
     return length / speed;
 }
 

@@ -42,14 +42,14 @@ O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Object files for local .cc and .msg files
 OBJS = \
-    $O/Node.o \
-    $O/Router.o \
     $O/Histogram.o \
-    $O/Net.o \
     $O/TrafficLight.o \
     $O/ApplVSystem.o \
+    $O/Edge.o \
+    $O/Router.o \
+    $O/Node.o \
     $O/Hypertree.o \
-    $O/Edge.o
+    $O/Net.o
 
 # Message files
 MSGFILES =
@@ -212,7 +212,6 @@ $O/Net.o: Net.cc \
 	Hypertree.h \
 	Net.h \
 	Node.h \
-	PathingData.h \
 	Router.h \
 	TrafficLight.h \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
@@ -273,7 +272,6 @@ $O/Router.o: Router.cc \
 	Hypertree.h \
 	Net.h \
 	Node.h \
-	PathingData.h \
 	Router.h \
 	TrafficLight.h \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
@@ -332,7 +330,6 @@ $O/TrafficLight.o: TrafficLight.cc \
 	Hypertree.h \
 	Net.h \
 	Node.h \
-	PathingData.h \
 	Router.h \
 	TrafficLight.h \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \

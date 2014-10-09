@@ -42,6 +42,19 @@ vector<string> getEdgeNames(string netName)
   return edgeNames;
 }
 
+vector<string> getNodeNames(string netName)
+{
+  vector<string> nodeNames;
+  file <> xmlFile(netName.c_str());
+  xml_document<> doc;
+  xml_node<> *node;
+  doc.parse<0>(xmlFile.data());
+  for(node = doc.first_node()->first_node("junction"); node; node = node->next_sibling("junction"))
+    nodeNames.push_back(node->first_attribute()->value());
+  return nodeNames;
+}
+
+
 void bulkVehicles()
 {
     cout << "Enter a subdirectory containing hello.net.xml.  This is where Vehicles.xml will be placed: ";
@@ -68,14 +81,15 @@ void bulkVehicles()
     {
       srand(time(NULL));
       vector<string> edgeNames = getEdgeNames(netName);
+      vector<string> nodeNames = getNodeNames(netName);
 
       ofstream vFile(vName.c_str());
       vFile << "<vehicles>" << endl;
       for(int i = 1; i <= vCount; i++)
       {
-        string edge1 = edgeNames[rand() % edgeNames.size()];
-        string edge2 = edgeNames[rand() % edgeNames.size()];
-        vFile << "   <vehicle id=\"v" << i << "\" type=\"TypeManual\" origin=\"" << edge1 << "\" destination=\"" << edge2 << "\" depart=\"" << i * duration / vCount << "\" />" << endl;
+        string edge = edgeNames[rand() % edgeNames.size()];
+        string node = nodeNames[rand() % nodeNames.size()]; 
+        vFile << "   <vehicle id=\"v" << i << "\" type=\"TypeManual\" origin=\"" << edge << "\" destination=\"" << node << "\" depart=\"" << i * duration / vCount << "\" />" << endl;
       }
       vFile << "</vehicles>" << endl;
       vFile.close();

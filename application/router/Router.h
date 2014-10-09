@@ -11,7 +11,6 @@
 #include "TrafficLight.h"
 #include "Net.h"
 #include "Hypertree.h"
-#include "PathingData.h"
 
 #include "ApplV_02_Beacon.h"
 
@@ -47,8 +46,8 @@ protected:
     void changeTLPhaseDuration(TrafficLight* tl, int phase, int newDuration);
 
     int timePeriodMax;     //Max time for hypertrees
-    Hypertree* buildHypertree(int startTime, string destinationNodeID);    //Builds a hypertree to the destination, bounded between the start time and timePeriodMax;
-    list<string> getRoute(string begin, string end, string vName);      //Returns a list of edges between origin and destination,
+    Hypertree* buildHypertree(int startTime, Node* destination);    //Builds a hypertree to the destination, bounded between the start time and timePeriodMax;
+    list<string> getRoute(Edge* origin, Node* destination, string vName);      //Returns a list of edges between origin and destination,
                                                                         //or an empty list if they're not connected
 
     //Internal functions

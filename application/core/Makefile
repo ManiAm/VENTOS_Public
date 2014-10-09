@@ -42,35 +42,35 @@ O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Object files for local .cc and .msg files
 OBJS = \
-    $O/ApplV_06d_Entry.o \
-    $O/ApplRSU_03_Manager.o \
-    $O/ApplRSU_02_AID.o \
-    $O/Global_01_TraCI_Extend.o \
-    $O/Global_08_Warmup.o \
-    $O/ApplV_02_Beacon.o \
-    $O/Global_03_Tracking.o \
-    $O/Global_02_TraCI_App.o \
-    $O/ApplV_04_AID.o \
-    $O/ApplV_06f_FollowerLeave.o \
-    $O/Global_06_VehicleAdd.o \
-    $O/ApplRSU_01_Base.o \
-    $O/ApplV_07_Coordinator.o \
-    $O/Global_09_SpeedProfile.o \
-    $O/Global_07_RSUAdd.o \
     $O/ApplV_06_PlatoonMg.o \
+    $O/ApplV_07_Coordinator.o \
+    $O/Global_06_VehicleAdd.o \
+    $O/ApplV_06d_Entry.o \
+    $O/ApplV_01_Base.o \
+    $O/Global_01_TraCI_Extend.o \
+    $O/RSUMobility.o \
+    $O/ApplV_02_Beacon.o \
+    $O/ApplV_05_PlatoonFormed.o \
+    $O/Global_02_TraCI_App.o \
     $O/ApplV_06a_Merge.o \
     $O/ApplAdversary.o \
-    $O/ApplV_06e_LeaderLeave.o \
-    $O/Global_04_Statistics.o \
-    $O/ApplV_06c_Common.o \
-    $O/ApplV_05_PlatoonFormed.o \
-    $O/Mac1609_4_Mod.o \
-    $O/RSUMobility.o \
-    $O/ApplV_01_Base.o \
-    $O/ApplV_08_Manager.o \
+    $O/ApplRSU_03_Manager.o \
+    $O/ApplV_06b_Split.o \
     $O/ConstSpeedMobility.o \
+    $O/ApplRSU_01_Base.o \
+    $O/Global_09_SpeedProfile.o \
+    $O/ApplV_04_AID.o \
+    $O/ApplV_06e_LeaderLeave.o \
+    $O/Global_08_Warmup.o \
+    $O/Global_07_RSUAdd.o \
+    $O/ApplV_06f_FollowerLeave.o \
+    $O/Global_03_Tracking.o \
+    $O/ApplV_06c_Common.o \
+    $O/Global_04_Statistics.o \
+    $O/Mac1609_4_Mod.o \
     $O/Global_05_Plotter.o \
-    $O/ApplV_06b_Split.o
+    $O/ApplRSU_02_AID.o \
+    $O/ApplV_08_Manager.o
 
 # Message files
 MSGFILES =

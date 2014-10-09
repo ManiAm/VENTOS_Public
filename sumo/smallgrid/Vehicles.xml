@@ -1,12 +1,22 @@
 <vehicles>
-   <vehicle id="v1" type="TypeManual" origin="0/1to0/2" destination="1/2to1/1" depart="0" />
-   <vehicle id="v2" type="TypeManual" origin="2/0to1/0" destination="2/0to2/1" depart="0" />
-   <vehicle id="v3" type="TypeManual" origin="1/1to2/1" destination="1/0to2/0" depart="0" />
-   <vehicle id="v4" type="TypeManual" origin="0/1to0/2" destination="2/1to1/1" depart="0" />
-   <vehicle id="v5" type="TypeManual" origin="1/1to1/2" destination="1/1to1/0" depart="0" />
-   <vehicle id="v6" type="TypeManual" origin="2/1to1/1" destination="2/0to1/0" depart="0" />
-   <vehicle id="v7" type="TypeManual" origin="0/0to0/1" destination="1/1to0/1" depart="0" />
-   <vehicle id="v8" type="TypeManual" origin="1/0to0/0" destination="0/0to0/1" depart="0" />
-   <vehicle id="v9" type="TypeManual" origin="1/1to0/1" destination="0/2to0/1" depart="0" />
-   <vehicle id="v10" type="TypeManual" origin="1/0to2/0" destination="2/2to2/1" depart="0" />
+   <vehicle id="v1" type="TypeManual" origin="0/1to1/1" destination="2/2" depart="0.05" />
+   <vehicle id="v2" type="TypeManual" origin="1/1to1/0" destination="0/2" depart="0.1" />
+   <vehicle id="v3" type="TypeManual" origin="1/0to0/0" destination="0/2" depart="0.15" />
+   <vehicle id="v4" type="TypeManual" origin="1/0to2/0" destination="1/2" depart="0.2" />
+   <vehicle id="v5" type="TypeManual" origin="0/1to1/1" destination="2/1" depart="0.25" />
+   <vehicle id="v6" type="TypeManual" origin="0/0to1/0" destination="0/1" depart="0.3" />
+   <vehicle id="v7" type="TypeManual" origin="0/2to1/2" destination="0/0" depart="0.35" />
+   <vehicle id="v8" type="TypeManual" origin="1/0to2/0" destination="1/0" depart="0.4" />
+   <vehicle id="v9" type="TypeManual" origin="2/2to1/2" destination="0/1" depart="0.45" />
+   <vehicle id="v10" type="TypeManual" origin="1/0to1/1" destination="1/2" depart="0.5" />
+   <vehicle id="v11" type="TypeManual" origin="0/0to0/1" destination="1/0" depart="0.55" />
+   <vehicle id="v12" type="TypeManual" origin="0/0to1/0" destination="0/1" depart="0.6" />
+   <vehicle id="v13" type="TypeManual" origin="1/1to1/2" destination="2/0" depart="0.65" />
+   <vehicle id="v14" type="TypeManual" origin="1/0to0/0" destination="2/1" depart="0.7" />
+   <vehicle id="v15" type="TypeManual" origin="2/2to2/1" destination="2/1" depart="0.75" />
+   <vehicle id="v16" type="TypeManual" origin="1/0to2/0" destination="1/1" depart="0.8" />
+   <vehicle id="v17" type="TypeManual" origin="0/1to1/1" destination="0/2" depart="0.85" />
+   <vehicle id="v18" type="TypeManual" origin="1/2to1/1" destination="2/0" depart="0.9" />
+   <vehicle id="v19" type="TypeManual" origin="2/2to1/2" destination="1/0" depart="0.95" />
+   <vehicle id="v20" type="TypeManual" origin="2/0to1/0" destination="0/2" depart="1" />
 </vehicles>

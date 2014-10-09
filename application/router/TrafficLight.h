@@ -51,6 +51,7 @@ public:
     double HighDensityRecalculateFrequency;
     double LowDensityExtendTime;
     cMessage* TLEvent;
+    cMessage* TLSwitchEvent;
     TraCI_Extend *TraCI;
     virtual void handleMessage(cMessage* msg);  //Internal messages to self;
     void initialize(int stage);

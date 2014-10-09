@@ -60,7 +60,6 @@ void ApplVSystem::initialize(int stage)
         sendSystemMsgEvt = new cMessage("systemmsg evt", KIND_TIMER);   //Create a new internal message
         if (requestRoutes) //&& VANETenabled ) //If this vehicle is supposed to send system messages
             scheduleAt(simTime() + systemOffset, sendSystemMsgEvt); //Schedule them to start sending
-
         Signal_TimeData = registerSignal("TimeData"); //Prepare to send a system message
         nodePtr->emit(Signal_TimeData, new TimeData(SUMOvID, simTime().dbl(), false));
     }
