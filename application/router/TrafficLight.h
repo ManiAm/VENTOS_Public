@@ -41,6 +41,7 @@ public:
 
     int currentPhase;
     int lastSwitchTime;
+    int currentPhaseAtTime(double time, double* timeRemaining = NULL);
 
     void changePhaseTimeRemaining(int newDuration, bool permenent = false);
     void HighDensityRecalculate();

@@ -199,28 +199,12 @@ vector<int>* Router::TLTransitionPhases(Edge* start, Edge* end)
     return ret;
 }
 
-int Router::currentPhaseAtTime(TrafficLight* tl, double time, double* timeRemaining)
-{
-    int phase = tl->currentPhase;
-    int curTime = tl->lastSwitchTime + tl->phases[phase]->duration;
-    while(time > curTime)
-    {
-        phase++;
-        if(phase >= tl->phases.size())
-            phase = 0;
-        curTime += tl->phases[phase]->duration;
-    }
-    if(timeRemaining)
-        *timeRemaining = TraCI->commandGetNextSwitchTime(tl->id) - simTime().dbl();
-    return phase;
-}
-
 double Router::timeToPhase(TrafficLight* tl, double time, int targetPhase)
 {
     const vector<Phase*> phases = (tl->phases);   //The traffic light's phases
 
     double timeRemaining = 0;
-    int curPhase = currentPhaseAtTime(tl, time, &timeRemaining);
+    int curPhase = tl->currentPhaseAtTime(time, &timeRemaining);
     if(curPhase == targetPhase)
         return 0;
     else
@@ -245,7 +229,7 @@ int Router::nextAcceptingPhase(double time, Edge* start, Edge* end)
     TrafficLight* tl = start->to->tl;               //The traffic-light in question
     const vector<Phase*> phases = tl->phases;   //And its set of phases
 
-    int curPhase = currentPhaseAtTime(tl, time);
+    int curPhase = tl->currentPhaseAtTime(time);
     int phase = curPhase;
     vector<int>* acceptingPhases = TLTransitionPhases(start, end);  //Grab the vector of accepting phases for the given turn
 
@@ -269,7 +253,6 @@ Hypertree* Router::buildHypertree(int startTime, Node* destination)
     map<string, bool> visited;
     list<Node*> SE;
 
-    cout << "Resetting " << destination->id << endl;
     for(map<string, Node*>::iterator node = net->nodes.begin(); node != net->nodes.end(); node++)    //Reset the temporary pathing data
     {
         Node* i = (*node).second;                            //i is the destination node
