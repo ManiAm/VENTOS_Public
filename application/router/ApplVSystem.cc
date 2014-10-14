@@ -73,6 +73,10 @@ void ApplVSystem::finish()
     Signal_TimeData = registerSignal("TimeData"); //Prepare to send a system message
     nodePtr->emit(Signal_TimeData, new TimeData(SUMOvID, simTime().dbl(), true));
 
+    simsignal_t Signal_system = registerSignal("system"); //Prepare to send a system message
+    nodePtr->emit(Signal_system, new systemData("", "", SUMOvID, 2, string("system")));
+
+
     cout << SUMOvID << " took " << simTime().dbl() - startTime << " seconds to complete its route." << endl;
 
     if(requestRoutes)

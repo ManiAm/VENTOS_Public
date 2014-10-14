@@ -39,9 +39,9 @@ void Router::initialize(int stage)
         // get the file paths
         boost::filesystem::path SUMODirectory = simulation.getSystemModule()->par("SUMODirectory").stringValue();
         boost::filesystem::path VENTOSfullDirectory = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-        string netFile = (VENTOSfullDirectory / SUMODirectory / "/hello.net.xml").string();
+        string netBase = (VENTOSfullDirectory / SUMODirectory).string();
 
-        net = new Net(netFile, this->getParentModule());
+        net = new Net(netBase, this->getParentModule());
     } // if stage == 0
 }
 
@@ -80,6 +80,17 @@ void Router::receiveSignal(cComponent *source, simsignal_t signalID, cObject *ob
                 if(nextEdge != "end")
                     info.push_back(nextEdge);
                 nodePtr->emit(Signal_router, new systemData("", "", "router", 1, s->getSender(), info));
+            }
+            else if(s->getRequestType() == 2)
+            {
+                net->vehicleCount--;
+                if(net->vehicleCount == 0)
+                {
+                    for(map<string, TrafficLight*>::iterator tl = net->TLs.begin(); tl != net->TLs.end(); tl++)
+                    {
+                        (*tl).second->finish();
+                    }
+                }
             }
         }//if recipient is right
     }//if Signal_system

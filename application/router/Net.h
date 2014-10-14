@@ -22,6 +22,7 @@ namespace VENTOS {
 class Net
 {
 public:
+    int vehicleCount;
 
     map<string, TrafficLight*> TLs;
     map<string, Edge*> edges;

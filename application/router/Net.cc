@@ -8,7 +8,23 @@ Net::~Net()
 
 }
 
-Net::Net(string netFile, cModule* router)
+int countVehicles(string file)
+{
+    int count = 0;
+    string vehFile = file + "/Vehicles.xml";
+
+    rapidxml::file <> xmlFile(vehFile.c_str());   //Make a new rapidXML document to parse
+    xml_document<> doc;
+    xml_node<> *node;
+    doc.parse<0>(xmlFile.data());
+    for(node = doc.first_node()->first_node("vehicle"); node; node = node->next_sibling("vehicle"))
+    {
+        count++;
+    }
+    return count;
+}
+
+Net::Net(string netBase, cModule* router)
 {
     routerModule = router;
     transitions = new map<string, vector<int>* >;
@@ -16,6 +32,10 @@ Net::Net(string netFile, cModule* router)
 
     Statistics* statPtr = FindModule<Statistics*>::findGlobalModule();
     cModuleType* moduleType = cModuleType::get("c3po.ned.TrafficLight");    //Get the TL module
+
+    string netFile = netBase + "/hello.net.xml";
+
+    vehicleCount = countVehicles(netBase);
 
     file <> xmlFile(netFile.c_str());   //Make a new rapidXML document to parse
     xml_document<> doc;

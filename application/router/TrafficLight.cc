@@ -193,6 +193,13 @@ void TrafficLight::finish()
 {
     if(UseTLLogic)
     {
+        if(UseHighDensityLogic)
+        {
+            cancelAndDelete(TLEvent);
+        }
+        //cancelAndDelete(TLSwitchEvent);
+
+        /*
         if (TLEvent->isScheduled())
         {
             cancelAndDelete(TLEvent);
@@ -200,7 +207,7 @@ void TrafficLight::finish()
         else
         {
             delete TLEvent;
-        }
+        }*/
         if (TLSwitchEvent->isScheduled())
         {
             cancelAndDelete(TLSwitchEvent);
@@ -227,10 +234,10 @@ void TrafficLight::print() // Print a node
 int TrafficLight::currentPhaseAtTime(double time, double* timeRemaining)
 {
     int phase = currentPhase;
-    int curTime = lastSwitchTime + phases[phase]->duration; //Start at the next switc h
+    int curTime = lastSwitchTime + phases[phase]->duration; //Start at the next switch
     while(time >= curTime)  //While the time requested is less than curTime. When this breaks, our phase is set to the current phase
     {
-        phase = (phase + 1) % phases.size;  //Move to the next phase
+        phase = (phase + 1) % phases.size();  //Move to the next phase
         curTime += phases[phase]->duration; //And add that duration to curTime
     }
     if(timeRemaining)   //If timeRemaining was passed in
@@ -238,7 +245,7 @@ int TrafficLight::currentPhaseAtTime(double time, double* timeRemaining)
         *timeRemaining = curTime - time - 1;    //Calculate timeRemaining. This is off-by-one, so subtract one
         if(*timeRemaining <= 0) //If timeRemaining is zero, we've switched into the next phase, so add that phase's duration
         {
-            *timeRemaining += phases[(phase + 1) % nextPhase]->duration;
+            *timeRemaining += phases[(phase + 1) % phases.size()]->duration;
         }
     }
     return phase;
