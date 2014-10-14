@@ -70,7 +70,9 @@ void Router::receiveSignal(cComponent *source, simsignal_t signalID, cObject *ob
                 Node* targetNode = net->nodes[s->getNode()];
 
                 Hypertree* ht;
-                if(hypertreeMemo.find(s->getNode()) == hypertreeMemo.end())
+                //Return memoization only if the vehicle has traveled less than X intersections, otherwise recalculate a new one
+                //(this counter is kept vehicle side)
+                if(hypertreeMemo.find(s->getNode()) == hypertreeMemo.end() /*&&  if old hyperpath is less than 60 second old*/)
                     hypertreeMemo[s->getNode()] = buildHypertree(simTime().dbl(), net->nodes[targetNode->id]);
                 ht = hypertreeMemo[s->getNode()];
                 string nextEdge = ht->transition[key(curEdge->from, curEdge->to, simTime().dbl())];

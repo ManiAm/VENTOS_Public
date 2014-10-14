@@ -10,7 +10,7 @@ Net::~Net()
 
 Net::Net(string netFile, cModule* router)
 {
-    routerMod = router;
+    routerModule = router;
     transitions = new map<string, vector<int>* >;
     turnTypes = new map<string, char>;
 
@@ -74,9 +74,9 @@ Net::Net(string netFile, cModule* router)
                         phasesVec.push_back(ph);   //Build and link a new phase for each attribute
                     }
 
-                    cModule *mod = moduleType->create("TrafficLight", routerMod);   //Create a TL module with router as its parent
-                    tl = check_and_cast<TrafficLight*>(mod);                        //Cast the new module to a TL
-                    tl->build(tlid, tltype, programID, tloffset, phasesVec, this);        //And build the traffic light with all this info
+                    cModule *mod = moduleType->create("TrafficLight", routerModule);    //Create a TL module with router as its parent
+                    tl = check_and_cast<TrafficLight*>(mod);                            //Cast the new module to a TL
+                    tl->build(tlid, tltype, programID, tloffset, phasesVec, this);      //And build the traffic light with all this info
                     TLs[tlid] = tl; //Add the TL to the TL set
                     break;
                 }//if matching traffic light

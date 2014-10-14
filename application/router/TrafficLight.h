@@ -19,8 +19,8 @@ public:
     double duration;
     string state;
     Phase(double durationVal, string stateVal);
+    void print();
 };
-ostream& operator<<(ostream& os, Phase &rhs);
 
 class Net;
 
@@ -59,6 +59,7 @@ public:
     void initialize(int stage);
     void finish();
     TrafficLight();
+    void print();
 };
 
 ostream& operator<<(ostream& os, TrafficLight &rhs);
