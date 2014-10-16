@@ -11,7 +11,6 @@
 #include "TrafficLight.h"
 #include "Net.h"
 #include "Hypertree.h"
-#include "PathingData.h"
 
 #include "ApplV_02_Beacon.h"
 
@@ -41,14 +40,12 @@ protected:
     double timeToPhase(TrafficLight* tl, double time, int phase);   //Returns how long we must wait for a given phase at the given time
     int nextAcceptingPhase(double time, Edge* start, Edge* end);    //Returns the next phase allowing movement from start to end at the given time
     vector<int>* TLTransitionPhases(Edge* start, Edge* end);        //Returns a vector of phases allowing movement from start to end
-    int currentPhase(TrafficLight* tl, double time, double* timeRemaining = NULL);  //Returns the current phase of a TL at the given time, and sets timeRemaining if provided
 
     double getEdgeMeanSpeed(Edge* edge);    //Get the mean speed of all lanes on an edge
-    void changeTLPhaseDuration(TrafficLight* tl, int phase, int newDuration);
 
     int timePeriodMax;     //Max time for hypertrees
-    Hypertree* buildHypertree(int startTime, string destinationNodeID);    //Builds a hypertree to the destination, bounded between the start time and timePeriodMax;
-    list<string> getRoute(string begin, string end, string vName);      //Returns a list of edges between origin and destination,
+    Hypertree* buildHypertree(int startTime, Node* destination);    //Builds a hypertree to the destination, bounded between the start time and timePeriodMax;
+    list<string> getRoute(Edge* origin, Node* destination, string vName);      //Returns a list of edges between origin and destination,
                                                                         //or an empty list if they're not connected
 
     //Internal functions
@@ -58,7 +55,7 @@ protected:
 
     //Message passing
     cModule *nodePtr;               // pointer to the Node
-    mutable TraCI_Extend* TraCI;  //Link to TraCI
+    mutable TraCI_Extend* TraCI;    //Link to TraCI
     simsignal_t Signal_system;      //Receives signals to here
 };
 

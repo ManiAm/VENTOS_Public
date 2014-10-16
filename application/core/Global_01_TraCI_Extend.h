@@ -70,6 +70,7 @@ class TraCI_Extend : public TraCIScenarioManager
         double commandGetVehicleMaxDecel(string);
         Coord commandGetVehiclePos(string);
         uint32_t commandGetLaneIndex(string);
+        double commandGetLanePosition(std::string nodeId);
         vector<string> commandGetLeading(string, double);
         string commandGetLeading_old(string);
         uint8_t* commandGetVehicleColor(string);

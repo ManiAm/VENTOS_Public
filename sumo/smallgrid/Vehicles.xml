@@ -1,0 +1,4 @@
+<vehicles>
+   <vehicle id="v1" type="TypeManual" origin="1/1to1/0" destination="0/2" depart="0" />
+   <vehicle id="v2" type="TypeManual" origin="2/2to1/2" destination="1/2" depart="0" />
+</vehicles>

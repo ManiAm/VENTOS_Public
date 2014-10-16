@@ -5,6 +5,10 @@
 #include <iostream>
 #include <iomanip>
 
+#include "BaseApplLayer.h"
+#include "Net.h"
+#include "Global_01_TraCI_Extend.h"
+
 using namespace std;
 
 namespace VENTOS {
@@ -15,22 +19,47 @@ public:
     double duration;
     string state;
     Phase(double durationVal, string stateVal);
+    void print();
 };
-ostream& operator<<(ostream& os, Phase &rhs);
 
-class TrafficLight
+class Net;
+
+class TrafficLight : public cSimpleModule
 {
 public:
-    double nextSwitchTime;
-    int phaseBeforeSwitch;
-
     string id;
     string type;
     string programID;
     double offset;
-    vector<Phase*>* phases;
-    double cycleDuration;
-    TrafficLight(string idVal, string typeVal, string programIDval, double offsetVal, vector<Phase*>* phasesVec);
+    vector<Phase*> phases;
+    Node* node;
+    Net* net;
+    double cycleDuration;   // this and below should be const
+    double nonTransitionalCycleDuration;
+    void build(string id, string type, string programID, double offset, vector<Phase*>& phases, Net* net);
+    inline int toPhase(int i);
+
+    int currentPhase;
+    int lastSwitchTime;
+    int currentPhaseAtTime(double time, double* timeRemaining = NULL);
+
+    void changePhaseTimeRemaining(int newDuration, bool permenent = false);
+    void HighDensityRecalculate();
+    bool LowDensityRecalculate();
+
+    //Message-passing
+    bool UseTLLogic;
+    bool UseHighDensityLogic;
+    double HighDensityRecalculateFrequency;
+    double LowDensityExtendTime;
+    cMessage* TLEvent;
+    cMessage* TLSwitchEvent;
+    TraCI_Extend *TraCI;
+    virtual void handleMessage(cMessage* msg);  //Internal messages to self;
+    void initialize(int stage);
+    void finish();
+    TrafficLight();
+    void print();
 };
 
 ostream& operator<<(ostream& os, TrafficLight &rhs);

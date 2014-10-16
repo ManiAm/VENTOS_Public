@@ -271,6 +271,12 @@ uint32_t TraCI_Extend::commandGetLaneIndex(string nodeId)
 }
 
 
+double TraCI_Extend::commandGetLanePosition(std::string nodeId)
+{
+    return getCommandInterface()->genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_LANEPOSITION, RESPONSE_GET_VEHICLE_VARIABLE);
+}
+
+
 vector<string> TraCI_Extend::commandGetLeading(string nodeId, double look_ahead_distance)
 {
     uint8_t requestTypeId = TYPE_DOUBLE;

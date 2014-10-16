@@ -12,7 +12,6 @@ ApplVBase::~ApplVBase()
 
 }
 
-
 void ApplVBase::initialize(int stage)
 {
 	BaseApplLayer::initialize(stage);
