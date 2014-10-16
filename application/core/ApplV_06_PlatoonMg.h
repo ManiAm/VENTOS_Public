@@ -5,6 +5,8 @@
 #include "ApplV_05_PlatoonFormed.h"
 #include <boost/circular_buffer.hpp>
 
+#define MAX_BUFF 10
+
 namespace VENTOS {
 
 class NearestVehicle
@@ -52,9 +54,6 @@ class ApplVPlatoonMg : public ApplVPlatoonFormed
         bool splitEnabled;
         bool followerLeaveEnabled;
         bool leaderLeaveEnabled;
-
-        double mergeGap;
-        double splitGap;
 
         // Variables
         enum states
@@ -133,7 +132,7 @@ class ApplVPlatoonMg : public ApplVPlatoonFormed
 
 	private:
         bool busy;
-        boost::circular_buffer<int> MyCircularBuffer;
+        boost::circular_buffer<double> MyCircularBuffer;
 
         // entry
         double leastDistFront;

@@ -67,6 +67,8 @@ void ApplVPlatoonMg::split_handleSelfMsg(cMessage* msg)
             vehicleState = state_platoonLeader;
             reportStateToStat();
 
+            MyCircularBuffer.clear();
+
             reportManeuverToStat(SUMOvID, "-", "Split_End");
 
             // send a unicast GAP_CREATED to the old leader
@@ -78,7 +80,7 @@ void ApplVPlatoonMg::split_handleSelfMsg(cMessage* msg)
             reportCommandToStat(dataMsg);
         }
         else
-            scheduleAt(simTime() + 0.5, plnTIMER8a);
+            scheduleAt(simTime() + 0.1, plnTIMER8a);
     }
 }
 
@@ -364,8 +366,10 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
             vehicleState = state_waitForGap;
             reportStateToStat();
 
-            // check each 0.5s to see if the gap is big enough
-            scheduleAt(simTime() + .5, plnTIMER8a);
+            MyCircularBuffer.clear();
+
+            // check each 0.1s to see if the gap is big enough
+            scheduleAt(simTime() + .1, plnTIMER8a);
         }
     }
 }
@@ -400,21 +404,36 @@ bool ApplVPlatoonMg::GapCreated()
     string vleaderID = vleaderIDnew[0];
     double gap = atof( vleaderIDnew[1].c_str() );
 
-    if(vleaderID == "" || gap > splitGap)
+    if(vleaderID == "")
         return true;
 
-    return false;
-
-    // todo
     // store the current gap
-//    MyCircularBuffer.push_back(gap);
-//
-//    for (boost::circular_buffer<int>::iterator it = MyCircularBuffer.begin(); it != MyCircularBuffer.end(); it++)
-//    {
-//        cout << SUMOvID << ": " << *it << ' ';
-//    }
-//
-//    cout << endl;
+    MyCircularBuffer.push_back(gap);
+
+    // we should wait for the buffer to be filled completely
+    if(MyCircularBuffer.size() < MAX_BUFF)
+        return false;
+
+    // calculate sum
+    double sum = 0;
+    for (boost::circular_buffer<double>::iterator it = MyCircularBuffer.begin(); it != MyCircularBuffer.end(); it++)
+        sum = sum + *it;
+
+    // calculate average
+    double avg = sum / MyCircularBuffer.size();
+
+    // calculate variance
+    double var = 0;
+    for (boost::circular_buffer<double>::iterator it = MyCircularBuffer.begin(); it != MyCircularBuffer.end(); it++)
+       var = var + pow(fabs(*it - avg), 2);
+
+    if(var < 0.1)
+    {
+        //cout << SUMOvID << ": split done!" << endl;
+        return true;
+    }
+    else
+        return false;
 }
 
 }

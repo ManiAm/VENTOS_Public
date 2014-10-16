@@ -41,6 +41,12 @@ packet BeaconRSU extends WaveShortMessage
 };
 
 
+packet DummyMsg extends WaveShortMessage 
+{
+    string payload;
+};
+
+
 packet LaneChangeMsg extends WaveShortMessage 
 {
     string sender;

@@ -36,6 +36,8 @@ void ApplVPlatoonMg::merge_handleSelfMsg(cMessage* msg)
             // check gap to the last follower
             if( CatchUpDone() )
             {
+                MyCircularBuffer.clear();
+
                 // free agent
                 if(plnSize == 1)
                 {
@@ -53,7 +55,7 @@ void ApplVPlatoonMg::merge_handleSelfMsg(cMessage* msg)
                 }
             }
             else
-                scheduleAt(simTime() + 0.5, plnTIMER1a);
+                scheduleAt(simTime() + 0.1, plnTIMER1a);
         }
     }
     else if(msg == plnTIMER2)
@@ -181,7 +183,9 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
         vehicleState = state_waitForCatchup;
         reportStateToStat();
 
-        scheduleAt(simTime() + 1., plnTIMER1a);
+        MyCircularBuffer.clear();
+
+        scheduleAt(simTime() + .1, plnTIMER1a);
     }
     else if(vehicleState == state_waitForCatchup)
     {
@@ -361,10 +365,36 @@ bool ApplVPlatoonMg::CatchUpDone()
     string vleaderID = vleaderIDnew[0];
     double gap = atof( vleaderIDnew[1].c_str() );
 
-    if(vleaderID == "" || gap < mergeGap)
+    if(vleaderID == "")
         return true;
 
-    return false;
+    // store the current gap
+    MyCircularBuffer.push_back(gap);
+
+    // we should wait for the buffer to be filled completely
+    if(MyCircularBuffer.size() < MAX_BUFF)
+        return false;
+
+    // calculate sum
+    double sum = 0;
+    for (boost::circular_buffer<double>::iterator it = MyCircularBuffer.begin(); it != MyCircularBuffer.end(); it++)
+        sum = sum + *it;
+
+    // calculate average
+    double avg = sum / MyCircularBuffer.size();
+
+    // calculate variance
+    double var = 0;
+    for (boost::circular_buffer<double>::iterator it = MyCircularBuffer.begin(); it != MyCircularBuffer.end(); it++)
+       var = var + pow(fabs(*it - avg), 2);
+
+    if(var < 0.1)
+    {
+        //cout << SUMOvID << ": merge done!" << endl;
+        return true;
+    }
+    else
+        return false;
 }
 
 }

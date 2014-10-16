@@ -37,6 +37,8 @@ class ApplAdversary : public BaseApplLayer
         void DoReplayAttack(BeaconVehicle * wsm);
         void DoJammingAttack();
 
+        DummyMsg* CreateDummyMessage();
+
 	protected:
 		// NED variables
 	    cModule *nodePtr;   // pointer to the Node
@@ -55,8 +57,8 @@ class ApplAdversary : public BaseApplLayer
 		const char *myFullId;
         Coord curPosition;  // current position from mobility module (not from sumo)
         cMessage* JammingEvt;
-        double JammingInterval;
 };
+
 }
 
 #endif

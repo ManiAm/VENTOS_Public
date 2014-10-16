@@ -1,0 +1,17 @@
+version 2
+run CACCVehiclePlatoonManag4-1-20140827-00:22:21-2182
+attr configname CACCVehiclePlatoonManag4
+attr datetime 20140827-00:22:21
+attr experiment CACCVehiclePlatoonManag4
+attr inifile omnetpp.ini
+attr iterationvars ""
+attr iterationvars2 $repetition=1
+attr measurement ""
+attr network ned.Network
+attr processid 2182
+attr repetition 1
+attr replication #1
+attr resultdir results
+attr runnumber 1
+attr seedset 1
+

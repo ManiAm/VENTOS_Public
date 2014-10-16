@@ -45,7 +45,7 @@ void ApplVPlatoonMg::followerLeave_handleSelfMsg(cMessage* msg)
             reportStateToStat();
         }
         else
-            scheduleAt(simTime() + .5, plnTIMER11);
+            scheduleAt(simTime() + .1, plnTIMER11);
     }
 }
 
@@ -105,8 +105,8 @@ void ApplVPlatoonMg::followerLeave_DataFSM(PlatoonMsg *wsm)
             reportStateToStat();
 
             // now we should wait for the leader to do the split(s), and make us a free agent.
-            // we check every 0.5s to see if we are free agent
-            scheduleAt(simTime() + .5, plnTIMER11);
+            // we check every 0.1s to see if we are free agent
+            scheduleAt(simTime() + .1, plnTIMER11);
         }
     }
     else if(vehicleState == state_platoonLeader)

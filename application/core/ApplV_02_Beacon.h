@@ -51,6 +51,7 @@ protected:
         bool isBeaconFromLeading(BeaconVehicle*);
         bool isBeaconFromMyPlatoonLeader(BeaconVehicle*);
 };
+
 }
 
 #endif

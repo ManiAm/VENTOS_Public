@@ -149,6 +149,44 @@ inline void doUnpacking(cCommBuffer *b, BeaconRSU& obj) {obj.parsimUnpack(b);}
 /**
  * Class generated from <tt>Messages.msg</tt> by opp_msgc.
  * <pre>
+ * packet DummyMsg extends WaveShortMessage 
+ * {
+ *     string payload;
+ * };
+ * </pre>
+ */
+class DummyMsg : public ::WaveShortMessage
+{
+  protected:
+    opp_string payload_var;
+
+  private:
+    void copy(const DummyMsg& other);
+
+  protected:
+    // protected and unimplemented operator==(), to prevent accidental usage
+    bool operator==(const DummyMsg&);
+
+  public:
+    DummyMsg(const char *name=NULL, int kind=0);
+    DummyMsg(const DummyMsg& other);
+    virtual ~DummyMsg();
+    DummyMsg& operator=(const DummyMsg& other);
+    virtual DummyMsg *dup() const {return new DummyMsg(*this);}
+    virtual void parsimPack(cCommBuffer *b);
+    virtual void parsimUnpack(cCommBuffer *b);
+
+    // field getter/setter methods
+    virtual const char * getPayload() const;
+    virtual void setPayload(const char * payload);
+};
+
+inline void doPacking(cCommBuffer *b, DummyMsg& obj) {obj.parsimPack(b);}
+inline void doUnpacking(cCommBuffer *b, DummyMsg& obj) {obj.parsimUnpack(b);}
+
+/**
+ * Class generated from <tt>Messages.msg</tt> by opp_msgc.
+ * <pre>
  * packet LaneChangeMsg extends WaveShortMessage 
  * {
  *     string sender;

@@ -12,6 +12,7 @@ ApplAdversary::~ApplAdversary()
 
 }
 
+
 void ApplAdversary::initialize(int stage)
 {
 	BaseApplLayer::initialize(stage);
@@ -41,11 +42,10 @@ void ApplAdversary::initialize(int stage)
 		jammingAttack = par("jammingAttack").boolValue();
 
         JammingEvt = new cMessage("Jamming Event");
-        JammingInterval = TraCI->par("updateInterval").doubleValue();
 
         if(jammingAttack)
 	    {
-            scheduleAt(simTime() + JammingInterval, JammingEvt);
+            //scheduleAt(simTime(), JammingEvt);
 	    }
 	}
 }
@@ -73,10 +73,12 @@ void ApplAdversary::handleSelfMsg(cMessage* msg)
     if(msg == JammingEvt)
     {
         if(simTime().dbl() >= AttackT)
+        {
             DoJammingAttack();
+        }
 
         // schedule for next jamming attack
-        scheduleAt(simTime() + JammingInterval, JammingEvt);
+        scheduleAt(simTime() + 0.001, JammingEvt);
     }
 }
 
@@ -114,6 +116,8 @@ void ApplAdversary::handleLowerMsg(cMessage* msg)
 
         // ignore it!
     }
+
+    delete msg;
 }
 
 
@@ -131,11 +135,11 @@ void ApplAdversary::DoFalsificationAttack(BeaconVehicle* wsm)
     BeaconVehicle* FalseMsg = wsm->dup();
 
     // alter the acceleration field
-    // FalseMsg->setAccel(6.);
+    FalseMsg->setAccel(6.);
 
     // alter the position field
-    Coord *newCord = new Coord(0,0);
-    FalseMsg->setPos(*newCord);
+    //Coord *newCord = new Coord(0,0);
+    //FalseMsg->setPos(*newCord);
 
     // send it
     sendDelayed(FalseMsg, 0., lowerLayerOut);
@@ -160,8 +164,31 @@ void ApplAdversary::DoReplayAttack(BeaconVehicle * wsm)
 
 void ApplAdversary::DoJammingAttack()
 {
+    DummyMsg* dm = CreateDummyMessage();
+
+    // send it
+    sendDelayed(dm, 0, lowerLayerOut);
+}
 
 
+DummyMsg* ApplAdversary::CreateDummyMessage()
+{
+    DummyMsg* wsm = new DummyMsg("dummy");
+
+    wsm->addBitLength(10000);
+
+    wsm->setWsmVersion(1);
+    wsm->setSecurityType(1);
+
+    wsm->setChannelNumber(Channels::CCH);
+
+    wsm->setDataRate(1);
+    wsm->setPriority(2);
+    wsm->setPsid(0);
+
+    wsm->setPayload("dummy");
+
+    return wsm;
 }
 
 }

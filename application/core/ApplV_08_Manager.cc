@@ -36,6 +36,16 @@ void ApplVManager::initialize(int stage)
         errorGap = par("errorGap").doubleValue();
         errorRelSpeed = par("errorRelSpeed").doubleValue();
 
+        BeaconVehCount = 0;
+        BeaconVehDropped = 0;
+        BeaconRSUCount = 0;
+        PlatoonCount = 0;
+
+        WATCH(BeaconVehCount);
+        WATCH(BeaconVehDropped);
+        WATCH(BeaconRSUCount);
+        WATCH(PlatoonCount);
+
         if(measurementError)
         {
             TraCI->commandSetErrorGap(SUMOvID, errorGap);
@@ -71,6 +81,23 @@ void ApplVManager::handleLowerMsg(cMessage* msg)
         return;
     }
 
+    // check if jamming attack is effective?
+    cModule *module = simulation.getSystemModule()->getSubmodule("adversary");
+
+    if(module != NULL)
+    {
+        cModule *applModule = module->getSubmodule("appl");
+
+        bool jammingActive = applModule->par("jammingAttack").boolValue();
+        double AttackT = applModule->par("AttackT").doubleValue();
+
+        if(jammingActive && simTime().dbl() > AttackT)
+        {
+            delete msg;
+            return;
+        }
+    }
+
     // make sure msg is of type WaveShortMessage
     WaveShortMessage* wsm = dynamic_cast<WaveShortMessage*>(msg);
     ASSERT(wsm);
@@ -80,6 +107,8 @@ void ApplVManager::handleLowerMsg(cMessage* msg)
         BeaconVehicle* wsm = dynamic_cast<BeaconVehicle*>(msg);
         ASSERT(wsm);
 
+        BeaconVehCount++;
+
         if( !dropBeacon(droppT, droppV, plr) )
         {
             ApplVManager::onBeaconVehicle(wsm);
@@ -87,6 +116,7 @@ void ApplVManager::handleLowerMsg(cMessage* msg)
         // drop the beacon, and report it to statistics
         else
         {
+            BeaconVehDropped++;
             reportDropToStatistics(wsm);
         }
     }
@@ -95,12 +125,16 @@ void ApplVManager::handleLowerMsg(cMessage* msg)
         BeaconRSU* wsm = dynamic_cast<BeaconRSU*>(msg);
         ASSERT(wsm);
 
+        BeaconRSUCount++;
+
         ApplVManager::onBeaconRSU(wsm);
     }
     else if(string(wsm->getName()) == "platoonMsg")
     {
         PlatoonMsg* wsm = dynamic_cast<PlatoonMsg*>(msg);
         ASSERT(wsm);
+
+        PlatoonCount++;
 
         ApplVManager::onData(wsm);
     }

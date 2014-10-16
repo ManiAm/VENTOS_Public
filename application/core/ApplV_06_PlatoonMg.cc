@@ -1,6 +1,7 @@
 
 #include "ApplV_06_PlatoonMg.h"
 
+
 namespace VENTOS {
 
 Define_Module(VENTOS::ApplVPlatoonMg);
@@ -31,17 +32,14 @@ void ApplVPlatoonMg::initialize(int stage)
         followerLeaveEnabled = par("followerLeaveEnabled").boolValue();
         leaderLeaveEnabled = par("leaderLeaveEnabled").boolValue();
 
-        mergeGap = par("mergeGap");
-        splitGap = par("splitGap");
-
         vehicleState = state_idle;
         busy = false;
 
         WATCH(vehicleState);
         WATCH(busy);
 
-        // Create a circular buffer with a capacity for 3 integers
-        MyCircularBuffer.set_capacity(3);
+        // Create a circular buffer of doubles with capacity MAX_BUFF
+        MyCircularBuffer.set_capacity(MAX_BUFF);
 
         // used in entry maneuver
         // ----------------------

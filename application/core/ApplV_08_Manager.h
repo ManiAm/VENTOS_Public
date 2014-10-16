@@ -14,7 +14,20 @@ class ApplVManager : public ApplVCoordinator
         virtual void finish();
 
 	protected:
+        // Methods
+        virtual void handleLowerMsg(cMessage*);
+        virtual void handleSelfMsg(cMessage*);
+        virtual void handlePositionUpdate(cObject*);
 
+		virtual void onBeaconVehicle(BeaconVehicle*);
+        virtual void onBeaconRSU(BeaconRSU*);
+        virtual void onData(PlatoonMsg* wsm);
+
+	private:
+        bool dropBeacon(double time, string vehicle, double plr);
+        void reportDropToStatistics(BeaconVehicle* wsm);
+
+	protected:
         // NED variables (packet loss ratio)
         double droppT;
         string droppV;
@@ -29,19 +42,12 @@ class ApplVManager : public ApplVCoordinator
         double errorGap;
         double errorRelSpeed;
 
-        // Methods
-        virtual void handleLowerMsg(cMessage*);
-        virtual void handleSelfMsg(cMessage*);
-        virtual void handlePositionUpdate(cObject*);
-
-		virtual void onBeaconVehicle(BeaconVehicle*);
-        virtual void onBeaconRSU(BeaconRSU*);
-        virtual void onData(PlatoonMsg* wsm);
-
-	private:
-        bool dropBeacon(double time, string vehicle, double plr);
-        void reportDropToStatistics(BeaconVehicle* wsm);
+        long BeaconVehCount;
+        long BeaconVehDropped;
+        long BeaconRSUCount;
+        long PlatoonCount;
 };
+
 }
 
 #endif

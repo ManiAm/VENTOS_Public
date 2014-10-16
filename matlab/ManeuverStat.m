@@ -230,7 +230,7 @@ bar(data);
 set(gca,'XTickLabel',{'Merge','Split','Leader Leave', 'Last Follower Leave', 'Middle Follower Leave'}', 'FontSize', 19); 
 rotateXLabels(gca, 0);  
 
-ylabel('Average duration (s)', 'FontSize', 19);
+ylabel('Average duration (s)', 'FontSize', 20);
 
 grid on;
 
