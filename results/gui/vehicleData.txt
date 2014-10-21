@@ -650,3 +650,427 @@ index     timeStep    vehicleName    vehicleType      lane        pos        spe
 145        16.10      CACC3           TypeCACC@CACC3  1to2_1       60.21      5.77       -1.49      GapControl          5.11       0.88       
 145        16.10      CACC4           TypeCACC@CACC4  1to2_1       37.03      5.00       0.00       SpeedControl        18.17      3.63       
 145        16.10      CACC5           TypeCACC@CACC5  1to2_1       24.03      6.60       -5.00      GapControl          8.00       1.21       
+
+146        16.20      CACC6           TypeCACC        1to2_0       4.63       4.30       3.00       SpeedControl        -1.00      -1.00      
+146        16.20      CACC1           TypeCACC@CACC1  1to2_1       80.56      5.00       0.00       Undefined           -1.00      -1.00      
+146        16.20      CACC2           TypeCACC@CACC2  1to2_1       70.81      4.99       -0.01      GapControl          4.75       0.95       
+146        16.20      CACC3           TypeCACC@CACC3  1to2_1       60.77      5.64       -1.39      GapControl          5.04       0.89       
+146        16.20      CACC4           TypeCACC@CACC4  1to2_1       37.53      5.00       0.00       SpeedControl        18.24      3.65       
+146        16.20      CACC5           TypeCACC@CACC5  1to2_1       24.64      6.10       -5.00      GapControl          7.89       1.29       
+
+147        16.30      CACC6           TypeCACC        1to2_0       5.09       4.60       3.00       SpeedControl        -1.00      -1.00      
+147        16.30      CACC1           TypeCACC@CACC1  1to2_1       81.06      5.00       0.00       Undefined           -1.00      -1.00      
+147        16.30      CACC2           TypeCACC@CACC2  1to2_1       71.31      4.99       -0.00      GapControl          4.75       0.95       
+147        16.30      CACC3           TypeCACC@CACC3  1to2_1       61.32      5.51       -1.26      GapControl          4.99       0.91       
+147        16.30      CACC4           TypeCACC@CACC4  1to2_1       38.03      5.00       0.00       SpeedControl        18.29      3.66       
+147        16.30      CACC5           TypeCACC@CACC5  1to2_1       25.24      5.96       -1.43      GapControl          7.80       1.31       
+
+148        16.40      CACC6           TypeCACC        1to2_0       5.58       4.90       3.00       SpeedControl        -1.00      -1.00      
+148        16.40      CACC1           TypeCACC@CACC1  1to2_1       81.56      5.00       0.00       Undefined           -1.00      -1.00      
+148        16.40      CACC2           TypeCACC@CACC2  1to2_1       71.81      4.99       0.00       GapControl          4.75       0.95       
+148        16.40      CACC3           TypeCACC@CACC3  1to2_1       61.86      5.40       -1.11      GapControl          4.95       0.92       
+148        16.40      CACC4           TypeCACC@CACC4  1to2_1       38.53      5.00       0.00       SpeedControl        18.33      3.67       
+148        16.40      CACC5           TypeCACC@CACC5  1to2_1       25.84      6.08       1.26       GapControl          7.69       1.26       
+
+149        16.50      CACC6           TypeCACC        1to2_0       6.10       5.20       3.00       SpeedControl        -1.00      -1.00      
+149        16.50      CACC1           TypeCACC@CACC1  1to2_1       82.06      5.00       0.00       Undefined           -1.00      -1.00      
+149        16.50      CACC2           TypeCACC@CACC2  1to2_1       72.31      4.99       0.01       GapControl          4.75       0.95       
+149        16.50      CACC3           TypeCACC@CACC3  1to2_1       62.39      5.30       -0.95      GapControl          4.92       0.93       
+149        16.50      CACC4           TypeCACC@CACC4  1to2_1       39.03      5.00       0.00       SpeedControl        18.36      3.67       
+149        16.50      CACC5           TypeCACC@CACC5  1to2_1       26.47      6.28       2.00       GapControl          7.56       1.20       
+
+150        16.60      CACC6           TypeCACC        1to2_0       6.65       5.50       3.00       SpeedControl        -1.00      -1.00      
+150        16.60      CACC1           TypeCACC@CACC1  1to2_1       82.56      5.00       0.00       Undefined           -1.00      -1.00      
+150        16.60      CACC2           TypeCACC@CACC2  1to2_1       72.81      4.99       0.01       GapControl          4.75       0.95       
+150        16.60      CACC3           TypeCACC@CACC3  1to2_1       62.91      5.22       -0.79      GapControl          4.90       0.94       
+150        16.60      CACC4           TypeCACC@CACC4  1to2_1       39.53      5.00       0.00       SpeedControl        18.38      3.68       
+150        16.60      CACC5           TypeCACC@CACC5  1to2_1       27.12      6.48       2.00       GapControl          7.41       1.14       
+
+151        16.70      CACC6           TypeCACC        1to2_0       7.23       5.80       3.00       SpeedControl        -1.00      -1.00      
+151        16.70      CACC7           TypeCACC        1to2_0       0.00       0.00       0.00       GapControl          2.23       -1.00      
+151        16.70      CACC1           TypeCACC@CACC1  1to2_1       83.06      5.00       0.00       Undefined           -1.00      -1.00      
+151        16.70      CACC2           TypeCACC@CACC2  1to2_1       73.31      5.00       0.02       GapControl          4.75       0.95       
+151        16.70      CACC3           TypeCACC@CACC3  1to2_1       63.43      5.16       -0.62      GapControl          4.88       0.95       
+151        16.70      CACC4           TypeCACC@CACC4  1to2_1       40.03      5.00       0.00       SpeedControl        18.40      3.68       
+151        16.70      CACC5           TypeCACC@CACC5  1to2_1       27.79      6.68       2.00       GapControl          7.24       1.08       
+
+152        16.80      CACC6           TypeCACC        1to2_0       7.84       6.10       3.00       SpeedControl        -1.00      -1.00      
+152        16.80      CACC7           TypeCACC        1to2_0       0.02       0.20       2.00       GapControl          2.82       14.10      
+152        16.80      CACC1           TypeCACC@CACC1  1to2_1       83.56      5.00       0.00       Undefined           -1.00      -1.00      
+152        16.80      CACC2           TypeCACC@CACC2  1to2_1       73.81      5.00       0.02       GapControl          4.75       0.95       
+152        16.80      CACC3           TypeCACC@CACC3  1to2_1       63.94      5.11       -0.46      GapControl          4.87       0.95       
+152        16.80      CACC4           TypeCACC@CACC4  1to2_1       40.53      5.00       0.00       SpeedControl        18.41      3.68       
+152        16.80      CACC5           TypeCACC@CACC5  1to2_1       28.48      6.88       2.00       GapControl          7.06       1.03       
+
+153        16.90      CACC6           TypeCACC        1to2_0       8.48       6.40       3.00       SpeedControl        -1.00      -1.00      
+153        16.90      CACC7           TypeCACC        1to2_0       0.06       0.40       2.00       GapControl          3.42       8.55       
+153        16.90      CACC1           TypeCACC@CACC1  1to2_1       84.06      5.00       0.00       Undefined           -1.00      -1.00      
+153        16.90      CACC2           TypeCACC@CACC2  1to2_1       74.31      5.00       0.02       GapControl          4.75       0.95       
+153        16.90      CACC3           TypeCACC@CACC3  1to2_1       64.45      5.08       -0.32      GapControl          4.86       0.96       
+153        16.90      CACC4           TypeCACC@CACC4  1to2_1       41.03      5.00       0.00       SpeedControl        18.42      3.68       
+153        16.90      CACC5           TypeCACC@CACC5  1to2_1       29.19      7.08       2.00       GapControl          6.85       0.97       
+
+154        17.00      CACC6           TypeCACC        1to2_0       9.15       6.70       3.00       SpeedControl        -1.00      -1.00      
+154        17.00      CACC7           TypeCACC        1to2_0       0.12       0.60       2.00       SpeedControl        4.03       6.72       
+154        17.00      CACC1           TypeCACC@CACC1  1to2_1       84.56      5.00       0.00       Undefined           -1.00      -1.00      
+154        17.00      CACC2           TypeCACC@CACC2  1to2_1       74.81      5.00       0.02       GapControl          4.75       0.95       
+154        17.00      CACC3           TypeCACC@CACC3  1to2_1       64.96      5.06       -0.19      GapControl          4.85       0.96       
+154        17.00      CACC4           TypeCACC@CACC4  1to2_1       41.53      5.00       0.00       SpeedControl        18.42      3.68       
+154        17.00      CACC5           TypeCACC@CACC5  1to2_1       29.91      7.28       1.96       GapControl          6.62       0.91       
+
+155        17.10      CACC6           TypeCACC        1to2_0       9.85       7.00       3.00       SpeedControl        -1.00      -1.00      
+155        17.10      CACC7           TypeCACC        1to2_0       0.20       0.80       2.00       SpeedControl        4.65       5.81       
+155        17.10      CACC1           TypeCACC@CACC1  1to2_1       85.06      5.00       0.00       Undefined           -1.00      -1.00      
+155        17.10      CACC2           TypeCACC@CACC2  1to2_1       75.31      5.00       0.01       GapControl          4.75       0.95       
+155        17.10      CACC3           TypeCACC@CACC3  1to2_1       65.46      5.05       -0.09      GapControl          4.85       0.96       
+155        17.10      CACC4           TypeCACC@CACC4  1to2_1       42.03      5.00       0.00       SpeedControl        18.43      3.69       
+155        17.10      CACC5           TypeCACC@CACC5  1to2_1       30.66      7.43       1.53       GapControl          6.38       0.86       
+
+156        17.20      CACC6           TypeCACC        1to2_0       10.58      7.30       3.00       SpeedControl        -1.00      -1.00      
+156        17.20      CACC7           TypeCACC        1to2_0       0.30       1.00       2.00       SpeedControl        5.28       5.28       
+156        17.20      CACC1           TypeCACC@CACC1  1to2_1       85.56      5.00       0.00       Undefined           -1.00      -1.00      
+156        17.20      CACC2           TypeCACC@CACC2  1to2_1       75.81      5.00       0.01       GapControl          4.75       0.95       
+156        17.20      CACC3           TypeCACC@CACC3  1to2_1       65.97      5.05       -0.01      GapControl          4.84       0.96       
+156        17.20      CACC4           TypeCACC@CACC4  1to2_1       42.53      5.00       0.00       SpeedControl        18.43      3.69       
+156        17.20      CACC5           TypeCACC@CACC5  1to2_1       31.41      7.52       0.84       GapControl          6.12       0.81       
+
+157        17.30      CACC6           TypeCACC        1to2_0       11.34      7.60       3.00       SpeedControl        -1.00      -1.00      
+157        17.30      CACC7           TypeCACC        1to2_0       0.42       1.20       2.00       SpeedControl        5.92       4.93       
+157        17.30      CACC1           TypeCACC@CACC1  1to2_1       86.06      5.00       0.00       Undefined           -1.00      -1.00      
+157        17.30      CACC2           TypeCACC@CACC2  1to2_1       76.31      5.00       0.01       GapControl          4.75       0.95       
+157        17.30      CACC3           TypeCACC@CACC3  1to2_1       66.47      5.06       0.05       GapControl          4.84       0.96       
+157        17.30      CACC4           TypeCACC@CACC4  1to2_1       43.03      5.00       0.00       SpeedControl        18.44      3.69       
+157        17.30      CACC5           TypeCACC@CACC5  1to2_1       32.16      7.52       0.00       GapControl          5.87       0.78       
+
+158        17.40      CACC6           TypeCACC        1to2_0       12.13      7.90       3.00       SpeedControl        -1.00      -1.00      
+158        17.40      CACC7           TypeCACC        1to2_0       0.56       1.40       2.00       SpeedControl        6.57       4.69       
+158        17.40      CACC1           TypeCACC@CACC1  1to2_1       86.56      5.00       0.00       Undefined           -1.00      -1.00      
+158        17.40      CACC2           TypeCACC@CACC2  1to2_1       76.81      5.00       0.00       GapControl          4.75       0.95       
+158        17.40      CACC3           TypeCACC@CACC3  1to2_1       66.98      5.07       0.08       GapControl          4.83       0.95       
+158        17.40      CACC4           TypeCACC@CACC4  1to2_1       43.53      5.00       0.00       SpeedControl        18.45      3.69       
+158        17.40      CACC5           TypeCACC@CACC5  1to2_1       32.86      7.02       -5.00      EmergencyBrake      5.67       0.81       
+
+159        17.50      CACC6           TypeCACC        1to2_0       12.95      8.20       3.00       SpeedControl        -1.00      -1.00      
+159        17.50      CACC7           TypeCACC        1to2_0       0.72       1.60       2.00       SpeedControl        7.23       4.52       
+159        17.50      CACC1           TypeCACC@CACC1  1to2_1       87.06      5.00       0.00       Undefined           -1.00      -1.00      
+159        17.50      CACC2           TypeCACC@CACC2  1to2_1       77.31      5.00       0.00       GapControl          4.75       0.95       
+159        17.50      CACC3           TypeCACC@CACC3  1to2_1       67.49      5.08       0.09       GapControl          4.82       0.95       
+159        17.50      CACC4           TypeCACC@CACC4  1to2_1       44.03      5.00       0.00       SpeedControl        18.45      3.69       
+159        17.50      CACC5           TypeCACC@CACC5  1to2_1       33.53      6.72       -3.00      GapControl          5.50       0.82       
+
+160        17.60      CACC6           TypeCACC        1to2_0       13.80      8.50       3.00       SpeedControl        -1.00      -1.00      
+160        17.60      CACC7           TypeCACC        1to2_0       0.90       1.80       2.00       SpeedControl        7.90       4.39       
+160        17.60      CACC1           TypeCACC@CACC1  1to2_1       87.56      5.00       0.00       Undefined           -1.00      -1.00      
+160        17.60      CACC2           TypeCACC@CACC2  1to2_1       77.81      5.00       -0.00      GapControl          4.75       0.95       
+160        17.60      CACC3           TypeCACC@CACC3  1to2_1       67.99      5.08       0.08       GapControl          4.82       0.95       
+160        17.60      CACC4           TypeCACC@CACC4  1to2_1       44.53      5.00       0.00       SpeedControl        18.46      3.69       
+160        17.60      CACC5           TypeCACC@CACC5  1to2_1       34.18      6.43       -2.87      GapControl          5.36       0.83       
+
+161        17.70      CACC6           TypeCACC        1to2_0       14.68      8.80       3.00       SpeedControl        -1.00      -1.00      
+161        17.70      CACC7           TypeCACC        1to2_0       1.10       2.00       2.00       SpeedControl        8.58       4.29       
+161        17.70      CACC1           TypeCACC@CACC1  1to2_1       88.06      5.00       0.00       Undefined           -1.00      -1.00      
+161        17.70      CACC2           TypeCACC@CACC2  1to2_1       78.31      5.00       -0.01      GapControl          4.75       0.95       
+161        17.70      CACC3           TypeCACC@CACC3  1to2_1       68.50      5.09       0.06       GapControl          4.81       0.94       
+161        17.70      CACC4           TypeCACC@CACC4  1to2_1       45.03      5.00       0.00       SpeedControl        18.47      3.69       
+161        17.70      CACC5           TypeCACC@CACC5  1to2_1       34.79      6.16       -2.69      GapControl          5.24       0.85       
+
+162        17.80      CACC6           TypeCACC        1to2_0       15.59      9.10       3.00       SpeedControl        -1.00      -1.00      
+162        17.80      CACC7           TypeCACC        1to2_0       1.32       2.20       2.00       SpeedControl        9.27       4.21       
+162        17.80      CACC1           TypeCACC@CACC1  1to2_1       88.56      5.00       0.00       Undefined           -1.00      -1.00      
+162        17.80      CACC2           TypeCACC@CACC2  1to2_1       78.81      5.00       -0.01      GapControl          4.75       0.95       
+162        17.80      CACC3           TypeCACC@CACC3  1to2_1       69.01      5.09       0.03       GapControl          4.80       0.94       
+162        17.80      CACC4           TypeCACC@CACC4  1to2_1       45.53      5.00       0.00       SpeedControl        18.48      3.70       
+162        17.80      CACC5           TypeCACC@CACC5  1to2_1       35.38      5.91       -2.45      GapControl          5.15       0.87       
+
+163        17.90      CACC6           TypeCACC        1to2_0       16.53      9.40       3.00       SpeedControl        -1.00      -1.00      
+163        17.90      CACC7           TypeCACC        1to2_0       1.56       2.40       2.00       SpeedControl        9.97       4.15       
+163        17.90      CACC1           TypeCACC@CACC1  1to2_1       89.06      5.00       0.00       Undefined           -1.00      -1.00      
+163        17.90      CACC2           TypeCACC@CACC2  1to2_1       79.31      5.00       -0.01      GapControl          4.75       0.95       
+163        17.90      CACC3           TypeCACC@CACC3  1to2_1       69.52      5.09       -0.00      GapControl          4.79       0.94       
+163        17.90      CACC4           TypeCACC@CACC4  1to2_1       46.03      5.00       0.00       SpeedControl        18.49      3.70       
+163        17.90      CACC5           TypeCACC@CACC5  1to2_1       35.95      5.70       -2.17      GapControl          5.08       0.89       
+
+164        18.00      CACC6           TypeCACC        1to2_0       17.50      9.70       3.00       SpeedControl        -1.00      -1.00      
+164        18.00      CACC7           TypeCACC        1to2_0       1.82       2.60       2.00       SpeedControl        10.68      4.11       
+164        18.00      CACC1           TypeCACC@CACC1  1to2_1       89.56      5.00       0.00       Undefined           -1.00      -1.00      
+164        18.00      CACC2           TypeCACC@CACC2  1to2_1       79.81      5.00       -0.01      GapControl          4.75       0.95       
+164        18.00      CACC3           TypeCACC@CACC3  1to2_1       70.03      5.09       -0.04      GapControl          4.78       0.94       
+164        18.00      CACC4           TypeCACC@CACC4  1to2_1       46.53      5.00       0.00       SpeedControl        18.50      3.70       
+164        18.00      CACC5           TypeCACC@CACC5  1to2_1       36.50      5.51       -1.85      GapControl          5.03       0.91       
+
+165        18.10      CACC7           TypeCACC        1to2_0       2.10       2.80       2.00       SpeedControl        -1.00      -1.00      
+165        18.10      CACC1           TypeCACC@CACC1  1to2_1       90.06      5.00       0.00       Undefined           -1.00      -1.00      
+165        18.10      CACC2           TypeCACC@CACC2  1to2_1       80.31      5.00       -0.01      GapControl          4.75       0.95       
+165        18.10      CACC3           TypeCACC@CACC3  1to2_1       70.54      5.08       -0.07      GapControl          4.77       0.94       
+165        18.10      CACC4           TypeCACC@CACC4  1to2_1       47.03      5.00       0.00       SpeedControl        18.51      3.70       
+165        18.10      CACC5           TypeCACC@CACC5  1to2_1       37.04      5.36       -1.52      GapControl          4.99       0.93       
+165        18.10      CACC6           TypeCACC@CACC6  1to2_1       18.42      9.20       -5.00      SpeedControl        13.62      1.48       
+
+166        18.20      CACC7           TypeCACC        1to2_0       2.41       3.10       3.00       SpeedControl        -1.00      -1.00      
+166        18.20      CACC1           TypeCACC@CACC1  1to2_1       90.56      5.00       0.00       Undefined           -1.00      -1.00      
+166        18.20      CACC2           TypeCACC@CACC2  1to2_1       80.81      5.00       -0.01      GapControl          4.75       0.95       
+166        18.20      CACC3           TypeCACC@CACC3  1to2_1       71.05      5.07       -0.10      GapControl          4.76       0.94       
+166        18.20      CACC4           TypeCACC@CACC4  1to2_1       47.53      5.00       0.00       SpeedControl        18.51      3.70       
+166        18.20      CACC5           TypeCACC@CACC5  1to2_1       37.56      5.24       -1.18      GapControl          4.97       0.95       
+166        18.20      CACC6           TypeCACC@CACC6  1to2_1       19.29      8.70       -5.00      GapControl          13.27      1.53       
+
+167        18.30      CACC7           TypeCACC        1to2_0       2.75       3.40       3.00       SpeedControl        -1.00      -1.00      
+167        18.30      CACC1           TypeCACC@CACC1  1to2_1       91.06      5.00       0.00       Undefined           -1.00      -1.00      
+167        18.30      CACC2           TypeCACC@CACC2  1to2_1       81.31      5.00       -0.01      GapControl          4.75       0.95       
+167        18.30      CACC3           TypeCACC@CACC3  1to2_1       71.55      5.06       -0.12      GapControl          4.76       0.94       
+167        18.30      CACC4           TypeCACC@CACC4  1to2_1       48.03      5.00       0.00       SpeedControl        18.52      3.70       
+167        18.30      CACC5           TypeCACC@CACC5  1to2_1       38.08      5.16       -0.86      GapControl          4.95       0.96       
+167        18.30      CACC6           TypeCACC@CACC6  1to2_1       20.11      8.20       -5.00      GapControl          12.97      1.58       
+
+168        18.40      CACC7           TypeCACC        1to2_0       3.12       3.70       3.00       SpeedControl        -1.00      -1.00      
+168        18.40      CACC1           TypeCACC@CACC1  1to2_1       91.56      5.00       0.00       Undefined           -1.00      -1.00      
+168        18.40      CACC2           TypeCACC@CACC2  1to2_1       81.81      5.00       -0.00      GapControl          4.75       0.95       
+168        18.40      CACC3           TypeCACC@CACC3  1to2_1       72.06      5.05       -0.13      GapControl          4.75       0.94       
+168        18.40      CACC4           TypeCACC@CACC4  1to2_1       48.53      5.00       0.00       SpeedControl        18.52      3.70       
+168        18.40      CACC5           TypeCACC@CACC5  1to2_1       38.59      5.10       -0.56      GapControl          4.94       0.97       
+168        18.40      CACC6           TypeCACC@CACC6  1to2_1       20.88      7.70       -5.00      GapControl          12.71      1.65       
+
+169        18.50      CACC7           TypeCACC        1to2_0       3.52       4.00       3.00       SpeedControl        -1.00      -1.00      
+169        18.50      CACC1           TypeCACC@CACC1  1to2_1       92.06      5.00       0.00       Undefined           -1.00      -1.00      
+169        18.50      CACC2           TypeCACC@CACC2  1to2_1       82.31      5.00       -0.00      GapControl          4.75       0.95       
+169        18.50      CACC3           TypeCACC@CACC3  1to2_1       72.56      5.03       -0.13      GapControl          4.75       0.94       
+169        18.50      CACC4           TypeCACC@CACC4  1to2_1       49.03      5.00       0.00       SpeedControl        18.53      3.71       
+169        18.50      CACC5           TypeCACC@CACC5  1to2_1       39.10      5.07       -0.30      GapControl          4.94       0.97       
+169        18.50      CACC6           TypeCACC@CACC6  1to2_1       21.60      7.20       -5.00      GapControl          12.50      1.74       
+
+170        18.60      CACC7           TypeCACC        1to2_0       3.95       4.30       3.00       SpeedControl        -1.00      -1.00      
+170        18.60      CACC1           TypeCACC@CACC1  1to2_1       92.56      5.00       0.00       Undefined           -1.00      -1.00      
+170        18.60      CACC2           TypeCACC@CACC2  1to2_1       82.81      5.00       -0.00      GapControl          4.75       0.95       
+170        18.60      CACC3           TypeCACC@CACC3  1to2_1       73.06      5.02       -0.13      GapControl          4.75       0.95       
+170        18.60      CACC4           TypeCACC@CACC4  1to2_1       49.53      5.00       0.00       SpeedControl        18.53      3.71       
+170        18.60      CACC5           TypeCACC@CACC5  1to2_1       39.60      5.06       -0.09      GapControl          4.93       0.97       
+170        18.60      CACC6           TypeCACC@CACC6  1to2_1       22.27      6.70       -5.00      GapControl          12.33      1.84       
+
+171        18.70      CACC7           TypeCACC        1to2_0       4.41       4.60       3.00       SpeedControl        -1.00      -1.00      
+171        18.70      CACC1           TypeCACC@CACC1  1to2_1       93.06      5.00       0.00       Undefined           -1.00      -1.00      
+171        18.70      CACC2           TypeCACC@CACC2  1to2_1       83.31      5.00       0.00       GapControl          4.75       0.95       
+171        18.70      CACC3           TypeCACC@CACC3  1to2_1       73.56      5.01       -0.12      GapControl          4.75       0.95       
+171        18.70      CACC4           TypeCACC@CACC4  1to2_1       50.05      5.20       2.00       SpeedControl        18.51      3.56       
+171        18.70      CACC5           TypeCACC@CACC5  1to2_1       40.11      5.07       0.07       GapControl          4.94       0.98       
+171        18.70      CACC6           TypeCACC@CACC6  1to2_1       22.89      6.20       -5.00      GapControl          12.22      1.97       
+
+172        18.80      CACC7           TypeCACC        1to2_0       4.90       4.90       3.00       SpeedControl        -1.00      -1.00      
+172        18.80      CACC1           TypeCACC@CACC1  1to2_1       93.56      5.00       0.00       Undefined           -1.00      -1.00      
+172        18.80      CACC2           TypeCACC@CACC2  1to2_1       83.81      5.00       0.00       GapControl          4.75       0.95       
+172        18.80      CACC3           TypeCACC@CACC3  1to2_1       74.06      5.00       -0.10      GapControl          4.75       0.95       
+172        18.80      CACC4           TypeCACC@CACC4  1to2_1       50.59      5.40       2.00       SpeedControl        18.47      3.42       
+172        18.80      CACC5           TypeCACC@CACC5  1to2_1       40.62      5.12       0.57       GapControl          4.97       0.97       
+172        18.80      CACC6           TypeCACC@CACC6  1to2_1       23.46      5.70       -5.00      GapControl          12.16      2.13       
+
+173        18.90      CACC7           TypeCACC        1to2_0       5.42       5.20       3.00       SpeedControl        -1.00      -1.00      
+173        18.90      CACC1           TypeCACC@CACC1  1to2_1       94.06      5.00       0.00       Undefined           -1.00      -1.00      
+173        18.90      CACC2           TypeCACC@CACC2  1to2_1       84.31      5.00       0.00       GapControl          4.75       0.95       
+173        18.90      CACC3           TypeCACC@CACC3  1to2_1       74.56      4.99       -0.08      GapControl          4.75       0.95       
+173        18.90      CACC4           TypeCACC@CACC4  1to2_1       51.15      5.60       2.00       SpeedControl        18.41      3.29       
+173        18.90      CACC5           TypeCACC@CACC5  1to2_1       41.14      5.22       0.99       GapControl          5.01       0.96       
+173        18.90      CACC6           TypeCACC@CACC6  1to2_1       23.98      5.20       -5.00      GapControl          12.16      2.34       
+
+174        19.00      CACC7           TypeCACC        1to2_0       5.97       5.50       3.00       SpeedControl        -1.00      -1.00      
+174        19.00      CACC1           TypeCACC@CACC1  1to2_1       94.56      5.00       0.00       Undefined           -1.00      -1.00      
+174        19.00      CACC2           TypeCACC@CACC2  1to2_1       84.81      5.00       0.00       GapControl          4.75       0.95       
+174        19.00      CACC3           TypeCACC@CACC3  1to2_1       75.06      4.99       -0.05      GapControl          4.75       0.95       
+174        19.00      CACC4           TypeCACC@CACC4  1to2_1       51.73      5.80       2.00       SpeedControl        18.33      3.16       
+174        19.00      CACC5           TypeCACC@CACC5  1to2_1       41.68      5.35       1.30       GapControl          5.05       0.94       
+174        19.00      CACC6           TypeCACC@CACC6  1to2_1       24.47      4.90       -3.00      GapControl          12.21      2.49       
+
+175        19.10      CACC7           TypeCACC        1to2_0       6.55       5.80       3.00       SpeedControl        -1.00      -1.00      
+175        19.10      CACC1           TypeCACC@CACC1  1to2_1       95.06      5.00       0.00       Undefined           -1.00      -1.00      
+175        19.10      CACC2           TypeCACC@CACC2  1to2_1       85.31      5.00       0.00       GapControl          4.75       0.95       
+175        19.10      CACC3           TypeCACC@CACC3  1to2_1       75.56      4.98       -0.03      GapControl          4.75       0.95       
+175        19.10      CACC4           TypeCACC@CACC4  1to2_1       52.33      6.00       2.00       SpeedControl        18.23      3.04       
+175        19.10      CACC5           TypeCACC@CACC5  1to2_1       42.23      5.51       1.53       GapControl          5.10       0.93       
+175        19.10      CACC6           TypeCACC@CACC6  1to2_1       24.94      4.75       -1.51      GapControl          12.28      2.59       
+
+176        19.20      CACC7           TypeCACC        1to2_0       7.16       6.10       3.00       SpeedControl        -1.00      -1.00      
+176        19.20      CACC8           TypeCACC        1to2_0       0.00       0.00       0.00       GapControl          2.16       -1.00      
+176        19.20      CACC1           TypeCACC@CACC1  1to2_1       95.56      5.00       0.00       Undefined           -1.00      -1.00      
+176        19.20      CACC2           TypeCACC@CACC2  1to2_1       85.81      5.00       0.00       GapControl          4.75       0.95       
+176        19.20      CACC3           TypeCACC@CACC3  1to2_1       76.06      4.98       -0.01      GapControl          4.75       0.95       
+176        19.20      CACC4           TypeCACC@CACC4  1to2_1       52.95      6.20       2.00       SpeedControl        18.11      2.92       
+176        19.20      CACC5           TypeCACC@CACC5  1to2_1       42.80      5.67       1.68       GapControl          5.16       0.91       
+176        19.20      CACC6           TypeCACC@CACC6  1to2_1       25.42      4.76       0.11       GapControl          12.38      2.60       
+
+177        19.30      CACC7           TypeCACC        1to2_0       7.80       6.40       3.00       SpeedControl        -1.00      -1.00      
+177        19.30      CACC8           TypeCACC        1to2_0       0.02       0.20       2.00       GapControl          2.78       13.90      
+177        19.30      CACC1           TypeCACC@CACC1  1to2_1       96.06      5.00       0.00       Undefined           -1.00      -1.00      
+177        19.30      CACC2           TypeCACC@CACC2  1to2_1       86.31      5.00       0.00       GapControl          4.75       0.95       
+177        19.30      CACC3           TypeCACC@CACC3  1to2_1       76.56      4.98       0.01       GapControl          4.75       0.95       
+177        19.30      CACC4           TypeCACC@CACC4  1to2_1       53.59      6.40       2.00       SpeedControl        17.96      2.81       
+177        19.30      CACC5           TypeCACC@CACC5  1to2_1       43.38      5.85       1.76       GapControl          5.21       0.89       
+177        19.30      CACC6           TypeCACC@CACC6  1to2_1       25.91      4.91       1.46       GapControl          12.47      2.54       
+
+178        19.40      CACC7           TypeCACC        1to2_0       8.47       6.70       3.00       SpeedControl        -1.00      -1.00      
+178        19.40      CACC8           TypeCACC        1to2_0       0.06       0.40       2.00       GapControl          3.41       8.53       
+178        19.40      CACC1           TypeCACC@CACC1  1to2_1       96.56      5.00       0.00       Undefined           -1.00      -1.00      
+178        19.40      CACC2           TypeCACC@CACC2  1to2_1       86.81      5.00       0.00       GapControl          4.75       0.95       
+178        19.40      CACC3           TypeCACC@CACC3  1to2_1       77.05      4.99       0.02       GapControl          4.75       0.95       
+178        19.40      CACC4           TypeCACC@CACC4  1to2_1       54.25      6.60       2.00       SpeedControl        17.80      2.70       
+178        19.40      CACC5           TypeCACC@CACC5  1to2_1       43.98      6.03       1.78       GapControl          5.27       0.87       
+178        19.40      CACC6           TypeCACC@CACC6  1to2_1       26.41      5.00       0.94       GapControl          12.57      2.51       
+
+179        19.50      CACC7           TypeCACC        1to2_0       9.17       7.00       3.00       SpeedControl        -1.00      -1.00      
+179        19.50      CACC8           TypeCACC        1to2_0       0.12       0.60       2.00       SpeedControl        4.05       6.75       
+179        19.50      CACC1           TypeCACC@CACC1  1to2_1       97.06      5.00       0.00       Undefined           -1.00      -1.00      
+179        19.50      CACC2           TypeCACC@CACC2  1to2_1       87.31      5.00       0.00       GapControl          4.75       0.95       
+179        19.50      CACC3           TypeCACC@CACC3  1to2_1       77.55      4.99       0.03       GapControl          4.76       0.95       
+179        19.50      CACC4           TypeCACC@CACC4  1to2_1       54.93      6.80       2.00       SpeedControl        17.62      2.59       
+179        19.50      CACC5           TypeCACC@CACC5  1to2_1       44.60      6.20       1.76       GapControl          5.33       0.86       
+179        19.50      CACC6           TypeCACC@CACC6  1to2_1       26.91      5.00       0.00       GapControl          12.69      2.54       
+
+180        19.60      CACC7           TypeCACC        1to2_0       9.90       7.30       3.00       SpeedControl        -1.00      -1.00      
+180        19.60      CACC8           TypeCACC        1to2_0       0.20       0.80       2.00       SpeedControl        4.70       5.88       
+180        19.60      CACC1           TypeCACC@CACC1  1to2_1       97.56      5.00       0.00       Undefined           -1.00      -1.00      
+180        19.60      CACC2           TypeCACC@CACC2  1to2_1       87.81      5.00       0.00       GapControl          4.75       0.95       
+180        19.60      CACC3           TypeCACC@CACC3  1to2_1       78.05      4.99       0.04       GapControl          4.76       0.95       
+180        19.60      CACC4           TypeCACC@CACC4  1to2_1       55.63      7.00       2.00       SpeedControl        17.42      2.49       
+180        19.60      CACC5           TypeCACC@CACC5  1to2_1       45.24      6.37       1.71       GapControl          5.39       0.85       
+180        19.60      CACC6           TypeCACC@CACC6  1to2_1       27.41      5.00       0.00       GapControl          12.83      2.57       
+
+181        19.70      CACC7           TypeCACC        1to2_0       10.66      7.60       3.00       SpeedControl        -1.00      -1.00      
+181        19.70      CACC8           TypeCACC        1to2_0       0.30       1.00       2.00       SpeedControl        5.36       5.36       
+181        19.70      CACC1           TypeCACC@CACC1  1to2_1       98.06      5.00       0.00       Undefined           -1.00      -1.00      
+181        19.70      CACC2           TypeCACC@CACC2  1to2_1       88.31      5.00       0.00       GapControl          4.75       0.95       
+181        19.70      CACC3           TypeCACC@CACC3  1to2_1       78.55      5.00       0.04       GapControl          4.76       0.95       
+181        19.70      CACC4           TypeCACC@CACC4  1to2_1       56.35      7.20       2.00       SpeedControl        17.20      2.39       
+181        19.70      CACC5           TypeCACC@CACC5  1to2_1       45.90      6.54       1.65       GapControl          5.46       0.83       
+181        19.70      CACC6           TypeCACC@CACC6  1to2_1       27.91      5.00       0.00       GapControl          12.98      2.60       
+
+182        19.80      CACC7           TypeCACC        1to2_0       11.45      7.90       3.00       SpeedControl        -1.00      -1.00      
+182        19.80      CACC8           TypeCACC        1to2_0       0.42       1.20       2.00       SpeedControl        6.03       5.03       
+182        19.80      CACC1           TypeCACC@CACC1  1to2_1       98.56      5.00       0.00       Undefined           -1.00      -1.00      
+182        19.80      CACC2           TypeCACC@CACC2  1to2_1       88.81      5.00       0.00       GapControl          4.75       0.95       
+182        19.80      CACC3           TypeCACC@CACC3  1to2_1       79.05      5.00       0.04       GapControl          4.76       0.95       
+182        19.80      CACC4           TypeCACC@CACC4  1to2_1       57.09      7.40       2.00       SpeedControl        16.96      2.29       
+182        19.80      CACC5           TypeCACC@CACC5  1to2_1       46.56      6.70       1.59       GapControl          5.53       0.83       
+182        19.80      CACC6           TypeCACC@CACC6  1to2_1       28.41      5.00       0.00       GapControl          13.15      2.63       
+
+183        19.90      CACC7           TypeCACC        1to2_0       12.27      8.20       3.00       SpeedControl        -1.00      -1.00      
+183        19.90      CACC8           TypeCACC        1to2_0       0.56       1.40       2.00       SpeedControl        6.71       4.79       
+183        19.90      CACC1           TypeCACC@CACC1  1to2_1       99.06      5.00       0.00       Undefined           -1.00      -1.00      
+183        19.90      CACC2           TypeCACC@CACC2  1to2_1       89.31      5.00       -0.00      GapControl          4.75       0.95       
+183        19.90      CACC3           TypeCACC@CACC3  1to2_1       79.55      5.01       0.04       GapControl          4.76       0.95       
+183        19.90      CACC4           TypeCACC@CACC4  1to2_1       57.85      7.60       2.00       SpeedControl        16.70      2.20       
+183        19.90      CACC5           TypeCACC@CACC5  1to2_1       47.25      6.85       1.54       GapControl          5.60       0.82       
+183        19.90      CACC6           TypeCACC@CACC6  1to2_1       28.91      5.00       0.00       GapControl          13.34      2.67       
+
+184        20.00      CACC7           TypeCACC        1to2_0       13.12      8.50       3.00       SpeedControl        -1.00      -1.00      
+184        20.00      CACC8           TypeCACC        1to2_0       0.72       1.60       2.00       SpeedControl        7.40       4.63       
+184        20.00      CACC1           TypeCACC@CACC1  1to2_1       99.56      5.00       0.00       Undefined           -1.00      -1.00      
+184        20.00      CACC2           TypeCACC@CACC2  1to2_1       89.81      5.00       -0.00      GapControl          4.75       0.95       
+184        20.00      CACC3           TypeCACC@CACC3  1to2_1       80.05      5.01       0.03       GapControl          4.76       0.95       
+184        20.00      CACC4           TypeCACC@CACC4  1to2_1       58.63      7.80       2.00       SpeedControl        16.42      2.11       
+184        20.00      CACC5           TypeCACC@CACC5  1to2_1       47.95      7.00       1.50       GapControl          5.68       0.81       
+184        20.00      CACC6           TypeCACC@CACC6  1to2_1       29.41      5.00       0.00       GapControl          13.54      2.71       
+
+185        20.10      CACC7           TypeCACC        1to2_0       14.00      8.80       3.00       SpeedControl        -1.00      -1.00      
+185        20.10      CACC8           TypeCACC        1to2_0       0.90       1.80       2.00       SpeedControl        8.10       4.50       
+185        20.10      CACC1           TypeCACC@CACC1  1to2_1       100.06     5.00       0.00       Undefined           -1.00      -1.00      
+185        20.10      CACC2           TypeCACC@CACC2  1to2_1       90.31      5.00       -0.00      GapControl          4.75       0.95       
+185        20.10      CACC3           TypeCACC@CACC3  1to2_1       80.56      5.01       0.02       GapControl          4.75       0.95       
+185        20.10      CACC4           TypeCACC@CACC4  1to2_1       59.43      8.00       2.00       SpeedControl        16.12      2.02       
+185        20.10      CACC5           TypeCACC@CACC5  1to2_1       48.67      7.15       1.48       GapControl          5.77       0.81       
+185        20.10      CACC6           TypeCACC@CACC6  1to2_1       29.91      5.00       0.00       GapControl          13.75      2.75       
+
+186        20.20      CACC7           TypeCACC        1to2_0       14.91      9.10       3.00       SpeedControl        -1.00      -1.00      
+186        20.20      CACC8           TypeCACC        1to2_0       1.10       2.00       2.00       SpeedControl        8.81       4.41       
+186        20.20      CACC1           TypeCACC@CACC1  1to2_1       100.56     5.00       0.00       Undefined           -1.00      -1.00      
+186        20.20      CACC2           TypeCACC@CACC2  1to2_1       90.81      5.00       -0.00      GapControl          4.75       0.95       
+186        20.20      CACC3           TypeCACC@CACC3  1to2_1       81.06      5.01       0.01       GapControl          4.75       0.95       
+186        20.20      CACC4           TypeCACC@CACC4  1to2_1       60.25      8.20       2.00       SpeedControl        15.80      1.93       
+186        20.20      CACC5           TypeCACC@CACC5  1to2_1       49.40      7.30       1.48       GapControl          5.86       0.80       
+186        20.20      CACC6           TypeCACC@CACC6  1to2_1       30.41      5.00       0.00       SpeedControl        13.98      2.80       
+
+187        20.30      CACC7           TypeCACC        1to2_0       15.85      9.40       3.00       SpeedControl        -1.00      -1.00      
+187        20.30      CACC8           TypeCACC        1to2_0       1.32       2.20       2.00       SpeedControl        9.53       4.33       
+187        20.30      CACC1           TypeCACC@CACC1  1to2_1       101.06     5.00       0.00       Undefined           -1.00      -1.00      
+187        20.30      CACC2           TypeCACC@CACC2  1to2_1       91.31      5.00       -0.00      GapControl          4.75       0.95       
+187        20.30      CACC3           TypeCACC@CACC3  1to2_1       81.56      5.01       0.00       GapControl          4.75       0.95       
+187        20.30      CACC4           TypeCACC@CACC4  1to2_1       61.09      8.40       2.00       SpeedControl        15.47      1.84       
+187        20.30      CACC5           TypeCACC@CACC5  1to2_1       50.14      7.45       1.50       GapControl          5.95       0.80       
+187        20.30      CACC6           TypeCACC@CACC6  1to2_1       30.91      5.00       0.00       SpeedControl        14.23      2.85       
+
+188        20.40      CACC7           TypeCACC        1to2_0       16.82      9.70       3.00       SpeedControl        -1.00      -1.00      
+188        20.40      CACC8           TypeCACC        1to2_0       1.56       2.40       2.00       SpeedControl        10.26      4.28       
+188        20.40      CACC1           TypeCACC@CACC1  1to2_1       101.56     5.00       0.00       Undefined           -1.00      -1.00      
+188        20.40      CACC2           TypeCACC@CACC2  1to2_1       91.81      5.00       -0.00      GapControl          4.75       0.95       
+188        20.40      CACC3           TypeCACC@CACC3  1to2_1       82.06      5.01       -0.01      GapControl          4.75       0.95       
+188        20.40      CACC4           TypeCACC@CACC4  1to2_1       61.95      8.60       2.00       SpeedControl        15.11      1.76       
+188        20.40      CACC5           TypeCACC@CACC5  1to2_1       50.90      7.60       1.55       GapControl          6.05       0.80       
+188        20.40      CACC6           TypeCACC@CACC6  1to2_1       31.41      5.00       0.00       SpeedControl        14.49      2.90       
+
+189        20.50      CACC7           TypeCACC        1to2_0       17.82      10.00      3.00       SpeedControl        -1.00      -1.00      
+189        20.50      CACC8           TypeCACC        1to2_0       1.82       2.60       2.00       SpeedControl        11.00      4.23       
+189        20.50      CACC1           TypeCACC@CACC1  1to2_1       102.06     5.00       0.00       Undefined           -1.00      -1.00      
+189        20.50      CACC2           TypeCACC@CACC2  1to2_1       92.31      5.00       -0.00      GapControl          4.75       0.95       
+189        20.50      CACC3           TypeCACC@CACC3  1to2_1       82.56      5.01       -0.01      GapControl          4.75       0.95       
+189        20.50      CACC4           TypeCACC@CACC4  1to2_1       62.83      8.80       2.00       SpeedControl        14.73      1.67       
+189        20.50      CACC5           TypeCACC@CACC5  1to2_1       51.68      7.76       1.61       GapControl          6.16       0.79       
+189        20.50      CACC6           TypeCACC@CACC6  1to2_1       31.91      5.00       0.00       SpeedControl        14.77      2.95       
+
+190        20.60      CACC7           TypeCACC        1to2_0       18.85      10.30      3.00       SpeedControl        -1.00      -1.00      
+190        20.60      CACC8           TypeCACC        1to2_0       2.10       2.80       2.00       SpeedControl        11.75      4.20       
+190        20.60      CACC1           TypeCACC@CACC1  1to2_1       102.56     5.00       0.00       Undefined           -1.00      -1.00      
+190        20.60      CACC2           TypeCACC@CACC2  1to2_1       92.81      5.00       -0.00      GapControl          4.75       0.95       
+190        20.60      CACC3           TypeCACC@CACC3  1to2_1       83.06      5.01       -0.02      GapControl          4.75       0.95       
+190        20.60      CACC4           TypeCACC@CACC4  1to2_1       63.73      9.00       2.00       SpeedControl        14.33      1.59       
+190        20.60      CACC5           TypeCACC@CACC5  1to2_1       52.47      7.93       1.67       GapControl          6.26       0.79       
+190        20.60      CACC6           TypeCACC@CACC6  1to2_1       32.41      5.00       0.00       SpeedControl        15.06      3.01       
+
+191        20.70      CACC7           TypeCACC@CACC7  1to2_0       19.83      9.80       -5.00      SpeedControl        -1.00      -1.00      
+191        20.70      CACC8           TypeCACC        1to2_0       2.40       3.00       2.00       SpeedControl        12.43      4.14       
+191        20.70      CACC1           TypeCACC@CACC1  1to2_1       103.06     5.00       0.00       Undefined           -1.00      -1.00      
+191        20.70      CACC2           TypeCACC@CACC2  1to2_1       93.31      5.00       -0.00      GapControl          4.75       0.95       
+191        20.70      CACC3           TypeCACC@CACC3  1to2_1       83.56      5.01       -0.02      GapControl          4.75       0.95       
+191        20.70      CACC4           TypeCACC@CACC4  1to2_1       64.65      9.20       2.00       SpeedControl        13.91      1.51       
+191        20.70      CACC5           TypeCACC@CACC5  1to2_1       53.28      8.11       1.75       GapControl          6.37       0.79       
+191        20.70      CACC6           TypeCACC@CACC6  1to2_1       32.91      5.00       0.00       SpeedControl        15.37      3.07       
+
+192        20.80      CACC7           TypeCACC@CACC7  1to2_0       20.76      9.30       -5.00      EmergencyBrake      -1.00      -1.00      
+192        20.80      CACC8           TypeCACC        1to2_0       2.72       3.20       2.00       SpeedControl        13.04      4.07       
+192        20.80      CACC1           TypeCACC@CACC1  1to2_1       103.56     5.00       0.00       Undefined           -1.00      -1.00      
+192        20.80      CACC2           TypeCACC@CACC2  1to2_1       93.81      5.00       -0.00      GapControl          4.75       0.95       
+192        20.80      CACC3           TypeCACC@CACC3  1to2_1       84.06      5.00       -0.02      GapControl          4.75       0.95       
+192        20.80      CACC4           TypeCACC@CACC4  1to2_1       65.59      9.40       2.00       SpeedControl        13.47      1.43       
+192        20.80      CACC5           TypeCACC@CACC5  1to2_1       54.11      8.29       1.82       GapControl          6.48       0.78       
+192        20.80      CACC6           TypeCACC@CACC6  1to2_1       33.41      5.00       0.00       SpeedControl        15.70      3.14       
+
+193        20.90      CACC7           TypeCACC@CACC7  1to2_0       21.64      8.80       -5.00      EmergencyBrake      -1.00      -1.00      
+193        20.90      CACC8           TypeCACC        1to2_0       3.06       3.40       2.00       SpeedControl        13.58      3.99       
+193        20.90      CACC1           TypeCACC@CACC1  1to2_1       104.06     5.00       0.00       Undefined           -1.00      -1.00      
+193        20.90      CACC2           TypeCACC@CACC2  1to2_1       94.31      5.00       -0.00      GapControl          4.75       0.95       
+193        20.90      CACC3           TypeCACC@CACC3  1to2_1       84.56      5.00       -0.02      GapControl          4.75       0.95       
+193        20.90      CACC4           TypeCACC@CACC4  1to2_1       66.55      9.60       2.00       SpeedControl        13.01      1.36       
+193        20.90      CACC5           TypeCACC@CACC5  1to2_1       54.96      8.48       1.90       GapControl          6.60       0.78       
+193        20.90      CACC6           TypeCACC@CACC6  1to2_1       33.91      5.00       0.00       SpeedControl        16.05      3.21       
+
+194        21.00      CACC7           TypeCACC@CACC7  1to2_0       22.47      8.30       -5.00      EmergencyBrake      -1.00      -1.00      
+194        21.00      CACC8           TypeCACC        1to2_0       3.42       3.60       2.00       SpeedControl        14.05      3.90       
+194        21.00      CACC1           TypeCACC@CACC1  1to2_1       104.56     5.00       0.00       Undefined           -1.00      -1.00      
+194        21.00      CACC2           TypeCACC@CACC2  1to2_1       94.81      5.00       0.00       GapControl          4.75       0.95       
+194        21.00      CACC3           TypeCACC@CACC3  1to2_1       85.06      5.00       -0.02      GapControl          4.75       0.95       
+194        21.00      CACC4           TypeCACC@CACC4  1to2_1       67.53      9.80       2.00       SpeedControl        12.53      1.28       
+194        21.00      CACC5           TypeCACC@CACC5  1to2_1       55.82      8.67       1.96       GapControl          6.71       0.77       
+194        21.00      CACC6           TypeCACC@CACC6  1to2_1       34.41      5.00       0.00       SpeedControl        16.41      3.28       
+
+195        21.10      CACC7           TypeCACC@CACC7  1to2_0       23.25      7.80       -5.00      GapControl          -1.00      -1.00      
+195        21.10      CACC8           TypeCACC        1to2_0       3.80       3.80       2.00       SpeedControl        14.45      3.80       
+195        21.10      CACC1           TypeCACC@CACC1  1to2_1       105.06     5.00       0.00       Undefined           -1.00      -1.00      
+195        21.10      CACC2           TypeCACC@CACC2  1to2_1       95.31      5.00       0.00       GapControl          4.75       0.95       
+195        21.10      CACC3           TypeCACC@CACC3  1to2_1       85.56      5.00       -0.02      GapControl          4.75       0.95       
+195        21.10      CACC4           TypeCACC@CACC4  1to2_1       68.53      10.00      2.00       SpeedControl        12.03      1.20       
+195        21.10      CACC5           TypeCACC@CACC5  1to2_1       56.71      8.87       2.00       GapControl          6.82       0.77       
+195        21.10      CACC6           TypeCACC@CACC6  1to2_1       34.91      5.00       0.00       SpeedControl        16.80      3.36       
+
+196        21.20      CACC7           TypeCACC@CACC7  1to2_0       23.98      7.30       -5.00      GapControl          -1.00      -1.00      
+196        21.20      CACC8           TypeCACC        1to2_0       4.20       4.00       2.00       SpeedControl        14.78      3.69       
+196        21.20      CACC1           TypeCACC@CACC1  1to2_1       105.56     5.00       0.00       Undefined           -1.00      -1.00      
+196        21.20      CACC2           TypeCACC@CACC2  1to2_1       95.81      5.00       0.00       GapControl          4.75       0.95       
+196        21.20      CACC3           TypeCACC@CACC3  1to2_1       86.06      5.00       -0.01      GapControl          4.75       0.95       
+196        21.20      CACC4           TypeCACC@CACC4  1to2_1       69.55      10.20      2.00       SpeedControl        11.51      1.13       
+196        21.20      CACC5           TypeCACC@CACC5  1to2_1       57.62      9.07       2.00       GapControl          6.93       0.76       
+196        21.20      CACC6           TypeCACC@CACC6  1to2_1       35.41      5.00       0.00       SpeedControl        17.21      3.44       
