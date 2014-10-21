@@ -33,6 +33,7 @@ for run=0:12
         maneuver = char(maneuvers(i,1));
         time = double(timeSteps(i,1));
         
+        % ignore warm-up
         if(time < 73)
             continue;
         end
@@ -168,6 +169,7 @@ end
 
 % multiple boxplots with vectors of different length
 
+%{
 [n1, ~] = size(mergeStat(:,4));
 [n2, ~] = size(splitStat(:,4));
 [n3, ~] = size(LLeaveStat(:,4));
@@ -183,6 +185,7 @@ set(findobj(gca,'Type','text'),'FontSize',19);
 ylabel('Average duration (s)', 'FontSize', 19);
 
 grid on;
+%}
 
 % ---------------------------------------------------------- 
 % ----------------------------------------------------------
@@ -225,14 +228,16 @@ Xci(5, 2) = abs( ci(2,1) - mean(MFLeaveStat(:,4)) );
 % -------------------------------------
 
 figure(2)
-bar(data);
+h = bar(data);
 
 set(gca,'XTickLabel',{'Merge','Split','Leader Leave', 'Last Follower Leave', 'Middle Follower Leave'}', 'FontSize', 19); 
 rotateXLabels(gca, 0);  
 
-ylabel('Average duration (s)', 'FontSize', 20);
+ylabel('Duration (s)', 'FontSize', 20);
 
 grid on;
+
+set(h(1), 'FaceColor', [0.7 0.7 0.7]);
 
 % graph the confident interval
 hold on

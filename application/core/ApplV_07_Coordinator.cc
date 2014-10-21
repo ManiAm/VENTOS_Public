@@ -75,17 +75,17 @@ void ApplVCoordinator::handlePositionUpdate(cObject* obj)
 
 void ApplVCoordinator::coordinator()
 {
-    // merge and split (youtube)
+    // merge and split (for youtube video)
     if(coordinationMode == 1)
     {
         scenario1();
     }
-    // leave (youtube)
+    // leave (for youtube video)
     else if(coordinationMode == 2)
     {
         scenario2();
     }
-    // IEEE CSS
+    // IEEE CSS competition
     else if(coordinationMode == 3)
     {
         scenario3();
@@ -95,6 +95,11 @@ void ApplVCoordinator::coordinator()
     else if(coordinationMode == 4)
     {
         scenario4();
+    }
+    // effect of changing Tp on merge/split duration
+    else if(coordinationMode == 5)
+    {
+        scenario5();
     }
     else
         error("not a valid coordination mode!");
@@ -227,7 +232,7 @@ void ApplVCoordinator::scenario3()
 void ApplVCoordinator::scenario4()
 {
     if(ev.isGUI())
-        error("Run coordination mode 3 as command-line, not GUI!");
+        error("Run coordination mode 3 in command-line, not GUI!");
 
     // get the current run number
     int currentRun = ev.getConfigEx()->getActiveRunNumber();
@@ -484,6 +489,28 @@ void ApplVCoordinator::scenario4()
             if(SUMOvID == "CACC4")
                 leavePlatoon();
         }
+    }
+}
+
+
+void ApplVCoordinator::scenario5()
+{
+    if(simTime().dbl() == 40)
+    {
+        TraCI->commandSetSpeed("CACC1", 20.);
+    }
+    else if(simTime().dbl() == 73)
+    {
+        // disable automatic merging
+        mergeEnabled = false;
+
+        if(SUMOvID == "CACC1")
+            splitFromPlatoon(4);
+    }
+    else if(simTime().dbl() == 118)
+    {
+        // enable automatic merging
+        mergeEnabled = true;
     }
 }
 

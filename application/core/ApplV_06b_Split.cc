@@ -67,7 +67,7 @@ void ApplVPlatoonMg::split_handleSelfMsg(cMessage* msg)
             vehicleState = state_platoonLeader;
             reportStateToStat();
 
-            MyCircularBuffer.clear();
+            MyCircularBufferSplit.clear();
 
             reportManeuverToStat(SUMOvID, "-", "Split_End");
 
@@ -366,7 +366,7 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
             vehicleState = state_waitForGap;
             reportStateToStat();
 
-            MyCircularBuffer.clear();
+            MyCircularBufferSplit.clear();
 
             // check each 0.1s to see if the gap is big enough
             scheduleAt(simTime() + .1, plnTIMER8a);
@@ -408,23 +408,23 @@ bool ApplVPlatoonMg::GapCreated()
         return true;
 
     // store the current gap
-    MyCircularBuffer.push_back(gap);
+    MyCircularBufferSplit.push_back(gap);
 
     // we should wait for the buffer to be filled completely
-    if(MyCircularBuffer.size() < MAX_BUFF)
+    if(MyCircularBufferSplit.size() < MAX_BUFF_SPLIT)
         return false;
 
     // calculate sum
     double sum = 0;
-    for (boost::circular_buffer<double>::iterator it = MyCircularBuffer.begin(); it != MyCircularBuffer.end(); it++)
+    for (boost::circular_buffer<double>::iterator it = MyCircularBufferSplit.begin(); it != MyCircularBufferSplit.end(); it++)
         sum = sum + *it;
 
     // calculate average
-    double avg = sum / MyCircularBuffer.size();
+    double avg = sum / MyCircularBufferSplit.size();
 
     // calculate variance
     double var = 0;
-    for (boost::circular_buffer<double>::iterator it = MyCircularBuffer.begin(); it != MyCircularBuffer.end(); it++)
+    for (boost::circular_buffer<double>::iterator it = MyCircularBufferSplit.begin(); it != MyCircularBufferSplit.end(); it++)
        var = var + pow(fabs(*it - avg), 2);
 
     if(var < 0.1)

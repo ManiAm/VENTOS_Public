@@ -5,7 +5,8 @@
 #include "ApplV_05_PlatoonFormed.h"
 #include <boost/circular_buffer.hpp>
 
-#define MAX_BUFF 10
+#define MAX_BUFF_MERGE 10
+#define MAX_BUFF_SPLIT 10
 
 namespace VENTOS {
 
@@ -132,7 +133,8 @@ class ApplVPlatoonMg : public ApplVPlatoonFormed
 
 	private:
         bool busy;
-        boost::circular_buffer<double> MyCircularBuffer;
+        boost::circular_buffer<double> MyCircularBufferMerge;
+        boost::circular_buffer<double> MyCircularBufferSplit;
 
         // entry
         double leastDistFront;

@@ -259,6 +259,12 @@ double TraCI_Extend::commandGetVehicleMaxDecel(string nodeId)
 }
 
 
+double TraCI_Extend::commandGetVehicleTimeGap(string nodeId)
+{
+    return getCommandInterface()->genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_TAU, RESPONSE_GET_VEHICLE_VARIABLE);
+}
+
+
 Coord TraCI_Extend::commandGetVehiclePos(string nodeId)
 {
     return genericGetCoordv2(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_POSITION, RESPONSE_GET_VEHICLE_VARIABLE);

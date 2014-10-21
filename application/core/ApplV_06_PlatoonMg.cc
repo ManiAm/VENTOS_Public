@@ -22,9 +22,9 @@ void ApplVPlatoonMg::initialize(int stage)
         optPlnSize = par("optPlatoonSize").longValue();
 
         adaptiveTG = par("adaptiveTG").boolValue();
-        TP = par("TP").doubleValue();    // 3.5
-        TG1 = par("TG1").doubleValue();  // 0.55
-        TG2 = par("TG2").doubleValue();  // 0.6
+        TP = par("TP").doubleValue();    // 3.5 s
+        TG1 = par("TG1").doubleValue();  // 0.55 s
+        TG2 = par("TG2").doubleValue();  // 0.6 s
 
         entryEnabled = par("entryEnabled").boolValue();
         mergeEnabled = par("mergeEnabled").boolValue();
@@ -39,7 +39,8 @@ void ApplVPlatoonMg::initialize(int stage)
         WATCH(busy);
 
         // Create a circular buffer of doubles with capacity MAX_BUFF
-        MyCircularBuffer.set_capacity(MAX_BUFF);
+        MyCircularBufferMerge.set_capacity(MAX_BUFF_MERGE);
+        MyCircularBufferSplit.set_capacity(MAX_BUFF_SPLIT);
 
         // used in entry maneuver
         // ----------------------

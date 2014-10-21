@@ -36,7 +36,7 @@ void ApplVPlatoonMg::merge_handleSelfMsg(cMessage* msg)
             // check gap to the last follower
             if( CatchUpDone() )
             {
-                MyCircularBuffer.clear();
+                MyCircularBufferMerge.clear();
 
                 // free agent
                 if(plnSize == 1)
@@ -183,7 +183,7 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
         vehicleState = state_waitForCatchup;
         reportStateToStat();
 
-        MyCircularBuffer.clear();
+        MyCircularBufferMerge.clear();
 
         scheduleAt(simTime() + .1, plnTIMER1a);
     }
@@ -237,7 +237,7 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
     }
     else if(vehicleState == state_waitForAllAcks)
     {
-        if (wsm->getType() == ACK && wsm->getSendingPlatoonID() == plnID)
+        if ( wsm->getType() == ACK && (wsm->getSendingPlatoonID() == plnID || wsm->getSendingPlatoonID() == leadingPlnID) )
         {
             string followerID = wsm->getSender();
             RemoveFollowerFromList_Merge(followerID);
@@ -369,23 +369,32 @@ bool ApplVPlatoonMg::CatchUpDone()
         return true;
 
     // store the current gap
-    MyCircularBuffer.push_back(gap);
+    MyCircularBufferMerge.push_back(gap);
 
     // we should wait for the buffer to be filled completely
-    if(MyCircularBuffer.size() < MAX_BUFF)
+    if(MyCircularBufferMerge.size() < MAX_BUFF_MERGE)
         return false;
+
+    /*
+    cout << SUMOvID << ": ";
+    for(unsigned int i = 0; i < MyCircularBufferMerge.size(); i++)
+    {
+        cout << MyCircularBufferMerge[i] << " ";
+    }
+    cout << endl;
+    */
 
     // calculate sum
     double sum = 0;
-    for (boost::circular_buffer<double>::iterator it = MyCircularBuffer.begin(); it != MyCircularBuffer.end(); it++)
+    for (boost::circular_buffer<double>::iterator it = MyCircularBufferMerge.begin(); it != MyCircularBufferMerge.end(); it++)
         sum = sum + *it;
 
     // calculate average
-    double avg = sum / MyCircularBuffer.size();
+    double avg = sum / MyCircularBufferMerge.size();
 
     // calculate variance
     double var = 0;
-    for (boost::circular_buffer<double>::iterator it = MyCircularBuffer.begin(); it != MyCircularBuffer.end(); it++)
+    for (boost::circular_buffer<double>::iterator it = MyCircularBufferMerge.begin(); it != MyCircularBufferMerge.end(); it++)
        var = var + pow(fabs(*it - avg), 2);
 
     if(var < 0.1)

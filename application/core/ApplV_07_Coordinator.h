@@ -28,6 +28,7 @@ class ApplVCoordinator : public ApplVPlatoonMg
         void scenario2();
         void scenario3();
         void scenario4();
+        void scenario5();
 
         int coordinationMode;
         cMessage* coordination;

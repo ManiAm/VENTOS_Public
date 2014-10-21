@@ -68,6 +68,7 @@ class TraCI_Extend : public TraCIScenarioManager
         double commandGetVehicleLength(string);
         double commandGetVehicleMinGap(string);
         double commandGetVehicleMaxDecel(string);
+        double commandGetVehicleTimeGap(string);
         Coord commandGetVehiclePos(string);
         uint32_t commandGetLaneIndex(string);
         double commandGetLanePosition(std::string nodeId);
