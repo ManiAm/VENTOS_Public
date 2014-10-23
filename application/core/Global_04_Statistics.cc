@@ -249,25 +249,28 @@ void Statistics::saveVehicleData(string vID)
         break;
     }
 
+    // get the timeGap setting
+    double timeGapSetting = TraCI->commandGetVehicleTimeGap(vID);
+
     // get the gap
     vector<string> vleaderIDnew = TraCI->commandGetLeading(vID, 900);
     string vleaderID = vleaderIDnew[0];
-    double gap = -1;
+    double spaceGap = -1;
 
     if(vleaderID != "")
-        gap = atof( vleaderIDnew[1].c_str() );
+        spaceGap = atof( vleaderIDnew[1].c_str() );
 
     // calculate timeGap (if leading is present)
     double timeGap = -1;
 
     if(vleaderID != "" && speed != 0)
-        timeGap = gap / speed;
+        timeGap = spaceGap / speed;
 
     VehicleData *tmp = new VehicleData(index, timeStep,
                                        vID.c_str(), vType.c_str(),
                                        lane.c_str(), pos,
                                        speed, accel, CFMode.c_str(),
-                                       gap, timeGap);
+                                       timeGapSetting, spaceGap, timeGap);
     Vec_vehiclesData.push_back(tmp);
 }
 
@@ -301,7 +304,8 @@ void Statistics::vehiclesDataToFile()
     fprintf (filePtr, "%-12s","speed");
     fprintf (filePtr, "%-12s","accel");
     fprintf (filePtr, "%-20s","CFMode");
-    fprintf (filePtr, "%-10s","gap");
+    fprintf (filePtr, "%-20s","timeGapSetting");
+    fprintf (filePtr, "%-10s","SpaceGap");
     fprintf (filePtr, "%-10s\n\n","timeGap");
 
     int oldIndex = -1;
@@ -324,7 +328,8 @@ void Statistics::vehiclesDataToFile()
         fprintf (filePtr, "%-10.2f ", Vec_vehiclesData[k]->speed);
         fprintf (filePtr, "%-10.2f ", Vec_vehiclesData[k]->accel);
         fprintf (filePtr, "%-20s", Vec_vehiclesData[k]->CFMode);
-        fprintf (filePtr, "%-10.2f ", Vec_vehiclesData[k]->gap);
+        fprintf (filePtr, "%-20.2f ", Vec_vehiclesData[k]->timeGapSetting);
+        fprintf (filePtr, "%-10.2f ", Vec_vehiclesData[k]->spaceGap);
         fprintf (filePtr, "%-10.2f \n", Vec_vehiclesData[k]->timeGap);
     }
 
