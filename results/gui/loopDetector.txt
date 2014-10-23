@@ -1,0 +1,2 @@
+loopDetector        vehicleName         vehicleEntryTime    vehicleLeaveTime    vehicleEntrySpeed     vehicleLeaveSpeed     
+

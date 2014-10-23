@@ -101,6 +101,11 @@ void ApplVCoordinator::coordinator()
     {
         scenario5();
     }
+    // do nothing!
+    else if(coordinationMode == 6)
+    {
+        // blank body
+    }
     else
         error("not a valid coordination mode!");
 

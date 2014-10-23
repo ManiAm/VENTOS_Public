@@ -18,6 +18,9 @@ void ApplVPlatoonMg::initialize(int stage)
 
 	if (stage == 0 && plnMode == 3)
 	{
+	    if(!VANETenabled)
+	        error("This vehicle is not VANET-enabled!");
+
 	    maxPlnSize = par("maxPlatoonSize").longValue();
         optPlnSize = par("optPlatoonSize").longValue();
 
@@ -335,34 +338,36 @@ void ApplVPlatoonMg::reportManeuverToStat(string from, string to, string maneuve
 // only platoon leader can call this method!
 void ApplVPlatoonMg::splitFromPlatoon(int depth)
 {
-    if(vehicleState == state_platoonLeader)
-    {
-        if(depth >= 1 && depth <= plnSize-1)
-        {
-            if(!busy && splitEnabled)
-            {
-                splittingDepth = depth;
-                splittingVehicle = plnMembersList[splittingDepth];
-                splitCaller = -1;
+    if(!VANETenabled)
+        error("This vehicle is not VANET-enabled!");
 
-                busy = true;
-
-                vehicleState = state_sendSplitReq;
-                reportStateToStat();
-
-                split_DataFSM();
-            }
-        }
-        else
-            error("depth of splitting vehicle is invalid!");
-    }
-    else
+    if(vehicleState != state_platoonLeader)
         error("only platoon leader can initiate split!");
+
+    if(depth <= 0 || depth > plnSize-1)
+        error("depth of splitting vehicle is invalid!");
+
+    if(!busy && splitEnabled)
+    {
+        splittingDepth = depth;
+        splittingVehicle = plnMembersList[splittingDepth];
+        splitCaller = -1;
+
+        busy = true;
+
+        vehicleState = state_sendSplitReq;
+        reportStateToStat();
+
+        split_DataFSM();
+    }
 }
 
 
 void ApplVPlatoonMg::leavePlatoon()
 {
+    if(!VANETenabled)
+        error("This vehicle is not VANET-enabled!");
+
     // if I am leader
     if(vehicleState == state_platoonLeader)
     {

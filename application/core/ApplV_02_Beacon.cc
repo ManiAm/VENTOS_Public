@@ -49,7 +49,7 @@ void ApplVBeacon::initialize(int stage)
         individualOffset = dblrand() * maxOffset;
 
         VehicleBeaconEvt = new cMessage("BeaconEvt", KIND_TIMER);
-        if (VANETenabled && sendBeacons)
+        if (VANETenabled)
         {
             scheduleAt(simTime() + offSet, VehicleBeaconEvt);
         }
