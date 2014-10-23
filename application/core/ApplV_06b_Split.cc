@@ -407,6 +407,24 @@ bool ApplVPlatoonMg::GapCreated()
     if(vleaderID == "")
         return true;
 
+    // get the timeGap setting
+    double timeGapSetting = TraCI->commandGetVehicleTimeGap(SUMOvID);
+
+    // get speed
+    double speed = TraCI->commandGetVehicleSpeed(SUMOvID);
+
+    // get minGap
+    double minGap = TraCI->commandGetVehicleMinGap(SUMOvID);
+
+    double targetGap = (speed * timeGapSetting) + minGap;
+
+    if( gap >= targetGap )
+        return true;
+    else
+        return false;
+
+
+    /*
     // store the current gap
     MyCircularBufferSplit.push_back(gap);
 
@@ -434,6 +452,7 @@ bool ApplVPlatoonMg::GapCreated()
     }
     else
         return false;
+        */
 }
 
 }

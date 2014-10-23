@@ -368,21 +368,29 @@ bool ApplVPlatoonMg::CatchUpDone()
     if(vleaderID == "")
         return true;
 
+    // get the timeGap setting
+    double timeGapSetting = TraCI->commandGetVehicleTimeGap(SUMOvID);
+
+    // get speed
+    double speed = TraCI->commandGetVehicleSpeed(SUMOvID);
+
+    // get minGap
+    double minGap = TraCI->commandGetVehicleMinGap(SUMOvID);
+
+    double targetGap = (speed * timeGapSetting) + minGap;
+
+    if( gap <= targetGap )
+        return true;
+    else
+        return false;
+
+    /*
     // store the current gap
     MyCircularBufferMerge.push_back(gap);
 
     // we should wait for the buffer to be filled completely
     if(MyCircularBufferMerge.size() < MAX_BUFF_MERGE)
         return false;
-
-    /*
-    cout << SUMOvID << ": ";
-    for(unsigned int i = 0; i < MyCircularBufferMerge.size(); i++)
-    {
-        cout << MyCircularBufferMerge[i] << " ";
-    }
-    cout << endl;
-    */
 
     // calculate sum
     double sum = 0;
@@ -404,6 +412,7 @@ bool ApplVPlatoonMg::CatchUpDone()
     }
     else
         return false;
+    */
 }
 
 }

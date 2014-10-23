@@ -42,8 +42,8 @@ void ApplVPlatoonMg::initialize(int stage)
         WATCH(busy);
 
         // Create a circular buffer of doubles with capacity MAX_BUFF
-        MyCircularBufferMerge.set_capacity(MAX_BUFF_MERGE);
-        MyCircularBufferSplit.set_capacity(MAX_BUFF_SPLIT);
+        //MyCircularBufferMerge.set_capacity(MAX_BUFF_MERGE);
+        //MyCircularBufferSplit.set_capacity(MAX_BUFF_SPLIT);
 
         // used in entry maneuver
         // ----------------------
