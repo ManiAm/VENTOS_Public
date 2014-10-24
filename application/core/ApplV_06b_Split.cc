@@ -418,6 +418,9 @@ bool ApplVPlatoonMg::GapCreated()
 
     double targetGap = (speed * timeGapSetting) + minGap;
 
+    //cout << simTime().dbl() << ": " << SUMOvID << ", speed = " << speed << ", targetGap = " << targetGap << ", gap = " << gap << endl;
+    //if( gap >= targetGap ) cout << " BOOOM! " << endl;
+
     if( gap >= targetGap )
         return true;
     else

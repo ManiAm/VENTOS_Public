@@ -20,7 +20,7 @@ void ApplVPlatoonMg::entry_handleSelfMsg(cMessage* msg)
             TraCI->commandSetLaneChangeMode(SUMOvID, bitset);  // alter 'lane change' mode
             TraCI->commandChangeLane(SUMOvID, 1, 5);   // change to lane 1 (special lane)
 
-            TraCI->commandSetSpeed(SUMOvID, 5.);   // set speed to 5 m/s
+            TraCI->commandSetSpeed(SUMOvID, 8.);   // set speed to 8 m/s
 
             // change state to waitForLaneChange
             vehicleState = state_waitForLaneChange;
