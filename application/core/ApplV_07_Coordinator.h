@@ -24,6 +24,8 @@ class ApplVCoordinator : public ApplVPlatoonMg
 
 	private:
         void coordinator();
+
+        void scenario0();
         void scenario1();
         void scenario2();
         void scenario3();

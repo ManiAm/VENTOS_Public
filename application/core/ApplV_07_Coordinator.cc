@@ -75,8 +75,14 @@ void ApplVCoordinator::handlePositionUpdate(cObject* obj)
 
 void ApplVCoordinator::coordinator()
 {
+    // a simple split then merge
+    // to draw the speed profile
+    if(coordinationMode == 0)
+    {
+        scenario0();
+    }
     // merge and split (for youtube video)
-    if(coordinationMode == 1)
+    else if(coordinationMode == 1)
     {
         scenario1();
     }
@@ -110,6 +116,28 @@ void ApplVCoordinator::coordinator()
         error("not a valid coordination mode!");
 
     scheduleAt(simTime() + 0.1, coordination);
+}
+
+
+void ApplVCoordinator::scenario0()
+{
+    if(simTime().dbl() == 40)
+    {
+        TraCI->commandSetSpeed("CACC1", 20.);
+    }
+    else if(simTime().dbl() == 73)
+    {
+        // disable automatic merging
+        mergeEnabled = false;
+
+        if(SUMOvID == "CACC1")
+            splitFromPlatoon(5);
+    }
+    else if(simTime().dbl() == 118)
+    {
+        // enable automatic merging
+        mergeEnabled = true;
+    }
 }
 
 

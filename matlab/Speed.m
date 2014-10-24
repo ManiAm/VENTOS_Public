@@ -25,7 +25,7 @@ for s=1:1
     end
     
     file_id = fopen(path);
-    formatSpec = '%d %f %s %s %s %f %f %f %s %f %f';
+    formatSpec = '%d %f %s %s %s %f %f %f %s %f %f %f';
     C_text = textscan(file_id, formatSpec, 'HeaderLines', 3);
     fclose(file_id);
 
@@ -36,8 +36,8 @@ for s=1:1
     vehicles = C_text{1,3};    
     speeds = C_text{1,7};
     accel = C_text{1,8};
-    gaps = C_text{1,10};
-    timeGaps = C_text{1,11};
+    gaps = C_text{1,11};
+    timeGaps = C_text{1,12};
 
     % ---------------------------------------------------------------
     
