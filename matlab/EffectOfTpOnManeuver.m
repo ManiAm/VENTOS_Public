@@ -108,15 +108,15 @@ ylabel('Duration (s)', 'FontSize', 20);
 
 grid on;
 
-set(h(1),'Displayname', 'T_p = 1 s');
+set(h(1),'Displayname', 'T_p = 2 s');
 set(h(2),'Displayname', 'T_p = 3.5 s');
-set(h(3),'Displayname', 'T_p = 6 s');
+set(h(3),'Displayname', 'T_p = 5 s');
 
 set(h(1), 'FaceColor', [0.2 0.2 0.2]);
 set(h(2), 'FaceColor', [0.5 0.5 0.5]);
 set(h(3), 'FaceColor', [0.92 0.92 0.92]);
 
-handle = legend('Location','northwest');
+handle = legend('Location','northeast');
 
 disp('done!');
 
