@@ -108,8 +108,8 @@ class TraCI_Extend : public TraCIScenarioManager
         void commandAddRoute(string name, list<string> route);
 
         // CMD_SET_VEHICLE_VARIABLE
-        void commandSetRouteFromList(string id, list<string> value);
-        void commandSetSpeed(string nodeId, double);
+        void commandSetRouteFromList(string, list<string> value);
+        void commandSetSpeed(string, double);
         void commandSetMaxAccel(string, double);
         void commandSetMaxDecel(string, double);
         void commandSetTg(string, double);
@@ -124,16 +124,24 @@ class TraCI_Extend : public TraCIScenarioManager
         void commandStopNodeExtended(string, string, double, uint8_t, double, uint8_t);
         void commandSetvClass(string, string);
         void commandChangeLane(string, uint8_t, double);
-        void commandSetErrorGap(string, double);             // new defined command
-        void commandSetErrorRelSpeed(string, double);       // new defined command
+        void commandSetErrorGap(string, double);           // new defined command
+        void commandSetErrorRelSpeed(string, double);      // new defined command
+
+        // CMD_SET_VEHICLETYPE_VARIABLE
+        void commandSetMaxSpeed(string, double);
+        void commandSetVint(string, double);              // new defined command
+        void commandSetComfAccel(string, double);         // new defined command
 
         // CMD_SET_GUI_VARIABLE
         void commandSetGUIZoom(double);
         void commandSetGUITrack(string);
         void commandSetGUIOffset(double, double);
 
-        //
+        // CMD_SET_EDGE_VARIABLE
         void commandSetEdgeGlobalTravelTime(string, int32_t, int32_t, double);
+
+        // CMD_SET_LANE_VARIABLE
+        void commandSetLaneVmax(string, double);
 
 	private:
         void sendLaunchFile();

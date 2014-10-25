@@ -943,6 +943,38 @@ void TraCI_Extend::commandSetErrorRelSpeed(string nodeId, double value)
 }
 
 
+// ############################
+// CMD_SET_VEHICLETYPE_VARIABLE
+// ############################
+
+void TraCI_Extend::commandSetMaxSpeed(string nodeId, double speed)
+{
+    uint8_t variableId = VAR_MAXSPEED;
+    uint8_t variableType = TYPE_DOUBLE;
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLETYPE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << speed);
+    ASSERT(buf.eof());
+}
+
+
+void TraCI_Extend::commandSetVint(string nodeId, double value)
+{
+    uint8_t variableId = 0x22;
+    uint8_t variableType = TYPE_DOUBLE;
+
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLETYPE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
+    ASSERT(buf.eof());
+}
+
+
+void TraCI_Extend::commandSetComfAccel(string nodeId, double speed)
+{
+    uint8_t variableId = 0x23;
+    uint8_t variableType = TYPE_DOUBLE;
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLETYPE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << speed);
+    ASSERT(buf.eof());
+}
+
+
 // #####################
 // CMD_SET_GUI_VARIABLE
 // #####################
@@ -999,6 +1031,20 @@ void TraCI_Extend::commandSetEdgeGlobalTravelTime(string edgeId, int32_t beginT,
                                                                                     << valueI << endT
                                                                                     << valueD << value
                                                                                     );
+    ASSERT(buf.eof());
+}
+
+
+// ######################
+// CMD_SET_LANE_VARIABLE
+// ######################
+
+void TraCI_Extend::commandSetLaneVmax(string laneId, double value)
+{
+    uint8_t variableId = VAR_MAXSPEED;
+    uint8_t variableType = TYPE_DOUBLE;
+
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_LANE_VARIABLE, TraCIBuffer() << variableId << laneId << variableType << value);
     ASSERT(buf.eof());
 }
 
