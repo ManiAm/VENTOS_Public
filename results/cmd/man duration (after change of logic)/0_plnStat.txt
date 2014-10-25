@@ -1,0 +1,275 @@
+timeStep    from platoon        to platoon          comment             
+
+
+8.13       CACC2                CACC1                Merge_Request       
+8.14       CACC2                -                    Merge_Start         
+
+10.71      CACC3                CACC2                Merge_Request       
+10.71      CACC3                -                    Merge_Reject        
+10.81      CACC3                CACC2                Merge_Request       
+10.81      CACC3                -                    Merge_Reject        
+10.91      CACC3                CACC2                Merge_Request       
+10.91      CACC3                -                    Merge_Reject        
+11.01      CACC3                CACC2                Merge_Request       
+11.01      CACC3                -                    Merge_Reject        
+11.11      CACC3                CACC2                Merge_Request       
+11.11      CACC3                -                    Merge_Reject        
+11.21      CACC3                CACC2                Merge_Request       
+11.21      CACC3                -                    Merge_Reject        
+11.31      CACC3                CACC2                Merge_Request       
+11.31      CACC3                -                    Merge_Reject        
+11.41      CACC3                CACC2                Merge_Request       
+11.41      CACC3                -                    Merge_Reject        
+11.51      CACC3                CACC2                Merge_Request       
+11.51      CACC3                -                    Merge_Reject        
+11.61      CACC3                CACC2                Merge_Request       
+11.61      CACC3                -                    Merge_Reject        
+11.71      CACC3                CACC2                Merge_Request       
+11.71      CACC3                -                    Merge_Reject        
+11.81      CACC3                CACC2                Merge_Request       
+11.81      CACC3                -                    Merge_Reject        
+11.91      CACC3                CACC2                Merge_Request       
+11.91      CACC3                -                    Merge_Reject        
+
+11.94      CACC2                -                    Merge_End           
+
+12.01      CACC3                CACC1                Merge_Request       
+12.01      CACC3                -                    Merge_Start         
+
+13.23      CACC4                CACC3                Merge_Request       
+13.23      CACC4                -                    Merge_Reject        
+13.33      CACC4                CACC3                Merge_Request       
+13.33      CACC4                -                    Merge_Reject        
+13.43      CACC4                CACC3                Merge_Request       
+13.43      CACC4                -                    Merge_Reject        
+13.53      CACC4                CACC3                Merge_Request       
+13.53      CACC4                -                    Merge_Reject        
+13.63      CACC4                CACC3                Merge_Request       
+13.63      CACC4                -                    Merge_Reject        
+13.73      CACC4                CACC3                Merge_Request       
+13.73      CACC4                -                    Merge_Reject        
+13.83      CACC4                CACC3                Merge_Request       
+13.83      CACC4                -                    Merge_Reject        
+13.93      CACC4                CACC3                Merge_Request       
+13.93      CACC4                -                    Merge_Reject        
+14.03      CACC4                CACC3                Merge_Request       
+14.03      CACC4                -                    Merge_Reject        
+14.13      CACC4                CACC3                Merge_Request       
+14.13      CACC4                -                    Merge_Reject        
+14.23      CACC4                CACC3                Merge_Request       
+14.23      CACC4                -                    Merge_Reject        
+14.33      CACC4                CACC3                Merge_Request       
+14.33      CACC4                -                    Merge_Reject        
+14.43      CACC4                CACC3                Merge_Request       
+14.43      CACC4                -                    Merge_Reject        
+14.53      CACC4                CACC3                Merge_Request       
+14.53      CACC4                -                    Merge_Reject        
+14.63      CACC4                CACC3                Merge_Request       
+14.63      CACC4                -                    Merge_Reject        
+14.73      CACC4                CACC3                Merge_Request       
+14.73      CACC4                -                    Merge_Reject        
+14.83      CACC4                CACC3                Merge_Request       
+14.83      CACC4                -                    Merge_Reject        
+14.93      CACC4                CACC3                Merge_Request       
+14.93      CACC4                -                    Merge_Reject        
+15.03      CACC4                CACC3                Merge_Request       
+15.03      CACC4                -                    Merge_Reject        
+15.13      CACC4                CACC3                Merge_Request       
+15.13      CACC4                -                    Merge_Reject        
+15.23      CACC4                CACC3                Merge_Request       
+15.23      CACC4                -                    Merge_Reject        
+15.33      CACC4                CACC3                Merge_Request       
+15.33      CACC4                -                    Merge_Reject        
+15.43      CACC4                CACC3                Merge_Request       
+15.43      CACC4                -                    Merge_Reject        
+15.53      CACC4                CACC3                Merge_Request       
+15.53      CACC4                -                    Merge_Reject        
+15.63      CACC4                CACC3                Merge_Request       
+15.63      CACC4                -                    Merge_Reject        
+
+15.72      CACC5                CACC4                Merge_Request       
+15.72      CACC5                -                    Merge_Start         
+17.82      CACC5                -                    Merge_End           
+
+17.83      CACC4                CACC3                Merge_Request       
+17.83      CACC4                -                    Merge_Reject        
+17.93      CACC4                CACC3                Merge_Request       
+17.93      CACC4                -                    Merge_Reject        
+18.03      CACC4                CACC3                Merge_Request       
+18.03      CACC4                -                    Merge_Reject        
+18.13      CACC4                CACC3                Merge_Request       
+18.13      CACC4                -                    Merge_Reject        
+18.23      CACC4                CACC3                Merge_Request       
+18.23      CACC4                -                    Merge_Reject        
+
+18.24      CACC6                CACC4                Merge_Request       
+18.25      CACC6                -                    Merge_Start         
+
+18.31      CACC3                -                    Merge_End           
+
+20.73      CACC7                CACC6                Merge_Request       
+20.73      CACC7                -                    Merge_Reject        
+20.83      CACC7                CACC6                Merge_Request       
+20.83      CACC7                -                    Merge_Reject        
+20.93      CACC7                CACC6                Merge_Request       
+20.93      CACC7                -                    Merge_Reject        
+21.03      CACC7                CACC6                Merge_Request       
+21.03      CACC7                -                    Merge_Reject        
+21.13      CACC7                CACC6                Merge_Request       
+21.13      CACC7                -                    Merge_Reject        
+21.23      CACC7                CACC6                Merge_Request       
+21.23      CACC7                -                    Merge_Reject        
+21.33      CACC7                CACC6                Merge_Request       
+21.33      CACC7                -                    Merge_Reject        
+21.43      CACC7                CACC6                Merge_Request       
+21.43      CACC7                -                    Merge_Reject        
+21.53      CACC7                CACC6                Merge_Request       
+21.53      CACC7                -                    Merge_Reject        
+21.63      CACC7                CACC6                Merge_Request       
+21.63      CACC7                -                    Merge_Reject        
+21.73      CACC7                CACC6                Merge_Request       
+21.73      CACC7                -                    Merge_Reject        
+21.83      CACC7                CACC6                Merge_Request       
+21.83      CACC7                -                    Merge_Reject        
+21.93      CACC7                CACC6                Merge_Request       
+21.93      CACC7                -                    Merge_Reject        
+22.03      CACC7                CACC6                Merge_Request       
+22.03      CACC7                -                    Merge_Reject        
+22.13      CACC7                CACC6                Merge_Request       
+22.13      CACC7                -                    Merge_Reject        
+22.23      CACC7                CACC6                Merge_Request       
+22.23      CACC7                -                    Merge_Reject        
+22.33      CACC7                CACC6                Merge_Request       
+22.33      CACC7                -                    Merge_Reject        
+22.43      CACC7                CACC6                Merge_Request       
+22.43      CACC7                -                    Merge_Reject        
+22.53      CACC7                CACC6                Merge_Request       
+22.53      CACC7                -                    Merge_Reject        
+
+22.55      CACC6                -                    Merge_End           
+
+22.63      CACC7                CACC4                Merge_Request       
+
+22.63      CACC4                CACC1                Merge_Request       
+22.63      CACC4                -                    Merge_Start         
+
+23.25      CACC8                CACC7                Merge_Request       
+
+23.63      CACC7                CACC4                Merge_Request       
+23.63      CACC7                -                    Merge_Reject        
+23.73      CACC7                CACC4                Merge_Request       
+23.73      CACC7                -                    Merge_Reject        
+23.83      CACC7                CACC4                Merge_Request       
+23.83      CACC7                -                    Merge_Reject        
+23.93      CACC7                CACC4                Merge_Request       
+23.93      CACC7                -                    Merge_Reject        
+24.03      CACC7                CACC4                Merge_Request       
+24.03      CACC7                -                    Merge_Reject        
+24.13      CACC7                CACC4                Merge_Request       
+24.13      CACC7                -                    Merge_Reject        
+24.23      CACC7                CACC4                Merge_Request       
+24.23      CACC7                -                    Merge_Reject        
+
+24.25      CACC8                CACC7                Merge_Request       
+24.26      CACC8                -                    Merge_Start         
+
+25.73      CACC9                CACC8                Merge_Request       
+25.74      CACC9                -                    Merge_Reject        
+25.83      CACC9                CACC8                Merge_Request       
+25.84      CACC9                -                    Merge_Reject        
+25.93      CACC9                CACC8                Merge_Request       
+25.94      CACC9                -                    Merge_Reject        
+26.03      CACC9                CACC8                Merge_Request       
+26.04      CACC9                -                    Merge_Reject        
+26.13      CACC9                CACC8                Merge_Request       
+26.14      CACC9                -                    Merge_Reject        
+26.23      CACC9                CACC8                Merge_Request       
+26.24      CACC9                -                    Merge_Reject        
+26.33      CACC9                CACC8                Merge_Request       
+26.34      CACC9                -                    Merge_Reject        
+26.43      CACC9                CACC8                Merge_Request       
+26.44      CACC9                -                    Merge_Reject        
+26.53      CACC9                CACC8                Merge_Request       
+26.54      CACC9                -                    Merge_Reject        
+26.63      CACC9                CACC8                Merge_Request       
+26.64      CACC9                -                    Merge_Reject        
+26.73      CACC9                CACC8                Merge_Request       
+26.74      CACC9                -                    Merge_Reject        
+26.83      CACC9                CACC8                Merge_Request       
+26.84      CACC9                -                    Merge_Reject        
+26.93      CACC9                CACC8                Merge_Request       
+26.94      CACC9                -                    Merge_Reject        
+27.03      CACC9                CACC8                Merge_Request       
+27.04      CACC9                -                    Merge_Reject        
+27.13      CACC9                CACC8                Merge_Request       
+27.14      CACC9                -                    Merge_Reject        
+27.23      CACC9                CACC8                Merge_Request       
+27.24      CACC9                -                    Merge_Reject        
+27.33      CACC9                CACC8                Merge_Request       
+27.34      CACC9                -                    Merge_Reject        
+27.43      CACC9                CACC8                Merge_Request       
+27.44      CACC9                -                    Merge_Reject        
+27.53      CACC9                CACC8                Merge_Request       
+27.54      CACC9                -                    Merge_Reject        
+27.63      CACC9                CACC8                Merge_Request       
+27.64      CACC9                -                    Merge_Reject        
+27.73      CACC9                CACC8                Merge_Request       
+27.74      CACC9                -                    Merge_Reject        
+27.83      CACC9                CACC8                Merge_Request       
+27.84      CACC9                -                    Merge_Reject        
+27.93      CACC9                CACC8                Merge_Request       
+27.94      CACC9                -                    Merge_Reject        
+28.03      CACC9                CACC8                Merge_Request       
+28.04      CACC9                -                    Merge_Reject        
+28.13      CACC9                CACC8                Merge_Request       
+28.14      CACC9                -                    Merge_Reject        
+28.23      CACC9                CACC8                Merge_Request       
+28.24      CACC9                -                    Merge_Reject        
+28.33      CACC9                CACC8                Merge_Request       
+28.34      CACC9                -                    Merge_Reject        
+
+28.41      CACC10               CACC9                Merge_Request       
+28.42      CACC10               -                    Merge_Start         
+
+28.76      CACC8                -                    Merge_End           
+
+28.83      CACC7                CACC4                Merge_Request       
+28.83      CACC7                -                    Merge_Reject        
+28.93      CACC7                CACC4                Merge_Request       
+28.93      CACC7                -                    Merge_Reject        
+29.03      CACC7                CACC4                Merge_Request       
+29.03      CACC7                -                    Merge_Reject        
+29.13      CACC7                CACC4                Merge_Request       
+29.13      CACC7                -                    Merge_Reject        
+29.23      CACC7                CACC4                Merge_Request       
+29.23      CACC7                -                    Merge_Reject        
+29.33      CACC7                CACC4                Merge_Request       
+29.33      CACC7                -                    Merge_Reject        
+29.43      CACC7                CACC4                Merge_Request       
+29.43      CACC7                -                    Merge_Reject        
+29.53      CACC7                CACC4                Merge_Request       
+29.53      CACC7                -                    Merge_Reject        
+29.63      CACC7                CACC4                Merge_Request       
+29.63      CACC7                -                    Merge_Reject        
+
+29.72      CACC10               -                    Merge_End           
+
+29.73      CACC7                CACC4                Merge_Request       
+29.73      CACC7                -                    Merge_Reject        
+
+29.73      CACC9                CACC7                Merge_Request       
+29.74      CACC9                -                    Merge_Start         
+
+30.34      CACC4                -                    Merge_End           
+
+35.64      CACC9                -                    Merge_End           
+
+35.73      CACC7                CACC1                Merge_Request       
+35.73      CACC7                -                    Merge_Start         
+45.54      CACC7                -                    Merge_End           
+
+73.00      CACC10               -                    Split_Start         
+76.71      CACC10               -                    Split_End           
+118.01     CACC10               CACC1                Merge_Request       
+118.02     CACC10               -                    Merge_Start         
+130.92     CACC10               -                    Merge_End           
