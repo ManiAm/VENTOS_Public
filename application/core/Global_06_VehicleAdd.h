@@ -27,6 +27,7 @@ class VehicleAdd : public BaseModule
         int mode;
 	    int totalVehicles;
 	    double lambda;
+	    int cluster;
 
 	    // methods
 	    void Scenario1();
@@ -36,6 +37,7 @@ class VehicleAdd : public BaseModule
         void Scenario5();
         void Scenario6();
         void Scenario7();
+        void Scenario8();
 };
 
 }

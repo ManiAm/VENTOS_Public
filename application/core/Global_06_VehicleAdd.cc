@@ -28,6 +28,7 @@ void VehicleAdd::initialize(int stage)
         mode = par("mode").longValue();
         totalVehicles = par("totalVehicles").longValue();
         lambda = par("lambda").longValue();
+        cluster = par("cluster").longValue();
     }
 }
 
@@ -82,6 +83,10 @@ void VehicleAdd::Add()
     else if(mode == 7)
     {
         Scenario7();
+    }
+    else if(mode == 8)
+    {
+        Scenario8();
     }
     else
     {
@@ -230,10 +235,10 @@ void VehicleAdd::Scenario5()
 
     int depart = 0;
 
-    for(int i=1; i<=totalVehicles; i++)
+    for(int i=0; i<totalVehicles; i++)
     {
         char vehicleName[10];
-        sprintf(vehicleName, "CACC%d", i);
+        sprintf(vehicleName, "CACC%d", i+1);
         depart = depart + interval;
 
         TraCI->commandAddVehicleN(vehicleName, "TypeCACC", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
@@ -277,6 +282,49 @@ void VehicleAdd::Scenario7()
 
          TraCI->commandAddVehicleN(vehicleName, "TypeCACC", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
      }
+}
+
+
+void VehicleAdd::Scenario8()
+{
+    // change from 'veh/h' to 'veh/s'
+    lambda = lambda / 3600;
+
+    // 1 vehicle per 'interval' milliseconds
+    //double interval = (1 / lambda) * 1000;
+
+    double interval = 5000;
+
+    int depart = 0;
+
+    TraCI->commandSetLaneVmax("1to2_0", 400.);
+    TraCI->commandSetMaxSpeed("TypeCACC", 400.);
+    TraCI->commandSetVint("TypeCACC", 400.);
+    TraCI->commandSetComfAccel("TypeCACC", 400.);
+
+    for(int i=0; i<totalVehicles; i++)
+    {
+        char vehicleName[10];
+        sprintf(vehicleName, "CACC%d", i+1);
+        depart = depart + interval;
+
+        TraCI->commandAddVehicleN(vehicleName, "TypeCACC", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
+
+        if(i == 0)
+        {
+            TraCI->commandSetSpeed(vehicleName, 20.);
+        }
+        else
+        {
+            TraCI->commandSetSpeed(vehicleName, 400.);
+            TraCI->commandSetMaxAccel(vehicleName, 400.);
+        }
+
+        if(i % cluster == 0)
+        {
+            TraCI->commandSetTg(vehicleName, 3.5);
+        }
+    }
 }
 
 

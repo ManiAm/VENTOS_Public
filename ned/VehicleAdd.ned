@@ -12,5 +12,6 @@ simple VehicleAdd
         int mode;
         int totalVehicles;
         int lambda;
+        int cluster;
 }
 
