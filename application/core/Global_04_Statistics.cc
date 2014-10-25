@@ -88,7 +88,7 @@ void Statistics::executeOneTimestep(bool simulationDone)
     if(collectVehiclesData)
     {
         vehiclesData();   // collecting data from all vehicles in each timeStep
-        vehiclesDataToFile();  // write what we have collected so far
+        if(ev.isGUI()) vehiclesDataToFile();  // write what we have collected so far
     }
 
     if(collectLaneCostsData)
@@ -97,13 +97,13 @@ void Statistics::executeOneTimestep(bool simulationDone)
     if(collectInductionLoopData)
     {
         inductionLoops();    // collecting induction loop data in each timeStep
-        inductionLoopToFile();  // write what we have collected so far
+        if(ev.isGUI()) inductionLoopToFile();  // write what we have collected so far
     }
 
     if(collectPlnManagerData)
     {
         plnManageToFile();  // write what we have collected so far
-        plnStatToFile();
+        if(ev.isGUI()) plnStatToFile();
     }
 
     if(printIncidentDetection)
@@ -112,6 +112,14 @@ void Statistics::executeOneTimestep(bool simulationDone)
     // todo:
     if(simulationDone)
     {
+        if(collectVehiclesData && !ev.isGUI())
+            vehiclesDataToFile();
+
+        if(collectInductionLoopData && !ev.isGUI())
+            inductionLoopToFile();
+
+        if(collectPlnManagerData && !ev.isGUI())
+            plnStatToFile();
 
         // sort the vectors by node ID:
         // Vec_BeaconsP = SortByID(Vec_BeaconsP);
