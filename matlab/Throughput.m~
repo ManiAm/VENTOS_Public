@@ -2,10 +2,10 @@ clc;
 
 syms Q G_min V N Tg Tp Lv;
 
-V = 20;      % speed of the platoon 20 m/s = 72 km/h = 44.7 mph
-Tp = 3.5;    % time gap between platoons 3.5 s
-Lv = 5;      % vehicle length 5 m
-G_min = 2;   % minimum space gap
+V = 20; % 20 m/s = 72 km/h = 
+Tp = 3.5;  % 3.5 s
+Lv = 5;    % 5 m
+G_min = 2;
 
 Q = ( (V*N) / ( N*(Lv + G_min) + (N-1)*Tg*V + Tp*V) ) * 3600;
 
@@ -47,7 +47,7 @@ title('');
 xlabel('Platoon Size N', 'FontSize', 19);
 ylabel('Throughput Q (veh/h)', 'FontSize', 19);
 
-handle = legend('Location','SouthEast');
+handle = legend('Location','NorthEast');
 set(handle, 'FontSize', 19);
 
 set(gcf, 'PaperPositionMode', 'auto'); 
