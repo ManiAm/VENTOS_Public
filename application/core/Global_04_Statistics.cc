@@ -102,7 +102,7 @@ void Statistics::executeOneTimestep(bool simulationDone)
 
     if(collectPlnManagerData)
     {
-        plnManageToFile();  // write what we have collected so far
+        if(ev.isGUI()) plnManageToFile();  // write what we have collected so far
         if(ev.isGUI()) plnStatToFile();
     }
 
@@ -119,7 +119,10 @@ void Statistics::executeOneTimestep(bool simulationDone)
             inductionLoopToFile();
 
         if(collectPlnManagerData && !ev.isGUI())
+        {
+            plnManageToFile();
             plnStatToFile();
+        }
 
         // sort the vectors by node ID:
         // Vec_BeaconsP = SortByID(Vec_BeaconsP);
