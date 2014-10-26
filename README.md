@@ -143,6 +143,7 @@ It will ask your username/password, and then receives a copy of the project.
 **Step 5:** Make sure you have these packages installed:
 
 Ubuntu 12.04 : `libboost-filesystem1.48-dev`, `libboost-system1.48-dev`, `libssl-dev`
+
 Ubuntu 14.04 : `libboost-filesystem1.54-dev`, `libboost-system1.54-dev`, `libssl-dev`
 
 **Step 6:** Install Gnuplot 4.6:
