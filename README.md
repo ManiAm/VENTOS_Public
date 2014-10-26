@@ -30,7 +30,7 @@ Features
 * testing different speed profiles
 * study the local/string stability
 * study the effect of Packet Loss Ratio (PLR) on string stability
-* studing differenr security attacks using 'adversary module'
+* studing different security attacks using 'adversary module'
 * supports 'Automatic Incident Detection' in highway / arterial
 
 <p align="center">
@@ -142,11 +142,8 @@ It will ask your username/password, and then receives a copy of the project.
 
 **Step 5:** Make sure you have these packages installed:
 
-`libboost-filesystem1.48-dev` (Ubuntu 12.04) or `libboost-filesystem1.54-dev` (Ubuntu 14.04)
-
-`libboost-system1.48-dev` (Ubuntu 12.04) or `libboost-system1.54-dev` (Ubuntu 14.04)
-
-`libssl-dev`
+Ubuntu 12.04 : `libboost-filesystem1.48-dev`, `libboost-system1.48-dev`, `libssl-dev`
+Ubuntu 14.04 : `libboost-filesystem1.54-dev`, `libboost-system1.54-dev`, `libssl-dev`
 
 **Step 6:** Install Gnuplot 4.6:
 
