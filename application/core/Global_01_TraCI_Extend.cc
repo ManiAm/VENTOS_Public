@@ -975,6 +975,15 @@ void TraCI_Extend::commandSetComfAccel(string nodeId, double speed)
 }
 
 
+void TraCI_Extend::commandSetComfDecel(string nodeId, double speed)
+{
+    uint8_t variableId = 0x24;
+    uint8_t variableType = TYPE_DOUBLE;
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLETYPE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << speed);
+    ASSERT(buf.eof());
+}
+
+
 // #####################
 // CMD_SET_GUI_VARIABLE
 // #####################

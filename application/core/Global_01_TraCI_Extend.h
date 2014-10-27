@@ -131,6 +131,7 @@ class TraCI_Extend : public TraCIScenarioManager
         void commandSetMaxSpeed(string, double);
         void commandSetVint(string, double);              // new defined command
         void commandSetComfAccel(string, double);         // new defined command
+        void commandSetComfDecel(string, double);         // new defined command
 
         // CMD_SET_GUI_VARIABLE
         void commandSetGUIZoom(double);
