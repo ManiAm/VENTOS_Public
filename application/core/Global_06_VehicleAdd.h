@@ -27,7 +27,8 @@ class VehicleAdd : public BaseModule
         int mode;
 	    int totalVehicles;
 	    double lambda;
-	    int cluster;
+	    int plnSize;
+	    double plnSpace;
 
 	    // methods
 	    void Scenario1();

@@ -12,6 +12,7 @@ simple VehicleAdd
         int mode;
         int totalVehicles;
         int lambda;
-        int cluster;
+        int plnSize;
+        double plnSpace = default(3.5s) @unit(s);
 }
 

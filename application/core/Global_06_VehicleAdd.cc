@@ -28,7 +28,8 @@ void VehicleAdd::initialize(int stage)
         mode = par("mode").longValue();
         totalVehicles = par("totalVehicles").longValue();
         lambda = par("lambda").longValue();
-        cluster = par("cluster").longValue();
+        plnSize = par("plnSize").longValue();
+        plnSpace = par("plnSpace").doubleValue();
     }
 }
 
@@ -320,9 +321,9 @@ void VehicleAdd::Scenario8()
             TraCI->commandSetMaxAccel(vehicleName, 400.);
         }
 
-        if(i % cluster == 0)
+        if(i % plnSize == 0)
         {
-            TraCI->commandSetTg(vehicleName, 3.5);
+            TraCI->commandSetTg(vehicleName, plnSpace);
         }
     }
 }
