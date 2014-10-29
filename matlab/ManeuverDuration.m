@@ -13,7 +13,7 @@ LFLeaveCount = 0;
 MFLeaveCount = 0;
 
 for run=0:12
-    filePath = sprintf('../results/cmd/%d_plnStat.txt', run);
+    filePath = sprintf('../results/cmd/man_duration/%d_plnStat.txt', run);
     file_id = fopen(filePath);
     formatSpec = '%f %s %s %s';
     C_text = textscan(file_id, formatSpec, 'HeaderLines', 3);
@@ -228,7 +228,7 @@ Xci(5, 2) = abs( ci(2,1) - mean(MFLeaveStat(:,4)) );
 % -------------------------------------
 
 figure(2)
-h = bar(data);
+h = bar(data, 0.6);
 
 set(gca,'XTickLabel',{'Merge','Split','Leader Leave', 'Last Follower Leave', 'Middle Follower Leave'}', 'FontSize', 19); 
 rotateXLabels(gca, 0);  
