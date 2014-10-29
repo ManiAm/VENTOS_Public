@@ -33,13 +33,13 @@ void SpeedProfile::initialize(int stage)
         normalSpeed = par("normalSpeed").doubleValue();
         maxSpeed = par("maxSpeed").doubleValue();
         switchTime = par("switchTime").doubleValue();
+        startTime = par("startTime").doubleValue();
 
         f2 = fopen ("sumo/EX_Trajectory.txt", "r");
 
         if ( f2 == NULL )
             error("external trajectory file does not exists!");
 
-        startTime = -1;
         endOfFile = false;
         old_speed = -1;
         lastProfileVehicle = "";
@@ -65,11 +65,15 @@ void SpeedProfile::Change()
     if (!on)
         return;
 
-    // upon first call, store current simulation time as startTime
+    // upon first call:
+    // a) if startTime is not specified, then store the current simulation time as startTime
     if(startTime == -1)
     {
         startTime = simTime().dbl();
     }
+    // b) if user specifies a startTime, then wait for it!
+    else if(simTime().dbl() < startTime)
+        return;
 
     if(startTime < 0)
         error("startTime is less than 0 in SpeedProfile.");

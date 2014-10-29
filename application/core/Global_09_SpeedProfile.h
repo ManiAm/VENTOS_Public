@@ -30,13 +30,13 @@ class SpeedProfile : public BaseModule
         double normalSpeed;
         double maxSpeed;
         double switchTime;
+        double startTime;  // the time that speed profiling starts
 
 	    // class variables
         string profileVehicle;
         string lastProfileVehicle;
 	    double old_speed;
 	    double old_time;
-	    double startTime;  // the time that speed profiling starts
         FILE *f2;
         bool endOfFile;
 

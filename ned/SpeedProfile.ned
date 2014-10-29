@@ -15,5 +15,6 @@ simple SpeedProfile
         double normalSpeed;
         double maxSpeed;
         double switchTime = default(40s) @unit(s);
+        double startTime = default(-1s) @unit(s);
 }
 
