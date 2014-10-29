@@ -86,7 +86,7 @@ void ApplVCoordinator::coordinator()
     {
         scenario1();
     }
-    // leave (for youtube video)
+    // leave (for Youtube video)
     else if(coordinationMode == 2)
     {
         scenario2();
@@ -111,6 +111,10 @@ void ApplVCoordinator::coordinator()
     else if(coordinationMode == 6)
     {
         // blank body
+    }
+    else if(coordinationMode == 7)
+    {
+        scenario7();
     }
     else
         error("not a valid coordination mode!");
@@ -545,6 +549,16 @@ void ApplVCoordinator::scenario5()
         // enable automatic merging
         mergeEnabled = true;
     }
+}
+
+
+void ApplVCoordinator::scenario7()
+{
+    if(simTime().dbl() == 60)
+    {
+        TraCI->commandSetSpeed("CACC6", 30.);
+    }
+
 }
 
 
