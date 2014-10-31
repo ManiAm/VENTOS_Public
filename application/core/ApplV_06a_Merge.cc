@@ -36,7 +36,7 @@ void ApplVPlatoonMg::merge_handleSelfMsg(cMessage* msg)
             // check gap to the last follower
             if( CatchUpDone() )
             {
-                MyCircularBufferMerge.clear();
+                // MyCircularBufferMerge.clear();
 
                 // free agent
                 if(plnSize == 1)
@@ -183,7 +183,7 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
         vehicleState = state_waitForCatchup;
         reportStateToStat();
 
-        MyCircularBufferMerge.clear();
+        // MyCircularBufferMerge.clear();
 
         scheduleAt(simTime() + .1, plnTIMER1a);
     }
@@ -379,7 +379,7 @@ bool ApplVPlatoonMg::CatchUpDone()
 
     double targetGap = (speed * timeGapSetting) + minGap;
 
-    if( gap <= targetGap )
+    if( (0.95 * gap) <= targetGap )
         return true;
     else
         return false;

@@ -133,8 +133,8 @@ class ApplVPlatoonMg : public ApplVPlatoonFormed
 
 	private:
         bool busy;
-        boost::circular_buffer<double> MyCircularBufferMerge;
-        boost::circular_buffer<double> MyCircularBufferSplit;
+        //boost::circular_buffer<double> MyCircularBufferMerge;
+        //boost::circular_buffer<double> MyCircularBufferSplit;
 
         // entry
         double leastDistFront;
