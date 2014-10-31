@@ -34,22 +34,28 @@ void SpeedProfile::initialize(int stage)
         maxSpeed = par("maxSpeed").doubleValue();
         switchTime = par("switchTime").doubleValue();
         startTime = par("startTime").doubleValue();
+        trajectoryPath = par("trajectoryPath").stringValue();
 
-        f2 = fopen ("sumo/EX_Trajectory.txt", "r");
-
-        if ( f2 == NULL )
-            error("external trajectory file does not exists!");
-
-        endOfFile = false;
         old_speed = -1;
         lastProfileVehicle = "";
+
+        if(mode == 6)
+        {
+            f2 = fopen (trajectoryPath.c_str(), "r");
+
+            if ( f2 == NULL )
+                error("external trajectory file does not exists! Check trajectoryPath variable.");
+
+            endOfFile = false;
+        }
     }
 }
 
 
 void SpeedProfile::finish()
 {
-    fclose(f2);
+    if(mode == 6)
+        fclose(f2);
 }
 
 
@@ -251,7 +257,7 @@ void SpeedProfile::AccelDecelPeriodic(double startT, double offset, double A, do
 
 void SpeedProfile::ExTrajectory(double startT)
 {
-    // if we have read all lines of the file, return
+    // if we have read all lines of the file, then return
     if(endOfFile)
         return;
 
@@ -261,9 +267,11 @@ void SpeedProfile::ExTrajectory(double startT)
     }
     else if( simTime().dbl() == startT )
     {
-        TraCI->commandSetSpeed(profileVehicle, 13.86);
+        // TraCI->commandSetSpeed(profileVehicle, 13.86);
+        TraCI->commandSetSpeed("CACC1", 20.);
+        return;
     }
-    else if( simTime().dbl() < (startT + 40) )
+    else if( simTime().dbl() < 80 )
     {
         return;
     }
@@ -280,5 +288,5 @@ void SpeedProfile::ExTrajectory(double startT)
     TraCI->commandSetSpeed(profileVehicle, atof(line));
 }
 
-}
+} // end of namespace
 

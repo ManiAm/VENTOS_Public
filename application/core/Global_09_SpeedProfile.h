@@ -31,6 +31,7 @@ class SpeedProfile : public BaseModule
         double maxSpeed;
         double switchTime;
         double startTime;  // the time that speed profiling starts
+        string trajectoryPath;
 
 	    // class variables
         string profileVehicle;
