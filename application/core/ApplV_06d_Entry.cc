@@ -17,10 +17,8 @@ void ApplVPlatoonMg::entry_handleSelfMsg(cMessage* msg)
             TraCI->commandSetvClass(SUMOvID, "vip");   // change vClass to vip
 
             int32_t bitset = TraCI->commandMakeLaneChangeMode(10, 01, 01, 01, 01);
-            TraCI->commandSetLaneChangeMode(SUMOvID, bitset);  // alter 'lane change' mode
+            TraCI->commandSetLaneChangeMode(SUMOvID, bitset);   // alter 'lane change' mode
             TraCI->commandChangeLane(SUMOvID, 1, 5);   // change to lane 1 (special lane)
-
-            TraCI->commandSetSpeed(SUMOvID, 8.);   // set speed to 8 m/s
 
             // change state to waitForLaneChange
             vehicleState = state_waitForLaneChange;
@@ -42,6 +40,21 @@ void ApplVPlatoonMg::entry_handleSelfMsg(cMessage* msg)
             TraCI->commandSetTg(SUMOvID, TP);
 
             busy = false;
+
+            // get my leading vehicle
+            vector<string> vleaderIDnew = TraCI->commandGetLeading(SUMOvID, sonarDist);
+            string vleaderID = vleaderIDnew[0];
+
+            // if no leading, set speed to 5 m/s
+            if(vleaderID == "")
+            {
+                TraCI->commandSetSpeed(SUMOvID, 5.);
+            }
+            // if I have leading, set speed to max
+            else
+            {
+                TraCI->commandSetSpeed(SUMOvID, 30.);
+            }
 
             // change color to red!
             TraCIColor newColor = TraCIColor::fromTkColor("red");

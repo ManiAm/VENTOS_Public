@@ -67,7 +67,7 @@ void ApplVPlatoonMg::split_handleSelfMsg(cMessage* msg)
             vehicleState = state_platoonLeader;
             reportStateToStat();
 
-            MyCircularBufferSplit.clear();
+            // MyCircularBufferSplit.clear();
 
             reportManeuverToStat(SUMOvID, "-", "Split_End");
 
@@ -221,7 +221,9 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
         }
 
         // send unicast SPLIT_DONE
-        PlatoonMsg* dataMsg = prepareData(splittingVehicle, SPLIT_DONE, plnID, -1, "", secondPlnMembersList);
+        // we send two data to our follower:
+        // 1) splitCaller 2) our platoon member list
+        PlatoonMsg* dataMsg = prepareData(splittingVehicle, SPLIT_DONE, plnID, splitCaller, "", secondPlnMembersList);
         EV << "### " << SUMOvID << ": sent SPLIT_DONE." << endl;
         printDataContent(dataMsg);
         sendDelayed(dataMsg, individualOffset, lowerLayerOut);
@@ -361,12 +363,33 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
             updateColorDepth();
 
             TraCI->commandSetTg(SUMOvID, TP);
-            TraCI->commandSetSpeed(SUMOvID, 20.); // set to normal speed
+
+            // check splitCaller. If 'leader leave' is on-going
+            if(wsm->getDblValue() == 0)
+            {
+                // then check if there is any leading vehicle after my leader
+                vector<string> vleaderIDnew = TraCI->commandGetLeading(oldPlnID, sonarDist);
+                string vleaderID = vleaderIDnew[0];
+
+                if(vleaderID == "")
+                {
+                    TraCI->commandSetSpeed(SUMOvID, 20.);
+                }
+                // if yes
+                else
+                {
+                    TraCI->commandSetSpeed(SUMOvID, 30.); // set max speed
+                }
+            }
+            else
+            {
+                TraCI->commandSetSpeed(SUMOvID, 30.); // set max speed
+            }
 
             vehicleState = state_waitForGap;
             reportStateToStat();
 
-            MyCircularBufferSplit.clear();
+            // MyCircularBufferSplit.clear();
 
             // check each 0.1s to see if the gap is big enough
             scheduleAt(simTime() + .1, plnTIMER8a);
