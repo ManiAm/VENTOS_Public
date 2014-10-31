@@ -128,5 +128,29 @@ grid on;
 
 % -----------------------------------------------------------
 
+syms Q G_min V N Tg Tp Lv;
+
+V = 20;      % speed of the platoon 20 m/s = 72 km/h = 44.7 mph
+Tp = 3.5;    % time gap between platoons 3.5 s
+Lv = 5;      % vehicle length 5 m
+G_min = 2;   % minimum space gap
+Tg = 0.55;
+
+Q = ( (V*N) / ( N*(Lv + G_min) + (N-1)*Tg*V + Tp*V) ) * 3600;
+
+subaxis(1,2,1);
+hold on;
+
+h = ezplot(Q, [-1 20]);
+set(h,'LineWidth',3);
+
+%set( gca, 'XLim', [0 25] );
+%set( gca, 'YLim', [0 4000] );
+
+% set font size
+%set(gca, 'FontSize', 19);
+
+% -----------------------------------------------------------
+
 disp('done!');
 

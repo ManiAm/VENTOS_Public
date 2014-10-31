@@ -14,7 +14,7 @@ xLimit = 1000;
 for s=1:1    
     
     if(s == 1)
-        path = '../results/gui/vehicleData.txt';
+        path = '../results/gui/twoPlatoons_stability/vehicleData.txt';
         figureName = 'Optimal Speed';
     elseif(s == 2)
         path = '../2.Result/speed-gap-21MSCFModel_KraussFixed.txt';
@@ -136,6 +136,20 @@ for s=1:1
     figName = sprintf('figure%d',fig);
     print('-dpng', '-r300', figName);
 
+    % --------------------------------------------------------------
+    
+    % save Veh6 data   
+    veh6(:,1) = vehiclesTS(:, 1);
+    veh6(:,2) = vehiclesSpeed(:, 6);
+    
+    fid = fopen('/home/mani/Desktop/VENTOS/sumo/trajectory_SplitMerge.txt','w');
+    
+    [rows, ~] = size(vehiclesSpeed);
+    
+    for i=1:rows
+        fprintf(fid,'%.2f \n', vehiclesSpeed(i, 6));        
+    end   
+    
     % --------------------------------------------------------------
     
     % gaps of vehicles 
