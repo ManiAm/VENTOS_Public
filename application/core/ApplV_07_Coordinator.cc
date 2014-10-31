@@ -75,43 +75,38 @@ void ApplVCoordinator::handlePositionUpdate(cObject* obj)
 
 void ApplVCoordinator::coordinator()
 {
-    // a simple split then merge
-    // to draw the speed profile
-    if(coordinationMode == 0)
+    // do nothing!
+    if(coordinationMode == 1)
     {
-        scenario0();
+
     }
-    // merge and split (for youtube video)
-    else if(coordinationMode == 1)
-    {
-        scenario1();
-    }
-    // leave (for Youtube video)
+    // video: three plns (1,5,5) doing merge/split
     else if(coordinationMode == 2)
     {
         scenario2();
     }
-    // IEEE CSS competition
+    // video: leader/last follower/middle follower leave
     else if(coordinationMode == 3)
     {
         scenario3();
     }
-    // measure merge, split, leader/follower leave duration for
-    // a platoon of size 10
+    // video: IEEE CSS competition
     else if(coordinationMode == 4)
     {
         scenario4();
     }
-    // effect of changing Tp on merge/split duration
+    // speed profile of platoon members in split/merge
     else if(coordinationMode == 5)
     {
         scenario5();
     }
-    // do nothing!
+    // measure merge, split, leader/follower leave duration for
+    // a platoon of size 10
     else if(coordinationMode == 6)
     {
-        // blank body
+        scenario6();
     }
+    // effect of changing Tp on merge/split duration
     else if(coordinationMode == 7)
     {
         scenario7();
@@ -122,36 +117,13 @@ void ApplVCoordinator::coordinator()
     scheduleAt(simTime() + 0.1, coordination);
 }
 
+// -----------------------------------------------------------
 
-void ApplVCoordinator::scenario0()
-{
-    if(simTime().dbl() == 40)
-    {
-        TraCI->commandSetSpeed("CACC1", 20.);
-    }
-    else if(simTime().dbl() == 73)
-    {
-        // disable automatic merging
-        mergeEnabled = false;
-
-        if(SUMOvID == "CACC1")
-            splitFromPlatoon(5);
-    }
-    else if(simTime().dbl() == 118)
-    {
-        // enable automatic merging
-        mergeEnabled = true;
-    }
-}
-
-
-void ApplVCoordinator::scenario1()
+void ApplVCoordinator::scenario2()
 {
     if(simTime().dbl() == 37)
     {
         TraCI->commandSetSpeed("CACC1", 20.);
-        TraCI->commandSetSpeed("CACC6", 20.);
-        TraCI->commandSetSpeed("CACC11", 20.);
     }
     else if(simTime().dbl() == 59)
     {
@@ -176,7 +148,7 @@ void ApplVCoordinator::scenario1()
 }
 
 
-void ApplVCoordinator::scenario2()
+void ApplVCoordinator::scenario3()
 {
     if(simTime().dbl() == 26)
     {
@@ -209,7 +181,7 @@ void ApplVCoordinator::scenario2()
 }
 
 
-void ApplVCoordinator::scenario3()
+void ApplVCoordinator::scenario4()
 {
     if(TraCI->commandGetNoVehicles() == 10)
         stopTime = simTime().dbl();
@@ -266,7 +238,29 @@ void ApplVCoordinator::scenario3()
 }
 
 
-void ApplVCoordinator::scenario4()
+void ApplVCoordinator::scenario5()
+{
+    if(simTime().dbl() == 40)
+    {
+        TraCI->commandSetSpeed("CACC1", 20.);
+    }
+    else if(simTime().dbl() == 73)
+    {
+        // disable automatic merging
+        mergeEnabled = false;
+
+        if(SUMOvID == "CACC1")
+            splitFromPlatoon(5);
+    }
+    else if(simTime().dbl() == 118)
+    {
+        // enable automatic merging
+        mergeEnabled = true;
+    }
+}
+
+
+void ApplVCoordinator::scenario6()
 {
     if(ev.isGUI())
         error("Run coordination mode 3 in command-line, not GUI!");
@@ -530,7 +524,7 @@ void ApplVCoordinator::scenario4()
 }
 
 
-void ApplVCoordinator::scenario5()
+void ApplVCoordinator::scenario7()
 {
     if(simTime().dbl() == 40)
     {
@@ -549,16 +543,6 @@ void ApplVCoordinator::scenario5()
         // enable automatic merging
         mergeEnabled = true;
     }
-}
-
-
-void ApplVCoordinator::scenario7()
-{
-    if(simTime().dbl() == 60)
-    {
-        TraCI->commandSetSpeed("CACC6", 30.);
-    }
-
 }
 
 

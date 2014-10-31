@@ -25,12 +25,11 @@ class ApplVCoordinator : public ApplVPlatoonMg
 	private:
         void coordinator();
 
-        void scenario0();
-        void scenario1();
         void scenario2();
         void scenario3();
         void scenario4();
         void scenario5();
+        void scenario6();
         void scenario7();
 
         int coordinationMode;
