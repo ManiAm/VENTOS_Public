@@ -111,6 +111,10 @@ void ApplVCoordinator::coordinator()
     {
         scenario7();
     }
+    else if(coordinationMode == 8)
+    {
+        scenario8();
+    }
     else
         error("not a valid coordination mode!");
 
@@ -542,6 +546,29 @@ void ApplVCoordinator::scenario7()
     {
         // enable automatic merging
         mergeEnabled = true;
+    }
+}
+
+
+void ApplVCoordinator::scenario8()
+{
+    if(simTime().dbl() == 40)
+    {
+        optPlnSize = 10;
+        TraCI->commandSetSpeed("CACC1", 20.);
+    }
+    else if(simTime().dbl() == 73)
+    {
+        // disable automatic merging
+        mergeEnabled = false;
+
+        optPlnSize = 2;
+    }
+    else if(simTime().dbl() == 130)
+    {
+        // enable automatic merging
+        mergeEnabled = true;
+        optPlnSize = 10;
     }
 }
 
