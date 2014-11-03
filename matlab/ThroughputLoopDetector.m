@@ -6,6 +6,36 @@ clc;    % position the cursor at the top of the screen
 
 % ---------------------------------------------------------- 
 
+syms Q G_min V N Tg Tp Lv;
+
+V = 20;      % speed of the platoon 20 m/s = 72 km/h = 44.7 mph
+Tp = 3.5;    % time gap between platoons 3.5 s
+Lv = 5;      % vehicle length 5 m
+G_min = 2;   % minimum space gap
+Tg = 0.55;   % time gap between vehicles
+
+Q = ( (V*N) / ( N*(Lv + G_min) + (N-1)*Tg*V + Tp*V) ) * 3600;
+
+figure(1);
+subaxis(1,2,'SpacingHoriz',0.07,'MA',0.02,'MB',0.1,'MR',0.02,'ML',0.06);
+
+subaxis(1,2,1);
+hold on;
+
+h = ezplot(Q, [1 22]);
+set(h,'LineWidth',3);
+ylim([2400 3000]);
+
+%set( gca, 'XLim', [0 25] );
+%set( gca, 'YLim', [0 4000] );
+
+% set font size
+%set(gca, 'FontSize', 19);
+
+% -----------------------------------------------------------
+
+% effect of platoon size of throughput
+
 for run=0:3
     filePath = sprintf('../results/cmd/plnSize_on_throu/%d_loopDetector.txt', run);
     file_id = fopen(filePath);
@@ -36,7 +66,15 @@ for run=0:3
     end
 end
 
-disp(q);
+disp('throughput with different PlnSize:');
+fprintf(' #Vehs  #PlnSize=5  #PlnSize=10  #PlnSize=15  #PlnSize=20\n');
+
+for i=1:rows-1
+    fprintf('%5.0f  %10.0f  %10.0f  %10.0f  %10.0f\n', q(i,1), q(i,2), q(i,3), q(i,4), q(i,5) );
+    if(gcd(i+1,5) == 5)
+        fprintf('\n');
+    end
+end
 
 % ----------------------------------------------------------
 
@@ -46,15 +84,19 @@ data = q(119, :);
 % remove the first column
 data(:,[1]) = [];
 
+% copy first row into second
+data(2,:) = data(1,:);
+
+% fill first row
+data(1,1) = 5;
+data(1,2) = 10;
+data(1,3) = 15;
+data(1,4) = 20;
+
 % ----------------------------------------------------------
 
-figure(1);
-subaxis(1,2,'SpacingHoriz',0.07,'MA',0.02,'MB',0.1,'MR',0.02,'ML',0.06);
-
 subaxis(1,2,1);
-h = bar(data, 0.6);
-
-set(gca,'XTickLabel',{'5','10', '15', '20'}', 'FontSize', 19);
+h = bar(data(1,:), data(2,:), 0.6);
 
 xlabel('Platoon Size', 'FontSize', 20);
 ylabel('Throughput (veh/h)', 'FontSize', 20);
@@ -125,30 +167,6 @@ ylabel('Throughput (veh/h)', 'FontSize', 20);
 set(h(1), 'FaceColor', [0.5 0.5 0.5]);
 
 grid on;
-
-% -----------------------------------------------------------
-
-syms Q G_min V N Tg Tp Lv;
-
-V = 20;      % speed of the platoon 20 m/s = 72 km/h = 44.7 mph
-Tp = 3.5;    % time gap between platoons 3.5 s
-Lv = 5;      % vehicle length 5 m
-G_min = 2;   % minimum space gap
-Tg = 0.55;
-
-Q = ( (V*N) / ( N*(Lv + G_min) + (N-1)*Tg*V + Tp*V) ) * 3600;
-
-subaxis(1,2,1);
-hold on;
-
-h = ezplot(Q, [-1 20]);
-set(h,'LineWidth',3);
-
-%set( gca, 'XLim', [0 25] );
-%set( gca, 'YLim', [0 4000] );
-
-% set font size
-%set(gca, 'FontSize', 19);
 
 % -----------------------------------------------------------
 

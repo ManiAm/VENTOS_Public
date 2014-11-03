@@ -11,16 +11,16 @@ fig = 0;
 hf = zeros(1,4);
 xLimit = 1000;
 
-for s=1:1    
+for s=3:3    
     
     if(s == 1)
-        path = '../results/gui/twoPlatoons_stability/vehicleData.txt';
+        path = '../results/gui/split_merge_speedProfile/vehicleData.txt';
         figureName = 'Optimal Speed';
     elseif(s == 2)
-        path = '../2.Result/speed-gap-21MSCFModel_KraussFixed.txt';
+        path = '../results/cmd/man_duration/0_vehicleData.txt';
         figureName = 'Krauss Fixed';
     elseif(s == 3)
-        path = '../2.Result/speed-gap-21MSCFModel_KraussOrig1.txt';
+        path = '../results/gui/vehicleData.txt';
         figureName = 'KraussOrig1';
     end
     
@@ -281,11 +281,66 @@ for s=1:1
     % save the figure as a png file
     set(gcf, 'PaperPositionMode', 'auto'); 
     figName = sprintf('figure%d',fig);
-    print('-dpng', '-r300', figName);    
+    print('-dpng', '-r300', figName);   
+    
+    % ---------------------------------------------------------------    
+    
+    % distance to CACC1 (first vehicle of the stream)
+    vehiclesGapCopy = vehiclesGap;
+    
+    [rows,~] = size(vehiclesGapCopy);
+
+    for i=1:rows
+        for j=3:VehNumbers
+            if(vehiclesGapCopy(i,j) ~= -1 && vehiclesGapCopy(i,j-1) ~= -1)
+                vehiclesGapCopy(i,j) =  vehiclesGapCopy(i,j) + vehiclesGapCopy(i,j-1);      
+            end
+        end    
+    end
+
+    figure('units','normalized','outerposition',[0 0 1 1]);
+    fig = fig + 1;
+    hf(fig) = figure(fig);
+    set(gcf,'name','distance to veh1');
+
+    handle2 = plot(vehiclesTS,vehiclesGapCopy,'LineWidth', 3);
+
+    % set the x-axis limit
+    set( gca, 'XLim', [0 xLimit] );
+    
+    % set the y-axis limit
+    %set( gca, 'YLim', [0 120] );
+
+    % set font size
+    set(gca, 'FontSize', 19);
+
+    % set the axis labels
+    xlabel('Simulation Time (s)', 'FontSize', 19);
+    ylabel('Distance to Veh1 (m)', 'FontSize', 19);
+
+    grid on;   
+    
+    % speed profile of first vehicle (dashed line)
+    set(handle2(1), 'LineStyle', '-.');
+    
+    [n , ~] = size(handle2);
+    
+    % set the name for each line
+    for i=1:VehNumbers
+        name = sprintf('veh %2d', i);
+        set(handle2(i),'Displayname', name);   
+    end    
+    
+    % set the legend
+    legend(handle2, 'Location','NorthEastOutside');
         
 end
 
 % -------------------------------------------------------------------
+
+disp('done!');
+
+
 
 %figs2subplots([hf(1) hf(7)],[2 1],{1,2});
 
