@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nodes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+  <node id="1" x="0.0" y="+1000.0" />
+  <node id="2" x="-1000.0" y="0.0" />
+  <node id="3" x="0.0" y="0.0" type="allway_stop" />
+  <node id="4" x="+1000.0" y="0.0" />
+  <node id="5" x="0.0" y="-1000.0" />
+
+</nodes>
