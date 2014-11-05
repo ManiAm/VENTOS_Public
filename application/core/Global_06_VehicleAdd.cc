@@ -89,6 +89,10 @@ void VehicleAdd::Add()
     {
         Scenario8();
     }
+    else if(mode == 9)
+    {
+        Scenario9();
+    }
     else
     {
         error("not a valid mode!");
@@ -328,5 +332,19 @@ void VehicleAdd::Scenario8()
     }
 }
 
+void VehicleAdd::Scenario9()
+{
+    int depart = 0;
+
+     for(int i=1; i<=totalVehicles; i++)
+     {
+         char vehicleName[10];
+         sprintf(vehicleName, "CACC%d", i);
+         depart = depart + 10000;
+
+         TraCI->commandAddVehicleN(vehicleName, "TypeCACC", "route1", depart, 0 /*pos*/, 0 /*speed*/, 1 /*lane*/);
+
+     }
+}
 
 }

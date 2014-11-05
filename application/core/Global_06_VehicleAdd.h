@@ -39,6 +39,7 @@ class VehicleAdd : public BaseModule
         void Scenario6();
         void Scenario7();
         void Scenario8();
+        void Scenario9();
 };
 
 }
