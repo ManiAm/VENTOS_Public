@@ -6,34 +6,6 @@ clc;    % position the cursor at the top of the screen
 
 % ---------------------------------------------------------- 
 
-syms Q G_min V N Tg Tp Lv;
-
-V = 20;      % speed of the platoon 20 m/s = 72 km/h = 44.7 mph
-Tp = 3.5;    % time gap between platoons 3.5 s
-Lv = 5;      % vehicle length 5 m
-G_min = 2;   % minimum space gap
-Tg = 0.55;   % time gap between vehicles
-
-Q = ( (V*N) / ( N*(Lv + G_min) + (N-1)*Tg*V + Tp*V) ) * 3600;
-
-figure(1);
-subaxis(1,2,'SpacingHoriz',0.07,'MA',0.02,'MB',0.1,'MR',0.02,'ML',0.06);
-
-subaxis(1,2,1);
-hold on;
-
-h = ezplot(Q, [1 22]);
-set(h,'LineWidth',3);
-ylim([2400 3000]);
-
-%set( gca, 'XLim', [0 25] );
-%set( gca, 'YLim', [0 4000] );
-
-% set font size
-%set(gca, 'FontSize', 19);
-
-% -----------------------------------------------------------
-
 % effect of platoon size of throughput
 
 for run=0:3
@@ -45,14 +17,26 @@ for run=0:3
 
     % --------------------------
     
+    if(run == 0)
+        plnSize = 5;
+    elseif(run == 1)
+        plnSize = 10;
+    elseif(run == 2)
+        plnSize = 15;
+    elseif(run == 3)
+        plnSize = 20;
+    end    
+    
+    % --------------------------
+    
     vehicles = C_text{1,2};    
     vehEntry = C_text{1,3};
 
     % --------------------------
     
-    vehCount = 0;
     timeStart = double(vehEntry(1,1));
-    vehCount = vehCount + 1;
+    vehCount = 1;
+    index = 1;
 
     [rows,~] = size(vehicles);
 
@@ -61,55 +45,74 @@ for run=0:3
         time = double(vehEntry(i,1));
         duration = time - timeStart;
         
-        q(i-1, 1) = vehCount; 
-        q(i-1, run+2) = (3600 * vehCount) / duration;        
+        if(gcd(i-1,plnSize) == plnSize)
+            q(index, run+1) = (3600 * (vehCount-1)) / duration;   
+            index = index + 1;
+        end       
     end
 end
 
-disp('throughput with different PlnSize:');
-fprintf(' #Vehs  #PlnSize=5  #PlnSize=10  #PlnSize=15  #PlnSize=20\n');
+disp('Throughput with different PlnSize:');
+fprintf(' #PlnSize=5  #PlnSize=10  #PlnSize=15  #PlnSize=20\n');
 
-for i=1:rows-1
-    fprintf('%5.0f  %10.0f  %10.0f  %10.0f  %10.0f\n', q(i,1), q(i,2), q(i,3), q(i,4), q(i,5) );
-    if(gcd(i+1,5) == 5)
-        fprintf('\n');
-    end
+[rows, ~] = size(q);
+
+for i=1:rows
+    fprintf('%10.0f  %10.0f  %10.0f  %10.0f\n', q(i,1), q(i,2), q(i,3), q(i,4) );
 end
 
 % ----------------------------------------------------------
 
 % extract a specific row
-data = q(119, :);
+%data = q(119, :);
 
 % remove the first column
-data(:,[1]) = [];
+%data(:,[1]) = [];
 
 % copy first row into second
-data(2,:) = data(1,:);
-
-% fill first row
-data(1,1) = 5;
-data(1,2) = 10;
-data(1,3) = 15;
-data(1,4) = 20;
+%data(2,:) = data(1,:);
 
 % ----------------------------------------------------------
 
+figure(1);
+subaxis(1,2,'SpacingHoriz',0.09,'MA',0.02,'MB',0.1,'MR',0.02,'ML',0.09);
+
 subaxis(1,2,1);
-h = bar(data(1,:), data(2,:), 0.6);
+h = bar([5 10 15 20], [q(24,1) q(11,2) q(7,3) q(5,4)], 0.6);
+
+set(h(1), 'FaceColor', [0.5 0.5 0.5]);
+
+% ----------------------------------------------------------
+% ----------------------------------------------------------
+
+syms Q G_min V N Tg Tp Lv;
+
+V = 20;      % speed of the platoon 20 m/s = 72 km/h = 44.7 mph
+Tp = 3.5;    % time gap between platoons 3.5 s
+Lv = 5;      % vehicle length 5 m
+G_min = 2;   % minimum space gap
+Tg = 0.55;   % time gap between vehicles
+
+Q = ( (V*N) / ( N*(Lv + G_min) + (N-1)*Tg*V + Tp*V) ) * 3600;
+
+subaxis(1,2,1);
+hold on;
+
+h = ezplot(Q, [1 22]);
+set(h,'LineWidth',3);
+set(h, 'LineStyle', '-.');
 
 xlabel('Platoon Size', 'FontSize', 20);
 ylabel('Throughput (veh/h)', 'FontSize', 20);
 
-% 2400 to 3000
-ylim([2400 3000]);
+% set font size
+set(gca, 'FontSize', 20);
 
-set(h(1), 'FaceColor', [0.5 0.5 0.5]);
+ylim([2300 3500]);
 
 grid on;
 
-% ----------------------------------------------------------
-% ----------------------------------------------------------
+% -----------------------------------------------------------
 
 for run=0:2
     filePath = sprintf('../results/cmd/TP_on_throu/%d_loopDetector.txt', run);
@@ -158,11 +161,10 @@ h = bar(data, 0.6);
 
 set(gca,'XTickLabel',{'2','3.5', '5'}', 'FontSize', 19);
 
-xlabel('Inter-platoon spacing (T_P)', 'FontSize', 20);
+xlabel('Inter-platoon Spacing (T_P)', 'FontSize', 20);
 ylabel('Throughput (veh/h)', 'FontSize', 20);
 
-% 2400 to 3000
-% ylim([2400 3000]);
+ylim([1800 3200]);
 
 set(h(1), 'FaceColor', [0.5 0.5 0.5]);
 
