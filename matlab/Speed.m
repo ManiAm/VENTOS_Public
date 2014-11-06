@@ -138,7 +138,8 @@ for s=3:3
 
     % --------------------------------------------------------------
     
-    % save Veh6 data   
+    % save Veh6 data 
+    %{
     veh6(:,1) = vehiclesTS(:, 1);
     veh6(:,2) = vehiclesSpeed(:, 6);
     
@@ -149,6 +150,7 @@ for s=3:3
     for i=1:rows
         fprintf(fid,'%.2f \n', vehiclesSpeed(i, 6));        
     end   
+    %}
     
     % --------------------------------------------------------------
     
