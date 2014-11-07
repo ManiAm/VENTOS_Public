@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on Fri Nov  7 13:43:20 2014 by SUMO netconvert Version svnD
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo-sim.org/xsd/netconvertConfiguration.xsd">
+
+    <input>
+        <node-files value="1hello.nod.xml"/>
+        <edge-files value="2hello.edg.xml"/>
+        <connection-files value="3hello.con.xml"/>
+    </input>
+
+    <output>
+        <output-file value="3hello.net.xml"/>
+    </output>
+
+    <processing>
+        <no-internal-links value="true"/>
+    </processing>
+
+</configuration>
+-->
+
+<net version="0.13" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo-sim.org/xsd/net_file.xsd">
+
+    <location netOffset="400.00,400.00" convBoundary="0.00,0.00,800.00,800.00" origBoundary="-400.00,-400.00,400.00,400.00" projParameter="!"/>
+
+    <edge id="1to3" from="1" to="3" priority="-1">
+        <lane id="1to3_0" index="0" allow="pedestrian" speed="13.90" length="400.00" width="1.00" shape="395.05,800.00 395.05,402.55"/>
+        <lane id="1to3_1" index="1" disallow="pedestrian" speed="30.00" length="400.00" shape="397.25,800.00 397.25,402.55"/>
+        <lane id="1to3_2" index="2" allow="pedestrian" speed="13.90" length="400.00" width="1.00" shape="399.45,800.00 399.45,402.55"/>
+    </edge>
+    <edge id="2to3" from="2" to="3" priority="-1">
+        <lane id="2to3_0" index="0" allow="pedestrian" speed="13.90" length="400.00" width="1.00" shape="0.00,395.05 391.95,395.05"/>
+        <lane id="2to3_1" index="1" disallow="pedestrian" speed="30.00" length="400.00" shape="0.00,397.25 391.95,397.25"/>
+        <lane id="2to3_2" index="2" allow="pedestrian" speed="13.90" length="400.00" width="1.00" shape="0.00,399.45 391.95,399.45"/>
+    </edge>
+    <edge id="3to4" from="3" to="4" priority="-1">
+        <lane id="3to4_0" index="0" allow="pedestrian" speed="13.90" length="400.00" width="1.00" shape="402.55,395.05 800.00,395.05"/>
+        <lane id="3to4_1" index="1" disallow="pedestrian" speed="30.00" length="400.00" shape="402.55,397.25 800.00,397.25"/>
+        <lane id="3to4_2" index="2" allow="pedestrian" speed="13.90" length="400.00" width="1.00" shape="402.55,399.45 800.00,399.45"/>
+    </edge>
+    <edge id="3to5" from="3" to="5" priority="-1">
+        <lane id="3to5_0" index="0" allow="pedestrian" speed="13.90" length="400.00" width="1.00" shape="395.05,391.95 395.05,0.00"/>
+        <lane id="3to5_1" index="1" disallow="pedestrian" speed="30.00" length="400.00" shape="397.25,391.95 397.25,0.00"/>
+        <lane id="3to5_2" index="2" allow="pedestrian" speed="13.90" length="400.00" width="1.00" shape="399.45,391.95 399.45,0.00"/>
+    </edge>
+
+    <junction id="1" type="unregulated" x="400.00" y="800.00" incLanes="" intLanes="" shape="401.05,800.00 393.45,800.00"/>
+    <junction id="2" type="unregulated" x="0.00" y="400.00" incLanes="" intLanes="" shape="0.00,401.05 -0.00,393.45"/>
+    <junction id="3" type="priority" x="400.00" y="400.00" incLanes="1to3_0 1to3_1 1to3_2 2to3_0 2to3_1 2to3_2" intLanes="" shape="393.45,402.55 401.05,402.55 402.55,401.05 402.55,393.45 401.05,391.95 393.45,391.95 391.95,393.45 391.95,401.05">
+        <request index="0" response="111111000000" foes="111111000000"/>
+        <request index="1" response="101010000000" foes="101010000000"/>
+        <request index="2" response="111111000010" foes="111111000010"/>
+        <request index="3" response="101010000000" foes="101010000000"/>
+        <request index="4" response="111111001010" foes="111111001010"/>
+        <request index="5" response="101010000000" foes="101010000000"/>
+        <request index="6" response="000000000000" foes="000000010101"/>
+        <request index="7" response="000000000000" foes="000000111111"/>
+        <request index="8" response="000010000000" foes="000010010101"/>
+        <request index="9" response="000000000000" foes="000000111111"/>
+        <request index="10" response="001010000000" foes="001010010101"/>
+        <request index="11" response="000000000000" foes="000000111111"/>
+    </junction>
+    <junction id="4" type="unregulated" x="800.00" y="400.00" incLanes="3to4_0 3to4_1 3to4_2" intLanes="" shape="800.00,393.45 800.00,401.05"/>
+    <junction id="5" type="unregulated" x="400.00" y="0.00" incLanes="3to5_0 3to5_1 3to5_2" intLanes="" shape="393.45,0.00 401.05,-0.00"/>
+
+    <connection from="1to3" to="3to5" fromLane="0" toLane="0" dir="s" state="m"/>
+    <connection from="1to3" to="3to4" fromLane="0" toLane="0" dir="l" state="m"/>
+    <connection from="1to3" to="3to5" fromLane="1" toLane="1" dir="s" state="m"/>
+    <connection from="1to3" to="3to4" fromLane="1" toLane="1" dir="l" state="m"/>
+    <connection from="1to3" to="3to5" fromLane="2" toLane="2" dir="s" state="m"/>
+    <connection from="1to3" to="3to4" fromLane="2" toLane="2" dir="l" state="m"/>
+    <connection from="2to3" to="3to5" fromLane="0" toLane="0" dir="r" state="M"/>
+    <connection from="2to3" to="3to4" fromLane="0" toLane="0" dir="s" state="M"/>
+    <connection from="2to3" to="3to5" fromLane="1" toLane="1" dir="r" state="M"/>
+    <connection from="2to3" to="3to4" fromLane="1" toLane="1" dir="s" state="M"/>
+    <connection from="2to3" to="3to5" fromLane="2" toLane="2" dir="r" state="M"/>
+    <connection from="2to3" to="3to4" fromLane="2" toLane="2" dir="s" state="M"/>
+
+</net>

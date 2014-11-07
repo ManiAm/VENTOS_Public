@@ -89,6 +89,10 @@ void VehicleAdd::Add()
     {
         Scenario8();
     }
+    else if(mode == 9)
+    {
+        Scenario9();
+    }
     else
     {
         error("not a valid mode!");
@@ -328,5 +332,27 @@ void VehicleAdd::Scenario8()
     }
 }
 
+void VehicleAdd::Scenario9()
+{
+    int vehicleDepart = 0;
+    int pedestrianDepart = 0;
+
+     for(int i=1; i<=totalVehicles; i++)
+     {
+         char vehicleName[10];
+         sprintf(vehicleName, "CACC%d", i);
+         vehicleDepart = vehicleDepart + 10000;
+
+         TraCI->commandAddVehicleN(vehicleName, "TypeCACC", "route4", vehicleDepart, 0 /*pos*/, 0 /*speed*/, 1 /*lane*/);
+
+
+         char pedestrianName[10];
+         sprintf(pedestrianName, "Ped%d", i);
+         pedestrianDepart = pedestrianDepart + 10000;
+
+         TraCI->commandAddVehicleN(pedestrianName, "Pedestrian", "route1", pedestrianDepart, 350 /*pos*/, 0 /*speed*/, 0 /*lane*/);
+
+     }
+}
 
 }
