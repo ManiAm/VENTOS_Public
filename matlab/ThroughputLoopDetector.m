@@ -63,17 +63,6 @@ end
 
 % ----------------------------------------------------------
 
-% extract a specific row
-%data = q(119, :);
-
-% remove the first column
-%data(:,[1]) = [];
-
-% copy first row into second
-%data(2,:) = data(1,:);
-
-% ----------------------------------------------------------
-
 figure(1);
 subaxis(1,2,'SpacingHoriz',0.09,'MA',0.02,'MB',0.1,'MR',0.02,'ML',0.09);
 
@@ -82,7 +71,8 @@ h = bar([5 10 15 20], [q(24,1) q(11,2) q(7,3) q(5,4)], 0.6);
 
 set(h(1), 'FaceColor', [0.5 0.5 0.5]);
 
-% ----------------------------------------------------------
+hold on;
+
 % ----------------------------------------------------------
 
 syms Q G_min V N Tg Tp Lv;
@@ -92,11 +82,9 @@ Tp = 3.5;    % time gap between platoons 3.5 s
 Lv = 5;      % vehicle length 5 m
 G_min = 2;   % minimum space gap
 Tg = 0.55;   % time gap between vehicles
+% platoon size (N) is changing
 
 Q = ( (V*N) / ( N*(Lv + G_min) + (N-1)*Tg*V + Tp*V) ) * 3600;
-
-subaxis(1,2,1);
-hold on;
 
 h = ezplot(Q, [1 22]);
 set(h,'LineWidth',3);
@@ -108,11 +96,15 @@ ylabel('Throughput (veh/h)', 'FontSize', 20);
 % set font size
 set(gca, 'FontSize', 20);
 
+% only show these values
+set(gca,'XTick',[5 10 15 20] );
+
 ylim([2300 3500]);
 
 grid on;
 
-% -----------------------------------------------------------
+% ----------------------------------------------------------
+% ----------------------------------------------------------
 
 for run=0:2
     filePath = sprintf('../results/cmd/TP_on_throu/%d_loopDetector.txt', run);
@@ -157,16 +149,39 @@ data(:,[1]) = [];
 % ----------------------------------------------------------
 
 subaxis(1,2,2);
-h = bar(data, 0.6);
+h = bar([2 3.5 5], data, 0.6);
 
-set(gca,'XTickLabel',{'2','3.5', '5'}', 'FontSize', 19);
+set(h(1), 'FaceColor', [0.5 0.5 0.5]);
+
+hold on;
+
+% -----------------------------------------------------------
+
+syms Q G_min V N Tg Tp Lv;
+
+V = 20;      % speed of the platoon 20 m/s = 72 km/h = 44.7 mph
+N = 5;       % platoon size is 5
+Lv = 5;      % vehicle length 5 m
+G_min = 2;   % minimum space gap
+Tg = 0.55;   % time gap between vehicles
+% Tp is changing
+
+Q = ( (V*N) / ( N*(Lv + G_min) + (N-1)*Tg*V + Tp*V) ) * 3600;
+
+h = ezplot(Q, [1 6]);
+set(h, 'LineWidth', 3);
+set(h, 'LineStyle', '-.');
 
 xlabel('Inter-platoon Spacing (T_P)', 'FontSize', 20);
 ylabel('Throughput (veh/h)', 'FontSize', 20);
 
-ylim([1800 3200]);
+% set font size
+set(gca, 'FontSize', 20);
 
-set(h(1), 'FaceColor', [0.5 0.5 0.5]);
+% only show these values
+set(gca,'XTick',[2 3.5 5] );
+
+ylim([1800 3200]);
 
 grid on;
 
