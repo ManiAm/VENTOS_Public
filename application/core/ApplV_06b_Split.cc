@@ -85,7 +85,7 @@ void ApplVPlatoonMg::split_handleSelfMsg(cMessage* msg)
 }
 
 
-// check constantly if we can split
+// platoon leader checks constantly if we can split
 void ApplVPlatoonMg::splitMonitor()
 {
     if(vehicleState == state_platoonLeader)
@@ -113,8 +113,6 @@ void ApplVPlatoonMg::split_BeaconFSM(BeaconVehicle *wsm)
 {
     if(!splitEnabled)
         return;
-
-
 }
 
 

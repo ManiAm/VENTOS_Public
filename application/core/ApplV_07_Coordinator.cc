@@ -115,6 +115,11 @@ void ApplVCoordinator::coordinator()
     {
         scenario8();
     }
+    // a simple platoon leader leave
+    else if(coordinationMode == 9)
+    {
+        scenario9();
+    }
     else
         error("not a valid coordination mode!");
 
@@ -569,6 +574,25 @@ void ApplVCoordinator::scenario8()
         // enable automatic merging
         mergeEnabled = true;
         optPlnSize = 10;
+    }
+}
+
+
+void ApplVCoordinator::scenario9()
+{
+    if(simTime().dbl() == 40)
+    {
+        TraCI->commandSetSpeed("CACC1", 20.);
+    }
+    else if(simTime().dbl() == 73)
+    {
+        // disable automatic merging
+        mergeEnabled = false;
+
+        // leader leaves
+        if(SUMOvID == "CACC1")
+            dissolvePlatoon();
+            //leavePlatoon();
     }
 }
 

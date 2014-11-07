@@ -67,6 +67,7 @@ OBJS = \
     $O/Global_09_SpeedProfile.o \
     $O/Global_03_Tracking.o \
     $O/ApplRSU_03_Manager.o \
+    $O/ApplV_06g_Dissolve.o \
     $O/ApplV_01_Base.o \
     $O/ApplRSU_02_AID.o \
     $O/ApplV_06c_Common.o \
@@ -799,6 +800,52 @@ $O/ApplV_06e_LeaderLeave.o: ApplV_06e_LeaderLeave.cc \
 	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
 	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
 $O/ApplV_06f_FollowerLeave.o: ApplV_06f_FollowerLeave.cc \
+	Appl.h \
+	ApplV_01_Base.h \
+	ApplV_02_Beacon.h \
+	ApplV_04_AID.h \
+	ApplV_05_PlatoonFormed.h \
+	ApplV_06_PlatoonMg.h \
+	Global_01_TraCI_Extend.h \
+	../msg/Messages_m.h \
+	../router/ApplVSystem.h \
+	../router/Histogram.h \
+	../router/Hypertree.h \
+	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
+	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
+	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
+	$(VEINS_PROJ)/src/base/modules/BaseApplLayer.h \
+	$(VEINS_PROJ)/src/base/modules/BaseBattery.h \
+	$(VEINS_PROJ)/src/base/modules/BaseLayer.h \
+	$(VEINS_PROJ)/src/base/modules/BaseMobility.h \
+	$(VEINS_PROJ)/src/base/modules/BaseModule.h \
+	$(VEINS_PROJ)/src/base/modules/BaseWorldUtility.h \
+	$(VEINS_PROJ)/src/base/modules/BatteryAccess.h \
+	$(VEINS_PROJ)/src/base/utils/FindModule.h \
+	$(VEINS_PROJ)/src/base/utils/HostState.h \
+	$(VEINS_PROJ)/src/base/utils/MiXiMDefs.h \
+	$(VEINS_PROJ)/src/base/utils/Move.h \
+	$(VEINS_PROJ)/src/base/utils/NetwToMacControlInfo.h \
+	$(VEINS_PROJ)/src/base/utils/PassedMessage.h \
+	$(VEINS_PROJ)/src/base/utils/SimpleAddress.h \
+	$(VEINS_PROJ)/src/base/utils/miximkerneldefs.h \
+	$(VEINS_PROJ)/src/inet/Coord.h \
+	$(VEINS_PROJ)/src/inet/FWMath.h \
+	$(VEINS_PROJ)/src/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
+	$(VEINS_PROJ)/src/modules/messages/WaveShortMessage_m.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIBuffer.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIColor.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICommandInterface.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIConnection.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIConstants.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCICoord.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIMobility.h \
+	$(VEINS_PROJ)/src/modules/mobility/traci/TraCIScenarioManager.h \
+	$(VEINS_PROJ)/src/modules/obstacle/Obstacle.h \
+	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
+	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
+	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
+$O/ApplV_06g_Dissolve.o: ApplV_06g_Dissolve.cc \
 	Appl.h \
 	ApplV_01_Base.h \
 	ApplV_02_Beacon.h \

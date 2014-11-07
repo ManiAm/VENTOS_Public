@@ -95,6 +95,10 @@ void ApplVPlatoonMg::initialize(int stage)
         RemainingSplits = 0;
         plnTIMER10 = new cMessage("wait for leave reply", KIND_TIMER);
         plnTIMER11 = new cMessage("wait for split completion", KIND_TIMER);
+
+        // used in dissolve
+        // ----------------
+        plnTIMER12 = new cMessage("wait for DISSOLVE ACK", KIND_TIMER);
 	}
 }
 
@@ -127,6 +131,7 @@ void ApplVPlatoonMg::handleSelfMsg(cMessage* msg)
     entry_handleSelfMsg(msg);
     leaderLeave_handleSelfMsg(msg);
     followerLeave_handleSelfMsg(msg);
+    dissolve_handleSelfMsg(msg);
 }
 
 
@@ -144,6 +149,7 @@ void ApplVPlatoonMg::onBeaconVehicle(BeaconVehicle* wsm)
     entry_BeaconFSM(wsm);
     leaderLeave_BeaconFSM(wsm);
     followerLeave_BeaconFSM(wsm);
+    dissolve_BeaconFSM(wsm);
 }
 
 
@@ -171,6 +177,7 @@ void ApplVPlatoonMg::onData(PlatoonMsg* wsm)
     entry_DataFSM(wsm);
     leaderLeave_DataFSM(wsm);
     followerLeave_DataFSM(wsm);
+    dissolve_DataFSM(wsm);
 }
 
 
@@ -297,6 +304,8 @@ const string ApplVPlatoonMg::stateToStr(int s)
         "state_sendVoteLeader", "state_waitForVoteReply", "state_splitCompleted",
 
         "state_sendLeaveReq", "state_waitForLeaveReply", "state_secondSplit",
+
+        "state_sendDissolve", "state_waitForDissolveAck",
     };
 
     return statesStrings[s];
@@ -334,7 +343,7 @@ void ApplVPlatoonMg::reportManeuverToStat(string from, string to, string maneuve
 }
 
 
-// ask the platoon leader to manually initiate split at 'depth'
+// ask the platoon leader to manually initiate split at position 'depth'.
 // only platoon leader can call this method!
 void ApplVPlatoonMg::splitFromPlatoon(int depth)
 {
@@ -397,6 +406,27 @@ void ApplVPlatoonMg::leavePlatoon()
     else
         error("vehicle should be in leader or follower states!");
 }
+
+
+void ApplVPlatoonMg::dissolvePlatoon()
+{
+    if(!VANETenabled)
+        error("This vehicle is not VANET-enabled!");
+
+    if(vehicleState != state_platoonLeader)
+        error("only platoon leader can break-up the platoon!");
+
+    if(plnSize <= 1 || busy)
+        return;
+
+    busy = true;
+
+    vehicleState = state_sendDissolve;
+    reportStateToStat();
+
+    dissolve_DataFSM();
+}
+
 
 }
 

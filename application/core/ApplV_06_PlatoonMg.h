@@ -100,6 +100,10 @@ class ApplVPlatoonMg : public ApplVPlatoonFormed
             state_sendLeaveReq,
             state_waitForLeaveReply,
             state_secondSplit,
+
+            // dissolve
+            state_sendDissolve,
+            state_waitForDissolveAck,
         };
 
         enum uCommands
@@ -181,9 +185,14 @@ class ApplVPlatoonMg : public ApplVPlatoonFormed
         cMessage* plnTIMER10;
         cMessage* plnTIMER11;
 
+        // dissolve
+        cMessage* plnTIMER12;
+        string lastVeh;
+
 	protected:
         void splitFromPlatoon(int);
         void leavePlatoon();
+        void dissolvePlatoon();
 
 	private:
         PlatoonMsg* prepareData( string, uCommands, string, double db = -1, string str = "", deque<string> vec = deque<string>() );
@@ -231,6 +240,11 @@ class ApplVPlatoonMg : public ApplVPlatoonFormed
         void followerLeave_handleSelfMsg(cMessage* msg);
         void followerLeave_BeaconFSM(BeaconVehicle *wsm = NULL);
         void followerLeave_DataFSM(PlatoonMsg *wsm = NULL);
+
+        // dissolve
+        void dissolve_handleSelfMsg(cMessage* msg);
+        void dissolve_BeaconFSM(BeaconVehicle *wsm = NULL);
+        void dissolve_DataFSM(PlatoonMsg *wsm = NULL);
 };
 
 }
