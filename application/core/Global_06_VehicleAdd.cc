@@ -343,14 +343,14 @@ void VehicleAdd::Scenario9()
          sprintf(vehicleName, "CACC%d", i);
          vehicleDepart = vehicleDepart + 10000;
 
-         TraCI->commandAddVehicleN(vehicleName, "TypeCACC", "route1", vehicleDepart, 0 /*pos*/, 0 /*speed*/, 1 /*lane*/);
+         TraCI->commandAddVehicleN(vehicleName, "TypeCACC", "route4", vehicleDepart, 0 /*pos*/, 0 /*speed*/, 1 /*lane*/);
 
 
          char pedestrianName[10];
          sprintf(pedestrianName, "Ped%d", i);
          pedestrianDepart = pedestrianDepart + 10000;
 
-        // TraCI->commandAddVehicleN(pedestrianName, "Pedestrian", "route1", pedestrianDepart, 0 /*pos*/, 0 /*speed*/, 1 /*lane*/);
+         TraCI->commandAddVehicleN(pedestrianName, "Pedestrian", "route1", pedestrianDepart, 350 /*pos*/, 0 /*speed*/, 0 /*lane*/);
 
      }
 }

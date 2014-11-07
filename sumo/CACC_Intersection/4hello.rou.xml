@@ -12,7 +12,7 @@
   </vType>
   
   <!-- Pedestrian -->
-  <vType id="Pedestrian" vClass="pedestrian">
+  <vType id="Pedestrian" length="2.0" vClass="pedestrian">
   </vType>
 
   <route id="route1" edges="2to3 3to4" />  

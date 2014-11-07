@@ -1,5 +1,5 @@
 //
-// Generated file, do not edit! Created by opp_msgc 4.4 from Messages.msg.
+// Generated file, do not edit! Created by opp_msgc 4.5 from Messages.msg.
 //
 
 // Disable warnings about unused variables, empty switch stmts, etc:
@@ -14,9 +14,6 @@
 
 USING_NAMESPACE
 
-// Template rule which fires if a struct or class doesn't have operator<<
-template<typename T>
-std::ostream& operator<<(std::ostream& out,const T&) {return out;}
 
 // Another default rule (prevents compiler from choosing base class' doPacking())
 template<typename T>
@@ -32,6 +29,30 @@ void doUnpacking(cCommBuffer *, T& t) {
 
 
 namespace VENTOS {
+
+// Template rule for outputting std::vector<T> types
+template<typename T, typename A>
+inline std::ostream& operator<<(std::ostream& out, const std::vector<T,A>& vec)
+{
+    out.put('{');
+    for(typename std::vector<T,A>::const_iterator it = vec.begin(); it != vec.end(); ++it)
+    {
+        if (it != vec.begin()) {
+            out.put(','); out.put(' ');
+        }
+        out << *it;
+    }
+    out.put('}');
+    
+    char buf[32];
+    sprintf(buf, " (size=%u)", (unsigned int)vec.size());
+    out.write(buf, strlen(buf));
+    return out;
+}
+
+// Template rule which fires if a struct or class doesn't have operator<<
+template<typename T>
+inline std::ostream& operator<<(std::ostream& out,const T&) {return out;}
 
 Register_Class(BeaconVehicle);
 
@@ -407,18 +428,10 @@ const char *BeaconVehicleDescriptor::getFieldStructName(void *object, int field)
             return basedesc->getFieldStructName(object, field);
         field -= basedesc->getFieldCount(object);
     }
-    static const char *fieldStructNames[] = {
-        NULL,
-        NULL,
-        "Coord",
-        NULL,
-        NULL,
-        NULL,
-        NULL,
-        NULL,
-        NULL,
+    switch (field) {
+        case 2: return opp_typename(typeid(Coord));
+        default: return NULL;
     };
-    return (field>=0 && field<9) ? fieldStructNames[field] : NULL;
 }
 
 void *BeaconVehicleDescriptor::getFieldStructPointer(void *object, int field, int i) const
@@ -690,12 +703,10 @@ const char *BeaconRSUDescriptor::getFieldStructName(void *object, int field) con
             return basedesc->getFieldStructName(object, field);
         field -= basedesc->getFieldCount(object);
     }
-    static const char *fieldStructNames[] = {
-        NULL,
-        NULL,
-        "Coord",
+    switch (field) {
+        case 2: return opp_typename(typeid(Coord));
+        default: return NULL;
     };
-    return (field>=0 && field<3) ? fieldStructNames[field] : NULL;
 }
 
 void *BeaconRSUDescriptor::getFieldStructPointer(void *object, int field, int i) const
@@ -929,10 +940,9 @@ const char *DummyMsgDescriptor::getFieldStructName(void *object, int field) cons
             return basedesc->getFieldStructName(object, field);
         field -= basedesc->getFieldCount(object);
     }
-    static const char *fieldStructNames[] = {
-        NULL,
+    switch (field) {
+        default: return NULL;
     };
-    return (field>=0 && field<1) ? fieldStructNames[field] : NULL;
 }
 
 void *DummyMsgDescriptor::getFieldStructPointer(void *object, int field, int i) const
@@ -1203,12 +1213,10 @@ const char *LaneChangeMsgDescriptor::getFieldStructName(void *object, int field)
             return basedesc->getFieldStructName(object, field);
         field -= basedesc->getFieldCount(object);
     }
-    static const char *fieldStructNames[] = {
-        NULL,
-        NULL,
-        "stringQueue",
+    switch (field) {
+        case 2: return opp_typename(typeid(stringQueue));
+        default: return NULL;
     };
-    return (field>=0 && field<3) ? fieldStructNames[field] : NULL;
 }
 
 void *LaneChangeMsgDescriptor::getFieldStructPointer(void *object, int field, int i) const
@@ -1580,17 +1588,10 @@ const char *PlatoonMsgDescriptor::getFieldStructName(void *object, int field) co
             return basedesc->getFieldStructName(object, field);
         field -= basedesc->getFieldCount(object);
     }
-    static const char *fieldStructNames[] = {
-        NULL,
-        NULL,
-        NULL,
-        NULL,
-        NULL,
-        NULL,
-        NULL,
-        "stringQueue",
+    switch (field) {
+        case 7: return opp_typename(typeid(stringQueue));
+        default: return NULL;
     };
-    return (field>=0 && field<8) ? fieldStructNames[field] : NULL;
 }
 
 void *PlatoonMsgDescriptor::getFieldStructPointer(void *object, int field, int i) const
@@ -1904,14 +1905,9 @@ const char *SystemMsgDescriptor::getFieldStructName(void *object, int field) con
             return basedesc->getFieldStructName(object, field);
         field -= basedesc->getFieldCount(object);
     }
-    static const char *fieldStructNames[] = {
-        NULL,
-        NULL,
-        NULL,
-        NULL,
-        NULL,
+    switch (field) {
+        default: return NULL;
     };
-    return (field>=0 && field<5) ? fieldStructNames[field] : NULL;
 }
 
 void *SystemMsgDescriptor::getFieldStructPointer(void *object, int field, int i) const
@@ -2162,11 +2158,10 @@ const char *RouterMsgDescriptor::getFieldStructName(void *object, int field) con
             return basedesc->getFieldStructName(object, field);
         field -= basedesc->getFieldCount(object);
     }
-    static const char *fieldStructNames[] = {
-        NULL,
-        "stringList",
+    switch (field) {
+        case 1: return opp_typename(typeid(stringList));
+        default: return NULL;
     };
-    return (field>=0 && field<2) ? fieldStructNames[field] : NULL;
 }
 
 void *RouterMsgDescriptor::getFieldStructPointer(void *object, int field, int i) const
