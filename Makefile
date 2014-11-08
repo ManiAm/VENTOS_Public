@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for VENTOS
 #
 # This file was generated with the command:
-#  opp_makemake -f -O out -d application -X. -I/home/philip/Desktop/VENTOS2/VENTOS/eigen-3.2.1 -I/home/philip/Desktop/VENTOS2/VENTOS/rapidxml-1.13 -L/home/philip/Desktop/Veins/veins/out/$$\(CONFIGNAME\)/src -L./out/$$\(CONFIGNAME\)/application -L./out/$$\(CONFIGNAME\)/application/msg -L./out/$$\(CONFIGNAME\)/application/core -L./out/$$\(CONFIGNAME\)/application/router -lveins -KVEINS_PROJ=/home/philip/Desktop/Veins/veins
+#  opp_makemake -f -O out -d application -X. -I/home/mani/Desktop/VENTOS/eigen-3.2.1 -I/home/mani/Desktop/VENTOS/rapidxml-1.13 -L../veins/out/$$\(CONFIGNAME\)/src -L./out/$$\(CONFIGNAME\)/application -L./out/$$\(CONFIGNAME\)/application/msg -L./out/$$\(CONFIGNAME\)/application/router -L./out/$$\(CONFIGNAME\)/application/core -lveins -KVEINS_PROJ=../veins
 #
 
 # Name of target to be created (-o option)
@@ -17,8 +17,8 @@ USERIF_LIBS = $(ALL_ENV_LIBS) # that is, $(TKENV_LIBS) $(CMDENV_LIBS)
 EXTRA_OBJS =
 
 # Additional libraries (-L, -l options)
-LIBS = -L$(VEINS_PROJ)/out/$(CONFIGNAME)/src -Lout/$(CONFIGNAME)/application -Lout/$(CONFIGNAME)/application/msg -Lout/$(CONFIGNAME)/application/core -Lout/$(CONFIGNAME)/application/router  -lveins
-LIBS += -Wl,-rpath,`abspath $(VEINS_PROJ)/out/$(CONFIGNAME)/src` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application/msg` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application/core` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application/router`
+LIBS = -L../veins/out/$(CONFIGNAME)/src -Lout/$(CONFIGNAME)/application -Lout/$(CONFIGNAME)/application/msg -Lout/$(CONFIGNAME)/application/router -Lout/$(CONFIGNAME)/application/core  -lveins
+LIBS += -Wl,-rpath,`abspath ../veins/out/$(CONFIGNAME)/src` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application/msg` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application/router` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application/core`
 
 # Output directory
 PROJECT_OUTPUT_DIR = out
@@ -26,7 +26,7 @@ PROJECTRELATIVE_PATH =
 O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Other makefile variables (-K)
-VEINS_PROJ=/home/philip/Desktop/Veins/veins
+VEINS_PROJ=../veins
 
 #------------------------------------------------------------------------------
 

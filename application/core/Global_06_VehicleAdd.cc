@@ -332,6 +332,7 @@ void VehicleAdd::Scenario8()
     }
 }
 
+
 void VehicleAdd::Scenario9()
 {
     int vehicleDepart = 0;

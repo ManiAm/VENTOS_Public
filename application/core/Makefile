@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for libcore
 #
 # This file was generated with the command:
-#  opp_makemake -f --make-so -o core -O out -I/home/philip/Desktop/VENTOS2/VENTOS/eigen-3.2.1 -I/home/philip/Desktop/VENTOS2/VENTOS/rapidxml-1.13 -I/home/philip/Desktop/Veins/veins/src/modules/messages -I/home/philip/Desktop/Veins/veins/src -I/home/philip/Desktop/Veins/veins/src/base/modules -I/home/philip/Desktop/Veins/veins/src/modules/utility -I/home/philip/Desktop/Veins/veins/src/base/utils -I/home/philip/Desktop/Veins/veins/src/base/messages -I/home/philip/Desktop/Veins/veins/src/base/phyLayer -I.. -I/home/philip/Desktop/Veins/veins/src/modules/phy -I/home/philip/Desktop/Veins/veins/src/modules/mac/ieee80211p -I../router -I/home/philip/Desktop/Veins/veins/src/inet -I/home/philip/Desktop/Veins/veins/src/base/connectionManager -I/home/philip/Desktop/Veins/veins/src/modules/analogueModel -L/home/philip/Desktop/Veins/veins/out/$$\(CONFIGNAME\)/src -L../../out/$$\(CONFIGNAME\)/application -L../../out/$$\(CONFIGNAME\)/application/msg -L../../out/$$\(CONFIGNAME\)/application/router -lboost_filesystem -lboost_system -lmsg -lveins -KVEINS_PROJ=/home/philip/Desktop/Veins/veins
+#  opp_makemake -f --make-so -o core -O out -I/home/mani/Desktop/VENTOS/eigen-3.2.1 -I/home/mani/Desktop/VENTOS/rapidxml-1.13 -I../../../veins/src/base/messages -I../router -I../../../veins/src -I../../../veins/src/base/connectionManager -I../../../veins/src/modules/mac/ieee80211p -I../../../veins/src/base/modules -I../../../veins/src/base/utils -I../../../veins/src/modules/phy -I../../../veins/src/inet -I.. -I../../../veins/src/base/phyLayer -I../../../veins/src/modules/analogueModel -I../../../veins/src/modules/utility -I../../../veins/src/modules/messages -L../../../veins/out/$$\(CONFIGNAME\)/src -L../../out/$$\(CONFIGNAME\)/application -L../../out/$$\(CONFIGNAME\)/application/msg -L../../out/$$\(CONFIGNAME\)/application/router -lboost_filesystem -lboost_system -lmsg -lveins -KVEINS_PROJ=../../../veins
 #
 
 # Name of target to be created (-o option)
@@ -12,28 +12,28 @@ TARGET = libcore$(SHARED_LIB_SUFFIX)
 INCLUDE_PATH = \
     -I../../eigen-3.2.1 \
     -I../../rapidxml-1.13 \
-    -I$(VEINS_PROJ)/src/modules/messages \
-    -I$(VEINS_PROJ)/src \
-    -I$(VEINS_PROJ)/src/base/modules \
-    -I$(VEINS_PROJ)/src/modules/utility \
-    -I$(VEINS_PROJ)/src/base/utils \
-    -I$(VEINS_PROJ)/src/base/messages \
-    -I$(VEINS_PROJ)/src/base/phyLayer \
-    -I.. \
-    -I$(VEINS_PROJ)/src/modules/phy \
-    -I$(VEINS_PROJ)/src/modules/mac/ieee80211p \
+    -I../../../veins/src/base/messages \
     -I../router \
-    -I$(VEINS_PROJ)/src/inet \
-    -I$(VEINS_PROJ)/src/base/connectionManager \
-    -I$(VEINS_PROJ)/src/modules/analogueModel \
+    -I../../../veins/src \
+    -I../../../veins/src/base/connectionManager \
+    -I../../../veins/src/modules/mac/ieee80211p \
+    -I../../../veins/src/base/modules \
+    -I../../../veins/src/base/utils \
+    -I../../../veins/src/modules/phy \
+    -I../../../veins/src/inet \
+    -I.. \
+    -I../../../veins/src/base/phyLayer \
+    -I../../../veins/src/modules/analogueModel \
+    -I../../../veins/src/modules/utility \
+    -I../../../veins/src/modules/messages \
     -I.
 
 # Additional object and library files to link with
 EXTRA_OBJS =
 
 # Additional libraries (-L, -l options)
-LIBS = -L$(VEINS_PROJ)/out/$(CONFIGNAME)/src -L../../out/$(CONFIGNAME)/application -L../../out/$(CONFIGNAME)/application/msg -L../../out/$(CONFIGNAME)/application/router  -lboost_filesystem -lboost_system -lmsg -lveins
-LIBS += -Wl,-rpath,`abspath $(VEINS_PROJ)/out/$(CONFIGNAME)/src` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/msg` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/router`
+LIBS = -L../../../veins/out/$(CONFIGNAME)/src -L../../out/$(CONFIGNAME)/application -L../../out/$(CONFIGNAME)/application/msg -L../../out/$(CONFIGNAME)/application/router  -lboost_filesystem -lboost_system -lmsg -lveins
+LIBS += -Wl,-rpath,`abspath ../../../veins/out/$(CONFIGNAME)/src` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/msg` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/router`
 
 # Output directory
 PROJECT_OUTPUT_DIR = ../../out
@@ -42,47 +42,42 @@ O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Object files for local .cc and .msg files
 OBJS = \
-    $O/ApplV_06f_FollowerLeave.o \
-    $O/Global_05_Plotter.o \
-    $O/ApplRSU_02_AID.o \
-    $O/ApplV_05_PlatoonFormed.o \
-    $O/Global_06_VehicleAdd.o \
-    $O/Global_02_TraCI_App.o \
-    $O/ApplV_06b_Split.o \
-    $O/Global_03_Tracking.o \
-    $O/Global_04_Statistics.o \
-    $O/Global_08_Warmup.o \
-    $O/ApplV_08_Manager.o \
-    $O/Mac1609_4_Mod.o \
-    $O/ApplRSU_01_Base.o \
-    $O/ConstSpeedMobility.o \
-    $O/ApplV_06c_Common.o \
     $O/ApplV_06a_Merge.o \
-    $O/ApplRSU_03_Manager.o \
+    $O/Global_06_VehicleAdd.o \
+    $O/Global_08_Warmup.o \
     $O/RSUMobility.o \
+    $O/Global_05_Plotter.o \
+    $O/ApplV_06d_Entry.o \
+    $O/ApplV_06_PlatoonMg.o \
+    $O/ApplV_06b_Split.o \
+    $O/ApplV_07_Coordinator.o \
+    $O/ApplV_06e_LeaderLeave.o \
+    $O/Global_07_RSUAdd.o \
+    $O/Global_02_TraCI_App.o \
+    $O/ApplV_05_PlatoonFormed.o \
+    $O/Mac1609_4_Mod.o \
+    $O/ApplV_06f_FollowerLeave.o \
+    $O/ApplRSU_01_Base.o \
+    $O/ApplV_02_Beacon.o \
+    $O/ApplV_04_AID.o \
     $O/Global_01_TraCI_Extend.o \
+    $O/Global_04_Statistics.o \
+    $O/ApplV_08_Manager.o \
+    $O/ApplAdversary.o \
     $O/Global_09_SpeedProfile.o \
-<<<<<<< HEAD
     $O/Global_03_Tracking.o \
     $O/ApplRSU_03_Manager.o \
     $O/ApplV_06g_Dissolve.o \
-=======
-    $O/ApplV_04_AID.o \
-    $O/Global_07_RSUAdd.o \
-    $O/ApplV_02_Beacon.o \
-    $O/ApplV_06e_LeaderLeave.o \
-    $O/ApplAdversary.o \
-    $O/ApplV_06d_Entry.o \
-    $O/ApplV_07_Coordinator.o \
->>>>>>> origin/philipvo
     $O/ApplV_01_Base.o \
-    $O/ApplV_06_PlatoonMg.o
+    $O/ApplRSU_02_AID.o \
+    $O/ApplV_06c_Common.o \
+    $O/ConstSpeedMobility.o
 
 # Message files
 MSGFILES =
 
 # Other makefile variables (-K)
-VEINS_PROJ=/home/philip/Desktop/Veins/veins
+VEINS_PROJ=../../../veins
 
 #------------------------------------------------------------------------------
 
