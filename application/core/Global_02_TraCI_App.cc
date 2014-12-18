@@ -1,5 +1,6 @@
 
 #include "Global_02_TraCI_App.h"
+#include "modules/mobility/traci/TraCIScenarioManagerInet.h"
 
 namespace VENTOS {
 
@@ -138,6 +139,70 @@ void TraCI_App::executeOneTimestep()
     }
 }
 
+void TraCI_App::addModule(std::string nodeId, std::string type, std::string name, std::string displayString, const Coord& position, std::string road_id, double speed, double angle)
+{
+    //TraCIScenarioManager::addModule(nodeId, type, name, displayString, position, road_id, speed, angle);
+
+
+    if (commandGetVehicleType(nodeId) == "TypeCACC")
+    {
+        type = "c3po.ned.vehicle";
+        name = "V";
+    }
+    else if (commandGetVehicleType(nodeId) == "Pedestrian")
+    {
+        type = "c3po.ned.pedestrian";
+        name = "P";
+    }
+
+    if (hosts.find(nodeId) != hosts.end()) error("tried adding duplicate module");
+
+    if (queuedVehicles.find(nodeId) != queuedVehicles.end()) {
+        queuedVehicles.erase(nodeId);
+    }
+    double option1 = hosts.size() / (hosts.size() + unEquippedHosts.size() + 1.0);
+    double option2 = (hosts.size() + 1) / (hosts.size() + unEquippedHosts.size() + 1.0);
+
+    if (fabs(option1 - penetrationRate) < fabs(option2 - penetrationRate)) {
+        unEquippedHosts.insert(nodeId);
+        return;
+    }
+
+    int32_t nodeVectorIndex = nextNodeVectorIndex++;
+
+    cModule* parentmod = getParentModule();
+    if (!parentmod) error("Parent Module not found");
+
+    cModuleType* nodeType = cModuleType::get(type.c_str());
+    if (!nodeType) error("Module Type \"%s\" not found", type.c_str());
+
+    //TODO: this trashes the vectsize member of the cModule, although nobody seems to use it
+    cModule* mod = nodeType->create(name.c_str(), parentmod, nodeVectorIndex, nodeVectorIndex);
+    mod->finalizeParameters();
+    mod->getDisplayString().parse(displayString.c_str());
+    mod->buildInside();
+    mod->scheduleStart(simTime() + updateInterval);
+
+    // pre-initialize TraCIMobility
+    for (cModule::SubmoduleIterator iter(mod); !iter.end(); iter++) {
+        cModule* submod = iter();
+        ifInetTraCIMobilityCallPreInitialize(submod, nodeId, position, road_id, speed, angle);
+        TraCIMobility* mm = dynamic_cast<TraCIMobility*>(submod);
+        if (!mm) continue;
+        mm->preInitialize(nodeId, position, road_id, speed, angle);
+    }
+
+    mod->callInitialize();
+    hosts[nodeId] = mod;
+
+    // post-initialize TraCIMobility
+    for (cModule::SubmoduleIterator iter(mod); !iter.end(); iter++) {
+        cModule* submod = iter();
+        TraCIMobility* mm = dynamic_cast<TraCIMobility*>(submod);
+        if (!mm) continue;
+        mm->changePosition();
+    }
 
 }
 
+}

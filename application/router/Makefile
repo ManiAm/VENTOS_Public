@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for librouter
 #
 # This file was generated with the command:
-#  opp_makemake -f --make-so -o router -O out -I/home/mani/Desktop/VENTOS/eigen-3.2.1 -I/home/mani/Desktop/VENTOS/rapidxml-1.13 -I../../../veins/src/base/messages -I../../../veins/src -I../../../veins/src/base/connectionManager -I../../../veins/src/modules/mac/ieee80211p -I../../../veins/src/base/modules -I../../../veins/src/base/utils -I../../../veins/src/modules/phy -I../../../veins/src/inet -I../../../veins/src/base/phyLayer -I.. -I../../../veins/src/modules/analogueModel -I../../../veins/src/modules/utility -I../core -I../../../veins/src/modules/messages -L../../../veins/out/$$\(CONFIGNAME\)/src -L../../out/$$\(CONFIGNAME\)/application -L../../out/$$\(CONFIGNAME\)/application/msg -L../../out/$$\(CONFIGNAME\)/application/core -lboost_filesystem -lboost_system -lmsg -lveins -KVEINS_PROJ=../../../veins
+#  opp_makemake -f --make-so -o router -O out -I/home/philip/Desktop/VENTOS3/VENTOS/eigen-3.2.1 -I/home/philip/Desktop/VENTOS3/VENTOS/rapidxml-1.13 -I/home/philip/Desktop/Veins/veins/src/modules/messages -I/home/philip/Desktop/Veins/veins/src -I/home/philip/Desktop/Veins/veins/src/base/modules -I/home/philip/Desktop/Veins/veins/src/modules/utility -I../core -I/home/philip/Desktop/Veins/veins/src/base/messages -I/home/philip/Desktop/Veins/veins/src/base/utils -I/home/philip/Desktop/Veins/veins/src/base/phyLayer -I.. -I/home/philip/Desktop/Veins/veins/src/modules/phy -I/home/philip/Desktop/Veins/veins/src/modules/mac/ieee80211p -I/home/philip/Desktop/Veins/veins/src/inet -I/home/philip/Desktop/Veins/veins/src/base/connectionManager -I/home/philip/Desktop/Veins/veins/src/modules/analogueModel -L/home/philip/Desktop/Veins/veins/out/$$\(CONFIGNAME\)/src -L../../out/$$\(CONFIGNAME\)/application -L../../out/$$\(CONFIGNAME\)/application/msg -L../../out/$$\(CONFIGNAME\)/application/core -lboost_filesystem -lboost_system -lmsg -lveins -KVEINS_PROJ=/home/philip/Desktop/Veins/veins
 #
 
 # Name of target to be created (-o option)
@@ -12,28 +12,28 @@ TARGET = librouter$(SHARED_LIB_SUFFIX)
 INCLUDE_PATH = \
     -I../../eigen-3.2.1 \
     -I../../rapidxml-1.13 \
-    -I../../../veins/src/base/messages \
-    -I../../../veins/src \
-    -I../../../veins/src/base/connectionManager \
-    -I../../../veins/src/modules/mac/ieee80211p \
-    -I../../../veins/src/base/modules \
-    -I../../../veins/src/base/utils \
-    -I../../../veins/src/modules/phy \
-    -I../../../veins/src/inet \
-    -I../../../veins/src/base/phyLayer \
-    -I.. \
-    -I../../../veins/src/modules/analogueModel \
-    -I../../../veins/src/modules/utility \
+    -I$(VEINS_PROJ)/src/modules/messages \
+    -I$(VEINS_PROJ)/src \
+    -I$(VEINS_PROJ)/src/base/modules \
+    -I$(VEINS_PROJ)/src/modules/utility \
     -I../core \
-    -I../../../veins/src/modules/messages \
+    -I$(VEINS_PROJ)/src/base/messages \
+    -I$(VEINS_PROJ)/src/base/utils \
+    -I$(VEINS_PROJ)/src/base/phyLayer \
+    -I.. \
+    -I$(VEINS_PROJ)/src/modules/phy \
+    -I$(VEINS_PROJ)/src/modules/mac/ieee80211p \
+    -I$(VEINS_PROJ)/src/inet \
+    -I$(VEINS_PROJ)/src/base/connectionManager \
+    -I$(VEINS_PROJ)/src/modules/analogueModel \
     -I.
 
 # Additional object and library files to link with
 EXTRA_OBJS =
 
 # Additional libraries (-L, -l options)
-LIBS = -L../../../veins/out/$(CONFIGNAME)/src -L../../out/$(CONFIGNAME)/application -L../../out/$(CONFIGNAME)/application/msg -L../../out/$(CONFIGNAME)/application/core  -lboost_filesystem -lboost_system -lmsg -lveins
-LIBS += -Wl,-rpath,`abspath ../../../veins/out/$(CONFIGNAME)/src` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/msg` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/core`
+LIBS = -L$(VEINS_PROJ)/out/$(CONFIGNAME)/src -L../../out/$(CONFIGNAME)/application -L../../out/$(CONFIGNAME)/application/msg -L../../out/$(CONFIGNAME)/application/core  -lboost_filesystem -lboost_system -lmsg -lveins
+LIBS += -Wl,-rpath,`abspath $(VEINS_PROJ)/out/$(CONFIGNAME)/src` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/msg` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/core`
 
 # Output directory
 PROJECT_OUTPUT_DIR = ../../out
@@ -43,19 +43,19 @@ O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 # Object files for local .cc and .msg files
 OBJS = \
     $O/ApplVSystem.o \
+    $O/Edge.o \
     $O/TrafficLight.o \
-    $O/Node.o \
+    $O/Hypertree.o \
     $O/Histogram.o \
     $O/Net.o \
-    $O/Hypertree.o \
-    $O/Edge.o \
+    $O/Node.o \
     $O/Router.o
 
 # Message files
 MSGFILES =
 
 # Other makefile variables (-K)
-VEINS_PROJ=../../../veins
+VEINS_PROJ=/home/philip/Desktop/Veins/veins
 
 #------------------------------------------------------------------------------
 

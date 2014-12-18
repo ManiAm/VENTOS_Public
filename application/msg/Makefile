@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for libmsg
 #
 # This file was generated with the command:
-#  opp_makemake -f --make-so -o msg -O out -I/home/mani/Desktop/VENTOS/eigen-3.2.1 -I/home/mani/Desktop/VENTOS/rapidxml-1.13 -I../../../veins/src -I../../../veins/src/base/utils -I../../../veins/src/inet -L../../../veins/out/$$\(CONFIGNAME\)/src -L../../out/$$\(CONFIGNAME\)/application -L../../out/$$\(CONFIGNAME\)/application/router -L../../out/$$\(CONFIGNAME\)/application/core -lveins -KVEINS_PROJ=../../../veins
+#  opp_makemake -f --make-so -o msg -O out -I/home/philip/Desktop/VENTOS3/VENTOS/eigen-3.2.1 -I/home/philip/Desktop/VENTOS3/VENTOS/rapidxml-1.13 -I/home/philip/Desktop/Veins/veins/src -I/home/philip/Desktop/Veins/veins/src/inet -I/home/philip/Desktop/Veins/veins/src/base/utils -L/home/philip/Desktop/Veins/veins/out/$$\(CONFIGNAME\)/src -L../../out/$$\(CONFIGNAME\)/application -L../../out/$$\(CONFIGNAME\)/application/core -L../../out/$$\(CONFIGNAME\)/application/router -lveins -KVEINS_PROJ=/home/philip/Desktop/Veins/veins
 #
 
 # Name of target to be created (-o option)
@@ -12,17 +12,17 @@ TARGET = libmsg$(SHARED_LIB_SUFFIX)
 INCLUDE_PATH = \
     -I../../eigen-3.2.1 \
     -I../../rapidxml-1.13 \
-    -I../../../veins/src \
-    -I../../../veins/src/base/utils \
-    -I../../../veins/src/inet \
+    -I$(VEINS_PROJ)/src \
+    -I$(VEINS_PROJ)/src/inet \
+    -I$(VEINS_PROJ)/src/base/utils \
     -I.
 
 # Additional object and library files to link with
 EXTRA_OBJS =
 
 # Additional libraries (-L, -l options)
-LIBS = -L../../../veins/out/$(CONFIGNAME)/src -L../../out/$(CONFIGNAME)/application -L../../out/$(CONFIGNAME)/application/router -L../../out/$(CONFIGNAME)/application/core  -lveins
-LIBS += -Wl,-rpath,`abspath ../../../veins/out/$(CONFIGNAME)/src` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/router` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/core`
+LIBS = -L$(VEINS_PROJ)/out/$(CONFIGNAME)/src -L../../out/$(CONFIGNAME)/application -L../../out/$(CONFIGNAME)/application/core -L../../out/$(CONFIGNAME)/application/router  -lveins
+LIBS += -Wl,-rpath,`abspath $(VEINS_PROJ)/out/$(CONFIGNAME)/src` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/core` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/router`
 
 # Output directory
 PROJECT_OUTPUT_DIR = ../../out
@@ -37,7 +37,7 @@ MSGFILES = \
     Messages.msg
 
 # Other makefile variables (-K)
-VEINS_PROJ=../../../veins
+VEINS_PROJ=/home/philip/Desktop/Veins/veins
 
 #------------------------------------------------------------------------------
 
