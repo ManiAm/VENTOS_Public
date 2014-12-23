@@ -114,11 +114,13 @@ Veins is on github, and you should clone it into your computer.
 
 Now make these modifications in Veins source code:
 
-**Step 5:** In the IDE, open Veins project and go to src/modules/mobility/traci/TraCIScenarioManager.h file. Find 'void executeOneTimestep()', and then change it to virtual void executeOneTimestep();
+**Step 5:** In the IDE, open Veins project and go to src/modules/mobility/traci/TraCIScenarioManager.h file. Find 'void executeOneTimestep()', and then change it it to 'virtual void executeOneTimestep()';
 
-**Step 6:** go to src/modules/mobility/traci/TraCICommandInterface.h file. Change access modifier private into public!
+**Step 6:** In the IDE, open Veins project and go to src/modules/mobility/traci/TraCIScenarioManager.h file. Find 'void addModule()', and then change it to 'virtual void addModule()';
 
-**Step 7:** [optional] comment the MYDEBUG line in TraCIScenarioManager::receiveTraCIMessage() and also TraCIScenarioManager::sendTraCIMessage to make the output console less messy :)
+**Step 7:** go to src/modules/mobility/traci/TraCICommandInterface.h file. Change access modifier private into public!
+
+**Step 8:** [optional] comment the MYDEBUG line in TraCIScenarioManager::receiveTraCIMessage() and also TraCIScenarioManager::sendTraCIMessage to make the output console less messy :)
 
 After these modifications, build the Veins project again. Build is done much faster this time!
 
