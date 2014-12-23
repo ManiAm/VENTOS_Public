@@ -45,7 +45,13 @@ class TraCI_App : public TraCI_Extend
 
         // NED variable
         double terminate;
+
+        // NED (pedestrians)
+        string pedModuleType;
+        string pedModuleName;
+        string pedModuleDisplayString;
 };
+
 }
 
 #endif

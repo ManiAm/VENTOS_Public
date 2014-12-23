@@ -11,11 +11,15 @@ simple TraCI_Extend
         double connectAt @unit("s") = default(0s);  // when to connect to TraCI server (must be the initial timestep of the server)
         double firstStepAt @unit("s") = default(-1s);  // when to start synchronizing with the TraCI server (-1: immediately after connecting)
         double updateInterval @unit("s") = default(1s);  // time interval of hosts' position updates
+        
         string moduleType = default("inet.nodes.wireless.WirelessHostSimplified");  // module type to be used in the simulation for each managed vehicle       
-//        string vehmoduleType = default("inet.nodes.wireless.WirelessHostSimplified");  // module type to be used in the simulation for each managed vehicle        
-//        string pedmoduleType = default("inet.nodes.wireless.WirelessHostSimplified");  // module type to be used in the simulation for each managed vehicle
-        string moduleName = default("host");  // module name to be used in the simulation for each managed vehicle
+        string moduleName = default("host");  // module name to be used in the simulation for each managed vehicle        
         string moduleDisplayString = default("i=misc/node2;is=vs;r=0,,#707070,1");  // module displayString to be used in the simulation for each managed vehicle
+        
+        string pedModuleType = default("inet.nodes.wireless.WirelessHostSimplified");  // module type to be used in the simulation for each managed pedestrians       
+        string pedModuleName = default("host");  // module name to be used in the simulation for each managed vehicle        
+        string pedModuleDisplayString = default("i=misc/node2;is=vs;r=0,,#707070,1");  // module displayString to be used in the simulation for each managed vehicle
+                
         string host = default("localhost");  // sumo-launchd.py server hostname
         int port = default(9999);  // sumo-launchd.py server port
 

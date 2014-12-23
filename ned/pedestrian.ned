@@ -4,7 +4,7 @@ package c3po.ned;
 import org.car2x.veins.base.modules.*;
 import org.car2x.veins.modules.nic.Nic80211p;
 
-module vehicle
+module pedestrian
 {
     parameters:
         //   string applType; //type of the application layer
@@ -14,7 +14,7 @@ module vehicle
         input radioIn; // gate for sendDirect
         
     submodules:
-        appl: ApplVManager {    // <applType> like IBaseApplLayer {
+        appl: ApplPedManager {    // <applType> like IBaseApplLayer {
             parameters:
                 @display("p=60,50");
         }
@@ -37,4 +37,3 @@ module vehicle
         radioIn --> nic.radioIn;
 
 }
-

@@ -43,6 +43,10 @@ void TraCI_App::initialize(int stage)
             error("can not get a pointer to the Statistics module.");
 
         terminate = par("terminate").doubleValue();
+
+        pedModuleType = par("pedModuleType").stringValue();
+        pedModuleName = par("pedModuleName").stringValue();
+        pedModuleDisplayString = par("pedModuleDisplayString").stringValue();
     }
 }
 
@@ -139,21 +143,29 @@ void TraCI_App::executeOneTimestep()
     }
 }
 
+
 void TraCI_App::addModule(std::string nodeId, std::string type, std::string name, std::string displayString, const Coord& position, std::string road_id, double speed, double angle)
 {
-    //TraCIScenarioManager::addModule(nodeId, type, name, displayString, position, road_id, speed, angle);
+    string vehType = commandGetVehicleType(nodeId);
 
+    if (vehType == "TypeManual" || vehType == "TypeACC" || vehType == "TypeCACC" || vehType == "TypeObstacle")
+    {
+        // do nothing
+        // type is "c3po.ned.vehicle"
+        // name is "V"
+    }
+    else if (vehType == "Pedestrian")
+    {
+        type = pedModuleType;
+        name = pedModuleName;
+        displayString = pedModuleDisplayString;
+    }
+    else
+        error("Unknown module type in TraCI_App::addModule");
 
-    if (commandGetVehicleType(nodeId) == "TypeCACC")
-    {
-        type = "c3po.ned.vehicle";
-        name = "V";
-    }
-    else if (commandGetVehicleType(nodeId) == "Pedestrian")
-    {
-        type = "c3po.ned.pedestrian";
-        name = "P";
-    }
+    // ########################################
+    // Copy of TraCIScenarioManager::addModule
+    // ########################################
 
     if (hosts.find(nodeId) != hosts.end()) error("tried adding duplicate module");
 
@@ -202,7 +214,6 @@ void TraCI_App::addModule(std::string nodeId, std::string type, std::string name
         if (!mm) continue;
         mm->changePosition();
     }
-
 }
 
 }
