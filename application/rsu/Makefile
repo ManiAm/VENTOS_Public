@@ -1,27 +1,28 @@
 #
-# OMNeT++/OMNEST Makefile for librouter
+# OMNeT++/OMNEST Makefile for librsu
 #
 # This file was generated with the command:
-#  opp_makemake -f --make-so -o router -O out -I/home/mani/Desktop/VENTOS/eigen-3.2.1 -I/home/mani/Desktop/VENTOS/rapidxml-1.13 -I../../../veins/src/base/messages -I../../../veins/src -I../../../veins/src/base/connectionManager -I../../../veins/src/modules/mac/ieee80211p -I../../../veins/src/base/modules -I../../../veins/src/base/utils -I../../../veins/src/modules/phy -I../../../veins/src/inet -I../../../veins/src/base/phyLayer -I.. -I../../../veins/src/modules/analogueModel -I../../../veins/src/modules/utility -I../core -I../../../veins/src/modules/messages -L../../../veins/out/$$\(CONFIGNAME\)/src -L../../out/$$\(CONFIGNAME\)/application -L../../out/$$\(CONFIGNAME\)/application/msg -L../../out/$$\(CONFIGNAME\)/application/ped -L../../out/$$\(CONFIGNAME\)/application/core -L../../out/$$\(CONFIGNAME\)/application/rsu -lboost_filesystem -lboost_system -lmsg -lveins -KVEINS_PROJ=../../../veins
+#  opp_makemake -f --make-so -o rsu -O out -I/home/mani/Desktop/VENTOS/eigen-3.2.1 -I/home/mani/Desktop/VENTOS/rapidxml-1.13 -I../../../veins/src/base/messages -I../router -I../../../veins/src -I../../../veins/src/base/connectionManager -I../../../veins/src/modules/mac/ieee80211p -I../../../veins/src/base/utils -I../../../veins/src/base/modules -I../../../veins/src/modules/phy -I../../../veins/src/inet -I.. -I../../../veins/src/base/phyLayer -I../../../veins/src/modules/analogueModel -I../../../veins/src/modules/utility -I../core -I../../../veins/src/modules/messages -L../../../veins/out/$$\(CONFIGNAME\)/src -L../../out/$$\(CONFIGNAME\)/application -L../../out/$$\(CONFIGNAME\)/application/msg -L../../out/$$\(CONFIGNAME\)/application/router -L../../out/$$\(CONFIGNAME\)/application/ped -L../../out/$$\(CONFIGNAME\)/application/core -lboost_filesystem -lboost_system -lmsg -lveins -KVEINS_PROJ=../../../veins
 #
 
 # Name of target to be created (-o option)
-TARGET = librouter$(SHARED_LIB_SUFFIX)
+TARGET = librsu$(SHARED_LIB_SUFFIX)
 
 # C++ include paths (with -I)
 INCLUDE_PATH = \
     -I../../eigen-3.2.1 \
     -I../../rapidxml-1.13 \
     -I../../../veins/src/base/messages \
+    -I../router \
     -I../../../veins/src \
     -I../../../veins/src/base/connectionManager \
     -I../../../veins/src/modules/mac/ieee80211p \
-    -I../../../veins/src/base/modules \
     -I../../../veins/src/base/utils \
+    -I../../../veins/src/base/modules \
     -I../../../veins/src/modules/phy \
     -I../../../veins/src/inet \
-    -I../../../veins/src/base/phyLayer \
     -I.. \
+    -I../../../veins/src/base/phyLayer \
     -I../../../veins/src/modules/analogueModel \
     -I../../../veins/src/modules/utility \
     -I../core \
@@ -32,24 +33,16 @@ INCLUDE_PATH = \
 EXTRA_OBJS =
 
 # Additional libraries (-L, -l options)
-LIBS = -L../../../veins/out/$(CONFIGNAME)/src -L../../out/$(CONFIGNAME)/application -L../../out/$(CONFIGNAME)/application/msg -L../../out/$(CONFIGNAME)/application/ped -L../../out/$(CONFIGNAME)/application/core -L../../out/$(CONFIGNAME)/application/rsu  -lboost_filesystem -lboost_system -lmsg -lveins
-LIBS += -Wl,-rpath,`abspath ../../../veins/out/$(CONFIGNAME)/src` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/msg` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/ped` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/core` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/rsu`
+LIBS = -L../../../veins/out/$(CONFIGNAME)/src -L../../out/$(CONFIGNAME)/application -L../../out/$(CONFIGNAME)/application/msg -L../../out/$(CONFIGNAME)/application/router -L../../out/$(CONFIGNAME)/application/ped -L../../out/$(CONFIGNAME)/application/core  -lboost_filesystem -lboost_system -lmsg -lveins
+LIBS += -Wl,-rpath,`abspath ../../../veins/out/$(CONFIGNAME)/src` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/msg` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/router` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/ped` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/core`
 
 # Output directory
 PROJECT_OUTPUT_DIR = ../../out
-PROJECTRELATIVE_PATH = application/router
+PROJECTRELATIVE_PATH = application/rsu
 O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Object files for local .cc and .msg files
-OBJS = \
-    $O/ApplVSystem.o \
-    $O/TrafficLight.o \
-    $O/Node.o \
-    $O/Histogram.o \
-    $O/Net.o \
-    $O/Hypertree.o \
-    $O/Edge.o \
-    $O/Router.o
+OBJS = $O/RSUMobility.o $O/ApplRSU_01_Base.o $O/ApplRSU_03_Manager.o $O/ApplRSU_02_AID.o
 
 # Message files
 MSGFILES =
@@ -128,7 +121,7 @@ msgheaders: $(MSGFILES:.msg=_m.h)
 clean:
 	$(qecho) Cleaning...
 	$(Q)-rm -rf $O
-	$(Q)-rm -f router router.exe librouter.so librouter.a librouter.dll librouter.dylib
+	$(Q)-rm -f rsu rsu.exe librsu.so librsu.a librsu.dll librsu.dylib
 	$(Q)-rm -f ./*_m.cc ./*_m.h
 
 cleanall: clean
@@ -139,15 +132,22 @@ depend:
 	$(Q)$(MAKEDEPEND) $(INCLUDE_PATH) -f Makefile -P\$$O/ -- $(MSG_CC_FILES)  ./*.cc
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
-$O/ApplVSystem.o: ApplVSystem.cc \
+$O/ApplRSU_01_Base.o: ApplRSU_01_Base.cc \
 	../core/Appl.h \
 	../core/ApplV_01_Base.h \
 	../core/ApplV_02_Beacon.h \
+	../core/ApplV_04_AID.h \
+	../core/ApplV_05_PlatoonFormed.h \
+	../core/ApplV_06_PlatoonMg.h \
+	../core/ApplV_07_Coordinator.h \
+	../core/ApplV_08_Manager.h \
 	../core/Global_01_TraCI_Extend.h \
+	../core/Global_07_RSUAdd.h \
 	../msg/Messages_m.h \
-	ApplVSystem.h \
-	Histogram.h \
-	Hypertree.h \
+	../router/ApplVSystem.h \
+	../router/Histogram.h \
+	../router/Hypertree.h \
+	ApplRSU_01_Base.h \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
 	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
@@ -182,15 +182,7 @@ $O/ApplVSystem.o: ApplVSystem.cc \
 	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
 	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
 	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
-$O/Edge.o: Edge.cc \
-	Edge.h \
-	Histogram.h \
-	Node.h
-$O/Histogram.o: Histogram.cc \
-	Histogram.h
-$O/Hypertree.o: Hypertree.cc \
-	Hypertree.h
-$O/Net.o: Net.cc \
+$O/ApplRSU_02_AID.o: ApplRSU_02_AID.cc \
 	../core/Appl.h \
 	../core/ApplV_01_Base.h \
 	../core/ApplV_02_Beacon.h \
@@ -200,20 +192,13 @@ $O/Net.o: Net.cc \
 	../core/ApplV_07_Coordinator.h \
 	../core/ApplV_08_Manager.h \
 	../core/Global_01_TraCI_Extend.h \
-	../core/Global_04_Statistics.h \
 	../core/Global_07_RSUAdd.h \
 	../msg/Messages_m.h \
-	ApplVSystem.h \
-	Edge.h \
-	Histogram.h \
-	Hypertree.h \
-	Net.h \
-	Node.h \
-	Router.h \
-	TrafficLight.h \
-	../rsu/ApplRSU_01_Base.h \
-	../rsu/ApplRSU_02_AID.h \
-	../rsu/ApplRSU_03_Manager.h \
+	../router/ApplVSystem.h \
+	../router/Histogram.h \
+	../router/Hypertree.h \
+	ApplRSU_01_Base.h \
+	ApplRSU_02_AID.h \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
 	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
@@ -248,9 +233,7 @@ $O/Net.o: Net.cc \
 	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
 	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
 	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
-$O/Node.o: Node.cc \
-	Node.h
-$O/Router.o: Router.cc \
+$O/ApplRSU_03_Manager.o: ApplRSU_03_Manager.cc \
 	../core/Appl.h \
 	../core/ApplV_01_Base.h \
 	../core/ApplV_02_Beacon.h \
@@ -260,20 +243,14 @@ $O/Router.o: Router.cc \
 	../core/ApplV_07_Coordinator.h \
 	../core/ApplV_08_Manager.h \
 	../core/Global_01_TraCI_Extend.h \
-	../core/Global_04_Statistics.h \
 	../core/Global_07_RSUAdd.h \
 	../msg/Messages_m.h \
-	ApplVSystem.h \
-	Edge.h \
-	Histogram.h \
-	Hypertree.h \
-	Net.h \
-	Node.h \
-	Router.h \
-	TrafficLight.h \
-	../rsu/ApplRSU_01_Base.h \
-	../rsu/ApplRSU_02_AID.h \
-	../rsu/ApplRSU_03_Manager.h \
+	../router/ApplVSystem.h \
+	../router/Histogram.h \
+	../router/Hypertree.h \
+	ApplRSU_01_Base.h \
+	ApplRSU_02_AID.h \
+	ApplRSU_03_Manager.h \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
 	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \
@@ -308,7 +285,7 @@ $O/Router.o: Router.cc \
 	$(VEINS_PROJ)/src/modules/obstacle/ObstacleControl.h \
 	$(VEINS_PROJ)/src/modules/utility/Consts80211p.h \
 	$(VEINS_PROJ)/src/modules/world/annotations/AnnotationManager.h
-$O/TrafficLight.o: TrafficLight.cc \
+$O/RSUMobility.o: RSUMobility.cc \
 	../core/Appl.h \
 	../core/ApplV_01_Base.h \
 	../core/ApplV_02_Beacon.h \
@@ -318,20 +295,12 @@ $O/TrafficLight.o: TrafficLight.cc \
 	../core/ApplV_07_Coordinator.h \
 	../core/ApplV_08_Manager.h \
 	../core/Global_01_TraCI_Extend.h \
-	../core/Global_04_Statistics.h \
 	../core/Global_07_RSUAdd.h \
 	../msg/Messages_m.h \
-	ApplVSystem.h \
-	Edge.h \
-	Histogram.h \
-	Hypertree.h \
-	Net.h \
-	Node.h \
-	Router.h \
-	TrafficLight.h \
-	../rsu/ApplRSU_01_Base.h \
-	../rsu/ApplRSU_02_AID.h \
-	../rsu/ApplRSU_03_Manager.h \
+	../router/ApplVSystem.h \
+	../router/Histogram.h \
+	../router/Hypertree.h \
+	RSUMobility.h \
 	$(VEINS_PROJ)/src/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/base/connectionManager/ChannelAccess.h \
 	$(VEINS_PROJ)/src/base/connectionManager/NicEntry.h \

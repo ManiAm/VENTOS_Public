@@ -2,7 +2,7 @@
 #ifndef APPLRSUAID_H_
 #define APPLRSUAID_H_
 
-#include <ApplRSU_01_Base.h>
+#include <rsu/ApplRSU_01_Base.h>
 
 namespace VENTOS {
 

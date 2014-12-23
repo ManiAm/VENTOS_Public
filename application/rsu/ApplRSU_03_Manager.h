@@ -2,7 +2,7 @@
 #ifndef APPLRSUMANAGER_H_
 #define APPLRSUMANAGER_H_
 
-#include <ApplRSU_02_AID.h>
+#include <rsu/ApplRSU_02_AID.h>
 
 namespace VENTOS {
 

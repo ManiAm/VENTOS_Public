@@ -1,7 +1,9 @@
 <buildspec version="4.0">
-<dir makemake-options="--make-so -o application -O out -lrouter -lcore --meta:recurse --meta:auto-include-path --meta:export-library --meta:use-exported-libs --meta:feature-cflags --meta:feature-ldflags" path="application" type="makemake"/>
+<dir makemake-options="--make-so -o application -O out -lrsu -lrouter -lcore --meta:recurse --meta:auto-include-path --meta:export-library --meta:use-exported-libs --meta:feature-cflags --meta:feature-ldflags" path="application" type="makemake"/>
 <dir makemake-options="--make-so -o msg -O out --meta:auto-include-path --meta:export-library --meta:use-exported-libs --meta:feature-cflags --meta:feature-ldflags" path="application/msg" type="makemake"/>
-<dir makemake-options="-O out --meta:recurse --meta:auto-include-path --meta:export-library --meta:use-exported-libs --meta:feature-cflags --meta:feature-ldflags" path="." type="makemake"/>
 <dir makemake-options="--make-so -o router -O out -lboost_filesystem -lboost_system -lmsg --meta:auto-include-path --meta:export-library --meta:use-exported-libs --meta:feature-cflags --meta:feature-ldflags" path="application/router" type="makemake"/>
-<dir makemake-options="--make-so -o core -O out -lboost_filesystem -lboost_system -lmsg --meta:auto-include-path --meta:export-library --meta:use-exported-libs --meta:feature-cflags --meta:feature-ldflags" path="application/core" type="makemake"/>
+<dir makemake-options="--make-so -o ped -O  out -lboost_filesystem -lboost_system -lmsg --meta:auto-include-path --meta:export-library --meta:use-exported-libs --meta:feature-cflags --meta:feature-ldflags" path="application/ped" type="makemake"/>
+<dir makemake-options="--make-so -o core -O out -lboost_filesystem -lboost_system -lrsu -lmsg --meta:auto-include-path --meta:export-library --meta:use-exported-libs --meta:feature-cflags --meta:feature-ldflags" path="application/core" type="makemake"/>
+<dir makemake-options="--make-so -o rsu -O out -lboost_filesystem -lboost_system -lmsg --meta:auto-include-path --meta:export-library --meta:use-exported-libs --meta:feature-cflags --meta:feature-ldflags" path="application/rsu" type="makemake"/>
+<dir makemake-options="-O out --meta:recurse --meta:auto-include-path --meta:export-library --meta:use-exported-libs --meta:feature-cflags --meta:feature-ldflags" path="." type="makemake"/>
 </buildspec>
