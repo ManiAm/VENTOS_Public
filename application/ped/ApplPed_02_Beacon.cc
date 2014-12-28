@@ -131,7 +131,7 @@ BeaconVehicle*  ApplPedBeacon::prepareBeacon()
     wsm->setMaxDecel( TraCI->commandGetVehicleMaxDecel(SUMOvID) );
 
     // set current lane
-    wsm->setLane( TraCI->getCommandInterface()->getLaneId(SUMOvID).c_str() );
+    wsm->setLane( TraCI->commandGetVehicleLaneId(SUMOvID).c_str() );
 
     return wsm;
 }

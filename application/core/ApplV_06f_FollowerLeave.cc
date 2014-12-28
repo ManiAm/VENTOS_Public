@@ -33,7 +33,7 @@ void ApplVPlatoonMg::followerLeave_handleSelfMsg(cMessage* msg)
 
             // change color to yellow!
             TraCIColor newColor = TraCIColor::fromTkColor("yellow");
-            TraCI->getCommandInterface()->setColor(SUMOvID, newColor);
+            TraCI->commandSetVehicleColor(SUMOvID, newColor);
 
             plnSize = -1;
             myPlnDepth = -1;

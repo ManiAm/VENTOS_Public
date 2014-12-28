@@ -94,7 +94,7 @@ void Tracking::TrackingGUI()
     else if(mode == 2)
     {
         // get a list of vehicles on this lane!
-        list<string> myList = TraCI->commandGetVehicleLaneList(trackingLane.c_str());
+        list<string> myList = TraCI->commandGetLaneVehicleList(trackingLane.c_str());
 
         if(!myList.empty())
         {

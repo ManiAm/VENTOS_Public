@@ -192,7 +192,7 @@ void ApplVCoordinator::scenario3()
 
 void ApplVCoordinator::scenario4()
 {
-    if(TraCI->commandGetNoVehicles() == 10)
+    if(TraCI->commandGetVehicleCount() == 10)
         stopTime = simTime().dbl();
 
     // all vehicles entering after the stopTime

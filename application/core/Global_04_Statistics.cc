@@ -199,14 +199,14 @@ void Statistics::vehiclesData()
     for(list<string>::iterator i = myList.begin(); i != myList.end(); ++i)
     {
         // get all vehicles on lane i
-        list<string> myList2 = TraCI->commandGetVehicleLaneList( i->c_str() );
+        list<string> myList2 = TraCI->commandGetLaneVehicleList( i->c_str() );
 
         for(list<string>::reverse_iterator k = myList2.rbegin(); k != myList2.rend(); ++k)
             saveVehicleData(k->c_str());
     }
 
     // increase index after writing data for all vehicles
-    if (TraCI->commandGetNoVehicles() > 0)
+    if (TraCI->commandGetVehicleCount() > 0)
         index++;
 }
 
@@ -214,9 +214,9 @@ void Statistics::vehiclesData()
 void Statistics::saveVehicleData(string vID)
 {
     double timeStep = (simTime()-updateInterval).dbl();
-    string vType = TraCI->commandGetVehicleType(vID);
-    string lane = TraCI->getCommandInterface()->getLaneId(vID);
-    double pos = TraCI->getCommandInterface()->getLanePosition(vID);
+    string vType = TraCI->commandGetVehicleTypeId(vID);
+    string lane = TraCI->commandGetVehicleLaneId(vID);
+    double pos = TraCI->commandGetVehicleLanePosition(vID);
     double speed = TraCI->commandGetVehicleSpeed(vID);
     double accel = TraCI->commandGetVehicleAccel(vID);
     int CFMode_Enum = TraCI->commandGetCFMode(vID);
@@ -367,8 +367,8 @@ void Statistics::laneCostsData()
 
     for(list<string>::iterator it = vList.begin(); it != vList.end(); it++) //Look at each vehicle
     {
-        string curEdge = TraCI->getCommandInterface()->getEdgeId(*it);  //The edge it's currently on
-        if(TraCI->getCommandInterface()->getLanePosition(*it) * 1.05 > TraCI->getCommandInterface()->getLaneLength(TraCI->getCommandInterface()->getLaneId(*it)))   //If the vehicle is on (or extremely close to) the end of the lane
+        string curEdge = TraCI->commandGetVehicleEdgeId(*it);  //The edge it's currently on
+        if(TraCI->commandGetVehicleLanePosition(*it) * 1.05 > TraCI->commandGetLaneLength(TraCI->commandGetVehicleLaneId(*it)))   //If the vehicle is on (or extremely close to) the end of the lane
             curEdge = "";
         string prevEdge = vehicleEdges[*it];    //The last edge we saw it on
         if(vehicleEdges.find(*it) == vehicleEdges.end())    //If we haven't yet seen this vehicle

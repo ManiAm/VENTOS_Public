@@ -111,7 +111,7 @@ void TrafficLight::HighDensityRecalculate()
         vector<Lane*>* lanes = (*edge)->lanes;
         for(vector<Lane*>::iterator lane = lanes->begin(); lane != lanes->end(); lane++)    //For each lane
         {
-            list<string> vehicleIDs = TraCI->commandGetVehiclesOnLane((*lane)->id); //Get all vehicles on that lane
+            list<string> vehicleIDs = TraCI->commandGetLaneVehicleList((*lane)->id); //Get all vehicles on that lane
             int vehCount = vehicleIDs.size();   //And the number of vehicles on that lane
             for(vector<int>::iterator it = (*lane)->greenPhases.begin(); it != (*lane)->greenPhases.end(); it++)    //Each element of greenPhases is a phase that lets that lane move
             {
@@ -161,12 +161,12 @@ bool TrafficLight::LowDensityRecalculate()    //This function assumes it's alway
         {
             if(find((*lane)->greenPhases.begin(), (*lane)->greenPhases.end(), currentPhase) != (*lane)->greenPhases.end()) //If this lane has a green
             {
-                list<string> vehicleIDs = TraCI->commandGetVehiclesOnLane((*lane)->id); //If so, get all vehicles on this lane
+                list<string> vehicleIDs = TraCI->commandGetLaneVehicleList((*lane)->id); //If so, get all vehicles on this lane
                 for(list<string>::iterator vehicle = vehicleIDs.begin(); vehicle != vehicleIDs.end(); vehicle++)    //For each vehicle
                 {
                     if(TraCI->commandGetVehicleSpeed(*vehicle) > 0.01)  //If that vehicle is not stationary
                     {
-                        double pos = TraCI->commandGetLanePosition(*vehicle);
+                        double pos = TraCI->commandGetVehicleLanePosition(*vehicle);
                         double length = net->edges[(*edge)->id]->length;
                         double speed = net->edges[(*edge)->id]->speed;
                         double timeLeft = (length - pos) / speed;   //Calculate how long until it hits the intersection, based off speed and distance

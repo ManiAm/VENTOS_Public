@@ -146,7 +146,7 @@ void TraCI_App::executeOneTimestep()
 
 void TraCI_App::addModule(std::string nodeId, std::string type, std::string name, std::string displayString, const Coord& position, std::string road_id, double speed, double angle)
 {
-    string vehType = commandGetVehicleType(nodeId);
+    string vehType = commandGetVehicleTypeId(nodeId);
 
     if (vehType == "TypeManual" || vehType == "TypeACC" || vehType == "TypeCACC" || vehType == "TypeObstacle")
     {

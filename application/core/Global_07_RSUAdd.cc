@@ -137,7 +137,7 @@ void RSUAdd::commandAddCirclePoly(string name, string type, const TraCIColor& co
     }
 
     // create polygon in SUMO
-    TraCI->getCommandInterface()->addPolygon(name, type, color, 0, 1, circlePoints);
+    TraCI->commandAddPolygon(name, type, color, 0, 1, circlePoints);
 }
 
 

@@ -143,12 +143,13 @@ void ApplVSystem::handleSelfMsg(cMessage* msg)  //Internal messages to self
         //Systemdata wants string edge, string node, string sender, int requestType, string recipient, list<string> edgeList
         if(useDijkstrasRouting)
         {
-            nodePtr->emit(Signal_system, new systemData(TraCI->getCommandInterface()->getEdgeId(SUMOvID), targetNode, SUMOvID, 0, string("system")));
+
+            nodePtr->emit(Signal_system, new systemData(TraCI->commandGetVehicleEdgeId(SUMOvID), targetNode, SUMOvID, 0, string("system")));
             scheduleAt(simTime() + requestInterval, sendSystemMsgEvt);// schedule for next beacon broadcast
         }
         else
         {
-            nodePtr->emit(Signal_system, new systemData(TraCI->getCommandInterface()->getEdgeId(SUMOvID), targetNode, SUMOvID, 1, string("system")));
+            nodePtr->emit(Signal_system, new systemData(TraCI->commandGetVehicleEdgeId(SUMOvID), targetNode, SUMOvID, 1, string("system")));
             scheduleAt(simTime() + routeUpdateInterval, sendSystemMsgEvt);// schedule for next beacon broadcast
         }
 
@@ -192,7 +193,7 @@ SystemMsg*  ApplVSystem::prepareSystemMsg()
     wsm->setRequestType(0);
 
     // set current lane
-    wsm->setEdge( TraCI->getCommandInterface()->getEdgeId(SUMOvID).c_str() );
+    wsm->setEdge( TraCI->commandGetVehicleEdgeId(SUMOvID).c_str() );
 
     // set target node - read this from the vehicle's data
     wsm->setTarget(1);

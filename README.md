@@ -108,21 +108,15 @@ Veins is on github, and you should clone it into your computer.
 
 **Step 3:** Now you can import Veins project into the OMNET++ IDE. Choose "File->Import" from the menu. Choose "General->Existing Projects into Workspace" from the upcoming dialog and proceed with "Next". Choose "Select root directory" and select the Veins folder. "veins" should appear in the "Projects". Unselect "Copy project into workspace" if the Veins folder is already in your workspace. Click "Finish".
 
-**Step 4:** To build the Veins project, right-click on the project and choose "Build Project". Wait for a while and then check the Console windows at the bottom of the Eclipse IDE to make sure no errors occurred. At the end you should see a message like this:
+**Step 4:** Now make these modifications in Veins source code. In the IDE, open Veins project and go to 'src/veins/modules/mobility/traci/' folder.
+
+- Open TraCIScenarioManager.h file and change 'void executeOneTimestep()' to 'virtual void executeOneTimestep()'. Also change 'void addModule()' to 'virtual void addModule()'
+
+- Open TraCICommandInterface.h file, and change access modifier private into public!
+
+**Step 5:** After these modifications, build the Veins project. To build the Veins project, right-click on the project and choose "Build Project". Wait for a while and then check the Console windows at the bottom of the Eclipse IDE to make sure no errors occurred. At the end you should see a message like this:
 
           00::04:42 Build Finished (took 2m:23s.177ms)
-
-Now make these modifications in Veins source code:
-
-**Step 5:** In the IDE, open Veins project and go to src/modules/mobility/traci/TraCIScenarioManager.h file. Find 'void executeOneTimestep()', and then change it it to 'virtual void executeOneTimestep()';
-
-**Step 6:** In the IDE, open Veins project and go to src/modules/mobility/traci/TraCIScenarioManager.h file. Find 'void addModule()', and then change it to 'virtual void addModule()';
-
-**Step 7:** go to src/modules/mobility/traci/TraCICommandInterface.h file. Change access modifier private into public!
-
-**Step 8:** [optional] comment the MYDEBUG line in TraCIScenarioManager::receiveTraCIMessage() and also TraCIScenarioManager::sendTraCIMessage to make the output console less messy :)
-
-After these modifications, build the Veins project again. Build is done much faster this time!
 
 
 Import VENTOS

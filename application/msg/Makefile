@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for libmsg
 #
 # This file was generated with the command:
-#  opp_makemake -f --make-so -o msg -O out -I/home/mani/Desktop/VENTOS/eigen-3.2.1 -I/home/mani/Desktop/VENTOS/rapidxml-1.13 -I../../../veins/src -I../../../veins/src/base/utils -I../../../veins/src/inet -L../../../veins/out/$$\(CONFIGNAME\)/src -L../../out/$$\(CONFIGNAME\)/application -L../../out/$$\(CONFIGNAME\)/application/router -L../../out/$$\(CONFIGNAME\)/application/ped -L../../out/$$\(CONFIGNAME\)/application/core -L../../out/$$\(CONFIGNAME\)/application/rsu -lveins -KVEINS_PROJ=../../../veins
+#  opp_makemake -f --make-so -o msg -O out -I/home/mani/Desktop/VENTOS/eigen-3.2.1 -I/home/mani/Desktop/VENTOS/rapidxml-1.13 -I../../../veins/src -I../../../veins/src/veins/base/utils -I../../../veins/src/veins -L../../../veins/out/$$\(CONFIGNAME\)/src -L../../out/$$\(CONFIGNAME\)/application -L../../out/$$\(CONFIGNAME\)/application/router -L../../out/$$\(CONFIGNAME\)/application/ped -L../../out/$$\(CONFIGNAME\)/application/core -L../../out/$$\(CONFIGNAME\)/application/rsu -lveins -KVEINS_PROJ=../../../veins
 #
 
 # Name of target to be created (-o option)
@@ -13,8 +13,8 @@ INCLUDE_PATH = \
     -I../../eigen-3.2.1 \
     -I../../rapidxml-1.13 \
     -I../../../veins/src \
-    -I../../../veins/src/base/utils \
-    -I../../../veins/src/inet \
+    -I../../../veins/src/veins/base/utils \
+    -I../../../veins/src/veins \
     -I.
 
 # Additional object and library files to link with
@@ -123,9 +123,9 @@ depend:
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 $O/Messages_m.o: Messages_m.cc \
 	Messages_m.h \
-	$(VEINS_PROJ)/src/base/utils/MiXiMDefs.h \
-	$(VEINS_PROJ)/src/base/utils/miximkerneldefs.h \
-	$(VEINS_PROJ)/src/inet/Coord.h \
-	$(VEINS_PROJ)/src/inet/FWMath.h \
-	$(VEINS_PROJ)/src/modules/messages/WaveShortMessage_m.h
+	$(VEINS_PROJ)/src/veins/base/utils/Coord.h \
+	$(VEINS_PROJ)/src/veins/base/utils/FWMath.h \
+	$(VEINS_PROJ)/src/veins/base/utils/MiXiMDefs.h \
+	$(VEINS_PROJ)/src/veins/base/utils/miximkerneldefs.h \
+	$(VEINS_PROJ)/src/veins/modules/messages/WaveShortMessage_m.h
 

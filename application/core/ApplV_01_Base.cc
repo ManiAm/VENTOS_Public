@@ -43,7 +43,7 @@ void ApplVBase::initialize(int stage)
         SUMOvID = TraCI_Mobility->getExternalId();
 
         // vehicle type in sumo
-        SUMOvType = TraCI->commandGetVehicleType(SUMOvID);
+        SUMOvType = TraCI->commandGetVehicleTypeId(SUMOvID);
 
         // store the time of entry
         entryTime = simTime().dbl();

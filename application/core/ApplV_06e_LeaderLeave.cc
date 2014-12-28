@@ -81,7 +81,7 @@ void ApplVPlatoonMg::leaderLeave_DataFSM(PlatoonMsg *wsm)
 
             // change color to yellow!
             TraCIColor newColor = TraCIColor::fromTkColor("yellow");
-            TraCI->getCommandInterface()->setColor(SUMOvID, newColor);
+            TraCI->commandSetVehicleColor(SUMOvID, newColor);
 
             plnSize = -1;
             myPlnDepth = -1;

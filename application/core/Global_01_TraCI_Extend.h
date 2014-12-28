@@ -46,41 +46,43 @@ class TraCI_Extend : public TraCIScenarioManager
         virtual void init_traci();
 		virtual void finish();
 
-		// CMD_GET_TL_VARIABLE
-		list<string> commandGetTLIDList();
-		uint32_t commandGetCurrentPhaseDuration(string TLid);
-		uint32_t commandGetCurrentPhase(string TLid);
-		uint32_t commandGetNextSwitchTime(string TLid);
-		string commandGetCurrentProgram(string TLid);
+        // CMD_GET_SIM_VARIABLE
+        double* commandGetNetworkBoundary();
 
-		// CMD_SET_TL_VARIABLE
-		void commandSetPhase(string TLid, int value);
-		void commandSetPhaseDurationRemaining(string TLid, int value);
-		void commandSetPhaseDuration(string TLid, int value);
+        // control-related commands
+        void commandTerminate();
 
         // CMD_GET_VEHICLE_VARIABLE
-        uint32_t commandGetNoVehicles();
         list<string> commandGetVehicleList();
+        uint32_t commandGetVehicleCount();
         double commandGetVehicleSpeed(string);
-        double commandGetVehicleAccel(string);
-        int commandGetCFMode(string);
-        string commandGetVehicleType(string);
+        Coord commandGetVehiclePos(string);
+        string commandGetVehicleEdgeId(string);
+        string commandGetVehicleLaneId(string);
+        uint32_t commandGetVehicleLaneIndex(string);
+        string commandGetVehicleTypeId(string);
+        uint8_t* commandGetVehicleColor(string);
+        double commandGetVehicleLanePosition(std::string nodeId);
         double commandGetVehicleLength(string);
-        double commandGetVehicleMinGap(string);
         double commandGetVehicleMaxDecel(string);
         double commandGetVehicleTimeGap(string);
-        Coord commandGetVehiclePos(string);
-        uint32_t commandGetLaneIndex(string);
-        double commandGetLanePosition(std::string nodeId);
-        vector<string> commandGetLeading(string, double);
+        double commandGetVehicleMinGap(string);
         string commandGetLeading_old(string);
-        uint8_t* commandGetVehicleColor(string);
+        vector<string> commandGetLeading(string, double);
+        double commandGetVehicleAccel(string);    // new defined command
+        int commandGetCFMode(string);             // new defined command
 
         // CMD_GET_VEHICLETYPE_VARIABLE
-        double commandGetVehicleLength_Type(string);
+        double commandGetVehicleTypeLength(string);
 
         // CMD_GET_ROUTE_VARIABLE
         list<string> commandGetRouteIds();
+
+        // CMD_GET_LANE_VARIABLE
+        list<string> commandGetLaneList();
+        list<string> commandGetLaneVehicleList(string);
+        double commandGetLaneLength(string);
+        double commandGetLaneMeanSpeed(string);
 
         // CMD_GET_INDUCTIONLOOP_VARIABLE
         list<string> commandGetLoopDetectorList();
@@ -89,23 +91,18 @@ class TraCI_Extend : public TraCIScenarioManager
         list<string> commandGetLoopDetectorVehicleList(string);
         vector<string> commandGetLoopDetectorVehicleData(string);
 
-        // CMD_GET_LANE_VARIABLE
-        list<string> commandGetLaneList();
-        list<string> commandGetVehicleLaneList(string);
-        list<string> commandGetVehiclesOnLane(string);
+		// CMD_GET_TL_VARIABLE
+		list<string> commandGetTLIDList();
+		uint32_t commandGetCurrentPhaseDuration(string TLid);
+		uint32_t commandGetCurrentPhase(string TLid);
+		uint32_t commandGetNextSwitchTime(string TLid);
+		string commandGetCurrentProgram(string TLid);
 
         // CMD_GET_GUI_VARIABLE
         Coord commandGetGUIOffset();
         vector<double> commandGetGUIBoundry();
 
-        // CMD_GET_SIM_VARIABLE
-        double* commandGetNetworkBoundary();
-
-        // control-related commands
-        void commandTerminate();
-
-        // CMD_SET_ROUTE_VARIABLE
-        void commandAddRoute(string name, list<string> route);
+        // ###########################################################
 
         // CMD_SET_VEHICLE_VARIABLE
         void commandSetRouteFromList(string, list<string> value);
@@ -120,7 +117,7 @@ class TraCI_Extend : public TraCIScenarioManager
         void commandSetDebug(string, bool);               // new defined command
         void commandSetModeSwitch(string, bool);         // new defined command
         void commandSetControlMode(string, int);         // new defined command
-        void commandRemoveVehicle(string, uint8_t);
+        void commandSetParking(string);
         void commandStopNodeExtended(string, string, double, uint8_t, double, uint8_t);
         void commandSetvClass(string, string);
         void commandChangeLane(string, uint8_t, double);
@@ -132,17 +129,29 @@ class TraCI_Extend : public TraCIScenarioManager
         void commandSetVint(string, double);              // new defined command
         void commandSetComfAccel(string, double);         // new defined command
         void commandSetComfDecel(string, double);         // new defined command
+        void commandSetVehicleColor(string, const TraCIColor&);
 
-        // CMD_SET_GUI_VARIABLE
-        void commandSetGUIZoom(double);
-        void commandSetGUITrack(string);
-        void commandSetGUIOffset(double, double);
+        // CMD_SET_ROUTE_VARIABLE
+        void commandAddRoute(string name, list<string> route);
 
         // CMD_SET_EDGE_VARIABLE
         void commandSetEdgeGlobalTravelTime(string, int32_t, int32_t, double);
 
         // CMD_SET_LANE_VARIABLE
         void commandSetLaneVmax(string, double);
+
+		// CMD_SET_TL_VARIABLE
+		void commandSetPhase(string TLid, int value);
+		void commandSetPhaseDurationRemaining(string TLid, int value);
+		void commandSetPhaseDuration(string TLid, int value);
+
+        // CMD_SET_GUI_VARIABLE
+        void commandSetGUIZoom(double);
+        void commandSetGUITrack(string);
+        void commandSetGUIOffset(double, double);
+
+        // CMD_SET_POLYGON_VARIABLE
+        void commandAddPolygon(std::string polyId, std::string polyType, const TraCIColor& color, bool filled, int32_t layer, const std::list<TraCICoord>& points);
 
 	private:
         void sendLaunchFile();

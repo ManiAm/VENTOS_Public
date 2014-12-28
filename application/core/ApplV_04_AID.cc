@@ -147,7 +147,7 @@ void ApplV_AID::handlePositionUpdate(cObject* obj)
     if(!AID)
         return;
 
-    toLane = TraCI->getCommandInterface()->getLaneId(SUMOvID);
+    toLane = TraCI->commandGetVehicleLaneId(SUMOvID);
 
     // if we change lane
     if(fromLane != toLane)

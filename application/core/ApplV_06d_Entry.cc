@@ -12,7 +12,7 @@ void ApplVPlatoonMg::entry_handleSelfMsg(cMessage* msg)
     if(msg == entryManeuverEvt && vehicleState == state_idle)
     {
         // check if we are at lane 0
-        if(TraCI->commandGetLaneIndex(SUMOvID) == 0)
+        if(TraCI->commandGetVehicleLaneIndex(SUMOvID) == 0)
         {
             TraCI->commandSetvClass(SUMOvID, "vip");   // change vClass to vip
 
@@ -30,7 +30,7 @@ void ApplVPlatoonMg::entry_handleSelfMsg(cMessage* msg)
     else if(msg == plnTIMER0 && vehicleState == state_waitForLaneChange)
     {
         // check if we change lane
-        if(TraCI->commandGetLaneIndex(SUMOvID) == 1)
+        if(TraCI->commandGetVehicleLaneIndex(SUMOvID) == 1)
         {
             // make it a free agent
             plnID = SUMOvID;
@@ -58,7 +58,7 @@ void ApplVPlatoonMg::entry_handleSelfMsg(cMessage* msg)
 
             // change color to red!
             TraCIColor newColor = TraCIColor::fromTkColor("red");
-            TraCI->getCommandInterface()->setColor(SUMOvID, newColor);
+            TraCI->commandSetVehicleColor(SUMOvID, newColor);
 
             // change state to platoon leader
             vehicleState = state_platoonLeader;

@@ -85,7 +85,7 @@ void SpeedProfile::Change()
         error("startTime is less than 0 in SpeedProfile.");
 
     // who is leading?
-    list<string> veh = TraCI->commandGetVehiclesOnLane(laneId);
+    list<string> veh = TraCI->commandGetLaneVehicleList(laneId);
 
     if(veh.empty())
         return;

@@ -139,7 +139,7 @@ double Router::getEdgeMeanSpeed(Edge *edge)
 {
     double sum = 0;
     for(vector<Lane*>::iterator it = edge->lanes->begin(); it != edge->lanes->end(); it++)  //For every lane on the edge
-        sum += ((*it)->length / TraCI->getCommandInterface()->getLaneMeanSpeed((*it)->id));   //Get the mean speed of that lane
+          sum += ((*it)->length / TraCI->commandGetLaneMeanSpeed((*it)->id));   //Get the mean speed of that lane
     return sum / edge->lanes->size();   //Average them all together
 }
 
@@ -382,9 +382,9 @@ list<string> Router::getRoute(Edge* origin, Node* destination, string vName)
         double distanceAlongLane = 1;
         if(parent->id == origin->id)    //Vehicles may not necessarily start at the beginning of a lane. Check for that
         {
-            double lanePos = TraCI->getCommandInterface()->getLanePosition(vName);
-            string lane = TraCI->getCommandInterface()->getLaneId(vName);
-            double laneLength = TraCI->getCommandInterface()->getLaneLength(lane);
+            double lanePos = TraCI->commandGetVehicleLanePosition(vName);
+            string lane = TraCI->commandGetVehicleLaneId(vName);
+            double laneLength = TraCI->commandGetLaneLength(lane);
             distanceAlongLane = 1 - (lanePos / laneLength); //And modify distanceAlongLane
         }
         double curLaneCost = distanceAlongLane * parent->getCost();
