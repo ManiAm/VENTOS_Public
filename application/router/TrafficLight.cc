@@ -32,7 +32,7 @@ void TrafficLight::build(string id, string type, string programID, double offset
     cycleDuration = 0;
     nonTransitionalCycleDuration = 0;
 
-    for(int i = 0; i < phases.size(); i++)
+    for(unsigned int i = 0; i < phases.size(); i++)
     {
         cycleDuration += phases[i]->duration;
         if(i % 2 == 0)
@@ -102,7 +102,7 @@ void TrafficLight::HighDensityRecalculate()
 {
     vector<Edge*>& edges = net->nodes[id]->inEdges;
     double phaseVehicleCounts[phases.size()];   //Will be the # of incoming vehicles that can go during that phase
-    for(int i = 0; i < phases.size(); i++)  //Initialize to 0
+    for(unsigned int i = 0; i < phases.size(); i++)  //Initialize to 0
         phaseVehicleCounts[i] = 0;
     int total = 0;
 
@@ -125,7 +125,7 @@ void TrafficLight::HighDensityRecalculate()
     {
         cout << "Recalculating TL " << id << ", currently in phase " << currentPhase << endl;
 
-        for(int i = 0; i < phases.size(); i++)  //For each phase
+        for(unsigned int i = 0; i < phases.size(); i++)  //For each phase
         {
             if(i % 2 == 0)  //Ignore the odd (transitional) phases
             {

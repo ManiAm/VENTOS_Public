@@ -16,8 +16,8 @@ class Lane
 {
 public:
     string id;
-    double length;
     double speed;
+    double length;
     vector<int> greenPhases;
     Lane(string i, double s, double l);
 };

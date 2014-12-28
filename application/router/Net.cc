@@ -155,7 +155,7 @@ Net::Net(string netBase, cModule* router)
         int fromLaneNum = atoi(attr->value());
 
         attr = attr->next_attribute();
-        int toLaneNum = atoi(attr->value());
+        //int toLaneNum = atoi(attr->value());
 
         attr = attr->next_attribute();
         if((string)attr->name() == "tl")    //Read the tl attributes if necessary
@@ -177,7 +177,7 @@ Net::Net(string netBase, cModule* router)
             Edge* fromEdge = edges[e1];
             Lane* fromLane = (*fromEdge->lanes)[fromLaneNum];
 
-            for(int i = 0; i < tl->phases.size(); i++)      //These 3 lines took me way too long to develop
+            for(unsigned int i = 0; i < tl->phases.size(); i++)      //These 3 lines took me way too long to develop
                 if (tl->phases[i]->state[linkIndex] != 'r') //Check each of the TL's phases -- if the state's value at the given link index allows movement,
                     fromLane->greenPhases.push_back(i);     //Push that phase to a list of green phases for that lane
 

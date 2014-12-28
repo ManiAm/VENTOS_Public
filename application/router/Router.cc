@@ -226,7 +226,7 @@ double Router::timeToPhase(TrafficLight* tl, double time, int targetPhase)
 
         do
         {
-            if(++curPhase >= phases.size())
+            if(++curPhase >= (signed)phases.size())
                 curPhase = 0;
             waitTime += phases[curPhase]->duration;
         } while(targetPhase != curPhase);
@@ -253,7 +253,7 @@ int Router::nextAcceptingPhase(double time, Edge* start, Edge* end)
         else    //Otherwise, check the next phase
         {
             phase++;
-            if(phase >= phases.size())
+            if(phase >= (signed)phases.size())
                 phase = 0;
         }
     }while(phase != curPhase);  //Break when we're back to the first phase (should never reach here)
