@@ -22,9 +22,9 @@ void ApplVManager::initialize(int stage)
         modeSwitch = par("modeSwitch").boolValue();
 
         // set parameters in SUMO
-        TraCI->commandSetDebug(SUMOvID, SUMOvehicleDebug);
-        TraCI->commandSetModeSwitch(SUMOvID, modeSwitch);
-        TraCI->commandSetControlMode(SUMOvID, controlMode);
+        TraCI->commandSetVehicleDebug(SUMOvID, SUMOvehicleDebug);
+        TraCI->commandSetVehicleModeSwitch(SUMOvID, modeSwitch);
+        TraCI->commandSetVehicleControlMode(SUMOvID, controlMode);
 
         // NED variables (packet loss ratio)
         droppT = par("droppT").doubleValue();
@@ -48,13 +48,13 @@ void ApplVManager::initialize(int stage)
 
         if(measurementError)
         {
-            TraCI->commandSetErrorGap(SUMOvID, errorGap);
-            TraCI->commandSetErrorRelSpeed(SUMOvID, errorRelSpeed);
+            TraCI->commandSetVehicleErrorGap(SUMOvID, errorGap);
+            TraCI->commandSetVehicleErrorRelSpeed(SUMOvID, errorRelSpeed);
         }
         else
         {
-            TraCI->commandSetErrorGap(SUMOvID, 0.);
-            TraCI->commandSetErrorRelSpeed(SUMOvID, 0.);
+            TraCI->commandSetVehicleErrorGap(SUMOvID, 0.);
+            TraCI->commandSetVehicleErrorRelSpeed(SUMOvID, 0.);
         }
 	}
 }
@@ -230,7 +230,7 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
         {
             char buffer [200];
             sprintf (buffer, "%f#%f#%f#%f#%s#%s", (double)wsm->getSpeed(), (double)wsm->getAccel(), (double)wsm->getMaxDecel(), (simTime().dbl())*1000, wsm->getSender(), "preceding");
-            TraCI->commandSetCFParameters(SUMOvID, buffer);
+            TraCI->commandSetVehicleCFParameters(SUMOvID, buffer);
         }
     }
     // from platoon leader
@@ -247,7 +247,7 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
             {
                 char buffer [200];
                 sprintf (buffer, "%f#%f#%f#%f#%s#%s", (double)wsm->getSpeed(), (double)wsm->getAccel(), (double)wsm->getMaxDecel(), (simTime().dbl())*1000, wsm->getSender(), "preceding");
-                TraCI->commandSetCFParameters(SUMOvID, buffer);
+                TraCI->commandSetVehicleCFParameters(SUMOvID, buffer);
             }
         }
         // I am a follower
@@ -258,7 +258,7 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
             {
                 char buffer [200];
                 sprintf (buffer, "%f#%f#%f#%f#%s#%s", (double)wsm->getSpeed(), (double)wsm->getAccel(), (double)wsm->getMaxDecel(), (simTime().dbl())*1000, wsm->getSender(), "leader");
-                TraCI->commandSetCFParameters(SUMOvID, buffer);
+                TraCI->commandSetVehicleCFParameters(SUMOvID, buffer);
             }
         }
     }

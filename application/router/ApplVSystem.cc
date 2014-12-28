@@ -103,7 +103,7 @@ void ApplVSystem::receiveSignal(cComponent *source, simsignal_t signalID, cObjec
         if(string(s->getSender()) == "router" && string(s->getRecipient()) == SUMOvID) //If sent from the router and to this vehicle
         {
             list<string> sRoute = s->getInfo(); //Copy the info from the signal (breaks if we don't do this, for some reason)
-            TraCI->commandSetRouteFromList(s->getRecipient(), sRoute);  //Update this vehicle's path with the proper info
+            TraCI->commandChangeVehicleRoute(s->getRecipient(), sRoute);  //Update this vehicle's path with the proper info
         }
     }
     else if(signalID == Signal_TimeData)

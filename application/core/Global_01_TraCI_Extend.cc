@@ -259,7 +259,7 @@ double TraCI_Extend::commandGetVehicleMinGap(string nodeId)
 
 
 // my own method! [deprecated!]
-string TraCI_Extend::commandGetLeading_old(string nodeId)
+string TraCI_Extend::commandGetLeadingVehicle_old(string nodeId)
 {
     // get the lane id (like 1to2_0)
     string laneID = commandGetVehicleLaneId(nodeId);
@@ -283,7 +283,7 @@ string TraCI_Extend::commandGetLeading_old(string nodeId)
 }
 
 
-vector<string> TraCI_Extend::commandGetLeading(string nodeId, double look_ahead_distance)
+vector<string> TraCI_Extend::commandGetLeadingVehicle(string nodeId, double look_ahead_distance)
 {
     uint8_t requestTypeId = TYPE_DOUBLE;
     uint8_t resultTypeId = TYPE_COMPOUND;
@@ -339,7 +339,7 @@ double TraCI_Extend::commandGetVehicleAccel(string nodeId)
 }
 
 
-int TraCI_Extend::commandGetCFMode(string nodeId)
+int TraCI_Extend::commandGetVehicleCFMode(string nodeId)
 {
     return getCommandInterface()->genericGetInt(CMD_GET_VEHICLE_VARIABLE, nodeId, 0x71, RESPONSE_GET_VEHICLE_VARIABLE);
 }
@@ -553,7 +553,71 @@ vector<double> TraCI_Extend::commandGetGUIBoundry()
 // CMD_SET_VEHICLE_VARIABLE
 // #########################
 
-void TraCI_Extend::commandSetRouteFromList(string id, list<string> value)
+// Lets the vehicle stop at the given edge, at the given position and lane.
+// The vehicle will stop for the given duration.
+void TraCI_Extend::commandVehicleStop(string nodeId, string edgeId, double stopPos, uint8_t laneId, double waitT, uint8_t flag)
+{
+    uint8_t variableId = CMD_STOP;
+    uint8_t variableType = TYPE_COMPOUND;
+    int32_t count = 5;
+    uint8_t edgeIdT = TYPE_STRING;
+    uint8_t stopPosT = TYPE_DOUBLE;
+    uint8_t stopLaneT = TYPE_BYTE;
+    uint8_t durationT = TYPE_INTEGER;
+    uint32_t duration = waitT * 1000;
+    uint8_t flagT = TYPE_BYTE;
+
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId
+                                                                                       << variableType << count
+                                                                                       << edgeIdT << edgeId
+                                                                                       << stopPosT << stopPos
+                                                                                       << stopLaneT << laneId
+                                                                                       << durationT << duration
+                                                                                       << flagT << flag
+                                                                                       );
+    ASSERT(buf.eof());
+}
+
+
+void TraCI_Extend::commandChangeVehicleLane(string nodeId, uint8_t laneId, double duration)
+{
+    uint8_t variableId = CMD_CHANGELANE;
+    uint8_t variableType = TYPE_COMPOUND;
+    int32_t count = 2;
+    uint8_t laneIdT = TYPE_BYTE;
+    uint8_t durationT = TYPE_INTEGER;
+    uint32_t durationMS = duration * 1000;
+
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId
+                                                                                       << variableType << count
+                                                                                       << laneIdT << laneId
+                                                                                       << durationT << durationMS
+                                                                                       );
+    ASSERT(buf.eof());
+}
+
+
+void TraCI_Extend::commandChangeVehicleSpeed(string nodeId, double speed)
+{
+    uint8_t variableId = VAR_SPEED;
+    uint8_t variableType = TYPE_DOUBLE;
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << speed);
+    ASSERT(buf.eof());
+}
+
+
+void TraCI_Extend::commandChangeVehicleColor(std::string nodeId, const TraCIColor& color)
+{
+    TraCIBuffer p;
+    p << static_cast<uint8_t>(VAR_COLOR);
+    p << nodeId;
+    p << static_cast<uint8_t>(TYPE_COLOR) << color.red << color.green << color.blue << color.alpha;
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, p);
+    ASSERT(buf.eof());
+}
+
+
+void TraCI_Extend::commandChangeVehicleRoute(string id, list<string> value)
 {
     uint8_t variableId = VAR_ROUTE;
     uint8_t variableTypeSList = TYPE_STRINGLIST;
@@ -571,47 +635,7 @@ void TraCI_Extend::commandSetRouteFromList(string id, list<string> value)
 }
 
 
-void TraCI_Extend::commandSetSpeed(string nodeId, double speed)
-{
-    uint8_t variableId = VAR_SPEED;
-    uint8_t variableType = TYPE_DOUBLE;
-    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << speed);
-    ASSERT(buf.eof());
-}
-
-
-void TraCI_Extend::commandSetMaxAccel(string nodeId, double value)
-{
-    uint8_t variableId = VAR_ACCEL;
-    uint8_t variableType = TYPE_DOUBLE;
-
-    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
-    ASSERT(buf.eof());
-}
-
-
-void TraCI_Extend::commandSetMaxDecel(string nodeId, double value)
-{
-    uint8_t variableId = VAR_DECEL;
-    uint8_t variableType = TYPE_DOUBLE;
-
-    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
-    ASSERT(buf.eof());
-}
-
-
-// this changes vehicle type!
-void TraCI_Extend::commandSetTg(string nodeId, double value)
-{
-    uint8_t variableId = VAR_TAU;
-    uint8_t variableType = TYPE_DOUBLE;
-
-    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
-    ASSERT(buf.eof());
-}
-
-
-int32_t TraCI_Extend::commandMakeLaneChangeMode(uint8_t TraciLaneChangePriority, uint8_t RightDriveLC, uint8_t SpeedGainLC, uint8_t CooperativeLC, uint8_t StrategicLC)
+int32_t TraCI_Extend::commandCreatLaneChangeMode(uint8_t TraciLaneChangePriority, uint8_t RightDriveLC, uint8_t SpeedGainLC, uint8_t CooperativeLC, uint8_t StrategicLC)
 {
     // only two less-significant bits are needed
     StrategicLC = StrategicLC & 3;
@@ -635,7 +659,7 @@ void TraCI_Extend::commandSetLaneChangeMode(string nodeId, int32_t bitset)
 }
 
 
-void TraCI_Extend::commandAddVehicleN(string vehicleId, string vehicleTypeId, string routeId, int32_t depart, double pos, double speed, uint8_t lane)
+void TraCI_Extend::commandAddVehicle(string vehicleId, string vehicleTypeId, string routeId, int32_t depart, double pos, double speed, uint8_t lane)
 {
     uint8_t variableId = ADD;
     uint8_t variableType = TYPE_COMPOUND;
@@ -663,47 +687,7 @@ void TraCI_Extend::commandAddVehicleN(string vehicleId, string vehicleTypeId, st
 }
 
 
-void TraCI_Extend::commandSetCFParameters(string nodeId, string value)
-{
-    uint8_t variableId = 0x15;
-    uint8_t variableType = TYPE_STRING;
-
-    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
-    ASSERT(buf.eof());
-}
-
-
-void TraCI_Extend::commandSetDebug(string nodeId, bool value)
-{
-    uint8_t variableId = 0x16;
-    uint8_t variableType = TYPE_INTEGER;
-
-    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << (int)value);
-    ASSERT(buf.eof());
-}
-
-
-void TraCI_Extend::commandSetModeSwitch(string nodeId, bool value)
-{
-    uint8_t variableId = 0x17;
-    uint8_t variableType = TYPE_INTEGER;
-
-    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << (int)value);
-    ASSERT(buf.eof());
-}
-
-
-void TraCI_Extend::commandSetControlMode(string nodeId, int value)
-{
-    uint8_t variableId = 0x18;
-    uint8_t variableType = TYPE_INTEGER;
-
-    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
-    ASSERT(buf.eof());
-}
-
-
-void TraCI_Extend::commandSetParking(string nodeId)
+void TraCI_Extend::commandSetVehicleParking(string nodeId)
 {
     uint8_t variableId = REMOVE;
     uint8_t variableType = TYPE_BYTE;
@@ -713,31 +697,7 @@ void TraCI_Extend::commandSetParking(string nodeId)
 }
 
 
-void TraCI_Extend::commandStopNodeExtended(string nodeId, string edgeId, double stopPos, uint8_t laneId, double waitT, uint8_t flag)
-{
-    uint8_t variableId = CMD_STOP;
-    uint8_t variableType = TYPE_COMPOUND;
-    int32_t count = 5;
-    uint8_t edgeIdT = TYPE_STRING;
-    uint8_t stopPosT = TYPE_DOUBLE;
-    uint8_t stopLaneT = TYPE_BYTE;
-    uint8_t durationT = TYPE_INTEGER;
-    uint32_t duration = waitT * 1000;
-    uint8_t flagT = TYPE_BYTE;
-
-    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId
-                                                                                       << variableType << count
-                                                                                       << edgeIdT << edgeId
-                                                                                       << stopPosT << stopPos
-                                                                                       << stopLaneT << laneId
-                                                                                       << durationT << duration
-                                                                                       << flagT << flag
-                                                                                       );
-    ASSERT(buf.eof());
-}
-
-
-void TraCI_Extend::commandSetvClass(string nodeId, string vClass)
+void TraCI_Extend::commandSetVehicleClass(string nodeId, string vClass)
 {
     uint8_t variableId = VAR_VEHICLECLASS;
     uint8_t variableType = TYPE_STRING;
@@ -747,25 +707,78 @@ void TraCI_Extend::commandSetvClass(string nodeId, string vClass)
 }
 
 
-void TraCI_Extend::commandChangeLane(string nodeId, uint8_t laneId, double duration)
+void TraCI_Extend::commandSetVehicleMaxAccel(string nodeId, double value)
 {
-    uint8_t variableId = CMD_CHANGELANE;
-    uint8_t variableType = TYPE_COMPOUND;
-    int32_t count = 2;
-    uint8_t laneIdT = TYPE_BYTE;
-    uint8_t durationT = TYPE_INTEGER;
-    uint32_t durationMS = duration * 1000;
+    uint8_t variableId = VAR_ACCEL;
+    uint8_t variableType = TYPE_DOUBLE;
 
-    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId
-                                                                                       << variableType << count
-                                                                                       << laneIdT << laneId
-                                                                                       << durationT << durationMS
-                                                                                       );
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
     ASSERT(buf.eof());
 }
 
 
-void TraCI_Extend::commandSetErrorGap(string nodeId, double value)
+void TraCI_Extend::commandSetVehicleMaxDecel(string nodeId, double value)
+{
+    uint8_t variableId = VAR_DECEL;
+    uint8_t variableType = TYPE_DOUBLE;
+
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
+    ASSERT(buf.eof());
+}
+
+
+// this changes vehicle type!
+void TraCI_Extend::commandSetVehicleTg(string nodeId, double value)
+{
+    uint8_t variableId = VAR_TAU;
+    uint8_t variableType = TYPE_DOUBLE;
+
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
+    ASSERT(buf.eof());
+}
+
+
+void TraCI_Extend::commandSetVehicleCFParameters(string nodeId, string value)
+{
+    uint8_t variableId = 0x15;
+    uint8_t variableType = TYPE_STRING;
+
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
+    ASSERT(buf.eof());
+}
+
+
+void TraCI_Extend::commandSetVehicleDebug(string nodeId, bool value)
+{
+    uint8_t variableId = 0x16;
+    uint8_t variableType = TYPE_INTEGER;
+
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << (int)value);
+    ASSERT(buf.eof());
+}
+
+
+void TraCI_Extend::commandSetVehicleModeSwitch(string nodeId, bool value)
+{
+    uint8_t variableId = 0x17;
+    uint8_t variableType = TYPE_INTEGER;
+
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << (int)value);
+    ASSERT(buf.eof());
+}
+
+
+void TraCI_Extend::commandSetVehicleControlMode(string nodeId, int value)
+{
+    uint8_t variableId = 0x18;
+    uint8_t variableType = TYPE_INTEGER;
+
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
+    ASSERT(buf.eof());
+}
+
+
+void TraCI_Extend::commandSetVehicleErrorGap(string nodeId, double value)
 {
     uint8_t variableId = 0x20;
     uint8_t variableType = TYPE_DOUBLE;
@@ -775,7 +788,7 @@ void TraCI_Extend::commandSetErrorGap(string nodeId, double value)
 }
 
 
-void TraCI_Extend::commandSetErrorRelSpeed(string nodeId, double value)
+void TraCI_Extend::commandSetVehicleErrorRelSpeed(string nodeId, double value)
 {
     uint8_t variableId = 0x21;
     uint8_t variableType = TYPE_DOUBLE;
@@ -785,15 +798,6 @@ void TraCI_Extend::commandSetErrorRelSpeed(string nodeId, double value)
 }
 
 
-void TraCI_Extend::commandSetVehicleColor(std::string nodeId, const TraCIColor& color)
-{
-    TraCIBuffer p;
-    p << static_cast<uint8_t>(VAR_COLOR);
-    p << nodeId;
-    p << static_cast<uint8_t>(TYPE_COLOR) << color.red << color.green << color.blue << color.alpha;
-    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, p);
-    ASSERT(buf.eof());
-}
 
 
 // ############################

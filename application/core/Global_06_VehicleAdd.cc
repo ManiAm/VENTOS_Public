@@ -112,20 +112,20 @@ void VehicleAdd::Scenario1()
 
         uint8_t lane = intrand(3);  // random number in [0,3)
 
-        TraCI->commandAddVehicleN(vehicleName, "TypeManual", "route1", depart, 0, 0, lane);
+        TraCI->commandAddVehicle(vehicleName, "TypeManual", "route1", depart, 0, 0, lane);
         TraCI->commandSetLaneChangeMode(vehicleName, 0b1000010101 /*0b1000100101*/);
     }
 
     // now we add a vehicle as obstacle
-    TraCI->commandAddVehicleN("obstacle", "TypeObstacle", "route1", 50, 3200, 0, 1);
+    TraCI->commandAddVehicle("obstacle", "TypeObstacle", "route1", 50, 3200, 0, 1);
 
     // make it stop on the lane!
-    TraCI->commandSetSpeed("obstacle", 0.);
+    TraCI->commandChangeVehicleSpeed("obstacle", 0.);
     TraCI->commandSetLaneChangeMode("obstacle", 0);
 
     // change the color to blue
     TraCIColor newColor = TraCIColor::fromTkColor("red");
-    TraCI->commandSetVehicleColor("obstacle", newColor);
+    TraCI->commandChangeVehicleColor("obstacle", newColor);
 }
 
 
@@ -139,7 +139,7 @@ void VehicleAdd::Scenario2()
         sprintf(vehicleName, "ACC%d", i);
         depart = depart + 10000;
 
-        TraCI->commandAddVehicleN(vehicleName, "TypeACC", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
+        TraCI->commandAddVehicle(vehicleName, "TypeACC", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
     }
 }
 
@@ -154,7 +154,7 @@ void VehicleAdd::Scenario3()
          sprintf(vehicleName, "CACC%d", i);
          depart = depart + 10000;
 
-         TraCI->commandAddVehicleN(vehicleName, "TypeCACC", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
+         TraCI->commandAddVehicle(vehicleName, "TypeCACC", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
      }
 }
 
@@ -225,7 +225,7 @@ void VehicleAdd::Scenario4()
         //    cout << *it << endl;
 
         //commandAddVehicleRouter wants string id, string type, string (edge) origin, string (node) destination, double (time) depart, and string routename
-        TraCI->commandAddVehicleN(id, type, origin, 1000 * depart, 0, 0, 0);  //Send a TraCI add call -- might not need to be *1000.
+        TraCI->commandAddVehicle(id, type, origin, 1000 * depart, 0, 0, 0);  //Send a TraCI add call -- might not need to be *1000.
     }
 }
 
@@ -246,7 +246,7 @@ void VehicleAdd::Scenario5()
         sprintf(vehicleName, "CACC%d", i+1);
         depart = depart + interval;
 
-        TraCI->commandAddVehicleN(vehicleName, "TypeCACC", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
+        TraCI->commandAddVehicle(vehicleName, "TypeCACC", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
     }
 }
 
@@ -261,7 +261,7 @@ void VehicleAdd::Scenario6()
          sprintf(vehicleName, "CACC%d", i);
          depart = depart + 10000;
 
-         TraCI->commandAddVehicleN(vehicleName, "TypeBiDi", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
+         TraCI->commandAddVehicle(vehicleName, "TypeBiDi", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
      }
 }
 
@@ -276,7 +276,7 @@ void VehicleAdd::Scenario7()
          sprintf(vehicleName, "CACC%d", i);
          depart = depart + 1000;
 
-         TraCI->commandAddVehicleN(vehicleName, "TypeCACC", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
+         TraCI->commandAddVehicle(vehicleName, "TypeCACC", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
      }
 
      for(int i=11; i<=100; i++)
@@ -285,7 +285,7 @@ void VehicleAdd::Scenario7()
          sprintf(vehicleName, "CACC%d", i);
          depart = depart + 10000;
 
-         TraCI->commandAddVehicleN(vehicleName, "TypeCACC", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
+         TraCI->commandAddVehicle(vehicleName, "TypeCACC", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
      }
 }
 
@@ -313,21 +313,21 @@ void VehicleAdd::Scenario8()
         sprintf(vehicleName, "CACC%d", i+1);
         depart = depart + interval;
 
-        TraCI->commandAddVehicleN(vehicleName, "TypeCACC", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
+        TraCI->commandAddVehicle(vehicleName, "TypeCACC", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
 
         if(i == 0)
         {
-            TraCI->commandSetSpeed(vehicleName, 20.);
+            TraCI->commandChangeVehicleSpeed(vehicleName, 20.);
         }
         else
         {
-            TraCI->commandSetSpeed(vehicleName, 400.);
-            TraCI->commandSetMaxAccel(vehicleName, 400.);
+            TraCI->commandChangeVehicleSpeed(vehicleName, 400.);
+            TraCI->commandSetVehicleMaxAccel(vehicleName, 400.);
         }
 
         if(i % plnSize == 0)
         {
-            TraCI->commandSetTg(vehicleName, plnSpace);
+            TraCI->commandSetVehicleTg(vehicleName, plnSpace);
         }
     }
 }
@@ -344,14 +344,14 @@ void VehicleAdd::Scenario9()
          sprintf(vehicleName, "CACC%d", i);
          vehicleDepart = vehicleDepart + 10000;
 
-         TraCI->commandAddVehicleN(vehicleName, "TypeCACC", "route4", vehicleDepart, 0 /*pos*/, 0 /*speed*/, 1 /*lane*/);
+         TraCI->commandAddVehicle(vehicleName, "TypeCACC", "route4", vehicleDepart, 0 /*pos*/, 0 /*speed*/, 1 /*lane*/);
 
 
          char pedestrianName[10];
          sprintf(pedestrianName, "Ped%d", i);
          pedestrianDepart = pedestrianDepart + 10000;
 
-         TraCI->commandAddVehicleN(pedestrianName, "Pedestrian", "route1", pedestrianDepart, 350 /*pos*/, 0 /*speed*/, 0 /*lane*/);
+         TraCI->commandAddVehicle(pedestrianName, "Pedestrian", "route1", pedestrianDepart, 350 /*pos*/, 0 /*speed*/, 0 /*lane*/);
 
      }
 }

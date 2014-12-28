@@ -21,7 +21,7 @@ void ApplPedManager::initialize(int stage)
         SUMOvehicleDebug = par("SUMOvehicleDebug").boolValue();
 
         // set parameters in SUMO
-        TraCI->commandSetDebug(SUMOvID, SUMOvehicleDebug);
+        TraCI->commandSetVehicleDebug(SUMOvID, SUMOvehicleDebug);
 	}
 }
 

@@ -219,7 +219,7 @@ void Statistics::saveVehicleData(string vID)
     double pos = TraCI->commandGetVehicleLanePosition(vID);
     double speed = TraCI->commandGetVehicleSpeed(vID);
     double accel = TraCI->commandGetVehicleAccel(vID);
-    int CFMode_Enum = TraCI->commandGetCFMode(vID);
+    int CFMode_Enum = TraCI->commandGetVehicleCFMode(vID);
     string CFMode;
 
     enum CFMODES {
@@ -264,7 +264,7 @@ void Statistics::saveVehicleData(string vID)
     double timeGapSetting = TraCI->commandGetVehicleTimeGap(vID);
 
     // get the gap
-    vector<string> vleaderIDnew = TraCI->commandGetLeading(vID, 900);
+    vector<string> vleaderIDnew = TraCI->commandGetLeadingVehicle(vID, 900);
     string vleaderID = vleaderIDnew[0];
     double spaceGap = -1;
 

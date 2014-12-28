@@ -176,8 +176,8 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
     else if(vehicleState == state_mergeAccepted)
     {
         cancelEvent(plnTIMER1);
-        TraCI->commandSetTg(SUMOvID, TG1);
-        TraCI->commandSetSpeed(SUMOvID, 30.);  // catch-up
+        TraCI->commandSetVehicleTg(SUMOvID, TG1);
+        TraCI->commandChangeVehicleSpeed(SUMOvID, 30.);  // catch-up
 
         // now we should wait until we catch-up completely
         vehicleState = state_waitForCatchup;
@@ -361,7 +361,7 @@ void ApplVPlatoonMg::RemoveFollowerFromList_Merge(string followerID)
 bool ApplVPlatoonMg::CatchUpDone()
 {
     // we use our sonar to check the gap
-    vector<string> vleaderIDnew = TraCI->commandGetLeading(SUMOvID, sonarDist);
+    vector<string> vleaderIDnew = TraCI->commandGetLeadingVehicle(SUMOvID, sonarDist);
     string vleaderID = vleaderIDnew[0];
     double gap = atof( vleaderIDnew[1].c_str() );
 

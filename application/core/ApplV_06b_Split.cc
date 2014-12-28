@@ -325,7 +325,7 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
 
             // change color to red!
             TraCIColor newColor = TraCIColor::fromTkColor("red");
-            TraCI->commandSetVehicleColor(SUMOvID, newColor);
+            TraCI->commandChangeVehicleColor(SUMOvID, newColor);
 
             vehicleState = state_sendingACK;
             reportStateToStat();
@@ -360,28 +360,28 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
 
             updateColorDepth();
 
-            TraCI->commandSetTg(SUMOvID, TP);
+            TraCI->commandSetVehicleTg(SUMOvID, TP);
 
             // check splitCaller. If 'leader leave' is on-going
             if(wsm->getDblValue() == 0)
             {
                 // then check if there is any leading vehicle after my leader
-                vector<string> vleaderIDnew = TraCI->commandGetLeading(oldPlnID, sonarDist);
+                vector<string> vleaderIDnew = TraCI->commandGetLeadingVehicle(oldPlnID, sonarDist);
                 string vleaderID = vleaderIDnew[0];
 
                 if(vleaderID == "")
                 {
-                    TraCI->commandSetSpeed(SUMOvID, 20.);
+                    TraCI->commandChangeVehicleSpeed(SUMOvID, 20.);
                 }
                 // if yes
                 else
                 {
-                    TraCI->commandSetSpeed(SUMOvID, 30.); // set max speed
+                    TraCI->commandChangeVehicleSpeed(SUMOvID, 30.); // set max speed
                 }
             }
             else
             {
-                TraCI->commandSetSpeed(SUMOvID, 30.); // set max speed
+                TraCI->commandChangeVehicleSpeed(SUMOvID, 30.); // set max speed
             }
 
             vehicleState = state_waitForGap;
@@ -421,7 +421,7 @@ void ApplVPlatoonMg::RemoveFollowerFromList_Split(string followerID)
 bool ApplVPlatoonMg::GapCreated()
 {
     // we use our sonar to check the gap
-    vector<string> vleaderIDnew = TraCI->commandGetLeading(SUMOvID, sonarDist);
+    vector<string> vleaderIDnew = TraCI->commandGetLeadingVehicle(SUMOvID, sonarDist);
     string vleaderID = vleaderIDnew[0];
     double gap = atof( vleaderIDnew[1].c_str() );
 

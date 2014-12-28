@@ -71,17 +71,17 @@ void ApplVPlatoonMg::leaderLeave_DataFSM(PlatoonMsg *wsm)
         // now we can leave the platoon
         if(wsm->getType() == GAP_CREATED && wsm->getRecipient() == SUMOvID)
         {
-            TraCI->commandSetvClass(SUMOvID, "private");   // change vClass
+            TraCI->commandSetVehicleClass(SUMOvID, "private");   // change vClass
 
-            int32_t bitset = TraCI->commandMakeLaneChangeMode(10, 01, 01, 01, 01);
+            int32_t bitset = TraCI->commandCreatLaneChangeMode(10, 01, 01, 01, 01);
             TraCI->commandSetLaneChangeMode(SUMOvID, bitset);  // alter 'lane change' mode
-            TraCI->commandChangeLane(SUMOvID, 0, 5);   // change to lane 0 (normal lane)
+            TraCI->commandChangeVehicleLane(SUMOvID, 0, 5);   // change to lane 0 (normal lane)
 
-            TraCI->commandSetSpeed(SUMOvID, 30.);
+            TraCI->commandChangeVehicleSpeed(SUMOvID, 30.);
 
             // change color to yellow!
             TraCIColor newColor = TraCIColor::fromTkColor("yellow");
-            TraCI->commandSetVehicleColor(SUMOvID, newColor);
+            TraCI->commandChangeVehicleColor(SUMOvID, newColor);
 
             plnSize = -1;
             myPlnDepth = -1;

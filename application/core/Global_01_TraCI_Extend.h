@@ -67,10 +67,10 @@ class TraCI_Extend : public TraCIScenarioManager
         double commandGetVehicleMaxDecel(string);
         double commandGetVehicleTimeGap(string);
         double commandGetVehicleMinGap(string);
-        string commandGetLeading_old(string);
-        vector<string> commandGetLeading(string, double);
+        string commandGetLeadingVehicle_old(string);
+        vector<string> commandGetLeadingVehicle(string, double);
         double commandGetVehicleAccel(string);    // new defined command
-        int commandGetCFMode(string);             // new defined command
+        int commandGetVehicleCFMode(string);      // new defined command
 
         // CMD_GET_VEHICLETYPE_VARIABLE
         double commandGetVehicleTypeLength(string);
@@ -105,31 +105,31 @@ class TraCI_Extend : public TraCIScenarioManager
         // ###########################################################
 
         // CMD_SET_VEHICLE_VARIABLE
-        void commandSetRouteFromList(string, list<string> value);
-        void commandSetSpeed(string, double);
-        void commandSetMaxAccel(string, double);
-        void commandSetMaxDecel(string, double);
-        void commandSetTg(string, double);
-        int32_t commandMakeLaneChangeMode(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t);
+        void commandVehicleStop(string, string, double, uint8_t, double, uint8_t);
+        void commandChangeVehicleLane(string, uint8_t, double);
+        void commandChangeVehicleSpeed(string, double);
+        void commandChangeVehicleColor(string, const TraCIColor&);
+        void commandChangeVehicleRoute(string, list<string> value);
+        int32_t commandCreatLaneChangeMode(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t);
         void commandSetLaneChangeMode(string, int32_t);
-        void commandAddVehicleN(string, string, string, int32_t, double, double, uint8_t);
-        void commandSetCFParameters(string, string);      // new defined command
-        void commandSetDebug(string, bool);               // new defined command
-        void commandSetModeSwitch(string, bool);         // new defined command
-        void commandSetControlMode(string, int);         // new defined command
-        void commandSetParking(string);
-        void commandStopNodeExtended(string, string, double, uint8_t, double, uint8_t);
-        void commandSetvClass(string, string);
-        void commandChangeLane(string, uint8_t, double);
-        void commandSetErrorGap(string, double);           // new defined command
-        void commandSetErrorRelSpeed(string, double);      // new defined command
+        void commandAddVehicle(string, string, string, int32_t, double, double, uint8_t);
+        void commandSetVehicleParking(string);
+        void commandSetVehicleClass(string, string);
+        void commandSetVehicleMaxAccel(string, double);
+        void commandSetVehicleMaxDecel(string, double);
+        void commandSetVehicleTg(string, double);
+        void commandSetVehicleCFParameters(string, string);     // new defined command
+        void commandSetVehicleDebug(string, bool);              // new defined command
+        void commandSetVehicleModeSwitch(string, bool);         // new defined command
+        void commandSetVehicleControlMode(string, int);         // new defined command
+        void commandSetVehicleErrorGap(string, double);         // new defined command
+        void commandSetVehicleErrorRelSpeed(string, double);    // new defined command
 
         // CMD_SET_VEHICLETYPE_VARIABLE
         void commandSetMaxSpeed(string, double);
         void commandSetVint(string, double);              // new defined command
         void commandSetComfAccel(string, double);         // new defined command
         void commandSetComfDecel(string, double);         // new defined command
-        void commandSetVehicleColor(string, const TraCIColor&);
 
         // CMD_SET_ROUTE_VARIABLE
         void commandAddRoute(string name, list<string> route);

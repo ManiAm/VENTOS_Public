@@ -56,7 +56,7 @@ void ApplVPlatoonMg::common_DataFSM(PlatoonMsg* wsm)
         }
         else if(wsm->getType() == CHANGE_Tg && wsm->getSender() == plnID)
         {
-            TraCI->commandSetTg(SUMOvID, wsm->getDblValue());
+            TraCI->commandSetVehicleTg(SUMOvID, wsm->getDblValue());
         }
     }
 }
