@@ -43,7 +43,7 @@ Watch simulation videos from [here](https://www.youtube.com/user/RubinetLab "").
 Getting Started
 ---------------
 
-VENTOS framework is developed in Ubuntu OS, and we have not tested it under Windows (yet!). This section shows you how to install VENTOS and its prerequisites step by step on Ubuntu 12.04 or 14.04 machine. Before continuing, make sure that you have installed SUMO from [this repository](https://github.com/ManiAm/VENTOS_SUMO "").
+VENTOS framework is developed in Ubuntu OS, and we have not tested it under Windows (yet!). This section shows you how to install VENTOS and its prerequisites step by step on Ubuntu 12.04 or 14.04 machine. Before continuing, make sure that you have installed SUMO from [this repository](https://github.com/ManiAm/SUMOm "").
 
 
 Install OMNET++
@@ -113,8 +113,6 @@ Veins is on github, and you should clone it into your computer.
 - Open TraCIScenarioManager.h file and change 'void executeOneTimestep()' to 'virtual void executeOneTimestep()'. Also change 'void addModule()' to 'virtual void addModule()'
 
 - Open TraCICommandInterface.h file, and change access modifier private into public!
-
-- [optional] Open TraCIConnection.cc file, and comment line "MYDEBUG << "Reading TraCI message of " << bufLength << " bytes" << endl;" and also "MYDEBUG << "Writing TraCI message of " << buf.length() << " bytes" << endl;"
 
 **Step 5:** After these modifications, build the Veins project. To build the Veins project, right-click on the project and choose "Build Project". Wait for a while and then check the Console windows at the bottom of the Eclipse IDE to make sure no errors occurred. At the end you should see a message like this:
 

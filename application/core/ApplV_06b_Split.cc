@@ -254,10 +254,12 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
         // send CHANGE_PL to followers after the splitting vehicle
         for (deque<string>::iterator it=plnMembersList.begin()+splittingDepth+1; it!=plnMembersList.end(); ++it)
         {
-            PlatoonMsg* dataMsg = prepareData(*it, CHANGE_PL, plnID, (-splittingDepth), splittingVehicle);
+            string targetVeh = *it;
+            PlatoonMsg* dataMsg = prepareData(targetVeh, CHANGE_PL, plnID, (-splittingDepth), splittingVehicle);
             EV << "### " << SUMOvID << ": sent CHANGE_PL." << endl;
             printDataContent(dataMsg);
-            sendDelayed(dataMsg, individualOffset, lowerLayerOut);
+            simtime_t offset = dblrand() * maxOffset;
+            sendDelayed(dataMsg, offset, lowerLayerOut);
             reportCommandToStat(dataMsg);
 
             TotalPLSent++;

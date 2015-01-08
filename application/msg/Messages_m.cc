@@ -1,5 +1,5 @@
 //
-// Generated file, do not edit! Created by opp_msgc 4.5 from Messages.msg.
+// Generated file, do not edit! Created by nedtool 4.6 from Messages.msg.
 //
 
 // Disable warnings about unused variables, empty switch stmts, etc:
@@ -2179,5 +2179,5 @@ void *RouterMsgDescriptor::getFieldStructPointer(void *object, int field, int i)
     }
 }
 
-}; // end namespace VENTOS
+} // namespace VENTOS
 
