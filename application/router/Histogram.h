@@ -1,5 +1,5 @@
 #ifndef HISTOGRAM_H
-    #define HISTOGRAM_H
+#define HISTOGRAM_H
 
 #include <vector>
 #include <map>
@@ -17,12 +17,13 @@ public:
     double average;
     int minimum;
 
-    void insert(int d);
+    void insert(int d, int LaneCostsMode);
     double percentAt(int d);
     friend ostream& operator<<(ostream& os, Histogram& h);
 
     Histogram();
 };
+
 }
 
 #endif

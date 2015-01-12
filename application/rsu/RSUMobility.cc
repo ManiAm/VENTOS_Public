@@ -1,6 +1,5 @@
 
 #include "RSUMobility.h"
-
 #include <FWMath.h>
 
 namespace VENTOS {

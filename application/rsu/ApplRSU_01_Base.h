@@ -4,14 +4,15 @@
 
 #include <BaseApplLayer.h>
 #include <WaveAppToMac1609_4Interface.h>
-
-#include "Appl.h"
 #include "Global_01_TraCI_Extend.h"
-#include "Global_07_RSUAdd.h"
+#include "RSUAdd.h"
 
 using namespace std;
 
 namespace VENTOS {
+
+class TraCI_Extend;
+class RSUAdd;
 
 class ApplRSUBase : public BaseApplLayer
 {
@@ -55,6 +56,7 @@ class ApplRSUBase : public BaseApplLayer
         simtime_t individualOffset;
         cMessage* RSUBeaconEvt;
 };
+
 }
 
 #endif

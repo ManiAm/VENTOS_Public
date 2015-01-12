@@ -121,8 +121,11 @@ void TraCI_App::executeOneTimestep()
 
     EV << "### SUMO completed simulation for TS = " << (getCurrentTimeMs()/1000.) << endl;
 
+
+    cModule *module = simulation.getSystemModule()->getSubmodule("router");
+    Router *r = static_cast< Router* >(module);
     // write the statistics
-    bool simulationDone = (simTime().dbl() >= terminate) ? true : false;
+    bool simulationDone = (simTime().dbl() >= terminate) or r->currentVehicleCount == 0;
     StatPtr->executeOneTimestep(simulationDone);
 
     if(simulationDone)

@@ -1,27 +1,11 @@
-#include "Net.h"
 
+#include "Net.h"
 
 namespace VENTOS {
 
 Net::~Net()
 {
 
-}
-
-int countVehicles(string file)
-{
-    int count = 0;
-    string vehFile = file + "/Vehicles.xml";
-
-    rapidxml::file <> xmlFile(vehFile.c_str());   //Make a new rapidXML document to parse
-    xml_document<> doc;
-    xml_node<> *node;
-    doc.parse<0>(xmlFile.data());
-    for(node = doc.first_node()->first_node("vehicle"); node; node = node->next_sibling("vehicle"))
-    {
-        count++;
-    }
-    return count;
 }
 
 Net::Net(string netBase, cModule* router)
@@ -34,8 +18,6 @@ Net::Net(string netBase, cModule* router)
     cModuleType* moduleType = cModuleType::get("c3po.ned.TrafficLight");    //Get the TL module
 
     string netFile = netBase + "/hello.net.xml";
-
-    vehicleCount = countVehicles(netBase);
 
     file <> xmlFile(netFile.c_str());   //Make a new rapidXML document to parse
     xml_document<> doc;
@@ -155,7 +137,7 @@ Net::Net(string netBase, cModule* router)
         int fromLaneNum = atoi(attr->value());
 
         attr = attr->next_attribute();
-        //int toLaneNum = atoi(attr->value());
+        // int toLaneNum = atoi(attr->value());
 
         attr = attr->next_attribute();
         if((string)attr->name() == "tl")    //Read the tl attributes if necessary

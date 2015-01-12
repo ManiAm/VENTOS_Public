@@ -5,9 +5,12 @@
 #include "MiXiMDefs.h"
 #include "BaseMobility.h"
 #include "Global_01_TraCI_Extend.h"
-#include "Global_07_RSUAdd.h"
+#include "RSUAdd.h"
 
 namespace VENTOS {
+
+class TraCI_Extend;
+class RSUAdd;
 
 class MIXIM_API RSUMobility : public BaseMobility
 {
@@ -33,6 +36,7 @@ class MIXIM_API RSUMobility : public BaseMobility
     int myId;
     const char *myFullId;
 };
+
 }
 
 #endif

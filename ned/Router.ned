@@ -15,5 +15,11 @@ simple Router
         double uTurnCost;
         double TLLookahead;
         int timePeriodMax;
+        
+        bool collectVehicleTimeData;
+        int createTime;
+        int vehicleCount;
+        double nonReroutingVehiclePercent;
+        bool UseHysteresis;
 }
 

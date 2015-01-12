@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nodes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.sf.net/xsd/nodes_file.xsd">
+  <node id="1" x="-2500.0" y="-500.0"  type="traffic_light"/>
+  <node id="2" x="-2000.0" y="-500.0"  type="traffic_light"/>
+  <node id="3" x="-1500.0" y="-500.0"  type="traffic_light"/>
+  <node id="4" x="-1000.0" y="-500.0"  type="traffic_light"/>
+  <node id="5" x="-500.0" y="-500.0"  type="traffic_light"/>
+  <node id="6" x="0.0" y="-500.0"  type="traffic_light"/>
+  <node id="7" x="500.0" y="-500.0"  type="traffic_light"/>
+  <node id="8" x="1000.0" y="-500.0"  type="traffic_light"/>
+  <node id="9" x="1500.0" y="-500.0"  type="traffic_light"/>
+  <node id="10" x="2000.0" y="-500.0"  type="traffic_light"/>
+
+  <node id="11" x="-2500.0" y="0.0"  type="traffic_light"/>
+  <node id="12" x="-2000.0" y="0.0"  type="traffic_light"/>
+  <node id="13" x="-1500.0" y="0.0"  type="traffic_light"/>
+  <node id="14" x="-1000.0" y="0.0"  type="traffic_light"/>
+  <node id="15" x="-500.0" y="0.0"  type="traffic_light"/>
+  <node id="16" x="0.0" y="0.0"  type="traffic_light"/>
+  <node id="17" x="500.0" y="0.0"  type="traffic_light"/>
+  <node id="18" x="1000.0" y="0.0"  type="traffic_light"/>
+  <node id="19" x="1500.0" y="0.0"  type="traffic_light"/>
+  <node id="20" x="2000.0" y="0.0"  type="traffic_light"/>
+
+  <node id="21" x="-2500.0" y="500.0"  type="traffic_light"/>
+  <node id="22" x="-2000.0" y="500.0"  type="traffic_light"/>
+  <node id="23" x="-1500.0" y="500.0"  type="traffic_light"/>
+  <node id="24" x="-1000.0" y="500.0"  type="traffic_light"/>
+  <node id="25" x="-500.0" y="500.0"  type="traffic_light"/>
+  <node id="26" x="0.0" y="500.0"  type="traffic_light"/>
+  <node id="27" x="500.0" y="500.0"  type="traffic_light"/>
+  <node id="28" x="1000.0" y="500.0"  type="traffic_light"/>
+  <node id="29" x="1500.0" y="500.0"  type="traffic_light"/>
+  <node id="30" x="2000.0" y="500.0"  type="traffic_light"/>
+
+</nodes>

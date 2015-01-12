@@ -1,0 +1,126 @@
+<edges>
+  <edge id="1to2" from="1" to="2" numLane = "4" speed="11.18"/>
+
+  <edge id="2to3" from="2" to="3" numLane = "4" speed="11.18"/>
+
+  <edge id="3to4" from="3" to="4" numLane = "4" speed="11.18"/>
+
+  <edge id="4to5" from="4" to="5" numLane = "4" speed="11.18"/>
+
+  <edge id="5to6" from="5" to="6" numLane = "4" speed="11.18"/>
+
+  <edge id="6to7" from="6" to="7" numLane = "4" speed="11.18"/>
+
+  <edge id="7to8" from="7" to="8" numLane = "4" speed="11.18"/>
+
+  <edge id="8to9" from="8" to="9" numLane = "4" speed="11.18"/>
+
+  <edge id="9to10" from="9" to="10" numLane = "4" speed="11.18"/>
+
+  <edge id="11to12" from="11" to="12" numLanes = "2" speed="17.88"/>
+  <edge id="12to11" from="12" to="11" numLanes = "2" speed="17.88"/>
+
+  <edge id="12to13" from="12" to="13" numLanes = "2" speed="17.88"/>
+  <edge id="13to12" from="13" to="12" numLanes = "2" speed="17.88"/>
+
+  <edge id="13to14" from="13" to="14" numLanes = "2" speed="17.88"/>
+  <edge id="14to13" from="14" to="13" numLanes = "2" speed="17.88"/>
+
+  <edge id="14to15" from="14" to="15" numLanes = "2" speed="17.88"/>
+  <edge id="15to14" from="15" to="14" numLanes = "2" speed="17.88"/>
+
+  <edge id="15to16" from="15" to="16" numLanes = "2" speed="17.88"/>
+  <edge id="16to15" from="16" to="15" numLanes = "2" speed="17.88"/>
+
+  <edge id="16to17" from="16" to="17" numLanes = "2" speed="17.88"/>
+  <edge id="17to16" from="17" to="16" numLanes = "2" speed="17.88"/>
+
+  <edge id="17to18" from="17" to="18" numLanes = "2" speed="17.88"/>
+  <edge id="18to17" from="18" to="17" numLanes = "2" speed="17.88"/>
+
+  <edge id="18to19" from="18" to="19" numLanes = "2" speed="17.88"/>
+  <edge id="19to18" from="19" to="18" numLanes = "2" speed="17.88"/>
+
+  <edge id="19to20" from="19" to="20" numLanes = "2" speed="17.88"/>
+  <edge id="20to19" from="20" to="19" numLanes = "2" speed="17.88"/>
+
+  <edge id="22to21" from="22" to="21" numLane = "4" speed="11.18"/>
+
+  <edge id="23to22" from="23" to="22" numLane = "4" speed="11.18"/>
+
+  <edge id="24to23" from="24" to="23" numLane = "4" speed="11.18"/>
+
+  <edge id="25to24" from="25" to="24" numLane = "4" speed="11.18"/>
+
+  <edge id="26to25" from="26" to="25" numLane = "4" speed="11.18"/>
+
+  <edge id="27to26" from="27" to="26" numLane = "4" speed="11.18"/>
+
+  <edge id="28to27" from="28" to="27" numLane = "4" speed="11.18"/>
+
+  <edge id="29to28" from="29" to="28" numLane = "4" speed="11.18"/>
+
+  <edge id="30to29" from="30" to="29" numLane = "4" speed="11.18"/>
+
+
+  <edge id="1to11" from="1" to="11" numLanes = "2" speed = "11.18"/>
+  <edge id="11to1" from="11" to="1" numLanes = "2" speed = "11.18"/>
+
+  <edge id="2to12" from="2" to="12" numLanes = "2" speed = "11.18"/>
+  <edge id="12to2" from="12" to="2" numLanes = "2" speed = "11.18"/>
+
+  <edge id="3to13" from="3" to="13" numLanes = "2" speed = "11.18"/>
+  <edge id="13to3" from="13" to="3" numLanes = "2" speed = "11.18"/>
+
+  <edge id="4to14" from="4" to="14" numLanes = "2" speed = "11.18"/>
+  <edge id="14to4" from="14" to="4" numLanes = "2" speed = "11.18"/>
+
+  <edge id="5to15" from="5" to="15" numLanes = "2" speed = "11.18"/>
+  <edge id="15to5" from="15" to="5" numLanes = "2" speed = "11.18"/>
+
+  <edge id="6to16" from="6" to="16" numLanes = "2" speed = "11.18"/>
+  <edge id="16to6" from="16" to="6" numLanes = "2" speed = "11.18"/>
+
+  <edge id="7to17" from="7" to="17" numLanes = "2" speed = "11.18"/>
+  <edge id="17to7" from="17" to="7" numLanes = "2" speed = "11.18"/>
+
+  <edge id="8to18" from="8" to="18" numLanes = "2" speed = "11.18"/>
+  <edge id="18to8" from="18" to="8" numLanes = "2" speed = "11.18"/>
+
+  <edge id="9to19" from="9" to="19" numLanes = "2" speed = "11.18"/>
+  <edge id="19to9" from="19" to="9" numLanes = "2" speed = "11.18"/>
+
+  <edge id="10to20" from="10" to="20" numLanes = "2" speed = "11.18"/>
+  <edge id="20to10" from="20" to="10" numLanes = "2" speed = "11.18"/>
+
+  <edge id="11to21" from="11" to="21" numLanes = "2" speed = "11.18"/>
+  <edge id="21to11" from="21" to="11" numLanes = "2" speed = "11.18"/>
+
+  <edge id="12to22" from="12" to="22" numLanes = "2" speed = "11.18"/>
+  <edge id="22to12" from="22" to="12" numLanes = "2" speed = "11.18"/>
+
+  <edge id="13to23" from="13" to="23" numLanes = "2" speed = "11.18"/>
+  <edge id="23to13" from="23" to="13" numLanes = "2" speed = "11.18"/>
+
+  <edge id="14to24" from="14" to="24" numLanes = "2" speed = "11.18"/>
+  <edge id="24to14" from="24" to="14" numLanes = "2" speed = "11.18"/>
+
+  <edge id="15to25" from="15" to="25" numLanes = "2" speed = "11.18"/>
+  <edge id="25to15" from="25" to="15" numLanes = "2" speed = "11.18"/>
+
+  <edge id="16to26" from="16" to="26" numLanes = "2" speed = "11.18"/>
+  <edge id="26to16" from="26" to="16" numLanes = "2" speed = "11.18"/>
+
+  <edge id="17to27" from="17" to="27" numLanes = "2" speed = "11.18"/>
+  <edge id="27to17" from="27" to="17" numLanes = "2" speed = "11.18"/>
+
+  <edge id="18to28" from="18" to="28" numLanes = "2" speed = "11.18"/>
+  <edge id="28to18" from="28" to="18" numLanes = "2" speed = "11.18"/>
+
+  <edge id="19to29" from="19" to="29" numLanes = "2" speed = "11.18"/>
+  <edge id="29to19" from="29" to="19" numLanes = "2" speed = "11.18"/>
+
+  <edge id="20to30" from="20" to="30" numLanes = "2" speed = "11.18"/>
+  <edge id="30to20" from="30" to="20" numLanes = "2" speed = "11.18"/>
+
+</edges>

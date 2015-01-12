@@ -9,8 +9,10 @@ Histogram::Histogram()
     minimum = 100000;
 }
 
-void Histogram::insert(int d)
+void Histogram::insert(int d, int LaneCostsMode)
 {
+    if(LaneCostsMode == 1)
+    {
     average = ((average * data.size()) + d)/ (data.size() + 1);
     count++;
     if(d < minimum)
@@ -20,6 +22,11 @@ void Histogram::insert(int d)
         data[d] = 1;
     else
         data[d]++;
+    }
+    else if(LaneCostsMode == 2)
+    {
+        average = average * 0.8 + (double)d * .2;
+    }
 }
 
 double Histogram::percentAt(int d)

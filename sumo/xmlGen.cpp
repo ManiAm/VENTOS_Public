@@ -57,7 +57,7 @@ vector<string> getNodeNames(string netName)
 
 void bulkVehicles()
 {
-    cout << "Enter a subdirectory containing hello.net.xml.  This is where Vehicles.xml will be placed: ";
+    cout << "Enter a subdirectory containing hello.net.xml.  This is where Vehicles###.xml will be placed: ";
     string dir;
     cin >> dir;
 
@@ -70,7 +70,7 @@ void bulkVehicles()
     cin >> duration;
     
     string netName = dir + "/hello.net.xml";
-    string vName = dir + "/Vehicles.xml";
+    string vName = dir + "/Vehicles" + vCount + ".xml";
     ifstream netFile(netName.c_str());
     if(!netFile.good())
     {

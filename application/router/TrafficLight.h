@@ -1,17 +1,17 @@
 #ifndef TRAFFICLIGHT_H
 #define TRAFFICLIGHT_H
 
-#include <vector>
-#include <iostream>
-#include <iomanip>
-
 #include "BaseApplLayer.h"
-#include "Net.h"
 #include "Global_01_TraCI_Extend.h"
+#include "Net.h"
+#include <vector>
 
 using namespace std;
 
 namespace VENTOS {
+
+class TraCI_Extend;
+class Net;
 
 class Phase
 {
@@ -21,8 +21,6 @@ public:
     Phase(double durationVal, string stateVal);
     void print();
 };
-
-class Net;
 
 class TrafficLight : public cSimpleModule
 {
@@ -34,24 +32,27 @@ public:
     vector<Phase*> phases;
     Node* node;
     Net* net;
-    double cycleDuration;   // this and below should be const
-    double nonTransitionalCycleDuration;
-    void build(string id, string type, string programID, double offset, vector<Phase*>& phases, Net* net);
-    inline int toPhase(int i);
 
+    void build(string id, string type, string programID, double offset, vector<Phase*>& phases, Net* net);
+
+    //Routing
+    double lastSwitchTime;
     int currentPhase;
-    int lastSwitchTime;
     int currentPhaseAtTime(double time, double* timeRemaining = NULL);
 
-    void changePhaseTimeRemaining(int newDuration, bool permenent = false);
+    //TL Control
+    bool done;
+    int TLLogicMode;
+    double HighDensityRecalculateFrequency;
+    double LowDensityExtendTime;
+    double MaxPhaseDuration;
+
+    double cycleDuration;   // this and below should be const
+    double nonTransitionalCycleDuration;
     void HighDensityRecalculate();
     bool LowDensityRecalculate();
 
-    //Message-passing
-    bool UseTLLogic;
-    bool UseHighDensityLogic;
-    double HighDensityRecalculateFrequency;
-    double LowDensityExtendTime;
+    //OmNET
     cMessage* TLEvent;
     cMessage* TLSwitchEvent;
     TraCI_Extend *TraCI;
@@ -62,7 +63,6 @@ public:
     void print();
 };
 
-ostream& operator<<(ostream& os, TrafficLight &rhs);
 
 }
 

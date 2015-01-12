@@ -1,48 +1,6 @@
 VENTOS
 ======
 
-VENTOS (VEhicular NeTwork Open Simulator) is an integrated C++ simulator for studding traffic flows in Vehicular Ad-hoc Networks (VANETs). VENTOS is the main tool in [C3PO](http://www.ece.ucdavis.edu/rubinet/projects/c3po.html "") research. It is made up of many different modules including:
-
-**OMNET++:** OMNET++ is a network simulator, and is used for detailed packet-level simulations.
-
-**Veins framework:** We used Veins to connect SUMO to OMNET++ using TraCI interface, as well as using IEEE 802.11p protocol in data-link layer for V2V, I2V and V2I wireless communications. More information [here](http://veins.car2x.org/ "").
-
-**Simulation of Urban Mobility (SUMO):** SUMO is an open source, microscopic, continuous-space, discrete-time road traffic simulator, developed at German Aerospace Center. We have implemented multiple car following models in SUMO. SUMO is as powerfull as a [Sumo wrestler](https://www.youtube.com/watch?v=dW7n2UP60bk "") :)
-
-**Eigen library:** Eigen is a C++ template library for linear algebra: matrices, vectors, numerical solvers, and related algorithms. We use this library for matrix calculations. Eigen is a header only library, and is included in VENTOS.
-
-**RapidXML:** RapidXml is an attempt to create the fastest XML parser possible, while retaining useability, portability and reasonable W3C compatibility. It is an in-situ parser written in modern C++, with parsing speed approaching that of strlen function executed on the same data. RapidXML is a header only library, and is included in VENTOS.
-
-**Boost library:** Boost provides free peer-reviewed portable C++ source libraries which can be found [here](http://www.boost.org/doc/libs/ ""). We are using boost tokenizer, filesystem, etc.
-
-**OpenSSL library:** OpenSSL is an open-source implementation of the SSL and TLS protocols. The core library, written in the C programming language, implements the basic cryptographic functions and provides various utility functions. We use OpenSSL library to sign and verify different messages.
-
-**Gnuplot:** Gnuplot is a portable command-line driven interactive plotting program.
-
-
-Features
---------
-
-* car-following models specifically for manual driving, ACC and CACC
-* mode switch between ACC, CACC
-* simulation of 'CACC vehicle stream' and 'CACC platoon'
-* Implementing a platoon management protocol that supports different maneuvers such as merge, split, entry, follower leave, platoon leader leave
-* testing different speed profiles
-* study the local/string stability
-* study the effect of Packet Loss Ratio (PLR) on string stability
-* studing different security attacks using 'adversary module'
-* supports 'Automatic Incident Detection' in highway / arterial
-
-<p align="center">
-  <img src="https://dl.dropboxusercontent.com/u/5153771/simulation.png" alt="Simulation Output" style="width: 110%"/>
-</p>
-
-Watch simulation videos from [here](https://www.youtube.com/user/RubinetLab "").
-
-
-Getting Started
----------------
-
 VENTOS framework is developed in Ubuntu OS, and we have not tested it under Windows (yet!). This section shows you how to install VENTOS and its prerequisites step by step on Ubuntu 12.04 or 14.04 machine. Before continuing, make sure that you have installed SUMO from [this repository](https://github.com/ManiAm/VENTOS_SUMO "").
 
 

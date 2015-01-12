@@ -1,9 +1,9 @@
 
-#ifndef RSUADD
-#define RSUADD
+#ifndef RSUADD_H_
+#define RSUADD_H_
 
 #include "Global_01_TraCI_Extend.h"
-#include "ApplV_08_Manager.h"
+#include <BaseApplLayer.h>
 
 namespace VENTOS {
 
@@ -22,6 +22,7 @@ class RSUEntry
       }
 };
 
+class TraCI_Extend;
 
 class RSUAdd : public BaseModule
 {
@@ -48,6 +49,7 @@ class RSUAdd : public BaseModule
         boost::filesystem::path SUMOfullDirectory;
         deque<RSUEntry*> RSUs;
 };
+
 }
 
 #endif

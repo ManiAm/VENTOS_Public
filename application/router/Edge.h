@@ -48,6 +48,7 @@ public:
 
     Edge(string idVal, Node* fromVal, Node* toVal, int priorityVal, vector<Lane*>* lanesVec, Histogram* hist);
 };
+
 ostream& operator<<(ostream& os, Edge &rhs);
 
 }

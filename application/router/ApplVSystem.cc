@@ -1,3 +1,4 @@
+
 #include "ApplVSystem.h"
 
 namespace VENTOS {
@@ -31,9 +32,12 @@ void ApplVSystem::initialize(int stage)
         useDijkstrasRouting = par("useDijkstrasRouting").boolValue();
 
         // get the rootFilePath
+        cModule *module = simulation.getSystemModule()->getSubmodule("router");
+        router = static_cast< Router* >(module);
         boost::filesystem::path SUMODirectory = simulation.getSystemModule()->par("SUMODirectory").stringValue();
         boost::filesystem::path VENTOSfullDirectory = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-        string rootFilePath = (VENTOSfullDirectory / SUMODirectory / "/Vehicles.xml").string();
+        string rootFilePath = (VENTOSfullDirectory / SUMODirectory).string();
+        rootFilePath += "/Vehicles" + SSTR(router->totalVehicleCount) + ".xml";
 
         // Routing
         //Temporary fix to get a vehicle's target: get it from the xml
@@ -41,8 +45,7 @@ void ApplVSystem::initialize(int stage)
         xml_document<> doc;                                // Build a rapidxml doc
         doc.parse<0>(xmlFile.data());                      // Fill it with data from our file
         xml_node<> *node = doc.first_node("vehicles");     // Parse up to the "nodes" declaration
-
-        for(node = node->first_node("vehicle"); node->first_attribute()->value() != SUMOvID; node = node->next_sibling()){} //Find our vehicle in the .xml
+        for(node = node->first_node("vehicle"); node->first_attribute()->value() != SUMOvID; node = node->next_sibling()); //Find our vehicle in the .xml
 
         xml_attribute<> *attr = node->first_attribute()->next_attribute()->next_attribute()->next_attribute();  //Navigate to the destination attribute
         if((string)attr->name() == "destination")  //Double-check
@@ -50,6 +53,15 @@ void ApplVSystem::initialize(int stage)
         else
             error("XML formatted wrong! Some vehicle was missing its destination!");
 
+        if(find(router->nonReroutingVehicles->begin(), router->nonReroutingVehicles->end(), SUMOvID) != router->nonReroutingVehicles->end())
+        {
+            requestReroutes = false;
+        }
+        else
+        {
+            requestReroutes = true;
+        }
+        numReroutes = 0;
         //Register to receive signals from the router
         Signal_router = registerSignal("router");
         simulation.getSystemModule()->subscribe("router", this);
@@ -57,11 +69,12 @@ void ApplVSystem::initialize(int stage)
         //Slightly offset all vehicles (0-4 seconds)
         double systemOffset = dblrand() * 2 + 2;
 
-        sendSystemMsgEvt = new cMessage("systemmsg evt", KIND_TIMER);   //Create a new internal message
+        simsignal_t Signal_system = registerSignal("system"); //Prepare to send a system message
+        nodePtr->emit(Signal_system, new systemData("", "", SUMOvID, 3, string("system")));
+
+        sendSystemMsgEvt = new cMessage("systemmsg evt");   //Create a new internal message
         if (requestRoutes) //&& VANETenabled ) //If this vehicle is supposed to send system messages
             scheduleAt(simTime() + systemOffset, sendSystemMsgEvt); //Schedule them to start sending
-        Signal_TimeData = registerSignal("TimeData"); //Prepare to send a system message
-        nodePtr->emit(Signal_TimeData, new TimeData(SUMOvID, simTime().dbl(), false));
     }
 }
 
@@ -70,14 +83,14 @@ void ApplVSystem::finish()
 {
     ApplVBeacon::finish();
 
-    Signal_TimeData = registerSignal("TimeData"); //Prepare to send a system message
-    nodePtr->emit(Signal_TimeData, new TimeData(SUMOvID, simTime().dbl(), true));
+
+    cout << SUMOvID << " took " << simTime().dbl() - startTime << " seconds to complete its route. ";
+
 
     simsignal_t Signal_system = registerSignal("system"); //Prepare to send a system message
     nodePtr->emit(Signal_system, new systemData("", "", SUMOvID, 2, string("system")));
 
 
-    cout << SUMOvID << " took " << simTime().dbl() - startTime << " seconds to complete its route." << endl;
 
     if(requestRoutes)
     {
@@ -100,17 +113,15 @@ void ApplVSystem::receiveSignal(cComponent *source, simsignal_t signalID, cObjec
     if(signalID == Signal_router)   //If the signal is of type router
     {
         systemData *s = static_cast<systemData *>(obj); //Cast to usable data
-        if(string(s->getSender()) == "router" && string(s->getRecipient()) == SUMOvID) //If sent from the router and to this vehicle
+
+        if(string(s->getSender()) == "router" and string(s->getRecipient()) == SUMOvID and (requestReroutes or numReroutes == 0)) //If sent from the router and to this vehicle
         {
+
+            numReroutes++;
+            cout << "Setting new route for " << SUMOvID << " at t=" << simTime().dbl() << endl;
             list<string> sRoute = s->getInfo(); //Copy the info from the signal (breaks if we don't do this, for some reason)
             TraCI->commandChangeVehicleRoute(s->getRecipient(), sRoute);  //Update this vehicle's path with the proper info
         }
-    }
-    else if(signalID == Signal_TimeData)
-    {
-        TimeData* tMsg = dynamic_cast<TimeData*>(obj);
-        cout << "Got " << tMsg->time;
-        ASSERT(tMsg);
     }
 }
 
@@ -132,28 +143,36 @@ void ApplVSystem::onData(PlatoonMsg* wsm)
 
 }
 
+void ApplVSystem::reroute()
+{
+
+    sendSystemMsgEvt = new cMessage("systemmsg evt");   //Create a new internal message
+    simsignal_t Signal_system = registerSignal("system"); //Prepare to send a system message
+    //Systemdata wants string edge, string node, string sender, int requestType, string recipient, list<string> edgeList
+    if(useDijkstrasRouting)
+    {
+        nodePtr->emit(Signal_system, new systemData(TraCI->commandGetVehicleEdgeId(SUMOvID), targetNode, SUMOvID, 0, string("system")));
+        if(!router->UseHysteresis)
+            scheduleAt(simTime() + requestInterval, sendSystemMsgEvt);// schedule for next beacon broadcast
+    }
+    else
+    {
+        nodePtr->emit(Signal_system, new systemData(TraCI->commandGetVehicleEdgeId(SUMOvID), targetNode, SUMOvID, 1, string("system")));
+        scheduleAt(simTime() + routeUpdateInterval, sendSystemMsgEvt);// schedule for next beacon broadcast
+    }
+
+}
 
 void ApplVSystem::handleSelfMsg(cMessage* msg)  //Internal messages to self
 {
     ApplVBeacon::handleSelfMsg(msg);    //Pass it down
 
-    if (msg == sendSystemMsgEvt && requestRoutes)  //If it's a system message
+    if (msg == sendSystemMsgEvt and requestRoutes)  //If it's a system message
     {
-        simsignal_t Signal_system = registerSignal("system"); //Prepare to send a system message
-        //Systemdata wants string edge, string node, string sender, int requestType, string recipient, list<string> edgeList
-        if(useDijkstrasRouting)
-        {
-
-            nodePtr->emit(Signal_system, new systemData(TraCI->commandGetVehicleEdgeId(SUMOvID), targetNode, SUMOvID, 0, string("system")));
-            scheduleAt(simTime() + requestInterval, sendSystemMsgEvt);// schedule for next beacon broadcast
-        }
-        else
-        {
-            nodePtr->emit(Signal_system, new systemData(TraCI->commandGetVehicleEdgeId(SUMOvID), targetNode, SUMOvID, 1, string("system")));
-            scheduleAt(simTime() + routeUpdateInterval, sendSystemMsgEvt);// schedule for next beacon broadcast
-        }
-
+        delete msg;
+        reroute();
     }
+
 }
 
 

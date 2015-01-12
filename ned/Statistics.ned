@@ -11,6 +11,6 @@ simple Statistics
         bool collectPlnManagerData;
         bool printBeaconsStatistics;
         bool printIncidentDetection;
-        bool collectLaneCostsData;
-        bool collectVehicleTimeData;
+        int LaneCostsMode;
+        int HysteresisCount;
 }

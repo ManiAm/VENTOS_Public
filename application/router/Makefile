@@ -42,6 +42,7 @@ OBJS = \
     $O/Histogram.o \
     $O/Net.o \
     $O/Hypertree.o \
+    $O/Vehicle.o \
     $O/Edge.o \
     $O/Router.o
 
@@ -138,10 +139,17 @@ $O/ApplVSystem.o: ApplVSystem.cc \
 	../core/ApplV_01_Base.h \
 	../core/ApplV_02_Beacon.h \
 	../core/Global_01_TraCI_Extend.h \
+	../core/Global_04_Statistics.h \
 	../msg/Messages_m.h \
 	ApplVSystem.h \
+	Edge.h \
 	Histogram.h \
 	Hypertree.h \
+	Net.h \
+	Node.h \
+	Router.h \
+	TrafficLight.h \
+	Vehicle.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/ChannelAccess.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/NicEntry.h \
@@ -188,16 +196,9 @@ $O/Net.o: Net.cc \
 	../core/Appl.h \
 	../core/ApplV_01_Base.h \
 	../core/ApplV_02_Beacon.h \
-	../core/ApplV_04_AID.h \
-	../core/ApplV_05_PlatoonFormed.h \
-	../core/ApplV_06_PlatoonMg.h \
-	../core/ApplV_07_Coordinator.h \
-	../core/ApplV_08_Manager.h \
 	../core/Global_01_TraCI_Extend.h \
 	../core/Global_04_Statistics.h \
-	../core/Global_07_RSUAdd.h \
 	../msg/Messages_m.h \
-	ApplVSystem.h \
 	Edge.h \
 	Histogram.h \
 	Hypertree.h \
@@ -205,9 +206,7 @@ $O/Net.o: Net.cc \
 	Node.h \
 	Router.h \
 	TrafficLight.h \
-	../rsu/ApplRSU_01_Base.h \
-	../rsu/ApplRSU_02_AID.h \
-	../rsu/ApplRSU_03_Manager.h \
+	Vehicle.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/ChannelAccess.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/NicEntry.h \
@@ -248,16 +247,9 @@ $O/Router.o: Router.cc \
 	../core/Appl.h \
 	../core/ApplV_01_Base.h \
 	../core/ApplV_02_Beacon.h \
-	../core/ApplV_04_AID.h \
-	../core/ApplV_05_PlatoonFormed.h \
-	../core/ApplV_06_PlatoonMg.h \
-	../core/ApplV_07_Coordinator.h \
-	../core/ApplV_08_Manager.h \
 	../core/Global_01_TraCI_Extend.h \
 	../core/Global_04_Statistics.h \
-	../core/Global_07_RSUAdd.h \
 	../msg/Messages_m.h \
-	ApplVSystem.h \
 	Edge.h \
 	Histogram.h \
 	Hypertree.h \
@@ -265,9 +257,7 @@ $O/Router.o: Router.cc \
 	Node.h \
 	Router.h \
 	TrafficLight.h \
-	../rsu/ApplRSU_01_Base.h \
-	../rsu/ApplRSU_02_AID.h \
-	../rsu/ApplRSU_03_Manager.h \
+	Vehicle.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/ChannelAccess.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/NicEntry.h \
@@ -306,16 +296,9 @@ $O/TrafficLight.o: TrafficLight.cc \
 	../core/Appl.h \
 	../core/ApplV_01_Base.h \
 	../core/ApplV_02_Beacon.h \
-	../core/ApplV_04_AID.h \
-	../core/ApplV_05_PlatoonFormed.h \
-	../core/ApplV_06_PlatoonMg.h \
-	../core/ApplV_07_Coordinator.h \
-	../core/ApplV_08_Manager.h \
 	../core/Global_01_TraCI_Extend.h \
 	../core/Global_04_Statistics.h \
-	../core/Global_07_RSUAdd.h \
 	../msg/Messages_m.h \
-	ApplVSystem.h \
 	Edge.h \
 	Histogram.h \
 	Hypertree.h \
@@ -323,9 +306,7 @@ $O/TrafficLight.o: TrafficLight.cc \
 	Node.h \
 	Router.h \
 	TrafficLight.h \
-	../rsu/ApplRSU_01_Base.h \
-	../rsu/ApplRSU_02_AID.h \
-	../rsu/ApplRSU_03_Manager.h \
+	Vehicle.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/ChannelAccess.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/NicEntry.h \
@@ -360,4 +341,6 @@ $O/TrafficLight.o: TrafficLight.cc \
 	$(VEINS_PROJ)/src/veins/modules/obstacle/ObstacleControl.h \
 	$(VEINS_PROJ)/src/veins/modules/utility/Consts80211p.h \
 	$(VEINS_PROJ)/src/veins/modules/world/annotations/AnnotationManager.h
+$O/Vehicle.o: Vehicle.cc \
+	Vehicle.h
 

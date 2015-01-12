@@ -3,9 +3,13 @@
 #define ApplVSystem_H
 
 #include "ApplV_02_Beacon.h"
+#include "Router.h"
 #include "Hypertree.h"
 
 namespace VENTOS {
+
+class Router;
+class Hypertree;
 
 class ApplVSystem : public ApplVBeacon
 {
@@ -28,6 +32,11 @@ class ApplVSystem : public ApplVBeacon
         bool useDijkstrasRouting;
         int startTime;
         double routeUpdateInterval;
+        bool requestReroutes;
+        int numReroutes;
+
+        Router* router;
+        void reroute();
 
         // Class variables
         cMessage* sendSystemMsgEvt;
@@ -35,8 +44,6 @@ class ApplVSystem : public ApplVBeacon
         // Routing
         string targetNode;
         Hypertree* ht;
-
-        simsignal_t Signal_TimeData;
 
         // Methods
         virtual void handleSelfMsg(cMessage*);
@@ -48,6 +55,7 @@ class ApplVSystem : public ApplVBeacon
         SystemMsg* prepareSystemMsg();
         void printSystemMsgContent(SystemMsg*);
 };
+
 }
 
 #endif

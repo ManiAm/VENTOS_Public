@@ -1,9 +1,13 @@
 
 #include <Global_04_Statistics.h>
+#include <rsu/ApplRSU_03_Manager.h>
+#include "Router.h"
 
 namespace VENTOS {
 
 Define_Module(VENTOS::Statistics);
+
+class ApplRSUManager;
 
 
 Statistics::~Statistics()
@@ -25,12 +29,12 @@ void Statistics::initialize(int stage)
 
         collectMAClayerData = par("collectMAClayerData").boolValue();
         collectVehiclesData = par("collectVehiclesData").boolValue();
-        collectVehicleTimeData = par("collectVehicleTimeData").boolValue();
-        collectLaneCostsData = par("collectLaneCostsData").boolValue();
         collectInductionLoopData = par("collectInductionLoopData").boolValue();
         collectPlnManagerData = par("collectPlnManagerData").boolValue();
         printBeaconsStatistics = par("printBeaconsStatistics").boolValue();
         printIncidentDetection = par("printIncidentDetection").boolValue();
+        LaneCostsMode = par("LaneCostsMode").longValue();
+        HysteresisCount = par("HysteresisCount").longValue();
 
         index = 1;
 
@@ -46,7 +50,6 @@ void Statistics::initialize(int stage)
         Signal_SentPlatoonMsg = registerSignal("SentPlatoonMsg");
         Signal_VehicleState = registerSignal("VehicleState");
         Signal_PlnManeuver = registerSignal("PlnManeuver");
-        Signal_TimeData = registerSignal("TimeData");
 
         // now subscribe locally to all these signals
         simulation.getSystemModule()->subscribe("beaconP", this);
@@ -56,20 +59,14 @@ void Statistics::initialize(int stage)
         simulation.getSystemModule()->subscribe("SentPlatoonMsg", this);
         simulation.getSystemModule()->subscribe("VehicleState", this);
         simulation.getSystemModule()->subscribe("PlnManeuver", this);
-        simulation.getSystemModule()->subscribe("TimeData", this);
     }
 }
 
 
 void Statistics::finish()
 {
-
-    if(collectLaneCostsData)
+    if(LaneCostsMode == 1)
         HistogramsToFile();
-
-    if(collectVehicleTimeData)
-        processTravelTimeData();
-
 }
 
 
@@ -91,7 +88,7 @@ void Statistics::executeOneTimestep(bool simulationDone)
         if(ev.isGUI()) vehiclesDataToFile();  // write what we have collected so far
     }
 
-    if(collectLaneCostsData)
+    if(LaneCostsMode > 0)
         laneCostsData();
 
     if(collectInductionLoopData)
@@ -347,22 +344,11 @@ void Statistics::vehiclesDataToFile()
     fclose(filePtr);
 }
 
-
-void Statistics::processTravelTimeData()
-{
-    double avg = 0;
-    int count = 0;
-    for(map<string, int>::iterator it = vehicleTravelTimes.begin(); it != vehicleTravelTimes.end(); it++)
-    {
-        count++;
-        avg += it->second;
-    }
-    cout << "Average vehicle travel time was " << avg / count << " seconds." << endl;
-}
-
-
 void Statistics::laneCostsData()
 {
+    cModule *module = simulation.getSystemModule()->getSubmodule("router");
+    Router *r = static_cast< Router* >(module);
+
     list<string> vList = TraCI->commandGetVehicleList();
 
     for(list<string>::iterator it = vList.begin(); it != vList.end(); it++) //Look at each vehicle
@@ -375,11 +361,17 @@ void Statistics::laneCostsData()
         {
             vehicleEdges[*it] = curEdge;           //Initialize its current edge
             vehicleTimes[*it] = simTime().dbl();   //And current time
+            vehicleLaneChangeCount[*it] = -1;
         }
 
         if(prevEdge != curEdge) //If we've moved edges
         {
-            edgeHistograms[prevEdge].insert(simTime().dbl() - vehicleTimes[*it]);   //Add the time the vehicle traveled to the data set for that edge
+            if(r->UseHysteresis and ++vehicleLaneChangeCount[*it] > HysteresisCount * 2)
+            {
+                vehicleLaneChangeCount[*it] = 0;
+                r->sendRerouteSignal(*it);
+            }
+            edgeHistograms[prevEdge].insert(simTime().dbl() - vehicleTimes[*it], LaneCostsMode);   //Add the time the vehicle traveled to the data set for that edge
             vehicleEdges[*it] = curEdge;                                            //And set its edge to the new one
             vehicleTimes[*it] = simTime().dbl();                                    //And that edges start time to now
             //cout << *it << " moves to edge " << curEdge << " at time " << simTime().dbl() << endl;  //Print a change
@@ -736,19 +728,6 @@ void Statistics::receiveSignal(cComponent *source, simsignal_t signalID, cObject
 
         NodeEntry *tmp = new NodeEntry(source->getFullName(), m->name, nodeIndex, -1, simTime());
         Vec_BeaconsO.push_back(tmp);
-    }
-    else if (collectVehicleTimeData && signalID == Signal_TimeData)
-    {
-        TimeData* tMsg = dynamic_cast<TimeData*>(obj);
-        if(tMsg->end)
-        {
-            vehicleTravelTimes[tMsg->vName] = tMsg->time - vehicleTravelTimes[tMsg->vName];
-        }
-        else
-        {
-            vehicleTravelTimes[tMsg->vName] = tMsg->time;
-        }
-        ASSERT(tMsg);
     }
 }
 

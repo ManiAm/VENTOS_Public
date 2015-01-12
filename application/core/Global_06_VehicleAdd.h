@@ -4,6 +4,7 @@
 
 #include "Global_01_TraCI_Extend.h"
 #include "ApplV_08_Manager.h"
+#define SSTR( x ) dynamic_cast< std::ostringstream & >( (std::ostringstream() << std::dec << x ) ).str()
 
 namespace VENTOS {
 

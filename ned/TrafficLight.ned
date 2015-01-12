@@ -7,10 +7,10 @@ simple TrafficLight
         @class(VENTOS::TrafficLight);
         @display("i=block/network2");  
         
-        bool UseTLLogic;
-        bool UseHighDensityLogic;
+        int TLLogicMode;
         double HighDensityRecalculateFrequency;
         double LowDensityExtendTime;
+        double MaxPhaseDuration;
         
         
 }

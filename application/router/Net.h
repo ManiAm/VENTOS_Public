@@ -9,6 +9,7 @@
 #include <map>
 
 #include "Router.h"
+#include "Vehicle.h"
 #include "Global_04_Statistics.h"
 #include "Histogram.h"
 #include "rapidxml.hpp"
@@ -22,11 +23,11 @@ namespace VENTOS {
 class Net
 {
 public:
-    int vehicleCount;
 
     map<string, TrafficLight*> TLs;
     map<string, Edge*> edges;
     map<string, Node*> nodes;
+    map<string, Vehicle*> vehicles;
 
     map<string, vector<int>* >* transitions;  //Given a pair of edge IDs concatenated, returns a vector of TL phases that allow movement between them
     map<string, char>* turnTypes;           //Given a pair of edge IDs concatenated, returns the turn type between those two

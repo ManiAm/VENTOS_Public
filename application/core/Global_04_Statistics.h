@@ -2,9 +2,13 @@
 #ifndef STATISTICS_H
 #define STATISTICS_H
 
-#include <Appl.h>
+#include <BaseApplLayer.h>
+#include <ChannelAccess.h>
+#include <WaveAppToMac1609_4Interface.h>
+#include "modules/mobility/traci/TraCIMobility.h"
+
+#include "Appl.h"
 #include "Global_01_TraCI_Extend.h"
-#include <rsu/ApplRSU_03_Manager.h>
 
 
 namespace VENTOS {
@@ -175,7 +179,7 @@ class Statistics : public BaseModule
 	  void executeOneTimestep(bool); // should be public
 
       std::map<string, Histogram> edgeHistograms; // should be public
-      std::map<string, int> vehicleTravelTimes;
+
 
   private:
       void vehiclesData();
@@ -220,8 +224,7 @@ class Statistics : public BaseModule
       // NED variables
       bool collectMAClayerData;
       bool collectVehiclesData;
-      bool collectLaneCostsData;
-      bool collectVehicleTimeData;
+      int LaneCostsMode;
       bool collectInductionLoopData;
       bool collectPlnManagerData;
       bool printBeaconsStatistics;
@@ -233,6 +236,10 @@ class Statistics : public BaseModule
       // Edge weight-gathering
       std::map<string, string> vehicleEdges;
       std::map<string, double> vehicleTimes;
+
+      //Hysteresis implementation
+      std::map<string, int> vehicleLaneChangeCount;
+      int HysteresisCount;
 
       // class variables (signals)
 	  simsignal_t Signal_beaconP;

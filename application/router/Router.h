@@ -1,10 +1,10 @@
 #ifndef ROUTER_H
 #define ROUTER_H
 
+#include <BaseModule.h>
 #include <vector>
 #include <list>
 #include <fstream>
-#include <BaseModule.h>
 
 #include "Node.h"
 #include "Edge.h"
@@ -13,26 +13,42 @@
 #include "Hypertree.h"
 
 #include "ApplV_02_Beacon.h"
-
+#define SSTR( x ) dynamic_cast< std::ostringstream & >( (std::ostringstream() << std::dec << x ) ).str()
 
 using namespace std;
 
 namespace VENTOS {
 
+class Node;
+class Edge;
+class TrafficLight;
 class Net;
+class Hypertree;
 
 class Router : public BaseModule    //Responsible for routing cars in our system.  Should only be one of these.
 {
 public:
     ~Router();
-    friend ostream& operator<<(ostream& os, Router &rhs);
+
+    int createTime;
+    int currentVehicleCount;
+    int totalVehicleCount;
+    double nonReroutingVehiclePercent;
+    vector<string>* nonReroutingVehicles;
+    Net* net;
+    void sendRerouteSignal(string vid);     //Forces a vehicle to reroute
+    bool UseHysteresis;
+
 
 protected:
-    Net* net;
     map<string, Hypertree*> hypertreeMemo;
 
-    bool enableRouting; //If false, runs no code
+    //Vehicle stuff
+    bool collectVehicleTimeData;
+    map<string, int> vehicleTravelTimes;
+    ofstream vehicleTravelTimesFile;
 
+    bool enableRouting; //If false, runs no code
     double leftTurnCost, rightTurnCost, straightCost, uTurnCost, TLLookahead;
 
     double junctionCost(double time, Edge* start, Edge* end);       //If it's a TL, returns the time spent waiting.  If not, returns turnTypeCost
@@ -41,13 +57,10 @@ protected:
     int nextAcceptingPhase(double time, Edge* start, Edge* end);    //Returns the next phase allowing movement from start to end at the given time
     vector<int>* TLTransitionPhases(Edge* start, Edge* end);        //Returns a vector of phases allowing movement from start to end
 
-    double getEdgeMeanSpeed(Edge* edge);    //Get the mean speed of all lanes on an edge
-
     int timePeriodMax;     //Max time for hypertrees
     Hypertree* buildHypertree(int startTime, Node* destination);    //Builds a hypertree to the destination, bounded between the start time and timePeriodMax;
-    list<string> getRoute(Edge* origin, Node* destination, string vName);      //Returns a list of edges between origin and destination,
-                                                                        //or an empty list if they're not connected
-
+    list<string> getRoute(Edge* origin, Node* destination, string vName);       //Returns a list of edges between origin and destination,
+                                                                                //or an empty list if they're not connected
     //Internal functions
     virtual void initialize(int);
     virtual void receiveSignal(cComponent *, simsignal_t, cObject *);

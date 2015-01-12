@@ -2,7 +2,7 @@
 #ifndef APPLRSUAID_H_
 #define APPLRSUAID_H_
 
-#include <rsu/ApplRSU_01_Base.h>
+#include "ApplRSU_01_Base.h"
 
 namespace VENTOS {
 
@@ -24,6 +24,7 @@ class ApplRSUAID : public ApplRSUBase
         virtual void onBeaconRSU(BeaconRSU*);
         virtual void onData(LaneChangeMsg*);
 };
+
 }
 
 #endif

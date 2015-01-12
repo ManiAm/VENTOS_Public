@@ -28,6 +28,7 @@ public:
     bool operator==(const Node& rhs);
     Node(string idVal, double xVal, double yVal, string typeVal, vector<string>* incLanesVal, TrafficLight* tlVal);
 };
+
 ostream& operator<<(ostream& os, Node &rhs);
 
 }

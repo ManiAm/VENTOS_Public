@@ -1,5 +1,7 @@
 
 #include "Global_06_VehicleAdd.h"
+#include "router/Router.h"
+#include <algorithm>
 
 namespace VENTOS {
 
@@ -158,12 +160,85 @@ void VehicleAdd::Scenario3()
      }
 }
 
+bool fexists(const char *filename)
+{
+    ifstream ifile(filename);
+    return ifile;
+}
+
+vector<string> getEdgeNames(string netName)
+{
+  vector<string> edgeNames;
+
+  file <> xmlFile(netName.c_str());
+  xml_document<> doc;
+  xml_node<> *node;
+  doc.parse<0>(xmlFile.data());
+  for(node = doc.first_node()->first_node("edge"); node; node = node->next_sibling("edge"))
+    edgeNames.push_back(node->first_attribute()->value());
+  return edgeNames;
+}
+vector<string> getNodeNames(string netName)
+{
+  vector<string> nodeNames;
+  file <> xmlFile(netName.c_str());
+  xml_document<> doc;
+  xml_node<> *node;
+  doc.parse<0>(xmlFile.data());
+  for(node = doc.first_node()->first_node("junction"); node; node = node->next_sibling("junction"))
+    nodeNames.push_back(node->first_attribute()->value());
+  return nodeNames;
+}
+
+double curve(double x)  //Input will linearly increase from 0 to 1, from first to last vehicle.
+{                       //Output should be between 0 and 1, scaled by some function
+    return x;
+}
+
+
+void generateVehicles(string dir, Router* r)
+{
+  string netName = dir + "/hello.net.xml";
+  string vName = dir + "/Vehicles" + SSTR(r->totalVehicleCount) + ".xml";
+  ifstream netFile(netName.c_str());
+
+  srand(time(NULL));
+  vector<string> edgeNames = getEdgeNames(netName);
+  vector<string> nodeNames = getNodeNames(netName);
+
+  ofstream vFile(vName.c_str());
+  vFile << "<vehicles>" << endl;
+  for(int i = 1; i <= r->totalVehicleCount; i++)
+  {
+    string edge = edgeNames[rand() % edgeNames.size()];
+    string node = nodeNames[rand() % nodeNames.size()];
+    //vFile << "   <vehicle id=\"v" << i << "\" type=\"TypeManual\" origin=\"" << edge << "\" destination=\"" << node << "\" depart=\"" << i * r->createTime / r->totalVehicleCount << "\" />" << endl;
+
+    vFile << "   <vehicle id=\"v" << i << "\" type=\"TypeManual\" origin=\"" << edge << "\" destination=\""
+          << node << "\" depart=\"" << curve((double)i/r->totalVehicleCount) * r->createTime << "\" />" << endl;
+ }
+  vFile << "</vehicles>" << endl;
+  vFile.close();
+}
 
 void VehicleAdd::Scenario4()
 {
+    cModule *module = simulation.getSystemModule()->getSubmodule("router");
+    Router *r = static_cast< Router* >(module);
+
     boost::filesystem::path SUMODirectory = simulation.getSystemModule()->par("SUMODirectory").stringValue();
     boost::filesystem::path VENTOSfullDirectory = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-    string xmlFileName = (VENTOSfullDirectory / SUMODirectory / "/Vehicles.xml").string();
+    string dir = (VENTOSfullDirectory / SUMODirectory).string();
+    string vehFile = ("/Vehicles" + SSTR(r->totalVehicleCount) + ".xml");
+
+    //string xmlFileName = (VENTOSfullDirectory / SUMODirectory).string();
+    string xmlFileName = (VENTOSfullDirectory / SUMODirectory).string();
+    xmlFileName += vehFile;
+
+    if(!fexists(xmlFileName.c_str()))
+    {
+        generateVehicles(dir, r);
+    }
 
     file<> xmlFile( xmlFileName.c_str() );     // Convert our file to a rapid-xml readable object
     xml_document<> doc;                        // Build a rapidxml doc
@@ -201,6 +276,8 @@ void VehicleAdd::Scenario4()
         {
             error("XML formatted wrong! Not enough elements given for some vehicle.");
         }
+
+        r->net->vehicles[id] = new Vehicle(id, type, origin, destination, depart);
 
         list<string> routeList = TraCI->commandGetRouteIds();   //Get all the routes so far
         bool foundRoute = 0;
