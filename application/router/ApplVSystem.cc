@@ -19,9 +19,10 @@ void ApplVSystem::initialize(int stage)
     {
         // NED variables (beaconing parameters)
         requestRoutes = par("requestRoutes").boolValue();
-        routeUpdateInterval = par("routeUpdateInterval").doubleValue();
         if(!requestRoutes)
             return;
+
+        routeUpdateInterval = par("routeUpdateInterval").doubleValue();
 
         startTime = simTime().dbl();
 
