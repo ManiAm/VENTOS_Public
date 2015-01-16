@@ -10,7 +10,5 @@ simple TrafficLight
         int TLLogicMode;
         double HighDensityRecalculateFrequency;
         double LowDensityExtendTime;
-        double MaxPhaseDuration;
-        
-        
+        double MaxPhaseDuration;        
 }
