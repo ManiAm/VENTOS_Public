@@ -102,6 +102,148 @@ inline void doUnpacking(cCommBuffer *b, BeaconVehicle& obj) {obj.parsimUnpack(b)
 /**
  * Class generated from <tt>Messages.msg:37</tt> by nedtool.
  * <pre>
+ * packet BeaconBicycle extends WaveShortMessage
+ * {
+ *     string sender;
+ *     string recipient;
+ *     Coord pos;
+ *     double speed;
+ *     double accel;
+ *     double maxDecel;
+ *     string lane;
+ *     string platoonID;
+ *     int platoonDepth;
+ * }
+ * </pre>
+ */
+class BeaconBicycle : public ::WaveShortMessage
+{
+  protected:
+    opp_string sender_var;
+    opp_string recipient_var;
+    Coord pos_var;
+    double speed_var;
+    double accel_var;
+    double maxDecel_var;
+    opp_string lane_var;
+    opp_string platoonID_var;
+    int platoonDepth_var;
+
+  private:
+    void copy(const BeaconBicycle& other);
+
+  protected:
+    // protected and unimplemented operator==(), to prevent accidental usage
+    bool operator==(const BeaconBicycle&);
+
+  public:
+    BeaconBicycle(const char *name=NULL, int kind=0);
+    BeaconBicycle(const BeaconBicycle& other);
+    virtual ~BeaconBicycle();
+    BeaconBicycle& operator=(const BeaconBicycle& other);
+    virtual BeaconBicycle *dup() const {return new BeaconBicycle(*this);}
+    virtual void parsimPack(cCommBuffer *b);
+    virtual void parsimUnpack(cCommBuffer *b);
+
+    // field getter/setter methods
+    virtual const char * getSender() const;
+    virtual void setSender(const char * sender);
+    virtual const char * getRecipient() const;
+    virtual void setRecipient(const char * recipient);
+    virtual Coord& getPos();
+    virtual const Coord& getPos() const {return const_cast<BeaconBicycle*>(this)->getPos();}
+    virtual void setPos(const Coord& pos);
+    virtual double getSpeed() const;
+    virtual void setSpeed(double speed);
+    virtual double getAccel() const;
+    virtual void setAccel(double accel);
+    virtual double getMaxDecel() const;
+    virtual void setMaxDecel(double maxDecel);
+    virtual const char * getLane() const;
+    virtual void setLane(const char * lane);
+    virtual const char * getPlatoonID() const;
+    virtual void setPlatoonID(const char * platoonID);
+    virtual int getPlatoonDepth() const;
+    virtual void setPlatoonDepth(int platoonDepth);
+};
+
+inline void doPacking(cCommBuffer *b, BeaconBicycle& obj) {obj.parsimPack(b);}
+inline void doUnpacking(cCommBuffer *b, BeaconBicycle& obj) {obj.parsimUnpack(b);}
+
+/**
+ * Class generated from <tt>Messages.msg:51</tt> by nedtool.
+ * <pre>
+ * packet BeaconPedestrian extends WaveShortMessage
+ * {
+ *     string sender;
+ *     string recipient;
+ *     Coord pos;
+ *     double speed;
+ *     double accel;
+ *     double maxDecel;
+ *     string lane;
+ *     string platoonID;
+ *     int platoonDepth;
+ * }
+ * </pre>
+ */
+class BeaconPedestrian : public ::WaveShortMessage
+{
+  protected:
+    opp_string sender_var;
+    opp_string recipient_var;
+    Coord pos_var;
+    double speed_var;
+    double accel_var;
+    double maxDecel_var;
+    opp_string lane_var;
+    opp_string platoonID_var;
+    int platoonDepth_var;
+
+  private:
+    void copy(const BeaconPedestrian& other);
+
+  protected:
+    // protected and unimplemented operator==(), to prevent accidental usage
+    bool operator==(const BeaconPedestrian&);
+
+  public:
+    BeaconPedestrian(const char *name=NULL, int kind=0);
+    BeaconPedestrian(const BeaconPedestrian& other);
+    virtual ~BeaconPedestrian();
+    BeaconPedestrian& operator=(const BeaconPedestrian& other);
+    virtual BeaconPedestrian *dup() const {return new BeaconPedestrian(*this);}
+    virtual void parsimPack(cCommBuffer *b);
+    virtual void parsimUnpack(cCommBuffer *b);
+
+    // field getter/setter methods
+    virtual const char * getSender() const;
+    virtual void setSender(const char * sender);
+    virtual const char * getRecipient() const;
+    virtual void setRecipient(const char * recipient);
+    virtual Coord& getPos();
+    virtual const Coord& getPos() const {return const_cast<BeaconPedestrian*>(this)->getPos();}
+    virtual void setPos(const Coord& pos);
+    virtual double getSpeed() const;
+    virtual void setSpeed(double speed);
+    virtual double getAccel() const;
+    virtual void setAccel(double accel);
+    virtual double getMaxDecel() const;
+    virtual void setMaxDecel(double maxDecel);
+    virtual const char * getLane() const;
+    virtual void setLane(const char * lane);
+    virtual const char * getPlatoonID() const;
+    virtual void setPlatoonID(const char * platoonID);
+    virtual int getPlatoonDepth() const;
+    virtual void setPlatoonDepth(int platoonDepth);
+};
+
+inline void doPacking(cCommBuffer *b, BeaconPedestrian& obj) {obj.parsimPack(b);}
+inline void doUnpacking(cCommBuffer *b, BeaconPedestrian& obj) {obj.parsimUnpack(b);}
+
+/**
+ * Class generated from <tt>Messages.msg:65</tt> by nedtool.
+ * <pre>
  * packet BeaconRSU extends WaveShortMessage
  * {
  *     string sender;
@@ -147,7 +289,7 @@ inline void doPacking(cCommBuffer *b, BeaconRSU& obj) {obj.parsimPack(b);}
 inline void doUnpacking(cCommBuffer *b, BeaconRSU& obj) {obj.parsimUnpack(b);}
 
 /**
- * Class generated from <tt>Messages.msg:45</tt> by nedtool.
+ * Class generated from <tt>Messages.msg:73</tt> by nedtool.
  * <pre>
  * packet DummyMsg extends WaveShortMessage
  * {
@@ -185,7 +327,7 @@ inline void doPacking(cCommBuffer *b, DummyMsg& obj) {obj.parsimPack(b);}
 inline void doUnpacking(cCommBuffer *b, DummyMsg& obj) {obj.parsimUnpack(b);}
 
 /**
- * Class generated from <tt>Messages.msg:51</tt> by nedtool.
+ * Class generated from <tt>Messages.msg:79</tt> by nedtool.
  * <pre>
  * packet LaneChangeMsg extends WaveShortMessage
  * {
@@ -232,7 +374,7 @@ inline void doPacking(cCommBuffer *b, LaneChangeMsg& obj) {obj.parsimPack(b);}
 inline void doUnpacking(cCommBuffer *b, LaneChangeMsg& obj) {obj.parsimUnpack(b);}
 
 /**
- * Class generated from <tt>Messages.msg:59</tt> by nedtool.
+ * Class generated from <tt>Messages.msg:87</tt> by nedtool.
  * <pre>
  * packet PlatoonMsg extends WaveShortMessage
  * {
@@ -299,7 +441,7 @@ inline void doPacking(cCommBuffer *b, PlatoonMsg& obj) {obj.parsimPack(b);}
 inline void doUnpacking(cCommBuffer *b, PlatoonMsg& obj) {obj.parsimUnpack(b);}
 
 /**
- * Class generated from <tt>Messages.msg:72</tt> by nedtool.
+ * Class generated from <tt>Messages.msg:100</tt> by nedtool.
  * <pre>
  * packet SystemMsg extends WaveShortMessage
  * {
@@ -353,7 +495,7 @@ inline void doPacking(cCommBuffer *b, SystemMsg& obj) {obj.parsimPack(b);}
 inline void doUnpacking(cCommBuffer *b, SystemMsg& obj) {obj.parsimUnpack(b);}
 
 /**
- * Class generated from <tt>Messages.msg:82</tt> by nedtool.
+ * Class generated from <tt>Messages.msg:110</tt> by nedtool.
  * <pre>
  * packet RouterMsg extends WaveShortMessage
  * {

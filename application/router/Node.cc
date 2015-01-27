@@ -8,7 +8,7 @@ bool Node::operator==(const Node& rhs)
     return this->id == rhs.id;
 }
 
-Node::Node(string id, double x, double y, string type, vector<string>* incLanes, TrafficLight* tl): // Build a node
+Node::Node(string id, double x, double y, string type, vector<string>* incLanes, TrafficLightRouter* tl): // Build a node
         id(id), x(x), y(y), type(type), incLanes(incLanes), tl(tl){}
 
 ostream& operator<<(ostream& os, Node &rhs) // Print a node

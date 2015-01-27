@@ -10,7 +10,7 @@ using namespace std;
 namespace VENTOS {
 
 class Edge;
-class TrafficLight;
+class TrafficLightRouter;
 
 class Node  //Node in our graph, points to a bunch of other edges and nodes
 {
@@ -23,10 +23,10 @@ public:
     double y;
     string type;
     vector<string>* incLanes;
-    TrafficLight* tl;
+    TrafficLightRouter* tl;
 
     bool operator==(const Node& rhs);
-    Node(string idVal, double xVal, double yVal, string typeVal, vector<string>* incLanesVal, TrafficLight* tlVal);
+    Node(string idVal, double xVal, double yVal, string typeVal, vector<string>* incLanesVal, TrafficLightRouter* tlVal);
 };
 
 ostream& operator<<(ostream& os, Node &rhs);

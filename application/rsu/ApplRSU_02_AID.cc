@@ -41,15 +41,25 @@ void ApplRSUAID::handleSelfMsg(cMessage* msg)
 
 void ApplRSUAID::onBeaconVehicle(BeaconVehicle* wsm)
 {
-    // no passing down1
+    // no passing down!
+}
 
+
+void ApplRSUAID::onBeaconBicycle(BeaconBicycle* wsm)
+{
+    // no passing down!
+}
+
+
+void ApplRSUAID::onBeaconPedestrian(BeaconPedestrian* wsm)
+{
+    // no passing down!
 }
 
 
 void ApplRSUAID::onBeaconRSU(BeaconRSU* wsm)
 {
     // no passing down!
-
 }
 
 

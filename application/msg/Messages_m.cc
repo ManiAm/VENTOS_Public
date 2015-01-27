@@ -449,6 +449,796 @@ void *BeaconVehicleDescriptor::getFieldStructPointer(void *object, int field, in
     }
 }
 
+Register_Class(BeaconBicycle);
+
+BeaconBicycle::BeaconBicycle(const char *name, int kind) : ::WaveShortMessage(name,kind)
+{
+    this->sender_var = 0;
+    this->recipient_var = 0;
+    this->speed_var = 0;
+    this->accel_var = 0;
+    this->maxDecel_var = 0;
+    this->lane_var = 0;
+    this->platoonID_var = 0;
+    this->platoonDepth_var = 0;
+}
+
+BeaconBicycle::BeaconBicycle(const BeaconBicycle& other) : ::WaveShortMessage(other)
+{
+    copy(other);
+}
+
+BeaconBicycle::~BeaconBicycle()
+{
+}
+
+BeaconBicycle& BeaconBicycle::operator=(const BeaconBicycle& other)
+{
+    if (this==&other) return *this;
+    ::WaveShortMessage::operator=(other);
+    copy(other);
+    return *this;
+}
+
+void BeaconBicycle::copy(const BeaconBicycle& other)
+{
+    this->sender_var = other.sender_var;
+    this->recipient_var = other.recipient_var;
+    this->pos_var = other.pos_var;
+    this->speed_var = other.speed_var;
+    this->accel_var = other.accel_var;
+    this->maxDecel_var = other.maxDecel_var;
+    this->lane_var = other.lane_var;
+    this->platoonID_var = other.platoonID_var;
+    this->platoonDepth_var = other.platoonDepth_var;
+}
+
+void BeaconBicycle::parsimPack(cCommBuffer *b)
+{
+    ::WaveShortMessage::parsimPack(b);
+    doPacking(b,this->sender_var);
+    doPacking(b,this->recipient_var);
+    doPacking(b,this->pos_var);
+    doPacking(b,this->speed_var);
+    doPacking(b,this->accel_var);
+    doPacking(b,this->maxDecel_var);
+    doPacking(b,this->lane_var);
+    doPacking(b,this->platoonID_var);
+    doPacking(b,this->platoonDepth_var);
+}
+
+void BeaconBicycle::parsimUnpack(cCommBuffer *b)
+{
+    ::WaveShortMessage::parsimUnpack(b);
+    doUnpacking(b,this->sender_var);
+    doUnpacking(b,this->recipient_var);
+    doUnpacking(b,this->pos_var);
+    doUnpacking(b,this->speed_var);
+    doUnpacking(b,this->accel_var);
+    doUnpacking(b,this->maxDecel_var);
+    doUnpacking(b,this->lane_var);
+    doUnpacking(b,this->platoonID_var);
+    doUnpacking(b,this->platoonDepth_var);
+}
+
+const char * BeaconBicycle::getSender() const
+{
+    return sender_var.c_str();
+}
+
+void BeaconBicycle::setSender(const char * sender)
+{
+    this->sender_var = sender;
+}
+
+const char * BeaconBicycle::getRecipient() const
+{
+    return recipient_var.c_str();
+}
+
+void BeaconBicycle::setRecipient(const char * recipient)
+{
+    this->recipient_var = recipient;
+}
+
+Coord& BeaconBicycle::getPos()
+{
+    return pos_var;
+}
+
+void BeaconBicycle::setPos(const Coord& pos)
+{
+    this->pos_var = pos;
+}
+
+double BeaconBicycle::getSpeed() const
+{
+    return speed_var;
+}
+
+void BeaconBicycle::setSpeed(double speed)
+{
+    this->speed_var = speed;
+}
+
+double BeaconBicycle::getAccel() const
+{
+    return accel_var;
+}
+
+void BeaconBicycle::setAccel(double accel)
+{
+    this->accel_var = accel;
+}
+
+double BeaconBicycle::getMaxDecel() const
+{
+    return maxDecel_var;
+}
+
+void BeaconBicycle::setMaxDecel(double maxDecel)
+{
+    this->maxDecel_var = maxDecel;
+}
+
+const char * BeaconBicycle::getLane() const
+{
+    return lane_var.c_str();
+}
+
+void BeaconBicycle::setLane(const char * lane)
+{
+    this->lane_var = lane;
+}
+
+const char * BeaconBicycle::getPlatoonID() const
+{
+    return platoonID_var.c_str();
+}
+
+void BeaconBicycle::setPlatoonID(const char * platoonID)
+{
+    this->platoonID_var = platoonID;
+}
+
+int BeaconBicycle::getPlatoonDepth() const
+{
+    return platoonDepth_var;
+}
+
+void BeaconBicycle::setPlatoonDepth(int platoonDepth)
+{
+    this->platoonDepth_var = platoonDepth;
+}
+
+class BeaconBicycleDescriptor : public cClassDescriptor
+{
+  public:
+    BeaconBicycleDescriptor();
+    virtual ~BeaconBicycleDescriptor();
+
+    virtual bool doesSupport(cObject *obj) const;
+    virtual const char *getProperty(const char *propertyname) const;
+    virtual int getFieldCount(void *object) const;
+    virtual const char *getFieldName(void *object, int field) const;
+    virtual int findField(void *object, const char *fieldName) const;
+    virtual unsigned int getFieldTypeFlags(void *object, int field) const;
+    virtual const char *getFieldTypeString(void *object, int field) const;
+    virtual const char *getFieldProperty(void *object, int field, const char *propertyname) const;
+    virtual int getArraySize(void *object, int field) const;
+
+    virtual std::string getFieldAsString(void *object, int field, int i) const;
+    virtual bool setFieldAsString(void *object, int field, int i, const char *value) const;
+
+    virtual const char *getFieldStructName(void *object, int field) const;
+    virtual void *getFieldStructPointer(void *object, int field, int i) const;
+};
+
+Register_ClassDescriptor(BeaconBicycleDescriptor);
+
+BeaconBicycleDescriptor::BeaconBicycleDescriptor() : cClassDescriptor("VENTOS::BeaconBicycle", "WaveShortMessage")
+{
+}
+
+BeaconBicycleDescriptor::~BeaconBicycleDescriptor()
+{
+}
+
+bool BeaconBicycleDescriptor::doesSupport(cObject *obj) const
+{
+    return dynamic_cast<BeaconBicycle *>(obj)!=NULL;
+}
+
+const char *BeaconBicycleDescriptor::getProperty(const char *propertyname) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    return basedesc ? basedesc->getProperty(propertyname) : NULL;
+}
+
+int BeaconBicycleDescriptor::getFieldCount(void *object) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    return basedesc ? 9+basedesc->getFieldCount(object) : 9;
+}
+
+unsigned int BeaconBicycleDescriptor::getFieldTypeFlags(void *object, int field) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getFieldTypeFlags(object, field);
+        field -= basedesc->getFieldCount(object);
+    }
+    static unsigned int fieldTypeFlags[] = {
+        FD_ISEDITABLE,
+        FD_ISEDITABLE,
+        FD_ISCOMPOUND,
+        FD_ISEDITABLE,
+        FD_ISEDITABLE,
+        FD_ISEDITABLE,
+        FD_ISEDITABLE,
+        FD_ISEDITABLE,
+        FD_ISEDITABLE,
+    };
+    return (field>=0 && field<9) ? fieldTypeFlags[field] : 0;
+}
+
+const char *BeaconBicycleDescriptor::getFieldName(void *object, int field) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getFieldName(object, field);
+        field -= basedesc->getFieldCount(object);
+    }
+    static const char *fieldNames[] = {
+        "sender",
+        "recipient",
+        "pos",
+        "speed",
+        "accel",
+        "maxDecel",
+        "lane",
+        "platoonID",
+        "platoonDepth",
+    };
+    return (field>=0 && field<9) ? fieldNames[field] : NULL;
+}
+
+int BeaconBicycleDescriptor::findField(void *object, const char *fieldName) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    int base = basedesc ? basedesc->getFieldCount(object) : 0;
+    if (fieldName[0]=='s' && strcmp(fieldName, "sender")==0) return base+0;
+    if (fieldName[0]=='r' && strcmp(fieldName, "recipient")==0) return base+1;
+    if (fieldName[0]=='p' && strcmp(fieldName, "pos")==0) return base+2;
+    if (fieldName[0]=='s' && strcmp(fieldName, "speed")==0) return base+3;
+    if (fieldName[0]=='a' && strcmp(fieldName, "accel")==0) return base+4;
+    if (fieldName[0]=='m' && strcmp(fieldName, "maxDecel")==0) return base+5;
+    if (fieldName[0]=='l' && strcmp(fieldName, "lane")==0) return base+6;
+    if (fieldName[0]=='p' && strcmp(fieldName, "platoonID")==0) return base+7;
+    if (fieldName[0]=='p' && strcmp(fieldName, "platoonDepth")==0) return base+8;
+    return basedesc ? basedesc->findField(object, fieldName) : -1;
+}
+
+const char *BeaconBicycleDescriptor::getFieldTypeString(void *object, int field) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getFieldTypeString(object, field);
+        field -= basedesc->getFieldCount(object);
+    }
+    static const char *fieldTypeStrings[] = {
+        "string",
+        "string",
+        "Coord",
+        "double",
+        "double",
+        "double",
+        "string",
+        "string",
+        "int",
+    };
+    return (field>=0 && field<9) ? fieldTypeStrings[field] : NULL;
+}
+
+const char *BeaconBicycleDescriptor::getFieldProperty(void *object, int field, const char *propertyname) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getFieldProperty(object, field, propertyname);
+        field -= basedesc->getFieldCount(object);
+    }
+    switch (field) {
+        default: return NULL;
+    }
+}
+
+int BeaconBicycleDescriptor::getArraySize(void *object, int field) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getArraySize(object, field);
+        field -= basedesc->getFieldCount(object);
+    }
+    BeaconBicycle *pp = (BeaconBicycle *)object; (void)pp;
+    switch (field) {
+        default: return 0;
+    }
+}
+
+std::string BeaconBicycleDescriptor::getFieldAsString(void *object, int field, int i) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getFieldAsString(object,field,i);
+        field -= basedesc->getFieldCount(object);
+    }
+    BeaconBicycle *pp = (BeaconBicycle *)object; (void)pp;
+    switch (field) {
+        case 0: return oppstring2string(pp->getSender());
+        case 1: return oppstring2string(pp->getRecipient());
+        case 2: {std::stringstream out; out << pp->getPos(); return out.str();}
+        case 3: return double2string(pp->getSpeed());
+        case 4: return double2string(pp->getAccel());
+        case 5: return double2string(pp->getMaxDecel());
+        case 6: return oppstring2string(pp->getLane());
+        case 7: return oppstring2string(pp->getPlatoonID());
+        case 8: return long2string(pp->getPlatoonDepth());
+        default: return "";
+    }
+}
+
+bool BeaconBicycleDescriptor::setFieldAsString(void *object, int field, int i, const char *value) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->setFieldAsString(object,field,i,value);
+        field -= basedesc->getFieldCount(object);
+    }
+    BeaconBicycle *pp = (BeaconBicycle *)object; (void)pp;
+    switch (field) {
+        case 0: pp->setSender((value)); return true;
+        case 1: pp->setRecipient((value)); return true;
+        case 3: pp->setSpeed(string2double(value)); return true;
+        case 4: pp->setAccel(string2double(value)); return true;
+        case 5: pp->setMaxDecel(string2double(value)); return true;
+        case 6: pp->setLane((value)); return true;
+        case 7: pp->setPlatoonID((value)); return true;
+        case 8: pp->setPlatoonDepth(string2long(value)); return true;
+        default: return false;
+    }
+}
+
+const char *BeaconBicycleDescriptor::getFieldStructName(void *object, int field) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getFieldStructName(object, field);
+        field -= basedesc->getFieldCount(object);
+    }
+    switch (field) {
+        case 2: return opp_typename(typeid(Coord));
+        default: return NULL;
+    };
+}
+
+void *BeaconBicycleDescriptor::getFieldStructPointer(void *object, int field, int i) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getFieldStructPointer(object, field, i);
+        field -= basedesc->getFieldCount(object);
+    }
+    BeaconBicycle *pp = (BeaconBicycle *)object; (void)pp;
+    switch (field) {
+        case 2: return (void *)(&pp->getPos()); break;
+        default: return NULL;
+    }
+}
+
+Register_Class(BeaconPedestrian);
+
+BeaconPedestrian::BeaconPedestrian(const char *name, int kind) : ::WaveShortMessage(name,kind)
+{
+    this->sender_var = 0;
+    this->recipient_var = 0;
+    this->speed_var = 0;
+    this->accel_var = 0;
+    this->maxDecel_var = 0;
+    this->lane_var = 0;
+    this->platoonID_var = 0;
+    this->platoonDepth_var = 0;
+}
+
+BeaconPedestrian::BeaconPedestrian(const BeaconPedestrian& other) : ::WaveShortMessage(other)
+{
+    copy(other);
+}
+
+BeaconPedestrian::~BeaconPedestrian()
+{
+}
+
+BeaconPedestrian& BeaconPedestrian::operator=(const BeaconPedestrian& other)
+{
+    if (this==&other) return *this;
+    ::WaveShortMessage::operator=(other);
+    copy(other);
+    return *this;
+}
+
+void BeaconPedestrian::copy(const BeaconPedestrian& other)
+{
+    this->sender_var = other.sender_var;
+    this->recipient_var = other.recipient_var;
+    this->pos_var = other.pos_var;
+    this->speed_var = other.speed_var;
+    this->accel_var = other.accel_var;
+    this->maxDecel_var = other.maxDecel_var;
+    this->lane_var = other.lane_var;
+    this->platoonID_var = other.platoonID_var;
+    this->platoonDepth_var = other.platoonDepth_var;
+}
+
+void BeaconPedestrian::parsimPack(cCommBuffer *b)
+{
+    ::WaveShortMessage::parsimPack(b);
+    doPacking(b,this->sender_var);
+    doPacking(b,this->recipient_var);
+    doPacking(b,this->pos_var);
+    doPacking(b,this->speed_var);
+    doPacking(b,this->accel_var);
+    doPacking(b,this->maxDecel_var);
+    doPacking(b,this->lane_var);
+    doPacking(b,this->platoonID_var);
+    doPacking(b,this->platoonDepth_var);
+}
+
+void BeaconPedestrian::parsimUnpack(cCommBuffer *b)
+{
+    ::WaveShortMessage::parsimUnpack(b);
+    doUnpacking(b,this->sender_var);
+    doUnpacking(b,this->recipient_var);
+    doUnpacking(b,this->pos_var);
+    doUnpacking(b,this->speed_var);
+    doUnpacking(b,this->accel_var);
+    doUnpacking(b,this->maxDecel_var);
+    doUnpacking(b,this->lane_var);
+    doUnpacking(b,this->platoonID_var);
+    doUnpacking(b,this->platoonDepth_var);
+}
+
+const char * BeaconPedestrian::getSender() const
+{
+    return sender_var.c_str();
+}
+
+void BeaconPedestrian::setSender(const char * sender)
+{
+    this->sender_var = sender;
+}
+
+const char * BeaconPedestrian::getRecipient() const
+{
+    return recipient_var.c_str();
+}
+
+void BeaconPedestrian::setRecipient(const char * recipient)
+{
+    this->recipient_var = recipient;
+}
+
+Coord& BeaconPedestrian::getPos()
+{
+    return pos_var;
+}
+
+void BeaconPedestrian::setPos(const Coord& pos)
+{
+    this->pos_var = pos;
+}
+
+double BeaconPedestrian::getSpeed() const
+{
+    return speed_var;
+}
+
+void BeaconPedestrian::setSpeed(double speed)
+{
+    this->speed_var = speed;
+}
+
+double BeaconPedestrian::getAccel() const
+{
+    return accel_var;
+}
+
+void BeaconPedestrian::setAccel(double accel)
+{
+    this->accel_var = accel;
+}
+
+double BeaconPedestrian::getMaxDecel() const
+{
+    return maxDecel_var;
+}
+
+void BeaconPedestrian::setMaxDecel(double maxDecel)
+{
+    this->maxDecel_var = maxDecel;
+}
+
+const char * BeaconPedestrian::getLane() const
+{
+    return lane_var.c_str();
+}
+
+void BeaconPedestrian::setLane(const char * lane)
+{
+    this->lane_var = lane;
+}
+
+const char * BeaconPedestrian::getPlatoonID() const
+{
+    return platoonID_var.c_str();
+}
+
+void BeaconPedestrian::setPlatoonID(const char * platoonID)
+{
+    this->platoonID_var = platoonID;
+}
+
+int BeaconPedestrian::getPlatoonDepth() const
+{
+    return platoonDepth_var;
+}
+
+void BeaconPedestrian::setPlatoonDepth(int platoonDepth)
+{
+    this->platoonDepth_var = platoonDepth;
+}
+
+class BeaconPedestrianDescriptor : public cClassDescriptor
+{
+  public:
+    BeaconPedestrianDescriptor();
+    virtual ~BeaconPedestrianDescriptor();
+
+    virtual bool doesSupport(cObject *obj) const;
+    virtual const char *getProperty(const char *propertyname) const;
+    virtual int getFieldCount(void *object) const;
+    virtual const char *getFieldName(void *object, int field) const;
+    virtual int findField(void *object, const char *fieldName) const;
+    virtual unsigned int getFieldTypeFlags(void *object, int field) const;
+    virtual const char *getFieldTypeString(void *object, int field) const;
+    virtual const char *getFieldProperty(void *object, int field, const char *propertyname) const;
+    virtual int getArraySize(void *object, int field) const;
+
+    virtual std::string getFieldAsString(void *object, int field, int i) const;
+    virtual bool setFieldAsString(void *object, int field, int i, const char *value) const;
+
+    virtual const char *getFieldStructName(void *object, int field) const;
+    virtual void *getFieldStructPointer(void *object, int field, int i) const;
+};
+
+Register_ClassDescriptor(BeaconPedestrianDescriptor);
+
+BeaconPedestrianDescriptor::BeaconPedestrianDescriptor() : cClassDescriptor("VENTOS::BeaconPedestrian", "WaveShortMessage")
+{
+}
+
+BeaconPedestrianDescriptor::~BeaconPedestrianDescriptor()
+{
+}
+
+bool BeaconPedestrianDescriptor::doesSupport(cObject *obj) const
+{
+    return dynamic_cast<BeaconPedestrian *>(obj)!=NULL;
+}
+
+const char *BeaconPedestrianDescriptor::getProperty(const char *propertyname) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    return basedesc ? basedesc->getProperty(propertyname) : NULL;
+}
+
+int BeaconPedestrianDescriptor::getFieldCount(void *object) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    return basedesc ? 9+basedesc->getFieldCount(object) : 9;
+}
+
+unsigned int BeaconPedestrianDescriptor::getFieldTypeFlags(void *object, int field) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getFieldTypeFlags(object, field);
+        field -= basedesc->getFieldCount(object);
+    }
+    static unsigned int fieldTypeFlags[] = {
+        FD_ISEDITABLE,
+        FD_ISEDITABLE,
+        FD_ISCOMPOUND,
+        FD_ISEDITABLE,
+        FD_ISEDITABLE,
+        FD_ISEDITABLE,
+        FD_ISEDITABLE,
+        FD_ISEDITABLE,
+        FD_ISEDITABLE,
+    };
+    return (field>=0 && field<9) ? fieldTypeFlags[field] : 0;
+}
+
+const char *BeaconPedestrianDescriptor::getFieldName(void *object, int field) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getFieldName(object, field);
+        field -= basedesc->getFieldCount(object);
+    }
+    static const char *fieldNames[] = {
+        "sender",
+        "recipient",
+        "pos",
+        "speed",
+        "accel",
+        "maxDecel",
+        "lane",
+        "platoonID",
+        "platoonDepth",
+    };
+    return (field>=0 && field<9) ? fieldNames[field] : NULL;
+}
+
+int BeaconPedestrianDescriptor::findField(void *object, const char *fieldName) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    int base = basedesc ? basedesc->getFieldCount(object) : 0;
+    if (fieldName[0]=='s' && strcmp(fieldName, "sender")==0) return base+0;
+    if (fieldName[0]=='r' && strcmp(fieldName, "recipient")==0) return base+1;
+    if (fieldName[0]=='p' && strcmp(fieldName, "pos")==0) return base+2;
+    if (fieldName[0]=='s' && strcmp(fieldName, "speed")==0) return base+3;
+    if (fieldName[0]=='a' && strcmp(fieldName, "accel")==0) return base+4;
+    if (fieldName[0]=='m' && strcmp(fieldName, "maxDecel")==0) return base+5;
+    if (fieldName[0]=='l' && strcmp(fieldName, "lane")==0) return base+6;
+    if (fieldName[0]=='p' && strcmp(fieldName, "platoonID")==0) return base+7;
+    if (fieldName[0]=='p' && strcmp(fieldName, "platoonDepth")==0) return base+8;
+    return basedesc ? basedesc->findField(object, fieldName) : -1;
+}
+
+const char *BeaconPedestrianDescriptor::getFieldTypeString(void *object, int field) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getFieldTypeString(object, field);
+        field -= basedesc->getFieldCount(object);
+    }
+    static const char *fieldTypeStrings[] = {
+        "string",
+        "string",
+        "Coord",
+        "double",
+        "double",
+        "double",
+        "string",
+        "string",
+        "int",
+    };
+    return (field>=0 && field<9) ? fieldTypeStrings[field] : NULL;
+}
+
+const char *BeaconPedestrianDescriptor::getFieldProperty(void *object, int field, const char *propertyname) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getFieldProperty(object, field, propertyname);
+        field -= basedesc->getFieldCount(object);
+    }
+    switch (field) {
+        default: return NULL;
+    }
+}
+
+int BeaconPedestrianDescriptor::getArraySize(void *object, int field) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getArraySize(object, field);
+        field -= basedesc->getFieldCount(object);
+    }
+    BeaconPedestrian *pp = (BeaconPedestrian *)object; (void)pp;
+    switch (field) {
+        default: return 0;
+    }
+}
+
+std::string BeaconPedestrianDescriptor::getFieldAsString(void *object, int field, int i) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getFieldAsString(object,field,i);
+        field -= basedesc->getFieldCount(object);
+    }
+    BeaconPedestrian *pp = (BeaconPedestrian *)object; (void)pp;
+    switch (field) {
+        case 0: return oppstring2string(pp->getSender());
+        case 1: return oppstring2string(pp->getRecipient());
+        case 2: {std::stringstream out; out << pp->getPos(); return out.str();}
+        case 3: return double2string(pp->getSpeed());
+        case 4: return double2string(pp->getAccel());
+        case 5: return double2string(pp->getMaxDecel());
+        case 6: return oppstring2string(pp->getLane());
+        case 7: return oppstring2string(pp->getPlatoonID());
+        case 8: return long2string(pp->getPlatoonDepth());
+        default: return "";
+    }
+}
+
+bool BeaconPedestrianDescriptor::setFieldAsString(void *object, int field, int i, const char *value) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->setFieldAsString(object,field,i,value);
+        field -= basedesc->getFieldCount(object);
+    }
+    BeaconPedestrian *pp = (BeaconPedestrian *)object; (void)pp;
+    switch (field) {
+        case 0: pp->setSender((value)); return true;
+        case 1: pp->setRecipient((value)); return true;
+        case 3: pp->setSpeed(string2double(value)); return true;
+        case 4: pp->setAccel(string2double(value)); return true;
+        case 5: pp->setMaxDecel(string2double(value)); return true;
+        case 6: pp->setLane((value)); return true;
+        case 7: pp->setPlatoonID((value)); return true;
+        case 8: pp->setPlatoonDepth(string2long(value)); return true;
+        default: return false;
+    }
+}
+
+const char *BeaconPedestrianDescriptor::getFieldStructName(void *object, int field) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getFieldStructName(object, field);
+        field -= basedesc->getFieldCount(object);
+    }
+    switch (field) {
+        case 2: return opp_typename(typeid(Coord));
+        default: return NULL;
+    };
+}
+
+void *BeaconPedestrianDescriptor::getFieldStructPointer(void *object, int field, int i) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getFieldStructPointer(object, field, i);
+        field -= basedesc->getFieldCount(object);
+    }
+    BeaconPedestrian *pp = (BeaconPedestrian *)object; (void)pp;
+    switch (field) {
+        case 2: return (void *)(&pp->getPos()); break;
+        default: return NULL;
+    }
+}
+
 Register_Class(BeaconRSU);
 
 BeaconRSU::BeaconRSU(const char *name, int kind) : ::WaveShortMessage(name,kind)

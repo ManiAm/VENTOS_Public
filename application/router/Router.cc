@@ -168,7 +168,7 @@ void Router::receiveSignal(cComponent *source, simsignal_t signalID, cObject *ob
                         outfile.close();
                     }
 
-                    for(map<string, TrafficLight*>::iterator tl = net->TLs.begin(); tl != net->TLs.end(); tl++)
+                    for(map<string, TrafficLightRouter*>::iterator tl = net->TLs.begin(); tl != net->TLs.end(); tl++)
                         (*tl).second->finish();
                 }
             }
@@ -227,7 +227,7 @@ vector<int>* Router::TLTransitionPhases(Edge* start, Edge* end)
     return (*net->transitions)[start->id + end->id];
 }
 
-double Router::timeToPhase(TrafficLight* tl, double time, int targetPhase)
+double Router::timeToPhase(TrafficLightRouter* tl, double time, int targetPhase)
 {
     double *waitTime = new double;
     int curPhase = tl->currentPhaseAtTime(time, waitTime);  //Get the current phase, and how long until it ends
@@ -258,7 +258,7 @@ double Router::timeToPhase(TrafficLight* tl, double time, int targetPhase)
 
 int Router::nextAcceptingPhase(double time, Edge* start, Edge* end)
 {
-    TrafficLight* tl = start->to->tl;           // The traffic-light in question
+    TrafficLightRouter* tl = start->to->tl;           // The traffic-light in question
     const vector<Phase*> phases = tl->phases;   // And its set of phases
 
     int curPhase = tl->currentPhaseAtTime(time);

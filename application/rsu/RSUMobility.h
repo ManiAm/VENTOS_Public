@@ -4,13 +4,12 @@
 
 #include "MiXiMDefs.h"
 #include "BaseMobility.h"
-#include "Global_01_TraCI_Extend.h"
-#include "RSUAdd.h"
+#include "TraCI_Extend.h"
+#include "Global_04_AddRSU.h"
 
 namespace VENTOS {
 
 class TraCI_Extend;
-class RSUAdd;
 
 class MIXIM_API RSUMobility : public BaseMobility
 {
@@ -27,14 +26,17 @@ class MIXIM_API RSUMobility : public BaseMobility
     /** @brief Move the host*/
     virtual void makeMove();
 
+    Coord *getRSUCoord(unsigned int);
+
     // NED variables
     cModule *nodePtr;   // pointer to the Node
     TraCI_Extend *TraCI;
-    RSUAdd *RSUAddPtr;
+    AddRSU *AddRSUPtr;
 
     // Class variables
     int myId;
     const char *myFullId;
+    deque<RSUEntry*> RSUs;
 };
 
 }

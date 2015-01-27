@@ -48,6 +48,20 @@ void ApplRSUManager::handleLowerMsg(cMessage* msg)
 
         ApplRSUManager::onBeaconVehicle(wsm);
     }
+    else if (string(wsm->getName()) == "beaconBicycle")
+    {
+        BeaconBicycle* wsm = dynamic_cast<BeaconBicycle*>(msg);
+        ASSERT(wsm);
+
+        ApplRSUManager::onBeaconBicycle(wsm);
+    }
+    else if (string(wsm->getName()) == "beaconPedestrian")
+    {
+        BeaconPedestrian* wsm = dynamic_cast<BeaconPedestrian*>(msg);
+        ASSERT(wsm);
+
+        ApplRSUManager::onBeaconPedestrian(wsm);
+    }
     else if (string(wsm->getName()) == "beaconRSU")
     {
         BeaconRSU* wsm = dynamic_cast<BeaconRSU*>(msg);
@@ -70,6 +84,18 @@ void ApplRSUManager::handleLowerMsg(cMessage* msg)
 void ApplRSUManager::onBeaconVehicle(BeaconVehicle* wsm)
 {
     ApplRSUAID::onBeaconVehicle(wsm);
+}
+
+
+void ApplRSUManager::onBeaconBicycle(BeaconBicycle* wsm)
+{
+    ApplRSUAID::onBeaconBicycle(wsm);
+}
+
+
+void ApplRSUManager::onBeaconPedestrian(BeaconPedestrian* wsm)
+{
+    ApplRSUAID::onBeaconPedestrian(wsm);
 }
 
 

@@ -1,7 +1,6 @@
 
 package c3po.ned;
 
-
 simple Plotter
 {
     parameters:

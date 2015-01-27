@@ -4,8 +4,7 @@
 
 #include <BaseApplLayer.h>
 #include <WaveAppToMac1609_4Interface.h>
-#include "Global_01_TraCI_Extend.h"
-#include "RSUAdd.h"
+#include "TraCI_Extend.h"
 
 using namespace std;
 
@@ -30,6 +29,7 @@ class ApplRSUBase : public BaseApplLayer
 
 	protected:
 		static const simsignalwrap_t mobilityStateChangedSignal;
+		Coord *getRSUsCoord(unsigned int);
 
 		virtual void handleSelfMsg(cMessage* msg);
 
@@ -41,7 +41,6 @@ class ApplRSUBase : public BaseApplLayer
 	    cModule *nodePtr;   // pointer to the Node
         WaveAppToMac1609_4Interface* myMac;
         mutable TraCI_Extend* TraCI;
-        RSUAdd *RSUAddPtr;
 
         // NED variables (beaconing parameters)
         bool sendBeacons;

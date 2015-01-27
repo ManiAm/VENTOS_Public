@@ -21,6 +21,8 @@ class ApplRSUAID : public ApplRSUBase
         virtual void handleSelfMsg(cMessage* msg);
 
         virtual void onBeaconVehicle(BeaconVehicle*);
+        virtual void onBeaconBicycle(BeaconBicycle*);
+        virtual void onBeaconPedestrian(BeaconPedestrian*);
         virtual void onBeaconRSU(BeaconRSU*);
         virtual void onData(LaneChangeMsg*);
 };

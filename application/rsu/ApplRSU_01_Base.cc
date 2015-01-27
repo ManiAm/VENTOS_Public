@@ -29,12 +29,6 @@ void ApplRSUBase::initialize(int stage)
         cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
         TraCI = static_cast<TraCI_Extend *>(module);
 
-        // get a pointer to the RSUAdd module
-        module = simulation.getSystemModule()->getSubmodule("RSUAdd");
-        RSUAddPtr = static_cast<RSUAdd *>(module);
-        if(RSUAddPtr == NULL)
-            error("can not get a pointer to the RSUAdd module.");
-
         headerLength = par("headerLength").longValue();
 
         // NED variables (beaconing parameters)
@@ -120,7 +114,7 @@ BeaconRSU* ApplRSUBase::prepareBeacon()
     wsm->setRecipient("broadcast");
 
     // set my current position
-    Coord *SUMOpos = RSUAddPtr->commandGetRSUsCoord(myId);
+    Coord *SUMOpos = getRSUsCoord(myId);
     wsm->setPos(*SUMOpos);
 
     return wsm;
@@ -143,6 +137,23 @@ void ApplRSUBase::printBeaconContent(BeaconRSU* wsm)
     EV << wsm->getSender() << " | ";
     EV << wsm->getRecipient() << " | ";
     EV << wsm->getPos() << endl;
+}
+
+
+// todo
+Coord *ApplRSUBase::getRSUsCoord(unsigned int index)
+{
+//    if( RSUs.size() == 0 )
+//        error("No RSUs have been initialized!");
+//
+//    if( index < 0 || index >= RSUs.size() )
+//        error("index out of bound!");
+//
+//    Coord *point = new Coord(RSUs[index]->coordX, RSUs[index]->coordY);
+//    return point;
+
+    Coord *point = new Coord(0, 0);
+    return point;
 }
 
 }

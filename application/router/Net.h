@@ -10,7 +10,7 @@
 
 #include "Router.h"
 #include "Vehicle.h"
-#include "Global_04_Statistics.h"
+#include "Global_06_Statistics.h"
 #include "Histogram.h"
 #include "rapidxml.hpp"
 #include "rapidxml_utils.hpp"
@@ -24,13 +24,13 @@ class Net
 {
 public:
 
-    map<string, TrafficLight*> TLs;
+    map<string, TrafficLightRouter*> TLs;
     map<string, Edge*> edges;
     map<string, Node*> nodes;
     map<string, Vehicle*> vehicles;
 
     map<string, vector<int>* >* transitions;  //Given a pair of edge IDs concatenated, returns a vector of TL phases that allow movement between them
-    map<string, char>* turnTypes;           //Given a pair of edge IDs concatenated, returns the turn type between those two
+    map<string, char>* turnTypes;             //Given a pair of edge IDs concatenated, returns the turn type between those two
 
     cModule* routerModule;
 

@@ -1,12 +1,17 @@
 #
-# OMNeT++/OMNEST Makefile for libapplication
+# OMNeT++/OMNEST Makefile for application
 #
 # This file was generated with the command:
-#  opp_makemake -f --make-so -o application -O out -d msg -d router -d ped -d core -d rsu -I/home/mani/Desktop/VENTOS/eigen-3.2.1 -I/home/mani/Desktop/VENTOS/rapidxml-1.13 -L../../veins/out/$$\(CONFIGNAME\)/src -L../out/$$\(CONFIGNAME\)/application/msg -L../out/$$\(CONFIGNAME\)/application/router -L../out/$$\(CONFIGNAME\)/application/ped -L../out/$$\(CONFIGNAME\)/application/core -L../out/$$\(CONFIGNAME\)/application/rsu -lrsu -lrouter -lcore -lveins -KVEINS_PROJ=../../veins
+#  opp_makemake -f -o application -O out -d msg -d router -d pedestrian -d bike -d traci -d adversary -d vehicle -d rsu -d global -I/home/mani/Desktop/VENTOS/eigen-3.2.1 -I/home/mani/Desktop/VENTOS/rapidxml-1.13 -L../../veins/out/$$\(CONFIGNAME\)/src -L../out/$$\(CONFIGNAME\)/application/msg -L../out/$$\(CONFIGNAME\)/application/router -L../out/$$\(CONFIGNAME\)/application/pedestrian -L../out/$$\(CONFIGNAME\)/application/bike -L../out/$$\(CONFIGNAME\)/application/traci -L../out/$$\(CONFIGNAME\)/application/adversary -L../out/$$\(CONFIGNAME\)/application/vehicle -L../out/$$\(CONFIGNAME\)/application/rsu -L../out/$$\(CONFIGNAME\)/application/global -lveins -KVEINS_PROJ=../../veins
 #
 
 # Name of target to be created (-o option)
-TARGET = libapplication$(SHARED_LIB_SUFFIX)
+TARGET = application$(EXE_SUFFIX)
+
+# User interface (uncomment one) (-u option)
+USERIF_LIBS = $(ALL_ENV_LIBS) # that is, $(TKENV_LIBS) $(CMDENV_LIBS)
+#USERIF_LIBS = $(CMDENV_LIBS)
+#USERIF_LIBS = $(TKENV_LIBS)
 
 # C++ include paths (with -I)
 INCLUDE_PATH = -I../eigen-3.2.1 -I../rapidxml-1.13 -I.
@@ -15,8 +20,8 @@ INCLUDE_PATH = -I../eigen-3.2.1 -I../rapidxml-1.13 -I.
 EXTRA_OBJS =
 
 # Additional libraries (-L, -l options)
-LIBS = -L../../veins/out/$(CONFIGNAME)/src -L../out/$(CONFIGNAME)/application/msg -L../out/$(CONFIGNAME)/application/router -L../out/$(CONFIGNAME)/application/ped -L../out/$(CONFIGNAME)/application/core -L../out/$(CONFIGNAME)/application/rsu  -lrsu -lrouter -lcore -lveins
-LIBS += -Wl,-rpath,`abspath ../../veins/out/$(CONFIGNAME)/src` -Wl,-rpath,`abspath ../out/$(CONFIGNAME)/application/msg` -Wl,-rpath,`abspath ../out/$(CONFIGNAME)/application/router` -Wl,-rpath,`abspath ../out/$(CONFIGNAME)/application/ped` -Wl,-rpath,`abspath ../out/$(CONFIGNAME)/application/core` -Wl,-rpath,`abspath ../out/$(CONFIGNAME)/application/rsu`
+LIBS = -L../../veins/out/$(CONFIGNAME)/src -L../out/$(CONFIGNAME)/application/msg -L../out/$(CONFIGNAME)/application/router -L../out/$(CONFIGNAME)/application/pedestrian -L../out/$(CONFIGNAME)/application/bike -L../out/$(CONFIGNAME)/application/traci -L../out/$(CONFIGNAME)/application/adversary -L../out/$(CONFIGNAME)/application/vehicle -L../out/$(CONFIGNAME)/application/rsu -L../out/$(CONFIGNAME)/application/global  -lveins
+LIBS += -Wl,-rpath,`abspath ../../veins/out/$(CONFIGNAME)/src` -Wl,-rpath,`abspath ../out/$(CONFIGNAME)/application/msg` -Wl,-rpath,`abspath ../out/$(CONFIGNAME)/application/router` -Wl,-rpath,`abspath ../out/$(CONFIGNAME)/application/pedestrian` -Wl,-rpath,`abspath ../out/$(CONFIGNAME)/application/bike` -Wl,-rpath,`abspath ../out/$(CONFIGNAME)/application/traci` -Wl,-rpath,`abspath ../out/$(CONFIGNAME)/application/adversary` -Wl,-rpath,`abspath ../out/$(CONFIGNAME)/application/vehicle` -Wl,-rpath,`abspath ../out/$(CONFIGNAME)/application/rsu` -Wl,-rpath,`abspath ../out/$(CONFIGNAME)/application/global`
 
 # Output directory
 PROJECT_OUTPUT_DIR = ../out
@@ -54,7 +59,7 @@ include $(CONFIGFILE)
 
 # Simulation kernel and user interface libraries
 OMNETPP_LIB_SUBDIR = $(OMNETPP_LIB_DIR)/$(TOOLCHAIN_NAME)
-OMNETPP_LIBS = -L"$(OMNETPP_LIB_SUBDIR)" -L"$(OMNETPP_LIB_DIR)" -loppenvir$D $(KERNEL_LIBS) $(SYS_LIBS)
+OMNETPP_LIBS = -L"$(OMNETPP_LIB_SUBDIR)" -L"$(OMNETPP_LIB_DIR)" -loppmain$D $(USERIF_LIBS) $(KERNEL_LIBS) $(SYS_LIBS)
 
 COPTS = $(CFLAGS)  $(INCLUDE_PATH) -I$(OMNETPP_INCL_DIR)
 MSGCOPTS = $(INCLUDE_PATH)
@@ -73,7 +78,7 @@ endif
 # User-supplied makefile fragment(s)
 # >>>
 # inserted from file 'makefrag':
-submakedirs:  msg_dir rsu_dir router_dir ped_dir core_dir
+submakedirs:  msg_dir traci_dir rsu_dir vehicle_dir router_dir pedestrian_dir bike_dir adversary_dir global_dir
 
 # <<<
 #------------------------------------------------------------------------------
@@ -84,18 +89,21 @@ all: $O/$(TARGET)
 
 $O/$(TARGET): $(OBJS) submakedirs $(wildcard $(EXTRA_OBJS)) Makefile
 	@$(MKPATH) $O
-	@echo Creating shared library: $@
-	$(Q)$(SHLIB_LD) -o $O/$(TARGET)  $(OBJS) $(EXTRA_OBJS) $(AS_NEEDED_OFF) $(WHOLE_ARCHIVE_ON) $(LIBS) $(WHOLE_ARCHIVE_OFF) $(OMNETPP_LIBS) $(LDFLAGS)
-	$(Q)$(SHLIB_POSTPROCESS) $O/$(TARGET)
+	@echo Creating executable: $@
+	$(Q)$(CXX) $(LDFLAGS) -o $O/$(TARGET)  $(OBJS) $(EXTRA_OBJS) $(AS_NEEDED_OFF) $(WHOLE_ARCHIVE_ON) $(LIBS) $(WHOLE_ARCHIVE_OFF) $(OMNETPP_LIBS)
 
-submakedirs:  msg_dir router_dir ped_dir core_dir rsu_dir
+submakedirs:  msg_dir router_dir pedestrian_dir bike_dir traci_dir adversary_dir vehicle_dir rsu_dir global_dir
 
-.PHONY: all clean cleanall depend msgheaders  msg router ped core rsu
+.PHONY: all clean cleanall depend msgheaders  msg router pedestrian bike traci adversary vehicle rsu global
 msg: msg_dir
 router: router_dir
-ped: ped_dir
-core: core_dir
+pedestrian: pedestrian_dir
+bike: bike_dir
+traci: traci_dir
+adversary: adversary_dir
+vehicle: vehicle_dir
 rsu: rsu_dir
+global: global_dir
 
 msg_dir:
 	cd msg && $(MAKE) all
@@ -103,14 +111,26 @@ msg_dir:
 router_dir:
 	cd router && $(MAKE) all
 
-ped_dir:
-	cd ped && $(MAKE) all
+pedestrian_dir:
+	cd pedestrian && $(MAKE) all
 
-core_dir:
-	cd core && $(MAKE) all
+bike_dir:
+	cd bike && $(MAKE) all
+
+traci_dir:
+	cd traci && $(MAKE) all
+
+adversary_dir:
+	cd adversary && $(MAKE) all
+
+vehicle_dir:
+	cd vehicle && $(MAKE) all
 
 rsu_dir:
 	cd rsu && $(MAKE) all
+
+global_dir:
+	cd global && $(MAKE) all
 
 .SUFFIXES: .cc
 
@@ -126,9 +146,13 @@ $O/%.o: %.cc $(COPTS_FILE)
 msgheaders: $(MSGFILES:.msg=_m.h)
 	$(Q)cd msg && $(MAKE) msgheaders
 	$(Q)cd router && $(MAKE) msgheaders
-	$(Q)cd ped && $(MAKE) msgheaders
-	$(Q)cd core && $(MAKE) msgheaders
+	$(Q)cd pedestrian && $(MAKE) msgheaders
+	$(Q)cd bike && $(MAKE) msgheaders
+	$(Q)cd traci && $(MAKE) msgheaders
+	$(Q)cd adversary && $(MAKE) msgheaders
+	$(Q)cd vehicle && $(MAKE) msgheaders
 	$(Q)cd rsu && $(MAKE) msgheaders
+	$(Q)cd global && $(MAKE) msgheaders
 
 clean:
 	$(qecho) Cleaning...
@@ -138,9 +162,13 @@ clean:
 
 	-$(Q)cd msg && $(MAKE) clean
 	-$(Q)cd router && $(MAKE) clean
-	-$(Q)cd ped && $(MAKE) clean
-	-$(Q)cd core && $(MAKE) clean
+	-$(Q)cd pedestrian && $(MAKE) clean
+	-$(Q)cd bike && $(MAKE) clean
+	-$(Q)cd traci && $(MAKE) clean
+	-$(Q)cd adversary && $(MAKE) clean
+	-$(Q)cd vehicle && $(MAKE) clean
 	-$(Q)cd rsu && $(MAKE) clean
+	-$(Q)cd global && $(MAKE) clean
 
 cleanall: clean
 	$(Q)-rm -rf $(PROJECT_OUTPUT_DIR)
@@ -150,9 +178,13 @@ depend:
 	$(Q)$(MAKEDEPEND) $(INCLUDE_PATH) -f Makefile -P\$$O/ -- $(MSG_CC_FILES)  ./*.cc
 	$(Q)-cd msg && if [ -f Makefile ]; then $(MAKE) depend; fi
 	$(Q)-cd router && if [ -f Makefile ]; then $(MAKE) depend; fi
-	$(Q)-cd ped && if [ -f Makefile ]; then $(MAKE) depend; fi
-	$(Q)-cd core && if [ -f Makefile ]; then $(MAKE) depend; fi
+	$(Q)-cd pedestrian && if [ -f Makefile ]; then $(MAKE) depend; fi
+	$(Q)-cd bike && if [ -f Makefile ]; then $(MAKE) depend; fi
+	$(Q)-cd traci && if [ -f Makefile ]; then $(MAKE) depend; fi
+	$(Q)-cd adversary && if [ -f Makefile ]; then $(MAKE) depend; fi
+	$(Q)-cd vehicle && if [ -f Makefile ]; then $(MAKE) depend; fi
 	$(Q)-cd rsu && if [ -f Makefile ]; then $(MAKE) depend; fi
+	$(Q)-cd global && if [ -f Makefile ]; then $(MAKE) depend; fi
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 

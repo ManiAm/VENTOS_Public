@@ -1,5 +1,6 @@
 
 #include "Net.h"
+#include "Global_06_Statistics.h"
 
 namespace VENTOS {
 
@@ -14,8 +15,9 @@ Net::Net(string netBase, cModule* router)
     transitions = new map<string, vector<int>* >;
     turnTypes = new map<string, char>;
 
-    Statistics* statPtr = FindModule<Statistics*>::findGlobalModule();
-    cModuleType* moduleType = cModuleType::get("c3po.ned.TrafficLight");    //Get the TL module
+    // todo
+    //Statistics* statPtr = FindModule<Statistics*>::findGlobalModule();
+    cModuleType* moduleType = cModuleType::get("c3po.ned.TrafficLightRouter");    //Get the TL module
 
     string netFile = netBase + "/hello.net.xml";
 
@@ -50,7 +52,7 @@ Net::Net(string netBase, cModule* router)
                 incLanes->push_back(temp);
         }
 
-        TrafficLight *tl = NULL;
+        TrafficLightRouter *tl = NULL;
         if(type == "traffic_light") //If we're looking at a traffic light
         {
             //Maybe check if the traffic light already exists before building a new one?  Depends on if multiple intersections can go to the same logic
@@ -77,7 +79,7 @@ Net::Net(string netBase, cModule* router)
                     }
 
                     cModule *mod = moduleType->create("TrafficLight", routerModule);    //Create a TL module with router as its parent
-                    tl = check_and_cast<TrafficLight*>(mod);                            //Cast the new module to a TL
+                    tl = check_and_cast<TrafficLightRouter*>(mod);                            //Cast the new module to a TL
                     tl->build(tlid, tltype, programID, tloffset, phasesVec, this);      //And build the traffic light with all this info
                     TLs[tlid] = tl; //Add the TL to the TL set
                     break;
@@ -116,7 +118,9 @@ Net::Net(string netBase, cModule* router)
         }
         Node* from = nodes[fromVal];  //Get a pointer to the start node
         Node* to = nodes[toVal];      //Get a pointer to the end node
-        Edge* e = new Edge(id, from, to, priority, lanesVec, &(*(statPtr->edgeHistograms.find(id))).second);
+        // todo
+        //Edge* e = new Edge(id, from, to, priority, lanesVec, &(*(statPtr->edgeHistograms.find(id))).second);
+        Edge* e = new Edge(id, from, to, priority, lanesVec, NULL);
         from->outEdges.push_back(e);   //Add the edge to the start node's list
         edges[id] = e;
     }   //For every edge
@@ -144,7 +148,7 @@ Net::Net(string netBase, cModule* router)
         {
             if(transitions->find(key) == transitions->end()) //If this vector doesn't yet exist
                 (*transitions)[key] = new vector<int>;  //Create an empty vector in place
-            TrafficLight* tl = TLs[attr->value()];    //Find the associated traffic light
+            TrafficLightRouter* tl = TLs[attr->value()];    //Find the associated traffic light
 
             attr = attr->next_attribute();
             int linkIndex = atoi(attr->value());

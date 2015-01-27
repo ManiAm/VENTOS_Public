@@ -14,6 +14,7 @@ network Network
         double playgroundSizeZ @unit(m); // z size of the area the nodes are in (in meters)
 
         string SUMODirectory = default(""); // location of SUMO .ned and .rou files
+        string trafficLightType = default("");
 
         // do not put @display here!
         // it automatically adjust itself based on the playground size in ini
@@ -43,10 +44,18 @@ network Network
             parameters:
                 @display("p=221,372");
         }
-        vehicleAdd: VehicleAdd {
+        addVehicle: AddVehicle {
             parameters:
                 @display("p=301,372");
         }
+        addRSU: AddRSU {
+            parameters:
+                @display("p=381,372");
+        }
+        addAdversary: AddAdversary {
+            parameters:
+                @display("p=381,372");
+        }        
         warmup: Warmup {
             parameters:
                 @display("p=61,459");
@@ -63,13 +72,9 @@ network Network
             parameters:
                 @display("p=235,459;i=block/dispatch");
         }
-        TrafficLight: TrafficLight {
+        TrafficLight: <trafficLightType> like TrafficLightInterface {
             parameters:
                 @display("p=320,459;i=block/dispatch");
-        }
-        RSUAdd: RSUAdd {
-            parameters:
-                @display("p=381,372");
         }
         plotter: Plotter {
             parameters:

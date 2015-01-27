@@ -1,3 +1,4 @@
+
 package c3po.ned;
 
 simple ApplPedBeacon extends ApplPedBase

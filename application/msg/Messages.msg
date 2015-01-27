@@ -33,6 +33,34 @@ packet BeaconVehicle extends WaveShortMessage
 };
 
 
+packet BeaconBicycle extends WaveShortMessage 
+{
+	string sender;
+	string recipient;
+	Coord pos;
+	double speed;
+	double accel;
+	double maxDecel;
+	string lane;
+	string platoonID;
+	int platoonDepth;
+};
+
+
+packet BeaconPedestrian extends WaveShortMessage 
+{
+	string sender;
+	string recipient;
+	Coord pos;
+	double speed;
+	double accel;
+	double maxDecel;
+	string lane;
+	string platoonID;
+	int platoonDepth;
+};
+
+
 packet BeaconRSU extends WaveShortMessage 
 {
 	string sender;

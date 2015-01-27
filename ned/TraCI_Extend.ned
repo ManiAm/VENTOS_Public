@@ -16,9 +16,13 @@ simple TraCI_Extend
         string moduleName = default("host");  // module name to be used in the simulation for each managed vehicle        
         string moduleDisplayString = default("i=misc/node2;is=vs;r=0,,#707070,1");  // module displayString to be used in the simulation for each managed vehicle
         
-        string pedModuleType = default("inet.nodes.wireless.WirelessHostSimplified");  // module type to be used in the simulation for each managed pedestrians       
-        string pedModuleName = default("host");  // module name to be used in the simulation for each managed vehicle        
-        string pedModuleDisplayString = default("i=misc/node2;is=vs;r=0,,#707070,1");  // module displayString to be used in the simulation for each managed vehicle
+        string bikeModuleType = default("inet.nodes.wireless.WirelessHostSimplified");  // module type to be used in the simulation for each managed bicycle       
+        string bikeModuleName = default("host");  // module name to be used in the simulation for each managed bicycle        
+        string bikeModuleDisplayString = default("i=misc/node2;is=vs;r=0,,#707070,1");  // module displayString to be used in the simulation for each managed bicycle
+                
+        string pedModuleType = default("inet.nodes.wireless.WirelessHostSimplified");  // module type to be used in the simulation for each managed pedestrian       
+        string pedModuleName = default("host");  // module name to be used in the simulation for each managed pedestrian        
+        string pedModuleDisplayString = default("i=misc/node2;is=vs;r=0,,#707070,1");  // module displayString to be used in the simulation for each managed pedestrian
                 
         string host = default("localhost");  // sumo-launchd.py server hostname
         int port = default(9999);  // sumo-launchd.py server port

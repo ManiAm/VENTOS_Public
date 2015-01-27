@@ -1,5 +1,5 @@
-package c3po.ned;
 
+package c3po.ned;
 
 simple ApplVAID extends ApplVSystem
 {

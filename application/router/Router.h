@@ -8,11 +8,12 @@
 
 #include "Node.h"
 #include "Edge.h"
-#include "TrafficLight.h"
+#include "TrafficLightRouter.h"
 #include "Net.h"
 #include "Hypertree.h"
 
 #include "ApplV_02_Beacon.h"
+
 #define SSTR( x ) dynamic_cast< std::ostringstream & >( (std::ostringstream() << std::dec << x ) ).str()
 
 using namespace std;
@@ -21,7 +22,7 @@ namespace VENTOS {
 
 class Node;
 class Edge;
-class TrafficLight;
+class TrafficLightRouter;
 class Net;
 class Hypertree;
 
@@ -39,7 +40,6 @@ public:
     void sendRerouteSignal(string vid);     //Forces a vehicle to reroute
     bool UseHysteresis;
 
-
 protected:
     map<string, Hypertree*> hypertreeMemo;
 
@@ -53,7 +53,7 @@ protected:
 
     double junctionCost(double time, Edge* start, Edge* end);       //If it's a TL, returns the time spent waiting.  If not, returns turnTypeCost
     double turnTypeCost(Edge* start, Edge* end);                    //Returns the turn penalty on an intersection
-    double timeToPhase(TrafficLight* tl, double time, int phase);   //Returns how long we must wait for a given phase at the given time
+    double timeToPhase(TrafficLightRouter* tl, double time, int phase);   //Returns how long we must wait for a given phase at the given time
     int nextAcceptingPhase(double time, Edge* start, Edge* end);    //Returns the next phase allowing movement from start to end at the given time
     vector<int>* TLTransitionPhases(Edge* start, Edge* end);        //Returns a vector of phases allowing movement from start to end
 
