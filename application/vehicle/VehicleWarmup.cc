@@ -1,5 +1,5 @@
 
-#include "Global_07_VehicleWarmup.h"
+#include "VehicleWarmup.h"
 
 namespace VENTOS {
 
@@ -25,8 +25,15 @@ void Warmup::initialize(int stage)
         cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
         TraCI = static_cast<TraCI_Extend *>(module);
 
+        // get a pointer to the VehicleSpeedProfile module
+        module = simulation.getSystemModule()->getSubmodule("speedprofile");
+        SpeedProfilePtr = static_cast<SpeedProfile *>(module);
+
         // get totoal vehicles from AddVehicle module
         totalVehicles = simulation.getSystemModule()->getSubmodule("addVehicle")->par("totalVehicles").longValue();
+
+        Signal_executeEachTS = registerSignal("executeEachTS");
+        simulation.getSystemModule()->subscribe("executeEachTS", this);
 
         on = par("on").boolValue();
         laneId = par("laneId").stringValue();
@@ -56,6 +63,23 @@ void Warmup::handleMessage(cMessage *msg)
     if (msg == warmupFinish)
     {
         IsWarmUpFinished = true;
+    }
+}
+
+
+void Warmup::receiveSignal(cComponent *source, simsignal_t signalID, long i)
+{
+    Enter_Method_Silent();
+
+    if(signalID == Signal_executeEachTS)
+    {
+        // check if warm-up phase is finished
+        bool finished = Warmup::DoWarmup();
+        if (finished)
+        {
+            // we can start speed profiling
+            SpeedProfilePtr->Change();
+        }
     }
 }
 

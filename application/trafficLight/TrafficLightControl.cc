@@ -1,5 +1,5 @@
 
-#include <Global_10_TrafficLightControl.h>
+#include <TrafficLightControl.h>
 
 namespace VENTOS {
 

@@ -16,15 +16,17 @@ class AddAdversary : public BaseModule
 		virtual void initialize(int stage);
         virtual void handleMessage(cMessage *msg);
 		virtual void finish();
-
-        void Add();  // should be public!
+        virtual void receiveSignal(cComponent *, simsignal_t, long);
 
 	private:
         // NED variables
         cModule *nodePtr;   // pointer to the Node
         TraCI_Extend *TraCI;  // pointer to the TraCI module
+        simsignal_t Signal_executeFirstTS;
         bool on;
         int mode;
+
+        void Add();
 };
 
 }

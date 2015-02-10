@@ -1,8 +1,8 @@
 
-#ifndef TRAFFICLIGHTBASE_H
-#define TRAFFICLIGHTBASE_H
+#ifndef TRAFFICLIGHTCONTROL_H
+#define TRAFFICLIGHTCONTROL_H
 
-#include <BaseModule.h>
+#include <TrafficLightBase.h>
 #include <Appl.h>
 #include "TraCI_Extend.h"
 
@@ -10,16 +10,16 @@ using namespace std;
 
 namespace VENTOS {
 
-class TrafficLightBase : public BaseModule
+class TrafficLightControl : public TrafficLightBase
 {
   public:
-      virtual ~TrafficLightBase();
+      virtual ~TrafficLightControl();
       virtual void finish();
       virtual void initialize(int);
       virtual void handleMessage(cMessage *);
 
-  protected:
-      TraCI_Extend *TraCI;
+  private:
+      void executeEachTimeStep();
 };
 
 }

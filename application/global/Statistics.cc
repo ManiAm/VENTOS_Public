@@ -1,5 +1,5 @@
 
-#include <Global_06_Statistics.h>
+#include <Statistics.h>
 #include <ApplRSU_03_Manager.h>
 #include "Router.h"
 
@@ -40,6 +40,8 @@ void Statistics::initialize(int stage)
         parseHistogramFile();
 
         // register signals
+        Signal_executeEachTS = registerSignal("executeEachTS");
+
         Signal_beaconP = registerSignal("beaconP");
         Signal_beaconO = registerSignal("beaconO");
         Signal_beaconD = registerSignal("beaconD");
@@ -51,6 +53,7 @@ void Statistics::initialize(int stage)
         Signal_PlnManeuver = registerSignal("PlnManeuver");
 
         // now subscribe locally to all these signals
+        simulation.getSystemModule()->subscribe("executeEachTS", this);
         simulation.getSystemModule()->subscribe("beaconP", this);
         simulation.getSystemModule()->subscribe("beaconO", this);
         simulation.getSystemModule()->subscribe("beaconD", this);
@@ -76,7 +79,114 @@ void Statistics::handleMessage(cMessage *msg)
 }
 
 
-void Statistics::executeOneTimestep(bool simulationDone)
+// todo: make all beacons object
+void Statistics::receiveSignal(cComponent *source, simsignal_t signalID, long i)
+{
+    Enter_Method_Silent();
+
+    EV << "*** Statistics module received signal " << signalID;
+    EV << " from module " << source->getFullName();
+    EV << " with value " << i << endl;
+
+    int nodeIndex = getNodeIndex(source->getFullName());
+
+    if(signalID == Signal_executeEachTS)
+    {
+        Statistics::executeEachTimestep(i);
+    }
+    else if(signalID == Signal_beaconD)
+    {
+        // from preceding
+        if(i==1)
+        {
+            NodeEntry *tmp = new NodeEntry(source->getFullName(), "-", nodeIndex, -1, simTime());
+            Vec_BeaconsDP.push_back(tmp);
+        }
+        // from other vehicles
+        else if(i==2)
+        {
+            NodeEntry *tmp = new NodeEntry(source->getFullName(), "-", nodeIndex, -1, simTime());
+            Vec_BeaconsDO.push_back(tmp);
+        }
+    }
+}
+
+
+void Statistics::receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj)
+{
+    Enter_Method_Silent();
+
+    EV << "*** Statistics module received signal " << signalID;
+    EV << " from module " << source->getFullName() << endl;
+
+    int nodeIndex = getNodeIndex(source->getFullName());
+
+    if(collectMAClayerData && signalID == Signal_MacStats)
+    {
+        MacStat *m = static_cast<MacStat *>(obj);
+        if (m == NULL) return;
+
+        int counter = findInVector(Vec_MacStat, source->getFullName());
+
+        // its a new entry, so we add it.
+        if(counter == -1)
+        {
+            MacStatEntry *tmp = new MacStatEntry(source->getFullName(), nodeIndex, simTime().dbl(), m->vec);
+            Vec_MacStat.push_back(tmp);
+        }
+        // if found, just update the existing fields
+        else
+        {
+            Vec_MacStat[counter]->time = simTime().dbl();
+            Vec_MacStat[counter]->MacStatsVec = m->vec;
+        }
+    }
+    else if(collectPlnManagerData && signalID == Signal_VehicleState)
+    {
+        CurrentVehicleState *state = dynamic_cast<CurrentVehicleState*>(obj);
+        ASSERT(state);
+
+        plnManagement *tmp = new plnManagement(simTime().dbl(), state->name, "-", state->state, "-", "-");
+        Vec_plnManagement.push_back(tmp);
+    }
+    else if(collectPlnManagerData && signalID == Signal_SentPlatoonMsg)
+    {
+        CurrentPlnMsg* plnMsg = dynamic_cast<CurrentPlnMsg*>(obj);
+        ASSERT(plnMsg);
+
+        plnManagement *tmp = new plnManagement(simTime().dbl(), plnMsg->msg->getSender(), plnMsg->msg->getRecipient(), plnMsg->type, plnMsg->msg->getSendingPlatoonID(), plnMsg->msg->getReceivingPlatoonID());
+        Vec_plnManagement.push_back(tmp);
+    }
+    else if(collectPlnManagerData && signalID == Signal_PlnManeuver)
+    {
+        PlnManeuver* com = dynamic_cast<PlnManeuver*>(obj);
+        ASSERT(com);
+
+        plnStat *tmp = new plnStat(simTime().dbl(), com->from, com->to, com->maneuver);
+        Vec_plnStat.push_back(tmp);
+    }
+
+    // todo
+    else if(signalID == Signal_beaconP)
+    {
+        data *m = static_cast<data *>(obj);
+        if (m == NULL) return;
+
+        NodeEntry *tmp = new NodeEntry(source->getFullName(), m->name, nodeIndex, -1, simTime());
+        Vec_BeaconsP.push_back(tmp);
+    }
+    else if(signalID == Signal_beaconO)
+    {
+        data *m = static_cast<data *>(obj);
+        if (m == NULL) return;
+
+        NodeEntry *tmp = new NodeEntry(source->getFullName(), m->name, nodeIndex, -1, simTime());
+        Vec_BeaconsO.push_back(tmp);
+    }
+}
+
+
+void Statistics::executeEachTimestep(bool simulationDone)
 {
     if(collectMAClayerData)
         MAClayerToFile();
@@ -654,109 +764,6 @@ void Statistics::plnStatToFile()
     }
 
     fclose(filePtr);
-}
-
-
-void Statistics::receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj)
-{
-    Enter_Method_Silent();
-
-    EV << "*** Statistics module received signal " << signalID;
-    EV << " from module " << source->getFullName() << endl;
-
-    int nodeIndex = getNodeIndex(source->getFullName());
-
-    if(collectMAClayerData && signalID == Signal_MacStats)
-    {
-        MacStat *m = static_cast<MacStat *>(obj);
-        if (m == NULL) return;
-
-        int counter = findInVector(Vec_MacStat, source->getFullName());
-
-        // its a new entry, so we add it.
-        if(counter == -1)
-        {
-            MacStatEntry *tmp = new MacStatEntry(source->getFullName(), nodeIndex, simTime().dbl(), m->vec);
-            Vec_MacStat.push_back(tmp);
-        }
-        // if found, just update the existing fields
-        else
-        {
-            Vec_MacStat[counter]->time = simTime().dbl();
-            Vec_MacStat[counter]->MacStatsVec = m->vec;
-        }
-    }
-    else if(collectPlnManagerData && signalID == Signal_VehicleState)
-    {
-        CurrentVehicleState *state = dynamic_cast<CurrentVehicleState*>(obj);
-        ASSERT(state);
-
-        plnManagement *tmp = new plnManagement(simTime().dbl(), state->name, "-", state->state, "-", "-");
-        Vec_plnManagement.push_back(tmp);
-    }
-    else if(collectPlnManagerData && signalID == Signal_SentPlatoonMsg)
-    {
-        CurrentPlnMsg* plnMsg = dynamic_cast<CurrentPlnMsg*>(obj);
-        ASSERT(plnMsg);
-
-        plnManagement *tmp = new plnManagement(simTime().dbl(), plnMsg->msg->getSender(), plnMsg->msg->getRecipient(), plnMsg->type, plnMsg->msg->getSendingPlatoonID(), plnMsg->msg->getReceivingPlatoonID());
-        Vec_plnManagement.push_back(tmp);
-    }
-    else if(collectPlnManagerData && signalID == Signal_PlnManeuver)
-    {
-        PlnManeuver* com = dynamic_cast<PlnManeuver*>(obj);
-        ASSERT(com);
-
-        plnStat *tmp = new plnStat(simTime().dbl(), com->from, com->to, com->maneuver);
-        Vec_plnStat.push_back(tmp);
-    }
-
-    // todo
-    else if(signalID == Signal_beaconP)
-    {
-        data *m = static_cast<data *>(obj);
-        if (m == NULL) return;
-
-        NodeEntry *tmp = new NodeEntry(source->getFullName(), m->name, nodeIndex, -1, simTime());
-        Vec_BeaconsP.push_back(tmp);
-    }
-    else if(signalID == Signal_beaconO)
-    {
-        data *m = static_cast<data *>(obj);
-        if (m == NULL) return;
-
-        NodeEntry *tmp = new NodeEntry(source->getFullName(), m->name, nodeIndex, -1, simTime());
-        Vec_BeaconsO.push_back(tmp);
-    }
-}
-
-
-// todo: make all beacons object
-void Statistics::receiveSignal(cComponent *source, simsignal_t signalID, long i)
-{
-	Enter_Method_Silent();
-
-	EV << "*** Statistics module received signal " << signalID;
-    EV << " from module " << source->getFullName();
-	EV << " with value " << i << endl;
-
-    int nodeIndex = getNodeIndex(source->getFullName());
-
-    if(signalID == Signal_beaconD)
-	{
-	    // from preceding
-	    if(i==1)
-	    {
-	        NodeEntry *tmp = new NodeEntry(source->getFullName(), "-", nodeIndex, -1, simTime());
-	        Vec_BeaconsDP.push_back(tmp);
-	    }
-	    // from other vehicles
-	    else if(i==2)
-	    {
-            NodeEntry *tmp = new NodeEntry(source->getFullName(), "-", nodeIndex, -1, simTime());
-            Vec_BeaconsDO.push_back(tmp);
-	    }
-	}
 }
 
 

@@ -5,7 +5,7 @@
 #include "MiXiMDefs.h"
 #include "BaseMobility.h"
 #include "TraCI_Extend.h"
-#include "Global_04_AddRSU.h"
+#include "AddRSU.h"
 
 namespace VENTOS {
 

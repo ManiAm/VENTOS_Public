@@ -1,5 +1,5 @@
 
-#include <Global_09_TrafficLightBase.h>
+#include <TrafficLightBase.h>
 
 namespace VENTOS {
 
@@ -20,6 +20,8 @@ void TrafficLightBase::initialize(int stage)
         cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
         TraCI = static_cast<TraCI_Extend *>(module);
 
+        Signal_executeEachTS = registerSignal("executeEachTS");
+        simulation.getSystemModule()->subscribe("executeEachTS", this);
     }
 }
 
@@ -35,5 +37,20 @@ void TrafficLightBase::handleMessage(cMessage *msg)
 
 }
 
+
+void TrafficLightBase::receiveSignal(cComponent *source, simsignal_t signalID, long i)
+{
+    Enter_Method_Silent();
+
+    if(signalID == Signal_executeEachTS)
+    {
+        executeEachTimeStep();
+    }
+}
+
+void TrafficLightBase::executeEachTimeStep()
+{
+
+}
 
 }

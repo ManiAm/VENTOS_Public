@@ -14,15 +14,14 @@ class Tracking : public BaseModule
 		virtual void initialize(int stage);
         virtual void handleMessage(cMessage *msg);
 		virtual void finish();
-
-	public:
-		void Start();
+        virtual void receiveSignal(cComponent *, simsignal_t, long);
 
 	private:
 
         // NED variables
         cModule *nodePtr;   // pointer to the Node
         TraCI_Extend *TraCI;  // pointer to the TraCI module
+        simsignal_t Signal_executeFirstTS;
 
         // NED variables (GUI)
         bool on;
@@ -38,6 +37,7 @@ class Tracking : public BaseModule
         cMessage* updataGUI;
 
         // methods
+        void Start();
         void TrackingGUI();
 };
 

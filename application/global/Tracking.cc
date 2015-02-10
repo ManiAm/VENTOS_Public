@@ -1,5 +1,5 @@
 
-#include "Global_02_Tracking.h"
+#include "Tracking.h"
 
 Define_Module(VENTOS::Tracking);
 
@@ -23,6 +23,9 @@ void Tracking::initialize(int stage)
         // get a pointer to the TraCI module
         cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
         TraCI = static_cast<TraCI_Extend *>(module);
+
+        Signal_executeFirstTS = registerSignal("executeFirstTS");
+        simulation.getSystemModule()->subscribe("executeFirstTS", this);
 
         on = par("on").boolValue();
 
@@ -51,6 +54,17 @@ void Tracking::initialize(int stage)
 void Tracking::finish()
 {
 
+}
+
+
+void Tracking::receiveSignal(cComponent *source, simsignal_t signalID, long i)
+{
+    Enter_Method_Silent();
+
+    if(signalID == Signal_executeFirstTS)
+    {
+        Tracking::Start();
+    }
 }
 
 

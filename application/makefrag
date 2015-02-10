@@ -1,1 +1,1 @@
-submakedirs:  msg_dir traci_dir rsu_dir vehicle_dir router_dir pedestrian_dir bike_dir adversary_dir global_dir
+submakedirs:  msg_dir traci_dir global_dir trafficLight_dir rsu_dir vehicle_dir router_dir pedestrian_dir bike_dir adversary_dir

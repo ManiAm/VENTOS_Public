@@ -16,15 +16,14 @@ class AddVehicle : public BaseModule
 		virtual void initialize(int stage);
         virtual void handleMessage(cMessage *msg);
 		virtual void finish();
-
-	public:
-        void Add();
+	    virtual void receiveSignal(cComponent *, simsignal_t, long);
 
 	private:
 
         // NED variables
         cModule *nodePtr;   // pointer to the Node
         TraCI_Extend *TraCI;  // pointer to the TraCI module
+        simsignal_t Signal_executeFirstTS;
         bool on;
         int mode;
 	    int totalVehicles;
@@ -33,6 +32,8 @@ class AddVehicle : public BaseModule
 	    double plnSpace;
 
 	    // methods
+        void Add();
+
 	    void Scenario1();
         void Scenario2();
         void Scenario3();

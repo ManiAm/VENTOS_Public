@@ -1,5 +1,5 @@
 
-#include "Global_03_AddVehicle.h"
+#include "AddVehicle.h"
 #include "Router.h"
 #include <algorithm>
 
@@ -26,6 +26,9 @@ void AddVehicle::initialize(int stage)
         cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
         TraCI = static_cast<TraCI_Extend *>(module);
 
+        Signal_executeFirstTS = registerSignal("executeFirstTS");
+        simulation.getSystemModule()->subscribe("executeFirstTS", this);
+
         on = par("on").boolValue();
         mode = par("mode").longValue();
         totalVehicles = par("totalVehicles").longValue();
@@ -46,6 +49,17 @@ void AddVehicle::finish()
 void AddVehicle::handleMessage(cMessage *msg)
 {
 
+}
+
+
+void AddVehicle::receiveSignal(cComponent *source, simsignal_t signalID, long i)
+{
+    Enter_Method_Silent();
+
+    if(signalID == Signal_executeFirstTS)
+    {
+        AddVehicle::Add();
+    }
 }
 
 
@@ -178,6 +192,7 @@ vector<string> getEdgeNames(string netName)
     edgeNames.push_back(node->first_attribute()->value());
   return edgeNames;
 }
+
 vector<string> getNodeNames(string netName)
 {
   vector<string> nodeNames;
@@ -216,7 +231,7 @@ void generateVehicles(string dir, Router* r)
 
     vFile << "   <vehicle id=\"v" << i << "\" type=\"TypeManual\" origin=\"" << edge << "\" destination=\""
           << node << "\" depart=\"" << curve((double)i/r->totalVehicleCount) * r->createTime << "\" />" << endl;
- }
+  }
   vFile << "</vehicles>" << endl;
   vFile.close();
 }

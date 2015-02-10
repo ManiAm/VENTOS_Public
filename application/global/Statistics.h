@@ -173,50 +173,12 @@ class Statistics : public BaseModule
       virtual void finish();
       virtual void initialize(int);
       virtual void handleMessage(cMessage *);
-
 	  virtual void receiveSignal(cComponent *, simsignal_t, long);
 	  virtual void receiveSignal(cComponent *, simsignal_t, cObject *);
 
-	  void executeOneTimestep(bool); // should be public
-
       std::map<string, Histogram> edgeHistograms; // should be public
 
-
   private:
-      void vehiclesData();
-      void saveVehicleData(string);
-      void vehiclesDataToFile();
-
-      void HistogramsToFile();
-      void parseHistogramFile();
-      void laneCostsData();
-      void processTravelTimeData();
-
-      void inductionLoops();
-      void inductionLoopToFile();
-
-      void incidentDetectionToFile();
-
-      void MAClayerToFile();
-
-      void plnManageToFile();
-      void plnStatToFile();
-
-
-
-
-
-	  void postProcess();
-      void printToFile();
-      vector<NodeEntry *> SortByID(vector<NodeEntry *>);
-      int getNodeIndex(const char*);
-
-      int findInVector(vector<LoopDetector *> , const char *, const char *);
-      int findInVector(vector<NodeEntry *>, const char *);
-      int findInVector(vector<MacStatEntry *>, const char *);
-
-
-
       // NED variables
       TraCI_Extend *TraCI;
       double updateInterval;
@@ -243,6 +205,8 @@ class Statistics : public BaseModule
       int HysteresisCount;
 
       // class variables (signals)
+      simsignal_t Signal_executeEachTS;
+
 	  simsignal_t Signal_beaconP;
 	  simsignal_t Signal_beaconO;
 	  simsignal_t Signal_beaconD;
@@ -273,6 +237,41 @@ class Statistics : public BaseModule
 
       vector<NodeEntry *> beaconsDO_interval;
       vector<NodeEntry *> beaconsDP_interval;
+
+  private:
+      void executeEachTimestep(bool);
+
+      void vehiclesData();
+      void saveVehicleData(string);
+      void vehiclesDataToFile();
+
+      void HistogramsToFile();
+      void parseHistogramFile();
+      void laneCostsData();
+      void processTravelTimeData();
+
+      void inductionLoops();
+      void inductionLoopToFile();
+
+      void incidentDetectionToFile();
+
+      void MAClayerToFile();
+
+      void plnManageToFile();
+      void plnStatToFile();
+
+
+
+
+
+      void postProcess();
+      void printToFile();
+      vector<NodeEntry *> SortByID(vector<NodeEntry *>);
+      int getNodeIndex(const char*);
+
+      int findInVector(vector<LoopDetector *> , const char *, const char *);
+      int findInVector(vector<NodeEntry *>, const char *);
+      int findInVector(vector<MacStatEntry *>, const char *);
 };
 
 }

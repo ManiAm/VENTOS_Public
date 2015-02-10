@@ -1,5 +1,5 @@
 
-#include "Global_05_AddAdversary.h"
+#include "AddAdversary.h"
 
 namespace VENTOS {
 
@@ -25,6 +25,9 @@ void AddAdversary::initialize(int stage)
         cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
         TraCI = static_cast<TraCI_Extend *>(module);
 
+        Signal_executeFirstTS = registerSignal("executeFirstTS");
+        simulation.getSystemModule()->subscribe("executeFirstTS", this);
+
         on = par("on").boolValue();
         mode = par("mode").longValue();
     }
@@ -40,6 +43,17 @@ void AddAdversary::finish()
 void AddAdversary::handleMessage(cMessage *msg)
 {
 
+}
+
+
+void AddAdversary::receiveSignal(cComponent *source, simsignal_t signalID, long i)
+{
+    Enter_Method_Silent();
+
+    if(signalID == Signal_executeFirstTS)
+    {
+        AddAdversary::Add();
+    }
 }
 
 

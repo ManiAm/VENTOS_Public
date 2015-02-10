@@ -1,5 +1,5 @@
 
-#include "Global_08_VehicleSpeedProfile.h"
+#include "VehicleSpeedProfile.h"
 
 
 namespace VENTOS {

@@ -1,5 +1,5 @@
 
-#include "Global_04_AddRSU.h"
+#include "AddRSU.h"
 
 namespace VENTOS {
 
@@ -25,6 +25,9 @@ void AddRSU::initialize(int stage)
         cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
         TraCI = static_cast<TraCI_Extend *>(module);
 
+        Signal_executeFirstTS = registerSignal("executeFirstTS");
+        simulation.getSystemModule()->subscribe("executeFirstTS", this);
+
         boost::filesystem::path SUMODirectory = simulation.getSystemModule()->par("SUMODirectory").stringValue();
         boost::filesystem::path VENTOSfullDirectory = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
         SUMOfullDirectory = VENTOSfullDirectory / SUMODirectory;   // home/mani/Desktop/VENTOS/sumo/CACC_Platoon
@@ -44,6 +47,86 @@ void AddRSU::finish()
 void AddRSU::handleMessage(cMessage *msg)
 {
 
+}
+
+
+void AddRSU::receiveSignal(cComponent *source, simsignal_t signalID, long i)
+{
+    Enter_Method_Silent();
+
+    if(signalID == Signal_executeFirstTS)
+    {
+        AddRSU::Add();
+    }
+}
+
+
+void AddRSU::Add()
+{
+    // if dynamic adding is off, return
+    if (!on)
+        return;
+
+    if(mode == 1)
+    {
+        Scenario1();
+    }
+}
+
+
+void AddRSU::Scenario1()
+{
+    // ####################################
+    // Step 1: read RSU locations from file
+    // ####################################
+
+    string RSUfile = par("RSUfile").stringValue();
+    boost::filesystem::path RSUfilePath = SUMOfullDirectory / RSUfile;
+
+    // check if this file is valid?
+    if( !exists( RSUfilePath ) )
+    {
+        error("RSU file does not exist in %s", RSUfilePath.string().c_str());
+    }
+
+    deque<RSUEntry*> RSUs = commandReadRSUsCoord(RSUfilePath.string());
+
+    // ################################
+    // Step 2: create RSUs into OMNET++
+    // ################################
+
+    int NoRSUs = RSUs.size();
+
+    cModule* parentMod = getParentModule();
+    if (!parentMod) error("Parent Module not found");
+
+    cModuleType* nodeType = cModuleType::get("c3po.ned.RSU");
+
+    // We only create RSUs in OMNET++ without moving them to
+    // the correct coordinate
+    for(int i = 0; i < NoRSUs; i++)
+    {
+        cModule* mod = nodeType->create("RSU", parentMod, NoRSUs, i);
+        mod->finalizeParameters();
+        mod->getDisplayString().updateWith("i=device/antennatower");
+        mod->buildInside();
+        mod->scheduleStart(simTime());
+        mod->callInitialize();
+    }
+
+    // ##################################################
+    // Step 3: create a polygon for radio circle in SUMO
+    // ##################################################
+
+    // get the radius of an RSU
+    cModule *module = simulation.getSystemModule()->getSubmodule("RSU", 0);
+    double radius = atof( module->getDisplayString().getTagArg("r",0) );
+
+    for(int i = 0; i < NoRSUs; i++)
+    {
+        Coord *center = new Coord(RSUs[i]->coordX, RSUs[i]->coordY);
+        commandAddCirclePoly(RSUs[i]->name, "RSU", TraCIColor::fromTkColor("blue"), center, radius);
+    }
 }
 
 
@@ -127,74 +210,6 @@ void AddRSU::commandAddCirclePoly(string name, string type, const TraCIColor& co
     TraCI->commandAddPolygon(name, type, color, 0, 1, circlePoints);
 }
 
-
-void AddRSU::Add()
-{
-    // if dynamic adding is off, return
-    if (!on)
-        return;
-
-    if(mode == 1)
-    {
-        Scenario1();
-    }
-}
-
-
-void AddRSU::Scenario1()
-{
-    // ####################################
-    // Step 1: read RSU locations from file
-    // ####################################
-
-    string RSUfile = par("RSUfile").stringValue();
-    boost::filesystem::path RSUfilePath = SUMOfullDirectory / RSUfile;
-
-    // check if this file is valid?
-    if( !exists( RSUfilePath ) )
-    {
-        error("RSU file does not exist in %s", RSUfilePath.string().c_str());
-    }
-
-    deque<RSUEntry*> RSUs = commandReadRSUsCoord(RSUfilePath.string());
-
-    // ################################
-    // Step 2: create RSUs into OMNET++
-    // ################################
-
-    int NoRSUs = RSUs.size();
-
-    cModule* parentMod = getParentModule();
-    if (!parentMod) error("Parent Module not found");
-
-    cModuleType* nodeType = cModuleType::get("c3po.ned.RSU");
-
-    // We only create RSUs in OMNET++ without moving them to
-    // the correct coordinate
-    for(int i = 0; i < NoRSUs; i++)
-    {
-        cModule* mod = nodeType->create("RSU", parentMod, NoRSUs, i);
-        mod->finalizeParameters();
-        mod->getDisplayString().updateWith("i=device/antennatower");
-        mod->buildInside();
-        mod->scheduleStart(simTime());
-        mod->callInitialize();
-    }
-
-    // ##################################################
-    // Step 3: create a polygon for radio circle in SUMO
-    // ##################################################
-
-    // get the radius of an RSU
-    cModule *module = simulation.getSystemModule()->getSubmodule("RSU", 0);
-    double radius = atof( module->getDisplayString().getTagArg("r",0) );
-
-    for(int i = 0; i < NoRSUs; i++)
-    {
-        Coord *center = new Coord(RSUs[i]->coordX, RSUs[i]->coordY);
-        commandAddCirclePoly(RSUs[i]->name, "RSU", TraCIColor::fromTkColor("blue"), center, radius);
-    }
-}
 
 }
 
