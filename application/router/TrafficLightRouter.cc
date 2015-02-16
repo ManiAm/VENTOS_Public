@@ -13,8 +13,7 @@ Phase::Phase(double duration, string state):
 
 void Phase::print() // Print a phase
 {
-    cout << "duration: "<< setw(4) << left << duration <<
-         " phase: " << setw(12) << left << state << endl;
+    if(ev.isGUI()) cout << "duration: "<< setw(4) << left << duration << " phase: " << setw(12) << left << state << endl;
 }
 
 string setState(string state, int index, char value)    //Writes given char at specified index on the state,
@@ -330,7 +329,7 @@ void TrafficLightRouter::HighDensityRecalculate()
                 if(duration < 3)    //If the duration is too short, set it to a minimum
                     duration = 3;
 
-                //cout << "    Phase " << i << " set to " << duration << endl;
+                //if(ev.isGUI()) cout << "    Phase " << i << " set to " << duration << endl;
                 phases[i]->duration = duration; //Update durations. These will take affect starting with the next phase
             }
         }
@@ -489,7 +488,7 @@ void TrafficLightRouter::LowDensityRecalculate()
 {
     if(simTime().dbl() - lastSwitchTime < MaxPhaseDuration and LowDensityVehicleCheck())
     {
-        cout << "Extending tl " << id << " phase " << currentPhase << endl;
+        if(ev.isGUI()) cout << "Extending tl " << id << " phase " << currentPhase << endl;
         TLSwitchEvent = new cMessage("tl switch evt");
         scheduleAt(simTime().dbl() + LowDensityExtendTime, TLSwitchEvent);
         TraCI->commandSetTLPhaseDurationRemaining(id, 10000000);
@@ -591,10 +590,11 @@ void TrafficLightRouter::finish()
 
 void TrafficLightRouter::print() // Print a node
 {
-    cout<<"id: "<< setw(4) << left << id <<
-          "type: " << left << type <<
-          "  programID: "<< setw(4) << left << programID <<
-          "offset: "<< setw(4) << left << offset;
+    if(ev.isGUI()) cout<<"id: "<< setw(4) << left << id <<
+                         "type: " << left << type <<
+                         "  programID: "<< setw(4) << left << programID <<
+                         "offset: "<< setw(4) << left << offset;
+
     for(vector<Phase*>::iterator it = phases.begin(); it != phases.end(); it++)
     {
         (*it)->print();

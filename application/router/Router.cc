@@ -55,23 +55,28 @@ void Router::initialize(int stage)
         if(nodePtr == NULL || TraCI == NULL)
             error("can not get a pointer to the module.");
 
-        // register signals
-        Signal_system = registerSignal("system");
-        simulation.getSystemModule()->subscribe("system", this);
-        Signal_executeFirstTS = registerSignal("executeFirstTS");
-        simulation.getSystemModule()->subscribe("executeFirstTS", this);
-
-        collectVehicleTimeData = par("collectVehicleTimeData").boolValue();
         leftTurnCost = par("leftTurnCost").doubleValue();
         rightTurnCost = par("rightTurnCost").doubleValue();
         straightCost = par("straightCost").doubleValue();
         uTurnCost = par("uTurnCost").doubleValue();
+
         TLLookahead = par("TLLookahead").doubleValue();
         timePeriodMax = par("timePeriodMax").doubleValue();
         UseHysteresis = par("UseHysteresis").boolValue();
 
         LaneCostsMode = par("LaneCostsMode").longValue();
         HysteresisCount = par("HysteresisCount").longValue();
+
+        createTime = par("createTime").longValue();
+        totalVehicleCount = par("vehicleCount").longValue();
+        currentVehicleCount = totalVehicleCount;
+        nonReroutingVehiclePercent = par("nonReroutingVehiclePercent").doubleValue();
+
+        // register signals
+        Signal_system = registerSignal("system");
+        simulation.getSystemModule()->subscribe("system", this);
+        Signal_executeFirstTS = registerSignal("executeFirstTS");
+        simulation.getSystemModule()->subscribe("executeFirstTS", this);
 
         // get the file paths
         VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
@@ -84,13 +89,7 @@ void Router::initialize(int stage)
         }
 
         string netBase = SUMO_FullPath.string();
-
         net = new Net(netBase, this->getParentModule());
-
-        createTime = par("createTime").longValue();
-        totalVehicleCount = par("vehicleCount").longValue();
-        currentVehicleCount = totalVehicleCount;
-        nonReroutingVehiclePercent = par("nonReroutingVehiclePercent").doubleValue();
 
         parseHistogramFile();
 
@@ -114,6 +113,8 @@ void Router::initialize(int stage)
         for(int i = 0; i < numNonRerouting; i++)
             NonReroutingFile << nonReroutingVehicles->at(i) << endl;
         NonReroutingFile.close();
+
+        collectVehicleTimeData = par("collectVehicleTimeData").boolValue();
 
         if(collectVehicleTimeData)
         {
@@ -213,7 +214,7 @@ void Router::laneCostsData()
             edgeHistograms[prevEdge].insert(simTime().dbl() - vehicleTimes[*it], LaneCostsMode);   //Add the time the vehicle traveled to the data set for that edge
             vehicleEdges[*it] = curEdge;                                            //And set its edge to the new one
             vehicleTimes[*it] = simTime().dbl();                                    //And that edges start time to now
-            //cout << *it << " moves to edge " << curEdge << " at time " << simTime().dbl() << endl;  //Print a change
+            //if(ev.isGUI()) cout << *it << " moves to edge " << curEdge << " at time " << simTime().dbl() << endl;  //Print a change
         }
     }
 }
@@ -265,7 +266,7 @@ void Router::receiveSignal(cComponent *source, simsignal_t signalID, cObject *ob
             {
                 currentVehicleCount--;
                 string SUMOvID = s->getSender();
-                cout << "(" << currentVehicleCount << " left)" << endl;
+                if(ev.isGUI()) cout << "(" << currentVehicleCount << " left)" << endl;
                 int currentRun = ev.getConfigEx()->getActiveRunNumber();
                 if(collectVehicleTimeData)
                 {
@@ -287,7 +288,7 @@ void Router::receiveSignal(cComponent *source, simsignal_t signalID, cObject *ob
                             avg += it->second;
                         }
                         avg /= count;
-                        cout << "Average vehicle travel time was " << avg << " seconds." << endl;
+                        if(ev.isGUI()) cout << "Average vehicle travel time was " << avg << " seconds." << endl;
 
                         vehicleTravelTimesFile.close();
 
@@ -331,7 +332,7 @@ double Router::turnTypeCost(Edge* start, Edge* end)
         case 't':
             return uTurnCost;
     }
-    cout << "Turn did not have an associated type!  This should never happen." << endl;
+    if(ev.isGUI()) cout << "Turn did not have an associated type!  This should never happen." << endl;
     return 100000;
 }
 
@@ -420,7 +421,7 @@ Hypertree* Router::buildHypertree(int startTime, Node* destination)
             }
         }
     }
-    cout << "Searching nodes for " << destination->id << endl;
+    if(ev.isGUI()) cout << "Searching nodes for " << destination->id << endl;
     Node* D = destination;    // Find the destination, call it D
     for(int t = startTime; t <= timePeriodMax; t++)           // For every second in the time interval
     {
@@ -545,7 +546,7 @@ list<string> Router::getRoute(Edge* origin, Node* destination, string vName)
             return routeIDs;    // Return the final list
         }
     }// While heap isn't empty
-    cout << "Pathing failed!  Either destination does not exist or cannot be reached.  Stopping at the end of this edge" << endl;
+    if(ev.isGUI()) cout << "Pathing failed!  Either destination does not exist or cannot be reached.  Stopping at the end of this edge" << endl;
     list<string> ret;
     ret.push_back(origin->id);
     return ret;

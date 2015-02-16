@@ -22,7 +22,6 @@ class ApplVSystem : public ApplVBeacon
         virtual void finish();
 
     protected:
-
         // NED variables (beaconing parameters)
         bool requestRoutes;         //like sendBeacons;
         double requestInterval;     //like beaconInterval;
@@ -30,7 +29,6 @@ class ApplVSystem : public ApplVBeacon
         int systemMsgLengthBits;
         int systemMsgPriority;      //like beaconPriority
         bool useDijkstrasRouting;
-        int startTime;
         double routeUpdateInterval;
         bool requestReroutes;
         int numReroutes;

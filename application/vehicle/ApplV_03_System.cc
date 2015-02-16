@@ -24,8 +24,6 @@ void ApplVSystem::initialize(int stage)
 
         routeUpdateInterval = par("routeUpdateInterval").doubleValue();
 
-        startTime = simTime().dbl();
-
         requestInterval = par("requestInterval").doubleValue();
         maxOffset = par("maxSystemOffset").doubleValue();
         systemMsgLengthBits = par("systemMsgLengthBits").longValue();
@@ -53,14 +51,12 @@ void ApplVSystem::initialize(int stage)
             error("XML formatted wrong! Some vehicle was missing its destination!");
 
         if(find(router->nonReroutingVehicles->begin(), router->nonReroutingVehicles->end(), SUMOvID) != router->nonReroutingVehicles->end())
-        {
             requestReroutes = false;
-        }
         else
-        {
             requestReroutes = true;
-        }
+
         numReroutes = 0;
+
         //Register to receive signals from the router
         Signal_router = registerSignal("router");
         simulation.getSystemModule()->subscribe("router", this);
@@ -82,7 +78,7 @@ void ApplVSystem::finish()
 {
     ApplVBeacon::finish();
 
-    cout << SUMOvID << " took " << simTime().dbl() - startTime << " seconds to complete its route. ";
+    if(ev.isGUI()) cout << SUMOvID << " took " << simTime().dbl() - entryTime << " seconds to complete its route. ";
 
     simsignal_t Signal_system = registerSignal("system"); //Prepare to send a system message
     nodePtr->emit(Signal_system, new systemData("", "", SUMOvID, 2, string("system")));
@@ -102,6 +98,16 @@ void ApplVSystem::finish()
     simulation.getSystemModule()->unsubscribe("router",this);
 }
 
+void ApplVSystem::handleSelfMsg(cMessage* msg)  //Internal messages to self
+{
+    ApplVBeacon::handleSelfMsg(msg);    //Pass it down
+
+    if (msg == sendSystemMsgEvt and requestRoutes)  //If it's a system message
+    {
+        delete msg;
+        reroute();
+    }
+}
 
 void ApplVSystem::receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj) //Ran upon receiving signals
 {
@@ -137,9 +143,13 @@ void ApplVSystem::onData(PlatoonMsg* wsm)
 
 }
 
+void ApplVSystem::onSystemMsg(SystemMsg* wsm)
+{
+    error("ApplVSystem should not receive any system msg!");
+}
+
 void ApplVSystem::reroute()
 {
-
     sendSystemMsgEvt = new cMessage("systemmsg evt");   //Create a new internal message
     simsignal_t Signal_system = registerSignal("system"); //Prepare to send a system message
     //Systemdata wants string edge, string node, string sender, int requestType, string recipient, list<string> edgeList
@@ -154,27 +164,13 @@ void ApplVSystem::reroute()
         nodePtr->emit(Signal_system, new systemData(TraCI->commandGetVehicleEdgeId(SUMOvID), targetNode, SUMOvID, 1, string("system")));
         scheduleAt(simTime() + routeUpdateInterval, sendSystemMsgEvt);// schedule for next beacon broadcast
     }
-
 }
-
-void ApplVSystem::handleSelfMsg(cMessage* msg)  //Internal messages to self
-{
-    ApplVBeacon::handleSelfMsg(msg);    //Pass it down
-
-    if (msg == sendSystemMsgEvt and requestRoutes)  //If it's a system message
-    {
-        delete msg;
-        reroute();
-    }
-
-}
-
 
 SystemMsg*  ApplVSystem::prepareSystemMsg()
 {
     if (!VANETenabled)
     {
-        error("Only VANETenabled vehicles can send systemmsg!");
+        error("Only VANETenabled vehicles can send system msg!");
     }
 
     SystemMsg* wsm = new SystemMsg("systemmsg");
@@ -217,8 +213,7 @@ SystemMsg*  ApplVSystem::prepareSystemMsg()
     return wsm;
 }
 
-
-// print systemmsg fields (for debugging purposes)
+// print system msg fields (for debugging purposes)
 void ApplVSystem::printSystemMsgContent(SystemMsg* wsm)
 {
     EV << wsm->getWsmVersion() << " | ";
@@ -237,13 +232,6 @@ void ApplVSystem::printSystemMsgContent(SystemMsg* wsm)
     EV << wsm->getEdge() << " | ";
     EV << wsm->getTarget() << " | ";
 }
-
-
-void ApplVSystem::onSystemMsg(SystemMsg* wsm)
-{
-    error("ApplVSystem should not receive any systemmsg!");
-}
-
 
 // is called, every time the position of vehicle changes
 void ApplVSystem::handlePositionUpdate(cObject* obj)

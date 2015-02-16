@@ -1015,7 +1015,6 @@ void TraCI_Extend::commandSetTLPhaseDuration(string TLid, int value)
 
     TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_TL_VARIABLE, TraCIBuffer() << variableId << TLid << variableType << value);
     ASSERT(buf.eof());
-
 }
 
 
