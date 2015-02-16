@@ -12,10 +12,7 @@ class ApplRSUAID : public ApplRSUBase
 		~ApplRSUAID();
 		virtual void initialize(int stage);
 		virtual void finish();
-
-		// are declared public to be accessible by Statistics
-        static MatrixXi tableCount;
-        static MatrixXd tableProb;
+	    virtual void receiveSignal(cComponent *, simsignal_t, long);
 
 	protected:
         virtual void handleSelfMsg(cMessage* msg);
@@ -25,6 +22,16 @@ class ApplRSUAID : public ApplRSUBase
         virtual void onBeaconPedestrian(BeaconPedestrian*);
         virtual void onBeaconRSU(BeaconRSU*);
         virtual void onData(LaneChangeMsg*);
+
+	private:
+        static MatrixXi tableCount;
+        static MatrixXd tableProb;
+
+        simsignal_t Signal_executeEachTS;
+
+        bool printIncidentDetection;
+
+        void incidentDetectionToFile();
 };
 
 }

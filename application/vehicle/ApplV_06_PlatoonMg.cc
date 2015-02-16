@@ -16,8 +16,11 @@ void ApplVPlatoonMg::initialize(int stage)
 {
     ApplVPlatoonFormed::initialize(stage);
 
-	if (stage == 0 && plnMode == 3)
+	if (stage == 0)
 	{
+        if(plnMode != 3)
+            return;
+
 	    if(!VANETenabled)
 	        error("This vehicle is not VANET-enabled!");
 

@@ -8,8 +8,6 @@ simple ApplVBeacon extends ApplVBase
         @display("i=block/app2");
         
         bool VANETenabled = default(true);
-        int controlMode = default(0);
-        int plnMode = default(0);
         double sonarDist = default(900);
                 
         bool sendBeacons = default(false); //tell the applayer to periodically send beacons

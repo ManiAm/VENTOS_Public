@@ -17,12 +17,12 @@ void TraCI_Extend::initialize(int stage)
 
     if (stage == 1)
     {
-        boost::filesystem::path SUMODirectory = simulation.getSystemModule()->par("SUMODirectory").stringValue();
-        boost::filesystem::path VENTOSfullDirectory = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-        SUMOfullDirectory = VENTOSfullDirectory / SUMODirectory;   //home/mani/Desktop/VENTOS/sumo/CACC_Platoon
+        VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+        SUMO_Path = simulation.getSystemModule()->par("SUMODirectory").stringValue();
+        SUMO_FullPath = VENTOS_FullPath / SUMO_Path;
 
         // check if this directory is valid?
-        if( !exists( SUMOfullDirectory ) )
+        if( !exists( SUMO_FullPath ) )
         {
             error("SUMO directory is not valid! Check it again.");
         }
@@ -61,7 +61,7 @@ void TraCI_Extend::init_traci()
 void TraCI_Extend::sendLaunchFile()
 {
     string launchFile = par("launchFile").stringValue();
-    boost::filesystem::path launchFullPath = SUMOfullDirectory / launchFile;
+    boost::filesystem::path launchFullPath = SUMO_FullPath / launchFile;
 
     file<> xmlFile( launchFullPath.string().c_str() );
     xml_document<> doc;
@@ -71,7 +71,7 @@ void TraCI_Extend::sendLaunchFile()
     xml_node<> *basedir = doc.allocate_node(node_element, "basedir");
 
     // append attribute to basedir
-    xml_attribute<> *attr = doc.allocate_attribute("path", SUMOfullDirectory.c_str());
+    xml_attribute<> *attr = doc.allocate_attribute("path", SUMO_FullPath.c_str());
     basedir->append_attribute(attr);
 
     // append basedir to the launch
@@ -791,40 +791,20 @@ void TraCI_Extend::commandSetVehicleTg(string nodeId, double value)
 }
 
 
-void TraCI_Extend::commandSetVehicleCFParameters(string nodeId, string value)
+void TraCI_Extend::commandSetVehicleControllerType(string nodeId, int value)
 {
-    uint8_t variableId = 0x15;
-    uint8_t variableType = TYPE_STRING;
+    uint8_t variableId = 0x18;
+    uint8_t variableType = TYPE_INTEGER;
 
     TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
     ASSERT(buf.eof());
 }
 
 
-void TraCI_Extend::commandSetVehicleDebug(string nodeId, bool value)
+void TraCI_Extend::commandSetVehicleControllerParameters(string nodeId, string value)
 {
-    uint8_t variableId = 0x16;
-    uint8_t variableType = TYPE_INTEGER;
-
-    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << (int)value);
-    ASSERT(buf.eof());
-}
-
-
-void TraCI_Extend::commandSetVehicleModeSwitch(string nodeId, bool value)
-{
-    uint8_t variableId = 0x17;
-    uint8_t variableType = TYPE_INTEGER;
-
-    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << (int)value);
-    ASSERT(buf.eof());
-}
-
-
-void TraCI_Extend::commandSetVehicleControlMode(string nodeId, int value)
-{
-    uint8_t variableId = 0x18;
-    uint8_t variableType = TYPE_INTEGER;
+    uint8_t variableId = 0x15;
+    uint8_t variableType = TYPE_STRING;
 
     TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
     ASSERT(buf.eof());
@@ -851,6 +831,24 @@ void TraCI_Extend::commandSetVehicleErrorRelSpeed(string nodeId, double value)
 }
 
 
+void TraCI_Extend::commandSetVehicleDegradeToACC(string nodeId, bool value)
+{
+    uint8_t variableId = 0x17;
+    uint8_t variableType = TYPE_INTEGER;
+
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << (int)value);
+    ASSERT(buf.eof());
+}
+
+
+void TraCI_Extend::commandSetVehicleDebug(string nodeId, bool value)
+{
+    uint8_t variableId = 0x16;
+    uint8_t variableType = TYPE_INTEGER;
+
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << (int)value);
+    ASSERT(buf.eof());
+}
 
 
 // ############################

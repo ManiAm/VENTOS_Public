@@ -7,11 +7,6 @@ simple Statistics
         @class(VENTOS::Statistics);
         
         bool collectMAClayerData;
-        bool collectVehiclesData;
-        bool collectInductionLoopData;
         bool collectPlnManagerData;
         bool printBeaconsStatistics;
-        bool printIncidentDetection;
-        int LaneCostsMode;
-        int HysteresisCount;
 }

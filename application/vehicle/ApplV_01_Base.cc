@@ -32,6 +32,15 @@ void ApplVBase::initialize(int stage)
         annotations = AnnotationManagerAccess().getIfExists();
         ASSERT(annotations);
 
+        VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+        SUMO_Path = simulation.getSystemModule()->par("SUMODirectory").stringValue();
+        SUMO_FullPath = VENTOS_FullPath / SUMO_Path;
+        // check if this directory is valid?
+        if( !exists( SUMO_FullPath ) )
+        {
+            error("SUMO directory is not valid! Check it again.");
+        }
+
         headerLength = par("headerLength").longValue();
 
         // vehicle id in omnet++

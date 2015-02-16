@@ -17,8 +17,13 @@ void ApplVPlatoonFormed::initialize(int stage)
 
 	if (stage == 0)
 	{
+        plnMode = par("plnMode").longValue();
+
 	    if(plnMode != 2)
 	        return;
+
+        if(!VANETenabled)
+            error("This vehicle is not VANET-enabled!");
 
 	    preDefinedPlatoonID = par("preDefinedPlatoonID").stringValue();
 

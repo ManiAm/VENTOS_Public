@@ -35,9 +35,7 @@ void ApplVSystem::initialize(int stage)
         // get the rootFilePath
         cModule *module = simulation.getSystemModule()->getSubmodule("router");
         router = static_cast< Router* >(module);
-        boost::filesystem::path SUMODirectory = simulation.getSystemModule()->par("SUMODirectory").stringValue();
-        boost::filesystem::path VENTOSfullDirectory = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-        string rootFilePath = (VENTOSfullDirectory / SUMODirectory).string();
+        string rootFilePath = SUMO_FullPath.string();
         rootFilePath += "/Vehicles" + SSTR(router->totalVehicleCount) + ".xml";
 
         // Routing
@@ -113,9 +111,8 @@ void ApplVSystem::receiveSignal(cComponent *source, simsignal_t signalID, cObjec
 
         if(string(s->getSender()) == "router" and string(s->getRecipient()) == SUMOvID and (requestReroutes or numReroutes == 0)) //If sent from the router and to this vehicle
         {
-
             numReroutes++;
-            cout << "Setting new route for " << SUMOvID << " at t=" << simTime().dbl() << endl;
+            if(ev.isGUI()) cout << "Setting new route for " << SUMOvID << " at t=" << simTime().dbl() << endl;
             list<string> sRoute = s->getInfo(); //Copy the info from the signal (breaks if we don't do this, for some reason)
             TraCI->commandChangeVehicleRoute(s->getRecipient(), sRoute);  //Update this vehicle's path with the proper info
         }

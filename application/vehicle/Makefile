@@ -148,7 +148,6 @@ depend:
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 $O/AddVehicle.o: AddVehicle.cc \
 	../global/Appl.h \
-	../global/Statistics.h \
 	../msg/Messages_m.h \
 	../router/Edge.h \
 	../router/Histogram.h \
@@ -277,7 +276,6 @@ $O/ApplV_02_Beacon.o: ApplV_02_Beacon.cc \
 	$(VEINS_PROJ)/src/veins/modules/world/annotations/AnnotationManager.h
 $O/ApplV_03_System.o: ApplV_03_System.cc \
 	../global/Appl.h \
-	../global/Statistics.h \
 	../msg/Messages_m.h \
 	../router/Edge.h \
 	../router/Histogram.h \
@@ -327,7 +325,6 @@ $O/ApplV_03_System.o: ApplV_03_System.cc \
 	$(VEINS_PROJ)/src/veins/modules/world/annotations/AnnotationManager.h
 $O/ApplV_04_AID.o: ApplV_04_AID.cc \
 	../global/Appl.h \
-	../global/Statistics.h \
 	../msg/Messages_m.h \
 	../router/Edge.h \
 	../router/Histogram.h \
@@ -378,7 +375,6 @@ $O/ApplV_04_AID.o: ApplV_04_AID.cc \
 	$(VEINS_PROJ)/src/veins/modules/world/annotations/AnnotationManager.h
 $O/ApplV_05_PlatoonFormed.o: ApplV_05_PlatoonFormed.cc \
 	../global/Appl.h \
-	../global/Statistics.h \
 	../msg/Messages_m.h \
 	../router/Edge.h \
 	../router/Histogram.h \
@@ -430,7 +426,6 @@ $O/ApplV_05_PlatoonFormed.o: ApplV_05_PlatoonFormed.cc \
 	$(VEINS_PROJ)/src/veins/modules/world/annotations/AnnotationManager.h
 $O/ApplV_06_PlatoonMg.o: ApplV_06_PlatoonMg.cc \
 	../global/Appl.h \
-	../global/Statistics.h \
 	../msg/Messages_m.h \
 	../router/Edge.h \
 	../router/Histogram.h \
@@ -483,7 +478,6 @@ $O/ApplV_06_PlatoonMg.o: ApplV_06_PlatoonMg.cc \
 	$(VEINS_PROJ)/src/veins/modules/world/annotations/AnnotationManager.h
 $O/ApplV_06a_Merge.o: ApplV_06a_Merge.cc \
 	../global/Appl.h \
-	../global/Statistics.h \
 	../msg/Messages_m.h \
 	../router/Edge.h \
 	../router/Histogram.h \
@@ -536,7 +530,6 @@ $O/ApplV_06a_Merge.o: ApplV_06a_Merge.cc \
 	$(VEINS_PROJ)/src/veins/modules/world/annotations/AnnotationManager.h
 $O/ApplV_06b_Split.o: ApplV_06b_Split.cc \
 	../global/Appl.h \
-	../global/Statistics.h \
 	../msg/Messages_m.h \
 	../router/Edge.h \
 	../router/Histogram.h \
@@ -589,7 +582,6 @@ $O/ApplV_06b_Split.o: ApplV_06b_Split.cc \
 	$(VEINS_PROJ)/src/veins/modules/world/annotations/AnnotationManager.h
 $O/ApplV_06c_Common.o: ApplV_06c_Common.cc \
 	../global/Appl.h \
-	../global/Statistics.h \
 	../msg/Messages_m.h \
 	../router/Edge.h \
 	../router/Histogram.h \
@@ -642,7 +634,6 @@ $O/ApplV_06c_Common.o: ApplV_06c_Common.cc \
 	$(VEINS_PROJ)/src/veins/modules/world/annotations/AnnotationManager.h
 $O/ApplV_06d_Entry.o: ApplV_06d_Entry.cc \
 	../global/Appl.h \
-	../global/Statistics.h \
 	../msg/Messages_m.h \
 	../router/Edge.h \
 	../router/Histogram.h \
@@ -695,7 +686,6 @@ $O/ApplV_06d_Entry.o: ApplV_06d_Entry.cc \
 	$(VEINS_PROJ)/src/veins/modules/world/annotations/AnnotationManager.h
 $O/ApplV_06e_LeaderLeave.o: ApplV_06e_LeaderLeave.cc \
 	../global/Appl.h \
-	../global/Statistics.h \
 	../msg/Messages_m.h \
 	../router/Edge.h \
 	../router/Histogram.h \
@@ -748,7 +738,6 @@ $O/ApplV_06e_LeaderLeave.o: ApplV_06e_LeaderLeave.cc \
 	$(VEINS_PROJ)/src/veins/modules/world/annotations/AnnotationManager.h
 $O/ApplV_06f_FollowerLeave.o: ApplV_06f_FollowerLeave.cc \
 	../global/Appl.h \
-	../global/Statistics.h \
 	../msg/Messages_m.h \
 	../router/Edge.h \
 	../router/Histogram.h \
@@ -801,7 +790,6 @@ $O/ApplV_06f_FollowerLeave.o: ApplV_06f_FollowerLeave.cc \
 	$(VEINS_PROJ)/src/veins/modules/world/annotations/AnnotationManager.h
 $O/ApplV_06g_Dissolve.o: ApplV_06g_Dissolve.cc \
 	../global/Appl.h \
-	../global/Statistics.h \
 	../msg/Messages_m.h \
 	../router/Edge.h \
 	../router/Histogram.h \
@@ -854,7 +842,6 @@ $O/ApplV_06g_Dissolve.o: ApplV_06g_Dissolve.cc \
 	$(VEINS_PROJ)/src/veins/modules/world/annotations/AnnotationManager.h
 $O/ApplV_07_Coordinator.o: ApplV_07_Coordinator.cc \
 	../global/Appl.h \
-	../global/Statistics.h \
 	../msg/Messages_m.h \
 	../router/Edge.h \
 	../router/Histogram.h \
@@ -908,7 +895,6 @@ $O/ApplV_07_Coordinator.o: ApplV_07_Coordinator.cc \
 	$(VEINS_PROJ)/src/veins/modules/world/annotations/AnnotationManager.h
 $O/ApplV_08_Manager.o: ApplV_08_Manager.cc \
 	../global/Appl.h \
-	../global/Statistics.h \
 	../msg/Messages_m.h \
 	../router/Edge.h \
 	../router/Histogram.h \

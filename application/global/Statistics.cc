@@ -1,7 +1,6 @@
 
 #include <Statistics.h>
 #include <ApplRSU_03_Manager.h>
-#include "Router.h"
 
 namespace VENTOS {
 
@@ -27,17 +26,8 @@ void Statistics::initialize(int stage)
         updateInterval = module->par("updateInterval").doubleValue();
 
         collectMAClayerData = par("collectMAClayerData").boolValue();
-        collectVehiclesData = par("collectVehiclesData").boolValue();
-        collectInductionLoopData = par("collectInductionLoopData").boolValue();
         collectPlnManagerData = par("collectPlnManagerData").boolValue();
         printBeaconsStatistics = par("printBeaconsStatistics").boolValue();
-        printIncidentDetection = par("printIncidentDetection").boolValue();
-        LaneCostsMode = par("LaneCostsMode").longValue();
-        HysteresisCount = par("HysteresisCount").longValue();
-
-        index = 1;
-
-        parseHistogramFile();
 
         // register signals
         Signal_executeEachTS = registerSignal("executeEachTS");
@@ -67,14 +57,12 @@ void Statistics::initialize(int stage)
 
 void Statistics::finish()
 {
-    if(LaneCostsMode == 1)
-        HistogramsToFile();
+
 }
 
 
 void Statistics::handleMessage(cMessage *msg)
 {
-
 
 }
 
@@ -191,39 +179,15 @@ void Statistics::executeEachTimestep(bool simulationDone)
     if(collectMAClayerData)
         MAClayerToFile();
 
-    if(collectVehiclesData)
-    {
-        vehiclesData();   // collecting data from all vehicles in each timeStep
-        if(ev.isGUI()) vehiclesDataToFile();  // write what we have collected so far
-    }
-
-    if(LaneCostsMode > 0)
-        laneCostsData();
-
-    if(collectInductionLoopData)
-    {
-        inductionLoops();    // collecting induction loop data in each timeStep
-        if(ev.isGUI()) inductionLoopToFile();  // write what we have collected so far
-    }
-
     if(collectPlnManagerData)
     {
         if(ev.isGUI()) plnManageToFile();  // write what we have collected so far
         if(ev.isGUI()) plnStatToFile();
     }
 
-    if(printIncidentDetection)
-        incidentDetectionToFile();
-
     // todo:
     if(simulationDone)
     {
-        if(collectVehiclesData && !ev.isGUI())
-            vehiclesDataToFile();
-
-        if(collectInductionLoopData && !ev.isGUI())
-            inductionLoopToFile();
-
         if(collectPlnManagerData && !ev.isGUI())
         {
             plnManageToFile();
@@ -241,370 +205,6 @@ void Statistics::executeEachTimestep(bool simulationDone)
         if(printBeaconsStatistics)
             printToFile();
     }
-}
-
-
-void Statistics::HistogramsToFile()
-{
-    ofstream outFile;
-    string VENTOSfullDirectory = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-    string SUMODirectory = simulation.getSystemModule()->par("SUMODirectory").stringValue();
-    string fileName = VENTOSfullDirectory + SUMODirectory + "/edgeWeights.txt";
-    outFile.open(fileName.c_str()); //Open the edgeWeights file
-
-    for(map<string, Histogram>::iterator it = edgeHistograms.begin(); it != edgeHistograms.end(); it++) //For each histogram
-    {
-        if(it->first != "") //If it has a name (empty-ID histograms occur when vehicles update in an intersection)
-        {
-            Histogram* hist = &it->second;
-            outFile << it->first << " " << hist->count << endl; //Write the edge ID and its number of data points
-            for(map<int, int>::iterator it2 = hist->data.begin(); it2 != hist->data.end(); it2++)
-            {
-                outFile << it2->first << " " << it2->second << "  ";    //And then write each data point followed by the number of occurrences
-            }
-            outFile << endl;
-        }
-    }
-}
-
-
-void Statistics::parseHistogramFile()
-{
-    ifstream inFile;
-    string VENTOSfullDirectory = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-    string SUMODirectory = simulation.getSystemModule()->par("SUMODirectory").stringValue();
-    string fileName = VENTOSfullDirectory + SUMODirectory + "/edgeWeights.txt";
-    inFile.open(fileName.c_str());  //Open the edgeWeights file
-
-    string edgeName;
-    while(inFile >> edgeName)   //While there are more edges to read
-    {
-        Histogram* hist = &edgeHistograms[edgeName];//Get the histogram for the edge
-        inFile >> hist->count;                      //And read in the number of data points
-        int edgeCount = 0;
-        while(edgeCount < hist->count)  //While we haven't read in all the data points
-        {
-            int val;
-            int valCount;
-            inFile >> val;      //Read in a value and how many times it occurs
-            inFile >> valCount;
-            hist->data[val] = valCount; //And write this to the histogram
-            hist->average = (hist->average * edgeCount + val * valCount) / (edgeCount + valCount);  //Update the running average
-            edgeCount += valCount;  //And mark we read this many more data points
-        }
-    }
-    inFile.close();
-}
-
-
-void Statistics::vehiclesData()
-{
-    // get all lanes in the network
-    list<string> myList = TraCI->commandGetLaneList();
-
-    for(list<string>::iterator i = myList.begin(); i != myList.end(); ++i)
-    {
-        // get all vehicles on lane i
-        list<string> myList2 = TraCI->commandGetLaneVehicleList( i->c_str() );
-
-        for(list<string>::reverse_iterator k = myList2.rbegin(); k != myList2.rend(); ++k)
-            saveVehicleData(k->c_str());
-    }
-
-    // increase index after writing data for all vehicles
-    if (TraCI->commandGetVehicleCount() > 0)
-        index++;
-}
-
-
-void Statistics::saveVehicleData(string vID)
-{
-    double timeStep = (simTime()-updateInterval).dbl();
-    string vType = TraCI->commandGetVehicleTypeId(vID);
-    string lane = TraCI->commandGetVehicleLaneId(vID);
-    double pos = TraCI->commandGetVehicleLanePosition(vID);
-    double speed = TraCI->commandGetVehicleSpeed(vID);
-    double accel = TraCI->commandGetVehicleAccel(vID);
-    int CFMode_Enum = TraCI->commandGetVehicleCFMode(vID);
-    string CFMode;
-
-    enum CFMODES {
-        Mode_Undefined,
-        Mode_NoData,
-        Mode_DataLoss,
-        Mode_SpeedControl,
-        Mode_GapControl,
-        Mode_EmergencyBrake,
-        Mode_Stopped
-    };
-
-    switch(CFMode_Enum)
-    {
-    case Mode_Undefined:
-        CFMode = "Undefined";
-        break;
-    case Mode_NoData:
-        CFMode = "NoData";
-        break;
-    case Mode_DataLoss:
-        CFMode = "DataLoss";
-        break;
-    case Mode_SpeedControl:
-        CFMode = "SpeedControl";
-        break;
-    case Mode_GapControl:
-        CFMode = "GapControl";
-        break;
-    case Mode_EmergencyBrake:
-        CFMode = "EmergencyBrake";
-        break;
-    case Mode_Stopped:
-        CFMode = "Stopped";
-        break;
-    default:
-        error("Not a valid CFModel!");
-        break;
-    }
-
-    // get the timeGap setting
-    double timeGapSetting = TraCI->commandGetVehicleTimeGap(vID);
-
-    // get the gap
-    vector<string> vleaderIDnew = TraCI->commandGetLeadingVehicle(vID, 900);
-    string vleaderID = vleaderIDnew[0];
-    double spaceGap = -1;
-
-    if(vleaderID != "")
-        spaceGap = atof( vleaderIDnew[1].c_str() );
-
-    // calculate timeGap (if leading is present)
-    double timeGap = -1;
-
-    if(vleaderID != "" && speed != 0)
-        timeGap = spaceGap / speed;
-
-    VehicleData *tmp = new VehicleData(index, timeStep,
-                                       vID.c_str(), vType.c_str(),
-                                       lane.c_str(), pos,
-                                       speed, accel, CFMode.c_str(),
-                                       timeGapSetting, spaceGap, timeGap);
-    Vec_vehiclesData.push_back(tmp);
-}
-
-
-void Statistics::vehiclesDataToFile()
-{
-    boost::filesystem::path filePath;
-
-    if( ev.isGUI() )
-    {
-        filePath = "results/gui/vehicleData.txt";
-    }
-    else
-    {
-        // get the current run number
-        int currentRun = ev.getConfigEx()->getActiveRunNumber();
-        ostringstream fileName;
-        fileName << currentRun << "_vehicleData.txt";
-        filePath = "results/cmd/" + fileName.str();
-    }
-
-    FILE *filePtr = fopen (filePath.string().c_str(), "w");
-
-    // write header
-    fprintf (filePtr, "%-10s","index");
-    fprintf (filePtr, "%-12s","timeStep");
-    fprintf (filePtr, "%-15s","vehicleName");
-    fprintf (filePtr, "%-17s","vehicleType");
-    fprintf (filePtr, "%-12s","lane");
-    fprintf (filePtr, "%-11s","pos");
-    fprintf (filePtr, "%-12s","speed");
-    fprintf (filePtr, "%-12s","accel");
-    fprintf (filePtr, "%-20s","CFMode");
-    fprintf (filePtr, "%-20s","timeGapSetting");
-    fprintf (filePtr, "%-10s","SpaceGap");
-    fprintf (filePtr, "%-10s\n\n","timeGap");
-
-    int oldIndex = -1;
-
-    // write body
-    for(unsigned int k=0; k<Vec_vehiclesData.size(); k++)
-    {
-        if(oldIndex != Vec_vehiclesData[k]->index)
-        {
-            fprintf(filePtr, "\n");
-            oldIndex = Vec_vehiclesData[k]->index;
-        }
-
-        fprintf (filePtr, "%-10d ", Vec_vehiclesData[k]->index);
-        fprintf (filePtr, "%-10.2f ", Vec_vehiclesData[k]->time );
-        fprintf (filePtr, "%-15s ", Vec_vehiclesData[k]->vehicleName);
-        fprintf (filePtr, "%-15s ", Vec_vehiclesData[k]->vehicleType);
-        fprintf (filePtr, "%-12s ", Vec_vehiclesData[k]->lane);
-        fprintf (filePtr, "%-10.2f ", Vec_vehiclesData[k]->pos);
-        fprintf (filePtr, "%-10.2f ", Vec_vehiclesData[k]->speed);
-        fprintf (filePtr, "%-10.2f ", Vec_vehiclesData[k]->accel);
-        fprintf (filePtr, "%-20s", Vec_vehiclesData[k]->CFMode);
-        fprintf (filePtr, "%-20.2f ", Vec_vehiclesData[k]->timeGapSetting);
-        fprintf (filePtr, "%-10.2f ", Vec_vehiclesData[k]->spaceGap);
-        fprintf (filePtr, "%-10.2f \n", Vec_vehiclesData[k]->timeGap);
-    }
-
-    fclose(filePtr);
-}
-
-void Statistics::laneCostsData()
-{
-    cModule *module = simulation.getSystemModule()->getSubmodule("router");
-    Router *r = static_cast< Router* >(module);
-
-    list<string> vList = TraCI->commandGetVehicleList();
-
-    for(list<string>::iterator it = vList.begin(); it != vList.end(); it++) //Look at each vehicle
-    {
-        string curEdge = TraCI->commandGetVehicleEdgeId(*it);  //The edge it's currently on
-        if(TraCI->commandGetVehicleLanePosition(*it) * 1.05 > TraCI->commandGetLaneLength(TraCI->commandGetVehicleLaneId(*it)))   //If the vehicle is on (or extremely close to) the end of the lane
-            curEdge = "";
-        string prevEdge = vehicleEdges[*it];    //The last edge we saw it on
-        if(vehicleEdges.find(*it) == vehicleEdges.end())    //If we haven't yet seen this vehicle
-        {
-            vehicleEdges[*it] = curEdge;           //Initialize its current edge
-            vehicleTimes[*it] = simTime().dbl();   //And current time
-            vehicleLaneChangeCount[*it] = -1;
-        }
-
-        if(prevEdge != curEdge) //If we've moved edges
-        {
-            if(r->UseHysteresis and ++vehicleLaneChangeCount[*it] > HysteresisCount * 2)
-            {
-                vehicleLaneChangeCount[*it] = 0;
-                r->sendRerouteSignal(*it);
-            }
-            edgeHistograms[prevEdge].insert(simTime().dbl() - vehicleTimes[*it], LaneCostsMode);   //Add the time the vehicle traveled to the data set for that edge
-            vehicleEdges[*it] = curEdge;                                            //And set its edge to the new one
-            vehicleTimes[*it] = simTime().dbl();                                    //And that edges start time to now
-            //cout << *it << " moves to edge " << curEdge << " at time " << simTime().dbl() << endl;  //Print a change
-        }
-    }
-}
-
-
-void Statistics::inductionLoops()
-{
-    // get all loop detectors
-    list<string> str = TraCI->commandGetLoopDetectorList();
-
-    // for each loop detector
-    for (list<string>::iterator it=str.begin(); it != str.end(); ++it)
-    {
-        // only if this loop detector detected a vehicle
-        if( TraCI->commandGetLoopDetectorCount(*it) == 1 )
-        {
-            vector<string>  st = TraCI->commandGetLoopDetectorVehicleData(*it);
-
-            string vehicleName = st.at(0);
-            double entryT = atof( st.at(2).c_str() );
-            double leaveT = atof( st.at(3).c_str() );
-            double speed = TraCI->commandGetLoopDetectorSpeed(*it);  // vehicle speed at current moment
-
-            int counter = findInVector(Vec_loopDetectors, (*it).c_str(), vehicleName.c_str());
-
-            // its a new entry, so we add it
-            if(counter == -1)
-            {
-                LoopDetector *tmp = new LoopDetector( (*it).c_str(), vehicleName.c_str(), entryT, -1, speed, -1 );
-                Vec_loopDetectors.push_back(tmp);
-            }
-            // if found, just update the leave time and leave speed
-            else
-            {
-                Vec_loopDetectors[counter]->leaveTime = leaveT;
-                Vec_loopDetectors[counter]->leaveSpeed = speed;
-            }
-        }
-    }
-}
-
-
-void Statistics::inductionLoopToFile()
-{
-    boost::filesystem::path filePath;
-
-    if( ev.isGUI() )
-    {
-        filePath = "results/gui/loopDetector.txt";
-    }
-    else
-    {
-        // get the current run number
-        int currentRun = ev.getConfigEx()->getActiveRunNumber();
-        ostringstream fileName;
-        fileName << currentRun << "_loopDetector.txt";
-        filePath = "results/cmd/" + fileName.str();
-    }
-
-    FILE *filePtr = fopen (filePath.string().c_str(), "w");
-
-    // write header
-    fprintf (filePtr, "%-20s","loopDetector");
-    fprintf (filePtr, "%-20s","vehicleName");
-    fprintf (filePtr, "%-20s","vehicleEntryTime");
-    fprintf (filePtr, "%-20s","vehicleLeaveTime");
-    fprintf (filePtr, "%-22s","vehicleEntrySpeed");
-    fprintf (filePtr, "%-22s\n\n","vehicleLeaveSpeed");
-
-    // write body
-    for(unsigned int k=0; k<Vec_loopDetectors.size(); k++)
-    {
-        fprintf (filePtr, "%-20s ", Vec_loopDetectors[k]->detectorName);
-        fprintf (filePtr, "%-20s ", Vec_loopDetectors[k]->vehicleName);
-        fprintf (filePtr, "%-20.2f ", Vec_loopDetectors[k]->entryTime);
-        fprintf (filePtr, "%-20.2f ", Vec_loopDetectors[k]->leaveTime);
-        fprintf (filePtr, "%-20.2f ", Vec_loopDetectors[k]->entrySpeed);
-        fprintf (filePtr, "%-20.2f ", Vec_loopDetectors[k]->leaveSpeed);
-        fprintf (filePtr, "\n" );
-    }
-
-    fclose(filePtr);
-}
-
-
-void Statistics::incidentDetectionToFile()
-{
-    // get a pointer to any RSU
-    cModule *module = simulation.getSystemModule()->getSubmodule("RSU", 0);
-
-    if(module == NULL)
-        return;
-
-    ApplRSUManager *RSUptr = static_cast<ApplRSUManager *>(module);
-
-    if(RSUptr == NULL)
-        return;
-
-    boost::filesystem::path filePath;
-
-    if( ev.isGUI() )
-    {
-        filePath = "results/gui/IncidentTable.txt";
-    }
-    else
-    {
-        // get the current run number
-        int currentRun = ev.getConfigEx()->getActiveRunNumber();
-        ostringstream fileName;
-        fileName << currentRun << "_IncidentTable.txt";
-        filePath = "results/cmd/" + fileName.str();
-    }
-
-    ofstream filePtr( filePath.string().c_str() );
-
-    if (filePtr.is_open())
-    {
-        filePtr << RSUptr->tableCount;
-    }
-
-    filePtr.close();
 }
 
 
@@ -1126,27 +726,6 @@ int Statistics::findInVector(vector<MacStatEntry *> Vec, const char *name)
     for(counter=0; counter<Vec.size(); counter++)
     {
         if( strcmp(Vec[counter]->name, name) == 0 )
-        {
-            found = true;
-            break;
-        }
-    }
-
-    if(!found)
-        return -1;
-    else
-        return counter;
-}
-
-
-int Statistics::findInVector(vector<LoopDetector *> Vec, const char *detectorName, const char *vehicleName)
-{
-    unsigned int counter;
-    bool found = false;
-
-    for(counter = 0; counter < Vec.size(); counter++)
-    {
-        if( strcmp(Vec[counter]->detectorName, detectorName) == 0 && strcmp(Vec[counter]->vehicleName, vehicleName) == 0)
         {
             found = true;
             break;

@@ -8,12 +8,13 @@ simple ApplVManager extends ApplVPlatoonMg
         @class(VENTOS::ApplVManager);
         @display("i=block/app2");
         
+        int controllerType = default(0);
+        bool degradeToACC = default(true);
+        bool SUMOvehicleDebug = default(false);
+        
         double droppT = default(0s) @unit(s);
         string droppV = default("");
         double plr = default(0);
-        
-        bool SUMOvehicleDebug = default(false);
-        bool modeSwitch = default(true);
         
         bool measurementError;
         double errorGap;

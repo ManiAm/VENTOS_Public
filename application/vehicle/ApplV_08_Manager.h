@@ -35,8 +35,9 @@ class ApplVManager : public ApplVCoordinator
         double plr;
 
         // NED variable
+        int controllerType;
+        bool degradeToACC;
         bool SUMOvehicleDebug;
-        bool modeSwitch;
 
         // NED variables (measurement error)
         bool measurementError;

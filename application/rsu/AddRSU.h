@@ -46,8 +46,11 @@ class AddRSU : public BaseModule
         simsignal_t Signal_executeFirstTS;
         bool on;
         int mode;
-        boost::filesystem::path SUMOfullDirectory;
         deque<RSUEntry*> RSUs;
+
+        boost::filesystem::path VENTOS_FullPath;
+        boost::filesystem::path SUMO_Path;
+        boost::filesystem::path SUMO_FullPath;
 };
 
 }

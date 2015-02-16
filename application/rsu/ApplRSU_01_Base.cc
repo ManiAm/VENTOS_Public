@@ -38,7 +38,7 @@ void ApplRSUBase::initialize(int stage)
         beaconLengthBits = par("beaconLengthBits").longValue();
         beaconPriority = par("beaconPriority").longValue();
 
-        // vehicle id in omnet++
+        // id in omnet++
 		myId = getParentModule()->getIndex();
 		myFullId = getParentModule()->getFullName();
 

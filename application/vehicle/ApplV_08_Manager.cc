@@ -18,13 +18,14 @@ void ApplVManager::initialize(int stage)
 	if (stage == 0)
 	{
         // NED variables
+        controllerType = par("controllerType").longValue();
+        degradeToACC = par("degradeToACC").boolValue();
         SUMOvehicleDebug = par("SUMOvehicleDebug").boolValue();
-        modeSwitch = par("modeSwitch").boolValue();
 
         // set parameters in SUMO
         TraCI->commandSetVehicleDebug(SUMOvID, SUMOvehicleDebug);
-        TraCI->commandSetVehicleModeSwitch(SUMOvID, modeSwitch);
-        TraCI->commandSetVehicleControlMode(SUMOvID, controlMode);
+        TraCI->commandSetVehicleDegradeToACC(SUMOvID, degradeToACC);
+        TraCI->commandSetVehicleControllerType(SUMOvID, controllerType);
 
         // NED variables (packet loss ratio)
         droppT = par("droppT").doubleValue();
@@ -226,24 +227,25 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
     EV << "## " << SUMOvID << " received beacon ..." << endl;
     ApplVBeacon::printBeaconContent(wsm);
 
-    // stand-alone vehicle
-    // ignore the received beacon!
-    if(controlMode == 1)
+    // manual-driving and ACC vehicles (CACC should not use this mode)
+    // only beaconing is working (if enabled!)
+    // and we ignore all received BeaconVehicle
+    if(controllerType == 1)
     {
 
     }
-    // one-vehicle look-ahead
-    else if(controlMode == 2)
+    // CACC controller with one-vehicle look-ahead communication
+    else if(controllerType == 2)
     {
         if( isBeaconFromLeading(wsm) )
         {
             char buffer [200];
             sprintf (buffer, "%f#%f#%f#%f#%s#%s", (double)wsm->getSpeed(), (double)wsm->getAccel(), (double)wsm->getMaxDecel(), (simTime().dbl())*1000, wsm->getSender(), "preceding");
-            TraCI->commandSetVehicleCFParameters(SUMOvID, buffer);
+            TraCI->commandSetVehicleControllerParameters(SUMOvID, buffer);
         }
     }
-    // from platoon leader
-    else if(controlMode == 3)
+    // CACC controller with platoon leader communication
+    else if(controllerType == 3)
     {
         if(plnMode == 1)
             error("no platoon leader is present! check plnMode!");
@@ -256,7 +258,7 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
             {
                 char buffer [200];
                 sprintf (buffer, "%f#%f#%f#%f#%s#%s", (double)wsm->getSpeed(), (double)wsm->getAccel(), (double)wsm->getMaxDecel(), (simTime().dbl())*1000, wsm->getSender(), "preceding");
-                TraCI->commandSetVehicleCFParameters(SUMOvID, buffer);
+                TraCI->commandSetVehicleControllerParameters(SUMOvID, buffer);
             }
         }
         // I am a follower
@@ -267,13 +269,13 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
             {
                 char buffer [200];
                 sprintf (buffer, "%f#%f#%f#%f#%s#%s", (double)wsm->getSpeed(), (double)wsm->getAccel(), (double)wsm->getMaxDecel(), (simTime().dbl())*1000, wsm->getSender(), "leader");
-                TraCI->commandSetVehicleCFParameters(SUMOvID, buffer);
+                TraCI->commandSetVehicleControllerParameters(SUMOvID, buffer);
             }
         }
     }
     else
     {
-        error("not a valid control mode!");
+        error("not a valid control type!");
     }
 
 

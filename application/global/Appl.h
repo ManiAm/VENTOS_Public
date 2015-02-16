@@ -75,7 +75,6 @@ class data : public cObject, noncopyable
     }
 };
 
-
 class MacStat : public cObject, noncopyable
 {
   public:

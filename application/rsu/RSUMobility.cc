@@ -57,13 +57,17 @@ void RSUMobility::initialize(int stage)
 
 Coord *RSUMobility::getRSUCoord(unsigned int index)
 {
-    boost::filesystem::path SUMODirectory = simulation.getSystemModule()->par("SUMODirectory").stringValue();
-    boost::filesystem::path VENTOSfullDirectory = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-    boost::filesystem::path SUMOfullDirectory = VENTOSfullDirectory / SUMODirectory;   // home/mani/Desktop/VENTOS/sumo/CACC_Platoon
+    boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+    boost::filesystem::path SUMO_Path = simulation.getSystemModule()->par("SUMODirectory").stringValue();
+    boost::filesystem::path SUMO_FullPath = VENTOS_FullPath / SUMO_Path;
+    // check if this directory is valid?
+    if( !exists( SUMO_FullPath ) )
+    {
+        error("SUMO directory is not valid! Check it again.");
+    }
 
     string RSUfile = AddRSUPtr->par("RSUfile").stringValue();
-    boost::filesystem::path RSUfilePath = SUMOfullDirectory / RSUfile;
-
+    boost::filesystem::path RSUfilePath = SUMO_FullPath / RSUfile;
     // check if this file is valid?
     if( !exists( RSUfilePath ) )
     {

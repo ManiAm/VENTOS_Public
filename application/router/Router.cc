@@ -5,11 +5,6 @@ namespace VENTOS {
 
 Define_Module(VENTOS::Router);
 
-Router::~Router()
-{
-
-}
-
 vector<string>* randomUniqueVehiclesInRange(int numInts, int rangeMin, int rangeMax)
 {             //Generates n random unique ints in range [rangeMin, rangeMax)
               //Not a very efficient implementation, but it shouldn't matter much
@@ -26,6 +21,25 @@ vector<string>* randomUniqueVehiclesInRange(int numInts, int rangeMin, int range
         randInts->push_back("v" + SSTR(initialInts->at(i) + 1));
 
     return randInts;
+}
+
+class routerCompare // Comparator object for getRoute weighting
+{
+public:
+    bool operator()(const Edge* n1, const Edge* n2)
+    {
+        return n1->curCost > n2->curCost;
+    }
+};
+
+string key(Node* n1, Node* n2, int time)
+{
+    return n1->id + "#" + n2->id + "#" + SSTR(time);
+}
+
+Router::~Router()
+{
+
 }
 
 void Router::initialize(int stage)
@@ -45,6 +59,8 @@ void Router::initialize(int stage)
         // register signals
         Signal_system = registerSignal("system");
         simulation.getSystemModule()->subscribe("system", this);
+        Signal_executeFirstTS = registerSignal("executeFirstTS");
+        simulation.getSystemModule()->subscribe("executeFirstTS", this);
 
         collectVehicleTimeData = par("collectVehicleTimeData").boolValue();
         leftTurnCost = par("leftTurnCost").doubleValue();
@@ -55,10 +71,20 @@ void Router::initialize(int stage)
         timePeriodMax = par("timePeriodMax").doubleValue();
         UseHysteresis = par("UseHysteresis").boolValue();
 
+        LaneCostsMode = par("LaneCostsMode").longValue();
+        HysteresisCount = par("HysteresisCount").longValue();
+
         // get the file paths
-        boost::filesystem::path SUMODirectory = simulation.getSystemModule()->par("SUMODirectory").stringValue();
-        boost::filesystem::path VENTOSfullDirectory = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-        string netBase = (VENTOSfullDirectory / SUMODirectory).string();
+        VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+        SUMO_Path = simulation.getSystemModule()->par("SUMODirectory").stringValue();
+        SUMO_FullPath = VENTOS_FullPath / SUMO_Path;
+        // check if this directory is valid?
+        if( !exists( SUMO_FullPath ) )
+        {
+            error("SUMO directory is not valid! Check it again.");
+        }
+
+        string netBase = SUMO_FullPath.string();
 
         createTime = par("createTime").longValue();
         totalVehicleCount = par("vehicleCount").longValue();
@@ -68,8 +94,7 @@ void Router::initialize(int stage)
         int numNonRerouting = (double)totalVehicleCount * nonReroutingVehiclePercent;
         nonReroutingVehicles = randomUniqueVehiclesInRange(numNonRerouting, 0, totalVehicleCount);
 
-
-        string NonReroutingFileName = VENTOSfullDirectory.string() + "results/router/" + SSTR(ev.getConfigEx()->getActiveRunNumber()) + "_nonRerouting" + ".txt";
+        string NonReroutingFileName = VENTOS_FullPath.string() + "results/router/" + SSTR(ev.getConfigEx()->getActiveRunNumber()) + "_nonRerouting" + ".txt";
         ofstream NonReroutingFile;
         NonReroutingFile.open(NonReroutingFileName.c_str());
         for(int i = 0; i < numNonRerouting; i++)
@@ -78,12 +103,109 @@ void Router::initialize(int stage)
 
         net = new Net(netBase, this->getParentModule());
 
+        parseHistogramFile();
+
         if(collectVehicleTimeData)
         {
-            string TravelTimesFileName = VENTOSfullDirectory.string() + "results/router/" + SSTR(ev.getConfigEx()->getActiveRunNumber()) + ".txt";
+            string TravelTimesFileName = VENTOS_FullPath.string() + "results/router/" + SSTR(ev.getConfigEx()->getActiveRunNumber()) + ".txt";
             vehicleTravelTimesFile.open(TravelTimesFileName.c_str());  //Open the edgeWeights file
         }
     } // if stage == 0
+}
+
+void Router::receiveSignal(cComponent *source, simsignal_t signalID, long i)
+{
+    Enter_Method_Silent();
+
+    if(signalID == Signal_executeFirstTS)
+    {
+        if(LaneCostsMode > 0)
+            laneCostsData();
+
+        // if simulation is about to be ended
+        if(i && LaneCostsMode == 1)
+            HistogramsToFile();
+    }
+}
+
+void Router::parseHistogramFile()
+{
+    ifstream inFile;
+    string fileName = SUMO_FullPath.string() + "/edgeWeights.txt";
+    inFile.open(fileName.c_str());  //Open the edgeWeights file
+
+    string edgeName;
+    while(inFile >> edgeName)   //While there are more edges to read
+    {
+        Histogram* hist = &edgeHistograms[edgeName];//Get the histogram for the edge
+        inFile >> hist->count;                      //And read in the number of data points
+        int edgeCount = 0;
+        while(edgeCount < hist->count)  //While we haven't read in all the data points
+        {
+            int val;
+            int valCount;
+            inFile >> val;      //Read in a value and how many times it occurs
+            inFile >> valCount;
+            hist->data[val] = valCount; //And write this to the histogram
+            hist->average = (hist->average * edgeCount + val * valCount) / (edgeCount + valCount);  //Update the running average
+            edgeCount += valCount;  //And mark we read this many more data points
+        }
+    }
+    inFile.close();
+}
+
+// is called at the end of simulation
+void Router::HistogramsToFile()
+{
+    ofstream outFile;
+    string fileName = SUMO_FullPath.string() + "/edgeWeights.txt";
+    outFile.open(fileName.c_str()); //Open the edgeWeights file
+
+    for(map<string, Histogram>::iterator it = edgeHistograms.begin(); it != edgeHistograms.end(); it++) //For each histogram
+    {
+        if(it->first != "") //If it has a name (empty-ID histograms occur when vehicles update in an intersection)
+        {
+            Histogram* hist = &it->second;
+            outFile << it->first << " " << hist->count << endl; //Write the edge ID and its number of data points
+            for(map<int, int>::iterator it2 = hist->data.begin(); it2 != hist->data.end(); it2++)
+            {
+                outFile << it2->first << " " << it2->second << "  ";    //And then write each data point followed by the number of occurrences
+            }
+            outFile << endl;
+        }
+    }
+}
+
+void Router::laneCostsData()
+{
+    list<string> vList = TraCI->commandGetVehicleList();
+
+    for(list<string>::iterator it = vList.begin(); it != vList.end(); it++) //Look at each vehicle
+    {
+        string curEdge = TraCI->commandGetVehicleEdgeId(*it);  //The edge it's currently on
+        if(TraCI->commandGetVehicleLanePosition(*it) * 1.05 > TraCI->commandGetLaneLength(TraCI->commandGetVehicleLaneId(*it)))   //If the vehicle is on (or extremely close to) the end of the lane
+            curEdge = "";
+        string prevEdge = vehicleEdges[*it];    //The last edge we saw it on
+        if(vehicleEdges.find(*it) == vehicleEdges.end())    //If we haven't yet seen this vehicle
+        {
+            vehicleEdges[*it] = curEdge;           //Initialize its current edge
+            vehicleTimes[*it] = simTime().dbl();   //And current time
+            vehicleLaneChangeCount[*it] = -1;
+        }
+
+        if(prevEdge != curEdge) //If we've moved edges
+        {
+            if(UseHysteresis and ++vehicleLaneChangeCount[*it] > HysteresisCount * 2)
+            {
+                vehicleLaneChangeCount[*it] = 0;
+                sendRerouteSignal(*it);
+            }
+            edgeHistograms[prevEdge].insert(simTime().dbl() - vehicleTimes[*it], LaneCostsMode);   //Add the time the vehicle traveled to the data set for that edge
+            vehicleEdges[*it] = curEdge;                                            //And set its edge to the new one
+            vehicleTimes[*it] = simTime().dbl();                                    //And that edges start time to now
+            //cout << *it << " moves to edge " << curEdge << " at time " << simTime().dbl() << endl;  //Print a change
+        }
+    }
 }
 
 void Router::sendRerouteSignal(string vehID)
@@ -160,9 +282,7 @@ void Router::receiveSignal(cComponent *source, simsignal_t signalID, cObject *ob
                         vehicleTravelTimesFile.close();
 
                         ofstream outfile;
-                        string VENTOSfullDirectory = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-                        string SUMODirectory = simulation.getSystemModule()->par("SUMODirectory").stringValue();
-                        string fileName = VENTOSfullDirectory + "results/router/AverageTravelTimes.txt";
+                        string fileName = VENTOS_FullPath.string() + "results/router/AverageTravelTimes.txt";
                         outfile.open(fileName.c_str(), ofstream::app);  //Open the edgeWeights file
                         outfile << currentRun <<": " << avg << endl;
                         outfile.close();
@@ -207,19 +327,6 @@ double Router::junctionCost(double time, Edge* start, Edge* end)
         return timeToPhase(start->to->tl, time, nextAcceptingPhase(time, start, end));
     else
         return turnTypeCost(start, end);
-}
-class routerCompare // Comparator object for getRoute weighting
-{
-public:
-    bool operator()(const Edge* n1, const Edge* n2)
-    {
-        return n1->curCost > n2->curCost;
-    }
-};
-
-string key(Node* n1, Node* n2, int time)
-{
-    return n1->id + "#" + n2->id + "#" + SSTR(time);
 }
 
 vector<int>* Router::TLTransitionPhases(Edge* start, Edge* end)

@@ -27,8 +27,6 @@ void ApplVBeacon::initialize(int stage)
 	        VANETenabled = false;
 	    }
 
-	    controlMode = par("controlMode").longValue();
-	    plnMode = par("plnMode").longValue();
         sonarDist = par("sonarDist").doubleValue();
 
         // NED variables (beaconing parameters)
@@ -92,12 +90,9 @@ void ApplVBeacon::handleSelfMsg(cMessage* msg)
         {
             BeaconVehicle* beaconMsg = prepareBeacon();
 
-            if(controlMode != 1)
-            {
-                // fill-in the related fields to platoon
-                beaconMsg->setPlatoonID(plnID.c_str());
-                beaconMsg->setPlatoonDepth(myPlnDepth);
-            }
+            // fill-in the related fields to platoon
+            beaconMsg->setPlatoonID(plnID.c_str());
+            beaconMsg->setPlatoonDepth(myPlnDepth);
 
             EV << "## Created beacon msg for vehicle: " << SUMOvID << endl;
             ApplVBeacon::printBeaconContent(beaconMsg);

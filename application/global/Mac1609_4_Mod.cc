@@ -30,10 +30,6 @@ void Mac1609_4_Mod::initialize(int stage)
 void Mac1609_4_Mod::finish()
 {
     Mac1609_4::finish();
-
-    //clean up queues.
-
-    // todo: do not let record queue!
 }
 
 

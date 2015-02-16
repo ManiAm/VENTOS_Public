@@ -26,10 +26,15 @@ class TrafficLightRouter;
 class Net;
 class Hypertree;
 
+string key(Node* n1, Node* n2, int time);
+
 class Router : public BaseModule    //Responsible for routing cars in our system.  Should only be one of these.
 {
 public:
     ~Router();
+    virtual void initialize(int stage);
+    virtual void receiveSignal(cComponent *, simsignal_t, cObject *);
+    virtual void receiveSignal(cComponent *, simsignal_t, long);
 
     int createTime;
     int currentVehicleCount;
@@ -40,7 +45,13 @@ public:
     void sendRerouteSignal(string vid);     //Forces a vehicle to reroute
     bool UseHysteresis;
 
+    std::map<string, Histogram> edgeHistograms;
+
 protected:
+    boost::filesystem::path VENTOS_FullPath;
+    boost::filesystem::path SUMO_Path;
+    boost::filesystem::path SUMO_FullPath;
+
     map<string, Hypertree*> hypertreeMemo;
 
     //Vehicle stuff
@@ -61,18 +72,29 @@ protected:
     Hypertree* buildHypertree(int startTime, Node* destination);    //Builds a hypertree to the destination, bounded between the start time and timePeriodMax;
     list<string> getRoute(Edge* origin, Node* destination, string vName);       //Returns a list of edges between origin and destination,
                                                                                 //or an empty list if they're not connected
-    //Internal functions
-    virtual void initialize(int);
-    virtual void receiveSignal(cComponent *, simsignal_t, cObject *);
     SystemMsg* prepareSystemMsg();
 
     //Message passing
     cModule *nodePtr;               // pointer to the Node
     mutable TraCI_Extend* TraCI;    //Link to TraCI
     simsignal_t Signal_system;      //Receives signals to here
-};
 
-string key(Node* n1, Node* n2, int time);
+    simsignal_t Signal_executeFirstTS;
+
+    // Edge weight-gathering
+    std::map<string, string> vehicleEdges;
+    std::map<string, double> vehicleTimes;
+
+    //Hysteresis implementation
+    std::map<string, int> vehicleLaneChangeCount;
+    int HysteresisCount;
+
+    int LaneCostsMode;
+
+    void HistogramsToFile();
+    void parseHistogramFile();
+    void laneCostsData();
+};
 
 }
 

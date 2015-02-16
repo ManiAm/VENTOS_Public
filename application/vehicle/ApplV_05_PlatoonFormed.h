@@ -23,6 +23,7 @@ class ApplVPlatoonFormed : public ApplV_AID
         virtual void onData(PlatoonMsg* wsm);
 
 	protected:
+        int plnMode;
         string preDefinedPlatoonID;
 };
 }

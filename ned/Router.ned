@@ -21,5 +21,8 @@ simple Router
         int vehicleCount;
         double nonReroutingVehiclePercent;
         bool UseHysteresis;
+        
+        int LaneCostsMode;
+        int HysteresisCount;
 }
 

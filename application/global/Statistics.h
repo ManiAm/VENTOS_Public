@@ -9,7 +9,6 @@
 
 #include "Appl.h"
 #include "TraCI_Extend.h"
-#include "Histogram.h"
 
 
 namespace VENTOS {
@@ -50,76 +49,6 @@ class NodeEntry
         strcpy(this->name2, str2);
         this->count = n;
         this->time = t;
-    }
-};
-
-
-class VehicleData
-{
-  public:
-    int index;
-    double time;
-
-    char vehicleName[20];
-    char vehicleType[20];
-
-    char lane[20];
-    double pos;
-
-    double speed;
-    double accel;
-    char CFMode[30];
-
-    double timeGapSetting;
-    double spaceGap;
-    double timeGap;
-
-    VehicleData(int i, double d1,
-                 const char *str1, const char *str2,
-                 const char *str3, double d2,
-                 double d3, double d4, const char *str4,
-                 double d3a, double d5, double d6)
-    {
-        this->index = i;
-        this->time = d1;
-
-        strcpy(this->vehicleName, str1);
-        strcpy(this->vehicleType, str2);
-
-        strcpy(this->lane, str3);
-        this->pos = d2;
-
-        this->speed = d3;
-        this->accel = d4;
-        strcpy(this->CFMode, str4);
-
-        this->timeGapSetting = d3a;
-        this->spaceGap = d5;
-        this->timeGap = d6;
-    }
-};
-
-
-class LoopDetector
-{
-  public:
-    char detectorName[20];
-    char vehicleName[20];
-    double entryTime;
-    double leaveTime;
-    double entrySpeed;
-    double leaveSpeed;
-
-    LoopDetector( const char *str1, const char *str2, double entryT, double leaveT, double entryS, double leaveS )
-    {
-        strcpy(this->detectorName, str1);
-        strcpy(this->vehicleName, str2);
-
-        this->entryTime = entryT;
-        this->leaveTime = leaveT;
-
-        this->entrySpeed = entryS;
-        this->leaveSpeed = leaveS;
     }
 };
 
@@ -176,8 +105,6 @@ class Statistics : public BaseModule
 	  virtual void receiveSignal(cComponent *, simsignal_t, long);
 	  virtual void receiveSignal(cComponent *, simsignal_t, cObject *);
 
-      std::map<string, Histogram> edgeHistograms; // should be public
-
   private:
       // NED variables
       TraCI_Extend *TraCI;
@@ -186,23 +113,8 @@ class Statistics : public BaseModule
 
       // NED variables
       bool collectMAClayerData;
-      bool collectVehiclesData;
-      int LaneCostsMode;
-      bool collectInductionLoopData;
       bool collectPlnManagerData;
       bool printBeaconsStatistics;
-      bool printIncidentDetection;
-
-      // class variables
-      int index;
-
-      // Edge weight-gathering
-      std::map<string, string> vehicleEdges;
-      std::map<string, double> vehicleTimes;
-
-      //Hysteresis implementation
-      std::map<string, int> vehicleLaneChangeCount;
-      int HysteresisCount;
 
       // class variables (signals)
       simsignal_t Signal_executeEachTS;
@@ -219,8 +131,6 @@ class Statistics : public BaseModule
 	  simsignal_t Signal_TimeData;
 
 	  // class variables (vectors)
-      vector<VehicleData *> Vec_vehiclesData;
-      vector<LoopDetector *> Vec_loopDetectors;
       vector<MacStatEntry *> Vec_MacStat;
       vector<plnManagement *> Vec_plnManagement;
       vector<plnStat *> Vec_plnStat;
@@ -241,35 +151,16 @@ class Statistics : public BaseModule
   private:
       void executeEachTimestep(bool);
 
-      void vehiclesData();
-      void saveVehicleData(string);
-      void vehiclesDataToFile();
-
-      void HistogramsToFile();
-      void parseHistogramFile();
-      void laneCostsData();
-      void processTravelTimeData();
-
-      void inductionLoops();
-      void inductionLoopToFile();
-
-      void incidentDetectionToFile();
-
       void MAClayerToFile();
 
       void plnManageToFile();
       void plnStatToFile();
 
-
-
-
-
       void postProcess();
       void printToFile();
       vector<NodeEntry *> SortByID(vector<NodeEntry *>);
-      int getNodeIndex(const char*);
+      int getNodeIndex(const char *ModName);
 
-      int findInVector(vector<LoopDetector *> , const char *, const char *);
       int findInVector(vector<NodeEntry *>, const char *);
       int findInVector(vector<MacStatEntry *>, const char *);
 };

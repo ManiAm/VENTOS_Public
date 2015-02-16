@@ -23,6 +23,14 @@ void ApplRSUAID::initialize(int stage)
         // todo: change n and m dynamically!
         tableCount = MatrixXi::Zero(3, 2000);
         tableProb = MatrixXd::Constant(3, 2000, 0.1);
+
+        printIncidentDetection = par("printIncidentDetection").boolValue();
+
+        Signal_executeEachTS = registerSignal("executeEachTS");
+
+        // only one RSU is registered with this signal
+        if(printIncidentDetection && string("RSU[0]") == myFullId)
+            simulation.getSystemModule()->subscribe("executeEachTS", this);
 	}
 }
 
@@ -36,6 +44,44 @@ void ApplRSUAID::finish()
 void ApplRSUAID::handleSelfMsg(cMessage* msg)
 {
     ApplRSUBase::handleSelfMsg(msg);
+}
+
+
+// only RSU[0] executes this
+void ApplRSUAID::receiveSignal(cComponent *source, simsignal_t signalID, long i)
+{
+    Enter_Method_Silent();
+
+    if(signalID == Signal_executeEachTS)
+        incidentDetectionToFile();
+}
+
+
+void ApplRSUAID::incidentDetectionToFile()
+{
+    boost::filesystem::path filePath;
+
+    if( ev.isGUI() )
+    {
+        filePath = "results/gui/IncidentTable.txt";
+    }
+    else
+    {
+        // get the current run number
+        int currentRun = ev.getConfigEx()->getActiveRunNumber();
+        ostringstream fileName;
+        fileName << currentRun << "_IncidentTable.txt";
+        filePath = "results/cmd/" + fileName.str();
+    }
+
+    ofstream filePtr( filePath.string().c_str() );
+
+    if (filePtr.is_open())
+    {
+        filePtr << tableCount;
+    }
+
+    filePtr.close();
 }
 
 

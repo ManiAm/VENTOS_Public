@@ -42,6 +42,10 @@ class ApplVBase : public BaseApplLayer
         mutable TraCI_Extend* TraCI;
         AnnotationManager* annotations;
 
+        boost::filesystem::path VENTOS_FullPath;
+        boost::filesystem::path SUMO_Path;
+        boost::filesystem::path SUMO_FullPath;
+
         // Class variables
         int myId;
 		const char *myFullId;

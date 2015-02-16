@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<routes>
+
+  <!-- Krauss Model -->
+  <vType id="TypeManual" length="5.0" minGap="2.0" maxSpeed="30.0">
+      <carFollowing-Krauss accel="3.0" decel="5.0" sigma="0" tau="1.64" />
+  </vType> 
+    
+  <!-- Pedestrian -->
+  <vType id="TypePedestrian" length="2.0" vClass="pedestrian">
+  </vType>
+  
+    <!-- Bicycle -->
+  <vType id="TypeBicycle" length="2.0" vClass="bicycle">
+  </vType>
+
+  <route id="route1" edges="2to3 3to4" />  
+  <route id="route2" edges="2to3 3to5" />  
+  <route id="route3" edges="1to3 3to4" />  
+  <route id="route4" edges="1to3 3to5" />  
+
+</routes>

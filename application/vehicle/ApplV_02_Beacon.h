@@ -16,8 +16,6 @@ class ApplVBeacon : public ApplVBase
 	protected:
         // NED
         bool VANETenabled;
-        int controlMode;
-        int plnMode;
         double sonarDist;
 
         // NED variables (beaconing parameters)

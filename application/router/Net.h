@@ -10,7 +10,6 @@
 
 #include "Router.h"
 #include "Vehicle.h"
-#include "Statistics.h"
 #include "Histogram.h"
 #include "rapidxml.hpp"
 #include "rapidxml_utils.hpp"

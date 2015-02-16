@@ -43,6 +43,12 @@ class TraCI_Extend : public TraCIScenarioManager
         virtual void init_traci();
 		virtual void finish();
 
+    protected:
+        boost::filesystem::path VENTOS_FullPath;
+        boost::filesystem::path SUMO_Path;
+        boost::filesystem::path SUMO_FullPath;
+
+    public:
         // CMD_GET_SIM_VARIABLE
         double* commandGetNetworkBoundary();
         uint32_t commandGetMinExpectedVehicles();
@@ -106,6 +112,7 @@ class TraCI_Extend : public TraCIScenarioManager
         std::list<Coord> commandGetPolygonShape(string polyId);
 
         // ###########################################################
+        // ###########################################################
 
         // CMD_SET_VEHICLE_VARIABLE
         void commandVehicleStop(string, string, double, uint8_t, double, uint8_t);
@@ -121,12 +128,18 @@ class TraCI_Extend : public TraCIScenarioManager
         void commandSetVehicleMaxAccel(string, double);
         void commandSetVehicleMaxDecel(string, double);
         void commandSetVehicleTg(string, double);
-        void commandSetVehicleCFParameters(string, string);     // new defined command
-        void commandSetVehicleDebug(string, bool);              // new defined command
-        void commandSetVehicleModeSwitch(string, bool);         // new defined command
-        void commandSetVehicleControlMode(string, int);         // new defined command
-        void commandSetVehicleErrorGap(string, double);         // new defined command
-        void commandSetVehicleErrorRelSpeed(string, double);    // new defined command
+        // set a controller for this vehicle
+        void commandSetVehicleControllerType(string, int);           // new defined command
+        // set the controller's parameters for this vehicle
+        void commandSetVehicleControllerParameters(string, string);  // new defined command
+        // set an error value for the gap
+        void commandSetVehicleErrorGap(string, double);           // new defined command
+        // set an error value for relative speed
+        void commandSetVehicleErrorRelSpeed(string, double);      // new defined command
+        // should the controller degrade to ACC?
+        void commandSetVehicleDegradeToACC(string, bool);         // new defined command
+        // should the debug info be printed in the SUMO output console?
+        void commandSetVehicleDebug(string, bool);                // new defined command
 
         // CMD_SET_VEHICLETYPE_VARIABLE
         void commandSetMaxSpeed(string, double);
@@ -163,9 +176,6 @@ class TraCI_Extend : public TraCIScenarioManager
         Coord genericGetCoordv2(uint8_t commandId, string objectId, uint8_t variableId, uint8_t responseId);
         vector<double> genericGetBoundingBox(uint8_t commandId, string objectId, uint8_t variableId, uint8_t responseId);
         uint8_t* genericGetArrayUnsignedInt(uint8_t, string, uint8_t, uint8_t);
-
-	protected:
-        boost::filesystem::path SUMOfullDirectory;
 };
 
 }

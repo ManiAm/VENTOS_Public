@@ -28,9 +28,14 @@ void AddRSU::initialize(int stage)
         Signal_executeFirstTS = registerSignal("executeFirstTS");
         simulation.getSystemModule()->subscribe("executeFirstTS", this);
 
-        boost::filesystem::path SUMODirectory = simulation.getSystemModule()->par("SUMODirectory").stringValue();
-        boost::filesystem::path VENTOSfullDirectory = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-        SUMOfullDirectory = VENTOSfullDirectory / SUMODirectory;   // home/mani/Desktop/VENTOS/sumo/CACC_Platoon
+        VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+        SUMO_Path = simulation.getSystemModule()->par("SUMODirectory").stringValue();
+        SUMO_FullPath = VENTOS_FullPath / SUMO_Path;
+        // check if this directory is valid?
+        if( !exists( SUMO_FullPath ) )
+        {
+            error("SUMO directory is not valid! Check it again.");
+        }
 
         on = par("on").boolValue();
         mode = par("mode").longValue();
@@ -81,7 +86,7 @@ void AddRSU::Scenario1()
     // ####################################
 
     string RSUfile = par("RSUfile").stringValue();
-    boost::filesystem::path RSUfilePath = SUMOfullDirectory / RSUfile;
+    boost::filesystem::path RSUfilePath = SUMO_FullPath / RSUfile;
 
     // check if this file is valid?
     if( !exists( RSUfilePath ) )

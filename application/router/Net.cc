@@ -1,6 +1,7 @@
 
 #include "Net.h"
 #include "Statistics.h"
+#include "TrafficLightRouter.h"
 
 namespace VENTOS {
 
@@ -15,8 +16,6 @@ Net::Net(string netBase, cModule* router)
     transitions = new map<string, vector<int>* >;
     turnTypes = new map<string, char>;
 
-    // todo
-    //Statistics* statPtr = FindModule<Statistics*>::findGlobalModule();
     cModuleType* moduleType = cModuleType::get("c3po.ned.TrafficLightRouter");    //Get the TL module
 
     string netFile = netBase + "/hello.net.xml";
@@ -118,9 +117,8 @@ Net::Net(string netBase, cModule* router)
         }
         Node* from = nodes[fromVal];  //Get a pointer to the start node
         Node* to = nodes[toVal];      //Get a pointer to the end node
-        // todo
-        //Edge* e = new Edge(id, from, to, priority, lanesVec, &(*(statPtr->edgeHistograms.find(id))).second);
-        Edge* e = new Edge(id, from, to, priority, lanesVec, NULL);
+        Router *routerPtr = FindModule<Router*>::findGlobalModule();
+        Edge* e = new Edge(id, from, to, priority, lanesVec, &(*(routerPtr->edgeHistograms.find(id))).second);
         from->outEdges.push_back(e);   //Add the edge to the start node's list
         edges[id] = e;
     }   //For every edge

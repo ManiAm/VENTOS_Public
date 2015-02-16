@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for libglobal
 #
 # This file was generated with the command:
-#  opp_makemake -f --make-so -o global -O out -I/home/mani/Desktop/VENTOS/eigen-3.2.1 -I/home/mani/Desktop/VENTOS/rapidxml-1.13 -I.. -I../../../veins/src/veins/base/connectionManager -I../router -I../../../veins/src -I../../../veins/src/veins/base/utils -I../traci -I../../../veins/src/veins/base/modules -I../../../veins/src/veins/modules/mac/ieee80211p -I../../../veins/src/veins -I../vehicle -I../rsu -L../../../veins/out/$$\(CONFIGNAME\)/src -L../../out/$$\(CONFIGNAME\)/application/msg -L../../out/$$\(CONFIGNAME\)/application/router -L../../out/$$\(CONFIGNAME\)/application/pedestrian -L../../out/$$\(CONFIGNAME\)/application/bike -L../../out/$$\(CONFIGNAME\)/application/traci -L../../out/$$\(CONFIGNAME\)/application/adversary -L../../out/$$\(CONFIGNAME\)/application/vehicle -L../../out/$$\(CONFIGNAME\)/application/trafficLight -L../../out/$$\(CONFIGNAME\)/application/rsu -lboost_filesystem -lboost_system -lmsg -ltraci -lveins -KVEINS_PROJ=../../../veins
+#  opp_makemake -f --make-so -o global -O out -I/home/mani/Desktop/VENTOS/eigen-3.2.1 -I/home/mani/Desktop/VENTOS/rapidxml-1.13 -I.. -I../../../veins/src/veins/base/connectionManager -I../../../veins/src -I../../../veins/src/veins/base/utils -I../traci -I../../../veins/src/veins/base/modules -I../../../veins/src/veins/modules/mac/ieee80211p -I../../../veins/src/veins -I../rsu -L../../../veins/out/$$\(CONFIGNAME\)/src -L../../out/$$\(CONFIGNAME\)/application/msg -L../../out/$$\(CONFIGNAME\)/application/router -L../../out/$$\(CONFIGNAME\)/application/pedestrian -L../../out/$$\(CONFIGNAME\)/application/bike -L../../out/$$\(CONFIGNAME\)/application/traci -L../../out/$$\(CONFIGNAME\)/application/adversary -L../../out/$$\(CONFIGNAME\)/application/vehicle -L../../out/$$\(CONFIGNAME\)/application/trafficLight -L../../out/$$\(CONFIGNAME\)/application/rsu -lboost_filesystem -lboost_system -lmsg -ltraci -lveins -KVEINS_PROJ=../../../veins
 #
 
 # Name of target to be created (-o option)
@@ -14,14 +14,12 @@ INCLUDE_PATH = \
     -I../../rapidxml-1.13 \
     -I.. \
     -I../../../veins/src/veins/base/connectionManager \
-    -I../router \
     -I../../../veins/src \
     -I../../../veins/src/veins/base/utils \
     -I../traci \
     -I../../../veins/src/veins/base/modules \
     -I../../../veins/src/veins/modules/mac/ieee80211p \
     -I../../../veins/src/veins \
-    -I../vehicle \
     -I../rsu \
     -I.
 
@@ -146,7 +144,6 @@ $O/Mac1609_4_Mod.o: Mac1609_4_Mod.cc \
 	Mac1609_4_Mod.h \
 	Statistics.h \
 	../msg/Messages_m.h \
-	../router/Histogram.h \
 	../traci/TraCI_Extend.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/ChannelAccess.h \
@@ -242,20 +239,10 @@ $O/Statistics.o: Statistics.cc \
 	Appl.h \
 	Statistics.h \
 	../msg/Messages_m.h \
-	../router/Edge.h \
-	../router/Histogram.h \
-	../router/Hypertree.h \
-	../router/Net.h \
-	../router/Node.h \
-	../router/Router.h \
-	../router/TrafficLightRouter.h \
-	../router/Vehicle.h \
 	../rsu/ApplRSU_01_Base.h \
 	../rsu/ApplRSU_02_AID.h \
 	../rsu/ApplRSU_03_Manager.h \
 	../traci/TraCI_Extend.h \
-	../vehicle/ApplV_01_Base.h \
-	../vehicle/ApplV_02_Beacon.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/ChannelAccess.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/NicEntry.h \

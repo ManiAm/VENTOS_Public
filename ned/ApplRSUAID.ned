@@ -5,4 +5,6 @@ simple ApplRSUAID extends ApplRSUBase
 {
     parameters:
         @class(VENTOS::ApplRSUAID);
+        
+        bool printIncidentDetection;
 }

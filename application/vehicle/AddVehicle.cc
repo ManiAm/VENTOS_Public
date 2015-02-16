@@ -139,7 +139,7 @@ void AddVehicle::Scenario1()
     TraCI->commandChangeVehicleSpeed("obstacle", 0.);
     TraCI->commandSetLaneChangeMode("obstacle", 0);
 
-    // change the color to blue
+    // change the color to red
     TraCIColor newColor = TraCIColor::fromTkColor("red");
     TraCI->commandChangeVehicleColor("obstacle", newColor);
 }
@@ -241,18 +241,22 @@ void AddVehicle::Scenario4()
     cModule *module = simulation.getSystemModule()->getSubmodule("router");
     Router *r = static_cast< Router* >(module);
 
-    boost::filesystem::path SUMODirectory = simulation.getSystemModule()->par("SUMODirectory").stringValue();
-    boost::filesystem::path VENTOSfullDirectory = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-    string dir = (VENTOSfullDirectory / SUMODirectory).string();
-    string vehFile = ("/Vehicles" + SSTR(r->totalVehicleCount) + ".xml");
+    boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+    boost::filesystem::path SUMO_Path = simulation.getSystemModule()->par("SUMODirectory").stringValue();
+    boost::filesystem::path SUMO_FullPath = VENTOS_FullPath / SUMO_Path;
+    // check if this directory is valid?
+    if( !exists( SUMO_FullPath ) )
+    {
+        error("SUMO directory is not valid! Check it again.");
+    }
 
-    //string xmlFileName = (VENTOSfullDirectory / SUMODirectory).string();
-    string xmlFileName = (VENTOSfullDirectory / SUMODirectory).string();
+    string vehFile = ("/Vehicles" + SSTR(r->totalVehicleCount) + ".xml");
+    string xmlFileName = SUMO_FullPath.string();
     xmlFileName += vehFile;
 
     if(!fexists(xmlFileName.c_str()))
     {
-        generateVehicles(dir, r);
+        generateVehicles(SUMO_FullPath.string(), r);
     }
 
     file<> xmlFile( xmlFileName.c_str() );     // Convert our file to a rapid-xml readable object
@@ -434,20 +438,19 @@ void AddVehicle::Scenario9()
      for(int i=1; i<=totalVehicles; i++)
      {
          char vehicleName[10];
-         sprintf(vehicleName, "CACC%d", i);
+         sprintf(vehicleName, "Veh%d", i);
          vehicleDepart = vehicleDepart + 10000;
-         TraCI->commandAddVehicle(vehicleName, "TypeCACC", "route4", vehicleDepart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
+         TraCI->commandAddVehicle(vehicleName, "TypeManual", "route4", vehicleDepart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
 
          char bicycleName[10];
          sprintf(bicycleName, "Bike%d", i);
          bicycleDepart = bicycleDepart + 10000;
-         TraCI->commandAddVehicle(bicycleName, "Bicycle", "route1", bicycleDepart, 350 /*pos*/, 0 /*speed*/, 1 /*lane*/);
+         TraCI->commandAddVehicle(bicycleName, "TypeBicycle", "route1", bicycleDepart, 350 /*pos*/, 0 /*speed*/, 1 /*lane*/);
 
          char pedestrianName[10];
          sprintf(pedestrianName, "Ped%d", i);
          pedestrianDepart = pedestrianDepart + 10000;
-         TraCI->commandAddVehicle(pedestrianName, "Pedestrian", "route1", pedestrianDepart, 350 /*pos*/, 0 /*speed*/, 2 /*lane*/);
-
+         TraCI->commandAddVehicle(pedestrianName, "TypePedestrian", "route1", pedestrianDepart, 350 /*pos*/, 0 /*speed*/, 2 /*lane*/);
      }
 }
 

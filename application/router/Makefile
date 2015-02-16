@@ -197,7 +197,6 @@ $O/Node.o: Node.cc \
 	Node.h
 $O/Router.o: Router.cc \
 	../global/Appl.h \
-	../global/Statistics.h \
 	../msg/Messages_m.h \
 	Edge.h \
 	Histogram.h \
@@ -246,7 +245,6 @@ $O/Router.o: Router.cc \
 	$(VEINS_PROJ)/src/veins/modules/world/annotations/AnnotationManager.h
 $O/TrafficLightRouter.o: TrafficLightRouter.cc \
 	../global/Appl.h \
-	../global/Statistics.h \
 	../msg/Messages_m.h \
 	Edge.h \
 	Histogram.h \
