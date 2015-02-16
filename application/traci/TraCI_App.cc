@@ -36,9 +36,13 @@ void TraCI_App::initialize(int stage)
         pedModuleDisplayString = par("pedModuleDisplayString").stringValue();
 
         collectVehiclesData = par("collectVehiclesData").boolValue();
+        useDetailedFilenames = par("useDetailedFilenames").boolValue();
         collectInductionLoopData = par("collectInductionLoopData").boolValue();
 
         index = 1;
+
+        cModule *rmodule = simulation.getSystemModule()->getSubmodule("router");
+        router = static_cast< Router* >(rmodule);
     }
 }
 
@@ -297,7 +301,19 @@ void TraCI_App::vehiclesDataToFile()
         // get the current run number
         int currentRun = ev.getConfigEx()->getActiveRunNumber();
         ostringstream fileName;
-        fileName << currentRun << "_vehicleData.txt";
+
+        if(useDetailedFilenames)
+        {
+            int TLMode = (*router->net->TLs.begin()).second->TLLogicMode;
+            ostringstream filePrefix;
+            filePrefix << router->totalVehicleCount << "_" << router->nonReroutingVehiclePercent << "_" << TLMode;
+            fileName << filePrefix.str() << "_vehicleData.txt";
+        }
+        else
+        {
+            fileName << currentRun << "_vehicleData.txt";
+        }
+
         filePath = "results/cmd/" + fileName.str();
     }
 

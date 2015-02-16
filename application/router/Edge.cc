@@ -5,16 +5,16 @@ namespace VENTOS {
 Lane::Lane(string id, double speed, double length):
         id(id), speed(speed), length(length){}
 
-Edge::Edge(string id, Node* from, Node* to, int priority, vector<Lane*>* lanes, Histogram* travelTimes):
+Edge::Edge(string id, Node* from, Node* to, int priority, vector<Lane*> lanes, Histogram* travelTimes):
         id(id), from(from), to(to), priority(priority), lanes(lanes), travelTimes(travelTimes)
 {
-    numLanes = lanes->size();
+    numLanes = lanes.size();
     double speedVal = 0;
     double lengthVal = 0;
     for(int i = 0; i < numLanes; i++)
     {
-        speedVal += (*lanes)[i]->speed;
-        lengthVal += (*lanes)[i]->length;
+        speedVal += lanes[i]->speed;
+        lengthVal += lanes[i]->length;
     }
     speed = speedVal / numLanes;
     length = lengthVal / numLanes;

@@ -3,6 +3,7 @@
 #define TraCI_APP
 
 #include "TraCI_Extend.h"
+#include "Router.h"
 
 namespace VENTOS {
 
@@ -75,6 +76,7 @@ class LoopDetector
     }
 };
 
+class Router;   //Forward-declaration so TraCI_App may hold a Router*
 
 class TraCI_App : public TraCI_Extend
 {
@@ -95,8 +97,10 @@ class TraCI_App : public TraCI_Extend
     private:
         // NED variables
         cModule *nodePtr;   // pointer to the Node
+        Router* router;
         double terminate;
         bool collectVehiclesData;
+        bool useDetailedFilenames;
         bool collectInductionLoopData;
 
         // NED (bicycles)

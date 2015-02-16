@@ -1,7 +1,5 @@
 
 #include "Net.h"
-#include "Statistics.h"
-#include "TrafficLightRouter.h"
 
 namespace VENTOS {
 
@@ -118,7 +116,7 @@ Net::Net(string netBase, cModule* router)
         Node* from = nodes[fromVal];  //Get a pointer to the start node
         Node* to = nodes[toVal];      //Get a pointer to the end node
         Router *routerPtr = FindModule<Router*>::findGlobalModule();
-        Edge* e = new Edge(id, from, to, priority, lanesVec, &(*(routerPtr->edgeHistograms.find(id))).second);
+        Edge* e = new Edge(id, from, to, priority, *lanesVec, &(*(routerPtr->edgeHistograms.find(id))).second);
         from->outEdges.push_back(e);   //Add the edge to the start node's list
         edges[id] = e;
     }   //For every edge
@@ -139,7 +137,7 @@ Net::Net(string netBase, cModule* router)
         int fromLaneNum = atoi(attr->value());
 
         attr = attr->next_attribute();
-        // int toLaneNum = atoi(attr->value());
+        int toLaneNum = atoi(attr->value());
 
         attr = attr->next_attribute();
         if((string)attr->name() == "tl")    //Read the tl attributes if necessary
@@ -147,6 +145,7 @@ Net::Net(string netBase, cModule* router)
             if(transitions->find(key) == transitions->end()) //If this vector doesn't yet exist
                 (*transitions)[key] = new vector<int>;  //Create an empty vector in place
             TrafficLightRouter* tl = TLs[attr->value()];    //Find the associated traffic light
+		    string TLid = attr->value();
 
             attr = attr->next_attribute();
             int linkIndex = atoi(attr->value());
@@ -159,15 +158,21 @@ Net::Net(string netBase, cModule* router)
             }
 
             Edge* fromEdge = edges[e1];
-            Lane* fromLane = (*fromEdge->lanes)[fromLaneNum];
+            Lane* fromLane = (fromEdge->lanes)[fromLaneNum];
 
             for(unsigned int i = 0; i < tl->phases.size(); i++)      //These 3 lines took me way too long to develop
-                if (tl->phases[i]->state[linkIndex] != 'r') //Check each of the TL's phases -- if the state's value at the given link index allows movement,
+                if (tl->phases[i]->state[linkIndex] == 'g' || tl->phases[i]->state[linkIndex] == 'G') //Check each of the TL's phases -- if the state's value at the given link index allows movement,
                     fromLane->greenPhases.push_back(i);     //Push that phase to a list of green phases for that lane
 
             attr = attr->next_attribute();
+            char dir = attr->value()[0];
+            (*turnTypes)[key] = dir;
+
+            attr = attr->next_attribute();
+            char state = attr->value()[0];
+
+            connections[key].push_back(new Connection(e1, e2, fromLaneNum, toLaneNum, TLid, linkIndex, dir, state));
         }//if it's a tl
-        (*turnTypes)[key] = attr->value()[0];
     }//for each connection
 }
 

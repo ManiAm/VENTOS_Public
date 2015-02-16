@@ -37,7 +37,7 @@ public:
     double length;
     double origWeight;
     double lastWeight;
-    vector<Lane*>* lanes;
+    vector<Lane*> lanes;
     double getCost();
 
     //Pathing variables
@@ -46,7 +46,7 @@ public:
     double curCost;
     Edge* best;
 
-    Edge(string idVal, Node* fromVal, Node* toVal, int priorityVal, vector<Lane*>* lanesVec, Histogram* hist);
+    Edge(string idVal, Node* fromVal, Node* toVal, int priorityVal, vector<Lane*> lanesVec, Histogram* hist);
 };
 
 ostream& operator<<(ostream& os, Edge &rhs);

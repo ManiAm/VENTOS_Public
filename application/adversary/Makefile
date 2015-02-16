@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for libadversary
 #
 # This file was generated with the command:
-#  opp_makemake -f --make-so -o adversary -O out -I/home/mani/Desktop/VENTOS/eigen-3.2.1 -I/home/mani/Desktop/VENTOS/rapidxml-1.13 -I../../../veins/src/veins/base/connectionManager -I.. -I../../../veins/src -I../../../veins/src/veins/base/utils -I../traci -I../../../veins/src/veins/base/modules -I../../../veins/src/veins/modules/mac/ieee80211p -I../../../veins/src/veins -I../rsu -I../global -L../../../veins/out/$$\(CONFIGNAME\)/src -L../../out/$$\(CONFIGNAME\)/application/msg -L../../out/$$\(CONFIGNAME\)/application/router -L../../out/$$\(CONFIGNAME\)/application/pedestrian -L../../out/$$\(CONFIGNAME\)/application/bike -L../../out/$$\(CONFIGNAME\)/application/traci -L../../out/$$\(CONFIGNAME\)/application/vehicle -L../../out/$$\(CONFIGNAME\)/application/trafficLight -L../../out/$$\(CONFIGNAME\)/application/rsu -L../../out/$$\(CONFIGNAME\)/application/global -lboost_filesystem -lboost_system -lmsg -ltraci -lveins -KVEINS_PROJ=../../../veins
+#  opp_makemake -f --make-so -o adversary -O out -I/home/mani/Desktop/VENTOS/eigen-3.2.1 -I/home/mani/Desktop/VENTOS/rapidxml-1.13 -I../../../veins/src/veins/base/connectionManager -I../router -I../../../veins/src -I../../../veins/src/veins/base/utils -I../traci -I../../../veins/src/veins -I../vehicle -I../global -I.. -I../../../veins/src/veins/base/modules -I../../../veins/src/veins/modules/mac/ieee80211p -I../rsu -L../../../veins/out/$$\(CONFIGNAME\)/src -L../../out/$$\(CONFIGNAME\)/application/msg -L../../out/$$\(CONFIGNAME\)/application/router -L../../out/$$\(CONFIGNAME\)/application/pedestrian -L../../out/$$\(CONFIGNAME\)/application/bike -L../../out/$$\(CONFIGNAME\)/application/traci -L../../out/$$\(CONFIGNAME\)/application/vehicle -L../../out/$$\(CONFIGNAME\)/application/trafficLight -L../../out/$$\(CONFIGNAME\)/application/rsu -L../../out/$$\(CONFIGNAME\)/application/global -lboost_filesystem -lboost_system -lmsg -ltraci -lveins -KVEINS_PROJ=../../../veins
 #
 
 # Name of target to be created (-o option)
@@ -13,15 +13,17 @@ INCLUDE_PATH = \
     -I../../eigen-3.2.1 \
     -I../../rapidxml-1.13 \
     -I../../../veins/src/veins/base/connectionManager \
-    -I.. \
+    -I../router \
     -I../../../veins/src \
     -I../../../veins/src/veins/base/utils \
     -I../traci \
+    -I../../../veins/src/veins \
+    -I../vehicle \
+    -I../global \
+    -I.. \
     -I../../../veins/src/veins/base/modules \
     -I../../../veins/src/veins/modules/mac/ieee80211p \
-    -I../../../veins/src/veins \
     -I../rsu \
-    -I../global \
     -I.
 
 # Additional object and library files to link with

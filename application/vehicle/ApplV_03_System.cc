@@ -112,7 +112,7 @@ void ApplVSystem::receiveSignal(cComponent *source, simsignal_t signalID, cObjec
         if(string(s->getSender()) == "router" and string(s->getRecipient()) == SUMOvID and (requestReroutes or numReroutes == 0)) //If sent from the router and to this vehicle
         {
             numReroutes++;
-            if(ev.isGUI()) cout << "Setting new route for " << SUMOvID << " at t=" << simTime().dbl() << endl;
+            //if(ev.isGUI()) cout << "Setting new route for " << SUMOvID << " at t=" << simTime().dbl() << endl;
             list<string> sRoute = s->getInfo(); //Copy the info from the signal (breaks if we don't do this, for some reason)
             TraCI->commandChangeVehicleRoute(s->getRecipient(), sRoute);  //Update this vehicle's path with the proper info
         }

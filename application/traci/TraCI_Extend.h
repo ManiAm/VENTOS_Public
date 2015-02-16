@@ -65,6 +65,7 @@ class TraCI_Extend : public TraCIScenarioManager
         string commandGetVehicleEdgeId(string);
         string commandGetVehicleLaneId(string);
         uint32_t commandGetVehicleLaneIndex(string);
+        list<string> commandGetVehicleEdgeList(string nodeId);
         string commandGetVehicleTypeId(string);
         uint8_t* commandGetVehicleColor(string);
         double commandGetVehicleLanePosition(std::string nodeId);
@@ -102,6 +103,7 @@ class TraCI_Extend : public TraCIScenarioManager
 		uint32_t commandGetCurrentPhase(string TLid);
 		uint32_t commandGetNextSwitchTime(string TLid);
 		string commandGetCurrentProgram(string TLid);
+		string commandGetTLState(string TLid);
 
         // CMD_GET_GUI_VARIABLE
         Coord commandGetGUIOffset();
@@ -157,9 +159,10 @@ class TraCI_Extend : public TraCIScenarioManager
         void commandSetLaneVmax(string, double);
 
 		// CMD_SET_TL_VARIABLE
-		void commandSetPhase(string TLid, int value);
-		void commandSetPhaseDurationRemaining(string TLid, int value);
-		void commandSetPhaseDuration(string TLid, int value);
+        void commandSetTLState(string TLid, string state);
+        void commandSetTLPhaseIndex(string TLid, int value);
+		void commandSetTLPhaseDurationRemaining(string TLid, int value);
+		void commandSetTLPhaseDuration(string TLid, int value);
 
         // CMD_SET_GUI_VARIABLE
         void commandSetGUIZoom(double);

@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for libtraci
 #
 # This file was generated with the command:
-#  opp_makemake -f --make-so -o traci -O out -I/home/mani/Desktop/VENTOS/eigen-3.2.1 -I/home/mani/Desktop/VENTOS/rapidxml-1.13 -I.. -I../../../veins/src/veins/base/connectionManager -I../../../veins/src -I../../../veins/src/veins/base/utils -I../../../veins/src/veins/base/modules -I../../../veins/src/veins -I../../../veins/src/veins/modules/mac/ieee80211p -I../rsu -I../global -L../../../veins/out/$$\(CONFIGNAME\)/src -L../../out/$$\(CONFIGNAME\)/application/msg -L../../out/$$\(CONFIGNAME\)/application/router -L../../out/$$\(CONFIGNAME\)/application/pedestrian -L../../out/$$\(CONFIGNAME\)/application/bike -L../../out/$$\(CONFIGNAME\)/application/adversary -L../../out/$$\(CONFIGNAME\)/application/vehicle -L../../out/$$\(CONFIGNAME\)/application/trafficLight -L../../out/$$\(CONFIGNAME\)/application/rsu -L../../out/$$\(CONFIGNAME\)/application/global -lboost_filesystem -lboost_system -lmsg -lveins -KVEINS_PROJ=../../../veins
+#  opp_makemake -f --make-so -o traci -O out -I/home/mani/Desktop/VENTOS/eigen-3.2.1 -I/home/mani/Desktop/VENTOS/rapidxml-1.13 -I.. -I../../../veins/src/veins/base/connectionManager -I../router -I../../../veins/src -I../../../veins/src/veins/base/utils -I../../../veins/src/veins/base/modules -I../../../veins/src/veins -I../../../veins/src/veins/modules/mac/ieee80211p -I../vehicle -I../rsu -I../global -L../../../veins/out/$$\(CONFIGNAME\)/src -L../../out/$$\(CONFIGNAME\)/application/msg -L../../out/$$\(CONFIGNAME\)/application/router -L../../out/$$\(CONFIGNAME\)/application/pedestrian -L../../out/$$\(CONFIGNAME\)/application/bike -L../../out/$$\(CONFIGNAME\)/application/adversary -L../../out/$$\(CONFIGNAME\)/application/vehicle -L../../out/$$\(CONFIGNAME\)/application/trafficLight -L../../out/$$\(CONFIGNAME\)/application/rsu -L../../out/$$\(CONFIGNAME\)/application/global -lboost_filesystem -lboost_system -lmsg -lveins -KVEINS_PROJ=../../../veins
 #
 
 # Name of target to be created (-o option)
@@ -14,11 +14,13 @@ INCLUDE_PATH = \
     -I../../rapidxml-1.13 \
     -I.. \
     -I../../../veins/src/veins/base/connectionManager \
+    -I../router \
     -I../../../veins/src \
     -I../../../veins/src/veins/base/utils \
     -I../../../veins/src/veins/base/modules \
     -I../../../veins/src/veins \
     -I../../../veins/src/veins/modules/mac/ieee80211p \
+    -I../vehicle \
     -I../rsu \
     -I../global \
     -I.
@@ -129,11 +131,24 @@ depend:
 $O/TraCI_App.o: TraCI_App.cc \
 	../global/Appl.h \
 	../msg/Messages_m.h \
+	../router/Edge.h \
+	../router/Histogram.h \
+	../router/Hypertree.h \
+	../router/Net.h \
+	../router/Node.h \
+	../router/Router.h \
+	../router/TrafficLightRouter.h \
+	../router/Vehicle.h \
 	TraCI_App.h \
 	TraCI_Extend.h \
+	../vehicle/ApplV_01_Base.h \
+	../vehicle/ApplV_02_Beacon.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/BaseConnectionManager.h \
+	$(VEINS_PROJ)/src/veins/base/connectionManager/ChannelAccess.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/NicEntry.h \
+	$(VEINS_PROJ)/src/veins/base/modules/BaseApplLayer.h \
 	$(VEINS_PROJ)/src/veins/base/modules/BaseBattery.h \
+	$(VEINS_PROJ)/src/veins/base/modules/BaseLayer.h \
 	$(VEINS_PROJ)/src/veins/base/modules/BaseMobility.h \
 	$(VEINS_PROJ)/src/veins/base/modules/BaseModule.h \
 	$(VEINS_PROJ)/src/veins/base/modules/BaseWorldUtility.h \
@@ -144,7 +159,11 @@ $O/TraCI_App.o: TraCI_App.cc \
 	$(VEINS_PROJ)/src/veins/base/utils/HostState.h \
 	$(VEINS_PROJ)/src/veins/base/utils/MiXiMDefs.h \
 	$(VEINS_PROJ)/src/veins/base/utils/Move.h \
+	$(VEINS_PROJ)/src/veins/base/utils/NetwToMacControlInfo.h \
+	$(VEINS_PROJ)/src/veins/base/utils/PassedMessage.h \
+	$(VEINS_PROJ)/src/veins/base/utils/SimpleAddress.h \
 	$(VEINS_PROJ)/src/veins/base/utils/miximkerneldefs.h \
+	$(VEINS_PROJ)/src/veins/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
 	$(VEINS_PROJ)/src/veins/modules/messages/WaveShortMessage_m.h \
 	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIBuffer.h \
 	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIColor.h \
@@ -157,6 +176,7 @@ $O/TraCI_App.o: TraCI_App.cc \
 	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIScenarioManagerInet.h \
 	$(VEINS_PROJ)/src/veins/modules/obstacle/Obstacle.h \
 	$(VEINS_PROJ)/src/veins/modules/obstacle/ObstacleControl.h \
+	$(VEINS_PROJ)/src/veins/modules/utility/Consts80211p.h \
 	$(VEINS_PROJ)/src/veins/modules/world/annotations/AnnotationManager.h
 $O/TraCI_Extend.o: TraCI_Extend.cc \
 	../global/Appl.h \

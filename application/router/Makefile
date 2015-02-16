@@ -146,7 +146,6 @@ $O/Hypertree.o: Hypertree.cc \
 	Hypertree.h
 $O/Net.o: Net.cc \
 	../global/Appl.h \
-	../global/Statistics.h \
 	../msg/Messages_m.h \
 	Edge.h \
 	Histogram.h \

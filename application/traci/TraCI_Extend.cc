@@ -252,6 +252,12 @@ uint32_t TraCI_Extend::commandGetVehicleLaneIndex(string nodeId)
 }
 
 
+list<string> TraCI_Extend::commandGetVehicleEdgeList(string nodeId)
+{
+    return getCommandInterface()->genericGetStringList(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_EDGES, RESPONSE_GET_VEHICLE_VARIABLE);
+}
+
+
 string TraCI_Extend::commandGetVehicleTypeId(string nodeId)
 {
     return getCommandInterface()->genericGetString(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_TYPE, RESPONSE_GET_VEHICLE_VARIABLE);
@@ -560,6 +566,11 @@ string TraCI_Extend::commandGetCurrentProgram(string TLid)
 uint32_t TraCI_Extend::commandGetNextSwitchTime(string TLid)
 {
     return getCommandInterface()->genericGetInt(CMD_GET_TL_VARIABLE, TLid, TL_NEXT_SWITCH, RESPONSE_GET_TL_VARIABLE);
+}
+
+string TraCI_Extend::commandGetTLState(string TLid)
+{
+    return getCommandInterface()->genericGetString(CMD_GET_TL_VARIABLE, TLid, TL_RED_YELLOW_GREEN_STATE, RESPONSE_GET_TL_VARIABLE);
 }
 
 
@@ -956,7 +967,17 @@ void TraCI_Extend::commandSetLaneVmax(string laneId, double value)
 // CMD_SET_TL_VARIABLE
 // ###################
 
-void TraCI_Extend::commandSetPhase(string TLid, int value)
+void TraCI_Extend::commandSetTLState(string TLid, string value)
+{
+    uint8_t variableId = TL_RED_YELLOW_GREEN_STATE;
+    uint8_t variableType = TYPE_STRING;
+
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_TL_VARIABLE, TraCIBuffer() << variableId << TLid << variableType << value);
+    ASSERT(buf.eof());
+}
+
+
+void TraCI_Extend::commandSetTLPhaseIndex(string TLid, int value)
 {
     uint8_t variableId = TL_PHASE_INDEX;
     uint8_t variableType = TYPE_INTEGER;
@@ -968,7 +989,7 @@ void TraCI_Extend::commandSetPhase(string TLid, int value)
 }
 
 
-void TraCI_Extend::commandSetPhaseDurationRemaining(string TLid, int value)
+void TraCI_Extend::commandSetTLPhaseDurationRemaining(string TLid, int value)
 {
     uint8_t variableId = TL_PHASE_DURATION;
     uint8_t variableType = TYPE_INTEGER;
@@ -979,7 +1000,7 @@ void TraCI_Extend::commandSetPhaseDurationRemaining(string TLid, int value)
 
 
 //TODO, broken right now
-void TraCI_Extend::commandSetPhaseDuration(string TLid, int value)
+void TraCI_Extend::commandSetTLPhaseDuration(string TLid, int value)
 {
     uint8_t variableId = TL_PHASE_DURATION;
     uint8_t variableType = TYPE_INTEGER;

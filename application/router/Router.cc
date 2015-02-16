@@ -8,7 +8,6 @@ Define_Module(VENTOS::Router);
 vector<string>* randomUniqueVehiclesInRange(int numInts, int rangeMin, int rangeMax)
 {             //Generates n random unique ints in range [rangeMin, rangeMax)
               //Not a very efficient implementation, but it shouldn't matter much
-
     vector<int>* initialInts = new vector<int>;
     for(int i = rangeMin; i < rangeMax; i++)
         initialInts->push_back(i);
@@ -44,12 +43,12 @@ Router::~Router()
 
 void Router::initialize(int stage)
 {
+    enableRouting = par("enableRouting").boolValue();
+    if(!enableRouting)
+        return;
+
     if(stage == 0)
     {
-        enableRouting = par("enableRouting").boolValue();
-        if(!enableRouting)
-            return;
-
         // Build nodePtr and traci manager
         nodePtr = FindModule<>::findHost(this);
         TraCI = FindModule<TraCI_Extend*>::findGlobalModule();
@@ -86,31 +85,42 @@ void Router::initialize(int stage)
 
         string netBase = SUMO_FullPath.string();
 
+        net = new Net(netBase, this->getParentModule());
+
         createTime = par("createTime").longValue();
         totalVehicleCount = par("vehicleCount").longValue();
         currentVehicleCount = totalVehicleCount;
         nonReroutingVehiclePercent = par("nonReroutingVehiclePercent").doubleValue();
 
+        parseHistogramFile();
+
+    } // if stage == 0
+    else if (stage == 1)
+    {
+        cout << "STAGE 2" << endl;
+        cout << endl << endl << endl << endl << endl << endl;
+        cout << endl << endl << endl << endl << endl << endl;
+        cout << endl << endl << endl << endl << endl << endl;
+
         int numNonRerouting = (double)totalVehicleCount * nonReroutingVehiclePercent;
         nonReroutingVehicles = randomUniqueVehiclesInRange(numNonRerouting, 0, totalVehicleCount);
 
-        string NonReroutingFileName = VENTOS_FullPath.string() + "results/router/" + SSTR(ev.getConfigEx()->getActiveRunNumber()) + "_nonRerouting" + ".txt";
+        int TLMode = (*net->TLs.begin()).second->TLLogicMode;
+        ostringstream filePrefix;
+        filePrefix << totalVehicleCount << "_" << nonReroutingVehiclePercent << "_" << TLMode;
+        string NonReroutingFileName = VENTOS_FullPath.string() + "results/router/" + filePrefix.str() + "_nonRerouting" + ".txt";
         ofstream NonReroutingFile;
         NonReroutingFile.open(NonReroutingFileName.c_str());
         for(int i = 0; i < numNonRerouting; i++)
             NonReroutingFile << nonReroutingVehicles->at(i) << endl;
         NonReroutingFile.close();
 
-        net = new Net(netBase, this->getParentModule());
-
-        parseHistogramFile();
-
         if(collectVehicleTimeData)
         {
-            string TravelTimesFileName = VENTOS_FullPath.string() + "results/router/" + SSTR(ev.getConfigEx()->getActiveRunNumber()) + ".txt";
+            string TravelTimesFileName = VENTOS_FullPath.string() + "results/router/" + filePrefix.str() + ".txt";
             vehicleTravelTimesFile.open(TravelTimesFileName.c_str());  //Open the edgeWeights file
         }
-    } // if stage == 0
+    }
 }
 
 void Router::receiveSignal(cComponent *source, simsignal_t signalID, long i)
@@ -281,10 +291,14 @@ void Router::receiveSignal(cComponent *source, simsignal_t signalID, cObject *ob
 
                         vehicleTravelTimesFile.close();
 
+                        int TLMode = (*net->TLs.begin()).second->TLLogicMode;
+                        ostringstream filePrefix;
+                        filePrefix << totalVehicleCount << "_" << nonReroutingVehiclePercent << "_" << TLMode;
+
                         ofstream outfile;
                         string fileName = VENTOS_FullPath.string() + "results/router/AverageTravelTimes.txt";
                         outfile.open(fileName.c_str(), ofstream::app);  //Open the edgeWeights file
-                        outfile << currentRun <<": " << avg << endl;
+                        outfile << filePrefix.str() <<": " << avg << endl;
                         outfile.close();
                     }
 

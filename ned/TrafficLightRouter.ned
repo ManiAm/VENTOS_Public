@@ -10,5 +10,6 @@ simple TrafficLightRouter like TrafficLightInterface
         int TLLogicMode;
         double HighDensityRecalculateFrequency;
         double LowDensityExtendTime;
-        double MaxPhaseDuration;        
+        double MaxPhaseDuration;     
+        double MinPhaseDuration;   
 }

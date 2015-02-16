@@ -22,6 +22,8 @@ public:
     void print();
 };
 
+class Router;
+
 class TrafficLightRouter : public BaseModule
 {
 public:
@@ -41,6 +43,11 @@ public:
     Node* node;
     Net* net;
 
+    //OmNET
+    cMessage* TLEvent;
+    cMessage* TLSwitchEvent;
+    TraCI_Extend *TraCI;
+
     void build(string id, string type, string programID, double offset, vector<Phase*>& phases, Net* net);
 
     //Routing
@@ -54,16 +61,23 @@ public:
     double HighDensityRecalculateFrequency;
     double LowDensityExtendTime;
     double MaxPhaseDuration;
+    double MinPhaseDuration;
 
     double cycleDuration;   // this and below should be const
     double nonTransitionalCycleDuration;
-    void HighDensityRecalculate();
-    bool LowDensityRecalculate();
 
-    // OmNET
-    cMessage* TLEvent;
-    cMessage* TLSwitchEvent;
-    TraCI_Extend *TraCI;
+    void switchToPhase(int phase, double greenDuration = -1, int yellowDuration = 3);
+    void ASynchronousMessage();
+    void SynchronousMessage();
+    void FlowRateRecalculate();
+    void HighDensityRecalculate();
+    bool LowDensityVehicleCheck();
+    void LowDensityRecalculate();
+
+private:
+    Router* router;
+    bool isTransitionPhase;
+    int phaseDurationAfterTransition;
 };
 
 }
