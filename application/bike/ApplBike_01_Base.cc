@@ -34,29 +34,29 @@ void ApplBikeBase::initialize(int stage)
 
         headerLength = par("headerLength").longValue();
 
-        // vehicle id in omnet++
+        // bike id in omnet++
 		myId = getParentModule()->getIndex();
 
 		myFullId = getParentModule()->getFullName();
 
-        // vehicle id in sumo
-        SUMOvID = TraCI_Mobility->getExternalId();
+        // bike id in sumo
+        SUMObID = TraCI_Mobility->getExternalId();
 
-        // vehicle type in sumo
-        SUMOvType = TraCI->commandGetVehicleTypeId(SUMOvID);
+        // bike type in sumo
+        SUMObType = TraCI->commandGetVehicleTypeId(SUMObID);
 
         // store the time of entry
         entryTime = simTime().dbl();
 
-        if(SUMOvType != "TypeObstacle")
-            findHost()->subscribe(mobilityStateChangedSignal, this);
+//        if(SUMOvType != "TypeObstacle")
+//            findHost()->subscribe(mobilityStateChangedSignal, this);
 	}
 }
 
 
 void ApplBikeBase::finish()
 {
-    findHost()->unsubscribe(mobilityStateChangedSignal, this);
+    //findHost()->unsubscribe(mobilityStateChangedSignal, this);
 }
 
 

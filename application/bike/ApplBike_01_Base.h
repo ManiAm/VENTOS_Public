@@ -45,8 +45,8 @@ class ApplBikeBase : public BaseApplLayer
         // Class variables
         int myId;
 		const char *myFullId;
-	    string SUMOvID;
-        string SUMOvType;
+	    string SUMObID;
+        string SUMObType;
         Coord curPosition;  // current position from mobility module (not from sumo)
         double entryTime;
 };

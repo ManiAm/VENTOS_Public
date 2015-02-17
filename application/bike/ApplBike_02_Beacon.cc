@@ -18,14 +18,7 @@ void ApplBikeBeacon::initialize(int stage)
 	if (stage == 0)
 	{
 	    // NED
-	    if(SUMOvType != "TypeObstacle")
-	    {
-            VANETenabled = par("VANETenabled").boolValue();
-	    }
-	    else
-	    {
-	        VANETenabled = false;
-	    }
+        VANETenabled = par("VANETenabled").boolValue();
 
         // NED variables (beaconing parameters)
         sendBeacons = par("sendBeacons").boolValue();
@@ -78,7 +71,7 @@ void ApplBikeBeacon::handleSelfMsg(cMessage* msg)
         {
             BeaconBicycle* beaconMsg = ApplBikeBeacon::prepareBeacon();
 
-            EV << "## Created beacon msg for bicycle: " << SUMOvID << endl;
+            EV << "## Created beacon msg for bicycle: " << SUMObID << endl;
             ApplBikeBeacon::printBeaconContent(beaconMsg);
 
             // send it
@@ -114,24 +107,24 @@ BeaconBicycle*  ApplBikeBeacon::prepareBeacon()
     // wsm->setTimestamp(simTime());
 
     // fill in the sender/receiver fields
-    wsm->setSender(SUMOvID.c_str());
+    wsm->setSender(SUMObID.c_str());
     wsm->setRecipient("broadcast");
 
     // set current position
-    Coord cord = TraCI->commandGetVehiclePos(SUMOvID);
+    Coord cord = TraCI->commandGetVehiclePos(SUMObID);
     wsm->setPos(cord);
 
     // set current speed
-    wsm->setSpeed( TraCI->commandGetVehicleSpeed(SUMOvID) );
+    wsm->setSpeed( TraCI->commandGetVehicleSpeed(SUMObID) );
 
     // set current acceleration
-    wsm->setAccel( TraCI->commandGetVehicleAccel(SUMOvID) );
+    wsm->setAccel( TraCI->commandGetVehicleAccel(SUMObID) );
 
     // set maxDecel
-    wsm->setMaxDecel( TraCI->commandGetVehicleMaxDecel(SUMOvID) );
+    wsm->setMaxDecel( TraCI->commandGetVehicleMaxDecel(SUMObID) );
 
     // set current lane
-    wsm->setLane( TraCI->commandGetVehicleLaneId(SUMOvID).c_str() );
+    wsm->setLane( TraCI->commandGetVehicleLaneId(SUMObID).c_str() );
 
     return wsm;
 }

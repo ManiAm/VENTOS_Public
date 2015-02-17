@@ -23,9 +23,6 @@ class ApplBikeManager : public ApplBikeBeacon
         virtual void onBeaconRSU(BeaconRSU*);
         virtual void onData(PlatoonMsg* wsm);
 
-	protected:
-        // NED variable
-        bool SUMOvehicleDebug;
 };
 
 }

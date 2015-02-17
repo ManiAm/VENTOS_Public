@@ -17,11 +17,7 @@ void ApplBikeManager::initialize(int stage)
 
 	if (stage == 0)
 	{
-        // NED variables
-        SUMOvehicleDebug = par("SUMOvehicleDebug").boolValue();
 
-        // set parameters in SUMO
-        TraCI->commandSetVehicleDebug(SUMOvID, SUMOvehicleDebug);
 	}
 }
 

@@ -78,7 +78,7 @@ void ApplVSystem::finish()
 {
     ApplVBeacon::finish();
 
-    if(ev.isGUI()) cout << SUMOvID << " took " << simTime().dbl() - entryTime << " seconds to complete its route. ";
+    if(ev.isGUI()) cout << SUMOvID << " took " << simTime().dbl() - entryTime << " seconds to complete its route." << endl;
 
     simsignal_t Signal_system = registerSignal("system"); //Prepare to send a system message
     nodePtr->emit(Signal_system, new systemData("", "", SUMOvID, 2, string("system")));

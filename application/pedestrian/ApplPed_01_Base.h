@@ -45,8 +45,8 @@ class ApplPedBase : public BaseApplLayer
         // Class variables
         int myId;
 		const char *myFullId;
-	    string SUMOvID;
-        string SUMOvType;
+	    string SUMOpID;
+        string SUMOpType;
         Coord curPosition;  // current position from mobility module (not from sumo)
         double entryTime;
 };

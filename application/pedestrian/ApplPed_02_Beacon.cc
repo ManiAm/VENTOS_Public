@@ -18,14 +18,7 @@ void ApplPedBeacon::initialize(int stage)
 	if (stage == 0)
 	{
 	    // NED
-	    if(SUMOvType != "TypeObstacle")
-	    {
-            VANETenabled = par("VANETenabled").boolValue();
-	    }
-	    else
-	    {
-	        VANETenabled = false;
-	    }
+        VANETenabled = par("VANETenabled").boolValue();
 
         // NED variables (beaconing parameters)
         sendBeacons = par("sendBeacons").boolValue();
@@ -78,7 +71,7 @@ void ApplPedBeacon::handleSelfMsg(cMessage* msg)
         {
             BeaconPedestrian* beaconMsg = ApplPedBeacon::prepareBeacon();
 
-            EV << "## Created beacon msg for pedestrian: " << SUMOvID << endl;
+            EV << "## Created beacon msg for pedestrian: " << SUMOpID << endl;
             ApplPedBeacon::printBeaconContent(beaconMsg);
 
             // send it
@@ -114,24 +107,24 @@ BeaconPedestrian*  ApplPedBeacon::prepareBeacon()
     // wsm->setTimestamp(simTime());
 
     // fill in the sender/receiver fields
-    wsm->setSender(SUMOvID.c_str());
+    wsm->setSender(SUMOpID.c_str());
     wsm->setRecipient("broadcast");
 
     // set current position
-    Coord cord = TraCI->commandGetVehiclePos(SUMOvID);
+    Coord cord = TraCI->commandGetPedestrianPos(SUMOpID);
     wsm->setPos(cord);
 
     // set current speed
-    wsm->setSpeed( TraCI->commandGetVehicleSpeed(SUMOvID) );
+    wsm->setSpeed( TraCI->commandGetPedestrianSpeed(SUMOpID) );
 
     // set current acceleration
-    wsm->setAccel( TraCI->commandGetVehicleAccel(SUMOvID) );
+    wsm->setAccel( -1 );
 
     // set maxDecel
-    wsm->setMaxDecel( TraCI->commandGetVehicleMaxDecel(SUMOvID) );
+    wsm->setMaxDecel( -1 );
 
     // set current lane
-    wsm->setLane( TraCI->commandGetVehicleLaneId(SUMOvID).c_str() );
+    wsm->setLane( TraCI->commandGetPedestrianRoadId(SUMOpID).c_str() );
 
     return wsm;
 }

@@ -34,29 +34,29 @@ void ApplPedBase::initialize(int stage)
 
         headerLength = par("headerLength").longValue();
 
-        // vehicle id in omnet++
+        // pedestrian id in omnet++
 		myId = getParentModule()->getIndex();
 
 		myFullId = getParentModule()->getFullName();
 
-        // vehicle id in sumo
-        SUMOvID = TraCI_Mobility->getExternalId();
+        // pedestrian id in sumo
+        SUMOpID = TraCI_Mobility->getExternalId();
 
-        // vehicle type in sumo
-        SUMOvType = TraCI->commandGetVehicleTypeId(SUMOvID);
+        // pedestrian type in sumo
+        SUMOpType = TraCI->commandGetPedestrianTypeId(SUMOpID);
 
         // store the time of entry
         entryTime = simTime().dbl();
 
-        if(SUMOvType != "TypeObstacle")
-            findHost()->subscribe(mobilityStateChangedSignal, this);
+//        if(SUMOvType != "TypeObstacle")
+//            findHost()->subscribe(mobilityStateChangedSignal, this);
 	}
 }
 
 
 void ApplPedBase::finish()
 {
-    findHost()->unsubscribe(mobilityStateChangedSignal, this);
+    // findHost()->unsubscribe(mobilityStateChangedSignal, this);
 }
 
 
