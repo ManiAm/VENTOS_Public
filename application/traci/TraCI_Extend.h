@@ -117,6 +117,7 @@ class TraCI_Extend : public TraCIScenarioManager
 
         // CMD_GET_PERSON
         list<string> commandGetPedestrianList();
+        uint32_t commandGetPedestrianCount();
         string commandGetPedestrianTypeId(string);
         Coord commandGetPedestrianPos(string);
         double commandGetPedestrianSpeed(string);

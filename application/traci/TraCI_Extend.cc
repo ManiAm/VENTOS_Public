@@ -623,6 +623,12 @@ std::list<Coord> TraCI_Extend::commandGetPolygonShape(string polyId)
 // CMD_GET_PERSON
 // ##############
 
+uint32_t TraCI_Extend::commandGetPedestrianCount()
+{
+    return getCommandInterface()->genericGetInt(0xae, "", ID_COUNT, 0xbe);
+}
+
+
 list<string> TraCI_Extend::commandGetPedestrianList()
 {
     return getCommandInterface()->genericGetStringList(0xae, "", ID_LIST, 0xbe);

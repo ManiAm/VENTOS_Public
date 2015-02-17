@@ -93,7 +93,9 @@ void TraCI_App::executeOneTimestep()
         if(ev.isGUI()) inductionLoopToFile();  // write what we have collected so far
     }
 
-    bool simulationDone = (simTime().dbl() >= terminate) or commandGetMinExpectedVehicles() == 0;
+    // get the total number of modules (vehicles, bikes, pedestrians)
+    int totalModules = commandGetMinExpectedVehicles() + commandGetPedestrianCount();
+    bool simulationDone = (simTime().dbl() >= terminate) or (totalModules == 0);
 
     simsignal_t Signal_executeEachTS = registerSignal("executeEachTS");
     nodePtr->emit(Signal_executeEachTS, (long)simulationDone);
@@ -118,7 +120,7 @@ void TraCI_App::executeOneTimestep()
 void TraCI_App::addPedestriansToOMNET()
 {
     list<string> allPedestrians = commandGetPedestrianList();
-    cout << simTime().dbl() << ": " << allPedestrians.size() << endl;
+    //cout << simTime().dbl() << ": " << allPedestrians.size() << endl;
 
     if(allPedestrians.size() == 0)
         return;
