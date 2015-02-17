@@ -80,6 +80,8 @@ class TraCI_Extend : public TraCIScenarioManager
 
         // CMD_GET_VEHICLETYPE_VARIABLE
         double commandGetVehicleTypeLength(string);
+        int commandGetVehicleControllerType(string);      // new defined command
+        int commandGetVehicleControllerNumber(string);    // new defined command
 
         // CMD_GET_ROUTE_VARIABLE
         list<string> commandGetRouteIds();
@@ -113,6 +115,14 @@ class TraCI_Extend : public TraCIScenarioManager
         list<string> commandGetPolygonList();
         std::list<Coord> commandGetPolygonShape(string polyId);
 
+        // CMD_GET_PERSON
+        list<string> commandGetPedestrianList();
+        string commandGetPedestrianTypeId(string);
+        Coord commandGetPedestrianPos(string);
+        double commandGetPedestrianSpeed(string);
+        string commandGetPedestrianRoadId(string);
+
+
         // ###########################################################
         // ###########################################################
 
@@ -130,8 +140,6 @@ class TraCI_Extend : public TraCIScenarioManager
         void commandSetVehicleMaxAccel(string, double);
         void commandSetVehicleMaxDecel(string, double);
         void commandSetVehicleTg(string, double);
-        // set a controller for this vehicle
-        void commandSetVehicleControllerType(string, int);           // new defined command
         // set the controller's parameters for this vehicle
         void commandSetVehicleControllerParameters(string, string);  // new defined command
         // set an error value for the gap

@@ -397,6 +397,18 @@ double TraCI_Extend::commandGetVehicleTypeLength(string nodeId)
 }
 
 
+int TraCI_Extend::commandGetVehicleControllerType(string nodeId)
+{
+    return getCommandInterface()->genericGetInt(CMD_GET_VEHICLETYPE_VARIABLE, nodeId, 0x02, RESPONSE_GET_VEHICLETYPE_VARIABLE);
+}
+
+
+int TraCI_Extend::commandGetVehicleControllerNumber(string nodeId)
+{
+    return getCommandInterface()->genericGetInt(CMD_GET_VEHICLETYPE_VARIABLE, nodeId, 0x03, RESPONSE_GET_VEHICLETYPE_VARIABLE);
+}
+
+
 // ######################
 // CMD_GET_ROUTE_VARIABLE
 // ######################
@@ -607,6 +619,40 @@ std::list<Coord> TraCI_Extend::commandGetPolygonShape(string polyId)
 
 
 
+// ##############
+// CMD_GET_PERSON
+// ##############
+
+list<string> TraCI_Extend::commandGetPedestrianList()
+{
+    return getCommandInterface()->genericGetStringList(0xae, "", ID_LIST, 0xbe);
+}
+
+
+string TraCI_Extend::commandGetPedestrianTypeId(string pId)
+{
+    return getCommandInterface()->genericGetString(0xae, pId, VAR_TYPE, 0xbe);
+}
+
+
+Coord TraCI_Extend::commandGetPedestrianPos(string pId)
+{
+    return genericGetCoordv2(0xae, pId, VAR_POSITION, 0xbe);
+}
+
+
+double TraCI_Extend::commandGetPedestrianSpeed(string pId)
+{
+    return getCommandInterface()->genericGetDouble(0xae, pId, VAR_SPEED, 0xbe);
+}
+
+
+string TraCI_Extend::commandGetPedestrianRoadId(string pId)
+{
+    return getCommandInterface()->genericGetString(0xae, pId, VAR_ROAD_ID, 0xbe);
+}
+
+
 // ###############################################
 // ###############################################
 // ########      SET starts from here     ########
@@ -796,16 +842,6 @@ void TraCI_Extend::commandSetVehicleTg(string nodeId, double value)
 {
     uint8_t variableId = VAR_TAU;
     uint8_t variableType = TYPE_DOUBLE;
-
-    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
-    ASSERT(buf.eof());
-}
-
-
-void TraCI_Extend::commandSetVehicleControllerType(string nodeId, int value)
-{
-    uint8_t variableId = 0x18;
-    uint8_t variableType = TYPE_INTEGER;
 
     TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
     ASSERT(buf.eof());
