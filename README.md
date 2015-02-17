@@ -68,7 +68,7 @@ Veins is on github, and you should clone it into your computer.
 
 **Step 4:** Now make these modifications in Veins source code. In the IDE, open Veins project and go to 'src/veins/modules/mobility/traci/' folder.
 
-- Open TraCIScenarioManager.h file and change 'void executeOneTimestep()' to 'virtual void executeOneTimestep()'. Also change 'void addModule()' to 'virtual void addModule()'
+- Open TraCIScenarioManager.h file and change `void init_traci()` to `virtual void init_traci()`, `void executeOneTimestep()` to `virtual void executeOneTimestep()`, and `void addModule()` to `virtual void addModule()`
 
 - Open TraCICommandInterface.h file, and change access modifier private into public!
 

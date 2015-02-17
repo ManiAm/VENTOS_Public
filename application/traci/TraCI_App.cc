@@ -27,6 +27,8 @@ void TraCI_App::initialize(int stage)
 
         terminate = par("terminate").doubleValue();
 
+        subscribedPedestrians.clear();
+
         bikeModuleType = par("bikeModuleType").stringValue();
         bikeModuleName = par("bikeModuleName").stringValue();
         bikeModuleDisplayString = par("bikeModuleDisplayString").stringValue();
@@ -75,6 +77,8 @@ void TraCI_App::executeOneTimestep()
 
     TraCIScenarioManager::executeOneTimestep();
 
+    addPedestriansToOMNET();
+
     EV << "### SUMO completed simulation for TS = " << (getCurrentTimeMs()/1000.) << endl;
 
     if(collectVehiclesData)
@@ -111,9 +115,133 @@ void TraCI_App::executeOneTimestep()
 }
 
 
+void TraCI_App::addPedestriansToOMNET()
+{
+    list<string> allPedestrians = commandGetPedestrianList();
+    cout << simTime().dbl() << ": " << allPedestrians.size() << endl;
+
+    if(allPedestrians.size() == 0)
+        return;
+
+    // add new inserted pedestrians
+    std::set<std::string> needSubscribe;
+    std::set_difference(allPedestrians.begin(), allPedestrians.end(), subscribedPedestrians.begin(), subscribedPedestrians.end(), std::inserter(needSubscribe, needSubscribe.begin()));
+    for (std::set<std::string>::const_iterator i = needSubscribe.begin(); i != needSubscribe.end(); ++i)
+        subscribedPedestrians.insert(*i);
+
+    // remove pedestrians that are not present in the network
+    std::set<std::string> needUnsubscribe;
+    std::set_difference(subscribedPedestrians.begin(), subscribedPedestrians.end(), allPedestrians.begin(), allPedestrians.end(), std::inserter(needUnsubscribe, needUnsubscribe.begin()));
+    for (std::set<std::string>::const_iterator i = needUnsubscribe.begin(); i != needUnsubscribe.end(); ++i)
+        subscribedPedestrians.erase(*i);
+
+
+
+//    bool isSubscribed = (subscribedPedestrians.find(objectId) != subscribedPedestrians.end());
+//    double px;
+//    double py;
+//    std::string edge;
+//    double speed;
+//    double angle_traci;
+//    // int signals;
+//        int numRead = 0;
+
+//        if (variable1_resp == VAR_POSITION) {
+//            uint8_t varType; buf >> varType;
+//            ASSERT(varType == POSITION_2D);
+//            buf >> px;
+//            buf >> py;
+//            numRead++;
+//        } else if (variable1_resp == VAR_ROAD_ID) {
+//            uint8_t varType; buf >> varType;
+//            ASSERT(varType == TYPE_STRING);
+//            buf >> edge;
+//            numRead++;
+//        } else if (variable1_resp == VAR_SPEED) {
+//            uint8_t varType; buf >> varType;
+//            ASSERT(varType == TYPE_DOUBLE);
+//            buf >> speed;
+//            numRead++;
+//        } else if (variable1_resp == VAR_ANGLE) {
+//            uint8_t varType; buf >> varType;
+//            ASSERT(varType == TYPE_DOUBLE);
+//            buf >> angle_traci;
+//            numRead++;
+////        }   else if (variable1_resp == VAR_SIGNALS) {
+////            uint8_t varType; buf >> varType;
+////            ASSERT(varType == TYPE_INTEGER);
+////            buf >> signals;
+////            numRead++;
+//        } else {
+//            error("Received unhandled pedestrian subscription result");
+//        }
+//    }
+//
+//    // bail out if we didn't want to receive these subscription results
+//    if (!isSubscribed) return;
+//
+//    // make sure we got updates for all attributes
+//    if (numRead != 4) return;
+//
+//    Coord p = connection->traci2omnet(TraCICoord(px, py));
+//    if ((p.x < 0) || (p.y < 0)) error("received bad node position (%.2f, %.2f), translated to (%.2f, %.2f)", px, py, p.x, p.y);
+//
+//    double angle = connection->traci2omnetAngle(angle_traci);
+//
+//    cModule* mod = getManagedModule(objectId);
+//
+//    // is it in the ROI?
+//    bool inRoi = isInRegionOfInterest(TraCICoord(px, py), edge, speed, angle);
+//    if (!inRoi)
+//    {
+//        if (mod)
+//        {
+//            deleteManagedModule(objectId);
+//            cout << "Pedestrian #" << objectId << " left region of interest" << endl;
+//        }
+//        else if(unEquippedHosts.find(objectId) != unEquippedHosts.end())
+//        {
+//            unEquippedHosts.erase(objectId);
+//            cout << "Pedestrian (unequipped) # " << objectId<< " left region of interest" << endl;
+//        }
+//        return;
+//    }
+//
+//    if (isModuleUnequipped(objectId))
+//    {
+//        return;
+//    }
+//
+//    if (!mod)
+//    {
+//        // no such module - need to create
+//        TraCIScenarioManager::addModule(objectId, pedModuleType, pedModuleName, pedModuleDisplayString, p, edge, speed, angle);
+//        cout << "Added pedestrian #" << objectId << endl;
+//    }
+//    else
+//    {
+//        // module existed - update position
+//        for (cModule::SubmoduleIterator iter(mod); !iter.end(); iter++)
+//        {
+//            cModule* submod = iter();
+//            ifInetTraCIMobilityCallNextPosition(submod, p, edge, speed, angle);
+//            TraCIMobility* mm = dynamic_cast<TraCIMobility*>(submod);
+//            if (!mm) continue;
+//            cout << "module " << objectId << " moving to " << p.x << "," << p.y << endl;
+//            mm->nextPosition(p, edge, speed, angle);
+//        }
+//    }
+//
+
+}
+
+
+// for vehicles and bikes only (not pedestrians!)
 void TraCI_App::addModule(std::string nodeId, std::string type, std::string name, std::string displayString, const Coord& position, std::string road_id, double speed, double angle)
 {
     string vehType = commandGetVehicleTypeId(nodeId);
+    // todo:
+    int SUMOControllerType = commandGetVehicleControllerType(vehType);
 
     if (vehType.find("TypeManual") != std::string::npos ||
         vehType.find("TypeACC") != std::string::npos ||
@@ -124,12 +252,6 @@ void TraCI_App::addModule(std::string nodeId, std::string type, std::string name
         // type is "c3po.ned.vehicle"
         // name is "V"
     }
-    else if (vehType == "TypePedestrian")
-    {
-        type = pedModuleType;
-        name = pedModuleName;
-        displayString = pedModuleDisplayString;
-    }
     else if (vehType == "TypeBicycle")
     {
         type = bikeModuleType;
@@ -139,57 +261,7 @@ void TraCI_App::addModule(std::string nodeId, std::string type, std::string name
     else
         error("Unknown module type in TraCI_App::addModule");
 
-    // ########################################
-    // Copy of TraCIScenarioManager::addModule
-    // ########################################
-
-    if (hosts.find(nodeId) != hosts.end()) error("tried adding duplicate module");
-
-    if (queuedVehicles.find(nodeId) != queuedVehicles.end()) {
-        queuedVehicles.erase(nodeId);
-    }
-    double option1 = hosts.size() / (hosts.size() + unEquippedHosts.size() + 1.0);
-    double option2 = (hosts.size() + 1) / (hosts.size() + unEquippedHosts.size() + 1.0);
-
-    if (fabs(option1 - penetrationRate) < fabs(option2 - penetrationRate)) {
-        unEquippedHosts.insert(nodeId);
-        return;
-    }
-
-    int32_t nodeVectorIndex = nextNodeVectorIndex++;
-
-    cModule* parentmod = getParentModule();
-    if (!parentmod) error("Parent Module not found");
-
-    cModuleType* nodeType = cModuleType::get(type.c_str());
-    if (!nodeType) error("Module Type \"%s\" not found", type.c_str());
-
-    //TODO: this trashes the vectsize member of the cModule, although nobody seems to use it
-    cModule* mod = nodeType->create(name.c_str(), parentmod, nodeVectorIndex, nodeVectorIndex);
-    mod->finalizeParameters();
-    mod->getDisplayString().parse(displayString.c_str());
-    mod->buildInside();
-    mod->scheduleStart(simTime() + updateInterval);
-
-    // pre-initialize TraCIMobility
-    for (cModule::SubmoduleIterator iter(mod); !iter.end(); iter++) {
-        cModule* submod = iter();
-        ifInetTraCIMobilityCallPreInitialize(submod, nodeId, position, road_id, speed, angle);
-        TraCIMobility* mm = dynamic_cast<TraCIMobility*>(submod);
-        if (!mm) continue;
-        mm->preInitialize(nodeId, position, road_id, speed, angle);
-    }
-
-    mod->callInitialize();
-    hosts[nodeId] = mod;
-
-    // post-initialize TraCIMobility
-    for (cModule::SubmoduleIterator iter(mod); !iter.end(); iter++) {
-        cModule* submod = iter();
-        TraCIMobility* mm = dynamic_cast<TraCIMobility*>(submod);
-        if (!mm) continue;
-        mm->changePosition();
-    }
+    TraCIScenarioManager::addModule(nodeId, type, name, displayString, position, road_id, speed, angle);
 }
 
 
