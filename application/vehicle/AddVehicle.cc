@@ -42,7 +42,6 @@ void AddVehicle::initialize(int stage)
 void AddVehicle::finish()
 {
 
-
 }
 
 
@@ -69,17 +68,14 @@ void AddVehicle::Add()
     if (!on)
         return;
 
-    // incident detection
     if(mode == 1)
     {
         Scenario1();
     }
-    // all ACC
     else if(mode == 2)
     {
         Scenario2();
     }
-    // all CACC
     else if(mode == 3)
     {
         Scenario3();
@@ -92,7 +88,6 @@ void AddVehicle::Add()
     {
         Scenario5();
     }
-    // bi-directional control
     else if(mode == 6)
     {
         Scenario6();
@@ -117,7 +112,7 @@ void AddVehicle::Add()
 
 
 // adding TypeCACC1 vehicles (CACC vehicles with one-vehicle look-ahead communication)
-void AddVehicle::Scenario3()
+void AddVehicle::Scenario1()
 {
     int depart = 0;
 
@@ -132,17 +127,125 @@ void AddVehicle::Scenario3()
 }
 
 
+void AddVehicle::Scenario2()
+{
+    int depart = 0;
+
+     for(int i=1; i<=totalVehicles; i++)
+     {
+         char vehicleName[10];
+         sprintf(vehicleName, "CACC%d", i);
+         depart = depart + 10000;
+
+         TraCI->commandAddVehicle(vehicleName, "TypeCACC2", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
+     }
+}
 
 
+void AddVehicle::Scenario3()
+{
+    int depart = 0;
+
+     for(int i=1; i<=totalVehicles; i++)
+     {
+         char vehicleName[10];
+         sprintf(vehicleName, "CACC%d", i);
+         depart = depart + 10000;
+
+         TraCI->commandAddVehicle(vehicleName, "TypeCACC3", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
+     }
+}
 
 
+void AddVehicle::Scenario4()
+{
+    // change from 'veh/h' to 'veh/s'
+    lambda = lambda / 3600;
+
+    // 1 vehicle per 'interval' milliseconds
+    double interval = (1 / lambda) * 1000;
+
+    int depart = 0;
+
+    for(int i=0; i<totalVehicles; i++)
+    {
+        char vehicleName[10];
+        sprintf(vehicleName, "CACC%d", i+1);
+        depart = depart + interval;
+
+        TraCI->commandAddVehicle(vehicleName, "TypeCACC1", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
+    }
+}
 
 
+void AddVehicle::Scenario5()
+{
+    int depart = 0;
+
+     for(int i=1; i<=10; i++)
+     {
+         char vehicleName[10];
+         sprintf(vehicleName, "CACC%d", i);
+         depart = depart + 1000;
+
+         TraCI->commandAddVehicle(vehicleName, "TypeCACC1", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
+     }
+
+     for(int i=11; i<=100; i++)
+     {
+         char vehicleName[10];
+         sprintf(vehicleName, "CACC%d", i);
+         depart = depart + 10000;
+
+         TraCI->commandAddVehicle(vehicleName, "TypeCACC1", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
+     }
+}
 
 
+void AddVehicle::Scenario6()
+{
+    // change from 'veh/h' to 'veh/s'
+    lambda = lambda / 3600;
+
+    // 1 vehicle per 'interval' milliseconds
+    //double interval = (1 / lambda) * 1000;
+
+    double interval = 5000;
+
+    int depart = 0;
+
+    TraCI->commandSetLaneVmax("1to2_0", 400.);
+    TraCI->commandSetMaxSpeed("TypeCACC1", 400.);
+    TraCI->commandSetVint("TypeCACC1", 400.);
+    TraCI->commandSetComfAccel("TypeCACC1", 400.);
+
+    for(int i=0; i<totalVehicles; i++)
+    {
+        char vehicleName[10];
+        sprintf(vehicleName, "CACC%d", i+1);
+        depart = depart + interval;
+
+        TraCI->commandAddVehicle(vehicleName, "TypeCACC1", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
+
+        if(i == 0)
+        {
+            TraCI->commandChangeVehicleSpeed(vehicleName, 20.);
+        }
+        else
+        {
+            TraCI->commandChangeVehicleSpeed(vehicleName, 400.);
+            TraCI->commandSetVehicleMaxAccel(vehicleName, 400.);
+        }
+
+        if(i % plnSize == 0)
+        {
+            TraCI->commandSetVehicleTg(vehicleName, plnSpace);
+        }
+    }
+}
 
 
-void AddVehicle::Scenario1()
+void AddVehicle::Scenario7()
 {
     int depart = 0;
 
@@ -171,21 +274,6 @@ void AddVehicle::Scenario1()
 }
 
 
-void AddVehicle::Scenario2()
-{
-    int depart = 0;
-
-    for(int i=1; i<=totalVehicles; i++)
-    {
-        char vehicleName[10];
-        sprintf(vehicleName, "ACC%d", i);
-        depart = depart + 10000;
-
-        TraCI->commandAddVehicle(vehicleName, "TypeACC", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
-    }
-}
-
-
 bool fexists(const char *filename)
 {
     ifstream ifile(filename);
@@ -202,6 +290,7 @@ vector<string> getEdgeNames(string netName)
   doc.parse<0>(xmlFile.data());
   for(node = doc.first_node()->first_node("edge"); node; node = node->next_sibling("edge"))
     edgeNames.push_back(node->first_attribute()->value());
+
   return edgeNames;
 }
 
@@ -214,6 +303,7 @@ vector<string> getNodeNames(string netName)
   doc.parse<0>(xmlFile.data());
   for(node = doc.first_node()->first_node("junction"); node; node = node->next_sibling("junction"))
     nodeNames.push_back(node->first_attribute()->value());
+
   return nodeNames;
 }
 
@@ -221,7 +311,6 @@ double curve(double x)  //Input will linearly increase from 0 to 1, from first t
 {                       //Output should be between 0 and 1, scaled by some function
     return x;
 }
-
 
 void generateVehicles(string dir, Router* r)
 {
@@ -248,7 +337,7 @@ void generateVehicles(string dir, Router* r)
   vFile.close();
 }
 
-void AddVehicle::Scenario4()
+void AddVehicle::Scenario8()
 {
     cModule *module = simulation.getSystemModule()->getSubmodule("router");
     Router *r = static_cast< Router* >(module);
@@ -338,127 +427,23 @@ void AddVehicle::Scenario4()
 }
 
 
-void AddVehicle::Scenario5()
-{
-    // change from 'veh/h' to 'veh/s'
-    lambda = lambda / 3600;
-
-    // 1 vehicle per 'interval' milliseconds
-    double interval = (1 / lambda) * 1000;
-
-    int depart = 0;
-
-    for(int i=0; i<totalVehicles; i++)
-    {
-        char vehicleName[10];
-        sprintf(vehicleName, "CACC%d", i+1);
-        depart = depart + interval;
-
-        TraCI->commandAddVehicle(vehicleName, "TypeCACC", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
-    }
-}
-
-
-void AddVehicle::Scenario6()
-{
-    int depart = 0;
-
-     for(int i=1; i<=totalVehicles; i++)
-     {
-         char vehicleName[10];
-         sprintf(vehicleName, "CACC%d", i);
-         depart = depart + 10000;
-
-         TraCI->commandAddVehicle(vehicleName, "TypeBiDi", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
-     }
-}
-
-
-void AddVehicle::Scenario7()
-{
-    int depart = 0;
-
-     for(int i=1; i<=10; i++)
-     {
-         char vehicleName[10];
-         sprintf(vehicleName, "CACC%d", i);
-         depart = depart + 1000;
-
-         TraCI->commandAddVehicle(vehicleName, "TypeCACC", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
-     }
-
-     for(int i=11; i<=100; i++)
-     {
-         char vehicleName[10];
-         sprintf(vehicleName, "CACC%d", i);
-         depart = depart + 10000;
-
-         TraCI->commandAddVehicle(vehicleName, "TypeCACC", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
-     }
-}
-
-
-void AddVehicle::Scenario8()
-{
-    // change from 'veh/h' to 'veh/s'
-    lambda = lambda / 3600;
-
-    // 1 vehicle per 'interval' milliseconds
-    //double interval = (1 / lambda) * 1000;
-
-    double interval = 5000;
-
-    int depart = 0;
-
-    TraCI->commandSetLaneVmax("1to2_0", 400.);
-    TraCI->commandSetMaxSpeed("TypeCACC", 400.);
-    TraCI->commandSetVint("TypeCACC", 400.);
-    TraCI->commandSetComfAccel("TypeCACC", 400.);
-
-    for(int i=0; i<totalVehicles; i++)
-    {
-        char vehicleName[10];
-        sprintf(vehicleName, "CACC%d", i+1);
-        depart = depart + interval;
-
-        TraCI->commandAddVehicle(vehicleName, "TypeCACC", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
-
-        if(i == 0)
-        {
-            TraCI->commandChangeVehicleSpeed(vehicleName, 20.);
-        }
-        else
-        {
-            TraCI->commandChangeVehicleSpeed(vehicleName, 400.);
-            TraCI->commandSetVehicleMaxAccel(vehicleName, 400.);
-        }
-
-        if(i % plnSize == 0)
-        {
-            TraCI->commandSetVehicleTg(vehicleName, plnSpace);
-        }
-    }
-}
-
-
 void AddVehicle::Scenario9()
 {
     int vehicleDepart = 0;
     int bicycleDepart = 0;
-    int pedestrianDepart = 0;
 
-     for(int i=1; i<=totalVehicles; i++)
-     {
-         char vehicleName[10];
-         sprintf(vehicleName, "Veh%d", i);
-         vehicleDepart = vehicleDepart + 10000;
-         TraCI->commandAddVehicle(vehicleName, "TypeManual", "route4", vehicleDepart, 0 /*pos*/, 0 /*speed*/, 4 /*lane*/);
+    for(int i=1; i<=totalVehicles; i++)
+    {
+        char vehicleName[10];
+        sprintf(vehicleName, "Veh%d", i);
+        vehicleDepart = vehicleDepart + 10000;
+        TraCI->commandAddVehicle(vehicleName, "TypeManual", "route4", vehicleDepart, 0 /*pos*/, 0 /*speed*/, 4 /*lane*/);
 
-         char bicycleName[10];
-         sprintf(bicycleName, "Bike%d", i);
-         bicycleDepart = bicycleDepart + 10000;
-         TraCI->commandAddVehicle(bicycleName, "TypeBicycle", "route10", bicycleDepart, 0 /*pos*/, 0 /*speed*/, 2 /*lane*/);
-     }
+        char bicycleName[10];
+        sprintf(bicycleName, "Bike%d", i);
+        bicycleDepart = bicycleDepart + 10000;
+        TraCI->commandAddVehicle(bicycleName, "TypeBicycle", "route10", bicycleDepart, 0 /*pos*/, 0 /*speed*/, 2 /*lane*/);
+    }
 }
 
 }
