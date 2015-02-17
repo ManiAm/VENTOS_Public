@@ -116,6 +116,32 @@ void AddVehicle::Add()
 }
 
 
+// adding TypeCACC1 vehicles (CACC vehicles with one-vehicle look-ahead communication)
+void AddVehicle::Scenario3()
+{
+    int depart = 0;
+
+     for(int i=1; i<=totalVehicles; i++)
+     {
+         char vehicleName[10];
+         sprintf(vehicleName, "CACC%d", i);
+         depart = depart + 10000;
+
+         TraCI->commandAddVehicle(vehicleName, "TypeCACC1", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
+     }
+}
+
+
+
+
+
+
+
+
+
+
+
+
 void AddVehicle::Scenario1()
 {
     int depart = 0;
@@ -159,20 +185,6 @@ void AddVehicle::Scenario2()
     }
 }
 
-
-void AddVehicle::Scenario3()
-{
-    int depart = 0;
-
-     for(int i=1; i<=totalVehicles; i++)
-     {
-         char vehicleName[10];
-         sprintf(vehicleName, "CACC%d", i);
-         depart = depart + 10000;
-
-         TraCI->commandAddVehicle(vehicleName, "TypeCACC", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
-     }
-}
 
 bool fexists(const char *filename)
 {
@@ -440,17 +452,12 @@ void AddVehicle::Scenario9()
          char vehicleName[10];
          sprintf(vehicleName, "Veh%d", i);
          vehicleDepart = vehicleDepart + 10000;
-         TraCI->commandAddVehicle(vehicleName, "TypeManual", "route4", vehicleDepart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
+         TraCI->commandAddVehicle(vehicleName, "TypeManual", "route4", vehicleDepart, 0 /*pos*/, 0 /*speed*/, 4 /*lane*/);
 
          char bicycleName[10];
          sprintf(bicycleName, "Bike%d", i);
          bicycleDepart = bicycleDepart + 10000;
-         TraCI->commandAddVehicle(bicycleName, "TypeBicycle", "route1", bicycleDepart, 350 /*pos*/, 0 /*speed*/, 1 /*lane*/);
-
-         char pedestrianName[10];
-         sprintf(pedestrianName, "Ped%d", i);
-         pedestrianDepart = pedestrianDepart + 10000;
-         TraCI->commandAddVehicle(pedestrianName, "TypePedestrian", "route1", pedestrianDepart, 350 /*pos*/, 0 /*speed*/, 2 /*lane*/);
+         TraCI->commandAddVehicle(bicycleName, "TypeBicycle", "route10", bicycleDepart, 0 /*pos*/, 0 /*speed*/, 2 /*lane*/);
      }
 }
 

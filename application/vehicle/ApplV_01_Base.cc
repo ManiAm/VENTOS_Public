@@ -48,24 +48,31 @@ void ApplVBase::initialize(int stage)
 
 		myFullId = getParentModule()->getFullName();
 
+        // store the time of entry
+        entryTime = simTime().dbl();
+
         // vehicle id in sumo
         SUMOvID = TraCI_Mobility->getExternalId();
 
         // vehicle type in sumo
         SUMOvType = TraCI->commandGetVehicleTypeId(SUMOvID);
 
-        // store the time of entry
-        entryTime = simTime().dbl();
+        // get controller type from SUMO
+        SUMOControllerType = TraCI->commandGetVehicleControllerType(SUMOvType);
 
-        if(SUMOvType != "TypeObstacle")
-            findHost()->subscribe(mobilityStateChangedSignal, this);
+        // get controller number from SUMO
+        SUMOControllerNumber = TraCI->commandGetVehicleControllerNumber(SUMOvType);
+
+        // disable to speed-up simulation
+        //if(SUMOvType != "TypeObstacle")
+            //findHost()->subscribe(mobilityStateChangedSignal, this);
 	}
 }
 
 
 void ApplVBase::finish()
 {
-    findHost()->unsubscribe(mobilityStateChangedSignal, this);
+    //findHost()->unsubscribe(mobilityStateChangedSignal, this);
 }
 
 

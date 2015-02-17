@@ -49,11 +49,35 @@ class ApplVBase : public BaseApplLayer
         // Class variables
         int myId;
 		const char *myFullId;
-	    string SUMOvID;
-        string SUMOvType;
         Coord curPosition;  // current position from mobility module (not from sumo)
         double entryTime;
+
+		string SUMOvID;
+        string SUMOvType;
+        int SUMOControllerType;
+        int SUMOControllerNumber;
+
+        enum ControllerTypes
+        {
+            SUMO_TAG_CF_KRAUSS = 99,
+            SUMO_TAG_CF_KRAUSS_PLUS_SLOPE,
+            SUMO_TAG_CF_KRAUSS_ACCEL_BOUND,
+            SUMO_TAG_CF_KRAUSS_ORIG1,
+            SUMO_TAG_CF_SMART_SK,
+            SUMO_TAG_CF_DANIEL1,
+            SUMO_TAG_CF_IDM,
+            SUMO_TAG_CF_IDMM,
+            SUMO_TAG_CF_PWAGNER2009,
+            SUMO_TAG_CF_BKERNER,
+            SUMO_TAG_CF_WIEDEMANN,
+
+            SUMO_TAG_CF_OPTIMALSPEED,
+            SUMO_TAG_CF_KRAUSSFIXED,
+            SUMO_TAG_CF_ACC,
+            SUMO_TAG_CF_CACC,
+        };
 };
+
 }
 
 #endif

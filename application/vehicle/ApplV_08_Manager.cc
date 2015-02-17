@@ -18,14 +18,8 @@ void ApplVManager::initialize(int stage)
 	if (stage == 0)
 	{
         // NED variables
-        controllerType = par("controllerType").longValue();
         degradeToACC = par("degradeToACC").boolValue();
         SUMOvehicleDebug = par("SUMOvehicleDebug").boolValue();
-
-        // set parameters in SUMO
-        TraCI->commandSetVehicleDebug(SUMOvID, SUMOvehicleDebug);
-        TraCI->commandSetVehicleDegradeToACC(SUMOvID, degradeToACC);
-        TraCI->commandSetVehicleControllerType(SUMOvID, controllerType);
 
         // NED variables (packet loss ratio)
         droppT = par("droppT").doubleValue();
@@ -46,6 +40,10 @@ void ApplVManager::initialize(int stage)
         WATCH(BeaconVehDropped);
         WATCH(BeaconRSUCount);
         WATCH(PlatoonCount);
+
+        // set parameters in SUMO
+        TraCI->commandSetVehicleDebug(SUMOvID, SUMOvehicleDebug);
+        TraCI->commandSetVehicleDegradeToACC(SUMOvID, degradeToACC);
 
         if(measurementError)
         {
@@ -227,15 +225,18 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
     EV << "## " << SUMOvID << " received beacon ..." << endl;
     ApplVBeacon::printBeaconContent(wsm);
 
-    // manual-driving and ACC vehicles (CACC should not use this mode)
-    // only beaconing is working (if enabled!)
-    // and we ignore all received BeaconVehicle
-    if(controllerType == 1)
+    // model is Krauss (TypeManual)
+    if(SUMOControllerType == SUMO_TAG_CF_KRAUSS)
     {
-
+        // we ignore all received BeaconVehicles
     }
-    // CACC controller with one-vehicle look-ahead communication
-    else if(controllerType == 2)
+    // model is ACC with controllerNumber = 1 (TypeACC1)
+    else if(SUMOControllerType == SUMO_TAG_CF_ACC && SUMOControllerNumber == 1)
+    {
+        // we ignore all received BeaconVehicles
+    }
+    // model is CACC with one-vehicle look-ahead communication (TypeCACC1)
+    else if(SUMOControllerType == SUMO_TAG_CF_CACC && SUMOControllerNumber == 1)
     {
         if( isBeaconFromLeading(wsm) )
         {
@@ -244,8 +245,8 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
             TraCI->commandSetVehicleControllerParameters(SUMOvID, buffer);
         }
     }
-    // CACC controller with platoon leader communication
-    else if(controllerType == 3)
+    // model is CACC with platoon leader communication (TypeCACC2)
+    else if(SUMOControllerType == SUMO_TAG_CF_CACC && SUMOControllerNumber == 2)
     {
         if(plnMode == 1)
             error("no platoon leader is present! check plnMode!");
@@ -275,7 +276,7 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
     }
     else
     {
-        error("not a valid control type!");
+        error("not a valid control type or control number!");
     }
 
 

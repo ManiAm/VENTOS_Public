@@ -8,7 +8,6 @@ simple ApplVManager extends ApplVPlatoonMg
         @class(VENTOS::ApplVManager);
         @display("i=block/app2");
         
-        int controllerType = default(0);
         bool degradeToACC = default(true);
         bool SUMOvehicleDebug = default(false);
         
