@@ -5,18 +5,41 @@
   <vType id="TypeManual" length="5.0" minGap="2.0" maxSpeed="30.0">
       <carFollowing-Krauss accel="3.0" decel="5.0" sigma="0" tau="1.64" />
   </vType> 
-    
-  <!-- Pedestrian -->
-  <vType id="TypePedestrian" length="2.0" vClass="pedestrian">
-  </vType>
   
-    <!-- Bicycle -->
+  <!-- Bicycle -->
   <vType id="TypeBicycle" length="2.0" vClass="bicycle">
   </vType>
+    
+  <!-- Pedestrian -->
+  <vType id="TypePedestrian" vClass="pedestrian" width="0.7" length="0.35" minGap="0.2" maxSpeed="1.8" guiShape="pedestrian" color="red">
+  </vType>
+  
+  <!-- North inbound -->
+  <route id="route1" edges="NC CS" /> 
+  <route id="route2" edges="NC CW" /> 
+  <route id="route3" edges="NC CE" />  
 
-  <route id="route1" edges="2to3 3to4" />  
-  <route id="route2" edges="2to3 3to5" />  
-  <route id="route3" edges="1to3 3to4" />  
-  <route id="route4" edges="1to3 3to5" />  
+  <!-- South inbound -->
+  <route id="route4" edges="SC CN" />
+  <route id="route5" edges="SC CE" />
+  <route id="route6" edges="SC CW" />
+  
+  <!-- West inbound -->
+  <route id="route7" edges="WC CE" />  
+  <route id="route8" edges="WC CS" />  
+  <route id="route9" edges="WC CN" /> 
+  
+  <!-- East inbound -->
+  <route id="route10" edges="EC CW" />  
+  <route id="route11" edges="EC CN" />  
+  <route id="route12" edges="EC CS" /> 
+  
+  <person id="Ped1" type="TypePedestrian" depart="10">
+      <walk edges="EC CW" departPos="0" arrivalPos="-1.0"/>
+  </person> 
+  
+  <person id="Ped2" type="TypePedestrian" depart="20">
+      <walk edges="EC CW" departPos="0" arrivalPos="-1.0"/>
+  </person> 
 
 </routes>
