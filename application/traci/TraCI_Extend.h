@@ -39,7 +39,6 @@ class TraCI_Extend : public TraCIScenarioManager
 		virtual ~TraCI_Extend();
 		virtual void initialize(int stage);
         virtual void handleSelfMsg(cMessage *msg);
-
         virtual void init_traci();
 		virtual void finish();
 

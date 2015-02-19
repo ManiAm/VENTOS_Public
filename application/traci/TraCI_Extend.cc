@@ -32,7 +32,7 @@ void TraCI_Extend::initialize(int stage)
 
 void TraCI_Extend::finish()
 {
-
+    TraCIScenarioManager::finish();
 }
 
 

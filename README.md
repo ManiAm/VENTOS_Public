@@ -1,7 +1,9 @@
 VENTOS
 ======
 
-VENTOS framework is developed in Ubuntu OS, and we have not tested it under Windows (yet!). This section shows you how to install VENTOS and its prerequisites step by step on Ubuntu 12.04 or 14.04 machine. Before continuing, make sure that you have installed SUMO from [this repository](https://github.com/ManiAm/VENTOS_SUMO "").
+VENTOS framework is developed in Ubuntu OS, and we have not tested it under Windows (yet!). This section shows you how to install VENTOS and its prerequisites step by step on Ubuntu 12.04 or 14.04 machine. 
+
+Before continuing, make sure that you have installed SUMO from [this repository](https://github.com/ManiAm/VENTOS_SUMO "").
 
 
 Install OMNET++
@@ -101,6 +103,8 @@ It will ask your username/password, and then receives a copy of the project.
 Ubuntu 12.04 : `libboost-filesystem1.48-dev`, `libboost-system1.48-dev`, `libssl-dev`
 
 Ubuntu 14.04 : `libboost-filesystem1.54-dev`, `libboost-system1.54-dev`, `libssl-dev`
+
+`libcurl3`, `libxerces-c2-dev`, `libfox-1.6-dev`, `libproj-dev`
 
 **Step 6:** Install Gnuplot 4.6:
 

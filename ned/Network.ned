@@ -38,31 +38,35 @@ network Network
         }
         TraCI: TraCI_App {
             parameters:
-                @display("p=145,372");
+                @display("p=140,372");
+        }
+        SumoBinary: SumoBinary {
+            parameters:
+                @display("p=222,372");
         }
         Tracking: Tracking {
             parameters:
-                @display("p=221,372");
+                @display("p=303,372");
         }
         addVehicle: AddVehicle {
             parameters:
-                @display("p=301,372");
+                @display("p=61,459;i=old/bwsink");
         }
         addRSU: AddRSU {
             parameters:
-                @display("p=381,372");
+                @display("p=176,459;i=old/bwsink");
         }
         addAdversary: AddAdversary {
             parameters:
-                @display("p=381,372");
-        }        
+                @display("p=280,459;i=old/bwsink");
+        }
         warmup: Warmup {
             parameters:
-                @display("p=61,459");
+                @display("p=61,546");
         }
         speedprofile: SpeedProfile {
             parameters:
-                @display("p=145,459");
+                @display("p=176,546");
         }
         statistics: Statistics {
             parameters:
@@ -70,15 +74,15 @@ network Network
         }
         router: Router {
             parameters:
-                @display("p=235,459;i=block/dispatch");
+                @display("p=61,639;i=block/dispatch");
         }
         TrafficLight: <trafficLightType> like TrafficLightInterface {
             parameters:
-                @display("p=320,459;i=block/dispatch");
+                @display("p=176,639;i=block/dispatch");
         }
         plotter: Plotter {
             parameters:
-                @display("p=61,548;i=block/app");
+                @display("p=369,372;i=block/app");
         }
 
     connections allowunconnected:
