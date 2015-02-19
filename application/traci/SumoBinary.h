@@ -25,16 +25,16 @@ class SumoBinary : public BaseModule
         virtual void finish();
 
 	protected:
+        // NED variables
+        bool update;
         string SUMO_CMD_FileName;
         string SUMO_GUI_FileName;
-
         string SUMO_GUI_URL;
         string SUMO_CMD_URL;
         string SUMO_Version_URL;
 
         boost::filesystem::path VENTOS_FullPath;
         boost::filesystem::path SUMO_Binary_FullPath;
-
         boost::filesystem::path SUMO_CMD_Binary_FullPath;
         boost::filesystem::path SUMO_GUI_Binary_FullPath;
 

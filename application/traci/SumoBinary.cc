@@ -10,12 +10,17 @@ void SumoBinary::initialize(int stage)
 {
     if(stage == 0)
     {
-        SUMO_GUI_FileName = "sumo-guiD";
-        SUMO_CMD_FileName = "sumoD";
+        update = par("update").boolValue();
 
-        SUMO_GUI_URL = "https://dl.dropboxusercontent.com/u/5153771/SUMObinary/sumo-guiD";
-        SUMO_CMD_URL = "https://dl.dropboxusercontent.com/u/5153771/SUMObinary/sumoD";
-        SUMO_Version_URL = "https://dl.dropboxusercontent.com/u/5153771/SUMObinary/version";
+        if(!update)
+            return;
+
+        SUMO_GUI_FileName = par("SUMO_GUI_FileName").stringValue();
+        SUMO_CMD_FileName = par("SUMO_CMD_FileName").stringValue();
+
+        SUMO_GUI_URL = par("SUMO_GUI_URL").stringValue();
+        SUMO_CMD_URL = par("SUMO_CMD_URL").stringValue();
+        SUMO_Version_URL = par("SUMO_Version_URL").stringValue();
 
         VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
         SUMO_Binary_FullPath = VENTOS_FullPath / "sumoBinary";
