@@ -20,7 +20,7 @@ for s=3:3
         path = '../results/cmd/man_duration/0_vehicleData.txt';
         figureName = 'Krauss Fixed';
     elseif(s == 3)
-        path = '../results/gui/vehicleData.txt';
+        path = '../results/cmd/0_vehicleData.txt';
         figureName = 'KraussOrig1';
     end
     

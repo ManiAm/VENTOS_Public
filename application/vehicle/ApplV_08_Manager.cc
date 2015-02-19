@@ -280,9 +280,6 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
     }
 
 
-
-
-
 //    // send results to SUMO if result = true
 //    if(result)
 //    {
@@ -302,6 +299,7 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
 //        simsignal_t Signal_beaconO = registerSignal("beaconO");
 //        nodePtr->emit(Signal_beaconO, pair);
 //    }
+
 }
 
 
@@ -315,7 +313,6 @@ void ApplVManager::onBeaconPedestrian(BeaconPedestrian* wsm)
 
     char buffer [200];
     sprintf (buffer, "%f#%f#%f#%f#%s#%s", (double)wsm->getSpeed(), (double)wsm->getAccel(), (double)wsm->getMaxDecel(), (simTime().dbl())*1000, wsm->getSender(), "preceding");
-
 }
 
 
@@ -323,8 +320,6 @@ void ApplVManager::onBeaconRSU(BeaconRSU* wsm)
 {
     // pass it down
     ApplVCoordinator::onBeaconRSU(wsm);
-
-
 }
 
 
@@ -332,7 +327,6 @@ void ApplVManager::onData(PlatoonMsg* wsm)
 {
     // pass it down
     ApplVCoordinator::onData(wsm);
-
 }
 
 

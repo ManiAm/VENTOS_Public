@@ -125,7 +125,7 @@ void SpeedProfile::Change()
     else if(mode == 3)
     {
         // we change the maxDecel and maxAccel of trajectory to lower values (it does not touch the boundaries)
-        // note1: when we change maxDecel or maxAccel of a vehicle, its type will be changes!
+        // note1: when we change maxDecel or maxAccel of a vehicle, its type will change!
         // note2: we have to make sure the trajectory entered into the simulation, before changing MaxAccel and MaxDecel
         // note3: and we have to change maxDeccel and maxAccel only once!
         if( simTime().dbl() == startTime )
