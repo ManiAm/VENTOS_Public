@@ -3,8 +3,6 @@ VENTOS
 
 VENTOS framework is developed in Ubuntu OS, and we have not tested it under Windows (yet!). This section shows you how to install VENTOS and its prerequisites step by step on Ubuntu 12.04 or 14.04 machine. 
 
-Before continuing, make sure that you have installed SUMO from [this repository](https://github.com/ManiAm/VENTOS_SUMO "").
-
 
 Install OMNET++
 ---------------
