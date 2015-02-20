@@ -109,7 +109,6 @@ size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream)
     return written;
 }
 
-
 void SumoBinary::downloadBinary(string binaryName, string filePath, string url)
 {
     cout << "Downloading " << binaryName << " ... ";
@@ -134,7 +133,7 @@ void SumoBinary::downloadBinary(string binaryName, string filePath, string url)
     curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
     // we tell libcurl to follow redirection
     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-    curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 3);
+    curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 6);
     curl_easy_setopt(curl, CURLOPT_USERAGENT, "libcurl-agent/1.0");
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
@@ -194,7 +193,7 @@ static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *use
     return realsize;
 }
 
-
+// get remote file and save it in memory
 int SumoBinary::getRemoteVersion()
 {
     remoteVer.clear();
@@ -209,7 +208,7 @@ int SumoBinary::getRemoteVersion()
     curl_easy_setopt(curl, CURLOPT_URL, SUMO_Version_URL.c_str());
     // we tell libcurl to follow redirection
     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-    curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 3);
+    curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 6);
     curl_easy_setopt(curl, CURLOPT_USERAGENT, "libcurl-agent/1.0");
     /* send all data to this function  */
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
