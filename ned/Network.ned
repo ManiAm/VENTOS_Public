@@ -44,9 +44,13 @@ network Network
             parameters:
                 @display("p=222,372");
         }
+        SumoServer: SumoServer {
+            parameters:
+                @display("p=316,372");
+        }
         Tracking: Tracking {
             parameters:
-                @display("p=303,372");
+                @display("p=408,372");
         }
         addVehicle: AddVehicle {
             parameters:
@@ -82,7 +86,7 @@ network Network
         }
         plotter: Plotter {
             parameters:
-                @display("p=369,372;i=block/app");
+                @display("p=369,459;i=block/app");
         }
 
     connections allowunconnected:

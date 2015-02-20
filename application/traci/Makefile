@@ -38,7 +38,7 @@ PROJECTRELATIVE_PATH = application/traci
 O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Object files for local .cc and .msg files
-OBJS = $O/TraCI_Extend.o $O/SumoBinary.o $O/TraCI_App.o
+OBJS = $O/TraCI_Extend.o $O/SumoServer.o $O/SumoBinary.o $O/TraCI_App.o
 
 # Message files
 MSGFILES =
@@ -130,6 +130,18 @@ depend:
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 $O/SumoBinary.o: SumoBinary.cc \
 	SumoBinary.h \
+	$(VEINS_PROJ)/src/veins/base/modules/BaseApplLayer.h \
+	$(VEINS_PROJ)/src/veins/base/modules/BaseBattery.h \
+	$(VEINS_PROJ)/src/veins/base/modules/BaseLayer.h \
+	$(VEINS_PROJ)/src/veins/base/modules/BaseModule.h \
+	$(VEINS_PROJ)/src/veins/base/modules/BatteryAccess.h \
+	$(VEINS_PROJ)/src/veins/base/utils/HostState.h \
+	$(VEINS_PROJ)/src/veins/base/utils/MiXiMDefs.h \
+	$(VEINS_PROJ)/src/veins/base/utils/PassedMessage.h \
+	$(VEINS_PROJ)/src/veins/base/utils/SimpleAddress.h \
+	$(VEINS_PROJ)/src/veins/base/utils/miximkerneldefs.h
+$O/SumoServer.o: SumoServer.cc \
+	SumoServer.h \
 	$(VEINS_PROJ)/src/veins/base/modules/BaseApplLayer.h \
 	$(VEINS_PROJ)/src/veins/base/modules/BaseBattery.h \
 	$(VEINS_PROJ)/src/veins/base/modules/BaseLayer.h \
