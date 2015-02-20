@@ -1,6 +1,8 @@
 
 #include "TraCI_Extend.h"
 
+#define MYDEBUG EV
+
 namespace VENTOS {
 
 Define_Module(VENTOS::TraCI_Extend);
@@ -45,17 +47,102 @@ void TraCI_Extend::handleSelfMsg(cMessage *msg)
 void TraCI_Extend::init_traci()
 {
     // get the version of Python launchd
-    pair<uint32_t, string> version = getCommandInterface()->getVersion();
-    uint32_t apiVersion = version.first;
-    string serverVersion = version.second;
-    EV << "TraCI launchd reports apiVersion: " << apiVersion << " and serverVersion: " << serverVersion << endl;
-    ASSERT(apiVersion == 1);
+    pair<uint32_t, string> versionP = getCommandInterface()->getVersion();
+    uint32_t apiVersionP = versionP.first;
+    string serverVersionP = versionP.second;
+    EV << "TraCI launchd reports apiVersion: " << apiVersionP << " and serverVersion: " << serverVersionP << endl;
+    ASSERT(apiVersionP == 1);
 
     // send the launch file to python script
     sendLaunchFile();
 
-    TraCIScenarioManager::init_traci();
-}
+    // #################################################
+    // Exact copy of TraCIScenarioManager::init_traci()
+    // #################################################
+
+    // get the version of SUMO TraCI API
+    std::pair<uint32_t, std::string> versionS = getCommandInterface()->getVersion();
+    uint32_t apiVersionS = versionS.first;
+    std::string serverVersionS = versionS.second;
+
+    if (apiVersionS == 9) {
+        MYDEBUG << "TraCI server \"" << serverVersionS << "\" reports API version " << apiVersionS << endl;
+    }
+    else {
+        error("TraCI server \"%s\" reports API version %d, which is unsupported. We recommend using SUMO 0.21.0.", serverVersionS.c_str(), apiVersionS);
+    }
+
+    {
+    // query road network boundaries
+    TraCIBuffer buf = connection->query(CMD_GET_SIM_VARIABLE, TraCIBuffer() << static_cast<uint8_t>(VAR_NET_BOUNDING_BOX) << std::string("sim0"));
+    uint8_t cmdLength_resp; buf >> cmdLength_resp;
+    uint8_t commandId_resp; buf >> commandId_resp; ASSERT(commandId_resp == RESPONSE_GET_SIM_VARIABLE);
+    uint8_t variableId_resp; buf >> variableId_resp; ASSERT(variableId_resp == VAR_NET_BOUNDING_BOX);
+    std::string simId; buf >> simId;
+    uint8_t typeId_resp; buf >> typeId_resp; ASSERT(typeId_resp == TYPE_BOUNDINGBOX);
+    double x1; buf >> x1;
+    double y1; buf >> y1;
+    double x2; buf >> x2;
+    double y2; buf >> y2;
+    ASSERT(buf.eof());
+
+    TraCICoord netbounds1 = TraCICoord(x1, y1);
+    TraCICoord netbounds2 = TraCICoord(x2, y2);
+    MYDEBUG << "TraCI reports network boundaries (" << x1 << ", " << y1 << ")-(" << x2 << ", " << y2 << ")" << endl;
+    connection->setNetbounds(netbounds1, netbounds2, par("margin"));
+    if ((connection->traci2omnet(netbounds2).x > world->getPgs()->x) || (connection->traci2omnet(netbounds1).y > world->getPgs()->y)) MYDEBUG << "WARNING: Playground size (" << world->getPgs()->x << ", " << world->getPgs()->y << ") might be too small for vehicle at network bounds (" << connection->traci2omnet(netbounds2).x << ", " << connection->traci2omnet(netbounds1).y << ")" << endl;
+    }
+
+    {
+    // subscribe to list of departed and arrived vehicles, as well as simulation time
+    uint32_t beginTime = 0;
+    uint32_t endTime = 0x7FFFFFFF;
+    std::string objectId = "";
+    uint8_t variableNumber = 7;
+    uint8_t variable1 = VAR_DEPARTED_VEHICLES_IDS;
+    uint8_t variable2 = VAR_ARRIVED_VEHICLES_IDS;
+    uint8_t variable3 = VAR_TIME_STEP;
+    uint8_t variable4 = VAR_TELEPORT_STARTING_VEHICLES_IDS;
+    uint8_t variable5 = VAR_TELEPORT_ENDING_VEHICLES_IDS;
+    uint8_t variable6 = VAR_PARKING_STARTING_VEHICLES_IDS;
+    uint8_t variable7 = VAR_PARKING_ENDING_VEHICLES_IDS;
+    TraCIBuffer buf = connection->query(CMD_SUBSCRIBE_SIM_VARIABLE, TraCIBuffer() << beginTime << endTime << objectId << variableNumber << variable1 << variable2 << variable3 << variable4 << variable5 << variable6 << variable7);
+    processSubcriptionResult(buf);
+    ASSERT(buf.eof());
+    }
+
+    {
+    // subscribe to list of vehicle ids
+    uint32_t beginTime = 0;
+    uint32_t endTime = 0x7FFFFFFF;
+    std::string objectId = "";
+    uint8_t variableNumber = 1;
+    uint8_t variable1 = ID_LIST;
+    TraCIBuffer buf = connection->query(CMD_SUBSCRIBE_VEHICLE_VARIABLE, TraCIBuffer() << beginTime << endTime << objectId << variableNumber << variable1);
+    processSubcriptionResult(buf);
+    ASSERT(buf.eof());
+    }
+
+    ObstacleControl* obstacles = ObstacleControlAccess().getIfExists();
+    if (obstacles) {
+        {
+            // get list of polygons
+            std::list<std::string> ids = getCommandInterface()->getPolygonIds();
+            for (std::list<std::string>::iterator i = ids.begin(); i != ids.end(); ++i) {
+                std::string id = *i;
+                std::string typeId = getCommandInterface()->polygon(id).getTypeId();
+                if (typeId == "building") {
+                    std::list<Coord> coords = getCommandInterface()->polygon(id).getShape();
+                    Obstacle obs(id, 9, .4); // each building gets attenuation of 9 dB per wall, 0.4 dB per meter
+                    std::vector<Coord> shape;
+                    std::copy(coords.begin(), coords.end(), std::back_inserter(shape));
+                    obs.setShape(shape);
+                    obstacles->add(obs);
+                }
+            }
+        }
+    }
+} // method end
 
 
 void TraCI_Extend::sendLaunchFile()
