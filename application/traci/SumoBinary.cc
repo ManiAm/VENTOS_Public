@@ -10,11 +10,6 @@ void SumoBinary::initialize(int stage)
 {
     if(stage == 0)
     {
-        update = par("update").boolValue();
-
-        if(!update)
-            return;
-
         SUMO_GUI_FileName = par("SUMO_GUI_FileName").stringValue();
         SUMO_CMD_FileName = par("SUMO_CMD_FileName").stringValue();
 
@@ -27,6 +22,8 @@ void SumoBinary::initialize(int stage)
 
         SUMO_GUI_Binary_FullPath = SUMO_Binary_FullPath / SUMO_GUI_FileName;
         SUMO_CMD_Binary_FullPath = SUMO_Binary_FullPath / SUMO_CMD_FileName;
+
+        update = par("update").boolValue();
 
         // todo: check each day!
         // a way to turn this feature off
@@ -228,6 +225,9 @@ int SumoBinary::getRemoteVersion()
 
 void SumoBinary::checkIfNewerVersionExists(string binaryName, string filePath, string url)
 {
+    if(!update)
+        return;
+
     cout << "Checking for " << binaryName << "'s update ... ";
     cout.flush();
 
