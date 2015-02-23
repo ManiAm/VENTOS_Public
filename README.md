@@ -19,15 +19,28 @@ Then
     sudo apt-get install build-essential gcc g++ bison flex perl tcl-dev tk-dev libxml2-dev zlib1g-dev default-jre doxygen graphviz libwebkitgtk-1.0-0 openmpi-bin libopenmpi-dev libpcap-dev
 
 
-Note: Use `java -version` to check your current version of java, and make sure it is 1.7 or higher. If not, install it as follows:
+**Step 3:** Use `java -version` to check your current version of java, and make sure it is 1.7 or higher. If not, install it as follows:
 
     sudo add-apt-repository ppa:webupd8team/java
     sudo apt-get update
     sudo apt-get install oracle-java7-installer
     sudo apt-get install oracle-java7-set-default
 
+**Step 4:** OMNeT++ requires that its bin directory be in the PATH. You should add the following line to your .bashrc (note that you should change the path accordinglly):
 
-**Step 3:** Navigate to OMNET++ folder, open the file 'configure.user' and make sure that USE_CXX11 is set to 'yes'. Also use `g++ -v` and check if the g++ version is 4.8 or higher. If not, install it as follows:
+    export PATH=$PATH:/home/mani/Desktop/omnetpp-4.6/bin
+
+Note that You need to close and re-open the terminal for the changes to take effect.
+
+**Step 5:** In the OMNeT++ directory, type the following command. The configure script detects installed software and configuration of your system. It writes the results into the `Makefile.inc` file, which will be read by the makefiles during the build process. Pay close attention to errors and warnings, and ignore warnings regarding Akaroa!.
+
+    ./configure
+
+**Step 6:** Starting from version 4.6, OMNET++ uses C++11 standard (formerly known as C++0x) by default. This means that OMNET++ source code as well as all the imported projects will be compiled with this flag. Look for this line in the configure output, and make sure that it is 'yes'.
+
+    checking whether g++ supports -std=c++11... yes
+
+If not, first navigate to OMNET++ folder and open the file 'configure.user'. Find USE_CXX11 flag and set it to 'yes'. If USE_CXX11 is already set to 'yes', then your g++ compiler does not support C++11 standard. Follow these instructions to install g++ 4.8:
 
     sudo add-apt-repository ppa:ubuntu-toolchain-r/test
     sudo apt-get update
@@ -40,26 +53,18 @@ Note: Use `java -version` to check your current version of java, and make sure i
     sudo update-alternatives --config gcc
     sudo update-alternatives --config g++
 
-**Step 4:** OMNeT++ requires that its bin directory be in the PATH. You should add the following line to your .bashrc (note that you should change the path accordinglly):
+Now run ./configure again and re-check.
 
-    export PATH=$PATH:/home/mani/Desktop/omnetpp-4.6/bin
-
-Note that You need to close and re-open the terminal for the changes to take effect.
-
-**Step 5:** In the OMNeT++ directory, type the following command. The configure script detects installed software and configuration of your system. It writes the results into the `Makefile.inc` file, which will be read by the makefiles during the build process. Pay close attention to errors and warnings! (ignore warnings regarding Akaroa!).
-
-    ./configure
-
-**Step 6:** Now you can compile OMNET++ by using make. Compiling takes some time, so relax, grab a cup of coffee and watch [this](https://www.youtube.com/watch?v=A6XUVjK9W4o).
+**Step 7:** Now you can compile OMNET++ by using make. Compiling takes some time, so relax, grab a cup of coffee and watch [this](https://www.youtube.com/watch?v=A6XUVjK9W4o).
 
     make
 
-**Step 7:** Installation of OMNET++ is done!, and you can verify that the sample simulations run correctly. For example, the dyna simulation is started by entering the following commands. First we go to the sample/dyna folder, and then we run it.
+**Step 8:** Installation of OMNET++ is done!, and you can verify that the sample simulations run correctly. For example, the dyna simulation is started by entering the following commands. First we go to the sample/dyna folder, and then we run it.
 
     cd samples/dyna
     ./dyna
 
-**Step 8:** Good! You can run the Eclipse IDE by typing the following command in the terminal:
+**Step 9:** Good! You can run the Eclipse IDE by typing the following command in the terminal:
 
     omnetpp
 
@@ -67,7 +72,7 @@ The first time you run OMNET++, Eclipse IDE asks you to select a workspace. Sele
 
 "Introduction to OMNET++" page will appear. Click on "Workbench". Then it asks you to install INET framework or import some examples into your workspace. Uncheck them both since we do not need them for the time being.
 
-**Step 9:** Running OMNET++ each time from command line might not be desirable for you. You can create a shortcut to OMNET++ on your desktop. To do this type the following command in OMNET++ directory.
+**Step 10:** Running OMNET++ each time from command line might not be desirable for you. You can create a shortcut to OMNET++ on your desktop. To do this type the following command in OMNET++ directory.
 
     make install-desktop-icon
 
@@ -85,7 +90,7 @@ Veins is on github, and you should clone it into your computer.
 
     sudo apt-get install git
 
-**Step 2:** Use the following command to clone the Veins repository on your machine. This command creates a folder called veins in the current directory (run the command in the same folder as Eclipse workspace as you specified before in step 8)
+**Step 2:** Use the following command to clone the Veins repository on your machine. This command creates a folder called veins in the current directory (run the command in the same folder as Eclipse workspace as you specified before in step 9)
 
     git clone https://github.com/sommer/veins
 
@@ -140,17 +145,17 @@ Running the VENTOS Project
 
 **Step 1:** Before running the VENTOS project, you have to run the python script "sumo-launchd.py" which is in the veins folder. The general format of this script is:
 
-    python sumo-launchd.py --vv -c /path/to/sumo/binary
+    python sumo-launchd.py -vv -c /path/to/sumo/binary
 
 sumoD and sumo-guiD are two SUMO binaries that can be used with the above command. They both will be downloaded automatically in the VENTOS/sumoBinary folder upon the first run of the VENTOS project. sumo-guiD is the GUI version that provides a graphical interface to SUMO, and is visible while the OMNET++ simulation is running (and is very good for debugging purposes). On the other hands, sumoD is the command-line version which is faster.
 
 Thus you should run either of the following commands in the veins folder (with this assumption that VENTOS folder is stored on Desktop):
 
-SUMO in graphical mode
+SUMO in graphical mode:
 
     python sumo-launchd.py -vv -c /home/mani/Desktop/VENTOS/sumoBinary/sumo-guiD
 
-SUMO in command-line mode
+SUMO in command-line mode:
 
     python sumo-launchd.py -vv -c /home/mani/Desktop/VENTOS/sumoBinary/sumoD
 
@@ -162,7 +167,7 @@ SUMO in command-line mode
     alias sumo-cmd='python $veinsPATH/sumo-launchd.py -vv -c $sumoBinaryPATH/sumoD'
     alias sumo-gui='python $veinsPATH/sumo-launchd.py -vv -c $sumoBinaryPATH/sumo-guiD'
 
-Now, you can use sumo-cmd and sumo-gui commands instead! Note that after running either of these commands, DO NOT close the terminal window. Leave it open.
+Now, you can use sumo-cmd and sumo-gui commands instead! After running either of these commands, DO NOT close the terminal window. Leave it open.
 
 
 **Step 3:** Now you can run the VENTOS project. To do this, right click on the omnetpp.ini file in the IDE and choose: 
