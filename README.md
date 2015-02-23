@@ -1,7 +1,7 @@
 VENTOS
 ======
 
-VENTOS is an integrated C++ simulator for studying traffic flows in Vehicular Ad-hoc Networks (VANETs). You can find more information [here](http://maniamoozadeh2.wix.com/ventos). VENTOS framework is developed in Ubuntu OS, and we have not tested it under other operating systems (yet!). Follow these instructions in order to install VENTOS (and its prerequisites) on your Ubuntu 12 or 14 machine. 
+VENTOS is an integrated C++ simulator for studying traffic flows in Vehicular Ad-hoc Networks (VANETs). You can find more information [here](http://maniamoozadeh2.wix.com/ventos). VENTOS framework is developed in Ubuntu OS, and we have not tested it under other operating systems (yet!). Follow these instructions in order to install VENTOS (and its prerequisites) on your Ubuntu 12 or 14 machine (we recommend Ubuntu 14).
 
 
 Install OMNET++
@@ -32,9 +32,11 @@ Then
 
 Note that You need to close and re-open the terminal for the changes to take effect.
 
-**Step 5:** In the OMNeT++ directory, type the following command. The configure script detects installed software and configuration of your system. It writes the results into the `Makefile.inc` file, which will be read by the makefiles during the build process. Pay close attention to errors and warnings, and ignore warnings regarding Akaroa!.
+**Step 5:** In the OMNeT++ directory, type the following command. Pay close attention to errors and warnings, and ignore warnings regarding Akaroa!.
 
     ./configure
+
+For geeks: In the OMNET++ folder you can see `configure.in` file. autoconf uses this file to generate the `configure` script. Additional input parameters for configure script are defined in `configure.user` file. The configure script detects installed software and configuration of your system, and generates three outputs: `config.log`, `config.status`, and `Makefile.inc`. The first two files are used for debugging purposes, and the last file will be read later on by the makefiles during the build process.
 
 **Step 6:** Starting from version 4.6, OMNET++ uses C++11 standard (formerly known as C++0x) by default. This means that OMNET++ source code as well as all the imported projects will be compiled with this flag. Look for this line in the configure output, and make sure that it is 'yes'.
 
@@ -127,7 +129,7 @@ Ubuntu 14.04:
 
     sudo apt-get install git
 
-**Step 3:** Clone the VENTOS repository in the current directory (run the command in the same folder as Eclipse workspace as you specified before). You also need to provide your username and password of github account.
+**Step 3:** Clone the VENTOS repository in the current directory (run the command in the same folder as Eclipse workspace as you specified before). You also need to provide your github username and password.
 
     git clone https://github.com/ManiAm/VENTOS
 
@@ -147,9 +149,7 @@ Running the VENTOS Project
 
     python sumo-launchd.py -vv -c /path/to/sumo/binary
 
-sumoD and sumo-guiD are two SUMO binaries that can be used with the above command. They both will be downloaded automatically in the VENTOS/sumoBinary folder upon the first run of the VENTOS project. sumo-guiD is the GUI version that provides a graphical interface to SUMO, and is visible while the OMNET++ simulation is running (and is very good for debugging purposes). On the other hands, sumoD is the command-line version which is faster.
-
-Thus you should run either of the following commands in the veins folder (with this assumption that VENTOS folder is stored on Desktop):
+sumoD and sumo-guiD are two SUMO binaries that can be used with the above command. They both will be downloaded automatically in the VENTOS/sumoBinary folder upon the first run of the VENTOS project. sumo-guiD is the GUI version that provides a graphical interface to SUMO, and is visible while the OMNET++ simulation is running (and is very good for debugging purposes). On the other hands, sumoD is the command-line version which is faster. Thus you should run either of the following commands in the veins folder (with this assumption that VENTOS folder is stored on Desktop):
 
 SUMO in graphical mode:
 
@@ -160,7 +160,7 @@ SUMO in command-line mode:
     python sumo-launchd.py -vv -c /home/mani/Desktop/VENTOS/sumoBinary/sumoD
 
 
-**Step 2:** To make the life easier, you can create an alias command to make a shortcut to the above long commands. Open .bashrc and add these lines at the end.
+**Step 2:** To make the life easier, you can create an alias command to make a shortcut to the above long commands. Open .bashrc and add these lines at the end (you should change the PATHs accordingly).
 
     export veinsPATH=/home/mani/Desktop/veins
     export sumoBinaryPATH=/home/mani/Desktop/VENTOS/sumoBinary
