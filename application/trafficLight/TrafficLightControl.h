@@ -20,6 +20,15 @@ class TrafficLightControl : public TrafficLightBase
 
   private:
       void executeEachTimeStep();
+
+  public:
+      int TLControlMode;
+
+  private:
+      double nextTime;
+      double passTime = 5;
+      string prevEdge = "WC";
+
 };
 
 }
