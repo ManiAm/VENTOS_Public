@@ -3,6 +3,7 @@
 <launch>
 	<copy file="4helloNew.net.xml" />
 	<copy file="5hello.rou.xml" />
+	<copy file="8hello.add.xml" />
     <copy file="6hello.loopDetector.xml" />
     <copy file="gui-settings.cfg" />
 	<copy file="7hello.sumo.cfg" type="config" />

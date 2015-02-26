@@ -20,6 +20,9 @@ void TrafficLightBase::initialize(int stage)
         cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
         TraCI = static_cast<TraCI_Extend *>(module);
 
+        Signal_executeFirstTS = registerSignal("executeFirstTS");
+        simulation.getSystemModule()->subscribe("executeFirstTS", this);
+
         Signal_executeEachTS = registerSignal("executeEachTS");
         simulation.getSystemModule()->subscribe("executeEachTS", this);
     }
@@ -42,10 +45,19 @@ void TrafficLightBase::receiveSignal(cComponent *source, simsignal_t signalID, l
 {
     Enter_Method_Silent();
 
-    if(signalID == Signal_executeEachTS)
+    if(signalID == Signal_executeFirstTS)
+    {
+        executeFirstTimeStep();
+    }
+    else if(signalID == Signal_executeEachTS)
     {
         executeEachTimeStep();
     }
+}
+
+void TrafficLightBase::executeFirstTimeStep()
+{
+
 }
 
 void TrafficLightBase::executeEachTimeStep()

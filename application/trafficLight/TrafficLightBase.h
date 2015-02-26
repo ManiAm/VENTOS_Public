@@ -21,9 +21,11 @@ class TrafficLightBase : public BaseModule
 
   protected:
       TraCI_Extend *TraCI;
+      simsignal_t Signal_executeFirstTS;
       simsignal_t Signal_executeEachTS;
 
   protected:
+      virtual void executeFirstTimeStep();
       virtual void executeEachTimeStep();
 };
 
