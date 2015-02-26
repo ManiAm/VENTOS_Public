@@ -167,7 +167,8 @@ class TraCI_Extend : public TraCIScenarioManager
         void commandSetLaneVmax(string, double);
 
 		// CMD_SET_TL_VARIABLE
-        void commandSetTLState(string TLid, string state);
+        void commandSetTLState(string TLid, string value);
+        void commandSetTLProgram(string TLid, string value);
         void commandSetTLPhaseIndex(string TLid, int value);
 		void commandSetTLPhaseDurationRemaining(string TLid, int value);
 		void commandSetTLPhaseDuration(string TLid, int value);

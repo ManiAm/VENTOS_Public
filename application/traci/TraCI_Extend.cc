@@ -1019,6 +1019,16 @@ void TraCI_Extend::commandSetTLState(string TLid, string value)
 }
 
 
+void TraCI_Extend::commandSetTLProgram(string TLid, string value)
+{
+    uint8_t variableId = TL_PROGRAM;
+    uint8_t variableType = TYPE_STRING;
+
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_TL_VARIABLE, TraCIBuffer() << variableId << TLid << variableType << value);
+    ASSERT(buf.eof());
+}
+
+
 void TraCI_Extend::commandSetTLPhaseIndex(string TLid, int value)
 {
     uint8_t variableId = TL_PHASE_INDEX;

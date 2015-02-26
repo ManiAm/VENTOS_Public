@@ -19,12 +19,17 @@ class TrafficLightControl : public TrafficLightBase
       virtual void handleMessage(cMessage *);
 
   private:
+      void executeFirstTimeStep();
       void executeEachTimeStep();
 
   public:
-      int TLControlMode;
 
   private:
+      int TLControlMode;
+      double updateInterval;
+
+      list<string> TLlidLst;
+      list<string> VehicleLst;
       double nextTime;
       double passTime = 5;
       string prevEdge = "WC";
