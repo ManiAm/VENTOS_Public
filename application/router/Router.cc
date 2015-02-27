@@ -17,7 +17,7 @@ vector<string>* randomUniqueVehiclesInRange(int numInts, int rangeMin, int range
 
     vector<string>* randInts = new vector<string>;
     for(int i = 0; i < numInts; i++)
-        randInts->push_back("v" + SSTR(initialInts->at(i) + 1));
+        randInts->push_back(SSTR(initialInts->at(i) + 1));
 
     return randInts;
 }
@@ -34,6 +34,12 @@ public:
 string key(Node* n1, Node* n2, int time)
 {
     return n1->id + "#" + n2->id + "#" + SSTR(time);
+}
+
+bool fexists(const char *filename)
+{
+    ifstream ifile(filename);
+    return ifile;
 }
 
 Router::~Router()
@@ -96,23 +102,32 @@ void Router::initialize(int stage)
     } // if stage == 0
     else if (stage == 1)
     {
-        cout << "STAGE 2" << endl;
-        cout << endl << endl << endl << endl << endl << endl;
-        cout << endl << endl << endl << endl << endl << endl;
-        cout << endl << endl << endl << endl << endl << endl;
-
         int numNonRerouting = (double)totalVehicleCount * nonReroutingVehiclePercent;
-        nonReroutingVehicles = randomUniqueVehiclesInRange(numNonRerouting, 0, totalVehicleCount);
 
         int TLMode = (*net->TLs.begin()).second->TLLogicMode;
         ostringstream filePrefix;
+        ostringstream filePrefixNoTL;
         filePrefix << totalVehicleCount << "_" << nonReroutingVehiclePercent << "_" << TLMode;
-        string NonReroutingFileName = VENTOS_FullPath.string() + "results/router/" + filePrefix.str() + "_nonRerouting" + ".txt";
-        ofstream NonReroutingFile;
-        NonReroutingFile.open(NonReroutingFileName.c_str());
-        for(int i = 0; i < numNonRerouting; i++)
-            NonReroutingFile << nonReroutingVehicles->at(i) << endl;
-        NonReroutingFile.close();
+        filePrefixNoTL << totalVehicleCount << "_" << nonReroutingVehiclePercent;
+        string NonReroutingFileName = VENTOS_FullPath.string() + "results/router/" + filePrefixNoTL.str() + "_nonRerouting" + ".txt";
+        if(fexists(NonReroutingFileName.c_str()))
+        {
+            nonReroutingVehicles = new vector<string>();
+            ifstream NonReroutingFile(NonReroutingFileName);
+            string vehNum;
+            while(NonReroutingFile >> vehNum)
+                nonReroutingVehicles->push_back(vehNum);
+            NonReroutingFile.close();
+        }
+        else
+        {
+            nonReroutingVehicles = randomUniqueVehiclesInRange(numNonRerouting, 0, totalVehicleCount);
+            ofstream NonReroutingFile;
+            NonReroutingFile.open(NonReroutingFileName.c_str());
+            for(int i = 0; i < numNonRerouting; i++)
+                NonReroutingFile << nonReroutingVehicles->at(i) << endl;
+            NonReroutingFile.close();
+        }
 
         collectVehicleTimeData = par("collectVehicleTimeData").boolValue();
 

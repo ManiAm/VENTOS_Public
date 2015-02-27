@@ -50,11 +50,15 @@ void ApplVSystem::initialize(int stage)
         else
             error("XML formatted wrong! Some vehicle was missing its destination!");
 
-        if(find(router->nonReroutingVehicles->begin(), router->nonReroutingVehicles->end(), SUMOvID) != router->nonReroutingVehicles->end())
+        if(find(router->nonReroutingVehicles->begin(), router->nonReroutingVehicles->end(), SUMOvID.substr(1, SUMOvID.length() - 1)) != router->nonReroutingVehicles->end())
+        {
             requestReroutes = false;
+            //cout << SUMOvID << " is not routing" << endl;
+        }
         else
+        {
             requestReroutes = true;
-
+        }
         numReroutes = 0;
 
         //Register to receive signals from the router

@@ -488,7 +488,7 @@ void TrafficLightRouter::LowDensityRecalculate()
 {
     if(simTime().dbl() - lastSwitchTime < MaxPhaseDuration and LowDensityVehicleCheck())
     {
-        if(ev.isGUI()) cout << "Extending tl " << id << " phase " << currentPhase << endl;
+        //if(ev.isGUI()) cout << "Extending tl " << id << " phase " << currentPhase << endl;
         TLSwitchEvent = new cMessage("tl switch evt");
         scheduleAt(simTime().dbl() + LowDensityExtendTime, TLSwitchEvent);
         TraCI->commandSetTLPhaseDurationRemaining(id, 10000000);
