@@ -57,7 +57,7 @@ If not, first navigate to OMNET++ folder and open the file 'configure.user'. Fin
 
 Now run ./configure again and re-check.
 
-**Step 7:** Now you can compile OMNET++ by using make. Compiling takes some time, so relax, grab a cup of coffee and watch [this](https://www.youtube.com/watch?v=A6XUVjK9W4o).
+**Step 7:** Now you can compile OMNET++ by using make. Compiling takes some time, so relax, grab a cup of coffee <img src="https://dl.dropboxusercontent.com/u/5153771/coffee.png" width="25" height="25" /> and watch [this](https://www.youtube.com/watch?v=A6XUVjK9W4o).
 
     make
 
