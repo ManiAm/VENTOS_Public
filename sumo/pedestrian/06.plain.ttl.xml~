@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<additional>
+
+    <tlLogic id="C" type="static" programID="original" offset="-10">
+        <phase duration="31" state="rrrrrrgGgGGgrrrrrrgGgGGgGrGr"/>
+        <phase duration="4"  state="rrrrrryyyyygrrrrrryyyyygGrGr"/>
+        <phase duration="6"  state="rrrrrrrrrrrgrrrrrrrrrrrgGrGr"/>
+        <phase duration="4"  state="rrrrrrrrrrryrrrrrrrrrrryGrGr"/>
+        <phase duration="31" state="gGgGGgrrrrrrgGgGGgrrrrrrrGrG"/>
+        <phase duration="4"  state="yyyyygrrrrrryyyyygrrrrrrrGrG"/>
+        <phase duration="6"  state="rrrrrgrrrrrrrrrrrgrrrrrrrGrG"/>
+        <phase duration="4"  state="rrrrryrrrrrrrrrrryrrrrrrrGrG"/>
+    </tlLogic>
+    
+    <tlLogic id="C" type="static" programID="static" offset="-1">
+        <phase duration="31" state="rrrrrrgGgGGgrrrrrrgGgGGgGrGr"/>
+        <phase duration="4"  state="rrrrrryyyyyyrrrrrryyyyyyGrGr"/>
+        <phase duration="1"  state="rrrrrrrrrrrrrrrrrrrrrrrrrrrr"/>
+
+        <phase duration="31" state="gGgGGgrrrrrrgGgGGgrrrrrrrGrG"/>
+        <phase duration="4"  state="yyyyyyrrrrrryyyyyyrrrrrrrGrG"/>
+        <phase duration="1"  state="rrrrrrrrrrrrrrrrrrrrrrrrrGrG"/>
+    </tlLogic>
+
+    <tlLogic id="C" type="actuated" programID="actuated" offset="-1">
+	<param key="max-gap" value="3.1"/>
+	<param key="passing-time" value="1.9"/>
+	<param key="detector-gap" value="3.0"/>
+	<param key="show-detectors" value="true"/>	
+        
+	<phase duration="31" minDur="10" maxDur="60" state="rrrrrrgGgGGgrrrrrrgGgGGgGrGrGrGr"/>
+        <phase duration="4" minDur="4" maxDur="4"    state="rrrrrryyyyyyrrrrrryyyyyyrrrrGrGr"/>
+        <phase duration="1" minDur="1" maxDur="1"    state="rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr"/>
+
+        <phase duration="31" minDur="10" maxDur="60" state="gGgGGgrrrrrrgGgGGgrrrrrrrGrGrGrG"/>
+        <phase duration="4" minDur="4" maxDur="4"    state="yyyyyyrrrrrryyyyyyrrrrrrrrrrrGrG"/>
+        <phase duration="1" minDur="1" maxDur="1"    state="rrrrrrrrrrrrrrrrrrrrrrrrrrrrrGrG"/>
+    </tlLogic>
+    
+</additional>
