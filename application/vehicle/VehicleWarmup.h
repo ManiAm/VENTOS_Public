@@ -28,6 +28,7 @@ class Warmup : public BaseModule
         bool on;
         string laneId;
         double stopPosition;  // the position that first vehicle should stop waiting for others
+        double warmUpSpeed;
         double waitingTime;
         int totalVehicles;
 

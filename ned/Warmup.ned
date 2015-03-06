@@ -9,7 +9,8 @@ simple Warmup
         
         bool on = default(false);
         string laneId;
-        double stopPosition;   
+        double stopPosition; 
+        double warmUpSpeed;  
         double waitingTime;     
 }
 

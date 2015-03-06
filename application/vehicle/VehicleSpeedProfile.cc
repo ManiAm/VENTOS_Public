@@ -71,25 +71,28 @@ void SpeedProfile::Change()
     if (!on)
         return;
 
-    // upon first call:
-    // a) if startTime is not specified, then store the current simulation time as startTime
+    // get a list of all vehicles
+    list<string> veh = TraCI->commandGetLaneVehicleList(laneId);
+
+    // as long as there is no vehicles, return
+    if(veh.empty())
+        return;
+
+    // if startTime is not specified, then store the current simulation time as startTime
     if(startTime == -1)
     {
         startTime = simTime().dbl();
     }
-    // b) if user specifies a startTime, then wait for it!
-    else if(simTime().dbl() < startTime)
-        return;
-
-    if(startTime < 0)
+    // if user specifies a startTime, but it is negative
+    else if(startTime < 0)
+    {
         error("startTime is less than 0 in SpeedProfile.");
-
-    // who is leading?
-    list<string> veh = TraCI->commandGetLaneVehicleList(laneId);
-
-    if(veh.empty())
+    }
+    // if user specifies a startTime, but we should wait for it
+    else if(startTime > simTime().dbl())
         return;
 
+    // get the first leading vehicle
     profileVehicle = veh.back();
 
     // when the profileVehicle leaves the current lane, for the new profileVehicle,
@@ -100,7 +103,6 @@ void SpeedProfile::Change()
     }
 
     lastProfileVehicle = profileVehicle;
-
 
     // #############################################
     // checking which SpeedProfile mode is selected?
@@ -132,6 +134,7 @@ void SpeedProfile::Change()
         {
             TraCI->commandSetVehicleMaxAccel(profileVehicle, 1.5);
             TraCI->commandSetVehicleMaxDecel(profileVehicle, 2.);
+            return;
         }
 
         AccelDecel(startTime+5, minSpeed, normalSpeed);
@@ -149,6 +152,19 @@ void SpeedProfile::Change()
     else if(mode == 6)
     {
         ExTrajectory(startTime);
+    }
+    // hysteresis
+    else if(mode == 7)
+    {
+        if( simTime().dbl() == startTime )
+        {
+            TraCI->commandSetVehicleMaxAccel(profileVehicle, 1);
+            TraCI->commandSetVehicleMaxDecel(profileVehicle, 1);
+            return;
+        }
+
+        // after 5 seconds start AccelDecel
+        AccelDecel(startTime+5, minSpeed, normalSpeed);
     }
     else
     {

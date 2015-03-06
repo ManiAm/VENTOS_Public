@@ -38,6 +38,7 @@ void Warmup::initialize(int stage)
         on = par("on").boolValue();
         laneId = par("laneId").stringValue();
         stopPosition = totalVehicles * par("stopPosition").doubleValue();
+        warmUpSpeed = par("warmUpSpeed").doubleValue();
         waitingTime = par("waitingTime").doubleValue();
 
         startTime = -1;
@@ -96,29 +97,36 @@ bool Warmup::DoWarmup()
     if( warmupFinish->isScheduled() )
         return false;
 
-    // upon first call, store current simulation time as startTime
-    if(startTime == -1)
-    {
-        startTime = simTime().dbl();
-    }
-
-    if(startTime < 0)
-        error("startTime is less than 0 in Warmup.");
-
     // who is leading?
     list<string> veh = TraCI->commandGetLaneVehicleList(laneId);
 
     if(veh.empty())
         return false;
 
+    // if startTime is not specified, then store the current simulation time as startTime
+    if(startTime == -1)
+    {
+        startTime = simTime().dbl();
+    }
+    // if user specifies a startTime, but it is negative
+    else if(startTime < 0)
+    {
+        error("startTime is less than 0 in Warmup.");
+    }
+    // if user specifies a startTime, but we should wait for it
+    else if(startTime > simTime().dbl())
+        return false;
+
+    // get the first leading vehicle
     string leadingVehicle = veh.back();
 
     double pos = TraCI->commandGetVehicleLanePosition(leadingVehicle);
 
+    // we are at stop position
     if(pos >= stopPosition)
     {
-        // start breaking at stopPosition, and stop (waiting for other vehicles)
-        TraCI->commandChangeVehicleSpeed(leadingVehicle, 0.);
+        // start breaking and wait for other vehicles
+        TraCI->commandChangeVehicleSpeed(leadingVehicle, warmUpSpeed);
 
         // get # of vehicles that have entered simulation so far
         int n = TraCI->commandGetVehicleCount();
