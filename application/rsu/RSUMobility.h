@@ -57,7 +57,7 @@ class MIXIM_API RSUMobility : public BaseMobility
     // NED variables
     cModule *nodePtr;   // pointer to the Node
     TraCI_Extend *TraCI;
-    AddRSU *AddRSUPtr;
+    boost::filesystem::path RSUfilePath;
 
     // Class variables
     int myId;

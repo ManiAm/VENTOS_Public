@@ -134,7 +134,7 @@ void AddRSU::Scenario1()
     cModuleType* nodeType = cModuleType::get("c3po.ned.RSU");
 
     // We only create RSUs in OMNET++ without moving them to
-    // the correct coordinate
+    // the correct position
     for(int i = 0; i < NoRSUs; i++)
     {
         cModule* mod = nodeType->create("RSU", parentMod, NoRSUs, i);

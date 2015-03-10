@@ -50,7 +50,24 @@ void RSUMobility::initialize(int stage)
 
         // get a pointer to the RSUAdd module
         cModule *module2 = simulation.getSystemModule()->getSubmodule("addRSU");
-        AddRSUPtr = static_cast<AddRSU *>(module2);
+        AddRSU *AddRSUPtr = static_cast<AddRSU *>(module2);
+
+        boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+        boost::filesystem::path SUMO_Path = simulation.getSystemModule()->par("SUMODirectory").stringValue();
+        boost::filesystem::path SUMO_FullPath = VENTOS_FullPath / SUMO_Path;
+        // check if this directory is valid?
+        if( !exists( SUMO_FullPath ) )
+        {
+            error("SUMO directory is not valid! Check it again.");
+        }
+
+        string RSUfile = AddRSUPtr->par("RSUfile").stringValue();
+        RSUfilePath = SUMO_FullPath / RSUfile;
+        // check if this file is valid?
+        if( !exists( RSUfilePath ) )
+        {
+            error("RSU file does not exist in %s", RSUfilePath.string().c_str());
+        }
 
         // vehicle id in omnet++
         myId = getParentModule()->getIndex();
@@ -83,23 +100,6 @@ void RSUMobility::initialize(int stage)
 
 Coord *RSUMobility::getRSUCoord(unsigned int index)
 {
-    boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-    boost::filesystem::path SUMO_Path = simulation.getSystemModule()->par("SUMODirectory").stringValue();
-    boost::filesystem::path SUMO_FullPath = VENTOS_FullPath / SUMO_Path;
-    // check if this directory is valid?
-    if( !exists( SUMO_FullPath ) )
-    {
-        error("SUMO directory is not valid! Check it again.");
-    }
-
-    string RSUfile = AddRSUPtr->par("RSUfile").stringValue();
-    boost::filesystem::path RSUfilePath = SUMO_FullPath / RSUfile;
-    // check if this file is valid?
-    if( !exists( RSUfilePath ) )
-    {
-        error("RSU file does not exist in %s", RSUfilePath.string().c_str());
-    }
-
     file<> xmlFile( RSUfilePath.c_str() );        // Convert our file to a rapid-xml readable object
     xml_document<> doc;                           // Build a rapidxml doc
     doc.parse<0>(xmlFile.data());                 // Fill it with data from our file
