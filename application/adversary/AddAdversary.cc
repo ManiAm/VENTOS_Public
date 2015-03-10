@@ -94,14 +94,15 @@ void AddAdversary::Add()
 
     cModuleType* nodeType = cModuleType::get("c3po.ned.Adversary");
 
-    cModule* mod = nodeType->create("adversary", parentMod);
+    // do not use create("adversary", parentMod);
+    // instead create an array of adversaries
+    cModule* mod = nodeType->create("adversary", parentMod, 1, 0);
     mod->finalizeParameters();
     mod->getDisplayString().updateWith("i=old/comp_a");
     mod->buildInside();
     mod->scheduleStart(simTime());
     mod->callInitialize();
 }
-
 
 }
 

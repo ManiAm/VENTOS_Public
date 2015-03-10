@@ -107,7 +107,8 @@ void ApplVManager::handleLowerMsg(cMessage* msg)
     }
 
     // check if jamming attack is effective?
-    cModule *module = simulation.getSystemModule()->getSubmodule("adversary");
+    // todo: change this later
+    cModule *module = simulation.getSystemModule()->getSubmodule("adversary", 0);
 
     if(module != NULL)
     {
