@@ -455,21 +455,37 @@ void AddVehicle::Scenario8()
 
 void AddVehicle::Scenario9()
 {
-    int vehicleDepart = 0;
-    int bicycleDepart = 0;
+//    int vehicleDepart = 0;
+//    int bicycleDepart = 0;
+//
+//    for(int i=1; i<=totalVehicles; i++)
+//    {
+//        char vehicleName[10];
+//        sprintf(vehicleName, "Veh%d", i);
+//        vehicleDepart = vehicleDepart + 10000;
+//        TraCI->commandAddVehicle(vehicleName, "TypeManual", "route4", vehicleDepart, 0 /*pos*/, 0 /*speed*/, 4 /*lane*/);
+//
+//        char bicycleName[10];
+//        sprintf(bicycleName, "Bike%d", i);
+//        bicycleDepart = bicycleDepart + 10000;
+//        TraCI->commandAddVehicle(bicycleName, "TypeBicycle", "route10", bicycleDepart, 0 /*pos*/, 0 /*speed*/, 2 /*lane*/);
+//    }
 
-    for(int i=1; i<=totalVehicles; i++)
-    {
-        char vehicleName[10];
-        sprintf(vehicleName, "Veh%d", i);
-        vehicleDepart = vehicleDepart + 10000;
-        TraCI->commandAddVehicle(vehicleName, "TypeManual", "route4", vehicleDepart, 0 /*pos*/, 0 /*speed*/, 4 /*lane*/);
+    TraCI->commandAddVehicle("Veh1", "TypeManual", "route1", 5000, 0 /*pos*/, 0 /*speed*/, 3 /*lane*/);
+    TraCI->commandAddVehicle("Veh2", "TypeManual", "route2", 10000, 0 /*pos*/, 0 /*speed*/, 3 /*lane*/);
+    TraCI->commandAddVehicle("Bike1", "TypeBicycle", "route1", 15000, 0 /*pos*/, 0 /*speed*/, 2 /*lane*/);
 
-        char bicycleName[10];
-        sprintf(bicycleName, "Bike%d", i);
-        bicycleDepart = bicycleDepart + 10000;
-        TraCI->commandAddVehicle(bicycleName, "TypeBicycle", "route10", bicycleDepart, 0 /*pos*/, 0 /*speed*/, 2 /*lane*/);
-    }
+    TraCI->commandAddVehicle("Veh3", "TypeManual", "route4", 20000, 0 /*pos*/, 0 /*speed*/, 3 /*lane*/);
+    TraCI->commandAddVehicle("Veh4", "TypeManual", "route6", 25000, 0 /*pos*/, 0 /*speed*/, 3 /*lane*/);
+    TraCI->commandAddVehicle("Bike2", "TypeBicycle", "route4", 30000, 0 /*pos*/, 0 /*speed*/, 2 /*lane*/);
+
+    TraCI->commandAddVehicle("Veh5", "TypeManual", "route8", 5000, 0 /*pos*/, 0 /*speed*/, 3 /*lane*/);
+    TraCI->commandAddVehicle("Veh6", "TypeManual", "route9", 10000, 0 /*pos*/, 0 /*speed*/, 3 /*lane*/);
+    TraCI->commandAddVehicle("Bike3", "TypeBicycle", "route7", 15000, 0 /*pos*/, 0 /*speed*/, 2 /*lane*/);
+
+    TraCI->commandAddVehicle("Veh7", "TypeManual", "route10", 20000, 0 /*pos*/, 0 /*speed*/, 3 /*lane*/);
+    TraCI->commandAddVehicle("Veh8", "TypeManual", "route12", 25000, 0 /*pos*/, 0 /*speed*/, 3 /*lane*/);
+    TraCI->commandAddVehicle("Bike4", "TypeBicycle", "route10", 30000, 0 /*pos*/, 0 /*speed*/, 2 /*lane*/);
 }
 
 }

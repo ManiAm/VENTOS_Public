@@ -8,4 +8,11 @@ simple TrafficLightControl extends TrafficLightBase
         @display("i=block/network2");  
         
         int TLControlMode;
+        
+        double minGreenTime;
+        double maxGreenTime;
+        double yellowTime;
+        double redTime;
+        double passageTime;        
+        double detectorPos;
 }

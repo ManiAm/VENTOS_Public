@@ -2,39 +2,34 @@
 
 <additional>
 
-    <tlLogic id="C" type="static" programID="original" offset="-10">
-        <phase duration="31" state="rrrrrrgGgGGgrrrrrrgGgGGgGrGr"/>
-        <phase duration="4"  state="rrrrrryyyyygrrrrrryyyyygGrGr"/>
-        <phase duration="6"  state="rrrrrrrrrrrgrrrrrrrrrrrgGrGr"/>
-        <phase duration="4"  state="rrrrrrrrrrryrrrrrrrrrrryGrGr"/>
-        <phase duration="31" state="gGgGGgrrrrrrgGgGGgrrrrrrrGrG"/>
-        <phase duration="4"  state="yyyyygrrrrrryyyyygrrrrrrrGrG"/>
-        <phase duration="6"  state="rrrrrgrrrrrrrrrrrgrrrrrrrGrG"/>
-        <phase duration="4"  state="rrrrryrrrrrrrrrrryrrrrrrrGrG"/>
+	<e1Detector file="NUL" freq="60" id="e1det_EC_2" lane="EC_2" pos="-20"/>
+	<e1Detector file="NUL" freq="60" id="e1det_EC_3" lane="EC_3" pos="-20"/>
+	<e1Detector file="NUL" freq="60" id="e1det_EC_4" lane="EC_4" pos="-20"/>
+	<e1Detector file="NUL" freq="60" id="e1det_NC_2" lane="NC_2" pos="-20"/>
+	<e1Detector file="NUL" freq="60" id="e1det_NC_3" lane="NC_3" pos="-20"/>
+	<e1Detector file="NUL" freq="60" id="e1det_NC_4" lane="NC_4" pos="-20"/>
+	<e1Detector file="NUL" freq="60" id="e1det_SC_2" lane="SC_2" pos="-20"/>
+	<e1Detector file="NUL" freq="60" id="e1det_SC_3" lane="SC_3" pos="-20"/>
+	<e1Detector file="NUL" freq="60" id="e1det_SC_4" lane="SC_4" pos="-20"/>
+	<e1Detector file="NUL" freq="60" id="e1det_WC_2" lane="WC_2" pos="-20"/>
+	<e1Detector file="NUL" freq="60" id="e1det_WC_3" lane="WC_3" pos="-20"/>
+	<e1Detector file="NUL" freq="60" id="e1det_WC_4" lane="WC_4" pos="-20"/>
+
+    <tlLogic id="C" type="static" programID="fix-time" offset="0">
+        <phase duration="26" state="rrrrrgGgGgrrrrrgGgGgGrGr"/>
+        <phase duration="5" state="rrrrrgGgGgrrrrrgGgGgrrrr"/>
+        <phase duration="4" state="rrrrryyyygrrrrryyyygrrrr"/>
+        <phase duration="6" state="rrrrrrrrrGrrrrrrrrrGrrrr"/>
+        <phase duration="4" state="rrrrrrrrryrrrrrrrrryrrrr"/>
+        <phase duration="26" state="gGgGgrrrrrgGgGgrrrrrrGrG"/>
+        <phase duration="5" state="gGgGgrrrrrgGgGgrrrrrrrrr"/>
+        <phase duration="4" state="yyyygrrrrryyyygrrrrrrrrr"/>
+        <phase duration="6" state="rrrrGrrrrrrrrrGrrrrrrrrr"/>
+        <phase duration="4" state="rrrryrrrrrrrrryrrrrrrrrr"/>
     </tlLogic>
     
-    <tlLogic id="C" type="static" programID="static" offset="-1">
-        <phase duration="31" state="rrrrrrgGgGGgrrrrrrgGgGGgGrGr"/>
-        <phase duration="4"  state="rrrrrryyyyyyrrrrrryyyyyyGrGr"/>
-        <phase duration="1"  state="rrrrrrrrrrrrrrrrrrrrrrrrrrrr"/>
-
-        <phase duration="31" state="gGgGGgrrrrrrgGgGGgrrrrrrrGrG"/>
-        <phase duration="4"  state="yyyyyyrrrrrryyyyyyrrrrrrrGrG"/>
-        <phase duration="1"  state="rrrrrrrrrrrrrrrrrrrrrrrrrGrG"/>
-    </tlLogic>
-
-    <tlLogic id="C" type="actuated" programID="actuated" offset="-1">
-	<param key="max-gap" value="3.1"/>
-	<param key="passing-time" value="1.9"/>
-	<param key="detector-gap" value="3.0"/>
-	<param key="show-detectors" value="true"/>	
-        
-	<phase duration="31" minDur="10" maxDur="60" state="rrrrrrgGgGGgrrrrrrgGgGGgGrGr"/>
-        <phase duration="4" minDur="4" maxDur="4"    state="rrrrrryyyyyyrrrrrryyyyyyGrGr"/>
-        <phase duration="1" minDur="1" maxDur="1"    state="rrrrrrrrrrrrrrrrrrrrrrrrrrrr"/>
-        <phase duration="31" minDur="10" maxDur="60" state="gGgGGgrrrrrrgGgGGgrrrrrrrGrG"/>
-        <phase duration="4" minDur="4" maxDur="4"    state="yyyyyyrrrrrryyyyyyrrrrrrrGrG"/>
-        <phase duration="1" minDur="1" maxDur="1"    state="rrrrrrrrrrrrrrrrrrrrrrrrrGrG"/>
+    <tlLogic id="C" type="static" programID="adaptive-time" offset="-10">
+        <phase duration="31" state="rrrrrrrrrrrrrrrrrrrrrrrrrrrr"/>
     </tlLogic>
     
 </additional>

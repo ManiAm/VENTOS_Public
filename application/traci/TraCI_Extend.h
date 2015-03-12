@@ -122,6 +122,7 @@ class TraCI_Extend : public TraCIScenarioManager
         uint32_t commandGetLoopDetectorCount(string);
         double commandGetLoopDetectorSpeed(string);
         list<string> commandGetLoopDetectorVehicleList(string);
+        double commandGetLoopDetectorLastTime(string);
         vector<string> commandGetLoopDetectorVehicleData(string);
 
 		// CMD_GET_TL_VARIABLE
@@ -191,6 +192,9 @@ class TraCI_Extend : public TraCIScenarioManager
 
         // CMD_SET_LANE_VARIABLE
         void commandSetLaneVmax(string, double);
+
+        // CMD_SET_INDUCTIONLOOP_VARIABLE
+        void commandAddLoopDetector();
 
 		// CMD_SET_TL_VARIABLE
         void commandSetTLState(string TLid, string value);

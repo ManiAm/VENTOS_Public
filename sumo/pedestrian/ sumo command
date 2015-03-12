@@ -1,1 +1,1 @@
-netconvertD --no-internal-links --node-files=1hello.nod.xml --edge-files=2hello.edg.xml --connection-files=3hello.con.xml --output-file=4hello.net.xml
+netconvertD --node-files=01.plain.nod.xml --edge-files=02.plain.edg.xml --connection-files=03.plain.con.xml --output-file=04.plain.net.xml

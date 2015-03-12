@@ -39,26 +39,63 @@ namespace VENTOS {
 class TrafficLightControl : public TrafficLightBase
 {
   public:
-      virtual ~TrafficLightControl();
-      virtual void finish();
-      virtual void initialize(int);
-      virtual void handleMessage(cMessage *);
+    virtual ~TrafficLightControl();
+    virtual void finish();
+    virtual void initialize(int);
+    virtual void handleMessage(cMessage *);
 
   private:
-      void executeFirstTimeStep();
-      void executeEachTimeStep();
+    void executeFirstTimeStep();
+    void executeEachTimeStep();
 
-  public:
+    void doAdaptiveTimeControl();
+    void doVANETControl();
 
-  private:
-      int TLControlMode;
-      double updateInterval;
+    // NED variables
+    double updateInterval;
+    int TLControlMode;
 
-      list<string> TLlidLst;
-      list<string> VehicleLst;
-      double nextTime;
-      double passTime = 5;
-      string prevEdge = "WC";
+    double minGreenTime;
+    double maxGreenTime;
+    double yellowTime;
+    double redTime;
+    double passageTime;
+    double detectorPos;
+
+    // class variables
+    list<string> TLList;   // list of traffic-lights in the network
+    list<string> LDList;   // list of loop-detectors in the network
+
+    double nextTime = 0.0;
+    double intervalElapseTime = 0.0;
+    string currentInterval;
+    string nextGreenInterval;
+
+    string phase1_5 = "rrrrrGrrrrrrrrrrrGrrrrrrrrrr";
+    string phase2_5 = "gGgGGGrrrrrrrrrrrrrrrrrrrrrG";
+    string phase1_6 = "rrrrrrrrrrrrgGgGGGrrrrrrrGrr";
+    string phase2_6 = "gGgGGrrrrrrrgGgGGrrrrrrrrGrG";
+
+    string phase3_7 = "rrrrrrrrrrrGrrrrrrrrrrrGrrrr";
+    string phase3_8 = "rrrrrrrrrrrrrrrrrrgGgGGGrrGr";
+    string phase4_7 = "rrrrrrgGgGGGrrrrrrrrrrrrGrrr";
+    string phase4_8 = "rrrrrrgGgGGrrrrrrrgGgGGrGrGr";
+
+    enum LDid
+    {
+        EC_2, EC_3, EC_4,
+        NC_2, NC_3, NC_4,
+        SC_2, SC_3, SC_4,
+        WC_2, WC_3, WC_4,
+    };
+
+    map<string,LDid> lmap =
+    {
+        {"EC_2", EC_2}, {"EC_3", EC_3}, {"EC_4", EC_4},
+        {"NC_2", NC_2}, {"NC_3", NC_3}, {"NC_4", NC_4},
+        {"SC_2", SC_2}, {"SC_3", SC_3}, {"SC_4", SC_4},
+        {"WC_2", WC_2}, {"WC_3", WC_3}, {"WC_4", WC_4}
+    };
 };
 
 }

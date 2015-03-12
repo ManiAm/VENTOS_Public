@@ -1,0 +1,14 @@
+<additional>
+	<e1Detector file="NUL" freq="60" id="e1det_EC_2" lane="EC_2" pos="32"/>
+	<e1Detector file="NUL" freq="60" id="e1det_EC_3" lane="EC_3" pos="32"/>
+	<e1Detector file="NUL" freq="60" id="e1det_EC_4" lane="EC_4" pos="32"/>
+	<e1Detector file="NUL" freq="60" id="e1det_NC_2" lane="NC_2" pos="32"/>
+	<e1Detector file="NUL" freq="60" id="e1det_NC_3" lane="NC_3" pos="32"/>
+	<e1Detector file="NUL" freq="60" id="e1det_NC_4" lane="NC_4" pos="32"/>
+	<e1Detector file="NUL" freq="60" id="e1det_SC_2" lane="SC_2" pos="32"/>
+	<e1Detector file="NUL" freq="60" id="e1det_SC_3" lane="SC_3" pos="32"/>
+	<e1Detector file="NUL" freq="60" id="e1det_SC_4" lane="SC_4" pos="32"/>
+	<e1Detector file="NUL" freq="60" id="e1det_WC_2" lane="WC_2" pos="32"/>
+	<e1Detector file="NUL" freq="60" id="e1det_WC_3" lane="WC_3" pos="32"/>
+	<e1Detector file="NUL" freq="60" id="e1det_WC_4" lane="WC_4" pos="32"/>
+</additional>

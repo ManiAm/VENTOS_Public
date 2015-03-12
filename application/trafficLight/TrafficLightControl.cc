@@ -44,8 +44,15 @@ void TrafficLightControl::initialize(int stage)
 
     if(stage == 0)
     {
-        TLControlMode = par("TLControlMode");
         updateInterval = TraCI->par("updateInterval").doubleValue();
+        TLControlMode = par("TLControlMode").longValue();
+
+        minGreenTime = par("minGreenTime").doubleValue();
+        maxGreenTime = par("maxGreenTime").doubleValue();
+        yellowTime = par("yellowTime").doubleValue();
+        redTime = par("redTime").doubleValue();
+        passageTime = par("passageTime").doubleValue();
+        detectorPos = par("detectorPos").doubleValue();
     }
 }
 
@@ -64,208 +71,439 @@ void TrafficLightControl::handleMessage(cMessage *msg)
 
 void TrafficLightControl::executeFirstTimeStep()
 {
-    string program;
+    TLList = TraCI->commandGetTLIDList();
+    LDList = TraCI->commandGetLoopDetectorList();
 
-    // Set with TL program to use.
-    // Actuated TL program (via loop detectors):
-    if (TLControlMode == 2)
-        program = "actuated";
-    // All other programs:
-    else
-        program = "static";
-
-    // set program for all TLs
-    TLlidLst = TraCI->commandGetTLIDList();
-    for (list<string>::iterator TL = TLlidLst.begin(); TL != TLlidLst.end(); TL++)
+    // fixed-time traffic signal
+    if (TLControlMode == 1)
     {
-        TraCI->commandSetTLProgram(*TL, program);
+        for (list<string>::iterator TL = TLList.begin(); TL != TLList.end(); TL++)
+            TraCI->commandSetTLProgram(*TL, "fix-time");
     }
+    // adaptive-time and VANET traffic signal
+    else if(TLControlMode == 2 || TLControlMode == 3)
+    {
+        for (list<string>::iterator TL = TLList.begin(); TL != TLList.end(); TL++)
+        {
+            TraCI->commandSetTLProgram(*TL, "adaptive-time");
+            TraCI->commandSetTLState(*TL, phase1_5);
+        }
 
-    nextTime = simTime().dbl() + updateInterval;
+        currentInterval = phase1_5;
+        nextTime = minGreenTime;
+    }
+    else
+    {
+        error("Invalid TLControlMode!");
+    }
 }
 
 
 void TrafficLightControl::executeEachTimeStep()
 {
-    cout << "time: " << simTime().dbl() << endl;
+    if (TLControlMode == 1)
+        return;
 
-    VehicleLst = TraCI->commandGetVehicleList();
+    intervalElapseTime += updateInterval;
 
-    if (TLControlMode == 3)
+    char buff[300];
+    sprintf(buff, "sim time: %4.2f | Interval finish time: %4.2f | Interval elapsed time: %4.2f | Current interval: %s", simTime().dbl() , nextTime, intervalElapseTime, currentInterval.c_str() );
+    cout << buff << endl;
+
+    if (TLControlMode == 2)
     {
-        // For each traffic light:
-        for (list<string>::iterator TL = TLlidLst.begin(); TL != TLlidLst.end(); TL++)
+        if (simTime() == nextTime || intervalElapseTime >= maxGreenTime)
         {
-            if (simTime().dbl() == nextTime)
-            {
-                // Look for vehicles within the radius of that traffic light
-                // (this will be simpler with RSU):
-                vector<string> VehInRange;
-                for(list<string>::iterator V = VehicleLst.begin(); V != VehicleLst.end(); V++)
-                {
-                    //cout << *V << " Edge: " << TraCI->commandGetVehicleEdgeId(*V) << " Lane" << TraCI->commandGetVehicleLaneId(*V) << " LaneIndex: " << TraCI->commandGetVehicleLanePosition(*V) << endl;
-                    // If within 50m of traffic light and heading towards TL:
-                    Coord pos = TraCI->commandGetVehiclePos(*V);
-                    string edge = TraCI->commandGetVehicleEdgeId(*V);
-                    if (pos.x > 50 && pos.x < 150 && pos.y > 50 && pos.y < 150 &&
-                            (edge == "NC" || edge == "EC" || edge == "SC" || edge == "WC"))
-                    {
-                        if (    ((edge == "NC" || edge == "SC") && (prevEdge == "NC" || prevEdge == "SC")) ||
-                                ((edge == "WC" || edge == "EC") && (prevEdge == "WC" || prevEdge == "EC"))  )
-                        {
-                            cout << "\nEdge:" << edge << " Prev edge:" << prevEdge << endl;
-                            TraCI->commandSetTLPhaseDurationRemaining(*TL, passTime*1000);
-                            nextTime = simTime().dbl() + passTime;
-                            goto EndTLForLoop2;
-                        }
-                        VehInRange.push_back(*V);
-                    }
-                }
-
-                if (!VehInRange.empty())
-                {
-                    vector<string>::iterator VIR;
-                    VIR = VehInRange.begin();
-                    string edge = TraCI->commandGetVehicleEdgeId(*VIR);
-                    int currentphase = TraCI->commandGetCurrentPhase(*TL);
-
-                    if (edge == "NC" || edge == "SC")
-                    {
-                        cout << "\t" << "current phase: " << currentphase << endl;
-                        cout<<"\tDuration: "<<TraCI->commandGetCurrentPhaseDuration(*TL)<<" Switch: "<< TraCI->commandGetNextSwitchTime(*TL) << endl;
-
-                        if (currentphase == 0)
-                        {
-                            TraCI->commandSetTLPhaseDurationRemaining(*TL, 0);
-                            nextTime = simTime().dbl() + 5 + passTime;
-                        }
-                        prevEdge = edge;
-                        cout<<"New:"<<endl;
-                        cout<<"\tDuration: "<<TraCI->commandGetCurrentPhaseDuration(*TL)<<" Switch: "<< TraCI->commandGetNextSwitchTime(*TL) << endl;
-                        cout << endl;
-                    }
-                    else if (edge == "EC" || edge == "WC")
-                    {
-                        if (currentphase == 3)
-                        {
-                            TraCI->commandSetTLPhaseDurationRemaining(*TL, 0);
-                            nextTime = simTime().dbl() + 5 + passTime;
-                        }
-                        prevEdge = edge;
-                    }
-                    cout << "cphase" << currentphase << endl;
-
-                }
-                else
-                    nextTime = simTime().dbl() + updateInterval;
-            }
-            EndTLForLoop2:;
-            cout << nextTime << endl;
-        }
-
-    }
-    // Network-controlled TL program with minimum queue size set:
-    else if (TLControlMode == 4)
-    {
-        cout << "Current phase: " << TraCI->commandGetCurrentPhase("C") << endl;
-        // For each traffic light:
-        list<string>::iterator TL;
-        for (TL = TLlidLst.begin(); TL != TLlidLst.end(); TL++)
-        {
-            if (simTime().dbl() == 1 || simTime().dbl() == nextTime)
-            {
-                // Look for vehicles within the radius of that traffic light
-                // (this will be simpler with RSU):
-                vector<string> vertical;
-                vector<string> horizontal;
-                list<string>::iterator V;
-                for(V = VehicleLst.begin(); V != VehicleLst.end(); V++)
-                {
-                    // If within 50m of traffic light and heading towards TL:
-                    Coord pos = TraCI->commandGetVehiclePos(*V);
-                    string edge = TraCI->commandGetVehicleEdgeId(*V);
-                    if (pos.x > 50 && pos.x < 150 && pos.y > 50 && pos.y < 150 &&
-                            (edge == "NC" || edge == "EC" || edge == "SC" || edge == "WC"))
-                    {
-                        /*  if (edge == "NC" || edge == "SC")
-                                    vertical.pushback(*V);
-                                else if (edge == "WC" || edge == "EC")
-                                    horizontal.pushback(*V);
-                                {
-                                    //                            cout << "\nEdge:" << edge << " Prev edge:" << prevEdge << endl;
-                                    //                            TraCI->commandSetTLPhaseDurationRemaining(*TL, passTime*1000);
-                                    //                            nextTime = simTime().dbl() + passTime;
-                                    //                            goto EndTLForLoop3;
-                                }*/
-                    }
-                }
-
-                /*
-                        if (!VehInRange.empty())
-                        {
-                            vector<string>::iterator VIR;
-                            VIR = VehInRange.begin();
-                            string edge = TraCI->commandGetVehicleEdgeId(*VIR);
-                            int currentphase = TraCI->commandGetCurrentPhase(*TL);
-
-                            if (edge == "NC" || edge == "SC")
-                            {
-                                cout << "\t" << "current phase: " << currentphase << endl;
-                                cout<<"\tDuration: "<<TraCI->commandGetCurrentPhaseDuration(*TL)<<" Switch: "<< TraCI->commandGetNextSwitchTime(*TL) << endl;
-
-                                if (currentphase == 0)
-                                {
-                                    TraCI->commandSetTLPhaseDurationRemaining(*TL, 0);
-                                    nextTime = simTime().dbl() + 5 + passTime;
-                                }
-                                prevEdge = edge;
-                                cout<<"New:"<<endl;
-                                cout<<"\tDuration: "<<TraCI->commandGetCurrentPhaseDuration(*TL)<<" Switch: "<< TraCI->commandGetNextSwitchTime(*TL) << endl;
-                                cout << endl;
-                            }
-                            else if (edge == "EC" || edge == "WC")
-                            {
-                                if (currentphase == 3)
-                                {
-                                    TraCI->commandSetTLPhaseDurationRemaining(*TL, 0);
-                                    nextTime = simTime().dbl() + 5 + passTime;
-                                }
-                                prevEdge = edge;
-                            }
-                            cout << "cphase" << currentphase << endl;
-
-                        }
-                 */
-                if ((prevEdge == "NC" || prevEdge == "SC"))
-                {
-                    if (!vertical.empty())
-                    {
-                        TraCI->commandSetTLPhaseDurationRemaining(*TL, passTime*1000);
-                        nextTime = simTime().dbl() + passTime;
-                    }
-                    else if (!horizontal.empty())
-                    {
-                        TraCI->commandSetTLPhaseDurationRemaining(*TL, 0);
-                        nextTime = simTime().dbl() + 5 + passTime;
-                        prevEdge = TraCI->commandGetVehicleEdgeId(*horizontal.begin());
-                    }
-                }
-                else if (prevEdge == "EC" || prevEdge == "WC")
-                {
-
-                }
-                else
-                    nextTime = simTime().dbl() + updateInterval;
-            }
-            EndTLForLoop3:;
-            cout << nextTime << endl;
+            cout << endl << "switching interval ..." << endl << endl;
+            doAdaptiveTimeControl();
         }
     }
-
-    // Network-controlled TL program with minimum wait time:
-    else if (TLControlMode == 5)
+    else if (TLControlMode == 3)
     {
+        if (simTime() == nextTime || intervalElapseTime >= maxGreenTime)
+        {
+            cout << endl << "going into doVANETControl()" << endl << endl;
+            doVANETControl();
+        }
     }
+}
+
+
+void TrafficLightControl::doAdaptiveTimeControl()
+{
+    string nextInterval;
+
+    if (currentInterval == "yellow")
+    {
+        currentInterval = "red";
+
+        // change all 'y' to 'r'
+        string str = TraCI->commandGetTLState("C");
+        for(char& c : str) {
+            if (c == 'y')
+                nextInterval += 'r';
+            else
+                nextInterval += c;
+        }
+
+        // set the new state
+        TraCI->commandSetTLState("C", nextInterval);
+        intervalElapseTime = 0.0;
+        nextTime = simTime().dbl() + redTime;
+
+        return;
+    }
+    else if (currentInterval == "red")
+    {
+        currentInterval = nextGreenInterval;
+        TraCI->commandSetTLState("C", nextGreenInterval);
+        intervalElapseTime = 0.0;
+        nextTime = simTime().dbl() + minGreenTime;
+
+        return;
+    }
+
+    // if we reach here, it means that we are in green interval
+
+    // First get loop detector information
+    vector<double> LastActuatedTime;
+
+    // If maxGreenTime met, don't care for actuator values
+    if (intervalElapseTime >= maxGreenTime)
+        for (list<string>::iterator LD = LDList.begin(); LD != LDList.end(); LD++)
+            LastActuatedTime.push_back(passageTime);
+    else
+        for (list<string>::iterator LD = LDList.begin(); LD != LDList.end(); LD++)
+            LastActuatedTime.push_back(TraCI->commandGetLoopDetectorLastTime(*LD));
+
+    // do proper transition:
+    if (currentInterval == phase1_5)
+    {
+        if (LastActuatedTime[NC_4] < passageTime && LastActuatedTime[SC_4] < passageTime)
+        {
+            nextTime = simTime().dbl() + passageTime;
+            return;
+        }
+        else if (LastActuatedTime[NC_4] < passageTime)
+        {
+            nextGreenInterval = phase2_5;
+            nextInterval = "rrrrrGrrrrrrrrrrryrrrrrrrrrr";
+        }
+        else if (LastActuatedTime[SC_4] < passageTime)
+        {
+            nextGreenInterval = phase1_6;
+            nextInterval = "rrrrryrrrrrrrrrrrGrrrrrrrrrr";
+        }
+        else
+        {
+            nextGreenInterval = phase2_6;
+            nextInterval = "rrrrryrrrrrrrrrrryrrrrrrrrrr";
+        }
+    }
+    else if (currentInterval == phase2_5)
+    {
+        if (LastActuatedTime[NC_4] < passageTime)
+        {
+            nextTime = simTime().dbl() + passageTime;
+            return;
+        }
+        else
+        {
+            nextGreenInterval = phase2_6;
+            nextInterval = "gGgGGyrrrrrrrrrrrrrrrrrrrrrG";
+        }
+    }
+    else if (currentInterval == phase1_6)
+    {
+        if (LastActuatedTime[SC_4] < passageTime)
+        {
+            nextTime = simTime().dbl() + passageTime;
+            return;
+        }
+        else
+        {
+            nextGreenInterval = phase2_6;
+            nextInterval = "rrrrrrrrrrrrgGgGGyrrrrrrrGrr";
+        }
+    }
+    else if (currentInterval == phase2_6)
+    {
+        if (LastActuatedTime[NC_2] < passageTime || LastActuatedTime[NC_3] < passageTime ||
+                LastActuatedTime[SC_2] < passageTime || LastActuatedTime[SC_3] < passageTime)
+        {
+            nextTime = simTime().dbl() + passageTime;
+            return;
+        }
+        else
+        {
+            nextGreenInterval = phase3_7;
+            nextInterval = "yyyyyrrrrrrryyyyyrrrrrrrryry";
+        }
+    }
+    else if (currentInterval == phase3_7)
+    {
+        if (LastActuatedTime[WC_4] < passageTime && LastActuatedTime[EC_4] < passageTime)
+        {
+            nextTime = simTime().dbl() + passageTime;
+            return;
+        }
+        else if (LastActuatedTime[WC_4] < passageTime)
+        {
+            nextGreenInterval = phase3_8;
+            nextInterval = "rrrrrrrrrrryrrrrrrrrrrrGrrrr";
+        }
+        else if (LastActuatedTime[EC_4] < passageTime)
+        {
+            nextGreenInterval = phase4_7;
+            nextInterval = "rrrrrrrrrrrGrrrrrrrrrrryrrrr";
+        }
+        else
+        {
+            nextGreenInterval = phase4_8;
+            nextInterval = "rrrrrrrrrrryrrrrrrrrrrryrrrr";
+        }
+    }
+    else if (currentInterval == phase3_8)
+    {
+        if (LastActuatedTime[WC_4] < passageTime)
+        {
+            nextTime = simTime().dbl() + passageTime;
+            return;
+        }
+        else
+        {
+            nextGreenInterval = phase4_8;
+            nextInterval = "rrrrrrrrrrrrrrrrrrgGgGGyrrGr";
+        }
+    }
+    else if (currentInterval == phase4_7)
+    {
+        if (LastActuatedTime[EC_4] < passageTime)
+        {
+            nextTime = simTime().dbl() + passageTime;
+            return;
+        }
+        else
+        {
+            nextGreenInterval = phase4_8;
+            nextInterval = "rrrrrrgGgGGyrrrrrrrrrrrrGrrr";
+        }
+    }
+    else if (currentInterval == phase4_8)
+    {
+        if (LastActuatedTime[WC_2] < passageTime || LastActuatedTime[WC_3] < passageTime ||
+                LastActuatedTime[EC_2] < passageTime || LastActuatedTime[EC_3] < passageTime)
+        {
+            nextTime = simTime().dbl() + passageTime;
+            return;
+        }
+        else
+        {
+            nextGreenInterval = phase1_5;
+            nextInterval = "rrrrrryyyyyrrrrrrryyyyyryryr";
+        }
+    }
+
+    currentInterval = "yellow";
+    TraCI->commandSetTLState("C", nextInterval);
+    intervalElapseTime = 0.0;
+    nextTime = simTime().dbl() + yellowTime;
+}
+
+
+void TrafficLightControl::doVANETControl()
+{
+    string nextInterval;
+
+    if (currentInterval == "yellow")
+    {
+        currentInterval = "red";
+
+        string str = TraCI->commandGetTLState("C");
+        for(char& c : str) {
+            if (c == 'y')
+                nextInterval += 'r';
+            else
+                nextInterval += c;
+        }
+
+        TraCI->commandSetTLState("C", nextInterval);
+        intervalElapseTime = 0.0;
+        nextTime = simTime().dbl() + redTime;
+
+        return;
+    }
+    else if (currentInterval == "red")
+    {
+        currentInterval = nextGreenInterval;
+        TraCI->commandSetTLState("C", nextGreenInterval);
+        intervalElapseTime = 0.0;
+        nextTime = simTime().dbl() + minGreenTime;
+
+        return;
+    }
+
+    // if we reach here, it means that we are in green interval
+
+    // First get vehicles in range.
+    list<string> VehList = TraCI->commandGetVehicleList();
+    vector<bool> VehInLane(12);
+
+    // If maxGreenTime not met, check network:
+    if (intervalElapseTime < maxGreenTime)
+    {
+        for(list<string>::iterator V = VehList.begin(); V != VehList.end(); V++)
+        {
+            // If within 33m of traffic light:
+            Coord pos = TraCI->commandGetVehiclePos(*V);
+            if (pos.x > 100 - 33 && pos.x < 100 + 33 && pos.y > 100 - 33 && pos.y < 100 + 33)
+            {
+                // If in lane of interest:
+                string lane = TraCI->commandGetVehicleLaneId(*V);
+                if (lane == "EC_2" || lane == "EC_3" || lane == "EC_4" ||
+                        lane == "NC_2" || lane == "NC_3" || lane == "NC_4" ||
+                        lane == "SC_2" || lane == "SC_3" || lane == "SC_4" ||
+                        lane == "WC_2" || lane == "WC_3" || lane == "WC_4")
+                {
+                    cout << "\nLane: " << lane << " " << lmap[lane] << endl;
+                    VehInLane[lmap[lane]] = true;
+                }
+            }
+        }
+    }
+
+    // Then do proper transition:
+    if (currentInterval == phase1_5)
+    {
+        if (VehInLane[NC_4] && VehInLane[SC_4])
+        {
+            nextTime = simTime().dbl() + passageTime;
+            return;
+        }
+        else if (VehInLane[NC_4])
+        {
+            nextGreenInterval = phase2_5;
+            nextInterval = "rrrrrGrrrrrrrrrrryrrrrrrrrrr";
+        }
+        else if (VehInLane[SC_4])
+        {
+            nextGreenInterval = phase1_6;
+            nextInterval = "rrrrryrrrrrrrrrrrGrrrrrrrrrr";
+        }
+        else
+        {
+            nextGreenInterval = phase2_6;
+            nextInterval = "rrrrryrrrrrrrrrrryrrrrrrrrrr";
+        }
+    }
+    else if (currentInterval == phase2_5)
+    {
+        if (VehInLane[NC_4])
+        {
+            nextTime = simTime().dbl() + passageTime;
+            return;
+        }
+        else
+        {
+            nextGreenInterval = phase2_6;
+            nextInterval = "gGgGGyrrrrrrrrrrrrrrrrrrrrrG";
+        }
+    }
+    else if (currentInterval == phase1_6)
+    {
+        if (VehInLane[SC_4])
+        {
+            nextTime = simTime().dbl() + passageTime;
+            return;
+        }
+        else
+        {
+            nextGreenInterval = phase2_6;
+            nextInterval = "rrrrrrrrrrrrgGgGGyrrrrrrrGrr";
+        }
+    }
+    else if (currentInterval == phase2_6)
+    {
+        if (VehInLane[NC_2] || VehInLane[NC_3] ||
+                VehInLane[SC_2] || VehInLane[SC_3])
+        {
+            nextTime = simTime().dbl() + passageTime;
+            return;
+        }
+        else
+        {
+            nextGreenInterval = phase3_7;
+            nextInterval = "yyyyyrrrrrrryyyyyrrrrrrrryry";
+        }
+    }
+    else if (currentInterval == phase3_7)
+    {
+        if (VehInLane[WC_4] && VehInLane[EC_4])
+        {
+            nextTime = simTime().dbl() + passageTime;
+            return;
+        }
+        else if (VehInLane[WC_4])
+        {
+            nextGreenInterval = phase3_8;
+            nextInterval = "rrrrrrrrrrryrrrrrrrrrrrGrrrr";
+        }
+        else if (VehInLane[EC_4])
+        {
+            nextGreenInterval = phase4_7;
+            nextInterval = "rrrrrrrrrrrGrrrrrrrrrrryrrrr";
+        }
+        else
+        {
+            nextGreenInterval = phase4_8;
+            nextInterval = "rrrrrrrrrrryrrrrrrrrrrryrrrr";
+        }
+    }
+    else if (currentInterval == phase3_8)
+    {
+        if (VehInLane[WC_4])
+        {
+            nextTime = simTime().dbl() + passageTime;
+            return;
+        }
+        else
+        {
+            nextGreenInterval = phase4_8;
+            nextInterval = "rrrrrrrrrrrrrrrrrrgGgGGyrrGr";
+        }
+    }
+    else if (currentInterval == phase4_7)
+    {
+        if (VehInLane[EC_4])
+        {
+            nextTime = simTime().dbl() + passageTime;
+            return;
+        }
+        else
+        {
+            nextGreenInterval = phase4_8;
+            nextInterval = "rrrrrrgGgGGyrrrrrrrrrrrrGrrr";
+        }
+    }
+    else if (currentInterval == phase4_8)
+    {
+        if (VehInLane[WC_2] || VehInLane[WC_3] ||
+                VehInLane[EC_2] || VehInLane[EC_3])
+        {
+            nextTime = simTime().dbl() + passageTime;
+            return;
+        }
+        else
+        {
+            nextGreenInterval = phase1_5;
+            nextInterval = "rrrrrryyyyyrrrrrrryyyyyryryr";
+        }
+    }
+
+    currentInterval = "yellow";
+    TraCI->commandSetTLState("C", nextInterval);
+    intervalElapseTime = 0.0;
+    nextTime = simTime().dbl() + yellowTime;
 }
 
 }

@@ -1,0 +1,17 @@
+version 2
+run Pedestrian-0-20150312-03:23:56-19824
+attr configname Pedestrian
+attr datetime 20150312-03:23:56
+attr experiment Pedestrian
+attr inifile omnetpp.ini
+attr iterationvars ""
+attr iterationvars2 $repetition=0
+attr measurement ""
+attr network ned.Network
+attr processid 19824
+attr repetition 0
+attr replication #0
+attr resultdir results
+attr runnumber 0
+attr seedset 0
+

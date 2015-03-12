@@ -590,6 +590,12 @@ list<string> TraCI_Extend::commandGetLoopDetectorVehicleList(string loopId)
 }
 
 
+double TraCI_Extend::commandGetLoopDetectorLastTime(string loopId)
+{
+    return getCommandInterface()->genericGetDouble(CMD_GET_INDUCTIONLOOP_VARIABLE, loopId, 0x16, RESPONSE_GET_INDUCTIONLOOP_VARIABLE);
+}
+
+
 vector<string> TraCI_Extend::commandGetLoopDetectorVehicleData(string loopId)
 {
     uint8_t resultTypeId = TYPE_COMPOUND;   // note: type is compound!
@@ -1114,6 +1120,19 @@ void TraCI_Extend::commandSetLaneVmax(string laneId, double value)
     uint8_t variableType = TYPE_DOUBLE;
 
     TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_LANE_VARIABLE, TraCIBuffer() << variableId << laneId << variableType << value);
+    ASSERT(buf.eof());
+}
+
+
+// ###############################
+// CMD_SET_INDUCTIONLOOP_VARIABLE
+// ###############################
+
+void TraCI_Extend::commandAddLoopDetector()
+{
+    uint8_t variableId = ADD;
+
+    TraCIBuffer buf = getCommandInterface()->connection.query(0xc0, TraCIBuffer() << variableId);
     ASSERT(buf.eof());
 }
 
