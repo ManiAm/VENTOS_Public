@@ -29,7 +29,7 @@
     </tlLogic>
     
     <tlLogic id="C" type="static" programID="adaptive-time" offset="-10">
-        <phase duration="31" state="rrrrrrrrrrrrrrrrrrrrrrrrrrrr"/>
+        <phase duration="31" state="rrrrrrrrrrrrrrrrrrrrrrrr"/>
     </tlLogic>
     
 </additional>

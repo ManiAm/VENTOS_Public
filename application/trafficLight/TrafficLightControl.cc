@@ -85,7 +85,7 @@ void TrafficLightControl::executeFirstTimeStep()
     {
         for (list<string>::iterator TL = TLList.begin(); TL != TLList.end(); TL++)
         {
-            TraCI->commandSetTLProgram(*TL, "adaptive-time");
+            //TraCI->commandSetTLProgram(*TL, "adaptive-time");
             TraCI->commandSetTLState(*TL, phase1_5);
         }
 
@@ -114,16 +114,30 @@ void TrafficLightControl::executeEachTimeStep()
     {
         if (simTime() == nextTime || intervalElapseTime >= maxGreenTime)
         {
-            cout << endl << "switching interval ..." << endl << endl;
+            string curInterval = currentInterval;
+
+            cout << endl << "Going into doAdaptiveTimeControl()" << endl;
             doAdaptiveTimeControl();
+
+            if(curInterval == currentInterval)
+                cout << "Extended green time by: " << passageTime << "s" << endl;
+
+            cout << endl;
         }
     }
     else if (TLControlMode == 3)
     {
         if (simTime() == nextTime || intervalElapseTime >= maxGreenTime)
         {
-            cout << endl << "going into doVANETControl()" << endl << endl;
-            doVANETControl();
+            string curInterval = currentInterval;
+
+            cout << endl << "Going into doVANETControl()" << endl;
+            doAdaptiveTimeControl();
+
+            if(curInterval == currentInterval)
+                cout << "Extended green time by: " << passageTime << "s" << endl;
+
+            cout << endl;
         }
     }
 }
@@ -187,17 +201,17 @@ void TrafficLightControl::doAdaptiveTimeControl()
         else if (LastActuatedTime[NC_4] < passageTime)
         {
             nextGreenInterval = phase2_5;
-            nextInterval = "rrrrrGrrrrrrrrrrryrrrrrrrrrr";
+            nextInterval = "rrrrGrrrrrrrrryrrrrrrrrr";
         }
         else if (LastActuatedTime[SC_4] < passageTime)
         {
             nextGreenInterval = phase1_6;
-            nextInterval = "rrrrryrrrrrrrrrrrGrrrrrrrrrr";
+            nextInterval = "rrrryrrrrrrrrrGrrrrrrrrr";
         }
         else
         {
             nextGreenInterval = phase2_6;
-            nextInterval = "rrrrryrrrrrrrrrrryrrrrrrrrrr";
+            nextInterval = "rrrryrrrrrrrrryrrrrrrrrr";
         }
     }
     else if (currentInterval == phase2_5)
@@ -210,7 +224,7 @@ void TrafficLightControl::doAdaptiveTimeControl()
         else
         {
             nextGreenInterval = phase2_6;
-            nextInterval = "gGgGGyrrrrrrrrrrrrrrrrrrrrrG";
+            nextInterval = "gGgGyrrrrrrrrrrrrrrrrrrG";
         }
     }
     else if (currentInterval == phase1_6)
@@ -223,7 +237,7 @@ void TrafficLightControl::doAdaptiveTimeControl()
         else
         {
             nextGreenInterval = phase2_6;
-            nextInterval = "rrrrrrrrrrrrgGgGGyrrrrrrrGrr";
+            nextInterval = "rrrrrrrrrrgGgGyrrrrrrGrr";
         }
     }
     else if (currentInterval == phase2_6)
@@ -237,7 +251,7 @@ void TrafficLightControl::doAdaptiveTimeControl()
         else
         {
             nextGreenInterval = phase3_7;
-            nextInterval = "yyyyyrrrrrrryyyyyrrrrrrrryry";
+            nextInterval = "yyyyrrrrrryyyyrrrrrrryry";
         }
     }
     else if (currentInterval == phase3_7)
@@ -250,17 +264,17 @@ void TrafficLightControl::doAdaptiveTimeControl()
         else if (LastActuatedTime[WC_4] < passageTime)
         {
             nextGreenInterval = phase3_8;
-            nextInterval = "rrrrrrrrrrryrrrrrrrrrrrGrrrr";
+            nextInterval = "rrrrrrrrryrrrrrrrrrGrrrr";
         }
         else if (LastActuatedTime[EC_4] < passageTime)
         {
             nextGreenInterval = phase4_7;
-            nextInterval = "rrrrrrrrrrrGrrrrrrrrrrryrrrr";
+            nextInterval = "rrrrrrrrrGrrrrrrrrryrrrr";
         }
         else
         {
             nextGreenInterval = phase4_8;
-            nextInterval = "rrrrrrrrrrryrrrrrrrrrrryrrrr";
+            nextInterval = "rrrrrrrrryrrrrrrrrryrrrr";
         }
     }
     else if (currentInterval == phase3_8)
@@ -273,7 +287,7 @@ void TrafficLightControl::doAdaptiveTimeControl()
         else
         {
             nextGreenInterval = phase4_8;
-            nextInterval = "rrrrrrrrrrrrrrrrrrgGgGGyrrGr";
+            nextInterval = "rrrrrrrrrrrrrrrgGgGyrrGr";
         }
     }
     else if (currentInterval == phase4_7)
@@ -286,7 +300,7 @@ void TrafficLightControl::doAdaptiveTimeControl()
         else
         {
             nextGreenInterval = phase4_8;
-            nextInterval = "rrrrrrgGgGGyrrrrrrrrrrrrGrrr";
+            nextInterval = "rrrrrgGgGyrrrrrrrrrrGrrr";
         }
     }
     else if (currentInterval == phase4_8)
@@ -300,7 +314,7 @@ void TrafficLightControl::doAdaptiveTimeControl()
         else
         {
             nextGreenInterval = phase1_5;
-            nextInterval = "rrrrrryyyyyrrrrrrryyyyyryryr";
+            nextInterval = "rrrrryyyyrrrrrryyyyryryr";
         }
     }
 
@@ -383,17 +397,17 @@ void TrafficLightControl::doVANETControl()
         else if (VehInLane[NC_4])
         {
             nextGreenInterval = phase2_5;
-            nextInterval = "rrrrrGrrrrrrrrrrryrrrrrrrrrr";
+            nextInterval = "rrrrGrrrrrrrrryrrrrrrrrr";
         }
         else if (VehInLane[SC_4])
         {
             nextGreenInterval = phase1_6;
-            nextInterval = "rrrrryrrrrrrrrrrrGrrrrrrrrrr";
+            nextInterval = "rrrryrrrrrrrrrGrrrrrrrrr";
         }
         else
         {
             nextGreenInterval = phase2_6;
-            nextInterval = "rrrrryrrrrrrrrrrryrrrrrrrrrr";
+            nextInterval = "rrrryrrrrrrrrryrrrrrrrrr";
         }
     }
     else if (currentInterval == phase2_5)
@@ -406,7 +420,7 @@ void TrafficLightControl::doVANETControl()
         else
         {
             nextGreenInterval = phase2_6;
-            nextInterval = "gGgGGyrrrrrrrrrrrrrrrrrrrrrG";
+            nextInterval = "gGgGyrrrrrrrrrrrrrrrrrrG";
         }
     }
     else if (currentInterval == phase1_6)
@@ -419,7 +433,7 @@ void TrafficLightControl::doVANETControl()
         else
         {
             nextGreenInterval = phase2_6;
-            nextInterval = "rrrrrrrrrrrrgGgGGyrrrrrrrGrr";
+            nextInterval = "rrrrrrrrrrgGgGyrrrrrrGrr";
         }
     }
     else if (currentInterval == phase2_6)
@@ -433,7 +447,7 @@ void TrafficLightControl::doVANETControl()
         else
         {
             nextGreenInterval = phase3_7;
-            nextInterval = "yyyyyrrrrrrryyyyyrrrrrrrryry";
+            nextInterval = "yyyyrrrrrryyyyrrrrrrryry";
         }
     }
     else if (currentInterval == phase3_7)
@@ -446,17 +460,17 @@ void TrafficLightControl::doVANETControl()
         else if (VehInLane[WC_4])
         {
             nextGreenInterval = phase3_8;
-            nextInterval = "rrrrrrrrrrryrrrrrrrrrrrGrrrr";
+            nextInterval = "rrrrrrrrryrrrrrrrrrGrrrr";
         }
         else if (VehInLane[EC_4])
         {
             nextGreenInterval = phase4_7;
-            nextInterval = "rrrrrrrrrrrGrrrrrrrrrrryrrrr";
+            nextInterval = "rrrrrrrrrGrrrrrrrrryrrrr";
         }
         else
         {
             nextGreenInterval = phase4_8;
-            nextInterval = "rrrrrrrrrrryrrrrrrrrrrryrrrr";
+            nextInterval = "rrrrrrrrryrrrrrrrrryrrrr";
         }
     }
     else if (currentInterval == phase3_8)
@@ -469,7 +483,7 @@ void TrafficLightControl::doVANETControl()
         else
         {
             nextGreenInterval = phase4_8;
-            nextInterval = "rrrrrrrrrrrrrrrrrrgGgGGyrrGr";
+            nextInterval = "rrrrrrrrrrrrrrrgGgGyrrGr";
         }
     }
     else if (currentInterval == phase4_7)
@@ -482,7 +496,7 @@ void TrafficLightControl::doVANETControl()
         else
         {
             nextGreenInterval = phase4_8;
-            nextInterval = "rrrrrrgGgGGyrrrrrrrrrrrrGrrr";
+            nextInterval = "rrrrrgGgGyrrrrrrrrrrGrrr";
         }
     }
     else if (currentInterval == phase4_8)
@@ -496,7 +510,7 @@ void TrafficLightControl::doVANETControl()
         else
         {
             nextGreenInterval = phase1_5;
-            nextInterval = "rrrrrryyyyyrrrrrrryyyyyryryr";
+            nextInterval = "rrrrryyyyrrrrrryyyyryryr";
         }
     }
 

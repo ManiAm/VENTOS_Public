@@ -71,15 +71,15 @@ class TrafficLightControl : public TrafficLightBase
     string currentInterval;
     string nextGreenInterval;
 
-    string phase1_5 = "rrrrrGrrrrrrrrrrrGrrrrrrrrrr";
-    string phase2_5 = "gGgGGGrrrrrrrrrrrrrrrrrrrrrG";
-    string phase1_6 = "rrrrrrrrrrrrgGgGGGrrrrrrrGrr";
-    string phase2_6 = "gGgGGrrrrrrrgGgGGrrrrrrrrGrG";
+    string phase1_5 = "rrrrGrrrrrrrrrGrrrrrrrrr";
+    string phase2_5 = "gGgGGrrrrrrrrrrrrrrrrrrG";
+    string phase1_6 = "rrrrrrrrrrgGgGGrrrrrrGrr";
+    string phase2_6 = "gGgGrrrrrrgGgGrrrrrrrGrG";
 
-    string phase3_7 = "rrrrrrrrrrrGrrrrrrrrrrrGrrrr";
-    string phase3_8 = "rrrrrrrrrrrrrrrrrrgGgGGGrrGr";
-    string phase4_7 = "rrrrrrgGgGGGrrrrrrrrrrrrGrrr";
-    string phase4_8 = "rrrrrrgGgGGrrrrrrrgGgGGrGrGr";
+    string phase3_7 = "rrrrrrrrrGrrrrrrrrrGrrrr";
+    string phase3_8 = "rrrrrrrrrrrrrrrgGgGGrrGr";
+    string phase4_7 = "rrrrrgGgGGrrrrrrrrrrGrrr";
+    string phase4_8 = "rrrrrgGgGrrrrrrgGgGrGrGr";
 
     enum LDid
     {

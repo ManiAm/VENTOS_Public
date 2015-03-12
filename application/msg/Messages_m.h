@@ -29,7 +29,7 @@ typedef std::list<std::string> stringList;
 namespace VENTOS {
 
 /**
- * Class generated from <tt>Messages.msg:50</tt> by nedtool.
+ * Class generated from <tt>Messages.msg:49</tt> by nedtool.
  * <pre>
  * packet BeaconVehicle extends WaveShortMessage
  * {
@@ -100,7 +100,7 @@ inline void doPacking(cCommBuffer *b, BeaconVehicle& obj) {obj.parsimPack(b);}
 inline void doUnpacking(cCommBuffer *b, BeaconVehicle& obj) {obj.parsimUnpack(b);}
 
 /**
- * Class generated from <tt>Messages.msg:64</tt> by nedtool.
+ * Class generated from <tt>Messages.msg:63</tt> by nedtool.
  * <pre>
  * packet BeaconBicycle extends WaveShortMessage
  * {
@@ -171,7 +171,7 @@ inline void doPacking(cCommBuffer *b, BeaconBicycle& obj) {obj.parsimPack(b);}
 inline void doUnpacking(cCommBuffer *b, BeaconBicycle& obj) {obj.parsimUnpack(b);}
 
 /**
- * Class generated from <tt>Messages.msg:78</tt> by nedtool.
+ * Class generated from <tt>Messages.msg:77</tt> by nedtool.
  * <pre>
  * packet BeaconPedestrian extends WaveShortMessage
  * {
@@ -242,7 +242,7 @@ inline void doPacking(cCommBuffer *b, BeaconPedestrian& obj) {obj.parsimPack(b);
 inline void doUnpacking(cCommBuffer *b, BeaconPedestrian& obj) {obj.parsimUnpack(b);}
 
 /**
- * Class generated from <tt>Messages.msg:92</tt> by nedtool.
+ * Class generated from <tt>Messages.msg:91</tt> by nedtool.
  * <pre>
  * packet BeaconRSU extends WaveShortMessage
  * {
@@ -289,7 +289,7 @@ inline void doPacking(cCommBuffer *b, BeaconRSU& obj) {obj.parsimPack(b);}
 inline void doUnpacking(cCommBuffer *b, BeaconRSU& obj) {obj.parsimUnpack(b);}
 
 /**
- * Class generated from <tt>Messages.msg:100</tt> by nedtool.
+ * Class generated from <tt>Messages.msg:99</tt> by nedtool.
  * <pre>
  * packet DummyMsg extends WaveShortMessage
  * {
@@ -327,7 +327,7 @@ inline void doPacking(cCommBuffer *b, DummyMsg& obj) {obj.parsimPack(b);}
 inline void doUnpacking(cCommBuffer *b, DummyMsg& obj) {obj.parsimUnpack(b);}
 
 /**
- * Class generated from <tt>Messages.msg:106</tt> by nedtool.
+ * Class generated from <tt>Messages.msg:105</tt> by nedtool.
  * <pre>
  * packet LaneChangeMsg extends WaveShortMessage
  * {
@@ -374,7 +374,7 @@ inline void doPacking(cCommBuffer *b, LaneChangeMsg& obj) {obj.parsimPack(b);}
 inline void doUnpacking(cCommBuffer *b, LaneChangeMsg& obj) {obj.parsimUnpack(b);}
 
 /**
- * Class generated from <tt>Messages.msg:114</tt> by nedtool.
+ * Class generated from <tt>Messages.msg:113</tt> by nedtool.
  * <pre>
  * packet PlatoonMsg extends WaveShortMessage
  * {
@@ -441,7 +441,7 @@ inline void doPacking(cCommBuffer *b, PlatoonMsg& obj) {obj.parsimPack(b);}
 inline void doUnpacking(cCommBuffer *b, PlatoonMsg& obj) {obj.parsimUnpack(b);}
 
 /**
- * Class generated from <tt>Messages.msg:127</tt> by nedtool.
+ * Class generated from <tt>Messages.msg:126</tt> by nedtool.
  * <pre>
  * packet SystemMsg extends WaveShortMessage
  * {
@@ -495,7 +495,7 @@ inline void doPacking(cCommBuffer *b, SystemMsg& obj) {obj.parsimPack(b);}
 inline void doUnpacking(cCommBuffer *b, SystemMsg& obj) {obj.parsimUnpack(b);}
 
 /**
- * Class generated from <tt>Messages.msg:137</tt> by nedtool.
+ * Class generated from <tt>Messages.msg:136</tt> by nedtool.
  * <pre>
  * packet RouterMsg extends WaveShortMessage
  * {
