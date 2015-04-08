@@ -63,10 +63,19 @@ class TrafficLightControl : public TrafficLightBase
     double detectorPos;
 
     // class variables
+    cMessage* ChangeEvt;
+    cMessage* DetectEvt;
+
     list<string> TLList;   // list of traffic-lights in the network
     list<string> LDList;   // list of loop-detectors in the network
 
-    double nextTime = 0.0;
+    vector<double> DetectedTime;
+
+    double offSet = 0.0;
+    double detectFreq = 0.1;
+    double radius = 33;
+  //  Coord outerRing = (100 - radius - 2;
+  //  Coord innerRing  = radius + 2;
     double intervalElapseTime = 0.0;
     string currentInterval;
     string nextGreenInterval;
@@ -89,6 +98,7 @@ class TrafficLightControl : public TrafficLightBase
         WC_2, WC_3, WC_4,
     };
 
+    // For VANET Controller:
     map<string,LDid> lmap =
     {
         {"EC_2", EC_2}, {"EC_3", EC_3}, {"EC_4", EC_4},
@@ -96,6 +106,7 @@ class TrafficLightControl : public TrafficLightBase
         {"SC_2", SC_2}, {"SC_3", SC_3}, {"SC_4", SC_4},
         {"WC_2", WC_2}, {"WC_3", WC_3}, {"WC_4", WC_4}
     };
+
 };
 
 }

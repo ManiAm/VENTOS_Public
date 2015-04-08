@@ -53,6 +53,21 @@ void TrafficLightControl::initialize(int stage)
         redTime = par("redTime").doubleValue();
         passageTime = par("passageTime").doubleValue();
         detectorPos = par("detectorPos").doubleValue();
+
+        if(TLControlMode == 2 || TLControlMode == 3)
+        {
+            ChangeEvt = new cMessage("ChangeEvt", 1);
+
+            offSet = minGreenTime;
+            scheduleAt(simTime().dbl() + offSet, ChangeEvt);
+
+            if (TLControlMode == 3)
+            {
+                DetectedTime.assign(lmap.size(), 0.0);
+                DetectEvt = new cMessage("DetectEvt", 1);
+                scheduleAt(simTime().dbl() + detectFreq, DetectEvt);
+            }
+        }
     }
 }
 
@@ -65,7 +80,68 @@ void TrafficLightControl::finish()
 
 void TrafficLightControl::handleMessage(cMessage *msg)
 {
+    if (msg == ChangeEvt)
+    {
+        intervalElapseTime += offSet;
+        string curInterval = currentInterval;
 
+        // Choose traffic light controller:
+        if (TLControlMode == 2)
+        {
+            cout << endl << "Going into doAdaptiveTimeControl()" << endl;
+            doAdaptiveTimeControl();
+        }
+        else if (TLControlMode == 3)
+        {
+            cout << endl << "Going into doVANETControl()" << endl;
+            doVANETControl();
+        }
+
+        // If extending current green interval:
+        if (curInterval == currentInterval)
+        {
+            double extendTime = offSet + intervalElapseTime;
+
+            // Never extend past maxGreenTime:
+            if (extendTime > maxGreenTime)
+                offSet = offSet - (extendTime - maxGreenTime);
+
+            cout << "Extending green time by: " << offSet << "s" << endl;
+        }
+
+        // Schedule next light change event:
+        scheduleAt(simTime().dbl() + offSet, ChangeEvt);
+
+        char buff[300];
+        sprintf(buff, "sim time: %4.2f | Interval finish time: %4.2f | Interval elapsed time: %4.2f | Current interval: %s", simTime().dbl(), simTime().dbl() + offSet, intervalElapseTime, currentInterval.c_str() );
+        cout << buff << endl;
+    }
+    else if (msg == DetectEvt)
+    {
+        list<string> VehList = TraCI->commandGetVehicleList();
+        for(list<string>::iterator V = VehList.begin(); V != VehList.end(); V++)
+        {
+            Coord pos = TraCI->commandGetVehiclePos(*V);
+
+            // If within radius of traffic light:
+            if ((pos.x > 65 && pos.x < 69) || (pos.x > 131 && pos.x < 135) ||
+                    (pos.y > 65 && pos.y < 69) || (pos.y > 131 && pos.y < 135))
+            {
+                // If in lane of interest (heading towards TL):
+                string lane = TraCI->commandGetVehicleLaneId(*V);
+                if (lane == "EC_2" || lane == "EC_3" || lane == "EC_4" ||
+                        lane == "NC_2" || lane == "NC_3" || lane == "NC_4" ||
+                        lane == "SC_2" || lane == "SC_3" || lane == "SC_4" ||
+                        lane == "WC_2" || lane == "WC_3" || lane == "WC_4")
+                {
+                    DetectedTime[lmap[lane]] = simTime().dbl();
+                }
+            }
+        }
+
+        // Schedule next detection event:
+        scheduleAt(simTime().dbl() + detectFreq, DetectEvt);
+    }
 }
 
 
@@ -90,7 +166,6 @@ void TrafficLightControl::executeFirstTimeStep()
         }
 
         currentInterval = phase1_5;
-        nextTime = minGreenTime;
     }
     else
     {
@@ -101,45 +176,12 @@ void TrafficLightControl::executeFirstTimeStep()
 
 void TrafficLightControl::executeEachTimeStep()
 {
-    if (TLControlMode == 1)
-        return;
-
-    intervalElapseTime += updateInterval;
-
-    char buff[300];
-    sprintf(buff, "sim time: %4.2f | Interval finish time: %4.2f | Interval elapsed time: %4.2f | Current interval: %s", simTime().dbl() , nextTime, intervalElapseTime, currentInterval.c_str() );
-    cout << buff << endl;
-
-    if (TLControlMode == 2)
-    {
-        if (simTime() == nextTime || intervalElapseTime >= maxGreenTime)
-        {
-            string curInterval = currentInterval;
-
-            cout << endl << "Going into doAdaptiveTimeControl()" << endl;
-            doAdaptiveTimeControl();
-
-            if(curInterval == currentInterval)
-                cout << "Extended green time by: " << passageTime << "s" << endl;
-
-            cout << endl;
-        }
-    }
-    else if (TLControlMode == 3)
-    {
-        if (simTime() == nextTime || intervalElapseTime >= maxGreenTime)
-        {
-            string curInterval = currentInterval;
-
-            cout << endl << "Going into doVANETControl()" << endl;
-            doAdaptiveTimeControl();
-
-            if(curInterval == currentInterval)
-                cout << "Extended green time by: " << passageTime << "s" << endl;
-
-            cout << endl;
-        }
-    }
+    //    if (TLControlMode == 1 || TLControlMode == 2)
+    //        return;
+    //    else if (TLControlMode == 3)
+    //    {
+    //
+    //    }
 }
 
 
@@ -163,7 +205,7 @@ void TrafficLightControl::doAdaptiveTimeControl()
         // set the new state
         TraCI->commandSetTLState("C", nextInterval);
         intervalElapseTime = 0.0;
-        nextTime = simTime().dbl() + redTime;
+        offSet = redTime;
 
         return;
     }
@@ -172,17 +214,19 @@ void TrafficLightControl::doAdaptiveTimeControl()
         currentInterval = nextGreenInterval;
         TraCI->commandSetTLState("C", nextGreenInterval);
         intervalElapseTime = 0.0;
-        nextTime = simTime().dbl() + minGreenTime;
+        offSet = minGreenTime;
 
         return;
     }
 
-    // if we reach here, it means that we are in green interval
+    // If we reach here, it means that we are in green interval.
 
     // First get loop detector information
     vector<double> LastActuatedTime;
 
-    // If maxGreenTime met, don't care for actuator values
+    // If maxGreenTime met, don't care for actuator values,
+    // so push passageTime so that conditions fail and move
+    // to red interval:
     if (intervalElapseTime >= maxGreenTime)
         for (list<string>::iterator LD = LDList.begin(); LD != LDList.end(); LD++)
             LastActuatedTime.push_back(passageTime);
@@ -190,12 +234,13 @@ void TrafficLightControl::doAdaptiveTimeControl()
         for (list<string>::iterator LD = LDList.begin(); LD != LDList.end(); LD++)
             LastActuatedTime.push_back(TraCI->commandGetLoopDetectorLastTime(*LD));
 
-    // do proper transition:
+    // Do proper transition:
     if (currentInterval == phase1_5)
     {
         if (LastActuatedTime[NC_4] < passageTime && LastActuatedTime[SC_4] < passageTime)
         {
-            nextTime = simTime().dbl() + passageTime;
+            double smallest = ((LastActuatedTime[NC_4] < LastActuatedTime[SC_4]) ? LastActuatedTime[NC_4] : LastActuatedTime[SC_4]);
+            offSet = ceil(passageTime - smallest);
             return;
         }
         else if (LastActuatedTime[NC_4] < passageTime)
@@ -218,7 +263,7 @@ void TrafficLightControl::doAdaptiveTimeControl()
     {
         if (LastActuatedTime[NC_4] < passageTime)
         {
-            nextTime = simTime().dbl() + passageTime;
+            offSet = ceil(passageTime - LastActuatedTime[NC_4]);
             return;
         }
         else
@@ -231,7 +276,7 @@ void TrafficLightControl::doAdaptiveTimeControl()
     {
         if (LastActuatedTime[SC_4] < passageTime)
         {
-            nextTime = simTime().dbl() + passageTime;
+            offSet = ceil(passageTime - LastActuatedTime[SC_4]);
             return;
         }
         else
@@ -245,7 +290,10 @@ void TrafficLightControl::doAdaptiveTimeControl()
         if (LastActuatedTime[NC_2] < passageTime || LastActuatedTime[NC_3] < passageTime ||
                 LastActuatedTime[SC_2] < passageTime || LastActuatedTime[SC_3] < passageTime)
         {
-            nextTime = simTime().dbl() + passageTime;
+            double smallest1 = ((LastActuatedTime[NC_2] < LastActuatedTime[SC_2]) ? LastActuatedTime[NC_2] : LastActuatedTime[SC_2]);
+            double smallest2 = ((LastActuatedTime[NC_3] < LastActuatedTime[SC_3]) ? LastActuatedTime[NC_3] : LastActuatedTime[SC_3]);
+            double smallest = ((smallest1 < smallest2) ? smallest1 : smallest2);
+            offSet = ceil(passageTime - smallest);
             return;
         }
         else
@@ -258,7 +306,8 @@ void TrafficLightControl::doAdaptiveTimeControl()
     {
         if (LastActuatedTime[WC_4] < passageTime && LastActuatedTime[EC_4] < passageTime)
         {
-            nextTime = simTime().dbl() + passageTime;
+            double smallest = ((LastActuatedTime[WC_4] < LastActuatedTime[EC_4]) ? LastActuatedTime[WC_4] : LastActuatedTime[EC_4]);
+            offSet = ceil(passageTime - smallest);
             return;
         }
         else if (LastActuatedTime[WC_4] < passageTime)
@@ -281,7 +330,7 @@ void TrafficLightControl::doAdaptiveTimeControl()
     {
         if (LastActuatedTime[WC_4] < passageTime)
         {
-            nextTime = simTime().dbl() + passageTime;
+            offSet = ceil(passageTime - LastActuatedTime[WC_4]);
             return;
         }
         else
@@ -294,7 +343,7 @@ void TrafficLightControl::doAdaptiveTimeControl()
     {
         if (LastActuatedTime[EC_4] < passageTime)
         {
-            nextTime = simTime().dbl() + passageTime;
+            offSet = ceil(passageTime - LastActuatedTime[EC_4]);
             return;
         }
         else
@@ -308,7 +357,10 @@ void TrafficLightControl::doAdaptiveTimeControl()
         if (LastActuatedTime[WC_2] < passageTime || LastActuatedTime[WC_3] < passageTime ||
                 LastActuatedTime[EC_2] < passageTime || LastActuatedTime[EC_3] < passageTime)
         {
-            nextTime = simTime().dbl() + passageTime;
+            double smallest1 = ((LastActuatedTime[WC_2] < LastActuatedTime[EC_2]) ? LastActuatedTime[WC_2] : LastActuatedTime[EC_2]);
+            double smallest2 = ((LastActuatedTime[WC_3] < LastActuatedTime[EC_3]) ? LastActuatedTime[WC_3] : LastActuatedTime[EC_3]);
+            double smallest = ((smallest1 < smallest2) ? smallest1 : smallest2);
+            offSet = ceil(passageTime - smallest);
             return;
         }
         else
@@ -321,7 +373,7 @@ void TrafficLightControl::doAdaptiveTimeControl()
     currentInterval = "yellow";
     TraCI->commandSetTLState("C", nextInterval);
     intervalElapseTime = 0.0;
-    nextTime = simTime().dbl() + yellowTime;
+    offSet =  yellowTime;
 }
 
 
@@ -343,7 +395,7 @@ void TrafficLightControl::doVANETControl()
 
         TraCI->commandSetTLState("C", nextInterval);
         intervalElapseTime = 0.0;
-        nextTime = simTime().dbl() + redTime;
+        offSet = redTime;
 
         return;
     }
@@ -352,54 +404,35 @@ void TrafficLightControl::doVANETControl()
         currentInterval = nextGreenInterval;
         TraCI->commandSetTLState("C", nextGreenInterval);
         intervalElapseTime = 0.0;
-        nextTime = simTime().dbl() + minGreenTime;
+        offSet = minGreenTime;
 
         return;
     }
 
-    // if we reach here, it means that we are in green interval
+    // If we reach here, it means that we are in green interval.
 
-    // First get vehicles in range.
-    list<string> VehList = TraCI->commandGetVehicleList();
-    vector<bool> VehInLane(12);
+    // First get adjusted VANET detector times
+    vector<double> LastDetectedTime;
 
-    // If maxGreenTime not met, check network:
-    if (intervalElapseTime < maxGreenTime)
-    {
-        for(list<string>::iterator V = VehList.begin(); V != VehList.end(); V++)
-        {
-            // If within 33m of traffic light:
-            Coord pos = TraCI->commandGetVehiclePos(*V);
-            if (pos.x > 100 - 33 && pos.x < 100 + 33 && pos.y > 100 - 33 && pos.y < 100 + 33)
-            {
-                // If in lane of interest:
-                string lane = TraCI->commandGetVehicleLaneId(*V);
-                if (lane == "EC_2" || lane == "EC_3" || lane == "EC_4" ||
-                        lane == "NC_2" || lane == "NC_3" || lane == "NC_4" ||
-                        lane == "SC_2" || lane == "SC_3" || lane == "SC_4" ||
-                        lane == "WC_2" || lane == "WC_3" || lane == "WC_4")
-                {
-                    cout << "\nLane: " << lane << " " << lmap[lane] << endl;
-                    VehInLane[lmap[lane]] = true;
-                }
-            }
-        }
-    }
+    for (vector<double>::iterator it = DetectedTime.begin(); it != DetectedTime.end(); it++)
+        LastDetectedTime.push_back(simTime().dbl() - (*it));
 
-    // Then do proper transition:
+
+    // Do proper transition:
     if (currentInterval == phase1_5)
     {
-        if (VehInLane[NC_4] && VehInLane[SC_4])
+        if (LastDetectedTime[NC_4] < passageTime && LastDetectedTime[SC_4] < passageTime)
         {
-            nextTime = simTime().dbl() + passageTime;
+            double smallest = ((LastDetectedTime[NC_4] < LastDetectedTime[SC_4]) ? LastDetectedTime[NC_4] : LastDetectedTime[SC_4]);
+            offSet = ceil(passageTime - smallest);
             return;
         }
-        else if (VehInLane[NC_4])
+        else if (LastDetectedTime[NC_4] < passageTime)
         {
             nextGreenInterval = phase2_5;
             nextInterval = "rrrrGrrrrrrrrryrrrrrrrrr";
         }
-        else if (VehInLane[SC_4])
+        else if (LastDetectedTime[SC_4] < passageTime)
         {
             nextGreenInterval = phase1_6;
             nextInterval = "rrrryrrrrrrrrrGrrrrrrrrr";
@@ -412,9 +445,9 @@ void TrafficLightControl::doVANETControl()
     }
     else if (currentInterval == phase2_5)
     {
-        if (VehInLane[NC_4])
+        if (LastDetectedTime[NC_4] < passageTime)
         {
-            nextTime = simTime().dbl() + passageTime;
+            offSet = ceil(passageTime - LastDetectedTime[NC_4]);
             return;
         }
         else
@@ -425,9 +458,9 @@ void TrafficLightControl::doVANETControl()
     }
     else if (currentInterval == phase1_6)
     {
-        if (VehInLane[SC_4])
+        if (LastDetectedTime[SC_4] < passageTime)
         {
-            nextTime = simTime().dbl() + passageTime;
+            offSet = ceil(passageTime - LastDetectedTime[SC_4]);
             return;
         }
         else
@@ -438,10 +471,13 @@ void TrafficLightControl::doVANETControl()
     }
     else if (currentInterval == phase2_6)
     {
-        if (VehInLane[NC_2] || VehInLane[NC_3] ||
-                VehInLane[SC_2] || VehInLane[SC_3])
+        if (LastDetectedTime[NC_2] < passageTime || LastDetectedTime[NC_3] < passageTime ||
+                LastDetectedTime[SC_2] < passageTime || LastDetectedTime[SC_3] < passageTime)
         {
-            nextTime = simTime().dbl() + passageTime;
+            double smallest1 = ((LastDetectedTime[NC_2] < LastDetectedTime[SC_2]) ? LastDetectedTime[NC_2] : LastDetectedTime[SC_2]);
+            double smallest2 = ((LastDetectedTime[NC_3] < LastDetectedTime[SC_3]) ? LastDetectedTime[NC_3] : LastDetectedTime[SC_3]);
+            double smallest = ((smallest1 < smallest2) ? smallest1 : smallest2);
+            offSet = ceil(passageTime - smallest);
             return;
         }
         else
@@ -452,17 +488,18 @@ void TrafficLightControl::doVANETControl()
     }
     else if (currentInterval == phase3_7)
     {
-        if (VehInLane[WC_4] && VehInLane[EC_4])
+        if (LastDetectedTime[WC_4] < passageTime && LastDetectedTime[EC_4] < passageTime)
         {
-            nextTime = simTime().dbl() + passageTime;
+            double smallest = ((LastDetectedTime[WC_4] < LastDetectedTime[EC_4]) ? LastDetectedTime[WC_4] : LastDetectedTime[EC_4]);
+            offSet = ceil(passageTime - smallest);
             return;
         }
-        else if (VehInLane[WC_4])
+        else if (LastDetectedTime[WC_4] < passageTime)
         {
             nextGreenInterval = phase3_8;
             nextInterval = "rrrrrrrrryrrrrrrrrrGrrrr";
         }
-        else if (VehInLane[EC_4])
+        else if (LastDetectedTime[EC_4] < passageTime)
         {
             nextGreenInterval = phase4_7;
             nextInterval = "rrrrrrrrrGrrrrrrrrryrrrr";
@@ -475,9 +512,9 @@ void TrafficLightControl::doVANETControl()
     }
     else if (currentInterval == phase3_8)
     {
-        if (VehInLane[WC_4])
+        if (LastDetectedTime[WC_4] < passageTime)
         {
-            nextTime = simTime().dbl() + passageTime;
+            offSet = ceil(passageTime - LastDetectedTime[WC_4]);
             return;
         }
         else
@@ -488,9 +525,9 @@ void TrafficLightControl::doVANETControl()
     }
     else if (currentInterval == phase4_7)
     {
-        if (VehInLane[EC_4])
+        if (LastDetectedTime[EC_4] < passageTime)
         {
-            nextTime = simTime().dbl() + passageTime;
+            offSet = ceil(passageTime - LastDetectedTime[EC_4]);
             return;
         }
         else
@@ -501,10 +538,13 @@ void TrafficLightControl::doVANETControl()
     }
     else if (currentInterval == phase4_8)
     {
-        if (VehInLane[WC_2] || VehInLane[WC_3] ||
-                VehInLane[EC_2] || VehInLane[EC_3])
+        if (LastDetectedTime[WC_2] < passageTime || LastDetectedTime[WC_3] < passageTime ||
+                LastDetectedTime[EC_2] < passageTime || LastDetectedTime[EC_3] < passageTime)
         {
-            nextTime = simTime().dbl() + passageTime;
+            double smallest1 = ((LastDetectedTime[WC_2] < LastDetectedTime[EC_2]) ? LastDetectedTime[WC_2] : LastDetectedTime[EC_2]);
+            double smallest2 = ((LastDetectedTime[WC_3] < LastDetectedTime[EC_3]) ? LastDetectedTime[WC_3] : LastDetectedTime[EC_3]);
+            double smallest = ((smallest1 < smallest2) ? smallest1 : smallest2);
+            offSet = ceil(passageTime - smallest);
             return;
         }
         else
@@ -517,7 +557,7 @@ void TrafficLightControl::doVANETControl()
     currentInterval = "yellow";
     TraCI->commandSetTLState("C", nextInterval);
     intervalElapseTime = 0.0;
-    nextTime = simTime().dbl() + yellowTime;
+    offSet =  yellowTime;
 }
 
 }
