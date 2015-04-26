@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for VENTOS
 #
 # This file was generated with the command:
-#  opp_makemake -f -O out -d application -X. -I/home/philip/Desktop/VENTOS/VENTOS/eigen-3.2.1 -I/home/philip/Desktop/VENTOS/VENTOS/rapidxml-1.13 -L/home/philip/Desktop/Veins/veins/out/$$\(CONFIGNAME\)/src -L./out/$$\(CONFIGNAME\)/application/pedestrian -L./out/$$\(CONFIGNAME\)/application/trafficLight -L./out/$$\(CONFIGNAME\)/application/msg -L./out/$$\(CONFIGNAME\)/application/rsu -L./out/$$\(CONFIGNAME\)/application/bike -L./out/$$\(CONFIGNAME\)/application/adversary -L./out/$$\(CONFIGNAME\)/application/router -L./out/$$\(CONFIGNAME\)/application/traci -L./out/$$\(CONFIGNAME\)/application/vehicle -L./out/$$\(CONFIGNAME\)/application/global -lveins -KVEINS_PROJ=/home/philip/Desktop/Veins/veins
+#  opp_makemake -f -O out -d application -X. -I/home/mani/Desktop/VENTOS/eigen-3.2.1 -I/home/mani/Desktop/VENTOS/rapidxml-1.13 -L../veins/out/$$\(CONFIGNAME\)/src -L./out/$$\(CONFIGNAME\)/application/msg -L./out/$$\(CONFIGNAME\)/application/router -L./out/$$\(CONFIGNAME\)/application/pedestrian -L./out/$$\(CONFIGNAME\)/application/bike -L./out/$$\(CONFIGNAME\)/application/traci -L./out/$$\(CONFIGNAME\)/application/adversary -L./out/$$\(CONFIGNAME\)/application/vehicle -L./out/$$\(CONFIGNAME\)/application/trafficLight -L./out/$$\(CONFIGNAME\)/application/rsu -L./out/$$\(CONFIGNAME\)/application/global -lveins -KVEINS_PROJ=../veins
 #
 
 # Name of target to be created (-o option)
@@ -17,8 +17,8 @@ USERIF_LIBS = $(ALL_ENV_LIBS) # that is, $(TKENV_LIBS) $(CMDENV_LIBS)
 EXTRA_OBJS =
 
 # Additional libraries (-L, -l options)
-LIBS = -L$(VEINS_PROJ)/out/$(CONFIGNAME)/src -Lout/$(CONFIGNAME)/application/pedestrian -Lout/$(CONFIGNAME)/application/trafficLight -Lout/$(CONFIGNAME)/application/msg -Lout/$(CONFIGNAME)/application/rsu -Lout/$(CONFIGNAME)/application/bike -Lout/$(CONFIGNAME)/application/adversary -Lout/$(CONFIGNAME)/application/router -Lout/$(CONFIGNAME)/application/traci -Lout/$(CONFIGNAME)/application/vehicle -Lout/$(CONFIGNAME)/application/global  -lveins
-LIBS += -Wl,-rpath,`abspath $(VEINS_PROJ)/out/$(CONFIGNAME)/src` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application/pedestrian` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application/trafficLight` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application/msg` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application/rsu` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application/bike` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application/adversary` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application/router` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application/traci` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application/vehicle` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application/global`
+LIBS = -L../veins/out/$(CONFIGNAME)/src -Lout/$(CONFIGNAME)/application/msg -Lout/$(CONFIGNAME)/application/router -Lout/$(CONFIGNAME)/application/pedestrian -Lout/$(CONFIGNAME)/application/bike -Lout/$(CONFIGNAME)/application/traci -Lout/$(CONFIGNAME)/application/adversary -Lout/$(CONFIGNAME)/application/vehicle -Lout/$(CONFIGNAME)/application/trafficLight -Lout/$(CONFIGNAME)/application/rsu -Lout/$(CONFIGNAME)/application/global  -lveins
+LIBS += -Wl,-rpath,`abspath ../veins/out/$(CONFIGNAME)/src` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application/msg` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application/router` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application/pedestrian` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application/bike` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application/traci` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application/adversary` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application/vehicle` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application/trafficLight` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application/rsu` -Wl,-rpath,`abspath out/$(CONFIGNAME)/application/global`
 
 # Output directory
 PROJECT_OUTPUT_DIR = out
@@ -26,7 +26,7 @@ PROJECTRELATIVE_PATH =
 O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Other makefile variables (-K)
-VEINS_PROJ=/home/philip/Desktop/Veins/veins
+VEINS_PROJ=../veins
 
 #------------------------------------------------------------------------------
 
