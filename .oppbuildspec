@@ -1,7 +1,7 @@
 <buildspec version="4.0">
 <dir makemake-options="-o application -O out --meta:recurse --meta:auto-include-path --meta:export-library --meta:use-exported-libs --meta:feature-cflags --meta:feature-ldflags" path="application" type="makemake"/>
 <dir makemake-options="--make-so -o msg -O out --meta:auto-include-path --meta:export-library --meta:use-exported-libs --meta:feature-cflags --meta:feature-ldflags" path="application/msg" type="makemake"/>
-<dir makemake-options="--make-so -o router -O out -lboost_filesystem -lboost_system -lmsg -ltraci --meta:auto-include-path --meta:export-library --meta:use-exported-libs --meta:feature-cflags --meta:feature-ldflags" path="application/router" type="makemake"/>
+<dir makemake-options="--make-so -o router -O out -lboost_filesystem -lboost_system -lmsg -ltraci -ltrafficLight --meta:auto-include-path --meta:export-library --meta:use-exported-libs --meta:feature-cflags --meta:feature-ldflags" path="application/router" type="makemake"/>
 <dir makemake-options="--make-so -o pedestrian -O out -lboost_filesystem -lboost_system -lmsg -ltraci --meta:auto-include-path --meta:export-library --meta:use-exported-libs --meta:feature-cflags --meta:feature-ldflags" path="application/pedestrian" type="makemake"/>
 <dir makemake-options="--make-so -o bike -O out -lboost_filesystem -lboost_system -lmsg -ltraci --meta:auto-include-path --meta:export-library --meta:use-exported-libs --meta:feature-cflags --meta:feature-ldflags" path="application/bike" type="makemake"/>
 <dir makemake-options="--make-so -o traci -O out -lboost_filesystem -lboost_system -lmsg -lcurl --meta:auto-include-path --meta:export-library --meta:use-exported-libs --meta:feature-cflags --meta:feature-ldflags" path="application/traci" type="makemake"/>

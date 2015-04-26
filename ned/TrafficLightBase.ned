@@ -7,5 +7,6 @@ simple TrafficLightBase like TrafficLightInterface
         @class(VENTOS::TrafficLightBase);
         @display("i=block/network2");  
         
-        
+        bool collectTLData;  
+        int TLControlMode;     
 }

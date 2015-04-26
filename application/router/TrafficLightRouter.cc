@@ -210,6 +210,8 @@ void TrafficLightRouter::build(string id, string type, string programID, double 
 
 void TrafficLightRouter::initialize(int stage)
 {
+    TrafficLightBase::initialize(stage);
+
     if(id == "")
         return;
 
@@ -270,6 +272,8 @@ void TrafficLightRouter::switchToPhase(int phase, double greenDuration, int yell
 
 void TrafficLightRouter::handleMessage(cMessage* msg)  //Internal messages to self
 {
+    TrafficLightBase::handleMessage(msg);
+
     if(!done)
     {
         if(msg->isName("tl evt"))   //Out-of-sync TL Algorithms take place here
@@ -587,6 +591,8 @@ bool TrafficLightRouter::LowDensityVehicleCheck()    //This function assumes it'
 
 void TrafficLightRouter::finish()
 {
+    TrafficLightBase::finish();
+
     done = true;
     /*
     if(UseTLLogic)

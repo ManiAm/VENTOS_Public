@@ -45,16 +45,13 @@ class TrafficLightControl : public TrafficLightBase
     virtual void handleMessage(cMessage *);
 
   private:
-    void executeFirstTimeStep();
-    void executeEachTimeStep();
+    void virtual executeFirstTimeStep();
+    void virtual executeEachTimeStep();
 
     void doAdaptiveTimeControl();
     void doVANETControl();
 
     // NED variables
-    double updateInterval;
-    int TLControlMode;
-
     double minGreenTime;
     double maxGreenTime;
     double yellowTime;
@@ -66,7 +63,6 @@ class TrafficLightControl : public TrafficLightBase
     cMessage* ChangeEvt;
     cMessage* DetectEvt;
 
-    list<string> TLList;   // list of traffic-lights in the network
     list<string> LDList;   // list of loop-detectors in the network
 
     vector<double> DetectedTime;

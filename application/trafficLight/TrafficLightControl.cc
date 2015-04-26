@@ -44,9 +44,6 @@ void TrafficLightControl::initialize(int stage)
 
     if(stage == 0)
     {
-        updateInterval = TraCI->par("updateInterval").doubleValue();
-        TLControlMode = par("TLControlMode").longValue();
-
         minGreenTime = par("minGreenTime").doubleValue();
         maxGreenTime = par("maxGreenTime").doubleValue();
         yellowTime = par("yellowTime").doubleValue();
@@ -74,12 +71,15 @@ void TrafficLightControl::initialize(int stage)
 
 void TrafficLightControl::finish()
 {
+    TrafficLightBase::finish();
 
 }
 
 
 void TrafficLightControl::handleMessage(cMessage *msg)
 {
+    TrafficLightBase::handleMessage(msg);
+
     if (msg == ChangeEvt)
     {
         intervalElapseTime += offSet;
@@ -147,7 +147,9 @@ void TrafficLightControl::handleMessage(cMessage *msg)
 
 void TrafficLightControl::executeFirstTimeStep()
 {
-    TLList = TraCI->commandGetTLIDList();
+    // call parent
+    TrafficLightBase::executeFirstTimeStep();
+
     LDList = TraCI->commandGetLoopDetectorList();
 
     // fixed-time traffic signal
@@ -176,6 +178,9 @@ void TrafficLightControl::executeFirstTimeStep()
 
 void TrafficLightControl::executeEachTimeStep()
 {
+    // call parent
+    TrafficLightBase::executeEachTimeStep();
+
     //    if (TLControlMode == 1 || TLControlMode == 2)
     //        return;
     //    else if (TLControlMode == 3)

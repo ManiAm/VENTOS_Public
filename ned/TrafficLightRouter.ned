@@ -1,7 +1,7 @@
 
 package c3po.ned;
 
-simple TrafficLightRouter like TrafficLightInterface
+simple TrafficLightRouter extends TrafficLightBase
 {
     parameters:
         @class(VENTOS::TrafficLightRouter);

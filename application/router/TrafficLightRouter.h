@@ -28,8 +28,7 @@
 #ifndef TRAFFICLIGHTROUTER_H
 #define TRAFFICLIGHTROUTER_H
 
-#include <BaseModule.h>
-#include "TraCI_Extend.h"
+#include <TrafficLightBase.h>
 #include "Net.h"
 #include <vector>
 
@@ -51,7 +50,7 @@ public:
 
 class Router;
 
-class TrafficLightRouter : public BaseModule
+class TrafficLightRouter : public TrafficLightBase
 {
 public:
     TrafficLightRouter();

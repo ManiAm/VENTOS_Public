@@ -7,8 +7,6 @@ simple TrafficLightControl extends TrafficLightBase
         @class(VENTOS::TrafficLightControl);
         @display("i=block/network2");  
         
-        int TLControlMode;
-        
         double minGreenTime;
         double maxGreenTime;
         double yellowTime;
