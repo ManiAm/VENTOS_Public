@@ -102,6 +102,7 @@ class TraCI_Extend : public TraCIScenarioManager
         vector<string> commandGetLeadingVehicle(string, double);
         double commandGetVehicleAccel(string);    // new defined command
         int commandGetVehicleCFMode(string);      // new defined command
+        int commandGetYellowOrRed(string);       // new defined command
 
         // CMD_GET_VEHICLETYPE_VARIABLE
         double commandGetVehicleTypeLength(string);
@@ -127,11 +128,14 @@ class TraCI_Extend : public TraCIScenarioManager
 
 		// CMD_GET_TL_VARIABLE
 		list<string> commandGetTLIDList();
+		uint32_t commandGetTLCount();
+		string commandGetTLState(string TLid);
+        list<string> commandGetControlledLanes(string TLid);
+        vector<string> commandGetControlledLinks(string TLid);
 		uint32_t commandGetCurrentPhaseDuration(string TLid);
 		uint32_t commandGetCurrentPhase(string TLid);
 		uint32_t commandGetNextSwitchTime(string TLid);
 		string commandGetCurrentProgram(string TLid);
-		string commandGetTLState(string TLid);
 
         // CMD_GET_GUI_VARIABLE
         Coord commandGetGUIOffset();

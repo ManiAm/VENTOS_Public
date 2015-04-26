@@ -110,7 +110,7 @@ void TraCI_App::executeOneTimestep()
     if(collectVehiclesData)
     {
         vehiclesData();   // collecting data from all vehicles in each timeStep
-        if(ev.isGUI()) vehiclesDataToFile();  // write what we have collected so far
+        if(ev.isGUI()) vehiclesDataToFile();  // (if in GUI) write what we have collected so far
     }
 
     if(collectInductionLoopData)
@@ -121,6 +121,7 @@ void TraCI_App::executeOneTimestep()
 
     // get the total number of modules (vehicles, bikes, pedestrians)
     int totalModules = commandGetMinExpectedVehicles() + commandGetPedestrianCount();
+    // if simulation should be ended
     bool simulationDone = (simTime().dbl() >= terminate) or (totalModules == 0);
 
     simsignal_t Signal_executeEachTS = registerSignal("executeEachTS");

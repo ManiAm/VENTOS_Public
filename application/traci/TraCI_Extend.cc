@@ -500,6 +500,12 @@ int TraCI_Extend::commandGetVehicleCFMode(string nodeId)
 }
 
 
+int TraCI_Extend::commandGetYellowOrRed(string nodeId)
+{
+    return getCommandInterface()->genericGetInt(CMD_GET_VEHICLE_VARIABLE, nodeId, 0x72, RESPONSE_GET_VEHICLE_VARIABLE);
+}
+
+
 // ############################
 // CMD_GET_VEHICLETYPE_VARIABLE
 // ############################
@@ -574,7 +580,7 @@ list<string> TraCI_Extend::commandGetLoopDetectorList()
 
 uint32_t TraCI_Extend::commandGetLoopDetectorCount(string loopId)
 {
-    return getCommandInterface()->genericGetInt(CMD_GET_INDUCTIONLOOP_VARIABLE, loopId, 0x10, RESPONSE_GET_INDUCTIONLOOP_VARIABLE);
+    return getCommandInterface()->genericGetInt(CMD_GET_INDUCTIONLOOP_VARIABLE, loopId, 0x01, RESPONSE_GET_INDUCTIONLOOP_VARIABLE);
 }
 
 
@@ -679,9 +685,72 @@ list<string> TraCI_Extend::commandGetTLIDList()
     return getCommandInterface()->genericGetStringList(CMD_GET_TL_VARIABLE, "",ID_LIST, RESPONSE_GET_TL_VARIABLE);
 }
 
+uint32_t TraCI_Extend::commandGetTLCount()
+{
+    return getCommandInterface()->genericGetInt(CMD_GET_TL_VARIABLE, "",ID_COUNT, RESPONSE_GET_TL_VARIABLE);
+}
+
+string TraCI_Extend::commandGetTLState(string TLid)
+{
+    return getCommandInterface()->genericGetString(CMD_GET_TL_VARIABLE, TLid, TL_RED_YELLOW_GREEN_STATE, RESPONSE_GET_TL_VARIABLE);
+}
+
 uint32_t TraCI_Extend::commandGetCurrentPhaseDuration(string TLid)
 {
     return getCommandInterface()->genericGetInt(CMD_GET_TL_VARIABLE, TLid, TL_PHASE_DURATION, RESPONSE_GET_TL_VARIABLE);
+}
+
+list<string> TraCI_Extend::commandGetControlledLanes(string TLid)
+{
+    return getCommandInterface()->genericGetStringList(CMD_GET_TL_VARIABLE, TLid, TL_CONTROLLED_LANES, RESPONSE_GET_TL_VARIABLE);
+}
+
+vector<string> TraCI_Extend::commandGetControlledLinks(string TLid)
+{
+    uint8_t resultTypeId = TYPE_COMPOUND;
+    uint8_t variableId = TL_CONTROLLED_LINKS;
+
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_GET_TL_VARIABLE, TraCIBuffer() << variableId << TLid);
+
+    uint8_t cmdLength; buf >> cmdLength;
+    if (cmdLength == 0) {
+        uint32_t cmdLengthX;
+        buf >> cmdLengthX;
+    }
+    uint8_t commandId_r; buf >> commandId_r;
+    ASSERT(commandId_r == RESPONSE_GET_TL_VARIABLE);
+    uint8_t varId; buf >> varId;
+    ASSERT(varId == TL_CONTROLLED_LINKS);
+    std::string objectId_r; buf >> objectId_r;
+    ASSERT(objectId_r == TLid);
+    uint8_t resType_r; buf >> resType_r;
+    ASSERT(resType_r == resultTypeId);
+    uint32_t count; buf >> count;
+
+    uint8_t typeI; buf >> typeI;
+    uint32_t No; buf >> No;
+
+    // creating a vector of string
+    vector<string> myVector;
+
+    for (uint32_t i = 0; i < No; i++)
+    {
+        buf >> typeI;
+        uint32_t No2; buf >> No2;
+
+        buf >> typeI;
+        uint32_t No3; buf >> No3;
+
+        for(uint32_t j = 0; j < No3; j++)
+        {
+            std::string id; buf >> id;
+            myVector.push_back(id);
+        }
+
+        myVector.push_back("|");
+    }
+
+    return myVector;
 }
 
 uint32_t TraCI_Extend::commandGetCurrentPhase(string TLid)
@@ -697,11 +766,6 @@ string TraCI_Extend::commandGetCurrentProgram(string TLid)
 uint32_t TraCI_Extend::commandGetNextSwitchTime(string TLid)
 {
     return getCommandInterface()->genericGetInt(CMD_GET_TL_VARIABLE, TLid, TL_NEXT_SWITCH, RESPONSE_GET_TL_VARIABLE);
-}
-
-string TraCI_Extend::commandGetTLState(string TLid)
-{
-    return getCommandInterface()->genericGetString(CMD_GET_TL_VARIABLE, TLid, TL_RED_YELLOW_GREEN_STATE, RESPONSE_GET_TL_VARIABLE);
 }
 
 
@@ -1128,6 +1192,7 @@ void TraCI_Extend::commandSetLaneVmax(string laneId, double value)
 // CMD_SET_INDUCTIONLOOP_VARIABLE
 // ###############################
 
+// todo: waiting to be implemented!
 void TraCI_Extend::commandAddLoopDetector()
 {
     uint8_t variableId = ADD;
