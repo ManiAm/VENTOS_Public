@@ -36,6 +36,38 @@ using namespace std;
 
 namespace VENTOS {
 
+class TLVehicleData
+{
+  public:
+    int index;
+    double time;
+    char vehicleName[20];
+    char lane[20];
+    double pos;
+    double speed;
+    char TLid[20];
+    int yellowOrRedSignal;
+
+    TLVehicleData(int i, double d1,
+                const char *str1, const char *str2,
+                double d2, double d3,
+                const char *str3, int s)
+    {
+        this->index = i;
+        this->time = d1;
+
+        strcpy(this->vehicleName, str1);
+        strcpy(this->lane, str2);
+
+        this->pos = d2;
+        this->speed = d3;
+
+        strcpy(this->TLid, str3);
+        yellowOrRedSignal = s;
+    }
+};
+
+
 class TrafficLightBase : public BaseModule
 {
   public:
@@ -46,13 +78,26 @@ class TrafficLightBase : public BaseModule
       virtual void receiveSignal(cComponent *, simsignal_t, long);
 
   protected:
+      double updateInterval;
+      bool collectTLData;
+      int TLControlMode;
+
       TraCI_Extend *TraCI;
       simsignal_t Signal_executeFirstTS;
       simsignal_t Signal_executeEachTS;
+      list<string> TLList;   // list of traffic-lights in the network
+      vector<TLVehicleData *> Vec_vehiclesData;
+      int index;
 
   protected:
       virtual void executeFirstTimeStep();
       virtual void executeEachTimeStep();
+
+  private:
+      void TLData();
+      void saveTLData(string);
+      string getTrafficLightController(string vID);
+      void TLDataToFile();
 };
 
 }
