@@ -118,7 +118,7 @@ end
 
 % We are only interested in the descending sections
 
-delayBike(1,:) = waitingSpeeds(1,:);
+delay(1,:) = waitingSpeeds(1,:);
 rows = size(waitingSpeeds, 1) - 1;
 
 for i=1:VehNumbers
@@ -126,15 +126,15 @@ for i=1:VehNumbers
     
     for j=1:rows
         if( diffSpeeds(j,i) < 0)
-            delayBike(j+1,i) = waitingSpeeds(j,i);
+            delay(j+1,i) = waitingSpeeds(j,i);
         elseif( diffSpeeds(j,i) == 0 && waitingSpeeds(j,i) > 0 )
-            delayBike(j+1,i) = -1;
+            delay(j+1,i) = -1;
         elseif( diffSpeeds(j,i) == 0 && waitingSpeeds(j,i) == 0 )
-            delayBike(j+1,i) = waitingSpeeds(j,i);
+            delay(j+1,i) = waitingSpeeds(j,i);
         elseif( diffSpeeds(j,i) > 0)
-            delayBike(j+1,i) = -1;
+            delay(j+1,i) = -1;
         else
-            delayBike(j+1,i) = -1;
+            delay(j+1,i) = -1;
         end
     end
 end
@@ -143,15 +143,15 @@ end
 
 % looking for the peak with a smooth descending after that
 
-rows = size(delayBike, 1);
+rows = size(delay, 1);
 
 % setting the starting point
 for i=1:VehNumbers
     index(1,i) = -1;
-    smoothDelay(:,i) = diff( delayBike(:,i) );
+    smoothDelay(:,i) = diff( delay(:,i) );
     
     for j=1:rows
-        if( delayBike(j,i) > 0 )
+        if( delay(j,i) > 0 )
             if( all(smoothDelay(j+1:j+10,i) ~= 0) && all(smoothDelay(j+1:j+10,i) < -0.05) )
                 index(1,i) = j;   % starting point
                 break;
@@ -169,7 +169,7 @@ for i=1:VehNumbers
         continue;
     else
         for j=rows:-1:1
-            if( delayBike(j,i) >= 0 )
+            if( delay(j,i) >= 0 )
                 index(2,i) = j;
                 break;
             end            
@@ -224,31 +224,25 @@ end
 
 % calculating the delay
 
-delayTotal = [];
-delayVeh = [];
-delayBike = [];
-delayPed = [];
-
 for i=1:VehNumbers    
     if( index(1,i) ~= -1 && index(2,i) ~= -1 )
         d = vehiclesTS(index(2,i)) -  vehiclesTS(index(1,i));        
-        delayTotal(end+1) = d;
+        delayTotal(i) = d;
         name = lower( char(vIDs{i}) );
         
         if( ~isempty(strfind(name, 'veh')) )
-            delayVeh(end+1) = d;
+            delayVeh(i) = d;
         elseif( ~isempty(strfind(name, 'bike')) )
-            delayBike(end+1) = d;
+            delayBike(i) = d;
         elseif( ~isempty(strfind(name, 'ped')) )
-            delayPed(end+1) = d;
+            pedDelay(i) = d;
         end
+    else
+        delayTotal(i) = -1;
     end
 end
 
-fprintf('Average total delay: %0.2f s\n', mean(delayTotal));
-fprintf('Average vehicle delay: %0.2f s\n', mean(delayVeh));
-fprintf('Average bike delay: %0.2f s\n', mean(delayBike));
-fprintf('Average pedestrian delay: %0.3f s\n', mean(delayPed));
+
 
 
 
