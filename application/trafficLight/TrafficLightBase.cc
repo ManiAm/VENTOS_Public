@@ -129,11 +129,12 @@ void TrafficLightBase::saveTLData(string vID)
     string lane = TraCI->commandGetVehicleLaneId(vID);
 
     // get the TLid that controls this vehicle
+    // empty string means the vehicle is not controlled by any TLid
     string TLid = getTrafficLightController(lane);
-    if(TLid == "")
-        return;
 
-    int YorR = TraCI->commandGetYellowOrRed(vID);     // if the signal is yellow or red
+    // if the signal is yellow or red
+    int YorR = TraCI->commandGetYellowOrRed(vID);
+
     double timeStep = (simTime()-updateInterval).dbl();
     double pos = TraCI->commandGetVehicleLanePosition(vID);
     double speed = TraCI->commandGetVehicleSpeed(vID);

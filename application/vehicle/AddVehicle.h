@@ -49,6 +49,7 @@ class AddVehicle : public BaseModule
         // NED variables
         cModule *nodePtr;   // pointer to the Node
         TraCI_Extend *TraCI;  // pointer to the TraCI module
+        double terminate;
         simsignal_t Signal_executeFirstTS;
         bool on;
         int mode;
