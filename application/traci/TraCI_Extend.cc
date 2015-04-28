@@ -91,7 +91,7 @@ void TraCI_Extend::init_traci()
     uint32_t apiVersionS = versionS.first;
     std::string serverVersionS = versionS.second;
 
-    if (apiVersionS == 9) {
+    if (apiVersionS == 10) {
         MYDEBUG << "TraCI server \"" << serverVersionS << "\" reports API version " << apiVersionS << endl;
     }
     else {
