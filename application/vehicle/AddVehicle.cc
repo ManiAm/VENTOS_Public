@@ -489,7 +489,7 @@ void AddVehicle::Scenario9()
         if( dis(gen) < pNS )
         {
             vehNum++;
-            sprintf(vehicleName, "Veh%d", vehNum);
+            sprintf(vehicleName, "Veh-NS-%d", vehNum);
 
             TraCI->commandAddVehicle(vehicleName, "TypeManual", "route1", i, 0 /*pos*/, 0 /*speed*/, 3 /*lane*/);
         }
@@ -497,7 +497,7 @@ void AddVehicle::Scenario9()
         if( dis(gen) < pNW )
         {
             vehNum++;
-            sprintf(vehicleName, "Veh%d", vehNum);
+            sprintf(vehicleName, "Veh-NW-%d", vehNum);
 
             TraCI->commandAddVehicle(vehicleName, "TypeManual", "route2", i, 0 /*pos*/, 0 /*speed*/, 3 /*lane*/);
         }
@@ -505,7 +505,7 @@ void AddVehicle::Scenario9()
         if( dis(gen) < pNE )
         {
             vehNum++;
-            sprintf(vehicleName, "Veh%d", vehNum);
+            sprintf(vehicleName, "Veh-NE-%d", vehNum);
 
             TraCI->commandAddVehicle(vehicleName, "TypeManual", "route3", i, 0 /*pos*/, 0 /*speed*/, 4 /*lane*/);
         }
@@ -513,7 +513,7 @@ void AddVehicle::Scenario9()
         if( dis(gen) < pSN )
         {
             vehNum++;
-            sprintf(vehicleName, "Veh%d", vehNum);
+            sprintf(vehicleName, "Veh-SN-%d", vehNum);
 
             TraCI->commandAddVehicle(vehicleName, "TypeManual", "route4", i, 0 /*pos*/, 0 /*speed*/, 3 /*lane*/);
         }
@@ -521,7 +521,7 @@ void AddVehicle::Scenario9()
         if( dis(gen) < pSE )
         {
             vehNum++;
-            sprintf(vehicleName, "Veh%d", vehNum);
+            sprintf(vehicleName, "Veh-SE-%d", vehNum);
 
             TraCI->commandAddVehicle(vehicleName, "TypeManual", "route5", i, 0 /*pos*/, 0 /*speed*/, 3 /*lane*/);
         }
@@ -529,7 +529,7 @@ void AddVehicle::Scenario9()
         if( dis(gen) < pSW )
         {
             vehNum++;
-            sprintf(vehicleName, "Veh%d", vehNum);
+            sprintf(vehicleName, "Veh-SW-%d", vehNum);
 
             TraCI->commandAddVehicle(vehicleName, "TypeManual", "route6", i, 0 /*pos*/, 0 /*speed*/, 4 /*lane*/);
         }
@@ -537,7 +537,7 @@ void AddVehicle::Scenario9()
         if( dis(gen) < pWE )
         {
             vehNum++;
-            sprintf(vehicleName, "Veh%d", vehNum);
+            sprintf(vehicleName, "Veh-WE-%d", vehNum);
 
             TraCI->commandAddVehicle(vehicleName, "TypeManual", "route7", i, 0 /*pos*/, 0 /*speed*/, 3 /*lane*/);
         }
@@ -545,7 +545,7 @@ void AddVehicle::Scenario9()
         if( dis(gen) < pWS )
         {
             vehNum++;
-            sprintf(vehicleName, "Veh%d", vehNum);
+            sprintf(vehicleName, "Veh-WS-%d", vehNum);
 
             TraCI->commandAddVehicle(vehicleName, "TypeManual", "route8", i, 0 /*pos*/, 0 /*speed*/, 3 /*lane*/);
         }
@@ -553,7 +553,7 @@ void AddVehicle::Scenario9()
         if( dis(gen) < pWN )
         {
             vehNum++;
-            sprintf(vehicleName, "Veh%d", vehNum);
+            sprintf(vehicleName, "Veh-WN-%d", vehNum);
 
             TraCI->commandAddVehicle(vehicleName, "TypeManual", "route9", i, 0 /*pos*/, 0 /*speed*/, 4 /*lane*/);
         }
@@ -561,7 +561,7 @@ void AddVehicle::Scenario9()
         if( dis(gen) < pEW )
         {
             vehNum++;
-            sprintf(vehicleName, "Veh%d", vehNum);
+            sprintf(vehicleName, "Veh-EW-%d", vehNum);
 
             TraCI->commandAddVehicle(vehicleName, "TypeManual", "route10", i, 0 /*pos*/, 0 /*speed*/, 3 /*lane*/);
         }
@@ -569,7 +569,7 @@ void AddVehicle::Scenario9()
         if( dis(gen) < pEN )
         {
             vehNum++;
-            sprintf(vehicleName, "Veh%d", vehNum);
+            sprintf(vehicleName, "Veh-EN-%d", vehNum);
 
             TraCI->commandAddVehicle(vehicleName, "TypeManual", "route11", i, 0 /*pos*/, 0 /*speed*/, 3 /*lane*/);
         }
@@ -577,7 +577,7 @@ void AddVehicle::Scenario9()
         if( dis(gen) < pES )
         {
             vehNum++;
-            sprintf(vehicleName, "Veh%d", vehNum);
+            sprintf(vehicleName, "Veh-ES-%d", vehNum);
 
             TraCI->commandAddVehicle(vehicleName, "TypeManual", "route12", i, 0 /*pos*/, 0 /*speed*/, 4 /*lane*/);
         }
