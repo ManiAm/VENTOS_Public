@@ -63,13 +63,16 @@ end
 % before reaching to the intersection. We are only interested into the last lane
 % that the vehicle is on before entering into the intersection.
 
+indexLane = zeros(3,VehNumbers) - 1;  % initialize to -1
+crossed = zeros(1,VehNumbers);  % did the vehicle cross the intersection?
+
 for i=1:VehNumbers    
     stoppingLane = '';
     startingIndex = -1;
     endingIndex = -1;
     
-    for j=1:rows+1            
-        currentLane = char(vehiclesLane{j,i});
+    for j=1:rows         
+        currentLane = char( vehiclesLane{j,i} );
         if( isempty(strfind(currentLane, ':C_')) )  % if not in the center of intersection
             if( strcmp(stoppingLane,currentLane) ~= 1 )
                 stoppingLane = currentLane;
@@ -77,9 +80,13 @@ for i=1:VehNumbers
             end
         else
             endingIndex = j-1;
-            indexDB(1,i) = startingIndex;
-            indexDB(2,i) = endingIndex;
-            indexDB(3,i) = endingIndex - startingIndex + 1;
+            
+            indexLane(1,i) = startingIndex;
+            indexLane(2,i) = endingIndex;
+            indexLane(3,i) = endingIndex - startingIndex + 1;
+            
+            crossed(i) = 1; % the vehicle crossed the intersection
+            
             break;
         end   
     end
@@ -90,12 +97,16 @@ end
 % extracting the vehicle speed between indexDB(1,i) and indexDB(2,i) 
 % signal should also be yellow or red
 
-waitingSpeeds = zeros( size(vehiclesTS,1), VehNumbers ) - 1;
+waitingSpeeds = zeros( size(vehiclesTS,1), VehNumbers ) - 1; % initialize to -1
+yellowOrRed = zeros(1,VehNumbers);  % did the traffic light became yellow or red at leat once
 
-for i=1:VehNumbers    
-    for j=indexDB(1,i):indexDB(2,i)    
-        if( vehicleSignal(j,i) == 1 )
-            waitingSpeeds(j,i) = vehiclesSpeed(j,i)';
+for i=1:VehNumbers  
+    if( indexLane(1,i) ~= -1 && indexLane(2,i) ~= -1 )
+        for j=indexLane(1,i):indexLane(2,i)    
+            if( vehicleSignal(j,i) == 1 )  % if the signal is yellow or red
+                waitingSpeeds(j,i) = vehiclesSpeed(j,i)';
+                yellowOrRed(i) = 1;
+            end
         end
     end
 end
@@ -168,17 +179,22 @@ end
 % now we should look for the point that the vehicle goes back to its old speed
 
 for i=1:VehNumbers
-    indexSpeedUp(1,i) = index(2,i);
+    indexSpeedUp(1,i) = -1;
     indexSpeedUp(2,i) = -1;
+    
     if( index(1,i) ~= -1 && index(2,i) ~= -1 )
-        oldSpeed = vehiclesSpeed( index(1,i), i );        
-        for j=indexDB(2,i):rows
+        indexSpeedUp(1,i) = index(2,i);  % starting point is where the waiting time ends
+        oldSpeed = vehiclesSpeed( index(1,i), i );
+        
+        % now we search to see when we reach to the old speed
+        % note that we might never find this point! thus indexSpeedUp(2,i) might be -1
+        for j=indexLane(2,i):rows
             if( vehiclesSpeed(j,i) >= oldSpeed )
                 indexSpeedUp(2,i) = j; 
                 break;
             end           
         end        
-    end
+    end    
 end
 
 % -----------------------------------------------------------------
@@ -217,6 +233,16 @@ for i=1:VehNumbers
     
     title( char(vIDs{i}) );
     
+    % if the vehicle did not cross the intersection
+    if( crossed(i) == 0 )        
+        text(4, 13, 'Not crossed!');
+    end    
+    
+    % if the vehicle gets 
+    if( yellowOrRed(i) == 0 )
+        
+    end
+    
     % slowing down and waiting time
     if( index(1,i) ~= -1 && index(2,i) ~= -1 )
         startC = [vehiclesTS(index(1,i),1), vehiclesSpeed(index(1,i),i)]; 
@@ -234,57 +260,71 @@ end
 
 % -----------------------------------------------------------------
 
-% calculating the delay
+% at this point we have two indices
+%  1) index: contains the starting index of 'slowing down' and ending index of 'waiting time'
+%  2) indexSpeedUp: contains the starting/ending index of 'speed-up'
 
-delayTotal1 = [];
-delayVeh1 = [];
-delayBike1 = [];
-delayPed1 = [];
+% now we calculate the delay
 
-for i=1:VehNumbers    
+delayTotal = zeros(2,VehNumbers)-1;
+
+for i=1:VehNumbers 
+    
     % slowing down and waiting time
     if( index(1,i) ~= -1 && index(2,i) ~= -1 )
-        d = vehiclesTS(index(2,i)) -  vehiclesTS(index(1,i));        
-        delayTotal1(end+1) = d;
+        delayTotal(1,i) = double(vehiclesTS(index(2,i))) - double(vehiclesTS(index(1,i)));
+    else
+        delayTotal(1,i) = -1;
+    end
+    
+    % speeding up
+    if( indexSpeedUp(1,i) ~= -1 && indexSpeedUp(2,i) ~= -1 )
+        delayTotal(2,i) = double(vehiclesTS(indexSpeedUp(2,i))) - double(vehiclesTS(indexSpeedUp(1,i)));
+    else
+        delayTotal(2,i) = -1;
+    end
+    
+    if( delayTotal(1,i) ~= -1 )
+        if( delayTotal(2,i) ~= -1 )
+            delayTotal(3,i) = delayTotal(1,i) + delayTotal(2,i);
+        else
+            delayTotal(3,i) = delayTotal(1,i);
+        end        
+    else
+        delayTotal(3,i) = -1;
+    end
+    
+end
+
+% -----------------------------------------------------------------
+
+% print delay for each component
+
+delayT = [];
+delayVeh = [];
+delayBike = [];
+delayPed = [];
+
+for i=1:VehNumbers 
+    
+    if( delayTotal(3,i) ~= -1 )  
+        delayT(end+1) = delayTotal(3,i);
         name = lower( char(vIDs{i}) );
         
         if( ~isempty(strfind(name, 'veh')) )
-            delayVeh1(end+1) = d;
+            delayVeh(end+1) = delayTotal(3,i);
         elseif( ~isempty(strfind(name, 'bike')) )
-            delayBike1(end+1) = d;
+            delayBike(end+1) = delayTotal(3,i);
         elseif( ~isempty(strfind(name, 'ped')) )
-            delayPed1(end+1) = d;
+            delayPed(end+1) = delayTotal(3,i);
         end
     end
     
-    if( indexSpeedUp(1,i) ~= -1 && indexSpeedUp(2,i) ~= -1 )
-        d = vehiclesTS(indexSpeedUp(2,i)) -  vehiclesTS(indexSpeedUp(1,i));        
-        delayTotal2(end+1) = d;
-        name = lower( char(vIDs{i}) );
-        
-        if( ~isempty(strfind(name, 'veh')) )
-            delayVeh2(end+1) = d;
-        elseif( ~isempty(strfind(name, 'bike')) )
-            delayBike2(end+1) = d;
-        elseif( ~isempty(strfind(name, 'ped')) )
-            delayPed2(end+1) = d;
-        end
-    end
 end
 
-delayTotal2 = [];
-delayVeh2 = [];
-delayBike2 = [];
-delayPed2 = [];
-
-
-for i=1:VehNumbers    
-
-end
-
-fprintf('Average total delay: %0.2f s\n', mean(delayTotal1));
-fprintf('Average vehicle delay: %0.2f s\n', mean(delayVeh1));
-fprintf('Average bike delay: %0.2f s\n', mean(delayBike1));
-fprintf('Average pedestrian delay: %0.2f s\n', mean(delayPed1));
+fprintf( 'Average total delay: %0.2f s\n', mean(delayT) );
+fprintf( 'Average vehicle delay: %0.2f s\n', mean(delayVeh) );
+fprintf( 'Average bike delay: %0.2f s\n', mean(delayBike) );
+fprintf( 'Average pedestrian delay: %0.2f s\n', mean(delayPed) );
 
 
