@@ -166,101 +166,101 @@ void TraCI_App::addPedestriansToOMNET()
 
 
 
-//    bool isSubscribed = (subscribedPedestrians.find(objectId) != subscribedPedestrians.end());
-//    double px;
-//    double py;
-//    std::string edge;
-//    double speed;
-//    double angle_traci;
-//    // int signals;
-//        int numRead = 0;
+    //    bool isSubscribed = (subscribedPedestrians.find(objectId) != subscribedPedestrians.end());
+    //    double px;
+    //    double py;
+    //    std::string edge;
+    //    double speed;
+    //    double angle_traci;
+    //    // int signals;
+    //        int numRead = 0;
 
-//        if (variable1_resp == VAR_POSITION) {
-//            uint8_t varType; buf >> varType;
-//            ASSERT(varType == POSITION_2D);
-//            buf >> px;
-//            buf >> py;
-//            numRead++;
-//        } else if (variable1_resp == VAR_ROAD_ID) {
-//            uint8_t varType; buf >> varType;
-//            ASSERT(varType == TYPE_STRING);
-//            buf >> edge;
-//            numRead++;
-//        } else if (variable1_resp == VAR_SPEED) {
-//            uint8_t varType; buf >> varType;
-//            ASSERT(varType == TYPE_DOUBLE);
-//            buf >> speed;
-//            numRead++;
-//        } else if (variable1_resp == VAR_ANGLE) {
-//            uint8_t varType; buf >> varType;
-//            ASSERT(varType == TYPE_DOUBLE);
-//            buf >> angle_traci;
-//            numRead++;
-////        }   else if (variable1_resp == VAR_SIGNALS) {
-////            uint8_t varType; buf >> varType;
-////            ASSERT(varType == TYPE_INTEGER);
-////            buf >> signals;
-////            numRead++;
-//        } else {
-//            error("Received unhandled pedestrian subscription result");
-//        }
-//    }
-//
-//    // bail out if we didn't want to receive these subscription results
-//    if (!isSubscribed) return;
-//
-//    // make sure we got updates for all attributes
-//    if (numRead != 4) return;
-//
-//    Coord p = connection->traci2omnet(TraCICoord(px, py));
-//    if ((p.x < 0) || (p.y < 0)) error("received bad node position (%.2f, %.2f), translated to (%.2f, %.2f)", px, py, p.x, p.y);
-//
-//    double angle = connection->traci2omnetAngle(angle_traci);
-//
-//    cModule* mod = getManagedModule(objectId);
-//
-//    // is it in the ROI?
-//    bool inRoi = isInRegionOfInterest(TraCICoord(px, py), edge, speed, angle);
-//    if (!inRoi)
-//    {
-//        if (mod)
-//        {
-//            deleteManagedModule(objectId);
-//            cout << "Pedestrian #" << objectId << " left region of interest" << endl;
-//        }
-//        else if(unEquippedHosts.find(objectId) != unEquippedHosts.end())
-//        {
-//            unEquippedHosts.erase(objectId);
-//            cout << "Pedestrian (unequipped) # " << objectId<< " left region of interest" << endl;
-//        }
-//        return;
-//    }
-//
-//    if (isModuleUnequipped(objectId))
-//    {
-//        return;
-//    }
-//
-//    if (!mod)
-//    {
-//        // no such module - need to create
-//        TraCIScenarioManager::addModule(objectId, pedModuleType, pedModuleName, pedModuleDisplayString, p, edge, speed, angle);
-//        cout << "Added pedestrian #" << objectId << endl;
-//    }
-//    else
-//    {
-//        // module existed - update position
-//        for (cModule::SubmoduleIterator iter(mod); !iter.end(); iter++)
-//        {
-//            cModule* submod = iter();
-//            ifInetTraCIMobilityCallNextPosition(submod, p, edge, speed, angle);
-//            TraCIMobility* mm = dynamic_cast<TraCIMobility*>(submod);
-//            if (!mm) continue;
-//            cout << "module " << objectId << " moving to " << p.x << "," << p.y << endl;
-//            mm->nextPosition(p, edge, speed, angle);
-//        }
-//    }
-//
+    //        if (variable1_resp == VAR_POSITION) {
+    //            uint8_t varType; buf >> varType;
+    //            ASSERT(varType == POSITION_2D);
+    //            buf >> px;
+    //            buf >> py;
+    //            numRead++;
+    //        } else if (variable1_resp == VAR_ROAD_ID) {
+    //            uint8_t varType; buf >> varType;
+    //            ASSERT(varType == TYPE_STRING);
+    //            buf >> edge;
+    //            numRead++;
+    //        } else if (variable1_resp == VAR_SPEED) {
+    //            uint8_t varType; buf >> varType;
+    //            ASSERT(varType == TYPE_DOUBLE);
+    //            buf >> speed;
+    //            numRead++;
+    //        } else if (variable1_resp == VAR_ANGLE) {
+    //            uint8_t varType; buf >> varType;
+    //            ASSERT(varType == TYPE_DOUBLE);
+    //            buf >> angle_traci;
+    //            numRead++;
+    ////        }   else if (variable1_resp == VAR_SIGNALS) {
+    ////            uint8_t varType; buf >> varType;
+    ////            ASSERT(varType == TYPE_INTEGER);
+    ////            buf >> signals;
+    ////            numRead++;
+    //        } else {
+    //            error("Received unhandled pedestrian subscription result");
+    //        }
+    //    }
+    //
+    //    // bail out if we didn't want to receive these subscription results
+    //    if (!isSubscribed) return;
+    //
+    //    // make sure we got updates for all attributes
+    //    if (numRead != 4) return;
+    //
+    //    Coord p = connection->traci2omnet(TraCICoord(px, py));
+    //    if ((p.x < 0) || (p.y < 0)) error("received bad node position (%.2f, %.2f), translated to (%.2f, %.2f)", px, py, p.x, p.y);
+    //
+    //    double angle = connection->traci2omnetAngle(angle_traci);
+    //
+    //    cModule* mod = getManagedModule(objectId);
+    //
+    //    // is it in the ROI?
+    //    bool inRoi = isInRegionOfInterest(TraCICoord(px, py), edge, speed, angle);
+    //    if (!inRoi)
+    //    {
+    //        if (mod)
+    //        {
+    //            deleteManagedModule(objectId);
+    //            cout << "Pedestrian #" << objectId << " left region of interest" << endl;
+    //        }
+    //        else if(unEquippedHosts.find(objectId) != unEquippedHosts.end())
+    //        {
+    //            unEquippedHosts.erase(objectId);
+    //            cout << "Pedestrian (unequipped) # " << objectId<< " left region of interest" << endl;
+    //        }
+    //        return;
+    //    }
+    //
+    //    if (isModuleUnequipped(objectId))
+    //    {
+    //        return;
+    //    }
+    //
+    //    if (!mod)
+    //    {
+    //        // no such module - need to create
+    //        TraCIScenarioManager::addModule(objectId, pedModuleType, pedModuleName, pedModuleDisplayString, p, edge, speed, angle);
+    //        cout << "Added pedestrian #" << objectId << endl;
+    //    }
+    //    else
+    //    {
+    //        // module existed - update position
+    //        for (cModule::SubmoduleIterator iter(mod); !iter.end(); iter++)
+    //        {
+    //            cModule* submod = iter();
+    //            ifInetTraCIMobilityCallNextPosition(submod, p, edge, speed, angle);
+    //            TraCIMobility* mm = dynamic_cast<TraCIMobility*>(submod);
+    //            if (!mm) continue;
+    //            cout << "module " << objectId << " moving to " << p.x << "," << p.y << endl;
+    //            mm->nextPosition(p, edge, speed, angle);
+    //        }
+    //    }
+    //
 
 }
 
@@ -273,9 +273,9 @@ void TraCI_App::addModule(std::string nodeId, std::string type, std::string name
     int SUMOControllerType = commandGetVehicleControllerType(vehType);
 
     if (vehType.find("TypeManual") != std::string::npos ||
-        vehType.find("TypeACC") != std::string::npos ||
-        vehType.find("TypeCACC") != std::string::npos ||
-        vehType.find("TypeObstacle") != std::string::npos )
+            vehType.find("TypeACC") != std::string::npos ||
+            vehType.find("TypeCACC") != std::string::npos ||
+            vehType.find("TypeObstacle") != std::string::npos )
     {
         // this is default (do nothing)
         // type is "c3po.ned.vehicle"
@@ -381,10 +381,10 @@ void TraCI_App::saveVehicleData(string vID)
         timeGap = spaceGap / speed;
 
     VehicleData *tmp = new VehicleData(index, timeStep,
-                                       vID.c_str(), vType.c_str(),
-                                       lane.c_str(), pos,
-                                       speed, accel, CFMode.c_str(),
-                                       timeGapSetting, spaceGap, timeGap);
+            vID.c_str(), vType.c_str(),
+            lane.c_str(), pos,
+            speed, accel, CFMode.c_str(),
+            timeGapSetting, spaceGap, timeGap);
     Vec_vehiclesData.push_back(tmp);
 }
 
@@ -471,11 +471,11 @@ void TraCI_App::inductionLoops()
     // for each loop detector
     for (list<string>::iterator it=str.begin(); it != str.end(); ++it)
     {
-        // only if this loop detector detected a vehicle
-        if( commandGetLoopDetectorCount(*it) == 1 )
-        {
-            vector<string>  st = commandGetLoopDetectorVehicleData(*it);
+        vector<string>  st = commandGetLoopDetectorVehicleData(*it);
 
+        // only if this loop detector detected a vehicle
+        if( st.size() > 0 )
+        {
             string vehicleName = st.at(0);
             double entryT = atof( st.at(2).c_str() );
             double leaveT = atof( st.at(3).c_str() );
@@ -486,7 +486,7 @@ void TraCI_App::inductionLoops()
             // its a new entry, so we add it
             if(counter == -1)
             {
-                LoopDetector *tmp = new LoopDetector( (*it).c_str(), vehicleName.c_str(), entryT, -1, speed, -1 );
+                LoopDetector *tmp = new LoopDetector( (*it).c_str(), vehicleName.c_str(), entryT, leaveT, speed, speed );
                 Vec_loopDetectors.push_back(tmp);
             }
             // if found, just update the leave time and leave speed
