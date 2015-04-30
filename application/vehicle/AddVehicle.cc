@@ -588,10 +588,6 @@ void AddVehicle::Scenario9()
 
 
 
-
-
-
-
 //    TraCI->commandAddVehicle("Veh1", "TypeManual", "route1", 5000, 0 /*pos*/, 0 /*speed*/, 3 /*lane*/);
 //    TraCI->commandAddVehicle("Veh2", "TypeManual", "route2", 10000, 0 /*pos*/, 0 /*speed*/, 3 /*lane*/);
 //    TraCI->commandAddVehicle("Bike1", "TypeBicycle", "route1", 15000, 0 /*pos*/, 0 /*speed*/, 2 /*lane*/);
