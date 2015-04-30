@@ -85,7 +85,7 @@ class ApplVBase : public BaseApplLayer
 
         enum ControllerTypes
         {
-            SUMO_TAG_CF_KRAUSS = 99,
+            SUMO_TAG_CF_KRAUSS = 101,
             SUMO_TAG_CF_KRAUSS_PLUS_SLOPE,
             SUMO_TAG_CF_KRAUSS_ACCEL_BOUND,
             SUMO_TAG_CF_KRAUSS_ORIG1,
