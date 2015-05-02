@@ -65,7 +65,6 @@ void TraCI_App::initialize(int stage)
 
         collectVehiclesData = par("collectVehiclesData").boolValue();
         useDetailedFilenames = par("useDetailedFilenames").boolValue();
-        collectInductionLoopData = par("collectInductionLoopData").boolValue();
 
         index = 1;
 
@@ -113,15 +112,10 @@ void TraCI_App::executeOneTimestep()
         if(ev.isGUI()) vehiclesDataToFile();  // (if in GUI) write what we have collected so far
     }
 
-    if(collectInductionLoopData)
-    {
-        inductionLoops();    // collecting induction loop data in each timeStep
-        if(ev.isGUI()) inductionLoopToFile();  // write what we have collected so far
-    }
-
-    // get the total number of modules (vehicles, bikes, pedestrians)
-    int totalModules = commandGetMinExpectedVehicles() + commandGetPedestrianCount();
     // if simulation should be ended
+    int NoVehAndBike = commandGetMinExpectedVehicles();
+    int NoPed = commandGetPedestrianCount();
+    int totalModules = NoVehAndBike + NoPed;
     bool simulationDone = (simTime().dbl() >= terminate) or (totalModules == 0);
 
     simsignal_t Signal_executeEachTS = registerSignal("executeEachTS");
@@ -131,9 +125,6 @@ void TraCI_App::executeOneTimestep()
     {
         if(collectVehiclesData && !ev.isGUI())
             vehiclesDataToFile();
-
-        if(collectInductionLoopData && !ev.isGUI())
-            inductionLoopToFile();
 
         // close TraCI connection
         commandTerminate();
@@ -268,14 +259,10 @@ void TraCI_App::addPedestriansToOMNET()
 // for vehicles and bikes only (not pedestrians!)
 void TraCI_App::addModule(std::string nodeId, std::string type, std::string name, std::string displayString, const Coord& position, std::string road_id, double speed, double angle)
 {
-    string vehType = commandGetVehicleTypeId(nodeId);
-    // todo:
-    int SUMOControllerType = commandGetVehicleControllerType(vehType);
+    string vehType = commandGetVehicleTypeId(nodeId);  // get vehicle type
+    int SUMOControllerType = commandGetVehicleControllerType(vehType);   // get controller type
 
-    if (vehType.find("TypeManual") != std::string::npos ||
-            vehType.find("TypeACC") != std::string::npos ||
-            vehType.find("TypeCACC") != std::string::npos ||
-            vehType.find("TypeObstacle") != std::string::npos )
+    if(SUMOControllerType == SUMO_TAG_CF_KRAUSS || SUMOControllerType == SUMO_TAG_CF_ACC || SUMOControllerType == SUMO_TAG_CF_CACC)
     {
         // this is default (do nothing)
         // type is "c3po.ned.vehicle"
@@ -460,107 +447,6 @@ void TraCI_App::vehiclesDataToFile()
     }
 
     fclose(filePtr);
-}
-
-
-void TraCI_App::inductionLoops()
-{
-    // get all loop detectors
-    list<string> str = commandGetLoopDetectorList();
-
-    // for each loop detector
-    for (list<string>::iterator it=str.begin(); it != str.end(); ++it)
-    {
-        vector<string>  st = commandGetLoopDetectorVehicleData(*it);
-
-        // only if this loop detector detected a vehicle
-        if( st.size() > 0 )
-        {
-            string vehicleName = st.at(0);
-            double entryT = atof( st.at(2).c_str() );
-            double leaveT = atof( st.at(3).c_str() );
-            double speed = commandGetLoopDetectorSpeed(*it);  // vehicle speed at current moment
-
-            int counter = findInVector(Vec_loopDetectors, (*it).c_str(), vehicleName.c_str());
-
-            // its a new entry, so we add it
-            if(counter == -1)
-            {
-                LoopDetector *tmp = new LoopDetector( (*it).c_str(), vehicleName.c_str(), entryT, leaveT, speed, speed );
-                Vec_loopDetectors.push_back(tmp);
-            }
-            // if found, just update the leave time and leave speed
-            else
-            {
-                Vec_loopDetectors[counter]->leaveTime = leaveT;
-                Vec_loopDetectors[counter]->leaveSpeed = speed;
-            }
-        }
-    }
-}
-
-
-void TraCI_App::inductionLoopToFile()
-{
-    boost::filesystem::path filePath;
-
-    if( ev.isGUI() )
-    {
-        filePath = "results/gui/loopDetector.txt";
-    }
-    else
-    {
-        // get the current run number
-        int currentRun = ev.getConfigEx()->getActiveRunNumber();
-        ostringstream fileName;
-        fileName << currentRun << "_loopDetector.txt";
-        filePath = "results/cmd/" + fileName.str();
-    }
-
-    FILE *filePtr = fopen (filePath.string().c_str(), "w");
-
-    // write header
-    fprintf (filePtr, "%-20s","loopDetector");
-    fprintf (filePtr, "%-20s","vehicleName");
-    fprintf (filePtr, "%-20s","vehicleEntryTime");
-    fprintf (filePtr, "%-20s","vehicleLeaveTime");
-    fprintf (filePtr, "%-22s","vehicleEntrySpeed");
-    fprintf (filePtr, "%-22s\n\n","vehicleLeaveSpeed");
-
-    // write body
-    for(unsigned int k=0; k<Vec_loopDetectors.size(); k++)
-    {
-        fprintf (filePtr, "%-20s ", Vec_loopDetectors[k]->detectorName);
-        fprintf (filePtr, "%-20s ", Vec_loopDetectors[k]->vehicleName);
-        fprintf (filePtr, "%-20.2f ", Vec_loopDetectors[k]->entryTime);
-        fprintf (filePtr, "%-20.2f ", Vec_loopDetectors[k]->leaveTime);
-        fprintf (filePtr, "%-20.2f ", Vec_loopDetectors[k]->entrySpeed);
-        fprintf (filePtr, "%-20.2f ", Vec_loopDetectors[k]->leaveSpeed);
-        fprintf (filePtr, "\n" );
-    }
-
-    fclose(filePtr);
-}
-
-
-int TraCI_App::findInVector(vector<LoopDetector *> Vec, const char *detectorName, const char *vehicleName)
-{
-    unsigned int counter;
-    bool found = false;
-
-    for(counter = 0; counter < Vec.size(); counter++)
-    {
-        if( strcmp(Vec[counter]->detectorName, detectorName) == 0 && strcmp(Vec[counter]->vehicleName, vehicleName) == 0)
-        {
-            found = true;
-            break;
-        }
-    }
-
-    if(!found)
-        return -1;
-    else
-        return counter;
 }
 
 }

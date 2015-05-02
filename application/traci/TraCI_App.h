@@ -79,29 +79,6 @@ class VehicleData
 };
 
 
-class LoopDetector
-{
-  public:
-    char detectorName[20];
-    char vehicleName[20];
-    double entryTime;
-    double leaveTime;
-    double entrySpeed;
-    double leaveSpeed;
-
-    LoopDetector( const char *str1, const char *str2, double entryT, double leaveT, double entryS, double leaveS )
-    {
-        strcpy(this->detectorName, str1);
-        strcpy(this->vehicleName, str2);
-
-        this->entryTime = entryT;
-        this->leaveTime = leaveT;
-
-        this->entrySpeed = entryS;
-        this->leaveSpeed = leaveS;
-    }
-};
-
 class Router;   //Forward-declaration so TraCI_App may hold a Router*
 
 class TraCI_App : public TraCI_Extend
@@ -123,7 +100,6 @@ class TraCI_App : public TraCI_Extend
         double terminate;
         bool collectVehiclesData;
         bool useDetailedFilenames;
-        bool collectInductionLoopData;
 
         std::set<std::string> subscribedPedestrians; /**< all pedestrians we have already subscribed to */
 
@@ -138,7 +114,6 @@ class TraCI_App : public TraCI_Extend
         string pedModuleDisplayString;
 
         vector<VehicleData *> Vec_vehiclesData;
-        vector<LoopDetector *> Vec_loopDetectors;
 
         int index;
 
@@ -151,11 +126,6 @@ class TraCI_App : public TraCI_Extend
         void vehiclesData();
         void saveVehicleData(string);
         void vehiclesDataToFile();
-
-        void inductionLoops();
-        void inductionLoopToFile();
-
-        int findInVector(vector<LoopDetector *> , const char *, const char *);
 };
 
 }
