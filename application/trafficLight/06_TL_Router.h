@@ -28,7 +28,7 @@
 #ifndef TRAFFICLIGHTROUTER_H
 #define TRAFFICLIGHTROUTER_H
 
-#include <TrafficLightBase.h>
+#include <05_TL_VANET.h>
 #include "Net.h"
 #include <vector>
 
@@ -50,7 +50,7 @@ public:
 
 class Router;
 
-class TrafficLightRouter : public TrafficLightBase
+class TrafficLightRouter : public TrafficLightVANET
 {
 public:
     TrafficLightRouter();
@@ -72,7 +72,6 @@ public:
     //OmNET
     cMessage* TLEvent;
     cMessage* TLSwitchEvent;
-    TraCI_Extend *TraCI;
 
     void build(string id, string type, string programID, double offset, vector<Phase*>& phases, Net* net);
 

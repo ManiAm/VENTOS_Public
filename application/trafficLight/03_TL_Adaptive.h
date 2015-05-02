@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    TrafficLightControl.h
+/// @file    TL_Adaptive.h
 /// @author  Philip Vo <foxvo@ucdavis.edu>
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @date    August 2013
@@ -25,31 +25,26 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef TRAFFICLIGHTCONTROL_H
-#define TRAFFICLIGHTCONTROL_H
+#ifndef TRAFFICLIGHTADAPTIVE_H
+#define TRAFFICLIGHTADAPTIVE_H
 
-#include <TrafficLightBase.h>
-#include <Appl.h>
-#include "TraCI_Extend.h"
+#include <02_LoopDetectors.h>
 
 using namespace std;
 
 namespace VENTOS {
 
-class TrafficLightControl : public TrafficLightBase
+class TrafficLightAdaptive : public LoopDetectors
 {
   public:
-    virtual ~TrafficLightControl();
+    virtual ~TrafficLightAdaptive();
     virtual void finish();
     virtual void initialize(int);
     virtual void handleMessage(cMessage *);
 
-  private:
+  protected:
     void virtual executeFirstTimeStep();
-    void virtual executeEachTimeStep();
-
-    void doAdaptiveTimeControl();
-    void doVANETControl();
+    void virtual executeEachTimeStep(bool);
 
     // NED variables
     double minGreenTime;
@@ -57,24 +52,13 @@ class TrafficLightControl : public TrafficLightBase
     double yellowTime;
     double redTime;
     double passageTime;
-    double detectorPos;
 
     // class variables
-    cMessage* ChangeEvt;
-    cMessage* DetectEvt;
-
-    list<string> LDList;   // list of loop-detectors in the network
-
-    vector<double> DetectedTime;
-
-    double offSet = 0.0;
-    double detectFreq = 0.1;
-    double radius = 33;
-  //  Coord outerRing = (100 - radius - 2;
-  //  Coord innerRing  = radius + 2;
-    double intervalElapseTime = 0.0;
+    double intervalOffSet;
+    double intervalElapseTime;
     string currentInterval;
     string nextGreenInterval;
+    cMessage* ChangeEvt;
 
     string phase1_5 = "rrrrGrrrrrrrrrGrrrrrrrrr";
     string phase2_5 = "gGgGGrrrrrrrrrrrrrrrrrrG";
@@ -86,6 +70,7 @@ class TrafficLightControl : public TrafficLightBase
     string phase4_7 = "rrrrrgGgGGrrrrrrrrrrGrrr";
     string phase4_8 = "rrrrrgGgGrrrrrrgGgGrGrGr";
 
+    // loop detectors id
     enum LDid
     {
         EC_2, EC_3, EC_4,
@@ -94,15 +79,9 @@ class TrafficLightControl : public TrafficLightBase
         WC_2, WC_3, WC_4,
     };
 
-    // For VANET Controller:
-    map<string,LDid> lmap =
-    {
-        {"EC_2", EC_2}, {"EC_3", EC_3}, {"EC_4", EC_4},
-        {"NC_2", NC_2}, {"NC_3", NC_3}, {"NC_4", NC_4},
-        {"SC_2", SC_2}, {"SC_3", SC_3}, {"SC_4", SC_4},
-        {"WC_2", WC_2}, {"WC_3", WC_3}, {"WC_4", WC_4}
-    };
-
+  private:
+    void chooseNextInterval();
+    void chooseNextGreenInterval();
 };
 
 }

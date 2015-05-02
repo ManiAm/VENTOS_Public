@@ -10,6 +10,5 @@ simple TraCI_App extends TraCI_Extend
         double terminate = default(200s) @unit(s);
         bool collectVehiclesData;
         bool useDetailedFilenames;
-        bool collectInductionLoopData;
 }
 

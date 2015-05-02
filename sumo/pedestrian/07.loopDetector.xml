@@ -1,6 +1,49 @@
 <additional xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo-sim.org/xsd/additional_file.xsd">
-
-   <inductionLoop id="detector1" lane="1to2_1" pos="200" freq="50" file="NUL"/>
-   <inductionLoop id="detector2" lane="1to2_1" pos="250" freq="50" file="NUL"/>
+	
+	<!-- North inbound start of queue -->
+	<e1Detector id="C-NC_2-1" lane="NC_2" pos="-0.1" freq="60" file="NUL"/>
+	<e1Detector id="C-NC_3-1" lane="NC_3" pos="-0.1" freq="60" file="NUL"/>
+	<e1Detector id="C-NC_4-1" lane="NC_4" pos="-0.1" freq="60" file="NUL"/> 
+	
+	<!-- North inbound end of queue -->
+	<e1Detector id="C-NC_2-2" lane="NC_2" pos="-35" freq="60" file="NUL"/>
+	<e1Detector id="C-NC_3-2" lane="NC_3" pos="-35" freq="60" file="NUL"/>
+	<e1Detector id="C-NC_4-2" lane="NC_4" pos="-35" freq="60" file="NUL"/>   
+	
+	
+	
+	<!-- South inbound start of queue -->
+	<e1Detector id="C-SC_2-1" lane="SC_2" pos="-0.1" freq="60" file="NUL"/>
+	<e1Detector id="C-SC_3-1" lane="SC_3" pos="-0.1" freq="60" file="NUL"/>
+	<e1Detector id="C-SC_4-1" lane="SC_4" pos="-0.1" freq="60" file="NUL"/>
+	
+	<!-- South inbound end of queue -->
+	<e1Detector id="C-SC_2-2" lane="SC_2" pos="-35" freq="60" file="NUL"/>
+	<e1Detector id="C-SC_3-2" lane="SC_3" pos="-35" freq="60" file="NUL"/>
+	<e1Detector id="C-SC_4-2" lane="SC_4" pos="-35" freq="60" file="NUL"/>
+	
+	
+	
+    <!-- West inbound start of queue -->
+	<e1Detector id="C-WC_2-1" lane="WC_2" pos="-0.1" freq="60" file="NUL"/>
+	<e1Detector id="C-WC_3-1" lane="WC_3" pos="-0.1" freq="60" file="NUL"/>
+	<e1Detector id="C-WC_4-1" lane="WC_4" pos="-0.1" freq="60" file="NUL"/>
+	
+	<!-- West inbound end of queue -->
+	<e1Detector id="C-WC_2-2" lane="WC_2" pos="-35" freq="60" file="NUL"/>
+	<e1Detector id="C-WC_3-2" lane="WC_3" pos="-35" freq="60" file="NUL"/>
+	<e1Detector id="C-WC_4-2" lane="WC_4" pos="-35" freq="60" file="NUL"/>
+	
+	
+	
+    <!-- East inbound start of queue -->
+	<e1Detector id="C-EC_2-1" lane="EC_2" pos="-0.1" freq="60" file="NUL"/>
+	<e1Detector id="C-EC_3-1" lane="EC_3" pos="-0.1" freq="60" file="NUL"/>
+	<e1Detector id="C-EC_4-1" lane="EC_4" pos="-0.1" freq="60" file="NUL"/>
+	
+	<!-- East inbound end of queue -->
+	<e1Detector id="C-EC_2-2" lane="EC_2" pos="-35" freq="60" file="NUL"/>
+	<e1Detector id="C-EC_3-2" lane="EC_3" pos="-35" freq="60" file="NUL"/>
+	<e1Detector id="C-EC_4-2" lane="EC_4" pos="-35" freq="60" file="NUL"/>
 
 </additional>

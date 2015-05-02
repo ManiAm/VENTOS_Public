@@ -91,7 +91,7 @@ class TrafficLightBase : public BaseModule
 
   protected:
       virtual void executeFirstTimeStep();
-      virtual void executeEachTimeStep();
+      virtual void executeEachTimeStep(bool);
 
   private:
       void TLData();

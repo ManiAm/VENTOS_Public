@@ -162,11 +162,15 @@ $O/TraCI_App.o: TraCI_App.cc \
 	../router/Net.h \
 	../router/Node.h \
 	../router/Router.h \
-	../router/TrafficLightRouter.h \
 	../router/Vehicle.h \
 	TraCI_App.h \
 	TraCI_Extend.h \
-	../trafficLight/TrafficLightBase.h \
+	../trafficLight/01_TL_Base.h \
+	../trafficLight/02_LoopDetectors.h \
+	../trafficLight/03_TL_Adaptive.h \
+	../trafficLight/04_TL_Webster.h \
+	../trafficLight/05_TL_VANET.h \
+	../trafficLight/06_TL_Router.h \
 	../vehicle/ApplV_01_Base.h \
 	../vehicle/ApplV_02_Beacon.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/BaseConnectionManager.h \

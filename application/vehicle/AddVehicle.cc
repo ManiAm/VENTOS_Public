@@ -583,7 +583,6 @@ void AddVehicle::Scenario9()
         }
     }
 
-    cout << vehNum << endl;
 
 
 

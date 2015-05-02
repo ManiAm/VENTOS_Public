@@ -82,26 +82,6 @@ class ApplVBase : public BaseApplLayer
         string SUMOvType;
         int SUMOControllerType;
         int SUMOControllerNumber;
-
-        enum ControllerTypes
-        {
-            SUMO_TAG_CF_KRAUSS = 101,
-            SUMO_TAG_CF_KRAUSS_PLUS_SLOPE,
-            SUMO_TAG_CF_KRAUSS_ACCEL_BOUND,
-            SUMO_TAG_CF_KRAUSS_ORIG1,
-            SUMO_TAG_CF_SMART_SK,
-            SUMO_TAG_CF_DANIEL1,
-            SUMO_TAG_CF_IDM,
-            SUMO_TAG_CF_IDMM,
-            SUMO_TAG_CF_PWAGNER2009,
-            SUMO_TAG_CF_BKERNER,
-            SUMO_TAG_CF_WIEDEMANN,
-
-            SUMO_TAG_CF_OPTIMALSPEED,
-            SUMO_TAG_CF_KRAUSSFIXED,
-            SUMO_TAG_CF_ACC,
-            SUMO_TAG_CF_CACC,
-        };
 };
 
 }

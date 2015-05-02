@@ -25,7 +25,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <TrafficLightBase.h>
+#include <01_TL_Base.h>
 
 namespace VENTOS {
 
@@ -83,7 +83,7 @@ void TrafficLightBase::receiveSignal(cComponent *source, simsignal_t signalID, l
     }
     else if(signalID == Signal_executeEachTS)
     {
-        executeEachTimeStep();
+        executeEachTimeStep((bool)i);
     }
 }
 
@@ -94,7 +94,7 @@ void TrafficLightBase::executeFirstTimeStep()
 }
 
 
-void TrafficLightBase::executeEachTimeStep()
+void TrafficLightBase::executeEachTimeStep(bool simulationDone)
 {
     if(collectTLData)
     {

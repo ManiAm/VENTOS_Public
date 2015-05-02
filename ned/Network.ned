@@ -80,7 +80,7 @@ network Network
             parameters:
                 @display("p=61,639;i=block/dispatch");
         }
-        TrafficLight: <trafficLightType> like TrafficLightInterface {
+        TrafficLight: TL_Manager {
             parameters:
                 @display("p=176,639;i=block/dispatch");
         }

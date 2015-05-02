@@ -122,9 +122,9 @@ void AddRSU::Scenario1()
 
     deque<RSUEntry*> RSUs = commandReadRSUsCoord(RSUfilePath.string());
 
-    // ################################
-    // Step 2: create RSUs into OMNET++
-    // ################################
+    // ##############################
+    // Step 2: create RSUs in OMNET++
+    // ##############################
 
     int NoRSUs = RSUs.size();
 
@@ -145,9 +145,9 @@ void AddRSU::Scenario1()
         mod->callInitialize();
     }
 
-    // ##################################################
-    // Step 3: create a polygon for radio circle in SUMO
-    // ##################################################
+    // ###############################################################
+    // Step 3: draw RSU in SUMO (using a circle to show radio coverage)
+    // ###############################################################
 
     // get the radius of an RSU
     cModule *module = simulation.getSystemModule()->getSubmodule("RSU", 0);

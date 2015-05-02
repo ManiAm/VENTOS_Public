@@ -1,7 +1,6 @@
 /****************************************************************************/
-/// @file    AddVehicle.h
+/// @file    TL_Webster.cc
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
-/// @author  second author name
 /// @date    August 2013
 ///
 /****************************************************************************/
@@ -25,53 +24,67 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef VEHICLEADD
-#define VEHICLEADD
-
-#include "BaseModule.h"
-#include "TraCI_Extend.h"
-
-#define SSTR( x ) dynamic_cast< std::ostringstream & >( (std::ostringstream() << std::dec << x ) ).str()
+#include <04_TL_Webster.h>
 
 namespace VENTOS {
 
-class AddVehicle : public BaseModule
+Define_Module(VENTOS::TrafficLightWebster);
+
+
+TrafficLightWebster::~TrafficLightWebster()
 {
-	public:
-		virtual ~AddVehicle();
-		virtual void initialize(int stage);
-        virtual void handleMessage(cMessage *msg);
-		virtual void finish();
-	    virtual void receiveSignal(cComponent *, simsignal_t, long);
-
-	private:
-
-        // NED variables
-        cModule *nodePtr;   // pointer to the Node
-        TraCI_Extend *TraCI;  // pointer to the TraCI module
-        double terminate;
-        simsignal_t Signal_executeFirstTS;
-        bool on;
-        int mode;
-	    int totalVehicles;
-	    double lambda;
-	    int plnSize;
-	    double plnSpace;
-
-	    // methods
-        void Add();
-
-	    void Scenario1();
-        void Scenario2();
-        void Scenario3();
-        void Scenario4();
-        void Scenario5();
-        void Scenario6();
-        void Scenario7();
-        void Scenario8();
-        void Scenario9();
-};
 
 }
 
-#endif
+
+void TrafficLightWebster::initialize(int stage)
+{
+    TrafficLightAdaptive::initialize(stage);
+
+    if(TLControlMode != 3)
+        return;
+
+    if(stage == 0)
+    {
+
+
+    }
+}
+
+
+void TrafficLightWebster::finish()
+{
+    TrafficLightAdaptive::finish();
+
+}
+
+
+void TrafficLightWebster::handleMessage(cMessage *msg)
+{
+    TrafficLightAdaptive::handleMessage(msg);
+
+}
+
+
+void TrafficLightWebster::executeFirstTimeStep()
+{
+    // call parent
+    TrafficLightAdaptive::executeFirstTimeStep();
+
+}
+
+
+void TrafficLightWebster::executeEachTimeStep(bool simulationDone)
+{
+    // call parent
+    TrafficLightAdaptive::executeEachTimeStep(simulationDone);
+
+}
+
+
+void TrafficLightWebster::doWebsterControl()
+{
+
+}
+
+}

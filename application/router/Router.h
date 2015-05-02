@@ -35,7 +35,7 @@
 
 #include "Node.h"
 #include "Edge.h"
-#include "TrafficLightRouter.h"
+#include "06_TL_Router.h"
 #include "Net.h"
 #include "Hypertree.h"
 

@@ -1,7 +1,7 @@
 
 package c3po.ned;
 
-simple TrafficLightBase like TrafficLightInterface
+simple TL_Base
 {
     parameters:
         @class(VENTOS::TrafficLightBase);

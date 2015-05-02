@@ -1,7 +1,7 @@
 /****************************************************************************/
-/// @file    AddVehicle.h
+/// @file    TL_VANET.h
+/// @author  Philip Vo <foxvo@ucdavis.edu>
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
-/// @author  second author name
 /// @date    August 2013
 ///
 /****************************************************************************/
@@ -25,51 +25,48 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef VEHICLEADD
-#define VEHICLEADD
+#ifndef TRAFFICLIGHTVANET_H
+#define TRAFFICLIGHTVANET_H
 
-#include "BaseModule.h"
-#include "TraCI_Extend.h"
+#include <04_TL_Webster.h>
 
-#define SSTR( x ) dynamic_cast< std::ostringstream & >( (std::ostringstream() << std::dec << x ) ).str()
+using namespace std;
 
 namespace VENTOS {
 
-class AddVehicle : public BaseModule
+class TrafficLightVANET : public TrafficLightWebster
 {
-	public:
-		virtual ~AddVehicle();
-		virtual void initialize(int stage);
-        virtual void handleMessage(cMessage *msg);
-		virtual void finish();
-	    virtual void receiveSignal(cComponent *, simsignal_t, long);
+  public:
+    virtual ~TrafficLightVANET();
+    virtual void finish();
+    virtual void initialize(int);
+    virtual void handleMessage(cMessage *);
 
-	private:
+  protected:
+    void virtual executeFirstTimeStep();
+    void virtual executeEachTimeStep(bool);
 
-        // NED variables
-        cModule *nodePtr;   // pointer to the Node
-        TraCI_Extend *TraCI;  // pointer to the TraCI module
-        double terminate;
-        simsignal_t Signal_executeFirstTS;
-        bool on;
-        int mode;
-	    int totalVehicles;
-	    double lambda;
-	    int plnSize;
-	    double plnSpace;
+    // class variables
+    vector<double> DetectedTime;
+    cMessage* DetectEvt;
+    double detectFreq = 0.1;
 
-	    // methods
-        void Add();
+    double radius = 33;
+  //  Coord outerRing = (100 - radius - 2;
+  //  Coord innerRing  = radius + 2;
 
-	    void Scenario1();
-        void Scenario2();
-        void Scenario3();
-        void Scenario4();
-        void Scenario5();
-        void Scenario6();
-        void Scenario7();
-        void Scenario8();
-        void Scenario9();
+    // For VANET Controller:
+    map<string,LDid> lmap =
+    {
+        {"EC_2", EC_2}, {"EC_3", EC_3}, {"EC_4", EC_4},
+        {"NC_2", NC_2}, {"NC_3", NC_3}, {"NC_4", NC_4},
+        {"SC_2", SC_2}, {"SC_3", SC_3}, {"SC_4", SC_4},
+        {"WC_2", WC_2}, {"WC_3", WC_3}, {"WC_4", WC_4}
+    };
+
+  private:
+    void chooseNextInterval();
+    void chooseNextGreenInterval();
 };
 
 }

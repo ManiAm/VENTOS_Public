@@ -25,7 +25,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "TrafficLightRouter.h"
+#include "06_TL_Router.h"
 #include <iostream>
 #include <iomanip>
 #include <algorithm>
@@ -34,8 +34,7 @@ namespace VENTOS {
 
 Define_Module(VENTOS::TrafficLightRouter);
 
-Phase::Phase(double duration, string state):
-        duration(duration), state(state){}
+Phase::Phase(double duration, string state): duration(duration), state(state){}
 
 void Phase::print() // Print a phase
 {
@@ -210,7 +209,10 @@ void TrafficLightRouter::build(string id, string type, string programID, double 
 
 void TrafficLightRouter::initialize(int stage)
 {
-    TrafficLightBase::initialize(stage);
+    TrafficLightVANET::initialize(stage);
+
+    if(TLControlMode != 5)
+        return;
 
     if(id == "")
         return;
@@ -222,9 +224,6 @@ void TrafficLightRouter::initialize(int stage)
         LowDensityExtendTime = par("LowDensityExtendTime").doubleValue();
         MaxPhaseDuration = par("MaxPhaseDuration").doubleValue();
         MinPhaseDuration = par("MinPhaseDuration").doubleValue();
-
-        cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
-        TraCI = static_cast<TraCI_Extend *>(module);
 
         if(TLLogicMode == 1)
         {
@@ -272,7 +271,10 @@ void TrafficLightRouter::switchToPhase(int phase, double greenDuration, int yell
 
 void TrafficLightRouter::handleMessage(cMessage* msg)  //Internal messages to self
 {
-    TrafficLightBase::handleMessage(msg);
+    TrafficLightVANET::handleMessage(msg);
+
+    if(TLControlMode != 5)
+        return;
 
     if(!done)
     {
@@ -591,7 +593,10 @@ bool TrafficLightRouter::LowDensityVehicleCheck()    //This function assumes it'
 
 void TrafficLightRouter::finish()
 {
-    TrafficLightBase::finish();
+    TrafficLightVANET::finish();
+
+    if(TLControlMode != 5)
+        return;
 
     done = true;
     /*
@@ -648,7 +653,6 @@ int TrafficLightRouter::currentPhaseAtTime(double time, double* timeRemaining)
 
     return phase;
 }
-
 
 }
 

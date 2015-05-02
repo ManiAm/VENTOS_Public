@@ -1,10 +1,10 @@
 
 package c3po.ned;
 
-simple TrafficLightControl extends TrafficLightBase
+simple TL_Adaptive extends TL_LoopDetectors
 {
     parameters:
-        @class(VENTOS::TrafficLightControl);
+        @class(VENTOS::TrafficLightAdaptive);
         @display("i=block/network2");  
         
         double minGreenTime;
@@ -12,5 +12,4 @@ simple TrafficLightControl extends TrafficLightBase
         double yellowTime;
         double redTime;
         double passageTime;        
-        double detectorPos;
 }

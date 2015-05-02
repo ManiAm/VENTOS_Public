@@ -89,7 +89,7 @@ void ApplVBase::initialize(int stage)
         // get controller number from SUMO
         SUMOControllerNumber = TraCI->commandGetVehicleControllerNumber(SUMOvType);
 
-        // disable to speed-up simulation
+        // disable to speed-up the simulation since we do not need this
         //if(SUMOvType != "TypeObstacle")
             //findHost()->subscribe(mobilityStateChangedSignal, this);
 	}

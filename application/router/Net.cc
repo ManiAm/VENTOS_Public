@@ -40,7 +40,7 @@ Net::Net(string netBase, cModule* router)
     transitions = new map<string, vector<int>* >;
     turnTypes = new map<string, char>;
 
-    cModuleType* moduleType = cModuleType::get("c3po.ned.TrafficLightRouter");    //Get the TL module
+    cModuleType* moduleType = cModuleType::get("c3po.ned.TL_Router");    //Get the TL module
 
     string netFile = netBase + "/hello.net.xml";
 

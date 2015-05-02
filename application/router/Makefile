@@ -46,8 +46,7 @@ OBJS = \
     $O/Hypertree.o \
     $O/Vehicle.o \
     $O/Edge.o \
-    $O/Router.o \
-    $O/TrafficLightRouter.o
+    $O/Router.o
 
 # Message files
 MSGFILES =
@@ -154,10 +153,14 @@ $O/Net.o: Net.cc \
 	Net.h \
 	Node.h \
 	Router.h \
-	TrafficLightRouter.h \
 	Vehicle.h \
 	../traci/TraCI_Extend.h \
-	../trafficLight/TrafficLightBase.h \
+	../trafficLight/01_TL_Base.h \
+	../trafficLight/02_LoopDetectors.h \
+	../trafficLight/03_TL_Adaptive.h \
+	../trafficLight/04_TL_Webster.h \
+	../trafficLight/05_TL_VANET.h \
+	../trafficLight/06_TL_Router.h \
 	../vehicle/ApplV_01_Base.h \
 	../vehicle/ApplV_02_Beacon.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/BaseConnectionManager.h \
@@ -205,59 +208,14 @@ $O/Router.o: Router.cc \
 	Net.h \
 	Node.h \
 	Router.h \
-	TrafficLightRouter.h \
 	Vehicle.h \
 	../traci/TraCI_Extend.h \
-	../trafficLight/TrafficLightBase.h \
-	../vehicle/ApplV_01_Base.h \
-	../vehicle/ApplV_02_Beacon.h \
-	$(VEINS_PROJ)/src/veins/base/connectionManager/BaseConnectionManager.h \
-	$(VEINS_PROJ)/src/veins/base/connectionManager/ChannelAccess.h \
-	$(VEINS_PROJ)/src/veins/base/connectionManager/NicEntry.h \
-	$(VEINS_PROJ)/src/veins/base/modules/BaseApplLayer.h \
-	$(VEINS_PROJ)/src/veins/base/modules/BaseBattery.h \
-	$(VEINS_PROJ)/src/veins/base/modules/BaseLayer.h \
-	$(VEINS_PROJ)/src/veins/base/modules/BaseMobility.h \
-	$(VEINS_PROJ)/src/veins/base/modules/BaseModule.h \
-	$(VEINS_PROJ)/src/veins/base/modules/BaseWorldUtility.h \
-	$(VEINS_PROJ)/src/veins/base/modules/BatteryAccess.h \
-	$(VEINS_PROJ)/src/veins/base/utils/Coord.h \
-	$(VEINS_PROJ)/src/veins/base/utils/FWMath.h \
-	$(VEINS_PROJ)/src/veins/base/utils/FindModule.h \
-	$(VEINS_PROJ)/src/veins/base/utils/HostState.h \
-	$(VEINS_PROJ)/src/veins/base/utils/MiXiMDefs.h \
-	$(VEINS_PROJ)/src/veins/base/utils/Move.h \
-	$(VEINS_PROJ)/src/veins/base/utils/NetwToMacControlInfo.h \
-	$(VEINS_PROJ)/src/veins/base/utils/PassedMessage.h \
-	$(VEINS_PROJ)/src/veins/base/utils/SimpleAddress.h \
-	$(VEINS_PROJ)/src/veins/base/utils/miximkerneldefs.h \
-	$(VEINS_PROJ)/src/veins/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
-	$(VEINS_PROJ)/src/veins/modules/messages/WaveShortMessage_m.h \
-	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIBuffer.h \
-	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIColor.h \
-	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCICommandInterface.h \
-	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIConnection.h \
-	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIConstants.h \
-	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCICoord.h \
-	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIMobility.h \
-	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIScenarioManager.h \
-	$(VEINS_PROJ)/src/veins/modules/obstacle/Obstacle.h \
-	$(VEINS_PROJ)/src/veins/modules/obstacle/ObstacleControl.h \
-	$(VEINS_PROJ)/src/veins/modules/utility/Consts80211p.h \
-	$(VEINS_PROJ)/src/veins/modules/world/annotations/AnnotationManager.h
-$O/TrafficLightRouter.o: TrafficLightRouter.cc \
-	../global/Appl.h \
-	../msg/Messages_m.h \
-	Edge.h \
-	Histogram.h \
-	Hypertree.h \
-	Net.h \
-	Node.h \
-	Router.h \
-	TrafficLightRouter.h \
-	Vehicle.h \
-	../traci/TraCI_Extend.h \
-	../trafficLight/TrafficLightBase.h \
+	../trafficLight/01_TL_Base.h \
+	../trafficLight/02_LoopDetectors.h \
+	../trafficLight/03_TL_Adaptive.h \
+	../trafficLight/04_TL_Webster.h \
+	../trafficLight/05_TL_VANET.h \
+	../trafficLight/06_TL_Router.h \
 	../vehicle/ApplV_01_Base.h \
 	../vehicle/ApplV_02_Beacon.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/BaseConnectionManager.h \
