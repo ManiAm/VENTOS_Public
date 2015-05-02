@@ -118,13 +118,20 @@ class TraCI_Extend : public TraCIScenarioManager
         double commandGetLaneLength(string);
         double commandGetLaneMeanSpeed(string);
 
-        // CMD_GET_INDUCTIONLOOP_VARIABLE
+        // CMD_GET_INDUCTIONLOOP_VARIABLE (E1-Detectors)
         list<string> commandGetLoopDetectorList();
+        string commandGetLoopDetectorLaneID(string);
         uint32_t commandGetLoopDetectorCount(string);
         double commandGetLoopDetectorSpeed(string);
         list<string> commandGetLoopDetectorVehicleList(string);
         double commandGetLoopDetectorLastTime(string);
         vector<string> commandGetLoopDetectorVehicleData(string);
+
+        // CMD_GET_AREAL_DETECTOR_VARIABLE (E2-Detectors)
+        list<string> commandGetLaneAreaDetectorList();
+        uint32_t commandGetLaneAreaDetectorCount(string);
+        double commandGetLaneAreaDetectorSpeed(string);
+        list<string> commandGetLaneAreaDetectorVehicleList(string);
 
 		// CMD_GET_TL_VARIABLE
 		list<string> commandGetTLIDList();

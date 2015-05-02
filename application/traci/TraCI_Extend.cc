@@ -578,6 +578,12 @@ list<string> TraCI_Extend::commandGetLoopDetectorList()
 }
 
 
+string TraCI_Extend::commandGetLoopDetectorLaneID(string loopId)
+{
+    return getCommandInterface()->genericGetString(CMD_GET_INDUCTIONLOOP_VARIABLE, loopId, 0x51, RESPONSE_GET_INDUCTIONLOOP_VARIABLE);
+}
+
+
 uint32_t TraCI_Extend::commandGetLoopDetectorCount(string loopId)
 {
     return getCommandInterface()->genericGetInt(CMD_GET_INDUCTIONLOOP_VARIABLE, loopId, 0x01, RESPONSE_GET_INDUCTIONLOOP_VARIABLE);
@@ -674,6 +680,35 @@ vector<string> TraCI_Extend::commandGetLoopDetectorVehicleData(string loopId)
 
     return res;
 }
+
+
+// ###############################
+// CMD_GET_AREAL_DETECTOR_VARIABLE
+// ###############################
+
+list<string> TraCI_Extend::commandGetLaneAreaDetectorList()
+{
+    return getCommandInterface()->genericGetStringList(0xad, "", 0x00, 0xbd);
+}
+
+
+uint32_t TraCI_Extend::commandGetLaneAreaDetectorCount(string loopId)
+{
+    return getCommandInterface()->genericGetInt(0xad, loopId, 0x01, 0xbd);
+}
+
+
+double TraCI_Extend::commandGetLaneAreaDetectorSpeed(string loopId)
+{
+    return getCommandInterface()->genericGetDouble(0xad, loopId, 0x11, 0xbd);
+}
+
+
+list<string> TraCI_Extend::commandGetLaneAreaDetectorVehicleList(string loopId)
+{
+    return getCommandInterface()->genericGetStringList(0xad, loopId, 0x12, 0xbd);
+}
+
 
 
 // ###################
@@ -1220,8 +1255,6 @@ void TraCI_Extend::commandSetTLPhaseIndex(string TLid, int value)
 {
     uint8_t variableId = TL_PHASE_INDEX;
     uint8_t variableType = TYPE_INTEGER;
-
-    //TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_TL_VARIABLE, TraCIBuffer() << static_cast<uint8_t>(TL_PHASE_INDEX) << TLid << static_cast<uint8_t>(TYPE_INTEGER) << value);
 
     TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_TL_VARIABLE, TraCIBuffer() << variableId << TLid << variableType << value);
     ASSERT(buf.eof());
