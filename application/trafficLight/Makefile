@@ -40,13 +40,14 @@ O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Object files for local .cc and .msg files
 OBJS = \
-    $O/03_TL_Adaptive.o \
-    $O/06_TL_Router.o \
     $O/02_LoopDetectors.o \
+    $O/04_TL_Adaptive.o \
+    $O/06_TL_VANET.o \
     $O/01_TL_Base.o \
-    $O/07_TL_Manager.o \
-    $O/05_TL_VANET.o \
-    $O/04_TL_Webster.o
+    $O/07_TL_Router.o \
+    $O/08_TL_Manager.o \
+    $O/03_TL_Fixed.o \
+    $O/05_TL_Webster.o
 
 # Message files
 MSGFILES =
@@ -189,13 +190,13 @@ $O/02_LoopDetectors.o: 02_LoopDetectors.cc \
 	$(VEINS_PROJ)/src/veins/modules/obstacle/Obstacle.h \
 	$(VEINS_PROJ)/src/veins/modules/obstacle/ObstacleControl.h \
 	$(VEINS_PROJ)/src/veins/modules/world/annotations/AnnotationManager.h
-$O/03_TL_Adaptive.o: 03_TL_Adaptive.cc \
+$O/03_TL_Fixed.o: 03_TL_Fixed.cc \
 	../global/Appl.h \
 	../msg/Messages_m.h \
 	../traci/TraCI_Extend.h \
 	01_TL_Base.h \
 	02_LoopDetectors.h \
-	03_TL_Adaptive.h \
+	03_TL_Fixed.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/NicEntry.h \
 	$(VEINS_PROJ)/src/veins/base/modules/BaseModule.h \
@@ -217,14 +218,14 @@ $O/03_TL_Adaptive.o: 03_TL_Adaptive.cc \
 	$(VEINS_PROJ)/src/veins/modules/obstacle/Obstacle.h \
 	$(VEINS_PROJ)/src/veins/modules/obstacle/ObstacleControl.h \
 	$(VEINS_PROJ)/src/veins/modules/world/annotations/AnnotationManager.h
-$O/04_TL_Webster.o: 04_TL_Webster.cc \
+$O/04_TL_Adaptive.o: 04_TL_Adaptive.cc \
 	../global/Appl.h \
 	../msg/Messages_m.h \
 	../traci/TraCI_Extend.h \
 	01_TL_Base.h \
 	02_LoopDetectors.h \
-	03_TL_Adaptive.h \
-	04_TL_Webster.h \
+	03_TL_Fixed.h \
+	04_TL_Adaptive.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/NicEntry.h \
 	$(VEINS_PROJ)/src/veins/base/modules/BaseModule.h \
@@ -246,15 +247,15 @@ $O/04_TL_Webster.o: 04_TL_Webster.cc \
 	$(VEINS_PROJ)/src/veins/modules/obstacle/Obstacle.h \
 	$(VEINS_PROJ)/src/veins/modules/obstacle/ObstacleControl.h \
 	$(VEINS_PROJ)/src/veins/modules/world/annotations/AnnotationManager.h
-$O/05_TL_VANET.o: 05_TL_VANET.cc \
+$O/05_TL_Webster.o: 05_TL_Webster.cc \
 	../global/Appl.h \
 	../msg/Messages_m.h \
 	../traci/TraCI_Extend.h \
 	01_TL_Base.h \
 	02_LoopDetectors.h \
-	03_TL_Adaptive.h \
-	04_TL_Webster.h \
-	05_TL_VANET.h \
+	03_TL_Fixed.h \
+	04_TL_Adaptive.h \
+	05_TL_Webster.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/NicEntry.h \
 	$(VEINS_PROJ)/src/veins/base/modules/BaseModule.h \
@@ -276,7 +277,38 @@ $O/05_TL_VANET.o: 05_TL_VANET.cc \
 	$(VEINS_PROJ)/src/veins/modules/obstacle/Obstacle.h \
 	$(VEINS_PROJ)/src/veins/modules/obstacle/ObstacleControl.h \
 	$(VEINS_PROJ)/src/veins/modules/world/annotations/AnnotationManager.h
-$O/06_TL_Router.o: 06_TL_Router.cc \
+$O/06_TL_VANET.o: 06_TL_VANET.cc \
+	../global/Appl.h \
+	../msg/Messages_m.h \
+	../traci/TraCI_Extend.h \
+	01_TL_Base.h \
+	02_LoopDetectors.h \
+	03_TL_Fixed.h \
+	04_TL_Adaptive.h \
+	05_TL_Webster.h \
+	06_TL_VANET.h \
+	$(VEINS_PROJ)/src/veins/base/connectionManager/BaseConnectionManager.h \
+	$(VEINS_PROJ)/src/veins/base/connectionManager/NicEntry.h \
+	$(VEINS_PROJ)/src/veins/base/modules/BaseModule.h \
+	$(VEINS_PROJ)/src/veins/base/modules/BaseWorldUtility.h \
+	$(VEINS_PROJ)/src/veins/base/utils/Coord.h \
+	$(VEINS_PROJ)/src/veins/base/utils/FWMath.h \
+	$(VEINS_PROJ)/src/veins/base/utils/FindModule.h \
+	$(VEINS_PROJ)/src/veins/base/utils/HostState.h \
+	$(VEINS_PROJ)/src/veins/base/utils/MiXiMDefs.h \
+	$(VEINS_PROJ)/src/veins/base/utils/miximkerneldefs.h \
+	$(VEINS_PROJ)/src/veins/modules/messages/WaveShortMessage_m.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIBuffer.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIColor.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCICommandInterface.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIConnection.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIConstants.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCICoord.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIScenarioManager.h \
+	$(VEINS_PROJ)/src/veins/modules/obstacle/Obstacle.h \
+	$(VEINS_PROJ)/src/veins/modules/obstacle/ObstacleControl.h \
+	$(VEINS_PROJ)/src/veins/modules/world/annotations/AnnotationManager.h
+$O/07_TL_Router.o: 07_TL_Router.cc \
 	../global/Appl.h \
 	../msg/Messages_m.h \
 	../router/Edge.h \
@@ -289,10 +321,11 @@ $O/06_TL_Router.o: 06_TL_Router.cc \
 	../traci/TraCI_Extend.h \
 	01_TL_Base.h \
 	02_LoopDetectors.h \
-	03_TL_Adaptive.h \
-	04_TL_Webster.h \
-	05_TL_VANET.h \
-	06_TL_Router.h \
+	03_TL_Fixed.h \
+	04_TL_Adaptive.h \
+	05_TL_Webster.h \
+	06_TL_VANET.h \
+	07_TL_Router.h \
 	../vehicle/ApplV_01_Base.h \
 	../vehicle/ApplV_02_Beacon.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/BaseConnectionManager.h \
@@ -329,7 +362,7 @@ $O/06_TL_Router.o: 06_TL_Router.cc \
 	$(VEINS_PROJ)/src/veins/modules/obstacle/ObstacleControl.h \
 	$(VEINS_PROJ)/src/veins/modules/utility/Consts80211p.h \
 	$(VEINS_PROJ)/src/veins/modules/world/annotations/AnnotationManager.h
-$O/07_TL_Manager.o: 07_TL_Manager.cc \
+$O/08_TL_Manager.o: 08_TL_Manager.cc \
 	../global/Appl.h \
 	../msg/Messages_m.h \
 	../router/Edge.h \
@@ -342,11 +375,12 @@ $O/07_TL_Manager.o: 07_TL_Manager.cc \
 	../traci/TraCI_Extend.h \
 	01_TL_Base.h \
 	02_LoopDetectors.h \
-	03_TL_Adaptive.h \
-	04_TL_Webster.h \
-	05_TL_VANET.h \
-	06_TL_Router.h \
-	07_TL_Manager.h \
+	03_TL_Fixed.h \
+	04_TL_Adaptive.h \
+	05_TL_Webster.h \
+	06_TL_VANET.h \
+	07_TL_Router.h \
+	08_TL_Manager.h \
 	../vehicle/ApplV_01_Base.h \
 	../vehicle/ApplV_02_Beacon.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/BaseConnectionManager.h \

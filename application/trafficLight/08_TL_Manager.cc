@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    TL_Manager.h
+/// @file    TL_Manager.cc
 /// @author  Philip Vo <foxvo@ucdavis.edu>
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @date    August 2013
@@ -25,29 +25,68 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef TRAFFICLIGHTMANAGER_H
-#define TRAFFICLIGHTMANAGER_H
-
-#include "06_TL_Router.h"
-
-using namespace std;
+#include <08_TL_Manager.h>
 
 namespace VENTOS {
 
-class TrafficLightManager : public TrafficLightRouter
+Define_Module(VENTOS::TrafficLightManager);
+
+
+TrafficLightManager::~TrafficLightManager()
 {
-  public:
-    virtual ~TrafficLightManager();
-    virtual void finish();
-    virtual void initialize(int);
-    virtual void handleMessage(cMessage *);
-
-  protected:
-    void virtual executeFirstTimeStep();
-    void virtual executeEachTimeStep(bool);
-
-};
 
 }
 
-#endif
+
+void TrafficLightManager::initialize(int stage)
+{
+    TrafficLightRouter::initialize(stage);
+
+    if(stage == 0)
+    {
+
+    }
+}
+
+
+void TrafficLightManager::finish()
+{
+    TrafficLightRouter::finish();
+
+}
+
+
+void TrafficLightManager::handleMessage(cMessage *msg)
+{
+    TrafficLightRouter::handleMessage(msg);
+
+}
+
+
+void TrafficLightManager::executeFirstTimeStep()
+{
+    // call parent
+    TrafficLightRouter::executeFirstTimeStep();
+
+    // check if the TLControlMode number is valid?
+    if(TLControlMode < 0 || TLControlMode > 5)
+    {
+        error("Invalid TLControlMode!");
+    }
+}
+
+
+void TrafficLightManager::executeEachTimeStep(bool simulationDone)
+{
+    // call parent
+    TrafficLightRouter::executeEachTimeStep(simulationDone);
+
+    //    if (TLControlMode == 1 || TLControlMode == 2)
+    //        return;
+    //    else if (TLControlMode == 3)
+    //    {
+    //
+    //    }
+}
+
+}

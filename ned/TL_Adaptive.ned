@@ -1,7 +1,7 @@
 
 package c3po.ned;
 
-simple TL_Adaptive extends TL_LoopDetectors
+simple TL_Adaptive extends TL_Fixed
 {
     parameters:
         @class(VENTOS::TrafficLightAdaptive);

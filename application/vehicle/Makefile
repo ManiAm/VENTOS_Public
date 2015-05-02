@@ -160,10 +160,11 @@ $O/AddVehicle.o: AddVehicle.cc \
 	../traci/TraCI_Extend.h \
 	../trafficLight/01_TL_Base.h \
 	../trafficLight/02_LoopDetectors.h \
-	../trafficLight/03_TL_Adaptive.h \
-	../trafficLight/04_TL_Webster.h \
-	../trafficLight/05_TL_VANET.h \
-	../trafficLight/06_TL_Router.h \
+	../trafficLight/03_TL_Fixed.h \
+	../trafficLight/04_TL_Adaptive.h \
+	../trafficLight/05_TL_Webster.h \
+	../trafficLight/06_TL_VANET.h \
+	../trafficLight/07_TL_Router.h \
 	AddVehicle.h \
 	ApplV_01_Base.h \
 	ApplV_02_Beacon.h \
@@ -293,10 +294,11 @@ $O/ApplV_03_System.o: ApplV_03_System.cc \
 	../traci/TraCI_Extend.h \
 	../trafficLight/01_TL_Base.h \
 	../trafficLight/02_LoopDetectors.h \
-	../trafficLight/03_TL_Adaptive.h \
-	../trafficLight/04_TL_Webster.h \
-	../trafficLight/05_TL_VANET.h \
-	../trafficLight/06_TL_Router.h \
+	../trafficLight/03_TL_Fixed.h \
+	../trafficLight/04_TL_Adaptive.h \
+	../trafficLight/05_TL_Webster.h \
+	../trafficLight/06_TL_VANET.h \
+	../trafficLight/07_TL_Router.h \
 	ApplV_01_Base.h \
 	ApplV_02_Beacon.h \
 	ApplV_03_System.h \
@@ -347,10 +349,11 @@ $O/ApplV_04_AID.o: ApplV_04_AID.cc \
 	../traci/TraCI_Extend.h \
 	../trafficLight/01_TL_Base.h \
 	../trafficLight/02_LoopDetectors.h \
-	../trafficLight/03_TL_Adaptive.h \
-	../trafficLight/04_TL_Webster.h \
-	../trafficLight/05_TL_VANET.h \
-	../trafficLight/06_TL_Router.h \
+	../trafficLight/03_TL_Fixed.h \
+	../trafficLight/04_TL_Adaptive.h \
+	../trafficLight/05_TL_Webster.h \
+	../trafficLight/06_TL_VANET.h \
+	../trafficLight/07_TL_Router.h \
 	ApplV_01_Base.h \
 	ApplV_02_Beacon.h \
 	ApplV_03_System.h \
@@ -402,10 +405,11 @@ $O/ApplV_05_PlatoonFormed.o: ApplV_05_PlatoonFormed.cc \
 	../traci/TraCI_Extend.h \
 	../trafficLight/01_TL_Base.h \
 	../trafficLight/02_LoopDetectors.h \
-	../trafficLight/03_TL_Adaptive.h \
-	../trafficLight/04_TL_Webster.h \
-	../trafficLight/05_TL_VANET.h \
-	../trafficLight/06_TL_Router.h \
+	../trafficLight/03_TL_Fixed.h \
+	../trafficLight/04_TL_Adaptive.h \
+	../trafficLight/05_TL_Webster.h \
+	../trafficLight/06_TL_VANET.h \
+	../trafficLight/07_TL_Router.h \
 	ApplV_01_Base.h \
 	ApplV_02_Beacon.h \
 	ApplV_03_System.h \
@@ -458,10 +462,11 @@ $O/ApplV_06_PlatoonMg.o: ApplV_06_PlatoonMg.cc \
 	../traci/TraCI_Extend.h \
 	../trafficLight/01_TL_Base.h \
 	../trafficLight/02_LoopDetectors.h \
-	../trafficLight/03_TL_Adaptive.h \
-	../trafficLight/04_TL_Webster.h \
-	../trafficLight/05_TL_VANET.h \
-	../trafficLight/06_TL_Router.h \
+	../trafficLight/03_TL_Fixed.h \
+	../trafficLight/04_TL_Adaptive.h \
+	../trafficLight/05_TL_Webster.h \
+	../trafficLight/06_TL_VANET.h \
+	../trafficLight/07_TL_Router.h \
 	ApplV_01_Base.h \
 	ApplV_02_Beacon.h \
 	ApplV_03_System.h \
@@ -515,10 +520,11 @@ $O/ApplV_06a_Merge.o: ApplV_06a_Merge.cc \
 	../traci/TraCI_Extend.h \
 	../trafficLight/01_TL_Base.h \
 	../trafficLight/02_LoopDetectors.h \
-	../trafficLight/03_TL_Adaptive.h \
-	../trafficLight/04_TL_Webster.h \
-	../trafficLight/05_TL_VANET.h \
-	../trafficLight/06_TL_Router.h \
+	../trafficLight/03_TL_Fixed.h \
+	../trafficLight/04_TL_Adaptive.h \
+	../trafficLight/05_TL_Webster.h \
+	../trafficLight/06_TL_VANET.h \
+	../trafficLight/07_TL_Router.h \
 	ApplV_01_Base.h \
 	ApplV_02_Beacon.h \
 	ApplV_03_System.h \
@@ -572,10 +578,11 @@ $O/ApplV_06b_Split.o: ApplV_06b_Split.cc \
 	../traci/TraCI_Extend.h \
 	../trafficLight/01_TL_Base.h \
 	../trafficLight/02_LoopDetectors.h \
-	../trafficLight/03_TL_Adaptive.h \
-	../trafficLight/04_TL_Webster.h \
-	../trafficLight/05_TL_VANET.h \
-	../trafficLight/06_TL_Router.h \
+	../trafficLight/03_TL_Fixed.h \
+	../trafficLight/04_TL_Adaptive.h \
+	../trafficLight/05_TL_Webster.h \
+	../trafficLight/06_TL_VANET.h \
+	../trafficLight/07_TL_Router.h \
 	ApplV_01_Base.h \
 	ApplV_02_Beacon.h \
 	ApplV_03_System.h \
@@ -629,10 +636,11 @@ $O/ApplV_06c_Common.o: ApplV_06c_Common.cc \
 	../traci/TraCI_Extend.h \
 	../trafficLight/01_TL_Base.h \
 	../trafficLight/02_LoopDetectors.h \
-	../trafficLight/03_TL_Adaptive.h \
-	../trafficLight/04_TL_Webster.h \
-	../trafficLight/05_TL_VANET.h \
-	../trafficLight/06_TL_Router.h \
+	../trafficLight/03_TL_Fixed.h \
+	../trafficLight/04_TL_Adaptive.h \
+	../trafficLight/05_TL_Webster.h \
+	../trafficLight/06_TL_VANET.h \
+	../trafficLight/07_TL_Router.h \
 	ApplV_01_Base.h \
 	ApplV_02_Beacon.h \
 	ApplV_03_System.h \
@@ -686,10 +694,11 @@ $O/ApplV_06d_Entry.o: ApplV_06d_Entry.cc \
 	../traci/TraCI_Extend.h \
 	../trafficLight/01_TL_Base.h \
 	../trafficLight/02_LoopDetectors.h \
-	../trafficLight/03_TL_Adaptive.h \
-	../trafficLight/04_TL_Webster.h \
-	../trafficLight/05_TL_VANET.h \
-	../trafficLight/06_TL_Router.h \
+	../trafficLight/03_TL_Fixed.h \
+	../trafficLight/04_TL_Adaptive.h \
+	../trafficLight/05_TL_Webster.h \
+	../trafficLight/06_TL_VANET.h \
+	../trafficLight/07_TL_Router.h \
 	ApplV_01_Base.h \
 	ApplV_02_Beacon.h \
 	ApplV_03_System.h \
@@ -743,10 +752,11 @@ $O/ApplV_06e_LeaderLeave.o: ApplV_06e_LeaderLeave.cc \
 	../traci/TraCI_Extend.h \
 	../trafficLight/01_TL_Base.h \
 	../trafficLight/02_LoopDetectors.h \
-	../trafficLight/03_TL_Adaptive.h \
-	../trafficLight/04_TL_Webster.h \
-	../trafficLight/05_TL_VANET.h \
-	../trafficLight/06_TL_Router.h \
+	../trafficLight/03_TL_Fixed.h \
+	../trafficLight/04_TL_Adaptive.h \
+	../trafficLight/05_TL_Webster.h \
+	../trafficLight/06_TL_VANET.h \
+	../trafficLight/07_TL_Router.h \
 	ApplV_01_Base.h \
 	ApplV_02_Beacon.h \
 	ApplV_03_System.h \
@@ -800,10 +810,11 @@ $O/ApplV_06f_FollowerLeave.o: ApplV_06f_FollowerLeave.cc \
 	../traci/TraCI_Extend.h \
 	../trafficLight/01_TL_Base.h \
 	../trafficLight/02_LoopDetectors.h \
-	../trafficLight/03_TL_Adaptive.h \
-	../trafficLight/04_TL_Webster.h \
-	../trafficLight/05_TL_VANET.h \
-	../trafficLight/06_TL_Router.h \
+	../trafficLight/03_TL_Fixed.h \
+	../trafficLight/04_TL_Adaptive.h \
+	../trafficLight/05_TL_Webster.h \
+	../trafficLight/06_TL_VANET.h \
+	../trafficLight/07_TL_Router.h \
 	ApplV_01_Base.h \
 	ApplV_02_Beacon.h \
 	ApplV_03_System.h \
@@ -857,10 +868,11 @@ $O/ApplV_06g_Dissolve.o: ApplV_06g_Dissolve.cc \
 	../traci/TraCI_Extend.h \
 	../trafficLight/01_TL_Base.h \
 	../trafficLight/02_LoopDetectors.h \
-	../trafficLight/03_TL_Adaptive.h \
-	../trafficLight/04_TL_Webster.h \
-	../trafficLight/05_TL_VANET.h \
-	../trafficLight/06_TL_Router.h \
+	../trafficLight/03_TL_Fixed.h \
+	../trafficLight/04_TL_Adaptive.h \
+	../trafficLight/05_TL_Webster.h \
+	../trafficLight/06_TL_VANET.h \
+	../trafficLight/07_TL_Router.h \
 	ApplV_01_Base.h \
 	ApplV_02_Beacon.h \
 	ApplV_03_System.h \
@@ -914,10 +926,11 @@ $O/ApplV_07_Coordinator.o: ApplV_07_Coordinator.cc \
 	../traci/TraCI_Extend.h \
 	../trafficLight/01_TL_Base.h \
 	../trafficLight/02_LoopDetectors.h \
-	../trafficLight/03_TL_Adaptive.h \
-	../trafficLight/04_TL_Webster.h \
-	../trafficLight/05_TL_VANET.h \
-	../trafficLight/06_TL_Router.h \
+	../trafficLight/03_TL_Fixed.h \
+	../trafficLight/04_TL_Adaptive.h \
+	../trafficLight/05_TL_Webster.h \
+	../trafficLight/06_TL_VANET.h \
+	../trafficLight/07_TL_Router.h \
 	ApplV_01_Base.h \
 	ApplV_02_Beacon.h \
 	ApplV_03_System.h \
@@ -972,10 +985,11 @@ $O/ApplV_08_Manager.o: ApplV_08_Manager.cc \
 	../traci/TraCI_Extend.h \
 	../trafficLight/01_TL_Base.h \
 	../trafficLight/02_LoopDetectors.h \
-	../trafficLight/03_TL_Adaptive.h \
-	../trafficLight/04_TL_Webster.h \
-	../trafficLight/05_TL_VANET.h \
-	../trafficLight/06_TL_Router.h \
+	../trafficLight/03_TL_Fixed.h \
+	../trafficLight/04_TL_Adaptive.h \
+	../trafficLight/05_TL_Webster.h \
+	../trafficLight/06_TL_VANET.h \
+	../trafficLight/07_TL_Router.h \
 	ApplV_01_Base.h \
 	ApplV_02_Beacon.h \
 	ApplV_03_System.h \

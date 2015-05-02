@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    TL_VANET.h
+/// @file    TL_Adaptive.h
 /// @author  Philip Vo <foxvo@ucdavis.edu>
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @date    August 2013
@@ -25,19 +25,19 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef TRAFFICLIGHTVANET_H
-#define TRAFFICLIGHTVANET_H
+#ifndef TRAFFICLIGHTADAPTIVE_H
+#define TRAFFICLIGHTADAPTIVE_H
 
-#include <04_TL_Webster.h>
+#include <03_TL_Fixed.h>
 
 using namespace std;
 
 namespace VENTOS {
 
-class TrafficLightVANET : public TrafficLightWebster
+class TrafficLightAdaptive : public TrafficLightFixed
 {
   public:
-    virtual ~TrafficLightVANET();
+    virtual ~TrafficLightAdaptive();
     virtual void finish();
     virtual void initialize(int);
     virtual void handleMessage(cMessage *);
@@ -46,22 +46,37 @@ class TrafficLightVANET : public TrafficLightWebster
     void virtual executeFirstTimeStep();
     void virtual executeEachTimeStep(bool);
 
+    // NED variables
+    double minGreenTime;
+    double maxGreenTime;
+    double yellowTime;
+    double redTime;
+    double passageTime;
+
     // class variables
-    vector<double> DetectedTime;
-    cMessage* DetectEvt;
-    double detectFreq = 0.1;
+    double intervalOffSet;
+    double intervalElapseTime;
+    string currentInterval;
+    string nextGreenInterval;
+    cMessage* ChangeEvt;
 
-    double radius = 33;
-  //  Coord outerRing = (100 - radius - 2;
-  //  Coord innerRing  = radius + 2;
+    string phase1_5 = "rrrrGrrrrrrrrrGrrrrrrrrr";
+    string phase2_5 = "gGgGGrrrrrrrrrrrrrrrrrrG";
+    string phase1_6 = "rrrrrrrrrrgGgGGrrrrrrGrr";
+    string phase2_6 = "gGgGrrrrrrgGgGrrrrrrrGrG";
 
-    // For VANET Controller:
-    map<string,LDid> lmap =
+    string phase3_7 = "rrrrrrrrrGrrrrrrrrrGrrrr";
+    string phase3_8 = "rrrrrrrrrrrrrrrgGgGGrrGr";
+    string phase4_7 = "rrrrrgGgGGrrrrrrrrrrGrrr";
+    string phase4_8 = "rrrrrgGgGrrrrrrgGgGrGrGr";
+
+    // loop detectors id
+    enum LDid
     {
-        {"EC_2", EC_2}, {"EC_3", EC_3}, {"EC_4", EC_4},
-        {"NC_2", NC_2}, {"NC_3", NC_3}, {"NC_4", NC_4},
-        {"SC_2", SC_2}, {"SC_3", SC_3}, {"SC_4", SC_4},
-        {"WC_2", WC_2}, {"WC_3", WC_3}, {"WC_4", WC_4}
+        EC_2, EC_3, EC_4,
+        NC_2, NC_3, NC_4,
+        SC_2, SC_3, SC_4,
+        WC_2, WC_3, WC_4,
     };
 
   private:

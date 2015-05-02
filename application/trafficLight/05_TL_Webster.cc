@@ -1,6 +1,5 @@
 /****************************************************************************/
-/// @file    TL_Manager.cc
-/// @author  Philip Vo <foxvo@ucdavis.edu>
+/// @file    TL_Webster.cc
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @date    August 2013
 ///
@@ -25,75 +24,67 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <07_TL_Manager.h>
+#include <05_TL_Webster.h>
 
 namespace VENTOS {
 
-Define_Module(VENTOS::TrafficLightManager);
+Define_Module(VENTOS::TrafficLightWebster);
 
 
-TrafficLightManager::~TrafficLightManager()
+TrafficLightWebster::~TrafficLightWebster()
 {
 
 }
 
 
-void TrafficLightManager::initialize(int stage)
+void TrafficLightWebster::initialize(int stage)
 {
-    TrafficLightRouter::initialize(stage);
+    TrafficLightAdaptive::initialize(stage);
+
+    if(TLControlMode != 3)
+        return;
 
     if(stage == 0)
     {
+        cout << endl << "Dynamic Webster traffic signal control ... " << endl << endl;
 
     }
 }
 
 
-void TrafficLightManager::finish()
+void TrafficLightWebster::finish()
 {
-    TrafficLightRouter::finish();
+    TrafficLightAdaptive::finish();
 
 }
 
 
-void TrafficLightManager::handleMessage(cMessage *msg)
+void TrafficLightWebster::handleMessage(cMessage *msg)
 {
-    TrafficLightRouter::handleMessage(msg);
+    TrafficLightAdaptive::handleMessage(msg);
 
 }
 
 
-void TrafficLightManager::executeFirstTimeStep()
+void TrafficLightWebster::executeFirstTimeStep()
 {
     // call parent
-    TrafficLightRouter::executeFirstTimeStep();
+    TrafficLightAdaptive::executeFirstTimeStep();
 
-    // check if the TLControlMode number is valid?
-    if(TLControlMode < 0 || TLControlMode > 5)
-    {
-        error("Invalid TLControlMode!");
-    }
-
-    // fixed-time traffic signal control
-    if (TLControlMode == 1)
-    {
-        for (list<string>::iterator TL = TLList.begin(); TL != TLList.end(); TL++)
-            TraCI->commandSetTLProgram(*TL, "fix-time");
-    }
 }
 
 
-void TrafficLightManager::executeEachTimeStep(bool simulationDone)
+void TrafficLightWebster::executeEachTimeStep(bool simulationDone)
 {
     // call parent
-    TrafficLightRouter::executeEachTimeStep(simulationDone);
+    TrafficLightAdaptive::executeEachTimeStep(simulationDone);
 
-    //    if (TLControlMode == 1 || TLControlMode == 2)
-    //        return;
-    //    else if (TLControlMode == 3)
-    //    {
-    //
-    //    }
+}
+
+
+void TrafficLightWebster::doWebsterControl()
+{
+
 }
 
 }

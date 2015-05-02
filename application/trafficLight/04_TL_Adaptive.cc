@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    TL_VANET.cc
+/// @file    TL_Adaptive.cc
 /// @author  Philip Vo <foxvo@ucdavis.edu>
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @date    August 2013
@@ -25,24 +25,24 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <05_TL_VANET.h>
+#include <04_TL_Adaptive.h>
 
 namespace VENTOS {
 
-Define_Module(VENTOS::TrafficLightVANET);
+Define_Module(VENTOS::TrafficLightAdaptive);
 
 
-TrafficLightVANET::~TrafficLightVANET()
+TrafficLightAdaptive::~TrafficLightAdaptive()
 {
 
 }
 
 
-void TrafficLightVANET::initialize(int stage)
+void TrafficLightAdaptive::initialize(int stage)
 {
-    TrafficLightWebster::initialize(stage);
+    TrafficLightFixed::initialize(stage);
 
-    if(TLControlMode != 4)
+    if(TLControlMode != 2)
         return;
 
     if(stage == 0)
@@ -61,27 +61,23 @@ void TrafficLightVANET::initialize(int stage)
         ChangeEvt = new cMessage("ChangeEvt", 1);
         scheduleAt(simTime().dbl() + intervalOffSet, ChangeEvt);
 
-        DetectedTime.assign(lmap.size(), 0.0);
-        DetectEvt = new cMessage("DetectEvt", 1);
-        scheduleAt(simTime().dbl() + detectFreq, DetectEvt);
-
-        cout << endl << "VANET traffic signal control ... \n\n";
+        cout << endl << "Adaptive-time traffic signal control ..."  << endl << endl;
     }
 }
 
 
-void TrafficLightVANET::finish()
+void TrafficLightAdaptive::finish()
 {
-    TrafficLightWebster::finish();
+    TrafficLightFixed::finish();
 
 }
 
 
-void TrafficLightVANET::handleMessage(cMessage *msg)
+void TrafficLightAdaptive::handleMessage(cMessage *msg)
 {
-    TrafficLightWebster::handleMessage(msg);
+    TrafficLightFixed::handleMessage(msg);
 
-    if(TLControlMode != 4)
+    if(TLControlMode != 2)
         return;
 
     if (msg == ChangeEvt)
@@ -91,42 +87,16 @@ void TrafficLightVANET::handleMessage(cMessage *msg)
         // Schedule next light change event:
         scheduleAt(simTime().dbl() + intervalOffSet, ChangeEvt);
     }
-    else if (msg == DetectEvt)
-    {
-        list<string> VehList = TraCI->commandGetVehicleList();
-        for(list<string>::iterator V = VehList.begin(); V != VehList.end(); V++)
-        {
-            Coord pos = TraCI->commandGetVehiclePos(*V);
-
-            // If within radius of traffic light:
-            if ((pos.x > 65 && pos.x < 69) || (pos.x > 131 && pos.x < 135) ||
-                    (pos.y > 65 && pos.y < 69) || (pos.y > 131 && pos.y < 135))
-            {
-                // If in lane of interest (heading towards TL):
-                string lane = TraCI->commandGetVehicleLaneId(*V);
-                if (lane == "EC_2" || lane == "EC_3" || lane == "EC_4" ||
-                        lane == "NC_2" || lane == "NC_3" || lane == "NC_4" ||
-                        lane == "SC_2" || lane == "SC_3" || lane == "SC_4" ||
-                        lane == "WC_2" || lane == "WC_3" || lane == "WC_4")
-                {
-                    DetectedTime[lmap[lane]] = simTime().dbl();
-                }
-            }
-        }
-
-        // Schedule next detection event:
-        scheduleAt(simTime().dbl() + detectFreq, DetectEvt);
-    }
 }
 
 
-void TrafficLightVANET::executeFirstTimeStep()
+void TrafficLightAdaptive::executeFirstTimeStep()
 {
     // call parent
-    TrafficLightWebster::executeFirstTimeStep();
+    TrafficLightFixed::executeFirstTimeStep();
 
     // set the program and initial TL state in all TLs
-    if(TLControlMode == 4)
+    if(TLControlMode == 2)
     {
         for (list<string>::iterator TL = TLList.begin(); TL != TLList.end(); TL++)
         {
@@ -141,14 +111,14 @@ void TrafficLightVANET::executeFirstTimeStep()
 }
 
 
-void TrafficLightVANET::executeEachTimeStep(bool simulationDone)
+void TrafficLightAdaptive::executeEachTimeStep(bool simulationDone)
 {
     // call parent
-    TrafficLightWebster::executeEachTimeStep(simulationDone);
+    TrafficLightFixed::executeEachTimeStep(simulationDone);
 }
 
 
-void TrafficLightVANET::chooseNextInterval()
+void TrafficLightAdaptive::chooseNextInterval()
 {
     intervalElapseTime += intervalOffSet;
 
@@ -156,6 +126,7 @@ void TrafficLightVANET::chooseNextInterval()
     {
         currentInterval = "red";
 
+        // change all 'y' to 'r'
         string str = TraCI->commandGetTLState("C");
         string nextInterval = "";
         for(char& c : str) {
@@ -188,20 +159,27 @@ void TrafficLightVANET::chooseNextInterval()
 }
 
 
-void TrafficLightVANET::chooseNextGreenInterval()
+void TrafficLightAdaptive::chooseNextGreenInterval()
 {
-    // get adjusted VANET detector times
-    vector<double> LastDetectedTime;
+    // get loop detector information
+    vector<double> LastActuatedTime;
 
-    for (vector<double>::iterator it = DetectedTime.begin(); it != DetectedTime.end(); it++)
-        LastDetectedTime.push_back(simTime().dbl() - (*it));
+    // If maxGreenTime met, don't care for actuator values,
+    // so push passageTime so that conditions fail and move
+    // to red interval:
+    if (intervalElapseTime >= maxGreenTime)
+        for (list<string>::iterator LD = LDList.begin(); LD != LDList.end(); LD++)
+            LastActuatedTime.push_back(passageTime);
+    else
+        for (list<string>::iterator LD = LDList.begin(); LD != LDList.end(); LD++)
+            LastActuatedTime.push_back(TraCI->commandGetLoopDetectorLastTime(*LD));
 
     // Do proper transition:
     if (currentInterval == phase1_5)
     {
-        if (LastDetectedTime[NC_4] < passageTime && LastDetectedTime[SC_4] < passageTime)
+        if (LastActuatedTime[NC_4] < passageTime && LastActuatedTime[SC_4] < passageTime)
         {
-            double smallest = ((LastDetectedTime[NC_4] < LastDetectedTime[SC_4]) ? LastDetectedTime[NC_4] : LastDetectedTime[SC_4]);
+            double smallest = ((LastActuatedTime[NC_4] < LastActuatedTime[SC_4]) ? LastActuatedTime[NC_4] : LastActuatedTime[SC_4]);
             intervalOffSet = ceil(passageTime - smallest);
 
             double extendTime = intervalElapseTime + intervalOffSet;
@@ -211,7 +189,7 @@ void TrafficLightVANET::chooseNextGreenInterval()
 
             cout << "Extending green time by: " << intervalOffSet << "s" << endl;
         }
-        else if (LastDetectedTime[NC_4] < passageTime)
+        else if (LastActuatedTime[NC_4] < passageTime)
         {
             nextGreenInterval = phase2_5;
             string nextInterval = "rrrrGrrrrrrrrryrrrrrrrrr";
@@ -222,7 +200,7 @@ void TrafficLightVANET::chooseNextGreenInterval()
             intervalElapseTime = 0.0;
             intervalOffSet =  yellowTime;
         }
-        else if (LastDetectedTime[SC_4] < passageTime)
+        else if (LastActuatedTime[SC_4] < passageTime)
         {
             nextGreenInterval = phase1_6;
             string nextInterval = "rrrryrrrrrrrrrGrrrrrrrrr";
@@ -247,9 +225,9 @@ void TrafficLightVANET::chooseNextGreenInterval()
     }
     else if (currentInterval == phase2_5)
     {
-        if (LastDetectedTime[NC_4] < passageTime)
+        if (LastActuatedTime[NC_4] < passageTime)
         {
-            intervalOffSet = ceil(passageTime - LastDetectedTime[NC_4]);
+            intervalOffSet = ceil(passageTime - LastActuatedTime[NC_4]);
 
             double extendTime = intervalElapseTime + intervalOffSet;
             // Never extend past maxGreenTime:
@@ -272,9 +250,9 @@ void TrafficLightVANET::chooseNextGreenInterval()
     }
     else if (currentInterval == phase1_6)
     {
-        if (LastDetectedTime[SC_4] < passageTime)
+        if (LastActuatedTime[SC_4] < passageTime)
         {
-            intervalOffSet = ceil(passageTime - LastDetectedTime[SC_4]);
+            intervalOffSet = ceil(passageTime - LastActuatedTime[SC_4]);
 
             double extendTime = intervalElapseTime + intervalOffSet;
             // Never extend past maxGreenTime:
@@ -297,11 +275,11 @@ void TrafficLightVANET::chooseNextGreenInterval()
     }
     else if (currentInterval == phase2_6)
     {
-        if (LastDetectedTime[NC_2] < passageTime || LastDetectedTime[NC_3] < passageTime ||
-                LastDetectedTime[SC_2] < passageTime || LastDetectedTime[SC_3] < passageTime)
+        if (LastActuatedTime[NC_2] < passageTime || LastActuatedTime[NC_3] < passageTime ||
+                LastActuatedTime[SC_2] < passageTime || LastActuatedTime[SC_3] < passageTime)
         {
-            double smallest1 = ((LastDetectedTime[NC_2] < LastDetectedTime[SC_2]) ? LastDetectedTime[NC_2] : LastDetectedTime[SC_2]);
-            double smallest2 = ((LastDetectedTime[NC_3] < LastDetectedTime[SC_3]) ? LastDetectedTime[NC_3] : LastDetectedTime[SC_3]);
+            double smallest1 = ((LastActuatedTime[NC_2] < LastActuatedTime[SC_2]) ? LastActuatedTime[NC_2] : LastActuatedTime[SC_2]);
+            double smallest2 = ((LastActuatedTime[NC_3] < LastActuatedTime[SC_3]) ? LastActuatedTime[NC_3] : LastActuatedTime[SC_3]);
             double smallest = ((smallest1 < smallest2) ? smallest1 : smallest2);
             intervalOffSet = ceil(passageTime - smallest);
 
@@ -326,9 +304,9 @@ void TrafficLightVANET::chooseNextGreenInterval()
     }
     else if (currentInterval == phase3_7)
     {
-        if (LastDetectedTime[WC_4] < passageTime && LastDetectedTime[EC_4] < passageTime)
+        if (LastActuatedTime[WC_4] < passageTime && LastActuatedTime[EC_4] < passageTime)
         {
-            double smallest = ((LastDetectedTime[WC_4] < LastDetectedTime[EC_4]) ? LastDetectedTime[WC_4] : LastDetectedTime[EC_4]);
+            double smallest = ((LastActuatedTime[WC_4] < LastActuatedTime[EC_4]) ? LastActuatedTime[WC_4] : LastActuatedTime[EC_4]);
             intervalOffSet = ceil(passageTime - smallest);
 
             double extendTime = intervalElapseTime + intervalOffSet;
@@ -338,7 +316,7 @@ void TrafficLightVANET::chooseNextGreenInterval()
 
             cout << "Extending green time by: " << intervalOffSet << "s" << endl;
         }
-        else if (LastDetectedTime[WC_4] < passageTime)
+        else if (LastActuatedTime[WC_4] < passageTime)
         {
             nextGreenInterval = phase3_8;
             string nextInterval = "rrrrrrrrryrrrrrrrrrGrrrr";
@@ -349,7 +327,7 @@ void TrafficLightVANET::chooseNextGreenInterval()
             intervalElapseTime = 0.0;
             intervalOffSet =  yellowTime;
         }
-        else if (LastDetectedTime[EC_4] < passageTime)
+        else if (LastActuatedTime[EC_4] < passageTime)
         {
             nextGreenInterval = phase4_7;
             string nextInterval = "rrrrrrrrrGrrrrrrrrryrrrr";
@@ -374,9 +352,9 @@ void TrafficLightVANET::chooseNextGreenInterval()
     }
     else if (currentInterval == phase3_8)
     {
-        if (LastDetectedTime[WC_4] < passageTime)
+        if (LastActuatedTime[WC_4] < passageTime)
         {
-            intervalOffSet = ceil(passageTime - LastDetectedTime[WC_4]);
+            intervalOffSet = ceil(passageTime - LastActuatedTime[WC_4]);
 
             double extendTime = intervalElapseTime + intervalOffSet;
             // Never extend past maxGreenTime:
@@ -399,9 +377,9 @@ void TrafficLightVANET::chooseNextGreenInterval()
     }
     else if (currentInterval == phase4_7)
     {
-        if (LastDetectedTime[EC_4] < passageTime)
+        if (LastActuatedTime[EC_4] < passageTime)
         {
-            intervalOffSet = ceil(passageTime - LastDetectedTime[EC_4]);
+            intervalOffSet = ceil(passageTime - LastActuatedTime[EC_4]);
 
             double extendTime = intervalElapseTime + intervalOffSet;
             // Never extend past maxGreenTime:
@@ -424,11 +402,11 @@ void TrafficLightVANET::chooseNextGreenInterval()
     }
     else if (currentInterval == phase4_8)
     {
-        if (LastDetectedTime[WC_2] < passageTime || LastDetectedTime[WC_3] < passageTime ||
-                LastDetectedTime[EC_2] < passageTime || LastDetectedTime[EC_3] < passageTime)
+        if (LastActuatedTime[WC_2] < passageTime || LastActuatedTime[WC_3] < passageTime ||
+                LastActuatedTime[EC_2] < passageTime || LastActuatedTime[EC_3] < passageTime)
         {
-            double smallest1 = ((LastDetectedTime[WC_2] < LastDetectedTime[EC_2]) ? LastDetectedTime[WC_2] : LastDetectedTime[EC_2]);
-            double smallest2 = ((LastDetectedTime[WC_3] < LastDetectedTime[EC_3]) ? LastDetectedTime[WC_3] : LastDetectedTime[EC_3]);
+            double smallest1 = ((LastActuatedTime[WC_2] < LastActuatedTime[EC_2]) ? LastActuatedTime[WC_2] : LastActuatedTime[EC_2]);
+            double smallest2 = ((LastActuatedTime[WC_3] < LastActuatedTime[EC_3]) ? LastActuatedTime[WC_3] : LastActuatedTime[EC_3]);
             double smallest = ((smallest1 < smallest2) ? smallest1 : smallest2);
             intervalOffSet = ceil(passageTime - smallest);
 

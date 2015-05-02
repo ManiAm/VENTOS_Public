@@ -167,10 +167,11 @@ $O/TraCI_App.o: TraCI_App.cc \
 	TraCI_Extend.h \
 	../trafficLight/01_TL_Base.h \
 	../trafficLight/02_LoopDetectors.h \
-	../trafficLight/03_TL_Adaptive.h \
-	../trafficLight/04_TL_Webster.h \
-	../trafficLight/05_TL_VANET.h \
-	../trafficLight/06_TL_Router.h \
+	../trafficLight/03_TL_Fixed.h \
+	../trafficLight/04_TL_Adaptive.h \
+	../trafficLight/05_TL_Webster.h \
+	../trafficLight/06_TL_VANET.h \
+	../trafficLight/07_TL_Router.h \
 	../vehicle/ApplV_01_Base.h \
 	../vehicle/ApplV_02_Beacon.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/BaseConnectionManager.h \

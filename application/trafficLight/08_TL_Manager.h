@@ -1,5 +1,6 @@
 /****************************************************************************/
-/// @file    TL_Webster.h
+/// @file    TL_Manager.h
+/// @author  Philip Vo <foxvo@ucdavis.edu>
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @date    August 2013
 ///
@@ -24,19 +25,19 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef TRAFFICLIGHTWEBSTER_H
-#define TRAFFICLIGHTWEBSTER_H
+#ifndef TRAFFICLIGHTMANAGER_H
+#define TRAFFICLIGHTMANAGER_H
 
-#include <03_TL_Adaptive.h>
+#include "07_TL_Router.h"
 
 using namespace std;
 
 namespace VENTOS {
 
-class TrafficLightWebster : public TrafficLightAdaptive
+class TrafficLightManager : public TrafficLightRouter
 {
   public:
-    virtual ~TrafficLightWebster();
+    virtual ~TrafficLightManager();
     virtual void finish();
     virtual void initialize(int);
     virtual void handleMessage(cMessage *);
@@ -44,9 +45,6 @@ class TrafficLightWebster : public TrafficLightAdaptive
   protected:
     void virtual executeFirstTimeStep();
     void virtual executeEachTimeStep(bool);
-
-  private:
-    void doWebsterControl();
 
 };
 

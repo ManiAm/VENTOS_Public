@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    TL_Webster.cc
+/// @file    TL_Fixed.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @date    August 2013
 ///
@@ -24,67 +24,29 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <04_TL_Webster.h>
+#ifndef TRAFFICLIGHTFIXED_H
+#define TRAFFICLIGHTFIXED_H
+
+#include "02_LoopDetectors.h"
+
+using namespace std;
 
 namespace VENTOS {
 
-Define_Module(VENTOS::TrafficLightWebster);
-
-
-TrafficLightWebster::~TrafficLightWebster()
+class TrafficLightFixed : public LoopDetectors
 {
+  public:
+    virtual ~TrafficLightFixed();
+    virtual void finish();
+    virtual void initialize(int);
+    virtual void handleMessage(cMessage *);
+
+  protected:
+    void virtual executeFirstTimeStep();
+    void virtual executeEachTimeStep(bool);
+
+};
 
 }
 
-
-void TrafficLightWebster::initialize(int stage)
-{
-    TrafficLightAdaptive::initialize(stage);
-
-    if(TLControlMode != 3)
-        return;
-
-    if(stage == 0)
-    {
-
-
-    }
-}
-
-
-void TrafficLightWebster::finish()
-{
-    TrafficLightAdaptive::finish();
-
-}
-
-
-void TrafficLightWebster::handleMessage(cMessage *msg)
-{
-    TrafficLightAdaptive::handleMessage(msg);
-
-}
-
-
-void TrafficLightWebster::executeFirstTimeStep()
-{
-    // call parent
-    TrafficLightAdaptive::executeFirstTimeStep();
-
-}
-
-
-void TrafficLightWebster::executeEachTimeStep(bool simulationDone)
-{
-    // call parent
-    TrafficLightAdaptive::executeEachTimeStep(simulationDone);
-
-}
-
-
-void TrafficLightWebster::doWebsterControl()
-{
-
-}
-
-}
+#endif
