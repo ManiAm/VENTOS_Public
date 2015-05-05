@@ -68,12 +68,16 @@ public:
     double getCost();
 
     //Pathing variables
-    Histogram* travelTimes;
+    LaneCosts* travelTimes;
     bool visited;
     double curCost;
     Edge* best;
 
-    Edge(string idVal, Node* fromVal, Node* toVal, int priorityVal, vector<Lane*> lanesVec, Histogram* hist);
+    //Removal algorithm
+    bool disabled;
+
+public:
+    Edge(string idVal, Node* fromVal, Node* toVal, int priorityVal, vector<Lane*> lanesVec, LaneCosts* hist);
 };
 
 ostream& operator<<(ostream& os, Edge &rhs);

@@ -36,19 +36,19 @@ using namespace std;
 
 namespace VENTOS {
 
-class Histogram
+class LaneCosts
 {
 public:
     map<int, int> data;
     int count;
     double average;
-    int minimum;
+    //int minimum;
+
+    LaneCosts();  // constructor
 
     void insert(int d, int LaneCostsMode);
     double percentAt(int d);
-    friend ostream& operator<<(ostream& os, Histogram& h);
-
-    Histogram();
+    friend ostream& operator<<(ostream& os, LaneCosts& h);
 };
 
 }

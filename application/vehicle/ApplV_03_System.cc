@@ -109,6 +109,7 @@ void ApplVSystem::finish()
     ApplVBeacon::finish();
 
     if(ev.isGUI() && requestRoutes) cout << SUMOvID << " took " << simTime().dbl() - entryTime << " seconds to complete its route." << endl;
+    router->vehicleEndTimesFile << SUMOvID << " " << simTime().dbl() << endl;
 
     simsignal_t Signal_system = registerSignal("system"); //Prepare to send a system message
     nodePtr->emit(Signal_system, new systemData("", "", SUMOvID, 2, string("system")));
@@ -144,13 +145,20 @@ void ApplVSystem::receiveSignal(cComponent *source, simsignal_t signalID, cObjec
     if(signalID == Signal_router)   //If the signal is of type router
     {
         systemData *s = static_cast<systemData *>(obj); //Cast to usable data
-
-        if(string(s->getSender()) == "router" and string(s->getRecipient()) == SUMOvID and (requestReroutes or numReroutes == 0)) //If sent from the router and to this vehicle
+        if(string(s->getSender()) == "router" and string(s->getRecipient()) == SUMOvID) //If sent from the router and to this vehicle
         {
-            numReroutes++;
-            //if(ev.isGUI()) cout << "Setting new route for " << SUMOvID << " at t=" << simTime().dbl() << endl;
-            list<string> sRoute = s->getInfo(); //Copy the info from the signal (breaks if we don't do this, for some reason)
-            TraCI->vehicleSetRoute(s->getRecipient(), sRoute);  //Update this vehicle's path with the proper info
+            if((s->getRequestType() == 0 || s->getRequestType() == 1) && (requestReroutes or numReroutes == 0)) //If sent from the router and to this vehicle
+            {
+                numReroutes++;
+                //cout << "Setting new route for " << SUMOvID << " at t=" << simTime().dbl() << endl;
+                list<string> sRoute = s->getInfo(); //Copy the info from the signal (breaks if we don't do this, for some reason)
+                if (*sRoute.begin() != "failed")
+                    TraCI->vehicleSetRoute(s->getRecipient(), sRoute);  //Update this vehicle's path with the proper info
+            }
+            else if(s->getRequestType() == 2)//later use
+            {
+
+            }
         }
     }
 }

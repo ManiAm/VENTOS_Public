@@ -225,6 +225,7 @@ void TrafficLightRouter::initialize(int stage)
         MaxPhaseDuration = par("MaxPhaseDuration").doubleValue();
         MinPhaseDuration = par("MinPhaseDuration").doubleValue();
 
+        currentPhase = 0;
         if(TLLogicMode == 1)
         {
             TLEvent = new cMessage("tl evt");   //Create a new internal message
@@ -306,6 +307,9 @@ void TrafficLightRouter::SynchronousMessage()
     {
         switch(TLLogicMode)
         {
+            case 1:
+                switchToPhase(currentPhase + 2);
+                break;
             case 2:
                 LowDensityRecalculate();
                 break;
@@ -345,18 +349,19 @@ void TrafficLightRouter::HighDensityRecalculate()
             for(vector<int>::iterator it = (*lane)->greenPhases.begin(); it != (*lane)->greenPhases.end(); it++)    //Each element of greenPhases is a phase that lets that lane move
             {
                 phaseVehicleCounts[*it] += vehCount;    //Add the number of vehicles on that lane to that phase
-                total += vehCount; //And add to the total
+                total += vehCount; //And add to the totals
                     //If we  want each vehicle to contribute exactly 1 weight, add vehCount/greenPhases.size() instead.
             }
         }
     }
     if(total > 0)  //If there are vehicles on the lane
     {
+        cout << "For TL " << id << ": " << endl;
         for(unsigned int i = 0; i < phases.size(); i++)  //For each phase
         {
             if(i % 2 == 0)  //Ignore the odd (transitional) phases
             {
-                double portion = (phaseVehicleCounts[i]/total) * 2;         //The portion of time allotted to that lane should be how many vehicles
+                double portion = (phaseVehicleCounts[i]/total) * 2 ;         //The portion of time allotted to that lane should be how many vehicles
                 double duration = portion * nonTransitionalCycleDuration;   //can move during that phase divided by the total number of vehicles
                 if(duration < 3)    //If the duration is too short, set it to a minimum
                     duration = 3;
@@ -543,23 +548,6 @@ bool TrafficLightRouter::LowDensityVehicleCheck()    //This function assumes it'
      * Add a totaloffset double to each variable, which can be added to any call working on tl logic
      * Reset to previous duration
      */
-
-    /*
-    int phase = net->TLs[id]->currentPhase;
-    string phaseState = net->TLs[id]->phases[phase]->state;
-    for(Edge*& inEdge : net->nodes[id]->inEdges)
-    {
-        for(Edge*& outEdge : net->nodes[id]->outEdges)
-        {
-            for(Connection*& c : net->connections[inEdge->id + outEdge->id])
-            {
-                if(state[c->linkIndex] == 'g' || state[c->linkIndex] == 'G')
-                {
-
-                }
-            }
-        }
-    }*/
 
     vector<Edge*>& edges = net->nodes[id]->inEdges; //Get all edges going into the TL
     for(vector<Edge*>::iterator edge = edges.begin(); edge != edges.end(); edge++)  //For each edge

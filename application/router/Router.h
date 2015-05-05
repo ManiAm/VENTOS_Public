@@ -32,6 +32,7 @@
 #include <vector>
 #include <list>
 #include <fstream>
+#include <set>
 
 #include "Node.h"
 #include "Edge.h"
@@ -52,6 +53,7 @@ class Edge;
 class TrafficLightRouter;
 class Net;
 class Hypertree;
+struct EdgeRemoval;
 
 string key(Node* n1, Node* n2, int time);
 
@@ -60,6 +62,7 @@ class Router : public BaseModule    //Responsible for routing cars in our system
 public:
     ~Router();
     virtual void initialize(int stage);
+    virtual void handleMessage(cMessage* msg);
     virtual void receiveSignal(cComponent *, simsignal_t, cObject *);
     virtual void receiveSignal(cComponent *, simsignal_t, long);
 
@@ -67,17 +70,28 @@ public:
     int currentVehicleCount;
     int totalVehicleCount;
     double nonReroutingVehiclePercent;
-    vector<string>* nonReroutingVehicles;
+    set<string>* nonReroutingVehicles;
     Net* net;
     void sendRerouteSignal(string vid);     //Forces a vehicle to reroute
     bool UseHysteresis;
 
-    std::map<string, Histogram> edgeHistograms;
+    ofstream vehicleEndTimesFile;
+    std::map<string, LaneCosts> edgeHistograms; // should be public
 
 protected:
     boost::filesystem::path VENTOS_FullPath;
     boost::filesystem::path SUMO_Path;
     boost::filesystem::path SUMO_FullPath;
+
+    //Edge-removal Alg
+    cMessage* routerMsg;
+    void issueStop(string vehID, string edgeID);
+    void issueStart(string vehID, string edgeID);
+    void checkEdgeRemovals();
+    vector<EdgeRemoval> EdgeRemovals;
+    set<string> RemovedVehicles;
+    bool UseAccidents;
+    int AccidentCheckInterval;
 
     map<string, Hypertree*> hypertreeMemo;
 

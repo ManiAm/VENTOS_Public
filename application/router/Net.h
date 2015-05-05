@@ -66,7 +66,6 @@ public:
 class Net
 {
 public:
-
     map<string, TrafficLightRouter*> TLs;
     map<string, Edge*> edges;
     map<string, Node*> nodes;

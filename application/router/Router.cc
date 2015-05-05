@@ -26,14 +26,22 @@
 //
 
 #include "Router.h"
+#include <stdlib.h>
 
 namespace VENTOS {
 
 Define_Module(VENTOS::Router);
 
-vector<string>* randomUniqueVehiclesInRange(int numInts, int rangeMin, int rangeMax)
+bool fexists(const char *filename)
+{
+    ifstream ifile(filename);
+    return ifile;
+}
+
+set<string>* randomUniqueVehiclesInRange(int numInts, int rangeMin, int rangeMax)
 {             //Generates n random unique ints in range [rangeMin, rangeMax)
               //Not a very efficient implementation, but it shouldn't matter much
+
     vector<int>* initialInts = new vector<int>;
     for(int i = rangeMin; i < rangeMax; i++)
         initialInts->push_back(i);
@@ -41,12 +49,25 @@ vector<string>* randomUniqueVehiclesInRange(int numInts, int rangeMin, int range
     if(rangeMin < rangeMax)
         random_shuffle(initialInts->begin(), initialInts->end());
 
-    vector<string>* randInts = new vector<string>;
+    set<string>* randInts = new set<string>;
     for(int i = 0; i < numInts; i++)
-        randInts->push_back(SSTR(initialInts->at(i) + 1));
+        randInts->insert(SSTR(initialInts->at(i) + 1));
 
     return randInts;
 }
+
+string key(Node* n1, Node* n2, int time)
+{
+    return n1->id + "#" + n2->id + "#" + SSTR(time);
+}
+
+struct EdgeRemoval
+{
+    string edge;
+    int start;
+    int end;
+    EdgeRemoval(string edge, int start, int end):edge(edge), start(start), end(end){}
+};
 
 class routerCompare // Comparator object for getRoute weighting
 {
@@ -56,17 +77,6 @@ public:
         return n1->curCost > n2->curCost;
     }
 };
-
-string key(Node* n1, Node* n2, int time)
-{
-    return n1->id + "#" + n2->id + "#" + SSTR(time);
-}
-
-bool fexists(const char *filename)
-{
-    ifstream ifile(filename);
-    return ifile;
-}
 
 Router::~Router()
 {
@@ -104,11 +114,8 @@ void Router::initialize(int stage)
         currentVehicleCount = totalVehicleCount;
         nonReroutingVehiclePercent = par("nonReroutingVehiclePercent").doubleValue();
 
-        // register signals
-        Signal_system = registerSignal("system");
-        simulation.getSystemModule()->subscribe("system", this);
-        Signal_executeFirstTS = registerSignal("executeFirstTS");
-        simulation.getSystemModule()->subscribe("executeFirstTS", this);
+        UseAccidents = par("UseAccidents").boolValue();
+        AccidentCheckInterval = par("AccidentCheckInterval").longValue();
 
         // get the file paths
         VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
@@ -120,12 +127,37 @@ void Router::initialize(int stage)
             error("SUMO directory is not valid! Check it again.");
         }
 
-        string netBase = SUMO_FullPath.string();
-        net = new Net(netBase, this->getParentModule());
+        // register signals
+        Signal_system = registerSignal("system");
+        simulation.getSystemModule()->subscribe("system", this);
+        Signal_executeFirstTS = registerSignal("executeFirstTS");
+        simulation.getSystemModule()->subscribe("executeFirstTS", this);
+
+        if(UseAccidents)
+        {
+            ifstream edgeRemovals(SUMO_FullPath.string() + "/EdgeRemovals.txt");
+            string line;
+            while(getline(edgeRemovals, line))
+            {
+                stringstream ls(line);
+                string edgeID;
+                int start;
+                int end;
+                ls >> edgeID >> start >> end;
+                EdgeRemovals.push_back(EdgeRemoval(edgeID, start, end));
+            }
+            if(EdgeRemovals.size() > 0)
+            {
+                routerMsg = new cMessage("routerMsg");   //Create a new internal message
+                scheduleAt(AccidentCheckInterval, routerMsg); //Schedule them to start sending
+            }
+        }
+
+        net = new Net(SUMO_FullPath.string(), this->getParentModule());
 
         parseHistogramFile();
 
-    } // if stage == 0
+    }
     else if (stage == 1)
     {
         int numNonRerouting = (double)totalVehicleCount * nonReroutingVehiclePercent;
@@ -138,11 +170,11 @@ void Router::initialize(int stage)
         string NonReroutingFileName = VENTOS_FullPath.string() + "results/router/" + filePrefixNoTL.str() + "_nonRerouting" + ".txt";
         if(fexists(NonReroutingFileName.c_str()))
         {
-            nonReroutingVehicles = new vector<string>();
+            nonReroutingVehicles = new set<string>();
             ifstream NonReroutingFile(NonReroutingFileName);
             string vehNum;
             while(NonReroutingFile >> vehNum)
-                nonReroutingVehicles->push_back(vehNum);
+                nonReroutingVehicles->insert(vehNum);
             NonReroutingFile.close();
         }
         else
@@ -150,12 +182,13 @@ void Router::initialize(int stage)
             nonReroutingVehicles = randomUniqueVehiclesInRange(numNonRerouting, 0, totalVehicleCount);
             ofstream NonReroutingFile;
             NonReroutingFile.open(NonReroutingFileName.c_str());
-            for(int i = 0; i < numNonRerouting; i++)
-                NonReroutingFile << nonReroutingVehicles->at(i) << endl;
+            for(string veh : *nonReroutingVehicles)
+                NonReroutingFile << veh << endl;
             NonReroutingFile.close();
         }
 
-        collectVehicleTimeData = par("collectVehicleTimeData").boolValue();
+        string endTimeFile = VENTOS_FullPath.string() + "results/router/" + filePrefix.str() + "_endTimes.txt";
+        vehicleEndTimesFile.open(endTimeFile.c_str());
 
         if(collectVehicleTimeData)
         {
@@ -163,6 +196,14 @@ void Router::initialize(int stage)
             vehicleTravelTimesFile.open(TravelTimesFileName.c_str());  //Open the edgeWeights file
         }
     }
+}
+
+void Router::handleMessage(cMessage* msg)
+{
+    checkEdgeRemovals();
+
+    routerMsg = new cMessage("routerMsg");   //Create a new internal message
+    scheduleAt(simTime().dbl() + AccidentCheckInterval, routerMsg); //Schedule them to start sending
 }
 
 void Router::receiveSignal(cComponent *source, simsignal_t signalID, long i)
@@ -174,10 +215,175 @@ void Router::receiveSignal(cComponent *source, simsignal_t signalID, long i)
         if(LaneCostsMode > 0)
             laneCostsData();
 
-        // if simulation is about to be ended
+        // if simulation is about to end
         if(i && LaneCostsMode == 1)
             HistogramsToFile();
     }
+}
+
+void Router::receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj)
+{
+    if(signalID == Signal_system) // Check if it's the right kind of symbol q
+    {
+        systemData *s = static_cast<systemData *>(obj); // Cast to a systemData class
+        if(string(s->getRecipient()) == "system")  // If this is the intended target
+        {
+            if(s->getRequestType() == 0)    // Request with dijkstra's routing
+            {
+                list<string> info = getRoute(net->edges[s->getEdge()], net->nodes[s->getNode()], s->getSender());
+                simsignal_t Signal_router = registerSignal("router");// Prepare to send a router message
+                // Systemdata wants string edge, string node, string sender, int requestType, string recipient, list<string> edgeList
+                nodePtr->emit(Signal_router, new systemData("", "", "router", 0, s->getSender(), info));
+            }// If request type is 0
+            else if(s->getRequestType() == 1)   // Request with new routing
+            {
+                simsignal_t Signal_router = registerSignal("router");// Prepare to send a router message
+                list<string> info;
+                Edge* curEdge = net->edges[s->getEdge()];
+                info.push_back(curEdge->id);
+
+                Node* targetNode = net->nodes[s->getNode()];
+
+                Hypertree* ht;
+                // Return memoization only if the vehicle has traveled less than X intersections, otherwise recalculate a new one
+                if(hypertreeMemo.find(s->getNode()) == hypertreeMemo.end() /*&&  if old hyperpath is less than 60 second old*/)
+                    hypertreeMemo[s->getNode()] = buildHypertree(simTime().dbl(), net->nodes[targetNode->id]);
+                ht = hypertreeMemo[s->getNode()];
+                string nextEdge = ht->transition[key(curEdge->from, curEdge->to, simTime().dbl())];
+                if(nextEdge != "end")
+                    info.push_back(nextEdge);
+                nodePtr->emit(Signal_router, new systemData("", "", "router", 1, s->getSender(), info));
+            }
+            else if(s->getRequestType() == 2)   //Vehicle is done message
+            {
+                currentVehicleCount--;
+                string SUMOvID = s->getSender();
+                if(ev.isGUI()) cout << "(" << currentVehicleCount << " left)" << endl;
+                int currentRun = ev.getConfigEx()->getActiveRunNumber();
+                if(collectVehicleTimeData)
+                {
+                    vehicleTravelTimes[SUMOvID] = simTime().dbl() - vehicleTravelTimes[SUMOvID];
+                    vehicleTravelTimesFile << SUMOvID << " " << vehicleTravelTimes[SUMOvID] << endl;
+                }
+                if(currentVehicleCount == 0)
+                {
+                    if(collectVehicleTimeData)
+                    {
+                        vehicleTravelTimesFile.close();
+
+                        double avg = 0;
+                        int count = 0;
+                        for(map<string, int>::iterator it = vehicleTravelTimes.begin(); it != vehicleTravelTimes.end(); it++)
+                        {
+                            count++;
+                            avg += it->second;
+                        }
+                        avg /= count;
+                        if(ev.isGUI()) cout << "Average vehicle travel time was " << avg << " seconds." << endl;
+
+                        vehicleTravelTimesFile.close();
+
+                        int TLMode = (*net->TLs.begin()).second->TLLogicMode;
+                        ostringstream filePrefix;
+                        filePrefix << totalVehicleCount << "_" << nonReroutingVehiclePercent << "_" << TLMode;
+
+                        ofstream outfile;
+                        string fileName = VENTOS_FullPath.string() + "results/router/AverageTravelTimes.txt";
+                        outfile.open(fileName.c_str(), ofstream::app);  //Open the edgeWeights file
+                        outfile << filePrefix.str() <<": " << avg << " " << simTime().dbl() << endl;
+                        outfile.close();
+                    }
+
+                    for(map<string, TrafficLightRouter*>::iterator tl = net->TLs.begin(); tl != net->TLs.end(); tl++)
+                        (*tl).second->finish();
+                }
+            }
+            else if(s->getRequestType() == 3 and collectVehicleTimeData)   //Vehicle is created message
+            {
+                string SUMOvID = s->getSender();
+                vehicleTravelTimes[SUMOvID] = simTime().dbl();
+            }
+        }// if recipient is right
+    }// if Signal_system
+    delete obj;
+}
+
+void Router::issueStop(string vehID, string edgeID)
+{
+    Edge& edge = *net->edges[edgeID];
+    int randLane = rand() % edge.lanes.size();
+    Lane* lane = edge.lanes[randLane];
+    //TraCI->commandVehicleStop(vehID, lane->id, lane->length - 1, randLane, 100000, 2);
+}
+
+void Router::issueStart(string vehID, string edgeID)
+{
+    Edge& edge = *net->edges[edgeID];
+    int randLane = rand() % edge.lanes.size();
+    Lane* lane = edge.lanes[randLane];
+    //TraCI->commandVehicleStop(vehID, edgeID, lane->length - 1, randLane, 0, 2);
+}
+
+void Router::checkEdgeRemovals()
+{
+    int curTime = simTime().dbl();
+
+    for(EdgeRemoval& er : EdgeRemovals)
+    {
+        if(er.start <= curTime && er.end > curTime) //If edge is currently removed
+        {
+            Edge& edge = *net->edges[er.edge];
+            edge.disabled = true;   //mark it as disabled
+
+            for(Lane* lane : edge.lanes) //For each lane
+            {
+                list<string> vehicleIDs = TraCI->laneGetLastStepVehicleIDs(lane->id); //Get all vehicles on that lane
+                for(string veh : vehicleIDs)    //For each vehicle
+                {
+                    if(find(RemovedVehicles.begin(), RemovedVehicles.end(), veh) == RemovedVehicles.end()) //if vehicle isn't yet paused
+                    {
+                        issueStop(veh, edge.id); //pause vehicle
+                        RemovedVehicles.insert(veh); //Add vehicle to paused vehicles
+                    }
+                }
+            }
+
+            Node& sourceNode = *edge.from;
+            for(Edge* incEdge : sourceNode.inEdges) //For each edge leading into the source node
+            {
+                for(Lane* lane : incEdge->lanes) //For each lane
+                {
+                    list<string> vehicleIDs = TraCI->laneGetLastStepVehicleIDs(lane->id); //Get all vehicles on that lane
+                    for(string veh : vehicleIDs) //For each vehicle on lane
+                    {
+                        if(find(nonReroutingVehicles->begin(), nonReroutingVehicles->end(), veh) == nonReroutingVehicles->end())
+                        {
+                            //if vehicle is routing
+                            sendRerouteSignal(veh); //force vehicle to reroute
+                        }
+                    }
+                }
+            }
+        }
+        else //if edge not currently removed
+        {
+            Edge& edge = *net->edges[er.edge];
+            if(edge.disabled == true)
+            {
+                edge.disabled = false;
+                for(Lane* lane : edge.lanes) //For each lane
+                {
+                    list<string> vehicleIDs = TraCI->laneGetLastStepVehicleIDs(lane->id); //Get all vehicles on that lane
+                    for(string veh : vehicleIDs)    //For each vehicle
+                    {
+                        issueStart(veh, edge.id); //Resume vehicle
+                        RemovedVehicles.erase(veh); //And remove it from the set of paused vehicles
+                    }
+                }
+            }
+        }
+    }
+
 }
 
 void Router::parseHistogramFile()
@@ -189,7 +395,7 @@ void Router::parseHistogramFile()
     string edgeName;
     while(inFile >> edgeName)   //While there are more edges to read
     {
-        Histogram* hist = &edgeHistograms[edgeName];//Get the histogram for the edge
+        LaneCosts* hist = &edgeHistograms[edgeName];//Get the histogram for the edge
         inFile >> hist->count;                      //And read in the number of data points
         int edgeCount = 0;
         while(edgeCount < hist->count)  //While we haven't read in all the data points
@@ -213,11 +419,11 @@ void Router::HistogramsToFile()
     string fileName = SUMO_FullPath.string() + "/edgeWeights.txt";
     outFile.open(fileName.c_str()); //Open the edgeWeights file
 
-    for(map<string, Histogram>::iterator it = edgeHistograms.begin(); it != edgeHistograms.end(); it++) //For each histogram
+    for(map<string, LaneCosts>::iterator it = edgeHistograms.begin(); it != edgeHistograms.end(); it++) //For each histogram
     {
         if(it->first != "") //If it has a name (empty-ID histograms occur when vehicles update in an intersection)
         {
-            Histogram* hist = &it->second;
+            LaneCosts* hist = &it->second;
             outFile << it->first << " " << hist->count << endl; //Write the edge ID and its number of data points
             for(map<int, int>::iterator it2 = hist->data.begin(); it2 != hist->data.end(); it2++)
             {
@@ -267,95 +473,6 @@ void Router::sendRerouteSignal(string vehID)
     string dest = net->vehicles[vehID]->destination;
     list<string> info = getRoute(net->edges[curEdge], net->nodes[dest], vehID);
     nodePtr->emit(Signal_router, new systemData("", "", "router", 0, vehID, info));
-
-}
-
-void Router::receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj)
-{
-    if(signalID == Signal_system) // Check if it's the right kind of symbol q
-    {
-        systemData *s = static_cast<systemData *>(obj); // Cast to a systemData class
-        if(string(s->getRecipient()) == "system")  // If this is the intended target
-        {
-            if(s->getRequestType() == 0)    // Request with dijkstra's routing
-            {
-                list<string> info = getRoute(net->edges[s->getEdge()], net->nodes[s->getNode()], s->getSender());
-                simsignal_t Signal_router = registerSignal("router");// Prepare to send a router message
-                // Systemdata wants string edge, string node, string sender, int requestType, string recipient, list<string> edgeList
-                nodePtr->emit(Signal_router, new systemData("", "", "router", 0, s->getSender(), info));
-            }// If request type is 0
-            else if(s->getRequestType() == 1)   // Request with new routing
-            {
-                simsignal_t Signal_router = registerSignal("router");// Prepare to send a router message
-                list<string> info;
-                Edge* curEdge = net->edges[s->getEdge()];
-                info.push_back(curEdge->id);
-
-                Node* targetNode = net->nodes[s->getNode()];
-
-                Hypertree* ht;
-                // Return memoization only if the vehicle has traveled less than X intersections, otherwise recalculate a new one
-                if(hypertreeMemo.find(s->getNode()) == hypertreeMemo.end() /*&&  if old hyperpath is less than 60 second old*/)
-                    hypertreeMemo[s->getNode()] = buildHypertree(simTime().dbl(), net->nodes[targetNode->id]);
-                ht = hypertreeMemo[s->getNode()];
-                string nextEdge = ht->transition[key(curEdge->from, curEdge->to, simTime().dbl())];
-                if(nextEdge != "end")
-                    info.push_back(nextEdge);
-                nodePtr->emit(Signal_router, new systemData("", "", "router", 1, s->getSender(), info));
-            }
-            else if(s->getRequestType() == 2)   //Vehicle is done message
-            {
-                currentVehicleCount--;
-                string SUMOvID = s->getSender();
-                if(ev.isGUI()) cout << "(" << currentVehicleCount << " left)" << endl;
-                int currentRun = ev.getConfigEx()->getActiveRunNumber();
-                if(collectVehicleTimeData)
-                {
-                    vehicleTravelTimes[SUMOvID] = simTime().dbl() - vehicleTravelTimes[SUMOvID];
-                    vehicleTravelTimesFile << SUMOvID << " " << vehicleTravelTimes[SUMOvID] << endl;
-                }
-                if(currentVehicleCount == 0)
-                {
-
-                    if(collectVehicleTimeData)
-                    {
-                        vehicleTravelTimesFile.close();
-
-                        double avg = 0;
-                        int count = 0;
-                        for(map<string, int>::iterator it = vehicleTravelTimes.begin(); it != vehicleTravelTimes.end(); it++)
-                        {
-                            count++;
-                            avg += it->second;
-                        }
-                        avg /= count;
-                        if(ev.isGUI()) cout << "Average vehicle travel time was " << avg << " seconds." << endl;
-
-                        vehicleTravelTimesFile.close();
-
-                        int TLMode = (*net->TLs.begin()).second->TLLogicMode;
-                        ostringstream filePrefix;
-                        filePrefix << totalVehicleCount << "_" << nonReroutingVehiclePercent << "_" << TLMode;
-
-                        ofstream outfile;
-                        string fileName = VENTOS_FullPath.string() + "results/router/AverageTravelTimes.txt";
-                        outfile.open(fileName.c_str(), ofstream::app);  //Open the edgeWeights file
-                        outfile << filePrefix.str() <<": " << avg << endl;
-                        outfile.close();
-                    }
-
-                    for(map<string, TrafficLightRouter*>::iterator tl = net->TLs.begin(); tl != net->TLs.end(); tl++)
-                        (*tl).second->finish();
-                }
-            }
-            else if(s->getRequestType() == 3 and collectVehicleTimeData)   //Vehicle is created message
-            {
-                string SUMOvID = s->getSender();
-                vehicleTravelTimes[SUMOvID] = simTime().dbl();
-            }
-        }// if recipient is right
-    }// if Signal_system
-    delete obj;
 }
 
 double Router::turnTypeCost(Edge* start, Edge* end)
@@ -439,6 +556,7 @@ int Router::nextAcceptingPhase(double time, Edge* start, Edge* end)
                 phase = 0;
         }
     }while(phase != curPhase);  // Break when we're back to the first phase (should never reach here)
+
     return -1;
 }
 
@@ -484,7 +602,7 @@ Hypertree* Router::buildHypertree(int startTime, Node* destination)
             Node* i = (*ijEdge)->from;                                  // Set i to be the predecessor node
             for(vector<Edge*>::iterator hiEdge = i->inEdges.begin(); hiEdge != i->inEdges.end(); hiEdge++)  // For each predecessor to i, hiEdge
             {
-                Histogram* hist = (*ijEdge)->travelTimes;
+                LaneCosts* hist = (*ijEdge)->travelTimes;
                 Node* h = (*hiEdge)->from;  // Set h to be the predecessor node
                 for(int t = startTime; t <= timePeriodMax; t++)   // For every time step of interest
                 {
@@ -547,7 +665,7 @@ list<string> Router::getRoute(Edge* origin, Node* destination, string vName)
     {
         Edge* parent = heap.top();          // Set parent to the closest unexplored edge
         heap.pop();                         // Remove parent from the heap
-        if(parent->visited)                 // If it was visited already, ignore it
+        if(parent->visited || parent->disabled)                 // If it was visited already, ignore it
             continue;
         parent->visited = 1;                // If not, we're about to
 
@@ -587,9 +705,9 @@ list<string> Router::getRoute(Edge* origin, Node* destination, string vName)
             return routeIDs;    // Return the final list
         }
     }// While heap isn't empty
-    if(ev.isGUI()) cout << "Pathing failed!  Either destination does not exist or cannot be reached.  Stopping at the end of this edge" << endl;
+    if(ev.isGUI()) cout << "Pathing failed from " << origin->id << " to " << destination->id << " at t=" << simTime().dbl() << "!  Either destination cannot be reached or vehicle is on an edge with an accident.  Route will not be changed" << endl;
     list<string> ret;
-    ret.push_back(origin->id);
+    ret.push_back("failed");
     return ret;
 }
 

@@ -24,5 +24,8 @@ simple Router
         
         int LaneCostsMode;
         int HysteresisCount;
+
+        bool UseAccidents;
+        int AccidentCheckInterval;
 }
 

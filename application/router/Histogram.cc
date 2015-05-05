@@ -29,21 +29,21 @@
 
 namespace VENTOS {
 
-Histogram::Histogram()
+LaneCosts::LaneCosts()
 {
     average = 0;
     count = 0;
-    minimum = 100000;
+    //minimum = 100000;
 }
 
-void Histogram::insert(int d, int LaneCostsMode)
+void LaneCosts::insert(int d, int LaneCostsMode)
 {
     if(LaneCostsMode == 1)
     {
     average = ((average * data.size()) + d)/ (data.size() + 1);
     count++;
-    if(d < minimum)
-        minimum = d;
+    //if(d < minimum)
+    //    minimum = d;
 
     if(data.find(d) == data.end())
         data[d] = 1;
@@ -56,12 +56,12 @@ void Histogram::insert(int d, int LaneCostsMode)
     }
 }
 
-double Histogram::percentAt(int d)
+double LaneCosts::percentAt(int d)
 {
     return (double)data[d] / (double)count;
 }
 
-std::ostream& operator<<(ostream& os, Histogram& h)
+std::ostream& operator<<(ostream& os, LaneCosts& h)
 {
     os << h.data.size() << endl;
     for(map<int, int>::iterator it = h.data.begin(); it != h.data.end(); it++)

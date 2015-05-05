@@ -30,10 +30,10 @@
 namespace VENTOS {
 
 Lane::Lane(string id, double speed, double length):
-        id(id), speed(speed), length(length){}
+                  id(id), speed(speed), length(length){}
 
-Edge::Edge(string id, Node* from, Node* to, int priority, vector<Lane*> lanes, Histogram* travelTimes):
-        id(id), from(from), to(to), priority(priority), lanes(lanes), travelTimes(travelTimes)
+Edge::Edge(string id, Node* from, Node* to, int priority, vector<Lane*> lanes, LaneCosts* travelTimes):
+                  id(id), from(from), to(to), priority(priority), lanes(lanes), travelTimes(travelTimes)
 {
     numLanes = lanes.size();
     double speedVal = 0;
@@ -49,6 +49,7 @@ Edge::Edge(string id, Node* from, Node* to, int priority, vector<Lane*> lanes, H
     visited = 0;
     curCost = 100000000;
     best = NULL;
+    disabled = false;
 }
 
 double Edge::getCost()  // This will likely be more complex once weights are implemented

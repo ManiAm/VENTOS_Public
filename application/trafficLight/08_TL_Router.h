@@ -58,7 +58,6 @@ public:
     virtual void initialize(int stage);
     virtual void handleMessage(cMessage *);
 
-    void print();
 
 public:
     string id;
@@ -72,6 +71,8 @@ public:
     //OmNET
     cMessage* TLEvent;
     cMessage* TLSwitchEvent;
+    TraCI_Extend *TraCI;
+    void print();
 
     void build(string id, string type, string programID, double offset, vector<Phase*>& phases, Net* net);
 
