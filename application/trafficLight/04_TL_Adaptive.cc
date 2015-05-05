@@ -60,8 +60,6 @@ void TrafficLightAdaptive::initialize(int stage)
 
         ChangeEvt = new cMessage("ChangeEvt", 1);
         scheduleAt(simTime().dbl() + intervalOffSet, ChangeEvt);
-
-        cout << endl << "Adaptive-time traffic signal control ..."  << endl << endl;
     }
 }
 
@@ -95,19 +93,20 @@ void TrafficLightAdaptive::executeFirstTimeStep()
     // call parent
     TrafficLightFixed::executeFirstTimeStep();
 
-    // set the program and initial TL state in all TLs
-    if(TLControlMode == 2)
-    {
-        for (list<string>::iterator TL = TLList.begin(); TL != TLList.end(); TL++)
-        {
-            TraCI->commandSetTLProgram(*TL, "adaptive-time");
-            TraCI->commandSetTLState(*TL, phase1_5);
-        }
+    if(TLControlMode != 2)
+        return;
 
-        char buff[300];
-        sprintf(buff, "Sim time: %4.2f | Interval finish time: %4.2f | Current interval: %s", simTime().dbl(), simTime().dbl() + intervalOffSet, currentInterval.c_str() );
-        cout << buff << endl;
+    cout << "Adaptive-time traffic signal control ..."  << endl << endl;
+
+    for (list<string>::iterator TL = TLList.begin(); TL != TLList.end(); TL++)
+    {
+        TraCI->TLSetProgram(*TL, "adaptive-time");
+        TraCI->TLSetState(*TL, phase1_5);
     }
+
+    char buff[300];
+    sprintf(buff, "Sim time: %4.2f | Interval finish time: %4.2f | Current interval: %s", simTime().dbl(), simTime().dbl() + intervalOffSet, currentInterval.c_str() );
+    cout << buff << endl;
 }
 
 
@@ -127,7 +126,7 @@ void TrafficLightAdaptive::chooseNextInterval()
         currentInterval = "red";
 
         // change all 'y' to 'r'
-        string str = TraCI->commandGetTLState("C");
+        string str = TraCI->TLGetState("C");
         string nextInterval = "";
         for(char& c : str) {
             if (c == 'y')
@@ -137,7 +136,7 @@ void TrafficLightAdaptive::chooseNextInterval()
         }
 
         // set the new state
-        TraCI->commandSetTLState("C", nextInterval);
+        TraCI->TLSetState("C", nextInterval);
         intervalElapseTime = 0.0;
         intervalOffSet = redTime;
     }
@@ -146,7 +145,7 @@ void TrafficLightAdaptive::chooseNextInterval()
         currentInterval = nextGreenInterval;
 
         // set the new state
-        TraCI->commandSetTLState("C", nextGreenInterval);
+        TraCI->TLSetState("C", nextGreenInterval);
         intervalElapseTime = 0.0;
         intervalOffSet = minGreenTime;
     }
@@ -162,24 +161,23 @@ void TrafficLightAdaptive::chooseNextInterval()
 void TrafficLightAdaptive::chooseNextGreenInterval()
 {
     // get loop detector information
-    vector<double> LastActuatedTime;
-
-    // If maxGreenTime met, don't care for actuator values,
-    // so push passageTime so that conditions fail and move
-    // to red interval:
-    if (intervalElapseTime >= maxGreenTime)
-        for (list<string>::iterator LD = LDList.begin(); LD != LDList.end(); LD++)
-            LastActuatedTime.push_back(passageTime);
-    else
-        for (list<string>::iterator LD = LDList.begin(); LD != LDList.end(); LD++)
-            LastActuatedTime.push_back(TraCI->commandGetLoopDetectorLastTime(*LD));
+    map<string,double> LastActuatedTime;
+    for (map<string,string>::iterator LD = LD_actuated_end.begin(); LD != LD_actuated_end.end(); LD++)
+    {
+        // If maxGreenTime met, don't care for actuator values,
+        // so push passageTime so that conditions fail and move to red interval
+        if (intervalElapseTime >= maxGreenTime)
+            LastActuatedTime[(*LD).first] = passageTime;
+        else
+            LastActuatedTime[(*LD).first] = TraCI->LDGetLastDetectionTime( (*LD).second );
+    }
 
     // Do proper transition:
     if (currentInterval == phase1_5)
     {
-        if (LastActuatedTime[NC_4] < passageTime && LastActuatedTime[SC_4] < passageTime)
+        if (LastActuatedTime["NC_4"] < passageTime && LastActuatedTime["SC_4"] < passageTime)
         {
-            double smallest = ((LastActuatedTime[NC_4] < LastActuatedTime[SC_4]) ? LastActuatedTime[NC_4] : LastActuatedTime[SC_4]);
+            double smallest = ((LastActuatedTime["NC_4"] < LastActuatedTime["SC_4"]) ? LastActuatedTime["NC_4"] : LastActuatedTime["SC_4"]);
             intervalOffSet = ceil(passageTime - smallest);
 
             double extendTime = intervalElapseTime + intervalOffSet;
@@ -189,24 +187,24 @@ void TrafficLightAdaptive::chooseNextGreenInterval()
 
             cout << "Extending green time by: " << intervalOffSet << "s" << endl;
         }
-        else if (LastActuatedTime[NC_4] < passageTime)
+        else if (LastActuatedTime["NC_4"] < passageTime)
         {
             nextGreenInterval = phase2_5;
             string nextInterval = "rrrrGrrrrrrrrryrrrrrrrrr";
 
             currentInterval = "yellow";
-            TraCI->commandSetTLState("C", nextInterval);
+            TraCI->TLSetState("C", nextInterval);
 
             intervalElapseTime = 0.0;
             intervalOffSet =  yellowTime;
         }
-        else if (LastActuatedTime[SC_4] < passageTime)
+        else if (LastActuatedTime["SC_4"] < passageTime)
         {
             nextGreenInterval = phase1_6;
             string nextInterval = "rrrryrrrrrrrrrGrrrrrrrrr";
 
             currentInterval = "yellow";
-            TraCI->commandSetTLState("C", nextInterval);
+            TraCI->TLSetState("C", nextInterval);
 
             intervalElapseTime = 0.0;
             intervalOffSet =  yellowTime;
@@ -217,7 +215,7 @@ void TrafficLightAdaptive::chooseNextGreenInterval()
             string nextInterval = "rrrryrrrrrrrrryrrrrrrrrr";
 
             currentInterval = "yellow";
-            TraCI->commandSetTLState("C", nextInterval);
+            TraCI->TLSetState("C", nextInterval);
 
             intervalElapseTime = 0.0;
             intervalOffSet =  yellowTime;
@@ -225,9 +223,9 @@ void TrafficLightAdaptive::chooseNextGreenInterval()
     }
     else if (currentInterval == phase2_5)
     {
-        if (LastActuatedTime[NC_4] < passageTime)
+        if (LastActuatedTime["NC_4"] < passageTime)
         {
-            intervalOffSet = ceil(passageTime - LastActuatedTime[NC_4]);
+            intervalOffSet = ceil(passageTime - LastActuatedTime["NC_4"]);
 
             double extendTime = intervalElapseTime + intervalOffSet;
             // Never extend past maxGreenTime:
@@ -242,7 +240,7 @@ void TrafficLightAdaptive::chooseNextGreenInterval()
             string nextInterval = "gGgGyrrrrrrrrrrrrrrrrrrG";
 
             currentInterval = "yellow";
-            TraCI->commandSetTLState("C", nextInterval);
+            TraCI->TLSetState("C", nextInterval);
 
             intervalElapseTime = 0.0;
             intervalOffSet =  yellowTime;
@@ -250,9 +248,9 @@ void TrafficLightAdaptive::chooseNextGreenInterval()
     }
     else if (currentInterval == phase1_6)
     {
-        if (LastActuatedTime[SC_4] < passageTime)
+        if (LastActuatedTime["SC_4"] < passageTime)
         {
-            intervalOffSet = ceil(passageTime - LastActuatedTime[SC_4]);
+            intervalOffSet = ceil(passageTime - LastActuatedTime["SC_4"]);
 
             double extendTime = intervalElapseTime + intervalOffSet;
             // Never extend past maxGreenTime:
@@ -267,7 +265,7 @@ void TrafficLightAdaptive::chooseNextGreenInterval()
             string nextInterval = "rrrrrrrrrrgGgGyrrrrrrGrr";
 
             currentInterval = "yellow";
-            TraCI->commandSetTLState("C", nextInterval);
+            TraCI->TLSetState("C", nextInterval);
 
             intervalElapseTime = 0.0;
             intervalOffSet =  yellowTime;
@@ -275,11 +273,11 @@ void TrafficLightAdaptive::chooseNextGreenInterval()
     }
     else if (currentInterval == phase2_6)
     {
-        if (LastActuatedTime[NC_2] < passageTime || LastActuatedTime[NC_3] < passageTime ||
-                LastActuatedTime[SC_2] < passageTime || LastActuatedTime[SC_3] < passageTime)
+        if (LastActuatedTime["NC_2"] < passageTime || LastActuatedTime["NC_3"] < passageTime ||
+                LastActuatedTime["SC_2"] < passageTime || LastActuatedTime["SC_3"] < passageTime)
         {
-            double smallest1 = ((LastActuatedTime[NC_2] < LastActuatedTime[SC_2]) ? LastActuatedTime[NC_2] : LastActuatedTime[SC_2]);
-            double smallest2 = ((LastActuatedTime[NC_3] < LastActuatedTime[SC_3]) ? LastActuatedTime[NC_3] : LastActuatedTime[SC_3]);
+            double smallest1 = ((LastActuatedTime["NC_2"] < LastActuatedTime["SC_2"]) ? LastActuatedTime["NC_2"] : LastActuatedTime["SC_2"]);
+            double smallest2 = ((LastActuatedTime["NC_3"] < LastActuatedTime["SC_3"]) ? LastActuatedTime["NC_3"] : LastActuatedTime["SC_3"]);
             double smallest = ((smallest1 < smallest2) ? smallest1 : smallest2);
             intervalOffSet = ceil(passageTime - smallest);
 
@@ -296,7 +294,7 @@ void TrafficLightAdaptive::chooseNextGreenInterval()
             string nextInterval = "yyyyrrrrrryyyyrrrrrrryry";
 
             currentInterval = "yellow";
-            TraCI->commandSetTLState("C", nextInterval);
+            TraCI->TLSetState("C", nextInterval);
 
             intervalElapseTime = 0.0;
             intervalOffSet =  yellowTime;
@@ -304,9 +302,9 @@ void TrafficLightAdaptive::chooseNextGreenInterval()
     }
     else if (currentInterval == phase3_7)
     {
-        if (LastActuatedTime[WC_4] < passageTime && LastActuatedTime[EC_4] < passageTime)
+        if (LastActuatedTime["WC_4"] < passageTime && LastActuatedTime["EC_4"] < passageTime)
         {
-            double smallest = ((LastActuatedTime[WC_4] < LastActuatedTime[EC_4]) ? LastActuatedTime[WC_4] : LastActuatedTime[EC_4]);
+            double smallest = ((LastActuatedTime["WC_4"] < LastActuatedTime["EC_4"]) ? LastActuatedTime["WC_4"] : LastActuatedTime["EC_4"]);
             intervalOffSet = ceil(passageTime - smallest);
 
             double extendTime = intervalElapseTime + intervalOffSet;
@@ -316,24 +314,24 @@ void TrafficLightAdaptive::chooseNextGreenInterval()
 
             cout << "Extending green time by: " << intervalOffSet << "s" << endl;
         }
-        else if (LastActuatedTime[WC_4] < passageTime)
+        else if (LastActuatedTime["WC_4"] < passageTime)
         {
             nextGreenInterval = phase3_8;
             string nextInterval = "rrrrrrrrryrrrrrrrrrGrrrr";
 
             currentInterval = "yellow";
-            TraCI->commandSetTLState("C", nextInterval);
+            TraCI->TLSetState("C", nextInterval);
 
             intervalElapseTime = 0.0;
             intervalOffSet =  yellowTime;
         }
-        else if (LastActuatedTime[EC_4] < passageTime)
+        else if (LastActuatedTime["EC_4"] < passageTime)
         {
             nextGreenInterval = phase4_7;
             string nextInterval = "rrrrrrrrrGrrrrrrrrryrrrr";
 
             currentInterval = "yellow";
-            TraCI->commandSetTLState("C", nextInterval);
+            TraCI->TLSetState("C", nextInterval);
 
             intervalElapseTime = 0.0;
             intervalOffSet =  yellowTime;
@@ -344,7 +342,7 @@ void TrafficLightAdaptive::chooseNextGreenInterval()
             string nextInterval = "rrrrrrrrryrrrrrrrrryrrrr";
 
             currentInterval = "yellow";
-            TraCI->commandSetTLState("C", nextInterval);
+            TraCI->TLSetState("C", nextInterval);
 
             intervalElapseTime = 0.0;
             intervalOffSet =  yellowTime;
@@ -352,9 +350,9 @@ void TrafficLightAdaptive::chooseNextGreenInterval()
     }
     else if (currentInterval == phase3_8)
     {
-        if (LastActuatedTime[WC_4] < passageTime)
+        if (LastActuatedTime["WC_4"] < passageTime)
         {
-            intervalOffSet = ceil(passageTime - LastActuatedTime[WC_4]);
+            intervalOffSet = ceil(passageTime - LastActuatedTime["WC_4"]);
 
             double extendTime = intervalElapseTime + intervalOffSet;
             // Never extend past maxGreenTime:
@@ -369,7 +367,7 @@ void TrafficLightAdaptive::chooseNextGreenInterval()
             string nextInterval = "rrrrrrrrrrrrrrrgGgGyrrGr";
 
             currentInterval = "yellow";
-            TraCI->commandSetTLState("C", nextInterval);
+            TraCI->TLSetState("C", nextInterval);
 
             intervalElapseTime = 0.0;
             intervalOffSet =  yellowTime;
@@ -377,9 +375,9 @@ void TrafficLightAdaptive::chooseNextGreenInterval()
     }
     else if (currentInterval == phase4_7)
     {
-        if (LastActuatedTime[EC_4] < passageTime)
+        if (LastActuatedTime["EC_4"] < passageTime)
         {
-            intervalOffSet = ceil(passageTime - LastActuatedTime[EC_4]);
+            intervalOffSet = ceil(passageTime - LastActuatedTime["EC_4"]);
 
             double extendTime = intervalElapseTime + intervalOffSet;
             // Never extend past maxGreenTime:
@@ -394,7 +392,7 @@ void TrafficLightAdaptive::chooseNextGreenInterval()
             string nextInterval = "rrrrrgGgGyrrrrrrrrrrGrrr";
 
             currentInterval = "yellow";
-            TraCI->commandSetTLState("C", nextInterval);
+            TraCI->TLSetState("C", nextInterval);
 
             intervalElapseTime = 0.0;
             intervalOffSet =  yellowTime;
@@ -402,11 +400,11 @@ void TrafficLightAdaptive::chooseNextGreenInterval()
     }
     else if (currentInterval == phase4_8)
     {
-        if (LastActuatedTime[WC_2] < passageTime || LastActuatedTime[WC_3] < passageTime ||
-                LastActuatedTime[EC_2] < passageTime || LastActuatedTime[EC_3] < passageTime)
+        if (LastActuatedTime["WC_2"] < passageTime || LastActuatedTime["WC_3"] < passageTime ||
+                LastActuatedTime["EC_2"] < passageTime || LastActuatedTime["EC_3"] < passageTime)
         {
-            double smallest1 = ((LastActuatedTime[WC_2] < LastActuatedTime[EC_2]) ? LastActuatedTime[WC_2] : LastActuatedTime[EC_2]);
-            double smallest2 = ((LastActuatedTime[WC_3] < LastActuatedTime[EC_3]) ? LastActuatedTime[WC_3] : LastActuatedTime[EC_3]);
+            double smallest1 = ((LastActuatedTime["WC_2"] < LastActuatedTime["EC_2"]) ? LastActuatedTime["WC_2"] : LastActuatedTime["EC_2"]);
+            double smallest2 = ((LastActuatedTime["WC_3"] < LastActuatedTime["EC_3"]) ? LastActuatedTime["WC_3"] : LastActuatedTime["EC_3"]);
             double smallest = ((smallest1 < smallest2) ? smallest1 : smallest2);
             intervalOffSet = ceil(passageTime - smallest);
 
@@ -423,7 +421,7 @@ void TrafficLightAdaptive::chooseNextGreenInterval()
             string nextInterval = "rrrrryyyyrrrrrryyyyryryr";
 
             currentInterval = "yellow";
-            TraCI->commandSetTLState("C", nextInterval);
+            TraCI->TLSetState("C", nextInterval);
 
             intervalElapseTime = 0.0;
             intervalOffSet =  yellowTime;

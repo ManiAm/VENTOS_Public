@@ -158,7 +158,7 @@ void ApplVCoordinator::scenario2()
 {
     if(simTime().dbl() == 37)
     {
-        TraCI->commandChangeVehicleSpeed("CACC1", 20.);
+        TraCI->vehicleSetSpeed("CACC1", 20.);
     }
     else if(simTime().dbl() == 59)
     {
@@ -187,7 +187,7 @@ void ApplVCoordinator::scenario3()
 {
     if(simTime().dbl() == 26)
     {
-        TraCI->commandChangeVehicleSpeed("CACC1", 20.);
+        TraCI->vehicleSetSpeed("CACC1", 20.);
     }
     // leader leaves
     else if(simTime().dbl() == 49)
@@ -218,7 +218,7 @@ void ApplVCoordinator::scenario3()
 
 void ApplVCoordinator::scenario4()
 {
-    if(TraCI->commandGetVehicleCount() == 10)
+    if(TraCI->vehicleGetIDCount() == 10)
         stopTime = simTime().dbl();
 
     // all vehicles entering after the stopTime
@@ -231,8 +231,8 @@ void ApplVCoordinator::scenario4()
 
     if(simTime().dbl() == 40)
     {
-        TraCI->commandChangeVehicleSpeed("CACC1", 20.);
-        TraCI->commandChangeVehicleSpeed("CACC6", 20.);
+        TraCI->vehicleSetSpeed("CACC1", 20.);
+        TraCI->vehicleSetSpeed("CACC6", 20.);
     }
     else if(simTime().dbl() == 55)
     {
@@ -277,7 +277,7 @@ void ApplVCoordinator::scenario5()
 {
     if(simTime().dbl() == 40)
     {
-        TraCI->commandChangeVehicleSpeed("CACC1", 20.);
+        TraCI->vehicleSetSpeed("CACC1", 20.);
     }
     else if(simTime().dbl() == 73)
     {
@@ -307,7 +307,7 @@ void ApplVCoordinator::scenario6()
     {
         if(simTime().dbl() == 40)
         {
-            TraCI->commandChangeVehicleSpeed("CACC1", 20.);
+            TraCI->vehicleSetSpeed("CACC1", 20.);
         }
         else if(simTime().dbl() == 73)
         {
@@ -327,7 +327,7 @@ void ApplVCoordinator::scenario6()
     {
         if(simTime().dbl() == 40)
         {
-            TraCI->commandChangeVehicleSpeed("CACC1", 20.);
+            TraCI->vehicleSetSpeed("CACC1", 20.);
         }
         else if(simTime().dbl() == 73)
         {
@@ -347,7 +347,7 @@ void ApplVCoordinator::scenario6()
     {
         if(simTime().dbl() == 40)
         {
-            TraCI->commandChangeVehicleSpeed("CACC1", 20.);
+            TraCI->vehicleSetSpeed("CACC1", 20.);
         }
         else if(simTime().dbl() == 73)
         {
@@ -367,7 +367,7 @@ void ApplVCoordinator::scenario6()
     {
         if(simTime().dbl() == 40)
         {
-            TraCI->commandChangeVehicleSpeed("CACC1", 20.);
+            TraCI->vehicleSetSpeed("CACC1", 20.);
         }
         else if(simTime().dbl() == 73)
         {
@@ -387,7 +387,7 @@ void ApplVCoordinator::scenario6()
     {
         if(simTime().dbl() == 40)
         {
-            TraCI->commandChangeVehicleSpeed("CACC1", 20.);
+            TraCI->vehicleSetSpeed("CACC1", 20.);
         }
         else if(simTime().dbl() == 73)
         {
@@ -407,7 +407,7 @@ void ApplVCoordinator::scenario6()
     {
         if(simTime().dbl() == 40)
         {
-            TraCI->commandChangeVehicleSpeed("CACC1", 20.);
+            TraCI->vehicleSetSpeed("CACC1", 20.);
         }
         else if(simTime().dbl() == 73)
         {
@@ -427,7 +427,7 @@ void ApplVCoordinator::scenario6()
     {
         if(simTime().dbl() == 40)
         {
-            TraCI->commandChangeVehicleSpeed("CACC1", 20.);
+            TraCI->vehicleSetSpeed("CACC1", 20.);
         }
         else if(simTime().dbl() == 73)
         {
@@ -447,7 +447,7 @@ void ApplVCoordinator::scenario6()
     {
         if(simTime().dbl() == 40)
         {
-            TraCI->commandChangeVehicleSpeed("CACC1", 20.);
+            TraCI->vehicleSetSpeed("CACC1", 20.);
         }
         else if(simTime().dbl() == 73)
         {
@@ -467,7 +467,7 @@ void ApplVCoordinator::scenario6()
     {
         if(simTime().dbl() == 40)
         {
-            TraCI->commandChangeVehicleSpeed("CACC1", 20.);
+            TraCI->vehicleSetSpeed("CACC1", 20.);
         }
         else if(simTime().dbl() == 73)
         {
@@ -490,7 +490,7 @@ void ApplVCoordinator::scenario6()
     {
         if(simTime().dbl() == 40)
         {
-            TraCI->commandChangeVehicleSpeed("CACC1", 20.);
+            TraCI->vehicleSetSpeed("CACC1", 20.);
         }
         else if(simTime().dbl() == 73)
         {
@@ -509,7 +509,7 @@ void ApplVCoordinator::scenario6()
     {
         if(simTime().dbl() == 40)
         {
-            TraCI->commandChangeVehicleSpeed("CACC1", 20.);
+            TraCI->vehicleSetSpeed("CACC1", 20.);
         }
         else if(simTime().dbl() == 73)
         {
@@ -526,7 +526,7 @@ void ApplVCoordinator::scenario6()
     {
         if(simTime().dbl() == 40)
         {
-            TraCI->commandChangeVehicleSpeed("CACC1", 20.);
+            TraCI->vehicleSetSpeed("CACC1", 20.);
         }
         else if(simTime().dbl() == 73)
         {
@@ -543,7 +543,7 @@ void ApplVCoordinator::scenario6()
     {
         if(simTime().dbl() == 40)
         {
-            TraCI->commandChangeVehicleSpeed("CACC1", 20.);
+            TraCI->vehicleSetSpeed("CACC1", 20.);
         }
         else if(simTime().dbl() == 73)
         {
@@ -563,7 +563,7 @@ void ApplVCoordinator::scenario7()
 {
     if(simTime().dbl() == 40)
     {
-        TraCI->commandChangeVehicleSpeed("CACC1", 20.);
+        TraCI->vehicleSetSpeed("CACC1", 20.);
     }
     else if(simTime().dbl() == 73)
     {
@@ -586,7 +586,7 @@ void ApplVCoordinator::scenario8()
     if(simTime().dbl() == 40)
     {
         optPlnSize = 10;
-        TraCI->commandChangeVehicleSpeed("CACC1", 20.);
+        TraCI->vehicleSetSpeed("CACC1", 20.);
     }
     else if(simTime().dbl() == 73)
     {
@@ -608,7 +608,7 @@ void ApplVCoordinator::scenario9()
 {
     if(simTime().dbl() == 40)
     {
-        TraCI->commandChangeVehicleSpeed("CACC1", 20.);
+        TraCI->vehicleSetSpeed("CACC1", 20.);
     }
     else if(simTime().dbl() == 73)
     {

@@ -38,13 +38,13 @@ void ApplVPlatoonMg::entry_handleSelfMsg(cMessage* msg)
     if(msg == entryManeuverEvt && vehicleState == state_idle)
     {
         // check if we are at lane 0
-        if(TraCI->commandGetVehicleLaneIndex(SUMOvID) == 0)
+        if(TraCI->vehicleGetLaneIndex(SUMOvID) == 0)
         {
-            TraCI->commandSetVehicleClass(SUMOvID, "vip");   // change vClass to vip
+            TraCI->vehicleSetClass(SUMOvID, "vip");   // change vClass to vip
 
-            int32_t bitset = TraCI->commandCreatLaneChangeMode(10, 01, 01, 01, 01);
-            TraCI->commandSetLaneChangeMode(SUMOvID, bitset);   // alter 'lane change' mode
-            TraCI->commandChangeVehicleLane(SUMOvID, 1, 5);   // change to lane 1 (special lane)
+            int32_t bitset = TraCI->vehicleBuildLaneChangeMode(10, 01, 01, 01, 01);
+            TraCI->vehicleSetLaneChangeMode(SUMOvID, bitset);   // alter 'lane change' mode
+            TraCI->vehicleChangeLane(SUMOvID, 1, 5);   // change to lane 1 (special lane)
 
             // change state to waitForLaneChange
             vehicleState = state_waitForLaneChange;
@@ -56,35 +56,35 @@ void ApplVPlatoonMg::entry_handleSelfMsg(cMessage* msg)
     else if(msg == plnTIMER0 && vehicleState == state_waitForLaneChange)
     {
         // check if we change lane
-        if(TraCI->commandGetVehicleLaneIndex(SUMOvID) == 1)
+        if(TraCI->vehicleGetLaneIndex(SUMOvID) == 1)
         {
             // make it a free agent
             plnID = SUMOvID;
             myPlnDepth = 0;
             plnSize = 1;
             plnMembersList.push_back(SUMOvID);
-            TraCI->commandSetVehicleTg(SUMOvID, TP);
+            TraCI->vehicleSetTimeGap(SUMOvID, TP);
 
             busy = false;
 
             // get my leading vehicle
-            vector<string> vleaderIDnew = TraCI->commandGetLeadingVehicle(SUMOvID, sonarDist);
+            vector<string> vleaderIDnew = TraCI->vehicleGetLeader(SUMOvID, sonarDist);
             string vleaderID = vleaderIDnew[0];
 
             // if no leading, set speed to 5 m/s
             if(vleaderID == "")
             {
-                TraCI->commandChangeVehicleSpeed(SUMOvID, 5.);
+                TraCI->vehicleSetSpeed(SUMOvID, 5.);
             }
             // if I have leading, set speed to max
             else
             {
-                TraCI->commandChangeVehicleSpeed(SUMOvID, 30.);
+                TraCI->vehicleSetSpeed(SUMOvID, 30.);
             }
 
             // change color to red!
             TraCIColor newColor = TraCIColor::fromTkColor("red");
-            TraCI->commandChangeVehicleColor(SUMOvID, newColor);
+            TraCI->vehicleSetColor(SUMOvID, newColor);
 
             // change state to platoon leader
             vehicleState = state_platoonLeader;

@@ -90,7 +90,7 @@ void TrafficLightBase::receiveSignal(cComponent *source, simsignal_t signalID, l
 
 void TrafficLightBase::executeFirstTimeStep()
 {
-    TLList = TraCI->commandGetTLIDList();
+    TLList = TraCI->TLGetIDList();
 }
 
 
@@ -107,37 +107,37 @@ void TrafficLightBase::executeEachTimeStep(bool simulationDone)
 void TrafficLightBase::TLData()
 {
     // get all lanes in the network
-    list<string> myList = TraCI->commandGetLaneList();
+    list<string> myList = TraCI->laneGetIDList();
 
     for(list<string>::iterator i = myList.begin(); i != myList.end(); ++i)
     {
         // get all vehicles on lane i
-        list<string> myList2 = TraCI->commandGetLaneVehicleList( i->c_str() );
+        list<string> myList2 = TraCI->laneGetLastStepVehicleIDs( i->c_str() );
 
         for(list<string>::reverse_iterator k = myList2.rbegin(); k != myList2.rend(); ++k)
             saveTLData(k->c_str());
     }
 
     // increase index after writing data for all vehicles
-    if (TraCI->commandGetVehicleCount() > 0)
+    if (TraCI->vehicleGetIDCount() > 0)
         index++;
 }
 
 
 void TrafficLightBase::saveTLData(string vID)
 {
-    string lane = TraCI->commandGetVehicleLaneId(vID);
+    string lane = TraCI->vehicleGetLaneID(vID);
 
     // get the TLid that controls this vehicle
     // empty string means the vehicle is not controlled by any TLid
     string TLid = getTrafficLightController(lane);
 
     // if the signal is yellow or red
-    int YorR = TraCI->commandGetYellowOrRed(vID);
+    int YorR = TraCI->vehicleGetTrafficLightAhead(vID);
 
     double timeStep = (simTime()-updateInterval).dbl();
-    double pos = TraCI->commandGetVehicleLanePosition(vID);
-    double speed = TraCI->commandGetVehicleSpeed(vID);
+    double pos = TraCI->vehicleGetLanePosition(vID);
+    double speed = TraCI->vehicleGetSpeed(vID);
 
     TLVehicleData *tmp = new TLVehicleData(index, timeStep,
                                            vID.c_str(), lane.c_str(), pos,
@@ -152,7 +152,7 @@ string TrafficLightBase::getTrafficLightController(string lane)
 {
     for (list<string>::iterator it = TLList.begin() ; it != TLList.end(); ++it)
     {
-        list<string> lan = TraCI->commandGetControlledLanes(*it);
+        list<string> lan = TraCI->TLGetControlledLanes(*it);
 
         bool found = false;
         for(list<string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)

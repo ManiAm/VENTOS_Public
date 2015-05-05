@@ -137,20 +137,20 @@ BeaconBicycle*  ApplBikeBeacon::prepareBeacon()
     wsm->setRecipient("broadcast");
 
     // set current position
-    Coord cord = TraCI->commandGetVehiclePos(SUMObID);
+    Coord cord = TraCI->vehicleGetPosition(SUMObID);
     wsm->setPos(cord);
 
     // set current speed
-    wsm->setSpeed( TraCI->commandGetVehicleSpeed(SUMObID) );
+    wsm->setSpeed( TraCI->vehicleGetSpeed(SUMObID) );
 
     // set current acceleration
-    wsm->setAccel( TraCI->commandGetVehicleAccel(SUMObID) );
+    wsm->setAccel( TraCI->vehicleGetCurrentAccel(SUMObID) );
 
     // set maxDecel
-    wsm->setMaxDecel( TraCI->commandGetVehicleMaxDecel(SUMObID) );
+    wsm->setMaxDecel( TraCI->vehicleGetMaxDecel(SUMObID) );
 
     // set current lane
-    wsm->setLane( TraCI->commandGetVehicleLaneId(SUMObID).c_str() );
+    wsm->setLane( TraCI->vehicleGetLaneID(SUMObID).c_str() );
 
     return wsm;
 }

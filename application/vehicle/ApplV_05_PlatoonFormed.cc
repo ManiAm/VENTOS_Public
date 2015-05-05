@@ -95,7 +95,7 @@ void ApplVPlatoonFormed::onBeaconVehicle(BeaconVehicle* wsm)
 
             // change the color to blue
             TraCIColor newColor = TraCIColor::fromTkColor("blue");
-            TraCI->commandChangeVehicleColor(SUMOvID, newColor);
+            TraCI->vehicleSetColor(SUMOvID, newColor);
         }
     }
     // platoonID != "" which means I am already part of a platoon

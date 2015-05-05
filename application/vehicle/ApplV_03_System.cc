@@ -108,7 +108,7 @@ void ApplVSystem::finish()
 {
     ApplVBeacon::finish();
 
-    if(ev.isGUI()) cout << SUMOvID << " took " << simTime().dbl() - entryTime << " seconds to complete its route." << endl;
+    if(ev.isGUI() && requestRoutes) cout << SUMOvID << " took " << simTime().dbl() - entryTime << " seconds to complete its route." << endl;
 
     simsignal_t Signal_system = registerSignal("system"); //Prepare to send a system message
     nodePtr->emit(Signal_system, new systemData("", "", SUMOvID, 2, string("system")));
@@ -150,7 +150,7 @@ void ApplVSystem::receiveSignal(cComponent *source, simsignal_t signalID, cObjec
             numReroutes++;
             //if(ev.isGUI()) cout << "Setting new route for " << SUMOvID << " at t=" << simTime().dbl() << endl;
             list<string> sRoute = s->getInfo(); //Copy the info from the signal (breaks if we don't do this, for some reason)
-            TraCI->commandChangeVehicleRoute(s->getRecipient(), sRoute);  //Update this vehicle's path with the proper info
+            TraCI->vehicleSetRoute(s->getRecipient(), sRoute);  //Update this vehicle's path with the proper info
         }
     }
 }
@@ -185,13 +185,13 @@ void ApplVSystem::reroute()
     //Systemdata wants string edge, string node, string sender, int requestType, string recipient, list<string> edgeList
     if(useDijkstrasRouting)
     {
-        nodePtr->emit(Signal_system, new systemData(TraCI->commandGetVehicleEdgeId(SUMOvID), targetNode, SUMOvID, 0, string("system")));
+        nodePtr->emit(Signal_system, new systemData(TraCI->vehicleGetEdgeID(SUMOvID), targetNode, SUMOvID, 0, string("system")));
         if(!router->UseHysteresis)
             scheduleAt(simTime() + requestInterval, sendSystemMsgEvt);// schedule for next beacon broadcast
     }
     else
     {
-        nodePtr->emit(Signal_system, new systemData(TraCI->commandGetVehicleEdgeId(SUMOvID), targetNode, SUMOvID, 1, string("system")));
+        nodePtr->emit(Signal_system, new systemData(TraCI->vehicleGetEdgeID(SUMOvID), targetNode, SUMOvID, 1, string("system")));
         scheduleAt(simTime() + routeUpdateInterval, sendSystemMsgEvt);// schedule for next beacon broadcast
     }
 }
@@ -232,7 +232,7 @@ SystemMsg*  ApplVSystem::prepareSystemMsg()
     wsm->setRequestType(0);
 
     // set current lane
-    wsm->setEdge( TraCI->commandGetVehicleEdgeId(SUMOvID).c_str() );
+    wsm->setEdge( TraCI->vehicleGetEdgeID(SUMOvID).c_str() );
 
     // set target node - read this from the vehicle's data
     wsm->setTarget(1);

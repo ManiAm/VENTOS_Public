@@ -68,18 +68,18 @@ void ApplVManager::initialize(int stage)
         WATCH(PlatoonCount);
 
         // set parameters in SUMO
-        TraCI->commandSetVehicleDebug(SUMOvID, SUMOvehicleDebug);
-        TraCI->commandSetVehicleDegradeToACC(SUMOvID, degradeToACC);
+        TraCI->vehicleSetDebug(SUMOvID, SUMOvehicleDebug);
+        TraCI->vehicleSetDowngradeToACC(SUMOvID, degradeToACC);
 
         if(measurementError)
         {
-            TraCI->commandSetVehicleErrorGap(SUMOvID, errorGap);
-            TraCI->commandSetVehicleErrorRelSpeed(SUMOvID, errorRelSpeed);
+            TraCI->vehicleSetErrorGap(SUMOvID, errorGap);
+            TraCI->vehicleSetErrorRelSpeed(SUMOvID, errorRelSpeed);
         }
         else
         {
-            TraCI->commandSetVehicleErrorGap(SUMOvID, 0.);
-            TraCI->commandSetVehicleErrorRelSpeed(SUMOvID, 0.);
+            TraCI->vehicleSetErrorGap(SUMOvID, 0.);
+            TraCI->vehicleSetErrorRelSpeed(SUMOvID, 0.);
         }
 	}
 }
@@ -269,7 +269,7 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
         {
             char buffer [200];
             sprintf (buffer, "%f#%f#%f#%f#%s#%s", (double)wsm->getSpeed(), (double)wsm->getAccel(), (double)wsm->getMaxDecel(), (simTime().dbl())*1000, wsm->getSender(), "preceding");
-            TraCI->commandSetVehicleControllerParameters(SUMOvID, buffer);
+            TraCI->vehicleSetControllerParameters(SUMOvID, buffer);
         }
     }
     // model is CACC with platoon leader communication (TypeCACC2)
@@ -286,7 +286,7 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
             {
                 char buffer [200];
                 sprintf (buffer, "%f#%f#%f#%f#%s#%s", (double)wsm->getSpeed(), (double)wsm->getAccel(), (double)wsm->getMaxDecel(), (simTime().dbl())*1000, wsm->getSender(), "preceding");
-                TraCI->commandSetVehicleControllerParameters(SUMOvID, buffer);
+                TraCI->vehicleSetControllerParameters(SUMOvID, buffer);
             }
         }
         // I am a follower
@@ -297,7 +297,7 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
             {
                 char buffer [200];
                 sprintf (buffer, "%f#%f#%f#%f#%s#%s", (double)wsm->getSpeed(), (double)wsm->getAccel(), (double)wsm->getMaxDecel(), (simTime().dbl())*1000, wsm->getSender(), "leader");
-                TraCI->commandSetVehicleControllerParameters(SUMOvID, buffer);
+                TraCI->vehicleSetControllerParameters(SUMOvID, buffer);
             }
         }
     }

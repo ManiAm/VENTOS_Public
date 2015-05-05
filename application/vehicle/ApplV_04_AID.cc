@@ -173,13 +173,13 @@ void ApplV_AID::handlePositionUpdate(cObject* obj)
     if(!AID)
         return;
 
-    toLane = TraCI->commandGetVehicleLaneId(SUMOvID);
+    toLane = TraCI->vehicleGetLaneID(SUMOvID);
 
     // if we change lane
     if(fromLane != toLane)
     {
         ostringstream str;
-        toX =  ( TraCI->commandGetVehiclePos(SUMOvID) ).x;
+        toX =  ( TraCI->vehicleGetPosition(SUMOvID) ).x;
         str << fromLane <<  "#" << toLane << "#" << fromX << "#" << toX << "#" << simTime().dbl();
         laneChanges.push_back( str.str() );
 

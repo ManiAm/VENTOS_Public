@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    TL_Manager.h
+/// @file    TL_VANET.h
 /// @author  Philip Vo <foxvo@ucdavis.edu>
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @date    August 2013
@@ -25,19 +25,19 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef TRAFFICLIGHTMANAGER_H
-#define TRAFFICLIGHTMANAGER_H
+#ifndef TRAFFICLIGHTVANET_H
+#define TRAFFICLIGHTVANET_H
 
-#include "07_TL_Router.h"
+#include <06_TL_Webster.h>
 
 using namespace std;
 
 namespace VENTOS {
 
-class TrafficLightManager : public TrafficLightRouter
+class TrafficLightVANET : public TrafficLightWebster
 {
   public:
-    virtual ~TrafficLightManager();
+    virtual ~TrafficLightVANET();
     virtual void finish();
     virtual void initialize(int);
     virtual void handleMessage(cMessage *);
@@ -46,6 +46,36 @@ class TrafficLightManager : public TrafficLightRouter
     void virtual executeFirstTimeStep();
     void virtual executeEachTimeStep(bool);
 
+    // class variables
+    vector<double> DetectedTime;
+    cMessage* DetectEvt;
+    double detectFreq = 0.1;
+
+    double radius = 33;
+  //  Coord outerRing = (100 - radius - 2;
+  //  Coord innerRing  = radius + 2;
+
+    // loop detectors id
+    enum LDid
+    {
+        EC_2, EC_3, EC_4,
+        NC_2, NC_3, NC_4,
+        SC_2, SC_3, SC_4,
+        WC_2, WC_3, WC_4,
+    };
+
+    // For VANET Controller:
+    map<string,LDid> lmap =
+    {
+        {"EC_2", EC_2}, {"EC_3", EC_3}, {"EC_4", EC_4},
+        {"NC_2", NC_2}, {"NC_3", NC_3}, {"NC_4", NC_4},
+        {"SC_2", SC_2}, {"SC_3", SC_3}, {"SC_4", SC_4},
+        {"WC_2", WC_2}, {"WC_3", WC_3}, {"WC_4", WC_4}
+    };
+
+  private:
+    void chooseNextInterval();
+    void chooseNextGreenInterval();
 };
 
 }

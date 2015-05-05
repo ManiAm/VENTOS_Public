@@ -49,17 +49,17 @@ void ApplVPlatoonMg::followerLeave_handleSelfMsg(cMessage* msg)
         // check if we are free agent?
         if(vehicleState == state_platoonLeader && plnSize == 1)
         {
-            TraCI->commandSetVehicleClass(SUMOvID, "private");   // change vClass
+            TraCI->vehicleSetClass(SUMOvID, "private");   // change vClass
 
-            int32_t bitset = TraCI->commandCreatLaneChangeMode(10, 01, 01, 01, 01);
-            TraCI->commandSetLaneChangeMode(SUMOvID, bitset);  // alter 'lane change' mode
-            TraCI->commandChangeVehicleLane(SUMOvID, 0, 5);   // change to lane 0 (normal lane)
+            int32_t bitset = TraCI->vehicleBuildLaneChangeMode(10, 01, 01, 01, 01);
+            TraCI->vehicleSetLaneChangeMode(SUMOvID, bitset);  // alter 'lane change' mode
+            TraCI->vehicleChangeLane(SUMOvID, 0, 5);   // change to lane 0 (normal lane)
 
-            TraCI->commandChangeVehicleSpeed(SUMOvID, 30.);
+            TraCI->vehicleSetSpeed(SUMOvID, 30.);
 
             // change color to yellow!
             TraCIColor newColor = TraCIColor::fromTkColor("yellow");
-            TraCI->commandChangeVehicleColor(SUMOvID, newColor);
+            TraCI->vehicleSetColor(SUMOvID, newColor);
 
             plnSize = -1;
             myPlnDepth = -1;

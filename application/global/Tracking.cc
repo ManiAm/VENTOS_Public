@@ -103,10 +103,10 @@ void Tracking::Start()
         return;
 
     // zoom-in GUI
-    TraCI->commandSetGUIZoom(zoom);
+    TraCI->GUISetZoom(zoom);
 
     // adjust Windows initially
-    TraCI->commandSetGUIOffset(initialWindowsOffset, 0.);
+    TraCI->GUISetOffset(initialWindowsOffset, 0.);
 
     TrackingGUI();
 }
@@ -126,15 +126,15 @@ void Tracking::TrackingGUI()
     if(mode == 1)
     {
         // get vehicle position in SUMO coordinates
-        Coord co = TraCI->commandGetVehiclePos(trackingV);
+        Coord co = TraCI->vehicleGetPosition(trackingV);
 
         if(co.x > 0)
-            TraCI->commandSetGUIOffset(co.x, co.y);
+            TraCI->GUISetOffset(co.x, co.y);
     }
     else if(mode == 2)
     {
         // get a list of vehicles on this lane!
-        list<string> myList = TraCI->commandGetLaneVehicleList(trackingLane.c_str());
+        list<string> myList = TraCI->laneGetLastStepVehicleIDs(trackingLane.c_str());
 
         if(!myList.empty())
         {
@@ -147,15 +147,15 @@ void Tracking::TrackingGUI()
             // first inserted vehicle on this lane
             string lastVehicleId = *it;
 
-            Coord lastVehiclePos = TraCI->commandGetVehiclePos(lastVehicleId);
+            Coord lastVehiclePos = TraCI->vehicleGetPosition(lastVehicleId);
 
             // get GUI windows boundary
-            vector<double> windowsFrame = TraCI->commandGetGUIBoundry();
+            vector<double> windowsFrame = TraCI->GUIGetBoundry();
 
             // vehicle goes out of frame?
             if(lastVehiclePos.x > windowsFrame[2] || lastVehiclePos.y > windowsFrame[3])
             {
-                TraCI->commandSetGUIOffset(windowsFrame[0] + windowsOffset, 0);
+                TraCI->GUISetOffset(windowsFrame[0] + windowsOffset, 0);
             }
         }
     }

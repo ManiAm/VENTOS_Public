@@ -25,7 +25,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "07_TL_Router.h"
+#include "08_TL_Router.h"
 #include <iostream>
 #include <iomanip>
 #include <algorithm>
@@ -72,8 +72,8 @@ public:
 
     VState(string vehicle, TraCI_Extend *TraCI, Router* router, string currentEdge, double nextEdgeLength = 0): id(vehicle)
     {
-        position = router->net->edges[currentEdge]->length - TraCI->commandGetVehicleLanePosition(vehicle) + nextEdgeLength;//position is distance from the TL along roads
-        double velocity = TraCI->commandGetVehicleSpeed(vehicle);
+        position = router->net->edges[currentEdge]->length - TraCI->vehicleGetLanePosition(vehicle) + nextEdgeLength;//position is distance from the TL along roads
+        double velocity = TraCI->vehicleGetSpeed(vehicle);
 
         double accelTime = (MAX_VELOCITY - velocity) / MAX_ACCEL;
         double averageVelocityDuringAccel = (MAX_VELOCITY + velocity) / 2;
@@ -211,7 +211,7 @@ void TrafficLightRouter::initialize(int stage)
 {
     TrafficLightVANET::initialize(stage);
 
-    if(TLControlMode != 5)
+    if(TLControlMode != 6)
         return;
 
     if(id == "")
@@ -263,17 +263,17 @@ void TrafficLightRouter::switchToPhase(int phase, double greenDuration, int yell
 
     lastSwitchTime = simTime().dbl(); //Mark the last switch time
 
-    TraCI->commandSetTLPhaseIndex(id, yellowPhase);           //Manually switch to the yellow phase in SUMO
+    TraCI->TLSetPhaseIndex(id, yellowPhase);           //Manually switch to the yellow phase in SUMO
     TLSwitchEvent = new cMessage("tl switch evt");
     scheduleAt(simTime().dbl() + yellowDuration, TLSwitchEvent);
-    TraCI->commandSetTLPhaseDurationRemaining(id, 10000000);   //Make sure SUMO doesn't handle switches, by always setting phases to expire after a very long time
+    TraCI->TLSetPhaseDuration(id, 10000000);   //Make sure SUMO doesn't handle switches, by always setting phases to expire after a very long time
 }
 
 void TrafficLightRouter::handleMessage(cMessage* msg)  //Internal messages to self
 {
     TrafficLightVANET::handleMessage(msg);
 
-    if(TLControlMode != 5)
+    if(TLControlMode != 6)
         return;
 
     if(!done)
@@ -297,10 +297,10 @@ void TrafficLightRouter::SynchronousMessage()
     {
         isTransitionPhase = false;
         lastSwitchTime = simTime().dbl();
-        TraCI->commandSetTLPhaseIndex(id, currentPhase);           //currentPhase was set to the phase after the transition, so switch to it
+        TraCI->TLSetPhaseIndex(id, currentPhase);           //currentPhase was set to the phase after the transition, so switch to it
         TLSwitchEvent = new cMessage("tl switch evt");
         scheduleAt(simTime().dbl() + phaseDurationAfterTransition, TLSwitchEvent);
-        TraCI->commandSetTLPhaseDurationRemaining(id, 10000000);   //Make sure SUMO doesn't handle switches, by always setting phases to expire after a very long time
+        TraCI->TLSetPhaseDuration(id, 10000000);   //Make sure SUMO doesn't handle switches, by always setting phases to expire after a very long time
     }
     else
     {
@@ -340,7 +340,7 @@ void TrafficLightRouter::HighDensityRecalculate()
         vector<Lane*>* lanes = &(*edge)->lanes;
         for(vector<Lane*>::iterator lane = lanes->begin(); lane != lanes->end(); lane++)    //For each lane
         {
-            list<string> vehicleIDs = TraCI->commandGetLaneVehicleList((*lane)->id); //Get all vehicles on that lane
+            list<string> vehicleIDs = TraCI->laneGetLastStepVehicleIDs((*lane)->id); //Get all vehicles on that lane
             int vehCount = vehicleIDs.size();   //And the number of vehicles on that lane
             for(vector<int>::iterator it = (*lane)->greenPhases.begin(); it != (*lane)->greenPhases.end(); it++)    //Each element of greenPhases is a phase that lets that lane move
             {
@@ -386,9 +386,9 @@ void TrafficLightRouter::FlowRateRecalculate()
     {
         for(Lane*& lane1 : edge1->lanes) //For each lane on those edges
         {
-            for(string& vehicle : TraCI->commandGetLaneVehicleList(lane1->id))   //For each vehicle on those lanes
+            for(string& vehicle : TraCI->laneGetLastStepVehicleIDs(lane1->id))   //For each vehicle on those lanes
             {
-                list<string> route = TraCI->commandGetVehicleEdgeList(vehicle);    //Get the vehicle's route
+                list<string> route = TraCI->vehicleGetRoute(vehicle);    //Get the vehicle's route
                 while(route.front().compare(edge1->id) != 0) //Remove edges it's already traveled (TODO: this doesn't check for cycles!)
                     route.pop_front();
 
@@ -403,14 +403,14 @@ void TrafficLightRouter::FlowRateRecalculate()
 
         Node* outerTLNode = edge1->from;
 
-        string state = TraCI->commandGetTLState(outerTLNode->id);
+        string state = TraCI->TLGetState(outerTLNode->id);
         for(Edge*& edge2 : outerTLNode->inEdges)
         {
             for(Lane*& lane2 : edge2->lanes) //For each lane on those edges
             {
-                for(string& vehicle : TraCI->commandGetLaneVehicleList(lane2->id))   //For each vehicle on those lanes
+                for(string& vehicle : TraCI->laneGetLastStepVehicleIDs(lane2->id))   //For each vehicle on those lanes
                 {
-                    list<string> route = TraCI->commandGetVehicleEdgeList(vehicle);    //Get the vehicle's route
+                    list<string> route = TraCI->vehicleGetRoute(vehicle);    //Get the vehicle's route
                     while(route.front().compare(edge2->id) != 0) //Remove edges it's already traveled (TODO: this doesn't check for cycles!)
                         route.pop_front();
 
@@ -523,7 +523,7 @@ void TrafficLightRouter::LowDensityRecalculate()
         //if(ev.isGUI()) cout << "Extending tl " << id << " phase " << currentPhase << endl;
         TLSwitchEvent = new cMessage("tl switch evt");
         scheduleAt(simTime().dbl() + LowDensityExtendTime, TLSwitchEvent);
-        TraCI->commandSetTLPhaseDurationRemaining(id, 10000000);
+        TraCI->TLSetPhaseDuration(id, 10000000);
     }
     else    //Otherwise, switch to the next phase immediately
     {
@@ -569,12 +569,12 @@ bool TrafficLightRouter::LowDensityVehicleCheck()    //This function assumes it'
         {
             if(find((*lane)->greenPhases.begin(), (*lane)->greenPhases.end(), currentPhase) != (*lane)->greenPhases.end()) //If this lane has a green
             {
-                list<string> vehicleIDs = TraCI->commandGetLaneVehicleList((*lane)->id); //If so, get all vehicles on this lane
+                list<string> vehicleIDs = TraCI->laneGetLastStepVehicleIDs((*lane)->id); //If so, get all vehicles on this lane
                 for(list<string>::iterator vehicle = vehicleIDs.begin(); vehicle != vehicleIDs.end(); vehicle++)    //For each vehicle
                 {
-                    if(TraCI->commandGetVehicleSpeed(*vehicle) > 0.01)  //If that vehicle is not stationary
+                    if(TraCI->vehicleGetSpeed(*vehicle) > 0.01)  //If that vehicle is not stationary
                     {
-                        double pos = TraCI->commandGetVehicleLanePosition(*vehicle);
+                        double pos = TraCI->vehicleGetLanePosition(*vehicle);
                         double length = net->edges[(*edge)->id]->length;
                         double speed = net->edges[(*edge)->id]->speed;
                         double timeLeft = (length - pos) / speed;   //Calculate how long until it hits the intersection, based off speed and distance
@@ -595,7 +595,7 @@ void TrafficLightRouter::finish()
 {
     TrafficLightVANET::finish();
 
-    if(TLControlMode != 5)
+    if(TLControlMode != 6)
         return;
 
     done = true;

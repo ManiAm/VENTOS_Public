@@ -301,7 +301,7 @@ void ApplVPlatoonMg::updateColorDepth()
     for(unsigned int depth = 1; depth < plnMembersList.size(); depth++)
     {
         TraCIColor newColor = TraCIColor(pickColor[depth], pickColor[depth], 255, 255);
-        TraCI->commandChangeVehicleColor(plnMembersList[depth], newColor);
+        TraCI->vehicleSetColor(plnMembersList[depth], newColor);
     }
 }
 

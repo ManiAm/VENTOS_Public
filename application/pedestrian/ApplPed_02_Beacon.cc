@@ -137,11 +137,11 @@ BeaconPedestrian*  ApplPedBeacon::prepareBeacon()
     wsm->setRecipient("broadcast");
 
     // set current position
-    Coord cord = TraCI->commandGetPedestrianPos(SUMOpID);
+    Coord cord = TraCI->personGetPosition(SUMOpID);
     wsm->setPos(cord);
 
     // set current speed
-    wsm->setSpeed( TraCI->commandGetPedestrianSpeed(SUMOpID) );
+    wsm->setSpeed( TraCI->personGetSpeed(SUMOpID) );
 
     // set current acceleration
     wsm->setAccel( -1 );
@@ -150,7 +150,7 @@ BeaconPedestrian*  ApplPedBeacon::prepareBeacon()
     wsm->setMaxDecel( -1 );
 
     // set current lane
-    wsm->setLane( TraCI->commandGetPedestrianRoadId(SUMOpID).c_str() );
+    wsm->setLane( TraCI->personGetEdgeID(SUMOpID).c_str() );
 
     return wsm;
 }

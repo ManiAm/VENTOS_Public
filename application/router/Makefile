@@ -159,9 +159,10 @@ $O/Net.o: Net.cc \
 	../trafficLight/02_LoopDetectors.h \
 	../trafficLight/03_TL_Fixed.h \
 	../trafficLight/04_TL_Adaptive.h \
-	../trafficLight/05_TL_Webster.h \
-	../trafficLight/06_TL_VANET.h \
-	../trafficLight/07_TL_Router.h \
+	../trafficLight/05_TL_AdaptiveQueue.h \
+	../trafficLight/06_TL_Webster.h \
+	../trafficLight/07_TL_VANET.h \
+	../trafficLight/08_TL_Router.h \
 	../vehicle/ApplV_01_Base.h \
 	../vehicle/ApplV_02_Beacon.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/BaseConnectionManager.h \
@@ -215,9 +216,10 @@ $O/Router.o: Router.cc \
 	../trafficLight/02_LoopDetectors.h \
 	../trafficLight/03_TL_Fixed.h \
 	../trafficLight/04_TL_Adaptive.h \
-	../trafficLight/05_TL_Webster.h \
-	../trafficLight/06_TL_VANET.h \
-	../trafficLight/07_TL_Router.h \
+	../trafficLight/05_TL_AdaptiveQueue.h \
+	../trafficLight/06_TL_Webster.h \
+	../trafficLight/07_TL_VANET.h \
+	../trafficLight/08_TL_Router.h \
 	../vehicle/ApplV_01_Base.h \
 	../vehicle/ApplV_02_Beacon.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/BaseConnectionManager.h \

@@ -60,6 +60,7 @@ class TrafficLightAdaptive : public TrafficLightFixed
     string nextGreenInterval;
     cMessage* ChangeEvt;
 
+    // phases for ring-and-barrier
     string phase1_5 = "rrrrGrrrrrrrrrGrrrrrrrrr";
     string phase2_5 = "gGgGGrrrrrrrrrrrrrrrrrrG";
     string phase1_6 = "rrrrrrrrrrgGgGGrrrrrrGrr";
@@ -69,15 +70,6 @@ class TrafficLightAdaptive : public TrafficLightFixed
     string phase3_8 = "rrrrrrrrrrrrrrrgGgGGrrGr";
     string phase4_7 = "rrrrrgGgGGrrrrrrrrrrGrrr";
     string phase4_8 = "rrrrrgGgGrrrrrrgGgGrGrGr";
-
-    // loop detectors id
-    enum LDid
-    {
-        EC_2, EC_3, EC_4,
-        NC_2, NC_3, NC_4,
-        SC_2, SC_3, SC_4,
-        WC_2, WC_3, WC_4,
-    };
 
   private:
     void chooseNextInterval();

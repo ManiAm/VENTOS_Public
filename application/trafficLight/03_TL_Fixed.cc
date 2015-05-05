@@ -46,7 +46,7 @@ void TrafficLightFixed::initialize(int stage)
 
     if(stage == 0)
     {
-        cout << endl << "Fixed-time traffic signal control ... " << endl << endl;
+
     }
 }
 
@@ -70,12 +70,13 @@ void TrafficLightFixed::executeFirstTimeStep()
     // call parent
     LoopDetectors::executeFirstTimeStep();
 
-    // fixed-time traffic signal control
-    if (TLControlMode == 1)
-    {
-        for (list<string>::iterator TL = TLList.begin(); TL != TLList.end(); TL++)
-            TraCI->commandSetTLProgram(*TL, "fix-time");
-    }
+    if (TLControlMode != 1)
+        return;
+
+    cout << "Fixed-time traffic signal control ... " << endl << endl;
+
+    for (list<string>::iterator TL = TLList.begin(); TL != TLList.end(); TL++)
+        TraCI->TLSetProgram(*TL, "fix-time");
 }
 
 

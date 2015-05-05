@@ -69,7 +69,7 @@ void ApplPedBase::initialize(int stage)
         SUMOpID = TraCI_Mobility->getExternalId();
 
         // pedestrian type in sumo
-        SUMOpType = TraCI->commandGetPedestrianTypeId(SUMOpID);
+        SUMOpType = TraCI->personGetTypeID(SUMOpID);
 
         // store the time of entry
         entryTime = simTime().dbl();

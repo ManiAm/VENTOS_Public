@@ -160,20 +160,20 @@ BeaconVehicle*  ApplVBeacon::prepareBeacon()
     wsm->setRecipient("broadcast");
 
     // set current position
-    Coord cord = TraCI->commandGetVehiclePos(SUMOvID);
+    Coord cord = TraCI->vehicleGetPosition(SUMOvID);
     wsm->setPos(cord);
 
     // set current speed
-    wsm->setSpeed( TraCI->commandGetVehicleSpeed(SUMOvID) );
+    wsm->setSpeed( TraCI->vehicleGetSpeed(SUMOvID) );
 
     // set current acceleration
-    wsm->setAccel( TraCI->commandGetVehicleAccel(SUMOvID) );
+    wsm->setAccel( TraCI->vehicleGetCurrentAccel(SUMOvID) );
 
     // set maxDecel
-    wsm->setMaxDecel( TraCI->commandGetVehicleMaxDecel(SUMOvID) );
+    wsm->setMaxDecel( TraCI->vehicleGetMaxDecel(SUMOvID) );
 
     // set current lane
-    wsm->setLane( TraCI->commandGetVehicleLaneId(SUMOvID).c_str() );
+    wsm->setLane( TraCI->vehicleGetLaneID(SUMOvID).c_str() );
 
     return wsm;
 }
@@ -215,7 +215,7 @@ bool ApplVBeacon::isBeaconFromLeading(BeaconVehicle* wsm)
 {
     // step 1: check if a leading vehicle is present
 
-    vector<string> vleaderIDnew = TraCI->commandGetLeadingVehicle(SUMOvID, sonarDist);
+    vector<string> vleaderIDnew = TraCI->vehicleGetLeader(SUMOvID, sonarDist);
     string vleaderID = vleaderIDnew[0];
 
     if( vleaderID == string(wsm->getSender()) )

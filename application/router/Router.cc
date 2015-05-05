@@ -230,12 +230,12 @@ void Router::HistogramsToFile()
 
 void Router::laneCostsData()
 {
-    list<string> vList = TraCI->commandGetVehicleList();
+    list<string> vList = TraCI->vehicleGetIDList();
 
     for(list<string>::iterator it = vList.begin(); it != vList.end(); it++) //Look at each vehicle
     {
-        string curEdge = TraCI->commandGetVehicleEdgeId(*it);  //The edge it's currently on
-        if(TraCI->commandGetVehicleLanePosition(*it) * 1.05 > TraCI->commandGetLaneLength(TraCI->commandGetVehicleLaneId(*it)))   //If the vehicle is on (or extremely close to) the end of the lane
+        string curEdge = TraCI->vehicleGetEdgeID(*it);  //The edge it's currently on
+        if(TraCI->vehicleGetLanePosition(*it) * 1.05 > TraCI->laneGetLength(TraCI->vehicleGetLaneID(*it)))   //If the vehicle is on (or extremely close to) the end of the lane
             curEdge = "";
         string prevEdge = vehicleEdges[*it];    //The last edge we saw it on
         if(vehicleEdges.find(*it) == vehicleEdges.end())    //If we haven't yet seen this vehicle
@@ -263,7 +263,7 @@ void Router::laneCostsData()
 void Router::sendRerouteSignal(string vehID)
 {
     simsignal_t Signal_router = registerSignal("router");// Prepare to send a router message
-    string curEdge = TraCI->commandGetVehicleEdgeId(vehID);
+    string curEdge = TraCI->vehicleGetEdgeID(vehID);
     string dest = net->vehicles[vehID]->destination;
     list<string> info = getRoute(net->edges[curEdge], net->nodes[dest], vehID);
     nodePtr->emit(Signal_router, new systemData("", "", "router", 0, vehID, info));
@@ -554,9 +554,9 @@ list<string> Router::getRoute(Edge* origin, Node* destination, string vName)
         double distanceAlongLane = 1;
         if(parent->id == origin->id)    // Vehicles may not necessarily start at the beginning of a lane. Check for that
         {
-            double lanePos = TraCI->commandGetVehicleLanePosition(vName);
-            string lane = TraCI->commandGetVehicleLaneId(vName);
-            double laneLength = TraCI->commandGetLaneLength(lane);
+            double lanePos = TraCI->vehicleGetLanePosition(vName);
+            string lane = TraCI->vehicleGetLaneID(vName);
+            double laneLength = TraCI->laneGetLength(lane);
             distanceAlongLane = 1 - (lanePos / laneLength); //And modify distanceAlongLane
         }
         double curLaneCost = distanceAlongLane * parent->getCost();

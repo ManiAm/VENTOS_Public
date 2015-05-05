@@ -25,7 +25,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <06_TL_VANET.h>
+#include <07_TL_VANET.h>
 
 namespace VENTOS {
 
@@ -42,7 +42,7 @@ void TrafficLightVANET::initialize(int stage)
 {
     TrafficLightWebster::initialize(stage);
 
-    if(TLControlMode != 4)
+    if(TLControlMode != 5)
         return;
 
     if(stage == 0)
@@ -64,8 +64,6 @@ void TrafficLightVANET::initialize(int stage)
         DetectedTime.assign(lmap.size(), 0.0);
         DetectEvt = new cMessage("DetectEvt", 1);
         scheduleAt(simTime().dbl() + detectFreq, DetectEvt);
-
-        cout << endl << "VANET traffic signal control ..." << endl << endl;
     }
 }
 
@@ -81,7 +79,7 @@ void TrafficLightVANET::handleMessage(cMessage *msg)
 {
     TrafficLightWebster::handleMessage(msg);
 
-    if(TLControlMode != 4)
+    if(TLControlMode != 5)
         return;
 
     if (msg == ChangeEvt)
@@ -93,17 +91,17 @@ void TrafficLightVANET::handleMessage(cMessage *msg)
     }
     else if (msg == DetectEvt)
     {
-        list<string> VehList = TraCI->commandGetVehicleList();
+        list<string> VehList = TraCI->vehicleGetIDList();
         for(list<string>::iterator V = VehList.begin(); V != VehList.end(); V++)
         {
-            Coord pos = TraCI->commandGetVehiclePos(*V);
+            Coord pos = TraCI->vehicleGetPosition(*V);
 
             // If within radius of traffic light:
             if ((pos.x > 65 && pos.x < 69) || (pos.x > 131 && pos.x < 135) ||
                     (pos.y > 65 && pos.y < 69) || (pos.y > 131 && pos.y < 135))
             {
                 // If in lane of interest (heading towards TL):
-                string lane = TraCI->commandGetVehicleLaneId(*V);
+                string lane = TraCI->vehicleGetLaneID(*V);
                 if (lane == "EC_2" || lane == "EC_3" || lane == "EC_4" ||
                         lane == "NC_2" || lane == "NC_3" || lane == "NC_4" ||
                         lane == "SC_2" || lane == "SC_3" || lane == "SC_4" ||
@@ -125,19 +123,21 @@ void TrafficLightVANET::executeFirstTimeStep()
     // call parent
     TrafficLightWebster::executeFirstTimeStep();
 
-    // set the program and initial TL state in all TLs
-    if(TLControlMode == 4)
-    {
-        for (list<string>::iterator TL = TLList.begin(); TL != TLList.end(); TL++)
-        {
-            TraCI->commandSetTLProgram(*TL, "adaptive-time");
-            TraCI->commandSetTLState(*TL, phase1_5);
-        }
+    if(TLControlMode != 5)
+        return;
 
-        char buff[300];
-        sprintf(buff, "Sim time: %4.2f | Interval finish time: %4.2f | Current interval: %s", simTime().dbl(), simTime().dbl() + intervalOffSet, currentInterval.c_str() );
-        cout << buff << endl;
+    cout << "VANET traffic signal control ..." << endl << endl;
+
+    for (list<string>::iterator TL = TLList.begin(); TL != TLList.end(); TL++)
+    {
+        TraCI->TLSetProgram(*TL, "adaptive-time");
+        TraCI->TLSetState(*TL, phase1_5);
     }
+
+    char buff[300];
+    sprintf(buff, "Sim time: %4.2f | Interval finish time: %4.2f | Current interval: %s", simTime().dbl(), simTime().dbl() + intervalOffSet, currentInterval.c_str() );
+    cout << buff << endl;
+
 }
 
 
@@ -156,7 +156,7 @@ void TrafficLightVANET::chooseNextInterval()
     {
         currentInterval = "red";
 
-        string str = TraCI->commandGetTLState("C");
+        string str = TraCI->TLGetState("C");
         string nextInterval = "";
         for(char& c : str) {
             if (c == 'y')
@@ -166,7 +166,7 @@ void TrafficLightVANET::chooseNextInterval()
         }
 
         // set the new state
-        TraCI->commandSetTLState("C", nextInterval);
+        TraCI->TLSetState("C", nextInterval);
         intervalElapseTime = 0.0;
         intervalOffSet = redTime;
     }
@@ -175,7 +175,7 @@ void TrafficLightVANET::chooseNextInterval()
         currentInterval = nextGreenInterval;
 
         // set the new state
-        TraCI->commandSetTLState("C", nextGreenInterval);
+        TraCI->TLSetState("C", nextGreenInterval);
         intervalElapseTime = 0.0;
         intervalOffSet = minGreenTime;
     }
@@ -217,7 +217,7 @@ void TrafficLightVANET::chooseNextGreenInterval()
             string nextInterval = "rrrrGrrrrrrrrryrrrrrrrrr";
 
             currentInterval = "yellow";
-            TraCI->commandSetTLState("C", nextInterval);
+            TraCI->TLSetState("C", nextInterval);
 
             intervalElapseTime = 0.0;
             intervalOffSet =  yellowTime;
@@ -228,7 +228,7 @@ void TrafficLightVANET::chooseNextGreenInterval()
             string nextInterval = "rrrryrrrrrrrrrGrrrrrrrrr";
 
             currentInterval = "yellow";
-            TraCI->commandSetTLState("C", nextInterval);
+            TraCI->TLSetState("C", nextInterval);
 
             intervalElapseTime = 0.0;
             intervalOffSet =  yellowTime;
@@ -239,7 +239,7 @@ void TrafficLightVANET::chooseNextGreenInterval()
             string nextInterval = "rrrryrrrrrrrrryrrrrrrrrr";
 
             currentInterval = "yellow";
-            TraCI->commandSetTLState("C", nextInterval);
+            TraCI->TLSetState("C", nextInterval);
 
             intervalElapseTime = 0.0;
             intervalOffSet =  yellowTime;
@@ -264,7 +264,7 @@ void TrafficLightVANET::chooseNextGreenInterval()
             string nextInterval = "gGgGyrrrrrrrrrrrrrrrrrrG";
 
             currentInterval = "yellow";
-            TraCI->commandSetTLState("C", nextInterval);
+            TraCI->TLSetState("C", nextInterval);
 
             intervalElapseTime = 0.0;
             intervalOffSet =  yellowTime;
@@ -289,7 +289,7 @@ void TrafficLightVANET::chooseNextGreenInterval()
             string nextInterval = "rrrrrrrrrrgGgGyrrrrrrGrr";
 
             currentInterval = "yellow";
-            TraCI->commandSetTLState("C", nextInterval);
+            TraCI->TLSetState("C", nextInterval);
 
             intervalElapseTime = 0.0;
             intervalOffSet =  yellowTime;
@@ -318,7 +318,7 @@ void TrafficLightVANET::chooseNextGreenInterval()
             string nextInterval = "yyyyrrrrrryyyyrrrrrrryry";
 
             currentInterval = "yellow";
-            TraCI->commandSetTLState("C", nextInterval);
+            TraCI->TLSetState("C", nextInterval);
 
             intervalElapseTime = 0.0;
             intervalOffSet =  yellowTime;
@@ -344,7 +344,7 @@ void TrafficLightVANET::chooseNextGreenInterval()
             string nextInterval = "rrrrrrrrryrrrrrrrrrGrrrr";
 
             currentInterval = "yellow";
-            TraCI->commandSetTLState("C", nextInterval);
+            TraCI->TLSetState("C", nextInterval);
 
             intervalElapseTime = 0.0;
             intervalOffSet =  yellowTime;
@@ -355,7 +355,7 @@ void TrafficLightVANET::chooseNextGreenInterval()
             string nextInterval = "rrrrrrrrrGrrrrrrrrryrrrr";
 
             currentInterval = "yellow";
-            TraCI->commandSetTLState("C", nextInterval);
+            TraCI->TLSetState("C", nextInterval);
 
             intervalElapseTime = 0.0;
             intervalOffSet =  yellowTime;
@@ -366,7 +366,7 @@ void TrafficLightVANET::chooseNextGreenInterval()
             string nextInterval = "rrrrrrrrryrrrrrrrrryrrrr";
 
             currentInterval = "yellow";
-            TraCI->commandSetTLState("C", nextInterval);
+            TraCI->TLSetState("C", nextInterval);
 
             intervalElapseTime = 0.0;
             intervalOffSet =  yellowTime;
@@ -391,7 +391,7 @@ void TrafficLightVANET::chooseNextGreenInterval()
             string nextInterval = "rrrrrrrrrrrrrrrgGgGyrrGr";
 
             currentInterval = "yellow";
-            TraCI->commandSetTLState("C", nextInterval);
+            TraCI->TLSetState("C", nextInterval);
 
             intervalElapseTime = 0.0;
             intervalOffSet =  yellowTime;
@@ -416,7 +416,7 @@ void TrafficLightVANET::chooseNextGreenInterval()
             string nextInterval = "rrrrrgGgGyrrrrrrrrrrGrrr";
 
             currentInterval = "yellow";
-            TraCI->commandSetTLState("C", nextInterval);
+            TraCI->TLSetState("C", nextInterval);
 
             intervalElapseTime = 0.0;
             intervalOffSet =  yellowTime;
@@ -445,7 +445,7 @@ void TrafficLightVANET::chooseNextGreenInterval()
             string nextInterval = "rrrrryyyyrrrrrryyyyryryr";
 
             currentInterval = "yellow";
-            TraCI->commandSetTLState("C", nextInterval);
+            TraCI->TLSetState("C", nextInterval);
 
             intervalElapseTime = 0.0;
             intervalOffSet =  yellowTime;

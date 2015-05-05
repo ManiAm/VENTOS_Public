@@ -62,22 +62,6 @@ class LoopDetectorData
 };
 
 
-class LaneQueueEntry
-{
-public:
-    char vehicleName[20];
-    double entryT;
-    double exitT;
-
-    LaneQueueEntry(const char *str1, double t1, double t2)
-    {
-        strcpy(this->vehicleName, str1);
-        entryT = t1;
-        exitT = t2;
-    }
-};
-
-
 class LoopDetectors : public TrafficLightBase
 {
   public:
@@ -90,33 +74,31 @@ class LoopDetectors : public TrafficLightBase
     void virtual executeFirstTimeStep();
     void virtual executeEachTimeStep(bool);
 
-  protected:
-    list<string> LDList;   // list of loop-detectors in the network
-
-    deque<LaneQueueEntry *> queue_C_NC_2;
-    deque<LaneQueueEntry *> queue_C_NC_3;
-    deque<LaneQueueEntry *> queue_C_NC_4;
-
-    deque<LaneQueueEntry *> queue_C_SC_2;
-    deque<LaneQueueEntry *> queue_C_SC_3;
-    deque<LaneQueueEntry *> queue_C_SC_4;
-
-    deque<LaneQueueEntry *> queue_C_WC_2;
-    deque<LaneQueueEntry *> queue_C_WC_3;
-    deque<LaneQueueEntry *> queue_C_WC_4;
-
-    deque<LaneQueueEntry *> queue_C_EC_2;
-    deque<LaneQueueEntry *> queue_C_EC_3;
-    deque<LaneQueueEntry *> queue_C_EC_4;
-
   private:
+    void getAllDetectors();
     void inductionLoops();
     void inductionLoopToFile();
     int findInVector(vector<LoopDetectorData *> , const char *, const char *);
+    void trafficDemand();
+    void measureQueue();
 
-    bool collectInductionLoopData;
-    bool collectIntersectionQueue;
+  protected:
+    map<string, string> LD_demand;            // ids of loop detectors for measuring incoming traffic demand
+    map<string, string> LD_actuated_start;    // ids of loop detectors for actuated-time signal control (start of queue)
+    map<string, string> LD_actuated_end;      // ids of loop detectors for actuated-time signal control (end of queue)
+    map<string,pair<string,int>> laneQueueSize;
+
     vector<LoopDetectorData *> Vec_loopDetectors;
+
+  private:
+    bool collectInductionLoopData;
+    bool measureIntersectionQueue;
+    bool measureTrafficDemand;
+
+    bool freeze = false;
+    double lastDetectionT_old = 0;
+    double total = 0;
+    int passedVeh = 0;
 };
 
 }

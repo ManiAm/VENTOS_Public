@@ -68,167 +68,237 @@ class TraCI_Extend : public TraCIScenarioManager
         virtual void init_traci();
 		virtual void finish();
 
-    protected:
-        boost::filesystem::path VENTOS_FullPath;
-        boost::filesystem::path SUMO_Path;
-        boost::filesystem::path SUMO_FullPath;
-
-    public:
-        // CMD_GET_SIM_VARIABLE
-        double* commandGetNetworkBoundary();
-        uint32_t commandGetMinExpectedVehicles();
-        uint32_t commandGetArrivedVehiclesCount();
-
-        // control-related commands
-        void commandTerminate();
-
-        // CMD_GET_VEHICLE_VARIABLE
-        list<string> commandGetVehicleList();
-        uint32_t commandGetVehicleCount();
-        double commandGetVehicleSpeed(string);
-        Coord commandGetVehiclePos(string);
-        string commandGetVehicleEdgeId(string);
-        string commandGetVehicleLaneId(string);
-        uint32_t commandGetVehicleLaneIndex(string);
-        list<string> commandGetVehicleEdgeList(string nodeId);
-        string commandGetVehicleTypeId(string);
-        uint8_t* commandGetVehicleColor(string);
-        double commandGetVehicleLanePosition(std::string nodeId);
-        double commandGetVehicleLength(string);
-        double commandGetVehicleMaxDecel(string);
-        double commandGetVehicleTimeGap(string);
-        double commandGetVehicleMinGap(string);
-        string commandGetLeadingVehicle_old(string);
-        vector<string> commandGetLeadingVehicle(string, double);
-        double commandGetVehicleAccel(string);    // new defined command
-        int commandGetVehicleCFMode(string);      // new defined command
-        int commandGetYellowOrRed(string);       // new defined command
-
-        // CMD_GET_VEHICLETYPE_VARIABLE
-        double commandGetVehicleTypeLength(string);
-        int commandGetVehicleControllerType(string);      // new defined command
-        int commandGetVehicleControllerNumber(string);    // new defined command
-
-        // CMD_GET_ROUTE_VARIABLE
-        list<string> commandGetRouteIds();
-
-        // CMD_GET_LANE_VARIABLE
-        list<string> commandGetLaneList();
-        list<string> commandGetLaneVehicleList(string);
-        double commandGetLaneLength(string);
-        double commandGetLaneMeanSpeed(string);
-
-        // CMD_GET_INDUCTIONLOOP_VARIABLE (E1-Detectors)
-        list<string> commandGetLoopDetectorList();
-        string commandGetLoopDetectorLaneID(string);
-        uint32_t commandGetLoopDetectorCount(string);
-        double commandGetLoopDetectorSpeed(string);
-        list<string> commandGetLoopDetectorVehicleList(string);
-        double commandGetLoopDetectorLastTime(string);
-        vector<string> commandGetLoopDetectorVehicleData(string);
-
-        // CMD_GET_AREAL_DETECTOR_VARIABLE (E2-Detectors)
-        list<string> commandGetLaneAreaDetectorList();
-        uint32_t commandGetLaneAreaDetectorCount(string);
-        double commandGetLaneAreaDetectorSpeed(string);
-        list<string> commandGetLaneAreaDetectorVehicleList(string);
-
-		// CMD_GET_TL_VARIABLE
-		list<string> commandGetTLIDList();
-		uint32_t commandGetTLCount();
-		string commandGetTLState(string TLid);
-        list<string> commandGetControlledLanes(string TLid);
-        vector<string> commandGetControlledLinks(string TLid);
-		uint32_t commandGetCurrentPhaseDuration(string TLid);
-		uint32_t commandGetCurrentPhase(string TLid);
-		uint32_t commandGetNextSwitchTime(string TLid);
-		string commandGetCurrentProgram(string TLid);
-
-        // CMD_GET_GUI_VARIABLE
-        Coord commandGetGUIOffset();
-        vector<double> commandGetGUIBoundry();
-
-        // CMD_GET_POLYGON_VARIABLE
-        list<string> commandGetPolygonList();
-        std::list<Coord> commandGetPolygonShape(string polyId);
-
-        // CMD_GET_PERSON
-        list<string> commandGetPedestrianList();
-        uint32_t commandGetPedestrianCount();
-        string commandGetPedestrianTypeId(string);
-        Coord commandGetPedestrianPos(string);
-        double commandGetPedestrianSpeed(string);
-        string commandGetPedestrianRoadId(string);
-
-
-        // ###########################################################
-        // ###########################################################
-
-        // CMD_SET_VEHICLE_VARIABLE
-        void commandVehicleStop(string, string, double, uint8_t, double, uint8_t);
-        void commandChangeVehicleLane(string, uint8_t, double);
-        void commandChangeVehicleSpeed(string, double);
-        void commandChangeVehicleColor(string, const TraCIColor&);
-        void commandChangeVehicleRoute(string, list<string> value);
-        int32_t commandCreatLaneChangeMode(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t);
-        void commandSetLaneChangeMode(string, int32_t);
-        void commandAddVehicle(string, string, string, int32_t, double, double, uint8_t);
-        void commandSetVehicleParking(string);
-        void commandSetVehicleClass(string, string);
-        void commandSetVehicleMaxAccel(string, double);
-        void commandSetVehicleMaxDecel(string, double);
-        void commandSetVehicleTg(string, double);
-        // set the controller's parameters for this vehicle
-        void commandSetVehicleControllerParameters(string, string);  // new defined command
-        // set an error value for the gap
-        void commandSetVehicleErrorGap(string, double);           // new defined command
-        // set an error value for relative speed
-        void commandSetVehicleErrorRelSpeed(string, double);      // new defined command
-        // should the controller degrade to ACC?
-        void commandSetVehicleDegradeToACC(string, bool);         // new defined command
-        // should the debug info be printed in the SUMO output console?
-        void commandSetVehicleDebug(string, bool);                // new defined command
-
-        // CMD_SET_VEHICLETYPE_VARIABLE
-        void commandSetMaxSpeed(string, double);
-        void commandSetVint(string, double);              // new defined command
-        void commandSetComfAccel(string, double);         // new defined command
-        void commandSetComfDecel(string, double);         // new defined command
-
-        // CMD_SET_ROUTE_VARIABLE
-        void commandAddRoute(string name, list<string> route);
-
-        // CMD_SET_EDGE_VARIABLE
-        void commandSetEdgeGlobalTravelTime(string, int32_t, int32_t, double);
-
-        // CMD_SET_LANE_VARIABLE
-        void commandSetLaneVmax(string, double);
-
-        // CMD_SET_INDUCTIONLOOP_VARIABLE
-        void commandAddLoopDetector();
-
-		// CMD_SET_TL_VARIABLE
-        void commandSetTLState(string TLid, string value);
-        void commandSetTLPhaseIndex(string TLid, int value);
-        void commandSetTLProgram(string TLid, string value);
-		void commandSetTLPhaseDurationRemaining(string TLid, int value);
-		void commandSetTLPhaseDuration(string TLid, int value);
-
-        // CMD_SET_GUI_VARIABLE
-        void commandSetGUIZoom(double);
-        void commandSetGUITrack(string);
-        void commandSetGUIOffset(double, double);
-
-        // CMD_SET_POLYGON_VARIABLE
-        void commandAddPolygon(std::string polyId, std::string polyType, const TraCIColor& color, bool filled, int32_t layer, const std::list<TraCICoord>& points);
-
-	private:
+    private:
         void sendLaunchFile();
 
         // generic methods for getters
         Coord genericGetCoordv2(uint8_t commandId, string objectId, uint8_t variableId, uint8_t responseId);
         vector<double> genericGetBoundingBox(uint8_t commandId, string objectId, uint8_t variableId, uint8_t responseId);
         uint8_t* genericGetArrayUnsignedInt(uint8_t, string, uint8_t, uint8_t);
+
+    protected:
+        boost::filesystem::path VENTOS_FullPath;
+        boost::filesystem::path SUMO_Path;
+        boost::filesystem::path SUMO_FullPath;
+
+    public:
+
+        // ################################################################
+        //                            simulation
+        // ################################################################
+
+        // CMD_GET_SIM_VARIABLE
+        double* simulationGetNetBoundary();
+        uint32_t simulationGetMinExpectedNumber();
+        uint32_t simulationGetArrivedNumber();
+
+        // control-related commands
+        void simulationTerminate();
+
+        // ################################################################
+        //                            vehicle
+        // ################################################################
+
+        // CMD_GET_VEHICLE_VARIABLE
+        list<string> vehicleGetIDList();
+        uint32_t vehicleGetIDCount();
+        double vehicleGetSpeed(string);
+        uint8_t* vehicleGetStopState(string);
+        Coord vehicleGetPosition(string);
+        string vehicleGetEdgeID(string);
+        string vehicleGetLaneID(string);
+        uint32_t vehicleGetLaneIndex(string);
+        double vehicleGetLanePosition(string);
+        string vehicleGetTypeID(string);
+        string vehicleGetRouteID(string);
+        list<string> vehicleGetRoute(string);
+        string vehicleGetBestLanes(string);
+        uint8_t* vehicleGetColor(string);
+        uint8_t* vehicleGetSignals(string);
+        double vehicleGetLength(string);
+        double vehicleGetMinGap(string);
+        double vehicleGetMaxAccel(string);
+        double vehicleGetMaxDecel(string);
+        double vehicleGetTimeGap(string);
+        string vehicleGetClass(string);
+        vector<string> vehicleGetLeader(string, double);
+        double vehicleGetCurrentAccel(string);       // new command
+        int vehicleGetCarFollowingMode(string);      // new command [returns the current ACC/CACC car following mode]
+        int vehicleGetTrafficLightAhead(string);     // new command [if the traffic light ahead is yellow or red]
+
+        // CMD_SET_VEHICLE_VARIABLE
+        void vehicleSetStop(string, string, double, uint8_t, double, uint8_t);  // adds or modifies a stop with the given parameters.
+        void vehicleResume(string);
+        void vehicleSetSpeed(string, double);
+        int32_t vehicleBuildLaneChangeMode(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t);
+        void vehicleSetLaneChangeMode(string, int32_t);
+        void vehicleChangeLane(string, uint8_t, double);
+        void vehicleSetRoute(string, list<string> value);
+        void vehicleSetRouteID(string, string);
+        void vehicleSetColor(string, const TraCIColor&);
+        void vehicleSetClass(string, string);
+        void vehicleSetMaxAccel(string, double);
+        void vehicleSetMaxDecel(string, double);
+        void vehicleSetTimeGap(string, double);
+        void vehicleAdd(string, string, string, int32_t, double, double, uint8_t);
+        void vehicleRemove(string, uint8_t);
+        void vehicleSetControllerParameters(string, string);  // new command [set the controller's parameters for this vehicle]
+        void vehicleSetErrorGap(string, double);              // new command [set an error value for the gap]
+        void vehicleSetErrorRelSpeed(string, double);         // new command [set an error value for relative speed]
+        void vehicleSetDowngradeToACC(string, bool);          // new command [should the controller degrade to ACC ?]
+        void vehicleSetDebug(string, bool);                   // new command [should the debug info be printed in the SUMO output console ?]
+
+        // ################################################################
+        //                          vehicle type
+        // ################################################################
+
+        // CMD_GET_VEHICLETYPE_VARIABLE
+        list<string> vehicleTypeGetIDList();
+        uint32_t vehicleTypeGetIDCount();
+        double vehicleTypeGetLength(string);
+        double vehicleTypeGetMaxSpeed(string);
+        int vehicleTypeGetControllerType(string);      // new command
+        int vehicleTypeGetControllerNumber(string);    // new command
+
+        // CMD_SET_VEHICLETYPE_VARIABLE
+        void vehicleTypeSetMaxSpeed(string, double);
+        void vehicleTypeSetVint(string, double);        // new command
+        void vehicleTypeSetComfAccel(string, double);   // new command
+        void vehicleTypeSetComfDecel(string, double);   // new command
+
+        // ################################################################
+        //                              route
+        // ################################################################
+
+        // CMD_GET_ROUTE_VARIABLE
+        list<string> routeGetIDList();
+        uint32_t routeGetIDCount();
+        list<string> routeGetEdges(string);
+
+        // CMD_SET_ROUTE_VARIABLE
+        void routeAdd(string, list<string>);
+
+        // ################################################################
+        //                              edge
+        // ################################################################
+
+        // CMD_GET_EDGE_VARIABLE
+        list<string> edgeGetIDList();
+        uint32_t edgeGetIDCount();
+        double edgeGetMeanTravelTime(string);
+        uint32_t edgeGetLastStepVehicleNumber(string);
+        list<string> edgeGetLastStepVehicleIDs(string);
+        double edgeGetLastStepMeanVehicleSpeed(string);
+        double edgeGetLastStepMeanVehicleLength(string);
+        list<string> edgeGetLastStepPersonIDs(string);
+
+        // CMD_SET_EDGE_VARIABLE
+        void edgeSetGlobalTravelTime(string, int32_t, int32_t, double);
+
+        // ################################################################
+        //                              lane
+        // ################################################################
+
+        // CMD_GET_LANE_VARIABLE
+        list<string> laneGetIDList();
+        uint32_t laneGetIDCount();
+        string laneGetEdgeID(string);
+        double laneGetLength(string);
+        double laneGetMaxSpeed(string);
+        uint32_t laneGetLastStepVehicleNumber(string);
+        list<string> laneGetLastStepVehicleIDs(string);
+        double laneGetLastStepMeanVehicleSpeed(string);
+        double laneGetLastStepMeanVehicleLength(string);
+
+        // CMD_SET_LANE_VARIABLE
+        void laneSetMaxSpeed(string, double);
+
+        // ################################################################
+        //                 loop detector (E1-Detectors)
+        // ################################################################
+
+        // CMD_GET_INDUCTIONLOOP_VARIABLE
+        list<string> LDGetIDList();
+        uint32_t LDGetIDCount(string);
+        string LDGetLaneID(string);
+        double LDGetPosition(string);
+        uint32_t LDGetLastStepVehicleNumber(string);
+        list<string> LDGetLastStepVehicleIDs(string);
+        double LDGetLastStepMeanVehicleSpeed(string);
+        double LDGetLastDetectionTime(string);
+        vector<string> LDGetLastStepVehicleData(string);
+
+        // ################################################################
+        //                lane area detector (E2-Detectors)
+        // ################################################################
+
+        // CMD_GET_AREAL_DETECTOR_VARIABLE
+        list<string> LADGetIDList();
+        uint32_t LADGetIDCount(string);
+        uint32_t LADGetLastStepVehicleNumber(string);
+        list<string> LADGetLastStepVehicleIDs(string);
+        double LADGetLastStepMeanVehicleSpeed(string);
+
+        // ################################################################
+        //                          traffic light
+        // ################################################################
+
+        // CMD_GET_TL_VARIABLE
+		list<string> TLGetIDList();
+		uint32_t TLGetIDCount();
+        list<string> TLGetControlledLanes(string);
+        map<int,string> TLGetControlledLinks(string);
+        string TLGetProgram(string);
+        uint32_t TLGetPhase(string);
+        string TLGetState(string);
+        uint32_t TLGetPhaseDuration(string);
+		uint32_t TLGetNextSwitchTime(string);
+
+        // CMD_SET_TL_VARIABLE
+        void TLSetProgram(string, string);
+        void TLSetPhaseIndex(string, int);
+        void TLSetPhaseDuration(string, int);
+        void TLSetState(string, string);
+
+        // ################################################################
+        //                               GUI
+        // ################################################################
+
+        // CMD_GET_GUI_VARIABLE
+        Coord GUIGetOffset();
+        vector<double> GUIGetBoundry();
+
+        // CMD_SET_GUI_VARIABLE
+        void GUISetZoom(double);
+        void GUISetTrackVehicle(string);
+        void GUISetOffset(double, double);
+
+        // ################################################################
+        //                               polygon
+        // ################################################################
+
+        // CMD_GET_POLYGON_VARIABLE
+        list<string> polygonGetIDList();
+        uint32_t polygonGetIDCount();
+        list<Coord> polygonGetShape(string);
+
+        // CMD_SET_POLYGON_VARIABLE
+        void polygonAdd(string, string, const TraCIColor&, bool, int32_t, const list<TraCICoord>&);
+        void polygonSetFilled(string, uint8_t);
+
+        // ################################################################
+        //                               person
+        // ################################################################
+
+        // CMD_GET_PERSON
+        list<string> personGetIDList();
+        uint32_t personGetIDCount();
+        string personGetTypeID(string);
+        Coord personGetPosition(string);
+        string personGetEdgeID(string);
+        double personGetEdgePosition(string);
+        double personGetSpeed(string);
+        string personGetNextEdge(string);
 };
 
 }

@@ -8,5 +8,6 @@ simple TL_LoopDetectors extends TL_Base
         @display("i=block/network2");  
         
         bool collectInductionLoopData;
-        bool collectIntersectionQueue;
+        bool measureIntersectionQueue;
+        bool measureTrafficDemand;
 }

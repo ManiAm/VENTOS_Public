@@ -81,13 +81,13 @@ void ApplVBase::initialize(int stage)
         SUMOvID = TraCI_Mobility->getExternalId();
 
         // vehicle type in sumo
-        SUMOvType = TraCI->commandGetVehicleTypeId(SUMOvID);
+        SUMOvType = TraCI->vehicleGetTypeID(SUMOvID);
 
         // get controller type from SUMO
-        SUMOControllerType = TraCI->commandGetVehicleControllerType(SUMOvType);
+        SUMOControllerType = TraCI->vehicleTypeGetControllerType(SUMOvType);
 
         // get controller number from SUMO
-        SUMOControllerNumber = TraCI->commandGetVehicleControllerNumber(SUMOvType);
+        SUMOControllerNumber = TraCI->vehicleTypeGetControllerNumber(SUMOvType);
 
         // disable to speed-up the simulation since we do not need this
         //if(SUMOvType != "TypeObstacle")

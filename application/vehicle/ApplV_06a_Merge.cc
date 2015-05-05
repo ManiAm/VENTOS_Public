@@ -202,8 +202,8 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
     else if(vehicleState == state_mergeAccepted)
     {
         cancelEvent(plnTIMER1);
-        TraCI->commandSetVehicleTg(SUMOvID, TG1);
-        TraCI->commandChangeVehicleSpeed(SUMOvID, 30.);  // catch-up
+        TraCI->vehicleSetTimeGap(SUMOvID, TG1);
+        TraCI->vehicleSetSpeed(SUMOvID, 30.);  // catch-up
 
         // now we should wait until we catch-up completely
         vehicleState = state_waitForCatchup;
@@ -387,7 +387,7 @@ void ApplVPlatoonMg::RemoveFollowerFromList_Merge(string followerID)
 bool ApplVPlatoonMg::CatchUpDone()
 {
     // we use our sonar to check the gap
-    vector<string> vleaderIDnew = TraCI->commandGetLeadingVehicle(SUMOvID, sonarDist);
+    vector<string> vleaderIDnew = TraCI->vehicleGetLeader(SUMOvID, sonarDist);
     string vleaderID = vleaderIDnew[0];
     double gap = atof( vleaderIDnew[1].c_str() );
 
@@ -395,13 +395,13 @@ bool ApplVPlatoonMg::CatchUpDone()
         return true;
 
     // get the timeGap setting
-    double timeGapSetting = TraCI->commandGetVehicleTimeGap(SUMOvID);
+    double timeGapSetting = TraCI->vehicleGetTimeGap(SUMOvID);
 
     // get speed
-    double speed = TraCI->commandGetVehicleSpeed(SUMOvID);
+    double speed = TraCI->vehicleGetSpeed(SUMOvID);
 
     // get minGap
-    double minGap = TraCI->commandGetVehicleMinGap(SUMOvID);
+    double minGap = TraCI->vehicleGetMinGap(SUMOvID);
 
     double targetGap = (speed * timeGapSetting) + minGap;
 

@@ -109,13 +109,13 @@ void ApplVPlatoonMg::dissolve_DataFSM(PlatoonMsg* wsm)
             myPlnDepth = 0;
             plnSize = 1;
             plnMembersList.push_back(SUMOvID);
-            TraCI->commandSetVehicleTg(SUMOvID, TP);
+            TraCI->vehicleSetTimeGap(SUMOvID, TP);
 
             busy = false;
 
             // change color to red!
             TraCIColor newColor = TraCIColor::fromTkColor("red");
-            TraCI->commandChangeVehicleColor(SUMOvID, newColor);
+            TraCI->vehicleSetColor(SUMOvID, newColor);
 
             vehicleState = state_platoonLeader;
             reportStateToStat();

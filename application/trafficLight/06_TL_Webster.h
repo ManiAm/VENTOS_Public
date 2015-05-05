@@ -1,6 +1,5 @@
 /****************************************************************************/
-/// @file    TL_Manager.cc
-/// @author  Philip Vo <foxvo@ucdavis.edu>
+/// @file    TL_Webster.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @date    August 2013
 ///
@@ -25,68 +24,32 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <08_TL_Manager.h>
+#ifndef TRAFFICLIGHTWEBSTER_H
+#define TRAFFICLIGHTWEBSTER_H
+
+#include <05_TL_AdaptiveQueue.h>
+
+using namespace std;
 
 namespace VENTOS {
 
-Define_Module(VENTOS::TrafficLightManager);
-
-
-TrafficLightManager::~TrafficLightManager()
+class TrafficLightWebster : public TrafficLightAdaptiveQueue
 {
+  public:
+    virtual ~TrafficLightWebster();
+    virtual void finish();
+    virtual void initialize(int);
+    virtual void handleMessage(cMessage *);
+
+  protected:
+    void virtual executeFirstTimeStep();
+    void virtual executeEachTimeStep(bool);
+
+  private:
+    void chooseNextInterval();
+    void chooseNextGreenInterval();
+};
 
 }
 
-
-void TrafficLightManager::initialize(int stage)
-{
-    TrafficLightRouter::initialize(stage);
-
-    if(stage == 0)
-    {
-
-    }
-}
-
-
-void TrafficLightManager::finish()
-{
-    TrafficLightRouter::finish();
-
-}
-
-
-void TrafficLightManager::handleMessage(cMessage *msg)
-{
-    TrafficLightRouter::handleMessage(msg);
-
-}
-
-
-void TrafficLightManager::executeFirstTimeStep()
-{
-    // call parent
-    TrafficLightRouter::executeFirstTimeStep();
-
-    // check if the TLControlMode number is valid?
-    if(TLControlMode < 0 || TLControlMode > 5)
-    {
-        error("Invalid TLControlMode!");
-    }
-}
-
-
-void TrafficLightManager::executeEachTimeStep(bool simulationDone)
-{
-    // call parent
-    TrafficLightRouter::executeEachTimeStep(simulationDone);
-
-    //    if (TLControlMode == 1 || TLControlMode == 2)
-    //        return;
-    //    else if (TLControlMode == 3)
-    //    {
-    //
-    //    }
-}
-
-}
+#endif

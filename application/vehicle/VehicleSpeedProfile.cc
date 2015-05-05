@@ -98,7 +98,7 @@ void SpeedProfile::Change()
         return;
 
     // get a list of all vehicles
-    list<string> veh = TraCI->commandGetLaneVehicleList(laneId);
+    list<string> veh = TraCI->laneGetLastStepVehicleIDs(laneId);
 
     // as long as there is no vehicles, return
     if(veh.empty())
@@ -137,7 +137,7 @@ void SpeedProfile::Change()
     // fixed speed
     if(mode == 0)
     {
-        TraCI->commandChangeVehicleSpeed(profileVehicle, normalSpeed);
+        TraCI->vehicleSetSpeed(profileVehicle, normalSpeed);
     }
     else if(mode == 1)
     {
@@ -158,8 +158,8 @@ void SpeedProfile::Change()
         // note3: and we have to change maxDeccel and maxAccel only once!
         if( simTime().dbl() == startTime )
         {
-            TraCI->commandSetVehicleMaxAccel(profileVehicle, 1.5);
-            TraCI->commandSetVehicleMaxDecel(profileVehicle, 2.);
+            TraCI->vehicleSetMaxAccel(profileVehicle, 1.5);
+            TraCI->vehicleSetMaxDecel(profileVehicle, 2.);
             return;
         }
 
@@ -184,8 +184,8 @@ void SpeedProfile::Change()
     {
         if( simTime().dbl() == startTime )
         {
-            TraCI->commandSetVehicleMaxAccel(profileVehicle, 1);
-            TraCI->commandSetVehicleMaxDecel(profileVehicle, 1);
+            TraCI->vehicleSetMaxAccel(profileVehicle, 1);
+            TraCI->vehicleSetMaxDecel(profileVehicle, 1);
             return;
         }
 
@@ -208,11 +208,11 @@ void SpeedProfile::AccelDecel(double startT, double minV, double maxV)
     }
     else if( simTime().dbl() == startT )
     {
-        TraCI->commandChangeVehicleSpeed(profileVehicle, maxV);
+        TraCI->vehicleSetSpeed(profileVehicle, maxV);
         return;
     }
 
-    double v = TraCI->commandGetVehicleSpeed(profileVehicle);
+    double v = TraCI->vehicleGetSpeed(profileVehicle);
 
     if( old_speed != v )
     {
@@ -227,7 +227,7 @@ void SpeedProfile::AccelDecel(double startT, double minV, double maxV)
             // waiting time between speed change (default is 40 s)
             if(simTime().dbl() - old_time >= switchTime)
             {
-                TraCI->commandChangeVehicleSpeed(profileVehicle, minV);
+                TraCI->vehicleSetSpeed(profileVehicle, minV);
             }
         }
         else if(v == minV)
@@ -235,7 +235,7 @@ void SpeedProfile::AccelDecel(double startT, double minV, double maxV)
             // waiting time between speed change (default is 40 s)
             if(simTime().dbl() - old_time >= switchTime)
             {
-                TraCI->commandChangeVehicleSpeed(profileVehicle, maxV);
+                TraCI->vehicleSetSpeed(profileVehicle, maxV);
             }
         }
     }
@@ -250,11 +250,11 @@ void SpeedProfile::AccelDecelZikZak(double startT, double minV, double maxV)
     }
     else if( simTime().dbl() == startT )
     {
-        TraCI->commandChangeVehicleSpeed(profileVehicle, maxV);
+        TraCI->vehicleSetSpeed(profileVehicle, maxV);
         return;
     }
 
-    double v = TraCI->commandGetVehicleSpeed(profileVehicle);
+    double v = TraCI->vehicleGetSpeed(profileVehicle);
 
     if( old_speed != v )
     {
@@ -265,11 +265,11 @@ void SpeedProfile::AccelDecelZikZak(double startT, double minV, double maxV)
     {
         if(v == maxV)
         {
-            TraCI->commandChangeVehicleSpeed(profileVehicle, minV);
+            TraCI->vehicleSetSpeed(profileVehicle, minV);
         }
         else if(v == minV)
         {
-            TraCI->commandChangeVehicleSpeed(profileVehicle, maxV);
+            TraCI->vehicleSetSpeed(profileVehicle, maxV);
         }
     }
 }
@@ -283,7 +283,7 @@ void SpeedProfile::AccelDecelPeriodic(double startT, double offset, double A, do
     }
     else if( simTime().dbl() == startT )
     {
-        TraCI->commandChangeVehicleSpeed(profileVehicle, offset);
+        TraCI->vehicleSetSpeed(profileVehicle, offset);
     }
     else if( simTime().dbl() < (startT + 10) )
     {
@@ -293,7 +293,7 @@ void SpeedProfile::AccelDecelPeriodic(double startT, double offset, double A, do
     double t = simTime().dbl();
     double newSpeed = offset + A * sin(w * t);
 
-    TraCI->commandChangeVehicleSpeed(profileVehicle, newSpeed);
+    TraCI->vehicleSetSpeed(profileVehicle, newSpeed);
 }
 
 
@@ -310,7 +310,7 @@ void SpeedProfile::ExTrajectory(double startT)
     else if( simTime().dbl() == startT )
     {
         // TraCI->commandSetSpeed(profileVehicle, 13.86);
-        TraCI->commandChangeVehicleSpeed("CACC1", 20.);
+        TraCI->vehicleSetSpeed("CACC1", 20.);
         return;
     }
     else if( simTime().dbl() < 80 )
@@ -327,7 +327,7 @@ void SpeedProfile::ExTrajectory(double startT)
         return;
     }
 
-    TraCI->commandChangeVehicleSpeed(profileVehicle, atof(line));
+    TraCI->vehicleSetSpeed(profileVehicle, atof(line));
 }
 
 } // end of namespace

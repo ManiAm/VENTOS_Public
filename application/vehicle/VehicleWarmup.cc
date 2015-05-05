@@ -124,7 +124,7 @@ bool Warmup::DoWarmup()
         return false;
 
     // who is leading?
-    list<string> veh = TraCI->commandGetLaneVehicleList(laneId);
+    list<string> veh = TraCI->laneGetLastStepVehicleIDs(laneId);
 
     if(veh.empty())
         return false;
@@ -146,16 +146,16 @@ bool Warmup::DoWarmup()
     // get the first leading vehicle
     string leadingVehicle = veh.back();
 
-    double pos = TraCI->commandGetVehicleLanePosition(leadingVehicle);
+    double pos = TraCI->vehicleGetLanePosition(leadingVehicle);
 
     // we are at stop position
     if(pos >= stopPosition)
     {
         // start breaking and wait for other vehicles
-        TraCI->commandChangeVehicleSpeed(leadingVehicle, warmUpSpeed);
+        TraCI->vehicleSetSpeed(leadingVehicle, warmUpSpeed);
 
         // get # of vehicles that have entered simulation so far
-        int n = TraCI->commandGetVehicleCount();
+        int n = TraCI->vehicleGetIDCount();
 
         // if all vehicles are in the simulation
         if( n == totalVehicles )

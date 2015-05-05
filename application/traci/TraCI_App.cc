@@ -113,8 +113,8 @@ void TraCI_App::executeOneTimestep()
     }
 
     // if simulation should be ended
-    int NoVehAndBike = commandGetMinExpectedVehicles();
-    int NoPed = commandGetPedestrianCount();
+    int NoVehAndBike = simulationGetMinExpectedNumber();
+    int NoPed = personGetIDCount();
     int totalModules = NoVehAndBike + NoPed;
     bool simulationDone = (simTime().dbl() >= terminate) or (totalModules == 0);
 
@@ -127,7 +127,7 @@ void TraCI_App::executeOneTimestep()
             vehiclesDataToFile();
 
         // close TraCI connection
-        commandTerminate();
+        simulationTerminate();
 
         // then terminate
         endSimulation();
@@ -137,7 +137,7 @@ void TraCI_App::executeOneTimestep()
 
 void TraCI_App::addPedestriansToOMNET()
 {
-    list<string> allPedestrians = commandGetPedestrianList();
+    list<string> allPedestrians = personGetIDList();
     //cout << simTime().dbl() << ": " << allPedestrians.size() << endl;
 
     if(allPedestrians.size() == 0)
@@ -259,8 +259,8 @@ void TraCI_App::addPedestriansToOMNET()
 // for vehicles and bikes only (not pedestrians!)
 void TraCI_App::addModule(std::string nodeId, std::string type, std::string name, std::string displayString, const Coord& position, std::string road_id, double speed, double angle)
 {
-    string vehType = commandGetVehicleTypeId(nodeId);  // get vehicle type
-    int SUMOControllerType = commandGetVehicleControllerType(vehType);   // get controller type
+    string vehType = vehicleGetTypeID(nodeId);  // get vehicle type
+    int SUMOControllerType = vehicleTypeGetControllerType(vehType);   // get controller type
 
     if(SUMOControllerType == SUMO_TAG_CF_KRAUSS || SUMOControllerType == SUMO_TAG_CF_ACC || SUMOControllerType == SUMO_TAG_CF_CACC)
     {
@@ -284,19 +284,19 @@ void TraCI_App::addModule(std::string nodeId, std::string type, std::string name
 void TraCI_App::vehiclesData()
 {
     // get all lanes in the network
-    list<string> myList = commandGetLaneList();
+    list<string> myList = laneGetIDList();
 
     for(list<string>::iterator i = myList.begin(); i != myList.end(); ++i)
     {
         // get all vehicles on lane i
-        list<string> myList2 = commandGetLaneVehicleList( i->c_str() );
+        list<string> myList2 = laneGetLastStepVehicleIDs( i->c_str() );
 
         for(list<string>::reverse_iterator k = myList2.rbegin(); k != myList2.rend(); ++k)
             saveVehicleData(k->c_str());
     }
 
     // increase index after writing data for all vehicles
-    if (commandGetVehicleCount() > 0)
+    if (vehicleGetIDCount() > 0)
         index++;
 }
 
@@ -304,12 +304,12 @@ void TraCI_App::vehiclesData()
 void TraCI_App::saveVehicleData(string vID)
 {
     double timeStep = (simTime()-updateInterval).dbl();
-    string vType = commandGetVehicleTypeId(vID);
-    string lane = commandGetVehicleLaneId(vID);
-    double pos = commandGetVehicleLanePosition(vID);
-    double speed = commandGetVehicleSpeed(vID);
-    double accel = commandGetVehicleAccel(vID);
-    int CFMode_Enum = commandGetVehicleCFMode(vID);
+    string vType = vehicleGetTypeID(vID);
+    string lane = vehicleGetLaneID(vID);
+    double pos = vehicleGetLanePosition(vID);
+    double speed = vehicleGetSpeed(vID);
+    double accel = vehicleGetCurrentAccel(vID);
+    int CFMode_Enum = vehicleGetCarFollowingMode(vID);
     string CFMode;
 
     enum CFMODES {
@@ -351,10 +351,10 @@ void TraCI_App::saveVehicleData(string vID)
     }
 
     // get the timeGap setting
-    double timeGapSetting = commandGetVehicleTimeGap(vID);
+    double timeGapSetting = vehicleGetTimeGap(vID);
 
     // get the gap
-    vector<string> vleaderIDnew = commandGetLeadingVehicle(vID, 900);
+    vector<string> vleaderIDnew = vehicleGetLeader(vID, 900);
     string vleaderID = vleaderIDnew[0];
     double spaceGap = -1;
 

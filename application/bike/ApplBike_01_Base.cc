@@ -69,7 +69,7 @@ void ApplBikeBase::initialize(int stage)
         SUMObID = TraCI_Mobility->getExternalId();
 
         // bike type in sumo
-        SUMObType = TraCI->commandGetVehicleTypeId(SUMObID);
+        SUMObType = TraCI->vehicleGetTypeID(SUMObID);
 
         // store the time of entry
         entryTime = simTime().dbl();
