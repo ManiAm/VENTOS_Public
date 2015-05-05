@@ -28,7 +28,7 @@
 #ifndef TRAFFICLIGHTVANET_H
 #define TRAFFICLIGHTVANET_H
 
-#include <06_TL_Webster.h>
+#include <06_TL_AdaptiveWebster.h>
 
 using namespace std;
 

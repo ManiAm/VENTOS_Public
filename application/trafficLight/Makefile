@@ -40,7 +40,7 @@ O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Object files for local .cc and .msg files
 OBJS = \
-    $O/06_TL_Webster.o \
+    $O/06_TL_AdaptiveWebster.o \
     $O/07_TL_VANET.o \
     $O/02_LoopDetectors.o \
     $O/04_TL_Adaptive.o \
@@ -278,7 +278,7 @@ $O/05_TL_AdaptiveQueue.o: 05_TL_AdaptiveQueue.cc \
 	$(VEINS_PROJ)/src/veins/modules/obstacle/Obstacle.h \
 	$(VEINS_PROJ)/src/veins/modules/obstacle/ObstacleControl.h \
 	$(VEINS_PROJ)/src/veins/modules/world/annotations/AnnotationManager.h
-$O/06_TL_Webster.o: 06_TL_Webster.cc \
+$O/06_TL_AdaptiveWebster.o: 06_TL_AdaptiveWebster.cc \
 	../global/Appl.h \
 	../msg/Messages_m.h \
 	../traci/TraCI_Extend.h \
@@ -287,7 +287,7 @@ $O/06_TL_Webster.o: 06_TL_Webster.cc \
 	03_TL_Fixed.h \
 	04_TL_Adaptive.h \
 	05_TL_AdaptiveQueue.h \
-	06_TL_Webster.h \
+	06_TL_AdaptiveWebster.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/NicEntry.h \
 	$(VEINS_PROJ)/src/veins/base/modules/BaseModule.h \
@@ -318,7 +318,7 @@ $O/07_TL_VANET.o: 07_TL_VANET.cc \
 	03_TL_Fixed.h \
 	04_TL_Adaptive.h \
 	05_TL_AdaptiveQueue.h \
-	06_TL_Webster.h \
+	06_TL_AdaptiveWebster.h \
 	07_TL_VANET.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/NicEntry.h \
@@ -357,7 +357,7 @@ $O/08_TL_Router.o: 08_TL_Router.cc \
 	03_TL_Fixed.h \
 	04_TL_Adaptive.h \
 	05_TL_AdaptiveQueue.h \
-	06_TL_Webster.h \
+	06_TL_AdaptiveWebster.h \
 	07_TL_VANET.h \
 	08_TL_Router.h \
 	../vehicle/ApplV_01_Base.h \
@@ -412,7 +412,7 @@ $O/09_TL_Manager.o: 09_TL_Manager.cc \
 	03_TL_Fixed.h \
 	04_TL_Adaptive.h \
 	05_TL_AdaptiveQueue.h \
-	06_TL_Webster.h \
+	06_TL_AdaptiveWebster.h \
 	07_TL_VANET.h \
 	08_TL_Router.h \
 	09_TL_Manager.h \

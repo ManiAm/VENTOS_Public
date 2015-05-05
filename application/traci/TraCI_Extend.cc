@@ -1244,7 +1244,7 @@ double TraCI_Extend::LDGetLastStepMeanVehicleSpeed(string loopId)
 }
 
 
-double TraCI_Extend::LDGetLastDetectionTime(string loopId)
+double TraCI_Extend::LDGetElapsedTimeLastDetection(string loopId)
 {
     return getCommandInterface()->genericGetDouble(CMD_GET_INDUCTIONLOOP_VARIABLE, loopId, 0x16, RESPONSE_GET_INDUCTIONLOOP_VARIABLE);
 }

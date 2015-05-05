@@ -225,7 +225,7 @@ class TraCI_Extend : public TraCIScenarioManager
         uint32_t LDGetLastStepVehicleNumber(string);
         list<string> LDGetLastStepVehicleIDs(string);
         double LDGetLastStepMeanVehicleSpeed(string);
-        double LDGetLastDetectionTime(string);
+        double LDGetElapsedTimeLastDetection(string);
         vector<string> LDGetLastStepVehicleData(string);
 
         // ################################################################

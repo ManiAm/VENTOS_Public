@@ -169,8 +169,11 @@ void TrafficLightAdaptive::chooseNextGreenInterval()
         if (intervalElapseTime >= maxGreenTime)
             LastActuatedTime[(*LD).first] = passageTime;
         else
-            LastActuatedTime[(*LD).first] = TraCI->LDGetLastDetectionTime( (*LD).second );
+            LastActuatedTime[(*LD).first] = TraCI->LDGetElapsedTimeLastDetection( (*LD).second );
     }
+
+    bool extend = false;
+    string nextInterval;
 
     // Do proper transition:
     if (currentInterval == phase1_5)
@@ -179,46 +182,25 @@ void TrafficLightAdaptive::chooseNextGreenInterval()
         {
             double smallest = ((LastActuatedTime["NC_4"] < LastActuatedTime["SC_4"]) ? LastActuatedTime["NC_4"] : LastActuatedTime["SC_4"]);
             intervalOffSet = ceil(passageTime - smallest);
-
-            double extendTime = intervalElapseTime + intervalOffSet;
-            // Never extend past maxGreenTime:
-            if (extendTime > maxGreenTime)
-                intervalOffSet = intervalOffSet - (extendTime - maxGreenTime);
-
-            cout << "Extending green time by: " << intervalOffSet << "s" << endl;
+            extend = true;
         }
         else if (LastActuatedTime["NC_4"] < passageTime)
         {
             nextGreenInterval = phase2_5;
-            string nextInterval = "rrrrGrrrrrrrrryrrrrrrrrr";
-
-            currentInterval = "yellow";
-            TraCI->TLSetState("C", nextInterval);
-
-            intervalElapseTime = 0.0;
-            intervalOffSet =  yellowTime;
+            nextInterval = "rrrrGrrrrrrrrryrrrrrrrrr";
+            extend = false;
         }
         else if (LastActuatedTime["SC_4"] < passageTime)
         {
             nextGreenInterval = phase1_6;
-            string nextInterval = "rrrryrrrrrrrrrGrrrrrrrrr";
-
-            currentInterval = "yellow";
-            TraCI->TLSetState("C", nextInterval);
-
-            intervalElapseTime = 0.0;
-            intervalOffSet =  yellowTime;
+            nextInterval = "rrrryrrrrrrrrrGrrrrrrrrr";
+            extend = false;
         }
         else
         {
             nextGreenInterval = phase2_6;
-            string nextInterval = "rrrryrrrrrrrrryrrrrrrrrr";
-
-            currentInterval = "yellow";
-            TraCI->TLSetState("C", nextInterval);
-
-            intervalElapseTime = 0.0;
-            intervalOffSet =  yellowTime;
+            nextInterval = "rrrryrrrrrrrrryrrrrrrrrr";
+            extend = false;
         }
     }
     else if (currentInterval == phase2_5)
@@ -226,24 +208,13 @@ void TrafficLightAdaptive::chooseNextGreenInterval()
         if (LastActuatedTime["NC_4"] < passageTime)
         {
             intervalOffSet = ceil(passageTime - LastActuatedTime["NC_4"]);
-
-            double extendTime = intervalElapseTime + intervalOffSet;
-            // Never extend past maxGreenTime:
-            if (extendTime > maxGreenTime)
-                intervalOffSet = intervalOffSet - (extendTime - maxGreenTime);
-
-            cout << "Extending green time by: " << intervalOffSet << "s" << endl;
+            extend = true;
         }
         else
         {
             nextGreenInterval = phase2_6;
-            string nextInterval = "gGgGyrrrrrrrrrrrrrrrrrrG";
-
-            currentInterval = "yellow";
-            TraCI->TLSetState("C", nextInterval);
-
-            intervalElapseTime = 0.0;
-            intervalOffSet =  yellowTime;
+            nextInterval = "gGgGyrrrrrrrrrrrrrrrrrrG";
+            extend = false;
         }
     }
     else if (currentInterval == phase1_6)
@@ -251,24 +222,13 @@ void TrafficLightAdaptive::chooseNextGreenInterval()
         if (LastActuatedTime["SC_4"] < passageTime)
         {
             intervalOffSet = ceil(passageTime - LastActuatedTime["SC_4"]);
-
-            double extendTime = intervalElapseTime + intervalOffSet;
-            // Never extend past maxGreenTime:
-            if (extendTime > maxGreenTime)
-                intervalOffSet = intervalOffSet - (extendTime - maxGreenTime);
-
-            cout << "Extending green time by: " << intervalOffSet << "s" << endl;
+            extend = true;
         }
         else
         {
             nextGreenInterval = phase2_6;
-            string nextInterval = "rrrrrrrrrrgGgGyrrrrrrGrr";
-
-            currentInterval = "yellow";
-            TraCI->TLSetState("C", nextInterval);
-
-            intervalElapseTime = 0.0;
-            intervalOffSet =  yellowTime;
+            nextInterval = "rrrrrrrrrrgGgGyrrrrrrGrr";
+            extend = false;
         }
     }
     else if (currentInterval == phase2_6)
@@ -280,24 +240,13 @@ void TrafficLightAdaptive::chooseNextGreenInterval()
             double smallest2 = ((LastActuatedTime["NC_3"] < LastActuatedTime["SC_3"]) ? LastActuatedTime["NC_3"] : LastActuatedTime["SC_3"]);
             double smallest = ((smallest1 < smallest2) ? smallest1 : smallest2);
             intervalOffSet = ceil(passageTime - smallest);
-
-            double extendTime = intervalElapseTime + intervalOffSet;
-            // Never extend past maxGreenTime:
-            if (extendTime > maxGreenTime)
-                intervalOffSet = intervalOffSet - (extendTime - maxGreenTime);
-
-            cout << "Extending green time by: " << intervalOffSet << "s" << endl;
+            extend = true;
         }
         else
         {
             nextGreenInterval = phase3_7;
-            string nextInterval = "yyyyrrrrrryyyyrrrrrrryry";
-
-            currentInterval = "yellow";
-            TraCI->TLSetState("C", nextInterval);
-
-            intervalElapseTime = 0.0;
-            intervalOffSet =  yellowTime;
+            nextInterval = "yyyyrrrrrryyyyrrrrrrryry";
+            extend = false;
         }
     }
     else if (currentInterval == phase3_7)
@@ -306,46 +255,25 @@ void TrafficLightAdaptive::chooseNextGreenInterval()
         {
             double smallest = ((LastActuatedTime["WC_4"] < LastActuatedTime["EC_4"]) ? LastActuatedTime["WC_4"] : LastActuatedTime["EC_4"]);
             intervalOffSet = ceil(passageTime - smallest);
-
-            double extendTime = intervalElapseTime + intervalOffSet;
-            // Never extend past maxGreenTime:
-            if (extendTime > maxGreenTime)
-                intervalOffSet = intervalOffSet - (extendTime - maxGreenTime);
-
-            cout << "Extending green time by: " << intervalOffSet << "s" << endl;
+            extend = true;
         }
         else if (LastActuatedTime["WC_4"] < passageTime)
         {
             nextGreenInterval = phase3_8;
-            string nextInterval = "rrrrrrrrryrrrrrrrrrGrrrr";
-
-            currentInterval = "yellow";
-            TraCI->TLSetState("C", nextInterval);
-
-            intervalElapseTime = 0.0;
-            intervalOffSet =  yellowTime;
+            nextInterval = "rrrrrrrrryrrrrrrrrrGrrrr";
+            extend = false;
         }
         else if (LastActuatedTime["EC_4"] < passageTime)
         {
             nextGreenInterval = phase4_7;
-            string nextInterval = "rrrrrrrrrGrrrrrrrrryrrrr";
-
-            currentInterval = "yellow";
-            TraCI->TLSetState("C", nextInterval);
-
-            intervalElapseTime = 0.0;
-            intervalOffSet =  yellowTime;
+            nextInterval = "rrrrrrrrrGrrrrrrrrryrrrr";
+            extend = false;
         }
         else
         {
             nextGreenInterval = phase4_8;
-            string nextInterval = "rrrrrrrrryrrrrrrrrryrrrr";
-
-            currentInterval = "yellow";
-            TraCI->TLSetState("C", nextInterval);
-
-            intervalElapseTime = 0.0;
-            intervalOffSet =  yellowTime;
+            nextInterval = "rrrrrrrrryrrrrrrrrryrrrr";
+            extend = false;
         }
     }
     else if (currentInterval == phase3_8)
@@ -353,24 +281,13 @@ void TrafficLightAdaptive::chooseNextGreenInterval()
         if (LastActuatedTime["WC_4"] < passageTime)
         {
             intervalOffSet = ceil(passageTime - LastActuatedTime["WC_4"]);
-
-            double extendTime = intervalElapseTime + intervalOffSet;
-            // Never extend past maxGreenTime:
-            if (extendTime > maxGreenTime)
-                intervalOffSet = intervalOffSet - (extendTime - maxGreenTime);
-
-            cout << "Extending green time by: " << intervalOffSet << "s" << endl;
+            extend = true;
         }
         else
         {
             nextGreenInterval = phase4_8;
-            string nextInterval = "rrrrrrrrrrrrrrrgGgGyrrGr";
-
-            currentInterval = "yellow";
-            TraCI->TLSetState("C", nextInterval);
-
-            intervalElapseTime = 0.0;
-            intervalOffSet =  yellowTime;
+            nextInterval = "rrrrrrrrrrrrrrrgGgGyrrGr";
+            extend = false;
         }
     }
     else if (currentInterval == phase4_7)
@@ -378,24 +295,13 @@ void TrafficLightAdaptive::chooseNextGreenInterval()
         if (LastActuatedTime["EC_4"] < passageTime)
         {
             intervalOffSet = ceil(passageTime - LastActuatedTime["EC_4"]);
-
-            double extendTime = intervalElapseTime + intervalOffSet;
-            // Never extend past maxGreenTime:
-            if (extendTime > maxGreenTime)
-                intervalOffSet = intervalOffSet - (extendTime - maxGreenTime);
-
-            cout << "Extending green time by: " << intervalOffSet << "s" << endl;
+            extend = true;
         }
         else
         {
             nextGreenInterval = phase4_8;
-            string nextInterval = "rrrrrgGgGyrrrrrrrrrrGrrr";
-
-            currentInterval = "yellow";
-            TraCI->TLSetState("C", nextInterval);
-
-            intervalElapseTime = 0.0;
-            intervalOffSet =  yellowTime;
+            nextInterval = "rrrrrgGgGyrrrrrrrrrrGrrr";
+            extend = false;
         }
     }
     else if (currentInterval == phase4_8)
@@ -407,25 +313,33 @@ void TrafficLightAdaptive::chooseNextGreenInterval()
             double smallest2 = ((LastActuatedTime["WC_3"] < LastActuatedTime["EC_3"]) ? LastActuatedTime["WC_3"] : LastActuatedTime["EC_3"]);
             double smallest = ((smallest1 < smallest2) ? smallest1 : smallest2);
             intervalOffSet = ceil(passageTime - smallest);
-
-            double extendTime = intervalElapseTime + intervalOffSet;
-            // Never extend past maxGreenTime:
-            if (extendTime > maxGreenTime)
-                intervalOffSet = intervalOffSet - (extendTime - maxGreenTime);
-
-            cout << "Extending green time by: " << intervalOffSet << "s" << endl;
+            extend = true;
         }
         else
         {
             nextGreenInterval = phase1_5;
-            string nextInterval = "rrrrryyyyrrrrrryyyyryryr";
-
-            currentInterval = "yellow";
-            TraCI->TLSetState("C", nextInterval);
-
-            intervalElapseTime = 0.0;
-            intervalOffSet =  yellowTime;
+            nextInterval = "rrrrryyyyrrrrrryyyyryryr";
+            extend = false;
         }
+    }
+
+    if(extend)
+    {
+        double extendTime = intervalElapseTime + intervalOffSet;
+
+        // Never extend past maxGreenTime:
+        if (extendTime > maxGreenTime)
+            intervalOffSet = intervalOffSet - (extendTime - maxGreenTime);
+
+        cout << "Extending green time by: " << intervalOffSet << "s" << endl;
+    }
+    else
+    {
+        currentInterval = "yellow";
+        TraCI->TLSetState("C", nextInterval);
+
+        intervalElapseTime = 0.0;
+        intervalOffSet =  yellowTime;
     }
 }
 

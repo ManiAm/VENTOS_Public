@@ -293,7 +293,7 @@ void LoopDetectors::trafficDemand()
     {
         if( string( (*it).second ) == "demand_WC_3" )
         {
-            double lastDetectionT = TraCI->LDGetLastDetectionTime( (*it).second );
+            double lastDetectionT = TraCI->LDGetElapsedTimeLastDetection( (*it).second );
 
             if(lastDetectionT == 0 && !freeze)
             {
