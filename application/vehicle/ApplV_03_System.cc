@@ -108,6 +108,9 @@ void ApplVSystem::finish()
 {
     ApplVBeacon::finish();
 
+    if(!requestRoutes)
+        return;
+
     if(ev.isGUI() && requestRoutes) cout << SUMOvID << " took " << simTime().dbl() - entryTime << " seconds to complete its route." << endl;
     router->vehicleEndTimesFile << SUMOvID << " " << simTime().dbl() << endl;
 
