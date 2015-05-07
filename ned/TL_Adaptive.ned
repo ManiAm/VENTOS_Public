@@ -7,9 +7,9 @@ simple TL_Adaptive extends TL_Fixed
         @class(VENTOS::TrafficLightAdaptive);
         @display("i=block/network2");  
         
-        double minGreenTime;
-        double maxGreenTime;
-        double yellowTime;
-        double redTime;
-        double passageTime;        
+        double minGreenTime = default(0s) @unit(s);
+        double maxGreenTime = default(0s) @unit(s);
+        double yellowTime = default(0s) @unit(s);
+        double redTime = default(0s) @unit(s);
+        double passageTime = default(0s) @unit(s);
 }
