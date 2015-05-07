@@ -46,6 +46,11 @@ class TrafficLightVANET : public TrafficLightWebster
     void virtual executeFirstTimeStep();
     void virtual executeEachTimeStep(bool);
 
+  private:
+    void chooseNextInterval();
+    void chooseNextGreenInterval();
+
+  protected:
     // class variables
     vector<double> DetectedTime;
     cMessage* DetectEvt;
@@ -72,10 +77,6 @@ class TrafficLightVANET : public TrafficLightWebster
         {"SC_2", SC_2}, {"SC_3", SC_3}, {"SC_4", SC_4},
         {"WC_2", WC_2}, {"WC_3", WC_3}, {"WC_4", WC_4}
     };
-
-  private:
-    void chooseNextInterval();
-    void chooseNextGreenInterval();
 };
 
 }

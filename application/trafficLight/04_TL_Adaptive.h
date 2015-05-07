@@ -46,6 +46,11 @@ class TrafficLightAdaptive : public TrafficLightFixed
     void virtual executeFirstTimeStep();
     void virtual executeEachTimeStep(bool);
 
+  private:
+    void chooseNextInterval();
+    void chooseNextGreenInterval();
+
+  protected:
     // NED variables
     double minGreenTime;
     double maxGreenTime;
@@ -60,6 +65,8 @@ class TrafficLightAdaptive : public TrafficLightFixed
     string nextGreenInterval;
     cMessage* ChangeEvt;
 
+    map<string,double> passageTimePerLane;
+
     // phases for ring-and-barrier
     string phase1_5 = "rrrrGrrrrrrrrrGrrrrrrrrr";
     string phase2_5 = "gGgGGrrrrrrrrrrrrrrrrrrG";
@@ -70,10 +77,6 @@ class TrafficLightAdaptive : public TrafficLightFixed
     string phase3_8 = "rrrrrrrrrrrrrrrgGgGGrrGr";
     string phase4_7 = "rrrrrgGgGGrrrrrrrrrrGrrr";
     string phase4_8 = "rrrrrgGgGrrrrrrgGgGrGrGr";
-
-  private:
-    void chooseNextInterval();
-    void chooseNextGreenInterval();
 };
 
 }
