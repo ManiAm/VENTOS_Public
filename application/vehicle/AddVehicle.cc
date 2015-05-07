@@ -586,13 +586,43 @@ void AddVehicle::Scenario9()
 
 
 
-    TraCI->vehicleAdd("Veh1", "TypeManual", "route1", 9000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-    TraCI->vehicleAdd("Veh2", "TypeManual", "route1", 15000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-    TraCI->vehicleAdd("Veh3", "TypeManual", "route1", 20000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+    // right on the LD at the end of the Gmin
+    // -------------------------------------------------------------
+//    TraCI->vehicleAdd("Veh1", "TypeManual", "route4", 9100, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+//    TraCI->vehicleAdd("Veh2", "TypeManual", "route4", 15000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+//    TraCI->vehicleAdd("Veh3", "TypeManual", "route4", 20000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+    // -------------------------------------------------------------
 
-    TraCI->vehicleAdd("Veh4", "TypeManual", "route4", 9000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-    TraCI->vehicleAdd("Veh5", "TypeManual", "route4", 15000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-    TraCI->vehicleAdd("Veh6", "TypeManual", "route4", 20000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+
+    // a little bit after the LD at the end of the Gmin
+    // -------------------------------------------------------------
+//    TraCI->vehicleAdd("Veh1", "TypeManual", "route4", 8500, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+//    TraCI->vehicleAdd("Veh2", "TypeManual", "route4", 15000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+//    TraCI->vehicleAdd("Veh3", "TypeManual", "route4", 20000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+    // -------------------------------------------------------------
+
+
+    // a little bit after the LD at the end of the Gmin
+    // -------------------------------------------------------------
+    TraCI->vehicleAdd("Veh1", "TypeManual", "route4", 8600, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+    TraCI->vehicleAdd("Veh2", "TypeManual", "route4", 8600, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+    TraCI->vehicleAdd("Veh3", "TypeManual", "route4", 8600, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+    // -------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -614,7 +644,6 @@ void AddVehicle::Scenario9()
 //
 //    TraCI->vehicleAdd("Veh9", "TypeManual", "route1", 6000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
 //    TraCI->vehicleAdd("Veh10", "TypeManual", "route8", 6000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-
 }
 
 }

@@ -75,6 +75,28 @@ void LoopDetectors::executeFirstTimeStep()
     TrafficLightBase::executeFirstTimeStep();
 
     getAllDetectors();
+
+    // initialize all queue value in laneQueueSize to zero
+    for (list<string>::iterator it = TLList.begin() ; it != TLList.end(); ++it)
+    {
+        list<string> lan = TraCI->TLGetControlledLanes(*it);
+
+        // remove duplicate entries
+        lan.unique();
+
+        // for each incoming lane
+        for(list<string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
+        {
+            // make sure we have both detectors
+            if( LD_actuated_end.find(*it2) == LD_actuated_end.end() || LD_actuated_start.find(*it2) == LD_actuated_start.end() )
+                continue;
+
+            string queueEnd = LD_actuated_end[*it2];
+            string queueStart = LD_actuated_start[*it2];
+
+            laneQueueSize.insert( make_pair( *it2, make_pair(*it,0) ) );
+        }
+    }
 }
 
 
@@ -125,7 +147,7 @@ void LoopDetectors::getAllDetectors()
     cout << LD_actuated_start.size() << " actuated_start loop detectors found!" << endl;
     cout << LD_actuated_end.size() << " actuated_end loop detectors found!" << endl << endl;
 
-    // some traffic signal controls need actuated LD on incoming lanes
+    // some traffic signal controls need one actuated LD on each incoming lane
     if(TLControlMode == 2)
     {
         for (list<string>::iterator it = TLList.begin(); it != TLList.end(); it++)
@@ -331,7 +353,7 @@ void LoopDetectors::measureQueue()
         {
             // make sure we have both detectors
             if( LD_actuated_end.find(*it2) == LD_actuated_end.end() || LD_actuated_start.find(*it2) == LD_actuated_start.end() )
-                break;
+                continue;
 
             string queueEnd = LD_actuated_end[*it2];
             string queueStart = LD_actuated_start[*it2];
@@ -342,22 +364,12 @@ void LoopDetectors::measureQueue()
             {
                 double leaveT = atof( st1.at(3).c_str() );
 
-                // one vehicle entered
+                // a vehicle entered
                 if(leaveT != -1)
                 {
                     map<string,pair<string,int>>::iterator location = laneQueueSize.find(*it2);
-
-                    // its a new entry, so we add it
-                    if( location == laneQueueSize.end() )
-                    {
-                        laneQueueSize.insert( make_pair( *it2, make_pair(*it,1) ) );
-                    }
-                    // if found, just update queue information
-                    else
-                    {
-                        pair<string,int> store = location->second;
-                        location->second = make_pair( store.first, (store.second)+1 );
-                    }
+                    pair<string,int> store = location->second;
+                    location->second = make_pair( store.first, (store.second)+1 );
                 }
             }
 
@@ -367,21 +379,12 @@ void LoopDetectors::measureQueue()
             {
                 double leaveT = atof( st2.at(3).c_str() );
 
-                // one vehicle entered
+                // a vehicle left
                 if(leaveT != -1)
                 {
                     map<string,pair<string,int>>::iterator location = laneQueueSize.find(*it2);
-
-                    if(location == laneQueueSize.end())
-                    {
-                        error("The vehicle is removed from queue of %s without being inserted!", (*it2).c_str());
-                    }
-                    // just update queue information
-                    else
-                    {
-                        pair<string,int> store = location->second;
-                        location->second = make_pair( store.first, (store.second)-1 );
-                    }
+                    pair<string,int> store = location->second;
+                    location->second = make_pair( store.first, (store.second)-1 );
                 }
             }
         }

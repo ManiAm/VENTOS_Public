@@ -83,6 +83,10 @@ class LoopDetectors : public TrafficLightBase
     void measureQueue();
 
   protected:
+    bool collectInductionLoopData;
+    bool measureIntersectionQueue;
+    bool measureTrafficDemand;
+
     map<string, string> LD_demand;            // ids of loop detectors for measuring incoming traffic demand
     map<string, string> LD_actuated_start;    // ids of loop detectors for actuated-time signal control (start of queue)
     map<string, string> LD_actuated_end;      // ids of loop detectors for actuated-time signal control (end of queue)
@@ -91,10 +95,6 @@ class LoopDetectors : public TrafficLightBase
     vector<LoopDetectorData *> Vec_loopDetectors;
 
   private:
-    bool collectInductionLoopData;
-    bool measureIntersectionQueue;
-    bool measureTrafficDemand;
-
     bool freeze = false;
     double lastDetectionT_old = 0;
     double total = 0;
