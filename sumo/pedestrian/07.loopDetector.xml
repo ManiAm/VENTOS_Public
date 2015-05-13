@@ -6,7 +6,7 @@
 	<e1Detector id="actuated_start_NC_4" lane="NC_4" pos="-0.1" freq="60" file="NUL"/> 
 	
 	<!-- North inbound end of queue -->
-	<e1Detector id="actuated_end_NC_2" lane="NC_2" pos="-35" freq="60" file="NUL"/>
+	<e1Detector id="actuated_end_NC_2" lane="NC_2" pos="-15" freq="60" file="NUL"/>
 	<e1Detector id="actuated_end_NC_3" lane="NC_3" pos="-35" freq="60" file="NUL"/>
 	<e1Detector id="actuated_end_NC_4" lane="NC_4" pos="-35" freq="60" file="NUL"/>	
 	
@@ -16,7 +16,7 @@
 	<e1Detector id="actuated_start_SC_4" lane="SC_4" pos="-0.1" freq="60" file="NUL"/>
 	
 	<!-- South inbound end of queue -->
-	<e1Detector id="actuated_end_SC_2" lane="SC_2" pos="-35" freq="60" file="NUL"/>
+	<e1Detector id="actuated_end_SC_2" lane="SC_2" pos="-15" freq="60" file="NUL"/>
 	<e1Detector id="actuated_end_SC_3" lane="SC_3" pos="-35" freq="60" file="NUL"/>
 	<e1Detector id="actuated_end_SC_4" lane="SC_4" pos="-35" freq="60" file="NUL"/>	
 	
@@ -26,7 +26,7 @@
 	<e1Detector id="actuated_start_WC_4" lane="WC_4" pos="-0.1" freq="60" file="NUL"/>
 	
 	<!-- West inbound end of queue -->
-	<e1Detector id="actuated_end_WC_2" lane="WC_2" pos="-35" freq="60" file="NUL"/>
+	<e1Detector id="actuated_end_WC_2" lane="WC_2" pos="-15" freq="60" file="NUL"/>
 	<e1Detector id="actuated_end_WC_3" lane="WC_3" pos="-35" freq="60" file="NUL"/>
 	<e1Detector id="actuated_end_WC_4" lane="WC_4" pos="-35" freq="60" file="NUL"/>	
 	
@@ -36,7 +36,7 @@
 	<e1Detector id="actuated_start_EC_4" lane="EC_4" pos="-0.1" freq="60" file="NUL"/>
 	
 	<!-- East inbound end of queue -->
-	<e1Detector id="actuated_end_EC_2" lane="EC_2" pos="-35" freq="60" file="NUL"/>
+	<e1Detector id="actuated_end_EC_2" lane="EC_2" pos="-15" freq="60" file="NUL"/>
 	<e1Detector id="actuated_end_EC_3" lane="EC_3" pos="-35" freq="60" file="NUL"/>
     <e1Detector id="actuated_end_EC_4" lane="EC_4" pos="-35" freq="60" file="NUL"/>
 	
