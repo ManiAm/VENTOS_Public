@@ -87,6 +87,11 @@ class TrafficLightBase : public BaseModule
       simsignal_t Signal_executeEachTS;
       list<string> TLList;   // list of traffic-lights in the network
       vector<TLVehicleData *> Vec_vehiclesData;
+
+      boost::filesystem::path VENTOS_FullPath;
+      boost::filesystem::path SUMO_Path;
+      boost::filesystem::path SUMO_FullPath;
+
       int index;
 
   protected:

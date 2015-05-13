@@ -168,9 +168,9 @@ $O/TraCI_App.o: TraCI_App.cc \
 	../trafficLight/01_TL_Base.h \
 	../trafficLight/02_LoopDetectors.h \
 	../trafficLight/03_TL_Fixed.h \
-	../trafficLight/04_TL_Adaptive.h \
-	../trafficLight/05_TL_AdaptiveQueue.h \
-	../trafficLight/06_TL_AdaptiveWebster.h \
+	../trafficLight/04_TL_Adaptive_RingAndBarrier.h \
+	../trafficLight/05_TL_Adaptive_Queue.h \
+	../trafficLight/06_TL_Adaptive_Webster.h \
 	../trafficLight/07_TL_VANET.h \
 	../trafficLight/08_TL_Router.h \
 	../vehicle/ApplV_01_Base.h \

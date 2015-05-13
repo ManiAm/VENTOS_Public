@@ -456,132 +456,132 @@ void AddVehicle::Scenario8()
 
 void AddVehicle::Scenario9()
 {
-//    // demand per second for north inbound
-//    double pNS = 700. / 3600.;
-//    double pNW = 700. / 3600.;
-//    double pNE = 700. / 3600.;
-//
-//    // demand per second for south inbound
-//    double pSN = 700. / 3600.;
-//    double pSE = 700. / 3600.;
-//    double pSW = 700. / 3600.;
-//
-//    // demand per second for west inbound
-//    double pWE = 700. / 3600.;
-//    double pWS = 700. / 3600.;
-//    double pWN = 700. / 3600.;
-//
-//    // demand per second for east inbound
-//    double pEW = 700. / 3600.;
-//    double pEN = 700. / 3600.;
-//    double pES = 700. / 3600.;
-//
-//    int vehNum = 0;
-//    char vehicleName[10];
-//
-//    // mersenne twister engine.
-//    // seed is fixed to make tests reproducible
-//    std::mt19937 gen(43);
-//    std::uniform_real_distribution<> dis(0,1);
-//
-//    for(int i=0; i<terminate; i++)
-//    {
-//        if( dis(gen) < pNS )
-//        {
-//            vehNum++;
-//            sprintf(vehicleName, "Veh-NS-%d", vehNum);
-//
-//            TraCI->vehicleAdd(vehicleName, "TypeManual", "route1", i, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-//        }
-//
-//        if( dis(gen) < pNW )
-//        {
-//            vehNum++;
-//            sprintf(vehicleName, "Veh-NW-%d", vehNum);
-//
-//            TraCI->vehicleAdd(vehicleName, "TypeManual", "route2", i, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-//        }
-//
-//        if( dis(gen) < pNE )
-//        {
-//            vehNum++;
-//            sprintf(vehicleName, "Veh-NE-%d", vehNum);
-//
-//            TraCI->vehicleAdd(vehicleName, "TypeManual", "route3", i, 0 /*pos*/, 30 /*speed*/, 4 /*lane*/);
-//        }
-//
-//        if( dis(gen) < pSN )
-//        {
-//            vehNum++;
-//            sprintf(vehicleName, "Veh-SN-%d", vehNum);
-//
-//            TraCI->vehicleAdd(vehicleName, "TypeManual", "route4", i, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-//        }
-//
-//        if( dis(gen) < pSE )
-//        {
-//            vehNum++;
-//            sprintf(vehicleName, "Veh-SE-%d", vehNum);
-//
-//            TraCI->vehicleAdd(vehicleName, "TypeManual", "route5", i, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-//        }
-//
-//        if( dis(gen) < pSW )
-//        {
-//            vehNum++;
-//            sprintf(vehicleName, "Veh-SW-%d", vehNum);
-//
-//            TraCI->vehicleAdd(vehicleName, "TypeManual", "route6", i, 0 /*pos*/, 30 /*speed*/, 4 /*lane*/);
-//        }
-//
-//        if( dis(gen) < pWE )
-//        {
-//            vehNum++;
-//            sprintf(vehicleName, "Veh-WE-%d", vehNum);
-//
-//            TraCI->vehicleAdd(vehicleName, "TypeManual", "route7", i, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-//        }
-//
-//        if( dis(gen) < pWS )
-//        {
-//            vehNum++;
-//            sprintf(vehicleName, "Veh-WS-%d", vehNum);
-//
-//            TraCI->vehicleAdd(vehicleName, "TypeManual", "route8", i, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-//        }
-//
-//        if( dis(gen) < pWN )
-//        {
-//            vehNum++;
-//            sprintf(vehicleName, "Veh-WN-%d", vehNum);
-//
-//            TraCI->vehicleAdd(vehicleName, "TypeManual", "route9", i, 0 /*pos*/, 30 /*speed*/, 4 /*lane*/);
-//        }
-//
-//        if( dis(gen) < pEW )
-//        {
-//            vehNum++;
-//            sprintf(vehicleName, "Veh-EW-%d", vehNum);
-//
-//            TraCI->vehicleAdd(vehicleName, "TypeManual", "route10", i, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-//        }
-//
-//        if( dis(gen) < pEN )
-//        {
-//            vehNum++;
-//            sprintf(vehicleName, "Veh-EN-%d", vehNum);
-//
-//            TraCI->vehicleAdd(vehicleName, "TypeManual", "route11", i, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-//        }
-//
-//        if( dis(gen) < pES )
-//        {
-//            vehNum++;
-//            sprintf(vehicleName, "Veh-ES-%d", vehNum);
-//
-//            TraCI->vehicleAdd(vehicleName, "TypeManual", "route12", i, 0 /*pos*/, 30 /*speed*/, 4 /*lane*/);
-//        }
-//    }
+    // demand per second for north inbound
+    double pNS = 700. / 3600.;
+    double pNW = 700. / 3600.;
+    double pNE = 700. / 3600.;
+
+    // demand per second for south inbound
+    double pSN = 700. / 3600.;
+    double pSE = 700. / 3600.;
+    double pSW = 700. / 3600.;
+
+    // demand per second for west inbound
+    double pWE = 700. / 3600.;
+    double pWS = 700. / 3600.;
+    double pWN = 700. / 3600.;
+
+    // demand per second for east inbound
+    double pEW = 700. / 3600.;
+    double pEN = 700. / 3600.;
+    double pES = 700. / 3600.;
+
+    int vehNum = 0;
+    char vehicleName[10];
+
+    // mersenne twister engine.
+    // seed is fixed to make tests reproducible
+    std::mt19937 gen(43);
+    std::uniform_real_distribution<> dis(0,1);
+
+    for(int i=0; i<terminate; i++)
+    {
+        if( dis(gen) < pNS )
+        {
+            vehNum++;
+            sprintf(vehicleName, "Veh-NS-%d", vehNum);
+
+            TraCI->vehicleAdd(vehicleName, "TypeManual", "route1", i, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+        }
+
+        if( dis(gen) < pNW )
+        {
+            vehNum++;
+            sprintf(vehicleName, "Veh-NW-%d", vehNum);
+
+            TraCI->vehicleAdd(vehicleName, "TypeManual", "route2", i, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+        }
+
+        if( dis(gen) < pNE )
+        {
+            vehNum++;
+            sprintf(vehicleName, "Veh-NE-%d", vehNum);
+
+            TraCI->vehicleAdd(vehicleName, "TypeManual", "route3", i, 0 /*pos*/, 30 /*speed*/, 4 /*lane*/);
+        }
+
+        if( dis(gen) < pSN )
+        {
+            vehNum++;
+            sprintf(vehicleName, "Veh-SN-%d", vehNum);
+
+            TraCI->vehicleAdd(vehicleName, "TypeManual", "route4", i, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+        }
+
+        if( dis(gen) < pSE )
+        {
+            vehNum++;
+            sprintf(vehicleName, "Veh-SE-%d", vehNum);
+
+            TraCI->vehicleAdd(vehicleName, "TypeManual", "route5", i, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+        }
+
+        if( dis(gen) < pSW )
+        {
+            vehNum++;
+            sprintf(vehicleName, "Veh-SW-%d", vehNum);
+
+            TraCI->vehicleAdd(vehicleName, "TypeManual", "route6", i, 0 /*pos*/, 30 /*speed*/, 4 /*lane*/);
+        }
+
+        if( dis(gen) < pWE )
+        {
+            vehNum++;
+            sprintf(vehicleName, "Veh-WE-%d", vehNum);
+
+            TraCI->vehicleAdd(vehicleName, "TypeManual", "route7", i, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+        }
+
+        if( dis(gen) < pWS )
+        {
+            vehNum++;
+            sprintf(vehicleName, "Veh-WS-%d", vehNum);
+
+            TraCI->vehicleAdd(vehicleName, "TypeManual", "route8", i, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+        }
+
+        if( dis(gen) < pWN )
+        {
+            vehNum++;
+            sprintf(vehicleName, "Veh-WN-%d", vehNum);
+
+            TraCI->vehicleAdd(vehicleName, "TypeManual", "route9", i, 0 /*pos*/, 30 /*speed*/, 4 /*lane*/);
+        }
+
+        if( dis(gen) < pEW )
+        {
+            vehNum++;
+            sprintf(vehicleName, "Veh-EW-%d", vehNum);
+
+            TraCI->vehicleAdd(vehicleName, "TypeManual", "route10", i, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+        }
+
+        if( dis(gen) < pEN )
+        {
+            vehNum++;
+            sprintf(vehicleName, "Veh-EN-%d", vehNum);
+
+            TraCI->vehicleAdd(vehicleName, "TypeManual", "route11", i, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+        }
+
+        if( dis(gen) < pES )
+        {
+            vehNum++;
+            sprintf(vehicleName, "Veh-ES-%d", vehNum);
+
+            TraCI->vehicleAdd(vehicleName, "TypeManual", "route12", i, 0 /*pos*/, 30 /*speed*/, 4 /*lane*/);
+        }
+    }
 
 
 
@@ -604,9 +604,9 @@ void AddVehicle::Scenario9()
 
     // a little bit after the LD at the end of the Gmin
     // -------------------------------------------------------------
-    TraCI->vehicleAdd("Veh1", "TypeManual", "route4", 8600, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-    TraCI->vehicleAdd("Veh2", "TypeManual", "route4", 8600, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-    TraCI->vehicleAdd("Veh3", "TypeManual", "route4", 8600, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+//    TraCI->vehicleAdd("Veh1", "TypeManual", "route4", 8600, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+//    TraCI->vehicleAdd("Veh2", "TypeManual", "route4", 8600, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+//    TraCI->vehicleAdd("Veh3", "TypeManual", "route4", 8600, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
     // -------------------------------------------------------------
 
 

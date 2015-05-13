@@ -1,6 +1,5 @@
 /****************************************************************************/
-/// @file    TL_VANET.h
-/// @author  Philip Vo <foxvo@ucdavis.edu>
+/// @file    TL_AdaptiveQueue.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @date    August 2013
 ///
@@ -25,58 +24,37 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef TRAFFICLIGHTVANET_H
-#define TRAFFICLIGHTVANET_H
+#ifndef TRAFFICLIGHTADAPTIVEQUEUE_H
+#define TRAFFICLIGHTADAPTIVEQUEUE_H
 
-#include <06_TL_Adaptive_Webster.h>
+#include <04_TL_Adaptive_RingAndBarrier.h>
 
 using namespace std;
 
 namespace VENTOS {
 
-class TrafficLightVANET : public TrafficLightWebster
+class TrafficLightAdaptiveQueue : public TrafficLightAdaptive
 {
-  public:
-    virtual ~TrafficLightVANET();
+public:
+    virtual ~TrafficLightAdaptiveQueue();
     virtual void finish();
     virtual void initialize(int);
     virtual void handleMessage(cMessage *);
 
-  protected:
+protected:
     void virtual executeFirstTimeStep();
     void virtual executeEachTimeStep(bool);
 
-  private:
+private:
     void chooseNextInterval();
     void chooseNextGreenInterval();
+    void getMovements();
+    void generateAllAllowedMovements();
 
-  protected:
-    // class variables
-    vector<double> DetectedTime;
-    cMessage* DetectEvt;
-    double detectFreq = 0.1;
-
-    double radius = 33;
-  //  Coord outerRing = (100 - radius - 2;
-  //  Coord innerRing  = radius + 2;
-
-    // loop detectors id
-    enum LDid
-    {
-        EC_2, EC_3, EC_4,
-        NC_2, NC_3, NC_4,
-        SC_2, SC_3, SC_4,
-        WC_2, WC_3, WC_4,
-    };
-
-    // For VANET Controller:
-    map<string,LDid> lmap =
-    {
-        {"EC_2", EC_2}, {"EC_3", EC_3}, {"EC_4", EC_4},
-        {"NC_2", NC_2}, {"NC_3", NC_3}, {"NC_4", NC_4},
-        {"SC_2", SC_2}, {"SC_3", SC_3}, {"SC_4", SC_4},
-        {"WC_2", WC_2}, {"WC_3", WC_3}, {"WC_4", WC_4}
-    };
+protected:
+    int LINKSIZE;
+    std::vector< std::vector<int> > allMovements;
+    boost::filesystem::path movementsFilePath;
 };
 
 }
