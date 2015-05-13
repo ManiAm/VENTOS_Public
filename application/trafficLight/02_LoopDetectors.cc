@@ -51,7 +51,9 @@ void LoopDetectors::initialize(int stage)
         LD_demand.clear();
         LD_actuated_start.clear();
         LD_actuated_end.clear();
+
         laneQueueSize.clear();
+        linkQueueSize.clear();
     }
 }
 
@@ -87,14 +89,19 @@ void LoopDetectors::executeFirstTimeStep()
         // for each incoming lane
         for(list<string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
         {
-            // make sure we have both detectors
-            if( LD_actuated_end.find(*it2) == LD_actuated_end.end() || LD_actuated_start.find(*it2) == LD_actuated_start.end() )
-                continue;
+            laneQueueSize.insert( make_pair( *it2, make_pair(*it, 0) ) );
+        }
+    }
 
-            string queueEnd = LD_actuated_end[*it2];
-            string queueStart = LD_actuated_start[*it2];
+    // initialize all queue value in linkQueueSize to zero
+    for (list<string>::iterator it = TLList.begin(); it != TLList.end(); ++it)
+    {
+        map<int,string> result = TraCI->TLGetControlledLinks(*it);
 
-            laneQueueSize.insert( make_pair( *it2, make_pair(*it,0) ) );
+        // for each link in this TLid
+        for(map<int,string>::iterator it2 = result.begin(); it2 != result.end(); ++it2)
+        {
+            linkQueueSize.insert( make_pair(make_pair(*it,(*it2).first), 0) );
         }
     }
 }
@@ -367,6 +374,7 @@ void LoopDetectors::measureQueue()
                 // a vehicle entered
                 if(leaveT != -1)
                 {
+                    // update laneQueueSize
                     map<string,pair<string,int>>::iterator location = laneQueueSize.find(*it2);
                     pair<string,int> store = location->second;
                     location->second = make_pair( store.first, (store.second)+1 );
@@ -385,6 +393,60 @@ void LoopDetectors::measureQueue()
                     map<string,pair<string,int>>::iterator location = laneQueueSize.find(*it2);
                     pair<string,int> store = location->second;
                     location->second = make_pair( store.first, (store.second)-1 );
+                }
+            }
+        }
+    }
+
+    for (list<string>::iterator it = TLList.begin(); it != TLList.end(); ++it)
+    {
+        map<int,string> result = TraCI->TLGetControlledLinks(*it);
+
+        // for each link in this TLid
+        for(map<int,string>::iterator it2 = result.begin(); it2 != result.end(); ++it2)
+        {
+            string incommingLane;
+            char_separator<char> sep("|");
+            tokenizer< char_separator<char> > tokens((*it2).second, sep);
+
+            for(tokenizer< char_separator<char> >::iterator beg=tokens.begin(); beg!=tokens.end(); ++beg)
+            {
+                incommingLane = (*beg).c_str();
+                break;
+            }
+
+            // make sure we have both detectors
+            if( LD_actuated_end.find(incommingLane) == LD_actuated_end.end() || LD_actuated_start.find(incommingLane) == LD_actuated_start.end() )
+                continue;
+
+            string queueEnd = LD_actuated_end[incommingLane];
+            string queueStart = LD_actuated_start[incommingLane];
+
+            vector<string>  st1 = TraCI->LDGetLastStepVehicleData(queueEnd);
+            // only if this LP detected a vehicle
+            if( st1.size() > 0 )
+            {
+                double leaveT = atof( st1.at(3).c_str() );
+
+                // a vehicle entered
+                if(leaveT != -1)
+                {
+                    map<pair<string,int>, int>::iterator location = linkQueueSize.find( make_pair(*it,(*it2).first) );
+                    location->second = location->second + 1;
+                }
+            }
+
+            vector<string>  st2 = TraCI->LDGetLastStepVehicleData(queueStart);
+            // only if this LD detected a vehicle
+            if( st2.size() > 0 )
+            {
+                double leaveT = atof( st2.at(3).c_str() );
+
+                // a vehicle left
+                if(leaveT != -1)
+                {
+                    map<pair<string,int>, int>::iterator location = linkQueueSize.find( make_pair(*it,(*it2).first) );
+                    location->second = location->second - 1;
                 }
             }
         }

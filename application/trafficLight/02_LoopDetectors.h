@@ -31,8 +31,10 @@
 #include <01_TL_Base.h>
 #include <Appl.h>
 #include "TraCI_Extend.h"
+#include <boost/graph/adjacency_list.hpp>
 
 using namespace std;
+using namespace boost;
 
 namespace VENTOS {
 
@@ -87,10 +89,11 @@ class LoopDetectors : public TrafficLightBase
     bool measureIntersectionQueue;
     bool measureTrafficDemand;
 
-    map<string, string> LD_demand;            // ids of loop detectors for measuring incoming traffic demand
-    map<string, string> LD_actuated_start;    // ids of loop detectors for actuated-time signal control (start of queue)
-    map<string, string> LD_actuated_end;      // ids of loop detectors for actuated-time signal control (end of queue)
-    map<string,pair<string,int>> laneQueueSize;
+    map<string, string> LD_demand;           // ids of loop detectors for measuring incoming traffic demand
+    map<string, string> LD_actuated_start;   // ids of loop detectors for actuated-time signal control (start of queue)
+    map<string, string> LD_actuated_end;     // ids of loop detectors for actuated-time signal control (end of queue)
+    map<string /*lane*/, pair<string /*TLid*/,int /*queue size*/>> laneQueueSize;
+    map<pair<string /*TLid*/,int /*link*/>, int /*queue size*/> linkQueueSize;
 
     vector<LoopDetectorData *> Vec_loopDetectors;
 
