@@ -377,7 +377,10 @@ void LoopDetectors::measureQueue()
                     // update laneQueueSize
                     map<string,pair<string,int>>::iterator location = laneQueueSize.find(*it2);
                     pair<string,int> store = location->second;
-                    location->second = make_pair( store.first, (store.second)+1 );
+                    if( store.second >= 0 )
+                        location->second = make_pair( store.first, (store.second)+1 );
+                    else
+                        location->second = make_pair( store.first, 1 );
                 }
             }
 
@@ -392,7 +395,10 @@ void LoopDetectors::measureQueue()
                 {
                     map<string,pair<string,int>>::iterator location = laneQueueSize.find(*it2);
                     pair<string,int> store = location->second;
-                    location->second = make_pair( store.first, (store.second)-1 );
+                    if( store.second >= 1 )
+                        location->second = make_pair( store.first, (store.second)-1 );
+                    else
+                        location->second = make_pair( store.first, 0 );
                 }
             }
         }
@@ -432,7 +438,10 @@ void LoopDetectors::measureQueue()
                 if(leaveT != -1)
                 {
                     map<pair<string,int>, int>::iterator location = linkQueueSize.find( make_pair(*it,(*it2).first) );
-                    location->second = location->second + 1;
+                    if( location->second >= 0 )
+                        location->second = location->second + 1;
+                    else
+                        location->second = 1;
                 }
             }
 
@@ -446,7 +455,10 @@ void LoopDetectors::measureQueue()
                 if(leaveT != -1)
                 {
                     map<pair<string,int>, int>::iterator location = linkQueueSize.find( make_pair(*it,(*it2).first) );
-                    location->second = location->second - 1;
+                    if( location->second >= 1 )
+                        location->second = location->second - 1;
+                    else
+                        location->second = 0;
                 }
             }
         }
