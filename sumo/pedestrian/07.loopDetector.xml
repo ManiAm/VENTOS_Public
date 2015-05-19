@@ -1,46 +1,22 @@
 <additional xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo-sim.org/xsd/additional_file.xsd">
 	
-	<!-- North inbound start of queue -->
-	<e1Detector id="actuated_start_NC_2" lane="NC_2" pos="-0.1" freq="60" file="NUL"/>
-	<e1Detector id="actuated_start_NC_3" lane="NC_3" pos="-0.1" freq="60" file="NUL"/>
-	<e1Detector id="actuated_start_NC_4" lane="NC_4" pos="-0.1" freq="60" file="NUL"/> 
+	<!-- loop detectors for actuated traffic signal control -->
 	
-	<!-- North inbound end of queue -->
-	<e1Detector id="actuated_end_NC_2" lane="NC_2" pos="-15" freq="60" file="NUL"/>
-	<e1Detector id="actuated_end_NC_3" lane="NC_3" pos="-35" freq="60" file="NUL"/>
-	<e1Detector id="actuated_end_NC_4" lane="NC_4" pos="-35" freq="60" file="NUL"/>	
+	<e1Detector id="actuated_NC_2" lane="NC_2" pos="-15" freq="60" file="NUL"/>
+	<e1Detector id="actuated_NC_3" lane="NC_3" pos="-35" freq="60" file="NUL"/>
+	<e1Detector id="actuated_NC_4" lane="NC_4" pos="-35" freq="60" file="NUL"/>
 	
-	<!-- South inbound start of queue -->
-	<e1Detector id="actuated_start_SC_2" lane="SC_2" pos="-0.1" freq="60" file="NUL"/>
-	<e1Detector id="actuated_start_SC_3" lane="SC_3" pos="-0.1" freq="60" file="NUL"/>
-	<e1Detector id="actuated_start_SC_4" lane="SC_4" pos="-0.1" freq="60" file="NUL"/>
+	<e1Detector id="actuated_SC_2" lane="SC_2" pos="-15" freq="60" file="NUL"/>
+	<e1Detector id="actuated_SC_3" lane="SC_3" pos="-35" freq="60" file="NUL"/>
+	<e1Detector id="actuated_SC_4" lane="SC_4" pos="-35" freq="60" file="NUL"/>
 	
-	<!-- South inbound end of queue -->
-	<e1Detector id="actuated_end_SC_2" lane="SC_2" pos="-15" freq="60" file="NUL"/>
-	<e1Detector id="actuated_end_SC_3" lane="SC_3" pos="-35" freq="60" file="NUL"/>
-	<e1Detector id="actuated_end_SC_4" lane="SC_4" pos="-35" freq="60" file="NUL"/>	
+	<e1Detector id="actuated_WC_2" lane="WC_2" pos="-15" freq="60" file="NUL"/>
+	<e1Detector id="actuated_WC_3" lane="WC_3" pos="-35" freq="60" file="NUL"/>
+	<e1Detector id="actuated_WC_4" lane="WC_4" pos="-35" freq="60" file="NUL"/>	
 	
-    <!-- West inbound start of queue -->
-	<e1Detector id="actuated_start_WC_2" lane="WC_2" pos="-0.1" freq="60" file="NUL"/>
-	<e1Detector id="actuated_start_WC_3" lane="WC_3" pos="-0.1" freq="60" file="NUL"/>
-	<e1Detector id="actuated_start_WC_4" lane="WC_4" pos="-0.1" freq="60" file="NUL"/>
-	
-	<!-- West inbound end of queue -->
-	<e1Detector id="actuated_end_WC_2" lane="WC_2" pos="-15" freq="60" file="NUL"/>
-	<e1Detector id="actuated_end_WC_3" lane="WC_3" pos="-35" freq="60" file="NUL"/>
-	<e1Detector id="actuated_end_WC_4" lane="WC_4" pos="-35" freq="60" file="NUL"/>	
-	
-    <!-- East inbound start of queue -->
-	<e1Detector id="actuated_start_EC_2" lane="EC_2" pos="-0.1" freq="60" file="NUL"/>
-	<e1Detector id="actuated_start_EC_3" lane="EC_3" pos="-0.1" freq="60" file="NUL"/>
-	<e1Detector id="actuated_start_EC_4" lane="EC_4" pos="-0.1" freq="60" file="NUL"/>
-	
-	<!-- East inbound end of queue -->
-	<e1Detector id="actuated_end_EC_2" lane="EC_2" pos="-15" freq="60" file="NUL"/>
-	<e1Detector id="actuated_end_EC_3" lane="EC_3" pos="-35" freq="60" file="NUL"/>
-    <e1Detector id="actuated_end_EC_4" lane="EC_4" pos="-35" freq="60" file="NUL"/>
-	
-	
+	<e1Detector id="actuated_EC_2" lane="EC_2" pos="-15" freq="60" file="NUL"/>
+	<e1Detector id="actuated_EC_3" lane="EC_3" pos="-35" freq="60" file="NUL"/>
+    <e1Detector id="actuated_EC_4" lane="EC_4" pos="-35" freq="60" file="NUL"/>	
 	
     <!-- loop detectors for measuring demands -->
 	
@@ -59,5 +35,23 @@
 	<e1Detector id="demand_SC_2" lane="SC_2" pos="-200" freq="60" file="NUL"/>
     <e1Detector id="demand_SC_3" lane="SC_3" pos="-200" freq="60" file="NUL"/>
 	<e1Detector id="demand_SC_4" lane="SC_4" pos="-200" freq="60" file="NUL"/>
+	
+	<!-- area detectors for measuring queue length -->
+	
+    <e2Detector id="queue_WC_2" lane="WC_2" pos="-15" length="14" freq="60" file="NUL"/>
+    <e2Detector id="queue_WC_3" lane="WC_3" pos="-35" length="34" freq="60" file="NUL"/>
+    <e2Detector id="queue_WC_4" lane="WC_4" pos="-35" length="34" freq="60" file="NUL"/>
+            
+    <e2Detector id="queue_NC_2" lane="NC_2" pos="-15" length="14" freq="60" file="NUL"/>
+    <e2Detector id="queue_NC_3" lane="NC_3" pos="-35" length="34" freq="60" file="NUL"/>
+    <e2Detector id="queue_NC_4" lane="NC_4" pos="-35" length="34" freq="60" file="NUL"/>
+    
+    <e2Detector id="queue_EC_2" lane="EC_2" pos="-15" length="14" freq="60" file="NUL"/>
+    <e2Detector id="queue_EC_3" lane="EC_3" pos="-35" length="34" freq="60" file="NUL"/>
+    <e2Detector id="queue_EC_4" lane="EC_4" pos="-35" length="34" freq="60" file="NUL"/>
+    
+    <e2Detector id="queue_SC_2" lane="SC_2" pos="-15" length="14" freq="60" file="NUL"/>
+    <e2Detector id="queue_SC_3" lane="SC_3" pos="-35" length="34" freq="60" file="NUL"/>
+    <e2Detector id="queue_SC_4" lane="SC_4" pos="-35" length="34" freq="60" file="NUL"/>
 
 </additional>

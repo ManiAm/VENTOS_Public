@@ -49,8 +49,8 @@ void LoopDetectors::initialize(int stage)
         measureTrafficDemand = par("measureTrafficDemand").boolValue();
 
         LD_demand.clear();
-        LD_actuated_start.clear();
-        LD_actuated_end.clear();
+        LD_actuated.clear();
+        AD_queue.clear();
 
         laneQueueSize.clear();
         linkQueueSize.clear();
@@ -142,17 +142,24 @@ void LoopDetectors::getAllDetectors()
         if( string(*it).find("demand_") != std::string::npos )
             LD_demand.insert(pair<string, string>(lane, *it));
         else if( string(*it).find("actuated_") != std::string::npos )
-        {
-            if( string(*it).find("start_") != std::string::npos )
-                LD_actuated_start.insert(pair<string, string>(lane, *it));
-            else if( string(*it).find("end_") != std::string::npos )
-                LD_actuated_end.insert(pair<string, string>(lane, *it));
-        }
+            LD_actuated.insert(pair<string, string>(lane, *it));
+    }
+
+    // get all area detectors
+    list<string> str2 = TraCI->LADGetIDList();
+
+    // for each area detector detector
+    for (list<string>::iterator it=str2.begin(); it != str2.end(); ++it)
+    {
+        string lane = TraCI->LADGetLaneID(*it);
+
+        if( string(*it).find("queue_") != std::string::npos )
+            AD_queue.insert(pair<string, string>(lane, *it));
     }
 
     cout << endl << LD_demand.size() << " demand loop detectors found!" << endl;
-    cout << LD_actuated_start.size() << " actuated_start loop detectors found!" << endl;
-    cout << LD_actuated_end.size() << " actuated_end loop detectors found!" << endl << endl;
+    cout << LD_actuated.size() << " actuated loop detectors found!" << endl;
+    cout << AD_queue.size() << " area detectors found!" << endl << endl;
 
     // some traffic signal controls need one actuated LD on each incoming lane
     if(TLControlMode == 2)
@@ -167,7 +174,7 @@ void LoopDetectors::getAllDetectors()
             // for each incoming lane
             for(list<string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
             {
-                if( LD_actuated_end.find(*it2) == LD_actuated_end.end() )
+                if( LD_actuated.find(*it2) == LD_actuated.end() )
                     cout << "WARNING: no loop detector found on lane (" << *it2 << "). No actuation is available for this lane." << endl;
             }
         }
@@ -175,7 +182,7 @@ void LoopDetectors::getAllDetectors()
     }
 
     // if we are measuring queue length then
-    // make sure all actuated detectors are in pair
+    // make sure we have an area detector in each lane
     if(measureIntersectionQueue)
     {
         for (list<string>::iterator it = TLList.begin() ; it != TLList.end(); ++it)
@@ -188,15 +195,8 @@ void LoopDetectors::getAllDetectors()
             // for each incoming lane
             for(list<string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
             {
-                bool exists1 = LD_actuated_start.find(*it2) != LD_actuated_start.end();
-                bool exists2 = LD_actuated_end.find(*it2) != LD_actuated_end.end();
-
-                if( !exists1 && !exists2 )
-                    cout << "WARNING: no loop detector found on lane (" << *it2 << "). No queue measurement is available for this lane." << endl;
-                else if( !exists1 && exists2 )
-                    error("Matching loop detector for (%s) not found!", LD_actuated_end[*it2].c_str() );
-                else if( exists1 && !exists2 )
-                    error("Matching loop detector for (%s) not found!", LD_actuated_start[*it2].c_str() );
+                if( AD_queue.find(*it2) == AD_queue.end() )
+                    cout << "WARNING: no area detector found on lane (" << *it2 << "). No queue measurement is available for this lane." << endl;
             }
         }
         cout << endl;
@@ -348,7 +348,7 @@ void LoopDetectors::trafficDemand()
 
 void LoopDetectors::measureQueue()
 {
-    for (list<string>::iterator it = TLList.begin() ; it != TLList.end(); ++it)
+    for (list<string>::iterator it = TLList.begin(); it != TLList.end(); ++it)
     {
         list<string> lan = TraCI->TLGetControlledLanes(*it);
 
@@ -358,49 +358,17 @@ void LoopDetectors::measureQueue()
         // for each incoming lane
         for(list<string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
         {
-            // make sure we have both detectors
-            if( LD_actuated_end.find(*it2) == LD_actuated_end.end() || LD_actuated_start.find(*it2) == LD_actuated_start.end() )
+            // make sure we have an area detector in this lane
+            if( AD_queue.find(*it2) == AD_queue.end() )
                 continue;
 
-            string queueEnd = LD_actuated_end[*it2];
-            string queueStart = LD_actuated_start[*it2];
+            string ADid = AD_queue[*it2];
+            int q = TraCI->LADGetLastStepVehicleHaltingNumber(ADid);
 
-            vector<string>  st1 = TraCI->LDGetLastStepVehicleData(queueEnd);
-            // only if this LP detected a vehicle
-            if( st1.size() > 0 )
-            {
-                double leaveT = atof( st1.at(3).c_str() );
-
-                // a vehicle entered
-                if(leaveT != -1)
-                {
-                    // update laneQueueSize
-                    map<string,pair<string,int>>::iterator location = laneQueueSize.find(*it2);
-                    pair<string,int> store = location->second;
-                    if( store.second >= 0 )
-                        location->second = make_pair( store.first, (store.second)+1 );
-                    else
-                        location->second = make_pair( store.first, 1 );
-                }
-            }
-
-            vector<string>  st2 = TraCI->LDGetLastStepVehicleData(queueStart);
-            // only if this LD detected a vehicle
-            if( st2.size() > 0 )
-            {
-                double leaveT = atof( st2.at(3).c_str() );
-
-                // a vehicle left
-                if(leaveT != -1)
-                {
-                    map<string,pair<string,int>>::iterator location = laneQueueSize.find(*it2);
-                    pair<string,int> store = location->second;
-                    if( store.second >= 1 )
-                        location->second = make_pair( store.first, (store.second)-1 );
-                    else
-                        location->second = make_pair( store.first, 0 );
-                }
-            }
+            // update laneQueueSize
+            map<string,pair<string,int>>::iterator location = laneQueueSize.find(*it2);
+            pair<string,int> store = location->second;
+            location->second = make_pair( store.first, q );
         }
     }
 
@@ -421,46 +389,15 @@ void LoopDetectors::measureQueue()
                 break;
             }
 
-            // make sure we have both detectors
-            if( LD_actuated_end.find(incommingLane) == LD_actuated_end.end() || LD_actuated_start.find(incommingLane) == LD_actuated_start.end() )
+            // make sure we have an area detector in this lane
+            if( AD_queue.find(incommingLane) == AD_queue.end() )
                 continue;
 
-            string queueEnd = LD_actuated_end[incommingLane];
-            string queueStart = LD_actuated_start[incommingLane];
+            string ADid = AD_queue[incommingLane];
+            int q = TraCI->LADGetLastStepVehicleHaltingNumber(ADid);
 
-            vector<string>  st1 = TraCI->LDGetLastStepVehicleData(queueEnd);
-            // only if this LP detected a vehicle
-            if( st1.size() > 0 )
-            {
-                double leaveT = atof( st1.at(3).c_str() );
-
-                // a vehicle entered
-                if(leaveT != -1)
-                {
-                    map<pair<string,int>, int>::iterator location = linkQueueSize.find( make_pair(*it,(*it2).first) );
-                    if( location->second >= 0 )
-                        location->second = location->second + 1;
-                    else
-                        location->second = 1;
-                }
-            }
-
-            vector<string>  st2 = TraCI->LDGetLastStepVehicleData(queueStart);
-            // only if this LD detected a vehicle
-            if( st2.size() > 0 )
-            {
-                double leaveT = atof( st2.at(3).c_str() );
-
-                // a vehicle left
-                if(leaveT != -1)
-                {
-                    map<pair<string,int>, int>::iterator location = linkQueueSize.find( make_pair(*it,(*it2).first) );
-                    if( location->second >= 1 )
-                        location->second = location->second - 1;
-                    else
-                        location->second = 0;
-                }
-            }
+            map<pair<string,int>, int>::iterator location = linkQueueSize.find( make_pair(*it,(*it2).first) );
+            location->second = q;
         }
     }
 }

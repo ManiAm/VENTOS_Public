@@ -480,8 +480,8 @@ void TrafficLightAdaptiveQueue::chooseNextGreenInterval()
     if(maxQueue == -1 || row == -1)
         error("something is wrong!");
 
-    // Calculate the next green interval
-    // right-turns are all permissive
+    // Calculate the next green interval.
+    // right-turns are all permissive thus using 'g'
     nextGreenInterval = "";
     int rightTurns[] = {2, 7, 12, 17, 0, 5, 10, 15};
     for(int j = 0; j < LINKSIZE; j++)

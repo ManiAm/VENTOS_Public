@@ -89,9 +89,10 @@ class LoopDetectors : public TrafficLightBase
     bool measureIntersectionQueue;
     bool measureTrafficDemand;
 
-    map<string, string> LD_demand;           // ids of loop detectors for measuring incoming traffic demand
-    map<string, string> LD_actuated_start;   // ids of loop detectors for actuated-time signal control (start of queue)
-    map<string, string> LD_actuated_end;     // ids of loop detectors for actuated-time signal control (end of queue)
+    map<string, string> LD_demand;       // ids of loop detectors for measuring incoming traffic demand
+    map<string, string> LD_actuated;     // ids of loop detectors for actuated-time signal control
+    map<string, string> AD_queue;        // ids of area detectors for measuring queue length
+
     map<string /*lane*/, pair<string /*TLid*/,int /*queue size*/>> laneQueueSize;
     map<pair<string /*TLid*/,int /*link*/>, int /*queue size*/> linkQueueSize;
 
