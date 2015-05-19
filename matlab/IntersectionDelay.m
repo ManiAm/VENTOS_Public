@@ -6,7 +6,7 @@ clc;    % position the cursor at the top of the screen
 
 % ---------------------------------------------------------------
 
-path = '../results/gui/TLData_fixV.txt';    
+path = '../results/gui/TLStatePerVehicle_fixV.txt';    
 file_id = fopen(path);
 formatSpec = '%d %f %s %s %f %f %s %d';
 C_text = textscan(file_id, formatSpec, 'HeaderLines', 3);
