@@ -235,9 +235,11 @@ class TraCI_Extend : public TraCIScenarioManager
         // CMD_GET_AREAL_DETECTOR_VARIABLE
         list<string> LADGetIDList();
         uint32_t LADGetIDCount(string);
+        string LADGetLaneID(string);
         uint32_t LADGetLastStepVehicleNumber(string);
         list<string> LADGetLastStepVehicleIDs(string);
         double LADGetLastStepMeanVehicleSpeed(string);
+        uint32_t LADGetLastStepVehicleHaltingNumber(string);
 
         // ################################################################
         //                          traffic light

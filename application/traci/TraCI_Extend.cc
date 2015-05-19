@@ -1343,6 +1343,11 @@ uint32_t TraCI_Extend::LADGetIDCount(string loopId)
     return getCommandInterface()->genericGetInt(0xad, loopId, 0x01, 0xbd);
 }
 
+string TraCI_Extend::LADGetLaneID(string loopId)
+{
+    return getCommandInterface()->genericGetString(0xad, loopId, 0x51, 0xbd);
+}
+
 
 uint32_t TraCI_Extend::LADGetLastStepVehicleNumber(string loopId)
 {
@@ -1359,6 +1364,12 @@ list<string> TraCI_Extend::LADGetLastStepVehicleIDs(string loopId)
 double TraCI_Extend::LADGetLastStepMeanVehicleSpeed(string loopId)
 {
     return getCommandInterface()->genericGetDouble(0xad, loopId, 0x11, 0xbd);
+}
+
+
+uint32_t TraCI_Extend::LADGetLastStepVehicleHaltingNumber(string loopId)
+{
+    return getCommandInterface()->genericGetInt(0xad, loopId, 0x14, 0xbd);
 }
 
 
