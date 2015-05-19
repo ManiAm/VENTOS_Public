@@ -108,13 +108,13 @@ void TrafficLightBase::executeEachTimeStep(bool simulationDone)
 {
     if(collectTLData)
     {
-        TLData();   // collecting data from all vehicles in each timeStep
+        TLStatePerVehicle();   // collecting data from all vehicles in each timeStep
         if(ev.isGUI()) TLDataToFile();  // (if in GUI) write what we have collected so far
     }
 }
 
 
-void TrafficLightBase::TLData()
+void TrafficLightBase::TLStatePerVehicle()
 {
     // get all lanes in the network
     list<string> myList = TraCI->laneGetIDList();
@@ -125,7 +125,7 @@ void TrafficLightBase::TLData()
         list<string> myList2 = TraCI->laneGetLastStepVehicleIDs( i->c_str() );
 
         for(list<string>::reverse_iterator k = myList2.rbegin(); k != myList2.rend(); ++k)
-            saveTLData(k->c_str());
+            saveTLStatePerVehicle(k->c_str());
     }
 
     // increase index after writing data for all vehicles
@@ -134,13 +134,29 @@ void TrafficLightBase::TLData()
 }
 
 
-void TrafficLightBase::saveTLData(string vID)
+void TrafficLightBase::saveTLStatePerVehicle(string vID)
 {
     string lane = TraCI->vehicleGetLaneID(vID);
 
     // get the TLid that controls this vehicle
     // empty string means the vehicle is not controlled by any TLid
-    string TLid = getTrafficLightController(lane);
+    string TLid = "";
+    for (list<string>::iterator it = TLList.begin() ; it != TLList.end(); ++it)
+    {
+        list<string> lan = TraCI->TLGetControlledLanes(*it);
+        for(list<string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
+        {
+            if(*it2 == lane)
+            {
+                TLid = *it;
+                break;
+            }
+        }
+    }
+
+    string TLprogram = "";
+    if(TLid != "")
+        TLprogram = TraCI->TLGetProgram(TLid);
 
     // if the signal is yellow or red
     int YorR = TraCI->vehicleGetTrafficLightAhead(vID);
@@ -151,34 +167,8 @@ void TrafficLightBase::saveTLData(string vID)
 
     TLVehicleData *tmp = new TLVehicleData(index, timeStep,
                                            vID.c_str(), lane.c_str(), pos,
-                                           speed, TLid.c_str(), YorR);
+                                           speed, TLid.c_str(), TLprogram.c_str(), YorR);
     Vec_vehiclesData.push_back(tmp);
-}
-
-
-// if the lane is controlled by a TL controller, then
-// this method will return the TLid
-string TrafficLightBase::getTrafficLightController(string lane)
-{
-    for (list<string>::iterator it = TLList.begin() ; it != TLList.end(); ++it)
-    {
-        list<string> lan = TraCI->TLGetControlledLanes(*it);
-
-        bool found = false;
-        for(list<string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
-        {
-            if(lane == *it2)
-            {
-                found = true;
-                break;
-            }
-        }
-
-        if(found)
-            return *it;
-    }
-
-    return "";
 }
 
 
@@ -188,7 +178,7 @@ void TrafficLightBase::TLDataToFile()
 
     if( ev.isGUI() )
     {
-        filePath = "results/gui/TLData.txt";
+        filePath = "results/gui/TLStatePerVehicle.txt";
     }
     else
     {
@@ -196,7 +186,7 @@ void TrafficLightBase::TLDataToFile()
         int currentRun = ev.getConfigEx()->getActiveRunNumber();
         ostringstream fileName;
 
-        fileName << currentRun << "_TLData.txt";
+        fileName << currentRun << "_TLStatePerVehicle.txt";
 
         filePath = "results/cmd/" + fileName.str();
     }
@@ -211,6 +201,7 @@ void TrafficLightBase::TLDataToFile()
     fprintf (filePtr, "%-11s","pos");
     fprintf (filePtr, "%-12s","speed");
     fprintf (filePtr, "%-12s","TLid");
+    fprintf (filePtr, "%-12s","TLprogram");
     fprintf (filePtr, "%-17s\n\n","yellowOrRed");
 
     int oldIndex = -1;
@@ -231,6 +222,7 @@ void TrafficLightBase::TLDataToFile()
         fprintf (filePtr, "%-10.2f ", Vec_vehiclesData[k]->pos);
         fprintf (filePtr, "%-10.2f ", Vec_vehiclesData[k]->speed);
         fprintf (filePtr, "%-15s ", Vec_vehiclesData[k]->TLid);
+        fprintf (filePtr, "%-15s ", Vec_vehiclesData[k]->TLprogram);
         fprintf (filePtr, "%-15d \n", Vec_vehiclesData[k]->yellowOrRedSignal);
     }
 

@@ -41,17 +41,18 @@ class TLVehicleData
   public:
     int index;
     double time;
-    char vehicleName[20];
-    char lane[20];
+    char vehicleName[30];
+    char lane[30];
     double pos;
     double speed;
     char TLid[20];
+    char TLprogram[30];
     int yellowOrRedSignal;
 
     TLVehicleData(int i, double d1,
                 const char *str1, const char *str2,
                 double d2, double d3,
-                const char *str3, int s)
+                const char *str3, const char *str4, int s)
     {
         this->index = i;
         this->time = d1;
@@ -63,6 +64,8 @@ class TLVehicleData
         this->speed = d3;
 
         strcpy(this->TLid, str3);
+        strcpy(this->TLprogram, str4);
+
         yellowOrRedSignal = s;
     }
 };
@@ -99,9 +102,8 @@ class TrafficLightBase : public BaseModule
       virtual void executeEachTimeStep(bool);
 
   private:
-      void TLData();
-      void saveTLData(string);
-      string getTrafficLightController(string vID);
+      void TLStatePerVehicle();
+      void saveTLStatePerVehicle(string);
       void TLDataToFile();
 };
 
