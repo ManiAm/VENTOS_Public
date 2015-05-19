@@ -463,29 +463,39 @@ void TrafficLightAdaptiveQueue::chooseNextGreenInterval()
     for(unsigned int i = 0; i < allMovements.size(); i++)  // row
     {
         int totalQueueRow = 0;
-        string nextPossibleGreenInterval = "";
 
         for(int j = 0; j < LINKSIZE; j++)  // column
         {
             if(allMovements[i][j] == 1)
-            {
                 totalQueueRow = totalQueueRow + linkQueueSize[make_pair("C",j)];
-                nextPossibleGreenInterval += 'G';
-            }
-            else
-                nextPossibleGreenInterval += 'r';
         }
 
         if(totalQueueRow > maxQueue)
         {
             maxQueue = totalQueueRow;
             row = i;
-            nextGreenInterval = nextPossibleGreenInterval;
         }
     }
 
     if(maxQueue == -1 || row == -1)
         error("something is wrong!");
+
+    // Calculate the next green interval
+    // right-turns are all permissive
+    nextGreenInterval = "";
+    int rightTurns[] = {2, 7, 12, 17, 0, 5, 10, 15};
+    for(int j = 0; j < LINKSIZE; j++)
+    {
+        // if a right turn
+        bool exists = std::find(std::begin(rightTurns), std::end(rightTurns), j) != std::end(rightTurns);
+
+        if(allMovements[row][j] == 0)
+            nextGreenInterval += 'r';
+        else if(allMovements[row][j] == 1 && exists)
+            nextGreenInterval += 'g';
+        else
+            nextGreenInterval += 'G';
+    }
 
     // Calculate 'next interval'
     string nextInterval = "";
