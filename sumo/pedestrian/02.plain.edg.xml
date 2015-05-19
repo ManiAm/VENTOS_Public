@@ -3,7 +3,7 @@
 <edges version="0.13" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/edges_file.xsd">
 
     <edge id="CE" from="C" to="E" priority="2" numLanes="5" speed="30">
-        <lane index="0" allow="pedestrian" width="3.75"/>
+        <lane index="0" allow="pedestrian" width="3"/>
         <lane index="1" disallow="all" width="1.50"/>
         <lane index="2" allow="bicycle" width="1.00"/>
         <lane index="3" allow="passenger"/>
@@ -24,14 +24,14 @@
         <lane index="4" allow="passenger"/>
     </edge>
     <edge id="CW" from="C" to="W" priority="2" numLanes="5" speed="30">
-        <lane index="0" allow="pedestrian" width="2.25"/>
+        <lane index="0" allow="pedestrian" width="3.00"/>
         <lane index="1" disallow="all" width="1.50"/>
         <lane index="2" allow="bicycle" width="1.00"/>
         <lane index="3" allow="passenger"/>
         <lane index="4" allow="passenger"/>
     </edge>
     <edge id="EC" from="E" to="C" priority="2" numLanes="5" speed="30">
-        <lane index="0" allow="pedestrian" width="1.50"/>
+        <lane index="0" allow="pedestrian" width="3.00"/>
         <lane index="1" disallow="all" width="1.50"/>
         <lane index="2" allow="bicycle" width="1.00"/>
         <lane index="3" allow="passenger"/>
