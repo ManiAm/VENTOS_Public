@@ -54,6 +54,9 @@ void LoopDetectors::initialize(int stage)
 
         laneQueueSize.clear();
         linkQueueSize.clear();
+
+        Vec_loopDetectors.clear();
+        Vec_queueSize.clear();
     }
 }
 
@@ -113,19 +116,26 @@ void LoopDetectors::executeEachTimeStep(bool simulationDone)
 
     if(collectInductionLoopData)
     {
-        inductionLoops();    // collecting induction loop data in each timeStep
+        collectLDsData();    // collecting induction loop data in each timeStep
 
         if(ev.isGUI())
-            inductionLoopToFile();  // (if in GUI) write to file what we have collected so far
+            saveLDsData();  // (if in GUI) write to file what we have collected so far
         else if(simulationDone)
-            inductionLoopToFile();  // (if in CMD) write to file at the end of simulation
+            saveLDsData();  // (if in CMD) write to file at the end of simulation
     }
 
     if(measureTrafficDemand)
-        trafficDemand();
+        measureTD();
 
     if(measureIntersectionQueue)
-        measureQueue();
+    {
+        measureQ();           // collecting queue size in each timeStep
+
+        if(ev.isGUI())
+            saveQueueData();  // (if in GUI) write to file what we have collected so far
+        else if(simulationDone)
+            saveQueueData();  // (if in CMD) write to file at the end of simulation
+    }
 }
 
 
@@ -204,7 +214,7 @@ void LoopDetectors::getAllDetectors()
 }
 
 
-void LoopDetectors::inductionLoops()
+void LoopDetectors::collectLDsData()
 {
     // get all loop detectors
     list<string> str = TraCI->LDGetIDList();
@@ -249,7 +259,7 @@ void LoopDetectors::inductionLoops()
 }
 
 
-void LoopDetectors::inductionLoopToFile()
+void LoopDetectors::saveLDsData()
 {
     boost::filesystem::path filePath;
 
@@ -315,7 +325,7 @@ int LoopDetectors::findInVector(vector<LoopDetectorData *> Vec, const char *dete
 
 
 // todo: dynamic demand calculation does not make sense!
-void LoopDetectors::trafficDemand()
+void LoopDetectors::measureTD()
 {
     // for each loop detector that measures the traffic demand
     for (map<string,string>::iterator it=LD_demand.begin(); it != LD_demand.end(); ++it)
@@ -346,7 +356,7 @@ void LoopDetectors::trafficDemand()
 }
 
 
-void LoopDetectors::measureQueue()
+void LoopDetectors::measureQ()
 {
     for (list<string>::iterator it = TLList.begin(); it != TLList.end(); ++it)
     {
@@ -369,6 +379,9 @@ void LoopDetectors::measureQueue()
             map<string,pair<string,int>>::iterator location = laneQueueSize.find(*it2);
             pair<string,int> store = location->second;
             location->second = make_pair( store.first, q );
+
+            IntersectionQueueData *tmp = new IntersectionQueueData( simTime().dbl(), (*it).c_str(), (*it2).c_str(), q );
+            Vec_queueSize.push_back(tmp);
         }
     }
 
@@ -400,6 +413,52 @@ void LoopDetectors::measureQueue()
             location->second = q;
         }
     }
+}
+
+
+void LoopDetectors::saveQueueData()
+{
+    boost::filesystem::path filePath;
+
+    if( ev.isGUI() )
+    {
+        filePath = "results/gui/queueSize.txt";
+    }
+    else
+    {
+        // get the current run number
+        int currentRun = ev.getConfigEx()->getActiveRunNumber();
+        ostringstream fileName;
+        fileName << currentRun << "_queueSize.txt";
+        filePath = "results/cmd/" + fileName.str();
+    }
+
+    FILE *filePtr = fopen (filePath.string().c_str(), "w");
+
+    // write header
+    fprintf (filePtr, "%-20s","time");
+    fprintf (filePtr, "%-20s","TLid");
+    fprintf (filePtr, "%-20s","lane");
+    fprintf (filePtr, "%-20s\n","queueSize");
+
+    double oldTime = -1;
+
+    // write body
+    for(vector<IntersectionQueueData *>::iterator y = Vec_queueSize.begin(); y != Vec_queueSize.end(); y++)
+    {
+        if(oldTime != (*y)->time)
+        {
+            fprintf(filePtr, "\n");
+            oldTime = (*y)->time;
+        }
+
+        fprintf (filePtr, "%-20.2f ", (*y)->time);
+        fprintf (filePtr, "%-20s ", (*y)->TLid);
+        fprintf (filePtr, "%-20s ", (*y)->lane);
+        fprintf (filePtr, "%-20d\n", (*y)->qSize);
+    }
+
+    fclose(filePtr);
 }
 
 }

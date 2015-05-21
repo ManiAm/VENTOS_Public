@@ -61,6 +61,29 @@ class LoopDetectorData
         this->entrySpeed = entryS;
         this->leaveSpeed = leaveS;
     }
+
+//    bool operator== (const LoopDetectorData &v1, const LoopDetectorData &v2)
+//    {
+//        return (strcmp(v1.detectorName,v2.detectorName) == 0 && strcmp(v1.vehicleName, v2.vehicleName) == 0);
+//    }
+};
+
+
+class IntersectionQueueData
+{
+  public:
+    double time;
+    char TLid[20];
+    char lane[20];
+    int qSize;
+
+    IntersectionQueueData( double t, const char *str1, const char *str2, int q )
+    {
+        this->time = t;
+        this->qSize = q;
+        strcpy(this->TLid, str1);
+        strcpy(this->lane, str2);
+    }
 };
 
 
@@ -78,11 +101,12 @@ class LoopDetectors : public TrafficLightBase
 
   private:
     void getAllDetectors();
-    void inductionLoops();
-    void inductionLoopToFile();
+    void collectLDsData();
+    void saveLDsData();
     int findInVector(vector<LoopDetectorData *> , const char *, const char *);
-    void trafficDemand();
-    void measureQueue();
+    void measureTD();
+    void measureQ();
+    void saveQueueData();
 
   protected:
     bool collectInductionLoopData;
@@ -97,6 +121,7 @@ class LoopDetectors : public TrafficLightBase
     map<pair<string /*TLid*/,int /*link*/>, int /*queue size*/> linkQueueSize;
 
     vector<LoopDetectorData *> Vec_loopDetectors;
+    vector<IntersectionQueueData *> Vec_queueSize;
 
   private:
     bool freeze = false;
