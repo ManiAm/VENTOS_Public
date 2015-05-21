@@ -424,26 +424,26 @@ void TraCI_App::vehiclesDataToFile()
     int oldIndex = -1;
 
     // write body
-    for(unsigned int k=0; k<Vec_vehiclesData.size(); k++)
+    for(vector<VehicleData *>::iterator y = Vec_vehiclesData.begin(); y != Vec_vehiclesData.end(); y++)
     {
-        if(oldIndex != Vec_vehiclesData[k]->index)
+        if(oldIndex != (*y)->index)
         {
             fprintf(filePtr, "\n");
-            oldIndex = Vec_vehiclesData[k]->index;
+            oldIndex = (*y)->index;
         }
 
-        fprintf (filePtr, "%-10d ", Vec_vehiclesData[k]->index);
-        fprintf (filePtr, "%-10.2f ", Vec_vehiclesData[k]->time );
-        fprintf (filePtr, "%-15s ", Vec_vehiclesData[k]->vehicleName);
-        fprintf (filePtr, "%-15s ", Vec_vehiclesData[k]->vehicleType);
-        fprintf (filePtr, "%-12s ", Vec_vehiclesData[k]->lane);
-        fprintf (filePtr, "%-10.2f ", Vec_vehiclesData[k]->pos);
-        fprintf (filePtr, "%-10.2f ", Vec_vehiclesData[k]->speed);
-        fprintf (filePtr, "%-10.2f ", Vec_vehiclesData[k]->accel);
-        fprintf (filePtr, "%-20s", Vec_vehiclesData[k]->CFMode);
-        fprintf (filePtr, "%-20.2f ", Vec_vehiclesData[k]->timeGapSetting);
-        fprintf (filePtr, "%-10.2f ", Vec_vehiclesData[k]->spaceGap);
-        fprintf (filePtr, "%-10.2f \n", Vec_vehiclesData[k]->timeGap);
+        fprintf (filePtr, "%-10d ", (*y)->index);
+        fprintf (filePtr, "%-10.2f ", (*y)->time );
+        fprintf (filePtr, "%-15s ", (*y)->vehicleName);
+        fprintf (filePtr, "%-15s ", (*y)->vehicleType);
+        fprintf (filePtr, "%-12s ", (*y)->lane);
+        fprintf (filePtr, "%-10.2f ", (*y)->pos);
+        fprintf (filePtr, "%-10.2f ", (*y)->speed);
+        fprintf (filePtr, "%-10.2f ", (*y)->accel);
+        fprintf (filePtr, "%-20s", (*y)->CFMode);
+        fprintf (filePtr, "%-20.2f ", (*y)->timeGapSetting);
+        fprintf (filePtr, "%-10.2f ", (*y)->spaceGap);
+        fprintf (filePtr, "%-10.2f \n", (*y)->timeGap);
     }
 
     fclose(filePtr);
