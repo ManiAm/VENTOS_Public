@@ -31,7 +31,6 @@
 #include <list>
 #include <msg/Messages_m.h>
 
-using namespace std;
 
 namespace VENTOS {
 
@@ -58,15 +57,15 @@ enum ControllerTypes
 
 class systemData : public cObject, noncopyable
 {
-    string edge;
-    string node;
-    string sender;
+    std::string edge;
+    std::string node;
+    std::string sender;
     int requestType;
-    string recipient;
-    list<string> edgeList;
+    std::string recipient;
+    std::list<std::string> edgeList;
 
 public:
-    systemData(string e, string n, string s, int r, string re)
+    systemData(std::string e, std::string n, std::string s, int r, std::string re)
     {
         edge = e;
         node = n;
@@ -75,7 +74,7 @@ public:
         recipient = re;
     }
 
-    systemData(string e, string n, string s, int r, string re, list<string> el)
+    systemData(std::string e, std::string n, std::string s, int r, std::string re, std::list<std::string> el)
     {
         edge = e;
         node = n;
@@ -84,11 +83,11 @@ public:
         recipient = re;
         edgeList = el;
     }
-    string getEdge()
+    std::string getEdge()
     {
         return edge;
     }
-    string getNode()
+    std::string getNode()
     {
         return node;
     }
@@ -104,7 +103,7 @@ public:
     {
         return recipient.c_str();
     }
-    list<string> getInfo()
+    std::list<std::string> getInfo()
     {
         return edgeList;
     }
@@ -126,9 +125,9 @@ class data : public cObject, noncopyable
 class MacStat : public cObject, noncopyable
 {
   public:
-    vector<long> vec;
+    std::vector<long> vec;
 
-    MacStat( vector<long> v)
+    MacStat( std::vector<long> v)
     {
         vec.swap(v);
     }
@@ -181,11 +180,11 @@ class PlnManeuver : public cObject, noncopyable
 class TimeData : public cObject, noncopyable
 {
   public:
-      string vName;
+      std::string vName;
       int time;
       bool end;
 
-      TimeData(string vName, int time, bool end)
+      TimeData(std::string vName, int time, bool end)
       {
           this->vName = vName;
           this->time = time;

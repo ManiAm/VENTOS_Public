@@ -60,10 +60,10 @@ class ApplVBeacon : public ApplVBase
         simtime_t individualOffset;
         cMessage* VehicleBeaconEvt;
 
-        string plnID;
+        std::string plnID;
         int myPlnDepth;
         int plnSize;
-        deque<string> plnMembersList;
+        std::deque<std::string> plnMembersList;
 
 protected:
         virtual void handleSelfMsg(cMessage*);

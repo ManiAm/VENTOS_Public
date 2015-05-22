@@ -61,10 +61,10 @@ double LaneCosts::percentAt(int d)
     return (double)data[d] / (double)count;
 }
 
-std::ostream& operator<<(ostream& os, LaneCosts& h)
+std::ostream& operator<<(std::ostream& os, LaneCosts& h)
 {
-    os << h.data.size() << endl;
-    for(map<int, int>::iterator it = h.data.begin(); it != h.data.end(); it++)
+    os << h.data.size() << std::endl;
+    for(std::map<int, int>::iterator it = h.data.begin(); it != h.data.end(); it++)
         os << it->first << " ";
     return os;
 }

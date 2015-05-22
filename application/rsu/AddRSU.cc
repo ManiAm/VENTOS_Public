@@ -111,7 +111,7 @@ void AddRSU::Scenario1()
     // Step 1: read RSU locations from file
     // ####################################
 
-    string RSUfile = par("RSUfile").stringValue();
+    std::string RSUfile = par("RSUfile").stringValue();
     boost::filesystem::path RSUfilePath = SUMO_FullPath / RSUfile;
 
     // check if this file is valid?
@@ -120,7 +120,7 @@ void AddRSU::Scenario1()
         error("RSU file does not exist in %s", RSUfilePath.string().c_str());
     }
 
-    deque<RSUEntry*> RSUs = commandReadRSUsCoord(RSUfilePath.string());
+    std::deque<RSUEntry*> RSUs = commandReadRSUsCoord(RSUfilePath.string());
 
     // ##############################
     // Step 2: create RSUs in OMNET++
@@ -161,22 +161,22 @@ void AddRSU::Scenario1()
 }
 
 
-deque<RSUEntry*> AddRSU::commandReadRSUsCoord(string RSUfilePath)
+std::deque<RSUEntry*> AddRSU::commandReadRSUsCoord(std::string RSUfilePath)
 {
-    file<> xmlFile( RSUfilePath.c_str() );        // Convert our file to a rapid-xml readable object
-    xml_document<> doc;                           // Build a rapidxml doc
+    rapidxml::file<> xmlFile( RSUfilePath.c_str() );        // Convert our file to a rapid-xml readable object
+    rapidxml::xml_document<> doc;                           // Build a rapidxml doc
     doc.parse<0>(xmlFile.data());                 // Fill it with data from our file
-    xml_node<> *node = doc.first_node("RSUs");    // Parse up to the "RSUs" declaration
+    rapidxml::xml_node<> *node = doc.first_node("RSUs");    // Parse up to the "RSUs" declaration
 
     for(node = node->first_node("poly"); node; node = node->next_sibling())
     {
-        string RSUname = "";
-        string RSUtype = "";
-        string RSUcoordinates = "";
+        std::string RSUname = "";
+        std::string RSUtype = "";
+        std::string RSUcoordinates = "";
         int readCount = 1;
 
         // For each node, iterate over its attributes until we reach "shape"
-        for(xml_attribute<> *attr = node->first_attribute(); attr; attr = attr->next_attribute())
+        for(rapidxml::xml_attribute<> *attr = node->first_attribute(); attr; attr = attr->next_attribute())
         {
             if(readCount == 1)
             {
@@ -198,10 +198,10 @@ deque<RSUEntry*> AddRSU::commandReadRSUsCoord(string RSUfilePath)
         int readCount2 = 1;
         double x;
         double y;
-        char_separator<char> sep(",");
-        tokenizer< char_separator<char> > tokens(RSUcoordinates, sep);
+        boost::char_separator<char> sep(",");
+        boost::tokenizer< boost::char_separator<char> > tokens(RSUcoordinates, sep);
 
-        for(tokenizer< char_separator<char> >::iterator beg=tokens.begin(); beg!=tokens.end();++beg)
+        for(boost::tokenizer< boost::char_separator<char> >::iterator beg=tokens.begin(); beg!=tokens.end();++beg)
         {
             if(readCount2 == 1)
             {
@@ -224,9 +224,9 @@ deque<RSUEntry*> AddRSU::commandReadRSUsCoord(string RSUfilePath)
 }
 
 
-void AddRSU::commandAddCirclePoly(string name, string type, const TraCIColor& color, Coord *center, double radius)
+void AddRSU::commandAddCirclePoly(std::string name, std::string type, const TraCIColor& color, Coord *center, double radius)
 {
-    list<TraCICoord> circlePoints;
+    std::list<TraCICoord> circlePoints;
 
     // Convert from degrees to radians via multiplication by PI/180
     for(int angleInDegrees = 0; angleInDegrees <= 360; angleInDegrees = angleInDegrees + 10)

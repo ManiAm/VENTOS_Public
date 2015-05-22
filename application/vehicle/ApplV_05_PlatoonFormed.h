@@ -50,7 +50,7 @@ class ApplVPlatoonFormed : public ApplV_AID
 
 	protected:
         int plnMode;
-        string preDefinedPlatoonID;
+        std::string preDefinedPlatoonID;
 };
 }
 

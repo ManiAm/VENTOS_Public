@@ -88,7 +88,7 @@ void ApplVPlatoonFormed::onBeaconVehicle(BeaconVehicle* wsm)
     // I am not part of any platoon yet!
     if(plnID == "")
     {
-        if( string(wsm->getPlatoonID()) != "" && wsm->getPlatoonDepth() == 0 )
+        if( std::string(wsm->getPlatoonID()) != "" && wsm->getPlatoonDepth() == 0 )
         {
             EV << "This beacon is from a platoon leader. I will join ..." << endl;
             plnID = wsm->getPlatoonID();
@@ -106,7 +106,7 @@ void ApplVPlatoonFormed::onBeaconVehicle(BeaconVehicle* wsm)
         EV << "This beacon is from my platoon leader ..." << endl;
     }
     // I received a beacon from another platoon
-    else if( string(wsm->getPlatoonID()) != plnID )
+    else if( std::string(wsm->getPlatoonID()) != plnID )
     {
         // ignore the beacon msg
     }

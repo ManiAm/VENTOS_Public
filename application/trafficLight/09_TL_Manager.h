@@ -30,7 +30,6 @@
 
 #include "08_TL_Router.h"
 
-using namespace std;
 
 namespace VENTOS {
 

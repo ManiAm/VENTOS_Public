@@ -36,9 +36,6 @@
 #include "boost/filesystem.hpp"
 #define ev  (*cSimulation::getActiveEnvir())
 
-using namespace boost::filesystem;
-using namespace boost;
-using namespace std;
 
 namespace VENTOS {
 
@@ -53,11 +50,11 @@ class SumoBinary : public BaseModule
 	protected:
         // NED variables
         bool update;
-        string SUMO_CMD_FileName;
-        string SUMO_GUI_FileName;
-        string SUMO_GUI_URL;
-        string SUMO_CMD_URL;
-        string SUMO_Version_URL;
+        std::string SUMO_CMD_FileName;
+        std::string SUMO_GUI_FileName;
+        std::string SUMO_GUI_URL;
+        std::string SUMO_CMD_URL;
+        std::string SUMO_Version_URL;
 
         boost::filesystem::path VENTOS_FullPath;
         boost::filesystem::path SUMO_Binary_FullPath;
@@ -65,9 +62,9 @@ class SumoBinary : public BaseModule
         boost::filesystem::path SUMO_GUI_Binary_FullPath;
 
         void checkIfBinaryExists();
-        void downloadBinary(string, string, string);
-        void makeExecutable(string, string);
-        void checkIfNewerVersionExists(string, string, string);
+        void downloadBinary(std::string, std::string, std::string);
+        void makeExecutable(std::string, std::string);
+        void checkIfNewerVersionExists(std::string, std::string, std::string);
         int getRemoteVersion();
 };
 

@@ -52,16 +52,16 @@ class ApplV_AID : public ApplVSystem
         virtual void onBeaconRSU(BeaconRSU*);
         virtual void onData(PlatoonMsg* wsm);
 
-        LaneChangeMsg* prepareData(string, deque<string>);
+        LaneChangeMsg* prepareData(std::string, std::deque<std::string>);
         void printDataContent(LaneChangeMsg*);
 
         // class variables
-        string fromLane;
-        string toLane;
+        std::string fromLane;
+        std::string toLane;
         double fromX;
         double toX;
 
-        deque<string> laneChanges;
+        std::deque<std::string> laneChanges;
 };
 }
 

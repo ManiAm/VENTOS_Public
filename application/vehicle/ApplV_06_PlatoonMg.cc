@@ -210,7 +210,7 @@ void ApplVPlatoonMg::onData(PlatoonMsg* wsm)
 }
 
 
-PlatoonMsg*  ApplVPlatoonMg::prepareData(string receiver, uCommands type, string receivingPlatoonID, double dblValue, string strValue, deque<string> vecValue)
+PlatoonMsg*  ApplVPlatoonMg::prepareData(std::string receiver, uCommands type, std::string receivingPlatoonID, double dblValue, std::string strValue, std::deque<std::string> vecValue)
 {
     if(plnMode != 3)
     {
@@ -314,7 +314,7 @@ void ApplVPlatoonMg::reportStateToStat()
 }
 
 
-const string ApplVPlatoonMg::stateToStr(int s)
+const std::string ApplVPlatoonMg::stateToStr(int s)
 {
     const char * statesStrings[] = {
         "state_idle", "state_platoonLeader", "state_platoonFollower",
@@ -349,7 +349,7 @@ void ApplVPlatoonMg::reportCommandToStat(PlatoonMsg* dataMsg)
 }
 
 
-const string ApplVPlatoonMg::uCommandToStr(int c)
+const std::string ApplVPlatoonMg::uCommandToStr(int c)
 {
     const char * uCommandStrings[] = {
         "MERGE_REQ", "MERGE_ACCEPT", "MERGE_REJECT", "MERGE_DONE",
@@ -364,7 +364,7 @@ const string ApplVPlatoonMg::uCommandToStr(int c)
 }
 
 
-void ApplVPlatoonMg::reportManeuverToStat(string from, string to, string maneuver)
+void ApplVPlatoonMg::reportManeuverToStat(std::string from, std::string to, std::string maneuver)
 {
     PlnManeuver *com = new PlnManeuver(from.c_str(), to.c_str(), maneuver.c_str());
     simsignal_t Signal_PlnManeuver = registerSignal("PlnManeuver");

@@ -35,25 +35,24 @@
 #include "Node.h"
 #include "Histogram.h"
 
-using namespace std;
 
 namespace VENTOS {
 
 class Lane
 {
 public:
-    string id;
+    std::string id;
     double speed;
     double length;
-    vector<int> greenPhases;
-    Lane(string i, double s, double l);
+    std::vector<int> greenPhases;
+    Lane(std::string i, double s, double l);
 };
 
 class Edge
 {
 public:
     //Node variables
-    string id;
+    std::string id;
     Node* from;
     Node* to;
     int priority;
@@ -64,7 +63,7 @@ public:
     double length;
     double origWeight;
     double lastWeight;
-    vector<Lane*> lanes;
+    std::vector<Lane*> lanes;
     double getCost();
 
     //Pathing variables
@@ -77,10 +76,10 @@ public:
     bool disabled;
 
 public:
-    Edge(string idVal, Node* fromVal, Node* toVal, int priorityVal, vector<Lane*> lanesVec, LaneCosts* hist);
+    Edge(std::string idVal, Node* fromVal, Node* toVal, int priorityVal, std::vector<Lane*> lanesVec, LaneCosts* hist);
 };
 
-ostream& operator<<(ostream& os, Edge &rhs);
+std::ostream& operator<<(std::ostream& os, Edge &rhs);
 
 }
 

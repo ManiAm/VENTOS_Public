@@ -137,7 +137,7 @@ void TraCI_App::executeOneTimestep()
 
 void TraCI_App::addPedestriansToOMNET()
 {
-    list<string> allPedestrians = personGetIDList();
+    std::list<std::string> allPedestrians = personGetIDList();
     //cout << simTime().dbl() << ": " << allPedestrians.size() << endl;
 
     if(allPedestrians.size() == 0)
@@ -259,7 +259,7 @@ void TraCI_App::addPedestriansToOMNET()
 // for vehicles and bikes only (not pedestrians!)
 void TraCI_App::addModule(std::string nodeId, std::string type, std::string name, std::string displayString, const Coord& position, std::string road_id, double speed, double angle)
 {
-    string vehType = vehicleGetTypeID(nodeId);  // get vehicle type
+    std::string vehType = vehicleGetTypeID(nodeId);  // get vehicle type
     int SUMOControllerType = vehicleTypeGetControllerType(vehType);   // get controller type
 
     if(SUMOControllerType == SUMO_TAG_CF_KRAUSS || SUMOControllerType == SUMO_TAG_CF_ACC || SUMOControllerType == SUMO_TAG_CF_CACC)
@@ -284,14 +284,14 @@ void TraCI_App::addModule(std::string nodeId, std::string type, std::string name
 void TraCI_App::vehiclesData()
 {
     // get all lanes in the network
-    list<string> myList = laneGetIDList();
+    std::list<std::string> myList = laneGetIDList();
 
-    for(list<string>::iterator i = myList.begin(); i != myList.end(); ++i)
+    for(std::list<std::string>::iterator i = myList.begin(); i != myList.end(); ++i)
     {
         // get all vehicles on lane i
-        list<string> myList2 = laneGetLastStepVehicleIDs( i->c_str() );
+        std::list<std::string> myList2 = laneGetLastStepVehicleIDs( i->c_str() );
 
-        for(list<string>::reverse_iterator k = myList2.rbegin(); k != myList2.rend(); ++k)
+        for(std::list<std::string>::reverse_iterator k = myList2.rbegin(); k != myList2.rend(); ++k)
             saveVehicleData(k->c_str());
     }
 
@@ -301,16 +301,16 @@ void TraCI_App::vehiclesData()
 }
 
 
-void TraCI_App::saveVehicleData(string vID)
+void TraCI_App::saveVehicleData(std::string vID)
 {
     double timeStep = (simTime()-updateInterval).dbl();
-    string vType = vehicleGetTypeID(vID);
-    string lane = vehicleGetLaneID(vID);
+    std::string vType = vehicleGetTypeID(vID);
+    std::string lane = vehicleGetLaneID(vID);
     double pos = vehicleGetLanePosition(vID);
     double speed = vehicleGetSpeed(vID);
     double accel = vehicleGetCurrentAccel(vID);
     int CFMode_Enum = vehicleGetCarFollowingMode(vID);
-    string CFMode;
+    std::string CFMode;
 
     enum CFMODES {
         Mode_Undefined,
@@ -354,8 +354,8 @@ void TraCI_App::saveVehicleData(string vID)
     double timeGapSetting = vehicleGetTimeGap(vID);
 
     // get the gap
-    vector<string> vleaderIDnew = vehicleGetLeader(vID, 900);
-    string vleaderID = vleaderIDnew[0];
+    std::vector<std::string> vleaderIDnew = vehicleGetLeader(vID, 900);
+    std::string vleaderID = vleaderIDnew[0];
     double spaceGap = -1;
 
     if(vleaderID != "")
@@ -372,7 +372,7 @@ void TraCI_App::saveVehicleData(string vID)
             lane.c_str(), pos,
             speed, accel, CFMode.c_str(),
             timeGapSetting, spaceGap, timeGap);
-    Vec_vehiclesData.push_back(tmp);
+    Vec_vehiclesData.push_back(*tmp);
 }
 
 
@@ -388,12 +388,12 @@ void TraCI_App::vehiclesDataToFile()
     {
         // get the current run number
         int currentRun = ev.getConfigEx()->getActiveRunNumber();
-        ostringstream fileName;
+        std::ostringstream fileName;
 
         if(useDetailedFilenames)
         {
             int TLMode = (*router->net->TLs.begin()).second->TLLogicMode;
-            ostringstream filePrefix;
+            std::ostringstream filePrefix;
             filePrefix << router->totalVehicleCount << "_" << router->nonReroutingVehiclePercent << "_" << TLMode;
             fileName << filePrefix.str() << "_vehicleData.txt";
         }
@@ -424,26 +424,26 @@ void TraCI_App::vehiclesDataToFile()
     int oldIndex = -1;
 
     // write body
-    for(vector<VehicleData *>::iterator y = Vec_vehiclesData.begin(); y != Vec_vehiclesData.end(); y++)
+    for(std::vector<VehicleData>::iterator y = Vec_vehiclesData.begin(); y != Vec_vehiclesData.end(); y++)
     {
-        if(oldIndex != (*y)->index)
+        if(oldIndex != y->index)
         {
             fprintf(filePtr, "\n");
-            oldIndex = (*y)->index;
+            oldIndex = y->index;
         }
 
-        fprintf (filePtr, "%-10d ", (*y)->index);
-        fprintf (filePtr, "%-10.2f ", (*y)->time );
-        fprintf (filePtr, "%-15s ", (*y)->vehicleName);
-        fprintf (filePtr, "%-15s ", (*y)->vehicleType);
-        fprintf (filePtr, "%-12s ", (*y)->lane);
-        fprintf (filePtr, "%-10.2f ", (*y)->pos);
-        fprintf (filePtr, "%-10.2f ", (*y)->speed);
-        fprintf (filePtr, "%-10.2f ", (*y)->accel);
-        fprintf (filePtr, "%-20s", (*y)->CFMode);
-        fprintf (filePtr, "%-20.2f ", (*y)->timeGapSetting);
-        fprintf (filePtr, "%-10.2f ", (*y)->spaceGap);
-        fprintf (filePtr, "%-10.2f \n", (*y)->timeGap);
+        fprintf (filePtr, "%-10d ", y->index);
+        fprintf (filePtr, "%-10.2f ", y->time );
+        fprintf (filePtr, "%-15s ", y->vehicleName);
+        fprintf (filePtr, "%-15s ", y->vehicleType);
+        fprintf (filePtr, "%-12s ", y->lane);
+        fprintf (filePtr, "%-10.2f ", y->pos);
+        fprintf (filePtr, "%-10.2f ", y->speed);
+        fprintf (filePtr, "%-10.2f ", y->accel);
+        fprintf (filePtr, "%-20s", y->CFMode);
+        fprintf (filePtr, "%-20.2f ", y->timeGapSetting);
+        fprintf (filePtr, "%-10.2f ", y->spaceGap);
+        fprintf (filePtr, "%-10.2f \n", y->timeGap);
     }
 
     fclose(filePtr);

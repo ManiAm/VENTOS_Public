@@ -29,7 +29,6 @@
 
 #include "02_LoopDetectors.h"
 
-using namespace std;
 
 namespace VENTOS {
 

@@ -32,7 +32,6 @@
 #include <iostream>
 #include <iomanip>
 
-using namespace std;
 
 namespace VENTOS {
 
@@ -43,20 +42,20 @@ class Node  //Node in our graph, points to a bunch of other edges and nodes
 {
 public:
     //Node variables
-    vector<Edge*> outEdges;
-    vector<Edge*> inEdges;
-    string id;
+    std::vector<Edge*> outEdges;
+    std::vector<Edge*> inEdges;
+    std::string id;
     double x;
     double y;
-    string type;
-    vector<string>* incLanes;
+    std::string type;
+    std::vector<std::string>* incLanes;
     TrafficLightRouter* tl;
 
     bool operator==(const Node& rhs);
-    Node(string idVal, double xVal, double yVal, string typeVal, vector<string>* incLanesVal, TrafficLightRouter* tlVal);
+    Node(std::string idVal, double xVal, double yVal, std::string typeVal, std::vector<std::string>* incLanesVal, TrafficLightRouter* tlVal);
 };
 
-ostream& operator<<(ostream& os, Node &rhs);
+std::ostream& operator<<(std::ostream& os, Node &rhs);
 
 }
 

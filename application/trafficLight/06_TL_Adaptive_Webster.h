@@ -29,7 +29,6 @@
 
 #include <05_TL_Adaptive_Queue.h>
 
-using namespace std;
 
 namespace VENTOS {
 

@@ -134,23 +134,23 @@ void Tracking::TrackingGUI()
     else if(mode == 2)
     {
         // get a list of vehicles on this lane!
-        list<string> myList = TraCI->laneGetLastStepVehicleIDs(trackingLane.c_str());
+        std::list<std::string> myList = TraCI->laneGetLastStepVehicleIDs(trackingLane.c_str());
 
         if(!myList.empty())
         {
             // get iterator to the end
-            list<string>::iterator it = myList.end();
+            std::list<std::string>::iterator it = myList.end();
 
             // iterator pointing to the last element
             --it;
 
             // first inserted vehicle on this lane
-            string lastVehicleId = *it;
+            std::string lastVehicleId = *it;
 
             Coord lastVehiclePos = TraCI->vehicleGetPosition(lastVehicleId);
 
             // get GUI windows boundary
-            vector<double> windowsFrame = TraCI->GUIGetBoundry();
+            std::vector<double> windowsFrame = TraCI->GUIGetBoundry();
 
             // vehicle goes out of frame?
             if(lastVehiclePos.x > windowsFrame[2] || lastVehiclePos.y > windowsFrame[3])

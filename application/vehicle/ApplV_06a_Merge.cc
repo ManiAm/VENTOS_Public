@@ -265,7 +265,7 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
     {
         if ( wsm->getType() == ACK && (wsm->getSendingPlatoonID() == plnID || wsm->getSendingPlatoonID() == leadingPlnID) )
         {
-            string followerID = wsm->getSender();
+            std::string followerID = wsm->getSender();
             RemoveFollowerFromList_Merge(followerID);
 
             // all followers ACK-ed
@@ -362,7 +362,7 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
 }
 
 
-void ApplVPlatoonMg::RemoveFollowerFromList_Merge(string followerID)
+void ApplVPlatoonMg::RemoveFollowerFromList_Merge(std::string followerID)
 {
     bool found = false;
     unsigned int i = 0;
@@ -387,8 +387,8 @@ void ApplVPlatoonMg::RemoveFollowerFromList_Merge(string followerID)
 bool ApplVPlatoonMg::CatchUpDone()
 {
     // we use our sonar to check the gap
-    vector<string> vleaderIDnew = TraCI->vehicleGetLeader(SUMOvID, sonarDist);
-    string vleaderID = vleaderIDnew[0];
+    std::vector<std::string> vleaderIDnew = TraCI->vehicleGetLeader(SUMOvID, sonarDist);
+    std::string vleaderID = vleaderIDnew[0];
     double gap = atof( vleaderIDnew[1].c_str() );
 
     if(vleaderID == "")

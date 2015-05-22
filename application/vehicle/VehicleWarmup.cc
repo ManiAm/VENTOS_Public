@@ -124,7 +124,7 @@ bool Warmup::DoWarmup()
         return false;
 
     // who is leading?
-    list<string> veh = TraCI->laneGetLastStepVehicleIDs(laneId);
+    std::list<std::string> veh = TraCI->laneGetLastStepVehicleIDs(laneId);
 
     if(veh.empty())
         return false;
@@ -144,7 +144,7 @@ bool Warmup::DoWarmup()
         return false;
 
     // get the first leading vehicle
-    string leadingVehicle = veh.back();
+    std::string leadingVehicle = veh.back();
 
     double pos = TraCI->vehicleGetLanePosition(leadingVehicle);
 

@@ -31,10 +31,6 @@
 #include <01_TL_Base.h>
 #include <Appl.h>
 #include "TraCI_Extend.h"
-#include <boost/graph/adjacency_list.hpp>
-
-using namespace std;
-using namespace boost;
 
 namespace VENTOS {
 
@@ -42,14 +38,14 @@ class LoopDetectorData
 {
   public:
     char detectorName[20];
-    char vehicleName[20];
     char lane[20];
+    char vehicleName[20];
     double entryTime;
     double leaveTime;
     double entrySpeed;
     double leaveSpeed;
 
-    LoopDetectorData( const char *str1, const char *str2, const char *str3, double entryT, double leaveT, double entryS, double leaveS )
+    LoopDetectorData( const char *str1, const char *str2, const char *str3, double entryT=-1, double leaveT=-1, double entryS=-1, double leaveS=-1 )
     {
         strcpy(this->detectorName, str1);
         strcpy(this->lane, str2);
@@ -62,10 +58,10 @@ class LoopDetectorData
         this->leaveSpeed = leaveS;
     }
 
-//    bool operator== (const LoopDetectorData &v1, const LoopDetectorData &v2)
-//    {
-//        return (strcmp(v1.detectorName,v2.detectorName) == 0 && strcmp(v1.vehicleName, v2.vehicleName) == 0);
-//    }
+    friend bool operator== (const LoopDetectorData &v1, const LoopDetectorData &v2)
+    {
+        return ( strcmp(v1.detectorName,v2.detectorName) == 0 && strcmp(v1.vehicleName, v2.vehicleName) == 0 );
+    }
 };
 
 
@@ -80,9 +76,9 @@ class IntersectionQueueData
     IntersectionQueueData( double t, const char *str1, const char *str2, int q )
     {
         this->time = t;
-        this->qSize = q;
         strcpy(this->TLid, str1);
         strcpy(this->lane, str2);
+        this->qSize = q;
     }
 };
 
@@ -103,7 +99,6 @@ class LoopDetectors : public TrafficLightBase
     void getAllDetectors();
     void collectLDsData();
     void saveLDsData();
-    int findInVector(vector<LoopDetectorData *> , const char *, const char *);
     void measureTD();
     void measureQ();
     void saveQueueData();
@@ -113,15 +108,15 @@ class LoopDetectors : public TrafficLightBase
     bool measureIntersectionQueue;
     bool measureTrafficDemand;
 
-    map<string, string> LD_demand;       // ids of loop detectors for measuring incoming traffic demand
-    map<string, string> LD_actuated;     // ids of loop detectors for actuated-time signal control
-    map<string, string> AD_queue;        // ids of area detectors for measuring queue length
+    std::map<std::string, std::string> LD_demand;       // ids of loop detectors for measuring incoming traffic demand
+    std::map<std::string, std::string> LD_actuated;     // ids of loop detectors for actuated-time signal control
+    std::map<std::string, std::string> AD_queue;        // ids of area detectors for measuring queue length
 
-    map<string /*lane*/, pair<string /*TLid*/,int /*queue size*/>> laneQueueSize;
-    map<pair<string /*TLid*/,int /*link*/>, int /*queue size*/> linkQueueSize;
+    std::map<std::string /*lane*/, std::pair<std::string /*TLid*/,int /*queue size*/>> laneQueueSize;
+    std::map<std::pair<std::string /*TLid*/,int /*link*/>, int /*queue size*/> linkQueueSize;
 
-    vector<LoopDetectorData *> Vec_loopDetectors;
-    vector<IntersectionQueueData *> Vec_queueSize;
+    std::vector<LoopDetectorData> Vec_loopDetectors;
+    std::vector<IntersectionQueueData> Vec_queueSize;
 
   private:
     bool freeze = false;

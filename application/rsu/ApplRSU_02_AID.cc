@@ -29,8 +29,8 @@
 
 namespace VENTOS {
 
-MatrixXi ApplRSUAID::tableCount;
-MatrixXd ApplRSUAID::tableProb;
+Eigen::MatrixXi ApplRSUAID::tableCount;
+Eigen::MatrixXd ApplRSUAID::tableProb;
 
 Define_Module(VENTOS::ApplRSUAID);
 
@@ -47,15 +47,15 @@ void ApplRSUAID::initialize(int stage)
 	if (stage==0)
 	{
         // todo: change n and m dynamically!
-        tableCount = MatrixXi::Zero(3, 2000);
-        tableProb = MatrixXd::Constant(3, 2000, 0.1);
+        tableCount = Eigen::MatrixXi::Zero(3, 2000);
+        tableProb = Eigen::MatrixXd::Constant(3, 2000, 0.1);
 
         printIncidentDetection = par("printIncidentDetection").boolValue();
 
         Signal_executeEachTS = registerSignal("executeEachTS");
 
         // only one RSU is registered with this signal
-        if(printIncidentDetection && string("RSU[0]") == myFullId)
+        if(printIncidentDetection && std::string("RSU[0]") == myFullId)
             simulation.getSystemModule()->subscribe("executeEachTS", this);
 	}
 }
@@ -95,12 +95,12 @@ void ApplRSUAID::incidentDetectionToFile()
     {
         // get the current run number
         int currentRun = ev.getConfigEx()->getActiveRunNumber();
-        ostringstream fileName;
+        std::ostringstream fileName;
         fileName << currentRun << "_IncidentTable.txt";
         filePath = "results/cmd/" + fileName.str();
     }
 
-    ofstream filePtr( filePath.string().c_str() );
+    std::ofstream filePtr( filePath.string().c_str() );
 
     if (filePtr.is_open())
     {
@@ -139,22 +139,22 @@ void ApplRSUAID::onData(LaneChangeMsg* wsm)
 {
     // no passing down!
 
-    deque<string> input = wsm->getLaneChange();
+    std::deque<std::string> input = wsm->getLaneChange();
 
     for(unsigned int i = 0; i < input.size(); i++)
     {
         // tokenize
         int readCount = 1;
-        char_separator<char> sep("#", "", keep_empty_tokens);
-        tokenizer< char_separator<char> > tokens(input[i], sep);
+        boost::char_separator<char> sep("#", "", boost::keep_empty_tokens);
+        boost::tokenizer< boost::char_separator<char> > tokens(input[i], sep);
 
-        string fromLane;
-        string toLane;
+        std::string fromLane;
+        std::string toLane;
         double fromX;
         double toX;
         double time;
 
-        for(tokenizer< char_separator<char> >::iterator beg=tokens.begin(); beg!=tokens.end();++beg)
+        for(boost::tokenizer< boost::char_separator<char> >::iterator beg=tokens.begin(); beg!=tokens.end();++beg)
         {
             if(readCount == 1)
             {

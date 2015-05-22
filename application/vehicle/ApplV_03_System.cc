@@ -59,19 +59,19 @@ void ApplVSystem::initialize(int stage)
         // get the rootFilePath
         cModule *module = simulation.getSystemModule()->getSubmodule("router");
         router = static_cast< Router* >(module);
-        string rootFilePath = SUMO_FullPath.string();
+        std::string rootFilePath = SUMO_FullPath.string();
         rootFilePath += "/Vehicles" + SSTR(router->totalVehicleCount) + ".xml";
 
         // Routing
         //Temporary fix to get a vehicle's target: get it from the xml
-        file<> xmlFile( (rootFilePath).c_str() );          // Convert our file to a rapid-xml readable object
-        xml_document<> doc;                                // Build a rapidxml doc
+        rapidxml::file<> xmlFile( (rootFilePath).c_str() );          // Convert our file to a rapid-xml readable object
+        rapidxml::xml_document<> doc;                                // Build a rapidxml doc
         doc.parse<0>(xmlFile.data());                      // Fill it with data from our file
-        xml_node<> *node = doc.first_node("vehicles");     // Parse up to the "nodes" declaration
+        rapidxml::xml_node<> *node = doc.first_node("vehicles");     // Parse up to the "nodes" declaration
         for(node = node->first_node("vehicle"); node->first_attribute()->value() != SUMOvID; node = node->next_sibling()); //Find our vehicle in the .xml
 
-        xml_attribute<> *attr = node->first_attribute()->next_attribute()->next_attribute()->next_attribute();  //Navigate to the destination attribute
-        if((string)attr->name() == "destination")  //Double-check
+        rapidxml::xml_attribute<> *attr = node->first_attribute()->next_attribute()->next_attribute()->next_attribute();  //Navigate to the destination attribute
+        if((std::string)attr->name() == "destination")  //Double-check
            targetNode = attr->value(); //And save it
         else
             error("XML formatted wrong! Some vehicle was missing its destination!");
@@ -95,7 +95,7 @@ void ApplVSystem::initialize(int stage)
         double systemOffset = dblrand() * 2 + 2;
 
         simsignal_t Signal_system = registerSignal("system"); //Prepare to send a system message
-        nodePtr->emit(Signal_system, new systemData("", "", SUMOvID, 3, string("system")));
+        nodePtr->emit(Signal_system, new systemData("", "", SUMOvID, 3, std::string("system")));
 
         sendSystemMsgEvt = new cMessage("systemmsg evt");   //Create a new internal message
         if (requestRoutes) //&& VANETenabled ) //If this vehicle is supposed to send system messages
@@ -111,11 +111,11 @@ void ApplVSystem::finish()
     if(!requestRoutes)
         return;
 
-    if(ev.isGUI() && requestRoutes) cout << SUMOvID << " took " << simTime().dbl() - entryTime << " seconds to complete its route." << endl;
+    if(ev.isGUI() && requestRoutes) std::cout << SUMOvID << " took " << simTime().dbl() - entryTime << " seconds to complete its route." << endl;
     router->vehicleEndTimesFile << SUMOvID << " " << simTime().dbl() << endl;
 
     simsignal_t Signal_system = registerSignal("system"); //Prepare to send a system message
-    nodePtr->emit(Signal_system, new systemData("", "", SUMOvID, 2, string("system")));
+    nodePtr->emit(Signal_system, new systemData("", "", SUMOvID, 2, std::string("system")));
 
     if(requestRoutes)
     {
@@ -148,13 +148,13 @@ void ApplVSystem::receiveSignal(cComponent *source, simsignal_t signalID, cObjec
     if(signalID == Signal_router)   //If the signal is of type router
     {
         systemData *s = static_cast<systemData *>(obj); //Cast to usable data
-        if(string(s->getSender()) == "router" and string(s->getRecipient()) == SUMOvID) //If sent from the router and to this vehicle
+        if(std::string(s->getSender()) == "router" and std::string(s->getRecipient()) == SUMOvID) //If sent from the router and to this vehicle
         {
             if((s->getRequestType() == 0 || s->getRequestType() == 1) && (requestReroutes or numReroutes == 0)) //If sent from the router and to this vehicle
             {
                 numReroutes++;
                 //cout << "Setting new route for " << SUMOvID << " at t=" << simTime().dbl() << endl;
-                list<string> sRoute = s->getInfo(); //Copy the info from the signal (breaks if we don't do this, for some reason)
+                std::list<std::string> sRoute = s->getInfo(); //Copy the info from the signal (breaks if we don't do this, for some reason)
                 if (*sRoute.begin() != "failed")
                     TraCI->vehicleSetRoute(s->getRecipient(), sRoute);  //Update this vehicle's path with the proper info
             }
@@ -196,13 +196,13 @@ void ApplVSystem::reroute()
     //Systemdata wants string edge, string node, string sender, int requestType, string recipient, list<string> edgeList
     if(useDijkstrasRouting)
     {
-        nodePtr->emit(Signal_system, new systemData(TraCI->vehicleGetEdgeID(SUMOvID), targetNode, SUMOvID, 0, string("system")));
+        nodePtr->emit(Signal_system, new systemData(TraCI->vehicleGetEdgeID(SUMOvID), targetNode, SUMOvID, 0, std::string("system")));
         if(!router->UseHysteresis)
             scheduleAt(simTime() + requestInterval, sendSystemMsgEvt);// schedule for next beacon broadcast
     }
     else
     {
-        nodePtr->emit(Signal_system, new systemData(TraCI->vehicleGetEdgeID(SUMOvID), targetNode, SUMOvID, 1, string("system")));
+        nodePtr->emit(Signal_system, new systemData(TraCI->vehicleGetEdgeID(SUMOvID), targetNode, SUMOvID, 1, std::string("system")));
         scheduleAt(simTime() + routeUpdateInterval, sendSystemMsgEvt);// schedule for next beacon broadcast
     }
 }

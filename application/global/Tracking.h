@@ -55,8 +55,8 @@ class Tracking : public BaseModule
         double initialWindowsOffset;
         double trackingInterval;
         int mode;
-        string trackingV;
-        string trackingLane;
+        std::string trackingV;
+        std::string trackingLane;
         double windowsOffset;
 
         // class variables

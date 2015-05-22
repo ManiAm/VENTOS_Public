@@ -68,8 +68,8 @@ void ApplVPlatoonMg::entry_handleSelfMsg(cMessage* msg)
             busy = false;
 
             // get my leading vehicle
-            vector<string> vleaderIDnew = TraCI->vehicleGetLeader(SUMOvID, sonarDist);
-            string vleaderID = vleaderIDnew[0];
+            std::vector<std::string> vleaderIDnew = TraCI->vehicleGetLeader(SUMOvID, sonarDist);
+            std::string vleaderID = vleaderIDnew[0];
 
             // if no leading, set speed to 5 m/s
             if(vleaderID == "")

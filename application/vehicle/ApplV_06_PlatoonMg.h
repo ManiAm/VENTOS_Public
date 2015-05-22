@@ -177,9 +177,9 @@ class ApplVPlatoonMg : public ApplVPlatoonFormed
 
         // merge
         int mergeReqAttempts;
-        string leadingPlnID;
+        std::string leadingPlnID;
         int leadingPlnDepth;
-        deque<string> secondPlnMembersList;
+        std::deque<std::string> secondPlnMembersList;
 
         cMessage* plnTIMER1;
         cMessage* plnTIMER1a;
@@ -187,9 +187,9 @@ class ApplVPlatoonMg : public ApplVPlatoonFormed
         cMessage* plnTIMER3;
 
         // split
-        string splittingVehicle;
+        std::string splittingVehicle;
         int splittingDepth;
-        string oldPlnID;
+        std::string oldPlnID;
         int TotalPLSent;
         int TotalACKsRx;
         int splitCaller;
@@ -213,7 +213,7 @@ class ApplVPlatoonMg : public ApplVPlatoonFormed
 
         // dissolve
         cMessage* plnTIMER12;
-        string lastVeh;
+        std::string lastVeh;
 
 	protected:
         void splitFromPlatoon(int);
@@ -221,22 +221,22 @@ class ApplVPlatoonMg : public ApplVPlatoonFormed
         void dissolvePlatoon();
 
 	private:
-        PlatoonMsg* prepareData( string, uCommands, string, double db = -1, string str = "", deque<string> vec = deque<string>() );
+        PlatoonMsg* prepareData( std::string, uCommands, std::string, double db = -1, std::string str = "", std::deque<std::string> vec = std::deque<std::string>() );
         void printDataContent(PlatoonMsg*);
         void updateColorDepth();
 
         // Reporting to statistics
         void reportStateToStat();
         void reportCommandToStat(PlatoonMsg*);
-        void reportManeuverToStat(string, string, string);
-        const string stateToStr(int);
-        const string uCommandToStr(int);
+        void reportManeuverToStat(std::string, std::string, std::string);
+        const std::string stateToStr(int);
+        const std::string uCommandToStr(int);
 
         // merge
         void merge_handleSelfMsg(cMessage* msg);
         void merge_BeaconFSM(BeaconVehicle *wsm = NULL);
         void merge_DataFSM(PlatoonMsg *wsm = NULL);
-        void RemoveFollowerFromList_Merge(string);
+        void RemoveFollowerFromList_Merge(std::string);
         bool CatchUpDone();
 
         // split
@@ -244,7 +244,7 @@ class ApplVPlatoonMg : public ApplVPlatoonFormed
         void split_BeaconFSM(BeaconVehicle *wsm = NULL);
         void split_DataFSM(PlatoonMsg *wsm = NULL);
         void splitMonitor();
-        void RemoveFollowerFromList_Split(string);
+        void RemoveFollowerFromList_Split(std::string);
         bool GapCreated();
 
         // common operations in maneuvers

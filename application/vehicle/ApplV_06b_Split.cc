@@ -208,7 +208,7 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
 
             // store the elements of second platoon before erasing
             secondPlnMembersList.clear();
-            for (deque<string>::iterator it=plnMembersList.begin()+splittingDepth; it!=plnMembersList.end(); ++it)
+            for (std::deque<std::string>::iterator it=plnMembersList.begin()+splittingDepth; it!=plnMembersList.end(); ++it)
                 secondPlnMembersList.push_back(*it);
 
             // if splitting vehicle is the last follower
@@ -278,9 +278,9 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
     else if(vehicleState == state_changePL)
     {
         // send CHANGE_PL to followers after the splitting vehicle
-        for (deque<string>::iterator it=plnMembersList.begin()+splittingDepth+1; it!=plnMembersList.end(); ++it)
+        for (std::deque<std::string>::iterator it=plnMembersList.begin()+splittingDepth+1; it!=plnMembersList.end(); ++it)
         {
-            string targetVeh = *it;
+            std::string targetVeh = *it;
             PlatoonMsg* dataMsg = prepareData(targetVeh, CHANGE_PL, plnID, (-splittingDepth), splittingVehicle);
             EV << "### " << SUMOvID << ": sent CHANGE_PL." << endl;
             printDataContent(dataMsg);
@@ -300,7 +300,7 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
     {
         if (wsm->getType() == ACK && wsm->getReceivingPlatoonID() == plnID)
         {
-            string followerID = wsm->getSender();
+            std::string followerID = wsm->getSender();
             RemoveFollowerFromList_Split(followerID);
 
             TotalACKsRx++;
@@ -394,8 +394,8 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
             if(wsm->getDblValue() == 0)
             {
                 // then check if there is any leading vehicle after my leader
-                vector<string> vleaderIDnew = TraCI->vehicleGetLeader(oldPlnID, sonarDist);
-                string vleaderID = vleaderIDnew[0];
+                std::vector<std::string> vleaderIDnew = TraCI->vehicleGetLeader(oldPlnID, sonarDist);
+                std::string vleaderID = vleaderIDnew[0];
 
                 if(vleaderID == "")
                 {
@@ -424,7 +424,7 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
 }
 
 
-void ApplVPlatoonMg::RemoveFollowerFromList_Split(string followerID)
+void ApplVPlatoonMg::RemoveFollowerFromList_Split(std::string followerID)
 {
     bool found = false;
     unsigned int i = 0;
@@ -449,8 +449,8 @@ void ApplVPlatoonMg::RemoveFollowerFromList_Split(string followerID)
 bool ApplVPlatoonMg::GapCreated()
 {
     // we use our sonar to check the gap
-    vector<string> vleaderIDnew = TraCI->vehicleGetLeader(SUMOvID, sonarDist);
-    string vleaderID = vleaderIDnew[0];
+    std::vector<std::string> vleaderIDnew = TraCI->vehicleGetLeader(SUMOvID, sonarDist);
+    std::string vleaderID = vleaderIDnew[0];
     double gap = atof( vleaderIDnew[1].c_str() );
 
     if(vleaderID == "")

@@ -58,7 +58,7 @@ void ApplVPlatoonMg::dissolve_DataFSM(PlatoonMsg* wsm)
     if(vehicleState == state_sendDissolve)
     {
         // get the last vehicle
-        deque<string>::iterator it = plnMembersList.end() - 1;
+        std::deque<std::string>::iterator it = plnMembersList.end() - 1;
         lastVeh = *it;
 
         // send a unicast DISSOLVE message my follower

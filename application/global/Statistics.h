@@ -43,11 +43,11 @@ class MacStatEntry
 {
 public:
   char name[20];
-  int nodeID;  // is used to sort the vector (used as a key)
+  int nodeID;  // is used to sort the std::vector (used as a key)
   double time;
-  vector<long> MacStatsVec;
+  std::vector<long> MacStatsVec;
 
-  MacStatEntry(const char *str, int id, double t, vector<long> v)
+  MacStatEntry(const char *str, int id, double t, std::vector<long> v)
   {
       strcpy(this->name, str);
       this->nodeID = id;
@@ -61,7 +61,7 @@ class NodeEntry
 {
   public:
     char name1[20];
-    int nodeID;  // is used to sort the vector (used as a key)
+    int nodeID;  // is used to sort the std::vector (used as a key)
 
     char name2[20];
     int count;
@@ -157,22 +157,22 @@ class Statistics : public BaseModule
 	  simsignal_t Signal_TimeData;
 
 	  // class variables (vectors)
-      vector<MacStatEntry *> Vec_MacStat;
-      vector<plnManagement *> Vec_plnManagement;
-      vector<plnStat *> Vec_plnStat;
+      std::vector<MacStatEntry *> Vec_MacStat;
+      std::vector<plnManagement *> Vec_plnManagement;
+      std::vector<plnStat *> Vec_plnStat;
 
-      vector<NodeEntry *> Vec_BeaconsP;    // beacons from proceeding
-      vector<NodeEntry *> Vec_BeaconsO;    // beacons from other vehicles
-      vector<NodeEntry *> Vec_BeaconsDP;   // Doped beacons from preceding vehicle
-      vector<NodeEntry *> Vec_BeaconsDO;   // Doped beacons from other vehicles
+      std::vector<NodeEntry *> Vec_BeaconsP;    // beacons from proceeding
+      std::vector<NodeEntry *> Vec_BeaconsO;    // beacons from other vehicles
+      std::vector<NodeEntry *> Vec_BeaconsDP;   // Doped beacons from preceding vehicle
+      std::vector<NodeEntry *> Vec_BeaconsDO;   // Doped beacons from other vehicles
 
-      vector<NodeEntry *> totalBeaconsP;
-      vector<NodeEntry *> totalBeaconsO;
-      vector<NodeEntry *> totalBeaconsDP;
-      vector<NodeEntry *> totalBeaconsDO;
+      std::vector<NodeEntry *> totalBeaconsP;
+      std::vector<NodeEntry *> totalBeaconsO;
+      std::vector<NodeEntry *> totalBeaconsDP;
+      std::vector<NodeEntry *> totalBeaconsDO;
 
-      vector<NodeEntry *> beaconsDO_interval;
-      vector<NodeEntry *> beaconsDP_interval;
+      std::vector<NodeEntry *> beaconsDO_interval;
+      std::vector<NodeEntry *> beaconsDP_interval;
 
   private:
       void executeEachTimestep(bool);
@@ -184,11 +184,11 @@ class Statistics : public BaseModule
 
       void postProcess();
       void printToFile();
-      vector<NodeEntry *> SortByID(vector<NodeEntry *>);
+      std::vector<NodeEntry *> SortByID(std::vector<NodeEntry *>);
       int getNodeIndex(const char *ModName);
 
-      int findInVector(vector<NodeEntry *>, const char *);
-      int findInVector(vector<MacStatEntry *>, const char *);
+      int findInVector(std::vector<NodeEntry *>, const char *);
+      int findInVector(std::vector<MacStatEntry *>, const char *);
 };
 
 }

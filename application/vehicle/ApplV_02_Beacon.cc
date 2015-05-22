@@ -215,10 +215,10 @@ bool ApplVBeacon::isBeaconFromLeading(BeaconVehicle* wsm)
 {
     // step 1: check if a leading vehicle is present
 
-    vector<string> vleaderIDnew = TraCI->vehicleGetLeader(SUMOvID, sonarDist);
-    string vleaderID = vleaderIDnew[0];
+    std::vector<std::string> vleaderIDnew = TraCI->vehicleGetLeader(SUMOvID, sonarDist);
+    std::string vleaderID = vleaderIDnew[0];
 
-    if( vleaderID == string(wsm->getSender()) )
+    if( vleaderID == std::string(wsm->getSender()) )
         return true;
     else
         return false;
@@ -285,7 +285,7 @@ bool ApplVBeacon::isBeaconFromMyPlatoonLeader(BeaconVehicle* wsm)
     if( wsm->getPlatoonDepth() == 0 )
     {
         // check if this is actually my platoon leader
-        if( string(wsm->getPlatoonID()) == plnID)
+        if( std::string(wsm->getPlatoonID()) == plnID)
         {
             // note: we should not check myPlnDepth != 0
             // in predefined platoon, we do not use depth!

@@ -28,8 +28,8 @@
 #define TRAFFICLIGHTADAPTIVEQUEUE_H
 
 #include <04_TL_Adaptive_RingAndBarrier.h>
+#include <boost/graph/adjacency_list.hpp>
 
-using namespace std;
 
 namespace VENTOS {
 

@@ -36,9 +36,6 @@
 #include "boost/filesystem.hpp"
 #define ev  (*cSimulation::getActiveEnvir())
 
-using namespace boost::filesystem;
-using namespace boost;
-using namespace std;
 
 namespace VENTOS {
 
@@ -57,8 +54,8 @@ class SumoServer : public BaseModule
 	protected:
         // NED variables
         bool update;
-        string SUMO_CMD_FileName;
-        string SUMO_GUI_FileName;
+        std::string SUMO_CMD_FileName;
+        std::string SUMO_GUI_FileName;
 
         boost::filesystem::path VENTOS_FullPath;
         boost::filesystem::path SUMO_Binary_FullPath;

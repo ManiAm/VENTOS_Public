@@ -34,14 +34,14 @@ namespace VENTOS {
 
 Define_Module(VENTOS::TrafficLightRouter);
 
-Phase::Phase(double duration, string state): duration(duration), state(state){}
+Phase::Phase(double duration, std::string state): duration(duration), state(state){}
 
 void Phase::print() // Print a phase
 {
-    if(ev.isGUI()) cout << "duration: "<< setw(4) << left << duration << " phase: " << setw(12) << left << state << endl;
+    if(ev.isGUI()) std::cout << "duration: "<< std::setw(4) << std::left << duration << " phase: " << std::setw(12) << std::left << state << std::endl;
 }
 
-string setState(string state, int index, char value)    //Writes given char at specified index on the state,
+std::string setState(std::string state, int index, char value)    //Writes given char at specified index on the state,
 {                                                       //extending with '_' if necessary, and returns it
     while((unsigned int)index >= state.length())                      //extend to necessary length
     {
@@ -60,7 +60,7 @@ public:
 
     double position;
     double eta;
-    string id;
+    std::string id;
 
     /*
     VState(double position, double velocity, double acceleration, string id) : position(position), id(id)
@@ -70,7 +70,7 @@ public:
     }
     */
 
-    VState(string vehicle, TraCI_Extend *TraCI, Router* router, string currentEdge, double nextEdgeLength = 0): id(vehicle)
+    VState(std::string vehicle, TraCI_Extend *TraCI, Router* router, std::string currentEdge, double nextEdgeLength = 0): id(vehicle)
     {
         position = router->net->edges[currentEdge]->length - TraCI->vehicleGetLanePosition(vehicle) + nextEdgeLength;//position is distance from the TL along roads
         double velocity = TraCI->vehicleGetSpeed(vehicle);
@@ -117,7 +117,7 @@ public:
 //Contains a vector of vehicles (provides basic vector operations) and some helpful operations (getFlow)
 class VStateContainer
 {
-    vector<VState> v;
+    std::vector<VState> v;
     int index;
 
 public:
@@ -126,12 +126,12 @@ public:
         v.push_back(vs);
     }
 
-    vector<VState>::iterator begin()
+    std::vector<VState>::iterator begin()
     {
         return v.begin();
     }
 
-    vector<VState>::iterator end()
+    std::vector<VState>::iterator end()
     {
         return v.end();
     }
@@ -183,7 +183,7 @@ TrafficLightRouter::TrafficLightRouter()    //Crashes immediately upon execution
 
 }
 
-void TrafficLightRouter::build(string id, string type, string programID, double offset, vector<Phase*>& phases, Net* net)
+void TrafficLightRouter::build(std::string id, std::string type, std::string programID, double offset, std::vector<Phase*>& phases, Net* net)
 {
     this->id = id;
     this->type = type;
@@ -333,20 +333,20 @@ void TrafficLightRouter::ASynchronousMessage()
 
 void TrafficLightRouter::HighDensityRecalculate()
 {
-    vector<Edge*>& edges = net->nodes[id]->inEdges;
+    std::vector<Edge*>& edges = net->nodes[id]->inEdges;
     double phaseVehicleCounts[phases.size()];   //Will be the # of incoming vehicles that can go during that phase
     for(unsigned int i = 0; i < phases.size(); i++)  //Initialize to 0
         phaseVehicleCounts[i] = 0;
     int total = 0;
 
-    for(vector<Edge*>::iterator edge = edges.begin(); edge != edges.end(); edge++)  //For each edge
+    for(std::vector<Edge*>::iterator edge = edges.begin(); edge != edges.end(); edge++)  //For each edge
     {
-        vector<Lane*>* lanes = &(*edge)->lanes;
-        for(vector<Lane*>::iterator lane = lanes->begin(); lane != lanes->end(); lane++)    //For each lane
+        std::vector<Lane*>* lanes = &(*edge)->lanes;
+        for(std::vector<Lane*>::iterator lane = lanes->begin(); lane != lanes->end(); lane++)    //For each lane
         {
-            list<string> vehicleIDs = TraCI->laneGetLastStepVehicleIDs((*lane)->id); //Get all vehicles on that lane
+            std::list<std::string> vehicleIDs = TraCI->laneGetLastStepVehicleIDs((*lane)->id); //Get all vehicles on that lane
             int vehCount = vehicleIDs.size();   //And the number of vehicles on that lane
-            for(vector<int>::iterator it = (*lane)->greenPhases.begin(); it != (*lane)->greenPhases.end(); it++)    //Each element of greenPhases is a phase that lets that lane move
+            for(std::vector<int>::iterator it = (*lane)->greenPhases.begin(); it != (*lane)->greenPhases.end(); it++)    //Each element of greenPhases is a phase that lets that lane move
             {
                 phaseVehicleCounts[*it] += vehCount;    //Add the number of vehicles on that lane to that phase
                 total += vehCount; //And add to the totals
@@ -356,7 +356,7 @@ void TrafficLightRouter::HighDensityRecalculate()
     }
     if(total > 0)  //If there are vehicles on the lane
     {
-        cout << "For TL " << id << ": " << endl;
+        std::cout << "For TL " << id << ": " << endl;
         for(unsigned int i = 0; i < phases.size(); i++)  //For each phase
         {
             if(i % 2 == 0)  //Ignore the odd (transitional) phases
@@ -376,14 +376,14 @@ void TrafficLightRouter::HighDensityRecalculate()
 
 void TrafficLightRouter::FlowRateRecalculate()
 {
-    vector<Edge*>* inEdges = &(router->net->nodes[id]->inEdges);    //inEdges is the edges leading to the TL
-    vector<Edge*>* outEdges = &(router->net->nodes[id]->outEdges);  //outEdges is the edges exiting from the TL
-    map<string, VStateContainer> movements;                         //All 16 possible in-out edge combinations
+    std::vector<Edge*>* inEdges = &(router->net->nodes[id]->inEdges);    //inEdges is the edges leading to the TL
+    std::vector<Edge*>* outEdges = &(router->net->nodes[id]->outEdges);  //outEdges is the edges exiting from the TL
+    std::map<std::string, VStateContainer> movements;                         //All 16 possible in-out edge combinations
 
     for(Edge*& inEdge : *inEdges)
         for(Edge*& outEdge : *outEdges)
         {
-            string key = inEdge->id + outEdge->id;
+            std::string key = inEdge->id + outEdge->id;
             movements[key];    //Initialize the 16 movement vectors in the map
         }
 
@@ -391,16 +391,16 @@ void TrafficLightRouter::FlowRateRecalculate()
     {
         for(Lane*& lane1 : edge1->lanes) //For each lane on those edges
         {
-            for(string& vehicle : TraCI->laneGetLastStepVehicleIDs(lane1->id))   //For each vehicle on those lanes
+            for(std::string& vehicle : TraCI->laneGetLastStepVehicleIDs(lane1->id))   //For each vehicle on those lanes
             {
-                list<string> route = TraCI->vehicleGetRoute(vehicle);    //Get the vehicle's route
+                std::list<std::string> route = TraCI->vehicleGetRoute(vehicle);    //Get the vehicle's route
                 while(route.front().compare(edge1->id) != 0) //Remove edges it's already traveled (TODO: this doesn't check for cycles!)
                     route.pop_front();
 
                 if(route.size() > 1)    //If 1 entry, vehicle will vanish at the end of the edge, so we don't count it
                 {
                     VState v(vehicle, TraCI, router, edge1->id);
-                    string edge0 = *(++(route.begin()));     //Edge vehicle is turning towards (ourEdge)
+                    std::string edge0 = *(++(route.begin()));     //Edge vehicle is turning towards (ourEdge)
                     movements[edge1->id + edge0].push_back(v);
                 }//If vehicle will not vanish before passing through our TL
             }//For each vehicle on lane
@@ -408,20 +408,20 @@ void TrafficLightRouter::FlowRateRecalculate()
 
         Node* outerTLNode = edge1->from;
 
-        string state = TraCI->TLGetState(outerTLNode->id);
+        std::string state = TraCI->TLGetState(outerTLNode->id);
         for(Edge*& edge2 : outerTLNode->inEdges)
         {
             for(Lane*& lane2 : edge2->lanes) //For each lane on those edges
             {
-                for(string& vehicle : TraCI->laneGetLastStepVehicleIDs(lane2->id))   //For each vehicle on those lanes
+                for(std::string& vehicle : TraCI->laneGetLastStepVehicleIDs(lane2->id))   //For each vehicle on those lanes
                 {
-                    list<string> route = TraCI->vehicleGetRoute(vehicle);    //Get the vehicle's route
+                    std::list<std::string> route = TraCI->vehicleGetRoute(vehicle);    //Get the vehicle's route
                     while(route.front().compare(edge2->id) != 0) //Remove edges it's already traveled (TODO: this doesn't check for cycles!)
                         route.pop_front();
 
                     if(route.size() > 2)    //If < 3 entry, vehicle will vanish at the end of the edge, so we don't count it
                     {
-                        string vehNextEdge = *(++(route.begin()));      //Edge vehicle is turning towards
+                        std::string vehNextEdge = *(++(route.begin()));      //Edge vehicle is turning towards
                         if(vehNextEdge == edge1->id)                    //If vehicle is turning towards our TL
                         {
                             for(Connection*& c : router->net->connections[edge2->id + edge1->id])   //For each connection between these edges
@@ -430,7 +430,7 @@ void TrafficLightRouter::FlowRateRecalculate()
                                 {
                                     VState v(vehicle, TraCI, router, edge1->id, router->net->edges[edge1->id]->length);
                                     v.position += edge1->length;
-                                    string edge0 = *(++(++(route.begin())));     //Edge after the vehicle moves through our TL
+                                    std::string edge0 = *(++(++(route.begin())));     //Edge after the vehicle moves through our TL
                                     movements[edge1->id + edge0].push_back(v);
                                     break;
                                 }//If vehicle can turn from edge2 to edge1
@@ -444,7 +444,7 @@ void TrafficLightRouter::FlowRateRecalculate()
 
     for(auto& pair : movements)
     {
-        string key = pair.first;
+        std::string key = pair.first;
         VStateContainer* movement = &(pair.second);
         sort(movement->begin(), movement->end());   //Sort vehicle by position
 
@@ -482,10 +482,10 @@ void TrafficLightRouter::FlowRateRecalculate()
         for(unsigned int phaseNum = 0; phaseNum < phases.size(); phaseNum += 2)
         {
             Phase* phase = phases[phaseNum];
-            string state = phase->state;
+            std::string state = phase->state;
             for(auto& pair : movements)
             {
-                string key = pair.first;
+                std::string key = pair.first;
                 VStateContainer* movement = &(pair.second);
                 if(movement->size() > 0)
                 {
@@ -549,16 +549,16 @@ bool TrafficLightRouter::LowDensityVehicleCheck()    //This function assumes it'
      * Reset to previous duration
      */
 
-    vector<Edge*>& edges = net->nodes[id]->inEdges; //Get all edges going into the TL
-    for(vector<Edge*>::iterator edge = edges.begin(); edge != edges.end(); edge++)  //For each edge
+    std::vector<Edge*>& edges = net->nodes[id]->inEdges; //Get all edges going into the TL
+    for(std::vector<Edge*>::iterator edge = edges.begin(); edge != edges.end(); edge++)  //For each edge
     {
-        vector<Lane*>* lanes = &(*edge)->lanes; //Get all lanes on each edge
-        for(vector<Lane*>::iterator lane = lanes->begin(); lane != lanes->end(); lane++)    //For each lane
+        std::vector<Lane*>* lanes = &(*edge)->lanes; //Get all lanes on each edge
+        for(std::vector<Lane*>::iterator lane = lanes->begin(); lane != lanes->end(); lane++)    //For each lane
         {
             if(find((*lane)->greenPhases.begin(), (*lane)->greenPhases.end(), currentPhase) != (*lane)->greenPhases.end()) //If this lane has a green
             {
-                list<string> vehicleIDs = TraCI->laneGetLastStepVehicleIDs((*lane)->id); //If so, get all vehicles on this lane
-                for(list<string>::iterator vehicle = vehicleIDs.begin(); vehicle != vehicleIDs.end(); vehicle++)    //For each vehicle
+                std::list<std::string> vehicleIDs = TraCI->laneGetLastStepVehicleIDs((*lane)->id); //If so, get all vehicles on this lane
+                for(std::list<std::string>::iterator vehicle = vehicleIDs.begin(); vehicle != vehicleIDs.end(); vehicle++)    //For each vehicle
                 {
                     if(TraCI->vehicleGetSpeed(*vehicle) > 0.01)  //If that vehicle is not stationary
                     {
@@ -615,12 +615,12 @@ void TrafficLightRouter::finish()
 
 void TrafficLightRouter::print() // Print a node
 {
-    if(ev.isGUI()) cout<<"id: "<< setw(4) << left << id <<
-                         "type: " << left << type <<
-                         "  programID: "<< setw(4) << left << programID <<
-                         "offset: "<< setw(4) << left << offset;
+    if(ev.isGUI()) std::cout<<"id: "<< std::setw(4) << std::left << id <<
+                              "type: " << std::left << type <<
+                              "  programID: "<< std::setw(4) << std::left << programID <<
+                              "offset: "<< std::setw(4) << std::left << offset;
 
-    for(vector<Phase*>::iterator it = phases.begin(); it != phases.end(); it++)
+    for(std::vector<Phase*>::iterator it = phases.begin(); it != phases.end(); it++)
     {
         (*it)->print();
     }

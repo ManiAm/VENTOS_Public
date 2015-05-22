@@ -32,7 +32,6 @@
 #include <WaveAppToMac1609_4Interface.h>
 #include "TraCI_Extend.h"
 
-using namespace std;
 
 namespace VENTOS {
 

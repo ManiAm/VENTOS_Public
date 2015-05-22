@@ -93,9 +93,9 @@ void TrafficLightWebster::executeFirstTimeStep()
     if(TLControlMode != 4)
         return;
 
-    cout << "Dynamic Webster traffic signal control ... " << endl << endl;
+    std::cout << "Dynamic Webster traffic signal control ... " << endl << endl;
 
-    for (list<string>::iterator TL = TLList.begin(); TL != TLList.end(); TL++)
+    for (std::list<std::string>::iterator TL = TLList.begin(); TL != TLList.end(); TL++)
     {
         TraCI->TLSetProgram(*TL, "adaptive-time");
         TraCI->TLSetState(*TL, phase1_5);
@@ -103,7 +103,7 @@ void TrafficLightWebster::executeFirstTimeStep()
 
     char buff[300];
     sprintf(buff, "Sim time: %4.2f | Interval finish time: %4.2f | Current interval: %s", simTime().dbl(), simTime().dbl() + intervalOffSet, currentInterval.c_str() );
-    cout << buff << endl;
+    std::cout << buff << endl;
 }
 
 
@@ -122,8 +122,8 @@ void TrafficLightWebster::chooseNextInterval()
         currentInterval = "red";
 
         // change all 'y' to 'r'
-        string str = TraCI->TLGetState("C");
-        string nextInterval = "";
+        std::string str = TraCI->TLGetState("C");
+        std::string nextInterval = "";
         for(char& c : str) {
             if (c == 'y')
                 nextInterval += 'r';
@@ -150,22 +150,22 @@ void TrafficLightWebster::chooseNextInterval()
 
     char buff[300];
     sprintf(buff, "Sim time: %4.2f | Interval finish time: %4.2f | Current interval: %s", simTime().dbl(), simTime().dbl() + intervalOffSet, currentInterval.c_str() );
-    cout << buff << endl;
+    std::cout << buff << endl;
 }
 
 
 void TrafficLightWebster::chooseNextGreenInterval()
 {
-    list<string> lan = TraCI->TLGetControlledLanes("C");
+    std::list<std::string> lan = TraCI->TLGetControlledLanes("C");
 
     // remove duplicate entries
     lan.unique();
 
     int max = -1;
-    string criticalLane = "";
+    std::string criticalLane = "";
 
     // for each incoming lane
-    for(list<string>::iterator it = lan.begin(); it != lan.end(); ++it)
+    for(std::list<std::string>::iterator it = lan.begin(); it != lan.end(); ++it)
     {
         // todo: change this to traffic demand rather than queue size
         int qSize = laneQueueSize[*it].second;
@@ -176,9 +176,7 @@ void TrafficLightWebster::chooseNextGreenInterval()
         }
     }
 
-    cout << simTime().dbl() << ": critical lane is " << criticalLane << endl;
-
-
+    std::cout << simTime().dbl() << ": critical lane is " << criticalLane << endl;
 }
 
 }

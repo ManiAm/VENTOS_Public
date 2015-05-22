@@ -95,11 +95,11 @@ void TrafficLightAdaptiveQueue::executeFirstTimeStep()
     if(TLControlMode != 3)
         return;
 
-    cout << "Adaptive-time with queue traffic signal control ..." << endl << endl;
+    std::cout << "Adaptive-time with queue traffic signal control ..." << endl << endl;
 
     getMovements();
 
-    for (list<string>::iterator TL = TLList.begin(); TL != TLList.end(); TL++)
+    for (std::list<std::string>::iterator TL = TLList.begin(); TL != TLList.end(); TL++)
     {
         TraCI->TLSetProgram(*TL, "adaptive-time");
         TraCI->TLSetState(*TL, phase1_5);
@@ -107,7 +107,7 @@ void TrafficLightAdaptiveQueue::executeFirstTimeStep()
 
     char buff[300];
     sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
-    cout << buff << endl;
+    std::cout << buff << endl;
 }
 
 
@@ -120,7 +120,7 @@ void TrafficLightAdaptiveQueue::executeEachTimeStep(bool simulationDone)
 void TrafficLightAdaptiveQueue::getMovements()
 {
     // Get all links for this TL
-    map<int,string> allLinks = TraCI->TLGetControlledLinks("C");
+    std::map<int,std::string> allLinks = TraCI->TLGetControlledLinks("C");
 
     LINKSIZE = allLinks.size();
 
@@ -134,10 +134,10 @@ void TrafficLightAdaptiveQueue::getMovements()
         generateAllAllowedMovements();
     else
     {
-        cout << "Reading movements from file ... " << flush;
+        std::cout << "Reading movements from file ... " << std::flush;
         FILE *filePtr = fopen (movementsFilePath.string().c_str(), "r");
 
-        vector<int> temp;
+        std::vector<int> temp;
         char c;
         allMovements.clear();
 
@@ -156,7 +156,7 @@ void TrafficLightAdaptiveQueue::getMovements()
         }
 
         fclose(filePtr);
-        cout << "Done!" << endl << endl;
+        std::cout << "Done!" << endl << endl;
     }
 
     if(allMovements.size() == 0)
@@ -340,7 +340,7 @@ void TrafficLightAdaptiveQueue::generateAllAllowedMovements()
     add_edge(23, 6, conflictGraph);
     add_edge(23, 16, conflictGraph);
 
-    cout << "Generating all possible non-conflicting movements (out of 2^" << LINKSIZE << ") ... " << flush;
+    std::cout << "Generating all possible non-conflicting movements (out of 2^" << LINKSIZE << ") ... " << std::flush;
 
     // generate truth table from all links
     // check here: http://stackoverflow.com/questions/3504642/generate-a-truth-table-given-an-input
@@ -350,7 +350,7 @@ void TrafficLightAdaptiveQueue::generateAllAllowedMovements()
     {
         for(unsigned row = num_to_fill; row < (1U << LINKSIZE); row += (num_to_fill * 2))
         {
-            fill_n(&truthTable[col][row], num_to_fill, 1);
+            std::fill_n(&truthTable[col][row], num_to_fill, 1);
         }
     }
 
@@ -392,10 +392,10 @@ void TrafficLightAdaptiveQueue::generateAllAllowedMovements()
             allMovements.push_back(temp);
     }
 
-    cout << allMovements.size() << " movements found!" << endl;
+    std::cout << allMovements.size() << " movements found!" << endl;
 
     // write it to file
-    cout << "Writing to file ... " << flush;
+    std::cout << "Writing to file ... " << std::flush;
     FILE *filePtr = fopen (movementsFilePath.string().c_str(), "w");
     for(std::vector< std::vector<int> >::iterator it = allMovements.begin(); it != allMovements.end(); it++)
     {
@@ -407,7 +407,7 @@ void TrafficLightAdaptiveQueue::generateAllAllowedMovements()
     }
 
     fclose(filePtr);
-    cout << "Done!" << endl << endl;
+    std::cout << "Done!" << endl << endl;
 }
 
 
@@ -420,8 +420,8 @@ void TrafficLightAdaptiveQueue::chooseNextInterval()
         currentInterval = "red";
 
         // change all 'y' to 'r'
-        string str = TraCI->TLGetState("C");
-        string nextInterval = "";
+        std::string str = TraCI->TLGetState("C");
+        std::string nextInterval = "";
         for(char& c : str) {
             if (c == 'y')
                 nextInterval += 'r';
@@ -450,7 +450,7 @@ void TrafficLightAdaptiveQueue::chooseNextInterval()
 
     char buff[300];
     sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
-    cout << buff << endl;
+    std::cout << buff << endl;
 }
 
 
@@ -467,7 +467,7 @@ void TrafficLightAdaptiveQueue::chooseNextGreenInterval()
         for(int j = 0; j < LINKSIZE; j++)  // column
         {
             if(allMovements[i][j] == 1)
-                totalQueueRow = totalQueueRow + linkQueueSize[make_pair("C",j)];
+                totalQueueRow = totalQueueRow + linkQueueSize[std::make_pair("C",j)];
         }
 
         if(totalQueueRow > maxQueue)
@@ -498,7 +498,7 @@ void TrafficLightAdaptiveQueue::chooseNextGreenInterval()
     }
 
     // Calculate 'next interval'
-    string nextInterval = "";
+    std::string nextInterval = "";
     bool needYellowInterval = false;  // if we have at least one yellow interval
     for(int i = 0; i < LINKSIZE; i++)
     {
@@ -511,15 +511,15 @@ void TrafficLightAdaptiveQueue::chooseNextGreenInterval()
             nextInterval += currentInterval[i];
     }
 
-    cout << endl;
-    cout << "set of links with max q     ";
+    std::cout << endl;
+    std::cout << "set of links with max q     ";
     for(int k =0; k < LINKSIZE; k++)
         if(allMovements[row][k] == 1)
-            cout << k << " (" << linkQueueSize[make_pair("C",k)] << "), ";
-    cout << endl;
-    cout << "current interval            " << currentInterval << endl;
-    cout << "next green interval         " << nextGreenInterval << endl;
-    cout << "next interval               " << nextInterval << endl;
+            std::cout << k << " (" << linkQueueSize[std::make_pair("C",k)] << "), ";
+    std::cout << endl;
+    std::cout << "current interval            " << currentInterval << endl;
+    std::cout << "next green interval         " << nextGreenInterval << endl;
+    std::cout << "next interval               " << nextInterval << endl;
 
     if(needYellowInterval)
     {
@@ -532,7 +532,7 @@ void TrafficLightAdaptiveQueue::chooseNextGreenInterval()
     else
     {
         intervalOffSet = minGreenTime;
-        cout << "Continue the last green interval." << endl;
+        std::cout << "Continue the last green interval." << endl;
     }
 }
 

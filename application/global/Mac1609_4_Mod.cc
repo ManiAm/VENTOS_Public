@@ -80,7 +80,7 @@ void Mac1609_4_Mod::handleUpperMsg(cMessage* msg)
         return;
 
     // send signal to statistics
-    vector<long> MacStats;
+    std::vector<long> MacStats;
 
     MacStats.push_back(statsDroppedPackets); // packet was dropped in Mac
     MacStats.push_back(statsNumTooLittleTime); // Too little time in this interval. Will not schedule nextMacEvent

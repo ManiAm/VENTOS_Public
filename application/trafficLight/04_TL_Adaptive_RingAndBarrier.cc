@@ -97,13 +97,13 @@ void TrafficLightAdaptive::executeFirstTimeStep()
     if(TLControlMode != 2)
         return;
 
-    cout << "Adaptive-time traffic signal control ..."  << endl << endl;
+    std::cout << "Adaptive-time traffic signal control ..."  << endl << endl;
 
     // passageTime is not set by the user
     if(passageTime == -1)
     {
         // (*LD).first is 'lane id' and (*LD).second is 'detector id'
-        for (map<string,string>::iterator LD = LD_actuated.begin(); LD != LD_actuated.end(); LD++)
+        for (std::map<std::string,std::string>::iterator LD = LD_actuated.begin(); LD != LD_actuated.end(); LD++)
         {
             // get the max speed on this lane
             double maxV = TraCI->laneGetMaxSpeed((*LD).first);
@@ -114,7 +114,7 @@ void TrafficLightAdaptive::executeFirstTimeStep()
             // check if not greater than Gmin
             if(pass > minGreenTime)
             {
-                cout << "WARNING: loop detector (" << (*LD).second << ") is far away! Passage time is greater than Gmin." << endl;
+                std::cout << "WARNING: loop detector (" << (*LD).second << ") is far away! Passage time is greater than Gmin." << endl;
                 pass = minGreenTime;
             }
             // set it for each lane
@@ -125,7 +125,7 @@ void TrafficLightAdaptive::executeFirstTimeStep()
     else if(passageTime >=0 && passageTime <= minGreenTime)
     {
         // (*LD).first is 'lane id' and (*LD).second is 'detector id'
-        for (map<string,string>::iterator LD = LD_actuated.begin(); LD != LD_actuated.end(); LD++)
+        for (std::map<std::string,std::string>::iterator LD = LD_actuated.begin(); LD != LD_actuated.end(); LD++)
         {
             passageTimePerLane[(*LD).first] = passageTime;
         }
@@ -133,7 +133,7 @@ void TrafficLightAdaptive::executeFirstTimeStep()
     else
         error("passageTime value is not set correctly!");
 
-    for (list<string>::iterator TL = TLList.begin(); TL != TLList.end(); TL++)
+    for (std::list<std::string>::iterator TL = TLList.begin(); TL != TLList.end(); TL++)
     {
         TraCI->TLSetProgram(*TL, "adaptive-time");
         TraCI->TLSetState(*TL, phase1_5);
@@ -141,7 +141,7 @@ void TrafficLightAdaptive::executeFirstTimeStep()
 
     char buff[300];
     sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
-    cout << endl << buff << endl << endl;
+    std::cout << endl << buff << endl << endl;
 }
 
 
@@ -161,8 +161,8 @@ void TrafficLightAdaptive::chooseNextInterval()
         currentInterval = "red";
 
         // change all 'y' to 'r'
-        string str = TraCI->TLGetState("C");
-        string nextInterval = "";
+        std::string str = TraCI->TLGetState("C");
+        std::string nextInterval = "";
         for(char& c : str) {
             if (c == 'y')
                 nextInterval += 'r';
@@ -189,19 +189,19 @@ void TrafficLightAdaptive::chooseNextInterval()
 
     char buff[300];
     sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
-    cout << buff << endl << endl;
+    std::cout << buff << endl << endl;
 }
 
 
 void TrafficLightAdaptive::chooseNextGreenInterval()
 {
     // get loop detector information
-    map<string,double> LastActuatedTime;
+    std::map<std::string,double> LastActuatedTime;
 
-    cout << "SimTime: " << std::setprecision(2) << std::fixed << simTime().dbl() << " | Actuated LDs (TLid, lane, elapsed time): ";
+    std::cout << "SimTime: " << std::setprecision(2) << std::fixed << simTime().dbl() << " | Actuated LDs (TLid, lane, elapsed time): ";
 
     // (*LD).first is 'lane id' and (*LD).second is 'detector id'
-    for (map<string,string>::iterator LD = LD_actuated.begin(); LD != LD_actuated.end(); LD++)
+    for (std::map<std::string,std::string>::iterator LD = LD_actuated.begin(); LD != LD_actuated.end(); LD++)
     {
         // If maxGreenTime met, don't care for actuator values,
         // so push passageTime so that conditions fail and move to red interval
@@ -212,14 +212,14 @@ void TrafficLightAdaptive::chooseNextGreenInterval()
             double elapsedT = TraCI->LDGetElapsedTimeLastDetection( (*LD).second );
             LastActuatedTime[(*LD).first] = elapsedT;
             if( elapsedT + updateInterval < simTime().dbl() )
-                cout << "C, " << (*LD).first << ", " << elapsedT << " | ";
+                std::cout << "C, " << (*LD).first << ", " << elapsedT << " | ";
         }
     }
 
-    cout << endl;
+    std::cout << endl;
 
     bool extend = false;
-    string nextInterval;
+    std::string nextInterval;
 
     // Do proper transition:
     if (currentInterval == phase1_5)
@@ -378,7 +378,7 @@ void TrafficLightAdaptive::chooseNextGreenInterval()
         if (newIntervalTime > maxGreenTime)
             intervalOffSet = intervalOffSet - (newIntervalTime - maxGreenTime);
 
-        cout << ">>> Extending green time by " << intervalOffSet << "s" << endl;
+        std::cout << ">>> Extending green time by " << intervalOffSet << "s" << endl;
     }
     // we should terminate the current green interval
     else

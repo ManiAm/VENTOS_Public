@@ -30,20 +30,19 @@
 
 #include <iostream>
 
-using namespace std;
 
 namespace VENTOS {
 
 class Vehicle
 {
 public:
-    string id;
-    string type;
-    string origin;
-    string destination;
+    std::string id;
+    std::string type;
+    std::string origin;
+    std::string destination;
     double depart;
 
-    Vehicle(string id, string type, string origin, string destination, double depart);
+    Vehicle(std::string id, std::string type, std::string origin, std::string destination, double depart);
 };
 
 }

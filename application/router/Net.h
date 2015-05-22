@@ -33,7 +33,6 @@
 #include <iostream>
 #include <sstream>
 #include <algorithm> // For sort
-#include <map>
 
 #include "Router.h"
 #include "Vehicle.h"
@@ -41,24 +40,21 @@
 #include "rapidxml.hpp"
 #include "rapidxml_utils.hpp"
 
-using namespace std;
-using namespace rapidxml;
-
 namespace VENTOS {
 
 class Connection
 {
 public:
-    string from;
-    string to;
+    std::string from;
+    std::string to;
     int fromLane;
     int toLane;
-    string TLid;
+    std::string TLid;
     int linkIndex;
     char dir;
     char state;
 
-    Connection(string from, string to, int fromLane, int toLane, string TLid, int linkIndex, char dir, char state):
+    Connection(std::string from, std::string to, int fromLane, int toLane, std::string TLid, int linkIndex, char dir, char state):
         from(from), to(to), fromLane(fromLane), toLane(toLane), TLid(TLid), linkIndex(linkIndex), dir(dir), state(state)
     {}
 };
@@ -66,18 +62,18 @@ public:
 class Net
 {
 public:
-    map<string, TrafficLightRouter*> TLs;
-    map<string, Edge*> edges;
-    map<string, Node*> nodes;
-    map<string, Vehicle*> vehicles;
-    map<string, vector<Connection*> > connections;
+    std::map<std::string, TrafficLightRouter*> TLs;
+    std::map<std::string, Edge*> edges;
+    std::map<std::string, Node*> nodes;
+    std::map<std::string, Vehicle*> vehicles;
+    std::map<std::string, std::vector<Connection*> > connections;
 
-    map<string, vector<int>* >* transitions;  //Given a pair of edge IDs concatenated, returns a vector of TL phases that allow movement between them
-    map<string, char>* turnTypes;           //Given a pair of edge IDs concatenated, returns the turn type between those two
+    std::map<std::string, std::vector<int>* >* transitions;  //Given a pair of edge IDs concatenated, returns a vector of TL phases that allow movement between them
+    std::map<std::string, char>* turnTypes;           //Given a pair of edge IDs concatenated, returns the turn type between those two
 
     cModule* routerModule;
 
-    Net(string fileName, cModule* router);
+    Net(std::string fileName, cModule* router);
     ~Net();
 };
 

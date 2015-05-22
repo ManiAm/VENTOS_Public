@@ -44,7 +44,6 @@
 
 #define SSTR( x ) dynamic_cast< std::ostringstream & >( (std::ostringstream() << std::dec << x ) ).str()
 
-using namespace std;
 
 namespace VENTOS {
 
@@ -55,7 +54,7 @@ class Net;
 class Hypertree;
 struct EdgeRemoval;
 
-string key(Node* n1, Node* n2, int time);
+std::string key(Node* n1, Node* n2, int time);
 
 class Router : public BaseModule    //Responsible for routing cars in our system.  Should only be one of these.
 {
@@ -70,13 +69,13 @@ public:
     int currentVehicleCount;
     int totalVehicleCount;
     double nonReroutingVehiclePercent;
-    set<string>* nonReroutingVehicles;
+    std::set<std::string>* nonReroutingVehicles;
     Net* net;
-    void sendRerouteSignal(string vid);     //Forces a vehicle to reroute
+    void sendRerouteSignal(std::string vid);     //Forces a vehicle to reroute
     bool UseHysteresis;
 
-    ofstream vehicleEndTimesFile;
-    std::map<string, LaneCosts> edgeHistograms; // should be public
+    std::ofstream vehicleEndTimesFile;
+    std::map<std::string, LaneCosts> edgeHistograms; // should be public
 
 protected:
     boost::filesystem::path VENTOS_FullPath;
@@ -85,20 +84,20 @@ protected:
 
     //Edge-removal Alg
     cMessage* routerMsg;
-    void issueStop(string vehID, string edgeID);
-    void issueStart(string vehID, string edgeID);
+    void issueStop(std::string vehID, std::string edgeID);
+    void issueStart(std::string vehID, std::string edgeID);
     void checkEdgeRemovals();
-    vector<EdgeRemoval> EdgeRemovals;
-    set<string> RemovedVehicles;
+    std::vector<EdgeRemoval> EdgeRemovals;
+    std::set<std::string> RemovedVehicles;
     bool UseAccidents;
     int AccidentCheckInterval;
 
-    map<string, Hypertree*> hypertreeMemo;
+    std::map<std::string, Hypertree*> hypertreeMemo;
 
     //Vehicle stuff
     bool collectVehicleTimeData;
-    map<string, int> vehicleTravelTimes;
-    ofstream vehicleTravelTimesFile;
+    std::map<std::string, int> vehicleTravelTimes;
+    std::ofstream vehicleTravelTimesFile;
 
     bool enableRouting; //If false, runs no code
     double leftTurnCost, rightTurnCost, straightCost, uTurnCost, TLLookahead;
@@ -107,11 +106,11 @@ protected:
     double turnTypeCost(Edge* start, Edge* end);                    //Returns the turn penalty on an intersection
     double timeToPhase(TrafficLightRouter* tl, double time, int phase);   //Returns how long we must wait for a given phase at the given time
     int nextAcceptingPhase(double time, Edge* start, Edge* end);    //Returns the next phase allowing movement from start to end at the given time
-    vector<int>* TLTransitionPhases(Edge* start, Edge* end);        //Returns a vector of phases allowing movement from start to end
+    std::vector<int>* TLTransitionPhases(Edge* start, Edge* end);        //Returns a vector of phases allowing movement from start to end
 
     int timePeriodMax;     //Max time for hypertrees
     Hypertree* buildHypertree(int startTime, Node* destination);    //Builds a hypertree to the destination, bounded between the start time and timePeriodMax;
-    list<string> getRoute(Edge* origin, Node* destination, string vName);       //Returns a list of edges between origin and destination,
+    std::list<std::string> getRoute(Edge* origin, Node* destination, std::string vName);       //Returns a list of edges between origin and destination,
                                                                                 //or an empty list if they're not connected
     SystemMsg* prepareSystemMsg();
 
@@ -123,11 +122,11 @@ protected:
     simsignal_t Signal_executeFirstTS;
 
     // Edge weight-gathering
-    std::map<string, string> vehicleEdges;
-    std::map<string, double> vehicleTimes;
+    std::map<std::string, std::string> vehicleEdges;
+    std::map<std::string, double> vehicleTimes;
 
     //Hysteresis implementation
-    std::map<string, int> vehicleLaneChangeCount;
+    std::map<std::string, int> vehicleLaneChangeCount;
     int HysteresisCount;
 
     int LaneCostsMode;

@@ -30,7 +30,6 @@
 
 #include <03_TL_Fixed.h>
 
-using namespace std;
 
 namespace VENTOS {
 
@@ -61,22 +60,22 @@ class TrafficLightAdaptive : public TrafficLightFixed
     // class variables
     double intervalOffSet;
     double intervalElapseTime;
-    string currentInterval;
-    string nextGreenInterval;
+    std::string currentInterval;
+    std::string nextGreenInterval;
     cMessage* ChangeEvt;
 
-    map<string,double> passageTimePerLane;
+    std::map<std::string,double> passageTimePerLane;
 
     // phases for ring-and-barrier
-    string phase1_5 = "rrrrGrrrrrrrrrGrrrrrrrrr";
-    string phase2_5 = "gGgGGrrrrrrrrrrrrrrrrrrG";
-    string phase1_6 = "rrrrrrrrrrgGgGGrrrrrrGrr";
-    string phase2_6 = "gGgGrrrrrrgGgGrrrrrrrGrG";
+    std::string phase1_5 = "rrrrGrrrrrrrrrGrrrrrrrrr";
+    std::string phase2_5 = "gGgGGrrrrrrrrrrrrrrrrrrG";
+    std::string phase1_6 = "rrrrrrrrrrgGgGGrrrrrrGrr";
+    std::string phase2_6 = "gGgGrrrrrrgGgGrrrrrrrGrG";
 
-    string phase3_7 = "rrrrrrrrrGrrrrrrrrrGrrrr";
-    string phase3_8 = "rrrrrrrrrrrrrrrgGgGGrrGr";
-    string phase4_7 = "rrrrrgGgGGrrrrrrrrrrGrrr";
-    string phase4_8 = "rrrrrgGgGrrrrrrgGgGrGrGr";
+    std::string phase3_7 = "rrrrrrrrrGrrrrrrrrrGrrrr";
+    std::string phase3_8 = "rrrrrrrrrrrrrrrgGgGGrrGr";
+    std::string phase4_7 = "rrrrrgGgGGrrrrrrrrrrGrrr";
+    std::string phase4_8 = "rrrrrgGgGrrrrrrgGgGrGrGr";
 };
 
 }

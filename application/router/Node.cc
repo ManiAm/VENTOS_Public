@@ -34,14 +34,14 @@ bool Node::operator==(const Node& rhs)
     return this->id == rhs.id;
 }
 
-Node::Node(string id, double x, double y, string type, vector<string>* incLanes, TrafficLightRouter* tl): // Build a node
+Node::Node(std::string id, double x, double y, std::string type, std::vector<std::string>* incLanes, TrafficLightRouter* tl): // Build a node
                   id(id), x(x), y(y), type(type), incLanes(incLanes), tl(tl){}
 
-ostream& operator<<(ostream& os, Node &rhs) // Print a node
+std::ostream& operator<<(std::ostream& os, Node &rhs) // Print a node
 {
-    os << "id: "<< setw(3) << left << rhs.id <<
-         " x: " << setw(5) << left << rhs.x <<
-         " y: " << setw(5) << left << rhs.y <<
+    os << "id: "<< std::setw(3) << std::left << rhs.id <<
+         " x: " << std::setw(5) << std::left << rhs.x <<
+         " y: " << std::setw(5) << std::left << rhs.y <<
          " type: " << rhs.type;
     return os;
 }

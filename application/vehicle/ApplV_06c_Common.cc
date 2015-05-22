@@ -49,7 +49,7 @@ void ApplVPlatoonMg::common_DataFSM(PlatoonMsg* wsm)
     {
         if ( wsm->getType() == CHANGE_PL && wsm->getSender() == plnID )
         {
-            if( string(wsm->getRecipient()) == "multicast" || wsm->getRecipient() == SUMOvID )
+            if( std::string(wsm->getRecipient()) == "multicast" || wsm->getRecipient() == SUMOvID )
             {
                 // send ACK
                 PlatoonMsg* dataMsg = prepareData(wsm->getSender(), ACK, wsm->getSendingPlatoonID());
@@ -70,7 +70,7 @@ void ApplVPlatoonMg::common_DataFSM(PlatoonMsg* wsm)
         // I have done it before, so I only ACK
         else if( wsm->getType() == CHANGE_PL && wsm->getSender() == oldPlnID && wsm->getStrValue() == plnID )
         {
-            if( string(wsm->getRecipient()) == "multicast" || wsm->getRecipient() == SUMOvID )
+            if( std::string(wsm->getRecipient()) == "multicast" || wsm->getRecipient() == SUMOvID )
             {
                 // send ACK
                 PlatoonMsg* dataMsg = prepareData(wsm->getSender(), ACK, wsm->getSendingPlatoonID());

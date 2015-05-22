@@ -30,7 +30,6 @@
 
 #include <06_TL_Adaptive_Webster.h>
 
-using namespace std;
 
 namespace VENTOS {
 
@@ -52,7 +51,7 @@ class TrafficLightVANET : public TrafficLightWebster
 
   protected:
     // class variables
-    vector<double> DetectedTime;
+    std::vector<double> DetectedTime;
     cMessage* DetectEvt;
     double detectFreq = 0.1;
 
@@ -70,7 +69,7 @@ class TrafficLightVANET : public TrafficLightWebster
     };
 
     // For VANET Controller:
-    map<string,LDid> lmap =
+    std::map<std::string,LDid> lmap =
     {
         {"EC_2", EC_2}, {"EC_3", EC_3}, {"EC_4", EC_4},
         {"NC_2", NC_2}, {"NC_3", NC_3}, {"NC_4", NC_4},

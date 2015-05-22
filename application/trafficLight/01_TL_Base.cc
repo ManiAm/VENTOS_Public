@@ -117,14 +117,14 @@ void TrafficLightBase::executeEachTimeStep(bool simulationDone)
 void TrafficLightBase::TLStatePerVehicle()
 {
     // get all lanes in the network
-    list<string> myList = TraCI->laneGetIDList();
+    std::list<std::string> myList = TraCI->laneGetIDList();
 
-    for(list<string>::iterator i = myList.begin(); i != myList.end(); ++i)
+    for(std::list<std::string>::iterator i = myList.begin(); i != myList.end(); ++i)
     {
         // get all vehicles on lane i
-        list<string> myList2 = TraCI->laneGetLastStepVehicleIDs( i->c_str() );
+        std::list<std::string> myList2 = TraCI->laneGetLastStepVehicleIDs( i->c_str() );
 
-        for(list<string>::reverse_iterator k = myList2.rbegin(); k != myList2.rend(); ++k)
+        for(std::list<std::string>::reverse_iterator k = myList2.rbegin(); k != myList2.rend(); ++k)
             saveTLStatePerVehicle(k->c_str());
     }
 
@@ -134,17 +134,17 @@ void TrafficLightBase::TLStatePerVehicle()
 }
 
 
-void TrafficLightBase::saveTLStatePerVehicle(string vID)
+void TrafficLightBase::saveTLStatePerVehicle(std::string vID)
 {
-    string lane = TraCI->vehicleGetLaneID(vID);
+    std::string lane = TraCI->vehicleGetLaneID(vID);
 
     // get the TLid that controls this vehicle
     // empty string means the vehicle is not controlled by any TLid
-    string TLid = "";
-    for (list<string>::iterator it = TLList.begin() ; it != TLList.end(); ++it)
+    std::string TLid = "";
+    for (std::list<std::string>::iterator it = TLList.begin() ; it != TLList.end(); ++it)
     {
-        list<string> lan = TraCI->TLGetControlledLanes(*it);
-        for(list<string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
+        std::list<std::string> lan = TraCI->TLGetControlledLanes(*it);
+        for(std::list<std::string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
         {
             if(*it2 == lane)
             {
@@ -154,7 +154,7 @@ void TrafficLightBase::saveTLStatePerVehicle(string vID)
         }
     }
 
-    string TLprogram = "";
+    std::string TLprogram = "";
     if(TLid != "")
         TLprogram = TraCI->TLGetProgram(TLid);
 
@@ -168,7 +168,7 @@ void TrafficLightBase::saveTLStatePerVehicle(string vID)
     TLVehicleData *tmp = new TLVehicleData(index, timeStep,
                                            vID.c_str(), lane.c_str(), pos,
                                            speed, TLid.c_str(), TLprogram.c_str(), YorR);
-    Vec_vehiclesData.push_back(tmp);
+    Vec_vehiclesData.push_back(*tmp);
 }
 
 
@@ -184,7 +184,7 @@ void TrafficLightBase::TLDataToFile()
     {
         // get the current run number
         int currentRun = ev.getConfigEx()->getActiveRunNumber();
-        ostringstream fileName;
+        std::ostringstream fileName;
 
         fileName << currentRun << "_TLStatePerVehicle.txt";
 
@@ -207,23 +207,23 @@ void TrafficLightBase::TLDataToFile()
     int oldIndex = -1;
 
     // write body
-    for(unsigned int k=0; k<Vec_vehiclesData.size(); k++)
+    for(std::vector<TLVehicleData>::iterator y = Vec_vehiclesData.begin(); y != Vec_vehiclesData.end(); y++)
     {
-        if(oldIndex != Vec_vehiclesData[k]->index)
+        if(oldIndex != y->index)
         {
             fprintf(filePtr, "\n");
-            oldIndex = Vec_vehiclesData[k]->index;
+            oldIndex = y->index;
         }
 
-        fprintf (filePtr, "%-10d ", Vec_vehiclesData[k]->index);
-        fprintf (filePtr, "%-10.2f ", Vec_vehiclesData[k]->time );
-        fprintf (filePtr, "%-15s ", Vec_vehiclesData[k]->vehicleName);
-        fprintf (filePtr, "%-12s ", Vec_vehiclesData[k]->lane);
-        fprintf (filePtr, "%-10.2f ", Vec_vehiclesData[k]->pos);
-        fprintf (filePtr, "%-10.2f ", Vec_vehiclesData[k]->speed);
-        fprintf (filePtr, "%-15s ", Vec_vehiclesData[k]->TLid);
-        fprintf (filePtr, "%-15s ", Vec_vehiclesData[k]->TLprogram);
-        fprintf (filePtr, "%-15d \n", Vec_vehiclesData[k]->yellowOrRedSignal);
+        fprintf (filePtr, "%-10d ", y->index);
+        fprintf (filePtr, "%-10.2f ", y->time );
+        fprintf (filePtr, "%-15s ", y->vehicleName);
+        fprintf (filePtr, "%-12s ", y->lane);
+        fprintf (filePtr, "%-10.2f ", y->pos);
+        fprintf (filePtr, "%-10.2f ", y->speed);
+        fprintf (filePtr, "%-15s ", y->TLid);
+        fprintf (filePtr, "%-15s ", y->TLprogram);
+        fprintf (filePtr, "%-15d \n", y->yellowOrRedSignal);
     }
 
     fclose(filePtr);

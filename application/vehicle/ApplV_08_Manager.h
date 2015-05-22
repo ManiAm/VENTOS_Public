@@ -51,13 +51,13 @@ class ApplVManager : public ApplVCoordinator
         virtual void onData(PlatoonMsg* wsm);
 
 	private:
-        bool dropBeacon(double time, string vehicle, double plr);
+        bool dropBeacon(double time, std::string vehicle, double plr);
         void reportDropToStatistics(BeaconVehicle* wsm);
 
 	protected:
         // NED variables (packet loss ratio)
         double droppT;
-        string droppV;
+        std::string droppV;
         double plr;
 
         // NED variable

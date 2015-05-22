@@ -31,15 +31,14 @@
 #include <map>
 #include <string>
 
-using namespace std;
 
 namespace VENTOS {
 
 class Hypertree
 {
 public:
-    map<string, double> label;
-    map<string, string> transition;
+    std::map<std::string, double> label;
+    std::map<std::string, std::string> transition;
 
     Hypertree();
 

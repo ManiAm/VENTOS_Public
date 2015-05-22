@@ -36,7 +36,6 @@
 #include "Appl.h"
 #include "TraCI_Extend.h"
 
-using namespace std;
 
 namespace VENTOS {
 
@@ -78,8 +77,8 @@ class ApplVBase : public BaseApplLayer
         Coord curPosition;  // current position from mobility module (not from sumo)
         double entryTime;
 
-		string SUMOvID;
-        string SUMOvType;
+        std::string SUMOvID;
+        std::string SUMOvType;
         int SUMOControllerType;
         int SUMOControllerNumber;
 };

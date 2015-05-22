@@ -246,7 +246,7 @@ void Statistics::MAClayerToFile()
     {
         // get the current run number
         int currentRun = ev.getConfigEx()->getActiveRunNumber();
-        ostringstream fileName;
+        std::ostringstream fileName;
         fileName << currentRun << "_MACdata.txt";
         filePath = "results/cmd/" + fileName.str();
     }
@@ -306,7 +306,7 @@ void Statistics::plnManageToFile()
     {
         // get the current run number
         int currentRun = ev.getConfigEx()->getActiveRunNumber();
-        ostringstream fileName;
+        std::ostringstream fileName;
         fileName << currentRun << "_plnManage.txt";
         filePath = "results/cmd/" + fileName.str();
     }
@@ -321,14 +321,14 @@ void Statistics::plnManageToFile()
     fprintf (filePtr, "%-20s","sendingPlnID");
     fprintf (filePtr, "%-20s\n\n","recPlnID");
 
-    string oldSender = "";
+    std::string oldSender = "";
     double oldTime = -1;
 
     // write body
     for(unsigned int k=0; k<Vec_plnManagement.size(); k++)
     {
         // make the log more readable :)
-        if(string(Vec_plnManagement[k]->sender) != oldSender || Vec_plnManagement[k]->time != oldTime)
+        if(std::string(Vec_plnManagement[k]->sender) != oldSender || Vec_plnManagement[k]->time != oldTime)
         {
             fprintf(filePtr, "\n");
             oldSender = Vec_plnManagement[k]->sender;
@@ -359,7 +359,7 @@ void Statistics::plnStatToFile()
     {
         // get the current run number
         int currentRun = ev.getConfigEx()->getActiveRunNumber();
-        ostringstream fileName;
+        std::ostringstream fileName;
         fileName << currentRun << "_plnStat.txt";
         filePath = "results/cmd/" + fileName.str();
     }
@@ -372,7 +372,7 @@ void Statistics::plnStatToFile()
     fprintf (filePtr, "%-20s","to platoon");
     fprintf (filePtr, "%-20s\n\n","comment");
 
-    string oldPln = "";
+    std::string oldPln = "";
 
     // write body
     for(unsigned int k=0; k<Vec_plnStat.size(); k++)
@@ -706,7 +706,7 @@ void Statistics::printToFile()
 // returns the index of a node. for example gets V[10] as input and returns 10
 int Statistics::getNodeIndex(const char *ModName)
 {
-    ostringstream oss;
+    std::ostringstream oss;
 
     for(int h=0 ; ModName[h] != NULL ; h++)
     {
@@ -723,7 +723,7 @@ int Statistics::getNodeIndex(const char *ModName)
 
 
 // todo: use template
-int Statistics::findInVector(vector<NodeEntry *> Vec, const char *name)
+int Statistics::findInVector(std::vector<NodeEntry *> Vec, const char *name)
 {
     unsigned int counter;    // for counter
     bool found = false;
@@ -744,7 +744,7 @@ int Statistics::findInVector(vector<NodeEntry *> Vec, const char *name)
 }
 
 
-int Statistics::findInVector(vector<MacStatEntry *> Vec, const char *name)
+int Statistics::findInVector(std::vector<MacStatEntry *> Vec, const char *name)
 {
     unsigned int counter;    // for counter
     bool found = false;
@@ -765,7 +765,7 @@ int Statistics::findInVector(vector<MacStatEntry *> Vec, const char *name)
 }
 
 
-vector<NodeEntry *> Statistics::SortByID(vector<NodeEntry *> vec)
+std::vector<NodeEntry *> Statistics::SortByID(std::vector<NodeEntry *> vec)
 {
     if(vec.size() == 0)
         return vec;
@@ -775,7 +775,7 @@ vector<NodeEntry *> Statistics::SortByID(vector<NodeEntry *> vec)
         for(unsigned int j = i+1; j<vec.size(); j++)
         {
             if( vec[i]->nodeID > vec[j]->nodeID)
-                swap(vec[i], vec[j]);
+                std::swap(vec[i], vec[j]);
         }
     }
 

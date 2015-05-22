@@ -35,7 +35,6 @@
 #include "Appl.h"
 #include "TraCI_Extend.h"
 
-using namespace std;
 
 namespace VENTOS {
 

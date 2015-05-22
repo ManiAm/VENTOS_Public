@@ -32,7 +32,6 @@
 #include "Net.h"
 #include <vector>
 
-using namespace std;
 
 namespace VENTOS {
 
@@ -43,8 +42,8 @@ class Phase
 {
 public:
     double duration;
-    string state;
-    Phase(double durationVal, string stateVal);
+    std::string state;
+    Phase(double durationVal, std::string stateVal);
     void print();
 };
 
@@ -60,11 +59,11 @@ public:
 
 
 public:
-    string id;
-    string type;
-    string programID;
+    std::string id;
+    std::string type;
+    std::string programID;
     double offset;
-    vector<Phase*> phases;
+    std::vector<Phase*> phases;
     Node* node;
     Net* net;
 
@@ -74,7 +73,7 @@ public:
     TraCI_Extend *TraCI;
     void print();
 
-    void build(string id, string type, string programID, double offset, vector<Phase*>& phases, Net* net);
+    void build(std::string id, std::string type, std::string programID, double offset, std::vector<Phase*>& phases, Net* net);
 
     //Routing
     double lastSwitchTime;

@@ -32,14 +32,13 @@
 #include <map>
 #include <iostream>
 
-using namespace std;
 
 namespace VENTOS {
 
 class LaneCosts
 {
 public:
-    map<int, int> data;
+    std::map<int, int> data;
     int count;
     double average;
     //int minimum;
@@ -48,7 +47,7 @@ public:
 
     void insert(int d, int LaneCostsMode);
     double percentAt(int d);
-    friend ostream& operator<<(ostream& os, LaneCosts& h);
+    friend std::ostream& operator<<(std::ostream& os, LaneCosts& h);
 };
 
 }

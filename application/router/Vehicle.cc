@@ -29,7 +29,7 @@
 
 namespace VENTOS {
 
-Vehicle::Vehicle(string id, string type, string origin, string destination, double depart):
+Vehicle::Vehicle(std::string id, std::string type, std::string origin, std::string destination, double depart):
                         id(id), type(type), origin(origin), destination(destination), depart(depart){}
 
 }

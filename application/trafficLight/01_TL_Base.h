@@ -32,7 +32,6 @@
 #include <Appl.h>
 #include "TraCI_Extend.h"
 
-using namespace std;
 
 namespace VENTOS {
 
@@ -88,8 +87,8 @@ class TrafficLightBase : public BaseModule
       TraCI_Extend *TraCI;
       simsignal_t Signal_executeFirstTS;
       simsignal_t Signal_executeEachTS;
-      list<string> TLList;   // list of traffic-lights in the network
-      vector<TLVehicleData *> Vec_vehiclesData;
+      std::list<std::string> TLList;   // list of traffic-lights in the network
+      std::vector<TLVehicleData> Vec_vehiclesData;
 
       boost::filesystem::path VENTOS_FullPath;
       boost::filesystem::path SUMO_Path;
@@ -103,7 +102,7 @@ class TrafficLightBase : public BaseModule
 
   private:
       void TLStatePerVehicle();
-      void saveTLStatePerVehicle(string);
+      void saveTLStatePerVehicle(std::string);
       void TLDataToFile();
 };
 

@@ -62,8 +62,8 @@ class AddRSU : public BaseModule
 	private:
         void Add();
         void Scenario1();
-        deque<RSUEntry*> commandReadRSUsCoord(string);
-        void commandAddCirclePoly(string, string, const TraCIColor& color, Coord*, double);
+        std::deque<RSUEntry*> commandReadRSUsCoord(std::string);
+        void commandAddCirclePoly(std::string, std::string, const TraCIColor& color, Coord*, double);
 
 	private:
         // NED variables
@@ -72,7 +72,7 @@ class AddRSU : public BaseModule
         simsignal_t Signal_executeFirstTS;
         bool on;
         int mode;
-        deque<RSUEntry*> RSUs;
+        std::deque<RSUEntry*> RSUs;
 
         boost::filesystem::path VENTOS_FullPath;
         boost::filesystem::path SUMO_Path;

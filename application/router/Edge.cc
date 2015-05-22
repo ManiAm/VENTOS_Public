@@ -29,10 +29,10 @@
 
 namespace VENTOS {
 
-Lane::Lane(string id, double speed, double length):
+Lane::Lane(std::string id, double speed, double length):
                   id(id), speed(speed), length(length){}
 
-Edge::Edge(string id, Node* from, Node* to, int priority, vector<Lane*> lanes, LaneCosts* travelTimes):
+Edge::Edge(std::string id, Node* from, Node* to, int priority, std::vector<Lane*> lanes, LaneCosts* travelTimes):
                   id(id), from(from), to(to), priority(priority), lanes(lanes), travelTimes(travelTimes)
 {
     numLanes = lanes.size();
@@ -56,18 +56,18 @@ double Edge::getCost()  // This will likely be more complex once weights are imp
 {
     if(travelTimes->average != 0)
         return travelTimes->average;
-    cout << "using length / speed" << endl;
+    std::cout << "using length / speed" << std::endl;
     return length / speed;
 }
 
-ostream& operator<<(ostream& os, Edge &rhs) // Print an Edge
+std::ostream& operator<<(std::ostream& os, Edge &rhs) // Print an Edge
 {
-    os << "id: "         << setw(3) << left << rhs.id
-       << " from: "      << setw(3) << left << rhs.from->id
-       << " to: "        << setw(3) << left << rhs.to->id
-       << " priority: "  << setw(4) << left << rhs.priority
-       << " numLanes: "  << setw(3) << left << rhs.numLanes
-       << " speed: "     << setw(5) << left << rhs.speed;
+    os << "id: "         << std::setw(3) << std::left << rhs.id
+       << " from: "      << std::setw(3) << std::left << rhs.from->id
+       << " to: "        << std::setw(3) << std::left << rhs.to->id
+       << " priority: "  << std::setw(4) << std::left << rhs.priority
+       << " numLanes: "  << std::setw(3) << std::left << rhs.numLanes
+       << " speed: "     << std::setw(5) << std::left << rhs.speed;
     return os;
 }
 

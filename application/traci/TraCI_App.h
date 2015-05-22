@@ -104,16 +104,16 @@ class TraCI_App : public TraCI_Extend
         std::set<std::string> subscribedPedestrians; /**< all pedestrians we have already subscribed to */
 
         // NED (bicycles)
-        string bikeModuleType;
-        string bikeModuleName;
-        string bikeModuleDisplayString;
+        std::string bikeModuleType;
+        std::string bikeModuleName;
+        std::string bikeModuleDisplayString;
 
         // NED (pedestrians)
-        string pedModuleType;
-        string pedModuleName;
-        string pedModuleDisplayString;
+        std::string pedModuleType;
+        std::string pedModuleName;
+        std::string pedModuleDisplayString;
 
-        vector<VehicleData *> Vec_vehiclesData;
+        std::vector<VehicleData> Vec_vehiclesData;
 
         int index;
 
@@ -124,7 +124,7 @@ class TraCI_App : public TraCI_Extend
         virtual void addModule(std::string nodeId, std::string type, std::string name, std::string displayString, const Coord& position, std::string road_id = "", double speed = -1, double angle = -1);
 
         void vehiclesData();
-        void saveVehicleData(string);
+        void saveVehicleData(std::string);
         void vehiclesDataToFile();
 };
 

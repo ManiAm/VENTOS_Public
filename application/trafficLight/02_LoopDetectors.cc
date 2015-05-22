@@ -82,29 +82,29 @@ void LoopDetectors::executeFirstTimeStep()
     getAllDetectors();
 
     // initialize all queue value in laneQueueSize to zero
-    for (list<string>::iterator it = TLList.begin() ; it != TLList.end(); ++it)
+    for (std::list<std::string>::iterator it = TLList.begin() ; it != TLList.end(); ++it)
     {
-        list<string> lan = TraCI->TLGetControlledLanes(*it);
+        std::list<std::string> lan = TraCI->TLGetControlledLanes(*it);
 
         // remove duplicate entries
         lan.unique();
 
         // for each incoming lane
-        for(list<string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
+        for(std::list<std::string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
         {
-            laneQueueSize.insert( make_pair( *it2, make_pair(*it, 0) ) );
+            laneQueueSize.insert( std::make_pair( *it2, std::make_pair(*it, 0) ) );
         }
     }
 
     // initialize all queue value in linkQueueSize to zero
-    for (list<string>::iterator it = TLList.begin(); it != TLList.end(); ++it)
+    for (std::list<std::string>::iterator it = TLList.begin(); it != TLList.end(); ++it)
     {
-        map<int,string> result = TraCI->TLGetControlledLinks(*it);
+        std::map<int,std::string> result = TraCI->TLGetControlledLinks(*it);
 
         // for each link in this TLid
-        for(map<int,string>::iterator it2 = result.begin(); it2 != result.end(); ++it2)
+        for(std::map<int,std::string>::iterator it2 = result.begin(); it2 != result.end(); ++it2)
         {
-            linkQueueSize.insert( make_pair(make_pair(*it,(*it2).first), 0) );
+            linkQueueSize.insert( std::make_pair(std::make_pair(*it,(*it2).first), 0) );
         }
     }
 }
@@ -142,74 +142,74 @@ void LoopDetectors::executeEachTimeStep(bool simulationDone)
 void LoopDetectors::getAllDetectors()
 {
     // get all loop detectors
-    list<string> str = TraCI->LDGetIDList();
+    std::list<std::string> str = TraCI->LDGetIDList();
 
     // for each loop detector
-    for (list<string>::iterator it=str.begin(); it != str.end(); ++it)
+    for (std::list<std::string>::iterator it=str.begin(); it != str.end(); ++it)
     {
-        string lane = TraCI->LDGetLaneID(*it);
+        std::string lane = TraCI->LDGetLaneID(*it);
 
-        if( string(*it).find("demand_") != std::string::npos )
-            LD_demand.insert(pair<string, string>(lane, *it));
-        else if( string(*it).find("actuated_") != std::string::npos )
-            LD_actuated.insert(pair<string, string>(lane, *it));
+        if( std::string(*it).find("demand_") != std::string::npos )
+            LD_demand.insert(std::pair<std::string, std::string>(lane, *it));
+        else if( std::string(*it).find("actuated_") != std::string::npos )
+            LD_actuated.insert(std::pair<std::string, std::string>(lane, *it));
     }
 
     // get all area detectors
-    list<string> str2 = TraCI->LADGetIDList();
+    std::list<std::string> str2 = TraCI->LADGetIDList();
 
     // for each area detector detector
-    for (list<string>::iterator it=str2.begin(); it != str2.end(); ++it)
+    for (std::list<std::string>::iterator it=str2.begin(); it != str2.end(); ++it)
     {
-        string lane = TraCI->LADGetLaneID(*it);
+        std::string lane = TraCI->LADGetLaneID(*it);
 
-        if( string(*it).find("queue_") != std::string::npos )
-            AD_queue.insert(pair<string, string>(lane, *it));
+        if( std::string(*it).find("queue_") != std::string::npos )
+            AD_queue.insert(std::pair<std::string, std::string>(lane, *it));
     }
 
-    cout << endl << LD_demand.size() << " demand loop detectors found!" << endl;
-    cout << LD_actuated.size() << " actuated loop detectors found!" << endl;
-    cout << AD_queue.size() << " area detectors found!" << endl << endl;
+    std::cout << endl << LD_demand.size() << " demand loop detectors found!" << endl;
+    std::cout << LD_actuated.size() << " actuated loop detectors found!" << endl;
+    std::cout << AD_queue.size() << " area detectors found!" << endl << endl;
 
     // some traffic signal controls need one actuated LD on each incoming lane
     if(TLControlMode == 2)
     {
-        for (list<string>::iterator it = TLList.begin(); it != TLList.end(); it++)
+        for (std::list<std::string>::iterator it = TLList.begin(); it != TLList.end(); it++)
         {
-            list<string> lan = TraCI->TLGetControlledLanes(*it);
+            std::list<std::string> lan = TraCI->TLGetControlledLanes(*it);
 
             // remove duplicate entries
             lan.unique();
 
             // for each incoming lane
-            for(list<string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
+            for(std::list<std::string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
             {
                 if( LD_actuated.find(*it2) == LD_actuated.end() )
-                    cout << "WARNING: no loop detector found on lane (" << *it2 << "). No actuation is available for this lane." << endl;
+                    std::cout << "WARNING: no loop detector found on lane (" << *it2 << "). No actuation is available for this lane." << endl;
             }
         }
-        cout << endl;
+        std::cout << endl;
     }
 
     // if we are measuring queue length then
     // make sure we have an area detector in each lane
     if(measureIntersectionQueue)
     {
-        for (list<string>::iterator it = TLList.begin() ; it != TLList.end(); ++it)
+        for (std::list<std::string>::iterator it = TLList.begin() ; it != TLList.end(); ++it)
         {
-            list<string> lan = TraCI->TLGetControlledLanes(*it);
+            std::list<std::string> lan = TraCI->TLGetControlledLanes(*it);
 
             // remove duplicate entries
             lan.unique();
 
             // for each incoming lane
-            for(list<string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
+            for(std::list<std::string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
             {
                 if( AD_queue.find(*it2) == AD_queue.end() )
-                    cout << "WARNING: no area detector found on lane (" << *it2 << "). No queue measurement is available for this lane." << endl;
+                    std::cout << "WARNING: no area detector found on lane (" << *it2 << "). No queue measurement is available for this lane." << endl;
             }
         }
-        cout << endl;
+        std::cout << endl;
     }
 }
 
@@ -217,21 +217,21 @@ void LoopDetectors::getAllDetectors()
 void LoopDetectors::collectLDsData()
 {
     // get all loop detectors
-    list<string> str = TraCI->LDGetIDList();
+    std::list<std::string> str = TraCI->LDGetIDList();
 
     // for each loop detector
-    for (list<string>::iterator it=str.begin(); it != str.end(); ++it)
+    for (std::list<std::string>::iterator it=str.begin(); it != str.end(); ++it)
     {
-        vector<string>  st = TraCI->LDGetLastStepVehicleData(*it);
+        std::vector<std::string>  st = TraCI->LDGetLastStepVehicleData(*it);
 
         // only if this loop detector detected a vehicle
         if( st.size() > 0 )
         {
             // laneID of loop detector
-            string lane = TraCI->LDGetLaneID(*it);
+            std::string lane = TraCI->LDGetLaneID(*it);
 
             // get vehicle information
-            string vehicleName = st.at(0);
+            std::string vehicleName = st.at(0);
             double entryT = atof( st.at(2).c_str() );
             double leaveT = atof( st.at(3).c_str() );
             double speed = TraCI->LDGetLastStepMeanVehicleSpeed(*it);  // vehicle speed at current moment
@@ -239,19 +239,20 @@ void LoopDetectors::collectLDsData()
             // save it only when collectInductionLoopData=true
             if(collectInductionLoopData)
             {
-                int counter = findInVector(Vec_loopDetectors, (*it).c_str(), vehicleName.c_str());
+                const LoopDetectorData *searchFor = new LoopDetectorData( (*it).c_str(), "", vehicleName.c_str() );
+                std::vector<LoopDetectorData>::iterator counter = std::find(Vec_loopDetectors.begin(), Vec_loopDetectors.end(), *searchFor);
 
                 // its a new entry, so we add it
-                if(counter == -1)
+                if(counter == Vec_loopDetectors.end())
                 {
                     LoopDetectorData *tmp = new LoopDetectorData( (*it).c_str(), lane.c_str(), vehicleName.c_str(), entryT, leaveT, speed, speed );
-                    Vec_loopDetectors.push_back(tmp);
+                    Vec_loopDetectors.push_back(*tmp);
                 }
                 // if found, just update leaveTime and leaveSpeed
                 else
                 {
-                    Vec_loopDetectors[counter]->leaveTime = leaveT;
-                    Vec_loopDetectors[counter]->leaveSpeed = speed;
+                    counter->leaveTime = leaveT;
+                    counter->leaveSpeed = speed;
                 }
             }
         }
@@ -271,7 +272,7 @@ void LoopDetectors::saveLDsData()
     {
         // get the current run number
         int currentRun = ev.getConfigEx()->getActiveRunNumber();
-        ostringstream fileName;
+        std::ostringstream fileName;
         fileName << currentRun << "_loopDetector.txt";
         filePath = "results/cmd/" + fileName.str();
     }
@@ -288,39 +289,18 @@ void LoopDetectors::saveLDsData()
     fprintf (filePtr, "%-22s\n\n","vehicleLeaveSpeed");
 
     // write body
-    for(vector<LoopDetectorData *>::iterator y = Vec_loopDetectors.begin(); y != Vec_loopDetectors.end(); y++)
+    for(std::vector<LoopDetectorData>::iterator y = Vec_loopDetectors.begin(); y != Vec_loopDetectors.end(); y++)
     {
-        fprintf (filePtr, "%-30s ", (*y)->detectorName);
-        fprintf (filePtr, "%-20s ", (*y)->lane);
-        fprintf (filePtr, "%-20s ", (*y)->vehicleName);
-        fprintf (filePtr, "%-20.2f ", (*y)->entryTime);
-        fprintf (filePtr, "%-20.2f ", (*y)->leaveTime);
-        fprintf (filePtr, "%-20.2f ", (*y)->entrySpeed);
-        fprintf (filePtr, "%-20.2f\n", (*y)->leaveSpeed);
+        fprintf (filePtr, "%-30s ", y->detectorName);
+        fprintf (filePtr, "%-20s ", y->lane);
+        fprintf (filePtr, "%-20s ", y->vehicleName);
+        fprintf (filePtr, "%-20.2f ", y->entryTime);
+        fprintf (filePtr, "%-20.2f ", y->leaveTime);
+        fprintf (filePtr, "%-20.2f ", y->entrySpeed);
+        fprintf (filePtr, "%-20.2f\n", y->leaveSpeed);
     }
 
     fclose(filePtr);
-}
-
-
-int LoopDetectors::findInVector(vector<LoopDetectorData *> Vec, const char *detectorName, const char *vehicleName)
-{
-    unsigned int counter;
-    bool found = false;
-
-    for(counter = 0; counter < Vec.size(); counter++)
-    {
-        if( strcmp(Vec[counter]->detectorName, detectorName) == 0 && strcmp(Vec[counter]->vehicleName, vehicleName) == 0)
-        {
-            found = true;
-            break;
-        }
-    }
-
-    if(!found)
-        return -1;
-    else
-        return counter;
 }
 
 
@@ -328,9 +308,9 @@ int LoopDetectors::findInVector(vector<LoopDetectorData *> Vec, const char *dete
 void LoopDetectors::measureTD()
 {
     // for each loop detector that measures the traffic demand
-    for (map<string,string>::iterator it=LD_demand.begin(); it != LD_demand.end(); ++it)
+    for (std::map<std::string,std::string>::iterator it=LD_demand.begin(); it != LD_demand.end(); ++it)
     {
-        if( string( (*it).second ) == "demand_WC_3" )
+        if( std::string( (*it).second ) == "demand_WC_3" )
         {
             double lastDetectionT = TraCI->LDGetElapsedTimeLastDetection( (*it).second );
 
@@ -348,7 +328,7 @@ void LoopDetectors::measureTD()
 
             total = total + lastDetectionT_old;
 
-            //cout << endl << passedVeh << ", " << total << ", " << (3600 * passedVeh)/total << endl;
+            //std::cout << endl << passedVeh << ", " << total << ", " << (3600 * passedVeh)/total << endl;
 
             lastDetectionT_old = lastDetectionT;
         }
@@ -358,45 +338,45 @@ void LoopDetectors::measureTD()
 
 void LoopDetectors::measureQ()
 {
-    for (list<string>::iterator it = TLList.begin(); it != TLList.end(); ++it)
+    for (std::list<std::string>::iterator it = TLList.begin(); it != TLList.end(); ++it)
     {
-        list<string> lan = TraCI->TLGetControlledLanes(*it);
+        std::list<std::string> lan = TraCI->TLGetControlledLanes(*it);
 
         // remove duplicate entries
         lan.unique();
 
         // for each incoming lane
-        for(list<string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
+        for(std::list<std::string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
         {
             // make sure we have an area detector in this lane
             if( AD_queue.find(*it2) == AD_queue.end() )
                 continue;
 
-            string ADid = AD_queue[*it2];
+            std::string ADid = AD_queue[*it2];
             int q = TraCI->LADGetLastStepVehicleHaltingNumber(ADid);
 
             // update laneQueueSize
-            map<string,pair<string,int>>::iterator location = laneQueueSize.find(*it2);
-            pair<string,int> store = location->second;
-            location->second = make_pair( store.first, q );
+            std::map<std::string,std::pair<std::string,int>>::iterator location = laneQueueSize.find(*it2);
+            std::pair<std::string,int> store = location->second;
+            location->second = std::make_pair( store.first, q );
 
             IntersectionQueueData *tmp = new IntersectionQueueData( simTime().dbl(), (*it).c_str(), (*it2).c_str(), q );
-            Vec_queueSize.push_back(tmp);
+            Vec_queueSize.push_back(*tmp);
         }
     }
 
-    for (list<string>::iterator it = TLList.begin(); it != TLList.end(); ++it)
+    for (std::list<std::string>::iterator it = TLList.begin(); it != TLList.end(); ++it)
     {
-        map<int,string> result = TraCI->TLGetControlledLinks(*it);
+        std::map<int,std::string> result = TraCI->TLGetControlledLinks(*it);
 
         // for each link in this TLid
-        for(map<int,string>::iterator it2 = result.begin(); it2 != result.end(); ++it2)
+        for(std::map<int,std::string>::iterator it2 = result.begin(); it2 != result.end(); ++it2)
         {
-            string incommingLane;
-            char_separator<char> sep("|");
-            tokenizer< char_separator<char> > tokens((*it2).second, sep);
+            std::string incommingLane;
+            boost::char_separator<char> sep("|");
+            boost::tokenizer< boost::char_separator<char> > tokens((*it2).second, sep);
 
-            for(tokenizer< char_separator<char> >::iterator beg=tokens.begin(); beg!=tokens.end(); ++beg)
+            for(boost::tokenizer< boost::char_separator<char> >::iterator beg=tokens.begin(); beg!=tokens.end(); ++beg)
             {
                 incommingLane = (*beg).c_str();
                 break;
@@ -406,10 +386,10 @@ void LoopDetectors::measureQ()
             if( AD_queue.find(incommingLane) == AD_queue.end() )
                 continue;
 
-            string ADid = AD_queue[incommingLane];
+            std::string ADid = AD_queue[incommingLane];
             int q = TraCI->LADGetLastStepVehicleHaltingNumber(ADid);
 
-            map<pair<string,int>, int>::iterator location = linkQueueSize.find( make_pair(*it,(*it2).first) );
+            std::map<std::pair<std::string,int>, int>::iterator location = linkQueueSize.find( make_pair(*it,(*it2).first) );
             location->second = q;
         }
     }
@@ -428,7 +408,7 @@ void LoopDetectors::saveQueueData()
     {
         // get the current run number
         int currentRun = ev.getConfigEx()->getActiveRunNumber();
-        ostringstream fileName;
+        std::ostringstream fileName;
         fileName << currentRun << "_queueSize.txt";
         filePath = "results/cmd/" + fileName.str();
     }
@@ -444,18 +424,18 @@ void LoopDetectors::saveQueueData()
     double oldTime = -1;
 
     // write body
-    for(vector<IntersectionQueueData *>::iterator y = Vec_queueSize.begin(); y != Vec_queueSize.end(); y++)
+    for(std::vector<IntersectionQueueData>::iterator y = Vec_queueSize.begin(); y != Vec_queueSize.end(); y++)
     {
-        if(oldTime != (*y)->time)
+        if(oldTime != y->time)
         {
             fprintf(filePtr, "\n");
-            oldTime = (*y)->time;
+            oldTime = y->time;
         }
 
-        fprintf (filePtr, "%-20.2f ", (*y)->time);
-        fprintf (filePtr, "%-20s ", (*y)->TLid);
-        fprintf (filePtr, "%-20s ", (*y)->lane);
-        fprintf (filePtr, "%-20d\n", (*y)->qSize);
+        fprintf (filePtr, "%-20.2f ", y->time);
+        fprintf (filePtr, "%-20s ", y->TLid);
+        fprintf (filePtr, "%-20s ", y->lane);
+        fprintf (filePtr, "%-20d\n", y->qSize);
     }
 
     fclose(filePtr);

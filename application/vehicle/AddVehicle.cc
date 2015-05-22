@@ -143,14 +143,14 @@ void AddVehicle::Scenario1()
 {
     int depart = 0;
 
-     for(int i=1; i<=totalVehicles; i++)
-     {
-         char vehicleName[10];
-         sprintf(vehicleName, "CACC%d", i);
-         depart = depart + 10000;
+    for(int i=1; i<=totalVehicles; i++)
+    {
+        char vehicleName[10];
+        sprintf(vehicleName, "CACC%d", i);
+        depart = depart + 10000;
 
-         TraCI->vehicleAdd(vehicleName, "TypeCACC1", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
-     }
+        TraCI->vehicleAdd(vehicleName, "TypeCACC1", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
+    }
 }
 
 
@@ -158,14 +158,14 @@ void AddVehicle::Scenario2()
 {
     int depart = 0;
 
-     for(int i=1; i<=totalVehicles; i++)
-     {
-         char vehicleName[10];
-         sprintf(vehicleName, "CACC%d", i);
-         depart = depart + 10000;
+    for(int i=1; i<=totalVehicles; i++)
+    {
+        char vehicleName[10];
+        sprintf(vehicleName, "CACC%d", i);
+        depart = depart + 10000;
 
-         TraCI->vehicleAdd(vehicleName, "TypeCACC2", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
-     }
+        TraCI->vehicleAdd(vehicleName, "TypeCACC2", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
+    }
 }
 
 
@@ -173,14 +173,14 @@ void AddVehicle::Scenario3()
 {
     int depart = 0;
 
-     for(int i=1; i<=totalVehicles; i++)
-     {
-         char vehicleName[10];
-         sprintf(vehicleName, "CACC%d", i);
-         depart = depart + 10000;
+    for(int i=1; i<=totalVehicles; i++)
+    {
+        char vehicleName[10];
+        sprintf(vehicleName, "CACC%d", i);
+        depart = depart + 10000;
 
-         TraCI->vehicleAdd(vehicleName, "TypeCACC3", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
-     }
+        TraCI->vehicleAdd(vehicleName, "TypeCACC3", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
+    }
 }
 
 
@@ -209,23 +209,23 @@ void AddVehicle::Scenario5()
 {
     int depart = 0;
 
-     for(int i=1; i<=10; i++)
-     {
-         char vehicleName[10];
-         sprintf(vehicleName, "CACC%d", i);
-         depart = depart + 1000;
+    for(int i=1; i<=10; i++)
+    {
+        char vehicleName[10];
+        sprintf(vehicleName, "CACC%d", i);
+        depart = depart + 1000;
 
-         TraCI->vehicleAdd(vehicleName, "TypeCACC1", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
-     }
+        TraCI->vehicleAdd(vehicleName, "TypeCACC1", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
+    }
 
-     for(int i=11; i<=100; i++)
-     {
-         char vehicleName[10];
-         sprintf(vehicleName, "CACC%d", i);
-         depart = depart + 10000;
+    for(int i=11; i<=100; i++)
+    {
+        char vehicleName[10];
+        sprintf(vehicleName, "CACC%d", i);
+        depart = depart + 10000;
 
-         TraCI->vehicleAdd(vehicleName, "TypeCACC1", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
-     }
+        TraCI->vehicleAdd(vehicleName, "TypeCACC1", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
+    }
 }
 
 
@@ -303,35 +303,35 @@ void AddVehicle::Scenario7()
 
 bool fexists(const char *filename)
 {
-    ifstream ifile(filename);
+    std::ifstream ifile(filename);
     return ifile;
 }
 
-vector<string> getEdgeNames(string netName)
+std::vector<std::string> getEdgeNames(std::string netName)
 {
-  vector<string> edgeNames;
+    std::vector<std::string> edgeNames;
 
-  file <> xmlFile(netName.c_str());
-  xml_document<> doc;
-  xml_node<> *node;
-  doc.parse<0>(xmlFile.data());
-  for(node = doc.first_node()->first_node("edge"); node; node = node->next_sibling("edge"))
-    edgeNames.push_back(node->first_attribute()->value());
+    rapidxml::file <> xmlFile(netName.c_str());
+    rapidxml::xml_document<> doc;
+    rapidxml::xml_node<> *node;
+    doc.parse<0>(xmlFile.data());
+    for(node = doc.first_node()->first_node("edge"); node; node = node->next_sibling("edge"))
+        edgeNames.push_back(node->first_attribute()->value());
 
-  return edgeNames;
+    return edgeNames;
 }
 
-vector<string> getNodeNames(string netName)
+std::vector<std::string> getNodeNames(std::string netName)
 {
-  vector<string> nodeNames;
-  file <> xmlFile(netName.c_str());
-  xml_document<> doc;
-  xml_node<> *node;
-  doc.parse<0>(xmlFile.data());
-  for(node = doc.first_node()->first_node("junction"); node; node = node->next_sibling("junction"))
-    nodeNames.push_back(node->first_attribute()->value());
+    std::vector<std::string> nodeNames;
+    rapidxml::file <> xmlFile(netName.c_str());
+    rapidxml::xml_document<> doc;
+    rapidxml::xml_node<> *node;
+    doc.parse<0>(xmlFile.data());
+    for(node = doc.first_node()->first_node("junction"); node; node = node->next_sibling("junction"))
+        nodeNames.push_back(node->first_attribute()->value());
 
-  return nodeNames;
+    return nodeNames;
 }
 
 double curve(double x)  //Input will linearly increase from 0 to 1, from first to last vehicle.
@@ -339,29 +339,29 @@ double curve(double x)  //Input will linearly increase from 0 to 1, from first t
     return x;
 }
 
-void generateVehicles(string dir, Router* r)
+void generateVehicles(std::string dir, Router* r)
 {
-  string netName = dir + "/hello.net.xml";
-  string vName = dir + "/Vehicles" + SSTR(r->totalVehicleCount) + ".xml";
-  ifstream netFile(netName.c_str());
+    std::string netName = dir + "/hello.net.xml";
+    std::string vName = dir + "/Vehicles" + SSTR(r->totalVehicleCount) + ".xml";
+    std::ifstream netFile(netName.c_str());
 
-  srand(time(NULL));
-  vector<string> edgeNames = getEdgeNames(netName);
-  vector<string> nodeNames = getNodeNames(netName);
+    srand(time(NULL));
+    std::vector<std::string> edgeNames = getEdgeNames(netName);
+    std::vector<std::string> nodeNames = getNodeNames(netName);
 
-  ofstream vFile(vName.c_str());
-  vFile << "<vehicles>" << endl;
-  for(int i = 1; i <= r->totalVehicleCount; i++)
-  {
-    string edge = edgeNames[rand() % edgeNames.size()];
-    string node = nodeNames[rand() % nodeNames.size()];
-    //vFile << "   <vehicle id=\"v" << i << "\" type=\"TypeManual\" origin=\"" << edge << "\" destination=\"" << node << "\" depart=\"" << i * r->createTime / r->totalVehicleCount << "\" />" << endl;
+    std::ofstream vFile(vName.c_str());
+    vFile << "<vehicles>" << endl;
+    for(int i = 1; i <= r->totalVehicleCount; i++)
+    {
+        std::string edge = edgeNames[rand() % edgeNames.size()];
+        std::string node = nodeNames[rand() % nodeNames.size()];
+        //vFile << "   <vehicle id=\"v" << i << "\" type=\"TypeManual\" origin=\"" << edge << "\" destination=\"" << node << "\" depart=\"" << i * r->createTime / r->totalVehicleCount << "\" />" << endl;
 
-    vFile << "   <vehicle id=\"v" << i << "\" type=\"TypeManual\" origin=\"" << edge << "\" destination=\""
-          << node << "\" depart=\"" << curve((double)i/r->totalVehicleCount) * r->createTime << "\" />" << endl;
-  }
-  vFile << "</vehicles>" << endl;
-  vFile.close();
+        vFile << "   <vehicle id=\"v" << i << "\" type=\"TypeManual\" origin=\"" << edge << "\" destination=\""
+                << node << "\" depart=\"" << curve((double)i/r->totalVehicleCount) * r->createTime << "\" />" << endl;
+    }
+    vFile << "</vehicles>" << endl;
+    vFile.close();
 }
 
 void AddVehicle::Scenario8()
@@ -378,8 +378,8 @@ void AddVehicle::Scenario8()
         error("SUMO directory is not valid! Check it again.");
     }
 
-    string vehFile = ("/Vehicles" + SSTR(r->totalVehicleCount) + ".xml");
-    string xmlFileName = SUMO_FullPath.string();
+    std::string vehFile = ("/Vehicles" + SSTR(r->totalVehicleCount) + ".xml");
+    std::string xmlFileName = SUMO_FullPath.string();
     xmlFileName += vehFile;
 
     if(!fexists(xmlFileName.c_str()))
@@ -387,17 +387,17 @@ void AddVehicle::Scenario8()
         generateVehicles(SUMO_FullPath.string(), r);
     }
 
-    file<> xmlFile( xmlFileName.c_str() );     // Convert our file to a rapid-xml readable object
-    xml_document<> doc;                        // Build a rapidxml doc
+    rapidxml::file<> xmlFile( xmlFileName.c_str() );     // Convert our file to a rapid-xml readable object
+    rapidxml::xml_document<> doc;                        // Build a rapidxml doc
     doc.parse<0>(xmlFile.data());              // Fill it with data from our file
-    xml_node<> *node = doc.first_node("vehicles"); // Parse up to the "nodes" declaration
+    rapidxml::xml_node<> *node = doc.first_node("vehicles"); // Parse up to the "nodes" declaration
 
-    string id, type, origin, destination;
+    std::string id, type, origin, destination;
     double depart;
     for(node = node->first_node("vehicle"); node; node = node->next_sibling()) // For each vehicle
     {
         int readCount = 0;
-        for(xml_attribute<> *attr = node->first_attribute(); attr; attr = attr->next_attribute())//For each attribute
+        for(rapidxml::xml_attribute<> *attr = node->first_attribute(); attr; attr = attr->next_attribute())//For each attribute
         {
             switch(readCount)   //Read that attribute to the right variable
             {
@@ -426,9 +426,9 @@ void AddVehicle::Scenario8()
 
         r->net->vehicles[id] = new Vehicle(id, type, origin, destination, depart);
 
-        list<string> routeList = TraCI->routeGetIDList();   //Get all the routes so far
+        std::list<std::string> routeList = TraCI->routeGetIDList();   //Get all the routes so far
         bool foundRoute = 0;
-        for(list<string>::iterator it = routeList.begin(); it != routeList.end(); it++)   //Loop through them
+        for(std::list<std::string>::iterator it = routeList.begin(); it != routeList.end(); it++)   //Loop through them
         {
             //cout << "Found route " << *it << endl;
             if(*it == origin)   //If we find the route named after this vehicle's starting edge, do nothing
@@ -439,7 +439,7 @@ void AddVehicle::Scenario8()
         if(!foundRoute) //Otherwise, build a new route
         {
             //cout << "Made route " << origin << endl;
-            list<string> startRoute;
+            std::list<std::string> startRoute;
             startRoute.push_back(origin);   //With just the starting edge
             TraCI->routeAdd(origin, startRoute);   //And add it to the simulation
         }
@@ -588,25 +588,25 @@ void AddVehicle::Scenario9()
 
     // right on the LD at the end of the Gmin
     // -------------------------------------------------------------
-//    TraCI->vehicleAdd("Veh1", "TypeManual", "route4", 9100, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-//    TraCI->vehicleAdd("Veh2", "TypeManual", "route4", 15000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-//    TraCI->vehicleAdd("Veh3", "TypeManual", "route4", 20000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+    //    TraCI->vehicleAdd("Veh1", "TypeManual", "route4", 9100, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+    //    TraCI->vehicleAdd("Veh2", "TypeManual", "route4", 15000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+    //    TraCI->vehicleAdd("Veh3", "TypeManual", "route4", 20000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
     // -------------------------------------------------------------
 
 
     // a little bit after the LD at the end of the Gmin
     // -------------------------------------------------------------
-//    TraCI->vehicleAdd("Veh1", "TypeManual", "route4", 8500, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-//    TraCI->vehicleAdd("Veh2", "TypeManual", "route4", 15000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-//    TraCI->vehicleAdd("Veh3", "TypeManual", "route4", 20000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+    //    TraCI->vehicleAdd("Veh1", "TypeManual", "route4", 8500, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+    //    TraCI->vehicleAdd("Veh2", "TypeManual", "route4", 15000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+    //    TraCI->vehicleAdd("Veh3", "TypeManual", "route4", 20000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
     // -------------------------------------------------------------
 
 
     // a little bit after the LD at the end of the Gmin
     // -------------------------------------------------------------
-//    TraCI->vehicleAdd("Veh1", "TypeManual", "route4", 8600, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-//    TraCI->vehicleAdd("Veh2", "TypeManual", "route4", 8600, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-//    TraCI->vehicleAdd("Veh3", "TypeManual", "route4", 8600, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+    //    TraCI->vehicleAdd("Veh1", "TypeManual", "route4", 8600, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+    //    TraCI->vehicleAdd("Veh2", "TypeManual", "route4", 8600, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+    //    TraCI->vehicleAdd("Veh3", "TypeManual", "route4", 8600, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
     // -------------------------------------------------------------
 
 
@@ -626,24 +626,24 @@ void AddVehicle::Scenario9()
 
 
 
-//    TraCI->vehicleAdd("Veh1", "TypeManual", "route1", 5000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-//    TraCI->vehicleAdd("Veh2", "TypeManual", "route2", 10000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-//    TraCI->vehicleAdd("Bike1", "TypeBicycle", "route1", 15000, 0 /*pos*/, 0 /*speed*/, 2 /*lane*/);
-//
-//    TraCI->vehicleAdd("Veh3", "TypeManual", "route4", 20000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-//    TraCI->vehicleAdd("Veh4", "TypeManual", "route6", 25000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-//    TraCI->vehicleAdd("Bike2", "TypeBicycle", "route4", 30000, 0 /*pos*/, 0 /*speed*/, 2 /*lane*/);
-//
-//    TraCI->vehicleAdd("Veh5", "TypeManual", "route8", 5000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-//    TraCI->vehicleAdd("Veh6", "TypeManual", "route9", 10000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-//    TraCI->vehicleAdd("Bike3", "TypeBicycle", "route7", 15000, 0 /*pos*/, 0 /*speed*/, 2 /*lane*/);
-//
-//    TraCI->vehicleAdd("Veh7", "TypeManual", "route10", 20000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-//    TraCI->vehicleAdd("Veh8", "TypeManual", "route12", 25000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-//    TraCI->vehicleAdd("Bike4", "TypeBicycle", "route10", 30000, 0 /*pos*/, 0 /*speed*/, 2 /*lane*/);
-//
-//    TraCI->vehicleAdd("Veh9", "TypeManual", "route1", 6000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-//    TraCI->vehicleAdd("Veh10", "TypeManual", "route8", 6000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+    //    TraCI->vehicleAdd("Veh1", "TypeManual", "route1", 5000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+    //    TraCI->vehicleAdd("Veh2", "TypeManual", "route2", 10000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+    //    TraCI->vehicleAdd("Bike1", "TypeBicycle", "route1", 15000, 0 /*pos*/, 0 /*speed*/, 2 /*lane*/);
+    //
+    //    TraCI->vehicleAdd("Veh3", "TypeManual", "route4", 20000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+    //    TraCI->vehicleAdd("Veh4", "TypeManual", "route6", 25000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+    //    TraCI->vehicleAdd("Bike2", "TypeBicycle", "route4", 30000, 0 /*pos*/, 0 /*speed*/, 2 /*lane*/);
+    //
+    //    TraCI->vehicleAdd("Veh5", "TypeManual", "route8", 5000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+    //    TraCI->vehicleAdd("Veh6", "TypeManual", "route9", 10000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+    //    TraCI->vehicleAdd("Bike3", "TypeBicycle", "route7", 15000, 0 /*pos*/, 0 /*speed*/, 2 /*lane*/);
+    //
+    //    TraCI->vehicleAdd("Veh7", "TypeManual", "route10", 20000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+    //    TraCI->vehicleAdd("Veh8", "TypeManual", "route12", 25000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+    //    TraCI->vehicleAdd("Bike4", "TypeBicycle", "route10", 30000, 0 /*pos*/, 0 /*speed*/, 2 /*lane*/);
+    //
+    //    TraCI->vehicleAdd("Veh9", "TypeManual", "route1", 6000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+    //    TraCI->vehicleAdd("Veh10", "TypeManual", "route8", 6000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
 }
 
 }

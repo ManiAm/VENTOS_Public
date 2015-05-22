@@ -52,7 +52,7 @@ class Warmup : public BaseModule
         AddVehicle *AddVehiclePtr;
         simsignal_t Signal_executeEachTS;
         bool on;
-        string laneId;
+        std::string laneId;
         double stopPosition;  // the position that first vehicle should stop waiting for others
         double warmUpSpeed;
         double waitingTime;

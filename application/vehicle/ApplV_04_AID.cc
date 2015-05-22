@@ -103,7 +103,7 @@ void ApplV_AID::onData(PlatoonMsg* wsm)
 }
 
 
-LaneChangeMsg*  ApplV_AID::prepareData(string receiver, deque<string> vecValue)
+LaneChangeMsg*  ApplV_AID::prepareData(std::string receiver, std::deque<std::string> vecValue)
 {
     LaneChangeMsg* wsm = new LaneChangeMsg("laneChangeMsg");
 
@@ -152,7 +152,7 @@ void ApplV_AID::printDataContent(LaneChangeMsg* wsm)
     EV << wsm->getSender() << " | ";
     EV << wsm->getRecipient() << " | ";
 
-    deque<string> tmp = wsm->getLaneChange();
+    std::deque<std::string> tmp = wsm->getLaneChange();
 
     for(unsigned int i = 0; i< tmp.size(); i++)
     {
@@ -178,7 +178,7 @@ void ApplV_AID::handlePositionUpdate(cObject* obj)
     // if we change lane
     if(fromLane != toLane)
     {
-        ostringstream str;
+        std::ostringstream str;
         toX =  ( TraCI->vehicleGetPosition(SUMOvID) ).x;
         str << fromLane <<  "#" << toLane << "#" << fromX << "#" << toX << "#" << simTime().dbl();
         laneChanges.push_back( str.str() );

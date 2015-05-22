@@ -62,7 +62,7 @@ class MIXIM_API RSUMobility : public BaseMobility
     // Class variables
     int myId;
     const char *myFullId;
-    deque<RSUEntry*> RSUs;
+    std::deque<RSUEntry*> RSUs;
 };
 
 }

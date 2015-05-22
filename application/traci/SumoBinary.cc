@@ -75,10 +75,10 @@ void SumoBinary::checkIfBinaryExists()
     // both binaries are missing
     if( !exists( SUMO_CMD_Binary_FullPath ) && !exists( SUMO_GUI_Binary_FullPath ) )
     {
-        cout << "\nNo SUMO binaries found in " << SUMO_Binary_FullPath.string() << endl;
-        cout << "Do you want to download the latest SUMO binaries? [y/n]: ";
-        string answer;
-        cin >> answer;
+        std::cout << "\nNo SUMO binaries found in " << SUMO_Binary_FullPath.string() << endl;
+        std::cout << "Do you want to download the latest SUMO binaries? [y/n]: ";
+        std::string answer;
+        std::cin >> answer;
         boost::algorithm::to_lower(answer);
 
         if(answer == "y")
@@ -87,15 +87,15 @@ void SumoBinary::checkIfBinaryExists()
             downloadBinary(SUMO_CMD_FileName, SUMO_CMD_Binary_FullPath.string(), SUMO_CMD_URL);
         }
         else
-            cout << "Ok! have fun." << endl;
+            std::cout << "Ok! have fun." << endl;
     }
     // only GUI binary is missing
     else if( exists( SUMO_CMD_Binary_FullPath ) && !exists( SUMO_GUI_Binary_FullPath ) )
     {
-        cout << "\nSUMO GUI binary is missing in " << SUMO_Binary_FullPath.string() << endl;
-        cout << "Do you want to download it ? [y/n]: ";
-        string answer;
-        cin >> answer;
+        std::cout << "\nSUMO GUI binary is missing in " << SUMO_Binary_FullPath.string() << endl;
+        std::cout << "Do you want to download it ? [y/n]: ";
+        std::string answer;
+        std::cin >> answer;
         boost::algorithm::to_lower(answer);
 
         if(answer == "y")
@@ -106,10 +106,10 @@ void SumoBinary::checkIfBinaryExists()
     // only CMD binary is missing
     else if( !exists( SUMO_CMD_Binary_FullPath ) && exists( SUMO_GUI_Binary_FullPath ) )
     {
-        cout << "\nSUMO CMD binary is missing in " << SUMO_Binary_FullPath.string() << endl;
-        cout << "Do you want to download it ? [y/n]: ";
-        string answer;
-        cin >> answer;
+        std::cout << "\nSUMO CMD binary is missing in " << SUMO_Binary_FullPath.string() << endl;
+        std::cout << "Do you want to download it ? [y/n]: ";
+        std::string answer;
+        std::cin >> answer;
         boost::algorithm::to_lower(answer);
 
         if(answer == "y")
@@ -132,10 +132,10 @@ size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream)
     return written;
 }
 
-void SumoBinary::downloadBinary(string binaryName, string filePath, string url)
+void SumoBinary::downloadBinary(std::string binaryName, std::string filePath, std::string url)
 {
-    cout << "Downloading " << binaryName << " ... ";
-    cout.flush();
+    std::cout << "Downloading " << binaryName << " ... ";
+    std::cout.flush();
 
     FILE *fp = fopen(filePath.c_str(), "wb");
     if(fp == NULL)
@@ -170,7 +170,7 @@ void SumoBinary::downloadBinary(string binaryName, string filePath, string url)
     }
     else
     {
-        cout << " done!" << endl;
+        std::cout << " done!" << endl;
         fclose(fp);
         makeExecutable(binaryName, filePath);
     }
@@ -179,10 +179,10 @@ void SumoBinary::downloadBinary(string binaryName, string filePath, string url)
 }
 
 
-void SumoBinary::makeExecutable(string binaryName, string filePath)
+void SumoBinary::makeExecutable(std::string binaryName, std::string filePath)
 {
-    cout << "Making " << binaryName << " executable ... ";
-    cout.flush();
+    std::cout << "Making " << binaryName << " executable ... ";
+    std::cout.flush();
 
     char command[100];
     sprintf(command, "chmod +x %s", filePath.c_str());
@@ -190,12 +190,12 @@ void SumoBinary::makeExecutable(string binaryName, string filePath)
     FILE* pipe = popen(command, "r");
     if (!pipe)
     {
-        cout << "failed! (can not open pipe)" << endl;
+        std::cout << "failed! (can not open pipe)" << endl;
         return;
     }
 
     char buffer[128];
-    string result = "";
+    std::string result = "";
     while(!feof(pipe))
     {
         if(fgets(buffer, 128, pipe) != NULL)
@@ -203,7 +203,7 @@ void SumoBinary::makeExecutable(string binaryName, string filePath)
     }
     pclose(pipe);
 
-    cout << " done!" << endl;
+    std::cout << " done!" << endl;
 }
 
 
@@ -249,13 +249,13 @@ int SumoBinary::getRemoteVersion()
 }
 
 
-void SumoBinary::checkIfNewerVersionExists(string binaryName, string filePath, string url)
+void SumoBinary::checkIfNewerVersionExists(std::string binaryName, std::string filePath, std::string url)
 {
     if(!update)
         return;
 
-    cout << "Checking for " << binaryName << "'s update ... ";
-    cout.flush();
+    std::cout << "Checking for " << binaryName << "'s update ... ";
+    std::cout.flush();
 
     // get the local version
     char command[100];
@@ -264,12 +264,12 @@ void SumoBinary::checkIfNewerVersionExists(string binaryName, string filePath, s
     FILE* pipe = popen(command, "r");
     if (!pipe)
     {
-        cout << "failed! (can not open pipe)" << endl;
+        std::cout << "failed! (can not open pipe)" << endl;
         return;
     }
 
     char buffer[128];
-    string result = "";
+    std::string result = "";
     while(!feof(pipe))
     {
         if(fgets(buffer, 128, pipe) != NULL)
@@ -278,17 +278,17 @@ void SumoBinary::checkIfNewerVersionExists(string binaryName, string filePath, s
     pclose(pipe);
 
     // get the first line of the output
-    char_separator<char> sep("\n");
-    tokenizer< char_separator<char> > tokens(result, sep);
-    string firstLine;
-    for(tokenizer< char_separator<char> >::iterator beg=tokens.begin(); beg!=tokens.end();++beg)
+    boost::char_separator<char> sep("\n");
+    boost::tokenizer< boost::char_separator<char> > tokens(result, sep);
+    std::string firstLine;
+    for(boost::tokenizer< boost::char_separator<char> >::iterator beg=tokens.begin(); beg!=tokens.end();++beg)
     {
         firstLine = (*beg).c_str();
         break;
     }
 
     std::size_t pos = firstLine.find("dev-SVN-");
-    string localVer = firstLine.substr(pos);
+    std::string localVer = firstLine.substr(pos);
 
     // now get the remote version
     int val = getRemoteVersion();
@@ -297,22 +297,22 @@ void SumoBinary::checkIfNewerVersionExists(string binaryName, string filePath, s
         return;
 
     // get the first line of remoteVer
-    char_separator<char> sep2("\n");
-    tokenizer< char_separator<char> > tokens2(remoteVer, sep2);
-    for(tokenizer< char_separator<char> >::iterator beg=tokens2.begin(); beg!=tokens2.end();++beg)
+    boost::char_separator<char> sep2("\n");
+    boost::tokenizer< boost::char_separator<char> > tokens2(remoteVer, sep2);
+    for(boost::tokenizer< boost::char_separator<char> >::iterator beg=tokens2.begin(); beg!=tokens2.end();++beg)
     {
         remoteVer = (*beg).c_str();
         break;
     }
 
     if( localVer.compare(remoteVer) == 0 )
-        cout << "Up to date!" << endl;
+        std::cout << "Up to date!" << endl;
     else if( localVer.compare(remoteVer) < 0 )
     {
-        cout << "\nYour current version is " << localVer << endl;
-        cout << "Do you want to update to version " << remoteVer << " ? [y/n]: ";
-        string answer;
-        cin >> answer;
+        std::cout << "\nYour current version is " << localVer << endl;
+        std::cout << "Do you want to update to version " << remoteVer << " ? [y/n]: ";
+        std::string answer;
+        std::cin >> answer;
         boost::algorithm::to_lower(answer);
 
         if(answer == "y")

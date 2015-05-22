@@ -91,8 +91,8 @@ void TrafficLightVANET::handleMessage(cMessage *msg)
     }
     else if (msg == DetectEvt)
     {
-        list<string> VehList = TraCI->vehicleGetIDList();
-        for(list<string>::iterator V = VehList.begin(); V != VehList.end(); V++)
+        std::list<std::string> VehList = TraCI->vehicleGetIDList();
+        for(std::list<std::string>::iterator V = VehList.begin(); V != VehList.end(); V++)
         {
             Coord pos = TraCI->vehicleGetPosition(*V);
 
@@ -101,7 +101,7 @@ void TrafficLightVANET::handleMessage(cMessage *msg)
                     (pos.y > 65 && pos.y < 69) || (pos.y > 131 && pos.y < 135))
             {
                 // If in lane of interest (heading towards TL):
-                string lane = TraCI->vehicleGetLaneID(*V);
+                std::string lane = TraCI->vehicleGetLaneID(*V);
                 if (lane == "EC_2" || lane == "EC_3" || lane == "EC_4" ||
                         lane == "NC_2" || lane == "NC_3" || lane == "NC_4" ||
                         lane == "SC_2" || lane == "SC_3" || lane == "SC_4" ||
@@ -126,9 +126,9 @@ void TrafficLightVANET::executeFirstTimeStep()
     if(TLControlMode != 5)
         return;
 
-    cout << "VANET traffic signal control ..." << endl << endl;
+    std::cout << "VANET traffic signal control ..." << endl << endl;
 
-    for (list<string>::iterator TL = TLList.begin(); TL != TLList.end(); TL++)
+    for (std::list<std::string>::iterator TL = TLList.begin(); TL != TLList.end(); TL++)
     {
         TraCI->TLSetProgram(*TL, "adaptive-time");
         TraCI->TLSetState(*TL, phase1_5);
@@ -136,7 +136,7 @@ void TrafficLightVANET::executeFirstTimeStep()
 
     char buff[300];
     sprintf(buff, "Sim time: %4.2f | Interval finish time: %4.2f | Current interval: %s", simTime().dbl(), simTime().dbl() + intervalOffSet, currentInterval.c_str() );
-    cout << buff << endl;
+    std::cout << buff << endl;
 
 }
 
@@ -156,8 +156,8 @@ void TrafficLightVANET::chooseNextInterval()
     {
         currentInterval = "red";
 
-        string str = TraCI->TLGetState("C");
-        string nextInterval = "";
+        std::string str = TraCI->TLGetState("C");
+        std::string nextInterval = "";
         for(char& c : str) {
             if (c == 'y')
                 nextInterval += 'r';
@@ -184,16 +184,16 @@ void TrafficLightVANET::chooseNextInterval()
 
     char buff[300];
     sprintf(buff, "Sim time: %4.2f | Interval finish time: %4.2f | Current interval: %s", simTime().dbl(), simTime().dbl() + intervalOffSet, currentInterval.c_str() );
-    cout << buff << endl;
+    std::cout << buff << endl;
 }
 
 
 void TrafficLightVANET::chooseNextGreenInterval()
 {
     // get adjusted VANET detector times
-    vector<double> LastDetectedTime;
+    std::vector<double> LastDetectedTime;
 
-    for (vector<double>::iterator it = DetectedTime.begin(); it != DetectedTime.end(); it++)
+    for (std::vector<double>::iterator it = DetectedTime.begin(); it != DetectedTime.end(); it++)
         LastDetectedTime.push_back(simTime().dbl() - (*it));
 
     // Do proper transition:
@@ -209,12 +209,12 @@ void TrafficLightVANET::chooseNextGreenInterval()
             if (extendTime > maxGreenTime)
                 intervalOffSet = intervalOffSet - (extendTime - maxGreenTime);
 
-            cout << "Extending green time by: " << intervalOffSet << "s" << endl;
+            std::cout << "Extending green time by: " << intervalOffSet << "s" << endl;
         }
         else if (LastDetectedTime[NC_4] < passageTime)
         {
             nextGreenInterval = phase2_5;
-            string nextInterval = "rrrrGrrrrrrrrryrrrrrrrrr";
+            std::string nextInterval = "rrrrGrrrrrrrrryrrrrrrrrr";
 
             currentInterval = "yellow";
             TraCI->TLSetState("C", nextInterval);
@@ -225,7 +225,7 @@ void TrafficLightVANET::chooseNextGreenInterval()
         else if (LastDetectedTime[SC_4] < passageTime)
         {
             nextGreenInterval = phase1_6;
-            string nextInterval = "rrrryrrrrrrrrrGrrrrrrrrr";
+            std::string nextInterval = "rrrryrrrrrrrrrGrrrrrrrrr";
 
             currentInterval = "yellow";
             TraCI->TLSetState("C", nextInterval);
@@ -236,7 +236,7 @@ void TrafficLightVANET::chooseNextGreenInterval()
         else
         {
             nextGreenInterval = phase2_6;
-            string nextInterval = "rrrryrrrrrrrrryrrrrrrrrr";
+            std::string nextInterval = "rrrryrrrrrrrrryrrrrrrrrr";
 
             currentInterval = "yellow";
             TraCI->TLSetState("C", nextInterval);
@@ -256,12 +256,12 @@ void TrafficLightVANET::chooseNextGreenInterval()
             if (extendTime > maxGreenTime)
                 intervalOffSet = intervalOffSet - (extendTime - maxGreenTime);
 
-            cout << "Extending green time by: " << intervalOffSet << "s" << endl;
+            std::cout << "Extending green time by: " << intervalOffSet << "s" << endl;
         }
         else
         {
             nextGreenInterval = phase2_6;
-            string nextInterval = "gGgGyrrrrrrrrrrrrrrrrrrG";
+            std::string nextInterval = "gGgGyrrrrrrrrrrrrrrrrrrG";
 
             currentInterval = "yellow";
             TraCI->TLSetState("C", nextInterval);
@@ -281,12 +281,12 @@ void TrafficLightVANET::chooseNextGreenInterval()
             if (extendTime > maxGreenTime)
                 intervalOffSet = intervalOffSet - (extendTime - maxGreenTime);
 
-            cout << "Extending green time by: " << intervalOffSet << "s" << endl;
+            std::cout << "Extending green time by: " << intervalOffSet << "s" << endl;
         }
         else
         {
             nextGreenInterval = phase2_6;
-            string nextInterval = "rrrrrrrrrrgGgGyrrrrrrGrr";
+            std::string nextInterval = "rrrrrrrrrrgGgGyrrrrrrGrr";
 
             currentInterval = "yellow";
             TraCI->TLSetState("C", nextInterval);
@@ -310,12 +310,12 @@ void TrafficLightVANET::chooseNextGreenInterval()
             if (extendTime > maxGreenTime)
                 intervalOffSet = intervalOffSet - (extendTime - maxGreenTime);
 
-            cout << "Extending green time by: " << intervalOffSet << "s" << endl;
+            std::cout << "Extending green time by: " << intervalOffSet << "s" << endl;
         }
         else
         {
             nextGreenInterval = phase3_7;
-            string nextInterval = "yyyyrrrrrryyyyrrrrrrryry";
+            std::string nextInterval = "yyyyrrrrrryyyyrrrrrrryry";
 
             currentInterval = "yellow";
             TraCI->TLSetState("C", nextInterval);
@@ -336,12 +336,12 @@ void TrafficLightVANET::chooseNextGreenInterval()
             if (extendTime > maxGreenTime)
                 intervalOffSet = intervalOffSet - (extendTime - maxGreenTime);
 
-            cout << "Extending green time by: " << intervalOffSet << "s" << endl;
+            std::cout << "Extending green time by: " << intervalOffSet << "s" << endl;
         }
         else if (LastDetectedTime[WC_4] < passageTime)
         {
             nextGreenInterval = phase3_8;
-            string nextInterval = "rrrrrrrrryrrrrrrrrrGrrrr";
+            std::string nextInterval = "rrrrrrrrryrrrrrrrrrGrrrr";
 
             currentInterval = "yellow";
             TraCI->TLSetState("C", nextInterval);
@@ -352,7 +352,7 @@ void TrafficLightVANET::chooseNextGreenInterval()
         else if (LastDetectedTime[EC_4] < passageTime)
         {
             nextGreenInterval = phase4_7;
-            string nextInterval = "rrrrrrrrrGrrrrrrrrryrrrr";
+            std::string nextInterval = "rrrrrrrrrGrrrrrrrrryrrrr";
 
             currentInterval = "yellow";
             TraCI->TLSetState("C", nextInterval);
@@ -363,7 +363,7 @@ void TrafficLightVANET::chooseNextGreenInterval()
         else
         {
             nextGreenInterval = phase4_8;
-            string nextInterval = "rrrrrrrrryrrrrrrrrryrrrr";
+            std::string nextInterval = "rrrrrrrrryrrrrrrrrryrrrr";
 
             currentInterval = "yellow";
             TraCI->TLSetState("C", nextInterval);
@@ -383,12 +383,12 @@ void TrafficLightVANET::chooseNextGreenInterval()
             if (extendTime > maxGreenTime)
                 intervalOffSet = intervalOffSet - (extendTime - maxGreenTime);
 
-            cout << "Extending green time by: " << intervalOffSet << "s" << endl;
+            std::cout << "Extending green time by: " << intervalOffSet << "s" << endl;
         }
         else
         {
             nextGreenInterval = phase4_8;
-            string nextInterval = "rrrrrrrrrrrrrrrgGgGyrrGr";
+            std::string nextInterval = "rrrrrrrrrrrrrrrgGgGyrrGr";
 
             currentInterval = "yellow";
             TraCI->TLSetState("C", nextInterval);
@@ -408,12 +408,12 @@ void TrafficLightVANET::chooseNextGreenInterval()
             if (extendTime > maxGreenTime)
                 intervalOffSet = intervalOffSet - (extendTime - maxGreenTime);
 
-            cout << "Extending green time by: " << intervalOffSet << "s" << endl;
+            std::cout << "Extending green time by: " << intervalOffSet << "s" << endl;
         }
         else
         {
             nextGreenInterval = phase4_8;
-            string nextInterval = "rrrrrgGgGyrrrrrrrrrrGrrr";
+            std::string nextInterval = "rrrrrgGgGyrrrrrrrrrrGrrr";
 
             currentInterval = "yellow";
             TraCI->TLSetState("C", nextInterval);
@@ -437,12 +437,12 @@ void TrafficLightVANET::chooseNextGreenInterval()
             if (extendTime > maxGreenTime)
                 intervalOffSet = intervalOffSet - (extendTime - maxGreenTime);
 
-            cout << "Extending green time by: " << intervalOffSet << "s" << endl;
+            std::cout << "Extending green time by: " << intervalOffSet << "s" << endl;
         }
         else
         {
             nextGreenInterval = phase1_5;
-            string nextInterval = "rrrrryyyyrrrrrryyyyryryr";
+            std::string nextInterval = "rrrrryyyyrrrrrryyyyryryr";
 
             currentInterval = "yellow";
             TraCI->TLSetState("C", nextInterval);

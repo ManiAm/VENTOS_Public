@@ -98,7 +98,7 @@ void SpeedProfile::Change()
         return;
 
     // get a list of all vehicles
-    list<string> veh = TraCI->laneGetLastStepVehicleIDs(laneId);
+    std::list<std::string> veh = TraCI->laneGetLastStepVehicleIDs(laneId);
 
     // as long as there is no vehicles, return
     if(veh.empty())

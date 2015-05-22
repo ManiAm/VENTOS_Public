@@ -31,7 +31,6 @@
 #include <Mac1609_4.h>
 #include "Statistics.h"
 
-using namespace std;
 
 namespace VENTOS {
 

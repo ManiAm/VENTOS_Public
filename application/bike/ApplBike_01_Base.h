@@ -36,7 +36,6 @@
 #include "Appl.h"
 #include "TraCI_Extend.h"
 
-using namespace std;
 
 namespace VENTOS {
 
@@ -71,8 +70,8 @@ class ApplBikeBase : public BaseApplLayer
         // Class variables
         int myId;
 		const char *myFullId;
-	    string SUMObID;
-        string SUMObType;
+		std::string SUMObID;
+		std::string SUMObType;
         Coord curPosition;  // current position from mobility module (not from sumo)
         double entryTime;
 };

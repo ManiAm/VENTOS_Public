@@ -67,35 +67,35 @@ void ApplRSUManager::handleLowerMsg(cMessage* msg)
     WaveShortMessage* wsm = dynamic_cast<WaveShortMessage*>(msg);
     ASSERT(wsm);
 
-    if (string(wsm->getName()) == "beaconVehicle")
+    if (std::string(wsm->getName()) == "beaconVehicle")
     {
         BeaconVehicle* wsm = dynamic_cast<BeaconVehicle*>(msg);
         ASSERT(wsm);
 
         ApplRSUManager::onBeaconVehicle(wsm);
     }
-    else if (string(wsm->getName()) == "beaconBicycle")
+    else if (std::string(wsm->getName()) == "beaconBicycle")
     {
         BeaconBicycle* wsm = dynamic_cast<BeaconBicycle*>(msg);
         ASSERT(wsm);
 
         ApplRSUManager::onBeaconBicycle(wsm);
     }
-    else if (string(wsm->getName()) == "beaconPedestrian")
+    else if (std::string(wsm->getName()) == "beaconPedestrian")
     {
         BeaconPedestrian* wsm = dynamic_cast<BeaconPedestrian*>(msg);
         ASSERT(wsm);
 
         ApplRSUManager::onBeaconPedestrian(wsm);
     }
-    else if (string(wsm->getName()) == "beaconRSU")
+    else if (std::string(wsm->getName()) == "beaconRSU")
     {
         BeaconRSU* wsm = dynamic_cast<BeaconRSU*>(msg);
         ASSERT(wsm);
 
         ApplRSUManager::onBeaconRSU(wsm);
     }
-    else if(string(wsm->getName()) == "laneChangeMsg")
+    else if(std::string(wsm->getName()) == "laneChangeMsg")
     {
         LaneChangeMsg* wsm = dynamic_cast<LaneChangeMsg*>(msg);
         ASSERT(wsm);

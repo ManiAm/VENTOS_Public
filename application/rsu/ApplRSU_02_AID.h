@@ -50,8 +50,8 @@ class ApplRSUAID : public ApplRSUBase
         virtual void onData(LaneChangeMsg*);
 
 	private:
-        static MatrixXi tableCount;
-        static MatrixXd tableProb;
+        static Eigen::MatrixXi tableCount;
+        static Eigen::MatrixXd tableProb;
 
         simsignal_t Signal_executeEachTS;
 

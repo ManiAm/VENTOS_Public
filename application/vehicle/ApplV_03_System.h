@@ -66,7 +66,7 @@ class ApplVSystem : public ApplVBeacon
         cMessage* sendSystemMsgEvt;
 
         // Routing
-        string targetNode;
+        std::string targetNode;
         Hypertree* ht;
 
         // Methods
