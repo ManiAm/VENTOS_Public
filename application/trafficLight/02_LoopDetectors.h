@@ -37,19 +37,19 @@ namespace VENTOS {
 class LoopDetectorData
 {
   public:
-    char detectorName[20];
-    char lane[20];
-    char vehicleName[20];
+    std::string detectorName;
+    std::string lane;
+    std::string vehicleName;
     double entryTime;
     double leaveTime;
     double entrySpeed;
     double leaveSpeed;
 
-    LoopDetectorData( const char *str1, const char *str2, const char *str3, double entryT=-1, double leaveT=-1, double entryS=-1, double leaveS=-1 )
+    LoopDetectorData( std::string str1, std::string str2, std::string str3, double entryT=-1, double leaveT=-1, double entryS=-1, double leaveS=-1 )
     {
-        strcpy(this->detectorName, str1);
-        strcpy(this->lane, str2);
-        strcpy(this->vehicleName, str3);
+        this->detectorName = str1;
+        this->lane = str2;
+        this->vehicleName = str3;
 
         this->entryTime = entryT;
         this->leaveTime = leaveT;
@@ -60,7 +60,7 @@ class LoopDetectorData
 
     friend bool operator== (const LoopDetectorData &v1, const LoopDetectorData &v2)
     {
-        return ( strcmp(v1.detectorName,v2.detectorName) == 0 && strcmp(v1.vehicleName, v2.vehicleName) == 0 );
+        return ( v1.detectorName == v2.detectorName && v1.vehicleName == v2.vehicleName );
     }
 };
 
@@ -69,15 +69,15 @@ class IntersectionQueueData
 {
   public:
     double time;
-    char TLid[20];
-    char lane[20];
+    std::string TLid;
+    std::string lane;
     int qSize;
 
-    IntersectionQueueData( double t, const char *str1, const char *str2, int q )
+    IntersectionQueueData( double t, std::string str1, std::string str2, int q )
     {
         this->time = t;
-        strcpy(this->TLid, str1);
-        strcpy(this->lane, str2);
+        this->TLid = str1;
+        this->lane = str2;
         this->qSize = q;
     }
 };

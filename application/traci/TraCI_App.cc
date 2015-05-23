@@ -434,13 +434,13 @@ void TraCI_App::vehiclesDataToFile()
 
         fprintf (filePtr, "%-10d ", y->index);
         fprintf (filePtr, "%-10.2f ", y->time );
-        fprintf (filePtr, "%-15s ", y->vehicleName);
-        fprintf (filePtr, "%-15s ", y->vehicleType);
-        fprintf (filePtr, "%-12s ", y->lane);
+        fprintf (filePtr, "%-15s ", y->vehicleName.c_str());
+        fprintf (filePtr, "%-15s ", y->vehicleType.c_str());
+        fprintf (filePtr, "%-12s ", y->lane.c_str());
         fprintf (filePtr, "%-10.2f ", y->pos);
         fprintf (filePtr, "%-10.2f ", y->speed);
         fprintf (filePtr, "%-10.2f ", y->accel);
-        fprintf (filePtr, "%-20s", y->CFMode);
+        fprintf (filePtr, "%-20s", y->CFMode.c_str());
         fprintf (filePtr, "%-20.2f ", y->timeGapSetting);
         fprintf (filePtr, "%-10.2f ", y->spaceGap);
         fprintf (filePtr, "%-10.2f \n", y->timeGap);

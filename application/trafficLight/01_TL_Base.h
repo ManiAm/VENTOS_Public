@@ -40,31 +40,24 @@ class TLVehicleData
   public:
     int index;
     double time;
-    char vehicleName[30];
-    char lane[30];
+    std::string vehicleName;
+    std::string lane;
     double pos;
     double speed;
-    char TLid[20];
-    char TLprogram[30];
+    std::string TLid;
+    std::string TLprogram;
     int yellowOrRedSignal;
 
-    TLVehicleData(int i, double d1,
-                const char *str1, const char *str2,
-                double d2, double d3,
-                const char *str3, const char *str4, int s)
+    TLVehicleData(int i, double d1, std::string str1, std::string str2, double d2, double d3, std::string str3, std::string str4, int s)
     {
         this->index = i;
         this->time = d1;
-
-        strcpy(this->vehicleName, str1);
-        strcpy(this->lane, str2);
-
+        this->vehicleName = str1;
+        this->lane = str2;
         this->pos = d2;
         this->speed = d3;
-
-        strcpy(this->TLid, str3);
-        strcpy(this->TLprogram, str4);
-
+        this->TLid = str3;
+        this->TLprogram = str4;
         yellowOrRedSignal = s;
     }
 };

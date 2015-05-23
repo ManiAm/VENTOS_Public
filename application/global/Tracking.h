@@ -43,7 +43,6 @@ class Tracking : public BaseModule
         virtual void receiveSignal(cComponent *, simsignal_t, long);
 
 	private:
-
         // NED variables
         cModule *nodePtr;   // pointer to the Node
         TraCI_Extend *TraCI;  // pointer to the TraCI module

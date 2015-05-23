@@ -217,12 +217,12 @@ void TrafficLightBase::TLDataToFile()
 
         fprintf (filePtr, "%-10d ", y->index);
         fprintf (filePtr, "%-10.2f ", y->time );
-        fprintf (filePtr, "%-15s ", y->vehicleName);
-        fprintf (filePtr, "%-12s ", y->lane);
+        fprintf (filePtr, "%-15s ", y->vehicleName.c_str());
+        fprintf (filePtr, "%-12s ", y->lane.c_str());
         fprintf (filePtr, "%-10.2f ", y->pos);
         fprintf (filePtr, "%-10.2f ", y->speed);
-        fprintf (filePtr, "%-15s ", y->TLid);
-        fprintf (filePtr, "%-15s ", y->TLprogram);
+        fprintf (filePtr, "%-15s ", y->TLid.c_str());
+        fprintf (filePtr, "%-15s ", y->TLprogram.c_str());
         fprintf (filePtr, "%-15d \n", y->yellowOrRedSignal);
     }
 

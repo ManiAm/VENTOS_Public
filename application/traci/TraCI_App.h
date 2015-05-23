@@ -38,40 +38,28 @@ class VehicleData
   public:
     int index;
     double time;
-
-    char vehicleName[20];
-    char vehicleType[20];
-
-    char lane[20];
+    std::string vehicleName;
+    std::string vehicleType;
+    std::string lane;
     double pos;
-
     double speed;
     double accel;
-    char CFMode[30];
-
+    std::string CFMode;
     double timeGapSetting;
     double spaceGap;
     double timeGap;
 
-    VehicleData(int i, double d1,
-                 const char *str1, const char *str2,
-                 const char *str3, double d2,
-                 double d3, double d4, const char *str4,
-                 double d3a, double d5, double d6)
+    VehicleData(int i, double d1, std::string str1, std::string str2, std::string str3, double d2, double d3, double d4, std::string str4, double d3a, double d5, double d6)
     {
         this->index = i;
         this->time = d1;
-
-        strcpy(this->vehicleName, str1);
-        strcpy(this->vehicleType, str2);
-
-        strcpy(this->lane, str3);
+        this->vehicleName = str1;
+        this->vehicleType = str2;
+        this->lane = str3;
         this->pos = d2;
-
         this->speed = d3;
         this->accel = d4;
-        strcpy(this->CFMode, str4);
-
+        this->CFMode = str4;
         this->timeGapSetting = d3a;
         this->spaceGap = d5;
         this->timeGap = d6;

@@ -36,13 +36,13 @@ namespace VENTOS {
 class RSUEntry
 {
   public:
-      char name[20];
+      std::string name;
       double coordX;
       double coordY;
 
-      RSUEntry(const char *str, double x, double y)
+      RSUEntry(std::string str, double x, double y)
       {
-          strcpy(this->name, str);
+          this->name = str;
           this->coordX = x;
           this->coordY = y;
       }

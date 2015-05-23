@@ -291,9 +291,9 @@ void LoopDetectors::saveLDsData()
     // write body
     for(std::vector<LoopDetectorData>::iterator y = Vec_loopDetectors.begin(); y != Vec_loopDetectors.end(); y++)
     {
-        fprintf (filePtr, "%-30s ", y->detectorName);
-        fprintf (filePtr, "%-20s ", y->lane);
-        fprintf (filePtr, "%-20s ", y->vehicleName);
+        fprintf (filePtr, "%-30s ", y->detectorName.c_str());
+        fprintf (filePtr, "%-20s ", y->lane.c_str());
+        fprintf (filePtr, "%-20s ", y->vehicleName.c_str());
         fprintf (filePtr, "%-20.2f ", y->entryTime);
         fprintf (filePtr, "%-20.2f ", y->leaveTime);
         fprintf (filePtr, "%-20.2f ", y->entrySpeed);
@@ -433,8 +433,8 @@ void LoopDetectors::saveQueueData()
         }
 
         fprintf (filePtr, "%-20.2f ", y->time);
-        fprintf (filePtr, "%-20s ", y->TLid);
-        fprintf (filePtr, "%-20s ", y->lane);
+        fprintf (filePtr, "%-20s ", y->TLid.c_str());
+        fprintf (filePtr, "%-20s ", y->lane.c_str());
         fprintf (filePtr, "%-20d\n", y->qSize);
     }
 
