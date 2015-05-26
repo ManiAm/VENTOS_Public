@@ -55,6 +55,9 @@ void ApplRSUBase::initialize(int stage)
         cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
         TraCI = static_cast<TraCI_Extend *>(module);
 
+        Signal_executeEachTS = registerSignal("executeEachTS");
+        simulation.getSystemModule()->subscribe("executeEachTS", this);
+
         headerLength = par("headerLength").longValue();
 
         // NED variables (beaconing parameters)
@@ -88,10 +91,14 @@ void ApplRSUBase::finish()
 }
 
 
-void ApplRSUBase::receiveSignal(cComponent* source, simsignal_t signalID, cObject* obj)
+void ApplRSUBase::receiveSignal(cComponent *source, simsignal_t signalID, long i)
 {
     Enter_Method_Silent();
 
+    if(signalID == Signal_executeEachTS)
+    {
+        executeEachTimeStep((bool)i);
+    }
 }
 
 
@@ -110,6 +117,12 @@ void ApplRSUBase::handleSelfMsg(cMessage* msg)
         // schedule for next beacon broadcast
         scheduleAt(simTime() + beaconInterval, RSUBeaconEvt);
     }
+}
+
+
+void ApplRSUBase::executeEachTimeStep(bool simulationDone)
+{
+
 }
 
 

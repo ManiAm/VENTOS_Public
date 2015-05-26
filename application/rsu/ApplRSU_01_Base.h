@@ -32,7 +32,6 @@
 #include <WaveAppToMac1609_4Interface.h>
 #include "TraCI_Extend.h"
 
-
 namespace VENTOS {
 
 class TraCI_Extend;
@@ -44,7 +43,8 @@ class ApplRSUBase : public BaseApplLayer
 		~ApplRSUBase();
 		virtual void initialize(int stage);
 		virtual void finish();
-		virtual void receiveSignal(cComponent* source, simsignal_t signalID, cObject* obj);
+        virtual void handleSelfMsg(cMessage* msg);
+	    virtual void receiveSignal(cComponent *, simsignal_t, long);
 
 		enum WaveApplMessageKinds
 		{
@@ -53,11 +53,8 @@ class ApplRSUBase : public BaseApplLayer
 		};
 
 	protected:
-		static const simsignalwrap_t mobilityStateChangedSignal;
+        virtual void executeEachTimeStep(bool);
 		Coord *getRSUsCoord(unsigned int);
-
-		virtual void handleSelfMsg(cMessage* msg);
-
         BeaconRSU* prepareBeacon();
         void printBeaconContent(BeaconRSU*);
 
@@ -79,6 +76,9 @@ class ApplRSUBase : public BaseApplLayer
 		const char *myFullId;
         simtime_t individualOffset;
         cMessage* RSUBeaconEvt;
+
+        static const simsignalwrap_t mobilityStateChangedSignal;
+        simsignal_t Signal_executeEachTS;
 };
 
 }

@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    ApplRSU_02_AID.h
+/// @file    ApplRSU_03_Manager.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    August 2013
@@ -25,37 +25,30 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef APPLRSUAID_H_
-#define APPLRSUAID_H_
+#ifndef APPLRSUMANAGER_H_
+#define APPLRSUMANAGER_H_
 
-#include "ApplRSU_01_Base.h"
+#include "ApplRSU_03_TL_VANET.h"
 
 namespace VENTOS {
 
-class ApplRSUAID : public ApplRSUBase
+class ApplRSUManager : public ApplRSUTLVANET
 {
-	public:
-		~ApplRSUAID();
-		virtual void initialize(int stage);
-		virtual void finish();
-        virtual void handleSelfMsg(cMessage* msg);
+public:
+    ~ApplRSUManager();
+    virtual void initialize(int stage);
+    virtual void finish();
+    virtual void handleLowerMsg(cMessage* msg);
+    virtual void handleSelfMsg(cMessage* msg);
 
-	protected:
-	    void virtual executeEachTimeStep(bool);
+protected:
+    void virtual executeEachTimeStep(bool);
 
-        virtual void onBeaconVehicle(BeaconVehicle*);
-        virtual void onBeaconBicycle(BeaconBicycle*);
-        virtual void onBeaconPedestrian(BeaconPedestrian*);
-        virtual void onBeaconRSU(BeaconRSU*);
-        virtual void onData(LaneChangeMsg*);
-
-	private:
-        static Eigen::MatrixXi tableCount;
-        static Eigen::MatrixXd tableProb;
-
-        bool printIncidentDetection;
-
-        void incidentDetectionToFile();
+    virtual void onBeaconVehicle(BeaconVehicle*);
+    virtual void onBeaconBicycle(BeaconBicycle*);
+    virtual void onBeaconPedestrian(BeaconPedestrian*);
+    virtual void onBeaconRSU(BeaconRSU*);
+    virtual void onData(LaneChangeMsg*);
 };
 
 }

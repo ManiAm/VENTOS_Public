@@ -42,22 +42,16 @@ ApplRSUAID::~ApplRSUAID()
 
 void ApplRSUAID::initialize(int stage)
 {
-	ApplRSUBase::initialize(stage);
+    ApplRSUBase::initialize(stage);
 
-	if (stage==0)
-	{
+    if (stage==0)
+    {
         // todo: change n and m dynamically!
         tableCount = Eigen::MatrixXi::Zero(3, 2000);
         tableProb = Eigen::MatrixXd::Constant(3, 2000, 0.1);
 
         printIncidentDetection = par("printIncidentDetection").boolValue();
-
-        Signal_executeEachTS = registerSignal("executeEachTS");
-
-        // only one RSU is registered with this signal
-        if(printIncidentDetection && std::string("RSU[0]") == myFullId)
-            simulation.getSystemModule()->subscribe("executeEachTS", this);
-	}
+    }
 }
 
 
@@ -73,13 +67,15 @@ void ApplRSUAID::handleSelfMsg(cMessage* msg)
 }
 
 
-// only RSU[0] executes this
-void ApplRSUAID::receiveSignal(cComponent *source, simsignal_t signalID, long i)
+void ApplRSUAID::executeEachTimeStep(bool simulationDone)
 {
-    Enter_Method_Silent();
+    ApplRSUBase::executeEachTimeStep(simulationDone);
 
-    if(signalID == Signal_executeEachTS)
+    // only RSU[0] executes this
+    if( printIncidentDetection && std::string("RSU[0]") == myFullId )
+    {
         incidentDetectionToFile();
+    }
 }
 
 

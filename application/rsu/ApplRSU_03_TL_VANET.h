@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    ApplRSU_02_AID.h
+/// @file    ApplRSU_03_TL_VANET.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    August 2013
@@ -25,23 +25,48 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef APPLRSUAID_H_
-#define APPLRSUAID_H_
+#ifndef APPLRSUTLVANET_H_
+#define APPLRSUTLVANET_H_
 
-#include "ApplRSU_01_Base.h"
+#include "ApplRSU_02_AID.h"
 
 namespace VENTOS {
 
-class ApplRSUAID : public ApplRSUBase
+class queueData
+{
+  public:
+    std::string vehicleName;
+    std::string lane;
+    double entryTime;
+    double leaveTime;
+    double entrySpeed;
+
+    queueData(std::string str1, std::string str2, double entryT=-1, double leaveT=-1, double entryS=-1)
+    {
+        this->vehicleName = str1;
+        this->lane = str2;
+        this->entryTime = entryT;
+        this->leaveTime = leaveT;
+        this->entrySpeed = entryS;
+    }
+
+    friend bool operator== (const queueData &v1, const queueData &v2)
+    {
+        return ( v1.vehicleName == v2.vehicleName );
+    }
+};
+
+
+class ApplRSUTLVANET : public ApplRSUAID
 {
 	public:
-		~ApplRSUAID();
+		~ApplRSUTLVANET();
 		virtual void initialize(int stage);
 		virtual void finish();
         virtual void handleSelfMsg(cMessage* msg);
 
 	protected:
-	    void virtual executeEachTimeStep(bool);
+        void virtual executeEachTimeStep(bool);
 
         virtual void onBeaconVehicle(BeaconVehicle*);
         virtual void onBeaconBicycle(BeaconBicycle*);
@@ -50,12 +75,16 @@ class ApplRSUAID : public ApplRSUBase
         virtual void onData(LaneChangeMsg*);
 
 	private:
-        static Eigen::MatrixXi tableCount;
-        static Eigen::MatrixXd tableProb;
+        void setDetectionRegion();
+        template <typename T> void onBeaconAny(T wsm);
 
-        bool printIncidentDetection;
+	public:
+        std::map<std::string /*lane*/, double /*time*/> detectedTime;
 
-        void incidentDetectionToFile();
+	protected:
+        int TLControlMode;
+        std::map<std::string /*lane*/, std::string /*TLid*/> lanesTL;  // all incoming lanes belong to each intersection
+        std::vector<queueData> Vec_queueData;
 };
 
 }
