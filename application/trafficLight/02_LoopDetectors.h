@@ -50,10 +50,8 @@ class LoopDetectorData
         this->detectorName = str1;
         this->lane = str2;
         this->vehicleName = str3;
-
         this->entryTime = entryT;
         this->leaveTime = leaveT;
-
         this->entrySpeed = entryS;
         this->leaveSpeed = leaveS;
     }
@@ -108,12 +106,15 @@ class LoopDetectors : public TrafficLightBase
     bool measureIntersectionQueue;
     bool measureTrafficDemand;
 
-    std::map<std::string, std::string> LD_demand;       // ids of loop detectors for measuring incoming traffic demand
-    std::map<std::string, std::string> LD_actuated;     // ids of loop detectors for actuated-time signal control
-    std::map<std::string, std::string> AD_queue;        // ids of area detectors for measuring queue length
+    std::map<std::string, std::string> LD_demand;     // ids of loop detectors for measuring incoming traffic demand
+    std::map<std::string, std::string> LD_actuated;   // ids of loop detectors for actuated-time signal control
+    std::map<std::string, std::string> AD_queue;      // ids of area detectors for measuring queue length
 
-    std::map<std::string /*lane*/, std::pair<std::string /*TLid*/,int /*queue size*/>> laneQueueSize;
-    std::map<std::pair<std::string /*TLid*/,int /*link*/>, int /*queue size*/> linkQueueSize;
+    std::map<std::string /*lane*/, std::string /*TLid*/> lanesTL;                                        // all incoming lanes belong to each intersection
+    std::map<std::pair<std::string /*TLid*/,int /*link number*/>, std::string /*link*/> linksTL;         // all links belong to each intersection
+
+    std::map<std::string /*lane*/, std::pair<std::string /*TLid*/,int /*queue size*/>> laneQueueSize;    // queue size for each incoming lane of each intersection
+    std::map<std::pair<std::string /*TLid*/,int /*link*/>, int /*queue size*/> linkQueueSize;            // queue size for each link of each intersection
 
     std::vector<LoopDetectorData> Vec_loopDetectors;
     std::vector<IntersectionQueueData> Vec_queueSize;

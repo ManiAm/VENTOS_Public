@@ -81,8 +81,41 @@ void LoopDetectors::executeFirstTimeStep()
 
     getAllDetectors();
 
+    // for each traffic light, get all incoming lanes
+    for (std::list<std::string>::iterator it = TLList.begin(); it != TLList.end(); ++it)
+    {
+        // for lane
+        std::list<std::string> lan = TraCI->TLGetControlledLanes(*it);
+
+        // remove duplicate entries
+        lan.unique();
+
+        // for each incoming lane
+        for(std::list<std::string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
+        {
+            lanesTL[*it2] = *it;
+        }
+    }
+
+    // for each traffic light, get all links
+    for (std::list<std::string>::iterator it = TLList.begin(); it != TLList.end(); ++it)
+    {
+        // get controlled links for this traffic light
+        std::map<int,std::string> result = TraCI->TLGetControlledLinks(*it);
+
+        // for each link in this TLid
+        for(std::map<int,std::string>::iterator it2 = result.begin(); it2 != result.end(); ++it2)
+        {
+            std::string TLid = *it;
+            int linkNumber = (*it2).first;
+            std::string link = (*it2).second;
+
+            linksTL[make_pair(TLid,linkNumber)] = link;
+        }
+    }
+
     // initialize all queue value in laneQueueSize to zero
-    for (std::list<std::string>::iterator it = TLList.begin() ; it != TLList.end(); ++it)
+    for (std::list<std::string>::iterator it = TLList.begin(); it != TLList.end(); ++it)
     {
         std::list<std::string> lan = TraCI->TLGetControlledLanes(*it);
 
@@ -338,60 +371,49 @@ void LoopDetectors::measureTD()
 
 void LoopDetectors::measureQ()
 {
-    for (std::list<std::string>::iterator it = TLList.begin(); it != TLList.end(); ++it)
+    // for each lane i that is controlled by traffic light j
+    for(std::map<std::string, std::string>::iterator y = lanesTL.begin(); y != lanesTL.end(); y++)
     {
-        std::list<std::string> lan = TraCI->TLGetControlledLanes(*it);
+        std::string lane = (*y).first;
+        std::string TLid = (*y).second;
 
-        // remove duplicate entries
-        lan.unique();
+        // make sure we have an area detector in this lane
+        if( AD_queue.find(lane) == AD_queue.end() )
+            continue;
 
-        // for each incoming lane
-        for(std::list<std::string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
-        {
-            // make sure we have an area detector in this lane
-            if( AD_queue.find(*it2) == AD_queue.end() )
-                continue;
+        std::string ADid = AD_queue[lane];
+        int q = TraCI->LADGetLastStepVehicleHaltingNumber(ADid);
 
-            std::string ADid = AD_queue[*it2];
-            int q = TraCI->LADGetLastStepVehicleHaltingNumber(ADid);
+        // update laneQueueSize
+        std::map<std::string,std::pair<std::string,int>>::iterator location = laneQueueSize.find(lane);
+        std::pair<std::string,int> store = location->second;
+        location->second = std::make_pair( store.first, q );
 
-            // update laneQueueSize
-            std::map<std::string,std::pair<std::string,int>>::iterator location = laneQueueSize.find(*it2);
-            std::pair<std::string,int> store = location->second;
-            location->second = std::make_pair( store.first, q );
-
-            IntersectionQueueData *tmp = new IntersectionQueueData( simTime().dbl(), (*it).c_str(), (*it2).c_str(), q );
-            Vec_queueSize.push_back(*tmp);
-        }
+        IntersectionQueueData *tmp = new IntersectionQueueData( simTime().dbl(), TLid.c_str(), lane.c_str(), q );
+        Vec_queueSize.push_back(*tmp);
     }
 
-    for (std::list<std::string>::iterator it = TLList.begin(); it != TLList.end(); ++it)
+    for(std::map<std::pair<std::string,int>,std::string>::iterator y = linksTL.begin(); y != linksTL.end(); y++)
     {
-        std::map<int,std::string> result = TraCI->TLGetControlledLinks(*it);
+        std::string TLid = (*y).first.first;
+        int linkNumber = (*y).first.second;
+        std::string link = (*y).second;
 
-        // for each link in this TLid
-        for(std::map<int,std::string>::iterator it2 = result.begin(); it2 != result.end(); ++it2)
-        {
-            std::string incommingLane;
-            boost::char_separator<char> sep("|");
-            boost::tokenizer< boost::char_separator<char> > tokens((*it2).second, sep);
+        std::string incommingLane;
+        boost::char_separator<char> sep("|");
+        boost::tokenizer< boost::char_separator<char> > tokens(link, sep);
+        boost::tokenizer< boost::char_separator<char> >::iterator beg = tokens.begin();
+        incommingLane = (*beg).c_str(); // get the first token
 
-            for(boost::tokenizer< boost::char_separator<char> >::iterator beg=tokens.begin(); beg!=tokens.end(); ++beg)
-            {
-                incommingLane = (*beg).c_str();
-                break;
-            }
+        // make sure we have an area detector in this lane
+        if( AD_queue.find(incommingLane) == AD_queue.end() )
+            continue;
 
-            // make sure we have an area detector in this lane
-            if( AD_queue.find(incommingLane) == AD_queue.end() )
-                continue;
+        std::string ADid = AD_queue[incommingLane];
+        int q = TraCI->LADGetLastStepVehicleHaltingNumber(ADid);
 
-            std::string ADid = AD_queue[incommingLane];
-            int q = TraCI->LADGetLastStepVehicleHaltingNumber(ADid);
-
-            std::map<std::pair<std::string,int>, int>::iterator location = linkQueueSize.find( make_pair(*it,(*it2).first) );
-            location->second = q;
-        }
+        std::map<std::pair<std::string,int>, int>::iterator location = linkQueueSize.find( make_pair(TLid,linkNumber) );
+        location->second = q;
     }
 }
 
