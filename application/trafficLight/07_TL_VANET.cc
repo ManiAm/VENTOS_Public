@@ -98,7 +98,7 @@ void TrafficLightVANET::executeFirstTimeStep()
     std::cout << "VANET traffic signal control ..." << endl << endl;
 
     // get a pointer to the RSU module that controls this intersection
-    cModule *module = simulation.getSystemModule()->getSubmodule("RSU", 0);
+    cModule *module = simulation.getSystemModule()->getSubmodule("RSU", 0)->getSubmodule("appl");
     if(module == NULL)
         error("No RSU module found!");
     RSU = static_cast<ApplRSUTLVANET *>(module);
@@ -169,7 +169,6 @@ void TrafficLightVANET::chooseNextGreenInterval()
     // get adjusted VANET detector times
     std::map<std::string,double> LastDetectedTime;
 
-    // todo
     for (std::map<std::string, double>::iterator it = RSU->detectedTime.begin(); it != RSU->detectedTime.end(); it++)
     {
         std::string lane = (*it).first;

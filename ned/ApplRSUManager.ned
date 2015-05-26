@@ -1,7 +1,7 @@
 
 package c3po.ned;
 
-simple ApplRSUManager extends ApplRSUAID
+simple ApplRSUManager extends ApplRSUTLVANET
 {
     parameters:
         @class(VENTOS::ApplRSUManager);   
