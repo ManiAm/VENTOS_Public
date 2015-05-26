@@ -8,6 +8,7 @@ simple ApplVBeacon extends ApplVBase
         @display("i=block/app2");
         
         bool VANETenabled = default(true);
+        bool smartBeaconing = default(false);
         double sonarDist = default(900);
                 
         bool sendBeacons = default(false); //tell the applayer to periodically send beacons

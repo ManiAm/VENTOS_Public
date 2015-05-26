@@ -51,6 +51,10 @@ class ApplVBeacon : public ApplVBase
         int beaconLengthBits;
         int beaconPriority;
 
+        // NED variables
+        bool smartBeaconing;
+        int TLControlMode;
+
         // NED variables (data message parameters)
         int dataLengthBits;
         bool dataOnSch;
@@ -70,8 +74,6 @@ protected:
         virtual void handlePositionUpdate(cObject*);
 
         BeaconVehicle* prepareBeacon();
-        void printBeaconContent(BeaconVehicle*);
-
         bool isBeaconFromLeading(BeaconVehicle*);
         bool isBeaconFromMyPlatoonLeader(BeaconVehicle*);
 };

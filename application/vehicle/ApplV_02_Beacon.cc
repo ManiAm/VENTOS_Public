@@ -62,6 +62,11 @@ void ApplVBeacon::initialize(int stage)
         beaconLengthBits = par("beaconLengthBits").longValue();
         beaconPriority = par("beaconPriority").longValue();
 
+        // NED variables
+        smartBeaconing = par("smartBeaconing").boolValue();
+        cModule *module = simulation.getSystemModule()->getSubmodule("TrafficLight");
+        TLControlMode = module->par("TLControlMode").longValue();
+
         // NED variables (data parameters)
         dataLengthBits = par("dataLengthBits").longValue();
         dataOnSch = par("dataOnSch").boolValue();
@@ -74,9 +79,7 @@ void ApplVBeacon::initialize(int stage)
 
         VehicleBeaconEvt = new cMessage("BeaconEvt", KIND_TIMER);
         if (VANETenabled)
-        {
             scheduleAt(simTime() + offSet, VehicleBeaconEvt);
-        }
 
         plnID = "";
         myPlnDepth = -1;
@@ -112,6 +115,22 @@ void ApplVBeacon::handleSelfMsg(cMessage* msg)
 
     if (msg == VehicleBeaconEvt)
     {
+        if(VANETenabled && smartBeaconing)
+        {
+            if(TLControlMode == 5)
+            {
+                Coord myPos = TraCI->vehicleGetPosition(SUMOvID);
+                // todo: change from fixed coordinates
+                if( (myPos.x > 350) && (myPos.x < 450) && (myPos.y > 350) && (myPos.y < 450) )
+                    sendBeacons = true;
+                else
+                    sendBeacons = false;
+            }
+            // turn off beaconing for any other TL controller
+            else
+                sendBeacons = false;
+        }
+
         if(VANETenabled && sendBeacons)
         {
             BeaconVehicle* beaconMsg = prepareBeacon();
@@ -119,9 +138,6 @@ void ApplVBeacon::handleSelfMsg(cMessage* msg)
             // fill-in the related fields to platoon
             beaconMsg->setPlatoonID(plnID.c_str());
             beaconMsg->setPlatoonDepth(myPlnDepth);
-
-            EV << "## Created beacon msg for vehicle: " << SUMOvID << endl;
-            ApplVBeacon::printBeaconContent(beaconMsg);
 
             // send it
             sendDelayed(beaconMsg, individualOffset, lowerLayerOut);
@@ -179,31 +195,6 @@ BeaconVehicle*  ApplVBeacon::prepareBeacon()
 }
 
 
-// print beacon fields (for debugging purposes)
-void ApplVBeacon::printBeaconContent(BeaconVehicle* wsm)
-{
-    EV << wsm->getWsmVersion() << " | ";
-    EV << wsm->getSecurityType() << " | ";
-    EV << wsm->getChannelNumber() << " | ";
-    EV << wsm->getDataRate() << " | ";
-    EV << wsm->getPriority() << " | ";
-    EV << wsm->getPsid() << " | ";
-    EV << wsm->getPsc() << " | ";
-    EV << wsm->getWsmLength() << " | ";
-    EV << wsm->getWsmData() << " ||| ";
-
-    EV << wsm->getSender() << " | ";
-    EV << wsm->getRecipient() << " | ";
-    EV << wsm->getPos() << " | ";
-    EV << wsm->getSpeed() << " | ";
-    EV << wsm->getAccel() << " | ";
-    EV << wsm->getMaxDecel() << " | ";
-    EV << wsm->getLane() << " | ";
-    EV << wsm->getPlatoonID() << " | ";
-    EV << wsm->getPlatoonDepth() << endl;
-}
-
-
 // is called, every time the position of vehicle changes
 void ApplVBeacon::handlePositionUpdate(cObject* obj)
 {
@@ -213,8 +204,6 @@ void ApplVBeacon::handlePositionUpdate(cObject* obj)
 
 bool ApplVBeacon::isBeaconFromLeading(BeaconVehicle* wsm)
 {
-    // step 1: check if a leading vehicle is present
-
     std::vector<std::string> vleaderIDnew = TraCI->vehicleGetLeader(SUMOvID, sonarDist);
     std::string vleaderID = vleaderIDnew[0];
 
@@ -222,60 +211,6 @@ bool ApplVBeacon::isBeaconFromLeading(BeaconVehicle* wsm)
         return true;
     else
         return false;
-
-    /*
-    double gap = atof( vleaderIDnew[1].c_str() );
-
-    if(vleaderID == "")
-    {
-        EV << "This vehicle has no leading vehicle." << endl;
-        return false;
-    }
-
-    // step 2: is it on the same lane?
-
-    string myLane = TraCI->commandGetVehicleLaneId(SUMOvID);
-    string beaconLane = wsm->getLane();
-
-    EV << "I am on lane " << TraCI->commandGetVehicleLaneId(SUMOvID) << ", and other vehicle is on lane " << wsm->getLane() << endl;
-
-    if( myLane != beaconLane )
-    {
-        EV << "Not on the same lane!" << endl;
-        return false;
-    }
-
-    EV << "We are on the same lane!" << endl;
-
-    // step 3: is the distance equal to gap?
-
-    Coord cord = TraCI->commandGetVehiclePos(SUMOvID);
-    double dist = sqrt( pow(cord.x - wsm->getPos().x, 2) +  pow(cord.y - wsm->getPos().y, 2) );
-
-    // subtract the length of the leading vehicle from dist
-    dist = dist - TraCI->commandGetVehicleLength(vleaderID);
-
-    EV << "my coord (x,y): " << cord.x << "," << cord.y << endl;
-    EV << "other coord (x,y): " << wsm->getPos().x << "," << wsm->getPos().y << endl;
-    EV << "distance is " << dist << ", and gap is " << gap << endl;
-
-    double diff = fabs(dist - gap);
-
-    if(diff > 0.001)
-    {
-        EV << "distance does not match the gap!" << endl;
-        return false;
-    }
-
-    if(cord.x > wsm->getPos().x)
-    {
-        EV << "beacon is coming from behind!" << endl;
-        return false;
-    }
-
-    EV << "This beacon is from the leading vehicle!" << endl;
-    return true;
-    */
 }
 
 
