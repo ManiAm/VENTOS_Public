@@ -64,7 +64,6 @@ void ApplVPlatoonMg::dissolve_DataFSM(PlatoonMsg* wsm)
         // send a unicast DISSOLVE message my follower
         PlatoonMsg* dataMsg = prepareData(lastVeh, DISSOLVE, plnID);
         EV << "### " << SUMOvID << ": sent DISSOLVE to followers." << endl;
-        printDataContent(dataMsg);
         sendDelayed(dataMsg, individualOffset, lowerLayerOut);
         reportCommandToStat(dataMsg);
 
@@ -100,7 +99,6 @@ void ApplVPlatoonMg::dissolve_DataFSM(PlatoonMsg* wsm)
             // send ACK
             PlatoonMsg* dataMsg = prepareData(wsm->getSender(), ACK, wsm->getSendingPlatoonID());
             EV << "### " << SUMOvID << ": sent ACK." << endl;
-            printDataContent(dataMsg);
             sendDelayed(dataMsg, individualOffset, lowerLayerOut);
             reportCommandToStat(dataMsg);
 

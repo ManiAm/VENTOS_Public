@@ -254,29 +254,6 @@ PlatoonMsg*  ApplVPlatoonMg::prepareData(std::string receiver, uCommands type, s
 }
 
 
-// print data message fields (for debugging purposes)
-void ApplVPlatoonMg::printDataContent(PlatoonMsg* wsm)
-{
-    EV << wsm->getWsmVersion() << " | ";
-    EV << wsm->getSecurityType() << " | ";
-    EV << wsm->getChannelNumber() << " | ";
-    EV << wsm->getDataRate() << " | ";
-    EV << wsm->getPriority() << " | ";
-    EV << wsm->getPsid() << " | ";
-    EV << wsm->getPsc() << " | ";
-    EV << wsm->getWsmLength() << " | ";
-    EV << wsm->getWsmData() << " ||| ";
-
-    EV << wsm->getSender() << " | ";
-    EV << wsm->getRecipient() << " | ";
-    EV << wsm->getType() << " | ";
-    EV << wsm->getSendingPlatoonID() << " | ";
-    EV << wsm->getReceivingPlatoonID() << " | ";
-    EV << wsm->getDblValue() << " | ";
-    EV << wsm->getStrValue() << endl;
-}
-
-
 // change follower blue color to show depth
 // only platoon leader can call this!
 void ApplVPlatoonMg::updateColorDepth()

@@ -94,7 +94,6 @@ void ApplVPlatoonMg::followerLeave_DataFSM(PlatoonMsg *wsm)
         // send a unicast LEAVE_REQ to the leader
         PlatoonMsg* dataMsg = prepareData(plnID, LEAVE_REQ, plnID, myPlnDepth);
         EV << "### " << SUMOvID << ": sent LEAVE_REQ." << endl;
-        printDataContent(dataMsg);
         sendDelayed(dataMsg, individualOffset, lowerLayerOut);
         reportCommandToStat(dataMsg);
 
@@ -151,7 +150,6 @@ void ApplVPlatoonMg::followerLeave_DataFSM(PlatoonMsg *wsm)
             // lastFollower notifies the leaving vehicle if it is the last follower or not!
             PlatoonMsg* dataMsg = prepareData(wsm->getSender(), LEAVE_ACCEPT, plnID, lastFollower);
             EV << "### " << SUMOvID << ": sent LEAVE_ACCEPT." << endl;
-            printDataContent(dataMsg);
             sendDelayed(dataMsg, individualOffset, lowerLayerOut);
             reportCommandToStat(dataMsg);
 

@@ -101,7 +101,6 @@ void ApplVPlatoonMg::split_handleSelfMsg(cMessage* msg)
             // we need this in follower/leader leave only. Other maneuvers ignore this
             PlatoonMsg* dataMsg = prepareData(oldPlnID, GAP_CREATED, oldPlnID);
             EV << "### " << SUMOvID << ": sent GAP_CREATED." << endl;
-            printDataContent(dataMsg);
             sendDelayed(dataMsg, individualOffset, lowerLayerOut);
             reportCommandToStat(dataMsg);
         }
@@ -163,7 +162,6 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
         // send a unicast SPLIT_REQ to the follower
         PlatoonMsg* dataMsg = prepareData(splittingVehicle, SPLIT_REQ, plnID);
         EV << "### " << SUMOvID << ": sent SPLIT_REQ." << endl;
-        printDataContent(dataMsg);
         sendDelayed(dataMsg, individualOffset, lowerLayerOut);
         reportCommandToStat(dataMsg);
 
@@ -191,7 +189,6 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
         // send CHANGE_PL to the splitting vehicle (last two parameters are data attached to this ucommand)
         PlatoonMsg* dataMsg = prepareData(splittingVehicle, CHANGE_PL, plnID, (-splittingDepth), splittingVehicle);
         EV << "### " << SUMOvID << ": sent CHANGE_PL." << endl;
-        printDataContent(dataMsg);
         sendDelayed(dataMsg, individualOffset, lowerLayerOut);
         reportCommandToStat(dataMsg);
 
@@ -239,7 +236,6 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
             // decrease Tg
             PlatoonMsg* dataMsg = prepareData("multicast", CHANGE_Tg, plnID, TG1);
             EV << "### " << SUMOvID << ": sent CHANGE_Tg with value " << TG1 << endl;
-            printDataContent(dataMsg);
             sendDelayed(dataMsg, individualOffset, lowerLayerOut);
             reportCommandToStat(dataMsg);
         }
@@ -249,7 +245,6 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
         // 1) splitCaller 2) our platoon member list
         PlatoonMsg* dataMsg = prepareData(splittingVehicle, SPLIT_DONE, plnID, splitCaller, "", secondPlnMembersList);
         EV << "### " << SUMOvID << ": sent SPLIT_DONE." << endl;
-        printDataContent(dataMsg);
         sendDelayed(dataMsg, individualOffset, lowerLayerOut);
         reportCommandToStat(dataMsg);
 
@@ -283,7 +278,6 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
             std::string targetVeh = *it;
             PlatoonMsg* dataMsg = prepareData(targetVeh, CHANGE_PL, plnID, (-splittingDepth), splittingVehicle);
             EV << "### " << SUMOvID << ": sent CHANGE_PL." << endl;
-            printDataContent(dataMsg);
             simtime_t offset = dblrand() * maxOffset;
             sendDelayed(dataMsg, offset, lowerLayerOut);
             reportCommandToStat(dataMsg);
@@ -327,7 +321,6 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
             // send SPLIT_ACCEPT
             PlatoonMsg* dataMsg = prepareData(plnID, SPLIT_ACCEPT, plnID);
             EV << "### " << SUMOvID << ": sent SPLIT_ACCEPT." << endl;
-            printDataContent(dataMsg);
             sendDelayed(dataMsg, individualOffset, lowerLayerOut);
             reportCommandToStat(dataMsg);
 
@@ -366,7 +359,6 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
         // send ACK
         PlatoonMsg* dataMsg = prepareData(oldPlnID, ACK, plnID);
         EV << "### " << SUMOvID << ": sent ACK." << endl;
-        printDataContent(dataMsg);
         sendDelayed(dataMsg, individualOffset, lowerLayerOut);
         reportCommandToStat(dataMsg);
 

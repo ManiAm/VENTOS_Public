@@ -135,7 +135,7 @@ void ApplVManager::handleLowerMsg(cMessage* msg)
 
         BeaconVehCount++;
 
-        if( !dropBeacon(droppT, droppV, plr) )
+        if( plr == 0 || !dropBeacon(droppT, droppV, plr) )
         {
             ApplVManager::onBeaconVehicle(wsm);
         }
@@ -146,7 +146,7 @@ void ApplVManager::handleLowerMsg(cMessage* msg)
             reportDropToStatistics(wsm);
         }
     }
-    if (std::string(wsm->getName()) == "beaconPedestrian")
+    else if (std::string(wsm->getName()) == "beaconPedestrian")
     {
         BeaconPedestrian* wsm = dynamic_cast<BeaconPedestrian*>(msg);
         ASSERT(wsm);
@@ -249,9 +249,6 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
     // pass it down
     ApplVCoordinator::onBeaconVehicle(wsm);
 
-    EV << "## " << SUMOvID << " received beacon ..." << endl;
-    ApplVBeacon::printBeaconContent(wsm);
-
     // model is Krauss (TypeManual)
     if(SUMOControllerType == SUMO_TAG_CF_KRAUSS)
     {
@@ -335,7 +332,6 @@ void ApplVManager::onBeaconPedestrian(BeaconPedestrian* wsm)
     // pass it down
     // ApplVCoordinator::onBeaconPedestrian(wsm);
 
-    EV << "## " << SUMOvID << " received beacon ..." << endl;
     //ApplVBeacon::printBeaconContent(wsm);
 
     char buffer [200];

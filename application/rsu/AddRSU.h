@@ -70,6 +70,7 @@ class AddRSU : public BaseModule
         cModule *nodePtr;   // pointer to the Node
         TraCI_Extend *TraCI;  // pointer to the TraCI module
         simsignal_t Signal_executeFirstTS;
+
         bool on;
         int mode;
         std::deque<RSUEntry*> RSUs;

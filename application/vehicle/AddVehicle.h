@@ -31,7 +31,7 @@
 #include "BaseModule.h"
 #include "TraCI_Extend.h"
 
-#define SSTR( x ) dynamic_cast< std::ostringstream & >( (std::ostringstream() << std::dec << x ) ).str()
+#define SSTR(x) dynamic_cast< std::ostringstream & >( (std::ostringstream() << std::dec << x ) ).str()
 
 namespace VENTOS {
 

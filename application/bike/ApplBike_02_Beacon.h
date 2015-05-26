@@ -64,7 +64,6 @@ protected:
         virtual void handlePositionUpdate(cObject*);
 
         BeaconBicycle* prepareBeacon();
-        void printBeaconContent(BeaconBicycle*);
 };
 
 }

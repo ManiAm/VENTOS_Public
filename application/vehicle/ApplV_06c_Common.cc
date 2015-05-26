@@ -54,7 +54,6 @@ void ApplVPlatoonMg::common_DataFSM(PlatoonMsg* wsm)
                 // send ACK
                 PlatoonMsg* dataMsg = prepareData(wsm->getSender(), ACK, wsm->getSendingPlatoonID());
                 EV << "### " << SUMOvID << ": sent ACK." << endl;
-                printDataContent(dataMsg);
                 sendDelayed(dataMsg, individualOffset, lowerLayerOut);
                 reportCommandToStat(dataMsg);
 
@@ -75,7 +74,6 @@ void ApplVPlatoonMg::common_DataFSM(PlatoonMsg* wsm)
                 // send ACK
                 PlatoonMsg* dataMsg = prepareData(wsm->getSender(), ACK, wsm->getSendingPlatoonID());
                 EV << "### " << SUMOvID << ": sent ACK." << endl;
-                printDataContent(dataMsg);
                 sendDelayed(dataMsg, individualOffset, lowerLayerOut);
                 reportCommandToStat(dataMsg);
             }

@@ -97,9 +97,6 @@ void ApplPedBeacon::handleSelfMsg(cMessage* msg)
         {
             BeaconPedestrian* beaconMsg = ApplPedBeacon::prepareBeacon();
 
-            EV << "## Created beacon msg for pedestrian: " << SUMOpID << endl;
-            ApplPedBeacon::printBeaconContent(beaconMsg);
-
             // send it
             sendDelayed(beaconMsg, individualOffset, lowerLayerOut);
         }
@@ -153,31 +150,6 @@ BeaconPedestrian*  ApplPedBeacon::prepareBeacon()
     wsm->setLane( TraCI->personGetEdgeID(SUMOpID).c_str() );
 
     return wsm;
-}
-
-
-// print beacon fields (for debugging purposes)
-void ApplPedBeacon::printBeaconContent(BeaconPedestrian* wsm)
-{
-    EV << wsm->getWsmVersion() << " | ";
-    EV << wsm->getSecurityType() << " | ";
-    EV << wsm->getChannelNumber() << " | ";
-    EV << wsm->getDataRate() << " | ";
-    EV << wsm->getPriority() << " | ";
-    EV << wsm->getPsid() << " | ";
-    EV << wsm->getPsc() << " | ";
-    EV << wsm->getWsmLength() << " | ";
-    EV << wsm->getWsmData() << " ||| ";
-
-    EV << wsm->getSender() << " | ";
-    EV << wsm->getRecipient() << " | ";
-    EV << wsm->getPos() << " | ";
-    EV << wsm->getSpeed() << " | ";
-    EV << wsm->getAccel() << " | ";
-    EV << wsm->getMaxDecel() << " | ";
-    EV << wsm->getLane() << " | ";
-    EV << wsm->getPlatoonID() << " | ";
-    EV << wsm->getPlatoonDepth() << endl;
 }
 
 

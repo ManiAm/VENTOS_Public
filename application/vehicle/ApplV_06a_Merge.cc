@@ -152,7 +152,6 @@ void ApplVPlatoonMg::merge_BeaconFSM(BeaconVehicle* wsm)
         // send a unicast MERGE_REQ to its platoon leader
         PlatoonMsg* dataMsg = prepareData(leadingPlnID, MERGE_REQ, leadingPlnID, -1, "", plnMembersList);
         EV << "### " << SUMOvID << ": sent MERGE_REQ." << endl;
-        printDataContent(dataMsg);
         sendDelayed(dataMsg, individualOffset, lowerLayerOut);
         reportCommandToStat(dataMsg);
 
@@ -222,7 +221,6 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
             // send MERGE_REJECT
             PlatoonMsg* dataMsg = prepareData(wsm->getSender(), MERGE_REJECT, wsm->getSendingPlatoonID());
             EV << "### " << SUMOvID << ": sent MERGE_REJECT." << endl;
-            printDataContent(dataMsg);
             sendDelayed(dataMsg, individualOffset, lowerLayerOut);
             reportCommandToStat(dataMsg);
         }
@@ -237,7 +235,6 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
         // send unicast MERGE_DONE
         PlatoonMsg* dataMsg = prepareData(plnID, MERGE_DONE, plnID);
         EV << "### " << SUMOvID << ": sent MERGE_DONE." << endl;
-        printDataContent(dataMsg);
         sendDelayed(dataMsg, individualOffset, lowerLayerOut);
         reportCommandToStat(dataMsg);
 
@@ -251,7 +248,6 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
         // send CHANGE_PL to all my followers (last two parameters are data attached to this ucommand)
         PlatoonMsg* dataMsg = prepareData("multicast", CHANGE_PL, leadingPlnID, leadingPlnDepth+1, leadingPlnID);
         EV << "### " << SUMOvID << ": sent CHANGE_PL." << endl;
-        printDataContent(dataMsg);
         sendDelayed(dataMsg, individualOffset, lowerLayerOut);
         reportCommandToStat(dataMsg);
 
@@ -290,7 +286,6 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
                 // send MERGE_REJECT
                 PlatoonMsg* dataMsg = prepareData(wsm->getSender(), MERGE_REJECT, wsm->getSendingPlatoonID());
                 EV << "### " << SUMOvID << ": sent MERGE_REJECT." << endl;
-                printDataContent(dataMsg);
                 sendDelayed(dataMsg, individualOffset, lowerLayerOut);
                 reportCommandToStat(dataMsg);
             }
@@ -311,7 +306,6 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
         // send MERGE_ACCEPT
         PlatoonMsg* dataMsg = prepareData(secondPlnMembersList.front().c_str(), MERGE_ACCEPT, secondPlnMembersList.front().c_str());
         EV << "### " << SUMOvID << ": sent MERGE_ACCEPT." << endl;
-        printDataContent(dataMsg);
         sendDelayed(dataMsg, individualOffset, lowerLayerOut);
         reportCommandToStat(dataMsg);
 
@@ -345,7 +339,6 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
             // increase Tg
             PlatoonMsg* dataMsg = prepareData("multicast", CHANGE_Tg, plnID, TG2);
             EV << "### " << SUMOvID << ": sent CHANGE_Tg with value " << TG2 << endl;
-            printDataContent(dataMsg);
             sendDelayed(dataMsg, individualOffset, lowerLayerOut);
             reportCommandToStat(dataMsg);
         }

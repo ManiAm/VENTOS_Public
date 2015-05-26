@@ -308,7 +308,7 @@ bool fexists(const char *filename)
 }
 
 std::vector<std::string> getEdgeNames(std::string netName)
-{
+                {
     std::vector<std::string> edgeNames;
 
     rapidxml::file <> xmlFile(netName.c_str());
@@ -319,10 +319,10 @@ std::vector<std::string> getEdgeNames(std::string netName)
         edgeNames.push_back(node->first_attribute()->value());
 
     return edgeNames;
-}
+                }
 
 std::vector<std::string> getNodeNames(std::string netName)
-{
+                {
     std::vector<std::string> nodeNames;
     rapidxml::file <> xmlFile(netName.c_str());
     rapidxml::xml_document<> doc;
@@ -332,7 +332,7 @@ std::vector<std::string> getNodeNames(std::string netName)
         nodeNames.push_back(node->first_attribute()->value());
 
     return nodeNames;
-}
+                }
 
 double curve(double x)  //Input will linearly increase from 0 to 1, from first to last vehicle.
 {                       //Output should be between 0 and 1, scaled by some function
@@ -588,9 +588,16 @@ void AddVehicle::Scenario9()
 
     // right on the LD at the end of the Gmin
     // -------------------------------------------------------------
-    //    TraCI->vehicleAdd("Veh1", "TypeManual", "route4", 9100, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-    //    TraCI->vehicleAdd("Veh2", "TypeManual", "route4", 15000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-    //    TraCI->vehicleAdd("Veh3", "TypeManual", "route4", 20000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+    //        TraCI->vehicleAdd("Veh1", "TypeManual", "route4", 9100, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+    //        TraCI->vehicleAdd("Veh2", "TypeManual", "route4", 15000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+    //        TraCI->vehicleAdd("Veh3", "TypeManual", "route4", 20000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+    // -------------------------------------------------------------
+
+    // right on the LD at the end of the Gmin
+    // -------------------------------------------------------------
+    //    TraCI->vehicleAdd("Veh1", "TypeManual", "route6", 9100, 0 /*pos*/, 30 /*speed*/, 4 /*lane*/);
+    //    TraCI->vehicleAdd("Veh2", "TypeManual", "route6", 15000, 0 /*pos*/, 30 /*speed*/, 4 /*lane*/);
+    //    TraCI->vehicleAdd("Veh3", "TypeManual", "route6", 20000, 0 /*pos*/, 30 /*speed*/, 4 /*lane*/);
     // -------------------------------------------------------------
 
 
@@ -608,18 +615,6 @@ void AddVehicle::Scenario9()
     //    TraCI->vehicleAdd("Veh2", "TypeManual", "route4", 8600, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
     //    TraCI->vehicleAdd("Veh3", "TypeManual", "route4", 8600, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
     // -------------------------------------------------------------
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

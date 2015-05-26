@@ -97,9 +97,6 @@ void ApplBikeBeacon::handleSelfMsg(cMessage* msg)
         {
             BeaconBicycle* beaconMsg = ApplBikeBeacon::prepareBeacon();
 
-            EV << "## Created beacon msg for bicycle: " << SUMObID << endl;
-            ApplBikeBeacon::printBeaconContent(beaconMsg);
-
             // send it
             sendDelayed(beaconMsg, individualOffset, lowerLayerOut);
         }
@@ -153,31 +150,6 @@ BeaconBicycle*  ApplBikeBeacon::prepareBeacon()
     wsm->setLane( TraCI->vehicleGetLaneID(SUMObID).c_str() );
 
     return wsm;
-}
-
-
-// print beacon fields (for debugging purposes)
-void ApplBikeBeacon::printBeaconContent(BeaconBicycle* wsm)
-{
-    EV << wsm->getWsmVersion() << " | ";
-    EV << wsm->getSecurityType() << " | ";
-    EV << wsm->getChannelNumber() << " | ";
-    EV << wsm->getDataRate() << " | ";
-    EV << wsm->getPriority() << " | ";
-    EV << wsm->getPsid() << " | ";
-    EV << wsm->getPsc() << " | ";
-    EV << wsm->getWsmLength() << " | ";
-    EV << wsm->getWsmData() << " ||| ";
-
-    EV << wsm->getSender() << " | ";
-    EV << wsm->getRecipient() << " | ";
-    EV << wsm->getPos() << " | ";
-    EV << wsm->getSpeed() << " | ";
-    EV << wsm->getAccel() << " | ";
-    EV << wsm->getMaxDecel() << " | ";
-    EV << wsm->getLane() << " | ";
-    EV << wsm->getPlatoonID() << " | ";
-    EV << wsm->getPlatoonDepth() << endl;
 }
 
 

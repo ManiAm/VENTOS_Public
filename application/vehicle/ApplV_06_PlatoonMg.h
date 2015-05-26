@@ -222,7 +222,6 @@ class ApplVPlatoonMg : public ApplVPlatoonFormed
 
 	private:
         PlatoonMsg* prepareData( std::string, uCommands, std::string, double db = -1, std::string str = "", std::deque<std::string> vec = std::deque<std::string>() );
-        void printDataContent(PlatoonMsg*);
         void updateColorDepth();
 
         // Reporting to statistics
