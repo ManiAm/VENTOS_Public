@@ -29,7 +29,7 @@
 #define TRAFFICLIGHTVANET_H
 
 #include <06_TL_Adaptive_Webster.h>
-
+#include "ApplRSU_03_TL_VANET.h"
 
 namespace VENTOS {
 
@@ -51,31 +51,7 @@ class TrafficLightVANET : public TrafficLightWebster
 
   protected:
     // class variables
-    std::vector<double> DetectedTime;
-    cMessage* DetectEvt;
-    double detectFreq = 0.1;
-
-    double radius = 33;
-  //  Coord outerRing = (100 - radius - 2;
-  //  Coord innerRing  = radius + 2;
-
-    // loop detectors id
-    enum LDid
-    {
-        EC_2, EC_3, EC_4,
-        NC_2, NC_3, NC_4,
-        SC_2, SC_3, SC_4,
-        WC_2, WC_3, WC_4,
-    };
-
-    // For VANET Controller:
-    std::map<std::string,LDid> lmap =
-    {
-        {"EC_2", EC_2}, {"EC_3", EC_3}, {"EC_4", EC_4},
-        {"NC_2", NC_2}, {"NC_3", NC_3}, {"NC_4", NC_4},
-        {"SC_2", SC_2}, {"SC_3", SC_3}, {"SC_4", SC_4},
-        {"WC_2", WC_2}, {"WC_3", WC_3}, {"WC_4", WC_4}
-    };
+    ApplRSUTLVANET *RSU;
 };
 
 }
