@@ -50,6 +50,10 @@ class ApplBikeBeacon : public ApplBikeBase
         int beaconLengthBits;
         int beaconPriority;
 
+        // NED variables
+        bool smartBeaconing;
+        int TLControlMode;
+
         // NED variables (data message parameters)
         int dataLengthBits;
         bool dataOnSch;
@@ -58,6 +62,9 @@ class ApplBikeBeacon : public ApplBikeBase
         // Class variables
         simtime_t individualOffset;
         cMessage* BicycleBeaconEvt;
+
+        bool hasEntered;
+        bool hasLeft;
 
 protected:
         virtual void handleSelfMsg(cMessage*);

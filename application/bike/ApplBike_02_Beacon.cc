@@ -53,6 +53,11 @@ void ApplBikeBeacon::initialize(int stage)
         beaconLengthBits = par("beaconLengthBits").longValue();
         beaconPriority = par("beaconPriority").longValue();
 
+        // NED variables
+        smartBeaconing = par("smartBeaconing").boolValue();
+        cModule *module = simulation.getSystemModule()->getSubmodule("TrafficLight");
+        TLControlMode = module->par("TLControlMode").longValue();
+
         // NED variables (data parameters)
         dataLengthBits = par("dataLengthBits").longValue();
         dataOnSch = par("dataOnSch").boolValue();
@@ -65,9 +70,10 @@ void ApplBikeBeacon::initialize(int stage)
 
         BicycleBeaconEvt = new cMessage("BeaconEvt", KIND_TIMER);
         if (VANETenabled)
-        {
             scheduleAt(simTime() + offSet, BicycleBeaconEvt);
-        }
+
+        hasEntered = false;
+        hasLeft = false;
 	}
 }
 
@@ -93,6 +99,31 @@ void ApplBikeBeacon::handleSelfMsg(cMessage* msg)
 
     if (msg == BicycleBeaconEvt)
     {
+        if(VANETenabled && smartBeaconing)
+        {
+            if(TLControlMode == 5)
+            {
+                Coord myPos = TraCI->vehicleGetPosition(SUMObID);
+                std::string myLane = TraCI->vehicleGetLaneID(SUMObID);
+                // todo: change from fixed coordinates
+                if((hasEntered == false) && (myPos.x > 350) && (myPos.x < 450) && (myPos.y > 350) && (myPos.y < 450))
+                {
+                    hasEntered = true;
+                    sendBeacons = true;
+                }
+                else if((hasLeft == false) && (myLane[0] == ':') && (myLane[1] == 'C'))
+                {
+                    hasLeft = true;
+                    sendBeacons = true;
+                }
+                else
+                    sendBeacons = false;
+            }
+            // turn off beaconing for any other TL controller
+            else
+                sendBeacons = false;
+        }
+
         if(VANETenabled && sendBeacons)
         {
             BeaconBicycle* beaconMsg = ApplBikeBeacon::prepareBeacon();

@@ -68,6 +68,8 @@ class ApplVBeacon : public ApplVBase
         int myPlnDepth;
         int plnSize;
         std::deque<std::string> plnMembersList;
+        bool hasEntered;
+        bool hasLeft;
 
 protected:
         virtual void handleSelfMsg(cMessage*);

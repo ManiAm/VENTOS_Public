@@ -41,17 +41,17 @@ void ApplVBeacon::initialize(int stage)
 {
     ApplVBase::initialize(stage);
 
-	if (stage == 0)
-	{
-	    // NED
-	    if(SUMOvType != "TypeObstacle")
-	    {
+    if (stage == 0)
+    {
+        // NED
+        if(SUMOvType != "TypeObstacle")
+        {
             VANETenabled = par("VANETenabled").boolValue();
-	    }
-	    else
-	    {
-	        VANETenabled = false;
-	    }
+        }
+        else
+        {
+            VANETenabled = false;
+        }
 
         sonarDist = par("sonarDist").doubleValue();
 
@@ -90,7 +90,10 @@ void ApplVBeacon::initialize(int stage)
         WATCH(myPlnDepth);
         WATCH(plnSize);
         WATCH(VANETenabled);
-	}
+
+        hasEntered = false;
+        hasLeft = false;
+    }
 }
 
 
@@ -120,9 +123,18 @@ void ApplVBeacon::handleSelfMsg(cMessage* msg)
             if(TLControlMode == 5)
             {
                 Coord myPos = TraCI->vehicleGetPosition(SUMOvID);
+                std::string myLane = TraCI->vehicleGetLaneID(SUMOvID);
                 // todo: change from fixed coordinates
-                if( (myPos.x > 350) && (myPos.x < 450) && (myPos.y > 350) && (myPos.y < 450) )
+                if((hasEntered == false) && (myPos.x > 350) && (myPos.x < 450) && (myPos.y > 350) && (myPos.y < 450))
+                {
+                    hasEntered = true;
                     sendBeacons = true;
+                }
+                else if((hasLeft == false) && (myLane[0] == ':') && (myLane[1] == 'C'))
+                {
+                    hasLeft = true;
+                    sendBeacons = true;
+                }
                 else
                     sendBeacons = false;
             }

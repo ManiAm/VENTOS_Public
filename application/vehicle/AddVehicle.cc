@@ -308,7 +308,7 @@ bool fexists(const char *filename)
 }
 
 std::vector<std::string> getEdgeNames(std::string netName)
-                {
+                        {
     std::vector<std::string> edgeNames;
 
     rapidxml::file <> xmlFile(netName.c_str());
@@ -319,10 +319,10 @@ std::vector<std::string> getEdgeNames(std::string netName)
         edgeNames.push_back(node->first_attribute()->value());
 
     return edgeNames;
-                }
+                        }
 
 std::vector<std::string> getNodeNames(std::string netName)
-                {
+                        {
     std::vector<std::string> nodeNames;
     rapidxml::file <> xmlFile(netName.c_str());
     rapidxml::xml_document<> doc;
@@ -332,7 +332,7 @@ std::vector<std::string> getNodeNames(std::string netName)
         nodeNames.push_back(node->first_attribute()->value());
 
     return nodeNames;
-                }
+                        }
 
 double curve(double x)  //Input will linearly increase from 0 to 1, from first to last vehicle.
 {                       //Output should be between 0 and 1, scaled by some function
@@ -483,6 +483,12 @@ void AddVehicle::Scenario9()
     // seed is fixed to make tests reproducible
     std::mt19937 gen(43);
     std::uniform_real_distribution<> dis(0,1);
+
+
+    TraCI->vehicleAdd("Bike1", "TypeBicycle", "route1", 0, 0 /*pos*/, 0 /*speed*/, 2 /*lane*/);
+    TraCI->vehicleAdd("Bike2", "TypeBicycle", "route4", 0, 0 /*pos*/, 0 /*speed*/, 2 /*lane*/);
+    TraCI->vehicleAdd("Bike3", "TypeBicycle", "route7", 0, 0 /*pos*/, 0 /*speed*/, 2 /*lane*/);
+    TraCI->vehicleAdd("Bike4", "TypeBicycle", "route10", 0, 0 /*pos*/, 0 /*speed*/, 2 /*lane*/);
 
     for(int i=0; i<terminate; i++)
     {
