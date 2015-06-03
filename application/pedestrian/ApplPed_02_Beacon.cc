@@ -41,9 +41,9 @@ void ApplPedBeacon::initialize(int stage)
 {
     ApplPedBase::initialize(stage);
 
-	if (stage == 0)
-	{
-	    // NED
+    if (stage == 0)
+    {
+        // NED
         VANETenabled = par("VANETenabled").boolValue();
 
         // NED variables (beaconing parameters)
@@ -52,6 +52,11 @@ void ApplPedBeacon::initialize(int stage)
         maxOffset = par("maxOffset").doubleValue();
         beaconLengthBits = par("beaconLengthBits").longValue();
         beaconPriority = par("beaconPriority").longValue();
+
+        // NED variables
+        smartBeaconing = par("smartBeaconing").boolValue();
+        cModule *module = simulation.getSystemModule()->getSubmodule("TrafficLight");
+        TLControlMode = module->par("TLControlMode").longValue();
 
         // NED variables (data parameters)
         dataLengthBits = par("dataLengthBits").longValue();
@@ -65,10 +70,11 @@ void ApplPedBeacon::initialize(int stage)
 
         PedestrianBeaconEvt = new cMessage("BeaconEvt", KIND_TIMER);
         if (VANETenabled)
-        {
             scheduleAt(simTime() + offSet, PedestrianBeaconEvt);
-        }
-	}
+
+        hasEntered = false;
+        hasLeft = false;
+    }
 }
 
 
@@ -93,6 +99,31 @@ void ApplPedBeacon::handleSelfMsg(cMessage* msg)
 
     if (msg == PedestrianBeaconEvt)
     {
+        if(VANETenabled && smartBeaconing)
+        {
+            if(TLControlMode == 5)
+            {
+                Coord myPos = TraCI->personGetPosition(SUMOpID);
+                std::string myEdge = TraCI->personGetEdgeID(SUMOpID);
+                // todo: change from fixed coordinates
+                if((!hasEntered) && (myPos.x > 350) && (myPos.x < 450) && (myPos.y > 350) && (myPos.y < 450))
+                {
+                    hasEntered = true;
+                    sendBeacons = true;
+                }
+                else if((!hasLeft) && (myEdge[0] == ':') && (myEdge[1] == 'C'))
+                {
+                    hasLeft = true;
+                    sendBeacons = true;
+                }
+                else
+                    sendBeacons = false;
+            }
+            // turn off beaconing for any other TL controller
+            else
+                sendBeacons = false;
+        }
+
         if(VANETenabled && sendBeacons)
         {
             BeaconPedestrian* beaconMsg = ApplPedBeacon::prepareBeacon();

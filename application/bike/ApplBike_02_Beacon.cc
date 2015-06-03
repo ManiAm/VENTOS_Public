@@ -104,14 +104,14 @@ void ApplBikeBeacon::handleSelfMsg(cMessage* msg)
             if(TLControlMode == 5)
             {
                 Coord myPos = TraCI->vehicleGetPosition(SUMObID);
-                std::string myLane = TraCI->vehicleGetLaneID(SUMObID);
+                std::string myEdge = TraCI->vehicleGetEdgeID(SUMObID);
                 // todo: change from fixed coordinates
-                if((hasEntered == false) && (myPos.x > 350) && (myPos.x < 450) && (myPos.y > 350) && (myPos.y < 450))
+                if((!hasEntered) && (myPos.x > 350) && (myPos.x < 450) && (myPos.y > 350) && (myPos.y < 450))
                 {
                     hasEntered = true;
                     sendBeacons = true;
                 }
-                else if((hasLeft == false) && (myLane[0] == ':') && (myLane[1] == 'C'))
+                else if((!hasLeft) && (myEdge[0] == ':') && (myEdge[1] == 'C'))
                 {
                     hasLeft = true;
                     sendBeacons = true;
