@@ -25,6 +25,8 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
+//Handles communication between all router-related elements.
+
 #ifndef ROUTER_H
 #define ROUTER_H
 
@@ -65,39 +67,39 @@ public:
     virtual void receiveSignal(cComponent *, simsignal_t, cObject *);
     virtual void receiveSignal(cComponent *, simsignal_t, long);
 
-    int createTime;
-    int currentVehicleCount;
-    int totalVehicleCount;
-    double nonReroutingVehiclePercent;
-    std::set<std::string>* nonReroutingVehicles;
-    Net* net;
+    int createTime; //The duration over which vehicles are created
+    int currentVehicleCount; //The current number of vehicles in the sim
+    int totalVehicleCount;   //The total number of vehicles added to the sim
+    double nonReroutingVehiclePercent; //% of vehicles which will not re-route
+    std::set<std::string>* nonReroutingVehicles; //Set of vehicles which will not re-route
+    Net* net; //Network description (TLs, edges, nodes, etc)
     void sendRerouteSignal(std::string vid);     //Forces a vehicle to reroute
-    bool UseHysteresis;
+    bool UseHysteresis; //If true, re-routes based on # of turns rather than time
 
-    std::ofstream vehicleEndTimesFile;
-    std::map<std::string, LaneCosts> edgeHistograms; // should be public
+    std::ofstream vehicleEndTimesFile; //File of when each vehicle completes its trip
+    std::map<std::string, EdgeCosts> edgeCosts; //Map from edge name to set of edge costs
 
 protected:
     boost::filesystem::path VENTOS_FullPath;
     boost::filesystem::path SUMO_Path;
     boost::filesystem::path SUMO_FullPath;
 
-    //Edge-removal Alg
+    //Edge-removal Algo
     cMessage* routerMsg;
-    void issueStop(std::string vehID, std::string edgeID);
-    void issueStart(std::string vehID, std::string edgeID);
-    void checkEdgeRemovals();
-    std::vector<EdgeRemoval> EdgeRemovals;
-    std::set<std::string> RemovedVehicles;
-    bool UseAccidents;
-    int AccidentCheckInterval;
+    void issueStop(std::string vehID, std::string edgeID); //Tells a vehicle to stop on the given edge
+    void issueStart(std::string vehID); //Tells a vehicle to resume
+    void checkEdgeRemovals(); //Check for vehicles on disabled edges
+    std::vector<EdgeRemoval> EdgeRemovals; //vector of currently disabled edges
+    std::set<std::string> RemovedVehicles; //vector of vehicles on disabled edges
+    int AccidentCheckInterval; //Time between running checkEdgeRemovals()
+    bool UseAccidents; //If true, uses the above variables to simulate an accident
 
-    std::map<std::string, Hypertree*> hypertreeMemo;
+    std::map<std::string, Hypertree*> hypertreeMemo; //Map from a destination to its respective hypertree
 
     //Vehicle stuff
-    bool collectVehicleTimeData;
-    std::map<std::string, int> vehicleTravelTimes;
-    std::ofstream vehicleTravelTimesFile;
+    bool collectVehicleTimeData; //If true, records travel time data to a file
+    std::map<std::string, int> vehicleTravelTimes; //Map from vehicle ID to travel time
+    std::ofstream vehicleTravelTimesFile; //File to write travel times to
 
     bool enableRouting; //If false, runs no code
     double leftTurnCost, rightTurnCost, straightCost, uTurnCost, TLLookahead;
@@ -110,12 +112,12 @@ protected:
 
     int timePeriodMax;     //Max time for hypertrees
     Hypertree* buildHypertree(int startTime, Node* destination);    //Builds a hypertree to the destination, bounded between the start time and timePeriodMax;
-    std::list<std::string> getRoute(Edge* origin, Node* destination, std::string vName);       //Returns a list of edges between origin and destination,
+    std::list<std::string> getRoute(Edge* origin, Node* destination, std::string vName);       //Returns a list of edges between origin and destination, using dijskstra's
                                                                                 //or an empty list if they're not connected
     SystemMsg* prepareSystemMsg();
 
     //Message passing
-    cModule *nodePtr;               // pointer to the Node
+    cModule *nodePtr;               //pointer to the Node
     mutable TraCI_Extend* TraCI;    //Link to TraCI
     simsignal_t Signal_system;      //Receives signals to here
 
@@ -126,13 +128,11 @@ protected:
     std::map<std::string, double> vehicleTimes;
 
     //Hysteresis implementation
-    std::map<std::string, int> vehicleLaneChangeCount;
-    int HysteresisCount;
+    std::map<std::string, int> vehicleLaneChangeCount; //Map from vehicle ID to how many times it's changed lanes
+    int HysteresisCount; //Number of lane changes before a reroute is done
 
-    int LaneCostsMode;
-
-    void HistogramsToFile();
-    void parseHistogramFile();
+    void LaneCostsToFile();
+    void parseLaneCostsFile();
     void laneCostsData();
 };
 

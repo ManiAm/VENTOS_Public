@@ -29,11 +29,9 @@
 #define EDGE_H
 
 #include <vector>
-#include <iostream>
-#include <iomanip>
 
 #include "Node.h"
-#include "Histogram.h"
+#include "EdgeCosts.h"
 
 
 namespace VENTOS {
@@ -44,7 +42,7 @@ public:
     std::string id;
     double speed;
     double length;
-    std::vector<int> greenPhases;
+    std::vector<int> greenPhases; //Set of traffic-light phases that give this lane a green light
     Lane(std::string i, double s, double l);
 };
 
@@ -67,7 +65,7 @@ public:
     double getCost();
 
     //Pathing variables
-    LaneCosts* travelTimes;
+    EdgeCosts* travelTimes;
     bool visited;
     double curCost;
     Edge* best;
@@ -76,7 +74,7 @@ public:
     bool disabled;
 
 public:
-    Edge(std::string idVal, Node* fromVal, Node* toVal, int priorityVal, std::vector<Lane*> lanesVec, LaneCosts* hist);
+    Edge(std::string idVal, Node* fromVal, Node* toVal, int priorityVal, std::vector<Lane*> lanesVec, EdgeCosts* hist);
 };
 
 std::ostream& operator<<(std::ostream& os, Edge &rhs);

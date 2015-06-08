@@ -48,10 +48,12 @@ Net::Net(std::string netBase, cModule* router)
     rapidxml::xml_document<> doc;
     rapidxml::xml_node<> *node;
     doc.parse<0>(xmlFile.data());
+
+    //For every node
     for(node = doc.first_node()->first_node("junction"); node; node = node->next_sibling("junction"))
     {
-        //For every node
-        rapidxml::xml_attribute<> *attr = node->first_attribute();    //Read all the attributes in
+        //Read all the attributes in
+        rapidxml::xml_attribute<> *attr = node->first_attribute();
         std::string id = attr->value();
 
         attr = attr->next_attribute();
@@ -63,9 +65,10 @@ Net::Net(std::string netBase, cModule* router)
         attr = attr->next_attribute();
         double y = atof(attr->value());
 
-        attr = attr->next_attribute();          //Get its list of incoming lanes
+        //Break the incoming lanes list into a vector
+        attr = attr->next_attribute();
         std::string incLanesString = attr->value();
-        std::vector<std::string>* incLanes = new std::vector<std::string>;               //And break them into a vector of lanes
+        std::vector<std::string>* incLanes = new std::vector<std::string>;
         std::stringstream ssin(incLanesString);
         while(ssin.good())
         {
@@ -75,15 +78,17 @@ Net::Net(std::string netBase, cModule* router)
                 incLanes->push_back(temp);
         }
 
+        //If we're looking at a traffic light
         TrafficLightRouter *tl = NULL;
-        if(type == "traffic_light") //If we're looking at a traffic light
+        if(type == "traffic_light")
         {
-            //Maybe check if the traffic light already exists before building a new one?  Depends on if multiple intersections can go to the same logic
+            //Find the referenced traffic light (based on name, the first attribute)
             for(rapidxml::xml_node<> *tlNode = doc.first_node()->first_node("tlLogic"); tlNode; tlNode = tlNode->next_sibling("tlLogic"))
-            {   //Search through all the tlLogic, find the linked one
+            {
                 if(tlNode->first_attribute()->value() == id)
                 {
-                    rapidxml::xml_attribute<> *tlAttr = tlNode->first_attribute();    //Read its attributes in
+                    //Read its attributes in
+                    rapidxml::xml_attribute<> *tlAttr = tlNode->first_attribute();
                     std::string tlid = tlAttr->value();
                     tlAttr = tlAttr->next_attribute();
                     std::string tltype = tlAttr->value();
@@ -92,7 +97,8 @@ Net::Net(std::string netBase, cModule* router)
                     tlAttr = tlAttr->next_attribute();
                     double tloffset = atof(tlAttr->value());
 
-                    std::vector<Phase*> phasesVec;// = new vector<Phase*>; //Read its list of phases in
+                    //Read in its set of phases
+                    std::vector<Phase*> phasesVec;
                     for(rapidxml::xml_node<> *phaseNode = tlNode->first_node("phase"); phaseNode; phaseNode = phaseNode->next_sibling("phase"))
                     {
                         double duration = atof(phaseNode->first_attribute()->value());
@@ -101,21 +107,22 @@ Net::Net(std::string netBase, cModule* router)
                         phasesVec.push_back(ph);   //Build and link a new phase for each attribute
                     }
 
-                    cModule *mod = moduleType->create("TrafficLight", routerModule);    //Create a TL module with router as its parent
-                    tl = check_and_cast<TrafficLightRouter*>(mod);                            //Cast the new module to a TL
-                    tl->build(tlid, tltype, programID, tloffset, phasesVec, this);      //And build the traffic light with all this info
+                    cModule *mod = moduleType->create("TrafficLight", routerModule); //Create a TL module with router as its parent
+                    tl = check_and_cast<TrafficLightRouter*>(mod);                   //Cast the new module to a TL
+                    tl->build(tlid, tltype, programID, tloffset, phasesVec, this);   //And build the traffic light with all this info
                     TLs[tlid] = tl; //Add the TL to the TL set
                     break;
                 }//if matching traffic light
             }//for each traffic light
         }//if traffic light
 
-        Node *n = new Node(id, x, y, type, incLanes, tl); //Build it
+        Node *n = new Node(id, x, y, type, incLanes, tl); //Finally build the node
         nodes[id] = n;
     }
 
+    //For every edge
     for(node = doc.first_node()->first_node("edge"); node; node = node->next_sibling("edge"))
-    {   //For every edge
+    {
         rapidxml::xml_attribute<> *attr = node->first_attribute();    //Read the basic attributes in
         std::string id = attr->value();
         attr = attr->next_attribute();
@@ -136,16 +143,15 @@ Net::Net(std::string netBase, cModule* router)
             double length = atof(attr->value());
             Lane* l = new Lane(laneid, speed, length);  //Build the lane
             lanesVec->push_back(l); //Add it to a vector of this edge's lanes
-
-            //New goal: Create a vector of ints for each lane, specifying all the phases that allow this lane to move
         }
         Node* from = nodes[fromVal];  //Get a pointer to the start node
         Node* to = nodes[toVal];      //Get a pointer to the end node
         Router *routerPtr = FindModule<Router*>::findGlobalModule();
-        Edge* e = new Edge(id, from, to, priority, *lanesVec, &(*(routerPtr->edgeHistograms.find(id))).second);
+        Edge* e = new Edge(id, from, to, priority, *lanesVec, &(*(routerPtr->edgeCosts.find(id))).second);
         from->outEdges.push_back(e);   //Add the edge to the start node's list
         edges[id] = e;
     }   //For every edge
+
     for(std::map<std::string, Edge*>::iterator it = edges.begin(); it != edges.end(); it++)   //For each edge
         (*it).second->to->inEdges.push_back((*it).second);  //Go to the destination fo that edge, and add that edge to its in-edges
 

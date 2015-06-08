@@ -29,10 +29,11 @@
 
 namespace VENTOS {
 
+/*
 bool Node::operator==(const Node& rhs)
 {
     return this->id == rhs.id;
-}
+}*/
 
 Node::Node(std::string id, double x, double y, std::string type, std::vector<std::string>* incLanes, TrafficLightRouter* tl): // Build a node
                   id(id), x(x), y(y), type(type), incLanes(incLanes), tl(tl){}

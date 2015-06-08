@@ -36,7 +36,7 @@
 
 #include "Router.h"
 #include "Vehicle.h"
-#include "Histogram.h"
+#include "EdgeCosts.h"
 #include "rapidxml.hpp"
 #include "rapidxml_utils.hpp"
 
@@ -67,7 +67,6 @@ public:
     std::map<std::string, Node*> nodes;
     std::map<std::string, Vehicle*> vehicles;
     std::map<std::string, std::vector<Connection*> > connections;
-
     std::map<std::string, std::vector<int>* >* transitions;  //Given a pair of edge IDs concatenated, returns a vector of TL phases that allow movement between them
     std::map<std::string, char>* turnTypes;           //Given a pair of edge IDs concatenated, returns the turn type between those two
 

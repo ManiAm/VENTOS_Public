@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    Histogram.h
+/// @file    Histogram.cc
 /// @author  Dylan Smith <dilsmith@ucdavis.edu>
 /// @author  second author here
 /// @date    August 2013
@@ -25,31 +25,39 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef HISTOGRAM_H
-#define HISTOGRAM_H
-
-#include <vector>
-#include <map>
-#include <iostream>
+#include "EdgeCosts.h"
 
 
 namespace VENTOS {
 
-class LaneCosts
+EdgeCosts::EdgeCosts()
 {
-public:
-    std::map<int, int> data;
-    int count;
-    double average;
-    //int minimum;
-
-    LaneCosts();  // constructor
-
-    void insert(int d, int LaneCostsMode);
-    double percentAt(int d);
-    friend std::ostream& operator<<(std::ostream& os, LaneCosts& h);
-};
-
+    average = 0;
+    count = 0;
 }
 
-#endif
+#include "RouterGlobals.h"
+
+void EdgeCosts::insert(int d)
+{
+    //If mode is average, add the new data point to the average
+    if(laneCostsMode == MODE_AVERAGE)
+    {
+        average = (average * count + d)/ ++count;
+        data[d]++;
+    }
+
+    //If mode is EWMA, perform that calculation
+    else if(laneCostsMode == MODE_EWMA)
+    {
+        average = average * 0.8 + (double)d * .2;
+    }
+}
+
+//Returns the % of readings of a certain travel time
+double EdgeCosts::percentAt(int d)
+{
+    return (double)data[d] / (double)count;
+}
+
+}

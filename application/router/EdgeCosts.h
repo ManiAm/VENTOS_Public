@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    Histogram.cc
+/// @file    Histogram.h
 /// @author  Dylan Smith <dilsmith@ucdavis.edu>
 /// @author  second author here
 /// @date    August 2013
@@ -25,48 +25,30 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "Histogram.h"
+#ifndef HISTOGRAM_H
+#define HISTOGRAM_H
+
+#include <vector>
+#include <map>
+#include <iostream>
+#include "RouterGlobals.h"
+
 
 namespace VENTOS {
 
-LaneCosts::LaneCosts()
+class EdgeCosts
 {
-    average = 0;
-    count = 0;
-    //minimum = 100000;
-}
+public:
+    std::map<int, int> data; //Map from each travel time to its number of occurrences
+    int count;
+    double average;
 
-void LaneCosts::insert(int d, int LaneCostsMode)
-{
-    if(LaneCostsMode == 1)
-    {
-    average = ((average * data.size()) + d)/ (data.size() + 1);
-    count++;
-    //if(d < minimum)
-    //    minimum = d;
+    EdgeCosts();
 
-    if(data.find(d) == data.end())
-        data[d] = 1;
-    else
-        data[d]++;
-    }
-    else if(LaneCostsMode == 2)
-    {
-        average = average * 0.8 + (double)d * .2;
-    }
-}
-
-double LaneCosts::percentAt(int d)
-{
-    return (double)data[d] / (double)count;
-}
-
-std::ostream& operator<<(std::ostream& os, LaneCosts& h)
-{
-    os << h.data.size() << std::endl;
-    for(std::map<int, int>::iterator it = h.data.begin(); it != h.data.end(); it++)
-        os << it->first << " ";
-    return os;
-}
+    void insert(int d); //Inserts a new value into the LaneCosts structure.
+    double percentAt(int d);
+};
 
 }
+
+#endif

@@ -51,7 +51,7 @@ public:
     std::vector<std::string>* incLanes;
     TrafficLightRouter* tl;
 
-    bool operator==(const Node& rhs);
+    //bool operator==(const Node& rhs);
     Node(std::string idVal, double xVal, double yVal, std::string typeVal, std::vector<std::string>* incLanesVal, TrafficLightRouter* tlVal);
 };
 
