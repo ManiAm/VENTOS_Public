@@ -484,12 +484,6 @@ void AddVehicle::Scenario9()
     std::mt19937 gen(43);
     std::uniform_real_distribution<> dis(0,1);
 
-
-    TraCI->vehicleAdd("Bike1", "TypeBicycle", "route1", 0, 0 /*pos*/, 0 /*speed*/, 2 /*lane*/);
-    TraCI->vehicleAdd("Bike2", "TypeBicycle", "route4", 0, 0 /*pos*/, 0 /*speed*/, 2 /*lane*/);
-    TraCI->vehicleAdd("Bike3", "TypeBicycle", "route7", 0, 0 /*pos*/, 0 /*speed*/, 2 /*lane*/);
-    TraCI->vehicleAdd("Bike4", "TypeBicycle", "route10", 0, 0 /*pos*/, 0 /*speed*/, 2 /*lane*/);
-
     for(int i=0; i<terminate; i++)
     {
         if( dis(gen) < pNS )
@@ -624,9 +618,6 @@ void AddVehicle::Scenario9()
 
 
 
-
-
-
     //    TraCI->vehicleAdd("Veh1", "TypeManual", "route1", 5000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
     //    TraCI->vehicleAdd("Veh2", "TypeManual", "route2", 10000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
     //    TraCI->vehicleAdd("Bike1", "TypeBicycle", "route1", 15000, 0 /*pos*/, 0 /*speed*/, 2 /*lane*/);
@@ -645,6 +636,13 @@ void AddVehicle::Scenario9()
     //
     //    TraCI->vehicleAdd("Veh9", "TypeManual", "route1", 6000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
     //    TraCI->vehicleAdd("Veh10", "TypeManual", "route8", 6000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+
+
+
+    TraCI->vehicleAdd("Bike1", "TypeBicycle", "route1", 0, 0 /*pos*/, 0 /*speed*/, 2 /*lane*/);
+    TraCI->vehicleAdd("Bike2", "TypeBicycle", "route4", 0, 0 /*pos*/, 0 /*speed*/, 2 /*lane*/);
+    TraCI->vehicleAdd("Bike3", "TypeBicycle", "route7", 0, 0 /*pos*/, 0 /*speed*/, 2 /*lane*/);
+    TraCI->vehicleAdd("Bike4", "TypeBicycle", "route10", 0, 0 /*pos*/, 0 /*speed*/, 2 /*lane*/);
 }
 
 }

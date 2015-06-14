@@ -34,12 +34,24 @@
   <route id="route11" edges="EC CN" />  
   <route id="route12" edges="EC CS" /> 
   
+  
+  <flow id="route1" begin="0" end="50" vehsPerHour="700" type="TypeManual" route="route1" />
+  <flow id="route2" begin="0" end="50" vehsPerHour="700" type="TypeManual" route="route5" />
+  <flow id="route3" begin="0" end="50" vehsPerHour="700" type="TypeManual" route="route10" />
+
+
+
+  
+  
+  
+  
   <person id="Ped1" type="TypePedestrian" depart="10">
       <walk edges="EC CW" departPos="0" arrivalPos="-1.0"/>
   </person> 
   
   <person id="Ped2" type="TypePedestrian" depart="20">
       <walk edges="EC CW" departPos="0" arrivalPos="-1.0"/>
-  </person> 
+  </person>
+
 
 </routes>
