@@ -48,8 +48,10 @@ class VehicleData
     double timeGapSetting;
     double spaceGap;
     double timeGap;
+    std::string TLid;  // TLid that controls this vehicle
+    int YorR;          // if the TL state ahead is yellow or red
 
-    VehicleData(int i, double d1, std::string str1, std::string str2, std::string str3, double d2, double d3, double d4, std::string str4, double d3a, double d5, double d6)
+    VehicleData(int i, double d1, std::string str1, std::string str2, std::string str3, double d2, double d3, double d4, std::string str4, double d3a, double d5, double d6, std::string str5, int YR)
     {
         this->index = i;
         this->time = d1;
@@ -63,6 +65,8 @@ class VehicleData
         this->timeGapSetting = d3a;
         this->spaceGap = d5;
         this->timeGap = d6;
+        this->TLid = str5;
+        this->YorR = YR;
     }
 };
 
@@ -101,6 +105,7 @@ class TraCI_App : public TraCI_Extend
         std::string pedModuleName;
         std::string pedModuleDisplayString;
 
+        std::list<std::string> TLList;   // list of traffic-lights in the network
         std::vector<VehicleData> Vec_vehiclesData;
 
         int index;

@@ -35,34 +35,6 @@
 
 namespace VENTOS {
 
-class TLVehicleData
-{
-  public:
-    int index;
-    double time;
-    std::string vehicleName;
-    std::string lane;
-    double pos;
-    double speed;
-    std::string TLid;
-    std::string TLprogram;
-    int yellowOrRedSignal;
-
-    TLVehicleData(int i, double d1, std::string str1, std::string str2, double d2, double d3, std::string str3, std::string str4, int s)
-    {
-        this->index = i;
-        this->time = d1;
-        this->vehicleName = str1;
-        this->lane = str2;
-        this->pos = d2;
-        this->speed = d3;
-        this->TLid = str3;
-        this->TLprogram = str4;
-        yellowOrRedSignal = s;
-    }
-};
-
-
 class TrafficLightBase : public BaseModule
 {
   public:
@@ -74,29 +46,19 @@ class TrafficLightBase : public BaseModule
 
   protected:
       double updateInterval;
-      bool collectTLData;
       int TLControlMode;
 
       TraCI_Extend *TraCI;
       simsignal_t Signal_executeFirstTS;
       simsignal_t Signal_executeEachTS;
-      std::list<std::string> TLList;   // list of traffic-lights in the network
-      std::vector<TLVehicleData> Vec_vehiclesData;
 
       boost::filesystem::path VENTOS_FullPath;
       boost::filesystem::path SUMO_Path;
       boost::filesystem::path SUMO_FullPath;
 
-      int index;
-
   protected:
       virtual void executeFirstTimeStep();
       virtual void executeEachTimeStep(bool);
-
-  private:
-      void TLStatePerVehicle();
-      void saveTLStatePerVehicle(std::string);
-      void TLDataToFile();
 };
 
 }

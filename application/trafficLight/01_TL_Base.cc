@@ -53,7 +53,6 @@ void TrafficLightBase::initialize(int stage)
         simulation.getSystemModule()->subscribe("executeEachTS", this);
 
         updateInterval = TraCI->par("updateInterval").doubleValue();
-        collectTLData = par("collectTLData").boolValue();
         TLControlMode = par("TLControlMode").longValue();
 
         // get the file paths
@@ -65,8 +64,6 @@ void TrafficLightBase::initialize(int stage)
         {
             error("SUMO directory is not valid! Check it again.");
         }
-
-        index = 1;
     }
 }
 
@@ -100,133 +97,14 @@ void TrafficLightBase::receiveSignal(cComponent *source, simsignal_t signalID, l
 
 void TrafficLightBase::executeFirstTimeStep()
 {
-    TLList = TraCI->TLGetIDList();
+
 }
 
 
 void TrafficLightBase::executeEachTimeStep(bool simulationDone)
 {
-    if(collectTLData)
-    {
-        TLStatePerVehicle();   // collecting data from all vehicles in each timeStep
-        if(ev.isGUI()) TLDataToFile();  // (if in GUI) write what we have collected so far
-    }
+
 }
 
-
-void TrafficLightBase::TLStatePerVehicle()
-{
-    // get all lanes in the network
-    std::list<std::string> myList = TraCI->laneGetIDList();
-
-    for(std::list<std::string>::iterator i = myList.begin(); i != myList.end(); ++i)
-    {
-        // get all vehicles on lane i
-        std::list<std::string> myList2 = TraCI->laneGetLastStepVehicleIDs( i->c_str() );
-
-        for(std::list<std::string>::reverse_iterator k = myList2.rbegin(); k != myList2.rend(); ++k)
-            saveTLStatePerVehicle(k->c_str());
-    }
-
-    // increase index after writing data for all vehicles
-    if (TraCI->vehicleGetIDCount() > 0)
-        index++;
-}
-
-
-void TrafficLightBase::saveTLStatePerVehicle(std::string vID)
-{
-    std::string lane = TraCI->vehicleGetLaneID(vID);
-
-    // get the TLid that controls this vehicle
-    // empty string means the vehicle is not controlled by any TLid
-    std::string TLid = "";
-    for (std::list<std::string>::iterator it = TLList.begin() ; it != TLList.end(); ++it)
-    {
-        std::list<std::string> lan = TraCI->TLGetControlledLanes(*it);
-        for(std::list<std::string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
-        {
-            if(*it2 == lane)
-            {
-                TLid = *it;
-                break;
-            }
-        }
-    }
-
-    std::string TLprogram = "";
-    if(TLid != "")
-        TLprogram = TraCI->TLGetProgram(TLid);
-
-    // if the signal is yellow or red
-    int YorR = TraCI->vehicleGetTrafficLightAhead(vID);
-
-    double timeStep = (simTime()-updateInterval).dbl();
-    double pos = TraCI->vehicleGetLanePosition(vID);
-    double speed = TraCI->vehicleGetSpeed(vID);
-
-    TLVehicleData *tmp = new TLVehicleData(index, timeStep,
-                                           vID.c_str(), lane.c_str(), pos,
-                                           speed, TLid.c_str(), TLprogram.c_str(), YorR);
-    Vec_vehiclesData.push_back(*tmp);
-}
-
-
-void TrafficLightBase::TLDataToFile()
-{
-    boost::filesystem::path filePath;
-
-    if( ev.isGUI() )
-    {
-        filePath = "results/gui/TLStatePerVehicle.txt";
-    }
-    else
-    {
-        // get the current run number
-        int currentRun = ev.getConfigEx()->getActiveRunNumber();
-        std::ostringstream fileName;
-
-        fileName << currentRun << "_TLStatePerVehicle.txt";
-
-        filePath = "results/cmd/" + fileName.str();
-    }
-
-    FILE *filePtr = fopen (filePath.string().c_str(), "w");
-
-    // write header
-    fprintf (filePtr, "%-10s","index");
-    fprintf (filePtr, "%-12s","timeStep");
-    fprintf (filePtr, "%-15s","vehicleName");
-    fprintf (filePtr, "%-12s","lane");
-    fprintf (filePtr, "%-11s","pos");
-    fprintf (filePtr, "%-12s","speed");
-    fprintf (filePtr, "%-12s","TLid");
-    fprintf (filePtr, "%-12s","TLprogram");
-    fprintf (filePtr, "%-17s\n\n","yellowOrRed");
-
-    int oldIndex = -1;
-
-    // write body
-    for(std::vector<TLVehicleData>::iterator y = Vec_vehiclesData.begin(); y != Vec_vehiclesData.end(); y++)
-    {
-        if(oldIndex != y->index)
-        {
-            fprintf(filePtr, "\n");
-            oldIndex = y->index;
-        }
-
-        fprintf (filePtr, "%-10d ", y->index);
-        fprintf (filePtr, "%-10.2f ", y->time );
-        fprintf (filePtr, "%-15s ", y->vehicleName.c_str());
-        fprintf (filePtr, "%-12s ", y->lane.c_str());
-        fprintf (filePtr, "%-10.2f ", y->pos);
-        fprintf (filePtr, "%-10.2f ", y->speed);
-        fprintf (filePtr, "%-15s ", y->TLid.c_str());
-        fprintf (filePtr, "%-15s ", y->TLprogram.c_str());
-        fprintf (filePtr, "%-15d \n", y->yellowOrRedSignal);
-    }
-
-    fclose(filePtr);
-}
 
 }

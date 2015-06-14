@@ -91,6 +91,9 @@ void TraCI_App::init_traci()
 {
     TraCI_Extend::init_traci();
 
+    // get the list of all TL
+    TLList = TLGetIDList();
+
     simsignal_t Signal_executeFirstTS = registerSignal("executeFirstTS");
     nodePtr->emit(Signal_executeFirstTS, 1);
 }
@@ -367,11 +370,31 @@ void TraCI_App::saveVehicleData(std::string vID)
     if(vleaderID != "" && speed != 0)
         timeGap = spaceGap / speed;
 
+    // get the TLid that controls this vehicle
+    // empty string means the vehicle is not controlled by any TLid
+    std::string TLid = "";
+    for (std::list<std::string>::iterator it = TLList.begin() ; it != TLList.end(); ++it)
+    {
+        std::list<std::string> lan = TLGetControlledLanes(*it);
+        for(std::list<std::string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
+        {
+            if(*it2 == lane)
+            {
+                TLid = *it;
+                break;
+            }
+        }
+    }
+
+    // if the signal is yellow or red
+    int YorR = vehicleGetTrafficLightAhead(vID);
+
     VehicleData *tmp = new VehicleData(index, timeStep,
             vID.c_str(), vType.c_str(),
             lane.c_str(), pos,
             speed, accel, CFMode.c_str(),
-            timeGapSetting, spaceGap, timeGap);
+            timeGapSetting, spaceGap, timeGap,
+            TLid.c_str(), YorR);
     Vec_vehiclesData.push_back(*tmp);
 }
 
@@ -419,7 +442,9 @@ void TraCI_App::vehiclesDataToFile()
     fprintf (filePtr, "%-20s","CFMode");
     fprintf (filePtr, "%-20s","timeGapSetting");
     fprintf (filePtr, "%-10s","SpaceGap");
-    fprintf (filePtr, "%-10s\n\n","timeGap");
+    fprintf (filePtr, "%-16s","timeGap");
+    fprintf (filePtr, "%-17s","TLid");
+    fprintf (filePtr, "%-17s\n\n","yellowOrRed");
 
     int oldIndex = -1;
 
@@ -443,7 +468,9 @@ void TraCI_App::vehiclesDataToFile()
         fprintf (filePtr, "%-20s", y->CFMode.c_str());
         fprintf (filePtr, "%-20.2f ", y->timeGapSetting);
         fprintf (filePtr, "%-10.2f ", y->spaceGap);
-        fprintf (filePtr, "%-10.2f \n", y->timeGap);
+        fprintf (filePtr, "%-16.2f ", y->timeGap);
+        fprintf (filePtr, "%-17s ", y->TLid.c_str());
+        fprintf (filePtr, "%-17d \n", y->YorR);
     }
 
     fclose(filePtr);
