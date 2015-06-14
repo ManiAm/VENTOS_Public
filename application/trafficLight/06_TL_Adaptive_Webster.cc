@@ -58,6 +58,9 @@ void TrafficLightWebster::initialize(int stage)
 
         ChangeEvt = new cMessage("ChangeEvt", 1);
         scheduleAt(simTime().dbl() + intervalOffSet, ChangeEvt);
+
+        // measure traffic demand
+        measureTrafficDemand = true;
     }
 }
 
