@@ -457,22 +457,30 @@ void TrafficLightAdaptiveQueue::chooseNextInterval()
 void TrafficLightAdaptiveQueue::chooseNextGreenInterval()
 {
     int maxQueue = -1;
+    int numMoves = -1;
     int row = -1;
 
     // get which row has the highest queue length
     for(unsigned int i = 0; i < allMovements.size(); i++)  // row
     {
         int totalQueueRow = 0;
+        int oneCount = 0;
 
         for(int j = 0; j < LINKSIZE; j++)  // column
         {
             if(allMovements[i][j] == 1)
+            {
                 totalQueueRow = totalQueueRow + linkQueueSize[std::make_pair("C",j)];
+                oneCount++;
+            }
         }
 
-        if(totalQueueRow > maxQueue)
+        // if we find a row with higher total queue size or
+        // equal queue size but with higher number of allowed non-conflicting movements
+        if( (totalQueueRow > maxQueue) || (totalQueueRow == maxQueue && oneCount > numMoves) )
         {
             maxQueue = totalQueueRow;
+            numMoves = oneCount;
             row = i;
         }
     }
