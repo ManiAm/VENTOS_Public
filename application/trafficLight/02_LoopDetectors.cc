@@ -45,8 +45,9 @@ void LoopDetectors::initialize(int stage)
     if(stage == 0)
     {
         collectInductionLoopData = par("collectInductionLoopData").boolValue();
-        measureIntersectionQueue = par("measureIntersectionQueue").boolValue();
         measureTrafficDemand = par("measureTrafficDemand").boolValue();
+        measureIntersectionQueue = par("measureIntersectionQueue").boolValue();
+        collectTLData = par("collectTLData").boolValue();
 
         LD_demand.clear();
         LD_actuated.clear();
@@ -56,7 +57,7 @@ void LoopDetectors::initialize(int stage)
         linkQueueSize.clear();
 
         Vec_loopDetectors.clear();
-        Vec_queueSize.clear();
+        Vec_IntersectionData.clear();
     }
 }
 
@@ -78,6 +79,8 @@ void LoopDetectors::handleMessage(cMessage *msg)
 void LoopDetectors::executeFirstTimeStep()
 {
     TrafficLightBase::executeFirstTimeStep();
+
+    TLList = TraCI->TLGetIDList();
 
     getAllDetectors();
 
@@ -161,13 +164,17 @@ void LoopDetectors::executeEachTimeStep(bool simulationDone)
         measureTD();
 
     if(measureIntersectionQueue)
+        measureQ();
+
+    // should be after measureQ
+    if(collectTLData)
     {
-        measureQ();           // collecting queue size in each timeStep
+        collectTrafficLightData();
 
         if(ev.isGUI())
-            saveQueueData();  // (if in GUI) write to file what we have collected so far
+            saveTLData();  // (if in GUI) write to file what we have collected so far
         else if(simulationDone)
-            saveQueueData();  // (if in CMD) write to file at the end of simulation
+            saveTLData();  // (if in CMD) write to file at the end of simulation
     }
 }
 
@@ -183,9 +190,9 @@ void LoopDetectors::getAllDetectors()
         std::string lane = TraCI->LDGetLaneID(*it);
 
         if( std::string(*it).find("demand_") != std::string::npos )
-            LD_demand.insert(std::pair<std::string, std::string>(lane, *it));
+            LD_demand[lane] = *it;
         else if( std::string(*it).find("actuated_") != std::string::npos )
-            LD_actuated.insert(std::pair<std::string, std::string>(lane, *it));
+            LD_actuated[lane] = *it;
     }
 
     // get all area detectors
@@ -197,7 +204,7 @@ void LoopDetectors::getAllDetectors()
         std::string lane = TraCI->LADGetLaneID(*it);
 
         if( std::string(*it).find("queue_") != std::string::npos )
-            AD_queue.insert(std::pair<std::string, std::string>(lane, *it));
+            AD_queue[lane] = *it;
     }
 
     std::cout << endl << LD_demand.size() << " demand loop detectors found!" << endl;
@@ -369,6 +376,7 @@ void LoopDetectors::measureTD()
 }
 
 
+// measure queue size per incoming lane per simTime in each intersection
 void LoopDetectors::measureQ()
 {
     // for each lane i that is controlled by traffic light j
@@ -382,15 +390,12 @@ void LoopDetectors::measureQ()
             continue;
 
         std::string ADid = AD_queue[lane];
-        int q = TraCI->LADGetLastStepVehicleHaltingNumber(ADid);
+        int q = TraCI->LADGetLastStepVehicleNumber(ADid);
 
         // update laneQueueSize
         std::map<std::string,std::pair<std::string,int>>::iterator location = laneQueueSize.find(lane);
         std::pair<std::string,int> store = location->second;
         location->second = std::make_pair( store.first, q );
-
-        IntersectionQueueData *tmp = new IntersectionQueueData( simTime().dbl(), TLid.c_str(), lane.c_str(), q );
-        Vec_queueSize.push_back(*tmp);
     }
 
     for(std::map<std::pair<std::string,int>,std::string>::iterator y = linksTL.begin(); y != linksTL.end(); y++)
@@ -410,43 +415,61 @@ void LoopDetectors::measureQ()
             continue;
 
         std::string ADid = AD_queue[incommingLane];
-        int q = TraCI->LADGetLastStepVehicleHaltingNumber(ADid);
+        int q = TraCI->LADGetLastStepVehicleNumber(ADid);
 
+        // update linkQueueSize
         std::map<std::pair<std::string,int>, int>::iterator location = linkQueueSize.find( make_pair(TLid,linkNumber) );
         location->second = q;
     }
 }
 
 
-void LoopDetectors::saveQueueData()
+// collect TL data
+void LoopDetectors::collectTrafficLightData()
+{
+    // for each lane i that is controlled by traffic light j
+    for(std::map<std::string, std::string>::iterator y = lanesTL.begin(); y != lanesTL.end(); y++)
+    {
+        std::string lane = (*y).first;
+        std::string TLid = (*y).second;
+        int qSize = laneQueueSize[lane].second;
+
+        IntersectionTLData *tmp = new IntersectionTLData( simTime().dbl(), TLid, lane, qSize, currentInterval);
+        Vec_IntersectionData.push_back(*tmp);
+    }
+}
+
+
+void LoopDetectors::saveTLData()
 {
     boost::filesystem::path filePath;
 
     if( ev.isGUI() )
     {
-        filePath = "results/gui/queueSize.txt";
+        filePath = "results/gui/intersectionData.txt";
     }
     else
     {
         // get the current run number
         int currentRun = ev.getConfigEx()->getActiveRunNumber();
         std::ostringstream fileName;
-        fileName << currentRun << "_queueSize.txt";
+        fileName << currentRun << "_intersectionData.txt";
         filePath = "results/cmd/" + fileName.str();
     }
 
     FILE *filePtr = fopen (filePath.string().c_str(), "w");
 
     // write header
-    fprintf (filePtr, "%-20s","time");
-    fprintf (filePtr, "%-20s","TLid");
-    fprintf (filePtr, "%-20s","lane");
-    fprintf (filePtr, "%-20s\n","queueSize");
+    fprintf (filePtr, "%-15s","time");
+    fprintf (filePtr, "%-15s","TLid");
+    fprintf (filePtr, "%-15s","lane");
+    fprintf (filePtr, "%-20s","queueSize");
+    fprintf (filePtr, "%-30s\n","currentInterval");
 
     double oldTime = -1;
 
     // write body
-    for(std::vector<IntersectionQueueData>::iterator y = Vec_queueSize.begin(); y != Vec_queueSize.end(); y++)
+    for(std::vector<IntersectionTLData>::iterator y = Vec_IntersectionData.begin(); y != Vec_IntersectionData.end(); y++)
     {
         if(oldTime != y->time)
         {
@@ -454,10 +477,11 @@ void LoopDetectors::saveQueueData()
             oldTime = y->time;
         }
 
-        fprintf (filePtr, "%-20.2f ", y->time);
-        fprintf (filePtr, "%-20s ", y->TLid.c_str());
-        fprintf (filePtr, "%-20s ", y->lane.c_str());
-        fprintf (filePtr, "%-20d\n", y->qSize);
+        fprintf (filePtr, "%-15.2f ", y->time);
+        fprintf (filePtr, "%-15s ", y->TLid.c_str());
+        fprintf (filePtr, "%-15s ", y->lane.c_str());
+        fprintf (filePtr, "%-15d ", y->qSize);
+        fprintf (filePtr, "%-30s\n", y->currentInterval.c_str());
     }
 
     fclose(filePtr);

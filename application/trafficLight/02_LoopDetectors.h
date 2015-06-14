@@ -63,20 +63,23 @@ class LoopDetectorData
 };
 
 
-class IntersectionQueueData
+class IntersectionTLData
 {
   public:
     double time;
     std::string TLid;
     std::string lane;
     int qSize;
+    std::string currentInterval;
+    double elapsedT;
 
-    IntersectionQueueData( double t, std::string str1, std::string str2, int q )
+    IntersectionTLData( double t, std::string str1, std::string str2, int q, std::string str3)
     {
         this->time = t;
         this->TLid = str1;
         this->lane = str2;
         this->qSize = q;
+        this->currentInterval = str3;
     }
 };
 
@@ -95,20 +98,30 @@ class LoopDetectors : public TrafficLightBase
 
   private:
     void getAllDetectors();
+
     void collectLDsData();
     void saveLDsData();
+
     void measureTD();
     void measureQ();
-    void saveQueueData();
+
+    void collectTrafficLightData();
+    void saveTLData();
 
   protected:
     bool collectInductionLoopData;
-    bool measureIntersectionQueue;
     bool measureTrafficDemand;
+    bool measureIntersectionQueue;
+    bool collectTLData;
 
-    std::map<std::string, std::string> LD_demand;     // ids of loop detectors for measuring incoming traffic demand
-    std::map<std::string, std::string> LD_actuated;   // ids of loop detectors for actuated-time signal control
-    std::map<std::string, std::string> AD_queue;      // ids of area detectors for measuring queue length
+    std::list<std::string> TLList;   // list of traffic-lights in the network
+
+    double intervalElapseTime;
+    std::string currentInterval;
+
+    std::map<std::string /*lane*/, std::string /*id*/> LD_demand;      // ids of loop detectors for measuring incoming traffic demand
+    std::map<std::string /*lane*/, std::string /*id*/> LD_actuated;    // ids of loop detectors for actuated-time signal control
+    std::map<std::string /*lane*/, std::string /*id*/> AD_queue;       // ids of area detectors for measuring queue length
 
     std::map<std::string /*lane*/, std::string /*TLid*/> lanesTL;                                        // all incoming lanes belong to each intersection
     std::map<std::pair<std::string /*TLid*/,int /*link number*/>, std::string /*link*/> linksTL;         // all links belong to each intersection
@@ -117,7 +130,7 @@ class LoopDetectors : public TrafficLightBase
     std::map<std::pair<std::string /*TLid*/,int /*link*/>, int /*queue size*/> linkQueueSize;            // queue size for each link of each intersection
 
     std::vector<LoopDetectorData> Vec_loopDetectors;
-    std::vector<IntersectionQueueData> Vec_queueSize;
+    std::vector<IntersectionTLData> Vec_IntersectionData;
 
   private:
     bool freeze = false;
