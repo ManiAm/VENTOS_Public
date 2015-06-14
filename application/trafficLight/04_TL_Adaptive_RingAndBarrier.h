@@ -56,6 +56,7 @@ class TrafficLightAdaptive : public TrafficLightFixed
     double yellowTime;
     double redTime;
     double passageTime;
+    bool greenExtension;
 
     // class variables
     double intervalOffSet;
@@ -65,15 +66,15 @@ class TrafficLightAdaptive : public TrafficLightFixed
     std::map<std::string,double> passageTimePerLane;
 
     // phases for ring-and-barrier
-    std::string phase1_5 = "rrrrGrrrrrrrrrGrrrrrrrrr";
-    std::string phase2_5 = "gGgGGrrrrrrrrrrrrrrrrrrG";
-    std::string phase1_6 = "rrrrrrrrrrgGgGGrrrrrrGrr";
-    std::string phase2_6 = "gGgGrrrrrrgGgGrrrrrrrGrG";
+    std::string phase1_5 = "grgrGgrgrrgrgrGgrgrrrrrr";
+    std::string phase2_5 = "gGgGGgrgrrgrgrrgrgrrrrrG";
+    std::string phase1_6 = "grgrrgrgrrgGgGGgrgrrrGrr";
+    std::string phase2_6 = "gGgGrgrgrrgGgGrgrgrrrGrG";
 
-    std::string phase3_7 = "rrrrrrrrrGrrrrrrrrrGrrrr";
-    std::string phase3_8 = "rrrrrrrrrrrrrrrgGgGGrrGr";
-    std::string phase4_7 = "rrrrrgGgGGrrrrrrrrrrGrrr";
-    std::string phase4_8 = "rrrrrgGgGrrrrrrgGgGrGrGr";
+    std::string phase3_7 = "grgrrgrgrGgrgrrgrgrGrrrr";
+    std::string phase3_8 = "grgrrgrgrrgrgrrgGgGGrrGr";
+    std::string phase4_7 = "grgrrgGgGGgrgrrgrgrrGrrr";
+    std::string phase4_8 = "grgrrgGgGrgrgrrgGgGrGrGr";
 };
 
 }

@@ -52,6 +52,7 @@ class TrafficLightVANET : public TrafficLightWebster
   protected:
     // class variables
     ApplRSUTLVANET *RSU;
+    bool greenExtension;
 };
 
 }

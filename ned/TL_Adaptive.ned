@@ -11,5 +11,6 @@ simple TL_Adaptive extends TL_Fixed
         double maxGreenTime = default(0s) @unit(s);
         double yellowTime = default(0s) @unit(s);
         double redTime = default(0s) @unit(s);
+        bool greenExtension;
         double passageTime = default(0s) @unit(s);
 }

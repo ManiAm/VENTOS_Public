@@ -52,6 +52,7 @@ void TrafficLightVANET::initialize(int stage)
         yellowTime = par("yellowTime").doubleValue();
         redTime = par("redTime").doubleValue();
         passageTime = par("passageTime").doubleValue();
+        greenExtension = par("greenExtension").boolValue();
 
         // set initial values
         intervalOffSet = minGreenTime;
@@ -182,7 +183,7 @@ void TrafficLightVANET::chooseNextGreenInterval()
     // Do proper transition:
     if (currentInterval == phase1_5)
     {
-        if (intervalElapseTime < maxGreenTime && LastDetectedTime["NC_4"] < passageTime && LastDetectedTime["SC_4"] < passageTime)
+        if (greenExtension && intervalElapseTime < maxGreenTime && LastDetectedTime["NC_4"] < passageTime && LastDetectedTime["SC_4"] < passageTime)
         {
             intervalOffSet = std::max(passageTime-LastDetectedTime["NC_4"], passageTime-LastDetectedTime["SC_4"]);
             extend = true;
@@ -208,7 +209,7 @@ void TrafficLightVANET::chooseNextGreenInterval()
     }
     else if (currentInterval == phase2_5)
     {
-        if (intervalElapseTime < maxGreenTime && LastDetectedTime["NC_4"] < passageTime)
+        if (greenExtension && intervalElapseTime < maxGreenTime && LastDetectedTime["NC_4"] < passageTime)
         {
             intervalOffSet = passageTime - LastDetectedTime["NC_4"];
             extend = true;
@@ -222,7 +223,7 @@ void TrafficLightVANET::chooseNextGreenInterval()
     }
     else if (currentInterval == phase1_6)
     {
-        if (intervalElapseTime < maxGreenTime && LastDetectedTime["SC_4"] < passageTime)
+        if (greenExtension && intervalElapseTime < maxGreenTime && LastDetectedTime["SC_4"] < passageTime)
         {
             intervalOffSet = passageTime - LastDetectedTime["SC_4"];
             extend = true;
@@ -236,7 +237,7 @@ void TrafficLightVANET::chooseNextGreenInterval()
     }
     else if (currentInterval == phase2_6)
     {
-        if (intervalElapseTime < maxGreenTime &&
+        if (greenExtension && intervalElapseTime < maxGreenTime &&
              (LastDetectedTime["NC_2"] < passageTime || LastDetectedTime["NC_3"] < passageTime ||
               LastDetectedTime["SC_2"] < passageTime || LastDetectedTime["SC_3"] < passageTime))
         {
@@ -254,7 +255,7 @@ void TrafficLightVANET::chooseNextGreenInterval()
     }
     else if (currentInterval == phase3_7)
     {
-        if (intervalElapseTime < maxGreenTime && LastDetectedTime["WC_4"] < passageTime && LastDetectedTime["EC_4"] < passageTime)
+        if (greenExtension && intervalElapseTime < maxGreenTime && LastDetectedTime["WC_4"] < passageTime && LastDetectedTime["EC_4"] < passageTime)
         {
             intervalOffSet = std::max(passageTime-LastDetectedTime["WC_4"], passageTime-LastDetectedTime["EC_4"]);
             extend = true;
@@ -280,7 +281,7 @@ void TrafficLightVANET::chooseNextGreenInterval()
     }
     else if (currentInterval == phase3_8)
     {
-        if (intervalElapseTime < maxGreenTime && LastDetectedTime["WC_4"] < passageTime)
+        if (greenExtension && intervalElapseTime < maxGreenTime && LastDetectedTime["WC_4"] < passageTime)
         {
             intervalOffSet = passageTime - LastDetectedTime["WC_4"];
             extend = true;
@@ -294,7 +295,7 @@ void TrafficLightVANET::chooseNextGreenInterval()
     }
     else if (currentInterval == phase4_7)
     {
-        if (intervalElapseTime < maxGreenTime && LastDetectedTime["EC_4"] < passageTime)
+        if (greenExtension && intervalElapseTime < maxGreenTime && LastDetectedTime["EC_4"] < passageTime)
         {
             intervalOffSet = passageTime - LastDetectedTime["EC_4"];
             extend = true;
@@ -308,7 +309,7 @@ void TrafficLightVANET::chooseNextGreenInterval()
     }
     else if (currentInterval == phase4_8)
     {
-        if (intervalElapseTime < maxGreenTime &&
+        if (greenExtension && intervalElapseTime < maxGreenTime &&
             (LastDetectedTime["WC_2"] < passageTime || LastDetectedTime["WC_3"] < passageTime ||
              LastDetectedTime["EC_2"] < passageTime || LastDetectedTime["EC_3"] < passageTime))
         {
