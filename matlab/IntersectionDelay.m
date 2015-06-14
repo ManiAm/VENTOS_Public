@@ -6,9 +6,9 @@ clc;    % position the cursor at the top of the screen
 
 % ---------------------------------------------------------------
 
-path = '../results/gui/TLStatePerVehicle_fixV.txt';    
+path = '../results/gui/vehicleData_test2.txt';    
 file_id = fopen(path);
-formatSpec = '%d %f %s %s %f %f %s %d';
+formatSpec = '%d %f %s %s %s %f %f %f %s %f %f %f %s %d';
 C_text = textscan(file_id, formatSpec, 'HeaderLines', 3);
 fclose(file_id);
 
@@ -17,9 +17,9 @@ fclose(file_id);
 indices = C_text{1,1};
 timeSteps = C_text{1,2};
 vehicles = C_text{1,3}; 
-lanes = C_text{1,4};
-speeds = C_text{1,6};
-signal = C_text{1,8};
+lanes = C_text{1,5};
+speeds = C_text{1,7};
+signal = C_text{1,14};
 
 % ---------------------------------------------------------------
     
@@ -94,19 +94,17 @@ end
 
 % ---------------------------------------------------------------
 
-% extracting the vehicle speed between indexDB(1,i) and indexDB(2,i) 
+% extracting the vehicle speed between indexLane(1,i) and indexLane(2,i) 
 % signal should also be yellow or red
 
 waitingSpeeds = zeros( size(vehiclesTS,1), VehNumbers ) - 1; % initialize to -1
-yellowOrRed = zeros(1,VehNumbers);  % did the traffic light became yellow or red at leat once
 
 for i=1:VehNumbers  
     if( indexLane(1,i) ~= -1 && indexLane(2,i) ~= -1 )
         for j=indexLane(1,i):indexLane(2,i)    
-            if( vehicleSignal(j,i) == 1 )  % if the signal is yellow or red
+          %  if( vehicleSignal(j,i) == 1 )  % if the signal is yellow or red
                 waitingSpeeds(j,i) = vehiclesSpeed(j,i)';
-                yellowOrRed(i) = 1;
-            end
+         %   end
         end
     end
 end
@@ -224,7 +222,7 @@ for i=1:VehNumbers
     set( gca, 'XLim', [0 vehiclesTS(end)] );
     
     % set the y-axis limit
-    set( gca, 'YLim', [-2 15] );
+    set( gca, 'YLim', [-2 34] );
 
     % set font size
     set(gca, 'FontSize', 17);
@@ -236,19 +234,16 @@ for i=1:VehNumbers
     % if the vehicle did not cross the intersection at all
     if( crossed(i) == 0 )        
         text(4, 13, 'Not crossed!');
-    % if the vehicle gets green all the time (delay=0)
-    elseif( yellowOrRed(i) == 0 )
-        text(4, 13, 'Gets green all the time!');
     end    
     
-    % slowing down and waiting time
+    % mark slowing down and waiting time with an arrow
     if( index(1,i) ~= -1 && index(2,i) ~= -1 )
         startC = [vehiclesTS(index(1,i),1), vehiclesSpeed(index(1,i),i)]; 
         endC = [vehiclesTS(index(2,i),1), vehiclesSpeed(index(1,i),i)];
         arrow(startC, endC, 10, 'BaseAngle', 20, 'Ends', 3);
     end
     
-    % speeding up
+    % mark speeding up with an arrow
     if( indexSpeedUp(1,i) ~= -1 && indexSpeedUp(2,i) ~= -1 )
         startC = [vehiclesTS(indexSpeedUp(1,i),1), vehiclesSpeed(indexSpeedUp(1,i),i)]; 
         endC = [vehiclesTS(indexSpeedUp(2,i),1), vehiclesSpeed(indexSpeedUp(1,i),i)];
