@@ -59,8 +59,6 @@ class TrafficLightAdaptive : public TrafficLightFixed
 
     // class variables
     double intervalOffSet;
-    double intervalElapseTime;
-    std::string currentInterval;
     std::string nextGreenInterval;
     cMessage* ChangeEvt;
 

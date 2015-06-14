@@ -97,13 +97,13 @@ void TrafficLightAdaptive::executeFirstTimeStep()
     if(TLControlMode != 2)
         return;
 
-    std::cout << "Adaptive-time traffic signal control ..."  << endl << endl;
+    std::cout << "Adaptive-time traffic signal control ..."  << endl;
 
     // passageTime is not set by the user
     if(passageTime == -1)
     {
-        // (*LD).first is 'lane id' and (*LD).second is 'detector id'
-        for (std::map<std::string,std::string>::iterator LD = LD_actuated.begin(); LD != LD_actuated.end(); LD++)
+        // (*LD).first is 'lane id' and (*LD).second is detector id
+        for (std::map<std::string, std::string>::iterator LD = LD_actuated.begin(); LD != LD_actuated.end(); LD++)
         {
             // get the max speed on this lane
             double maxV = TraCI->laneGetMaxSpeed((*LD).first);
@@ -121,14 +121,12 @@ void TrafficLightAdaptive::executeFirstTimeStep()
             passageTimePerLane[(*LD).first] = pass;
         }
     }
-    // set all passageTime
+    // passage time is set manually be the user
     else if(passageTime >=0 && passageTime <= minGreenTime)
     {
-        // (*LD).first is 'lane id' and (*LD).second is 'detector id'
-        for (std::map<std::string,std::string>::iterator LD = LD_actuated.begin(); LD != LD_actuated.end(); LD++)
-        {
+        // (*LD).first is 'lane id' and (*LD).second is detector id
+        for (std::map<std::string, std::string>::iterator LD = LD_actuated.begin(); LD != LD_actuated.end(); LD++)
             passageTimePerLane[(*LD).first] = passageTime;
-        }
     }
     else
         error("passageTime value is not set correctly!");
@@ -149,6 +147,31 @@ void TrafficLightAdaptive::executeEachTimeStep(bool simulationDone)
 {
     // call parent
     TrafficLightFixed::executeEachTimeStep(simulationDone);
+
+    // update passage time if necessary
+    if(passageTime == -1)
+    {
+        // (*LD).first is 'lane id' and (*LD).second is detector id
+        for (std::map<std::string, std::string>::iterator LD = LD_actuated.begin(); LD != LD_actuated.end(); LD++)
+        {
+            double approachSpeed = TraCI->LDGetLastStepMeanVehicleSpeed((*LD).second);
+            // update passage time for this lane
+            if(approachSpeed > 0)
+            {
+                // get position of the loop detector from end of lane
+                double LDPos = TraCI->laneGetLength((*LD).first) - TraCI->LDGetPosition((*LD).second);
+                // calculate passageTime for this lane
+                double pass = std::abs(LDPos) / approachSpeed;
+                // check if not greater than Gmin
+                if(pass > minGreenTime)
+                    pass = minGreenTime;
+
+                // update passage time value in passageTimePerLane
+                std::map<std::string,double>::iterator location = passageTimePerLane.find((*LD).first);
+                location->second = pass;
+            }
+        }
+    }
 }
 
 
@@ -195,25 +218,26 @@ void TrafficLightAdaptive::chooseNextInterval()
 
 void TrafficLightAdaptive::chooseNextGreenInterval()
 {
+    // print for debugging
+    std::cout << "SimTime: " << std::setprecision(2) << std::fixed << simTime().dbl() << " | Passage time value per lane: ";
+    for (std::map<std::string,double>::iterator LD = passageTimePerLane.begin(); LD != passageTimePerLane.end(); LD++)
+        std::cout << (*LD).first << " (" << (*LD).second << ") | ";
+    std::cout << endl;
+
     // get loop detector information
     std::map<std::string,double> LastActuatedTime;
 
-    std::cout << "SimTime: " << std::setprecision(2) << std::fixed << simTime().dbl() << " | Actuated LDs (TLid, lane, elapsed time): ";
+    std::cout << "SimTime: " << std::setprecision(2) << std::fixed << simTime().dbl() << " | Actuated LDs (lane, elapsed time): ";
 
-    // (*LD).first is 'lane id' and (*LD).second is 'detector id'
-    for (std::map<std::string,std::string>::iterator LD = LD_actuated.begin(); LD != LD_actuated.end(); LD++)
+    // (*LD).first is 'lane id' and (*LD).second is detector id
+    for (std::map<std::string, std::string>::iterator LD = LD_actuated.begin(); LD != LD_actuated.end(); LD++)
     {
-        // If maxGreenTime met, don't care for actuator values,
-        // so push passageTime so that conditions fail and move to red interval
-        if (intervalElapseTime >= maxGreenTime)
-            LastActuatedTime[(*LD).first] = passageTimePerLane[(*LD).first];
-        else
-        {
-            double elapsedT = TraCI->LDGetElapsedTimeLastDetection( (*LD).second );
-            LastActuatedTime[(*LD).first] = elapsedT;
-            if( elapsedT + updateInterval < simTime().dbl() )
-                std::cout << "C, " << (*LD).first << ", " << elapsedT << " | ";
-        }
+        double elapsedT = TraCI->LDGetElapsedTimeLastDetection( (*LD).second);
+        LastActuatedTime[(*LD).first] = elapsedT;
+
+        // print for debugging
+        if(abs( simTime().dbl() - (elapsedT + updateInterval) ) >= updateInterval)
+            std::cout << (*LD).first << " (" << elapsedT << ") | ";
     }
 
     std::cout << endl;
@@ -224,7 +248,7 @@ void TrafficLightAdaptive::chooseNextGreenInterval()
     // Do proper transition:
     if (currentInterval == phase1_5)
     {
-        if (LastActuatedTime["NC_4"] < passageTimePerLane["NC_4"] && LastActuatedTime["SC_4"] < passageTimePerLane["SC_4"])
+        if (intervalElapseTime < maxGreenTime && LastActuatedTime["NC_4"] < passageTimePerLane["NC_4"] && LastActuatedTime["SC_4"] < passageTimePerLane["SC_4"])
         {
             intervalOffSet = std::max(passageTimePerLane["NC_4"]-LastActuatedTime["NC_4"], passageTimePerLane["SC_4"]-LastActuatedTime["SC_4"]);
             extend = true;
@@ -250,7 +274,7 @@ void TrafficLightAdaptive::chooseNextGreenInterval()
     }
     else if (currentInterval == phase2_5)
     {
-        if (LastActuatedTime["NC_4"] < passageTimePerLane["NC_4"])
+        if (intervalElapseTime < maxGreenTime && LastActuatedTime["NC_4"] < passageTimePerLane["NC_4"])
         {
             intervalOffSet = passageTimePerLane["NC_4"] - LastActuatedTime["NC_4"];
             extend = true;
@@ -264,7 +288,7 @@ void TrafficLightAdaptive::chooseNextGreenInterval()
     }
     else if (currentInterval == phase1_6)
     {
-        if (LastActuatedTime["SC_4"] < passageTimePerLane["SC_4"])
+        if (intervalElapseTime < maxGreenTime && LastActuatedTime["SC_4"] < passageTimePerLane["SC_4"])
         {
             intervalOffSet = passageTimePerLane["SC_4"] - LastActuatedTime["SC_4"];
             extend = true;
@@ -278,8 +302,9 @@ void TrafficLightAdaptive::chooseNextGreenInterval()
     }
     else if (currentInterval == phase2_6)
     {
-        if (LastActuatedTime["NC_2"] < passageTimePerLane["NC_2"] || LastActuatedTime["NC_3"] < passageTimePerLane["NC_3"] ||
-            LastActuatedTime["SC_2"] < passageTimePerLane["SC_2"] || LastActuatedTime["SC_3"] < passageTimePerLane["SC_3"])
+        if (intervalElapseTime < maxGreenTime &&
+            (LastActuatedTime["NC_2"] < passageTimePerLane["NC_2"] || LastActuatedTime["NC_3"] < passageTimePerLane["NC_3"] ||
+             LastActuatedTime["SC_2"] < passageTimePerLane["SC_2"] || LastActuatedTime["SC_3"] < passageTimePerLane["SC_3"]))
         {
             double biggest1 = std::max(passageTimePerLane["NC_2"]-LastActuatedTime["NC_2"], passageTimePerLane["SC_2"]-LastActuatedTime["SC_2"]);
             double biggest2 = std::max(passageTimePerLane["NC_3"]-LastActuatedTime["NC_3"], passageTimePerLane["SC_3"]-LastActuatedTime["SC_3"]);
@@ -295,7 +320,7 @@ void TrafficLightAdaptive::chooseNextGreenInterval()
     }
     else if (currentInterval == phase3_7)
     {
-        if (LastActuatedTime["WC_4"] < passageTimePerLane["WC_4"] && LastActuatedTime["EC_4"] < passageTimePerLane["EC_4"])
+        if (intervalElapseTime < maxGreenTime && LastActuatedTime["WC_4"] < passageTimePerLane["WC_4"] && LastActuatedTime["EC_4"] < passageTimePerLane["EC_4"])
         {
             intervalOffSet = std::max(passageTimePerLane["WC_4"]-LastActuatedTime["WC_4"], passageTimePerLane["EC_4"]-LastActuatedTime["EC_4"]);
             extend = true;
@@ -321,7 +346,7 @@ void TrafficLightAdaptive::chooseNextGreenInterval()
     }
     else if (currentInterval == phase3_8)
     {
-        if (LastActuatedTime["WC_4"] < passageTimePerLane["WC_4"])
+        if (intervalElapseTime < maxGreenTime && LastActuatedTime["WC_4"] < passageTimePerLane["WC_4"])
         {
             intervalOffSet = passageTimePerLane["WC_4"] - LastActuatedTime["WC_4"];
             extend = true;
@@ -335,7 +360,7 @@ void TrafficLightAdaptive::chooseNextGreenInterval()
     }
     else if (currentInterval == phase4_7)
     {
-        if (LastActuatedTime["EC_4"] < passageTimePerLane["EC_4"])
+        if (intervalElapseTime < maxGreenTime && LastActuatedTime["EC_4"] < passageTimePerLane["EC_4"])
         {
             intervalOffSet = passageTimePerLane["EC_4"] - LastActuatedTime["EC_4"];
             extend = true;
@@ -349,8 +374,9 @@ void TrafficLightAdaptive::chooseNextGreenInterval()
     }
     else if (currentInterval == phase4_8)
     {
-        if (LastActuatedTime["WC_2"] < passageTimePerLane["WC_2"] || LastActuatedTime["WC_3"] < passageTimePerLane["WC_3"] ||
-            LastActuatedTime["EC_2"] < passageTimePerLane["EC_2"] || LastActuatedTime["EC_3"] < passageTimePerLane["EC_3"])
+        if (intervalElapseTime < maxGreenTime &&
+            (LastActuatedTime["WC_2"] < passageTimePerLane["WC_2"] || LastActuatedTime["WC_3"] < passageTimePerLane["WC_3"] ||
+            LastActuatedTime["EC_2"] < passageTimePerLane["EC_2"] || LastActuatedTime["EC_3"] < passageTimePerLane["EC_3"]))
         {
             double biggest1 = std::max(passageTimePerLane["WC_2"]-LastActuatedTime["WC_2"], passageTimePerLane["EC_2"]-LastActuatedTime["EC_2"]);
             double biggest2 = std::max(passageTimePerLane["WC_3"]-LastActuatedTime["WC_3"], passageTimePerLane["EC_3"]-LastActuatedTime["EC_3"]);
@@ -369,12 +395,12 @@ void TrafficLightAdaptive::chooseNextGreenInterval()
     if(extend)
     {
         // give a lower bound
-        if(intervalOffSet < updateInterval)
-            intervalOffSet = updateInterval;
+        intervalOffSet = std::max(updateInterval, intervalOffSet);
 
+        // interval duration after this offset
         double newIntervalTime = intervalElapseTime + intervalOffSet;
 
-        // Never extend past maxGreenTime:
+        // never extend past maxGreenTime
         if (newIntervalTime > maxGreenTime)
             intervalOffSet = intervalOffSet - (newIntervalTime - maxGreenTime);
 
@@ -390,5 +416,6 @@ void TrafficLightAdaptive::chooseNextGreenInterval()
         intervalOffSet =  yellowTime;
     }
 }
+
 
 }
