@@ -50,19 +50,7 @@ class TrafficLightAdaptive : public TrafficLightFixed
     void chooseNextGreenInterval();
 
   protected:
-    // NED variables
-    double minGreenTime;
-    double maxGreenTime;
-    double yellowTime;
-    double redTime;
-    double passageTime;
-    bool greenExtension;
-
-    // class variables
-    double intervalOffSet;
-    std::string nextGreenInterval;
     cMessage* ChangeEvt;
-
     std::map<std::string,double> passageTimePerLane;
 
     // phases for ring-and-barrier

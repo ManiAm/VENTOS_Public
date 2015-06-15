@@ -47,16 +47,9 @@ void TrafficLightVANET::initialize(int stage)
 
     if(stage == 0)
     {
-        minGreenTime = par("minGreenTime").doubleValue();
-        maxGreenTime = par("maxGreenTime").doubleValue();
-        yellowTime = par("yellowTime").doubleValue();
-        redTime = par("redTime").doubleValue();
-        passageTime = par("passageTime").doubleValue();
-        greenExtension = par("greenExtension").boolValue();
-
         // set initial values
         intervalOffSet = minGreenTime;
-        intervalElapseTime = 0.0;
+        intervalElapseTime = 0;
         currentInterval = phase1_5;
 
         ChangeEvt = new cMessage("ChangeEvt", 1);
@@ -122,13 +115,16 @@ void TrafficLightVANET::executeEachTimeStep(bool simulationDone)
 {
     // call parent
     TrafficLightWebster::executeEachTimeStep(simulationDone);
+
+    if(TLControlMode != 5)
+        return;
+
+    intervalElapseTime += updateInterval;
 }
 
 
 void TrafficLightVANET::chooseNextInterval()
 {
-    intervalElapseTime += intervalOffSet;
-
     if (currentInterval == "yellow")
     {
         currentInterval = "red";

@@ -49,6 +49,15 @@ void LoopDetectors::initialize(int stage)
         measureIntersectionQueue = par("measureIntersectionQueue").boolValue();
         collectTLData = par("collectTLData").boolValue();
 
+        minGreenTime = par("minGreenTime").doubleValue();
+        maxGreenTime = par("maxGreenTime").doubleValue();
+        yellowTime = par("yellowTime").doubleValue();
+        redTime = par("redTime").doubleValue();
+        passageTime = par("passageTime").doubleValue();
+        greenExtension = par("greenExtension").boolValue();
+
+        phaseNumber = 0;
+
         LD_demand.clear();
         LD_actuated.clear();
         AD_queue.clear();
@@ -167,7 +176,8 @@ void LoopDetectors::executeEachTimeStep(bool simulationDone)
         measureQ();
 
     // should be after measureQ
-    if(collectTLData)
+    // collect TL data at the end of each phase
+    if( collectTLData && currentInterval == "red" && std::fabs(intervalElapseTime - (redTime-updateInterval)) < 0.001 )
     {
         collectTrafficLightData();
 
@@ -427,6 +437,8 @@ void LoopDetectors::measureQ()
 // collect TL data
 void LoopDetectors::collectTrafficLightData()
 {
+    phaseNumber++;
+
     // for each lane i that is controlled by traffic light j
     for(std::map<std::string, std::string>::iterator y = lanesTL.begin(); y != lanesTL.end(); y++)
     {
@@ -434,7 +446,7 @@ void LoopDetectors::collectTrafficLightData()
         std::string TLid = (*y).second;
         int qSize = laneQueueSize[lane].second;
 
-        IntersectionTLData *tmp = new IntersectionTLData( simTime().dbl(), TLid, lane, qSize, currentInterval);
+        IntersectionTLData *tmp = new IntersectionTLData( phaseNumber, simTime().dbl(), TLid, lane, qSize);
         Vec_IntersectionData.push_back(*tmp);
     }
 }
@@ -460,11 +472,11 @@ void LoopDetectors::saveTLData()
     FILE *filePtr = fopen (filePath.string().c_str(), "w");
 
     // write header
-    fprintf (filePtr, "%-15s","time");
+    fprintf (filePtr, "%-15s","phase");
+    fprintf (filePtr, "%-15s","endTime");
     fprintf (filePtr, "%-15s","TLid");
     fprintf (filePtr, "%-15s","lane");
-    fprintf (filePtr, "%-20s","queueSize");
-    fprintf (filePtr, "%-30s\n","currentInterval");
+    fprintf (filePtr, "%-20s\n","queueSize");
 
     double oldTime = -1;
 
@@ -477,11 +489,11 @@ void LoopDetectors::saveTLData()
             oldTime = y->time;
         }
 
+        fprintf (filePtr, "%-15d ", y->phaseNumber);
         fprintf (filePtr, "%-15.2f ", y->time);
         fprintf (filePtr, "%-15s ", y->TLid.c_str());
         fprintf (filePtr, "%-15s ", y->lane.c_str());
-        fprintf (filePtr, "%-15d ", y->qSize);
-        fprintf (filePtr, "%-30s\n", y->currentInterval.c_str());
+        fprintf (filePtr, "%-15d\n", y->qSize);
     }
 
     fclose(filePtr);

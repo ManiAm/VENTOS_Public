@@ -46,14 +46,9 @@ void TrafficLightWebster::initialize(int stage)
 
     if(stage == 0)
     {
-        minGreenTime = par("minGreenTime").doubleValue();
-        maxGreenTime = par("maxGreenTime").doubleValue();
-        yellowTime = par("yellowTime").doubleValue();
-        redTime = par("redTime").doubleValue();
-
         // set initial values
         intervalOffSet = minGreenTime;
-        intervalElapseTime = 0.0;
+        intervalElapseTime = 0;
         currentInterval = phase1_5;
 
         ChangeEvt = new cMessage("ChangeEvt", 1);
@@ -113,13 +108,16 @@ void TrafficLightWebster::executeFirstTimeStep()
 void TrafficLightWebster::executeEachTimeStep(bool simulationDone)
 {
     TrafficLightAdaptiveQueue::executeEachTimeStep(simulationDone);
+
+    if(TLControlMode != 4)
+        return;
+
+    intervalElapseTime += updateInterval;
 }
 
 
 void TrafficLightWebster::chooseNextInterval()
 {
-    intervalElapseTime += intervalOffSet;
-
     if (currentInterval == "yellow")
     {
         currentInterval = "red";

@@ -66,20 +66,19 @@ class LoopDetectorData
 class IntersectionTLData
 {
   public:
+    int phaseNumber;
     double time;
     std::string TLid;
     std::string lane;
     int qSize;
-    std::string currentInterval;
-    double elapsedT;
 
-    IntersectionTLData( double t, std::string str1, std::string str2, int q, std::string str3)
+    IntersectionTLData( int phaseNu, double t, std::string str1, std::string str2, int q)
     {
+        this->phaseNumber = phaseNu;
         this->time = t;
         this->TLid = str1;
         this->lane = str2;
         this->qSize = q;
-        this->currentInterval = str3;
     }
 };
 
@@ -109,15 +108,28 @@ class LoopDetectors : public TrafficLightBase
     void saveTLData();
 
   protected:
+    // NED variables
     bool collectInductionLoopData;
     bool measureTrafficDemand;
     bool measureIntersectionQueue;
     bool collectTLData;
 
-    std::list<std::string> TLList;   // list of traffic-lights in the network
+    // NED variables
+    double minGreenTime;
+    double maxGreenTime;
+    double yellowTime;
+    double redTime;
+    double passageTime;
+    bool greenExtension;
 
+    // class variables
+    double intervalOffSet;
+    std::string nextGreenInterval;
     double intervalElapseTime;
     std::string currentInterval;
+    int phaseNumber;
+
+    std::list<std::string> TLList;   // list of traffic-lights in the network
 
     std::map<std::string /*lane*/, std::string /*id*/> LD_demand;      // ids of loop detectors for measuring incoming traffic demand
     std::map<std::string /*lane*/, std::string /*id*/> LD_actuated;    // ids of loop detectors for actuated-time signal control

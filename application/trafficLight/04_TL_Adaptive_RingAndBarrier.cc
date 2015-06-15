@@ -48,16 +48,9 @@ void TrafficLightAdaptive::initialize(int stage)
 
     if(stage == 0)
     {
-        minGreenTime = par("minGreenTime").doubleValue();
-        maxGreenTime = par("maxGreenTime").doubleValue();
-        yellowTime = par("yellowTime").doubleValue();
-        redTime = par("redTime").doubleValue();
-        passageTime = par("passageTime").doubleValue();
-        greenExtension = par("greenExtension").boolValue();
-
         // set initial values
         intervalOffSet = minGreenTime;
-        intervalElapseTime = 0.0;
+        intervalElapseTime = 0;
         currentInterval = phase1_5;
 
         ChangeEvt = new cMessage("ChangeEvt", 1);
@@ -111,7 +104,7 @@ void TrafficLightAdaptive::executeFirstTimeStep()
             // get position of the loop detector from end of lane
             double LDPos = TraCI->laneGetLength((*LD).first) - TraCI->LDGetPosition((*LD).second);
             // calculate passageTime for this lane
-            double pass = std::abs(LDPos) / maxV;
+            double pass = std::fabs(LDPos) / maxV;
             // check if not greater than Gmin
             if(pass > minGreenTime)
             {
@@ -149,6 +142,9 @@ void TrafficLightAdaptive::executeEachTimeStep(bool simulationDone)
     // call parent
     TrafficLightFixed::executeEachTimeStep(simulationDone);
 
+    if(TLControlMode != 2)
+        return;
+
     // update passage time if necessary
     if(passageTime == -1)
     {
@@ -162,7 +158,7 @@ void TrafficLightAdaptive::executeEachTimeStep(bool simulationDone)
                 // get position of the loop detector from end of lane
                 double LDPos = TraCI->laneGetLength((*LD).first) - TraCI->LDGetPosition((*LD).second);
                 // calculate passageTime for this lane
-                double pass = std::abs(LDPos) / approachSpeed;
+                double pass = std::fabs(LDPos) / approachSpeed;
                 // check if not greater than Gmin
                 if(pass > minGreenTime)
                     pass = minGreenTime;
@@ -173,13 +169,13 @@ void TrafficLightAdaptive::executeEachTimeStep(bool simulationDone)
             }
         }
     }
+
+    intervalElapseTime += updateInterval;
 }
 
 
 void TrafficLightAdaptive::chooseNextInterval()
 {
-    intervalElapseTime += intervalOffSet;
-
     if (currentInterval == "yellow")
     {
         currentInterval = "red";
@@ -429,6 +425,5 @@ void TrafficLightAdaptive::chooseNextGreenInterval()
         intervalOffSet =  yellowTime;
     }
 }
-
 
 }
