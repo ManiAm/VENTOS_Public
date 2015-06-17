@@ -335,7 +335,15 @@ void TrafficLightVANET::chooseNextGreenInterval()
         if (newIntervalTime > maxGreenTime)
             intervalOffSet = intervalOffSet - (newIntervalTime - maxGreenTime);
 
-        std::cout << ">>> Extending green time by " << intervalOffSet << "s" << endl;
+        // offset can not be too small
+        if(intervalOffSet < updateInterval)
+        {
+            intervalOffSet = 0.0001;
+            intervalElapseTime = maxGreenTime;
+            std::cout << ">>> Offset value is too small ..." << endl;
+        }
+        else
+            std::cout << ">>> Extending green time by " << intervalOffSet << "s" << endl;
     }
     // we should terminate the current green interval
     else
