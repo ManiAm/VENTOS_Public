@@ -1,6 +1,6 @@
 # Compiled source
 *.o
 *.so
-**makefile
+**Makefile
 # Directory
 out/
