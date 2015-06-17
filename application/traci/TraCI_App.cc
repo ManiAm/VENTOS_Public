@@ -109,31 +109,28 @@ void TraCI_App::executeOneTimestep()
 
     EV << "### SUMO completed simulation for TS = " << (getCurrentTimeMs()/1000.) << endl;
 
-    if(collectVehiclesData)
-    {
-        vehiclesData();   // collecting data from all vehicles in each timeStep
-        if(ev.isGUI()) vehiclesDataToFile();  // (if in GUI) write what we have collected so far
-    }
-
     // if simulation should be ended
     int NoVehAndBike = simulationGetMinExpectedNumber();
     int NoPed = personGetIDCount();
     int totalModules = NoVehAndBike + NoPed;
     bool simulationDone = (simTime().dbl() >= terminate) or (totalModules == 0);
 
+    if(collectVehiclesData)
+    {
+        vehiclesData();   // collecting data from all vehicles in each timeStep
+
+        if(ev.isGUI()) vehiclesDataToFile();  // (if in GUI) write what we have collected so far
+        else if(simulationDone) vehiclesDataToFile();  // (if in CMD) write to file at the end of simulation
+    }
+
+    // notify other modules to run one simulation TS
     simsignal_t Signal_executeEachTS = registerSignal("executeEachTS");
     nodePtr->emit(Signal_executeEachTS, (long)simulationDone);
 
     if(simulationDone)
     {
-        if(collectVehiclesData && !ev.isGUI())
-            vehiclesDataToFile();
-
-        // close TraCI connection
-        simulationTerminate();
-
-        // then terminate
-        endSimulation();
+        simulationTerminate();  // close TraCI connection
+        endSimulation();   // then terminate
     }
 }
 
