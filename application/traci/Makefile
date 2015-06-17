@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for libtraci
 #
 # This file was generated with the command:
-#  opp_makemake -f --make-so -o traci -O out -I/home/dylan/Desktop/VENTOS/VENTOS/eigen-3.2.1 -I/home/dylan/Desktop/VENTOS/VENTOS/rapidxml-1.13 -I../../../veins/src/veins -I../../../veins/src/veins/base/connectionManager -I.. -I../../../veins/src -I../trafficLight -I../../../veins/src/veins/base/modules -I../rsu -I../../../veins/src/veins/base/utils -I../router -I../vehicle -I../../../veins/src/veins/modules/mac/ieee80211p -I../global -L../../../veins/out/$$\(CONFIGNAME\)/src -L../../out/$$\(CONFIGNAME\)/application/pedestrian -L../../out/$$\(CONFIGNAME\)/application/trafficLight -L../../out/$$\(CONFIGNAME\)/application/msg -L../../out/$$\(CONFIGNAME\)/application/rsu -L../../out/$$\(CONFIGNAME\)/application/bike -L../../out/$$\(CONFIGNAME\)/application/adversary -L../../out/$$\(CONFIGNAME\)/application/router -L../../out/$$\(CONFIGNAME\)/application/vehicle -L../../out/$$\(CONFIGNAME\)/application/global -lboost_filesystem -lboost_system -lmsg -lcurl -lveins -KVEINS_PROJ=../../../veins
+#  opp_makemake -f --make-so -o traci -O out -I/home/dylan/Desktop/VENTOS/eigen-3.2.1 -I/home/dylan/Desktop/VENTOS/rapidxml-1.13 -I../../../veins/src/veins -I../../../veins/src/veins/base/connectionManager -I.. -I../../../veins/src -I../trafficLight -I../../../veins/src/veins/base/modules -I../rsu -I../../../veins/src/veins/base/utils -I../router -I../vehicle -I../../../veins/src/veins/modules/mac/ieee80211p -I../global -L../../../veins/out/$$\(CONFIGNAME\)/src -L../../out/$$\(CONFIGNAME\)/application/pedestrian -L../../out/$$\(CONFIGNAME\)/application/trafficLight -L../../out/$$\(CONFIGNAME\)/application/msg -L../../out/$$\(CONFIGNAME\)/application/rsu -L../../out/$$\(CONFIGNAME\)/application/bike -L../../out/$$\(CONFIGNAME\)/application/adversary -L../../out/$$\(CONFIGNAME\)/application/router -L../../out/$$\(CONFIGNAME\)/application/vehicle -L../../out/$$\(CONFIGNAME\)/application/global -lboost_filesystem -lboost_system -lmsg -lcurl -lveins -KVEINS_PROJ=../../../veins
 #
 
 # Name of target to be created (-o option)
@@ -39,7 +39,7 @@ PROJECTRELATIVE_PATH = application/traci
 O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Object files for local .cc and .msg files
-OBJS = $O/SumoServer.o $O/SumoBinary.o $O/TraCI_App.o $O/TraCI_Extend.o
+OBJS = $O/SumoBinary.o $O/TraCI_Extend.o $O/TraCI_App.o $O/SumoServer.o
 
 # Message files
 MSGFILES =

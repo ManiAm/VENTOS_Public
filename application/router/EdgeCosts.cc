@@ -57,7 +57,7 @@ void EdgeCosts::insert(int d)
 //Returns the % of readings of a certain travel time
 double EdgeCosts::percentAt(int d)
 {
-    return (double)data[d] / (double)count;
+    return double(data[d]) / count;
 }
 
 }

@@ -28,6 +28,7 @@
 #include "TraCI_App.h"
 #include "modules/mobility/traci/TraCIScenarioManagerInet.h"
 #include "modules/mobility/traci/TraCIMobility.h"
+#include "Router.h"
 
 namespace VENTOS {
 

@@ -59,13 +59,13 @@ public:
     //Weighting variables
     double speed;
     double length;
-    double origWeight;
-    double lastWeight;
+    //double origWeight;
+    //double lastWeight;
     std::vector<Lane*> lanes;
     double getCost();
 
     //Pathing variables
-    EdgeCosts* travelTimes;
+    EdgeCosts travelTimes;
     bool visited;
     double curCost;
     Edge* best;
@@ -74,7 +74,7 @@ public:
     bool disabled;
 
 public:
-    Edge(std::string idVal, Node* fromVal, Node* toVal, int priorityVal, std::vector<Lane*> lanesVec, EdgeCosts* hist);
+    Edge(std::string idVal, Node* fromVal, Node* toVal, int priorityVal, std::vector<Lane*> lanesVec);
 };
 
 std::ostream& operator<<(std::ostream& os, Edge &rhs);

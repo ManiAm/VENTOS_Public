@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for libvehicle
 #
 # This file was generated with the command:
-#  opp_makemake -f --make-so -o vehicle -O out -I/home/dylan/Desktop/VENTOS/VENTOS/eigen-3.2.1 -I/home/dylan/Desktop/VENTOS/VENTOS/rapidxml-1.13 -I../../../veins/src/veins -I.. -I../../../veins/src -I../../../veins/src/veins/base/connectionManager -I../trafficLight -I../../../veins/src/veins/base/modules -I../rsu -I../../../veins/src/veins/base/utils -I../router -I../traci -I../global -I../../../veins/src/veins/modules/mac/ieee80211p -L../../../veins/out/$$\(CONFIGNAME\)/src -L../../out/$$\(CONFIGNAME\)/application/pedestrian -L../../out/$$\(CONFIGNAME\)/application/trafficLight -L../../out/$$\(CONFIGNAME\)/application/msg -L../../out/$$\(CONFIGNAME\)/application/rsu -L../../out/$$\(CONFIGNAME\)/application/bike -L../../out/$$\(CONFIGNAME\)/application/adversary -L../../out/$$\(CONFIGNAME\)/application/router -L../../out/$$\(CONFIGNAME\)/application/traci -L../../out/$$\(CONFIGNAME\)/application/global -lboost_filesystem -lboost_system -lmsg -ltraci -lveins -KVEINS_PROJ=../../../veins
+#  opp_makemake -f --make-so -o vehicle -O out -I/home/dylan/Desktop/VENTOS/eigen-3.2.1 -I/home/dylan/Desktop/VENTOS/rapidxml-1.13 -I../../../veins/src/veins -I.. -I../../../veins/src -I../../../veins/src/veins/base/connectionManager -I../trafficLight -I../../../veins/src/veins/base/modules -I../rsu -I../../../veins/src/veins/base/utils -I../router -I../traci -I../global -I../../../veins/src/veins/modules/mac/ieee80211p -L../../../veins/out/$$\(CONFIGNAME\)/src -L../../out/$$\(CONFIGNAME\)/application/pedestrian -L../../out/$$\(CONFIGNAME\)/application/trafficLight -L../../out/$$\(CONFIGNAME\)/application/msg -L../../out/$$\(CONFIGNAME\)/application/rsu -L../../out/$$\(CONFIGNAME\)/application/bike -L../../out/$$\(CONFIGNAME\)/application/adversary -L../../out/$$\(CONFIGNAME\)/application/router -L../../out/$$\(CONFIGNAME\)/application/traci -L../../out/$$\(CONFIGNAME\)/application/global -lboost_filesystem -lboost_system -lmsg -ltraci -lveins -KVEINS_PROJ=../../../veins
 #
 
 # Name of target to be created (-o option)
@@ -40,24 +40,24 @@ O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Object files for local .cc and .msg files
 OBJS = \
-    $O/ApplV_06b_Split.o \
-    $O/ApplV_03_System.o \
-    $O/ApplV_05_PlatoonFormed.o \
-    $O/ApplV_07_Coordinator.o \
+    $O/ApplV_08_Manager.o \
     $O/ApplV_06c_Common.o \
+    $O/VehicleWarmup.o \
     $O/ApplV_06g_Dissolve.o \
     $O/ApplV_01_Base.o \
-    $O/ApplV_06f_FollowerLeave.o \
-    $O/AddVehicle.o \
     $O/ApplV_06e_LeaderLeave.o \
-    $O/ApplV_06_PlatoonMg.o \
-    $O/ApplV_08_Manager.o \
-    $O/ApplV_06d_Entry.o \
+    $O/ApplV_06a_Merge.o \
+    $O/ApplV_07_Coordinator.o \
+    $O/ApplV_06b_Split.o \
     $O/VehicleSpeedProfile.o \
     $O/ApplV_02_Beacon.o \
-    $O/VehicleWarmup.o \
-    $O/ApplV_06a_Merge.o \
-    $O/ApplV_04_AID.o
+    $O/ApplV_03_System.o \
+    $O/ApplV_04_AID.o \
+    $O/ApplV_06d_Entry.o \
+    $O/AddVehicle.o \
+    $O/ApplV_06f_FollowerLeave.o \
+    $O/ApplV_05_PlatoonFormed.o \
+    $O/ApplV_06_PlatoonMg.o
 
 # Message files
 MSGFILES =

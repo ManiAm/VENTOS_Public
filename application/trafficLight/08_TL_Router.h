@@ -70,7 +70,6 @@ public:
     //OmNET
     cMessage* TLEvent;
     cMessage* TLSwitchEvent;
-    TraCI_Extend *TraCI;
     void print();
 
     void build(std::string id, std::string type, std::string programID, double offset, std::vector<Phase*>& phases, Net* net);

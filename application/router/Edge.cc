@@ -32,8 +32,8 @@ namespace VENTOS {
 Lane::Lane(std::string id, double speed, double length):
                   id(id), speed(speed), length(length){}
 
-Edge::Edge(std::string id, Node* from, Node* to, int priority, std::vector<Lane*> lanes, EdgeCosts* travelTimes):
-                  id(id), from(from), to(to), priority(priority), lanes(lanes), travelTimes(travelTimes)
+Edge::Edge(std::string id, Node* from, Node* to, int priority, std::vector<Lane*> lanes):
+                  id(id), from(from), to(to), priority(priority), lanes(lanes)
 {
     numLanes = lanes.size();
     speed = 0;
@@ -52,10 +52,10 @@ Edge::Edge(std::string id, Node* from, Node* to, int priority, std::vector<Lane*
     disabled = false;
 }
 
-double Edge::getCost()  // This will likely be more complex once weights are implemented
+double Edge::getCost()
 {
-    if(travelTimes->average > 0)
-        return travelTimes->average;
+    if(travelTimes.average > 0)
+        return travelTimes.average;
 
     //DTODO: Remove this
     std::cout << "using length / speed" << std::endl;

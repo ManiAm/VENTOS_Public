@@ -72,14 +72,6 @@ struct EdgeRemoval
     EdgeRemoval(string edge, int start, int end):edge(edge), start(start), end(end){}
 };
 
-class routerCompare // Comparator object for getRoute weighting
-{
-public:
-    bool operator()(const Edge* n1, const Edge* n2)
-    {
-        return n1->curCost > n2->curCost;
-    }
-};
 
 Router::~Router()
 {
@@ -88,23 +80,28 @@ Router::~Router()
 
 void Router::initialize(int stage)
 {
-    int test = MODE_EWMA;
     enableRouting = par("enableRouting").boolValue();
     if(!enableRouting)
         return;
 
     if(stage == 0)
     {
+
+        // get the file paths
+        VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+        SUMO_Path = simulation.getSystemModule()->par("SUMODirectory").stringValue();
+        SUMO_FullPath = VENTOS_FullPath / SUMO_Path;
+        // check if this directory is valid?
+        if( !exists( SUMO_FullPath ) )
+        {
+            error("SUMO directory is not valid! Check it again.");
+        }
+
         // Build nodePtr and traci manager
         nodePtr = FindModule<>::findHost(this);
         TraCI = FindModule<TraCI_Extend*>::findGlobalModule();
         if(nodePtr == NULL || TraCI == NULL)
             error("can not get a pointer to the module.");
-
-        leftTurnCost = par("leftTurnCost").doubleValue();
-        rightTurnCost = par("rightTurnCost").doubleValue();
-        straightCost = par("straightCost").doubleValue();
-        uTurnCost = par("uTurnCost").doubleValue();
 
         TLLookahead = par("TLLookahead").doubleValue();
         timePeriodMax = par("timePeriodMax").doubleValue();
@@ -120,16 +117,7 @@ void Router::initialize(int stage)
 
         UseAccidents = par("UseAccidents").boolValue();
         AccidentCheckInterval = par("AccidentCheckInterval").longValue();
-
-        // get the file paths
-        VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-        SUMO_Path = simulation.getSystemModule()->par("SUMODirectory").stringValue();
-        SUMO_FullPath = VENTOS_FullPath / SUMO_Path;
-        // check if this directory is valid?
-        if( !exists( SUMO_FullPath ) )
-        {
-            error("SUMO directory is not valid! Check it again.");
-        }
+        collectVehicleTimeData = par("collectVehicleTimeData").boolValue();
 
         // register signals
         Signal_system = registerSignal("system");
@@ -155,9 +143,18 @@ void Router::initialize(int stage)
                 routerMsg = new cMessage("routerMsg");   //Create a new internal message
                 scheduleAt(AccidentCheckInterval, routerMsg); //Schedule them to start sending
             }
+            else
+            {
+                cout << "Accidents are enabled but no accidents were read in!" << endl;
+            }
         }
 
-        net = new Net(SUMO_FullPath.string(), this->getParentModule());
+
+        int ltc = par("leftTurnCost").doubleValue();
+        int rtc = par("rightTurnCost").doubleValue();
+        int stc = par("straightCost").doubleValue();
+        int utc = par("uTurnCost").doubleValue();
+        net = new Net(SUMO_FullPath.string(), this->getParentModule(), ltc, rtc, stc, utc);
 
         parseLaneCostsFile();
 
@@ -262,6 +259,7 @@ void Router::receiveSignal(cComponent *source, simsignal_t signalID, cObject *ob
             }
             else if(s->getRequestType() == DONE)   //Vehicle is done message
             {
+
                 currentVehicleCount--;
                 string SUMOvID = s->getSender();
                 if(ev.isGUI()) cout << "(" << currentVehicleCount << " left)" << endl;
@@ -400,7 +398,7 @@ void Router::parseLaneCostsFile()
     string edgeName;
     while(inFile >> edgeName)   //While there are more edges to read
     {
-        EdgeCosts& ec = edgeCosts[edgeName];//Get the histogram for the edge
+        EdgeCosts& ec = net->edges[edgeName]->travelTimes;
         inFile >> ec.count;                      //And read in the number of data points
         int readValuesCount = 0;
         while(readValuesCount < ec.count)  //While we haven't read in all the data points
@@ -424,12 +422,12 @@ void Router::LaneCostsToFile()
     string fileName = SUMO_FullPath.string() + "/edgeWeights.txt";
     outFile.open(fileName.c_str()); //Open the edgeWeights file
 
-    for(auto& pair : edgeCosts)
+    for(auto& pair : net->edges)
     {
         string name = pair.first;
         if(name != "") //If it has a name (empty-ID histograms occur when vehicles update in an intersection)
         {
-            EdgeCosts& ec = pair.second;
+            EdgeCosts& ec = pair.second->travelTimes;
             outFile << name << " " << ec.count << endl; //Write the edge ID and its number of data points
             for(auto& pair2 : ec.data)
             //for(map<int, int>::iterator it2 = hist->data.begin(); it2 != hist->data.end(); it2++)
@@ -467,7 +465,7 @@ void Router::laneCostsData()
                 vehicleLaneChangeCount[*it] = 0;
                 sendRerouteSignal(*it);
             }
-            edgeCosts[prevEdge].insert(simTime().dbl() - vehicleTimes[*it]);   //Add the time the vehicle traveled to the data set for that edge
+            net->edges[prevEdge]->travelTimes.insert(simTime().dbl() - vehicleTimes[*it]);  //Add the time the vehicle traveled to the data set for that edge
             vehicleEdges[*it] = curEdge;                                            //And set its edge to the new one
             vehicleTimes[*it] = simTime().dbl();                                    //And that edges start time to now
             //if(ev.isGUI()) cout << *it << " moves to edge " << curEdge << " at time " << simTime().dbl() << endl;  //Print a change
@@ -484,90 +482,14 @@ void Router::sendRerouteSignal(string vehID)
     nodePtr->emit(Signal_router, new systemData("", "", "router", 0, vehID, info));
 }
 
-double Router::turnTypeCost(Edge* start, Edge* end)
+class routerCompare // Comparator object for getRoute weighting
 {
-    string key = start->id + end->id;
-    char type = (*net->turnTypes)[key];
-    switch (type)
+public:
+    bool operator()(const Edge* n1, const Edge* n2)
     {
-        case 's':
-            return straightCost;
-        case 'r':
-            return rightTurnCost;
-        case 'l':
-            return leftTurnCost;
-        case 't':
-            return uTurnCost;
+        return n1->curCost > n2->curCost;
     }
-    if(ev.isGUI()) cout << "Turn did not have an associated type!  This should never happen." << endl;
-    return 100000;
-}
-
-double Router::junctionCost(double time, Edge* start, Edge* end)
-{
-    if(start->to->type == "traffic_light")
-        return timeToPhase(start->to->tl, time, nextAcceptingPhase(time, start, end));
-    else
-        return turnTypeCost(start, end);
-}
-
-vector<int>* Router::TLTransitionPhases(Edge* start, Edge* end)
-{
-    return (*net->transitions)[start->id + end->id];
-}
-
-double Router::timeToPhase(TrafficLightRouter* tl, double time, int targetPhase)
-{
-    double *waitTime = new double;
-    int curPhase = tl->currentPhaseAtTime(time, waitTime);  //Get the current phase, and how long until it ends
-
-    if(curPhase == targetPhase) //If that phase is active now, we're done
-    {
-        return 0;
-    }
-    else
-    {
-        curPhase = (curPhase + 1) % tl->phases.size();
-        if(curPhase == targetPhase)
-        {
-            return *waitTime;
-        }
-        else
-        {
-            while(curPhase != targetPhase)
-            {
-                *waitTime += (double)tl->phases[curPhase]->duration;
-                curPhase = (curPhase + 1) % tl->phases.size();
-            }
-            return *waitTime;
-        }
-    }
-
-}
-
-int Router::nextAcceptingPhase(double time, Edge* start, Edge* end)
-{
-    TrafficLightRouter* tl = start->to->tl;           // The traffic-light in question
-    const vector<Phase*> phases = tl->phases;   // And its set of phases
-
-    int curPhase = tl->currentPhaseAtTime(time);
-    int phase = curPhase;
-    vector<int>* acceptingPhases = TLTransitionPhases(start, end);  // Grab the vector of accepting phases for the given turn
-
-    do
-    {
-        if(find(acceptingPhases->begin(), acceptingPhases->end(), phase) != acceptingPhases->end()) // If the phase is in the accepting phases, return it
-            return phase;
-        else    // Otherwise, check the next phase
-        {
-            phase++;
-            if((unsigned)phase >= phases.size())
-                phase = 0;
-        }
-    }while(phase != curPhase);  // Break when we're back to the first phase (should never reach here)
-
-    return -1;
-}
+};
 
 Hypertree* Router::buildHypertree(int startTime, Node* destination)
 {
@@ -611,18 +533,18 @@ Hypertree* Router::buildHypertree(int startTime, Node* destination)
             Node* i = (*ijEdge)->from;                                  // Set i to be the predecessor node
             for(vector<Edge*>::iterator hiEdge = i->inEdges.begin(); hiEdge != i->inEdges.end(); hiEdge++)  // For each predecessor to i, hiEdge
             {
-                EdgeCosts* hist = (*ijEdge)->travelTimes;
+                EdgeCosts& travelTimes = (*ijEdge)->travelTimes;
                 Node* h = (*hiEdge)->from;  // Set h to be the predecessor node
                 for(int t = startTime; t <= timePeriodMax; t++)   // For every time step of interest
                 {
-                    double TLDelay = junctionCost(t, *hiEdge, *ijEdge);// The tldelay is the time to the next accepting phase between (h, i) and (i, j)
+                    double TLDelay = net->junctionCost(t, *hiEdge, *ijEdge);// The tldelay is the time to the next accepting phase between (h, i) and (i, j)
                     double n = 0;
-                    if(hist->count > 0) // If we have histogram data
+                    if(travelTimes.count > 0) // If we have histogram data
                     {
-                        for(map<int, int>::iterator val = hist->data.begin(); val != hist->data.end(); val++)   // For each unique entry in the history of edge travel times
+                        for(map<int, int>::iterator val = travelTimes.data.begin(); val != travelTimes.data.end(); val++)   // For each unique entry in the history of edge travel times
                         {
                             int travelTime = val->first;                // Set travel time
-                            double prob = hist->percentAt(travelTime);  // And calculate its probability
+                            double prob = travelTimes.percentAt(travelTime);  // And calculate its probability
                             double endLabel = ht->label[key(i, j, t + TLDelay + travelTime)];   // The endlabel is the label after (i, j) after we've gone through the TL and traveled (i,j)
                             n += (TLDelay + travelTime + endLabel) * prob;  // Add this weight multiplied by its probability
                         }
@@ -693,7 +615,7 @@ list<string> Router::getRoute(Edge* origin, Node* destination, string vName)
             {
                 double newCost = parent->curCost + curLaneCost;                     // Time to get to the junction is the time we get to the edge plus the edge cost
                 if(newCost < TLLookahead)
-                    newCost += junctionCost(newCost + simTime().dbl(), parent, *child); // The cost at the junction is calculated from when we'd arrive there
+                    newCost += net->junctionCost(newCost + simTime().dbl(), parent, *child); // The cost at the junction is calculated from when we'd arrive there
                 if(!(*child)->visited && newCost < (*child)->curCost)               // If we haven't finished the edge and out new cost is lower
                 {
                     (*child)->curCost = newCost;    // Cost to the child is newCost

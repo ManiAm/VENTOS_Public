@@ -26,6 +26,7 @@
 //
 
 #include "Net.h"
+using namespace std;
 
 namespace VENTOS {
 
@@ -34,11 +35,104 @@ Net::~Net()
 
 }
 
-Net::Net(std::string netBase, cModule* router)
+Net::Net(string netBase, cModule* router, int ltc, int rtc, int stc, int utc):rightTurnCost(rtc), leftTurnCost(rtc), straightCost(stc), uTurnCost(utc)
 {
     routerModule = router;
-    transitions = new std::map<std::string, std::vector<int>* >;
-    turnTypes = new std::map<std::string, char>;
+    LoadHelloNet(netBase);
+
+}
+
+//Returns the expected time waiting to make the turn between two given edges
+//For a TL, this is the time until the next phase allowing that motion
+//Otherwise, this is a constant fixed cost
+double Net::junctionCost(double time, Edge* start, Edge* end)
+{
+    if(start->to->type == "traffic_light")
+        return timeToPhase(start->to->tl, time, nextAcceptingPhase(time, start, end));
+    else
+        return turnTypeCost(start, end);
+}
+
+double Net::turnTypeCost(Edge* start, Edge* end)
+{
+    string key = start->id + end->id;
+    char type = turnTypes[key];
+    switch (type)
+    {
+        case 's':
+            return straightCost;
+        case 'r':
+            return rightTurnCost;
+        case 'l':
+            return leftTurnCost;
+        case 't':
+            return uTurnCost;
+    }
+    if(ev.isGUI()) cout << "Turn did not have an associated type!  This should never happen." << endl;
+    return 100000;
+}
+
+vector<int>* Net::TLTransitionPhases(Edge* start, Edge* end)
+{
+    return transitions[start->id + end->id];
+}
+
+double Net::timeToPhase(TrafficLightRouter* tl, double time, int targetPhase)
+{
+    double *waitTime = new double;
+    int curPhase = tl->currentPhaseAtTime(time, waitTime);  //Get the current phase, and how long until it ends
+
+    if(curPhase == targetPhase) //If that phase is active now, we're done
+    {
+        return 0;
+    }
+    else
+    {
+        curPhase = (curPhase + 1) % tl->phases.size();
+        if(curPhase == targetPhase)
+        {
+            return *waitTime;
+        }
+        else
+        {
+            while(curPhase != targetPhase)
+            {
+                *waitTime += (double)tl->phases[curPhase]->duration;
+                curPhase = (curPhase + 1) % tl->phases.size();
+            }
+            return *waitTime;
+        }
+    }
+
+}
+
+int Net::nextAcceptingPhase(double time, Edge* start, Edge* end)
+{
+    TrafficLightRouter* tl = start->to->tl;           // The traffic-light in question
+    const vector<Phase*> phases = tl->phases;   // And its set of phases
+
+    int curPhase = tl->currentPhaseAtTime(time);
+    int phase = curPhase;
+    vector<int>* acceptingPhases = TLTransitionPhases(start, end);  // Grab the vector of accepting phases for the given turn
+
+    do
+    {
+        if(find(acceptingPhases->begin(), acceptingPhases->end(), phase) != acceptingPhases->end()) // If the phase is in the accepting phases, return it
+            return phase;
+        else    // Otherwise, check the next phase
+        {
+            phase++;
+            if((unsigned)phase >= phases.size())
+                phase = 0;
+        }
+    }while(phase != curPhase);  // Break when we're back to the first phase (should never reach here)
+
+    return -1;
+}
+
+
+void Net::LoadHelloNet(string netBase)
+{
 
     cModuleType* moduleType = cModuleType::get("c3po.ned.TL_Router");    //Get the TL module
 
@@ -147,7 +241,7 @@ Net::Net(std::string netBase, cModule* router)
         Node* from = nodes[fromVal];  //Get a pointer to the start node
         Node* to = nodes[toVal];      //Get a pointer to the end node
         Router *routerPtr = FindModule<Router*>::findGlobalModule();
-        Edge* e = new Edge(id, from, to, priority, *lanesVec, &(*(routerPtr->edgeCosts.find(id))).second);
+        Edge* e = new Edge(id, from, to, priority, *lanesVec);
         from->outEdges.push_back(e);   //Add the edge to the start node's list
         edges[id] = e;
     }   //For every edge
@@ -174,10 +268,10 @@ Net::Net(std::string netBase, cModule* router)
         attr = attr->next_attribute();
         if((std::string)attr->name() == "tl")    //Read the tl attributes if necessary
         {
-            if(transitions->find(key) == transitions->end()) //If this vector doesn't yet exist
-                (*transitions)[key] = new std::vector<int>;  //Create an empty vector in place
+            if(transitions.find(key) == transitions.end()) //If this vector doesn't yet exist
+                transitions[key] = new std::vector<int>;  //Create an empty vector in place
             TrafficLightRouter* tl = TLs[attr->value()];    //Find the associated traffic light
-		    std::string TLid = attr->value();
+            std::string TLid = attr->value();
 
             attr = attr->next_attribute();
             int linkIndex = atoi(attr->value());
@@ -186,7 +280,7 @@ Net::Net(std::string netBase, cModule* router)
             {
                 Phase* phase = tl->phases[i];
                 if(phase->state[linkIndex] != 'r')  //if it's not a red light at this time
-                    (*transitions)[key]->push_back(i);  //add that we can travel these edges during this phase
+                    transitions[key]->push_back(i);  //add that we can travel these edges during this phase
             }
 
             Edge* fromEdge = edges[e1];
@@ -199,7 +293,7 @@ Net::Net(std::string netBase, cModule* router)
 
             attr = attr->next_attribute();
             char dir = attr->value()[0];
-            (*turnTypes)[key] = dir;
+            turnTypes[key] = dir;
 
             attr = attr->next_attribute();
             char state = attr->value()[0];
@@ -208,5 +302,6 @@ Net::Net(std::string netBase, cModule* router)
         }//if it's a tl
     }//for each connection
 }
+
 
 } // end of namespace
