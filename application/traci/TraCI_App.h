@@ -29,7 +29,7 @@
 #define TraCI_APP
 
 #include "TraCI_Extend.h"
-#include "Router.h"
+//#include "Router.h"
 
 namespace VENTOS {
 

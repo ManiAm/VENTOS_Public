@@ -217,9 +217,11 @@ void LoopDetectors::getAllDetectors()
             AD_queue[lane] = *it;
     }
 
+    /*
     std::cout << endl << LD_demand.size() << " demand loop detectors found!" << endl;
     std::cout << LD_actuated.size() << " actuated loop detectors found!" << endl;
     std::cout << AD_queue.size() << " area detectors found!" << endl << endl;
+    */
 
     // some traffic signal controls need one actuated LD on each incoming lane
     if(TLControlMode == 2)

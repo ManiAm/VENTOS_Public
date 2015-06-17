@@ -356,7 +356,7 @@ void TrafficLightRouter::HighDensityRecalculate()
     }
     if(total > 0)  //If there are vehicles on the lane
     {
-        std::cout << "For TL " << id << ": " << endl;
+        if(ev.isGUI()) std::cout << "For TL " << id << ": " << endl;
         for(unsigned int i = 0; i < phases.size(); i++)  //For each phase
         {
             if(i % 2 == 0)  //Ignore the odd (transitional) phases
@@ -391,6 +391,8 @@ void TrafficLightRouter::FlowRateRecalculate()
     {
         for(Lane*& lane1 : edge1->lanes) //For each lane on those edges
         {
+
+            //TraCI->laneGetIDList(lane1->id)
             for(std::string& vehicle : TraCI->laneGetLastStepVehicleIDs(lane1->id))   //For each vehicle on those lanes
             {
                 std::list<std::string> route = TraCI->vehicleGetRoute(vehicle);    //Get the vehicle's route

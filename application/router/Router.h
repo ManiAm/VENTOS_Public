@@ -77,7 +77,6 @@ public:
     bool UseHysteresis; //If true, re-routes based on # of turns rather than time
 
     std::ofstream vehicleEndTimesFile; //File of when each vehicle completes its trip
-    std::map<std::string, EdgeCosts> edgeCosts; //Map from edge name to set of edge costs
 
 protected:
     boost::filesystem::path VENTOS_FullPath;
@@ -102,13 +101,9 @@ protected:
     std::ofstream vehicleTravelTimesFile; //File to write travel times to
 
     bool enableRouting; //If false, runs no code
-    double leftTurnCost, rightTurnCost, straightCost, uTurnCost, TLLookahead;
 
-    double junctionCost(double time, Edge* start, Edge* end);       //If it's a TL, returns the time spent waiting.  If not, returns turnTypeCost
-    double turnTypeCost(Edge* start, Edge* end);                    //Returns the turn penalty on an intersection
-    double timeToPhase(TrafficLightRouter* tl, double time, int phase);   //Returns how long we must wait for a given phase at the given time
-    int nextAcceptingPhase(double time, Edge* start, Edge* end);    //Returns the next phase allowing movement from start to end at the given time
-    std::vector<int>* TLTransitionPhases(Edge* start, Edge* end);        //Returns a vector of phases allowing movement from start to end
+
+    int TLLookahead;
 
     int timePeriodMax;     //Max time for hypertrees
     Hypertree* buildHypertree(int startTime, Node* destination);    //Builds a hypertree to the destination, bounded between the start time and timePeriodMax;

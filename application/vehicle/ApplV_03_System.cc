@@ -92,7 +92,7 @@ void ApplVSystem::initialize(int stage)
         simulation.getSystemModule()->subscribe("router", this);
 
         //Slightly offset all vehicles (0-4 seconds)
-        double systemOffset = dblrand() * 2 + 2;
+        double systemOffset = dblrand() * maxOffset;
 
         simsignal_t Signal_system = registerSignal("system"); //Prepare to send a system message
         nodePtr->emit(Signal_system, new systemData("", "", SUMOvID, 3, std::string("system")));
