@@ -56,6 +56,18 @@ void LoopDetectors::initialize(int stage)
         passageTime = par("passageTime").doubleValue();
         greenExtension = par("greenExtension").boolValue();
 
+        if(minGreenTime <= 0)
+            error("minGreenTime value is wrong!");
+
+        if(maxGreenTime <= 0 || maxGreenTime < minGreenTime)
+            error("maxGreenTime value is wrong!");
+
+        if(yellowTime <= 0)
+            error("yellowTime value is wrong!");
+
+        if(redTime <= 0)
+            error("redTime value is wrong!");
+
         phaseNumber = 0;
 
         LD_demand.clear();
@@ -176,14 +188,18 @@ void LoopDetectors::executeEachTimeStep(bool simulationDone)
         measureQ();
 
     // should be after measureQ
-    // collect TL data at the end of each phase
-    if( collectTLData && currentInterval == "red" && std::fabs(intervalElapseTime - (redTime-updateInterval)) < 0.001 )
+    if(collectTLData)
     {
-        collectTrafficLightData();
+        // collect TL data at the end of each phase
+        if( currentInterval == "red" && std::fabs(intervalElapseTime - (redTime-updateInterval)) < 0.001 )
+        {
+            collectTrafficLightData();
 
-        if(ev.isGUI())
-            saveTLData();  // (if in GUI) write to file what we have collected so far
-        else if(simulationDone)
+            if(ev.isGUI())
+                saveTLData();  // (if in GUI) write to file what we have collected so far
+        }
+
+        if(!ev.isGUI() && simulationDone)
             saveTLData();  // (if in CMD) write to file at the end of simulation
     }
 }
