@@ -28,7 +28,6 @@
 #include "TraCI_App.h"
 #include "modules/mobility/traci/TraCIScenarioManagerInet.h"
 #include "modules/mobility/traci/TraCIMobility.h"
-#include "Router.h"
 
 namespace VENTOS {
 
@@ -63,14 +62,6 @@ void TraCI_App::initialize(int stage)
         pedModuleType = par("pedModuleType").stringValue();
         pedModuleName = par("pedModuleName").stringValue();
         pedModuleDisplayString = par("pedModuleDisplayString").stringValue();
-
-        collectVehiclesData = par("collectVehiclesData").boolValue();
-        useDetailedFilenames = par("useDetailedFilenames").boolValue();
-
-        index = 1;
-
-        cModule *rmodule = simulation.getSystemModule()->getSubmodule("router");
-        router = static_cast< Router* >(rmodule);
     }
 }
 
@@ -92,9 +83,6 @@ void TraCI_App::init_traci()
 {
     TraCI_Extend::init_traci();
 
-    // get the list of all TL
-    TLList = TLGetIDList();
-
     simsignal_t Signal_executeFirstTS = registerSignal("executeFirstTS");
     nodePtr->emit(Signal_executeFirstTS, 1);
 }
@@ -110,19 +98,11 @@ void TraCI_App::executeOneTimestep()
 
     EV << "### SUMO completed simulation for TS = " << (getCurrentTimeMs()/1000.) << endl;
 
-    // if simulation should be ended
+    // check if simulationDone flag should be set
     int NoVehAndBike = simulationGetMinExpectedNumber();
     int NoPed = personGetIDCount();
     int totalModules = NoVehAndBike + NoPed;
     bool simulationDone = (simTime().dbl() >= terminate) or (totalModules == 0);
-
-    if(collectVehiclesData)
-    {
-        vehiclesData();   // collecting data from all vehicles in each timeStep
-
-        if(ev.isGUI()) vehiclesDataToFile();  // (if in GUI) write what we have collected so far
-        else if(simulationDone) vehiclesDataToFile();  // (if in CMD) write to file at the end of simulation
-    }
 
     // notify other modules to run one simulation TS
     simsignal_t Signal_executeEachTS = registerSignal("executeEachTS");
@@ -281,197 +261,5 @@ void TraCI_App::addModule(std::string nodeId, std::string type, std::string name
     TraCIScenarioManager::addModule(nodeId, type, name, displayString, position, road_id, speed, angle);
 }
 
-
-void TraCI_App::vehiclesData()
-{
-    // get all lanes in the network
-    std::list<std::string> myList = laneGetIDList();
-
-    for(std::list<std::string>::iterator i = myList.begin(); i != myList.end(); ++i)
-    {
-        // get all vehicles on lane i
-        std::list<std::string> myList2 = laneGetLastStepVehicleIDs( i->c_str() );
-
-        for(std::list<std::string>::reverse_iterator k = myList2.rbegin(); k != myList2.rend(); ++k)
-            saveVehicleData(k->c_str());
-    }
-
-    // increase index after writing data for all vehicles
-    if (vehicleGetIDCount() > 0)
-        index++;
-}
-
-
-void TraCI_App::saveVehicleData(std::string vID)
-{
-    double timeStep = (simTime()-updateInterval).dbl();
-    std::string vType = vehicleGetTypeID(vID);
-    std::string lane = vehicleGetLaneID(vID);
-    double pos = vehicleGetLanePosition(vID);
-    double speed = vehicleGetSpeed(vID);
-    double accel = vehicleGetCurrentAccel(vID);
-    int CFMode_Enum = vehicleGetCarFollowingMode(vID);
-    std::string CFMode;
-
-    enum CFMODES {
-        Mode_Undefined,
-        Mode_NoData,
-        Mode_DataLoss,
-        Mode_SpeedControl,
-        Mode_GapControl,
-        Mode_EmergencyBrake,
-        Mode_Stopped
-    };
-
-    switch(CFMode_Enum)
-    {
-    case Mode_Undefined:
-        CFMode = "Undefined";
-        break;
-    case Mode_NoData:
-        CFMode = "NoData";
-        break;
-    case Mode_DataLoss:
-        CFMode = "DataLoss";
-        break;
-    case Mode_SpeedControl:
-        CFMode = "SpeedControl";
-        break;
-    case Mode_GapControl:
-        CFMode = "GapControl";
-        break;
-    case Mode_EmergencyBrake:
-        CFMode = "EmergencyBrake";
-        break;
-    case Mode_Stopped:
-        CFMode = "Stopped";
-        break;
-    default:
-        error("Not a valid CFModel!");
-        break;
-    }
-
-    // get the timeGap setting
-    double timeGapSetting = vehicleGetTimeGap(vID);
-
-    // get the gap
-    std::vector<std::string> vleaderIDnew = vehicleGetLeader(vID, 900);
-    std::string vleaderID = vleaderIDnew[0];
-    double spaceGap = -1;
-
-    if(vleaderID != "")
-        spaceGap = atof( vleaderIDnew[1].c_str() );
-
-    // calculate timeGap (if leading is present)
-    double timeGap = -1;
-
-    if(vleaderID != "" && speed != 0)
-        timeGap = spaceGap / speed;
-
-    // get the TLid that controls this vehicle
-    // empty string means the vehicle is not controlled by any TLid
-    std::string TLid = "";
-    for (std::list<std::string>::iterator it = TLList.begin() ; it != TLList.end(); ++it)
-    {
-        std::list<std::string> lan = TLGetControlledLanes(*it);
-        for(std::list<std::string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
-        {
-            if(*it2 == lane)
-            {
-                TLid = *it;
-                break;
-            }
-        }
-    }
-
-    // if the signal is yellow or red
-    int YorR = vehicleGetTrafficLightAhead(vID);
-
-    VehicleData *tmp = new VehicleData(index, timeStep,
-            vID.c_str(), vType.c_str(),
-            lane.c_str(), pos,
-            speed, accel, CFMode.c_str(),
-            timeGapSetting, spaceGap, timeGap,
-            TLid.c_str(), YorR);
-    Vec_vehiclesData.push_back(*tmp);
-}
-
-
-void TraCI_App::vehiclesDataToFile()
-{
-    boost::filesystem::path filePath;
-
-    if( ev.isGUI() )
-    {
-        filePath = "results/gui/vehicleData.txt";
-    }
-    else
-    {
-        // get the current run number
-        int currentRun = ev.getConfigEx()->getActiveRunNumber();
-        std::ostringstream fileName;
-
-        if(useDetailedFilenames)
-        {
-            int TLMode = (*router->net->TLs.begin()).second->TLLogicMode;
-            std::ostringstream filePrefix;
-            filePrefix << router->totalVehicleCount << "_" << router->nonReroutingVehiclePercent << "_" << TLMode;
-            fileName << filePrefix.str() << "_vehicleData.txt";
-        }
-        else
-        {
-            fileName << currentRun << "_vehicleData.txt";
-        }
-
-        filePath = "results/cmd/" + fileName.str();
-    }
-
-    FILE *filePtr = fopen (filePath.string().c_str(), "w");
-
-    // write header
-    fprintf (filePtr, "%-10s","index");
-    fprintf (filePtr, "%-12s","timeStep");
-    fprintf (filePtr, "%-15s","vehicleName");
-    fprintf (filePtr, "%-17s","vehicleType");
-    fprintf (filePtr, "%-12s","lane");
-    fprintf (filePtr, "%-11s","pos");
-    fprintf (filePtr, "%-12s","speed");
-    fprintf (filePtr, "%-12s","accel");
-    fprintf (filePtr, "%-20s","CFMode");
-    fprintf (filePtr, "%-20s","timeGapSetting");
-    fprintf (filePtr, "%-10s","SpaceGap");
-    fprintf (filePtr, "%-16s","timeGap");
-    fprintf (filePtr, "%-17s","TLid");
-    fprintf (filePtr, "%-17s\n\n","yellowOrRed");
-
-    int oldIndex = -1;
-
-    // write body
-    for(std::vector<VehicleData>::iterator y = Vec_vehiclesData.begin(); y != Vec_vehiclesData.end(); y++)
-    {
-        if(oldIndex != y->index)
-        {
-            fprintf(filePtr, "\n");
-            oldIndex = y->index;
-        }
-
-        fprintf (filePtr, "%-10d ", y->index);
-        fprintf (filePtr, "%-10.2f ", y->time );
-        fprintf (filePtr, "%-15s ", y->vehicleName.c_str());
-        fprintf (filePtr, "%-15s ", y->vehicleType.c_str());
-        fprintf (filePtr, "%-12s ", y->lane.c_str());
-        fprintf (filePtr, "%-10.2f ", y->pos);
-        fprintf (filePtr, "%-10.2f ", y->speed);
-        fprintf (filePtr, "%-10.2f ", y->accel);
-        fprintf (filePtr, "%-20s", y->CFMode.c_str());
-        fprintf (filePtr, "%-20.2f ", y->timeGapSetting);
-        fprintf (filePtr, "%-10.2f ", y->spaceGap);
-        fprintf (filePtr, "%-16.2f ", y->timeGap);
-        fprintf (filePtr, "%-17s ", y->TLid.c_str());
-        fprintf (filePtr, "%-17d \n", y->YorR);
-    }
-
-    fclose(filePtr);
-}
 
 }

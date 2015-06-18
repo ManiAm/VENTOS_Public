@@ -39,6 +39,46 @@
 
 namespace VENTOS {
 
+class Router;   //Forward-declaration so TraCI_App may hold a Router*
+
+class VehicleData
+{
+  public:
+    int index;
+    double time;
+    std::string vehicleName;
+    std::string vehicleType;
+    std::string lane;
+    double pos;
+    double speed;
+    double accel;
+    std::string CFMode;
+    double timeGapSetting;
+    double spaceGap;
+    double timeGap;
+    std::string TLid;  // TLid that controls this vehicle
+    int YorR;          // if the TL state ahead is yellow or red
+
+    VehicleData(int i, double d1, std::string str1, std::string str2, std::string str3, double d2, double d3, double d4, std::string str4, double d3a, double d5, double d6, std::string str5, int YR)
+    {
+        this->index = i;
+        this->time = d1;
+        this->vehicleName = str1;
+        this->vehicleType = str2;
+        this->lane = str3;
+        this->pos = d2;
+        this->speed = d3;
+        this->accel = d4;
+        this->CFMode = str4;
+        this->timeGapSetting = d3a;
+        this->spaceGap = d5;
+        this->timeGap = d6;
+        this->TLid = str5;
+        this->YorR = YR;
+    }
+};
+
+
 class MacStatEntry
 {
 public:
@@ -133,16 +173,20 @@ class Statistics : public BaseModule
 
   private:
       // NED variables
-      TraCI_Extend *TraCI;
-      double updateInterval;
-      double terminate;
-
-      // NED variables
+      bool collectVehiclesData;
+      bool useDetailedFilenames;
       bool collectMAClayerData;
       bool collectPlnManagerData;
       bool printBeaconsStatistics;
 
+      // NED variables
+      TraCI_Extend *TraCI;
+      double updateInterval;
+      double terminate;
+      Router* router;
+
       // class variables (signals)
+      simsignal_t Signal_executeFirstTS;
       simsignal_t Signal_executeEachTS;
 
 	  simsignal_t Signal_beaconP;
@@ -156,7 +200,12 @@ class Statistics : public BaseModule
 	  simsignal_t Signal_PlnManeuver;
 	  simsignal_t Signal_TimeData;
 
-	  // class variables (vectors)
+	  // class variables
+      int index;
+      std::list<std::string> TLList;   // list of traffic-lights in the network
+
+      // class variables (vectors)
+      std::vector<VehicleData> Vec_vehiclesData;
       std::vector<MacStatEntry *> Vec_MacStat;
       std::vector<plnManagement *> Vec_plnManagement;
       std::vector<plnStat *> Vec_plnStat;
@@ -175,7 +224,12 @@ class Statistics : public BaseModule
       std::vector<NodeEntry *> beaconsDP_interval;
 
   private:
+      void executeFirstTimeStep();
       void executeEachTimestep(bool);
+
+      void vehiclesData();
+      void saveVehicleData(std::string);
+      void vehiclesDataToFile();
 
       void MAClayerToFile();
 

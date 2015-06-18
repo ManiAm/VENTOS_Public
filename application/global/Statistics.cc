@@ -27,6 +27,7 @@
 
 #include <Statistics.h>
 #include <ApplRSU_04_Manager.h>
+#include "Router.h"
 
 namespace VENTOS {
 
@@ -44,38 +45,50 @@ Statistics::~Statistics()
 void Statistics::initialize(int stage)
 {
     if(stage == 0)
-	{
+    {
         // get a pointer to the TraCI module
         cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
         TraCI = static_cast<TraCI_Extend *>(module);
         terminate = module->par("terminate").doubleValue();
         updateInterval = module->par("updateInterval").doubleValue();
 
+        cModule *rmodule = simulation.getSystemModule()->getSubmodule("router");
+        router = static_cast< Router* >(rmodule);
+
+        collectVehiclesData = par("collectVehiclesData").boolValue();
+        useDetailedFilenames = par("useDetailedFilenames").boolValue();
         collectMAClayerData = par("collectMAClayerData").boolValue();
         collectPlnManagerData = par("collectPlnManagerData").boolValue();
         printBeaconsStatistics = par("printBeaconsStatistics").boolValue();
 
+        index = 1;
+
         // register signals
+        Signal_executeFirstTS = registerSignal("executeFirstTS");
+        simulation.getSystemModule()->subscribe("executeFirstTS", this);
+
         Signal_executeEachTS = registerSignal("executeEachTS");
+        simulation.getSystemModule()->subscribe("executeEachTS", this);
 
         Signal_beaconP = registerSignal("beaconP");
+        simulation.getSystemModule()->subscribe("beaconP", this);
+
         Signal_beaconO = registerSignal("beaconO");
+        simulation.getSystemModule()->subscribe("beaconO", this);
+
         Signal_beaconD = registerSignal("beaconD");
+        simulation.getSystemModule()->subscribe("beaconD", this);
 
         Signal_MacStats = registerSignal("MacStats");
+        simulation.getSystemModule()->subscribe("MacStats", this);
 
         Signal_SentPlatoonMsg = registerSignal("SentPlatoonMsg");
-        Signal_VehicleState = registerSignal("VehicleState");
-        Signal_PlnManeuver = registerSignal("PlnManeuver");
-
-        // now subscribe locally to all these signals
-        simulation.getSystemModule()->subscribe("executeEachTS", this);
-        simulation.getSystemModule()->subscribe("beaconP", this);
-        simulation.getSystemModule()->subscribe("beaconO", this);
-        simulation.getSystemModule()->subscribe("beaconD", this);
-        simulation.getSystemModule()->subscribe("MacStats", this);
         simulation.getSystemModule()->subscribe("SentPlatoonMsg", this);
+
+        Signal_VehicleState = registerSignal("VehicleState");
         simulation.getSystemModule()->subscribe("VehicleState", this);
+
+        Signal_PlnManeuver = registerSignal("PlnManeuver");
         simulation.getSystemModule()->subscribe("PlnManeuver", this);
     }
 }
@@ -107,6 +120,10 @@ void Statistics::receiveSignal(cComponent *source, simsignal_t signalID, long i)
     if(signalID == Signal_executeEachTS)
     {
         Statistics::executeEachTimestep(i);
+    }
+    else if(signalID == Signal_executeFirstTS)
+    {
+        Statistics::executeFirstTimeStep();
     }
     else if(signalID == Signal_beaconD)
     {
@@ -200,26 +217,43 @@ void Statistics::receiveSignal(cComponent *source, simsignal_t signalID, cObject
 }
 
 
+void Statistics::executeFirstTimeStep()
+{
+    // get the list of all TL
+    TLList = TraCI->TLGetIDList();
+}
+
+
 void Statistics::executeEachTimestep(bool simulationDone)
 {
+    if(collectVehiclesData)
+    {
+        vehiclesData();   // collecting data from all vehicles in each timeStep
+
+        if(ev.isGUI()) vehiclesDataToFile();  // (if in GUI) write what we have collected so far
+        else if(simulationDone) vehiclesDataToFile();  // (if in CMD) write to file at the end of simulation
+    }
+
     if(collectMAClayerData)
         MAClayerToFile();
 
     if(collectPlnManagerData)
     {
-        if(ev.isGUI()) plnManageToFile();  // write what we have collected so far
-        if(ev.isGUI()) plnStatToFile();
+        if(ev.isGUI())
+        {   // write what we have collected so far
+            plnManageToFile();
+            plnStatToFile();
+        }
+        else if(simulationDone)
+        {
+            plnManageToFile();
+            plnStatToFile();
+        }
     }
 
     // todo:
     if(simulationDone)
     {
-        if(collectPlnManagerData && !ev.isGUI())
-        {
-            plnManageToFile();
-            plnStatToFile();
-        }
-
         // sort the vectors by node ID:
         // Vec_BeaconsP = SortByID(Vec_BeaconsP);
         // Vec_BeaconsO = SortByID(Vec_BeaconsO);
@@ -231,6 +265,199 @@ void Statistics::executeEachTimestep(bool simulationDone)
         if(printBeaconsStatistics)
             printToFile();
     }
+}
+
+
+void Statistics::vehiclesData()
+{
+    // get all lanes in the network
+    std::list<std::string> myList = TraCI->laneGetIDList();
+
+    for(std::list<std::string>::iterator i = myList.begin(); i != myList.end(); ++i)
+    {
+        // get all vehicles on lane i
+        std::list<std::string> myList2 = TraCI->laneGetLastStepVehicleIDs( i->c_str() );
+
+        for(std::list<std::string>::reverse_iterator k = myList2.rbegin(); k != myList2.rend(); ++k)
+            saveVehicleData(k->c_str());
+    }
+
+    // increase index after writing data for all vehicles
+    if (TraCI->vehicleGetIDCount() > 0)
+        index++;
+}
+
+
+void Statistics::saveVehicleData(std::string vID)
+{
+    double timeStep = (simTime()-updateInterval).dbl();
+    std::string vType = TraCI->vehicleGetTypeID(vID);
+    std::string lane = TraCI->vehicleGetLaneID(vID);
+    double pos = TraCI->vehicleGetLanePosition(vID);
+    double speed = TraCI->vehicleGetSpeed(vID);
+    double accel = TraCI->vehicleGetCurrentAccel(vID);
+    int CFMode_Enum = TraCI->vehicleGetCarFollowingMode(vID);
+    std::string CFMode;
+
+    enum CFMODES {
+        Mode_Undefined,
+        Mode_NoData,
+        Mode_DataLoss,
+        Mode_SpeedControl,
+        Mode_GapControl,
+        Mode_EmergencyBrake,
+        Mode_Stopped
+    };
+
+    switch(CFMode_Enum)
+    {
+    case Mode_Undefined:
+        CFMode = "Undefined";
+        break;
+    case Mode_NoData:
+        CFMode = "NoData";
+        break;
+    case Mode_DataLoss:
+        CFMode = "DataLoss";
+        break;
+    case Mode_SpeedControl:
+        CFMode = "SpeedControl";
+        break;
+    case Mode_GapControl:
+        CFMode = "GapControl";
+        break;
+    case Mode_EmergencyBrake:
+        CFMode = "EmergencyBrake";
+        break;
+    case Mode_Stopped:
+        CFMode = "Stopped";
+        break;
+    default:
+        error("Not a valid CFModel!");
+        break;
+    }
+
+    // get the timeGap setting
+    double timeGapSetting = TraCI->vehicleGetTimeGap(vID);
+
+    // get the gap
+    std::vector<std::string> vleaderIDnew = TraCI->vehicleGetLeader(vID, 900);
+    std::string vleaderID = vleaderIDnew[0];
+    double spaceGap = -1;
+
+    if(vleaderID != "")
+        spaceGap = atof( vleaderIDnew[1].c_str() );
+
+    // calculate timeGap (if leading is present)
+    double timeGap = -1;
+
+    if(vleaderID != "" && speed != 0)
+        timeGap = spaceGap / speed;
+
+    // get the TLid that controls this vehicle
+    // empty string means the vehicle is not controlled by any TLid
+    std::string TLid = "";
+    for (std::list<std::string>::iterator it = TLList.begin() ; it != TLList.end(); ++it)
+    {
+        std::list<std::string> lan = TraCI->TLGetControlledLanes(*it);
+        for(std::list<std::string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
+        {
+            if(*it2 == lane)
+            {
+                TLid = *it;
+                break;
+            }
+        }
+    }
+
+    // if the signal is yellow or red
+    int YorR = TraCI->vehicleGetTrafficLightAhead(vID);
+
+    VehicleData *tmp = new VehicleData(index, timeStep,
+            vID.c_str(), vType.c_str(),
+            lane.c_str(), pos,
+            speed, accel, CFMode.c_str(),
+            timeGapSetting, spaceGap, timeGap,
+            TLid.c_str(), YorR);
+    Vec_vehiclesData.push_back(*tmp);
+}
+
+
+void Statistics::vehiclesDataToFile()
+{
+    boost::filesystem::path filePath;
+
+    if( ev.isGUI() )
+    {
+        filePath = "results/gui/vehicleData.txt";
+    }
+    else
+    {
+        // get the current run number
+        int currentRun = ev.getConfigEx()->getActiveRunNumber();
+        std::ostringstream fileName;
+
+        if(useDetailedFilenames)
+        {
+            int TLMode = (*router->net->TLs.begin()).second->TLLogicMode;
+            std::ostringstream filePrefix;
+            filePrefix << router->totalVehicleCount << "_" << router->nonReroutingVehiclePercent << "_" << TLMode;
+            fileName << filePrefix.str() << "_vehicleData.txt";
+        }
+        else
+        {
+            fileName << currentRun << "_vehicleData.txt";
+        }
+
+        filePath = "results/cmd/" + fileName.str();
+    }
+
+    FILE *filePtr = fopen (filePath.string().c_str(), "w");
+
+    // write header
+    fprintf (filePtr, "%-10s","index");
+    fprintf (filePtr, "%-12s","timeStep");
+    fprintf (filePtr, "%-15s","vehicleName");
+    fprintf (filePtr, "%-17s","vehicleType");
+    fprintf (filePtr, "%-12s","lane");
+    fprintf (filePtr, "%-11s","pos");
+    fprintf (filePtr, "%-12s","speed");
+    fprintf (filePtr, "%-12s","accel");
+    fprintf (filePtr, "%-20s","CFMode");
+    fprintf (filePtr, "%-20s","timeGapSetting");
+    fprintf (filePtr, "%-10s","SpaceGap");
+    fprintf (filePtr, "%-16s","timeGap");
+    fprintf (filePtr, "%-17s","TLid");
+    fprintf (filePtr, "%-17s\n\n","yellowOrRed");
+
+    int oldIndex = -1;
+
+    // write body
+    for(std::vector<VehicleData>::iterator y = Vec_vehiclesData.begin(); y != Vec_vehiclesData.end(); y++)
+    {
+        if(oldIndex != y->index)
+        {
+            fprintf(filePtr, "\n");
+            oldIndex = y->index;
+        }
+
+        fprintf (filePtr, "%-10d ", y->index);
+        fprintf (filePtr, "%-10.2f ", y->time );
+        fprintf (filePtr, "%-15s ", y->vehicleName.c_str());
+        fprintf (filePtr, "%-15s ", y->vehicleType.c_str());
+        fprintf (filePtr, "%-12s ", y->lane.c_str());
+        fprintf (filePtr, "%-10.2f ", y->pos);
+        fprintf (filePtr, "%-10.2f ", y->speed);
+        fprintf (filePtr, "%-10.2f ", y->accel);
+        fprintf (filePtr, "%-20s", y->CFMode.c_str());
+        fprintf (filePtr, "%-20.2f ", y->timeGapSetting);
+        fprintf (filePtr, "%-10.2f ", y->spaceGap);
+        fprintf (filePtr, "%-16.2f ", y->timeGap);
+        fprintf (filePtr, "%-17s ", y->TLid.c_str());
+        fprintf (filePtr, "%-17d \n", y->YorR);
+    }
+
+    fclose(filePtr);
 }
 
 
