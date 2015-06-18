@@ -80,8 +80,8 @@ Router::~Router()
 
 void Router::initialize(int stage)
 {
-    enableRouting = par("enableRouting").boolValue();
-    if(!enableRouting)
+    enableRouter = par("enableRouter").boolValue();
+    if(!enableRouter)
         return;
 
     if(stage == 0)
@@ -211,9 +211,10 @@ void Router::receiveSignal(cComponent *source, simsignal_t signalID, long i)
 {
     Enter_Method_Silent();
 
+    //DTODO: What's going on here?
     if(signalID == Signal_executeFirstTS)
     {
-        if(laneCostsMode == MODE_EWMA || laneCostsMode == MODE_AVERAGE)
+        if(laneCostsMode == MODE_EWMA || laneCostsMode == MODE_AVERAGE || UseHysteresis)
             laneCostsData();
 
         // if simulation is about to end
@@ -224,6 +225,7 @@ void Router::receiveSignal(cComponent *source, simsignal_t signalID, long i)
 
 void Router::receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj)
 {
+
     if(signalID == Signal_system) // Check if it's the right kind of symbol q
     {
         systemData *s = static_cast<systemData *>(obj); // Cast to a systemData class
@@ -237,8 +239,7 @@ void Router::receiveSignal(cComponent *source, simsignal_t signalID, cObject *ob
                 // Systemdata wants string edge, string node, string sender, int requestType, string recipient, list<string> edgeList
                 nodePtr->emit(Signal_router, new systemData("", "", "router", DIJKSTRA, s->getSender(), info));
             }
-
-            else if(s->getRequestType() == HYPERTREE)   // Request with new routing
+            else if(s->getRequestType() == HYPERTREE)   // Request with new hypertree routing
             {
                 simsignal_t Signal_router = registerSignal("router");// Prepare to send a router message
                 list<string> info;
@@ -259,7 +260,7 @@ void Router::receiveSignal(cComponent *source, simsignal_t signalID, cObject *ob
             }
             else if(s->getRequestType() == DONE)   //Vehicle is done message
             {
-
+                //Decrement vehicle count, print
                 currentVehicleCount--;
                 string SUMOvID = s->getSender();
                 if(ev.isGUI()) cout << "(" << currentVehicleCount << " left)" << endl;
@@ -271,6 +272,7 @@ void Router::receiveSignal(cComponent *source, simsignal_t signalID, cObject *ob
                 }
                 if(currentVehicleCount == 0)
                 {
+                    //If no vehicles are left, print vehicle info and terminate all traffic lights
                     if(collectVehicleTimeData)
                     {
                         vehicleTravelTimesFile.close();
@@ -284,13 +286,12 @@ void Router::receiveSignal(cComponent *source, simsignal_t signalID, cObject *ob
                         }
                         avg /= count;
                         if(ev.isGUI()) cout << "Average vehicle travel time was " << avg << " seconds." << endl;
-
                         vehicleTravelTimesFile.close();
+
 
                         int TLMode = (*net->TLs.begin()).second->TLLogicMode;
                         ostringstream filePrefix;
                         filePrefix << totalVehicleCount << "_" << nonReroutingVehiclePercent << "_" << TLMode;
-
                         ofstream outfile;
                         string fileName = VENTOS_FullPath.string() + "results/router/AverageTravelTimes.txt";
                         outfile.open(fileName.c_str(), ofstream::app);  //Open the edgeWeights file
@@ -302,7 +303,7 @@ void Router::receiveSignal(cComponent *source, simsignal_t signalID, cObject *ob
                         (*tl).second->finish();
                 }
             }
-            else if(s->getRequestType() == 3 and collectVehicleTimeData)   //Vehicle is created message
+            else if(s->getRequestType() == STARTED and collectVehicleTimeData)   //Vehicle is created message
             {
                 string SUMOvID = s->getSender();
                 vehicleTravelTimes[SUMOvID] = simTime().dbl();
@@ -479,7 +480,7 @@ void Router::sendRerouteSignal(string vehID)
     string curEdge = TraCI->vehicleGetEdgeID(vehID);
     string dest = net->vehicles[vehID]->destination;
     list<string> info = getRoute(net->edges[curEdge], net->nodes[dest], vehID);
-    nodePtr->emit(Signal_router, new systemData("", "", "router", 0, vehID, info));
+    nodePtr->emit(Signal_router, new systemData("", "", "router", DIJKSTRA, vehID, info));
 }
 
 class routerCompare // Comparator object for getRoute weighting

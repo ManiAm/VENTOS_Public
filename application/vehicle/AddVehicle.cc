@@ -426,6 +426,8 @@ void AddVehicle::Scenario8()
 
         r->net->vehicles[id] = new Vehicle(id, type, origin, destination, depart);
 
+
+        //DTODO: is this needed?
         std::list<std::string> routeList = TraCI->routeGetIDList();   //Get all the routes so far
         bool foundRoute = 0;
         for(std::list<std::string>::iterator it = routeList.begin(); it != routeList.end(); it++)   //Loop through them
@@ -443,6 +445,7 @@ void AddVehicle::Scenario8()
             startRoute.push_back(origin);   //With just the starting edge
             TraCI->routeAdd(origin, startRoute);   //And add it to the simulation
         }
+        //end of ?
 
         //cout << "Routes" << endl;
         //for(list<string>::iterator it = routeList.begin(); it != routeList.end(); it++)

@@ -43,8 +43,9 @@ void EdgeCosts::insert(int d)
     //If mode is average, add the new data point to the average
     if(laneCostsMode == MODE_AVERAGE)
     {
-        average = (average * count + d)/ ++count;
-        data[d]++;
+        average = (average * count + d) / (count + 1);
+        ++count;
+        ++data[d];
     }
 
     //If mode is EWMA, perform that calculation

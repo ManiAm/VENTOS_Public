@@ -35,7 +35,7 @@ Net::~Net()
 
 }
 
-Net::Net(string netBase, cModule* router, int ltc, int rtc, int stc, int utc):rightTurnCost(rtc), leftTurnCost(rtc), straightCost(stc), uTurnCost(utc)
+Net::Net(string netBase, cModule* router, int ltc, int rtc, int stc, int utc):leftTurnCost(ltc), rightTurnCost(rtc), straightCost(stc), uTurnCost(utc)
 {
     routerModule = router;
     LoadHelloNet(netBase);
