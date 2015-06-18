@@ -119,7 +119,7 @@ class TraCI_Extend : public TraCIScenarioManager
         int vehicleGetTrafficLightAhead(std::string);     // new command [if the traffic light ahead is yellow or red]
 
         // CMD_SET_VEHICLE_VARIABLE
-        void vehicleSetStop(std::string, std::string, double, uint8_t, double, uint8_t);  // adds or modifies a stop with the given parameters.
+        void vehicleSetStop(std::string, std::string, double, uint8_t, double, uint8_t);  // adds or modifies a stop with the given parameters
         void vehicleResume(std::string);
         void vehicleSetSpeed(std::string, double);
         int32_t vehicleBuildLaneChangeMode(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t);
@@ -135,10 +135,10 @@ class TraCI_Extend : public TraCIScenarioManager
         void vehicleAdd(std::string, std::string, std::string, int32_t, double, double, uint8_t);
         void vehicleRemove(std::string, uint8_t);
         void vehicleSetControllerParameters(std::string, std::string);  // new command [set the controller's parameters for this vehicle]
-        void vehicleSetErrorGap(std::string, double);              // new command [set an error value for the gap]
-        void vehicleSetErrorRelSpeed(std::string, double);         // new command [set an error value for relative speed]
-        void vehicleSetDowngradeToACC(std::string, bool);          // new command [should the controller degrade to ACC ?]
-        void vehicleSetDebug(std::string, bool);                   // new command [should the debug info be printed in the SUMO output console ?]
+        void vehicleSetErrorGap(std::string, double);                   // new command [set an error value for the gap]
+        void vehicleSetErrorRelSpeed(std::string, double);              // new command [set an error value for relative speed]
+        void vehicleSetDowngradeToACC(std::string, bool);               // new command [should the controller degrade to ACC ?]
+        void vehicleSetDebug(std::string, bool);                        // new command [should the debug info be printed in the SUMO output console ?]
 
         // ################################################################
         //                          vehicle type
@@ -154,9 +154,9 @@ class TraCI_Extend : public TraCIScenarioManager
 
         // CMD_SET_VEHICLETYPE_VARIABLE
         void vehicleTypeSetMaxSpeed(std::string, double);
-        void vehicleTypeSetVint(std::string, double);        // new command
-        void vehicleTypeSetComfAccel(std::string, double);   // new command
-        void vehicleTypeSetComfDecel(std::string, double);   // new command
+        void vehicleTypeSetVint(std::string, double);       // new command
+        void vehicleTypeSetComfAccel(std::string, double);  // new command
+        void vehicleTypeSetComfDecel(std::string, double);  // new command
 
         // ################################################################
         //                              route

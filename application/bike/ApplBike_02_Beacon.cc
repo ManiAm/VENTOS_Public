@@ -101,7 +101,7 @@ void ApplBikeBeacon::handleSelfMsg(cMessage* msg)
     {
         if(VANETenabled && smartBeaconing)
         {
-            if(TLControlMode == 5)
+            if(TLControlMode == TL_VANET)
             {
                 Coord myPos = TraCI->vehicleGetPosition(SUMObID);
                 std::string myEdge = TraCI->vehicleGetEdgeID(SUMObID);

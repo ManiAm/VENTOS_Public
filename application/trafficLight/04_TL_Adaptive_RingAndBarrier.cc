@@ -43,7 +43,7 @@ void TrafficLightAdaptive::initialize(int stage)
 {
     TrafficLightFixed::initialize(stage);
 
-    if(TLControlMode != 2)
+    if(TLControlMode != TL_Adaptive_Time)
         return;
 
     if(stage == 0)
@@ -70,7 +70,7 @@ void TrafficLightAdaptive::handleMessage(cMessage *msg)
 {
     TrafficLightFixed::handleMessage(msg);
 
-    if(TLControlMode != 2)
+    if(TLControlMode != TL_Adaptive_Time)
         return;
 
     if (msg == ChangeEvt)
@@ -88,7 +88,7 @@ void TrafficLightAdaptive::executeFirstTimeStep()
     // call parent
     TrafficLightFixed::executeFirstTimeStep();
 
-    if(TLControlMode != 2)
+    if(TLControlMode != TL_Adaptive_Time)
         return;
 
     std::cout << "Adaptive-time traffic signal control ..."  << endl;
@@ -142,7 +142,7 @@ void TrafficLightAdaptive::executeEachTimeStep(bool simulationDone)
     // call parent
     TrafficLightFixed::executeEachTimeStep(simulationDone);
 
-    if(TLControlMode != 2)
+    if(TLControlMode != TL_Adaptive_Time)
         return;
 
     // update passage time if necessary

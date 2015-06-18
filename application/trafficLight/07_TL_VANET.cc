@@ -42,7 +42,7 @@ void TrafficLightVANET::initialize(int stage)
 {
     TrafficLightWebster::initialize(stage);
 
-    if(TLControlMode != 5)
+    if(TLControlMode != TL_VANET)
         return;
 
     if(stage == 0)
@@ -68,7 +68,7 @@ void TrafficLightVANET::handleMessage(cMessage *msg)
 {
     TrafficLightWebster::handleMessage(msg);
 
-    if(TLControlMode != 5)
+    if(TLControlMode != TL_VANET)
         return;
 
     if (msg == ChangeEvt)
@@ -86,7 +86,7 @@ void TrafficLightVANET::executeFirstTimeStep()
     // call parent
     TrafficLightWebster::executeFirstTimeStep();
 
-    if(TLControlMode != 5)
+    if(TLControlMode != TL_VANET)
         return;
 
     std::cout << "VANET traffic signal control ..." << endl << endl;
@@ -116,7 +116,7 @@ void TrafficLightVANET::executeEachTimeStep(bool simulationDone)
     // call parent
     TrafficLightWebster::executeEachTimeStep(simulationDone);
 
-    if(TLControlMode != 5)
+    if(TLControlMode != TL_VANET)
         return;
 
     intervalElapseTime += updateInterval;

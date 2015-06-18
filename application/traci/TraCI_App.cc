@@ -261,5 +261,4 @@ void TraCI_App::addModule(std::string nodeId, std::string type, std::string name
     TraCIScenarioManager::addModule(nodeId, type, name, displayString, position, road_id, speed, angle);
 }
 
-
 }

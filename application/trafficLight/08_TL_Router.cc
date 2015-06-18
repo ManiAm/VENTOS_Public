@@ -211,7 +211,7 @@ void TrafficLightRouter::initialize(int stage)
 {
     TrafficLightVANET::initialize(stage);
 
-    if(TLControlMode != 6)
+    if(TLControlMode != TL_Router)
         return;
 
     if(id == "")
@@ -274,7 +274,7 @@ void TrafficLightRouter::handleMessage(cMessage* msg)  //Internal messages to se
 {
     TrafficLightVANET::handleMessage(msg);
 
-    if(TLControlMode != 6)
+    if(TLControlMode != TL_Router)
         return;
 
     if(!done)
@@ -585,7 +585,7 @@ void TrafficLightRouter::finish()
 {
     TrafficLightVANET::finish();
 
-    if(TLControlMode != 6)
+    if(TLControlMode != TL_Router)
         return;
 
     done = true;

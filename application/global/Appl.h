@@ -54,6 +54,16 @@ enum ControllerTypes
     SUMO_TAG_CF_CACC,   // 115
 };
 
+enum TLControlTypes
+{
+    TL_OFF = 0,
+    TL_Fix_Time,
+    TL_Adaptive_Time,
+    TL_Adaptive_Time_Queue,
+    TL_Adaptive_Webster,
+    TL_VANET,
+    TL_Router,
+};
 
 class systemData : public cObject, noncopyable
 {
