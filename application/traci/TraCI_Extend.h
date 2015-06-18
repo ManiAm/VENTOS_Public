@@ -103,6 +103,7 @@ class TraCI_Extend : public TraCIScenarioManager
         std::string vehicleGetTypeID(std::string);
         std::string vehicleGetRouteID(std::string);
         std::list<std::string> vehicleGetRoute(std::string);
+        uint32_t vehicleGetRouteIndex(std::string);
         std::string vehicleGetBestLanes(std::string);
         uint8_t* vehicleGetColor(std::string);
         uint8_t* vehicleGetSignals(std::string);
