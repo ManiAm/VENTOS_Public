@@ -105,10 +105,10 @@ void LoopDetectors::executeFirstTimeStep()
 
     getAllDetectors();
 
-    // for each traffic light, get all incoming lanes
+    // for each traffic light
     for (std::list<std::string>::iterator it = TLList.begin(); it != TLList.end(); ++it)
     {
-        // for lane
+        // get all incoming lanes
         std::list<std::string> lan = TraCI->TLGetControlledLanes(*it);
 
         // remove duplicate entries
@@ -117,14 +117,16 @@ void LoopDetectors::executeFirstTimeStep()
         // for each incoming lane
         for(std::list<std::string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
         {
-            lanesTL[*it2] = *it;
-        }
-    }
+            std::string TLid = *it;
+            std::string lane = *it2;
 
-    // for each traffic light, get all links
-    for (std::list<std::string>::iterator it = TLList.begin(); it != TLList.end(); ++it)
-    {
-        // get controlled links for this traffic light
+            lanesTL[lane] = TLid;
+
+            // initialize all queue value in laneQueueSize to zero
+            laneQueueSize[lane] = std::make_pair(TLid, 0);
+        }
+
+        // get all links controlled by this TL
         std::map<int,std::string> result = TraCI->TLGetControlledLinks(*it);
 
         // for each link in this TLid
@@ -135,33 +137,9 @@ void LoopDetectors::executeFirstTimeStep()
             std::string link = (*it2).second;
 
             linksTL[make_pair(TLid,linkNumber)] = link;
-        }
-    }
 
-    // initialize all queue value in laneQueueSize to zero
-    for (std::list<std::string>::iterator it = TLList.begin(); it != TLList.end(); ++it)
-    {
-        std::list<std::string> lan = TraCI->TLGetControlledLanes(*it);
-
-        // remove duplicate entries
-        lan.unique();
-
-        // for each incoming lane
-        for(std::list<std::string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
-        {
-            laneQueueSize.insert( std::make_pair( *it2, std::make_pair(*it, 0) ) );
-        }
-    }
-
-    // initialize all queue value in linkQueueSize to zero
-    for (std::list<std::string>::iterator it = TLList.begin(); it != TLList.end(); ++it)
-    {
-        std::map<int,std::string> result = TraCI->TLGetControlledLinks(*it);
-
-        // for each link in this TLid
-        for(std::map<int,std::string>::iterator it2 = result.begin(); it2 != result.end(); ++it2)
-        {
-            linkQueueSize.insert( std::make_pair(std::make_pair(*it,(*it2).first), 0) );
+            // initialize all queue value in linkQueueSize to zero
+            linkQueueSize.insert( std::make_pair(std::make_pair(TLid,linkNumber), 0) );
         }
     }
 }
@@ -237,48 +215,30 @@ void LoopDetectors::getAllDetectors()
     std::cout << endl << LD_demand.size() << " demand loop detectors found!" << endl;
     std::cout << LD_actuated.size() << " actuated loop detectors found!" << endl;
     std::cout << AD_queue.size() << " area detectors found!" << endl << endl;
-    */
+     */
 
-    // some traffic signal controls need one actuated LD on each incoming lane
-    if(TLControlMode == 2)
+    // make sure we have all detectors we need
+    for (std::list<std::string>::iterator it = TLList.begin(); it != TLList.end(); it++)
     {
-        for (std::list<std::string>::iterator it = TLList.begin(); it != TLList.end(); it++)
+        std::list<std::string> lan = TraCI->TLGetControlledLanes(*it);
+
+        // remove duplicate entries
+        lan.unique();
+
+        // for each incoming lane
+        for(std::list<std::string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
         {
-            std::list<std::string> lan = TraCI->TLGetControlledLanes(*it);
+            // some traffic signal controls need one actuated LD on each incoming lane
+            if( TLControlMode == 2 && LD_actuated.find(*it2) == LD_actuated.end() )
+                std::cout << "WARNING: no loop detector found on lane (" << *it2 << "). No actuation is available for this lane." << endl;
 
-            // remove duplicate entries
-            lan.unique();
-
-            // for each incoming lane
-            for(std::list<std::string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
-            {
-                if( LD_actuated.find(*it2) == LD_actuated.end() )
-                    std::cout << "WARNING: no loop detector found on lane (" << *it2 << "). No actuation is available for this lane." << endl;
-            }
+            // if we are measuring queue length then make sure we have an area detector in each lane
+            if( measureIntersectionQueue && AD_queue.find(*it2) == AD_queue.end() )
+                std::cout << "WARNING: no area detector found on lane (" << *it2 << "). No queue measurement is available for this lane." << endl;
         }
-        std::cout << endl;
     }
 
-    // if we are measuring queue length then
-    // make sure we have an area detector in each lane
-    if(measureIntersectionQueue)
-    {
-        for (std::list<std::string>::iterator it = TLList.begin() ; it != TLList.end(); ++it)
-        {
-            std::list<std::string> lan = TraCI->TLGetControlledLanes(*it);
-
-            // remove duplicate entries
-            lan.unique();
-
-            // for each incoming lane
-            for(std::list<std::string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
-            {
-                if( AD_queue.find(*it2) == AD_queue.end() )
-                    std::cout << "WARNING: no area detector found on lane (" << *it2 << "). No queue measurement is available for this lane." << endl;
-            }
-        }
-        std::cout << endl;
-    }
+    std::cout << endl;
 }
 
 
