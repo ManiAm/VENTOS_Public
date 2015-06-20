@@ -8,7 +8,7 @@ simple Statistics
         
         bool collectVehiclesData;
         bool useDetailedFilenames;
-        bool collectMAClayerData;
-        bool collectPlnManagerData;
-        bool printBeaconsStatistics;
+        bool reportMAClayerData;
+        bool reportPlnManagerData;
+        bool reportBeaconsData;
 }

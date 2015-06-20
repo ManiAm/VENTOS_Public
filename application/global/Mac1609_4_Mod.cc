@@ -48,7 +48,7 @@ void Mac1609_4_Mod::initialize(int stage)
         if(StatPtr == NULL)
             error("can not get a pointer to the Statistics module.");
 
-        collectMAClayerData = StatPtr->par("collectMAClayerData").boolValue();
+        reportMAClayerData = StatPtr->par("reportMAClayerData").boolValue();
 	}
 }
 
@@ -76,7 +76,7 @@ void Mac1609_4_Mod::handleUpperMsg(cMessage* msg)
 {
     Mac1609_4::handleUpperMsg(msg);
 
-    if(!collectMAClayerData)
+    if(!reportMAClayerData)
         return;
 
     // send signal to statistics

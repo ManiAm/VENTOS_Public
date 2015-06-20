@@ -49,7 +49,7 @@ class Mac1609_4_Mod : public Mac1609_4
 	private:
         cModule *nodePtr;   // pointer to the Node
         Statistics *StatPtr;
-        bool collectMAClayerData;
+        bool reportMAClayerData;
 };
 
 }
