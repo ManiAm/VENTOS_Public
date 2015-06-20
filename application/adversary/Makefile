@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for libadversary
 #
 # This file was generated with the command:
-#  opp_makemake -f --make-so -o adversary -O out -I/home/dylan/Desktop/VENTOS/eigen-3.2.1 -I/home/dylan/Desktop/VENTOS/rapidxml-1.13 -I../../../veins/src/veins -I../../../veins/src/veins/base/connectionManager -I../../../veins/src -I../trafficLight -I../../../veins/src/veins/base/utils -I../rsu -I.. -I../../../veins/src/veins/base/modules -I../router -I../traci -I../vehicle -I../../../veins/src/veins/modules/mac/ieee80211p -I../global -L../../../veins/out/$$\(CONFIGNAME\)/src -L../../out/$$\(CONFIGNAME\)/application/pedestrian -L../../out/$$\(CONFIGNAME\)/application/trafficLight -L../../out/$$\(CONFIGNAME\)/application/msg -L../../out/$$\(CONFIGNAME\)/application/rsu -L../../out/$$\(CONFIGNAME\)/application/bike -L../../out/$$\(CONFIGNAME\)/application/router -L../../out/$$\(CONFIGNAME\)/application/traci -L../../out/$$\(CONFIGNAME\)/application/vehicle -L../../out/$$\(CONFIGNAME\)/application/global -lboost_filesystem -lboost_system -lmsg -ltraci -lveins -KVEINS_PROJ=../../../veins
+#  opp_makemake -f --make-so -o adversary -O out -I/home/mani/Desktop/VENTOS/eigen-3.2.1 -I/home/mani/Desktop/VENTOS/rapidxml-1.13 -I../../../veins/src/veins/base/connectionManager -I../router -I../../../veins/src -I../../../veins/src/veins/base/utils -I../traci -I../../../veins/src/veins -I../vehicle -I../global -I.. -I../../../veins/src/veins/base/modules -I../../../veins/src/veins/modules/mac/ieee80211p -I../trafficLight -I../rsu -L../../../veins/out/$$\(CONFIGNAME\)/src -L../../out/$$\(CONFIGNAME\)/application/msg -L../../out/$$\(CONFIGNAME\)/application/router -L../../out/$$\(CONFIGNAME\)/application/pedestrian -L../../out/$$\(CONFIGNAME\)/application/bike -L../../out/$$\(CONFIGNAME\)/application/traci -L../../out/$$\(CONFIGNAME\)/application/vehicle -L../../out/$$\(CONFIGNAME\)/application/trafficLight -L../../out/$$\(CONFIGNAME\)/application/rsu -L../../out/$$\(CONFIGNAME\)/application/global -lboost_filesystem -lboost_system -lmsg -ltraci -lveins -KVEINS_PROJ=../../../veins
 #
 
 # Name of target to be created (-o option)
@@ -12,27 +12,27 @@ TARGET = libadversary$(SHARED_LIB_SUFFIX)
 INCLUDE_PATH = \
     -I../../eigen-3.2.1 \
     -I../../rapidxml-1.13 \
-    -I../../../veins/src/veins \
     -I../../../veins/src/veins/base/connectionManager \
+    -I../router \
     -I../../../veins/src \
-    -I../trafficLight \
     -I../../../veins/src/veins/base/utils \
-    -I../rsu \
+    -I../traci \
+    -I../../../veins/src/veins \
+    -I../vehicle \
+    -I../global \
     -I.. \
     -I../../../veins/src/veins/base/modules \
-    -I../router \
-    -I../traci \
-    -I../vehicle \
     -I../../../veins/src/veins/modules/mac/ieee80211p \
-    -I../global \
+    -I../trafficLight \
+    -I../rsu \
     -I.
 
 # Additional object and library files to link with
 EXTRA_OBJS =
 
 # Additional libraries (-L, -l options)
-LIBS = -L../../../veins/out/$(CONFIGNAME)/src -L../../out/$(CONFIGNAME)/application/pedestrian -L../../out/$(CONFIGNAME)/application/trafficLight -L../../out/$(CONFIGNAME)/application/msg -L../../out/$(CONFIGNAME)/application/rsu -L../../out/$(CONFIGNAME)/application/bike -L../../out/$(CONFIGNAME)/application/router -L../../out/$(CONFIGNAME)/application/traci -L../../out/$(CONFIGNAME)/application/vehicle -L../../out/$(CONFIGNAME)/application/global  -lboost_filesystem -lboost_system -lmsg -ltraci -lveins
-LIBS += -Wl,-rpath,`abspath ../../../veins/out/$(CONFIGNAME)/src` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/pedestrian` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/trafficLight` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/msg` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/rsu` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/bike` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/router` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/traci` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/vehicle` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/global`
+LIBS = -L../../../veins/out/$(CONFIGNAME)/src -L../../out/$(CONFIGNAME)/application/msg -L../../out/$(CONFIGNAME)/application/router -L../../out/$(CONFIGNAME)/application/pedestrian -L../../out/$(CONFIGNAME)/application/bike -L../../out/$(CONFIGNAME)/application/traci -L../../out/$(CONFIGNAME)/application/vehicle -L../../out/$(CONFIGNAME)/application/trafficLight -L../../out/$(CONFIGNAME)/application/rsu -L../../out/$(CONFIGNAME)/application/global  -lboost_filesystem -lboost_system -lmsg -ltraci -lveins
+LIBS += -Wl,-rpath,`abspath ../../../veins/out/$(CONFIGNAME)/src` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/msg` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/router` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/pedestrian` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/bike` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/traci` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/vehicle` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/trafficLight` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/rsu` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/global`
 
 # Output directory
 PROJECT_OUTPUT_DIR = ../../out
@@ -40,7 +40,7 @@ PROJECTRELATIVE_PATH = application/adversary
 O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Object files for local .cc and .msg files
-OBJS = $O/AddAdversary.o $O/ApplAdversary.o
+OBJS = $O/ApplAdversary.o
 
 # Message files
 MSGFILES =
@@ -130,38 +130,6 @@ depend:
 	$(Q)$(MAKEDEPEND) $(INCLUDE_PATH) -f Makefile -P\$$O/ -- $(MSG_CC_FILES)  ./*.cc
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
-$O/AddAdversary.o: AddAdversary.cc \
-	AddAdversary.h \
-	../global/Appl.h \
-	../msg/Messages_m.h \
-	../traci/TraCI_Extend.h \
-	$(VEINS_PROJ)/src/veins/base/connectionManager/BaseConnectionManager.h \
-	$(VEINS_PROJ)/src/veins/base/connectionManager/NicEntry.h \
-	$(VEINS_PROJ)/src/veins/base/modules/BaseApplLayer.h \
-	$(VEINS_PROJ)/src/veins/base/modules/BaseBattery.h \
-	$(VEINS_PROJ)/src/veins/base/modules/BaseLayer.h \
-	$(VEINS_PROJ)/src/veins/base/modules/BaseModule.h \
-	$(VEINS_PROJ)/src/veins/base/modules/BaseWorldUtility.h \
-	$(VEINS_PROJ)/src/veins/base/modules/BatteryAccess.h \
-	$(VEINS_PROJ)/src/veins/base/utils/Coord.h \
-	$(VEINS_PROJ)/src/veins/base/utils/FWMath.h \
-	$(VEINS_PROJ)/src/veins/base/utils/FindModule.h \
-	$(VEINS_PROJ)/src/veins/base/utils/HostState.h \
-	$(VEINS_PROJ)/src/veins/base/utils/MiXiMDefs.h \
-	$(VEINS_PROJ)/src/veins/base/utils/PassedMessage.h \
-	$(VEINS_PROJ)/src/veins/base/utils/SimpleAddress.h \
-	$(VEINS_PROJ)/src/veins/base/utils/miximkerneldefs.h \
-	$(VEINS_PROJ)/src/veins/modules/messages/WaveShortMessage_m.h \
-	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIBuffer.h \
-	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIColor.h \
-	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCICommandInterface.h \
-	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIConnection.h \
-	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIConstants.h \
-	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCICoord.h \
-	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIScenarioManager.h \
-	$(VEINS_PROJ)/src/veins/modules/obstacle/Obstacle.h \
-	$(VEINS_PROJ)/src/veins/modules/obstacle/ObstacleControl.h \
-	$(VEINS_PROJ)/src/veins/modules/world/annotations/AnnotationManager.h
 $O/ApplAdversary.o: ApplAdversary.cc \
 	ApplAdversary.h \
 	../global/Appl.h \

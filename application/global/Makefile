@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for libglobal
 #
 # This file was generated with the command:
-#  opp_makemake -f --make-so -o global -O out -I/home/dylan/Desktop/VENTOS/eigen-3.2.1 -I/home/dylan/Desktop/VENTOS/rapidxml-1.13 -I../../../veins/src/veins -I.. -I../../../veins/src/veins/base/connectionManager -I../../../veins/src -I../trafficLight -I../../../veins/src/veins/base/modules -I../../../veins/src/veins/base/utils -I../rsu -I../router -I../traci -I../vehicle -I../../../veins/src/veins/modules/mac/ieee80211p -L../../../veins/out/$$\(CONFIGNAME\)/src -L../../out/$$\(CONFIGNAME\)/application/pedestrian -L../../out/$$\(CONFIGNAME\)/application/trafficLight -L../../out/$$\(CONFIGNAME\)/application/msg -L../../out/$$\(CONFIGNAME\)/application/rsu -L../../out/$$\(CONFIGNAME\)/application/bike -L../../out/$$\(CONFIGNAME\)/application/adversary -L../../out/$$\(CONFIGNAME\)/application/router -L../../out/$$\(CONFIGNAME\)/application/traci -L../../out/$$\(CONFIGNAME\)/application/vehicle -lboost_filesystem -lboost_system -lmsg -ltraci -lveins -KVEINS_PROJ=../../../veins
+#  opp_makemake -f --make-so -o global -O out -I/home/mani/Desktop/VENTOS/eigen-3.2.1 -I/home/mani/Desktop/VENTOS/rapidxml-1.13 -I../../../veins/src/veins/base/connectionManager -I../router -I../../../veins/src -I../../../veins/src/veins/base/utils -I../traci -I../../../veins/src/veins -I../vehicle -I.. -I../../../veins/src/veins/base/modules -I../../../veins/src/veins/modules/mac/ieee80211p -I../trafficLight -I../rsu -L../../../veins/out/$$\(CONFIGNAME\)/src -L../../out/$$\(CONFIGNAME\)/application/msg -L../../out/$$\(CONFIGNAME\)/application/router -L../../out/$$\(CONFIGNAME\)/application/pedestrian -L../../out/$$\(CONFIGNAME\)/application/bike -L../../out/$$\(CONFIGNAME\)/application/traci -L../../out/$$\(CONFIGNAME\)/application/adversary -L../../out/$$\(CONFIGNAME\)/application/vehicle -L../../out/$$\(CONFIGNAME\)/application/trafficLight -L../../out/$$\(CONFIGNAME\)/application/rsu -lboost_filesystem -lboost_system -lmsg -ltraci -lveins -KVEINS_PROJ=../../../veins
 #
 
 # Name of target to be created (-o option)
@@ -12,26 +12,26 @@ TARGET = libglobal$(SHARED_LIB_SUFFIX)
 INCLUDE_PATH = \
     -I../../eigen-3.2.1 \
     -I../../rapidxml-1.13 \
-    -I../../../veins/src/veins \
-    -I.. \
     -I../../../veins/src/veins/base/connectionManager \
-    -I../../../veins/src \
-    -I../trafficLight \
-    -I../../../veins/src/veins/base/modules \
-    -I../../../veins/src/veins/base/utils \
-    -I../rsu \
     -I../router \
+    -I../../../veins/src \
+    -I../../../veins/src/veins/base/utils \
     -I../traci \
+    -I../../../veins/src/veins \
     -I../vehicle \
+    -I.. \
+    -I../../../veins/src/veins/base/modules \
     -I../../../veins/src/veins/modules/mac/ieee80211p \
+    -I../trafficLight \
+    -I../rsu \
     -I.
 
 # Additional object and library files to link with
 EXTRA_OBJS =
 
 # Additional libraries (-L, -l options)
-LIBS = -L../../../veins/out/$(CONFIGNAME)/src -L../../out/$(CONFIGNAME)/application/pedestrian -L../../out/$(CONFIGNAME)/application/trafficLight -L../../out/$(CONFIGNAME)/application/msg -L../../out/$(CONFIGNAME)/application/rsu -L../../out/$(CONFIGNAME)/application/bike -L../../out/$(CONFIGNAME)/application/adversary -L../../out/$(CONFIGNAME)/application/router -L../../out/$(CONFIGNAME)/application/traci -L../../out/$(CONFIGNAME)/application/vehicle  -lboost_filesystem -lboost_system -lmsg -ltraci -lveins
-LIBS += -Wl,-rpath,`abspath ../../../veins/out/$(CONFIGNAME)/src` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/pedestrian` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/trafficLight` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/msg` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/rsu` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/bike` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/adversary` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/router` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/traci` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/vehicle`
+LIBS = -L../../../veins/out/$(CONFIGNAME)/src -L../../out/$(CONFIGNAME)/application/msg -L../../out/$(CONFIGNAME)/application/router -L../../out/$(CONFIGNAME)/application/pedestrian -L../../out/$(CONFIGNAME)/application/bike -L../../out/$(CONFIGNAME)/application/traci -L../../out/$(CONFIGNAME)/application/adversary -L../../out/$(CONFIGNAME)/application/vehicle -L../../out/$(CONFIGNAME)/application/trafficLight -L../../out/$(CONFIGNAME)/application/rsu  -lboost_filesystem -lboost_system -lmsg -ltraci -lveins
+LIBS += -Wl,-rpath,`abspath ../../../veins/out/$(CONFIGNAME)/src` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/msg` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/router` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/pedestrian` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/bike` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/traci` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/adversary` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/vehicle` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/trafficLight` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/rsu`
 
 # Output directory
 PROJECT_OUTPUT_DIR = ../../out
@@ -40,12 +40,17 @@ O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Object files for local .cc and .msg files
 OBJS = \
-    $O/ConstSpeedMobility.o \
-    $O/TraCIMobilityMod.o \
+    $O/Statistics.o \
+    $O/AddRSU.o \
     $O/Mac1609_4_Mod.o \
-    $O/Plotter.o \
     $O/Tracking.o \
-    $O/Statistics.o
+    $O/Plotter.o \
+    $O/AddAdversary.o \
+    $O/AddVehicle.o \
+    $O/VehicleWarmup.o \
+    $O/VehicleSpeedProfile.o \
+    $O/ConstSpeedMobility.o \
+    $O/TraCIMobilityMod.o
 
 # Message files
 MSGFILES =
@@ -135,6 +140,130 @@ depend:
 	$(Q)$(MAKEDEPEND) $(INCLUDE_PATH) -f Makefile -P\$$O/ -- $(MSG_CC_FILES)  ./*.cc
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
+$O/AddAdversary.o: AddAdversary.cc \
+	AddAdversary.h \
+	Appl.h \
+	../msg/Messages_m.h \
+	../traci/TraCI_Extend.h \
+	$(VEINS_PROJ)/src/veins/base/connectionManager/BaseConnectionManager.h \
+	$(VEINS_PROJ)/src/veins/base/connectionManager/NicEntry.h \
+	$(VEINS_PROJ)/src/veins/base/modules/BaseApplLayer.h \
+	$(VEINS_PROJ)/src/veins/base/modules/BaseBattery.h \
+	$(VEINS_PROJ)/src/veins/base/modules/BaseLayer.h \
+	$(VEINS_PROJ)/src/veins/base/modules/BaseModule.h \
+	$(VEINS_PROJ)/src/veins/base/modules/BaseWorldUtility.h \
+	$(VEINS_PROJ)/src/veins/base/modules/BatteryAccess.h \
+	$(VEINS_PROJ)/src/veins/base/utils/Coord.h \
+	$(VEINS_PROJ)/src/veins/base/utils/FWMath.h \
+	$(VEINS_PROJ)/src/veins/base/utils/FindModule.h \
+	$(VEINS_PROJ)/src/veins/base/utils/HostState.h \
+	$(VEINS_PROJ)/src/veins/base/utils/MiXiMDefs.h \
+	$(VEINS_PROJ)/src/veins/base/utils/PassedMessage.h \
+	$(VEINS_PROJ)/src/veins/base/utils/SimpleAddress.h \
+	$(VEINS_PROJ)/src/veins/base/utils/miximkerneldefs.h \
+	$(VEINS_PROJ)/src/veins/modules/messages/WaveShortMessage_m.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIBuffer.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIColor.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCICommandInterface.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIConnection.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIConstants.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCICoord.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIScenarioManager.h \
+	$(VEINS_PROJ)/src/veins/modules/obstacle/Obstacle.h \
+	$(VEINS_PROJ)/src/veins/modules/obstacle/ObstacleControl.h \
+	$(VEINS_PROJ)/src/veins/modules/world/annotations/AnnotationManager.h
+$O/AddRSU.o: AddRSU.cc \
+	AddRSU.h \
+	Appl.h \
+	../msg/Messages_m.h \
+	../traci/TraCI_Extend.h \
+	$(VEINS_PROJ)/src/veins/base/connectionManager/BaseConnectionManager.h \
+	$(VEINS_PROJ)/src/veins/base/connectionManager/NicEntry.h \
+	$(VEINS_PROJ)/src/veins/base/modules/BaseApplLayer.h \
+	$(VEINS_PROJ)/src/veins/base/modules/BaseBattery.h \
+	$(VEINS_PROJ)/src/veins/base/modules/BaseLayer.h \
+	$(VEINS_PROJ)/src/veins/base/modules/BaseModule.h \
+	$(VEINS_PROJ)/src/veins/base/modules/BaseWorldUtility.h \
+	$(VEINS_PROJ)/src/veins/base/modules/BatteryAccess.h \
+	$(VEINS_PROJ)/src/veins/base/utils/Coord.h \
+	$(VEINS_PROJ)/src/veins/base/utils/FWMath.h \
+	$(VEINS_PROJ)/src/veins/base/utils/FindModule.h \
+	$(VEINS_PROJ)/src/veins/base/utils/HostState.h \
+	$(VEINS_PROJ)/src/veins/base/utils/MiXiMDefs.h \
+	$(VEINS_PROJ)/src/veins/base/utils/PassedMessage.h \
+	$(VEINS_PROJ)/src/veins/base/utils/SimpleAddress.h \
+	$(VEINS_PROJ)/src/veins/base/utils/miximkerneldefs.h \
+	$(VEINS_PROJ)/src/veins/modules/messages/WaveShortMessage_m.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIBuffer.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIColor.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCICommandInterface.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIConnection.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIConstants.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCICoord.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIScenarioManager.h \
+	$(VEINS_PROJ)/src/veins/modules/obstacle/Obstacle.h \
+	$(VEINS_PROJ)/src/veins/modules/obstacle/ObstacleControl.h \
+	$(VEINS_PROJ)/src/veins/modules/world/annotations/AnnotationManager.h
+$O/AddVehicle.o: AddVehicle.cc \
+	AddVehicle.h \
+	Appl.h \
+	../msg/Messages_m.h \
+	../router/Edge.h \
+	../router/EdgeCosts.h \
+	../router/Hypertree.h \
+	../router/Net.h \
+	../router/Node.h \
+	../router/Router.h \
+	../router/RouterGlobals.h \
+	../router/Vehicle.h \
+	../rsu/ApplRSU_01_Base.h \
+	../rsu/ApplRSU_02_AID.h \
+	../rsu/ApplRSU_03_TL_VANET.h \
+	../traci/TraCI_Extend.h \
+	../trafficLight/01_TL_Base.h \
+	../trafficLight/02_LoopDetectors.h \
+	../trafficLight/03_TL_Fixed.h \
+	../trafficLight/04_TL_Adaptive_RingAndBarrier.h \
+	../trafficLight/05_TL_Adaptive_Queue.h \
+	../trafficLight/06_TL_Adaptive_Webster.h \
+	../trafficLight/07_TL_VANET.h \
+	../trafficLight/08_TL_Router.h \
+	../vehicle/ApplV_01_Base.h \
+	../vehicle/ApplV_02_Beacon.h \
+	$(VEINS_PROJ)/src/veins/base/connectionManager/BaseConnectionManager.h \
+	$(VEINS_PROJ)/src/veins/base/connectionManager/ChannelAccess.h \
+	$(VEINS_PROJ)/src/veins/base/connectionManager/NicEntry.h \
+	$(VEINS_PROJ)/src/veins/base/modules/BaseApplLayer.h \
+	$(VEINS_PROJ)/src/veins/base/modules/BaseBattery.h \
+	$(VEINS_PROJ)/src/veins/base/modules/BaseLayer.h \
+	$(VEINS_PROJ)/src/veins/base/modules/BaseMobility.h \
+	$(VEINS_PROJ)/src/veins/base/modules/BaseModule.h \
+	$(VEINS_PROJ)/src/veins/base/modules/BaseWorldUtility.h \
+	$(VEINS_PROJ)/src/veins/base/modules/BatteryAccess.h \
+	$(VEINS_PROJ)/src/veins/base/utils/Coord.h \
+	$(VEINS_PROJ)/src/veins/base/utils/FWMath.h \
+	$(VEINS_PROJ)/src/veins/base/utils/FindModule.h \
+	$(VEINS_PROJ)/src/veins/base/utils/HostState.h \
+	$(VEINS_PROJ)/src/veins/base/utils/MiXiMDefs.h \
+	$(VEINS_PROJ)/src/veins/base/utils/Move.h \
+	$(VEINS_PROJ)/src/veins/base/utils/NetwToMacControlInfo.h \
+	$(VEINS_PROJ)/src/veins/base/utils/PassedMessage.h \
+	$(VEINS_PROJ)/src/veins/base/utils/SimpleAddress.h \
+	$(VEINS_PROJ)/src/veins/base/utils/miximkerneldefs.h \
+	$(VEINS_PROJ)/src/veins/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
+	$(VEINS_PROJ)/src/veins/modules/messages/WaveShortMessage_m.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIBuffer.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIColor.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCICommandInterface.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIConnection.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIConstants.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCICoord.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIMobility.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIScenarioManager.h \
+	$(VEINS_PROJ)/src/veins/modules/obstacle/Obstacle.h \
+	$(VEINS_PROJ)/src/veins/modules/obstacle/ObstacleControl.h \
+	$(VEINS_PROJ)/src/veins/modules/utility/Consts80211p.h \
+	$(VEINS_PROJ)/src/veins/modules/world/annotations/AnnotationManager.h
 $O/ConstSpeedMobility.o: ConstSpeedMobility.cc \
 	ConstSpeedMobility.h \
 	$(VEINS_PROJ)/src/veins/base/modules/BaseBattery.h \
@@ -248,11 +377,29 @@ $O/Statistics.o: Statistics.cc \
 	Appl.h \
 	Statistics.h \
 	../msg/Messages_m.h \
+	../router/Edge.h \
+	../router/EdgeCosts.h \
+	../router/Hypertree.h \
+	../router/Net.h \
+	../router/Node.h \
+	../router/Router.h \
+	../router/RouterGlobals.h \
+	../router/Vehicle.h \
 	../rsu/ApplRSU_01_Base.h \
 	../rsu/ApplRSU_02_AID.h \
 	../rsu/ApplRSU_03_TL_VANET.h \
 	../rsu/ApplRSU_04_Manager.h \
 	../traci/TraCI_Extend.h \
+	../trafficLight/01_TL_Base.h \
+	../trafficLight/02_LoopDetectors.h \
+	../trafficLight/03_TL_Fixed.h \
+	../trafficLight/04_TL_Adaptive_RingAndBarrier.h \
+	../trafficLight/05_TL_Adaptive_Queue.h \
+	../trafficLight/06_TL_Adaptive_Webster.h \
+	../trafficLight/07_TL_VANET.h \
+	../trafficLight/08_TL_Router.h \
+	../vehicle/ApplV_01_Base.h \
+	../vehicle/ApplV_02_Beacon.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/ChannelAccess.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/NicEntry.h \
@@ -316,6 +463,60 @@ $O/TraCIMobilityMod.o: TraCIMobilityMod.cc \
 $O/Tracking.o: Tracking.cc \
 	Appl.h \
 	Tracking.h \
+	../msg/Messages_m.h \
+	../traci/TraCI_Extend.h \
+	$(VEINS_PROJ)/src/veins/base/connectionManager/BaseConnectionManager.h \
+	$(VEINS_PROJ)/src/veins/base/connectionManager/NicEntry.h \
+	$(VEINS_PROJ)/src/veins/base/modules/BaseModule.h \
+	$(VEINS_PROJ)/src/veins/base/modules/BaseWorldUtility.h \
+	$(VEINS_PROJ)/src/veins/base/utils/Coord.h \
+	$(VEINS_PROJ)/src/veins/base/utils/FWMath.h \
+	$(VEINS_PROJ)/src/veins/base/utils/FindModule.h \
+	$(VEINS_PROJ)/src/veins/base/utils/HostState.h \
+	$(VEINS_PROJ)/src/veins/base/utils/MiXiMDefs.h \
+	$(VEINS_PROJ)/src/veins/base/utils/miximkerneldefs.h \
+	$(VEINS_PROJ)/src/veins/modules/messages/WaveShortMessage_m.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIBuffer.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIColor.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCICommandInterface.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIConnection.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIConstants.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCICoord.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIScenarioManager.h \
+	$(VEINS_PROJ)/src/veins/modules/obstacle/Obstacle.h \
+	$(VEINS_PROJ)/src/veins/modules/obstacle/ObstacleControl.h \
+	$(VEINS_PROJ)/src/veins/modules/world/annotations/AnnotationManager.h
+$O/VehicleSpeedProfile.o: VehicleSpeedProfile.cc \
+	Appl.h \
+	VehicleSpeedProfile.h \
+	../msg/Messages_m.h \
+	../traci/TraCI_Extend.h \
+	$(VEINS_PROJ)/src/veins/base/connectionManager/BaseConnectionManager.h \
+	$(VEINS_PROJ)/src/veins/base/connectionManager/NicEntry.h \
+	$(VEINS_PROJ)/src/veins/base/modules/BaseModule.h \
+	$(VEINS_PROJ)/src/veins/base/modules/BaseWorldUtility.h \
+	$(VEINS_PROJ)/src/veins/base/utils/Coord.h \
+	$(VEINS_PROJ)/src/veins/base/utils/FWMath.h \
+	$(VEINS_PROJ)/src/veins/base/utils/FindModule.h \
+	$(VEINS_PROJ)/src/veins/base/utils/HostState.h \
+	$(VEINS_PROJ)/src/veins/base/utils/MiXiMDefs.h \
+	$(VEINS_PROJ)/src/veins/base/utils/miximkerneldefs.h \
+	$(VEINS_PROJ)/src/veins/modules/messages/WaveShortMessage_m.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIBuffer.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIColor.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCICommandInterface.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIConnection.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIConstants.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCICoord.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIScenarioManager.h \
+	$(VEINS_PROJ)/src/veins/modules/obstacle/Obstacle.h \
+	$(VEINS_PROJ)/src/veins/modules/obstacle/ObstacleControl.h \
+	$(VEINS_PROJ)/src/veins/modules/world/annotations/AnnotationManager.h
+$O/VehicleWarmup.o: VehicleWarmup.cc \
+	AddVehicle.h \
+	Appl.h \
+	VehicleSpeedProfile.h \
+	VehicleWarmup.h \
 	../msg/Messages_m.h \
 	../traci/TraCI_Extend.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/BaseConnectionManager.h \
