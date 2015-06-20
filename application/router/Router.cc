@@ -46,14 +46,14 @@ set<string>* randomUniqueVehiclesInRange(int numInts, int rangeMin, int rangeMax
               //Not a very efficient implementation, but it shouldn't matter much
 
     vector<int>* initialInts = new vector<int>;
-    for(int i = rangeMin; i < rangeMax; i++)
+    for(int i = rangeMin; i < rangeMax; ++i)
         initialInts->push_back(i);
 
     if(rangeMin < rangeMax)
         random_shuffle(initialInts->begin(), initialInts->end());
 
     set<string>* randInts = new set<string>;
-    for(int i = 0; i < numInts; i++)
+    for(int i = 0; i < numInts; ++i)
         randInts->insert(SSTR(initialInts->at(i) + 1));
 
     return randInts;
@@ -279,7 +279,7 @@ void Router::receiveSignal(cComponent *source, simsignal_t signalID, cObject *ob
 
                         double avg = 0;
                         int count = 0;
-                        for(map<string, int>::iterator it = vehicleTravelTimes.begin(); it != vehicleTravelTimes.end(); it++)
+                        for(map<string, int>::iterator it = vehicleTravelTimes.begin(); it != vehicleTravelTimes.end(); ++it)
                         {
                             count++;
                             avg += it->second;
@@ -299,7 +299,7 @@ void Router::receiveSignal(cComponent *source, simsignal_t signalID, cObject *ob
                         outfile.close();
                     }
 
-                    for(map<string, TrafficLightRouter*>::iterator tl = net->TLs.begin(); tl != net->TLs.end(); tl++)
+                    for(map<string, TrafficLightRouter*>::iterator tl = net->TLs.begin(); tl != net->TLs.end(); ++tl)
                         (*tl).second->finish();
                 }
             }
@@ -431,7 +431,7 @@ void Router::LaneCostsToFile()
             EdgeCosts& ec = pair.second->travelTimes;
             outFile << name << " " << ec.count << endl; //Write the edge ID and its number of data points
             for(auto& pair2 : ec.data)
-            //for(map<int, int>::iterator it2 = hist->data.begin(); it2 != hist->data.end(); it2++)
+            //for(map<int, int>::iterator it2 = hist->data.begin(); it2 != hist->data.end(); ++it2)
             {
                 int time = pair2.first;
                 int count = pair2.second;
@@ -446,7 +446,7 @@ void Router::laneCostsData()
 {
     list<string> vList = TraCI->vehicleGetIDList();
 
-    for(list<string>::iterator it = vList.begin(); it != vList.end(); it++) //Look at each vehicle
+    for(list<string>::iterator it = vList.begin(); it != vList.end(); ++it) //Look at each vehicle
     {
         string curEdge = TraCI->vehicleGetEdgeID(*it);  //The edge it's currently on
         if(TraCI->vehicleGetLanePosition(*it) * 1.05 > TraCI->laneGetLength(TraCI->vehicleGetLaneID(*it)))   //If the vehicle is on (or extremely close to) the end of the lane
@@ -498,13 +498,13 @@ Hypertree* Router::buildHypertree(int startTime, Node* destination)
     map<string, bool> visited;
     list<Node*> SE;
 
-    for(map<string, Node*>::iterator node = net->nodes.begin(); node != net->nodes.end(); node++)    // Reset the temporary pathing data
+    for(map<string, Node*>::iterator node = net->nodes.begin(); node != net->nodes.end(); ++node)    // Reset the temporary pathing data
     {
         Node* i = (*node).second;                            // i is the destination node
         visited[i->id] = 0;                   // Set each node as not visited
-        for(int t = startTime; t <= timePeriodMax; t++)   // For every second in the time interval
+        for(int t = startTime; t <= timePeriodMax; ++t)   // For every second in the time interval
         {
-            for(vector<Edge*>::iterator inEdge = i->inEdges.begin(); inEdge != i->inEdges.end(); inEdge++)  // For every predecessor to i
+            for(vector<Edge*>::iterator inEdge = i->inEdges.begin(); inEdge != i->inEdges.end(); ++inEdge)  // For every predecessor to i
             {
                 Node* h = (*inEdge)->from;              // Call each predecessor h
                 ht->label[key(h, i, t)] = 1000000;      // Set the cost from h to i at time t to infinity
@@ -514,9 +514,9 @@ Hypertree* Router::buildHypertree(int startTime, Node* destination)
     }
     if(ev.isGUI()) cout << "Searching nodes for " << destination->id << endl;
     Node* D = destination;    // Find the destination, call it D
-    for(int t = startTime; t <= timePeriodMax; t++)           // For every second in the time interval
+    for(int t = startTime; t <= timePeriodMax; ++t)           // For every second in the time interval
     {
-        for(vector<Edge*>::iterator inEdge = D->inEdges.begin(); inEdge != D->inEdges.end(); inEdge++)  // For every predecessor to D
+        for(vector<Edge*>::iterator inEdge = D->inEdges.begin(); inEdge != D->inEdges.end(); ++inEdge)  // For every predecessor to D
         {
             Node* h = (*inEdge)->from;  // Call each predecessor h
             ht->label[key(h, D, t)] = 0;    // Set the cost from h to D to 0
@@ -529,14 +529,14 @@ Hypertree* Router::buildHypertree(int startTime, Node* destination)
     {
         Node* j = SE.front();   // Set j to the first node
         SE.pop_front();         // And remove the first node from the list
-        for(vector<Edge*>::iterator ijEdge = j->inEdges.begin(); ijEdge != j->inEdges.end(); ijEdge++)  // For each predecessor to j, ijEdge
+        for(vector<Edge*>::iterator ijEdge = j->inEdges.begin(); ijEdge != j->inEdges.end(); ++ijEdge)  // For each predecessor to j, ijEdge
         {
             Node* i = (*ijEdge)->from;                                  // Set i to be the predecessor node
-            for(vector<Edge*>::iterator hiEdge = i->inEdges.begin(); hiEdge != i->inEdges.end(); hiEdge++)  // For each predecessor to i, hiEdge
+            for(vector<Edge*>::iterator hiEdge = i->inEdges.begin(); hiEdge != i->inEdges.end(); ++hiEdge)  // For each predecessor to i, hiEdge
             {
                 EdgeCosts& travelTimes = (*ijEdge)->travelTimes;
                 Node* h = (*hiEdge)->from;  // Set h to be the predecessor node
-                for(int t = startTime; t <= timePeriodMax; t++)   // For every time step of interest
+                for(int t = startTime; t <= timePeriodMax; ++t)   // For every time step of interest
                 {
                     double TLDelay = net->junctionCost(t, *hiEdge, *ijEdge);// The tldelay is the time to the next accepting phase between (h, i) and (i, j)
                     double n = 0;
@@ -577,7 +577,7 @@ Hypertree* Router::buildHypertree(int startTime, Node* destination)
 
 list<string> Router::getRoute(Edge* origin, Node* destination, string vName)
 {
-    for(map<string, Edge*>::iterator it = net->edges.begin(); it != net->edges.end(); it++)  // Reset pathing data
+    for(map<string, Edge*>::iterator it = net->edges.begin(); it != net->edges.end(); ++it)  // Reset pathing data
     {
         (*it).second->curCost = 1000000;
         (*it).second->best = NULL;
@@ -590,7 +590,7 @@ list<string> Router::getRoute(Edge* origin, Node* destination, string vName)
     heap.push(origin);      // Add the origin to the heap
 
     vector<string> destinationEdges;
-    for(vector<Edge*>::iterator it = destination->inEdges.begin(); it != destination->inEdges.end(); it++)
+    for(vector<Edge*>::iterator it = destination->inEdges.begin(); it != destination->inEdges.end(); ++it)
         destinationEdges.push_back((*it)->id);
 
     while(!heap.empty())    // While there are unexplored edges (always, if graph is fully connected)
@@ -612,7 +612,7 @@ list<string> Router::getRoute(Edge* origin, Node* destination, string vName)
         double curLaneCost = distanceAlongLane * parent->getCost();
         if(find(destinationEdges.begin(), destinationEdges.end(), parent->id) == destinationEdges.end())   // If we're not at a destination edge
         {
-            for(vector<Edge*>::iterator child = parent->to->outEdges.begin(); child != parent->to->outEdges.end(); child++)   // Go through every edge was can get to from the parent
+            for(vector<Edge*>::iterator child = parent->to->outEdges.begin(); child != parent->to->outEdges.end(); ++child)   // Go through every edge was can get to from the parent
             {
                 double newCost = parent->curCost + curLaneCost;                     // Time to get to the junction is the time we get to the edge plus the edge cost
                 if(newCost < TLLookahead)

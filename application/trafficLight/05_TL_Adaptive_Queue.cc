@@ -95,7 +95,7 @@ void TrafficLightAdaptiveQueue::executeFirstTimeStep()
 
     getMovements();
 
-    for (std::list<std::string>::iterator TL = TLList.begin(); TL != TLList.end(); TL++)
+    for (std::list<std::string>::iterator TL = TLList.begin(); TL != TLList.end(); ++TL)
     {
         TraCI->TLSetProgram(*TL, "adaptive-time");
         TraCI->TLSetState(*TL, phase1_5);
@@ -398,9 +398,9 @@ void TrafficLightAdaptiveQueue::generateAllAllowedMovements()
     // write it to file
     std::cout << "Writing to file ... " << std::flush;
     FILE *filePtr = fopen (movementsFilePath.string().c_str(), "w");
-    for(std::vector< std::vector<int> >::iterator it = allMovements.begin(); it != allMovements.end(); it++)
+    for(std::vector< std::vector<int> >::iterator it = allMovements.begin(); it != allMovements.end(); ++it)
     {
-        for(std::vector<int>::iterator it2 = (*it).begin(); it2 != (*it).end(); it2++)
+        for(std::vector<int>::iterator it2 = (*it).begin(); it2 != (*it).end(); ++it2)
         {
             fprintf(filePtr, "%d", *it2);
         }
@@ -460,12 +460,12 @@ void TrafficLightAdaptiveQueue::chooseNextGreenInterval()
     int row = -1;
 
     // get which row has the highest queue length
-    for(unsigned int i = 0; i < allMovements.size(); i++)  // row
+    for(unsigned int i = 0; i < allMovements.size(); ++i)  // row
     {
         int totalQueueRow = 0;
         int oneCount = 0;
 
-        for(int j = 0; j < LINKSIZE; j++)  // column
+        for(int j = 0; j < LINKSIZE; ++j)  // column
         {
             if(allMovements[i][j] == 1)
             {
@@ -491,7 +491,7 @@ void TrafficLightAdaptiveQueue::chooseNextGreenInterval()
     // right-turns are all permissive thus using 'g'
     nextGreenInterval = "";
     int rightTurns[] = {2, 7, 12, 17, 0, 5, 10, 15};
-    for(int j = 0; j < LINKSIZE; j++)
+    for(int j = 0; j < LINKSIZE; ++j)
     {
         // if a right turn
         bool exists = std::find(std::begin(rightTurns), std::end(rightTurns), j) != std::end(rightTurns);
@@ -507,7 +507,7 @@ void TrafficLightAdaptiveQueue::chooseNextGreenInterval()
     // Calculate 'next interval'
     std::string nextInterval = "";
     bool needYellowInterval = false;  // if we have at least one yellow interval
-    for(int i = 0; i < LINKSIZE; i++)
+    for(int i = 0; i < LINKSIZE; ++i)
     {
         if( (currentInterval[i] == 'G' || currentInterval[i] == 'g') && nextGreenInterval[i] == 'r')
         {
@@ -520,7 +520,7 @@ void TrafficLightAdaptiveQueue::chooseNextGreenInterval()
 
     std::cout << endl;
     std::cout << "set of links with max q     ";
-    for(int k =0; k < LINKSIZE; k++)
+    for(int k =0; k < LINKSIZE; ++k)
         if(allMovements[row][k] == 1)
             std::cout << k << " (" << linkQueueSize[std::make_pair("C",k)] << "), ";
     std::cout << endl;

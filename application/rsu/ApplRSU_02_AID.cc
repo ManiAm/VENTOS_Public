@@ -150,7 +150,7 @@ void ApplRSUAID::onData(LaneChangeMsg* wsm)
         double toX;
         double time;
 
-        for(boost::tokenizer< boost::char_separator<char> >::iterator beg=tokens.begin(); beg!=tokens.end();++beg)
+        for(boost::tokenizer< boost::char_separator<char> >::iterator beg=tokens.begin(); beg!=tokens.end(); ++beg)
         {
             if(readCount == 1)
             {

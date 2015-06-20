@@ -199,7 +199,7 @@ void TrafficLightRouter::build(std::string id, std::string type, std::string pro
     isTransitionPhase = false;
     nonTransitionalCycleDuration = 0;
 
-    for(unsigned int i = 0; i < phases.size(); i++)
+    for(unsigned int i = 0; i < phases.size(); ++i)
     {
         cycleDuration += phases[i]->duration;
         if(i % 2 == 0)
@@ -342,18 +342,18 @@ void TrafficLightRouter::HighDensityRecalculate()
 {
     std::vector<Edge*>& edges = net->nodes[id]->inEdges;
     double phaseVehicleCounts[phases.size()];   //Will be the # of incoming vehicles that can go during that phase
-    for(unsigned int i = 0; i < phases.size(); i++)  //Initialize to 0
+    for(unsigned int i = 0; i < phases.size(); ++i)  //Initialize to 0
         phaseVehicleCounts[i] = 0;
     int total = 0;
 
-    for(std::vector<Edge*>::iterator edge = edges.begin(); edge != edges.end(); edge++)  //For each edge
+    for(std::vector<Edge*>::iterator edge = edges.begin(); edge != edges.end(); ++edge)  //For each edge
     {
         std::vector<Lane*>* lanes = &(*edge)->lanes;
-        for(std::vector<Lane*>::iterator lane = lanes->begin(); lane != lanes->end(); lane++)    //For each lane
+        for(std::vector<Lane*>::iterator lane = lanes->begin(); lane != lanes->end(); ++lane)    //For each lane
         {
             std::list<std::string> vehicleIDs = TraCI->laneGetLastStepVehicleIDs((*lane)->id); //Get all vehicles on that lane
             int vehCount = vehicleIDs.size();   //And the number of vehicles on that lane
-            for(std::vector<int>::iterator it = (*lane)->greenPhases.begin(); it != (*lane)->greenPhases.end(); it++)    //Each element of greenPhases is a phase that lets that lane move
+            for(std::vector<int>::iterator it = (*lane)->greenPhases.begin(); it != (*lane)->greenPhases.end(); ++it)    //Each element of greenPhases is a phase that lets that lane move
             {
                 phaseVehicleCounts[*it] += vehCount;    //Add the number of vehicles on that lane to that phase
                 total += vehCount; //And add to the totals
@@ -364,7 +364,7 @@ void TrafficLightRouter::HighDensityRecalculate()
     if(total > 0)  //If there are vehicles on the lane
     {
         if(ev.isGUI()) std::cout << "For TL " << id << ": " << endl;
-        for(unsigned int i = 0; i < phases.size(); i++)  //For each phase
+        for(unsigned int i = 0; i < phases.size(); ++i)  //For each phase
         {
             if(i % 2 == 0)  //Ignore the odd (transitional) phases
             {
@@ -545,15 +545,15 @@ bool TrafficLightRouter::LowDensityVehicleCheck()    //This function assumes it'
      */
 
     std::vector<Edge*>& edges = net->nodes[id]->inEdges; //Get all edges going into the TL
-    for(std::vector<Edge*>::iterator edge = edges.begin(); edge != edges.end(); edge++)  //For each edge
+    for(std::vector<Edge*>::iterator edge = edges.begin(); edge != edges.end(); ++edge)  //For each edge
     {
         std::vector<Lane*>* lanes = &(*edge)->lanes; //Get all lanes on each edge
-        for(std::vector<Lane*>::iterator lane = lanes->begin(); lane != lanes->end(); lane++)    //For each lane
+        for(std::vector<Lane*>::iterator lane = lanes->begin(); lane != lanes->end(); ++lane)    //For each lane
         {
             if(find((*lane)->greenPhases.begin(), (*lane)->greenPhases.end(), currentPhase) != (*lane)->greenPhases.end()) //If this lane has a green
             {
                 std::list<std::string> vehicleIDs = TraCI->laneGetLastStepVehicleIDs((*lane)->id); //If so, get all vehicles on this lane
-                for(std::list<std::string>::iterator vehicle = vehicleIDs.begin(); vehicle != vehicleIDs.end(); vehicle++)    //For each vehicle
+                for(std::list<std::string>::iterator vehicle = vehicleIDs.begin(); vehicle != vehicleIDs.end(); ++vehicle)    //For each vehicle
                 {
                     if(TraCI->vehicleGetSpeed(*vehicle) > 0.01)  //If that vehicle is not stationary
                     {
@@ -592,7 +592,7 @@ void TrafficLightRouter::print() // Print a node
                               "  programID: "<< std::setw(4) << std::left << programID <<
                               "offset: "<< std::setw(4) << std::left << offset;
 
-    for(std::vector<Phase*>::iterator it = phases.begin(); it != phases.end(); it++)
+    for(std::vector<Phase*>::iterator it = phases.begin(); it != phases.end(); ++it)
     {
         (*it)->print();
     }

@@ -194,7 +194,6 @@ private:
     simsignal_t Signal_beacon;
 
     // class variables
-    int index;
     std::list<std::string> TLList;      // list of traffic-lights in the network
     std::list<std::string> lanesList;   // list of all lanes in the network
 

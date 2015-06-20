@@ -119,7 +119,7 @@ void TraCI_App::addPedestriansToOMNET()
     std::list<std::string> allPedestrians = personGetIDList();
     //cout << simTime().dbl() << ": " << allPedestrians.size() << endl;
 
-    if(allPedestrians.size() == 0)
+    if(allPedestrians.empty())
         return;
 
     // add new inserted pedestrians

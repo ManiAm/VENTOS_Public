@@ -97,7 +97,7 @@ void TrafficLightAdaptive::executeFirstTimeStep()
     if(passageTime == -1)
     {
         // (*LD).first is 'lane id' and (*LD).second is detector id
-        for (std::map<std::string, std::string>::iterator LD = LD_actuated.begin(); LD != LD_actuated.end(); LD++)
+        for (std::map<std::string, std::string>::iterator LD = LD_actuated.begin(); LD != LD_actuated.end(); ++LD)
         {
             // get the max speed on this lane
             double maxV = TraCI->laneGetMaxSpeed((*LD).first);
@@ -119,13 +119,13 @@ void TrafficLightAdaptive::executeFirstTimeStep()
     else if(passageTime >=0 && passageTime <= minGreenTime)
     {
         // (*LD).first is 'lane id' and (*LD).second is detector id
-        for (std::map<std::string, std::string>::iterator LD = LD_actuated.begin(); LD != LD_actuated.end(); LD++)
+        for (std::map<std::string, std::string>::iterator LD = LD_actuated.begin(); LD != LD_actuated.end(); ++LD)
             passageTimePerLane[(*LD).first] = passageTime;
     }
     else
         error("passageTime value is not set correctly!");
 
-    for (std::list<std::string>::iterator TL = TLList.begin(); TL != TLList.end(); TL++)
+    for (std::list<std::string>::iterator TL = TLList.begin(); TL != TLList.end(); ++TL)
     {
         TraCI->TLSetProgram(*TL, "adaptive-time");
         TraCI->TLSetState(*TL, phase1_5);
@@ -149,7 +149,7 @@ void TrafficLightAdaptive::executeEachTimeStep(bool simulationDone)
     if(passageTime == -1)
     {
         // (*LD).first is 'lane id' and (*LD).second is detector id
-        for (std::map<std::string, std::string>::iterator LD = LD_actuated.begin(); LD != LD_actuated.end(); LD++)
+        for (std::map<std::string, std::string>::iterator LD = LD_actuated.begin(); LD != LD_actuated.end(); ++LD)
         {
             double approachSpeed = TraCI->LDGetLastStepMeanVehicleSpeed((*LD).second);
             // update passage time for this lane
@@ -217,7 +217,7 @@ void TrafficLightAdaptive::chooseNextGreenInterval()
 {
     // print for debugging
     std::cout << "SimTime: " << std::setprecision(2) << std::fixed << simTime().dbl() << " | Passage time value per lane: ";
-    for (std::map<std::string,double>::iterator LD = passageTimePerLane.begin(); LD != passageTimePerLane.end(); LD++)
+    for (std::map<std::string,double>::iterator LD = passageTimePerLane.begin(); LD != passageTimePerLane.end(); ++LD)
         std::cout << (*LD).first << " (" << (*LD).second << ") | ";
     std::cout << endl;
 
@@ -227,7 +227,7 @@ void TrafficLightAdaptive::chooseNextGreenInterval()
     std::cout << "SimTime: " << std::setprecision(2) << std::fixed << simTime().dbl() << " | Actuated LDs (lane, elapsed time): ";
 
     // (*LD).first is 'lane id' and (*LD).second is detector id
-    for (std::map<std::string, std::string>::iterator LD = LD_actuated.begin(); LD != LD_actuated.end(); LD++)
+    for (std::map<std::string, std::string>::iterator LD = LD_actuated.begin(); LD != LD_actuated.end(); ++LD)
     {
         double elapsedT = TraCI->LDGetElapsedTimeLastDetection( (*LD).second);
         LastActuatedTime[(*LD).first] = elapsedT;

@@ -425,7 +425,7 @@ void AddVehicle::Scenario8()
 
         std::list<std::string> routeList = TraCI->routeGetIDList();   //Get all the routes so far
         bool foundRoute = 0;
-        for(std::list<std::string>::iterator it = routeList.begin(); it != routeList.end(); it++)   //Loop through them
+        for(std::list<std::string>::iterator it = routeList.begin(); it != routeList.end(); ++it)   //Loop through them
         {
             //cout << "Found route " << *it << endl;
             if(*it == origin)   //If we find the route named after this vehicle's starting edge, do nothing

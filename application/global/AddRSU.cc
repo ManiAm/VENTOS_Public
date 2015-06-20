@@ -211,7 +211,7 @@ std::deque<RSUEntry*> AddRSU::commandReadRSUsCoord(std::string RSUfilePath)
         }
 
         // add it into queue (with TraCI coordinates)
-        RSUEntry *entry = new RSUEntry(RSUname.c_str(), x, y);
+        RSUEntry *entry = new RSUEntry(RSUname, x, y);
         RSUs.push_back(entry);
     }
 
