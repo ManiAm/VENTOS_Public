@@ -54,8 +54,8 @@ class ApplVSystem : public ApplVBeacon
         double maxOffsetSystem;     //From beacon maxOffset
         int systemMsgLengthBits;
         int systemMsgPriority;      //like beaconPriority
-        bool useDijkstrasRouting;
-        double routeUpdateInterval;
+        RouterMessage routingMode;
+        double hypertreeUpdateInterval;
         bool requestReroutes;
         int numReroutes;
 

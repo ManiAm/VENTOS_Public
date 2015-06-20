@@ -26,6 +26,7 @@
 //
 
 #include "ApplV_03_System.h"
+#include "RouterGlobals.h"
 
 namespace VENTOS {
 
@@ -48,13 +49,14 @@ void ApplVSystem::initialize(int stage)
         if(!requestRoutes)
             return;
 
-        routeUpdateInterval = par("routeUpdateInterval").doubleValue();
+        hypertreeUpdateInterval = par("hypertreeUpdateInterval").doubleValue();
 
         requestInterval = par("requestInterval").doubleValue();
         maxOffset = par("maxSystemOffset").doubleValue();
         systemMsgLengthBits = par("systemMsgLengthBits").longValue();
         systemMsgPriority = par("systemMsgPriority").longValue();
-        useDijkstrasRouting = par("useDijkstrasRouting").boolValue();
+
+        routingMode = static_cast<RouterMessage>(par("routingMode").longValue());
 
         // get the rootFilePath
         cModule *module = simulation.getSystemModule()->getSubmodule("router");
@@ -95,7 +97,7 @@ void ApplVSystem::initialize(int stage)
         double systemOffset = dblrand() * maxOffset;
 
         simsignal_t Signal_system = registerSignal("system"); //Prepare to send a system message
-        nodePtr->emit(Signal_system, new systemData("", "", SUMOvID, 3, std::string("system")));
+        nodePtr->emit(Signal_system, new systemData("", "", SUMOvID, STARTED, std::string("system")));
 
         sendSystemMsgEvt = new cMessage("systemmsg evt");   //Create a new internal message
         if (requestRoutes) //&& VANETenabled ) //If this vehicle is supposed to send system messages
@@ -139,7 +141,30 @@ void ApplVSystem::handleSelfMsg(cMessage* msg)  //Internal messages to self
     if (msg == sendSystemMsgEvt and requestRoutes)  //If it's a system message
     {
         delete msg;
-        reroute();
+        if(requestReroutes || (routingMode == DIJKSTRA and numReroutes == 0))
+        {
+            reroute();
+        }
+    }
+}
+
+void ApplVSystem::reroute()
+{
+
+    ++numReroutes;
+    sendSystemMsgEvt = new cMessage("systemmsg evt");   //Create a new internal message
+    simsignal_t Signal_system = registerSignal("system"); //Prepare to send a system message
+    //Systemdata wants string edge, string node, string sender, int requestType, string recipient, list<string> edgeList
+    if(routingMode == DIJKSTRA)
+    {
+        nodePtr->emit(Signal_system, new systemData(TraCI->vehicleGetEdgeID(SUMOvID), targetNode, SUMOvID, DIJKSTRA, std::string("system")));
+        if(!router->UseHysteresis)
+            scheduleAt(simTime() + requestInterval, sendSystemMsgEvt);// schedule for next beacon broadcast
+    }
+    else if(routingMode == HYPERTREE)
+    {
+        nodePtr->emit(Signal_system, new systemData(TraCI->vehicleGetEdgeID(SUMOvID), targetNode, SUMOvID, HYPERTREE, std::string("system")));
+        scheduleAt(simTime() + hypertreeUpdateInterval, sendSystemMsgEvt);// schedule for next beacon broadcast
     }
 }
 
@@ -150,11 +175,11 @@ void ApplVSystem::receiveSignal(cComponent *source, simsignal_t signalID, cObjec
         systemData *s = static_cast<systemData *>(obj); //Cast to usable data
         if(std::string(s->getSender()) == "router" and std::string(s->getRecipient()) == SUMOvID) //If sent from the router and to this vehicle
         {
-            if((s->getRequestType() == 0 || s->getRequestType() == 1) && (requestReroutes or numReroutes == 0)) //If sent from the router and to this vehicle
+            if((s->getRequestType() == DIJKSTRA || s->getRequestType() == HYPERTREE)) //If sent from the router and to this vehicle
             {
-                numReroutes++;
                 //cout << "Setting new route for " << SUMOvID << " at t=" << simTime().dbl() << endl;
                 std::list<std::string> sRoute = s->getInfo(); //Copy the info from the signal (breaks if we don't do this, for some reason)
+
                 if (*sRoute.begin() != "failed")
                     TraCI->vehicleSetRoute(s->getRecipient(), sRoute);  //Update this vehicle's path with the proper info
             }
@@ -187,24 +212,6 @@ void ApplVSystem::onData(PlatoonMsg* wsm)
 void ApplVSystem::onSystemMsg(SystemMsg* wsm)
 {
     error("ApplVSystem should not receive any system msg!");
-}
-
-void ApplVSystem::reroute()
-{
-    sendSystemMsgEvt = new cMessage("systemmsg evt");   //Create a new internal message
-    simsignal_t Signal_system = registerSignal("system"); //Prepare to send a system message
-    //Systemdata wants string edge, string node, string sender, int requestType, string recipient, list<string> edgeList
-    if(useDijkstrasRouting)
-    {
-        nodePtr->emit(Signal_system, new systemData(TraCI->vehicleGetEdgeID(SUMOvID), targetNode, SUMOvID, 0, std::string("system")));
-        if(!router->UseHysteresis)
-            scheduleAt(simTime() + requestInterval, sendSystemMsgEvt);// schedule for next beacon broadcast
-    }
-    else
-    {
-        nodePtr->emit(Signal_system, new systemData(TraCI->vehicleGetEdgeID(SUMOvID), targetNode, SUMOvID, 1, std::string("system")));
-        scheduleAt(simTime() + routeUpdateInterval, sendSystemMsgEvt);// schedule for next beacon broadcast
-    }
 }
 
 SystemMsg*  ApplVSystem::prepareSystemMsg()

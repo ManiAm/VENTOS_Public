@@ -7,7 +7,7 @@ simple Router
         @class(VENTOS::Router);
         @display("i=block/network2");  
         
-        bool enableRouting = default(false);
+        bool enableRouter = default(false);
       
         double leftTurnCost;
         double rightTurnCost;

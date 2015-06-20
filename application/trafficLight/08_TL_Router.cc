@@ -219,27 +219,31 @@ void TrafficLightRouter::initialize(int stage)
 
     if(stage == 0)
     {
-        TLLogicMode = par("TLLogicMode").longValue();
+        TLLogicMode = static_cast<TrafficLightLogicMode>(par("TLLogicMode").longValue());
         HighDensityRecalculateFrequency = par("HighDensityRecalculateFrequency").doubleValue();
         LowDensityExtendTime = par("LowDensityExtendTime").doubleValue();
         MaxPhaseDuration = par("MaxPhaseDuration").doubleValue();
         MinPhaseDuration = par("MinPhaseDuration").doubleValue();
 
         currentPhase = 0;
-        if(TLLogicMode == 1)
+        switch(TLLogicMode)
         {
+        case FIXED:
+            break;
+
+        case HIGHDENSITY:
             TLEvent = new cMessage("tl evt");   //Create a new internal message
             scheduleAt(simTime() + HighDensityRecalculateFrequency, TLEvent); //Schedule them to start sending
             TLSwitchEvent = new cMessage("tl switch evt");
             scheduleAt(phases[0]->duration, TLSwitchEvent);
-        }
-        else if(TLLogicMode == 2)
-        {
+            break;
+
+        case LOWDENSITY:
             TLSwitchEvent = new cMessage("tl switch evt");
             scheduleAt(phases[0]->duration, TLSwitchEvent);
-        }
-        else if(TLLogicMode == 3)
-        {
+            break;
+
+        case COOPERATIVE:
             TLSwitchEvent = new cMessage("tl switch evt");
             scheduleAt(1, TLSwitchEvent);
         }
@@ -307,14 +311,17 @@ void TrafficLightRouter::SynchronousMessage()
     {
         switch(TLLogicMode)
         {
-            case 1:
+            case FIXED:
+            case HIGHDENSITY:
                 switchToPhase(currentPhase + 2);
                 break;
-            case 2:
+            case LOWDENSITY:
                 LowDensityRecalculate();
                 break;
-            case 3:
+            case COOPERATIVE:
                 FlowRateRecalculate();
+                break;
+            default:
                 break;
         }
     }
@@ -323,7 +330,7 @@ void TrafficLightRouter::SynchronousMessage()
 //Messages sent at other times
 void TrafficLightRouter::ASynchronousMessage()
 {
-    if(TLLogicMode == 1)
+    if(TLLogicMode == HIGHDENSITY)
     {
         HighDensityRecalculate();   //Call the recalculate function, and schedule the next execution
         TLEvent = new cMessage("tl evt");
@@ -457,22 +464,8 @@ void TrafficLightRouter::FlowRateRecalculate()
                 vehicle.eta = prev;
             prev = vehicle.eta;
         }
-
-        /*
-        if(movement->size() > 0)
-        {
-            cout << "For tl " << id << " at t=" << simTime().dbl() << ", movement " << key << endl;
-            for(VState& vehicle : *movement)
-                cout << "    " << vehicle.id << " " << vehicle.position << " " << vehicle.eta << " " << movement->flowRate(20) << endl;
-        }*/
     }
 
-    /*
-     *  for each phase
-     *      for each movement
-     *          if movement is possible in that phase (there exists a connection for it which has a linkindex that is green in the tl state)
-     *              add to flowSum for that phase and time
-     */
 
     int maxFlowTime = -1;
     int maxFlowPhase = -1;
@@ -589,29 +582,6 @@ void TrafficLightRouter::finish()
         return;
 
     done = true;
-    /*
-    if(UseTLLogic)
-    {
-        if(UseHighDensityLogic)
-        {
-            if (TLEvent->isScheduled())
-            {
-                //cancelAndDelete(TLEvent);
-            }
-            else
-            {
-                //delete TLEvent;
-            }
-        }
-        if (TLSwitchEvent->isScheduled())
-        {
-            cancelAndDelete(TLSwitchEvent);
-        }
-        else
-        {
-            delete TLSwitchEvent;
-        }
-    }*/
 }
 
 

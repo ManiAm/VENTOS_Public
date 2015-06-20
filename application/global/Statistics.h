@@ -41,7 +41,6 @@ namespace VENTOS {
 
 class Router;   // Forward-declaration so TraCI_App may hold a Router*
 
-
 class VehicleData
 {
 public:
@@ -197,10 +196,10 @@ private:
 
     // class variables (vectors)
     std::vector<VehicleData> Vec_vehiclesData;
-    std::vector<MacStatEntry *> Vec_MacStat;
-    std::vector<plnManagement *> Vec_plnManagement;
-    std::vector<plnStat *> Vec_plnStat;
-    std::vector<BeaconStat *> Vec_Beacons;
+    std::vector<MacStatEntry> Vec_MacStat;
+    std::vector<plnManagement> Vec_plnManagement;
+    std::vector<plnStat> Vec_plnStat;
+    std::vector<BeaconStat> Vec_Beacons;
 
 private:
     void executeFirstTimeStep();
@@ -224,11 +223,9 @@ private:
 
 // todo
     void postProcess();
-    std::vector<NodeEntry *> SortByID(std::vector<NodeEntry *>);
-
-
-    int findInVector(std::vector<NodeEntry *>, const char *);
-    int findInVector(std::vector<MacStatEntry *>, const char *);
+    std::vector<BeaconStat> SortByID(std::vector<BeaconStat>);
+    int findInVector(std::vector<BeaconStat>, const char *);
+    int findInVector(std::vector<MacStatEntry>, const char *);
 };
 
 }

@@ -100,7 +100,7 @@ protected:
     std::map<std::string, int> vehicleTravelTimes; //Map from vehicle ID to travel time
     std::ofstream vehicleTravelTimesFile; //File to write travel times to
 
-    bool enableRouting; //If false, runs no code
+    bool enableRouter; //If false, runs no code
 
 
     int TLLookahead;

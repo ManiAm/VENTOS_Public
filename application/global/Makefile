@@ -40,6 +40,7 @@ O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Object files for local .cc and .msg files
 OBJS = \
+<<<<<<< HEAD
     $O/Statistics.o \
     $O/AddRSU.o \
     $O/Mac1609_4_Mod.o \
@@ -51,6 +52,19 @@ OBJS = \
     $O/VehicleSpeedProfile.o \
     $O/ConstSpeedMobility.o \
     $O/TraCIMobilityMod.o
+=======
+    $O/ConstSpeedMobility.o \
+    $O/TraCIMobilityMod.o \
+    $O/VehicleWarmup.o \
+    $O/Mac1609_4_Mod.o \
+    $O/AddAdversary.o \
+    $O/Plotter.o \
+    $O/Tracking.o \
+    $O/Statistics.o \
+    $O/AddRSU.o \
+    $O/VehicleSpeedProfile.o \
+    $O/AddVehicle.o
+>>>>>>> 3ed40fa62fd49db37cc4d366e150dda807eb3324
 
 # Message files
 MSGFILES =

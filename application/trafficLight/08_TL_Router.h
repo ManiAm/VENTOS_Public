@@ -81,7 +81,7 @@ public:
 
     //TL Control
     bool done;
-    int TLLogicMode;
+    TrafficLightLogicMode TLLogicMode;
     double HighDensityRecalculateFrequency;
     double LowDensityExtendTime;
     double MaxPhaseDuration;

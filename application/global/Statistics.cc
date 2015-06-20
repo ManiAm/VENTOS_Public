@@ -105,8 +105,6 @@ void Statistics::receiveSignal(cComponent *source, simsignal_t signalID, long i)
 {
     Enter_Method_Silent();
 
-    int nodeIndex = getNodeIndex(source->getFullName());
-
     if(signalID == Signal_executeEachTS)
     {
         Statistics::executeEachTimestep(i);
@@ -120,63 +118,63 @@ void Statistics::receiveSignal(cComponent *source, simsignal_t signalID, long i)
 
 void Statistics::receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj)
 {
-    Enter_Method_Silent();
-
-    int nodeIndex = getNodeIndex(source->getFullName());
-
-    if(reportMAClayerData && signalID == Signal_MacStats)
-    {
-        MacStat *m = static_cast<MacStat *>(obj);
-        if (m == NULL) return;
-
-        int counter = findInVector(Vec_MacStat, source->getFullName());
-
-        // its a new entry, so we add it.
-        if(counter == -1)
-        {
-            MacStatEntry *tmp = new MacStatEntry(source->getFullName(), nodeIndex, simTime().dbl(), m->vec);
-            Vec_MacStat.push_back(tmp);
-        }
-        // if found, just update the existing fields
-        else
-        {
-            Vec_MacStat[counter]->time = simTime().dbl();
-            Vec_MacStat[counter]->MacStatsVec = m->vec;
-        }
-    }
-    else if(reportPlnManagerData && signalID == Signal_VehicleState)
-    {
-        CurrentVehicleState *state = dynamic_cast<CurrentVehicleState*>(obj);
-        ASSERT(state);
-
-        plnManagement *tmp = new plnManagement(simTime().dbl(), state->name, "-", state->state, "-", "-");
-        Vec_plnManagement.push_back(tmp);
-    }
-    else if(reportPlnManagerData && signalID == Signal_SentPlatoonMsg)
-    {
-        CurrentPlnMsg* plnMsg = dynamic_cast<CurrentPlnMsg*>(obj);
-        ASSERT(plnMsg);
-
-        plnManagement *tmp = new plnManagement(simTime().dbl(), plnMsg->msg->getSender(), plnMsg->msg->getRecipient(), plnMsg->type, plnMsg->msg->getSendingPlatoonID(), plnMsg->msg->getReceivingPlatoonID());
-        Vec_plnManagement.push_back(tmp);
-    }
-    else if(reportPlnManagerData && signalID == Signal_PlnManeuver)
-    {
-        PlnManeuver* com = dynamic_cast<PlnManeuver*>(obj);
-        ASSERT(com);
-
-        plnStat *tmp = new plnStat(simTime().dbl(), com->from, com->to, com->maneuver);
-        Vec_plnStat.push_back(tmp);
-    }
-    else if(reportBeaconsData && signalID == Signal_beacon)
-    {
-        data *m = static_cast<data *>(obj);
-        ASSERT(m);
-
-        // todo
-        BeaconStat *tmp = new BeaconStat(simTime(), "senderID", source->getFullName(), false);
-        Vec_Beacons.push_back(tmp);
-    }
+//    Enter_Method_Silent();
+//
+//    int nodeIndex = getNodeIndex(source->getFullName());
+//
+//    if(reportMAClayerData && signalID == Signal_MacStats)
+//    {
+//        MacStat *m = static_cast<MacStat *>(obj);
+//        if (m == NULL) return;
+//
+//        int counter = findInVector(Vec_MacStat, source->getFullName());
+//
+//        // its a new entry, so we add it.
+//        if(counter == -1)
+//        {
+//            MacStatEntry *tmp = new MacStatEntry(source->getFullName(), nodeIndex, simTime().dbl(), m->vec);
+//            Vec_MacStat.push_back(tmp);
+//        }
+//        // if found, just update the existing fields
+//        else
+//        {
+//            Vec_MacStat[counter]->time = simTime().dbl();
+//            Vec_MacStat[counter]->MacStatsVec = m->vec;
+//        }
+//    }
+//    else if(reportPlnManagerData && signalID == Signal_VehicleState)
+//    {
+//        CurrentVehicleState *state = dynamic_cast<CurrentVehicleState*>(obj);
+//        ASSERT(state);
+//
+//        plnManagement *tmp = new plnManagement(simTime().dbl(), state->name, "-", state->state, "-", "-");
+//        Vec_plnManagement.push_back(tmp);
+//    }
+//    else if(reportPlnManagerData && signalID == Signal_SentPlatoonMsg)
+//    {
+//        CurrentPlnMsg* plnMsg = dynamic_cast<CurrentPlnMsg*>(obj);
+//        ASSERT(plnMsg);
+//
+//        plnManagement *tmp = new plnManagement(simTime().dbl(), plnMsg->msg->getSender(), plnMsg->msg->getRecipient(), plnMsg->type, plnMsg->msg->getSendingPlatoonID(), plnMsg->msg->getReceivingPlatoonID());
+//        Vec_plnManagement.push_back(tmp);
+//    }
+//    else if(reportPlnManagerData && signalID == Signal_PlnManeuver)
+//    {
+//        PlnManeuver* com = dynamic_cast<PlnManeuver*>(obj);
+//        ASSERT(com);
+//
+//        plnStat *tmp = new plnStat(simTime().dbl(), com->from, com->to, com->maneuver);
+//        Vec_plnStat.push_back(tmp);
+//    }
+//    else if(reportBeaconsData && signalID == Signal_beacon)
+//    {
+//        data *m = static_cast<data *>(obj);
+//        ASSERT(m);
+//
+//        // todo
+//        BeaconStat *tmp = new BeaconStat(simTime(), "senderID", source->getFullName(), false);
+//        Vec_Beacons.push_back(tmp);
+//    }
 }
 
 
@@ -454,10 +452,10 @@ void Statistics::MAClayerToFile()
     fprintf (filePtr, "%-20s","ReceivedBroadcasts\n\n");
 
     // write body
-    for(std::vector<MacStatEntry *>::iterator y = Vec_MacStat.begin(); y != Vec_MacStat.end(); y++)
+    for(std::vector<MacStatEntry>::iterator y = Vec_MacStat.begin(); y != Vec_MacStat.end(); y++)
     {
         fprintf (filePtr, "%-20.2f ", y->time);
-        fprintf (filePtr, "%-20s ", y->name);
+        fprintf (filePtr, "%-20s ", y->name.c_str());
         fprintf (filePtr, "%-20ld ", y->MacStatsVec[0]);
         fprintf (filePtr, "%-20ld ", y->MacStatsVec[1]);
         fprintf (filePtr, "%-30ld ", y->MacStatsVec[2]);
@@ -508,7 +506,7 @@ void Statistics::plnManageToFile()
     double oldTime = -1;
 
     // write body
-    for(std::vector<plnManagement *>::iterator y = Vec_plnManagement.begin(); y != Vec_plnManagement.end(); y++)
+    for(std::vector<plnManagement>::iterator y = Vec_plnManagement.begin(); y != Vec_plnManagement.end(); y++)
     {
         // make the log more readable :)
         if(y->sender != oldSender || y->time != oldTime)
@@ -519,11 +517,11 @@ void Statistics::plnManageToFile()
         }
 
         fprintf (filePtr, "%-10.2f ", y->time);
-        fprintf (filePtr, "%-15s ", y->sender);
-        fprintf (filePtr, "%-17s ", y->receiver);
-        fprintf (filePtr, "%-30s ", y->type);
-        fprintf (filePtr, "%-18s ", y->sendingPlnID);
-        fprintf (filePtr, "%-20s\n", y->receivingPlnID);
+        fprintf (filePtr, "%-15s ", y->sender.c_str());
+        fprintf (filePtr, "%-17s ", y->receiver.c_str());
+        fprintf (filePtr, "%-30s ", y->type.c_str());
+        fprintf (filePtr, "%-18s ", y->sendingPlnID.c_str());
+        fprintf (filePtr, "%-20s\n", y->receivingPlnID.c_str());
     }
 
     fclose(filePtr);
@@ -558,7 +556,7 @@ void Statistics::plnStatToFile()
     std::string oldPln = "";
 
     // write body
-    for(std::vector<plnStat *>::iterator y = Vec_plnStat.begin(); y != Vec_plnStat.end(); y++)
+    for(std::vector<plnStat>::iterator y = Vec_plnStat.begin(); y != Vec_plnStat.end(); y++)
     {
         if(y->from != oldPln)
         {
@@ -567,9 +565,9 @@ void Statistics::plnStatToFile()
         }
 
         fprintf (filePtr, "%-10.2f ", y->time);
-        fprintf (filePtr, "%-20s ", y->from);
-        fprintf (filePtr, "%-20s ", y->to);
-        fprintf (filePtr, "%-20s\n", y->maneuver);
+        fprintf (filePtr, "%-20s ", y->from.c_str());
+        fprintf (filePtr, "%-20s ", y->to.c_str());
+        fprintf (filePtr, "%-20s\n", y->maneuver.c_str());
     }
 
     fclose(filePtr);
@@ -600,12 +598,12 @@ void Statistics::beaconToFile()
     fprintf (f1, "%-10s","vehicle");
     fprintf (f1, "%-10s\n","beacons");  // beacon from preceding
 
-    for(unsigned int k=0; k<totalBeaconsP.size(); k++)
-    {
-        fprintf (f1, "%-10s ", totalBeaconsP[k]->name1);
-        fprintf (f1, "%-10d ", totalBeaconsP[k]->count);
-        fprintf (f1, "\n");
-    }
+//    for(unsigned int k=0; k<totalBeaconsP.size(); k++)
+//    {
+//        fprintf (f1, "%-10s ", totalBeaconsP[k]->name1);
+//        fprintf (f1, "%-10d ", totalBeaconsP[k]->count);
+//        fprintf (f1, "\n");
+//    }
 
     fclose(f1);
 }
@@ -645,134 +643,134 @@ int Statistics::getNodeIndex(const char *ModName)
 
 
 // todo
-void Statistics::postProcess()
-{
-    for(unsigned int k=0; k<Vec_BeaconsP.size(); k++)
-    {
-        int counter = findInVector(totalBeaconsP, Vec_BeaconsP[k]->name1);
-
-        // its a new entry, so we add it.
-        if(counter == -1)
-        {
-            NodeEntry *tmp = new NodeEntry(Vec_BeaconsP[k]->name1, "-", Vec_BeaconsP[k]->nodeID, 1, -1);
-            totalBeaconsP.push_back(tmp);
-        }
-        // if found, just update the existing fields
-        else
-        {
-            totalBeaconsP[counter]->count = totalBeaconsP[counter]->count + 1;
-        }
-    }
-
-    for(unsigned int k=0; k<Vec_BeaconsO.size(); k++)
-    {
-        int counter = findInVector(totalBeaconsO, Vec_BeaconsO[k]->name1);
-
-        // its a new entry, so we add it.
-        if(counter == -1)
-        {
-            NodeEntry *tmp = new NodeEntry(Vec_BeaconsO[k]->name1, "-", Vec_BeaconsO[k]->nodeID, 1, -1);
-            totalBeaconsO.push_back(tmp);
-        }
-        // if found, just update the existing fields
-        else
-        {
-            totalBeaconsO[counter]->count = totalBeaconsO[counter]->count + 1;
-        }
-    }
-
-    for(unsigned int k=0; k<Vec_BeaconsDP.size(); k++)
-    {
-        int counter = findInVector(totalBeaconsDP, Vec_BeaconsDP[k]->name1);
-
-        // its a new entry, so we add it.
-        if(counter == -1)
-        {
-            NodeEntry *tmp = new NodeEntry(Vec_BeaconsDP[k]->name1, "-", Vec_BeaconsDP[k]->nodeID, 1, -1);
-            totalBeaconsDP.push_back(tmp);
-        }
-        // if found, just update the existing fields
-        else
-        {
-            totalBeaconsDP[counter]->count = totalBeaconsDP[counter]->count + 1;
-        }
-    }
-
-    for(unsigned int k=0; k<Vec_BeaconsDO.size(); k++)
-    {
-        int counter = findInVector(totalBeaconsDO, Vec_BeaconsDO[k]->name1);
-
-        // its a new entry, so we add it.
-        if(counter == -1)
-        {
-            NodeEntry *tmp = new NodeEntry(Vec_BeaconsDO[k]->name1, "-", Vec_BeaconsDO[k]->nodeID, 1, -1);
-            totalBeaconsDO.push_back(tmp);
-        }
-        // if found, just update the existing fields
-        else
-        {
-            totalBeaconsDO[counter]->count = totalBeaconsDO[counter]->count + 1;
-        }
-    }
-
-    double intervalS = 0;
-    double intervalE = updateInterval;
-    int val = 0;
-
-    for(int i=1; i<(terminate/updateInterval); i++)
-    {
-        // it should not be sorted
-        for(unsigned int k=0; k<Vec_BeaconsDO.size(); k++)
-        {
-            if(Vec_BeaconsDO[k]->time.dbl() >= intervalS && Vec_BeaconsDO[k]->time.dbl() <= intervalE)
-                val++;
-        }
-
-        NodeEntry *tmp = new NodeEntry("-", "-", -1, val, intervalE);
-        beaconsDO_interval.push_back(tmp);
-
-        val = 0;
-        intervalS = intervalS + updateInterval;
-        intervalE = intervalE + updateInterval;
-    }
-
-    intervalS = 0;
-    intervalE = updateInterval;
-    val = 0;
-
-    for(int i=1; i<(terminate/updateInterval); i++)
-    {
-        // it should not be sorted
-        for(unsigned int k=0; k<Vec_BeaconsDP.size(); k++)
-        {
-            if(Vec_BeaconsDP[k]->time.dbl() >= intervalS && Vec_BeaconsDP[k]->time.dbl() <= intervalE)
-                val++;
-        }
-
-        NodeEntry *tmp = new NodeEntry("-", "-", -1, val, intervalE);
-        beaconsDP_interval.push_back(tmp);
-
-        val = 0;
-        intervalS = intervalS + updateInterval;
-        intervalE = intervalE + updateInterval;
-    }
-}
+//void Statistics::postProcess()
+//{
+//    for(unsigned int k=0; k<Vec_BeaconsP.size(); k++)
+//    {
+//        int counter = findInVector(totalBeaconsP, Vec_BeaconsP[k]->name1);
+//
+//        // its a new entry, so we add it.
+//        if(counter == -1)
+//        {
+//            NodeEntry *tmp = new NodeEntry(Vec_BeaconsP[k]->name1, "-", Vec_BeaconsP[k]->nodeID, 1, -1);
+//            totalBeaconsP.push_back(tmp);
+//        }
+//        // if found, just update the existing fields
+//        else
+//        {
+//            totalBeaconsP[counter]->count = totalBeaconsP[counter]->count + 1;
+//        }
+//    }
+//
+//    for(unsigned int k=0; k<Vec_BeaconsO.size(); k++)
+//    {
+//        int counter = findInVector(totalBeaconsO, Vec_BeaconsO[k]->name1);
+//
+//        // its a new entry, so we add it.
+//        if(counter == -1)
+//        {
+//            NodeEntry *tmp = new NodeEntry(Vec_BeaconsO[k]->name1, "-", Vec_BeaconsO[k]->nodeID, 1, -1);
+//            totalBeaconsO.push_back(tmp);
+//        }
+//        // if found, just update the existing fields
+//        else
+//        {
+//            totalBeaconsO[counter]->count = totalBeaconsO[counter]->count + 1;
+//        }
+//    }
+//
+//    for(unsigned int k=0; k<Vec_BeaconsDP.size(); k++)
+//    {
+//        int counter = findInVector(totalBeaconsDP, Vec_BeaconsDP[k]->name1);
+//
+//        // its a new entry, so we add it.
+//        if(counter == -1)
+//        {
+//            NodeEntry *tmp = new NodeEntry(Vec_BeaconsDP[k]->name1, "-", Vec_BeaconsDP[k]->nodeID, 1, -1);
+//            totalBeaconsDP.push_back(tmp);
+//        }
+//        // if found, just update the existing fields
+//        else
+//        {
+//            totalBeaconsDP[counter]->count = totalBeaconsDP[counter]->count + 1;
+//        }
+//    }
+//
+//    for(unsigned int k=0; k<Vec_BeaconsDO.size(); k++)
+//    {
+//        int counter = findInVector(totalBeaconsDO, Vec_BeaconsDO[k]->name1);
+//
+//        // its a new entry, so we add it.
+//        if(counter == -1)
+//        {
+//            NodeEntry *tmp = new NodeEntry(Vec_BeaconsDO[k]->name1, "-", Vec_BeaconsDO[k]->nodeID, 1, -1);
+//            totalBeaconsDO.push_back(tmp);
+//        }
+//        // if found, just update the existing fields
+//        else
+//        {
+//            totalBeaconsDO[counter]->count = totalBeaconsDO[counter]->count + 1;
+//        }
+//    }
+//
+//    double intervalS = 0;
+//    double intervalE = updateInterval;
+//    int val = 0;
+//
+//    for(int i=1; i<(terminate/updateInterval); i++)
+//    {
+//        // it should not be sorted
+//        for(unsigned int k=0; k<Vec_BeaconsDO.size(); k++)
+//        {
+//            if(Vec_BeaconsDO[k]->time.dbl() >= intervalS && Vec_BeaconsDO[k]->time.dbl() <= intervalE)
+//                val++;
+//        }
+//
+//        NodeEntry *tmp = new NodeEntry("-", "-", -1, val, intervalE);
+//        beaconsDO_interval.push_back(tmp);
+//
+//        val = 0;
+//        intervalS = intervalS + updateInterval;
+//        intervalE = intervalE + updateInterval;
+//    }
+//
+//    intervalS = 0;
+//    intervalE = updateInterval;
+//    val = 0;
+//
+//    for(int i=1; i<(terminate/updateInterval); i++)
+//    {
+//        // it should not be sorted
+//        for(unsigned int k=0; k<Vec_BeaconsDP.size(); k++)
+//        {
+//            if(Vec_BeaconsDP[k]->time.dbl() >= intervalS && Vec_BeaconsDP[k]->time.dbl() <= intervalE)
+//                val++;
+//        }
+//
+//        NodeEntry *tmp = new NodeEntry("-", "-", -1, val, intervalE);
+//        beaconsDP_interval.push_back(tmp);
+//
+//        val = 0;
+//        intervalS = intervalS + updateInterval;
+//        intervalE = intervalE + updateInterval;
+//    }
+//}
 
 
 // todo: use template
-int Statistics::findInVector(std::vector<NodeEntry *> Vec, const char *name)
+int Statistics::findInVector(std::vector<BeaconStat> Vec, const char *name)
 {
     unsigned int counter;    // for counter
     bool found = false;
 
-    for(counter=0; counter<Vec.size(); counter++)
-    {
-        if( strcmp(Vec[counter]->name1, name) == 0 )
-        {
-            found = true;
-            break;
-        }
-    }
+//    for(counter=0; counter<Vec.size(); counter++)
+//    {
+//        if( strcmp(Vec[counter]->name1, name) == 0 )
+//        {
+//            found = true;
+//            break;
+//        }
+//    }
 
     if(!found)
         return -1;
@@ -781,19 +779,19 @@ int Statistics::findInVector(std::vector<NodeEntry *> Vec, const char *name)
 }
 
 
-int Statistics::findInVector(std::vector<MacStatEntry *> Vec, const char *name)
+int Statistics::findInVector(std::vector<MacStatEntry> Vec, const char *name)
 {
     unsigned int counter;    // for counter
     bool found = false;
 
-    for(counter=0; counter<Vec.size(); counter++)
-    {
-        if( strcmp(Vec[counter]->name, name) == 0 )
-        {
-            found = true;
-            break;
-        }
-    }
+//    for(counter=0; counter<Vec.size(); counter++)
+//    {
+//        if( strcmp(Vec[counter].name, name) == 0 )
+//        {
+//            found = true;
+//            break;
+//        }
+//    }
 
     if(!found)
         return -1;
@@ -802,19 +800,19 @@ int Statistics::findInVector(std::vector<MacStatEntry *> Vec, const char *name)
 }
 
 
-std::vector<NodeEntry *> Statistics::SortByID(std::vector<NodeEntry *> vec)
+std::vector<BeaconStat> Statistics::SortByID(std::vector<BeaconStat> vec)
 {
     if(vec.size() == 0)
         return vec;
 
-    for(unsigned int i = 0; i<vec.size()-1; i++)
-    {
-        for(unsigned int j = i+1; j<vec.size(); j++)
-        {
-            if( vec[i]->nodeID > vec[j]->nodeID)
-                std::swap(vec[i], vec[j]);
-        }
-    }
+//    for(unsigned int i = 0; i<vec.size()-1; i++)
+//    {
+//        for(unsigned int j = i+1; j<vec.size(); j++)
+//        {
+//            if( vec[i]->nodeID > vec[j]->nodeID)
+//                std::swap(vec[i], vec[j]);
+//        }
+//    }
 
     return vec;
 }
