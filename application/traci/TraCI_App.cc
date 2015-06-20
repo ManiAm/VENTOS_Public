@@ -110,7 +110,7 @@ void TraCI_App::executeOneTimestep()
 
     if(simulationDone)
     {
-        simulationTerminate();  // close TraCI connection
+        //simulationTerminate();  // close TraCI connection
         endSimulation();   // then terminate
     }
 }
