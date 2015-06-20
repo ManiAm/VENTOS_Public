@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    TrafficLightBase.h
+/// @file    AddAdversary.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    August 2013
@@ -25,40 +25,34 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef TRAFFICLIGHTBASE_H
-#define TRAFFICLIGHTBASE_H
+#ifndef ADVERSARYADD_H_
+#define ADVERSARY_H_
 
-#include <BaseModule.h>
-#include <Appl.h>
 #include "TraCI_Extend.h"
-
+#include <BaseApplLayer.h>
 
 namespace VENTOS {
 
-class TrafficLightBase : public BaseModule
+class TraCI_Extend;
+
+class AddAdversary : public BaseModule
 {
-  public:
-      virtual ~TrafficLightBase();
-      virtual void finish();
-      virtual void initialize(int);
-      virtual void handleMessage(cMessage *);
-      virtual void receiveSignal(cComponent *, simsignal_t, long);
+	public:
+		virtual ~AddAdversary();
+		virtual void initialize(int stage);
+        virtual void handleMessage(cMessage *msg);
+		virtual void finish();
+        virtual void receiveSignal(cComponent *, simsignal_t, long);
 
-  protected:
-      double updateInterval;
-      int TLControlMode;
+	private:
+        // NED variables
+        cModule *nodePtr;   // pointer to the Node
+        TraCI_Extend *TraCI;  // pointer to the TraCI module
+        simsignal_t Signal_executeFirstTS;
+        bool on;
+        int mode;
 
-      TraCI_Extend *TraCI;
-      simsignal_t Signal_executeFirstTS;
-      simsignal_t Signal_executeEachTS;
-
-      boost::filesystem::path VENTOS_FullPath;
-      boost::filesystem::path SUMO_Path;
-      boost::filesystem::path SUMO_FullPath;
-
-  protected:
-      virtual void executeFirstTimeStep();
-      virtual void executeEachTimeStep(bool);
+        void Add();
 };
 
 }

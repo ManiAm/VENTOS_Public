@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    TrafficLightBase.h
+/// @file    AddVehicle.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    August 2013
@@ -25,40 +25,51 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef TRAFFICLIGHTBASE_H
-#define TRAFFICLIGHTBASE_H
+#ifndef VEHICLEADD
+#define VEHICLEADD
 
-#include <BaseModule.h>
-#include <Appl.h>
+#include "BaseModule.h"
 #include "TraCI_Extend.h"
 
+#define SSTR(x) dynamic_cast< std::ostringstream & >( (std::ostringstream() << std::dec << x ) ).str()
 
 namespace VENTOS {
 
-class TrafficLightBase : public BaseModule
+class AddVehicle : public BaseModule
 {
-  public:
-      virtual ~TrafficLightBase();
-      virtual void finish();
-      virtual void initialize(int);
-      virtual void handleMessage(cMessage *);
-      virtual void receiveSignal(cComponent *, simsignal_t, long);
+	public:
+		virtual ~AddVehicle();
+		virtual void initialize(int stage);
+        virtual void handleMessage(cMessage *msg);
+		virtual void finish();
+	    virtual void receiveSignal(cComponent *, simsignal_t, long);
 
-  protected:
-      double updateInterval;
-      int TLControlMode;
+	private:
 
-      TraCI_Extend *TraCI;
-      simsignal_t Signal_executeFirstTS;
-      simsignal_t Signal_executeEachTS;
+        // NED variables
+        cModule *nodePtr;   // pointer to the Node
+        TraCI_Extend *TraCI;  // pointer to the TraCI module
+        double terminate;
+        simsignal_t Signal_executeFirstTS;
+        bool on;
+        int mode;
+	    int totalVehicles;
+	    double lambda;
+	    int plnSize;
+	    double plnSpace;
 
-      boost::filesystem::path VENTOS_FullPath;
-      boost::filesystem::path SUMO_Path;
-      boost::filesystem::path SUMO_FullPath;
+	    // methods
+        void Add();
 
-  protected:
-      virtual void executeFirstTimeStep();
-      virtual void executeEachTimeStep(bool);
+	    void Scenario1();
+        void Scenario2();
+        void Scenario3();
+        void Scenario4();
+        void Scenario5();
+        void Scenario6();
+        void Scenario7();
+        void Scenario8();
+        void Scenario9();
 };
 
 }

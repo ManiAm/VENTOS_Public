@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    TrafficLightBase.h
+/// @file    AddRSU.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    August 2013
@@ -25,40 +25,59 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef TRAFFICLIGHTBASE_H
-#define TRAFFICLIGHTBASE_H
+#ifndef RSUADD_H_
+#define RSUADD_H_
 
-#include <BaseModule.h>
-#include <Appl.h>
 #include "TraCI_Extend.h"
-
+#include <BaseApplLayer.h>
 
 namespace VENTOS {
 
-class TrafficLightBase : public BaseModule
+class RSUEntry
 {
   public:
-      virtual ~TrafficLightBase();
-      virtual void finish();
-      virtual void initialize(int);
-      virtual void handleMessage(cMessage *);
-      virtual void receiveSignal(cComponent *, simsignal_t, long);
+      std::string name;
+      double coordX;
+      double coordY;
 
-  protected:
-      double updateInterval;
-      int TLControlMode;
+      RSUEntry(std::string str, double x, double y)
+      {
+          this->name = str;
+          this->coordX = x;
+          this->coordY = y;
+      }
+};
 
-      TraCI_Extend *TraCI;
-      simsignal_t Signal_executeFirstTS;
-      simsignal_t Signal_executeEachTS;
+class TraCI_Extend;
 
-      boost::filesystem::path VENTOS_FullPath;
-      boost::filesystem::path SUMO_Path;
-      boost::filesystem::path SUMO_FullPath;
+class AddRSU : public BaseModule
+{
+	public:
+		virtual ~AddRSU();
+		virtual void initialize(int stage);
+        virtual void handleMessage(cMessage *msg);
+		virtual void finish();
+        virtual void receiveSignal(cComponent *, simsignal_t, long);
 
-  protected:
-      virtual void executeFirstTimeStep();
-      virtual void executeEachTimeStep(bool);
+	private:
+        void Add();
+        void Scenario1();
+        std::deque<RSUEntry*> commandReadRSUsCoord(std::string);
+        void commandAddCirclePoly(std::string, std::string, const TraCIColor& color, Coord*, double);
+
+	private:
+        // NED variables
+        cModule *nodePtr;   // pointer to the Node
+        TraCI_Extend *TraCI;  // pointer to the TraCI module
+        simsignal_t Signal_executeFirstTS;
+
+        bool on;
+        int mode;
+        std::deque<RSUEntry*> RSUs;
+
+        boost::filesystem::path VENTOS_FullPath;
+        boost::filesystem::path SUMO_Path;
+        boost::filesystem::path SUMO_FullPath;
 };
 
 }

@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    TrafficLightBase.h
+/// @file    VehicleSpeedProfile.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    August 2013
@@ -25,42 +25,54 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef TRAFFICLIGHTBASE_H
-#define TRAFFICLIGHTBASE_H
+#ifndef SPEEDPROFILE
+#define SPEEDPROFILE
 
-#include <BaseModule.h>
-#include <Appl.h>
+#include "BaseModule.h"
 #include "TraCI_Extend.h"
-
 
 namespace VENTOS {
 
-class TrafficLightBase : public BaseModule
+class SpeedProfile : public BaseModule
 {
-  public:
-      virtual ~TrafficLightBase();
-      virtual void finish();
-      virtual void initialize(int);
-      virtual void handleMessage(cMessage *);
-      virtual void receiveSignal(cComponent *, simsignal_t, long);
+	public:
+		virtual ~SpeedProfile();
+		virtual void initialize(int stage);
+        virtual void handleMessage(cMessage *msg);
+		virtual void finish();
 
-  protected:
-      double updateInterval;
-      int TLControlMode;
+	public:
+        void Change();
 
-      TraCI_Extend *TraCI;
-      simsignal_t Signal_executeFirstTS;
-      simsignal_t Signal_executeEachTS;
+	private:
 
-      boost::filesystem::path VENTOS_FullPath;
-      boost::filesystem::path SUMO_Path;
-      boost::filesystem::path SUMO_FullPath;
+        // NED variables
+        cModule *nodePtr;   // pointer to the Node
+        TraCI_Extend *TraCI;
+        bool on;
+	    int mode;
+	    std::string laneId;
+	    double minSpeed;
+        double normalSpeed;
+        double maxSpeed;
+        double switchTime;
+        double startTime;  // the time that speed profiling starts
+        std::string trajectoryPath;
 
-  protected:
-      virtual void executeFirstTimeStep();
-      virtual void executeEachTimeStep(bool);
+	    // class variables
+        std::string profileVehicle;
+        std::string lastProfileVehicle;
+	    double old_speed;
+	    double old_time;
+        FILE *f2;
+        bool endOfFile;
+
+	    // method
+	    void AccelDecel(double, double, double);
+	    void AccelDecelZikZak(double, double, double);
+        void AccelDecelPeriodic(double, double, double, double);
+	    void ExTrajectory(double);
 };
-
 }
 
 #endif
