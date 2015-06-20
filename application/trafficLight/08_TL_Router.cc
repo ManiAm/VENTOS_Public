@@ -464,22 +464,8 @@ void TrafficLightRouter::FlowRateRecalculate()
                 vehicle.eta = prev;
             prev = vehicle.eta;
         }
-
-        /*
-        if(movement->size() > 0)
-        {
-            cout << "For tl " << id << " at t=" << simTime().dbl() << ", movement " << key << endl;
-            for(VState& vehicle : *movement)
-                cout << "    " << vehicle.id << " " << vehicle.position << " " << vehicle.eta << " " << movement->flowRate(20) << endl;
-        }*/
     }
 
-    /*
-     *  for each phase
-     *      for each movement
-     *          if movement is possible in that phase (there exists a connection for it which has a linkindex that is green in the tl state)
-     *              add to flowSum for that phase and time
-     */
 
     int maxFlowTime = -1;
     int maxFlowPhase = -1;

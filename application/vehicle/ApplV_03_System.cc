@@ -179,8 +179,7 @@ void ApplVSystem::receiveSignal(cComponent *source, simsignal_t signalID, cObjec
             {
                 //cout << "Setting new route for " << SUMOvID << " at t=" << simTime().dbl() << endl;
                 std::list<std::string> sRoute = s->getInfo(); //Copy the info from the signal (breaks if we don't do this, for some reason)
-                if((*sRoute.begin()).length() < 10)
-                    cout << sRoute.size() << endl;
+
                 if (*sRoute.begin() != "failed")
                     TraCI->vehicleSetRoute(s->getRecipient(), sRoute);  //Update this vehicle's path with the proper info
             }
