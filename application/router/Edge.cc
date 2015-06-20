@@ -58,7 +58,7 @@ double Edge::getCost()
         return travelTimes.average;
 
     //DTODO: Remove this
-    std::cout << "using length / speed" << std::endl;
+    if(router_debug) std::cout << "Using length / speed for cost of edge " << id << std::endl;
     return length / speed;
 }
 

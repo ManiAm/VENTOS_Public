@@ -231,99 +231,120 @@ void Router::receiveSignal(cComponent *source, simsignal_t signalID, long i)
             laneCostsData();
 
         // if simulation is about to end
-        if(done && laneCostsMode == MODE_RECORD)
-            LaneCostsToFile();
+        if(done)
+        {
+            if(laneCostsMode == MODE_RECORD)
+                LaneCostsToFile();
+        }
     }
+}
+
+void Router::receiveDijkstraRequest(Edge* origin, Node* destination, string sender)
+{
+    list<string> info = getRoute(origin, destination, sender);
+    simsignal_t Signal_router = registerSignal("router");// Prepare to send a router message
+    // Systemdata wants string edge, string node, string sender, int requestType, string recipient, list<string> edgeList
+    nodePtr->emit(Signal_router, new systemData("", "", "router", DIJKSTRA, sender, info));
+}
+
+void Router::receiveHypertreeRequest(Edge* origin, Node* destination, string sender)
+{
+    simsignal_t Signal_router = registerSignal("router");// Prepare to send a router message
+    list<string> info;
+    info.push_back(origin->id);
+
+    // Return memoization only if the vehicle has traveled less than X intersections, otherwise recalculate a new one
+    if(hypertreeMemo.find(destination->id) == hypertreeMemo.end() /*&&  if old hyperpath is less than 60 second old*/)
+        hypertreeMemo[destination->id] = buildHypertree(simTime().dbl(), destination);
+
+    string nextEdge = hypertreeMemo[destination->id]->transition[key(origin->from, origin->to, simTime().dbl())];
+    if(nextEdge != "end")
+        info.push_back(nextEdge);
+
+    nodePtr->emit(Signal_router, new systemData("", "", "router", HYPERTREE, sender, info));
+}
+
+void Router::receiveDoneRequest(string sender)
+{
+    //Decrement vehicle count, print
+    currentVehicleCount--;
+    cout << "(" << currentVehicleCount << " left)" << endl;
+    //DTODO: Write currentRun to a file
+    //int currentRun = ev.getConfigEx()->getActiveRunNumber();
+    if(collectVehicleTimeData)
+    {
+        vehicleTravelTimes[sender] = simTime().dbl() - vehicleTravelTimes[sender];
+        vehicleTravelTimesFile << sender << " " << vehicleTravelTimes[sender] << endl;
+    }
+    if(currentVehicleCount == 0)
+    {
+        //If no vehicles are left, print vehicle info and terminate all traffic lights
+        if(collectVehicleTimeData)
+        {
+            vehicleTravelTimesFile.close();
+
+            double avg = 0;
+            int count = 0;
+            for(map<string, int>::iterator it = vehicleTravelTimes.begin(); it != vehicleTravelTimes.end(); it++)
+            {
+                count++;
+                avg += it->second;
+            }
+            avg /= count;
+            cout << "Average vehicle travel time was " << avg << " seconds." << endl;
+            vehicleTravelTimesFile.close();
+
+            int TLMode = (*net->TLs.begin()).second->TLLogicMode;
+            ostringstream filePrefix;
+            filePrefix << totalVehicleCount << "_" << nonReroutingVehiclePercent << "_" << TLMode;
+            ofstream outfile;
+            string fileName = VENTOS_FullPath.string() + "results/router/AverageTravelTimes.txt";
+            outfile.open(fileName.c_str(), ofstream::app);  //Open the edgeWeights file
+            outfile << filePrefix.str() <<": " << avg << " " << simTime().dbl() << endl;
+            outfile.close();
+       }
+
+        for(map<string, TrafficLightRouter*>::iterator tl = net->TLs.begin(); tl != net->TLs.end(); tl++)
+            (*tl).second->finish();
+    }
+}
+
+void Router::receiveStartedRequest(string sender)
+{
+    vehicleTravelTimes[sender] = simTime().dbl();
 }
 
 void Router::receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj)
 {
-
-    if(signalID == Signal_system) // Check if it's the right kind of symbol q
+    if(signalID != Signal_system)
     {
-        systemData *s = static_cast<systemData *>(obj); // Cast to a systemData class
-        if(string(s->getRecipient()) == "system")  // If this is the intended target
-        {
-            //If request is for a dijkstra's route
-            if(s->getRequestType() == DIJKSTRA)
-            {
-                list<string> info = getRoute(net->edges[s->getEdge()], net->nodes[s->getNode()], s->getSender());
-                simsignal_t Signal_router = registerSignal("router");// Prepare to send a router message
-                // Systemdata wants string edge, string node, string sender, int requestType, string recipient, list<string> edgeList
-                nodePtr->emit(Signal_router, new systemData("", "", "router", DIJKSTRA, s->getSender(), info));
-            }
-            else if(s->getRequestType() == HYPERTREE)   // Request with new hypertree routing
-            {
-                simsignal_t Signal_router = registerSignal("router");// Prepare to send a router message
-                list<string> info;
-                Edge* curEdge = net->edges[s->getEdge()];
-                info.push_back(curEdge->id);
+        delete obj;
+        return;
+    }
 
-                Node* targetNode = net->nodes[s->getNode()];
+    systemData *s = static_cast<systemData*>(obj);
+    if(string(s->getRecipient()) != "system") // Check if it's the right kind of symbol
+    {
+        delete obj;
+        return;
+    }
 
-                Hypertree* ht;
-                // Return memoization only if the vehicle has traveled less than X intersections, otherwise recalculate a new one
-                if(hypertreeMemo.find(s->getNode()) == hypertreeMemo.end() /*&&  if old hyperpath is less than 60 second old*/)
-                    hypertreeMemo[s->getNode()] = buildHypertree(simTime().dbl(), net->nodes[targetNode->id]);
-                ht = hypertreeMemo[s->getNode()];
-                string nextEdge = ht->transition[key(curEdge->from, curEdge->to, simTime().dbl())];
-                if(nextEdge != "end")
-                    info.push_back(nextEdge);
-                nodePtr->emit(Signal_router, new systemData("", "", "router", HYPERTREE, s->getSender(), info));
-            }
-            else if(s->getRequestType() == DONE)   //Vehicle is done message
-            {
-                //Decrement vehicle count, print
-                currentVehicleCount--;
-                string SUMOvID = s->getSender();
-                if(ev.isGUI()) cout << "(" << currentVehicleCount << " left)" << endl;
-                //DTODO: Write currentRun to a file
-                //int currentRun = ev.getConfigEx()->getActiveRunNumber();
-                if(collectVehicleTimeData)
-                {
-                    vehicleTravelTimes[SUMOvID] = simTime().dbl() - vehicleTravelTimes[SUMOvID];
-                    vehicleTravelTimesFile << SUMOvID << " " << vehicleTravelTimes[SUMOvID] << endl;
-                }
-                if(currentVehicleCount == 0)
-                {
-                    //If no vehicles are left, print vehicle info and terminate all traffic lights
-                    if(collectVehicleTimeData)
-                    {
-                        vehicleTravelTimesFile.close();
+    switch(s->getRequestType())
+    {
+    case DIJKSTRA:
+        receiveDijkstraRequest(net->edges[s->getEdge()], net->nodes[s->getNode()], s->getSender());
+        break;
+    case HYPERTREE:
+        receiveHypertreeRequest(net->edges[s->getEdge()], net->nodes[s->getNode()], s->getSender());
+        break;
+    case DONE:
+        receiveDoneRequest(s->getSender());
+        break;
+    case STARTED:
+        receiveStartedRequest(s->getSender());
+        break;
+    }
 
-                        double avg = 0;
-                        int count = 0;
-                        for(map<string, int>::iterator it = vehicleTravelTimes.begin(); it != vehicleTravelTimes.end(); it++)
-                        {
-                            count++;
-                            avg += it->second;
-                        }
-                        avg /= count;
-                        if(ev.isGUI()) cout << "Average vehicle travel time was " << avg << " seconds." << endl;
-                        vehicleTravelTimesFile.close();
-
-
-                        int TLMode = (*net->TLs.begin()).second->TLLogicMode;
-                        ostringstream filePrefix;
-                        filePrefix << totalVehicleCount << "_" << nonReroutingVehiclePercent << "_" << TLMode;
-                        ofstream outfile;
-                        string fileName = VENTOS_FullPath.string() + "results/router/AverageTravelTimes.txt";
-                        outfile.open(fileName.c_str(), ofstream::app);  //Open the edgeWeights file
-                        outfile << filePrefix.str() <<": " << avg << " " << simTime().dbl() << endl;
-                        outfile.close();
-                    }
-
-                    for(map<string, TrafficLightRouter*>::iterator tl = net->TLs.begin(); tl != net->TLs.end(); tl++)
-                        (*tl).second->finish();
-                }
-            }
-            else if(s->getRequestType() == STARTED and collectVehicleTimeData)   //Vehicle is created message
-            {
-                string SUMOvID = s->getSender();
-                vehicleTravelTimes[SUMOvID] = simTime().dbl();
-            }
-        }// if recipient is right
-    }// if Signal_system
     delete obj;
 }
 
@@ -485,7 +506,6 @@ void Router::laneCostsData()
             net->edges[prevEdge]->travelTimes.insert(simTime().dbl() - vehicleTimes[*it]);  //Add the time the vehicle traveled to the data set for that edge
             vehicleEdges[*it] = curEdge;                                            //And set its edge to the new one
             vehicleTimes[*it] = simTime().dbl();                                    //And that edges start time to now
-            //if(ev.isGUI()) cout << *it << " moves to edge " << curEdge << " at time " << simTime().dbl() << endl;  //Print a change
         }
     }
 }
@@ -528,7 +548,7 @@ Hypertree* Router::buildHypertree(int startTime, Node* destination)
             }
         }
     }
-    if(ev.isGUI()) cout << "Searching nodes for " << destination->id << endl;
+    if(router_debug) cout << "Generating a hypertree for " << destination->id << endl;
     Node* D = destination;    // Find the destination, call it D
     for(int t = startTime; t <= timePeriodMax; t++)           // For every second in the time interval
     {
@@ -653,7 +673,7 @@ list<string> Router::getRoute(Edge* origin, Node* destination, string vName)
             return routeIDs;    // Return the final list
         }
     }// While heap isn't empty
-    if(ev.isGUI()) cout << "Pathing failed from " << origin->id << " to " << destination->id << " at t=" << simTime().dbl() << "!  Either destination cannot be reached or vehicle is on an edge with an accident.  Route will not be changed" << endl;
+    if(ev.isGUI() || router_debug) cout << "Pathing failed from " << origin->id << " to " << destination->id << " at t=" << simTime().dbl() << "!  Either destination cannot be reached or vehicle is on an edge with an accident.  Route will not be changed" << endl;
     list<string> ret;
     ret.push_back("failed");
     return ret;

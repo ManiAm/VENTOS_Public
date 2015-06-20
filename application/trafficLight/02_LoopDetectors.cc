@@ -238,7 +238,7 @@ void LoopDetectors::getAllDetectors()
         }
     }
 
-    std::cout << endl;
+    //std::cout << endl;
 }
 
 

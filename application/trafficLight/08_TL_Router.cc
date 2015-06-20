@@ -61,14 +61,6 @@ public:
     double eta;
     std::string id;
 
-    /*
-    VState(double position, double velocity, double acceleration, string id) : position(position), id(id)
-    {
-        eta = (sqrt(2 * acceleration * position + velocity * velocity) -velocity)/acceleration;
-        eta = position;
-    }
-    */
-
     VState(std::string vehicle, TraCI_Extend *TraCI, Router* router, std::string currentEdge, double maxAccel, double lane1velocity, double lane2length = 0, double lane2velocity = 30): id(vehicle)
     {
 
@@ -77,6 +69,7 @@ public:
         double velocity = TraCI->vehicleGetSpeed(vehicle);
 
         double MAX_VELOCITY = ((lane1length * lane1velocity) + (lane2length * lane2velocity))/(position);
+        double MAX_ACCEL = (router->net->vehicles[vehicle])->maxAccel;
 
         double accelTime = (MAX_VELOCITY - velocity) / MAX_ACCEL;
         double averageVelocityDuringAccel = (MAX_VELOCITY + velocity) / 2;
@@ -91,25 +84,6 @@ public:
             eta = (sqrt(2 * MAX_ACCEL * position + velocity * velocity) -velocity)/MAX_ACCEL;
         }
     }
-
-    /*
-    double position;
-    double velocity;
-    double acceleration;
-    string id;
-
-    VState(double position, double velocity, double acceleration, string id) :
-        position(position), velocity(velocity), acceleration(acceleration), id(id)
-    {}
-
-        void print()
-    {
-        cout << id << ": " << endl
-             << "    pos: " << position << endl
-             << "    vel: " << velocity << endl
-             << "    acc: " << acceleration << endl;
-    }
-    */
 
     bool operator<(const VState& rhs) const
     {
@@ -366,7 +340,7 @@ void TrafficLightRouter::HighDensityRecalculate()
     }
     if(total > 0)  //If there are vehicles on the lane
     {
-        if(ev.isGUI()) std::cout << "For TL " << id << ": " << endl;
+        if(router_debug) std::cout << "For TL " << id << ": " << endl;
         for(unsigned int i = 0; i < phases.size(); i++)  //For each phase
         {
             if(i % 2 == 0)  //Ignore the odd (transitional) phases
@@ -376,7 +350,7 @@ void TrafficLightRouter::HighDensityRecalculate()
                 if(duration < 3)    //If the duration is too short, set it to a minimum
                     duration = 3;
 
-                //if(ev.isGUI()) cout << "    Phase " << i << " set to " << duration << endl;
+                if(router_debug) cout << "    Phase " << i << " set to " << duration << endl;
                 phases[i]->duration = duration; //Update durations. These will take affect starting with the next phase
             }
         }
@@ -478,7 +452,6 @@ void TrafficLightRouter::FlowRateRecalculate()
     double flowSum = 0;
     for(int t = MinPhaseDuration; t <= MaxPhaseDuration; t += 5)
     {
-        //if(id == "15") cout << "t=" << t << endl;
         for(unsigned int phaseNum = 0; phaseNum < phases.size(); phaseNum += 2)
         {
             Phase* phase = phases[phaseNum];
@@ -498,7 +471,6 @@ void TrafficLightRouter::FlowRateRecalculate()
                         }
                     }
                 }
-                //if(id == "15") cout << "  phase=" << phaseNum << endl << "    flow=" << flowSum << endl;
             }
 
             if(flowSum > maxFlowSum)    //if this phase has the hisghest net flow, record it as such
@@ -513,8 +485,8 @@ void TrafficLightRouter::FlowRateRecalculate()
 
     if(maxFlowTime >= MinPhaseDuration) //if any vehicles will arrive before the light's max duration, maxFlowTime will have been set
     {
+        if(router_debug) cout << "Switching tl " << id << " to phase " << maxFlowPhase << " for " << maxFlowTime << " seconds" << endl;
         switchToPhase(maxFlowPhase, maxFlowTime);   //So switch to that phase
-        //cout << "Switching " << id << " to phase " << maxFlowPhase << " for " << maxFlowTime << " seconds" << endl;
     }
     else    //No vehicles are nearby. Continue TL operations as normal.
         switchToPhase(currentPhase + 1);
@@ -525,7 +497,7 @@ void TrafficLightRouter::LowDensityRecalculate()
 {
     if(simTime().dbl() - lastSwitchTime < MaxPhaseDuration and LowDensityVehicleCheck())
     {
-        //if(ev.isGUI()) cout << "Extending tl " << id << " phase " << currentPhase << endl;
+        if(router_debug) cout << "Extending tl " << id << " by " << LowDensityExtendTime << " seconds" << endl;
         TLSwitchEvent = new cMessage("tl switch evt");
         scheduleAt(simTime().dbl() + LowDensityExtendTime, TLSwitchEvent);
         TraCI->TLSetPhaseDuration(id, 10000000);

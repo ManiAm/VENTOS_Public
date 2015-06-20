@@ -68,7 +68,7 @@ double Net::turnTypeCost(Edge* start, Edge* end)
         case 't':
             return uTurnCost;
     }
-    if(ev.isGUI()) cout << "Turn did not have an associated type!  This should never happen." << endl;
+    if(router_debug) cout << "Turn did not have an associated type!  This should never happen." << endl;
     return 100000;
 }
 
