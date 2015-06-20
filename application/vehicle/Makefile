@@ -40,40 +40,21 @@ O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Object files for local .cc and .msg files
 OBJS = \
-<<<<<<< HEAD
-=======
-    $O/ApplV_08_Manager.o \
-    $O/ApplV_06c_Common.o \
-    $O/ApplV_06g_Dissolve.o \
-    $O/ApplV_01_Base.o \
-    $O/ApplV_06e_LeaderLeave.o \
->>>>>>> 3ed40fa62fd49db37cc4d366e150dda807eb3324
     $O/ApplV_06a_Merge.o \
     $O/ApplV_06d_Entry.o \
     $O/ApplV_06_PlatoonMg.o \
     $O/ApplV_06b_Split.o \
-<<<<<<< HEAD
     $O/ApplV_07_Coordinator.o \
     $O/ApplV_06e_LeaderLeave.o \
     $O/ApplV_05_PlatoonFormed.o \
     $O/ApplV_06f_FollowerLeave.o \
-=======
-    $O/ApplV_02_Beacon.o \
->>>>>>> 3ed40fa62fd49db37cc4d366e150dda807eb3324
     $O/ApplV_03_System.o \
     $O/ApplV_02_Beacon.o \
     $O/ApplV_04_AID.o \
-<<<<<<< HEAD
     $O/ApplV_08_Manager.o \
     $O/ApplV_06g_Dissolve.o \
     $O/ApplV_01_Base.o \
     $O/ApplV_06c_Common.o
-=======
-    $O/ApplV_06d_Entry.o \
-    $O/ApplV_06f_FollowerLeave.o \
-    $O/ApplV_05_PlatoonFormed.o \
-    $O/ApplV_06_PlatoonMg.o
->>>>>>> 3ed40fa62fd49db37cc4d366e150dda807eb3324
 
 # Message files
 MSGFILES =

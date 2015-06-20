@@ -2,11 +2,7 @@
 # OMNeT++/OMNEST Makefile for libadversary
 #
 # This file was generated with the command:
-<<<<<<< HEAD
 #  opp_makemake -f --make-so -o adversary -O out -I/home/mani/Desktop/VENTOS/eigen-3.2.1 -I/home/mani/Desktop/VENTOS/rapidxml-1.13 -I../../../veins/src/veins/base/connectionManager -I../router -I../../../veins/src -I../../../veins/src/veins/base/utils -I../traci -I../../../veins/src/veins -I../vehicle -I../global -I.. -I../../../veins/src/veins/base/modules -I../../../veins/src/veins/modules/mac/ieee80211p -I../trafficLight -I../rsu -L../../../veins/out/$$\(CONFIGNAME\)/src -L../../out/$$\(CONFIGNAME\)/application/msg -L../../out/$$\(CONFIGNAME\)/application/router -L../../out/$$\(CONFIGNAME\)/application/pedestrian -L../../out/$$\(CONFIGNAME\)/application/bike -L../../out/$$\(CONFIGNAME\)/application/traci -L../../out/$$\(CONFIGNAME\)/application/vehicle -L../../out/$$\(CONFIGNAME\)/application/trafficLight -L../../out/$$\(CONFIGNAME\)/application/rsu -L../../out/$$\(CONFIGNAME\)/application/global -lboost_filesystem -lboost_system -lmsg -ltraci -lveins -KVEINS_PROJ=../../../veins
-=======
-#  opp_makemake -f --make-so -o adversary -O out -I/home/dylan/Desktop/VENTOS/eigen-3.2.1 -I/home/dylan/Desktop/VENTOS/rapidxml-1.13 -I../../../veins/src/veins -I.. -I../../../veins/src -I../../../veins/src/veins/base/connectionManager -I../trafficLight -I../../../veins/src/veins/base/modules -I../rsu -I../../../veins/src/veins/base/utils -I../router -I../traci -I../vehicle -I../global -I../../../veins/src/veins/modules/mac/ieee80211p -L../../../veins/out/$$\(CONFIGNAME\)/src -L../../out/$$\(CONFIGNAME\)/application/pedestrian -L../../out/$$\(CONFIGNAME\)/application/trafficLight -L../../out/$$\(CONFIGNAME\)/application/msg -L../../out/$$\(CONFIGNAME\)/application/rsu -L../../out/$$\(CONFIGNAME\)/application/bike -L../../out/$$\(CONFIGNAME\)/application/router -L../../out/$$\(CONFIGNAME\)/application/traci -L../../out/$$\(CONFIGNAME\)/application/vehicle -L../../out/$$\(CONFIGNAME\)/application/global -lboost_filesystem -lboost_system -lmsg -ltraci -lveins -KVEINS_PROJ=../../../veins
->>>>>>> 3ed40fa62fd49db37cc4d366e150dda807eb3324
 #
 
 # Name of target to be created (-o option)
@@ -16,35 +12,19 @@ TARGET = libadversary$(SHARED_LIB_SUFFIX)
 INCLUDE_PATH = \
     -I../../eigen-3.2.1 \
     -I../../rapidxml-1.13 \
-<<<<<<< HEAD
     -I../../../veins/src/veins/base/connectionManager \
     -I../router \
     -I../../../veins/src \
     -I../../../veins/src/veins/base/utils \
-=======
-    -I../../../veins/src/veins \
-    -I.. \
-    -I../../../veins/src \
-    -I../../../veins/src/veins/base/connectionManager \
-    -I../trafficLight \
-    -I../../../veins/src/veins/base/modules \
-    -I../rsu \
-    -I../../../veins/src/veins/base/utils \
-    -I../router \
->>>>>>> 3ed40fa62fd49db37cc4d366e150dda807eb3324
     -I../traci \
     -I../../../veins/src/veins \
     -I../vehicle \
     -I../global \
-<<<<<<< HEAD
     -I.. \
     -I../../../veins/src/veins/base/modules \
     -I../../../veins/src/veins/modules/mac/ieee80211p \
     -I../trafficLight \
     -I../rsu \
-=======
-    -I../../../veins/src/veins/modules/mac/ieee80211p \
->>>>>>> 3ed40fa62fd49db37cc4d366e150dda807eb3324
     -I.
 
 # Additional object and library files to link with
