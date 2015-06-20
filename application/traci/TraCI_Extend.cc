@@ -520,6 +520,12 @@ std::list<std::string> TraCI_Extend::vehicleGetRoute(std::string nodeId)
 }
 
 
+uint32_t TraCI_Extend::vehicleGetRouteIndex(std::string nodeId)
+{
+    return getCommandInterface()->genericGetInt(CMD_GET_VEHICLE_VARIABLE, nodeId, 0x69, RESPONSE_GET_VEHICLE_VARIABLE);
+}
+
+
 std::string TraCI_Extend::vehicleGetBestLanes(std::string nodeId)
 {
     return getCommandInterface()->genericGetString(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_BEST_LANES, RESPONSE_GET_VEHICLE_VARIABLE);

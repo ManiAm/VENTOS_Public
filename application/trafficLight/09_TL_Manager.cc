@@ -80,13 +80,6 @@ void TrafficLightManager::executeEachTimeStep(bool simulationDone)
 {
     // call parent
     TrafficLightRouter::executeEachTimeStep(simulationDone);
-
-    //    if (TLControlMode == 1 || TLControlMode == 2)
-    //        return;
-    //    else if (TLControlMode == 3)
-    //    {
-    //
-    //    }
 }
 
 }

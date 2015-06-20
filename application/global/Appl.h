@@ -36,7 +36,7 @@ namespace VENTOS {
 
 enum ControllerTypes
 {
-    SUMO_TAG_CF_KRAUSS = 101,
+    SUMO_TAG_CF_KRAUSS = 102,
     SUMO_TAG_CF_KRAUSS_PLUS_SLOPE,
     SUMO_TAG_CF_KRAUSS_ACCEL_BOUND,
     SUMO_TAG_CF_KRAUSS_ORIG1,
@@ -54,6 +54,16 @@ enum ControllerTypes
     SUMO_TAG_CF_CACC,   // 115
 };
 
+enum TLControlTypes
+{
+    TL_OFF = 0,
+    TL_Fix_Time,
+    TL_Adaptive_Time,
+    TL_Adaptive_Time_Queue,
+    TL_Adaptive_Webster,
+    TL_VANET,
+    TL_Router,
+};
 
 class systemData : public cObject, noncopyable
 {

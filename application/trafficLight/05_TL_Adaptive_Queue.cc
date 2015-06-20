@@ -41,7 +41,7 @@ void TrafficLightAdaptiveQueue::initialize(int stage)
 {
     TrafficLightAdaptive::initialize(stage);
 
-    if(TLControlMode != 3)
+    if(TLControlMode != TL_Adaptive_Time_Queue)
         return;
 
     if(stage == 0)
@@ -71,7 +71,7 @@ void TrafficLightAdaptiveQueue::handleMessage(cMessage *msg)
 {
     TrafficLightAdaptive::handleMessage(msg);
 
-    if(TLControlMode != 3)
+    if(TLControlMode != TL_Adaptive_Time_Queue)
         return;
 
     if (msg == ChangeEvt)
@@ -88,7 +88,7 @@ void TrafficLightAdaptiveQueue::executeFirstTimeStep()
 {
     TrafficLightAdaptive::executeFirstTimeStep();
 
-    if(TLControlMode != 3)
+    if(TLControlMode != TL_Adaptive_Time_Queue)
         return;
 
     std::cout << "Adaptive-time with queue traffic signal control ..." << endl << endl;
@@ -111,7 +111,7 @@ void TrafficLightAdaptiveQueue::executeEachTimeStep(bool simulationDone)
 {
     TrafficLightAdaptive::executeEachTimeStep(simulationDone);
 
-    if(TLControlMode != 3)
+    if(TLControlMode != TL_Adaptive_Time_Queue)
         return;
 
     intervalElapseTime += updateInterval;

@@ -41,7 +41,7 @@ void TrafficLightFixed::initialize(int stage)
 {
     LoopDetectors::initialize(stage);
 
-    if(TLControlMode != 1)
+    if(TLControlMode != TL_Fix_Time)
         return;
 
     if(stage == 0)
@@ -70,7 +70,7 @@ void TrafficLightFixed::executeFirstTimeStep()
     // call parent
     LoopDetectors::executeFirstTimeStep();
 
-    if (TLControlMode != 1)
+    if (TLControlMode != TL_Fix_Time)
         return;
 
     std::cout << "Fixed-time traffic signal control ... " << endl << endl;

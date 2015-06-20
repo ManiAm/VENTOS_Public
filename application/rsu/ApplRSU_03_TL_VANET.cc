@@ -45,7 +45,7 @@ void ApplRSUTLVANET::initialize(int stage)
     cModule *module = simulation.getSystemModule()->getSubmodule("TrafficLight");
     TLControlMode = module->par("TLControlMode").longValue();
 
-    if (TLControlMode != 5)
+    if (TLControlMode != TL_VANET)
         return;
 
     if (stage==0)
@@ -117,7 +117,7 @@ void ApplRSUTLVANET::onBeaconVehicle(BeaconVehicle* wsm)
 {
     ApplRSUAID::onBeaconVehicle(wsm);
 
-    if (TLControlMode == 5)
+    if (TLControlMode == TL_VANET)
         onBeaconAny(wsm);
 }
 
@@ -126,7 +126,7 @@ void ApplRSUTLVANET::onBeaconBicycle(BeaconBicycle* wsm)
 {
     ApplRSUAID::onBeaconBicycle(wsm);
 
-    if (TLControlMode == 5)
+    if (TLControlMode == TL_VANET)
         onBeaconAny(wsm);
 }
 
@@ -135,7 +135,7 @@ void ApplRSUTLVANET::onBeaconPedestrian(BeaconPedestrian* wsm)
 {
     ApplRSUAID::onBeaconPedestrian(wsm);
 
-    if (TLControlMode == 5)
+    if (TLControlMode == TL_VANET)
         onBeaconAny(wsm);
 }
 

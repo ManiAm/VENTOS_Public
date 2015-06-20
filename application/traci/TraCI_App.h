@@ -29,49 +29,8 @@
 #define TraCI_APP
 
 #include "TraCI_Extend.h"
-//#include "Router.h"
 
 namespace VENTOS {
-
-class VehicleData
-{
-  public:
-    int index;
-    double time;
-    std::string vehicleName;
-    std::string vehicleType;
-    std::string lane;
-    double pos;
-    double speed;
-    double accel;
-    std::string CFMode;
-    double timeGapSetting;
-    double spaceGap;
-    double timeGap;
-    std::string TLid;  // TLid that controls this vehicle
-    int YorR;          // if the TL state ahead is yellow or red
-
-    VehicleData(int i, double d1, std::string str1, std::string str2, std::string str3, double d2, double d3, double d4, std::string str4, double d3a, double d5, double d6, std::string str5, int YR)
-    {
-        this->index = i;
-        this->time = d1;
-        this->vehicleName = str1;
-        this->vehicleType = str2;
-        this->lane = str3;
-        this->pos = d2;
-        this->speed = d3;
-        this->accel = d4;
-        this->CFMode = str4;
-        this->timeGapSetting = d3a;
-        this->spaceGap = d5;
-        this->timeGap = d6;
-        this->TLid = str5;
-        this->YorR = YR;
-    }
-};
-
-
-class Router;   //Forward-declaration so TraCI_App may hold a Router*
 
 class TraCI_App : public TraCI_Extend
 {
@@ -88,10 +47,7 @@ class TraCI_App : public TraCI_Extend
     private:
         // NED variables
         cModule *nodePtr;   // pointer to the Node
-        Router* router;
         double terminate;
-        bool collectVehiclesData;
-        bool useDetailedFilenames;
 
         std::set<std::string> subscribedPedestrians; /**< all pedestrians we have already subscribed to */
 
@@ -105,20 +61,11 @@ class TraCI_App : public TraCI_Extend
         std::string pedModuleName;
         std::string pedModuleDisplayString;
 
-        std::list<std::string> TLList;   // list of traffic-lights in the network
-        std::vector<VehicleData> Vec_vehiclesData;
-
-        int index;
-
     private:
         virtual void init_traci();
         virtual void executeOneTimestep();
         void addPedestriansToOMNET();
         virtual void addModule(std::string nodeId, std::string type, std::string name, std::string displayString, const Coord& position, std::string road_id = "", double speed = -1, double angle = -1);
-
-        void vehiclesData();
-        void saveVehicleData(std::string);
-        void vehiclesDataToFile();
 };
 
 }

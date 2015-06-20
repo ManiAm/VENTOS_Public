@@ -32,12 +32,21 @@
   <!-- East inbound -->
   <route id="route10" edges="EC CW" />  
   <route id="route11" edges="EC CN" />  
-  <route id="route12" edges="EC CS" /> 
+  <route id="route12" edges="EC CS" />  
   
+  <flow id="route1a" begin="0" end="200" vehsPerHour="500" type="TypeManual" route="route1" />
+  <flow id="route3a" begin="0" end="200" vehsPerHour="500" type="TypeManual" route="route5" />
+  <flow id="route4a" begin="0" end="200" vehsPerHour="500" type="TypeManual" route="route9" />
+  <flow id="route5a" begin="0" end="200" vehsPerHour="500" type="TypeManual" route="route10" />
   
-  <flow id="route1" begin="0" end="50" vehsPerHour="700" type="TypeManual" route="route1" />
-  <flow id="route2" begin="0" end="50" vehsPerHour="700" type="TypeManual" route="route5" />
-  <flow id="route3" begin="0" end="50" vehsPerHour="700" type="TypeManual" route="route10" />
-
+  <flow id="route1b" begin="200" end="400" vehsPerHour="700" type="TypeManual" route="route1" />
+  <flow id="route3b" begin="200" end="400" vehsPerHour="700" type="TypeManual" route="route5" />
+  <flow id="route4b" begin="200" end="400" vehsPerHour="700" type="TypeManual" route="route9" />
+  <flow id="route5b" begin="200" end="400" vehsPerHour="700" type="TypeManual" route="route10" />
+  
+  <flow id="route1c" begin="400" end="600" vehsPerHour="1000" type="TypeManual" route="route1" />
+  <flow id="route3c" begin="400" end="600" vehsPerHour="1000" type="TypeManual" route="route5" />
+  <flow id="route4c" begin="400" end="600" vehsPerHour="1000" type="TypeManual" route="route9" />
+  <flow id="route5c" begin="400" end="600" vehsPerHour="1000" type="TypeManual" route="route10" />
 
 </routes>

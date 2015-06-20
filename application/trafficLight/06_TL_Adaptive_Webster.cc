@@ -41,7 +41,7 @@ void TrafficLightWebster::initialize(int stage)
 {
     TrafficLightAdaptiveQueue::initialize(stage);
 
-    if(TLControlMode != 4)
+    if(TLControlMode != TL_Adaptive_Webster)
         return;
 
     if(stage == 0)
@@ -71,7 +71,7 @@ void TrafficLightWebster::handleMessage(cMessage *msg)
 {
     TrafficLightAdaptiveQueue::handleMessage(msg);
 
-    if(TLControlMode != 4)
+    if(TLControlMode != TL_Adaptive_Webster)
         return;
 
     if (msg == ChangeEvt)
@@ -88,7 +88,7 @@ void TrafficLightWebster::executeFirstTimeStep()
 {
     TrafficLightAdaptiveQueue::executeFirstTimeStep();
 
-    if(TLControlMode != 4)
+    if(TLControlMode != TL_Adaptive_Webster)
         return;
 
     std::cout << "Dynamic Webster traffic signal control ... " << endl << endl;
@@ -109,7 +109,7 @@ void TrafficLightWebster::executeEachTimeStep(bool simulationDone)
 {
     TrafficLightAdaptiveQueue::executeEachTimeStep(simulationDone);
 
-    if(TLControlMode != 4)
+    if(TLControlMode != TL_Adaptive_Webster)
         return;
 
     intervalElapseTime += updateInterval;
