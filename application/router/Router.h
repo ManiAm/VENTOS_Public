@@ -117,6 +117,7 @@ protected:
     simsignal_t Signal_system;      //Receives signals to here
 
     simsignal_t Signal_executeFirstTS;
+    simsignal_t Signal_executeEachTS;
 
     // Edge weight-gathering
     std::map<std::string, std::string> vehicleEdges;

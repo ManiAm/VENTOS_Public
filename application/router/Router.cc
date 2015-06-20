@@ -80,9 +80,13 @@ Router::~Router()
 
 void Router::initialize(int stage)
 {
+    router_debug = par("debug").boolValue();
     enableRouter = par("enableRouter").boolValue();
     if(!enableRouter)
+    {
+        cout << "enableRouter is false!" << endl;
         return;
+    }
 
     if(stage == 0)
     {
@@ -123,11 +127,13 @@ void Router::initialize(int stage)
         Signal_system = registerSignal("system");
         simulation.getSystemModule()->subscribe("system", this);
         Signal_executeFirstTS = registerSignal("executeFirstTS");
+        Signal_executeEachTS = registerSignal("executeEachTS");
         simulation.getSystemModule()->subscribe("executeFirstTS", this);
 
         if(UseAccidents)
         {
-            ifstream edgeRemovals(SUMO_FullPath.string() + "/EdgeRemovals.txt");
+            string AccidentFile = SUMO_FullPath.string() + "/EdgeRemovals.txt";
+            ifstream edgeRemovals(AccidentFile.c_str());
             string line;
             while(getline(edgeRemovals, line))
             {
@@ -138,6 +144,9 @@ void Router::initialize(int stage)
                 ls >> edgeID >> start >> end;
                 EdgeRemovals.push_back(EdgeRemoval(edgeID, start, end));
             }
+
+            if(router_debug) cout << "Loaded " << EdgeRemovals.size() << " accidents from " << AccidentFile << endl;
+
             if(EdgeRemovals.size() > 0)
             {
                 routerMsg = new cMessage("routerMsg");   //Create a new internal message
@@ -145,7 +154,7 @@ void Router::initialize(int stage)
             }
             else
             {
-                cout << "Accidents are enabled but no accidents were read in!" << endl;
+                if(router_debug) cout << "Accidents are enabled but no accidents were read in!" << endl;
             }
         }
 
@@ -177,6 +186,7 @@ void Router::initialize(int stage)
             while(NonReroutingFile >> vehNum)
                 nonReroutingVehicles->insert(vehNum);
             NonReroutingFile.close();
+            if(router_debug) cout << "Loaded " << numNonRerouting << " nonRerouting vehicles from file " << NonReroutingFileName << endl;
         }
         else
         {
@@ -186,6 +196,7 @@ void Router::initialize(int stage)
             for(string veh : *nonReroutingVehicles)
                 NonReroutingFile << veh << endl;
             NonReroutingFile.close();
+            if(router_debug) cout << "Created " << numNonRerouting << "-vehicle nonRerouting file " << NonReroutingFileName << endl;
         }
 
         string endTimeFile = VENTOS_FullPath.string() + "results/router/" + filePrefix.str() + "_endTimes.txt";
@@ -195,6 +206,7 @@ void Router::initialize(int stage)
         {
             string TravelTimesFileName = VENTOS_FullPath.string() + "results/router/" + filePrefix.str() + ".txt";
             vehicleTravelTimesFile.open(TravelTimesFileName.c_str());  //Open the edgeWeights file
+            if(router_debug) cout << "Opened edge-weights file at " << TravelTimesFileName << endl;
         }
     }
 }
@@ -210,15 +222,16 @@ void Router::handleMessage(cMessage* msg)
 void Router::receiveSignal(cComponent *source, simsignal_t signalID, long i)
 {
     Enter_Method_Silent();
+    bool done = i;
 
-    //DTODO: What's going on here?
-    if(signalID == Signal_executeFirstTS)
+    //Runs once per timestep
+    if(signalID == Signal_executeEachTS)
     {
-        if(laneCostsMode == MODE_EWMA || laneCostsMode == MODE_AVERAGE || UseHysteresis)
+        if(laneCostsMode == MODE_EWMA || laneCostsMode == MODE_RECORD || UseHysteresis)
             laneCostsData();
 
         // if simulation is about to end
-        if(i && laneCostsMode == MODE_AVERAGE)
+        if(done && laneCostsMode == MODE_RECORD)
             LaneCostsToFile();
     }
 }
@@ -264,7 +277,8 @@ void Router::receiveSignal(cComponent *source, simsignal_t signalID, cObject *ob
                 currentVehicleCount--;
                 string SUMOvID = s->getSender();
                 if(ev.isGUI()) cout << "(" << currentVehicleCount << " left)" << endl;
-                int currentRun = ev.getConfigEx()->getActiveRunNumber();
+                //DTODO: Write currentRun to a file
+                //int currentRun = ev.getConfigEx()->getActiveRunNumber();
                 if(collectVehicleTimeData)
                 {
                     vehicleTravelTimes[SUMOvID] = simTime().dbl() - vehicleTravelTimes[SUMOvID];
@@ -412,6 +426,8 @@ void Router::parseLaneCostsFile()
             readValuesCount += timeCount;  //And mark we read this many more data points
         }
         ec.average /= readValuesCount;
+        if(router_debug) cout << "Loaded " << ec.count << " data points for edge " << edgeName << ". Average: " << ec.average << endl;
+
     }
     inFile.close();
 }

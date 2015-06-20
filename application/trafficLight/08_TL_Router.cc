@@ -56,7 +56,6 @@ class VState
 {
 public:
     static constexpr double MAX_ACCEL = 3.0;
-    static constexpr double MAX_VELOCITY = 30.0;
 
     double position;
     double eta;
@@ -70,10 +69,14 @@ public:
     }
     */
 
-    VState(std::string vehicle, TraCI_Extend *TraCI, Router* router, std::string currentEdge, double nextEdgeLength = 0): id(vehicle)
+    VState(std::string vehicle, TraCI_Extend *TraCI, Router* router, std::string currentEdge, double maxAccel, double lane1velocity, double lane2length = 0, double lane2velocity = 30): id(vehicle)
     {
-        position = router->net->edges[currentEdge]->length - TraCI->vehicleGetLanePosition(vehicle) + nextEdgeLength;//position is distance from the TL along roads
+
+        double lane1length = router->net->edges[currentEdge]->length - TraCI->vehicleGetLanePosition(vehicle);
+        position = lane1length + lane2length;//position is distance from the TL along roads
         double velocity = TraCI->vehicleGetSpeed(vehicle);
+
+        double MAX_VELOCITY = ((lane1length * lane1velocity) + (lane2length * lane2velocity))/(position);
 
         double accelTime = (MAX_VELOCITY - velocity) / MAX_ACCEL;
         double averageVelocityDuringAccel = (MAX_VELOCITY + velocity) / 2;
@@ -408,7 +411,7 @@ void TrafficLightRouter::FlowRateRecalculate()
 
                 if(route.size() > 1)    //If 1 entry, vehicle will vanish at the end of the edge, so we don't count it
                 {
-                    VState v(vehicle, TraCI, router, edge1->id);
+                    VState v(vehicle, TraCI, router, edge1->id, TraCI->vehicleGetMaxAccel(vehicle), edge1->speed);
                     std::string edge0 = *(++(route.begin()));     //Edge vehicle is turning towards (ourEdge)
                     movements[edge1->id + edge0].push_back(v);
                 }//If vehicle will not vanish before passing through our TL
@@ -437,7 +440,9 @@ void TrafficLightRouter::FlowRateRecalculate()
                             {
                                 if(state[c->linkIndex] == 'G' or state[c->linkIndex] == 'g')
                                 {
-                                    VState v(vehicle, TraCI, router, edge1->id, router->net->edges[edge1->id]->length);
+                                    //VState(std::string vehicle, TraCI_Extend *TraCI, Router* router, std::string currentEdge, double maxAccel, double lane1velocity, double lane2length = 0, double lane2velocity = 30): id(vehicle)
+
+                                    VState v(vehicle, TraCI, router, edge1->id, TraCI->vehicleGetMaxAccel(vehicle), edge1->speed, router->net->edges[edge1->id]->length, edge2->speed);
                                     v.position += edge1->length;
                                     std::string edge0 = *(++(++(route.begin())));     //Edge after the vehicle moves through our TL
                                     movements[edge1->id + edge0].push_back(v);

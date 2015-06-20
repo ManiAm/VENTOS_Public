@@ -41,7 +41,7 @@ EdgeCosts::EdgeCosts()
 void EdgeCosts::insert(int d)
 {
     //If mode is average, add the new data point to the average
-    if(laneCostsMode == MODE_AVERAGE)
+    if(laneCostsMode == MODE_RECORD)
     {
         average = (average * count + d) / (count + 1);
         ++count;

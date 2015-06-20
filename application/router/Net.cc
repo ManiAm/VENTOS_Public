@@ -240,7 +240,6 @@ void Net::LoadHelloNet(string netBase)
         }
         Node* from = nodes[fromVal];  //Get a pointer to the start node
         Node* to = nodes[toVal];      //Get a pointer to the end node
-        Router *routerPtr = FindModule<Router*>::findGlobalModule();
         Edge* e = new Edge(id, from, to, priority, *lanesVec);
         from->outEdges.push_back(e);   //Add the edge to the start node's list
         edges[id] = e;

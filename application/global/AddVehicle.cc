@@ -423,11 +423,12 @@ void AddVehicle::Scenario8()
 
         r->net->vehicles[id] = new Vehicle(id, type, origin, destination, depart);
 
+        //DTODO: Do i need this?
+
         std::list<std::string> routeList = TraCI->routeGetIDList();   //Get all the routes so far
         bool foundRoute = 0;
         for(std::list<std::string>::iterator it = routeList.begin(); it != routeList.end(); it++)   //Loop through them
         {
-            //cout << "Found route " << *it << endl;
             if(*it == origin)   //If we find the route named after this vehicle's starting edge, do nothing
             {
                 foundRoute = 1;
@@ -446,6 +447,7 @@ void AddVehicle::Scenario8()
         //    cout << *it << endl;
 
         //commandAddVehicleRouter wants string id, string type, string (edge) origin, string (node) destination, double (time) depart, and string routename
+
         TraCI->vehicleAdd(id, type, origin, 1000 * depart, 0, 0, 0);  //Send a TraCI add call -- might not need to be *1000.
     }
 }

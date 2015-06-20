@@ -117,7 +117,7 @@ void ApplVSystem::finish()
     router->vehicleEndTimesFile << SUMOvID << " " << simTime().dbl() << endl;
 
     simsignal_t Signal_system = registerSignal("system"); //Prepare to send a system message
-    nodePtr->emit(Signal_system, new systemData("", "", SUMOvID, 2, std::string("system")));
+    nodePtr->emit(Signal_system, new systemData("", "", SUMOvID, DONE, std::string("system")));
 
     if(requestRoutes)
     {
@@ -177,7 +177,6 @@ void ApplVSystem::receiveSignal(cComponent *source, simsignal_t signalID, cObjec
         {
             if((s->getRequestType() == DIJKSTRA || s->getRequestType() == HYPERTREE)) //If sent from the router and to this vehicle
             {
-                //cout << "Setting new route for " << SUMOvID << " at t=" << simTime().dbl() << endl;
                 std::list<std::string> sRoute = s->getInfo(); //Copy the info from the signal (breaks if we don't do this, for some reason)
 
                 if (*sRoute.begin() != "failed")
