@@ -84,7 +84,6 @@ void TrafficLightFixed::executeEachTimeStep(bool simulationDone)
 {
     // call parent
     LoopDetectors::executeEachTimeStep(simulationDone);
-
 }
 
 }

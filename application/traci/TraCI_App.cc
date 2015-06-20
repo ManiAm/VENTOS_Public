@@ -94,7 +94,8 @@ void TraCI_App::executeOneTimestep()
 
     TraCIScenarioManager::executeOneTimestep();
 
-    addPedestriansToOMNET();
+    // todo
+    //addPedestriansToOMNET();
 
     EV << "### SUMO completed simulation for TS = " << (getCurrentTimeMs()/1000.) << endl;
 

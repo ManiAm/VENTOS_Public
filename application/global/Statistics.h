@@ -44,7 +44,6 @@ class Router;   // Forward-declaration so TraCI_App may hold a Router*
 class VehicleData
 {
 public:
-    int index;
     double time;
     std::string vehicleName;
     std::string vehicleType;
@@ -59,11 +58,10 @@ public:
     std::string TLid;  // TLid that controls this vehicle
     int YorR;          // if the TL state ahead is yellow or red
 
-    VehicleData(int i, double t, std::string str1, std::string str2, std::string str3,
+    VehicleData(double t, std::string str1, std::string str2, std::string str3,
             double d2, double d3, double d4, std::string str4, double d3a, double d5, double d6,
             std::string str5, int YR)
     {
-        this->index = i;
         this->time = t;
         this->vehicleName = str1;
         this->vehicleType = str2;
@@ -197,7 +195,8 @@ private:
 
     // class variables
     int index;
-    std::list<std::string> TLList;   // list of traffic-lights in the network
+    std::list<std::string> TLList;      // list of traffic-lights in the network
+    std::list<std::string> lanesList;   // list of all lanes in the network
 
     // class variables (vectors)
     std::vector<VehicleData> Vec_vehiclesData;

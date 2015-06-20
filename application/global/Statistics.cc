@@ -182,6 +182,9 @@ void Statistics::executeFirstTimeStep()
 {
     // get the list of all TL
     TLList = TraCI->TLGetIDList();
+
+    // get all lanes in the network
+    lanesList = TraCI->laneGetIDList();
 }
 
 
@@ -226,21 +229,14 @@ void Statistics::executeEachTimestep(bool simulationDone)
 
 void Statistics::vehiclesData()
 {
-    // get all lanes in the network
-    std::list<std::string> myList = TraCI->laneGetIDList();
-
-    for(std::list<std::string>::iterator i = myList.begin(); i != myList.end(); ++i)
+    for(std::list<std::string>::iterator i = lanesList.begin(); i != lanesList.end(); ++i)
     {
         // get all vehicles on lane i
-        std::list<std::string> myList2 = TraCI->laneGetLastStepVehicleIDs( i->c_str() );
+        std::list<std::string> allVeh = TraCI->laneGetLastStepVehicleIDs( i->c_str() );
 
-        for(std::list<std::string>::reverse_iterator k = myList2.rbegin(); k != myList2.rend(); ++k)
+        for(std::list<std::string>::reverse_iterator k = allVeh.rbegin(); k != allVeh.rend(); ++k)
             saveVehicleData(k->c_str());
     }
-
-    // increase index after writing data for all vehicles
-    if (TraCI->vehicleGetIDCount() > 0)
-        index++;
 }
 
 
@@ -255,8 +251,7 @@ void Statistics::saveVehicleData(std::string vID)
 
     if(useDetailedFilenames)
     {
-        VehicleData *tmp = new VehicleData(index, timeStep,
-                vID.c_str(), vType.c_str(),
+        VehicleData *tmp = new VehicleData(timeStep, vID.c_str(), vType.c_str(),
                 lane.c_str(), pos, speed, accel,
                 "",-1, -1, -1, "", -1);
         Vec_vehiclesData.push_back(*tmp);
@@ -331,8 +326,7 @@ void Statistics::saveVehicleData(std::string vID)
         // if the signal is yellow or red
         int YorR = TraCI->vehicleGetTrafficLightAhead(vID);
 
-        VehicleData *tmp = new VehicleData(index, timeStep,
-                vID.c_str(), vType.c_str(),
+        VehicleData *tmp = new VehicleData(timeStep, vID.c_str(), vType.c_str(),
                 lane.c_str(), pos, speed, accel,
                 CFMode.c_str(), timeGapSetting, spaceGap, timeGap,
                 TLid.c_str(), YorR);
@@ -384,18 +378,20 @@ void Statistics::vehiclesDataToFile()
         fprintf (filePtr, "%-12s","speed");
         fprintf (filePtr, "%-12s\n\n","accel");
 
-        int oldIndex = -1;
+        double oldTime = -1;
+        int index = 0;
 
         // write body
         for(std::vector<VehicleData>::iterator y = Vec_vehiclesData.begin(); y != Vec_vehiclesData.end(); y++)
         {
-            if(oldIndex != y->index)
+            if(oldTime != y->time)
             {
                 fprintf(filePtr, "\n");
-                oldIndex = y->index;
+                oldTime = y->time;
+                index++;
             }
 
-            fprintf (filePtr, "%-10d ", y->index);
+            fprintf (filePtr, "%-10d ", index);
             fprintf (filePtr, "%-10.2f ", y->time );
             fprintf (filePtr, "%-15s ", y->vehicleName.c_str());
             fprintf (filePtr, "%-15s ", y->vehicleType.c_str());
@@ -423,18 +419,20 @@ void Statistics::vehiclesDataToFile()
         fprintf (filePtr, "%-17s","TLid");
         fprintf (filePtr, "%-17s\n\n","yellowOrRed");
 
-        int oldIndex = -1;
+        double oldTime = -1;
+        int index = 0;
 
         // write body
         for(std::vector<VehicleData>::iterator y = Vec_vehiclesData.begin(); y != Vec_vehiclesData.end(); y++)
         {
-            if(oldIndex != y->index)
+            if(oldTime != y->time)
             {
                 fprintf(filePtr, "\n");
-                oldIndex = y->index;
+                oldTime = y->time;
+                index++;
             }
 
-            fprintf (filePtr, "%-10d ", y->index);
+            fprintf (filePtr, "%-10d ", index);
             fprintf (filePtr, "%-10.2f ", y->time );
             fprintf (filePtr, "%-15s ", y->vehicleName.c_str());
             fprintf (filePtr, "%-15s ", y->vehicleType.c_str());
