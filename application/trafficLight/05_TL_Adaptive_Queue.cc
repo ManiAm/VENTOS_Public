@@ -131,7 +131,7 @@ void TrafficLightAdaptiveQueue::getMovements()
     movementsFilePath = SUMO_FullPath / "allMovements.txt";
 
     // check if this file exists?
-    if( !exists( movementsFilePath ) )
+    if( !boost::filesystem::exists( movementsFilePath ) )
         generateAllAllowedMovements();
     else
     {

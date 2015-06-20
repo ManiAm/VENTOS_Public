@@ -73,7 +73,7 @@ void SumoBinary::handleMessage(cMessage *msg)
 void SumoBinary::checkIfBinaryExists()
 {
     // both binaries are missing
-    if( !exists( SUMO_CMD_Binary_FullPath ) && !exists( SUMO_GUI_Binary_FullPath ) )
+    if( !boost::filesystem::exists( SUMO_CMD_Binary_FullPath ) && !exists( SUMO_GUI_Binary_FullPath ) )
     {
         std::cout << "\nNo SUMO binaries found in " << SUMO_Binary_FullPath.string() << endl;
         std::cout << "Do you want to download the latest SUMO binaries? [y/n]: ";
@@ -90,7 +90,7 @@ void SumoBinary::checkIfBinaryExists()
             std::cout << "Ok! have fun." << endl;
     }
     // only GUI binary is missing
-    else if( exists( SUMO_CMD_Binary_FullPath ) && !exists( SUMO_GUI_Binary_FullPath ) )
+    else if( boost::filesystem::exists( SUMO_CMD_Binary_FullPath ) && !exists( SUMO_GUI_Binary_FullPath ) )
     {
         std::cout << "\nSUMO GUI binary is missing in " << SUMO_Binary_FullPath.string() << endl;
         std::cout << "Do you want to download it ? [y/n]: ";
@@ -104,7 +104,7 @@ void SumoBinary::checkIfBinaryExists()
         checkIfNewerVersionExists(SUMO_CMD_FileName, SUMO_CMD_Binary_FullPath.string(), SUMO_CMD_URL);
     }
     // only CMD binary is missing
-    else if( !exists( SUMO_CMD_Binary_FullPath ) && exists( SUMO_GUI_Binary_FullPath ) )
+    else if( !boost::filesystem::exists( SUMO_CMD_Binary_FullPath ) && exists( SUMO_GUI_Binary_FullPath ) )
     {
         std::cout << "\nSUMO CMD binary is missing in " << SUMO_Binary_FullPath.string() << endl;
         std::cout << "Do you want to download it ? [y/n]: ";

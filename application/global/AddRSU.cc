@@ -54,17 +54,14 @@ void AddRSU::initialize(int stage)
         Signal_executeFirstTS = registerSignal("executeFirstTS");
         simulation.getSystemModule()->subscribe("executeFirstTS", this);
 
+        on = par("on").boolValue();
+        mode = par("mode").longValue();
+
         VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
         SUMO_Path = simulation.getSystemModule()->par("SUMODirectory").stringValue();
         SUMO_FullPath = VENTOS_FullPath / SUMO_Path;
-        // check if this directory is valid?
-        if( !exists( SUMO_FullPath ) )
-        {
+        if( !boost::filesystem::exists( SUMO_FullPath ) )
             error("SUMO directory is not valid! Check it again.");
-        }
-
-        on = par("on").boolValue();
-        mode = par("mode").longValue();
     }
 }
 
@@ -115,10 +112,8 @@ void AddRSU::Scenario1()
     boost::filesystem::path RSUfilePath = SUMO_FullPath / RSUfile;
 
     // check if this file is valid?
-    if( !exists( RSUfilePath ) )
-    {
+    if( !boost::filesystem::exists( RSUfilePath ) )
         error("RSU file does not exist in %s", RSUfilePath.string().c_str());
-    }
 
     std::deque<RSUEntry*> RSUs = commandReadRSUsCoord(RSUfilePath.string());
 

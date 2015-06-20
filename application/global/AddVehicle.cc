@@ -372,11 +372,8 @@ void AddVehicle::Scenario8()
     boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
     boost::filesystem::path SUMO_Path = simulation.getSystemModule()->par("SUMODirectory").stringValue();
     boost::filesystem::path SUMO_FullPath = VENTOS_FullPath / SUMO_Path;
-    // check if this directory is valid?
-    if( !exists( SUMO_FullPath ) )
-    {
+    if( !boost::filesystem::exists( SUMO_FullPath ) )
         error("SUMO directory is not valid! Check it again.");
-    }
 
     std::string vehFile = ("/Vehicles" + SSTR(r->totalVehicleCount) + ".xml");
     std::string xmlFileName = SUMO_FullPath.string();

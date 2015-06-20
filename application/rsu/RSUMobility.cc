@@ -55,19 +55,13 @@ void RSUMobility::initialize(int stage)
         boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
         boost::filesystem::path SUMO_Path = simulation.getSystemModule()->par("SUMODirectory").stringValue();
         boost::filesystem::path SUMO_FullPath = VENTOS_FullPath / SUMO_Path;
-        // check if this directory is valid?
-        if( !exists( SUMO_FullPath ) )
-        {
+        if( !boost::filesystem::exists( SUMO_FullPath ) )
             error("SUMO directory is not valid! Check it again.");
-        }
 
         std::string RSUfile = AddRSUPtr->par("RSUfile").stringValue();
         RSUfilePath = SUMO_FullPath / RSUfile;
-        // check if this file is valid?
-        if( !exists( RSUfilePath ) )
-        {
+        if( !boost::filesystem::exists( RSUfilePath ) )
             error("RSU file does not exist in %s", RSUfilePath.string().c_str());
-        }
 
         // vehicle id in omnet++
         myId = getParentModule()->getIndex();
