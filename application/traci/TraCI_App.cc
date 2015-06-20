@@ -109,10 +109,7 @@ void TraCI_App::executeOneTimestep()
     nodePtr->emit(Signal_executeEachTS, (long)simulationDone);
 
     if(simulationDone)
-    {
-        //simulationTerminate();  // close TraCI connection
-        endSimulation();   // then terminate
-    }
+        endSimulation();   // terminate the simulation (TraCI connection will be closed by veins)
 }
 
 
