@@ -89,12 +89,17 @@ public:
     int nodeID;  // is used to sort the std::vector (used as a key)
     std::vector<long> MacStatsVec;
 
-    MacStatEntry(std::string str, int id, double t, std::vector<long> v)
+    MacStatEntry(double t, std::string str, int id, std::vector<long> v)
     {
         this->time = t;
         this->name = str;
         this->nodeID = id;
         MacStatsVec.swap(v);
+    }
+
+    friend bool operator== (const MacStatEntry &v1, const MacStatEntry &v2)
+    {
+        return ( v1.name == v2.name );
     }
 };
 
@@ -216,16 +221,7 @@ private:
 
     void beaconToFile();
 
-    int getNodeIndex(const char *ModName);
-
-
-
-
-// todo
-    void postProcess();
-    std::vector<BeaconStat> SortByID(std::vector<BeaconStat>);
-    int findInVector(std::vector<BeaconStat>, const char *);
-    int findInVector(std::vector<MacStatEntry>, const char *);
+    int getNodeIndex(std::string);
 };
 
 }

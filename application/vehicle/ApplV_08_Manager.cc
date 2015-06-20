@@ -26,6 +26,7 @@
 //
 
 #include "ApplV_08_Manager.h"
+#include <Statistics.h>
 
 namespace VENTOS {
 
@@ -41,8 +42,8 @@ void ApplVManager::initialize(int stage)
 {
     ApplVCoordinator::initialize(stage);
 
-	if (stage == 0)
-	{
+    if (stage == 0)
+    {
         // NED variables
         degradeToACC = par("degradeToACC").boolValue();
         SUMOvehicleDebug = par("SUMOvehicleDebug").boolValue();
@@ -56,6 +57,14 @@ void ApplVManager::initialize(int stage)
         measurementError = par("measurementError").boolValue();
         errorGap = par("errorGap").doubleValue();
         errorRelSpeed = par("errorRelSpeed").doubleValue();
+
+        // get the ptr of the Statistics module
+        cModule *module = simulation.getSystemModule()->getSubmodule("statistics");
+        Statistics *StatPtr = static_cast<Statistics *>(module);
+        if(StatPtr == NULL)
+            error("can not get a pointer to the Statistics module.");
+
+        reportBeaconsData = StatPtr->par("reportBeaconsData").boolValue();
 
         BeaconVehCount = 0;
         BeaconVehDropped = 0;
@@ -81,7 +90,7 @@ void ApplVManager::initialize(int stage)
             TraCI->vehicleSetErrorGap(SUMOvID, 0.);
             TraCI->vehicleSetErrorRelSpeed(SUMOvID, 0.);
         }
-	}
+    }
 }
 
 
@@ -138,12 +147,27 @@ void ApplVManager::handleLowerMsg(cMessage* msg)
         if( plr == 0 || !dropBeacon(droppT, droppV, plr) )
         {
             ApplVManager::onBeaconVehicle(wsm);
+
+            // report reception to statistics
+            if(reportBeaconsData)
+            {
+                data *pair = new data(wsm->getSender(), SUMOvID, 0);
+                simsignal_t Signal_beacon = registerSignal("beacon");
+                nodePtr->emit(Signal_beacon, pair);
+            }
         }
         // drop the beacon, and report it to statistics
         else
         {
             BeaconVehDropped++;
-            reportDropToStatistics(wsm);
+
+            // report drop to statistics
+            if(reportBeaconsData)
+            {
+                data *pair = new data(wsm->getSender(), SUMOvID, 1);
+                simsignal_t Signal_beacon = registerSignal("beacon");
+                nodePtr->emit(Signal_beacon, pair);
+            }
         }
     }
     else if (std::string(wsm->getName()) == "beaconPedestrian")
@@ -200,47 +224,6 @@ bool ApplVManager::dropBeacon(double time, std::string vehicle, double plr)
     }
     else
         return false;
-}
-
-
-void ApplVManager::reportDropToStatistics(BeaconVehicle* wsm)
-{
-    // todo:
-    if(true /*one_vehicle_look_ahead*/)
-    {
-        bool result =  isBeaconFromLeading(wsm);
-
-        if(result)
-        {
-            // a beacon from preceding vehicle is drooped
-            simsignal_t Signal_beaconD = registerSignal("beaconD");
-            nodePtr->emit(Signal_beaconD, 1);
-        }
-        else
-        {
-            // a beacon from other vehicle is drooped
-            simsignal_t Signal_beaconD = registerSignal("beaconD");
-            nodePtr->emit(Signal_beaconD, 2);
-        }
-    }
-    else
-    {
-        bool result = isBeaconFromMyPlatoonLeader(wsm);
-
-        // todo:
-        if(result)
-        {
-            // a beacon from platoon leader is drooped
-            simsignal_t Signal_beaconD = registerSignal("beaconD");
-            nodePtr->emit(Signal_beaconD, 3);
-        }
-        else
-        {
-            // a beacon from other vehicle is drooped
-            simsignal_t Signal_beaconD = registerSignal("beaconD");
-            nodePtr->emit(Signal_beaconD, 2);
-        }
-    }
 }
 
 
@@ -302,28 +285,6 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
     {
         error("not a valid control type or control number!");
     }
-
-
-//    // send results to SUMO if result = true
-//    if(result)
-//    {
-//        char buffer [200];
-//        sprintf (buffer, "%f#%f#%f#%f#%s", (double)wsm->getSpeed(), (double)wsm->getAccel(), (double)wsm->getMaxDecel(), (simTime().dbl())*1000, wsm->getSender() );
-//        TraCI->commandSetCFParameters(SUMOvID, buffer);
-//
-//        // a beacon from the leading vehicle or platoon leader is received
-//        data *pair = new data(wsm->getSender());
-//        simsignal_t Signal_beaconP = registerSignal("beaconP");
-//        nodePtr->emit(Signal_beaconP, pair);
-//    }
-//    else
-//    {
-//        // a beacon from other vehicles is received
-//        data *pair = new data(wsm->getSender());
-//        simsignal_t Signal_beaconO = registerSignal("beaconO");
-//        nodePtr->emit(Signal_beaconO, pair);
-//    }
-
 }
 
 

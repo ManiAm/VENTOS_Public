@@ -76,13 +76,13 @@ class systemData : public cObject, noncopyable
 
 public:
     systemData(std::string e, std::string n, std::string s, int r, std::string re)
-    {
+{
         edge = e;
         node = n;
         sender = s;
         requestType = r;
         recipient = re;
-    }
+}
 
     systemData(std::string e, std::string n, std::string s, int r, std::string re, std::list<std::string> el)
     {
@@ -114,27 +114,31 @@ public:
         return recipient.c_str();
     }
     std::list<std::string> getInfo()
-    {
+            {
         return edgeList;
-    }
+            }
 };
 
 
 // for beacons
 class data : public cObject, noncopyable
 {
-  public:
-    char name[20];
+public:
+    std::string sender;
+    std::string receiver;
+    bool dropped;
 
-    data(const char *str)
+    data(std::string str1, std::string str2, bool d)
     {
-        strcpy(this->name, str);
+        this->sender = str1;
+        this->receiver = str2;
+        this->dropped = d;
     }
 };
 
 class MacStat : public cObject, noncopyable
 {
-  public:
+public:
     std::vector<long> vec;
 
     MacStat( std::vector<long> v)
@@ -146,60 +150,60 @@ class MacStat : public cObject, noncopyable
 
 class CurrentVehicleState : public cObject, noncopyable
 {
-  public:
-      char name[20];
-      char state[40];
+public:
+    std::string name;
+    std::string state;
 
-      CurrentVehicleState(const char *str1, const char *str2)
-      {
-          strcpy(this->name, str1);
-          strcpy(this->state, str2);
-      }
+    CurrentVehicleState(std::string str1, std::string str2)
+    {
+        this->name = str1;
+        this->state = str2;
+    }
 };
 
 
 class CurrentPlnMsg : public cObject, noncopyable
 {
-  public:
-      PlatoonMsg *msg;
-      char type[30];
+public:
+    PlatoonMsg *msg;
+    std::string type;
 
-      CurrentPlnMsg(PlatoonMsg *m, const char *str)
-      {
-          this->msg = m;
-          strcpy(this->type, str);
-      }
+    CurrentPlnMsg(PlatoonMsg *m, std::string str)
+    {
+        this->msg = m;
+        this->type = str;
+    }
 };
 
 
 class PlnManeuver : public cObject, noncopyable
 {
-  public:
-      char from[20];
-      char to[20];
-      char maneuver[30];
+public:
+    std::string from;
+    std::string to;
+    std::string maneuver;
 
-      PlnManeuver(const char *str1, const char *str2, const char *str3)
-      {
-          strcpy(this->from, str1);
-          strcpy(this->to, str2);
-          strcpy(this->maneuver, str3);
-      }
+    PlnManeuver(std::string str1, std::string str2, std::string str3)
+    {
+        this->from = str1;
+        this->to = str2;
+        this->maneuver = str3;
+    }
 };
 
 class TimeData : public cObject, noncopyable
 {
-  public:
-      std::string vName;
-      int time;
-      bool end;
+public:
+    std::string vName;
+    int time;
+    bool end;
 
-      TimeData(std::string vName, int time, bool end)
-      {
-          this->vName = vName;
-          this->time = time;
-          this->end = end;
-      }
+    TimeData(std::string vName, int time, bool end)
+    {
+        this->vName = vName;
+        this->time = time;
+        this->end = end;
+    }
 };
 
 

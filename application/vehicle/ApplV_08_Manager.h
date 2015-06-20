@@ -52,7 +52,6 @@ class ApplVManager : public ApplVCoordinator
 
 	private:
         bool dropBeacon(double time, std::string vehicle, double plr);
-        void reportDropToStatistics(BeaconVehicle* wsm);
 
 	protected:
         // NED variables (packet loss ratio)
@@ -68,6 +67,8 @@ class ApplVManager : public ApplVCoordinator
         bool measurementError;
         double errorGap;
         double errorRelSpeed;
+
+        bool reportBeaconsData;
 
         long BeaconVehCount;
         long BeaconVehDropped;
