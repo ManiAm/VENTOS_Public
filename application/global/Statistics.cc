@@ -57,9 +57,10 @@ void Statistics::initialize(int stage)
 
         collectVehiclesData = par("collectVehiclesData").boolValue();
         useDetailedFilenames = par("useDetailedFilenames").boolValue();
-        collectMAClayerData = par("collectMAClayerData").boolValue();
-        collectPlnManagerData = par("collectPlnManagerData").boolValue();
-        printBeaconsStatistics = par("printBeaconsStatistics").boolValue();
+
+        reportMAClayerData = par("reportMAClayerData").boolValue();
+        reportPlnManagerData = par("reportPlnManagerData").boolValue();
+        reportBeaconsData = par("reportBeaconsData").boolValue();
 
         index = 1;
 
@@ -69,15 +70,6 @@ void Statistics::initialize(int stage)
 
         Signal_executeEachTS = registerSignal("executeEachTS");
         simulation.getSystemModule()->subscribe("executeEachTS", this);
-
-        Signal_beaconP = registerSignal("beaconP");
-        simulation.getSystemModule()->subscribe("beaconP", this);
-
-        Signal_beaconO = registerSignal("beaconO");
-        simulation.getSystemModule()->subscribe("beaconO", this);
-
-        Signal_beaconD = registerSignal("beaconD");
-        simulation.getSystemModule()->subscribe("beaconD", this);
 
         Signal_MacStats = registerSignal("MacStats");
         simulation.getSystemModule()->subscribe("MacStats", this);
@@ -90,6 +82,9 @@ void Statistics::initialize(int stage)
 
         Signal_PlnManeuver = registerSignal("PlnManeuver");
         simulation.getSystemModule()->subscribe("PlnManeuver", this);
+
+        Signal_beacon = registerSignal("beacon");
+        simulation.getSystemModule()->subscribe("beacon", this);
     }
 }
 
@@ -106,14 +101,9 @@ void Statistics::handleMessage(cMessage *msg)
 }
 
 
-// todo: make all beacons object
 void Statistics::receiveSignal(cComponent *source, simsignal_t signalID, long i)
 {
     Enter_Method_Silent();
-
-    EV << "*** Statistics module received signal " << signalID;
-    EV << " from module " << source->getFullName();
-    EV << " with value " << i << endl;
 
     int nodeIndex = getNodeIndex(source->getFullName());
 
@@ -125,21 +115,6 @@ void Statistics::receiveSignal(cComponent *source, simsignal_t signalID, long i)
     {
         Statistics::executeFirstTimeStep();
     }
-    else if(signalID == Signal_beaconD)
-    {
-        // from preceding
-        if(i==1)
-        {
-            NodeEntry *tmp = new NodeEntry(source->getFullName(), "-", nodeIndex, -1, simTime());
-            Vec_BeaconsDP.push_back(tmp);
-        }
-        // from other vehicles
-        else if(i==2)
-        {
-            NodeEntry *tmp = new NodeEntry(source->getFullName(), "-", nodeIndex, -1, simTime());
-            Vec_BeaconsDO.push_back(tmp);
-        }
-    }
 }
 
 
@@ -147,12 +122,9 @@ void Statistics::receiveSignal(cComponent *source, simsignal_t signalID, cObject
 {
     Enter_Method_Silent();
 
-    EV << "*** Statistics module received signal " << signalID;
-    EV << " from module " << source->getFullName() << endl;
-
     int nodeIndex = getNodeIndex(source->getFullName());
 
-    if(collectMAClayerData && signalID == Signal_MacStats)
+    if(reportMAClayerData && signalID == Signal_MacStats)
     {
         MacStat *m = static_cast<MacStat *>(obj);
         if (m == NULL) return;
@@ -172,7 +144,7 @@ void Statistics::receiveSignal(cComponent *source, simsignal_t signalID, cObject
             Vec_MacStat[counter]->MacStatsVec = m->vec;
         }
     }
-    else if(collectPlnManagerData && signalID == Signal_VehicleState)
+    else if(reportPlnManagerData && signalID == Signal_VehicleState)
     {
         CurrentVehicleState *state = dynamic_cast<CurrentVehicleState*>(obj);
         ASSERT(state);
@@ -180,7 +152,7 @@ void Statistics::receiveSignal(cComponent *source, simsignal_t signalID, cObject
         plnManagement *tmp = new plnManagement(simTime().dbl(), state->name, "-", state->state, "-", "-");
         Vec_plnManagement.push_back(tmp);
     }
-    else if(collectPlnManagerData && signalID == Signal_SentPlatoonMsg)
+    else if(reportPlnManagerData && signalID == Signal_SentPlatoonMsg)
     {
         CurrentPlnMsg* plnMsg = dynamic_cast<CurrentPlnMsg*>(obj);
         ASSERT(plnMsg);
@@ -188,7 +160,7 @@ void Statistics::receiveSignal(cComponent *source, simsignal_t signalID, cObject
         plnManagement *tmp = new plnManagement(simTime().dbl(), plnMsg->msg->getSender(), plnMsg->msg->getRecipient(), plnMsg->type, plnMsg->msg->getSendingPlatoonID(), plnMsg->msg->getReceivingPlatoonID());
         Vec_plnManagement.push_back(tmp);
     }
-    else if(collectPlnManagerData && signalID == Signal_PlnManeuver)
+    else if(reportPlnManagerData && signalID == Signal_PlnManeuver)
     {
         PlnManeuver* com = dynamic_cast<PlnManeuver*>(obj);
         ASSERT(com);
@@ -196,23 +168,14 @@ void Statistics::receiveSignal(cComponent *source, simsignal_t signalID, cObject
         plnStat *tmp = new plnStat(simTime().dbl(), com->from, com->to, com->maneuver);
         Vec_plnStat.push_back(tmp);
     }
-
-    // todo
-    else if(signalID == Signal_beaconP)
+    else if(reportBeaconsData && signalID == Signal_beacon)
     {
         data *m = static_cast<data *>(obj);
-        if (m == NULL) return;
+        ASSERT(m);
 
-        NodeEntry *tmp = new NodeEntry(source->getFullName(), m->name, nodeIndex, -1, simTime());
-        Vec_BeaconsP.push_back(tmp);
-    }
-    else if(signalID == Signal_beaconO)
-    {
-        data *m = static_cast<data *>(obj);
-        if (m == NULL) return;
-
-        NodeEntry *tmp = new NodeEntry(source->getFullName(), m->name, nodeIndex, -1, simTime());
-        Vec_BeaconsO.push_back(tmp);
+        // todo
+        BeaconStat *tmp = new BeaconStat(simTime(), "senderID", source->getFullName(), false);
+        Vec_Beacons.push_back(tmp);
     }
 }
 
@@ -230,17 +193,21 @@ void Statistics::executeEachTimestep(bool simulationDone)
     {
         vehiclesData();   // collecting data from all vehicles in each timeStep
 
-        if(ev.isGUI()) vehiclesDataToFile();  // (if in GUI) write what we have collected so far
+        if(ev.isGUI()) vehiclesDataToFile();   // (if in GUI) write what we have collected so far
         else if(simulationDone) vehiclesDataToFile();  // (if in CMD) write to file at the end of simulation
     }
 
-    if(collectMAClayerData)
-        MAClayerToFile();
-
-    if(collectPlnManagerData)
+    if(reportMAClayerData)
     {
+        if(ev.isGUI()) MAClayerToFile();    // (if in GUI) write what we have collected so far
+        else if(simulationDone) MAClayerToFile();  // (if in CMD) write to file at the end of simulation
+    }
+
+    if(reportPlnManagerData)
+    {
+        // (if in GUI) write what we have collected so far
         if(ev.isGUI())
-        {   // write what we have collected so far
+        {
             plnManageToFile();
             plnStatToFile();
         }
@@ -251,19 +218,10 @@ void Statistics::executeEachTimestep(bool simulationDone)
         }
     }
 
-    // todo:
-    if(simulationDone)
+    if(reportBeaconsData)
     {
-        // sort the vectors by node ID:
-        // Vec_BeaconsP = SortByID(Vec_BeaconsP);
-        // Vec_BeaconsO = SortByID(Vec_BeaconsO);
-        // Vec_BeaconsDP = SortByID(Vec_BeaconsDP);
-        // Vec_BeaconsDO = SortByID(Vec_BeaconsDO);
-
-        postProcess();
-
-        if(printBeaconsStatistics)
-            printToFile();
+        if(ev.isGUI()) beaconToFile();    // (if in GUI) write what we have collected so far
+        else if(simulationDone) beaconToFile();  // (if in CMD) write to file at the end of simulation
     }
 }
 
@@ -483,7 +441,6 @@ void Statistics::MAClayerToFile()
     // write header
     fprintf (filePtr, "%-20s","timeStep");
     fprintf (filePtr, "%-20s","vehicleName");
-
     fprintf (filePtr, "%-20s","DroppedPackets");
     fprintf (filePtr, "%-20s","NumTooLittleTime");
     fprintf (filePtr, "%-30s","NumInternalContention");
@@ -497,22 +454,21 @@ void Statistics::MAClayerToFile()
     fprintf (filePtr, "%-20s","ReceivedBroadcasts\n\n");
 
     // write body
-    for(unsigned int k=0; k<Vec_MacStat.size(); k++)
+    for(std::vector<MacStatEntry *>::iterator y = Vec_MacStat.begin(); y != Vec_MacStat.end(); y++)
     {
-        fprintf (filePtr, "%-20.2f ", Vec_MacStat[k]->time);
-        fprintf (filePtr, "%-20s ", Vec_MacStat[k]->name);
-
-        fprintf (filePtr, "%-20ld ", Vec_MacStat[k]->MacStatsVec[0]);
-        fprintf (filePtr, "%-20ld ", Vec_MacStat[k]->MacStatsVec[1]);
-        fprintf (filePtr, "%-30ld ", Vec_MacStat[k]->MacStatsVec[2]);
-        fprintf (filePtr, "%-20ld ", Vec_MacStat[k]->MacStatsVec[3]);
-        fprintf (filePtr, "%-20ld ", Vec_MacStat[k]->MacStatsVec[4]);
-        fprintf (filePtr, "%-20ld ", Vec_MacStat[k]->MacStatsVec[5]);
-        fprintf (filePtr, "%-20ld ", Vec_MacStat[k]->MacStatsVec[6]);
-        fprintf (filePtr, "%-20ld ", Vec_MacStat[k]->MacStatsVec[7]);
-        fprintf (filePtr, "%-20ld ", Vec_MacStat[k]->MacStatsVec[8]);
-        fprintf (filePtr, "%-20ld ", Vec_MacStat[k]->MacStatsVec[9]);
-        fprintf (filePtr, "%-20ld ", Vec_MacStat[k]->MacStatsVec[10]);
+        fprintf (filePtr, "%-20.2f ", y->time);
+        fprintf (filePtr, "%-20s ", y->name);
+        fprintf (filePtr, "%-20ld ", y->MacStatsVec[0]);
+        fprintf (filePtr, "%-20ld ", y->MacStatsVec[1]);
+        fprintf (filePtr, "%-30ld ", y->MacStatsVec[2]);
+        fprintf (filePtr, "%-20ld ", y->MacStatsVec[3]);
+        fprintf (filePtr, "%-20ld ", y->MacStatsVec[4]);
+        fprintf (filePtr, "%-20ld ", y->MacStatsVec[5]);
+        fprintf (filePtr, "%-20ld ", y->MacStatsVec[6]);
+        fprintf (filePtr, "%-20ld ", y->MacStatsVec[7]);
+        fprintf (filePtr, "%-20ld ", y->MacStatsVec[8]);
+        fprintf (filePtr, "%-20ld ", y->MacStatsVec[9]);
+        fprintf (filePtr, "%-20ld ", y->MacStatsVec[10]);
 
         fprintf (filePtr, "\n" );
     }
@@ -552,22 +508,22 @@ void Statistics::plnManageToFile()
     double oldTime = -1;
 
     // write body
-    for(unsigned int k=0; k<Vec_plnManagement.size(); k++)
+    for(std::vector<plnManagement *>::iterator y = Vec_plnManagement.begin(); y != Vec_plnManagement.end(); y++)
     {
         // make the log more readable :)
-        if(std::string(Vec_plnManagement[k]->sender) != oldSender || Vec_plnManagement[k]->time != oldTime)
+        if(y->sender != oldSender || y->time != oldTime)
         {
             fprintf(filePtr, "\n");
-            oldSender = Vec_plnManagement[k]->sender;
-            oldTime = Vec_plnManagement[k]->time;
+            oldSender = y->sender;
+            oldTime = y->time;
         }
 
-        fprintf (filePtr, "%-10.2f ", Vec_plnManagement[k]->time);
-        fprintf (filePtr, "%-15s ", Vec_plnManagement[k]->sender);
-        fprintf (filePtr, "%-17s ", Vec_plnManagement[k]->receiver);
-        fprintf (filePtr, "%-30s ", Vec_plnManagement[k]->type);
-        fprintf (filePtr, "%-18s ", Vec_plnManagement[k]->sendingPlnID);
-        fprintf (filePtr, "%-20s\n", Vec_plnManagement[k]->receivingPlnID);
+        fprintf (filePtr, "%-10.2f ", y->time);
+        fprintf (filePtr, "%-15s ", y->sender);
+        fprintf (filePtr, "%-17s ", y->receiver);
+        fprintf (filePtr, "%-30s ", y->type);
+        fprintf (filePtr, "%-18s ", y->sendingPlnID);
+        fprintf (filePtr, "%-20s\n", y->receivingPlnID);
     }
 
     fclose(filePtr);
@@ -602,22 +558,90 @@ void Statistics::plnStatToFile()
     std::string oldPln = "";
 
     // write body
-    for(unsigned int k=0; k<Vec_plnStat.size(); k++)
+    for(std::vector<plnStat *>::iterator y = Vec_plnStat.begin(); y != Vec_plnStat.end(); y++)
     {
-        if(Vec_plnStat[k]->from != oldPln)
+        if(y->from != oldPln)
         {
             fprintf(filePtr, "\n");
-            oldPln = Vec_plnStat[k]->from;
+            oldPln = y->from;
         }
 
-        fprintf (filePtr, "%-10.2f ", Vec_plnStat[k]->time);
-        fprintf (filePtr, "%-20s ", Vec_plnStat[k]->from);
-        fprintf (filePtr, "%-20s ", Vec_plnStat[k]->to);
-        fprintf (filePtr, "%-20s\n", Vec_plnStat[k]->maneuver);
+        fprintf (filePtr, "%-10.2f ", y->time);
+        fprintf (filePtr, "%-20s ", y->from);
+        fprintf (filePtr, "%-20s ", y->to);
+        fprintf (filePtr, "%-20s\n", y->maneuver);
     }
 
     fclose(filePtr);
 }
+
+
+void Statistics::beaconToFile()
+{
+    char fName [50];
+    FILE *f1;
+
+    if( ev.isGUI() )
+    {
+        sprintf (fName, "%s.txt", "results/gui/01.beacons_total_p");
+    }
+    else
+    {
+        // get the current run number
+        int currentRun = ev.getConfigEx()->getActiveRunNumber();
+        sprintf (fName, "%s_%d.txt", "results/cmd/01.beacons_total_p", currentRun);
+    }
+
+    f1 = fopen (fName, "w");
+
+    fprintf (f1, "%s\n\n","Total Number of received beacons from preceding vehicle");
+
+    // write header
+    fprintf (f1, "%-10s","vehicle");
+    fprintf (f1, "%-10s\n","beacons");  // beacon from preceding
+
+    for(unsigned int k=0; k<totalBeaconsP.size(); k++)
+    {
+        fprintf (f1, "%-10s ", totalBeaconsP[k]->name1);
+        fprintf (f1, "%-10d ", totalBeaconsP[k]->count);
+        fprintf (f1, "\n");
+    }
+
+    fclose(f1);
+}
+
+
+// returns the index of a node. for example gets V[10] as input and returns 10
+int Statistics::getNodeIndex(const char *ModName)
+{
+    std::ostringstream oss;
+
+    for(int h=0 ; ModName[h] != NULL ; h++)
+    {
+        if ( isdigit(ModName[h]) )
+        {
+            oss << ModName[h];
+        }
+    }
+
+    int nodeID = atoi(oss.str().c_str());
+
+    return nodeID;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 // todo
@@ -732,220 +756,6 @@ void Statistics::postProcess()
         intervalS = intervalS + updateInterval;
         intervalE = intervalE + updateInterval;
     }
-}
-
-
-// todo
-void Statistics::printToFile()
-{
-    char fName [50];
-    FILE *f1;
-
-    if( ev.isGUI() )
-    {
-        sprintf (fName, "%s.txt", "results/gui/01.beacons_total_p");
-    }
-    else
-    {
-        // get the current run number
-        int currentRun = ev.getConfigEx()->getActiveRunNumber();
-        sprintf (fName, "%s_%d.txt", "results/cmd/01.beacons_total_p", currentRun);
-    }
-
-    f1 = fopen (fName, "w");
-
-    fprintf (f1, "%s\n\n","Total Number of received beacons from preceding vehicle");
-
-    // write header
-    fprintf (f1, "%-10s","vehicle");
-    fprintf (f1, "%-10s\n","beacons");  // beacon from preceding
-
-    for(unsigned int k=0; k<totalBeaconsP.size(); k++)
-    {
-        fprintf (f1, "%-10s ", totalBeaconsP[k]->name1);
-        fprintf (f1, "%-10d ", totalBeaconsP[k]->count);
-        fprintf (f1, "\n");
-    }
-
-    fclose(f1);
-
-    // ##########################################################
-    // ##########################################################
-
-    if( ev.isGUI() )
-    {
-        sprintf (fName, "%s.txt", "results/gui/02.beacons_total_o");
-    }
-    else
-    {
-        // get the current run number
-        int currentRun = ev.getConfigEx()->getActiveRunNumber();
-        sprintf (fName, "%s_%d.txt", "results/cmd/02.beacons_total_o", currentRun);
-    }
-
-    f1 = fopen (fName, "w");
-
-    fprintf (f1, "%s\n\n","Total Number of received beacons from other vehicle");
-
-    // write header
-    fprintf (f1, "%-10s","vehicle");
-    fprintf (f1, "%-10s\n","beacons");  // beacon from preceding
-
-    for(unsigned int k=0; k<totalBeaconsO.size(); k++)
-    {
-        fprintf (f1, "%-10s ", totalBeaconsO[k]->name1);
-        fprintf (f1, "%-10d ", totalBeaconsO[k]->count);
-        fprintf (f1, "\n");
-    }
-
-    fclose(f1);
-
-    // ##########################################################
-    // ##########################################################
-
-    if( ev.isGUI() )
-    {
-        sprintf (fName, "%s.txt", "results/gui/03.beacons_total_droped_p");
-    }
-    else
-    {
-        // get the current run number
-        int currentRun = ev.getConfigEx()->getActiveRunNumber();
-        sprintf (fName, "%s_%d.txt", "results/cmd/03.beacons_total_droped_p", currentRun);
-    }
-
-    f1 = fopen (fName, "w");
-
-    fprintf (f1, "%s\n\n","Total Number of dropped beacons from preceding vehicle");
-
-    // write header
-    fprintf (f1, "%-10s","vehicle");
-    fprintf (f1, "%-10s\n","beacons");  // beacon from preceding
-
-    for(unsigned int k=0; k<totalBeaconsDP.size(); k++)
-    {
-        fprintf (f1, "%-10s ", totalBeaconsDP[k]->name1);
-        fprintf (f1, "%-10d ", totalBeaconsDP[k]->count);
-        fprintf (f1, "\n");
-    }
-
-    fclose(f1);
-
-    // ##########################################################
-    // ##########################################################
-
-    if( ev.isGUI() )
-    {
-        sprintf (fName, "%s.txt", "results/gui/04.beacons_total_droped_o");
-    }
-    else
-    {
-        // get the current run number
-        int currentRun = ev.getConfigEx()->getActiveRunNumber();
-        sprintf (fName, "%s_%d.txt", "results/cmd/04.beacons_total_droped_o", currentRun);
-    }
-
-    f1 = fopen (fName, "w");
-
-    fprintf (f1, "%s\n\n","Total Number of dropped beacons from other vehicles");
-
-    // write header
-    fprintf (f1, "%-10s","vehicle");
-    fprintf (f1, "%-10s\n","beacons");  // beacon from preceding
-
-    for(unsigned int k=0; k<totalBeaconsDO.size(); k++)
-    {
-        fprintf (f1, "%-10s ", totalBeaconsDO[k]->name1);
-        fprintf (f1, "%-10d ", totalBeaconsDO[k]->count);
-        fprintf (f1, "\n");
-    }
-
-    fclose(f1);
-
-    // ##########################################################
-    // ##########################################################
-
-    if( ev.isGUI() )
-    {
-        sprintf (fName, "%s.txt", "results/gui/05.beacon_interval_droped_o");
-    }
-    else
-    {
-        // get the current run number
-        int currentRun = ev.getConfigEx()->getActiveRunNumber();
-        sprintf (fName, "%s_%d.txt", "results/cmd/05.beacon_interval_droped_o", currentRun);
-    }
-
-    f1 = fopen (fName, "w");
-
-    fprintf (f1, "%s\n\n","Number of dropped beacons (from other vehicles) in each interval");
-
-    // write header
-    fprintf (f1, "%-10s","vehicle");
-    fprintf (f1, "%-10s","delta");
-    fprintf (f1, "%-10s\n","beacons");  // beacon from preceding
-
-    for(unsigned int k=0; k<beaconsDO_interval.size(); k++)
-    {
-        fprintf (f1, "%-10s ", beaconsDO_interval[k]->name1);
-        fprintf (f1, "%-10f ", beaconsDO_interval[k]->time.dbl());
-        fprintf (f1, "%-10d ", beaconsDO_interval[k]->count);
-        fprintf (f1, "\n");
-    }
-
-    fclose(f1);
-
-    // ##########################################################
-    // ##########################################################
-
-    if( ev.isGUI() )
-    {
-        sprintf (fName, "%s.txt", "results/gui/06.beacon_interval_droped_p");
-    }
-    else
-    {
-        // get the current run number
-        int currentRun = ev.getConfigEx()->getActiveRunNumber();
-        sprintf (fName, "%s_%d.txt", "results/cmd/06.beacon_interval_droped_p", currentRun);
-    }
-
-    f1 = fopen (fName, "w");
-
-    fprintf (f1, "%s\n\n","Number of dropped beacons (from proceeding vehicle) in each interval");
-
-    // write header
-    fprintf (f1, "%-10s","vehicle");
-    fprintf (f1, "%-10s","delta");
-    fprintf (f1, "%-10s\n","beacons");  // beacon from preceding
-
-    for(unsigned int k=0; k<beaconsDP_interval.size(); k++)
-    {
-        fprintf (f1, "%-10s ", beaconsDP_interval[k]->name1);
-        fprintf (f1, "%-10f ", beaconsDP_interval[k]->time.dbl());
-        fprintf (f1, "%-10d ", beaconsDP_interval[k]->count);
-        fprintf (f1, "\n");
-    }
-
-    fclose(f1);
-}
-
-
-// returns the index of a node. for example gets V[10] as input and returns 10
-int Statistics::getNodeIndex(const char *ModName)
-{
-    std::ostringstream oss;
-
-    for(int h=0 ; ModName[h] != NULL ; h++)
-    {
-        if ( isdigit(ModName[h]) )
-        {
-            oss << ModName[h];
-        }
-    }
-
-    int nodeID = atoi(oss.str().c_str());
-
-    return nodeID;
 }
 
 

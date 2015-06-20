@@ -39,11 +39,12 @@
 
 namespace VENTOS {
 
-class Router;   //Forward-declaration so TraCI_App may hold a Router*
+class Router;   // Forward-declaration so TraCI_App may hold a Router*
+
 
 class VehicleData
 {
-  public:
+public:
     int index;
     double time;
     std::string vehicleName;
@@ -59,10 +60,12 @@ class VehicleData
     std::string TLid;  // TLid that controls this vehicle
     int YorR;          // if the TL state ahead is yellow or red
 
-    VehicleData(int i, double d1, std::string str1, std::string str2, std::string str3, double d2, double d3, double d4, std::string str4, double d3a, double d5, double d6, std::string str5, int YR)
+    VehicleData(int i, double t, std::string str1, std::string str2, std::string str3,
+            double d2, double d3, double d4, std::string str4, double d3a, double d5, double d6,
+            std::string str5, int YR)
     {
         this->index = i;
-        this->time = d1;
+        this->time = t;
         this->vehicleName = str1;
         this->vehicleType = str2;
         this->lane = str3;
@@ -82,167 +85,150 @@ class VehicleData
 class MacStatEntry
 {
 public:
-  char name[20];
-  int nodeID;  // is used to sort the std::vector (used as a key)
-  double time;
-  std::vector<long> MacStatsVec;
-
-  MacStatEntry(const char *str, int id, double t, std::vector<long> v)
-  {
-      strcpy(this->name, str);
-      this->nodeID = id;
-      this->time = t;
-      MacStatsVec.swap(v);
-  }
-};
-
-
-class NodeEntry
-{
-  public:
-    char name1[20];
+    double time;
+    std::string name;
     int nodeID;  // is used to sort the std::vector (used as a key)
+    std::vector<long> MacStatsVec;
 
-    char name2[20];
-    int count;
-    simtime_t time;
-
-    NodeEntry(const char *str1, const char *str2, int id, int n, simtime_t t)
+    MacStatEntry(std::string str, int id, double t, std::vector<long> v)
     {
-        strcpy(this->name1, str1);
-        this->nodeID = id;
-
-        strcpy(this->name2, str2);
-        this->count = n;
         this->time = t;
+        this->name = str;
+        this->nodeID = id;
+        MacStatsVec.swap(v);
     }
 };
 
 
 class plnManagement
 {
-  public:
-      double time;
-      char sender[20];
-      char receiver[20];
-      char type[30];
-      char sendingPlnID[20];
-      char receivingPlnID[20];
+public:
+    double time;
+    std::string sender;
+    std::string receiver;
+    std::string type;
+    std::string sendingPlnID;
+    std::string receivingPlnID;
 
-      plnManagement(double t, const char *str1, const char *str2, const char *str3, const char *str4, const char *str5)
-      {
-          this->time = t;
-
-          strcpy(this->sender, str1);
-          strcpy(this->receiver, str2);
-          strcpy(this->type, str3);
-          strcpy(this->sendingPlnID, str4);
-          strcpy(this->receivingPlnID, str5);
-      }
+    plnManagement(double t, std::string str1, std::string str2, std::string str3, std::string str4, std::string str5)
+    {
+        this->time = t;
+        this->sender = str1;
+        this->receiver = str2;
+        this->type = str3;
+        this->sendingPlnID = str4;
+        this->receivingPlnID = str5;
+    }
 };
 
 
 class plnStat
 {
-  public:
-      double time;
-      char from[20];
-      char to[20];
-      char maneuver[20];
+public:
+    double time;
+    std::string from;
+    std::string to;
+    std::string maneuver;
 
-      plnStat(double d, const char *str1, const char *str2, const char *str3)
-      {
-          this->time = d;
+    plnStat(double t, std::string str1, std::string str2, std::string str3)
+    {
+        this->time = t;
+        this->from = str1;
+        this->to = str2;
+        this->maneuver = str3;
+    }
+};
 
-          strcpy(this->from, str1);
-          strcpy(this->to, str2);
-          strcpy(this->maneuver, str3);
-      }
+
+class BeaconStat
+{
+public:
+    double time;
+    std::string senderID;
+    std::string receiverID;
+    bool dropped;
+
+    BeaconStat(double t, std::string str1, std::string str2, bool b)
+    {
+        this->time = t;
+        this->senderID = str1;
+        this->receiverID = str2;
+        this->dropped = b;
+    }
 };
 
 
 class Statistics : public BaseModule
 {
-  public:
-      virtual ~Statistics();
-      virtual void finish();
-      virtual void initialize(int);
-      virtual void handleMessage(cMessage *);
-	  virtual void receiveSignal(cComponent *, simsignal_t, long);
-	  virtual void receiveSignal(cComponent *, simsignal_t, cObject *);
+public:
+    virtual ~Statistics();
+    virtual void finish();
+    virtual void initialize(int);
+    virtual void handleMessage(cMessage *);
+    virtual void receiveSignal(cComponent *, simsignal_t, long);
+    virtual void receiveSignal(cComponent *, simsignal_t, cObject *);
 
-  private:
-      // NED variables
-      bool collectVehiclesData;
-      bool useDetailedFilenames;
-      bool collectMAClayerData;
-      bool collectPlnManagerData;
-      bool printBeaconsStatistics;
+private:
+    // NED variables
+    bool collectVehiclesData;
+    bool useDetailedFilenames;
+    bool reportMAClayerData;
+    bool reportPlnManagerData;
+    bool reportBeaconsData;
 
-      // NED variables
-      TraCI_Extend *TraCI;
-      double updateInterval;
-      double terminate;
-      Router* router;
+    // NED variables
+    TraCI_Extend *TraCI;
+    double updateInterval;
+    double terminate;
+    Router* router;
 
-      // class variables (signals)
-      simsignal_t Signal_executeFirstTS;
-      simsignal_t Signal_executeEachTS;
+    // class variables (signals)
+    simsignal_t Signal_executeFirstTS;
+    simsignal_t Signal_executeEachTS;
+    simsignal_t Signal_MacStats;
+    simsignal_t Signal_SentPlatoonMsg;
+    simsignal_t Signal_VehicleState;
+    simsignal_t Signal_PlnManeuver;
+    simsignal_t Signal_beacon;
 
-	  simsignal_t Signal_beaconP;
-	  simsignal_t Signal_beaconO;
-	  simsignal_t Signal_beaconD;
+    // class variables
+    int index;
+    std::list<std::string> TLList;   // list of traffic-lights in the network
 
-	  simsignal_t Signal_MacStats;
+    // class variables (vectors)
+    std::vector<VehicleData> Vec_vehiclesData;
+    std::vector<MacStatEntry *> Vec_MacStat;
+    std::vector<plnManagement *> Vec_plnManagement;
+    std::vector<plnStat *> Vec_plnStat;
+    std::vector<BeaconStat *> Vec_Beacons;
 
-	  simsignal_t Signal_SentPlatoonMsg;
-	  simsignal_t Signal_VehicleState;
-	  simsignal_t Signal_PlnManeuver;
-	  simsignal_t Signal_TimeData;
+private:
+    void executeFirstTimeStep();
+    void executeEachTimestep(bool);
 
-	  // class variables
-      int index;
-      std::list<std::string> TLList;   // list of traffic-lights in the network
+    void vehiclesData();
+    void saveVehicleData(std::string);
+    void vehiclesDataToFile();
 
-      // class variables (vectors)
-      std::vector<VehicleData> Vec_vehiclesData;
-      std::vector<MacStatEntry *> Vec_MacStat;
-      std::vector<plnManagement *> Vec_plnManagement;
-      std::vector<plnStat *> Vec_plnStat;
+    void MAClayerToFile();
 
-      std::vector<NodeEntry *> Vec_BeaconsP;    // beacons from proceeding
-      std::vector<NodeEntry *> Vec_BeaconsO;    // beacons from other vehicles
-      std::vector<NodeEntry *> Vec_BeaconsDP;   // Doped beacons from preceding vehicle
-      std::vector<NodeEntry *> Vec_BeaconsDO;   // Doped beacons from other vehicles
+    void plnManageToFile();
+    void plnStatToFile();
 
-      std::vector<NodeEntry *> totalBeaconsP;
-      std::vector<NodeEntry *> totalBeaconsO;
-      std::vector<NodeEntry *> totalBeaconsDP;
-      std::vector<NodeEntry *> totalBeaconsDO;
+    void beaconToFile();
 
-      std::vector<NodeEntry *> beaconsDO_interval;
-      std::vector<NodeEntry *> beaconsDP_interval;
+    int getNodeIndex(const char *ModName);
 
-  private:
-      void executeFirstTimeStep();
-      void executeEachTimestep(bool);
 
-      void vehiclesData();
-      void saveVehicleData(std::string);
-      void vehiclesDataToFile();
 
-      void MAClayerToFile();
 
-      void plnManageToFile();
-      void plnStatToFile();
+// todo
+    void postProcess();
+    std::vector<NodeEntry *> SortByID(std::vector<NodeEntry *>);
 
-      void postProcess();
-      void printToFile();
-      std::vector<NodeEntry *> SortByID(std::vector<NodeEntry *>);
-      int getNodeIndex(const char *ModName);
 
-      int findInVector(std::vector<NodeEntry *>, const char *);
-      int findInVector(std::vector<MacStatEntry *>, const char *);
+    int findInVector(std::vector<NodeEntry *>, const char *);
+    int findInVector(std::vector<MacStatEntry *>, const char *);
 };
 
 }
