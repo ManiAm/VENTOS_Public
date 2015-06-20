@@ -252,90 +252,92 @@ void Statistics::saveVehicleData(std::string vID)
     double pos = TraCI->vehicleGetLanePosition(vID);
     double speed = TraCI->vehicleGetSpeed(vID);
     double accel = TraCI->vehicleGetCurrentAccel(vID);
-    int CFMode_Enum = TraCI->vehicleGetCarFollowingMode(vID);
-    std::string CFMode;
 
-    enum CFMODES {
-        Mode_Undefined,
-        Mode_NoData,
-        Mode_DataLoss,
-        Mode_SpeedControl,
-        Mode_GapControl,
-        Mode_EmergencyBrake,
-        Mode_Stopped
-    };
-
-    switch(CFMode_Enum)
+    if(useDetailedFilenames)
     {
-    case Mode_Undefined:
-        CFMode = "Undefined";
-        break;
-    case Mode_NoData:
-        CFMode = "NoData";
-        break;
-    case Mode_DataLoss:
-        CFMode = "DataLoss";
-        break;
-    case Mode_SpeedControl:
-        CFMode = "SpeedControl";
-        break;
-    case Mode_GapControl:
-        CFMode = "GapControl";
-        break;
-    case Mode_EmergencyBrake:
-        CFMode = "EmergencyBrake";
-        break;
-    case Mode_Stopped:
-        CFMode = "Stopped";
-        break;
-    default:
-        error("Not a valid CFModel!");
-        break;
+        VehicleData *tmp = new VehicleData(index, timeStep,
+                vID.c_str(), vType.c_str(),
+                lane.c_str(), pos, speed, accel,
+                "",-1, -1, -1, "", -1);
+        Vec_vehiclesData.push_back(*tmp);
     }
-
-    // get the timeGap setting
-    double timeGapSetting = TraCI->vehicleGetTimeGap(vID);
-
-    // get the gap
-    std::vector<std::string> vleaderIDnew = TraCI->vehicleGetLeader(vID, 900);
-    std::string vleaderID = vleaderIDnew[0];
-    double spaceGap = -1;
-
-    if(vleaderID != "")
-        spaceGap = atof( vleaderIDnew[1].c_str() );
-
-    // calculate timeGap (if leading is present)
-    double timeGap = -1;
-
-    if(vleaderID != "" && speed != 0)
-        timeGap = spaceGap / speed;
-
-    // get the TLid that controls this vehicle
-    // empty string means the vehicle is not controlled by any TLid
-    std::string TLid = "";
-    for (std::list<std::string>::iterator it = TLList.begin() ; it != TLList.end(); ++it)
+    else
     {
-        std::list<std::string> lan = TraCI->TLGetControlledLanes(*it);
-        for(std::list<std::string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
+        int CFMode_Enum = TraCI->vehicleGetCarFollowingMode(vID);
+        std::string CFMode;
+
+        switch(CFMode_Enum)
         {
-            if(*it2 == lane)
+        case Mode_Undefined:
+            CFMode = "Undefined";
+            break;
+        case Mode_NoData:
+            CFMode = "NoData";
+            break;
+        case Mode_DataLoss:
+            CFMode = "DataLoss";
+            break;
+        case Mode_SpeedControl:
+            CFMode = "SpeedControl";
+            break;
+        case Mode_GapControl:
+            CFMode = "GapControl";
+            break;
+        case Mode_EmergencyBrake:
+            CFMode = "EmergencyBrake";
+            break;
+        case Mode_Stopped:
+            CFMode = "Stopped";
+            break;
+        default:
+            error("Not a valid CFModel!");
+            break;
+        }
+
+        // get the timeGap setting
+        double timeGapSetting = TraCI->vehicleGetTimeGap(vID);
+
+        // get the gap
+        std::vector<std::string> vleaderIDnew = TraCI->vehicleGetLeader(vID, 900);
+        std::string vleaderID = vleaderIDnew[0];
+        double spaceGap = -1;
+
+        if(vleaderID != "")
+            spaceGap = atof( vleaderIDnew[1].c_str() );
+
+        // calculate timeGap (if leading is present)
+        double timeGap = -1;
+
+        if(vleaderID != "" && speed != 0)
+            timeGap = spaceGap / speed;
+
+        // todo: change this later! very sluggish!
+        // get the TLid that controls this vehicle
+        // empty string means the vehicle is not controlled by any TLid
+        std::string TLid = "";
+        for (std::list<std::string>::iterator it = TLList.begin() ; it != TLList.end(); ++it)
+        {
+            std::list<std::string> lan = TraCI->TLGetControlledLanes(*it);
+            for(std::list<std::string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
             {
-                TLid = *it;
-                break;
+                if(*it2 == lane)
+                {
+                    TLid = *it;
+                    break;
+                }
             }
         }
+
+        // if the signal is yellow or red
+        int YorR = TraCI->vehicleGetTrafficLightAhead(vID);
+
+        VehicleData *tmp = new VehicleData(index, timeStep,
+                vID.c_str(), vType.c_str(),
+                lane.c_str(), pos, speed, accel,
+                CFMode.c_str(), timeGapSetting, spaceGap, timeGap,
+                TLid.c_str(), YorR);
+        Vec_vehiclesData.push_back(*tmp);
     }
-
-    // if the signal is yellow or red
-    int YorR = TraCI->vehicleGetTrafficLightAhead(vID);
-
-    VehicleData *tmp = new VehicleData(index, timeStep,
-            vID.c_str(), vType.c_str(),
-            lane.c_str(), pos,
-            speed, accel, CFMode.c_str(),
-            timeGapSetting, spaceGap, timeGap,
-            TLid.c_str(), YorR);
-    Vec_vehiclesData.push_back(*tmp);
 }
 
 
@@ -370,47 +372,83 @@ void Statistics::vehiclesDataToFile()
 
     FILE *filePtr = fopen (filePath.string().c_str(), "w");
 
-    // write header
-    fprintf (filePtr, "%-10s","index");
-    fprintf (filePtr, "%-12s","timeStep");
-    fprintf (filePtr, "%-15s","vehicleName");
-    fprintf (filePtr, "%-17s","vehicleType");
-    fprintf (filePtr, "%-12s","lane");
-    fprintf (filePtr, "%-11s","pos");
-    fprintf (filePtr, "%-12s","speed");
-    fprintf (filePtr, "%-12s","accel");
-    fprintf (filePtr, "%-20s","CFMode");
-    fprintf (filePtr, "%-20s","timeGapSetting");
-    fprintf (filePtr, "%-10s","SpaceGap");
-    fprintf (filePtr, "%-16s","timeGap");
-    fprintf (filePtr, "%-17s","TLid");
-    fprintf (filePtr, "%-17s\n\n","yellowOrRed");
-
-    int oldIndex = -1;
-
-    // write body
-    for(std::vector<VehicleData>::iterator y = Vec_vehiclesData.begin(); y != Vec_vehiclesData.end(); y++)
+    if(useDetailedFilenames)
     {
-        if(oldIndex != y->index)
-        {
-            fprintf(filePtr, "\n");
-            oldIndex = y->index;
-        }
+        // write header
+        fprintf (filePtr, "%-10s","index");
+        fprintf (filePtr, "%-12s","timeStep");
+        fprintf (filePtr, "%-15s","vehicleName");
+        fprintf (filePtr, "%-17s","vehicleType");
+        fprintf (filePtr, "%-12s","lane");
+        fprintf (filePtr, "%-11s","pos");
+        fprintf (filePtr, "%-12s","speed");
+        fprintf (filePtr, "%-12s\n\n","accel");
 
-        fprintf (filePtr, "%-10d ", y->index);
-        fprintf (filePtr, "%-10.2f ", y->time );
-        fprintf (filePtr, "%-15s ", y->vehicleName.c_str());
-        fprintf (filePtr, "%-15s ", y->vehicleType.c_str());
-        fprintf (filePtr, "%-12s ", y->lane.c_str());
-        fprintf (filePtr, "%-10.2f ", y->pos);
-        fprintf (filePtr, "%-10.2f ", y->speed);
-        fprintf (filePtr, "%-10.2f ", y->accel);
-        fprintf (filePtr, "%-20s", y->CFMode.c_str());
-        fprintf (filePtr, "%-20.2f ", y->timeGapSetting);
-        fprintf (filePtr, "%-10.2f ", y->spaceGap);
-        fprintf (filePtr, "%-16.2f ", y->timeGap);
-        fprintf (filePtr, "%-17s ", y->TLid.c_str());
-        fprintf (filePtr, "%-17d \n", y->YorR);
+        int oldIndex = -1;
+
+        // write body
+        for(std::vector<VehicleData>::iterator y = Vec_vehiclesData.begin(); y != Vec_vehiclesData.end(); y++)
+        {
+            if(oldIndex != y->index)
+            {
+                fprintf(filePtr, "\n");
+                oldIndex = y->index;
+            }
+
+            fprintf (filePtr, "%-10d ", y->index);
+            fprintf (filePtr, "%-10.2f ", y->time );
+            fprintf (filePtr, "%-15s ", y->vehicleName.c_str());
+            fprintf (filePtr, "%-15s ", y->vehicleType.c_str());
+            fprintf (filePtr, "%-12s ", y->lane.c_str());
+            fprintf (filePtr, "%-10.2f ", y->pos);
+            fprintf (filePtr, "%-10.2f ", y->speed);
+            fprintf (filePtr, "%-10.2f \n", y->accel);
+        }
+    }
+    else
+    {
+        // write header
+        fprintf (filePtr, "%-10s","index");
+        fprintf (filePtr, "%-12s","timeStep");
+        fprintf (filePtr, "%-15s","vehicleName");
+        fprintf (filePtr, "%-17s","vehicleType");
+        fprintf (filePtr, "%-12s","lane");
+        fprintf (filePtr, "%-11s","pos");
+        fprintf (filePtr, "%-12s","speed");
+        fprintf (filePtr, "%-12s","accel");
+        fprintf (filePtr, "%-20s","CFMode");
+        fprintf (filePtr, "%-20s","timeGapSetting");
+        fprintf (filePtr, "%-10s","SpaceGap");
+        fprintf (filePtr, "%-16s","timeGap");
+        fprintf (filePtr, "%-17s","TLid");
+        fprintf (filePtr, "%-17s\n\n","yellowOrRed");
+
+        int oldIndex = -1;
+
+        // write body
+        for(std::vector<VehicleData>::iterator y = Vec_vehiclesData.begin(); y != Vec_vehiclesData.end(); y++)
+        {
+            if(oldIndex != y->index)
+            {
+                fprintf(filePtr, "\n");
+                oldIndex = y->index;
+            }
+
+            fprintf (filePtr, "%-10d ", y->index);
+            fprintf (filePtr, "%-10.2f ", y->time );
+            fprintf (filePtr, "%-15s ", y->vehicleName.c_str());
+            fprintf (filePtr, "%-15s ", y->vehicleType.c_str());
+            fprintf (filePtr, "%-12s ", y->lane.c_str());
+            fprintf (filePtr, "%-10.2f ", y->pos);
+            fprintf (filePtr, "%-10.2f ", y->speed);
+            fprintf (filePtr, "%-10.2f ", y->accel);
+            fprintf (filePtr, "%-20s", y->CFMode.c_str());
+            fprintf (filePtr, "%-20.2f ", y->timeGapSetting);
+            fprintf (filePtr, "%-10.2f ", y->spaceGap);
+            fprintf (filePtr, "%-16.2f ", y->timeGap);
+            fprintf (filePtr, "%-17s ", y->TLid.c_str());
+            fprintf (filePtr, "%-17d \n", y->YorR);
+        }
     }
 
     fclose(filePtr);

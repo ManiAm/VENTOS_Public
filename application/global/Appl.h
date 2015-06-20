@@ -54,6 +54,16 @@ enum ControllerTypes
     SUMO_TAG_CF_CACC,   // 115
 };
 
+enum CFMODES {
+    Mode_Undefined,
+    Mode_NoData,
+    Mode_DataLoss,
+    Mode_SpeedControl,
+    Mode_GapControl,
+    Mode_EmergencyBrake,
+    Mode_Stopped
+};
+
 enum TLControlTypes
 {
     TL_OFF = 0,
