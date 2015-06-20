@@ -66,6 +66,7 @@ for i=1:rows
 end
 
 figure(1);
+%subplot(3,1,1);
 
 for i=1:1
     X = vehiclesTS;
@@ -91,6 +92,7 @@ end
 legend(handle, 'Location','NorthEastOutside'); 
 
 figure(2);
+%subplot(3,1,2);
 
 for i=1:VehNumbers
     X = vehiclesTS;
@@ -116,8 +118,9 @@ end
 legend(handle, 'Location','NorthEastOutside');
 
 figure(3);
+%subplot(3,1,3);
 
-for i=1:1
+for i=1:VehNumbers
     X = vehiclesSpacing(:,i);
     Y = vehiclesSpeed(:,i);
     
