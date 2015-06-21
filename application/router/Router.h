@@ -65,7 +65,7 @@ public:
     virtual void initialize(int stage);
     virtual void handleMessage(cMessage* msg);
     virtual void receiveSignal(cComponent *, simsignal_t, cObject *);
-    virtual void receiveSignal(cComponent *, simsignal_t, long);
+    virtual void receiveSignal(cComponent *source, simsignal_t signalID, long i);
 
     int createTime; //The duration over which vehicles are created
     int currentVehicleCount; //The current number of vehicles in the sim
@@ -120,7 +120,6 @@ protected:
     mutable TraCI_Extend* TraCI;    //Link to TraCI
     simsignal_t Signal_system;      //Receives signals to here
 
-    simsignal_t Signal_executeFirstTS;
     simsignal_t Signal_executeEachTS;
 
     // Edge weight-gathering
