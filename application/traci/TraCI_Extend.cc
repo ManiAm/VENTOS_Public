@@ -749,10 +749,10 @@ void TraCI_Extend::vehicleSetRoute(std::string id, std::list<std::string> value)
 
     TraCIBuffer buffer;
     buffer << variableId << id << variableTypeSList << (int32_t)value.size();
-    for(std::list<std::string>::iterator str = value.begin(); str != value.end(); str++)
+    for(std::list<std::string>::iterator str = value.begin(); str != value.end(); ++str)
     {
         buffer << (int32_t)str->length();
-        for(unsigned int i = 0; i < str->length(); i++)
+        for(unsigned int i = 0; i < str->length(); ++i)
             buffer << (int8_t)(*str)[i];
     }
     TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, buffer);
@@ -1031,10 +1031,10 @@ void TraCI_Extend::routeAdd(std::string name, std::list<std::string> route)
 
     TraCIBuffer buffer;
     buffer << variableId << name << variableTypeS << (int32_t)route.size();
-    for(std::list<std::string>::iterator str = route.begin(); str != route.end(); str++)
+    for(std::list<std::string>::iterator str = route.begin(); str != route.end(); ++str)
     {
         buffer << (int32_t)str->length();
-        for(unsigned int i = 0; i < str->length(); i++)
+        for(unsigned int i = 0; i < str->length(); ++i)
             buffer << (int8_t)(*str)[i];
     }
 
@@ -1288,7 +1288,7 @@ std::vector<std::string> TraCI_Extend::LDGetLastStepVehicleData(std::string loop
     uint8_t typeI; buf >> typeI;
     uint32_t No; buf >> No;
 
-    for (uint32_t i = 1; i <= No; i++)
+    for (uint32_t i = 1; i <= No; ++i)
     {
         // get vehicle id
         uint8_t typeS1; buf >> typeS1;
@@ -1433,7 +1433,7 @@ std::map<int,std::string> TraCI_Extend::TLGetControlledLinks(std::string TLid)
 
     std::map<int,std::string> myMap;
 
-    for (uint32_t i = 0; i < No; i++)
+    for (uint32_t i = 0; i < No; ++i)
     {
         buf >> typeI;
         uint32_t No2; buf >> No2;
@@ -1442,7 +1442,7 @@ std::map<int,std::string> TraCI_Extend::TLGetControlledLinks(std::string TLid)
         uint32_t No3; buf >> No3;
 
         std::string lanesForThisLink = "";
-        for(uint32_t j = 0; j < No3; j++)
+        for(uint32_t j = 0; j < No3; ++j)
         {
             std::string id; buf >> id;
             lanesForThisLink = lanesForThisLink + id + "|";
