@@ -120,16 +120,16 @@ void ApplVSystem::finish()
     simsignal_t Signal_system = registerSignal("system"); //Prepare to send a system message
     nodePtr->emit(Signal_system, new systemData("", "", SUMOvID, DONE, std::string("system")));
 
-    if(requestRoutes)
+    if(requestRoutes && requestReroutes)
     {
-        if (sendSystemMsgEvt->isScheduled())
-        {
-            cancelAndDelete(sendSystemMsgEvt);
-        }
-        else
-        {
-            delete sendSystemMsgEvt;
-        }
+            if (sendSystemMsgEvt->isScheduled())
+            {
+                cancelAndDelete(sendSystemMsgEvt);
+            }
+            else
+            {
+                delete sendSystemMsgEvt;
+            }
     }
 
     simulation.getSystemModule()->unsubscribe("router",this);

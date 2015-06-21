@@ -19,7 +19,7 @@ simple Router
         bool collectVehicleTimeData;
         int createTime;
         int vehicleCount;
-        double nonReroutingVehiclePercent;
+        double ReroutingVehiclePercent;
         bool UseHysteresis;
         
         int LaneCostsMode;

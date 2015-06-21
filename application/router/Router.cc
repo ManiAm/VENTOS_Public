@@ -119,7 +119,7 @@ void Router::initialize(int stage)
         createTime = par("createTime").longValue();
         totalVehicleCount = par("vehicleCount").longValue();
         currentVehicleCount = totalVehicleCount;
-        nonReroutingVehiclePercent = par("nonReroutingVehiclePercent").doubleValue();
+        nonReroutingVehiclePercent = 1 - par("ReroutingVehiclePercent").doubleValue();
 
         UseAccidents = par("UseAccidents").boolValue();
         AccidentCheckInterval = par("AccidentCheckInterval").longValue();
@@ -188,7 +188,7 @@ void Router::initialize(int stage)
             while(NonReroutingFile >> vehNum)
                 nonReroutingVehicles->insert(vehNum);
             NonReroutingFile.close();
-            if(debugLevel) cout << "Loaded " << numNonRerouting << " nonRerouting vehicles from file " << NonReroutingFileName << endl;
+            if(debugLevel || 1) cout << "Loaded " << numNonRerouting << " nonRerouting vehicles from file " << NonReroutingFileName << endl;
         }
         else
         {
@@ -198,7 +198,7 @@ void Router::initialize(int stage)
             for(string veh : *nonReroutingVehicles)
                 NonReroutingFile << veh << endl;
             NonReroutingFile.close();
-            if(debugLevel) cout << "Created " << numNonRerouting << "-vehicle nonRerouting file " << NonReroutingFileName << endl;
+            if(debugLevel || 1) cout << "Created " << numNonRerouting << "-vehicle nonRerouting file " << NonReroutingFileName << endl;
         }
 
         string endTimeFile = VENTOS_FullPath.string() + "results/router/" + filePrefix.str() + "_endTimes.txt";
