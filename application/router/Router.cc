@@ -400,9 +400,10 @@ void Router::checkEdgeRemovals()
                 string origin = edge.id;
                 route.push_back(origin);   //With just the starting edge
                 string laneID = er.edge+"_"+to_string(er.laneIndex);
+                string vehicleDummy = "test"+laneID+"_"+to_string(er.pos)+"_"+to_string(curTime);
                 index = (uint8_t)er.laneIndex;
-                TraCI->vehicleAdd("test"+laneID, "TypeDummy", origin, er.start*1000, er.pos, 0, index);
-                TraCI->vehicleSetStop("test"+laneID, origin, er.pos+5, index, 10000, 2);
+                TraCI->vehicleAdd(vehicleDummy, "TypeDummy", origin, er.start*1000, er.pos, 0, index);
+                TraCI->vehicleSetStop(vehicleDummy, origin, er.pos+5, index, 10000, 2);
 
                 er.blocked = true;
             }
