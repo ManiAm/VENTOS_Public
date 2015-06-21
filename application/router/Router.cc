@@ -107,13 +107,13 @@ void Router::initialize(int stage)
         if(nodePtr == NULL || TraCI == NULL)
             error("can not get a pointer to the module.");
 
-        // todo: not defined!
+        // todo: not defined! -- They are defined in omnetpp.ini, section 7. -Hujaun
         EWMARate = par("EWMARate").doubleValue();
         TLLookahead = par("TLLookahead").doubleValue();
         timePeriodMax = par("timePeriodMax").doubleValue();
         UseHysteresis = par("UseHysteresis").boolValue();
 
-        // todo: not defined!
+        // todo: not defined! -- They are defined in omnetpp.ini, section 7. -Hujaun
         laneCostsMode = static_cast<LaneCostsMode>(par("LaneCostsMode").longValue());
         HysteresisCount = par("HysteresisCount").longValue();
 
@@ -181,9 +181,9 @@ void Router::initialize(int stage)
             std::ostringstream filePrefixNoTL;
             filePrefixNoTL << totalVehicleCount << "_" << nonReroutingVehiclePercent;
             std::string NonReroutingFileName = VENTOS_FullPath.string() + "results/router/" + filePrefixNoTL.str() + "_nonRerouting" + ".txt";
-            // todo: it should be the other way around.
+            // todo: it should be the other way around. - You are correct. I just found this bug several minutes ago. Thank god you also confirm this. This is the bug causing the incorrect results.
             // if the file exists then ...
-            if( !boost::filesystem::exists( NonReroutingFileName ) )
+            if( boost::filesystem::exists( NonReroutingFileName ) ) // Delete "!" before boost
             {
                 nonReroutingVehicles = new std::set<std::string>();
                 std::ifstream NonReroutingFile(NonReroutingFileName);
