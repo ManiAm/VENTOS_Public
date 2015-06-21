@@ -40,22 +40,26 @@ ApplVSystem::~ApplVSystem()
 
 void ApplVSystem::initialize(int stage)
 {
-    ApplVBeacon::initialize(stage); //Initialize lower-levels
+    ApplVBeacon::initialize(stage);
 
-    if (stage == 0 && SUMOvID.substr(0,4) != "test") // if the vehicle is a Dummy vehicle, we don't initialize it
-    {
-        // NED variables (beaconing parameters)
+    // todo: checking the dummy vehicle should be changed!
+    // can we use TypeObstacle as before
+    if(SUMOvID.substr(0,4) == "test")
+        requestRoutes = false;
+    else
         requestRoutes = par("requestRoutes").boolValue();
-        if(!requestRoutes)
-            return;
 
-        hypertreeUpdateInterval = par("hypertreeUpdateInterval").doubleValue();
+    //If this vehicle is not supposed to send system messages
+    if(!requestRoutes)
+        return;
 
+    if (stage == 0)
+    {
         requestInterval = par("requestInterval").doubleValue();
+        hypertreeUpdateInterval = par("hypertreeUpdateInterval").doubleValue();
         maxOffset = par("maxSystemOffset").doubleValue();
         systemMsgLengthBits = par("systemMsgLengthBits").longValue();
         systemMsgPriority = par("systemMsgPriority").longValue();
-
         routingMode = static_cast<RouterMessage>(par("routingMode").longValue());
 
         // get the rootFilePath
@@ -75,7 +79,7 @@ void ApplVSystem::initialize(int stage)
 
         rapidxml::xml_attribute<> *attr = node->first_attribute()->next_attribute()->next_attribute()->next_attribute();  //Navigate to the destination attribute
         if((std::string)attr->name() == "destination")  //Double-check
-           targetNode = attr->value(); //And save it
+            targetNode = attr->value(); //And save it
         else
             error("XML formatted wrong! Some vehicle was missing its destination!");
 
@@ -94,15 +98,15 @@ void ApplVSystem::initialize(int stage)
         Signal_router = registerSignal("router");
         simulation.getSystemModule()->subscribe("router", this);
 
+        //Prepare to send a system message
+        Signal_system = registerSignal("system");
+        nodePtr->emit(Signal_system, new systemData("", "", SUMOvID, STARTED, std::string("system")));
+
         //Slightly offset all vehicles (0-4 seconds)
         double systemOffset = dblrand() * maxOffset;
 
-        simsignal_t Signal_system = registerSignal("system"); //Prepare to send a system message
-        nodePtr->emit(Signal_system, new systemData("", "", SUMOvID, STARTED, std::string("system")));
-
         sendSystemMsgEvt = new cMessage("systemmsg evt");   //Create a new internal message
-        if (requestRoutes) //&& VANETenabled ) //If this vehicle is supposed to send system messages
-            scheduleAt(simTime() + systemOffset, sendSystemMsgEvt); //Schedule them to start sending
+        scheduleAt(simTime() + systemOffset, sendSystemMsgEvt); //Schedule them to start sending
     }
 }
 
@@ -110,54 +114,44 @@ void ApplVSystem::initialize(int stage)
 void ApplVSystem::finish()
 {
     ApplVBeacon::finish();
-    if(SUMOvID.substr(0,4) != "test") // If the vehicle is a Dummy, we don't call finish(). This will not cause error msg when simulation finishs.
+
+    if(!requestRoutes)
+        return;
+
+    std::cout << SUMOvID << " took " << simTime().dbl() - entryTime << " seconds to complete its route. (t=" << simTime().dbl() << ")" << endl;
+    router->vehicleEndTimesFile << SUMOvID << " " << simTime().dbl() << endl;
+
+    //Prepare to send a system message
+    nodePtr->emit(Signal_system, new systemData("", "", SUMOvID, DONE, std::string("system")));
+
+    if(requestReroutes)
     {
-        if(!requestRoutes)
-            return;
-
-        if(requestRoutes) std::cout << SUMOvID << " took " << simTime().dbl() - entryTime << " seconds to complete its route. (t=" << simTime().dbl() << ")" << endl;
-        router->vehicleEndTimesFile << SUMOvID << " " << simTime().dbl() << endl;
-
-        simsignal_t Signal_system = registerSignal("system"); //Prepare to send a system message
-        nodePtr->emit(Signal_system, new systemData("", "", SUMOvID, DONE, std::string("system")));
-
-        if(requestRoutes && requestReroutes)
-        {
-                if (sendSystemMsgEvt->isScheduled())
-                {
-                    cancelAndDelete(sendSystemMsgEvt);
-                }
-                else
-                {
-                    delete sendSystemMsgEvt;
-                }
-        }
-
-        simulation.getSystemModule()->unsubscribe("router",this);
+        if (sendSystemMsgEvt->isScheduled())
+            cancelAndDelete(sendSystemMsgEvt);
+        else
+            delete sendSystemMsgEvt;
     }
+
+    simulation.getSystemModule()->unsubscribe("router",this);
+    simulation.getSystemModule()->unsubscribe("system",this);
 }
 
 void ApplVSystem::handleSelfMsg(cMessage* msg)  //Internal messages to self
 {
     ApplVBeacon::handleSelfMsg(msg);    //Pass it down
 
-    if (msg == sendSystemMsgEvt and requestRoutes)  //If it's a system message
+    if (requestRoutes && msg == sendSystemMsgEvt)  //If it's a system message
     {
-        delete msg;
         if(requestReroutes || (routingMode == DIJKSTRA and numReroutes == 0))
-        {
             reroute();
-        }
     }
 }
 
 void ApplVSystem::reroute()
 {
-
     if(debugLevel) std::cout << "Rerouting " << SUMOvID << " at t=" << simTime().dbl() << endl;
     ++numReroutes;
-    sendSystemMsgEvt = new cMessage("systemmsg evt");   //Create a new internal message
-    simsignal_t Signal_system = registerSignal("system"); //Prepare to send a system message
+
     //Systemdata wants string edge, string node, string sender, int requestType, string recipient, list<string> edgeList
     if(routingMode == DIJKSTRA)
     {
@@ -183,7 +177,6 @@ void ApplVSystem::receiveSignal(cComponent *source, simsignal_t signalID, cObjec
             {
                 std::list<std::string> sRoute = s->getInfo(); //Copy the info from the signal (breaks if we don't do this, for some reason)
 
-
                 if(debugLevel)
                 {
                     std::cout << SUMOvID << " got route ";
@@ -200,76 +193,6 @@ void ApplVSystem::receiveSignal(cComponent *source, simsignal_t signalID, cObjec
             }
         }
     }
-}
-
-
-void ApplVSystem::onBeaconVehicle(BeaconVehicle* wsm)
-{
-
-}
-
-
-void ApplVSystem::onBeaconRSU(BeaconRSU* wsm)
-{
-
-}
-
-
-void ApplVSystem::onData(PlatoonMsg* wsm)
-{
-
-}
-
-void ApplVSystem::onSystemMsg(SystemMsg* wsm)
-{
-    error("ApplVSystem should not receive any system msg!");
-}
-
-SystemMsg*  ApplVSystem::prepareSystemMsg()
-{
-    if (!VANETenabled)
-    {
-        error("Only VANETenabled vehicles can send system msg!");
-    }
-
-    SystemMsg* wsm = new SystemMsg("systemmsg");
-
-    // add header length
-    wsm->addBitLength(headerLength);
-
-    // add payload length
-    wsm->addBitLength(systemMsgLengthBits);
-
-    wsm->setWsmVersion(1);
-    wsm->setSecurityType(1);
-
-    wsm->setChannelNumber(Channels::CCH);
-
-    wsm->setDataRate(1);
-    wsm->setPriority(systemMsgPriority);
-    wsm->setPsid(0);
-
-    // wsm->setSerial(serial);
-    // wsm->setTimestamp(simTime());
-
-    // fill in the sender field
-    wsm->setSender(SUMOvID.c_str());
-
-    wsm->setRecipient("system");
-
-    // set request type
-    wsm->setRequestType(0);
-
-    // set current lane
-    wsm->setEdge( TraCI->vehicleGetEdgeID(SUMOvID).c_str() );
-
-    // set target node - read this from the vehicle's data
-    wsm->setTarget(1);
-
-    // set associated info - none in this case
-    //wsm->setInfo();
-
-    return wsm;
 }
 
 

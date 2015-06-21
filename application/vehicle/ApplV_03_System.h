@@ -39,45 +39,39 @@ class Hypertree;
 
 class ApplVSystem : public ApplVBeacon
 {
-    public:
-        ~ApplVSystem();
-        virtual void receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj);
-        virtual void initialize(int stage);
-        virtual void finish();
+public:
+    ~ApplVSystem();
+    virtual void initialize(int stage);
+    virtual void finish();
+    virtual void receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj);
 
-    protected:
-        // NED variables (beaconing parameters)
-        bool requestRoutes;         //like sendBeacons;
-        double requestInterval;     //like beaconInterval;
-        double maxOffsetSystem;     //From beacon maxOffset
-        int systemMsgLengthBits;
-        int systemMsgPriority;      //like beaconPriority
-        RouterMessage routingMode;
-        double hypertreeUpdateInterval;
-        bool requestReroutes;
-        int numReroutes;
+protected:
+    virtual void handleSelfMsg(cMessage*);
+    virtual void handlePositionUpdate(cObject*);
 
-        Router* router;
-        void reroute();
+protected:
+    // NED variables (beaconing parameters)
+    bool requestRoutes;         //like sendBeacons;
+    double requestInterval;     //like beaconInterval;
+    double maxOffsetSystem;     //From beacon maxOffset
+    int systemMsgLengthBits;
+    int systemMsgPriority;      //like beaconPriority
+    RouterMessage routingMode;
+    double hypertreeUpdateInterval;
+    bool requestReroutes;
+    int numReroutes;
 
-        // Class variables
-        cMessage* sendSystemMsgEvt;
-        simsignal_t Signal_router;
+    Router* router;
+    void reroute();
 
-        // Routing
-        std::string targetNode;
-        Hypertree* ht;
+    // Class variables
+    cMessage* sendSystemMsgEvt;
+    simsignal_t Signal_router;
+    simsignal_t Signal_system;
 
-        // Methods
-        virtual void handleSelfMsg(cMessage*);
-        virtual void handlePositionUpdate(cObject*);
-
-        virtual void onBeaconVehicle(BeaconVehicle*);
-        virtual void onBeaconRSU(BeaconRSU*);
-        virtual void onData(PlatoonMsg* wsm);
-        virtual void onSystemMsg(SystemMsg*);
-
-        SystemMsg* prepareSystemMsg();
+    // Routing
+    std::string targetNode;
+    Hypertree* ht;
 };
 
 }

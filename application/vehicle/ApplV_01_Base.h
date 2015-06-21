@@ -41,46 +41,46 @@ namespace VENTOS {
 
 class ApplVBase : public BaseApplLayer
 {
-	public:
-		~ApplVBase();
-		virtual void initialize(int stage);
-		virtual void finish();
-		virtual void receiveSignal(cComponent* source, simsignal_t signalID, cObject* obj);
+public:
+    ~ApplVBase();
+    virtual void initialize(int stage);
+    virtual void finish();
+    virtual void receiveSignal(cComponent* source, simsignal_t signalID, cObject* obj);
 
-		enum WaveApplMessageKinds
-		{
-			SERVICE_PROVIDER = LAST_BASE_APPL_MESSAGE_KIND,
-			KIND_TIMER
-		};
+    enum WaveApplMessageKinds
+    {
+        SERVICE_PROVIDER = LAST_BASE_APPL_MESSAGE_KIND,
+        KIND_TIMER
+    };
 
-	protected:
-		static const simsignalwrap_t mobilityStateChangedSignal;
+protected:
+    virtual void handleSelfMsg(cMessage* msg);
+    virtual void handlePositionUpdate(cObject* obj);
 
-		virtual void handleSelfMsg(cMessage* msg);
-		virtual void handlePositionUpdate(cObject* obj);
+protected:
+    // NED variables
+    cModule *nodePtr;   // pointer to the Node
+    WaveAppToMac1609_4Interface* myMac;
+    TraCIMobility* TraCI_Mobility;
+    mutable TraCI_Extend* TraCI;
+    AnnotationManager* annotations;
 
-	protected:
-		// NED variables
-	    cModule *nodePtr;   // pointer to the Node
-        WaveAppToMac1609_4Interface* myMac;
-        TraCIMobility* TraCI_Mobility;
-        mutable TraCI_Extend* TraCI;
-        AnnotationManager* annotations;
+    static const simsignalwrap_t mobilityStateChangedSignal;
 
-        boost::filesystem::path VENTOS_FullPath;
-        boost::filesystem::path SUMO_Path;
-        boost::filesystem::path SUMO_FullPath;
+    boost::filesystem::path VENTOS_FullPath;
+    boost::filesystem::path SUMO_Path;
+    boost::filesystem::path SUMO_FullPath;
 
-        // Class variables
-        int myId;
-		const char *myFullId;
-        Coord curPosition;  // current position from mobility module (not from sumo)
-        double entryTime;
+    // Class variables
+    int myId;
+    const char *myFullId;
+    Coord curPosition;  // current position from mobility module (not from sumo)
+    double entryTime;
 
-        std::string SUMOvID;
-        std::string SUMOvType;
-        int SUMOControllerType;
-        int SUMOControllerNumber;
+    std::string SUMOvID;
+    std::string SUMOvType;
+    int SUMOControllerType;
+    int SUMOControllerNumber;
 };
 
 }
