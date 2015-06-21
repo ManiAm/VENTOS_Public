@@ -35,14 +35,17 @@
 #include <list>
 #include <fstream>
 #include <set>
+#include <map>
 #include "Node.h"
 #include "Edge.h"
 #include "08_TL_Router.h"
 #include "Net.h"
 #include "Hypertree.h"
+
 #include "ApplV_02_Beacon.h"
 
 #define SSTR( x ) dynamic_cast< std::ostringstream & >( (std::ostringstream() << std::dec << x ) ).str()
+
 
 namespace VENTOS {
 
@@ -99,6 +102,7 @@ protected:
 
     bool enableRouter; //If false, runs no code
 
+
     int TLLookahead;
 
     int timePeriodMax;     //Max time for hypertrees
@@ -110,6 +114,10 @@ protected:
     void receiveDoneRequest(std::string sender);
     void receiveStartedRequest(std::string sender);
     SystemMsg* prepareSystemMsg();
+
+    int dijkstraOutdateTime;
+    std::map<std::string, std::list<std::string> > dijkstraRoutes;
+    std::map<std::string, int> dijkstraTimes;
 
     //Message passing
     cModule *nodePtr;               //pointer to the Node

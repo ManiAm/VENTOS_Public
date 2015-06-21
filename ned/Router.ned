@@ -30,6 +30,8 @@ simple Router
         bool UseAccidents;
         int AccidentCheckInterval;
         
+        int dijkstraOutdateTime;
+        
         int debugLevel;
 }
 
