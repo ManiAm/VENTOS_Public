@@ -236,6 +236,7 @@ void TrafficLightRouter::switchToPhase(int phaseSwitch, double greenDuration, in
 
     nextDuration = greenDuration;
 
+    if(debugLevel > 1) cout << "Switching to transition phase " << (currentPhase + 1) % phases.size() << endl;
 
     TraCI->TLSetPhaseIndex(id, (currentPhase + 1) % phases.size());           //Manually switch to the yellow phase in SUMO
 
@@ -270,7 +271,11 @@ void TrafficLightRouter::handleMessage(cMessage* msg)  //Internal messages to se
             if(debugLevel > 1) cout << "TL " << id << " got a transition self-message at t=" << simTime().dbl() << endl;
             currentPhase = nextPhase;
             TraCI->TLSetPhaseIndex(id, currentPhase);           //Manually switch to the yellow phase in SUMO
+
+            if(debugLevel > 1) cout << "Switching to actual phase " << currentPhase << endl;
             lastSwitchTime = simTime().dbl();
+
+            TraCI->TLSetPhaseDuration(id, 10000000);
 
             TLSwitchEvent = new cMessage("tl switch evt");
             scheduleAt(simTime().dbl() + nextDuration, TLSwitchEvent);
@@ -493,7 +498,7 @@ void TrafficLightRouter::FlowRateRecalculate()
 
 void TrafficLightRouter::LowDensityRecalculate()
 {
-    if(simTime().dbl() - lastSwitchTime < MaxPhaseDuration and LowDensityVehicleCheck())
+    if(LowDensityVehicleCheck())
     {
         if(debugLevel > 0) cout << "Extending tl " << id << " by " << LowDensityExtendTime << " seconds" << endl;
         TLSwitchEvent = new cMessage("tl switch evt");
@@ -517,6 +522,8 @@ bool TrafficLightRouter::LowDensityVehicleCheck()    //This function assumes it'
      * Add a totaloffset double to each variable, which can be added to any call working on tl logic
      * Reset to previous duration
      */
+    if ((simTime().dbl() - lastSwitchTime) > MaxPhaseDuration)
+        return false;
 
     std::vector<Edge*>& edges = net->nodes[id]->inEdges; //Get all edges going into the TL
     for(std::vector<Edge*>::iterator edge = edges.begin(); edge != edges.end(); edge++)  //For each edge
