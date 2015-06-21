@@ -34,38 +34,40 @@ namespace VENTOS {
 
 class TraCI_App : public TraCI_Extend
 {
-    public:
-        virtual ~TraCI_App();
-        virtual void initialize(int stage);
-        virtual int numInitStages() const
-        {
-            return 3;
-        }
-        virtual void handleSelfMsg(cMessage *msg);
-        virtual void finish();
+public:
+    virtual ~TraCI_App();
+    virtual void initialize(int stage);
+    virtual int numInitStages() const
+    {
+        return 3;
+    }
+    virtual void handleSelfMsg(cMessage *msg);
+    virtual void finish();
 
-    private:
-        // NED variables
-        cModule *nodePtr;   // pointer to the Node
-        double terminate;
+private:
+    virtual void init_traci();
+    virtual void executeOneTimestep();
+    void addPedestriansToOMNET();
+    virtual void addModule(std::string nodeId, std::string type, std::string name, std::string displayString, const Coord& position, std::string road_id = "", double speed = -1, double angle = -1);
 
-        std::set<std::string> subscribedPedestrians; /**< all pedestrians we have already subscribed to */
+private:
+    // NED variables
+    cModule *nodePtr;   // pointer to the Node
+    double terminate;
 
-        // NED (bicycles)
-        std::string bikeModuleType;
-        std::string bikeModuleName;
-        std::string bikeModuleDisplayString;
+    // NED (bicycles)
+    std::string bikeModuleType;
+    std::string bikeModuleName;
+    std::string bikeModuleDisplayString;
 
-        // NED (pedestrians)
-        std::string pedModuleType;
-        std::string pedModuleName;
-        std::string pedModuleDisplayString;
+    // NED (pedestrians)
+    std::string pedModuleType;
+    std::string pedModuleName;
+    std::string pedModuleDisplayString;
 
-    private:
-        virtual void init_traci();
-        virtual void executeOneTimestep();
-        void addPedestriansToOMNET();
-        virtual void addModule(std::string nodeId, std::string type, std::string name, std::string displayString, const Coord& position, std::string road_id = "", double speed = -1, double angle = -1);
+    // class variables
+    std::set<std::string> subscribedPedestrians; /**< all pedestrians we have already subscribed to */
+    std::list<std::string> allPedestrians;
 };
 
 }

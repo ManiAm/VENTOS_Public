@@ -295,17 +295,73 @@ void AddVehicle::Scenario7()
     }
 
     // now we add a vehicle as obstacle
-    TraCI->vehicleAdd("obstacle", "TypeObstacle", "route1", 50, 3200, 0, 1);
+    TraCI->vehicleAdd("obstacle", "TypeManual", "route1", 50, 3200, 0, 1);
 
-    // make it stop on the lane!
+    // and make it stop on the lane!
     TraCI->vehicleSetSpeed("obstacle", 0.);
     TraCI->vehicleSetLaneChangeMode("obstacle", 0);
 
-    // change the color to red
+    // and change its color to red
     TraCIColor newColor = TraCIColor::fromTkColor("red");
     TraCI->vehicleSetColor("obstacle", newColor);
 }
 
+
+std::vector<std::string> getEdgeNames(std::string netName)
+{
+    std::vector<std::string> edgeNames;
+
+    rapidxml::file <> xmlFile(netName.c_str());
+    rapidxml::xml_document<> doc;
+    rapidxml::xml_node<> *node;
+    doc.parse<0>(xmlFile.data());
+    for(node = doc.first_node()->first_node("edge"); node; node = node->next_sibling("edge"))
+        edgeNames.push_back(node->first_attribute()->value());
+
+    return edgeNames;
+}
+
+std::vector<std::string> getNodeNames(std::string netName)
+{
+    std::vector<std::string> nodeNames;
+    rapidxml::file <> xmlFile(netName.c_str());
+    rapidxml::xml_document<> doc;
+    rapidxml::xml_node<> *node;
+    doc.parse<0>(xmlFile.data());
+    for(node = doc.first_node()->first_node("junction"); node; node = node->next_sibling("junction"))
+        nodeNames.push_back(node->first_attribute()->value());
+
+    return nodeNames;
+}
+
+double curve(double x)  //Input will linearly increase from 0 to 1, from first to last vehicle.
+{                       //Output should be between 0 and 1, scaled by some function
+    return x;
+}
+
+void generateVehicles(std::string dir, Router* r)
+{
+    std::string netName = dir + "/hello.net.xml";
+
+    std::vector<std::string> edgeNames = getEdgeNames(netName);
+    std::vector<std::string> nodeNames = getNodeNames(netName);
+
+    srand(time(NULL));
+    std::string vName = dir + "/Vehicles" + SSTR(r->totalVehicleCount) + ".xml";
+    std::ofstream vFile(vName.c_str());
+    vFile << "<vehicles>" << endl;
+    for(int i = 1; i <= r->totalVehicleCount; i++)
+    {
+        std::string edge = edgeNames[rand() % edgeNames.size()];
+        std::string node = nodeNames[rand() % nodeNames.size()];
+        //vFile << "   <vehicle id=\"v" << i << "\" type=\"TypeManual\" origin=\"" << edge << "\" destination=\"" << node << "\" depart=\"" << i * r->createTime / r->totalVehicleCount << "\" />" << endl;
+
+        vFile << "   <vehicle id=\"v" << i << "\" type=\"TypeManual\" origin=\"" << edge << "\" destination=\""
+                << node << "\" depart=\"" << curve((double)i/r->totalVehicleCount) * r->createTime << "\" />" << endl;
+    }
+    vFile << "</vehicles>" << endl;
+    vFile.close();
+}
 
 void AddVehicle::Scenario8()
 {
@@ -365,9 +421,8 @@ void AddVehicle::Scenario8()
             TraCI->routeAdd(origin /*route ID*/, startRoute);   //And add it to the simulation
         }
 
-        //commandAddVehicleRouter wants string id, string type, string (edge) origin, string (node) destination, double (time) depart, and string routename
-
-        TraCI->vehicleAdd(id, type, origin, 1000 * depart, 0, 0, 0);  //Send a TraCI add call -- might not need to be *1000.
+        //Send a TraCI add call -- might not need to be *1000.
+        TraCI->vehicleAdd(id/*vehID*/, type/*vehType*/, origin/*routeID*/, 1000 * depart, 0/*pos*/, 0/*initial speed*/, 0/*lane*/);
 
         //Huajun-Change color of non-rerouting vehicle to red.
         std::string veh = id.substr(1,-1);
@@ -378,63 +433,6 @@ void AddVehicle::Scenario8()
             TraCI->vehicleSetColor(id, newColor);
         }
     }
-}
-
-
-void generateVehicles(std::string dir, Router* r)
-{
-    std::string netName = dir + "/hello.net.xml";
-
-    std::vector<std::string> edgeNames = getEdgeNames(netName);
-    std::vector<std::string> nodeNames = getNodeNames(netName);
-
-    srand(time(NULL));
-    std::string vName = dir + "/Vehicles" + SSTR(r->totalVehicleCount) + ".xml";
-    std::ofstream vFile(vName.c_str());
-    vFile << "<vehicles>" << endl;
-    for(int i = 1; i <= r->totalVehicleCount; i++)
-    {
-        std::string edge = edgeNames[rand() % edgeNames.size()];
-        std::string node = nodeNames[rand() % nodeNames.size()];
-        //vFile << "   <vehicle id=\"v" << i << "\" type=\"TypeManual\" origin=\"" << edge << "\" destination=\"" << node << "\" depart=\"" << i * r->createTime / r->totalVehicleCount << "\" />" << endl;
-
-        vFile << "   <vehicle id=\"v" << i << "\" type=\"TypeManual\" origin=\"" << edge << "\" destination=\""
-                << node << "\" depart=\"" << curve((double)i/r->totalVehicleCount) * r->createTime << "\" />" << endl;
-    }
-    vFile << "</vehicles>" << endl;
-    vFile.close();
-}
-
-std::vector<std::string> getEdgeNames(std::string netName)
-{
-    std::vector<std::string> edgeNames;
-
-    rapidxml::file <> xmlFile(netName.c_str());
-    rapidxml::xml_document<> doc;
-    rapidxml::xml_node<> *node;
-    doc.parse<0>(xmlFile.data());
-    for(node = doc.first_node()->first_node("edge"); node; node = node->next_sibling("edge"))
-        edgeNames.push_back(node->first_attribute()->value());
-
-    return edgeNames;
-}
-
-std::vector<std::string> getNodeNames(std::string netName)
-{
-    std::vector<std::string> nodeNames;
-    rapidxml::file <> xmlFile(netName.c_str());
-    rapidxml::xml_document<> doc;
-    rapidxml::xml_node<> *node;
-    doc.parse<0>(xmlFile.data());
-    for(node = doc.first_node()->first_node("junction"); node; node = node->next_sibling("junction"))
-        nodeNames.push_back(node->first_attribute()->value());
-
-    return nodeNames;
-}
-
-double curve(double x)  //Input will linearly increase from 0 to 1, from first to last vehicle.
-{                       //Output should be between 0 and 1, scaled by some function
-    return x;
 }
 
 

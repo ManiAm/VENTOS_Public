@@ -69,6 +69,7 @@ void ApplVBase::initialize(int stage)
         // vehicle id in omnet++
 		myId = getParentModule()->getIndex();
 
+        // vehicle full id in omnet++
 		myFullId = getParentModule()->getFullName();
 
         // store the time of entry
@@ -87,8 +88,7 @@ void ApplVBase::initialize(int stage)
         SUMOControllerNumber = TraCI->vehicleTypeGetControllerNumber(SUMOvType);
 
         // comment this to speed-up the simulation
-        //if(SUMOvType != "TypeObstacle")
-            //findHost()->subscribe(mobilityStateChangedSignal, this);
+        //findHost()->subscribe(mobilityStateChangedSignal, this);
 	}
 }
 

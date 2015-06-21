@@ -43,7 +43,6 @@ void ApplVSystem::initialize(int stage)
     ApplVBeacon::initialize(stage);
 
     // todo: checking the dummy vehicle should be changed!
-    // can we use TypeObstacle as before
     if(SUMOvID.substr(0,4) == "test")
         requestRoutes = false;
     else
@@ -73,7 +72,7 @@ void ApplVSystem::initialize(int stage)
         //Temporary fix to get a vehicle's target: get it from the xml
         rapidxml::file<> xmlFile( (rootFilePath).c_str() );          // Convert our file to a rapid-xml readable object
         rapidxml::xml_document<> doc;                                // Build a rapidxml doc
-        doc.parse<0>(xmlFile.data());                      // Fill it with data from our file
+        doc.parse<0>(xmlFile.data());                                // Fill it with data from our file
         rapidxml::xml_node<> *node = doc.first_node("vehicles");     // Parse up to the "nodes" declaration
         for(node = node->first_node("vehicle"); node->first_attribute()->value() != SUMOvID; node = node->next_sibling()); //Find our vehicle in the .xml
 

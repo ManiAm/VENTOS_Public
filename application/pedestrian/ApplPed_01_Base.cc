@@ -63,6 +63,7 @@ void ApplPedBase::initialize(int stage)
         // pedestrian id in omnet++
 		myId = getParentModule()->getIndex();
 
+		// pedestrian full id in omnet++
 		myFullId = getParentModule()->getFullName();
 
         // pedestrian id in sumo
@@ -74,8 +75,7 @@ void ApplPedBase::initialize(int stage)
         // store the time of entry
         entryTime = simTime().dbl();
 
-//        if(SUMOvType != "TypeObstacle")
-//            findHost()->subscribe(mobilityStateChangedSignal, this);
+        // findHost()->subscribe(mobilityStateChangedSignal, this);
 	}
 }
 

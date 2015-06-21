@@ -41,11 +41,9 @@
 #include "08_TL_Router.h"
 #include "Net.h"
 #include "Hypertree.h"
-
 #include "ApplV_02_Beacon.h"
 
 #define SSTR( x ) dynamic_cast< std::ostringstream & >( (std::ostringstream() << std::dec << x ) ).str()
-
 
 namespace VENTOS {
 
@@ -102,7 +100,6 @@ protected:
 
     bool enableRouter; //If false, runs no code
 
-
     int TLLookahead;
 
     int timePeriodMax;     //Max time for hypertrees
@@ -124,6 +121,8 @@ protected:
     simsignal_t Signal_system;      //Receives signals to here
 
     simsignal_t Signal_executeEachTS;
+
+    int debugLevel;
 
     // Edge weight-gathering
     std::map<std::string, std::string> vehicleEdges;

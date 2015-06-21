@@ -63,6 +63,7 @@ void ApplBikeBase::initialize(int stage)
         // bike id in omnet++
 		myId = getParentModule()->getIndex();
 
+        // bike full id in omnet++
 		myFullId = getParentModule()->getFullName();
 
         // bike id in sumo
@@ -74,8 +75,7 @@ void ApplBikeBase::initialize(int stage)
         // store the time of entry
         entryTime = simTime().dbl();
 
-//        if(SUMOvType != "TypeObstacle")
-//            findHost()->subscribe(mobilityStateChangedSignal, this);
+        // findHost()->subscribe(mobilityStateChangedSignal, this);
 	}
 }
 

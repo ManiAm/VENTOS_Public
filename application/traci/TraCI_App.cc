@@ -94,8 +94,9 @@ void TraCI_App::executeOneTimestep()
 
     TraCIScenarioManager::executeOneTimestep();
 
-    // todo
-    //addPedestriansToOMNET();
+    allPedestrians = personGetIDList();
+    if(!allPedestrians.empty())
+        addPedestriansToOMNET();
 
     EV << "### SUMO completed simulation for TS = " << (getCurrentTimeMs()/1000.) << endl;
 
@@ -114,13 +115,34 @@ void TraCI_App::executeOneTimestep()
 }
 
 
+// for vehicles and bikes only (not pedestrians!)
+void TraCI_App::addModule(std::string nodeId, std::string type, std::string name, std::string displayString, const Coord& position, std::string road_id, double speed, double angle)
+{
+    std::string vehType = vehicleGetTypeID(nodeId);  // get vehicle type
+    int SUMOControllerType = vehicleTypeGetControllerType(vehType);   // get controller type
+
+    if(SUMOControllerType == SUMO_TAG_CF_KRAUSS || SUMOControllerType == SUMO_TAG_CF_ACC || SUMOControllerType == SUMO_TAG_CF_CACC)
+    {
+        // this is default (do nothing)
+        // type is "c3po.ned.vehicle"
+        // name is "V"
+    }
+    else if (vehType == "TypeBicycle")
+    {
+        type = bikeModuleType;
+        name =  bikeModuleName;
+        displayString = bikeModuleDisplayString;
+    }
+    else
+        error("Unknown module type in TraCI_App::addModule");
+
+    TraCIScenarioManager::addModule(nodeId, type, name, displayString, position, road_id, speed, angle);
+}
+
+
 void TraCI_App::addPedestriansToOMNET()
 {
-    std::list<std::string> allPedestrians = personGetIDList();
     //cout << simTime().dbl() << ": " << allPedestrians.size() << endl;
-
-    if(allPedestrians.empty())
-        return;
 
     // add new inserted pedestrians
     std::set<std::string> needSubscribe;
@@ -133,7 +155,6 @@ void TraCI_App::addPedestriansToOMNET()
     std::set_difference(subscribedPedestrians.begin(), subscribedPedestrians.end(), allPedestrians.begin(), allPedestrians.end(), std::inserter(needUnsubscribe, needUnsubscribe.begin()));
     for (std::set<std::string>::const_iterator i = needUnsubscribe.begin(); i != needUnsubscribe.end(); ++i)
         subscribedPedestrians.erase(*i);
-
 
 
     //    bool isSubscribed = (subscribedPedestrians.find(objectId) != subscribedPedestrians.end());
@@ -231,32 +252,6 @@ void TraCI_App::addPedestriansToOMNET()
     //        }
     //    }
     //
-
-}
-
-
-// for vehicles and bikes only (not pedestrians!)
-void TraCI_App::addModule(std::string nodeId, std::string type, std::string name, std::string displayString, const Coord& position, std::string road_id, double speed, double angle)
-{
-    std::string vehType = vehicleGetTypeID(nodeId);  // get vehicle type
-    int SUMOControllerType = vehicleTypeGetControllerType(vehType);   // get controller type
-
-    if(SUMOControllerType == SUMO_TAG_CF_KRAUSS || SUMOControllerType == SUMO_TAG_CF_ACC || SUMOControllerType == SUMO_TAG_CF_CACC)
-    {
-        // this is default (do nothing)
-        // type is "c3po.ned.vehicle"
-        // name is "V"
-    }
-    else if (vehType == "TypeBicycle")
-    {
-        type = bikeModuleType;
-        name =  bikeModuleName;
-        displayString = bikeModuleDisplayString;
-    }
-    else
-        error("Unknown module type in TraCI_App::addModule");
-
-    TraCIScenarioManager::addModule(nodeId, type, name, displayString, position, road_id, speed, angle);
 }
 
 }
