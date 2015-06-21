@@ -35,17 +35,14 @@
 #include <list>
 #include <fstream>
 #include <set>
-
 #include "Node.h"
 #include "Edge.h"
 #include "08_TL_Router.h"
 #include "Net.h"
 #include "Hypertree.h"
-
 #include "ApplV_02_Beacon.h"
 
 #define SSTR( x ) dynamic_cast< std::ostringstream & >( (std::ostringstream() << std::dec << x ) ).str()
-
 
 namespace VENTOS {
 
@@ -101,7 +98,6 @@ protected:
     std::ofstream vehicleTravelTimesFile; //File to write travel times to
 
     bool enableRouter; //If false, runs no code
-
 
     int TLLookahead;
 

@@ -39,8 +39,6 @@ class Hypertree;
 
 class ApplVSystem : public ApplVBeacon
 {
-    simsignal_t Signal_router;
-
     public:
         ~ApplVSystem();
         virtual void receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj);
@@ -64,6 +62,7 @@ class ApplVSystem : public ApplVBeacon
 
         // Class variables
         cMessage* sendSystemMsgEvt;
+        simsignal_t Signal_router;
 
         // Routing
         std::string targetNode;
@@ -72,12 +71,13 @@ class ApplVSystem : public ApplVBeacon
         // Methods
         virtual void handleSelfMsg(cMessage*);
         virtual void handlePositionUpdate(cObject*);
+
         virtual void onBeaconVehicle(BeaconVehicle*);
         virtual void onBeaconRSU(BeaconRSU*);
         virtual void onData(PlatoonMsg* wsm);
         virtual void onSystemMsg(SystemMsg*);
+
         SystemMsg* prepareSystemMsg();
-        void printSystemMsgContent(SystemMsg*);
 };
 
 }

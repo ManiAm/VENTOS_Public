@@ -58,7 +58,6 @@ double Edge::getCost()
     if(travelTimes.average > 0)
         return travelTimes.average;
 
-
     if(debugLevel > 1) std::cout << "Using length / speed for cost of edge " << id << std::endl;
     return length / speed;
 }
@@ -71,6 +70,7 @@ std::ostream& operator<<(std::ostream& os, Edge &rhs) // Print an Edge
        << " priority: "  << std::setw(4) << std::left << rhs.priority
        << " numLanes: "  << std::setw(3) << std::left << rhs.numLanes
        << " speed: "     << std::setw(5) << std::left << rhs.speed;
+
     return os;
 }
 

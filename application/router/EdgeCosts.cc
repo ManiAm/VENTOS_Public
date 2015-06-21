@@ -28,7 +28,6 @@
 #include "EdgeCosts.h"
 #include "RouterGlobals.h"
 
-using namespace std;
 namespace VENTOS {
 
 EdgeCosts::EdgeCosts()
@@ -37,7 +36,7 @@ EdgeCosts::EdgeCosts()
     count = 0;
 }
 
-EdgeCosts::EdgeCosts(map<int, int> dataSet)
+EdgeCosts::EdgeCosts(std::map<int, int> dataSet)
 {
     data = dataSet;
     average = 0;
@@ -50,7 +49,6 @@ EdgeCosts::EdgeCosts(map<int, int> dataSet)
     }
 
     average /= count;
-
 }
 
 void EdgeCosts::insert(int d)

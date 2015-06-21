@@ -34,7 +34,6 @@
 #include "RouterGlobals.h"
 #include <map>
 
-
 namespace VENTOS {
 
 class EdgeCosts
