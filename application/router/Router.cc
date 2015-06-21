@@ -112,6 +112,7 @@ void Router::initialize(int stage)
         UseAccidents = par("UseAccidents").boolValue();
         AccidentCheckInterval = par("AccidentCheckInterval").longValue();
         collectVehicleTimeData = par("collectVehicleTimeData").boolValue();
+        dijkstraOutdateTime = par("dijkstraOutdateTime").longValue();
 
         // register signals
         Signal_system = registerSignal("system");
@@ -237,10 +238,23 @@ void Router::receiveSignal(cComponent *source, simsignal_t signalID, long i)
 
 void Router::receiveDijkstraRequest(Edge* origin, Node* destination, string sender)
 {
-    list<string> info = getRoute(origin, destination, sender);
+
+    string key = origin->id + "#" + destination->id;
+
+    if(dijkstraTimes.find(key) == dijkstraTimes.end() || (simTime().dbl() - dijkstraTimes[key]) > dijkstraOutdateTime)
+    {
+        dijkstraTimes[key] = simTime().dbl();
+        dijkstraRoutes[key] = getRoute(origin, destination, sender);
+        if(debugLevel > 1) cout << "Created dijkstra's route from " << origin->id << " to " << destination->id << " at t=" << simTime().dbl() << endl;
+    }
+    else
+    {
+        if(debugLevel > 1) cout << "Using old dijkstras route at t=" << simTime().dbl() << endl;
+    }
+
     simsignal_t Signal_router = registerSignal("router");// Prepare to send a router message
     // Systemdata wants string edge, string node, string sender, int requestType, string recipient, list<string> edgeList
-    nodePtr->emit(Signal_router, new systemData("", "", "router", DIJKSTRA, sender, info));
+    nodePtr->emit(Signal_router, new systemData("", "", "router", DIJKSTRA, sender, dijkstraRoutes[key]));
 }
 
 void Router::receiveHypertreeRequest(Edge* origin, Node* destination, string sender)
@@ -502,6 +516,7 @@ void Router::laneCostsData()
                     if(UseHysteresis && vehicleLaneChangeCount[vehicle] == HysteresisCount)
                     {
                         vehicleLaneChangeCount[vehicle] = 0;
+
                         sendRerouteSignal(vehicle);
                         if(debugLevel > 0) cout << "Hystereis rerouting " << vehicle << " at t=" << simTime().dbl() << endl;
                     }
@@ -519,12 +534,10 @@ void Router::laneCostsData()
 
 void Router::sendRerouteSignal(string vehID)
 {
-    simsignal_t Signal_router = registerSignal("router");// Prepare to send a router message
     string curEdge = TraCI->vehicleGetEdgeID(vehID);
     string dest = net->vehicles[vehID]->destination;
+    receiveDijkstraRequest(net->edges.at(curEdge), net->nodes.at(dest), vehID);
 
-    list<string> info = getRoute(net->edges.at(curEdge), net->nodes[dest], vehID);
-    nodePtr->emit(Signal_router, new systemData("", "", "router", DIJKSTRA, vehID, info));
 }
 
 class routerCompare // Comparator object for getRoute weighting

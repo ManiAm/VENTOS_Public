@@ -35,6 +35,7 @@
 #include <list>
 #include <fstream>
 #include <set>
+#include <map>
 
 #include "Node.h"
 #include "Edge.h"
@@ -114,6 +115,10 @@ protected:
     void receiveDoneRequest(std::string sender);
     void receiveStartedRequest(std::string sender);
     SystemMsg* prepareSystemMsg();
+
+    int dijkstraOutdateTime;
+    std::map<std::string, std::list<std::string> > dijkstraRoutes;
+    std::map<std::string, int> dijkstraTimes;
 
     //Message passing
     cModule *nodePtr;               //pointer to the Node
