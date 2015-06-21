@@ -63,7 +63,10 @@ struct EdgeRemoval
     string edge;
     int start;
     int end;
-    EdgeRemoval(string edge, int start, int end):edge(edge), start(start), end(end){}
+    double pos;
+    int laneIndex;
+    bool blocked = false;
+    EdgeRemoval(string edge, int start, int end, double pos, int laneIndex, bool blocked):edge(edge), start(start), end(end), pos(pos), laneIndex(laneIndex){}
 };
 
 
@@ -130,8 +133,10 @@ void Router::initialize(int stage)
                 string edgeID;
                 int start;
                 int end;
-                ls >> edgeID >> start >> end;
-                EdgeRemovals.push_back(EdgeRemoval(edgeID, start, end));
+                double pos; //the location of accident
+                int laneIndex;
+                ls >> edgeID >> start >> end >> pos >> laneIndex;
+                EdgeRemovals.push_back(EdgeRemoval(edgeID, start, end, pos, laneIndex, false));
             }
 
             if(debugLevel) cout << "Loaded " << EdgeRemovals.size() << " accidents from " << AccidentFile << endl;
@@ -370,52 +375,39 @@ void Router::checkEdgeRemovals()
     {
         if(er.start <= curTime && er.end > curTime) //If edge is currently removed
         {
-            Edge& edge = *net->edges.at(er.edge);
-            edge.disabled = true;   //mark it as disabled
-
-            for(Lane* lane : edge.lanes) //For each lane
+            if(!er.blocked)//if the lane is not blocked
             {
-                list<string> vehicleIDs = TraCI->laneGetLastStepVehicleIDs(lane->id); //Get all vehicles on that lane
-                for(string veh : vehicleIDs)    //For each vehicle
-                {
-                    if(find(RemovedVehicles.begin(), RemovedVehicles.end(), veh) == RemovedVehicles.end()) //if vehicle isn't yet paused
-                    {
-                        issueStop(veh, edge.id); //pause vehicle
-                        RemovedVehicles.insert(veh); //Add vehicle to paused vehicles
-                    }
-                }
-            }
+                Edge& edge = *net->edges[er.edge];
+                edge.disabled = true;   //mark it as disabled
 
-            Node& sourceNode = *edge.from;
-            for(Edge* incEdge : sourceNode.inEdges) //For each edge leading into the source node
-            {
-                for(Lane* lane : incEdge->lanes) //For each lane
-                {
-                    list<string> vehicleIDs = TraCI->laneGetLastStepVehicleIDs(lane->id); //Get all vehicles on that lane
-                    for(string veh : vehicleIDs) //For each vehicle on lane
-                    {
-                        if(find(nonReroutingVehicles->begin(), nonReroutingVehicles->end(), veh) == nonReroutingVehicles->end())
-                        {
-                            //if vehicle is routing
-                            sendRerouteSignal(veh); //force vehicle to reroute
-                        }
-                    }
-                }
+                uint8_t index = 0;
+
+                list<string> route;
+                string origin = edge.id;
+                route.push_back(origin);   //With just the starting edge
+                string laneID = er.edge+"_"+to_string(er.laneIndex);
+                index = (uint8_t)er.laneIndex;
+                TraCI->vehicleAdd("test"+laneID, "TypeDummy", origin, er.start*1000, er.pos, 0, index);
+                TraCI->vehicleSetStop("test"+laneID, origin, er.pos+5, index, 10000, 2);
+
+                er.blocked = true;
             }
         }
         else //if edge not currently removed
         {
-            Edge& edge = *net->edges.at(er.edge);
-            if(edge.disabled == true)
+            if(er.blocked == true)
             {
-                edge.disabled = false;
-                for(Lane* lane : edge.lanes) //For each lane
+                //edge.disabled = false;
+                er.blocked = false;
+
+                string laneID = er.edge+"_"+to_string(er.laneIndex);
+                list<string> vehicleIDs = TraCI->laneGetLastStepVehicleIDs(laneID);
+                for(string veh : vehicleIDs)
                 {
-                    list<string> vehicleIDs = TraCI->laneGetLastStepVehicleIDs(lane->id); //Get all vehicles on that lane
-                    for(string veh : vehicleIDs)    //For each vehicle
+                    if(veh.substr(0,4) == "test")
                     {
-                        issueStart(veh); //Resume vehicle
-                        RemovedVehicles.erase(veh); //And remove it from the set of paused vehicles
+                        TraCI->vehicleRemove(veh, REMOVE_VAPORIZED);
+                        break;
                     }
                 }
             }

@@ -42,7 +42,7 @@ void ApplVSystem::initialize(int stage)
 {
     ApplVBeacon::initialize(stage); //Initialize lower-levels
 
-    if (stage == 0)
+    if (stage == 0 && SUMOvID.substr(0,4) != "test") // if the vehicle is a Dummy vehicle, we don't initialize it
     {
         // NED variables (beaconing parameters)
         requestRoutes = par("requestRoutes").boolValue();
@@ -110,29 +110,31 @@ void ApplVSystem::initialize(int stage)
 void ApplVSystem::finish()
 {
     ApplVBeacon::finish();
-
-    if(!requestRoutes)
-        return;
-
-    if(requestRoutes) std::cout << SUMOvID << " took " << simTime().dbl() - entryTime << " seconds to complete its route. (t=" << simTime().dbl() << ")" << endl;
-    router->vehicleEndTimesFile << SUMOvID << " " << simTime().dbl() << endl;
-
-    simsignal_t Signal_system = registerSignal("system"); //Prepare to send a system message
-    nodePtr->emit(Signal_system, new systemData("", "", SUMOvID, DONE, std::string("system")));
-
-    if(requestRoutes && requestReroutes)
+    if(SUMOvID.substr(0,4) != "test") // If the vehicle is a Dummy, we don't call finish(). This will not cause error msg when simulation finishs.
     {
-            if (sendSystemMsgEvt->isScheduled())
-            {
-                cancelAndDelete(sendSystemMsgEvt);
-            }
-            else
-            {
-                delete sendSystemMsgEvt;
-            }
-    }
+        if(!requestRoutes)
+            return;
 
-    simulation.getSystemModule()->unsubscribe("router",this);
+        if(requestRoutes) std::cout << SUMOvID << " took " << simTime().dbl() - entryTime << " seconds to complete its route. (t=" << simTime().dbl() << ")" << endl;
+        router->vehicleEndTimesFile << SUMOvID << " " << simTime().dbl() << endl;
+
+        simsignal_t Signal_system = registerSignal("system"); //Prepare to send a system message
+        nodePtr->emit(Signal_system, new systemData("", "", SUMOvID, DONE, std::string("system")));
+
+        if(requestRoutes && requestReroutes)
+        {
+                if (sendSystemMsgEvt->isScheduled())
+                {
+                    cancelAndDelete(sendSystemMsgEvt);
+                }
+                else
+                {
+                    delete sendSystemMsgEvt;
+                }
+        }
+
+        simulation.getSystemModule()->unsubscribe("router",this);
+    }
 }
 
 void ApplVSystem::handleSelfMsg(cMessage* msg)  //Internal messages to self
