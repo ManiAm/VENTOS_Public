@@ -26,8 +26,9 @@
 //
 
 #include "EdgeCosts.h"
+#include "RouterGlobals.h"
 
-
+using namespace std;
 namespace VENTOS {
 
 EdgeCosts::EdgeCosts()
@@ -36,7 +37,21 @@ EdgeCosts::EdgeCosts()
     count = 0;
 }
 
-#include "RouterGlobals.h"
+EdgeCosts::EdgeCosts(map<int, int> dataSet)
+{
+    data = dataSet;
+    average = 0;
+    count = 0;
+
+    for(auto& pair : data)
+    {
+        average += pair.first * pair.second;
+        count += pair.second;
+    }
+
+    average /= count;
+
+}
 
 void EdgeCosts::insert(int d)
 {
@@ -51,7 +66,7 @@ void EdgeCosts::insert(int d)
     //If mode is EWMA, perform that calculation
     else if(laneCostsMode == MODE_EWMA)
     {
-        average = average * 0.8 + (double)d * .2;
+        average = average * (1-EWMARate) + (double)d * EWMARate;
     }
 }
 

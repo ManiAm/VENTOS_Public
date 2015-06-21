@@ -22,6 +22,8 @@ simple Router
         double ReroutingVehiclePercent;
         bool UseHysteresis;
         
+        double EWMARate;
+        
         int LaneCostsMode;
         int HysteresisCount;
 

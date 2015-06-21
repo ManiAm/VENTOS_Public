@@ -80,17 +80,17 @@ Router::~Router()
 
 void Router::initialize(int stage)
 {
+    enableRouter = par("enableRouter").boolValue();
+
+    if(!enableRouter)
+    {
+        return;
+    }
     if(stage == 0)
     {
-
         debugLevel = par("debugLevel").longValue();
-        if(debugLevel || 1) cout << "Debug level is " << debugLevel << endl;
-        enableRouter = par("enableRouter").boolValue();
-        if(!enableRouter)
-        {
-            cout << "enableRouter is false!" << endl;
-            return;
-        }
+        if(debugLevel) cout << "Debug level is " << debugLevel << endl;
+
 
 
         // get the file paths
@@ -109,6 +109,7 @@ void Router::initialize(int stage)
         if(nodePtr == NULL || TraCI == NULL)
             error("can not get a pointer to the module.");
 
+        EWMARate = par("EWMARate").doubleValue();
         TLLookahead = par("TLLookahead").doubleValue();
         timePeriodMax = par("timePeriodMax").doubleValue();
         UseHysteresis = par("UseHysteresis").boolValue();
@@ -128,9 +129,8 @@ void Router::initialize(int stage)
         // register signals
         Signal_system = registerSignal("system");
         simulation.getSystemModule()->subscribe("system", this);
-        Signal_executeFirstTS = registerSignal("executeFirstTS");
         Signal_executeEachTS = registerSignal("executeEachTS");
-        simulation.getSystemModule()->subscribe("executeFirstTS", this);
+        simulation.getSystemModule()->subscribe("executeEachTS", this);
 
         if(UseAccidents)
         {
@@ -167,38 +167,44 @@ void Router::initialize(int stage)
         int utc = par("uTurnCost").doubleValue();
         net = new Net(SUMO_FullPath.string(), this->getParentModule(), ltc, rtc, stc, utc);
 
-        parseLaneCostsFile();
 
     }
     else if (stage == 1)
     {
-        int numNonRerouting = (double)totalVehicleCount * nonReroutingVehiclePercent;
-
-        int TLMode = (*net->TLs.begin()).second->TLLogicMode;
         ostringstream filePrefix;
-        ostringstream filePrefixNoTL;
+        int TLMode = (*net->TLs.begin()).second->TLLogicMode;
         filePrefix << totalVehicleCount << "_" << nonReroutingVehiclePercent << "_" << TLMode;
-        filePrefixNoTL << totalVehicleCount << "_" << nonReroutingVehiclePercent;
-        string NonReroutingFileName = VENTOS_FullPath.string() + "results/router/" + filePrefixNoTL.str() + "_nonRerouting" + ".txt";
-        if(fexists(NonReroutingFileName.c_str()))
+        if(nonReroutingVehiclePercent > 0)
         {
-            nonReroutingVehicles = new set<string>();
-            ifstream NonReroutingFile(NonReroutingFileName);
-            string vehNum;
-            while(NonReroutingFile >> vehNum)
-                nonReroutingVehicles->insert(vehNum);
-            NonReroutingFile.close();
-            if(debugLevel || 1) cout << "Loaded " << numNonRerouting << " nonRerouting vehicles from file " << NonReroutingFileName << endl;
+            int numNonRerouting = (double)totalVehicleCount * nonReroutingVehiclePercent;
+
+            ostringstream filePrefixNoTL;
+            filePrefixNoTL << totalVehicleCount << "_" << nonReroutingVehiclePercent;
+            string NonReroutingFileName = VENTOS_FullPath.string() + "results/router/" + filePrefixNoTL.str() + "_nonRerouting" + ".txt";
+            if(fexists(NonReroutingFileName.c_str()))
+            {
+                nonReroutingVehicles = new set<string>();
+                ifstream NonReroutingFile(NonReroutingFileName);
+                string vehNum;
+                while(NonReroutingFile >> vehNum)
+                    nonReroutingVehicles->insert(vehNum);
+                NonReroutingFile.close();
+                if(debugLevel) cout << "Loaded " << numNonRerouting << " nonRerouting vehicles from file " << NonReroutingFileName << endl;
+            }
+            else
+            {
+                nonReroutingVehicles = randomUniqueVehiclesInRange(numNonRerouting, 0, totalVehicleCount);
+                ofstream NonReroutingFile;
+                NonReroutingFile.open(NonReroutingFileName.c_str());
+                for(string veh : *nonReroutingVehicles)
+                    NonReroutingFile << veh << endl;
+                NonReroutingFile.close();
+                if(debugLevel) cout << "Created " << numNonRerouting << "-vehicle nonRerouting file " << NonReroutingFileName << endl;
+            }
         }
         else
         {
-            nonReroutingVehicles = randomUniqueVehiclesInRange(numNonRerouting, 0, totalVehicleCount);
-            ofstream NonReroutingFile;
-            NonReroutingFile.open(NonReroutingFileName.c_str());
-            for(string veh : *nonReroutingVehicles)
-                NonReroutingFile << veh << endl;
-            NonReroutingFile.close();
-            if(debugLevel || 1) cout << "Created " << numNonRerouting << "-vehicle nonRerouting file " << NonReroutingFileName << endl;
+            nonReroutingVehicles = new set<string>();
         }
 
         string endTimeFile = VENTOS_FullPath.string() + "results/router/" + filePrefix.str() + "_endTimes.txt";
@@ -210,6 +216,8 @@ void Router::initialize(int stage)
             if(debugLevel) cout << "Opened edge-weights file at " << TravelTimesFileName << endl;
             vehicleTravelTimesFile.open(TravelTimesFileName.c_str());  //Open the edgeWeights file
         }
+
+        parseLaneCostsFile();
     }
 }
 
@@ -221,9 +229,11 @@ void Router::handleMessage(cMessage* msg)
     scheduleAt(simTime().dbl() + AccidentCheckInterval, routerMsg); //Schedule them to start sending
 }
 
+//Receives a singnal every time-step and a special one on the last timestep
 void Router::receiveSignal(cComponent *source, simsignal_t signalID, long i)
 {
     Enter_Method_Silent();
+
     bool done = i;
 
     //Runs once per timestep
@@ -331,13 +341,17 @@ void Router::receiveSignal(cComponent *source, simsignal_t signalID, cObject *ob
         return;
     }
 
+    string tedge = s->getEdge();
+    string tnode = s->getNode();
+    string tsender = s->getSender();
     switch(s->getRequestType())
     {
     case DIJKSTRA:
-        receiveDijkstraRequest(net->edges[s->getEdge()], net->nodes[s->getNode()], s->getSender());
+        receiveDijkstraRequest(net->edges.at(tedge), net->nodes.at(tnode), tsender);
         break;
+
     case HYPERTREE:
-        receiveHypertreeRequest(net->edges[s->getEdge()], net->nodes[s->getNode()], s->getSender());
+        receiveHypertreeRequest(net->edges.at(tedge), net->nodes.at(tnode), tsender);
         break;
     case DONE:
         receiveDoneRequest(s->getSender());
@@ -352,7 +366,7 @@ void Router::receiveSignal(cComponent *source, simsignal_t signalID, cObject *ob
 
 void Router::issueStop(string vehID, string edgeID)
 {
-    Edge& edge = *net->edges[edgeID];
+    Edge& edge = *net->edges.at(edgeID);
     int randLane = rand() % edge.lanes.size();
     Lane* lane = edge.lanes[randLane];
     TraCI->vehicleSetStop(vehID, lane->id, lane->length - 1, randLane, 100000, 2);
@@ -372,7 +386,7 @@ void Router::checkEdgeRemovals()
     {
         if(er.start <= curTime && er.end > curTime) //If edge is currently removed
         {
-            Edge& edge = *net->edges[er.edge];
+            Edge& edge = *net->edges.at(er.edge);
             edge.disabled = true;   //mark it as disabled
 
             for(Lane* lane : edge.lanes) //For each lane
@@ -407,7 +421,7 @@ void Router::checkEdgeRemovals()
         }
         else //if edge not currently removed
         {
-            Edge& edge = *net->edges[er.edge];
+            Edge& edge = *net->edges.at(er.edge);
             if(edge.disabled == true)
             {
                 edge.disabled = false;
@@ -436,21 +450,20 @@ void Router::parseLaneCostsFile()
     string edgeName;
     while(inFile >> edgeName)   //While there are more edges to read
     {
-        EdgeCosts& ec = net->edges[edgeName]->travelTimes;
-        inFile >> ec.count;                      //And read in the number of data points
-        int readValuesCount = 0;
-        while(readValuesCount < ec.count)  //While we haven't read in all the data points
+        int max;
+        inFile >> max;
+        int readCount = 0;
+        map<int, int> m;
+        int value, valueCount;
+        while(readCount < max)
         {
-            int time, timeCount;
-            inFile >> time;      //Read in a value and how many times it occurs
-            inFile >> timeCount;
-            ec.data[time] = timeCount; //And write this to the histogram
-            ec.average += time * timeCount;
-            readValuesCount += timeCount;  //And mark we read this many more data points
+            inFile >> value >> valueCount;
+            m[value] = valueCount;
+            readCount += valueCount;
         }
-        ec.average /= readValuesCount;
-        if(debugLevel > 1) cout << "Loaded " << ec.count << " data points for edge " << edgeName << ". Average: " << ec.average << endl;
 
+        net->edges.at(edgeName)->travelTimes = EdgeCosts(m);
+        if(debugLevel) cout << "Loaded costs for " << edgeName << ": " << net->edges.at(edgeName)->travelTimes.average << endl;
     }
     inFile.close();
 }
@@ -485,29 +498,37 @@ void Router::laneCostsData()
 {
     list<string> vList = TraCI->vehicleGetIDList();
 
-    for(list<string>::iterator it = vList.begin(); it != vList.end(); it++) //Look at each vehicle
-    {
-        string curEdge = TraCI->vehicleGetEdgeID(*it);  //The edge it's currently on
-        if(TraCI->vehicleGetLanePosition(*it) * 1.05 > TraCI->laneGetLength(TraCI->vehicleGetLaneID(*it)))   //If the vehicle is on (or extremely close to) the end of the lane
-            curEdge = "";
-        string prevEdge = vehicleEdges[*it];    //The last edge we saw it on
-        if(vehicleEdges.find(*it) == vehicleEdges.end())    //If we haven't yet seen this vehicle
-        {
-            vehicleEdges[*it] = curEdge;           //Initialize its current edge
-            vehicleTimes[*it] = simTime().dbl();   //And current time
-            vehicleLaneChangeCount[*it] = -1;
-        }
 
-        if(prevEdge != curEdge) //If we've moved edges
+    for(string vehicle : vList)
+    {
+        string curEdge = TraCI->vehicleGetEdgeID(vehicle);
+        if(curEdge != "")
         {
-            if(UseHysteresis and ++vehicleLaneChangeCount[*it] > HysteresisCount * 2)
+            if(vehicleEdges.find(vehicle) != vehicleEdges.end())
             {
-                vehicleLaneChangeCount[*it] = 0;
-                sendRerouteSignal(*it);
+                if(vehicleEdges[vehicle] != curEdge)
+                {
+                    if(debugLevel > 1) cout << vehicle << " changes lanes to " << curEdge << " at t=" << simTime().dbl() << "(" << vehicleLaneChangeCount[vehicle] << ")" << endl;
+
+                    double time = simTime().dbl() - vehicleTimes[vehicle];
+                    net->edges.at(vehicleEdges[vehicle])->travelTimes.insert(time);
+                    vehicleEdges[vehicle] = curEdge;
+                    vehicleTimes[vehicle] = simTime().dbl();
+                    ++vehicleLaneChangeCount[vehicle];
+                    if(UseHysteresis && vehicleLaneChangeCount[vehicle] == HysteresisCount)
+                    {
+                        vehicleLaneChangeCount[vehicle] = 0;
+                        sendRerouteSignal(vehicle);
+                        if(debugLevel > 0) cout << "Hystereis rerouting " << vehicle << " at t=" << simTime().dbl() << endl;
+                    }
+                }
             }
-            net->edges[prevEdge]->travelTimes.insert(simTime().dbl() - vehicleTimes[*it]);  //Add the time the vehicle traveled to the data set for that edge
-            vehicleEdges[*it] = curEdge;                                            //And set its edge to the new one
-            vehicleTimes[*it] = simTime().dbl();                                    //And that edges start time to now
+            else
+            {
+                vehicleEdges[vehicle] = curEdge;
+                vehicleTimes[vehicle] = simTime().dbl();
+                vehicleLaneChangeCount[vehicle] = 0;
+            }
         }
     }
 }
@@ -517,7 +538,8 @@ void Router::sendRerouteSignal(string vehID)
     simsignal_t Signal_router = registerSignal("router");// Prepare to send a router message
     string curEdge = TraCI->vehicleGetEdgeID(vehID);
     string dest = net->vehicles[vehID]->destination;
-    list<string> info = getRoute(net->edges[curEdge], net->nodes[dest], vehID);
+
+    list<string> info = getRoute(net->edges.at(curEdge), net->nodes[dest], vehID);
     nodePtr->emit(Signal_router, new systemData("", "", "router", DIJKSTRA, vehID, info));
 }
 
@@ -615,12 +637,21 @@ Hypertree* Router::buildHypertree(int startTime, Node* destination)
 
 list<string> Router::getRoute(Edge* origin, Node* destination, string vName)
 {
+    for(auto& pair : net->edges)
+    {
+        Edge* e = pair.second;
+        e->curCost = 1000000;
+        e->best = NULL;
+        e->visited = 0;
+
+    }
+    /*
     for(map<string, Edge*>::iterator it = net->edges.begin(); it != net->edges.end(); it++)  // Reset pathing data
     {
         (*it).second->curCost = 1000000;
         (*it).second->best = NULL;
         (*it).second->visited = 0;
-    }
+    }*/
 
     priority_queue<Edge*, vector<Edge*>, routerCompare> heap;   // Build a priority queue of edge pointers, based on a vector of edge pointers, sorted via routerCompare funciton
 

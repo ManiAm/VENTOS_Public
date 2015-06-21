@@ -241,9 +241,11 @@ void Net::LoadHelloNet(string netBase)
         }
         Node* from = nodes[fromVal];  //Get a pointer to the start node
         Node* to = nodes[toVal];      //Get a pointer to the end node
-        Edge* e = new Edge(id, from, to, priority, *lanesVec);
-        from->outEdges.push_back(e);   //Add the edge to the start node's list
-        edges[id] = e;
+        edges[id] = new Edge(id, from, to, priority, *lanesVec);
+
+
+        from->outEdges.push_back(edges.at(id));   //Add the edge to the start node's list
+
     }   //For every edge
 
     for(std::map<std::string, Edge*>::iterator it = edges.begin(); it != edges.end(); it++)   //For each edge
@@ -254,6 +256,7 @@ void Net::LoadHelloNet(string netBase)
     {   //For every connection
         rapidxml::xml_attribute<> *attr = node->first_attribute();    //Read in the start and end edge ids, and the lane number of this instance.
         std::string e1 = attr->value();
+
 
         attr = attr->next_attribute();
         std::string e2 = attr->value();
@@ -283,7 +286,7 @@ void Net::LoadHelloNet(string netBase)
                     transitions[key]->push_back(i);  //add that we can travel these edges during this phase
             }
 
-            Edge* fromEdge = edges[e1];
+            Edge* fromEdge = edges.at(e1);
             Lane* fromLane = (fromEdge->lanes)[fromLaneNum];
 
             for(unsigned int i = 0; i < tl->phases.size(); i++)      //These 3 lines took me way too long to develop
