@@ -35,12 +35,6 @@ namespace VENTOS {
 
 Define_Module(VENTOS::Router);
 
-bool fexists(const char *filename)
-{
-    ifstream ifile(filename);
-    return ifile;
-}
-
 set<string>* randomUniqueVehiclesInRange(int numInts, int rangeMin, int rangeMax)
 {             //Generates n random unique ints in range [rangeMin, rangeMax)
               //Not a very efficient implementation, but it shouldn't matter much
@@ -81,27 +75,20 @@ Router::~Router()
 void Router::initialize(int stage)
 {
     enableRouter = par("enableRouter").boolValue();
-
     if(!enableRouter)
-    {
         return;
-    }
+
     if(stage == 0)
     {
         debugLevel = par("debugLevel").longValue();
-        if(debugLevel) cout << "Debug level is " << debugLevel << endl;
-
-
-
+ 
         // get the file paths
         VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
         SUMO_Path = simulation.getSystemModule()->par("SUMODirectory").stringValue();
         SUMO_FullPath = VENTOS_FullPath / SUMO_Path;
-        // check if this directory is valid?
-        if( !exists( SUMO_FullPath ) )
-        {
+        if( !boost::filesystem::exists( SUMO_FullPath ) )
             error("SUMO directory is not valid! Check it again.");
-        }
+        
 
         // Build nodePtr and traci manager
         nodePtr = FindModule<>::findHost(this);
@@ -160,14 +147,11 @@ void Router::initialize(int stage)
             }
         }
 
-
         int ltc = par("leftTurnCost").doubleValue();
         int rtc = par("rightTurnCost").doubleValue();
         int stc = par("straightCost").doubleValue();
         int utc = par("uTurnCost").doubleValue();
         net = new Net(SUMO_FullPath.string(), this->getParentModule(), ltc, rtc, stc, utc);
-
-
     }
     else if (stage == 1)
     {
@@ -181,7 +165,7 @@ void Router::initialize(int stage)
             ostringstream filePrefixNoTL;
             filePrefixNoTL << totalVehicleCount << "_" << nonReroutingVehiclePercent;
             string NonReroutingFileName = VENTOS_FullPath.string() + "results/router/" + filePrefixNoTL.str() + "_nonRerouting" + ".txt";
-            if(fexists(NonReroutingFileName.c_str()))
+            if( !boost::filesystem::exists( NonReroutingFileName ) )
             {
                 nonReroutingVehicles = new set<string>();
                 ifstream NonReroutingFile(NonReroutingFileName);
@@ -645,14 +629,7 @@ list<string> Router::getRoute(Edge* origin, Node* destination, string vName)
         e->visited = 0;
 
     }
-    /*
-    for(map<string, Edge*>::iterator it = net->edges.begin(); it != net->edges.end(); it++)  // Reset pathing data
-    {
-        (*it).second->curCost = 1000000;
-        (*it).second->best = NULL;
-        (*it).second->visited = 0;
-    }*/
-
+    
     priority_queue<Edge*, vector<Edge*>, routerCompare> heap;   // Build a priority queue of edge pointers, based on a vector of edge pointers, sorted via routerCompare funciton
 
     origin->curCost = 0;    // Set the origin's start cost to 0

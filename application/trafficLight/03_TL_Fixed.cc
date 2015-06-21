@@ -75,7 +75,7 @@ void TrafficLightFixed::executeFirstTimeStep()
 
     std::cout << "Fixed-time traffic signal control ... " << endl << endl;
 
-    for (std::list<std::string>::iterator TL = TLList.begin(); TL != TLList.end(); TL++)
+    for (std::list<std::string>::iterator TL = TLList.begin(); TL != TLList.end(); ++TL)
         TraCI->TLSetProgram(*TL, "fix-time");
 }
 

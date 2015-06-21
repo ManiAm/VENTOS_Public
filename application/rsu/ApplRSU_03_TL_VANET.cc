@@ -69,10 +69,9 @@ void ApplRSUTLVANET::initialize(int stage)
         }
 
         // initialize all detectedTime with zero
-        for(std::map<std::string, std::string>::iterator y = lanesTL.begin(); y != lanesTL.end(); y++)
+        for(std::map<std::string, std::string>::iterator y = lanesTL.begin(); y != lanesTL.end(); ++y)
         {
             std::string lane = (*y).first;
-            std::string TLid = (*y).second;
 
             detectedTime[lane] = 0;
         }

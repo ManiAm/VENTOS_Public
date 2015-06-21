@@ -93,7 +93,7 @@ void TrafficLightWebster::executeFirstTimeStep()
 
     std::cout << "Dynamic Webster traffic signal control ... " << endl << endl;
 
-    for (std::list<std::string>::iterator TL = TLList.begin(); TL != TLList.end(); TL++)
+    for (std::list<std::string>::iterator TL = TLList.begin(); TL != TLList.end(); ++TL)
     {
         TraCI->TLSetProgram(*TL, "adaptive-time");
         TraCI->TLSetState(*TL, phase1_5);

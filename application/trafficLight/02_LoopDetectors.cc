@@ -218,7 +218,7 @@ void LoopDetectors::getAllDetectors()
      */
 
     // make sure we have all detectors we need
-    for (std::list<std::string>::iterator it = TLList.begin(); it != TLList.end(); it++)
+    for (std::list<std::string>::iterator it = TLList.begin(); it != TLList.end(); ++it)
     {
         std::list<std::string> lan = TraCI->TLGetControlledLanes(*it);
 
@@ -317,7 +317,7 @@ void LoopDetectors::saveLDsData()
     fprintf (filePtr, "%-22s\n\n","vehicleLeaveSpeed");
 
     // write body
-    for(std::vector<LoopDetectorData>::iterator y = Vec_loopDetectors.begin(); y != Vec_loopDetectors.end(); y++)
+    for(std::vector<LoopDetectorData>::iterator y = Vec_loopDetectors.begin(); y != Vec_loopDetectors.end(); ++y)
     {
         fprintf (filePtr, "%-30s ", y->detectorName.c_str());
         fprintf (filePtr, "%-20s ", y->lane.c_str());
@@ -368,7 +368,7 @@ void LoopDetectors::measureTD()
 void LoopDetectors::measureQ()
 {
     // for each lane i that is controlled by traffic light j
-    for(std::map<std::string, std::string>::iterator y = lanesTL.begin(); y != lanesTL.end(); y++)
+    for(std::map<std::string, std::string>::iterator y = lanesTL.begin(); y != lanesTL.end(); ++y)
     {
         std::string lane = (*y).first;
         std::string TLid = (*y).second;
@@ -386,7 +386,7 @@ void LoopDetectors::measureQ()
         location->second = std::make_pair( store.first, q );
     }
 
-    for(std::map<std::pair<std::string,int>,std::string>::iterator y = linksTL.begin(); y != linksTL.end(); y++)
+    for(std::map<std::pair<std::string,int>,std::string>::iterator y = linksTL.begin(); y != linksTL.end(); ++y)
     {
         std::string TLid = (*y).first.first;
         int linkNumber = (*y).first.second;
@@ -418,7 +418,7 @@ void LoopDetectors::collectTrafficLightData()
     phaseNumber++;
 
     // for each lane i that is controlled by traffic light j
-    for(std::map<std::string, std::string>::iterator y = lanesTL.begin(); y != lanesTL.end(); y++)
+    for(std::map<std::string, std::string>::iterator y = lanesTL.begin(); y != lanesTL.end(); ++y)
     {
         std::string lane = (*y).first;
         std::string TLid = (*y).second;
@@ -459,7 +459,7 @@ void LoopDetectors::saveTLData()
     double oldTime = -1;
 
     // write body
-    for(std::vector<IntersectionTLData>::iterator y = Vec_IntersectionData.begin(); y != Vec_IntersectionData.end(); y++)
+    for(std::vector<IntersectionTLData>::iterator y = Vec_IntersectionData.begin(); y != Vec_IntersectionData.end(); ++y)
     {
         if(oldTime != y->time)
         {

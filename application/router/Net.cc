@@ -248,7 +248,7 @@ void Net::LoadHelloNet(string netBase)
 
     }   //For every edge
 
-    for(std::map<std::string, Edge*>::iterator it = edges.begin(); it != edges.end(); it++)   //For each edge
+    for(std::map<std::string, Edge*>::iterator it = edges.begin(); it != edges.end(); ++it)   //For each edge
         (*it).second->to->inEdges.push_back((*it).second);  //Go to the destination fo that edge, and add that edge to its in-edges
 
     //Make a new mapping from std::string to int vector.  strings will be the start and end lanes, and lanes will be the lane numbers from start than connect them.

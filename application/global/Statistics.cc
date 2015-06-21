@@ -62,8 +62,6 @@ void Statistics::initialize(int stage)
         reportPlnManagerData = par("reportPlnManagerData").boolValue();
         reportBeaconsData = par("reportBeaconsData").boolValue();
 
-        index = 1;
-
         // register signals
         Signal_executeFirstTS = registerSignal("executeFirstTS");
         simulation.getSystemModule()->subscribe("executeFirstTS", this);
@@ -382,7 +380,7 @@ void Statistics::vehiclesDataToFile()
         int index = 0;
 
         // write body
-        for(std::vector<VehicleData>::iterator y = Vec_vehiclesData.begin(); y != Vec_vehiclesData.end(); y++)
+        for(std::vector<VehicleData>::iterator y = Vec_vehiclesData.begin(); y != Vec_vehiclesData.end(); ++y)
         {
             if(oldTime != y->time)
             {
@@ -423,7 +421,7 @@ void Statistics::vehiclesDataToFile()
         int index = 0;
 
         // write body
-        for(std::vector<VehicleData>::iterator y = Vec_vehiclesData.begin(); y != Vec_vehiclesData.end(); y++)
+        for(std::vector<VehicleData>::iterator y = Vec_vehiclesData.begin(); y != Vec_vehiclesData.end(); ++y)
         {
             if(oldTime != y->time)
             {
@@ -488,7 +486,7 @@ void Statistics::MAClayerToFile()
     fprintf (filePtr, "%-20s","ReceivedBroadcasts\n\n");
 
     // write body
-    for(std::vector<MacStatEntry>::iterator y = Vec_MacStat.begin(); y != Vec_MacStat.end(); y++)
+    for(std::vector<MacStatEntry>::iterator y = Vec_MacStat.begin(); y != Vec_MacStat.end(); ++y)
     {
         fprintf (filePtr, "%-20.2f ", y->time);
         fprintf (filePtr, "%-20s ", y->name.c_str());
@@ -542,7 +540,7 @@ void Statistics::plnManageToFile()
     double oldTime = -1;
 
     // write body
-    for(std::vector<plnManagement>::iterator y = Vec_plnManagement.begin(); y != Vec_plnManagement.end(); y++)
+    for(std::vector<plnManagement>::iterator y = Vec_plnManagement.begin(); y != Vec_plnManagement.end(); ++y)
     {
         // make the log more readable :)
         if(y->sender != oldSender || y->time != oldTime)
@@ -592,7 +590,7 @@ void Statistics::plnStatToFile()
     std::string oldPln = "";
 
     // write body
-    for(std::vector<plnStat>::iterator y = Vec_plnStat.begin(); y != Vec_plnStat.end(); y++)
+    for(std::vector<plnStat>::iterator y = Vec_plnStat.begin(); y != Vec_plnStat.end(); ++y)
     {
         if(y->from != oldPln)
         {
@@ -635,7 +633,7 @@ void Statistics::beaconToFile()
     fprintf (filePtr, "%-20s","to");
     fprintf (filePtr, "%-20s\n\n","dropped");
 
-    for(std::vector<BeaconStat>::iterator y = Vec_Beacons.begin(); y != Vec_Beacons.end(); y++)
+    for(std::vector<BeaconStat>::iterator y = Vec_Beacons.begin(); y != Vec_Beacons.end(); ++y)
     {
         fprintf (filePtr, "%-12.2f ", y->time);
         fprintf (filePtr, "%-20s ", y->senderID.c_str());

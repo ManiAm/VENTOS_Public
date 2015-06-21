@@ -99,7 +99,7 @@ void TrafficLightVANET::executeFirstTimeStep()
     if(RSU == NULL)
         error("No pointer to the RSU module!");
 
-    for (std::list<std::string>::iterator TL = TLList.begin(); TL != TLList.end(); TL++)
+    for (std::list<std::string>::iterator TL = TLList.begin(); TL != TLList.end(); ++TL)
     {
         TraCI->TLSetProgram(*TL, "adaptive-time");
         TraCI->TLSetState(*TL, phase1_5);
@@ -166,7 +166,7 @@ void TrafficLightVANET::chooseNextGreenInterval()
     // get adjusted VANET detector times
     std::map<std::string,double> LastDetectedTime;
 
-    for (std::map<std::string, double>::iterator it = RSU->detectedTime.begin(); it != RSU->detectedTime.end(); it++)
+    for (std::map<std::string, double>::iterator it = RSU->detectedTime.begin(); it != RSU->detectedTime.end(); ++it)
     {
         std::string lane = (*it).first;
         double time = (*it).second;

@@ -268,14 +268,14 @@ void ApplVPlatoonMg::updateColorDepth()
     int *pickColor = new int[plnSize];
     pickColor[0] = -1;
     int count = 0;
-    for(int i = 1; i < plnSize; i++)
+    for(int i = 1; i < plnSize; ++i)
     {
         pickColor[i] = count;
         count = count + offset;
     }
 
     // leader has all the followers in plnMembersList list
-    for(unsigned int depth = 1; depth < plnMembersList.size(); depth++)
+    for(unsigned int depth = 1; depth < plnMembersList.size(); ++depth)
     {
         TraCIColor newColor = TraCIColor(pickColor[depth], pickColor[depth], 255, 255);
         TraCI->vehicleSetColor(plnMembersList[depth], newColor);
