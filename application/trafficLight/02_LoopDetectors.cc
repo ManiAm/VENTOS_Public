@@ -237,8 +237,6 @@ void LoopDetectors::getAllDetectors()
                 std::cout << "WARNING: no area detector found on lane (" << *it2 << "). No queue measurement is available for this lane." << endl;
         }
     }
-
-    //std::cout << endl;
 }
 
 

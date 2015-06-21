@@ -31,7 +31,6 @@
 #include <map>
 #include <string>
 
-
 namespace VENTOS {
 
 class Hypertree
@@ -41,7 +40,6 @@ public:
     std::map<std::string, std::string> transition;
 
     Hypertree();
-
 };
 
 }

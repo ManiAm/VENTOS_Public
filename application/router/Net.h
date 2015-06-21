@@ -33,13 +33,12 @@
 #include <iostream>
 #include <sstream>
 #include <algorithm> // For sort
-
 #include "Router.h"
 #include "Vehicle.h"
 #include "EdgeCosts.h"
 #include "rapidxml.hpp"
 #include "rapidxml_utils.hpp"
-using namespace std;
+
 
 namespace VENTOS {
 
@@ -62,7 +61,7 @@ public:
 
 class Net
 {
-    void LoadHelloNet(string netBase);
+    void LoadHelloNet(std::string netBase);
 public:
     double leftTurnCost, rightTurnCost, straightCost, uTurnCost;
 
@@ -83,8 +82,7 @@ public:
     int nextAcceptingPhase(double time, Edge* start, Edge* end);    //Returns the next phase allowing movement from start to end at the given time
     std::vector<int>* TLTransitionPhases(Edge* start, Edge* end);        //Returns a vector of phases allowing movement from start to end
 
-
-    Net(string netBase, cModule* router, int ltc, int rtc, int stc, int utc);
+    Net(std::string netBase, cModule* router, int ltc, int rtc, int stc, int utc);
     ~Net();
 };
 

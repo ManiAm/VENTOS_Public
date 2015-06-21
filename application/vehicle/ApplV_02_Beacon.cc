@@ -44,15 +44,6 @@ void ApplVBeacon::initialize(int stage)
     if (stage == 0)
     {
         // NED
-        if(SUMOvType != "TypeObstacle")
-        {
-            VANETenabled = par("VANETenabled").boolValue();
-        }
-        else
-        {
-            VANETenabled = false;
-        }
-
         sonarDist = par("sonarDist").doubleValue();
 
         // NED variables (beaconing parameters)
@@ -76,6 +67,11 @@ void ApplVBeacon::initialize(int stage)
         double offSet = dblrand() * (beaconInterval/2);
         offSet = offSet + floor(offSet/0.050)*0.050;
         individualOffset = dblrand() * maxOffset;
+
+        if(SUMOvType == "TypeObstacle")
+            VANETenabled = false;
+        else
+            VANETenabled = par("VANETenabled").boolValue();
 
         VehicleBeaconEvt = new cMessage("BeaconEvt", KIND_TIMER);
         if (VANETenabled)

@@ -29,10 +29,8 @@
 #define EDGE_H
 
 #include <vector>
-
 #include "Node.h"
 #include "EdgeCosts.h"
-
 
 namespace VENTOS {
 
@@ -72,7 +70,6 @@ public:
 
     //Removal algorithm
     bool disabled;
-
 
     Edge(std::string idVal, Node* fromVal, Node* toVal, int priorityVal, std::vector<Lane*> lanesVec);
 };

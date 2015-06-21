@@ -302,7 +302,7 @@ void AddVehicle::Scenario7()
 
 
 std::vector<std::string> getEdgeNames(std::string netName)
-                        {
+{
     std::vector<std::string> edgeNames;
 
     rapidxml::file <> xmlFile(netName.c_str());
@@ -313,10 +313,10 @@ std::vector<std::string> getEdgeNames(std::string netName)
         edgeNames.push_back(node->first_attribute()->value());
 
     return edgeNames;
-                        }
+}
 
 std::vector<std::string> getNodeNames(std::string netName)
-                        {
+{
     std::vector<std::string> nodeNames;
     rapidxml::file <> xmlFile(netName.c_str());
     rapidxml::xml_document<> doc;
@@ -326,7 +326,7 @@ std::vector<std::string> getNodeNames(std::string netName)
         nodeNames.push_back(node->first_attribute()->value());
 
     return nodeNames;
-                        }
+}
 
 double curve(double x)  //Input will linearly increase from 0 to 1, from first to last vehicle.
 {                       //Output should be between 0 and 1, scaled by some function
@@ -373,15 +373,13 @@ void AddVehicle::Scenario8()
     std::string xmlFileName = SUMO_FullPath.string();
     xmlFileName += vehFile;
 
-    if(!boost::filesystem::exists(xmlFileName.c_str()))
-    {
+    if( !boost::filesystem::exists(xmlFileName) )
         generateVehicles(SUMO_FullPath.string(), r);
-    }
 
-    rapidxml::file<> xmlFile( xmlFileName.c_str() );     // Convert our file to a rapid-xml readable object
-    rapidxml::xml_document<> doc;                        // Build a rapidxml doc
-    doc.parse<0>(xmlFile.data());              // Fill it with data from our file
-    rapidxml::xml_node<> *node = doc.first_node("vehicles"); // Parse up to the "nodes" declaration
+    rapidxml::file<> xmlFile( xmlFileName.c_str() );          // Convert our file to a rapid-xml readable object
+    rapidxml::xml_document<> doc;                             // Build a rapidxml doc
+    doc.parse<0>(xmlFile.data());                             // Fill it with data from our file
+    rapidxml::xml_node<> *node = doc.first_node("vehicles");  // Parse up to the "nodes" declaration
 
     std::string id, type, origin, destination;
     double depart;
@@ -430,7 +428,7 @@ void AddVehicle::Scenario8()
         TraCI->vehicleAdd(id, type, origin, 1000 * depart, 0, 0, 0);  //Send a TraCI add call -- might not need to be *1000.
 
         //Huajun-Change color of non-rerouting vehicle to red.
-        string veh = id.substr(1,-1);
+        std::string veh = id.substr(1,-1);
 
         if(find(r->nonReroutingVehicles->begin(), r->nonReroutingVehicles->end(), veh) != r->nonReroutingVehicles->end())
         {

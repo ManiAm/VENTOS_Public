@@ -91,7 +91,7 @@ void TrafficLightWebster::executeFirstTimeStep()
     if(TLControlMode != TL_Adaptive_Webster)
         return;
 
-    std::cout << "Dynamic Webster traffic signal control ... " << endl << endl;
+    std::cout << endl << "Dynamic Webster traffic signal control ... " << endl << endl;
 
     for (std::list<std::string>::iterator TL = TLList.begin(); TL != TLList.end(); ++TL)
     {
@@ -148,10 +148,6 @@ void TrafficLightWebster::chooseNextInterval()
     }
     else
         chooseNextGreenInterval();
-
-    char buff[300];
-    sprintf(buff, "Sim time: %4.2f | Interval finish time: %4.2f | Current interval: %s", simTime().dbl(), simTime().dbl() + intervalOffSet, currentInterval.c_str() );
-    std::cout << buff << endl;
 }
 
 

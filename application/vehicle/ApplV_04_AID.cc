@@ -70,13 +70,13 @@ void ApplV_AID::handleSelfMsg(cMessage* msg)
 
 void ApplV_AID::onBeaconVehicle(BeaconVehicle* wsm)
 {
-    ApplVSystem::onBeaconVehicle(wsm);
+    // no need to pass this down
 }
 
 
 void ApplV_AID::onBeaconRSU(BeaconRSU* wsm)
 {
-    ApplVSystem::onBeaconRSU(wsm);
+    // no need to pass this down
 
     // if incident detection is not on, return
     if(!AID)
@@ -87,7 +87,6 @@ void ApplV_AID::onBeaconRSU(BeaconRSU* wsm)
     if( !laneChanges.empty() )
     {
         LaneChangeMsg* dataMsg = ApplV_AID::prepareData(wsm->getSender(), laneChanges);
-        ApplV_AID::printDataContent(dataMsg);
         sendDelayed(dataMsg, individualOffset, lowerLayerOut);
         EV << "### " << SUMOvID << ": sent ClaneChangeMsg message." << endl;
 
@@ -99,7 +98,7 @@ void ApplV_AID::onBeaconRSU(BeaconRSU* wsm)
 
 void ApplV_AID::onData(PlatoonMsg* wsm)
 {
-    ApplVSystem::onData(wsm);
+    // no need to pass this down
 }
 
 
@@ -134,33 +133,6 @@ LaneChangeMsg*  ApplV_AID::prepareData(std::string receiver, std::deque<std::str
     wsm->setLaneChange(vecValue);
 
     return wsm;
-}
-
-
-// print data message fields (for debugging purposes)
-void ApplV_AID::printDataContent(LaneChangeMsg* wsm)
-{
-    EV << wsm->getWsmVersion() << " | ";
-    EV << wsm->getSecurityType() << " | ";
-    EV << wsm->getChannelNumber() << " | ";
-    EV << wsm->getDataRate() << " | ";
-    EV << wsm->getPriority() << " | ";
-    EV << wsm->getPsid() << " | ";
-    EV << wsm->getPsc() << " | ";
-    EV << wsm->getWsmLength() << " | ";
-    EV << wsm->getWsmData() << " ||| ";
-    EV << wsm->getSender() << " | ";
-    EV << wsm->getRecipient() << " | ";
-
-    std::deque<std::string> tmp = wsm->getLaneChange();
-
-    for(unsigned int i = 0; i< tmp.size(); i++)
-    {
-        EV << tmp[i] << endl;
-    }
-
-    EV << endl;
-
 }
 
 

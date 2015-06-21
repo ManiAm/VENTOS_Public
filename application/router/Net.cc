@@ -27,7 +27,7 @@
 
 #include "RouterGlobals.h"
 #include "Net.h"
-using namespace std;
+
 
 namespace VENTOS {
 
@@ -36,11 +36,10 @@ Net::~Net()
 
 }
 
-Net::Net(string netBase, cModule* router, int ltc, int rtc, int stc, int utc):leftTurnCost(ltc), rightTurnCost(rtc), straightCost(stc), uTurnCost(utc)
+Net::Net(std::string netBase, cModule* router, int ltc, int rtc, int stc, int utc):leftTurnCost(ltc), rightTurnCost(rtc), straightCost(stc), uTurnCost(utc)
 {
     routerModule = router;
     LoadHelloNet(netBase);
-
 }
 
 //Returns the expected time waiting to make the turn between two given edges
@@ -56,24 +55,24 @@ double Net::junctionCost(double time, Edge* start, Edge* end)
 
 double Net::turnTypeCost(Edge* start, Edge* end)
 {
-    string key = start->id + end->id;
+    std::string key = start->id + end->id;
     char type = turnTypes[key];
     switch (type)
     {
-        case 's':
-            return straightCost;
-        case 'r':
-            return rightTurnCost;
-        case 'l':
-            return leftTurnCost;
-        case 't':
-            return uTurnCost;
+    case 's':
+        return straightCost;
+    case 'r':
+        return rightTurnCost;
+    case 'l':
+        return leftTurnCost;
+    case 't':
+        return uTurnCost;
     }
-    if(debugLevel > 0) cout << "Turn did not have an associated type!  This should never happen." << endl;
+    if(debugLevel > 0) std::cout << "Turn did not have an associated type!  This should never happen." << endl;
     return 100000;
 }
 
-vector<int>* Net::TLTransitionPhases(Edge* start, Edge* end)
+std::vector<int>* Net::TLTransitionPhases(Edge* start, Edge* end)
 {
     return transitions[start->id + end->id];
 }
@@ -110,11 +109,11 @@ double Net::timeToPhase(TrafficLightRouter* tl, double time, int targetPhase)
 int Net::nextAcceptingPhase(double time, Edge* start, Edge* end)
 {
     TrafficLightRouter* tl = start->to->tl;           // The traffic-light in question
-    const vector<Phase*> phases = tl->phases;   // And its set of phases
+    const std::vector<Phase*> phases = tl->phases;   // And its set of phases
 
     int curPhase = tl->currentPhaseAtTime(time);
     int phase = curPhase;
-    vector<int>* acceptingPhases = TLTransitionPhases(start, end);  // Grab the vector of accepting phases for the given turn
+    std::vector<int>* acceptingPhases = TLTransitionPhases(start, end);  // Grab the vector of accepting phases for the given turn
 
     do
     {
@@ -132,9 +131,8 @@ int Net::nextAcceptingPhase(double time, Edge* start, Edge* end)
 }
 
 
-void Net::LoadHelloNet(string netBase)
+void Net::LoadHelloNet(std::string netBase)
 {
-
     cModuleType* moduleType = cModuleType::get("c3po.ned.TL_Router");    //Get the TL module
 
     std::string netFile = netBase + "/hello.net.xml";
@@ -243,9 +241,7 @@ void Net::LoadHelloNet(string netBase)
         Node* to = nodes[toVal];      //Get a pointer to the end node
         edges[id] = new Edge(id, from, to, priority, *lanesVec);
 
-
         from->outEdges.push_back(edges.at(id));   //Add the edge to the start node's list
-
     }   //For every edge
 
     for(std::map<std::string, Edge*>::iterator it = edges.begin(); it != edges.end(); ++it)   //For each edge
@@ -256,7 +252,6 @@ void Net::LoadHelloNet(string netBase)
     {   //For every connection
         rapidxml::xml_attribute<> *attr = node->first_attribute();    //Read in the start and end edge ids, and the lane number of this instance.
         std::string e1 = attr->value();
-
 
         attr = attr->next_attribute();
         std::string e2 = attr->value();
@@ -305,6 +300,5 @@ void Net::LoadHelloNet(string netBase)
         }//if it's a tl
     }//for each connection
 }
-
 
 } // end of namespace

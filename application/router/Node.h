@@ -32,7 +32,6 @@
 #include <iostream>
 #include <iomanip>
 
-
 namespace VENTOS {
 
 class Edge;

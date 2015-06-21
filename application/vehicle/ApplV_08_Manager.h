@@ -34,47 +34,46 @@ namespace VENTOS {
 
 class ApplVManager : public ApplVCoordinator
 {
-	public:
-        ~ApplVManager();
-		virtual void initialize(int stage);
-        virtual void finish();
+public:
+    ~ApplVManager();
+    virtual void initialize(int stage);
+    virtual void finish();
 
-	protected:
-        // Methods
-        virtual void handleLowerMsg(cMessage*);
-        virtual void handleSelfMsg(cMessage*);
-        virtual void handlePositionUpdate(cObject*);
+protected:
+    virtual void handleLowerMsg(cMessage*);
+    virtual void handleSelfMsg(cMessage*);
+    virtual void handlePositionUpdate(cObject*);
 
-        virtual void onBeaconVehicle(BeaconVehicle*);
-        virtual void onBeaconPedestrian(BeaconPedestrian*);
-        virtual void onBeaconRSU(BeaconRSU*);
-        virtual void onData(PlatoonMsg* wsm);
+    virtual void onBeaconVehicle(BeaconVehicle*);
+    virtual void onBeaconPedestrian(BeaconPedestrian*);
+    virtual void onBeaconRSU(BeaconRSU*);
+    virtual void onData(PlatoonMsg* wsm);
 
-	private:
-        bool dropBeacon(double time, std::string vehicle, double plr);
+private:
+    bool dropBeacon(double time, std::string vehicle, double plr);
 
-	protected:
-        // NED variables (packet loss ratio)
-        double droppT;
-        std::string droppV;
-        double plr;
+protected:
+    // NED variables (packet loss ratio)
+    double droppT;
+    std::string droppV;
+    double plr;
 
-        // NED variable
-        bool degradeToACC;
-        bool SUMOvehicleDebug;
+    // NED variable
+    bool degradeToACC;
+    bool SUMOvehicleDebug;
 
-        // NED variables (measurement error)
-        bool measurementError;
-        double errorGap;
-        double errorRelSpeed;
+    // NED variables (measurement error)
+    bool measurementError;
+    double errorGap;
+    double errorRelSpeed;
 
-        bool reportBeaconsData;
+    bool reportBeaconsData;
 
-        long BeaconVehCount;
-        long BeaconVehDropped;
-        long BeaconRSUCount;
-        long PlatoonCount;
-        long BeaconPedCount;
+    long BeaconVehCount;
+    long BeaconVehDropped;
+    long BeaconRSUCount;
+    long PlatoonCount;
+    long BeaconPedCount;
 };
 
 }

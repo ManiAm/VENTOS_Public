@@ -89,7 +89,7 @@ void TrafficLightVANET::executeFirstTimeStep()
     if(TLControlMode != TL_VANET)
         return;
 
-    std::cout << "VANET traffic signal control ..." << endl << endl;
+    std::cout << endl << "VANET traffic signal control ..." << endl << endl;
 
     // get a pointer to the RSU module that controls this intersection
     cModule *module = simulation.getSystemModule()->getSubmodule("RSU", 0)->getSubmodule("appl");
@@ -142,6 +142,10 @@ void TrafficLightVANET::chooseNextInterval()
         TraCI->TLSetState("C", nextInterval);
         intervalElapseTime = 0.0;
         intervalOffSet = redTime;
+
+        char buff[300];
+        sprintf(buff, "Sim time: %4.2f | Interval finish time: %4.2f | Current interval: %s", simTime().dbl(), simTime().dbl() + intervalOffSet, currentInterval.c_str() );
+        std::cout << buff << endl;
     }
     else if (currentInterval == "red")
     {
@@ -151,13 +155,13 @@ void TrafficLightVANET::chooseNextInterval()
         TraCI->TLSetState("C", nextGreenInterval);
         intervalElapseTime = 0.0;
         intervalOffSet = minGreenTime;
+
+        char buff[300];
+        sprintf(buff, "Sim time: %4.2f | Interval finish time: %4.2f | Current interval: %s", simTime().dbl(), simTime().dbl() + intervalOffSet, currentInterval.c_str() );
+        std::cout << buff << endl;
     }
     else
         chooseNextGreenInterval();
-
-    char buff[300];
-    sprintf(buff, "Sim time: %4.2f | Interval finish time: %4.2f | Current interval: %s", simTime().dbl(), simTime().dbl() + intervalOffSet, currentInterval.c_str() );
-    std::cout << buff << endl;
 }
 
 
@@ -340,10 +344,10 @@ void TrafficLightVANET::chooseNextGreenInterval()
         {
             intervalOffSet = 0.0001;
             intervalElapseTime = maxGreenTime;
-            std::cout << ">>> Offset value is too small ..." << endl;
+            std::cout << ">>> Green extension offset is too small. Terminating the current phase ..." << endl << endl;
         }
         else
-            std::cout << ">>> Extending green time by " << intervalOffSet << "s" << endl;
+            std::cout << ">>> Extending green for both movements by " << intervalOffSet << "s" << endl << endl;
     }
     // we should terminate the current green interval
     else
@@ -353,6 +357,10 @@ void TrafficLightVANET::chooseNextGreenInterval()
 
         intervalElapseTime = 0.0;
         intervalOffSet =  yellowTime;
+
+        char buff[300];
+        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
+        std::cout << buff << endl << endl;
     }
 }
 

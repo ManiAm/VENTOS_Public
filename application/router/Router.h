@@ -36,7 +36,6 @@
 #include <fstream>
 #include <set>
 #include <map>
-
 #include "Node.h"
 #include "Edge.h"
 #include "08_TL_Router.h"
@@ -114,7 +113,6 @@ protected:
     void receiveHypertreeRequest(Edge* origin, Node* destination, std::string sender);
     void receiveDoneRequest(std::string sender);
     void receiveStartedRequest(std::string sender);
-    SystemMsg* prepareSystemMsg();
 
     int dijkstraOutdateTime;
     std::map<std::string, std::list<std::string> > dijkstraRoutes;

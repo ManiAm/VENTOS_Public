@@ -34,35 +34,34 @@ namespace VENTOS {
 
 class ApplV_AID : public ApplVSystem
 {
-	public:
-        ~ApplV_AID();
-		virtual void initialize(int stage);
-        virtual void finish();
+public:
+    ~ApplV_AID();
+    virtual void initialize(int stage);
+    virtual void finish();
 
-	protected:
+protected:
+    virtual void handleSelfMsg(cMessage*);
+    virtual void handlePositionUpdate(cObject*);
 
-        // NED
-        bool AID;
+    virtual void onBeaconVehicle(BeaconVehicle*);
+    virtual void onBeaconRSU(BeaconRSU*);
+    virtual void onData(PlatoonMsg* wsm);
 
-        // Methods
-        virtual void handleSelfMsg(cMessage*);
-        virtual void handlePositionUpdate(cObject*);
+    LaneChangeMsg* prepareData(std::string, std::deque<std::string>);
 
-		virtual void onBeaconVehicle(BeaconVehicle*);
-        virtual void onBeaconRSU(BeaconRSU*);
-        virtual void onData(PlatoonMsg* wsm);
+protected:
+    // NED
+    bool AID;
 
-        LaneChangeMsg* prepareData(std::string, std::deque<std::string>);
-        void printDataContent(LaneChangeMsg*);
+    // class variables
+    std::string fromLane;
+    std::string toLane;
+    double fromX;
+    double toX;
 
-        // class variables
-        std::string fromLane;
-        std::string toLane;
-        double fromX;
-        double toX;
-
-        std::deque<std::string> laneChanges;
+    std::deque<std::string> laneChanges;
 };
+
 }
 
 #endif

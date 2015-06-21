@@ -34,50 +34,50 @@ namespace VENTOS {
 
 class ApplVBeacon : public ApplVBase
 {
-	public:
-        ~ApplVBeacon();
-		virtual void initialize(int stage);
-        virtual void finish();
-
-	protected:
-        // NED
-        bool VANETenabled;
-        double sonarDist;
-
-        // NED variables (beaconing parameters)
-        bool sendBeacons;
-		double beaconInterval;
-		double maxOffset;
-        int beaconLengthBits;
-        int beaconPriority;
-
-        // NED variables
-        bool smartBeaconing;
-        int TLControlMode;
-
-        // NED variables (data message parameters)
-        int dataLengthBits;
-        bool dataOnSch;
-        int dataPriority;
-
-        // Class variables
-        simtime_t individualOffset;
-        cMessage* VehicleBeaconEvt;
-
-        std::string plnID;
-        int myPlnDepth;
-        int plnSize;
-        std::deque<std::string> plnMembersList;
-        bool hasEntered;
-        bool hasLeft;
+public:
+    ~ApplVBeacon();
+    virtual void initialize(int stage);
+    virtual void finish();
 
 protected:
-        virtual void handleSelfMsg(cMessage*);
-        virtual void handlePositionUpdate(cObject*);
+    virtual void handleSelfMsg(cMessage*);
+    virtual void handlePositionUpdate(cObject*);
 
-        BeaconVehicle* prepareBeacon();
-        bool isBeaconFromLeading(BeaconVehicle*);
-        bool isBeaconFromMyPlatoonLeader(BeaconVehicle*);
+    BeaconVehicle* prepareBeacon();
+    bool isBeaconFromLeading(BeaconVehicle*);
+    bool isBeaconFromMyPlatoonLeader(BeaconVehicle*);
+
+protected:
+    // NED
+    bool VANETenabled;
+    double sonarDist;
+
+    // NED variables (beaconing parameters)
+    bool sendBeacons;
+    double beaconInterval;
+    double maxOffset;
+    int beaconLengthBits;
+    int beaconPriority;
+
+    // NED variables
+    bool smartBeaconing;
+    int TLControlMode;
+
+    // NED variables (data message parameters)
+    int dataLengthBits;
+    bool dataOnSch;
+    int dataPriority;
+
+    // Class variables
+    simtime_t individualOffset;
+    cMessage* VehicleBeaconEvt;
+
+    std::string plnID;
+    int myPlnDepth;
+    int plnSize;
+    std::deque<std::string> plnMembersList;
+    bool hasEntered;
+    bool hasLeft;
 };
 
 }
