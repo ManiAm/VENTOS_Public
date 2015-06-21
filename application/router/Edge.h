@@ -73,7 +73,7 @@ public:
     //Removal algorithm
     bool disabled;
 
-public:
+
     Edge(std::string idVal, Node* fromVal, Node* toVal, int priorityVal, std::vector<Lane*> lanesVec);
 };
 

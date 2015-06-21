@@ -15,7 +15,7 @@
 enum LaneCostsMode{MODE_EWMA = 2, MODE_RECORD = 1, MODE_NOTHING = 0};
 enum RouterMessage{DIJKSTRA = 0, HYPERTREE = 1, DONE = 2, STARTED = 3};
 enum TrafficLightLogicMode{FIXED = 0, HIGHDENSITY = 1, LOWDENSITY = 2, COOPERATIVE = 3};
-extern int EWMAMultiplier;
+extern double EWMARate;
 extern LaneCostsMode laneCostsMode;
 extern int debugLevel;
 

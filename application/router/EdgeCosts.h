@@ -32,6 +32,7 @@
 #include <map>
 #include <iostream>
 #include "RouterGlobals.h"
+#include <map>
 
 
 namespace VENTOS {
@@ -44,6 +45,7 @@ public:
     double average;
 
     EdgeCosts();
+    EdgeCosts(std::map<int, int> dataSet);
 
     void insert(int d); //Inserts a new value into the LaneCosts structure.
     double percentAt(int d);

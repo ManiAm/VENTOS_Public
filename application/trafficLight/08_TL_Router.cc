@@ -64,8 +64,7 @@ public:
 
     VState(std::string vehicle, TraCI_Extend *TraCI, Router* router, std::string currentEdge, double maxAccel, double lane1velocity, double lane2length = 0, double lane2velocity = 30): id(vehicle)
     {
-
-        double lane1length = router->net->edges[currentEdge]->length - TraCI->vehicleGetLanePosition(vehicle);
+        double lane1length = router->net->edges.at(currentEdge)->length - TraCI->vehicleGetLanePosition(vehicle);
         position = lane1length + lane2length;//position is distance from the TL along roads
         double velocity = TraCI->vehicleGetSpeed(vehicle);
 
@@ -539,8 +538,8 @@ bool TrafficLightRouter::LowDensityVehicleCheck()    //This function assumes it'
                     if(TraCI->vehicleGetSpeed(*vehicle) > 0.01)  //If that vehicle is not stationary
                     {
                         double pos = TraCI->vehicleGetLanePosition(*vehicle);
-                        double length = net->edges[(*edge)->id]->length;
-                        double speed = net->edges[(*edge)->id]->speed;
+                        double length = (*edge)->length;
+                        double speed = (*edge)->speed;
                         double timeLeft = (length - pos) / speed;   //Calculate how long until it hits the intersection, based off speed and distance
                         if(timeLeft < LowDensityExtendTime) //If this is within LowDensityExtendTime
                         {

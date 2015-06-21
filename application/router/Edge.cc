@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    Edge.cc
+    /// @file    Edge.cc
 /// @author  Dylan Smith <dilsmith@ucdavis.edu>
 /// @author  second author here
 /// @date    August 2013
@@ -58,7 +58,7 @@ double Edge::getCost()
     if(travelTimes.average > 0)
         return travelTimes.average;
 
-    //DTODO: Remove this
+
     if(debugLevel > 1) std::cout << "Using length / speed for cost of edge " << id << std::endl;
     return length / speed;
 }
