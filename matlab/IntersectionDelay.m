@@ -5,8 +5,9 @@ clc;    % position the cursor at the top of the screen
 %clf;   % closes the figure window
 
 % ---------------------------------------------------------------
+folderPath = '../results/cmd/R&B';
 
-path = '../results/cmd/R&B/0_vehicleData.txt';    
+path = strcat(folderPath,'/0_vehicleData.txt');    
 file_id = fopen(path);
 formatSpec = '%d %f %s %s %s %f %f %f %s %f %f %f %s %d';
 C_text = textscan(file_id, formatSpec, 'HeaderLines', 3);
@@ -19,6 +20,8 @@ lanes = C_text{1,5};
 speeds = C_text{1,7};
 signal = C_text{1,14};
 
+disp('reading file is done!');
+
 % ---------------------------------------------------------------
     
 % stores vehicle IDs
@@ -30,6 +33,8 @@ n = indices(end,1);
 % preallocating and initialization with -1
 vehiclesTS = zeros(n,1) - 1;
 vehiclesSpeed = zeros(n,1) - 1;
+vehiclesLane = cell(n,1);
+vehicleSignal = zeros(n,1) - 1;
 
 for i=1:rows   
        
@@ -41,16 +46,19 @@ for i=1:rows
     % get the current vehicle name
     vehicle = char(vehicles(i,1));
         
-        vNumber = find(ismember(vIDs,vehicle));        
-        if( isempty(vNumber) )
-            vIDs{end+1} = vehicle;
-            [~,vNumber] = size(vIDs);
-        end   
+    vNumber = find(ismember(vIDs,vehicle));        
+    if( isempty(vNumber) )
+        vIDs{end+1} = vehicle;
+        [~,vNumber] = size(vIDs);
+    end   
 
-        vehiclesSpeed(index,vNumber) = speeds(i,1);         
-        vehiclesLane(index, vNumber) = lanes(i,1);
-        vehicleSignal(index, vNumber) = signal(i,1);
+    vehiclesSpeed(index,vNumber) = double(speeds(i,1));         
+    vehiclesLane(index, vNumber) = lanes(i,1);
+    vehicleSignal(index, vNumber) = int32(signal(i,1));
 end
+
+disp('parsing file is done!');
+clearvars C_text indices timeSteps lanes speeds signal
     
 [~,VehNumbers] = size(vIDs);
 [rows,~] = size(vehiclesLane);
@@ -110,12 +118,13 @@ end
 % ---------------------------------------------------------------
 
 % looking for the start of 'deceleration delay'
+smoothDelay = zeros(size(waitingSpeeds,1)-1,1);
 for i=1:VehNumbers
     index(1,i) = -1;
-    smoothDelay(:,i) = diff( waitingSpeeds(:,i) );
+    smoothDelay(:,1) = diff( waitingSpeeds(:,i) );
     
     for j=1:(rows-11)
-        if( all(smoothDelay(j+1:j+10,i) ~= 0) && all(smoothDelay(j+1:j+10,i) < -0.05) )
+        if( all(smoothDelay(j+1:j+10,1) ~= 0) && all(smoothDelay(j+1:j+10,1) < -0.05) )
             index(1,i) = j;   % save the starting point
             break;
         end
@@ -159,9 +168,9 @@ for i=1:VehNumbers
     % if stopping delay is zero
     elseif(index(2,i) == -1)
         for j=index(1,i):(rows-11)  % start from index(1,i)
-            smoothDelay(:,i) = diff( vehiclesSpeed(:,i) );
+            smoothDelay(:,1) = diff( vehiclesSpeed(:,i) );
             
-            if( all(smoothDelay(j+1:j+10,i) > 0) )
+            if( all(smoothDelay(j+1:j+10,1) > 0) )
                 index(3,i) = j;   % save the starting point
                 break;
             end
@@ -325,7 +334,7 @@ end
 
 % we need to get TL phasing information
 
-path = '../results/cmd/R&B/0_intersectionData.txt';    
+path = strcat(folderPath, '/0_intersectionData.txt');    
 file_id = fopen(path);
 formatSpec = '%d %f %s %s %d';
 C_text = textscan(file_id, formatSpec, 'HeaderLines', 2);
@@ -447,7 +456,10 @@ subplot(2,1,1);
 handle1 = plot(phaseData(1,:),'LineWidth', 3);
   
 % set the x-axis limit
-set( gca, 'XLim', [1 size(phaseData,2)] );
+set( gca, 'XLim', [0 size(phaseData,2)+1] );
+
+% x axis should be integer
+set(gca, 'xtick' , 0:2:size(phaseDuration,2)+1);
     
 % set the y-axis limit
 set( gca, 'YLim', [-0.1 max(phaseData(1,:))+0.2] );
@@ -464,7 +476,10 @@ subplot(2,1,2);
 handle1 = plot(phaseData(2,:),'LineWidth', 3);
   
 % set the x-axis limit
-set( gca, 'XLim', [1 size(phaseData,2)] );
+set( gca, 'XLim', [0 size(phaseData,2)+1] );
+
+% x axis should be integer
+set(gca, 'xtick' , 0:2:size(phaseDuration,2)+1);
     
 % set the y-axis limit
 set( gca, 'YLim', [-0.1 max(phaseData(2,:))+0.2] );
@@ -485,8 +500,28 @@ ylabel('Average Delay (s)', 'FontSize', 17);
 
 % -----------------------------------------------------------------
 
+% specify TS interval in previous figure with vertical lines
+
+for threshold=100:100:vehiclesTS(end)
+    for i=1:size(phaseDuration,2)
+        
+        if(threshold >= phaseDuration(1,i) && threshold <= phaseDuration(2,i))            
+            subplot(2,1,1);
+            % draw vertical line
+            line([i i], ylim, 'LineWidth', 1, 'LineStyle', '--', 'Color', 'r');
+       
+            subplot(2,1,2);
+            % draw vertical line
+            line([i i], ylim, 'LineWidth', 1, 'LineStyle', '--', 'Color', 'r');            
+            continue;
+        end   
+        
+    end
+end
 
 
+
+% ----------------------------------------------------------------
 
 % print delay for each component
 
