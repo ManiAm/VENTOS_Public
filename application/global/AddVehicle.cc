@@ -53,15 +53,21 @@ void AddVehicle::initialize(int stage)
         TraCI = static_cast<TraCI_Extend *>(module);
         terminate = module->par("terminate").doubleValue();
 
-        Signal_executeFirstTS = registerSignal("executeFirstTS");
-        simulation.getSystemModule()->subscribe("executeFirstTS", this);
-
         on = par("on").boolValue();
         mode = par("mode").longValue();
         totalVehicles = par("totalVehicles").longValue();
         lambda = par("lambda").longValue();
         plnSize = par("plnSize").longValue();
         plnSpace = par("plnSpace").doubleValue();
+
+        Signal_executeFirstTS = registerSignal("executeFirstTS");
+        simulation.getSystemModule()->subscribe("executeFirstTS", this);
+
+        boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+        boost::filesystem::path SUMO_Path = simulation.getSystemModule()->par("SUMODirectory").stringValue();
+        SUMO_FullPath = VENTOS_FullPath / SUMO_Path;
+        if( !boost::filesystem::exists( SUMO_FullPath ) )
+            error("SUMO directory is not valid! Check it again.");
     }
 }
 
@@ -301,73 +307,10 @@ void AddVehicle::Scenario7()
 }
 
 
-std::vector<std::string> getEdgeNames(std::string netName)
-{
-    std::vector<std::string> edgeNames;
-
-    rapidxml::file <> xmlFile(netName.c_str());
-    rapidxml::xml_document<> doc;
-    rapidxml::xml_node<> *node;
-    doc.parse<0>(xmlFile.data());
-    for(node = doc.first_node()->first_node("edge"); node; node = node->next_sibling("edge"))
-        edgeNames.push_back(node->first_attribute()->value());
-
-    return edgeNames;
-}
-
-std::vector<std::string> getNodeNames(std::string netName)
-{
-    std::vector<std::string> nodeNames;
-    rapidxml::file <> xmlFile(netName.c_str());
-    rapidxml::xml_document<> doc;
-    rapidxml::xml_node<> *node;
-    doc.parse<0>(xmlFile.data());
-    for(node = doc.first_node()->first_node("junction"); node; node = node->next_sibling("junction"))
-        nodeNames.push_back(node->first_attribute()->value());
-
-    return nodeNames;
-}
-
-double curve(double x)  //Input will linearly increase from 0 to 1, from first to last vehicle.
-{                       //Output should be between 0 and 1, scaled by some function
-    return x;
-}
-
-void generateVehicles(std::string dir, Router* r)
-{
-    std::string netName = dir + "/hello.net.xml";
-    std::string vName = dir + "/Vehicles" + SSTR(r->totalVehicleCount) + ".xml";
-    std::ifstream netFile(netName.c_str());
-
-    srand(time(NULL));
-    std::vector<std::string> edgeNames = getEdgeNames(netName);
-    std::vector<std::string> nodeNames = getNodeNames(netName);
-
-    std::ofstream vFile(vName.c_str());
-    vFile << "<vehicles>" << endl;
-    for(int i = 1; i <= r->totalVehicleCount; i++)
-    {
-        std::string edge = edgeNames[rand() % edgeNames.size()];
-        std::string node = nodeNames[rand() % nodeNames.size()];
-        //vFile << "   <vehicle id=\"v" << i << "\" type=\"TypeManual\" origin=\"" << edge << "\" destination=\"" << node << "\" depart=\"" << i * r->createTime / r->totalVehicleCount << "\" />" << endl;
-
-        vFile << "   <vehicle id=\"v" << i << "\" type=\"TypeManual\" origin=\"" << edge << "\" destination=\""
-                << node << "\" depart=\"" << curve((double)i/r->totalVehicleCount) * r->createTime << "\" />" << endl;
-    }
-    vFile << "</vehicles>" << endl;
-    vFile.close();
-}
-
 void AddVehicle::Scenario8()
 {
     cModule *module = simulation.getSystemModule()->getSubmodule("router");
     Router *r = static_cast< Router* >(module);
-
-    boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-    boost::filesystem::path SUMO_Path = simulation.getSystemModule()->par("SUMODirectory").stringValue();
-    boost::filesystem::path SUMO_FullPath = VENTOS_FullPath / SUMO_Path;
-    if( !boost::filesystem::exists( SUMO_FullPath ) )
-        error("SUMO directory is not valid! Check it again.");
 
     std::string vehFile = ("/Vehicles" + SSTR(r->totalVehicleCount) + ".xml");
     std::string xmlFileName = SUMO_FullPath.string();
@@ -408,10 +351,9 @@ void AddVehicle::Scenario8()
             }
             readCount++;
         }
+
         if(readCount < 5)
-        {
             error("XML formatted wrong! Not enough elements given for some vehicle.");
-        }
 
         r->net->vehicles[id] = new Vehicle(id, type, origin, destination, depart);
 
@@ -420,7 +362,7 @@ void AddVehicle::Scenario8()
         {
             std::list<std::string> startRoute;
             startRoute.push_back(origin);   //With just the starting edge
-            TraCI->routeAdd(origin, startRoute);   //And add it to the simulation
+            TraCI->routeAdd(origin /*route ID*/, startRoute);   //And add it to the simulation
         }
 
         //commandAddVehicleRouter wants string id, string type, string (edge) origin, string (node) destination, double (time) depart, and string routename
@@ -436,6 +378,63 @@ void AddVehicle::Scenario8()
             TraCI->vehicleSetColor(id, newColor);
         }
     }
+}
+
+
+void generateVehicles(std::string dir, Router* r)
+{
+    std::string netName = dir + "/hello.net.xml";
+
+    std::vector<std::string> edgeNames = getEdgeNames(netName);
+    std::vector<std::string> nodeNames = getNodeNames(netName);
+
+    srand(time(NULL));
+    std::string vName = dir + "/Vehicles" + SSTR(r->totalVehicleCount) + ".xml";
+    std::ofstream vFile(vName.c_str());
+    vFile << "<vehicles>" << endl;
+    for(int i = 1; i <= r->totalVehicleCount; i++)
+    {
+        std::string edge = edgeNames[rand() % edgeNames.size()];
+        std::string node = nodeNames[rand() % nodeNames.size()];
+        //vFile << "   <vehicle id=\"v" << i << "\" type=\"TypeManual\" origin=\"" << edge << "\" destination=\"" << node << "\" depart=\"" << i * r->createTime / r->totalVehicleCount << "\" />" << endl;
+
+        vFile << "   <vehicle id=\"v" << i << "\" type=\"TypeManual\" origin=\"" << edge << "\" destination=\""
+                << node << "\" depart=\"" << curve((double)i/r->totalVehicleCount) * r->createTime << "\" />" << endl;
+    }
+    vFile << "</vehicles>" << endl;
+    vFile.close();
+}
+
+std::vector<std::string> getEdgeNames(std::string netName)
+{
+    std::vector<std::string> edgeNames;
+
+    rapidxml::file <> xmlFile(netName.c_str());
+    rapidxml::xml_document<> doc;
+    rapidxml::xml_node<> *node;
+    doc.parse<0>(xmlFile.data());
+    for(node = doc.first_node()->first_node("edge"); node; node = node->next_sibling("edge"))
+        edgeNames.push_back(node->first_attribute()->value());
+
+    return edgeNames;
+}
+
+std::vector<std::string> getNodeNames(std::string netName)
+{
+    std::vector<std::string> nodeNames;
+    rapidxml::file <> xmlFile(netName.c_str());
+    rapidxml::xml_document<> doc;
+    rapidxml::xml_node<> *node;
+    doc.parse<0>(xmlFile.data());
+    for(node = doc.first_node()->first_node("junction"); node; node = node->next_sibling("junction"))
+        nodeNames.push_back(node->first_attribute()->value());
+
+    return nodeNames;
+}
+
+double curve(double x)  //Input will linearly increase from 0 to 1, from first to last vehicle.
+{                       //Output should be between 0 and 1, scaled by some function
+    return x;
 }
 
 

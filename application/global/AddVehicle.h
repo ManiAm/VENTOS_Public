@@ -37,39 +37,42 @@ namespace VENTOS {
 
 class AddVehicle : public BaseModule
 {
-	public:
-		virtual ~AddVehicle();
-		virtual void initialize(int stage);
-        virtual void handleMessage(cMessage *msg);
-		virtual void finish();
-	    virtual void receiveSignal(cComponent *, simsignal_t, long);
+public:
+    virtual ~AddVehicle();
+    virtual void initialize(int stage);
+    virtual void handleMessage(cMessage *msg);
+    virtual void finish();
+    virtual void receiveSignal(cComponent *, simsignal_t, long);
 
-	private:
+private:
+    void Add();
 
-        // NED variables
-        cModule *nodePtr;   // pointer to the Node
-        TraCI_Extend *TraCI;  // pointer to the TraCI module
-        double terminate;
-        simsignal_t Signal_executeFirstTS;
-        bool on;
-        int mode;
-	    int totalVehicles;
-	    double lambda;
-	    int plnSize;
-	    double plnSpace;
+    void Scenario1();
+    void Scenario2();
+    void Scenario3();
+    void Scenario4();
+    void Scenario5();
+    void Scenario6();
+    void Scenario7();
+    void Scenario8();
+    void Scenario9();
 
-	    // methods
-        void Add();
+private:
+    // NED variables
+    cModule *nodePtr;   // pointer to the Node
+    TraCI_Extend *TraCI;  // pointer to the TraCI module
+    double terminate;
 
-	    void Scenario1();
-        void Scenario2();
-        void Scenario3();
-        void Scenario4();
-        void Scenario5();
-        void Scenario6();
-        void Scenario7();
-        void Scenario8();
-        void Scenario9();
+    bool on;
+    int mode;
+    int totalVehicles;
+    double lambda;
+    int plnSize;
+    double plnSpace;
+
+    // class variables
+    simsignal_t Signal_executeFirstTS;
+    boost::filesystem::path SUMO_FullPath;
 };
 
 }
