@@ -25,6 +25,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
+#include "RouterGlobals.h"
 #include "Net.h"
 using namespace std;
 
@@ -68,7 +69,7 @@ double Net::turnTypeCost(Edge* start, Edge* end)
         case 't':
             return uTurnCost;
     }
-    if(router_debug) cout << "Turn did not have an associated type!  This should never happen." << endl;
+    if(debugLevel > 0) cout << "Turn did not have an associated type!  This should never happen." << endl;
     return 100000;
 }
 

@@ -25,8 +25,8 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "ApplV_03_System.h"
 #include "RouterGlobals.h"
+#include "ApplV_03_System.h"
 
 namespace VENTOS {
 
@@ -82,7 +82,7 @@ void ApplVSystem::initialize(int stage)
         if(find(router->nonReroutingVehicles->begin(), router->nonReroutingVehicles->end(), SUMOvID.substr(1, SUMOvID.length() - 1)) != router->nonReroutingVehicles->end())
         {
             requestReroutes = false;
-            if(router_debug) cout << SUMOvID << " is not routing" << endl;
+            if(debugLevel) cout << SUMOvID << " is not routing" << endl;
         }
         else
         {
@@ -114,7 +114,7 @@ void ApplVSystem::finish()
     if(!requestRoutes)
         return;
 
-    if(ev.isGUI() && requestRoutes) std::cout << SUMOvID << " took " << simTime().dbl() - entryTime << " seconds to complete its route." << endl;
+    if(requestRoutes) std::cout << SUMOvID << " took " << simTime().dbl() - entryTime << " seconds to complete its route. (t=" << simTime().dbl() << ")" << endl;
     router->vehicleEndTimesFile << SUMOvID << " " << simTime().dbl() << endl;
 
     simsignal_t Signal_system = registerSignal("system"); //Prepare to send a system message
@@ -152,7 +152,7 @@ void ApplVSystem::handleSelfMsg(cMessage* msg)  //Internal messages to self
 void ApplVSystem::reroute()
 {
 
-    if(router_debug) cout << "Rerouting " << SUMOvID << " at t=" << simTime().dbl() << endl;
+    if(debugLevel) cout << "Rerouting " << SUMOvID << " at t=" << simTime().dbl() << endl;
     ++numReroutes;
     sendSystemMsgEvt = new cMessage("systemmsg evt");   //Create a new internal message
     simsignal_t Signal_system = registerSignal("system"); //Prepare to send a system message
@@ -181,7 +181,8 @@ void ApplVSystem::receiveSignal(cComponent *source, simsignal_t signalID, cObjec
             {
                 std::list<std::string> sRoute = s->getInfo(); //Copy the info from the signal (breaks if we don't do this, for some reason)
 
-                if(router_debug)
+
+                if(debugLevel)
                 {
                     cout << SUMOvID << " got route ";
                     for(string s : sRoute)

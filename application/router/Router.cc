@@ -25,8 +25,8 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "Router.h"
 #include "RouterGlobals.h"
+#include "Router.h"
 #include <stdlib.h>
 
 using namespace std;
@@ -80,16 +80,18 @@ Router::~Router()
 
 void Router::initialize(int stage)
 {
-    router_debug = par("debug").boolValue();
-    enableRouter = par("enableRouter").boolValue();
-    if(!enableRouter)
-    {
-        cout << "enableRouter is false!" << endl;
-        return;
-    }
-
     if(stage == 0)
     {
+
+        debugLevel = par("debugLevel").longValue();
+        if(debugLevel || 1) cout << "Debug level is " << debugLevel << endl;
+        enableRouter = par("enableRouter").boolValue();
+        if(!enableRouter)
+        {
+            cout << "enableRouter is false!" << endl;
+            return;
+        }
+
 
         // get the file paths
         VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
@@ -145,7 +147,7 @@ void Router::initialize(int stage)
                 EdgeRemovals.push_back(EdgeRemoval(edgeID, start, end));
             }
 
-            if(router_debug) cout << "Loaded " << EdgeRemovals.size() << " accidents from " << AccidentFile << endl;
+            if(debugLevel) cout << "Loaded " << EdgeRemovals.size() << " accidents from " << AccidentFile << endl;
 
             if(EdgeRemovals.size() > 0)
             {
@@ -154,7 +156,7 @@ void Router::initialize(int stage)
             }
             else
             {
-                if(router_debug) cout << "Accidents are enabled but no accidents were read in!" << endl;
+                cout << "Accidents are enabled but no accidents were read in!" << endl;
             }
         }
 
@@ -186,7 +188,7 @@ void Router::initialize(int stage)
             while(NonReroutingFile >> vehNum)
                 nonReroutingVehicles->insert(vehNum);
             NonReroutingFile.close();
-            if(router_debug) cout << "Loaded " << numNonRerouting << " nonRerouting vehicles from file " << NonReroutingFileName << endl;
+            if(debugLevel) cout << "Loaded " << numNonRerouting << " nonRerouting vehicles from file " << NonReroutingFileName << endl;
         }
         else
         {
@@ -196,7 +198,7 @@ void Router::initialize(int stage)
             for(string veh : *nonReroutingVehicles)
                 NonReroutingFile << veh << endl;
             NonReroutingFile.close();
-            if(router_debug) cout << "Created " << numNonRerouting << "-vehicle nonRerouting file " << NonReroutingFileName << endl;
+            if(debugLevel) cout << "Created " << numNonRerouting << "-vehicle nonRerouting file " << NonReroutingFileName << endl;
         }
 
         string endTimeFile = VENTOS_FullPath.string() + "results/router/" + filePrefix.str() + "_endTimes.txt";
@@ -205,8 +207,8 @@ void Router::initialize(int stage)
         if(collectVehicleTimeData)
         {
             string TravelTimesFileName = VENTOS_FullPath.string() + "results/router/" + filePrefix.str() + ".txt";
+            if(debugLevel) cout << "Opened edge-weights file at " << TravelTimesFileName << endl;
             vehicleTravelTimesFile.open(TravelTimesFileName.c_str());  //Open the edgeWeights file
-            if(router_debug) cout << "Opened edge-weights file at " << TravelTimesFileName << endl;
         }
     }
 }
@@ -447,7 +449,7 @@ void Router::parseLaneCostsFile()
             readValuesCount += timeCount;  //And mark we read this many more data points
         }
         ec.average /= readValuesCount;
-        if(router_debug) cout << "Loaded " << ec.count << " data points for edge " << edgeName << ". Average: " << ec.average << endl;
+        if(debugLevel > 1) cout << "Loaded " << ec.count << " data points for edge " << edgeName << ". Average: " << ec.average << endl;
 
     }
     inFile.close();
@@ -548,7 +550,7 @@ Hypertree* Router::buildHypertree(int startTime, Node* destination)
             }
         }
     }
-    if(router_debug) cout << "Generating a hypertree for " << destination->id << endl;
+    if(debugLevel > 1) cout << "Generating a hypertree for " << destination->id << endl;
     Node* D = destination;    // Find the destination, call it D
     for(int t = startTime; t <= timePeriodMax; t++)           // For every second in the time interval
     {
@@ -673,7 +675,7 @@ list<string> Router::getRoute(Edge* origin, Node* destination, string vName)
             return routeIDs;    // Return the final list
         }
     }// While heap isn't empty
-    if(ev.isGUI() || router_debug) cout << "Pathing failed from " << origin->id << " to " << destination->id << " at t=" << simTime().dbl() << "!  Either destination cannot be reached or vehicle is on an edge with an accident.  Route will not be changed" << endl;
+    if(ev.isGUI() || debugLevel) cout << "Pathing failed from " << origin->id << " to " << destination->id << " at t=" << simTime().dbl() << "!  Either destination cannot be reached or vehicle is on an edge with an accident.  Route will not be changed" << endl;
     list<string> ret;
     ret.push_back("failed");
     return ret;

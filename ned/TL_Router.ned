@@ -12,4 +12,7 @@ simple TL_Router extends TL_VANET
         double LowDensityExtendTime;
         double MaxPhaseDuration;     
         double MinPhaseDuration;   
+        
+        int debugLevel;
+        double YellowDuration;
 }

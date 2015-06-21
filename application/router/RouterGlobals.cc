@@ -1,5 +1,5 @@
 #include "RouterGlobals.h"
 
 int EWMAMultiplier;
-bool router_debug;
+int debugLevel;
 LaneCostsMode laneCostsMode;
