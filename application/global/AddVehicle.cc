@@ -301,12 +301,6 @@ void AddVehicle::Scenario7()
 }
 
 
-bool fexists(const char *filename)
-{
-    std::ifstream ifile(filename);
-    return ifile;
-}
-
 std::vector<std::string> getEdgeNames(std::string netName)
                         {
     std::vector<std::string> edgeNames;
@@ -379,7 +373,7 @@ void AddVehicle::Scenario8()
     std::string xmlFileName = SUMO_FullPath.string();
     xmlFileName += vehFile;
 
-    if(!fexists(xmlFileName.c_str()))
+    if(!boost::filesystem::exists(xmlFileName.c_str()))
     {
         generateVehicles(SUMO_FullPath.string(), r);
     }

@@ -35,12 +35,6 @@ namespace VENTOS {
 
 Define_Module(VENTOS::Router);
 
-bool fexists(const char *filename)
-{
-    ifstream ifile(filename);
-    return ifile;
-}
-
 set<string>* randomUniqueVehiclesInRange(int numInts, int rangeMin, int rangeMax)
 {             //Generates n random unique ints in range [rangeMin, rangeMax)
               //Not a very efficient implementation, but it shouldn't matter much
@@ -80,28 +74,21 @@ Router::~Router()
 
 void Router::initialize(int stage)
 {
+    enableRouter = par("enableRouter").boolValue();
+    if(!enableRouter)
+        return;
+
     if(stage == 0)
     {
-
         debugLevel = par("debugLevel").longValue();
         if(debugLevel || 1) cout << "Debug level is " << debugLevel << endl;
-        enableRouter = par("enableRouter").boolValue();
-        if(!enableRouter)
-        {
-            cout << "enableRouter is false!" << endl;
-            return;
-        }
-
 
         // get the file paths
         VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
         SUMO_Path = simulation.getSystemModule()->par("SUMODirectory").stringValue();
         SUMO_FullPath = VENTOS_FullPath / SUMO_Path;
-        // check if this directory is valid?
-        if( !exists( SUMO_FullPath ) )
-        {
+        if( !boost::filesystem::exists( SUMO_FullPath ) )
             error("SUMO directory is not valid! Check it again.");
-        }
 
         // Build nodePtr and traci manager
         nodePtr = FindModule<>::findHost(this);
@@ -128,13 +115,10 @@ void Router::initialize(int stage)
         // register signals
         Signal_system = registerSignal("system");
         simulation.getSystemModule()->subscribe("system", this);
-
         Signal_executeFirstTS = registerSignal("executeFirstTS");
-simulation.getSystemModule()->subscribe("executeFirstTS", this);
-
+        simulation.getSystemModule()->subscribe("executeFirstTS", this);
         Signal_executeEachTS = registerSignal("executeEachTS");
-
-        
+      //  simulation.getSystemModule()->subscribe("executeEachTS", this);
 
         if(UseAccidents)
         {
@@ -164,7 +148,6 @@ simulation.getSystemModule()->subscribe("executeFirstTS", this);
             }
         }
 
-
         int ltc = par("leftTurnCost").doubleValue();
         int rtc = par("rightTurnCost").doubleValue();
         int stc = par("straightCost").doubleValue();
@@ -172,7 +155,6 @@ simulation.getSystemModule()->subscribe("executeFirstTS", this);
         net = new Net(SUMO_FullPath.string(), this->getParentModule(), ltc, rtc, stc, utc);
 
         parseLaneCostsFile();
-
     }
     else if (stage == 1)
     {
@@ -184,7 +166,7 @@ simulation.getSystemModule()->subscribe("executeFirstTS", this);
         filePrefix << totalVehicleCount << "_" << nonReroutingVehiclePercent << "_" << TLMode;
         filePrefixNoTL << totalVehicleCount << "_" << nonReroutingVehiclePercent;
         string NonReroutingFileName = VENTOS_FullPath.string() + "results/router/" + filePrefixNoTL.str() + "_nonRerouting" + ".txt";
-        if(fexists(NonReroutingFileName.c_str()))
+        if( boost::filesystem::exists(NonReroutingFileName) )
         {
             nonReroutingVehicles = new set<string>();
             ifstream NonReroutingFile(NonReroutingFileName);
@@ -225,10 +207,9 @@ void Router::handleMessage(cMessage* msg)
     scheduleAt(simTime().dbl() + AccidentCheckInterval, routerMsg); //Schedule them to start sending
 }
 
-void Router::receiveSignal(cComponent *source, simsignal_t signalID, long i)
+void Router::receiveSignal(cComponent *source, simsignal_t signalID, long done)
 {
     Enter_Method_Silent();
-    bool done = i;
 
     //Runs once per timestep
     if(signalID == Signal_executeEachTS)
@@ -237,7 +218,7 @@ void Router::receiveSignal(cComponent *source, simsignal_t signalID, long i)
             laneCostsData();
 
         // if simulation is about to end
-        if(done)
+        if((bool)done)
         {
             if(laneCostsMode == MODE_RECORD)
                 LaneCostsToFile();
@@ -364,7 +345,6 @@ void Router::issueStop(string vehID, string edgeID)
 
 void Router::issueStart(string vehID)
 {
-
     TraCI->vehicleResume(vehID);
 }
 
@@ -454,7 +434,6 @@ void Router::parseLaneCostsFile()
         }
         ec.average /= readValuesCount;
         if(debugLevel > 1) cout << "Loaded " << ec.count << " data points for edge " << edgeName << ". Average: " << ec.average << endl;
-
     }
     inFile.close();
 }
