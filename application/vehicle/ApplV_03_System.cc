@@ -82,7 +82,7 @@ void ApplVSystem::initialize(int stage)
         if(find(router->nonReroutingVehicles->begin(), router->nonReroutingVehicles->end(), SUMOvID.substr(1, SUMOvID.length() - 1)) != router->nonReroutingVehicles->end())
         {
             requestReroutes = false;
-            if(debugLevel) cout << SUMOvID << " is not routing" << endl;
+            if(debugLevel) std::cout << SUMOvID << " is not routing" << endl;
         }
         else
         {
@@ -154,7 +154,7 @@ void ApplVSystem::handleSelfMsg(cMessage* msg)  //Internal messages to self
 void ApplVSystem::reroute()
 {
 
-    if(debugLevel) cout << "Rerouting " << SUMOvID << " at t=" << simTime().dbl() << endl;
+    if(debugLevel) std::cout << "Rerouting " << SUMOvID << " at t=" << simTime().dbl() << endl;
     ++numReroutes;
     sendSystemMsgEvt = new cMessage("systemmsg evt");   //Create a new internal message
     simsignal_t Signal_system = registerSignal("system"); //Prepare to send a system message
@@ -186,10 +186,10 @@ void ApplVSystem::receiveSignal(cComponent *source, simsignal_t signalID, cObjec
 
                 if(debugLevel)
                 {
-                    cout << SUMOvID << " got route ";
-                    for(string s : sRoute)
-                        cout << s << " ";
-                    cout << endl;
+                    std::cout << SUMOvID << " got route ";
+                    for(std::string s : sRoute)
+                        std::cout << s << " ";
+                    std::cout << endl;
                 }
                 if (*sRoute.begin() != "failed")
                     TraCI->vehicleSetRoute(s->getRecipient(), sRoute);  //Update this vehicle's path with the proper info
@@ -272,25 +272,6 @@ SystemMsg*  ApplVSystem::prepareSystemMsg()
     return wsm;
 }
 
-// print system msg fields (for debugging purposes)
-void ApplVSystem::printSystemMsgContent(SystemMsg* wsm)
-{
-    EV << wsm->getWsmVersion() << " | ";
-    EV << wsm->getSecurityType() << " | ";
-    EV << wsm->getChannelNumber() << " | ";
-    EV << wsm->getDataRate() << " | ";
-    EV << wsm->getPriority() << " | ";
-    EV << wsm->getPsid() << " | ";
-    EV << wsm->getPsc() << " | ";
-    EV << wsm->getWsmLength() << " | ";
-    EV << wsm->getWsmData() << " ||| ";
-
-    EV << wsm->getSender() << " | ";
-
-    EV << wsm->getRequestType() << " | ";
-    EV << wsm->getEdge() << " | ";
-    EV << wsm->getTarget() << " | ";
-}
 
 // is called, every time the position of vehicle changes
 void ApplVSystem::handlePositionUpdate(cObject* obj)
