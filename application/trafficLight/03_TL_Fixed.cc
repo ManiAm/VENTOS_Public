@@ -73,7 +73,7 @@ void TrafficLightFixed::executeFirstTimeStep()
     if (TLControlMode != TL_Fix_Time)
         return;
 
-    std::cout << "Fixed-time traffic signal control ... " << endl << endl;
+    std::cout << endl << "Fixed-time traffic signal control ... " << endl << endl;
 
     for (std::list<std::string>::iterator TL = TLList.begin(); TL != TLList.end(); ++TL)
         TraCI->TLSetProgram(*TL, "fix-time");

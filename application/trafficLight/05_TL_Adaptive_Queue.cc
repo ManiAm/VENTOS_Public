@@ -91,7 +91,7 @@ void TrafficLightAdaptiveQueue::executeFirstTimeStep()
     if(TLControlMode != TL_Adaptive_Time_Queue)
         return;
 
-    std::cout << "Adaptive-time with queue traffic signal control ..." << endl << endl;
+    std::cout << endl << "Adaptive-time with queue traffic signal control ..." << endl << endl;
 
     getMovements();
 

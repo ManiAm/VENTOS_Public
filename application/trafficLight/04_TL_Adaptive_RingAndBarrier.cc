@@ -91,7 +91,7 @@ void TrafficLightAdaptive::executeFirstTimeStep()
     if(TLControlMode != TL_Adaptive_Time)
         return;
 
-    std::cout << "Adaptive-time traffic signal control ..."  << endl;
+    std::cout << endl << "Adaptive-time traffic signal control ..."  << endl;
 
     // passageTime calculation per incoming lane
     if(passageTime == -1)
@@ -194,6 +194,10 @@ void TrafficLightAdaptive::chooseNextInterval()
         TraCI->TLSetState("C", nextInterval);
         intervalElapseTime = 0.0;
         intervalOffSet = redTime;
+
+        char buff[300];
+        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
+        std::cout << buff << endl << endl;
     }
     else if (currentInterval == "red")
     {
@@ -203,13 +207,13 @@ void TrafficLightAdaptive::chooseNextInterval()
         TraCI->TLSetState("C", nextGreenInterval);
         intervalElapseTime = 0.0;
         intervalOffSet = minGreenTime;
+
+        char buff[300];
+        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
+        std::cout << buff << endl << endl;
     }
     else
         chooseNextGreenInterval();
-
-    char buff[300];
-    sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
-    std::cout << buff << endl << endl;
 }
 
 
@@ -418,10 +422,10 @@ void TrafficLightAdaptive::chooseNextGreenInterval()
         {
             intervalOffSet = 0.0001;
             intervalElapseTime = maxGreenTime;
-            std::cout << ">>> Offset value is too small ..." << endl;
+            std::cout << ">>> Green extension offset is too small. Terminating the current phase ..." << endl << endl;
         }
         else
-            std::cout << ">>> Extending green time by " << intervalOffSet << "s" << endl;
+            std::cout << ">>> Extending green for both movements by " << intervalOffSet << "s" << endl << endl;
     }
     // we should terminate the current green interval
     else
@@ -431,6 +435,10 @@ void TrafficLightAdaptive::chooseNextGreenInterval()
 
         intervalElapseTime = 0.0;
         intervalOffSet =  yellowTime;
+
+        char buff[300];
+        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
+        std::cout << buff << endl << endl;
     }
 }
 
