@@ -428,6 +428,15 @@ void AddVehicle::Scenario8()
         //commandAddVehicleRouter wants string id, string type, string (edge) origin, string (node) destination, double (time) depart, and string routename
 
         TraCI->vehicleAdd(id, type, origin, 1000 * depart, 0, 0, 0);  //Send a TraCI add call -- might not need to be *1000.
+
+        //Huajun-Change color of non-rerouting vehicle to red.
+        string veh = id.substr(1,-1);
+
+        if(find(r->nonReroutingVehicles->begin(), r->nonReroutingVehicles->end(), veh) != r->nonReroutingVehicles->end())
+        {
+            TraCIColor newColor = TraCIColor::fromTkColor("red");
+            TraCI->vehicleSetColor(id, newColor);
+        }
     }
 }
 
