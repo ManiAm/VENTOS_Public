@@ -25,6 +25,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
+#include "RouterGlobals.h"
 #include "Net.h"
 using namespace std;
 
@@ -68,7 +69,7 @@ double Net::turnTypeCost(Edge* start, Edge* end)
         case 't':
             return uTurnCost;
     }
-    if(ev.isGUI()) cout << "Turn did not have an associated type!  This should never happen." << endl;
+    if(debugLevel > 0) cout << "Turn did not have an associated type!  This should never happen." << endl;
     return 100000;
 }
 
@@ -240,7 +241,6 @@ void Net::LoadHelloNet(string netBase)
         }
         Node* from = nodes[fromVal];  //Get a pointer to the start node
         Node* to = nodes[toVal];      //Get a pointer to the end node
-        Router *routerPtr = FindModule<Router*>::findGlobalModule();
         Edge* e = new Edge(id, from, to, priority, *lanesVec);
         from->outEdges.push_back(e);   //Add the edge to the start node's list
         edges[id] = e;

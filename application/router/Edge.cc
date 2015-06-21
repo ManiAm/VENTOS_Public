@@ -25,6 +25,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
+#include "RouterGlobals.h"
 #include "Edge.h"
 
 namespace VENTOS {
@@ -58,7 +59,7 @@ double Edge::getCost()
         return travelTimes.average;
 
     //DTODO: Remove this
-    std::cout << "using length / speed" << std::endl;
+    if(debugLevel > 1) std::cout << "Using length / speed for cost of edge " << id << std::endl;
     return length / speed;
 }
 

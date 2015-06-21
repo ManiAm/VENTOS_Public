@@ -25,6 +25,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
+#include "RouterGlobals.h"
 #include "08_TL_Router.h"
 #include <iostream>
 #include <iomanip>
@@ -56,24 +57,20 @@ class VState
 {
 public:
     static constexpr double MAX_ACCEL = 3.0;
-    static constexpr double MAX_VELOCITY = 30.0;
 
     double position;
     double eta;
     std::string id;
 
-    /*
-    VState(double position, double velocity, double acceleration, string id) : position(position), id(id)
+    VState(std::string vehicle, TraCI_Extend *TraCI, Router* router, std::string currentEdge, double maxAccel, double lane1velocity, double lane2length = 0, double lane2velocity = 30): id(vehicle)
     {
-        eta = (sqrt(2 * acceleration * position + velocity * velocity) -velocity)/acceleration;
-        eta = position;
-    }
-    */
 
-    VState(std::string vehicle, TraCI_Extend *TraCI, Router* router, std::string currentEdge, double nextEdgeLength = 0): id(vehicle)
-    {
-        position = router->net->edges[currentEdge]->length - TraCI->vehicleGetLanePosition(vehicle) + nextEdgeLength;//position is distance from the TL along roads
+        double lane1length = router->net->edges[currentEdge]->length - TraCI->vehicleGetLanePosition(vehicle);
+        position = lane1length + lane2length;//position is distance from the TL along roads
         double velocity = TraCI->vehicleGetSpeed(vehicle);
+
+        double MAX_VELOCITY = ((lane1length * lane1velocity) + (lane2length * lane2velocity))/(position);
+        double MAX_ACCEL = (router->net->vehicles[vehicle])->maxAccel;
 
         double accelTime = (MAX_VELOCITY - velocity) / MAX_ACCEL;
         double averageVelocityDuringAccel = (MAX_VELOCITY + velocity) / 2;
@@ -88,25 +85,6 @@ public:
             eta = (sqrt(2 * MAX_ACCEL * position + velocity * velocity) -velocity)/MAX_ACCEL;
         }
     }
-
-    /*
-    double position;
-    double velocity;
-    double acceleration;
-    string id;
-
-    VState(double position, double velocity, double acceleration, string id) :
-        position(position), velocity(velocity), acceleration(acceleration), id(id)
-    {}
-
-        void print()
-    {
-        cout << id << ": " << endl
-             << "    pos: " << position << endl
-             << "    vel: " << velocity << endl
-             << "    acc: " << acceleration << endl;
-    }
-    */
 
     bool operator<(const VState& rhs) const
     {
@@ -163,17 +141,6 @@ public:
 
             return (double)i/time;
         }
-        /*
-        while(index < v.size() and v[index].eta < time)
-            index++;
-        while(index >= 0 and v[index].eta > time)
-            index--;
-
-        if(index == v.size())
-            index--;
-
-        int numVehicles = index + 1;
-        return (double)numVehicles / time;*/
     }
 };
 
@@ -196,10 +163,10 @@ void TrafficLightRouter::build(std::string id, std::string type, std::string pro
     currentPhase = 0;
     lastSwitchTime = 0;
     cycleDuration = 0;
-    isTransitionPhase = false;
+    //isTransitionPhase = false;
     nonTransitionalCycleDuration = 0;
 
-    for(unsigned int i = 0; i < phases.size(); ++i)
+    for(unsigned int i = 0; i < phases.size(); i++)
     {
         cycleDuration += phases[i]->duration;
         if(i % 2 == 0)
@@ -219,16 +186,20 @@ void TrafficLightRouter::initialize(int stage)
 
     if(stage == 0)
     {
+        debugLevel = par("debugLevel").longValue();
         TLLogicMode = static_cast<TrafficLightLogicMode>(par("TLLogicMode").longValue());
         HighDensityRecalculateFrequency = par("HighDensityRecalculateFrequency").doubleValue();
         LowDensityExtendTime = par("LowDensityExtendTime").doubleValue();
         MaxPhaseDuration = par("MaxPhaseDuration").doubleValue();
         MinPhaseDuration = par("MinPhaseDuration").doubleValue();
+        YellowDuration = par("YellowDuration").doubleValue();
 
         currentPhase = 0;
         switch(TLLogicMode)
         {
         case FIXED:
+            TLSwitchEvent = new cMessage("tl switch evt");
+            scheduleAt(phases[0]->duration, TLSwitchEvent);
             break;
 
         case HIGHDENSITY:
@@ -255,23 +226,24 @@ void TrafficLightRouter::initialize(int stage)
 
 
 //Switch tl to the specified phase
-void TrafficLightRouter::switchToPhase(int phase, double greenDuration, int yellowDuration)
+void TrafficLightRouter::switchToPhase(int phaseSwitch, double greenDuration, int yellowDuration)
 {
-    int yellowPhase = (currentPhase + 1) % phases.size();   //Identify the yellowphase that follows the current phase
-    phase = phase % phases.size();
-    currentPhase = phase;
+    nextPhase = phaseSwitch % phases.size();
+    if(greenDuration <= 0)   //If greenDuration is less than zero, assume default duration
+        greenDuration = phases[nextPhase]->duration;
+    if(yellowDuration <= 0)
+        yellowDuration = YellowDuration;
 
-    if(greenDuration < 0)   //If greenDuration is less than zero, assume default duration
-        greenDuration = phases[phase]->duration;
-    phaseDurationAfterTransition = greenDuration;
-    isTransitionPhase = true;   //Mark that the next phase is a short yellow (transitional) phase
+    nextDuration = greenDuration;
 
-    lastSwitchTime = simTime().dbl(); //Mark the last switch time
+    if(debugLevel > 1) cout << "Switching to transition phase " << (currentPhase + 1) % phases.size() << endl;
 
-    TraCI->TLSetPhaseIndex(id, yellowPhase);           //Manually switch to the yellow phase in SUMO
-    TLSwitchEvent = new cMessage("tl switch evt");
+    TraCI->TLSetPhaseIndex(id, (currentPhase + 1) % phases.size());           //Manually switch to the yellow phase in SUMO
+
+    TraCI->TLSetPhaseDuration(id, 10000000);
+
+    TLSwitchEvent = new cMessage("tl transition evt");
     scheduleAt(simTime().dbl() + yellowDuration, TLSwitchEvent);
-    TraCI->TLSetPhaseDuration(id, 10000000);   //Make sure SUMO doesn't handle switches, by always setting phases to expire after a very long time
 }
 
 void TrafficLightRouter::handleMessage(cMessage* msg)  //Internal messages to self
@@ -285,11 +257,29 @@ void TrafficLightRouter::handleMessage(cMessage* msg)  //Internal messages to se
     {
         if(msg->isName("tl evt"))   //Out-of-sync TL Algorithms take place here
         {
+            if(debugLevel > 1) cout << "TL " << id << " got an asynchronous self-message at t=" << simTime().dbl() << endl;
             ASynchronousMessage();
         }
         else if(msg->isName("tl switch evt"))   //Operations in sync with normal phase switching happens here
         {
+            if(debugLevel > 1) cout << "TL " << id << " got a synchronous self-message at t=" << simTime().dbl() << endl;
             SynchronousMessage();
+        }
+        else if(msg->isName("tl transition evt"))
+        {
+
+            if(debugLevel > 1) cout << "TL " << id << " got a transition self-message at t=" << simTime().dbl() << endl;
+            currentPhase = nextPhase;
+            TraCI->TLSetPhaseIndex(id, currentPhase);           //Manually switch to the yellow phase in SUMO
+
+            if(debugLevel > 1) cout << "Switching to actual phase " << currentPhase << endl;
+            lastSwitchTime = simTime().dbl();
+
+            TraCI->TLSetPhaseDuration(id, 10000000);
+
+            TLSwitchEvent = new cMessage("tl switch evt");
+            scheduleAt(simTime().dbl() + nextDuration, TLSwitchEvent);
+
         }
     }
     delete msg;
@@ -298,32 +288,22 @@ void TrafficLightRouter::handleMessage(cMessage* msg)  //Internal messages to se
 //Messages sent whenever a phase expires
 void TrafficLightRouter::SynchronousMessage()
 {
-    if(isTransitionPhase)   //If the previous phase was a transition
+    switch(TLLogicMode)
     {
-        isTransitionPhase = false;
-        lastSwitchTime = simTime().dbl();
-        TraCI->TLSetPhaseIndex(id, currentPhase);           //currentPhase was set to the phase after the transition, so switch to it
-        TLSwitchEvent = new cMessage("tl switch evt");
-        scheduleAt(simTime().dbl() + phaseDurationAfterTransition, TLSwitchEvent);
-        TraCI->TLSetPhaseDuration(id, 10000000);   //Make sure SUMO doesn't handle switches, by always setting phases to expire after a very long time
-    }
-    else
-    {
-        switch(TLLogicMode)
-        {
-            case FIXED:
-            case HIGHDENSITY:
-                switchToPhase(currentPhase + 2);
-                break;
-            case LOWDENSITY:
-                LowDensityRecalculate();
-                break;
-            case COOPERATIVE:
-                FlowRateRecalculate();
-                break;
-            default:
-                break;
-        }
+        case FIXED:
+            switchToPhase(currentPhase + 2);
+            break;
+        case HIGHDENSITY:
+            switchToPhase(currentPhase + 2);
+            break;
+        case LOWDENSITY:
+            LowDensityRecalculate();
+            break;
+        case COOPERATIVE:
+            FlowRateRecalculate();
+            break;
+        default:
+            break;
     }
 }
 
@@ -342,18 +322,18 @@ void TrafficLightRouter::HighDensityRecalculate()
 {
     std::vector<Edge*>& edges = net->nodes[id]->inEdges;
     double phaseVehicleCounts[phases.size()];   //Will be the # of incoming vehicles that can go during that phase
-    for(unsigned int i = 0; i < phases.size(); ++i)  //Initialize to 0
+    for(unsigned int i = 0; i < phases.size(); i++)  //Initialize to 0
         phaseVehicleCounts[i] = 0;
     int total = 0;
 
-    for(std::vector<Edge*>::iterator edge = edges.begin(); edge != edges.end(); ++edge)  //For each edge
+    for(std::vector<Edge*>::iterator edge = edges.begin(); edge != edges.end(); edge++)  //For each edge
     {
         std::vector<Lane*>* lanes = &(*edge)->lanes;
-        for(std::vector<Lane*>::iterator lane = lanes->begin(); lane != lanes->end(); ++lane)    //For each lane
+        for(std::vector<Lane*>::iterator lane = lanes->begin(); lane != lanes->end(); lane++)    //For each lane
         {
             std::list<std::string> vehicleIDs = TraCI->laneGetLastStepVehicleIDs((*lane)->id); //Get all vehicles on that lane
             int vehCount = vehicleIDs.size();   //And the number of vehicles on that lane
-            for(std::vector<int>::iterator it = (*lane)->greenPhases.begin(); it != (*lane)->greenPhases.end(); ++it)    //Each element of greenPhases is a phase that lets that lane move
+            for(std::vector<int>::iterator it = (*lane)->greenPhases.begin(); it != (*lane)->greenPhases.end(); it++)    //Each element of greenPhases is a phase that lets that lane move
             {
                 phaseVehicleCounts[*it] += vehCount;    //Add the number of vehicles on that lane to that phase
                 total += vehCount; //And add to the totals
@@ -363,8 +343,8 @@ void TrafficLightRouter::HighDensityRecalculate()
     }
     if(total > 0)  //If there are vehicles on the lane
     {
-        if(ev.isGUI()) std::cout << "For TL " << id << ": " << endl;
-        for(unsigned int i = 0; i < phases.size(); ++i)  //For each phase
+        if(debugLevel > 0) std::cout << "For TL " << id << " at t=" << simTime().dbl() << ": " << endl;
+        for(unsigned int i = 0; i < phases.size(); i++)  //For each phase
         {
             if(i % 2 == 0)  //Ignore the odd (transitional) phases
             {
@@ -373,7 +353,7 @@ void TrafficLightRouter::HighDensityRecalculate()
                 if(duration < 3)    //If the duration is too short, set it to a minimum
                     duration = 3;
 
-                //if(ev.isGUI()) cout << "    Phase " << i << " set to " << duration << endl;
+                if(debugLevel > 0) cout << "    Phase " << i << " set to " << duration << endl;
                 phases[i]->duration = duration; //Update durations. These will take affect starting with the next phase
             }
         }
@@ -408,7 +388,7 @@ void TrafficLightRouter::FlowRateRecalculate()
 
                 if(route.size() > 1)    //If 1 entry, vehicle will vanish at the end of the edge, so we don't count it
                 {
-                    VState v(vehicle, TraCI, router, edge1->id);
+                    VState v(vehicle, TraCI, router, edge1->id, TraCI->vehicleGetMaxAccel(vehicle), edge1->speed);
                     std::string edge0 = *(++(route.begin()));     //Edge vehicle is turning towards (ourEdge)
                     movements[edge1->id + edge0].push_back(v);
                 }//If vehicle will not vanish before passing through our TL
@@ -437,7 +417,9 @@ void TrafficLightRouter::FlowRateRecalculate()
                             {
                                 if(state[c->linkIndex] == 'G' or state[c->linkIndex] == 'g')
                                 {
-                                    VState v(vehicle, TraCI, router, edge1->id, router->net->edges[edge1->id]->length);
+                                    //VState(std::string vehicle, TraCI_Extend *TraCI, Router* router, std::string currentEdge, double maxAccel, double lane1velocity, double lane2length = 0, double lane2velocity = 30): id(vehicle)
+
+                                    VState v(vehicle, TraCI, router, edge1->id, TraCI->vehicleGetMaxAccel(vehicle), edge1->speed, router->net->edges[edge1->id]->length, edge2->speed);
                                     v.position += edge1->length;
                                     std::string edge0 = *(++(++(route.begin())));     //Edge after the vehicle moves through our TL
                                     movements[edge1->id + edge0].push_back(v);
@@ -473,7 +455,6 @@ void TrafficLightRouter::FlowRateRecalculate()
     double flowSum = 0;
     for(int t = MinPhaseDuration; t <= MaxPhaseDuration; t += 5)
     {
-        //if(id == "15") cout << "t=" << t << endl;
         for(unsigned int phaseNum = 0; phaseNum < phases.size(); phaseNum += 2)
         {
             Phase* phase = phases[phaseNum];
@@ -493,7 +474,6 @@ void TrafficLightRouter::FlowRateRecalculate()
                         }
                     }
                 }
-                //if(id == "15") cout << "  phase=" << phaseNum << endl << "    flow=" << flowSum << endl;
             }
 
             if(flowSum > maxFlowSum)    //if this phase has the hisghest net flow, record it as such
@@ -508,8 +488,8 @@ void TrafficLightRouter::FlowRateRecalculate()
 
     if(maxFlowTime >= MinPhaseDuration) //if any vehicles will arrive before the light's max duration, maxFlowTime will have been set
     {
+        if(debugLevel > 0) cout << "Switching tl " << id << " to phase " << maxFlowPhase << " for " << maxFlowTime << " seconds" << endl;
         switchToPhase(maxFlowPhase, maxFlowTime);   //So switch to that phase
-        //cout << "Switching " << id << " to phase " << maxFlowPhase << " for " << maxFlowTime << " seconds" << endl;
     }
     else    //No vehicles are nearby. Continue TL operations as normal.
         switchToPhase(currentPhase + 1);
@@ -518,12 +498,11 @@ void TrafficLightRouter::FlowRateRecalculate()
 
 void TrafficLightRouter::LowDensityRecalculate()
 {
-    if(simTime().dbl() - lastSwitchTime < MaxPhaseDuration and LowDensityVehicleCheck())
+    if(LowDensityVehicleCheck())
     {
-        //if(ev.isGUI()) cout << "Extending tl " << id << " phase " << currentPhase << endl;
+        if(debugLevel > 0) cout << "Extending tl " << id << " by " << LowDensityExtendTime << " seconds" << endl;
         TLSwitchEvent = new cMessage("tl switch evt");
         scheduleAt(simTime().dbl() + LowDensityExtendTime, TLSwitchEvent);
-        TraCI->TLSetPhaseDuration(id, 10000000);
     }
     else    //Otherwise, switch to the next phase immediately
     {
@@ -543,17 +522,19 @@ bool TrafficLightRouter::LowDensityVehicleCheck()    //This function assumes it'
      * Add a totaloffset double to each variable, which can be added to any call working on tl logic
      * Reset to previous duration
      */
+    if ((simTime().dbl() - lastSwitchTime) > MaxPhaseDuration)
+        return false;
 
     std::vector<Edge*>& edges = net->nodes[id]->inEdges; //Get all edges going into the TL
-    for(std::vector<Edge*>::iterator edge = edges.begin(); edge != edges.end(); ++edge)  //For each edge
+    for(std::vector<Edge*>::iterator edge = edges.begin(); edge != edges.end(); edge++)  //For each edge
     {
         std::vector<Lane*>* lanes = &(*edge)->lanes; //Get all lanes on each edge
-        for(std::vector<Lane*>::iterator lane = lanes->begin(); lane != lanes->end(); ++lane)    //For each lane
+        for(std::vector<Lane*>::iterator lane = lanes->begin(); lane != lanes->end(); lane++)    //For each lane
         {
             if(find((*lane)->greenPhases.begin(), (*lane)->greenPhases.end(), currentPhase) != (*lane)->greenPhases.end()) //If this lane has a green
             {
                 std::list<std::string> vehicleIDs = TraCI->laneGetLastStepVehicleIDs((*lane)->id); //If so, get all vehicles on this lane
-                for(std::list<std::string>::iterator vehicle = vehicleIDs.begin(); vehicle != vehicleIDs.end(); ++vehicle)    //For each vehicle
+                for(std::list<std::string>::iterator vehicle = vehicleIDs.begin(); vehicle != vehicleIDs.end(); vehicle++)    //For each vehicle
                 {
                     if(TraCI->vehicleGetSpeed(*vehicle) > 0.01)  //If that vehicle is not stationary
                     {
@@ -592,7 +573,7 @@ void TrafficLightRouter::print() // Print a node
                               "  programID: "<< std::setw(4) << std::left << programID <<
                               "offset: "<< std::setw(4) << std::left << offset;
 
-    for(std::vector<Phase*>::iterator it = phases.begin(); it != phases.end(); ++it)
+    for(std::vector<Phase*>::iterator it = phases.begin(); it != phases.end(); it++)
     {
         (*it)->print();
     }

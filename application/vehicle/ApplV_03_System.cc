@@ -25,8 +25,8 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "ApplV_03_System.h"
 #include "RouterGlobals.h"
+#include "ApplV_03_System.h"
 
 namespace VENTOS {
 
@@ -63,6 +63,7 @@ void ApplVSystem::initialize(int stage)
         router = static_cast< Router* >(module);
         std::string rootFilePath = SUMO_FullPath.string();
         rootFilePath += "/Vehicles" + SSTR(router->totalVehicleCount) + ".xml";
+        router->net->vehicles[SUMOvID]->maxAccel = TraCI->vehicleGetMaxAccel(SUMOvID);
 
         // Routing
         //Temporary fix to get a vehicle's target: get it from the xml
@@ -81,7 +82,7 @@ void ApplVSystem::initialize(int stage)
         if(find(router->nonReroutingVehicles->begin(), router->nonReroutingVehicles->end(), SUMOvID.substr(1, SUMOvID.length() - 1)) != router->nonReroutingVehicles->end())
         {
             requestReroutes = false;
-            //cout << SUMOvID << " is not routing" << endl;
+            if(debugLevel) cout << SUMOvID << " is not routing" << endl;
         }
         else
         {
@@ -113,11 +114,11 @@ void ApplVSystem::finish()
     if(!requestRoutes)
         return;
 
-    if(ev.isGUI() && requestRoutes) std::cout << SUMOvID << " took " << simTime().dbl() - entryTime << " seconds to complete its route." << endl;
+    if(requestRoutes) std::cout << SUMOvID << " took " << simTime().dbl() - entryTime << " seconds to complete its route. (t=" << simTime().dbl() << ")" << endl;
     router->vehicleEndTimesFile << SUMOvID << " " << simTime().dbl() << endl;
 
     simsignal_t Signal_system = registerSignal("system"); //Prepare to send a system message
-    nodePtr->emit(Signal_system, new systemData("", "", SUMOvID, 2, std::string("system")));
+    nodePtr->emit(Signal_system, new systemData("", "", SUMOvID, DONE, std::string("system")));
 
     if(requestRoutes)
     {
@@ -151,6 +152,7 @@ void ApplVSystem::handleSelfMsg(cMessage* msg)  //Internal messages to self
 void ApplVSystem::reroute()
 {
 
+    if(debugLevel) cout << "Rerouting " << SUMOvID << " at t=" << simTime().dbl() << endl;
     ++numReroutes;
     sendSystemMsgEvt = new cMessage("systemmsg evt");   //Create a new internal message
     simsignal_t Signal_system = registerSignal("system"); //Prepare to send a system message
@@ -177,9 +179,16 @@ void ApplVSystem::receiveSignal(cComponent *source, simsignal_t signalID, cObjec
         {
             if((s->getRequestType() == DIJKSTRA || s->getRequestType() == HYPERTREE)) //If sent from the router and to this vehicle
             {
-                //cout << "Setting new route for " << SUMOvID << " at t=" << simTime().dbl() << endl;
                 std::list<std::string> sRoute = s->getInfo(); //Copy the info from the signal (breaks if we don't do this, for some reason)
 
+
+                if(debugLevel)
+                {
+                    cout << SUMOvID << " got route ";
+                    for(string s : sRoute)
+                        cout << s << " ";
+                    cout << endl;
+                }
                 if (*sRoute.begin() != "failed")
                     TraCI->vehicleSetRoute(s->getRecipient(), sRoute);  //Update this vehicle's path with the proper info
             }

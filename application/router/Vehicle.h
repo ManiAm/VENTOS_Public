@@ -41,6 +41,7 @@ public:
     std::string origin;
     std::string destination;
     double depart;
+    double maxAccel;
 
     Vehicle(std::string id, std::string type, std::string origin, std::string destination, double depart);
 };

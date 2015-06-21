@@ -27,5 +27,7 @@ simple Router
 
         bool UseAccidents;
         int AccidentCheckInterval;
+        
+        int debugLevel;
 }
 

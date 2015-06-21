@@ -68,6 +68,7 @@ public:
     Net* net;
 
     //OmNET
+    int debugLevel;
     cMessage* TLEvent;
     cMessage* TLSwitchEvent;
     void print();
@@ -90,7 +91,7 @@ public:
     double cycleDuration;   // this and below should be const
     double nonTransitionalCycleDuration;
 
-    void switchToPhase(int phase, double greenDuration = -1, int yellowDuration = 3);
+    void switchToPhase(int phase, double greenDuration = -1, int yellowDuration = -1);
     void ASynchronousMessage();
     void SynchronousMessage();
     void FlowRateRecalculate();
@@ -100,8 +101,9 @@ public:
 
 private:
     Router* router;
-    bool isTransitionPhase;
-    int phaseDurationAfterTransition;
+    double YellowDuration;
+    int nextDuration;
+    int nextPhase;
 };
 
 }
