@@ -282,10 +282,20 @@ public:
 private:
     void sendLaunchFile();
 
-    // generic methods for getters
-    Coord genericGetCoordv2(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
-    std::vector<double> genericGetBoundingBox(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
-    uint8_t* genericGetArrayUnsignedInt(uint8_t, std::string, uint8_t, uint8_t);
+    // ################################################################
+    //                    generic methods for getters
+    // ################################################################
+
+    double genericGetDouble(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
+    int32_t genericGetInt(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
+    std::string genericGetString(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
+    std::list<std::string> genericGetStringList(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
+    Coord genericGetCoord(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
+    std::list<Coord> genericGetCoordList(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
+
+    Coord genericGetCoordv2(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);                       // new command
+    std::vector<double> genericGetBoundingBox(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);     // new command
+    uint8_t* genericGetArrayUnsignedInt(uint8_t, std::string, uint8_t, uint8_t);                                                    // new command
 
 protected:
     boost::filesystem::path VENTOS_FullPath;
