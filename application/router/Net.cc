@@ -25,9 +25,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "RouterGlobals.h"
 #include "Net.h"
-
 
 namespace VENTOS {
 
@@ -38,6 +36,10 @@ Net::~Net()
 
 Net::Net(std::string netBase, cModule* router, int ltc, int rtc, int stc, int utc):leftTurnCost(ltc), rightTurnCost(rtc), straightCost(stc), uTurnCost(utc)
 {
+    // get a pointer to router module
+    cModule *module = simulation.getSystemModule()->getSubmodule("router");
+    debugLevel = module->par("debugLevel").longValue();
+
     routerModule = router;
     LoadHelloNet(netBase);
 }
@@ -57,6 +59,7 @@ double Net::turnTypeCost(Edge* start, Edge* end)
 {
     std::string key = start->id + end->id;
     char type = turnTypes[key];
+
     switch (type)
     {
     case 's':
@@ -68,7 +71,9 @@ double Net::turnTypeCost(Edge* start, Edge* end)
     case 't':
         return uTurnCost;
     }
-    if(debugLevel > 0) std::cout << "Turn did not have an associated type!  This should never happen." << endl;
+
+    if(debugLevel > 1) std::cout << "Turn did not have an associated type!  This should never happen." << endl;
+
     return 100000;
 }
 

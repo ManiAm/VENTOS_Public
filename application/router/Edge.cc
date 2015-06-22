@@ -25,7 +25,6 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "RouterGlobals.h"
 #include "Edge.h"
 
 namespace VENTOS {
@@ -36,6 +35,10 @@ Lane::Lane(std::string id, double speed, double length):
 Edge::Edge(std::string id, Node* from, Node* to, int priority, std::vector<Lane*> lanes):
                   id(id), from(from), to(to), priority(priority), lanes(lanes)
 {
+    // get a pointer to router module
+    cModule *module = simulation.getSystemModule()->getSubmodule("router");
+    debugLevel = module->par("debugLevel").longValue();
+
     numLanes = lanes.size();
     speed = 0;
     length = 0;
@@ -58,7 +61,7 @@ double Edge::getCost()
     if(travelTimes.average > 0)
         return travelTimes.average;
 
-    if(debugLevel > 1) std::cout << "Using length / speed for cost of edge " << id << std::endl;
+    if(debugLevel > 2) std::cout << "Using length / speed for cost of edge " << id << std::endl;
     return length / speed;
 }
 

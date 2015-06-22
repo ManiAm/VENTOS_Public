@@ -295,7 +295,7 @@ void AddVehicle::Scenario7()
     }
 
     // now we add a vehicle as obstacle
-    TraCI->vehicleAdd("obstacle", "TypeManual", "route1", 50, 3200, 0, 1);
+    TraCI->vehicleAdd("obstacle", "TypeObstacle", "route1", 50, 3200, 0, 1);
 
     // and make it stop on the lane!
     TraCI->vehicleSetSpeed("obstacle", 0.);
@@ -424,12 +424,11 @@ void AddVehicle::Scenario8()
         //Send a TraCI add call -- might not need to be *1000.
         TraCI->vehicleAdd(id/*vehID*/, type/*vehType*/, origin/*routeID*/, 1000 * depart, 0/*pos*/, 0/*initial speed*/, 0/*lane*/);
 
-        //Huajun-Change color of non-rerouting vehicle to red.
+        //Change color of non-rerouting vehicle to green.
         std::string veh = id.substr(1,-1);
-
         if(find(r->nonReroutingVehicles->begin(), r->nonReroutingVehicles->end(), veh) != r->nonReroutingVehicles->end())
         {
-            TraCIColor newColor = TraCIColor::fromTkColor("red");
+            TraCIColor newColor = TraCIColor::fromTkColor("green");
             TraCI->vehicleSetColor(id, newColor);
         }
     }

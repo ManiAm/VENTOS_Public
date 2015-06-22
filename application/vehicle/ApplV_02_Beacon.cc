@@ -68,10 +68,7 @@ void ApplVBeacon::initialize(int stage)
         offSet = offSet + floor(offSet/0.050)*0.050;
         individualOffset = dblrand() * maxOffset;
 
-        std::string SUMOvID_lower = SUMOvID;
-        std::transform(SUMOvID_lower.begin(), SUMOvID_lower.end(), SUMOvID_lower.begin(), ::tolower);
-        // if SUMOvID_lower has obstacle in the name
-        if(SUMOvID_lower.find("obstacle") != std::string::npos)
+        if(SUMOvType == "TypeObstacle")
             VANETenabled = false;
         else
             VANETenabled = par("VANETenabled").boolValue();

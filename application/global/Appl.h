@@ -31,7 +31,6 @@
 #include <list>
 #include <msg/Messages_m.h>
 
-
 namespace VENTOS {
 
 enum ControllerTypes
@@ -51,7 +50,7 @@ enum ControllerTypes
     SUMO_TAG_CF_OPTIMALSPEED,
     SUMO_TAG_CF_KRAUSSFIXED,
     SUMO_TAG_CF_ACC,    // 114
-    SUMO_TAG_CF_CACC,   // 115
+    SUMO_TAG_CF_CACC    // 115
 };
 
 enum CFMODES {
@@ -66,13 +65,28 @@ enum CFMODES {
 
 enum TLControlTypes
 {
-    TL_OFF = 0,
+    TL_OFF,
     TL_Fix_Time,
     TL_Adaptive_Time,
     TL_Adaptive_Time_Queue,
     TL_Adaptive_Webster,
     TL_VANET,
-    TL_Router,
+    TL_Router
+};
+
+enum LaneCostsMode
+{
+    MODE_NOTHING,
+    MODE_RECORD,
+    MODE_EWMA
+};
+
+enum RouterMessage
+{
+    DIJKSTRA,
+    HYPERTREE,
+    DONE,
+    STARTED
 };
 
 class systemData : public cObject, noncopyable

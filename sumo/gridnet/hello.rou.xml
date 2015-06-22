@@ -5,6 +5,8 @@
   <vType id="TypeManual" length="5.0" minGap="2.0" maxSpeed="30.0">
       <carFollowing-Krauss accel="3.0" decel="5.0" sigma="0" tau="1.64" />
   </vType>  
+  
+  <!-- Dummy -->
   <vType id="TypeDummy" length="5.0" minGap="2.0" maxSpeed="0.001">
       <carFollowing-Krauss accel="3.0" decel="5.0" sigma="0" tau="1.64" />
   </vType> 

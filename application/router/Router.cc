@@ -25,7 +25,6 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "RouterGlobals.h"
 #include "Router.h"
 #include <stdlib.h>
 
@@ -107,13 +106,11 @@ void Router::initialize(int stage)
         if(nodePtr == NULL || TraCI == NULL)
             error("can not get a pointer to the module.");
 
-        // todo: not defined! -- They are defined in omnetpp.ini, section 7. -Hujaun
         EWMARate = par("EWMARate").doubleValue();
         TLLookahead = par("TLLookahead").doubleValue();
         timePeriodMax = par("timePeriodMax").doubleValue();
         UseHysteresis = par("UseHysteresis").boolValue();
 
-        // todo: not defined! -- They are defined in omnetpp.ini, section 7. -Hujaun
         laneCostsMode = static_cast<LaneCostsMode>(par("LaneCostsMode").longValue());
         HysteresisCount = par("HysteresisCount").longValue();
 
@@ -150,7 +147,7 @@ void Router::initialize(int stage)
                 EdgeRemovals.push_back(EdgeRemoval(edgeID, start, end, pos, laneIndex, false));
             }
 
-            if(debugLevel) std::cout << "Loaded " << EdgeRemovals.size() << " accidents from " << AccidentFile << endl;
+            if(debugLevel > 1) std::cout << "Loaded " << EdgeRemovals.size() << " accidents from " << AccidentFile << endl;
 
             if(EdgeRemovals.size() > 0)
             {
@@ -181,9 +178,7 @@ void Router::initialize(int stage)
             std::ostringstream filePrefixNoTL;
             filePrefixNoTL << totalVehicleCount << "_" << nonReroutingVehiclePercent;
             std::string NonReroutingFileName = VENTOS_FullPath.string() + "results/router/" + filePrefixNoTL.str() + "_nonRerouting" + ".txt";
-            // todo: it should be the other way around. - You are correct. I just found this bug several minutes ago. Thank god you also confirm this. This is the bug causing the incorrect results.
-            // if the file exists then ...
-            if( boost::filesystem::exists( NonReroutingFileName ) ) // Delete "!" before boost
+            if( boost::filesystem::exists( NonReroutingFileName ) )
             {
                 nonReroutingVehicles = new std::set<std::string>();
                 std::ifstream NonReroutingFile(NonReroutingFileName);
@@ -191,7 +186,7 @@ void Router::initialize(int stage)
                 while(NonReroutingFile >> vehNum)
                     nonReroutingVehicles->insert(vehNum);
                 NonReroutingFile.close();
-                if(debugLevel) std::cout << "Loaded " << numNonRerouting << " nonRerouting vehicles from file " << NonReroutingFileName << endl;
+                if(debugLevel > 1) std::cout << "Loaded " << numNonRerouting << " nonRerouting vehicles from file " << NonReroutingFileName << endl;
             }
             else
             {
@@ -201,7 +196,7 @@ void Router::initialize(int stage)
                 for(std::string veh : *nonReroutingVehicles)
                     NonReroutingFile << veh << endl;
                 NonReroutingFile.close();
-                if(debugLevel) std::cout << "Created " << numNonRerouting << "-vehicle nonRerouting file " << NonReroutingFileName << endl;
+                if(debugLevel > 1) std::cout << "Created " << numNonRerouting << "-vehicle nonRerouting file " << NonReroutingFileName << endl;
             }
         }
         else
@@ -215,7 +210,7 @@ void Router::initialize(int stage)
         if(collectVehicleTimeData)
         {
             std::string TravelTimesFileName = VENTOS_FullPath.string() + "results/router/" + filePrefix.str() + ".txt";
-            if(debugLevel) std::cout << "Opened edge-weights file at " << TravelTimesFileName << endl;
+            if(debugLevel > 1) std::cout << "Opened edge-weights file at " << TravelTimesFileName << endl;
             vehicleTravelTimesFile.open(TravelTimesFileName.c_str());  //Open the edgeWeights file
         }
 
@@ -259,11 +254,11 @@ void Router::receiveDijkstraRequest(Edge* origin, Node* destination, std::string
     {
         dijkstraTimes[key] = simTime().dbl();
         dijkstraRoutes[key] = getRoute(origin, destination, sender);
-        if(debugLevel > 1) std::cout << "Created dijkstra's route from " << origin->id << " to " << destination->id << " at t=" << simTime().dbl() << endl;
+        if(debugLevel > 2) std::cout << "Created dijkstra's route from " << origin->id << " to " << destination->id << " at t=" << simTime().dbl() << endl;
     }
     else
     {
-        if(debugLevel > 1) std::cout << "Using old dijkstras route at t=" << simTime().dbl() << endl;
+        if(debugLevel > 2) std::cout << "Using old dijkstras route at t=" << simTime().dbl() << endl;
     }
 
     // Systemdata wants string edge, string node, string sender, int requestType, string recipient, list<string> edgeList
@@ -292,7 +287,10 @@ void Router::receiveDoneRequest(std::string sender)
 {
     //Decrement vehicle count, print
     currentVehicleCount--;
-    std::cout << "(" << currentVehicleCount << " left)" << endl;
+
+    if(debugLevel > 0)
+        std::cout << currentVehicleCount << " vehicles left." << endl;
+
     //DTODO: Write currentRun to a file
     //int currentRun = ev.getConfigEx()->getActiveRunNumber();
     if(collectVehicleTimeData)
@@ -300,6 +298,7 @@ void Router::receiveDoneRequest(std::string sender)
         vehicleTravelTimes[sender] = simTime().dbl() - vehicleTravelTimes[sender];
         vehicleTravelTimesFile << sender << " " << vehicleTravelTimes[sender] << endl;
     }
+
     if(currentVehicleCount == 0)
     {
         //If no vehicles are left, print vehicle info and terminate all traffic lights
@@ -314,6 +313,7 @@ void Router::receiveDoneRequest(std::string sender)
                 count++;
                 avg += it->second;
             }
+
             avg /= count;
             std::cout << "Average vehicle travel time was " << avg << " seconds." << endl;
             vehicleTravelTimesFile.close();
@@ -397,7 +397,7 @@ void Router::checkEdgeRemovals()
     {
         if(er.start <= curTime && er.end > curTime) //If edge is currently removed
         {
-            if(!er.blocked)//if the lane is not blocked
+            if(!er.blocked)  //if the lane is not blocked
             {
                 Edge& edge = *net->edges[er.edge];
                 edge.disabled = true;   //mark it as disabled
@@ -407,11 +407,18 @@ void Router::checkEdgeRemovals()
                 std::list<std::string> route;
                 std::string origin = edge.id;
                 route.push_back(origin);   //With just the starting edge
+
                 std::string laneID = er.edge + "_" + std::to_string(er.laneIndex);
-                std::string vehicleDummy = "test" + laneID + "_" + std::to_string(er.pos) +"_" + std::to_string(curTime);
+                std::string vehicleDummy = "test" + laneID + "_" + std::to_string(er.pos) + "_" + std::to_string(curTime);
                 index = (uint8_t)er.laneIndex;
+
+                // Add a dummy vehicle
                 TraCI->vehicleAdd(vehicleDummy, "TypeDummy", origin, er.start*1000, er.pos, 0, index);
                 TraCI->vehicleSetStop(vehicleDummy, origin, er.pos+5, index, 10000, 2);
+
+                // Change its color to red
+                TraCIColor newColor = TraCIColor::fromTkColor("red");
+                TraCI->vehicleSetColor(vehicleDummy, newColor);
 
                 er.blocked = true;
             }
@@ -427,8 +434,10 @@ void Router::checkEdgeRemovals()
                 std::list<std::string> vehicleIDs = TraCI->laneGetLastStepVehicleIDs(laneID);
                 for(std::string veh : vehicleIDs)
                 {
+                    // todo: can we test type instead?
                     if(veh.substr(0,4) == "test")
                     {
+                        // todo: should not use vehicleRemove directly
                         TraCI->vehicleRemove(veh, REMOVE_VAPORIZED);
                         break;
                     }
@@ -461,7 +470,7 @@ void Router::parseLaneCostsFile()
         }
 
         net->edges.at(edgeName)->travelTimes = EdgeCosts(m);
-        if(debugLevel) std::cout << "Loaded costs for " << edgeName << ": " << net->edges.at(edgeName)->travelTimes.average << endl;
+        if(debugLevel > 1) std::cout << "Loaded costs for " << edgeName << ": " << net->edges.at(edgeName)->travelTimes.average << endl;
     }
     inFile.close();
 }
@@ -505,7 +514,7 @@ void Router::laneCostsData()
             {
                 if(vehicleEdges[vehicle] != curEdge)
                 {
-                    if(debugLevel > 1) std::cout << vehicle << " changes lanes to " << curEdge << " at t=" << simTime().dbl() << "(" << vehicleLaneChangeCount[vehicle] << ")" << endl;
+                    if(debugLevel > 2) std::cout << vehicle << " changes lanes to " << curEdge << " at t=" << simTime().dbl() << "(" << vehicleLaneChangeCount[vehicle] << ")" << endl;
 
                     double time = simTime().dbl() - vehicleTimes[vehicle];
                     net->edges.at(vehicleEdges[vehicle])->travelTimes.insert(time);
@@ -517,7 +526,7 @@ void Router::laneCostsData()
                         vehicleLaneChangeCount[vehicle] = 0;
 
                         sendRerouteSignal(vehicle);
-                        if(debugLevel > 0) std::cout << "Hystereis rerouting " << vehicle << " at t=" << simTime().dbl() << endl;
+                        if(debugLevel > 1) std::cout << "Hystereis rerouting " << vehicle << " at t=" << simTime().dbl() << endl;
                     }
                 }
             }
@@ -559,7 +568,7 @@ Hypertree* Router::buildHypertree(int startTime, Node* destination)
             }
         }
     }
-    if(debugLevel > 1) std::cout << "Generating a hypertree for " << destination->id << endl;
+    if(debugLevel > 2) std::cout << "Generating a hypertree for " << destination->id << endl;
     Node* D = destination;    // Find the destination, call it D
     for(int t = startTime; t <= timePeriodMax; t++)           // For every second in the time interval
     {
@@ -685,7 +694,11 @@ std::list<std::string> Router::getRoute(Edge* origin, Node* destination, std::st
             return routeIDs;    // Return the final list
         }
     }// While heap isn't empty
-    if(ev.isGUI() || debugLevel) std::cout << "Pathing failed from " << origin->id << " to " << destination->id << " at t=" << simTime().dbl() << "!  Either destination cannot be reached or vehicle is on an edge with an accident.  Route will not be changed" << endl;
+
+    if(debugLevel > 0)
+        // Either destination cannot be reached or vehicle is on an edge with an accident. Route will not be changed.
+        std::cout << "t=" << simTime().dbl() << ": " << "Pathing failed from " << origin->id << " to " << destination->id << endl;
+
     std::list<std::string> ret;
     ret.push_back("failed");
     return ret;

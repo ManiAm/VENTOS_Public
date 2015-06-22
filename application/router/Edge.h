@@ -31,6 +31,7 @@
 #include <vector>
 #include "Node.h"
 #include "EdgeCosts.h"
+#include <omnetpp.h>
 
 namespace VENTOS {
 
@@ -47,6 +48,12 @@ public:
 class Edge
 {
 public:
+    Edge(std::string idVal, Node* fromVal, Node* toVal, int priorityVal, std::vector<Lane*> lanesVec);
+    double getCost();
+
+public:
+    int debugLevel;
+
     //Node variables
     std::string id;
     Node* from;
@@ -57,10 +64,7 @@ public:
     //Weighting variables
     double speed;
     double length;
-    //double origWeight;
-    //double lastWeight;
     std::vector<Lane*> lanes;
-    double getCost();
 
     //Pathing variables
     EdgeCosts travelTimes;
@@ -70,8 +74,6 @@ public:
 
     //Removal algorithm
     bool disabled;
-
-    Edge(std::string idVal, Node* fromVal, Node* toVal, int priorityVal, std::vector<Lane*> lanesVec);
 };
 
 std::ostream& operator<<(std::ostream& os, Edge &rhs);

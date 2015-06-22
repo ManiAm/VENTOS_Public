@@ -82,6 +82,7 @@ public:
 
     //TL Control
     bool done;
+    enum TrafficLightLogicMode{FIXED = 0, HIGHDENSITY = 1, LOWDENSITY = 2, COOPERATIVE = 3};
     TrafficLightLogicMode TLLogicMode;
     double HighDensityRecalculateFrequency;
     double LowDensityExtendTime;

@@ -39,7 +39,6 @@
 #include "rapidxml.hpp"
 #include "rapidxml_utils.hpp"
 
-
 namespace VENTOS {
 
 class Connection
@@ -59,22 +58,12 @@ public:
     {}
 };
 
+
 class Net
 {
-    void LoadHelloNet(std::string netBase);
 public:
-    double leftTurnCost, rightTurnCost, straightCost, uTurnCost;
-
-    cModule* routerModule;
-
-public:
-    std::map<std::string, TrafficLightRouter*> TLs;
-    std::map<std::string, Edge*> edges;
-    std::map<std::string, Node*> nodes;
-    std::map<std::string, Vehicle*> vehicles;
-    std::map<std::string, std::vector<Connection*> > connections;
-    std::map<std::string, std::vector<int>* > transitions;  //Given a pair of edge IDs concatenated, returns a vector of TL phases that allow movement between them
-    std::map<std::string, char> turnTypes;           //Given a pair of edge IDs concatenated, returns the turn type between those two
+    Net(std::string netBase, cModule* router, int ltc, int rtc, int stc, int utc);
+    ~Net();
 
     double junctionCost(double time, Edge* start, Edge* end);       //If it's a TL, returns the time spent waiting.  If not, returns turnTypeCost
     double turnTypeCost(Edge* start, Edge* end);                    //Returns the turn penalty on an intersection
@@ -82,8 +71,21 @@ public:
     int nextAcceptingPhase(double time, Edge* start, Edge* end);    //Returns the next phase allowing movement from start to end at the given time
     std::vector<int>* TLTransitionPhases(Edge* start, Edge* end);        //Returns a vector of phases allowing movement from start to end
 
-    Net(std::string netBase, cModule* router, int ltc, int rtc, int stc, int utc);
-    ~Net();
+private:
+    void LoadHelloNet(std::string netBase);
+
+public:
+    double leftTurnCost, rightTurnCost, straightCost, uTurnCost;
+    int debugLevel;
+    cModule* routerModule;
+
+    std::map<std::string, TrafficLightRouter*> TLs;
+    std::map<std::string, Edge*> edges;
+    std::map<std::string, Node*> nodes;
+    std::map<std::string, Vehicle*> vehicles;
+    std::map<std::string, std::vector<Connection*> > connections;
+    std::map<std::string, std::vector<int>* > transitions;  //Given a pair of edge IDs concatenated, returns a vector of TL phases that allow movement between them
+    std::map<std::string, char> turnTypes;           //Given a pair of edge IDs concatenated, returns the turn type between those two
 };
 
 }

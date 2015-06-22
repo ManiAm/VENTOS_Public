@@ -52,6 +52,7 @@ protected:
 protected:
     // NED variables (beaconing parameters)
     bool requestRoutes;         //like sendBeacons;
+    int debugLevel;
     double requestInterval;     //like beaconInterval;
     double maxOffsetSystem;     //From beacon maxOffset
     int systemMsgLengthBits;

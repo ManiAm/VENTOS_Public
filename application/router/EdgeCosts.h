@@ -31,23 +31,26 @@
 #include <vector>
 #include <map>
 #include <iostream>
-#include "RouterGlobals.h"
 #include <map>
+#include <Appl.h>
 
 namespace VENTOS {
 
 class EdgeCosts
 {
 public:
-    std::map<int, int> data; //Map from each travel time to its number of occurrences
-    int count;
-    double average;
-
     EdgeCosts();
     EdgeCosts(std::map<int, int> dataSet);
 
     void insert(int d); //Inserts a new value into the LaneCosts structure.
     double percentAt(int d);
+
+public:
+    std::map<int, int> data; //Map from each travel time to its number of occurrences
+    int count;
+    double average;
+    double EWMARate;
+    LaneCostsMode laneCostsMode;
 };
 
 }

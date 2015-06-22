@@ -25,7 +25,6 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "RouterGlobals.h"
 #include "ApplV_03_System.h"
 
 namespace VENTOS {
@@ -42,8 +41,7 @@ void ApplVSystem::initialize(int stage)
 {
     ApplVBeacon::initialize(stage);
 
-    // todo: checking the dummy vehicle should be changed!
-    if(SUMOvID.substr(0,4) == "test")
+    if(SUMOvType == "TypeDummy")
         requestRoutes = false;
     else
         requestRoutes = par("requestRoutes").boolValue();
@@ -61,8 +59,11 @@ void ApplVSystem::initialize(int stage)
         systemMsgPriority = par("systemMsgPriority").longValue();
         routingMode = static_cast<RouterMessage>(par("routingMode").longValue());
 
-        // get the rootFilePath
+        // get a pointer to router module
         cModule *module = simulation.getSystemModule()->getSubmodule("router");
+        debugLevel = module->par("debugLevel").longValue();
+
+        // get the rootFilePath
         router = static_cast< Router* >(module);
         std::string rootFilePath = SUMO_FullPath.string();
         rootFilePath += "/Vehicles" + SSTR(router->totalVehicleCount) + ".xml";
@@ -85,7 +86,7 @@ void ApplVSystem::initialize(int stage)
         if(find(router->nonReroutingVehicles->begin(), router->nonReroutingVehicles->end(), SUMOvID.substr(1, SUMOvID.length() - 1)) != router->nonReroutingVehicles->end())
         {
             requestReroutes = false;
-            if(debugLevel) std::cout << SUMOvID << " is not routing" << endl;
+            if(debugLevel > 1) std::cout << SUMOvID << " is not routing" << endl;
         }
         else
         {
@@ -117,7 +118,9 @@ void ApplVSystem::finish()
     if(!requestRoutes)
         return;
 
-    std::cout << SUMOvID << " took " << simTime().dbl() - entryTime << " seconds to complete its route. (t=" << simTime().dbl() << ")" << endl;
+    if(debugLevel > 0)
+        std::cout << "t=" << simTime().dbl() << ": " << SUMOvID << " took " << simTime().dbl() - entryTime << " seconds to complete its route." << endl;
+
     router->vehicleEndTimesFile << SUMOvID << " " << simTime().dbl() << endl;
 
     //Prepare to send a system message
@@ -148,10 +151,11 @@ void ApplVSystem::handleSelfMsg(cMessage* msg)  //Internal messages to self
 
 void ApplVSystem::reroute()
 {
-    if(debugLevel) std::cout << "Rerouting " << SUMOvID << " at t=" << simTime().dbl() << endl;
+    if(debugLevel > 1)
+        std::cout << "Rerouting " << SUMOvID << " at t=" << simTime().dbl() << endl;
+
     ++numReroutes;
 
-    //Systemdata wants string edge, string node, string sender, int requestType, string recipient, list<string> edgeList
     if(routingMode == DIJKSTRA)
     {
         nodePtr->emit(Signal_system, new systemData(TraCI->vehicleGetEdgeID(SUMOvID), targetNode, SUMOvID, DIJKSTRA, std::string("system")));
@@ -176,7 +180,7 @@ void ApplVSystem::receiveSignal(cComponent *source, simsignal_t signalID, cObjec
             {
                 std::list<std::string> sRoute = s->getInfo(); //Copy the info from the signal (breaks if we don't do this, for some reason)
 
-                if(debugLevel)
+                if(debugLevel > 1)
                 {
                     std::cout << SUMOvID << " got route ";
                     for(std::string s : sRoute)

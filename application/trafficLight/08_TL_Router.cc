@@ -25,7 +25,6 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "RouterGlobals.h"
 #include "08_TL_Router.h"
 #include <iostream>
 #include <iomanip>
@@ -177,23 +176,22 @@ void TrafficLightRouter::initialize(int stage)
 {
     TrafficLightVANET::initialize(stage);
 
-    if(TLControlMode != TL_Router)
-        return;
-
-    if(id == "")
+    if(TLControlMode != TL_Router || id == "")
         return;
 
     if(stage == 0)
     {
-        debugLevel = par("debugLevel").longValue();
-        TLLogicMode = static_cast<TrafficLightLogicMode>(par("TLLogicMode").longValue());
+        cModule *rmodule = simulation.getSystemModule()->getSubmodule("router");
+        debugLevel = rmodule->par("debugLevel").longValue();
+        router = static_cast< Router* >(rmodule);
+
         HighDensityRecalculateFrequency = par("HighDensityRecalculateFrequency").doubleValue();
         LowDensityExtendTime = par("LowDensityExtendTime").doubleValue();
         MaxPhaseDuration = par("MaxPhaseDuration").doubleValue();
         MinPhaseDuration = par("MinPhaseDuration").doubleValue();
         YellowDuration = par("YellowDuration").doubleValue();
 
-        currentPhase = 0;
+        TLLogicMode = static_cast<TrafficLightLogicMode>(par("TLLogicMode").longValue());
         switch(TLLogicMode)
         {
         case FIXED:
@@ -218,8 +216,7 @@ void TrafficLightRouter::initialize(int stage)
             scheduleAt(1, TLSwitchEvent);
         }
 
-        cModule *rmodule = simulation.getSystemModule()->getSubmodule("router");
-        router = static_cast< Router* >(rmodule);
+        currentPhase = 0;
     }
 }
 
@@ -235,7 +232,7 @@ void TrafficLightRouter::switchToPhase(int phaseSwitch, double greenDuration, in
 
     nextDuration = greenDuration;
 
-    if(debugLevel > 1) std::cout << "Switching to transition phase " << (currentPhase + 1) % phases.size() << endl;
+    if(debugLevel > 2) std::cout << "Switching to transition phase " << (currentPhase + 1) % phases.size() << endl;
 
     TraCI->TLSetPhaseIndex(id, (currentPhase + 1) % phases.size());           //Manually switch to the yellow phase in SUMO
 
@@ -256,22 +253,22 @@ void TrafficLightRouter::handleMessage(cMessage* msg)  //Internal messages to se
     {
         if(msg->isName("tl evt"))   //Out-of-sync TL Algorithms take place here
         {
-            if(debugLevel > 1) std::cout << "TL " << id << " got an asynchronous self-message at t=" << simTime().dbl() << endl;
+            if(debugLevel > 2) std::cout << "TL " << id << " got an asynchronous self-message at t=" << simTime().dbl() << endl;
             ASynchronousMessage();
         }
         else if(msg->isName("tl switch evt"))   //Operations in sync with normal phase switching happens here
         {
-            if(debugLevel > 1) std::cout << "TL " << id << " got a synchronous self-message at t=" << simTime().dbl() << endl;
+            if(debugLevel > 2) std::cout << "TL " << id << " got a synchronous self-message at t=" << simTime().dbl() << endl;
             SynchronousMessage();
         }
         else if(msg->isName("tl transition evt"))
         {
 
-            if(debugLevel > 1) std::cout << "TL " << id << " got a transition self-message at t=" << simTime().dbl() << endl;
+            if(debugLevel > 2) std::cout << "TL " << id << " got a transition self-message at t=" << simTime().dbl() << endl;
             currentPhase = nextPhase;
             TraCI->TLSetPhaseIndex(id, currentPhase);           //Manually switch to the yellow phase in SUMO
 
-            if(debugLevel > 1) std::cout << "Switching to actual phase " << currentPhase << endl;
+            if(debugLevel > 2) std::cout << "Switching to actual phase " << currentPhase << endl;
             lastSwitchTime = simTime().dbl();
 
             TraCI->TLSetPhaseDuration(id, 10000000);
@@ -281,6 +278,7 @@ void TrafficLightRouter::handleMessage(cMessage* msg)  //Internal messages to se
 
         }
     }
+
     delete msg;
 }
 
@@ -340,9 +338,11 @@ void TrafficLightRouter::HighDensityRecalculate()
             }
         }
     }
+
     if(total > 0)  //If there are vehicles on the lane
     {
-        if(debugLevel > 0) std::cout << "For TL " << id << " at t=" << simTime().dbl() << ": " << endl;
+        if(debugLevel > 2) std::cout << "For TL " << id << " at t=" << simTime().dbl() << ": " << endl;
+
         for(unsigned int i = 0; i < phases.size(); i++)  //For each phase
         {
             if(i % 2 == 0)  //Ignore the odd (transitional) phases
@@ -352,7 +352,7 @@ void TrafficLightRouter::HighDensityRecalculate()
                 if(duration < 3)    //If the duration is too short, set it to a minimum
                     duration = 3;
 
-                if(debugLevel > 0) std::cout << "    Phase " << i << " set to " << duration << endl;
+                if(debugLevel > 2) std::cout << "    Phase " << i << " set to " << duration << endl;
                 phases[i]->duration = duration; //Update durations. These will take affect starting with the next phase
             }
         }
@@ -447,11 +447,11 @@ void TrafficLightRouter::FlowRateRecalculate()
         }
     }
 
-
     int maxFlowTime = -1;
     int maxFlowPhase = -1;
     double maxFlowSum = 0;
     double flowSum = 0;
+
     for(int t = MinPhaseDuration; t <= MaxPhaseDuration; t += 5)
     {
         for(unsigned int phaseNum = 0; phaseNum < phases.size(); phaseNum += 2)
@@ -487,7 +487,7 @@ void TrafficLightRouter::FlowRateRecalculate()
 
     if(maxFlowTime >= MinPhaseDuration) //if any vehicles will arrive before the light's max duration, maxFlowTime will have been set
     {
-        if(debugLevel > 0) std::cout << "Switching tl " << id << " to phase " << maxFlowPhase << " for " << maxFlowTime << " seconds" << endl;
+        if(debugLevel > 2) std::cout << "Switching tl " << id << " to phase " << maxFlowPhase << " for " << maxFlowTime << " seconds" << endl;
         switchToPhase(maxFlowPhase, maxFlowTime);   //So switch to that phase
     }
     else    //No vehicles are nearby. Continue TL operations as normal.
@@ -499,7 +499,7 @@ void TrafficLightRouter::LowDensityRecalculate()
 {
     if(LowDensityVehicleCheck())
     {
-        if(debugLevel > 0) std::cout << "Extending tl " << id << " by " << LowDensityExtendTime << " seconds" << endl;
+        if(debugLevel > 2) std::cout << "Extending tl " << id << " by " << LowDensityExtendTime << " seconds" << endl;
         TLSwitchEvent = new cMessage("tl switch evt");
         scheduleAt(simTime().dbl() + LowDensityExtendTime, TLSwitchEvent);
     }
@@ -550,6 +550,7 @@ bool TrafficLightRouter::LowDensityVehicleCheck()    //This function assumes it'
             }
         }
     }
+
     return false;
 }
 
@@ -588,6 +589,7 @@ int TrafficLightRouter::currentPhaseAtTime(double time, double* timeRemaining)
         phase = (phase + 1) % phases.size();  //Move to the next phase
         curTime += phases[phase]->duration; //And add that duration to curTime
     }
+
     if(timeRemaining != NULL)   //If timeRemaining was passed in
         *timeRemaining = curTime - time;
 

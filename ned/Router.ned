@@ -8,6 +8,8 @@ simple Router
         @display("i=block/network2");  
         
         bool enableRouter = default(false);
+        
+        int debugLevel;
       
         double leftTurnCost;
         double rightTurnCost;
@@ -31,7 +33,5 @@ simple Router
         int AccidentCheckInterval;
         
         int dijkstraOutdateTime;
-        
-        int debugLevel;
 }
 

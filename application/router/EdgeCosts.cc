@@ -26,28 +26,37 @@
 //
 
 #include "EdgeCosts.h"
-#include "RouterGlobals.h"
+#include <omnetpp.h>
 
 namespace VENTOS {
 
 EdgeCosts::EdgeCosts()
 {
+    // get a pointer to router module
+    cModule *module = simulation.getSystemModule()->getSubmodule("router");
+    EWMARate = module->par("EWMARate").doubleValue();
+    laneCostsMode = static_cast<LaneCostsMode>(module->par("LaneCostsMode").longValue());
+
     average = 0;
     count = 0;
 }
 
 EdgeCosts::EdgeCosts(std::map<int, int> dataSet)
 {
-    data = dataSet;
+    // get a pointer to router module
+    cModule *module = simulation.getSystemModule()->getSubmodule("router");
+    EWMARate = module->par("EWMARate").doubleValue();
+    laneCostsMode = static_cast<LaneCostsMode>(module->par("LaneCostsMode").longValue());
+
     average = 0;
     count = 0;
 
+    data = dataSet;
     for(auto& pair : data)
     {
         average += pair.first * pair.second;
         count += pair.second;
     }
-
     average /= count;
 }
 
