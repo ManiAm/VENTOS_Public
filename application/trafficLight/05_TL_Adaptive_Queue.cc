@@ -509,7 +509,8 @@ void TrafficLightAdaptiveQueue::chooseNextGreenInterval()
         int count = 0;
         for(std::vector<int>::iterator y = entry.batchMovements.begin(); y != entry.batchMovements.end(); ++y)
         {
-            std::cout << count << ":(" << *y << "," << linkQueueSize[std::make_pair("C",count)] << ")|";
+            //std::cout << count << ":(" << *y << "," << linkQueueSize[std::make_pair("C",count)] << ")|";
+            std::cout << *y;
             count++;
         }
 
