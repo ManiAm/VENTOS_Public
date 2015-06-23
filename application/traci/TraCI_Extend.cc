@@ -425,6 +425,34 @@ std::list<Coord> TraCI_Extend::genericGetCoordList(uint8_t commandId, std::strin
 }
 
 
+uint8_t TraCI_Extend::genericGetUnsignedByte(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId)
+{
+    uint8_t resultTypeId = TYPE_UBYTE;
+    int8_t res;
+
+    TraCIBuffer buf = getCommandInterface()->connection.query(commandId, TraCIBuffer() << variableId << objectId);
+
+    uint8_t cmdLength; buf >> cmdLength;
+    if (cmdLength == 0) {
+        uint32_t cmdLengthX;
+        buf >> cmdLengthX;
+    }
+    uint8_t commandId_r; buf >> commandId_r;
+    ASSERT(commandId_r == responseId);
+    uint8_t varId; buf >> varId;
+    ASSERT(varId == variableId);
+    std::string objectId_r; buf >> objectId_r;
+    ASSERT(objectId_r == objectId);
+    uint8_t resType_r; buf >> resType_r;
+    ASSERT(resType_r == resultTypeId);
+    buf >> res;
+
+    ASSERT(buf.eof());
+
+    return res;
+}
+
+
 // same as genericGetCoordv, but no conversion to omnet++ coordinates at the end
 Coord TraCI_Extend::genericGetCoordv2(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId)
 {
@@ -1324,6 +1352,12 @@ std::list<std::string> TraCI_Extend::laneGetIDList()
 uint32_t TraCI_Extend::laneGetIDCount()
 {
     return genericGetInt(CMD_GET_LANE_VARIABLE, "", ID_COUNT, RESPONSE_GET_LANE_VARIABLE);
+}
+
+
+uint8_t TraCI_Extend::laneLinkNumber(std::string laneId)
+{
+    return genericGetUnsignedByte(CMD_GET_LANE_VARIABLE, laneId, LANE_LINK_NUMBER, RESPONSE_GET_LANE_VARIABLE);
 }
 
 

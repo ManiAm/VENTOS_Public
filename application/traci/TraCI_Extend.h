@@ -179,6 +179,7 @@ public:
     // CMD_GET_LANE_VARIABLE
     std::list<std::string> laneGetIDList();
     uint32_t laneGetIDCount();
+    uint8_t laneLinkNumber(std::string);
     std::string laneGetEdgeID(std::string);
     double laneGetLength(std::string);
     double laneGetMaxSpeed(std::string);
@@ -293,6 +294,7 @@ private:
     Coord genericGetCoord(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
     std::list<Coord> genericGetCoordList(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
 
+    uint8_t genericGetUnsignedByte(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);                // new command
     Coord genericGetCoordv2(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);                       // new command
     std::vector<double> genericGetBoundingBox(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);     // new command
     uint8_t* genericGetArrayUnsignedInt(uint8_t, std::string, uint8_t, uint8_t);                                                    // new command
