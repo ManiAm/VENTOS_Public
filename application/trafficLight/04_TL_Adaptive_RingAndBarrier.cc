@@ -43,6 +43,22 @@ void TrafficLightAdaptive::initialize(int stage)
 {
     TrafficLightFixed::initialize(stage);
 
+    minGreenTime = par("minGreenTime").doubleValue();
+    maxGreenTime = par("maxGreenTime").doubleValue();
+    yellowTime = par("yellowTime").doubleValue();
+    redTime = par("redTime").doubleValue();
+    passageTime = par("passageTime").doubleValue();
+    greenExtension = par("greenExtension").boolValue();
+
+    if(minGreenTime <= 0)
+        error("minGreenTime value is wrong!");
+    if(maxGreenTime <= 0 || maxGreenTime < minGreenTime)
+        error("maxGreenTime value is wrong!");
+    if(yellowTime <= 0)
+        error("yellowTime value is wrong!");
+    if(redTime <= 0)
+        error("redTime value is wrong!");
+
     if(TLControlMode != TL_Adaptive_Time)
         return;
 
@@ -129,6 +145,22 @@ void TrafficLightAdaptive::executeFirstTimeStep()
     {
         TraCI->TLSetProgram(*TL, "adaptive-time");
         TraCI->TLSetState(*TL, phase1_5);
+
+        if(collectTLData)
+        {
+            // initialize phase number in this TL
+            phaseTL[*TL] = 1;
+
+            // get all incoming lanes
+            std::list<std::string> lan = TraCI->TLGetControlledLanes(*TL);
+
+            // remove duplicate entries
+            lan.unique();
+
+            // Initialize status in this TL
+            currentStatusTL *entry = new currentStatusTL(phase1_5, simTime().dbl(), -1, -1, -1, lan.size(), -1);
+            statusTL.insert( std::make_pair(std::make_pair(*TL,1), *entry) );
+        }
     }
 
     char buff[300];
@@ -195,6 +227,13 @@ void TrafficLightAdaptive::chooseNextInterval()
         intervalElapseTime = 0.0;
         intervalOffSet = redTime;
 
+        if(collectTLData)
+        {
+            // update TL status for this phase
+            std::map<std::pair<std::string,int>, currentStatusTL>::iterator location = statusTL.find( std::make_pair("C",phaseTL["C"]) );
+            (location->second).redStart = simTime().dbl();
+        }
+
         char buff[300];
         sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
         std::cout << buff << endl << endl;
@@ -207,6 +246,35 @@ void TrafficLightAdaptive::chooseNextInterval()
         TraCI->TLSetState("C", nextGreenInterval);
         intervalElapseTime = 0.0;
         intervalOffSet = minGreenTime;
+
+        if(collectTLData)
+        {
+            // get all incoming lanes
+            std::list<std::string> lan = TraCI->TLGetControlledLanes("C");
+
+            // remove duplicate entries
+            lan.unique();
+
+            // for each incoming lane
+            int totalQueueSize = 0;
+            for(std::list<std::string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
+            {
+                totalQueueSize = totalQueueSize + laneQueueSize[*it2].second;
+            }
+
+            // update TL status for this phase
+            std::map<std::pair<std::string,int>, currentStatusTL>::iterator location = statusTL.find( std::make_pair("C",phaseTL["C"]) );
+            (location->second).phaseEnd = simTime().dbl();
+            (location->second).totalQueueSize = totalQueueSize;
+
+            // increase phase number by 1
+            std::map<std::string, int>::iterator location2 = phaseTL.find("C");
+            location2->second = location2->second + 1;
+
+            // update status for the new phase
+            currentStatusTL *entry = new currentStatusTL(nextGreenInterval, simTime().dbl(), -1, -1, -1, lan.size(), -1);
+            statusTL.insert( std::make_pair(std::make_pair("C",location2->second), *entry) );
+        }
 
         char buff[300];
         sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
@@ -435,6 +503,13 @@ void TrafficLightAdaptive::chooseNextGreenInterval()
 
         intervalElapseTime = 0.0;
         intervalOffSet =  yellowTime;
+
+        if(collectTLData)
+        {
+            // update TL status for this phase
+            std::map<std::pair<std::string,int>, currentStatusTL>::iterator location = statusTL.find( std::make_pair("C",phaseTL["C"]) );
+            (location->second).yellowStart = simTime().dbl();
+        }
 
         char buff[300];
         sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);

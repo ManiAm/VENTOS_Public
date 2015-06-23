@@ -32,7 +32,6 @@
 #include <Appl.h>
 #include "TraCI_Extend.h"
 
-
 namespace VENTOS {
 
 class TrafficLightBase : public BaseModule

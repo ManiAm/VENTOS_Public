@@ -29,8 +29,6 @@
 #define LOOPDETECTORS_H
 
 #include <01_TL_Base.h>
-#include <Appl.h>
-#include "TraCI_Extend.h"
 
 namespace VENTOS {
 
@@ -63,22 +61,26 @@ class LoopDetectorData
 };
 
 
-class IntersectionTLData
+class currentStatusTL
 {
-  public:
-    int phaseNumber;
-    double time;
-    std::string TLid;
-    std::string lane;
-    int qSize;
+public:
+    std::string allowedMovements;
+    double greenStart;
+    double yellowStart;
+    double redStart;
+    double phaseEnd;
+    int incommingLanes;
+    int totalQueueSize;
 
-    IntersectionTLData( int phaseNu, double t, std::string str1, std::string str2, int q)
+    currentStatusTL(std::string str1, double d1, double d2, double d3, double d4, int i1, int i2)
     {
-        this->phaseNumber = phaseNu;
-        this->time = t;
-        this->TLid = str1;
-        this->lane = str2;
-        this->qSize = q;
+        this->allowedMovements = str1;
+        this->greenStart = d1;
+        this->yellowStart = d2;
+        this->redStart = d3;
+        this->phaseEnd = d4;
+        this->incommingLanes = i1;
+        this->totalQueueSize = i2;
     }
 };
 
@@ -104,7 +106,6 @@ class LoopDetectors : public TrafficLightBase
     void measureTD();
     void measureQ();
 
-    void collectTrafficLightData();
     void saveTLData();
 
   protected:
@@ -114,35 +115,23 @@ class LoopDetectors : public TrafficLightBase
     bool measureIntersectionQueue;
     bool collectTLData;
 
-    // NED variables
-    double minGreenTime;
-    double maxGreenTime;
-    double yellowTime;
-    double redTime;
-    double passageTime;
-    bool greenExtension;
-
-    // class variables
-    double intervalOffSet;
-    std::string nextGreenInterval;
-    double intervalElapseTime;
-    std::string currentInterval;
-    int phaseNumber;
-
     std::list<std::string> TLList;   // list of traffic-lights in the network
 
     std::map<std::string /*lane*/, std::string /*id*/> LD_demand;      // ids of loop detectors for measuring incoming traffic demand
     std::map<std::string /*lane*/, std::string /*id*/> LD_actuated;    // ids of loop detectors for actuated-time signal control
     std::map<std::string /*lane*/, std::string /*id*/> AD_queue;       // ids of area detectors for measuring queue length
 
-    std::map<std::string /*lane*/, std::string /*TLid*/> lanesTL;                                        // all incoming lanes belong to each intersection
-    std::map<std::pair<std::string /*TLid*/,int /*link number*/>, std::string /*link*/> linksTL;         // all links belong to each intersection
+    std::map<std::string /*lane*/, std::string /*TLid*/> lanesTL;                                  // all incoming lanes belong to each intersection
+    std::map<std::string /*lane*/, int /*# of links*/> linksCount;                                 // number of outgoing links for each lane
+    std::map<std::pair<std::string /*TLid*/,int /*link number*/>, std::string /*link*/> linksTL;   // all links belong to each intersection
 
-    std::map<std::string /*lane*/, std::pair<std::string /*TLid*/,int /*queue size*/>> laneQueueSize;    // queue size for each incoming lane of each intersection
-    std::map<std::pair<std::string /*TLid*/,int /*link*/>, int /*queue size*/> linkQueueSize;            // queue size for each link of each intersection
+    std::map<std::string /*lane*/, std::pair<std::string /*TLid*/,int /*queue size*/>> laneQueueSize;   // real-time queue size for each incoming lane of each intersection
+    std::map<std::pair<std::string /*TLid*/,int /*link*/>, int /*queue size*/> linkQueueSize;           // real-time queue size for each link of each intersection
+
+    std::map<std::string /*TLid*/, int /*phase number*/> phaseTL;                                  // current phase in each TL
+    std::map<std::pair<std::string /*TLid*/, int /*phase number*/>, currentStatusTL> statusTL;     // current status of each TL in each phase
 
     std::vector<LoopDetectorData> Vec_loopDetectors;
-    std::vector<IntersectionTLData> Vec_IntersectionData;
 
   private:
     bool freeze = false;

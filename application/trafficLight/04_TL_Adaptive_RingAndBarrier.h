@@ -30,7 +30,6 @@
 
 #include <03_TL_Fixed.h>
 
-
 namespace VENTOS {
 
 class TrafficLightAdaptive : public TrafficLightFixed
@@ -50,6 +49,20 @@ class TrafficLightAdaptive : public TrafficLightFixed
     void chooseNextGreenInterval();
 
   protected:
+    // NED variables
+    double minGreenTime;
+    double maxGreenTime;
+    double yellowTime;
+    double redTime;
+    double passageTime;
+    bool greenExtension;
+
+    // class variables
+    double intervalOffSet;
+    std::string nextGreenInterval;
+    double intervalElapseTime;
+    std::string currentInterval;
+
     cMessage* ChangeEvt;
     std::map<std::string,double> passageTimePerLane;
 

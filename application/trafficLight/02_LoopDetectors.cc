@@ -49,27 +49,6 @@ void LoopDetectors::initialize(int stage)
         measureIntersectionQueue = par("measureIntersectionQueue").boolValue();
         collectTLData = par("collectTLData").boolValue();
 
-        minGreenTime = par("minGreenTime").doubleValue();
-        maxGreenTime = par("maxGreenTime").doubleValue();
-        yellowTime = par("yellowTime").doubleValue();
-        redTime = par("redTime").doubleValue();
-        passageTime = par("passageTime").doubleValue();
-        greenExtension = par("greenExtension").boolValue();
-
-        if(minGreenTime <= 0)
-            error("minGreenTime value is wrong!");
-
-        if(maxGreenTime <= 0 || maxGreenTime < minGreenTime)
-            error("maxGreenTime value is wrong!");
-
-        if(yellowTime <= 0)
-            error("yellowTime value is wrong!");
-
-        if(redTime <= 0)
-            error("redTime value is wrong!");
-
-        phaseNumber = 0;
-
         LD_demand.clear();
         LD_actuated.clear();
         AD_queue.clear();
@@ -78,7 +57,6 @@ void LoopDetectors::initialize(int stage)
         linkQueueSize.clear();
 
         Vec_loopDetectors.clear();
-        Vec_IntersectionData.clear();
     }
 }
 
@@ -86,14 +64,12 @@ void LoopDetectors::initialize(int stage)
 void LoopDetectors::finish()
 {
     TrafficLightBase::finish();
-
 }
 
 
 void LoopDetectors::handleMessage(cMessage *msg)
 {
     TrafficLightBase::handleMessage(msg);
-
 }
 
 
@@ -108,6 +84,8 @@ void LoopDetectors::executeFirstTimeStep()
     // for each traffic light
     for (std::list<std::string>::iterator it = TLList.begin(); it != TLList.end(); ++it)
     {
+        std::string TLid = *it;
+
         // get all incoming lanes
         std::list<std::string> lan = TraCI->TLGetControlledLanes(*it);
 
@@ -117,22 +95,22 @@ void LoopDetectors::executeFirstTimeStep()
         // for each incoming lane
         for(std::list<std::string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
         {
-            std::string TLid = *it;
             std::string lane = *it2;
 
             lanesTL[lane] = TLid;
+
+            linksCount[lane] = TraCI->laneLinkNumber(lane);
 
             // initialize all queue value in laneQueueSize to zero
             laneQueueSize[lane] = std::make_pair(TLid, 0);
         }
 
         // get all links controlled by this TL
-        std::map<int,std::string> result = TraCI->TLGetControlledLinks(*it);
+        std::map<int,std::string> result = TraCI->TLGetControlledLinks(TLid);
 
         // for each link in this TLid
         for(std::map<int,std::string>::iterator it2 = result.begin(); it2 != result.end(); ++it2)
         {
-            std::string TLid = *it;
             int linkNumber = (*it2).first;
             std::string link = (*it2).second;
 
@@ -168,16 +146,9 @@ void LoopDetectors::executeEachTimeStep(bool simulationDone)
     // should be after measureQ
     if(collectTLData)
     {
-        // collect TL data at the end of each phase
-        if( currentInterval == "red" && std::fabs(intervalElapseTime - (redTime-updateInterval)) < 0.001 )
-        {
-            collectTrafficLightData();
-
-            if(ev.isGUI())
-                saveTLData();  // (if in GUI) write to file what we have collected so far
-        }
-
-        if(!ev.isGUI() && simulationDone)
+        if(ev.isGUI())
+            saveTLData();  // (if in GUI) write to file what we have collected so far
+        else if(simulationDone)
             saveTLData();  // (if in CMD) write to file at the end of simulation
     }
 }
@@ -376,7 +347,7 @@ void LoopDetectors::measureQ()
             continue;
 
         std::string ADid = AD_queue[lane];
-        int q = TraCI->LADGetLastStepVehicleNumber(ADid);
+        int q = TraCI->LADGetLastStepVehicleHaltingNumber(ADid);
 
         // update laneQueueSize
         std::map<std::string,std::pair<std::string,int>>::iterator location = laneQueueSize.find(lane);
@@ -390,6 +361,7 @@ void LoopDetectors::measureQ()
         int linkNumber = (*y).first.second;
         std::string link = (*y).second;
 
+        // get the incoming lane that corresponds to this link
         std::string incommingLane;
         boost::char_separator<char> sep("|");
         boost::tokenizer< boost::char_separator<char> > tokens(link, sep);
@@ -401,29 +373,16 @@ void LoopDetectors::measureQ()
             continue;
 
         std::string ADid = AD_queue[incommingLane];
-        int q = TraCI->LADGetLastStepVehicleNumber(ADid);
+        int q = TraCI->LADGetLastStepVehicleHaltingNumber(ADid);
+
+        // get number of links outgoing from this lane
+        int NoLinks = linksCount[incommingLane];
+        // each link gets a portion of the queue size
+        q = ceil( (double)q / (double)NoLinks );
 
         // update linkQueueSize
         std::map<std::pair<std::string,int>, int>::iterator location = linkQueueSize.find( make_pair(TLid,linkNumber) );
         location->second = q;
-    }
-}
-
-
-// collect TL data
-void LoopDetectors::collectTrafficLightData()
-{
-    phaseNumber++;
-
-    // for each lane i that is controlled by traffic light j
-    for(std::map<std::string, std::string>::iterator y = lanesTL.begin(); y != lanesTL.end(); ++y)
-    {
-        std::string lane = (*y).first;
-        std::string TLid = (*y).second;
-        int qSize = laneQueueSize[lane].second;
-
-        IntersectionTLData *tmp = new IntersectionTLData( phaseNumber, simTime().dbl(), TLid, lane, qSize);
-        Vec_IntersectionData.push_back(*tmp);
     }
 }
 
@@ -448,28 +407,40 @@ void LoopDetectors::saveTLData()
     FILE *filePtr = fopen (filePath.string().c_str(), "w");
 
     // write header
-    fprintf (filePtr, "%-15s","phase");
-    fprintf (filePtr, "%-15s","endTime");
-    fprintf (filePtr, "%-15s","TLid");
-    fprintf (filePtr, "%-15s","lane");
-    fprintf (filePtr, "%-20s\n","queueSize");
-
-    double oldTime = -1;
+    fprintf (filePtr, "%-12s", "TLid");
+    fprintf (filePtr, "%-12s", "phase");
+    fprintf (filePtr, "%-35s", "allowedMovements");
+    fprintf (filePtr, "%-15s", "greenStart");
+    fprintf (filePtr, "%-15s", "yellowStart");
+    fprintf (filePtr, "%-15s", "redStart");
+    fprintf (filePtr, "%-15s", "phaseEnd");
+    fprintf (filePtr, "%-15s", "#lanes");
+    fprintf (filePtr, "%-15s\n\n", "totalqueueSize");
 
     // write body
-    for(std::vector<IntersectionTLData>::iterator y = Vec_IntersectionData.begin(); y != Vec_IntersectionData.end(); ++y)
+    for( std::map<std::pair<std::string, int>, currentStatusTL>::iterator y = statusTL.begin(); y != statusTL.end(); ++y)
     {
-        if(oldTime != y->time)
-        {
-            fprintf(filePtr, "\n");
-            oldTime = y->time;
-        }
+        std::string TLid = ((*y).first).first;
+        int phaseNumber = ((*y).first).second;
+        currentStatusTL status = (*y).second;
 
-        fprintf (filePtr, "%-15d ", y->phaseNumber);
-        fprintf (filePtr, "%-15.2f ", y->time);
-        fprintf (filePtr, "%-15s ", y->TLid.c_str());
-        fprintf (filePtr, "%-15s ", y->lane.c_str());
-        fprintf (filePtr, "%-15d\n", y->qSize);
+        std::string allowedMovements = status.allowedMovements;
+        double greenStart = status.greenStart;
+        double yellowStart = status.yellowStart;
+        double redStart = status.redStart;
+        double phaseEnd = status.phaseEnd;
+        int incommingLanes = status.incommingLanes;
+        int totalQueueSize = status.totalQueueSize;
+
+        fprintf (filePtr, "%-12s", TLid.c_str());
+        fprintf (filePtr, "%-12d", phaseNumber);
+        fprintf (filePtr, "%-35s", allowedMovements.c_str());
+        fprintf (filePtr, "%-15f", greenStart);
+        fprintf (filePtr, "%-15f", yellowStart);
+        fprintf (filePtr, "%-15f", redStart);
+        fprintf (filePtr, "%-15f", phaseEnd);
+        fprintf (filePtr, "%-15d", incommingLanes);
+        fprintf (filePtr, "%-15d\n", totalQueueSize);
     }
 
     fclose(filePtr);

@@ -28,10 +28,39 @@
 #define TRAFFICLIGHTADAPTIVEQUEUE_H
 
 #include <04_TL_Adaptive_RingAndBarrier.h>
-#include <boost/graph/adjacency_list.hpp>
-
 
 namespace VENTOS {
+
+class batchMovementQueueEntry
+{
+public:
+    int oneCount;
+    int totalQueue;
+    std::vector<int> batchMovements;
+
+    batchMovementQueueEntry(int i1, int i2, std::vector<int> bm)
+    {
+        this->oneCount = i1;
+        this->totalQueue = i2;
+        batchMovements.swap(bm);
+    }
+};
+
+
+class movementCompare
+{
+public:
+    bool operator()(batchMovementQueueEntry p1, batchMovementQueueEntry p2)
+    {
+        if( p1.totalQueue < p2.totalQueue )
+            return true;
+        else if( p1.totalQueue == p2.totalQueue && p1.oneCount < p2.oneCount)
+            return true;
+        else
+            return false;
+    }
+};
+
 
 class TrafficLightAdaptiveQueue : public TrafficLightAdaptive
 {
@@ -53,8 +82,13 @@ private:
 
 protected:
     int LINKSIZE;
-    std::vector< std::vector<int> > allMovements;
     boost::filesystem::path movementsFilePath;
+    std::vector< std::vector<int> > allMovements;
+
+    int rightTurns[8] = {0, 2, 5, 7, 10, 12, 15, 17};
+
+    // batch of all non-conflicting movements, sorted by total queue size per batch
+    std::priority_queue< batchMovementQueueEntry /*type of each element*/, std::vector<batchMovementQueueEntry> /*container*/, movementCompare > batchMovementQueue;
 };
 
 }
