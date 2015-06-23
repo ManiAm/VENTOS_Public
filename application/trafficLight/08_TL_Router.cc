@@ -189,7 +189,6 @@ void TrafficLightRouter::initialize(int stage)
         LowDensityExtendTime = par("LowDensityExtendTime").doubleValue();
         MaxPhaseDuration = par("MaxPhaseDuration").doubleValue();
         MinPhaseDuration = par("MinPhaseDuration").doubleValue();
-        YellowDuration = par("YellowDuration").doubleValue();
 
         TLLogicMode = static_cast<TrafficLightLogicMode>(par("TLLogicMode").longValue());
         switch(TLLogicMode)
@@ -228,7 +227,7 @@ void TrafficLightRouter::switchToPhase(int phaseSwitch, double greenDuration, in
     if(greenDuration <= 0)   //If greenDuration is less than zero, assume default duration
         greenDuration = phases[nextPhase]->duration;
     if(yellowDuration <= 0)
-        yellowDuration = YellowDuration;
+        yellowDuration = yellowTime;
 
     nextDuration = greenDuration;
 

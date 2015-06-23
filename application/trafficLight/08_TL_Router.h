@@ -32,7 +32,6 @@
 #include "Net.h"
 #include <vector>
 
-
 namespace VENTOS {
 
 class TraCI_Extend;
@@ -102,7 +101,6 @@ public:
 
 private:
     Router* router;
-    double YellowDuration;
     int nextDuration;
     int nextPhase;
 };
