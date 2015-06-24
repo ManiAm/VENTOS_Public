@@ -304,30 +304,19 @@ void Statistics::saveVehicleData(std::string vID)
         if(vleaderID != "" && speed != 0)
             timeGap = spaceGap / speed;
 
-        // todo: change this later! very sluggish!
         // get the TLid that controls this vehicle
         // empty string means the vehicle is not controlled by any TLid
-        std::string TLid = "";
-        for (std::list<std::string>::iterator it = TLList.begin() ; it != TLList.end(); ++it)
-        {
-            std::list<std::string> lan = TraCI->TLGetControlledLanes(*it);
-            for(std::list<std::string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
-            {
-                if(*it2 == lane)
-                {
-                    TLid = *it;
-                    break;
-                }
-            }
-        }
+        // it is disabled for now to make the simulation faster
+        std::string TLid = "";   // TraCI->vehicleGetTLID(vID);
 
-        // if the signal is yellow or red
-        int YorR = TraCI->vehicleGetTrafficLightAhead(vID);
+        // get the signal status ahead
+        // character 'n' means no link status
+        char linkStatus = TraCI->vehicleGetTLLinkStatus(vID);
 
         VehicleData *tmp = new VehicleData(timeStep, vID.c_str(), vType.c_str(),
                 lane.c_str(), pos, speed, accel,
                 CFMode.c_str(), timeGapSetting, spaceGap, timeGap,
-                TLid.c_str(), YorR);
+                TLid.c_str(), linkStatus);
         Vec_vehiclesData.push_back(*tmp);
     }
 }
@@ -415,7 +404,7 @@ void Statistics::vehiclesDataToFile()
         fprintf (filePtr, "%-10s","SpaceGap");
         fprintf (filePtr, "%-16s","timeGap");
         fprintf (filePtr, "%-17s","TLid");
-        fprintf (filePtr, "%-17s\n\n","yellowOrRed");
+        fprintf (filePtr, "%-17s\n\n","linkStatus");
 
         double oldTime = -1;
         int index = 0;
@@ -443,7 +432,7 @@ void Statistics::vehiclesDataToFile()
             fprintf (filePtr, "%-10.2f ", y->spaceGap);
             fprintf (filePtr, "%-16.2f ", y->timeGap);
             fprintf (filePtr, "%-17s ", y->TLid.c_str());
-            fprintf (filePtr, "%-17d \n", y->YorR);
+            fprintf (filePtr, "%-17c \n", y->linkStatus);
         }
     }
 

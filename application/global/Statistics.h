@@ -56,11 +56,11 @@ public:
     double spaceGap;
     double timeGap;
     std::string TLid;  // TLid that controls this vehicle
-    int YorR;          // if the TL state ahead is yellow or red
+    char linkStatus;  // status of the TL
 
     VehicleData(double t, std::string str1, std::string str2, std::string str3,
             double d2, double d3, double d4, std::string str4, double d3a, double d5, double d6,
-            std::string str5, int YR)
+            std::string str5, char st)
     {
         this->time = t;
         this->vehicleName = str1;
@@ -74,7 +74,7 @@ public:
         this->spaceGap = d5;
         this->timeGap = d6;
         this->TLid = str5;
-        this->YorR = YR;
+        this->linkStatus = st;
     }
 };
 

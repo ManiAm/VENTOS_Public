@@ -63,6 +63,40 @@ enum CFMODES {
     Mode_Stopped
 };
 
+// SUMO signaling for vehicles
+enum Signalling {
+    /// @brief Everything is switched off
+    VEH_SIGNAL_NONE = 0,
+    /// @brief Right blinker lights are switched on
+    VEH_SIGNAL_BLINKER_RIGHT = 1,
+    /// @brief Left blinker lights are switched on
+    VEH_SIGNAL_BLINKER_LEFT = 2,
+    /// @brief Blinker lights on both sides are switched on
+    VEH_SIGNAL_BLINKER_EMERGENCY = 4,
+    /// @brief The brake lights are on
+    VEH_SIGNAL_BRAKELIGHT = 8,
+    /// @brief The front lights are on (no visualisation)
+    VEH_SIGNAL_FRONTLIGHT = 16,
+    /// @brief The fog lights are on (no visualisation)
+    VEH_SIGNAL_FOGLIGHT = 32,
+    /// @brief The high beam lights are on (no visualisation)
+    VEH_SIGNAL_HIGHBEAM = 64,
+    /// @brief The backwards driving lights are on (no visualisation)
+    VEH_SIGNAL_BACKDRIVE = 128,
+    /// @brief The wipers are on
+    VEH_SIGNAL_WIPER = 256,
+    /// @brief One of the left doors is opened
+    VEH_SIGNAL_DOOR_OPEN_LEFT = 512,
+    /// @brief One of the right doors is opened
+    VEH_SIGNAL_DOOR_OPEN_RIGHT = 1024,
+    /// @brief A blue emergency light is on
+    VEH_SIGNAL_EMERGENCY_BLUE = 2048,
+    /// @brief A red emergency light is on
+    VEH_SIGNAL_EMERGENCY_RED = 4096,
+    /// @brief A yellow emergency light is on
+    VEH_SIGNAL_EMERGENCY_YELLOW = 8192
+};
+
 enum TLControlTypes
 {
     TL_OFF,
@@ -72,6 +106,38 @@ enum TLControlTypes
     TL_Adaptive_Webster,
     TL_VANET,
     TL_Router
+};
+
+// LinkState in SUMO
+enum LinkState {
+    /// @brief The link has green light, may pass
+    LINKSTATE_TL_GREEN_MAJOR = 'G',
+    /// @brief The link has green light, has to brake
+    LINKSTATE_TL_GREEN_MINOR = 'g',
+    /// @brief The link has red light (must brake)
+    LINKSTATE_TL_RED = 'r',
+    /// @brief The link has red light (must brake) but indicates upcoming green
+    LINKSTATE_TL_REDYELLOW = 'u',
+    /// @brief The link has yellow light, may pass
+    LINKSTATE_TL_YELLOW_MAJOR = 'Y',
+    /// @brief The link has yellow light, has to brake anyway
+    LINKSTATE_TL_YELLOW_MINOR = 'y',
+    /// @brief The link is controlled by a tls which is off and blinks, has to brake
+    LINKSTATE_TL_OFF_BLINKING = 'o',
+    /// @brief The link is controlled by a tls which is off, not blinking, may pass
+    LINKSTATE_TL_OFF_NOSIGNAL = 'O',
+    /// @brief This is an uncontrolled, major link, may pass
+    LINKSTATE_MAJOR = 'M',
+    /// @brief This is an uncontrolled, minor link, has to brake
+    LINKSTATE_MINOR = 'm',
+    /// @brief This is an uncontrolled, right-before-left link
+    LINKSTATE_EQUAL = '=',
+    /// @brief This is an uncontrolled, minor link, has to stop
+    LINKSTATE_STOP = 's',
+    /// @brief This is an uncontrolled, all-way stop link.
+    LINKSTATE_ALLWAY_STOP = 'w',
+    /// @brief This is a dead end link
+    LINKSTATE_DEADEND = '-'
 };
 
 enum LaneCostsMode

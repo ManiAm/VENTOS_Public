@@ -50,6 +50,38 @@ using namespace Veins;
 
 namespace VENTOS {
 
+class bestLanesEntry
+{
+public:
+    std::string laneId;
+    double length;
+    double occupation;
+    int offset;
+    int continuingDrive;
+    std::vector<std::string> best;
+
+    bestLanesEntry(std::string str1, double d1, double d2, int i1, int i2, std::vector<std::string> vec)
+    {
+        this->laneId = str1;
+        this->length = d1;
+        this->occupation = d2;
+        this->offset = i1;
+        this->continuingDrive = i2;
+        this->best.swap(vec);
+    }
+
+    bestLanesEntry()
+    {
+        this->laneId = "";
+        this->length = -1;
+        this->occupation = -1;
+        this->offset = -1;
+        this->continuingDrive = -1;
+        this->best.clear();
+    }
+};
+
+
 class TraCI_Extend : public TraCIScenarioManager
 {
 public:
@@ -89,9 +121,9 @@ public:
     std::string vehicleGetRouteID(std::string);
     std::list<std::string> vehicleGetRoute(std::string);
     uint32_t vehicleGetRouteIndex(std::string);
-    std::string vehicleGetBestLanes(std::string);
+    std::map<int,bestLanesEntry> vehicleGetBestLanes(std::string);
     uint8_t* vehicleGetColor(std::string);
-    uint8_t* vehicleGetSignals(std::string);
+    uint32_t vehicleGetSignalStatus(std::string);
     double vehicleGetLength(std::string);
     double vehicleGetMinGap(std::string);
     double vehicleGetMaxAccel(std::string);
@@ -101,7 +133,8 @@ public:
     std::vector<std::string> vehicleGetLeader(std::string, double);
     double vehicleGetCurrentAccel(std::string);       // new command
     int vehicleGetCarFollowingMode(std::string);      // new command [returns the current ACC/CACC car following mode]
-    int vehicleGetTrafficLightAhead(std::string);     // new command [if the traffic light ahead is yellow or red]
+    std::string vehicleGetTLID(std::string);          // new command [returns the id of the TL ahead]
+    char vehicleGetTLLinkStatus(std::string);          // new command [return the TL status ahead: g, G, Y, R]
 
     // CMD_SET_VEHICLE_VARIABLE
     void vehicleSetStop(std::string, std::string, double, uint8_t, double, uint8_t);  // adds or modifies a stop with the given parameters

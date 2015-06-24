@@ -117,16 +117,16 @@ class LoopDetectors : public TrafficLightBase
 
     std::list<std::string> TLList;   // list of traffic-lights in the network
 
-    std::map<std::string /*lane*/, std::string /*id*/> LD_demand;      // ids of loop detectors for measuring incoming traffic demand
-    std::map<std::string /*lane*/, std::string /*id*/> LD_actuated;    // ids of loop detectors for actuated-time signal control
-    std::map<std::string /*lane*/, std::string /*id*/> AD_queue;       // ids of area detectors for measuring queue length
+    std::map<std::string /*lane*/, std::string /*id*/> LD_demand;    // ids of loop detectors used for measuring incoming traffic demand
+    std::map<std::string /*lane*/, std::string /*id*/> LD_actuated;  // ids of loop detectors used for actuated-time signal control
+    std::map<std::string /*lane*/, std::string /*id*/> AD_queue;     // ids of area detectors used for measuring queue length
 
-    std::map<std::string /*lane*/, std::string /*TLid*/> lanesTL;                                  // all incoming lanes belong to each intersection
-    std::map<std::string /*lane*/, int /*# of links*/> linksCount;                                 // number of outgoing links for each lane
-    std::map<std::pair<std::string /*TLid*/,int /*link number*/>, std::string /*link*/> linksTL;   // all links belong to each intersection
+    std::map<std::string /*lane*/, std::string /*TLid*/> lanesTL;                                 // all incoming lanes for each intersection
+    std::map<std::string /*lane*/, int /*# of links*/> linksCount;                                // number of outgoing links for each incoming lane for each intersection
+    std::map<std::pair<std::string /*TLid*/,int /*link number*/>, std::string /*link*/> linksTL;  // all links in each intersection
 
-    std::map<std::string /*lane*/, std::pair<std::string /*TLid*/,int /*queue size*/>> laneQueueSize;   // real-time queue size for each incoming lane of each intersection
-    std::map<std::pair<std::string /*TLid*/,int /*link*/>, int /*queue size*/> linkQueueSize;           // real-time queue size for each link of each intersection
+    std::map<std::string /*lane*/, std::pair<std::string /*TLid*/,int /*queue size*/>> laneQueueSize;   // real-time queue size for each incoming lane for each intersection
+    std::map<std::pair<std::string /*TLid*/,int /*link*/>, int /*queue size*/> linkQueueSize;           // real-time queue size for each link in each intersection
 
     std::map<std::string /*TLid*/, int /*phase number*/> phaseTL;                                  // current phase in each TL
     std::map<std::pair<std::string /*TLid*/, int /*phase number*/>, currentStatusTL> statusTL;     // current status of each TL in each phase
