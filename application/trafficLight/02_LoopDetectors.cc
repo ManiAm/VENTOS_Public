@@ -106,13 +106,13 @@ void LoopDetectors::executeFirstTimeStep()
         }
 
         // get all links controlled by this TL
-        std::map<int,std::string> result = TraCI->TLGetControlledLinks(TLid);
+        std::map<int,std::vector<std::string>> result = TraCI->TLGetControlledLinks(TLid);
 
         // for each link in this TLid
-        for(std::map<int,std::string>::iterator it2 = result.begin(); it2 != result.end(); ++it2)
+        for(std::map<int,std::vector<std::string>>::iterator it2 = result.begin(); it2 != result.end(); ++it2)
         {
             int linkNumber = (*it2).first;
-            std::string link = (*it2).second;
+            std::vector<std::string> link = (*it2).second;
 
             linksTL[make_pair(TLid,linkNumber)] = link;
 
@@ -355,18 +355,14 @@ void LoopDetectors::measureQ()
         location->second = std::make_pair( store.first, q );
     }
 
-    for(std::map<std::pair<std::string,int>,std::string>::iterator y = linksTL.begin(); y != linksTL.end(); ++y)
+    for(std::map<std::pair<std::string,int>, std::vector<std::string>>::iterator y = linksTL.begin(); y != linksTL.end(); ++y)
     {
         std::string TLid = (*y).first.first;
         int linkNumber = (*y).first.second;
-        std::string link = (*y).second;
+        std::vector<std::string> link = (*y).second;
 
         // get the incoming lane that corresponds to this link
-        std::string incommingLane;
-        boost::char_separator<char> sep("|");
-        boost::tokenizer< boost::char_separator<char> > tokens(link, sep);
-        boost::tokenizer< boost::char_separator<char> >::iterator beg = tokens.begin();
-        incommingLane = (*beg).c_str(); // get the first token
+        std::string incommingLane = link[0];
 
         // make sure we have an area detector in this lane
         if( AD_queue.find(incommingLane) == AD_queue.end() )

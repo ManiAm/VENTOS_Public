@@ -260,7 +260,7 @@ public:
     std::list<std::string> TLGetIDList();
     uint32_t TLGetIDCount();
     std::list<std::string> TLGetControlledLanes(std::string);
-    std::map<int,std::string> TLGetControlledLinks(std::string);
+    std::map<int,std::vector<std::string>> TLGetControlledLinks(std::string);
     std::string TLGetProgram(std::string);
     uint32_t TLGetPhase(std::string);
     std::string TLGetState(std::string);

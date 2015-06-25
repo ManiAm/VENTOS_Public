@@ -122,7 +122,7 @@ void TrafficLightAdaptiveQueue::executeEachTimeStep(bool simulationDone)
 void TrafficLightAdaptiveQueue::getMovements()
 {
     // Get all links for this TL
-    std::map<int,std::string> allLinks = TraCI->TLGetControlledLinks("C");
+    std::map<int,std::vector<std::string>> allLinks = TraCI->TLGetControlledLinks("C");
 
     LINKSIZE = allLinks.size();
 

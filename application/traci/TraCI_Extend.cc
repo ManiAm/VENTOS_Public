@@ -1725,7 +1725,7 @@ std::list<std::string> TraCI_Extend::TLGetControlledLanes(std::string TLid)
 }
 
 
-std::map<int,std::string> TraCI_Extend::TLGetControlledLinks(std::string TLid)
+std::map<int,std::vector<std::string>> TraCI_Extend::TLGetControlledLinks(std::string TLid)
 {
     uint8_t resultTypeId = TYPE_COMPOUND;
     uint8_t variableId = TL_CONTROLLED_LINKS;
@@ -1750,7 +1750,7 @@ std::map<int,std::string> TraCI_Extend::TLGetControlledLinks(std::string TLid)
     uint8_t typeI; buf >> typeI;
     uint32_t No; buf >> No;
 
-    std::map<int,std::string> myMap;
+    std::map<int,std::vector<std::string>> myMap;
 
     for (uint32_t i = 0; i < No; ++i)
     {
@@ -1760,11 +1760,11 @@ std::map<int,std::string> TraCI_Extend::TLGetControlledLinks(std::string TLid)
         buf >> typeI;
         uint32_t No3; buf >> No3;
 
-        std::string lanesForThisLink = "";
+        std::vector<std::string> lanesForThisLink;
         for(uint32_t j = 0; j < No3; ++j)
         {
             std::string id; buf >> id;
-            lanesForThisLink = lanesForThisLink + id + "|";
+            lanesForThisLink.push_back(id);
         }
 
         myMap[i] = lanesForThisLink;

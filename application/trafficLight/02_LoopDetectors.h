@@ -121,9 +121,9 @@ class LoopDetectors : public TrafficLightBase
     std::map<std::string /*lane*/, std::string /*id*/> LD_actuated;  // ids of loop detectors used for actuated-time signal control
     std::map<std::string /*lane*/, std::string /*id*/> AD_queue;     // ids of area detectors used for measuring queue length
 
-    std::map<std::string /*lane*/, std::string /*TLid*/> lanesTL;                                 // all incoming lanes for each intersection
-    std::map<std::string /*lane*/, int /*# of links*/> linksCount;                                // number of outgoing links for each incoming lane for each intersection
-    std::map<std::pair<std::string /*TLid*/,int /*link number*/>, std::string /*link*/> linksTL;  // all links in each intersection
+    std::map<std::string /*lane*/, std::string /*TLid*/> lanesTL;                                                // all incoming lanes for each intersection
+    std::map<std::string /*lane*/, int /*# of links*/> linksCount;                                               // number of outgoing links for each incoming lane for each intersection
+    std::map<std::pair<std::string /*TLid*/,int /*link number*/>, std::vector<std::string> /*link*/> linksTL;    // all links in each intersection
 
     std::map<std::string /*lane*/, std::pair<std::string /*TLid*/,int /*queue size*/>> laneQueueSize;   // real-time queue size for each incoming lane for each intersection
     std::map<std::pair<std::string /*TLid*/,int /*link*/>, int /*queue size*/> linkQueueSize;           // real-time queue size for each link in each intersection
