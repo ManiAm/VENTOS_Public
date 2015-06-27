@@ -109,6 +109,28 @@ void TrafficLightAdaptive::executeFirstTimeStep()
 
     std::cout << endl << "Adaptive-time traffic signal control ..."  << endl;
 
+    for (std::list<std::string>::iterator TL = TLList.begin(); TL != TLList.end(); ++TL)
+    {
+        TraCI->TLSetProgram(*TL, "adaptive-time");
+        TraCI->TLSetState(*TL, currentInterval);
+
+        if(collectTLData)
+        {
+            // initialize phase number in this TL
+            phaseTL[*TL] = 1;
+
+            // get all incoming lanes
+            std::list<std::string> lan = TraCI->TLGetControlledLanes(*TL);
+
+            // remove duplicate entries
+            lan.unique();
+
+            // Initialize status in this TL
+            currentStatusTL *entry = new currentStatusTL(currentInterval, simTime().dbl(), -1, -1, -1, lan.size(), -1);
+            statusTL.insert( std::make_pair(std::make_pair(*TL,1), *entry) );
+        }
+    }
+
     // passageTime calculation per incoming lane
     if(passageTime == -1)
     {
@@ -140,28 +162,6 @@ void TrafficLightAdaptive::executeFirstTimeStep()
     }
     else
         error("passageTime value is not set correctly!");
-
-    for (std::list<std::string>::iterator TL = TLList.begin(); TL != TLList.end(); ++TL)
-    {
-        TraCI->TLSetProgram(*TL, "adaptive-time");
-        TraCI->TLSetState(*TL, phase1_5);
-
-        if(collectTLData)
-        {
-            // initialize phase number in this TL
-            phaseTL[*TL] = 1;
-
-            // get all incoming lanes
-            std::list<std::string> lan = TraCI->TLGetControlledLanes(*TL);
-
-            // remove duplicate entries
-            lan.unique();
-
-            // Initialize status in this TL
-            currentStatusTL *entry = new currentStatusTL(phase1_5, simTime().dbl(), -1, -1, -1, lan.size(), -1);
-            statusTL.insert( std::make_pair(std::make_pair(*TL,1), *entry) );
-        }
-    }
 
     char buff[300];
     sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);

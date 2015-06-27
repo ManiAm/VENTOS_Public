@@ -99,7 +99,7 @@ void TrafficLightAdaptiveQueue::executeFirstTimeStep()
     for (std::list<std::string>::iterator TL = TLList.begin(); TL != TLList.end(); ++TL)
     {
         TraCI->TLSetProgram(*TL, "adaptive-time");
-        TraCI->TLSetState(*TL, phase1_5);
+        TraCI->TLSetState(*TL, currentInterval);
     }
 
     char buff[300];

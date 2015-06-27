@@ -131,9 +131,9 @@ class LoopDetectors : public TrafficLightBase
     std::map<std::string /*TLid*/, int /*phase number*/> phaseTL;                                  // current phase in each TL
     std::map<std::pair<std::string /*TLid*/, int /*phase number*/>, currentStatusTL> statusTL;     // current status of each TL in each phase
 
+  private:
     std::vector<LoopDetectorData> Vec_loopDetectors;
 
-  private:
     bool freeze = false;
     double lastDetectionT_old = 0;
     double total = 0;

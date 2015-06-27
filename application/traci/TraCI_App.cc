@@ -90,15 +90,15 @@ void TraCI_App::init_traci()
 
 void TraCI_App::executeOneTimestep()
 {
-    EV << "### Sending Command to SUMO to perform simulation for TS = " << (getCurrentTimeMs()/1000.) << endl;
-
+    // Sending Command to SUMO to perform simulation for (getCurrentTimeMs()/1000.)
     TraCIScenarioManager::executeOneTimestep();
 
+    std::cout << "exactly after: " << simTime().dbl() << endl;
+
+    allPedestrians.clear();
     allPedestrians = personGetIDList();
     if(!allPedestrians.empty())
         addPedestriansToOMNET();
-
-    EV << "### SUMO completed simulation for TS = " << (getCurrentTimeMs()/1000.) << endl;
 
     // check if simulationDone flag should be set
     int NoVehAndBike = simulationGetMinExpectedNumber();

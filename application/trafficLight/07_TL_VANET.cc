@@ -91,6 +91,12 @@ void TrafficLightVANET::executeFirstTimeStep()
 
     std::cout << endl << "VANET traffic signal control ..." << endl << endl;
 
+    for (std::list<std::string>::iterator TL = TLList.begin(); TL != TLList.end(); ++TL)
+    {
+        TraCI->TLSetProgram(*TL, "adaptive-time");
+        TraCI->TLSetState(*TL, currentInterval);
+    }
+
     // get a pointer to the RSU module that controls this intersection
     cModule *module = simulation.getSystemModule()->getSubmodule("RSU", 0)->getSubmodule("appl");
     if(module == NULL)
@@ -98,12 +104,6 @@ void TrafficLightVANET::executeFirstTimeStep()
     RSU = static_cast<ApplRSUTLVANET *>(module);
     if(RSU == NULL)
         error("No pointer to the RSU module!");
-
-    for (std::list<std::string>::iterator TL = TLList.begin(); TL != TLList.end(); ++TL)
-    {
-        TraCI->TLSetProgram(*TL, "adaptive-time");
-        TraCI->TLSetState(*TL, phase1_5);
-    }
 
     char buff[300];
     sprintf(buff, "Sim time: %4.2f | Interval finish time: %4.2f | Current interval: %s", simTime().dbl(), simTime().dbl() + intervalOffSet, currentInterval.c_str() );

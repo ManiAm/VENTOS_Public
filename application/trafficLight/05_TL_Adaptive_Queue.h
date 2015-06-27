@@ -80,7 +80,7 @@ private:
     void getMovements();
     void generateAllAllowedMovements();
 
-protected:
+private:
     int LINKSIZE;
     boost::filesystem::path movementsFilePath;
     std::vector< std::vector<int> > allMovements;

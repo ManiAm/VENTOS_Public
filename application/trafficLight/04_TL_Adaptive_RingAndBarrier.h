@@ -64,7 +64,6 @@ class TrafficLightAdaptive : public TrafficLightFixed
     std::string currentInterval;
 
     cMessage* ChangeEvt;
-    std::map<std::string,double> passageTimePerLane;
 
     // phases for ring-and-barrier
     std::string phase1_5 = "grgrGgrgrrgrgrGgrgrrrrrr";
@@ -76,6 +75,9 @@ class TrafficLightAdaptive : public TrafficLightFixed
     std::string phase3_8 = "grgrrgrgrrgrgrrgGgGGrrGr";
     std::string phase4_7 = "grgrrgGgGGgrgrrgrgrrGrrr";
     std::string phase4_8 = "grgrrgGgGrgrgrrgGgGrGrGr";
+
+  private:
+    std::map<std::string,double> passageTimePerLane;
 };
 
 }
