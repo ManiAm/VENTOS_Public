@@ -1,7 +1,7 @@
 
 package c3po.ned;
 
-simple TL_Webster extends TL_AdaptiveQueue
+simple TL_Webster extends TL_Fixed
 {
     parameters:
         @class(VENTOS::TrafficLightWebster);

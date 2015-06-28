@@ -40,33 +40,27 @@ TrafficLightVANET::~TrafficLightVANET()
 
 void TrafficLightVANET::initialize(int stage)
 {
-    TrafficLightWebster::initialize(stage);
+    TrafficLightAdaptiveQueue::initialize(stage);
 
     if(TLControlMode != TL_VANET)
         return;
 
     if(stage == 0)
     {
-        // set initial values
-        intervalOffSet = minGreenTime;
-        intervalElapseTime = 0;
-        currentInterval = phase1_5;
-
         ChangeEvt = new cMessage("ChangeEvt", 1);
-        scheduleAt(simTime().dbl() + intervalOffSet, ChangeEvt);
     }
 }
 
 
 void TrafficLightVANET::finish()
 {
-    TrafficLightWebster::finish();
+    TrafficLightAdaptiveQueue::finish();
 }
 
 
 void TrafficLightVANET::handleMessage(cMessage *msg)
 {
-    TrafficLightWebster::handleMessage(msg);
+    TrafficLightAdaptiveQueue::handleMessage(msg);
 
     if(TLControlMode != TL_VANET)
         return;
@@ -74,6 +68,9 @@ void TrafficLightVANET::handleMessage(cMessage *msg)
     if (msg == ChangeEvt)
     {
         chooseNextInterval();
+
+        if(intervalOffSet <= 0)
+            error("intervalOffSet is <= 0");
 
         // Schedule next light change event:
         scheduleAt(simTime().dbl() + intervalOffSet, ChangeEvt);
@@ -84,17 +81,40 @@ void TrafficLightVANET::handleMessage(cMessage *msg)
 void TrafficLightVANET::executeFirstTimeStep()
 {
     // call parent
-    TrafficLightWebster::executeFirstTimeStep();
+    TrafficLightAdaptiveQueue::executeFirstTimeStep();
 
     if(TLControlMode != TL_VANET)
         return;
 
     std::cout << endl << "VANET traffic signal control ..." << endl << endl;
 
+    // set initial values
+    currentInterval = phase1_5;
+    intervalElapseTime = 0;
+    intervalOffSet = minGreenTime;
+
+    scheduleAt(simTime().dbl() + intervalOffSet, ChangeEvt);
+
     for (std::list<std::string>::iterator TL = TLList.begin(); TL != TLList.end(); ++TL)
     {
         TraCI->TLSetProgram(*TL, "adaptive-time");
         TraCI->TLSetState(*TL, currentInterval);
+
+        if(collectTLData)
+        {
+            // initialize phase number in this TL
+            phaseTL[*TL] = 1;
+
+            // get all incoming lanes
+            std::list<std::string> lan = TraCI->TLGetControlledLanes(*TL);
+
+            // remove duplicate entries
+            lan.unique();
+
+            // Initialize status in this TL
+            currentStatusTL *entry = new currentStatusTL(currentInterval, simTime().dbl(), -1, -1, -1, lan.size(), -1);
+            statusTL.insert( std::make_pair(std::make_pair(*TL,1), *entry) );
+        }
     }
 
     // get a pointer to the RSU module that controls this intersection
@@ -114,7 +134,7 @@ void TrafficLightVANET::executeFirstTimeStep()
 void TrafficLightVANET::executeEachTimeStep(bool simulationDone)
 {
     // call parent
-    TrafficLightWebster::executeEachTimeStep(simulationDone);
+    TrafficLightAdaptiveQueue::executeEachTimeStep(simulationDone);
 
     if(TLControlMode != TL_VANET)
         return;
@@ -143,6 +163,13 @@ void TrafficLightVANET::chooseNextInterval()
         intervalElapseTime = 0.0;
         intervalOffSet = redTime;
 
+        if(collectTLData)
+        {
+            // update TL status for this phase
+            std::map<std::pair<std::string,int>, currentStatusTL>::iterator location = statusTL.find( std::make_pair("C",phaseTL["C"]) );
+            (location->second).redStart = simTime().dbl();
+        }
+
         char buff[300];
         sprintf(buff, "Sim time: %4.2f | Interval finish time: %4.2f | Current interval: %s", simTime().dbl(), simTime().dbl() + intervalOffSet, currentInterval.c_str() );
         std::cout << buff << endl;
@@ -155,6 +182,35 @@ void TrafficLightVANET::chooseNextInterval()
         TraCI->TLSetState("C", nextGreenInterval);
         intervalElapseTime = 0.0;
         intervalOffSet = minGreenTime;
+
+        if(collectTLData)
+        {
+            // get all incoming lanes
+            std::list<std::string> lan = TraCI->TLGetControlledLanes("C");
+
+            // remove duplicate entries
+            lan.unique();
+
+            // for each incoming lane
+            int totalQueueSize = 0;
+            for(std::list<std::string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
+            {
+                totalQueueSize = totalQueueSize + laneQueueSize[*it2].second;
+            }
+
+            // update TL status for this phase
+            std::map<std::pair<std::string,int>, currentStatusTL>::iterator location = statusTL.find( std::make_pair("C",phaseTL["C"]) );
+            (location->second).phaseEnd = simTime().dbl();
+            (location->second).totalQueueSize = totalQueueSize;
+
+            // increase phase number by 1
+            std::map<std::string, int>::iterator location2 = phaseTL.find("C");
+            location2->second = location2->second + 1;
+
+            // update status for the new phase
+            currentStatusTL *entry = new currentStatusTL(nextGreenInterval, simTime().dbl(), -1, -1, -1, lan.size(), -1);
+            statusTL.insert( std::make_pair(std::make_pair("C",location2->second), *entry) );
+        }
 
         char buff[300];
         sprintf(buff, "Sim time: %4.2f | Interval finish time: %4.2f | Current interval: %s", simTime().dbl(), simTime().dbl() + intervalOffSet, currentInterval.c_str() );
@@ -357,6 +413,13 @@ void TrafficLightVANET::chooseNextGreenInterval()
 
         intervalElapseTime = 0.0;
         intervalOffSet =  yellowTime;
+
+        if(collectTLData)
+        {
+            // update TL status for this phase
+            std::map<std::pair<std::string,int>, currentStatusTL>::iterator location = statusTL.find( std::make_pair("C",phaseTL["C"]) );
+            (location->second).yellowStart = simTime().dbl();
+        }
 
         char buff[300];
         sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);

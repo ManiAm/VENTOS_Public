@@ -28,12 +28,12 @@
 #ifndef TRAFFICLIGHTVANET_H
 #define TRAFFICLIGHTVANET_H
 
-#include <06_TL_Adaptive_Webster.h>
+#include <06_TL_Adaptive_Queue.h>
 #include "ApplRSU_03_TL_VANET.h"
 
 namespace VENTOS {
 
-class TrafficLightVANET : public TrafficLightWebster
+class TrafficLightVANET : public TrafficLightAdaptiveQueue
 {
   public:
     virtual ~TrafficLightVANET();

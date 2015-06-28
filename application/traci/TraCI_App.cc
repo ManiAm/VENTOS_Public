@@ -93,8 +93,6 @@ void TraCI_App::executeOneTimestep()
     // Sending Command to SUMO to perform simulation for (getCurrentTimeMs()/1000.)
     TraCIScenarioManager::executeOneTimestep();
 
-    std::cout << "exactly after: " << simTime().dbl() << endl;
-
     allPedestrians.clear();
     allPedestrians = personGetIDList();
     if(!allPedestrians.empty())

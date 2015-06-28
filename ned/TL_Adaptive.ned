@@ -1,7 +1,7 @@
 
 package c3po.ned;
 
-simple TL_Adaptive extends TL_Fixed
+simple TL_Adaptive extends TL_Webster
 {
     parameters:
         @class(VENTOS::TrafficLightAdaptive);
