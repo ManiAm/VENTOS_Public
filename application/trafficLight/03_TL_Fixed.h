@@ -43,7 +43,6 @@ class TrafficLightFixed : public LoopDetectors
   protected:
     void virtual executeFirstTimeStep();
     void virtual executeEachTimeStep(bool);
-
 };
 
 }

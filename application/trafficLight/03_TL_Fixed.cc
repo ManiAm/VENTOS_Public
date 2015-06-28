@@ -54,14 +54,12 @@ void TrafficLightFixed::initialize(int stage)
 void TrafficLightFixed::finish()
 {
     LoopDetectors::finish();
-
 }
 
 
 void TrafficLightFixed::handleMessage(cMessage *msg)
 {
     LoopDetectors::handleMessage(msg);
-
 }
 
 
@@ -76,7 +74,26 @@ void TrafficLightFixed::executeFirstTimeStep()
     std::cout << endl << "Fixed-time traffic signal control ... " << endl << endl;
 
     for (std::list<std::string>::iterator TL = TLList.begin(); TL != TLList.end(); ++TL)
+    {
         TraCI->TLSetProgram(*TL, "fix-time");
+
+        if(collectTLData)
+        {
+            // initialize phase number in this TL
+            phaseTL[*TL] = 1;
+
+            // get all incoming lanes
+            std::list<std::string> lan = TraCI->TLGetControlledLanes(*TL);
+
+            // remove duplicate entries
+            lan.unique();
+
+            // Initialize status in this TL
+            std::string currentInterval = TraCI->TLGetState(*TL);
+            currentStatusTL *entry = new currentStatusTL(currentInterval, simTime().dbl(), -1, -1, -1, lan.size(), -1);
+            statusTL.insert( std::make_pair(std::make_pair(*TL,1), *entry) );
+        }
+    }
 }
 
 
@@ -84,6 +101,54 @@ void TrafficLightFixed::executeEachTimeStep(bool simulationDone)
 {
     // call parent
     LoopDetectors::executeEachTimeStep(simulationDone);
+
+    if (TLControlMode != TL_Fix_Time)
+        return;
+
+    int intervalNumber = TraCI->TLGetPhase("C");
+    std::map<std::pair<std::string,int>, currentStatusTL>::iterator location = statusTL.find( std::make_pair("C",phaseTL["C"]) );
+
+    // green interval
+    if(intervalNumber % 3 == 0 && (location->second).redStart != -1)
+    {
+        // get all incoming lanes
+        std::list<std::string> lan = TraCI->TLGetControlledLanes("C");
+
+        // remove duplicate entries
+        lan.unique();
+
+        // for each incoming lane
+        int totalQueueSize = 0;
+        for(std::list<std::string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
+        {
+            totalQueueSize = totalQueueSize + laneQueueSize[*it2].second;
+        }
+
+        // update TL status for this phase
+        (location->second).phaseEnd = simTime().dbl();
+        (location->second).totalQueueSize = totalQueueSize;
+
+        // increase phase number by 1
+        std::map<std::string, int>::iterator location2 = phaseTL.find("C");
+        location2->second = location2->second + 1;
+
+        // update status for the new phase
+        std::string currentInterval = TraCI->TLGetState("C");
+        currentStatusTL *entry = new currentStatusTL(currentInterval, simTime().dbl(), -1, -1, -1, lan.size(), -1);
+        statusTL.insert( std::make_pair(std::make_pair("C",location2->second), *entry) );
+    }
+    // yellow interval
+    else if(intervalNumber % 3 == 1 && (location->second).yellowStart == -1)
+    {
+        // update TL status for this phase
+        (location->second).yellowStart = simTime().dbl();
+    }
+    // red interval
+    else if(intervalNumber % 3 == 2 && (location->second).redStart == -1)
+    {
+        // update TL status for this phase
+        (location->second).redStart = simTime().dbl();
+    }
 }
 
 }
