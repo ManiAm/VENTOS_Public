@@ -402,36 +402,6 @@ bool ApplVPlatoonMg::CatchUpDone()
         return true;
     else
         return false;
-
-    /*
-    // store the current gap
-    MyCircularBufferMerge.push_back(gap);
-
-    // we should wait for the buffer to be filled completely
-    if(MyCircularBufferMerge.size() < MAX_BUFF_MERGE)
-        return false;
-
-    // calculate sum
-    double sum = 0;
-    for (boost::circular_buffer<double>::iterator it = MyCircularBufferMerge.begin(); it != MyCircularBufferMerge.end(); it++)
-        sum = sum + *it;
-
-    // calculate average
-    double avg = sum / MyCircularBufferMerge.size();
-
-    // calculate variance
-    double var = 0;
-    for (boost::circular_buffer<double>::iterator it = MyCircularBufferMerge.begin(); it != MyCircularBufferMerge.end(); it++)
-       var = var + pow(fabs(*it - avg), 2);
-
-    if(var < 0.1)
-    {
-        //cout << SUMOvID << ": merge done!" << endl;
-        return true;
-    }
-    else
-        return false;
-    */
 }
 
 }

@@ -29,10 +29,6 @@
 #define APPLVPLATOONMG_H
 
 #include "ApplV_05_PlatoonFormed.h"
-#include <boost/circular_buffer.hpp>
-
-//#define MAX_BUFF_MERGE 10
-//#define MAX_BUFF_SPLIT 10
 
 namespace VENTOS {
 
@@ -203,8 +199,6 @@ protected:
 
 private:
     bool busy;
-    //boost::circular_buffer<double> MyCircularBufferMerge;
-    //boost::circular_buffer<double> MyCircularBufferSplit;
 
     // entry
     double leastDistFront;

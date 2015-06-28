@@ -466,37 +466,6 @@ bool ApplVPlatoonMg::GapCreated()
         return true;
     else
         return false;
-
-
-    /*
-    // store the current gap
-    MyCircularBufferSplit.push_back(gap);
-
-    // we should wait for the buffer to be filled completely
-    if(MyCircularBufferSplit.size() < MAX_BUFF_SPLIT)
-        return false;
-
-    // calculate sum
-    double sum = 0;
-    for (boost::circular_buffer<double>::iterator it = MyCircularBufferSplit.begin(); it != MyCircularBufferSplit.end(); it++)
-        sum = sum + *it;
-
-    // calculate average
-    double avg = sum / MyCircularBufferSplit.size();
-
-    // calculate variance
-    double var = 0;
-    for (boost::circular_buffer<double>::iterator it = MyCircularBufferSplit.begin(); it != MyCircularBufferSplit.end(); it++)
-       var = var + pow(fabs(*it - avg), 2);
-
-    if(var < 0.1)
-    {
-        //cout << SUMOvID << ": split done!" << endl;
-        return true;
-    }
-    else
-        return false;
-        */
 }
 
 }
