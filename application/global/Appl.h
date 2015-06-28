@@ -101,9 +101,9 @@ enum TLControlTypes
 {
     TL_OFF,
     TL_Fix_Time,
+    TL_Adaptive_Webster,
     TL_Adaptive_Time,
     TL_Adaptive_Time_Queue,
-    TL_Adaptive_Webster,
     TL_VANET,
     TL_Router
 };
