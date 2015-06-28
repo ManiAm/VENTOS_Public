@@ -29,6 +29,7 @@
 #define LOOPDETECTORS_H
 
 #include <01_TL_Base.h>
+#include <boost/circular_buffer.hpp>
 
 namespace VENTOS {
 
@@ -117,13 +118,16 @@ class LoopDetectors : public TrafficLightBase
 
     std::list<std::string> TLList;   // list of traffic-lights in the network
 
-    std::map<std::string /*lane*/, std::string /*id*/> LD_demand;    // ids of loop detectors used for measuring incoming traffic demand
-    std::map<std::string /*lane*/, std::string /*id*/> LD_actuated;  // ids of loop detectors used for actuated-time signal control
-    std::map<std::string /*lane*/, std::string /*id*/> AD_queue;     // ids of area detectors used for measuring queue length
+    std::map<std::string /*lane*/, std::pair<std::string /*LD id*/, double /*last actuation*/> > LD_demand;   // ids of loop detectors used for measuring incoming traffic demand
+    std::map<std::string /*lane*/, std::string /*LD id*/> LD_actuated;                                        // ids of loop detectors used for actuated-time signal control
+    std::map<std::string /*lane*/, std::string /*AD id*/> AD_queue;                                           // ids of area detectors used for measuring queue length
 
     std::map<std::string /*lane*/, std::string /*TLid*/> lanesTL;                                                // all incoming lanes for each intersection
     std::map<std::string /*lane*/, int /*# of links*/> linksCount;                                               // number of outgoing links for each incoming lane for each intersection
     std::map<std::pair<std::string /*TLid*/,int /*link number*/>, std::vector<std::string> /*link*/> linksTL;    // all links in each intersection
+
+    std::map<std::string /*lane*/, std::pair<std::string /*TLid*/, boost::circular_buffer<double> /*TD*/>> laneTD;   // real-time traffic demand for each incoming lane for each intersection
+    std::map<std::pair<std::string /*TLid*/,int /*link*/>, boost::circular_buffer<double> /*TD*/> linkTD;            // real-time traffic demand for each link in each intersection
 
     std::map<std::string /*lane*/, std::pair<std::string /*TLid*/,int /*queue size*/>> laneQueueSize;   // real-time queue size for each incoming lane for each intersection
     std::map<std::pair<std::string /*TLid*/,int /*link*/>, int /*queue size*/> linkQueueSize;           // real-time queue size for each link in each intersection
@@ -133,11 +137,6 @@ class LoopDetectors : public TrafficLightBase
 
   private:
     std::vector<LoopDetectorData> Vec_loopDetectors;
-
-    bool freeze = false;
-    double lastDetectionT_old = 0;
-    double total = 0;
-    int passedVeh = 0;
 };
 
 }

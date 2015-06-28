@@ -101,7 +101,12 @@ void LoopDetectors::executeFirstTimeStep()
 
             linksCount[lane] = TraCI->laneLinkNumber(lane);
 
-            // initialize all queue value in laneQueueSize to zero
+            boost::circular_buffer<double> CB;        // create a circular buffer
+            CB.set_capacity(10);                      // set max capacity
+            CB.clear();
+            laneTD[lane] = std::make_pair(TLid, CB);  // initialize laneTD
+
+            // initialize queue value in laneQueueSize to zero
             laneQueueSize[lane] = std::make_pair(TLid, 0);
         }
 
@@ -116,7 +121,12 @@ void LoopDetectors::executeFirstTimeStep()
 
             linksTL[make_pair(TLid,linkNumber)] = link;
 
-            // initialize all queue value in linkQueueSize to zero
+            boost::circular_buffer<double> CB;   // create a circular buffer
+            CB.set_capacity(10);                 // set max capacity
+            CB.clear();
+            linkTD[std::make_pair(TLid,linkNumber)] = CB;   // initialize linkTD
+
+            // initialize queue value in linkQueueSize to zero
             linkQueueSize.insert( std::make_pair(std::make_pair(TLid,linkNumber), 0) );
         }
     }
@@ -165,7 +175,7 @@ void LoopDetectors::getAllDetectors()
         std::string lane = TraCI->LDGetLaneID(*it);
 
         if( std::string(*it).find("demand_") != std::string::npos )
-            LD_demand[lane] = *it;
+            LD_demand[lane] = std::make_pair(*it,-1);
         else if( std::string(*it).find("actuated_") != std::string::npos )
             LD_actuated[lane] = *it;
     }
@@ -301,39 +311,34 @@ void LoopDetectors::saveLDsData()
 }
 
 
-// todo: dynamic demand calculation does not make sense!
+// measure traffic demand per incoming lane/link per intersection in each simTime
 void LoopDetectors::measureTD()
 {
     // for each loop detector that measures the traffic demand
-    for (std::map<std::string,std::string>::iterator it=LD_demand.begin(); it != LD_demand.end(); ++it)
+    for (std::map<std::string, std::pair<std::string, double> >::iterator it = LD_demand.begin(); it != LD_demand.end(); ++it)
     {
-        if( std::string( (*it).second ) == "demand_WC_3" )
+        std::string lane = (*it).first;
+        std::string LDid = (*it).second.first;
+        double lastDetection_old = (*it).second.second;
+
+        double lastDetection = TraCI->LDGetElapsedTimeLastDetection(LDid);
+
+        if(lastDetection == 0 && lastDetection_old != 0)
         {
-            double lastDetectionT = TraCI->LDGetElapsedTimeLastDetection( (*it).second );
+            double TD = 3600. / lastDetection_old;
 
-            if(lastDetectionT == 0 && !freeze)
-            {
-                passedVeh++;
-                freeze = true;
-
-                if(passedVeh == 1)
-                    total = lastDetectionT_old = 0;
-            }
-
-            if(freeze && lastDetectionT != 0)
-                freeze = false;
-
-            total = total + lastDetectionT_old;
-
-            //std::cout << endl << passedVeh << ", " << total << ", " << (3600 * passedVeh)/total << endl;
-
-            lastDetectionT_old = lastDetectionT;
+            // push the new TD into the circular buffer
+            std::map<std::string, std::pair<std::string, boost::circular_buffer<double>>>::iterator loc = laneTD.find(lane);
+            (loc->second).second.push_back(TD);
         }
+
+        // update lastDetection
+        (*it).second.second = lastDetection;
     }
 }
 
 
-// measure queue size per incoming lane per simTime in each intersection
+// measure queue size per incoming lane/link per intersection in each simTime
 void LoopDetectors::measureQ()
 {
     // for each lane i that is controlled by traffic light j
@@ -431,10 +436,10 @@ void LoopDetectors::saveTLData()
         fprintf (filePtr, "%-12s", TLid.c_str());
         fprintf (filePtr, "%-12d", phaseNumber);
         fprintf (filePtr, "%-35s", allowedMovements.c_str());
-        fprintf (filePtr, "%-15f", greenStart);
-        fprintf (filePtr, "%-15f", yellowStart);
-        fprintf (filePtr, "%-15f", redStart);
-        fprintf (filePtr, "%-15f", phaseEnd);
+        fprintf (filePtr, "%-15.2f", greenStart);
+        fprintf (filePtr, "%-15.2f", yellowStart);
+        fprintf (filePtr, "%-15.2f", redStart);
+        fprintf (filePtr, "%-15.2f", phaseEnd);
         fprintf (filePtr, "%-15d", incommingLanes);
         fprintf (filePtr, "%-15d\n", totalQueueSize);
     }
