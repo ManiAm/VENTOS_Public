@@ -49,6 +49,11 @@ void LoopDetectors::initialize(int stage)
         measureIntersectionQueue = par("measureIntersectionQueue").boolValue();
         collectTLData = par("collectTLData").boolValue();
 
+        // if collectTLData is true then collect queuing data since
+        // we need queue information as well
+        if(collectTLData)
+            measureIntersectionQueue = true;
+
         LD_demand.clear();
         LD_actuated.clear();
         AD_queue.clear();
@@ -99,8 +104,6 @@ void LoopDetectors::executeFirstTimeStep()
 
             lanesTL[lane] = TLid;
 
-            linksCount[lane] = TraCI->laneLinkNumber(lane);
-
             boost::circular_buffer<double> CB;        // create a circular buffer
             CB.set_capacity(10);                      // set max capacity
             CB.clear();
@@ -118,8 +121,9 @@ void LoopDetectors::executeFirstTimeStep()
         {
             int linkNumber = (*it2).first;
             std::vector<std::string> link = (*it2).second;
+            std::string incommingLane = link[0];
 
-            linksTL[make_pair(TLid,linkNumber)] = link;
+            linksTL.insert( std::make_pair(incommingLane, std::make_pair(TLid,linkNumber)) );
 
             boost::circular_buffer<double> CB;   // create a circular buffer
             CB.set_capacity(10);                 // set max capacity
@@ -147,11 +151,8 @@ void LoopDetectors::executeEachTimeStep(bool simulationDone)
             saveLDsData();  // (if in CMD) write to file at the end of simulation
     }
 
-    if(measureTrafficDemand)
-        measureTD();
-
-    if(measureIntersectionQueue)
-        measureQ();
+    if(measureIntersectionQueue || measureTrafficDemand)
+        measureTrafficParameters();
 
     // should be after measureQ
     if(collectTLData)
@@ -311,79 +312,82 @@ void LoopDetectors::saveLDsData()
 }
 
 
-// measure traffic demand per incoming lane/link per intersection in each simTime
-void LoopDetectors::measureTD()
+void LoopDetectors::measureTrafficParameters()
 {
-    // for each loop detector that measures the traffic demand
-    for (std::map<std::string, std::pair<std::string, double> >::iterator it = LD_demand.begin(); it != LD_demand.end(); ++it)
-    {
-        std::string lane = (*it).first;
-        std::string LDid = (*it).second.first;
-        double lastDetection_old = (*it).second.second;
-
-        double lastDetection = TraCI->LDGetElapsedTimeLastDetection(LDid);
-
-        if(lastDetection == 0 && lastDetection_old != 0)
-        {
-            double TD = 3600. / lastDetection_old;
-
-            // push the new TD into the circular buffer
-            std::map<std::string, std::pair<std::string, boost::circular_buffer<double>>>::iterator loc = laneTD.find(lane);
-            (loc->second).second.push_back(TD);
-        }
-
-        // update lastDetection
-        (*it).second.second = lastDetection;
-    }
-}
-
-
-// measure queue size per incoming lane/link per intersection in each simTime
-void LoopDetectors::measureQ()
-{
-    // for each lane i that is controlled by traffic light j
+    // for each 'lane i' that is controlled by traffic light j
     for(std::map<std::string, std::string>::iterator y = lanesTL.begin(); y != lanesTL.end(); ++y)
     {
         std::string lane = (*y).first;
         std::string TLid = (*y).second;
 
-        // make sure we have an area detector in this lane
-        if( AD_queue.find(lane) == AD_queue.end() )
-            continue;
+        if(measureIntersectionQueue)
+        {
+            // make sure we have an area detector in this lane
+            if( AD_queue.find(lane) == AD_queue.end() )
+                continue;
 
-        std::string ADid = AD_queue[lane];
-        int q = TraCI->LADGetLastStepVehicleHaltingNumber(ADid);
+            std::string ADid = AD_queue[lane];
+            int q = TraCI->LADGetLastStepVehicleHaltingNumber(ADid);
 
-        // update laneQueueSize
-        std::map<std::string,std::pair<std::string,int>>::iterator location = laneQueueSize.find(lane);
-        std::pair<std::string,int> store = location->second;
-        location->second = std::make_pair( store.first, q );
-    }
+            // update laneQueueSize
+            std::map<std::string,std::pair<std::string,int>>::iterator location = laneQueueSize.find(lane);
+            std::pair<std::string,int> store = location->second;
+            location->second = std::make_pair( store.first, q );
 
-    for(std::map<std::pair<std::string,int>, std::vector<std::string>>::iterator y = linksTL.begin(); y != linksTL.end(); ++y)
-    {
-        std::string TLid = (*y).first.first;
-        int linkNumber = (*y).first.second;
-        std::vector<std::string> link = (*y).second;
+            // get # of outgoing links from this lane
+            int NoLinks = linksTL.count(lane);
 
-        // get the incoming lane that corresponds to this link
-        std::string incommingLane = link[0];
+            // iterate over outgoing links
+            std::pair<std::multimap<std::string, std::pair<std::string, int>>::iterator, std::multimap<std::string, std::pair<std::string, int>>::iterator > ppp;
+            ppp = linksTL.equal_range(lane);
+            for(std::multimap<std::string, std::pair<std::string, int>>::iterator z = ppp.first; z != ppp.second; ++z)
+            {
+                int linkNumber = (*z).second.second;
 
-        // make sure we have an area detector in this lane
-        if( AD_queue.find(incommingLane) == AD_queue.end() )
-            continue;
+                // each link gets a portion of the queue size
+                q = ceil( (double)q / (double)NoLinks );
 
-        std::string ADid = AD_queue[incommingLane];
-        int q = TraCI->LADGetLastStepVehicleHaltingNumber(ADid);
+                // update linkQueueSize
+                std::map<std::pair<std::string,int>, int>::iterator location = linkQueueSize.find( make_pair(TLid,linkNumber) );
+                location->second = q;
+            }
+        }
 
-        // get number of links outgoing from this lane
-        int NoLinks = linksCount[incommingLane];
-        // each link gets a portion of the queue size
-        q = ceil( (double)q / (double)NoLinks );
+        if(measureTrafficDemand)
+        {
+            // make sure we have a demand loop detector in this lane
+            std::map<std::string, std::pair<std::string, double>>::iterator loc = LD_demand.find(lane);
+            if( loc == LD_demand.end() )
+                continue;
 
-        // update linkQueueSize
-        std::map<std::pair<std::string,int>, int>::iterator location = linkQueueSize.find( make_pair(TLid,linkNumber) );
-        location->second = q;
+            std::string LDid = loc->second.first;
+            double lastDetection_old = loc->second.second;
+            double lastDetection = TraCI->LDGetElapsedTimeLastDetection(LDid);
+
+            if(lastDetection == 0 && lastDetection_old != 0)
+            {
+                double TD = 3600. / lastDetection_old;
+
+                // push the new TD into the circular buffer
+                std::map<std::string, std::pair<std::string, boost::circular_buffer<double>>>::iterator loc = laneTD.find(lane);
+                (loc->second).second.push_back(TD);
+
+                // iterate over outgoing links
+                std::pair<std::multimap<std::string, std::pair<std::string, int>>::iterator, std::multimap<std::string, std::pair<std::string, int>>::iterator > ppp;
+                ppp = linksTL.equal_range(lane);
+                for(std::multimap<std::string, std::pair<std::string, int>>::iterator z = ppp.first; z != ppp.second; ++z)
+                {
+                    int linkNumber = (*z).second.second;
+
+                    // push the new TD into the circular buffer
+                    std::map<std::pair<std::string,int>, boost::circular_buffer<double>>::iterator location = linkTD.find( make_pair(TLid,linkNumber) );
+                    (location->second).push_back(TD);
+                }
+            }
+
+            // update lastDetection
+            loc->second.second = lastDetection;
+        }
     }
 }
 
