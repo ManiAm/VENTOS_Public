@@ -1456,9 +1456,93 @@ uint32_t TraCI_Extend::laneGetIDCount()
 }
 
 
-uint8_t TraCI_Extend::laneLinkNumber(std::string laneId)
+uint8_t TraCI_Extend::laneGetLinkNumber(std::string laneId)
 {
     return genericGetUnsignedByte(CMD_GET_LANE_VARIABLE, laneId, LANE_LINK_NUMBER, RESPONSE_GET_LANE_VARIABLE);
+}
+
+
+std::map<int,linkEntry> TraCI_Extend::laneGetLinks(std::string laneId)
+{
+    uint8_t resultTypeId = TYPE_COMPOUND;
+    uint8_t variableId = LANE_LINKS;
+    uint8_t responseId = RESPONSE_GET_LANE_VARIABLE;
+
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_GET_LANE_VARIABLE, TraCIBuffer() << variableId << laneId);
+
+    uint8_t cmdLength; buf >> cmdLength;
+    if (cmdLength == 0) {
+        uint32_t cmdLengthX;
+        buf >> cmdLengthX;
+    }
+    uint8_t commandId_r; buf >> commandId_r;
+    ASSERT(commandId_r == responseId);
+    uint8_t varId; buf >> varId;
+    ASSERT(varId == variableId);
+    std::string objectId_r; buf >> objectId_r;
+    ASSERT(objectId_r == laneId);
+
+    uint8_t resType_r; buf >> resType_r;
+    ASSERT(resType_r == resultTypeId);
+    uint32_t count; buf >> count;
+
+    // number of information packets (in 'No' variable)
+    uint8_t typeI; buf >> typeI;
+    uint32_t No; buf >> No;
+
+    std::map<int,linkEntry> final;
+
+    for (uint32_t i = 0; i < No; ++i)
+    {
+        linkEntry *entry = new linkEntry();
+
+        // get consecutive1
+        int8_t sType; buf >> sType;
+        std::string consecutive1; buf >> consecutive1;
+        entry->consecutive1 = consecutive1;
+
+        // get consecutive2
+        int8_t sType2; buf >> sType2;
+        std::string consecutive2; buf >> consecutive2;
+        entry->consecutive2 = consecutive2;
+
+        // priority
+        int8_t bType1; buf >> bType1;
+        uint8_t priority; buf >> priority;
+        entry->priority = priority;
+
+        // opened
+        int8_t bType2; buf >> bType2;
+        uint8_t opened; buf >> opened;
+        entry->opened = opened;
+
+        // approachingFoe
+        int8_t bType3; buf >> bType3;
+        uint8_t approachingFoe; buf >> approachingFoe;
+        entry->approachingFoe = approachingFoe;
+
+        // get state
+        int8_t sType3; buf >> sType3;
+        std::string state; buf >> state;
+        entry->state = state;
+
+        // get direction
+        int8_t sType4; buf >> sType4;
+        std::string direction; buf >> direction;
+        entry->direction = direction;
+
+        // length
+        int8_t dType1; buf >> dType1;
+        double length; buf >> length;
+        entry->length = length;
+
+        // add into the map
+        final.insert( std::make_pair(i,*entry) );
+    }
+
+    ASSERT(buf.eof());
+
+    return final;
 }
 
 

@@ -60,16 +60,6 @@ public:
     int continuingDrive;
     std::vector<std::string> best;
 
-    bestLanesEntry(std::string str1, double d1, double d2, int i1, int i2, std::vector<std::string> vec)
-    {
-        this->laneId = str1;
-        this->length = d1;
-        this->occupation = d2;
-        this->offset = i1;
-        this->continuingDrive = i2;
-        this->best.swap(vec);
-    }
-
     bestLanesEntry()
     {
         this->laneId = "";
@@ -78,6 +68,32 @@ public:
         this->offset = -1;
         this->continuingDrive = -1;
         this->best.clear();
+    }
+};
+
+
+class linkEntry
+{
+public:
+    std::string consecutive1;
+    std::string consecutive2;
+    int priority;
+    int opened;
+    int approachingFoe;
+    std::string state;
+    std::string direction;
+    double length;
+
+    linkEntry()
+    {
+        this->consecutive1 = "";
+        this->consecutive2 = "";
+        this->priority = -1;
+        this->opened = -1;
+        this->approachingFoe = -1;
+        this->state = "";
+        this->direction = "";
+        this->length = -1;
     }
 };
 
@@ -212,7 +228,8 @@ public:
     // CMD_GET_LANE_VARIABLE
     std::list<std::string> laneGetIDList();
     uint32_t laneGetIDCount();
-    uint8_t laneLinkNumber(std::string);
+    uint8_t laneGetLinkNumber(std::string);
+    std::map<int,linkEntry> laneGetLinks(std::string);
     std::string laneGetEdgeID(std::string);
     double laneGetLength(std::string);
     double laneGetMaxSpeed(std::string);
