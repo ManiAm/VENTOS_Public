@@ -283,37 +283,66 @@ void TrafficLightWebster::chooseNextGreenInterval()
 
 void TrafficLightWebster::calculateGreenSplits()
 {
-    double demand1_5 = 1500.;
-    double demand2_6 = 1400.;
-    double demand3_7 = 1300.;
-    double demand4_8 = 1200.;
+    // todo: change this later
+    double saturation = 8000;
 
-    double saturation1_5 = 8000.;
-    double saturation2_6 = 8000.;
-    double saturation3_7 = 8000.;
-    double saturation4_8 = 8000.;
+    std::string phases[] = {phase1_5, phase2_6, phase3_7, phase4_8};
+    std::map<std::string, double> critical;
 
-    double Y1_5 = demand1_5 / saturation1_5;
-    double Y2_6 = demand2_6 / saturation2_6;
-    double Y3_7 = demand3_7 / saturation3_7;
-    double Y4_8 = demand4_8 / saturation4_8;
+    double Y = 0;
+    for (std::string prog : phases)
+    {
+        double Y_i = -1;  // critical volume-to-capacity ratio for this movement batch
+        // for each link in this batch
+        for(unsigned int i = 0; i < prog.size(); ++i)
+        {
+            // if link i is active
+            if(prog[i] == 'g' || prog[i] == 'G')
+            {
+                // get all TD measurements for link i
+                boost::circular_buffer<double> buffer = linkTD[std::make_pair("C",i)];
 
-    double Y = Y1_5 + Y2_6 + Y3_7 + Y4_8;
+                // calculate average TD for link i
+                double aveTD = 0;
+                double sum = 0;
+                for (boost::circular_buffer<double>::iterator it = buffer.begin(); it != buffer.end(); ++it)
+                    sum = sum + *it;
+                buffer.size() == 0 ? aveTD = 0: aveTD = sum / (double)buffer.size();
 
-    // make sure Y < 1
+                Y_i = std::max(Y_i, aveTD / saturation);
+            }
+        }
+
+        critical[prog] = Y_i;
+        Y = Y + Y_i;
+    }
+
     if(Y >= 1)
+    {
         error("total critical-to-capacity ratio (Y) >= 1");
+    }
+    else if(Y == 0)
+    {
+        // green split for each phase
+        greenSplit[phase1_5] = minGreenTime;
+        greenSplit[phase2_6] = minGreenTime;
+        greenSplit[phase3_7] = minGreenTime;
+        greenSplit[phase4_8] = minGreenTime;
+    }
+    else if(Y < 1)
+    {
+        // todo: make sure Y is not too close to 1
+        double L = (yellowTime + redTime) * 4;   // total loss time in cycle
+        double cycle = ((1.5*L) + 5) / (1 - Y);  // cycle length
 
-    double L = (yellowTime + redTime) * 4;   // total loss time in cycle
-    double cycle = ((1.5*L) + 5) / (1 - Y);  // cycle length
+        double effectiveG = cycle - L;   // total effective green time
 
-    double effectiveG = cycle - L;   // total effective green time
-
-    // green split for each phase
-    greenSplit[phase1_5] = (Y1_5 / Y) * effectiveG;
-    greenSplit[phase2_6] = (Y2_6 / Y) * effectiveG;
-    greenSplit[phase3_7] = (Y3_7 / Y) * effectiveG;
-    greenSplit[phase4_8] = (Y4_8 / Y) * effectiveG;
+        // green split for each phase
+        greenSplit[phase1_5] = (critical[phase1_5] / Y) * effectiveG;
+        greenSplit[phase2_6] = (critical[phase2_6] / Y) * effectiveG;
+        greenSplit[phase3_7] = (critical[phase3_7] / Y) * effectiveG;
+        greenSplit[phase4_8] = (critical[phase4_8] / Y) * effectiveG;
+    }
 
     std::cout << ">>> Updating green splits for each phase: ";
     for(std::map<std::string, double>::iterator y = greenSplit.begin(); y != greenSplit.end(); y++)
@@ -322,35 +351,8 @@ void TrafficLightWebster::calculateGreenSplits()
         std::cout << split << ", ";
         if(split <= 0)
             error("greenSplit can not be <= 0");
-
     }
     std::cout << endl;
-
-
-
-
-
-
-    //    // debugging
-    //    if(LDid == "demand_WC_3")
-    //    {
-    //        std::map<std::string, std::pair<std::string, boost::circular_buffer<double>>>::iterator loc = laneTD.find(lane);
-    //        boost::circular_buffer<double> tmp ( (loc->second).second );
-    //        for(boost::circular_buffer<double>::iterator y = tmp.begin(); y != tmp.end(); ++y)
-    //        {
-    //            std::cout << (*y) << " | ";
-    //        }
-    //
-    //        std::cout << endl;
-    //    }
-
-    //            // calculate sum
-    //            double sum = 0;
-    //            for (boost::circular_buffer<double>::iterator it = MyCircularBufferMerge.begin(); it != MyCircularBufferMerge.end(); it++)
-    //                sum = sum + *it;
-    //
-    //            // calculate average
-    //            double avg = sum / MyCircularBufferMerge.size();
 }
 
 }
