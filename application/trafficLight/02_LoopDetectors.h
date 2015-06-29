@@ -121,7 +121,7 @@ class LoopDetectors : public TrafficLightBase
     std::map<std::string /*lane*/, std::string /*AD id*/> AD_queue;                                          // ids of area detectors used for measuring queue length
 
     std::map<std::string /*lane*/, std::string /*TLid*/> lanesTL;                                         // all incoming lanes for each intersection
-    std::multimap<std::string /*lane*/, std::pair<std::string /*TLid*/, int /*link number*/>> linksTL;    // all outgoing links for each incoming lane
+    std::multimap<std::string /*lane*/, std::pair<std::string /*TLid*/, int /*link number*/>> linksTL;    // all outgoing link # for each incoming lane
 
     std::map<std::string /*lane*/, std::pair<std::string /*TLid*/,int /*queue size*/>> laneQueueSize;   // real-time queue size for each incoming lane for each intersection
     std::map<std::pair<std::string /*TLid*/,int /*link*/>, int /*queue size*/> linkQueueSize;           // real-time queue size for each link in each intersection

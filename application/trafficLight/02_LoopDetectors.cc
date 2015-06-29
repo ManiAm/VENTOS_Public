@@ -58,8 +58,17 @@ void LoopDetectors::initialize(int stage)
         LD_actuated.clear();
         AD_queue.clear();
 
+        lanesTL.clear();
+        linksTL.clear();
+
         laneQueueSize.clear();
         linkQueueSize.clear();
+
+        laneTD.clear();
+        linkTD.clear();
+
+        phaseTL.clear();
+        statusTL.clear();
 
         Vec_loopDetectors.clear();
     }
