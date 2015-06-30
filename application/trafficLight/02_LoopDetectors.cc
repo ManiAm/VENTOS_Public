@@ -370,14 +370,20 @@ void LoopDetectors::measureTrafficParameters()
                 continue;
 
             std::string LDid = loc->second.first;
-            double lastDetection_old = loc->second.second;
+            double lastDetection_old = loc->second.second;   // lastDetection_old is one step behind lastDetection
             double lastDetection = TraCI->LDGetElapsedTimeLastDetection(LDid);
 
-            if(lastDetection == 0 && lastDetection_old != 0)
+            double diff = simTime().dbl() - lastDetection_old - updateInterval;
+
+            // lastDetection == 0        if a vehicle is detected
+            // lastDetection_old != 0    if the vehicle passed over the LD
+            // diff > 0.0001             do not store TD for the first vehicle
+            if(lastDetection == 0 && lastDetection_old != 0 && diff > 0.0001)
             {
+                // calculate the traffic demand
                 double TD = 3600. / lastDetection_old;
 
-                // push the new TD into the circular buffer
+                // push it into the circular buffer
                 std::map<std::string, std::pair<std::string, boost::circular_buffer<double>>>::iterator loc = laneTD.find(lane);
                 (loc->second).second.push_back(TD);
 
@@ -394,7 +400,7 @@ void LoopDetectors::measureTrafficParameters()
                 }
             }
 
-            // update lastDetection
+            // update lastDetection in this LD
             loc->second.second = lastDetection;
         }
     }
