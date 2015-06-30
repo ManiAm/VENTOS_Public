@@ -378,9 +378,6 @@ void Router::receiveSignal(cComponent *source, simsignal_t signalID, cObject *ob
 
 void Router::issueStop(std::string vehID, std::string edgeID, double position, int laneIndex)
 {
-    Edge& edge = *net->edges.at(edgeID);
-    //int randLane = rand() % edge.lanes.size();
-    Lane* lane = edge.lanes[laneIndex];
     TraCI->vehicleSetStop(vehID, edgeID, position, laneIndex, 100000, 2);
 }
 
@@ -412,7 +409,7 @@ void Router::checkEdgeRemovals()
                     vehicleIDs.reverse(); // Reverse the list so it can start from the further end
                     for(std::string veh : vehicleIDs)
                     {
-                        if(TraCI->vehicleGetLanePosition(veh) + 100 < er.pos)
+                        if(TraCI->vehicleGetLanePosition(veh) + 100 < er.pos) // Here, we ask the vehicle to stop at the location 100 meters ahead of its current position to avoid the error of " too close to stop". This is not ideal, but it works for the purpose
                         {
                             //if(veh == "v22")
                                 //std::cout << "Found it!" << std::endl;
@@ -437,7 +434,7 @@ void Router::checkEdgeRemovals()
                 for(std::string veh : vehicleIDs)
                 {
                     uint8_t state= TraCI->vehicleGetStopState(veh);
-                    std::cout << "Vehicle: " << veh << ", State:" << state << std::endl;
+                    //std::cout << "Vehicle: " << veh << ", State:" << state << std::endl;
 
                     if(state == 5) // Find a stopped and triggered vehicle
                     {
