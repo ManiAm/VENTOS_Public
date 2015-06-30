@@ -3,9 +3,9 @@
 <nodes version="0.13" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/nodes_file.xsd">
 
     <node id="C" x="0.00" y="0.00" type="traffic_light" tl="C"/>
-    <node id="E" x="600.00" y="0.00" type="priority"/>
-    <node id="N" x="0.00" y="600.00" type="dead_end"/>
-    <node id="S" x="0.00" y="-600.00" type="priority"/>
-    <node id="W" x="-600.00" y="0.00" type="dead_end"/>
+    <node id="E" x="900.00" y="0.00" type="priority"/>
+    <node id="N" x="0.00" y="900.00" type="dead_end"/>
+    <node id="S" x="0.00" y="-900.00" type="priority"/>
+    <node id="W" x="-900.00" y="0.00" type="dead_end"/>
 
 </nodes>
