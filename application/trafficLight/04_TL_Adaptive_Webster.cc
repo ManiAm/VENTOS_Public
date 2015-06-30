@@ -283,8 +283,35 @@ void TrafficLightWebster::chooseNextGreenInterval()
 
 void TrafficLightWebster::calculateGreenSplits()
 {
+    // debugging
+    std::cout << ">>> Measured traffic demands at the beginning of this cycle: " << endl;
+    for(std::map<std::string, std::pair<std::string, boost::circular_buffer<double>>>::iterator y = laneTD.begin(); y != laneTD.end(); ++y)
+    {
+        std::string lane = (*y).first;
+        std::string TLid = (*y).second.first;
+        boost::circular_buffer<double> buf = (*y).second.second;
+
+        if(!buf.empty())
+        {
+            // calculate average TD
+            double sum = 0;
+            for (boost::circular_buffer<double>::iterator it = buf.begin(); it != buf.end(); ++it)
+                sum = sum + *it;
+            double aveTD = sum / (double)buf.size();
+
+            std::cout << lane << ": ";
+            for(boost::circular_buffer<double>::iterator z = buf.begin(); z != buf.end(); ++z)
+                std::cout << (*z) << ", ";
+
+            std::cout << "(Ave= " << aveTD << ")" << endl;
+        }
+    }
+    std::cout << endl;
+
     // todo: change this later
-    double saturation = 8000;
+    // saturation = (3*TD) / ( 1-(35/cycle) )
+    // max TD = 1900, max cycle = 120
+    double saturation = 8047;
 
     std::string phases[] = {phase1_5, phase2_6, phase3_7, phase4_8};
     std::map<std::string, double> critical;
@@ -303,11 +330,10 @@ void TrafficLightWebster::calculateGreenSplits()
                 boost::circular_buffer<double> buffer = linkTD[std::make_pair("C",i)];
 
                 // calculate average TD for link i
-                double aveTD = 0;
                 double sum = 0;
                 for (boost::circular_buffer<double>::iterator it = buffer.begin(); it != buffer.end(); ++it)
                     sum = sum + *it;
-                buffer.size() == 0 ? aveTD = 0: aveTD = sum / (double)buffer.size();
+                double aveTD = buffer.size() == 0 ? 0 : sum / (double)buffer.size();
 
                 Y_i = std::max(Y_i, aveTD / saturation);
             }
@@ -331,9 +357,16 @@ void TrafficLightWebster::calculateGreenSplits()
     }
     else if(Y < 1)
     {
-        // todo: make sure Y is not too close to 1
         double L = (yellowTime + redTime) * 4;   // total loss time in cycle
         double cycle = ((1.5*L) + 5) / (1 - Y);  // cycle length
+
+        // make sure that cycle length is not too big.
+        // this happens when Y is too close to 1
+        if(cycle > 120)
+        {
+            std::cout << "WARNING: cycle length > 120" << endl;
+            cycle = 120;
+        }
 
         double effectiveG = cycle - L;   // total effective green time
 
@@ -344,6 +377,7 @@ void TrafficLightWebster::calculateGreenSplits()
         greenSplit[phase4_8] = (critical[phase4_8] / Y) * effectiveG;
     }
 
+    // debugging
     std::cout << ">>> Updating green splits for each phase: ";
     for(std::map<std::string, double>::iterator y = greenSplit.begin(); y != greenSplit.end(); y++)
     {
