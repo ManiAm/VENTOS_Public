@@ -2,25 +2,29 @@
 
 <additional>
     
-    <tlLogic id="C" type="static" programID="fix-time" offset="0">
-        <phase duration="25" state="GrGrGrrGrrGrGrGrrGrrrrrr"/>        
+    <tlLogic id="C" type="static" programID="fix-time" offset="20">
+        <phase duration="20" state="GrGrGrrGrrGrGrGrrGrrrrrr"/>        
         <phase duration="4"  state="yrGryrrGrryrGryrrGrrrrrr"/>
-        <phase duration="3"  state="rrGrrrrGrrrrGrrrrGrrrrrr"/>
+        <phase duration="1"  state="rrGrrrrGrrrrGrrrrGrrrrrr"/>
                         
-        <phase duration="25" state="rGGGrrrGrrrGGGrrrGrrrGrG"/>
+        <phase duration="20" state="rGGGrrrGrrrGGGrrrGrrrGrG"/>
         <phase duration="4"  state="ryGyrrrGrrryGyrrrGrrryry"/>
-        <phase duration="3"  state="rrGrrrrGrrrrGrrrrGrrrrrr"/>
+        <phase duration="1"  state="rrGrrrrGrrrrGrrrrGrrrrrr"/>
         
-        <phase duration="25" state="rrGrrGrGrGrrGrrGrGrGrrrr"/>   
+        <phase duration="20" state="rrGrrGrGrGrrGrrGrGrGrrrr"/>   
         <phase duration="4"  state="rrGrryrGryrrGrryrGryrrrr"/>  
-        <phase duration="3"  state="rrGrrrrGrrrrGrrrrGrrrrrr"/>      
+        <phase duration="1"  state="rrGrrrrGrrrrGrrrrGrrrrrr"/>      
         
-        <phase duration="25" state="rrGrrrGGGrrrGrrrGGGrGrGr"/>
+        <phase duration="20" state="rrGrrrGGGrrrGrrrGGGrGrGr"/>
         <phase duration="4"  state="rrGrrryGyrrrGrrryGyryryr"/>
-        <phase duration="3"  state="rrGrrrrGrrrrGrrrrGrrrrrr"/>        
+        <phase duration="1"  state="rrGrrrrGrrrrGrrrrGrrrrrr"/>        
     </tlLogic>
     
-    <tlLogic id="C" type="static" programID="adaptive-time" offset="-10">
+    <tlLogic id="C" type="static" programID="fix-time2" offset="0">
+        <phase duration="10000" state="GGGGGGGGGGGGGGGGGGGGGGGG"/>        
+    </tlLogic>
+    
+    <tlLogic id="C" type="static" programID="adaptive-time" offset="0">
         <phase duration="10000" state="rrrrrrrrrrrrrrrrrrrrrrrr"/>
     </tlLogic>
     
