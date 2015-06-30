@@ -127,7 +127,7 @@ public:
     std::list<std::string> vehicleGetIDList();
     uint32_t vehicleGetIDCount();
     double vehicleGetSpeed(std::string);
-    uint8_t* vehicleGetStopState(std::string);
+    uint8_t vehicleGetStopState(std::string);
     Coord vehicleGetPosition(std::string);
     std::string vehicleGetEdgeID(std::string);
     std::string vehicleGetLaneID(std::string);
