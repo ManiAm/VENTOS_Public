@@ -87,6 +87,9 @@ void ApplVBase::initialize(int stage)
         // get controller number from SUMO
         SUMOControllerNumber = TraCI->vehicleTypeGetControllerNumber(SUMOvType);
 
+        cModule *module = simulation.getSystemModule()->getSubmodule("TrafficLight");
+        TLControlMode = module->par("TLControlMode").longValue();
+
         // comment this to speed-up the simulation
         //findHost()->subscribe(mobilityStateChangedSignal, this);
 	}

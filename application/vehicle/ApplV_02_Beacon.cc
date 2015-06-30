@@ -55,8 +55,6 @@ void ApplVBeacon::initialize(int stage)
 
         // NED variables
         smartBeaconing = par("smartBeaconing").boolValue();
-        cModule *module = simulation.getSystemModule()->getSubmodule("TrafficLight");
-        TLControlMode = module->par("TLControlMode").longValue();
 
         // NED variables (data parameters)
         dataLengthBits = par("dataLengthBits").longValue();

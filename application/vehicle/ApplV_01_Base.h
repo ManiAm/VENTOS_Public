@@ -74,13 +74,17 @@ protected:
     // Class variables
     int myId;
     const char *myFullId;
+
     Coord curPosition;  // current position from mobility module (not from sumo)
     double entryTime;
 
     std::string SUMOvID;
     std::string SUMOvType;
+
     int SUMOControllerType;
     int SUMOControllerNumber;
+
+    int TLControlMode;
 };
 
 }

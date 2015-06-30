@@ -90,6 +90,18 @@ void ApplVManager::initialize(int stage)
             TraCI->vehicleSetErrorGap(SUMOvID, 0.);
             TraCI->vehicleSetErrorRelSpeed(SUMOvID, 0.);
         }
+
+        // turn off 'strategic' and 'speed gain' lane change (default is 10 01 01 01 01)
+        // todo: is this necessary? lane change causes fault detection in LD
+        if(TLControlMode == TL_Fix_Time ||
+                TLControlMode == TL_Adaptive_Webster ||
+                TLControlMode == TL_Adaptive_Time ||
+                TLControlMode == TL_Adaptive_Time_Queue ||
+                TLControlMode == TL_VANET )
+        {
+            int32_t bitset = TraCI->vehicleBuildLaneChangeMode(00, 01, 00, 01, 01);
+            TraCI->vehicleSetLaneChangeMode(SUMOvID, bitset);   // alter 'lane change' mode
+        }
     }
 }
 

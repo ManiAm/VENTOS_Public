@@ -61,7 +61,6 @@ protected:
 
     // NED variables
     bool smartBeaconing;
-    int TLControlMode;
 
     // NED variables (data message parameters)
     int dataLengthBits;
