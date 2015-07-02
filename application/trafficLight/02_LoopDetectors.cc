@@ -26,6 +26,7 @@
 //
 
 #include <02_LoopDetectors.h>
+#define MAX_BUFF 1
 
 namespace VENTOS {
 
@@ -114,7 +115,7 @@ void LoopDetectors::executeFirstTimeStep()
             lanesTL[lane] = TLid;
 
             boost::circular_buffer<double> CB;        // create a circular buffer
-            CB.set_capacity(10);                      // set max capacity
+            CB.set_capacity(MAX_BUFF);                // set max capacity
             CB.clear();
             laneTD[lane] = std::make_pair(TLid, CB);  // initialize laneTD
 
@@ -135,7 +136,7 @@ void LoopDetectors::executeFirstTimeStep()
             linksTL.insert( std::make_pair(incommingLane, std::make_pair(TLid,linkNumber)) );
 
             boost::circular_buffer<double> CB;   // create a circular buffer
-            CB.set_capacity(10);                 // set max capacity
+            CB.set_capacity(MAX_BUFF);           // set max capacity
             CB.clear();
             linkTD[std::make_pair(TLid,linkNumber)] = CB;   // initialize linkTD
 
@@ -375,9 +376,9 @@ void LoopDetectors::measureTrafficParameters()
 
             double diff = simTime().dbl() - lastDetection_old - updateInterval;
 
-            // lastDetection == 0        if a vehicle is detected
-            // lastDetection_old != 0    if the vehicle passed over the LD
-            // diff > 0.0001             do not store TD for the first vehicle
+            // lastDetection == 0        if a vehicle is above the LD
+            // lastDetection_old != 0    if this is the first detection for this vehicle (we ignore any subsequent detections for the same vehicle)
+            // diff > 0.0001             ignore the very first detection on this LDid
             if(lastDetection == 0 && lastDetection_old != 0 && diff > 0.0001)
             {
                 // calculate the traffic demand
