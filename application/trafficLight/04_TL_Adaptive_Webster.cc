@@ -64,12 +64,6 @@ void TrafficLightWebster::initialize(int stage)
 
         greenSplit.clear();
 
-        // add phases into greenSplit
-        greenSplit[phase1_5] = 0;
-        greenSplit[phase2_6] = 0;
-        greenSplit[phase3_7] = 0;
-        greenSplit[phase4_8] = 0;
-
         // measure traffic demand
         measureTrafficDemand = true;
     }
@@ -145,7 +139,7 @@ void TrafficLightWebster::executeFirstTimeStep()
 
     char buff[300];
     sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
-    std::cout << endl << buff << endl << endl;
+    std::cout << buff << endl << endl;
 }
 
 
@@ -283,7 +277,7 @@ void TrafficLightWebster::chooseNextGreenInterval()
 
 void TrafficLightWebster::calculateGreenSplits()
 {
-    // debugging
+    // print traffic demand
     std::cout << ">>> Measured traffic demands at the beginning of this cycle: " << endl;
     for(std::map<std::string, std::pair<std::string, boost::circular_buffer<double>>>::iterator y = laneTD.begin(); y != laneTD.end(); ++y)
     {
@@ -303,7 +297,7 @@ void TrafficLightWebster::calculateGreenSplits()
             for(boost::circular_buffer<double>::iterator z = buf.begin(); z != buf.end(); ++z)
                 std::cout << (*z) << ", ";
 
-            std::cout << "(Ave= " << aveTD << ")" << endl;
+            std::cout << "---> Ave= " << aveTD << endl;
         }
     }
     std::cout << endl;
@@ -311,7 +305,7 @@ void TrafficLightWebster::calculateGreenSplits()
     // todo: change this later
     // saturation = (3*TD) / ( 1-(35/cycle) )
     // max TD = 1900, max cycle = 120
-    double saturation = 8047;
+    double saturation = 2400;  //8047;
 
     std::string phases[] = {phase1_5, phase2_6, phase3_7, phase4_8};
     std::map<std::string, double> critical;
@@ -326,16 +320,22 @@ void TrafficLightWebster::calculateGreenSplits()
             // if link i is active
             if(prog[i] == 'g' || prog[i] == 'G')
             {
-                // get all TD measurements for link i
-                boost::circular_buffer<double> buffer = linkTD[std::make_pair("C",i)];
+                // if link i is not a right-turn
+                // right turns are all permissive
+                bool notRightTurn = std::find(std::begin(rightTurns), std::end(rightTurns), i) == std::end(rightTurns);
+                if(notRightTurn)
+                {
+                    // get all TD measurements for link i so far
+                    boost::circular_buffer<double> buffer = linkTD[std::make_pair("C",i)];
 
-                // calculate average TD for link i
-                double sum = 0;
-                for (boost::circular_buffer<double>::iterator it = buffer.begin(); it != buffer.end(); ++it)
-                    sum = sum + *it;
-                double aveTD = buffer.size() == 0 ? 0 : sum / (double)buffer.size();
+                    // calculate average TD for link i
+                    double sum = 0;
+                    for (boost::circular_buffer<double>::iterator it = buffer.begin(); it != buffer.end(); ++it)
+                        sum = sum + *it;
+                    double aveTD = buffer.size() == 0 ? 0 : sum / (double)buffer.size();
 
-                Y_i = std::max(Y_i, aveTD / saturation);
+                    Y_i = std::max(Y_i, aveTD / saturation);
+                }
             }
         }
 
@@ -343,50 +343,73 @@ void TrafficLightWebster::calculateGreenSplits()
         Y = Y + Y_i;
     }
 
-    if(Y >= 1)
+    // print Y_i for each phase
+    std::cout << ">>> critical v/c for each phase: ";
+    int activePhases = 0;
+    for(std::map<std::string, double>::iterator y = critical.begin(); y != critical.end(); ++y)
     {
-        error("total critical-to-capacity ratio (Y) >= 1");
+        double val = (*y).second;
+        std::cout << val << ", ";
+        if(val != 0) activePhases++;
     }
+    std::cout << endl << endl;
+
+    if(Y < 0)
+    {
+        error("WTH! total critical v/c is negative!");
+    }
+    // no TD in any directions. Give G_min to each phase
     else if(Y == 0)
     {
         // green split for each phase
-        greenSplit[phase1_5] = minGreenTime;
-        greenSplit[phase2_6] = minGreenTime;
-        greenSplit[phase3_7] = minGreenTime;
-        greenSplit[phase4_8] = minGreenTime;
+        for (std::string prog : phases)
+            greenSplit[prog] = minGreenTime;
+
+        std::cout << ">>> Total critical v/c is zero! Set green split for each phase to G_min=" << minGreenTime << endl << endl;
     }
-    else if(Y < 1)
+    else if(Y > 0 && Y < 1)
     {
-        double L = (yellowTime + redTime) * 4;   // total loss time in cycle
-        double cycle = ((1.5*L) + 5) / (1 - Y);  // cycle length
+        double startupLoss_i = 1.0;
+        double changeInterval_i = yellowTime + redTime;
+        double clearanceLoss_i = (1-0.8)*changeInterval_i;
+        double totalLoss_i = startupLoss_i + clearanceLoss_i;   // total loss time per phase
+        double totalLoss = totalLoss_i * activePhases;  // total loss time per phase
+
+        double cycle = ((1.5*totalLoss) + 5) / (1 - Y);  // cycle length
+
+        std::cout << ">>> Webster Calculation: " << endl;
+        std::cout << "total critical v/c=" << Y << ", total loss time=" << totalLoss << ", cycle length=" << cycle << endl;
 
         // make sure that cycle length is not too big.
         // this happens when Y is too close to 1
         if(cycle > 120)
         {
-            std::cout << "WARNING: cycle length > 120" << endl;
+            std::cout << "WARNING: cycle length > 120. Set it to 120." << endl;
             cycle = 120;
         }
 
-        double effectiveG = cycle - L;   // total effective green time
+        double effectiveG = cycle - totalLoss;   // total effective green time
 
         // green split for each phase
-        greenSplit[phase1_5] = (critical[phase1_5] / Y) * effectiveG;
-        greenSplit[phase2_6] = (critical[phase2_6] / Y) * effectiveG;
-        greenSplit[phase3_7] = (critical[phase3_7] / Y) * effectiveG;
-        greenSplit[phase4_8] = (critical[phase4_8] / Y) * effectiveG;
-    }
+        for (std::string prog : phases)
+        {
+            double GS = (critical[prog] / Y) * effectiveG;
+            greenSplit[prog] = (GS == 0) ? minGreenTime : GS;
+        }
 
-    // debugging
-    std::cout << ">>> Updating green splits for each phase: ";
-    for(std::map<std::string, double>::iterator y = greenSplit.begin(); y != greenSplit.end(); y++)
-    {
-        double split = (*y).second;
-        std::cout << split << ", ";
-        if(split <= 0)
-            error("greenSplit can not be <= 0");
+        std::cout << "Updating green splits for each phase: ";
+        for(std::map<std::string, double>::iterator y = greenSplit.begin(); y != greenSplit.end(); y++)
+        {
+            double split = (*y).second;
+            if(split < 0) error("greenSplit can not be <= 0");
+            std::cout << split << ", ";
+        }
+        std::cout << endl << endl;
     }
-    std::cout << endl;
+    else if(Y >= 1)
+    {
+        error("total critical v/c >= 1. Saturation flow might be low ?!");
+    }
 }
 
 }

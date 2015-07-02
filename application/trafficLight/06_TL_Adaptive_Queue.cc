@@ -396,7 +396,7 @@ void TrafficLightAdaptiveQueue::generateAllAllowedMovements()
                 break;
         }
 
-        // this row has no conflicts
+        // if this row has no conflicts
         if(!conflictFound)
         {
             // now we check if this row covers all the right turns

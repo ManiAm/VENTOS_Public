@@ -63,6 +63,8 @@ class TrafficLightWebster : public TrafficLightFixed
 
     cMessage* ChangeEvt;
 
+    int rightTurns[8] = {0, 2, 5, 7, 10, 12, 15, 17};
+
   private:
     std::string phase1_5 = "grgrGgrgrrgrgrGgrgrrrrrr";
     std::string phase2_6 = "gGgGrgrgrrgGgGrgrgrrrGrG";
