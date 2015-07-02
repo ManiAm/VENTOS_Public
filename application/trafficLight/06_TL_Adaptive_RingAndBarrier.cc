@@ -25,7 +25,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <05_TL_Adaptive_RingAndBarrier.h>
+#include <06_TL_Adaptive_RingAndBarrier.h>
 #include <iomanip>
 
 namespace VENTOS {

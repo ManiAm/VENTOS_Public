@@ -27,7 +27,7 @@
 #ifndef TRAFFICLIGHTADAPTIVEQUEUE_H
 #define TRAFFICLIGHTADAPTIVEQUEUE_H
 
-#include <05_TL_Adaptive_RingAndBarrier.h>
+#include <06_TL_Adaptive_RingAndBarrier.h>
 
 namespace VENTOS {
 

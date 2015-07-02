@@ -1,8 +1,7 @@
 /****************************************************************************/
-/// @file    TL_Adaptive.h
-/// @author  Philip Vo <foxvo@ucdavis.edu>
+/// @file    VehDelay.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
-/// @date    August 2013
+/// @date    Jul 2015
 ///
 /****************************************************************************/
 // VENTOS, Vehicular Network Open Simulator; see http:?
@@ -25,46 +24,58 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef TRAFFICLIGHTADAPTIVE_H
-#define TRAFFICLIGHTADAPTIVE_H
+#ifndef VEHDELAY_H
+#define VEHDELAY_H
 
-#include <04_TL_Adaptive_Webster.h>
+#include "02_LoopDetectors.h"
+
 
 namespace VENTOS {
 
-class TrafficLightAdaptive : public TrafficLightWebster
+class delayEntry
 {
-  public:
-    virtual ~TrafficLightAdaptive();
+public:
+    std::string TLid;
+    std::string lastLane;
+    double startDeccel;
+    double startStopping;
+    double startAccel;
+    double endDelay;
+
+    delayEntry(std::string str1, std::string str2, double d1, double d2, double d3, double d4)
+    {
+        this->TLid = str1;
+        this->lastLane = str2;
+        this->startDeccel = d1;
+        this->startStopping = d2;
+        this->startAccel = d3;
+        this->endDelay = d4;
+    }
+};
+
+
+class VehDelay : public LoopDetectors
+{
+public:
+    virtual ~VehDelay();
     virtual void finish();
     virtual void initialize(int);
     virtual void handleMessage(cMessage *);
 
-  protected:
+protected:
     void virtual executeFirstTimeStep();
     void virtual executeEachTimeStep(bool);
 
-  private:
-    void chooseNextInterval();
-    void chooseNextGreenInterval();
+private:
+    void vehiclesDelay();
+    void vehiclesDelayEach(std::string);
+    void vehiclesDelayToFile();
 
-  protected:
-    // NED variables
-    double passageTime;
-    bool greenExtension;
-
-    std::string phase1_5 = "grgrGgrgrrgrgrGgrgrrrrrr";
-    std::string phase2_5 = "gGgGGgrgrrgrgrrgrgrrrrrG";
-    std::string phase1_6 = "grgrrgrgrrgGgGGgrgrrrGrr";
-    std::string phase2_6 = "gGgGrgrgrrgGgGrgrgrrrGrG";
-
-    std::string phase3_7 = "grgrrgrgrGgrgrrgrgrGrrrr";
-    std::string phase3_8 = "grgrrgrgrrgrgrrgGgGGrrGr";
-    std::string phase4_7 = "grgrrgGgGGgrgrrgrgrrGrrr";
-    std::string phase4_8 = "grgrrgGgGrgrgrrgGgGrGrGr";
-
-  private:
-    std::map<std::string,double> passageTimePerLane;
+protected:
+    bool measureVehDelay;
+    std::list<std::string> TLList;      // list of traffic-lights in the network
+    std::list<std::string> lanesList;   // list of all lanes in the network
+    std::map<std::string, delayEntry> delay;
 };
 
 }

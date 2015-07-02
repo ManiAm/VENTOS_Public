@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    TL_Webster.h
+/// @file    TL_Fixed.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @date    August 2013
 ///
@@ -24,17 +24,18 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef TRAFFICLIGHTWEBSTER_H
-#define TRAFFICLIGHTWEBSTER_H
+#ifndef TRAFFICLIGHTFIXED_H
+#define TRAFFICLIGHTFIXED_H
 
-#include <03_TL_Fixed.h>
+#include "03_VehDelay.h"
+
 
 namespace VENTOS {
 
-class TrafficLightWebster : public TrafficLightFixed
+class TrafficLightFixed : public VehDelay
 {
   public:
-    virtual ~TrafficLightWebster();
+    virtual ~TrafficLightFixed();
     virtual void finish();
     virtual void initialize(int);
     virtual void handleMessage(cMessage *);
@@ -42,36 +43,6 @@ class TrafficLightWebster : public TrafficLightFixed
   protected:
     void virtual executeFirstTimeStep();
     void virtual executeEachTimeStep(bool);
-
-  private:
-    void chooseNextInterval();
-    void chooseNextGreenInterval();
-    void calculateGreenSplits();
-
-  protected:
-    // NED variables
-    double minGreenTime;
-    double maxGreenTime;
-    double yellowTime;
-    double redTime;
-
-    // class variables
-    double intervalOffSet;
-    std::string nextGreenInterval;
-    double intervalElapseTime;
-    std::string currentInterval;
-
-    cMessage* ChangeEvt;
-
-    int rightTurns[8] = {0, 2, 5, 7, 10, 12, 15, 17};
-
-  private:
-    std::string phase1_5 = "grgrGgrgrrgrgrGgrgrrrrrr";
-    std::string phase2_6 = "gGgGrgrgrrgGgGrgrgrrrGrG";
-    std::string phase3_7 = "grgrrgrgrGgrgrrgrgrGrrrr";
-    std::string phase4_8 = "grgrrgGgGrgrgrrgGgGrGrGr";
-
-    std::map<std::string /*phase*/, double /*green split*/> greenSplit;
 };
 
 }

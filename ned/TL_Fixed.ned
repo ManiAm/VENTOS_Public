@@ -1,7 +1,7 @@
 
 package c3po.ned;
 
-simple TL_Fixed extends TL_LoopDetectors
+simple TL_Fixed extends VehDelay
 {
     parameters:
         @class(VENTOS::TrafficLightFixed);

@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    TL_VANET.h
+/// @file    TL_Manager.h
 /// @author  Philip Vo <foxvo@ucdavis.edu>
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @date    August 2013
@@ -25,18 +25,17 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef TRAFFICLIGHTVANET_H
-#define TRAFFICLIGHTVANET_H
+#ifndef TRAFFICLIGHTMANAGER_H
+#define TRAFFICLIGHTMANAGER_H
 
-#include <06_TL_Adaptive_Queue.h>
-#include "ApplRSU_03_TL_VANET.h"
+#include "09_TL_Router.h"
 
 namespace VENTOS {
 
-class TrafficLightVANET : public TrafficLightAdaptiveQueue
+class TrafficLightManager : public TrafficLightRouter
 {
   public:
-    virtual ~TrafficLightVANET();
+    virtual ~TrafficLightManager();
     virtual void finish();
     virtual void initialize(int);
     virtual void handleMessage(cMessage *);
@@ -45,14 +44,6 @@ class TrafficLightVANET : public TrafficLightAdaptiveQueue
     void virtual executeFirstTimeStep();
     void virtual executeEachTimeStep(bool);
 
-  private:
-    void chooseNextInterval();
-    void chooseNextGreenInterval();
-
-  protected:
-    // class variables
-    ApplRSUTLVANET *RSU;
-    bool greenExtension;
 };
 
 }

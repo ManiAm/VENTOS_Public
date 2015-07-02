@@ -24,7 +24,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <06_TL_Adaptive_Queue.h>
+#include <07_TL_Adaptive_Queue.h>
 #include <boost/graph/adjacency_list.hpp>
 
 namespace VENTOS {
