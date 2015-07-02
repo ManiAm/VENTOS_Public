@@ -7,7 +7,8 @@ simple Statistics
         @class(VENTOS::Statistics);
         
         bool collectVehiclesData;
-        bool useDetailedFilenames;
+        int vehicleDataLevel;
+        
         bool reportMAClayerData;
         bool reportPlnManagerData;
         bool reportBeaconsData;

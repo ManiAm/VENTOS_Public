@@ -173,7 +173,7 @@ public:
 private:
     // NED variables
     bool collectVehiclesData;
-    bool useDetailedFilenames;
+    int vehicleDataLevel;
     bool reportMAClayerData;
     bool reportPlnManagerData;
     bool reportBeaconsData;
