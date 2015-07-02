@@ -110,7 +110,7 @@
   <flow id="route8h" begin="2800" end="3200" vehsPerHour="200" type="TypeManual" route="route12" />
   
   <flow id="route1i" begin="3200" end="3600" vehsPerHour="100" type="TypeManual" route="route1" />
-  <flow id="route1i" begin="3200" end="3600" vehsPerHour="100" type="TypeManual" route="route1" />
+  <flow id="route2i" begin="3200" end="3600" vehsPerHour="100" type="TypeManual" route="route3" />
   <flow id="route3i" begin="3200" end="3600" vehsPerHour="100" type="TypeManual" route="route4" />
   <flow id="route4i" begin="3200" end="3600" vehsPerHour="100" type="TypeManual" route="route6" />  
   <flow id="route5i" begin="3200" end="3600" vehsPerHour="100" type="TypeManual" route="route7" />
