@@ -5,19 +5,19 @@
     <tlLogic id="C" type="static" programID="fix-time" offset="20">
         <phase duration="20" state="GrGrGrrGrrGrGrGrrGrrrrrr"/>        
         <phase duration="4"  state="yrGryrrGrryrGryrrGrrrrrr"/>
-        <phase duration="1"  state="rrGrrrrGrrrrGrrrrGrrrrrr"/>
+        <phase duration="2"  state="rrGrrrrGrrrrGrrrrGrrrrrr"/>
                         
         <phase duration="20" state="rGGGrrrGrrrGGGrrrGrrrGrG"/>
         <phase duration="4"  state="ryGyrrrGrrryGyrrrGrrryry"/>
-        <phase duration="1"  state="rrGrrrrGrrrrGrrrrGrrrrrr"/>
+        <phase duration="2"  state="rrGrrrrGrrrrGrrrrGrrrrrr"/>
         
         <phase duration="20" state="rrGrrGrGrGrrGrrGrGrGrrrr"/>   
         <phase duration="4"  state="rrGrryrGryrrGrryrGryrrrr"/>  
-        <phase duration="1"  state="rrGrrrrGrrrrGrrrrGrrrrrr"/>      
+        <phase duration="2"  state="rrGrrrrGrrrrGrrrrGrrrrrr"/>      
         
         <phase duration="20" state="rrGrrrGGGrrrGrrrGGGrGrGr"/>
         <phase duration="4"  state="rrGrrryGyrrrGrrryGyryryr"/>
-        <phase duration="1"  state="rrGrrrrGrrrrGrrrrGrrrrrr"/>        
+        <phase duration="2"  state="rrGrrrrGrrrrGrrrrGrrrrrr"/>        
     </tlLogic>
     
     <tlLogic id="C" type="static" programID="fix-time2" offset="0">
