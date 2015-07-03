@@ -376,12 +376,9 @@ void Router::receiveSignal(cComponent *source, simsignal_t signalID, cObject *ob
     delete obj;
 }
 
-void Router::issueStop(std::string vehID, std::string edgeID)
+void Router::issueStop(std::string vehID, std::string edgeID, double position, int laneIndex)
 {
-    Edge& edge = *net->edges.at(edgeID);
-    int randLane = rand() % edge.lanes.size();
-    Lane* lane = edge.lanes[randLane];
-    TraCI->vehicleSetStop(vehID, lane->id, lane->length - 1, randLane, 100000, 2);
+    TraCI->vehicleSetStop(vehID, edgeID, position, laneIndex, 100000, 2);
 }
 
 void Router::issueStart(std::string vehID)
@@ -399,46 +396,53 @@ void Router::checkEdgeRemovals()
         {
             if(!er.blocked)  //if the lane is not blocked
             {
+                // New implementation
                 Edge& edge = *net->edges[er.edge];
                 edge.disabled = true;   //mark it as disabled
 
-                uint8_t index = 0;
+                // Find the closest vehicle behind the accident location
+                std::string laneID = er.edge + "_" + std::to_string(er.laneIndex); // Construct the accident lane ID
+                std::list<std::string> vehicleIDs = TraCI->laneGetLastStepVehicleIDs(laneID); // Get the vehicles on that lane
 
-                std::list<std::string> route;
-                std::string origin = edge.id;
-                route.push_back(origin);   //With just the starting edge
-
-                std::string laneID = er.edge + "_" + std::to_string(er.laneIndex);
-                std::string vehicleDummy = "test" + laneID + "_" + std::to_string(er.pos) + "_" + std::to_string(curTime);
-                index = (uint8_t)er.laneIndex;
-
-                // Add a dummy vehicle
-                TraCI->vehicleAdd(vehicleDummy, "TypeDummy", origin, er.start*1000, er.pos, 0, index);
-                TraCI->vehicleSetStop(vehicleDummy, origin, er.pos+5, index, 10000, 2);
-
-                // Change its color to red
-                TraCIColor newColor = TraCIColor::fromTkColor("red");
-                TraCI->vehicleSetColor(vehicleDummy, newColor);
-
-                er.blocked = true;
+                if(!vehicleIDs.empty()) // If there are vehicles on that link
+                {
+                    vehicleIDs.reverse(); // Reverse the list so it can start from the further end
+                    for(std::string veh : vehicleIDs)
+                    {
+                        if(TraCI->vehicleGetLanePosition(veh) + 100 < er.pos) // Here, we ask the vehicle to stop at the location 100 meters ahead of its current position to avoid the error of " too close to stop". This is not ideal, but it works for the purpose
+                        {
+                            //if(veh == "v22")
+                                //std::cout << "Found it!" << std::endl;
+                            issueStop(veh, er.edge, TraCI->vehicleGetLanePosition(veh) + 100, er.laneIndex);
+                            // Change its color to red
+                            TraCIColor newColor = TraCIColor::fromTkColor("red");
+                            TraCI->vehicleSetColor(veh, newColor);
+                            er.blocked = true;
+                            break;
+                        }
+                    }
+                }
             }
         }
         else //if edge not currently removed
         {
             if(er.blocked == true)
             {
-                //edge.disabled = false;
-                er.blocked = false;
-
                 std::string laneID = er.edge + "_" + std::to_string(er.laneIndex);
                 std::list<std::string> vehicleIDs = TraCI->laneGetLastStepVehicleIDs(laneID);
+
                 for(std::string veh : vehicleIDs)
                 {
-                    // todo: can we test type instead?
-                    if(veh.substr(0,4) == "test")
+                    uint8_t state= TraCI->vehicleGetStopState(veh);
+                    //std::cout << "Vehicle: " << veh << ", State:" << state << std::endl;
+
+                    if(state == 5) // Find a stopped and triggered vehicle
                     {
-                        // todo: should not use vehicleRemove directly
-                        TraCI->vehicleRemove(veh, REMOVE_VAPORIZED);
+                        issueStart(veh);
+                        // Change its color to white denotes the vehicle starts to moving again
+                        TraCIColor newColor = TraCIColor::fromTkColor("white");
+                        TraCI->vehicleSetColor(veh, newColor);
+                        er.blocked = false;
                         break;
                     }
                 }

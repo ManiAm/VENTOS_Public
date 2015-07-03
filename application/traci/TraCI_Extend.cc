@@ -678,9 +678,10 @@ double TraCI_Extend::vehicleGetSpeed(std::string nodeId)
 // isStoppedTriggered  value & 12 > 0     whether the vehicle is stopped and waiting for a person or container
 // isAtBusStop         value & 16 == 16   whether the vehicle is stopped at a bus stop
 // isAtContainerStop   value & 32 == 32   whether the vehicle is stopped at a container stop
-uint8_t* TraCI_Extend::vehicleGetStopState(std::string nodeId)
+uint8_t TraCI_Extend::vehicleGetStopState(std::string nodeId)
 {
-    return genericGetArrayUnsignedInt(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_STOPSTATE, RESPONSE_GET_VEHICLE_VARIABLE);
+    //return genericGetArrayUnsignedInt(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_STOPSTATE, RESPONSE_GET_VEHICLE_VARIABLE);
+    return genericGetUnsignedByte(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_STOPSTATE, RESPONSE_GET_VEHICLE_VARIABLE);
 }
 
 
