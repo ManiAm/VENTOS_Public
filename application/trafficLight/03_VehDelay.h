@@ -41,20 +41,23 @@ public:
     double crossedTime;
     double oldSpeed;
     double startDeccel;
+    bool yellowOrRed;
     double startStopping;
     double startAccel;
     double endDelay;
 
-    // temporary buffers for storing last speed/accel
+    // temporary buffers for storing last speed/accel/signal
     boost::circular_buffer<std::pair<double,double>> lastSpeeds;
     boost::circular_buffer<std::pair<double,double>> lastSpeeds2;
     boost::circular_buffer<std::pair<double,double>> lastAccels;
+    boost::circular_buffer<char> lastSignals;
 
     delayEntry(std::string str1, std::string str2, double d0, bool b1, double d1,
-            double d2, double d3, double d4, double d5, double d6,
+            double d2, double d3, bool b2, double d4, double d5, double d6,
             boost::circular_buffer<std::pair<double,double>> CB_speed,
             boost::circular_buffer<std::pair<double,double>> CB_speed2,
-            boost::circular_buffer<std::pair<double,double>> CB_accel)
+            boost::circular_buffer<std::pair<double,double>> CB_accel,
+            boost::circular_buffer<char> CB_signal)
     {
         this->TLid = str1;
         this->lastLane = str2;
@@ -63,6 +66,7 @@ public:
         this->crossedTime = d1;
         this->oldSpeed = d2;
         this->startDeccel = d3;
+        this->yellowOrRed = b2;
         this->startStopping = d4;
         this->startAccel = d5;
         this->endDelay = d6;
@@ -70,6 +74,7 @@ public:
         this->lastSpeeds = CB_speed;
         this->lastSpeeds2 = CB_speed2;
         this->lastAccels = CB_accel;
+        this->lastSignals = CB_signal;
     }
 };
 
@@ -95,8 +100,7 @@ protected:
     bool measureVehDelay;
     double deccelDelayThreshold;
     double stoppingDelayThreshold;
-    int lastSpeedBuffSize;
-    int lastAccelBuffSize;
+    int lastValueBuffSize;
 
     // class variables
     std::list<std::string> lanesList;   // list of all lanes in the network

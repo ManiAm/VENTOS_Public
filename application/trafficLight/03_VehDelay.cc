@@ -46,8 +46,7 @@ void VehDelay::initialize(int stage)
         measureVehDelay = par("measureVehDelay").boolValue();
         deccelDelayThreshold = par("deccelDelayThreshold").doubleValue();
         stoppingDelayThreshold = par("stoppingDelayThreshold").doubleValue();
-        lastSpeedBuffSize = par("lastSpeedBuffSize").longValue();
-        lastAccelBuffSize = par("lastAccelBuffSize").longValue();
+        lastValueBuffSize = par("lastValueBuffSize").longValue();
 
         if(deccelDelayThreshold >= 0)
             error("deccelDelayThreshold is not set correctly!");
@@ -55,11 +54,8 @@ void VehDelay::initialize(int stage)
         if(stoppingDelayThreshold < 0)
             error("stoppingDelayThreshold is not set correctly!");
 
-        if(lastSpeedBuffSize < 1)
-            error("lastSpeedBuffSize is not set correctly!");
-
-        if(lastAccelBuffSize < 1)
-            error("lastAccelBuffSize is not set correctly!");
+        if(lastValueBuffSize < 1)
+            error("lastValueBuffSize is not set correctly!");
     }
 }
 
@@ -119,18 +115,24 @@ void VehDelay::vehiclesDelay()
             if(loc == intersectionDelay.end())
             {
                 boost::circular_buffer<std::pair<double,double>> CB_speed;  // create a circular buffer
-                CB_speed.set_capacity(lastSpeedBuffSize);                   // set max capacity
+                CB_speed.set_capacity(lastValueBuffSize);                   // set max capacity
                 CB_speed.clear();
 
                 boost::circular_buffer<std::pair<double,double>> CB_speed2;  // create a circular buffer
-                CB_speed2.set_capacity(lastSpeedBuffSize);                   // set max capacity
+                CB_speed2.set_capacity(lastValueBuffSize);                   // set max capacity
                 CB_speed2.clear();
 
                 boost::circular_buffer<std::pair<double,double>> CB_accel;  // create a circular buffer
-                CB_accel.set_capacity(lastAccelBuffSize);                   // set max capacity
+                CB_accel.set_capacity(lastValueBuffSize);                   // set max capacity
                 CB_accel.clear();
 
-                delayEntry *entry = new delayEntry("", "", -1, false, -1, -1, -1, -1, -1, -1, CB_speed, CB_speed2, CB_accel);
+                boost::circular_buffer<char> CB_sig;                        // create a circular buffer
+                CB_sig.set_capacity(lastValueBuffSize);                     // set max capacity
+                CB_sig.clear();
+
+                delayEntry *entry = new delayEntry("" /*TLid*/, "" /*lastLane*/, -1 /*entrance*/, false /*crossed?*/, -1 /*crossedT*/,
+                                                   -1 /*old speed*/, -1 /*startDeccel*/, false /*YorR*/, -1 /*startStopping*/, -1 /*startAccel*/, -1 /*endDelay*/,
+                                                   CB_speed, CB_speed2, CB_accel, CB_sig);
                 intersectionDelay.insert( std::make_pair(vID, *entry) );
             }
 
@@ -207,6 +209,9 @@ void VehDelay::vehiclesDelayEach(std::string vID)
         double accel = TraCI->vehicleGetCurrentAccel(vID);
         loc->second.lastAccels.push_back( std::make_pair(simTime().dbl(), accel) );
 
+        char signal = TraCI->vehicleGetTLLinkStatus(vID);
+        loc->second.lastSignals.push_back(signal);
+
         if(loc->second.lastAccels.full())
         {
             for(boost::circular_buffer<std::pair<double,double>>::iterator g = loc->second.lastAccels.begin(); g != loc->second.lastAccels.end(); ++g)
@@ -219,6 +224,17 @@ void VehDelay::vehiclesDelayEach(std::string vID)
 
             loc->second.oldSpeed = loc->second.lastSpeeds[0].second;
             loc->second.lastSpeeds.clear();
+
+            // is the TL signal ahead y or r?
+            for(boost::circular_buffer<char>::iterator g = loc->second.lastSignals.begin(); g != loc->second.lastSignals.end(); ++g)
+            {
+                if(*g == 'y' || *g == 'r')
+                {
+                    loc->second.yellowOrRed = true;
+                    loc->second.lastSignals.clear();
+                    break;
+                }
+            }
         }
         else return;
     }
@@ -299,12 +315,13 @@ void VehDelay::vehiclesDelayToFile()
     FILE *filePtr = fopen (filePath.string().c_str(), "w");
 
     // write header
-    fprintf (filePtr, "%-20s","vehicleName");
-    fprintf (filePtr, "%-15s","TLid");
-    fprintf (filePtr, "%-20s","lastLane");
+    fprintf (filePtr, "%-15s","vehicleName");
+    fprintf (filePtr, "%-10s","TLid");
+    fprintf (filePtr, "%-10s","lastLane");
     fprintf (filePtr, "%-15s","entrance");
-    fprintf (filePtr, "%-15s","crossed?");
+    fprintf (filePtr, "%-10s","crossed?");
     fprintf (filePtr, "%-15s","VbeforeDeccel");
+    fprintf (filePtr, "%-10s","YorR?");
     fprintf (filePtr, "%-15s","startDeccel");
     fprintf (filePtr, "%-15s","startStopping");
     fprintf (filePtr, "%-15s","crossedT");
@@ -314,12 +331,13 @@ void VehDelay::vehiclesDelayToFile()
     // write body
     for(std::map<std::string, delayEntry>::iterator y =  intersectionDelay.begin(); y != intersectionDelay.end(); ++y)
     {
-        fprintf (filePtr, "%-20s", (*y).first.c_str());
-        fprintf (filePtr, "%-15s", (*y).second.TLid.c_str());
-        fprintf (filePtr, "%-20s", (*y).second.lastLane.c_str());
+        fprintf (filePtr, "%-15s", (*y).first.c_str());
+        fprintf (filePtr, "%-10s", (*y).second.TLid.c_str());
+        fprintf (filePtr, "%-10s", (*y).second.lastLane.c_str());
         fprintf (filePtr, "%-15.2f", (*y).second.intersectionEntrance);
-        fprintf (filePtr, "%-15d", (*y).second.crossedIntersection);
+        fprintf (filePtr, "%-10d", (*y).second.crossedIntersection);
         fprintf (filePtr, "%-15.2f", (*y).second.oldSpeed);
+        fprintf (filePtr, "%-10d", (*y).second.yellowOrRed);
         fprintf (filePtr, "%-15.2f", (*y).second.startDeccel);
         fprintf (filePtr, "%-15.2f", (*y).second.startStopping);
         fprintf (filePtr, "%-15.2f", (*y).second.crossedTime);

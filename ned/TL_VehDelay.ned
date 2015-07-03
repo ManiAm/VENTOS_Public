@@ -10,6 +10,5 @@ simple VehDelay extends TL_LoopDetectors
         bool measureVehDelay;    
         double deccelDelayThreshold;
         double stoppingDelayThreshold;
-        int lastSpeedBuffSize;
-        int lastAccelBuffSize;
+        int lastValueBuffSize;
 }

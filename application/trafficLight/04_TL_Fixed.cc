@@ -75,7 +75,7 @@ void TrafficLightFixed::executeFirstTimeStep()
 
     for (std::list<std::string>::iterator TL = TLList.begin(); TL != TLList.end(); ++TL)
     {
-        TraCI->TLSetProgram(*TL, "fix-time");
+        TraCI->TLSetProgram(*TL, "fix-time1");
 
         if(collectTLData)
         {

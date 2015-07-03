@@ -2,7 +2,7 @@
 
 <additional>
     
-    <tlLogic id="C" type="static" programID="fix-time" offset="20">
+    <tlLogic id="C" type="static" programID="fix-time1" offset="20">
         <phase duration="20" state="GrGrGrrGrrGrGrGrrGrrrrrr"/>        
         <phase duration="4"  state="yrGryrrGrryrGryrrGrrrrrr"/>
         <phase duration="2"  state="rrGrrrrGrrrrGrrrrGrrrrrr"/>
@@ -21,10 +21,14 @@
     </tlLogic>
     
     <tlLogic id="C" type="static" programID="fix-time2" offset="0">
-        <phase duration="10000" state="GGGGGGGGGGGGGGGGGGGGGGGG"/>        
+        <phase duration="10000" state="gggggggggggggggggggggggg"/>        
     </tlLogic>
     
     <tlLogic id="C" type="static" programID="fix-time3" offset="0">
+        <phase duration="10000" state="GGGGGGGGGGGGGGGGGGGGGGGG"/>        
+    </tlLogic>
+    
+    <tlLogic id="C" type="static" programID="fix-time4" offset="0">
         <phase duration="10000" state="rrrrrrrrrrrrrrrrrrrrrrrr"/>        
     </tlLogic>
     
