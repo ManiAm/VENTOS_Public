@@ -97,7 +97,7 @@ private:
     void vehiclesDelayToFile();
 
 protected:
-    bool measureVehDelay;
+    bool collectVehDelay;
     double deccelDelayThreshold;
     double stoppingDelayThreshold;
     int lastValueBuffSize;

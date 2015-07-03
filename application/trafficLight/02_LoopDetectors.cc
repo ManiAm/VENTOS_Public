@@ -45,14 +45,16 @@ void LoopDetectors::initialize(int stage)
 
     if(stage == 0)
     {
-        collectInductionLoopData = par("collectInductionLoopData").boolValue();
         measureTrafficDemand = par("measureTrafficDemand").boolValue();
         measureIntersectionQueue = par("measureIntersectionQueue").boolValue();
-        collectTLData = par("collectTLData").boolValue();
 
-        // if collectTLData is true then collect queuing data since
+        collectInductionLoopData = par("collectInductionLoopData").boolValue();
+        collectTLQueuingData = par("collectTLQueuingData").boolValue();
+        collectTLPhasingData = par("collectTLPhasingData").boolValue();
+
+        // if collectTLPhasingData is true then collect queuing data since
         // we need queue information as well
-        if(collectTLData)
+        if(collectTLPhasingData)
             measureIntersectionQueue = true;
 
         LD_demand.clear();
@@ -165,7 +167,7 @@ void LoopDetectors::executeEachTimeStep(bool simulationDone)
         measureTrafficParameters();
 
     // should be after measureQ
-    if(collectTLData)
+    if(collectTLPhasingData)
     {
         if(ev.isGUI())
             saveTLData();  // (if in GUI) write to file what we have collected so far
@@ -414,14 +416,14 @@ void LoopDetectors::saveTLData()
 
     if( ev.isGUI() )
     {
-        filePath = "results/gui/intersectionData.txt";
+        filePath = "results/gui/TLphasingData.txt";
     }
     else
     {
         // get the current run number
         int currentRun = ev.getConfigEx()->getActiveRunNumber();
         std::ostringstream fileName;
-        fileName << currentRun << "_intersectionData.txt";
+        fileName << currentRun << "_TLphasingData.txt";
         filePath = "results/cmd/" + fileName.str();
     }
 

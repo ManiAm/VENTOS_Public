@@ -7,8 +7,10 @@ simple TL_LoopDetectors extends TL_Base
         @class(VENTOS::LoopDetectors);
         @display("i=block/network2");  
         
-        bool collectInductionLoopData;
-        bool measureTrafficDemand;
         bool measureIntersectionQueue;
-        bool collectTLData;  
+        bool measureTrafficDemand;
+        
+        bool collectInductionLoopData; 
+        bool collectTLQueuingData;
+        bool collectTLPhasingData; 
 }

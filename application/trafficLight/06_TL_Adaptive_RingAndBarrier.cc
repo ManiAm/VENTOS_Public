@@ -106,7 +106,7 @@ void TrafficLightAdaptive::executeFirstTimeStep()
         TraCI->TLSetProgram(*TL, "adaptive-time");
         TraCI->TLSetState(*TL, currentInterval);
 
-        if(collectTLData)
+        if(collectTLPhasingData)
         {
             // initialize phase number in this TL
             phaseTL[*TL] = 1;
@@ -219,7 +219,7 @@ void TrafficLightAdaptive::chooseNextInterval()
         intervalElapseTime = 0.0;
         intervalOffSet = redTime;
 
-        if(collectTLData)
+        if(collectTLPhasingData)
         {
             // update TL status for this phase
             std::map<std::pair<std::string,int>, currentStatusTL>::iterator location = statusTL.find( std::make_pair("C",phaseTL["C"]) );
@@ -239,7 +239,7 @@ void TrafficLightAdaptive::chooseNextInterval()
         intervalElapseTime = 0.0;
         intervalOffSet = minGreenTime;
 
-        if(collectTLData)
+        if(collectTLPhasingData)
         {
             // get all incoming lanes
             std::list<std::string> lan = TraCI->TLGetControlledLanes("C");
@@ -496,7 +496,7 @@ void TrafficLightAdaptive::chooseNextGreenInterval()
         intervalElapseTime = 0.0;
         intervalOffSet =  yellowTime;
 
-        if(collectTLData)
+        if(collectTLPhasingData)
         {
             // update TL status for this phase
             std::map<std::pair<std::string,int>, currentStatusTL>::iterator location = statusTL.find( std::make_pair("C",phaseTL["C"]) );

@@ -109,10 +109,12 @@ class LoopDetectors : public TrafficLightBase
 
   protected:
     // NED variables
-    bool collectInductionLoopData;
     bool measureTrafficDemand;
     bool measureIntersectionQueue;
-    bool collectTLData;
+
+    bool collectInductionLoopData;
+    bool collectTLQueuingData;
+    bool collectTLPhasingData;
 
     std::list<std::string> TLList;   // list of traffic-lights in the network
 

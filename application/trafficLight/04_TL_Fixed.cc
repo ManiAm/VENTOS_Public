@@ -77,7 +77,7 @@ void TrafficLightFixed::executeFirstTimeStep()
     {
         TraCI->TLSetProgram(*TL, "fix-time1");
 
-        if(collectTLData)
+        if(collectTLPhasingData)
         {
             // initialize phase number in this TL
             phaseTL[*TL] = 1;
@@ -105,49 +105,52 @@ void TrafficLightFixed::executeEachTimeStep(bool simulationDone)
     if (TLControlMode != TL_Fix_Time)
         return;
 
-    int intervalNumber = TraCI->TLGetPhase("C");
-    std::map<std::pair<std::string,int>, currentStatusTL>::iterator location = statusTL.find( std::make_pair("C",phaseTL["C"]) );
-
-    // green interval
-    if(intervalNumber % 3 == 0 && (location->second).redStart != -1)
+    if(collectTLPhasingData)
     {
-        // get all incoming lanes
-        std::list<std::string> lan = TraCI->TLGetControlledLanes("C");
+        int intervalNumber = TraCI->TLGetPhase("C");
+        std::map<std::pair<std::string,int>, currentStatusTL>::iterator location = statusTL.find( std::make_pair("C",phaseTL["C"]) );
 
-        // remove duplicate entries
-        lan.unique();
-
-        // for each incoming lane
-        int totalQueueSize = 0;
-        for(std::list<std::string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
+        // green interval
+        if(intervalNumber % 3 == 0 && (location->second).redStart != -1)
         {
-            totalQueueSize = totalQueueSize + laneQueueSize[*it2].second;
+            // get all incoming lanes
+            std::list<std::string> lan = TraCI->TLGetControlledLanes("C");
+
+            // remove duplicate entries
+            lan.unique();
+
+            // for each incoming lane
+            int totalQueueSize = 0;
+            for(std::list<std::string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
+            {
+                totalQueueSize = totalQueueSize + laneQueueSize[*it2].second;
+            }
+
+            // update TL status for this phase
+            (location->second).phaseEnd = simTime().dbl();
+            (location->second).totalQueueSize = totalQueueSize;
+
+            // increase phase number by 1
+            std::map<std::string, int>::iterator location2 = phaseTL.find("C");
+            location2->second = location2->second + 1;
+
+            // update status for the new phase
+            std::string currentInterval = TraCI->TLGetState("C");
+            currentStatusTL *entry = new currentStatusTL(currentInterval, simTime().dbl(), -1, -1, -1, lan.size(), -1);
+            statusTL.insert( std::make_pair(std::make_pair("C",location2->second), *entry) );
         }
-
-        // update TL status for this phase
-        (location->second).phaseEnd = simTime().dbl();
-        (location->second).totalQueueSize = totalQueueSize;
-
-        // increase phase number by 1
-        std::map<std::string, int>::iterator location2 = phaseTL.find("C");
-        location2->second = location2->second + 1;
-
-        // update status for the new phase
-        std::string currentInterval = TraCI->TLGetState("C");
-        currentStatusTL *entry = new currentStatusTL(currentInterval, simTime().dbl(), -1, -1, -1, lan.size(), -1);
-        statusTL.insert( std::make_pair(std::make_pair("C",location2->second), *entry) );
-    }
-    // yellow interval
-    else if(intervalNumber % 3 == 1 && (location->second).yellowStart == -1)
-    {
-        // update TL status for this phase
-        (location->second).yellowStart = simTime().dbl();
-    }
-    // red interval
-    else if(intervalNumber % 3 == 2 && (location->second).redStart == -1)
-    {
-        // update TL status for this phase
-        (location->second).redStart = simTime().dbl();
+        // yellow interval
+        else if(intervalNumber % 3 == 1 && (location->second).yellowStart == -1)
+        {
+            // update TL status for this phase
+            (location->second).yellowStart = simTime().dbl();
+        }
+        // red interval
+        else if(intervalNumber % 3 == 2 && (location->second).redStart == -1)
+        {
+            // update TL status for this phase
+            (location->second).redStart = simTime().dbl();
+        }
     }
 }
 

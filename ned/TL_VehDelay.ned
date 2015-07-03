@@ -7,7 +7,8 @@ simple VehDelay extends TL_LoopDetectors
         @class(VENTOS::VehDelay);
         @display("i=block/network2");  
         
-        bool measureVehDelay;    
+        bool collectVehDelay;    
+        
         double deccelDelayThreshold;
         double stoppingDelayThreshold;
         int lastValueBuffSize;

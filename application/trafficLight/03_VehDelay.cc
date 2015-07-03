@@ -43,7 +43,7 @@ void VehDelay::initialize(int stage)
 
     if(stage == 0)
     {
-        measureVehDelay = par("measureVehDelay").boolValue();
+        collectVehDelay = par("collectVehDelay").boolValue();
         deccelDelayThreshold = par("deccelDelayThreshold").doubleValue();
         stoppingDelayThreshold = par("stoppingDelayThreshold").doubleValue();
         lastValueBuffSize = par("lastValueBuffSize").longValue();
@@ -87,7 +87,7 @@ void VehDelay::executeEachTimeStep(bool simulationDone)
     // call parent
     LoopDetectors::executeEachTimeStep(simulationDone);
 
-    if(measureVehDelay)
+    if(collectVehDelay)
     {
         vehiclesDelay();
 
