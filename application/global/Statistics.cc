@@ -464,7 +464,7 @@ void Statistics::MAClayerToFile()
     fprintf (filePtr, "%-20s","SNIRLostPackets");
     fprintf (filePtr, "%-20s","TXRXLostPackets");
     fprintf (filePtr, "%-20s","ReceivedPackets");
-    fprintf (filePtr, "%-20s","ReceivedBroadcasts\n\n");
+    fprintf (filePtr, "%-20s\n\n","ReceivedBroadcasts");
 
     // write body
     for(std::vector<MacStatEntry>::iterator y = Vec_MacStat.begin(); y != Vec_MacStat.end(); ++y)
@@ -481,9 +481,7 @@ void Statistics::MAClayerToFile()
         fprintf (filePtr, "%-20ld ", y->MacStatsVec[7]);
         fprintf (filePtr, "%-20ld ", y->MacStatsVec[8]);
         fprintf (filePtr, "%-20ld ", y->MacStatsVec[9]);
-        fprintf (filePtr, "%-20ld ", y->MacStatsVec[10]);
-
-        fprintf (filePtr, "\n" );
+        fprintf (filePtr, "%-20ld\n ", y->MacStatsVec[10]);
     }
 
     fclose(filePtr);
