@@ -8,4 +8,8 @@ simple VehDelay extends TL_LoopDetectors
         @display("i=block/network2");  
         
         bool measureVehDelay;    
+        double deccelDelayThreshold;
+        double stoppingDelayThreshold;
+        int lastSpeedBuffSize;
+        int lastAccelBuffSize;
 }

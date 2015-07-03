@@ -44,6 +44,22 @@ void VehDelay::initialize(int stage)
     if(stage == 0)
     {
         measureVehDelay = par("measureVehDelay").boolValue();
+        deccelDelayThreshold = par("deccelDelayThreshold").doubleValue();
+        stoppingDelayThreshold = par("stoppingDelayThreshold").doubleValue();
+        lastSpeedBuffSize = par("lastSpeedBuffSize").longValue();
+        lastAccelBuffSize = par("lastAccelBuffSize").longValue();
+
+        if(deccelDelayThreshold >= 0)
+            error("deccelDelayThreshold is not set correctly!");
+
+        if(stoppingDelayThreshold < 0)
+            error("stoppingDelayThreshold is not set correctly!");
+
+        if(lastSpeedBuffSize < 1)
+            error("lastSpeedBuffSize is not set correctly!");
+
+        if(lastAccelBuffSize < 1)
+            error("lastAccelBuffSize is not set correctly!");
     }
 }
 
@@ -103,14 +119,18 @@ void VehDelay::vehiclesDelay()
             if(loc == intersectionDelay.end())
             {
                 boost::circular_buffer<std::pair<double,double>> CB_speed;  // create a circular buffer
-                CB_speed.set_capacity(10);                                  // set max capacity
+                CB_speed.set_capacity(lastSpeedBuffSize);                   // set max capacity
                 CB_speed.clear();
 
+                boost::circular_buffer<std::pair<double,double>> CB_speed2;  // create a circular buffer
+                CB_speed2.set_capacity(lastSpeedBuffSize);                   // set max capacity
+                CB_speed2.clear();
+
                 boost::circular_buffer<std::pair<double,double>> CB_accel;  // create a circular buffer
-                CB_accel.set_capacity(10);                                  // set max capacity
+                CB_accel.set_capacity(lastAccelBuffSize);                   // set max capacity
                 CB_accel.clear();
 
-                delayEntry *entry = new delayEntry("", "", -1, false, -1, -1, -1, -1, -1, -1, CB_speed, CB_accel);
+                delayEntry *entry = new delayEntry("", "", -1, false, -1, -1, -1, -1, -1, -1, CB_speed, CB_speed2, CB_accel);
                 intersectionDelay.insert( std::make_pair(vID, *entry) );
             }
 
@@ -124,10 +144,9 @@ void VehDelay::vehiclesDelayEach(std::string vID)
 {
     // look for the vehicle in delay map
     std::map<std::string, delayEntry>::iterator loc = intersectionDelay.find(vID);
-    delayEntry veh = loc->second;
 
     // if the vehicle is controlled by a TL
-    if(veh.TLid == "")
+    if(loc->second.TLid == "")
     {
         // get the TLid that controls this vehicle
         // empty string means the vehicle is not controlled by any TLid
@@ -140,7 +159,7 @@ void VehDelay::vehiclesDelayEach(std::string vID)
     }
 
     // if the veh is on its last lane before the intersection
-    if(veh.lastLane == "")
+    if(loc->second.lastLane == "")
     {
         // get current lane
         std::string currentLane = TraCI->vehicleGetLaneID(vID);
@@ -169,41 +188,36 @@ void VehDelay::vehiclesDelayEach(std::string vID)
     }
 
     // check if we have crossed the intersection
-    bool crossed = veh.crossedIntersection;
-    if(!crossed)
+    if(!loc->second.crossedIntersection)
     {
         // if passed the intersection
         if(TraCI->vehicleGetTLLinkStatus(vID) == 'n')
         {
             loc->second.crossedIntersection = true;
             loc->second.crossedTime = simTime().dbl();
-            crossed = true;
         }
     }
 
     // looking for the start of deceleration delay
-    double startDeccel = veh.startDeccel;
-    if(startDeccel == -1 && !crossed)
+    if(loc->second.startDeccel == -1 && !loc->second.crossedIntersection)
     {
-        boost::circular_buffer<std::pair<double,double>> CB_speed = veh.lastSpeeds;
         double speed = TraCI->vehicleGetSpeed(vID);
         loc->second.lastSpeeds.push_back( std::make_pair(simTime().dbl(), speed) );
 
-        boost::circular_buffer<std::pair<double,double>> CB_accel = veh.lastAccels;
         double accel = TraCI->vehicleGetCurrentAccel(vID);
         loc->second.lastAccels.push_back( std::make_pair(simTime().dbl(), accel) );
 
-        if(CB_accel.full())
+        if(loc->second.lastAccels.full())
         {
-            for(boost::circular_buffer<std::pair<double,double>>::iterator g = CB_accel.begin(); g != CB_accel.end(); ++g)
+            for(boost::circular_buffer<std::pair<double,double>>::iterator g = loc->second.lastAccels.begin(); g != loc->second.lastAccels.end(); ++g)
             {
-                if( (*g).second > -1 ) return;
+                if( (*g).second > deccelDelayThreshold ) return;
             }
 
-            loc->second.startDeccel = CB_accel[0].first;
+            loc->second.startDeccel = loc->second.lastAccels[0].first;
             loc->second.lastAccels.clear();
 
-            loc->second.oldSpeed = CB_speed[0].second;
+            loc->second.oldSpeed = loc->second.lastSpeeds[0].second;
             loc->second.lastSpeeds.clear();
         }
         else return;
@@ -211,54 +225,54 @@ void VehDelay::vehiclesDelayEach(std::string vID)
 
     // looking for the start of stopping delay
     // NOTE: stopping delay might be zero
-    double startStopping = veh.startStopping;
-    if(startDeccel != -1 && startStopping == -1 && !crossed)
+    if(loc->second.startDeccel != -1 && loc->second.startStopping == -1 && !loc->second.crossedIntersection)
     {
-        boost::circular_buffer<std::pair<double,double>> CB_speed = veh.lastSpeeds;
         double speed = TraCI->vehicleGetSpeed(vID);
         loc->second.lastSpeeds.push_back( std::make_pair(simTime().dbl(), speed) );
 
-        if(CB_speed.full())
+        if(loc->second.lastSpeeds.full())
         {
-            for(boost::circular_buffer<std::pair<double,double>>::iterator g = CB_speed.begin(); g != CB_speed.end(); ++g)
+            bool isStopped = true;
+            for(boost::circular_buffer<std::pair<double,double>>::iterator g = loc->second.lastSpeeds.begin(); g != loc->second.lastSpeeds.end(); ++g)
             {
-                if( (*g).second > 0.7 ) return;
+                if( (*g).second > stoppingDelayThreshold )
+                {
+                    isStopped = false;
+                    break;
+                }
             }
 
-            loc->second.startStopping = CB_speed[0].first;
-            loc->second.lastSpeeds.clear();
+            if(isStopped)
+            {
+                loc->second.startStopping = loc->second.lastSpeeds[0].first;
+                loc->second.lastSpeeds.clear();
+            }
         }
     }
 
     // looking for the start of accel delay
-    double startAccel = veh.startAccel;
-    if(startDeccel != -1 && startAccel == -1 && crossed)
+    if(loc->second.startDeccel != -1 && loc->second.startAccel == -1 && loc->second.crossedIntersection)
     {
-        boost::circular_buffer<std::pair<double,double>> CB_accel = veh.lastAccels;
-        double accel = TraCI->vehicleGetCurrentAccel(vID);
-        loc->second.lastAccels.push_back( std::make_pair(simTime().dbl(), accel) );
+        double speed = TraCI->vehicleGetSpeed(vID);
+        loc->second.lastSpeeds2.push_back( std::make_pair(simTime().dbl(), speed) );
 
-        if(CB_accel.full())
+        if(loc->second.lastSpeeds2.full())
         {
-            for(boost::circular_buffer<std::pair<double,double>>::iterator g = CB_accel.begin(); g != CB_accel.end(); ++g)
+            for(boost::circular_buffer<std::pair<double,double>>::iterator g = loc->second.lastSpeeds2.begin(); g != loc->second.lastSpeeds2.end(); ++g)
             {
-                if( (*g).second < 1 ) return;
+                if( (*g).second < stoppingDelayThreshold ) return;
             }
 
-            loc->second.startAccel = CB_accel[0].first;
-            loc->second.lastAccels.clear();
+            loc->second.startAccel = loc->second.lastSpeeds2[0].first;
+            loc->second.lastSpeeds2.clear();
         }
         else return;
     }
 
     // looking for the end of delay
-    double endDelay = veh.endDelay;
-    double oldSpeed = veh.oldSpeed;
-    if(startDeccel != -1 && startAccel != -1 && endDelay == -1 && oldSpeed > 0 && crossed)
+    if(loc->second.startDeccel != -1 && loc->second.startAccel != -1 && loc->second.endDelay == -1 && loc->second.crossedIntersection)
     {
-        double speed = TraCI->vehicleGetSpeed(vID);
-
-        if(speed >= oldSpeed)
+        if(TraCI->vehicleGetSpeed(vID) >= loc->second.oldSpeed)
             loc->second.endDelay = simTime().dbl();
         else return;
     }
@@ -278,7 +292,7 @@ void VehDelay::vehiclesDelayToFile()
         // get the current run number
         int currentRun = ev.getConfigEx()->getActiveRunNumber();
         std::ostringstream fileName;
-        fileName << currentRun << "_MACdata.txt";
+        fileName << currentRun << "_vehicleDelay.txt";
         filePath = "results/cmd/" + fileName.str();
     }
 
@@ -290,10 +304,10 @@ void VehDelay::vehiclesDelayToFile()
     fprintf (filePtr, "%-20s","lastLane");
     fprintf (filePtr, "%-15s","entrance");
     fprintf (filePtr, "%-15s","crossed?");
-    fprintf (filePtr, "%-15s","crossedT");
-    fprintf (filePtr, "%-15s","oldSpeed");
+    fprintf (filePtr, "%-15s","VbeforeDeccel");
     fprintf (filePtr, "%-15s","startDeccel");
     fprintf (filePtr, "%-15s","startStopping");
+    fprintf (filePtr, "%-15s","crossedT");
     fprintf (filePtr, "%-15s","startAccel");
     fprintf (filePtr, "%-15s\n\n","endDelay");
 
@@ -305,10 +319,10 @@ void VehDelay::vehiclesDelayToFile()
         fprintf (filePtr, "%-20s", (*y).second.lastLane.c_str());
         fprintf (filePtr, "%-15.2f", (*y).second.intersectionEntrance);
         fprintf (filePtr, "%-15d", (*y).second.crossedIntersection);
-        fprintf (filePtr, "%-15.2f", (*y).second.crossedTime);
         fprintf (filePtr, "%-15.2f", (*y).second.oldSpeed);
         fprintf (filePtr, "%-15.2f", (*y).second.startDeccel);
         fprintf (filePtr, "%-15.2f", (*y).second.startStopping);
+        fprintf (filePtr, "%-15.2f", (*y).second.crossedTime);
         fprintf (filePtr, "%-15.2f", (*y).second.startAccel);
         fprintf (filePtr, "%-15.2f\n", (*y).second.endDelay);
     }
