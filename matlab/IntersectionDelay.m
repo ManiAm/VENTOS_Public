@@ -6,22 +6,30 @@ clc;    % position the cursor at the top of the screen
 
 % ---------------------------------------------------------------
 
-disp('reading file ...');
+% total number of simulation runs
+runTotal = 3;
 
-folderPath = '../results/cmd/test3_noRightTurns';
+parfor runNumber = 0:runTotal-1
 
-path = strcat(folderPath,'/0_vehicleData.txt');    
+basePATH = '../results/cmd/full_fix_web_adap_balanced_newFormat';
+path = sprintf('%s/%d_vehicleData.txt', basePATH, runNumber);
+path2 = sprintf('%s/%d_intersectionData.txt', basePATH, runNumber);
+
+% ---------------------------------------------------------------
+
+disp('reading vehicleData.txt ...');
+
 file_id = fopen(path);
-formatSpec = '%d %f %s %s %s %f %f %f %s %f %f %f %s';
+formatSpec = '%d %f %s %s %f %s';
 C_text = textscan(file_id, formatSpec, 'HeaderLines', 3);
 fclose(file_id);
 
 indices = C_text{1,1};
 timeSteps = C_text{1,2};
 vehicles = C_text{1,3}; 
-lanes = C_text{1,5};
-speeds = C_text{1,7};
-signal = C_text{1,13};
+lanes = C_text{1,4};
+speeds = C_text{1,5};
+signal = C_text{1,6};
 
 % ---------------------------------------------------------------
 
@@ -58,11 +66,13 @@ for i=1:rows
     vehicleSignal(index, vNumber) = signal(i,1);
 end
 
-clear C_text indices timeSteps lanes speeds signal
+%clear C_text indices timeSteps lanes speeds signal
     
 [rows,~] = size(vehiclesLane);
 
 % ---------------------------------------------------------------
+
+disp('get the last lane before the intersection ...');
 
 % vehiclesLane contains the lanes (controlled by a TL) that a vehicle traveres 
 % before reaching to the intersection. We are only interested into the last lane
@@ -110,6 +120,8 @@ for i=1:VehNumbers
 end
 
 % ---------------------------------------------------------------
+
+disp('extract the speed in the last lane before the intersection ...');
 
 % indexLane(1,i)/indexLane(2,i) show the section of the last lane that each
 % vehicle traverses before reaching to the intersection
@@ -247,12 +259,11 @@ At this point, we have the starting point of all delay components:
 - index(4,i): end of the acceleration delay
 %}
 
-disp('get phasing information ...');
+disp('reading IntersectionData.txt and get phasing information ...');
 
 % we need to get TL phasing information + queue size
-
-path = strcat(folderPath, '/0_intersectionData.txt');    
-file_id = fopen(path);
+    
+file_id = fopen(path2);
 formatSpec = '%s %d %s %f %f %f %f %d %d';
 C_text = textscan(file_id, formatSpec, 'HeaderLines', 2);
 fclose(file_id);
@@ -307,7 +318,7 @@ end
 
 disp('draw speed profiles ...');
 
-figLimit = 3;   % limit the number of windows shown (-1: show all)
+figLimit = 0;   % limit the number of windows shown (-1: show all)
 counter = 1;
 figNum = 0; 
 figNum_old = -1;
@@ -445,7 +456,7 @@ end
 
 disp('making uitable ...');
 
-if(true)
+if(false)
     
     cell1 = vIDs;
     cell2 = num2cell(crossed(1,:)');
@@ -526,7 +537,13 @@ for j=1:phasesCount
        end       
    end
 
-   phaseData(2,j) = totalDelay(j) / ( crossedVehCount(j) + delayedVehCount(j) );
+   tot = crossedVehCount(j) + delayedVehCount(j);
+   if(tot ~= 0)
+       phaseData(2,j) = totalDelay(j) / tot;
+   else
+       phaseData(2,j) = 0;
+   end
+   
    fprintf( 'phase %d: crossedVehCount=%2d, delayedVehCount=%2d, totalDelay=%0.2f, aveDelay=%0.2f, aveQueueSize=%0.2f\n', j, crossedVehCount(j), delayedVehCount(j), totalDelay(j), phaseData(2,j), phaseData(1,j) );
     
 end
@@ -535,72 +552,87 @@ fprintf('\n');
    
 % -----------------------------------------------------------------
 
+% now we make a single plot for all the scenarios
 disp('drawing queue size and average delay per phase ...');
 
-figure('name', 'Speed', 'units', 'normalized', 'outerposition', [0 0 1 1]);
+if(runNumber == 0)
+    figure('name', 'Speed', 'units', 'normalized', 'outerposition', [0 0 1 1]);
+end
 
 subplot(2,1,1);
 handle1 = plot(phaseData(1,:),'LineWidth', 3);
-  
-% set the x-axis limit
-set( gca, 'XLim', [0 size(phaseData,2)+1] );
-
-% x axis should be integer
-set(gca, 'xtick' , 0:2:size(phaseDurationTS,2)+1);
-    
-% set the y-axis limit
-set( gca, 'YLim', [-0.1 max(phaseData(1,:))+0.2] );
 
 % set font size
 set(gca, 'FontSize', 17);
 
-grid on;
-    
 xlabel('Phase Number', 'FontSize', 17);
 ylabel('Average Queue Size', 'FontSize', 17);
 
+grid on;
+hold on;
+    
 subplot(2,1,2);
 handle1 = plot(phaseData(2,:),'LineWidth', 3);
-  
-% set the x-axis limit
-set( gca, 'XLim', [0 size(phaseData,2)+1] );
-
-% x axis should be integer
-set(gca, 'xtick' , 0:2:size(phaseDurationTS,2)+1);
-    
-% set the y-axis limit
-set( gca, 'YLim', [-0.1 max(phaseData(2,:))+0.2] );
 
 % set font size
 set(gca, 'FontSize', 17);
 
-grid on;
-    
 xlabel('Phase Number', 'FontSize', 17);
 ylabel('Average Delay (s)', 'FontSize', 17);
+
+grid on;
+hold on;
 
 % % set the name for each line
 % set(handle1(1),'Displayname', 'Adaptive-time (R&B)');
 %     
 % % set the legend
-% legend(handle1, 'Location','NorthEastOutside'); 
+% legend(handle1, 'Location','NorthEastOutside');
 
-% now specify TS interval with vertical lines
-for threshold=100:100:vehiclesTS(end)
-    for i=1:size(phaseDurationTS,2)
-        
-        if(threshold >= phaseDurationTS(1,i) && threshold <= phaseDurationTS(2,i))            
-            subplot(2,1,1);
-            % draw vertical line
-            line([i i], ylim, 'LineWidth', 1, 'LineStyle', '--', 'Color', 'r');
+% at the end of the last iteration
+if(runNumber == runTotal-1)
+
+    % % set the x-axis limit
+% set(gca, 'XLim', [0 size(phaseData,2)+1]);
+% 
+% % x axis should be integer
+% set(gca, 'xtick' , 0:2:size(phaseDurationTS,2)+1);
+%     
+% % set the y-axis limit
+% set(gca, 'YLim', [-0.1 max(phaseData(1,:))+0.2]);
+
+
+
+% % set the x-axis limit
+% set(gca, 'XLim', [0 size(phaseData,2)+1]);
+% 
+% % x axis should be integer
+% set(gca, 'xtick' , 0:2:size(phaseDurationTS,2)+1);
+%     
+% % set the y-axis limit
+% set( gca, 'YLim', [-0.1 max(phaseData(2,:))+0.2] );
+    
+    
+    
+    
+    
+    % specify TS interval with vertical lines
+    for threshold=100:100:vehiclesTS(end)
+        for i=1:size(phaseDurationTS,2)         
+            if(threshold >= phaseDurationTS(1,i) && threshold <= phaseDurationTS(2,i))            
+                subplot(2,1,1);
+                % draw vertical line
+                line([i i], ylim, 'LineWidth', 1, 'LineStyle', '--', 'Color', 'r');
        
-            subplot(2,1,2);
-            % draw vertical line
-            line([i i], ylim, 'LineWidth', 1, 'LineStyle', '--', 'Color', 'r');            
-            continue;
-        end   
-        
-    end
+                subplot(2,1,2);
+                % draw vertical line
+                line([i i], ylim, 'LineWidth', 1, 'LineStyle', '--', 'Color', 'r');            
+                continue;
+            end        
+        end
+    end 
+    
 end
 
+end
 
