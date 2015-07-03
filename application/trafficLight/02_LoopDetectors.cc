@@ -52,9 +52,8 @@ void LoopDetectors::initialize(int stage)
         collectTLQueuingData = par("collectTLQueuingData").boolValue();
         collectTLPhasingData = par("collectTLPhasingData").boolValue();
 
-        // if collectTLPhasingData is true then collect queuing data since
-        // we need queue information as well
-        if(collectTLPhasingData)
+        // we need to turn on measureIntersectionQueue
+        if(collectTLQueuingData || collectTLPhasingData)
             measureIntersectionQueue = true;
 
         LD_demand.clear();
@@ -74,6 +73,7 @@ void LoopDetectors::initialize(int stage)
         statusTL.clear();
 
         Vec_loopDetectors.clear();
+        Vec_totalQueueSize.clear();
     }
 }
 
@@ -125,6 +125,8 @@ void LoopDetectors::executeFirstTimeStep()
             laneQueueSize[lane] = std::make_pair(TLid, 0);
         }
 
+        totalQueueSize[TLid] = std::make_pair(0, lan.size());
+
         // get all links controlled by this TL
         std::map<int,std::vector<std::string>> result = TraCI->TLGetControlledLinks(TLid);
 
@@ -166,13 +168,20 @@ void LoopDetectors::executeEachTimeStep(bool simulationDone)
     if(measureIntersectionQueue || measureTrafficDemand)
         measureTrafficParameters();
 
-    // should be after measureQ
+    if(collectTLQueuingData)
+    {
+        if(ev.isGUI())
+            saveTLQueueingData();  // (if in GUI) write to file what we have collected so far
+        else if(simulationDone)
+            saveTLQueueingData();  // (if in CMD) write to file at the end of simulation
+    }
+
     if(collectTLPhasingData)
     {
         if(ev.isGUI())
-            saveTLData();  // (if in GUI) write to file what we have collected so far
+            saveTLPhasingData();  // (if in GUI) write to file what we have collected so far
         else if(simulationDone)
-            saveTLData();  // (if in CMD) write to file at the end of simulation
+            saveTLPhasingData();  // (if in CMD) write to file at the end of simulation
     }
 }
 
@@ -346,6 +355,9 @@ void LoopDetectors::measureTrafficParameters()
             std::pair<std::string,int> store = location->second;
             location->second = std::make_pair( store.first, q );
 
+            // save total queue size for each TLid
+            totalQueueSize[TLid].first = totalQueueSize[TLid].first + q;
+
             // get # of outgoing links from this lane
             int NoLinks = linksTL.count(lane);
 
@@ -407,10 +419,75 @@ void LoopDetectors::measureTrafficParameters()
             loc->second.second = lastDetection;
         }
     }
+
+    if(collectTLQueuingData)
+    {
+        for(std::map<std::string, std::pair<int, int>>::iterator y = totalQueueSize.begin(); y != totalQueueSize.end(); ++y)
+        {
+            std::string TLid = (*y).first;
+            int totalQueue = (*y).second.first;
+            int laneCount = (*y).second.second;
+
+            currentQueueSize *entry = new currentQueueSize(simTime().dbl(), TLid, totalQueue, laneCount);
+            Vec_totalQueueSize.push_back(*entry);
+
+            // reset total queue
+            (*y).second.first = 0;
+        }
+    }
 }
 
 
-void LoopDetectors::saveTLData()
+void LoopDetectors::saveTLQueueingData()
+{
+    boost::filesystem::path filePath;
+
+    if( ev.isGUI() )
+    {
+        filePath = "results/gui/TLqueuingData.txt";
+    }
+    else
+    {
+        // get the current run number
+        int currentRun = ev.getConfigEx()->getActiveRunNumber();
+        std::ostringstream fileName;
+        fileName << currentRun << "_TLqueuingData.txt";
+        filePath = "results/cmd/" + fileName.str();
+    }
+
+    FILE *filePtr = fopen (filePath.string().c_str(), "w");
+
+    // write header
+    fprintf (filePtr, "%-10s", "index");
+    fprintf (filePtr, "%-10s", "timeStep");
+    fprintf (filePtr, "%-10s", "TLid");
+    fprintf (filePtr, "%-15s", "totalQueue");
+    fprintf (filePtr, "%-10s\n\n", "laneCount");
+
+    double oldTime = -1;
+    int index = 0;
+
+    for(std::vector<currentQueueSize>::iterator y = Vec_totalQueueSize.begin(); y != Vec_totalQueueSize.end(); ++y )
+    {
+        if(oldTime != (*y).time)
+        {
+            fprintf(filePtr, "\n");
+            oldTime = (*y).time;
+            index++;
+        }
+
+        fprintf (filePtr, "%-10d", index);
+        fprintf (filePtr, "%-10.2f", (*y).time);
+        fprintf (filePtr, "%-10s", (*y).TLid.c_str());
+        fprintf (filePtr, "%-15d", (*y).totoalQueueSize);
+        fprintf (filePtr, "%-10d\n", (*y).laneCount);
+    }
+
+    fclose(filePtr);
+}
+
+
+void LoopDetectors::saveTLPhasingData()
 {
     boost::filesystem::path filePath;
 

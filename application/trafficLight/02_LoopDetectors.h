@@ -62,6 +62,24 @@ class LoopDetectorData
 };
 
 
+class currentQueueSize
+{
+public:
+    double time;
+    std::string TLid;
+    int totoalQueueSize;
+    int laneCount;
+
+    currentQueueSize(double d1, std::string str1, int i1, int i2)
+    {
+        this->time = d1;
+        this->TLid = str1;
+        this->totoalQueueSize = i1;
+        this->laneCount = i2;
+    }
+};
+
+
 class currentStatusTL
 {
 public:
@@ -105,7 +123,8 @@ class LoopDetectors : public TrafficLightBase
     void saveLDsData();
 
     void measureTrafficParameters();
-    void saveTLData();
+    void saveTLQueueingData();
+    void saveTLPhasingData();
 
   protected:
     // NED variables
@@ -127,6 +146,7 @@ class LoopDetectors : public TrafficLightBase
 
     std::map<std::string /*lane*/, std::pair<std::string /*TLid*/,int /*queue size*/>> laneQueueSize;   // real-time queue size for each incoming lane for each intersection
     std::map<std::pair<std::string /*TLid*/,int /*link*/>, int /*queue size*/> linkQueueSize;           // real-time queue size for each link in each intersection
+    std::map<std::string /*TLid*/, std::pair<int /*total queue*/, int /*lane count*/>> totalQueueSize;  // real-time total queue size of all incoming lanes for each TLid
 
     std::map<std::string /*lane*/, std::pair<std::string /*TLid*/, boost::circular_buffer<double> /*TD*/>> laneTD;   // real-time traffic demand for each incoming lane for each intersection
     std::map<std::pair<std::string /*TLid*/,int /*link*/>, boost::circular_buffer<double> /*TD*/> linkTD;            // real-time traffic demand for each link in each intersection
@@ -136,6 +156,7 @@ class LoopDetectors : public TrafficLightBase
 
   private:
     std::vector<LoopDetectorData> Vec_loopDetectors;
+    std::vector<currentQueueSize> Vec_totalQueueSize;
 };
 
 }
