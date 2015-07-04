@@ -41,7 +41,6 @@ public:
     double crossedTime;
     double oldSpeed;
     double startDeccel;
-    bool yellowOrRed;
     double startStopping;
     double startAccel;
     double endDelay;
@@ -53,7 +52,7 @@ public:
     boost::circular_buffer<char> lastSignals;
 
     delayEntry(std::string str1, std::string str2, double d0, bool b1, double d1,
-            double d2, double d3, bool b2, double d4, double d5, double d6,
+            double d2, double d3, double d4, double d5, double d6,
             boost::circular_buffer<std::pair<double,double>> CB_speed,
             boost::circular_buffer<std::pair<double,double>> CB_speed2,
             boost::circular_buffer<std::pair<double,double>> CB_accel,
@@ -66,7 +65,6 @@ public:
         this->crossedTime = d1;
         this->oldSpeed = d2;
         this->startDeccel = d3;
-        this->yellowOrRed = b2;
         this->startStopping = d4;
         this->startAccel = d5;
         this->endDelay = d6;

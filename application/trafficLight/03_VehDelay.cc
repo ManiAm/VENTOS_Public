@@ -131,8 +131,8 @@ void VehDelay::vehiclesDelay()
                 CB_sig.clear();
 
                 delayEntry *entry = new delayEntry("" /*TLid*/, "" /*lastLane*/, -1 /*entrance*/, false /*crossed?*/, -1 /*crossedT*/,
-                                                   -1 /*old speed*/, -1 /*startDeccel*/, false /*YorR*/, -1 /*startStopping*/, -1 /*startAccel*/, -1 /*endDelay*/,
-                                                   CB_speed, CB_speed2, CB_accel, CB_sig);
+                        -1 /*old speed*/, -1 /*startDeccel*/, -1 /*startStopping*/, -1 /*startAccel*/, -1 /*endDelay*/,
+                        CB_speed, CB_speed2, CB_accel, CB_sig);
                 intersectionDelay.insert( std::make_pair(vID, *entry) );
             }
 
@@ -219,22 +219,29 @@ void VehDelay::vehiclesDelayEach(std::string vID)
                 if( (*g).second > deccelDelayThreshold ) return;
             }
 
-            loc->second.startDeccel = loc->second.lastAccels[0].first;
-            loc->second.lastAccels.clear();
-
-            loc->second.oldSpeed = loc->second.lastSpeeds[0].second;
-            loc->second.lastSpeeds.clear();
-
-            // is the TL signal ahead y or r?
+            // At this point a slow down is found.
+            // We should check if this slow down was due to a Y or R signal
+            bool YorR = false;
             for(boost::circular_buffer<char>::iterator g = loc->second.lastSignals.begin(); g != loc->second.lastSignals.end(); ++g)
             {
                 if(*g == 'y' || *g == 'r')
                 {
-                    loc->second.yellowOrRed = true;
-                    loc->second.lastSignals.clear();
+                    YorR = true;
                     break;
                 }
             }
+
+            if(YorR)
+            {
+                loc->second.startDeccel = loc->second.lastAccels[0].first;
+                loc->second.lastAccels.clear();
+
+                loc->second.oldSpeed = loc->second.lastSpeeds[0].second;
+                loc->second.lastSpeeds.clear();
+
+                loc->second.lastSignals.clear();
+            }
+            else return;
         }
         else return;
     }
@@ -321,7 +328,6 @@ void VehDelay::vehiclesDelayToFile()
     fprintf (filePtr, "%-15s","entrance");
     fprintf (filePtr, "%-10s","crossed?");
     fprintf (filePtr, "%-15s","VbeforeDeccel");
-    fprintf (filePtr, "%-10s","YorR?");
     fprintf (filePtr, "%-15s","startDeccel");
     fprintf (filePtr, "%-15s","startStopping");
     fprintf (filePtr, "%-15s","crossedT");
@@ -337,7 +343,6 @@ void VehDelay::vehiclesDelayToFile()
         fprintf (filePtr, "%-15.2f", (*y).second.intersectionEntrance);
         fprintf (filePtr, "%-10d", (*y).second.crossedIntersection);
         fprintf (filePtr, "%-15.2f", (*y).second.oldSpeed);
-        fprintf (filePtr, "%-10d", (*y).second.yellowOrRed);
         fprintf (filePtr, "%-15.2f", (*y).second.startDeccel);
         fprintf (filePtr, "%-15.2f", (*y).second.startStopping);
         fprintf (filePtr, "%-15.2f", (*y).second.crossedTime);
