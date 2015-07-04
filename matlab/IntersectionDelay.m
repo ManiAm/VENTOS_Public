@@ -8,39 +8,73 @@ clc;    % position the cursor at the top of the screen
 
 % total number of simulation runs
 runTotal = 3;
-endSim = 0;
+
+% path to folder
+basePATH = '../results/cmd/full_fix_web_adap_balanced';
 
 for runNumber = 0:runTotal-1
+
+fprintf('\n>>> runNumber %d:\n', runNumber);
     
-clearvars -except runNumber runTotal endSim
+% clear variables at the begining of each run
+clearvars -except runNumber runTotal basePATH
 
-basePATH = '../results/cmd/full_fix_web_adap_balanced';
-path = sprintf('%s/%d_vehicleDelay.txt', basePATH, runNumber);
-path2 = sprintf('%s/%d_intersectionData.txt', basePATH, runNumber);
+% ----------------------------------------------------------------
 
-% ---------------------------------------------------------------
+disp('calculating average queue size ...');
+
+path2 = sprintf('%s/%d_TLqueuingData.txt', basePATH, runNumber);
+file_id = fopen(path2);
+formatSpec = '%d %f %s %d %d';
+C_text = textscan(file_id, formatSpec, 'HeaderLines', 3);
+fclose(file_id);
+
+indices = C_text{1,1};
+timeSteps = C_text{1,2};
+totalQs = C_text{1,4};
+laneCounts = C_text{1,5};
+
+% average queue size in each time step
+averageQueueSize_all = double(totalQs) ./ double(laneCounts);
+
+% aggregate every 300 values together
+aggregateInterval_queue = 300;
+
+rows = size(averageQueueSize_all, 1);
+index = 1;
+for i=1 : aggregateInterval_queue : rows-aggregateInterval_queue
+    
+    startIndex = i;
+    endIndex = startIndex + aggregateInterval_queue - 1;
+    
+    averageQueueSize(index) = double(sum(averageQueueSize_all(startIndex:endIndex))) / double(aggregateInterval_queue);  
+    
+    middleIndex = floor( double((startIndex + endIndex)) / 2. );
+    timeSteps_Q(index) = timeSteps(middleIndex);
+    
+    index = index + 1;
+    
+end
+
+% -----------------------------------------------------------------
 
 disp('reading vehicleDelay.txt ...');
 
+path = sprintf('%s/%d_vehicleDelay.txt', basePATH, runNumber);
 file_id = fopen(path);
-formatSpec = '%s %s %s %f %d %f %d %f %f %f %f %f';
+formatSpec = '%s %s %s %f %d %f %f %f %f %f %f';
 C_text = textscan(file_id, formatSpec, 'HeaderLines', 2);
 fclose(file_id);
 
 vehicles = C_text{1,1};
 entrance = C_text{1,4};
 crossed = C_text{1,5};
-YorR = C_text{1,7};
-startDecel = C_text{1,8};
-startStopping = C_text{1,9};
-crossedTime = C_text{1,10};
-startAccel = C_text{1,11};
-endDelay = C_text{1,12};
+startDecel = C_text{1,7};
+startStopping = C_text{1,8};
+crossedTime = C_text{1,9};
+startAccel = C_text{1,10};
+endDelay = C_text{1,11};
 
-% ---------------------------------------------------------------
-
-disp('parsing file ...');
-    
 % stores vehicle IDs
 vIDs = unique(vehicles);
 vIDs = sort_nat(vIDs);
@@ -64,7 +98,6 @@ for i=1:rows
     indexTS(4,vNumber) = double(crossedTime(i,1));
     indexTS(5,vNumber) = double(startAccel(i,1));
     indexTS(6,vNumber) = double(endDelay(i,1));
-    indexTS(7,vNumber) = int32(YorR(i,1));
     
     if(double(startAccel(i,1)) == -1 && double(startDecel(i,1)) ~= -1)
         error('startAccel can not be -1');
@@ -76,13 +109,15 @@ for i=1:rows
 
 end
 
+fprintf( 'totalVeh: %d, crossed: %d, noSlowDown: %d, noWaiting: %d \n', VehNumbers, sum(crossed(:,1) == 1), sum(indexTS(2,:) == -1), sum(indexTS(3,:) == -1) );
+
 % ---------------------------------------------------------------
 
 % making a cell array that contains the complete view of the system
 
-disp('making uitable ...');
-
 if(false)
+    
+    disp('making uitable ...');
     
     cell1 = vIDs;
     cell2 = num2cell(crossed(:,1));
@@ -98,209 +133,172 @@ if(false)
 
 end
 
-% ----------------------------------------------------------------
+% ---------------------------------------------------------------------
 
-disp('reading IntersectionData.txt and get phasing information ...');
+disp('calculating intersection delay ...');
 
-% we need to get TL phasing information + queue size
+interval_delay = 200;
+
+rows = size(timeSteps, 1);
+index = 1;
+for j=1 : interval_delay-1 : rows-interval_delay
     
-file_id = fopen(path2);
-formatSpec = '%s %d %s %f %f %f %f %d %d';
-C_text = textscan(file_id, formatSpec, 'HeaderLines', 2);
-fclose(file_id);
-
-phaseNumbers = C_text{1,2};
-greenStart = C_text{1,4};
-yellowStart = C_text{1,5};
-redStart = C_text{1,6};
-endTime = C_text{1,7};
-lanesCount = C_text{1,8};
-queueSize = C_text{1,9};
-
-totalPhases = size(phaseNumbers,1);
-
-for i=1:totalPhases
+   startIndex = j;
+   endIndex = startIndex + interval_delay - 1;
     
-    if(double(greenStart(i,1)) ~= -1 && double(yellowStart(i,1)) ~= -1 && double(redStart(i,1)) ~= -1 && double(endTime(i,1)) ~= -1 && double(queueSize(i,1)) ~= -1 && double(lanesCount(i,1)) > 0)
+   startT = timeSteps(startIndex);
+   endT = timeSteps(endIndex);
     
-        phaseDurationTS(1,i) = double(greenStart(i,1));
-        phaseDurationTS(2,i) = double(yellowStart(i,1)); 
-        phaseDurationTS(3,i) = double(redStart(i,1));
-        phaseDurationTS(4,i) = double(endTime(i,1));
-    
-        % store average queue size
-        phaseData(1,i) = double(queueSize(i,1)) / double(lanesCount(i,1));
-
-    end
-    
-end
-
-endSim = max( endSim, phaseDurationTS(4,end) );
-
-% -----------------------------------------------------------------
-
-disp('calculating throughput ...');
-
-phasesCount = size(phaseDurationTS,2);
-
-throughput = zeros(phasesCount,1);   % number of crossed vehicles in each phase
-   
-for j=1:phasesCount
-    
-   phaseStart = phaseDurationTS(1,j);
-   phaseEnd = phaseDurationTS(4,j);
-   vehCounter = 0;
-
-   for i=1:VehNumbers       
-       if( crossed(i) == 1 && indexTS(4,i) >= phaseStart && indexTS(4,i) <= phaseEnd)
-           vehCounter = vehCounter + 1;
-       end       
-   end
-   
-   throughput(j) = vehCounter;
-   vehCounter = 0;   
-end
-
-% -----------------------------------------------------------------
-
-disp('calculating the delay per phase ...');
-
-fprintf( '\ntotalVeh: %d, crossedVehCount: %d\n\n', VehNumbers, sum(crossed(:,1) == 1) );
-
-phasesCount = size(phaseDurationTS,2);
-
-crossedVehCount = zeros(phasesCount);   % number of crossed vehicles in each phase
-delayedVehCount = zeros(phasesCount);   % number of delayed vehicles in each phase
-   
-totalDelay = zeros(phasesCount);        % total delay in each phase
-   
-for j=1:phasesCount
-    
-   phaseStart = phaseDurationTS(1,j);
-   phaseEnd = phaseDurationTS(4,j);
+   delayedVehCount = 0;
+   nonDelayedVehCount = 0;
+   totalDelay = 0;
 
    for i=1:VehNumbers
        
        if(crossed(i) == 0)
-           % this vehicle does not cross the intersection
+           % this vehicle does not cross the intersection at all
            % We ignore this vehicle
            
-       elseif(indexTS(1,i) > phaseEnd)
-           % veh entrance is after phase j
+       elseif(indexTS(1,i) > endT)
+           % veh entrance is after this interval
            % We ignore this vehicle   
            
        elseif(indexTS(2,i) == -1)
-               % this vehicle does not slow down at this phase
-           
-               if(indexTS(4,i) > phaseEnd)
-                   % this vehicle does not cross the intersection at this phase
-                   % the distance to TL is high and there is no need to break   
-                   % We ignore this vehicle since it crosses in a future phase
+               % this vehicle does not slow down because of getting r or Y.
+               % In other words it is getting G or g and has right of way.
+               % NOTE: in SUMO a vehicle slows down on g, but this slowing down is not due to
+               % red or yellow light thus, indexTS(2,i) is still -1 
                
-               elseif(indexTS(4,i) <= phaseEnd)
-                   % crosses the intersection at this phase
-                   % it is getting green (G) and has right of way
-                   crossedVehCount(j) = crossedVehCount(j) + 1;  
+               % we need to check if the vehicle crossess the intersection at this interval
                
+               if(indexTS(4,i) >= startT && indexTS(4,i) < endT)
+                   % this vehicle crosses the intersection at this interval
+                   nonDelayedVehCount = nonDelayedVehCount + 1;
                end
            
        elseif(indexTS(2,i) ~= -1)
-           % this vehicle slows down
-           
-               if(indexTS(2,i) > phaseEnd)
-                   % slowing down occurs after this phase
-                   % We ignore this vehicle
+           % this vehicle slows down due to getting a r or y signal
+           % we need to check if this slowing down happens in this period
+           % or has happend in a previous interval.
+           % NOTE: if slowing down happens after this interval we don't care
                
-               elseif(indexTS(2,i) <= phaseEnd && indexTS(2,i) >= phaseStart)
-                   % slowing down occurs in this phase           
-           
-                       if(indexTS(3,i) ~= -1)
-                           % this slowing down is due to a red/yellow light 
-                           delayedVehCount(j) = delayedVehCount(j) + 1;
-                           startDelay = indexTS(2,i);
-                           endDelay = min( phaseEnd, indexTS(5,i) );
-                           totalDelay(j) = totalDelay(j) + (endDelay - startDelay);            
-                       else
-                           % this slowing down is due to getting 'g'
-                           crossedVehCount(j) = crossedVehCount(j) + 1;
-                       end     
-           
-               elseif(indexTS(2,i) < phaseStart)
-                   % slowing down occured in previous phases                  
-                   delayedVehCount(j) = delayedVehCount(j) + 1;
+               if(indexTS(2,i) >= startT && indexTS(2,i) < endT)
+                   % slowing down occurs in this interval           
+                   delayedVehCount = delayedVehCount + 1;
                    startDelay = indexTS(2,i);
-                   endDelay = min( phaseEnd, indexTS(5,i) );
-                   totalDelay(j) = totalDelay(j) + (endDelay - startDelay);
+                   endDelay = min( endT, indexTS(5,i) );
+                   totalDelay = totalDelay + (endDelay - startDelay);   
+           
+               elseif(indexTS(2,i) < startT)
+                   % slowing down occured in a previous interval                  
+                   delayedVehCount = delayedVehCount + 1;
+                   startDelay = indexTS(2,i);
+                   endDelay = min( endT, indexTS(5,i) );
+                   totalDelay = totalDelay + (endDelay - startDelay);
                end
        end
    end
 
-   tot = crossedVehCount(j) + delayedVehCount(j);
-   if(tot ~= 0)
-       phaseData(2,j) = totalDelay(j) / tot;
+   totalVehCount = nonDelayedVehCount + delayedVehCount;
+   if(totalVehCount ~= 0)
+       delay(index) = totalDelay / totalVehCount;
    else
-       phaseData(2,j) = 0;
+       delay(index) = 0;
    end
    
-   fprintf( 'phase %d: crossedVehCount=%2d, delayedVehCount=%2d, totalDelay=%0.2f, aveDelay=%0.2f, aveQueueSize=%0.2f\n', j, crossedVehCount(j), delayedVehCount(j), totalDelay(j), phaseData(2,j), phaseData(1,j) );
+   middleIndex = floor( double((startIndex + endIndex)) / 2. );
+   timeSteps_D(index) = timeSteps(middleIndex);
     
-end
+   index = index + 1;
 
-fprintf('\n');
+end
    
 % -----------------------------------------------------------------
 
+disp('calculating throughput ...');
+
+interval_throughput = 900;
+
+rows = size(timeSteps, 1);
+index = 1;
+for i=1 : interval_throughput-1 : rows-interval_throughput
+    
+    startIndex = i;
+    endIndex = startIndex + interval_throughput - 1;
+    
+    startT = timeSteps(startIndex);
+    endT = timeSteps(endIndex);
+    
+    vehCounter = 0;
+
+    for j=1:VehNumbers       
+        if( crossed(j) == 1 && indexTS(4,j) >= startT && indexTS(4,j) < endT )
+            vehCounter = vehCounter + 1;
+        end       
+    end 
+    
+    throughput(index) = vehCounter;
+    
+    middleIndex = floor( double((startIndex + endIndex)) / 2. );
+    timeSteps_T(index) = timeSteps(middleIndex);
+    
+    index = index + 1;
+    
+end
+
+% -----------------------------------------------------------------
+
 % now we make a single plot for all the scenarios
-disp('drawing queue size / average delay / throughput per phase ...');
+disp('plotting ...');
 
 if(runNumber == 0)
     figure('name', 'Speed', 'units', 'normalized', 'outerposition', [0 0 1 1]);
 end
 
 subplot(3,1,1);
-plot(phaseData(1,:),'LineWidth', 3);
+plot(timeSteps_Q, averageQueueSize, 'LineWidth', 3);
 
 % set font size
 set(gca, 'FontSize', 17);
 
-xlabel('Phase Number', 'FontSize', 17);
+xlabel('Time (s)', 'FontSize', 17);
 ylabel('Average Queue Size', 'FontSize', 17);
 
 grid on;
 hold on;
     
 subplot(3,1,2);
-plot(phaseData(2,:),'LineWidth', 3);
+plot(timeSteps_D, delay, 'LineWidth', 3);
 
 % set font size
 set(gca, 'FontSize', 17);
 
-xlabel('Phase Number', 'FontSize', 17);
+xlabel('Time (s)', 'FontSize', 17);
 ylabel('Average Delay (s)', 'FontSize', 17);
 
 grid on;
 hold on;
 
 subplot(3,1,3);
-plot(throughput,'LineWidth', 3);
+plot(timeSteps_T, throughput, 'LineWidth', 3);
 
 % set font size
 set(gca, 'FontSize', 17);
 
-xlabel('Phase Number', 'FontSize', 17);
+xlabel('Time (s)', 'FontSize', 17);
 ylabel('Throughput', 'FontSize', 17);
 
 grid on;
 hold on;
 
 % at the end of the last iteration
-if(runNumber == runTotal-1)
+if(runNumber == runTotal-1)       
 
-    % X-axis should be integer
     for g=1:3
         subplot(3,1,g);
         Xlimit = get(gca,'xlim');
-        set(gca, 'xtick' , 0:20:Xlimit(2));
+        set(gca, 'xtick' , 0:300:Xlimit(2)); 
+
         legend('fix-time' , 'adaptive Webster', 'traffic-actuated');
     end   
     
