@@ -1,6 +1,6 @@
 
 clear all;
-close all;
+%close all;
 clc;    % position the cursor at the top of the screen
 %clf;   % closes the figure window
 
@@ -10,7 +10,7 @@ clc;    % position the cursor at the top of the screen
 runTotal = 3;
 
 % path to folder
-basePATH = '../results/cmd/full_fix_web_adap_balanced';
+basePATH = '../results/cmd/full_fix_web_adap_unbalanced_lessNS';
 
 for runNumber = 0:runTotal-1
 
@@ -37,8 +37,8 @@ laneCounts = C_text{1,5};
 % average queue size in each time step
 averageQueueSize_all = double(totalQs) ./ double(laneCounts);
 
-% aggregate every 300 values together
-aggregateInterval_queue = 300;
+% aggregate every 400 values together
+aggregateInterval_queue = 600;
 
 rows = size(averageQueueSize_all, 1);
 index = 1;
@@ -137,7 +137,7 @@ end
 
 disp('calculating intersection delay ...');
 
-interval_delay = 200;
+interval_delay = 400;
 
 rows = size(timeSteps, 1);
 index = 1;
@@ -256,7 +256,13 @@ if(runNumber == 0)
 end
 
 subplot(3,1,1);
-plot(timeSteps_Q, averageQueueSize, 'LineWidth', 3);
+if(runNumber == 0)
+    plot(timeSteps_Q, averageQueueSize, '-.', 'LineWidth', 2);
+elseif(runNumber == 1)
+    plot(timeSteps_Q, averageQueueSize, '-', 'LineWidth', 2);    
+else
+    plot(timeSteps_Q, averageQueueSize, '-.x', 'LineWidth', 2);
+end
 
 % set font size
 set(gca, 'FontSize', 17);
@@ -268,7 +274,13 @@ grid on;
 hold on;
     
 subplot(3,1,2);
-plot(timeSteps_D, delay, 'LineWidth', 3);
+if(runNumber == 0)
+    plot(timeSteps_D, delay, '-.', 'LineWidth', 2);
+elseif(runNumber == 1)
+    plot(timeSteps_D, delay, '-', 'LineWidth', 2);    
+else
+    plot(timeSteps_D, delay, '-.x', 'LineWidth', 2);
+end
 
 % set font size
 set(gca, 'FontSize', 17);
@@ -280,7 +292,13 @@ grid on;
 hold on;
 
 subplot(3,1,3);
-plot(timeSteps_T, throughput, 'LineWidth', 3);
+if(runNumber == 0)
+    plot(timeSteps_T, throughput, '-.', 'LineWidth', 2);
+elseif(runNumber == 1)
+    plot(timeSteps_T, throughput, '-', 'LineWidth', 2);    
+else
+    plot(timeSteps_T, throughput, '-.x', 'LineWidth', 2);
+end
 
 % set font size
 set(gca, 'FontSize', 17);
@@ -301,6 +319,15 @@ if(runNumber == runTotal-1)
 
         legend('fix-time' , 'adaptive Webster', 'traffic-actuated');
     end   
+    
+    % mark change of demand with vertical lines
+    for threshold=400:400:Xlimit(2)            
+        for g=1:3
+            subplot(3,1,g);
+            % draw vertical line
+            line([threshold threshold], ylim, 'LineWidth', 1, 'LineStyle', '--', 'Color', 'k');
+        end          
+    end
     
 end
 
