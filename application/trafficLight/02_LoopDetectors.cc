@@ -45,6 +45,23 @@ void LoopDetectors::initialize(int stage)
 
     if(stage == 0)
     {
+        minGreenTime = par("minGreenTime").doubleValue();
+        maxGreenTime = par("maxGreenTime").doubleValue();
+        yellowTime = par("yellowTime").doubleValue();
+        redTime = par("redTime").doubleValue();
+        maxCycleLength = par("maxCycleLength").doubleValue();
+
+        if(minGreenTime <= 0)
+            error("minGreenTime value is wrong!");
+        if(maxGreenTime <= 0 || maxGreenTime < minGreenTime)
+            error("maxGreenTime value is wrong!");
+        if(yellowTime <= 0)
+            error("yellowTime value is wrong!");
+        if(redTime <= 0)
+            error("redTime value is wrong!");
+        if( maxCycleLength < (minGreenTime + yellowTime + redTime) )
+            error("maxCycleLength value is wrong!");
+
         measureTrafficDemand = par("measureTrafficDemand").boolValue();
         measureIntersectionQueue = par("measureIntersectionQueue").boolValue();
 
@@ -108,6 +125,8 @@ void LoopDetectors::executeFirstTimeStep()
 
         // remove duplicate entries
         lan.unique();
+
+        laneListTL[TLid] = std::make_pair(lan.size(),lan);
 
         // for each incoming lane
         for(std::list<std::string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
@@ -330,6 +349,61 @@ void LoopDetectors::saveLDsData()
     }
 
     fclose(filePtr);
+}
+
+
+void LoopDetectors::updateTLstate(std::string TLid, std::string stage, std::string currentInterval)
+{
+    if(stage == "init")
+    {
+        // initialize phase number in this TL
+        phaseTL[TLid] = 1;
+
+        // Initialize status in this TL
+        currentStatusTL *entry = new currentStatusTL(currentInterval, simTime().dbl(), -1, -1, -1, laneListTL[TLid].first, -1);
+        statusTL.insert( std::make_pair(std::make_pair(TLid,1), *entry) );
+    }
+    else
+    {
+        // get a reference to this TL
+        std::map<std::pair<std::string,int>, currentStatusTL>::iterator location = statusTL.find( std::make_pair(TLid,phaseTL[TLid]) );
+        if(location == statusTL.end())
+            error("This TLid is not found!");
+
+        if(stage == "yellow")
+        {
+            (location->second).yellowStart = simTime().dbl();
+        }
+        else if(stage == "red")
+        {
+            (location->second).redStart = simTime().dbl();
+        }
+        else if(stage == "end")
+        {
+            // get all incoming lanes for this TLid
+            std::list<std::string> lan = laneListTL[TLid].second;
+
+            // for each incoming lane
+            int totalQueueSize = 0;
+            for(std::list<std::string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
+            {
+                totalQueueSize = totalQueueSize + laneQueueSize[*it2].second;
+            }
+
+            // update TL status for this phase
+            (location->second).phaseEnd = simTime().dbl();
+            (location->second).totalQueueSize = totalQueueSize;
+
+            // increase phase number by 1
+            std::map<std::string, int>::iterator location2 = phaseTL.find(TLid);
+            location2->second = location2->second + 1;
+
+            // update status for the new phase
+            currentStatusTL *entry = new currentStatusTL(currentInterval, simTime().dbl(), -1, -1, -1, lan.size(), -1);
+            statusTL.insert( std::make_pair(std::make_pair(TLid,location2->second), *entry) );
+        }
+        else error("stage is not recognized!");
+    }
 }
 
 

@@ -106,21 +106,8 @@ void TrafficLightAdaptive::executeFirstTimeStep()
         TraCI->TLSetProgram(*TL, "adaptive-time");
         TraCI->TLSetState(*TL, currentInterval);
 
-        if(collectTLPhasingData)
-        {
-            // initialize phase number in this TL
-            phaseTL[*TL] = 1;
-
-            // get all incoming lanes
-            std::list<std::string> lan = TraCI->TLGetControlledLanes(*TL);
-
-            // remove duplicate entries
-            lan.unique();
-
-            // Initialize status in this TL
-            currentStatusTL *entry = new currentStatusTL(currentInterval, simTime().dbl(), -1, -1, -1, lan.size(), -1);
-            statusTL.insert( std::make_pair(std::make_pair(*TL,1), *entry) );
-        }
+        // initialize TL status
+        updateTLstate(*TL, "init", currentInterval);
     }
 
     // passageTime calculation per incoming lane
@@ -219,12 +206,8 @@ void TrafficLightAdaptive::chooseNextInterval()
         intervalElapseTime = 0.0;
         intervalOffSet = redTime;
 
-        if(collectTLPhasingData)
-        {
-            // update TL status for this phase
-            std::map<std::pair<std::string,int>, currentStatusTL>::iterator location = statusTL.find( std::make_pair("C",phaseTL["C"]) );
-            (location->second).redStart = simTime().dbl();
-        }
+        // update TL status for this phase
+        updateTLstate("C", "red");
 
         char buff[300];
         sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
@@ -239,34 +222,8 @@ void TrafficLightAdaptive::chooseNextInterval()
         intervalElapseTime = 0.0;
         intervalOffSet = minGreenTime;
 
-        if(collectTLPhasingData)
-        {
-            // get all incoming lanes
-            std::list<std::string> lan = TraCI->TLGetControlledLanes("C");
-
-            // remove duplicate entries
-            lan.unique();
-
-            // for each incoming lane
-            int totalQueueSize = 0;
-            for(std::list<std::string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
-            {
-                totalQueueSize = totalQueueSize + laneQueueSize[*it2].second;
-            }
-
-            // update TL status for this phase
-            std::map<std::pair<std::string,int>, currentStatusTL>::iterator location = statusTL.find( std::make_pair("C",phaseTL["C"]) );
-            (location->second).phaseEnd = simTime().dbl();
-            (location->second).totalQueueSize = totalQueueSize;
-
-            // increase phase number by 1
-            std::map<std::string, int>::iterator location2 = phaseTL.find("C");
-            location2->second = location2->second + 1;
-
-            // update status for the new phase
-            currentStatusTL *entry = new currentStatusTL(nextGreenInterval, simTime().dbl(), -1, -1, -1, lan.size(), -1);
-            statusTL.insert( std::make_pair(std::make_pair("C",location2->second), *entry) );
-        }
+        // update TL status for this phase
+        updateTLstate("C", "end", nextGreenInterval);
 
         char buff[300];
         sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
@@ -496,12 +453,8 @@ void TrafficLightAdaptive::chooseNextGreenInterval()
         intervalElapseTime = 0.0;
         intervalOffSet =  yellowTime;
 
-        if(collectTLPhasingData)
-        {
-            // update TL status for this phase
-            std::map<std::pair<std::string,int>, currentStatusTL>::iterator location = statusTL.find( std::make_pair("C",phaseTL["C"]) );
-            (location->second).yellowStart = simTime().dbl();
-        }
+        // update TL status for this phase
+        updateTLstate("C", "yellow");
 
         char buff[300];
         sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);

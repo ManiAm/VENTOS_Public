@@ -116,6 +116,8 @@ class LoopDetectors : public TrafficLightBase
     void virtual executeFirstTimeStep();
     void virtual executeEachTimeStep(bool);
 
+    void updateTLstate(std::string, std::string, std::string = "");
+
   private:
     void getAllDetectors();
 
@@ -127,6 +129,13 @@ class LoopDetectors : public TrafficLightBase
     void saveTLPhasingData();
 
   protected:
+    // NED variables
+    double minGreenTime;
+    double maxGreenTime;
+    double yellowTime;
+    double redTime;
+    double maxCycleLength;
+
     // NED variables
     bool measureTrafficDemand;
     bool measureIntersectionQueue;
@@ -141,6 +150,7 @@ class LoopDetectors : public TrafficLightBase
     std::map<std::string /*lane*/, std::string /*LD id*/> LD_actuated;                                       // ids of loop detectors used for actuated-time signal control
     std::map<std::string /*lane*/, std::string /*AD id*/> AD_queue;                                          // ids of area detectors used for measuring queue length
 
+    std::map< std::string /*TLid*/, std::pair<int /*lane count*/, std::list<std::string>> > laneListTL;     // list of incoming lanes in each TL
     std::map<std::string /*lane*/, std::string /*TLid*/> lanesTL;                                         // all incoming lanes for each intersection
     std::multimap<std::string /*lane*/, std::pair<std::string /*TLid*/, int /*link number*/>> linksTL;    // all outgoing link # for each incoming lane
 

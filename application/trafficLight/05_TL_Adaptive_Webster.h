@@ -49,12 +49,6 @@ class TrafficLightWebster : public TrafficLightFixed
     void calculateGreenSplits();
 
   protected:
-    // NED variables
-    double minGreenTime;
-    double maxGreenTime;
-    double yellowTime;
-    double redTime;
-
     // class variables
     double intervalOffSet;
     std::string nextGreenInterval;

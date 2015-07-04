@@ -43,6 +43,8 @@ class TrafficLightFixed : public VehDelay
   protected:
     void virtual executeFirstTimeStep();
     void virtual executeEachTimeStep(bool);
+
+  protected:
 };
 
 }
