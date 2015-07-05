@@ -64,6 +64,7 @@ class TrafficLightAdaptive : public TrafficLightWebster
     std::string phase4_8 = "grgrrgGgGrgrgrrgGgGrGrGr";
 
   private:
+    std::map<std::string /*TLid*/, std::string /*first green interval*/> firstGreen;
     std::map<std::string,double> passageTimePerLane;
 };
 

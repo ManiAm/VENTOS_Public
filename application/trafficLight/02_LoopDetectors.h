@@ -83,6 +83,7 @@ public:
 class currentStatusTL
 {
 public:
+    int cycle;
     std::string allowedMovements;
     double greenStart;
     double yellowStart;
@@ -91,8 +92,9 @@ public:
     int incommingLanes;
     int totalQueueSize;
 
-    currentStatusTL(std::string str1, double d1, double d2, double d3, double d4, int i1, int i2)
+    currentStatusTL(int i0, std::string str1, double d1, double d2, double d3, double d4, int i1, int i2)
     {
+        this->cycle = i0;
         this->allowedMovements = str1;
         this->greenStart = d1;
         this->yellowStart = d2;
@@ -116,7 +118,7 @@ class LoopDetectors : public TrafficLightBase
     void virtual executeFirstTimeStep();
     void virtual executeEachTimeStep(bool);
 
-    void updateTLstate(std::string, std::string, std::string = "");
+    void updateTLstate(std::string, std::string, std::string = "", bool = false);
 
   private:
     void getAllDetectors();

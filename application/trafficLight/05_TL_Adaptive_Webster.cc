@@ -25,6 +25,7 @@
 //
 
 #include <05_TL_Adaptive_Webster.h>
+#include <algorithm>
 
 namespace VENTOS {
 
@@ -106,6 +107,8 @@ void TrafficLightWebster::executeFirstTimeStep()
         TraCI->TLSetProgram(*TL, "adaptive-time");
         TraCI->TLSetState(*TL, currentInterval);
 
+        firstGreen[*TL] = currentInterval;
+
         // initialize TL status
         updateTLstate(*TL, "init", currentInterval);
     }
@@ -167,7 +170,10 @@ void TrafficLightWebster::chooseNextInterval()
         intervalOffSet = greenSplit[nextGreenInterval];
 
         // update TL status for this phase
-        updateTLstate("C", "end", nextGreenInterval);
+        if(nextGreenInterval == firstGreen["C"])
+            updateTLstate("C", "phaseEnd", nextGreenInterval, true);
+        else
+            updateTLstate("C", "phaseEnd", nextGreenInterval);
     }
     else
         chooseNextGreenInterval();
@@ -333,16 +339,12 @@ void TrafficLightWebster::calculateGreenSplits()
         for (std::string prog : phases)
         {
             double GS = (critical[prog] / Y) * effectiveG;
-            greenSplit[prog] = (GS == 0) ? minGreenTime : GS;
+            greenSplit[prog] = std::max(minGreenTime, GS);
         }
 
         std::cout << "Updating green splits for each phase: ";
         for(std::map<std::string, double>::iterator y = greenSplit.begin(); y != greenSplit.end(); y++)
-        {
-            double split = (*y).second;
-            if(split < 0) error("greenSplit can not be <= 0");
-            std::cout << split << ", ";
-        }
+            std::cout << (*y).second << ", ";
         std::cout << endl << endl;
     }
     else if(Y >= 1)

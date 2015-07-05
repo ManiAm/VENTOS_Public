@@ -352,7 +352,7 @@ void LoopDetectors::saveLDsData()
 }
 
 
-void LoopDetectors::updateTLstate(std::string TLid, std::string stage, std::string currentInterval)
+void LoopDetectors::updateTLstate(std::string TLid, std::string stage, std::string currentInterval, bool cycleStart)
 {
     if(stage == "init")
     {
@@ -360,7 +360,7 @@ void LoopDetectors::updateTLstate(std::string TLid, std::string stage, std::stri
         phaseTL[TLid] = 1;
 
         // Initialize status in this TL
-        currentStatusTL *entry = new currentStatusTL(currentInterval, simTime().dbl(), -1, -1, -1, laneListTL[TLid].first, -1);
+        currentStatusTL *entry = new currentStatusTL(1 /*cycle number*/, currentInterval, simTime().dbl(), -1, -1, -1, laneListTL[TLid].first, -1);
         statusTL.insert( std::make_pair(std::make_pair(TLid,1), *entry) );
     }
     else
@@ -373,13 +373,41 @@ void LoopDetectors::updateTLstate(std::string TLid, std::string stage, std::stri
         if(stage == "yellow")
         {
             (location->second).yellowStart = simTime().dbl();
+
+            // get green duration
+            double green_duration = (location->second).yellowStart - (location->second).greenStart;
+
+//            // todo: make sure green interval is above G_min
+//            if(green_duration - minGreenTime < 0)
+//                error("green interval is less than minGreenTime = %0.3f", minGreenTime);
+//
+//            // make sure green interval is below G_max
+//            if(green_duration - maxGreenTime > 0)
+//                error("green interval is greater than maxGreenTime = %0.3f", maxGreenTime);
         }
         else if(stage == "red")
         {
             (location->second).redStart = simTime().dbl();
+
+            // get yellow duration
+            double yellow_duration = (location->second).redStart - (location->second).yellowStart;
+
+            // todo:
+//            if( fabs(yellow_duration - yellowTime) < 0.0001 )
+//                error("yellow interval is not %0.3f", yellowTime);
         }
-        else if(stage == "end")
+        else if(stage == "phaseEnd")
         {
+            // update TL status for this phase
+            (location->second).phaseEnd = simTime().dbl();
+
+            // get red duration
+            double red_duration = (location->second).phaseEnd - (location->second).redStart;
+
+            // todo:
+//            if(red_duration - redTime != 0)
+//                error("red interval is not %0.3f", redTime);
+
             // get all incoming lanes for this TLid
             std::list<std::string> lan = laneListTL[TLid].second;
 
@@ -390,16 +418,26 @@ void LoopDetectors::updateTLstate(std::string TLid, std::string stage, std::stri
                 totalQueueSize = totalQueueSize + laneQueueSize[*it2].second;
             }
 
-            // update TL status for this phase
-            (location->second).phaseEnd = simTime().dbl();
             (location->second).totalQueueSize = totalQueueSize;
+
+            // get the current cycle number
+            int cycleNumber = (location->second).cycle;
+
+            // on a new cycle
+            if(cycleStart)
+            {
+                // todo: check if cycle length is ok?
+
+                // increase cycle number by 1
+                cycleNumber++;
+            }
 
             // increase phase number by 1
             std::map<std::string, int>::iterator location2 = phaseTL.find(TLid);
             location2->second = location2->second + 1;
 
             // update status for the new phase
-            currentStatusTL *entry = new currentStatusTL(currentInterval, simTime().dbl(), -1, -1, -1, lan.size(), -1);
+            currentStatusTL *entry = new currentStatusTL(cycleNumber, currentInterval, simTime().dbl(), -1, -1, -1, lan.size(), -1);
             statusTL.insert( std::make_pair(std::make_pair(TLid,location2->second), *entry) );
         }
         else error("stage is not recognized!");
@@ -583,6 +621,7 @@ void LoopDetectors::saveTLPhasingData()
     // write header
     fprintf (filePtr, "%-12s", "TLid");
     fprintf (filePtr, "%-12s", "phase");
+    fprintf (filePtr, "%-12s", "cycle");
     fprintf (filePtr, "%-35s", "allowedMovements");
     fprintf (filePtr, "%-15s", "greenStart");
     fprintf (filePtr, "%-15s", "yellowStart");
@@ -598,6 +637,7 @@ void LoopDetectors::saveTLPhasingData()
         int phaseNumber = ((*y).first).second;
         currentStatusTL status = (*y).second;
 
+        int cycle = status.cycle;
         std::string allowedMovements = status.allowedMovements;
         double greenStart = status.greenStart;
         double yellowStart = status.yellowStart;
@@ -608,6 +648,7 @@ void LoopDetectors::saveTLPhasingData()
 
         fprintf (filePtr, "%-12s", TLid.c_str());
         fprintf (filePtr, "%-12d", phaseNumber);
+        fprintf (filePtr, "%-12d", cycle);
         fprintf (filePtr, "%-35s", allowedMovements.c_str());
         fprintf (filePtr, "%-15.2f", greenStart);
         fprintf (filePtr, "%-15.2f", yellowStart);

@@ -65,6 +65,7 @@ class TrafficLightWebster : public TrafficLightFixed
     std::string phase3_7 = "grgrrgrgrGgrgrrgrgrGrrrr";
     std::string phase4_8 = "grgrrgGgGrgrgrrgGgGrGrGr";
 
+    std::map<std::string /*TLid*/, std::string /*first green interval*/> firstGreen;
     std::map<std::string /*phase*/, double /*green split*/> greenSplit;
 };
 

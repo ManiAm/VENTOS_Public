@@ -44,7 +44,8 @@ class TrafficLightFixed : public VehDelay
     void virtual executeFirstTimeStep();
     void virtual executeEachTimeStep(bool);
 
-  protected:
+  private:
+    std::map<std::string /*TLid*/, std::string /*first green interval*/> firstGreen;
 };
 
 }

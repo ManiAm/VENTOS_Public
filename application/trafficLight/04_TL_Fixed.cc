@@ -77,9 +77,12 @@ void TrafficLightFixed::executeFirstTimeStep()
     {
         TraCI->TLSetProgram(*TL, "fix-time1");
 
+        // saving the first green interval in this TL. We need this to detect the cycle beginning.
+        // NOTE: TL offset determines the first green interval.
+        firstGreen[*TL] = TraCI->TLGetState(*TL);
+
         // initialize TL status
-        std::string currentInterval = TraCI->TLGetState(*TL);
-        updateTLstate(*TL, "init", currentInterval);
+        updateTLstate(*TL, "init", firstGreen[*TL]);
     }
 }
 
@@ -102,7 +105,11 @@ void TrafficLightFixed::executeEachTimeStep(bool simulationDone)
     if(intervalNumber % 3 == 0 && stat.redStart != -1)
     {
         std::string currentInterval = TraCI->TLGetState("C"); // get the new green interval
-        updateTLstate("C", "end", currentInterval);
+
+        if(currentInterval == firstGreen["C"])
+            updateTLstate("C", "phaseEnd", currentInterval, true /*new cycle*/);
+        else
+            updateTLstate("C", "phaseEnd", currentInterval);
     }
     // yellow interval starts
     else if(intervalNumber % 3 == 1 && stat.yellowStart == -1)

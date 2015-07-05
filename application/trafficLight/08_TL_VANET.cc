@@ -100,6 +100,8 @@ void TrafficLightVANET::executeFirstTimeStep()
         TraCI->TLSetProgram(*TL, "adaptive-time");
         TraCI->TLSetState(*TL, currentInterval);
 
+        firstGreen[*TL] = currentInterval;
+
         // initialize TL status
         updateTLstate(*TL, "init", currentInterval);
     }
@@ -167,7 +169,10 @@ void TrafficLightVANET::chooseNextInterval()
         intervalOffSet = minGreenTime;
 
         // update TL status for this phase
-        updateTLstate("C", "end", nextGreenInterval);
+        if(nextGreenInterval == firstGreen["C"])
+            updateTLstate("C", "phaseEnd", nextGreenInterval, true);
+        else
+            updateTLstate("C", "phaseEnd", nextGreenInterval);
 
         char buff[300];
         sprintf(buff, "Sim time: %4.2f | Interval finish time: %4.2f | Current interval: %s", simTime().dbl(), simTime().dbl() + intervalOffSet, currentInterval.c_str() );

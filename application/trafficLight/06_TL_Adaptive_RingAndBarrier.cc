@@ -106,6 +106,8 @@ void TrafficLightAdaptive::executeFirstTimeStep()
         TraCI->TLSetProgram(*TL, "adaptive-time");
         TraCI->TLSetState(*TL, currentInterval);
 
+        firstGreen[*TL] = currentInterval;
+
         // initialize TL status
         updateTLstate(*TL, "init", currentInterval);
     }
@@ -223,7 +225,10 @@ void TrafficLightAdaptive::chooseNextInterval()
         intervalOffSet = minGreenTime;
 
         // update TL status for this phase
-        updateTLstate("C", "end", nextGreenInterval);
+        if(nextGreenInterval == firstGreen["C"])
+            updateTLstate("C", "phaseEnd", nextGreenInterval, true);
+        else
+            updateTLstate("C", "phaseEnd", nextGreenInterval);
 
         char buff[300];
         sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
