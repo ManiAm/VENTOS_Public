@@ -10,7 +10,7 @@ clc;    % position the cursor at the top of the screen
 runTotal = 3;
 
 % path to folder
-basePATH = '../results/cmd/full_fix_web_adap_unbalanced_lessNS';
+basePATH = '../results/cmd/full_fix_web_adap_unbalanced_lessNS_2';
 
 for runNumber = 0:runTotal-1
 
@@ -270,7 +270,7 @@ set(gca, 'FontSize', 17);
 xlabel('Time (s)', 'FontSize', 17);
 ylabel('Average Queue Size', 'FontSize', 17);
 
-grid on;
+%grid on;
 hold on;
     
 subplot(3,1,2);
@@ -288,7 +288,7 @@ set(gca, 'FontSize', 17);
 xlabel('Time (s)', 'FontSize', 17);
 ylabel('Average Delay (s)', 'FontSize', 17);
 
-grid on;
+%grid on;
 hold on;
 
 subplot(3,1,3);
@@ -306,7 +306,7 @@ set(gca, 'FontSize', 17);
 xlabel('Time (s)', 'FontSize', 17);
 ylabel('Throughput', 'FontSize', 17);
 
-grid on;
+%grid on;
 hold on;
 
 % at the end of the last iteration
@@ -317,7 +317,7 @@ if(runNumber == runTotal-1)
         Xlimit = get(gca,'xlim');
         set(gca, 'xtick' , 0:300:Xlimit(2)); 
 
-        legend('fix-time' , 'adaptive Webster', 'traffic-actuated');
+        legend('fix-time' , 'adaptive webster', 'traffic-actuated');
     end   
     
     % mark change of demand with vertical lines
