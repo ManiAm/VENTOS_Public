@@ -1,6 +1,6 @@
 
 clear all;
-%close all;
+close all;
 clc;    % position the cursor at the top of the screen
 %clf;   % closes the figure window
 
@@ -249,87 +249,303 @@ end
 % -----------------------------------------------------------------
 
 % now we make a single plot for all the scenarios
-disp('plotting ...');
 
-if(runNumber == 0)
-    figure('name', 'Speed', 'units', 'normalized', 'outerposition', [0 0 1 1]);
-end
+if(true)
 
-subplot(3,1,1);
-if(runNumber == 0)
-    plot(timeSteps_Q, averageQueueSize, '-.', 'LineWidth', 2);
-elseif(runNumber == 1)
-    plot(timeSteps_Q, averageQueueSize, '-', 'LineWidth', 2);    
-else
-    plot(timeSteps_Q, averageQueueSize, '-.x', 'LineWidth', 2);
-end
+    disp('plotting ...');
 
-% set font size
-set(gca, 'FontSize', 17);
+    if(runNumber == 0)
+        figure('name', 'Speed', 'units', 'normalized', 'outerposition', [0 0 1 1]);
+    end
 
-xlabel('Time (s)', 'FontSize', 17);
-ylabel('Average Queue Size', 'FontSize', 17);
+    subplot(3,1,1);
+    if(runNumber == 0)
+        plot(timeSteps_Q, averageQueueSize, '-.', 'LineWidth', 2);
+    elseif(runNumber == 1)
+        plot(timeSteps_Q, averageQueueSize, '-', 'LineWidth', 2);    
+    else
+        plot(timeSteps_Q, averageQueueSize, '-.x', 'LineWidth', 2);
+    end
 
-%grid on;
-hold on;
+    % set font size
+    set(gca, 'FontSize', 17);
+
+    xlabel('Time (s)', 'FontSize', 17);
+    ylabel('Average Queue Size', 'FontSize', 17);
+
+    %grid on;
+    hold on;
     
-subplot(3,1,2);
-if(runNumber == 0)
-    plot(timeSteps_D, delay, '-.', 'LineWidth', 2);
-elseif(runNumber == 1)
-    plot(timeSteps_D, delay, '-', 'LineWidth', 2);    
-else
-    plot(timeSteps_D, delay, '-.x', 'LineWidth', 2);
-end
+    subplot(3,1,2);
+    if(runNumber == 0)
+        plot(timeSteps_D, delay, '-.', 'LineWidth', 2);
+    elseif(runNumber == 1)
+        plot(timeSteps_D, delay, '-', 'LineWidth', 2);    
+    else
+        plot(timeSteps_D, delay, '-.x', 'LineWidth', 2);
+    end
 
-% set font size
-set(gca, 'FontSize', 17);
+    % set font size
+    set(gca, 'FontSize', 17);
 
-xlabel('Time (s)', 'FontSize', 17);
-ylabel('Average Delay (s)', 'FontSize', 17);
+    xlabel('Time (s)', 'FontSize', 17);
+    ylabel('Average Delay (s)', 'FontSize', 17);
 
-%grid on;
-hold on;
+    %grid on;
+    hold on;
 
-subplot(3,1,3);
-if(runNumber == 0)
-    plot(timeSteps_T, throughput, '-.', 'LineWidth', 2);
-elseif(runNumber == 1)
-    plot(timeSteps_T, throughput, '-', 'LineWidth', 2);    
-else
-    plot(timeSteps_T, throughput, '-.x', 'LineWidth', 2);
-end
+    subplot(3,1,3);
+    if(runNumber == 0)
+        plot(timeSteps_T, throughput, '-.', 'LineWidth', 2);
+    elseif(runNumber == 1)
+        plot(timeSteps_T, throughput, '-', 'LineWidth', 2);    
+    else
+        plot(timeSteps_T, throughput, '-.x', 'LineWidth', 2);
+    end
 
-% set font size
-set(gca, 'FontSize', 17);
+    % set font size
+    set(gca, 'FontSize', 17);
 
-xlabel('Time (s)', 'FontSize', 17);
-ylabel('Throughput', 'FontSize', 17);
+    xlabel('Time (s)', 'FontSize', 17);
+    ylabel('Throughput', 'FontSize', 17);
 
-%grid on;
-hold on;
+    %grid on;
+    hold on;
 
-% at the end of the last iteration
-if(runNumber == runTotal-1)       
+    % at the end of the last iteration
+    if(runNumber == runTotal-1)       
 
-    for g=1:3
-        subplot(3,1,g);
-        Xlimit = get(gca,'xlim');
-        set(gca, 'xtick' , 0:300:Xlimit(2)); 
-
-        legend('fix-time' , 'adaptive webster', 'traffic-actuated');
-    end   
-    
-    % mark change of demand with vertical lines
-    for threshold=400:400:Xlimit(2)            
         for g=1:3
             subplot(3,1,g);
-            % draw vertical line
-            line([threshold threshold], ylim, 'LineWidth', 1, 'LineStyle', '--', 'Color', 'k');
-        end          
-    end
+            Xlimit = get(gca,'xlim');
+            set(gca, 'xtick' , 0:300:Xlimit(2)); 
+        end   
+        
+        subplot(3,1,1);
+        legend('fix-time' , 'adaptive webster', 'traffic-actuated', 'Location', 'northwest');
     
+        % mark change of demand with vertical lines
+        for threshold=400:400:Xlimit(2)            
+            for g=1:3
+                subplot(3,1,g);
+                % draw vertical line
+                line([threshold threshold], ylim, 'LineWidth', 1, 'LineStyle', '--', 'Color', 'k');
+            end          
+        end
+    
+    end
+
 end
 
 end
+
+
+% -----------------------------------------------------------------
+% -----------------------------------------------------------------
+% -----------------------------------------------------------------
+% -----------------------------------------------------------------
+% -----------------------------------------------------------------
+% -----------------------------------------------------------------
+% -----------------------------------------------------------------
+% -----------------------------------------------------------------
+% -----------------------------------------------------------------
+
+
+for runNumber = 0:runTotal-1
+
+fprintf('\n>>> runNumber %d:\n', runNumber);
+
+% clear variables at the begining of each run
+clearvars -except runNumber runTotal basePATH timeSteps
+
+% ----------------------------------------------------------------
+
+disp('reading phasing information ...');
+
+path3 = sprintf('%s/%d_TLphasingData.txt', basePATH, runNumber);
+file_id = fopen(path3);
+formatSpec = '%s %d %d %s %f %f %f %f %f %d %d';
+C_text = textscan(file_id, formatSpec, 'HeaderLines', 2);
+fclose(file_id);
+
+phaseNumbers = C_text{1,2};
+cycleNumber = C_text{1,3};
+greenLength = C_text{1,5};
+greenStart = C_text{1,6};
+yellowStart = C_text{1,7};
+redStart = C_text{1,8};
+endTime = C_text{1,9};
+lanesCount = C_text{1,10};
+queueSize = C_text{1,11};
+
+totalPhases = size(phaseNumbers,1);
+phaseDurationTS = zeros(4,totalPhases);
+averageQueuePerPhase = zeros(1,totalPhases);
+
+for i=1:totalPhases
+    phaseDurationTS(1,i) = double(greenStart(i,1));
+    phaseDurationTS(2,i) = double(yellowStart(i,1)); 
+    phaseDurationTS(3,i) = double(redStart(i,1));
+    phaseDurationTS(4,i) = double(endTime(i,1));
+    
+    % store average queue size per phase
+    if( double(queueSize(i,1)) ~= -1 && double(lanesCount(i,1)) > 0 )
+        averageQueuePerPhase(1,i) = double(queueSize(i,1)) / double(lanesCount(i,1));
+    end
+end
+
+% if the last phase is incomplete
+if(phaseDurationTS(1,totalPhases) == -1 || phaseDurationTS(2,totalPhases) == -1 || phaseDurationTS(3,totalPhases) == -1 || phaseDurationTS(4,totalPhases) == -1)
+    phaseDurationTS(:,totalPhases) = [];
+    totalPhases = totalPhases - 1;
+end
+
+% -----------------------------------------------------------------
+
+disp('total cycles ...');
+
+search_interval = 400;
+
+rows = size(timeSteps, 1);
+index = 1;
+for j=1 : search_interval-1 : rows-search_interval
+    
+   startIndex = j;
+   endIndex = startIndex + search_interval - 1;
+    
+   startT = timeSteps(startIndex);
+   endT = timeSteps(endIndex);
+   
+   % find the last phase in this interval
+   result = find(phaseDurationTS(4,:) <= endT);
+   phaseNumber = result(end);
+   
+   totalCycles(index) = cycleNumber(phaseNumber);
+   
+   middleIndex = floor( double((startIndex + endIndex)) / 2. );
+   timeSteps_SW(index) = timeSteps(middleIndex);
+   
+   index = index + 1;
+   
+end
+
+% -----------------------------------------------------------------
+
+disp('total green time ...');
+
+search_interval2 = 400;
+
+rows = size(timeSteps, 1);
+index = 1;
+greenPortion = 0;
+for j=1 : search_interval2-1 : rows-search_interval2
+    
+   startIndex = j;
+   endIndex = startIndex + search_interval2 - 1;
+    
+   startT = timeSteps(startIndex);
+   endT = timeSteps(endIndex);
+   %greenPortion = 0;
+   
+   for i=1:totalPhases       
+       greenStart = phaseDurationTS(1,i);
+       greenEnd = phaseDurationTS(2,i);
+       
+       if(greenStart > endT || greenEnd < startT)
+           continue;
+       end
+       
+       if(greenStart ~= -1 && greenEnd ~= -1)
+           ST = max(greenStart, startT);
+           EN = min(greenEnd, endT);
+           greenPortion = greenPortion + (EN - ST);                         
+       end
+       
+   end 
+   
+   totalGreenTime(index) = greenPortion;
+   
+   middleIndex = floor( double((startIndex + endIndex)) / 2. );
+   timeSteps_GR(index) = timeSteps(middleIndex);
+   
+   index = index + 1;   
+   
+end
+
+% -----------------------------------------------------------------
+
+% now we make a single plot for all the scenarios
+
+if(true)
+
+    disp('plotting ...');
+
+    if(runNumber == 0)
+        figure('name', 'Speed', 'units', 'normalized', 'outerposition', [0 0 1 1]);
+    end
+
+    subplot(2,1,1);
+    if(runNumber == 0)
+        plot(timeSteps_SW, totalCycles, '-.', 'LineWidth', 2);
+    elseif(runNumber == 1)
+        plot(timeSteps_SW, totalCycles, '-', 'LineWidth', 2);    
+    else
+        plot(timeSteps_SW, totalCycles, '-.x', 'LineWidth', 2);
+    end
+
+    % set font size
+    set(gca, 'FontSize', 17);
+
+    xlabel('Time (s)', 'FontSize', 17);
+    ylabel('Cycle Count', 'FontSize', 17);
+
+    %grid on;
+    hold on;
+    
+    subplot(2,1,2);
+    if(runNumber == 0)
+        plot(timeSteps_GR, totalGreenTime, '-.', 'LineWidth', 2);
+    elseif(runNumber == 1)
+        plot(timeSteps_GR, totalGreenTime, '-', 'LineWidth', 2);    
+    else
+        plot(timeSteps_GR, totalGreenTime, '-.x', 'LineWidth', 2);
+    end
+
+    % set font size
+    set(gca, 'FontSize', 17);
+
+    xlabel('Time (s)', 'FontSize', 17);
+    ylabel('Total Green Time (s)', 'FontSize', 17);
+
+    %grid on;
+    hold on;
+
+    % at the end of the last iteration
+    if(runNumber == runTotal-1)       
+
+        for g=1:2
+            subplot(2,1,g);
+            Xlimit = get(gca,'xlim');
+            set(gca, 'xtick' , 0:300:Xlimit(2)); 
+        end   
+        
+        subplot(2,1,1);
+        legend('fix-time' , 'adaptive webster', 'traffic-actuated', 'Location', 'northwest');
+    
+        % mark change of demand with vertical lines
+        for threshold=400:400:Xlimit(2)            
+            for g=1:2
+                subplot(2,1,g);
+                % draw vertical line
+                line([threshold threshold], ylim, 'LineWidth', 1, 'LineStyle', '--', 'Color', 'k');
+            end          
+        end
+    
+    end
+
+end
+
+end
+
+
 
