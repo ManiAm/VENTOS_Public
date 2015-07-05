@@ -360,7 +360,7 @@ void LoopDetectors::updateTLstate(std::string TLid, std::string stage, std::stri
         phaseTL[TLid] = 1;
 
         // Initialize status in this TL
-        currentStatusTL *entry = new currentStatusTL(1 /*cycle number*/, currentInterval, simTime().dbl(), -1, -1, -1, laneListTL[TLid].first, -1);
+        currentStatusTL *entry = new currentStatusTL(1 /*cycle number*/, currentInterval, -1, simTime().dbl(), -1, -1, -1, laneListTL[TLid].first, -1);
         statusTL.insert( std::make_pair(std::make_pair(TLid,1), *entry) );
     }
     else
@@ -373,6 +373,7 @@ void LoopDetectors::updateTLstate(std::string TLid, std::string stage, std::stri
         if(stage == "yellow")
         {
             (location->second).yellowStart = simTime().dbl();
+            (location->second).greenLength = (location->second).yellowStart - (location->second).greenStart;
 
             // get green duration
             double green_duration = (location->second).yellowStart - (location->second).greenStart;
@@ -437,7 +438,7 @@ void LoopDetectors::updateTLstate(std::string TLid, std::string stage, std::stri
             location2->second = location2->second + 1;
 
             // update status for the new phase
-            currentStatusTL *entry = new currentStatusTL(cycleNumber, currentInterval, simTime().dbl(), -1, -1, -1, lan.size(), -1);
+            currentStatusTL *entry = new currentStatusTL(cycleNumber, currentInterval, -1, simTime().dbl(), -1, -1, -1, lan.size(), -1);
             statusTL.insert( std::make_pair(std::make_pair(TLid,location2->second), *entry) );
         }
         else error("stage is not recognized!");
@@ -623,6 +624,7 @@ void LoopDetectors::saveTLPhasingData()
     fprintf (filePtr, "%-12s", "phase");
     fprintf (filePtr, "%-12s", "cycle");
     fprintf (filePtr, "%-35s", "allowedMovements");
+    fprintf (filePtr, "%-15s", "greenLength");
     fprintf (filePtr, "%-15s", "greenStart");
     fprintf (filePtr, "%-15s", "yellowStart");
     fprintf (filePtr, "%-15s", "redStart");
@@ -633,29 +635,19 @@ void LoopDetectors::saveTLPhasingData()
     // write body
     for( std::map<std::pair<std::string, int>, currentStatusTL>::iterator y = statusTL.begin(); y != statusTL.end(); ++y)
     {
-        std::string TLid = ((*y).first).first;
-        int phaseNumber = ((*y).first).second;
         currentStatusTL status = (*y).second;
 
-        int cycle = status.cycle;
-        std::string allowedMovements = status.allowedMovements;
-        double greenStart = status.greenStart;
-        double yellowStart = status.yellowStart;
-        double redStart = status.redStart;
-        double phaseEnd = status.phaseEnd;
-        int incommingLanes = status.incommingLanes;
-        int totalQueueSize = status.totalQueueSize;
-
-        fprintf (filePtr, "%-12s", TLid.c_str());
-        fprintf (filePtr, "%-12d", phaseNumber);
-        fprintf (filePtr, "%-12d", cycle);
-        fprintf (filePtr, "%-35s", allowedMovements.c_str());
-        fprintf (filePtr, "%-15.2f", greenStart);
-        fprintf (filePtr, "%-15.2f", yellowStart);
-        fprintf (filePtr, "%-15.2f", redStart);
-        fprintf (filePtr, "%-15.2f", phaseEnd);
-        fprintf (filePtr, "%-15d", incommingLanes);
-        fprintf (filePtr, "%-15d\n", totalQueueSize);
+        fprintf (filePtr, "%-12s", ((*y).first).first.c_str());
+        fprintf (filePtr, "%-12d", ((*y).first).second);
+        fprintf (filePtr, "%-12d", status.cycle);
+        fprintf (filePtr, "%-35s", status.allowedMovements.c_str());
+        fprintf (filePtr, "%-15.2f", status.greenLength);
+        fprintf (filePtr, "%-15.2f", status.greenStart);
+        fprintf (filePtr, "%-15.2f", status.yellowStart);
+        fprintf (filePtr, "%-15.2f", status.redStart);
+        fprintf (filePtr, "%-15.2f", status.phaseEnd);
+        fprintf (filePtr, "%-15d", status.incommingLanes);
+        fprintf (filePtr, "%-15d\n", status.totalQueueSize);
     }
 
     fclose(filePtr);

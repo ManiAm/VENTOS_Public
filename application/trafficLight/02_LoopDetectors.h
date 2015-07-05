@@ -85,6 +85,7 @@ class currentStatusTL
 public:
     int cycle;
     std::string allowedMovements;
+    double greenLength;
     double greenStart;
     double yellowStart;
     double redStart;
@@ -92,10 +93,11 @@ public:
     int incommingLanes;
     int totalQueueSize;
 
-    currentStatusTL(int i0, std::string str1, double d1, double d2, double d3, double d4, int i1, int i2)
+    currentStatusTL(int i0, std::string str1, double d0, double d1, double d2, double d3, double d4, int i1, int i2)
     {
         this->cycle = i0;
         this->allowedMovements = str1;
+        this->greenLength = d0;
         this->greenStart = d1;
         this->yellowStart = d2;
         this->redStart = d3;

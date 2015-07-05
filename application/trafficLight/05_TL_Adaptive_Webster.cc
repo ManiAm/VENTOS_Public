@@ -277,7 +277,7 @@ void TrafficLightWebster::calculateGreenSplits()
                     double sum = 0;
                     for (boost::circular_buffer<double>::iterator it = buffer.begin(); it != buffer.end(); ++it)
                         sum = sum + *it;
-                    double aveTD = buffer.size() == 0 ? 0 : sum / (double)buffer.size();
+                    double aveTD = (buffer.size() == 0) ? 0 : sum / (double)buffer.size();
 
                     Y_i = std::max(Y_i, aveTD / saturation);
                 }
