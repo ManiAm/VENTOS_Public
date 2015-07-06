@@ -10,7 +10,7 @@ clc;    % position the cursor at the top of the screen
 runTotal = 4;
 
 % path to folder
-basePATH = '../results/cmd/full_fix_web_adap_VANET_balanced';
+basePATH = '../results/cmd/full_fix_web_adap_VANET_unbalanced_SW_high';
 
 for runNumber = 0:runTotal-1
 

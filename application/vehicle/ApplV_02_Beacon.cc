@@ -127,8 +127,9 @@ void ApplVBeacon::handleSelfMsg(cMessage* msg)
                 beaconMsg->setPlatoonID(plnID.c_str());
                 beaconMsg->setPlatoonDepth(myPlnDepth);
 
-                // send the beacon to all RSUs using signaling
-                if(signalBeaconing && TLControlMode == TL_VANET)
+                // send the beacon as a signal. Any module registered to this signal can
+                // receive a copy of the beacon (for now, only RSUs are registered)
+                if(signalBeaconing)
                 {
                     simsignal_t Signal_beaconSignaling = registerSignal("beaconSignaling");
                     nodePtr->emit(Signal_beaconSignaling, beaconMsg);

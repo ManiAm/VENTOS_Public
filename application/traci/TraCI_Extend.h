@@ -149,8 +149,8 @@ public:
     std::vector<std::string> vehicleGetLeader(std::string, double);
     double vehicleGetCurrentAccel(std::string);       // new command
     int vehicleGetCarFollowingMode(std::string);      // new command [returns the current ACC/CACC car following mode]
-    std::string vehicleGetTLID(std::string);          // new command [returns the id of the TL ahead]
-    char vehicleGetTLLinkStatus(std::string);          // new command [return the TL status ahead: g, G, Y, R]
+    std::string vehicleGetTLID(std::string);          // new command [returns the id of the TL ahead]          // todo: remove this command from here and SUMO
+    char vehicleGetTLLinkStatus(std::string);         // new command [return the TL status ahead: g, G, Y, R]  // todo: remove this command once implemented by SUMO
 
     // CMD_SET_VEHICLE_VARIABLE
     void vehicleSetStop(std::string, std::string, double, uint8_t, double, uint8_t);  // adds or modifies a stop with the given parameters
