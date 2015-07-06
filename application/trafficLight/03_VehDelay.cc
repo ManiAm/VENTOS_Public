@@ -150,14 +150,13 @@ void VehDelay::vehiclesDelayEach(std::string vID)
     // if the vehicle is controlled by a TL
     if(loc->second.TLid == "")
     {
-        // get the TLid that controls this vehicle
-        // empty string means the vehicle is not controlled by any TLid
-        std::string result = TraCI->vehicleGetTLID(vID);
+        // get current lane
+        std::string currentLane = TraCI->vehicleGetLaneID(vID);
 
-        if(result == "")
-            return;
-        else
-            loc->second.TLid = result;
+        // If on one of the incoming lanes:
+        if(lanesTL.find(currentLane) != lanesTL.end())
+            loc->second.TLid = lanesTL[currentLane];
+        else return;
     }
 
     // if the veh is on its last lane before the intersection
@@ -192,8 +191,11 @@ void VehDelay::vehiclesDelayEach(std::string vID)
     // check if we have crossed the intersection
     if(!loc->second.crossedIntersection)
     {
-        // if passed the intersection
-        if(TraCI->vehicleGetTLLinkStatus(vID) == 'n')
+        // get current lane
+        std::string currentLane = TraCI->vehicleGetLaneID(vID);
+
+        // If we are at the middle of intersection
+        if(lanesTL.find(currentLane) == lanesTL.end())
         {
             loc->second.crossedIntersection = true;
             loc->second.crossedTime = simTime().dbl();
@@ -308,14 +310,14 @@ void VehDelay::vehiclesDelayToFile()
 
     if( ev.isGUI() )
     {
-        filePath = "results/gui/vehicleDelay.txt";
+        filePath = "results/gui/vehDelay.txt";
     }
     else
     {
         // get the current run number
         int currentRun = ev.getConfigEx()->getActiveRunNumber();
         std::ostringstream fileName;
-        fileName << currentRun << "_vehicleDelay.txt";
+        fileName << currentRun << "_vehDelay.txt";
         filePath = "results/cmd/" + fileName.str();
     }
 
