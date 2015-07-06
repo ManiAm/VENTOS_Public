@@ -43,7 +43,9 @@ void ApplRSUManager::initialize(int stage)
 
 	if (stage==0)
 	{
-
+        // register signal
+        Signal_beaconSignaling = registerSignal("beaconSignaling");
+        simulation.getSystemModule()->subscribe("beaconSignaling", this);
 	}
 }
 
@@ -51,6 +53,22 @@ void ApplRSUManager::initialize(int stage)
 void ApplRSUManager::finish()
 {
     ApplRSUTLVANET::finish();
+}
+
+
+void ApplRSUManager::receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj)
+{
+    Enter_Method_Silent();
+
+    if(signalID == Signal_beaconSignaling)
+    {
+        cMessage* msg = static_cast<cMessage *>(obj);
+        if (msg == NULL) return;
+
+        // treat this as a normal msg
+        // calling ApplRSU_04_Manager::handleLowerMsg
+        handleLowerMsg(msg);
+    }
 }
 
 

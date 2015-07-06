@@ -62,6 +62,9 @@ protected:
     int beaconLengthBits;
     int beaconPriority;
 
+    bool smartBeaconing;
+    bool signalBeaconing;
+
     // NED variables (data message parameters)
     int dataLengthBits;
     bool dataOnSch;
@@ -77,9 +80,8 @@ protected:
     std::deque<std::string> plnMembersList;
 
 private:
-    bool smartBeaconing;
-    bool hasEntered;
-    bool hasLeft;
+    bool crossing;
+    bool leaving;
 };
 
 }

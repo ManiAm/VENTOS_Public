@@ -55,6 +55,7 @@ void ApplVBeacon::initialize(int stage)
 
         // NED variables
         smartBeaconing = par("smartBeaconing").boolValue();
+        signalBeaconing = par("signalBeaconing").boolValue();
 
         // NED variables (data parameters)
         dataLengthBits = par("dataLengthBits").longValue();
@@ -85,8 +86,8 @@ void ApplVBeacon::initialize(int stage)
         WATCH(plnSize);
         WATCH(VANETenabled);
 
-        hasEntered = false;
-        hasLeft = false;
+        crossing = false;
+        leaving = false;
     }
 }
 
@@ -115,7 +116,7 @@ void ApplVBeacon::handleSelfMsg(cMessage* msg)
         // make sure VANETenabled is true
         if(VANETenabled)
         {
-            if(smartBeaconing)
+            if(smartBeaconing && TLControlMode == TL_VANET)
                 smartBeaconingDecision();
 
             if(sendBeacons)
@@ -126,8 +127,15 @@ void ApplVBeacon::handleSelfMsg(cMessage* msg)
                 beaconMsg->setPlatoonID(plnID.c_str());
                 beaconMsg->setPlatoonDepth(myPlnDepth);
 
-                // send it
-                sendDelayed(beaconMsg, individualOffset, lowerLayerOut);
+                // send the beacon to all RSUs using signaling
+                if(signalBeaconing && TLControlMode == TL_VANET)
+                {
+                    simsignal_t Signal_beaconSignaling = registerSignal("beaconSignaling");
+                    nodePtr->emit(Signal_beaconSignaling, beaconMsg);
+                }
+                // broadcast the beacon wirelessly using IEEE 802.11p
+                else
+                    sendDelayed(beaconMsg, individualOffset, lowerLayerOut);
             }
         }
 
@@ -137,29 +145,43 @@ void ApplVBeacon::handleSelfMsg(cMessage* msg)
 }
 
 
+// the decision of beaconing or not depends on the current location of vehicle
 void ApplVBeacon::smartBeaconingDecision()
 {
-    // if TL_VANET is active
-    if(TLControlMode == TL_VANET)
+    Coord myPos = TraCI->vehicleGetPosition(SUMOvID);
+
+    // vehicle enters the zone
+    // todo: change from fixed coordinates
+    // coordinates should be a little bigger than the detection region
+    // the vehicle should start beaconing a little bit sooner
+    if( (myPos.x >= 830) && (myPos.x <= 960) && (myPos.y >= 830) && (myPos.y <= 960) )
     {
-        Coord myPos = TraCI->vehicleGetPosition(SUMOvID);
+        // get the current edge
         std::string myEdge = TraCI->vehicleGetEdgeID(SUMOvID);
 
-        // todo: change from fixed coordinates
-        if((!hasEntered) && (myPos.x > 845) && (myPos.x < 955) && (myPos.y > 843) && (myPos.y < 955))
+        // started to cross
+        if( !crossing && (myEdge[0] == ':') && (myEdge[1] == 'C') )
         {
-            hasEntered = true;
-            sendBeacons = true;
+            crossing = true;
+            sendBeacons = true;   // keep beaconing 'on' during crossing
         }
-        else if((!hasLeft) && (myEdge[0] == ':') && (myEdge[1] == 'C'))
+        // crossed the intersection
+        else if( crossing && ((myEdge[0] != ':') || (myEdge[1] != 'C')) )
         {
-            hasLeft = true;
-            sendBeacons = true;
-        }
-        else
+            crossing = false;
+            leaving = true;
             sendBeacons = false;
+        }
+        else if(leaving)
+        {
+            sendBeacons = false;
+        }
+        // not crossed yet or during crossing
+        else
+        {
+            sendBeacons = true;
+        }
     }
-    // for any other TL, turn off beaconing
     else
         sendBeacons = false;
 }

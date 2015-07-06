@@ -40,6 +40,7 @@ public:
     virtual void finish();
     virtual void handleLowerMsg(cMessage* msg);
     virtual void handleSelfMsg(cMessage* msg);
+    virtual void receiveSignal(cComponent *, simsignal_t, cObject *);
 
 protected:
     void virtual executeEachTimeStep(bool);
@@ -49,6 +50,9 @@ protected:
     virtual void onBeaconPedestrian(BeaconPedestrian*);
     virtual void onBeaconRSU(BeaconRSU*);
     virtual void onData(LaneChangeMsg*);
+
+private:
+    simsignal_t Signal_beaconSignaling;
 };
 
 }

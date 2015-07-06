@@ -123,10 +123,13 @@ void ApplRSUTLVANET::executeEachTimeStep(bool simulationDone)
 }
 
 
+// draws a polygon to show the detection region
+// it is for the purpose of region demonstration
 void ApplRSUTLVANET::setDetectionRegion()
 {
     Coord pos = TraCI->junctionGetPosition(myTLid);
 
+    // todo: change from fix
     double x_length = 2*35 + 40;
     double y_length = 2*35 + 40;
 
@@ -191,7 +194,8 @@ template <typename T> void ApplRSUTLVANET::onBeaconAny(T wsm)
 
     // If in the detection region:
     // todo: change from fix values
-    if ( (pos.x > 845) && (pos.x < 955) && (pos.y > 843) && (pos.y < 955) )
+    // coordinates are the exact location of the middle of the LD
+    if ( (pos.x >= 851.1 /*x-pos of west LD*/) && (pos.x <= 948.8 /*x-pos of east LD*/) && (pos.y >= 851.1 /*y-pos of north LD*/) && (pos.y <= 948.8 /*y-pos of north LD*/) )
     {
         std::string lane = wsm->getLane();
 
