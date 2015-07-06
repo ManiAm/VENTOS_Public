@@ -1933,6 +1933,32 @@ void TraCI_Extend::TLSetState(std::string TLid, std::string value)
 
 
 // ################################################################
+//                             Junction
+// ################################################################
+
+// #########################
+// CMD_GET_JUNCTION_VARIABLE
+// #########################
+
+std::list<std::string> TraCI_Extend::junctionGetIDList()
+{
+    return genericGetStringList(CMD_GET_JUNCTION_VARIABLE, "",ID_LIST, RESPONSE_GET_JUNCTION_VARIABLE);
+}
+
+
+uint32_t TraCI_Extend::junctionGetIDCount()
+{
+    return genericGetInt(CMD_GET_JUNCTION_VARIABLE, "",ID_COUNT, RESPONSE_GET_JUNCTION_VARIABLE);
+}
+
+
+Coord TraCI_Extend::junctionGetPosition(std::string id)
+{
+    return genericGetCoordv2(CMD_GET_JUNCTION_VARIABLE, id, VAR_POSITION, RESPONSE_GET_JUNCTION_VARIABLE);
+}
+
+
+// ################################################################
 //                               GUI
 // ################################################################
 

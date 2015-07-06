@@ -291,6 +291,15 @@ public:
     void TLSetState(std::string, std::string);
 
     // ################################################################
+    //                             Junction
+    // ################################################################
+
+    // CMD_GET_JUNCTION_VARIABLE
+    std::list<std::string> junctionGetIDList();
+    uint32_t junctionGetIDCount();
+    Coord junctionGetPosition(std::string);
+
+    // ################################################################
     //                               GUI
     // ################################################################
 
