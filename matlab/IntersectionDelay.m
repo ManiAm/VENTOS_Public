@@ -7,10 +7,10 @@ clc;    % position the cursor at the top of the screen
 % ---------------------------------------------------------------
 
 % total number of simulation runs
-runTotal = 3;
+runTotal = 4;
 
 % path to folder
-basePATH = '../results/cmd/full_fix_web_adap_unbalanced_lessNS_2';
+basePATH = '../results/cmd/full_fix_web_adap_VANET_balanced';
 
 for runNumber = 0:runTotal-1
 
@@ -60,7 +60,7 @@ end
 
 disp('reading vehicleDelay.txt ...');
 
-path = sprintf('%s/%d_vehicleDelay.txt', basePATH, runNumber);
+path = sprintf('%s/%d_vehDelay.txt', basePATH, runNumber);
 file_id = fopen(path);
 formatSpec = '%s %s %s %f %d %f %f %f %f %f %f';
 C_text = textscan(file_id, formatSpec, 'HeaderLines', 2);
@@ -258,14 +258,20 @@ if(true)
         figure('name', 'Speed', 'units', 'normalized', 'outerposition', [0 0 1 1]);
     end
 
-    subplot(3,1,1);
     if(runNumber == 0)
-        plot(timeSteps_Q, averageQueueSize, '-.', 'LineWidth', 2);
+        lineMark = '-.';
     elseif(runNumber == 1)
-        plot(timeSteps_Q, averageQueueSize, '-', 'LineWidth', 2);    
+        lineMark = '-.x';    
+    elseif(runNumber == 2)
+        lineMark = '-';
+    elseif(runNumber == 3)
+        lineMark = '-.v';
     else
-        plot(timeSteps_Q, averageQueueSize, '-.x', 'LineWidth', 2);
+        lineMark = '--';
     end
+    
+    subplot(3,1,1);    
+    plot(timeSteps_Q, averageQueueSize, lineMark, 'LineWidth', 1);
 
     % set font size
     set(gca, 'FontSize', 17);
@@ -276,14 +282,8 @@ if(true)
     %grid on;
     hold on;
     
-    subplot(3,1,2);
-    if(runNumber == 0)
-        plot(timeSteps_D, delay, '-.', 'LineWidth', 2);
-    elseif(runNumber == 1)
-        plot(timeSteps_D, delay, '-', 'LineWidth', 2);    
-    else
-        plot(timeSteps_D, delay, '-.x', 'LineWidth', 2);
-    end
+    subplot(3,1,2);    
+    plot(timeSteps_D, delay, lineMark, 'LineWidth', 1);
 
     % set font size
     set(gca, 'FontSize', 17);
@@ -295,13 +295,7 @@ if(true)
     hold on;
 
     subplot(3,1,3);
-    if(runNumber == 0)
-        plot(timeSteps_T, throughput, '-.', 'LineWidth', 2);
-    elseif(runNumber == 1)
-        plot(timeSteps_T, throughput, '-', 'LineWidth', 2);    
-    else
-        plot(timeSteps_T, throughput, '-.x', 'LineWidth', 2);
-    end
+    plot(timeSteps_T, throughput, lineMark, 'LineWidth', 1);
 
     % set font size
     set(gca, 'FontSize', 17);
@@ -322,7 +316,7 @@ if(true)
         end   
         
         subplot(3,1,1);
-        legend('fix-time' , 'adaptive webster', 'traffic-actuated', 'Location', 'northwest');
+        legend('fix-time' , 'adaptive webster', 'traffic-actuated', 'VANET', 'Location', 'northwest');
     
         % mark change of demand with vertical lines
         for threshold=400:400:Xlimit(2)            
@@ -484,14 +478,20 @@ if(true)
         figure('name', 'Speed', 'units', 'normalized', 'outerposition', [0 0 1 1]);
     end
 
-    subplot(2,1,1);
     if(runNumber == 0)
-        plot(timeSteps_SW, totalCycles, '-.', 'LineWidth', 2);
+        lineMark = '-.';
     elseif(runNumber == 1)
-        plot(timeSteps_SW, totalCycles, '-', 'LineWidth', 2);    
+        lineMark = '-.x';    
+    elseif(runNumber == 2)
+        lineMark = '-';
+    elseif(runNumber == 3)
+        lineMark = '-.v';
     else
-        plot(timeSteps_SW, totalCycles, '-.x', 'LineWidth', 2);
+        lineMark = '--';
     end
+    
+    subplot(2,1,1);
+    plot(timeSteps_SW, totalCycles, lineMark, 'LineWidth', 1);
 
     % set font size
     set(gca, 'FontSize', 17);
@@ -503,14 +503,8 @@ if(true)
     hold on;
     
     subplot(2,1,2);
-    if(runNumber == 0)
-        plot(timeSteps_GR, totalGreenTime, '-.', 'LineWidth', 2);
-    elseif(runNumber == 1)
-        plot(timeSteps_GR, totalGreenTime, '-', 'LineWidth', 2);    
-    else
-        plot(timeSteps_GR, totalGreenTime, '-.x', 'LineWidth', 2);
-    end
-
+    plot(timeSteps_GR, totalGreenTime, lineMark, 'LineWidth', 1);
+            
     % set font size
     set(gca, 'FontSize', 17);
 
@@ -530,7 +524,7 @@ if(true)
         end   
         
         subplot(2,1,1);
-        legend('fix-time' , 'adaptive webster', 'traffic-actuated', 'Location', 'northwest');
+        legend('fix-time' , 'adaptive webster', 'traffic-actuated', 'VANET', 'Location', 'northwest');
     
         % mark change of demand with vertical lines
         for threshold=400:400:Xlimit(2)            
