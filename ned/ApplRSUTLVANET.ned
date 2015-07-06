@@ -5,6 +5,6 @@ simple ApplRSUTLVANET extends ApplRSUAID
 {
     parameters:
         @class(VENTOS::ApplRSUTLVANET);   
-
-
+        
+        bool collectVehApproach;
 }

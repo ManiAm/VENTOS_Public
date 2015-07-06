@@ -43,9 +43,12 @@ protected:
     virtual void handleSelfMsg(cMessage*);
     virtual void handlePositionUpdate(cObject*);
 
-    BeaconVehicle* prepareBeacon();
     bool isBeaconFromLeading(BeaconVehicle*);
     bool isBeaconFromMyPlatoonLeader(BeaconVehicle*);
+
+private:
+    void smartBeaconingDecision();
+    BeaconVehicle* prepareBeacon();
 
 protected:
     // NED
@@ -58,9 +61,6 @@ protected:
     double maxOffset;
     int beaconLengthBits;
     int beaconPriority;
-
-    // NED variables
-    bool smartBeaconing;
 
     // NED variables (data message parameters)
     int dataLengthBits;
@@ -75,6 +75,9 @@ protected:
     int myPlnDepth;
     int plnSize;
     std::deque<std::string> plnMembersList;
+
+private:
+    bool smartBeaconing;
     bool hasEntered;
     bool hasLeft;
 };

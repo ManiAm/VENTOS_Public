@@ -51,6 +51,10 @@ void AddRSU::initialize(int stage)
         cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
         TraCI = static_cast<TraCI_Extend *>(module);
 
+        // get a pointer to the TrafficLight module
+        module = simulation.getSystemModule()->getSubmodule("TrafficLight");
+        TLControlMode = module->par("TLControlMode").longValue();
+
         Signal_executeFirstTS = registerSignal("executeFirstTS");
         simulation.getSystemModule()->subscribe("executeFirstTS", this);
 
@@ -95,7 +99,7 @@ void AddRSU::Add()
     if (!on)
         return;
 
-    if(mode == 1)
+    if(mode == 1 && TLControlMode == TL_VANET)
     {
         Scenario1();
     }
@@ -121,21 +125,35 @@ void AddRSU::Scenario1()
     // Step 2: create RSUs in OMNET++
     // ##############################
 
-    int NoRSUs = RSUs.size();
-
     cModule* parentMod = getParentModule();
     if (!parentMod) error("Parent Module not found");
 
     cModuleType* nodeType = cModuleType::get("c3po.ned.RSU");
 
-    // We only create RSUs in OMNET++ without moving them to
-    // the correct position
+    std::list<std::string> TLList = TraCI->TLGetIDList();
+
+    // We only create RSUs in OMNET++ without moving them to the correct position
+    int NoRSUs = RSUs.size();
     for(int i = 0; i < NoRSUs; i++)
     {
         cModule* mod = nodeType->create("RSU", parentMod, NoRSUs, i);
+
         mod->finalizeParameters();
         mod->getDisplayString().updateWith("i=device/antennatower");
         mod->buildInside();
+
+        std::string myTLid = "";
+        for(std::list<std::string>::iterator y = TLList.begin(); y != TLList.end(); ++y)
+        {
+            if( (*y) == RSUs[i]->name )
+            {
+                myTLid = (*y);
+                break;
+            }
+        }
+
+        mod->getSubmodule("appl")->par("myTLid") = myTLid;
+
         mod->scheduleStart(simTime());
         mod->callInitialize();
     }
@@ -144,12 +162,12 @@ void AddRSU::Scenario1()
     // Step 3: draw RSU in SUMO (using a circle to show radio coverage)
     // ###############################################################
 
-    // get the radius of an RSU
-    cModule *module = simulation.getSystemModule()->getSubmodule("RSU", 0);
-    double radius = atof( module->getDisplayString().getTagArg("r",0) );
-
     for(int i = 0; i < NoRSUs; i++)
     {
+        // get the radius of an RSU
+        cModule *module = simulation.getSystemModule()->getSubmodule("RSU", i);
+        double radius = atof( module->getDisplayString().getTagArg("r",0) );
+
         Coord *center = new Coord(RSUs[i]->coordX, RSUs[i]->coordY);
         commandAddCirclePoly(RSUs[i]->name, "RSU", TraCIColor::fromTkColor("blue"), center, radius);
     }

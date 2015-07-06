@@ -37,14 +37,16 @@ class queueData
   public:
     std::string vehicleName;
     std::string lane;
+    std::string TLid;
     double entryTime;
     double leaveTime;
     double entrySpeed;
 
-    queueData(std::string str1, std::string str2, double entryT=-1, double leaveT=-1, double entryS=-1)
+    queueData(std::string str1, std::string str2="", std::string str3="", double entryT=-1, double leaveT=-1, double entryS=-1)
     {
         this->vehicleName = str1;
         this->lane = str2;
+        this->TLid = str3;
         this->entryTime = entryT;
         this->leaveTime = leaveT;
         this->entrySpeed = entryS;
@@ -77,14 +79,19 @@ class ApplRSUTLVANET : public ApplRSUAID
 	private:
         void setDetectionRegion();
         template <typename T> void onBeaconAny(T wsm);
+        static void saveVehApproach();
 
 	public:
         std::map<std::string /*lane*/, double /*time*/> detectedTime;
+        std::map<std::string,double> passageTimePerLane;
 
-	protected:
+	private:
+        bool collectVehApproach;
         int TLControlMode;
+        double minGreenTime;
+
         std::map<std::string /*lane*/, std::string /*TLid*/> lanesTL;  // all incoming lanes belong to each intersection
-        std::vector<queueData> Vec_queueData;
+        static std::vector<queueData> Vec_queueData;    // common in all RSUs
 };
 
 }

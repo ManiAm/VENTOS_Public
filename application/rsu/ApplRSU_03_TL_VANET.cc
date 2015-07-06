@@ -29,6 +29,8 @@
 
 namespace VENTOS {
 
+std::vector<queueData> ApplRSUTLVANET::Vec_queueData;
+
 Define_Module(VENTOS::ApplRSUTLVANET);
 
 ApplRSUTLVANET::~ApplRSUTLVANET()
@@ -44,39 +46,55 @@ void ApplRSUTLVANET::initialize(int stage)
     // get a pointer to the TrafficLight module
     cModule *module = simulation.getSystemModule()->getSubmodule("TrafficLight");
     TLControlMode = module->par("TLControlMode").longValue();
+    minGreenTime = module->par("minGreenTime").doubleValue();
 
     if (TLControlMode != TL_VANET)
         return;
 
     if (stage==0)
     {
-        // TraCI connection is established here (cause AddRSU invoked this)
-        // for each traffic light, get all incoming lanes
-        std::list<std::string> TLList = TraCI->TLGetIDList();
-        for (std::list<std::string>::iterator it = TLList.begin(); it != TLList.end(); ++it)
-        {
-            // for lane
-            std::list<std::string> lan = TraCI->TLGetControlledLanes(*it);
+        if(myTLid == "")
+            error("The id of %s does not match with any TL. Check RSUsLocation.xml file!", myFullId);
 
-            // remove duplicate entries
-            lan.unique();
+        collectVehApproach = par("collectVehApproach").boolValue();
 
-            // for each incoming lane
-            for(std::list<std::string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
-            {
-                lanesTL[*it2] = *it;
-            }
-        }
-
-        // initialize all detectedTime with zero
-        for(std::map<std::string, std::string>::iterator y = lanesTL.begin(); y != lanesTL.end(); ++y)
-        {
-            std::string lane = (*y).first;
-
-            detectedTime[lane] = 0;
-        }
+        Vec_queueData.clear();
 
         setDetectionRegion();
+
+        // for each incoming lane in this TL
+        std::list<std::string> lan = TraCI->TLGetControlledLanes(myTLid);
+
+        // remove duplicate entries
+        lan.unique();
+
+        // for each incoming lane
+        for(std::list<std::string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
+        {
+            std::string lane = *it2;
+
+            lanesTL[lane] = myTLid;
+
+            // initialize all detectedTime with zero
+            detectedTime[lane] = 0;
+
+            // get the max speed on this lane
+            double maxV = TraCI->laneGetMaxSpeed(lane);
+
+            // calculate passageTime for this lane
+            // todo: change fix value
+            double pass = 35. / maxV;
+
+            // check if not greater than Gmin
+            if(pass > minGreenTime)
+            {
+                std::cout << "WARNING: Passage time is greater than Gmin in lane " << lane << endl;
+                pass = minGreenTime;
+            }
+
+            // set it for each lane
+            passageTimePerLane[lane] = pass;
+        }
     }
 }
 
@@ -96,19 +114,34 @@ void ApplRSUTLVANET::handleSelfMsg(cMessage* msg)
 void ApplRSUTLVANET::executeEachTimeStep(bool simulationDone)
 {
     ApplRSUAID::executeEachTimeStep(simulationDone);
+
+    if(collectVehApproach)
+    {
+        if(ev.isGUI()) saveVehApproach();    // (if in GUI) write what we have collected so far
+        else if(simulationDone) saveVehApproach();  // (if in CMD) write to file at the end of simulation
+    }
 }
 
 
 void ApplRSUTLVANET::setDetectionRegion()
 {
-    // draw detection region for TL 'C'
+    Coord pos = TraCI->junctionGetPosition(myTLid);
+
+    double x_length = 2*35 + 40;
+    double y_length = 2*35 + 40;
+
+    // draw detection region for junction TLid
     std::list<TraCICoord> detectionRegion;
-    detectionRegion.push_back(TraCICoord(350, 350));
-    detectionRegion.push_back(TraCICoord(350, 450));
-    detectionRegion.push_back(TraCICoord(450, 450));
-    detectionRegion.push_back(TraCICoord(450, 350));
-    detectionRegion.push_back(TraCICoord(350, 350));
-    TraCI->polygonAdd("detectionArea_C", "region", TraCIColor::fromTkColor("blue"), 0, 1, detectionRegion);
+
+    detectionRegion.push_back(TraCICoord( pos.x - x_length/2., pos.y + y_length/2.) );
+    detectionRegion.push_back(TraCICoord( pos.x - x_length/2., pos.y - y_length/2.) );
+    detectionRegion.push_back(TraCICoord( pos.x + x_length/2., pos.y - y_length/2.) );
+    detectionRegion.push_back(TraCICoord( pos.x + x_length/2., pos.y + y_length/2.) );
+    detectionRegion.push_back(TraCICoord( pos.x - x_length/2., pos.y + y_length/2.) );
+
+    std::string polID = "detectionArea_" + myTLid;
+
+    TraCI->polygonAdd(polID, "region", TraCIColor::fromTkColor("blue"), 0, 1, detectionRegion);
 }
 
 
@@ -157,25 +190,24 @@ template <typename T> void ApplRSUTLVANET::onBeaconAny(T wsm)
     Coord pos = wsm->getPos();
 
     // If in the detection region:
-    if ( (pos.x > 350) && (pos.x < 450) && (pos.y > 350) && (pos.y < 450) )
+    // todo: change from fix values
+    if ( (pos.x > 845) && (pos.x < 955) && (pos.y > 843) && (pos.y < 955) )
     {
         std::string lane = wsm->getLane();
 
-        // If on one the incoming lanes:
-        if(lanesTL.find(lane) != lanesTL.end() && lanesTL[lane] == "C")
+        // If on one of the incoming lanes:
+        if(lanesTL.find(lane) != lanesTL.end() && lanesTL[lane] == myTLid)
         {
             // search queue for this vehicle
-            const queueData *searchFor = new queueData(sender, "");
+            const queueData *searchFor = new queueData(sender);
             std::vector<queueData>::iterator counter = std::find(Vec_queueData.begin(), Vec_queueData.end(), *searchFor);
 
             // If not in queue
             if (counter == Vec_queueData.end())
             {
                 // Add entry:
-                queueData *tmp = new queueData(sender, lane, simTime().dbl(), -1, wsm->getSpeed());
+                queueData *tmp = new queueData(sender, lane, myTLid, simTime().dbl(), -1, wsm->getSpeed());
                 Vec_queueData.push_back(*tmp);
-
-                std::cout << myFullId << ": vehicle '" << sender << "' is approaching from lane '" << lane << "' to the intersection 'C'." << endl;
 
                 // also update detectedTime (used by the TL_VANET)
                 std::map<std::string, double>::iterator loc = detectedTime.find(lane);
@@ -184,28 +216,80 @@ template <typename T> void ApplRSUTLVANET::onBeaconAny(T wsm)
                 else
                     error("lane %s does not exist in detectedTime map!", lane.c_str());
             }
+
+            // get the approach speed from the beacon
+            double approachSpeed = wsm->getSpeed();
+            // update passage time for this lane
+            if(approachSpeed > 0)
+            {
+                // calculate passageTime for this lane
+                // todo: change fix value
+                double pass = 35. / approachSpeed;
+                // check if not greater than Gmin
+                if(pass > minGreenTime)
+                    pass = minGreenTime;
+
+                // update passage time value in passageTimePerLane
+                std::map<std::string,double>::iterator location = passageTimePerLane.find(lane);
+                location->second = pass;
+            }
         }
         // Else exiting queue area, so log leave time:
         else
         {
             // search queue for this vehicle
-            const queueData *searchFor = new queueData(sender, "");
+            const queueData *searchFor = new queueData(sender);
             std::vector<queueData>::iterator counter = std::find(Vec_queueData.begin(), Vec_queueData.end(), *searchFor);
 
             if (counter == Vec_queueData.end())
                 error("vehicle %s does not exist in the queue!", sender.c_str());
 
             if(counter->leaveTime == -1)
-            {
                 counter->leaveTime = simTime().dbl();
-
-                std::cout << myFullId << ": vehicle '"  << sender << " left the intersection."
-                        << " EntryT: " << counter->entryTime
-                        << " | LeaveT: " << counter->leaveTime
-                        << " | Speed: "  << counter->entrySpeed  << endl;
-            }
         }
     }
+}
+
+
+void ApplRSUTLVANET::saveVehApproach()
+{
+    boost::filesystem::path filePath;
+
+    if( ev.isGUI() )
+    {
+        filePath = "results/gui/vehApproach.txt";
+    }
+    else
+    {
+        // get the current run number
+        int currentRun = ev.getConfigEx()->getActiveRunNumber();
+        std::ostringstream fileName;
+        fileName << currentRun << "_vehApproach.txt";
+        filePath = "results/cmd/" + fileName.str();
+    }
+
+    FILE *filePtr = fopen (filePath.string().c_str(), "w");
+
+    // write header
+    fprintf (filePtr, "%-20s","vehicleName");
+    fprintf (filePtr, "%-20s","lane");
+    fprintf (filePtr, "%-20s","TLid");
+    fprintf (filePtr, "%-20s","entryTime");
+    fprintf (filePtr, "%-20s","entrySpeed");
+    fprintf (filePtr, "%-20s\n\n","leaveTime");
+
+    // write body
+    for(std::vector<queueData>::iterator y = Vec_queueData.begin(); y != Vec_queueData.end(); ++y)
+    {
+        fprintf (filePtr, "%-20s ", (*y).vehicleName.c_str());
+        fprintf (filePtr, "%-20s ", (*y).lane.c_str());
+        fprintf (filePtr, "%-20s ", (*y).TLid.c_str());
+        fprintf (filePtr, "%-20.2f ", (*y).entryTime);
+        fprintf (filePtr, "%-20.2f", (*y).entrySpeed);
+        fprintf (filePtr, "%-20.2f\n", (*y).leaveTime);
+    }
+
+    fclose(filePtr);
 }
 
 }

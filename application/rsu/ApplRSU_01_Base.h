@@ -77,6 +77,8 @@ class ApplRSUBase : public BaseApplLayer
         simtime_t individualOffset;
         cMessage* RSUBeaconEvt;
 
+        std::string myTLid;
+
         static const simsignalwrap_t mobilityStateChangedSignal;
         simsignal_t Signal_executeEachTS;
 };

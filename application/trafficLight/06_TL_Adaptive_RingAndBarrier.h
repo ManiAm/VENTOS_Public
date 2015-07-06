@@ -49,10 +49,6 @@ class TrafficLightAdaptive : public TrafficLightWebster
     void chooseNextGreenInterval();
 
   protected:
-    // NED variables
-    double passageTime;
-    bool greenExtension;
-
     std::string phase1_5 = "grgrGgrgrrgrgrGgrgrrrrrr";
     std::string phase2_5 = "gGgGGgrgrrgrgrrgrgrrrrrG";
     std::string phase1_6 = "grgrrgrgrrgGgGGgrgrrrGrr";
@@ -64,6 +60,11 @@ class TrafficLightAdaptive : public TrafficLightWebster
     std::string phase4_8 = "grgrrgGgGrgrgrrgGgGrGrGr";
 
   private:
+    // NED variables
+    double passageTime;
+    bool greenExtension;
+
+    // class variables
     std::map<std::string /*TLid*/, std::string /*first green interval*/> firstGreen;
     std::map<std::string,double> passageTimePerLane;
 };

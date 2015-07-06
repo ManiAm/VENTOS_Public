@@ -112,46 +112,56 @@ void ApplVBeacon::handleSelfMsg(cMessage* msg)
 
     if (msg == VehicleBeaconEvt)
     {
-        if(VANETenabled && smartBeaconing)
+        // make sure VANETenabled is true
+        if(VANETenabled)
         {
-            if(TLControlMode == TL_VANET)
+            if(smartBeaconing)
+                smartBeaconingDecision();
+
+            if(sendBeacons)
             {
-                Coord myPos = TraCI->vehicleGetPosition(SUMOvID);
-                std::string myEdge = TraCI->vehicleGetEdgeID(SUMOvID);
-                // todo: change from fixed coordinates
-                if((!hasEntered) && (myPos.x > 350) && (myPos.x < 450) && (myPos.y > 350) && (myPos.y < 450))
-                {
-                    hasEntered = true;
-                    sendBeacons = true;
-                }
-                else if((!hasLeft) && (myEdge[0] == ':') && (myEdge[1] == 'C'))
-                {
-                    hasLeft = true;
-                    sendBeacons = true;
-                }
-                else
-                    sendBeacons = false;
+                BeaconVehicle* beaconMsg = prepareBeacon();
+
+                // fill-in the related fields to platoon
+                beaconMsg->setPlatoonID(plnID.c_str());
+                beaconMsg->setPlatoonDepth(myPlnDepth);
+
+                // send it
+                sendDelayed(beaconMsg, individualOffset, lowerLayerOut);
             }
-            // turn off beaconing for any other TL controller
-            else
-                sendBeacons = false;
-        }
-
-        if(VANETenabled && sendBeacons)
-        {
-            BeaconVehicle* beaconMsg = prepareBeacon();
-
-            // fill-in the related fields to platoon
-            beaconMsg->setPlatoonID(plnID.c_str());
-            beaconMsg->setPlatoonDepth(myPlnDepth);
-
-            // send it
-            sendDelayed(beaconMsg, individualOffset, lowerLayerOut);
         }
 
         // schedule for next beacon broadcast
         scheduleAt(simTime() + beaconInterval, VehicleBeaconEvt);
     }
+}
+
+
+void ApplVBeacon::smartBeaconingDecision()
+{
+    // if TL_VANET is active
+    if(TLControlMode == TL_VANET)
+    {
+        Coord myPos = TraCI->vehicleGetPosition(SUMOvID);
+        std::string myEdge = TraCI->vehicleGetEdgeID(SUMOvID);
+
+        // todo: change from fixed coordinates
+        if((!hasEntered) && (myPos.x > 845) && (myPos.x < 955) && (myPos.y > 843) && (myPos.y < 955))
+        {
+            hasEntered = true;
+            sendBeacons = true;
+        }
+        else if((!hasLeft) && (myEdge[0] == ':') && (myEdge[1] == 'C'))
+        {
+            hasLeft = true;
+            sendBeacons = true;
+        }
+        else
+            sendBeacons = false;
+    }
+    // for any other TL, turn off beaconing
+    else
+        sendBeacons = false;
 }
 
 

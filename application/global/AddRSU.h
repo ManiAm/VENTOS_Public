@@ -73,6 +73,7 @@ class AddRSU : public BaseModule
 
         bool on;
         int mode;
+        int TLControlMode;
         std::deque<RSUEntry*> RSUs;
 
         boost::filesystem::path VENTOS_FullPath;

@@ -46,10 +46,13 @@ class TrafficLightVANET : public TrafficLightAdaptiveQueue
     void virtual executeEachTimeStep(bool);
 
   private:
+    void findRSU(std::string);
     void chooseNextInterval();
     void chooseNextGreenInterval();
 
   private:
+    bool greenExtension;
+
     // class variables
     std::map<std::string /*TLid*/, std::string /*first green interval*/> firstGreen;
     ApplRSUTLVANET *RSU;
