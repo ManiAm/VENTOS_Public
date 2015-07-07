@@ -1,8 +1,8 @@
 /****************************************************************************/
-/// @file    VehicleWarmup.h
+/// @file    AddFlow.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
-/// @date    August 2013
+/// @date    Jul 2015
 ///
 /****************************************************************************/
 // VENTOS, Vehicular Network Open Simulator; see http:?
@@ -25,46 +25,40 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef WARMPUP
-#define WARMPUP
+#ifndef ADDFLOW
+#define ADDFLOW
 
+#include "BaseModule.h"
 #include "TraCI_Extend.h"
-#include "VehicleSpeedProfile.h"
 
 namespace VENTOS {
 
-class Warmup : public BaseModule
+class AddFlow : public BaseModule
 {
-	public:
-		virtual ~Warmup();
-		virtual void initialize(int stage);
-        virtual void handleMessage(cMessage *msg);
-		virtual void finish();
-	    virtual void receiveSignal(cComponent *, simsignal_t, long);
+public:
+    virtual ~AddFlow();
+    virtual void initialize(int stage);
+    virtual void handleMessage(cMessage *msg);
+    virtual void finish();
+    virtual void receiveSignal(cComponent *, simsignal_t, long);
 
-	private:
+private:
+    void Add();
 
-        // NED variables
-        cModule *nodePtr;       // pointer to the Node module
-        TraCI_Extend *TraCI;  // pointer to the TraCI module
-        SpeedProfile *SpeedProfilePtr;
+    void Scenario1();
 
-        bool on;
-        std::string laneId;
-        double stopPosition;  // the position that first vehicle should stop waiting for others
-        double warmUpSpeed;
-        double waitingTime;
-        int totalVehicles;
+private:
+    // NED variables
+    cModule *nodePtr;   // pointer to the Node
+    TraCI_Extend *TraCI;  // pointer to the TraCI module
+    boost::filesystem::path launchFullPath;
 
-        // class variables
-        double startTime;     // the time that Warmup starts
-        bool IsWarmUpFinished;
-        cMessage* warmupFinish;
-        simsignal_t Signal_executeEachTS;
+    bool on;
+    int flowSet;
 
-        // methods
-        bool DoWarmup();
-        bool warmUpFinished();
+    // class variables
+    simsignal_t Signal_addFlow;
+    boost::filesystem::path SUMO_FullPath;
 };
 
 }

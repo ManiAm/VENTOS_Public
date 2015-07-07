@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    AddVehicle.h
+/// @file    AddEntity.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    August 2013
@@ -25,8 +25,8 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef VEHICLEADD
-#define VEHICLEADD
+#ifndef ADDENTITY
+#define ADDENTITY
 
 #include "BaseModule.h"
 #include "TraCI_Extend.h"
@@ -35,10 +35,10 @@
 
 namespace VENTOS {
 
-class AddVehicle : public BaseModule
+class AddEntity : public BaseModule
 {
 public:
-    virtual ~AddVehicle();
+    virtual ~AddEntity();
     virtual void initialize(int stage);
     virtual void handleMessage(cMessage *msg);
     virtual void finish();

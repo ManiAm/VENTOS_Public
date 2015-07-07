@@ -15,108 +15,23 @@
   </vType>
   
   <!-- North inbound -->
-  <route id="route1" edges="NC CS" /> 
-  <route id="route2" edges="NC CW" /> 
-  <route id="route3" edges="NC CE" />  
+  <route id="movement2" edges="NC CS" />      <!-- Through -->
+  <route id="route2" edges="NC CW" />         <!-- Right -->
+  <route id="movement5" edges="NC CE" />      <!-- Left -->
 
   <!-- South inbound -->
-  <route id="route4" edges="SC CN" />
-  <route id="route5" edges="SC CE" />
-  <route id="route6" edges="SC CW" />
+  <route id="movement6" edges="SC CN" />     <!-- Through -->
+  <route id="route5" edges="SC CE" />        <!-- Right -->
+  <route id="movement1" edges="SC CW" />     <!-- Left -->
   
   <!-- West inbound -->
-  <route id="route7" edges="WC CE" />  
-  <route id="route8" edges="WC CS" />  
-  <route id="route9" edges="WC CN" /> 
+  <route id="movement8" edges="WC CE" />     <!-- Through -->
+  <route id="route8" edges="WC CS" />        <!-- Right -->
+  <route id="movement3" edges="WC CN" />     <!-- Left -->
   
   <!-- East inbound -->
-  <route id="route10" edges="EC CW" />  
-  <route id="route11" edges="EC CN" />  
-  <route id="route12" edges="EC CS" />  
-  
-  
-  <!-- increasing traffic demand -->
-  
-  <flow id="route1a" begin="0" end="400" vehsPerHour="100" type="TypeManual" route="route1" />
-  <flow id="route2a" begin="0" end="400" vehsPerHour="100" type="TypeManual" route="route3" />
-  <flow id="route3a" begin="0" end="400" vehsPerHour="100" type="TypeManual" route="route4" />
-  <flow id="route4a" begin="0" end="400" vehsPerHour="100" type="TypeManual" route="route6" />  
-  <flow id="route5a" begin="0" end="400" vehsPerHour="100" type="TypeManual" route="route7" />
-  <flow id="route6a" begin="0" end="400" vehsPerHour="100" type="TypeManual" route="route9" />  
-  <flow id="route7a" begin="0" end="400" vehsPerHour="100" type="TypeManual" route="route10" />
-  <flow id="route8a" begin="0" end="400" vehsPerHour="100" type="TypeManual" route="route12" />
-  
-  <flow id="route1b" begin="400" end="800" vehsPerHour="200" type="TypeManual" route="route1" />
-  <flow id="route2b" begin="400" end="800" vehsPerHour="200" type="TypeManual" route="route3" />
-  <flow id="route3b" begin="400" end="800" vehsPerHour="200" type="TypeManual" route="route4" />
-  <flow id="route4b" begin="400" end="800" vehsPerHour="200" type="TypeManual" route="route6" />  
-  <flow id="route5b" begin="400" end="800" vehsPerHour="200" type="TypeManual" route="route7" />
-  <flow id="route6b" begin="400" end="800" vehsPerHour="200" type="TypeManual" route="route9" />  
-  <flow id="route7b" begin="400" end="800" vehsPerHour="200" type="TypeManual" route="route10" />
-  <flow id="route8b" begin="400" end="800" vehsPerHour="200" type="TypeManual" route="route12" />
-  
-  <flow id="route1c" begin="800" end="1200" vehsPerHour="300" type="TypeManual" route="route1" />
-  <flow id="route2c" begin="800" end="1200" vehsPerHour="300" type="TypeManual" route="route3" />
-  <flow id="route3c" begin="800" end="1200" vehsPerHour="300" type="TypeManual" route="route4" />
-  <flow id="route4c" begin="800" end="1200" vehsPerHour="300" type="TypeManual" route="route6" />  
-  <flow id="route5c" begin="800" end="1200" vehsPerHour="300" type="TypeManual" route="route7" />
-  <flow id="route6c" begin="800" end="1200" vehsPerHour="300" type="TypeManual" route="route9" />  
-  <flow id="route7c" begin="800" end="1200" vehsPerHour="300" type="TypeManual" route="route10" />
-  <flow id="route8c" begin="800" end="1200" vehsPerHour="300" type="TypeManual" route="route12" />  
-  
-  <flow id="route1d" begin="1200" end="1600" vehsPerHour="400" type="TypeManual" route="route1" />
-  <flow id="route2d" begin="1200" end="1600" vehsPerHour="400" type="TypeManual" route="route3" />
-  <flow id="route3d" begin="1200" end="1600" vehsPerHour="400" type="TypeManual" route="route4" />
-  <flow id="route4d" begin="1200" end="1600" vehsPerHour="400" type="TypeManual" route="route6" />  
-  <flow id="route5d" begin="1200" end="1600" vehsPerHour="400" type="TypeManual" route="route7" />
-  <flow id="route6d" begin="1200" end="1600" vehsPerHour="400" type="TypeManual" route="route9" />  
-  <flow id="route7d" begin="1200" end="1600" vehsPerHour="400" type="TypeManual" route="route10" />
-  <flow id="route8d" begin="1200" end="1600" vehsPerHour="400" type="TypeManual" route="route12" />  
-  
-  <flow id="route1e" begin="1600" end="2000" vehsPerHour="500" type="TypeManual" route="route1" />
-  <flow id="route2e" begin="1600" end="2000" vehsPerHour="500" type="TypeManual" route="route3" />
-  <flow id="route3e" begin="1600" end="2000" vehsPerHour="500" type="TypeManual" route="route4" />
-  <flow id="route4e" begin="1600" end="2000" vehsPerHour="500" type="TypeManual" route="route6" />  
-  <flow id="route5e" begin="1600" end="2000" vehsPerHour="500" type="TypeManual" route="route7" />
-  <flow id="route6e" begin="1600" end="2000" vehsPerHour="500" type="TypeManual" route="route9" />  
-  <flow id="route7e" begin="1600" end="2000" vehsPerHour="500" type="TypeManual" route="route10" />
-  <flow id="route8e" begin="1600" end="2000" vehsPerHour="500" type="TypeManual" route="route12" />
-  
-  <flow id="route1f" begin="2000" end="2400" vehsPerHour="400" type="TypeManual" route="route1" />
-  <flow id="route2f" begin="2000" end="2400" vehsPerHour="400" type="TypeManual" route="route3" />
-  <flow id="route3f" begin="2000" end="2400" vehsPerHour="400" type="TypeManual" route="route4" />
-  <flow id="route4f" begin="2000" end="2400" vehsPerHour="400" type="TypeManual" route="route6" />  
-  <flow id="route5f" begin="2000" end="2400" vehsPerHour="400" type="TypeManual" route="route7" />
-  <flow id="route6f" begin="2000" end="2400" vehsPerHour="400" type="TypeManual" route="route9" />  
-  <flow id="route7f" begin="2000" end="2400" vehsPerHour="400" type="TypeManual" route="route10" />
-  <flow id="route8f" begin="2000" end="2400" vehsPerHour="400" type="TypeManual" route="route12" />
-  
-  <flow id="route1g" begin="2400" end="2800" vehsPerHour="300" type="TypeManual" route="route1" />
-  <flow id="route2g" begin="2400" end="2800" vehsPerHour="300" type="TypeManual" route="route3" />
-  <flow id="route3g" begin="2400" end="2800" vehsPerHour="300" type="TypeManual" route="route4" />
-  <flow id="route4g" begin="2400" end="2800" vehsPerHour="300" type="TypeManual" route="route6" />  
-  <flow id="route5g" begin="2400" end="2800" vehsPerHour="300" type="TypeManual" route="route7" />
-  <flow id="route6g" begin="2400" end="2800" vehsPerHour="300" type="TypeManual" route="route9" />  
-  <flow id="route7g" begin="2400" end="2800" vehsPerHour="300" type="TypeManual" route="route10" />
-  <flow id="route8g" begin="2400" end="2800" vehsPerHour="300" type="TypeManual" route="route12" />
-  
-  <flow id="route1h" begin="2800" end="3200" vehsPerHour="200" type="TypeManual" route="route1" />
-  <flow id="route2h" begin="2800" end="3200" vehsPerHour="200" type="TypeManual" route="route3" />
-  <flow id="route3h" begin="2800" end="3200" vehsPerHour="200" type="TypeManual" route="route4" />
-  <flow id="route4h" begin="2800" end="3200" vehsPerHour="200" type="TypeManual" route="route6" />  
-  <flow id="route5h" begin="2800" end="3200" vehsPerHour="200" type="TypeManual" route="route7" />
-  <flow id="route6h" begin="2800" end="3200" vehsPerHour="200" type="TypeManual" route="route9" />  
-  <flow id="route7h" begin="2800" end="3200" vehsPerHour="200" type="TypeManual" route="route10" />
-  <flow id="route8h" begin="2800" end="3200" vehsPerHour="200" type="TypeManual" route="route12" />
-  
-  <flow id="route1i" begin="3200" end="3600" vehsPerHour="100" type="TypeManual" route="route1" />
-  <flow id="route2i" begin="3200" end="3600" vehsPerHour="100" type="TypeManual" route="route3" />
-  <flow id="route3i" begin="3200" end="3600" vehsPerHour="100" type="TypeManual" route="route4" />
-  <flow id="route4i" begin="3200" end="3600" vehsPerHour="100" type="TypeManual" route="route6" />  
-  <flow id="route5i" begin="3200" end="3600" vehsPerHour="100" type="TypeManual" route="route7" />
-  <flow id="route6i" begin="3200" end="3600" vehsPerHour="100" type="TypeManual" route="route9" />  
-  <flow id="route7i" begin="3200" end="3600" vehsPerHour="100" type="TypeManual" route="route10" />
-  <flow id="route8i" begin="3200" end="3600" vehsPerHour="100" type="TypeManual" route="route12" />
-
+  <route id="movement4" edges="EC CW" />     <!-- Through -->
+  <route id="route11" edges="EC CN" />       <!-- Right -->
+  <route id="movement7" edges="EC CS" />     <!-- Left --> 
 
 </routes>

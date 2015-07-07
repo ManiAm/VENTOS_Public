@@ -56,7 +56,7 @@ void Warmup::initialize(int stage)
         SpeedProfilePtr = static_cast<SpeedProfile *>(module);
 
         // get totoal vehicles from AddVehicle module
-        totalVehicles = simulation.getSystemModule()->getSubmodule("addVehicle")->par("totalVehicles").longValue();
+        totalVehicles = simulation.getSystemModule()->getSubmodule("addEntity")->par("totalVehicles").longValue();
 
         Signal_executeEachTS = registerSignal("executeEachTS");
         simulation.getSystemModule()->subscribe("executeEachTS", this);

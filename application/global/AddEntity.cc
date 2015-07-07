@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    AddVehicle.cc
+/// @file    AddEntity.cc
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    August 2013
@@ -25,21 +25,21 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "AddVehicle.h"
+#include "AddEntity.h"
 #include "Router.h"
 #include <algorithm>
 
 namespace VENTOS {
 
-Define_Module(VENTOS::AddVehicle);
+Define_Module(VENTOS::AddEntity);
 
-AddVehicle::~AddVehicle()
+AddEntity::~AddEntity()
 {
 
 }
 
 
-void AddVehicle::initialize(int stage)
+void AddEntity::initialize(int stage)
 {
     if(stage ==0)
     {
@@ -72,30 +72,30 @@ void AddVehicle::initialize(int stage)
 }
 
 
-void AddVehicle::finish()
+void AddEntity::finish()
 {
 
 }
 
 
-void AddVehicle::handleMessage(cMessage *msg)
+void AddEntity::handleMessage(cMessage *msg)
 {
 
 }
 
 
-void AddVehicle::receiveSignal(cComponent *source, simsignal_t signalID, long i)
+void AddEntity::receiveSignal(cComponent *source, simsignal_t signalID, long i)
 {
     Enter_Method_Silent();
 
     if(signalID == Signal_executeFirstTS)
     {
-        AddVehicle::Add();
+        AddEntity::Add();
     }
 }
 
 
-void AddVehicle::Add()
+void AddEntity::Add()
 {
     // if dynamic adding is off, return
     if (!on)
@@ -145,7 +145,7 @@ void AddVehicle::Add()
 
 
 // adding TypeCACC1 vehicles (CACC vehicles with one-vehicle look-ahead communication)
-void AddVehicle::Scenario1()
+void AddEntity::Scenario1()
 {
     int depart = 0;
 
@@ -160,7 +160,7 @@ void AddVehicle::Scenario1()
 }
 
 
-void AddVehicle::Scenario2()
+void AddEntity::Scenario2()
 {
     int depart = 0;
 
@@ -175,7 +175,7 @@ void AddVehicle::Scenario2()
 }
 
 
-void AddVehicle::Scenario3()
+void AddEntity::Scenario3()
 {
     int depart = 0;
 
@@ -190,7 +190,7 @@ void AddVehicle::Scenario3()
 }
 
 
-void AddVehicle::Scenario4()
+void AddEntity::Scenario4()
 {
     // change from 'veh/h' to 'veh/s'
     lambda = lambda / 3600;
@@ -211,7 +211,7 @@ void AddVehicle::Scenario4()
 }
 
 
-void AddVehicle::Scenario5()
+void AddEntity::Scenario5()
 {
     int depart = 0;
 
@@ -235,7 +235,7 @@ void AddVehicle::Scenario5()
 }
 
 
-void AddVehicle::Scenario6()
+void AddEntity::Scenario6()
 {
     // change from 'veh/h' to 'veh/s'
     lambda = lambda / 3600;
@@ -278,7 +278,7 @@ void AddVehicle::Scenario6()
 }
 
 
-void AddVehicle::Scenario7()
+void AddEntity::Scenario7()
 {
     int depart = 0;
 
@@ -363,7 +363,7 @@ void generateVehicles(std::string dir, Router* r)
     vFile.close();
 }
 
-void AddVehicle::Scenario8()
+void AddEntity::Scenario8()
 {
     cModule *module = simulation.getSystemModule()->getSubmodule("router");
     Router *r = static_cast< Router* >(module);
@@ -435,7 +435,7 @@ void AddVehicle::Scenario8()
 }
 
 
-void AddVehicle::Scenario9()
+void AddEntity::Scenario9()
 {
     // demand per second for north inbound
     double pNS = 700. / 3600.;

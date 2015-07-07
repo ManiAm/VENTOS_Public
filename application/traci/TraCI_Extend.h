@@ -358,6 +358,10 @@ private:
     uint8_t* genericGetArrayUnsignedInt(uint8_t, std::string, uint8_t, uint8_t);                                                    // new command
 
 protected:
+    // NED variables
+    cModule *nodePtr;   // pointer to the Node
+
+    // class variables
     boost::filesystem::path VENTOS_FullPath;
     boost::filesystem::path SUMO_Path;
     boost::filesystem::path SUMO_FullPath;

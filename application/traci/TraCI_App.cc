@@ -46,11 +46,6 @@ void TraCI_App::initialize(int stage)
 
     if(stage == 0)
     {
-        // get the ptr of the current module
-        nodePtr = FindModule<>::findHost(this);
-        if(nodePtr == NULL)
-            error("can not get a pointer to the module.");
-
         terminate = par("terminate").doubleValue();
 
         subscribedPedestrians.clear();

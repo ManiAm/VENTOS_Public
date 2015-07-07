@@ -1,14 +1,15 @@
 
 package c3po.ned;
 
-simple AddVehicle
+simple AddEntity
 {
     parameters:
-        @class(VENTOS::AddVehicle);
+        @class(VENTOS::AddEntity);
         @display("i=block/network2");
         
         bool on = default(true);
         int mode;
+        
         int totalVehicles;
         int lambda;
         int plnSize;

@@ -52,7 +52,6 @@ private:
 
 private:
     // NED variables
-    cModule *nodePtr;   // pointer to the Node
     double terminate;
 
     // NED (bicycles)

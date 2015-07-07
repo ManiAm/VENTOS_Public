@@ -45,6 +45,11 @@ void TraCI_Extend::initialize(int stage)
 
     if (stage == 1)
     {
+        // get the ptr of the current module
+        nodePtr = FindModule<>::findHost(this);
+        if(nodePtr == NULL)
+            error("can not get a pointer to the module.");
+
         VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
         SUMO_Path = simulation.getSystemModule()->par("SUMODirectory").stringValue();
         SUMO_FullPath = VENTOS_FullPath / SUMO_Path;
@@ -219,7 +224,11 @@ void TraCI_Extend::sendLaunchFile()
     os << doc;
     std::string contents = os.str();
 
-    // send the std::string of the launch file to python
+    // call AddVehicle to insert flows if needed
+    simsignal_t Signal_addFlow = registerSignal("addFlow");
+    nodePtr->emit(Signal_addFlow, 0);
+
+    // send the std::string of the launch file to Python
     uint8_t commandId = 0x75;
     TraCIBuffer buf;
     buf << std::string("sumo-launchd.launch.xml") << contents;

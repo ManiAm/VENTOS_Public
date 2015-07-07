@@ -7,7 +7,7 @@ simple AddAdversary
         @class(VENTOS::AddAdversary);
         @display("i=block/network2");
         
-        bool on = default(true);
+        bool on = default(false);
         int mode;  
 }
 

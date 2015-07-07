@@ -51,17 +51,21 @@ network Network
             parameters:
                 @display("p=408,372");
         }
-        addVehicle: AddVehicle {
+        addEntity: AddEntity {
             parameters:
                 @display("p=61,459;i=old/bwsink");
         }
+        addFlow: AddFlow {
+            parameters:
+                @display("p=140,459;i=old/bwsink");
+        }
         addRSU: AddRSU {
             parameters:
-                @display("p=176,459;i=old/bwsink");
+                @display("p=222,459;i=old/bwsink");
         }
         addAdversary: AddAdversary {
             parameters:
-                @display("p=280,459;i=old/bwsink");
+                @display("p=310,459;i=old/bwsink");
         }
         warmup: Warmup {
             parameters:
@@ -85,7 +89,7 @@ network Network
         }
         plotter: Plotter {
             parameters:
-                @display("p=369,459;i=block/app");
+                @display("p=274,546;i=block/app");
         }
 
     connections allowunconnected:
