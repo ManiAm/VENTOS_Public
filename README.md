@@ -7,7 +7,7 @@ VENTOS is an integrated C++ simulator for studying traffic flows in Vehicular Ad
 Install OMNET++
 ---------------
 
-**Step 1:** Download the latest OMNET++ compressed file from [here](http://www.omnetpp.org/omnetpp) and extract it into a folder (folder name should not have space), and make sure you have write permission. 
+**Step 1:** Download the latest OMNET++ compressed file from [here](http://www.omnetpp.org/omnetpp) and extract it into a folder (folder name should not have space), and make sure you have write permission in that folder.
 
 
 **Step 2:** You should install a couple of packages, but first refresh the database of available packages:
@@ -30,19 +30,19 @@ Then
 
     export PATH=$PATH:/home/mani/Desktop/omnetpp-4.6/bin
 
-Note that You need to close and re-open the terminal for the changes to take effect.
+Save the file and then close/re-open the terminal for the changes to take effect.
 
 **Step 5:** In the OMNeT++ directory, type the following command. Pay close attention to errors and warnings, and ignore warnings regarding Akaroa!.
 
     ./configure
 
-For geeks: In the OMNET++ folder you can see `configure.in` file. autoconf uses this file to generate the `configure` script. Additional input parameters for configure script are defined in `configure.user` file. The configure script detects installed software and configuration of your system, and generates three outputs: `config.log`, `config.status`, and `Makefile.inc`. The first two files are used for debugging purposes, and the last file will be read later on by the makefiles during the build process.
+For geeks: In the OMNET++ folder you can see the `configure.in` file that is used by autoconf to generate the `configure` script. Additional input parameters for configure script are defined in `configure.user` file. The configure script detects installed software and configuration of your system, and generates three outputs: `config.log`, `config.status`, and `Makefile.inc`. The first two files are used for debugging purposes, and the last file will be read later by the makefiles during the build process.
 
 **Step 6:** Starting from version 4.6, OMNET++ uses C++11 standard (formerly known as C++0x) by default. This means that OMNET++ source code as well as all the imported projects will be compiled with this flag. Look for this line in the configure output, and make sure that it is 'yes'.
 
     checking whether g++ supports -std=c++11... yes
 
-If not, first navigate to OMNET++ folder and open the file 'configure.user'. Find USE_CXX11 flag and set it to 'yes'. If USE_CXX11 is already set to 'yes', then your g++ compiler does not support C++11 standard. Follow these instructions to install g++ 4.8:
+If not, first navigate to OMNET++ folder and open the 'configure.user' file. Find USE_CXX11 flag and set it to 'yes'. If USE_CXX11 is already set to 'yes', then your g++ compiler does not support C++11 standard. Follow these instructions to install g++ 4.8:
 
     sudo add-apt-repository ppa:ubuntu-toolchain-r/test
     sudo apt-get update
@@ -55,13 +55,13 @@ If not, first navigate to OMNET++ folder and open the file 'configure.user'. Fin
     sudo update-alternatives --config gcc
     sudo update-alternatives --config g++
 
-Now run ./configure again and re-check.
+Run ./configure again and re-check.
 
 **Step 7:** Now you can compile OMNET++ by using make. Compiling takes some time, so relax, grab a cup of coffee <img src="https://github.com/ManiAm/VENTOS/blob/master/coffee.png" width="25" height="25" /> and watch [this](https://www.youtube.com/watch?v=A6XUVjK9W4o).
 
     make
 
-**Step 8:** Installation of OMNET++ is done!, and you can verify that the sample simulations run correctly. For example, the dyna simulation is started by entering the following commands. First we go to the sample/dyna folder, and then we run it.
+**Step 8:** OMNET++ installation is done and you can verify this by running a sample simulation. For example, the dyna simulation is started by entering the following commands. First go to the sample/dyna folder, and then run it.
 
     cd samples/dyna
     ./dyna
@@ -92,7 +92,7 @@ Veins is on github, and you should clone it into your computer.
 
     sudo apt-get install git
 
-**Step 2:** Use the following command to clone the Veins repository on your machine. This command creates a folder called veins in the current directory (run the command in the same folder as Eclipse workspace as you specified before in step 9)
+**Step 2:** Use the following command to clone the Veins repository on your machine. This command creates a folder called veins in the current directory (run the command in the same folder as Eclipse workspace that you specified before in step 9)
 
     git clone https://github.com/sommer/veins
 
@@ -102,11 +102,11 @@ Veins is on github, and you should clone it into your computer.
 
 - Open TraCIScenarioManager.h file and change `void executeOneTimestep()` to `virtual void executeOneTimestep()`, and `void addModule()` to `virtual void addModule()`
 
-- Open TraCICommandInterface.h file, and change access modifier private into public!
+- Open TraCICommandInterface.h file, and change access modifier private into public.
 
 - [optional] Open TraCIConnection.cc file, and comment line "MYDEBUG << "Reading TraCI message of " << bufLength << " bytes" << endl;" and also "MYDEBUG << "Writing TraCI message of " << buf.length() << " bytes" << endl;"
 
-**Step 5:** After these modifications, build the veins project. To build the veins project, right-click on the project name and choose "Build Project". Wait for a while and then check the Console windows at the bottom of the Eclipse IDE to make sure no errors occurred. At the end you should see a message like this:
+**Step 5:** After these modifications, build the veins project. To build the veins project use Ctrl+B or right-click on the project name and choose "Build Project". Wait for a while and then check the console windows at the bottom of the Eclipse IDE to make sure no errors occurred. At the end you should see a message like this:
 
     00::04:42 Build Finished (took 2m:23s.177ms)
 
@@ -129,7 +129,7 @@ Ubuntu 14.04:
 
     sudo apt-get install git
 
-**Step 3:** Clone the VENTOS repository in the current directory (run the command in the same folder as Eclipse workspace as you specified before). You also need to provide your github username and password.
+**Step 3:** Clone the VENTOS repository in the current directory (run the command in the same folder as Eclipse workspace that you specified before). You also need to provide your github username and password.
 
     git clone https://github.com/ManiAm/VENTOS
 
@@ -139,7 +139,7 @@ Note: Wait for a while until "C/C++ Indexer" finishes its job.
 
 **Step 5:** Right click on VENTOS project name and click Properties. Go to 'Project References' and make sure veins is selected.
 
-**Step 6:** Now you build the VENTOS project. Right-click on the project name and choose "Build Project". Wait for a while and then check the Console windows at the bottom of the Eclipse IDE to make sure no errors occurred.
+**Step 6:** Now you can build the VENTOS project. Use Ctrl+B or right-click on the project name and choose "Build Project". Wait for a while and then check the console windows at the bottom of the Eclipse IDE to make sure no errors occurred.
     
 
 Running the VENTOS Project
@@ -149,7 +149,7 @@ Running the VENTOS Project
 
     python sumo-launchd.py -vv -c /path/to/sumo/binary
 
-sumoD and sumo-guiD are two SUMO binaries that can be used with the above command. They both will be downloaded automatically in the VENTOS/sumoBinary folder upon the first run of the VENTOS project. sumo-guiD is the GUI version that provides a graphical interface to SUMO, and is visible while the OMNET++ simulation is running (and is very good for debugging purposes). On the other hands, sumoD is the command-line version which is faster. Thus you should run either of the following commands in the veins folder (with this assumption that VENTOS folder is stored on Desktop):
+sumoD and sumo-guiD are two SUMO binaries that can be used with the above command. They both will be downloaded automatically in the VENTOS/sumoBinary folder upon the first run of the project. sumo-guiD is the GUI version that provides a graphical interface to SUMO, and is visible while the OMNET++ simulation is running (and is very good for debugging purposes). On the other hands, sumoD is the command-line version which is faster. Thus you should run either of the following commands in the veins folder (with this assumption that VENTOS folder is on Desktop):
 
 SUMO in graphical mode:
 
@@ -167,14 +167,14 @@ SUMO in command-line mode:
     alias sumo-cmd='python $veinsPATH/sumo-launchd.py -vv -c $sumoBinaryPATH/sumoD'
     alias sumo-gui='python $veinsPATH/sumo-launchd.py -vv -c $sumoBinaryPATH/sumo-guiD'
 
-Now, you can use sumo-cmd and sumo-gui commands instead! After running either of these commands, DO NOT close the terminal window. Leave it open.
+Now you can use sumo-cmd and sumo-gui commands instead! After running either of these commands, DO NOT close the terminal window. Leave it open.
 
 
-**Step 3:** Now you can run the VENTOS project. To do this, right click on the omnetpp.ini file in the IDE and choose: 
+**Step 3:** Run the VENTOS project by right clicking on the `params_config.ini` file in the IDE and choose: 
 
     "Run as" -> "Run configurations..."
 
 Choose 'OMNET++ Simulation' and click on 'New launch configuration' button at the top left. Give this configuration a name like myConfig. In Executable, choose opp_run and in 'Config name' choose a configuration from drop down list like CACCVehicleStream1. Leave the rest of the options to default. Click Apply and then click Run.
 
-Upon the first execution, VENTOS tries to download sumoD and sumo-guiD. Type y to proceed.
+Upon the first execution, VENTOS tries to download sumoD and sumo-guiD. Type y to proceed. Try to play with other configuration scenarios to feel confortable with the environment and change different parameters to see the effect on the simulation output.
 
