@@ -51,9 +51,10 @@ void SumoBinary::initialize(int stage)
 
         update = par("update").boolValue();
 
-        // todo: check each day!
-        // a way to turn this feature off
-        checkIfBinaryExists();
+        checkForMissingBinary();
+
+        // if update is on, check if a new binary exists on DropBox
+        if(update) checkIfNewerVersionExists();
     }
 }
 
@@ -70,7 +71,7 @@ void SumoBinary::handleMessage(cMessage *msg)
 }
 
 
-void SumoBinary::checkIfBinaryExists()
+void SumoBinary::checkForMissingBinary()
 {
     // both binaries are missing
     if( !boost::filesystem::exists( SUMO_CMD_Binary_FullPath ) && !exists( SUMO_GUI_Binary_FullPath ) )
@@ -100,8 +101,6 @@ void SumoBinary::checkIfBinaryExists()
 
         if(answer == "y")
             downloadBinary(SUMO_GUI_FileName, SUMO_GUI_Binary_FullPath.string(), SUMO_GUI_URL);
-
-        checkIfNewerVersionExists(SUMO_CMD_FileName, SUMO_CMD_Binary_FullPath.string(), SUMO_CMD_URL);
     }
     // only CMD binary is missing
     else if( !boost::filesystem::exists( SUMO_CMD_Binary_FullPath ) && exists( SUMO_GUI_Binary_FullPath ) )
@@ -114,14 +113,6 @@ void SumoBinary::checkIfBinaryExists()
 
         if(answer == "y")
             downloadBinary(SUMO_CMD_FileName, SUMO_CMD_Binary_FullPath.string(), SUMO_CMD_URL);
-
-        checkIfNewerVersionExists(SUMO_GUI_FileName, SUMO_GUI_Binary_FullPath.string(), SUMO_GUI_URL);
-    }
-    // both binaries exists, check if newer version is available?
-    else
-    {
-        checkIfNewerVersionExists(SUMO_GUI_FileName, SUMO_GUI_Binary_FullPath.string(), SUMO_GUI_URL);
-        checkIfNewerVersionExists(SUMO_CMD_FileName, SUMO_CMD_Binary_FullPath.string(), SUMO_CMD_URL);
     }
 }
 
@@ -154,8 +145,7 @@ void SumoBinary::downloadBinary(std::string binaryName, std::string filePath, st
     }
 
     curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-    // we tell libcurl to follow redirection
-    curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+    curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);  // we tell libcurl to follow redirection
     curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 6);
     curl_easy_setopt(curl, CURLOPT_USERAGENT, "libcurl-agent/1.0");
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
@@ -249,17 +239,14 @@ int SumoBinary::getRemoteVersion()
 }
 
 
-void SumoBinary::checkIfNewerVersionExists(std::string binaryName, std::string filePath, std::string url)
+void SumoBinary::checkIfNewerVersionExists()
 {
-    if(!update)
-        return;
-
-    std::cout << "Checking for " << binaryName << "'s update ... ";
+    std::cout << "Checking if any update is available ... ";
     std::cout.flush();
 
     // get the local version
     char command[100];
-    sprintf(command, "%s -V", filePath.c_str());
+    sprintf(command, "%s -V", SUMO_CMD_Binary_FullPath.string().c_str());
 
     FILE* pipe = popen(command, "r");
     if (!pipe)
@@ -277,17 +264,13 @@ void SumoBinary::checkIfNewerVersionExists(std::string binaryName, std::string f
     }
     pclose(pipe);
 
-    // get the first line of the output
-    boost::char_separator<char> sep("\n");
-    boost::tokenizer< boost::char_separator<char> > tokens(result, sep);
-    std::string firstLine;
-    for(boost::tokenizer< boost::char_separator<char> >::iterator beg=tokens.begin(); beg!=tokens.end();++beg)
-    {
-        firstLine = (*beg).c_str();
-        break;
-    }
-
+    // store each line in a separate entry
+    std::vector<std::string> vec = cStringTokenizer(result.c_str(), "\n").asVector();
+    // first line
+    std::string firstLine = vec[0];
+    // look for the start of version
     std::size_t pos = firstLine.find("dev-SVN-");
+    // extract the version
     std::string localVer = firstLine.substr(pos);
 
     // now get the remote version
@@ -296,17 +279,15 @@ void SumoBinary::checkIfNewerVersionExists(std::string binaryName, std::string f
     if(val == -1)
         return;
 
-    // get the first line of remoteVer
-    boost::char_separator<char> sep2("\n");
-    boost::tokenizer< boost::char_separator<char> > tokens2(remoteVer, sep2);
-    for(boost::tokenizer< boost::char_separator<char> >::iterator beg=tokens2.begin(); beg!=tokens2.end();++beg)
-    {
-        remoteVer = (*beg).c_str();
-        break;
-    }
+    // store each line in a separate entry
+    std::vector<std::string> vec2 = cStringTokenizer(remoteVer.c_str(), "\n").asVector();
+    // first line
+    std::string remoteVer = vec2[0];
 
     if( localVer.compare(remoteVer) == 0 )
+    {
         std::cout << "Up to date!" << endl;
+    }
     else if( localVer.compare(remoteVer) < 0 )
     {
         std::cout << "\nYour current version is " << localVer << endl;
@@ -316,10 +297,11 @@ void SumoBinary::checkIfNewerVersionExists(std::string binaryName, std::string f
         boost::algorithm::to_lower(answer);
 
         if(answer == "y")
-            downloadBinary(binaryName, filePath, url);
+        {
+            downloadBinary(SUMO_GUI_FileName, SUMO_GUI_Binary_FullPath.string(), SUMO_GUI_URL);
+            downloadBinary(SUMO_CMD_FileName, SUMO_CMD_Binary_FullPath.string(), SUMO_CMD_URL);
+        }
     }
 }
 
 } // namespace
-
-

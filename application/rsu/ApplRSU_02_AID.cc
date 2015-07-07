@@ -26,6 +26,7 @@
 //
 
 #include "ApplRSU_02_AID.h"
+#include <boost/tokenizer.hpp>
 
 namespace VENTOS {
 

@@ -30,7 +30,6 @@
 
 #include <BaseApplLayer.h>
 #include "boost/algorithm/string.hpp"
-#include <boost/tokenizer.hpp>
 
 #undef ev
 #include "boost/filesystem.hpp"
@@ -61,10 +60,10 @@ class SumoBinary : public BaseModule
         boost::filesystem::path SUMO_CMD_Binary_FullPath;
         boost::filesystem::path SUMO_GUI_Binary_FullPath;
 
-        void checkIfBinaryExists();
+        void checkForMissingBinary();
         void downloadBinary(std::string, std::string, std::string);
         void makeExecutable(std::string, std::string);
-        void checkIfNewerVersionExists(std::string, std::string, std::string);
+        void checkIfNewerVersionExists();
         int getRemoteVersion();
 };
 

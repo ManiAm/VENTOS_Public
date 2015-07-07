@@ -30,7 +30,6 @@
 
 #include <BaseApplLayer.h>
 #include "boost/algorithm/string.hpp"
-#include <boost/tokenizer.hpp>
 
 #undef ev
 #include "boost/filesystem.hpp"
