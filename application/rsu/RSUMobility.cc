@@ -48,20 +48,11 @@ void RSUMobility::initialize(int stage)
         cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
         TraCI = static_cast<TraCI_Extend *>(module);
 
-        // get a pointer to the RSUAdd module
-        cModule *module2 = simulation.getSystemModule()->getSubmodule("addRSU");
-        AddRSU *AddRSUPtr = static_cast<AddRSU *>(module2);
-
         boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
         boost::filesystem::path SUMO_Path = simulation.getSystemModule()->par("SUMODirectory").stringValue();
         boost::filesystem::path SUMO_FullPath = VENTOS_FullPath / SUMO_Path;
         if( !boost::filesystem::exists( SUMO_FullPath ) )
             error("SUMO directory is not valid! Check it again.");
-
-        std::string RSUfile = AddRSUPtr->par("RSUfile").stringValue();
-        RSUfilePath = SUMO_FullPath / RSUfile;
-        if( !boost::filesystem::exists( RSUfilePath ) )
-            error("RSU file does not exist in %s", RSUfilePath.string().c_str());
 
         // vehicle id in omnet++
         myId = getParentModule()->getIndex();
@@ -69,12 +60,14 @@ void RSUMobility::initialize(int stage)
 
         Coord pos = world->getRandomPosition();
 
-        // get my TraCI coordinates
-        Coord *SUMOpos = getRSUCoord(myId);
-
         // read coordinates from parameters if available
-        pos.x = SUMOpos->x;
-        pos.y = SUMOpos->y;
+        double myCoordX = getParentModule()->getSubmodule("appl")->par("myCoordX").doubleValue();
+        double myCoordY = getParentModule()->getSubmodule("appl")->par("myCoordY").doubleValue();
+        if(myCoordX == -1 || myCoordY == -1)
+            error("RSU coordinates are not set correctly!");
+
+        pos.x = myCoordX;
+        pos.y = myCoordY;
         pos.z = 0;
 
         // set start-position and start-time (i.e. current simulation-time) of the Move
@@ -89,77 +82,6 @@ void RSUMobility::initialize(int stage)
         move.setSpeed(0);
         move.setDirectionByVector(Coord::ZERO);
     }
-}
-
-
-Coord *RSUMobility::getRSUCoord(unsigned int index)
-{
-    rapidxml::file<> xmlFile( RSUfilePath.c_str() );        // Convert our file to a rapid-xml readable object
-    rapidxml::xml_document<> doc;                           // Build a rapidxml doc
-    doc.parse<0>(xmlFile.data());                 // Fill it with data from our file
-    rapidxml::xml_node<> *node = doc.first_node("RSUs");    // Parse up to the "RSUs" declaration
-
-    for(node = node->first_node("poly"); node; node = node->next_sibling())
-    {
-        std::string RSUname = "";
-        std::string RSUtype = "";
-        std::string RSUcoordinates = "";
-        int readCount = 1;
-
-        // For each node, iterate over its attributes until we reach "shape"
-        for(rapidxml::xml_attribute<> *attr = node->first_attribute(); attr; attr = attr->next_attribute())
-        {
-            if(readCount == 1)
-            {
-                RSUname = attr->value();
-            }
-            else if(readCount == 2)
-            {
-                RSUtype = attr->value();
-            }
-            else if(readCount == 3)
-            {
-                RSUcoordinates = attr->value();
-            }
-
-            readCount++;
-        }
-
-        // tokenize coordinates
-        int readCount2 = 1;
-        double x;
-        double y;
-        boost::char_separator<char> sep(",");
-        boost::tokenizer< boost::char_separator<char> > tokens(RSUcoordinates, sep);
-
-        for(boost::tokenizer< boost::char_separator<char> >::iterator beg=tokens.begin(); beg!=tokens.end();++beg)
-        {
-            if(readCount2 == 1)
-            {
-                x = atof( (*beg).c_str() );
-            }
-            else if(readCount2 == 2)
-            {
-                y = atof( (*beg).c_str() );
-            }
-
-            readCount2++;
-        }
-
-        // add it into queue (with TraCI coordinates)
-        RSUEntry *entry = new RSUEntry(RSUname.c_str(), x, y);
-        RSUs.push_back(entry);
-    }
-
-    if( RSUs.size() == 0 )
-        error("No RSUs have been initialized!");
-
-    if( index < 0 || index >= RSUs.size() )
-        error("index out of bound!");
-
-    Coord *point = new Coord(RSUs[index]->coordX, RSUs[index]->coordY);
-
-    return point;
 }
 
 

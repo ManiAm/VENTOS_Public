@@ -99,7 +99,7 @@ void AddRSU::Add()
     if (!on)
         return;
 
-    if(mode == 1 && TLControlMode == TL_VANET)
+    if(mode == 1)
     {
         Scenario1();
     }
@@ -119,7 +119,7 @@ void AddRSU::Scenario1()
     if( !boost::filesystem::exists( RSUfilePath ) )
         error("RSU file does not exist in %s", RSUfilePath.string().c_str());
 
-    std::deque<RSUEntry*> RSUs = commandReadRSUsCoord(RSUfilePath.string());
+    std::map<std::string, RSUEntry> RSUs = commandReadRSUsCoord(RSUfilePath.string());
 
     // ##############################
     // Step 2: create RSUs in OMNET++
@@ -132,54 +132,73 @@ void AddRSU::Scenario1()
 
     std::list<std::string> TLList = TraCI->TLGetIDList();
 
-    // We only create RSUs in OMNET++ without moving them to the correct position
-    int NoRSUs = RSUs.size();
-    for(int i = 0; i < NoRSUs; i++)
+    // creating RSU modules in OMNET (without moving them to the correct position)
+    int count = 0;
+    for(std::map<std::string, RSUEntry>::iterator z = RSUs.begin(); z != RSUs.end(); ++z)
     {
-        cModule* mod = nodeType->create("RSU", parentMod, NoRSUs, i);
+        std::string RSUname = (*z).first;
+        RSUEntry entry = (*z).second;
+
+        cModule* mod = nodeType->create("RSU", parentMod, RSUs.size(), count);
 
         mod->finalizeParameters();
         mod->getDisplayString().updateWith("i=device/antennatower");
         mod->buildInside();
 
+        // check if any TLid is associated with this RSU
         std::string myTLid = "";
         for(std::list<std::string>::iterator y = TLList.begin(); y != TLList.end(); ++y)
         {
-            if( (*y) == RSUs[i]->name )
+            std::string TLid = (*y);
+            if( TLid == RSUname )
             {
-                myTLid = (*y);
+                myTLid = TLid;
                 break;
             }
         }
-
+        // then set the myTLid parameter
         mod->getSubmodule("appl")->par("myTLid") = myTLid;
+
+        // set coordinates (RSUMobility uses these to move the RSU to the correct location)
+        mod->getSubmodule("appl")->par("myCoordX") = entry.coordX;
+        mod->getSubmodule("appl")->par("myCoordY") = entry.coordY;
 
         mod->scheduleStart(simTime());
         mod->callInitialize();
+
+        count++;
     }
 
     // ###############################################################
     // Step 3: draw RSU in SUMO (using a circle to show radio coverage)
     // ###############################################################
 
-    for(int i = 0; i < NoRSUs; i++)
+    count = 0;
+    for(std::map<std::string, RSUEntry>::iterator z = RSUs.begin(); z != RSUs.end(); ++z)
     {
-        // get the radius of an RSU
-        cModule *module = simulation.getSystemModule()->getSubmodule("RSU", i);
+        std::string RSUname = (*z).first;
+        RSUEntry entry = (*z).second;
+
+        // get the radius of this RSU
+        cModule *module = simulation.getSystemModule()->getSubmodule("RSU", count);
         double radius = atof( module->getDisplayString().getTagArg("r",0) );
 
-        Coord *center = new Coord(RSUs[i]->coordX, RSUs[i]->coordY);
-        commandAddCirclePoly(RSUs[i]->name, "RSU", TraCIColor::fromTkColor("blue"), center, radius);
+        Coord *center = new Coord(entry.coordX, entry.coordY);
+        commandAddCirclePoly(RSUname, "RSU", TraCIColor::fromTkColor("blue"), center, radius);
+
+        count++;
     }
 }
 
 
-std::deque<RSUEntry*> AddRSU::commandReadRSUsCoord(std::string RSUfilePath)
+std::map<std::string, RSUEntry> AddRSU::commandReadRSUsCoord(std::string RSUfilePath)
 {
     rapidxml::file<> xmlFile( RSUfilePath.c_str() );        // Convert our file to a rapid-xml readable object
     rapidxml::xml_document<> doc;                           // Build a rapidxml doc
     doc.parse<0>(xmlFile.data());                 // Fill it with data from our file
     rapidxml::xml_node<> *node = doc.first_node("RSUs");    // Parse up to the "RSUs" declaration
+
+    std::map<std::string, RSUEntry> RSUs;
 
     for(node = node->first_node("poly"); node; node = node->next_sibling())
     {
@@ -198,6 +217,9 @@ std::deque<RSUEntry*> AddRSU::commandReadRSUsCoord(std::string RSUfilePath)
             else if(readCount == 2)
             {
                 RSUtype = attr->value();
+
+                if(RSUtype != "RSU")
+                    error("RSU type should be 'RSU'");
             }
             else if(readCount == 3)
             {
@@ -207,30 +229,16 @@ std::deque<RSUEntry*> AddRSU::commandReadRSUsCoord(std::string RSUfilePath)
             readCount++;
         }
 
-        // tokenize coordinates
-        int readCount2 = 1;
-        double x;
-        double y;
-        boost::char_separator<char> sep(",");
-        boost::tokenizer< boost::char_separator<char> > tokens(RSUcoordinates, sep);
+        if(readCount != 4)
+            error("format of RSUsLocation.xml file is wrong!");
 
-        for(boost::tokenizer< boost::char_separator<char> >::iterator beg=tokens.begin(); beg!=tokens.end();++beg)
-        {
-            if(readCount2 == 1)
-            {
-                x = atof( (*beg).c_str() );
-            }
-            else if(readCount2 == 2)
-            {
-                y = atof( (*beg).c_str() );
-            }
-
-            readCount2++;
-        }
+        std::vector<double> vec = cStringTokenizer(RSUcoordinates.c_str(), ",").asDoubleVector();
+        if(vec.size() != 2)
+            error("center coordinate format is wrong!");
 
         // add it into queue (with TraCI coordinates)
-        RSUEntry *entry = new RSUEntry(RSUname, x, y);
-        RSUs.push_back(entry);
+        RSUEntry *entry = new RSUEntry(RSUtype, vec[0], vec[1]);
+        RSUs.insert( std::make_pair(RSUname, *entry) );
     }
 
     return RSUs;

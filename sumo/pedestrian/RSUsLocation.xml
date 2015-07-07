@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 
-  <!-- an RSU that belongs to a TL, should have the same id as TL -->
+  <!-- an RSU that belongs to a TL, should have the same id as TL. Type should always be RSU -->
 
 <RSUs>
      <poly id="C" type="RSU" center="900,900"/>     

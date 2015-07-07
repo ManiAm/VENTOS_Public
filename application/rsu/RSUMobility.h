@@ -31,7 +31,6 @@
 #include "MiXiMDefs.h"
 #include "BaseMobility.h"
 #include "TraCI_Extend.h"
-#include "AddRSU.h"
 
 namespace VENTOS {
 
@@ -52,17 +51,14 @@ class MIXIM_API RSUMobility : public BaseMobility
     /** @brief Move the host*/
     virtual void makeMove();
 
-    Coord *getRSUCoord(unsigned int);
-
+protected:
     // NED variables
     cModule *nodePtr;   // pointer to the Node
     TraCI_Extend *TraCI;
-    boost::filesystem::path RSUfilePath;
 
     // Class variables
     int myId;
     const char *myFullId;
-    std::deque<RSUEntry*> RSUs;
 };
 
 }

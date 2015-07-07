@@ -17,7 +17,9 @@ simple ApplRSUBase like IBaseApplLayer
         int beaconLengthBits = default(256bit) @unit(bit); //the length of a beacon packet
         int beaconPriority = default(3); //the access category of the beacon messages  
         
-        string myTLid;      
+        string myTLid;    
+        double myCoordX;    // my X coordinate in SUMO
+        double myCoordY;    // my Y coordinate in SUMO  
 
     gates:
         input lowerLayerIn;     // from mac layer

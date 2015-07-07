@@ -36,13 +36,13 @@ namespace VENTOS {
 class RSUEntry
 {
   public:
-      std::string name;
+      std::string type;
       double coordX;
       double coordY;
 
       RSUEntry(std::string str, double x, double y)
       {
-          this->name = str;
+          this->type = str;
           this->coordX = x;
           this->coordY = y;
       }
@@ -62,7 +62,7 @@ class AddRSU : public BaseModule
 	private:
         void Add();
         void Scenario1();
-        std::deque<RSUEntry*> commandReadRSUsCoord(std::string);
+        std::map<std::string, RSUEntry> commandReadRSUsCoord(std::string);
         void commandAddCirclePoly(std::string, std::string, const TraCIColor& color, Coord*, double);
 
 	private:
@@ -74,7 +74,6 @@ class AddRSU : public BaseModule
         bool on;
         int mode;
         int TLControlMode;
-        std::deque<RSUEntry*> RSUs;
 
         boost::filesystem::path VENTOS_FullPath;
         boost::filesystem::path SUMO_Path;
