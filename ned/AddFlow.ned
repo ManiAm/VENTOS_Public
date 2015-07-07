@@ -9,6 +9,6 @@ simple AddFlow
         
         bool on = default(false);
         string flowFile = default("");
-        int flowSet;
+        string flowSetId;
 }
 

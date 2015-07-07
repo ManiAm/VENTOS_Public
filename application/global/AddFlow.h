@@ -43,9 +43,8 @@ public:
     virtual void receiveSignal(cComponent *, simsignal_t, long);
 
 private:
-    void Add();
-
-    void Scenario1();
+    std::string getFullPathToSumoConfig(std::string);
+    std::string getFullPathToSumoRou(std::string);
 
 private:
     // NED variables
@@ -54,7 +53,7 @@ private:
     boost::filesystem::path launchFullPath;
 
     bool on;
-    int flowSet;
+    std::string flowSetId;
 
     // class variables
     simsignal_t Signal_addFlow;

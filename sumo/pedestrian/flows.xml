@@ -1,5 +1,8 @@
 
-<flowSet1>
+<!-- Define your flow set in a seperate flowSet element and give it an id -->
+
+
+<flowSet id="right_turn_only_all">
 
   <!-- Right turns only from all directions -->
 
@@ -8,32 +11,32 @@
   <flow id="route3a" begin="0" end="200" vehsPerHour="500" type="TypeManual" route="route8" />
   <flow id="route4a" begin="0" end="200" vehsPerHour="500" type="TypeManual" route="route11" />
 
-</flowSet1>
+</flowSet>
 
 
 
-<flowSet2>
+<flowSet id="left_turn_only_NS">
 
   <!-- Left turns only from N and S -->
 
   <flow id="route1a" begin="0" end="200" vehsPerHour="500" type="TypeManual" route="movement5" />
   <flow id="route2a" begin="0" end="200" vehsPerHour="500" type="TypeManual" route="movement1" />
 
-</flowSet2>
+</flowSet>
 
 
 
-<flowSet3>
+<flowSet id="straight_WE">
 
   <!-- Webster test. Straight W to E -->
 
   <flow id="route1a" begin="0" end="200" vehsPerHour="1700" type="TypeManual" route="movement8" />
 
-</flowSet3>
+</flowSet>
 
 
 
-<flowSet4>
+<flowSet id="balanced_low_to_high_and_back">
 
   <!-- balanced traffic demand. All directions from low to high and then back to low -->
   
@@ -118,12 +121,12 @@
   <flow id="route7i" begin="3200" end="3600" vehsPerHour="100" type="TypeManual" route="movement4" />
   <flow id="route8i" begin="3200" end="3600" vehsPerHour="100" type="TypeManual" route="movement7" />
 
-</flowSet4>
+</flowSet>
 
 
 
 
-<flowSet5>
+<flowSet id="unbalanced_NS_sideStreet_fix">
 
   <!-- unbalanced traffic. W and E are main street, N and S are side streets. N, S have fix TD of 100 -->
   
@@ -208,12 +211,12 @@
   <flow id="route7i" begin="3200" end="3600" vehsPerHour="100" type="TypeManual" route="movement4" />
   <flow id="route8i" begin="3200" end="3600" vehsPerHour="100" type="TypeManual" route="movement7" />
 
-</flowSet5>
+</flowSet>
 
 
 
 
-<flowSet6>
+<flowSet id="unbalanced_NE_low_fix">
 
   <!-- unbalanced traffic. High traffic in S/W direction, low (fix) traffic in N/E direction. -->
   
@@ -298,7 +301,7 @@
   <flow id="route7i" begin="3200" end="3600" vehsPerHour="100" type="TypeManual" route="movement4" />
   <flow id="route8i" begin="3200" end="3600" vehsPerHour="100" type="TypeManual" route="movement7" />
 
-<flowSet6>
+<flowSet>
 
 
 

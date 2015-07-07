@@ -55,7 +55,7 @@ void AddFlow::initialize(int stage)
         launchFullPath = SUMO_FullPath / launchFile;
 
         on = par("on").boolValue();
-        flowSet = par("flowSet").longValue();
+        flowSetId = par("flowSetId").stringValue();
 
         Signal_addFlow = registerSignal("addFlow");
         simulation.getSystemModule()->subscribe("addFlow", this);
@@ -85,36 +85,40 @@ void AddFlow::receiveSignal(cComponent *source, simsignal_t signalID, long i)
 {
     Enter_Method_Silent();
 
-    if(signalID == Signal_addFlow)
+    if(signalID == Signal_addFlow && on)
     {
-        AddFlow::Add();
+        // read launch file and get path to the sumo.cfg file
+        std::string sumoConfig = getFullPathToSumoConfig(launchFullPath.string());
+
+        // read sumo.cfg file and get the path to rou file
+        std::string sumoRou = getFullPathToSumoRou(sumoConfig);
+
+        // read flows.xml file and extract a flow set
+   //     getFlowSet();
+
+        // copy the flow set into a new rou file in %TMP%
+   //     addFlowSetToNewRou();
+
+        // add a new entry to copy the new rou, and also modify sumo.cfg
+    //    applyChanges();
     }
 }
 
 
-void AddFlow::Add()
+std::string AddFlow::getFullPathToSumoConfig(std::string launchFullPath)
 {
-    // if dynamic adding is off, return
-    if (!on)
-        return;
-
-    if(flowSet == 1)
-    {
-        Scenario1();
-    }
-    else
-    {
-        error("not a valid mode!");
-    }
-}
-
-
-void AddFlow::Scenario1()
-{
-    rapidxml::file<> xmlFile( launchFullPath.string().c_str() );
+    rapidxml::file<> xmlFile(launchFullPath.c_str());
     rapidxml::xml_document<> doc;
     doc.parse<0>(xmlFile.data());
 
 }
+
+
+std::string AddFlow::getFullPathToSumoRou(std::string sumoConfigFullPath)
+{
+
+
+}
+
 
 }
