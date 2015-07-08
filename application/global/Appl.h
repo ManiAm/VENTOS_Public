@@ -104,6 +104,7 @@ enum TLControlTypes
     TL_Adaptive_Webster,
     TL_Adaptive_Time,
     TL_Adaptive_Time_Queue,
+    TL_LowDelay,
     TL_VANET,
     TL_Router
 };

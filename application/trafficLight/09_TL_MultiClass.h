@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    TL_Manager.h
+/// @file    TL_MultiClass.h
 /// @author  Philip Vo <foxvo@ucdavis.edu>
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @date    August 2013
@@ -25,17 +25,18 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef TRAFFICLIGHTMANAGER_H
-#define TRAFFICLIGHTMANAGER_H
+#ifndef TRAFFICLIGHTMULTICLASS_H
+#define TRAFFICLIGHTMULTICLASS_H
 
-#include "09_TL_Router.h"
+#include <08_TL_LowDelay.h>
+#include "ApplRSU_03_TL_VANET.h"
 
 namespace VENTOS {
 
-class TrafficLightManager : public TrafficLightRouter
+class TrafficLightMultiClass : public TrafficLightLowDelay
 {
   public:
-    virtual ~TrafficLightManager();
+    virtual ~TrafficLightMultiClass();
     virtual void finish();
     virtual void initialize(int);
     virtual void handleMessage(cMessage *);
@@ -44,6 +45,17 @@ class TrafficLightManager : public TrafficLightRouter
     void virtual executeFirstTimeStep();
     void virtual executeEachTimeStep(bool);
 
+  private:
+    void findRSU(std::string);
+    void chooseNextInterval();
+    void chooseNextGreenInterval();
+
+  private:
+    bool greenExtension;
+
+    // class variables
+    std::map<std::string /*TLid*/, std::string /*first green interval*/> firstGreen;
+    ApplRSUTLVANET *RSU;
 };
 
 }

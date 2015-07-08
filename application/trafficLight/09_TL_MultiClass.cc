@@ -25,7 +25,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <08_TL_MultiClass.h>
+#include <09_TL_MultiClass.h>
 #include <iomanip>
 
 namespace VENTOS {
@@ -41,7 +41,7 @@ TrafficLightMultiClass::~TrafficLightMultiClass()
 
 void TrafficLightMultiClass::initialize(int stage)
 {
-    TrafficLightAdaptiveQueue::initialize(stage);
+    TrafficLightLowDelay::initialize(stage);
 
     if(TLControlMode != TL_VANET)
         return;
@@ -58,13 +58,13 @@ void TrafficLightMultiClass::initialize(int stage)
 
 void TrafficLightMultiClass::finish()
 {
-    TrafficLightAdaptiveQueue::finish();
+    TrafficLightLowDelay::finish();
 }
 
 
 void TrafficLightMultiClass::handleMessage(cMessage *msg)
 {
-    TrafficLightAdaptiveQueue::handleMessage(msg);
+    TrafficLightLowDelay::handleMessage(msg);
 
     if(TLControlMode != TL_VANET)
         return;
@@ -85,7 +85,7 @@ void TrafficLightMultiClass::handleMessage(cMessage *msg)
 void TrafficLightMultiClass::executeFirstTimeStep()
 {
     // call parent
-    TrafficLightAdaptiveQueue::executeFirstTimeStep();
+    TrafficLightLowDelay::executeFirstTimeStep();
 
     if(TLControlMode != TL_VANET)
         return;
@@ -122,7 +122,7 @@ void TrafficLightMultiClass::executeFirstTimeStep()
 void TrafficLightMultiClass::executeEachTimeStep(bool simulationDone)
 {
     // call parent
-    TrafficLightAdaptiveQueue::executeEachTimeStep(simulationDone);
+    TrafficLightLowDelay::executeEachTimeStep(simulationDone);
 
     if(TLControlMode != TL_VANET)
         return;
