@@ -174,7 +174,7 @@ void TrafficLightRouter::build(std::string id, std::string type, std::string pro
 
 void TrafficLightRouter::initialize(int stage)
 {
-    TrafficLightVANET::initialize(stage);
+    TrafficLightMultiClass::initialize(stage);
 
     if(TLControlMode != TL_Router || id == "")
         return;
@@ -243,7 +243,7 @@ void TrafficLightRouter::switchToPhase(int phaseSwitch, double greenDuration, in
 
 void TrafficLightRouter::handleMessage(cMessage* msg)  //Internal messages to self
 {
-    TrafficLightVANET::handleMessage(msg);
+    TrafficLightMultiClass::handleMessage(msg);
 
     if(TLControlMode != TL_Router)
         return;
@@ -556,7 +556,7 @@ bool TrafficLightRouter::LowDensityVehicleCheck()    //This function assumes it'
 
 void TrafficLightRouter::finish()
 {
-    TrafficLightVANET::finish();
+    TrafficLightMultiClass::finish();
 
     if(TLControlMode != TL_Router)
         return;

@@ -28,7 +28,7 @@
 #ifndef TRAFFICLIGHTROUTER_H
 #define TRAFFICLIGHTROUTER_H
 
-#include <08_TL_VANET.h>
+#include <08_TL_MultiClass.h>
 #include "Net.h"
 #include <vector>
 
@@ -48,7 +48,7 @@ public:
 
 class Router;
 
-class TrafficLightRouter : public TrafficLightVANET
+class TrafficLightRouter : public TrafficLightMultiClass
 {
 public:
     TrafficLightRouter();

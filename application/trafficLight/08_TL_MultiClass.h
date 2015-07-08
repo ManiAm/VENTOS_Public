@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    TL_VANET.h
+/// @file    TL_MultiClass.h
 /// @author  Philip Vo <foxvo@ucdavis.edu>
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @date    August 2013
@@ -25,18 +25,18 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef TRAFFICLIGHTVANET_H
-#define TRAFFICLIGHTVANET_H
+#ifndef TRAFFICLIGHTMULTICLASS_H
+#define TRAFFICLIGHTMULTICLASS_H
 
 #include <07_TL_Adaptive_Queue.h>
 #include "ApplRSU_03_TL_VANET.h"
 
 namespace VENTOS {
 
-class TrafficLightVANET : public TrafficLightAdaptiveQueue
+class TrafficLightMultiClass : public TrafficLightAdaptiveQueue
 {
   public:
-    virtual ~TrafficLightVANET();
+    virtual ~TrafficLightMultiClass();
     virtual void finish();
     virtual void initialize(int);
     virtual void handleMessage(cMessage *);

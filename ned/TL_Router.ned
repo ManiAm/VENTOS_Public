@@ -1,7 +1,7 @@
 
 package c3po.ned;
 
-simple TL_Router extends TL_VANET
+simple TL_Router extends TL_MultiClass
 {
     parameters:
         @class(VENTOS::TrafficLightRouter);

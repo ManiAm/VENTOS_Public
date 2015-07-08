@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    TL_VANET.cc
+/// @file    TL_MultiClass.cc
 /// @author  Philip Vo <foxvo@ucdavis.edu>
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @date    August 2013
@@ -25,21 +25,21 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <08_TL_VANET.h>
+#include <08_TL_MultiClass.h>
 #include <iomanip>
 
 namespace VENTOS {
 
-Define_Module(VENTOS::TrafficLightVANET);
+Define_Module(VENTOS::TrafficLightMultiClass);
 
 
-TrafficLightVANET::~TrafficLightVANET()
+TrafficLightMultiClass::~TrafficLightMultiClass()
 {
 
 }
 
 
-void TrafficLightVANET::initialize(int stage)
+void TrafficLightMultiClass::initialize(int stage)
 {
     TrafficLightAdaptiveQueue::initialize(stage);
 
@@ -56,13 +56,13 @@ void TrafficLightVANET::initialize(int stage)
 }
 
 
-void TrafficLightVANET::finish()
+void TrafficLightMultiClass::finish()
 {
     TrafficLightAdaptiveQueue::finish();
 }
 
 
-void TrafficLightVANET::handleMessage(cMessage *msg)
+void TrafficLightMultiClass::handleMessage(cMessage *msg)
 {
     TrafficLightAdaptiveQueue::handleMessage(msg);
 
@@ -82,7 +82,7 @@ void TrafficLightVANET::handleMessage(cMessage *msg)
 }
 
 
-void TrafficLightVANET::executeFirstTimeStep()
+void TrafficLightMultiClass::executeFirstTimeStep()
 {
     // call parent
     TrafficLightAdaptiveQueue::executeFirstTimeStep();
@@ -119,7 +119,7 @@ void TrafficLightVANET::executeFirstTimeStep()
 }
 
 
-void TrafficLightVANET::executeEachTimeStep(bool simulationDone)
+void TrafficLightMultiClass::executeEachTimeStep(bool simulationDone)
 {
     // call parent
     TrafficLightAdaptiveQueue::executeEachTimeStep(simulationDone);
@@ -130,25 +130,25 @@ void TrafficLightVANET::executeEachTimeStep(bool simulationDone)
     intervalElapseTime += updateInterval;
 
     // todo: remove later
-    std::map<std::string, laneInfoEntry> laneInfo = RSU->laneInfo;
-    for(std::map<std::string, laneInfoEntry>::iterator y = laneInfo.begin(); y != laneInfo.end(); ++y)
-    {
-        std::string lane = (*y).first;
-        laneInfoEntry entry = (*y).second;
-        std::map<std::string, queuedVehiclesEntry> vehs = entry.queuedVehicles;
-
-        std::cout << "lane: " << lane << ", TLid: " << entry.TLid << ", LDT: " << entry.lastDetectedTime << ", pass: " << entry.passageTime << ", queuedVeh: |";
-        for(std::map<std::string, queuedVehiclesEntry>::iterator z = vehs.begin(); z != vehs.end(); ++z)
-        {
-            std::cout << (*z).first << ", " << (*z).second.entryTime << ", " <<  (*z).second.entrySpeed << ", " << (*z).second.vehicleType << "|";
-        }
-        std::cout << endl;
-    }
-    std::cout << endl << endl;
+//    std::map<std::string, laneInfoEntry> laneInfo = RSU->laneInfo;
+//    for(std::map<std::string, laneInfoEntry>::iterator y = laneInfo.begin(); y != laneInfo.end(); ++y)
+//    {
+//        std::string lane = (*y).first;
+//        laneInfoEntry entry = (*y).second;
+//        std::map<std::string, queuedVehiclesEntry> vehs = entry.queuedVehicles;
+//
+//        std::cout << "lane: " << lane << ", TLid: " << entry.TLid << ", LDT: " << entry.lastDetectedTime << ", pass: " << entry.passageTime << ", queuedVeh: |";
+//        for(std::map<std::string, queuedVehiclesEntry>::iterator z = vehs.begin(); z != vehs.end(); ++z)
+//        {
+//            std::cout << (*z).first << ", " << (*z).second.entryTime << ", " <<  (*z).second.entrySpeed << ", " << (*z).second.vehicleType << "|";
+//        }
+//        std::cout << endl;
+//    }
+//    std::cout << endl << endl;
 }
 
 
-void TrafficLightVANET::findRSU(std::string TLid)
+void TrafficLightMultiClass::findRSU(std::string TLid)
 {
     // get a pointer to the RSU module that controls this intersection
     cModule *module = simulation.getSystemModule()->getSubmodule("RSU", 0);
@@ -183,7 +183,7 @@ void TrafficLightVANET::findRSU(std::string TLid)
 }
 
 
-void TrafficLightVANET::chooseNextInterval()
+void TrafficLightMultiClass::chooseNextInterval()
 {
     if (currentInterval == "yellow")
     {
@@ -234,7 +234,7 @@ void TrafficLightVANET::chooseNextInterval()
 }
 
 
-void TrafficLightVANET::chooseNextGreenInterval()
+void TrafficLightMultiClass::chooseNextGreenInterval()
 {
     std::map<std::string, laneInfoEntry> laneInfo = RSU->laneInfo;
 
