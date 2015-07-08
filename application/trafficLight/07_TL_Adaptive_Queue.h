@@ -79,11 +79,16 @@ private:
     void chooseNextGreenInterval();
     void getMovements();
     void generateAllAllowedMovements();
+    void calculatePhases();
+    //bool pred(std::vector<int> &);
 
 private:
     int LINKSIZE;
     boost::filesystem::path movementsFilePath;
     std::vector< std::vector<int> > allMovements;
+
+    int rightTurns[8] = {0, 2, 5, 7, 10, 12, 15, 17};
+    std::vector< std::string > phases;
 
     // batch of all non-conflicting movements, sorted by total queue size per batch
     std::priority_queue< batchMovementQueueEntry /*type of each element*/, std::vector<batchMovementQueueEntry> /*container*/, movementCompare > batchMovementQueue;

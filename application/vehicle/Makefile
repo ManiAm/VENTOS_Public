@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for libvehicle
 #
 # This file was generated with the command:
-#  opp_makemake -f --make-so -o vehicle -O out -I/home/dylan/Desktop/VENTOS/eigen-3.2.1 -I/home/dylan/Desktop/VENTOS/rapidxml-1.13 -I../../../veins/src/veins -I.. -I../../../veins/src -I../../../veins/src/veins/base/connectionManager -I../trafficLight -I../../../veins/src/veins/base/modules -I../rsu -I../../../veins/src/veins/base/utils -I../router -I../traci -I../global -I../../../veins/src/veins/modules/mac/ieee80211p -L../../../veins/out/$$\(CONFIGNAME\)/src -L../../out/$$\(CONFIGNAME\)/application/pedestrian -L../../out/$$\(CONFIGNAME\)/application/trafficLight -L../../out/$$\(CONFIGNAME\)/application/msg -L../../out/$$\(CONFIGNAME\)/application/rsu -L../../out/$$\(CONFIGNAME\)/application/bike -L../../out/$$\(CONFIGNAME\)/application/adversary -L../../out/$$\(CONFIGNAME\)/application/router -L../../out/$$\(CONFIGNAME\)/application/traci -L../../out/$$\(CONFIGNAME\)/application/global -lboost_filesystem -lboost_system -lmsg -ltraci -lveins -KVEINS_PROJ=../../../veins
+#  opp_makemake -f --make-so -o vehicle -O out -I/home/philip/Desktop/VENTOS/VENTOS/eigen-3.2.1 -I/home/philip/Desktop/VENTOS/VENTOS/rapidxml-1.13 -I/home/philip/Desktop/Veins/veins/src/veins -I.. -I/home/philip/Desktop/Veins/veins/src -I/home/philip/Desktop/Veins/veins/src/veins/base/connectionManager -I../trafficLight -I/home/philip/Desktop/Veins/veins/src/veins/base/modules -I../rsu -I/home/philip/Desktop/Veins/veins/src/veins/base/utils -I../router -I../traci -I../global -I/home/philip/Desktop/Veins/veins/src/veins/modules/mac/ieee80211p -L/home/philip/Desktop/Veins/veins/out/$$\(CONFIGNAME\)/src -L../../out/$$\(CONFIGNAME\)/application/pedestrian -L../../out/$$\(CONFIGNAME\)/application/trafficLight -L../../out/$$\(CONFIGNAME\)/application/msg -L../../out/$$\(CONFIGNAME\)/application/rsu -L../../out/$$\(CONFIGNAME\)/application/bike -L../../out/$$\(CONFIGNAME\)/application/adversary -L../../out/$$\(CONFIGNAME\)/application/router -L../../out/$$\(CONFIGNAME\)/application/traci -L../../out/$$\(CONFIGNAME\)/application/global -lboost_filesystem -lboost_system -lmsg -ltraci -lveins -KVEINS_PROJ=/home/philip/Desktop/Veins/veins
 #
 
 # Name of target to be created (-o option)
@@ -12,26 +12,26 @@ TARGET = libvehicle$(SHARED_LIB_SUFFIX)
 INCLUDE_PATH = \
     -I../../eigen-3.2.1 \
     -I../../rapidxml-1.13 \
-    -I../../../veins/src/veins \
+    -I$(VEINS_PROJ)/src/veins \
     -I.. \
-    -I../../../veins/src \
-    -I../../../veins/src/veins/base/connectionManager \
+    -I$(VEINS_PROJ)/src \
+    -I$(VEINS_PROJ)/src/veins/base/connectionManager \
     -I../trafficLight \
-    -I../../../veins/src/veins/base/modules \
+    -I$(VEINS_PROJ)/src/veins/base/modules \
     -I../rsu \
-    -I../../../veins/src/veins/base/utils \
+    -I$(VEINS_PROJ)/src/veins/base/utils \
     -I../router \
     -I../traci \
     -I../global \
-    -I../../../veins/src/veins/modules/mac/ieee80211p \
+    -I$(VEINS_PROJ)/src/veins/modules/mac/ieee80211p \
     -I.
 
 # Additional object and library files to link with
 EXTRA_OBJS =
 
 # Additional libraries (-L, -l options)
-LIBS = -L../../../veins/out/$(CONFIGNAME)/src -L../../out/$(CONFIGNAME)/application/pedestrian -L../../out/$(CONFIGNAME)/application/trafficLight -L../../out/$(CONFIGNAME)/application/msg -L../../out/$(CONFIGNAME)/application/rsu -L../../out/$(CONFIGNAME)/application/bike -L../../out/$(CONFIGNAME)/application/adversary -L../../out/$(CONFIGNAME)/application/router -L../../out/$(CONFIGNAME)/application/traci -L../../out/$(CONFIGNAME)/application/global  -lboost_filesystem -lboost_system -lmsg -ltraci -lveins
-LIBS += -Wl,-rpath,`abspath ../../../veins/out/$(CONFIGNAME)/src` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/pedestrian` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/trafficLight` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/msg` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/rsu` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/bike` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/adversary` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/router` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/traci` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/global`
+LIBS = -L$(VEINS_PROJ)/out/$(CONFIGNAME)/src -L../../out/$(CONFIGNAME)/application/pedestrian -L../../out/$(CONFIGNAME)/application/trafficLight -L../../out/$(CONFIGNAME)/application/msg -L../../out/$(CONFIGNAME)/application/rsu -L../../out/$(CONFIGNAME)/application/bike -L../../out/$(CONFIGNAME)/application/adversary -L../../out/$(CONFIGNAME)/application/router -L../../out/$(CONFIGNAME)/application/traci -L../../out/$(CONFIGNAME)/application/global  -lboost_filesystem -lboost_system -lmsg -ltraci -lveins
+LIBS += -Wl,-rpath,`abspath $(VEINS_PROJ)/out/$(CONFIGNAME)/src` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/pedestrian` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/trafficLight` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/msg` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/rsu` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/bike` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/adversary` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/router` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/traci` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/global`
 
 # Output directory
 PROJECT_OUTPUT_DIR = ../../out
@@ -40,27 +40,27 @@ O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Object files for local .cc and .msg files
 OBJS = \
+    $O/ApplV_06f_FollowerLeave.o \
+    $O/ApplV_05_PlatoonFormed.o \
+    $O/ApplV_03_System.o \
+    $O/ApplV_06b_Split.o \
     $O/ApplV_08_Manager.o \
     $O/ApplV_06c_Common.o \
     $O/ApplV_06g_Dissolve.o \
-    $O/ApplV_01_Base.o \
-    $O/ApplV_06e_LeaderLeave.o \
     $O/ApplV_06a_Merge.o \
-    $O/ApplV_07_Coordinator.o \
-    $O/ApplV_06b_Split.o \
-    $O/ApplV_02_Beacon.o \
-    $O/ApplV_03_System.o \
     $O/ApplV_04_AID.o \
+    $O/ApplV_02_Beacon.o \
+    $O/ApplV_06e_LeaderLeave.o \
     $O/ApplV_06d_Entry.o \
-    $O/ApplV_06f_FollowerLeave.o \
-    $O/ApplV_05_PlatoonFormed.o \
+    $O/ApplV_07_Coordinator.o \
+    $O/ApplV_01_Base.o \
     $O/ApplV_06_PlatoonMg.o
 
 # Message files
 MSGFILES =
 
 # Other makefile variables (-K)
-VEINS_PROJ=../../../veins
+VEINS_PROJ=/home/philip/Desktop/Veins/veins
 
 #------------------------------------------------------------------------------
 
@@ -232,7 +232,6 @@ $O/ApplV_03_System.o: ApplV_03_System.cc \
 	../router/Net.h \
 	../router/Node.h \
 	../router/Router.h \
-	../router/RouterGlobals.h \
 	../router/Vehicle.h \
 	../rsu/ApplRSU_01_Base.h \
 	../rsu/ApplRSU_02_AID.h \
@@ -240,12 +239,13 @@ $O/ApplV_03_System.o: ApplV_03_System.cc \
 	../traci/TraCI_Extend.h \
 	../trafficLight/01_TL_Base.h \
 	../trafficLight/02_LoopDetectors.h \
-	../trafficLight/03_TL_Fixed.h \
-	../trafficLight/04_TL_Adaptive_RingAndBarrier.h \
-	../trafficLight/05_TL_Adaptive_Queue.h \
-	../trafficLight/06_TL_Adaptive_Webster.h \
-	../trafficLight/07_TL_VANET.h \
-	../trafficLight/08_TL_Router.h \
+	../trafficLight/03_VehDelay.h \
+	../trafficLight/04_TL_Fixed.h \
+	../trafficLight/05_TL_Adaptive_Webster.h \
+	../trafficLight/06_TL_Adaptive_RingAndBarrier.h \
+	../trafficLight/07_TL_Adaptive_Queue.h \
+	../trafficLight/08_TL_VANET.h \
+	../trafficLight/09_TL_Router.h \
 	ApplV_01_Base.h \
 	ApplV_02_Beacon.h \
 	ApplV_03_System.h \
@@ -292,7 +292,6 @@ $O/ApplV_04_AID.o: ApplV_04_AID.cc \
 	../router/Net.h \
 	../router/Node.h \
 	../router/Router.h \
-	../router/RouterGlobals.h \
 	../router/Vehicle.h \
 	../rsu/ApplRSU_01_Base.h \
 	../rsu/ApplRSU_02_AID.h \
@@ -300,12 +299,13 @@ $O/ApplV_04_AID.o: ApplV_04_AID.cc \
 	../traci/TraCI_Extend.h \
 	../trafficLight/01_TL_Base.h \
 	../trafficLight/02_LoopDetectors.h \
-	../trafficLight/03_TL_Fixed.h \
-	../trafficLight/04_TL_Adaptive_RingAndBarrier.h \
-	../trafficLight/05_TL_Adaptive_Queue.h \
-	../trafficLight/06_TL_Adaptive_Webster.h \
-	../trafficLight/07_TL_VANET.h \
-	../trafficLight/08_TL_Router.h \
+	../trafficLight/03_VehDelay.h \
+	../trafficLight/04_TL_Fixed.h \
+	../trafficLight/05_TL_Adaptive_Webster.h \
+	../trafficLight/06_TL_Adaptive_RingAndBarrier.h \
+	../trafficLight/07_TL_Adaptive_Queue.h \
+	../trafficLight/08_TL_VANET.h \
+	../trafficLight/09_TL_Router.h \
 	ApplV_01_Base.h \
 	ApplV_02_Beacon.h \
 	ApplV_03_System.h \
@@ -353,7 +353,6 @@ $O/ApplV_05_PlatoonFormed.o: ApplV_05_PlatoonFormed.cc \
 	../router/Net.h \
 	../router/Node.h \
 	../router/Router.h \
-	../router/RouterGlobals.h \
 	../router/Vehicle.h \
 	../rsu/ApplRSU_01_Base.h \
 	../rsu/ApplRSU_02_AID.h \
@@ -361,12 +360,13 @@ $O/ApplV_05_PlatoonFormed.o: ApplV_05_PlatoonFormed.cc \
 	../traci/TraCI_Extend.h \
 	../trafficLight/01_TL_Base.h \
 	../trafficLight/02_LoopDetectors.h \
-	../trafficLight/03_TL_Fixed.h \
-	../trafficLight/04_TL_Adaptive_RingAndBarrier.h \
-	../trafficLight/05_TL_Adaptive_Queue.h \
-	../trafficLight/06_TL_Adaptive_Webster.h \
-	../trafficLight/07_TL_VANET.h \
-	../trafficLight/08_TL_Router.h \
+	../trafficLight/03_VehDelay.h \
+	../trafficLight/04_TL_Fixed.h \
+	../trafficLight/05_TL_Adaptive_Webster.h \
+	../trafficLight/06_TL_Adaptive_RingAndBarrier.h \
+	../trafficLight/07_TL_Adaptive_Queue.h \
+	../trafficLight/08_TL_VANET.h \
+	../trafficLight/09_TL_Router.h \
 	ApplV_01_Base.h \
 	ApplV_02_Beacon.h \
 	ApplV_03_System.h \
@@ -415,7 +415,6 @@ $O/ApplV_06_PlatoonMg.o: ApplV_06_PlatoonMg.cc \
 	../router/Net.h \
 	../router/Node.h \
 	../router/Router.h \
-	../router/RouterGlobals.h \
 	../router/Vehicle.h \
 	../rsu/ApplRSU_01_Base.h \
 	../rsu/ApplRSU_02_AID.h \
@@ -423,12 +422,13 @@ $O/ApplV_06_PlatoonMg.o: ApplV_06_PlatoonMg.cc \
 	../traci/TraCI_Extend.h \
 	../trafficLight/01_TL_Base.h \
 	../trafficLight/02_LoopDetectors.h \
-	../trafficLight/03_TL_Fixed.h \
-	../trafficLight/04_TL_Adaptive_RingAndBarrier.h \
-	../trafficLight/05_TL_Adaptive_Queue.h \
-	../trafficLight/06_TL_Adaptive_Webster.h \
-	../trafficLight/07_TL_VANET.h \
-	../trafficLight/08_TL_Router.h \
+	../trafficLight/03_VehDelay.h \
+	../trafficLight/04_TL_Fixed.h \
+	../trafficLight/05_TL_Adaptive_Webster.h \
+	../trafficLight/06_TL_Adaptive_RingAndBarrier.h \
+	../trafficLight/07_TL_Adaptive_Queue.h \
+	../trafficLight/08_TL_VANET.h \
+	../trafficLight/09_TL_Router.h \
 	ApplV_01_Base.h \
 	ApplV_02_Beacon.h \
 	ApplV_03_System.h \
@@ -478,7 +478,6 @@ $O/ApplV_06a_Merge.o: ApplV_06a_Merge.cc \
 	../router/Net.h \
 	../router/Node.h \
 	../router/Router.h \
-	../router/RouterGlobals.h \
 	../router/Vehicle.h \
 	../rsu/ApplRSU_01_Base.h \
 	../rsu/ApplRSU_02_AID.h \
@@ -486,12 +485,13 @@ $O/ApplV_06a_Merge.o: ApplV_06a_Merge.cc \
 	../traci/TraCI_Extend.h \
 	../trafficLight/01_TL_Base.h \
 	../trafficLight/02_LoopDetectors.h \
-	../trafficLight/03_TL_Fixed.h \
-	../trafficLight/04_TL_Adaptive_RingAndBarrier.h \
-	../trafficLight/05_TL_Adaptive_Queue.h \
-	../trafficLight/06_TL_Adaptive_Webster.h \
-	../trafficLight/07_TL_VANET.h \
-	../trafficLight/08_TL_Router.h \
+	../trafficLight/03_VehDelay.h \
+	../trafficLight/04_TL_Fixed.h \
+	../trafficLight/05_TL_Adaptive_Webster.h \
+	../trafficLight/06_TL_Adaptive_RingAndBarrier.h \
+	../trafficLight/07_TL_Adaptive_Queue.h \
+	../trafficLight/08_TL_VANET.h \
+	../trafficLight/09_TL_Router.h \
 	ApplV_01_Base.h \
 	ApplV_02_Beacon.h \
 	ApplV_03_System.h \
@@ -541,7 +541,6 @@ $O/ApplV_06b_Split.o: ApplV_06b_Split.cc \
 	../router/Net.h \
 	../router/Node.h \
 	../router/Router.h \
-	../router/RouterGlobals.h \
 	../router/Vehicle.h \
 	../rsu/ApplRSU_01_Base.h \
 	../rsu/ApplRSU_02_AID.h \
@@ -549,12 +548,13 @@ $O/ApplV_06b_Split.o: ApplV_06b_Split.cc \
 	../traci/TraCI_Extend.h \
 	../trafficLight/01_TL_Base.h \
 	../trafficLight/02_LoopDetectors.h \
-	../trafficLight/03_TL_Fixed.h \
-	../trafficLight/04_TL_Adaptive_RingAndBarrier.h \
-	../trafficLight/05_TL_Adaptive_Queue.h \
-	../trafficLight/06_TL_Adaptive_Webster.h \
-	../trafficLight/07_TL_VANET.h \
-	../trafficLight/08_TL_Router.h \
+	../trafficLight/03_VehDelay.h \
+	../trafficLight/04_TL_Fixed.h \
+	../trafficLight/05_TL_Adaptive_Webster.h \
+	../trafficLight/06_TL_Adaptive_RingAndBarrier.h \
+	../trafficLight/07_TL_Adaptive_Queue.h \
+	../trafficLight/08_TL_VANET.h \
+	../trafficLight/09_TL_Router.h \
 	ApplV_01_Base.h \
 	ApplV_02_Beacon.h \
 	ApplV_03_System.h \
@@ -604,7 +604,6 @@ $O/ApplV_06c_Common.o: ApplV_06c_Common.cc \
 	../router/Net.h \
 	../router/Node.h \
 	../router/Router.h \
-	../router/RouterGlobals.h \
 	../router/Vehicle.h \
 	../rsu/ApplRSU_01_Base.h \
 	../rsu/ApplRSU_02_AID.h \
@@ -612,12 +611,13 @@ $O/ApplV_06c_Common.o: ApplV_06c_Common.cc \
 	../traci/TraCI_Extend.h \
 	../trafficLight/01_TL_Base.h \
 	../trafficLight/02_LoopDetectors.h \
-	../trafficLight/03_TL_Fixed.h \
-	../trafficLight/04_TL_Adaptive_RingAndBarrier.h \
-	../trafficLight/05_TL_Adaptive_Queue.h \
-	../trafficLight/06_TL_Adaptive_Webster.h \
-	../trafficLight/07_TL_VANET.h \
-	../trafficLight/08_TL_Router.h \
+	../trafficLight/03_VehDelay.h \
+	../trafficLight/04_TL_Fixed.h \
+	../trafficLight/05_TL_Adaptive_Webster.h \
+	../trafficLight/06_TL_Adaptive_RingAndBarrier.h \
+	../trafficLight/07_TL_Adaptive_Queue.h \
+	../trafficLight/08_TL_VANET.h \
+	../trafficLight/09_TL_Router.h \
 	ApplV_01_Base.h \
 	ApplV_02_Beacon.h \
 	ApplV_03_System.h \
@@ -667,7 +667,6 @@ $O/ApplV_06d_Entry.o: ApplV_06d_Entry.cc \
 	../router/Net.h \
 	../router/Node.h \
 	../router/Router.h \
-	../router/RouterGlobals.h \
 	../router/Vehicle.h \
 	../rsu/ApplRSU_01_Base.h \
 	../rsu/ApplRSU_02_AID.h \
@@ -675,12 +674,13 @@ $O/ApplV_06d_Entry.o: ApplV_06d_Entry.cc \
 	../traci/TraCI_Extend.h \
 	../trafficLight/01_TL_Base.h \
 	../trafficLight/02_LoopDetectors.h \
-	../trafficLight/03_TL_Fixed.h \
-	../trafficLight/04_TL_Adaptive_RingAndBarrier.h \
-	../trafficLight/05_TL_Adaptive_Queue.h \
-	../trafficLight/06_TL_Adaptive_Webster.h \
-	../trafficLight/07_TL_VANET.h \
-	../trafficLight/08_TL_Router.h \
+	../trafficLight/03_VehDelay.h \
+	../trafficLight/04_TL_Fixed.h \
+	../trafficLight/05_TL_Adaptive_Webster.h \
+	../trafficLight/06_TL_Adaptive_RingAndBarrier.h \
+	../trafficLight/07_TL_Adaptive_Queue.h \
+	../trafficLight/08_TL_VANET.h \
+	../trafficLight/09_TL_Router.h \
 	ApplV_01_Base.h \
 	ApplV_02_Beacon.h \
 	ApplV_03_System.h \
@@ -730,7 +730,6 @@ $O/ApplV_06e_LeaderLeave.o: ApplV_06e_LeaderLeave.cc \
 	../router/Net.h \
 	../router/Node.h \
 	../router/Router.h \
-	../router/RouterGlobals.h \
 	../router/Vehicle.h \
 	../rsu/ApplRSU_01_Base.h \
 	../rsu/ApplRSU_02_AID.h \
@@ -738,12 +737,13 @@ $O/ApplV_06e_LeaderLeave.o: ApplV_06e_LeaderLeave.cc \
 	../traci/TraCI_Extend.h \
 	../trafficLight/01_TL_Base.h \
 	../trafficLight/02_LoopDetectors.h \
-	../trafficLight/03_TL_Fixed.h \
-	../trafficLight/04_TL_Adaptive_RingAndBarrier.h \
-	../trafficLight/05_TL_Adaptive_Queue.h \
-	../trafficLight/06_TL_Adaptive_Webster.h \
-	../trafficLight/07_TL_VANET.h \
-	../trafficLight/08_TL_Router.h \
+	../trafficLight/03_VehDelay.h \
+	../trafficLight/04_TL_Fixed.h \
+	../trafficLight/05_TL_Adaptive_Webster.h \
+	../trafficLight/06_TL_Adaptive_RingAndBarrier.h \
+	../trafficLight/07_TL_Adaptive_Queue.h \
+	../trafficLight/08_TL_VANET.h \
+	../trafficLight/09_TL_Router.h \
 	ApplV_01_Base.h \
 	ApplV_02_Beacon.h \
 	ApplV_03_System.h \
@@ -793,7 +793,6 @@ $O/ApplV_06f_FollowerLeave.o: ApplV_06f_FollowerLeave.cc \
 	../router/Net.h \
 	../router/Node.h \
 	../router/Router.h \
-	../router/RouterGlobals.h \
 	../router/Vehicle.h \
 	../rsu/ApplRSU_01_Base.h \
 	../rsu/ApplRSU_02_AID.h \
@@ -801,12 +800,13 @@ $O/ApplV_06f_FollowerLeave.o: ApplV_06f_FollowerLeave.cc \
 	../traci/TraCI_Extend.h \
 	../trafficLight/01_TL_Base.h \
 	../trafficLight/02_LoopDetectors.h \
-	../trafficLight/03_TL_Fixed.h \
-	../trafficLight/04_TL_Adaptive_RingAndBarrier.h \
-	../trafficLight/05_TL_Adaptive_Queue.h \
-	../trafficLight/06_TL_Adaptive_Webster.h \
-	../trafficLight/07_TL_VANET.h \
-	../trafficLight/08_TL_Router.h \
+	../trafficLight/03_VehDelay.h \
+	../trafficLight/04_TL_Fixed.h \
+	../trafficLight/05_TL_Adaptive_Webster.h \
+	../trafficLight/06_TL_Adaptive_RingAndBarrier.h \
+	../trafficLight/07_TL_Adaptive_Queue.h \
+	../trafficLight/08_TL_VANET.h \
+	../trafficLight/09_TL_Router.h \
 	ApplV_01_Base.h \
 	ApplV_02_Beacon.h \
 	ApplV_03_System.h \
@@ -856,7 +856,6 @@ $O/ApplV_06g_Dissolve.o: ApplV_06g_Dissolve.cc \
 	../router/Net.h \
 	../router/Node.h \
 	../router/Router.h \
-	../router/RouterGlobals.h \
 	../router/Vehicle.h \
 	../rsu/ApplRSU_01_Base.h \
 	../rsu/ApplRSU_02_AID.h \
@@ -864,12 +863,13 @@ $O/ApplV_06g_Dissolve.o: ApplV_06g_Dissolve.cc \
 	../traci/TraCI_Extend.h \
 	../trafficLight/01_TL_Base.h \
 	../trafficLight/02_LoopDetectors.h \
-	../trafficLight/03_TL_Fixed.h \
-	../trafficLight/04_TL_Adaptive_RingAndBarrier.h \
-	../trafficLight/05_TL_Adaptive_Queue.h \
-	../trafficLight/06_TL_Adaptive_Webster.h \
-	../trafficLight/07_TL_VANET.h \
-	../trafficLight/08_TL_Router.h \
+	../trafficLight/03_VehDelay.h \
+	../trafficLight/04_TL_Fixed.h \
+	../trafficLight/05_TL_Adaptive_Webster.h \
+	../trafficLight/06_TL_Adaptive_RingAndBarrier.h \
+	../trafficLight/07_TL_Adaptive_Queue.h \
+	../trafficLight/08_TL_VANET.h \
+	../trafficLight/09_TL_Router.h \
 	ApplV_01_Base.h \
 	ApplV_02_Beacon.h \
 	ApplV_03_System.h \
@@ -919,7 +919,6 @@ $O/ApplV_07_Coordinator.o: ApplV_07_Coordinator.cc \
 	../router/Net.h \
 	../router/Node.h \
 	../router/Router.h \
-	../router/RouterGlobals.h \
 	../router/Vehicle.h \
 	../rsu/ApplRSU_01_Base.h \
 	../rsu/ApplRSU_02_AID.h \
@@ -927,12 +926,13 @@ $O/ApplV_07_Coordinator.o: ApplV_07_Coordinator.cc \
 	../traci/TraCI_Extend.h \
 	../trafficLight/01_TL_Base.h \
 	../trafficLight/02_LoopDetectors.h \
-	../trafficLight/03_TL_Fixed.h \
-	../trafficLight/04_TL_Adaptive_RingAndBarrier.h \
-	../trafficLight/05_TL_Adaptive_Queue.h \
-	../trafficLight/06_TL_Adaptive_Webster.h \
-	../trafficLight/07_TL_VANET.h \
-	../trafficLight/08_TL_Router.h \
+	../trafficLight/03_VehDelay.h \
+	../trafficLight/04_TL_Fixed.h \
+	../trafficLight/05_TL_Adaptive_Webster.h \
+	../trafficLight/06_TL_Adaptive_RingAndBarrier.h \
+	../trafficLight/07_TL_Adaptive_Queue.h \
+	../trafficLight/08_TL_VANET.h \
+	../trafficLight/09_TL_Router.h \
 	ApplV_01_Base.h \
 	ApplV_02_Beacon.h \
 	ApplV_03_System.h \
@@ -984,7 +984,6 @@ $O/ApplV_08_Manager.o: ApplV_08_Manager.cc \
 	../router/Net.h \
 	../router/Node.h \
 	../router/Router.h \
-	../router/RouterGlobals.h \
 	../router/Vehicle.h \
 	../rsu/ApplRSU_01_Base.h \
 	../rsu/ApplRSU_02_AID.h \
@@ -992,12 +991,13 @@ $O/ApplV_08_Manager.o: ApplV_08_Manager.cc \
 	../traci/TraCI_Extend.h \
 	../trafficLight/01_TL_Base.h \
 	../trafficLight/02_LoopDetectors.h \
-	../trafficLight/03_TL_Fixed.h \
-	../trafficLight/04_TL_Adaptive_RingAndBarrier.h \
-	../trafficLight/05_TL_Adaptive_Queue.h \
-	../trafficLight/06_TL_Adaptive_Webster.h \
-	../trafficLight/07_TL_VANET.h \
-	../trafficLight/08_TL_Router.h \
+	../trafficLight/03_VehDelay.h \
+	../trafficLight/04_TL_Fixed.h \
+	../trafficLight/05_TL_Adaptive_Webster.h \
+	../trafficLight/06_TL_Adaptive_RingAndBarrier.h \
+	../trafficLight/07_TL_Adaptive_Queue.h \
+	../trafficLight/08_TL_VANET.h \
+	../trafficLight/09_TL_Router.h \
 	ApplV_01_Base.h \
 	ApplV_02_Beacon.h \
 	ApplV_03_System.h \

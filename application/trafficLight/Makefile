@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for libtrafficLight
 #
 # This file was generated with the command:
-#  opp_makemake -f --make-so -o trafficLight -O out -I/home/dylan/Desktop/VENTOS/eigen-3.2.1 -I/home/dylan/Desktop/VENTOS/rapidxml-1.13 -I../../../veins/src/veins -I../../../veins/src/veins/base/connectionManager -I.. -I../../../veins/src -I../../../veins/src/veins/base/modules -I../../../veins/src/veins/base/utils -I../rsu -I../router -I../traci -I../vehicle -I../../../veins/src/veins/modules/mac/ieee80211p -I../global -L../../../veins/out/$$\(CONFIGNAME\)/src -L../../out/$$\(CONFIGNAME\)/application/pedestrian -L../../out/$$\(CONFIGNAME\)/application/msg -L../../out/$$\(CONFIGNAME\)/application/rsu -L../../out/$$\(CONFIGNAME\)/application/bike -L../../out/$$\(CONFIGNAME\)/application/adversary -L../../out/$$\(CONFIGNAME\)/application/router -L../../out/$$\(CONFIGNAME\)/application/traci -L../../out/$$\(CONFIGNAME\)/application/vehicle -L../../out/$$\(CONFIGNAME\)/application/global -lboost_filesystem -lboost_system -lmsg -ltraci -lveins -KVEINS_PROJ=../../../veins
+#  opp_makemake -f --make-so -o trafficLight -O out -I/home/philip/Desktop/VENTOS/VENTOS/eigen-3.2.1 -I/home/philip/Desktop/VENTOS/VENTOS/rapidxml-1.13 -I/home/philip/Desktop/Veins/veins/src/veins -I/home/philip/Desktop/Veins/veins/src/veins/base/connectionManager -I.. -I/home/philip/Desktop/Veins/veins/src -I/home/philip/Desktop/Veins/veins/src/veins/base/modules -I/home/philip/Desktop/Veins/veins/src/veins/base/utils -I../rsu -I../router -I../traci -I../vehicle -I/home/philip/Desktop/Veins/veins/src/veins/modules/mac/ieee80211p -I../global -L/home/philip/Desktop/Veins/veins/out/$$\(CONFIGNAME\)/src -L../../out/$$\(CONFIGNAME\)/application/pedestrian -L../../out/$$\(CONFIGNAME\)/application/msg -L../../out/$$\(CONFIGNAME\)/application/rsu -L../../out/$$\(CONFIGNAME\)/application/bike -L../../out/$$\(CONFIGNAME\)/application/adversary -L../../out/$$\(CONFIGNAME\)/application/router -L../../out/$$\(CONFIGNAME\)/application/traci -L../../out/$$\(CONFIGNAME\)/application/vehicle -L../../out/$$\(CONFIGNAME\)/application/global -lboost_filesystem -lboost_system -lmsg -ltraci -lveins -KVEINS_PROJ=/home/philip/Desktop/Veins/veins
 #
 
 # Name of target to be created (-o option)
@@ -12,17 +12,17 @@ TARGET = libtrafficLight$(SHARED_LIB_SUFFIX)
 INCLUDE_PATH = \
     -I../../eigen-3.2.1 \
     -I../../rapidxml-1.13 \
-    -I../../../veins/src/veins \
-    -I../../../veins/src/veins/base/connectionManager \
+    -I$(VEINS_PROJ)/src/veins \
+    -I$(VEINS_PROJ)/src/veins/base/connectionManager \
     -I.. \
-    -I../../../veins/src \
-    -I../../../veins/src/veins/base/modules \
-    -I../../../veins/src/veins/base/utils \
+    -I$(VEINS_PROJ)/src \
+    -I$(VEINS_PROJ)/src/veins/base/modules \
+    -I$(VEINS_PROJ)/src/veins/base/utils \
     -I../rsu \
     -I../router \
     -I../traci \
     -I../vehicle \
-    -I../../../veins/src/veins/modules/mac/ieee80211p \
+    -I$(VEINS_PROJ)/src/veins/modules/mac/ieee80211p \
     -I../global \
     -I.
 
@@ -30,8 +30,8 @@ INCLUDE_PATH = \
 EXTRA_OBJS =
 
 # Additional libraries (-L, -l options)
-LIBS = -L../../../veins/out/$(CONFIGNAME)/src -L../../out/$(CONFIGNAME)/application/pedestrian -L../../out/$(CONFIGNAME)/application/msg -L../../out/$(CONFIGNAME)/application/rsu -L../../out/$(CONFIGNAME)/application/bike -L../../out/$(CONFIGNAME)/application/adversary -L../../out/$(CONFIGNAME)/application/router -L../../out/$(CONFIGNAME)/application/traci -L../../out/$(CONFIGNAME)/application/vehicle -L../../out/$(CONFIGNAME)/application/global  -lboost_filesystem -lboost_system -lmsg -ltraci -lveins
-LIBS += -Wl,-rpath,`abspath ../../../veins/out/$(CONFIGNAME)/src` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/pedestrian` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/msg` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/rsu` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/bike` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/adversary` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/router` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/traci` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/vehicle` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/global`
+LIBS = -L$(VEINS_PROJ)/out/$(CONFIGNAME)/src -L../../out/$(CONFIGNAME)/application/pedestrian -L../../out/$(CONFIGNAME)/application/msg -L../../out/$(CONFIGNAME)/application/rsu -L../../out/$(CONFIGNAME)/application/bike -L../../out/$(CONFIGNAME)/application/adversary -L../../out/$(CONFIGNAME)/application/router -L../../out/$(CONFIGNAME)/application/traci -L../../out/$(CONFIGNAME)/application/vehicle -L../../out/$(CONFIGNAME)/application/global  -lboost_filesystem -lboost_system -lmsg -ltraci -lveins
+LIBS += -Wl,-rpath,`abspath $(VEINS_PROJ)/out/$(CONFIGNAME)/src` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/pedestrian` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/msg` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/rsu` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/bike` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/adversary` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/router` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/traci` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/vehicle` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/global`
 
 # Output directory
 PROJECT_OUTPUT_DIR = ../../out
@@ -40,21 +40,22 @@ O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Object files for local .cc and .msg files
 OBJS = \
-    $O/08_TL_Router.o \
-    $O/05_TL_Adaptive_Queue.o \
-    $O/06_TL_Adaptive_Webster.o \
-    $O/07_TL_VANET.o \
-    $O/09_TL_Manager.o \
-    $O/01_TL_Base.o \
-    $O/03_TL_Fixed.o \
+    $O/05_TL_Adaptive_Webster.o \
+    $O/09_TL_Router.o \
+    $O/06_TL_Adaptive_RingAndBarrier.o \
+    $O/07_TL_Adaptive_Queue.o \
+    $O/08_TL_VANET.o \
+    $O/03_VehDelay.o \
+    $O/04_TL_Fixed.o \
     $O/02_LoopDetectors.o \
-    $O/04_TL_Adaptive_RingAndBarrier.o
+    $O/01_TL_Base.o \
+    $O/10_TL_Manager.o
 
 # Message files
 MSGFILES =
 
 # Other makefile variables (-K)
-VEINS_PROJ=../../../veins
+VEINS_PROJ=/home/philip/Desktop/Veins/veins
 
 #------------------------------------------------------------------------------
 
@@ -191,13 +192,13 @@ $O/02_LoopDetectors.o: 02_LoopDetectors.cc \
 	$(VEINS_PROJ)/src/veins/modules/obstacle/Obstacle.h \
 	$(VEINS_PROJ)/src/veins/modules/obstacle/ObstacleControl.h \
 	$(VEINS_PROJ)/src/veins/modules/world/annotations/AnnotationManager.h
-$O/03_TL_Fixed.o: 03_TL_Fixed.cc \
+$O/03_VehDelay.o: 03_VehDelay.cc \
 	../global/Appl.h \
 	../msg/Messages_m.h \
 	../traci/TraCI_Extend.h \
 	01_TL_Base.h \
 	02_LoopDetectors.h \
-	03_TL_Fixed.h \
+	03_VehDelay.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/NicEntry.h \
 	$(VEINS_PROJ)/src/veins/base/modules/BaseModule.h \
@@ -219,14 +220,14 @@ $O/03_TL_Fixed.o: 03_TL_Fixed.cc \
 	$(VEINS_PROJ)/src/veins/modules/obstacle/Obstacle.h \
 	$(VEINS_PROJ)/src/veins/modules/obstacle/ObstacleControl.h \
 	$(VEINS_PROJ)/src/veins/modules/world/annotations/AnnotationManager.h
-$O/04_TL_Adaptive_RingAndBarrier.o: 04_TL_Adaptive_RingAndBarrier.cc \
+$O/04_TL_Fixed.o: 04_TL_Fixed.cc \
 	../global/Appl.h \
 	../msg/Messages_m.h \
 	../traci/TraCI_Extend.h \
 	01_TL_Base.h \
 	02_LoopDetectors.h \
-	03_TL_Fixed.h \
-	04_TL_Adaptive_RingAndBarrier.h \
+	03_VehDelay.h \
+	04_TL_Fixed.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/NicEntry.h \
 	$(VEINS_PROJ)/src/veins/base/modules/BaseModule.h \
@@ -248,15 +249,15 @@ $O/04_TL_Adaptive_RingAndBarrier.o: 04_TL_Adaptive_RingAndBarrier.cc \
 	$(VEINS_PROJ)/src/veins/modules/obstacle/Obstacle.h \
 	$(VEINS_PROJ)/src/veins/modules/obstacle/ObstacleControl.h \
 	$(VEINS_PROJ)/src/veins/modules/world/annotations/AnnotationManager.h
-$O/05_TL_Adaptive_Queue.o: 05_TL_Adaptive_Queue.cc \
+$O/05_TL_Adaptive_Webster.o: 05_TL_Adaptive_Webster.cc \
 	../global/Appl.h \
 	../msg/Messages_m.h \
 	../traci/TraCI_Extend.h \
 	01_TL_Base.h \
 	02_LoopDetectors.h \
-	03_TL_Fixed.h \
-	04_TL_Adaptive_RingAndBarrier.h \
-	05_TL_Adaptive_Queue.h \
+	03_VehDelay.h \
+	04_TL_Fixed.h \
+	05_TL_Adaptive_Webster.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/NicEntry.h \
 	$(VEINS_PROJ)/src/veins/base/modules/BaseModule.h \
@@ -278,16 +279,16 @@ $O/05_TL_Adaptive_Queue.o: 05_TL_Adaptive_Queue.cc \
 	$(VEINS_PROJ)/src/veins/modules/obstacle/Obstacle.h \
 	$(VEINS_PROJ)/src/veins/modules/obstacle/ObstacleControl.h \
 	$(VEINS_PROJ)/src/veins/modules/world/annotations/AnnotationManager.h
-$O/06_TL_Adaptive_Webster.o: 06_TL_Adaptive_Webster.cc \
+$O/06_TL_Adaptive_RingAndBarrier.o: 06_TL_Adaptive_RingAndBarrier.cc \
 	../global/Appl.h \
 	../msg/Messages_m.h \
 	../traci/TraCI_Extend.h \
 	01_TL_Base.h \
 	02_LoopDetectors.h \
-	03_TL_Fixed.h \
-	04_TL_Adaptive_RingAndBarrier.h \
-	05_TL_Adaptive_Queue.h \
-	06_TL_Adaptive_Webster.h \
+	03_VehDelay.h \
+	04_TL_Fixed.h \
+	05_TL_Adaptive_Webster.h \
+	06_TL_Adaptive_RingAndBarrier.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/NicEntry.h \
 	$(VEINS_PROJ)/src/veins/base/modules/BaseModule.h \
@@ -309,7 +310,39 @@ $O/06_TL_Adaptive_Webster.o: 06_TL_Adaptive_Webster.cc \
 	$(VEINS_PROJ)/src/veins/modules/obstacle/Obstacle.h \
 	$(VEINS_PROJ)/src/veins/modules/obstacle/ObstacleControl.h \
 	$(VEINS_PROJ)/src/veins/modules/world/annotations/AnnotationManager.h
-$O/07_TL_VANET.o: 07_TL_VANET.cc \
+$O/07_TL_Adaptive_Queue.o: 07_TL_Adaptive_Queue.cc \
+	../global/Appl.h \
+	../msg/Messages_m.h \
+	../traci/TraCI_Extend.h \
+	01_TL_Base.h \
+	02_LoopDetectors.h \
+	03_VehDelay.h \
+	04_TL_Fixed.h \
+	05_TL_Adaptive_Webster.h \
+	06_TL_Adaptive_RingAndBarrier.h \
+	07_TL_Adaptive_Queue.h \
+	$(VEINS_PROJ)/src/veins/base/connectionManager/BaseConnectionManager.h \
+	$(VEINS_PROJ)/src/veins/base/connectionManager/NicEntry.h \
+	$(VEINS_PROJ)/src/veins/base/modules/BaseModule.h \
+	$(VEINS_PROJ)/src/veins/base/modules/BaseWorldUtility.h \
+	$(VEINS_PROJ)/src/veins/base/utils/Coord.h \
+	$(VEINS_PROJ)/src/veins/base/utils/FWMath.h \
+	$(VEINS_PROJ)/src/veins/base/utils/FindModule.h \
+	$(VEINS_PROJ)/src/veins/base/utils/HostState.h \
+	$(VEINS_PROJ)/src/veins/base/utils/MiXiMDefs.h \
+	$(VEINS_PROJ)/src/veins/base/utils/miximkerneldefs.h \
+	$(VEINS_PROJ)/src/veins/modules/messages/WaveShortMessage_m.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIBuffer.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIColor.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCICommandInterface.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIConnection.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIConstants.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCICoord.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIScenarioManager.h \
+	$(VEINS_PROJ)/src/veins/modules/obstacle/Obstacle.h \
+	$(VEINS_PROJ)/src/veins/modules/obstacle/ObstacleControl.h \
+	$(VEINS_PROJ)/src/veins/modules/world/annotations/AnnotationManager.h
+$O/08_TL_VANET.o: 08_TL_VANET.cc \
 	../global/Appl.h \
 	../msg/Messages_m.h \
 	../rsu/ApplRSU_01_Base.h \
@@ -318,11 +351,12 @@ $O/07_TL_VANET.o: 07_TL_VANET.cc \
 	../traci/TraCI_Extend.h \
 	01_TL_Base.h \
 	02_LoopDetectors.h \
-	03_TL_Fixed.h \
-	04_TL_Adaptive_RingAndBarrier.h \
-	05_TL_Adaptive_Queue.h \
-	06_TL_Adaptive_Webster.h \
-	07_TL_VANET.h \
+	03_VehDelay.h \
+	04_TL_Fixed.h \
+	05_TL_Adaptive_Webster.h \
+	06_TL_Adaptive_RingAndBarrier.h \
+	07_TL_Adaptive_Queue.h \
+	08_TL_VANET.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/BaseConnectionManager.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/NicEntry.h \
 	$(VEINS_PROJ)/src/veins/base/modules/BaseApplLayer.h \
@@ -353,7 +387,7 @@ $O/07_TL_VANET.o: 07_TL_VANET.cc \
 	$(VEINS_PROJ)/src/veins/modules/obstacle/ObstacleControl.h \
 	$(VEINS_PROJ)/src/veins/modules/utility/Consts80211p.h \
 	$(VEINS_PROJ)/src/veins/modules/world/annotations/AnnotationManager.h
-$O/08_TL_Router.o: 08_TL_Router.cc \
+$O/09_TL_Router.o: 09_TL_Router.cc \
 	../global/Appl.h \
 	../msg/Messages_m.h \
 	../router/Edge.h \
@@ -362,7 +396,6 @@ $O/08_TL_Router.o: 08_TL_Router.cc \
 	../router/Net.h \
 	../router/Node.h \
 	../router/Router.h \
-	../router/RouterGlobals.h \
 	../router/Vehicle.h \
 	../rsu/ApplRSU_01_Base.h \
 	../rsu/ApplRSU_02_AID.h \
@@ -370,12 +403,13 @@ $O/08_TL_Router.o: 08_TL_Router.cc \
 	../traci/TraCI_Extend.h \
 	01_TL_Base.h \
 	02_LoopDetectors.h \
-	03_TL_Fixed.h \
-	04_TL_Adaptive_RingAndBarrier.h \
-	05_TL_Adaptive_Queue.h \
-	06_TL_Adaptive_Webster.h \
-	07_TL_VANET.h \
-	08_TL_Router.h \
+	03_VehDelay.h \
+	04_TL_Fixed.h \
+	05_TL_Adaptive_Webster.h \
+	06_TL_Adaptive_RingAndBarrier.h \
+	07_TL_Adaptive_Queue.h \
+	08_TL_VANET.h \
+	09_TL_Router.h \
 	../vehicle/ApplV_01_Base.h \
 	../vehicle/ApplV_02_Beacon.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/BaseConnectionManager.h \
@@ -412,7 +446,7 @@ $O/08_TL_Router.o: 08_TL_Router.cc \
 	$(VEINS_PROJ)/src/veins/modules/obstacle/ObstacleControl.h \
 	$(VEINS_PROJ)/src/veins/modules/utility/Consts80211p.h \
 	$(VEINS_PROJ)/src/veins/modules/world/annotations/AnnotationManager.h
-$O/09_TL_Manager.o: 09_TL_Manager.cc \
+$O/10_TL_Manager.o: 10_TL_Manager.cc \
 	../global/Appl.h \
 	../msg/Messages_m.h \
 	../router/Edge.h \
@@ -421,7 +455,6 @@ $O/09_TL_Manager.o: 09_TL_Manager.cc \
 	../router/Net.h \
 	../router/Node.h \
 	../router/Router.h \
-	../router/RouterGlobals.h \
 	../router/Vehicle.h \
 	../rsu/ApplRSU_01_Base.h \
 	../rsu/ApplRSU_02_AID.h \
@@ -429,13 +462,14 @@ $O/09_TL_Manager.o: 09_TL_Manager.cc \
 	../traci/TraCI_Extend.h \
 	01_TL_Base.h \
 	02_LoopDetectors.h \
-	03_TL_Fixed.h \
-	04_TL_Adaptive_RingAndBarrier.h \
-	05_TL_Adaptive_Queue.h \
-	06_TL_Adaptive_Webster.h \
-	07_TL_VANET.h \
-	08_TL_Router.h \
-	09_TL_Manager.h \
+	03_VehDelay.h \
+	04_TL_Fixed.h \
+	05_TL_Adaptive_Webster.h \
+	06_TL_Adaptive_RingAndBarrier.h \
+	07_TL_Adaptive_Queue.h \
+	08_TL_VANET.h \
+	09_TL_Router.h \
+	10_TL_Manager.h \
 	../vehicle/ApplV_01_Base.h \
 	../vehicle/ApplV_02_Beacon.h \
 	$(VEINS_PROJ)/src/veins/base/connectionManager/BaseConnectionManager.h \

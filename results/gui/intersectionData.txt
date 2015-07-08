@@ -1,0 +1,2 @@
+TLid        phase       allowedMovements                   greenStart     yellowStart    redStart       phaseEnd       #lanes         totalqueueSize 
+

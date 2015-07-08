@@ -1,0 +1,2 @@
+vehicleName         lane                TLid                entryTime           entrySpeed          leaveTime           
+
