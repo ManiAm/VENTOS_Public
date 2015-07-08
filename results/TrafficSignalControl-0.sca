@@ -1,0 +1,17 @@
+version 2
+run TrafficSignalControl-0-20150707-17:49:12-39324
+attr configname TrafficSignalControl
+attr datetime 20150707-17:49:12
+attr experiment TrafficSignalControl
+attr inifile params_config.ini
+attr iterationvars ""
+attr iterationvars2 $repetition=0
+attr measurement ""
+attr network ned.Network
+attr processid 39324
+attr repetition 0
+attr replication #0
+attr resultdir results
+attr runnumber 0
+attr seedset 0
+
