@@ -12,6 +12,7 @@ simple TL_LoopDetectors extends TL_Base
         double yellowTime = default(0s) @unit(s);
         double redTime = default(0s) @unit(s);
         double maxCycleLength = default(120s) @unit(s); 
+        double cycleLength = default(60s) @unit(s); 
         
         bool measureIntersectionQueue;
         bool measureTrafficDemand;

@@ -62,6 +62,22 @@ public:
 };
 
 
+class greenIntervalInfo
+{
+public:
+    int vehCount;
+    double greenTime;
+    std::string greenString;
+
+    greenIntervalInfo(int i1, double d1, std::string str)
+    {
+        this->vehCount = i1;
+        this->greenTime = d1;
+        this->greenString = str;
+    }
+};
+
+
 class TrafficLightAdaptiveQueue : public TrafficLightLowDelay
 {
 public:
@@ -81,9 +97,10 @@ private:
     //bool pred(std::vector<int> &);
 
 private:
-    std::vector<std::string> phases;
+    double nextGreenDuration;
     // batch of all non-conflicting movements, sorted by total queue size per batch
     std::priority_queue< batchMovementQueueEntry /*type of each element*/, std::vector<batchMovementQueueEntry> /*container*/, movementCompareQueue > batchMovementQueue;
+    std::vector<greenIntervalInfo> greenInterval;
 };
 
 }

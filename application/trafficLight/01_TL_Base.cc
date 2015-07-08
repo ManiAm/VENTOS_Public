@@ -54,6 +54,7 @@ void TrafficLightBase::initialize(int stage)
 
         updateInterval = TraCI->par("updateInterval").doubleValue();
         TLControlMode = par("TLControlMode").longValue();
+        cycleLength = par("cycleLength").doubleValue();
 
         // get the file paths
         VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
