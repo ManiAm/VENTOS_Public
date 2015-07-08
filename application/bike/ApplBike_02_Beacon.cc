@@ -162,6 +162,7 @@ BeaconBicycle*  ApplBikeBeacon::prepareBeacon()
 
     // fill in the sender/receiver fields
     wsm->setSender(SUMObID.c_str());
+    wsm->setSenderType(SUMObType.c_str());
     wsm->setRecipient("broadcast");
 
     // set current position

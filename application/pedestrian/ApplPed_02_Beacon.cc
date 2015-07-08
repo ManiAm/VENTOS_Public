@@ -162,6 +162,7 @@ BeaconPedestrian*  ApplPedBeacon::prepareBeacon()
 
     // fill in the sender/receiver fields
     wsm->setSender(SUMOpID.c_str());
+    wsm->setSenderType(SUMOpType.c_str());
     wsm->setRecipient("broadcast");
 
     // set current position

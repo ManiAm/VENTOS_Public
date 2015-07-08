@@ -153,6 +153,7 @@ BeaconRSU* ApplRSUBase::prepareBeacon()
 
     // fill in the sender/receiver fields
     wsm->setSender(myFullId);
+    wsm->setSenderType("notSpecified");
     wsm->setRecipient("broadcast");
 
     // set my current position

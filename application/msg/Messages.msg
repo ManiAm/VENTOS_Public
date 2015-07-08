@@ -48,6 +48,7 @@ namespace VENTOS;
 packet BeaconVehicle extends WaveShortMessage 
 {
 	string sender;
+	string senderType;
 	string recipient;
 	Coord pos;
 	double speed;
@@ -62,6 +63,7 @@ packet BeaconVehicle extends WaveShortMessage
 packet BeaconBicycle extends WaveShortMessage 
 {
 	string sender;
+    string senderType;
 	string recipient;
 	Coord pos;
 	double speed;
@@ -76,6 +78,7 @@ packet BeaconBicycle extends WaveShortMessage
 packet BeaconPedestrian extends WaveShortMessage 
 {
 	string sender;
+    string senderType;
 	string recipient;
 	Coord pos;
 	double speed;
@@ -90,6 +93,7 @@ packet BeaconPedestrian extends WaveShortMessage
 packet BeaconRSU extends WaveShortMessage 
 {
 	string sender;
+    string senderType;
 	string recipient;
 	Coord pos;
 };
@@ -104,6 +108,7 @@ packet DummyMsg extends WaveShortMessage
 packet LaneChangeMsg extends WaveShortMessage 
 {
     string sender;
+    string senderType;
 	string recipient;
     stringQueue laneChange;  
 };
@@ -112,6 +117,7 @@ packet LaneChangeMsg extends WaveShortMessage
 packet PlatoonMsg extends WaveShortMessage 
 {
     string sender;
+    string senderType;
 	string recipient;
     int type;
     string sendingPlatoonID;

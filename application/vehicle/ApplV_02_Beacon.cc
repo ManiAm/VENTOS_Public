@@ -212,6 +212,7 @@ BeaconVehicle*  ApplVBeacon::prepareBeacon()
 
     // fill in the sender/receiver fields
     wsm->setSender(SUMOvID.c_str());
+    wsm->setSenderType(SUMOvType.c_str());
     wsm->setRecipient("broadcast");
 
     // set current position
