@@ -32,29 +32,65 @@
 
 namespace VENTOS {
 
-class queueData
+class detectedVehicleEntry
 {
   public:
     std::string vehicleName;
+    std::string vehicleType;
     std::string lane;
     std::string TLid;
     double entryTime;
     double leaveTime;
     double entrySpeed;
 
-    queueData(std::string str1, std::string str2="", std::string str3="", double entryT=-1, double leaveT=-1, double entryS=-1)
+    detectedVehicleEntry(std::string str1, std::string str2="", std::string str3="", std::string str4="", double entryT=-1, double leaveT=-1, double entryS=-1)
     {
         this->vehicleName = str1;
-        this->lane = str2;
-        this->TLid = str3;
+        this->vehicleType = str2;
+        this->lane = str3;
+        this->TLid = str4;
         this->entryTime = entryT;
         this->leaveTime = leaveT;
         this->entrySpeed = entryS;
     }
 
-    friend bool operator== (const queueData &v1, const queueData &v2)
+    friend bool operator== (const detectedVehicleEntry &v1, const detectedVehicleEntry &v2)
     {
         return ( v1.vehicleName == v2.vehicleName );
+    }
+};
+
+
+class queuedVehiclesEntry
+{
+public:
+    std::string vehicleType;
+    double entryTime;
+    double entrySpeed;
+
+    queuedVehiclesEntry(std::string str1, double d1, double d2)
+    {
+        this->vehicleType = str1;
+        this->entryTime = d1;
+        this->entrySpeed = d2;
+    }
+};
+
+
+class laneInfoEntry
+{
+public:
+    std::string TLid;
+    double lastDetectedTime;
+    double passageTime;
+    std::map<std::string /*vehicle id*/, queuedVehiclesEntry> queuedVehicles;
+
+    laneInfoEntry(std::string str1, double d1, double d2, std::map<std::string, queuedVehiclesEntry> mapV)
+    {
+        this->TLid = str1;
+        this->lastDetectedTime = d1;
+        this->passageTime = d2;
+        this->queuedVehicles = mapV;
     }
 };
 
@@ -82,16 +118,15 @@ class ApplRSUTLVANET : public ApplRSUAID
         static void saveVehApproach();
 
 	public:
-        std::map<std::string /*lane*/, double /*time*/> detectedTime;
-        std::map<std::string,double> passageTimePerLane;
+        std::map<std::string /*lane*/, laneInfoEntry> laneInfo;   // collected info per lane by the RSU
 
 	private:
         bool collectVehApproach;
         int TLControlMode;
         double minGreenTime;
 
-        std::map<std::string /*lane*/, std::string /*TLid*/> lanesTL;  // all incoming lanes belong to each intersection
-        static std::vector<queueData> Vec_queueData;    // common in all RSUs
+        std::map<std::string /*lane*/, std::string /*TLid*/> lanesTL;     // all incoming lanes for the intersection that this RSU belongs to
+        static std::vector<detectedVehicleEntry> Vec_detectedVehicles;    // keeping track of detected vehicles (common in all RSUs)
 };
 
 }

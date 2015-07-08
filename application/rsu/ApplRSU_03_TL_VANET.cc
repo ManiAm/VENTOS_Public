@@ -29,7 +29,7 @@
 
 namespace VENTOS {
 
-std::vector<queueData> ApplRSUTLVANET::Vec_queueData;
+std::vector<detectedVehicleEntry> ApplRSUTLVANET::Vec_detectedVehicles;
 
 Define_Module(VENTOS::ApplRSUTLVANET);
 
@@ -53,12 +53,13 @@ void ApplRSUTLVANET::initialize(int stage)
 
     if (stage==0)
     {
+        // for the TL_VANET we need this RSU to be associated with a TL
         if(myTLid == "")
             error("The id of %s does not match with any TL. Check RSUsLocation.xml file!", myFullId);
 
         collectVehApproach = par("collectVehApproach").boolValue();
 
-        Vec_queueData.clear();
+        Vec_detectedVehicles.clear();
 
         setDetectionRegion();
 
@@ -75,13 +76,10 @@ void ApplRSUTLVANET::initialize(int stage)
 
             lanesTL[lane] = myTLid;
 
-            // initialize all detectedTime with zero
-            detectedTime[lane] = 0;
-
             // get the max speed on this lane
             double maxV = TraCI->laneGetMaxSpeed(lane);
 
-            // calculate passageTime for this lane
+            // calculate initial passageTime for this lane
             // todo: change fix value
             double pass = 35. / maxV;
 
@@ -92,8 +90,9 @@ void ApplRSUTLVANET::initialize(int stage)
                 pass = minGreenTime;
             }
 
-            // set it for each lane
-            passageTimePerLane[lane] = pass;
+            // add this lane to the laneInfo map
+            laneInfoEntry *entry = new laneInfoEntry(myTLid /*TLid*/, 0 /*initial detected time*/, pass /*initial passage time*/, std::map<std::string, queuedVehiclesEntry>() /*queued vehicles*/);
+            laneInfo.insert( std::make_pair(lane, *entry) );
         }
     }
 }
@@ -187,6 +186,7 @@ void ApplRSUTLVANET::onData(LaneChangeMsg* wsm)
 }
 
 
+// update variables upon reception of any beacon (vehicle, bike, pedestrian)
 template <typename T> void ApplRSUTLVANET::onBeaconAny(T wsm)
 {
     std::string sender = wsm->getSender();
@@ -203,23 +203,41 @@ template <typename T> void ApplRSUTLVANET::onBeaconAny(T wsm)
         if(lanesTL.find(lane) != lanesTL.end() && lanesTL[lane] == myTLid)
         {
             // search queue for this vehicle
-            const queueData *searchFor = new queueData(sender);
-            std::vector<queueData>::iterator counter = std::find(Vec_queueData.begin(), Vec_queueData.end(), *searchFor);
+            const detectedVehicleEntry *searchFor = new detectedVehicleEntry(sender);
+            std::vector<detectedVehicleEntry>::iterator counter = std::find(Vec_detectedVehicles.begin(), Vec_detectedVehicles.end(), *searchFor);
 
-            // If not in queue
-            if (counter == Vec_queueData.end())
+            // if we have already added it
+            if (counter != Vec_detectedVehicles.end() && counter->leaveTime == -1)
+            {
+                return;
+            }
+            // the vehicle is visiting the intersection more than once
+            else if (counter != Vec_detectedVehicles.end() && counter->leaveTime != -1)
+            {
+                counter->entryTime = simTime().dbl();
+                counter->entrySpeed = wsm->getSpeed();
+                counter->leaveTime = -1;
+            }
+            else
             {
                 // Add entry:
-                queueData *tmp = new queueData(sender, lane, myTLid, simTime().dbl(), -1, wsm->getSpeed());
-                Vec_queueData.push_back(*tmp);
-
-                // also update detectedTime (used by the TL_VANET)
-                std::map<std::string, double>::iterator loc = detectedTime.find(lane);
-                if(loc != detectedTime.end())
-                    loc->second = simTime().dbl();
-                else
-                    error("lane %s does not exist in detectedTime map!", lane.c_str());
+                detectedVehicleEntry *tmp = new detectedVehicleEntry(sender, wsm->getSenderType(), lane, myTLid, simTime().dbl(), -1, wsm->getSpeed());
+                Vec_detectedVehicles.push_back(*tmp);
             }
+
+            // update laneInfo map
+            std::map<std::string, laneInfoEntry>::iterator loc = laneInfo.find(lane);
+            if(loc != laneInfo.end())
+            {
+                // update detectedTime
+                loc->second.lastDetectedTime = simTime().dbl();
+
+                // add it as a queued vehicle on this lane
+                queuedVehiclesEntry *newVeh = new queuedVehiclesEntry( wsm->getSenderType(), simTime().dbl(), wsm->getSpeed() );
+                loc->second.queuedVehicles.insert( std::make_pair(sender, *newVeh) );
+            }
+            else
+                error("lane %s does not exist in laneInfo map!", lane.c_str());
 
             // get the approach speed from the beacon
             double approachSpeed = wsm->getSpeed();
@@ -233,23 +251,39 @@ template <typename T> void ApplRSUTLVANET::onBeaconAny(T wsm)
                 if(pass > minGreenTime)
                     pass = minGreenTime;
 
-                // update passage time value in passageTimePerLane
-                std::map<std::string,double>::iterator location = passageTimePerLane.find(lane);
-                location->second = pass;
+                // update passage time
+                std::map<std::string, laneInfoEntry>::iterator location = laneInfo.find(lane);
+                location->second.passageTime = pass;
             }
         }
         // Else exiting queue area, so log leave time:
         else
         {
             // search queue for this vehicle
-            const queueData *searchFor = new queueData(sender);
-            std::vector<queueData>::iterator counter = std::find(Vec_queueData.begin(), Vec_queueData.end(), *searchFor);
+            const detectedVehicleEntry *searchFor = new detectedVehicleEntry(sender);
+            std::vector<detectedVehicleEntry>::iterator counter = std::find(Vec_detectedVehicles.begin(), Vec_detectedVehicles.end(), *searchFor);
 
-            if (counter == Vec_queueData.end())
+            if (counter == Vec_detectedVehicles.end())
                 error("vehicle %s does not exist in the queue!", sender.c_str());
 
             if(counter->leaveTime == -1)
+            {
                 counter->leaveTime = simTime().dbl();
+
+                // update laneInfo map
+                std::map<std::string, laneInfoEntry>::iterator loc = laneInfo.find(counter->lane);
+                if(loc != laneInfo.end())
+                {
+                    // remove it from the queued vehicles
+                    std::map<std::string, queuedVehiclesEntry>::iterator ref = loc->second.queuedVehicles.find(sender);
+                    if(ref != loc->second.queuedVehicles.end())
+                        loc->second.queuedVehicles.erase(ref);
+                    else
+                        error("vehicle %s was not added into lane %s in laneInfo map!", sender.c_str(), counter->lane.c_str());
+                }
+                else
+                    error("lane %s does not exist in laneInfo map!", counter->lane.c_str());
+            }
         }
     }
 }
@@ -276,6 +310,7 @@ void ApplRSUTLVANET::saveVehApproach()
 
     // write header
     fprintf (filePtr, "%-20s","vehicleName");
+    fprintf (filePtr, "%-20s","vehicleType");
     fprintf (filePtr, "%-20s","lane");
     fprintf (filePtr, "%-20s","TLid");
     fprintf (filePtr, "%-20s","entryTime");
@@ -283,9 +318,10 @@ void ApplRSUTLVANET::saveVehApproach()
     fprintf (filePtr, "%-20s\n\n","leaveTime");
 
     // write body
-    for(std::vector<queueData>::iterator y = Vec_queueData.begin(); y != Vec_queueData.end(); ++y)
+    for(std::vector<detectedVehicleEntry>::iterator y = Vec_detectedVehicles.begin(); y != Vec_detectedVehicles.end(); ++y)
     {
         fprintf (filePtr, "%-20s ", (*y).vehicleName.c_str());
+        fprintf (filePtr, "%-20s ", (*y).vehicleType.c_str());
         fprintf (filePtr, "%-20s ", (*y).lane.c_str());
         fprintf (filePtr, "%-20s ", (*y).TLid.c_str());
         fprintf (filePtr, "%-20.2f ", (*y).entryTime);

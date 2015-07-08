@@ -128,6 +128,23 @@ void TrafficLightVANET::executeEachTimeStep(bool simulationDone)
         return;
 
     intervalElapseTime += updateInterval;
+
+    // todo: remove later
+    std::map<std::string, laneInfoEntry> laneInfo = RSU->laneInfo;
+    for(std::map<std::string, laneInfoEntry>::iterator y = laneInfo.begin(); y != laneInfo.end(); ++y)
+    {
+        std::string lane = (*y).first;
+        laneInfoEntry entry = (*y).second;
+        std::map<std::string, queuedVehiclesEntry> vehs = entry.queuedVehicles;
+
+        std::cout << "lane: " << lane << ", TLid: " << entry.TLid << ", LDT: " << entry.lastDetectedTime << ", pass: " << entry.passageTime << ", queuedVeh: |";
+        for(std::map<std::string, queuedVehiclesEntry>::iterator z = vehs.begin(); z != vehs.end(); ++z)
+        {
+            std::cout << (*z).first << ", " << (*z).second.entryTime << ", " <<  (*z).second.entrySpeed << ", " << (*z).second.vehicleType << "|";
+        }
+        std::cout << endl;
+    }
+    std::cout << endl << endl;
 }
 
 
@@ -219,20 +236,16 @@ void TrafficLightVANET::chooseNextInterval()
 
 void TrafficLightVANET::chooseNextGreenInterval()
 {
-    // print for debugging
-    std::cout << "SimTime: " << std::setprecision(2) << std::fixed << simTime().dbl() << " | Passage time value per lane: ";
-    for (std::map<std::string,double>::iterator LD = RSU->passageTimePerLane.begin(); LD != RSU->passageTimePerLane.end(); ++LD)
-        std::cout << (*LD).first << " (" << (*LD).second << ") | ";
-    std::cout << endl;
+    std::map<std::string, laneInfoEntry> laneInfo = RSU->laneInfo;
 
-    // get adjusted VANET detector times
-    std::map<std::string,double> LastDetectedTime;
+    std::map<std::string, double> lastDetectionTime;
+    std::map<std::string, double> passageTime;
 
-    for (std::map<std::string, double>::iterator it = RSU->detectedTime.begin(); it != RSU->detectedTime.end(); ++it)
+    for(std::map<std::string, laneInfoEntry>::iterator it = laneInfo.begin(); it != laneInfo.end(); ++it)
     {
         std::string lane = (*it).first;
-        double time = (*it).second;
-        LastDetectedTime[lane] = simTime().dbl() - time;
+        lastDetectionTime[lane] = (*it).second.lastDetectedTime;
+        passageTime[lane] = (*it).second.passageTime;
     }
 
     bool extend = false;
@@ -242,19 +255,19 @@ void TrafficLightVANET::chooseNextGreenInterval()
     if (currentInterval == phase1_5)
     {
         if (greenExtension && intervalElapseTime < maxGreenTime &&
-                LastDetectedTime["NC_4"] < RSU->passageTimePerLane["NC_4"] &&
-                LastDetectedTime["SC_4"] < RSU->passageTimePerLane["SC_4"])
+                lastDetectionTime["NC_4"] < passageTime["NC_4"] &&
+                lastDetectionTime["SC_4"] < passageTime["SC_4"])
         {
-            intervalOffSet = std::max(RSU->passageTimePerLane["NC_4"]-LastDetectedTime["NC_4"], RSU->passageTimePerLane["SC_4"]-LastDetectedTime["SC_4"]);
+            intervalOffSet = std::max(passageTime["NC_4"]-lastDetectionTime["NC_4"], passageTime["SC_4"]-lastDetectionTime["SC_4"]);
             extend = true;
         }
-        else if (LastDetectedTime["NC_4"] < RSU->passageTimePerLane["NC_4"])
+        else if (lastDetectionTime["NC_4"] < passageTime["NC_4"])
         {
             nextGreenInterval = phase2_5;
             nextInterval = "rrrrGrrrrrrrrryrrrrrrrrr";
             extend = false;
         }
-        else if (LastDetectedTime["SC_4"] < RSU->passageTimePerLane["SC_4"])
+        else if (lastDetectionTime["SC_4"] < passageTime["SC_4"])
         {
             nextGreenInterval = phase1_6;
             nextInterval = "rrrryrrrrrrrrrGrrrrrrrrr";
@@ -270,9 +283,9 @@ void TrafficLightVANET::chooseNextGreenInterval()
     else if (currentInterval == phase2_5)
     {
         if (greenExtension && intervalElapseTime < maxGreenTime &&
-                LastDetectedTime["NC_4"] < RSU->passageTimePerLane["NC_4"])
+                lastDetectionTime["NC_4"] < passageTime["NC_4"])
         {
-            intervalOffSet = RSU->passageTimePerLane["NC_4"] - LastDetectedTime["NC_4"];
+            intervalOffSet = passageTime["NC_4"] - lastDetectionTime["NC_4"];
             extend = true;
         }
         else
@@ -285,9 +298,9 @@ void TrafficLightVANET::chooseNextGreenInterval()
     else if (currentInterval == phase1_6)
     {
         if (greenExtension && intervalElapseTime < maxGreenTime &&
-                LastDetectedTime["SC_4"] < RSU->passageTimePerLane["SC_4"])
+                lastDetectionTime["SC_4"] < passageTime["SC_4"])
         {
-            intervalOffSet = RSU->passageTimePerLane["SC_4"] - LastDetectedTime["SC_4"];
+            intervalOffSet = passageTime["SC_4"] - lastDetectionTime["SC_4"];
             extend = true;
         }
         else
@@ -300,13 +313,13 @@ void TrafficLightVANET::chooseNextGreenInterval()
     else if (currentInterval == phase2_6)
     {
         if (greenExtension && intervalElapseTime < maxGreenTime &&
-                (LastDetectedTime["NC_2"] < RSU->passageTimePerLane["NC_2"] ||
-                        LastDetectedTime["NC_3"] < RSU->passageTimePerLane["NC_3"] ||
-                        LastDetectedTime["SC_2"] < RSU->passageTimePerLane["SC_2"] ||
-                        LastDetectedTime["SC_3"] < RSU->passageTimePerLane["SC_3"]))
+                (lastDetectionTime["NC_2"] < passageTime["NC_2"] ||
+                        lastDetectionTime["NC_3"] < passageTime["NC_3"] ||
+                        lastDetectionTime["SC_2"] < passageTime["SC_2"] ||
+                        lastDetectionTime["SC_3"] < passageTime["SC_3"]))
         {
-            double biggest1 = std::max(RSU->passageTimePerLane["NC_2"]-LastDetectedTime["NC_2"], RSU->passageTimePerLane["SC_2"]-LastDetectedTime["SC_2"]);
-            double biggest2 = std::max(RSU->passageTimePerLane["NC_3"]-LastDetectedTime["NC_3"], RSU->passageTimePerLane["SC_3"]-LastDetectedTime["SC_3"]);
+            double biggest1 = std::max(passageTime["NC_2"]-lastDetectionTime["NC_2"], passageTime["SC_2"]-lastDetectionTime["SC_2"]);
+            double biggest2 = std::max(passageTime["NC_3"]-lastDetectionTime["NC_3"], passageTime["SC_3"]-lastDetectionTime["SC_3"]);
             intervalOffSet = std::max(biggest1, biggest2);
             extend = true;
         }
@@ -320,19 +333,19 @@ void TrafficLightVANET::chooseNextGreenInterval()
     else if (currentInterval == phase3_7)
     {
         if (greenExtension && intervalElapseTime < maxGreenTime &&
-                LastDetectedTime["WC_4"] < RSU->passageTimePerLane["WC_4"] &&
-                LastDetectedTime["EC_4"] < RSU->passageTimePerLane["EC_4"])
+                lastDetectionTime["WC_4"] < passageTime["WC_4"] &&
+                lastDetectionTime["EC_4"] < passageTime["EC_4"])
         {
-            intervalOffSet = std::max(RSU->passageTimePerLane["WC_4"]-LastDetectedTime["WC_4"], RSU->passageTimePerLane["EC_4"]-LastDetectedTime["EC_4"]);
+            intervalOffSet = std::max(passageTime["WC_4"]-lastDetectionTime["WC_4"], passageTime["EC_4"]-lastDetectionTime["EC_4"]);
             extend = true;
         }
-        else if (LastDetectedTime["WC_4"] < RSU->passageTimePerLane["WC_4"])
+        else if (lastDetectionTime["WC_4"] < passageTime["WC_4"])
         {
             nextGreenInterval = phase3_8;
             nextInterval = "rrrrrrrrryrrrrrrrrrGrrrr";
             extend = false;
         }
-        else if (LastDetectedTime["EC_4"] < RSU->passageTimePerLane["EC_4"])
+        else if (lastDetectionTime["EC_4"] < passageTime["EC_4"])
         {
             nextGreenInterval = phase4_7;
             nextInterval = "rrrrrrrrrGrrrrrrrrryrrrr";
@@ -348,9 +361,9 @@ void TrafficLightVANET::chooseNextGreenInterval()
     else if (currentInterval == phase3_8)
     {
         if (greenExtension && intervalElapseTime < maxGreenTime &&
-                LastDetectedTime["WC_4"] < RSU->passageTimePerLane["WC_4"])
+                lastDetectionTime["WC_4"] < passageTime["WC_4"])
         {
-            intervalOffSet = RSU->passageTimePerLane["WC_4"] - LastDetectedTime["WC_4"];
+            intervalOffSet = passageTime["WC_4"] - lastDetectionTime["WC_4"];
             extend = true;
         }
         else
@@ -363,9 +376,9 @@ void TrafficLightVANET::chooseNextGreenInterval()
     else if (currentInterval == phase4_7)
     {
         if (greenExtension && intervalElapseTime < maxGreenTime &&
-                LastDetectedTime["EC_4"] < RSU->passageTimePerLane["EC_4"])
+                lastDetectionTime["EC_4"] < passageTime["EC_4"])
         {
-            intervalOffSet = RSU->passageTimePerLane["EC_4"] - LastDetectedTime["EC_4"];
+            intervalOffSet = passageTime["EC_4"] - lastDetectionTime["EC_4"];
             extend = true;
         }
         else
@@ -378,13 +391,13 @@ void TrafficLightVANET::chooseNextGreenInterval()
     else if (currentInterval == phase4_8)
     {
         if (greenExtension && intervalElapseTime < maxGreenTime &&
-                (LastDetectedTime["WC_2"] < RSU->passageTimePerLane["WC_2"] ||
-                        LastDetectedTime["WC_3"] < RSU->passageTimePerLane["WC_3"] ||
-                        LastDetectedTime["EC_2"] < RSU->passageTimePerLane["EC_2"] ||
-                        LastDetectedTime["EC_3"] < RSU->passageTimePerLane["EC_3"]))
+                (lastDetectionTime["WC_2"] < passageTime["WC_2"] ||
+                        lastDetectionTime["WC_3"] < passageTime["WC_3"] ||
+                        lastDetectionTime["EC_2"] < passageTime["EC_2"] ||
+                        lastDetectionTime["EC_3"] < passageTime["EC_3"]))
         {
-            double biggest1 = std::max(RSU->passageTimePerLane["WC_2"]-LastDetectedTime["WC_2"], RSU->passageTimePerLane["EC_2"]-LastDetectedTime["EC_2"]);
-            double biggest2 = std::max(RSU->passageTimePerLane["WC_3"]-LastDetectedTime["WC_3"], RSU->passageTimePerLane["EC_3"]-LastDetectedTime["EC_3"]);
+            double biggest1 = std::max(passageTime["WC_2"]-lastDetectionTime["WC_2"], passageTime["EC_2"]-lastDetectionTime["EC_2"]);
+            double biggest2 = std::max(passageTime["WC_3"]-lastDetectionTime["WC_3"], passageTime["EC_3"]-lastDetectionTime["EC_3"]);
             intervalOffSet = std::max(biggest1, biggest2);
             extend = true;
         }
