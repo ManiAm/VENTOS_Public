@@ -1,2 +1,0 @@
-vehicleName    TLid      lastLane  entrance       crossed?  VbeforeDeccel  startDeccel    startStopping  crossedT       startAccel     endDelay       
-

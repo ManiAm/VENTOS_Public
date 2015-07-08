@@ -2,7 +2,11 @@
 # OMNeT++/OMNEST Makefile for librsu
 #
 # This file was generated with the command:
+<<<<<<< Updated upstream
 #  opp_makemake -f --make-so -o rsu -O out -I/home/philip/Desktop/VENTOS/VENTOS/eigen-3.2.1 -I/home/philip/Desktop/VENTOS/VENTOS/rapidxml-1.13 -I/home/philip/Desktop/Veins/veins/src/veins -I/home/philip/Desktop/Veins/veins/src -I/home/philip/Desktop/Veins/veins/src/veins/base/connectionManager -I../trafficLight -I/home/philip/Desktop/Veins/veins/src/veins/base/utils -I.. -I/home/philip/Desktop/Veins/veins/src/veins/base/modules -I../router -I../traci -I../vehicle -I../global -I/home/philip/Desktop/Veins/veins/src/veins/modules/mac/ieee80211p -L/home/philip/Desktop/Veins/veins/out/$$\(CONFIGNAME\)/src -L../../out/$$\(CONFIGNAME\)/application/pedestrian -L../../out/$$\(CONFIGNAME\)/application/trafficLight -L../../out/$$\(CONFIGNAME\)/application/msg -L../../out/$$\(CONFIGNAME\)/application/bike -L../../out/$$\(CONFIGNAME\)/application/adversary -L../../out/$$\(CONFIGNAME\)/application/router -L../../out/$$\(CONFIGNAME\)/application/traci -L../../out/$$\(CONFIGNAME\)/application/vehicle -L../../out/$$\(CONFIGNAME\)/application/global -lboost_filesystem -lboost_system -lmsg -ltraci -lveins -KVEINS_PROJ=/home/philip/Desktop/Veins/veins
+=======
+#  opp_makemake -f --make-so -o rsu -O out -I/home/mani/Desktop/VENTOS/eigen-3.2.1 -I/home/mani/Desktop/VENTOS/rapidxml-1.13 -I../../../veins/src/veins/base/connectionManager -I../router -I../../../veins/src -I../../../veins/src/veins/base/utils -I../traci -I../../../veins/src/veins -I../vehicle -I../global -I.. -I../../../veins/src/veins/base/modules -I../../../veins/src/veins/modules/mac/ieee80211p -I../trafficLight -L../../../veins/out/$$\(CONFIGNAME\)/src -L../../out/$$\(CONFIGNAME\)/application/msg -L../../out/$$\(CONFIGNAME\)/application/router -L../../out/$$\(CONFIGNAME\)/application/pedestrian -L../../out/$$\(CONFIGNAME\)/application/bike -L../../out/$$\(CONFIGNAME\)/application/traci -L../../out/$$\(CONFIGNAME\)/application/adversary -L../../out/$$\(CONFIGNAME\)/application/vehicle -L../../out/$$\(CONFIGNAME\)/application/trafficLight -L../../out/$$\(CONFIGNAME\)/application/global -lboost_filesystem -lboost_system -lmsg -ltraci -lveins -KVEINS_PROJ=../../../veins
+>>>>>>> Stashed changes
 #
 
 # Name of target to be created (-o option)
@@ -12,6 +16,7 @@ TARGET = librsu$(SHARED_LIB_SUFFIX)
 INCLUDE_PATH = \
     -I../../eigen-3.2.1 \
     -I../../rapidxml-1.13 \
+<<<<<<< Updated upstream
     -I$(VEINS_PROJ)/src/veins \
     -I$(VEINS_PROJ)/src \
     -I$(VEINS_PROJ)/src/veins/base/connectionManager \
@@ -20,18 +25,37 @@ INCLUDE_PATH = \
     -I.. \
     -I$(VEINS_PROJ)/src/veins/base/modules \
     -I../router \
+=======
+    -I../../../veins/src/veins/base/connectionManager \
+    -I../router \
+    -I../../../veins/src \
+    -I../../../veins/src/veins/base/utils \
+>>>>>>> Stashed changes
     -I../traci \
+    -I../../../veins/src/veins \
     -I../vehicle \
     -I../global \
+<<<<<<< Updated upstream
     -I$(VEINS_PROJ)/src/veins/modules/mac/ieee80211p \
+=======
+    -I.. \
+    -I../../../veins/src/veins/base/modules \
+    -I../../../veins/src/veins/modules/mac/ieee80211p \
+    -I../trafficLight \
+>>>>>>> Stashed changes
     -I.
 
 # Additional object and library files to link with
 EXTRA_OBJS =
 
 # Additional libraries (-L, -l options)
+<<<<<<< Updated upstream
 LIBS = -L$(VEINS_PROJ)/out/$(CONFIGNAME)/src -L../../out/$(CONFIGNAME)/application/pedestrian -L../../out/$(CONFIGNAME)/application/trafficLight -L../../out/$(CONFIGNAME)/application/msg -L../../out/$(CONFIGNAME)/application/bike -L../../out/$(CONFIGNAME)/application/adversary -L../../out/$(CONFIGNAME)/application/router -L../../out/$(CONFIGNAME)/application/traci -L../../out/$(CONFIGNAME)/application/vehicle -L../../out/$(CONFIGNAME)/application/global  -lboost_filesystem -lboost_system -lmsg -ltraci -lveins
 LIBS += -Wl,-rpath,`abspath $(VEINS_PROJ)/out/$(CONFIGNAME)/src` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/pedestrian` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/trafficLight` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/msg` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/bike` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/adversary` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/router` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/traci` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/vehicle` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/global`
+=======
+LIBS = -L../../../veins/out/$(CONFIGNAME)/src -L../../out/$(CONFIGNAME)/application/msg -L../../out/$(CONFIGNAME)/application/router -L../../out/$(CONFIGNAME)/application/pedestrian -L../../out/$(CONFIGNAME)/application/bike -L../../out/$(CONFIGNAME)/application/traci -L../../out/$(CONFIGNAME)/application/adversary -L../../out/$(CONFIGNAME)/application/vehicle -L../../out/$(CONFIGNAME)/application/trafficLight -L../../out/$(CONFIGNAME)/application/global  -lboost_filesystem -lboost_system -lmsg -ltraci -lveins
+LIBS += -Wl,-rpath,`abspath ../../../veins/out/$(CONFIGNAME)/src` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/msg` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/router` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/pedestrian` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/bike` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/traci` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/adversary` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/vehicle` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/trafficLight` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/global`
+>>>>>>> Stashed changes
 
 # Output directory
 PROJECT_OUTPUT_DIR = ../../out
@@ -39,7 +63,11 @@ PROJECTRELATIVE_PATH = application/rsu
 O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Object files for local .cc and .msg files
+<<<<<<< Updated upstream
 OBJS = $O/ApplRSU_02_AID.o $O/ApplRSU_04_Manager.o $O/ApplRSU_01_Base.o $O/RSUMobility.o $O/ApplRSU_03_TL_VANET.o
+=======
+OBJS = $O/RSUMobility.o $O/ApplRSU_03_TL_VANET.o $O/ApplRSU_04_Manager.o $O/ApplRSU_01_Base.o $O/ApplRSU_02_AID.o
+>>>>>>> Stashed changes
 
 # Message files
 MSGFILES =

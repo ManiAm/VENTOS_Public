@@ -59,6 +59,7 @@ Register_Class(BeaconVehicle);
 BeaconVehicle::BeaconVehicle(const char *name, int kind) : ::WaveShortMessage(name,kind)
 {
     this->sender_var = 0;
+    this->senderType_var = 0;
     this->recipient_var = 0;
     this->speed_var = 0;
     this->accel_var = 0;
@@ -88,6 +89,7 @@ BeaconVehicle& BeaconVehicle::operator=(const BeaconVehicle& other)
 void BeaconVehicle::copy(const BeaconVehicle& other)
 {
     this->sender_var = other.sender_var;
+    this->senderType_var = other.senderType_var;
     this->recipient_var = other.recipient_var;
     this->pos_var = other.pos_var;
     this->speed_var = other.speed_var;
@@ -102,6 +104,7 @@ void BeaconVehicle::parsimPack(cCommBuffer *b)
 {
     ::WaveShortMessage::parsimPack(b);
     doPacking(b,this->sender_var);
+    doPacking(b,this->senderType_var);
     doPacking(b,this->recipient_var);
     doPacking(b,this->pos_var);
     doPacking(b,this->speed_var);
@@ -116,6 +119,7 @@ void BeaconVehicle::parsimUnpack(cCommBuffer *b)
 {
     ::WaveShortMessage::parsimUnpack(b);
     doUnpacking(b,this->sender_var);
+    doUnpacking(b,this->senderType_var);
     doUnpacking(b,this->recipient_var);
     doUnpacking(b,this->pos_var);
     doUnpacking(b,this->speed_var);
@@ -134,6 +138,16 @@ const char * BeaconVehicle::getSender() const
 void BeaconVehicle::setSender(const char * sender)
 {
     this->sender_var = sender;
+}
+
+const char * BeaconVehicle::getSenderType() const
+{
+    return senderType_var.c_str();
+}
+
+void BeaconVehicle::setSenderType(const char * senderType)
+{
+    this->senderType_var = senderType;
 }
 
 const char * BeaconVehicle::getRecipient() const
@@ -263,7 +277,7 @@ const char *BeaconVehicleDescriptor::getProperty(const char *propertyname) const
 int BeaconVehicleDescriptor::getFieldCount(void *object) const
 {
     cClassDescriptor *basedesc = getBaseClassDescriptor();
-    return basedesc ? 9+basedesc->getFieldCount(object) : 9;
+    return basedesc ? 10+basedesc->getFieldCount(object) : 10;
 }
 
 unsigned int BeaconVehicleDescriptor::getFieldTypeFlags(void *object, int field) const
@@ -277,6 +291,7 @@ unsigned int BeaconVehicleDescriptor::getFieldTypeFlags(void *object, int field)
     static unsigned int fieldTypeFlags[] = {
         FD_ISEDITABLE,
         FD_ISEDITABLE,
+        FD_ISEDITABLE,
         FD_ISCOMPOUND,
         FD_ISEDITABLE,
         FD_ISEDITABLE,
@@ -285,7 +300,7 @@ unsigned int BeaconVehicleDescriptor::getFieldTypeFlags(void *object, int field)
         FD_ISEDITABLE,
         FD_ISEDITABLE,
     };
-    return (field>=0 && field<9) ? fieldTypeFlags[field] : 0;
+    return (field>=0 && field<10) ? fieldTypeFlags[field] : 0;
 }
 
 const char *BeaconVehicleDescriptor::getFieldName(void *object, int field) const
@@ -298,6 +313,7 @@ const char *BeaconVehicleDescriptor::getFieldName(void *object, int field) const
     }
     static const char *fieldNames[] = {
         "sender",
+        "senderType",
         "recipient",
         "pos",
         "speed",
@@ -307,7 +323,7 @@ const char *BeaconVehicleDescriptor::getFieldName(void *object, int field) const
         "platoonID",
         "platoonDepth",
     };
-    return (field>=0 && field<9) ? fieldNames[field] : NULL;
+    return (field>=0 && field<10) ? fieldNames[field] : NULL;
 }
 
 int BeaconVehicleDescriptor::findField(void *object, const char *fieldName) const
@@ -315,14 +331,15 @@ int BeaconVehicleDescriptor::findField(void *object, const char *fieldName) cons
     cClassDescriptor *basedesc = getBaseClassDescriptor();
     int base = basedesc ? basedesc->getFieldCount(object) : 0;
     if (fieldName[0]=='s' && strcmp(fieldName, "sender")==0) return base+0;
-    if (fieldName[0]=='r' && strcmp(fieldName, "recipient")==0) return base+1;
-    if (fieldName[0]=='p' && strcmp(fieldName, "pos")==0) return base+2;
-    if (fieldName[0]=='s' && strcmp(fieldName, "speed")==0) return base+3;
-    if (fieldName[0]=='a' && strcmp(fieldName, "accel")==0) return base+4;
-    if (fieldName[0]=='m' && strcmp(fieldName, "maxDecel")==0) return base+5;
-    if (fieldName[0]=='l' && strcmp(fieldName, "lane")==0) return base+6;
-    if (fieldName[0]=='p' && strcmp(fieldName, "platoonID")==0) return base+7;
-    if (fieldName[0]=='p' && strcmp(fieldName, "platoonDepth")==0) return base+8;
+    if (fieldName[0]=='s' && strcmp(fieldName, "senderType")==0) return base+1;
+    if (fieldName[0]=='r' && strcmp(fieldName, "recipient")==0) return base+2;
+    if (fieldName[0]=='p' && strcmp(fieldName, "pos")==0) return base+3;
+    if (fieldName[0]=='s' && strcmp(fieldName, "speed")==0) return base+4;
+    if (fieldName[0]=='a' && strcmp(fieldName, "accel")==0) return base+5;
+    if (fieldName[0]=='m' && strcmp(fieldName, "maxDecel")==0) return base+6;
+    if (fieldName[0]=='l' && strcmp(fieldName, "lane")==0) return base+7;
+    if (fieldName[0]=='p' && strcmp(fieldName, "platoonID")==0) return base+8;
+    if (fieldName[0]=='p' && strcmp(fieldName, "platoonDepth")==0) return base+9;
     return basedesc ? basedesc->findField(object, fieldName) : -1;
 }
 
@@ -337,6 +354,7 @@ const char *BeaconVehicleDescriptor::getFieldTypeString(void *object, int field)
     static const char *fieldTypeStrings[] = {
         "string",
         "string",
+        "string",
         "Coord",
         "double",
         "double",
@@ -345,7 +363,7 @@ const char *BeaconVehicleDescriptor::getFieldTypeString(void *object, int field)
         "string",
         "int",
     };
-    return (field>=0 && field<9) ? fieldTypeStrings[field] : NULL;
+    return (field>=0 && field<10) ? fieldTypeStrings[field] : NULL;
 }
 
 const char *BeaconVehicleDescriptor::getFieldProperty(void *object, int field, const char *propertyname) const
@@ -386,14 +404,15 @@ std::string BeaconVehicleDescriptor::getFieldAsString(void *object, int field, i
     BeaconVehicle *pp = (BeaconVehicle *)object; (void)pp;
     switch (field) {
         case 0: return oppstring2string(pp->getSender());
-        case 1: return oppstring2string(pp->getRecipient());
-        case 2: {std::stringstream out; out << pp->getPos(); return out.str();}
-        case 3: return double2string(pp->getSpeed());
-        case 4: return double2string(pp->getAccel());
-        case 5: return double2string(pp->getMaxDecel());
-        case 6: return oppstring2string(pp->getLane());
-        case 7: return oppstring2string(pp->getPlatoonID());
-        case 8: return long2string(pp->getPlatoonDepth());
+        case 1: return oppstring2string(pp->getSenderType());
+        case 2: return oppstring2string(pp->getRecipient());
+        case 3: {std::stringstream out; out << pp->getPos(); return out.str();}
+        case 4: return double2string(pp->getSpeed());
+        case 5: return double2string(pp->getAccel());
+        case 6: return double2string(pp->getMaxDecel());
+        case 7: return oppstring2string(pp->getLane());
+        case 8: return oppstring2string(pp->getPlatoonID());
+        case 9: return long2string(pp->getPlatoonDepth());
         default: return "";
     }
 }
@@ -409,13 +428,14 @@ bool BeaconVehicleDescriptor::setFieldAsString(void *object, int field, int i, c
     BeaconVehicle *pp = (BeaconVehicle *)object; (void)pp;
     switch (field) {
         case 0: pp->setSender((value)); return true;
-        case 1: pp->setRecipient((value)); return true;
-        case 3: pp->setSpeed(string2double(value)); return true;
-        case 4: pp->setAccel(string2double(value)); return true;
-        case 5: pp->setMaxDecel(string2double(value)); return true;
-        case 6: pp->setLane((value)); return true;
-        case 7: pp->setPlatoonID((value)); return true;
-        case 8: pp->setPlatoonDepth(string2long(value)); return true;
+        case 1: pp->setSenderType((value)); return true;
+        case 2: pp->setRecipient((value)); return true;
+        case 4: pp->setSpeed(string2double(value)); return true;
+        case 5: pp->setAccel(string2double(value)); return true;
+        case 6: pp->setMaxDecel(string2double(value)); return true;
+        case 7: pp->setLane((value)); return true;
+        case 8: pp->setPlatoonID((value)); return true;
+        case 9: pp->setPlatoonDepth(string2long(value)); return true;
         default: return false;
     }
 }
@@ -429,7 +449,7 @@ const char *BeaconVehicleDescriptor::getFieldStructName(void *object, int field)
         field -= basedesc->getFieldCount(object);
     }
     switch (field) {
-        case 2: return opp_typename(typeid(Coord));
+        case 3: return opp_typename(typeid(Coord));
         default: return NULL;
     };
 }
@@ -444,7 +464,7 @@ void *BeaconVehicleDescriptor::getFieldStructPointer(void *object, int field, in
     }
     BeaconVehicle *pp = (BeaconVehicle *)object; (void)pp;
     switch (field) {
-        case 2: return (void *)(&pp->getPos()); break;
+        case 3: return (void *)(&pp->getPos()); break;
         default: return NULL;
     }
 }
@@ -454,6 +474,7 @@ Register_Class(BeaconBicycle);
 BeaconBicycle::BeaconBicycle(const char *name, int kind) : ::WaveShortMessage(name,kind)
 {
     this->sender_var = 0;
+    this->senderType_var = 0;
     this->recipient_var = 0;
     this->speed_var = 0;
     this->accel_var = 0;
@@ -483,6 +504,7 @@ BeaconBicycle& BeaconBicycle::operator=(const BeaconBicycle& other)
 void BeaconBicycle::copy(const BeaconBicycle& other)
 {
     this->sender_var = other.sender_var;
+    this->senderType_var = other.senderType_var;
     this->recipient_var = other.recipient_var;
     this->pos_var = other.pos_var;
     this->speed_var = other.speed_var;
@@ -497,6 +519,7 @@ void BeaconBicycle::parsimPack(cCommBuffer *b)
 {
     ::WaveShortMessage::parsimPack(b);
     doPacking(b,this->sender_var);
+    doPacking(b,this->senderType_var);
     doPacking(b,this->recipient_var);
     doPacking(b,this->pos_var);
     doPacking(b,this->speed_var);
@@ -511,6 +534,7 @@ void BeaconBicycle::parsimUnpack(cCommBuffer *b)
 {
     ::WaveShortMessage::parsimUnpack(b);
     doUnpacking(b,this->sender_var);
+    doUnpacking(b,this->senderType_var);
     doUnpacking(b,this->recipient_var);
     doUnpacking(b,this->pos_var);
     doUnpacking(b,this->speed_var);
@@ -529,6 +553,16 @@ const char * BeaconBicycle::getSender() const
 void BeaconBicycle::setSender(const char * sender)
 {
     this->sender_var = sender;
+}
+
+const char * BeaconBicycle::getSenderType() const
+{
+    return senderType_var.c_str();
+}
+
+void BeaconBicycle::setSenderType(const char * senderType)
+{
+    this->senderType_var = senderType;
 }
 
 const char * BeaconBicycle::getRecipient() const
@@ -658,7 +692,7 @@ const char *BeaconBicycleDescriptor::getProperty(const char *propertyname) const
 int BeaconBicycleDescriptor::getFieldCount(void *object) const
 {
     cClassDescriptor *basedesc = getBaseClassDescriptor();
-    return basedesc ? 9+basedesc->getFieldCount(object) : 9;
+    return basedesc ? 10+basedesc->getFieldCount(object) : 10;
 }
 
 unsigned int BeaconBicycleDescriptor::getFieldTypeFlags(void *object, int field) const
@@ -672,6 +706,7 @@ unsigned int BeaconBicycleDescriptor::getFieldTypeFlags(void *object, int field)
     static unsigned int fieldTypeFlags[] = {
         FD_ISEDITABLE,
         FD_ISEDITABLE,
+        FD_ISEDITABLE,
         FD_ISCOMPOUND,
         FD_ISEDITABLE,
         FD_ISEDITABLE,
@@ -680,7 +715,7 @@ unsigned int BeaconBicycleDescriptor::getFieldTypeFlags(void *object, int field)
         FD_ISEDITABLE,
         FD_ISEDITABLE,
     };
-    return (field>=0 && field<9) ? fieldTypeFlags[field] : 0;
+    return (field>=0 && field<10) ? fieldTypeFlags[field] : 0;
 }
 
 const char *BeaconBicycleDescriptor::getFieldName(void *object, int field) const
@@ -693,6 +728,7 @@ const char *BeaconBicycleDescriptor::getFieldName(void *object, int field) const
     }
     static const char *fieldNames[] = {
         "sender",
+        "senderType",
         "recipient",
         "pos",
         "speed",
@@ -702,7 +738,7 @@ const char *BeaconBicycleDescriptor::getFieldName(void *object, int field) const
         "platoonID",
         "platoonDepth",
     };
-    return (field>=0 && field<9) ? fieldNames[field] : NULL;
+    return (field>=0 && field<10) ? fieldNames[field] : NULL;
 }
 
 int BeaconBicycleDescriptor::findField(void *object, const char *fieldName) const
@@ -710,14 +746,15 @@ int BeaconBicycleDescriptor::findField(void *object, const char *fieldName) cons
     cClassDescriptor *basedesc = getBaseClassDescriptor();
     int base = basedesc ? basedesc->getFieldCount(object) : 0;
     if (fieldName[0]=='s' && strcmp(fieldName, "sender")==0) return base+0;
-    if (fieldName[0]=='r' && strcmp(fieldName, "recipient")==0) return base+1;
-    if (fieldName[0]=='p' && strcmp(fieldName, "pos")==0) return base+2;
-    if (fieldName[0]=='s' && strcmp(fieldName, "speed")==0) return base+3;
-    if (fieldName[0]=='a' && strcmp(fieldName, "accel")==0) return base+4;
-    if (fieldName[0]=='m' && strcmp(fieldName, "maxDecel")==0) return base+5;
-    if (fieldName[0]=='l' && strcmp(fieldName, "lane")==0) return base+6;
-    if (fieldName[0]=='p' && strcmp(fieldName, "platoonID")==0) return base+7;
-    if (fieldName[0]=='p' && strcmp(fieldName, "platoonDepth")==0) return base+8;
+    if (fieldName[0]=='s' && strcmp(fieldName, "senderType")==0) return base+1;
+    if (fieldName[0]=='r' && strcmp(fieldName, "recipient")==0) return base+2;
+    if (fieldName[0]=='p' && strcmp(fieldName, "pos")==0) return base+3;
+    if (fieldName[0]=='s' && strcmp(fieldName, "speed")==0) return base+4;
+    if (fieldName[0]=='a' && strcmp(fieldName, "accel")==0) return base+5;
+    if (fieldName[0]=='m' && strcmp(fieldName, "maxDecel")==0) return base+6;
+    if (fieldName[0]=='l' && strcmp(fieldName, "lane")==0) return base+7;
+    if (fieldName[0]=='p' && strcmp(fieldName, "platoonID")==0) return base+8;
+    if (fieldName[0]=='p' && strcmp(fieldName, "platoonDepth")==0) return base+9;
     return basedesc ? basedesc->findField(object, fieldName) : -1;
 }
 
@@ -732,6 +769,7 @@ const char *BeaconBicycleDescriptor::getFieldTypeString(void *object, int field)
     static const char *fieldTypeStrings[] = {
         "string",
         "string",
+        "string",
         "Coord",
         "double",
         "double",
@@ -740,7 +778,7 @@ const char *BeaconBicycleDescriptor::getFieldTypeString(void *object, int field)
         "string",
         "int",
     };
-    return (field>=0 && field<9) ? fieldTypeStrings[field] : NULL;
+    return (field>=0 && field<10) ? fieldTypeStrings[field] : NULL;
 }
 
 const char *BeaconBicycleDescriptor::getFieldProperty(void *object, int field, const char *propertyname) const
@@ -781,14 +819,15 @@ std::string BeaconBicycleDescriptor::getFieldAsString(void *object, int field, i
     BeaconBicycle *pp = (BeaconBicycle *)object; (void)pp;
     switch (field) {
         case 0: return oppstring2string(pp->getSender());
-        case 1: return oppstring2string(pp->getRecipient());
-        case 2: {std::stringstream out; out << pp->getPos(); return out.str();}
-        case 3: return double2string(pp->getSpeed());
-        case 4: return double2string(pp->getAccel());
-        case 5: return double2string(pp->getMaxDecel());
-        case 6: return oppstring2string(pp->getLane());
-        case 7: return oppstring2string(pp->getPlatoonID());
-        case 8: return long2string(pp->getPlatoonDepth());
+        case 1: return oppstring2string(pp->getSenderType());
+        case 2: return oppstring2string(pp->getRecipient());
+        case 3: {std::stringstream out; out << pp->getPos(); return out.str();}
+        case 4: return double2string(pp->getSpeed());
+        case 5: return double2string(pp->getAccel());
+        case 6: return double2string(pp->getMaxDecel());
+        case 7: return oppstring2string(pp->getLane());
+        case 8: return oppstring2string(pp->getPlatoonID());
+        case 9: return long2string(pp->getPlatoonDepth());
         default: return "";
     }
 }
@@ -804,13 +843,14 @@ bool BeaconBicycleDescriptor::setFieldAsString(void *object, int field, int i, c
     BeaconBicycle *pp = (BeaconBicycle *)object; (void)pp;
     switch (field) {
         case 0: pp->setSender((value)); return true;
-        case 1: pp->setRecipient((value)); return true;
-        case 3: pp->setSpeed(string2double(value)); return true;
-        case 4: pp->setAccel(string2double(value)); return true;
-        case 5: pp->setMaxDecel(string2double(value)); return true;
-        case 6: pp->setLane((value)); return true;
-        case 7: pp->setPlatoonID((value)); return true;
-        case 8: pp->setPlatoonDepth(string2long(value)); return true;
+        case 1: pp->setSenderType((value)); return true;
+        case 2: pp->setRecipient((value)); return true;
+        case 4: pp->setSpeed(string2double(value)); return true;
+        case 5: pp->setAccel(string2double(value)); return true;
+        case 6: pp->setMaxDecel(string2double(value)); return true;
+        case 7: pp->setLane((value)); return true;
+        case 8: pp->setPlatoonID((value)); return true;
+        case 9: pp->setPlatoonDepth(string2long(value)); return true;
         default: return false;
     }
 }
@@ -824,7 +864,7 @@ const char *BeaconBicycleDescriptor::getFieldStructName(void *object, int field)
         field -= basedesc->getFieldCount(object);
     }
     switch (field) {
-        case 2: return opp_typename(typeid(Coord));
+        case 3: return opp_typename(typeid(Coord));
         default: return NULL;
     };
 }
@@ -839,7 +879,7 @@ void *BeaconBicycleDescriptor::getFieldStructPointer(void *object, int field, in
     }
     BeaconBicycle *pp = (BeaconBicycle *)object; (void)pp;
     switch (field) {
-        case 2: return (void *)(&pp->getPos()); break;
+        case 3: return (void *)(&pp->getPos()); break;
         default: return NULL;
     }
 }
@@ -849,6 +889,7 @@ Register_Class(BeaconPedestrian);
 BeaconPedestrian::BeaconPedestrian(const char *name, int kind) : ::WaveShortMessage(name,kind)
 {
     this->sender_var = 0;
+    this->senderType_var = 0;
     this->recipient_var = 0;
     this->speed_var = 0;
     this->accel_var = 0;
@@ -878,6 +919,7 @@ BeaconPedestrian& BeaconPedestrian::operator=(const BeaconPedestrian& other)
 void BeaconPedestrian::copy(const BeaconPedestrian& other)
 {
     this->sender_var = other.sender_var;
+    this->senderType_var = other.senderType_var;
     this->recipient_var = other.recipient_var;
     this->pos_var = other.pos_var;
     this->speed_var = other.speed_var;
@@ -892,6 +934,7 @@ void BeaconPedestrian::parsimPack(cCommBuffer *b)
 {
     ::WaveShortMessage::parsimPack(b);
     doPacking(b,this->sender_var);
+    doPacking(b,this->senderType_var);
     doPacking(b,this->recipient_var);
     doPacking(b,this->pos_var);
     doPacking(b,this->speed_var);
@@ -906,6 +949,7 @@ void BeaconPedestrian::parsimUnpack(cCommBuffer *b)
 {
     ::WaveShortMessage::parsimUnpack(b);
     doUnpacking(b,this->sender_var);
+    doUnpacking(b,this->senderType_var);
     doUnpacking(b,this->recipient_var);
     doUnpacking(b,this->pos_var);
     doUnpacking(b,this->speed_var);
@@ -924,6 +968,16 @@ const char * BeaconPedestrian::getSender() const
 void BeaconPedestrian::setSender(const char * sender)
 {
     this->sender_var = sender;
+}
+
+const char * BeaconPedestrian::getSenderType() const
+{
+    return senderType_var.c_str();
+}
+
+void BeaconPedestrian::setSenderType(const char * senderType)
+{
+    this->senderType_var = senderType;
 }
 
 const char * BeaconPedestrian::getRecipient() const
@@ -1053,7 +1107,7 @@ const char *BeaconPedestrianDescriptor::getProperty(const char *propertyname) co
 int BeaconPedestrianDescriptor::getFieldCount(void *object) const
 {
     cClassDescriptor *basedesc = getBaseClassDescriptor();
-    return basedesc ? 9+basedesc->getFieldCount(object) : 9;
+    return basedesc ? 10+basedesc->getFieldCount(object) : 10;
 }
 
 unsigned int BeaconPedestrianDescriptor::getFieldTypeFlags(void *object, int field) const
@@ -1067,6 +1121,7 @@ unsigned int BeaconPedestrianDescriptor::getFieldTypeFlags(void *object, int fie
     static unsigned int fieldTypeFlags[] = {
         FD_ISEDITABLE,
         FD_ISEDITABLE,
+        FD_ISEDITABLE,
         FD_ISCOMPOUND,
         FD_ISEDITABLE,
         FD_ISEDITABLE,
@@ -1075,7 +1130,7 @@ unsigned int BeaconPedestrianDescriptor::getFieldTypeFlags(void *object, int fie
         FD_ISEDITABLE,
         FD_ISEDITABLE,
     };
-    return (field>=0 && field<9) ? fieldTypeFlags[field] : 0;
+    return (field>=0 && field<10) ? fieldTypeFlags[field] : 0;
 }
 
 const char *BeaconPedestrianDescriptor::getFieldName(void *object, int field) const
@@ -1088,6 +1143,7 @@ const char *BeaconPedestrianDescriptor::getFieldName(void *object, int field) co
     }
     static const char *fieldNames[] = {
         "sender",
+        "senderType",
         "recipient",
         "pos",
         "speed",
@@ -1097,7 +1153,7 @@ const char *BeaconPedestrianDescriptor::getFieldName(void *object, int field) co
         "platoonID",
         "platoonDepth",
     };
-    return (field>=0 && field<9) ? fieldNames[field] : NULL;
+    return (field>=0 && field<10) ? fieldNames[field] : NULL;
 }
 
 int BeaconPedestrianDescriptor::findField(void *object, const char *fieldName) const
@@ -1105,14 +1161,15 @@ int BeaconPedestrianDescriptor::findField(void *object, const char *fieldName) c
     cClassDescriptor *basedesc = getBaseClassDescriptor();
     int base = basedesc ? basedesc->getFieldCount(object) : 0;
     if (fieldName[0]=='s' && strcmp(fieldName, "sender")==0) return base+0;
-    if (fieldName[0]=='r' && strcmp(fieldName, "recipient")==0) return base+1;
-    if (fieldName[0]=='p' && strcmp(fieldName, "pos")==0) return base+2;
-    if (fieldName[0]=='s' && strcmp(fieldName, "speed")==0) return base+3;
-    if (fieldName[0]=='a' && strcmp(fieldName, "accel")==0) return base+4;
-    if (fieldName[0]=='m' && strcmp(fieldName, "maxDecel")==0) return base+5;
-    if (fieldName[0]=='l' && strcmp(fieldName, "lane")==0) return base+6;
-    if (fieldName[0]=='p' && strcmp(fieldName, "platoonID")==0) return base+7;
-    if (fieldName[0]=='p' && strcmp(fieldName, "platoonDepth")==0) return base+8;
+    if (fieldName[0]=='s' && strcmp(fieldName, "senderType")==0) return base+1;
+    if (fieldName[0]=='r' && strcmp(fieldName, "recipient")==0) return base+2;
+    if (fieldName[0]=='p' && strcmp(fieldName, "pos")==0) return base+3;
+    if (fieldName[0]=='s' && strcmp(fieldName, "speed")==0) return base+4;
+    if (fieldName[0]=='a' && strcmp(fieldName, "accel")==0) return base+5;
+    if (fieldName[0]=='m' && strcmp(fieldName, "maxDecel")==0) return base+6;
+    if (fieldName[0]=='l' && strcmp(fieldName, "lane")==0) return base+7;
+    if (fieldName[0]=='p' && strcmp(fieldName, "platoonID")==0) return base+8;
+    if (fieldName[0]=='p' && strcmp(fieldName, "platoonDepth")==0) return base+9;
     return basedesc ? basedesc->findField(object, fieldName) : -1;
 }
 
@@ -1127,6 +1184,7 @@ const char *BeaconPedestrianDescriptor::getFieldTypeString(void *object, int fie
     static const char *fieldTypeStrings[] = {
         "string",
         "string",
+        "string",
         "Coord",
         "double",
         "double",
@@ -1135,7 +1193,7 @@ const char *BeaconPedestrianDescriptor::getFieldTypeString(void *object, int fie
         "string",
         "int",
     };
-    return (field>=0 && field<9) ? fieldTypeStrings[field] : NULL;
+    return (field>=0 && field<10) ? fieldTypeStrings[field] : NULL;
 }
 
 const char *BeaconPedestrianDescriptor::getFieldProperty(void *object, int field, const char *propertyname) const
@@ -1176,14 +1234,15 @@ std::string BeaconPedestrianDescriptor::getFieldAsString(void *object, int field
     BeaconPedestrian *pp = (BeaconPedestrian *)object; (void)pp;
     switch (field) {
         case 0: return oppstring2string(pp->getSender());
-        case 1: return oppstring2string(pp->getRecipient());
-        case 2: {std::stringstream out; out << pp->getPos(); return out.str();}
-        case 3: return double2string(pp->getSpeed());
-        case 4: return double2string(pp->getAccel());
-        case 5: return double2string(pp->getMaxDecel());
-        case 6: return oppstring2string(pp->getLane());
-        case 7: return oppstring2string(pp->getPlatoonID());
-        case 8: return long2string(pp->getPlatoonDepth());
+        case 1: return oppstring2string(pp->getSenderType());
+        case 2: return oppstring2string(pp->getRecipient());
+        case 3: {std::stringstream out; out << pp->getPos(); return out.str();}
+        case 4: return double2string(pp->getSpeed());
+        case 5: return double2string(pp->getAccel());
+        case 6: return double2string(pp->getMaxDecel());
+        case 7: return oppstring2string(pp->getLane());
+        case 8: return oppstring2string(pp->getPlatoonID());
+        case 9: return long2string(pp->getPlatoonDepth());
         default: return "";
     }
 }
@@ -1199,13 +1258,14 @@ bool BeaconPedestrianDescriptor::setFieldAsString(void *object, int field, int i
     BeaconPedestrian *pp = (BeaconPedestrian *)object; (void)pp;
     switch (field) {
         case 0: pp->setSender((value)); return true;
-        case 1: pp->setRecipient((value)); return true;
-        case 3: pp->setSpeed(string2double(value)); return true;
-        case 4: pp->setAccel(string2double(value)); return true;
-        case 5: pp->setMaxDecel(string2double(value)); return true;
-        case 6: pp->setLane((value)); return true;
-        case 7: pp->setPlatoonID((value)); return true;
-        case 8: pp->setPlatoonDepth(string2long(value)); return true;
+        case 1: pp->setSenderType((value)); return true;
+        case 2: pp->setRecipient((value)); return true;
+        case 4: pp->setSpeed(string2double(value)); return true;
+        case 5: pp->setAccel(string2double(value)); return true;
+        case 6: pp->setMaxDecel(string2double(value)); return true;
+        case 7: pp->setLane((value)); return true;
+        case 8: pp->setPlatoonID((value)); return true;
+        case 9: pp->setPlatoonDepth(string2long(value)); return true;
         default: return false;
     }
 }
@@ -1219,7 +1279,7 @@ const char *BeaconPedestrianDescriptor::getFieldStructName(void *object, int fie
         field -= basedesc->getFieldCount(object);
     }
     switch (field) {
-        case 2: return opp_typename(typeid(Coord));
+        case 3: return opp_typename(typeid(Coord));
         default: return NULL;
     };
 }
@@ -1234,7 +1294,7 @@ void *BeaconPedestrianDescriptor::getFieldStructPointer(void *object, int field,
     }
     BeaconPedestrian *pp = (BeaconPedestrian *)object; (void)pp;
     switch (field) {
-        case 2: return (void *)(&pp->getPos()); break;
+        case 3: return (void *)(&pp->getPos()); break;
         default: return NULL;
     }
 }
@@ -1244,6 +1304,7 @@ Register_Class(BeaconRSU);
 BeaconRSU::BeaconRSU(const char *name, int kind) : ::WaveShortMessage(name,kind)
 {
     this->sender_var = 0;
+    this->senderType_var = 0;
     this->recipient_var = 0;
 }
 
@@ -1267,6 +1328,7 @@ BeaconRSU& BeaconRSU::operator=(const BeaconRSU& other)
 void BeaconRSU::copy(const BeaconRSU& other)
 {
     this->sender_var = other.sender_var;
+    this->senderType_var = other.senderType_var;
     this->recipient_var = other.recipient_var;
     this->pos_var = other.pos_var;
 }
@@ -1275,6 +1337,7 @@ void BeaconRSU::parsimPack(cCommBuffer *b)
 {
     ::WaveShortMessage::parsimPack(b);
     doPacking(b,this->sender_var);
+    doPacking(b,this->senderType_var);
     doPacking(b,this->recipient_var);
     doPacking(b,this->pos_var);
 }
@@ -1283,6 +1346,7 @@ void BeaconRSU::parsimUnpack(cCommBuffer *b)
 {
     ::WaveShortMessage::parsimUnpack(b);
     doUnpacking(b,this->sender_var);
+    doUnpacking(b,this->senderType_var);
     doUnpacking(b,this->recipient_var);
     doUnpacking(b,this->pos_var);
 }
@@ -1295,6 +1359,16 @@ const char * BeaconRSU::getSender() const
 void BeaconRSU::setSender(const char * sender)
 {
     this->sender_var = sender;
+}
+
+const char * BeaconRSU::getSenderType() const
+{
+    return senderType_var.c_str();
+}
+
+void BeaconRSU::setSenderType(const char * senderType)
+{
+    this->senderType_var = senderType;
 }
 
 const char * BeaconRSU::getRecipient() const
@@ -1364,7 +1438,7 @@ const char *BeaconRSUDescriptor::getProperty(const char *propertyname) const
 int BeaconRSUDescriptor::getFieldCount(void *object) const
 {
     cClassDescriptor *basedesc = getBaseClassDescriptor();
-    return basedesc ? 3+basedesc->getFieldCount(object) : 3;
+    return basedesc ? 4+basedesc->getFieldCount(object) : 4;
 }
 
 unsigned int BeaconRSUDescriptor::getFieldTypeFlags(void *object, int field) const
@@ -1378,9 +1452,10 @@ unsigned int BeaconRSUDescriptor::getFieldTypeFlags(void *object, int field) con
     static unsigned int fieldTypeFlags[] = {
         FD_ISEDITABLE,
         FD_ISEDITABLE,
+        FD_ISEDITABLE,
         FD_ISCOMPOUND,
     };
-    return (field>=0 && field<3) ? fieldTypeFlags[field] : 0;
+    return (field>=0 && field<4) ? fieldTypeFlags[field] : 0;
 }
 
 const char *BeaconRSUDescriptor::getFieldName(void *object, int field) const
@@ -1393,10 +1468,11 @@ const char *BeaconRSUDescriptor::getFieldName(void *object, int field) const
     }
     static const char *fieldNames[] = {
         "sender",
+        "senderType",
         "recipient",
         "pos",
     };
-    return (field>=0 && field<3) ? fieldNames[field] : NULL;
+    return (field>=0 && field<4) ? fieldNames[field] : NULL;
 }
 
 int BeaconRSUDescriptor::findField(void *object, const char *fieldName) const
@@ -1404,8 +1480,9 @@ int BeaconRSUDescriptor::findField(void *object, const char *fieldName) const
     cClassDescriptor *basedesc = getBaseClassDescriptor();
     int base = basedesc ? basedesc->getFieldCount(object) : 0;
     if (fieldName[0]=='s' && strcmp(fieldName, "sender")==0) return base+0;
-    if (fieldName[0]=='r' && strcmp(fieldName, "recipient")==0) return base+1;
-    if (fieldName[0]=='p' && strcmp(fieldName, "pos")==0) return base+2;
+    if (fieldName[0]=='s' && strcmp(fieldName, "senderType")==0) return base+1;
+    if (fieldName[0]=='r' && strcmp(fieldName, "recipient")==0) return base+2;
+    if (fieldName[0]=='p' && strcmp(fieldName, "pos")==0) return base+3;
     return basedesc ? basedesc->findField(object, fieldName) : -1;
 }
 
@@ -1420,9 +1497,10 @@ const char *BeaconRSUDescriptor::getFieldTypeString(void *object, int field) con
     static const char *fieldTypeStrings[] = {
         "string",
         "string",
+        "string",
         "Coord",
     };
-    return (field>=0 && field<3) ? fieldTypeStrings[field] : NULL;
+    return (field>=0 && field<4) ? fieldTypeStrings[field] : NULL;
 }
 
 const char *BeaconRSUDescriptor::getFieldProperty(void *object, int field, const char *propertyname) const
@@ -1463,8 +1541,9 @@ std::string BeaconRSUDescriptor::getFieldAsString(void *object, int field, int i
     BeaconRSU *pp = (BeaconRSU *)object; (void)pp;
     switch (field) {
         case 0: return oppstring2string(pp->getSender());
-        case 1: return oppstring2string(pp->getRecipient());
-        case 2: {std::stringstream out; out << pp->getPos(); return out.str();}
+        case 1: return oppstring2string(pp->getSenderType());
+        case 2: return oppstring2string(pp->getRecipient());
+        case 3: {std::stringstream out; out << pp->getPos(); return out.str();}
         default: return "";
     }
 }
@@ -1480,7 +1559,8 @@ bool BeaconRSUDescriptor::setFieldAsString(void *object, int field, int i, const
     BeaconRSU *pp = (BeaconRSU *)object; (void)pp;
     switch (field) {
         case 0: pp->setSender((value)); return true;
-        case 1: pp->setRecipient((value)); return true;
+        case 1: pp->setSenderType((value)); return true;
+        case 2: pp->setRecipient((value)); return true;
         default: return false;
     }
 }
@@ -1494,7 +1574,7 @@ const char *BeaconRSUDescriptor::getFieldStructName(void *object, int field) con
         field -= basedesc->getFieldCount(object);
     }
     switch (field) {
-        case 2: return opp_typename(typeid(Coord));
+        case 3: return opp_typename(typeid(Coord));
         default: return NULL;
     };
 }
@@ -1509,7 +1589,7 @@ void *BeaconRSUDescriptor::getFieldStructPointer(void *object, int field, int i)
     }
     BeaconRSU *pp = (BeaconRSU *)object; (void)pp;
     switch (field) {
-        case 2: return (void *)(&pp->getPos()); break;
+        case 3: return (void *)(&pp->getPos()); break;
         default: return NULL;
     }
 }
@@ -1754,6 +1834,7 @@ Register_Class(LaneChangeMsg);
 LaneChangeMsg::LaneChangeMsg(const char *name, int kind) : ::WaveShortMessage(name,kind)
 {
     this->sender_var = 0;
+    this->senderType_var = 0;
     this->recipient_var = 0;
 }
 
@@ -1777,6 +1858,7 @@ LaneChangeMsg& LaneChangeMsg::operator=(const LaneChangeMsg& other)
 void LaneChangeMsg::copy(const LaneChangeMsg& other)
 {
     this->sender_var = other.sender_var;
+    this->senderType_var = other.senderType_var;
     this->recipient_var = other.recipient_var;
     this->laneChange_var = other.laneChange_var;
 }
@@ -1785,6 +1867,7 @@ void LaneChangeMsg::parsimPack(cCommBuffer *b)
 {
     ::WaveShortMessage::parsimPack(b);
     doPacking(b,this->sender_var);
+    doPacking(b,this->senderType_var);
     doPacking(b,this->recipient_var);
     doPacking(b,this->laneChange_var);
 }
@@ -1793,6 +1876,7 @@ void LaneChangeMsg::parsimUnpack(cCommBuffer *b)
 {
     ::WaveShortMessage::parsimUnpack(b);
     doUnpacking(b,this->sender_var);
+    doUnpacking(b,this->senderType_var);
     doUnpacking(b,this->recipient_var);
     doUnpacking(b,this->laneChange_var);
 }
@@ -1805,6 +1889,16 @@ const char * LaneChangeMsg::getSender() const
 void LaneChangeMsg::setSender(const char * sender)
 {
     this->sender_var = sender;
+}
+
+const char * LaneChangeMsg::getSenderType() const
+{
+    return senderType_var.c_str();
+}
+
+void LaneChangeMsg::setSenderType(const char * senderType)
+{
+    this->senderType_var = senderType;
 }
 
 const char * LaneChangeMsg::getRecipient() const
@@ -1874,7 +1968,7 @@ const char *LaneChangeMsgDescriptor::getProperty(const char *propertyname) const
 int LaneChangeMsgDescriptor::getFieldCount(void *object) const
 {
     cClassDescriptor *basedesc = getBaseClassDescriptor();
-    return basedesc ? 3+basedesc->getFieldCount(object) : 3;
+    return basedesc ? 4+basedesc->getFieldCount(object) : 4;
 }
 
 unsigned int LaneChangeMsgDescriptor::getFieldTypeFlags(void *object, int field) const
@@ -1888,9 +1982,10 @@ unsigned int LaneChangeMsgDescriptor::getFieldTypeFlags(void *object, int field)
     static unsigned int fieldTypeFlags[] = {
         FD_ISEDITABLE,
         FD_ISEDITABLE,
+        FD_ISEDITABLE,
         FD_ISCOMPOUND,
     };
-    return (field>=0 && field<3) ? fieldTypeFlags[field] : 0;
+    return (field>=0 && field<4) ? fieldTypeFlags[field] : 0;
 }
 
 const char *LaneChangeMsgDescriptor::getFieldName(void *object, int field) const
@@ -1903,10 +1998,11 @@ const char *LaneChangeMsgDescriptor::getFieldName(void *object, int field) const
     }
     static const char *fieldNames[] = {
         "sender",
+        "senderType",
         "recipient",
         "laneChange",
     };
-    return (field>=0 && field<3) ? fieldNames[field] : NULL;
+    return (field>=0 && field<4) ? fieldNames[field] : NULL;
 }
 
 int LaneChangeMsgDescriptor::findField(void *object, const char *fieldName) const
@@ -1914,8 +2010,9 @@ int LaneChangeMsgDescriptor::findField(void *object, const char *fieldName) cons
     cClassDescriptor *basedesc = getBaseClassDescriptor();
     int base = basedesc ? basedesc->getFieldCount(object) : 0;
     if (fieldName[0]=='s' && strcmp(fieldName, "sender")==0) return base+0;
-    if (fieldName[0]=='r' && strcmp(fieldName, "recipient")==0) return base+1;
-    if (fieldName[0]=='l' && strcmp(fieldName, "laneChange")==0) return base+2;
+    if (fieldName[0]=='s' && strcmp(fieldName, "senderType")==0) return base+1;
+    if (fieldName[0]=='r' && strcmp(fieldName, "recipient")==0) return base+2;
+    if (fieldName[0]=='l' && strcmp(fieldName, "laneChange")==0) return base+3;
     return basedesc ? basedesc->findField(object, fieldName) : -1;
 }
 
@@ -1930,9 +2027,10 @@ const char *LaneChangeMsgDescriptor::getFieldTypeString(void *object, int field)
     static const char *fieldTypeStrings[] = {
         "string",
         "string",
+        "string",
         "stringQueue",
     };
-    return (field>=0 && field<3) ? fieldTypeStrings[field] : NULL;
+    return (field>=0 && field<4) ? fieldTypeStrings[field] : NULL;
 }
 
 const char *LaneChangeMsgDescriptor::getFieldProperty(void *object, int field, const char *propertyname) const
@@ -1973,8 +2071,9 @@ std::string LaneChangeMsgDescriptor::getFieldAsString(void *object, int field, i
     LaneChangeMsg *pp = (LaneChangeMsg *)object; (void)pp;
     switch (field) {
         case 0: return oppstring2string(pp->getSender());
-        case 1: return oppstring2string(pp->getRecipient());
-        case 2: {std::stringstream out; out << pp->getLaneChange(); return out.str();}
+        case 1: return oppstring2string(pp->getSenderType());
+        case 2: return oppstring2string(pp->getRecipient());
+        case 3: {std::stringstream out; out << pp->getLaneChange(); return out.str();}
         default: return "";
     }
 }
@@ -1990,7 +2089,8 @@ bool LaneChangeMsgDescriptor::setFieldAsString(void *object, int field, int i, c
     LaneChangeMsg *pp = (LaneChangeMsg *)object; (void)pp;
     switch (field) {
         case 0: pp->setSender((value)); return true;
-        case 1: pp->setRecipient((value)); return true;
+        case 1: pp->setSenderType((value)); return true;
+        case 2: pp->setRecipient((value)); return true;
         default: return false;
     }
 }
@@ -2004,7 +2104,7 @@ const char *LaneChangeMsgDescriptor::getFieldStructName(void *object, int field)
         field -= basedesc->getFieldCount(object);
     }
     switch (field) {
-        case 2: return opp_typename(typeid(stringQueue));
+        case 3: return opp_typename(typeid(stringQueue));
         default: return NULL;
     };
 }
@@ -2019,7 +2119,7 @@ void *LaneChangeMsgDescriptor::getFieldStructPointer(void *object, int field, in
     }
     LaneChangeMsg *pp = (LaneChangeMsg *)object; (void)pp;
     switch (field) {
-        case 2: return (void *)(&pp->getLaneChange()); break;
+        case 3: return (void *)(&pp->getLaneChange()); break;
         default: return NULL;
     }
 }
@@ -2029,6 +2129,7 @@ Register_Class(PlatoonMsg);
 PlatoonMsg::PlatoonMsg(const char *name, int kind) : ::WaveShortMessage(name,kind)
 {
     this->sender_var = 0;
+    this->senderType_var = 0;
     this->recipient_var = 0;
     this->type_var = 0;
     this->sendingPlatoonID_var = 0;
@@ -2057,6 +2158,7 @@ PlatoonMsg& PlatoonMsg::operator=(const PlatoonMsg& other)
 void PlatoonMsg::copy(const PlatoonMsg& other)
 {
     this->sender_var = other.sender_var;
+    this->senderType_var = other.senderType_var;
     this->recipient_var = other.recipient_var;
     this->type_var = other.type_var;
     this->sendingPlatoonID_var = other.sendingPlatoonID_var;
@@ -2070,6 +2172,7 @@ void PlatoonMsg::parsimPack(cCommBuffer *b)
 {
     ::WaveShortMessage::parsimPack(b);
     doPacking(b,this->sender_var);
+    doPacking(b,this->senderType_var);
     doPacking(b,this->recipient_var);
     doPacking(b,this->type_var);
     doPacking(b,this->sendingPlatoonID_var);
@@ -2083,6 +2186,7 @@ void PlatoonMsg::parsimUnpack(cCommBuffer *b)
 {
     ::WaveShortMessage::parsimUnpack(b);
     doUnpacking(b,this->sender_var);
+    doUnpacking(b,this->senderType_var);
     doUnpacking(b,this->recipient_var);
     doUnpacking(b,this->type_var);
     doUnpacking(b,this->sendingPlatoonID_var);
@@ -2100,6 +2204,16 @@ const char * PlatoonMsg::getSender() const
 void PlatoonMsg::setSender(const char * sender)
 {
     this->sender_var = sender;
+}
+
+const char * PlatoonMsg::getSenderType() const
+{
+    return senderType_var.c_str();
+}
+
+void PlatoonMsg::setSenderType(const char * senderType)
+{
+    this->senderType_var = senderType;
 }
 
 const char * PlatoonMsg::getRecipient() const
@@ -2219,7 +2333,7 @@ const char *PlatoonMsgDescriptor::getProperty(const char *propertyname) const
 int PlatoonMsgDescriptor::getFieldCount(void *object) const
 {
     cClassDescriptor *basedesc = getBaseClassDescriptor();
-    return basedesc ? 8+basedesc->getFieldCount(object) : 8;
+    return basedesc ? 9+basedesc->getFieldCount(object) : 9;
 }
 
 unsigned int PlatoonMsgDescriptor::getFieldTypeFlags(void *object, int field) const
@@ -2238,9 +2352,10 @@ unsigned int PlatoonMsgDescriptor::getFieldTypeFlags(void *object, int field) co
         FD_ISEDITABLE,
         FD_ISEDITABLE,
         FD_ISEDITABLE,
+        FD_ISEDITABLE,
         FD_ISCOMPOUND,
     };
-    return (field>=0 && field<8) ? fieldTypeFlags[field] : 0;
+    return (field>=0 && field<9) ? fieldTypeFlags[field] : 0;
 }
 
 const char *PlatoonMsgDescriptor::getFieldName(void *object, int field) const
@@ -2253,6 +2368,7 @@ const char *PlatoonMsgDescriptor::getFieldName(void *object, int field) const
     }
     static const char *fieldNames[] = {
         "sender",
+        "senderType",
         "recipient",
         "type",
         "sendingPlatoonID",
@@ -2261,7 +2377,7 @@ const char *PlatoonMsgDescriptor::getFieldName(void *object, int field) const
         "strValue",
         "queueValue",
     };
-    return (field>=0 && field<8) ? fieldNames[field] : NULL;
+    return (field>=0 && field<9) ? fieldNames[field] : NULL;
 }
 
 int PlatoonMsgDescriptor::findField(void *object, const char *fieldName) const
@@ -2269,13 +2385,14 @@ int PlatoonMsgDescriptor::findField(void *object, const char *fieldName) const
     cClassDescriptor *basedesc = getBaseClassDescriptor();
     int base = basedesc ? basedesc->getFieldCount(object) : 0;
     if (fieldName[0]=='s' && strcmp(fieldName, "sender")==0) return base+0;
-    if (fieldName[0]=='r' && strcmp(fieldName, "recipient")==0) return base+1;
-    if (fieldName[0]=='t' && strcmp(fieldName, "type")==0) return base+2;
-    if (fieldName[0]=='s' && strcmp(fieldName, "sendingPlatoonID")==0) return base+3;
-    if (fieldName[0]=='r' && strcmp(fieldName, "receivingPlatoonID")==0) return base+4;
-    if (fieldName[0]=='d' && strcmp(fieldName, "dblValue")==0) return base+5;
-    if (fieldName[0]=='s' && strcmp(fieldName, "strValue")==0) return base+6;
-    if (fieldName[0]=='q' && strcmp(fieldName, "queueValue")==0) return base+7;
+    if (fieldName[0]=='s' && strcmp(fieldName, "senderType")==0) return base+1;
+    if (fieldName[0]=='r' && strcmp(fieldName, "recipient")==0) return base+2;
+    if (fieldName[0]=='t' && strcmp(fieldName, "type")==0) return base+3;
+    if (fieldName[0]=='s' && strcmp(fieldName, "sendingPlatoonID")==0) return base+4;
+    if (fieldName[0]=='r' && strcmp(fieldName, "receivingPlatoonID")==0) return base+5;
+    if (fieldName[0]=='d' && strcmp(fieldName, "dblValue")==0) return base+6;
+    if (fieldName[0]=='s' && strcmp(fieldName, "strValue")==0) return base+7;
+    if (fieldName[0]=='q' && strcmp(fieldName, "queueValue")==0) return base+8;
     return basedesc ? basedesc->findField(object, fieldName) : -1;
 }
 
@@ -2290,6 +2407,7 @@ const char *PlatoonMsgDescriptor::getFieldTypeString(void *object, int field) co
     static const char *fieldTypeStrings[] = {
         "string",
         "string",
+        "string",
         "int",
         "string",
         "string",
@@ -2297,7 +2415,7 @@ const char *PlatoonMsgDescriptor::getFieldTypeString(void *object, int field) co
         "string",
         "stringQueue",
     };
-    return (field>=0 && field<8) ? fieldTypeStrings[field] : NULL;
+    return (field>=0 && field<9) ? fieldTypeStrings[field] : NULL;
 }
 
 const char *PlatoonMsgDescriptor::getFieldProperty(void *object, int field, const char *propertyname) const
@@ -2338,13 +2456,14 @@ std::string PlatoonMsgDescriptor::getFieldAsString(void *object, int field, int 
     PlatoonMsg *pp = (PlatoonMsg *)object; (void)pp;
     switch (field) {
         case 0: return oppstring2string(pp->getSender());
-        case 1: return oppstring2string(pp->getRecipient());
-        case 2: return long2string(pp->getType());
-        case 3: return oppstring2string(pp->getSendingPlatoonID());
-        case 4: return oppstring2string(pp->getReceivingPlatoonID());
-        case 5: return double2string(pp->getDblValue());
-        case 6: return oppstring2string(pp->getStrValue());
-        case 7: {std::stringstream out; out << pp->getQueueValue(); return out.str();}
+        case 1: return oppstring2string(pp->getSenderType());
+        case 2: return oppstring2string(pp->getRecipient());
+        case 3: return long2string(pp->getType());
+        case 4: return oppstring2string(pp->getSendingPlatoonID());
+        case 5: return oppstring2string(pp->getReceivingPlatoonID());
+        case 6: return double2string(pp->getDblValue());
+        case 7: return oppstring2string(pp->getStrValue());
+        case 8: {std::stringstream out; out << pp->getQueueValue(); return out.str();}
         default: return "";
     }
 }
@@ -2360,12 +2479,13 @@ bool PlatoonMsgDescriptor::setFieldAsString(void *object, int field, int i, cons
     PlatoonMsg *pp = (PlatoonMsg *)object; (void)pp;
     switch (field) {
         case 0: pp->setSender((value)); return true;
-        case 1: pp->setRecipient((value)); return true;
-        case 2: pp->setType(string2long(value)); return true;
-        case 3: pp->setSendingPlatoonID((value)); return true;
-        case 4: pp->setReceivingPlatoonID((value)); return true;
-        case 5: pp->setDblValue(string2double(value)); return true;
-        case 6: pp->setStrValue((value)); return true;
+        case 1: pp->setSenderType((value)); return true;
+        case 2: pp->setRecipient((value)); return true;
+        case 3: pp->setType(string2long(value)); return true;
+        case 4: pp->setSendingPlatoonID((value)); return true;
+        case 5: pp->setReceivingPlatoonID((value)); return true;
+        case 6: pp->setDblValue(string2double(value)); return true;
+        case 7: pp->setStrValue((value)); return true;
         default: return false;
     }
 }
@@ -2379,7 +2499,7 @@ const char *PlatoonMsgDescriptor::getFieldStructName(void *object, int field) co
         field -= basedesc->getFieldCount(object);
     }
     switch (field) {
-        case 7: return opp_typename(typeid(stringQueue));
+        case 8: return opp_typename(typeid(stringQueue));
         default: return NULL;
     };
 }
@@ -2394,7 +2514,7 @@ void *PlatoonMsgDescriptor::getFieldStructPointer(void *object, int field, int i
     }
     PlatoonMsg *pp = (PlatoonMsg *)object; (void)pp;
     switch (field) {
-        case 7: return (void *)(&pp->getQueueValue()); break;
+        case 8: return (void *)(&pp->getQueueValue()); break;
         default: return NULL;
     }
 }

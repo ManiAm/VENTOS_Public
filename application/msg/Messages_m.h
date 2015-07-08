@@ -34,6 +34,7 @@ namespace VENTOS {
  * packet BeaconVehicle extends WaveShortMessage
  * {
  *     string sender;
+ *     string senderType;
  *     string recipient;
  *     Coord pos;
  *     double speed;
@@ -49,6 +50,7 @@ class BeaconVehicle : public ::WaveShortMessage
 {
   protected:
     opp_string sender_var;
+    opp_string senderType_var;
     opp_string recipient_var;
     Coord pos_var;
     double speed_var;
@@ -77,6 +79,8 @@ class BeaconVehicle : public ::WaveShortMessage
     // field getter/setter methods
     virtual const char * getSender() const;
     virtual void setSender(const char * sender);
+    virtual const char * getSenderType() const;
+    virtual void setSenderType(const char * senderType);
     virtual const char * getRecipient() const;
     virtual void setRecipient(const char * recipient);
     virtual Coord& getPos();
@@ -100,11 +104,12 @@ inline void doPacking(cCommBuffer *b, BeaconVehicle& obj) {obj.parsimPack(b);}
 inline void doUnpacking(cCommBuffer *b, BeaconVehicle& obj) {obj.parsimUnpack(b);}
 
 /**
- * Class generated from <tt>Messages.msg:63</tt> by nedtool.
+ * Class generated from <tt>Messages.msg:64</tt> by nedtool.
  * <pre>
  * packet BeaconBicycle extends WaveShortMessage
  * {
  *     string sender;
+ *     string senderType;
  *     string recipient;
  *     Coord pos;
  *     double speed;
@@ -120,6 +125,7 @@ class BeaconBicycle : public ::WaveShortMessage
 {
   protected:
     opp_string sender_var;
+    opp_string senderType_var;
     opp_string recipient_var;
     Coord pos_var;
     double speed_var;
@@ -148,6 +154,8 @@ class BeaconBicycle : public ::WaveShortMessage
     // field getter/setter methods
     virtual const char * getSender() const;
     virtual void setSender(const char * sender);
+    virtual const char * getSenderType() const;
+    virtual void setSenderType(const char * senderType);
     virtual const char * getRecipient() const;
     virtual void setRecipient(const char * recipient);
     virtual Coord& getPos();
@@ -171,11 +179,12 @@ inline void doPacking(cCommBuffer *b, BeaconBicycle& obj) {obj.parsimPack(b);}
 inline void doUnpacking(cCommBuffer *b, BeaconBicycle& obj) {obj.parsimUnpack(b);}
 
 /**
- * Class generated from <tt>Messages.msg:77</tt> by nedtool.
+ * Class generated from <tt>Messages.msg:79</tt> by nedtool.
  * <pre>
  * packet BeaconPedestrian extends WaveShortMessage
  * {
  *     string sender;
+ *     string senderType;
  *     string recipient;
  *     Coord pos;
  *     double speed;
@@ -191,6 +200,7 @@ class BeaconPedestrian : public ::WaveShortMessage
 {
   protected:
     opp_string sender_var;
+    opp_string senderType_var;
     opp_string recipient_var;
     Coord pos_var;
     double speed_var;
@@ -219,6 +229,8 @@ class BeaconPedestrian : public ::WaveShortMessage
     // field getter/setter methods
     virtual const char * getSender() const;
     virtual void setSender(const char * sender);
+    virtual const char * getSenderType() const;
+    virtual void setSenderType(const char * senderType);
     virtual const char * getRecipient() const;
     virtual void setRecipient(const char * recipient);
     virtual Coord& getPos();
@@ -242,11 +254,12 @@ inline void doPacking(cCommBuffer *b, BeaconPedestrian& obj) {obj.parsimPack(b);
 inline void doUnpacking(cCommBuffer *b, BeaconPedestrian& obj) {obj.parsimUnpack(b);}
 
 /**
- * Class generated from <tt>Messages.msg:91</tt> by nedtool.
+ * Class generated from <tt>Messages.msg:94</tt> by nedtool.
  * <pre>
  * packet BeaconRSU extends WaveShortMessage
  * {
  *     string sender;
+ *     string senderType;
  *     string recipient;
  *     Coord pos;
  * }
@@ -256,6 +269,7 @@ class BeaconRSU : public ::WaveShortMessage
 {
   protected:
     opp_string sender_var;
+    opp_string senderType_var;
     opp_string recipient_var;
     Coord pos_var;
 
@@ -278,6 +292,8 @@ class BeaconRSU : public ::WaveShortMessage
     // field getter/setter methods
     virtual const char * getSender() const;
     virtual void setSender(const char * sender);
+    virtual const char * getSenderType() const;
+    virtual void setSenderType(const char * senderType);
     virtual const char * getRecipient() const;
     virtual void setRecipient(const char * recipient);
     virtual Coord& getPos();
@@ -289,7 +305,7 @@ inline void doPacking(cCommBuffer *b, BeaconRSU& obj) {obj.parsimPack(b);}
 inline void doUnpacking(cCommBuffer *b, BeaconRSU& obj) {obj.parsimUnpack(b);}
 
 /**
- * Class generated from <tt>Messages.msg:99</tt> by nedtool.
+ * Class generated from <tt>Messages.msg:103</tt> by nedtool.
  * <pre>
  * packet DummyMsg extends WaveShortMessage
  * {
@@ -327,11 +343,12 @@ inline void doPacking(cCommBuffer *b, DummyMsg& obj) {obj.parsimPack(b);}
 inline void doUnpacking(cCommBuffer *b, DummyMsg& obj) {obj.parsimUnpack(b);}
 
 /**
- * Class generated from <tt>Messages.msg:105</tt> by nedtool.
+ * Class generated from <tt>Messages.msg:109</tt> by nedtool.
  * <pre>
  * packet LaneChangeMsg extends WaveShortMessage
  * {
  *     string sender;
+ *     string senderType;
  *     string recipient;
  *     stringQueue laneChange;
  * }
@@ -341,6 +358,7 @@ class LaneChangeMsg : public ::WaveShortMessage
 {
   protected:
     opp_string sender_var;
+    opp_string senderType_var;
     opp_string recipient_var;
     stringQueue laneChange_var;
 
@@ -363,6 +381,8 @@ class LaneChangeMsg : public ::WaveShortMessage
     // field getter/setter methods
     virtual const char * getSender() const;
     virtual void setSender(const char * sender);
+    virtual const char * getSenderType() const;
+    virtual void setSenderType(const char * senderType);
     virtual const char * getRecipient() const;
     virtual void setRecipient(const char * recipient);
     virtual stringQueue& getLaneChange();
@@ -374,11 +394,12 @@ inline void doPacking(cCommBuffer *b, LaneChangeMsg& obj) {obj.parsimPack(b);}
 inline void doUnpacking(cCommBuffer *b, LaneChangeMsg& obj) {obj.parsimUnpack(b);}
 
 /**
- * Class generated from <tt>Messages.msg:113</tt> by nedtool.
+ * Class generated from <tt>Messages.msg:118</tt> by nedtool.
  * <pre>
  * packet PlatoonMsg extends WaveShortMessage
  * {
  *     string sender;
+ *     string senderType;
  *     string recipient;
  *     int type;
  *     string sendingPlatoonID;
@@ -393,6 +414,7 @@ class PlatoonMsg : public ::WaveShortMessage
 {
   protected:
     opp_string sender_var;
+    opp_string senderType_var;
     opp_string recipient_var;
     int type_var;
     opp_string sendingPlatoonID_var;
@@ -420,6 +442,8 @@ class PlatoonMsg : public ::WaveShortMessage
     // field getter/setter methods
     virtual const char * getSender() const;
     virtual void setSender(const char * sender);
+    virtual const char * getSenderType() const;
+    virtual void setSenderType(const char * senderType);
     virtual const char * getRecipient() const;
     virtual void setRecipient(const char * recipient);
     virtual int getType() const;
@@ -441,7 +465,7 @@ inline void doPacking(cCommBuffer *b, PlatoonMsg& obj) {obj.parsimPack(b);}
 inline void doUnpacking(cCommBuffer *b, PlatoonMsg& obj) {obj.parsimUnpack(b);}
 
 /**
- * Class generated from <tt>Messages.msg:126</tt> by nedtool.
+ * Class generated from <tt>Messages.msg:132</tt> by nedtool.
  * <pre>
  * packet SystemMsg extends WaveShortMessage
  * {
@@ -495,7 +519,7 @@ inline void doPacking(cCommBuffer *b, SystemMsg& obj) {obj.parsimPack(b);}
 inline void doUnpacking(cCommBuffer *b, SystemMsg& obj) {obj.parsimUnpack(b);}
 
 /**
- * Class generated from <tt>Messages.msg:136</tt> by nedtool.
+ * Class generated from <tt>Messages.msg:142</tt> by nedtool.
  * <pre>
  * packet RouterMsg extends WaveShortMessage
  * {

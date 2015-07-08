@@ -1,4 +1,0 @@
-index     timeStep  TLid      totalQueue     laneCount 
-
-
-1         0.10      C         0              16        

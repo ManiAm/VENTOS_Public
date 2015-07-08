@@ -2,7 +2,11 @@
 # OMNeT++/OMNEST Makefile for libglobal
 #
 # This file was generated with the command:
+<<<<<<< Updated upstream
 #  opp_makemake -f --make-so -o global -O out -I/home/philip/Desktop/VENTOS/VENTOS/eigen-3.2.1 -I/home/philip/Desktop/VENTOS/VENTOS/rapidxml-1.13 -I/home/philip/Desktop/Veins/veins/src/veins -I.. -I/home/philip/Desktop/Veins/veins/src/veins/base/connectionManager -I/home/philip/Desktop/Veins/veins/src -I../trafficLight -I/home/philip/Desktop/Veins/veins/src/veins/base/modules -I/home/philip/Desktop/Veins/veins/src/veins/base/utils -I../rsu -I../router -I../traci -I../vehicle -I/home/philip/Desktop/Veins/veins/src/veins/modules/mac/ieee80211p -L/home/philip/Desktop/Veins/veins/out/$$\(CONFIGNAME\)/src -L../../out/$$\(CONFIGNAME\)/application/pedestrian -L../../out/$$\(CONFIGNAME\)/application/trafficLight -L../../out/$$\(CONFIGNAME\)/application/msg -L../../out/$$\(CONFIGNAME\)/application/rsu -L../../out/$$\(CONFIGNAME\)/application/bike -L../../out/$$\(CONFIGNAME\)/application/adversary -L../../out/$$\(CONFIGNAME\)/application/router -L../../out/$$\(CONFIGNAME\)/application/traci -L../../out/$$\(CONFIGNAME\)/application/vehicle -lboost_filesystem -lboost_system -lmsg -ltraci -lveins -KVEINS_PROJ=/home/philip/Desktop/Veins/veins
+=======
+#  opp_makemake -f --make-so -o global -O out -I/home/mani/Desktop/VENTOS/eigen-3.2.1 -I/home/mani/Desktop/VENTOS/rapidxml-1.13 -I../../../veins/src/veins/base/connectionManager -I../router -I../../../veins/src -I../../../veins/src/veins/base/utils -I../traci -I../../../veins/src/veins -I../vehicle -I.. -I../../../veins/src/veins/base/modules -I../../../veins/src/veins/modules/mac/ieee80211p -I../trafficLight -I../rsu -L../../../veins/out/$$\(CONFIGNAME\)/src -L../../out/$$\(CONFIGNAME\)/application/msg -L../../out/$$\(CONFIGNAME\)/application/router -L../../out/$$\(CONFIGNAME\)/application/pedestrian -L../../out/$$\(CONFIGNAME\)/application/bike -L../../out/$$\(CONFIGNAME\)/application/traci -L../../out/$$\(CONFIGNAME\)/application/adversary -L../../out/$$\(CONFIGNAME\)/application/vehicle -L../../out/$$\(CONFIGNAME\)/application/trafficLight -L../../out/$$\(CONFIGNAME\)/application/rsu -lboost_filesystem -lboost_system -lmsg -ltraci -lveins -KVEINS_PROJ=../../../veins
+>>>>>>> Stashed changes
 #
 
 # Name of target to be created (-o option)
@@ -12,6 +16,7 @@ TARGET = libglobal$(SHARED_LIB_SUFFIX)
 INCLUDE_PATH = \
     -I../../eigen-3.2.1 \
     -I../../rapidxml-1.13 \
+<<<<<<< Updated upstream
     -I$(VEINS_PROJ)/src/veins \
     -I.. \
     -I$(VEINS_PROJ)/src/veins/base/connectionManager \
@@ -21,17 +26,37 @@ INCLUDE_PATH = \
     -I$(VEINS_PROJ)/src/veins/base/utils \
     -I../rsu \
     -I../router \
+=======
+    -I../../../veins/src/veins/base/connectionManager \
+    -I../router \
+    -I../../../veins/src \
+    -I../../../veins/src/veins/base/utils \
+>>>>>>> Stashed changes
     -I../traci \
+    -I../../../veins/src/veins \
     -I../vehicle \
+<<<<<<< Updated upstream
     -I$(VEINS_PROJ)/src/veins/modules/mac/ieee80211p \
+=======
+    -I.. \
+    -I../../../veins/src/veins/base/modules \
+    -I../../../veins/src/veins/modules/mac/ieee80211p \
+    -I../trafficLight \
+    -I../rsu \
+>>>>>>> Stashed changes
     -I.
 
 # Additional object and library files to link with
 EXTRA_OBJS =
 
 # Additional libraries (-L, -l options)
+<<<<<<< Updated upstream
 LIBS = -L$(VEINS_PROJ)/out/$(CONFIGNAME)/src -L../../out/$(CONFIGNAME)/application/pedestrian -L../../out/$(CONFIGNAME)/application/trafficLight -L../../out/$(CONFIGNAME)/application/msg -L../../out/$(CONFIGNAME)/application/rsu -L../../out/$(CONFIGNAME)/application/bike -L../../out/$(CONFIGNAME)/application/adversary -L../../out/$(CONFIGNAME)/application/router -L../../out/$(CONFIGNAME)/application/traci -L../../out/$(CONFIGNAME)/application/vehicle  -lboost_filesystem -lboost_system -lmsg -ltraci -lveins
 LIBS += -Wl,-rpath,`abspath $(VEINS_PROJ)/out/$(CONFIGNAME)/src` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/pedestrian` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/trafficLight` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/msg` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/rsu` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/bike` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/adversary` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/router` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/traci` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/vehicle`
+=======
+LIBS = -L../../../veins/out/$(CONFIGNAME)/src -L../../out/$(CONFIGNAME)/application/msg -L../../out/$(CONFIGNAME)/application/router -L../../out/$(CONFIGNAME)/application/pedestrian -L../../out/$(CONFIGNAME)/application/bike -L../../out/$(CONFIGNAME)/application/traci -L../../out/$(CONFIGNAME)/application/adversary -L../../out/$(CONFIGNAME)/application/vehicle -L../../out/$(CONFIGNAME)/application/trafficLight -L../../out/$(CONFIGNAME)/application/rsu  -lboost_filesystem -lboost_system -lmsg -ltraci -lveins
+LIBS += -Wl,-rpath,`abspath ../../../veins/out/$(CONFIGNAME)/src` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/msg` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/router` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/pedestrian` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/bike` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/traci` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/adversary` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/vehicle` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/trafficLight` -Wl,-rpath,`abspath ../../out/$(CONFIGNAME)/application/rsu`
+>>>>>>> Stashed changes
 
 # Output directory
 PROJECT_OUTPUT_DIR = ../../out
@@ -40,6 +65,7 @@ O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Object files for local .cc and .msg files
 OBJS = \
+<<<<<<< Updated upstream
     $O/VehicleSpeedProfile.o \
     $O/Statistics.o \
     $O/AddEntity.o \
@@ -52,6 +78,20 @@ OBJS = \
     $O/AddAdversary.o \
     $O/Plotter.o \
     $O/AddFlow.o
+=======
+    $O/AddEntity.o \
+    $O/Statistics.o \
+    $O/AddFlow.o \
+    $O/AddRSU.o \
+    $O/Mac1609_4_Mod.o \
+    $O/Tracking.o \
+    $O/Plotter.o \
+    $O/AddAdversary.o \
+    $O/VehicleWarmup.o \
+    $O/VehicleSpeedProfile.o \
+    $O/ConstSpeedMobility.o \
+    $O/TraCIMobilityMod.o
+>>>>>>> Stashed changes
 
 # Message files
 MSGFILES =
@@ -220,6 +260,8 @@ $O/AddEntity.o: AddEntity.cc \
 	$(VEINS_PROJ)/src/veins/base/utils/SimpleAddress.h \
 	$(VEINS_PROJ)/src/veins/base/utils/miximkerneldefs.h \
 	$(VEINS_PROJ)/src/veins/modules/mac/ieee80211p/WaveAppToMac1609_4Interface.h \
+<<<<<<< Updated upstream
+=======
 	$(VEINS_PROJ)/src/veins/modules/messages/WaveShortMessage_m.h \
 	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIBuffer.h \
 	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIColor.h \
@@ -248,6 +290,36 @@ $O/AddFlow.o: AddFlow.cc \
 	$(VEINS_PROJ)/src/veins/base/utils/HostState.h \
 	$(VEINS_PROJ)/src/veins/base/utils/MiXiMDefs.h \
 	$(VEINS_PROJ)/src/veins/base/utils/miximkerneldefs.h \
+>>>>>>> Stashed changes
+	$(VEINS_PROJ)/src/veins/modules/messages/WaveShortMessage_m.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIBuffer.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIColor.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCICommandInterface.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIConnection.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIConstants.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCICoord.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIMobility.h \
+	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIScenarioManager.h \
+	$(VEINS_PROJ)/src/veins/modules/obstacle/Obstacle.h \
+	$(VEINS_PROJ)/src/veins/modules/obstacle/ObstacleControl.h \
+	$(VEINS_PROJ)/src/veins/modules/utility/Consts80211p.h \
+	$(VEINS_PROJ)/src/veins/modules/world/annotations/AnnotationManager.h
+<<<<<<< Updated upstream
+$O/AddFlow.o: AddFlow.cc \
+	AddFlow.h \
+	Appl.h \
+	../msg/Messages_m.h \
+	../traci/TraCI_Extend.h \
+	$(VEINS_PROJ)/src/veins/base/connectionManager/BaseConnectionManager.h \
+	$(VEINS_PROJ)/src/veins/base/connectionManager/NicEntry.h \
+	$(VEINS_PROJ)/src/veins/base/modules/BaseModule.h \
+	$(VEINS_PROJ)/src/veins/base/modules/BaseWorldUtility.h \
+	$(VEINS_PROJ)/src/veins/base/utils/Coord.h \
+	$(VEINS_PROJ)/src/veins/base/utils/FWMath.h \
+	$(VEINS_PROJ)/src/veins/base/utils/FindModule.h \
+	$(VEINS_PROJ)/src/veins/base/utils/HostState.h \
+	$(VEINS_PROJ)/src/veins/base/utils/MiXiMDefs.h \
+	$(VEINS_PROJ)/src/veins/base/utils/miximkerneldefs.h \
 	$(VEINS_PROJ)/src/veins/modules/messages/WaveShortMessage_m.h \
 	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIBuffer.h \
 	$(VEINS_PROJ)/src/veins/modules/mobility/traci/TraCIColor.h \
@@ -259,6 +331,8 @@ $O/AddFlow.o: AddFlow.cc \
 	$(VEINS_PROJ)/src/veins/modules/obstacle/Obstacle.h \
 	$(VEINS_PROJ)/src/veins/modules/obstacle/ObstacleControl.h \
 	$(VEINS_PROJ)/src/veins/modules/world/annotations/AnnotationManager.h
+=======
+>>>>>>> Stashed changes
 $O/AddRSU.o: AddRSU.cc \
 	AddRSU.h \
 	Appl.h \
