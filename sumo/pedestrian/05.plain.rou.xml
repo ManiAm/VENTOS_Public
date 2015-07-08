@@ -1,9 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <routes>
 
-  <!-- Krauss Model -->
-  <vType id="TypeManual" length="5.0" minGap="2.0" maxSpeed="30.0" vClass="passenger">
+  <!-- passenger vehicle -->
+  <vType id="passenger" length="5.0" minGap="2.0" maxSpeed="30.0" vClass="passenger">
       <carFollowing-Krauss accel="3.0" decel="5.0" sigma="0" tau="1.64" />
+  </vType> 
+  
+  <!-- emergency vehicle -->
+  <vType id="emergency" length="5.0" minGap="2.0" maxSpeed="30.0" vClass="emergency">
+      <carFollowing-Krauss accel="3.0" decel="5.0" sigma="0" tau="1.64" />
+  </vType> 
+  
+  <!-- bus -->
+  <vType id="bus" length="10.0" minGap="4.0" maxSpeed="15.0" vClass="bus">
+      <carFollowing-Krauss accel="2.0" decel="3.0" sigma="0" tau="2.0" />
+  </vType> 
+  
+  <!-- truck -->
+  <vType id="truck" length="10.0" minGap="4.0" maxSpeed="15.0" vClass="truck">
+      <carFollowing-Krauss accel="2.0" decel="3.0" sigma="0" tau="2.0" />
   </vType> 
   
   <!-- Bicycle -->
@@ -11,7 +26,7 @@
   </vType>
     
   <!-- Pedestrian -->
-  <vType id="TypePedestrian" vClass="pedestrian" width="0.7" length="0.35" minGap="0.2" maxSpeed="1.8" guiShape="pedestrian" color="red">
+  <vType id="TypePedestrian" length="0.35" width="0.7" minGap="0.2" maxSpeed="1.8" vClass="pedestrian" guiShape="pedestrian" color="red">
   </vType>
   
   <!-- North inbound -->
@@ -33,5 +48,18 @@
   <route id="movement4" edges="EC CW" />     <!-- Through -->
   <route id="route11" edges="EC CN" />       <!-- Right -->
   <route id="movement7" edges="EC CS" />     <!-- Left --> 
+
+
+  <!-- Right turns only from all directions -->
+
+  <flow id="route1a" begin="0" end="200" vehsPerHour="500" type="passenger" route="route2" />
+  <flow id="route2a" begin="0" end="200" vehsPerHour="500" type="passenger" route="route5" />
+  <flow id="route3a" begin="0" end="200" vehsPerHour="500" type="passenger" route="route8" />
+  <flow id="route4a" begin="0" end="200" vehsPerHour="500" type="passenger" route="route11" />
+  
+  <flow id="route1b" begin="10" end="200" vehsPerHour="500" type="emergency" route="route2" />
+  <flow id="route2b" begin="10" end="200" vehsPerHour="500" type="bus" route="route5" />
+  <flow id="route3b" begin="10" end="200" vehsPerHour="500" type="truck" route="route8" />
+  <flow id="route4b" begin="10" end="200" vehsPerHour="500" type="truck" route="route11" />
 
 </routes>
