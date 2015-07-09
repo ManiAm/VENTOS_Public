@@ -69,7 +69,7 @@ void TrafficLightManager::executeFirstTimeStep()
     TrafficLightRouter::executeFirstTimeStep();
 
     // check if the TLControlMode number is valid?
-    if(TLControlMode < 0 || TLControlMode > 6)
+    if(TLControlMode < 0 || TLControlMode > 7)
     {
         error("Invalid TLControlMode!");
     }
