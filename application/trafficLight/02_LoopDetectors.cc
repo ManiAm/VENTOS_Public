@@ -251,7 +251,7 @@ void LoopDetectors::getAllDetectors()
         for(std::list<std::string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
         {
             // some traffic signal controls need one actuated LD on each incoming lane
-            if( TLControlMode == TL_Adaptive_Time && LD_actuated.find(*it2) == LD_actuated.end() )
+            if( TLControlMode == TL_TrafficActuated && LD_actuated.find(*it2) == LD_actuated.end() )
                 std::cout << "WARNING: no loop detector found on lane (" << *it2 << "). No actuation is available for this lane." << endl;
 
             // if we are measuring queue length then make sure we have an area detector in each lane

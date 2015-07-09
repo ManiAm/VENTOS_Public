@@ -1,7 +1,7 @@
 
 package c3po.ned;
 
-simple TL_AdaptiveQueue extends TL_Adaptive
+simple TL_AdaptiveQueue extends TL_LowDelay
 {
     parameters:
         @class(VENTOS::TrafficLightAdaptiveQueue);

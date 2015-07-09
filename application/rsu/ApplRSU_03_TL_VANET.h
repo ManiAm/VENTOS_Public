@@ -118,7 +118,8 @@ class ApplRSUTLVANET : public ApplRSUAID
         static void saveVehApproach();
 
 	public:
-        std::map<std::string /*lane*/, laneInfoEntry> laneInfo;   // collected info per lane by the RSU
+        std::map<std::string /*lane*/, laneInfoEntry> laneInfo;   // collected info per lane by this RSU. Note that each RSU has
+                                                                  // a local copy of laneInfo that contains the lane info for this specific TL
 
 	private:
         bool collectVehApproach;

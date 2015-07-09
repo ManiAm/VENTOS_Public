@@ -101,7 +101,7 @@ void ApplPedBeacon::handleSelfMsg(cMessage* msg)
     {
         if(VANETenabled && smartBeaconing)
         {
-            if(TLControlMode == TL_VANET)
+            if(TLControlMode == TL_MultiClass)
             {
                 Coord myPos = TraCI->personGetPosition(SUMOpID);
                 std::string myEdge = TraCI->personGetEdgeID(SUMOpID);

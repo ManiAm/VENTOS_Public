@@ -27,7 +27,7 @@
 #ifndef TRAFFICLIGHTADAPTIVEQUEUE_H
 #define TRAFFICLIGHTADAPTIVEQUEUE_H
 
-#include <06_TL_Adaptive_RingAndBarrier.h>
+#include <08_TL_LowDelay.h>
 
 namespace VENTOS {
 
@@ -47,7 +47,7 @@ public:
 };
 
 
-class movementCompare
+class movementCompareQueue
 {
 public:
     bool operator()(batchMovementQueueEntry p1, batchMovementQueueEntry p2)
@@ -62,7 +62,7 @@ public:
 };
 
 
-class TrafficLightAdaptiveQueue : public TrafficLightAdaptive
+class TrafficLightAdaptiveQueue : public TrafficLightLowDelay
 {
 public:
     virtual ~TrafficLightAdaptiveQueue();
@@ -77,21 +77,13 @@ protected:
 private:
     void chooseNextInterval();
     void chooseNextGreenInterval();
-    void getMovements();
-    void generateAllAllowedMovements();
-    void calculatePhases();
+    void calculatePhases(std::string);
     //bool pred(std::vector<int> &);
 
 private:
-    int LINKSIZE;
-    boost::filesystem::path movementsFilePath;
-    std::vector< std::vector<int> > allMovements;
-
-    int rightTurns[8] = {0, 2, 5, 7, 10, 12, 15, 17};
-    std::vector< std::string > phases;
-
+    std::vector<std::string> phases;
     // batch of all non-conflicting movements, sorted by total queue size per batch
-    std::priority_queue< batchMovementQueueEntry /*type of each element*/, std::vector<batchMovementQueueEntry> /*container*/, movementCompare > batchMovementQueue;
+    std::priority_queue< batchMovementQueueEntry /*type of each element*/, std::vector<batchMovementQueueEntry> /*container*/, movementCompareQueue > batchMovementQueue;
 };
 
 }

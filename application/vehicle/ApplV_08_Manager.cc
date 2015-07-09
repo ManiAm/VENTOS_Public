@@ -93,7 +93,7 @@ void ApplVManager::initialize(int stage)
 
         // turn off 'strategic' and 'speed gain' lane change in all TL (default is 10 01 01 01 01)
         // todo: is this necessary? lane change causes fault detection in LD
-        if(TLControlMode != TL_Router)
+        if(TLControlMode != TL_Router && TLControlMode != TL_OFF)
         {
             int32_t bitset = TraCI->vehicleBuildLaneChangeMode(00, 01, 00, 01, 01);
             TraCI->vehicleSetLaneChangeMode(SUMOvID, bitset);   // alter 'lane change' mode

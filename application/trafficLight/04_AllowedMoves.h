@@ -1,6 +1,5 @@
 /****************************************************************************/
-/// @file    TL_Manager.cc
-/// @author  Philip Vo <foxvo@ucdavis.edu>
+/// @file    AllowedMoves.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @date    August 2013
 ///
@@ -25,61 +24,38 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <11_TL_Manager.h>
+#ifndef TRAFFICLIGHTALLOWEDMOVES_H
+#define TRAFFICLIGHTALLOWEDMOVES_H
+
+#include <03_IntersectionDelay.h>
 
 namespace VENTOS {
 
-Define_Module(VENTOS::TrafficLightManager);
-
-
-TrafficLightManager::~TrafficLightManager()
+class TrafficLightAllowedMoves : public IntersectionDelay
 {
+public:
+    virtual ~TrafficLightAllowedMoves();
+    virtual void finish();
+    virtual void initialize(int);
+    virtual void handleMessage(cMessage *);
+
+protected:
+    void virtual executeFirstTimeStep();
+    void virtual executeEachTimeStep(bool);
+    void getMovements(std::string);
+
+private:
+    void generateAllAllowedMovements();
+
+protected:
+    int rightTurns[8] = {0, 2, 5, 7, 10, 12, 15, 17};
+    std::vector< std::vector<int> > allMovements;
+
+private:
+    int LINKSIZE;
+    boost::filesystem::path movementsFilePath;
+};
 
 }
 
-
-void TrafficLightManager::initialize(int stage)
-{
-    TrafficLightRouter::initialize(stage);
-
-    if(stage == 0)
-    {
-
-    }
-}
-
-
-void TrafficLightManager::finish()
-{
-    TrafficLightRouter::finish();
-
-}
-
-
-void TrafficLightManager::handleMessage(cMessage *msg)
-{
-    TrafficLightRouter::handleMessage(msg);
-
-}
-
-
-void TrafficLightManager::executeFirstTimeStep()
-{
-    // call parent
-    TrafficLightRouter::executeFirstTimeStep();
-
-    // check if the TLControlMode number is valid?
-    if(TLControlMode < 0 || TLControlMode > 6)
-    {
-        error("Invalid TLControlMode!");
-    }
-}
-
-
-void TrafficLightManager::executeEachTimeStep(bool simulationDone)
-{
-    // call parent
-    TrafficLightRouter::executeEachTimeStep(simulationDone);
-}
-
-}
+#endif

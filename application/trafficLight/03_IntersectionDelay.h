@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    VehDelay.h
+/// @file    IntersectionDelay.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @date    Jul 2015
 ///
@@ -24,8 +24,8 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef VEHDELAY_H
-#define VEHDELAY_H
+#ifndef INTERSECTIONDELAY_H
+#define INTERSECTIONDELAY_H
 
 #include "02_LoopDetectors.h"
 
@@ -44,6 +44,7 @@ public:
     double startStopping;
     double startAccel;
     double endDelay;
+    double accumDelay;
 
     // temporary buffers for storing last speed/accel/signal
     boost::circular_buffer<std::pair<double,double>> lastSpeeds;
@@ -52,7 +53,7 @@ public:
     boost::circular_buffer<char> lastSignals;
 
     delayEntry(std::string str1, std::string str2, double d0, bool b1, double d1,
-            double d2, double d3, double d4, double d5, double d6,
+            double d2, double d3, double d4, double d5, double d6, double d7,
             boost::circular_buffer<std::pair<double,double>> CB_speed,
             boost::circular_buffer<std::pair<double,double>> CB_speed2,
             boost::circular_buffer<std::pair<double,double>> CB_accel,
@@ -68,6 +69,7 @@ public:
         this->startStopping = d4;
         this->startAccel = d5;
         this->endDelay = d6;
+        this->accumDelay = d7;
 
         this->lastSpeeds = CB_speed;
         this->lastSpeeds2 = CB_speed2;
@@ -77,10 +79,10 @@ public:
 };
 
 
-class VehDelay : public LoopDetectors
+class IntersectionDelay : public LoopDetectors
 {
 public:
-    virtual ~VehDelay();
+    virtual ~IntersectionDelay();
     virtual void finish();
     virtual void initialize(int);
     virtual void handleMessage(cMessage *);
@@ -92,6 +94,7 @@ protected:
 private:
     void vehiclesDelay();
     void vehiclesDelayEach(std::string);
+    void vehiclesAccuDelay(std::string, std::map<std::string, delayEntry>::iterator);
     void vehiclesDelayToFile();
 
 protected:
@@ -101,8 +104,11 @@ protected:
     int lastValueBuffSize;
 
     // class variables
-    std::list<std::string> lanesList;   // list of all lanes in the network
-    std::map<std::string, delayEntry> intersectionDelay;
+    std::list<std::string> lanesList;  // list of all lanes in the network
+
+    std::map<std::string /*vehID*/, delayEntry> vehDelay;   // vehicle intersection delay
+    std::map<std::string /*lane*/, std::map<std::string /*vehID*/, double /*accum delay of vehID*/>> laneDelay;  // accumulated delay of each vehicle on each incoming lane
+    std::map<std::pair<std::string /*TLid*/, int /*link*/>, std::map<std::string /*vehID*/, double /*accum delay of vehID*/>> linkDelay;  // accumulated delay of each vehicle for each link
 };
 
 }

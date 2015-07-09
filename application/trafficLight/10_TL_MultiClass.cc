@@ -25,7 +25,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <09_TL_MultiClass.h>
+#include <10_TL_MultiClass.h>
 #include <iomanip>
 
 namespace VENTOS {
@@ -41,9 +41,9 @@ TrafficLightMultiClass::~TrafficLightMultiClass()
 
 void TrafficLightMultiClass::initialize(int stage)
 {
-    TrafficLightLowDelay::initialize(stage);
+    TrafficLightAdaptiveQueue::initialize(stage);
 
-    if(TLControlMode != TL_VANET)
+    if(TLControlMode != TL_MultiClass)
         return;
 
     if(stage == 0)
@@ -58,15 +58,15 @@ void TrafficLightMultiClass::initialize(int stage)
 
 void TrafficLightMultiClass::finish()
 {
-    TrafficLightLowDelay::finish();
+    TrafficLightAdaptiveQueue::finish();
 }
 
 
 void TrafficLightMultiClass::handleMessage(cMessage *msg)
 {
-    TrafficLightLowDelay::handleMessage(msg);
+    TrafficLightAdaptiveQueue::handleMessage(msg);
 
-    if(TLControlMode != TL_VANET)
+    if(TLControlMode != TL_MultiClass)
         return;
 
     if (msg == ChangeEvt)
@@ -85,9 +85,9 @@ void TrafficLightMultiClass::handleMessage(cMessage *msg)
 void TrafficLightMultiClass::executeFirstTimeStep()
 {
     // call parent
-    TrafficLightLowDelay::executeFirstTimeStep();
+    TrafficLightAdaptiveQueue::executeFirstTimeStep();
 
-    if(TLControlMode != TL_VANET)
+    if(TLControlMode != TL_MultiClass)
         return;
 
     std::cout << endl << "VANET traffic signal control ..." << endl;
@@ -122,9 +122,9 @@ void TrafficLightMultiClass::executeFirstTimeStep()
 void TrafficLightMultiClass::executeEachTimeStep(bool simulationDone)
 {
     // call parent
-    TrafficLightLowDelay::executeEachTimeStep(simulationDone);
+    TrafficLightAdaptiveQueue::executeEachTimeStep(simulationDone);
 
-    if(TLControlMode != TL_VANET)
+    if(TLControlMode != TL_MultiClass)
         return;
 
     intervalElapseTime += updateInterval;

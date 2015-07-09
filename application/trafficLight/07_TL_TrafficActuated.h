@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    TL_Adaptive.h
+/// @file    TL_TrafficActuated.h
 /// @author  Philip Vo <foxvo@ucdavis.edu>
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @date    August 2013
@@ -25,17 +25,17 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef TRAFFICLIGHTADAPTIVE_H
-#define TRAFFICLIGHTADAPTIVE_H
+#ifndef TRAFFICLIGHTACTUATED_H
+#define TRAFFICLIGHTACTUATED_H
 
-#include <05_TL_Adaptive_Webster.h>
+#include <06_TL_Adaptive_Webster.h>
 
 namespace VENTOS {
 
-class TrafficLightAdaptive : public TrafficLightWebster
+class TrafficLightActuated : public TrafficLightWebster
 {
   public:
-    virtual ~TrafficLightAdaptive();
+    virtual ~TrafficLightActuated();
     virtual void finish();
     virtual void initialize(int);
     virtual void handleMessage(cMessage *);
@@ -65,7 +65,6 @@ class TrafficLightAdaptive : public TrafficLightWebster
     bool greenExtension;
 
     // class variables
-    std::map<std::string /*TLid*/, std::string /*first green interval*/> firstGreen;
     std::map<std::string,double> passageTimePerLane;
 };
 

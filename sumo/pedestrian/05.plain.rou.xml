@@ -50,16 +50,87 @@
   <route id="movement7" edges="EC CS" />     <!-- Left --> 
 
 
-  <!-- Right turns only from all directions -->
-
-  <flow id="route1a" begin="0" end="200" vehsPerHour="500" type="passenger" route="route2" />
-  <flow id="route2a" begin="0" end="200" vehsPerHour="500" type="passenger" route="route5" />
-  <flow id="route3a" begin="0" end="200" vehsPerHour="500" type="passenger" route="route8" />
-  <flow id="route4a" begin="0" end="200" vehsPerHour="500" type="passenger" route="route11" />
+  <flow id="route1a" begin="0" end="400" vehsPerHour="100" type="passenger" route="movement2" />
+  <flow id="route2a" begin="0" end="400" vehsPerHour="100" type="passenger" route="movement5" />
+  <flow id="route3a" begin="0" end="400" vehsPerHour="100" type="passenger" route="movement6" />
+  <flow id="route4a" begin="0" end="400" vehsPerHour="100" type="passenger" route="movement1" />  
+  <flow id="route5a" begin="0" end="400" vehsPerHour="100" type="passenger" route="movement8" />
+  <flow id="route6a" begin="0" end="400" vehsPerHour="100" type="passenger" route="movement3" />  
+  <flow id="route7a" begin="0" end="400" vehsPerHour="100" type="passenger" route="movement4" />
+  <flow id="route8a" begin="0" end="400" vehsPerHour="100" type="passenger" route="movement7" />
   
-  <flow id="route1b" begin="10" end="200" vehsPerHour="500" type="emergency" route="route2" />
-  <flow id="route2b" begin="10" end="200" vehsPerHour="500" type="bus" route="route5" />
-  <flow id="route3b" begin="10" end="200" vehsPerHour="500" type="truck" route="route8" />
-  <flow id="route4b" begin="10" end="200" vehsPerHour="500" type="truck" route="route11" />
+  <flow id="route1b" begin="400" end="800" vehsPerHour="100" type="passenger" route="movement2" />
+  <flow id="route2b" begin="400" end="800" vehsPerHour="100" type="passenger" route="movement5" />
+  <flow id="route3b" begin="400" end="800" vehsPerHour="100" type="passenger" route="movement6" />
+  <flow id="route4b" begin="400" end="800" vehsPerHour="100" type="passenger" route="movement1" />  
+  <flow id="route5b" begin="400" end="800" vehsPerHour="200" type="passenger" route="movement8" />
+  <flow id="route6b" begin="400" end="800" vehsPerHour="200" type="passenger" route="movement3" />  
+  <flow id="route7b" begin="400" end="800" vehsPerHour="200" type="passenger" route="movement4" />
+  <flow id="route8b" begin="400" end="800" vehsPerHour="200" type="passenger" route="movement7" />
+  
+  <flow id="route1c" begin="800" end="1200" vehsPerHour="100" type="passenger" route="movement2" />
+  <flow id="route2c" begin="800" end="1200" vehsPerHour="100" type="passenger" route="movement5" />
+  <flow id="route3c" begin="800" end="1200" vehsPerHour="100" type="passenger" route="movement6" />
+  <flow id="route4c" begin="800" end="1200" vehsPerHour="100" type="passenger" route="movement1" />  
+  <flow id="route5c" begin="800" end="1200" vehsPerHour="300" type="passenger" route="movement8" />
+  <flow id="route6c" begin="800" end="1200" vehsPerHour="300" type="passenger" route="movement3" />  
+  <flow id="route7c" begin="800" end="1200" vehsPerHour="300" type="passenger" route="movement4" />
+  <flow id="route8c" begin="800" end="1200" vehsPerHour="300" type="passenger" route="movement7" />  
+  
+  <flow id="route1d" begin="1200" end="1600" vehsPerHour="100" type="passenger" route="movement2" />
+  <flow id="route2d" begin="1200" end="1600" vehsPerHour="100" type="passenger" route="movement5" />
+  <flow id="route3d" begin="1200" end="1600" vehsPerHour="100" type="passenger" route="movement6" />
+  <flow id="route4d" begin="1200" end="1600" vehsPerHour="100" type="passenger" route="movement1" />  
+  <flow id="route5d" begin="1200" end="1600" vehsPerHour="400" type="passenger" route="movement8" />
+  <flow id="route6d" begin="1200" end="1600" vehsPerHour="400" type="passenger" route="movement3" />  
+  <flow id="route7d" begin="1200" end="1600" vehsPerHour="400" type="passenger" route="movement4" />
+  <flow id="route8d" begin="1200" end="1600" vehsPerHour="400" type="passenger" route="movement7" />  
+  
+  <flow id="route1e" begin="1600" end="2000" vehsPerHour="100" type="passenger" route="movement2" />
+  <flow id="route2e" begin="1600" end="2000" vehsPerHour="100" type="passenger" route="movement5" />
+  <flow id="route3e" begin="1600" end="2000" vehsPerHour="100" type="passenger" route="movement6" />
+  <flow id="route4e" begin="1600" end="2000" vehsPerHour="100" type="passenger" route="movement1" />  
+  <flow id="route5e" begin="1600" end="2000" vehsPerHour="500" type="passenger" route="movement8" />
+  <flow id="route6e" begin="1600" end="2000" vehsPerHour="500" type="passenger" route="movement3" />  
+  <flow id="route7e" begin="1600" end="2000" vehsPerHour="500" type="passenger" route="movement4" />
+  <flow id="route8e" begin="1600" end="2000" vehsPerHour="500" type="passenger" route="movement7" />
+  
+  <flow id="route1f" begin="2000" end="2400" vehsPerHour="100" type="passenger" route="movement2" />
+  <flow id="route2f" begin="2000" end="2400" vehsPerHour="100" type="passenger" route="movement5" />
+  <flow id="route3f" begin="2000" end="2400" vehsPerHour="100" type="passenger" route="movement6" />
+  <flow id="route4f" begin="2000" end="2400" vehsPerHour="100" type="passenger" route="movement1" />  
+  <flow id="route5f" begin="2000" end="2400" vehsPerHour="400" type="passenger" route="movement8" />
+  <flow id="route6f" begin="2000" end="2400" vehsPerHour="400" type="passenger" route="movement3" />  
+  <flow id="route7f" begin="2000" end="2400" vehsPerHour="400" type="passenger" route="movement4" />
+  <flow id="route8f" begin="2000" end="2400" vehsPerHour="400" type="passenger" route="movement7" />
+  
+  <flow id="route1g" begin="2400" end="2800" vehsPerHour="100" type="passenger" route="movement2" />
+  <flow id="route2g" begin="2400" end="2800" vehsPerHour="100" type="passenger" route="movement5" />
+  <flow id="route3g" begin="2400" end="2800" vehsPerHour="100" type="passenger" route="movement6" />
+  <flow id="route4g" begin="2400" end="2800" vehsPerHour="100" type="passenger" route="movement1" />  
+  <flow id="route5g" begin="2400" end="2800" vehsPerHour="300" type="passenger" route="movement8" />
+  <flow id="route6g" begin="2400" end="2800" vehsPerHour="300" type="passenger" route="movement3" />  
+  <flow id="route7g" begin="2400" end="2800" vehsPerHour="300" type="passenger" route="movement4" />
+  <flow id="route8g" begin="2400" end="2800" vehsPerHour="300" type="passenger" route="movement7" />
+  
+  <flow id="route1h" begin="2800" end="3200" vehsPerHour="100" type="passenger" route="movement2" />
+  <flow id="route2h" begin="2800" end="3200" vehsPerHour="100" type="passenger" route="movement5" />
+  <flow id="route3h" begin="2800" end="3200" vehsPerHour="100" type="passenger" route="movement6" />
+  <flow id="route4h" begin="2800" end="3200" vehsPerHour="100" type="passenger" route="movement1" />  
+  <flow id="route5h" begin="2800" end="3200" vehsPerHour="200" type="passenger" route="movement8" />
+  <flow id="route6h" begin="2800" end="3200" vehsPerHour="200" type="passenger" route="movement3" />  
+  <flow id="route7h" begin="2800" end="3200" vehsPerHour="200" type="passenger" route="movement4" />
+  <flow id="route8h" begin="2800" end="3200" vehsPerHour="200" type="passenger" route="movement7" />
+  
+  <flow id="route1i" begin="3200" end="3600" vehsPerHour="100" type="passenger" route="movement2" />
+  <flow id="route2i" begin="3200" end="3600" vehsPerHour="100" type="passenger" route="movement5" />
+  <flow id="route3i" begin="3200" end="3600" vehsPerHour="100" type="passenger" route="movement6" />
+  <flow id="route4i" begin="3200" end="3600" vehsPerHour="100" type="passenger" route="movement1" />  
+  <flow id="route5i" begin="3200" end="3600" vehsPerHour="100" type="passenger" route="movement8" />
+  <flow id="route6i" begin="3200" end="3600" vehsPerHour="100" type="passenger" route="movement3" />  
+  <flow id="route7i" begin="3200" end="3600" vehsPerHour="100" type="passenger" route="movement4" />
+  <flow id="route8i" begin="3200" end="3600" vehsPerHour="100" type="passenger" route="movement7" />
+  
+
 
 </routes>

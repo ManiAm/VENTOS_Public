@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    VehDelay.cc
+/// @file    IntersectionDelay.cc
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @date    Jul 2015
 ///
@@ -24,20 +24,20 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <03_VehDelay.h>
+#include <03_IntersectionDelay.h>
 
 namespace VENTOS {
 
-Define_Module(VENTOS::VehDelay);
+Define_Module(VENTOS::IntersectionDelay);
 
 
-VehDelay::~VehDelay()
+IntersectionDelay::~IntersectionDelay()
 {
 
 }
 
 
-void VehDelay::initialize(int stage)
+void IntersectionDelay::initialize(int stage)
 {
     LoopDetectors::initialize(stage);
 
@@ -60,29 +60,39 @@ void VehDelay::initialize(int stage)
 }
 
 
-void VehDelay::finish()
+void IntersectionDelay::finish()
 {
     LoopDetectors::finish();
 }
 
 
-void VehDelay::handleMessage(cMessage *msg)
+void IntersectionDelay::handleMessage(cMessage *msg)
 {
     LoopDetectors::handleMessage(msg);
 }
 
 
-void VehDelay::executeFirstTimeStep()
+void IntersectionDelay::executeFirstTimeStep()
 {
     // call parent
     LoopDetectors::executeFirstTimeStep();
 
     // get all lanes in the network
     lanesList = TraCI->laneGetIDList();
+
+    for(std::map<std::string,std::string>::iterator it = lanesTL.begin(); it != lanesTL.end(); ++it)
+    {
+        std::string lane = (*it).first;
+        std::string TLid = (*it).second;
+
+        // initialize laneDelay
+        laneDelay[lane] = std::map<std::string,double> ();
+    }
+
 }
 
 
-void VehDelay::executeEachTimeStep(bool simulationDone)
+void IntersectionDelay::executeEachTimeStep(bool simulationDone)
 {
     // call parent
     LoopDetectors::executeEachTimeStep(simulationDone);
@@ -97,7 +107,7 @@ void VehDelay::executeEachTimeStep(bool simulationDone)
 }
 
 
-void VehDelay::vehiclesDelay()
+void IntersectionDelay::vehiclesDelay()
 {
     for(std::list<std::string>::iterator i = lanesList.begin(); i != lanesList.end(); ++i)
     {
@@ -109,10 +119,11 @@ void VehDelay::vehiclesDelay()
             std::string vID = k->c_str();
 
             // look for the vehicle in delay map
-            std::map<std::string, delayEntry>::iterator loc = intersectionDelay.find(vID);
+            std::map<std::string, delayEntry>::iterator loc = vehDelay.find(vID);
 
+            // todo: what if the vehicle is visiting this TL for the second time?
             // insert if new
-            if(loc == intersectionDelay.end())
+            if(loc == vehDelay.end())
             {
                 boost::circular_buffer<std::pair<double,double>> CB_speed;  // create a circular buffer
                 CB_speed.set_capacity(lastValueBuffSize);                   // set max capacity
@@ -131,9 +142,9 @@ void VehDelay::vehiclesDelay()
                 CB_sig.clear();
 
                 delayEntry *entry = new delayEntry("" /*TLid*/, "" /*lastLane*/, -1 /*entrance*/, false /*crossed?*/, -1 /*crossedT*/,
-                        -1 /*old speed*/, -1 /*startDeccel*/, -1 /*startStopping*/, -1 /*startAccel*/, -1 /*endDelay*/,
+                        -1 /*old speed*/, -1 /*startDeccel*/, -1 /*startStopping*/, -1 /*startAccel*/, -1 /*endDelay*/, 0 /*accumulated delay so far*/,
                         CB_speed, CB_speed2, CB_accel, CB_sig);
-                intersectionDelay.insert( std::make_pair(vID, *entry) );
+                vehDelay.insert( std::make_pair(vID, *entry) );
             }
 
             vehiclesDelayEach(vID);
@@ -142,10 +153,10 @@ void VehDelay::vehiclesDelay()
 }
 
 
-void VehDelay::vehiclesDelayEach(std::string vID)
+void IntersectionDelay::vehiclesDelayEach(std::string vID)
 {
     // look for the vehicle in delay map
-    std::map<std::string, delayEntry>::iterator loc = intersectionDelay.find(vID);
+    std::map<std::string, delayEntry>::iterator loc = vehDelay.find(vID);
 
     // if the vehicle is controlled by a TL
     if(loc->second.TLid == "")
@@ -248,6 +259,9 @@ void VehDelay::vehiclesDelayEach(std::string vID)
         else return;
     }
 
+    // update accumulated delay for this vehicle
+    vehiclesAccuDelay(vID, loc);
+
     // looking for the start of stopping delay
     // NOTE: stopping delay might be zero
     if(loc->second.startDeccel != -1 && loc->second.startStopping == -1 && !loc->second.crossedIntersection)
@@ -304,7 +318,65 @@ void VehDelay::vehiclesDelayEach(std::string vID)
 }
 
 
-void VehDelay::vehiclesDelayToFile()
+void IntersectionDelay::vehiclesAccuDelay(std::string vID, std::map<std::string, delayEntry>::iterator loc)
+{
+    if(!loc->second.crossedIntersection)
+    {
+        loc->second.accumDelay = simTime().dbl() - loc->second.startDeccel;
+
+        if(loc->second.accumDelay < 0)
+            error("accumulated delay can not be negative for vehicle %s", vID.c_str());
+
+        if(loc->second.accumDelay > simTime().dbl())
+            error("accumulated delay can not be greater than the current simTime for vehicle %s", vID.c_str());
+
+        // update accumDelay of this vehicle in laneDelay map
+        std::map<std::string,double>::iterator loc2 = laneDelay[loc->second.lastLane].find(vID);
+        if(loc2 == laneDelay[loc->second.lastLane].end())
+            laneDelay[loc->second.lastLane].insert(std::make_pair(vID,loc->second.accumDelay));
+        else
+            (*loc2).second = loc->second.accumDelay;
+
+        // iterate over outgoing links
+        std::pair<std::multimap<std::string, std::pair<std::string, int>>::iterator, std::multimap<std::string, std::pair<std::string, int>>::iterator > ppp;
+        ppp = linksTL.equal_range(loc->second.lastLane);
+        for(std::multimap<std::string, std::pair<std::string, int>>::iterator z = ppp.first; z != ppp.second; ++z)
+        {
+            int linkNumber = (*z).second.second;
+
+            std::map<std::string,double>::iterator loc3 = linkDelay[std::make_pair(loc->second.TLid,linkNumber)].find(vID);
+            if(loc3 == linkDelay[std::make_pair(loc->second.TLid,linkNumber)].end())
+                linkDelay[std::make_pair(loc->second.TLid,linkNumber)].insert(std::make_pair(vID,loc->second.accumDelay));
+            else
+                (*loc3).second = loc->second.accumDelay;
+        }
+    }
+    // as soon as the vehicle crossed the intersection, we set accumulated delay to zero
+    else
+    {
+        loc->second.accumDelay = 0;
+
+        // remove the vehicle from laneDelay (if exists)
+        std::map<std::string,double>::iterator loc2 = laneDelay[loc->second.lastLane].find(vID);
+        if(loc2 != laneDelay[loc->second.lastLane].end())
+            laneDelay[loc->second.lastLane].erase(loc2);
+
+        // iterate over outgoing links
+        std::pair<std::multimap<std::string, std::pair<std::string, int>>::iterator, std::multimap<std::string, std::pair<std::string, int>>::iterator > ppp;
+        ppp = linksTL.equal_range(loc->second.lastLane);
+        for(std::multimap<std::string, std::pair<std::string, int>>::iterator z = ppp.first; z != ppp.second; ++z)
+        {
+            int linkNumber = (*z).second.second;
+
+            std::map<std::string,double>::iterator loc3 = linkDelay[std::make_pair(loc->second.TLid,linkNumber)].find(vID);
+            if(loc3 != linkDelay[std::make_pair(loc->second.TLid,linkNumber)].end())
+                linkDelay[std::make_pair(loc->second.TLid,linkNumber)].erase(loc3);
+        }
+    }
+}
+
+
+void IntersectionDelay::vehiclesDelayToFile()
 {
     boost::filesystem::path filePath;
 
@@ -337,7 +409,7 @@ void VehDelay::vehiclesDelayToFile()
     fprintf (filePtr, "%-15s\n\n","endDelay");
 
     // write body
-    for(std::map<std::string, delayEntry>::iterator y =  intersectionDelay.begin(); y != intersectionDelay.end(); ++y)
+    for(std::map<std::string, delayEntry>::iterator y =  vehDelay.begin(); y != vehDelay.end(); ++y)
     {
         fprintf (filePtr, "%-15s", (*y).first.c_str());
         fprintf (filePtr, "%-10s", (*y).second.TLid.c_str());

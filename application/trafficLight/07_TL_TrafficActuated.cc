@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    TL_Adaptive.cc
+/// @file    TL_TrafficActuated.cc
 /// @author  Philip Vo <foxvo@ucdavis.edu>
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @date    August 2013
@@ -25,25 +25,25 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <06_TL_Adaptive_RingAndBarrier.h>
+#include <07_TL_TrafficActuated.h>
 #include <iomanip>
 
 namespace VENTOS {
 
-Define_Module(VENTOS::TrafficLightAdaptive);
+Define_Module(VENTOS::TrafficLightActuated);
 
 
-TrafficLightAdaptive::~TrafficLightAdaptive()
+TrafficLightActuated::~TrafficLightActuated()
 {
 
 }
 
 
-void TrafficLightAdaptive::initialize(int stage)
+void TrafficLightActuated::initialize(int stage)
 {
     TrafficLightWebster::initialize(stage);
 
-    if(TLControlMode != TL_Adaptive_Time)
+    if(TLControlMode != TL_TrafficActuated)
         return;
 
     if(stage == 0)
@@ -57,18 +57,18 @@ void TrafficLightAdaptive::initialize(int stage)
 }
 
 
-void TrafficLightAdaptive::finish()
+void TrafficLightActuated::finish()
 {
     TrafficLightWebster::finish();
 
 }
 
 
-void TrafficLightAdaptive::handleMessage(cMessage *msg)
+void TrafficLightActuated::handleMessage(cMessage *msg)
 {
     TrafficLightWebster::handleMessage(msg);
 
-    if(TLControlMode != TL_Adaptive_Time)
+    if(TLControlMode != TL_TrafficActuated)
         return;
 
     if (msg == ChangeEvt)
@@ -84,12 +84,12 @@ void TrafficLightAdaptive::handleMessage(cMessage *msg)
 }
 
 
-void TrafficLightAdaptive::executeFirstTimeStep()
+void TrafficLightActuated::executeFirstTimeStep()
 {
     // call parent
     TrafficLightWebster::executeFirstTimeStep();
 
-    if(TLControlMode != TL_Adaptive_Time)
+    if(TLControlMode != TL_TrafficActuated)
         return;
 
     std::cout << endl << "Adaptive-time traffic signal control ..."  << endl;
@@ -150,12 +150,12 @@ void TrafficLightAdaptive::executeFirstTimeStep()
 }
 
 
-void TrafficLightAdaptive::executeEachTimeStep(bool simulationDone)
+void TrafficLightActuated::executeEachTimeStep(bool simulationDone)
 {
     // call parent
     TrafficLightWebster::executeEachTimeStep(simulationDone);
 
-    if(TLControlMode != TL_Adaptive_Time)
+    if(TLControlMode != TL_TrafficActuated)
         return;
 
     // update passage time if necessary
@@ -187,7 +187,7 @@ void TrafficLightAdaptive::executeEachTimeStep(bool simulationDone)
 }
 
 
-void TrafficLightAdaptive::chooseNextInterval()
+void TrafficLightActuated::chooseNextInterval()
 {
     if (currentInterval == "yellow")
     {
@@ -239,7 +239,7 @@ void TrafficLightAdaptive::chooseNextInterval()
 }
 
 
-void TrafficLightAdaptive::chooseNextGreenInterval()
+void TrafficLightActuated::chooseNextGreenInterval()
 {
     // print for debugging
     std::cout << "SimTime: " << std::setprecision(2) << std::fixed << simTime().dbl() << " | Passage time value per lane: ";

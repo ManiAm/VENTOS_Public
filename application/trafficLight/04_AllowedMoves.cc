@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    TL_AdaptiveQueue.cc
+/// @file    AllowedMoves.cc
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @date    August 2013
 ///
@@ -24,121 +24,59 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <07_TL_Adaptive_Queue.h>
+#include <04_AllowedMoves.h>
 #include <boost/graph/adjacency_list.hpp>
-
-std::vector<int> bestMovement;
-
 
 namespace VENTOS {
 
-Define_Module(VENTOS::TrafficLightAdaptiveQueue);
+Define_Module(VENTOS::TrafficLightAllowedMoves);
 
 
-TrafficLightAdaptiveQueue::~TrafficLightAdaptiveQueue()
+TrafficLightAllowedMoves::~TrafficLightAllowedMoves()
 {
 
 }
 
 
-void TrafficLightAdaptiveQueue::initialize(int stage)
+void TrafficLightAllowedMoves::initialize(int stage)
 {
-    TrafficLightAdaptive::initialize(stage);
-
-    if(TLControlMode != TL_Adaptive_Time_Queue)
-        return;
+    IntersectionDelay::initialize(stage);
 
     if(stage == 0)
     {
-        ChangeEvt = new cMessage("ChangeEvt", 1);
 
-        // collect queue information
-        measureIntersectionQueue = true;
     }
 }
 
 
-void TrafficLightAdaptiveQueue::finish()
+void TrafficLightAllowedMoves::finish()
 {
-    TrafficLightAdaptive::finish();
-
+    IntersectionDelay::finish();
 }
 
 
-void TrafficLightAdaptiveQueue::handleMessage(cMessage *msg)
+void TrafficLightAllowedMoves::handleMessage(cMessage *msg)
 {
-    TrafficLightAdaptive::handleMessage(msg);
-
-    if(TLControlMode != TL_Adaptive_Time_Queue)
-        return;
-
-    if (msg == ChangeEvt)
-    {
-        if(phases.empty())
-        {
-            calculatePhases();
-        }
-
-        chooseNextInterval();
-
-        if(intervalOffSet <= 0)
-            error("intervalOffSet is <= 0");
-
-        // Schedule next light change event:
-        scheduleAt(simTime().dbl() + intervalOffSet, ChangeEvt);
-    }
+    IntersectionDelay::handleMessage(msg);
 }
 
 
-void TrafficLightAdaptiveQueue::executeFirstTimeStep()
+void TrafficLightAllowedMoves::executeFirstTimeStep()
 {
-    TrafficLightAdaptive::executeFirstTimeStep();
-
-    if(TLControlMode != TL_Adaptive_Time_Queue)
-        return;
-
-    std::cout << endl << "Adaptive-time with queue traffic signal control ..." << endl << endl;
-
-    // set initial values
-    currentInterval = phase1_5;
-    intervalElapseTime = 0;
-    intervalOffSet = minGreenTime;
-
-    scheduleAt(simTime().dbl() + intervalOffSet, ChangeEvt);
-
-    getMovements();
-
-    calculatePhases();
-
-    currentInterval = phases.front();
-
-    for (std::list<std::string>::iterator TL = TLList.begin(); TL != TLList.end(); ++TL)
-    {
-        TraCI->TLSetProgram(*TL, "adaptive-time");
-        TraCI->TLSetState(*TL, currentInterval);
-    }
-
-    char buff[300];
-    sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
-    std::cout << buff << endl;
+    IntersectionDelay::executeFirstTimeStep();
 }
 
 
-void TrafficLightAdaptiveQueue::executeEachTimeStep(bool simulationDone)
+void TrafficLightAllowedMoves::executeEachTimeStep(bool simulationDone)
 {
-    TrafficLightAdaptive::executeEachTimeStep(simulationDone);
-
-    if(TLControlMode != TL_Adaptive_Time_Queue)
-        return;
-
-    intervalElapseTime += updateInterval;
+    IntersectionDelay::executeEachTimeStep(simulationDone);
 }
 
 
-void TrafficLightAdaptiveQueue::getMovements()
+void TrafficLightAllowedMoves::getMovements(std::string TLid)
 {
     // Get all links for this TL
-    std::map<int,std::vector<std::string>> allLinks = TraCI->TLGetControlledLinks("C");
+    std::map<int,std::vector<std::string>> allLinks = TraCI->TLGetControlledLinks(TLid);
 
     LINKSIZE = allLinks.size();
 
@@ -177,15 +115,15 @@ void TrafficLightAdaptiveQueue::getMovements()
     else
         generateAllAllowedMovements();
 
-    if(allMovements.size() == 0)
-        error("size of allMovements is zero!");
+    if(allMovements.empty())
+        error("allMovements vector is empty!");
 }
 
 
 // if allMovements.txt is not found then we should generate it.
 // this process is CPU-intensive and lengthy, but hopefully this
 // needs to be executed once to obtain allMovements.txt
-void TrafficLightAdaptiveQueue::generateAllAllowedMovements()
+void TrafficLightAllowedMoves::generateAllAllowedMovements()
 {
     // Create a graph type
     typedef boost::adjacency_list<boost::mapS /*OutEdgeList*/, boost::vecS /*VertexListS*/, boost::undirectedS /*graph type*/> Graph;
@@ -448,235 +386,6 @@ void TrafficLightAdaptiveQueue::generateAllAllowedMovements()
 
     fclose(filePtr);
     std::cout << "Done!" << endl << endl;
-}
-
-
-bool pred(std::vector<int> v)
-{
-    for (int i = 0; i < v.size(); i++)
-    {
-        // Ignore all permissive right turns since these are always green:
-        if (i == 0 || i == 2 || i == 5 || i == 7 ||
-                i == 10 || i == 12 || i == 15 || i == 17)
-            continue;
-
-        // Want to remove movements that have already been done:
-        if (v[i] && bestMovement[i])
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-
-// calculate all phases (up to 4)
-void TrafficLightAdaptiveQueue::calculatePhases()
-{
-    // clear the priority queue
-    batchMovementQueue = std::priority_queue < batchMovementQueueEntry, std::vector<batchMovementQueueEntry>, movementCompare >();
-
-    // get which row has the highest queue length
-    for(unsigned int i = 0; i < allMovements.size(); ++i)  // row
-    {
-        int totalQueueRow = 0;
-        int oneCount = 0;
-
-        for(int j = 0; j < LINKSIZE; ++j)  // column
-        {
-            if(allMovements[i][j] == 1)
-            {
-                totalQueueRow = totalQueueRow + linkQueueSize[std::make_pair("C",j)];
-                oneCount++;
-            }
-        }
-
-        // add this batch of movements to priority_queue
-        batchMovementQueueEntry *entry = new batchMovementQueueEntry(oneCount, totalQueueRow, allMovements[i]);
-        batchMovementQueue.push(*entry);
-    }
-
-    // Save all batchMovements to a vector for iteration:
-    std::vector < std::vector<int> > movements;
-    while(!batchMovementQueue.empty())
-    {
-        batchMovementQueueEntry entry = batchMovementQueue.top();
-        movements.push_back(entry.batchMovements);
-        batchMovementQueue.pop();
-    }
-
-    // Select at most 4 phases for new cycle:
-    while(!movements.empty())
-    {
-        std::cout << "Movements SIZE: " << movements.size() << endl;
-        // Always select the first movement because it will be the best(?):
-        bestMovement = movements.front();
-        movements.erase(movements.begin());
-
-        // Change all 1's to G, 0's to r:
-        std::string nextInterval = "";
-        for(int i : bestMovement) {
-            if (i == 1)
-                nextInterval += 'G';
-            else
-                nextInterval += 'r';
-        }
-        // Avoid pushing "only permissive right turns" phase:
-        if (nextInterval == "GrGrrGrGrrGrGrrGrGrrrrrr")
-                continue;
-        phases.push_back(nextInterval);
-
-        // Now delete these movements because they should never occur again:
-        movements.erase( std::remove_if(movements.begin(), movements.end(), pred), movements.end() );
-    }
-
-    std::cout << "SIZE: " << phases.size() << endl;
-    for(int i = 0; i < phases.size(); i++)
-    {
-        std::cout << phases[i] << endl;
-    }
-
-    // todo: Include error code if more than 4 phases:
-    if (phases.size() > 4)
-    {
-
-    }
-
-    std::cout << endl;
-}
-
-
-void TrafficLightAdaptiveQueue::chooseNextInterval()
-{
-    if (currentInterval == "yellow")
-    {
-        currentInterval = "red";
-
-        // change all 'y' to 'r'
-        std::string str = TraCI->TLGetState("C");
-        std::string nextInterval = "";
-        for(char& c : str) {
-            if (c == 'y')
-                nextInterval += 'r';
-            else
-                nextInterval += c;
-        }
-
-        // set the new state
-        TraCI->TLSetState("C", nextInterval);
-        intervalElapseTime = 0.0;
-        intervalOffSet = redTime;
-    }
-    else if (currentInterval == "red")
-    {
-        currentInterval = nextGreenInterval;
-
-        // set the new state
-        TraCI->TLSetState("C", nextGreenInterval);
-        intervalElapseTime = 0.0;
-        intervalOffSet = minGreenTime;
-    }
-    else
-    {
-        chooseNextGreenInterval();
-    }
-
-    char buff[300];
-    sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
-    std::cout << buff << endl;
-}
-
-
-void TrafficLightAdaptiveQueue::chooseNextGreenInterval()
-{
-    // Remove current old phase:
-    phases.erase(phases.begin());
-
-    // Assign new green:
-    if (phases.empty())
-        calculatePhases();
-
-    nextGreenInterval = phases.front();
-
-
-    currentInterval = "yellow";
-
-    // change all 'G/g' to 'y'
-    std::string str = TraCI->TLGetState("C");
-    std::string nextInterval = "";
-    for(char& c : str) {
-        if (c == 'G' || c == 'g')
-            nextInterval += 'y';
-        else
-            nextInterval += c;
-    }
-
-    TraCI->TLSetState("C", nextInterval);
-
-    intervalElapseTime = 0.0;
-    intervalOffSet =  yellowTime;
-
-    char buff[300];
-    sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
-    std::cout << buff << endl << endl;
-
-
-
-
-    //    // Calculate the next green interval.
-    //    // right-turns are all permissive and are given 'g'
-    //    nextGreenInterval = "";
-    //    for(int j = 0; j < LINKSIZE; ++j)
-    //    {
-    //        // if a right turn
-    //        bool rightTurn = std::find(std::begin(rightTurns), std::end(rightTurns), j) != std::end(rightTurns);
-    //
-    //        if(allMovements[row][j] == 0)
-    //            nextGreenInterval += 'r';
-    //        else if(allMovements[row][j] == 1 && rightTurn)
-    //            nextGreenInterval += 'g';
-    //        else
-    //            nextGreenInterval += 'G';
-    //    }
-    //
-    //    // Calculate 'next interval'
-    //    std::string nextInterval = "";
-    //    bool needYellowInterval = false;  // if we have at least one yellow interval
-    //    for(int i = 0; i < LINKSIZE; ++i)
-    //    {
-    //        if( (currentInterval[i] == 'G' || currentInterval[i] == 'g') && nextGreenInterval[i] == 'r')
-    //        {
-    //            nextInterval += 'y';
-    //            needYellowInterval = true;
-    //        }
-    //        else
-    //            nextInterval += currentInterval[i];
-    //    }
-    //
-    //    // print debugging
-    //    std::cout << endl;
-    //    std::cout << "set of links with max q     ";
-    //    for(int k =0; k < LINKSIZE; ++k)
-    //        if(allMovements[row][k] == 1)
-    //            std::cout << k << " (" << linkQueueSize[std::make_pair("C",k)] << "), ";
-    //    std::cout << endl;
-    //    std::cout << "current interval            " << currentInterval << endl;
-    //    std::cout << "next green interval         " << nextGreenInterval << endl;
-    //    std::cout << "next interval               " << nextInterval << endl;
-    //
-    //    if(needYellowInterval)
-    //    {
-    //        currentInterval = "yellow";
-    //        TraCI->TLSetState("C", nextInterval);
-    //
-    //        intervalElapseTime = 0.0;
-    //        intervalOffSet =  yellowTime;
-    //    }
-    //    else
-    //    {
-    //        intervalOffSet = minGreenTime;
-    //        std::cout << "Continue the last green interval." << endl;
-    //    }
 }
 
 }

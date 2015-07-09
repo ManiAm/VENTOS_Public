@@ -27,7 +27,7 @@
 #ifndef TRAFFICLIGHTWEBSTER_H
 #define TRAFFICLIGHTWEBSTER_H
 
-#include <04_TL_Fixed.h>
+#include <05_TL_Fixed.h>
 
 namespace VENTOS {
 
@@ -57,15 +57,12 @@ class TrafficLightWebster : public TrafficLightFixed
 
     cMessage* ChangeEvt;
 
-    int rightTurns[8] = {0, 2, 5, 7, 10, 12, 15, 17};
-
   private:
     std::string phase1_5 = "grgrGgrgrrgrgrGgrgrrrrrr";
     std::string phase2_6 = "gGgGrgrgrrgGgGrgrgrrrGrG";
     std::string phase3_7 = "grgrrgrgrGgrgrrgrgrGrrrr";
     std::string phase4_8 = "grgrrgGgGrgrgrrgGgGrGrGr";
 
-    std::map<std::string /*TLid*/, std::string /*first green interval*/> firstGreen;
     std::map<std::string /*phase*/, double /*green split*/> greenSplit;
 };
 

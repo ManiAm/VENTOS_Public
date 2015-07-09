@@ -24,7 +24,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <04_TL_Fixed.h>
+#include <05_TL_Fixed.h>
 
 namespace VENTOS {
 
@@ -39,7 +39,7 @@ TrafficLightFixed::~TrafficLightFixed()
 
 void TrafficLightFixed::initialize(int stage)
 {
-    VehDelay::initialize(stage);
+    TrafficLightAllowedMoves::initialize(stage);
 
     if(TLControlMode != TL_Fix_Time)
         return;
@@ -53,20 +53,20 @@ void TrafficLightFixed::initialize(int stage)
 
 void TrafficLightFixed::finish()
 {
-    VehDelay::finish();
+    TrafficLightAllowedMoves::finish();
 }
 
 
 void TrafficLightFixed::handleMessage(cMessage *msg)
 {
-    VehDelay::handleMessage(msg);
+    TrafficLightAllowedMoves::handleMessage(msg);
 }
 
 
 void TrafficLightFixed::executeFirstTimeStep()
 {
     // call parent
-    VehDelay::executeFirstTimeStep();
+    TrafficLightAllowedMoves::executeFirstTimeStep();
 
     if (TLControlMode != TL_Fix_Time)
         return;
@@ -90,7 +90,7 @@ void TrafficLightFixed::executeFirstTimeStep()
 void TrafficLightFixed::executeEachTimeStep(bool simulationDone)
 {
     // call parent
-    VehDelay::executeEachTimeStep(simulationDone);
+    TrafficLightAllowedMoves::executeEachTimeStep(simulationDone);
 
     if (TLControlMode != TL_Fix_Time)
         return;

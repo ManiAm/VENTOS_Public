@@ -48,7 +48,7 @@ void ApplRSUTLVANET::initialize(int stage)
     TLControlMode = module->par("TLControlMode").longValue();
     minGreenTime = module->par("minGreenTime").doubleValue();
 
-    if (TLControlMode != TL_VANET)
+    if (TLControlMode != TL_MultiClass)
         return;
 
     if (stage==0)
@@ -151,7 +151,7 @@ void ApplRSUTLVANET::onBeaconVehicle(BeaconVehicle* wsm)
 {
     ApplRSUAID::onBeaconVehicle(wsm);
 
-    if (TLControlMode == TL_VANET)
+    if (TLControlMode == TL_MultiClass)
         onBeaconAny(wsm);
 }
 
@@ -160,7 +160,7 @@ void ApplRSUTLVANET::onBeaconBicycle(BeaconBicycle* wsm)
 {
     ApplRSUAID::onBeaconBicycle(wsm);
 
-    if (TLControlMode == TL_VANET)
+    if (TLControlMode == TL_MultiClass)
         onBeaconAny(wsm);
 }
 
@@ -169,7 +169,7 @@ void ApplRSUTLVANET::onBeaconPedestrian(BeaconPedestrian* wsm)
 {
     ApplRSUAID::onBeaconPedestrian(wsm);
 
-    if (TLControlMode == TL_VANET)
+    if (TLControlMode == TL_MultiClass)
         onBeaconAny(wsm);
 }
 

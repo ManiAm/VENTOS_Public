@@ -1,10 +1,10 @@
 
 package c3po.ned;
 
-simple VehDelay extends TL_LoopDetectors
+simple IntersectionDelay extends TL_LoopDetectors
 {
     parameters:
-        @class(VENTOS::VehDelay);
+        @class(VENTOS::IntersectionDelay);
         @display("i=block/network2");  
         
         bool collectVehDelay;    

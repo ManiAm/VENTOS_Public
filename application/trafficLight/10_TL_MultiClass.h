@@ -1,5 +1,6 @@
 /****************************************************************************/
-/// @file    TL_Fixed.h
+/// @file    TL_MultiClass.h
+/// @author  Philip Vo <foxvo@ucdavis.edu>
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @date    August 2013
 ///
@@ -24,18 +25,18 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef TRAFFICLIGHTFIXED_H
-#define TRAFFICLIGHTFIXED_H
+#ifndef TRAFFICLIGHTMULTICLASS_H
+#define TRAFFICLIGHTMULTICLASS_H
 
-#include "03_VehDelay.h"
-
+#include <09_TL_Adaptive_Queue.h>
+#include "ApplRSU_03_TL_VANET.h"
 
 namespace VENTOS {
 
-class TrafficLightFixed : public VehDelay
+class TrafficLightMultiClass : public TrafficLightAdaptiveQueue
 {
   public:
-    virtual ~TrafficLightFixed();
+    virtual ~TrafficLightMultiClass();
     virtual void finish();
     virtual void initialize(int);
     virtual void handleMessage(cMessage *);
@@ -45,7 +46,13 @@ class TrafficLightFixed : public VehDelay
     void virtual executeEachTimeStep(bool);
 
   private:
-    std::map<std::string /*TLid*/, std::string /*first green interval*/> firstGreen;
+    void findRSU(std::string);
+    void chooseNextInterval();
+    void chooseNextGreenInterval();
+
+  private:
+    bool greenExtension;
+    ApplRSUTLVANET *RSU;
 };
 
 }

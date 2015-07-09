@@ -116,7 +116,7 @@ void ApplVBeacon::handleSelfMsg(cMessage* msg)
         // make sure VANETenabled is true
         if(VANETenabled)
         {
-            if(smartBeaconing && TLControlMode == TL_VANET)
+            if(smartBeaconing && TLControlMode == TL_MultiClass)
                 smartBeaconingDecision();
 
             if(sendBeacons)

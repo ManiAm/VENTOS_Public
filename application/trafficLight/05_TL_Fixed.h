@@ -1,6 +1,5 @@
 /****************************************************************************/
-/// @file    TL_Manager.h
-/// @author  Philip Vo <foxvo@ucdavis.edu>
+/// @file    TL_Fixed.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @date    August 2013
 ///
@@ -25,17 +24,17 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef TRAFFICLIGHTMANAGER_H
-#define TRAFFICLIGHTMANAGER_H
+#ifndef TRAFFICLIGHTFIXED_H
+#define TRAFFICLIGHTFIXED_H
 
-#include "10_TL_Router.h"
+#include "04_AllowedMoves.h"
 
 namespace VENTOS {
 
-class TrafficLightManager : public TrafficLightRouter
+class TrafficLightFixed : public TrafficLightAllowedMoves
 {
   public:
-    virtual ~TrafficLightManager();
+    virtual ~TrafficLightFixed();
     virtual void finish();
     virtual void initialize(int);
     virtual void handleMessage(cMessage *);
@@ -44,6 +43,8 @@ class TrafficLightManager : public TrafficLightRouter
     void virtual executeFirstTimeStep();
     void virtual executeEachTimeStep(bool);
 
+  protected:
+    std::map<std::string /*TLid*/, std::string /*first green interval*/> firstGreen;
 };
 
 }

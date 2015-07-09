@@ -24,7 +24,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <05_TL_Adaptive_Webster.h>
+#include <06_TL_Adaptive_Webster.h>
 #include <algorithm>
 
 namespace VENTOS {
@@ -158,9 +158,7 @@ void TrafficLightWebster::chooseNextInterval()
     {
         // run Webster at the beginning of the cycle
         if(nextGreenInterval == phase1_5)
-        {
             calculateGreenSplits();
-        }
 
         currentInterval = nextGreenInterval;
 
