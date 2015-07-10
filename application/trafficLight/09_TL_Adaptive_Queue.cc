@@ -72,7 +72,7 @@ void TrafficLightAdaptiveQueue::handleMessage(cMessage *msg)
 
     if (msg == ChangeEvt)
     {
-        if(phases.empty())
+        if(greenInterval.empty())
             calculatePhases("C");
 
         chooseNextInterval();
@@ -95,20 +95,19 @@ void TrafficLightAdaptiveQueue::executeFirstTimeStep()
 
     std::cout << endl << "Adaptive-time with queue traffic signal control ..." << endl << endl;
 
-    // set initial values
-    currentInterval = phase1_5;
-    intervalElapseTime = 0;
-    intervalOffSet = minGreenTime;
-
-    scheduleAt(simTime().dbl() + intervalOffSet, ChangeEvt);
-
     // get all non-conflicting movements in allMovements vector
     TrafficLightAllowedMoves::getMovements("C");
 
     // calculate phases at the beginning of the cycle
     calculatePhases("C");
 
-    currentInterval = phases.front();
+    currentInterval = greenInterval.front().greenString;
+
+    // Set initial settings:
+    intervalElapseTime = 0;
+    intervalOffSet = greenInterval.front().greenTime;
+
+    scheduleAt(simTime().dbl() + intervalOffSet, ChangeEvt);
 
     for (std::list<std::string>::iterator TL = TLList.begin(); TL != TLList.end(); ++TL)
     {
@@ -133,9 +132,9 @@ void TrafficLightAdaptiveQueue::executeEachTimeStep(bool simulationDone)
 }
 
 
-bool pred(std::vector<int> v)
+bool served(batchMovementQueueEntry v)
 {
-    for (unsigned int i = 0; i < v.size(); i++)
+    for (unsigned int i = 0; i < v.batchMovements.size(); i++)
     {
         // Ignore all permissive right turns since these are always green:
         if (i == 0 || i == 2 || i == 5 || i == 7 ||
@@ -143,12 +142,20 @@ bool pred(std::vector<int> v)
             continue;
 
         // Want to remove movements that have already been done:
-        if (v[i] && bestMovement[i])
+        if (v.batchMovements[i] && bestMovement[i])
         {
             return true;
         }
     }
     return false;
+}
+
+bool noGreenTime(greenIntervalInfo v)
+{
+    if (v.greenTime == 0.0)
+        return true;
+    else
+        return false;
 }
 
 
@@ -178,22 +185,20 @@ void TrafficLightAdaptiveQueue::calculatePhases(std::string TLid)
         batchMovementQueue.push(*entry);
     }
 
-    // Save all batchMovements to a vector for iteration:
-    std::vector < std::vector<int> > movements;
+    // Convert batchMovementQueue to a vector for iteration:
+    std::vector<batchMovementQueueEntry> batchMovementVector;
     while(!batchMovementQueue.empty())
     {
-        batchMovementQueueEntry entry = batchMovementQueue.top();
-        movements.push_back(entry.batchMovements);
+        batchMovementVector.push_back(batchMovementQueue.top());
         batchMovementQueue.pop();
     }
 
     // Select at most 4 phases for new cycle:
-    while(!movements.empty())
+    int queueTotal = 0;
+    while(!batchMovementVector.empty())
     {
-        std::cout << "Movements SIZE: " << movements.size() << endl;
         // Always select the first movement because it will be the best(?):
-        bestMovement = movements.front();
-        movements.erase(movements.begin());
+        bestMovement = batchMovementVector.front().batchMovements;
 
         // Change all 1's to G, 0's to r:
         std::string nextInterval = "";
@@ -203,23 +208,45 @@ void TrafficLightAdaptiveQueue::calculatePhases(std::string TLid)
             else
                 nextInterval += 'r';
         }
+
         // Avoid pushing "only permissive right turns" phase:
         if (nextInterval == "GrGrrGrGrrGrGrrGrGrrrrrr")
-                continue;
-        phases.push_back(nextInterval);
+        {
+            batchMovementVector.erase(batchMovementVector.begin());
+            continue;
+        }
+
+        greenIntervalInfo *entry = new greenIntervalInfo(batchMovementVector.front().totalQueue, 0.0, nextInterval);
+        greenInterval.push_back(*entry);
+        queueTotal += batchMovementVector.front().totalQueue;
+
 
         // Now delete these movements because they should never occur again:
-        movements.erase( std::remove_if(movements.begin(), movements.end(), pred), movements.end() );
+        batchMovementVector.erase( std::remove_if(batchMovementVector.begin(), batchMovementVector.end(), served), batchMovementVector.end() );
     }
 
-    std::cout << "SIZE: " << phases.size() << endl;
-    for(unsigned int i = 0; i < phases.size(); i++)
+    // Now proportion cycle time to each of the phases:
+    for (auto &i : greenInterval)
     {
-        std::cout << phases[i] << endl;
+        // If no vehicles in queue, then run each green interval with equal timing (?):
+        if (queueTotal == 0)
+            i.greenTime = 0.25 * cycleLength;
+        else
+            i.greenTime = (double(i.vehCount) / double(queueTotal)) * double(cycleLength);
+    }
+
+    // If no green time (0s) is given to an interval, then this queue is empty and useless:
+    std::cout << "Phases in this cycle before removal: " << greenInterval.size() << endl;
+    greenInterval.erase( std::remove_if(greenInterval.begin(), greenInterval.end(), noGreenTime), greenInterval.end() );
+    std::cout << "Phases in this cycle after removal: " << greenInterval.size() << endl;
+
+    for (auto &i : greenInterval)
+    {
+        std::cout << i.greenString << " for " << i.greenTime << "s" << endl;
     }
 
     // todo: Include error code if more than 4 phases:
-    if (phases.size() > 4)
+    if (greenInterval.size() > 4)
     {
 
     }
@@ -256,7 +283,7 @@ void TrafficLightAdaptiveQueue::chooseNextInterval()
         // set the new state
         TraCI->TLSetState("C", nextGreenInterval);
         intervalElapseTime = 0.0;
-        intervalOffSet = minGreenTime;
+        intervalOffSet = nextGreenDuration;
     }
     else
     {
@@ -272,13 +299,14 @@ void TrafficLightAdaptiveQueue::chooseNextInterval()
 void TrafficLightAdaptiveQueue::chooseNextGreenInterval()
 {
     // Remove current old phase:
-    phases.erase(phases.begin());
+    greenInterval.erase(greenInterval.begin());
 
     // Assign new green:
-    if (phases.empty())
+    if (greenInterval.empty())
         calculatePhases("C");
 
-    nextGreenInterval = phases.front();
+    nextGreenInterval = greenInterval.front().greenString;
+    nextGreenDuration = greenInterval.front().greenTime;
 
     currentInterval = "yellow";
 
@@ -300,64 +328,6 @@ void TrafficLightAdaptiveQueue::chooseNextGreenInterval()
     char buff[300];
     sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
     std::cout << buff << endl << endl;
-
-
-
-
-    //    // Calculate the next green interval.
-    //    // right-turns are all permissive and are given 'g'
-    //    nextGreenInterval = "";
-    //    for(int j = 0; j < LINKSIZE; ++j)
-    //    {
-    //        // if a right turn
-    //        bool rightTurn = std::find(std::begin(rightTurns), std::end(rightTurns), j) != std::end(rightTurns);
-    //
-    //        if(allMovements[row][j] == 0)
-    //            nextGreenInterval += 'r';
-    //        else if(allMovements[row][j] == 1 && rightTurn)
-    //            nextGreenInterval += 'g';
-    //        else
-    //            nextGreenInterval += 'G';
-    //    }
-    //
-    //    // Calculate 'next interval'
-    //    std::string nextInterval = "";
-    //    bool needYellowInterval = false;  // if we have at least one yellow interval
-    //    for(int i = 0; i < LINKSIZE; ++i)
-    //    {
-    //        if( (currentInterval[i] == 'G' || currentInterval[i] == 'g') && nextGreenInterval[i] == 'r')
-    //        {
-    //            nextInterval += 'y';
-    //            needYellowInterval = true;
-    //        }
-    //        else
-    //            nextInterval += currentInterval[i];
-    //    }
-    //
-    //    // print debugging
-    //    std::cout << endl;
-    //    std::cout << "set of links with max q     ";
-    //    for(int k =0; k < LINKSIZE; ++k)
-    //        if(allMovements[row][k] == 1)
-    //            std::cout << k << " (" << linkQueueSize[std::make_pair("C",k)] << "), ";
-    //    std::cout << endl;
-    //    std::cout << "current interval            " << currentInterval << endl;
-    //    std::cout << "next green interval         " << nextGreenInterval << endl;
-    //    std::cout << "next interval               " << nextInterval << endl;
-    //
-    //    if(needYellowInterval)
-    //    {
-    //        currentInterval = "yellow";
-    //        TraCI->TLSetState("C", nextInterval);
-    //
-    //        intervalElapseTime = 0.0;
-    //        intervalOffSet =  yellowTime;
-    //    }
-    //    else
-    //    {
-    //        intervalOffSet = minGreenTime;
-    //        std::cout << "Continue the last green interval." << endl;
-    //    }
 }
 
 }
