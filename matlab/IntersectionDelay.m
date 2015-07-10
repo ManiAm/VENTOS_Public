@@ -10,7 +10,7 @@ clc;    % position the cursor at the top of the screen
 runTotal = 4;
 
 % path to folder
-basePATH = '../results/cmd/full_fix_web_adap_VANET_unbalanced_SW_high';
+basePATH = '../results/cmd/full_fix_web_act_delay_balanced';
 
 for runNumber = 0:runTotal-1
 
@@ -316,7 +316,7 @@ if(true)
         end   
         
         subplot(3,1,1);
-        legend('fix-time' , 'adaptive webster', 'traffic-actuated', 'VANET', 'Location', 'northwest');
+        legend('fix-time' , 'adaptive webster', 'traffic-actuated', 'low delay', 'Location', 'northwest');
     
         % mark change of demand with vertical lines
         for threshold=400:400:Xlimit(2)            
@@ -524,7 +524,7 @@ if(true)
         end   
         
         subplot(2,1,1);
-        legend('fix-time' , 'adaptive webster', 'traffic-actuated', 'VANET', 'Location', 'northwest');
+        legend('fix-time' , 'adaptive webster', 'traffic-actuated', 'low delay', 'Location', 'northwest');
     
         % mark change of demand with vertical lines
         for threshold=400:400:Xlimit(2)            

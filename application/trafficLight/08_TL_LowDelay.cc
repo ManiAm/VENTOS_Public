@@ -247,61 +247,33 @@ void TrafficLightLowDelay::chooseNextGreenInterval()
 
         intervalElapseTime = 0.0;
         intervalOffSet =  yellowTime;
+
+        // update TL status for this phase
+        updateTLstate("C", "yellow");
     }
     else
     {
         intervalOffSet = minGreenTime;   // todo: assign green time extension dynamically
-        std::cout << "Continue the last green interval." << endl;
+        std::cout << ">>> Continue the last green interval." << endl << endl;
     }
 
-
-    //    // print debugging
-    //    std::cout << endl;
-    //    std::cout << "set of links with max q     ";
-    //    for(int k =0; k < LINKSIZE; ++k)
-    //        if(allMovements[row][k] == 1)
-    //            std::cout << k << " (" << linkQueueSize[std::make_pair("C",k)] << "), ";
-    //    std::cout << endl;
-
-
-
-
-    // todo: for debugging
-    //    for(std::map<std::string, std::map<std::string, double>>::iterator y = laneDelay.begin(); y != laneDelay.end(); ++y)
-    //    {
-    //        std::cout << (*y).first << ": ";
-    //        std::map<std::string,double> inside = (*y).second;
-    //
-    //        for(std::map<std::string, double>::iterator z = inside.begin(); z != inside.end(); ++z)
-    //        {
-    //            std::cout << "(" << (*z).first << "," << (*z).second << ")";
-    //        }
-    //        std::cout << endl;
-    //    }
-    //    std::cout << endl;
-
-
-
-    // debugging (print the first 10 entries)
-    for(unsigned int o = 0; o < 10; ++o )
+    // for debugging
+    std::cout << "Accumulated delay of vehicles on each lane: " << endl;
+    for(std::map<std::string, std::map<std::string, double>>::iterator y = laneDelay.begin(); y != laneDelay.end(); ++y)
     {
-        batchMovementDelayEntry entry = batchMovementDelay.top();
-        std::cout << entry.totalDelay << ", " << entry.oneCount << ", ";
+        std::map<std::string,double> vehs = (*y).second;
 
-        int count = 0;
-        for(std::vector<int>::iterator y = entry.batchMovements.begin(); y != entry.batchMovements.end(); ++y)
-        {
-            //std::cout << count << ":(" << *y << "," << linkQueueSize[std::make_pair("C",count)] << ")|";
-            std::cout << *y;
-            count++;
-        }
+        if(vehs.empty())
+            continue;
+
+        std::cout << (*y).first << ": ";
+
+        for(std::map<std::string, double>::iterator z = vehs.begin(); z != vehs.end(); ++z)
+            std::cout << (*z).first << ", " << (*z).second << " | ";
 
         std::cout << endl;
-        batchMovementDelay.pop();
     }
-
     std::cout << endl;
-
 }
 
 }
