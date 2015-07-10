@@ -46,7 +46,6 @@ class TrafficLightBase : public BaseModule
   protected:
       double updateInterval;
       int TLControlMode;
-      double cycleLength;
 
       TraCI_Extend *TraCI;
       simsignal_t Signal_executeFirstTS;

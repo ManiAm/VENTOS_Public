@@ -60,7 +60,6 @@ void TrafficLightActuated::initialize(int stage)
 void TrafficLightActuated::finish()
 {
     TrafficLightWebster::finish();
-
 }
 
 

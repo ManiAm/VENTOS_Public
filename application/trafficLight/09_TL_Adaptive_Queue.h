@@ -94,13 +94,14 @@ private:
     void chooseNextInterval();
     void chooseNextGreenInterval();
     void calculatePhases(std::string);
-    //bool pred(std::vector<int> &);
 
 private:
+    double cycleLength;
     double nextGreenDuration;
+    std::vector<greenIntervalInfo> greenInterval;
+
     // batch of all non-conflicting movements, sorted by total queue size per batch
     std::priority_queue< batchMovementQueueEntry /*type of each element*/, std::vector<batchMovementQueueEntry> /*container*/, movementCompareQueue > batchMovementQueue;
-    std::vector<greenIntervalInfo> greenInterval;
 };
 
 }
