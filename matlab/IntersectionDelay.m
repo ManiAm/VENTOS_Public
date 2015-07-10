@@ -7,7 +7,7 @@ clc;    % position the cursor at the top of the screen
 % ---------------------------------------------------------------
 
 % total number of simulation runs
-runTotal = 4;
+runTotal = 5;
 
 % path to folder
 basePATH = '../results/cmd/full_fix_web_act_delay_balanced';
@@ -266,6 +266,8 @@ if(true)
         lineMark = '-';
     elseif(runNumber == 3)
         lineMark = '-.v';
+    elseif(runNumber == 4)
+        lineMark = '--';
     else
         lineMark = '--';
     end
@@ -316,7 +318,7 @@ if(true)
         end   
         
         subplot(3,1,1);
-        legend('fix-time' , 'adaptive webster', 'traffic-actuated', 'low delay', 'Location', 'northwest');
+        legend('fix-time' , 'adaptive webster', 'traffic-actuated', 'OJF', 'highest queue', 'Location', 'northwest');
     
         % mark change of demand with vertical lines
         for threshold=400:400:Xlimit(2)            
@@ -486,6 +488,8 @@ if(true)
         lineMark = '-';
     elseif(runNumber == 3)
         lineMark = '-.v';
+    elseif(runNumber == 4)
+        lineMark = '--';
     else
         lineMark = '--';
     end
@@ -524,7 +528,7 @@ if(true)
         end   
         
         subplot(2,1,1);
-        legend('fix-time' , 'adaptive webster', 'traffic-actuated', 'low delay', 'Location', 'northwest');
+        legend('fix-time' , 'adaptive webster', 'traffic-actuated', 'OJF', 'highest queue', 'Location', 'northwest');
     
         % mark change of demand with vertical lines
         for threshold=400:400:Xlimit(2)            

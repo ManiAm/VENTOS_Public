@@ -35,13 +35,15 @@ class batchMovementDelayEntry
 {
 public:
     int oneCount;
-    int totalDelay;
+    int maxVehCount;
+    double totalDelay;
     std::vector<int> batchMovements;
 
-    batchMovementDelayEntry(int i1, int i2, std::vector<int> bm)
+    batchMovementDelayEntry(int i1, int i2, double d1, std::vector<int> bm)
     {
         this->oneCount = i1;
-        this->totalDelay = i2;
+        this->maxVehCount = i2;
+        this->totalDelay = d1;
         batchMovements.swap(bm);
     }
 };
@@ -79,6 +81,8 @@ class TrafficLightLowDelay : public TrafficLightActuated
     void chooseNextGreenInterval();
 
   private:
+    double nextGreenTime;
+
     // batch of all non-conflicting movements, sorted by total vehicle delay per batch
     std::priority_queue< batchMovementDelayEntry /*type of each element*/, std::vector<batchMovementDelayEntry> /*container*/, movementCompareDelay > batchMovementDelay;
 };

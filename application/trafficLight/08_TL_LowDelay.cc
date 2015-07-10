@@ -25,6 +25,8 @@
 //
 
 #include <08_TL_LowDelay.h>
+#include <iomanip>
+#include <algorithm>
 
 namespace VENTOS {
 
@@ -155,7 +157,7 @@ void TrafficLightLowDelay::chooseNextInterval()
         // set the new state
         TraCI->TLSetState("C", nextGreenInterval);
         intervalElapseTime = 0.0;
-        intervalOffSet = minGreenTime;  // todo: assign green time dynamically
+        intervalOffSet = nextGreenTime;
 
         // update TL status for this phase
         if(nextGreenInterval == firstGreen["C"])
@@ -174,17 +176,41 @@ void TrafficLightLowDelay::chooseNextInterval()
 
 void TrafficLightLowDelay::chooseNextGreenInterval()
 {
+    // for debugging
+    std::cout << "Accumulated delay of vehicles on each lane: " << endl;
+    for(std::map<std::string, std::map<std::string, double>>::iterator y = laneDelay.begin(); y != laneDelay.end(); ++y)
+    {
+        std::map<std::string,double> vehs = (*y).second;
+
+        if(vehs.empty())
+            continue;
+
+        std::cout << (*y).first << ": ";
+
+        double totalDelay = 0;
+        for(std::map<std::string, double>::iterator z = vehs.begin(); z != vehs.end(); ++z)
+        {
+            std::cout << (*z).first << ", " << std::setw(5) << (*z).second << " | ";
+            totalDelay = totalDelay + (*z).second;
+        }
+
+        std::cout << " --> total delay = " << totalDelay << endl;
+    }
+    std::cout << endl;
+
     // clear the priority queue
     batchMovementDelay = std::priority_queue < batchMovementDelayEntry, std::vector<batchMovementDelayEntry>, movementCompareDelay >();
 
     // get which row has the highest delay
     for(unsigned int i = 0; i < allMovements.size(); ++i)  // row
     {
-        int totalDelayRow = 0;
+        double totalDelayRow = 0;
         int oneCount = 0;
+        int maxVehCount = 0;
 
         for(unsigned int linkNumber = 0; linkNumber < allMovements[i].size(); ++linkNumber)  // column (link number)
         {
+            int vehCount = 0;
             if(allMovements[i][linkNumber] == 1)
             {
                 bool notRightTurn = std::find(std::begin(rightTurns), std::end(rightTurns), linkNumber) == std::end(rightTurns);
@@ -194,15 +220,20 @@ void TrafficLightLowDelay::chooseNextGreenInterval()
                     std::map<std::string /*vehID*/, double /*accum delay of vehID*/> vehs = linkDelay[std::make_pair("C",linkNumber)];
 
                     for(std::map<std::string, double>::iterator it = vehs.begin(); it != vehs.end(); ++it)
+                    {
                         totalDelayRow = totalDelayRow + (*it).second;
+                        vehCount++;
+                    }
                 }
 
                 oneCount++;
             }
+
+            maxVehCount = std::max(maxVehCount, vehCount);
         }
 
         // add this batch of movements to priority_queue
-        batchMovementDelayEntry *entry = new batchMovementDelayEntry(oneCount, totalDelayRow, allMovements[i]);
+        batchMovementDelayEntry *entry = new batchMovementDelayEntry(oneCount, maxVehCount, totalDelayRow, allMovements[i]);
         batchMovementDelay.push(*entry);
     }
 
@@ -240,6 +271,14 @@ void TrafficLightLowDelay::chooseNextGreenInterval()
             nextInterval += currentInterval[linkNumber];
     }
 
+    // allocate enough green time to move all delayed vehicle
+    int maxVehCount = entry.maxVehCount;
+    double greenTime = (double)maxVehCount * (8.3 / 5.);
+    nextGreenTime = std::max(minGreenTime, greenTime);
+    nextGreenTime = std::min(maxGreenTime, nextGreenTime);
+    std::cout << "Maximum of " << maxVehCount << " vehicles are waiting. ";
+    std::cout << "Next green time is " << nextGreenTime << endl << endl;
+
     if(needYellowInterval)
     {
         currentInterval = "yellow";
@@ -253,27 +292,9 @@ void TrafficLightLowDelay::chooseNextGreenInterval()
     }
     else
     {
-        intervalOffSet = minGreenTime;   // todo: assign green time extension dynamically
+        intervalOffSet = nextGreenTime;
         std::cout << ">>> Continue the last green interval." << endl << endl;
     }
-
-    // for debugging
-    std::cout << "Accumulated delay of vehicles on each lane: " << endl;
-    for(std::map<std::string, std::map<std::string, double>>::iterator y = laneDelay.begin(); y != laneDelay.end(); ++y)
-    {
-        std::map<std::string,double> vehs = (*y).second;
-
-        if(vehs.empty())
-            continue;
-
-        std::cout << (*y).first << ": ";
-
-        for(std::map<std::string, double>::iterator z = vehs.begin(); z != vehs.end(); ++z)
-            std::cout << (*z).first << ", " << (*z).second << " | ";
-
-        std::cout << endl;
-    }
-    std::cout << endl;
 }
 
 }
