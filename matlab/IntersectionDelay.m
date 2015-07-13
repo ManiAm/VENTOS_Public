@@ -9,15 +9,18 @@ clc;    % position the cursor at the top of the screen
 % total number of simulation runs
 runTotal = 5;
 
+% do not include warmp-up duration in the plot
+warmupDuration = 400;
+
 % path to folder
-basePATH = '../results/cmd/full_fix_web_act_delay_balanced';
+basePATH = '../results/cmd/tmp';
 
 for runNumber = 0:runTotal-1
 
 fprintf('\n>>> runNumber %d:\n', runNumber);
     
 % clear variables at the begining of each run
-clearvars -except runNumber runTotal basePATH
+clearvars -except runNumber runTotal basePATH warmupDuration
 
 % ----------------------------------------------------------------
 
@@ -37,8 +40,8 @@ laneCounts = C_text{1,5};
 % average queue size in each time step
 averageQueueSize_all = double(totalQs) ./ double(laneCounts);
 
-% aggregate every 400 values together
-aggregateInterval_queue = 600;
+% aggregate every 700 values together
+aggregateInterval_queue = 700;
 
 rows = size(averageQueueSize_all, 1);
 index = 1;
@@ -121,7 +124,7 @@ if(false)
     
     cell1 = vIDs;
     cell2 = num2cell(crossed(:,1));
-    cell3 = [ num2cell(indexTS(1,:)') num2cell(indexTS(2,:)') num2cell(indexTS(3,:)') num2cell(indexTS(4,:)') num2cell(indexTS(5,:)') num2cell(indexTS(6,:)') num2cell(indexTS(7,:)')];
+    cell3 = [ num2cell(indexTS(1,:)') num2cell(indexTS(2,:)') num2cell(indexTS(3,:)') num2cell(indexTS(4,:)') num2cell(indexTS(5,:)') num2cell(indexTS(6,:)') ];
 
     data = [ cell1 cell2 cell3 ]';
 
@@ -129,7 +132,7 @@ if(false)
 
     t = uitable('Parent', f, 'Units', 'normalized', 'Position', [0.08 0.6 0.85 0.3], 'Data', data );
     t.Data = data;
-    t.RowName = {'Veh ID', 'crossed?', 'entrance', 'deccel start', 'stopping start', 'cross time', 'accel start', 'end delay', 'YorR'}; 
+    t.RowName = {'Veh ID', 'crossed?', 'entrance', 'deccel start', 'stopping start', 'cross time', 'accel start', 'end delay'}; 
 
 end
 
@@ -137,7 +140,7 @@ end
 
 disp('calculating intersection delay ...');
 
-interval_delay = 400;
+interval_delay = 700;
 
 rows = size(timeSteps, 1);
 index = 1;
@@ -152,6 +155,11 @@ for j=1 : interval_delay-1 : rows-interval_delay
    delayedVehCount = 0;
    nonDelayedVehCount = 0;
    totalDelay = 0;
+   
+   % debugging
+   if(index == 53)
+       gh = 0;
+   end
 
    for i=1:VehNumbers
        
@@ -189,7 +197,7 @@ for j=1 : interval_delay-1 : rows-interval_delay
                    endDelay = min( endT, indexTS(5,i) );
                    totalDelay = totalDelay + (endDelay - startDelay);   
            
-               elseif(indexTS(2,i) < startT)
+               elseif(indexTS(2,i) < startT && indexTS(4,i) >= startT)
                    % slowing down occured in a previous interval                  
                    delayedVehCount = delayedVehCount + 1;
                    startDelay = indexTS(2,i);
@@ -272,7 +280,7 @@ if(true)
         lineMark = '--';
     end
     
-    subplot(3,1,1);    
+    subplot(2,1,1);    
     plot(timeSteps_Q, averageQueueSize, lineMark, 'LineWidth', 1);
 
     % set font size
@@ -284,46 +292,48 @@ if(true)
     %grid on;
     hold on;
     
-    subplot(3,1,2);    
+    subplot(2,1,2);    
     plot(timeSteps_D, delay, lineMark, 'LineWidth', 1);
 
     % set font size
     set(gca, 'FontSize', 17);
 
     xlabel('Time (s)', 'FontSize', 17);
-    ylabel('Average Delay (s)', 'FontSize', 17);
+    ylabel('Average Delay per Vehicle (s)', 'FontSize', 17);
 
     %grid on;
     hold on;
 
-    subplot(3,1,3);
-    plot(timeSteps_T, throughput, lineMark, 'LineWidth', 1);
-
-    % set font size
-    set(gca, 'FontSize', 17);
-
-    xlabel('Time (s)', 'FontSize', 17);
-    ylabel('Throughput', 'FontSize', 17);
-
-    %grid on;
-    hold on;
+%     subplot(3,1,3);
+%     plot(timeSteps_T, throughput, lineMark, 'LineWidth', 1);
+% 
+%     % set font size
+%     set(gca, 'FontSize', 17);
+% 
+%     xlabel('Time (s)', 'FontSize', 17);
+%     ylabel('Throughput', 'FontSize', 17);
+% 
+%     %grid on;
+%     hold on;
 
     % at the end of the last iteration
     if(runNumber == runTotal-1)       
 
-        for g=1:3
-            subplot(3,1,g);
+        for g=1:2
+            subplot(2,1,g);            
             Xlimit = get(gca,'xlim');
-            set(gca, 'xtick' , 0:300:Xlimit(2)); 
+            
+            set(gca, 'xtick' , 0:300:Xlimit(2));
+          %  set(gca, 'XLim', [warmupDuration Xlimit(2)]);
         end   
         
-        subplot(3,1,1);
+        subplot(2,1,1);
         legend('fix-time' , 'adaptive webster', 'traffic-actuated', 'OJF', 'highest queue', 'Location', 'northwest');
     
         % mark change of demand with vertical lines
-        for threshold=400:400:Xlimit(2)            
-            for g=1:3
-                subplot(3,1,g);
+        for threshold=800:400:Xlimit(2)            
+            for g=1:2
+                subplot(2,1,g);
                 % draw vertical line
                 line([threshold threshold], ylim, 'LineWidth', 1, 'LineStyle', '--', 'Color', 'k');
             end          
@@ -352,7 +362,7 @@ for runNumber = 0:runTotal-1
 fprintf('\n>>> runNumber %d:\n', runNumber);
 
 % clear variables at the begining of each run
-clearvars -except runNumber runTotal basePATH timeSteps
+clearvars -except runNumber runTotal basePATH timeSteps warmupDuration
 
 % ----------------------------------------------------------------
 
@@ -520,18 +530,20 @@ if(true)
 
     % at the end of the last iteration
     if(runNumber == runTotal-1)       
-
+        
         for g=1:2
-            subplot(2,1,g);
+            subplot(2,1,g);            
             Xlimit = get(gca,'xlim');
-            set(gca, 'xtick' , 0:300:Xlimit(2)); 
-        end   
+            
+            set(gca, 'xtick' , 0:300:Xlimit(2));
+         %   set(gca, 'XLim', [warmupDuration Xlimit(2)]);
+        end 
         
         subplot(2,1,1);
         legend('fix-time' , 'adaptive webster', 'traffic-actuated', 'OJF', 'highest queue', 'Location', 'northwest');
     
         % mark change of demand with vertical lines
-        for threshold=400:400:Xlimit(2)            
+        for threshold=800:400:Xlimit(2)            
             for g=1:2
                 subplot(2,1,g);
                 % draw vertical line
