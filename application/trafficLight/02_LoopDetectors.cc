@@ -26,7 +26,6 @@
 //
 
 #include <02_LoopDetectors.h>
-#define MAX_BUFF 1
 
 namespace VENTOS {
 
@@ -64,6 +63,7 @@ void LoopDetectors::initialize(int stage)
 
         measureTrafficDemand = par("measureTrafficDemand").boolValue();
         measureIntersectionQueue = par("measureIntersectionQueue").boolValue();
+        trafficDemandBufferSize = par("trafficDemandBufferSize").longValue();
 
         collectInductionLoopData = par("collectInductionLoopData").boolValue();
         collectTLQueuingData = par("collectTLQueuingData").boolValue();
@@ -135,8 +135,8 @@ void LoopDetectors::executeFirstTimeStep()
 
             lanesTL[lane] = TLid;
 
-            boost::circular_buffer<double> CB;        // create a circular buffer
-            CB.set_capacity(MAX_BUFF);                // set max capacity
+            boost::circular_buffer<std::vector<double>> CB;   // create a circular buffer
+            CB.set_capacity(trafficDemandBufferSize);         // set max capacity
             CB.clear();
             laneTD[lane] = std::make_pair(TLid, CB);  // initialize laneTD
 
@@ -158,8 +158,8 @@ void LoopDetectors::executeFirstTimeStep()
 
             linksTL.insert( std::make_pair(incommingLane, std::make_pair(TLid,linkNumber)) );
 
-            boost::circular_buffer<double> CB;   // create a circular buffer
-            CB.set_capacity(MAX_BUFF);           // set max capacity
+            boost::circular_buffer<std::vector<double>> CB;   // create a circular buffer
+            CB.set_capacity(trafficDemandBufferSize);         // set max capacity
             CB.clear();
             linkTD[std::make_pair(TLid,linkNumber)] = CB;   // initialize linkTD
 
@@ -497,6 +497,7 @@ void LoopDetectors::measureTrafficParameters()
             if( loc == LD_demand.end() )
                 continue;
 
+            std::string lane = loc->first;
             std::string LDid = loc->second.first;
             double lastDetection_old = loc->second.second;   // lastDetection_old is one step behind lastDetection
             double lastDetection = TraCI->LDGetElapsedTimeLastDetection(LDid);
@@ -511,9 +512,15 @@ void LoopDetectors::measureTrafficParameters()
                 // calculate the traffic demand
                 double TD = 3600. / lastDetection_old;
 
+                // calculated TD does not represent the condition in the intersection, and is effective after a time
+                double LDPos = TraCI->laneGetLength(lane) - TraCI->LDGetPosition(LDid);  // get position of the LD from end of lane
+                double approachSpeed = TraCI->LDGetLastStepMeanVehicleSpeed(LDid);
+                double lagT = std::fabs(LDPos) / approachSpeed;
+
                 // push it into the circular buffer
-                std::map<std::string, std::pair<std::string, boost::circular_buffer<double>>>::iterator loc = laneTD.find(lane);
-                (loc->second).second.push_back(TD);
+                std::map<std::string, std::pair<std::string, boost::circular_buffer<std::vector<double>>>>::iterator loc = laneTD.find(lane);
+                std::vector<double> entry {TD /*traffic demand*/, simTime().dbl() /*time of measure*/, lagT /*time it takes to arrive at intersection*/};
+                (loc->second).second.push_back(entry);
 
                 // iterate over outgoing links
                 std::pair<std::multimap<std::string, std::pair<std::string, int>>::iterator, std::multimap<std::string, std::pair<std::string, int>>::iterator > ppp;
@@ -523,8 +530,9 @@ void LoopDetectors::measureTrafficParameters()
                     int linkNumber = (*z).second.second;
 
                     // push the new TD into the circular buffer
-                    std::map<std::pair<std::string,int>, boost::circular_buffer<double>>::iterator location = linkTD.find( make_pair(TLid,linkNumber) );
-                    (location->second).push_back(TD);
+                    std::map<std::pair<std::string,int>, boost::circular_buffer<std::vector<double>>>::iterator location = linkTD.find( make_pair(TLid,linkNumber) );
+                    std::vector<double> entry {TD /*traffic demand*/, simTime().dbl() /*time of measure*/, lagT /*time it takes to arrive at intersection*/};
+                    (location->second).push_back(entry);
                 }
             }
 

@@ -220,27 +220,20 @@ void TrafficLightWebster::chooseNextGreenInterval()
 
 void TrafficLightWebster::calculateGreenSplits()
 {
-    // print traffic demand
+    // debugging (print traffic demand)
     std::cout << ">>> Measured traffic demands at the beginning of this cycle: " << endl;
-    for(std::map<std::string, std::pair<std::string, boost::circular_buffer<double>>>::iterator y = laneTD.begin(); y != laneTD.end(); ++y)
+    for(std::map<std::string, std::pair<std::string, boost::circular_buffer<std::vector<double>>>>::iterator y = laneTD.begin(); y != laneTD.end(); ++y)
     {
         std::string lane = (*y).first;
         std::string TLid = (*y).second.first;
-        boost::circular_buffer<double> buf = (*y).second.second;
+        boost::circular_buffer<std::vector<double>> buf = (*y).second.second;
 
         if(!buf.empty())
         {
-            // calculate average TD
-            double sum = 0;
-            for (boost::circular_buffer<double>::iterator it = buf.begin(); it != buf.end(); ++it)
-                sum = sum + *it;
-            double aveTD = sum / (double)buf.size();
-
             std::cout << lane << ": ";
-            for(boost::circular_buffer<double>::iterator z = buf.begin(); z != buf.end(); ++z)
-                std::cout << (*z) << ", ";
-
-            std::cout << "---> Ave= " << aveTD << endl;
+            for (boost::circular_buffer<std::vector<double>>::iterator it = buf.begin(); it != buf.end(); ++it)
+                std::cout << "TD=" << (*it).at(0) << ", t=" << (*it).at(1) << ", lag=" << (*it).at(2) << " | ";
+            std::cout << endl;
         }
     }
     std::cout << endl;
@@ -263,18 +256,17 @@ void TrafficLightWebster::calculateGreenSplits()
             // if link i is active
             if(prog[i] == 'g' || prog[i] == 'G')
             {
-                // if link i is not a right-turn
-                // right turns are all permissive
+                // if link i is not a right-turn (right turns are all permissive)
                 bool notRightTurn = std::find(std::begin(rightTurns), std::end(rightTurns), i) == std::end(rightTurns);
                 if(notRightTurn)
                 {
                     // get all TD measurements for link i so far
-                    boost::circular_buffer<double> buffer = linkTD[std::make_pair("C",i)];
+                    boost::circular_buffer<std::vector<double>> buffer = linkTD[std::make_pair("C",i)];
 
-                    // calculate average TD for link i
+                    // todo: calculate average TD for link i
                     double sum = 0;
-                    for (boost::circular_buffer<double>::iterator it = buffer.begin(); it != buffer.end(); ++it)
-                        sum = sum + *it;
+                    for (boost::circular_buffer<std::vector<double>>::iterator it = buffer.begin(); it != buffer.end(); ++it)
+                        sum = sum + (*it).at(0);
                     double aveTD = (buffer.size() == 0) ? 0 : sum / (double)buffer.size();
 
                     Y_i = std::max(Y_i, aveTD / saturation);

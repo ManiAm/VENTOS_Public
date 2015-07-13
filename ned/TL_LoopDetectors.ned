@@ -14,7 +14,8 @@ simple TL_LoopDetectors extends TL_Base
         double maxCycleLength = default(120s) @unit(s);  
         
         bool measureIntersectionQueue;
-        bool measureTrafficDemand;
+        bool measureTrafficDemand;        
+        int trafficDemandBufferSize;
         
         bool collectInductionLoopData; 
         bool collectTLQueuingData;
