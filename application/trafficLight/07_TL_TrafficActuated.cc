@@ -95,8 +95,8 @@ void TrafficLightActuated::executeFirstTimeStep()
 
     // set initial values
     currentInterval = phase1_5;
-    intervalElapseTime = 0;
     intervalOffSet = minGreenTime;
+    intervalElapseTime = 0;
 
     scheduleAt(simTime().dbl() + intervalOffSet, ChangeEvt);
 

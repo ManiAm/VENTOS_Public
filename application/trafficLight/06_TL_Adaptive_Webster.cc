@@ -97,8 +97,8 @@ void TrafficLightWebster::executeFirstTimeStep()
 
     // set initial values
     currentInterval = phase1_5;
-    intervalElapseTime = 0;
     intervalOffSet = greenSplit[phase1_5];
+    intervalElapseTime = 0;
 
     scheduleAt(simTime().dbl() + intervalOffSet, ChangeEvt);
 

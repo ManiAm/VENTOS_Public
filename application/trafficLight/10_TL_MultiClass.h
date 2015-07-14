@@ -28,7 +28,7 @@
 #ifndef TRAFFICLIGHTMULTICLASS_H
 #define TRAFFICLIGHTMULTICLASS_H
 
-#include <09_TL_Adaptive_Queue.h>
+#include <09_TL_MaxQueue.h>
 #include "ApplRSU_03_TL_VANET.h"
 
 namespace VENTOS {

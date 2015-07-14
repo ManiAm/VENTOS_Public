@@ -32,6 +32,38 @@ namespace VENTOS {
 
 Define_Module(VENTOS::TrafficLightLowDelay);
 
+class batchMovementDelayEntry
+{
+public:
+    int oneCount;
+    int maxVehCount;
+    double totalDelay;
+    std::vector<int> batchMovements;
+
+    batchMovementDelayEntry(int i1, int i2, double d1, std::vector<int> bm)
+    {
+        this->oneCount = i1;
+        this->maxVehCount = i2;
+        this->totalDelay = d1;
+        batchMovements.swap(bm);
+    }
+};
+
+
+class movementCompareDelay
+{
+public:
+    bool operator()(batchMovementDelayEntry p1, batchMovementDelayEntry p2)
+    {
+        if( p1.totalDelay < p2.totalDelay )
+            return true;
+        else if( p1.totalDelay == p2.totalDelay && p1.oneCount < p2.oneCount)
+            return true;
+        else
+            return false;
+    }
+};
+
 
 TrafficLightLowDelay::~TrafficLightLowDelay()
 {
@@ -90,8 +122,8 @@ void TrafficLightLowDelay::executeFirstTimeStep()
 
     // set initial values
     currentInterval = phase1_5;
-    intervalElapseTime = 0;
     intervalOffSet = minGreenTime;
+    intervalElapseTime = 0;
 
     scheduleAt(simTime().dbl() + intervalOffSet, ChangeEvt);
 
@@ -197,6 +229,9 @@ void TrafficLightLowDelay::chooseNextGreenInterval()
         std::cout << " --> total delay = " << totalDelay << endl;
     }
     std::cout << endl;
+
+    // batch of all non-conflicting movements, sorted by total vehicle delay per batch
+    std::priority_queue< batchMovementDelayEntry /*type of each element*/, std::vector<batchMovementDelayEntry> /*container*/, movementCompareDelay > batchMovementDelay;
 
     // clear the priority queue
     batchMovementDelay = std::priority_queue < batchMovementDelayEntry, std::vector<batchMovementDelayEntry>, movementCompareDelay >();

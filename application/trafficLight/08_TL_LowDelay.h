@@ -31,39 +31,6 @@
 
 namespace VENTOS {
 
-class batchMovementDelayEntry
-{
-public:
-    int oneCount;
-    int maxVehCount;
-    double totalDelay;
-    std::vector<int> batchMovements;
-
-    batchMovementDelayEntry(int i1, int i2, double d1, std::vector<int> bm)
-    {
-        this->oneCount = i1;
-        this->maxVehCount = i2;
-        this->totalDelay = d1;
-        batchMovements.swap(bm);
-    }
-};
-
-
-class movementCompareDelay
-{
-public:
-    bool operator()(batchMovementDelayEntry p1, batchMovementDelayEntry p2)
-    {
-        if( p1.totalDelay < p2.totalDelay )
-            return true;
-        else if( p1.totalDelay == p2.totalDelay && p1.oneCount < p2.oneCount)
-            return true;
-        else
-            return false;
-    }
-};
-
-
 class TrafficLightLowDelay : public TrafficLightActuated
 {
   public:
@@ -82,9 +49,6 @@ class TrafficLightLowDelay : public TrafficLightActuated
 
   private:
     double nextGreenTime;
-
-    // batch of all non-conflicting movements, sorted by total vehicle delay per batch
-    std::priority_queue< batchMovementDelayEntry /*type of each element*/, std::vector<batchMovementDelayEntry> /*container*/, movementCompareDelay > batchMovementDelay;
 };
 
 }

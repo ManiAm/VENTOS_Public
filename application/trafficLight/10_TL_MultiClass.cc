@@ -94,8 +94,8 @@ void TrafficLightMultiClass::executeFirstTimeStep()
 
     // set initial values
     currentInterval = phase1_5;
-    intervalElapseTime = 0;
     intervalOffSet = minGreenTime;
+    intervalElapseTime = 0;
 
     scheduleAt(simTime().dbl() + intervalOffSet, ChangeEvt);
 
@@ -248,206 +248,216 @@ void TrafficLightMultiClass::chooseNextGreenInterval()
         passageTime[lane] = (*it).second.passageTime;
     }
 
-    bool extend = false;
-    std::string nextInterval;
 
-    // Do proper transition:
-    if (currentInterval == phase1_5)
-    {
-        if (greenExtension && intervalElapseTime < maxGreenTime &&
-                lastDetectionTime["NC_4"] < passageTime["NC_4"] &&
-                lastDetectionTime["SC_4"] < passageTime["SC_4"])
-        {
-            intervalOffSet = std::max(passageTime["NC_4"]-lastDetectionTime["NC_4"], passageTime["SC_4"]-lastDetectionTime["SC_4"]);
-            extend = true;
-        }
-        else if (lastDetectionTime["NC_4"] < passageTime["NC_4"])
-        {
-            nextGreenInterval = phase2_5;
-            nextInterval = "rrrrGrrrrrrrrryrrrrrrrrr";
-            extend = false;
-        }
-        else if (lastDetectionTime["SC_4"] < passageTime["SC_4"])
-        {
-            nextGreenInterval = phase1_6;
-            nextInterval = "rrrryrrrrrrrrrGrrrrrrrrr";
-            extend = false;
-        }
-        else
-        {
-            nextGreenInterval = phase2_6;
-            nextInterval = "rrrryrrrrrrrrryrrrrrrrrr";
-            extend = false;
-        }
-    }
-    else if (currentInterval == phase2_5)
-    {
-        if (greenExtension && intervalElapseTime < maxGreenTime &&
-                lastDetectionTime["NC_4"] < passageTime["NC_4"])
-        {
-            intervalOffSet = passageTime["NC_4"] - lastDetectionTime["NC_4"];
-            extend = true;
-        }
-        else
-        {
-            nextGreenInterval = phase2_6;
-            nextInterval = "gGgGyrrrrrrrrrrrrrrrrrrG";
-            extend = false;
-        }
-    }
-    else if (currentInterval == phase1_6)
-    {
-        if (greenExtension && intervalElapseTime < maxGreenTime &&
-                lastDetectionTime["SC_4"] < passageTime["SC_4"])
-        {
-            intervalOffSet = passageTime["SC_4"] - lastDetectionTime["SC_4"];
-            extend = true;
-        }
-        else
-        {
-            nextGreenInterval = phase2_6;
-            nextInterval = "rrrrrrrrrrgGgGyrrrrrrGrr";
-            extend = false;
-        }
-    }
-    else if (currentInterval == phase2_6)
-    {
-        if (greenExtension && intervalElapseTime < maxGreenTime &&
-                (lastDetectionTime["NC_2"] < passageTime["NC_2"] ||
-                        lastDetectionTime["NC_3"] < passageTime["NC_3"] ||
-                        lastDetectionTime["SC_2"] < passageTime["SC_2"] ||
-                        lastDetectionTime["SC_3"] < passageTime["SC_3"]))
-        {
-            double biggest1 = std::max(passageTime["NC_2"]-lastDetectionTime["NC_2"], passageTime["SC_2"]-lastDetectionTime["SC_2"]);
-            double biggest2 = std::max(passageTime["NC_3"]-lastDetectionTime["NC_3"], passageTime["SC_3"]-lastDetectionTime["SC_3"]);
-            intervalOffSet = std::max(biggest1, biggest2);
-            extend = true;
-        }
-        else
-        {
-            nextGreenInterval = phase3_7;
-            nextInterval = "yyyyrrrrrryyyyrrrrrrryry";
-            extend = false;
-        }
-    }
-    else if (currentInterval == phase3_7)
-    {
-        if (greenExtension && intervalElapseTime < maxGreenTime &&
-                lastDetectionTime["WC_4"] < passageTime["WC_4"] &&
-                lastDetectionTime["EC_4"] < passageTime["EC_4"])
-        {
-            intervalOffSet = std::max(passageTime["WC_4"]-lastDetectionTime["WC_4"], passageTime["EC_4"]-lastDetectionTime["EC_4"]);
-            extend = true;
-        }
-        else if (lastDetectionTime["WC_4"] < passageTime["WC_4"])
-        {
-            nextGreenInterval = phase3_8;
-            nextInterval = "rrrrrrrrryrrrrrrrrrGrrrr";
-            extend = false;
-        }
-        else if (lastDetectionTime["EC_4"] < passageTime["EC_4"])
-        {
-            nextGreenInterval = phase4_7;
-            nextInterval = "rrrrrrrrrGrrrrrrrrryrrrr";
-            extend = false;
-        }
-        else
-        {
-            nextGreenInterval = phase4_8;
-            nextInterval = "rrrrrrrrryrrrrrrrrryrrrr";
-            extend = false;
-        }
-    }
-    else if (currentInterval == phase3_8)
-    {
-        if (greenExtension && intervalElapseTime < maxGreenTime &&
-                lastDetectionTime["WC_4"] < passageTime["WC_4"])
-        {
-            intervalOffSet = passageTime["WC_4"] - lastDetectionTime["WC_4"];
-            extend = true;
-        }
-        else
-        {
-            nextGreenInterval = phase4_8;
-            nextInterval = "rrrrrrrrrrrrrrrgGgGyrrGr";
-            extend = false;
-        }
-    }
-    else if (currentInterval == phase4_7)
-    {
-        if (greenExtension && intervalElapseTime < maxGreenTime &&
-                lastDetectionTime["EC_4"] < passageTime["EC_4"])
-        {
-            intervalOffSet = passageTime["EC_4"] - lastDetectionTime["EC_4"];
-            extend = true;
-        }
-        else
-        {
-            nextGreenInterval = phase4_8;
-            nextInterval = "rrrrrgGgGyrrrrrrrrrrGrrr";
-            extend = false;
-        }
-    }
-    else if (currentInterval == phase4_8)
-    {
-        if (greenExtension && intervalElapseTime < maxGreenTime &&
-                (lastDetectionTime["WC_2"] < passageTime["WC_2"] ||
-                        lastDetectionTime["WC_3"] < passageTime["WC_3"] ||
-                        lastDetectionTime["EC_2"] < passageTime["EC_2"] ||
-                        lastDetectionTime["EC_3"] < passageTime["EC_3"]))
-        {
-            double biggest1 = std::max(passageTime["WC_2"]-lastDetectionTime["WC_2"], passageTime["EC_2"]-lastDetectionTime["EC_2"]);
-            double biggest2 = std::max(passageTime["WC_3"]-lastDetectionTime["WC_3"], passageTime["EC_3"]-lastDetectionTime["EC_3"]);
-            intervalOffSet = std::max(biggest1, biggest2);
-            extend = true;
-        }
-        else
-        {
-            nextGreenInterval = phase1_5;
-            nextInterval = "rrrrryyyyrrrrrryyyyryryr";
-            extend = false;
-        }
-    }
 
-    // the current green interval should be extended
-    if(extend)
-    {
-        // give a lower bound
-        intervalOffSet = std::max(updateInterval, intervalOffSet);
 
-        // interval duration after this offset
-        double newIntervalTime = intervalElapseTime + intervalOffSet;
 
-        // never extend past maxGreenTime
-        if (newIntervalTime > maxGreenTime)
-            intervalOffSet = intervalOffSet - (newIntervalTime - maxGreenTime);
 
-        // offset can not be too small
-        if(intervalOffSet < updateInterval)
-        {
-            intervalOffSet = 0.0001;
-            intervalElapseTime = maxGreenTime;
-            std::cout << ">>> Green extension offset is too small. Terminating the current phase ..." << endl << endl;
-        }
-        else
-            std::cout << ">>> Extending green for both movements by " << intervalOffSet << "s" << endl << endl;
-    }
-    // we should terminate the current green interval
-    else
-    {
-        currentInterval = "yellow";
-        TraCI->TLSetState("C", nextInterval);
 
-        intervalElapseTime = 0.0;
-        intervalOffSet =  yellowTime;
 
-        // update TL status for this phase
-        updateTLstate("C", "yellow");
 
-        char buff[300];
-        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
-        std::cout << buff << endl << endl;
-    }
+
+
+//    bool extend = false;
+//    std::string nextInterval;
+//
+//    // Do proper transition:
+//    if (currentInterval == phase1_5)
+//    {
+//        if (greenExtension && intervalElapseTime < maxGreenTime &&
+//                lastDetectionTime["NC_4"] < passageTime["NC_4"] &&
+//                lastDetectionTime["SC_4"] < passageTime["SC_4"])
+//        {
+//            intervalOffSet = std::max(passageTime["NC_4"]-lastDetectionTime["NC_4"], passageTime["SC_4"]-lastDetectionTime["SC_4"]);
+//            extend = true;
+//        }
+//        else if (lastDetectionTime["NC_4"] < passageTime["NC_4"])
+//        {
+//            nextGreenInterval = phase2_5;
+//            nextInterval = "rrrrGrrrrrrrrryrrrrrrrrr";
+//            extend = false;
+//        }
+//        else if (lastDetectionTime["SC_4"] < passageTime["SC_4"])
+//        {
+//            nextGreenInterval = phase1_6;
+//            nextInterval = "rrrryrrrrrrrrrGrrrrrrrrr";
+//            extend = false;
+//        }
+//        else
+//        {
+//            nextGreenInterval = phase2_6;
+//            nextInterval = "rrrryrrrrrrrrryrrrrrrrrr";
+//            extend = false;
+//        }
+//    }
+//    else if (currentInterval == phase2_5)
+//    {
+//        if (greenExtension && intervalElapseTime < maxGreenTime &&
+//                lastDetectionTime["NC_4"] < passageTime["NC_4"])
+//        {
+//            intervalOffSet = passageTime["NC_4"] - lastDetectionTime["NC_4"];
+//            extend = true;
+//        }
+//        else
+//        {
+//            nextGreenInterval = phase2_6;
+//            nextInterval = "gGgGyrrrrrrrrrrrrrrrrrrG";
+//            extend = false;
+//        }
+//    }
+//    else if (currentInterval == phase1_6)
+//    {
+//        if (greenExtension && intervalElapseTime < maxGreenTime &&
+//                lastDetectionTime["SC_4"] < passageTime["SC_4"])
+//        {
+//            intervalOffSet = passageTime["SC_4"] - lastDetectionTime["SC_4"];
+//            extend = true;
+//        }
+//        else
+//        {
+//            nextGreenInterval = phase2_6;
+//            nextInterval = "rrrrrrrrrrgGgGyrrrrrrGrr";
+//            extend = false;
+//        }
+//    }
+//    else if (currentInterval == phase2_6)
+//    {
+//        if (greenExtension && intervalElapseTime < maxGreenTime &&
+//                (lastDetectionTime["NC_2"] < passageTime["NC_2"] ||
+//                        lastDetectionTime["NC_3"] < passageTime["NC_3"] ||
+//                        lastDetectionTime["SC_2"] < passageTime["SC_2"] ||
+//                        lastDetectionTime["SC_3"] < passageTime["SC_3"]))
+//        {
+//            double biggest1 = std::max(passageTime["NC_2"]-lastDetectionTime["NC_2"], passageTime["SC_2"]-lastDetectionTime["SC_2"]);
+//            double biggest2 = std::max(passageTime["NC_3"]-lastDetectionTime["NC_3"], passageTime["SC_3"]-lastDetectionTime["SC_3"]);
+//            intervalOffSet = std::max(biggest1, biggest2);
+//            extend = true;
+//        }
+//        else
+//        {
+//            nextGreenInterval = phase3_7;
+//            nextInterval = "yyyyrrrrrryyyyrrrrrrryry";
+//            extend = false;
+//        }
+//    }
+//    else if (currentInterval == phase3_7)
+//    {
+//        if (greenExtension && intervalElapseTime < maxGreenTime &&
+//                lastDetectionTime["WC_4"] < passageTime["WC_4"] &&
+//                lastDetectionTime["EC_4"] < passageTime["EC_4"])
+//        {
+//            intervalOffSet = std::max(passageTime["WC_4"]-lastDetectionTime["WC_4"], passageTime["EC_4"]-lastDetectionTime["EC_4"]);
+//            extend = true;
+//        }
+//        else if (lastDetectionTime["WC_4"] < passageTime["WC_4"])
+//        {
+//            nextGreenInterval = phase3_8;
+//            nextInterval = "rrrrrrrrryrrrrrrrrrGrrrr";
+//            extend = false;
+//        }
+//        else if (lastDetectionTime["EC_4"] < passageTime["EC_4"])
+//        {
+//            nextGreenInterval = phase4_7;
+//            nextInterval = "rrrrrrrrrGrrrrrrrrryrrrr";
+//            extend = false;
+//        }
+//        else
+//        {
+//            nextGreenInterval = phase4_8;
+//            nextInterval = "rrrrrrrrryrrrrrrrrryrrrr";
+//            extend = false;
+//        }
+//    }
+//    else if (currentInterval == phase3_8)
+//    {
+//        if (greenExtension && intervalElapseTime < maxGreenTime &&
+//                lastDetectionTime["WC_4"] < passageTime["WC_4"])
+//        {
+//            intervalOffSet = passageTime["WC_4"] - lastDetectionTime["WC_4"];
+//            extend = true;
+//        }
+//        else
+//        {
+//            nextGreenInterval = phase4_8;
+//            nextInterval = "rrrrrrrrrrrrrrrgGgGyrrGr";
+//            extend = false;
+//        }
+//    }
+//    else if (currentInterval == phase4_7)
+//    {
+//        if (greenExtension && intervalElapseTime < maxGreenTime &&
+//                lastDetectionTime["EC_4"] < passageTime["EC_4"])
+//        {
+//            intervalOffSet = passageTime["EC_4"] - lastDetectionTime["EC_4"];
+//            extend = true;
+//        }
+//        else
+//        {
+//            nextGreenInterval = phase4_8;
+//            nextInterval = "rrrrrgGgGyrrrrrrrrrrGrrr";
+//            extend = false;
+//        }
+//    }
+//    else if (currentInterval == phase4_8)
+//    {
+//        if (greenExtension && intervalElapseTime < maxGreenTime &&
+//                (lastDetectionTime["WC_2"] < passageTime["WC_2"] ||
+//                        lastDetectionTime["WC_3"] < passageTime["WC_3"] ||
+//                        lastDetectionTime["EC_2"] < passageTime["EC_2"] ||
+//                        lastDetectionTime["EC_3"] < passageTime["EC_3"]))
+//        {
+//            double biggest1 = std::max(passageTime["WC_2"]-lastDetectionTime["WC_2"], passageTime["EC_2"]-lastDetectionTime["EC_2"]);
+//            double biggest2 = std::max(passageTime["WC_3"]-lastDetectionTime["WC_3"], passageTime["EC_3"]-lastDetectionTime["EC_3"]);
+//            intervalOffSet = std::max(biggest1, biggest2);
+//            extend = true;
+//        }
+//        else
+//        {
+//            nextGreenInterval = phase1_5;
+//            nextInterval = "rrrrryyyyrrrrrryyyyryryr";
+//            extend = false;
+//        }
+//    }
+//
+//    // the current green interval should be extended
+//    if(extend)
+//    {
+//        // give a lower bound
+//        intervalOffSet = std::max(updateInterval, intervalOffSet);
+//
+//        // interval duration after this offset
+//        double newIntervalTime = intervalElapseTime + intervalOffSet;
+//
+//        // never extend past maxGreenTime
+//        if (newIntervalTime > maxGreenTime)
+//            intervalOffSet = intervalOffSet - (newIntervalTime - maxGreenTime);
+//
+//        // offset can not be too small
+//        if(intervalOffSet < updateInterval)
+//        {
+//            intervalOffSet = 0.0001;
+//            intervalElapseTime = maxGreenTime;
+//            std::cout << ">>> Green extension offset is too small. Terminating the current phase ..." << endl << endl;
+//        }
+//        else
+//            std::cout << ">>> Extending green for both movements by " << intervalOffSet << "s" << endl << endl;
+//    }
+//    // we should terminate the current green interval
+//    else
+//    {
+//        currentInterval = "yellow";
+//        TraCI->TLSetState("C", nextInterval);
+//
+//        intervalElapseTime = 0.0;
+//        intervalOffSet =  yellowTime;
+//
+//        // update TL status for this phase
+//        updateTLstate("C", "yellow");
+//
+//        char buff[300];
+//        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
+//        std::cout << buff << endl << endl;
+//    }
 }
 
 }

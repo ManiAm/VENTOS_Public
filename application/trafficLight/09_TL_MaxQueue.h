@@ -31,37 +31,6 @@
 
 namespace VENTOS {
 
-class batchMovementQueueEntry
-{
-public:
-    int oneCount;
-    int totalQueue;
-    std::vector<int> batchMovements;
-
-    batchMovementQueueEntry(int i1, int i2, std::vector<int> bm)
-    {
-        this->oneCount = i1;
-        this->totalQueue = i2;
-        batchMovements.swap(bm);
-    }
-};
-
-
-class movementCompareQueue
-{
-public:
-    bool operator()(batchMovementQueueEntry p1, batchMovementQueueEntry p2)
-    {
-        if( p1.totalQueue < p2.totalQueue )
-            return true;
-        else if( p1.totalQueue == p2.totalQueue && p1.oneCount < p2.oneCount)
-            return true;
-        else
-            return false;
-    }
-};
-
-
 class greenIntervalInfo
 {
 public:
@@ -97,11 +66,8 @@ private:
 
 private:
     double cycleLength;
-    double nextGreenDuration;
+    bool nextGreenIsNewCycle;
     std::vector<greenIntervalInfo> greenInterval;
-
-    // batch of all non-conflicting movements, sorted by total queue size per batch
-    std::priority_queue< batchMovementQueueEntry /*type of each element*/, std::vector<batchMovementQueueEntry> /*container*/, movementCompareQueue > batchMovementQueue;
 };
 
 }
