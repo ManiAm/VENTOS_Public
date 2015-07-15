@@ -7,5 +7,5 @@ simple TL_AdaptiveQueue extends TL_LowDelay
         @class(VENTOS::TrafficLightAdaptiveQueue);
         @display("i=block/network2");  
         
-        double cycleLength = default(60s) @unit(s);              
+        int maxQueueSize = default(-1);              
 }

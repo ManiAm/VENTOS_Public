@@ -34,13 +34,13 @@ namespace VENTOS {
 class greenIntervalInfo
 {
 public:
-    int vehCount;
+    int maxVehCount;
     double greenTime;
     std::string greenString;
 
     greenIntervalInfo(int i1, double d1, std::string str)
     {
-        this->vehCount = i1;
+        this->maxVehCount = i1;
         this->greenTime = d1;
         this->greenString = str;
     }
@@ -65,7 +65,7 @@ private:
     void calculatePhases(std::string);
 
 private:
-    double cycleLength;
+    int maxQueueSize;
     bool nextGreenIsNewCycle;
     std::vector<greenIntervalInfo> greenInterval;
 };
