@@ -392,13 +392,20 @@ void TrafficLightAdaptiveQueue::calculatePhases(std::string TLid)
             i.greenTime = (double(i.vehCount) / double(queueTotal)) * double(cycleLength);
     }
 
-    // If no green time (0s) is given to an interval, then this queue is empty and useless:
-    std::cout << "Phases in this cycle before removal: " << greenInterval.size() << endl;
+    // If no green time (0s) is given to a phase, then this queue is empty and useless:
+    int oldSize = greenInterval.size();
     greenInterval.erase( std::remove_if(greenInterval.begin(), greenInterval.end(), noGreenTime), greenInterval.end() );
-    std::cout << "Phases in this cycle after removal: " << greenInterval.size() << endl;
+    int newSize = greenInterval.size();
+    if(oldSize != newSize)
+        std::cout << ">>> " << oldSize - newSize << " phase(s) removed due to zero queue size!" << endl << endl;
 
+    // make sure the green splits are bounded
     for (auto &i : greenInterval)
-        std::cout << i.greenString << " for " << i.greenTime << "s" << endl;
+        i.greenTime = std::min(std::max(i.greenTime, minGreenTime), maxGreenTime);
+
+    std::cout << "Selected green intervals for this cycle: " << endl;
+    for (auto &i : greenInterval)
+        std::cout << i.greenString << " with total queue size of " << i.vehCount << " for " << i.greenTime << "s" << endl;
 
     std::cout << endl;
 }
