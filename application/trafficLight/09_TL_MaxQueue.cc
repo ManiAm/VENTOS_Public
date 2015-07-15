@@ -35,12 +35,14 @@ class batchMovementQueueEntry
 public:
     int oneCount;
     int totalQueue;
+    int maxVehCount;
     std::vector<int> batchMovements;
 
-    batchMovementQueueEntry(int i1, int i2, std::vector<int> bm)
+    batchMovementQueueEntry(int i1, int i2, int i3, std::vector<int> bm)
     {
         this->oneCount = i1;
         this->totalQueue = i2;
+        this->maxVehCount = i3;
         batchMovements.swap(bm);
     }
 };
@@ -319,20 +321,29 @@ void TrafficLightAdaptiveQueue::calculatePhases(std::string TLid)
         int totalQueueRow = 0;  // total queue size for this batch of movements
         int oneCount = 0;
 
-        // get 'total queue size' and 'one count' (# of allowed movements) for this batch
+        // for each batch of movement get
+        // - 'total queue size' : total queue size
+        // - 'one count'        : # of allowed movements (except right turns)
+        // - 'maxVehCount'      : max queue size
+        int maxVehCount = 0;
         for(unsigned int j = 0; j < allMovements[i].size(); ++j)  // column (link number)
         {
-            if(allMovements[i][j] == 1)
+            // if a right turn
+            bool rightTurn = std::find(std::begin(rightTurns), std::end(rightTurns), j) != std::end(rightTurns);
+
+            if(allMovements[i][j] == 1 && !rightTurn)
             {
                 int queueSize = linkQueueSize[std::make_pair(TLid,j)];
                 int queueSizeBounded = (maxQueueSize == -1) ? queueSize : std::min(maxQueueSize,queueSize);
+
                 totalQueueRow = totalQueueRow + queueSizeBounded;
                 oneCount++;
+                maxVehCount = std::max(maxVehCount, queueSizeBounded);
             }
         }
 
         // add this batch of movements to priority_queue
-        batchMovementQueueEntry *entry = new batchMovementQueueEntry(oneCount, totalQueueRow, allMovements[i]);
+        batchMovementQueueEntry *entry = new batchMovementQueueEntry(oneCount, totalQueueRow, maxVehCount, allMovements[i]);
         batchMovementQueue.push(*entry);
     }
 
@@ -350,10 +361,9 @@ void TrafficLightAdaptiveQueue::calculatePhases(std::string TLid)
         // Always select the first movement because it will be the best(?):
         std::vector<int> bestMovement = batchMovementVector.front().batchMovements;
 
-        // calculate the next green interval and maxVehCount in the bestMovement batch
+        // calculate the next green interval.
         // right-turns are all permissive and are given 'g'
         std::string nextInterval = "";
-        int maxVehCount = 0;
         for(unsigned linkNumber = 0; linkNumber < bestMovement.size(); ++linkNumber)
         {
             // if a right turn
@@ -364,13 +374,7 @@ void TrafficLightAdaptiveQueue::calculatePhases(std::string TLid)
             else if(bestMovement[linkNumber] == 1 && rightTurn)
                 nextInterval += 'g';
             else if(bestMovement[linkNumber] == 1 && !rightTurn)
-            {
                 nextInterval += 'G';
-
-                int queueSize = linkQueueSize[std::make_pair(TLid,linkNumber)];
-                int queueSizeBounded = (maxQueueSize == -1) ? queueSize : std::min(maxQueueSize,queueSize);
-                maxVehCount = std::max(maxVehCount, queueSizeBounded);
-            }
         }
 
         // Avoid pushing "only permissive right turns" phase: todo: is this necessary?
@@ -380,7 +384,7 @@ void TrafficLightAdaptiveQueue::calculatePhases(std::string TLid)
             continue;
         }
 
-        greenIntervalInfo *entry = new greenIntervalInfo(maxVehCount, 0.0, nextInterval);
+        greenIntervalInfo *entry = new greenIntervalInfo(batchMovementVector.front().maxVehCount, 0.0, nextInterval);
         greenInterval.push_back(*entry);
 
         // Now delete these movements because they should never occur again:
