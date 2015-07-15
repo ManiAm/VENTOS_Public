@@ -481,12 +481,13 @@ void LoopDetectors::measureTrafficParameters()
             {
                 int linkNumber = (*z).second.second;
 
-                // each link gets a portion of the queue size
-                q = ceil( (double)q / (double)NoLinks );
+                // each link gets a portion of the queue size. todo: turn it off by now
+                //int queuePortion = ceil( (double)q / (double)NoLinks );
+                int queuePortion = q;
 
                 // update linkQueueSize
                 std::map<std::pair<std::string,int>, int>::iterator location = linkQueueSize.find( make_pair(TLid,linkNumber) );
-                location->second = q;
+                location->second = queuePortion;
             }
         }
 
