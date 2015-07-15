@@ -1,6 +1,6 @@
 
 clear all;
-close all;
+%close all;
 clc;    % position the cursor at the top of the screen
 %clf;   % closes the figure window
 
@@ -287,7 +287,7 @@ if(true)
     set(gca, 'FontSize', 17);
 
     xlabel('Time (s)', 'FontSize', 17);
-    ylabel('Average Queue Size', 'FontSize', 17);
+    ylabel('Average Queue Size per Lane', 'FontSize', 17);
 
     %grid on;
     hold on;
@@ -331,7 +331,7 @@ if(true)
         legend('fix-time' , 'adaptive webster', 'traffic-actuated', 'OJF', 'highest queue', 'Location', 'northwest');
     
         % mark change of demand with vertical lines
-        for threshold=800:400:Xlimit(2)            
+        for threshold=400:400:Xlimit(2)            
             for g=1:2
                 subplot(2,1,g);
                 % draw vertical line
@@ -543,7 +543,7 @@ if(true)
         legend('fix-time' , 'adaptive webster', 'traffic-actuated', 'OJF', 'highest queue', 'Location', 'northwest');
     
         % mark change of demand with vertical lines
-        for threshold=800:400:Xlimit(2)            
+        for threshold=400:400:Xlimit(2)            
             for g=1:2
                 subplot(2,1,g);
                 % draw vertical line
