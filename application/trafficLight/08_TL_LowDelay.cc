@@ -308,7 +308,7 @@ void TrafficLightLowDelay::chooseNextGreenInterval()
 
     // allocate enough green time to move all delayed vehicle
     int maxVehCount = entry.maxVehCount;
-    double greenTime = (double)maxVehCount * (8.3 / 5.);
+    double greenTime = (double)maxVehCount * (minGreenTime / 5.);
     nextGreenTime = std::max(minGreenTime, greenTime);
     nextGreenTime = std::min(maxGreenTime, nextGreenTime);
     std::cout << "Maximum of " << maxVehCount << " vehicles are waiting. ";
