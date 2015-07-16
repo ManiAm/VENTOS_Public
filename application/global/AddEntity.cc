@@ -1,7 +1,7 @@
 /****************************************************************************/
 /// @file    AddEntity.cc
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
-/// @author  second author name
+/// @author  depart author name
 /// @date    August 2013
 ///
 /****************************************************************************/
@@ -136,6 +136,10 @@ void AddEntity::Add()
     else if(mode == 9)
     {
         Scenario9();
+    }
+    else if(mode == 10)
+    {
+        Scenario10();
     }
     else
     {
@@ -308,7 +312,7 @@ void AddEntity::Scenario7()
 
 
 std::vector<std::string> getEdgeNames(std::string netName)
-{
+                {
     std::vector<std::string> edgeNames;
 
     rapidxml::file <> xmlFile(netName.c_str());
@@ -319,10 +323,10 @@ std::vector<std::string> getEdgeNames(std::string netName)
         edgeNames.push_back(node->first_attribute()->value());
 
     return edgeNames;
-}
+                }
 
 std::vector<std::string> getNodeNames(std::string netName)
-{
+                {
     std::vector<std::string> nodeNames;
     rapidxml::file <> xmlFile(netName.c_str());
     rapidxml::xml_document<> doc;
@@ -332,7 +336,7 @@ std::vector<std::string> getNodeNames(std::string netName)
         nodeNames.push_back(node->first_attribute()->value());
 
     return nodeNames;
-}
+                }
 
 double curve(double x)  //Input will linearly increase from 0 to 1, from first to last vehicle.
 {                       //Output should be between 0 and 1, scaled by some function
@@ -437,22 +441,22 @@ void AddEntity::Scenario8()
 
 void AddEntity::Scenario9()
 {
-    // demand per second for north inbound
+    // demand per depart for north inbound
     double pNS = 700. / 3600.;
     double pNW = 700. / 3600.;
     double pNE = 700. / 3600.;
 
-    // demand per second for south inbound
+    // demand per depart for south inbound
     double pSN = 700. / 3600.;
     double pSE = 700. / 3600.;
     double pSW = 700. / 3600.;
 
-    // demand per second for west inbound
+    // demand per depart for west inbound
     double pWE = 700. / 3600.;
     double pWS = 700. / 3600.;
     double pWN = 700. / 3600.;
 
-    // demand per second for east inbound
+    // demand per depart for east inbound
     double pEW = 700. / 3600.;
     double pEN = 700. / 3600.;
     double pES = 700. / 3600.;
@@ -460,14 +464,12 @@ void AddEntity::Scenario9()
     int vehNum = 0;
     char vehicleName[10];
 
-    // mersenne twister engine.
-    // seed is fixed to make tests reproducible
-    std::mt19937 gen(43);
-    std::uniform_real_distribution<> dis(0,1);
+    std::mt19937 generator(43);   // mersenne twister engine (seed is fixed to make tests reproducible)
+    std::uniform_real_distribution<> distribution(0,1);  // random numbers have uniform distribution between 0 and 1
 
     for(int i=0; i<terminate; i++)
     {
-        if( dis(gen) < pNS )
+        if( distribution(generator) < pNS )
         {
             vehNum++;
             sprintf(vehicleName, "Veh-NS-%d", vehNum);
@@ -475,7 +477,7 @@ void AddEntity::Scenario9()
             TraCI->vehicleAdd(vehicleName, "TypeManual", "route1", i, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
         }
 
-        if( dis(gen) < pNW )
+        if( distribution(generator) < pNW )
         {
             vehNum++;
             sprintf(vehicleName, "Veh-NW-%d", vehNum);
@@ -483,7 +485,7 @@ void AddEntity::Scenario9()
             TraCI->vehicleAdd(vehicleName, "TypeManual", "route2", i, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
         }
 
-        if( dis(gen) < pNE )
+        if( distribution(generator) < pNE )
         {
             vehNum++;
             sprintf(vehicleName, "Veh-NE-%d", vehNum);
@@ -491,7 +493,7 @@ void AddEntity::Scenario9()
             TraCI->vehicleAdd(vehicleName, "TypeManual", "route3", i, 0 /*pos*/, 30 /*speed*/, 4 /*lane*/);
         }
 
-        if( dis(gen) < pSN )
+        if( distribution(generator) < pSN )
         {
             vehNum++;
             sprintf(vehicleName, "Veh-SN-%d", vehNum);
@@ -499,7 +501,7 @@ void AddEntity::Scenario9()
             TraCI->vehicleAdd(vehicleName, "TypeManual", "route4", i, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
         }
 
-        if( dis(gen) < pSE )
+        if( distribution(generator) < pSE )
         {
             vehNum++;
             sprintf(vehicleName, "Veh-SE-%d", vehNum);
@@ -507,7 +509,7 @@ void AddEntity::Scenario9()
             TraCI->vehicleAdd(vehicleName, "TypeManual", "route5", i, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
         }
 
-        if( dis(gen) < pSW )
+        if( distribution(generator) < pSW )
         {
             vehNum++;
             sprintf(vehicleName, "Veh-SW-%d", vehNum);
@@ -515,7 +517,7 @@ void AddEntity::Scenario9()
             TraCI->vehicleAdd(vehicleName, "TypeManual", "route6", i, 0 /*pos*/, 30 /*speed*/, 4 /*lane*/);
         }
 
-        if( dis(gen) < pWE )
+        if( distribution(generator) < pWE )
         {
             vehNum++;
             sprintf(vehicleName, "Veh-WE-%d", vehNum);
@@ -523,7 +525,7 @@ void AddEntity::Scenario9()
             TraCI->vehicleAdd(vehicleName, "TypeManual", "route7", i, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
         }
 
-        if( dis(gen) < pWS )
+        if( distribution(generator) < pWS )
         {
             vehNum++;
             sprintf(vehicleName, "Veh-WS-%d", vehNum);
@@ -531,7 +533,7 @@ void AddEntity::Scenario9()
             TraCI->vehicleAdd(vehicleName, "TypeManual", "route8", i, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
         }
 
-        if( dis(gen) < pWN )
+        if( distribution(generator) < pWN )
         {
             vehNum++;
             sprintf(vehicleName, "Veh-WN-%d", vehNum);
@@ -539,7 +541,7 @@ void AddEntity::Scenario9()
             TraCI->vehicleAdd(vehicleName, "TypeManual", "route9", i, 0 /*pos*/, 30 /*speed*/, 4 /*lane*/);
         }
 
-        if( dis(gen) < pEW )
+        if( distribution(generator) < pEW )
         {
             vehNum++;
             sprintf(vehicleName, "Veh-EW-%d", vehNum);
@@ -547,7 +549,7 @@ void AddEntity::Scenario9()
             TraCI->vehicleAdd(vehicleName, "TypeManual", "route10", i, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
         }
 
-        if( dis(gen) < pEN )
+        if( distribution(generator) < pEN )
         {
             vehNum++;
             sprintf(vehicleName, "Veh-EN-%d", vehNum);
@@ -555,7 +557,7 @@ void AddEntity::Scenario9()
             TraCI->vehicleAdd(vehicleName, "TypeManual", "route11", i, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
         }
 
-        if( dis(gen) < pES )
+        if( distribution(generator) < pES )
         {
             vehNum++;
             sprintf(vehicleName, "Veh-ES-%d", vehNum);
@@ -563,67 +565,124 @@ void AddEntity::Scenario9()
             TraCI->vehicleAdd(vehicleName, "TypeManual", "route12", i, 0 /*pos*/, 30 /*speed*/, 4 /*lane*/);
         }
     }
-
-
-
-
-    // right on the LD at the end of the Gmin
-    // -------------------------------------------------------------
-    //        TraCI->vehicleAdd("Veh1", "TypeManual", "route4", 9100, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-    //        TraCI->vehicleAdd("Veh2", "TypeManual", "route4", 15000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-    //        TraCI->vehicleAdd("Veh3", "TypeManual", "route4", 20000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-    // -------------------------------------------------------------
-
-    // right on the LD at the end of the Gmin
-    // -------------------------------------------------------------
-    //    TraCI->vehicleAdd("Veh1", "TypeManual", "route6", 9100, 0 /*pos*/, 30 /*speed*/, 4 /*lane*/);
-    //    TraCI->vehicleAdd("Veh2", "TypeManual", "route6", 15000, 0 /*pos*/, 30 /*speed*/, 4 /*lane*/);
-    //    TraCI->vehicleAdd("Veh3", "TypeManual", "route6", 20000, 0 /*pos*/, 30 /*speed*/, 4 /*lane*/);
-    // -------------------------------------------------------------
-
-
-    // a little bit after the LD at the end of the Gmin
-    // -------------------------------------------------------------
-    //    TraCI->vehicleAdd("Veh1", "TypeManual", "route4", 8500, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-    //    TraCI->vehicleAdd("Veh2", "TypeManual", "route4", 15000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-    //    TraCI->vehicleAdd("Veh3", "TypeManual", "route4", 20000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-    // -------------------------------------------------------------
-
-
-    // a little bit after the LD at the end of the Gmin
-    // -------------------------------------------------------------
-    //    TraCI->vehicleAdd("Veh1", "TypeManual", "route4", 8600, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-    //    TraCI->vehicleAdd("Veh2", "TypeManual", "route4", 8600, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-    //    TraCI->vehicleAdd("Veh3", "TypeManual", "route4", 8600, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-    // -------------------------------------------------------------
-
-
-
-    //    TraCI->vehicleAdd("Veh1", "TypeManual", "route1", 5000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-    //    TraCI->vehicleAdd("Veh2", "TypeManual", "route2", 10000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-    //    TraCI->vehicleAdd("Bike1", "TypeBicycle", "route1", 15000, 0 /*pos*/, 0 /*speed*/, 2 /*lane*/);
-    //
-    //    TraCI->vehicleAdd("Veh3", "TypeManual", "route4", 20000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-    //    TraCI->vehicleAdd("Veh4", "TypeManual", "route6", 25000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-    //    TraCI->vehicleAdd("Bike2", "TypeBicycle", "route4", 30000, 0 /*pos*/, 0 /*speed*/, 2 /*lane*/);
-    //
-    //    TraCI->vehicleAdd("Veh5", "TypeManual", "route8", 5000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-    //    TraCI->vehicleAdd("Veh6", "TypeManual", "route9", 10000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-    //    TraCI->vehicleAdd("Bike3", "TypeBicycle", "route7", 15000, 0 /*pos*/, 0 /*speed*/, 2 /*lane*/);
-    //
-    //    TraCI->vehicleAdd("Veh7", "TypeManual", "route10", 20000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-    //    TraCI->vehicleAdd("Veh8", "TypeManual", "route12", 25000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-    //    TraCI->vehicleAdd("Bike4", "TypeBicycle", "route10", 30000, 0 /*pos*/, 0 /*speed*/, 2 /*lane*/);
-    //
-    //    TraCI->vehicleAdd("Veh9", "TypeManual", "route1", 6000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-    //    TraCI->vehicleAdd("Veh10", "TypeManual", "route8", 6000, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
-
-
-
-    TraCI->vehicleAdd("Bike1", "TypeBicycle", "route1", 0, 0 /*pos*/, 0 /*speed*/, 2 /*lane*/);
-    TraCI->vehicleAdd("Bike2", "TypeBicycle", "route4", 0, 0 /*pos*/, 0 /*speed*/, 2 /*lane*/);
-    TraCI->vehicleAdd("Bike3", "TypeBicycle", "route7", 0, 0 /*pos*/, 0 /*speed*/, 2 /*lane*/);
-    TraCI->vehicleAdd("Bike4", "TypeBicycle", "route10", 0, 0 /*pos*/, 0 /*speed*/, 2 /*lane*/);
 }
+
+
+void AddEntity::Scenario10()
+{
+    std::mt19937 generator(43);   // mersenne twister engine (seed is fixed to make tests reproducible)
+
+    // random numbers have poisson distribution with different lambdas
+    std::poisson_distribution<int> distribution1(1./36.);
+    std::poisson_distribution<int> distribution2(2./36.);
+    std::poisson_distribution<int> distribution3(3./36.);
+    std::poisson_distribution<int> distribution4(4./36.);
+    std::poisson_distribution<int> distribution5(5./36.);
+
+    int vehCounter = 1;
+    int rNumber = 0;
+    double demand;
+
+    for(int depart = 0; depart < terminate; ++depart)
+    {
+        if(depart >= 0 && depart < 400)
+        {
+            rNumber = distribution1(generator);
+            demand = 100;
+        }
+        else if(depart >= 400 && depart < 800)
+        {
+            rNumber = distribution2(generator);
+            demand = 200;
+        }
+        else if(depart >= 800 && depart < 1200)
+        {
+            rNumber = distribution3(generator);
+            demand = 300;
+        }
+        else if(depart >= 1200 && depart < 1600)
+        {
+            rNumber = distribution4(generator);
+            demand = 400;
+        }
+        else if(depart >= 1600 && depart < 2000)
+        {
+            rNumber = distribution5(generator);
+            demand = 500;
+        }
+        else if(depart >= 2000 && depart < 2400)
+        {
+            rNumber = distribution4(generator);
+            demand = 400;
+        }
+        else if(depart >= 2400 && depart < 2800)
+        {
+            rNumber = distribution3(generator);
+            demand = 300;
+        }
+        else if(depart >= 2800 && depart < 3200)
+        {
+            rNumber = distribution2(generator);
+            demand = 200;
+        }
+        else if(depart >= 3200 && depart < 3600)
+        {
+            rNumber = distribution1(generator);
+            demand = 100;
+        }
+
+        // rNumber vehicles should be inserted into the simulation
+        for(int count = 0; count < rNumber; ++count)
+        {
+            batchMove(demand, vehCounter, 1000*depart);
+            vehCounter++;
+        }
+    }
+
+
+    //    TraCI->vehicleAdd("Bike1", "TypeBicycle", "route1", 0, 0 /*pos*/, 0 /*speed*/, 2 /*lane*/);
+    //    TraCI->vehicleAdd("Bike2", "TypeBicycle", "route4", 0, 0 /*pos*/, 0 /*speed*/, 2 /*lane*/);
+    //    TraCI->vehicleAdd("Bike3", "TypeBicycle", "route7", 0, 0 /*pos*/, 0 /*speed*/, 2 /*lane*/);
+    //    TraCI->vehicleAdd("Bike4", "TypeBicycle", "route10", 0, 0 /*pos*/, 0 /*speed*/, 2 /*lane*/);
+}
+
+
+void AddEntity::batchMove(int demand, int vehCounter, int depart)
+{
+    std::ostringstream name;  // name is in the form of '100,N,T,1' where 100 is Traffic demand, N is north, T is through, 1 is vehCounter
+
+    name.str("");
+    name << demand << ",N,T," << vehCounter;
+    TraCI->vehicleAdd(name.str(), "passenger", "movement2", depart, 0 /*pos*/, 0 /*speed*/, 3 /*lane*/);
+
+    name.str("");
+    name << demand << ",N,L," << vehCounter;
+    TraCI->vehicleAdd(name.str(), "passenger", "movement5", depart, 0 /*pos*/, 0 /*speed*/, 3 /*lane*/);
+
+    name.str("");
+    name << demand << ",S,T," << vehCounter;
+    TraCI->vehicleAdd(name.str(), "passenger", "movement6", depart, 0 /*pos*/, 0 /*speed*/, 3 /*lane*/);
+
+    name.str("");
+    name << demand << ",S,L," << vehCounter;
+    TraCI->vehicleAdd(name.str(), "passenger", "movement1", depart, 0 /*pos*/, 0 /*speed*/, 3 /*lane*/);
+
+    name.str("");
+    name << demand << ",W,T," << vehCounter;
+    TraCI->vehicleAdd(name.str(), "passenger", "movement8", depart, 0 /*pos*/, 0 /*speed*/, 3 /*lane*/);
+
+    name.str("");
+    name << demand << ",W,L," << vehCounter;
+    TraCI->vehicleAdd(name.str(), "passenger", "movement3", depart, 0 /*pos*/, 0 /*speed*/, 3 /*lane*/);
+
+    name.str("");
+    name << demand << ",E,T," << vehCounter;
+    TraCI->vehicleAdd(name.str(), "passenger", "movement4", depart, 0 /*pos*/, 0 /*speed*/, 3 /*lane*/);
+
+    name.str("");
+    name << demand << ",E,L," << vehCounter;
+    TraCI->vehicleAdd(name.str(), "passenger", "movement7", depart, 0 /*pos*/, 0 /*speed*/, 3 /*lane*/);
+}
+
 
 }

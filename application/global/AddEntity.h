@@ -57,6 +57,9 @@ private:
     void Scenario8();
     void Scenario9();
 
+    void Scenario10();
+    void batchMove(int demand, int vehCounter, int depart);
+
 private:
     // NED variables
     cModule *nodePtr;   // pointer to the Node
