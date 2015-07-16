@@ -46,12 +46,6 @@ class ApplRSUBase : public BaseApplLayer
         virtual void handleSelfMsg(cMessage* msg);
 	    virtual void receiveSignal(cComponent *, simsignal_t, long);
 
-		enum WaveApplMessageKinds
-		{
-			SERVICE_PROVIDER = LAST_BASE_APPL_MESSAGE_KIND,
-			KIND_TIMER
-		};
-
 	protected:
         virtual void executeEachTimeStep(bool);
 		Coord *getRSUsCoord(unsigned int);

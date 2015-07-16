@@ -47,12 +47,6 @@ public:
     virtual void finish();
     virtual void receiveSignal(cComponent* source, simsignal_t signalID, cObject* obj);
 
-    enum WaveApplMessageKinds
-    {
-        SERVICE_PROVIDER = LAST_BASE_APPL_MESSAGE_KIND,
-        KIND_TIMER
-    };
-
 protected:
     virtual void handleSelfMsg(cMessage* msg);
     virtual void handlePositionUpdate(cObject* obj);

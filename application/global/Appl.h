@@ -33,6 +33,11 @@
 
 namespace VENTOS {
 
+enum WaveApplMessageKinds
+{
+    KIND_TIMER,
+};
+
 enum ControllerTypes
 {
     SUMO_TAG_CF_KRAUSS = 102,

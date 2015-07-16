@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    TL_AdaptiveQueue.h
+/// @file    TL_MaxQueue.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @date    August 2013
 ///

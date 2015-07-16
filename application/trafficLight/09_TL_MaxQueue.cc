@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    TL_AdaptiveQueue.cc
+/// @file    TL_MaxQueue.cc
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @date    August 2013
 ///
