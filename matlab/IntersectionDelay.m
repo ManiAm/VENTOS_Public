@@ -9,9 +9,6 @@ clc;    % position the cursor at the top of the screen
 % total number of simulation runs
 runTotal = 5;
 
-% do not include warmp-up duration in the plot
-warmupDuration = 400;
-
 % path to folder
 basePATH = '../results/cmd/tmp';
 
@@ -20,7 +17,7 @@ for runNumber = 0:runTotal-1
 fprintf('\n>>> runNumber %d:\n', runNumber);
     
 % clear variables at the begining of each run
-clearvars -except runNumber runTotal basePATH warmupDuration
+clearvars -except runNumber runTotal basePATH delayVariations
 
 % ----------------------------------------------------------------
 
@@ -140,6 +137,8 @@ end
 
 disp('calculating intersection delay ...');
 
+% in each 70 seconds interval, we measure delay for each vehicle and 
+% then take an average
 interval_delay = 700;
 
 rows = size(timeSteps, 1);
@@ -155,11 +154,6 @@ for j=1 : interval_delay-1 : rows-interval_delay
    delayedVehCount = 0;
    nonDelayedVehCount = 0;
    totalDelay = 0;
-   
-   % debugging
-   if(index == 53)
-       gh = 0;
-   end
 
    for i=1:VehNumbers
        
@@ -220,7 +214,9 @@ for j=1 : interval_delay-1 : rows-interval_delay
    index = index + 1;
 
 end
-   
+
+delayVariations{:,runNumber+1} = num2cell(delay);
+
 % -----------------------------------------------------------------
 
 disp('calculating throughput ...');
@@ -321,14 +317,12 @@ if(true)
 
         for g=1:2
             subplot(2,1,g);            
-            Xlimit = get(gca,'xlim');
-            
+            Xlimit = get(gca,'xlim');            
             set(gca, 'xtick' , 0:300:Xlimit(2));
-          %  set(gca, 'XLim', [warmupDuration Xlimit(2)]);
         end   
         
         subplot(2,1,1);
-        legend('fix-time' , 'adaptive webster', 'traffic-actuated', 'OJF', 'highest queue', 'Location', 'northwest');
+        legend('Fix-time' , 'Adaptive webster', 'Traffic-actuated', 'OJF', 'Highest queue', 'Location', 'northwest');
     
         % mark change of demand with vertical lines
         for threshold=400:400:Xlimit(2)            
@@ -345,7 +339,6 @@ end
 
 end
 
-
 % -----------------------------------------------------------------
 % -----------------------------------------------------------------
 % -----------------------------------------------------------------
@@ -356,13 +349,42 @@ end
 % -----------------------------------------------------------------
 % -----------------------------------------------------------------
 
+figure('name', 'Speed', 'units', 'normalized', 'outerposition', [0 0 1 1]);
+
+data = [cell2mat(delayVariations{1,1})'; cell2mat(delayVariations{1,2})'; cell2mat(delayVariations{1,3})'; cell2mat(delayVariations{1,4})'; cell2mat(delayVariations{1,5})'];
+
+n1 = size(delayVariations{1,1},2);
+n2 = size(delayVariations{1,2},2);
+n3 = size(delayVariations{1,3},2);
+n4 = size(delayVariations{1,4},2);
+n5 = size(delayVariations{1,5},2);
+group = [repmat({'Fix-time'}, n1, 1); repmat({'Adaptive webster'}, n2, 1); repmat({'Traffic actuated'}, n3, 1); repmat({'OJF'}, n4, 1); repmat({'Highest queue'}, n5, 1)];
+
+subplot(2,1,1);
+boxplot(data,group);
+
+set(findobj(gca,'Type','text'),'FontSize',19);
+
+ylabel('Average Delay per Vehicle (s)', 'FontSize', 19);
+
+grid on;
+
+% -----------------------------------------------------------------
+% -----------------------------------------------------------------
+% -----------------------------------------------------------------
+% -----------------------------------------------------------------
+% -----------------------------------------------------------------
+% -----------------------------------------------------------------
+% -----------------------------------------------------------------
+% -----------------------------------------------------------------
+% -----------------------------------------------------------------
 
 for runNumber = 0:runTotal-1
 
 fprintf('\n>>> runNumber %d:\n', runNumber);
 
 % clear variables at the begining of each run
-clearvars -except runNumber runTotal basePATH timeSteps warmupDuration
+clearvars -except runNumber runTotal basePATH timeSteps
 
 % ----------------------------------------------------------------
 
@@ -533,14 +555,12 @@ if(true)
         
         for g=1:2
             subplot(2,1,g);            
-            Xlimit = get(gca,'xlim');
-            
+            Xlimit = get(gca,'xlim');            
             set(gca, 'xtick' , 0:300:Xlimit(2));
-         %   set(gca, 'XLim', [warmupDuration Xlimit(2)]);
         end 
         
         subplot(2,1,1);
-        legend('fix-time' , 'adaptive webster', 'traffic-actuated', 'OJF', 'highest queue', 'Location', 'northwest');
+        legend('Fix-time' , 'Adaptive webster', 'Traffic-actuated', 'OJF', 'Highest queue', 'Location', 'northwest');
     
         % mark change of demand with vertical lines
         for threshold=400:400:Xlimit(2)            
