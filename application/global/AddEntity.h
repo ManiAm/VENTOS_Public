@@ -58,7 +58,11 @@ private:
     void Scenario9();
 
     void Scenario10();
-    void batchMove(int demand, int vehCounter, int depart);
+    void balanced(int, int, int);
+
+    void Scenario11();
+    void unbalanced_mainStreet(int, int, int);
+    void unbalanced_sideStreet(int, int, int);
 
 private:
     // NED variables

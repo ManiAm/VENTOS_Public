@@ -141,6 +141,10 @@ void AddEntity::Add()
     {
         Scenario10();
     }
+    else if(mode == 11)
+    {
+        Scenario11();
+    }
     else
     {
         error("not a valid mode!");
@@ -312,7 +316,7 @@ void AddEntity::Scenario7()
 
 
 std::vector<std::string> getEdgeNames(std::string netName)
-                {
+                        {
     std::vector<std::string> edgeNames;
 
     rapidxml::file <> xmlFile(netName.c_str());
@@ -323,10 +327,10 @@ std::vector<std::string> getEdgeNames(std::string netName)
         edgeNames.push_back(node->first_attribute()->value());
 
     return edgeNames;
-                }
+                        }
 
 std::vector<std::string> getNodeNames(std::string netName)
-                {
+                        {
     std::vector<std::string> nodeNames;
     rapidxml::file <> xmlFile(netName.c_str());
     rapidxml::xml_document<> doc;
@@ -336,7 +340,7 @@ std::vector<std::string> getNodeNames(std::string netName)
         nodeNames.push_back(node->first_attribute()->value());
 
     return nodeNames;
-                }
+                        }
 
 double curve(double x)  //Input will linearly increase from 0 to 1, from first to last vehicle.
 {                       //Output should be between 0 and 1, scaled by some function
@@ -570,7 +574,12 @@ void AddEntity::Scenario9()
 
 void AddEntity::Scenario10()
 {
-    std::mt19937 generator(43);   // mersenne twister engine (seed is fixed to make tests reproducible)
+    // mersenne twister engine (seed is fixed to make tests reproducible)
+    std::mt19937 generator1(43);
+    std::mt19937 generator2(44);
+    std::mt19937 generator3(45);
+    std::mt19937 generator4(46);
+    std::mt19937 generator5(47);
 
     // random numbers have poisson distribution with different lambdas
     std::poisson_distribution<int> distribution1(1./36.);
@@ -579,66 +588,68 @@ void AddEntity::Scenario10()
     std::poisson_distribution<int> distribution4(4./36.);
     std::poisson_distribution<int> distribution5(5./36.);
 
+    const int range = 400;
+    const int overlap = 100;
+
     int vehCounter = 1;
     int rNumber = 0;
     double demand;
 
     for(int depart = 0; depart < terminate; ++depart)
     {
-        if(depart >= 0 && depart < 400)
+        if(depart >= 0 && depart < range)
         {
-            rNumber = distribution1(generator);
+            rNumber = distribution1(generator1);
             demand = 100;
         }
-        else if(depart >= 400 && depart < 800)
+        else if(depart >= (range-overlap) && depart < 2*range)
         {
-            rNumber = distribution2(generator);
+            rNumber = distribution2(generator2);
             demand = 200;
         }
-        else if(depart >= 800 && depart < 1200)
+        else if(depart >= (2*range-overlap) && depart < 3*range)
         {
-            rNumber = distribution3(generator);
+            rNumber = distribution3(generator3);
             demand = 300;
         }
-        else if(depart >= 1200 && depart < 1600)
+        else if(depart >= (3*range-overlap) && depart < 4*range)
         {
-            rNumber = distribution4(generator);
+            rNumber = distribution4(generator4);
             demand = 400;
         }
-        else if(depart >= 1600 && depart < 2000)
+        else if(depart >= (4*range-overlap) && depart < 5*range)
         {
-            rNumber = distribution5(generator);
+            rNumber = distribution5(generator5);
             demand = 500;
         }
-        else if(depart >= 2000 && depart < 2400)
+        else if(depart >= (5*range-overlap) && depart < 6*range)
         {
-            rNumber = distribution4(generator);
+            rNumber = distribution4(generator4);
             demand = 400;
         }
-        else if(depart >= 2400 && depart < 2800)
+        else if(depart >= (6*range-overlap) && depart < 7*range)
         {
-            rNumber = distribution3(generator);
+            rNumber = distribution3(generator3);
             demand = 300;
         }
-        else if(depart >= 2800 && depart < 3200)
+        else if(depart >= (7*range-overlap) && depart < 8*range)
         {
-            rNumber = distribution2(generator);
+            rNumber = distribution2(generator2);
             demand = 200;
         }
-        else if(depart >= 3200 && depart < 3600)
+        else if(depart >= (8*range-overlap) && depart < 9*range)
         {
-            rNumber = distribution1(generator);
+            rNumber = distribution1(generator1);
             demand = 100;
         }
 
         // rNumber vehicles should be inserted into the simulation
         for(int count = 0; count < rNumber; ++count)
         {
-            batchMove(demand, vehCounter, 1000*depart);
+            balanced(demand, vehCounter, 1000*depart);
             vehCounter++;
         }
     }
-
 
     //    TraCI->vehicleAdd("Bike1", "TypeBicycle", "route1", 0, 0 /*pos*/, 0 /*speed*/, 2 /*lane*/);
     //    TraCI->vehicleAdd("Bike2", "TypeBicycle", "route4", 0, 0 /*pos*/, 0 /*speed*/, 2 /*lane*/);
@@ -647,42 +658,187 @@ void AddEntity::Scenario10()
 }
 
 
-void AddEntity::batchMove(int demand, int vehCounter, int depart)
+void AddEntity::balanced(int demand, int vehCounter, int depart)
 {
-    std::ostringstream name;  // name is in the form of '100,N,T,1' where 100 is Traffic demand, N is north, T is through, 1 is vehCounter
+    std::ostringstream name;  // name is in the form of 'veh_100_N_T_1' where 100 is Traffic demand, N is north, T is through, 1 is vehCounter
 
     name.str("");
-    name << demand << ",N,T," << vehCounter;
-    TraCI->vehicleAdd(name.str(), "passenger", "movement2", depart, 0 /*pos*/, 0 /*speed*/, 3 /*lane*/);
+    name << "veh_" << demand << "_N_T_" << vehCounter;
+    TraCI->vehicleAdd(name.str(), "passenger", "movement2", depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
     name.str("");
-    name << demand << ",N,L," << vehCounter;
-    TraCI->vehicleAdd(name.str(), "passenger", "movement5", depart, 0 /*pos*/, 0 /*speed*/, 3 /*lane*/);
+    name << "veh_" << demand << "_N_L_" << vehCounter;
+    TraCI->vehicleAdd(name.str(), "passenger", "movement5", depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
     name.str("");
-    name << demand << ",S,T," << vehCounter;
-    TraCI->vehicleAdd(name.str(), "passenger", "movement6", depart, 0 /*pos*/, 0 /*speed*/, 3 /*lane*/);
+    name << "veh_" << demand << "_S_T_" << vehCounter;
+    TraCI->vehicleAdd(name.str(), "passenger", "movement6", depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
     name.str("");
-    name << demand << ",S,L," << vehCounter;
-    TraCI->vehicleAdd(name.str(), "passenger", "movement1", depart, 0 /*pos*/, 0 /*speed*/, 3 /*lane*/);
+    name << "veh_" << demand << "_S_L_" << vehCounter;
+    TraCI->vehicleAdd(name.str(), "passenger", "movement1", depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
     name.str("");
-    name << demand << ",W,T," << vehCounter;
-    TraCI->vehicleAdd(name.str(), "passenger", "movement8", depart, 0 /*pos*/, 0 /*speed*/, 3 /*lane*/);
+    name << "veh_" << demand << "_W_T_" << vehCounter;
+    TraCI->vehicleAdd(name.str(), "passenger", "movement8", depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
     name.str("");
-    name << demand << ",W,L," << vehCounter;
-    TraCI->vehicleAdd(name.str(), "passenger", "movement3", depart, 0 /*pos*/, 0 /*speed*/, 3 /*lane*/);
+    name << "veh_" << demand << "_W_L_" << vehCounter;
+    TraCI->vehicleAdd(name.str(), "passenger", "movement3", depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
     name.str("");
-    name << demand << ",E,T," << vehCounter;
-    TraCI->vehicleAdd(name.str(), "passenger", "movement4", depart, 0 /*pos*/, 0 /*speed*/, 3 /*lane*/);
+    name << "veh_" << demand << "_E_T_" << vehCounter;
+    TraCI->vehicleAdd(name.str(), "passenger", "movement4", depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
     name.str("");
-    name << demand << ",E,L," << vehCounter;
-    TraCI->vehicleAdd(name.str(), "passenger", "movement7", depart, 0 /*pos*/, 0 /*speed*/, 3 /*lane*/);
+    name << "veh_" << demand << "_E_L_" << vehCounter;
+    TraCI->vehicleAdd(name.str(), "passenger", "movement7", depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
 }
 
+
+void AddEntity::Scenario11()
+{
+    // mersenne twister engine (seed is fixed to make tests reproducible)
+    std::mt19937 generator1(43);
+    std::mt19937 generator2(44);
+    std::mt19937 generator3(45);
+    std::mt19937 generator4(46);
+    std::mt19937 generator5(47);
+    std::mt19937 generator6(48);
+
+    // for main street
+    std::poisson_distribution<int> distribution1(1./36.);
+    std::poisson_distribution<int> distribution2(2./36.);
+    std::poisson_distribution<int> distribution3(3./36.);
+    std::poisson_distribution<int> distribution4(4./36.);
+    std::poisson_distribution<int> distribution5(5./36.);
+
+    // for side street
+    std::poisson_distribution<int> distribution6(1./36.);
+
+    const int range = 400;
+    const int overlap = 100;
+
+    int vehCounter = 1;
+    int rNumberMain = 0;
+    int rNumberSide = 0;
+    double demand;
+
+    for(int depart = 0; depart < terminate; ++depart)
+    {
+        if(depart >= 0 && depart < range)
+        {
+            rNumberSide = distribution6(generator6);
+            rNumberMain = distribution1(generator1);
+            demand = 100;
+        }
+        else if(depart >= (range-overlap) && depart < 2*range)
+        {
+            rNumberSide = distribution6(generator6);
+            rNumberMain = distribution2(generator2);
+            demand = 200;
+        }
+        else if(depart >= (2*range-overlap) && depart < 3*range)
+        {
+            rNumberSide = distribution6(generator6);
+            rNumberMain = distribution3(generator3);
+            demand = 300;
+        }
+        else if(depart >= (3*range-overlap) && depart < 4*range)
+        {
+            rNumberSide = distribution6(generator6);
+            rNumberMain = distribution4(generator4);
+            demand = 400;
+        }
+        else if(depart >= (4*range-overlap) && depart < 5*range)
+        {
+            rNumberSide = distribution6(generator6);
+            rNumberMain = distribution5(generator5);
+            demand = 500;
+        }
+        else if(depart >= (5*range-overlap) && depart < 6*range)
+        {
+            rNumberSide = distribution6(generator6);
+            rNumberMain = distribution4(generator4);
+            demand = 400;
+        }
+        else if(depart >= (6*range-overlap) && depart < 7*range)
+        {
+            rNumberSide = distribution6(generator6);
+            rNumberMain = distribution3(generator3);
+            demand = 300;
+        }
+        else if(depart >= (7*range-overlap) && depart < 8*range)
+        {
+            rNumberSide = distribution6(generator6);
+            rNumberMain = distribution2(generator2);
+            demand = 200;
+        }
+        else if(depart >= (8*range-overlap) && depart < 9*range)
+        {
+            rNumberSide = distribution6(generator6);
+            rNumberMain = distribution1(generator1);
+            demand = 100;
+        }
+
+        // main street
+        for(int count = 0; count < rNumberMain; ++count)
+        {
+            unbalanced_mainStreet(demand, vehCounter, 1000*depart);
+            vehCounter++;
+        }
+
+        // side street
+        for(int count = 0; count < rNumberSide; ++count)
+        {
+            unbalanced_sideStreet(100, vehCounter, 1000*depart);
+            vehCounter++;
+        }
+    }
+}
+
+
+void AddEntity::unbalanced_mainStreet(int demand, int vehCounter, int depart)
+{
+    std::ostringstream name;
+
+    name.str("");
+    name << "veh_" << demand << "_W_T_" << vehCounter;
+    TraCI->vehicleAdd(name.str(), "passenger", "movement8", depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+
+    name.str("");
+    name << "veh_" << demand << "_W_L_" << vehCounter;
+    TraCI->vehicleAdd(name.str(), "passenger", "movement3", depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+
+    name.str("");
+    name << "veh_" << demand << "_E_T_" << vehCounter;
+    TraCI->vehicleAdd(name.str(), "passenger", "movement4", depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+
+    name.str("");
+    name << "veh_" << demand << "_E_L_" << vehCounter;
+    TraCI->vehicleAdd(name.str(), "passenger", "movement7", depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+}
+
+
+void AddEntity::unbalanced_sideStreet(int demand, int vehCounter, int depart)
+{
+    std::ostringstream name;
+
+    name.str("");
+    name << "veh_" << demand << "_N_T_" << vehCounter;
+    TraCI->vehicleAdd(name.str(), "passenger", "movement2", depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+
+    name.str("");
+    name << "veh_" << demand << "_N_L_" << vehCounter;
+    TraCI->vehicleAdd(name.str(), "passenger", "movement5", depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+
+    name.str("");
+    name << "veh_" << demand << "_S_T_" << vehCounter;
+    TraCI->vehicleAdd(name.str(), "passenger", "movement6", depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+
+    name.str("");
+    name << "veh_" << demand << "_S_L_" << vehCounter;
+    TraCI->vehicleAdd(name.str(), "passenger", "movement1", depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+}
 
 }
