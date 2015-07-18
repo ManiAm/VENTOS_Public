@@ -1,6 +1,6 @@
 
 clear all;
-%close all;
+close all;
 clc;    % position the cursor at the top of the screen
 %clf;   % closes the figure window
 
@@ -10,7 +10,7 @@ clc;    % position the cursor at the top of the screen
 runTotal = 5;
 
 % path to folder
-basePATH = '../results/cmd/tmp';
+basePATH = '../results/cmd/1_full_uniform_balanced';
 
 for runNumber = 0:runTotal-1
 
@@ -349,6 +349,8 @@ end
 % -----------------------------------------------------------------
 % -----------------------------------------------------------------
 
+% plot minimum and maximum delay for each TSC algorithm
+
 figure('name', 'Speed', 'units', 'normalized', 'outerposition', [0 0 1 1]);
 
 data = [cell2mat(delayVariations{1,1})'; cell2mat(delayVariations{1,2})'; cell2mat(delayVariations{1,3})'; cell2mat(delayVariations{1,4})'; cell2mat(delayVariations{1,5})'];
@@ -365,7 +367,7 @@ boxplot(data,group);
 
 set(findobj(gca,'Type','text'),'FontSize',19);
 
-ylabel('Average Delay per Vehicle (s)', 'FontSize', 19);
+ylabel('Fairness index', 'FontSize', 19);
 
 grid on;
 

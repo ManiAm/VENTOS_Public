@@ -232,7 +232,7 @@ void TrafficLightWebster::calculateGreenSplits()
         {
             std::cout << lane << ": ";
             for (boost::circular_buffer<std::vector<double>>::iterator it = buf.begin(); it != buf.end(); ++it)
-                std::cout << "TD=" << (*it).at(0) << ", t=" << (*it).at(1) << ", lag=" << (*it).at(2) << " | ";
+                std::cout << "TD=" << (*it).at(0) << " (t=" << (*it).at(1) << ") | ";
             std::cout << endl;
         }
     }
@@ -241,7 +241,7 @@ void TrafficLightWebster::calculateGreenSplits()
     // todo: change this later
     // saturation = (3*TD) / ( 1-(35/cycle) )
     // max TD = 1900, max cycle = 120
-    double saturation = 2400;  //8047;
+    double saturation = 8000;  //8047;
 
     std::string phases[] = {phase1_5, phase2_6, phase3_7, phase4_8};
     std::map<std::string, double> critical;
@@ -256,18 +256,27 @@ void TrafficLightWebster::calculateGreenSplits()
             // if link i is active
             if(prog[i] == 'g' || prog[i] == 'G')
             {
+                bool rightTurn = std::find(std::begin(rightTurns), std::end(rightTurns), i) != std::end(rightTurns);
+
                 // if link i is not a right-turn (right turns are all permissive)
-                bool notRightTurn = std::find(std::begin(rightTurns), std::end(rightTurns), i) == std::end(rightTurns);
-                if(notRightTurn)
+                if(!rightTurn)
                 {
-                    // get all TD measurements for link i so far
+                    // get all TD measurements so far for link i
                     boost::circular_buffer<std::vector<double>> buffer = linkTD[std::make_pair("C",i)];
 
-                    // todo: calculate average TD for link i
-                    double sum = 0;
-                    for (boost::circular_buffer<std::vector<double>>::iterator it = buffer.begin(); it != buffer.end(); ++it)
-                        sum = sum + (*it).at(0);
-                    double aveTD = (buffer.size() == 0) ? 0 : sum / (double)buffer.size();
+                    double aveTD = 0;
+
+                    if(!buffer.empty())
+                    {
+                        // calculate 'exponential moving average' of TD for link i
+                        aveTD = buffer[0].at(0);  // get the oldest value (queue front)
+                        const double alpha = 0.125;
+                        for (boost::circular_buffer<std::vector<double>>::iterator it = buffer.begin()+1; it != buffer.end(); ++it)
+                        {
+                            double nextTD = (*it).at(0);
+                            aveTD = alpha * nextTD + (1-alpha) * aveTD;
+                        }
+                    }
 
                     Y_i = std::max(Y_i, aveTD / saturation);
                 }
