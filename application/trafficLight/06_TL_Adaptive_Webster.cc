@@ -47,6 +47,10 @@ void TrafficLightWebster::initialize(int stage)
 
     if(stage == 0)
     {
+        alpha = par("alpha").doubleValue();
+        if(alpha < 0 || alpha > 1)
+            error("alpha value should be [0,1]");
+
         ChangeEvt = new cMessage("ChangeEvt", 1);
 
         greenSplit.clear();
@@ -235,7 +239,6 @@ void TrafficLightWebster::calculateGreenSplits()
             std::cout << lane << ": ";
             // calculate 'exponential moving average' of TD for link i
             aveTD = buf[0].at(0);  // get the oldest value (queue front)
-            const double alpha = 0.125;
             for (boost::circular_buffer<std::vector<double>>::iterator it = buf.begin(); it != buf.end(); ++it)
             {
                 double nextTD = (*it).at(0);
@@ -279,7 +282,6 @@ void TrafficLightWebster::calculateGreenSplits()
                     {
                         // calculate 'exponential moving average' of TD for link i
                         aveTD = buffer[0].at(0);  // get the oldest value (queue front)
-                        const double alpha = 0.125;
                         for (boost::circular_buffer<std::vector<double>>::iterator it = buffer.begin()+1; it != buffer.end(); ++it)
                         {
                             double nextTD = (*it).at(0);
