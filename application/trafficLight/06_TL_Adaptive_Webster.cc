@@ -221,27 +221,36 @@ void TrafficLightWebster::chooseNextGreenInterval()
 void TrafficLightWebster::calculateGreenSplits()
 {
     // debugging (print traffic demand)
-    std::cout << ">>> Measured traffic demands at the beginning of this cycle: " << endl;
+    std::cout << ">>> Measured traffic demands at the beginning of this cycle: ";
     for(std::map<std::string, std::pair<std::string, boost::circular_buffer<std::vector<double>>>>::iterator y = laneTD.begin(); y != laneTD.end(); ++y)
     {
         std::string lane = (*y).first;
         std::string TLid = (*y).second.first;
         boost::circular_buffer<std::vector<double>> buf = (*y).second.second;
 
+        double aveTD = 0;
+
         if(!buf.empty())
         {
             std::cout << lane << ": ";
+            // calculate 'exponential moving average' of TD for link i
+            aveTD = buf[0].at(0);  // get the oldest value (queue front)
+            const double alpha = 0.125;
             for (boost::circular_buffer<std::vector<double>>::iterator it = buf.begin(); it != buf.end(); ++it)
-                std::cout << "TD=" << (*it).at(0) << " (t=" << (*it).at(1) << ") | ";
-            std::cout << endl;
+            {
+                double nextTD = (*it).at(0);
+                aveTD = alpha*nextTD + (1-alpha)*aveTD;
+            }
+
+            std::cout << aveTD << " | ";
         }
     }
-    std::cout << endl;
+    std::cout << endl << endl;
 
     // todo: change this later
     // saturation = (3*TD) / ( 1-(35/cycle) )
     // max TD = 1900, max cycle = 120
-    double saturation = 8000;  //8047;
+    double saturation = 7000;
 
     std::string phases[] = {phase1_5, phase2_6, phase3_7, phase4_8};
     std::map<std::string, double> critical;
@@ -274,7 +283,7 @@ void TrafficLightWebster::calculateGreenSplits()
                         for (boost::circular_buffer<std::vector<double>>::iterator it = buffer.begin()+1; it != buffer.end(); ++it)
                         {
                             double nextTD = (*it).at(0);
-                            aveTD = alpha * nextTD + (1-alpha) * aveTD;
+                            aveTD = alpha*nextTD + (1-alpha)*aveTD;
                         }
                     }
 
