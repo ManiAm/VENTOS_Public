@@ -14,5 +14,7 @@ simple AddEntity
         int lambda;
         int plnSize;
         double plnSpace = default(3.5s) @unit(s);
+        double overlap;
+        string routeDist;
 }
 

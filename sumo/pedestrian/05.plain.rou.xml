@@ -31,22 +31,22 @@
   
   <!-- North inbound -->
   <route id="movement2" edges="NC CS" />     <!-- Through -->
-  <route id="route2" edges="NC CW" />        <!-- Right -->
+  <route id="route1" edges="NC CW" />        <!-- Right -->
   <route id="movement5" edges="NC CE" />     <!-- Left -->
 
   <!-- South inbound -->
   <route id="movement6" edges="SC CN" />     <!-- Through -->
-  <route id="route5" edges="SC CE" />        <!-- Right -->
+  <route id="route2" edges="SC CE" />        <!-- Right -->
   <route id="movement1" edges="SC CW" />     <!-- Left -->
   
   <!-- West inbound -->
   <route id="movement8" edges="WC CE" />     <!-- Through -->
-  <route id="route8" edges="WC CS" />        <!-- Right -->
+  <route id="route3" edges="WC CS" />        <!-- Right -->
   <route id="movement3" edges="WC CN" />     <!-- Left -->
   
   <!-- East inbound -->
   <route id="movement4" edges="EC CW" />     <!-- Through -->
-  <route id="route11" edges="EC CN" />       <!-- Right -->
-  <route id="movement7" edges="EC CS" />     <!-- Left -->  
+  <route id="route4" edges="EC CN" />       <!-- Right -->
+  <route id="movement7" edges="EC CS" />     <!-- Left -->   
 
 </routes>

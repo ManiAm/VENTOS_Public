@@ -56,13 +56,8 @@ private:
     void Scenario7();
     void Scenario8();
     void Scenario9();
-
     void Scenario10();
-    void balanced(int, int, int);
-
     void Scenario11();
-    void unbalanced_mainStreet(int, int, int);
-    void unbalanced_sideStreet(int, int, int);
 
 private:
     // NED variables
@@ -76,10 +71,13 @@ private:
     double lambda;
     int plnSize;
     double plnSpace;
+    double overlap;
+    std::string routeDist;
 
     // class variables
     simsignal_t Signal_executeFirstTS;
     boost::filesystem::path SUMO_FullPath;
+    std::vector<double> routeDistribution;
 };
 
 }
