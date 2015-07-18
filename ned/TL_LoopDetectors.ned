@@ -15,7 +15,7 @@ simple TL_LoopDetectors extends TL_Base
         
         bool measureIntersectionQueue;
         bool measureTrafficDemand;        
-        int trafficDemandBufferSize;
+        int trafficDemandBuffSize;
         
         bool collectInductionLoopData; 
         bool collectTLQueuingData;

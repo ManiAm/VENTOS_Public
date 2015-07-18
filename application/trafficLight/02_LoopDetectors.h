@@ -141,14 +141,13 @@ class LoopDetectors : public TrafficLightBase
     double maxCycleLength;
 
     // NED variables
-    bool measureTrafficDemand;
     bool measureIntersectionQueue;
+    bool measureTrafficDemand;
+    int trafficDemandBuffSize;
 
     bool collectInductionLoopData;
     bool collectTLQueuingData;
     bool collectTLPhasingData;
-
-    bool trafficDemandBufferSize;
 
     std::list<std::string> TLList;   // list of traffic-lights in the network
 

@@ -63,7 +63,7 @@ void LoopDetectors::initialize(int stage)
 
         measureTrafficDemand = par("measureTrafficDemand").boolValue();
         measureIntersectionQueue = par("measureIntersectionQueue").boolValue();
-        trafficDemandBufferSize = par("trafficDemandBufferSize").longValue();
+        trafficDemandBuffSize = par("trafficDemandBuffSize").longValue();
 
         collectInductionLoopData = par("collectInductionLoopData").boolValue();
         collectTLQueuingData = par("collectTLQueuingData").boolValue();
@@ -136,7 +136,7 @@ void LoopDetectors::executeFirstTimeStep()
             lanesTL[lane] = TLid;
 
             boost::circular_buffer<std::vector<double>> CB;   // create a circular buffer
-            CB.set_capacity(trafficDemandBufferSize);         // set max capacity
+            CB.set_capacity(trafficDemandBuffSize);         // set max capacity
             CB.clear();
             laneTD[lane] = std::make_pair(TLid, CB);  // initialize laneTD
 
@@ -159,7 +159,7 @@ void LoopDetectors::executeFirstTimeStep()
             linksTL.insert( std::make_pair(incommingLane, std::make_pair(TLid,linkNumber)) );
 
             boost::circular_buffer<std::vector<double>> CB;   // create a circular buffer
-            CB.set_capacity(trafficDemandBufferSize);         // set max capacity
+            CB.set_capacity(trafficDemandBuffSize);         // set max capacity
             CB.clear();
             linkTD[std::make_pair(TLid,linkNumber)] = CB;   // initialize linkTD
 
