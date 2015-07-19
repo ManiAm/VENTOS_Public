@@ -301,7 +301,7 @@ void ApplRSUTLVANET::saveVehApproach()
 {
     boost::filesystem::path filePath;
 
-    if( ev.isGUI() )
+    if(ev.isGUI())
     {
         filePath = "results/gui/vehApproach.txt";
     }
@@ -315,6 +315,28 @@ void ApplRSUTLVANET::saveVehApproach()
     }
 
     FILE *filePtr = fopen (filePath.string().c_str(), "w");
+
+    // write simulation parameters at the beginning of the file in CMD mode
+    if(!ev.isGUI())
+    {
+        // get the current config name
+        std::string configName = ev.getConfigEx()->getVariable("configname");
+
+        // get number of total runs in this config
+        int totalRun = ev.getConfigEx()->getNumRunsInConfig(configName.c_str());
+
+        // get the current run number
+        int currentRun = ev.getConfigEx()->getActiveRunNumber();
+
+        // get all iteration variables
+        std::vector<std::string> iterVar = ev.getConfigEx()->unrollConfig(configName.c_str(), false);
+
+        // write to file
+        fprintf (filePtr, "configName      %s\n", configName.c_str());
+        fprintf (filePtr, "totalRun        %d\n", totalRun);
+        fprintf (filePtr, "currentRun      %d\n", currentRun);
+        fprintf (filePtr, "currentConfig   %s\n\n\n", iterVar[currentRun].c_str());
+    }
 
     // write header
     fprintf (filePtr, "%-20s","vehicleName");

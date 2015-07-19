@@ -84,7 +84,7 @@ void ApplRSUAID::incidentDetectionToFile()
 {
     boost::filesystem::path filePath;
 
-    if( ev.isGUI() )
+    if(ev.isGUI())
     {
         filePath = "results/gui/IncidentTable.txt";
     }

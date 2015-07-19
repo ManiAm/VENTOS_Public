@@ -350,7 +350,7 @@ void Statistics::vehiclesDataToFile()
 {
     boost::filesystem::path filePath;
 
-    if( ev.isGUI() )
+    if(ev.isGUI())
     {
         filePath = "results/gui/vehicleData.txt";
     }
@@ -376,6 +376,28 @@ void Statistics::vehiclesDataToFile()
     }
 
     FILE *filePtr = fopen (filePath.string().c_str(), "w");
+
+    // write simulation parameters at the beginning of the file in CMD mode
+    if(!ev.isGUI())
+    {
+        // get the current config name
+        std::string configName = ev.getConfigEx()->getVariable("configname");
+
+        // get number of total runs in this config
+        int totalRun = ev.getConfigEx()->getNumRunsInConfig(configName.c_str());
+
+        // get the current run number
+        int currentRun = ev.getConfigEx()->getActiveRunNumber();
+
+        // get all iteration variables
+        std::vector<std::string> iterVar = ev.getConfigEx()->unrollConfig(configName.c_str(), false);
+
+        // write to file
+        fprintf (filePtr, "configName      %s\n", configName.c_str());
+        fprintf (filePtr, "totalRun        %d\n", totalRun);
+        fprintf (filePtr, "currentRun      %d\n", currentRun);
+        fprintf (filePtr, "currentConfig   %s\n\n\n", iterVar[currentRun].c_str());
+    }
 
     double oldTime = -1;
     int index = 0;
@@ -436,7 +458,7 @@ void Statistics::MAClayerToFile()
 {
     boost::filesystem::path filePath;
 
-    if( ev.isGUI() )
+    if(ev.isGUI())
     {
         filePath = "results/gui/MACdata.txt";
     }
@@ -450,6 +472,28 @@ void Statistics::MAClayerToFile()
     }
 
     FILE *filePtr = fopen (filePath.string().c_str(), "w");
+
+    // write simulation parameters at the beginning of the file in CMD mode
+    if(!ev.isGUI())
+    {
+        // get the current config name
+        std::string configName = ev.getConfigEx()->getVariable("configname");
+
+        // get number of total runs in this config
+        int totalRun = ev.getConfigEx()->getNumRunsInConfig(configName.c_str());
+
+        // get the current run number
+        int currentRun = ev.getConfigEx()->getActiveRunNumber();
+
+        // get all iteration variables
+        std::vector<std::string> iterVar = ev.getConfigEx()->unrollConfig(configName.c_str(), false);
+
+        // write to file
+        fprintf (filePtr, "configName      %s\n", configName.c_str());
+        fprintf (filePtr, "totalRun        %d\n", totalRun);
+        fprintf (filePtr, "currentRun      %d\n", currentRun);
+        fprintf (filePtr, "currentConfig   %s\n\n\n", iterVar[currentRun].c_str());
+    }
 
     // write header
     fprintf (filePtr, "%-20s","timeStep");
@@ -492,7 +536,7 @@ void Statistics::plnManageToFile()
 {
     boost::filesystem::path filePath;
 
-    if( ev.isGUI() )
+    if(ev.isGUI())
     {
         filePath = "results/gui/plnManage.txt";
     }
@@ -506,6 +550,28 @@ void Statistics::plnManageToFile()
     }
 
     FILE *filePtr = fopen (filePath.string().c_str(), "w");
+
+    // write simulation parameters at the beginning of the file in CMD mode
+    if(!ev.isGUI())
+    {
+        // get the current config name
+        std::string configName = ev.getConfigEx()->getVariable("configname");
+
+        // get number of total runs in this config
+        int totalRun = ev.getConfigEx()->getNumRunsInConfig(configName.c_str());
+
+        // get the current run number
+        int currentRun = ev.getConfigEx()->getActiveRunNumber();
+
+        // get all iteration variables
+        std::vector<std::string> iterVar = ev.getConfigEx()->unrollConfig(configName.c_str(), false);
+
+        // write to file
+        fprintf (filePtr, "configName      %s\n", configName.c_str());
+        fprintf (filePtr, "totalRun        %d\n", totalRun);
+        fprintf (filePtr, "currentRun      %d\n", currentRun);
+        fprintf (filePtr, "currentConfig   %s\n\n\n", iterVar[currentRun].c_str());
+    }
 
     // write header
     fprintf (filePtr, "%-12s","timeStep");
@@ -545,7 +611,7 @@ void Statistics::plnStatToFile()
 {
     boost::filesystem::path filePath;
 
-    if( ev.isGUI() )
+    if(ev.isGUI())
     {
         filePath = "results/gui/plnStat.txt";
     }
@@ -559,6 +625,28 @@ void Statistics::plnStatToFile()
     }
 
     FILE *filePtr = fopen (filePath.string().c_str(), "w");
+
+    // write simulation parameters at the beginning of the file in CMD mode
+    if(!ev.isGUI())
+    {
+        // get the current config name
+        std::string configName = ev.getConfigEx()->getVariable("configname");
+
+        // get number of total runs in this config
+        int totalRun = ev.getConfigEx()->getNumRunsInConfig(configName.c_str());
+
+        // get the current run number
+        int currentRun = ev.getConfigEx()->getActiveRunNumber();
+
+        // get all iteration variables
+        std::vector<std::string> iterVar = ev.getConfigEx()->unrollConfig(configName.c_str(), false);
+
+        // write to file
+        fprintf (filePtr, "configName      %s\n", configName.c_str());
+        fprintf (filePtr, "totalRun        %d\n", totalRun);
+        fprintf (filePtr, "currentRun      %d\n", currentRun);
+        fprintf (filePtr, "currentConfig   %s\n\n\n", iterVar[currentRun].c_str());
+    }
 
     // write header
     fprintf (filePtr, "%-12s","timeStep");
@@ -591,7 +679,7 @@ void Statistics::beaconToFile()
 {
     boost::filesystem::path filePath;
 
-    if( ev.isGUI() )
+    if(ev.isGUI())
     {
         filePath = "results/gui/beaconsStat.txt";
     }
@@ -605,6 +693,28 @@ void Statistics::beaconToFile()
     }
 
     FILE *filePtr = fopen (filePath.string().c_str(), "w");
+
+    // write simulation parameters at the beginning of the file in CMD mode
+    if(!ev.isGUI())
+    {
+        // get the current config name
+        std::string configName = ev.getConfigEx()->getVariable("configname");
+
+        // get number of total runs in this config
+        int totalRun = ev.getConfigEx()->getNumRunsInConfig(configName.c_str());
+
+        // get the current run number
+        int currentRun = ev.getConfigEx()->getActiveRunNumber();
+
+        // get all iteration variables
+        std::vector<std::string> iterVar = ev.getConfigEx()->unrollConfig(configName.c_str(), false);
+
+        // write to file
+        fprintf (filePtr, "configName      %s\n", configName.c_str());
+        fprintf (filePtr, "totalRun        %d\n", totalRun);
+        fprintf (filePtr, "currentRun      %d\n", currentRun);
+        fprintf (filePtr, "currentConfig   %s\n\n\n", iterVar[currentRun].c_str());
+    }
 
     // write header
     fprintf (filePtr, "%-12s","timeStep");

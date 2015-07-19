@@ -321,7 +321,7 @@ void LoopDetectors::saveLDsData()
 {
     boost::filesystem::path filePath;
 
-    if( ev.isGUI() )
+    if(ev.isGUI())
     {
         filePath = "results/gui/loopDetector.txt";
     }
@@ -335,6 +335,28 @@ void LoopDetectors::saveLDsData()
     }
 
     FILE *filePtr = fopen (filePath.string().c_str(), "w");
+
+    // write simulation parameters at the beginning of the file in CMD mode
+    if(!ev.isGUI())
+    {
+        // get the current config name
+        std::string configName = ev.getConfigEx()->getVariable("configname");
+
+        // get number of total runs in this config
+        int totalRun = ev.getConfigEx()->getNumRunsInConfig(configName.c_str());
+
+        // get the current run number
+        int currentRun = ev.getConfigEx()->getActiveRunNumber();
+
+        // get all iteration variables
+        std::vector<std::string> iterVar = ev.getConfigEx()->unrollConfig(configName.c_str(), false);
+
+        // write to file
+        fprintf (filePtr, "configName      %s\n", configName.c_str());
+        fprintf (filePtr, "totalRun        %d\n", totalRun);
+        fprintf (filePtr, "currentRun      %d\n", currentRun);
+        fprintf (filePtr, "currentConfig   %s\n\n\n", iterVar[currentRun].c_str());
+    }
 
     // write header
     fprintf (filePtr, "%-30s","loopDetector");
@@ -634,7 +656,7 @@ void LoopDetectors::saveTLQueueingData()
 {
     boost::filesystem::path filePath;
 
-    if( ev.isGUI() )
+    if(ev.isGUI())
     {
         filePath = "results/gui/TLqueuingData.txt";
     }
@@ -648,6 +670,28 @@ void LoopDetectors::saveTLQueueingData()
     }
 
     FILE *filePtr = fopen (filePath.string().c_str(), "w");
+
+    // write simulation parameters at the beginning of the file in CMD mode
+    if(!ev.isGUI())
+    {
+        // get the current config name
+        std::string configName = ev.getConfigEx()->getVariable("configname");
+
+        // get number of total runs in this config
+        int totalRun = ev.getConfigEx()->getNumRunsInConfig(configName.c_str());
+
+        // get the current run number
+        int currentRun = ev.getConfigEx()->getActiveRunNumber();
+
+        // get all iteration variables
+        std::vector<std::string> iterVar = ev.getConfigEx()->unrollConfig(configName.c_str(), false);
+
+        // write to file
+        fprintf (filePtr, "configName      %s\n", configName.c_str());
+        fprintf (filePtr, "totalRun        %d\n", totalRun);
+        fprintf (filePtr, "currentRun      %d\n", currentRun);
+        fprintf (filePtr, "currentConfig   %s\n\n\n", iterVar[currentRun].c_str());
+    }
 
     // write header
     fprintf (filePtr, "%-10s", "index");
@@ -683,7 +727,7 @@ void LoopDetectors::saveTLPhasingData()
 {
     boost::filesystem::path filePath;
 
-    if( ev.isGUI() )
+    if(ev.isGUI())
     {
         filePath = "results/gui/TLphasingData.txt";
     }
@@ -697,6 +741,28 @@ void LoopDetectors::saveTLPhasingData()
     }
 
     FILE *filePtr = fopen (filePath.string().c_str(), "w");
+
+    // write simulation parameters at the beginning of the file in CMD mode
+    if(!ev.isGUI())
+    {
+        // get the current config name
+        std::string configName = ev.getConfigEx()->getVariable("configname");
+
+        // get number of total runs in this config
+        int totalRun = ev.getConfigEx()->getNumRunsInConfig(configName.c_str());
+
+        // get the current run number
+        int currentRun = ev.getConfigEx()->getActiveRunNumber();
+
+        // get all iteration variables
+        std::vector<std::string> iterVar = ev.getConfigEx()->unrollConfig(configName.c_str(), false);
+
+        // write to file
+        fprintf (filePtr, "configName      %s\n", configName.c_str());
+        fprintf (filePtr, "totalRun        %d\n", totalRun);
+        fprintf (filePtr, "currentRun      %d\n", currentRun);
+        fprintf (filePtr, "currentConfig   %s\n\n\n", iterVar[currentRun].c_str());
+    }
 
     // write header
     fprintf (filePtr, "%-12s", "TLid");
