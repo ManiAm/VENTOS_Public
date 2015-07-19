@@ -61,8 +61,9 @@ void LoopDetectors::initialize(int stage)
         if( maxCycleLength < (minGreenTime + yellowTime + redTime) )
             error("maxCycleLength value is wrong!");
 
-        measureTrafficDemand = par("measureTrafficDemand").boolValue();
         measureIntersectionQueue = par("measureIntersectionQueue").boolValue();
+        measureTrafficDemand = par("measureTrafficDemand").boolValue();
+        measureTrafficDemandMode = par("measureTrafficDemandMode").longValue();
         trafficDemandBuffSize = par("trafficDemandBuffSize").longValue();
 
         collectInductionLoopData = par("collectInductionLoopData").boolValue();
@@ -135,13 +136,17 @@ void LoopDetectors::executeFirstTimeStep()
 
             lanesTL[lane] = TLid;
 
+            // initialize queue value in laneQueueSize to zero
+            laneQueueSize[lane] = std::make_pair(TLid, 0);
+
             boost::circular_buffer<std::vector<double>> CB;   // create a circular buffer
             CB.set_capacity(trafficDemandBuffSize);         // set max capacity
             CB.clear();
             laneTD[lane] = std::make_pair(TLid, CB);  // initialize laneTD
 
-            // initialize queue value in laneQueueSize to zero
-            laneQueueSize[lane] = std::make_pair(TLid, 0);
+            // initialize laneTotalVehCount
+            laneVehInfo *entry = new laneVehInfo(-1, -1, 0);
+            laneTotalVehCount.insert( std::make_pair(lane, std::make_pair(TLid, *entry)) );
         }
 
         totalQueueSize[TLid] = std::make_pair(0, lan.size());
@@ -250,13 +255,17 @@ void LoopDetectors::getAllDetectors()
         // for each incoming lane
         for(std::list<std::string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
         {
-            // some traffic signal controls need one actuated LD on each incoming lane
+            // traffic-actuated TSC needs one actuated LD on each incoming lane
             if( TLControlMode == TL_TrafficActuated && LD_actuated.find(*it2) == LD_actuated.end() )
                 std::cout << "WARNING: no loop detector found on lane (" << *it2 << "). No actuation is available for this lane." << endl;
 
             // if we are measuring queue length then make sure we have an area detector in each lane
             if( measureIntersectionQueue && AD_queue.find(*it2) == AD_queue.end() )
                 std::cout << "WARNING: no area detector found on lane (" << *it2 << "). No queue measurement is available for this lane." << endl;
+
+            // if we are measuring traffic demand using loop detectors then make sure we have an LD on each lane
+            if( measureTrafficDemand && LD_demand.find(*it2) == LD_demand.end() )
+                std::cout << "WARNING: no loop detector found on lane (" << *it2 << "). No traffic demand measurement is available for this lane." << endl;
         }
     }
 }
@@ -378,13 +387,13 @@ void LoopDetectors::updateTLstate(std::string TLid, std::string stage, std::stri
             // get green duration
             double green_duration = (location->second).yellowStart - (location->second).greenStart;
 
-//            // todo: make sure green interval is above G_min
-//            if(green_duration - minGreenTime < 0)
-//                error("green interval is less than minGreenTime = %0.3f", minGreenTime);
-//
-//            // make sure green interval is below G_max
-//            if(green_duration - maxGreenTime > 0)
-//                error("green interval is greater than maxGreenTime = %0.3f", maxGreenTime);
+            //            // todo: make sure green interval is above G_min
+            //            if(green_duration - minGreenTime < 0)
+            //                error("green interval is less than minGreenTime = %0.3f", minGreenTime);
+            //
+            //            // make sure green interval is below G_max
+            //            if(green_duration - maxGreenTime > 0)
+            //                error("green interval is greater than maxGreenTime = %0.3f", maxGreenTime);
         }
         else if(stage == "red")
         {
@@ -394,8 +403,8 @@ void LoopDetectors::updateTLstate(std::string TLid, std::string stage, std::stri
             double yellow_duration = (location->second).redStart - (location->second).yellowStart;
 
             // todo:
-//            if( fabs(yellow_duration - yellowTime) < 0.0001 )
-//                error("yellow interval is not %0.3f", yellowTime);
+            //            if( fabs(yellow_duration - yellowTime) < 0.0001 )
+            //                error("yellow interval is not %0.3f", yellowTime);
         }
         else if(stage == "phaseEnd")
         {
@@ -406,8 +415,8 @@ void LoopDetectors::updateTLstate(std::string TLid, std::string stage, std::stri
             double red_duration = (location->second).phaseEnd - (location->second).redStart;
 
             // todo:
-//            if(red_duration - redTime != 0)
-//                error("red interval is not %0.3f", redTime);
+            //            if(red_duration - redTime != 0)
+            //                error("red interval is not %0.3f", redTime);
 
             // get all incoming lanes for this TLid
             std::list<std::string> lan = laneListTL[TLid].second;
@@ -448,6 +457,9 @@ void LoopDetectors::updateTLstate(std::string TLid, std::string stage, std::stri
 
 void LoopDetectors::measureTrafficParameters()
 {
+    bool clearLaneBuff = false;
+    bool clearLinkBuff = false;
+
     // for each 'lane i' that is controlled by traffic light j
     for(std::map<std::string, std::string>::iterator y = lanesTL.begin(); y != lanesTL.end(); ++y)
     {
@@ -481,7 +493,7 @@ void LoopDetectors::measureTrafficParameters()
             {
                 int linkNumber = (*z).second.second;
 
-                // each link gets a portion of the queue size. todo: turn it off by now
+                // each link gets a portion of the queue size (todo: turn it off by now)
                 //int queuePortion = ceil( (double)q / (double)NoLinks );
                 int queuePortion = q;
 
@@ -491,6 +503,7 @@ void LoopDetectors::measureTrafficParameters()
             }
         }
 
+        // traffic demand measurement using induction loops
         if(measureTrafficDemand)
         {
             // make sure we have a demand loop detector in this lane
@@ -503,37 +516,94 @@ void LoopDetectors::measureTrafficParameters()
             double lastDetection_old = loc->second.second;   // lastDetection_old is one step behind lastDetection
             double lastDetection = TraCI->LDGetElapsedTimeLastDetection(LDid);
 
-            double diff = simTime().dbl() - lastDetection_old - updateInterval;
-
             // lastDetection == 0        if a vehicle is above the LD
             // lastDetection_old != 0    if this is the first detection for this vehicle (we ignore any subsequent detections for the same vehicle)
-            // diff > 0.0001             ignore the very first detection on this LDid
-            if(lastDetection == 0 && lastDetection_old != 0 && diff > 0.0001)
+            if(lastDetection == 0 && lastDetection_old != 0)
             {
-                // calculate the traffic demand
-                double TD = 3600. / lastDetection_old;
+                double TD = 0;
 
-                // calculated TD does not represent the condition in the intersection, and is effective after a time
-                double LDPos = TraCI->laneGetLength(lane) - TraCI->LDGetPosition(LDid);  // get position of the LD from end of lane
-                double approachSpeed = TraCI->LDGetLastStepMeanVehicleSpeed(LDid);
-                double lagT = std::fabs(LDPos) / approachSpeed;
-
-                // push it into the circular buffer
-                std::map<std::string, std::pair<std::string, boost::circular_buffer<std::vector<double>>>>::iterator loc = laneTD.find(lane);
-                std::vector<double> entry {TD /*traffic demand*/, simTime().dbl() /*time of measure*/, lagT /*time it takes to arrive at intersection*/};
-                (loc->second).second.push_back(entry);
-
-                // iterate over outgoing links
-                std::pair<std::multimap<std::string, std::pair<std::string, int>>::iterator, std::multimap<std::string, std::pair<std::string, int>>::iterator > ppp;
-                ppp = linksTL.equal_range(lane);
-                for(std::multimap<std::string, std::pair<std::string, int>>::iterator z = ppp.first; z != ppp.second; ++z)
+                // traffic measurement is done by measuring headway time between each two consecutive veh
+                if(measureTrafficDemandMode == 1)
                 {
-                    int linkNumber = (*z).second.second;
+                    double diff = simTime().dbl() - lastDetection_old - updateInterval;
 
-                    // push the new TD into the circular buffer
-                    std::map<std::pair<std::string,int>, boost::circular_buffer<std::vector<double>>>::iterator location = linkTD.find( make_pair(TLid,linkNumber) );
+                    // ignore the very first detection on this LD
+                    if(diff > 0.0001)
+                    {
+                        // calculate the instantaneous traffic demand
+                        TD = 3600. / lastDetection_old;
+                    }
+                }
+                // traffic demand measurement is done by counting total # of passed vehicles in interval
+                else if(measureTrafficDemandMode == 2)
+                {
+                    std::map<std::string, std::pair<std::string, laneVehInfo> >::iterator u = laneTotalVehCount.find(lane);
+
+                    if(u == laneTotalVehCount.end())
+                        error("lane %s does not exist in laneTotalVehCount", lane.c_str());
+
+                    (*u).second.second.totalVehCount = (*u).second.second.totalVehCount + 1;
+                    int totalVehs = (*u).second.second.totalVehCount;
+
+                    // if this is the first vehicle on this lane
+                    if((*u).second.second.totalVehCount == 1)
+                        (*u).second.second.firstArrivalTime = simTime().dbl();
+
+                    // last detection time
+                    (*u).second.second.lastArrivalTime = simTime().dbl();
+
+                    double interval = (*u).second.second.lastArrivalTime - (*u).second.second.firstArrivalTime;
+
+                    // start over if interval becomes too big!
+                    if(interval >= 400.)
+                    {
+                        (*u).second.second.totalVehCount = 0;
+                        (*u).second.second.firstArrivalTime = simTime().dbl();
+
+                        // set clear flag to clear buffers
+                        clearLaneBuff = true;
+                        clearLinkBuff = true;
+                    }
+
+                    TD = (interval == 0) ? 0 : 3600. * ((double)totalVehs / interval);
+                }
+
+                if(TD != 0)
+                {
+                    // calculated TD does not represent the condition in the intersection, and is effective after a time
+                    double LDPos = TraCI->laneGetLength(lane) - TraCI->LDGetPosition(LDid);  // get position of the LD from end of lane
+                    double approachSpeed = TraCI->LDGetLastStepMeanVehicleSpeed(LDid);
+                    double lagT = std::fabs(LDPos) / approachSpeed;
+
+                    // push it into the circular buffer
+                    std::map<std::string, std::pair<std::string, boost::circular_buffer<std::vector<double>>>>::iterator loc = laneTD.find(lane);
                     std::vector<double> entry {TD /*traffic demand*/, simTime().dbl() /*time of measure*/, lagT /*time it takes to arrive at intersection*/};
-                    (location->second).push_back(entry);
+                    (loc->second).second.push_back(entry);
+
+                    if(clearLaneBuff)
+                    {
+                        (loc->second).second.clear();
+                        clearLaneBuff = false;
+                    }
+
+                    // iterate over outgoing links
+                    std::pair<std::multimap<std::string, std::pair<std::string, int>>::iterator, std::multimap<std::string, std::pair<std::string, int>>::iterator > ppp;
+                    ppp = linksTL.equal_range(lane);
+                    for(std::multimap<std::string, std::pair<std::string, int>>::iterator z = ppp.first; z != ppp.second; ++z)
+                    {
+                        int linkNumber = (*z).second.second;
+
+                        // push the new TD into the circular buffer
+                        std::map<std::pair<std::string,int>, boost::circular_buffer<std::vector<double>>>::iterator location = linkTD.find( make_pair(TLid,linkNumber) );
+                        std::vector<double> entry {TD /*traffic demand*/, simTime().dbl() /*time of measure*/, lagT /*time it takes to arrive at intersection*/};
+                        (location->second).push_back(entry);
+
+                        if(clearLinkBuff)
+                        {
+                            (location->second).clear();
+                            clearLinkBuff = false;
+                        }
+                    }
                 }
             }
 

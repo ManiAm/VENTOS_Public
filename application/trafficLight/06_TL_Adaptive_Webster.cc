@@ -47,6 +47,10 @@ void TrafficLightWebster::initialize(int stage)
 
     if(stage == 0)
     {
+        // todo: change this later
+        // saturation = (3*TD) / ( 1-(35/cycle) )
+        // max TD = 1900, max cycle = 120
+        saturation = par("saturation").doubleValue();
         alpha = par("alpha").doubleValue();
         if(alpha < 0 || alpha > 1)
             error("alpha value should be [0,1]");
@@ -160,9 +164,14 @@ void TrafficLightWebster::chooseNextInterval()
     }
     else if (currentInterval == "red")
     {
-        // run Webster at the beginning of the cycle
-        if(nextGreenInterval == phase1_5)
-            calculateGreenSplits();
+        // update TL status for this phase
+        if(nextGreenInterval == firstGreen["C"])
+        {
+            updateTLstate("C", "phaseEnd", nextGreenInterval, true);  // new cycle
+            calculateGreenSplits();  // run Webster at the beginning of the cycle
+        }
+        else
+            updateTLstate("C", "phaseEnd", nextGreenInterval);
 
         currentInterval = nextGreenInterval;
 
@@ -170,12 +179,6 @@ void TrafficLightWebster::chooseNextInterval()
         TraCI->TLSetState("C", nextGreenInterval);
         intervalElapseTime = 0.0;
         intervalOffSet = greenSplit[nextGreenInterval];
-
-        // update TL status for this phase
-        if(nextGreenInterval == firstGreen["C"])
-            updateTLstate("C", "phaseEnd", nextGreenInterval, true);
-        else
-            updateTLstate("C", "phaseEnd", nextGreenInterval);
     }
     else
         chooseNextGreenInterval();
@@ -236,27 +239,22 @@ void TrafficLightWebster::calculateGreenSplits()
 
         if(!buf.empty())
         {
-            std::cout << lane << ": ";
             // calculate 'exponential moving average' of TD for link i
             aveTD = buf[0].at(0);  // get the oldest value (queue front)
-            for (boost::circular_buffer<std::vector<double>>::iterator it = buf.begin(); it != buf.end(); ++it)
+            for (boost::circular_buffer<std::vector<double>>::iterator it = buf.begin()+1; it != buf.end(); ++it)
             {
                 double nextTD = (*it).at(0);
                 aveTD = alpha*nextTD + (1-alpha)*aveTD;
             }
 
-            std::cout << aveTD << " | ";
+            if(aveTD != 0)
+                std::cout << lane << ": " << aveTD << " | ";
         }
     }
     std::cout << endl << endl;
 
-    // todo: change this later
-    // saturation = (3*TD) / ( 1-(35/cycle) )
-    // max TD = 1900, max cycle = 120
-    double saturation = 7000;
-
-    std::string phases[] = {phase1_5, phase2_6, phase3_7, phase4_8};
-    std::map<std::string, double> critical;
+    std::vector<double> critical;
+    critical.clear();
 
     double Y = 0;
     for (std::string prog : phases)
@@ -294,18 +292,17 @@ void TrafficLightWebster::calculateGreenSplits()
             }
         }
 
-        critical[prog] = Y_i;
+        critical.push_back(Y_i);
         Y = Y + Y_i;
     }
 
     // print Y_i for each phase
     std::cout << ">>> critical v/c for each phase: ";
     int activePhases = 0;
-    for(std::map<std::string, double>::iterator y = critical.begin(); y != critical.end(); ++y)
+    for(double y : critical)
     {
-        double val = (*y).second;
-        std::cout << val << ", ";
-        if(val != 0) activePhases++;
+        std::cout << y << ", ";
+        if(y != 0) activePhases++;
     }
     std::cout << endl << endl;
 
@@ -316,11 +313,11 @@ void TrafficLightWebster::calculateGreenSplits()
     // no TD in any directions. Give G_min to each phase
     else if(Y == 0)
     {
+        std::cout << ">>> Total critical v/c is zero! Set green split for each phase to G_min=" << minGreenTime << endl << endl;
+
         // green split for each phase
         for (std::string prog : phases)
             greenSplit[prog] = minGreenTime;
-
-        std::cout << ">>> Total critical v/c is zero! Set green split for each phase to G_min=" << minGreenTime << endl << endl;
     }
     else if(Y > 0 && Y < 1)
     {
@@ -346,10 +343,12 @@ void TrafficLightWebster::calculateGreenSplits()
         double effectiveG = cycle - totalLoss;   // total effective green time
 
         // green split for each phase
+        int phaseNumber = 0;
         for (std::string prog : phases)
         {
-            double GS = (critical[prog] / Y) * effectiveG;
+            double GS = (critical[phaseNumber] / Y) * effectiveG;
             greenSplit[prog] = std::max(minGreenTime, GS);
+            phaseNumber++;
         }
 
         std::cout << "Updating green splits for each phase: ";
