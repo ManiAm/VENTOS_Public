@@ -216,18 +216,18 @@ void TrafficLightActuated::chooseNextInterval()
     }
     else if (currentInterval == "red")
     {
+        // update TL status for this phase
+        if(nextGreenInterval == firstGreen["C"])
+            updateTLstate("C", "phaseEnd", nextGreenInterval, true);
+        else
+            updateTLstate("C", "phaseEnd", nextGreenInterval);
+
         currentInterval = nextGreenInterval;
 
         // set the new state
         TraCI->TLSetState("C", nextGreenInterval);
         intervalElapseTime = 0.0;
         intervalOffSet = minGreenTime;
-
-        // update TL status for this phase
-        if(nextGreenInterval == firstGreen["C"])
-            updateTLstate("C", "phaseEnd", nextGreenInterval, true);
-        else
-            updateTLstate("C", "phaseEnd", nextGreenInterval);
 
         char buff[300];
         sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);

@@ -54,6 +54,10 @@ void TrafficLightBase::initialize(int stage)
 
         updateInterval = TraCI->par("updateInterval").doubleValue();
         TLControlMode = par("TLControlMode").longValue();
+        activeDetection = par("activeDetection").boolValue();
+
+        // initialize RSUptr with NULL
+        RSUptr = NULL;
 
         // get the file paths
         VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
@@ -94,13 +98,50 @@ void TrafficLightBase::receiveSignal(cComponent *source, simsignal_t signalID, l
 
 void TrafficLightBase::executeFirstTimeStep()
 {
-
+    // get a pointer to the RSU module that controls this TL
+    if(activeDetection)
+        findRSU("C");
 }
 
 
 void TrafficLightBase::executeEachTimeStep(bool simulationDone)
 {
 
+}
+
+
+void TrafficLightBase::findRSU(std::string TLid)
+{
+    // get a pointer to the RSU module that controls this intersection
+    cModule *module = simulation.getSystemModule()->getSubmodule("RSU", 0);
+    if(module == NULL)
+        error("No RSU module was found in the network!");
+
+    // how many RSUs are in the network?
+    int RSUcount = module->getVectorSize();
+
+    // iterate over RSUs
+    bool found = false;
+    for(int i = 0; i < RSUcount; ++i)
+    {
+        module = simulation.getSystemModule()->getSubmodule("RSU", i);
+        cModule *appl =  module->getSubmodule("appl");
+        std::string myTLid = appl->par("myTLid").stringValue();
+
+        // we found our RSU
+        if(myTLid == TLid)
+        {
+            RSUptr = static_cast<ApplRSUTLVANET *>(appl);
+            if(RSUptr == NULL)
+                error("Can not get a reference to our RSU!");
+
+            found = true;
+            break;
+        }
+    }
+
+    if(!found)
+        error("TL %s does not have any RSU!", TLid.c_str());
 }
 
 

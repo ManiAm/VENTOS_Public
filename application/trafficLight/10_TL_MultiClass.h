@@ -29,7 +29,6 @@
 #define TRAFFICLIGHTMULTICLASS_H
 
 #include <09_TL_MaxQueue.h>
-#include "ApplRSU_03_TL_VANET.h"
 
 namespace VENTOS {
 
@@ -52,7 +51,16 @@ class TrafficLightMultiClass : public TrafficLightAdaptiveQueue
 
   private:
     bool greenExtension;
-    ApplRSUTLVANET *RSU;
+
+    enum vehTypeWeight
+    {
+        weight_emergency = 50,
+        weight_pedestrian = 40,
+        weight_bicycle = 30,
+        weight_passenger = 20,
+        weight_bus = 10,
+        weight_truck = 1,
+    };
 };
 
 }

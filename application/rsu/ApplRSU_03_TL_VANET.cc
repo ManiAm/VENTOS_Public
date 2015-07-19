@@ -43,21 +43,22 @@ void ApplRSUTLVANET::initialize(int stage)
 {
     ApplRSUAID::initialize(stage);
 
-    // get a pointer to the TrafficLight module
-    cModule *module = simulation.getSystemModule()->getSubmodule("TrafficLight");
-    TLControlMode = module->par("TLControlMode").longValue();
-    minGreenTime = module->par("minGreenTime").doubleValue();
-
-    if (TLControlMode != TL_MultiClass)
-        return;
-
     if (stage==0)
     {
-        // for the TL_VANET we need this RSU to be associated with a TL
-        if(myTLid == "")
-            error("The id of %s does not match with any TL. Check RSUsLocation.xml file!", myFullId);
+        // get a pointer to the TrafficLight module
+        cModule *module = simulation.getSystemModule()->getSubmodule("TrafficLight");
+        TLControlMode = module->par("TLControlMode").longValue();
+        activeDetection = module->par("activeDetection").boolValue();
+        minGreenTime = module->par("minGreenTime").doubleValue();
+
+        if (!activeDetection)
+            return;
 
         collectVehApproach = par("collectVehApproach").boolValue();
+
+        // we need this RSU to be associated with a TL
+        if(myTLid == "")
+            error("The id of %s does not match with any TL. Check RSUsLocation.xml file!", myFullId);
 
         Vec_detectedVehicles.clear();
 
@@ -86,12 +87,12 @@ void ApplRSUTLVANET::initialize(int stage)
             // check if not greater than Gmin
             if(pass > minGreenTime)
             {
-                std::cout << "WARNING: Passage time is greater than Gmin in lane " << lane << endl;
+                std::cout << "WARNING (" << myFullId << "): Passage time is greater than Gmin in lane " << lane << endl;
                 pass = minGreenTime;
             }
 
             // add this lane to the laneInfo map
-            laneInfoEntry *entry = new laneInfoEntry(myTLid /*TLid*/, 0 /*initial detected time*/, pass /*initial passage time*/, std::map<std::string, queuedVehiclesEntry>() /*queued vehicles*/);
+            laneInfoEntry *entry = new laneInfoEntry(myTLid, 0, 0, pass, 0, std::map<std::string, queuedVehiclesEntry>());
             laneInfo.insert( std::make_pair(lane, *entry) );
         }
     }
@@ -114,7 +115,7 @@ void ApplRSUTLVANET::executeEachTimeStep(bool simulationDone)
 {
     ApplRSUAID::executeEachTimeStep(simulationDone);
 
-    if(collectVehApproach)
+    if(activeDetection && collectVehApproach)
     {
         if(ev.isGUI()) saveVehApproach();    // (if in GUI) write what we have collected so far
         else if(simulationDone) saveVehApproach();  // (if in CMD) write to file at the end of simulation
@@ -151,7 +152,7 @@ void ApplRSUTLVANET::onBeaconVehicle(BeaconVehicle* wsm)
 {
     ApplRSUAID::onBeaconVehicle(wsm);
 
-    if (TLControlMode == TL_MultiClass)
+    if (activeDetection)
         onBeaconAny(wsm);
 }
 
@@ -160,7 +161,7 @@ void ApplRSUTLVANET::onBeaconBicycle(BeaconBicycle* wsm)
 {
     ApplRSUAID::onBeaconBicycle(wsm);
 
-    if (TLControlMode == TL_MultiClass)
+    if (activeDetection)
         onBeaconAny(wsm);
 }
 
@@ -169,7 +170,7 @@ void ApplRSUTLVANET::onBeaconPedestrian(BeaconPedestrian* wsm)
 {
     ApplRSUAID::onBeaconPedestrian(wsm);
 
-    if (TLControlMode == TL_MultiClass)
+    if (activeDetection)
         onBeaconAny(wsm);
 }
 
@@ -229,6 +230,13 @@ template <typename T> void ApplRSUTLVANET::onBeaconAny(T wsm)
             std::map<std::string, laneInfoEntry>::iterator loc = laneInfo.find(lane);
             if(loc != laneInfo.end())
             {
+                // update total vehicle count
+                loc->second.totalVehCount = loc->second.totalVehCount + 1;
+
+                // this is the first vehicle on this lane
+                if(loc->second.totalVehCount == 1)
+                    loc->second.firstDetectedTime = simTime().dbl();
+
                 // update detectedTime
                 loc->second.lastDetectedTime = simTime().dbl();
 

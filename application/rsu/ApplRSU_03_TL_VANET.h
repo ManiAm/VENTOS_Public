@@ -81,15 +81,19 @@ class laneInfoEntry
 {
 public:
     std::string TLid;
+    double firstDetectedTime;
     double lastDetectedTime;
     double passageTime;
+    int totalVehCount;
     std::map<std::string /*vehicle id*/, queuedVehiclesEntry> queuedVehicles;
 
-    laneInfoEntry(std::string str1, double d1, double d2, std::map<std::string, queuedVehiclesEntry> mapV)
+    laneInfoEntry(std::string str1, double d1, double d2, double d3, int i1, std::map<std::string, queuedVehiclesEntry> mapV)
     {
         this->TLid = str1;
-        this->lastDetectedTime = d1;
-        this->passageTime = d2;
+        this->firstDetectedTime = d1;
+        this->lastDetectedTime = d2;
+        this->passageTime = d3;
+        this->totalVehCount = i1;
         this->queuedVehicles = mapV;
     }
 };
@@ -122,9 +126,11 @@ class ApplRSUTLVANET : public ApplRSUAID
                                                                   // a local copy of laneInfo that contains the lane info for this specific TL
 
 	private:
-        bool collectVehApproach;
         int TLControlMode;
+        bool activeDetection;
         double minGreenTime;
+
+        bool collectVehApproach;
 
         std::map<std::string /*lane*/, std::string /*TLid*/> lanesTL;     // all incoming lanes for the intersection that this RSU belongs to
         static std::vector<detectedVehicleEntry> Vec_detectedVehicles;    // keeping track of detected vehicles (common in all RSUs)

@@ -79,6 +79,7 @@ protected:
     int SUMOControllerNumber;
 
     int TLControlMode;
+    bool activeDetection;
 };
 
 }

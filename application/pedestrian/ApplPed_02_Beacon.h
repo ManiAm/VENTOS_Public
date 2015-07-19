@@ -53,6 +53,7 @@ class ApplPedBeacon : public ApplPedBase
         // NED variables
         bool smartBeaconing;
         int TLControlMode;
+        bool activeDetection;
 
         // NED variables (data message parameters)
         int dataLengthBits;

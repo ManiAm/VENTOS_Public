@@ -89,6 +89,7 @@ void ApplVBase::initialize(int stage)
 
         cModule *module = simulation.getSystemModule()->getSubmodule("TrafficLight");
         TLControlMode = module->par("TLControlMode").longValue();
+        activeDetection = module->par("activeDetection").boolValue();
 
         // comment this to speed-up the simulation
         //findHost()->subscribe(mobilityStateChangedSignal, this);

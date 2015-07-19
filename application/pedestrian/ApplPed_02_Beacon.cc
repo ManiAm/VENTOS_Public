@@ -57,6 +57,7 @@ void ApplPedBeacon::initialize(int stage)
         smartBeaconing = par("smartBeaconing").boolValue();
         cModule *module = simulation.getSystemModule()->getSubmodule("TrafficLight");
         TLControlMode = module->par("TLControlMode").longValue();
+        activeDetection = module->par("activeDetection").boolValue();
 
         // NED variables (data parameters)
         dataLengthBits = par("dataLengthBits").longValue();
@@ -101,7 +102,7 @@ void ApplPedBeacon::handleSelfMsg(cMessage* msg)
     {
         if(VANETenabled && smartBeaconing)
         {
-            if(TLControlMode == TL_MultiClass)
+            if(activeDetection)
             {
                 Coord myPos = TraCI->personGetPosition(SUMOpID);
                 std::string myEdge = TraCI->personGetEdgeID(SUMOpID);

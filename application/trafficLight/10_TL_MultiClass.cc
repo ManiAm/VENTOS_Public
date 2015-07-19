@@ -51,6 +51,10 @@ void TrafficLightMultiClass::initialize(int stage)
         // NED variables
         greenExtension = par("greenExtension").boolValue();
 
+        // turn on active detection
+        activeDetection = true;
+        this->par("activeDetection") = true;
+
         ChangeEvt = new cMessage("ChangeEvt", 1);
     }
 }
@@ -90,7 +94,7 @@ void TrafficLightMultiClass::executeFirstTimeStep()
     if(TLControlMode != TL_MultiClass)
         return;
 
-    std::cout << endl << "VANET traffic signal control ..." << endl;
+    std::cout << endl << "Multi-class traffic signal control ..." << endl;
 
     // set initial values
     currentInterval = phase1_5;
@@ -110,8 +114,8 @@ void TrafficLightMultiClass::executeFirstTimeStep()
         updateTLstate(*TL, "init", currentInterval);
     }
 
-    // get a pointer to the RSU module that controls this TL
-    findRSU("C");
+    // make sure RSUptr is pointing to our corresponding RSU
+    ASSERT(RSUptr);
 
     char buff[300];
     sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
@@ -148,41 +152,6 @@ void TrafficLightMultiClass::executeEachTimeStep(bool simulationDone)
 }
 
 
-void TrafficLightMultiClass::findRSU(std::string TLid)
-{
-    // get a pointer to the RSU module that controls this intersection
-    cModule *module = simulation.getSystemModule()->getSubmodule("RSU", 0);
-    if(module == NULL)
-        error("No RSU module was found in the network!");
-
-    // how many RSUs are in the network?
-    int RSUcount = module->getVectorSize();
-
-    // iterate over RSUs
-    bool found = false;
-    for(int i = 0; i < RSUcount; ++i)
-    {
-        module = simulation.getSystemModule()->getSubmodule("RSU", i);
-        cModule *appl =  module->getSubmodule("appl");
-        std::string myTLid = appl->par("myTLid").stringValue();
-
-        // we found our RSU
-        if(myTLid == TLid)
-        {
-            RSU = static_cast<ApplRSUTLVANET *>(appl);
-            if(RSU == NULL)
-                error("Can not get a reference to our RSU!");
-
-            found = true;
-            break;
-        }
-    }
-
-    if(!found)
-        error("TL %s does not have any RSU!", TLid.c_str());
-}
-
-
 void TrafficLightMultiClass::chooseNextInterval()
 {
     if (currentInterval == "yellow")
@@ -212,18 +181,18 @@ void TrafficLightMultiClass::chooseNextInterval()
     }
     else if (currentInterval == "red")
     {
+        // update TL status for this phase
+        if(nextGreenInterval == firstGreen["C"])
+            updateTLstate("C", "phaseEnd", nextGreenInterval, true);
+        else
+            updateTLstate("C", "phaseEnd", nextGreenInterval);
+
         currentInterval = nextGreenInterval;
 
         // set the new state
         TraCI->TLSetState("C", nextGreenInterval);
         intervalElapseTime = 0.0;
         intervalOffSet = minGreenTime;
-
-        // update TL status for this phase
-        if(nextGreenInterval == firstGreen["C"])
-            updateTLstate("C", "phaseEnd", nextGreenInterval, true);
-        else
-            updateTLstate("C", "phaseEnd", nextGreenInterval);
 
         char buff[300];
         sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
@@ -236,7 +205,7 @@ void TrafficLightMultiClass::chooseNextInterval()
 
 void TrafficLightMultiClass::chooseNextGreenInterval()
 {
-    std::map<std::string, laneInfoEntry> laneInfo = RSU->laneInfo;
+    std::map<std::string, laneInfoEntry> laneInfo = RSUptr->laneInfo;
 
     std::map<std::string, double> lastDetectionTime;
     std::map<std::string, double> passageTime;
@@ -246,6 +215,7 @@ void TrafficLightMultiClass::chooseNextGreenInterval()
         std::string lane = (*it).first;
         lastDetectionTime[lane] = (*it).second.lastDetectedTime;
         passageTime[lane] = (*it).second.passageTime;
+    //    std::map<std::string /*vehicle id*/, queuedVehiclesEntry> queuedVehicles;
     }
 
 

@@ -31,6 +31,7 @@
 #include <BaseModule.h>
 #include <Appl.h>
 #include "TraCI_Extend.h"
+#include "ApplRSU_03_TL_VANET.h"
 
 namespace VENTOS {
 
@@ -46,8 +47,10 @@ class TrafficLightBase : public BaseModule
   protected:
       double updateInterval;
       int TLControlMode;
+      bool activeDetection;
 
       TraCI_Extend *TraCI;
+      ApplRSUTLVANET *RSUptr;
       simsignal_t Signal_executeFirstTS;
       simsignal_t Signal_executeEachTS;
 
@@ -58,6 +61,9 @@ class TrafficLightBase : public BaseModule
   protected:
       virtual void executeFirstTimeStep();
       virtual void executeEachTimeStep(bool);
+
+  private:
+      void findRSU(std::string);
 };
 
 }

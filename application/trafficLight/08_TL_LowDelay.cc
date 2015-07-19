@@ -184,18 +184,18 @@ void TrafficLightLowDelay::chooseNextInterval()
     }
     else if (currentInterval == "red")
     {
+        // update TL status for this phase
+        if(nextGreenInterval == firstGreen["C"])
+            updateTLstate("C", "phaseEnd", nextGreenInterval, true);   // todo: the notion of cycle?
+        else
+            updateTLstate("C", "phaseEnd", nextGreenInterval);
+
         currentInterval = nextGreenInterval;
 
         // set the new state
         TraCI->TLSetState("C", nextGreenInterval);
         intervalElapseTime = 0.0;
         intervalOffSet = nextGreenTime;
-
-        // update TL status for this phase
-        if(nextGreenInterval == firstGreen["C"])
-            updateTLstate("C", "phaseEnd", nextGreenInterval, true);   // todo: the notion of cycle?
-        else
-            updateTLstate("C", "phaseEnd", nextGreenInterval);
     }
     else
         chooseNextGreenInterval();

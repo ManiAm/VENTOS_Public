@@ -235,13 +235,6 @@ void TrafficLightAdaptiveQueue::chooseNextInterval()
     }
     else if (currentInterval == "red")
     {
-        currentInterval = nextGreenInterval;
-
-        // set the new state
-        TraCI->TLSetState("C", nextGreenInterval);
-        intervalElapseTime = 0.0;
-        intervalOffSet = greenInterval.front().greenTime;
-
         if(nextGreenIsNewCycle)
         {
             updateTLstate("C", "phaseEnd", nextGreenInterval, true);  // a new cycle
@@ -249,6 +242,13 @@ void TrafficLightAdaptiveQueue::chooseNextInterval()
         }
         else
             updateTLstate("C", "phaseEnd", nextGreenInterval);
+
+        currentInterval = nextGreenInterval;
+
+        // set the new state
+        TraCI->TLSetState("C", nextGreenInterval);
+        intervalElapseTime = 0.0;
+        intervalOffSet = greenInterval.front().greenTime;
     }
     else
         chooseNextGreenInterval();
