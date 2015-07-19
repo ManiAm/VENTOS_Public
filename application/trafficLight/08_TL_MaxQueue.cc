@@ -24,7 +24,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <09_TL_MaxQueue.h>
+#include <08_TL_MaxQueue.h>
 
 namespace VENTOS {
 
@@ -111,7 +111,7 @@ TrafficLightAdaptiveQueue::~TrafficLightAdaptiveQueue()
 
 void TrafficLightAdaptiveQueue::initialize(int stage)
 {
-    TrafficLightLowDelay::initialize(stage);
+    TrafficLightActuated::initialize(stage);
 
     if(TLControlMode != TL_Adaptive_Time_Queue)
         return;
@@ -134,13 +134,13 @@ void TrafficLightAdaptiveQueue::initialize(int stage)
 
 void TrafficLightAdaptiveQueue::finish()
 {
-    TrafficLightLowDelay::finish();
+    TrafficLightActuated::finish();
 }
 
 
 void TrafficLightAdaptiveQueue::handleMessage(cMessage *msg)
 {
-    TrafficLightLowDelay::handleMessage(msg);
+    TrafficLightActuated::handleMessage(msg);
 
     if(TLControlMode != TL_Adaptive_Time_Queue)
         return;
@@ -163,7 +163,7 @@ void TrafficLightAdaptiveQueue::handleMessage(cMessage *msg)
 
 void TrafficLightAdaptiveQueue::executeFirstTimeStep()
 {
-    TrafficLightLowDelay::executeFirstTimeStep();
+    TrafficLightActuated::executeFirstTimeStep();
 
     if(TLControlMode != TL_Adaptive_Time_Queue)
         return;
@@ -200,7 +200,7 @@ void TrafficLightAdaptiveQueue::executeFirstTimeStep()
 
 void TrafficLightAdaptiveQueue::executeEachTimeStep(bool simulationDone)
 {
-    TrafficLightLowDelay::executeEachTimeStep(simulationDone);
+    TrafficLightActuated::executeEachTimeStep(simulationDone);
 
     if(TLControlMode != TL_Adaptive_Time_Queue)
         return;

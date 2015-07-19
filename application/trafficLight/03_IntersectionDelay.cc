@@ -155,7 +155,7 @@ void IntersectionDelay::vehiclesDelay()
 
 void IntersectionDelay::vehiclesDelayEach(std::string vID)
 {
-    // look for the vehicle in delay map
+    // get a pointer to the vehicle
     std::map<std::string, delayEntry>::iterator loc = vehDelay.find(vID);
 
     // if the vehicle is controlled by a TL
@@ -320,6 +320,7 @@ void IntersectionDelay::vehiclesDelayEach(std::string vID)
 
 void IntersectionDelay::vehiclesAccuDelay(std::string vID, std::map<std::string, delayEntry>::iterator loc)
 {
+    // as long as the vehicle does not cross the intersection
     if(!loc->second.crossedIntersection)
     {
         loc->second.accumDelay = simTime().dbl() - loc->second.startDeccel;
@@ -330,7 +331,7 @@ void IntersectionDelay::vehiclesAccuDelay(std::string vID, std::map<std::string,
         if(loc->second.accumDelay > simTime().dbl())
             error("accumulated delay can not be greater than the current simTime for vehicle %s", vID.c_str());
 
-        // update accumDelay of this vehicle in laneDelay map
+        // update accumDelay of this vehicle in laneDelay
         std::map<std::string,double>::iterator loc2 = laneDelay[loc->second.lastLane].find(vID);
         if(loc2 == laneDelay[loc->second.lastLane].end())
             laneDelay[loc->second.lastLane].insert(std::make_pair(vID,loc->second.accumDelay));
@@ -418,7 +419,7 @@ void IntersectionDelay::vehiclesDelayToFile()
     }
 
     // write header
-    fprintf (filePtr, "%-15s","vehicleName");
+    fprintf (filePtr, "%-25s","vehicleName");
     fprintf (filePtr, "%-10s","TLid");
     fprintf (filePtr, "%-10s","lastLane");
     fprintf (filePtr, "%-15s","entrance");
@@ -433,7 +434,7 @@ void IntersectionDelay::vehiclesDelayToFile()
     // write body
     for(std::map<std::string, delayEntry>::iterator y =  vehDelay.begin(); y != vehDelay.end(); ++y)
     {
-        fprintf (filePtr, "%-15s", (*y).first.c_str());
+        fprintf (filePtr, "%-25s", (*y).first.c_str());
         fprintf (filePtr, "%-10s", (*y).second.TLid.c_str());
         fprintf (filePtr, "%-10s", (*y).second.lastLane.c_str());
         fprintf (filePtr, "%-15.2f", (*y).second.intersectionEntrance);

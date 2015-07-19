@@ -1,7 +1,7 @@
 /****************************************************************************/
-/// @file    TL_MaxQueue.h
+/// @file    TL_LowDelay.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
-/// @date    August 2013
+/// @date    Jul 2015
 ///
 /****************************************************************************/
 // VENTOS, Vehicular Network Open Simulator; see http:?
@@ -24,50 +24,31 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef TRAFFICLIGHTADAPTIVEQUEUE_H
-#define TRAFFICLIGHTADAPTIVEQUEUE_H
+#ifndef TRAFFICLIGHTLOWDELAY_H
+#define TRAFFICLIGHTLOWDELAY_H
 
-#include <08_TL_LowDelay.h>
+#include <08_TL_MaxQueue.h>
 
 namespace VENTOS {
 
-class greenIntervalInfo
+class TrafficLightLowDelay : public TrafficLightAdaptiveQueue
 {
-public:
-    int maxVehCount;
-    double greenTime;
-    std::string greenString;
-
-    greenIntervalInfo(int i1, double d1, std::string str)
-    {
-        this->maxVehCount = i1;
-        this->greenTime = d1;
-        this->greenString = str;
-    }
-};
-
-
-class TrafficLightAdaptiveQueue : public TrafficLightLowDelay
-{
-public:
-    virtual ~TrafficLightAdaptiveQueue();
+  public:
+    virtual ~TrafficLightLowDelay();
     virtual void finish();
     virtual void initialize(int);
     virtual void handleMessage(cMessage *);
 
-protected:
+  protected:
     void virtual executeFirstTimeStep();
     void virtual executeEachTimeStep(bool);
 
-private:
+  private:
     void chooseNextInterval();
     void chooseNextGreenInterval();
-    void calculatePhases(std::string);
 
-private:
-    int maxQueueSize;
-    bool nextGreenIsNewCycle;
-    std::vector<greenIntervalInfo> greenInterval;
+  private:
+    double nextGreenTime;
 };
 
 }

@@ -28,11 +28,11 @@
 #ifndef TRAFFICLIGHTMULTICLASS_H
 #define TRAFFICLIGHTMULTICLASS_H
 
-#include <09_TL_MaxQueue.h>
+#include <09_TL_LowDelay.h>
 
 namespace VENTOS {
 
-class TrafficLightMultiClass : public TrafficLightAdaptiveQueue
+class TrafficLightMultiClass : public TrafficLightLowDelay
 {
   public:
     virtual ~TrafficLightMultiClass();

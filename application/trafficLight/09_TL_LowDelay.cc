@@ -24,7 +24,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <08_TL_LowDelay.h>
+#include <09_TL_LowDelay.h>
 #include <iomanip>
 #include <algorithm>
 
@@ -73,7 +73,7 @@ TrafficLightLowDelay::~TrafficLightLowDelay()
 
 void TrafficLightLowDelay::initialize(int stage)
 {
-    TrafficLightActuated::initialize(stage);
+    TrafficLightAdaptiveQueue::initialize(stage);
 
     if(TLControlMode != TL_LowDelay)
         return;
@@ -87,13 +87,13 @@ void TrafficLightLowDelay::initialize(int stage)
 
 void TrafficLightLowDelay::finish()
 {
-    TrafficLightActuated::finish();
+    TrafficLightAdaptiveQueue::finish();
 }
 
 
 void TrafficLightLowDelay::handleMessage(cMessage *msg)
 {
-    TrafficLightActuated::handleMessage(msg);
+    TrafficLightAdaptiveQueue::handleMessage(msg);
 
     if(TLControlMode != TL_LowDelay)
         return;
@@ -113,7 +113,7 @@ void TrafficLightLowDelay::handleMessage(cMessage *msg)
 
 void TrafficLightLowDelay::executeFirstTimeStep()
 {
-    TrafficLightActuated::executeFirstTimeStep();
+    TrafficLightAdaptiveQueue::executeFirstTimeStep();
 
     if(TLControlMode != TL_LowDelay)
         return;
@@ -149,7 +149,7 @@ void TrafficLightLowDelay::executeFirstTimeStep()
 
 void TrafficLightLowDelay::executeEachTimeStep(bool simulationDone)
 {
-    TrafficLightActuated::executeEachTimeStep(simulationDone);
+    TrafficLightAdaptiveQueue::executeEachTimeStep(simulationDone);
 
     if(TLControlMode != TL_LowDelay)
         return;
@@ -309,8 +309,8 @@ void TrafficLightLowDelay::chooseNextGreenInterval()
     // allocate enough green time to move all delayed vehicle
     int maxVehCount = entry.maxVehCount;
     double greenTime = (double)maxVehCount * (minGreenTime / 5.);
-    nextGreenTime = std::max(minGreenTime, greenTime);
-    nextGreenTime = std::min(maxGreenTime, nextGreenTime);
+    // bound green time
+    nextGreenTime = std::min(std::max(greenTime, minGreenTime), maxGreenTime);
     std::cout << "Maximum of " << maxVehCount << " vehicles are waiting. ";
     std::cout << "Next green time is " << nextGreenTime << endl << endl;
 

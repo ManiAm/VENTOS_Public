@@ -108,8 +108,8 @@ enum TLControlTypes
     TL_Fix_Time,
     TL_Adaptive_Webster,
     TL_TrafficActuated,
-    TL_LowDelay,
     TL_Adaptive_Time_Queue,
+    TL_LowDelay,
     TL_MultiClass,
     TL_Router
 };
