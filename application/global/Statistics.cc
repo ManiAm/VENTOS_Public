@@ -250,8 +250,8 @@ void Statistics::saveVehicleData(std::string vID)
     double timeGapSetting = -1;
     double spaceGap = -2;
     double timeGap = -2;
-    std::string TLid = "n/a";  // TLid that controls this vehicle. Empty string means the vehicle is not controlled by any TLid
-    char linkStatus = '\0';      // status of the TL ahead (character 'n' means no TL ahead)
+    std::string TLid = "n/a";   // TLid that controls this vehicle. Empty string means the vehicle is not controlled by any TLid
+    char linkStatus = '\0';     // status of the TL ahead (character 'n' means no TL ahead)
 
     // full collection
     if(vehicleDataLevel == 1)
@@ -295,14 +295,10 @@ void Statistics::saveVehicleData(std::string vID)
         // get the timeGap setting
         timeGapSetting = TraCI->vehicleGetTimeGap(vID);
 
-        // get the gap
+        // get the space gap
         std::vector<std::string> vleaderIDnew = TraCI->vehicleGetLeader(vID, 900);
         std::string vleaderID = vleaderIDnew[0];
-
-        if(vleaderID != "")
-            spaceGap = atof( vleaderIDnew[1].c_str() );
-        else
-            spaceGap = -1;
+        spaceGap = (vleaderID != "") ? atof(vleaderIDnew[1].c_str()) : -1;
 
         // calculate timeGap (if leading is present)
         if(vleaderID != "" && speed != 0)
@@ -335,6 +331,19 @@ void Statistics::saveVehicleData(std::string vID)
         lane = TraCI->vehicleGetLaneID(vID);
         speed = TraCI->vehicleGetSpeed(vID);
         linkStatus = TraCI->vehicleGetTLLinkStatus(vID);
+    }
+    // CACC vehicle stream
+    else if(vehicleDataLevel == 4)
+    {
+        timeStep = (simTime()-updateInterval).dbl();
+        pos = TraCI->vehicleGetLanePosition(vID);
+        speed = TraCI->vehicleGetSpeed(vID);
+        accel = TraCI->vehicleGetCurrentAccel(vID);
+
+        // get the space gap
+        std::vector<std::string> vleaderIDnew = TraCI->vehicleGetLeader(vID, 900);
+        std::string vleaderID = vleaderIDnew[0];
+        spaceGap = (vleaderID != "") ? atof(vleaderIDnew[1].c_str()) : -1;
     }
 
     VehicleData *tmp = new VehicleData(timeStep, vID.c_str(), vType.c_str(),

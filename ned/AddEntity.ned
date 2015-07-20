@@ -11,6 +11,8 @@ simple AddEntity
         int mode;
         
         int totalVehicles;
+        string vehiclesType;
+        
         int lambda;
         int plnSize;
         double plnSpace = default(3.5s) @unit(s);

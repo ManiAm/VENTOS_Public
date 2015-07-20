@@ -56,6 +56,7 @@ void AddEntity::initialize(int stage)
         on = par("on").boolValue();
         mode = par("mode").longValue();
         totalVehicles = par("totalVehicles").longValue();
+        vehiclesType = par("vehiclesType").stringValue();
         lambda = par("lambda").longValue();
         plnSize = par("plnSize").longValue();
         plnSpace = par("plnSpace").doubleValue();
@@ -118,14 +119,6 @@ void AddEntity::Add()
     {
         Scenario1();
     }
-    else if(mode == 2)
-    {
-        Scenario2();
-    }
-    else if(mode == 3)
-    {
-        Scenario3();
-    }
     else if(mode == 4)
     {
         Scenario4();
@@ -165,52 +158,23 @@ void AddEntity::Add()
 }
 
 
-// adding TypeCACC1 vehicles (CACC vehicles with one-vehicle look-ahead communication)
+// adding 'totalVehicles' vehicles with type 'vehiclesType'
 void AddEntity::Scenario1()
 {
     int depart = 0;
 
     for(int i=1; i<=totalVehicles; i++)
     {
-        char vehicleName[10];
-        sprintf(vehicleName, "CACC%d", i);
+        char vehicleName[90];
+        sprintf(vehicleName, "veh_%s_%d", vehiclesType.c_str(), i);
         depart = depart + 10000;
 
-        TraCI->vehicleAdd(vehicleName, "TypeCACC1", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
+        TraCI->vehicleAdd(vehicleName, vehiclesType, "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
     }
 }
 
 
-void AddEntity::Scenario2()
-{
-    int depart = 0;
-
-    for(int i=1; i<=totalVehicles; i++)
-    {
-        char vehicleName[10];
-        sprintf(vehicleName, "CACC%d", i);
-        depart = depart + 10000;
-
-        TraCI->vehicleAdd(vehicleName, "TypeCACC2", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
-    }
-}
-
-
-void AddEntity::Scenario3()
-{
-    int depart = 0;
-
-    for(int i=1; i<=totalVehicles; i++)
-    {
-        char vehicleName[10];
-        sprintf(vehicleName, "CACC%d", i);
-        depart = depart + 10000;
-
-        TraCI->vehicleAdd(vehicleName, "TypeCACC3", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
-    }
-}
-
-
+// todo: merge into scenario1
 void AddEntity::Scenario4()
 {
     // change from 'veh/h' to 'veh/s'
@@ -223,7 +187,7 @@ void AddEntity::Scenario4()
 
     for(int i=0; i<totalVehicles; i++)
     {
-        char vehicleName[10];
+        char vehicleName[90];
         sprintf(vehicleName, "CACC%d", i+1);
         depart = depart + interval;
 
@@ -232,13 +196,14 @@ void AddEntity::Scenario4()
 }
 
 
+// todo: remove this scenario (background traffic)
 void AddEntity::Scenario5()
 {
     int depart = 0;
 
     for(int i=1; i<=10; i++)
     {
-        char vehicleName[10];
+        char vehicleName[90];
         sprintf(vehicleName, "CACC%d", i);
         depart = depart + 1000;
 
@@ -247,7 +212,7 @@ void AddEntity::Scenario5()
 
     for(int i=11; i<=100; i++)
     {
-        char vehicleName[10];
+        char vehicleName[90];
         sprintf(vehicleName, "CACC%d", i);
         depart = depart + 10000;
 
@@ -275,7 +240,7 @@ void AddEntity::Scenario6()
 
     for(int i=0; i<totalVehicles; i++)
     {
-        char vehicleName[10];
+        char vehicleName[90];
         sprintf(vehicleName, "CACC%d", i+1);
         depart = depart + interval;
 
@@ -299,13 +264,14 @@ void AddEntity::Scenario6()
 }
 
 
+// incident detection
 void AddEntity::Scenario7()
 {
     int depart = 0;
 
     for(int i=1; i<=totalVehicles; i++)
     {
-        char vehicleName[10];
+        char vehicleName[90];
         sprintf(vehicleName, "Veh%d", i);
         depart = depart + 9000;
 
@@ -328,8 +294,7 @@ void AddEntity::Scenario7()
 }
 
 
-std::vector<std::string> getEdgeNames(std::string netName)
-                                                        {
+std::vector<std::string> getEdgeNames(std::string netName) {
     std::vector<std::string> edgeNames;
 
     rapidxml::file <> xmlFile(netName.c_str());
@@ -340,10 +305,9 @@ std::vector<std::string> getEdgeNames(std::string netName)
         edgeNames.push_back(node->first_attribute()->value());
 
     return edgeNames;
-                                                        }
+}
 
-std::vector<std::string> getNodeNames(std::string netName)
-                                                        {
+std::vector<std::string> getNodeNames(std::string netName) {
     std::vector<std::string> nodeNames;
     rapidxml::file <> xmlFile(netName.c_str());
     rapidxml::xml_document<> doc;
@@ -353,7 +317,7 @@ std::vector<std::string> getNodeNames(std::string netName)
         nodeNames.push_back(node->first_attribute()->value());
 
     return nodeNames;
-                                                        }
+}
 
 double curve(double x)  //Input will linearly increase from 0 to 1, from first to last vehicle.
 {                       //Output should be between 0 and 1, scaled by some function
@@ -479,7 +443,7 @@ void AddEntity::Scenario9()
     double pES = 700. / 3600.;
 
     int vehNum = 0;
-    char vehicleName[10];
+    char vehicleName[90];
 
     std::mt19937 generator(43);   // mersenne twister engine (seed is fixed to make tests reproducible)
     std::uniform_real_distribution<> distribution(0,1);  // random numbers have uniform distribution between 0 and 1

@@ -48,8 +48,6 @@ private:
     void Add();
 
     void Scenario1();
-    void Scenario2();
-    void Scenario3();
     void Scenario4();
     void Scenario5();
     void Scenario6();
@@ -68,6 +66,7 @@ private:
     bool on;
     int mode;
     int totalVehicles;
+    std::string vehiclesType;
     double lambda;
     int plnSize;
     double plnSpace;

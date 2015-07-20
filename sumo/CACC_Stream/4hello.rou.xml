@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <routes>
 
-  <!-- Krauss Model -->
+  <!-- Krauss Model (tau here is T_g and not controller delay!) -->
   <vType id="TypeManual" length="5.0" minGap="2.0" maxSpeed="30.0" vClass="passenger">
-      <carFollowing-Krauss accel="3.0" decel="5.0" sigma="0" tau="0.5" />
+      <carFollowing-Krauss accel="3.0" decel="5.0" sigma="0" tau="1.64" />
   </vType>  
   
   <!-- ACC vehicle -->
   <vType id="TypeACC1" length="5.0" minGap="2.0" maxSpeed="30.0" vClass="passenger">
-      <carFollowing-ACC controllerNumber="1" MaxAccel="3.0" MaxDecel="5.0" T_g="1.2" tau="0.5" ComfAccel="3.0" ComfDecel="5.0" K_sc="0.4" K_v="1.0" K_g="5.0" V_int="30.0" />
+      <carFollowing-ACC controllerNumber="1" MaxAccel="3.0" MaxDecel="5.0" T_g="1.54" tau="0.5" ComfAccel="3.0" ComfDecel="5.0" K_sc="0.4" K_v="1.0" K_g="5.0" V_int="30.0" />
   </vType>  
 
   <!-- CACC vehicle with one-vehicle look-ahead communication -->
   <vType id="TypeCACC1" length="5.0" minGap="2.0" maxSpeed="30.0" vClass="passenger">
-      <carFollowing-CACC controllerNumber="1" MaxAccel="3.0" MaxDecel="5.0" T_g="0.7" tau="0.5" ComfAccel="3.0" ComfDecel="5.0" K_sc="0.4" K_v="0.99" K_g="4.08" K_a="0.66" V_int="30.0" />
+      <carFollowing-CACC controllerNumber="1" MaxAccel="3.0" MaxDecel="5.0" T_g="0.71" tau="0.5" ComfAccel="3.0" ComfDecel="5.0" K_sc="0.4" K_v="0.99" K_g="4.08" K_a="0.66" V_int="30.0" />
   </vType>
   
   <!-- CACC vehicle with acceleration from platoon leader -->
   <vType id="TypeCACC2" length="5.0" minGap="3.0" maxSpeed="30.0" vClass="passenger">
-      <carFollowing-CACC controllerNumber="2" MaxAccel="3.0" MaxDecel="5.0" T_g="0.7" tau="0.5" ComfAccel="3.0" ComfDecel="5.0" K_sc="0.4" K_v="1.0" K_g="5.0" K_a="1.0" V_int="30.0" />
+      <carFollowing-CACC controllerNumber="2" MaxAccel="3.0" MaxDecel="5.0" T_g="0.71" tau="0.5" ComfAccel="3.0" ComfDecel="5.0" K_sc="0.4" K_v="1.0" K_g="5.0" K_a="1.0" V_int="30.0" />
   </vType>
   
   <!-- CACC vehicle with bi-directional control -->

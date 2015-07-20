@@ -309,8 +309,7 @@ void SpeedProfile::ExTrajectory(double startT)
     }
     else if( simTime().dbl() == startT )
     {
-        // TraCI->commandSetSpeed(profileVehicle, 13.86);
-        TraCI->vehicleSetSpeed("CACC1", 20.);
+        TraCI->vehicleSetSpeed(profileVehicle, 20.);
         return;
     }
     else if( simTime().dbl() < 80 )
