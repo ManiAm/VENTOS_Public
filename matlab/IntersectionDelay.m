@@ -92,8 +92,7 @@ indexTS = zeros(7,rows) - 1;
 for i=1:rows 
     
     % get the current vehicle name
-    vehicle = char(vehicles(i,1));
-        
+    vehicle = char(vehicles(i,1));        
     vNumber = find(ismember(vIDs,vehicle)); 
 
     indexTS(1,vNumber) = double(entrance(i,1));       

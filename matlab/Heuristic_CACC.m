@@ -3,39 +3,41 @@ clear all;
 close all;
 clc;
 
-path = '../results/gui/vehicleData.txt';
-
-file_id = fopen(path);
-formatSpec = '%d %f %s %s %s %f %f %f %s %f %f %f %s';
-C_text = textscan(file_id, formatSpec, 'HeaderLines', 3);
-fclose(file_id);
-
 % ---------------------------------------------------------------
-    
+
+disp('reading and parsing the vehData.txt file ...');
+
+path = '../results/cmd/000_vehicleData.txt';
+file_id = fopen(path);
+formatSpec = '%d %f %s %f %f %f %f';
+C_text = textscan(file_id, formatSpec, 'HeaderLines', 8);
+fclose(file_id);
+   
 indices = C_text{1,1};
 timeSteps = C_text{1,2};
 vehicles = C_text{1,3};  
-pos = C_text{1,6};
-speeds = C_text{1,7};
-accel = C_text{1,8};
-gaps = C_text{1,11};
-timeGaps = C_text{1,12};
+pos = C_text{1,4};
+speeds = C_text{1,5};
+accel = C_text{1,6};
+spaceGaps = C_text{1,7};
 
 % ---------------------------------------------------------------
     
 % stores vehicle IDs
-vIDs = {};
+vIDs = unique(vehicles);
+vIDs = sort_nat(vIDs);
+VehNumbers = size(vIDs,1);
 
-[rows,~] = size(vehicles);
 n = indices(end,1);
 
 % preallocating and initialization with -1
 vehiclesTS = zeros(n,1) - 1;
-vehiclePos = zeros(n,1) - 1;
-vehiclesSpeed = zeros(n,1) - 1;
-vehiclesAccel = zeros(n,1) - 1;
-vehiclesGap = zeros(n,1) - 1;
-vehiclesTimeGap = zeros(n,1) - 1;
+vehiclePos = zeros(n,VehNumbers) - 1;
+vehiclesSpeed = zeros(n,VehNumbers) - 1;
+vehiclesAccel = zeros(n,VehNumbers) - 1;
+vehiclesSpaceGap = zeros(n,VehNumbers) - 1;
+
+rows = size(vehicles,1);
 
 for i=1:rows   
         
@@ -46,127 +48,123 @@ for i=1:rows
     
     % get the current vehicle name
     vehicle = char(vehicles(i,1));
-        
-    vNumber = find(ismember(vIDs,vehicle));        
-    if( isempty(vNumber) )
-        vIDs{end+1} = vehicle;
-        [~,vNumber] = size(vIDs);
-    end   
+    vNumber = find(ismember(vIDs,vehicle));  
 
-    vehiclesSpeed(index,vNumber) = speeds(i,1); 
     vehiclePos(index,vNumber) = pos(i,1);
+    vehiclesSpeed(index,vNumber) = speeds(i,1); 
     vehiclesAccel(index,vNumber) = accel(i,1);
-    vehiclesGap(index,vNumber) = gaps(i,1);
-    vehiclesTimeGap(index,vNumber) = timeGaps(i,1);  
+    vehiclesSpaceGap(index,vNumber) = spaceGaps(i,1); 
     
 end
+
+% ---------------------------------------------------------------
     
-[~, VehNumbers] = size(vIDs);
+% plot speed profile of vehicles    
 
-    % ---------------------------------------------------------------
+disp('plotting the speed profile ...');
+
+figure('name', 'Speed Profile', 'units', 'normalized', 'outerposition', [0 0 1 1]);
+
+handle1 = plot(vehiclesTS,vehiclesSpeed,'LineWidth', 3);
+
+% set the x-axis limit
+set( gca, 'XLim', [0 vehiclesTS(end)] );
     
-    % speed profile of vehicles    
+% set the y-axis limit
+set( gca, 'YLim', [-1 32] );
 
-    figure('name','Speed','units','normalized','outerposition',[0 0 1 1]);
+% set font size
+set(gca, 'FontSize', 19);
 
-    handle1 = plot(vehiclesTS,vehiclesSpeed,'LineWidth', 3);
+% set the axis labels
+xlabel('Time (s)', 'FontSize', 19);
+ylabel('Speed (m/s)', 'FontSize', 19);
 
-    % set the x-axis limit
-    set( gca, 'XLim', [0 vehiclesTS(end)] );
+grid on;
+  
+% speed profile of first vehicle (dashed line)
+set(handle1(1), 'LineStyle', '-.');
     
-    % set the y-axis limit
-    set( gca, 'YLim', [0 35] );
-
-    % set font size
-    set(gca, 'FontSize', 19);
-
-    % set the axis labels
-    xlabel('Simulation Time (s)', 'FontSize', 19);
-    ylabel('Speed (m/s)', 'FontSize', 19);
-
-    grid on;
+% set the name for each line
+for i=1:VehNumbers
+    name = sprintf('veh %2d', i);
+    set(handle1(i),'Displayname', name);   
+end
     
-    % speed profile of first vehicle (dashed line)
-    set(handle1(1), 'LineStyle', '-.');
-    
-    % set the name for each line
-    for i=1:VehNumbers
-        name = sprintf('veh %2d', i);
-        set(handle1(i),'Displayname', name);   
-    end
-    
-    % set the legend
-    legend(handle1, 'Location','NorthEastOutside');    
+% set the legend
+legend(handle1, 'Location','NorthEastOutside');   
 
-    % --------------------------------------------------------------
+% --------------------------------------------------------------
        
-    % time-space diagram of vehicles 
+% plot time-space diagram of vehicles 
 
-    figure('name','Gap','units','normalized','outerposition',[0 0 1 1]);
+disp('plotting the time-space ...');
 
-    handle2 = plot(vehiclesTS,vehiclePos,'LineWidth', 3);
+figure('name','Time-Space','units','normalized','outerposition',[0 0 1 1]);
 
-    % set the x-axis limit
-    set( gca, 'XLim', [0 vehiclesTS(end)] );
+handle2 = plot(vehiclesTS,vehiclePos,'LineWidth', 3);
+
+% set the x-axis limit
+set( gca, 'XLim', [0 vehiclesTS(end)] );
     
-    % set the y-axis limit
-    %set( gca, 'YLim', [0 120] );
+% set the y-axis limit
+% set( gca, 'YLim', [-1 32] );
 
-    % set font size
-    set(gca, 'FontSize', 19);
+% set font size
+set(gca, 'FontSize', 19);
 
-    % set the axis labels
-    xlabel('Simulation Time (s)', 'FontSize', 19);
-    ylabel('Space (m)', 'FontSize', 19);
+% set the axis labels
+xlabel('Time (s)', 'FontSize', 19);
+ylabel('Space (m)', 'FontSize', 19);
 
-    grid on;   
+grid on;   
     
-    % speed profile of first vehicle (dashed line)
-    set(handle2(1), 'LineStyle', '-.');
+% plot for first vehicle (dashed line)
+set(handle2(1), 'LineStyle', '-.');
        
-    % set the name for each line
-    for i=1:VehNumbers
-        name = sprintf('veh %2d', i);
-        set(handle2(i),'Displayname', name);   
-    end    
+% set the name for each line
+for i=1:VehNumbers
+    name = sprintf('veh %2d', i);
+    set(handle2(i),'Displayname', name);   
+end    
     
-    % set the legend
-    legend(handle2, 'Location','NorthEastOutside');
+% set the legend
+legend(handle2, 'Location','NorthEastOutside');
     
-    % ---------------------------------------------------------------
+% ---------------------------------------------------------------
        
-    % Spacing-Speed diagram
+% plot Spacing-Speed diagram
 
-    figure('name','Gap','units','normalized','outerposition',[0 0 1 1]);
+disp('plotting the spacing-speed ...');
 
-    handle2 = plot(vehiclesGap,vehiclesSpeed,'LineWidth', 3);
+figure('name','Spacing-Speed','units','normalized','outerposition',[0 0 1 1]);
 
-    % set the x-axis limit
-    %set( gca, 'XLim', [0 vehiclesGap(end,1)] );
+handle3 = plot(vehiclesSpaceGap,vehiclesSpeed,'LineWidth', 3);
+
+% set the x-axis limit
+%set( gca, 'XLim', [0 200] );
     
-    % set the y-axis limit
-    %set( gca, 'YLim', [0 120] );
+% set the y-axis limit
+%set( gca, 'YLim', [0 40] );
 
-    % set font size
-    set(gca, 'FontSize', 19);
+% set font size
+set(gca, 'FontSize', 19);
 
-    % set the axis labels
-    xlabel('Gap (m)', 'FontSize', 19);
-    ylabel('Speed (m/s)', 'FontSize', 19);
+% set the axis labels
+xlabel('Gap (m)', 'FontSize', 19);
+ylabel('Speed (m/s)', 'FontSize', 19);
 
-    grid on;   
+grid on;   
     
-    % speed profile of first vehicle (dashed line)
-    set(handle2(1), 'LineStyle', '-.');
+% speed profile of first vehicle (dashed line)
+set(handle3(1), 'LineStyle', '-.');
        
-    % set the name for each line
-    for i=1:VehNumbers
-        name = sprintf('veh %2d', i);
-        set(handle2(i),'Displayname', name);   
-    end    
+% set the name for each line
+for i=1:VehNumbers
+    name = sprintf('veh %2d', i);
+    set(handle3(i),'Displayname', name);   
+end    
     
-    % set the legend
-    legend(handle2, 'Location','NorthEastOutside');
-    
-    % ---------------------------------------------------------------
+% set the legend
+legend(handle3, 'Location','NorthEastOutside');
    
