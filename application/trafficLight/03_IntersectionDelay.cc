@@ -390,7 +390,7 @@ void IntersectionDelay::vehiclesDelayToFile()
         // get the current run number
         int currentRun = ev.getConfigEx()->getActiveRunNumber();
         std::ostringstream fileName;
-        fileName << currentRun << "_vehDelay.txt";
+        fileName << std::setfill('0') << std::setw(3) << currentRun << "_vehDelay.txt";
         filePath = "results/cmd/" + fileName.str();
     }
 

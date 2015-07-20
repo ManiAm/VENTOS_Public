@@ -330,7 +330,7 @@ void LoopDetectors::saveLDsData()
         // get the current run number
         int currentRun = ev.getConfigEx()->getActiveRunNumber();
         std::ostringstream fileName;
-        fileName << currentRun << "_loopDetector.txt";
+        fileName << std::setfill('0') << std::setw(3) << currentRun << "_loopDetector.txt";
         filePath = "results/cmd/" + fileName.str();
     }
 
@@ -665,7 +665,7 @@ void LoopDetectors::saveTLQueueingData()
         // get the current run number
         int currentRun = ev.getConfigEx()->getActiveRunNumber();
         std::ostringstream fileName;
-        fileName << currentRun << "_TLqueuingData.txt";
+        fileName << std::setfill('0') << std::setw(3) << currentRun << "_TLqueuingData.txt";
         filePath = "results/cmd/" + fileName.str();
     }
 
@@ -736,7 +736,7 @@ void LoopDetectors::saveTLPhasingData()
         // get the current run number
         int currentRun = ev.getConfigEx()->getActiveRunNumber();
         std::ostringstream fileName;
-        fileName << currentRun << "_TLphasingData.txt";
+        fileName << std::setfill('0') << std::setw(3) << currentRun << "_TLphasingData.txt";
         filePath = "results/cmd/" + fileName.str();
     }
 

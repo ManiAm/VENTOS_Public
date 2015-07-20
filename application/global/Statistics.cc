@@ -369,7 +369,7 @@ void Statistics::vehiclesDataToFile()
         }
         else
         {
-            fileName << currentRun << "_vehicleData.txt";
+            fileName << std::setfill('0') << std::setw(3) << currentRun << "_vehicleData.txt";
         }
 
         filePath = "results/cmd/" + fileName.str();
@@ -467,7 +467,7 @@ void Statistics::MAClayerToFile()
         // get the current run number
         int currentRun = ev.getConfigEx()->getActiveRunNumber();
         std::ostringstream fileName;
-        fileName << currentRun << "_MACdata.txt";
+        fileName << std::setfill('0') << std::setw(3) << currentRun << "_MACdata.txt";
         filePath = "results/cmd/" + fileName.str();
     }
 
@@ -545,7 +545,7 @@ void Statistics::plnManageToFile()
         // get the current run number
         int currentRun = ev.getConfigEx()->getActiveRunNumber();
         std::ostringstream fileName;
-        fileName << currentRun << "_plnManage.txt";
+        fileName << std::setfill('0') << std::setw(3) << currentRun << "_plnManage.txt";
         filePath = "results/cmd/" + fileName.str();
     }
 
@@ -620,7 +620,7 @@ void Statistics::plnStatToFile()
         // get the current run number
         int currentRun = ev.getConfigEx()->getActiveRunNumber();
         std::ostringstream fileName;
-        fileName << currentRun << "_plnStat.txt";
+        fileName << std::setfill('0') << std::setw(3) << currentRun << "_plnStat.txt";
         filePath = "results/cmd/" + fileName.str();
     }
 
@@ -688,7 +688,7 @@ void Statistics::beaconToFile()
         // get the current run number
         int currentRun = ev.getConfigEx()->getActiveRunNumber();
         std::ostringstream fileName;
-        fileName << currentRun << "_beaconsStat.txt";
+        fileName << std::setfill('0') << std::setw(3) << currentRun << "_beaconsStat.txt";
         filePath = "results/cmd/" + fileName.str();
     }
 

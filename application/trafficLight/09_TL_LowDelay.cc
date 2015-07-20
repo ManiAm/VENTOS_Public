@@ -25,7 +25,6 @@
 //
 
 #include <09_TL_LowDelay.h>
-#include <iomanip>
 #include <algorithm>
 
 namespace VENTOS {

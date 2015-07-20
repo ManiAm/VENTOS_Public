@@ -26,7 +26,6 @@
 //
 
 #include <10_TL_MultiClass.h>
-#include <iomanip>
 
 namespace VENTOS {
 

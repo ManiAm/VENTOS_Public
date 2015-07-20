@@ -26,8 +26,6 @@
 //
 
 #include "11_TL_Router.h"
-#include <iostream>
-#include <iomanip>
 #include <algorithm>
 
 namespace VENTOS {

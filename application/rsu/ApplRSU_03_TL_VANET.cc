@@ -310,7 +310,7 @@ void ApplRSUTLVANET::saveVehApproach()
         // get the current run number
         int currentRun = ev.getConfigEx()->getActiveRunNumber();
         std::ostringstream fileName;
-        fileName << currentRun << "_vehApproach.txt";
+        fileName << std::setfill('0') << std::setw(3) << currentRun << "_vehApproach.txt";
         filePath = "results/cmd/" + fileName.str();
     }
 
