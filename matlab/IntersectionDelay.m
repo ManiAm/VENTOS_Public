@@ -6,27 +6,31 @@ clc;    % position the cursor at the top of the screen
 
 % ---------------------------------------------------------------
 
-% total number of simulation runs
-runTotal = 5;
-
 % path to folder
-basePATH = '../results/cmd/1_full_uniform_balanced';
+basePATH = '../results/cmd/5_full_poisson_unbalanced_routeDist_70_30';
 
-for runNumber = 0:runTotal-1
+TLqueuingData = dir([basePATH, '/*_TLqueuingData.txt']);
+TLphasingData = dir([basePATH, '/*_TLphasingData.txt']);
+vehDelay = dir([basePATH, '/*_vehDelay.txt']);
+
+% total number of simulation runs
+runTotal = length(TLqueuingData);
+
+for runNumber = 1:runTotal
 
 fprintf('\n>>> runNumber %d:\n', runNumber);
     
 % clear variables at the begining of each run
-clearvars -except runNumber runTotal basePATH delayVariations
+clearvars -except runNumber runTotal basePATH TLqueuingData TLphasingData vehDelay delayVariations
 
 % ----------------------------------------------------------------
 
 disp('calculating average queue size ...');
 
-path2 = sprintf('%s/%d_TLqueuingData.txt', basePATH, runNumber);
+path2 = sprintf('%s/%s', basePATH, TLqueuingData(runNumber).name);
 file_id = fopen(path2);
 formatSpec = '%d %f %s %d %d';
-C_text = textscan(file_id, formatSpec, 'HeaderLines', 3);
+C_text = textscan(file_id, formatSpec, 'HeaderLines', 8);
 fclose(file_id);
 
 indices = C_text{1,1};
@@ -37,7 +41,7 @@ laneCounts = C_text{1,5};
 % average queue size in each time step
 averageQueueSize_all = double(totalQs) ./ double(laneCounts);
 
-% aggregate every 700 values together
+% aggregate every 150 values together
 aggregateInterval_queue = 700;
 
 rows = size(averageQueueSize_all, 1);
@@ -60,10 +64,10 @@ end
 
 disp('reading vehicleDelay.txt ...');
 
-path = sprintf('%s/%d_vehDelay.txt', basePATH, runNumber);
+path = sprintf('%s/%s', basePATH, vehDelay(runNumber).name);
 file_id = fopen(path);
 formatSpec = '%s %s %s %f %d %f %f %f %f %f %f';
-C_text = textscan(file_id, formatSpec, 'HeaderLines', 2);
+C_text = textscan(file_id, formatSpec, 'HeaderLines', 8);
 fclose(file_id);
 
 vehicles = C_text{1,1};
@@ -137,7 +141,7 @@ end
 
 disp('calculating intersection delay ...');
 
-% in each 70 seconds interval, we measure delay for each vehicle and 
+% in each 150 seconds interval, we measure delay for each vehicle and 
 % then take an average
 interval_delay = 700;
 
@@ -215,7 +219,7 @@ for j=1 : interval_delay-1 : rows-interval_delay
 
 end
 
-delayVariations{:,runNumber+1} = num2cell(delay);
+delayVariations{:,runNumber} = num2cell(delay);
 
 % -----------------------------------------------------------------
 
@@ -258,19 +262,19 @@ if(true)
 
     disp('plotting ...');
 
-    if(runNumber == 0)
+    if(runNumber == 1)
         figure('name', 'Speed', 'units', 'normalized', 'outerposition', [0 0 1 1]);
     end
 
-    if(runNumber == 0)
+    if(runNumber == 1)
         lineMark = '-.';
-    elseif(runNumber == 1)
-        lineMark = '-.x';    
     elseif(runNumber == 2)
-        lineMark = '-';
+        lineMark = '-.x';    
     elseif(runNumber == 3)
         lineMark = '-.v';
     elseif(runNumber == 4)
+        lineMark = '-';
+    elseif(runNumber == 5)
         lineMark = '--';
     else
         lineMark = '--';
@@ -313,7 +317,7 @@ if(true)
 %     hold on;
 
     % at the end of the last iteration
-    if(runNumber == runTotal-1)       
+    if(runNumber == runTotal)       
 
         for g=1:2
             subplot(2,1,g);            
@@ -322,7 +326,7 @@ if(true)
         end   
         
         subplot(2,1,1);
-        legend('Fix-time' , 'Adaptive webster', 'Traffic-actuated', 'OJF', 'Highest queue', 'Location', 'northwest');
+        legend('Fix-time' , 'Traffic-actuated', 'Highest queue', 'OJF', 'Location', 'northwest');
     
         % mark change of demand with vertical lines
         for threshold=400:400:Xlimit(2)            
@@ -353,14 +357,13 @@ end
 
 figure('name', 'Speed', 'units', 'normalized', 'outerposition', [0 0 1 1]);
 
-data = [cell2mat(delayVariations{1,1})'; cell2mat(delayVariations{1,2})'; cell2mat(delayVariations{1,3})'; cell2mat(delayVariations{1,4})'; cell2mat(delayVariations{1,5})'];
+data = [cell2mat(delayVariations{1,1})'; cell2mat(delayVariations{1,2})'; cell2mat(delayVariations{1,3})'; cell2mat(delayVariations{1,4})'];
 
 n1 = size(delayVariations{1,1},2);
 n2 = size(delayVariations{1,2},2);
 n3 = size(delayVariations{1,3},2);
 n4 = size(delayVariations{1,4},2);
-n5 = size(delayVariations{1,5},2);
-group = [repmat({'Fix-time'}, n1, 1); repmat({'Adaptive webster'}, n2, 1); repmat({'Traffic actuated'}, n3, 1); repmat({'OJF'}, n4, 1); repmat({'Highest queue'}, n5, 1)];
+group = [repmat({'Fix-time'}, n1, 1); repmat({'Traffic actuated'}, n2, 1); repmat({'Highest Queue'}, n3, 1); repmat({'OJF'}, n4, 1)];
 
 subplot(2,1,1);
 boxplot(data,group);
@@ -381,21 +384,21 @@ grid on;
 % -----------------------------------------------------------------
 % -----------------------------------------------------------------
 
-for runNumber = 0:runTotal-1
+for runNumber = 1:runTotal
 
 fprintf('\n>>> runNumber %d:\n', runNumber);
 
 % clear variables at the begining of each run
-clearvars -except runNumber runTotal basePATH timeSteps
+clearvars -except runNumber runTotal basePATH timeSteps TLqueuingData TLphasingData vehDelay delayVariations
 
 % ----------------------------------------------------------------
 
 disp('reading phasing information ...');
 
-path3 = sprintf('%s/%d_TLphasingData.txt', basePATH, runNumber);
+path3 = sprintf('%s/%s', basePATH, TLphasingData(runNumber).name);
 file_id = fopen(path3);
 formatSpec = '%s %d %d %s %f %f %f %f %f %d %d';
-C_text = textscan(file_id, formatSpec, 'HeaderLines', 2);
+C_text = textscan(file_id, formatSpec, 'HeaderLines', 8);
 fclose(file_id);
 
 phaseNumbers = C_text{1,2};
@@ -510,19 +513,19 @@ if(true)
 
     disp('plotting ...');
 
-    if(runNumber == 0)
+    if(runNumber == 1)
         figure('name', 'Speed', 'units', 'normalized', 'outerposition', [0 0 1 1]);
     end
 
-    if(runNumber == 0)
+    if(runNumber == 1)
         lineMark = '-.';
-    elseif(runNumber == 1)
-        lineMark = '-.x';    
     elseif(runNumber == 2)
-        lineMark = '-';
+        lineMark = '-.x';    
     elseif(runNumber == 3)
         lineMark = '-.v';
     elseif(runNumber == 4)
+        lineMark = '-';
+    elseif(runNumber == 5)
         lineMark = '--';
     else
         lineMark = '--';
@@ -553,7 +556,7 @@ if(true)
     hold on;
 
     % at the end of the last iteration
-    if(runNumber == runTotal-1)       
+    if(runNumber == runTotal)       
         
         for g=1:2
             subplot(2,1,g);            
@@ -562,7 +565,7 @@ if(true)
         end 
         
         subplot(2,1,1);
-        legend('Fix-time' , 'Adaptive webster', 'Traffic-actuated', 'OJF', 'Highest queue', 'Location', 'northwest');
+        legend('Fix-time' , 'Traffic-actuated', 'Highest queue', 'OJF', 'Location', 'northwest');
     
         % mark change of demand with vertical lines
         for threshold=400:400:Xlimit(2)            
