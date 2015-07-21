@@ -263,7 +263,7 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
     // model is CACC with platoon leader communication (TypeCACC2)
     else if(SUMOControllerType == SUMO_TAG_CF_CACC && SUMOControllerNumber == 2)
     {
-        if(plnMode == 1)
+        if(plnMode == platoonOff)
             error("no platoon leader is present! check plnMode!");
 
         // I am platoon leader

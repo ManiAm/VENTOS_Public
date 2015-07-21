@@ -44,7 +44,7 @@ void ApplVCoordinator::initialize(int stage)
 {
     ApplVPlatoonMg::initialize(stage);
 
-    if (stage == 0 && plnMode == 3)
+    if (stage == 0 && plnMode == platoonManagement)
     {
         coordinationMode = par("coordinationMode").longValue();
 

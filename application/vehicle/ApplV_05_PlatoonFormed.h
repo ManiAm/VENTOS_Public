@@ -51,6 +51,13 @@ protected:
 protected:
     int plnMode;
     std::string preDefinedPlatoonID;
+
+    enum platooningMode
+    {
+        platoonOff = 1,
+        platoonFormed = 2,
+        platoonManagement = 3,
+    };
 };
 }
 

@@ -45,7 +45,7 @@ void ApplVPlatoonFormed::initialize(int stage)
 	{
         plnMode = par("plnMode").longValue();
 
-	    if(plnMode != 2)
+	    if(plnMode != platoonFormed)
 	        return;
 
         if(!VANETenabled)
@@ -82,7 +82,7 @@ void ApplVPlatoonFormed::onBeaconVehicle(BeaconVehicle* wsm)
     // pass it down!
     ApplV_AID::onBeaconVehicle(wsm);
 
-    if(plnMode != 2)
+    if(plnMode != platoonFormed)
         return;
 
     // I am not part of any platoon yet!

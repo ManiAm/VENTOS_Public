@@ -44,7 +44,7 @@ void ApplVPlatoonMg::initialize(int stage)
 
 	if (stage == 0)
 	{
-        if(plnMode != 3)
+        if(plnMode != platoonManagement)
             return;
 
 	    if(!VANETenabled)
@@ -147,7 +147,7 @@ void ApplVPlatoonMg::handleSelfMsg(cMessage* msg)
     // pass it down!
     ApplVPlatoonFormed::handleSelfMsg(msg);
 
-    if(plnMode != 3)
+    if(plnMode != platoonManagement)
         return;
 
     merge_handleSelfMsg(msg);
@@ -165,7 +165,7 @@ void ApplVPlatoonMg::onBeaconVehicle(BeaconVehicle* wsm)
     // pass it down!
     ApplVPlatoonFormed::onBeaconVehicle(wsm);
 
-    if(plnMode != 3)
+    if(plnMode != platoonManagement)
         return;
 
     merge_BeaconFSM(wsm);
@@ -183,7 +183,7 @@ void ApplVPlatoonMg::onBeaconRSU(BeaconRSU* wsm)
     // pass it down!
     ApplVPlatoonFormed::onBeaconRSU(wsm);
 
-    if(plnMode != 3)
+    if(plnMode != platoonManagement)
         return;
 }
 
@@ -193,7 +193,7 @@ void ApplVPlatoonMg::onData(PlatoonMsg* wsm)
     // pass it down!
     ApplVPlatoonFormed::onData(wsm);
 
-    if(plnMode != 3)
+    if(plnMode != platoonManagement)
         return;
 
     merge_DataFSM(wsm);
@@ -208,7 +208,7 @@ void ApplVPlatoonMg::onData(PlatoonMsg* wsm)
 
 PlatoonMsg*  ApplVPlatoonMg::prepareData(std::string receiver, uCommands type, std::string receivingPlatoonID, double dblValue, std::string strValue, std::deque<std::string> vecValue)
 {
-    if(plnMode != 3)
+    if(plnMode != platoonManagement)
     {
         error("This application mode does not support platoon management!");
     }
