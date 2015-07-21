@@ -53,35 +53,29 @@ void SpeedProfile::initialize(int stage)
         TraCI = static_cast<TraCI_Extend *>(module);
 
         on = par("on").boolValue();
+        startTime = par("startTime").doubleValue();
         laneId = par("laneId").stringValue();
         mode = par("mode").longValue();
         minSpeed = par("minSpeed").doubleValue();
         normalSpeed = par("normalSpeed").doubleValue();
         maxSpeed = par("maxSpeed").doubleValue();
         switchTime = par("switchTime").doubleValue();
-        startTime = par("startTime").doubleValue();
         trajectoryPath = par("trajectoryPath").stringValue();
+
+        if(startTime < 0 && startTime != -1)
+            error("startTime in SpeedProfile is not correct!");
 
         old_speed = -1;
         lastProfileVehicle = "";
-
-        if(mode == 6)
-        {
-            f2 = fopen (trajectoryPath.c_str(), "r");
-
-            if ( f2 == NULL )
-                error("external trajectory file does not exists! Check trajectoryPath variable.");
-
-            endOfFile = false;
-        }
+        fileOpened = false;
+        endOfFile = false;
     }
 }
 
 
 void SpeedProfile::finish()
 {
-    if(mode == 6)
-        fclose(f2);
+
 }
 
 
@@ -108,13 +102,9 @@ void SpeedProfile::Change()
     if(startTime == -1)
     {
         startTime = simTime().dbl();
+        std::cout << "t=" << simTime().dbl() << ": Speed profiling phase is started ..." << endl;
     }
-    // if user specifies a startTime, but it is negative
-    else if(startTime < 0)
-    {
-        error("startTime is less than 0 in SpeedProfile.");
-    }
-    // if user specifies a startTime, but we should wait for it
+    // if user specifies a startTime, we should wait for it
     else if(startTime > simTime().dbl())
         return;
 
@@ -124,9 +114,7 @@ void SpeedProfile::Change()
     // when the profileVehicle leaves the current lane, for the new profileVehicle,
     // speed profiling should re-start from current simulation time.
     if(lastProfileVehicle != "" && profileVehicle != lastProfileVehicle)
-    {
         startTime = simTime().dbl();
-    }
 
     lastProfileVehicle = profileVehicle;
 
@@ -193,20 +181,14 @@ void SpeedProfile::Change()
         AccelDecel(startTime+5, minSpeed, normalSpeed);
     }
     else
-    {
-        error("not a valid mode!");
-    }
+        error("not a valid speed profile mode!");
 }
 
 
 // trajectory like a pulse
 void SpeedProfile::AccelDecel(double startT, double minV, double maxV)
 {
-    if( simTime().dbl() < startT )
-    {
-        return;
-    }
-    else if( simTime().dbl() == startT )
+    if( simTime().dbl() == startT )
     {
         TraCI->vehicleSetSpeed(profileVehicle, maxV);
         return;
@@ -224,7 +206,7 @@ void SpeedProfile::AccelDecel(double startT, double minV, double maxV)
     {
         if(v == maxV)
         {
-            // waiting time between speed change (default is 40 s)
+            // waiting time between speed change
             if(simTime().dbl() - old_time >= switchTime)
             {
                 TraCI->vehicleSetSpeed(profileVehicle, minV);
@@ -232,7 +214,7 @@ void SpeedProfile::AccelDecel(double startT, double minV, double maxV)
         }
         else if(v == minV)
         {
-            // waiting time between speed change (default is 40 s)
+            // waiting time between speed change
             if(simTime().dbl() - old_time >= switchTime)
             {
                 TraCI->vehicleSetSpeed(profileVehicle, maxV);
@@ -244,11 +226,7 @@ void SpeedProfile::AccelDecel(double startT, double minV, double maxV)
 
 void SpeedProfile::AccelDecelZikZak(double startT, double minV, double maxV)
 {
-    if( simTime().dbl() < startT )
-    {
-        return;
-    }
-    else if( simTime().dbl() == startT )
+    if( simTime().dbl() == startT )
     {
         TraCI->vehicleSetSpeed(profileVehicle, maxV);
         return;
@@ -277,11 +255,7 @@ void SpeedProfile::AccelDecelZikZak(double startT, double minV, double maxV)
 
 void SpeedProfile::AccelDecelPeriodic(double startT, double offset, double A, double w)
 {
-    if( simTime().dbl() < startT )
-    {
-        return;
-    }
-    else if( simTime().dbl() == startT )
+    if( simTime().dbl() == startT )
     {
         TraCI->vehicleSetSpeed(profileVehicle, offset);
     }
@@ -299,15 +273,22 @@ void SpeedProfile::AccelDecelPeriodic(double startT, double offset, double A, do
 
 void SpeedProfile::ExTrajectory(double startT)
 {
+    // open the file for reading
+    if(!fileOpened)
+    {
+        f2 = fopen (trajectoryPath.c_str(), "r");
+
+        if (f2 == NULL)
+            error("external trajectory file does not exists! Check trajectoryPath variable.");
+
+        fileOpened = true;
+    }
+
     // if we have read all lines of the file, then return
     if(endOfFile)
         return;
 
-    if( simTime().dbl() < startT )
-    {
-        return;
-    }
-    else if( simTime().dbl() == startT )
+    if( simTime().dbl() == startT )
     {
         TraCI->vehicleSetSpeed(profileVehicle, 20.);
         return;
@@ -322,6 +303,7 @@ void SpeedProfile::ExTrajectory(double startT)
 
     if (result == NULL)
     {
+        fclose(f2);  // close the file
         endOfFile = true;
         return;
     }

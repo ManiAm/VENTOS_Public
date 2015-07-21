@@ -158,7 +158,7 @@ void ApplVCoordinator::scenario2()
 {
     if(simTime().dbl() == 37)
     {
-        TraCI->vehicleSetSpeed("CACC1", 20.);
+        TraCI->vehicleSetSpeed("veh1", 20.);
     }
     else if(simTime().dbl() == 59)
     {
@@ -187,12 +187,12 @@ void ApplVCoordinator::scenario3()
 {
     if(simTime().dbl() == 26)
     {
-        TraCI->vehicleSetSpeed("CACC1", 20.);
+        TraCI->vehicleSetSpeed("veh1", 20.);
     }
     // leader leaves
     else if(simTime().dbl() == 49)
     {
-        if(SUMOvID == "CACC1")
+        if(SUMOvID == "veh1")
         {
             ApplVPlatoonMg::leavePlatoon();
         }
@@ -200,7 +200,7 @@ void ApplVCoordinator::scenario3()
     // last follower leaves
     else if(simTime().dbl() == 68)
     {
-        if(SUMOvID == "CACC6")
+        if(SUMOvID == "veh6")
         {
             ApplVPlatoonMg::leavePlatoon();
         }
@@ -208,7 +208,7 @@ void ApplVCoordinator::scenario3()
     // middle follower leaves
     else if(simTime().dbl() == 80)
     {
-        if(SUMOvID == "CACC3")
+        if(SUMOvID == "veh3")
         {
             ApplVPlatoonMg::leavePlatoon();
         }
@@ -231,8 +231,8 @@ void ApplVCoordinator::scenario4()
 
     if(simTime().dbl() == 40)
     {
-        TraCI->vehicleSetSpeed("CACC1", 20.);
-        TraCI->vehicleSetSpeed("CACC6", 20.);
+        TraCI->vehicleSetSpeed("veh1", 20.);
+        TraCI->vehicleSetSpeed("veh6", 20.);
     }
     else if(simTime().dbl() == 55)
     {
@@ -249,7 +249,7 @@ void ApplVCoordinator::scenario4()
     // leader leaves
     else if(simTime().dbl() == 140)
     {
-        if(SUMOvID == "CACC1")
+        if(SUMOvID == "veh1")
         {
             ApplVPlatoonMg::leavePlatoon();
         }
@@ -257,7 +257,7 @@ void ApplVCoordinator::scenario4()
 //    // last follower leaves
 //    else if(simTime().dbl() == 160)
 //    {
-//        if(SUMOvID == "CACC5")
+//        if(SUMOvID == "veh5")
 //        {
 //            ApplVPlatoonMg::leavePlatoon();
 //        }
@@ -265,7 +265,7 @@ void ApplVCoordinator::scenario4()
 //    // middle follower leaves
 //    else if(simTime().dbl() == 190)
 //    {
-//        if(SUMOvID == "CACC2")
+//        if(SUMOvID == "veh2")
 //        {
 //            ApplVPlatoonMg::leavePlatoon();
 //        }
@@ -277,14 +277,14 @@ void ApplVCoordinator::scenario5()
 {
     if(simTime().dbl() == 40)
     {
-        TraCI->vehicleSetSpeed("CACC1", 20.);
+        TraCI->vehicleSetSpeed("veh1", 20.);
     }
     else if(simTime().dbl() == 73)
     {
         // disable automatic merging
         mergeEnabled = false;
 
-        if(SUMOvID == "CACC1")
+        if(SUMOvID == "veh1")
             splitFromPlatoon(5);
     }
     else if(simTime().dbl() == 118)
@@ -307,14 +307,14 @@ void ApplVCoordinator::scenario6()
     {
         if(simTime().dbl() == 40)
         {
-            TraCI->vehicleSetSpeed("CACC1", 20.);
+            TraCI->vehicleSetSpeed("veh1", 20.);
         }
         else if(simTime().dbl() == 73)
         {
             // disable automatic merging
             mergeEnabled = false;
 
-            if(SUMOvID == "CACC1")
+            if(SUMOvID == "veh1")
                 splitFromPlatoon(9);
         }
         else if(simTime().dbl() == 118)
@@ -327,14 +327,14 @@ void ApplVCoordinator::scenario6()
     {
         if(simTime().dbl() == 40)
         {
-            TraCI->vehicleSetSpeed("CACC1", 20.);
+            TraCI->vehicleSetSpeed("veh1", 20.);
         }
         else if(simTime().dbl() == 73)
         {
             // disable automatic merging
             mergeEnabled = false;
 
-            if(SUMOvID == "CACC1")
+            if(SUMOvID == "veh1")
                 splitFromPlatoon(8);
         }
         else if(simTime().dbl() == 118)
@@ -347,14 +347,14 @@ void ApplVCoordinator::scenario6()
     {
         if(simTime().dbl() == 40)
         {
-            TraCI->vehicleSetSpeed("CACC1", 20.);
+            TraCI->vehicleSetSpeed("veh1", 20.);
         }
         else if(simTime().dbl() == 73)
         {
             // disable automatic merging
             mergeEnabled = false;
 
-            if(SUMOvID == "CACC1")
+            if(SUMOvID == "veh1")
                 splitFromPlatoon(7);
         }
         else if(simTime().dbl() == 118)
@@ -367,14 +367,14 @@ void ApplVCoordinator::scenario6()
     {
         if(simTime().dbl() == 40)
         {
-            TraCI->vehicleSetSpeed("CACC1", 20.);
+            TraCI->vehicleSetSpeed("veh1", 20.);
         }
         else if(simTime().dbl() == 73)
         {
             // disable automatic merging
             mergeEnabled = false;
 
-            if(SUMOvID == "CACC1")
+            if(SUMOvID == "veh1")
                 splitFromPlatoon(6);
         }
         else if(simTime().dbl() == 118)
@@ -387,14 +387,14 @@ void ApplVCoordinator::scenario6()
     {
         if(simTime().dbl() == 40)
         {
-            TraCI->vehicleSetSpeed("CACC1", 20.);
+            TraCI->vehicleSetSpeed("veh1", 20.);
         }
         else if(simTime().dbl() == 73)
         {
             // disable automatic merging
             mergeEnabled = false;
 
-            if(SUMOvID == "CACC1")
+            if(SUMOvID == "veh1")
                 splitFromPlatoon(5);
         }
         else if(simTime().dbl() == 118)
@@ -407,14 +407,14 @@ void ApplVCoordinator::scenario6()
     {
         if(simTime().dbl() == 40)
         {
-            TraCI->vehicleSetSpeed("CACC1", 20.);
+            TraCI->vehicleSetSpeed("veh1", 20.);
         }
         else if(simTime().dbl() == 73)
         {
             // disable automatic merging
             mergeEnabled = false;
 
-            if(SUMOvID == "CACC1")
+            if(SUMOvID == "veh1")
                 splitFromPlatoon(4);
         }
         else if(simTime().dbl() == 118)
@@ -427,14 +427,14 @@ void ApplVCoordinator::scenario6()
     {
         if(simTime().dbl() == 40)
         {
-            TraCI->vehicleSetSpeed("CACC1", 20.);
+            TraCI->vehicleSetSpeed("veh1", 20.);
         }
         else if(simTime().dbl() == 73)
         {
             // disable automatic merging
             mergeEnabled = false;
 
-            if(SUMOvID == "CACC1")
+            if(SUMOvID == "veh1")
                 splitFromPlatoon(3);
         }
         else if(simTime().dbl() == 118)
@@ -447,14 +447,14 @@ void ApplVCoordinator::scenario6()
     {
         if(simTime().dbl() == 40)
         {
-            TraCI->vehicleSetSpeed("CACC1", 20.);
+            TraCI->vehicleSetSpeed("veh1", 20.);
         }
         else if(simTime().dbl() == 73)
         {
             // disable automatic merging
             mergeEnabled = false;
 
-            if(SUMOvID == "CACC1")
+            if(SUMOvID == "veh1")
                 splitFromPlatoon(2);
         }
         else if(simTime().dbl() == 118)
@@ -467,14 +467,14 @@ void ApplVCoordinator::scenario6()
     {
         if(simTime().dbl() == 40)
         {
-            TraCI->vehicleSetSpeed("CACC1", 20.);
+            TraCI->vehicleSetSpeed("veh1", 20.);
         }
         else if(simTime().dbl() == 73)
         {
             // disable automatic merging
             mergeEnabled = false;
 
-            if(SUMOvID == "CACC1")
+            if(SUMOvID == "veh1")
                 splitFromPlatoon(1);
         }
         else if(simTime().dbl() == 118)
@@ -490,18 +490,18 @@ void ApplVCoordinator::scenario6()
     {
         if(simTime().dbl() == 40)
         {
-            TraCI->vehicleSetSpeed("CACC1", 20.);
+            TraCI->vehicleSetSpeed("veh1", 20.);
         }
         else if(simTime().dbl() == 73)
         {
             // leader leaves
-            if(SUMOvID == "CACC1")
+            if(SUMOvID == "veh1")
                 leavePlatoon();
         }
         else if(simTime().dbl() == 118)
         {
             // last follower leaves
-            if(SUMOvID == "CACC10")
+            if(SUMOvID == "veh10")
                 leavePlatoon();
         }
     }
@@ -509,16 +509,16 @@ void ApplVCoordinator::scenario6()
     {
         if(simTime().dbl() == 40)
         {
-            TraCI->vehicleSetSpeed("CACC1", 20.);
+            TraCI->vehicleSetSpeed("veh1", 20.);
         }
         else if(simTime().dbl() == 73)
         {
-            if(SUMOvID == "CACC3")
+            if(SUMOvID == "veh3")
                 leavePlatoon();
         }
         else if(simTime().dbl() == 118)
         {
-            if(SUMOvID == "CACC6")
+            if(SUMOvID == "veh6")
                 leavePlatoon();
         }
     }
@@ -526,16 +526,16 @@ void ApplVCoordinator::scenario6()
     {
         if(simTime().dbl() == 40)
         {
-            TraCI->vehicleSetSpeed("CACC1", 20.);
+            TraCI->vehicleSetSpeed("veh1", 20.);
         }
         else if(simTime().dbl() == 73)
         {
-            if(SUMOvID == "CACC7")
+            if(SUMOvID == "veh7")
                 leavePlatoon();
         }
         else if(simTime().dbl() == 118)
         {
-            if(SUMOvID == "CACC5")
+            if(SUMOvID == "veh5")
                 leavePlatoon();
         }
     }
@@ -543,16 +543,16 @@ void ApplVCoordinator::scenario6()
     {
         if(simTime().dbl() == 40)
         {
-            TraCI->vehicleSetSpeed("CACC1", 20.);
+            TraCI->vehicleSetSpeed("veh1", 20.);
         }
         else if(simTime().dbl() == 73)
         {
-            if(SUMOvID == "CACC8")
+            if(SUMOvID == "veh8")
                 leavePlatoon();
         }
         else if(simTime().dbl() == 118)
         {
-            if(SUMOvID == "CACC4")
+            if(SUMOvID == "veh4")
                 leavePlatoon();
         }
     }
@@ -563,14 +563,14 @@ void ApplVCoordinator::scenario7()
 {
     if(simTime().dbl() == 40)
     {
-        TraCI->vehicleSetSpeed("CACC1", 20.);
+        TraCI->vehicleSetSpeed("veh1", 20.);
     }
     else if(simTime().dbl() == 73)
     {
         // disable automatic merging
         mergeEnabled = false;
 
-        if(SUMOvID == "CACC1")
+        if(SUMOvID == "veh1")
             splitFromPlatoon(4);
     }
     else if(simTime().dbl() == 118)
@@ -586,7 +586,7 @@ void ApplVCoordinator::scenario8()
     if(simTime().dbl() == 40)
     {
         optPlnSize = 10;
-        TraCI->vehicleSetSpeed("CACC1", 20.);
+        TraCI->vehicleSetSpeed("veh1", 20.);
     }
     else if(simTime().dbl() == 73)
     {
@@ -608,7 +608,7 @@ void ApplVCoordinator::scenario9()
 {
     if(simTime().dbl() == 40)
     {
-        TraCI->vehicleSetSpeed("CACC1", 20.);
+        TraCI->vehicleSetSpeed("veh1", 20.);
     }
     else if(simTime().dbl() == 73)
     {
@@ -616,7 +616,7 @@ void ApplVCoordinator::scenario9()
         mergeEnabled = false;
 
         // leader leaves
-        if(SUMOvID == "CACC1")
+        if(SUMOvID == "veh1")
             dissolvePlatoon();
             //leavePlatoon();
     }

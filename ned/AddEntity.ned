@@ -12,8 +12,10 @@ simple AddEntity
         
         int totalVehicles;
         string vehiclesType;
-        
+        int distribution;
+        int interval = default(1000ms) @unit(ms);        
         int lambda;
+        
         int plnSize;
         double plnSpace = default(3.5s) @unit(s);
         double overlap;

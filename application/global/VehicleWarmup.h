@@ -43,12 +43,15 @@ class Warmup : public BaseModule
 	    virtual void receiveSignal(cComponent *, simsignal_t, long);
 
 	private:
+        bool DoWarmup();
 
+	private:
         // NED variables
         cModule *nodePtr;       // pointer to the Node module
         TraCI_Extend *TraCI;  // pointer to the TraCI module
         SpeedProfile *SpeedProfilePtr;
 
+        // NED variables
         bool on;
         std::string laneId;
         double stopPosition;  // the position that first vehicle should stop waiting for others
@@ -57,14 +60,10 @@ class Warmup : public BaseModule
         int totalVehicles;
 
         // class variables
+        simsignal_t Signal_executeEachTS;
         double startTime;     // the time that Warmup starts
         bool IsWarmUpFinished;
-        cMessage* warmupFinish;
-        simsignal_t Signal_executeEachTS;
-
-        // methods
-        bool DoWarmup();
-        bool warmUpFinished();
+        cMessage* finishingWarmup;
 };
 
 }

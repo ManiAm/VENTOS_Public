@@ -55,7 +55,7 @@ void Warmup::initialize(int stage)
         module = simulation.getSystemModule()->getSubmodule("speedprofile");
         SpeedProfilePtr = static_cast<SpeedProfile *>(module);
 
-        // get totoal vehicles from AddVehicle module
+        // get totoal vehicles from addEntity module
         totalVehicles = simulation.getSystemModule()->getSubmodule("addEntity")->par("totalVehicles").longValue();
 
         Signal_executeEachTS = registerSignal("executeEachTS");
@@ -63,7 +63,7 @@ void Warmup::initialize(int stage)
 
         on = par("on").boolValue();
         laneId = par("laneId").stringValue();
-        stopPosition = totalVehicles * par("stopPosition").doubleValue();
+        stopPosition = par("stopPosition").doubleValue() * totalVehicles;
         warmUpSpeed = par("warmUpSpeed").doubleValue();
         waitingTime = par("waitingTime").doubleValue();
 
@@ -71,9 +71,7 @@ void Warmup::initialize(int stage)
         IsWarmUpFinished = false;
 
         if(on)
-        {
-            warmupFinish = new cMessage("warmupFinish", 1);
-        }
+            finishingWarmup = new cMessage("finishingWarmup", 1);
     }
 }
 
@@ -87,9 +85,10 @@ void Warmup::finish()
 
 void Warmup::handleMessage(cMessage *msg)
 {
-    if (msg == warmupFinish)
+    if (msg == finishingWarmup)
     {
         IsWarmUpFinished = true;
+        std::cout << "t=" << simTime().dbl() << ": Warm-up phase finished." << endl;
     }
 }
 
@@ -100,48 +99,40 @@ void Warmup::receiveSignal(cComponent *source, simsignal_t signalID, long i)
 
     if(signalID == Signal_executeEachTS)
     {
-        // check if warm-up phase is finished
-        bool finished = Warmup::DoWarmup();
-        if (finished)
+        // if warm-up is on and not finished
+        if(on && !IsWarmUpFinished)
         {
-            // we can start speed profiling
-            SpeedProfilePtr->Change();
+            if(!finishingWarmup->isScheduled())
+            {
+                // perform warm-up for this time step
+                bool finished = Warmup::DoWarmup();
+
+                // if warm-up is finished, start speed-profiling
+                if (finished)
+                    SpeedProfilePtr->Change();
+            }
         }
+        // do speed-profiling
+        else
+            SpeedProfilePtr->Change();
     }
 }
 
 
 bool Warmup::DoWarmup()
 {
-    // if warmup is not on, return finished == true
-    if (!on)
-        return true;
-
-    if(IsWarmUpFinished)
-        return true;
-
-    if( warmupFinish->isScheduled() )
-        return false;
-
     // who is leading?
     std::list<std::string> veh = TraCI->laneGetLastStepVehicleIDs(laneId);
 
     if(veh.empty())
         return false;
 
-    // if startTime is not specified, then store the current simulation time as startTime
+    // store the current simulation time as startTime
     if(startTime == -1)
     {
         startTime = simTime().dbl();
+        std::cout << "t=" << simTime().dbl() << ": Warm-up phase is started ..." << endl;
     }
-    // if user specifies a startTime, but it is negative
-    else if(startTime < 0)
-    {
-        error("startTime is less than 0 in Warmup.");
-    }
-    // if user specifies a startTime, but we should wait for it
-    else if(startTime > simTime().dbl())
-        return false;
 
     // get the first leading vehicle
     std::string leadingVehicle = veh.back();
@@ -151,16 +142,17 @@ bool Warmup::DoWarmup()
     // we are at stop position
     if(pos >= stopPosition)
     {
-        // start breaking and wait for other vehicles
+        // set speed to warmupSpeed and wait for other vehicles
         TraCI->vehicleSetSpeed(leadingVehicle, warmUpSpeed);
 
         // get # of vehicles that have entered simulation so far
         int n = TraCI->vehicleGetIDCount();
 
-        // if all vehicles are in the simulation
-        if( n == totalVehicles )
+        // if all vehicles are in the simulation, then wait for waitingTime before finishing warm-up
+        if(n == totalVehicles)
         {
-            scheduleAt(simTime() + waitingTime, warmupFinish);
+            scheduleAt(simTime() + waitingTime, finishingWarmup);
+            std::cout << "t=" << simTime().dbl() << ": Waiting for " << waitingTime << "s before finishing warm-up ..." << endl;
         }
     }
 

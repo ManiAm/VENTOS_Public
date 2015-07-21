@@ -57,7 +57,10 @@ void AddEntity::initialize(int stage)
         mode = par("mode").longValue();
         totalVehicles = par("totalVehicles").longValue();
         vehiclesType = par("vehiclesType").stringValue();
+        distribution = par("distribution").longValue();
+        interval = par("interval").longValue();
         lambda = par("lambda").longValue();
+
         plnSize = par("plnSize").longValue();
         plnSpace = par("plnSpace").doubleValue();
         overlap = par("overlap").doubleValue();
@@ -119,10 +122,6 @@ void AddEntity::Add()
     {
         Scenario1();
     }
-    else if(mode == 4)
-    {
-        Scenario4();
-    }
     else if(mode == 5)
     {
         Scenario5();
@@ -161,38 +160,72 @@ void AddEntity::Add()
 // adding 'totalVehicles' vehicles with type 'vehiclesType'
 void AddEntity::Scenario1()
 {
-    int depart = 0;
-
-    for(int i=1; i<=totalVehicles; i++)
+    // deterministic distribution every 'interval'
+    if(distribution == 1)
     {
-        char vehicleName[90];
-        sprintf(vehicleName, "veh_%s_%d", vehiclesType.c_str(), i);
-        depart = depart + 10000;
+        int depart = 0;
 
-        TraCI->vehicleAdd(vehicleName, vehiclesType, "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
+        for(int i=1; i<=totalVehicles; i++)
+        {
+            char vehicleName[90];
+            sprintf(vehicleName, "veh%d", i);
+            depart = depart + interval;
+
+            TraCI->vehicleAdd(vehicleName, vehiclesType, "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
+        }
     }
-}
-
-
-// todo: merge into scenario1
-void AddEntity::Scenario4()
-{
-    // change from 'veh/h' to 'veh/s'
-    lambda = lambda / 3600;
-
-    // 1 vehicle per 'interval' milliseconds
-    double interval = (1 / lambda) * 1000;
-
-    int depart = 0;
-
-    for(int i=0; i<totalVehicles; i++)
+    // Poisson distribution with rate lambda
+    else if(distribution == 2)
     {
-        char vehicleName[90];
-        sprintf(vehicleName, "CACC%d", i+1);
-        depart = depart + interval;
+        // change from 'veh/h' to 'veh/s'
+        lambda = lambda / 3600;
 
-        TraCI->vehicleAdd(vehicleName, "TypeCACC1", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
+        // 1 vehicle per 'interval' milliseconds
+        double interval = (1 / lambda) * 1000;
+
+        int depart = 0;
+
+        for(int i=0; i<totalVehicles; i++)
+        {
+            char vehicleName[90];
+            sprintf(vehicleName, "veh%d", i+1);
+            depart = depart + interval;
+
+            TraCI->vehicleAdd(vehicleName, "TypeCACC1", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
+        }
+
+// todo: use this instead! (it throws error)
+//        // mersenne twister engine (seed is fixed to make tests reproducible)
+//        std::mt19937 generator(43);
+//
+//        // Poisson distribution with rate lambda veh/h
+//        std::poisson_distribution<int> distribution(lambda/3600.);
+//
+//        // how many vehicles are inserted in each seconds
+//        int vehInsert;
+//
+//        // how many vehicles are inserted until now
+//        int vehCount = 1;
+//
+//        // on each second
+//        for(int depart=0; depart < terminate; depart++)
+//        {
+//            vehInsert = distribution(generator);
+//
+//            for(int j=1; j<=vehInsert; ++j)
+//            {
+//                char vehicleName[90];
+//                sprintf(vehicleName, "veh%d", vehCount);
+//                TraCI->vehicleAdd(vehicleName, vehiclesType, "route1", 1000*depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
+//
+//                vehCount++;
+//
+//                if(vehCount > 3)
+//                    return;
+//            }
+//        }
     }
+    else error("not a valid distribution type!");
 }
 
 
@@ -204,7 +237,7 @@ void AddEntity::Scenario5()
     for(int i=1; i<=10; i++)
     {
         char vehicleName[90];
-        sprintf(vehicleName, "CACC%d", i);
+        sprintf(vehicleName, "veh%d", i);
         depart = depart + 1000;
 
         TraCI->vehicleAdd(vehicleName, "TypeCACC1", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
@@ -213,10 +246,10 @@ void AddEntity::Scenario5()
     for(int i=11; i<=100; i++)
     {
         char vehicleName[90];
-        sprintf(vehicleName, "CACC%d", i);
+        sprintf(vehicleName, "veh%d", i);
         depart = depart + 10000;
 
-        TraCI->vehicleAdd(vehicleName, "TypeCACC1", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
+        TraCI->vehicleAdd(vehicleName, "veh1", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
     }
 }
 
@@ -241,7 +274,7 @@ void AddEntity::Scenario6()
     for(int i=0; i<totalVehicles; i++)
     {
         char vehicleName[90];
-        sprintf(vehicleName, "CACC%d", i+1);
+        sprintf(vehicleName, "veh%d", i+1);
         depart = depart + interval;
 
         TraCI->vehicleAdd(vehicleName, "TypeCACC1", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
@@ -272,7 +305,7 @@ void AddEntity::Scenario7()
     for(int i=1; i<=totalVehicles; i++)
     {
         char vehicleName[90];
-        sprintf(vehicleName, "Veh%d", i);
+        sprintf(vehicleName, "veh%d", i);
         depart = depart + 9000;
 
         uint8_t lane = intrand(3);  // random number in [0,3)

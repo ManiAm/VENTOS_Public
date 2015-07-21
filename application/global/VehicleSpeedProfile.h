@@ -50,13 +50,13 @@ class SpeedProfile : public BaseModule
         cModule *nodePtr;   // pointer to the Node
         TraCI_Extend *TraCI;
         bool on;
+        double startTime;  // the time that speed profiling starts
 	    int mode;
 	    std::string laneId;
 	    double minSpeed;
         double normalSpeed;
         double maxSpeed;
         double switchTime;
-        double startTime;  // the time that speed profiling starts
         std::string trajectoryPath;
 
 	    // class variables
@@ -64,8 +64,10 @@ class SpeedProfile : public BaseModule
         std::string lastProfileVehicle;
 	    double old_speed;
 	    double old_time;
-        FILE *f2;
+
+        bool fileOpened;
         bool endOfFile;
+        FILE *f2;
 
 	    // method
 	    void AccelDecel(double, double, double);

@@ -48,7 +48,6 @@ private:
     void Add();
 
     void Scenario1();
-    void Scenario4();
     void Scenario5();
     void Scenario6();
     void Scenario7();
@@ -59,7 +58,7 @@ private:
 
 private:
     // NED variables
-    cModule *nodePtr;   // pointer to the Node
+    cModule *nodePtr;     // pointer to the Node
     TraCI_Extend *TraCI;  // pointer to the TraCI module
     double terminate;
 
@@ -67,7 +66,10 @@ private:
     int mode;
     int totalVehicles;
     std::string vehiclesType;
+    int distribution;
+    int interval;
     double lambda;
+
     int plnSize;
     double plnSpace;
     double overlap;
