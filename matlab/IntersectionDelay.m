@@ -38,6 +38,9 @@ timeSteps = C_text{1,2};
 totalQs = C_text{1,4};
 laneCounts = C_text{1,5};
 
+% out of 16, 4 are crosswalks and 4 are bike lanes
+laneCounts = laneCounts - 8;
+
 % average queue size in each time step
 averageQueueSize_all = double(totalQs) ./ double(laneCounts);
 
@@ -286,7 +289,7 @@ if(true)
     set(gca, 'FontSize', 17);
 
     xlabel('Time (s)', 'FontSize', 17);
-    ylabel('Average Queue Size per Lane', 'FontSize', 17);
+    ylabel({'Average Vehicle Queue', 'Size per Lane'}, 'FontSize', 17);
 
     %grid on;
     hold on;
@@ -298,7 +301,7 @@ if(true)
     set(gca, 'FontSize', 17);
 
     xlabel('Time (s)', 'FontSize', 17);
-    ylabel('Average Delay per Vehicle (s)', 'FontSize', 17);
+    ylabel({'Average Delay', 'per Vehicle (s)'}, 'FontSize', 17);
 
     %grid on;
     hold on;
