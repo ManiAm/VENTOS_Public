@@ -120,7 +120,7 @@ void TraCI_App::addModule(std::string nodeId, std::string type, std::string name
         // type is "c3po.ned.vehicle"
         // name is "V"
     }
-    else if (vehType == "TypeBicycle")
+    else if (vehType == "bicycle")
     {
         type = bikeModuleType;
         name =  bikeModuleName;

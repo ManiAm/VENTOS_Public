@@ -168,7 +168,7 @@ void TrafficLightAdaptiveQueue::executeFirstTimeStep()
     if(TLControlMode != TL_Adaptive_Time_Queue)
         return;
 
-    std::cout << endl << "Maximum queue traffic signal control ..." << endl << endl;
+    std::cout << "Maximum queue traffic signal control ..." << endl << endl;
 
     // get all non-conflicting movements in allMovements vector
     TrafficLightAllowedMoves::getMovements("C");

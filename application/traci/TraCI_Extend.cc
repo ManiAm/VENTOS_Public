@@ -366,7 +366,7 @@ std::list<std::string> TraCI_Extend::genericGetStringList(uint8_t commandId, std
     }
 
     // todo: in 'laneGetAllowedClasses' buf is not empty
-   // ASSERT(buf.eof());
+    // ASSERT(buf.eof());
 
     return res;
 }
@@ -581,16 +581,74 @@ uint8_t* TraCI_Extend::genericGetArrayUnsignedInt(uint8_t commandId, std::string
 // CMD_GET_SIM_VARIABLE
 // ####################
 
+uint32_t TraCI_Extend::simulationGetLoadedVehiclesCount()
+{
+    // query road network boundaries
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_GET_SIM_VARIABLE, TraCIBuffer() << static_cast<uint8_t>(VAR_LOADED_VEHICLES_NUMBER) << std::string("sim0"));
+
+    uint8_t cmdLength_resp; buf >> cmdLength_resp;
+    uint8_t commandId_resp; buf >> commandId_resp;
+    ASSERT(commandId_resp == RESPONSE_GET_SIM_VARIABLE);
+    uint8_t variableId_resp; buf >> variableId_resp;
+    ASSERT(variableId_resp == VAR_LOADED_VEHICLES_NUMBER);
+    std::string simId; buf >> simId;
+    uint8_t typeId_resp; buf >> typeId_resp;
+    ASSERT(typeId_resp == TYPE_INTEGER);
+
+    uint32_t val;
+    buf >> val;
+
+    ASSERT(buf.eof());
+
+    return val;
+}
+
+
+std::list<std::string> TraCI_Extend::simulationGetLoadedVehiclesIDList()
+{
+    uint8_t resultTypeId = TYPE_STRINGLIST;
+    std::list<std::string> res;
+
+    TraCIBuffer buf = getCommandInterface()->connection.query(CMD_GET_SIM_VARIABLE, TraCIBuffer() << static_cast<uint8_t>(VAR_LOADED_VEHICLES_IDS) << std::string("sim0"));
+
+    uint8_t cmdLength; buf >> cmdLength;
+    if (cmdLength == 0) {
+        uint32_t cmdLengthX;
+        buf >> cmdLengthX;
+    }
+    uint8_t commandId_r; buf >> commandId_r;
+    ASSERT(commandId_r == RESPONSE_GET_SIM_VARIABLE);
+    uint8_t varId; buf >> varId;
+    ASSERT(varId == VAR_LOADED_VEHICLES_IDS);
+    std::string objectId_r; buf >> objectId_r;
+    uint8_t resType_r; buf >> resType_r;
+    ASSERT(resType_r == resultTypeId);
+    uint32_t count; buf >> count;
+    for (uint32_t i = 0; i < count; i++) {
+        std::string id; buf >> id;
+        res.push_back(id);
+    }
+
+    ASSERT(buf.eof());
+
+    return res;
+
+}
+
+
 double* TraCI_Extend::simulationGetNetBoundary()
 {
     // query road network boundaries
     TraCIBuffer buf = getCommandInterface()->connection.query(CMD_GET_SIM_VARIABLE, TraCIBuffer() << static_cast<uint8_t>(VAR_NET_BOUNDING_BOX) << std::string("sim0"));
 
     uint8_t cmdLength_resp; buf >> cmdLength_resp;
-    uint8_t commandId_resp; buf >> commandId_resp; ASSERT(commandId_resp == RESPONSE_GET_SIM_VARIABLE);
-    uint8_t variableId_resp; buf >> variableId_resp; ASSERT(variableId_resp == VAR_NET_BOUNDING_BOX);
+    uint8_t commandId_resp; buf >> commandId_resp;
+    ASSERT(commandId_resp == RESPONSE_GET_SIM_VARIABLE);
+    uint8_t variableId_resp; buf >> variableId_resp;
+    ASSERT(variableId_resp == VAR_NET_BOUNDING_BOX);
     std::string simId; buf >> simId;
-    uint8_t typeId_resp; buf >> typeId_resp; ASSERT(typeId_resp == TYPE_BOUNDINGBOX);
+    uint8_t typeId_resp; buf >> typeId_resp;
+    ASSERT(typeId_resp == TYPE_BOUNDINGBOX);
 
     double *boundaries = new double[4] ;
 
@@ -611,13 +669,18 @@ uint32_t TraCI_Extend::simulationGetMinExpectedNumber()
     TraCIBuffer buf = getCommandInterface()->connection.query(CMD_GET_SIM_VARIABLE, TraCIBuffer() << static_cast<uint8_t>(VAR_MIN_EXPECTED_VEHICLES) << std::string("sim0"));
 
     uint8_t cmdLength_resp; buf >> cmdLength_resp;
-    uint8_t commandId_resp; buf >> commandId_resp; ASSERT(commandId_resp == RESPONSE_GET_SIM_VARIABLE);
-    uint8_t variableId_resp; buf >> variableId_resp; ASSERT(variableId_resp == VAR_MIN_EXPECTED_VEHICLES);
+    uint8_t commandId_resp; buf >> commandId_resp;
+    ASSERT(commandId_resp == RESPONSE_GET_SIM_VARIABLE);
+    uint8_t variableId_resp; buf >> variableId_resp;
+    ASSERT(variableId_resp == VAR_MIN_EXPECTED_VEHICLES);
     std::string simId; buf >> simId;
-    uint8_t typeId_resp; buf >> typeId_resp; ASSERT(typeId_resp == TYPE_INTEGER);
+    uint8_t typeId_resp; buf >> typeId_resp;
+    ASSERT(typeId_resp == TYPE_INTEGER);
 
     uint32_t val;
     buf >> val;
+
+    ASSERT(buf.eof());
 
     return val;
 }
@@ -629,13 +692,18 @@ uint32_t TraCI_Extend::simulationGetArrivedNumber()
     TraCIBuffer buf = getCommandInterface()->connection.query(CMD_GET_SIM_VARIABLE, TraCIBuffer() << static_cast<uint8_t>(VAR_ARRIVED_VEHICLES_NUMBER) << std::string("sim0"));
 
     uint8_t cmdLength_resp; buf >> cmdLength_resp;
-    uint8_t commandId_resp; buf >> commandId_resp; ASSERT(commandId_resp == RESPONSE_GET_SIM_VARIABLE);
-    uint8_t variableId_resp; buf >> variableId_resp; ASSERT(variableId_resp == VAR_ARRIVED_VEHICLES_NUMBER);
+    uint8_t commandId_resp; buf >> commandId_resp;
+    ASSERT(commandId_resp == RESPONSE_GET_SIM_VARIABLE);
+    uint8_t variableId_resp; buf >> variableId_resp;
+    ASSERT(variableId_resp == VAR_ARRIVED_VEHICLES_NUMBER);
     std::string simId; buf >> simId;
-    uint8_t typeId_resp; buf >> typeId_resp; ASSERT(typeId_resp == TYPE_INTEGER);
+    uint8_t typeId_resp; buf >> typeId_resp;
+    ASSERT(typeId_resp == TYPE_INTEGER);
 
     uint32_t val;
     buf >> val;
+
+    ASSERT(buf.eof());
 
     return val;
 }

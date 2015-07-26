@@ -7,7 +7,7 @@
   </vType> 
   
   <!-- emergency vehicle -->
-  <vType id="emergency" length="5.0" minGap="2.0" maxSpeed="30.0" vClass="emergency">
+  <vType id="emergency" length="10.0" minGap="2.0" maxSpeed="30.0" vClass="emergency">
       <carFollowing-Krauss accel="3.0" decel="5.0" sigma="0" tau="1.64" />
   </vType> 
   
@@ -21,12 +21,12 @@
       <carFollowing-Krauss accel="2.0" decel="3.0" sigma="0" tau="2.0" />
   </vType> 
   
-  <!-- Bicycle -->
-  <vType id="TypeBicycle" length="2.0" vClass="bicycle">
+  <!-- bicycle -->
+  <vType id="bicycle" length="1.6" width="0.6" minGap="0.5" maxSpeed="4.2" vClass="bicycle" guiShape="bicycle">
   </vType>
     
-  <!-- Pedestrian -->
-  <vType id="TypePedestrian" length="0.35" width="0.7" minGap="0.2" maxSpeed="1.8" vClass="pedestrian" guiShape="pedestrian" color="red">
+  <!-- pedestrian -->
+  <vType id="pedestrian" length="0.3" width="0.6" minGap="1.5" maxSpeed="1.4" vClass="pedestrian" guiShape="pedestrian" color="red">
   </vType>
   
   <!-- North inbound -->
@@ -46,7 +46,7 @@
   
   <!-- East inbound -->
   <route id="movement4" edges="EC CW" />     <!-- Through -->
-  <route id="route4" edges="EC CN" />       <!-- Right -->
+  <route id="route4" edges="EC CN" />        <!-- Right -->
   <route id="movement7" edges="EC CS" />     <!-- Left -->   
 
 </routes>

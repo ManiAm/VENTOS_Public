@@ -419,7 +419,7 @@ void IntersectionDelay::vehiclesDelayToFile()
     }
 
     // write header
-    fprintf (filePtr, "%-25s","vehicleName");
+    fprintf (filePtr, "%-35s","vehicleName");
     fprintf (filePtr, "%-10s","TLid");
     fprintf (filePtr, "%-10s","lastLane");
     fprintf (filePtr, "%-15s","entrance");
@@ -434,7 +434,7 @@ void IntersectionDelay::vehiclesDelayToFile()
     // write body
     for(std::map<std::string, delayEntry>::iterator y =  vehDelay.begin(); y != vehDelay.end(); ++y)
     {
-        fprintf (filePtr, "%-25s", (*y).first.c_str());
+        fprintf (filePtr, "%-35s", (*y).first.c_str());
         fprintf (filePtr, "%-10s", (*y).second.TLid.c_str());
         fprintf (filePtr, "%-10s", (*y).second.lastLane.c_str());
         fprintf (filePtr, "%-15.2f", (*y).second.intersectionEntrance);

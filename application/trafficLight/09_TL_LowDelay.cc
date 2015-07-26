@@ -117,7 +117,7 @@ void TrafficLightLowDelay::executeFirstTimeStep()
     if(TLControlMode != TL_LowDelay)
         return;
 
-    std::cout << endl << "Low delay traffic signal control ... " << endl << endl;
+    std::cout << "Low delay traffic signal control ... " << endl << endl;
 
     // set initial values
     currentInterval = phase1_5;

@@ -64,18 +64,39 @@ void AddEntity::initialize(int stage)
         plnSize = par("plnSize").longValue();
         plnSpace = par("plnSpace").doubleValue();
         overlap = par("overlap").doubleValue();
-        routeDist = par("routeDist").stringValue();
 
-        routeDistribution = cStringTokenizer(routeDist.c_str(), ",").asDoubleVector();
-        if(routeDistribution.size() != 3)
-            error("Three values should be specified for route distribution!");
+        vehRouteDistribution = cStringTokenizer(par("vehRouteDist").stringValue(), ",").asDoubleVector();
+        if(vehRouteDistribution.size() != 3)
+            error("Three values should be specified for vehicle route distribution!");
 
-        // make sure route distributions are set correctly
+        // make sure vehicle route distributions are set correctly
         double totalDist = 0;
-        for(double i : routeDistribution)
+        for(double i : vehRouteDistribution)
             totalDist += i;
         if(totalDist != 100)
-            error("route distributions do not add up to 100 percent!");
+            error("vehicle route distributions do not add up to 100 percent!");
+
+        vehClassDistribution = cStringTokenizer(par("vehClassDist").stringValue(), ",").asDoubleVector();
+        if(vehClassDistribution.size() != 2)
+            error("Two values should be specified for vehicle class distribution!");
+
+        // make sure vehicle class distributions are set correctly
+        totalDist = 0;
+        for(double i : vehClassDistribution)
+            totalDist += i;
+        if(totalDist != 100)
+            error("vehicle class distributions do not add up to 100 percent!");
+
+        bikeRouteDistribution = cStringTokenizer(par("bikeRouteDist").stringValue(), ",").asDoubleVector();
+        if(bikeRouteDistribution.size() != 3)
+            error("Three values should be specified for bike route distribution!");
+
+        // make sure vehicle bike route distributions are set correctly
+        totalDist = 0;
+        for(double i : bikeRouteDistribution)
+            totalDist += i;
+        if(totalDist != 100)
+            error("bike route distributions do not add up to 100 percent!");
 
         Signal_executeFirstTS = registerSignal("executeFirstTS");
         simulation.getSystemModule()->subscribe("executeFirstTS", this);
@@ -154,6 +175,27 @@ void AddEntity::Add()
     {
         error("not a valid mode!");
     }
+
+    int loadedVehCount = TraCI->simulationGetLoadedVehiclesCount();
+    std::cout << endl << ">>> AddEntity module loaded " << loadedVehCount << " entities: " << endl;
+    std::list<std::string> loadedVehList = TraCI->simulationGetLoadedVehiclesIDList();
+    std::list<std::string> loadedVehType;
+    for(std::string vehID : loadedVehList)
+    {
+        std::string type = TraCI->vehicleGetTypeID(vehID);
+        loadedVehType.push_back(type);
+    }
+
+    std::list<std::string> loadedVehTypeListUnique = loadedVehType;
+    loadedVehTypeListUnique.sort();
+    loadedVehTypeListUnique.unique();
+
+    for(std::string type : loadedVehTypeListUnique)
+    {
+        int count = std::count(loadedVehType.begin(), loadedVehType.end(), type);
+        std::cout << count << " entities are loaded of type " << type << endl;
+    }
+    std::cout << endl;
 }
 
 
@@ -589,7 +631,13 @@ void AddEntity::Scenario10()
     std::mt19937 generator(43);
 
     // uniform distribution for vehicle route (through, left, right)
-    std::uniform_real_distribution<> distribution(0,1);
+    std::uniform_real_distribution<> vehRouteDist(0,1);
+
+    // uniform distribution for vehicle class (passenger, emergency, bus, truck)
+    std::uniform_real_distribution<> vehClassDist(0,1);
+
+    // uniform distribution for bike route (through, left, right)
+    std::uniform_real_distribution<> bikeRouteDist(0,1);
 
     // poisson distribution for vehicle insertion
     std::poisson_distribution<int> distribution1(2./36.);
@@ -598,70 +646,108 @@ void AddEntity::Scenario10()
     std::poisson_distribution<int> distribution4(8./36.);
     std::poisson_distribution<int> distribution5(10./36.);
 
+    // poisson distribution for bike insertion
+    std::poisson_distribution<int> distribution6(1./36.);
+
     const int range = 400;     // traffic demand changes after each range
     std::ostringstream name;  // name is in the form of 'veh_100_N_T_1' where 100 is Traffic demand, N is north, T is through, 1 is vehCounter
 
-    int vehCounter = 1;
     int vehInsert = 0;   // number of vehicles that should be inserted (per direction) in each second
+    double vehDemand;
     double vehRoute = 0;
-    double demand;
+    double vehClass = 0;
+    int vehCounter = 1;
+
+    int bikeInsert = 0;
+    double bikeDemand;
+    double bikeRoute = 0;
+    int bikeCounter = 1;
+    double bikeInsertionPos = 600;
 
     for(int depart = 0; depart < terminate; ++depart)
     {
         vehInsert = -1;
+        bikeInsert = -1;
 
         if(depart >= 0 && depart < range)
         {
             vehInsert = distribution1(generator);
-            demand = 200;
+            vehDemand = 200;
+
+            bikeInsert = distribution6(generator);
+            bikeDemand = 100;
         }
 
         if(depart >= (range-overlap) && depart < 2*range)
         {
             vehInsert = distribution2(generator);
-            demand = 400;
+            vehDemand = 400;
+
+            bikeInsert = distribution6(generator);
+            bikeDemand = 100;
         }
 
         if(depart >= (2*range-overlap) && depart < 3*range)
         {
             vehInsert = distribution3(generator);
-            demand = 600;
+            vehDemand = 600;
+
+            bikeInsert = distribution6(generator);
+            bikeDemand = 100;
         }
 
         if(depart >= (3*range-overlap) && depart < 4*range)
         {
             vehInsert = distribution4(generator);
-            demand = 800;
+            vehDemand = 800;
+
+            bikeInsert = distribution6(generator);
+            bikeDemand = 100;
         }
 
         if(depart >= (4*range-overlap) && depart < 5*range)
         {
             vehInsert = distribution5(generator);
-            demand = 1000;
+            vehDemand = 1000;
+
+            bikeInsert = distribution6(generator);
+            bikeDemand = 100;
         }
 
         if(depart >= (5*range-overlap) && depart < 6*range)
         {
             vehInsert = distribution4(generator);
-            demand = 800;
+            vehDemand = 800;
+
+            bikeInsert = distribution6(generator);
+            bikeDemand = 100;
         }
 
         if(depart >= (6*range-overlap) && depart < 7*range)
         {
             vehInsert = distribution3(generator);
-            demand = 600;
+            vehDemand = 600;
+
+            bikeInsert = distribution6(generator);
+            bikeDemand = 100;
         }
 
         if(depart >= (7*range-overlap) && depart < 8*range)
         {
             vehInsert = distribution2(generator);
-            demand = 400;
+            vehDemand = 400;
+
+            bikeInsert = distribution6(generator);
+            bikeDemand = 100;
         }
 
         if(depart >= (8*range-overlap) && depart < 9*range)
         {
             vehInsert = distribution1(generator);
-            demand = 200;
+            vehDemand = 200;
+
+            bikeInsert = distribution6(generator);
+            bikeDemand = 100;
         }
 
         if(vehInsert == -1)
@@ -669,74 +755,145 @@ void AddEntity::Scenario10()
 
         for(int count = 0; count < vehInsert; ++count)
         {
-            vehRoute = distribution(generator);
+            vehClass = vehClassDist(generator);
+            std::string vehType = "";
 
-            // through
-            if( vehRoute >= 0 && vehRoute < routeDistribution[0]/100. )
+            // passenger vehicle
+            if( vehClass >= 0 && vehClass < vehClassDistribution[0]/100. )
+                vehType = "passenger";
+            // emergency vehicle
+            else if( vehClass >= vehClassDistribution[0]/100. && vehClass <= (vehClassDistribution[0]/100. + vehClassDistribution[1]/100.) )
+                vehType = "emergency";
+
+            vehRoute = vehRouteDist(generator);
+
+            // through vehicle
+            if( vehRoute >= 0 && vehRoute < vehRouteDistribution[0]/100. )
             {
                 name.str("");
-                name << "veh_" << demand << "_N_T_" << vehCounter;
-                TraCI->vehicleAdd(name.str(), "passenger", "movement2", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                name << "veh_" << vehType << "_" << vehDemand << "_N_T_" << vehCounter;
+                TraCI->vehicleAdd(name.str(), vehType, "movement2", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
                 name.str("");
-                name << "veh_" << demand << "_S_T_" << vehCounter;
-                TraCI->vehicleAdd(name.str(), "passenger", "movement6", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                name << "veh_" << vehType << "_" << vehDemand << "_S_T_" << vehCounter;
+                TraCI->vehicleAdd(name.str(), vehType, "movement6", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
                 name.str("");
-                name << "veh_" << demand << "_W_T_" << vehCounter;
-                TraCI->vehicleAdd(name.str(), "passenger", "movement8", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                name << "veh_" << vehType << "_" << vehDemand << "_W_T_" << vehCounter;
+                TraCI->vehicleAdd(name.str(), vehType, "movement8", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
                 name.str("");
-                name << "veh_" << demand << "_E_T_" << vehCounter;
-                TraCI->vehicleAdd(name.str(), "passenger", "movement4", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                name << "veh_" << vehType << "_" << vehDemand << "_E_T_" << vehCounter;
+                TraCI->vehicleAdd(name.str(), vehType, "movement4", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
             }
-            // left
-            else if( vehRoute >= routeDistribution[0]/100. && vehRoute < (routeDistribution[0]/100. + routeDistribution[1]/100.) )
+            // left vehicle
+            else if( vehRoute >= vehRouteDistribution[0]/100. && vehRoute < (vehRouteDistribution[0]/100. + vehRouteDistribution[1]/100.) )
             {
                 name.str("");
-                name << "veh_" << demand << "_N_L_" << vehCounter;
-                TraCI->vehicleAdd(name.str(), "passenger", "movement5", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                name << "veh_" << vehType << "_" << vehDemand << "_N_L_" << vehCounter;
+                TraCI->vehicleAdd(name.str(), vehType, "movement5", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
                 name.str("");
-                name << "veh_" << demand << "_S_L_" << vehCounter;
-                TraCI->vehicleAdd(name.str(), "passenger", "movement1", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                name << "veh_" << vehType << "_" << vehDemand << "_S_L_" << vehCounter;
+                TraCI->vehicleAdd(name.str(), vehType, "movement1", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
                 name.str("");
-                name << "veh_" << demand << "_W_L_" << vehCounter;
-                TraCI->vehicleAdd(name.str(), "passenger", "movement3", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                name << "veh_" << vehType << "_" << vehDemand << "_W_L_" << vehCounter;
+                TraCI->vehicleAdd(name.str(), vehType, "movement3", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
                 name.str("");
-                name << "veh_" << demand << "_E_L_" << vehCounter;
-                TraCI->vehicleAdd(name.str(), "passenger", "movement7", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                name << "veh_" << vehType << "_" << vehDemand << "_E_L_" << vehCounter;
+                TraCI->vehicleAdd(name.str(), vehType, "movement7", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
             }
-            // right
-            else if( vehRoute >= (routeDistribution[0]/100. + routeDistribution[1]/100.) && vehRoute < (routeDistribution[0]/100. + routeDistribution[1]/100. + routeDistribution[2]/100.) )
+            // right vehicle
+            else if( vehRoute >= (vehRouteDistribution[0]/100. + vehRouteDistribution[1]/100.) && vehRoute <= (vehRouteDistribution[0]/100. + vehRouteDistribution[1]/100. + vehRouteDistribution[2]/100.) )
             {
                 name.str("");
-                name << "veh_" << demand << "_N_R_" << vehCounter;
-                TraCI->vehicleAdd(name.str(), "passenger", "route1", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                name << "veh_" << vehType << "_" << vehDemand << "_N_R_" << vehCounter;
+                TraCI->vehicleAdd(name.str(), vehType, "route1", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
                 name.str("");
-                name << "veh_" << demand << "_S_R_" << vehCounter;
-                TraCI->vehicleAdd(name.str(), "passenger", "route2", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                name << "veh_" << vehType << "_" << vehDemand << "_S_R_" << vehCounter;
+                TraCI->vehicleAdd(name.str(), vehType, "route2", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
                 name.str("");
-                name << "veh_" << demand << "_W_R_" << vehCounter;
-                TraCI->vehicleAdd(name.str(), "passenger", "route3", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                name << "veh_" << vehType << "_" << vehDemand << "_W_R_" << vehCounter;
+                TraCI->vehicleAdd(name.str(), vehType, "route3", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
                 name.str("");
-                name << "veh_" << demand << "_E_R_" << vehCounter;
-                TraCI->vehicleAdd(name.str(), "passenger", "route4", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                name << "veh_" << vehType << "_" << vehDemand << "_E_R_" << vehCounter;
+                TraCI->vehicleAdd(name.str(), vehType, "route4", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
             }
 
             vehCounter++;
         }
-    }
 
-    //    TraCI->vehicleAdd("Bike1", "TypeBicycle", "route1", 0, 0 /*pos*/, 0 /*speed*/, 2 /*lane*/);
-    //    TraCI->vehicleAdd("Bike2", "TypeBicycle", "route4", 0, 0 /*pos*/, 0 /*speed*/, 2 /*lane*/);
-    //    TraCI->vehicleAdd("Bike3", "TypeBicycle", "route7", 0, 0 /*pos*/, 0 /*speed*/, 2 /*lane*/);
-    //    TraCI->vehicleAdd("Bike4", "TypeBicycle", "route10", 0, 0 /*pos*/, 0 /*speed*/, 2 /*lane*/);
+        // bikes
+        for(int count = 0; count < bikeInsert; ++count)
+        {
+            bikeRoute = bikeRouteDist(generator);
+
+            // through bike
+            if( bikeRoute >= 0 && bikeRoute < bikeRouteDistribution[0]/100. )
+            {
+                name.str("");
+                name << "bike_" << bikeDemand << "_N_T_" << bikeCounter;
+                TraCI->vehicleAdd(name.str(), "bicycle", "movement2", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
+
+                name.str("");
+                name << "bike_" << bikeDemand << "_S_T_" << bikeCounter;
+                TraCI->vehicleAdd(name.str(), "bicycle", "movement6", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
+
+                name.str("");
+                name << "bike_" << bikeDemand << "_W_T_" << bikeCounter;
+                TraCI->vehicleAdd(name.str(), "bicycle", "movement8", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
+
+                name.str("");
+                name << "bike_" << bikeDemand << "_E_T_" << bikeCounter;
+                TraCI->vehicleAdd(name.str(), "bicycle", "movement4", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
+            }
+            // left bike
+            else if( bikeRoute >= bikeRouteDistribution[0]/100. && bikeRoute < (bikeRouteDistribution[0]/100. + bikeRouteDistribution[1]/100.) )
+            {
+                name.str("");
+                name << "bike_" << bikeDemand << "_N_L_" << bikeCounter;
+                TraCI->vehicleAdd(name.str(), "bicycle", "movement5", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
+
+                name.str("");
+                name << "bike_" << bikeDemand << "_S_L_" << bikeCounter;
+                TraCI->vehicleAdd(name.str(), "bicycle", "movement1", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
+
+                name.str("");
+                name << "bike_" << bikeDemand << "_W_L_" << bikeCounter;
+                TraCI->vehicleAdd(name.str(), "bicycle", "movement3", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
+
+                name.str("");
+                name << "bike_" << bikeDemand << "_E_L_" << bikeCounter;
+                TraCI->vehicleAdd(name.str(), "bicycle", "movement7", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
+            }
+            // right bike
+            else if( bikeRoute >= (bikeRouteDistribution[0]/100. + bikeRouteDistribution[1]/100.) && bikeRoute <= (bikeRouteDistribution[0]/100. + bikeRouteDistribution[1]/100. + bikeRouteDistribution[2]/100.) )
+            {
+                name.str("");
+                name << "bike_" << bikeDemand << "_N_R_" << bikeCounter;
+                TraCI->vehicleAdd(name.str(), "bicycle", "route1", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
+
+                name.str("");
+                name << "bike_" << bikeDemand << "_S_R_" << bikeCounter;
+                TraCI->vehicleAdd(name.str(), "bicycle", "route2", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
+
+                name.str("");
+                name << "bike_" << bikeDemand << "_W_R_" << bikeCounter;
+                TraCI->vehicleAdd(name.str(), "bicycle", "route3", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
+
+                name.str("");
+                name << "bike_" << bikeDemand << "_E_R_" << bikeCounter;
+                TraCI->vehicleAdd(name.str(), "bicycle", "route4", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
+            }
+
+            bikeCounter++;
+        }
+    }
 }
 
 
@@ -747,92 +904,156 @@ void AddEntity::Scenario11()
     std::mt19937 generator(43);
 
     // uniform distribution for vehicle route (through, left, right)
-    std::uniform_real_distribution<> distribution(0,1);
+    std::uniform_real_distribution<> vehRouteDist(0,1);
 
-    // for main street
+    // uniform distribution for vehicle class (emergency, passenger, bus, truck)
+    std::uniform_real_distribution<> vehClassDist(0,1);
+
+    // uniform distribution for bike route (through, left, right)
+    std::uniform_real_distribution<> bikeRouteDist(0,1);
+
+    // vehicles in main street
     std::poisson_distribution<int> distribution1(2./36.);
     std::poisson_distribution<int> distribution2(4./36.);
     std::poisson_distribution<int> distribution3(6./36.);
     std::poisson_distribution<int> distribution4(8./36.);
     std::poisson_distribution<int> distribution5(10./36.);
 
-    // for side street
+    // vehicles in side street
     std::poisson_distribution<int> distribution6(2./36.);
+
+    // poisson distribution for bike insertion
+    std::poisson_distribution<int> distribution7(1./36.);
 
     const int range = 400;     // traffic demand for main street changes after each range
     std::ostringstream name;  // name is in the form of 'veh_100_N_T_1' where 100 is Traffic demand, N is north, T is through, 1 is vehCounter
 
-    int vehCounter = 1;
     int vehInsertMain = 0;   // number of vehicles that should be inserted from W and E in each second
     int vehInsertSide = 0;   // number of vehicles that should be inserted from N and S in each second
+    double vehDemandMain;
+    double vehDemandSide;
     double vehRoute = 0;
-    double demand;
+    double vehClass = 0;
+    int vehCounter = 1;
+
+    int bikeInsert = 0;
+    double bikeDemand;
+    double bikeRoute = 0;
+    int bikeCounter = 1;
+    double bikeInsertionPos = 600;
 
     for(int depart = 0; depart < terminate; ++depart)
     {
         vehInsertMain = -1;
+        vehInsertSide = -1;
+        bikeInsert = -1;
 
         if(depart >= 0 && depart < range)
         {
             vehInsertMain = distribution1(generator);
+            vehDemandMain = 200;
+
             vehInsertSide = distribution6(generator);
-            demand = 200;
+            vehDemandSide = 200;
+
+            bikeInsert = distribution7(generator);
+            bikeDemand = 100;
         }
 
         if(depart >= (range-overlap) && depart < 2*range)
         {
             vehInsertMain = distribution2(generator);
+            vehDemandMain = 400;
+
             vehInsertSide = distribution6(generator);
-            demand = 400;
+            vehDemandSide = 200;
+
+            bikeInsert = distribution7(generator);
+            bikeDemand = 100;
         }
 
         if(depart >= (2*range-overlap) && depart < 3*range)
         {
             vehInsertMain = distribution3(generator);
+            vehDemandMain = 600;
+
             vehInsertSide = distribution6(generator);
-            demand = 600;
+            vehDemandSide = 200;
+
+            bikeInsert = distribution7(generator);
+            bikeDemand = 100;
         }
 
         if(depart >= (3*range-overlap) && depart < 4*range)
         {
             vehInsertMain = distribution4(generator);
+            vehDemandMain = 800;
+
             vehInsertSide = distribution6(generator);
-            demand = 800;
+            vehDemandSide = 200;
+
+            bikeInsert = distribution7(generator);
+            bikeDemand = 100;
         }
 
         if(depart >= (4*range-overlap) && depart < 5*range)
         {
             vehInsertMain = distribution5(generator);
+            vehDemandMain = 1000;
+
             vehInsertSide = distribution6(generator);
-            demand = 1000;
+            vehDemandSide = 200;
+
+            bikeInsert = distribution7(generator);
+            bikeDemand = 100;
         }
 
         if(depart >= (5*range-overlap) && depart < 6*range)
         {
             vehInsertMain = distribution4(generator);
+            vehDemandMain = 800;
+
             vehInsertSide = distribution6(generator);
-            demand = 800;
+            vehDemandSide = 200;
+
+            bikeInsert = distribution7(generator);
+            bikeDemand = 100;
         }
 
         if(depart >= (6*range-overlap) && depart < 7*range)
         {
             vehInsertMain = distribution3(generator);
+            vehDemandMain = 600;
+
             vehInsertSide = distribution6(generator);
-            demand = 600;
+            vehDemandSide = 200;
+
+            bikeInsert = distribution7(generator);
+            bikeDemand = 100;
         }
 
         if(depart >= (7*range-overlap) && depart < 8*range)
         {
             vehInsertMain = distribution2(generator);
+            vehDemandMain = 400;
+
             vehInsertSide = distribution6(generator);
-            demand = 400;
+            vehDemandSide = 200;
+
+            bikeInsert = distribution7(generator);
+            bikeDemand = 100;
         }
 
         if(depart >= (8*range-overlap) && depart < 9*range)
         {
             vehInsertMain = distribution1(generator);
+            vehDemandMain = 200;
+
             vehInsertSide = distribution6(generator);
-            demand = 200;
+            vehDemandSide = 200;
+
+            bikeInsert = distribution7(generator);
+            bikeDemand = 100;
         }
 
         if(vehInsertMain == -1)
@@ -840,40 +1061,50 @@ void AddEntity::Scenario11()
 
         for(int count = 0; count < vehInsertMain; ++count)
         {
-            vehRoute = distribution(generator);
+            vehClass = vehClassDist(generator);
+            std::string vehType = "";
+
+            // passenger vehicle
+            if( vehClass >= 0 && vehClass < vehClassDistribution[0]/100. )
+                vehType = "passenger";
+            // emergency vehicle
+            else if( vehClass >= vehClassDistribution[0]/100. && vehClass <= (vehClassDistribution[0]/100. + vehClassDistribution[1]/100.) )
+                vehType = "emergency";
+
+            vehRoute = vehRouteDist(generator);
 
             // through
-            if( vehRoute >= 0 && vehRoute < routeDistribution[0]/100. )
+            if( vehRoute >= 0 && vehRoute < vehRouteDistribution[0]/100. )
             {
                 name.str("");
-                name << "veh_" << demand << "_W_T_" << vehCounter;
-                TraCI->vehicleAdd(name.str(), "passenger", "movement8", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                name << "veh_" << vehType << "_" << vehDemandMain << "_W_T_" << vehCounter;
+                TraCI->vehicleAdd(name.str(), vehType, "movement8", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
                 name.str("");
-                name << "veh_" << demand << "_E_T_" << vehCounter;
-                TraCI->vehicleAdd(name.str(), "passenger", "movement4", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                name << "veh_" << vehType << "_" << vehDemandMain << "_E_T_" << vehCounter;
+                TraCI->vehicleAdd(name.str(), vehType, "movement4", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
             }
             // left
-            else if( vehRoute >= routeDistribution[0]/100. && vehRoute < (routeDistribution[0]/100. + routeDistribution[1]/100.) )
+            else if( vehRoute >= vehRouteDistribution[0]/100. && vehRoute < (vehRouteDistribution[0]/100. + vehRouteDistribution[1]/100.) )
             {
                 name.str("");
-                name << "veh_" << demand << "_W_L_" << vehCounter;
-                TraCI->vehicleAdd(name.str(), "passenger", "movement3", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                name << "veh_" << vehType << "_" << vehDemandMain << "_W_L_" << vehCounter;
+                TraCI->vehicleAdd(name.str(), vehType, "movement3", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
                 name.str("");
-                name << "veh_" << demand << "_E_L_" << vehCounter;
-                TraCI->vehicleAdd(name.str(), "passenger", "movement7", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                name << "veh_" << vehType << "_" << vehDemandMain << "_E_L_" << vehCounter;
+                TraCI->vehicleAdd(name.str(), vehType, "movement7", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
             }
             // right
-            else if( vehRoute >= (routeDistribution[0]/100. + routeDistribution[1]/100.) && vehRoute < (routeDistribution[0]/100. + routeDistribution[1]/100. + routeDistribution[2]/100.) )
+            else if( vehRoute >= (vehRouteDistribution[0]/100. + vehRouteDistribution[1]/100.) && vehRoute <= (vehRouteDistribution[0]/100. + vehRouteDistribution[1]/100. + vehRouteDistribution[2]/100.) )
             {
                 name.str("");
-                name << "veh_" << demand << "_W_R_" << vehCounter;
-                TraCI->vehicleAdd(name.str(), "passenger", "route3", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                name << "veh_" << vehType << "_" << vehDemandMain << "_W_R_" << vehCounter;
+                TraCI->vehicleAdd(name.str(), vehType, "route3", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
                 name.str("");
-                name << "veh_" << demand << "_E_R_" << vehCounter;
-                TraCI->vehicleAdd(name.str(), "passenger", "route4", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                name << "veh_" << vehType << "_" << vehDemandMain << "_E_R_" << vehCounter;
+                TraCI->vehicleAdd(name.str(), vehType, "route4", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
             }
 
             vehCounter++;
@@ -882,43 +1113,119 @@ void AddEntity::Scenario11()
 
         for(int count = 0; count < vehInsertSide; ++count)
         {
-            vehRoute = distribution(generator);
+            vehClass = vehClassDist(generator);
+            std::string vehType = "";
+
+            // passenger vehicle
+            if( vehClass >= 0 && vehClass < vehClassDistribution[0]/100. )
+                vehType = "passenger";
+            // emergency vehicle
+            else if( vehClass >= vehClassDistribution[0]/100. && vehClass <= (vehClassDistribution[0]/100. + vehClassDistribution[1]/100.) )
+                vehType = "emergency";
+
+            vehRoute = vehRouteDist(generator);
 
             // through
-            if( vehRoute >= 0 && vehRoute < routeDistribution[0]/100. )
+            if( vehRoute >= 0 && vehRoute < vehRouteDistribution[0]/100. )
             {
                 name.str("");
-                name << "veh_" << demand << "_N_T_" << vehCounter;
-                TraCI->vehicleAdd(name.str(), "passenger", "movement2", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                name << "veh_" << vehType << "_" << vehDemandSide << "_N_T_" << vehCounter;
+                TraCI->vehicleAdd(name.str(), vehType, "movement2", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
                 name.str("");
-                name << "veh_" << demand << "_S_T_" << vehCounter;
-                TraCI->vehicleAdd(name.str(), "passenger", "movement6", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                name << "veh_" << vehType << "_" << vehDemandSide << "_S_T_" << vehCounter;
+                TraCI->vehicleAdd(name.str(), vehType, "movement6", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
             }
             // left
-            else if( vehRoute >= routeDistribution[0]/100. && vehRoute < (routeDistribution[0]/100. + routeDistribution[1]/100.) )
+            else if( vehRoute >= vehRouteDistribution[0]/100. && vehRoute < (vehRouteDistribution[0]/100. + vehRouteDistribution[1]/100.) )
             {
                 name.str("");
-                name << "veh_" << demand << "_N_L_" << vehCounter;
-                TraCI->vehicleAdd(name.str(), "passenger", "movement5", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                name << "veh_" << vehType << "_" << vehDemandSide << "_N_L_" << vehCounter;
+                TraCI->vehicleAdd(name.str(), vehType, "movement5", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
                 name.str("");
-                name << "veh_" << demand << "_S_L_" << vehCounter;
-                TraCI->vehicleAdd(name.str(), "passenger", "movement1", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                name << "veh_" << vehType << "_" << vehDemandSide << "_S_L_" << vehCounter;
+                TraCI->vehicleAdd(name.str(), vehType, "movement1", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
             }
             // right
-            else if( vehRoute >= (routeDistribution[0]/100. + routeDistribution[1]/100.) && vehRoute < (routeDistribution[0]/100. + routeDistribution[1]/100. + routeDistribution[2]/100.) )
+            else if( vehRoute >= (vehRouteDistribution[0]/100. + vehRouteDistribution[1]/100.) && vehRoute <= (vehRouteDistribution[0]/100. + vehRouteDistribution[1]/100. + vehRouteDistribution[2]/100.) )
             {
                 name.str("");
-                name << "veh_" << demand << "_N_R_" << vehCounter;
-                TraCI->vehicleAdd(name.str(), "passenger", "route1", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                name << "veh_" << vehType << "_" << vehDemandSide << "_N_R_" << vehCounter;
+                TraCI->vehicleAdd(name.str(), vehType, "route1", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
                 name.str("");
-                name << "veh_" << demand << "_S_R_" << vehCounter;
-                TraCI->vehicleAdd(name.str(), "passenger", "route2", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                name << "veh_" << vehType << "_" << vehDemandSide << "_S_R_" << vehCounter;
+                TraCI->vehicleAdd(name.str(), vehType, "route2", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
             }
 
             vehCounter++;
+        }
+
+        // bikes
+        for(int count = 0; count < bikeInsert; ++count)
+        {
+            bikeRoute = bikeRouteDist(generator);
+
+            // through bike
+            if( bikeRoute >= 0 && bikeRoute < bikeRouteDistribution[0]/100. )
+            {
+                name.str("");
+                name << "bike_" << bikeDemand << "_N_T_" << bikeCounter;
+                TraCI->vehicleAdd(name.str(), "bicycle", "movement2", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
+
+                name.str("");
+                name << "bike_" << bikeDemand << "_S_T_" << bikeCounter;
+                TraCI->vehicleAdd(name.str(), "bicycle", "movement6", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
+
+                name.str("");
+                name << "bike_" << bikeDemand << "_W_T_" << bikeCounter;
+                TraCI->vehicleAdd(name.str(), "bicycle", "movement8", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
+
+                name.str("");
+                name << "bike_" << bikeDemand << "_E_T_" << bikeCounter;
+                TraCI->vehicleAdd(name.str(), "bicycle", "movement4", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
+            }
+            // left bike
+            else if( bikeRoute >= bikeRouteDistribution[0]/100. && bikeRoute < (bikeRouteDistribution[0]/100. + bikeRouteDistribution[1]/100.) )
+            {
+                name.str("");
+                name << "bike_" << bikeDemand << "_N_L_" << bikeCounter;
+                TraCI->vehicleAdd(name.str(), "bicycle", "movement5", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
+
+                name.str("");
+                name << "bike_" << bikeDemand << "_S_L_" << bikeCounter;
+                TraCI->vehicleAdd(name.str(), "bicycle", "movement1", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
+
+                name.str("");
+                name << "bike_" << bikeDemand << "_W_L_" << bikeCounter;
+                TraCI->vehicleAdd(name.str(), "bicycle", "movement3", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
+
+                name.str("");
+                name << "bike_" << bikeDemand << "_E_L_" << bikeCounter;
+                TraCI->vehicleAdd(name.str(), "bicycle", "movement7", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
+            }
+            // right bike
+            else if( bikeRoute >= (bikeRouteDistribution[0]/100. + bikeRouteDistribution[1]/100.) && bikeRoute <= (bikeRouteDistribution[0]/100. + bikeRouteDistribution[1]/100. + bikeRouteDistribution[2]/100.) )
+            {
+                name.str("");
+                name << "bike_" << bikeDemand << "_N_R_" << bikeCounter;
+                TraCI->vehicleAdd(name.str(), "bicycle", "route1", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
+
+                name.str("");
+                name << "bike_" << bikeDemand << "_S_R_" << bikeCounter;
+                TraCI->vehicleAdd(name.str(), "bicycle", "route2", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
+
+                name.str("");
+                name << "bike_" << bikeDemand << "_W_R_" << bikeCounter;
+                TraCI->vehicleAdd(name.str(), "bicycle", "route3", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
+
+                name.str("");
+                name << "bike_" << bikeDemand << "_E_R_" << bikeCounter;
+                TraCI->vehicleAdd(name.str(), "bicycle", "route4", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
+            }
+
+            bikeCounter++;
         }
     }
 }

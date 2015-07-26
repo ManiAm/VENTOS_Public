@@ -113,6 +113,8 @@ public:
     // ################################################################
 
     // CMD_GET_SIM_VARIABLE
+    uint32_t simulationGetLoadedVehiclesCount();
+    std::list<std::string> simulationGetLoadedVehiclesIDList();
     double* simulationGetNetBoundary();
     uint32_t simulationGetMinExpectedNumber();
     uint32_t simulationGetArrivedNumber();

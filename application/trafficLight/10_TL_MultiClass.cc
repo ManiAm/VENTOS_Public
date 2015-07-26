@@ -93,7 +93,7 @@ void TrafficLightMultiClass::executeFirstTimeStep()
     if(TLControlMode != TL_MultiClass)
         return;
 
-    std::cout << endl << "Multi-class traffic signal control ..." << endl;
+    std::cout << "Multi-class traffic signal control ..." << endl;
 
     // set initial values
     currentInterval = phase1_5;
