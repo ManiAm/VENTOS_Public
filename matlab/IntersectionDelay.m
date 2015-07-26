@@ -7,7 +7,7 @@ clc;    % position the cursor at the top of the screen
 % ---------------------------------------------------------------
 
 % path to folder
-basePATH = '../results/cmd/5_full_poisson_unbalanced_routeDist_70_30';
+basePATH = '../results/cmd/3_full_poisson_balanced_routeDist_70_30';
 
 TLqueuingData = dir([basePATH, '/*_TLqueuingData.txt']);
 TLphasingData = dir([basePATH, '/*_TLphasingData.txt']);
@@ -25,18 +25,19 @@ clearvars -except runNumber runTotal basePATH TLqueuingData TLphasingData vehDel
 
 % ----------------------------------------------------------------
 
-disp('calculating average queue size ...');
-
 path2 = sprintf('%s/%s', basePATH, TLqueuingData(runNumber).name);
 file_id = fopen(path2);
-formatSpec = '%d %f %s %d %d';
+formatSpec = '%d %f %s %d %d %d';
 C_text = textscan(file_id, formatSpec, 'HeaderLines', 8);
 fclose(file_id);
 
 indices = C_text{1,1};
 timeSteps = C_text{1,2};
 totalQs = C_text{1,4};
-laneCounts = C_text{1,5};
+maxQs = C_text{1,5};
+laneCounts = C_text{1,6};
+
+disp('calculating average queue size ...');
 
 % out of 16, 4 are crosswalks and 4 are bike lanes
 laneCounts = laneCounts - 8;
@@ -62,6 +63,28 @@ for i=1 : aggregateInterval_queue : rows-aggregateInterval_queue
     index = index + 1;
     
 end
+
+disp('calculating max queue size ...');
+
+% aggregate every 150 values together
+aggregateInterval_queue = 700;
+
+rows = size(maxQs, 1);
+index = 1;
+for i=1 : aggregateInterval_queue : rows-aggregateInterval_queue
+    
+    startIndex = i;
+    endIndex = startIndex + aggregateInterval_queue - 1;
+    
+    maxQueueSize(index) = double(sum(maxQs(startIndex:endIndex))) / double(aggregateInterval_queue);  
+    
+    middleIndex = floor( double((startIndex + endIndex)) / 2. );
+    timeSteps_MQ(index) = timeSteps(middleIndex);
+    
+    index = index + 1;
+    
+end
+
 
 % -----------------------------------------------------------------
 
@@ -282,62 +305,106 @@ if(true)
         lineMark = '--';
     end
     
-    subplot(2,1,1);    
-    plot(timeSteps_Q, averageQueueSize, lineMark, 'LineWidth', 1);
+    subplot(3,1,1);    
+    plot(timeSteps_MQ/60, maxQueueSize, lineMark, 'LineWidth', 1);
 
     % set font size
     set(gca, 'FontSize', 17);
 
-    xlabel('Time (s)', 'FontSize', 17);
-    ylabel({'Average Vehicle Queue', 'Size per Lane'}, 'FontSize', 17);
+    xlabel('Time (min)', 'FontSize', 17);
+    ylabel({'Maximum Vehicle', 'Queue Size per Lane'}, 'FontSize', 17);
 
-    %grid on;
+    grid on;
     hold on;
     
-    subplot(2,1,2);    
-    plot(timeSteps_D, delay, lineMark, 'LineWidth', 1);
+    subplot(3,1,2);    
+    plot(timeSteps_D/60, delay/60, lineMark, 'LineWidth', 1);
 
     % set font size
     set(gca, 'FontSize', 17);
 
-    xlabel('Time (s)', 'FontSize', 17);
-    ylabel({'Average Delay', 'per Vehicle (s)'}, 'FontSize', 17);
+    xlabel('Time (min)', 'FontSize', 17);
+    ylabel({'Average Delay', 'per Vehicle (min)'}, 'FontSize', 17);
 
-    %grid on;
+    grid on;
     hold on;
 
-%     subplot(3,1,3);
-%     plot(timeSteps_T, throughput, lineMark, 'LineWidth', 1);
-% 
-%     % set font size
-%     set(gca, 'FontSize', 17);
-% 
-%     xlabel('Time (s)', 'FontSize', 17);
-%     ylabel('Throughput', 'FontSize', 17);
-% 
-%     %grid on;
-%     hold on;
+    subplot(3,1,3);
+    plot(timeSteps_T/60, throughput, lineMark, 'LineWidth', 1);
+
+    % set font size
+    set(gca, 'FontSize', 17);
+
+    xlabel('Time (min)', 'FontSize', 17);
+    ylabel('Throughput', 'FontSize', 17);
+
+    grid on;
+    hold on;
 
     % at the end of the last iteration
     if(runNumber == runTotal)       
 
-        for g=1:2
-            subplot(2,1,g);            
+        for g=1:3
+            subplot(3,1,g);            
+            
+            % set the y-axis limit
+            set( gca, 'XLim', [0 3700/60] );
+            
+            % x-axis is integer
             Xlimit = get(gca,'xlim');            
-            set(gca, 'xtick' , 0:300:Xlimit(2));
+            set(gca, 'xtick' , 0:3:Xlimit(2));
         end   
         
-        subplot(2,1,1);
+        % Y-axis for delay
+        subplot(3,1,2);   
+        Ylimit = get(gca,'ylim');            
+        set(gca, 'ytick' , 0:2:Ylimit(2));
+        
+        subplot(3,1,1);
         legend('Fix-time' , 'Traffic-actuated', 'Highest queue', 'OJF', 'Location', 'northwest');
     
-        % mark change of demand with vertical lines
-        for threshold=400:400:Xlimit(2)            
-            for g=1:2
-                subplot(2,1,g);
-                % draw vertical line
-                line([threshold threshold], ylim, 'LineWidth', 1, 'LineStyle', '--', 'Color', 'k');
-            end          
-        end
+%         % mark change of demand with vertical lines
+%         for threshold=400:400:Xlimit(2)            
+%             for g=1:2
+%                 subplot(2,1,g);
+%                 % draw vertical line
+%                 line([threshold threshold], ylim, 'LineWidth', 1, 'LineStyle', '--', 'Color', 'k');
+%             end          
+%         end
+        
+        % mark light/medium/heavy traffic with arrows
+        for g=1:3
+            subplot(3,1,g);
+            
+            Ylimit = get(gca,'ylim');
+            arrowYLoc = Ylimit(2) + (0.05 * Ylimit(2));
+            textYLoc = arrowYLoc + (0.09 * arrowYLoc);
+            
+            Start = [0 arrowYLoc];
+            Stop = [800/60 arrowYLoc];
+            arrow(Start, Stop, 'Ends', 3);  
+            text((400-150)/60, textYLoc, 'Light Traffic', 'FontSize', 17);
+            
+            Start = [800/60 arrowYLoc];
+            Stop = [1600/60 arrowYLoc];
+            arrow(Start, Stop, 'Ends', 3); 
+            text((1200-150)/60, textYLoc, 'Medium Traffic', 'FontSize', 17);
+            
+            Start = [1600/60 arrowYLoc];
+            Stop = [2400/60 arrowYLoc];
+            arrow(Start, Stop, 'Ends', 3); 
+            text((2000-150)/60, textYLoc, 'Heavy Traffic', 'FontSize', 17);
+            
+            Start = [2400/60 arrowYLoc];
+            Stop = [3200/60 arrowYLoc];
+            arrow(Start, Stop, 'Ends', 3); 
+            text((2800-150)/60, textYLoc, 'Medium Traffic', 'FontSize', 17);
+            
+            Start = [3200/60 arrowYLoc];
+            Stop = [Xlimit(2) arrowYLoc];
+            arrow(Start, Stop, 'Ends', 3); 
+            text((3400-150)/60, textYLoc, 'Light Traffic', 'FontSize', 17);
+        end      
     
     end
 
@@ -357,24 +424,24 @@ end
 
 % plot minimum and maximum delay for each TSC algorithm
 
-figure('name', 'Speed', 'units', 'normalized', 'outerposition', [0 0 1 1]);
-
-data = [cell2mat(delayVariations{1,1})'; cell2mat(delayVariations{1,2})'; cell2mat(delayVariations{1,3})'; cell2mat(delayVariations{1,4})'];
-
-n1 = size(delayVariations{1,1},2);
-n2 = size(delayVariations{1,2},2);
-n3 = size(delayVariations{1,3},2);
-n4 = size(delayVariations{1,4},2);
-group = [repmat({'Fix-time'}, n1, 1); repmat({'Traffic actuated'}, n2, 1); repmat({'Highest Queue'}, n3, 1); repmat({'OJF'}, n4, 1)];
-
-subplot(2,1,1);
-boxplot(data,group);
-
-set(findobj(gca,'Type','text'),'FontSize',19);
-
-ylabel('Fairness index', 'FontSize', 19);
-
-grid on;
+% figure('name', 'Speed', 'units', 'normalized', 'outerposition', [0 0 1 1]);
+% 
+% data = [cell2mat(delayVariations{1,1})'; cell2mat(delayVariations{1,2})'; cell2mat(delayVariations{1,3})'; cell2mat(delayVariations{1,4})'];
+% 
+% n1 = size(delayVariations{1,1},2);
+% n2 = size(delayVariations{1,2},2);
+% n3 = size(delayVariations{1,3},2);
+% n4 = size(delayVariations{1,4},2);
+% group = [repmat({'Fix-time'}, n1, 1); repmat({'Traffic actuated'}, n2, 1); repmat({'Highest Queue'}, n3, 1); repmat({'OJF'}, n4, 1)];
+% 
+% subplot(2,1,1);
+% boxplot(data,group);
+% 
+% set(findobj(gca,'Type','text'),'FontSize',19);
+% 
+% ylabel('Fairness index', 'FontSize', 19);
+% 
+% grid on;
 
 % -----------------------------------------------------------------
 % -----------------------------------------------------------------
@@ -534,49 +601,88 @@ if(true)
     end
     
     subplot(2,1,1);
-    plot(timeSteps_SW, totalCycles, lineMark, 'LineWidth', 1);
+    plot(timeSteps_SW/60, totalCycles, lineMark, 'LineWidth', 1);
 
     % set font size
     set(gca, 'FontSize', 17);
 
-    xlabel('Time (s)', 'FontSize', 17);
+    xlabel('Time (min)', 'FontSize', 17);
     ylabel('Cycle Count', 'FontSize', 17);
 
-    %grid on;
+    grid on;
     hold on;
     
     subplot(2,1,2);
-    plot(timeSteps_GR, totalGreenTime, lineMark, 'LineWidth', 1);
+    plot(timeSteps_GR/60, totalGreenTime/60, lineMark, 'LineWidth', 1);
             
     % set font size
     set(gca, 'FontSize', 17);
 
-    xlabel('Time (s)', 'FontSize', 17);
-    ylabel('Total Green Time (s)', 'FontSize', 17);
+    xlabel('Time (min)', 'FontSize', 17);
+    ylabel('Total Green Time (min)', 'FontSize', 17);
 
-    %grid on;
+    grid on;
     hold on;
 
     % at the end of the last iteration
     if(runNumber == runTotal)       
         
         for g=1:2
-            subplot(2,1,g);            
+            subplot(2,1,g);   
+            
+            % set the x-axis limit
+            set( gca, 'XLim', [0 3700/60] );
+            
+            % x-axis is integer
             Xlimit = get(gca,'xlim');            
-            set(gca, 'xtick' , 0:300:Xlimit(2));
+            set(gca, 'xtick' , 0:5:Xlimit(2));
         end 
         
         subplot(2,1,1);
         legend('Fix-time' , 'Traffic-actuated', 'Highest queue', 'OJF', 'Location', 'northwest');
     
-        % mark change of demand with vertical lines
-        for threshold=400:400:Xlimit(2)            
-            for g=1:2
-                subplot(2,1,g);
-                % draw vertical line
-                line([threshold threshold], ylim, 'LineWidth', 1, 'LineStyle', '--', 'Color', 'k');
-            end          
-        end
+%         % mark change of demand with vertical lines
+%         for threshold=400:400:Xlimit(2)            
+%             for g=1:2
+%                 subplot(2,1,g);
+%                 % draw vertical line
+%                 line([threshold threshold], ylim, 'LineWidth', 1, 'LineStyle', '--', 'Color', 'k');
+%             end          
+%         end
+
+        % mark light/medium/heavy traffic with arrows
+        for g=1:2
+            subplot(2,1,g);
+            
+            Ylimit = get(gca,'ylim');
+            arrowYLoc = Ylimit(2) + (0.05 * Ylimit(2));
+            textYLoc = arrowYLoc + (0.09 * arrowYLoc);
+            
+            Start = [0 arrowYLoc];
+            Stop = [800/60 arrowYLoc];
+            arrow(Start, Stop, 'Ends', 3);  
+            text((400-150)/60, textYLoc, 'Light Traffic', 'FontSize', 17);
+            
+            Start = [800/60 arrowYLoc];
+            Stop = [1600/60 arrowYLoc];
+            arrow(Start, Stop, 'Ends', 3); 
+            text((1200-150)/60, textYLoc, 'Medium Traffic', 'FontSize', 17);
+            
+            Start = [1600/60 arrowYLoc];
+            Stop = [2400/60 arrowYLoc];
+            arrow(Start, Stop, 'Ends', 3); 
+            text((2000-150)/60, textYLoc, 'Heavy Traffic', 'FontSize', 17);
+            
+            Start = [2400/60 arrowYLoc];
+            Stop = [3200/60 arrowYLoc];
+            arrow(Start, Stop, 'Ends', 3); 
+            text((2800-150)/60, textYLoc, 'Medium Traffic', 'FontSize', 17);
+            
+            Start = [3200/60 arrowYLoc];
+            Stop = [Xlimit(2) arrowYLoc];
+            arrow(Start, Stop, 'Ends', 3); 
+            text((3400-150)/60, textYLoc, 'Light Traffic', 'FontSize', 17);
+        end 
     
     end
 
