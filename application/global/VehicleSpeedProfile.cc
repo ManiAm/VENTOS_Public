@@ -290,10 +290,11 @@ void SpeedProfile::ExTrajectory(double startT)
 
     if( simTime().dbl() == startT )
     {
-        TraCI->vehicleSetSpeed(profileVehicle, 20.);
+        // set the leading vehicle speed equal with the first speed of real trajectory data
+        TraCI->vehicleSetSpeed(profileVehicle, 13.8);
         return;
     }
-    else if( simTime().dbl() < 80 )
+    else if( simTime().dbl() < 120 )
     {
         return;
     }

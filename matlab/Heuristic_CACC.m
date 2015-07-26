@@ -7,7 +7,7 @@ clc;
 
 disp('reading and parsing the vehData.txt file ...');
 
-path = '../results/cmd/000_vehicleData.txt';
+path = '../results/cmd/heur2/002_vehicleData.txt';
 file_id = fopen(path);
 formatSpec = '%d %f %s %f %f %f %f';
 C_text = textscan(file_id, formatSpec, 'HeaderLines', 8);
