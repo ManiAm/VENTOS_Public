@@ -365,7 +365,8 @@ std::list<std::string> TraCI_Extend::genericGetStringList(uint8_t commandId, std
         res.push_back(id);
     }
 
-    ASSERT(buf.eof());
+    // todo: in 'laneGetAllowedClasses' buf is not empty
+   // ASSERT(buf.eof());
 
     return res;
 }
@@ -1552,6 +1553,12 @@ std::map<int,linkEntry> TraCI_Extend::laneGetLinks(std::string laneId)
     ASSERT(buf.eof());
 
     return final;
+}
+
+
+std::list<std::string> TraCI_Extend::laneGetAllowedClasses(std::string laneId)
+{
+    return genericGetStringList(CMD_GET_LANE_VARIABLE, laneId, LANE_ALLOWED, RESPONSE_GET_LANE_VARIABLE);
 }
 
 

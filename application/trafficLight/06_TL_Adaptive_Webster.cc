@@ -325,7 +325,7 @@ void TrafficLightWebster::calculateGreenSplits()
         double changeInterval_i = yellowTime + redTime;
         double clearanceLoss_i = (1-0.8)*changeInterval_i;
         double totalLoss_i = startupLoss_i + clearanceLoss_i;   // total loss time per phase
-        double totalLoss = totalLoss_i * activePhases;  // total loss time per phase
+        double totalLoss = totalLoss_i * activePhases;  // total loss time for all phases
 
         double cycle = ((1.5*totalLoss) + 5) / (1 - Y);  // cycle length
 

@@ -91,7 +91,7 @@ void LoopDetectors::initialize(int stage)
         statusTL.clear();
 
         Vec_loopDetectors.clear();
-        Vec_totalQueueSize.clear();
+        Vec_queueSize.clear();
     }
 }
 
@@ -114,8 +114,6 @@ void LoopDetectors::executeFirstTimeStep()
 
     TLList = TraCI->TLGetIDList();
 
-    getAllDetectors();
-
     // for each traffic light
     for (std::list<std::string>::iterator it = TLList.begin(); it != TLList.end(); ++it)
     {
@@ -129,12 +127,25 @@ void LoopDetectors::executeFirstTimeStep()
 
         laneListTL[TLid] = std::make_pair(lan.size(),lan);
 
+        queueDataEntry *entry = new queueDataEntry(0, 0, std::numeric_limits<int>::max(), lan.size());
+        queueSizeTL.insert( std::make_pair(TLid, *entry) );
+
+        std::list<std::string> bikeLaneList;
+        std::list<std::string> sideWalkList;
+
         // for each incoming lane
         for(std::list<std::string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
         {
             std::string lane = *it2;
 
             lanesTL[lane] = TLid;
+
+            // store all bike lanes and side walks
+            std::list<std::string> allowedClasses = TraCI->laneGetAllowedClasses(lane);
+            if(allowedClasses.size() == 1 && allowedClasses.front() == "bicycle")
+                bikeLaneList.push_back(lane);
+            else if(allowedClasses.size() == 1 && allowedClasses.front() == "pedestrian")
+                sideWalkList.push_back(lane);
 
             // initialize queue value in laneQueueSize to zero
             laneQueueSize[lane] = std::make_pair(TLid, 0);
@@ -149,7 +160,10 @@ void LoopDetectors::executeFirstTimeStep()
             laneTotalVehCount.insert( std::make_pair(lane, std::make_pair(TLid, *entry)) );
         }
 
-        totalQueueSize[TLid] = std::make_pair(0, lan.size());
+        bikeLaneListTL[TLid] = bikeLaneList;
+        sideWalkListTL[TLid] = sideWalkList;
+        bikeLaneList.clear();
+        sideWalkList.clear();
 
         // get all links controlled by this TL
         std::map<int,std::vector<std::string>> result = TraCI->TLGetControlledLinks(TLid);
@@ -172,6 +186,8 @@ void LoopDetectors::executeFirstTimeStep()
             linkQueueSize.insert( std::make_pair(std::make_pair(TLid,linkNumber), 0) );
         }
     }
+
+    getAllDetectors();
 }
 
 
@@ -247,7 +263,9 @@ void LoopDetectors::getAllDetectors()
     // make sure we have all detectors we need
     for (std::list<std::string>::iterator it = TLList.begin(); it != TLList.end(); ++it)
     {
-        std::list<std::string> lan = TraCI->TLGetControlledLanes(*it);
+        std::string TLid = *it;
+
+        std::list<std::string> lan = TraCI->TLGetControlledLanes(TLid);
 
         // remove duplicate entries
         lan.unique();
@@ -255,17 +273,24 @@ void LoopDetectors::getAllDetectors()
         // for each incoming lane
         for(std::list<std::string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
         {
+            std::string lane = *it2;
+
+            // ignore bike lane or side walk
+            if(std::find(bikeLaneListTL[TLid].begin(), bikeLaneListTL[TLid].end(), lane) != bikeLaneListTL[TLid].end() ||
+                    std::find(sideWalkListTL[TLid].begin(), sideWalkListTL[TLid].end(), lane) != sideWalkListTL[TLid].end())
+                continue;
+
             // traffic-actuated TSC needs one actuated LD on each incoming lane
-            if( TLControlMode == TL_TrafficActuated && LD_actuated.find(*it2) == LD_actuated.end() )
-                std::cout << "WARNING: no loop detector found on lane (" << *it2 << "). No actuation is available for this lane." << endl;
+            if( TLControlMode == TL_TrafficActuated && LD_actuated.find(lane) == LD_actuated.end() )
+                std::cout << "WARNING: no loop detector found on lane (" << lane << "). No actuation is available for this lane." << endl;
 
             // if we are measuring queue length then make sure we have an area detector in each lane
-            if( measureIntersectionQueue && AD_queue.find(*it2) == AD_queue.end() )
-                std::cout << "WARNING: no area detector found on lane (" << *it2 << "). No queue measurement is available for this lane." << endl;
+            if( measureIntersectionQueue && AD_queue.find(lane) == AD_queue.end() )
+                std::cout << "WARNING: no area detector found on lane (" << lane << "). No queue measurement is available for this lane." << endl;
 
             // if we are measuring traffic demand using loop detectors then make sure we have an LD on each lane
-            if( measureTrafficDemand && LD_demand.find(*it2) == LD_demand.end() )
-                std::cout << "WARNING: no loop detector found on lane (" << *it2 << "). No traffic demand measurement is available for this lane." << endl;
+            if( measureTrafficDemand && LD_demand.find(lane) == LD_demand.end() )
+                std::cout << "WARNING: no loop detector found on lane (" << lane << "). No traffic demand measurement is available for this lane." << endl;
         }
     }
 }
@@ -488,6 +513,11 @@ void LoopDetectors::measureTrafficParameters()
         std::string lane = (*y).first;
         std::string TLid = (*y).second;
 
+        // ignore bike lane or side walk
+        if(std::find(bikeLaneListTL[TLid].begin(), bikeLaneListTL[TLid].end(), lane) != bikeLaneListTL[TLid].end() ||
+                std::find(sideWalkListTL[TLid].begin(), sideWalkListTL[TLid].end(), lane) != sideWalkListTL[TLid].end())
+            continue;
+
         if(measureIntersectionQueue)
         {
             // make sure we have an area detector in this lane
@@ -500,10 +530,16 @@ void LoopDetectors::measureTrafficParameters()
             // update laneQueueSize
             std::map<std::string,std::pair<std::string,int>>::iterator location = laneQueueSize.find(lane);
             std::pair<std::string,int> store = location->second;
-            location->second = std::make_pair( store.first, q );
+            location->second = std::make_pair(store.first, q);
 
-            // save total queue size for each TLid
-            totalQueueSize[TLid].first = totalQueueSize[TLid].first + q;
+            if(collectTLQueuingData)
+            {
+                std::map<std::string, queueDataEntry>::iterator g = queueSizeTL.find(TLid);
+
+                // save min/max/total queue size for each TLid temporarily
+                (*g).second.totalQueueSize = (*g).second.totalQueueSize + q;
+                (*g).second.maxQueueSize = std::max((*g).second.maxQueueSize, q);
+            }
 
             // get # of outgoing links from this lane
             int NoLinks = linksTL.count(lane);
@@ -636,17 +672,19 @@ void LoopDetectors::measureTrafficParameters()
 
     if(collectTLQueuingData)
     {
-        for(std::map<std::string, std::pair<int, int>>::iterator y = totalQueueSize.begin(); y != totalQueueSize.end(); ++y)
+        for(std::map<std::string, queueDataEntry>::iterator y = queueSizeTL.begin(); y != queueSizeTL.end(); ++y)
         {
             std::string TLid = (*y).first;
-            int totalQueue = (*y).second.first;
-            int laneCount = (*y).second.second;
+            int totalQueue = (*y).second.totalQueueSize;
+            int maxQueue = (*y).second.maxQueueSize;
+            int laneCount = (*y).second.totalLanes;
 
-            currentQueueSize *entry = new currentQueueSize(simTime().dbl(), TLid, totalQueue, laneCount);
-            Vec_totalQueueSize.push_back(*entry);
+            queueDataEntryDetailed *entry = new queueDataEntryDetailed(simTime().dbl(), TLid, totalQueue, maxQueue, laneCount);
+            Vec_queueSize.push_back(*entry);
 
-            // reset total queue
-            (*y).second.first = 0;
+            // reset values
+            (*y).second.totalQueueSize = 0;
+            (*y).second.maxQueueSize = 0;
         }
     }
 }
@@ -698,12 +736,13 @@ void LoopDetectors::saveTLQueueingData()
     fprintf (filePtr, "%-10s", "timeStep");
     fprintf (filePtr, "%-10s", "TLid");
     fprintf (filePtr, "%-15s", "totalQueue");
+    fprintf (filePtr, "%-15s", "maxQueue");
     fprintf (filePtr, "%-10s\n\n", "laneCount");
 
     double oldTime = -1;
     int index = 0;
 
-    for(std::vector<currentQueueSize>::iterator y = Vec_totalQueueSize.begin(); y != Vec_totalQueueSize.end(); ++y )
+    for(std::vector<queueDataEntryDetailed>::iterator y = Vec_queueSize.begin(); y != Vec_queueSize.end(); ++y )
     {
         if(oldTime != (*y).time)
         {
@@ -715,8 +754,9 @@ void LoopDetectors::saveTLQueueingData()
         fprintf (filePtr, "%-10d", index);
         fprintf (filePtr, "%-10.2f", (*y).time);
         fprintf (filePtr, "%-10s", (*y).TLid.c_str());
-        fprintf (filePtr, "%-15d", (*y).totoalQueueSize);
-        fprintf (filePtr, "%-10d\n", (*y).laneCount);
+        fprintf (filePtr, "%-15d", (*y).totalQueueSize);
+        fprintf (filePtr, "%-15d", (*y).maxQueueSize);
+        fprintf (filePtr, "%-10d\n", (*y).totalLanes);
     }
 
     fclose(filePtr);

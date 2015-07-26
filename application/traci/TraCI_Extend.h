@@ -231,6 +231,7 @@ public:
     uint32_t laneGetIDCount();
     uint8_t laneGetLinkNumber(std::string);
     std::map<int,linkEntry> laneGetLinks(std::string);
+    std::list<std::string> laneGetAllowedClasses(std::string);
     std::string laneGetEdgeID(std::string);
     double laneGetLength(std::string);
     double laneGetMaxSpeed(std::string);
