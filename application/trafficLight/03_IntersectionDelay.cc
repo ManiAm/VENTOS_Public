@@ -125,6 +125,8 @@ void IntersectionDelay::vehiclesDelay()
             // insert if new
             if(loc == vehDelay.end())
             {
+                std::string vehType = TraCI->vehicleGetTypeID(vID);
+
                 boost::circular_buffer<std::pair<double,double>> CB_speed;  // create a circular buffer
                 CB_speed.set_capacity(lastValueBuffSize);                   // set max capacity
                 CB_speed.clear();
@@ -141,7 +143,7 @@ void IntersectionDelay::vehiclesDelay()
                 CB_sig.set_capacity(lastValueBuffSize);                     // set max capacity
                 CB_sig.clear();
 
-                delayEntry *entry = new delayEntry("" /*TLid*/, "" /*lastLane*/, -1 /*entrance*/, false /*crossed?*/, -1 /*crossedT*/,
+                delayEntry *entry = new delayEntry(vehType, "" /*TLid*/, "" /*lastLane*/, -1 /*entrance*/, false /*crossed?*/, -1 /*crossedT*/,
                         -1 /*old speed*/, -1 /*startDeccel*/, -1 /*startStopping*/, -1 /*startAccel*/, -1 /*endDelay*/, 0 /*accumulated delay so far*/,
                         CB_speed, CB_speed2, CB_accel, CB_sig);
                 vehDelay.insert( std::make_pair(vID, *entry) );
@@ -419,7 +421,8 @@ void IntersectionDelay::vehiclesDelayToFile()
     }
 
     // write header
-    fprintf (filePtr, "%-35s","vehicleName");
+    fprintf (filePtr, "%-20s","vehicleName");
+    fprintf (filePtr, "%-20s","vehicleType");
     fprintf (filePtr, "%-10s","TLid");
     fprintf (filePtr, "%-10s","lastLane");
     fprintf (filePtr, "%-15s","entrance");
@@ -434,7 +437,8 @@ void IntersectionDelay::vehiclesDelayToFile()
     // write body
     for(std::map<std::string, delayEntry>::iterator y =  vehDelay.begin(); y != vehDelay.end(); ++y)
     {
-        fprintf (filePtr, "%-35s", (*y).first.c_str());
+        fprintf (filePtr, "%-20s", (*y).first.c_str());
+        fprintf (filePtr, "%-20s", (*y).second.vehType.c_str());
         fprintf (filePtr, "%-10s", (*y).second.TLid.c_str());
         fprintf (filePtr, "%-10s", (*y).second.lastLane.c_str());
         fprintf (filePtr, "%-15.2f", (*y).second.intersectionEntrance);

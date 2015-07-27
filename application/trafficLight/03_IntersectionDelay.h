@@ -34,6 +34,7 @@ namespace VENTOS {
 class delayEntry
 {
 public:
+    std::string vehType;
     std::string TLid;
     std::string lastLane;
     double intersectionEntrance;
@@ -52,13 +53,14 @@ public:
     boost::circular_buffer<std::pair<double,double>> lastAccels;
     boost::circular_buffer<char> lastSignals;
 
-    delayEntry(std::string str1, std::string str2, double d0, bool b1, double d1,
+    delayEntry(std::string str0, std::string str1, std::string str2, double d0, bool b1, double d1,
             double d2, double d3, double d4, double d5, double d6, double d7,
             boost::circular_buffer<std::pair<double,double>> CB_speed,
             boost::circular_buffer<std::pair<double,double>> CB_speed2,
             boost::circular_buffer<std::pair<double,double>> CB_accel,
             boost::circular_buffer<char> CB_signal)
     {
+        this->vehType = str0;
         this->TLid = str1;
         this->lastLane = str2;
         this->intersectionEntrance = d0;

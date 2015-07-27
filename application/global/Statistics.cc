@@ -418,7 +418,7 @@ void Statistics::vehiclesDataToFile()
         {
             fprintf (filePtr, "%-10s","index");
             fprintf (filePtr, "%-12s","timeStep");
-            fprintf (filePtr, "%-30s","vehicleName");
+            fprintf (filePtr, "%-20s","vehicleName");
             if(y->vehicleType != "n/a") fprintf (filePtr, "%-17s","vehicleType");
             if(y->lane != "n/a") fprintf (filePtr, "%-12s","lane");
             if(y->pos != -1) fprintf (filePtr, "%-11s","pos");
@@ -443,7 +443,7 @@ void Statistics::vehiclesDataToFile()
 
         fprintf (filePtr, "%-10d ", index);
         fprintf (filePtr, "%-10.2f ", y->time );
-        fprintf (filePtr, "%-30s ", y->vehicleName.c_str());
+        fprintf (filePtr, "%-20s ", y->vehicleName.c_str());
         if(y->vehicleType != "n/a") fprintf (filePtr, "%-15s ", y->vehicleType.c_str());
         if(y->lane != "n/a") fprintf (filePtr, "%-12s ", y->lane.c_str());
         if(y->pos != -1) fprintf (filePtr, "%-10.2f ", y->pos);
