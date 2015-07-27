@@ -7,7 +7,9 @@ clc;    % position the cursor at the top of the screen
 % ---------------------------------------------------------------
 
 % path to folder
-basePATH = '../results/cmd/3_full_poisson_balanced_routeDist_70_30';
+basePATH = '../results/cmd/bike_multipleClassVeh/2_full_poisson_balanced_routeDist_50_50';
+
+option = 2;
 
 TLqueuingData = dir([basePATH, '/*_TLqueuingData.txt']);
 TLphasingData = dir([basePATH, '/*_TLphasingData.txt']);
@@ -21,7 +23,7 @@ for runNumber = 1:runTotal
 fprintf('\n>>> runNumber %d:\n', runNumber);
     
 % clear variables at the begining of each run
-clearvars -except runNumber runTotal basePATH TLqueuingData TLphasingData vehDelay delayVariations
+clearvars -except runNumber runTotal basePATH TLqueuingData TLphasingData vehDelay delayDist option
 
 % ----------------------------------------------------------------
 
@@ -37,7 +39,7 @@ totalQs = C_text{1,4};
 maxQs = C_text{1,5};
 laneCounts = C_text{1,6};
 
-disp('calculating average queue size ...');
+disp('calculating average queue size for vehicles ...');
 
 % out of 16, 4 are crosswalks and 4 are bike lanes
 laneCounts = laneCounts - 8;
@@ -64,7 +66,7 @@ for i=1 : aggregateInterval_queue : rows-aggregateInterval_queue
     
 end
 
-disp('calculating max queue size ...');
+disp('calculating max queue size for vehicles ...');
 
 % aggregate every 150 values together
 aggregateInterval_queue = 700;
@@ -88,7 +90,7 @@ end
 
 % -----------------------------------------------------------------
 
-disp('reading vehicleDelay.txt ...');
+disp('reading vehicleDelay.txt file ...');
 
 path = sprintf('%s/%s', basePATH, vehDelay(runNumber).name);
 file_id = fopen(path);
@@ -105,21 +107,21 @@ crossedTime = C_text{1,9};
 startAccel = C_text{1,10};
 endDelay = C_text{1,11};
 
-% stores vehicle IDs
-vIDs = unique(vehicles);
-vIDs = sort_nat(vIDs);
-VehNumbers = size(vIDs,1);
+% stores the ids of all entities
+entityIDs = unique(vehicles);
+entityIDs = sort_nat(entityIDs);
+VehNumbers = size(entityIDs,1);
 
 [rows,~] = size(vehicles);
 
 % preallocating and initialization with -1
-indexTS = zeros(7,rows) - 1;
+indexTS = zeros(6,rows) - 1;
 
 for i=1:rows 
     
     % get the current vehicle name
     vehicle = char(vehicles(i,1));        
-    vNumber = find(ismember(vIDs,vehicle)); 
+    vNumber = find(ismember(entityIDs,vehicle)); 
 
     indexTS(1,vNumber) = double(entrance(i,1));       
     indexTS(2,vNumber) = double(startDecel(i,1));
@@ -138,7 +140,7 @@ for i=1:rows
 
 end
 
-fprintf( 'totalVeh: %d, crossed: %d, noSlowDown: %d, noWaiting: %d \n', VehNumbers, sum(crossed(:,1) == 1), sum(indexTS(2,:) == -1), sum(indexTS(3,:) == -1) );
+fprintf( 'totalEntity: %d, crossed: %d, noSlowDown: %d, noWaiting: %d \n', VehNumbers, sum(crossed(:,1) == 1), sum(indexTS(2,:) == -1), sum(indexTS(3,:) == -1) );
 
 % ---------------------------------------------------------------
 
@@ -164,14 +166,14 @@ end
 
 % ---------------------------------------------------------------------
 
-disp('calculating intersection delay ...');
+disp('calculating intersection delay for vehicle/bike/ped ...');
 
-% in each 150 seconds interval, we measure delay for each vehicle and 
-% then take an average
+% in each 70 seconds interval, we measure delay for each vehicle and then take an average
 interval_delay = 700;
 
+indexCounter = 1;
+
 rows = size(timeSteps, 1);
-index = 1;
 for j=1 : interval_delay-1 : rows-interval_delay
     
    startIndex = j;
@@ -180,11 +182,32 @@ for j=1 : interval_delay-1 : rows-interval_delay
    startT = timeSteps(startIndex);
    endT = timeSteps(endIndex);
     
-   delayedVehCount = 0;
-   nonDelayedVehCount = 0;
-   totalDelay = 0;
+   delayedCountVehPassenger = 0;
+   nonDelayedCountVehPassenger = 0;
+   totalDelayVehPassenger = 0;
+   
+   delayedCountVehEmergency = 0;
+   nonDelayedCountVehEmergency = 0;
+   totalDelayVehEmergency = 0;
+   
+   maxDelayBike = 0;
+   maxDelayPed = 0;
 
    for i=1:VehNumbers
+       
+       % check the class of the current entity
+       id = char(entityIDs(i)); 
+       if(~isempty(strfind(id, 'veh_passenger_')))
+           mode = 1;
+       elseif(~isempty(strfind(id, 'veh_emergency_')))
+           mode = 2;
+       elseif(~isempty(strfind(id, 'bike_')))
+           mode = 3;
+       elseif(~isempty(strfind(id, 'pedestrian_')))
+           mode = 4;
+       else
+           continue;
+       end       
        
        if(crossed(i) == 0)
            % this vehicle does not cross the intersection at all
@@ -204,7 +227,11 @@ for j=1 : interval_delay-1 : rows-interval_delay
                
                if(indexTS(4,i) >= startT && indexTS(4,i) < endT)
                    % this vehicle crosses the intersection at this interval
-                   nonDelayedVehCount = nonDelayedVehCount + 1;
+                   if(mode == 1)
+                       nonDelayedCountVehPassenger = nonDelayedCountVehPassenger + 1;
+                   elseif(mode == 2)
+                       nonDelayedCountVehEmergency = nonDelayedCountVehEmergency + 1;
+                   end
                end
            
        elseif(indexTS(2,i) ~= -1)
@@ -214,37 +241,81 @@ for j=1 : interval_delay-1 : rows-interval_delay
            % NOTE: if slowing down happens after this interval we don't care
                
                if(indexTS(2,i) >= startT && indexTS(2,i) < endT)
-                   % slowing down occurs in this interval           
-                   delayedVehCount = delayedVehCount + 1;
-                   startDelay = indexTS(2,i);
-                   endDelay = min( endT, indexTS(5,i) );
-                   totalDelay = totalDelay + (endDelay - startDelay);   
+                   % slowing down occurs in this interval     
+                   if(mode == 1)
+                       delayedCountVehPassenger = delayedCountVehPassenger + 1;
+                       startDelay = indexTS(2,i);
+                       endDelay = min( endT, indexTS(5,i) );
+                       totalDelayVehPassenger = totalDelayVehPassenger + (endDelay - startDelay); 
+                   elseif(mode == 2)
+                       delayedCountVehEmergency = delayedCountVehEmergency + 1;
+                       startDelay = indexTS(2,i);
+                       endDelay = min( endT, indexTS(5,i) );
+                       totalDelayVehEmergency = totalDelayVehEmergency + (endDelay - startDelay); 
+                   elseif(mode == 3 && indexTS(3,i) ~= -1 && indexTS(3,i) < endT)
+                       % bike
+                       startDelay = indexTS(3,i);
+                       endDelay = min( endT, indexTS(5,i) );
+                       maxDelayBike = max(maxDelayBike, (endDelay - startDelay));
+                   elseif(mode == 4)
+                       % pedestrian
+                       
+                   end
            
                elseif(indexTS(2,i) < startT && indexTS(4,i) >= startT)
                    % slowing down occured in a previous interval                  
-                   delayedVehCount = delayedVehCount + 1;
-                   startDelay = indexTS(2,i);
-                   endDelay = min( endT, indexTS(5,i) );
-                   totalDelay = totalDelay + (endDelay - startDelay);
+                   if(mode == 1)
+                       delayedCountVehPassenger = delayedCountVehPassenger + 1;
+                       startDelay = indexTS(2,i);
+                       endDelay = min( endT, indexTS(5,i) );
+                       totalDelayVehPassenger = totalDelayVehPassenger + (endDelay - startDelay); 
+                   elseif(mode == 2)
+                       delayedCountVehEmergency = delayedCountVehEmergency + 1;
+                       startDelay = indexTS(2,i);
+                       endDelay = min( endT, indexTS(5,i) );
+                       totalDelayVehEmergency = totalDelayVehEmergency + (endDelay - startDelay); 
+                   elseif(mode == 3 && indexTS(3,i) ~= -1 && indexTS(5,i) >= startT)
+                       % bike
+                       startDelay = max( startT, indexTS(3,i) );
+                       endDelay = min( endT, indexTS(5,i) );
+                       maxDelayBike = max(maxDelayBike, (endDelay - startDelay));                       
+                   elseif(mode == 4)
+                       % pedestrian
+                       
+                   end
                end
        end
    end
 
-   totalVehCount = nonDelayedVehCount + delayedVehCount;
-   if(totalVehCount ~= 0)
-       delay(index) = totalDelay / totalVehCount;
+   % passenger vehicle
+   totalCountVehPassenger = nonDelayedCountVehPassenger + delayedCountVehPassenger;
+   if(totalCountVehPassenger ~= 0)
+       delayPassenger(indexCounter) = totalDelayVehPassenger / totalCountVehPassenger;
    else
-       delay(index) = 0;
+       delayPassenger(indexCounter) = 0;
    end
    
+   % emergency vehicle
+   totalCountVehEmergency = nonDelayedCountVehEmergency + delayedCountVehEmergency;
+   if(totalCountVehEmergency ~= 0)
+       delayEmergency(indexCounter) = totalDelayVehEmergency / totalCountVehEmergency;
+   else
+       delayEmergency(indexCounter) = 0;
+   end
+   
+   % bike
+   delayBike(indexCounter) = maxDelayBike;
+   
    middleIndex = floor( double((startIndex + endIndex)) / 2. );
-   timeSteps_D(index) = timeSteps(middleIndex);
+   timeSteps_D(indexCounter) = timeSteps(middleIndex);
     
-   index = index + 1;
+   indexCounter = indexCounter + 1;
 
 end
 
-delayVariations{:,runNumber} = num2cell(delay);
+delayDist{1,runNumber} = num2cell(delayPassenger / 60.);
+delayDist{2,runNumber} = num2cell(delayEmergency / 60.);
+delayDist{3,runNumber} = num2cell(delayBike);
 
 % -----------------------------------------------------------------
 
@@ -312,56 +383,118 @@ if(true)
     set(gca, 'FontSize', 17);
 
     xlabel('Time (min)', 'FontSize', 17);
-    ylabel({'Maximum Vehicle', 'Queue Size per Lane'}, 'FontSize', 17);
+    ylabel({'Vehicles', 'Maximum Queue', 'Size per Lane'}, 'FontSize', 17);
 
     grid on;
     hold on;
     
-    subplot(3,1,2);    
-    plot(timeSteps_D/60, delay/60, lineMark, 'LineWidth', 1);
-
-    % set font size
-    set(gca, 'FontSize', 17);
-
-    xlabel('Time (min)', 'FontSize', 17);
-    ylabel({'Average Delay', 'per Vehicle (min)'}, 'FontSize', 17);
-
-    grid on;
-    hold on;
-
-    subplot(3,1,3);
-    plot(timeSteps_T/60, throughput, lineMark, 'LineWidth', 1);
-
-    % set font size
-    set(gca, 'FontSize', 17);
-
-    xlabel('Time (min)', 'FontSize', 17);
-    ylabel('Throughput', 'FontSize', 17);
-
-    grid on;
-    hold on;
-
-    % at the end of the last iteration
-    if(runNumber == runTotal)       
-
-        for g=1:3
-            subplot(3,1,g);            
+    if(runNumber == runTotal)    
+        legend('Fix-time' , 'Traffic-actuated', 'Highest queue', 'OJF', 'Location', 'northwest');
             
-            % set the y-axis limit
+        % set the x-axis limit
+        set( gca, 'XLim', [0 3700/60] );
+            
+        % x-axis is integer
+        Xlimit = get(gca,'xlim');            
+        set(gca, 'xtick' , 0:3:Xlimit(2));
+    end
+    
+    subplot(3,1,2);    
+    
+    if(option == 1)    
+        plot(timeSteps_D/60, delayPassenger/60, lineMark, 'LineWidth', 1);
+        
+        % set font size
+        set(gca, 'FontSize', 17);
+
+        xlabel('Time (min)', 'FontSize', 17);
+        ylabel({'Average Delay', 'per Vehicle (min)'}, 'FontSize', 17);
+
+        grid on;
+        hold on;
+        
+        if(runNumber == runTotal) 
+            % set the x-axis limit
             set( gca, 'XLim', [0 3700/60] );
             
             % x-axis is integer
             Xlimit = get(gca,'xlim');            
             set(gca, 'xtick' , 0:3:Xlimit(2));
-        end   
         
-        % Y-axis for delay
-        subplot(3,1,2);   
-        Ylimit = get(gca,'ylim');            
-        set(gca, 'ytick' , 0:2:Ylimit(2));
+            % Y-axis for delay          
+            Ylimit = get(gca,'ylim');            
+            set(gca, 'ytick' , 0:2:Ylimit(2));
+        end
         
-        subplot(3,1,1);
-        legend('Fix-time' , 'Traffic-actuated', 'Highest queue', 'OJF', 'Location', 'northwest');
+    elseif(option == 2 && runNumber == runTotal)        
+        % distribution of average veh delay        
+        data = [cell2mat(delayDist{1,1})'; cell2mat(delayDist{1,2})'; cell2mat(delayDist{1,3})'; cell2mat(delayDist{1,4})' ; cell2mat(delayDist{2,1})'; cell2mat(delayDist{2,2})'; cell2mat(delayDist{2,3})'; cell2mat(delayDist{2,4})'];
+
+        n1 = size(delayDist{1,1},2);
+        n2 = size(delayDist{1,2},2);
+        n3 = size(delayDist{1,3},2);
+        n4 = size(delayDist{1,4},2);
+        n5 = size(delayDist{2,1},2);
+        n6 = size(delayDist{2,2},2);
+        n7 = size(delayDist{2,3},2);
+        n8 = size(delayDist{2,4},2);
+        group = [repmat({'Fix-time (P)'}, n1, 1); repmat({'Traffic actuated (P)'}, n2, 1); repmat({'Highest Queue (P)'}, n3, 1); repmat({'OJF (P)'}, n4, 1); repmat({'Fix-time (E)'}, n5, 1); repmat({'Traffic actuated (E)'}, n6, 1); repmat({'Highest Queue (E)'}, n7, 1); repmat({'OJF (E)'}, n8, 1)];
+
+        boxplot(data,group);
+
+        set(findobj(gca,'Type','text'),'FontSize',17);
+
+        ylabel({'Vehicles','Average Delay','Distribution (min)'}, 'FontSize', 17);
+
+        grid on;        
+        
+    end
+
+    subplot(3,1,3);
+    
+    if(option == 1) 
+        plot(timeSteps_T/60, throughput, lineMark, 'LineWidth', 1);
+
+        % set font size
+        set(gca, 'FontSize', 17);
+
+        xlabel('Time (min)', 'FontSize', 17);
+        ylabel('Throughput', 'FontSize', 17);
+
+        grid on;
+        hold on;
+        
+        if(runNumber == runTotal) 
+            % set the x-axis limit
+            set( gca, 'XLim', [0 3700/60] );
+            
+            % x-axis is integer
+            Xlimit = get(gca,'xlim');            
+            set(gca, 'xtick' , 0:3:Xlimit(2));
+        end
+        
+    elseif(option == 2 && runNumber == runTotal)
+        % distribution of max bike delay       
+        data = [cell2mat(delayDist{3,1})'; cell2mat(delayDist{3,2})'; cell2mat(delayDist{3,3})'; cell2mat(delayDist{3,4})'];
+
+        n1 = size(delayDist{3,1},2);
+        n2 = size(delayDist{3,2},2);
+        n3 = size(delayDist{3,3},2);
+        n4 = size(delayDist{3,4},2);
+        group = [repmat({'Fix-time'}, n1, 1); repmat({'Traffic actuated'}, n2, 1); repmat({'Highest Queue'}, n3, 1); repmat({'OJF'}, n4, 1)];
+
+        boxplot(data,group);
+
+        set(findobj(gca,'Type','text'),'FontSize',17);
+
+        ylabel({'Bikes','Maximum Delay','Distribution (s)'}, 'FontSize', 17);
+
+        grid on; 
+        
+    end
+
+    % at the end of the last iteration
+    if(runNumber == runTotal)    
     
 %         % mark change of demand with vertical lines
 %         for threshold=400:400:Xlimit(2)            
@@ -373,12 +506,18 @@ if(true)
 %         end
         
         % mark light/medium/heavy traffic with arrows
-        for g=1:3
+        if(option == 1)
+            endNum = 3;
+        elseif(option == 2)
+            endNum = 1;
+        end
+        
+        for g=1:endNum
             subplot(3,1,g);
             
             Ylimit = get(gca,'ylim');
             arrowYLoc = Ylimit(2) + (0.05 * Ylimit(2));
-            textYLoc = arrowYLoc + (0.09 * arrowYLoc);
+            textYLoc = arrowYLoc + (0.2 * arrowYLoc);
             
             Start = [0 arrowYLoc];
             Stop = [800/60 arrowYLoc];
