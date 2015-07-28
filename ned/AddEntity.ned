@@ -20,7 +20,9 @@ simple AddEntity
         double plnSpace = default(3.5s) @unit(s);
         double overlap;
         string vehRouteDist;
+        bool vehMultiClass;
         string vehClassDist;
+        bool bike;
         string bikeRouteDist;
 }
 

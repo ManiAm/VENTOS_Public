@@ -72,11 +72,15 @@ private:
 
     int plnSize;
     double plnSpace;
+
     double overlap;
+    bool vehMultiClass;
+    bool bike;
 
     // class variables
     simsignal_t Signal_executeFirstTS;
     boost::filesystem::path SUMO_FullPath;
+
     std::vector<double> vehRouteDistribution;
     std::vector<double> vehClassDistribution;
     std::vector<double> bikeRouteDistribution;
