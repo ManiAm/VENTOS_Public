@@ -25,7 +25,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "11_TL_Router.h"
+#include "12_TL_Router.h"
 #include <algorithm>
 
 namespace VENTOS {
@@ -172,7 +172,7 @@ void TrafficLightRouter::build(std::string id, std::string type, std::string pro
 
 void TrafficLightRouter::initialize(int stage)
 {
-    TrafficLightMultiClass::initialize(stage);
+    TrafficLight_OJF_MWM::initialize(stage);
 
     if(TLControlMode != TL_Router || id == "")
         return;
@@ -241,7 +241,7 @@ void TrafficLightRouter::switchToPhase(int phaseSwitch, double greenDuration, in
 
 void TrafficLightRouter::handleMessage(cMessage* msg)  //Internal messages to self
 {
-    TrafficLightMultiClass::handleMessage(msg);
+    TrafficLight_OJF_MWM::handleMessage(msg);
 
     if(TLControlMode != TL_Router)
         return;
@@ -554,7 +554,7 @@ bool TrafficLightRouter::LowDensityVehicleCheck()    //This function assumes it'
 
 void TrafficLightRouter::finish()
 {
-    TrafficLightMultiClass::finish();
+    TrafficLight_OJF_MWM::finish();
 
     if(TLControlMode != TL_Router)
         return;

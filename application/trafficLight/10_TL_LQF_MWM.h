@@ -1,8 +1,7 @@
 /****************************************************************************/
-/// @file    TL_Manager.cc
-/// @author  Philip Vo <foxvo@ucdavis.edu>
+/// @file    TL_LQF_MWM.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
-/// @date    August 2013
+/// @date    Jul 2015
 ///
 /****************************************************************************/
 // VENTOS, Vehicular Network Open Simulator; see http:?
@@ -25,61 +24,43 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <12_TL_Manager.h>
+#ifndef TRAFFICLIGHTLQFMWM_H
+#define TRAFFICLIGHTLQFMWM_H
+
+#include <09_TL_LowDelay.h>
 
 namespace VENTOS {
 
-Define_Module(VENTOS::TrafficLightManager);
-
-
-TrafficLightManager::~TrafficLightManager()
+class TrafficLight_LQF_MWM : public TrafficLightLowDelay
 {
+  public:
+    virtual ~TrafficLight_LQF_MWM();
+    virtual void finish();
+    virtual void initialize(int);
+    virtual void handleMessage(cMessage *);
 
-}
+  protected:
+    void virtual executeFirstTimeStep();
+    void virtual executeEachTimeStep(bool);
 
+  private:
+    void chooseNextInterval();
+    void chooseNextGreenInterval();
 
-void TrafficLightManager::initialize(int stage)
-{
-    TrafficLightRouter::initialize(stage);
+  protected:
+    bool greenExtension;
 
-    if(stage == 0)
+    enum vehTypeWeight
     {
-
-    }
-}
-
-
-void TrafficLightManager::finish()
-{
-    TrafficLightRouter::finish();
-
-}
-
-
-void TrafficLightManager::handleMessage(cMessage *msg)
-{
-    TrafficLightRouter::handleMessage(msg);
+        weight_emergency = 50,
+        weight_pedestrian = 40,
+        weight_bicycle = 30,
+        weight_passenger = 20,
+        weight_bus = 10,
+        weight_truck = 1,
+    };
+};
 
 }
 
-
-void TrafficLightManager::executeFirstTimeStep()
-{
-    // call parent
-    TrafficLightRouter::executeFirstTimeStep();
-
-    // check if the TLControlMode number is valid?
-    if(TLControlMode < 0 || TLControlMode > 7)
-    {
-        error("Invalid TLControlMode!");
-    }
-}
-
-
-void TrafficLightManager::executeEachTimeStep(bool simulationDone)
-{
-    // call parent
-    TrafficLightRouter::executeEachTimeStep(simulationDone);
-}
-
-}
+#endif

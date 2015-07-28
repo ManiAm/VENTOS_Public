@@ -1,8 +1,7 @@
 /****************************************************************************/
-/// @file    TL_MultiClass.cc
-/// @author  Philip Vo <foxvo@ucdavis.edu>
+/// @file    TL_OJF_MWM.cc
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
-/// @date    August 2013
+/// @date    Jul 2015
 ///
 /****************************************************************************/
 // VENTOS, Vehicular Network Open Simulator; see http:?
@@ -25,24 +24,24 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <10_TL_MultiClass.h>
+#include <11_TL_OJF_MWM.h>
 
 namespace VENTOS {
 
-Define_Module(VENTOS::TrafficLightMultiClass);
+Define_Module(VENTOS::TrafficLight_OJF_MWM);
 
 
-TrafficLightMultiClass::~TrafficLightMultiClass()
+TrafficLight_OJF_MWM::~TrafficLight_OJF_MWM()
 {
 
 }
 
 
-void TrafficLightMultiClass::initialize(int stage)
+void TrafficLight_OJF_MWM::initialize(int stage)
 {
-    TrafficLightLowDelay::initialize(stage);
+    TrafficLight_LQF_MWM::initialize(stage);
 
-    if(TLControlMode != TL_MultiClass)
+    if(TLControlMode != TL_OJF_MWM)
         return;
 
     if(stage == 0)
@@ -59,17 +58,17 @@ void TrafficLightMultiClass::initialize(int stage)
 }
 
 
-void TrafficLightMultiClass::finish()
+void TrafficLight_OJF_MWM::finish()
 {
-    TrafficLightLowDelay::finish();
+    TrafficLight_LQF_MWM::finish();
 }
 
 
-void TrafficLightMultiClass::handleMessage(cMessage *msg)
+void TrafficLight_OJF_MWM::handleMessage(cMessage *msg)
 {
-    TrafficLightLowDelay::handleMessage(msg);
+    TrafficLight_LQF_MWM::handleMessage(msg);
 
-    if(TLControlMode != TL_MultiClass)
+    if(TLControlMode != TL_OJF_MWM)
         return;
 
     if (msg == ChangeEvt)
@@ -85,15 +84,15 @@ void TrafficLightMultiClass::handleMessage(cMessage *msg)
 }
 
 
-void TrafficLightMultiClass::executeFirstTimeStep()
+void TrafficLight_OJF_MWM::executeFirstTimeStep()
 {
     // call parent
-    TrafficLightLowDelay::executeFirstTimeStep();
+    TrafficLight_LQF_MWM::executeFirstTimeStep();
 
-    if(TLControlMode != TL_MultiClass)
+    if(TLControlMode != TL_OJF_MWM)
         return;
 
-    std::cout << "Multi-class traffic signal control ..." << endl;
+    std::cout << "Multi-class OJF-MWM traffic signal control ..." << endl;
 
     // set initial values
     currentInterval = phase1_5;
@@ -122,12 +121,12 @@ void TrafficLightMultiClass::executeFirstTimeStep()
 }
 
 
-void TrafficLightMultiClass::executeEachTimeStep(bool simulationDone)
+void TrafficLight_OJF_MWM::executeEachTimeStep(bool simulationDone)
 {
     // call parent
-    TrafficLightLowDelay::executeEachTimeStep(simulationDone);
+    TrafficLight_LQF_MWM::executeEachTimeStep(simulationDone);
 
-    if(TLControlMode != TL_MultiClass)
+    if(TLControlMode != TL_OJF_MWM)
         return;
 
     intervalElapseTime += updateInterval;
@@ -151,7 +150,7 @@ void TrafficLightMultiClass::executeEachTimeStep(bool simulationDone)
 }
 
 
-void TrafficLightMultiClass::chooseNextInterval()
+void TrafficLight_OJF_MWM::chooseNextInterval()
 {
     if (currentInterval == "yellow")
     {
@@ -202,7 +201,7 @@ void TrafficLightMultiClass::chooseNextInterval()
 }
 
 
-void TrafficLightMultiClass::chooseNextGreenInterval()
+void TrafficLight_OJF_MWM::chooseNextGreenInterval()
 {
     std::map<std::string, laneInfoEntry> laneInfo = RSUptr->laneInfo;
 

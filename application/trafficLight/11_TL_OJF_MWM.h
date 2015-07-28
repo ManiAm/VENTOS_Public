@@ -1,8 +1,7 @@
 /****************************************************************************/
-/// @file    TL_Manager.h
-/// @author  Philip Vo <foxvo@ucdavis.edu>
+/// @file    TL_OJF_MWM.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
-/// @date    August 2013
+/// @date    Jul 2015
 ///
 /****************************************************************************/
 // VENTOS, Vehicular Network Open Simulator; see http:?
@@ -25,17 +24,17 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef TRAFFICLIGHTMANAGER_H
-#define TRAFFICLIGHTMANAGER_H
+#ifndef TRAFFICLIGHTOJFMWM_H
+#define TRAFFICLIGHTOJFMWM_H
 
-#include "11_TL_Router.h"
+#include <10_TL_LQF_MWM.h>
 
 namespace VENTOS {
 
-class TrafficLightManager : public TrafficLightRouter
+class TrafficLight_OJF_MWM : public TrafficLight_LQF_MWM
 {
   public:
-    virtual ~TrafficLightManager();
+    virtual ~TrafficLight_OJF_MWM();
     virtual void finish();
     virtual void initialize(int);
     virtual void handleMessage(cMessage *);
@@ -44,6 +43,9 @@ class TrafficLightManager : public TrafficLightRouter
     void virtual executeFirstTimeStep();
     void virtual executeEachTimeStep(bool);
 
+  private:
+    void chooseNextInterval();
+    void chooseNextGreenInterval();
 };
 
 }

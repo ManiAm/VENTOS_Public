@@ -1,6 +1,5 @@
 /****************************************************************************/
-/// @file    TL_MultiClass.h
-/// @author  Philip Vo <foxvo@ucdavis.edu>
+/// @file    TL_Manager.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @date    August 2013
 ///
@@ -25,17 +24,17 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef TRAFFICLIGHTMULTICLASS_H
-#define TRAFFICLIGHTMULTICLASS_H
+#ifndef TRAFFICLIGHTMANAGER_H
+#define TRAFFICLIGHTMANAGER_H
 
-#include <09_TL_LowDelay.h>
+#include "12_TL_Router.h"
 
 namespace VENTOS {
 
-class TrafficLightMultiClass : public TrafficLightLowDelay
+class TrafficLightManager : public TrafficLightRouter
 {
   public:
-    virtual ~TrafficLightMultiClass();
+    virtual ~TrafficLightManager();
     virtual void finish();
     virtual void initialize(int);
     virtual void handleMessage(cMessage *);
@@ -44,23 +43,6 @@ class TrafficLightMultiClass : public TrafficLightLowDelay
     void virtual executeFirstTimeStep();
     void virtual executeEachTimeStep(bool);
 
-  private:
-    void findRSU(std::string);
-    void chooseNextInterval();
-    void chooseNextGreenInterval();
-
-  private:
-    bool greenExtension;
-
-    enum vehTypeWeight
-    {
-        weight_emergency = 50,
-        weight_pedestrian = 40,
-        weight_bicycle = 30,
-        weight_passenger = 20,
-        weight_bus = 10,
-        weight_truck = 1,
-    };
 };
 
 }

@@ -110,7 +110,8 @@ enum TLControlTypes
     TL_TrafficActuated,
     TL_Adaptive_Time_Queue,
     TL_LowDelay,
-    TL_MultiClass,
+    TL_LQF_MWM,
+    TL_OJF_MWM,
     TL_Router
 };
 

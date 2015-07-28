@@ -1,10 +1,10 @@
 
 package c3po.ned;
 
-simple TL_MultiClass extends TL_LowDelay
+simple TL_LQF_MWM extends TL_LowDelay
 {
     parameters:
-        @class(VENTOS::TrafficLightMultiClass);
+        @class(VENTOS::TrafficLight_LQF_MWM);
         @display("i=block/network2");  
         
 }
