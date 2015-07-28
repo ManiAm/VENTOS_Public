@@ -7,9 +7,9 @@ clc;    % position the cursor at the top of the screen
 % ---------------------------------------------------------------
 
 % path to folder
-basePATH = '../results/cmd/bike_multipleClassVeh/2_full_poisson_balanced_routeDist_50_50';
+basePATH = '../results/cmd/effect_active_detection_new/3_full_poisson_balanced_routeDist_70_30';
 
-option = 2;
+option = 1;
 
 TLqueuingData = dir([basePATH, '/*_TLqueuingData.txt']);
 TLphasingData = dir([basePATH, '/*_TLphasingData.txt']);
@@ -94,18 +94,19 @@ disp('reading vehicleDelay.txt file ...');
 
 path = sprintf('%s/%s', basePATH, vehDelay(runNumber).name);
 file_id = fopen(path);
-formatSpec = '%s %s %s %f %d %f %f %f %f %f %f';
+formatSpec = '%s %s %s %s %f %d %f %f %f %f %f %f';
 C_text = textscan(file_id, formatSpec, 'HeaderLines', 8);
 fclose(file_id);
 
 vehicles = C_text{1,1};
-entrance = C_text{1,4};
-crossed = C_text{1,5};
-startDecel = C_text{1,7};
-startStopping = C_text{1,8};
-crossedTime = C_text{1,9};
-startAccel = C_text{1,10};
-endDelay = C_text{1,11};
+vehiclesType = C_text{1,2};
+entrance = C_text{1,5};
+crossed = C_text{1,6};
+startDecel = C_text{1,8};
+startStopping = C_text{1,9};
+crossedTime = C_text{1,10};
+startAccel = C_text{1,11};
+endDelay = C_text{1,12};
 
 % stores the ids of all entities
 entityIDs = unique(vehicles);
@@ -114,7 +115,7 @@ VehNumbers = size(entityIDs,1);
 
 [rows,~] = size(vehicles);
 
-% preallocating and initialization with -1
+% preallocating and initialization
 indexTS = zeros(6,rows) - 1;
 
 for i=1:rows 
@@ -122,6 +123,8 @@ for i=1:rows
     % get the current vehicle name
     vehicle = char(vehicles(i,1));        
     vNumber = find(ismember(entityIDs,vehicle)); 
+    
+    vehicleType(vNumber) = (vehiclesType(i,1));
 
     indexTS(1,vNumber) = double(entrance(i,1));       
     indexTS(2,vNumber) = double(startDecel(i,1));
@@ -196,14 +199,14 @@ for j=1 : interval_delay-1 : rows-interval_delay
    for i=1:VehNumbers
        
        % check the class of the current entity
-       id = char(entityIDs(i)); 
-       if(~isempty(strfind(id, 'veh_passenger_')))
+       typeId = char(vehicleType(i)); 
+       if(~isempty(strfind(typeId, 'passenger')))
            mode = 1;
-       elseif(~isempty(strfind(id, 'veh_emergency_')))
+       elseif(~isempty(strfind(typeId, 'emergency')))
            mode = 2;
-       elseif(~isempty(strfind(id, 'bike_')))
+       elseif(~isempty(strfind(typeId, 'bicycle')))
            mode = 3;
-       elseif(~isempty(strfind(id, 'pedestrian_')))
+       elseif(~isempty(strfind(typeId, 'pedestrian')))
            mode = 4;
        else
            continue;
@@ -389,8 +392,12 @@ if(true)
     hold on;
     
     if(runNumber == runTotal)    
-        legend('Fix-time' , 'Traffic-actuated', 'Highest queue', 'OJF', 'Location', 'northwest');
-            
+        if(option == 1)
+            legend('Traffic-actuated (active)' , 'Traffic-actuated', 'Highest queue', 'Highest queue (active)', 'Location', 'northwest');
+        elseif(option == 2)
+            legend('Fix-time' , 'Traffic-actuated', 'Highest queue', 'OJF', 'Location', 'northwest');
+        end
+        
         % set the x-axis limit
         set( gca, 'XLim', [0 3700/60] );
             
@@ -517,7 +524,7 @@ if(true)
             
             Ylimit = get(gca,'ylim');
             arrowYLoc = Ylimit(2) + (0.05 * Ylimit(2));
-            textYLoc = arrowYLoc + (0.2 * arrowYLoc);
+            textYLoc = arrowYLoc + (0.1 * arrowYLoc);
             
             Start = [0 arrowYLoc];
             Stop = [800/60 arrowYLoc];
@@ -550,37 +557,6 @@ if(true)
 end
 
 end
-
-% -----------------------------------------------------------------
-% -----------------------------------------------------------------
-% -----------------------------------------------------------------
-% -----------------------------------------------------------------
-% -----------------------------------------------------------------
-% -----------------------------------------------------------------
-% -----------------------------------------------------------------
-% -----------------------------------------------------------------
-% -----------------------------------------------------------------
-
-% plot minimum and maximum delay for each TSC algorithm
-
-% figure('name', 'Speed', 'units', 'normalized', 'outerposition', [0 0 1 1]);
-% 
-% data = [cell2mat(delayVariations{1,1})'; cell2mat(delayVariations{1,2})'; cell2mat(delayVariations{1,3})'; cell2mat(delayVariations{1,4})'];
-% 
-% n1 = size(delayVariations{1,1},2);
-% n2 = size(delayVariations{1,2},2);
-% n3 = size(delayVariations{1,3},2);
-% n4 = size(delayVariations{1,4},2);
-% group = [repmat({'Fix-time'}, n1, 1); repmat({'Traffic actuated'}, n2, 1); repmat({'Highest Queue'}, n3, 1); repmat({'OJF'}, n4, 1)];
-% 
-% subplot(2,1,1);
-% boxplot(data,group);
-% 
-% set(findobj(gca,'Type','text'),'FontSize',19);
-% 
-% ylabel('Fairness index', 'FontSize', 19);
-% 
-% grid on;
 
 % -----------------------------------------------------------------
 % -----------------------------------------------------------------
