@@ -275,9 +275,8 @@ void LoopDetectors::getAllDetectors()
         {
             std::string lane = *it2;
 
-            // ignore bike lane or side walk
-            if(std::find(bikeLaneListTL[TLid].begin(), bikeLaneListTL[TLid].end(), lane) != bikeLaneListTL[TLid].end() ||
-                    std::find(sideWalkListTL[TLid].begin(), sideWalkListTL[TLid].end(), lane) != sideWalkListTL[TLid].end())
+            // ignore side walk
+            if( std::find(sideWalkListTL[TLid].begin(), sideWalkListTL[TLid].end(), lane) != sideWalkListTL[TLid].end() )
                 continue;
 
             // traffic-actuated TSC needs one actuated LD on each incoming lane
@@ -513,9 +512,8 @@ void LoopDetectors::measureTrafficParameters()
         std::string lane = (*y).first;
         std::string TLid = (*y).second;
 
-        // ignore bike lane or side walk
-        if(std::find(bikeLaneListTL[TLid].begin(), bikeLaneListTL[TLid].end(), lane) != bikeLaneListTL[TLid].end() ||
-                std::find(sideWalkListTL[TLid].begin(), sideWalkListTL[TLid].end(), lane) != sideWalkListTL[TLid].end())
+        // ignore side walk
+        if( std::find(sideWalkListTL[TLid].begin(), sideWalkListTL[TLid].end(), lane) != sideWalkListTL[TLid].end() )
             continue;
 
         if(measureIntersectionQueue)

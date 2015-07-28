@@ -45,14 +45,18 @@ void IntersectionDelay::initialize(int stage)
     {
         collectVehDelay = par("collectVehDelay").boolValue();
         deccelDelayThreshold = par("deccelDelayThreshold").doubleValue();
-        stoppingDelayThreshold = par("stoppingDelayThreshold").doubleValue();
+        vehStoppingDelayThreshold = par("vehStoppingDelayThreshold").doubleValue();
+        bikeStoppingDelayThreshold = par("bikeStoppingDelayThreshold").doubleValue();
         lastValueBuffSize = par("lastValueBuffSize").longValue();
 
         if(deccelDelayThreshold >= 0)
             error("deccelDelayThreshold is not set correctly!");
 
-        if(stoppingDelayThreshold < 0)
-            error("stoppingDelayThreshold is not set correctly!");
+        if(vehStoppingDelayThreshold < 0)
+            error("vehStoppingDelayThreshold is not set correctly!");
+
+        if(bikeStoppingDelayThreshold < 0)
+            error("bikeStoppingDelayThreshold is not set correctly!");
 
         if(lastValueBuffSize < 1)
             error("lastValueBuffSize is not set correctly!");
@@ -263,6 +267,12 @@ void IntersectionDelay::vehiclesDelayEach(std::string vID)
 
     // update accumulated delay for this vehicle
     vehiclesAccuDelay(vID, loc);
+
+    double stoppingDelayThreshold = 0;
+    if(loc->second.vehType == "bicycle")
+        stoppingDelayThreshold = bikeStoppingDelayThreshold;
+    else
+        stoppingDelayThreshold = vehStoppingDelayThreshold;
 
     // looking for the start of stopping delay
     // NOTE: stopping delay might be zero

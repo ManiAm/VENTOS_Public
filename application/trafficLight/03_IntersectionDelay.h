@@ -102,7 +102,8 @@ private:
 protected:
     bool collectVehDelay;
     double deccelDelayThreshold;
-    double stoppingDelayThreshold;
+    double vehStoppingDelayThreshold;
+    double bikeStoppingDelayThreshold;
     int lastValueBuffSize;
 
     // class variables

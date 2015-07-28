@@ -120,7 +120,7 @@ void TrafficLightAdaptiveQueue::initialize(int stage)
     {
         maxQueueSize = par("maxQueueSize").longValue();
 
-        if(maxQueueSize < -1)
+        if(maxQueueSize <= 0 && maxQueueSize != -1)
             error("maxQueueSize value is set incorrectly!");
 
         nextGreenIsNewCycle = false;
@@ -310,6 +310,16 @@ void TrafficLightAdaptiveQueue::chooseNextGreenInterval()
 // calculate all phases (up to 4)
 void TrafficLightAdaptiveQueue::calculatePhases(std::string TLid)
 {
+    std::cout << "Queue size per lane: ";
+    for(auto& entry : laneQueueSize)
+    {
+        std::string lane = entry.first;
+        int qSize = entry.second.second;
+        if(qSize != 0)
+            std::cout << lane << " (" << qSize << ") | ";
+    }
+    std::cout << endl << endl;
+
     // batch of all non-conflicting movements, sorted by total queue size per batch
     std::priority_queue< batchMovementQueueEntry /*type of each element*/, std::vector<batchMovementQueueEntry> /*container*/, movementCompareQueue > batchMovementQueue;
 

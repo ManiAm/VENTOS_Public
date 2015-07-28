@@ -10,6 +10,7 @@ simple IntersectionDelay extends TL_LoopDetectors
         bool collectVehDelay;    
         
         double deccelDelayThreshold;
-        double stoppingDelayThreshold;
+        double vehStoppingDelayThreshold;
+        double bikeStoppingDelayThreshold;
         int lastValueBuffSize;
 }
