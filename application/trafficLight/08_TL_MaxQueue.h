@@ -31,14 +31,14 @@
 
 namespace VENTOS {
 
-class greenIntervalInfo
+class greenIntervalInfo_Maxqueue
 {
 public:
     int maxVehCount;
     double greenTime;
     std::string greenString;
 
-    greenIntervalInfo(int i1, double d1, std::string str)
+    greenIntervalInfo_Maxqueue(int i1, double d1, std::string str)
     {
         this->maxVehCount = i1;
         this->greenTime = d1;
@@ -67,7 +67,7 @@ private:
 private:
     int maxQueueSize;
     bool nextGreenIsNewCycle;
-    std::vector<greenIntervalInfo> greenInterval;
+    std::vector<greenIntervalInfo_Maxqueue> greenInterval;
 };
 
 }

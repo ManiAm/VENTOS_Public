@@ -31,7 +31,7 @@ namespace VENTOS {
 
 Define_Module(VENTOS::TrafficLightLowDelay);
 
-class batchMovementDelayEntry
+class sortedEntryD
 {
 public:
     int oneCount;
@@ -39,7 +39,7 @@ public:
     double totalDelay;
     std::vector<int> batchMovements;
 
-    batchMovementDelayEntry(int i1, int i2, double d1, std::vector<int> bm)
+    sortedEntryD(int i1, int i2, double d1, std::vector<int> bm)
     {
         this->oneCount = i1;
         this->maxVehCount = i2;
@@ -49,10 +49,10 @@ public:
 };
 
 
-class movementCompareDelay
+class sortCompareD
 {
 public:
-    bool operator()(batchMovementDelayEntry p1, batchMovementDelayEntry p2)
+    bool operator()(sortedEntryD p1, sortedEntryD p2)
     {
         if( p1.totalDelay < p2.totalDelay )
             return true;
@@ -230,10 +230,10 @@ void TrafficLightLowDelay::chooseNextGreenInterval()
     std::cout << endl;
 
     // batch of all non-conflicting movements, sorted by total vehicle delay per batch
-    std::priority_queue< batchMovementDelayEntry /*type of each element*/, std::vector<batchMovementDelayEntry> /*container*/, movementCompareDelay > batchMovementDelay;
+    std::priority_queue< sortedEntryD /*type of each element*/, std::vector<sortedEntryD> /*container*/, sortCompareD > sortedMovements;
 
     // clear the priority queue
-    batchMovementDelay = std::priority_queue < batchMovementDelayEntry, std::vector<batchMovementDelayEntry>, movementCompareDelay >();
+    sortedMovements = std::priority_queue < sortedEntryD, std::vector<sortedEntryD>, sortCompareD >();
 
     // get which row has the highest delay
     for(unsigned int i = 0; i < allMovements.size(); ++i)  // row
@@ -267,12 +267,12 @@ void TrafficLightLowDelay::chooseNextGreenInterval()
         }
 
         // add this batch of movements to priority_queue
-        batchMovementDelayEntry *entry = new batchMovementDelayEntry(oneCount, maxVehCount, totalDelayRow, allMovements[i]);
-        batchMovementDelay.push(*entry);
+        sortedEntryD *entry = new sortedEntryD(oneCount, maxVehCount, totalDelayRow, allMovements[i]);
+        sortedMovements.push(*entry);
     }
 
     // get the movement batch with the highest delay
-    batchMovementDelayEntry entry = batchMovementDelay.top();
+    sortedEntryD entry = sortedMovements.top();
     std::vector<int> batchMovements = entry.batchMovements;
 
     // calculate the next green interval.
@@ -287,7 +287,7 @@ void TrafficLightLowDelay::chooseNextGreenInterval()
             nextGreenInterval += 'r';
         else if(batchMovements[linkNumber] == 1 && rightTurn)
             nextGreenInterval += 'g';
-        else
+        else if(batchMovements[linkNumber] == 1 && !rightTurn)
             nextGreenInterval += 'G';
     }
 
@@ -307,10 +307,9 @@ void TrafficLightLowDelay::chooseNextGreenInterval()
 
     // allocate enough green time to move all delayed vehicle
     int maxVehCount = entry.maxVehCount;
+    std::cout << "Maximum of " << maxVehCount << " vehicle(s) are waiting. ";
     double greenTime = (double)maxVehCount * (minGreenTime / 5.);
-    // bound green time
-    nextGreenTime = std::min(std::max(greenTime, minGreenTime), maxGreenTime);
-    std::cout << "Maximum of " << maxVehCount << " vehicles are waiting. ";
+    nextGreenTime = std::min(std::max(greenTime, minGreenTime), maxGreenTime);  // bound green time
     std::cout << "Next green time is " << nextGreenTime << endl << endl;
 
     if(needYellowInterval)

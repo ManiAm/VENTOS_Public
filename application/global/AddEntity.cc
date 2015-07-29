@@ -658,8 +658,8 @@ void AddEntity::Scenario10()
     // poisson distribution for bike insertion
     std::poisson_distribution<int> distribution6(1./36.);
 
-    const int range = 400;     // traffic demand changes after each range
-    std::ostringstream name;  // name is in the form of 'veh_100_N_T_1' where 100 is Traffic demand, N is north, T is through, 1 is vehCounter
+    const int range = 400;    // traffic demand changes after each range
+    std::ostringstream name;  // name is in the form of '100_N_T_1' where 100 is Traffic demand, N is north, T is through, 1 is vehCounter
 
     int vehCounter = 1;
 
@@ -939,11 +939,11 @@ void AddEntity::Scenario11()
     // vehicles in side street
     std::poisson_distribution<int> distribution6(2./36.);
 
-    // poisson distribution for bike insertion
+    // bikes in main street (no bikes in side street)
     std::poisson_distribution<int> distribution7(1./36.);
 
-    const int range = 400;     // traffic demand for main street changes after each range
-    std::ostringstream name;  // name is in the form of 'veh_100_N_T_1' where 100 is Traffic demand, N is north, T is through, 1 is vehCounter
+    const int range = 400;    // traffic demand for main street changes after each range
+    std::ostringstream name;  // name is in the form of '100_N_T_1' where 100 is Traffic demand, N is north, T is through, 1 is vehCounter
 
     int vehCounter = 1;
 
@@ -1200,14 +1200,6 @@ void AddEntity::Scenario11()
                 if( bikeRoute >= 0 && bikeRoute < bikeRouteDistribution[0]/100. )
                 {
                     name.str("");
-                    name << bikeDemand << "_N_T_" << vehCounter;
-                    TraCI->vehicleAdd(name.str(), "bicycle", "movement2", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
-
-                    name.str("");
-                    name << bikeDemand << "_S_T_" << vehCounter;
-                    TraCI->vehicleAdd(name.str(), "bicycle", "movement6", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
-
-                    name.str("");
                     name << bikeDemand << "_W_T_" << vehCounter;
                     TraCI->vehicleAdd(name.str(), "bicycle", "movement8", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
@@ -1219,14 +1211,6 @@ void AddEntity::Scenario11()
                 else if( bikeRoute >= bikeRouteDistribution[0]/100. && bikeRoute < (bikeRouteDistribution[0]/100. + bikeRouteDistribution[1]/100.) )
                 {
                     name.str("");
-                    name << bikeDemand << "_N_L_" << vehCounter;
-                    TraCI->vehicleAdd(name.str(), "bicycle", "movement5", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
-
-                    name.str("");
-                    name << bikeDemand << "_S_L_" << vehCounter;
-                    TraCI->vehicleAdd(name.str(), "bicycle", "movement1", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
-
-                    name.str("");
                     name << bikeDemand << "_W_L_" << vehCounter;
                     TraCI->vehicleAdd(name.str(), "bicycle", "movement3", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
@@ -1237,14 +1221,6 @@ void AddEntity::Scenario11()
                 // right bike
                 else if( bikeRoute >= (bikeRouteDistribution[0]/100. + bikeRouteDistribution[1]/100.) && bikeRoute <= (bikeRouteDistribution[0]/100. + bikeRouteDistribution[1]/100. + bikeRouteDistribution[2]/100.) )
                 {
-                    name.str("");
-                    name << bikeDemand << "_N_R_" << vehCounter;
-                    TraCI->vehicleAdd(name.str(), "bicycle", "route1", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
-
-                    name.str("");
-                    name << bikeDemand << "_S_R_" << vehCounter;
-                    TraCI->vehicleAdd(name.str(), "bicycle", "route2", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
-
                     name.str("");
                     name << bikeDemand << "_W_R_" << vehCounter;
                     TraCI->vehicleAdd(name.str(), "bicycle", "route3", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);

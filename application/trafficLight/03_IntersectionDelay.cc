@@ -84,7 +84,7 @@ void IntersectionDelay::executeFirstTimeStep()
     // get all lanes in the network
     lanesList = TraCI->laneGetIDList();
 
-    for(std::map<std::string,std::string>::iterator it = lanesTL.begin(); it != lanesTL.end(); ++it)
+    for(std::map<std::string,std::string>::iterator it = laneList.begin(); it != laneList.end(); ++it)
     {
         std::string lane = (*it).first;
         std::string TLid = (*it).second;
@@ -171,8 +171,8 @@ void IntersectionDelay::vehiclesDelayEach(std::string vID)
         std::string currentLane = TraCI->vehicleGetLaneID(vID);
 
         // If on one of the incoming lanes:
-        if(lanesTL.find(currentLane) != lanesTL.end())
-            loc->second.TLid = lanesTL[currentLane];
+        if(laneList.find(currentLane) != laneList.end())
+            loc->second.TLid = laneList[currentLane];
         else return;
     }
 
@@ -212,7 +212,7 @@ void IntersectionDelay::vehiclesDelayEach(std::string vID)
         std::string currentLane = TraCI->vehicleGetLaneID(vID);
 
         // If we are at the middle of intersection
-        if(lanesTL.find(currentLane) == lanesTL.end())
+        if(laneList.find(currentLane) == laneList.end())
         {
             loc->second.crossedIntersection = true;
             loc->second.crossedTime = simTime().dbl();
@@ -352,7 +352,7 @@ void IntersectionDelay::vehiclesAccuDelay(std::string vID, std::map<std::string,
 
         // iterate over outgoing links
         std::pair<std::multimap<std::string, std::pair<std::string, int>>::iterator, std::multimap<std::string, std::pair<std::string, int>>::iterator > ppp;
-        ppp = linksTL.equal_range(loc->second.lastLane);
+        ppp = laneLinks.equal_range(loc->second.lastLane);
         for(std::multimap<std::string, std::pair<std::string, int>>::iterator z = ppp.first; z != ppp.second; ++z)
         {
             int linkNumber = (*z).second.second;
@@ -376,7 +376,7 @@ void IntersectionDelay::vehiclesAccuDelay(std::string vID, std::map<std::string,
 
         // iterate over outgoing links
         std::pair<std::multimap<std::string, std::pair<std::string, int>>::iterator, std::multimap<std::string, std::pair<std::string, int>>::iterator > ppp;
-        ppp = linksTL.equal_range(loc->second.lastLane);
+        ppp = laneLinks.equal_range(loc->second.lastLane);
         for(std::multimap<std::string, std::pair<std::string, int>>::iterator z = ppp.first; z != ppp.second; ++z)
         {
             int linkNumber = (*z).second.second;

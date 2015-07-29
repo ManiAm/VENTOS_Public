@@ -78,14 +78,20 @@ void LoopDetectors::initialize(int stage)
         LD_actuated.clear();
         AD_queue.clear();
 
-        lanesTL.clear();
-        linksTL.clear();
+        laneListTL.clear();
+        bikeLaneListTL.clear();
+        sideWalkListTL.clear();
+
+        laneList.clear();
+        laneLinks.clear();
 
         laneQueueSize.clear();
         linkQueueSize.clear();
+        queueSizeTL.clear();
 
         laneTD.clear();
         linkTD.clear();
+        laneTotalVehCount.clear();
 
         phaseTL.clear();
         statusTL.clear();
@@ -138,7 +144,7 @@ void LoopDetectors::executeFirstTimeStep()
         {
             std::string lane = *it2;
 
-            lanesTL[lane] = TLid;
+            laneList[lane] = TLid;
 
             // store all bike lanes and side walks
             std::list<std::string> allowedClasses = TraCI->laneGetAllowedClasses(lane);
@@ -175,7 +181,9 @@ void LoopDetectors::executeFirstTimeStep()
             std::vector<std::string> link = (*it2).second;
             std::string incommingLane = link[0];
 
-            linksTL.insert( std::make_pair(incommingLane, std::make_pair(TLid,linkNumber)) );
+            laneLinks.insert( std::make_pair(incommingLane, std::make_pair(TLid,linkNumber)) );
+
+            linkLane.insert( std::make_pair(std::make_pair(TLid,linkNumber), incommingLane) );
 
             boost::circular_buffer<std::vector<double>> CB;   // create a circular buffer
             CB.set_capacity(trafficDemandBuffSize);         // set max capacity
@@ -507,7 +515,7 @@ void LoopDetectors::measureTrafficParameters()
     bool clearLinkBuff = false;
 
     // for each 'lane i' that is controlled by traffic light j
-    for(std::map<std::string, std::string>::iterator y = lanesTL.begin(); y != lanesTL.end(); ++y)
+    for(std::map<std::string, std::string>::iterator y = laneList.begin(); y != laneList.end(); ++y)
     {
         std::string lane = (*y).first;
         std::string TLid = (*y).second;
@@ -540,11 +548,11 @@ void LoopDetectors::measureTrafficParameters()
             }
 
             // get # of outgoing links from this lane
-            int NoLinks = linksTL.count(lane);
+            int NoLinks = laneLinks.count(lane);
 
             // iterate over outgoing links
             std::pair<std::multimap<std::string, std::pair<std::string, int>>::iterator, std::multimap<std::string, std::pair<std::string, int>>::iterator > ppp;
-            ppp = linksTL.equal_range(lane);
+            ppp = laneLinks.equal_range(lane);
             for(std::multimap<std::string, std::pair<std::string, int>>::iterator z = ppp.first; z != ppp.second; ++z)
             {
                 int linkNumber = (*z).second.second;
@@ -644,7 +652,7 @@ void LoopDetectors::measureTrafficParameters()
 
                     // iterate over outgoing links
                     std::pair<std::multimap<std::string, std::pair<std::string, int>>::iterator, std::multimap<std::string, std::pair<std::string, int>>::iterator > ppp;
-                    ppp = linksTL.equal_range(lane);
+                    ppp = laneLinks.equal_range(lane);
                     for(std::multimap<std::string, std::pair<std::string, int>>::iterator z = ppp.first; z != ppp.second; ++z)
                     {
                         int linkNumber = (*z).second.second;

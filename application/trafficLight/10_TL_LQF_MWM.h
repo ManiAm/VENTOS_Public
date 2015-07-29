@@ -31,34 +31,56 @@
 
 namespace VENTOS {
 
+class greenIntervalInfo_LQF
+{
+public:
+    int maxVehCount;
+    double totalWeight;
+    int oneCount;
+    double greenTime;
+    std::string greenString;
+
+    greenIntervalInfo_LQF(int i1, double d0, int i2, double d1, std::string str)
+    {
+        this->maxVehCount = i1;
+        this->totalWeight = d0;
+        this->oneCount = i2;
+        this->greenTime = d1;
+        this->greenString = str;
+    }
+};
+
+
 class TrafficLight_LQF_MWM : public TrafficLightLowDelay
 {
-  public:
+public:
     virtual ~TrafficLight_LQF_MWM();
     virtual void finish();
     virtual void initialize(int);
     virtual void handleMessage(cMessage *);
 
-  protected:
+protected:
     void virtual executeFirstTimeStep();
     void virtual executeEachTimeStep(bool);
 
-  private:
+private:
     void chooseNextInterval();
     void chooseNextGreenInterval();
+    void calculatePhases(std::string);
 
-  protected:
-    bool greenExtension;
+protected:
+    std::map<std::string /*className*/, double /*weight*/> classWeight = {
+            {"emergency", 50},
+            {"passenger", 40},
+            {"bicycle", 30},
+            {"pedestrian", 20},
+            {"bus", 10},
+            {"truck", 1} };
 
-    enum vehTypeWeight
-    {
-        weight_emergency = 50,
-        weight_pedestrian = 40,
-        weight_bicycle = 30,
-        weight_passenger = 20,
-        weight_bus = 10,
-        weight_truck = 1,
-    };
+private:
+    std::vector<std::string> phases = {phase1_5, phase2_5, phase1_6, phase2_6, phase3_7, phase3_8, phase4_7, phase4_8};
+    std::vector<greenIntervalInfo_LQF> greenInterval;
+    bool nextGreenIsNewCycle;
 };
 
 }

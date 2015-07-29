@@ -30,7 +30,7 @@ namespace VENTOS {
 
 Define_Module(VENTOS::TrafficLightAdaptiveQueue);
 
-class batchMovementQueueEntry
+class sortedEntryQ
 {
 public:
     int oneCount;
@@ -38,7 +38,7 @@ public:
     int maxVehCount;
     std::vector<int> batchMovements;
 
-    batchMovementQueueEntry(int i1, int i2, int i3, std::vector<int> bm)
+    sortedEntryQ(int i1, int i2, int i3, std::vector<int> bm)
     {
         this->oneCount = i1;
         this->totalQueue = i2;
@@ -48,10 +48,10 @@ public:
 };
 
 
-class movementCompareQueue
+class sortCompareQ
 {
 public:
-    bool operator()(batchMovementQueueEntry p1, batchMovementQueueEntry p2)
+    bool operator()(sortedEntryQ p1, sortedEntryQ p2)
     {
         if(p1.totalQueue < p2.totalQueue)
             return true;
@@ -73,7 +73,7 @@ public:
         bestMovement.swap(best);
 }
 
-    bool operator () (const batchMovementQueueEntry v)
+    bool operator () (const sortedEntryQ v)
     {
         for (unsigned int linkNumber = 0; linkNumber < v.batchMovements.size(); linkNumber++)
         {
@@ -94,7 +94,7 @@ private:
 };
 
 
-bool noGreenTime(greenIntervalInfo v)
+bool noGreenTime(greenIntervalInfo_Maxqueue v)
 {
     if (v.greenTime == 0.0)
         return true;
@@ -321,10 +321,10 @@ void TrafficLightAdaptiveQueue::calculatePhases(std::string TLid)
     std::cout << endl << endl;
 
     // batch of all non-conflicting movements, sorted by total queue size per batch
-    std::priority_queue< batchMovementQueueEntry /*type of each element*/, std::vector<batchMovementQueueEntry> /*container*/, movementCompareQueue > batchMovementQueue;
+    std::priority_queue< sortedEntryQ /*type of each element*/, std::vector<sortedEntryQ> /*container*/, sortCompareQ > sortedMovements;
 
     // clear the priority queue
-    batchMovementQueue = std::priority_queue < batchMovementQueueEntry, std::vector<batchMovementQueueEntry>, movementCompareQueue >();
+    sortedMovements = std::priority_queue < sortedEntryQ, std::vector<sortedEntryQ>, sortCompareQ >();
 
     for(unsigned int i = 0; i < allMovements.size(); ++i)  // row
     {
@@ -353,16 +353,16 @@ void TrafficLightAdaptiveQueue::calculatePhases(std::string TLid)
         }
 
         // add this batch of movements to priority_queue
-        batchMovementQueueEntry *entry = new batchMovementQueueEntry(oneCount, totalQueueRow, maxVehCount, allMovements[i]);
-        batchMovementQueue.push(*entry);
+        sortedEntryQ *entry = new sortedEntryQ(oneCount, totalQueueRow, maxVehCount, allMovements[i]);
+        sortedMovements.push(*entry);
     }
 
-    // copy batchMovementQueue to a vector for iteration:
-    std::vector<batchMovementQueueEntry> batchMovementVector;
-    while(!batchMovementQueue.empty())
+    // copy sortedMovements to a vector for iteration:
+    std::vector<sortedEntryQ> batchMovementVector;
+    while(!sortedMovements.empty())
     {
-        batchMovementVector.push_back(batchMovementQueue.top());
-        batchMovementQueue.pop();
+        batchMovementVector.push_back(sortedMovements.top());
+        sortedMovements.pop();
     }
 
     // Select at most 4 phases for new cycle:
@@ -394,7 +394,7 @@ void TrafficLightAdaptiveQueue::calculatePhases(std::string TLid)
             continue;
         }
 
-        greenIntervalInfo *entry = new greenIntervalInfo(batchMovementVector.front().maxVehCount, 0.0, nextInterval);
+        greenIntervalInfo_Maxqueue *entry = new greenIntervalInfo_Maxqueue(batchMovementVector.front().maxVehCount, 0.0, nextInterval);
         greenInterval.push_back(*entry);
 
         // Now delete these movements because they should never occur again:

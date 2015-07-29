@@ -46,6 +46,9 @@ class TrafficLight_OJF_MWM : public TrafficLight_LQF_MWM
   private:
     void chooseNextInterval();
     void chooseNextGreenInterval();
+
+  private:
+    double nextGreenTime;
 };
 
 }
