@@ -7,9 +7,9 @@ clc;    % position the cursor at the top of the screen
 % ---------------------------------------------------------------
 
 % path to folder
-basePATH = '../results/cmd/effect_active_detection_new/3_full_poisson_balanced_routeDist_70_30';
+basePATH = '../results/cmd/3_multipleClass/5_full_poisson_unbalanced_routeDist_70_30';
 
-option = 1;
+option = 1;  % 1: benefits of active detection   2: multi-class   3: MWM
 
 TLqueuingData = dir([basePATH, '/*_TLqueuingData.txt']);
 TLphasingData = dir([basePATH, '/*_TLphasingData.txt']);
@@ -393,9 +393,11 @@ if(true)
     
     if(runNumber == runTotal)    
         if(option == 1)
-            legend('Traffic-actuated (active)' , 'Traffic-actuated', 'Highest queue', 'Highest queue (active)', 'Location', 'northwest');
+            legend('Traffic-actuated (active)' , 'Traffic-actuated', 'Longest queue', 'Longest queue (active)', 'Location', 'northwest');
         elseif(option == 2)
-            legend('Fix-time' , 'Traffic-actuated', 'Highest queue', 'OJF', 'Location', 'northwest');
+            legend('Fix-time' , 'Traffic-actuated', 'Longest queue', 'OJF', 'Location', 'northwest');
+        elseif(option == 3)
+            legend('LQF\_MWM' , 'OJF\_MWM', 'Location', 'northwest');
         end
         
         % set the x-axis limit
@@ -435,25 +437,65 @@ if(true)
         
     elseif(option == 2 && runNumber == runTotal)        
         % distribution of average veh delay        
-        data = [cell2mat(delayDist{1,1})'; cell2mat(delayDist{1,2})'; cell2mat(delayDist{1,3})'; cell2mat(delayDist{1,4})' ; cell2mat(delayDist{2,1})'; cell2mat(delayDist{2,2})'; cell2mat(delayDist{2,3})'; cell2mat(delayDist{2,4})'];
+        data = [cell2mat(delayDist{1,1})'; cell2mat(delayDist{2,1})'; 
+                cell2mat(delayDist{1,2})'; cell2mat(delayDist{2,2})'; 
+                cell2mat(delayDist{1,3})'; cell2mat(delayDist{2,3})'; 
+                cell2mat(delayDist{1,4})'; cell2mat(delayDist{2,4})'];
 
         n1 = size(delayDist{1,1},2);
-        n2 = size(delayDist{1,2},2);
-        n3 = size(delayDist{1,3},2);
-        n4 = size(delayDist{1,4},2);
         n5 = size(delayDist{2,1},2);
-        n6 = size(delayDist{2,2},2);
-        n7 = size(delayDist{2,3},2);
+        
+        n2 = size(delayDist{1,2},2);
+        n6 = size(delayDist{2,2},2);        
+        
+        n3 = size(delayDist{1,3},2);
+        n7 = size(delayDist{2,3},2);        
+        
+        n4 = size(delayDist{1,4},2);        
         n8 = size(delayDist{2,4},2);
-        group = [repmat({'Fix-time (P)'}, n1, 1); repmat({'Traffic actuated (P)'}, n2, 1); repmat({'Highest Queue (P)'}, n3, 1); repmat({'OJF (P)'}, n4, 1); repmat({'Fix-time (E)'}, n5, 1); repmat({'Traffic actuated (E)'}, n6, 1); repmat({'Highest Queue (E)'}, n7, 1); repmat({'OJF (E)'}, n8, 1)];
+        
+        group = [repmat({'Fix-time (P)'}, n1, 1); repmat({'Fix-time (E)'}, n5, 1);
+                 repmat({'T-actuated (P)'}, n2, 1); repmat({'T-actuated (E)'}, n6, 1);
+                 repmat({'L-Queue (P)'}, n3, 1); repmat({'L-Queue (E)'}, n7, 1);
+                 repmat({'OJF (P)'}, n4, 1); repmat({'OJF (E)'}, n8, 1)];
+             
+        boxplot(data,group);
+
+        set(findobj(gca,'Type','text'),'FontSize',17);
+        
+        % set font size
+        set(gca, 'FontSize', 17);
+
+        ylabel({'Vehicles','Average Delay','Distribution (min)'}, 'FontSize', 17);
+
+        grid on;  
+        
+    elseif(option == 3 && runNumber == runTotal)        
+        % distribution of average veh delay        
+        data = [cell2mat(delayDist{1,1})'; cell2mat(delayDist{1,2})'; 
+                cell2mat(delayDist{2,1})'; cell2mat(delayDist{2,2})'];
+
+        n1 = size(delayDist{1,1},2);
+        n5 = size(delayDist{2,1},2);        
+        
+        n2 = size(delayDist{1,2},2);
+        n6 = size(delayDist{2,2},2);
+        
+        group = [repmat({'LQF_MWM (P)'}, n1, 1); 
+                 repmat({'LQF_MWM (E)'}, n5, 1);
+                 repmat({'OJF_MWM (P)'}, n2, 1);  
+                 repmat({'OJF_MWM (E)'}, n6, 1)];
 
         boxplot(data,group);
 
         set(findobj(gca,'Type','text'),'FontSize',17);
+        
+        % set font size
+        set(gca, 'FontSize', 17);
 
         ylabel({'Vehicles','Average Delay','Distribution (min)'}, 'FontSize', 17);
 
-        grid on;        
+        grid on;   
         
     end
 
@@ -482,17 +524,44 @@ if(true)
         
     elseif(option == 2 && runNumber == runTotal)
         % distribution of max bike delay       
-        data = [cell2mat(delayDist{3,1})'; cell2mat(delayDist{3,2})'; cell2mat(delayDist{3,3})'; cell2mat(delayDist{3,4})'];
+        data = [cell2mat(delayDist{3,1})'; 
+                cell2mat(delayDist{3,2})'; 
+                cell2mat(delayDist{3,3})'; 
+                cell2mat(delayDist{3,4})'];
 
         n1 = size(delayDist{3,1},2);
-        n2 = size(delayDist{3,2},2);
+        n2 = size(delayDist{3,2},2);        
         n3 = size(delayDist{3,3},2);
         n4 = size(delayDist{3,4},2);
-        group = [repmat({'Fix-time'}, n1, 1); repmat({'Traffic actuated'}, n2, 1); repmat({'Highest Queue'}, n3, 1); repmat({'OJF'}, n4, 1)];
+        
+        group = [repmat({'Fix-time'}, n1, 1); repmat({'Traffic actuated'}, n2, 1); repmat({'Longest Queue'}, n3, 1); repmat({'OJF'}, n4, 1)];
 
         boxplot(data,group);
 
         set(findobj(gca,'Type','text'),'FontSize',17);
+        
+        % set font size
+        set(gca, 'FontSize', 17);
+
+        ylabel({'Bikes','Maximum Delay','Distribution (s)'}, 'FontSize', 17);
+
+        grid on; 
+        
+    elseif(option == 3 && runNumber == runTotal)
+        % distribution of max bike delay       
+        data = [cell2mat(delayDist{3,1})'; 
+                cell2mat(delayDist{3,2})'];
+
+        n1 = size(delayDist{3,1},2);
+        n2 = size(delayDist{3,2},2);
+        group = [repmat({'LQF_MWM'}, n1, 1); repmat({'OJF_MWM'}, n2, 1)];
+
+        boxplot(data,group);
+
+        set(findobj(gca,'Type','text'),'FontSize',17);
+        
+        % set font size
+        set(gca, 'FontSize', 17);
 
         ylabel({'Bikes','Maximum Delay','Distribution (s)'}, 'FontSize', 17);
 
@@ -516,6 +585,8 @@ if(true)
         if(option == 1)
             endNum = 3;
         elseif(option == 2)
+            endNum = 1;
+        elseif(option == 3)
             endNum = 1;
         end
         
@@ -754,7 +825,7 @@ if(true)
         end 
         
         subplot(2,1,1);
-        legend('Fix-time' , 'Traffic-actuated', 'Highest queue', 'OJF', 'Location', 'northwest');
+        legend('Fix-time' , 'Traffic-actuated', 'Longest queue', 'OJF', 'Location', 'northwest');
     
 %         % mark change of demand with vertical lines
 %         for threshold=400:400:Xlimit(2)            
