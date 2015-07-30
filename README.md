@@ -178,3 +178,23 @@ Choose 'OMNET++ Simulation' and click on 'New launch configuration' button at th
 
 Upon the first execution, VENTOS tries to download sumoD and sumo-guiD. Type y to proceed. Try to play with other configuration scenarios to feel confortable with the environment and change different parameters to see the effect on the simulation output.
 
+
+Running VENTOS on a Server
+--------------------------
+
+You can run the project on a remote server (Ubuntu Server preferably). In order to do this, SSH to the remote server:
+
+    ssh -X rubinet@mars.ece.ucdavis.edu
+
+The -X flag enables X11 forwarding and forwards the program that uses a GUI through your SSH connection. Whenever you launch a program that uses a GUI, it will pop up as if you were physically sitting at that computer (This method is preferrable to using VNC which forwards the entire desktop). Note that `X server` should be running on **your** machine. Use the following command to check if X server is running on your machine:
+
+    xset q
+
+If X server is not installed on your machine, then install it:
+
+    sudo apt-get install xorg
+    sudo apt-get install openbox
+
+Then follow the same instructions in previous sections to install OMNET++, Veins and VENTOS. While simulation in OMNET++ the SSH session should be open. Closing the terminal windows or restarting the OS terminates the SSH session and the running simulation will be closed. To keep the SSH session open, start tmux by typing `tmux` into the shell. Then type `omnetpp` to start the IDE and then `sumo-cmd &` to run the python script in the background. Run the simulation and detach the tmux session by typing `Ctrl+B` and then `D`. You can now safely logoff from the remote machine, your process will keep running inside tmux. When you come back again and want to check the status of your process you can use `tmux attach` to attach to your tmux session.
+
+In order to exchange files between your computer and remote server, you can use filezilla.
