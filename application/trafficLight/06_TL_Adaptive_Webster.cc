@@ -98,7 +98,7 @@ void TrafficLightWebster::executeFirstTimeStep()
     if(TLControlMode != TL_Adaptive_Webster)
         return;
 
-    std::cout << "Dynamic Webster traffic signal control ... " << endl << endl;
+    std::cout << "Adaptive Webster traffic signal control ... " << endl << endl;
 
     // run Webster at the beginning of the cycle
     calculateGreenSplits();
