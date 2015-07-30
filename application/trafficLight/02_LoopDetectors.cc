@@ -264,7 +264,7 @@ void LoopDetectors::getAllDetectors()
 
     if(debugLevel > 0)
     {
-        std::cout << endl << LD_demand.size() << " demand loop detectors found!" << endl;
+        std::cout << LD_demand.size() << " demand loop detectors found!" << endl;
         std::cout << LD_actuated.size() << " actuated loop detectors found!" << endl;
         std::cout << AD_queue.size() << " area detectors found!" << endl << endl;
     }

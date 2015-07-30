@@ -261,21 +261,20 @@ void TrafficLightActuated::chooseNextGreenInterval()
     std::map<std::string,double> LastActuatedTime;
 
     if(debugLevel > 1)
-    {
         std::cout << "SimTime: " << std::setprecision(2) << std::fixed << simTime().dbl() << " | Actuated LDs (lane, elapsed time): ";
-        // (*LD).first is 'lane id' and (*LD).second is detector id
-        for (std::map<std::string, std::string>::iterator LD = LD_actuated.begin(); LD != LD_actuated.end(); ++LD)
-        {
-            double elapsedT = TraCI->LDGetElapsedTimeLastDetection((*LD).second);
-            LastActuatedTime[(*LD).first] = elapsedT;
 
-            // print for debugging
-            if(abs( simTime().dbl() - (elapsedT + updateInterval) ) >= updateInterval)
-                std::cout << (*LD).first << " (" << elapsedT << ") | ";
-        }
+    // (*LD).first is 'lane id' and (*LD).second is detector id
+    for (std::map<std::string, std::string>::iterator LD = LD_actuated.begin(); LD != LD_actuated.end(); ++LD)
+    {
+        double elapsedT = TraCI->LDGetElapsedTimeLastDetection((*LD).second);
+        LastActuatedTime[(*LD).first] = elapsedT;
 
-        std::cout << endl;
+        // print for debugging
+        if(abs( simTime().dbl() - (elapsedT + updateInterval) ) >= updateInterval && debugLevel > 1)
+            std::cout << (*LD).first << " (" << elapsedT << ") | ";
     }
+
+    std::cout << endl;
 
     bool extend = false;
     std::string nextInterval;
