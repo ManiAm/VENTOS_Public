@@ -140,9 +140,12 @@ void TrafficLightLowDelay::executeFirstTimeStep()
         updateTLstate(*TL, "init", currentInterval);
     }
 
-    char buff[300];
-    sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
-    std::cout << buff << endl << endl;
+    if(debugLevel > 0)
+    {
+        char buff[300];
+        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
+        std::cout << buff << endl << endl;
+    }
 }
 
 
@@ -199,35 +202,41 @@ void TrafficLightLowDelay::chooseNextInterval()
     else
         chooseNextGreenInterval();
 
-    char buff[300];
-    sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
-    std::cout << buff << endl << endl;
+    if(debugLevel > 0)
+    {
+        char buff[300];
+        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
+        std::cout << buff << endl << endl;
+    }
 }
 
 
 void TrafficLightLowDelay::chooseNextGreenInterval()
 {
     // for debugging
-    std::cout << "Accumulated delay of vehicles on each lane: " << endl;
-    for(std::map<std::string, std::map<std::string, double>>::iterator y = laneDelay.begin(); y != laneDelay.end(); ++y)
+    if(debugLevel > 1)
     {
-        std::map<std::string,double> vehs = (*y).second;
-
-        if(vehs.empty())
-            continue;
-
-        std::cout << (*y).first << ": ";
-
-        double totalDelay = 0;
-        for(std::map<std::string, double>::iterator z = vehs.begin(); z != vehs.end(); ++z)
+        std::cout << "Accumulated delay of vehicles on each lane: " << endl;
+        for(std::map<std::string, std::map<std::string, double>>::iterator y = laneDelay.begin(); y != laneDelay.end(); ++y)
         {
-            std::cout << (*z).first << ", " << std::setw(5) << (*z).second << " | ";
-            totalDelay = totalDelay + (*z).second;
-        }
+            std::map<std::string,double> vehs = (*y).second;
 
-        std::cout << " --> total delay = " << totalDelay << endl;
+            if(vehs.empty())
+                continue;
+
+            std::cout << (*y).first << ": ";
+
+            double totalDelay = 0;
+            for(std::map<std::string, double>::iterator z = vehs.begin(); z != vehs.end(); ++z)
+            {
+                std::cout << (*z).first << ", " << std::setw(5) << (*z).second << " | ";
+                totalDelay = totalDelay + (*z).second;
+            }
+
+            std::cout << " --> total delay = " << totalDelay << endl;
+        }
+        std::cout << endl;
     }
-    std::cout << endl;
 
     // batch of all non-conflicting movements, sorted by total vehicle delay per batch
     std::priority_queue< sortedEntryD /*type of each element*/, std::vector<sortedEntryD> /*container*/, sortCompareD > sortedMovements;
@@ -307,10 +316,12 @@ void TrafficLightLowDelay::chooseNextGreenInterval()
 
     // allocate enough green time to move all delayed vehicle
     int maxVehCount = entry.maxVehCount;
-    std::cout << "Maximum of " << maxVehCount << " vehicle(s) are waiting. ";
+    if(debugLevel > 1)
+        std::cout << "Maximum of " << maxVehCount << " vehicle(s) are waiting. ";
     double greenTime = (double)maxVehCount * (minGreenTime / 5.);
     nextGreenTime = std::min(std::max(greenTime, minGreenTime), maxGreenTime);  // bound green time
-    std::cout << "Next green time is " << nextGreenTime << endl << endl;
+    if(debugLevel > 1)
+        std::cout << "Next green time is " << nextGreenTime << endl << endl;
 
     if(needYellowInterval)
     {
@@ -326,7 +337,8 @@ void TrafficLightLowDelay::chooseNextGreenInterval()
     else
     {
         intervalOffSet = nextGreenTime;
-        std::cout << ">>> Continue the last green interval." << endl << endl;
+        if(debugLevel > 0)
+            std::cout << ">>> Continue the last green interval." << endl << endl;
     }
 }
 

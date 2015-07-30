@@ -180,7 +180,6 @@ void TrafficLightRouter::initialize(int stage)
     if(stage == 0)
     {
         cModule *rmodule = simulation.getSystemModule()->getSubmodule("router");
-        debugLevel = rmodule->par("debugLevel").longValue();
         router = static_cast< Router* >(rmodule);
 
         HighDensityRecalculateFrequency = par("HighDensityRecalculateFrequency").doubleValue();

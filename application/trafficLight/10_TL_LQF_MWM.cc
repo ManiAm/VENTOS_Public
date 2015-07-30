@@ -160,9 +160,12 @@ void TrafficLight_LQF_MWM::executeFirstTimeStep()
     // make sure RSUptr is pointing to our corresponding RSU
     ASSERT(RSUptr);
 
-    char buff[300];
-    sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
-    std::cout << endl << buff << endl << endl;
+    if(debugLevel > 0)
+    {
+        char buff[300];
+        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
+        std::cout << endl << buff << endl << endl;
+    }
 }
 
 
@@ -221,9 +224,12 @@ void TrafficLight_LQF_MWM::chooseNextInterval()
     else
         chooseNextGreenInterval();
 
-    char buff[300];
-    sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
-    std::cout << buff << endl << endl;
+    if(debugLevel > 0)
+    {
+        char buff[300];
+        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
+        std::cout << buff << endl << endl;
+    }
 }
 
 
@@ -355,22 +361,25 @@ void TrafficLight_LQF_MWM::calculatePhases(std::string TLid)
     int oldSize = greenInterval.size();
     greenInterval.erase( std::remove_if(greenInterval.begin(), greenInterval.end(), noGreenTime), greenInterval.end() );
     int newSize = greenInterval.size();
-    if(oldSize != newSize)
+    if(oldSize != newSize && debugLevel > 1)
         std::cout << ">>> " << oldSize - newSize << " phase(s) removed due to zero queue size!" << endl << endl;
 
     // make sure the green splits are bounded
     for (auto &i : greenInterval)
         i.greenTime = std::min(std::max(i.greenTime, minGreenTime), maxGreenTime);
 
-    std::cout << "Ordered green intervals for this cycle: " << endl;
-    for (auto &i : greenInterval)
-        std::cout << "movement: " << i.greenString
-        << ", totalWeight= " << i.totalWeight
-        << ", oneCount= " << i.oneCount
-        << ", maxVehCount= " << i.maxVehCount
-        << ", green= " << i.greenTime << "s" << endl;
+    if(debugLevel > 1)
+    {
+        std::cout << "Ordered green intervals for this cycle: " << endl;
+        for (auto &i : greenInterval)
+            std::cout << "movement: " << i.greenString
+            << ", totalWeight= " << i.totalWeight
+            << ", oneCount= " << i.oneCount
+            << ", maxVehCount= " << i.maxVehCount
+            << ", green= " << i.greenTime << "s" << endl;
 
-    std::cout << endl;
+        std::cout << endl;
+    }
 }
 
 }

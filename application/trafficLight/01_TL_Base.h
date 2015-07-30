@@ -48,6 +48,7 @@ class TrafficLightBase : public BaseModule
       double updateInterval;
       int TLControlMode;
       bool activeDetection;
+      int debugLevel;
 
       TraCI_Extend *TraCI;
       ApplRSUTLVANET *RSUptr;

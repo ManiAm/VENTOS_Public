@@ -151,9 +151,12 @@ void TrafficLight_OJF_MWM::executeFirstTimeStep()
     // make sure RSUptr is pointing to our corresponding RSU
     ASSERT(RSUptr);
 
+    if(debugLevel > 0)
+    {
     char buff[300];
     sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
     std::cout << buff << endl << endl;
+    }
 }
 
 
@@ -210,9 +213,12 @@ void TrafficLight_OJF_MWM::chooseNextInterval()
     else
         chooseNextGreenInterval();
 
+    if(debugLevel > 0)
+    {
     char buff[300];
     sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
     std::cout << buff << endl << endl;
+    }
 }
 
 
@@ -321,10 +327,12 @@ void TrafficLight_OJF_MWM::chooseNextGreenInterval()
 
     // allocate enough green time to move all vehicles
     int maxVehCount = entry.maxVehCount;
-    std::cout << "Maximum of " << maxVehCount << " vehicle(s) are waiting. ";
+    if(debugLevel > 1)
+        std::cout << "Maximum of " << maxVehCount << " vehicle(s) are waiting. ";
     double greenTime = (double)maxVehCount * (minGreenTime / 5.);
     nextGreenTime = std::min(std::max(greenTime, minGreenTime), maxGreenTime);      // bound green time
-    std::cout << "Next green time is " << nextGreenTime << endl << endl;
+    if(debugLevel > 1)
+        std::cout << "Next green time is " << nextGreenTime << endl << endl;
 
     if(needYellowInterval)
     {
@@ -340,7 +348,8 @@ void TrafficLight_OJF_MWM::chooseNextGreenInterval()
     else
     {
         intervalOffSet = nextGreenTime;
-        std::cout << ">>> Continue the last green interval." << endl << endl;
+        if(debugLevel > 0)
+            std::cout << ">>> Continue the last green interval." << endl << endl;
     }
 }
 

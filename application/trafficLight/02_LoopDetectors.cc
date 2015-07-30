@@ -262,11 +262,12 @@ void LoopDetectors::getAllDetectors()
             AD_queue[lane] = *it;
     }
 
-    /*
-    std::cout << endl << LD_demand.size() << " demand loop detectors found!" << endl;
-    std::cout << LD_actuated.size() << " actuated loop detectors found!" << endl;
-    std::cout << AD_queue.size() << " area detectors found!" << endl << endl;
-     */
+    if(debugLevel > 0)
+    {
+        std::cout << endl << LD_demand.size() << " demand loop detectors found!" << endl;
+        std::cout << LD_actuated.size() << " actuated loop detectors found!" << endl;
+        std::cout << AD_queue.size() << " area detectors found!" << endl << endl;
+    }
 
     // make sure we have all detectors we need
     for (std::list<std::string>::iterator it = TLList.begin(); it != TLList.end(); ++it)

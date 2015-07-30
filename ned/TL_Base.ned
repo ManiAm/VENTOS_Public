@@ -8,5 +8,6 @@ simple TL_Base
         @display("i=block/network2");  
         
         int TLControlMode; 
-        bool activeDetection;    
+        bool activeDetection;  
+        int debugLevel;  
 }

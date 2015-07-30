@@ -192,9 +192,12 @@ void TrafficLightAdaptiveQueue::executeFirstTimeStep()
         updateTLstate(*TL, "init", currentInterval);
     }
 
-    char buff[300];
-    sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
-    std::cout << buff << endl << endl;
+    if(debugLevel > 0)
+    {
+        char buff[300];
+        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
+        std::cout << buff << endl << endl;
+    }
 }
 
 
@@ -253,9 +256,12 @@ void TrafficLightAdaptiveQueue::chooseNextInterval()
     else
         chooseNextGreenInterval();
 
-    char buff[300];
-    sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
-    std::cout << buff << endl << endl;
+    if(debugLevel > 0)
+    {
+        char buff[300];
+        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
+        std::cout << buff << endl << endl;
+    }
 }
 
 
@@ -302,7 +308,9 @@ void TrafficLightAdaptiveQueue::chooseNextGreenInterval()
     else
     {
         intervalOffSet = greenInterval.front().greenTime;
-        std::cout << ">>> Continue the last green interval." << endl << endl;
+
+        if(debugLevel > 0)
+            std::cout << ">>> Continue the last green interval." << endl << endl;
     }
 }
 
@@ -310,15 +318,18 @@ void TrafficLightAdaptiveQueue::chooseNextGreenInterval()
 // calculate all phases (up to 4)
 void TrafficLightAdaptiveQueue::calculatePhases(std::string TLid)
 {
-    std::cout << "Queue size per lane: ";
-    for(auto& entry : laneQueueSize)
+    if(debugLevel > 1)
     {
-        std::string lane = entry.first;
-        int qSize = entry.second.second;
-        if(qSize != 0)
-            std::cout << lane << " (" << qSize << ") | ";
+        std::cout << "Queue size per lane: ";
+        for(auto& entry : laneQueueSize)
+        {
+            std::string lane = entry.first;
+            int qSize = entry.second.second;
+            if(qSize != 0)
+                std::cout << lane << " (" << qSize << ") | ";
+        }
+        std::cout << endl << endl;
     }
-    std::cout << endl << endl;
 
     // batch of all non-conflicting movements, sorted by total queue size per batch
     std::priority_queue< sortedEntryQ /*type of each element*/, std::vector<sortedEntryQ> /*container*/, sortCompareQ > sortedMovements;
@@ -426,18 +437,21 @@ void TrafficLightAdaptiveQueue::calculatePhases(std::string TLid)
     int oldSize = greenInterval.size();
     greenInterval.erase( std::remove_if(greenInterval.begin(), greenInterval.end(), noGreenTime), greenInterval.end() );
     int newSize = greenInterval.size();
-    if(oldSize != newSize)
+    if(oldSize != newSize && debugLevel > 1)
         std::cout << ">>> " << oldSize - newSize << " phase(s) removed due to zero queue size!" << endl << endl;
 
     // make sure the green splits are bounded
     for (auto &i : greenInterval)
         i.greenTime = std::min(std::max(i.greenTime, minGreenTime), maxGreenTime);
 
-    std::cout << "Selected green intervals for this cycle: " << endl;
-    for (auto &i : greenInterval)
-        std::cout << "Movement " << i.greenString << " with maxVehCount of " << i.maxVehCount << " for " << i.greenTime << "s" << endl;
+    if(debugLevel > 1)
+    {
+        std::cout << "Selected green intervals for this cycle: " << endl;
+        for (auto &i : greenInterval)
+            std::cout << "Movement " << i.greenString << " with maxVehCount of " << i.maxVehCount << " for " << i.greenTime << "s" << endl;
 
-    std::cout << endl;
+        std::cout << endl;
+    }
 }
 
 }

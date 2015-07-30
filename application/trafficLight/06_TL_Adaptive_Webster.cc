@@ -121,9 +121,12 @@ void TrafficLightWebster::executeFirstTimeStep()
         updateTLstate(*TL, "init", currentInterval);
     }
 
-    char buff[300];
-    sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
-    std::cout << buff << endl << endl;
+    if(debugLevel > 0)
+    {
+        char buff[300];
+        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
+        std::cout << buff << endl << endl;
+    }
 }
 
 
@@ -183,9 +186,12 @@ void TrafficLightWebster::chooseNextInterval()
     else
         chooseNextGreenInterval();
 
-    char buff[300];
-    sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
-    std::cout << buff << endl << endl;
+    if(debugLevel > 0)
+    {
+        char buff[300];
+        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
+        std::cout << buff << endl << endl;
+    }
 }
 
 
@@ -228,30 +234,33 @@ void TrafficLightWebster::chooseNextGreenInterval()
 void TrafficLightWebster::calculateGreenSplits()
 {
     // debugging (print traffic demand)
-    std::cout << ">>> Measured traffic demands at the beginning of this cycle: ";
-    for(std::map<std::string, std::pair<std::string, boost::circular_buffer<std::vector<double>>>>::iterator y = laneTD.begin(); y != laneTD.end(); ++y)
+    if(debugLevel > 1)
     {
-        std::string lane = (*y).first;
-        std::string TLid = (*y).second.first;
-        boost::circular_buffer<std::vector<double>> buf = (*y).second.second;
-
-        double aveTD = 0;
-
-        if(!buf.empty())
+        std::cout << ">>> Measured traffic demands at the beginning of this cycle: ";
+        for(std::map<std::string, std::pair<std::string, boost::circular_buffer<std::vector<double>>>>::iterator y = laneTD.begin(); y != laneTD.end(); ++y)
         {
-            // calculate 'exponential moving average' of TD for link i
-            aveTD = buf[0].at(0);  // get the oldest value (queue front)
-            for (boost::circular_buffer<std::vector<double>>::iterator it = buf.begin()+1; it != buf.end(); ++it)
-            {
-                double nextTD = (*it).at(0);
-                aveTD = alpha*nextTD + (1-alpha)*aveTD;
-            }
+            std::string lane = (*y).first;
+            std::string TLid = (*y).second.first;
+            boost::circular_buffer<std::vector<double>> buf = (*y).second.second;
 
-            if(aveTD != 0)
-                std::cout << lane << ": " << aveTD << " | ";
+            double aveTD = 0;
+
+            if(!buf.empty())
+            {
+                // calculate 'exponential moving average' of TD for link i
+                aveTD = buf[0].at(0);  // get the oldest value (queue front)
+                for (boost::circular_buffer<std::vector<double>>::iterator it = buf.begin()+1; it != buf.end(); ++it)
+                {
+                    double nextTD = (*it).at(0);
+                    aveTD = alpha*nextTD + (1-alpha)*aveTD;
+                }
+
+                if(aveTD != 0)
+                    std::cout << lane << ": " << aveTD << " | ";
+            }
         }
+        std::cout << endl << endl;
     }
-    std::cout << endl << endl;
 
     std::vector<double> critical;
     critical.clear();
@@ -297,14 +306,14 @@ void TrafficLightWebster::calculateGreenSplits()
     }
 
     // print Y_i for each phase
-    std::cout << ">>> critical v/c for each phase: ";
+    if(debugLevel > 1) std::cout << ">>> critical v/c for each phase: ";
     int activePhases = 0;
     for(double y : critical)
     {
-        std::cout << y << ", ";
+        if(debugLevel > 1) std::cout << y << ", ";
         if(y != 0) activePhases++;
     }
-    std::cout << endl << endl;
+    if(debugLevel > 1) std::cout << endl << endl;
 
     if(Y < 0)
     {
@@ -313,7 +322,8 @@ void TrafficLightWebster::calculateGreenSplits()
     // no TD in any directions. Give G_min to each phase
     else if(Y == 0)
     {
-        std::cout << ">>> Total critical v/c is zero! Set green split for each phase to G_min=" << minGreenTime << endl << endl;
+        if(debugLevel > 0)
+            std::cout << ">>> Total critical v/c is zero! Set green split for each phase to G_min=" << minGreenTime << endl << endl;
 
         // green split for each phase
         for (std::string prog : phases)
@@ -329,8 +339,11 @@ void TrafficLightWebster::calculateGreenSplits()
 
         double cycle = ((1.5*totalLoss) + 5) / (1 - Y);  // cycle length
 
-        std::cout << ">>> Webster Calculation: " << endl;
-        std::cout << "total critical v/c=" << Y << ", total loss time=" << totalLoss << ", cycle length=" << cycle << endl;
+        if(debugLevel > 1)
+        {
+            std::cout << ">>> Webster Calculation: " << endl;
+            std::cout << "total critical v/c=" << Y << ", total loss time=" << totalLoss << ", cycle length=" << cycle << endl;
+        }
 
         // make sure that cycle length is not too big.
         // this happens when Y is too close to 1
@@ -351,10 +364,13 @@ void TrafficLightWebster::calculateGreenSplits()
             phaseNumber++;
         }
 
-        std::cout << "Updating green splits for each phase: ";
-        for(std::map<std::string, double>::iterator y = greenSplit.begin(); y != greenSplit.end(); y++)
-            std::cout << (*y).second << ", ";
-        std::cout << endl << endl;
+        if(debugLevel > 1)
+        {
+            std::cout << "Updating green splits for each phase: ";
+            for(std::map<std::string, double>::iterator y = greenSplit.begin(); y != greenSplit.end(); y++)
+                std::cout << (*y).second << ", ";
+            std::cout << endl << endl;
+        }
     }
     else if(Y >= 1)
     {

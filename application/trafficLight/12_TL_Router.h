@@ -67,7 +67,6 @@ public:
     Net* net;
 
     //OmNET
-    int debugLevel;
     cMessage* TLEvent;
     cMessage* TLSwitchEvent;
     void print();
