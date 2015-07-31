@@ -7,9 +7,9 @@ clc;    % position the cursor at the top of the screen
 % ---------------------------------------------------------------
 
 % path to folder
-basePATH = '../results/cmd/3_multipleClass/5_full_poisson_unbalanced_routeDist_70_30';
+basePATH = '../results/cmd/2_effect_active_detection/3_full_poisson_balanced_routeDist_70_30';
 
-option = 1;  % 1: benefits of active detection   2: multi-class   3: MWM
+option = 1;  % 1: benefits of active detection   2: existing_multiClass   3: MWM
 
 TLqueuingData = dir([basePATH, '/*_TLqueuingData.txt']);
 TLphasingData = dir([basePATH, '/*_TLphasingData.txt']);
@@ -380,22 +380,22 @@ if(true)
     end
     
     subplot(3,1,1);    
-    plot(timeSteps_MQ/60, maxQueueSize, lineMark, 'LineWidth', 1);
+    plot(timeSteps_MQ/60, maxQueueSize, lineMark, 'LineWidth', 1, 'Color', 'k');
 
     % set font size
-    set(gca, 'FontSize', 17);
+    set(gca, 'FontSize', 20);
 
-    xlabel('Time (min)', 'FontSize', 17);
-    ylabel({'Vehicles', 'Maximum Queue', 'Size per Lane'}, 'FontSize', 17);
+    xlabel('Time (min)', 'FontSize', 20);
+    ylabel({'Vehicles Max Queue' , 'Size per Lane'}, 'FontSize', 20);
 
     grid on;
     hold on;
     
     if(runNumber == runTotal)    
         if(option == 1)
-            legend('Traffic-actuated (active)' , 'Traffic-actuated', 'Longest queue', 'Longest queue (active)', 'Location', 'northwest');
+            legend('Adaptive Webster (active)', 'Traffic-actuated (active)' , 'Traffic-actuated', 'Longest queue', 'Longest queue (active)', 'Location', 'northwest');
         elseif(option == 2)
-            legend('Fix-time' , 'Traffic-actuated', 'Longest queue', 'OJF', 'Location', 'northwest');
+            legend('Fix-time', 'Traffic-actuated', 'Longest queue', 'OJF', 'Location', 'northwest');
         elseif(option == 3)
             legend('LQF\_MWM' , 'OJF\_MWM', 'Location', 'northwest');
         end
@@ -406,18 +406,22 @@ if(true)
         % x-axis is integer
         Xlimit = get(gca,'xlim');            
         set(gca, 'xtick' , 0:3:Xlimit(2));
+        
+        % Y-axis for delay          
+        Ylimit = get(gca,'ylim');            
+        set(gca, 'ytick' , 0:20:Ylimit(2));
     end
     
     subplot(3,1,2);    
     
     if(option == 1)    
-        plot(timeSteps_D/60, delayPassenger/60, lineMark, 'LineWidth', 1);
+        plot(timeSteps_D/60, delayPassenger/60, lineMark, 'LineWidth', 1, 'Color', 'k');
         
         % set font size
-        set(gca, 'FontSize', 17);
+        set(gca, 'FontSize', 20);
 
-        xlabel('Time (min)', 'FontSize', 17);
-        ylabel({'Average Delay', 'per Vehicle (min)'}, 'FontSize', 17);
+        xlabel('Time (min)', 'FontSize', 20);
+        ylabel({'Ave Delay per', 'Vehicle (min)'}, 'FontSize', 20);
 
         grid on;
         hold on;
@@ -432,7 +436,7 @@ if(true)
         
             % Y-axis for delay          
             Ylimit = get(gca,'ylim');            
-            set(gca, 'ytick' , 0:2:Ylimit(2));
+            set(gca, 'ytick' , 0:4:Ylimit(2));
         end
         
     elseif(option == 2 && runNumber == runTotal)        
@@ -454,19 +458,19 @@ if(true)
         n4 = size(delayDist{1,4},2);        
         n8 = size(delayDist{2,4},2);
         
-        group = [repmat({'Fix-time (P)'}, n1, 1); repmat({'Fix-time (E)'}, n5, 1);
-                 repmat({'T-actuated (P)'}, n2, 1); repmat({'T-actuated (E)'}, n6, 1);
-                 repmat({'L-Queue (P)'}, n3, 1); repmat({'L-Queue (E)'}, n7, 1);
-                 repmat({'OJF (P)'}, n4, 1); repmat({'OJF (E)'}, n8, 1)];
+        group = [repmat({'Fix-Time (P)'}, n1, 1); repmat({'Fix-Time (S)'}, n5, 1);
+                 repmat({'T-Act (P)'}, n2, 1); repmat({'T-Act (S)'}, n6, 1);
+                 repmat({'L-Queue (P)'}, n3, 1); repmat({'L-Queue (S)'}, n7, 1);
+                 repmat({'OJF (P)'}, n4, 1); repmat({'OJF (S)'}, n8, 1)];
              
-        boxplot(data,group);
+        boxplot(data,group,'colors', 'k');
 
-        set(findobj(gca,'Type','text'),'FontSize',17);
+        set(findobj(gca,'Type','text'),'FontSize',20);
         
         % set font size
-        set(gca, 'FontSize', 17);
+        set(gca, 'FontSize', 20);
 
-        ylabel({'Vehicles','Average Delay','Distribution (min)'}, 'FontSize', 17);
+        ylabel({'Vehicles Ave Delay','Distribution (min)'}, 'FontSize', 20);
 
         grid on;  
         
@@ -482,18 +486,18 @@ if(true)
         n6 = size(delayDist{2,2},2);
         
         group = [repmat({'LQF_MWM (P)'}, n1, 1); 
-                 repmat({'LQF_MWM (E)'}, n5, 1);
+                 repmat({'LQF_MWM (S)'}, n5, 1);
                  repmat({'OJF_MWM (P)'}, n2, 1);  
-                 repmat({'OJF_MWM (E)'}, n6, 1)];
+                 repmat({'OJF_MWM (S)'}, n6, 1)];
 
-        boxplot(data,group);
+        boxplot(data,group,'colors', 'k');
 
-        set(findobj(gca,'Type','text'),'FontSize',17);
+        set(findobj(gca,'Type','text'),'FontSize',20);
         
         % set font size
-        set(gca, 'FontSize', 17);
+        set(gca, 'FontSize', 20);
 
-        ylabel({'Vehicles','Average Delay','Distribution (min)'}, 'FontSize', 17);
+        ylabel({'Vehicles Ave Delay','Distribution (min)'}, 'FontSize', 20);
 
         grid on;   
         
@@ -502,16 +506,20 @@ if(true)
     subplot(3,1,3);
     
     if(option == 1) 
-        plot(timeSteps_T/60, throughput, lineMark, 'LineWidth', 1);
+        plot(timeSteps_T/60, throughput, lineMark, 'LineWidth', 1, 'Color', 'k');
 
         % set font size
-        set(gca, 'FontSize', 17);
+        set(gca, 'FontSize', 20);
 
-        xlabel('Time (min)', 'FontSize', 17);
-        ylabel('Throughput', 'FontSize', 17);
+        xlabel('Time (min)', 'FontSize', 20);
+        ylabel('Throughput', 'FontSize', 20);
 
         grid on;
         hold on;
+        
+        % Y-axis for delay          
+        Ylimit = get(gca,'ylim');            
+        set(gca, 'ytick' , 0:20:Ylimit(2));
         
         if(runNumber == runTotal) 
             % set the x-axis limit
@@ -536,14 +544,14 @@ if(true)
         
         group = [repmat({'Fix-time'}, n1, 1); repmat({'Traffic actuated'}, n2, 1); repmat({'Longest Queue'}, n3, 1); repmat({'OJF'}, n4, 1)];
 
-        boxplot(data,group);
+        boxplot(data,group,'colors', 'k');
 
-        set(findobj(gca,'Type','text'),'FontSize',17);
+        set(findobj(gca,'Type','text'),'FontSize',20);
         
         % set font size
-        set(gca, 'FontSize', 17);
+        set(gca, 'FontSize', 20);
 
-        ylabel({'Bikes','Maximum Delay','Distribution (s)'}, 'FontSize', 17);
+        ylabel({'Bikes Max Delay', 'Distribution (s)'}, 'FontSize', 20);
 
         grid on; 
         
@@ -556,14 +564,14 @@ if(true)
         n2 = size(delayDist{3,2},2);
         group = [repmat({'LQF_MWM'}, n1, 1); repmat({'OJF_MWM'}, n2, 1)];
 
-        boxplot(data,group);
+        boxplot(data,group,'colors', 'k');
 
-        set(findobj(gca,'Type','text'),'FontSize',17);
+        set(findobj(gca,'Type','text'),'FontSize',20);
         
         % set font size
-        set(gca, 'FontSize', 17);
+        set(gca, 'FontSize', 20);
 
-        ylabel({'Bikes','Maximum Delay','Distribution (s)'}, 'FontSize', 17);
+        ylabel({'Bikes Max Delay', 'Distribution (s)'}, 'FontSize', 20);
 
         grid on; 
         
@@ -600,27 +608,27 @@ if(true)
             Start = [0 arrowYLoc];
             Stop = [800/60 arrowYLoc];
             arrow(Start, Stop, 'Ends', 3);  
-            text((400-150)/60, textYLoc, 'Light Traffic', 'FontSize', 17);
+            text((400-150)/60, textYLoc, 'Light', 'FontSize', 20);
             
             Start = [800/60 arrowYLoc];
             Stop = [1600/60 arrowYLoc];
             arrow(Start, Stop, 'Ends', 3); 
-            text((1200-150)/60, textYLoc, 'Medium Traffic', 'FontSize', 17);
+            text((1200-150)/60, textYLoc, 'Medium', 'FontSize', 20);
             
             Start = [1600/60 arrowYLoc];
             Stop = [2400/60 arrowYLoc];
             arrow(Start, Stop, 'Ends', 3); 
-            text((2000-150)/60, textYLoc, 'Heavy Traffic', 'FontSize', 17);
+            text((2000-150)/60, textYLoc, 'Heavy', 'FontSize', 20);
             
             Start = [2400/60 arrowYLoc];
             Stop = [3200/60 arrowYLoc];
             arrow(Start, Stop, 'Ends', 3); 
-            text((2800-150)/60, textYLoc, 'Medium Traffic', 'FontSize', 17);
+            text((2800-150)/60, textYLoc, 'Medium', 'FontSize', 20);
             
             Start = [3200/60 arrowYLoc];
             Stop = [Xlimit(2) arrowYLoc];
             arrow(Start, Stop, 'Ends', 3); 
-            text((3400-150)/60, textYLoc, 'Light Traffic', 'FontSize', 17);
+            text((3470-150)/60, textYLoc, 'Light', 'FontSize', 20);
         end      
     
     end

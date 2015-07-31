@@ -200,7 +200,7 @@ void LoopDetectors::executeFirstTimeStep()
     // todo: change this later
     // saturation = (3*TD) / ( 1-(35/cycle) )
     // max TD = 1900, max cycle = 120
-    saturationTD = 4000;
+    saturationTD = par("saturationTD").doubleValue();
 }
 
 
