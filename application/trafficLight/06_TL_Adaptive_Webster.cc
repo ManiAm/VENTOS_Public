@@ -47,10 +47,6 @@ void TrafficLightWebster::initialize(int stage)
 
     if(stage == 0)
     {
-        // todo: change this later
-        // saturation = (3*TD) / ( 1-(35/cycle) )
-        // max TD = 1900, max cycle = 120
-        saturation = par("saturation").doubleValue();
         alpha = par("alpha").doubleValue();
         if(alpha < 0 || alpha > 1)
             error("alpha value should be [0,1]");
@@ -296,7 +292,7 @@ void TrafficLightWebster::calculateGreenSplits()
                         }
                     }
 
-                    Y_i = std::max(Y_i, aveTD / saturation);
+                    Y_i = std::max(Y_i, aveTD / saturationTD);
                 }
             }
         }
@@ -360,7 +356,7 @@ void TrafficLightWebster::calculateGreenSplits()
         for (std::string prog : phases)
         {
             double GS = (critical[phaseNumber] / Y) * effectiveG;
-            greenSplit[prog] = std::max(minGreenTime, GS);
+            greenSplit[prog] = std::min(std::max(minGreenTime, GS), maxGreenTime);
             phaseNumber++;
         }
 

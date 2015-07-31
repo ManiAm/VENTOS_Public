@@ -164,6 +164,7 @@ class LoopDetectors : public TrafficLightBase
     void saveLDsData();
 
     void measureTrafficParameters();
+    void updateTrafficDemand();
     void saveTLQueueingData();
     void saveTLPhasingData();
 
@@ -184,6 +185,8 @@ class LoopDetectors : public TrafficLightBase
     bool collectInductionLoopData;
     bool collectTLQueuingData;
     bool collectTLPhasingData;
+
+    double saturationTD;
 
     std::list<std::string> TLList;   // list of traffic-lights in the network
 
