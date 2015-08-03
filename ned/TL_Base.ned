@@ -9,5 +9,4 @@ simple TL_Base
         
         int TLControlMode; 
         bool activeDetection;  
-        int debugLevel;  
 }

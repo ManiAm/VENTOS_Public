@@ -91,7 +91,7 @@ void Router::initialize(int stage)
 
     if(stage == 0)
     {
-        debugLevel = par("debugLevel").longValue();
+        debugLevel = simulation.getSystemModule()->par("debugLevel").longValue();
 
         // get the file paths
         VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();

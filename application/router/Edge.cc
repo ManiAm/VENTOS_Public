@@ -35,9 +35,7 @@ Lane::Lane(std::string id, double speed, double length):
 Edge::Edge(std::string id, Node* from, Node* to, int priority, std::vector<Lane*> lanes):
                   id(id), from(from), to(to), priority(priority), lanes(lanes)
 {
-    // get a pointer to router module
-    cModule *module = simulation.getSystemModule()->getSubmodule("router");
-    debugLevel = module->par("debugLevel").longValue();
+    debugLevel = simulation.getSystemModule()->par("debugLevel").longValue();
 
     numLanes = lanes.size();
     speed = 0;

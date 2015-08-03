@@ -21,6 +21,4 @@ simple TL_LoopDetectors extends TL_Base
         bool collectInductionLoopData; 
         bool collectTLQueuingData;
         bool collectTLPhasingData; 
-        
-        double saturationTD;
 }

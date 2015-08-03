@@ -52,6 +52,7 @@ void ApplVSystem::initialize(int stage)
 
     if (stage == 0)
     {
+        debugLevel = simulation.getSystemModule()->par("debugLevel").longValue();
         requestInterval = par("requestInterval").doubleValue();
         hypertreeUpdateInterval = par("hypertreeUpdateInterval").doubleValue();
         maxOffset = par("maxSystemOffset").doubleValue();
@@ -59,11 +60,8 @@ void ApplVSystem::initialize(int stage)
         systemMsgPriority = par("systemMsgPriority").longValue();
         routingMode = static_cast<RouterMessage>(par("routingMode").longValue());
 
-        // get a pointer to router module
-        cModule *module = simulation.getSystemModule()->getSubmodule("router");
-        debugLevel = module->par("debugLevel").longValue();
-
         // get the rootFilePath
+        cModule *module = simulation.getSystemModule()->getSubmodule("router");
         router = static_cast< Router* >(module);
         std::string rootFilePath = SUMO_FullPath.string();
         rootFilePath += "/Vehicles" + SSTR(router->totalVehicleCount) + ".xml";

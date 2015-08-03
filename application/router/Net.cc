@@ -36,9 +36,7 @@ Net::~Net()
 
 Net::Net(std::string netBase, cModule* router, int ltc, int rtc, int stc, int utc):leftTurnCost(ltc), rightTurnCost(rtc), straightCost(stc), uTurnCost(utc)
 {
-    // get a pointer to router module
-    cModule *module = simulation.getSystemModule()->getSubmodule("router");
-    debugLevel = module->par("debugLevel").longValue();
+    debugLevel = simulation.getSystemModule()->par("debugLevel").longValue();
 
     routerModule = router;
     LoadHelloNet(netBase);

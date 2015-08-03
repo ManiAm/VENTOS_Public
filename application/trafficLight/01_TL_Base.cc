@@ -55,7 +55,7 @@ void TrafficLightBase::initialize(int stage)
         updateInterval = TraCI->par("updateInterval").doubleValue();
         TLControlMode = par("TLControlMode").longValue();
         activeDetection = par("activeDetection").boolValue();
-        debugLevel = par("debugLevel").longValue();
+        debugLevel = simulation.getSystemModule()->par("debugLevel").longValue();
 
         // initialize RSUptr with NULL
         RSUptr = NULL;
