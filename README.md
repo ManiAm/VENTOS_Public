@@ -219,13 +219,10 @@ If X server is not installed on your machine, then install it:
 
 **Step 3:** Follow the same instructions in previous sections to install OMNET++, Veins and VENTOS on the remote server.
 
-**Step 4:** Type `omnetpp` to start the IDE and then type `sumo-cmd &` to run the python script in the background.
+**Step 4:** While using OMNET++, the SSH session should be open. Closing the terminal windows or restarting your machine terminates the SSH session and the running simulation will be closed. To keep the SSH session open, you need to use `screen` or `tmux`. We will use `tmux` since it is more powerfull. 
 
-Note: While using OMNET++, the SSH session should be open. Closing the terminal windows or restarting your machine terminates the SSH session and the running simulation will be closed. To keep the SSH session open, you need to use `screen` or `tmux`. We will use `tmux` since it is more powerfull.
+Start tmux by typing `tmux` into the shell. When you do that, it just looks like your screen clears and you’re back at the same terminal prompt. You will notice that the terminal now has a green bar along the bottom. Type `omnetpp` to start the IDE and then type `sumo-cmd &` to run the python script in the background.
 
-**Step 5:** Start tmux by typing `tmux` into the shell. When you do that, it just looks like your screen clears and you’re back at the same terminal prompt. You will notice that the terminal now has a green bar along the bottom.
-
-
- Run the simulation and detach the tmux session by pressing `Ctrl+B` and then typing `D`. You can now safely logoff from the remote machine, your process will keep running inside tmux. When you come back again and want to check the status of your process you can use `tmux attach` to attach to your tmux session.
+**Step 5:** Detach the tmux session by pressing `Ctrl+B` and then typing `D`. You can now safely logoff from the remote machine, your process will keep running inside tmux. When you come back again and want to check the status of your process you can use `tmux attach` to attach to your tmux session.
 
 In order to exchange files between your computer and remote server, you can use filezilla.

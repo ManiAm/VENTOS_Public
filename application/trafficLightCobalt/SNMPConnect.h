@@ -46,7 +46,7 @@ class SNMPConnect : public BaseModule
         virtual void handleMessage(cMessage *msg);
 		virtual void finish();
         virtual void receiveSignal(cComponent *, simsignal_t, long);
-        void SNMPGet(std::string OID);
+        void get(std::string OID);
 
 	private:
         void SNMPInitialize();
@@ -59,8 +59,8 @@ class SNMPConnect : public BaseModule
         bool on;
 
         boost::filesystem::path SNMP_LOG;
-        Snmp_pp::IpAddress *IPAddress = NULL;
         Snmp_pp::Snmp *snmp = NULL;
+        Snmp_pp::CTarget *ctarget = NULL;
 };
 
 }
