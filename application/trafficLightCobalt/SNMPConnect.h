@@ -57,7 +57,7 @@ class SNMPConnect : public BaseModule
         bool on;
         std::string IPAddress;
 
-        Snmp_pp::Snmp *snmp;
+        Snmp_pp::Snmp *snmp = NULL;
 };
 
 }

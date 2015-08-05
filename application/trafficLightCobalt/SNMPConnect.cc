@@ -100,7 +100,7 @@ void SNMPConnect::receiveSignal(cComponent *source, simsignal_t signalID, long i
 {
     Enter_Method_Silent();
 
-    if(signalID == Signal_executeFirstTS)
+    if(signalID == Signal_executeFirstTS && on)
     {
         // ask for sysDescr
         SNMPGet("1.3.6.1.2.1.1.1.0");
@@ -110,6 +110,8 @@ void SNMPConnect::receiveSignal(cComponent *source, simsignal_t signalID, long i
 
 void SNMPConnect::SNMPGet(std::string OID)
 {
+    ASSERT(snmp);
+
     Snmp_pp::Oid SYSDESCR(OID.c_str());               // Object ID for System Descriptor
     Snmp_pp::Vb vb(SYSDESCR);                         // SNMP++ Variable Binding Object
 
