@@ -27,9 +27,6 @@
 
 #include "SNMPConnect.h"
 
-#include <libsnmp.h>
-#include "snmp_pp/snmp_pp.h"
-
 namespace VENTOS {
 
 Define_Module(VENTOS::SNMPConnect);
@@ -58,6 +55,31 @@ void SNMPConnect::initialize(int stage)
         simulation.getSystemModule()->subscribe("executeFirstTS", this);
 
         on = par("on").boolValue();
+
+        if(on)
+        {
+            IPAddress = par("IPAddress").stringValue();
+
+            std::cout << endl << "Pinging " << IPAddress << " ... ";
+            std::cout.flush();
+
+            // test if IPAdd is alive by pinging
+            std::string cmd = "ping -c 1 -s 1 " + IPAddress + " > /dev/null 2>&1";
+            int result = system(cmd.c_str());
+
+            if(result != 0)
+                error("device at %s is not responding!", IPAddress.c_str());
+
+            std::cout << "Done!" << endl;
+            std::cout << "Creating SNMP session with " << IPAddress << " ... ";
+
+            int status;                                // return status
+            snmp = new Snmp_pp::Snmp(status);          // create a SNMP++ session
+            if (status != SNMP_CLASS_SUCCESS)          // check creation status
+                error("%s", snmp->error_msg(status));  // if fail, print error string
+
+            std::cout << "Done!" << endl;
+        }
     }
 }
 
@@ -80,37 +102,30 @@ void SNMPConnect::receiveSignal(cComponent *source, simsignal_t signalID, long i
 
     if(signalID == Signal_executeFirstTS)
     {
-        SNMP_example();
+        // ask for sysDescr
+        SNMPGet("1.3.6.1.2.1.1.1.0");
     }
 }
 
 
-void SNMPConnect::SNMP_example()
+void SNMPConnect::SNMPGet(std::string OID)
 {
-    int status;                         // return status
-    Snmp_pp::Snmp snmp(status);         // create a SNMP++ session
-    if (status != SNMP_CLASS_SUCCESS)   // check creation status
-    {
-        std::cout << snmp.error_msg(status);  // if fail, print error string
-        return;
-    }
+    Snmp_pp::Oid SYSDESCR(OID.c_str());               // Object ID for System Descriptor
+    Snmp_pp::Vb vb(SYSDESCR);                         // SNMP++ Variable Binding Object
 
-    Snmp_pp::Oid SYSDESCR("1.3.6.1.2.1.1.1.0");   // Object ID for System Descriptor
-    Snmp_pp::Vb vb(SYSDESCR);                     // SNMP++ Variable Binding Object
+    Snmp_pp::Pdu pdu;                                 // SNMP++ PDU
+    pdu += vb;                                        // add the variable binding to the PDU
 
-    Snmp_pp::Pdu pdu;                             // SNMP++ PDU
-    pdu += vb;                                    // add the variable binding to the PDU
+    Snmp_pp::IpAddress address(IPAddress.c_str());
+    Snmp_pp::CTarget ctarget(address);                // SNMP++ community target
 
-    Snmp_pp::IpAddress address("localhost");
-    Snmp_pp::CTarget ctarget(address);            // SNMP++ community target
-
-    status = snmp.get(pdu, ctarget);              // Invoke a SNMP++ Get
+    int status = snmp->get(pdu, ctarget);             // Invoke a SNMP++ Get
 
     if (status != SNMP_CLASS_SUCCESS)
-        std::cout << snmp.error_msg(status);
+        std::cout << snmp->error_msg(status);
     else
     {
-        pdu.get_vb(vb,0);     // extract the variable binding from PDU
+        pdu.get_vb(vb,0);   // extract the variable binding from PDU
         std::cout << "System Descriptor = " << vb.get_printable_value();  // print out the value
     }
 }

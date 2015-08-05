@@ -28,8 +28,10 @@
 #ifndef SNMPCONNECT_H_
 #define SNMPCONNECT_H_
 
-#include "TraCI_Extend.h"
 #include <BaseApplLayer.h>
+#include "TraCI_Extend.h"
+#include "libsnmp.h"
+#include "snmp_pp/snmp_pp.h"
 
 namespace VENTOS {
 
@@ -45,7 +47,7 @@ class SNMPConnect : public BaseModule
         virtual void receiveSignal(cComponent *, simsignal_t, long);
 
 	private:
-        void SNMP_example();
+        void SNMPGet(std::string OID);
 
 	private:
         // NED variables
@@ -53,6 +55,9 @@ class SNMPConnect : public BaseModule
         TraCI_Extend *TraCI;  // pointer to the TraCI module
         simsignal_t Signal_executeFirstTS;
         bool on;
+        std::string IPAddress;
+
+        Snmp_pp::Snmp *snmp;
 };
 
 }
