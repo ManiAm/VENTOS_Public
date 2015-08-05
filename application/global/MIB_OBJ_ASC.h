@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    SNMPConnect.h
+/// @file    MIB_OBJ_ASC.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    August 2015
@@ -25,44 +25,19 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef SNMPCONNECT_H_
-#define SNMPCONNECT_H_
-
-#include <BaseApplLayer.h>
-#include "TraCI_Extend.h"
-#include "MIB_OBJ_ASC.h"
-#include "libsnmp.h"
-#include "snmp_pp/snmp_pp.h"
+#ifndef MIBOBJASC_H
+#define MIBOBJASC_H
 
 namespace VENTOS {
 
-class TraCI_Extend;
-
-class SNMPConnect : public BaseModule
-{
-	public:
-		virtual ~SNMPConnect();
-		virtual void initialize(int stage);
-        virtual void handleMessage(cMessage *msg);
-		virtual void finish();
-        virtual void receiveSignal(cComponent *, simsignal_t, long);
-        void SNMPGet(std::string OID);
-
-	private:
-        void SNMPInitialize();
-
-	private:
-        // NED variables
-        cModule *nodePtr;   // pointer to the Node
-        TraCI_Extend *TraCI;  // pointer to the TraCI module
-        simsignal_t Signal_executeFirstTS;
-        bool on;
-
-        boost::filesystem::path SNMP_LOG;
-        Snmp_pp::IpAddress *IPAddress = NULL;
-        Snmp_pp::Snmp *snmp = NULL;
-};
+#define sysDescr        "1.3.6.1.2.1.1.1.0"
+#define sysObjectID     "1.3.6.1.2.1.1.2.0"
+#define sysUpTime       "1.3.6.1.2.1.1.3.0"
+#define sysContact      "1.3.6.1.2.1.1.4.0"
+#define sysName         "1.3.6.1.2.1.1.5.0"
+#define sysLocation     "1.3.6.1.2.1.1.6.0"
 
 }
 
 #endif
+

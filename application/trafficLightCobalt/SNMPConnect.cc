@@ -54,32 +54,13 @@ void SNMPConnect::initialize(int stage)
         Signal_executeFirstTS = registerSignal("executeFirstTS");
         simulation.getSystemModule()->subscribe("executeFirstTS", this);
 
+        boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+        SNMP_LOG = VENTOS_FullPath / "results" / "snmp_pp.log";
+
         on = par("on").boolValue();
 
         if(on)
-        {
-            IPAddress = par("IPAddress").stringValue();
-
-            std::cout << endl << "Pinging " << IPAddress << " ... ";
-            std::cout.flush();
-
-            // test if IPAdd is alive by pinging
-            std::string cmd = "ping -c 1 -s 1 " + IPAddress + " > /dev/null 2>&1";
-            int result = system(cmd.c_str());
-
-            if(result != 0)
-                error("device at %s is not responding!", IPAddress.c_str());
-
-            std::cout << "Done!" << endl;
-            std::cout << "Creating SNMP session with " << IPAddress << " ... ";
-
-            int status;                                // return status
-            snmp = new Snmp_pp::Snmp(status);          // create a SNMP++ session
-            if (status != SNMP_CLASS_SUCCESS)          // check creation status
-                error("%s", snmp->error_msg(status));  // if fail, print error string
-
-            std::cout << "Done!" << endl;
-        }
+            SNMPInitialize();
     }
 }
 
@@ -103,25 +84,72 @@ void SNMPConnect::receiveSignal(cComponent *source, simsignal_t signalID, long i
     if(signalID == Signal_executeFirstTS && on)
     {
         // ask for sysDescr
-        SNMPGet("1.3.6.1.2.1.1.1.0");
+        SNMPGet(sysDescr);
     }
+}
+
+
+void SNMPConnect::SNMPInitialize()
+{
+    IPAddress = new Snmp_pp::IpAddress(par("IPAddress").stringValue());
+
+    if(!IPAddress->valid())
+        error("IP address %s is not valid!", IPAddress->get_printable());
+
+    std::cout << endl << "Pinging " << IPAddress->get_printable() << " ... ";
+    std::cout.flush();
+
+    // test if IPAdd is alive?
+    std::string cmd = "ping -c 1 -s 1 " + std::string(IPAddress->get_printable()) + " > /dev/null 2>&1";
+    int result = system(cmd.c_str());
+
+    if(result != 0)
+        error("device at %s is not responding!", IPAddress->get_printable());
+
+    std::cout << "Done!" << endl;
+    std::cout << "Creating SNMP session ... ";
+
+    int status;                                // return status
+    snmp = new Snmp_pp::Snmp(status);          // create a SNMP++ session
+    if (status != SNMP_CLASS_SUCCESS)          // check creation status
+        error("%s", snmp->error_msg(status));  // if fail, print error string
+
+    std::cout << "Done!" << endl;
+
+    // set the log file
+    Snmp_pp::AgentLogImpl *logFile = new Snmp_pp::AgentLogImpl(SNMP_LOG.string().c_str());
+    Snmp_pp::DefaultLog::init(logFile);
+
+    // set filter for logging
+    Snmp_pp::DefaultLog::log()->set_profile("full");
+    Snmp_pp::DefaultLog::log()->set_filter(ERROR_LOG, 7);
+    Snmp_pp::DefaultLog::log()->set_filter(WARNING_LOG, 7);
+    Snmp_pp::DefaultLog::log()->set_filter(EVENT_LOG, 7);
+    Snmp_pp::DefaultLog::log()->set_filter(INFO_LOG, 7);
+    Snmp_pp::DefaultLog::log()->set_filter(DEBUG_LOG, 7);
 }
 
 
 void SNMPConnect::SNMPGet(std::string OID)
 {
+    // make sure snmp pointer is valid
     ASSERT(snmp);
 
-    Snmp_pp::Oid SYSDESCR(OID.c_str());               // Object ID for System Descriptor
-    Snmp_pp::Vb vb(SYSDESCR);                         // SNMP++ Variable Binding Object
+    Snmp_pp::Oid SYSDESCR(OID.c_str());
+    Snmp_pp::Vb vb(SYSDESCR);   // variable Binding Object
 
-    Snmp_pp::Pdu pdu;                                 // SNMP++ PDU
-    pdu += vb;                                        // add the variable binding to the PDU
+    Snmp_pp::Pdu pdu;
+    pdu += vb;    // add the variable binding to the PDU
 
-    Snmp_pp::IpAddress address(IPAddress.c_str());
-    Snmp_pp::CTarget ctarget(address);                // SNMP++ community target
+    Snmp_pp::CTarget ctarget(*IPAddress);     // community target
 
-    int status = snmp->get(pdu, ctarget);             // Invoke a SNMP++ Get
+    ctarget.set_version(Snmp_pp::version1);   // set the SNMP version SNMPV1
+    ctarget.set_retry(1);                     // set the number of auto retries
+    ctarget.set_timeout(100);                 // set timeout
+    Snmp_pp::OctetStr community("public");    // community name
+    ctarget.set_readcommunity(community);     // set the read community name
+
+    int status = snmp->get(pdu, ctarget);     // invoke a SNMP++ Get
 
     if (status != SNMP_CLASS_SUCCESS)
         std::cout << snmp->error_msg(status);
