@@ -182,11 +182,33 @@ Upon the first execution, VENTOS tries to download sumoD and sumo-guiD. Type y t
 Running VENTOS on a Server
 --------------------------
 
-You can run the project on a remote server (Ubuntu Server preferably). In order to do this, SSH to the remote server:
+You can run the project on a remote server (Ubuntu Server preferably). 
+
+**Step 1:** You have to make sure that a ssh server is running on the remote server. To check if a ssh server is running on the server, type the following command in the server:
+
+    ssh localhost
+
+If you receive the following message then the ssh server is not installed.
+
+    ssh: connect to host localhost port 22: Connection refused
+
+Install openssh-server using the following command:
+
+    apt-get install openssh-server
+
+Now if you type ssh localhost, you should get the following message (type no):
+
+    The authenticity of host 'localhost (127.0.0.1)' can't be established.
+    ECDSA key fingerprint is fc:7e:9a:c7:33:86:47:4b:35:00:22:b7:be:5c:d1:c7.
+    Are you sure you want to continue connecting (yes/no)? 
+
+**Step 2:** SSH to the remote server as following. `mars.ece.ucdavis.edu` is the name of the server (you can use the server's IP address as well) and rubinet is the username.
 
     ssh -X rubinet@mars.ece.ucdavis.edu
 
-The -X flag enables X11 forwarding and forwards the program that uses a GUI through your SSH connection. Whenever you launch a program that uses a GUI, it will pop up as if you were physically sitting at that computer (This method is preferrable to using VNC which forwards the entire desktop). Note that `X server` should be running on **your** machine. Use the following command to check if X server is running on your machine:
+Note 1: The -X flag enables X11 forwarding and forwards the program that uses a GUI through your SSH connection. Whenever you launch a program that uses a GUI, it will pop up as if you were physically sitting at that computer (this method is preferrable to using VNC which forwards the entire desktop). 
+
+Note 2: The `X server` should be running on **your** machine. Use the following command to check if X server is running on your machine:
 
     xset q
 
@@ -195,6 +217,15 @@ If X server is not installed on your machine, then install it:
     sudo apt-get install xorg
     sudo apt-get install openbox
 
-Then follow the same instructions in previous sections to install OMNET++, Veins and VENTOS. While simulation in OMNET++ the SSH session should be open. Closing the terminal windows or restarting the OS terminates the SSH session and the running simulation will be closed. To keep the SSH session open, start tmux by typing `tmux` into the shell. Then type `omnetpp` to start the IDE and then `sumo-cmd &` to run the python script in the background. Run the simulation and detach the tmux session by pressing `Ctrl+B` and then typing `D`. You can now safely logoff from the remote machine, your process will keep running inside tmux. When you come back again and want to check the status of your process you can use `tmux attach` to attach to your tmux session.
+**Step 3:** Follow the same instructions in previous sections to install OMNET++, Veins and VENTOS on the remote server.
+
+**Step 4:** Type `omnetpp` to start the IDE and then type `sumo-cmd &` to run the python script in the background.
+
+Note: While using OMNET++, the SSH session should be open. Closing the terminal windows or restarting your machine terminates the SSH session and the running simulation will be closed. To keep the SSH session open, you need to use `screen` or `tmux`. We will use `tmux` since it is more powerfull.
+
+**Step 5:** Start tmux by typing `tmux` into the shell. When you do that, it just looks like your screen clears and you’re back at the same terminal prompt. You will notice that the terminal now has a green bar along the bottom.
+
+
+ Run the simulation and detach the tmux session by pressing `Ctrl+B` and then typing `D`. You can now safely logoff from the remote machine, your process will keep running inside tmux. When you come back again and want to check the status of your process you can use `tmux attach` to attach to your tmux session.
 
 In order to exchange files between your computer and remote server, you can use filezilla.

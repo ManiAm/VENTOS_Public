@@ -7,7 +7,7 @@ clc;
 
 disp('reading and parsing the vehData.txt file ...');
 
-path = '../results/cmd/heur2/002_vehicleData.txt';
+path = '../results/cmd/heur3/002_vehicleData.txt';
 file_id = fopen(path);
 formatSpec = '%d %f %s %f %f %f %f';
 C_text = textscan(file_id, formatSpec, 'HeaderLines', 8);
@@ -96,6 +96,43 @@ legend(handle1, 'Location','NorthEastOutside');
 
 % --------------------------------------------------------------
        
+% plot acceleration of vehicles    
+
+disp('plotting the acceleration ...');
+
+figure('name', 'Acceleration', 'units', 'normalized', 'outerposition', [0 0 1 1]);
+
+handle1 = plot(vehiclesTS,vehiclesAccel,'LineWidth', 3);
+
+% set the x-axis limit
+set( gca, 'XLim', [0 vehiclesTS(end)] );
+    
+% set the y-axis limit
+%set( gca, 'YLim', [-1 32] );
+
+% set font size
+set(gca, 'FontSize', 19);
+
+% set the axis labels
+xlabel('Time (s)', 'FontSize', 19);
+ylabel('Acceleration (m/s^2)', 'FontSize', 19);
+
+grid on;
+  
+% speed profile of first vehicle (dashed line)
+set(handle1(1), 'LineStyle', '-.');
+    
+% set the name for each line
+for i=1:VehNumbers
+    name = sprintf('veh %2d', i);
+    set(handle1(i),'Displayname', name);   
+end
+    
+% set the legend
+legend(handle1, 'Location','NorthEastOutside');   
+
+% --------------------------------------------------------------
+
 % plot time-space diagram of vehicles 
 
 disp('plotting the time-space ...');
