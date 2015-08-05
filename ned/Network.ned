@@ -88,6 +88,10 @@ network Network
             parameters:
                 @display("p=176,639;i=block/dispatch");
         }
+        cobalt: Cobalt {
+            parameters:
+                @display("p=274,639");
+        }
         plotter: Plotter {
             parameters:
                 @display("p=274,546;i=block/app");
