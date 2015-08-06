@@ -1,0 +1,1394 @@
+-- 2.1    NTCIP OBJECTS
+
+-- Filename: 1201v0227.mib
+-- Description:     This MIB defines various globally applicable objects
+--
+-- MIB Revision History:
+-- 09/27/04   Created file form Word .Doc file.  
+--                    Changed name of file
+--                    Removed global report, logicalNameTranslation and communityName nodes 
+--                    per NTCIP 1103v0124
+--                    Removed state transition diagram form 2.3.1
+--                   Changed "FROM NTCIP8004-A" to "FROM NTCIP8004-A-2004"
+--                   Added space before INTEGER in  timeBaseScheduleNumber INTEGER,
+--                   Changes status of moduleNumber, timeBaseScheduleNumber, dayPlanNumber, dayPlanEventNumber
+--                   eventClassNumber, eventConfigID  and thier associated Entry to mandatory to
+--                   eliminate incompatible status errors
+--                   Checked with  -CJ switch to eliminate gratuitous default value warnings on globalTime and eventClassLimit.
+--                   Restructured IMPORTS around NTCIP8004-A-2004 
+--
+--              DISTRIBUTION NOTICE
+--Copyright 1996 - 2004 by the American Association of State Highway and
+--Transportation Officials (AASHTO), the Institute of Transportation Engineers
+--(ITE), and the National Electrical Manufacturers Association (NEMA).  All
+--intellectual property rights, including, but not limited to, the rights of
+--reproduction in whole or in part in any form, translation into other
+--languages and display are reserved by the copyright owners under the laws of
+--the United States of America, the Universal Copyright Convention, the Berne
+--Convention, and the International and Pan American Copyright Conventions.
+--Except for the MIB, Do not copy without written permission of either AASHTO,
+--ITE, or NEMA.
+--
+--                     Joint NEMA, AASHTO, and ITE
+--                  NTCIP Management Information Base
+--                        DISTRIBUTION NOTICE
+--
+--To the extent and in the limited event these materials are distributed by
+--AASHTO/ITE/NEMA in the form of a Management Information Base ("MIB"), 
+--AASHTO/ITE/NEMA extends the following permissions:
+--
+-- (i) you may make and/or distribute unlimited copies (including derivative
+--works) of the MIB, including copies for commercial distribution, provided
+--that (a) each copy you make and/or distribute contains this Notice and (b)
+--each derivative work of the MIB uses the same module name followed by "-",
+--followed by your Internet Assigned Number Authority (IANA)-assigned
+--enterprise number;
+--(ii) use of the MIB is restricted in that the syntax field may be modified
+--only to reflect a more restrictive sub-range or enumerated values;
+--(iii) the description field may be modified but only to the extent that:
+--(a) only those bit values or enumerated values that are supported are
+--listed; and (b) the more restrictive subrange is expressed.
+--
+--These materials are delivered "AS IS" without any warranties as to their use
+--or performance.
+--
+--AASHTO/ITE/NEMA AND THEIR SUPPLIERS DO NOT WARRANT THE PERFORMANCE OR
+--RESULTS YOU MAY OBTAIN BY USING THESE MATERIALS.  AASHTO/ITE/NEMA AND THEIR
+--SUPPLIERS MAKE NO WARRANTIES, EXPRESS OR IMPLIED, AS TO NONINFRINGEMENT OF
+--THIRD PARTY RIGHTS, MERCHANTABILITY, OR FITNESS FOR ANY PARTICULAR PURPOSE.
+--IN NO EVENT WILL AASHTO, ITE OR NEMA OR THEIR SUPPLIERS BE LIABLE TO YOU OR
+--ANY THIRD PARTY FOR ANY CLAIM OR FOR ANY CONSEQUENTIAL, INCIDENTAL OR
+--SPECIAL DAMAGES, INCLUDING ANY LOST PROFITS OR LOST SAVINGS, ARISING FROM
+--YOUR REPRODUCTION OR USE OF THESE MATERIALS, EVEN IF AN AASHTO, ITE, OR NEMA
+--REPRESENTATIVE HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.  Some
+--states or jurisdictions do not allow the exclusion or limitation of
+--incidental, consequential or special damages, or the exclusion of implied
+--warranties, so the above limitations may not apply to you.
+--
+--Use of these materials does not constitute an endorsement or affiliation by
+--or between AASHTO, ITE, or NEMA and you, your company, or your products and
+--services.
+--
+--NTCIP is a trademark of AASHTO/ITE/NEMA.
+--******************************************************************************
+
+NTCIP1201-2004 DEFINITIONS ::= BEGIN
+
+--For the purpose of this section, the following OBJECT IDENTIFIERS are used:
+IMPORTS
+  OBJECT-TYPE
+  FROM RFC-1212
+
+  DisplayString
+  FROM RFC1213-MIB
+
+  devices, protocols, profiles, global
+  FROM NTCIP8004-A-2004
+
+  Opaque, Counter, Gauge, null
+  FROM RFC1155-SMI;
+
+-- 2.2    GLOBAL CONFIGURATION NODE
+
+globalConfiguration OBJECT IDENTIFIER ::= { global 1 }
+--This node is an identifier used to group all objects for support of configuration functions
+-- that are common to most device types.
+
+-- 2.2.1  Global Set ID Parameter
+globalSetIDParameter OBJECT-TYPE
+  SYNTAX INTEGER (0..65535)
+  ACCESS read-only
+  STATUS optional
+  DESCRIPTION
+     "<Definition>Specifies a relatively unique ID (e.g.,
+     this could be a counter, a check-sum, etc.) for all
+     user-changeable static database objects of the
+     particular device-type currently implemented in the
+     device.  This value shall be calculated on the change
+     of any static database object.  The value reported by
+     this object shall not change unless there has been a
+     change in the static data since the last request;
+     however a genErr shall be returned if the unique ID
+     value has not yet been updated.  A management station
+     will be able to detect any change in the configuration
+     of dynamic objects by monitoring this value after it
+     has established a baseline. Often this ID is calculated
+     using a CRC algorithm.
+     <DescriptiveName>Controller.databaseID:number
+     <DataConceptType>Data Element"
+  ::= { globalConfiguration 1}
+
+-- 2.2.2  Maximum Modules Parameter
+globalMaxModules   OBJECT-TYPE
+  SYNTAX INTEGER (1..255)
+  ACCESS read-only
+  STATUS optional
+  DESCRIPTION
+     "<Definition>The number of rows that are listed in the
+     globalModuleTable.
+     <DescriptiveName>ModuleTable.maxModules:quantity
+     <DataConceptType>Data Element
+     <Unit>module"
+  ::= { globalConfiguration 2}
+
+-- 2.2.3  Module Table
+globalModuleTable   OBJECT-TYPE
+  SYNTAX SEQUENCE OF ModuleTableEntry
+  ACCESS not-accessible
+  STATUS optional
+  DESCRIPTION
+     "<Definition>A table containing information regarding
+     manufacturer of software and hardware and the
+     associated module models and version numbers as well as
+     an indicator if the module is hardware or software
+     related. The number of rows in this table shall equal
+     the value of the globalMaxModules object.
+     <DescriptiveName>ModuleTable
+     <DataConceptType>Entity Type
+     <TableType> static"
+  ::= { globalConfiguration 3 }
+
+moduleTableEntry OBJECT-TYPE
+  SYNTAX ModuleTableEntry
+  ACCESS not-accessible
+  STATUS mandatory
+  DESCRIPTION
+     "<Definition>This object defines an entry in the module 
+     table.
+     <DescriptiveName>Module
+     <DataConceptType>Entity Type"
+  INDEX { moduleNumber }
+  ::= { globalModuleTable 1 }
+
+ModuleTableEntry ::= SEQUENCE {
+  moduleNumber     INTEGER,
+  moduleDeviceNode OBJECT IDENTIFIER,
+  moduleMake       OCTET STRING,
+  moduleModel      OCTET STRING,
+  moduleVersion    OCTET STRING,
+  moduleType       INTEGER }
+
+-- 2.2.3.1     Module Number Parameter
+moduleNumber OBJECT-TYPE
+  SYNTAX INTEGER (1..255)
+  ACCESS  read-only
+  STATUS  mandatory
+  DESCRIPTION
+     "<Definition>This object contains the row number
+     (1..255) within this table for the associated module.
+     <DescriptiveName>Module.number:identifier
+     <DataConceptType>Data Element"
+  ::= { moduleTableEntry 1 }
+
+-- 2.2.3.2     Module Device Node Parameter
+moduleDeviceNode   OBJECT-TYPE
+  SYNTAX OBJECT IDENTIFIER
+  ACCESS read-only
+  STATUS optional
+  DESCRIPTION
+     "<Definition>This object contains the device node
+     number of the device-type, e.g., an ASC signal
+     controller would have an OID of 1.3.6.1.4.1.1206.4.2.1.
+     <DescriptiveName>Module.deviceNode:identifier
+     <DataConceptType>Data Element"
+  ::= { moduleTableEntry 2 }
+
+-- 2.2.3.3     Module Make Parameter
+moduleMake   OBJECT-TYPE
+  SYNTAX OCTET STRING
+  ACCESS read-only
+  STATUS optional
+  DESCRIPTION
+     "<Definition>This object specifies the manufacturer of
+     the associated module.  A null-string shall be
+     transmitted if this object has no entry.
+     <DescriptiveName>Module.make:text
+     <DataConceptType>Data Element"
+  ::= { moduleTableEntry 3 }
+
+-- 2.2.3.4     Module Model Parameter
+moduleModel  OBJECT-TYPE
+  SYNTAX OCTET STRING
+  ACCESS read-only
+  STATUS optional
+  DESCRIPTION
+     "<Definition>This object specifies the model number
+     (hardware) or firmware reference (software) of the
+     associated module.  A null-string shall be transmitted
+     if this object has no entry.
+     <DescriptiveName>Module.model:text
+     <DataConceptType>Data Element"
+  ::= { moduleTableEntry 4 }
+
+-- 2.2.3.5     Module Version Parameter
+moduleVersion OBJECT-TYPE
+  SYNTAX OCTET STRING
+  ACCESS read-only
+  STATUS optional
+  DESCRIPTION
+     "<Definition>This object specifies the version of the
+     associated module.  If the moduleType has a value of
+     software, the value of this object shall include the
+     date on which the software was released as a string in
+     the form of YYYYMMDD, it shall be followed by a space,
+     a hyphen, another space, the lower-case letter `v',
+     followed by a version or configuration number.
+     Preceding zeros shall be required for the date.  For
+     example, version 7.03.02 of the software released on
+     July 5, 2002 would be presented as 20020705 - v7.03.02
+     A null-string shall be transmitted if this object has
+     no entry.
+     <DescriptiveName>Module.version:text
+     <DataConceptType>Data Element"
+  ::= { moduleTableEntry 5 }
+
+-- 2.2.3.6     Module Type Parameter
+moduleType  OBJECT-TYPE
+  SYNTAX INTEGER {
+               other (1),
+               hardware (2),
+               software (3) }
+  ACCESS read-only
+  STATUS optional
+  DESCRIPTION
+     "<Definition>This object specifies if the associated
+     module is a hardware or software module.
+     <DescriptiveName>Module.type:code
+     <DataConceptType>Data Element"
+  ::= { moduleTableEntry 6 }
+
+-- 2.2.4  Base Standards Parameter
+controllerBaseStandards   OBJECT-TYPE
+  SYNTAX OCTET STRING (SIZE (0..256))
+  ACCESS read-only
+  STATUS optional
+  DESCRIPTION
+     "<Definition>An ASCII string that shall identify all of
+     the standard document numbers that define or reference
+     MIBs upon which the device is based.  Where applicable,
+     profiles shall be referenced rather than the base
+     standards.  The string shall be constructed as follows:
+     The acronym of the standards development organization
+     (or other body) that developed and approved the
+     standard; a space; the standards document number; a
+     colon; and the documents version number as designated
+     by the standards development organization (or other
+     body).  Separate entries in the list of standards shall
+     be separated by a carriage return (0x0d) and line feed
+     (0x0a).
+     In the case of NTCIP documents prior to formal
+     approval, the version number shall be the version
+     number in the form of lower case `v' followed by the
+     major version followed by a period followed by the
+     minor revision.  In the case of approved NTCIP
+     standards, the version number shall be the four digit
+     year of publication followed by a space and the version
+     string indicated above. In the case of amended NTCIP
+     standards, it shall consist of the four digit year of
+     publication of the published standard followed by the
+     upper case letter `A', followed by the amendment
+     number.
+
+     For example, a message sign may have the following value for
+     this object:
+
+          NTCIP 1201:v02.19
+          NTCIP 1203:1997A1
+          NTCIP 2101:2001 v01.19
+          NTCIP 2103:v01.13
+          NTCIP 2201:v01.14
+          NTCIP 2301:2001 v01.08
+
+     <DescriptiveName>Controller.baseStandards:text
+     <DataConceptType>Data Element"
+  ::= { globalConfiguration 4 }
+
+-- 2.3    GLOBAL DATABASE MANAGEMENT NODE
+
+globalDBManagement OBJECT IDENTIFIER
+::= { global 2 }
+
+-- This node is an identifier used to group those objects used to manage a transaction.
+-- A transaction is a SET of one or more database parameters that have inter-relationships with other
+-- database parameters, as such a SET for any one of these objects must be validated against a set of
+-- consistency checks and may potentially require the setting of a large number of objects
+-- simultaneously.  Thus, the mode described by these objects allow for such a large database download.  
+-- Any device standard that allows this feature shall define which objects are
+-- database parameters versus status or control objects.
+
+-- 2.3.1  Database Creation Transaction
+dbCreateTransaction   OBJECT-TYPE
+SYNTAX    INTEGER { normal (1),
+                    transaction (2),
+                    verify (3),
+                    done (6)
+			}
+ACCESS    read-write
+STATUS    optional
+DESCRIPTION
+     "<Definition>This object provides transaction control
+     for device configuration.  The transaction mode changes
+     the behavior of the agent to force buffering of
+     database objects until all related database objects
+     have been modified.  In the normal mode, SET operations
+     to database objects may be stored in a device's
+     database immediately with no regard to whether other
+     changes will be made.  In the transaction mode, SET
+     operations to database objects are buffered until a
+     verify state performs a consistency check.  When the
+     consistency check completes, the device automatically
+     transitions to the done state where a normal or
+     transaction command can be issued.
+
+     A database object is a user provided piece of setup
+     information (or it may be defined in an information
+     profile) that is necessary for the proper operation of
+     a device.  It is static in nature in that the agent
+     would never change it without direction from the
+     management station.  For example, a parameter that
+     defines a default mode of operation would be a database
+     object.  A parameter that indicates the current state
+     of the device would not be a database object.
+     The states and commands are defined as:
+     NORMAL:  SET operations behave as normal SETs and can
+     have an immediate effect on the value of any database
+     objects used by the device that does not require the
+     use of the transaction mode (as defined in the device-
+     specific Information Profile).  This is the default
+     state of this object.
+
+     The only command that may be written to
+     dbCreateTransaction while in this state is TRANSACTION.
+     Any other values written to this object in this state
+     shall result in an error response of `badValue'.
+     TRANSACTION: A SET operation of one or more database
+     objects that use the same community name as used in the
+     request for the TRANSACTION state are buffered by the
+     agent device for later consistency checks and a normal
+     response is returned.  A SET operation of one or more
+     database objects using different community names shall
+     result in a genErr with the index set to zero.  A SET
+     operation without a community name field (e.g., an STMP
+     operation) shall be buffered by the agent device for
+     later consistency checks and a normal response is
+     returned.  Standard SYNTAX checking shall take place at
+     the time of the SET operation.  A transaction may
+     consist of multiple SET operations over multiple
+     frames.
+
+     A SET operation for one or more non-database objects
+     shall be processed as normal even if it uses another
+     community name, except for this (i.e., the
+     dbCreateTransaction) object.
+     
+     A SET operation containing both database and non-
+     database objects shall be processed in full according
+     to these two rules.  Thus, if it contains the same
+     community name as used in the request for the
+     TRANSACTION state, the non-database objects shall be
+     stored immediately while the database objects shall be
+     buffered.  If it uses a different community name, the
+     entire request will be rejected and a genErr with an
+     index of zero shall be returned.
+
+     GET operations on any object shall return the values of
+     the data stored in the controller and shall ignore any
+     values contained in the buffer.
+     Any valid community name may read this
+     (dbCreateTransaction) object when in this state, but
+     only the community name used to command the object to
+     the transaction mode and the administrator community
+     name can set this object. A set from any other
+     community name shall result in a genErr with an index
+     of zero. The only commands that can be written to
+     dbCreateTransaction while in this state are VERIFY and
+     NORMAL.  A VERIFY command will change the state to
+     VERIFY.  If a NORMAL command is received, all buffered
+     data is discarded and the state is returned to NORMAL.
+     Any other values written to this object when in this
+     state shall result in an error response of `badValue'.
+     VERIFY: Specific database objects are checked for
+     consistency.  When consistency checks are complete the
+     device will automatically advance to the DONE state.
+     The state of dbCreateTransaction cannot be changed when
+     in the VERIFY state.  Any values written to this object
+     in this state shall result in an error response of
+     `badValue'.
+
+     The consistency check analyzes certain critical objects
+     'in context' and treats them as an interrelated whole
+     rather than separate non-related data items.   The
+     consistency check rules are not defined in this
+     standard.  They are device and implementation specific.
+     Where applicable, the consistency check rules are
+     defined in application specific object definition
+     standards.   A specific implementation may add
+     additional checks beyond those defined in the
+     standards.  As a simplified example of a consistency
+     check, consider the following.  Two objects are defined
+     to specify the month and the day-of-month of an event.
+     Valid values for day-of-month would normally be 1 to
+     31, but in the context of month 9 (September), only the
+     values 1 to 30 are correct.
+
+     A SET operation containing any database objects while in the
+     VERIFY state shall result in a genErr with the index set to
+     zero.
+     DONE:  This state is entered automatically once
+     consistency checks have completed in the VERIFY mode.
+     The value of dbVerifyStatus and dbVerifyError indicate
+     whether the consistency check found any errors.
+     
+     A SET operation containing any database objects while in the
+     DONE state shall result in a genErr with the index set to
+     zero.
+     Only two valid values can be written to
+     dbCreateTransaction in this state: NORMAL and
+     TRANSACTION.  Any other values written to this object
+     in this state shall result in an error response of
+     `badValue'.
+     If a NORMAL command is issued and dbVerifyStatus
+     indicates doneWithNoError, the buffered data is
+     transferred to the device memory and the state is
+     returned to NORMAL.  If a NORMAL command is issued and
+     dbVerifyStatus indicates something other than
+     doneWithNoError then the buffered data is discarded and
+     the state is returned to NORMAL.
+     If a TRANSACTION command is issued, regardless of
+     dbVerifyStatus, no action takes place (the buffered
+     data is not changed) and the TRANSACTION state is re-
+     entered.
+
+     *************************************************    
+      <See full standard for state transition diagram>                      
+     *************************************************
+
+     Operational procedures and error responses:
+          (1)  Once a copy of all database objects is placed
+          in a buffer the state is changed to transaction
+          and error response indicates noError.  If the
+          operation fails, the state remains the same and
+          error response indicates genErr.
+          (2)  No action takes place, the state remains the
+          same, but response indicates badValue.
+          (3)  The state is changed to verify, a consistency
+          check is started, and response indicates noError.
+          Once the consistency check is completed, the state
+          automatically changes to done.
+          (4).  The buffered copy of all database objects is
+          discarded, the state is changed to normal, and
+          response indicates noError.
+          (5)  The buffered copy of all database objects is
+          not changed or reloaded, the state is changed to
+          transaction, and response indicates noError.
+          (6)  If dbVerifyStatus indicates doneWithNoError,
+          then the copy of all database objects is
+          transferred to memory, the state is changed to
+          normal and response indicates noError.  If
+          dbVerifyStatus indicates doneWithError then the
+          buffered data is discarded, the state is changed
+          to NORMAL, and response indicates noError.
+          (7)  The state will automatically change to done
+          when the consistency check completes.
+          (8)  dbVerifyStatus and dbVerifyError are only
+          valid in this state.
+
+          (9) All SET operations on this (dbCreateTransaction)
+          parameter shall be made using a protocol that uses a
+          community name, or equivalent field (e.g., SNMP).
+     <DescriptiveName>Transaction.mode:code
+     <DataConceptType>Data Element"
+DEFVAL    {normal}
+::= { globalDBManagement 1 }
+
+-- 2.3.2  Database Error Type Parameter
+-- { globalDBManagement 2 } is deprecated ... see Annex B
+
+-- 2.3.3  Database Error ID Parameter
+-- { globalDBManagement 3 } is deprecated ... see Annex B
+
+-- 2.3.4  Database Transaction ID Parameter
+-- { globalDBManagement 4 } is deprecated ... see Annex B
+
+-- 2.3.5  Database Make ID Parameter
+-- { globalDBManagement 5 } is deprecated ... see Annex B
+
+-- 2.3.6  Database Verify Status Parameter
+dbVerifyStatus   OBJECT-TYPE
+SYNTAX    INTEGER { notDone (1),
+                    doneWithError (2),
+                    doneWithNoError  (3) }
+ACCESS    read-only
+STATUS    optional
+DESCRIPTION
+     "<Definition>This object indicates the current status
+     of verify (consistency checking) processing. The value
+     of this object is only meaningful when the
+     dbCreateTransaction object is in the Verify or Done
+     state.
+     <DescriptiveName>Transaction.verifyStatus:code
+     <DataConceptType>Data Element"
+::= { globalDBManagement 6 }
+
+-- 2.3.7  Database Verify Error Parameter
+dbVerifyError   OBJECT-TYPE
+SYNTAX    OCTET STRING (SIZE (0..255))
+ACCESS    read-only
+STATUS    optional
+DESCRIPTION
+     "<Definition>This object contains a textual description
+     of or a reference to an error that was found by the
+     verify (consistency checking) processing.  The value of
+     this object is only meaningful when the
+     dbCreateTransaction object is in the Done state and the
+     dbVerifyStatus object is in the doneWithError state.
+     <DescriptiveName>Transaction.errorMessage:text
+     <DataConceptType>Data Element"
+::= { globalDBManagement 7 }
+
+-- 2.4    GLOBAL TIME MANAGEMENT NODE
+
+globalTimeManagement   OBJECT IDENTIFIER
+::= { global 3 }
+
+-- This node is an identifier used to organize all objects for support of time-related
+-- functions that are common to most device types.
+
+-- 2.4.1  Global Time Parameter
+globalTime  OBJECT-TYPE
+SYNTAX    Counter
+ACCESS    read-write
+STATUS    optional
+DESCRIPTION
+     "<Definition>The number of seconds since the epoch of
+     00:00:00 (midnight) January 1, 1970 UTC (a.k.a. Zulu or
+     GMT).
+     <DescriptiveName>Controller.globalTime:quantity
+     <DataConceptType>Data Element
+     <Unit>second"
+DEFVAL    { 0 }
+::= { globalTimeManagement 1}
+
+-- 2.4.2  Global Daylight Savings Parameter
+globalDaylightSaving   OBJECT-TYPE
+SYNTAX   INTEGER {                 other (1),
+                  disableDST (2),
+                  enableUSDST (3),
+                  enableEuropeDST (4),
+                  enableAustraliaDST (5),
+                  enableTasmaniaDST (6),
+                  enableEgyptDST (7),
+                  enableNamibiaDST (8),
+                  enableIraqDST (9),
+                  enableMangoliaDST (10),
+                  enableIranDST (11),
+                  enableFijiDST (12),
+                  enableNewZealandDST (13),
+                  enableTongaDST (14),
+                  enableCubaDST (15),
+                  enableBrazilDST (16),
+                  enableChileDST (17),
+                  enableFalklandsDST (18),
+                  enableParaguayDST (19) }
+ACCESS    read-write
+STATUS    optional
+DESCRIPTION
+     "<Definition>This object specifies if the Daylight
+     Savings Time (DST) is enabled, disabled or some other
+     form of daylight savings time is active.
+       other -     DST adjustments by a mechanism not defined
+          within this standard.
+       disableDST - DST clock adjustments shall NOT occur.
+       enableUSDST - DST shall begin the first Sunday in April
+          and shall end the last Sunday of October.  All changes
+          of time occur at 2:00AM.
+       enableEuropeDST -DST shall start the last Sunday of March
+          at 2:00 AM and ends the last Sunday of October at 3:00
+          AM.
+       enableAustraliaDST - DST shall start the last Sunday in
+          October at 2:00 AM and ends the last Sunday in March at
+          2:00 AM.
+       enableTasmaniaDST - DST shall start the first Sunday in
+          October at 2 a.m. and ends the last Sunday in March at
+          3 a.m.
+       enableEgyptDST - DST shall start the last Friday in April
+          and end the last Thursday in September.
+       enableNamibiaDST - DST shall start the first Sunday in
+          September and end the first Sunday in April.
+       enableIraqDST - DST shall start on April 1 and end on
+          October 1.
+       enableMongoliaDST - DST shall start the last Sunday in
+          March and end the last Sunday in September.
+       enableIranDST - DST shall start the first day of
+          Farvardin and end the first day of Mehr
+       enableFijiDST - DST shall start the first Sunday in
+          November and end the last Sunday in February.
+       enableNewZealandDST - DST shall start the first Sunday in
+          October and end the first Sunday on or after March 5th.
+       enableTongaDST - DST shall start the first Saturday in
+          October and end the first Saturday on or after April
+          15th.
+       enableCubaDST - DST shall start April 1st and end last
+          Sunday in October.
+       enableBrazilDST - DST shall start the first Sunday in
+          October and end the last Sunday in February.
+       enableChileDST - DST shall start the first Sunday on or
+          after October 9th and end the first Sunday on or after
+          March 9th.
+       enableFalklandsDST - DST shall start the first Sunday on
+          or after September 8th and end the first Sunday on or
+          after April 8th.
+       enableParaguayDST - DST shall start the first Sunday in
+          October and end the last Saturday in February.
+     <DescriptiveName>Controller.daylightSavingsMode:code
+     <DataConceptType>Data Element"
+REFERENCE
+"NEMA TS 2  Clause 3.8.2;
+http://fatty.law.cornell.edu/uscode/15/260a.html;
+http://www.timing.se/Daylight.htm;
+http://www.dstc.qut.edu.au/DST/marg/daylight.html#cutoffs;
+http://www.dstc.qut.edu.au/DST/marg/daylight.html#cutoffs;
+http://webexhibits.org/daylightsaving/g.html "
+DEFVAL   { disableDST }
+::= { globalTimeManagement 2 }
+
+-- 2.4.3  TimeBase Event Scheduler Node
+timebase OBJECT IDENTIFIER
+::= { globalTimeManagement 3 }
+
+-- This node is an identifier used to organize the main objects for event scheduling.
+-- Device type-specific objects (tables) pointed to are defined within the appropriate MIB.
+
+-- 2.4.3.1     Maximum Number of Time Base Schedule Entries Parameter
+maxTimeBaseScheduleEntries   OBJECT-TYPE
+SYNTAX    INTEGER (1..65535)
+ACCESS    read-only
+STATUS    optional
+DESCRIPTION
+     "<Definition>The value of this object specifies the
+     maximum number of different entries supported by the
+     device as shown by the number of rows in the
+     timeBaseScheduleTable.
+     <DescriptiveName>TimeBaseScheduleTable.maxEntries:quant
+     ity
+     <DataConceptType>Data Element
+     <Unit>TimeBaseScheduleEntry"
+::= { timebase 1 }
+
+-- 2.4.3.2     Time Base Schedule Table
+timeBaseScheduleTable   OBJECT-TYPE
+SYNTAX    SEQUENCE OF TimeBaseScheduleEntry
+ACCESS    not-accessible
+STATUS    optional
+DESCRIPTION
+     "<Definition>A table containing the time base schedule
+     parameters for the device.  The number of rows in this
+     table shall be equal to the maxTimeBaseScheduleEntries
+     object.  The table references the appropriate day plan
+     for the device.  The plan is determined by comparing
+     the current month (MONTH), day of week (DOW) and date
+     of month (DOM) to the appropriate fields. The settings
+     for MONTH, DOW and DOM are connected with a logical
+     AND.  In order to determine which timebased event to
+     select, determine the event which has the most specific
+     date specified.  Select the more specific event based
+     on their MONTH settings; if the same, select the most
+     specific DOM; if that is still the same, select the
+     most specific DOW;  if that's still the same, the first
+     occurrence within the time base event table shall be
+     selected. 'More specific' means the least number of
+     bits set within an object.  All entries in Time Base
+     Schedule Table are expressed in local time and date.  A
+     row in the table may be deactivated by setting the
+     Month, Day, Date, or DayPlan parameters to zero (0)
+     <DescriptiveName>TimeBaseScheduleTable
+     <DataConceptType>Entity Type
+     <TableType> static"
+::= { timebase 2 }
+
+timeBaseScheduleEntry   OBJECT-TYPE
+SYNTAX    TimeBaseScheduleEntry
+ACCESS    not-accessible
+STATUS    mandatory
+DESCRIPTION
+     "<Definition>Event Parameters for the time based
+     schedule programming of the device.
+     <DescriptiveName>TimeBaseSchedule
+     <DataConceptType>Entity Type"
+INDEX   { timeBaseScheduleNumber }
+::= { timeBaseScheduleTable 1 }
+
+TimeBaseScheduleEntry ::= SEQUENCE {
+          timeBaseScheduleNumber INTEGER,
+          timeBaseScheduleMonth INTEGER,
+          timeBaseScheduleDay   INTEGER,
+          timeBaseScheduleDate  INTEGER,
+          timeBaseScheduleDayPlan    INTEGER }
+
+-- 2.4.3.2.1   Time Base Schedule Number Parameter
+timeBaseScheduleNumber   OBJECT-TYPE
+SYNTAX    INTEGER (1..65535 )
+ACCESS    read-only
+STATUS    mandatory
+DESCRIPTION
+     "<Definition>The time base schedule number for objects
+     in this row.  The value of this object shall not exceed
+     the value of the maxTimeBaseScheduleEntries object.
+     The activation of a scheduled entry shall occur
+     whenever allowed by all other objects within this
+     table.
+     <DescriptiveName>TimeBaseSchedule.number:identifier
+     <DataConceptType>Data Element"
+::= { timeBaseScheduleEntry 1 }
+
+-- 2.4.3.2.2   Time Base Schedule Month Of Year Parameter
+timeBaseScheduleMonth   OBJECT-TYPE
+SYNTAX    INTEGER (0..65535)
+ACCESS    read-write
+STATUS    optional
+DESCRIPTION
+     "<Definition>The Month(s) Of the Year that the schedule
+     entry shall be allowed.  Each bit represents a specific
+     month.  If the bit is set to one (1), then the
+     scheduled entry shall be allowed during the associated
+     month.  If the bit is zero (0), then the scheduled
+     entry shall not be allowed during the associated month.
+     The bits are defined as:
+      Bit    Month of Year
+      0      Reserved
+      1      January
+      2      February
+      3      March
+      4      April
+      5      May
+      6      June
+      7      July
+      8      August
+      9      September
+      10     October
+      11     November
+      12     December
+      13 - 15Reserved
+     Thus, a value of six (6) would indicate that the entry
+     would only be allowed during the months of January and
+     February.  A value of zero (0) shall indicate that this
+     row has been disabled.
+     <DescriptiveName>TimeBaseSchedule.monthMask:code
+     <DataConceptType>Data Element"
+::= { timeBaseScheduleEntry 2 }
+
+-- 2.4.3.2.3   Time Base Schedule Day Of Week Parameter
+timeBaseScheduleDay   OBJECT-TYPE
+SYNTAX    INTEGER (0..255)
+ACCESS    read-write
+STATUS    optional
+DESCRIPTION
+     "<Definition>The Day(s) Of Week that the schedule entry
+     shall be allowed. Each bit represents a specific day of
+     the week.  If the bit is set to one (1), then the
+     scheduled entry shall be allowed during the associated
+     DOW.  If the bit is set to zero (0), then the scheduled
+     entry shall not be allowed during the associated DOW.
+     The bits are defined as:
+      Bit   Day of Week
+      0     Reserved ('Holiday', not defined by this standard)
+      1     Sunday
+      2     Monday
+      3     Tuesday
+      4     Wednesday
+      5     Thursday
+      6     Friday
+      7     Saturday
+     Thus, a value of six (6) would indicate that the entry
+     would only be allowed on Sundays and Mondays.  A value
+     of zero (0) shall indicate that this row has been
+     disabled.
+     <DescriptiveName>TimeBaseSchedule.dayMask:code
+     <DataConceptType>Data Element"
+::= { timeBaseScheduleEntry 3 }
+
+-- 2.4.3.2.4   Time Base Schedule Date Parameter
+timeBaseScheduleDate   OBJECT-TYPE
+SYNTAX    INTEGER (0..4294967295)
+ACCESS    read-write
+STATUS    optional
+DESCRIPTION
+     "<Definition>The Day(s) Of a Month that the schedule
+     entry shall be allowed.  Each bit represents a specific
+     date of the month.  If the bit is set to one (1), then
+     the scheduled entry shall be allowed during the
+     associated date.  If the bit is set to zero (0), then
+     the scheduled entry shall not be allowed during the
+     associated date.  The bits are defined as:
+      Bit   Day Number
+      0     Reserved
+      1     Day 1
+      2     Day 2
+      ||
+      31    Day 31
+     Thus, a value of six (6) would indicate that the entry
+     would only be allowed on the first and second of the
+     allowed months.  A value of zero (0) shall indicate
+     that this row has been disabled.
+     <DescriptiveName>TimeBaseSchedule.dateMask:code
+     <DataConceptType>Data Element"
+::= { timeBaseScheduleEntry 4 }
+
+-- 2.4.3.2.5   Time Base Schedule Day Plan Parameter
+timeBaseScheduleDayPlan   OBJECT-TYPE
+SYNTAX    INTEGER (0..255)
+ACCESS    read-write
+STATUS    optional
+DESCRIPTION
+     "<Definition>This object specifies what Plan number
+     shall be associated with this timeBaseScheduleDayPlan -
+     object.  A value of zero (0) shall indicate that this
+     row has been disabled.
+     <DescriptiveName>TimeBaseSchedule.dayPlan:identifier
+     <DataConceptType>Data Element"
+::= { timeBaseScheduleEntry 5 }
+
+-- 2.4.3.3     Schedule Status Parameter
+timeBaseScheduleTable-status OBJECT-TYPE
+   SYNTAX   INTEGER (0..65535)
+   ACCESS   read-only
+   STATUS   optional
+   DESCRIPTION
+     "<Definition>This object indicates the number of the
+     TimeBaseSchedule which is currently selected by the
+     scheduling logic; the device may or may not be using the
+     selected schedule.  The value of zero (0) indicates that
+     there is no timeBaseScheduleNumber that is currently
+     selected.
+     
+     <DescriptiveName>TimeBaseScheduleTable.status:identifier
+     
+     <DataConceptType> Data Element"
+::={timebase 7}
+
+-- 2.4.4  Day Plan Parameters
+-- 2.4.4.1     Maximum Number of Day Plans- Parameter
+maxDayPlans   OBJECT-TYPE
+SYNTAX    INTEGER (1..255)
+ACCESS    read-only
+STATUS    optional
+DESCRIPTION
+     "<Definition>The value of this object specifies the
+     maximum, fixed number of different timebased Day Plans
+     supported by the device.  The value of this object
+     represents the number of day plans (primary key into
+     the table) available in the timeBaseDayPlanTable.
+     <DescriptiveName>DayPlanTable.maxDayPlans:quantity
+     <DataConceptType>Data Element
+     <Unit>DayPlan"
+::= { timebase 3 }
+
+-- 2.4.4.2     Maximum Number of Day Plan Events - Parameter
+maxDayPlanEvents   OBJECT-TYPE
+SYNTAX    INTEGER (1..255)
+ACCESS    read-only
+STATUS    optional
+DESCRIPTION
+     "<Definition>The value of this object specifies the
+     fixed number of different timebased Day Plan Events
+     within each Day Plan supported by the device.  The
+     value of this object represents the number of rows
+     (secondary key into the table) available within each of
+     the day plans that are available in the
+     timeBaseDayPlanTable.  All day plans shall have the
+     same number of day plan events available for use.
+     <DescriptiveName>DayPlanTable.maxDayPlanEvents:quantity
+     <DataConceptType>Data Element
+     <Unit>DayPlanEvent"
+::= { timebase 4 }
+
+-- 2.4.4.3     Day Plan Table
+timeBaseDayPlanTable OBJECT-TYPE
+SYNTAX    SEQUENCE OF TimeBaseDayPlanEntry
+ACCESS    not-accessible
+STATUS    optional
+DESCRIPTION
+     "<Definition>A table containing day plan numbers, the
+     times when to implement them and the associated
+     actions. The number of rows in this table shall be
+     equal to the product of the maxDayPlans object and the
+     maxDayPlanEvents object.  The dayPlanNumbers within
+     this table shall begin with day plan number 1 and
+     increment by one to the maxDayPlans.  The
+     dayPlanEventNumbers within this table shall begin with
+     day plan event number 1 and increment by one to the
+     maxDayPlanEvents.
+
+     This table is always used in association with device-
+     type specific objects specifying device-type specific
+     actions such as activating a message on a VMS sign or
+     initiating a pattern for a signal controller.  A device
+     MIB that defines an action table should define the
+     relative priority of the action table as compared to
+     the priority of system and other commands.  The device-
+     type specific action will only be initiated when (1)
+     the specific DayPlan has been activated, (2) the
+     scheduler has sufficient priority to override the
+     current operation of the device, and (3) at the
+     indicated time.
+
+     After a power recovery or after a change to globalTime,
+     the operational mode called for by the scheduler shall
+     be per the last event that would have been called by
+     the currently defined schedule; the logic will search
+     for all events that may have occurred for at least the
+     previous 24 hours.
+     <DescriptiveName>DayPlanTable
+     <DataConceptType>Entity Type
+     <TableType> static"
+::= { timebase 5 }
+
+timeBaseDayPlanEntry   OBJECT-TYPE
+SYNTAX    TimeBaseDayPlanEntry
+ACCESS    not-accessible
+STATUS    mandatory
+DESCRIPTION
+     "<Definition>A table containing the timebased day plan
+     parameters of a device.
+     <DescriptiveName>DayPlan
+     <DataConceptType>Entity Type"
+INDEX { dayPlanNumber, dayPlanEventNumber}
+::= { timeBaseDayPlanTable 1 }
+
+TimeBaseDayPlanEntry ::= SEQUENCE {
+          dayPlanNumber      INTEGER,
+          dayPlanEventNumber INTEGER,
+          dayPlanHour        INTEGER,
+          dayPlanMinute      INTEGER,
+          dayPlanActionNumberOID  OBJECT IDENTIFIER }
+
+
+-- 2.4.4.3.1   Day Plan Number
+dayPlanNumber   OBJECT-TYPE
+SYNTAX    INTEGER (1..255)
+ACCESS    read-only
+STATUS    mandatory
+DESCRIPTION
+     "<Definition>This object specifies the day plan number
+     for objects in this row. The value shall not exceed the
+     value of the maxDayPlans object.  Day plan numbers are
+     used in the TimeBase Event Table to specify day plan
+     numbers to be implemented on specific days of the year
+     or as part of the week plans.
+     <DescriptiveName>DayPlan.number:identifier
+     <DataConceptType>Data Element"
+::= { timeBaseDayPlanEntry 1 }
+
+-- 2.4.4.3.2   Day Plan Event Number
+dayPlanEventNumber   OBJECT-TYPE
+SYNTAX    INTEGER (1..255)
+ACCESS    read-only
+STATUS    mandatory
+DESCRIPTION
+     "<Definition>This object identifies day plan event
+     number(s) to be scheduled on a specific day plan
+     number.  Several different events can be scheduled to
+     take place during a day, and each of these events is
+     one entry or row within a specified day plan number.
+     The total number of events for one day plan shall not
+     exceed the value of the maxDayPlanEvents-object. If
+     multiple non-conflicting events occur at the same time,
+     they shall be logically executed in order of their
+     dayPlanEventNumber with the lowest number occurring
+     first.  An implementation shall omit lower number
+     actions that are in conflict with higher number actions
+     at the same time.
+     <DescriptiveName>DayPlanEvent.number:identifier
+     <DataConceptType>Data Element"
+::= { timeBaseDayPlanEntry 2 }
+
+-- 2.4.4.3.3   Day Plan Hour Parameter
+dayPlanHour   OBJECT-TYPE
+SYNTAX    INTEGER (0..23)
+ACCESS    read-write
+STATUS    optional
+DESCRIPTION
+     "<Definition>The Hour of day, as measured by the
+     controller-localTime object, that the associated event
+     shall become active.
+     <DescriptiveName>DayPlanEvent.hour:number
+     <DataConceptType>Data Element"
+DEFVAL    {0}
+::= { timeBaseDayPlanEntry 3 }
+
+-- 2.4.4.3.4   Day Plan Minute Parameter
+dayPlanMinute   OBJECT-TYPE
+SYNTAX    INTEGER (0..59)
+ACCESS    read-write
+STATUS    optional
+DESCRIPTION
+     "<Definition>The Minute of the hour (defined in the
+     dayPlanHour), as measured by the controller-localTime
+     object, that the associated event shall become active.
+     <DescriptiveName>DayPlanEvent.minute:number
+     <DataConceptType>Data Element"
+DEFVAL    {0}
+::= { timeBaseDayPlanEntry 4 }
+
+-- 2.4.4.3.5   Day Plan Action Number OID Parameter
+dayPlanActionNumberOID   OBJECT-TYPE
+SYNTAX    OBJECT IDENTIFIER
+ACCESS    read-write
+STATUS    optional
+DESCRIPTION
+     "<Definition>This object provides a reference to the
+     device-type specific action that shall be executed.
+     The object shall reference the action by its associated
+     object identifier, including its instance (i.e., the
+     full OID of the scalar or columnar object).  Only
+     objects whose description field explicitly states that
+     they may be called by the action table may be
+     referenced.  If a management system attempts to set
+     this value to any other object identifier, the device
+     shall respond with a genErr.
+     Any object allowing the action table to reference it
+     shall define precisely what action will take place when
+     it is activated and whether the action is transitionary
+     or continuous until deactivated.  The object shall also
+     define what, if any, restrictions may be placed on
+     other operations the device may be able to perform.
+     If the action to be performed is defined by a row of a
+     table, one of the index columns should be identified as
+     the explicit object that is referenced.
+     <DescriptiveName>DayPlanEvent.action:identifier
+     <DataConceptType>Data Element"
+DEFVAL    {null}
+::= { timeBaseDayPlanEntry 5 }
+
+
+-- 2.4.4.4     Day Plan Status Parameter
+dayPlanStatus   OBJECT-TYPE
+SYNTAX    INTEGER (0..255)
+ACCESS    read-only
+STATUS    optional
+DESCRIPTION
+     "<Definition>This object indicates the current value of
+     the active day PlanNumber-object.  A value of zero (0)
+     indicates that there is no dayPlanNumber that is
+     currently active.
+     <DescriptiveName>DayPlanTable.activeDayPlan:identifier
+     <DataConceptType>Data Element"
+::= { timebase 6 }
+
+-- 2.4.5  Global Local Time Differential Parameter
+-- { globalTimeManagement 4 } is deprecated ... see Annex B
+
+-- 2.4.6  Standard Time Zone Parameter
+controllerStandardTimeZone   OBJECT-TYPE
+SYNTAX    INTEGER (-43200..43200)
+ACCESS    read-write
+STATUS    optional
+DESCRIPTION
+     "<Definition>Indicates the number of seconds offset
+     between local Standard Time and GMT.  Positive values
+     indicate local times in the Eastern Hemisphere up to
+     the International Date Line and negative values
+     indicate local times in the Western Hemisphere back to
+     the International Date Line.  This value does not
+     change in response to a daylight savings time event.
+     <DescriptiveName>Controller.standardTimeZone:quantity
+     <DataConceptType>Data Element
+     <Unit>second"
+DEFVAL    {0}
+::= { globalTimeManagement 5 }
+
+-- 2.4.7  Local Time Parameter
+controllerLocalTime   OBJECT-TYPE
+SYNTAX    Counter
+ACCESS    read-only
+STATUS    optional
+DESCRIPTION
+     "<Definition> The current local time expressed in
+     seconds since 00:00:00 (midnight) January 1, 1970 of
+     the same time offset.  This value changes by 3600
+     seconds in response to a daylight savings time event.
+     <DescriptiveName>Controller.localTime:quantity
+
+     <Unit>second
+     <DataConceptType>Data Element"
+::= { globalTimeManagement 6 }
+
+
+-- 2.6    PMPP OBJECT NODE
+
+-- NOTE: These objects will be moved to NTCIP 2101 at some point in the future.
+
+profilesPMPP OBJECT IDENTIFIER
+::= { profiles 3 }
+
+-- This node is an identifier used to group all objects for support of the PMPP function that
+-- are common to all device types.  The objects under this node are placed under the
+-- Protocols\Profiles\PMPP subtree within the NEMA node, but they have been listed here due to the lack
+-- of a separate document that lists these objects.
+
+-- 2.6.1  Maximum HDLC Group Address Parameter
+maxGroupAddresses   OBJECT-TYPE
+SYNTAX    INTEGER (1..255)
+ACCESS    read-only
+STATUS    optional
+DESCRIPTION
+     "<Definition>The maximum number of group addresses this
+     device supports. This object indicates the maximum
+     number of rows in the hdlcGroupAddressTable.
+     <DescriptiveName>Secondary.maxGroupAddresses:quantity
+     <DataConceptType>Data Element
+     <Unit>address"
+::= {profilesPMPP 1 }
+
+-- 2.6.2  HDLC Group Address Table
+hdlcGroupAddressTable OBJECT-TYPE
+SYNTAX    SEQUENCE OF HdlcGroupAddressEntry
+ACCESS    not-accessible
+STATUS    optional
+DESCRIPTION
+     "<Definition> A table containing group addresses at
+     which a device may receive frames.
+     <DescriptiveName> HdlcGroupAddressTable
+     <DataConceptType> Entity Type
+     <TableType> static"
+::= { profilesPMPP 2 }
+
+hdlcGroupAddressEntry    OBJECT-TYPE
+SYNTAX    HdlcGroupAddressEntry
+ACCESS    not-accessible
+STATUS    mandatory
+DESCRIPTION
+     "<Definition> An entry in the group address table that
+     contains a device's data link layer group address at
+     which it will accept frames.
+     <DescriptiveName> HdlcGroupAddress
+     <DataConceptType> Entity Type"
+INDEX { hdlcGroupAddressIndex }
+::= { hdlcGroupAddressTable 1 }
+
+HdlcGroupAddressEntry ::= SEQUENCE {
+  hdlcGroupAddressIndex       INTEGER,
+  hdlcGroupAddressNumber      INTEGER }
+
+-- 2.6.2.1     HDLC Group Address Index Parameter
+hdlcGroupAddressIndex    OBJECT-TYPE
+SYNTAX    INTEGER (1..255)
+ACCESS    read-only
+STATUS    mandatory
+DESCRIPTION
+     "<Definition>The index number for the group address in
+     this row.
+     <DescriptiveName>GroupAddress.index:identifier
+     <DataConceptType>Data Element"
+::= { hdlcGroupAddressEntry 1}
+
+-- 2.6.2.2     HDLC Group Address Parameter
+-- { hdlcGroupAddressEntry 2 } is deprecated ... see Annex B
+
+-- 2.6.2.3     HDLC Group Address Number Parameter
+hdlcGroupAddressNumber   OBJECT-TYPE
+SYNTAX    INTEGER (0..62)
+ACCESS    read-write
+STATUS    optional
+DESCRIPTION
+     "<Definition>A group address number prior to any
+     encoding for the data link layer. The address of 63 is
+     reserved for the all stations address. The value of
+     zero (0) shall disable this row of the table.
+
+     NOTE-In PMPP all group addresses are encoded in one byte.
+     <DescriptiveName>GroupAddress.address:number
+     <DataConceptType>Data Element"
+REFERENCE
+"NTCIP 2101"
+DEFVAL  { 0 }
+::= { hdlcGroupAddressEntry 3}
+
+-- 2.8    AUXILIARY I/O OBJECTS
+
+auxIO  OBJECT IDENTIFIER ::= { global 7}
+-- This node is an identifier used to group all objects supporting auxiliary I/O functions
+-- NOTE: These objects were formerly located under the experimental node.
+
+-- 2.8.1  Maximum Number of Digital Auxiliary IOs Parameter
+auxIOTableNumDigitalPorts OBJECT-TYPE
+SYNTAX    INTEGER (1..255)
+ACCESS    read-only
+STATUS    optional
+DESCRIPTION
+     "<Definition>The number of rows contained in the
+     `auxIOTable' with the auxPortType set to `digital'.
+     <DescriptiveName>AuxIOTable.maxDigitalPorts:quantity
+     <DataConceptType>Data Element
+     <Unit>port"
+::= {auxIO 1}
+
+
+-- 2.8.2  Maximum Number of Analog Auxiliary IOs Parameter
+auxIOTableNumAnalogPorts OBJECT-TYPE
+SYNTAX    INTEGER (1..255)
+ACCESS    read-only
+STATUS    optional
+DESCRIPTION
+     "<Definition>The number of rows contained in the
+     `auxIOTable' with the auxPortType set to `analog'.
+     <DescriptiveName>AuxIOTable.maxAnalogPorts:quantity
+     <DataConceptType>Data Element
+     <Unit>port"
+::= {auxIO 2}
+
+
+-- 2.8.3  Auxiliary IO Table Parameter
+auxIOTable   OBJECT-TYPE
+SYNTAX    SEQUENCE OF AuxIOEntry
+ACCESS    not-accessible
+STATUS    optional
+DESCRIPTION
+     "<Definition>A table providing the means to access any
+     non-mission-critical or safety-related auxiliary I/O of
+     the Controller, this includes reading inputs and
+     setting outputs.  A maximum of 255 auxiliary IOs can be
+     defined for all, digital, analog or other types of
+     ports.  This table shall not be used to control or
+     monitor any safety related equipment.  The user should
+     be aware that the electrical levels used by the ports
+     are not standardized by these objects; such information
+     should be contained in the hardware manual.
+     <DescriptiveName>AuxIOTable
+     <DataConceptType>Entity Type
+     <TableType> static"
+::= { auxIO 3}
+
+auxIOEntry OBJECT-TYPE
+SYNTAX    AuxIOEntry
+ACCESS    not-accessible
+STATUS    mandatory
+DESCRIPTION
+     "<Definition>Parameters of the auxiliary I/O table.
+     <DescriptiveName>AuxIOPort
+     <DataConceptType>Entity Type"
+INDEX {auxIOPortType, auxIOPortNumber}
+::={auxIOTable 1}
+
+AuxIOEntry ::= SEQUENCE {
+  auxIOPortType               INTEGER,
+  auxIOPortNumber             INTEGER,
+  auxIOPortDescription             DisplayString,
+  auxIOPortResolution              INTEGER,
+  auxIOPortValue              INTEGER,
+  auxIOPortDirection               INTEGER,
+  auxIOPortLastCommandedState INTEGER
+  }
+
+
+-- 2.8.3.1     Auxiliary Port Type Parameter
+auxIOPortType OBJECT-TYPE
+SYNTAX    INTEGER{
+               other (1),
+               analog (2),
+               digital (3)
+               }
+ACCESS    read-only
+STATUS    mandatory
+DESCRIPTION
+     "<Definition>Indicates the type of auxiliary I/O, which
+     can be analog, digital or other.
+     <DescriptiveName>AuxIOPort.type:code
+     <DataConceptType>Data Element"
+::= {auxIOEntry 1}
+
+
+-- 2.8.3.2     Auxiliary Port Number Parameter
+auxIOPortNumber OBJECT-TYPE
+SYNTAX    INTEGER (1..255)
+ACCESS    read-only
+STATUS    mandatory
+DESCRIPTION
+     "<Definition>Indicates the port number for the
+     associated port type.  Port numbers are used
+     sequentially from one to max for each port type.  There
+     can be a port 1 for analog port and port 1 for digital
+     port.
+     <DescriptiveName>AuxIOPort.number:identifier
+     <DataConceptType>Data Element"
+::= {auxIOEntry 2}
+
+-- 2.8.3.3     Auxiliary Description Parameter
+auxIOPortDescription OBJECT-TYPE
+SYNTAX    DisplayString (SIZE (0..255))
+ACCESS    read-write
+STATUS    optional
+DESCRIPTION
+     "<Definition>Informational text field describing the
+     device at the associated auxiliary I/O
+     <DescriptiveName>AuxIOPort.description:text
+     <DataConceptType>Data Element"
+::= {auxIOEntry 3}
+
+-- 2.8.3.4     Auxiliary Resolution Parameter
+auxIOPortResolution OBJECT-TYPE
+SYNTAX    INTEGER (1..32)
+ACCESS    read-only
+STATUS    optional
+DESCRIPTION
+     "<Definition>Defines number of bits used for the IO-
+     port (e.g. width of digital, resolution of analog).
+     Thus, this feature allows the digital monitoring (via
+     NTCIP) of an analog port on the agent.
+     <DescriptiveName>AuxIOPort.resolution:quantity
+     <DataConceptType>Data Element
+     <Unit>bit"
+::= {auxIOEntry 4}
+
+
+-- 2.8.3.5     Auxiliary Value Parameter
+auxIOPortValue OBJECT-TYPE
+SYNTAX    INTEGER (0..4294967295)
+ACCESS    read-write
+STATUS    optional
+DESCRIPTION
+     "<Definition>For input or bidirectional ports, this
+     contains the current value of the input.  For output
+     ports, this is the last commanded value of the port.  A
+     genError shall be generated, if this object is set and
+     the port is an input. The actual value exchanged shall
+     not exceed [2^(auxIO-resolution) - 1]; any SET
+     operation to a value in excess of this number shall
+     result in a genErr and any GET response in excess of
+     this value shall be considered erroneous.
+     <DescriptiveName>AuxIOPort.value:number
+     <DataConceptType>Data Element"
+::= {auxIOEntry 5}
+
+
+-- 2.8.3.6     Auxiliary Port Direction Parameter
+auxIOPortDirection OBJECT-TYPE
+SYNTAX    INTEGER {
+               output (1),
+               input (2),
+               bidirectional (3)}
+ACCESS    read-only
+STATUS    optional
+DESCRIPTION
+"<Definition>Indicates whether state of this port can be set
+(output), read (input) or both (bidirectional).
+     <DescriptiveName>AuxIOPort.direction:code
+     <DataConceptType>Data Element"
+::= {auxIOEntry 6}
+
+-- 2.8.3.7     Auxiliary Port Last Commanded State Parameter
+auxIOPortLastCommandedState OBJECT-TYPE
+SYNTAX    INTEGER (0..4294967295)
+ACCESS    read-only
+STATUS    optional
+DESCRIPTION
+     "<Definition>For bi-directional ports, this object
+     shall indicate the last state to which the auxIO-value
+     object was set.  For output ports, this value shall
+     always be equal to the auxIO-value object.  For input
+     ports, this value shall always be zero (0).
+     <DescriptiveName>AuxIOPort.lastCommandedState:number
+     <DataConceptType>Data Element"
+::= {auxIOEntry 7}
+
+END

@@ -1,0 +1,772 @@
+-- 3.1    RIORITY REQUEST SERVER MIB
+-- 
+-- Filename:	1211v0137 PRS.mib
+-- Description: This MIB defines objects represents the data elements that would reside in
+--              a Priority Request Server of an Signal Control and Prioritization system.
+-- Source:      NTCIP 1211 v01.37
+--
+-- MIB Revision History:
+-- 09/27/04	Changed name of file.
+--              All changes are now reflected in NTCIP v01.38
+--
+-- NOTE - THIS MIB WAS SYNTAX CHECKED WITH AN ADDITIONAL OPTION SWITCH TO ALLOW THE USE
+-- OF "STATUS not-accessible" FOR SEVERAL LEAF.
+-- 
+--Copyright 2000 - 2004 by the American Association of State Highway and
+--Transportation Officials (AASHTO), the Institute of Transportation Engineers
+--(ITE), and the National Electrical Manufacturers Association (NEMA).  All
+--intellectual property rights, including, but not limited to, the rights of
+--reproduction in whole or in part in any form, translation into other
+--languages and display are reserved by the copyright owners under the laws of
+--the United States of America, the Universal Copyright Convention, the Berne
+--Convention, and the International and Pan American Copyright Conventions.
+--
+--                     Joint NEMA, AASHTO, and ITE
+--                  NTCIP Management Information Base
+--                        DISTRIBUTION NOTICE
+--
+--To the extent and in the limited event these materials are distributed by
+--AASHTO/ITE/NEMA in the form of a Management Information Base ("MIB"), 
+--AASHTO/ITE/NEMA extends the following permissions:
+--
+-- (i) you may make and/or distribute unlimited copies (including derivative
+--works) of the MIB, including copies for commercial distribution, provided
+--that (a) each copy you make and/or distribute contains this Notice and (b)
+--each derivative work of the MIB uses the same module name followed by "-",
+--followed by your Internet Assigned Number Authority (IANA)-assigned
+--enterprise number;
+--(ii) use of the MIB is restricted in that the syntax field may be modified
+--only to reflect a more restrictive sub-range or enumerated values;
+--(iii) the description field may be modified but only to the extent that:
+--(a) only those bit values or enumerated values that are supported are
+--listed; and (b) the more restrictive subrange is expressed.
+--
+--These materials are delivered "AS IS" without any warranties as to their use
+--or performance.
+--
+--AASHTO/ITE/NEMA AND THEIR SUPPLIERS DO NOT WARRANT THE PERFORMANCE OR
+--RESULTS YOU MAY OBTAIN BY USING THESE MATERIALS.  AASHTO/ITE/NEMA AND THEIR
+--SUPPLIERS MAKE NO WARRANTIES, EXPRESS OR IMPLIED, AS TO NONINFRINGEMENT OF
+--THIRD PARTY RIGHTS, MERCHANTABILITY, OR FITNESS FOR ANY PARTICULAR PURPOSE.
+--IN NO EVENT WILL AASHTO, ITE OR NEMA OR THEIR SUPPLIERS BE LIABLE TO YOU OR
+--ANY THIRD PARTY FOR ANY CLAIM OR FOR ANY CONSEQUENTIAL, INCIDENTAL OR
+--SPECIAL DAMAGES, INCLUDING ANY LOST PROFITS OR LOST SAVINGS, ARISING FROM
+--YOUR REPRODUCTION OR USE OF THESE MATERIALS, EVEN IF AN AASHTO, ITE, OR NEMA
+--REPRESENTATIVE HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.  Some
+--states or jurisdictions do not allow the exclusion or limitation of
+--incidental, consequential or special damages, or the exclusion of implied
+--warranties, so the above limitations may not apply to you.
+--
+--Use of these materials does not constitute an endorsement or affiliation by
+--or between AASHTO, ITE, or NEMA and you, your company, or your products and
+--services.
+--
+--NTCIP is a trademark of AASHTO/ITE/NEMA.
+--******************************************************************************
+
+PRS-MIB1 DEFINITIONS ::= BEGIN
+
+-- This group of objects represents the data elements that would reside in
+-- a Priority Request Server.
+
+IMPORTS
+
+     Gauge
+     FROM RFC1155-SMI
+
+--     EntryStatus, OwnerString, OerString,
+--     Byte, UByte, Short, Ushort, Long, Ulong,
+     BITMAP16, scp
+     FROM NTCIP8004-A-2004
+
+     OBJECT-TYPE
+     FROM RFC-1212;
+
+     priorityRequestServer OBJECT IDENTIFIER ::=  {scp 1}
+
+     TrueFalse ::= INTEGER (0 | 255)
+
+-- 3.1.1  Priority Request Table
+
+priorityRequestTable   OBJECT-TYPE
+  SYNTAX   SEQUENCE OF PriorityRequestTableEntry
+  ACCESS   not-accessible
+  STATUS   optional
+  DESCRIPTION
+        "A static table containing the parameters associated
+        with each signal control priority request. The number of
+        rows in this table is equal to 10."
+::= { priorityRequestServer 1 }
+
+-- 3.1.1.1     Priority Request Table Entry
+
+priorityRequestTableEntry   OBJECT-TYPE
+     SYNTAX   PriorityRequestTableEntry
+     ACCESS   not-accessible
+     STATUS   mandatory
+     DESCRIPTION
+          "This object defines the parameters that are associated
+          with priority requests."
+     INDEX   { priorityRequestEntryNumber }
+::= { priorityRequestTable 1 }
+
+PriorityRequestTableEntry ::= SEQUENCE {
+     priorityRequestEntryNumber               INTEGER,
+     priorityRequestID                        INTEGER,
+     priorityRequestVehicleID                 OCTET STRING (SIZE (17)),
+     priorityRequestVehicleClassType          INTEGER,
+     priorityRequestVehicleClassLevel         INTEGER,
+     priorityRequestServiceStrategyNumber     INTEGER,
+     priorityRequestTimeOfServiceDesired      INTEGER,
+     priorityRequestTimeOfEstimatedDeparture  INTEGER,
+     priorityRequestStatusInPRS               INTEGER,
+     priorityRequestTimeOfMessage             INTEGER,
+     priorityRequestTimeToLive                INTEGER,
+     priorityRequestTimeOfServiceDesiredInPRS     INTEGER,
+     priorityRequestTimeOfEstimatedDepartureInPRS INTEGER
+  }
+  
+-- 3.1.1.1.1   Priority Request Entry Number
+priorityRequestEntryNumber OBJECT-TYPE
+     SYNTAX   INTEGER (1..10)
+     ACCESS   read-only
+     STATUS   mandatory
+     DESCRIPTION
+        "This object represents the row number in the priority
+        request table.  It is used by a management application
+        for identification purposes."
+::= { priorityRequestTableEntry 1 }
+
+-- 3.1.1.1.2   Priority Request ID
+priorityRequestID OBJECT-TYPE
+     SYNTAX   INTEGER (1..255)
+     ACCESS   read-only
+     STATUS   optional
+     DESCRIPTION
+        "This object is the 'PRG requested' priority request
+        identifier. It is assigned by the priority request
+        generator so that further information related to a
+        priority request can be identified. It shall be unique
+        for this intersection from a vehicle ID of vehicle type."
+     DEFVAL { 1 }
+::= { priorityRequestTableEntry 2 }
+
+-- 3.1.1.1.3   Priority Request Vehicle ID
+ priorityRequestVehicleID     OBJECT-TYPE
+     SYNTAX    OCTET STRING (SIZE (17) )
+     ACCESS   read-only
+     STATUS   optional
+     DESCRIPTION
+        "This object is the 'PRG requested' globally unique
+        identifier of the entity requesting priority. For fleet
+        vehicles, this is assumed to be the Vehicle
+        Identification Number (VIN).  For management centers, the
+        value is not defined but must still be unique to
+        differentiate the source of the priority request. "
+     DEFVAL { "INVALID-VEH-ID-##" }      -- considered invalid
+::= { priorityRequestTableEntry 3 }
+
+-- 3.1.1.1.4   Priority Request Vehicle Class Type
+priorityRequestVehicleClassType    OBJECT-TYPE
+     SYNTAX   INTEGER (1..10)
+     ACCESS   read-only
+     STATUS   optional
+     DESCRIPTION
+        "This object is the 'PRG requested' class type (relative
+        priority of a request).  The order of precedence is by
+        class type with
+          1     highest;
+                   .
+          10    lowest
+        A request with a higher class type will override a lower
+        class type."
+     DEFVAL { 10 }
+::= { priorityRequestTableEntry 4 }
+
+-- 3.1.1.1.5   Priority Request Vehicle Class Level
+priorityRequestVehicleClassLevel   OBJECT-TYPE
+     SYNTAX   INTEGER (1..10)
+     ACCESS   read-only
+     STATUS   optional
+     DESCRIPTION
+          "This object is the 'PRG requested' class level
+          (relative priority of a request within each class of
+          request). The order of precedence is by class type and
+          then class level.
+          1     highest;
+                   .
+          10    lowest
+          
+          A request with a higher class level does NOT override a
+          lower class level."
+     DEFVAL { 10 }
+::= { priorityRequestTableEntry 5 }
+
+-- 3.1.1.1.6   Priority Request Service Strategy Number
+priorityRequestServiceStrategyNumber OBJECT-TYPE
+     SYNTAX    INTEGER (0..255)
+     ACCESS   read-only
+     STATUS   optional
+     DESCRIPTION
+        "This object is the 'PRG requested' strategy (1..255) or
+        0 indicating the PRS has reset the the value to none.
+        
+        The PRS only checks for non-zero value in a request.  The
+        CO determines whether a specific value represents a valid
+        strategy.  A PRG shall never set this to a value of zero
+        (0).  If it does, a PRS shall return a badValue error."
+     DEFVAL { 0 }
+::= { priorityRequestTableEntry 6 }
+
+-- 3.1.1.1.7   Priority Request Time of Service Desired
+priorityRequestTimeOfServiceDesired OBJECT-TYPE
+     SYNTAX   INTEGER (1..65535)
+     ACCESS   read-only
+     STATUS   optional
+     DESCRIPTION
+        "This object is the 'PRG requested' desired time in
+        seconds to arrive at the intersection's stopping point
+        relative to the receipt of the message.  A near side
+        stopping point is assumed to be sufficiently close to the
+        intersection's stop bar that regular queues frequently
+        back up across the stopping point.  In this case, advance
+        queue clearance prior to the arrival of fleet vehicle
+        will be normally required.  For all practical purposes,
+        arrival at the stopping point is the same as arrival at
+        the stop bar.
+        This is a relative time.
+        
+        Note that it is the responsibility of the PRG to take
+        into account any communications delays between the PRG
+        and the PRS."
+     DEFVAL { 1 }
+::= { priorityRequestTableEntry 7 }
+
+-- 3.1.1.1.8   Priority Request Time of Estimated Departure
+priorityRequestTimeOfEstimatedDeparture OBJECT-TYPE
+     SYNTAX   INTEGER (1..65535)
+     ACCESS   read-only
+     STATUS   optional
+     DESCRIPTION
+        "This object is the 'PRG requested' estimated time in
+        seconds of departure from the intersection's stopping
+        point relative to the receipt of the message.
+        This is a relative time.
+
+        Note that it is the responsibility of the PRG to take
+        into account any communications delays between the PRG
+        and the PRS."
+     DEFVAL { 1 }
+::= { priorityRequestTableEntry 8 }
+
+-- 3.1.1.1.9   Priority Request Status
+priorityRequestStatusInPRS    OBJECT-TYPE
+     SYNTAX    INTEGER { idleNotValid (1),
+                        readyQueued (2),
+                        readyOverridden (3),
+                        activeProcessing (4),
+                        activeCancel (5),
+                        activeOverride (6),
+                        activeNotOverridden (7),
+                        closedCanceled (8),
+                        reserviceError (9),
+                        closedTimeToLiveError (10),
+                        closedTimerError (11),
+                        closedStrategyError (12),
+                        closedCompleted (13),
+                        activeAdjustNotNeeded (14),
+                        closedFlash (15) }
+
+     ACCESS   read-only
+     STATUS   optional
+     DESCRIPTION
+        "This object provides status information about requests
+        in the PRG.  It is also passed to the CO as control
+        information.
+          idleNotValid        PRG determined that row does not
+                          contain valid data
+          readyQueued         PRG has validated the request but
+                          is waiting for the CO to activate
+          readyOverridden     CO has overridden the request
+          activeProcessing    CO is processing the requested
+                          strategy
+          activeCancel        PRS has asked that request be
+                          canceled
+          activeOverride      PRS has asked that reuest be
+                          overriddden
+          activeNotOverridden CO did not process the requested
+                          override
+          closedCanceled      CO has canceled the request
+          reserviceError      PRS determined that the request
+                          came too
+                                  soon after a previous request
+          closedTimeToLiveError   PRG determined that TSD exceeds
+                          the time
+                                  to live
+          closedTimerError    CO indicated that the requested
+                          times could not be met
+          closedStrategyError CO indicated that the requested
+                          strategy was not valid.
+          closedCompleted     CO has completed the requested
+                          strategyprevious request
+          activeAdjustNotNeeded   CO indicated that the request
+                          can be met
+                                  by the current timing and no
+                          adjustment is
+                                  necessary
+          closedFlash         CO indicated that the controller is
+                          in flash
+          
+          Upon receipt of a activeProcessing or a
+          activeAdjustNotNeeded from the CO, the PRS may change
+          the status to:
+                activeCancel   - upon reciept of a
+                prgPriorityCancel
+                activeOverride - upon reciept of a
+                prgPriorityRequest with
+                                 higher class
+          
+          Upon receipt of a closedTimerError,
+          closedStrategyError, closedCanceled, or
+          closedCompleted, or closedFlash from the CO, the PRS
+          may change the status to:
+                idleNotValid   - upon reciept of a
+                prgPriorityClear or a
+                                 timeout of TimetToLive
+
+          Upon receipt of a activeNotOverridden from the CO, the
+                          PRS may
+          change the status to:
+                activeCancel   - upon reciept of a
+                prgPriorityCancel
+
+          Upon receipt of a readyOverridden from the CO, the PRS
+                          may change
+          the status to:
+                readyQueued    - upon completion of overriding
+                request
+                closedCanceled - upon reciept of a
+                prgPriorityCancel
+                closedTimeToLiveError - a timeout of TimeToLive
+
+          When the status is idleNotValid, the PRS may change the
+          status to:
+                readyQueued    - upon reciept of a valid
+               rgPriorityRequest
+                
+          When the status is readyQueued, the PRS may change the
+          status to:
+                closedCanceled - upon reciept of a
+                prgPriorityCancel
+                closedTimeToLiveError - a timeout of TimeToLive
+                reserviceError  - the request came too soon
+                after a
+                                        previous request
+                
+          Note: A change of status is predicated on the 'busy'
+          signal being set."
+          
+     DEFVAL { idleNotValid }
+::= { priorityRequestTableEntry 9 }
+
+-- 3.1.1.1.10  Priority Request Time of Message
+priorityRequestTimeOfMessage OBJECT-TYPE
+     SYNTAX    INTEGER (0..4294967295)
+     ACCESS   read-only
+     STATUS   optional
+     DESCRIPTION
+        "This object represents the initial time of receipt of
+        the priority request.  The value of GLO.globalTime is
+        copied to this object when new priority request is first
+        entered in the priorityRequestTable."
+     DEFVAL { 0 }
+::= { priorityRequestTableEntry 10 }
+
+-- 3.1.1.1.11  Priority Request Time to Live
+priorityRequestTimeToLive OBJECT-TYPE
+     SYNTAX   INTEGER (0..4294967295)
+     ACCESS   read-only
+     STATUS   optional
+     DESCRIPTION
+        "This object represents the initial time of receipt of
+        the priority request priorityRequestTimeOfMessage plus
+        priorityRequestTimeToLiveValue. When GLO.globalTime is
+        equivalent  to this value, a priority request that has a
+        priorityRequestStatusInPRS of 'readyX' or 'closedX' shall
+        have the priorityRequestStatusInPRS set to
+        'idleNotValid'. "
+::= { priorityRequestTableEntry 11 }
+
+-- 3.1.1.1.12  Priority Request Time of Service Desired (CO)
+priorityRequestTimeOfServiceDesiredInPRS OBJECT-TYPE
+     SYNTAX    INTEGER  (0..4294967295)
+     ACCESS   read-only
+     STATUS   optional
+     DESCRIPTION
+        "This object is the 'PRS requested' desired time
+        (GLO.globalTime) to arrive at the intersection's stopping
+        point.  It is derived by adding
+        priorityRequestTimeOfServiceDesired to
+        priorityRequestTimeOfMessage."
+::= { priorityRequestTableEntry 12 }
+
+-- 3.1.1.1.13  Priority Request Time of Estimated Departure (PRS)
+priorityRequestTimeOfEstimatedDepartureInPRS OBJECT-TYPE
+     SYNTAX   INTEGER  (0..4294967295)
+     ACCESS   read-only
+     STATUS   optional
+     DESCRIPTION
+        "This object is the 'PRS requested' time (GLO.globalTime)
+        of departure from the intersection's stopping point. It
+        is derived by adding
+        priorityRequestTimeOfEstimatedDeparture to
+        priorityRequestTimeOfMessage."
+::= { priorityRequestTableEntry 13 }
+
+-- 3.1.2  Priority Request Server Busy
+
+prsBusy OBJECT-TYPE
+     SYNTAX   TrueFalse
+     ACCESS   read-only
+     STATUS   optional
+     DESCRIPTION
+        "This object is used to indicate to a CO that the PRS is
+        initializing or otherwise processing and, when TRUE, the
+        information included with it in a prsServiceRequest
+        response is not valid.  It is used to synchonize
+        exchanges between a PRS and CO.
+
+        When the CO is acting as manager and the PRS is acting as
+        an agent, prsBusy is set TRUE when the CO performs a
+        SetRequest prsServiceRequest.
+
+        When the PRS is acting as a manager and the CO is acting
+        as the agent, the value shall always be set to FALSE."
+
+::= { priorityRequestServer 2 }
+
+-- 3.1.3  Priority Request Time to Live Value
+
+priorityRequestTimeToLiveValue     OBJECT-TYPE
+     SYNTAX   INTEGER (0..65535)
+     ACCESS   read-only
+     STATUS   optional
+     DESCRIPTION
+        "This object represents the value (expressed in seconds)
+        that is added to the current value of GLO.globalTime and
+        loaded into priorityRequestTimeToLive when a priority
+        request is initially entered in the table."
+     DEFVAL { 0 }
+::= { priorityRequestServer 3 }
+
+-- 3.1.4  Priority Request Reservice Timer
+        
+priorityRequestReserviceTimer OBJECT-TYPE
+     SYNTAX    Gauge (0..65535)
+     ACCESS   read-only
+     STATUS   optional
+     DESCRIPTION
+        "This object represents a timer that is reset to zero at
+        the completion of any strategy
+        (priorityRequestStatusInPRS is initially set equal to
+        closedCompleted). It is incremented every second up to
+        its maximum value of 65535 where it latches.
+        
+        This timer is compared to Priority Request Reservice
+        Class X Times to determine whether an priority request
+        that comes right after a previous will be honored."
+::= { priorityRequestServer 4 }
+
+-- 3.1.5  Priority Request Reservice Class 1 Time
+        
+priorityRequestReserviceClass1Time OBJECT-TYPE
+     SYNTAX    INTEGER (0..65535)
+     ACCESS   read-only
+     STATUS   optional
+     DESCRIPTION
+        "This object represents the time in seconds between the
+        end of ANY strategy and the start of any new Class Type 1
+        priority request.  The value of the
+        priorityRequestReserviceTimer must be equal to or greater
+        than this value for priority request to be honored."
+     DEFVAL { 0 }
+::= { priorityRequestServer 5 }
+
+-- 3.1.6  Priority Request Reservice Class 2 Time
+        
+priorityRequestReserviceClass2Time OBJECT-TYPE
+     SYNTAX    INTEGER (0..65535)
+     ACCESS   read-only
+     STATUS   optional
+     DESCRIPTION
+        "This object represents the time in seconds between the
+        end of ANY strategy and the start of any new Class Type 2
+        priority request.  The value of the
+        priorityRequestReserviceTimer must be equal to or greater
+        than this value for priority request to be honored."
+     DEFVAL { 0 }
+::= { priorityRequestServer 6 }
+
+-- 3.1.7  Priority Request Reservice Class 3 Time
+        
+priorityRequestReserviceClass3Time OBJECT-TYPE
+     SYNTAX    INTEGER (0..65535)
+     ACCESS   read-only
+     STATUS   optional
+     DESCRIPTION
+        "This object represents the time in seconds between the
+        end of ANY strategy and the start of any new Class Type 3
+        priority request.  The value of the
+        priorityRequestReserviceTimer must be equal to or greater
+        than this value for priority request to be honored. "
+     DEFVAL { 0 }
+::= { priorityRequestServer 7 }
+
+-- 3.1.8  Priority Request Reservice Class 4 Time
+        
+priorityRequestReserviceClass4Time OBJECT-TYPE
+     SYNTAX    INTEGER (0..65535)
+     ACCESS   read-only
+     STATUS   optional
+     DESCRIPTION
+        "This object represents the time in seconds between the
+        end of ANY strategy and the start of any new Class Type 4
+        priority request.  The value of the
+        priorityRequestReserviceTimer must be equal to or greater
+        than this value for priority request to be honored. "
+     DEFVAL { 0 }
+::= { priorityRequestServer 8 }
+
+-- 3.1.9  Priority Request Reservice Class 5 Time
+
+priorityRequestReserviceClass5Time OBJECT-TYPE
+     SYNTAX    INTEGER (0..65535)
+     ACCESS   read-only
+     STATUS   optional
+     DESCRIPTION
+        "This object represents the time in seconds between the
+        end of ANY strategy and the start of any new Class Type 5
+        priority request.  The value of the
+        priorityRequestReserviceTimer must be equal to or greater
+        than this value for priority request to be honored."
+     DEFVAL { 0 }
+::= { priorityRequestServer 9 }
+
+-- 3.1.10 Priority Request Reservice Class 6 Time
+
+priorityRequestReserviceClass6Time OBJECT-TYPE
+     SYNTAX    INTEGER (0..65535)
+     ACCESS   read-only
+     STATUS   optional
+     DESCRIPTION
+        "This object represents the time in seconds between the
+        end of ANY strategy and the start of any new Class Type 6
+        priority request.  The value of the
+        priorityRequestReserviceTimer must be equal to or greater
+        than this value for priority request to be honored."
+     DEFVAL { 0 }
+::= { priorityRequestServer 10 }
+
+-- 3.1.11 Priority Request Reservice Class 7 Time
+
+priorityRequestReserviceClass7Time OBJECT-TYPE
+     SYNTAX    INTEGER (0..65535)
+     ACCESS   read-only
+     STATUS   optional
+     DESCRIPTION
+        "This object represents the time in seconds between the
+        end of ANY strategy and the start of any new Class Type 7
+        priority request.  The value of the
+        priorityRequestReserviceTimer must be equal to or greater
+        than this value for priority request to be honored."
+     DEFVAL { 0 }
+::= { priorityRequestServer 11 }
+
+-- 3.1.12 Priority Request Reservice Class 8 Time
+
+priorityRequestReserviceClass8Time OBJECT-TYPE
+     SYNTAX    INTEGER (0..65535)
+     ACCESS   read-only
+     STATUS   optional
+     DESCRIPTION
+        "This object represents the time in seconds between the
+        end of ANY strategy and the start of any new Class Type 8
+        priority request.  The value of the
+        priorityRequestReserviceTimer must be equal to or greater
+        than this value for priority request to be honored."
+     DEFVAL { 0 }
+::= { priorityRequestServer 12 }
+
+-- 3.1.13 Priority Request Reservice Class 9 Time
+
+priorityRequestReserviceClass9Time OBJECT-TYPE
+     SYNTAX    INTEGER (0..65535)
+     ACCESS   read-only
+     STATUS   optional
+     DESCRIPTION
+        "This object represents the time in seconds between the
+        end of ANY strategy and the start of any new Class Type 9
+        priority request.  The value of the
+        priorityRequestReserviceTimer must be equal to or greater
+        than this value for priority request to be honored."
+     DEFVAL { 0 }
+::= { priorityRequestServer 13 }
+
+-- 3.1.14 Priority Request Reservice Class 10 Time
+
+priorityRequestReserviceClass10Time     OBJECT-TYPE
+     SYNTAX    INTEGER (0..65535)
+     ACCESS   read-only
+     STATUS   optional
+     DESCRIPTION
+        "This object represents the time in seconds between the
+        end of ANY strategy and the start of any new Class Type
+        10 priority request.  The value of the
+        priorityRequestReserviceTimer must be equal to or greater
+        than this value for priority request to be honored."
+     DEFVAL { 0 }
+::= { priorityRequestServer 14 }
+
+-- 3.2    PRIORITY REQUEST SERVER BLOCK OBJECTS
+
+priorityRequestMessages OBJECT IDENTIFIER ::=  { scp 2 }
+
+-- 3.2.1  Priority Request Message
+
+prgPriorityRequest   OBJECT-TYPE
+   SYNTAX   OCTET STRING (SIZE(25))
+   ACCESS   not-accessible
+   STATUS   optional
+   DESCRIPTION
+      "<Definition> An OER encoded string of reference parameters to initiate
+       a new priority request.
+
+       The parameter values in this string when sent from a PRG to a PRS are:
+         priorityRequestID                       INTEGER (1..255)
+         priorityRequestVehicleID                OCTET STRING (SIZE 17)
+         priorityRequestVehicleClassType         INTEGER (1..10)
+         priorityRequestVehicleClassLevel        INTEGER (1..10)
+         priorityRequestServiceStrategyNumber    INTEGER (1..255)
+         priorityRequestTimeOfServiceDesired     INTEGER (1..65535)
+         priorityRequestTimeOfEstimatedDeparture INTEGER (1..65535)"
+
+::= { priorityRequestMessages 1 }
+
+-- 3.2.2  Priority Update Message
+
+prgPriorityUpdate   OBJECT-TYPE
+   SYNTAX   OCTET STRING (SIZE(25))
+   ACCESS   not-accessible
+   STATUS   optional
+   DESCRIPTION
+      "<Definition> An OER encoded string of reference parameters to update
+       a priority request.
+
+       The parameter values in this string when sent from a PRG to a PRS are:
+         priorityRequestID                       INTEGER (1..255)
+         priorityRequestVehicleID                OCTET STRING (SIZE 17)
+         priorityRequestVehicleClassType         INTEGER (1..10)
+         priorityRequestVehicleClassLevel        INTEGER (1..10)
+         priorityRequestServiceStrategyNumber    INTEGER (1..255)
+         priorityRequestTimeOfServiceDesired     INTEGER (1..65535)
+         priorityRequestTimeOfEstimatedDeparture INTEGER (1..65535)"
+::= { priorityRequestMessages 2 }
+
+-- 3.2.3  Priority Status Control Message
+
+prgPriorityStatusControl   OBJECT-TYPE
+   SYNTAX   OCTET STRING (SIZE(21))
+   ACCESS   not-accessible
+   STATUS   optional
+   DESCRIPTION
+      "<Definition> An OER encoded string of reference parameters used to
+      retrieve the status of a priority request.
+
+       The parameter values in this string when sent from a PRG to a PRS are:
+         priorityRequestID                       INTEGER (1..255)
+         priorityRequestVehicleID                OCTET STRING (SIZE 17)
+         priorityRequestVehicleClassType         INTEGER (1..10)
+         priorityRequestVehicleClassLevel        INTEGER (1..10)
+         priorityRequestServiceStrategyNumber    INTEGER (1..255)"
+::= { priorityRequestMessages 3 }
+
+-- 3.2.4  Priority Status Buffer Message
+
+prgPriorityStatusBuffer   OBJECT-TYPE
+   SYNTAX   OCTET STRING (SIZE(23))
+   ACCESS   not-accessible
+   STATUS   optional
+   DESCRIPTION
+      "<Definition> An OER encoded string defining the status of a
+      priority request.
+
+       The parameter values in this string when retrieved from a PRG are:
+         priorityRequestID                       INTEGER (1..255)
+         priorityRequestVehicleID                OCTET STRING (SIZE 17)
+         priorityRequestVehicleClassType         INTEGER (1..10)
+         priorityRequestVehicleClassLevel        INTEGER (1..10)
+         priorityRequestServiceStrategyNumber    INTEGER (1..255)
+         priorityRequestStatusInPRS              INTEGER (1..255)"
+::= { priorityRequestMessages 4 }
+
+-- 3.2.5  Priority Cancel Message
+
+prgPriorityCancel   OBJECT-TYPE
+   SYNTAX   OCTET STRING (SIZE(21))
+   ACCESS   not-accessible
+   STATUS   optional
+   DESCRIPTION
+      "<Definition> An OER encoded string of reference parameters to cancel
+       a priority request.
+
+       The parameter values in this string when sent from a PRG to a PRS are:
+         priorityRequestID                       INTEGER (1..255)
+         priorityRequestVehicleID                OCTET STRING (SIZE 17)
+         priorityRequestVehicleClassType         INTEGER (1..10)
+         priorityRequestVehicleClassLevel        INTEGER (1..10)
+         priorityRequestServiceStrategyNumber    INTEGER (1..255)"
+::= { priorityRequestMessages 5 }
+
+-- 3.2.6  Priority Clear Message
+
+prgPriorityClear   OBJECT-TYPE
+   SYNTAX   OCTET STRING (SIZE(21))
+   ACCESS   not-accessible
+   STATUS   optional
+   DESCRIPTION
+      "<Definition> An OER encoded string of reference parameters to clear
+       a priority request.
+
+       The parameter values in this string when sent from a PRG to a PRS are:
+         priorityRequestID                       INTEGER (1..255)
+         priorityRequestVehicleID                OCTET STRING (SIZE 17)
+         priorityRequestVehicleClassType         INTEGER (1..10)
+         priorityRequestVehicleClassLevel        INTEGER (1..10)
+         priorityRequestServiceStrategyNumber    INTEGER (1..255)"
+::= { priorityRequestMessages 6 }
+
+-- 3.2.7  Program Data
+
+prsProgramData   OBJECT-TYPE
+   SYNTAX   OCTET STRING (SIZE(23))
+   ACCESS   read-write
+   STATUS   optional
+   DESCRIPTION
+      "<Definition> An OER encoded string of reference parameters for
+       exchanges between Traffic Management and a PRS.
+
+       The parameter values in this string are:
+         priorityRequestTimeToLiveValue       INTEGER (0..65535)
+         priorityRequestReserviceClass1Time   INTEGER (0..65535)
+         priorityRequestReserviceClass2Time   INTEGER (0..65535)
+         priorityRequestReserviceClass3Time   INTEGER (0..65535)
+         priorityRequestReserviceClass4Time   INTEGER (0..65535)
+         priorityRequestReserviceClass5Time   INTEGER (0..65535)
+         priorityRequestReserviceClass6Time   INTEGER (0..65535)
+         priorityRequestReserviceClass7Time   INTEGER (0..65535)
+         priorityRequestReserviceClass8Time   INTEGER (0..65535)
+         priorityRequestReserviceClass9Time   INTEGER (0..65535)
+         priorityRequestReserviceClass10Time  INTEGER (0..65535)"
+::= { priorityRequestMessages 7 }
+
+END -- PRS-MIB1

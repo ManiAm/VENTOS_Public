@@ -1,0 +1,321 @@
+
+-- D.1 Modem MIB Header
+-- 
+-- Filename:    2103v0203 MOD.mib
+-- Description: This MIB defines objects represents the data elements that 
+--              support dial-up modem configuration and control
+-- Source:      NTCIP 2103 v02.03
+--
+-- MIB Revision History:
+-- 10/14/04     Created header and MIB inside NTCIP 2103 v02.01.
+-- 10/15/05     Made corrections to header and mdmNetAddress OID value
+--              
+-- 
+-- Copyright 2004 by the American Association of State Highway and
+-- Transportation Officials (AASHTO), the Institute of Transportation 
+-- Engineers (ITE), and the National Electrical Manufacturers Association 
+-- (NEMA).  All intellectual property rights, including, but not limited to, 
+-- the rights of reproduction in whole or in part in any form, translation 
+-- into other languages and display are reserved by the copyright owners under 
+-- the laws of the United States of America, the Universal Copyright 
+-- Convention, the Berne Convention, and the International and Pan American 
+-- Copyright Conventions.
+--
+--                     Joint AASHTO, ITE, and NEMW
+--            NTCIP Management Information Base and Data Dictionary
+--                        DISTRIBUTION NOTICE
+--
+-- To the extent and in the limited event these materials are distributed by
+-- AASHTO/ITE/NEMA in the form of a Management Information Base ("MIB") or
+-- Data Dictionary ("DD"), AASHTO/ITE/NEMA extends the following permissions:
+-- 
+--  (i) you may make and/or distribute unlimited copies (including derivative
+-- works) of the MIB, including copies for commercial distribution, provided
+-- that (a) each copy you make and/or distribute contains this Notice and (b)
+-- each derivative work of the MIB uses the same module name followed by "-",
+-- followed by your Internet Assigned Number Authority (IANA)-assigned
+-- enterprise number;
+-- (ii) use of the MIB is restricted in that the syntax field may be modified
+-- but only to reflect a more restrictive sub-range or enumerated values;
+-- (iii) the description field may be modified but only to the extent that:
+-- (a) only those bit values or enumerated values that are supported are
+-- listed; and (b) the more restrictive subrange is expressed.
+-- 
+-- These materials are delivered "AS IS" without any warranties as to their
+-- use or performance.
+-- 
+-- AASHTO/ITE/NEMA AND THEIR SUPPLIERS DO NOT WARRANT THE PERFORMANCE OR
+-- RESULTS YOU MAY OBTAIN BY USING THESE MATERIALS.  AASHTO/ITE/NEMA AND THEIR
+-- SUPPLIERS MAKE NO WARRANTIES, EXPRESS OR IMPLIED, AS TO NONINFRINGEMENT OF
+-- THIRD PARTY RIGHTS, MERCHANTABILITY, OR FITNESS FOR ANY PARTICULAR PURPOSE.
+-- IN NO EVENT WILL AASHTO, ITE OR NEMA OR THEIR SUPPLIERS BE LIABLE TO YOU OR
+-- ANY THIRD PARTY FOR ANY CLAIM OR FOR ANY CONSEQUENTIAL, INCIDENTAL OR
+-- SPECIAL DAMAGES, INCLUDING ANY LOST PROFITS OR LOST SAVINGS, ARISING FROM
+-- YOUR REPRODUCTION OR USE OF THESE MATERIALS, EVEN IF AN AASHTO, ITE, OR 
+-- NEMA REPRESENTATIVE HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+-- Some states or jurisdictions do not allow the exclusion or limitation of
+-- incidental, consequential or special damages, or the exclusion of implied
+-- warranties, so the above limitations may not apply to you.
+-- 
+-- Use of these materials does not constitute an endorsement or affiliation by
+-- or between AASHTO, ITE, or NEMA and you, your company, or your products and
+-- services.
+-- 
+-- NTCIP is a trademark of AASHTO/ITE/NEMA.
+--******************************************************************************
+
+NTCIP-Modem-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    OBJECT-TYPE
+        FROM RFC-1212
+    DisplayString
+        FROM RFC1213-MIB
+    Counter, IpAddress
+        FROM RFC1155-SMI
+    layers
+        FROM NTCIP8004-A-2004;
+
+modem   OBJECT IDENTIFIER ::= { layers 2 }
+
+-- D.1.1 Modem Interface Index
+
+mdmIfIndex OBJECT-TYPE
+    SYNTAX      INTEGER (1..255)
+    ACCESS      read-write
+    STATUS      mandatory
+    DESCRIPTION
+            "<Definition> The value of ifIndex for the port to which
+            the modem is connected or resident. By convention
+            and if possible, hardware port numbers map directly
+            to external connectors.  The value for each port must
+            remain constant at least from one re-initialization
+            of the network management agent to the next.
+
+            <DescriptiveName> DialString.ifIndex:number
+            <DataConceptType> Data Element "
+
+    ::= { modem 1 }
+
+-- D.1.2 Maximum Dial Strings
+
+maxDialStrings  OBJECT-TYPE
+    SYNTAX INTEGER (1..255)
+    ACCESS      read-only
+    STATUS      mandatory
+    DESCRIPTION
+            "<Definition> The maximum number of dial strings (telephone 
+            numbers) that this unit supports.
+
+            <DescriptiveName> DialStrings.max:quantity
+            <DataConceptType> Data Element"
+    ::= { modem 2 }
+
+
+-- D.1.3 Dial String Table
+
+-- The Dial String table contains a collection of objects that 
+-- describe the dialing string or telephone number to use when trying to 
+-- connect to an entity through a dialup modem interface.
+--
+-- Note. This table is intentionally structured to provide services similar
+-- to the ipNetToMediaTable.  If the ipNetToMediaTable is used to convert an 
+-- IpAddress to a dial string or telephone number and this table is 
+-- instantiated, then one should ensure that the appropriate entries in the 
+-- ipNetToMediaTable mirror this one.  The use of the ipNetToMediaTable for 
+-- converting an IpAddress to a dial string or telephone number is predicated
+-- by the PPP's HDLC address field always be equal to "0xff". 
+
+mdmDialStringTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF MdmDialStringEntry
+    ACCESS      not-accessible
+    STATUS      mandatory
+    DESCRIPTION
+            "<Definition> A table of stored dial strings or telephone 
+            numbers.
+
+            <DescriptiveName> DialStringTable
+            <DataConceptType> Entity Type
+            <TableType> Static"
+
+    REFERENCE   "V.58 telephone Numbers"
+    ::= { modem 3 }
+
+-- D.1.3.1 Modem Dial String Entry
+
+mdmDialStringEntry OBJECT-TYPE
+    SYNTAX      MdmDialStringEntry
+    ACCESS      not-accessible
+    STATUS      mandatory
+    DESCRIPTION
+            "<Definition> A dialing string or telephone number indexed 
+            by row, interface number and/or IpAddress.  
+
+            <DescriptiveName> DialStringEntry
+            <DataConceptType> Entity Type"
+
+    INDEX  { mdmRowIndex }
+    ::= { mdmDialStringTable 1 }
+
+MdmDialStringEntry ::= SEQUENCE {
+    mdmRowIndex            INTEGER, 
+    mdmDialString          DisplayString,
+    mdmNetAddress          IpAddress }
+
+-- D.1.3.1.1 Modem Dial Sting Row
+
+mdmRowIndex OBJECT-TYPE
+    SYNTAX      INTEGER (1..255)
+    ACCESS      read-only
+    STATUS      mandatory
+    DESCRIPTION
+            "<Definition> The row number of an entry in the 
+            mdmDialStringTable.  
+            The value may not exceed maxDialStrings.
+
+            <DescriptiveName> DialString.rowIndex:number
+            <DataConceptType> Data Element "
+
+    ::= { mdmDialStringEntry 1 }
+
+-- D.1.3.1.2 Modem Dial String
+
+mdmDialString OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE(0..40))
+    ACCESS      read-write
+    STATUS      mandatory
+    DESCRIPTION
+            "<Definition> A dialing string or telephone number to send to the
+            modem for it call in order to reach the desired host computer.
+
+            The value of this object shall be terminated with a
+            carriage return and, optionally, linefeed characters.
+
+            <DescriptiveName> DialString.string:text
+            <DataConceptType> Data Element "
+
+    ::= { mdmDialStringEntry 2 }
+
+-- D.1.3.1.3 Modem Network Address 
+
+mdmNetAddress OBJECT-TYPE
+    SYNTAX      IpAddress
+    ACCESS      read-write
+    STATUS      mandatory
+    DESCRIPTION
+            "<Definition> The IpAddress of the desired host computer 
+            associated with the dialing sting or telephone number.
+
+            <DescriptiveName> DialString.address:number
+            <DataConceptType> Data Element "
+
+    ::= { mdmDialStringEntry 3 }
+
+
+-- D.1.4 Modem Initialization String 1 
+
+mdmInitString1 OBJECT-TYPE
+    SYNTAX  DisplayString (SIZE (0..40))
+    ACCESS  read-write
+    STATUS  mandatory
+    DESCRIPTION
+                        "<Definition> An initialization string that will be sent to the 
+            modem each time the modem is rebooted.  A list of manufacture 
+            specific initialization strings can be found at
+            http://www.modemhelp.org/inits/
+
+            The DEFVAL field includes a <cr> and <lf> symbols to indicate an 
+            embedded an optional carriage return and a mandatory linefeed 
+            must be present if the string is to be sent. 
+
+            <DescriptiveName> Init.string1:text
+            <DataConceptType> Data Element "
+
+   DEFVAL   { "&F<cr><lf>" }
+    ::= { modem 4 }
+
+-- D.1.5 Modem Initialization String 2
+
+mdmInitString2 OBJECT-TYPE
+    SYNTAX  DisplayString (SIZE (0..40))
+    ACCESS  read-write
+    STATUS  mandatory
+    DESCRIPTION
+                        "<Definition> A second initialization string that is to be sent to 
+            the modem each time the modem is rebooted.
+
+            The DEFVAL field includes a <cr> and <lf> symbols to indicate an 
+            embedded optional carriage return and mandatory linefeed that 
+            must be present if the string is to be sent. 
+
+            <DescriptiveName> Init.string2:text
+            <DataConceptType> Data Element "
+
+   DEFVAL   { "E1Q1V0X0S0=0&D0&C0<cr><lf>" } 
+   ::= { modem 5 }
+
+-- D.1.6 Modem Initialization String 3
+
+mdmInitString3 OBJECT-TYPE
+    SYNTAX  DisplayString (SIZE (0..40))
+    ACCESS  read-write
+    STATUS  mandatory
+    DESCRIPTION
+                        "<Definition> A second initialization string that is to be sent to 
+            the modem each time the modem is rebooted.
+
+            <DescriptiveName> Init.string3:text
+            <DataConceptType> Data Element "
+
+   DEFVAL   { "" }
+    ::= { modem 6 }
+
+-- D.1.7 Modem Buffer Delay
+
+mdmBufferDelay OBJECT-TYPE
+    SYNTAX  INTEGER (0..255)
+    ACCESS  read-write
+    STATUS  mandatory
+    DESCRIPTION
+           "<Definition> The time in tenth seconds between
+           when a response is received and the sending of a subsequent
+           command for the purpose of visibility during diagnostics.
+
+           <DescriptiveName> Buffer.delay:code
+           <DataConceptType> Data Element "
+
+    ::= { modem 7 }
+
+-- D.1.8 Modem Command Buffer
+
+mdmCommandBuffer OBJECT-TYPE
+    SYNTAX  DisplayString (SIZE (0..40))
+    ACCESS  read-only
+    STATUS  mandatory
+    DESCRIPTION
+            "<Definition> This object contains an image of any command sent to
+            a modem.  When the DTE is about to send a command to a modem the 
+            mdmResponseBuffer is set equal to null and the command is copied 
+            here.
+
+            <DescriptiveName> Buffer.command:text
+            <DataConceptType> Data Element "
+
+    ::= { modem 8 }
+
+-- D.1.9 Modem Response Buffer
+
+mdmResponseBuffer OBJECT-TYPE
+    SYNTAX  DisplayString (SIZE (0..40))
+    ACCESS  read-only
+    STATUS  mandatory
+    DESCRIPTION
+            "<Definition> This object contains an image of any response 
+            received from a modem.  
+
+            <DescriptiveName> Buffer.response:text
+            <DataConceptType> Data Element "
+
+    ::= { modem 9 }
+
+END -- NTCIP-Modem-MIB

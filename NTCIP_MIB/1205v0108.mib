@@ -1,0 +1,1017 @@
+-- 3.1 CLOSED CIRCUIT TELEVISION (CCTV) OBJECTS
+
+-- Filename:    1205v0108.mib
+-- Description: This MIB defines defines those objects that are expected to be
+--              used by closed circuit television (CCTV) camera control.
+-- Source:      NTCIP 1205 v01.08 dated February 14, 2001
+-- MIB Revision History:
+-- 09/27/04     Created file form Word .Doc file.
+--              Added header
+--              Replaced
+--                  cctv	OBJECT IDENTIFIER ::= {devices 7}
+--                  profiles, devices
+--                     FROM TMIB;
+--              With
+--                  cctv
+--                     FROM NTCIP8004-A-2004 DEFINITIONS
+
+--Copyright 2000 - 2004 by the American Association of State Highway and
+--Transportation Officials (AASHTO), the Institute of Transportation Engineers
+--(ITE), and the National Electrical Manufacturers Association (NEMA).  All
+--intellectual property rights, including, but not limited to, the rights of
+--reproduction in whole or in part in any form, translation into other
+--languages and display are reserved by the copyright owners under the laws of
+--the United States of America, the Universal Copyright Convention, the Berne
+--Convention, and the International and Pan American Copyright Conventions.
+--
+--                     Joint NEMA, AASHTO, and ITE
+--                  NTCIP Management Information Base
+--                        DISTRIBUTION NOTICE
+--
+--To the extent and in the limited event these materials are distributed by
+--AASHTO/ITE/NEMA in the form of a Management Information Base ("MIB"), 
+--AASHTO/ITE/NEMA extends the following permissions:
+--
+-- (i) you may make and/or distribute unlimited copies (including derivative
+--works) of the MIB, including copies for commercial distribution, provided
+--that (a) each copy you make and/or distribute contains this Notice and (b)
+--each derivative work of the MIB uses the same module name followed by "-",
+--followed by your Internet Assigned Number Authority (IANA)-assigned
+--enterprise number;
+--(ii) use of the MIB is restricted in that the syntax field may be modified
+--only to reflect a more restrictive sub-range or enumerated values;
+--(iii) the description field may be modified but only to the extent that:
+--(a) only those bit values or enumerated values that are supported are
+--listed; and (b) the more restrictive subrange is expressed.
+--
+--These materials are delivered "AS IS" without any warranties as to their use
+--or performance.
+--
+--AASHTO/ITE/NEMA AND THEIR SUPPLIERS DO NOT WARRANT THE PERFORMANCE OR
+--RESULTS YOU MAY OBTAIN BY USING THESE MATERIALS.  AASHTO/ITE/NEMA AND THEIR
+--SUPPLIERS MAKE NO WARRANTIES, EXPRESS OR IMPLIED, AS TO NONINFRINGEMENT OF
+--THIRD PARTY RIGHTS, MERCHANTABILITY, OR FITNESS FOR ANY PARTICULAR PURPOSE.
+--IN NO EVENT WILL AASHTO, ITE OR NEMA OR THEIR SUPPLIERS BE LIABLE TO YOU OR
+--ANY THIRD PARTY FOR ANY CLAIM OR FOR ANY CONSEQUENTIAL, INCIDENTAL OR
+--SPECIAL DAMAGES, INCLUDING ANY LOST PROFITS OR LOST SAVINGS, ARISING FROM
+--YOUR REPRODUCTION OR USE OF THESE MATERIALS, EVEN IF AN AASHTO, ITE, OR NEMA
+--REPRESENTATIVE HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.  Some
+--states or jurisdictions do not allow the exclusion or limitation of
+--incidental, consequential or special damages, or the exclusion of implied
+--warranties, so the above limitations may not apply to you.
+--
+--Use of these materials does not constitute an endorsement or affiliation by
+--or between AASHTO, ITE, or NEMA and you, your company, or your products and
+--services.
+--
+--NTCIP is a trademark of AASHTO/ITE/NEMA.
+--******************************************************************************
+
+CCTV-MIB1 DEFINITIONS ::= BEGIN
+
+--the following OBJECT IDENTIFIERS are used in the CCTV MIB:
+
+IMPORTS
+     OBJECT-TYPE
+          FROM RFC-1212
+--     profiles, devices
+--          FROM TMIB;
+       cctv
+            FROM NTCIP8004-A-2004;
+
+PositionReference ::= OCTET STRING (SIZE (0..4))
+-- PositionReference consists of those parameters required to
+-- control the detailed movement of the camera.  It is defined by an
+-- aligned OER encoded value of the following structure:
+-- CHOICE {
+-- stopMovement	INTEGER (0) – stop movement,
+-- delta			SpeedOffset,
+-- absolute		SpeedOffset,
+-- continuous	INTEGER (-127..127) – scalar values where larger values denote increasing speed}
+--
+-- SpeedOffset ::= SEQUENCE {
+-- speed		INTEGER (-127..127),
+-- offset			INTEGER (0..65535)}
+
+-- For the purpose of this section, the following OBJECT IDENTIFIERS are used:
+-- cctv	OBJECT IDENTIFIER ::= {devices 7}
+
+-- 3.2 CCTV RANGE OBJECTS
+cctvRange	OBJECT IDENTIFIER ::= { cctv 1 }
+
+-- 3.2.1 Maximum Number of Presets Parameter
+
+rangeMaximumPreset 	OBJECT-TYPE
+SYNTAX	INTEGER (0..255)
+ACCESS	read-only
+STATUS	mandatory
+DESCRIPTION	"A preset is the pre-specified position where a camera is pointed to a fixed point in space (includes positions for pan, tilt, and zoom).  The maximumPreset is a number indicating the total number of possible preset positions supported by the device.  A value of zero (0) identifies that the device does not support presets."  
+::= {cctvRange 1}
+
+-- 3.2.2 Pan Left Limit Parameter
+
+rangePanLeftLimit 	OBJECT-TYPE
+SYNTAX	INTEGER (0..35999 | 65535) 
+ACCESS	read-only
+STATUS	mandatory
+DESCRIPTION     "Specifies the panning left range limit in 1/100th degree units in a clockwise direction from the Home Position.  If the rangePanLeftLimit and the rangePanRightLimit are both zero (0), then the device does not support panning movement.  If the rangePanLeftLimit and the rangePanRightLimit are both 65535, then the device does not support the concept of right and left limits."
+::= { cctvRange 2}
+
+-- 3.2.3 Pan Right Limit Parameter
+
+rangePanRightLimit 	OBJECT-TYPE
+SYNTAX	INTEGER (0..35999 | 65535) 
+ACCESS	read-only
+STATUS	mandatory
+DESCRIPTION	"Specifies the panning right range limit in 1/100th degree units in a clockwise direction from the Home Position. If the rangePanLeftLimit and the rangePanRightLimit are both zero (0), then the device does not support panning movement. If the rangePanLeftLimit and the rangePanRightLimit are both 65535, then the device does not support the concept of right and left limits."  
+::= { cctvRange 3}
+
+-- 3.2.4 Pan Home Position Parameter
+
+rangePanHomePosition 	OBJECT-TYPE
+SYNTAX	INTEGER (0..35999 | 65535) 
+ACCESS	read-only
+STATUS	mandatory
+DESCRIPTION	"Specifies an arbitrary point on a circle from which the left and right limits are measured in 1/100th degree units.  The value of 65535 means that Home position referencing is not supported for the horizontal plane.."  
+::= { cctvRange 4}
+
+-- 3.2.5 True North Offset Parameter
+
+rangeTrueNorthOffset 	OBJECT-TYPE
+SYNTAX	INTEGER (0..35999 | 65535) 
+ACCESS	read-write
+STATUS	mandatory
+DESCRIPTION     "Specifies the offset between true North and the Home Position in 1/100th degree units.  When read, returns last value written. If the Home Position is true North, then set this value to zero (0).  The value of 65535 means that a true North offset from the Home position is not supported.  The actual direction of North is not defined by this standard.  True North offset can be used to create an arbitrary coordinate reference position."
+::= { cctvRange 5}
+
+-- 3.2.6 Tilt Up Limit Parameter
+
+rangeTiltUpLimit 	OBJECT-TYPE
+SYNTAX	INTEGER (0..35999 | 65535) 
+ACCESS	read-only
+STATUS	mandatory
+DESCRIPTION	"Specifies the tilting up range limit in 1/100th degree units.  The zero point for measurement is the horizon line.  Tilting upward indicates a positive direction. If the rangeTiltUpLimit and the rangeTiltDownLimit are both zero (0), then the device does not support tilting movement. If the rangeTiltUpLimit and the rangeTiltDownLimit are both 65535, then the device does not support the concept of up and down limits."  
+::= { cctvRange 6}
+
+-- 3.2.7 Tilt Down Limit Parameter
+
+rangeTiltDownLimit 	OBJECT-TYPE
+SYNTAX	INTEGER (0..35999 | 65535) 
+ACCESS	read-only
+STATUS	mandatory
+DESCRIPTION	"Specifies the tilting down range limit in 1/100th degree units.  The zero point for measurement is the horizon line.  Tilting upward indicates a positive direction. If the rangeTiltUpLimit and the rangeTiltDownLimit are both zero (0), then the device does not support tilting movement. If the rangeTiltUpLimit and the rangeTiltDownLimit are both 65535, then the device does not support the concept of up and down limits."  
+::= { cctvRange 7}
+
+-- 3.2.8 Zoom Limit Parameter
+
+rangeZoomLimit 	OBJECT-TYPE
+SYNTAX	INTEGER (0..65535) 
+ACCESS	read-only
+STATUS	mandatory
+DESCRIPTION     "Specifies the zoom range in arbitrary units.  Used for absolute or offset control.  Zero (0) identifies that zoom limits are not supported.  This number represents the scalar zoom positioning beginning with zero (0) for wide and ending with 65535 for telephoto."
+::= { cctvRange 8}
+
+-- 3.2.9 Focus Limit Parameter
+
+rangeFocusLimit 	OBJECT-TYPE
+SYNTAX	INTEGER (0..65535) 
+ACCESS	read-only
+STATUS	mandatory
+DESCRIPTION     "Specifies the focus range in arbitrary units.  Used for absolute or offset control.  Zero (0) identifies that focus limits are not supported. This number represents the scalar focus positioning beginning with zero (0) for near and ending with 65535 for far."
+::= { cctvRange 9}
+
+-- 3.2.10 Iris Limit Parameter
+
+rangeIrisLimit 	OBJECT-TYPE
+SYNTAX	INTEGER (0..65535) 
+ACCESS	read-only
+STATUS	mandatory
+DESCRIPTION     "Specifies the iris range in arbitrary units.  Used for absolute or offset control.  Zero (0) identifies that iris limits are not supported. This number represents the scalar zoom positioning beginning with zero (0) for open and ending with 65535 for closed.  Open is defined as the largest aperture setting.  Closed is defined as the smallest aperture setting."
+::= { cctvRange 10}
+
+-- 3.2.11 Maximum Pan Step Angle Parameter
+
+rangeMinimumPanStepAngle 	OBJECT-TYPE
+SYNTAX	INTEGER (0..35999 | 65535) 
+ACCESS	read-only
+STATUS	mandatory
+DESCRIPTION     "Specifies the minimum incremental angle in 1/100th degree units for the minimum pan step size to guarantee movement in the horizontal plane.  A value of 65535 means that Minimum pan step angle is not supported."
+::= { cctvRange 11}
+
+-- 3.2.12 Maximum Tilt Step Angle Parameter
+
+rangeMinimumTiltStepAngle 	OBJECT-TYPE
+SYNTAX	INTEGER (0..35999 | 65535) 
+ACCESS	read-only
+STATUS	mandatory
+DESCRIPTION     "Specifies the minimum incremental angle in 1/100th degree units for the minimum tilt step size to guarantee movement in the vertical plane.  A value of 65535 means that minimum tilt step angle is not supported."
+::= { cctvRange 12}
+
+-- 3.3 CCTV TIMEOUT OBJECTS
+
+cctvTimeout  OBJECT IDENTIFIER ::= { cctv 2 }
+
+-- 3.3.1 Pan Timeout Parameter
+
+timeoutPan 	OBJECT-TYPE
+SYNTAX	INTEGER (0..65535) 
+ACCESS	read-write
+STATUS	mandatory
+DESCRIPTION	"A number indicating the total number of milliseconds that a panning motion can continue without a reissue of a pan command.  A value of zero identifies that panning timeout is not supported."  
+::= {cctvTimeout 1}
+
+-- 3.3.2 Tilt Timeout Parameter
+
+timeoutTilt 	OBJECT-TYPE
+SYNTAX	INTEGER (0..65535) 
+ACCESS	read-write
+STATUS	mandatory
+DESCRIPTION	"A number indicating the total number of milliseconds that a tilting motion can continue without a reissue of a tilt command.  A value of zero identifies that tilting timeout is not supported."  
+::= {cctvTimeout 2}
+
+-- 3.3.3 Zoom Timeout Parameter
+
+timeoutZoom 	OBJECT-TYPE
+SYNTAX	INTEGER (0..65535) 
+ACCESS	read-write
+STATUS	mandatory
+DESCRIPTION	"A number indicating the total number of milliseconds that a zoom motion can continue without a reissue of a zoom command.  A value of zero identifies that zooming timeout is not supported."  
+::= {cctvTimeout 3}
+
+-- 3.3.4 Focus Timeout Parameter
+
+timeoutFocus 	OBJECT-TYPE
+SYNTAX	INTEGER (0..65535) 
+ACCESS	read-write
+STATUS	mandatory
+DESCRIPTION	"A number indicating the total number of milliseconds that a focus motion can continue without a reissue of a focus type command.  A value of zero identifies that focusing timeout is not supported."  
+::= {cctvTimeout 4}
+
+-- 3.3.5 Iris Timeout Parameter
+
+timeoutIris 	OBJECT-TYPE
+SYNTAX	INTEGER (0..65535) 
+ACCESS	read-write
+STATUS	mandatory
+DESCRIPTION	"A number indicating the total number of milliseconds that an iris motion can continue without a reissue of a iris type command.  A value of zero identifies that iris timeout is not supported."  
+::= {cctvTimeout 5}
+
+-- 3.4 CCTV PRESET OBJECTS
+
+cctvPreset 	OBJECT IDENTIFIER ::= { cctv 3 }
+
+-- 3.4.1 Go To Preset Position Parameter
+
+presetGotoPosition 	OBJECT-TYPE
+SYNTAX	INTEGER (0..255)
+ACCESS	read-write
+STATUS	mandatory
+DESCRIPTION	"Writing to this object commands the device to move to a preset if that preset exists.  Reading returns the last value written.  This value is reset to zero (0) upon the issuance of a pan, tilt, or zoom command."  
+::= {cctvPreset 1}
+
+-- 3.4.2 Store Preset Position Parameter
+
+presetStorePosition 	OBJECT-TYPE
+SYNTAX	INTEGER (0..255)
+ACCESS	read-write
+STATUS	mandatory
+DESCRIPTION	"Writing to this object commands the device to save the current position to the specified preset. Reading returns the last value written.  This value is reset to zero (0) upon the issuance of a pan, tilt, or zoom command."  
+::= {cctvPreset 2}
+
+-- 3.5 CCTV POSITIONING OBJECTS
+cctvPosition	OBJECT IDENTIFIER ::= { cctv 4 }
+
+-- 3.5.1 Pan Position Parameter
+
+positionPan 	OBJECT-TYPE
+SYNTAX	PositionReference
+ACCESS	read-write
+STATUS	mandatory
+DESCRIPTION	"Object is 4 bytes in length:
+    Byte 1 is the mode of operation defined as stop movement, delta, absolute, or continuous movement,
+Byte 2 is speed defined as a scalar unit with positive (+) being clockwise and negative (–) being   counterclockwise,
+    Bytes 3 and 4 specify a position or offset measurement in 1/100th degrees.
+The minimum amount of movement shall be one step as defined by the rangeMinimumPanStepAngle.  When read, this object returns last value written."
+::= {cctvPosition 1}
+
+-- 3.5.2 Tilt Position Parameter
+
+positionTilt 	OBJECT-TYPE
+SYNTAX	PositionReference
+ACCESS	read-write
+STATUS	mandatory
+DESCRIPTION	"Object is 4 bytes in length:
+    Byte 1 is the mode of operation defined as stop movement, delta, absolute, or continuous movement,
+    Byte 2 is speed defined as a scalar unit with positive (+) being up and negative (–) being down,
+    Bytes 3 and 4 specify a position or offset measurement in 1/100th degrees.
+The minimum amount of movement shall be one step as defined by the rangeMinimumTiltStepAngle.  When read, this object returns last value written."
+::= {cctvPosition 2}
+
+-- 3.5.3 Lens Zoom Position Parameter
+
+positionZoomLens 	OBJECT-TYPE
+SYNTAX	PositionReference
+ACCESS	read-write
+STATUS	mandatory
+DESCRIPTION	"Object is 4 bytes in length:
+    Byte 1 is the mode of operation defined as stop movement, delta, absolute, or continuous movement,
+Byte 2 is speed defined as a scalar unit with positive (+) being telephoto and negative (-) being wide,
+Bytes 3 and 4 specify a position or offset measurement in scalar units with a maximum value of the specified limit.  When read, this object returns last value written." 
+::= {cctvPosition 3}
+
+-- 3.5.4 Lens Focus Position Parameter
+
+positionFocusLens  	OBJECT-TYPE
+SYNTAX	PositionReference
+ACCESS	read-write
+STATUS	mandatory
+DESCRIPTION	"Object is 4 bytes in length:
+    Byte 1 is the mode of operation defined as stop movement, delta, absolute, or continuous movement,
+    Byte 2 is speed defined as a scalar unit with positive (+) being far and negative (-) being near,
+Bytes 3 and 4 specify a position or offset measurement in scalar units with a maximum value of the specified limit.  When read, this object returns last value written." 
+::= {cctvPosition 4}
+
+-- 3.5.5 Lens Iris Position Parameter
+
+positionIrisLens  	OBJECT-TYPE
+SYNTAX	PositionReference
+ACCESS	read-write
+STATUS	mandatory
+DESCRIPTION	"Object is 4 bytes in length:
+    Byte 1 is the mode of operation defined as stop movement, delta, absolute, or continuous movement,
+Byte 2 is speed defined as a scalar unit with positive (+) being closed and negative (–) being opened,
+Bytes 3 and 4 specify a position or offset measurement in scalar units with a maximum value of the specified limit.  When read, this object returns last value written."
+::= {cctvPosition 5}
+
+-- 3.6 CCTV SYSTEM FEATURE CONTROL OBJECTS
+
+cctvSystem	OBJECT IDENTIFIER ::= {cctv 5}
+
+-- 3.6.1 System Camera Feature Control Parameter
+
+systemCameraFeatureControl 	OBJECT-TYPE
+SYNTAX	OCTET STRING (SIZE(2))
+ACCESS	read-write
+STATUS	mandatory
+DESCRIPTION	"A bit mapped value as defined below:
+    Byte1
+       Bit7             0 = OFF, 1 = ON for Camera Power (MSB),
+       Bit6             0 = OFF, 1 = ON for Heater Power,
+       Bit5		0 = OFF, 1 = ON for Wiper,
+       Bit4		0 = OFF, 1 = ON for Washer,
+       Bit3		0 = OFF, 1 = ON for Blower,
+       Bits2..0		Reserved (Bit0 = LSB),
+    Byte 2
+       Bit7		0 = OFF, 1 = ON for activation and deactivation of the camera component (MSB),	 
+       Bits6..0		Reserved (Bit0 = LSB).
+When read, this object returns last value written."
+::= {cctvSystem 1}
+
+-- 3.6.2 System Camera Feature Status
+
+systemCameraFeatureStatus 	OBJECT-TYPE
+SYNTAX	OCTET STRING (SIZE(1))
+ACCESS	read-only
+STATUS	mandatory
+DESCRIPTION	"A bit mapped value as defined below:
+    Byte1
+       Bit7		0 = OFF, 1 = ON for status of Camera Power (MSB),	 
+       Bit6		0 = OFF, 1 = ON for status of Heater Power, 
+       Bit5		0 = OFF, 1 = ON for status of Wiper,
+       Bit4		0 = OFF, 1 = ON for status of Washer,
+       Bit3		0 = OFF, 1 = ON for status of Blower,
+       Bits2..0		Reserved (Bit0 = LSB),"
+::= {cctvSystem 2}
+
+-- 3.6.3 System Camera Equipment Availability Parameter
+
+systemCameraEquipped 	OBJECT-TYPE
+SYNTAX	OCTET STRING (SIZE(1))
+ACCESS	read-write
+STATUS	mandatory
+DESCRIPTION	"A bit mapped value as defined below:
+Bit7	0 = NO, 1 = YES denotes the availability of a controllable Camera Power supply(MSB),	 
+       Bit6		0 = NO, 1 = YES denotes the availability of a controllable Heater Power, 
+       Bit5		0 = NO, 1 = YES denotes the availability of a controllable Wiper,
+       Bit4		0 = NO, 1 = YES denotes the availability of a controllable Washer,
+       Bit3		0 = NO, 1 = YES denotes the availability of a controllable Blower,
+       Bits2..0		Reserved (Bit0 = LSB).
+Writing of a zero (0) makes the component unavailable for remote control.  Writing of a one (1) makes the component available for remote control.  When read, this object returns last value written."
+::= {cctvSystem 3}
+
+-- 3.6.4 System Lens Feature Control Parameter
+
+systemLensFeatureControl 	OBJECT-TYPE
+SYNTAX	OCTET STRING (SIZE(2))
+ACCESS	read-write
+STATUS	mandatory
+DESCRIPTION	"A bit mapped value as defined below:
+    Byte1
+       Bit 7		0 = OFF, 1 = ON for Auto Iris,	 
+       Bit 6		0 = OFF, 1 = ON for Auto Focus, 
+       Bits5..0 	Reserved (Bit 0 = LSB),
+    Byte2
+	Bit7		0 = OFF, 1 = ON for activation and deactivation of the lens component (MSB),
+	Bits6..0		Reserved (Bit0 = LSB).
+When read, this object returns last value written."
+::= {cctvSystem 4}
+
+-- 3.6.5 System Lens Feature Status Parameter
+
+systemLensFeatureStatus 	OBJECT-TYPE
+SYNTAX	OCTET STRING (SIZE(1))
+ACCESS	read-only
+STATUS	mandatory
+DESCRIPTION	"A bit mapped value as defined below:
+       Bit 7		0 = OFF, 1 = ON for Auto Iris,	 
+       Bit 6		0 = OFF, 1 = ON for Auto Focus, 
+       Bits5..0 	Reserved (Bit 0 = LSB),"
+::= {cctvSystem 5}
+
+-- 3.6.6 System Lens Equipment Availability Parameter
+
+systemLensEquipped 	OBJECT-TYPE
+SYNTAX	OCTET STRING (SIZE(1))
+ACCESS	read-write
+STATUS	mandatory
+DESCRIPTION	"A bit mapped value as defined below:
+       Bit 7		0 = NO, 1 = YES denotes the availability of a controllable Auto Iris,	 
+       Bit 6		0 = NO, 1 = YES denotes the availability of a controllable Auto Focus, 
+       Bits5..0 	Reserved (Bit 0 = LSB).
+Writing of a zero (0) makes the component unavailable for remote control.  Writing of a one (1) makes the component available for remote control.  When read, this object returns last value written."
+::= {cctvSystem 6}
+
+-- 3.7 CCTV ALARM OBJECTS
+
+cctvAlarm	OBJECT IDENTIFIER ::= { cctv 6 }
+
+-- 3.7.1 Alarm Status Parameter
+
+alarmStatus 	OBJECT-TYPE
+SYNTAX	OCTET STRING (SIZE(1))
+ACCESS	read-only
+STATUS	mandatory
+DESCRIPTION	"Alarm status denotes a bit mapped value that indicates the current status of alarms, as outlined below:
+Bit7	0 = OFF, 1 = ON for the active status of the Cabinet Alarm signifying cabinet entry (MSB),
+Bit6	0 = OFF, 1 = ON for the active status of the Enclosure Alarm signifying enclosure entry,
+Bit5	0 = OFF, 1 = ON for the active status of the Video Loss Alarm signifying presence of video sync,
+Bit4	0 = OFF, 1 = ON for the active status of the Temperature Alarm signifying a value outside the allowable threshold range for internal camera enclosure temperature,
+Bit3	0 = OFF, 1 = ON for the active status of the Pressure Alarm signifying a current value outside the allowable threshold range for the internal camera enclosure pressure,
+       Bit2		0 = Local, 1 = Remote for the active status of the Local/Remote Alarm,
+Bit1	0 = OFF, 1 = ON for the active status of the Washer Fluid Alarm signifying a current value outside the allowable threshold range for the washer fluid capacity,
+       Bit0             Reserved (LSB)."
+::= {cctvAlarm 1}
+
+-- 3.7.2 Alarm Latch Status Parameter
+
+alarmLatchStatus 	OBJECT-TYPE
+SYNTAX	OCTET STRING (SIZE (1))
+ACCESS	read-only
+STATUS	mandatory
+DESCRIPTION	"Latch status denotes a bit mapped value that indicates the presence of a latched alarm, indicating that an alarm has occurred since the previous latch was cleared, as outlined below:
+       Bit7		0 = OFF, 1 = ON for the latch status of the Cabinet Alarm (MSB),
+       Bit6		0 = OFF, 1 = ON for the latch status of the Enclosure Alarm,
+       Bit5		0 = OFF, 1 = ON for the latch status of the Video Loss Alarm,
+       Bit4		0 = OFF, 1 = ON for the latch status of the Temperature Alarm,
+       Bit3		0 = OFF, 1 = ON for the latch status of the Pressure Alarm,
+       Bit2		0 = Local, 1 = Remote for the latch status of the Local/Remote Alarm,
+       Bit1		0 = OFF, 1 = ON for the latch status of the Washer Fluid Alarm,
+       Bit0             Reserved (LSB)."
+::= {cctvAlarm 2}
+
+-- 3.7.3 Alarm Latch Clear Parameter
+
+alarmLatchClear 	OBJECT-TYPE
+SYNTAX	OCTET STRING (SIZE(1))
+ACCESS	read-write
+STATUS	mandatory
+DESCRIPTION	"Latch clear denotes a bit mapped value that clears the presence of a latched alarm, as outlined below:
+       Bit7		0 = OFF, 1 = ON for clearing the alarm latch for the Cabinet Alarm (MSB),
+       Bit6		0 = OFF, 1 = ON for clearing the alarm latch for the Enclosure Alarm,
+       Bit5		0 = OFF, 1 = ON for clearing the alarm latch for the Video Loss Alarm,
+       Bit4		0 = OFF, 1 = ON for clearing the alarm latch for the Temperature Alarm,
+       Bit3		0 = OFF, 1 = ON for clearing the alarm latch for the Pressure Alarm,
+       Bit2		0 = Local, 1 = Remote for clearing the alarm latch for the Local/Remote Alarm,
+       Bit1		0 = OFF, 1 = ON for clearing the alarm latch for the Washer Fluid Alarm,
+       Bit0             Reserved (LSB)."
+::= {cctvAlarm 3}
+
+-- 3.7.4 Temperature Alarm High-Low Threshold
+
+alarmTemparatureHighLowThreshold  	OBJECT-TYPE
+SYNTAX	OCTET STRING (SIZE(2))
+ACCESS	read-write
+STATUS	mandatory
+DESCRIPTION "Identifies the high and low thresholds for the temperature alarm, as shown below;
+Byte1	Low Threshold denotes the value of minimum internal camera enclosure temperature measured in degrees C,
+Byte2   HighThreshold denotes the value of maximum internal camera enclosure temperature measured in degrees C."
+::= {cctvAlarm 4}
+
+-- 3.7.5 Temperature Alarm Current Value Parameter
+
+alarmTemparatureCurrentValue  	OBJECT-TYPE
+SYNTAX	OCTET STRING (SIZE(1))
+ACCESS	read-only
+STATUS	mandatory
+DESCRIPTION "Identifies the current value for the temperature within the camera enclosure measured in degrees C."
+::= {cctvAlarm 5}
+
+-- 3.7.6 Pressure Alarm High-Low Threshold Parameter
+
+alarmPresureHighLowThreshold 	OBJECT-TYPE
+SYNTAX	OCTET STRING (SIZE(2))
+ACCESS	read-write
+STATUS	mandatory
+DESCRIPTION "Identifies the high and low thresholds for the pressure alarm, as shown below;
+Byte1	Low Threshold denotes the value of minimum pressure within the camera enclosure measured in psig,
+Byte2   HighThreshold denotes the value of maximum pressure within the camera enclosure measured in psig."
+::= {cctvAlarm 6}
+
+-- 3.7.7 Pressure Alarm Current Value Parameter
+
+alarmPresureCurrentValue 	OBJECT-TYPE
+SYNTAX	OCTET STRING (SIZE(1))
+ACCESS	read-only
+STATUS	mandatory
+DESCRIPTION "Identifies the current value for the pressure within the camera enclosure measured in psig."
+::= {cctvAlarm 7}
+
+-- 3.7.8 Washer Fluid Alarm High-Low Threshold Parameter
+
+alarmWasherFluidHighLowThreshold	OBJECT-TYPE
+SYNTAX	OCTET STRING (SIZE(2))
+ACCESS	read-write
+STATUS	mandatory
+DESCRIPTION "Identifies the high and low thresholds for the washer fluid alarm, as shown below;
+Byte1	Low Threshold denotes the percentage of minimum filled capacity between zero (0) and 100 percent,
+Byte2   HighThreshold denotes the percentage of maximum filled capacity between zero (0) and 100 percent."
+::= {cctvAlarm 8}
+
+-- 3.7.9 Washer Fluid Alarm Current Value Parameter
+
+alarmWasherFluidCurrentValue 	OBJECT-TYPE
+SYNTAX	OCTET STRING (SIZE(1))
+ACCESS	read-only
+STATUS	mandatory
+DESCRIPTION "Identifies the current value for the washer fluid level measured as the amount of filled capacity between zero (0) and 100 percent."
+::= {cctvAlarm 9}
+
+-- 3.7.10 Alarm Label Index Parameter
+
+alarmLabelIndex 	OBJECT-TYPE
+SYNTAX	OCTET STRING (SIZE(7))
+ACCESS	read-only
+STATUS	mandatory
+DESCRIPTION	"The label number identifies the entry into the camera control label table that provides additional text information or on-screen text information.  Labels are text strings with formatting, positioning, and display information.  A value of zero (0) indicates that there is no camera control label table entry for the alarm.  The alarms are identified below:
+       Byte1		for the Cabinet Alarm,
+       Byte2		for the Enclosure Alarm,
+       Byte3		for the Video Loss Alarm,
+       Byte4		for the Temperature Alarm,
+       Byte5		for the Pressure Alarm,
+       Byte6		for the Local/Remote Alarm,
+       Byte7            for the Washer Fluid Alarm."
+::= {cctvAlarm 10}
+
+-- 3.8 CCTV DISCRETE INPUT OBJECTS
+cctvInput	OBJECT IDENTIFIER ::= { cctv 7 }
+
+-- 3.8.1 Discrete Input Status Parameter
+
+inputStatus 	OBJECT-TYPE
+SYNTAX	OCTET STRING (SIZE(1))
+ACCESS	read-only
+STATUS	mandatory
+DESCRIPTION	"Input status denotes a bit mapped value that indicates the current state of eight (8) user defined discrete inputs, as outlined below:
+Bit7	0 = OFF, 1 = ON for the active status of discrete Input 8 (MSB),
+Bit6	0 = OFF, 1 = ON for the active status of discrete Input 7,
+Bit5	0 = OFF, 1 = ON for the active status of discrete Input 6,
+Bit4	0 = OFF, 1 = ON for the active status of discrete Input 5,
+Bit3	0 = OFF, 1 = ON for the active status of discrete Input 4,
+       Bit2		0 = OFF, 1 = ON for the active status of discrete Input 3,
+Bit1	0 = OFF, 1 = ON for the active status of discrete Input 2,
+       Bit0		0 = OFF, 1 = ON for the active status of discrete Input 1 (LSB).
+Please note that user defined discrete inputs may reduce interoperability of the device."
+::= {cctvInput 1}
+
+-- 3.8.2 Discrete Input Latch Status Parameter
+
+inputLatchStatus 	OBJECT-TYPE
+SYNTAX	OCTET STRING (SIZE (1))
+ACCESS	read-only
+STATUS	mandatory
+DESCRIPTION	"Latch status denotes a bit mapped value that indicates the presence of a latched input for eight (8) user defined discrete inputs, indicating that an input has occurred since the previous latch was cleared, as outlined below:
+       Bit7		0 = OFF, 1 = ON for the latch status of the discrete Input 8 (MSB),
+       Bit6		0 = OFF, 1 = ON for the latch status of the discrete Input 7,
+       Bit5		0 = OFF, 1 = ON for the latch status of the discrete Input 6,
+       Bit4		0 = OFF, 1 = ON for the latch status of the discrete Input 5,
+       Bit3		0 = OFF, 1 = ON for the latch status of the discrete Input 4,
+       Bit2		0 = OFF, 1 = ON for the latch status of the discrete Input 3,
+       Bit1		0 = OFF, 1 = ON for the latch status of the discrete Input 2,
+       Bit0		0 = OFF, 1 = ON for the latch status of the discrete Input 1 (LSB).
+Please note that user defined discrete inputs may reduce interoperability of the device."
+::= {cctvInput 2}
+
+-- 3.8.3 Discrete Input Latch Clear Parameter
+
+inputLatchClear 	OBJECT-TYPE
+SYNTAX	OCTET STRING (SIZE(1))
+ACCESS	read-write
+STATUS	mandatory
+DESCRIPTION	"Latch clear denotes a bit mapped value that clears the presence of a latched input for eight (8) user defined discrete inputs, as outlined below:
+       Bit7		0 = OFF, 1 = ON for clearing the input latch for discrete Input 8 (MSB),
+       Bit6		0 = OFF, 1 = ON for clearing the input latch for discrete Input 7,
+       Bit5		0 = OFF, 1 = ON for clearing the input latch for discrete Input 6,
+       Bit4		0 = OFF, 1 = ON for clearing the input latch for discrete Input 5,
+       Bit3		0 = OFF, 1 = ON for clearing the input latch for discrete Input 4,
+       Bit2		0 = OFF, 1 = ON for clearing the input latch for discrete Input 3,
+       Bit1		0 = OFF, 1 = ON for clearing the input latch for discrete Input 2,
+       Bit0		0 = OFF, 1 = ON for clearing the input latch for discrete Input 1 (LSB).
+Please note that user defined discrete inputs may reduce interoperability of the device."
+       ::= {cctvInput 3}
+
+-- 3.8.4 Discrete Input Label Index Parameter
+
+inputLabelIndex 	OBJECT-TYPE
+SYNTAX	OCTET STRING (SIZE(8))
+ACCESS	read-only
+STATUS	mandatory
+DESCRIPTION	"The label number identifies the entry into the camera control label table that provides additional text information or on-screen text information.  Labels are text strings with formatting, positioning, and display information.  A value of zero (0) indicates that there is no camera control label table entry for the input.  The user defined discrete inputs are identified below:
+       Byte1		for the discrete Input 1,
+       Byte2		for the discrete Input 2,
+       Byte3		for the discrete Input 3,
+       Byte4		for the discrete Input 4,
+       Byte5		for the discrete Input 5,
+       Byte6		for the discrete Input 6,
+       Byte7		for the discrete Input 7,
+       Byte8            for the discrete Input 8."
+::= {cctvInput 4}
+
+
+-- 3.9 CCTV DISCRETE OUTPUT OBJECTS
+
+cctvOutput OBJECT IDENTIFIER ::= { cctv 8 }
+
+-- 3.9.1 Discrete Output Status Parameter
+
+outputStatus 	OBJECT-TYPE
+SYNTAX	OCTET STRING (SIZE(1))
+ACCESS	read-only
+STATUS	mandatory
+DESCRIPTION	"Output status denotes a bit mapped value that indicates the current state of eight (8) user defined discrete outputs, as outlined below:
+Bit7	0 = OFF, 1 = ON for the active status of discrete Output 8 (MSB),
+Bit6	0 = OFF, 1 = ON for the active status of discrete Output 7,
+Bit5	0 = OFF, 1 = ON for the active status of discrete Output 6,
+Bit4	0 = OFF, 1 = ON for the active status of discrete Output 5,
+Bit3	0 = OFF, 1 = ON for the active status of discrete Output 4,
+       Bit2		0 = OFF, 1 = ON for the active status of discrete Output 3,
+Bit1	0 = OFF, 1 = ON for the active status of discrete Output 2,
+       Bit0		0 = OFF, 1 = ON for the active status of discrete Output 1 (LSB).
+Please note that user defined discrete outputs may reduce interoperability of the device."
+::= {cctvOutput 1}
+
+-- 3.9.2 Discrete Output Control Parameter
+
+outputControl OBJECT-TYPE
+SYNTAX	OCTET STRING (SIZE(2))
+ACCESS	read-write
+STATUS	mandatory
+DESCRIPTION	"Output control activates and deactivates individual user defined discrete outputs as outlined below:
+Byte1		discrete Output number to be controlled, 1 through 8,
+Byte2
+Bit7	0 = OFF, 1 = ON for the active status of discrete Output (MSB),
+       Bits6..0		reserved (Bit 0 = LSB).
+Please note that user defined discrete outputs may reduce interoperability of the device."
+::= {cctvOutput 2}
+
+-- 3.9.3 Discrete Output Label Index
+
+outputLabelIndex 	OBJECT-TYPE
+SYNTAX	OCTET STRING (SIZE(8))
+ACCESS	read-only
+STATUS	mandatory
+DESCRIPTION	"The label number identifies the entry into the camera control label table that provides additional text information or on-screen text information.  Labels are text strings with formatting, positioning, and display information.  A value of zero (0) indicates that there is no camera control label table entry for the input.  The user defined discrete outputs are identified below:
+       Byte1		for the discrete Output 1,
+       Byte2		for the discrete Output 2,
+       Byte3		for the discrete Output 3,
+       Byte4		for the discrete Output 4,
+       Byte5		for the discrete Output 5,
+       Byte6		for the discrete Output 6,
+       Byte7		for the discrete Output 7,
+       Byte8            for the discrete Output 8."
+::= {cctvOutput 3}
+
+-- 3.10 CCTV ZONE OBJECTS
+
+cctvZone	OBJECT IDENTIFIER ::= { cctv 9 }
+
+-- 3.10.1 Maximum Number of Zones Parameter
+
+zoneMaximum 	OBJECT-TYPE
+SYNTAX	INTEGER (0..255)
+ACCESS	read-write
+STATUS	mandatory
+DESCRIPTION	"Defines the maximum number of zones for this device.  A zone is a region in space defined by pan and tilt limits. When read, this object returns last value written."
+::= {cctvZone 1}
+
+-- 3.10.2 Zone Table
+
+zoneTable 	OBJECT-TYPE
+SYNTAX	SEQUENCE OF ZoneEntry
+ACCESS	not-accessible
+STATUS	mandatory
+DESCRIPTION     "A table containing information about zones.  Each row in the table identifies a single zone. A zone is a region in space defined by pan and tilt limits."
+::= {cctvZone 2}
+
+zoneEntry 	OBJECT-TYPE
+SYNTAX	ZoneEntry
+ACCESS	not-accessible
+STATUS	mandatory
+DESCRIPTION "Parameters of the zone table."
+INDEX {zoneIndex} 
+::= {zoneTable 1}
+
+ZoneEntry ::= SEQUENCE {
+		zoneIndex		INTEGER,
+       zoneLabel		INTEGER,
+		zonePanLeftLimit	INTEGER,
+		zonePanRightLimit	INTEGER,
+		zoneTiltUpLimit		INTEGER,
+		zoneTiltDownLimit	INTEGER
+       }
+
+-- 3.10.2.1 Zone Index Parameter
+
+zoneIndex	OBJECT-TYPE
+SYNTAX	INTEGER (0..255)
+ACCESS	read-only
+STATUS	mandatory
+DESCRIPTION "The number associated with each individual zone.   A zone is a region in space defined by pan and tilt limits." 
+::= {zoneEntry 1}
+
+-- 3.10.2.2 Zone Label Parameter
+
+zoneLabel	OBJECT-TYPE
+SYNTAX	INTEGER (0..255)
+ACCESS	read-write
+STATUS	mandatory
+DESCRIPTION "Defines the label number from the camera control label table that is associated with this zone number.  Once in a zone, the label does not change until leaving that zone.  If zones overlap, a label change does not occur until leaving the first entered zone.  When read, returns last value written."
+::= {zoneEntry 2}
+
+-- 3.10.2.3 Zone Pan Left Limit Parameter
+
+zonePanLeftLimit	OBJECT-TYPE
+SYNTAX	INTEGER (0..35999 | 65535) 
+ACCESS	read-only
+STATUS	mandatory
+DESCRIPTION     "Specifies the panning left zone limit in 1/100th degree units in a clockwise direction from the Home Position.  The value of 65535 means that a pan left limit is not supported."
+::= { zoneEntry 3}
+
+-- 3.10.2.4 Zone Pan Right Limit Parameter
+
+zonePanRightLimit 	OBJECT-TYPE
+SYNTAX	INTEGER (0..35999 | 65535) 
+ACCESS	read-only
+STATUS	mandatory
+DESCRIPTION	"Specifies the panning right zone limit in 1/100th degree units in a clockwise direction from the Home Position. The value of 65535 means that a pan right limit is not supported."  
+::= { zoneEntry 4}
+
+-- 3.10.2.5 Zone Tilt Up Limit Parameter
+
+zoneTiltUpLimit		OBJECT-TYPE
+SYNTAX	INTEGER (0..35999 | 65535) 
+ACCESS	read-only
+STATUS	mandatory
+DESCRIPTION	"Specifies the tilting up zone limit in 1/100th degree units.  The zero point for measurement is the horizon line. The value of 65535 means that a tilt up limit is not supported."  
+::= { zoneEntry 5}
+
+-- 3.10.2.6 Zone Tilt Down Limit Parameter
+
+zoneTiltDownLimit	OBJECT-TYPE
+SYNTAX	INTEGER (0..35999 | 65535) 
+ACCESS	read-only
+STATUS	mandatory
+DESCRIPTION	"Specifies the tilting down zone limit in 1/100th degree units.  The zero point for measurement is the horizon line. The value of 65535 means that a tilt down limit is not supported."  
+::= { zoneEntry 6}
+
+-- 3.11 CCTV LABEL OBJECTS
+
+cctvLabel	OBJECT IDENTIFIER ::= { cctv 10 }
+
+-- 3.11.1 Maximum Number of Labels Parameter
+
+labelMaximum 	OBJECT-TYPE
+SYNTAX	INTEGER (0..255)
+ACCESS	read-write
+STATUS	mandatory
+DESCRIPTION	"Defines the maximum number of labels in the camera control label table.  A label is defined as text with position, font, and color information.  When read, returns last value written."
+::= {cctvLabel 1}
+
+-- 3.11.2 Label Table
+
+labelTable 	OBJECT-TYPE
+SYNTAX	SEQUENCE OF LabelEntry
+ACCESS	not-accessible
+STATUS	mandatory
+DESCRIPTION "This table contains data specific to each label.  A label is defined as text with position, font, and color information. Each row in the table identifies a single label."
+::= {cctvLabel 2}
+
+labelEntry 	OBJECT-TYPE
+SYNTAX	LabelEntry
+ACCESS	not-accessible
+STATUS	mandatory
+DESCRIPTION "Parameters of the camera control label table."
+INDEX {labelIndex} 
+::= {labelTable 1}
+
+LabelEntry ::= SEQUENCE {
+	labelIndex			INTEGER,
+       labelText			OCTET STRING,
+       labelFontType			INTEGER,
+       labelHeight			INTEGER,
+       labelColor			INTEGER,
+	labelStartRow			INTEGER,
+	labelStartColumn		INTEGER,
+       labelStatus			OCTET STRING
+	}
+
+-- 3.11.2.1 Label Index Parameter
+
+labelIndex 	OBJECT-TYPE
+SYNTAX	INTEGER (0..255)
+ACCESS	read-only
+STATUS	mandatory
+DESCRIPTION "The number associated with each individual label."
+::= { labelEntry 1}
+
+-- 3.11.2.2 Label Text Parameter
+
+labelText 	OBJECT-TYPE
+SYNTAX	OCTET STRING (SIZE(0..255))
+ACCESS	read-write
+STATUS	mandatory
+DESCRIPTION "Text for the label.  The label text must fit within the frame-size available for the application."
+::= { labelEntry 2}
+
+-- 3.11.2.3 Label Font Type Parameter
+
+labelFontType 	OBJECT-TYPE
+SYNTAX	INTEGER (0..255)
+ACCESS	read-write
+STATUS	mandatory
+DESCRIPTION "Designates the type of font to be displayed.  Only one font style may be supported and that font style is taken to be the default style.
+       Value		Meaning
+       1		designates ASCII text characters to be displayed,
+       2                designates Bit Mapped Characters to be displayed."
+::= { labelEntry 3}
+
+-- 3.11.2.4 Label Height Parameter
+
+labelHeight 	OBJECT-TYPE
+SYNTAX	INTEGER (0..255)
+ACCESS	read-write
+STATUS	mandatory
+DESCRIPTION "Height of this label text scaled to a range of zero (0) and 255 to fit height of screen.  A height of zero (0) indicates that a label is not displayed and a height of 255 indicates that the label is presented at a maximum height."
+::= { labelEntry 4}
+
+-- 3.11.2.5 Label Color Parameter
+
+labelColor OBJECT-TYPE
+SYNTAX	INTEGER {
+       blue(1),
+       green(2),
+       cyan(3),
+       red(4),
+       magenta(5),
+       brown(6),
+       white(7),
+       grey(8),
+       lightBlue(9),
+       lightGreen(10),
+       lightCyan(11),
+       lightRed(12),
+       lightMagenta(13),
+       yellow(14),
+       brightWhite(15),
+       black(16)}
+ACCESS	read-write
+STATUS	mandatory
+DESCRIPTION "Color of the label characters.  The color is defined as follows:
+       Value		Meaning
+       1		blue,
+       2		green,
+       3		cyan,
+       4		red,
+       5		magenta,
+       6		brown,
+       7		white,
+       8		grey,
+       9		lightBlue,
+       10		lightGreen,
+       11		lightCyan,
+       12		lightRed,
+       13		lightMagenta,
+       14		yellow,
+15		brightWhite,
+16              black."
+::= { labelEntry 5}
+
+-- 3.11.2.6 Label Start Row Parameter
+
+labelStartRow 	OBJECT-TYPE
+SYNTAX	INTEGER (0..255)
+ACCESS	read-write
+STATUS	mandatory
+DESCRIPTION "Start of text row number scaled to a range of zero (0) to 255.  Zero (0) is designated as the upper left corner of the display."
+::= { labelEntry 6}
+
+-- 3.11.2.7 Label Start Column Parameter
+
+labelStartColumn 	OBJECT-TYPE
+SYNTAX	INTEGER (0..255)
+ACCESS	read-write
+STATUS	mandatory
+DESCRIPTION "Start of text column number scaled to a range of zero (0) to 255.  Zero (0) is designated as the upper left corner of the display."
+::= { labelEntry 7}
+
+-- 3.11.2.8 Label Status Parameter
+
+labelStatus 	OBJECT-TYPE
+SYNTAX	OCTET STRING (SIZE(1))
+ACCESS	read-write
+STATUS	mandatory
+DESCRIPTION "The object denotes whether or not the label is currently being displayed, as outlined below:  
+       Bit7		0 = NO, 1 = YES denotes that the label is valid for display (MSB),
+       Bit6		0 = OFF, 1 = ON for the display status of the label,	  
+       Bits5..0         Reserved (Bit 0 = LSB)."
+::= { labelEntry 8}
+
+-- 3.11.3 Label Location Parameter
+
+labelLocationLabel 	OBJECT-TYPE
+SYNTAX	INTEGER (0..255)
+ACCESS	read-write
+STATUS	mandatory
+DESCRIPTION     "Defines the index to the camera control label table for this camera location.  The location label is commonly used to identify a street name, intersection, or other pertinent information to be displayed on a monitor.  A value of zero (0) turns the location reference label off at this location.  When read, this object returns last value written."
+::= {cctvLabel 3}
+
+-- 3.11.4 Enable Label Text Display
+
+labelEnableTextDisplay 	OBJECT-TYPE
+SYNTAX	OCTET STRING (SIZE (1))
+ACCESS	read-write
+STATUS	mandatory
+DESCRIPTION	"The object provides a control mechanism for activating or deactivating all labels regardless of individual display status, as outlined below:
+       Bit7		0 = OFF, 1 = ON for the for controlling the display for all labels at once (MSB),
+       Bit6..0          Reserved (Bit 0 = LSB)."
+::= {cctvLabel 4}
+
+-- 3.12 CCTV ON-SCREEN CAMERA MENU OBJECTS
+
+cctvMenu	OBJECT IDENTIFIER ::= { cctv 11 }
+
+-- 3.12.1 Activate Menu Parameter
+
+menuActivate 	OBJECT-TYPE
+SYNTAX	INTEGER (0..255)
+ACCESS	read-write
+STATUS	mandatory
+DESCRIPTION	"Activates the internal camera menu.
+       Value		Meaning
+       0		turns off the internal camera menu,
+1..254	activates the internal camera menu for the number of seconds expressed by the value indicated between 1 and 254,
+       255              activates the menu for an indefinite period of time."
+::= {cctvMenu 1}
+
+-- 3.12.2 Menu Control Parameter
+
+menuControl 	OBJECT-TYPE
+SYNTAX	INTEGER {	pageDown(1),
+				pageUp(2),
+       cursorUp(3),
+       cursorDown(4),
+       cursorRight(5),
+       cursorLeft(6),
+       incrementValue(7) ,
+       decrementValue(8),
+       enterValue(9),
+       noMenu(255)}
+ACCESS	read-write
+STATUS	mandatory
+DESCRIPTION	"Object value that manipulates the internal camera menu.  Basic menu manipulations are described as follows:
+       Value		Meaning
+       1		Page Down,
+       2		Page Up,
+       3		Cursor Up
+       4		Cursor Down,
+       5		Cursor Right,
+       6		Cursor Left,
+       7		Increment value pointed at current cursor position,
+       8		Decrement value pointed at current cursor position,
+       9		Enter value shown,
+       10..254		Reserved,
+       255              Menu not supported by the device."
+::= {cctvMenu 2}
+
+
+END
+

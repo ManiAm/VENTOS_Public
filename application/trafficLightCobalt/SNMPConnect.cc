@@ -60,7 +60,15 @@ void SNMPConnect::initialize(int stage)
         on = par("on").boolValue();
 
         if(on)
+        {
             SNMPInitialize();
+
+            // ask for sysDescr
+            get(sysDescr);
+
+            // ask for sysUpTime
+            get(sysUpTime);
+        }
     }
 }
 
@@ -83,11 +91,7 @@ void SNMPConnect::receiveSignal(cComponent *source, simsignal_t signalID, long i
 
     if(signalID == Signal_executeFirstTS && on)
     {
-        // ask for sysDescr
-        get(sysDescr);
 
-        // ask for sysUpTime
-        get(sysUpTime);
     }
 }
 
@@ -120,15 +124,17 @@ void SNMPConnect::SNMPInitialize()
     std::cout << "Done!" << endl;
 
     Snmp_pp::UdpAddress address(IPAddress);
-    address.set_port(161);                     // default snmp port is 161
+    address.set_port(501);                     // SNMP port for econolite virtual controller
 
     ctarget = new Snmp_pp::CTarget(address);   // community target
 
     ctarget->set_version(Snmp_pp::version1);   // set the SNMP version SNMPV1
     ctarget->set_retry(1);                     // set the number of auto retries
     ctarget->set_timeout(100);                 // set timeout
-    Snmp_pp::OctetStr community("public");     // community name
-    ctarget->set_readcommunity(community);     // set the read community name
+    Snmp_pp::OctetStr rcommunity("public");    // read community name
+    ctarget->set_readcommunity(rcommunity);
+    Snmp_pp::OctetStr wcommunity("private");
+    ctarget->set_writecommunity(wcommunity);   // write community name
 
     // set the log file
     Snmp_pp::AgentLogImpl *logFile = new Snmp_pp::AgentLogImpl(SNMP_LOG.string().c_str());

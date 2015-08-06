@@ -1,0 +1,789 @@
+-- 4.1    COORDINATOR MIB
+-- 
+-- Filename:   	1211v0137 CO.mib
+-- Description: This MIB  Base represents the data elements that 
+--              would reside in a Coordinator that implements SCP.
+-- Source:      NTCIP 1211 v01.37
+--
+-- MIB Revision History:
+-- 09/27/04	Changed name of file.
+--              All changes are now reflected in NTCIP v01.38
+--
+-- 
+-- 
+--Copyright 2000 - 2004 by the American Association of State Highway and
+--Transportation Officials (AASHTO), the Institute of Transportation Engineers
+--(ITE), and the National Electrical Manufacturers Association (NEMA).  All
+--intellectual property rights, including, but not limited to, the rights of
+--reproduction in whole or in part in any form, translation into other
+--languages and display are reserved by the copyright owners under the laws of
+--the United States of America, the Universal Copyright Convention, the Berne
+--Convention, and the International and Pan American Copyright Conventions.
+--Except for the MIB, Do not copy without written permission of either AASHTO,
+--ITE, or NEMA.
+--
+--                     Joint NEMA, AASHTO, and ITE
+--                  NTCIP Management Information Base
+--                        DISTRIBUTION NOTICE
+--
+--To the extent and in the limited event these materials are distributed by
+--AASHTO/ITE/NEMA in the form of a Management Information Base ("MIB"), 
+--AASHTO/ITE/NEMA extends the following permissions:
+--
+-- (i) you may make and/or distribute unlimited copies (including derivative
+--works) of the MIB, including copies for commercial distribution, provided
+--that (a) each copy you make and/or distribute contains this Notice and (b)
+--each derivative work of the MIB uses the same module name followed by "-",
+--followed by your Internet Assigned Number Authority (IANA)-assigned
+--enterprise number;
+--(ii) use of the MIB is restricted in that the syntax field may be modified
+--only to reflect a more restrictive sub-range or enumerated values;
+--(iii) the description field may be modified but only to the extent that:
+--(a) only those bit values or enumerated values that are supported are
+--listed; and (b) the more restrictive subrange is expressed.
+--
+--These materials are delivered "AS IS" without any warranties as to their use
+--or performance.
+--
+--AASHTO/ITE/NEMA AND THEIR SUPPLIERS DO NOT WARRANT THE PERFORMANCE OR
+--RESULTS YOU MAY OBTAIN BY USING THESE MATERIALS.  AASHTO/ITE/NEMA AND THEIR
+--SUPPLIERS MAKE NO WARRANTIES, EXPRESS OR IMPLIED, AS TO NONINFRINGEMENT OF
+--THIRD PARTY RIGHTS, MERCHANTABILITY, OR FITNESS FOR ANY PARTICULAR PURPOSE.
+--IN NO EVENT WILL AASHTO, ITE OR NEMA OR THEIR SUPPLIERS BE LIABLE TO YOU OR
+--ANY THIRD PARTY FOR ANY CLAIM OR FOR ANY CONSEQUENTIAL, INCIDENTAL OR
+--SPECIAL DAMAGES, INCLUDING ANY LOST PROFITS OR LOST SAVINGS, ARISING FROM
+--YOUR REPRODUCTION OR USE OF THESE MATERIALS, EVEN IF AN AASHTO, ITE, OR NEMA
+--REPRESENTATIVE HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.  Some
+--states or jurisdictions do not allow the exclusion or limitation of
+--incidental, consequential or special damages, or the exclusion of implied
+--warranties, so the above limitations may not apply to you.
+--
+--Use of these materials does not constitute an endorsement or affiliation by
+--or between AASHTO, ITE, or NEMA and you, your company, or your products and
+--services.
+--
+--NTCIP is a trademark of AASHTO/ITE/NEMA.
+--******************************************************************************
+
+CO-MIB1 DEFINITIONS ::= BEGIN
+
+-- The following Management Information Base represents the data elements that
+-- would reside in a Coordinator that implements SCP.
+
+IMPORTS
+     
+--     EntryStatus, OwnerString, OerString,
+--     Byte, UByte, Short, Ushort, Long, Ulong
+--     FROM NEMA-SMI
+     
+     scp
+       FROM NTCIP8004-A-2004
+     
+     OBJECT-TYPE
+       FROM RFC-1212
+
+     splitNumber, splitPhase
+       FROM  NTCIP1202-2004;
+
+     TrueFalse ::= INTEGER (0 | 255)
+
+-- 4.2    PRIORITY STRATEGY PARAMETERS
+
+-- This group of object represents the output from the prioritization process
+-- and the parameters that Coordinator acts upon.
+
+priorityStrategyServer OBJECT IDENTIFIER ::= { scp 3 }
+
+-- 4.2.1  Maximum Service Requests to Consider
+        
+maxStrategyRequestsToConsider OBJECT-TYPE
+     SYNTAX    INTEGER (1..10)
+     ACCESS   read-only
+     STATUS   optional
+     DESCRIPTION
+          " This object represents the number of rows in the
+          priorityStrategyRequestedTable that the CO will
+          consider when it trys to determine which strategies to
+          execute.  The number of rows in the table is fixed at
+          10 but an implemention is only requred to act upon the
+          first row."
+::= { priorityStrategyServer 1 }
+
+
+-- 4.2.2  Priority Strategy Requested Table
+        
+priorityStrategyRequestedTable   OBJECT-TYPE
+     SYNTAX   SEQUENCE OF PriorityStrategyRequestedEntry
+     ACCESS   not-accessible
+     STATUS   optional
+     DESCRIPTION
+        "A static table containing the parameters associated
+        with executing a priority strategy. The number of rows
+        in this table is equal to 10."
+::= { priorityStrategyServer 2 }
+
+-- 4.2.2.1     Priority Strategy Requested Entry
+
+priorityStrategyRequestedEntry   OBJECT-TYPE
+     SYNTAX   PriorityStrategyRequestedEntry
+     ACCESS   not-accessible
+     STATUS   mandatory
+     DESCRIPTION
+          "This object defines the parameters that are associated
+          with a service request."
+     INDEX   { priorityStrategyRequestNumber }
+::= { priorityStrategyRequestedTable 1 }
+
+PriorityStrategyRequestedEntry ::= SEQUENCE {
+     priorityStrategyRequestNumber                     INTEGER,
+     priorityStrategyRequested                         INTEGER,
+     priorityStrategyRequestedTimeOfServiceDesired     INTEGER,
+     priorityStrategyRequestedTimeOfEstimatedDeparture INTEGER,
+     priorityStrategyRequestStatusInCO                 INTEGER}
+
+-- 4.2.2.1.1   Priority Strategy Request Number
+priorityStrategyRequestNumber OBJECT-TYPE
+     SYNTAX    INTEGER (1..10)
+     ACCESS   read-only
+     STATUS   mandatory
+     DESCRIPTION
+           " This object represents the index used to reference
+           rows in the priorityStrategyRequestedTable. "
+::= { priorityStrategyRequestedEntry 1 }
+
+-- 4.2.2.1.2   Priority Strategy Requested
+priorityStrategyRequested OBJECT-TYPE
+     SYNTAX    INTEGER (0..255)
+     ACCESS   read-only
+     STATUS   optional
+     DESCRIPTION
+        " This object represents a strategy being requested by
+        the PRS. A value of zero (0) shall indicate that none is
+        request."
+::= { priorityStrategyRequestedEntry 2 }
+
+-- 4.2.2.1.3   Priority Strategy Requested Time of Service Desired
+priorityStrategyRequestedTimeOfServiceDesired     OBJECT-TYPE
+     SYNTAX INTEGER  (0..4294967295)
+     ACCESS   read-only
+     STATUS   optional
+     DESCRIPTION
+        "This object represents the estimated time of service
+        desired expressed as global time.  This value is received
+        from the PRS via the prsServiceRequest message's
+        priorityRequestTimeOfServiceDesiredInPRS."
+::= { priorityStrategyRequestedEntry 3 }
+
+-- 4.2.2.1.4   Priority Strategy Requested Time of Estimated Departure
+priorityStrategyRequestedTimeOfEstimatedDeparture OBJECT-TYPE
+     SYNTAX   INTEGER  (0..4294967295)
+     ACCESS   read-only
+     STATUS   optional
+     DESCRIPTION
+        "This object represents the estimated time of departure
+        expressed as global time.  This value is received from
+        the PRS via the prsServiceRequest message's
+        priorityRequestTimeOfServiceDesiredInPRS."
+::= { priorityStrategyRequestedEntry 4 }
+
+-- 4.2.2.1.5   Priority Strategy Request Status (CO)
+priorityStrategyRequestStatusInCO  OBJECT-TYPE
+     SYNTAX    INTEGER { idleNotValid (1),
+                          readyQueued (2),
+                          readyOverridden (3),
+                          activeProcessing (4),
+                          activeCancel (5),
+                          activeOverride (6),
+                          activeNotOverridden (7),
+                          closedCanceled (8),
+                          reserviceError (9),
+                          closedTimeToLiveError (10),
+                          closedTimerError (11),
+                          closedStrategyError (12),
+                          closedCompleted (13),
+                          activeAdjustNotneeded (14),
+                          closedFlash (15) }
+     ACCESS   read-only
+     STATUS   optional
+     DESCRIPTION
+        "This object provides an image of
+        priorityRequestStatusInPRS that was sent by the PRS or a
+        response to readyQueued, activeCancel, or
+        activeOverride.
+          idleNotValid        PRG determined that the request
+                          does not
+                              contain valid data
+          readyQueued         PRG has validated the request but
+                          is waiting
+                              for the CO to activate
+          readyOverridden     CO has overridden the request
+          activeProcessing    CO is processing the requested
+                          strategy
+          activeCancel        PRS has asked that request be
+                          canceled
+          activeOverride      PRS has asked that request be
+                          overriddden
+          activeNotOverridden CO did not process the requested
+                          override
+          closedCanceled      CO has canceled the request
+          reserviceError        PRG determined that the request
+                          came too
+                                soon after a previous request
+          closedTimeToLiveError PRG determined that TSD exceeds
+                          the time to
+                                live
+          closedTimerError      CO determined that the requested
+                          times could
+                                not be met
+          closedStrategyError   CO determined that the requested
+                          strategy
+                                was not valid.
+          closedCompleted       CO has completed the requested
+                          strategy
+                                request
+          activeAdjustNotNeeded CO determined that the request
+                          could be met
+                                with current timing and
+                          adjustment was not
+                                needed
+          closedFlash           CO determined that the controller
+                          was
+                                operating in flash.
+
+          Upon receipt of a readyQueued, the CO may change the
+                          status to:
+               activeProcessing
+               closedTimerError
+               closedStrategyError
+               activeAdjustNotNeeded
+               closedFlash
+               
+          Upon receipt of a activeCancel, the CO may change the
+                          status to:
+               closedCanceled
+               closedCompleted
+
+          Upon receipt of a activeOverride, the CO may change the
+                          status to:
+               activeNotOverridden
+               readyOverridden
+               closedCompleted
+               
+          The CO does NOT take any action when one of the
+          following status is received from the PRS:
+               idleNotValid
+               readyOverridden
+               activeProcessing
+               activeNotOverridden
+               closedCanceled
+               reserviceError
+               closedTimeToLiveError
+               closedTimerError
+               closedStrategyError
+               closedCompleted
+               activeAdjustNotNeeded
+               closedFlash
+          
+          Note: A change of status is predicated on the busy
+          signal being set."
+
+     DEFVAL { idleNotValid }
+::= { priorityStrategyRequestedEntry 5}
+
+-- 4.2.3  Coodinator Busy
+        
+coBusy OBJECT-TYPE
+     SYNTAX    TrueFalse
+     ACCESS   read-only
+     STATUS   optional
+     DESCRIPTION
+        "This object is used to indicate to a PRS that the CO is
+        initializing or otherwise processing and when TRUE, the
+        information included with it in a prsServiceRequest
+        response is not valid.  It is used to synchonize
+        exchanges between a PRS and CO.
+        
+        When the PRS is acting as manager and the CO is acting as
+        an agent, coBusy is set TRUE when the PRS performs a
+        SetRequest prsServiceRequest.
+        
+        When the CO is acting as a manager and the PRS is acting
+        as the agent, the value shall always be set to False."
+        
+::= { priorityStrategyServer 3 }
+
+-- The following set of objects defines a table of priority strategy
+-- parameters and a list of per unit parameters.  In the table, each row in
+-- the table represents data associated with a particular strategy.
+
+-- 4.2.4  Priority Strategies Max
+        
+priorityStrategiesMax   OBJECT-TYPE
+     SYNTAX    INTEGER (1..255)
+     ACCESS   read-only
+     STATUS   optional
+     DESCRIPTION
+        "The maximum number of priority strategies supported by
+        this entity."
+::= { priorityStrategyServer 4}
+
+-- 4.2.5  Priority Strategies Table
+        
+priorityStrategyTable   OBJECT-TYPE
+     SYNTAX   SEQUENCE OF PriorityStrategyEntry
+     ACCESS   not-accessible
+     STATUS   optional
+     DESCRIPTION
+        "A static table containing the parameters associated with
+        each priority strategy. The number of rows in this table
+        is equal to the priorityStrategiesMax object."
+::= { priorityStrategyServer 5 }
+
+-- 4.2.5.1     Priority Strategy Table Entry
+
+priorityStrategyEntry   OBJECT-TYPE
+     SYNTAX   PriorityStrategyEntry
+     ACCESS   not-accessible
+     STATUS   mandatory
+     DESCRIPTION
+        "Parameters associated with a specific priority
+        strategy."
+     INDEX   { priorityStrategyNumber }
+::= { priorityStrategyTable 1 }
+
+PriorityStrategyEntry ::= SEQUENCE {
+          priorityStrategyNumber         INTEGER,
+          priorityStrategyServicePhases  OCTET STRING,
+          priorityStrategyPhaseOmits     OCTET STRING,
+          priorityStrategyPedOmits       OCTET STRING,
+          priorityStrategyDescription    OCTET STRING }
+
+-- 4.2.5.1.1   Priority Strategy Number
+priorityStrategyNumber OBJECT-TYPE
+     SYNTAX    INTEGER (1..255)
+     ACCESS   read-only
+     STATUS   mandatory
+     DESCRIPTION
+        "This object serves as the index in the
+        priorityStrategyTable."
+::= { priorityStrategyEntry 1}
+
+-- 4.2.5.1.2   Priority Strategy Service Phases
+priorityStrategyServicePhases OBJECT-TYPE
+     SYNTAX    OCTET STRING (SIZE (0..127))
+     ACCESS   read-only
+     STATUS   optional
+     DESCRIPTION
+        "This object defines the phase or phases that represent
+        the movement on which priority service is desired. Each
+        octet (binary value) within the octet string contains an
+        SCP.phaseNumber.
+        
+        There can only be one phase per ring. All defined Service
+        Phases must be able to time concurrently. It is assumed
+        that any possible concurrent phase are allowed to be
+        serviced in order with no backing up unless otherwise
+        permitted."
+     DEFVAL { "" }
+::= { priorityStrategyEntry 2}
+
+-- 4.2.5.1.3   Priority Strategy Phase Omits
+priorityStrategyPhaseOmits OBJECT-TYPE
+     SYNTAX    OCTET STRING (SIZE (0..127))
+     ACCESS   read-only
+     STATUS   optional
+     DESCRIPTION
+        "This object represents the phase(s) that are to be
+        omitted during the priority service. Each octet (binary
+        value) within the octet string contains an
+        SCP.phaseNumber.  The CO shall ignore any omit applied to
+        the coordinated phase(s). These phase omits are logically
+        OR'ed with any other phase omits that may be active."
+     DEFVAL { "" }
+::= { priorityStrategyEntry 3}
+
+-- 4.2.5.1.4   Priority Strategy Ped Omits
+priorityStrategyPedOmits OBJECT-TYPE
+     SYNTAX    OCTET STRING (SIZE (0..127))
+     ACCESS   read-only
+     STATUS   optional
+     DESCRIPTION
+        "This object represents the pedestrian movement(s) that
+        are to be omitted during the priority service.  Each
+        octet (binary value) within the octet string contains an
+        SCP.phaseNumber.  These ped omits are logically OR'ed
+        with any other ped omits that may be active.  These ped
+        omits do not apply to non-actuated phases."
+     DEFVAL { "" }
+::= { priorityStrategyEntry 4}
+
+-- 4.2.5.1.5   Priority Strategy Description
+priorityStrategyDescription   OBJECT-TYPE
+     SYNTAX    OCTET STRING (SIZE (0..40))
+     ACCESS   read-only
+     STATUS   optional
+     DESCRIPTION
+        "This object represents a text description of the
+        strategy.  It is intended to convey to priority service
+        requesters what signals or movements are given priority.
+        It should be defined in language that is domain neutral."
+::= { priorityStrategyEntry 5}
+
+-- The following set of objects represent per unit parameters that apply to
+-- all strategies. It includes a set of database variables that relate to
+-- an extension of the splitTable as defined in NTCIP 1202.
+
+-- 4.2.6  Priority Strategy Extension to Split Table
+
+priorityStrategyExtensionToSplitTable   OBJECT-TYPE
+     SYNTAX    SEQUENCE OF PriorityStrategyExtensionToSplitEntry
+     ACCESS   not-accessible
+     STATUS   optional
+     DESCRIPTION
+        "A table containing priority strategy parameters that are
+        associated with each split and each phase of that split.
+        
+        This is an extension to the splitTable as defined in the
+        NTCIP 1202, Object Definitions for Actuated Signal
+        Controllers. "
+::= { priorityStrategyServer 6 }
+
+-- 4.2.6.1     Priority Strategy Extension to Split Entry
+            
+priorityStrategyExtensionToSplitEntry   OBJECT-TYPE
+     SYNTAX    PriorityStrategyExtensionToSplitEntry
+     ACCESS   not-accessible
+     STATUS   optional
+     DESCRIPTION
+        "A table containing priority strategy parameters that are
+        associated with each split and each phase of that split."
+     INDEX {splitNumber, splitPhase }
+::= { priorityStrategyExtensionToSplitTable 1}
+
+PriorityStrategyExtensionToSplitEntry ::= SEQUENCE {
+     priorityStrategyMaximumReductionTime INTEGER,
+     priorityStrategyMaximumExtensionTime INTEGER }
+     
+-- 4.2.6.1.1   Priority Strategy Maximum Reduction Time
+priorityStrategyMaximumReductionTime    OBJECT-TYPE
+     SYNTAX   INTEGER (0..255)
+     ACCESS   read-only
+     STATUS   optional
+     DESCRIPTION
+        "This object represents the maximum number of seconds
+        that the split of a phase can be reduced by during a
+        priority strategy.
+        
+        This effective value may be reduced by the CO based on
+        the operating phase minimum service requirements.
+        
+     NOTE - The definition of a phases minimum service is
+     dependent on whether it is actuated or non-actuated, whether
+     the ped clear terminates before the yellow or not, whether
+     variable initial is active or not,   whether it is a coord
+     phase or not, and whether it is in a single or multi-ring
+     configuration. "
+     
+     DEFVAL { 0 }
+::= { priorityStrategyExtensionToSplitEntry 1 }
+
+-- 4.2.6.1.2   Priority Strategy Maximum Extension Time
+priorityStrategyMaximumExtensionTime    OBJECT-TYPE
+     SYNTAX   INTEGER (0..255)
+     ACCESS   read-only
+     STATUS   optional
+     DESCRIPTION
+        "This object represents the maximum number of seconds
+        that the split of a phase can be extended during a
+        priority strategy.
+        
+        The effective value may be modified by the CO based on
+        time gained from one cycle of reductions to the
+        respective non-priority phases."
+        
+     DEFVAL { 0 }
+::= { priorityStrategyExtensionToSplitEntry 2 }
+
+-- 4.2.7  Priority Strategy Default Coordination Pattern
+priorityStrategyDefaultCoordPattern     OBJECT-TYPE
+     SYNTAX   INTEGER (1..253)
+     ACCESS   read-write
+     STATUS   optional
+     DESCRIPTION
+          "This object represents the coordination pattern timing
+          parameters
+          to use if the controller is not operating in a
+          coordinated mode. "
+::= { priorityStrategyServer 7 }
+
+-- 4.2.8  Priority Service Request and Response Block Objects
+        
+--The following block object definition is defined for exchanges between a PRS
+--and a CO.
+
+priorityStrategyMessages OBJECT IDENTIFIER ::= { scp 4}
+
+-- 4.2.8.1     Service Request
+
+prsServiceRequest   OBJECT-TYPE
+   SYNTAX   OCTET STRING (SIZE(110))
+   ACCESS   read-write
+   STATUS   optional
+   DESCRIPTION
+      "<Definition> An OER encoded string of reference parameters for
+       exchanges between a CO and a PRS.
+
+       The parameter values of this OID when transfering information from a
+       PRS to a CO are:
+          priorityRequestServiceStrategyNumber.1          INTEGER (1..255)
+          priorityRequestTimeOfServiceDesiredInPRS.1      INTEGER (0..4294967295)
+          priorityRequestTimeOfEstimatedDepartureInPRS.1  INTEGER (0..4294967295)
+          priorityRequestStatusInPRS.1                    INTEGER (1..255)
+          priorityRequestServiceStrategyNumber.2          INTEGER (1..255)
+          priorityRequestTimeOfServiceDesiredInPRS.2      INTEGER (0..4294967295)
+          priorityRequestTimeOfEstimatedDepartureInPRS.2  INTEGER (0..4294967295)
+          priorityRequestStatusInPRS.2                    INTEGER (1..255)
+          priorityRequestServiceStrategyNumber.3          INTEGER (1..255)
+          priorityRequestTimeOfServiceDesiredInPRS.3      INTEGER (0..4294967295)
+          priorityRequestTimeOfEstimatedDepartureInPRS.3  INTEGER (0..4294967295)
+          priorityRequestStatusInPRS.3                    INTEGER (1..255)
+          priorityRequestServiceStrategyNumber.4          INTEGER (1..255)
+          priorityRequestTimeOfServiceDesiredInPRS.4      INTEGER (0..4294967295)
+          priorityRequestTimeOfEstimatedDepartureInPRS.4  INTEGER (0..4294967295)
+          priorityRequestStatusInPRS.4                    INTEGER (1..255)
+          priorityRequestServiceStrategyNumber.5          INTEGER (1..255)
+          priorityRequestTimeOfServiceDesiredInPRS.5      INTEGER (0..4294967295)
+          priorityRequestTimeOfEstimatedDepartureInPRS.5  INTEGER (0..4294967295)
+          priorityRequestStatusInPRS.5                    INTEGER (1..255)
+          priorityRequestServiceStrategyNumber.6          INTEGER (1..255)
+          priorityRequestTimeOfServiceDesiredInPRS.6      INTEGER (0..4294967295)
+          priorityRequestTimeOfEstimatedDepartureInPRS.6  INTEGER (0..4294967295)
+          priorityRequestStatusInPRS.6                    INTEGER (1..255)
+          priorityRequestServiceStrategyNumber.7          INTEGER (1..255)
+          priorityRequestTimeOfServiceDesiredInPRS.7      INTEGER (0..4294967295)
+          priorityRequestTimeOfEstimatedDepartureInPRS.7  INTEGER (0..4294967295)
+          priorityRequestStatusInPRS.7                    INTEGER (1..255)
+          priorityRequestServiceStrategyNumber.8          INTEGER (1..255)
+          priorityRequestTimeOfServiceDesiredInPRS.8      INTEGER (0..4294967295)
+          priorityRequestTimeOfEstimatedDepartureInPRS.8  INTEGER (0..4294967295)
+          priorityRequestStatusInPRS.8                    INTEGER (1..255)
+          priorityRequestServiceStrategyNumber.9          INTEGER (1..255)
+          priorityRequestTimeOfServiceDesiredInPRS.9      INTEGER (0..4294967295)
+          priorityRequestTimeOfEstimatedDepartureInPRS.9  INTEGER (0..4294967295)
+          priorityRequestStatusInPRS.9                    INTEGER (1..255)
+          priorityRequestServiceStrategyNumber.10         INTEGER (1..255)
+          priorityRequestTimeOfServiceDesiredInPRS.10     INTEGER (0..4294967295)
+          priorityRequestTimeOfEstimatedDepartureInPRS.10 INTEGER (0..4294967295)
+          priorityRequestStatusInPRS.10                   INTEGER (1..255)
+          prsBusy                                         INTEGER (0..1)
+
+       The parameter values for this OID when transfering information from a
+       CO to a PRS are:
+          priorityRequestServiceStrategyNumber.1          INTEGER (1..255)
+          priorityStrategyRequestedTimeOfServiceDesired.1 INTEGER (0..4294967295)
+          priorityStrategyRequestedTimeOfEstimatedDeparture.1  INTEGER (0..4294967295)
+          priorityStrategyRequestStatusInCO.1		    INTEGER(1..255)
+          priorityRequestServiceStrategyNumber.2	    INTEGER (1..255)
+          priorityStrategyRequestedTimeOfServiceDesired.2 INTEGER (0..4294967295)
+          priorityStrategyRequestedTimeOfEstimatedDeparture.2  INTEGER (0..4294967295)
+          priorityStrategyRequestStatusInCO.2		    INTEGER(1..255)
+          priorityRequestServiceStrategyNumber.3          INTEGER (1..255)
+          priorityStrategyRequestedTimeOfServiceDesired.3 INTEGER (0..4294967295)
+          priorityStrategyRequestedTimeOfEstimatedDeparture.3  INTEGER (0..4294967295)
+          priorityStrategyRequestStatusInCO.3             INTEGER(1..255)
+          priorityRequestServiceStrategyNumber.4	    INTEGER (1..255)
+          priorityStrategyRequestedTimeOfServiceDesired.4 INTEGER (0..4294967295)
+          priorityStrategyRequestedTimeOfEstimatedDeparture.4  INTEGER (0..4294967295)
+          priorityStrategyRequestStatusInCO.4   	    INTEGER(1..255)
+          priorityRequestServiceStrategyNumber.5          INTEGER (1..255)
+          priorityStrategyRequestedTimeOfServiceDesired.5 INTEGER (0..4294967295)
+          priorityStrategyRequestedTimeOfEstimatedDeparture.5  INTEGER (0..4294967295)
+          priorityStrategyRequestStatusInCO.5             INTEGER(1..255)
+          priorityRequestServiceStrategyNumber.6          INTEGER (1..255)
+          priorityStrategyRequestedTimeOfServiceDesired.6 INTEGER (0..4294967295)
+          priorityStrategyRequestedTimeOfEstimatedDeparture.6  INTEGER (0..4294967295)
+          priorityStrategyRequestStatusInCO.6             INTEGER(1..255)
+          priorityRequestServiceStrategyNumber.7	    INTEGER (1..255)
+          priorityStrategyRequestedTimeOfServiceDesired.7 INTEGER (0..4294967295)
+          priorityStrategyRequestedTimeOfEstimatedDeparture.7  INTEGER (0..4294967295)
+          priorityStrategyRequestStatusInCO.7             INTEGER(1..255)
+          priorityRequestServiceStrategyNumber.8          INTEGER (1..255)
+          priorityStrategyRequestedTimeOfServiceDesired.8 INTEGER (0..4294967295)
+          priorityStrategyRequestedTimeOfEstimatedDeparture.8  INTEGER (0..4294967295)
+          priorityStrategyRequestStatusInCO.8             INTEGER(1..255)
+          priorityRequestServiceStrategyNumber.9          INTEGER (1..255)
+          priorityStrategyRequestedTimeOfServiceDesired.9 INTEGER (0..4294967295)
+          priorityStrategyRequestedTimeOfEstimatedDeparture.9  INTEGER (0..4294967295)
+          priorityStrategyRequestStatusInCO.9             INTEGER(1..255)
+          priorityRequestServiceStrategyNumber.10         INTEGER (1..255)
+          priorityStrategyRequestedTimeOfServiceDesired.10  INTEGER (0..4294967295)
+          priorityStrategyRequestedTimeOfEstimatedDeparture.10  INTEGER (0..4294967295)
+          priorityStrategyRequestStatusInCO.10            INTEGER(1..255)"
+::= { priorityStrategyMessages 2 }
+
+-- 4.3    SCP BLOCK OBJECTS
+     
+
+scpBlock  OBJECT IDENTIFIER ::= { scp 5 }
+
+-- This object is an identifier used to group all objects for
+-- support of SCP Block Upload and Download activities.
+
+-- 4.3.1  SCP Block Get Control
+        
+
+scpBlockGetControl   OBJECT-TYPE
+   SYNTAX   OCTET STRING (SIZE(2..12))
+   ACCESS   read-write
+   STATUS   optional
+   DESCRIPTION
+      "<Definition> An OER encoded string of reference
+       parameters for SCP Block Uploads. The parameter
+       values in this string are:
+         scpBlockDataType    INTEGER (0..255)
+         scpBlockDataID      INTEGER (0..255)
+         scpBlockIndex1      INTEGER (0..255) if needed
+         scpBlockQuantity1   INTEGER (0..255) if needed
+         scpBlockIndex2      INTEGER (0..255) if needed
+         scpBlockQuantity2   INTEGER (0..255) if needed
+         scpBlockIndex3      INTEGER (0..255) if needed
+         scpBlockQuantity3   INTEGER (0..255) if needed
+         scpBlockIndex4      INTEGER (0..255) if needed
+         scpBlockQuantity4   INTEGER (0..255) if needed
+         scpBlockIndex5      INTEGER (0..255) if needed
+         scpBlockQuantity5   INTEGER (0..255) if needed
+
+       A GET of scpBlockData shall utilize values currently
+       in this object to define the data to be returned.
+
+       A SET of this object shall be evaluated for validity
+       and Error Status of badValue(3) be returned for the
+       following conditions:
+        1) scpBlockDataType is not supported
+        2) scpBlockDataID is not supported
+        3) scpBlockIndex1 is zero or not supported
+        4) scpBlockQuantity1 is zero or
+           scpBlockIndex1 + scpBlockQuantity1 - 1 is not
+           supported
+        5) scpBlockIndex2 is zero or not supported
+        6) scpBlockQuantity2 is zero or
+           scpBlockIndex2 + scpBlockQuantity2) - 1 is not
+           supported
+        7) scpBlockIndex3 is zero or not supported
+        8) scpBlockQuantity3 is zero or
+           scpBlockIndex3 + scpBlockQuantity3) - 1 is not
+           supported
+        9) scpBlockIndex4 is zero or not supported
+       10) scpBlockQuantity4 is zero or
+           scpBlockIndex4 + scpBlockQuantity4) - 1 is not
+           supported
+       11) scpBlockIndex5 is zero or not supported
+       12) scpBlockQuantity5 is zero or
+           scpBlockIndex5 + scpBlockQuantity5) - 1 is not
+           supported
+       13) if the SET length is zero or incorrect for
+           scpBlockDataType & scpBlockDataID
+       14) if the GetResponse length for a GET on
+           scpBlockData using maximum data field sizes
+           would exceed a local limitation
+       When this validity check fails, scpBlockErrorStatus
+       shall be set equal to the Bullet Value above that
+       generated the error.
+       <DescriptiveName> NTCIP-1211::SCP.scpBlockGetControl
+       <DataConceptType> Data Frame
+       <Unit> "
+::= { scpBlock 1 }
+
+-- 4.3.2  SCP Block Data
+        
+
+scpBlockData   OBJECT-TYPE
+   SYNTAX   OCTET STRING (SIZE(2..484))
+   ACCESS  read-write
+   STATUS  optional
+   DESCRIPTION
+      "<Definition> An OER encoded string used for
+       uploading and downloading SCP parameters. See
+       SECTION 3 for encoding and decoding the block.
+
+       A SET on this object shall require the use of
+       'dbCreateTransaction' defined in NTCIP 1201
+       Clause 2.3.1.
+
+       A SET of this object shall be evaluated for validity
+       and Error Status of badValue(3) be returned for the
+       following conditions:
+        1) scpBlockDataType is not supported
+        2) scpBlockDataID is not supported
+        3) scpBlockIndex1 is zero or not supported
+        4) scpBlockQuantity1 is zero or
+           scpBlockIndex1 + scpBlockQuantity1 - 1 is not
+           supported
+        5) scpBlockIndex2 is zero or not supported
+        6) scpBlockQuantity2 is zero or
+           scpBlockIndex2 + scpBlockQuantity2) - 1 is not
+           supported
+        7) scpBlockIndex3 is zero or not supported
+        8) scpBlockQuantity3 is zero or
+           scpBlockIndex3 + scpBlockQuantity3) - 1 is not
+           supported
+        9) scpBlockIndex4 is zero or not supported
+       10) scpBlockQuantity4 is zero or
+           scpBlockIndex4 + scpBlockQuantity4) - 1 is not
+           supported
+       11) scpBlockIndex5 is zero or not supported
+       12) scpBlockQuantity5 is zero or
+           scpBlockIndex5 + scpBlockQuantity5) - 1 is not
+           supported
+       13) if the SET length is zero or incorrect for
+           scpBlockDataType & scpBlockDataID
+       14) if the SET (SEQUENCE OF) value is incorrect.
+       When this validity check fails, scpBlockErrorStatus
+       shall be set equal to the Bullet Value above that
+       generated the error.
+
+       A SET that includes an unsupported value for a
+       supported data element shall return an Error Status
+       of badValue(3) and scpBlockErrorStatus shall be set
+       equal to:
+          (data Sequence # * 100) + data Element #
+
+       A SET that includes a non-zero or non-null value in
+       the position of an unsupported data element shall
+       return an Error Status of badValue(3) and
+       scpBlockErrorStatus shall be set equal to:
+          (data Sequence # * 100) + data Element #
+
+       A GET on this object shall utilize values currently in
+       scpBlockGetControl to define the data to be returned.
+       When scpBlockGetControl has invalid data, an Error
+       Status of badValue(3) shall be returned.
+
+       A GET shall return a zero or null value in the position
+       of an unsupported object.
+       <DescriptiveName> NTCIP-1211::SCP.scpBlockData
+       <DataConceptType> Data Frame
+       <Unit> "
+::= { scpBlock 2 }
+
+-- 4.3.3  SCP Block Error Status
+        
+
+scpBlockErrorStatus   OBJECT-TYPE
+   SYNTAX   INTEGER (0..65535)
+   ACCESS   read-only
+   STATUS   optional
+   DESCRIPTION
+      "<Definition> This object defines the data element
+       within scpBlockGetControl or scpBlockData that
+       caused a badValue(3) ErrorStatus.
+
+       This object should equal zero after any successful
+       SET to scpBlockGetControl or scpBlockData.
+       <DescriptiveName> NTCIP-1211::SCP.scpBlockErrorStatus
+       <DataConceptType> Data Element"
+::= { scpBlock 3 }
+
+END -- CO-MIB1
+
+

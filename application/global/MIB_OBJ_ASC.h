@@ -37,6 +37,34 @@ namespace VENTOS {
 #define sysName         "1.3.6.1.2.1.1.5.0"
 #define sysLocation     "1.3.6.1.2.1.1.6.0"
 
+/*
+OID: 1.3.6.1.4.1.1206.4.2.1
+Full path: iso(1).org(3).dod(6).internet(1).private(4).enterprises(1).nema(1206).transportation(4).devices(2).asc(1)
+Module: NTCIP8004-A-2004
+*/
+
+// phase 1.3.6.1.4.1.1206.4.2.1.1
+#define maxPhases                "1.3.6.1.4.1.1206.4.2.1.1.1"
+#define phaseTable               "1.3.6.1.4.1.1206.4.2.1.1.2"
+#define maxPhaseGroups           "1.3.6.1.4.1.1206.4.2.1.1.3"
+#define phaseStatusGroupTable    "1.3.6.1.4.1.1206.4.2.1.1.4"
+#define phaseControlGroupTable   "1.3.6.1.4.1.1206.4.2.1.1.5"
+
+// detector 1.3.6.1.4.1.1206.4.2.1.2
+#define maxVehicleDetectors              "1.3.6.1.4.1.1206.4.2.1.2.1"
+#define vehicleDetectorTable             "1.3.6.1.4.1.1206.4.2.1.2.2"
+#define maxVehicleDetectorStatusGroups   "1.3.6.1.4.1.1206.4.2.1.2.3"
+#define vehicleDetectorStatusGroupTable  "1.3.6.1.4.1.1206.4.2.1.2.4"
+#define volumeOccupancySequence          "1.3.6.1.4.1.1206.4.2.1.2.5.1"
+#define volumeOccupancyPeriod            "1.3.6.1.4.1.1206.4.2.1.2.5.2"
+#define activeVolumeOccupancyDetectors   "1.3.6.1.4.1.1206.4.2.1.2.5.3"
+#define volumeOccupancyTable             "1.3.6.1.4.1.1206.4.2.1.2.5.4"
+#define maxPedestrianDetectors           "1.3.6.1.4.1.1206.4.2.1.2.6"
+#define pedestrianDetectorTable          "1.3.6.1.4.1.1206.4.2.1.2.7"
+
+// unit 1.3.6.1.4.1.1206.4.2.1.3
+
+
 }
 
 #endif
