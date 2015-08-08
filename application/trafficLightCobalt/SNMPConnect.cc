@@ -63,11 +63,21 @@ void SNMPConnect::initialize(int stage)
         {
             SNMPInitialize();
 
-            // ask for sysDescr
-            get(sysDescr);
+            Snmp_pp::Vb name = get(sysName);
+            std::cout << "Connected to '" << name.get_printable_value() << "'" << " at " << ctarget->get_address().get_printable() << endl;
 
-            // ask for sysUpTime
-            get(sysUpTime);
+            Snmp_pp::Vb company = get(sysContact);
+            std::cout << company.get_printable_value() << endl;
+
+            Snmp_pp::Vb address = get(sysLocation);
+            std::cout << address.get_printable_value() << endl;
+
+            Snmp_pp::Vb upTime = get(sysUpTime);
+            std::cout << "UpTime is " << upTime.get_printable_value() << endl;
+
+
+            Snmp_pp::Vb tab = getColumn(phaseNumber_C);
+            std::cout << tab.get_printable_value() << endl;
         }
     }
 }
@@ -75,7 +85,7 @@ void SNMPConnect::initialize(int stage)
 
 void SNMPConnect::finish()
 {
-
+    snmp->socket_cleanup();  // Shut down socket subsystem
 }
 
 
@@ -121,7 +131,7 @@ void SNMPConnect::SNMPInitialize()
     if (status != SNMP_CLASS_SUCCESS)          // check creation status
         error("%s", snmp->error_msg(status));  // if fail, print error string
 
-    std::cout << "Done!" << endl;
+    std::cout << "Done!" << endl << endl;
 
     Snmp_pp::UdpAddress address(IPAddress);
     address.set_port(501);                     // SNMP port for econolite virtual controller
@@ -150,7 +160,7 @@ void SNMPConnect::SNMPInitialize()
 }
 
 
-void SNMPConnect::get(std::string OID)
+Snmp_pp::Vb SNMPConnect::get(std::string OID)
 {
     // make sure snmp pointer is valid
     ASSERT(snmp);
@@ -161,15 +171,58 @@ void SNMPConnect::get(std::string OID)
     Snmp_pp::Pdu pdu;
     pdu += vb;    // add the variable binding to the PDU
 
-    int status = snmp->get(pdu, *ctarget);     // invoke a SNMP++ Get
+    int status = snmp->get(pdu, *ctarget);     // invoke a SNMP++ get
 
     if (status != SNMP_CLASS_SUCCESS)
         std::cout << snmp->error_msg(status) << endl;
     else
-    {
         pdu.get_vb(vb,0);   // extract the variable binding from PDU
-        std::cout << "System Descriptor = " << vb.get_printable_value() << endl;  // print out the value
-    }
+
+    return vb;
+}
+
+
+Snmp_pp::Vb SNMPConnect::getColumn(std::string OID)
+{
+    // make sure snmp pointer is valid
+    ASSERT(snmp);
+
+    Snmp_pp::Oid SYSDESCR(OID.c_str());
+    Snmp_pp::Vb vb(SYSDESCR);   // variable Binding Object
+
+    Snmp_pp::Pdu pdu;
+    pdu += vb;    // add the variable binding to the PDU
+
+    int status = snmp->get(pdu, *ctarget);     // invoke a SNMP++ get
+
+    if (status != SNMP_CLASS_SUCCESS)
+        std::cout << snmp->error_msg(status) << endl;
+    else
+        pdu.get_vb(vb,0);   // extract the variable binding from PDU
+
+    return vb;
+}
+
+
+Snmp_pp::Vb SNMPConnect::set(std::string OID)
+{
+    // make sure snmp pointer is valid
+    ASSERT(snmp);
+
+    Snmp_pp::Oid SYSDESCR(OID.c_str());
+    Snmp_pp::Vb vb(SYSDESCR);   // variable Binding Object
+
+    Snmp_pp::Pdu pdu;
+    pdu += vb;    // add the variable binding to the PDU
+
+    int status = snmp->set(pdu, *ctarget);     // invoke a SNMP++ set
+
+    if (status != SNMP_CLASS_SUCCESS)
+        std::cout << snmp->error_msg(status) << endl;
+    else
+        pdu.get_vb(vb,0);   // extract the variable binding from PDU
+
+    return vb;
 }
 
 

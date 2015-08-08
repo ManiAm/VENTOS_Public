@@ -46,7 +46,9 @@ class SNMPConnect : public BaseModule
         virtual void handleMessage(cMessage *msg);
 		virtual void finish();
         virtual void receiveSignal(cComponent *, simsignal_t, long);
-        void get(std::string OID);
+        Snmp_pp::Vb get(std::string OID);
+        Snmp_pp::Vb getColumn(std::string OID);
+        Snmp_pp::Vb set(std::string OID);
 
 	private:
         void SNMPInitialize();
