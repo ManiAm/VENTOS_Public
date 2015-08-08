@@ -63,21 +63,17 @@ void SNMPConnect::initialize(int stage)
         {
             SNMPInitialize();
 
-            Snmp_pp::Vb name = get(sysName);
+            Snmp_pp::Vb name = SNMPget(sysName);
             std::cout << "Connected to '" << name.get_printable_value() << "'" << " at " << ctarget->get_address().get_printable() << endl;
 
-            Snmp_pp::Vb company = get(sysContact);
+            Snmp_pp::Vb company = SNMPget(sysContact);
             std::cout << company.get_printable_value() << endl;
 
-            Snmp_pp::Vb address = get(sysLocation);
+            Snmp_pp::Vb address = SNMPget(sysLocation);
             std::cout << address.get_printable_value() << endl;
 
-            Snmp_pp::Vb upTime = get(sysUpTime);
-            std::cout << "UpTime is " << upTime.get_printable_value() << endl;
-
-
-            Snmp_pp::Vb tab = getColumn(phaseNumber_C);
-            std::cout << tab.get_printable_value() << endl;
+            Snmp_pp::Vb upTime = SNMPget(sysUpTime);
+            std::cout << "UpTime is " << upTime.get_printable_value() << endl << endl;
         }
     }
 }
@@ -85,7 +81,7 @@ void SNMPConnect::initialize(int stage)
 
 void SNMPConnect::finish()
 {
-    snmp->socket_cleanup();  // Shut down socket subsystem
+    cobalt->socket_cleanup();  // Shut down socket subsystem
 }
 
 
@@ -101,7 +97,17 @@ void SNMPConnect::receiveSignal(cComponent *source, simsignal_t signalID, long i
 
     if(signalID == Signal_executeFirstTS && on)
     {
+        // todo:
 
+        SNMPset("1.3.6.1.2.1.1.4", "manoo");
+
+
+//        std::vector<Snmp_pp::Vb> result = SNMPwalk("1.3.6.1.4.1.1206.4.2.1.11.1");
+//        for(auto& entry : result)
+//        {
+//            std::cout << entry.get_printable_oid() << " = ";
+//            std::cout << entry.get_printable_value() << endl;
+//        }
     }
 }
 
@@ -127,14 +133,15 @@ void SNMPConnect::SNMPInitialize()
     std::cout << "Creating SNMP session ... ";
 
     int status;                                // return status
-    snmp = new Snmp_pp::Snmp(status, 0);       // create a SNMP++ session (0: bind to any port)
+    cobalt = new Snmp_pp::Snmp(status, 0);       // create a SNMP++ session (0: bind to any port)
     if (status != SNMP_CLASS_SUCCESS)          // check creation status
-        error("%s", snmp->error_msg(status));  // if fail, print error string
+        error("%s", cobalt->error_msg(status));  // if fail, print error string
 
     std::cout << "Done!" << endl << endl;
 
     Snmp_pp::UdpAddress address(IPAddress);
-    address.set_port(501);                     // SNMP port for econolite virtual controller
+    std::string port = par("port").stringValue();
+    address.set_port( std::stoi(port) );           // SNMP port for econolite virtual controller
 
     ctarget = new Snmp_pp::CTarget(address);   // community target
 
@@ -160,21 +167,27 @@ void SNMPConnect::SNMPInitialize()
 }
 
 
-Snmp_pp::Vb SNMPConnect::get(std::string OID)
+Snmp_pp::Vb SNMPConnect::SNMPget(std::string OID, int instance)
 {
     // make sure snmp pointer is valid
-    ASSERT(snmp);
+    ASSERT(cobalt);
 
-    Snmp_pp::Oid SYSDESCR(OID.c_str());
-    Snmp_pp::Vb vb(SYSDESCR);   // variable Binding Object
+    if(instance < 0)
+        error("instance in SNMPget is less than zero!");
+
+    // add the instance to the end of oid
+    OID = OID + "." + std::to_string(instance);
+
+    Snmp_pp::Oid myOID(OID.c_str());
+    Snmp_pp::Vb vb(myOID);   // variable Binding Object
 
     Snmp_pp::Pdu pdu;
     pdu += vb;    // add the variable binding to the PDU
 
-    int status = snmp->get(pdu, *ctarget);     // invoke a SNMP++ get
+    int status = cobalt->get(pdu, *ctarget);     // invoke a SNMP++ get
 
     if (status != SNMP_CLASS_SUCCESS)
-        std::cout << snmp->error_msg(status) << endl;
+        std::cout << cobalt->error_msg(status) << endl;
     else
         pdu.get_vb(vb,0);   // extract the variable binding from PDU
 
@@ -182,43 +195,78 @@ Snmp_pp::Vb SNMPConnect::get(std::string OID)
 }
 
 
-Snmp_pp::Vb SNMPConnect::getColumn(std::string OID)
+// For non-tabular objects, the given OID is queried (similar to a SNMPget)
+// For tabular objects, all variables in the subtree below the given OID are queried
+std::vector<Snmp_pp::Vb> SNMPConnect::SNMPwalk(std::string OID)
 {
     // make sure snmp pointer is valid
-    ASSERT(snmp);
+    ASSERT(cobalt);
 
-    Snmp_pp::Oid SYSDESCR(OID.c_str());
-    Snmp_pp::Vb vb(SYSDESCR);   // variable Binding Object
+    Snmp_pp::Oid myOID(OID.c_str());
+    Snmp_pp::Vb vb(myOID);   // variable Binding Object
 
     Snmp_pp::Pdu pdu;
     pdu += vb;    // add the variable binding to the PDU
 
-    int status = snmp->get(pdu, *ctarget);     // invoke a SNMP++ get
+    int status = 0;
+    const int BULK_MAX = 10;
+    std::vector<Snmp_pp::Vb> collection;
 
-    if (status != SNMP_CLASS_SUCCESS)
-        std::cout << snmp->error_msg(status) << endl;
-    else
-        pdu.get_vb(vb,0);   // extract the variable binding from PDU
+    while( (status = cobalt->get_bulk(pdu, *ctarget, 0, BULK_MAX)) == SNMP_CLASS_SUCCESS )
+    {
+        for (int z = 0; z < pdu.get_vb_count(); z++)
+        {
+            pdu.get_vb(vb,z);
 
-    return vb;
+            Snmp_pp::Oid tmp;
+            vb.get_oid(tmp);
+
+            // End of SUBTREE Reached
+            if (myOID.nCompare(myOID.len(), tmp) != 0)
+                return collection;
+
+            // look for var bind exception (End of MIB Reached), applies to v2 only
+            if (vb.get_syntax() == sNMP_SYNTAX_ENDOFMIBVIEW)
+                return collection;
+            else
+                collection.push_back(vb);
+        }
+
+        // last vb becomes seed of next request
+        pdu.set_vblist(&vb, 1);
+    }
+
+    if (status != SNMP_ERROR_NO_SUCH_NAME)
+        std::cout << "SNMP++ snmpWalk Error, " << cobalt->error_msg(status) << endl;
+
+    return collection;
 }
 
 
-Snmp_pp::Vb SNMPConnect::set(std::string OID)
+template <typename T>
+Snmp_pp::Vb SNMPConnect::SNMPset(std::string OID, T value, int instance)
 {
     // make sure snmp pointer is valid
-    ASSERT(snmp);
+    ASSERT(cobalt);
 
-    Snmp_pp::Oid SYSDESCR(OID.c_str());
-    Snmp_pp::Vb vb(SYSDESCR);   // variable Binding Object
+    if(instance < 0)
+        error("instance in SNMPget is less than zero!");
+
+    // add the instance to the end of oid
+    OID = OID + "." + std::to_string(instance);
+
+    Snmp_pp::Oid myOID(OID.c_str());
+
+    Snmp_pp::Vb vb(myOID);   // variable Binding Object
+    vb.set_value(value);
 
     Snmp_pp::Pdu pdu;
     pdu += vb;    // add the variable binding to the PDU
 
-    int status = snmp->set(pdu, *ctarget);     // invoke a SNMP++ set
+    int status = cobalt->set(pdu, *ctarget);     // invoke a SNMP++ set
 
     if (status != SNMP_CLASS_SUCCESS)
-        std::cout << snmp->error_msg(status) << endl;
+        std::cout << cobalt->error_msg(status) << endl;
     else
         pdu.get_vb(vb,0);   // extract the variable binding from PDU
 

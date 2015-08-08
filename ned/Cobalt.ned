@@ -9,5 +9,6 @@ simple Cobalt
         
         bool on = default(false);   
         string IPAddress; 
+        string port;
 }
 

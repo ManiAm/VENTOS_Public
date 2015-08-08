@@ -46,9 +46,10 @@ class SNMPConnect : public BaseModule
         virtual void handleMessage(cMessage *msg);
 		virtual void finish();
         virtual void receiveSignal(cComponent *, simsignal_t, long);
-        Snmp_pp::Vb get(std::string OID);
-        Snmp_pp::Vb getColumn(std::string OID);
-        Snmp_pp::Vb set(std::string OID);
+
+        Snmp_pp::Vb SNMPget(std::string OID, int instance=0);
+        std::vector<Snmp_pp::Vb> SNMPwalk(std::string OID);
+        template <typename T> Snmp_pp::Vb SNMPset(std::string OID, T value, int instance=0);
 
 	private:
         void SNMPInitialize();
@@ -61,7 +62,7 @@ class SNMPConnect : public BaseModule
         bool on;
 
         boost::filesystem::path SNMP_LOG;
-        Snmp_pp::Snmp *snmp = NULL;
+        Snmp_pp::Snmp *cobalt = NULL;
         Snmp_pp::CTarget *ctarget = NULL;
 };
 
