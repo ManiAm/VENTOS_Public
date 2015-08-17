@@ -132,16 +132,16 @@ void SNMPConnect::SNMPInitialize()
     std::cout << "Done!" << endl;
     std::cout << "Creating SNMP session ... ";
 
-    int status;                                // return status
+    int status;                                  // return status
     cobalt = new Snmp_pp::Snmp(status, 0);       // create a SNMP++ session (0: bind to any port)
-    if (status != SNMP_CLASS_SUCCESS)          // check creation status
+    if (status != SNMP_CLASS_SUCCESS)            // check creation status
         error("%s", cobalt->error_msg(status));  // if fail, print error string
 
     std::cout << "Done!" << endl << endl;
 
     Snmp_pp::UdpAddress address(IPAddress);
     std::string port = par("port").stringValue();
-    address.set_port( std::stoi(port) );           // SNMP port for econolite virtual controller
+    address.set_port( std::stoi(port) );       // SNMP port for econolite virtual controller
 
     ctarget = new Snmp_pp::CTarget(address);   // community target
 

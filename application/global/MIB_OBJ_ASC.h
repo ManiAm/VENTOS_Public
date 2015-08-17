@@ -49,6 +49,8 @@ closeWait(8)      192.168.1.78            1156                 192.168.4.144    
 
 To simulate SNMP agents use "Verax SNMP Agent Simulator".
 Download at http://www.veraxsystems.com/en/products/free-snmp-agent-simulator
+Then run the console by sudo /etc/init.d/verax-snmpsimulator console
+Then type 'show'
 
 */
 
