@@ -40,7 +40,7 @@ enum WaveApplMessageKinds
 
 enum ControllerTypes
 {
-    SUMO_TAG_CF_KRAUSS = 102,
+    SUMO_TAG_CF_KRAUSS = 103,
     SUMO_TAG_CF_KRAUSS_PLUS_SLOPE,
     SUMO_TAG_CF_KRAUSS_ACCEL_BOUND,
     SUMO_TAG_CF_KRAUSS_ORIG1,
@@ -54,8 +54,8 @@ enum ControllerTypes
 
     SUMO_TAG_CF_OPTIMALSPEED,
     SUMO_TAG_CF_KRAUSSFIXED,
-    SUMO_TAG_CF_ACC,    // 114
-    SUMO_TAG_CF_CACC    // 115
+    SUMO_TAG_CF_ACC,    // 116
+    SUMO_TAG_CF_CACC    // 117
 };
 
 enum CFMODES {
