@@ -121,12 +121,12 @@ void LoopDetectors::executeFirstTimeStep()
     TLList = TraCI->TLGetIDList();
 
     // for each traffic light
-    for (std::list<std::string>::iterator it = TLList.begin(); it != TLList.end(); ++it)
+    for (auto &it : TLList)
     {
-        std::string TLid = *it;
+        std::string TLid = it;
 
         // get all incoming lanes
-        std::list<std::string> lan = TraCI->TLGetControlledLanes(*it);
+        std::list<std::string> lan = TraCI->TLGetControlledLanes(it);
 
         // remove duplicate entries
         lan.unique();
@@ -140,9 +140,9 @@ void LoopDetectors::executeFirstTimeStep()
         std::list<std::string> sideWalkList;
 
         // for each incoming lane
-        for(std::list<std::string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
+        for(auto &it2 : lan)
         {
-            std::string lane = *it2;
+            std::string lane = it2;
 
             laneList[lane] = TLid;
 
@@ -175,10 +175,10 @@ void LoopDetectors::executeFirstTimeStep()
         std::map<int,std::vector<std::string>> result = TraCI->TLGetControlledLinks(TLid);
 
         // for each link in this TLid
-        for(std::map<int,std::vector<std::string>>::iterator it2 = result.begin(); it2 != result.end(); ++it2)
+        for(auto &it2 : result)
         {
-            int linkNumber = (*it2).first;
-            std::vector<std::string> link = (*it2).second;
+            int linkNumber = it2.first;
+            std::vector<std::string> link = it2.second;
             std::string incommingLane = link[0];
 
             laneLinks.insert( std::make_pair(incommingLane, std::make_pair(TLid,linkNumber)) );
@@ -245,26 +245,26 @@ void LoopDetectors::getAllDetectors()
     std::list<std::string> str = TraCI->LDGetIDList();
 
     // for each loop detector
-    for (std::list<std::string>::iterator it=str.begin(); it != str.end(); ++it)
+    for (auto &it : str)
     {
-        std::string lane = TraCI->LDGetLaneID(*it);
+        std::string lane = TraCI->LDGetLaneID(it);
 
-        if( std::string(*it).find("demand_") != std::string::npos )
-            LD_demand[lane] = std::make_pair(*it,-1);
-        else if( std::string(*it).find("actuated_") != std::string::npos )
-            LD_actuated[lane] = *it;
+        if( std::string(it).find("demand_") != std::string::npos )
+            LD_demand[lane] = std::make_pair(it,-1);
+        else if( std::string(it).find("actuated_") != std::string::npos )
+            LD_actuated[lane] = it;
     }
 
     // get all area detectors
     std::list<std::string> str2 = TraCI->LADGetIDList();
 
     // for each area detector detector
-    for (std::list<std::string>::iterator it=str2.begin(); it != str2.end(); ++it)
+    for (auto &it : str2)
     {
-        std::string lane = TraCI->LADGetLaneID(*it);
+        std::string lane = TraCI->LADGetLaneID(it);
 
-        if( std::string(*it).find("queue_") != std::string::npos )
-            AD_queue[lane] = *it;
+        if( std::string(it).find("queue_") != std::string::npos )
+            AD_queue[lane] = it;
     }
 
     if(debugLevel > 0)
@@ -275,9 +275,9 @@ void LoopDetectors::getAllDetectors()
     }
 
     // make sure we have all detectors we need
-    for (std::list<std::string>::iterator it = TLList.begin(); it != TLList.end(); ++it)
+    for (auto &it : TLList)
     {
-        std::string TLid = *it;
+        std::string TLid = it;
 
         std::list<std::string> lan = TraCI->TLGetControlledLanes(TLid);
 
@@ -285,9 +285,9 @@ void LoopDetectors::getAllDetectors()
         lan.unique();
 
         // for each incoming lane
-        for(std::list<std::string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
+        for(auto &it2 : lan)
         {
-            std::string lane = *it2;
+            std::string lane = it2;
 
             // ignore side walk
             if( std::find(sideWalkListTL[TLid].begin(), sideWalkListTL[TLid].end(), lane) != sideWalkListTL[TLid].end() )
@@ -315,32 +315,32 @@ void LoopDetectors::collectLDsData()
     std::list<std::string> str = TraCI->LDGetIDList();
 
     // for each loop detector
-    for (std::list<std::string>::iterator it=str.begin(); it != str.end(); ++it)
+    for (auto &it : str)
     {
-        std::vector<std::string>  st = TraCI->LDGetLastStepVehicleData(*it);
+        std::vector<std::string>  st = TraCI->LDGetLastStepVehicleData(it);
 
         // only if this loop detector detected a vehicle
         if( st.size() > 0 )
         {
             // laneID of loop detector
-            std::string lane = TraCI->LDGetLaneID(*it);
+            std::string lane = TraCI->LDGetLaneID(it);
 
             // get vehicle information
             std::string vehicleName = st.at(0);
             double entryT = atof( st.at(2).c_str() );
             double leaveT = atof( st.at(3).c_str() );
-            double speed = TraCI->LDGetLastStepMeanVehicleSpeed(*it);  // vehicle speed at current moment
+            double speed = TraCI->LDGetLastStepMeanVehicleSpeed(it);  // vehicle speed at current moment
 
             // save it only when collectInductionLoopData=true
             if(collectInductionLoopData)
             {
-                const LoopDetectorData *searchFor = new LoopDetectorData( (*it).c_str(), "", vehicleName.c_str() );
-                std::vector<LoopDetectorData>::iterator counter = std::find(Vec_loopDetectors.begin(), Vec_loopDetectors.end(), *searchFor);
+                const LoopDetectorData *searchFor = new LoopDetectorData( it.c_str(), "", vehicleName.c_str() );
+                auto counter = std::find(Vec_loopDetectors.begin(), Vec_loopDetectors.end(), *searchFor);
 
                 // its a new entry, so we add it
                 if(counter == Vec_loopDetectors.end())
                 {
-                    LoopDetectorData *tmp = new LoopDetectorData( (*it).c_str(), lane.c_str(), vehicleName.c_str(), entryT, leaveT, speed, speed );
+                    LoopDetectorData *tmp = new LoopDetectorData( it.c_str(), lane.c_str(), vehicleName.c_str(), entryT, leaveT, speed, speed );
                     Vec_loopDetectors.push_back(*tmp);
                 }
                 // if found, just update leaveTime and leaveSpeed
@@ -406,15 +406,15 @@ void LoopDetectors::saveLDsData()
     fprintf (filePtr, "%-22s\n\n","vehicleLeaveSpeed");
 
     // write body
-    for(std::vector<LoopDetectorData>::iterator y = Vec_loopDetectors.begin(); y != Vec_loopDetectors.end(); ++y)
+    for(auto& y : Vec_loopDetectors)
     {
-        fprintf (filePtr, "%-30s ", y->detectorName.c_str());
-        fprintf (filePtr, "%-20s ", y->lane.c_str());
-        fprintf (filePtr, "%-20s ", y->vehicleName.c_str());
-        fprintf (filePtr, "%-20.2f ", y->entryTime);
-        fprintf (filePtr, "%-20.2f ", y->leaveTime);
-        fprintf (filePtr, "%-20.2f ", y->entrySpeed);
-        fprintf (filePtr, "%-20.2f\n", y->leaveSpeed);
+        fprintf (filePtr, "%-30s ", y.detectorName.c_str());
+        fprintf (filePtr, "%-20s ", y.lane.c_str());
+        fprintf (filePtr, "%-20s ", y.vehicleName.c_str());
+        fprintf (filePtr, "%-20.2f ", y.entryTime);
+        fprintf (filePtr, "%-20.2f ", y.leaveTime);
+        fprintf (filePtr, "%-20.2f ", y.entrySpeed);
+        fprintf (filePtr, "%-20.2f\n", y.leaveSpeed);
     }
 
     fclose(filePtr);
@@ -435,7 +435,7 @@ void LoopDetectors::updateTLstate(std::string TLid, std::string stage, std::stri
     else
     {
         // get a reference to this TL
-        std::map<std::pair<std::string,int>, currentStatusTL>::iterator location = statusTL.find( std::make_pair(TLid,phaseTL[TLid]) );
+        auto location = statusTL.find( std::make_pair(TLid,phaseTL[TLid]) );
         if(location == statusTL.end())
             error("This TLid is not found!");
 
@@ -483,9 +483,9 @@ void LoopDetectors::updateTLstate(std::string TLid, std::string stage, std::stri
 
             // for each incoming lane
             int totalQueueSize = 0;
-            for(std::list<std::string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
+            for(auto &it2 : lan)
             {
-                totalQueueSize = totalQueueSize + laneQueueSize[*it2].second;
+                totalQueueSize = totalQueueSize + laneQueueSize[it2].second;
             }
 
             (location->second).totalQueueSize = totalQueueSize;
@@ -507,7 +507,7 @@ void LoopDetectors::updateTLstate(std::string TLid, std::string stage, std::stri
             }
 
             // increase phase number by 1
-            std::map<std::string, int>::iterator location2 = phaseTL.find(TLid);
+            auto location2 = phaseTL.find(TLid);
             location2->second = location2->second + 1;
 
             // update status for the new phase
@@ -522,10 +522,10 @@ void LoopDetectors::updateTLstate(std::string TLid, std::string stage, std::stri
 void LoopDetectors::measureTrafficParameters()
 {
     // for each 'lane i' that is controlled by traffic light j
-    for(std::map<std::string, std::string>::iterator y = laneList.begin(); y != laneList.end(); ++y)
+    for(auto &y : laneList)
     {
-        std::string lane = (*y).first;
-        std::string TLid = (*y).second;
+        std::string lane = y.first;
+        std::string TLid = y.second;
 
         // ignore side walk
         if( std::find(sideWalkListTL[TLid].begin(), sideWalkListTL[TLid].end(), lane) != sideWalkListTL[TLid].end() )
@@ -541,13 +541,13 @@ void LoopDetectors::measureTrafficParameters()
             int q = TraCI->LADGetLastStepVehicleHaltingNumber(ADid);
 
             // update laneQueueSize
-            std::map<std::string,std::pair<std::string,int>>::iterator location = laneQueueSize.find(lane);
+            auto location = laneQueueSize.find(lane);
             std::pair<std::string,int> store = location->second;
             location->second = std::make_pair(store.first, q);
 
             if(collectTLQueuingData)
             {
-                std::map<std::string, queueDataEntry>::iterator g = queueSizeTL.find(TLid);
+                auto g = queueSizeTL.find(TLid);
 
                 // save min/max/total queue size for each TLid temporarily
                 (*g).second.totalQueueSize = (*g).second.totalQueueSize + q;
@@ -558,8 +558,7 @@ void LoopDetectors::measureTrafficParameters()
             int NoLinks = laneLinks.count(lane);
 
             // iterate over outgoing links
-            std::pair<std::multimap<std::string, std::pair<std::string, int>>::iterator, std::multimap<std::string, std::pair<std::string, int>>::iterator > ppp;
-            ppp = laneLinks.equal_range(lane);
+            auto ppp = laneLinks.equal_range(lane);
             for(std::multimap<std::string, std::pair<std::string, int>>::iterator z = ppp.first; z != ppp.second; ++z)
             {
                 int linkNumber = (*z).second.second;
@@ -569,7 +568,7 @@ void LoopDetectors::measureTrafficParameters()
                 int queuePortion = q;
 
                 // update linkQueueSize
-                std::map<std::pair<std::string,int>, int>::iterator location = linkQueueSize.find( make_pair(TLid,linkNumber) );
+                auto location = linkQueueSize.find( make_pair(TLid,linkNumber) );
                 location->second = queuePortion;
             }
         }
@@ -578,7 +577,7 @@ void LoopDetectors::measureTrafficParameters()
         if(measureTrafficDemand)
         {
             // make sure we have a demand loop detector in this lane
-            std::map<std::string, std::pair<std::string, double>>::iterator loc = LD_demand.find(lane);
+            auto loc = LD_demand.find(lane);
             if( loc == LD_demand.end() )
                 continue;
 
@@ -614,19 +613,18 @@ void LoopDetectors::measureTrafficParameters()
                         double lagT = std::fabs(LDPos) / approachSpeed;
 
                         // push it into the circular buffer
-                        std::map<std::string, std::pair<std::string, boost::circular_buffer<std::vector<double>>>>::iterator loc = laneTD.find(lane);
+                        auto loc = laneTD.find(lane);
                         std::vector<double> entry {TD /*traffic demand*/, simTime().dbl() /*time of measure*/, lagT /*time it takes to arrive at intersection*/};
                         (loc->second).second.push_back(entry);
 
                         // iterate over outgoing links
-                        std::pair<std::multimap<std::string, std::pair<std::string, int>>::iterator, std::multimap<std::string, std::pair<std::string, int>>::iterator > ppp;
-                        ppp = laneLinks.equal_range(lane);
+                        auto ppp = laneLinks.equal_range(lane);
                         for(std::multimap<std::string, std::pair<std::string, int>>::iterator z = ppp.first; z != ppp.second; ++z)
                         {
                             int linkNumber = (*z).second.second;
 
                             // push the new TD into the circular buffer
-                            std::map<std::pair<std::string,int>, boost::circular_buffer<std::vector<double>>>::iterator location = linkTD.find( make_pair(TLid,linkNumber) );
+                            auto location = linkTD.find( make_pair(TLid,linkNumber) );
                             std::vector<double> entry {TD /*traffic demand*/, simTime().dbl() /*time of measure*/, lagT /*time it takes to arrive at intersection*/};
                             (location->second).push_back(entry);
                         }
@@ -636,7 +634,7 @@ void LoopDetectors::measureTrafficParameters()
                 // Note that updating laneTD and laneLinks is done at the beginning of each cycle at updateTLstate method
                 else if(measureTrafficDemandMode == 2)
                 {
-                    std::map<std::string, std::pair<std::string, laneVehInfo> >::iterator u = laneTotalVehCount.find(lane);
+                    auto u = laneTotalVehCount.find(lane);
 
                     if(u == laneTotalVehCount.end())
                         error("lane %s does not exist in laneTotalVehCount", lane.c_str());
@@ -659,19 +657,19 @@ void LoopDetectors::measureTrafficParameters()
 
     if(collectTLQueuingData)
     {
-        for(std::map<std::string, queueDataEntry>::iterator y = queueSizeTL.begin(); y != queueSizeTL.end(); ++y)
+        for(auto &y : queueSizeTL)
         {
-            std::string TLid = (*y).first;
-            int totalQueue = (*y).second.totalQueueSize;
-            int maxQueue = (*y).second.maxQueueSize;
-            int laneCount = (*y).second.totalLanes;
+            std::string TLid = y.first;
+            int totalQueue = y.second.totalQueueSize;
+            int maxQueue = y.second.maxQueueSize;
+            int laneCount = y.second.totalLanes;
 
             queueDataEntryDetailed *entry = new queueDataEntryDetailed(simTime().dbl(), TLid, totalQueue, maxQueue, laneCount);
             Vec_queueSize.push_back(*entry);
 
             // reset values
-            (*y).second.totalQueueSize = 0;
-            (*y).second.maxQueueSize = 0;
+            y.second.totalQueueSize = 0;
+            y.second.maxQueueSize = 0;
         }
     }
 }
@@ -681,18 +679,18 @@ void LoopDetectors::measureTrafficParameters()
 // this method is called only when measureTrafficDemandMode == 2
 void LoopDetectors::updateTrafficDemand()
 {
-    for(std::map<std::string, std::pair<std::string, laneVehInfo> >::iterator u = laneTotalVehCount.begin(); u != laneTotalVehCount.end(); ++u)
+    for(auto & u : laneTotalVehCount)
     {
-        std::string lane = (*u).first;
-        std::string TLid = (*u).second.first;
+        std::string lane = u.first;
+        std::string TLid = u.second.first;
 
         // ignore side walk
         if( std::find(sideWalkListTL[TLid].begin(), sideWalkListTL[TLid].end(), lane) != sideWalkListTL[TLid].end() )
             continue;
 
-        double interval = (*u).second.second.lastArrivalTime - (*u).second.second.firstArrivalTime;
+        double interval = u.second.second.lastArrivalTime - u.second.second.firstArrivalTime;
 
-        double TD = (interval == 0) ? 0 : 3600. * ((double)(*u).second.second.totalVehCount / interval);
+        double TD = (interval == 0) ? 0 : 3600. * ( (double)u.second.second.totalVehCount / interval );
 
         // bound TD
         TD = std::min(TD, saturationTD);
@@ -700,8 +698,8 @@ void LoopDetectors::updateTrafficDemand()
         // if interval is too big then clear the buffer and restart!
         if(interval >= 200)
         {
-            (*u).second.second.totalVehCount = 0;
-            (*u).second.second.firstArrivalTime = simTime().dbl();
+            u.second.second.totalVehCount = 0;
+            u.second.second.firstArrivalTime = simTime().dbl();
 
             // clear buffer for this lane in laneTD
             const auto &loc = laneTD.find(lane);
@@ -725,19 +723,18 @@ void LoopDetectors::updateTrafficDemand()
         if(TD != 0)
         {
             // push it into the circular buffer
-            std::map<std::string, std::pair<std::string, boost::circular_buffer<std::vector<double>>>>::iterator loc = laneTD.find(lane);
+            auto loc = laneTD.find(lane);
             std::vector<double> entry {TD /*traffic demand*/, simTime().dbl() /*time of measure*/, -1};
             (loc->second).second.push_back(entry);
 
             // iterate over outgoing links
-            std::pair<std::multimap<std::string, std::pair<std::string, int>>::iterator, std::multimap<std::string, std::pair<std::string, int>>::iterator > ppp;
-            ppp = laneLinks.equal_range(lane);
+            auto ppp = laneLinks.equal_range(lane);
             for(std::multimap<std::string, std::pair<std::string, int>>::iterator z = ppp.first; z != ppp.second; ++z)
             {
                 int linkNumber = (*z).second.second;
 
                 // push the new TD into the circular buffer
-                std::map<std::pair<std::string,int>, boost::circular_buffer<std::vector<double>>>::iterator location = linkTD.find( make_pair(TLid,linkNumber) );
+                auto location = linkTD.find( make_pair(TLid,linkNumber) );
                 std::vector<double> entry {TD /*traffic demand*/, simTime().dbl() /*time of measure*/, -1};
                 (location->second).push_back(entry);
             }
@@ -798,21 +795,21 @@ void LoopDetectors::saveTLQueueingData()
     double oldTime = -1;
     int index = 0;
 
-    for(std::vector<queueDataEntryDetailed>::iterator y = Vec_queueSize.begin(); y != Vec_queueSize.end(); ++y )
+    for(auto &y : Vec_queueSize)
     {
-        if(oldTime != (*y).time)
+        if(oldTime != y.time)
         {
             fprintf(filePtr, "\n");
-            oldTime = (*y).time;
+            oldTime = y.time;
             index++;
         }
 
         fprintf (filePtr, "%-10d", index);
-        fprintf (filePtr, "%-10.2f", (*y).time);
-        fprintf (filePtr, "%-10s", (*y).TLid.c_str());
-        fprintf (filePtr, "%-15d", (*y).totalQueueSize);
-        fprintf (filePtr, "%-15d", (*y).maxQueueSize);
-        fprintf (filePtr, "%-10d\n", (*y).totalLanes);
+        fprintf (filePtr, "%-10.2f", y.time);
+        fprintf (filePtr, "%-10s", y.TLid.c_str());
+        fprintf (filePtr, "%-15d", y.totalQueueSize);
+        fprintf (filePtr, "%-15d", y.maxQueueSize);
+        fprintf (filePtr, "%-10d\n", y.totalLanes);
     }
 
     fclose(filePtr);
@@ -874,12 +871,12 @@ void LoopDetectors::saveTLPhasingData()
     fprintf (filePtr, "%-15s\n\n", "totalqueueSize");
 
     // write body
-    for( std::map<std::pair<std::string, int>, currentStatusTL>::iterator y = statusTL.begin(); y != statusTL.end(); ++y)
+    for(auto & y : statusTL)
     {
-        currentStatusTL status = (*y).second;
+        currentStatusTL status = y.second;
 
-        fprintf (filePtr, "%-12s", ((*y).first).first.c_str());
-        fprintf (filePtr, "%-12d", ((*y).first).second);
+        fprintf (filePtr, "%-12s", y.first.first.c_str());
+        fprintf (filePtr, "%-12d", y.first.second);
         fprintf (filePtr, "%-12d", status.cycle);
         fprintf (filePtr, "%-35s", status.allowedMovements.c_str());
         fprintf (filePtr, "%-15.2f", status.greenLength);

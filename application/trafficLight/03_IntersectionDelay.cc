@@ -84,10 +84,10 @@ void IntersectionDelay::executeFirstTimeStep()
     // get all lanes in the network
     lanesList = TraCI->laneGetIDList();
 
-    for(std::map<std::string,std::string>::iterator it = laneList.begin(); it != laneList.end(); ++it)
+    for(auto &it : laneList)
     {
-        std::string lane = (*it).first;
-        std::string TLid = (*it).second;
+        std::string lane = it.first;
+        std::string TLid = it.second;
 
         // initialize laneDelay
         laneDelay[lane] = std::map<std::string,double> ();
@@ -113,17 +113,17 @@ void IntersectionDelay::executeEachTimeStep(bool simulationDone)
 
 void IntersectionDelay::vehiclesDelay()
 {
-    for(std::list<std::string>::iterator i = lanesList.begin(); i != lanesList.end(); ++i)
+    for(auto &i : lanesList)
     {
         // get all vehicles on lane i
-        std::list<std::string> allVeh = TraCI->laneGetLastStepVehicleIDs( i->c_str() );
+        std::list<std::string> allVeh = TraCI->laneGetLastStepVehicleIDs( i.c_str() );
 
         for(std::list<std::string>::reverse_iterator k = allVeh.rbegin(); k != allVeh.rend(); ++k)
         {
             std::string vID = k->c_str();
 
             // look for the vehicle in delay map
-            std::map<std::string, delayEntry>::iterator loc = vehDelay.find(vID);
+            auto loc = vehDelay.find(vID);
 
             // todo: what if the vehicle is visiting this TL for the second time?
             // insert if new
@@ -162,7 +162,7 @@ void IntersectionDelay::vehiclesDelay()
 void IntersectionDelay::vehiclesDelayEach(std::string vID)
 {
     // get a pointer to the vehicle
-    std::map<std::string, delayEntry>::iterator loc = vehDelay.find(vID);
+    auto loc = vehDelay.find(vID);
 
     // if the vehicle is controlled by a TL
     if(loc->second.TLid == "")
@@ -186,11 +186,11 @@ void IntersectionDelay::vehiclesDelayEach(std::string vID)
         std::map<int,bestLanesEntry> best = TraCI->vehicleGetBestLanes(vID);
 
         bool found = false;
-        for(std::map<int,bestLanesEntry>::iterator y = best.begin(); y != best.end(); ++y)
+        for(auto &y : best)
         {
-            std::string laneID = y->second.laneId;
-            int offset = y->second.offset;
-            int continuingDrive = y->second.continuingDrive;
+            std::string laneID = y.second.laneId;
+            int offset = y.second.offset;
+            int continuingDrive = y.second.continuingDrive;
 
             if(offset == 0 && continuingDrive == 1 && laneID == currentLane)
             {
@@ -233,17 +233,15 @@ void IntersectionDelay::vehiclesDelayEach(std::string vID)
 
         if(loc->second.lastAccels.full())
         {
-            for(boost::circular_buffer<std::pair<double,double>>::iterator g = loc->second.lastAccels.begin(); g != loc->second.lastAccels.end(); ++g)
-            {
-                if( (*g).second > deccelDelayThreshold ) return;
-            }
+            for(auto &g : loc->second.lastAccels)
+                if( g.second > deccelDelayThreshold ) return;
 
             // At this point a slow down is found.
             // We should check if this slow down was due to a Y or R signal
             bool YorR = false;
-            for(boost::circular_buffer<char>::iterator g = loc->second.lastSignals.begin(); g != loc->second.lastSignals.end(); ++g)
+            for(auto &g : loc->second.lastSignals)
             {
-                if(*g == 'y' || *g == 'r')
+                if(g == 'y' || g == 'r')
                 {
                     YorR = true;
                     break;
@@ -284,9 +282,9 @@ void IntersectionDelay::vehiclesDelayEach(std::string vID)
         if(loc->second.lastSpeeds.full())
         {
             bool isStopped = true;
-            for(boost::circular_buffer<std::pair<double,double>>::iterator g = loc->second.lastSpeeds.begin(); g != loc->second.lastSpeeds.end(); ++g)
+            for(auto& g : loc->second.lastSpeeds)
             {
-                if( (*g).second > stoppingDelayThreshold )
+                if( g.second > stoppingDelayThreshold )
                 {
                     isStopped = false;
                     break;
@@ -309,9 +307,9 @@ void IntersectionDelay::vehiclesDelayEach(std::string vID)
 
         if(loc->second.lastSpeeds2.full())
         {
-            for(boost::circular_buffer<std::pair<double,double>>::iterator g = loc->second.lastSpeeds2.begin(); g != loc->second.lastSpeeds2.end(); ++g)
+            for(auto &g : loc->second.lastSpeeds2)
             {
-                if( (*g).second < stoppingDelayThreshold ) return;
+                if( g.second < stoppingDelayThreshold ) return;
             }
 
             loc->second.startAccel = loc->second.lastSpeeds2[0].first;
@@ -344,20 +342,19 @@ void IntersectionDelay::vehiclesAccuDelay(std::string vID, std::map<std::string,
             error("accumulated delay can not be greater than the current simTime for vehicle %s", vID.c_str());
 
         // update accumDelay of this vehicle in laneDelay
-        std::map<std::string,double>::iterator loc2 = laneDelay[loc->second.lastLane].find(vID);
+        auto loc2 = laneDelay[loc->second.lastLane].find(vID);
         if(loc2 == laneDelay[loc->second.lastLane].end())
             laneDelay[loc->second.lastLane].insert(std::make_pair(vID,loc->second.accumDelay));
         else
             (*loc2).second = loc->second.accumDelay;
 
         // iterate over outgoing links
-        std::pair<std::multimap<std::string, std::pair<std::string, int>>::iterator, std::multimap<std::string, std::pair<std::string, int>>::iterator > ppp;
-        ppp = laneLinks.equal_range(loc->second.lastLane);
+        auto ppp = laneLinks.equal_range(loc->second.lastLane);
         for(std::multimap<std::string, std::pair<std::string, int>>::iterator z = ppp.first; z != ppp.second; ++z)
         {
             int linkNumber = (*z).second.second;
 
-            std::map<std::string,double>::iterator loc3 = linkDelay[std::make_pair(loc->second.TLid,linkNumber)].find(vID);
+            auto loc3 = linkDelay[std::make_pair(loc->second.TLid,linkNumber)].find(vID);
             if(loc3 == linkDelay[std::make_pair(loc->second.TLid,linkNumber)].end())
                 linkDelay[std::make_pair(loc->second.TLid,linkNumber)].insert(std::make_pair(vID,loc->second.accumDelay));
             else
@@ -375,13 +372,12 @@ void IntersectionDelay::vehiclesAccuDelay(std::string vID, std::map<std::string,
             laneDelay[loc->second.lastLane].erase(loc2);
 
         // iterate over outgoing links
-        std::pair<std::multimap<std::string, std::pair<std::string, int>>::iterator, std::multimap<std::string, std::pair<std::string, int>>::iterator > ppp;
-        ppp = laneLinks.equal_range(loc->second.lastLane);
+        auto ppp = laneLinks.equal_range(loc->second.lastLane);
         for(std::multimap<std::string, std::pair<std::string, int>>::iterator z = ppp.first; z != ppp.second; ++z)
         {
             int linkNumber = (*z).second.second;
 
-            std::map<std::string,double>::iterator loc3 = linkDelay[std::make_pair(loc->second.TLid,linkNumber)].find(vID);
+            auto loc3 = linkDelay[std::make_pair(loc->second.TLid,linkNumber)].find(vID);
             if(loc3 != linkDelay[std::make_pair(loc->second.TLid,linkNumber)].end())
                 linkDelay[std::make_pair(loc->second.TLid,linkNumber)].erase(loc3);
         }
@@ -445,20 +441,20 @@ void IntersectionDelay::vehiclesDelayToFile()
     fprintf (filePtr, "%-15s\n\n","endDelay");
 
     // write body
-    for(std::map<std::string, delayEntry>::iterator y =  vehDelay.begin(); y != vehDelay.end(); ++y)
+    for(auto &y : vehDelay)
     {
-        fprintf (filePtr, "%-20s", (*y).first.c_str());
-        fprintf (filePtr, "%-20s", (*y).second.vehType.c_str());
-        fprintf (filePtr, "%-10s", (*y).second.TLid.c_str());
-        fprintf (filePtr, "%-10s", (*y).second.lastLane.c_str());
-        fprintf (filePtr, "%-15.2f", (*y).second.intersectionEntrance);
-        fprintf (filePtr, "%-10d", (*y).second.crossedIntersection);
-        fprintf (filePtr, "%-15.2f", (*y).second.oldSpeed);
-        fprintf (filePtr, "%-15.2f", (*y).second.startDeccel);
-        fprintf (filePtr, "%-15.2f", (*y).second.startStopping);
-        fprintf (filePtr, "%-15.2f", (*y).second.crossedTime);
-        fprintf (filePtr, "%-15.2f", (*y).second.startAccel);
-        fprintf (filePtr, "%-15.2f\n", (*y).second.endDelay);
+        fprintf (filePtr, "%-20s", y.first.c_str());
+        fprintf (filePtr, "%-20s", y.second.vehType.c_str());
+        fprintf (filePtr, "%-10s", y.second.TLid.c_str());
+        fprintf (filePtr, "%-10s", y.second.lastLane.c_str());
+        fprintf (filePtr, "%-15.2f", y.second.intersectionEntrance);
+        fprintf (filePtr, "%-10d", y.second.crossedIntersection);
+        fprintf (filePtr, "%-15.2f", y.second.oldSpeed);
+        fprintf (filePtr, "%-15.2f", y.second.startDeccel);
+        fprintf (filePtr, "%-15.2f", y.second.startStopping);
+        fprintf (filePtr, "%-15.2f", y.second.crossedTime);
+        fprintf (filePtr, "%-15.2f", y.second.startAccel);
+        fprintf (filePtr, "%-15.2f\n", y.second.endDelay);
     }
 
     fclose(filePtr);

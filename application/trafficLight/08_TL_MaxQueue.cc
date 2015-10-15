@@ -183,13 +183,13 @@ void TrafficLightAdaptiveQueue::executeFirstTimeStep()
 
     scheduleAt(simTime().dbl() + intervalOffSet, ChangeEvt);
 
-    for (std::list<std::string>::iterator TL = TLList.begin(); TL != TLList.end(); ++TL)
+    for (auto &TL :TLList)
     {
-        TraCI->TLSetProgram(*TL, "adaptive-time");
-        TraCI->TLSetState(*TL, currentInterval);
+        TraCI->TLSetProgram(TL, "adaptive-time");
+        TraCI->TLSetState(TL, currentInterval);
 
         // initialize TL status
-        updateTLstate(*TL, "init", currentInterval);
+        updateTLstate(TL, "init", currentInterval);
     }
 
     if(debugLevel > 0)

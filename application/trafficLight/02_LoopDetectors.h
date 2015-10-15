@@ -30,6 +30,7 @@
 
 #include <01_TL_Base.h>
 #include <boost/circular_buffer.hpp>
+#include <unordered_map>
 
 namespace VENTOS {
 
@@ -190,27 +191,27 @@ class LoopDetectors : public TrafficLightBase
 
     std::list<std::string> TLList;   // list of traffic-lights in the network
 
-    std::map<std::string /*lane*/, std::pair<std::string /*LD id*/, double /*last actuation*/>> LD_demand;   // ids of loop detectors used for measuring incoming traffic demand
-    std::map<std::string /*lane*/, std::string /*LD id*/> LD_actuated;                                       // ids of loop detectors used for actuated-time signal control
-    std::map<std::string /*lane*/, std::string /*AD id*/> AD_queue;                                          // ids of area detectors used for measuring queue length
+    std::unordered_map<std::string /*lane*/, std::pair<std::string /*LD id*/, double /*last actuation*/>> LD_demand;   // ids of loop detectors used for measuring incoming traffic demand
+    std::unordered_map<std::string /*lane*/, std::string /*LD id*/> LD_actuated;                                       // ids of loop detectors used for actuated-time signal control
+    std::unordered_map<std::string /*lane*/, std::string /*AD id*/> AD_queue;                                          // ids of area detectors used for measuring queue length
 
-    std::map< std::string /*TLid*/, std::pair<int /*lane count*/, std::list<std::string>> > laneListTL;   // list of incoming lanes in each TL
-    std::map< std::string /*TLid*/, std::list<std::string> > bikeLaneListTL;                              // list of all bike lanes in each TL
-    std::map< std::string /*TLid*/, std::list<std::string> > sideWalkListTL;                              // list of all side walks in each TL
+    std::unordered_map< std::string /*TLid*/, std::pair<int /*lane count*/, std::list<std::string>> > laneListTL;   // list of incoming lanes in each TL
+    std::unordered_map< std::string /*TLid*/, std::list<std::string> > bikeLaneListTL;                              // list of all bike lanes in each TL
+    std::unordered_map< std::string /*TLid*/, std::list<std::string> > sideWalkListTL;                              // list of all side walks in each TL
 
-    std::map<std::string /*lane*/, std::string /*TLid*/> laneList;                                         // all incoming lanes for each intersection
+    std::unordered_map<std::string /*lane*/, std::string /*TLid*/> laneList;                               // all incoming lanes for each intersection
     std::multimap<std::string /*lane*/, std::pair<std::string /*TLid*/, int /*link number*/>> laneLinks;   // all outgoing link # for each incoming lane
     std::map<std::pair<std::string /*TLid*/, int /*link*/>, std::string /*lane*/> linkLane;                // the corresponding lane for each link #
 
-    std::map<std::string /*lane*/, std::pair<std::string /*TLid*/, int /*queue size*/>> laneQueueSize;   // real-time queue size for each incoming lane for each intersection
-    std::map<std::pair<std::string /*TLid*/, int /*link*/>, int /*queue size*/> linkQueueSize;           // real-time queue size for each link in each intersection
-    std::map<std::string /*TLid*/, queueDataEntry> queueSizeTL;                                          // real-time queue size data for each TLid
+    std::unordered_map<std::string /*lane*/, std::pair<std::string /*TLid*/, int /*queue size*/>> laneQueueSize;   // real-time queue size for each incoming lane for each intersection
+    std::map<std::pair<std::string /*TLid*/, int /*link*/>, int /*queue size*/> linkQueueSize;                     // real-time queue size for each link in each intersection
+    std::unordered_map<std::string /*TLid*/, queueDataEntry> queueSizeTL;                                          // real-time queue size data for each TLid
 
-    std::map<std::string /*lane*/, std::pair<std::string /*TLid*/, boost::circular_buffer<std::vector<double>> /*TD*/>> laneTD;   // real-time traffic demand for each incoming lane for each intersection
-    std::map<std::pair<std::string /*TLid*/, int /*link*/>, boost::circular_buffer<std::vector<double>> /*TD*/> linkTD;           // real-time traffic demand for each link in each intersection
-    std::map<std::string /*lane*/, std::pair<std::string /*TLid*/, laneVehInfo> > laneTotalVehCount;
+    std::unordered_map<std::string /*lane*/, std::pair<std::string /*TLid*/, boost::circular_buffer<std::vector<double>> /*TD*/>> laneTD;   // real-time traffic demand for each incoming lane for each intersection
+    std::map<std::pair<std::string /*TLid*/, int /*link*/>, boost::circular_buffer<std::vector<double>> /*TD*/> linkTD;                     // real-time traffic demand for each link in each intersection
+    std::unordered_map<std::string /*lane*/, std::pair<std::string /*TLid*/, laneVehInfo> > laneTotalVehCount;
 
-    std::map<std::string /*TLid*/, int /*phase number*/> phaseTL;                                  // current phase in each TL
+    std::unordered_map<std::string /*TLid*/, int /*phase number*/> phaseTL;                        // current phase in each TL
     std::map<std::pair<std::string /*TLid*/, int /*phase number*/>, currentStatusTL> statusTL;     // current status of each TL in each phase
 
   private:

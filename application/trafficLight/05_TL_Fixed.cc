@@ -73,16 +73,16 @@ void TrafficLightFixed::executeFirstTimeStep()
 
     std::cout << "Fixed-time traffic signal control ... " << endl << endl;
 
-    for (std::list<std::string>::iterator TL = TLList.begin(); TL != TLList.end(); ++TL)
+    for (auto &TL : TLList)
     {
-        TraCI->TLSetProgram(*TL, "fix-time1");
+        TraCI->TLSetProgram(TL, "fix-time1");
 
         // saving the first green interval in this TL. We need this to detect the cycle beginning.
         // NOTE: TL offset determines the first green interval.
-        firstGreen[*TL] = TraCI->TLGetState(*TL);
+        firstGreen[TL] = TraCI->TLGetState(TL);
 
         // initialize TL status
-        updateTLstate(*TL, "init", firstGreen[*TL]);
+        updateTLstate(TL, "init", firstGreen[TL]);
     }
 }
 
@@ -98,7 +98,7 @@ void TrafficLightFixed::executeEachTimeStep(bool simulationDone)
     // updating TL status
     int intervalNumber = TraCI->TLGetPhase("C");
 
-    std::map<std::pair<std::string,int>, currentStatusTL>::iterator location = statusTL.find( std::make_pair("C",phaseTL["C"]) );
+    auto location = statusTL.find( std::make_pair("C",phaseTL["C"]) );
     currentStatusTL stat = location->second;
 
     // current phase is ended. Green interval starts

@@ -1123,11 +1123,11 @@ void TraCI_Extend::vehicleSetRoute(std::string id, std::list<std::string> value)
 
     TraCIBuffer buffer;
     buffer << variableId << id << variableTypeSList << (int32_t)value.size();
-    for(std::list<std::string>::iterator str = value.begin(); str != value.end(); ++str)
+    for(auto &str : value)
     {
-        buffer << (int32_t)str->length();
-        for(unsigned int i = 0; i < str->length(); ++i)
-            buffer << (int8_t)(*str)[i];
+        buffer << (int32_t)str.length();
+        for(unsigned int i = 0; i < str.length(); ++i)
+            buffer << (int8_t)str[i];
     }
     TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_VEHICLE_VARIABLE, buffer);
 
@@ -1422,11 +1422,11 @@ void TraCI_Extend::routeAdd(std::string name, std::list<std::string> route)
 
     TraCIBuffer buffer;
     buffer << variableId << name << variableTypeS << (int32_t)route.size();
-    for(std::list<std::string>::iterator str = route.begin(); str != route.end(); ++str)
+    for(auto &str : route)
     {
-        buffer << (int32_t)str->length();
-        for(unsigned int i = 0; i < str->length(); ++i)
-            buffer << (int8_t)(*str)[i];
+        buffer << (int32_t)str.length();
+        for(unsigned int i = 0; i < str.length(); ++i)
+            buffer << (int8_t)str[i];
     }
 
     TraCIBuffer buf = getCommandInterface()->connection.query(CMD_SET_ROUTE_VARIABLE, buffer);

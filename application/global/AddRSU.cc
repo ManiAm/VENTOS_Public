@@ -134,10 +134,10 @@ void AddRSU::Scenario1()
 
     // creating RSU modules in OMNET (without moving them to the correct position)
     int count = 0;
-    for(std::map<std::string, RSUEntry>::iterator z = RSUs.begin(); z != RSUs.end(); ++z)
+    for(auto &z : RSUs)
     {
-        std::string RSUname = (*z).first;
-        RSUEntry entry = (*z).second;
+        std::string RSUname = z.first;
+        RSUEntry entry = z.second;
 
         cModule* mod = nodeType->create("RSU", parentMod, RSUs.size(), count);
 
@@ -147,9 +147,9 @@ void AddRSU::Scenario1()
 
         // check if any TLid is associated with this RSU
         std::string myTLid = "";
-        for(std::list<std::string>::iterator y = TLList.begin(); y != TLList.end(); ++y)
+        for(auto &y : TLList)
         {
-            std::string TLid = (*y);
+            std::string TLid = y;
             if( TLid == RSUname )
             {
                 myTLid = TLid;
@@ -174,10 +174,10 @@ void AddRSU::Scenario1()
     // ###############################################################
 
     count = 0;
-    for(std::map<std::string, RSUEntry>::iterator z = RSUs.begin(); z != RSUs.end(); ++z)
+    for(auto &z : RSUs)
     {
-        std::string RSUname = (*z).first;
-        RSUEntry entry = (*z).second;
+        std::string RSUname = z.first;
+        RSUEntry entry = z.second;
 
         // get the radius of this RSU
         cModule *module = simulation.getSystemModule()->getSubmodule("RSU", count);

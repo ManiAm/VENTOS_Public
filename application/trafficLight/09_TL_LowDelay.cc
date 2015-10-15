@@ -129,15 +129,15 @@ void TrafficLightLowDelay::executeFirstTimeStep()
     // get all non-conflicting movements in allMovements vector
     TrafficLightAllowedMoves::getMovements("C");
 
-    for (std::list<std::string>::iterator TL = TLList.begin(); TL != TLList.end(); ++TL)
+    for (auto &TL : TLList)
     {
-        TraCI->TLSetProgram(*TL, "adaptive-time");
-        TraCI->TLSetState(*TL, currentInterval);
+        TraCI->TLSetProgram(TL, "adaptive-time");
+        TraCI->TLSetState(TL, currentInterval);
 
-        firstGreen[*TL] = currentInterval;
+        firstGreen[TL] = currentInterval;
 
         // initialize TL status
-        updateTLstate(*TL, "init", currentInterval);
+        updateTLstate(TL, "init", currentInterval);
     }
 
     if(debugLevel > 0)
@@ -217,20 +217,20 @@ void TrafficLightLowDelay::chooseNextGreenInterval()
     if(debugLevel > 1)
     {
         std::cout << "Accumulated delay of vehicles on each lane: " << endl;
-        for(std::map<std::string, std::map<std::string, double>>::iterator y = laneDelay.begin(); y != laneDelay.end(); ++y)
+        for(auto &y : laneDelay)
         {
-            std::map<std::string,double> vehs = (*y).second;
+            std::map<std::string,double> vehs = y.second;
 
             if(vehs.empty())
                 continue;
 
-            std::cout << (*y).first << ": ";
+            std::cout << y.first << ": ";
 
             double totalDelay = 0;
-            for(std::map<std::string, double>::iterator z = vehs.begin(); z != vehs.end(); ++z)
+            for(auto &z : vehs)
             {
-                std::cout << (*z).first << ", " << std::setw(5) << (*z).second << " | ";
-                totalDelay = totalDelay + (*z).second;
+                std::cout << z.first << ", " << std::setw(5) << z.second << " | ";
+                totalDelay = totalDelay + z.second;
             }
 
             std::cout << " --> total delay = " << totalDelay << endl;
@@ -262,9 +262,9 @@ void TrafficLightLowDelay::chooseNextGreenInterval()
                 {
                     std::map<std::string /*vehID*/, double /*accum delay of vehID*/> vehs = linkDelay[std::make_pair("C",linkNumber)];
 
-                    for(std::map<std::string, double>::iterator it = vehs.begin(); it != vehs.end(); ++it)
+                    for(auto &it :vehs)
                     {
-                        totalDelayRow = totalDelayRow + (*it).second;
+                        totalDelayRow = totalDelayRow + it.second;
                         vehCount++;
                     }
                 }

@@ -99,45 +99,45 @@ void TrafficLightActuated::executeFirstTimeStep()
 
     scheduleAt(simTime().dbl() + intervalOffSet, ChangeEvt);
 
-    for (std::list<std::string>::iterator TL = TLList.begin(); TL != TLList.end(); ++TL)
+    for (auto &TL : TLList)
     {
-        TraCI->TLSetProgram(*TL, "adaptive-time");
-        TraCI->TLSetState(*TL, currentInterval);
+        TraCI->TLSetProgram(TL, "adaptive-time");
+        TraCI->TLSetState(TL, currentInterval);
 
-        firstGreen[*TL] = currentInterval;
+        firstGreen[TL] = currentInterval;
 
         // initialize TL status
-        updateTLstate(*TL, "init", currentInterval);
+        updateTLstate(TL, "init", currentInterval);
     }
 
     // passageTime calculation per incoming lane
     if(passageTime == -1)
     {
         // (*LD).first is 'lane id' and (*LD).second is detector id
-        for (std::map<std::string, std::string>::iterator LD = LD_actuated.begin(); LD != LD_actuated.end(); ++LD)
+        for (auto &LD : LD_actuated)
         {
             // get the max speed on this lane
-            double maxV = TraCI->laneGetMaxSpeed((*LD).first);
+            double maxV = TraCI->laneGetMaxSpeed(LD.first);
             // get position of the loop detector from end of lane
-            double LDPos = TraCI->laneGetLength((*LD).first) - TraCI->LDGetPosition((*LD).second);
+            double LDPos = TraCI->laneGetLength(LD.first) - TraCI->LDGetPosition(LD.second);
             // calculate passageTime for this lane
             double pass = std::fabs(LDPos) / maxV;
             // check if not greater than Gmin
             if(pass > minGreenTime)
             {
-                std::cout << "WARNING: loop detector (" << (*LD).second << ") is far away! Passage time is greater than Gmin." << endl;
+                std::cout << "WARNING: loop detector (" << LD.second << ") is far away! Passage time is greater than Gmin." << endl;
                 pass = minGreenTime;
             }
             // set it for each lane
-            passageTimePerLane[(*LD).first] = pass;
+            passageTimePerLane[LD.first] = pass;
         }
     }
     // passage time is set manually be the user
     else if(passageTime >=0 && passageTime <= minGreenTime)
     {
         // (*LD).first is 'lane id' and (*LD).second is detector id
-        for (std::map<std::string, std::string>::iterator LD = LD_actuated.begin(); LD != LD_actuated.end(); ++LD)
-            passageTimePerLane[(*LD).first] = passageTime;
+        for (auto &LD : LD_actuated)
+            passageTimePerLane[LD.first] = passageTime;
     }
     else
         error("passageTime value is not set correctly!");
@@ -163,14 +163,14 @@ void TrafficLightActuated::executeEachTimeStep(bool simulationDone)
     if(passageTime == -1)
     {
         // (*LD).first is 'lane id' and (*LD).second is detector id
-        for (std::map<std::string, std::string>::iterator LD = LD_actuated.begin(); LD != LD_actuated.end(); ++LD)
+        for (auto &LD : LD_actuated)
         {
-            double approachSpeed = TraCI->LDGetLastStepMeanVehicleSpeed((*LD).second);
+            double approachSpeed = TraCI->LDGetLastStepMeanVehicleSpeed(LD.second);
             // update passage time for this lane
             if(approachSpeed > 0)
             {
                 // get position of the loop detector from end of lane
-                double LDPos = TraCI->laneGetLength((*LD).first) - TraCI->LDGetPosition((*LD).second);
+                double LDPos = TraCI->laneGetLength(LD.first) - TraCI->LDGetPosition(LD.second);
                 // calculate passageTime for this lane
                 double pass = std::fabs(LDPos) / approachSpeed;
                 // check if not greater than Gmin
@@ -178,7 +178,7 @@ void TrafficLightActuated::executeEachTimeStep(bool simulationDone)
                     pass = minGreenTime;
 
                 // update passage time value in passageTimePerLane
-                std::map<std::string,double>::iterator location = passageTimePerLane.find((*LD).first);
+                auto location = passageTimePerLane.find(LD.first);
                 location->second = pass;
             }
         }
@@ -252,8 +252,8 @@ void TrafficLightActuated::chooseNextGreenInterval()
     if(debugLevel > 1)
     {
         std::cout << "SimTime: " << std::setprecision(2) << std::fixed << simTime().dbl() << " | Passage time value per lane: ";
-        for (std::map<std::string,double>::iterator LD = passageTimePerLane.begin(); LD != passageTimePerLane.end(); ++LD)
-            std::cout << (*LD).first << " (" << (*LD).second << ") | ";
+        for (auto &LD : passageTimePerLane)
+            std::cout << LD.first << " (" << LD.second << ") | ";
         std::cout << endl;
     }
 
@@ -264,14 +264,14 @@ void TrafficLightActuated::chooseNextGreenInterval()
         std::cout << "SimTime: " << std::setprecision(2) << std::fixed << simTime().dbl() << " | Actuated LDs (lane, elapsed time): ";
 
     // (*LD).first is 'lane id' and (*LD).second is detector id
-    for (std::map<std::string, std::string>::iterator LD = LD_actuated.begin(); LD != LD_actuated.end(); ++LD)
+    for (auto &LD : LD_actuated)
     {
-        double elapsedT = TraCI->LDGetElapsedTimeLastDetection((*LD).second);
-        LastActuatedTime[(*LD).first] = elapsedT;
+        double elapsedT = TraCI->LDGetElapsedTimeLastDetection(LD.second);
+        LastActuatedTime[LD.first] = elapsedT;
 
         // print for debugging
         if(abs( simTime().dbl() - (elapsedT + updateInterval) ) >= updateInterval && debugLevel > 1)
-            std::cout << (*LD).first << " (" << elapsedT << ") | ";
+            std::cout << LD.first << " (" << elapsedT << ") | ";
     }
 
     std::cout << endl;

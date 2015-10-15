@@ -118,6 +118,11 @@ void SpeedProfile::Change()
 
     lastProfileVehicle = profileVehicle;
 
+    // profileVehicle is the first vehicle and is not running the car-following code
+    // thus comfAccel and comfDeccel do not apply to it and uses the max accel/decel.
+    TraCI->vehicleSetMaxAccel(profileVehicle, 2.);
+    TraCI->vehicleSetMaxDecel(profileVehicle, 5.);
+
     // #############################################
     // checking which SpeedProfile mode is selected?
     // #############################################

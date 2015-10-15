@@ -126,7 +126,7 @@ void Statistics::receiveSignal(cComponent *source, simsignal_t signalID, cObject
         if (m == NULL) return;
 
         const MacStatEntry *searchFor = new MacStatEntry(-1, source->getFullName(), -1, std::vector<long>());
-        std::vector<MacStatEntry>::iterator counter = std::find(Vec_MacStat.begin(), Vec_MacStat.end(), *searchFor);
+        auto counter = std::find(Vec_MacStat.begin(), Vec_MacStat.end(), *searchFor);
 
         // its a new entry, so we add it
         if(counter == Vec_MacStat.end())
@@ -227,10 +227,10 @@ void Statistics::executeEachTimestep(bool simulationDone)
 
 void Statistics::vehiclesData()
 {
-    for(std::list<std::string>::iterator i = lanesList.begin(); i != lanesList.end(); ++i)
+    for(auto &i : lanesList)
     {
         // get all vehicles on lane i
-        std::list<std::string> allVeh = TraCI->laneGetLastStepVehicleIDs( i->c_str() );
+        std::list<std::string> allVeh = TraCI->laneGetLastStepVehicleIDs( i.c_str() );
 
         for(std::list<std::string>::reverse_iterator k = allVeh.rbegin(); k != allVeh.rend(); ++k)
             saveVehicleData(k->c_str());
@@ -411,7 +411,7 @@ void Statistics::vehiclesDataToFile()
     double oldTime = -1;
     int index = 0;
 
-    for(std::vector<VehicleData>::iterator y = Vec_vehiclesData.begin(); y != Vec_vehiclesData.end(); ++y)
+    for(auto &y : Vec_vehiclesData)
     {
         // write header only once
         if(oldTime == -1)
@@ -419,42 +419,42 @@ void Statistics::vehiclesDataToFile()
             fprintf (filePtr, "%-10s","index");
             fprintf (filePtr, "%-12s","timeStep");
             fprintf (filePtr, "%-20s","vehicleName");
-            if(y->vehicleType != "n/a") fprintf (filePtr, "%-17s","vehicleType");
-            if(y->lane != "n/a") fprintf (filePtr, "%-12s","lane");
-            if(y->pos != -1) fprintf (filePtr, "%-11s","pos");
-            if(y->speed != -1) fprintf (filePtr, "%-12s","speed");
-            if(y->accel != std::numeric_limits<double>::infinity()) fprintf (filePtr, "%-12s","accel");
-            if(y->CFMode != "n/a") fprintf (filePtr, "%-20s","CFMode");
-            if(y->timeGapSetting != -1) fprintf (filePtr, "%-20s","timeGapSetting");
-            if(y->spaceGap != -2) fprintf (filePtr, "%-10s","SpaceGap");
-            if(y->timeGap != -2) fprintf (filePtr, "%-16s","timeGap");
-            if(y->TLid != "n/a") fprintf (filePtr, "%-17s","TLid");
-            if(y->linkStatus != '\0') fprintf (filePtr, "%-17s","linkStatus");
+            if(y.vehicleType != "n/a") fprintf (filePtr, "%-17s","vehicleType");
+            if(y.lane != "n/a") fprintf (filePtr, "%-12s","lane");
+            if(y.pos != -1) fprintf (filePtr, "%-11s","pos");
+            if(y.speed != -1) fprintf (filePtr, "%-12s","speed");
+            if(y.accel != std::numeric_limits<double>::infinity()) fprintf (filePtr, "%-12s","accel");
+            if(y.CFMode != "n/a") fprintf (filePtr, "%-20s","CFMode");
+            if(y.timeGapSetting != -1) fprintf (filePtr, "%-20s","timeGapSetting");
+            if(y.spaceGap != -2) fprintf (filePtr, "%-10s","SpaceGap");
+            if(y.timeGap != -2) fprintf (filePtr, "%-16s","timeGap");
+            if(y.TLid != "n/a") fprintf (filePtr, "%-17s","TLid");
+            if(y.linkStatus != '\0') fprintf (filePtr, "%-17s","linkStatus");
 
             fprintf (filePtr, "\n\n");
         }
 
-        if(oldTime != y->time)
+        if(oldTime != y.time)
         {
             fprintf(filePtr, "\n");
-            oldTime = y->time;
+            oldTime = y.time;
             index++;
         }
 
         fprintf (filePtr, "%-10d ", index);
-        fprintf (filePtr, "%-10.2f ", y->time );
-        fprintf (filePtr, "%-20s ", y->vehicleName.c_str());
-        if(y->vehicleType != "n/a") fprintf (filePtr, "%-15s ", y->vehicleType.c_str());
-        if(y->lane != "n/a") fprintf (filePtr, "%-12s ", y->lane.c_str());
-        if(y->pos != -1) fprintf (filePtr, "%-10.2f ", y->pos);
-        if(y->speed != -1) fprintf (filePtr, "%-10.2f ", y->speed);
-        if(y->accel != std::numeric_limits<double>::infinity()) fprintf (filePtr, "%-10.2f ", y->accel);
-        if(y->CFMode != "n/a") fprintf (filePtr, "%-20s", y->CFMode.c_str());
-        if(y->timeGapSetting != -1) fprintf (filePtr, "%-20.2f ", y->timeGapSetting);
-        if(y->spaceGap != -2) fprintf (filePtr, "%-10.2f ", y->spaceGap);
-        if(y->timeGap != -2) fprintf (filePtr, "%-16.2f ", y->timeGap);
-        if(y->TLid != "n/a") fprintf (filePtr, "%-17s ", y->TLid.c_str());
-        if(y->linkStatus != '\0') fprintf (filePtr, "%-17c", y->linkStatus);
+        fprintf (filePtr, "%-10.2f ", y.time );
+        fprintf (filePtr, "%-20s ", y.vehicleName.c_str());
+        if(y.vehicleType != "n/a") fprintf (filePtr, "%-15s ", y.vehicleType.c_str());
+        if(y.lane != "n/a") fprintf (filePtr, "%-12s ", y.lane.c_str());
+        if(y.pos != -1) fprintf (filePtr, "%-10.2f ", y.pos);
+        if(y.speed != -1) fprintf (filePtr, "%-10.2f ", y.speed);
+        if(y.accel != std::numeric_limits<double>::infinity()) fprintf (filePtr, "%-10.2f ", y.accel);
+        if(y.CFMode != "n/a") fprintf (filePtr, "%-20s", y.CFMode.c_str());
+        if(y.timeGapSetting != -1) fprintf (filePtr, "%-20.2f ", y.timeGapSetting);
+        if(y.spaceGap != -2) fprintf (filePtr, "%-10.2f ", y.spaceGap);
+        if(y.timeGap != -2) fprintf (filePtr, "%-16.2f ", y.timeGap);
+        if(y.TLid != "n/a") fprintf (filePtr, "%-17s ", y.TLid.c_str());
+        if(y.linkStatus != '\0') fprintf (filePtr, "%-17c", y.linkStatus);
 
         fprintf (filePtr, "\n");
     }
@@ -520,21 +520,21 @@ void Statistics::MAClayerToFile()
     fprintf (filePtr, "%-20s\n\n","ReceivedBroadcasts");
 
     // write body
-    for(std::vector<MacStatEntry>::iterator y = Vec_MacStat.begin(); y != Vec_MacStat.end(); ++y)
+    for(auto &y : Vec_MacStat)
     {
-        fprintf (filePtr, "%-20.2f ", y->time);
-        fprintf (filePtr, "%-20s ", y->name.c_str());
-        fprintf (filePtr, "%-20ld ", y->MacStatsVec[0]);
-        fprintf (filePtr, "%-20ld ", y->MacStatsVec[1]);
-        fprintf (filePtr, "%-30ld ", y->MacStatsVec[2]);
-        fprintf (filePtr, "%-20ld ", y->MacStatsVec[3]);
-        fprintf (filePtr, "%-20ld ", y->MacStatsVec[4]);
-        fprintf (filePtr, "%-20ld ", y->MacStatsVec[5]);
-        fprintf (filePtr, "%-20ld ", y->MacStatsVec[6]);
-        fprintf (filePtr, "%-20ld ", y->MacStatsVec[7]);
-        fprintf (filePtr, "%-20ld ", y->MacStatsVec[8]);
-        fprintf (filePtr, "%-20ld ", y->MacStatsVec[9]);
-        fprintf (filePtr, "%-20ld\n ", y->MacStatsVec[10]);
+        fprintf (filePtr, "%-20.2f ", y.time);
+        fprintf (filePtr, "%-20s ", y.name.c_str());
+        fprintf (filePtr, "%-20ld ", y.MacStatsVec[0]);
+        fprintf (filePtr, "%-20ld ", y.MacStatsVec[1]);
+        fprintf (filePtr, "%-30ld ", y.MacStatsVec[2]);
+        fprintf (filePtr, "%-20ld ", y.MacStatsVec[3]);
+        fprintf (filePtr, "%-20ld ", y.MacStatsVec[4]);
+        fprintf (filePtr, "%-20ld ", y.MacStatsVec[5]);
+        fprintf (filePtr, "%-20ld ", y.MacStatsVec[6]);
+        fprintf (filePtr, "%-20ld ", y.MacStatsVec[7]);
+        fprintf (filePtr, "%-20ld ", y.MacStatsVec[8]);
+        fprintf (filePtr, "%-20ld ", y.MacStatsVec[9]);
+        fprintf (filePtr, "%-20ld\n ", y.MacStatsVec[10]);
     }
 
     fclose(filePtr);
@@ -594,22 +594,22 @@ void Statistics::plnManageToFile()
     double oldTime = -1;
 
     // write body
-    for(std::vector<plnManagement>::iterator y = Vec_plnManagement.begin(); y != Vec_plnManagement.end(); ++y)
+    for(auto &y : Vec_plnManagement)
     {
         // make the log more readable :)
-        if(y->sender != oldSender || y->time != oldTime)
+        if(y.sender != oldSender || y.time != oldTime)
         {
             fprintf(filePtr, "\n");
-            oldSender = y->sender;
-            oldTime = y->time;
+            oldSender = y.sender;
+            oldTime = y.time;
         }
 
-        fprintf (filePtr, "%-10.2f ", y->time);
-        fprintf (filePtr, "%-15s ", y->sender.c_str());
-        fprintf (filePtr, "%-17s ", y->receiver.c_str());
-        fprintf (filePtr, "%-30s ", y->type.c_str());
-        fprintf (filePtr, "%-18s ", y->sendingPlnID.c_str());
-        fprintf (filePtr, "%-20s\n", y->receivingPlnID.c_str());
+        fprintf (filePtr, "%-10.2f ", y.time);
+        fprintf (filePtr, "%-15s ", y.sender.c_str());
+        fprintf (filePtr, "%-17s ", y.receiver.c_str());
+        fprintf (filePtr, "%-30s ", y.type.c_str());
+        fprintf (filePtr, "%-18s ", y.sendingPlnID.c_str());
+        fprintf (filePtr, "%-20s\n", y.receivingPlnID.c_str());
     }
 
     fclose(filePtr);
@@ -666,18 +666,18 @@ void Statistics::plnStatToFile()
     std::string oldPln = "";
 
     // write body
-    for(std::vector<plnStat>::iterator y = Vec_plnStat.begin(); y != Vec_plnStat.end(); ++y)
+    for(auto &y : Vec_plnStat)
     {
-        if(y->from != oldPln)
+        if(y.from != oldPln)
         {
             fprintf(filePtr, "\n");
-            oldPln = y->from;
+            oldPln = y.from;
         }
 
-        fprintf (filePtr, "%-10.2f ", y->time);
-        fprintf (filePtr, "%-20s ", y->from.c_str());
-        fprintf (filePtr, "%-20s ", y->to.c_str());
-        fprintf (filePtr, "%-20s\n", y->maneuver.c_str());
+        fprintf (filePtr, "%-10.2f ", y.time);
+        fprintf (filePtr, "%-20s ", y.from.c_str());
+        fprintf (filePtr, "%-20s ", y.to.c_str());
+        fprintf (filePtr, "%-20s\n", y.maneuver.c_str());
     }
 
     fclose(filePtr);
@@ -731,12 +731,12 @@ void Statistics::beaconToFile()
     fprintf (filePtr, "%-20s","to");
     fprintf (filePtr, "%-20s\n\n","dropped");
 
-    for(std::vector<BeaconStat>::iterator y = Vec_Beacons.begin(); y != Vec_Beacons.end(); ++y)
+    for(auto &y : Vec_Beacons)
     {
-        fprintf (filePtr, "%-12.2f ", y->time);
-        fprintf (filePtr, "%-20s ", y->senderID.c_str());
-        fprintf (filePtr, "%-20s ", y->receiverID.c_str());
-        fprintf (filePtr, "%-20d \n", y->dropped);
+        fprintf (filePtr, "%-12.2f ", y.time);
+        fprintf (filePtr, "%-20s ", y.senderID.c_str());
+        fprintf (filePtr, "%-20s ", y.receiverID.c_str());
+        fprintf (filePtr, "%-20d \n", y.dropped);
     }
 
     fclose(filePtr);

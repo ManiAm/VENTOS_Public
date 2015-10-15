@@ -137,15 +137,15 @@ void TrafficLight_OJF_MWM::executeFirstTimeStep()
     // get all non-conflicting movements in allMovements vector
     TrafficLightAllowedMoves::getMovements("C");
 
-    for (std::list<std::string>::iterator TL = TLList.begin(); TL != TLList.end(); ++TL)
+    for (auto &TL : TLList)
     {
-        TraCI->TLSetProgram(*TL, "adaptive-time");
-        TraCI->TLSetState(*TL, currentInterval);
+        TraCI->TLSetProgram(TL, "adaptive-time");
+        TraCI->TLSetState(TL, currentInterval);
 
-        firstGreen[*TL] = currentInterval;
+        firstGreen[TL] = currentInterval;
 
         // initialize TL status
-        updateTLstate(*TL, "init", currentInterval);
+        updateTLstate(TL, "init", currentInterval);
     }
 
     // make sure RSUptr is pointing to our corresponding RSU
@@ -253,7 +253,7 @@ void TrafficLight_OJF_MWM::chooseNextGreenInterval()
                     std::string lane = linkLane[std::make_pair("C",linkNumber)];
 
                     // find this lane in laneInfo
-                    std::map<std::string, laneInfoEntry>::iterator res = laneInfo.find(lane);
+                    auto res = laneInfo.find(lane);
 
                     // get all queued vehicles on this lane
                     std::map<std::string /*vehicle id*/, queuedVehiclesEntry> queuedVehicles = (*res).second.queuedVehicles;
@@ -267,13 +267,13 @@ void TrafficLight_OJF_MWM::chooseNextGreenInterval()
                         std::string vType = entry.second.vehicleType;
 
                         // max weight of entities on this lane
-                        std::map<std::string /*className*/, double /*weight*/>::iterator loc = classWeight.find(vType);
+                        auto loc = classWeight.find(vType);
                         if(loc == classWeight.end())
                             error("entity %s with type %s does not have a weight in classWeight map!", vID.c_str(), vType.c_str());
                         maxWeight = std::max(maxWeight, loc->second);
 
                         // total delay in this lane
-                        std::map<std::string /*vehID*/, double /*accum delay of vehID*/>::iterator locc = laneDelay[lane].find(vID);
+                        auto locc = laneDelay[lane].find(vID);
                         if(locc != laneDelay[lane].end())
                             totalDelay += locc->second;
                     }

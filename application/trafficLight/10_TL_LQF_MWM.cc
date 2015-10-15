@@ -146,15 +146,15 @@ void TrafficLight_LQF_MWM::executeFirstTimeStep()
 
     scheduleAt(simTime().dbl() + intervalOffSet, ChangeEvt);
 
-    for (std::list<std::string>::iterator TL = TLList.begin(); TL != TLList.end(); ++TL)
+    for (auto &TL : TLList)
     {
-        TraCI->TLSetProgram(*TL, "adaptive-time");
-        TraCI->TLSetState(*TL, currentInterval);
+        TraCI->TLSetProgram(TL, "adaptive-time");
+        TraCI->TLSetState(TL, currentInterval);
 
-        firstGreen[*TL] = currentInterval;
+        firstGreen[TL] = currentInterval;
 
         // initialize TL status
-        updateTLstate(*TL, "init", currentInterval);
+        updateTLstate(TL, "init", currentInterval);
     }
 
     // make sure RSUptr is pointing to our corresponding RSU
@@ -297,7 +297,7 @@ void TrafficLight_LQF_MWM::calculatePhases(std::string TLid)
                     std::string lane = linkLane[std::make_pair(TLid,linkNumber)];
 
                     // find this lane in laneInfo
-                    std::map<std::string, laneInfoEntry>::iterator res = laneInfo.find(lane);
+                    auto res = laneInfo.find(lane);
 
                     // get all queued vehicles on this lane
                     std::map<std::string /*vehicle id*/, queuedVehiclesEntry> queuedVehicles = (*res).second.queuedVehicles;
@@ -311,7 +311,7 @@ void TrafficLight_LQF_MWM::calculatePhases(std::string TLid)
                         std::string vType = entry.second.vehicleType;
 
                         // total weight of entities on this lane
-                        std::map<std::string /*className*/, double /*weight*/>::iterator loc = classWeight.find(vType);
+                        auto loc = classWeight.find(vType);
                         if(loc == classWeight.end())
                             error("entity %s with type %s does not have a weight in classWeight map!", vID.c_str(), vType.c_str());
                         totalWeight += loc->second;

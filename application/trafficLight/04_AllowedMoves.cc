@@ -375,12 +375,11 @@ void TrafficLightAllowedMoves::generateAllAllowedMovements()
     // write allMovements to file
     std::cout << "Writing to file ... " << std::flush;
     FILE *filePtr = fopen (movementsFilePath.string().c_str(), "w");
-    for(std::vector< std::vector<int> >::iterator it = allMovements.begin(); it != allMovements.end(); ++it)
+    for(auto &it : allMovements)
     {
-        for(std::vector<int>::iterator it2 = (*it).begin(); it2 != (*it).end(); ++it2)
-        {
-            fprintf(filePtr, "%d", *it2);
-        }
+        for(auto &it2 : it)
+            fprintf(filePtr, "%d", it2);
+
         fprintf (filePtr, "\n");
     }
 

@@ -106,15 +106,15 @@ void TrafficLightWebster::executeFirstTimeStep()
 
     scheduleAt(simTime().dbl() + intervalOffSet, ChangeEvt);
 
-    for (std::list<std::string>::iterator TL = TLList.begin(); TL != TLList.end(); ++TL)
+    for (auto &TL : TLList)
     {
-        TraCI->TLSetProgram(*TL, "adaptive-time");
-        TraCI->TLSetState(*TL, currentInterval);
+        TraCI->TLSetProgram(TL, "adaptive-time");
+        TraCI->TLSetState(TL, currentInterval);
 
-        firstGreen[*TL] = currentInterval;
+        firstGreen[TL] = currentInterval;
 
         // initialize TL status
-        updateTLstate(*TL, "init", currentInterval);
+        updateTLstate(TL, "init", currentInterval);
     }
 
     if(debugLevel > 0)
@@ -233,11 +233,11 @@ void TrafficLightWebster::calculateGreenSplits()
     if(debugLevel > 1)
     {
         std::cout << ">>> Measured traffic demands at the beginning of this cycle: ";
-        for(std::map<std::string, std::pair<std::string, boost::circular_buffer<std::vector<double>>>>::iterator y = laneTD.begin(); y != laneTD.end(); ++y)
+        for(auto &y : laneTD)
         {
-            std::string lane = (*y).first;
-            std::string TLid = (*y).second.first;
-            boost::circular_buffer<std::vector<double>> buf = (*y).second.second;
+            std::string lane = y.first;
+            std::string TLid = y.second.first;
+            boost::circular_buffer<std::vector<double>> buf = y.second.second;
 
             double aveTD = 0;
 
@@ -363,8 +363,8 @@ void TrafficLightWebster::calculateGreenSplits()
         if(debugLevel > 1)
         {
             std::cout << "Updating green splits for each phase: ";
-            for(std::map<std::string, double>::iterator y = greenSplit.begin(); y != greenSplit.end(); y++)
-                std::cout << (*y).second << ", ";
+            for(auto &y : greenSplit)
+                std::cout << y.second << ", ";
             std::cout << endl << endl;
         }
     }
