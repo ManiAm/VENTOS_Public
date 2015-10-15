@@ -1,7 +1,7 @@
 VENTOS
 ======
 
-VENTOS is an integrated C++ simulator for studying traffic flows in Vehicular Ad-hoc Networks (VANETs). You can find more information [here](http://maniamoozadeh2.wix.com/ventos). VENTOS framework is developed in Ubuntu OS, and we have not tested it under other operating systems (yet!). Follow these instructions in order to install VENTOS (and its prerequisites) on your Ubuntu 12 or 14 machine (we recommend Ubuntu 14).
+VENTOS is an integrated C++ simulator for studying traffic flows in Vehicular Ad-hoc Networks (VANETs). You can find more information [here](http://rubinet.ece.ucdavis.edu/projects/ventos). VENTOS framework is developed in Ubuntu OS, and we have not tested it under other operating systems (yet!). Follow these instructions in order to install VENTOS (and its prerequisites) on your Ubuntu 12 or 14 machine (we recommend Ubuntu 14).
 
 
 Install OMNET++
