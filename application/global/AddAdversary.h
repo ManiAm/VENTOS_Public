@@ -35,7 +35,7 @@ namespace VENTOS {
 
 class TraCI_Extend;
 
-class AddAdversary : public BaseModule
+class AddAdversary : public BaseApplLayer
 {
 	public:
 		virtual ~AddAdversary();

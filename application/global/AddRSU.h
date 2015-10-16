@@ -50,7 +50,7 @@ class RSUEntry
 
 class TraCI_Extend;
 
-class AddRSU : public BaseModule
+class AddRSU : public BaseApplLayer
 {
 	public:
 		virtual ~AddRSU();

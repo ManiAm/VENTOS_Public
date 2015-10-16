@@ -28,13 +28,13 @@
 #ifndef PLOTTER_H
 #define PLOTTER_H
 
-#include <BaseModule.h>
+#include <BaseApplLayer.h>
 #include <Appl.h>
 #include "TraCI_Extend.h"
 
 namespace VENTOS {
 
-class Plotter : public BaseModule
+class Plotter : public BaseApplLayer
 {
   public:
       virtual ~Plotter();

@@ -38,7 +38,7 @@ namespace VENTOS {
 
 class TraCI_Extend;
 
-class SNMPConnect : public BaseModule
+class SNMPConnect : public BaseApplLayer
 {
 	public:
 		virtual ~SNMPConnect();

@@ -28,12 +28,12 @@
 #ifndef SPEEDPROFILE
 #define SPEEDPROFILE
 
-#include "BaseModule.h"
+#include "BaseApplLayer.h"
 #include "TraCI_Extend.h"
 
 namespace VENTOS {
 
-class SpeedProfile : public BaseModule
+class SpeedProfile : public BaseApplLayer
 {
 	public:
 		virtual ~SpeedProfile();

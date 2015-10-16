@@ -28,12 +28,12 @@
 #ifndef TRACKING
 #define TRACKING
 
-#include "BaseModule.h"
+#include "BaseApplLayer.h"
 #include "TraCI_Extend.h"
 
 namespace VENTOS {
 
-class Tracking : public BaseModule
+class Tracking : public BaseApplLayer
 {
 	public:
 		virtual ~Tracking();

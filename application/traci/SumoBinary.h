@@ -38,7 +38,7 @@
 
 namespace VENTOS {
 
-class SumoBinary : public BaseModule
+class SumoBinary : public BaseApplLayer
 {
 	public:
 		virtual ~SumoBinary() {};

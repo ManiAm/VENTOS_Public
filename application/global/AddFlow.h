@@ -28,12 +28,12 @@
 #ifndef ADDFLOW
 #define ADDFLOW
 
-#include "BaseModule.h"
+#include "BaseApplLayer.h"
 #include "TraCI_Extend.h"
 
 namespace VENTOS {
 
-class AddFlow : public BaseModule
+class AddFlow : public BaseApplLayer
 {
 public:
     virtual ~AddFlow();

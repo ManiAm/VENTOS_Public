@@ -28,14 +28,14 @@
 #ifndef TRAFFICLIGHTBASE_H
 #define TRAFFICLIGHTBASE_H
 
-#include <BaseModule.h>
+#include <BaseApplLayer.h>
 #include <Appl.h>
 #include "TraCI_Extend.h"
 #include "ApplRSU_03_TL_VANET.h"
 
 namespace VENTOS {
 
-class TrafficLightBase : public BaseModule
+class TrafficLightBase : public BaseApplLayer
 {
   public:
       virtual ~TrafficLightBase();

@@ -33,7 +33,7 @@
 
 namespace VENTOS {
 
-class Warmup : public BaseModule
+class Warmup : public BaseApplLayer
 {
 	public:
 		virtual ~Warmup();

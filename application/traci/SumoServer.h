@@ -38,7 +38,7 @@
 
 namespace VENTOS {
 
-class SumoServer : public BaseModule
+class SumoServer : public BaseApplLayer
 {
 	public:
 		virtual ~SumoServer() {};

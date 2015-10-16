@@ -28,14 +28,14 @@
 #ifndef ADDENTITY
 #define ADDENTITY
 
-#include "BaseModule.h"
+#include "BaseApplLayer.h"
 #include "TraCI_Extend.h"
 
 #define SSTR(x) dynamic_cast< std::ostringstream & >( (std::ostringstream() << std::dec << x ) ).str()
 
 namespace VENTOS {
 
-class AddEntity : public BaseModule
+class AddEntity : public BaseApplLayer
 {
 public:
     virtual ~AddEntity();

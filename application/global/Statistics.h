@@ -160,7 +160,7 @@ public:
 };
 
 
-class Statistics : public BaseModule
+class Statistics : public BaseApplLayer
 {
 public:
     virtual ~Statistics();

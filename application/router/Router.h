@@ -30,7 +30,7 @@
 #ifndef ROUTER_H
 #define ROUTER_H
 
-#include <BaseModule.h>
+#include <BaseApplLayer.h>
 #include <vector>
 #include <list>
 #include <fstream>
@@ -56,7 +56,7 @@ struct EdgeRemoval;
 
 std::string key(Node* n1, Node* n2, int time);
 
-class Router : public BaseModule    //Responsible for routing cars in our system.  Should only be one of these.
+class Router : public BaseApplLayer    //Responsible for routing cars in our system.  Should only be one of these.
 {
 public:
     ~Router();
