@@ -145,11 +145,11 @@ Note: Wait for a while until "C/C++ Indexer" finishes its job.
 Running the VENTOS Project
 --------------------------
 
-**Step 1:** Before running the VENTOS project, you have to run the python script "sumo-launchd.py" which is in the veins folder. The general format of this script is:
+Before running the VENTOS project, latest SUMO binaries (`sumo-guiD` and `sumoD`) should be obtained. These binaries will be downloaded automatically in the VENTOS/sumoBinary folder upon the first run of the project. sumo-guiD is the GUI version that provides a graphical interface to SUMO, and is visible while the OMNET++ simulation is running (and is very useful for debugging purposes). On the other hands, sumoD is the command-line version which is faster. 
 
-    python sumo-launchd.py -vv -c /path/to/sumo/binary
+Note: you can not use the official SUMO binaries since we have extended the TraCI commands, car-following models, etc. Using the official SUMO binaries will probably give you run-time error.
 
-sumoD and sumo-guiD are two SUMO binaries that can be used with the above command. They both will be downloaded automatically in the VENTOS/sumoBinary folder upon the first run of the project. sumo-guiD is the GUI version that provides a graphical interface to SUMO, and is visible while the OMNET++ simulation is running (and is very good for debugging purposes). On the other hands, sumoD is the command-line version which is faster. Thus you should run either of the following commands in the veins folder (with this assumption that VENTOS folder is on Desktop):
+**Step 1:** To save you the trouble of manually running SUMO prior to every OMNeT++ simulation, the Veins module framework comes with a small python script (sumo-launchd.py) to do that for you. This script will proxy TCP connections between OMNeT++ and SUMO, starting a new copy of the SUMO simulation for every OMNeT++ simulation connecting. From the veins folder, run either of the following commands (we assumed that VENTOS folder is on Desktop):
 
 SUMO in graphical mode:
 
@@ -159,6 +159,9 @@ SUMO in command-line mode:
 
     python sumo-launchd.py -vv -c /home/mani/Desktop/VENTOS/sumoBinary/sumoD
 
+The terminal should look like the following picture. The script will print `Listening on port 9999` and wait for the simulation to start. Note that after running either of these commands, DO NOT close the terminal window. Leave it open.
+
+<img src="https://github.com/ManiAm/VENTOS/blob/master/launchd.png" />
 
 **Step 2:** To make the life easier, you can create an alias command to make a shortcut to the above long commands. Open .bashrc and add these lines at the end (you should change the PATHs accordingly).
 
@@ -167,7 +170,7 @@ SUMO in command-line mode:
     alias sumo-cmd='python $veinsPATH/sumo-launchd.py -vv -c $sumoBinaryPATH/sumoD'
     alias sumo-gui='python $veinsPATH/sumo-launchd.py -vv -c $sumoBinaryPATH/sumo-guiD'
 
-Now you can use sumo-cmd and sumo-gui commands instead! After running either of these commands, DO NOT close the terminal window. Leave it open.
+Now you can use sumo-cmd and sumo-gui commands instead!
 
 
 **Step 3:** Run the VENTOS project by right clicking on the `params_config.ini` file in the IDE and choose: 
