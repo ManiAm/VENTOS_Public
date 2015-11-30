@@ -47,6 +47,9 @@ void ApplRSUTLVANET::initialize(int stage)
     {
         // get a pointer to the TrafficLight module
         cModule *module = simulation.getSystemModule()->getSubmodule("TrafficLight");
+        if(module == NULL)
+            return;
+
         TLControlMode = module->par("TLControlMode").longValue();
         activeDetection = module->par("activeDetection").boolValue();
         minGreenTime = module->par("minGreenTime").doubleValue();
