@@ -1,0 +1,1 @@
+netconvertD --node-files=plain.nod.xml --edge-files=plain.edg.xml --connection-files=plain.con.xml --tllogic-files=plain.tll.xml --output-file=3hello.net.xml

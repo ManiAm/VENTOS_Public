@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<routes>
+
+  <!-- Krauss Model (tau here is T_g and not controller delay!) -->
+  <vType id="TypeManual" length="5.0" minGap="2.0" maxSpeed="30.0" vClass="passenger">
+      <carFollowing-Krauss accel="3.0" decel="5.0" sigma="0" tau="1.64" />
+  </vType>    
+
+  <!-- pedestrian -->
+  <vType id="pedestrian" length="0.3" width="0.6" minGap="1.5" maxSpeed="1.4" vClass="pedestrian" guiShape="pedestrian" color="red">
+  </vType>
+
+  <route id="WtoE" edges="WC CE" />     
+  <route id="EtoW" edges="EC CW" />    
+
+  <flow id="route1" begin="0" end="200" vehsPerHour="500" type="TypeManual" route="WtoE" />
+  <flow id="route2" begin="0" end="200" vehsPerHour="500" type="TypeManual" route="EtoW" />
+
+
+
+  <person id="ped1" type="pedestrian" depart="10">
+      <walk from="NC" to="CS" />
+  </person>
+ 
+
+</routes>
+
+

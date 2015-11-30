@@ -1,0 +1,288 @@
+<?xml version="1.0"?>
+<!-- generated on 2015-04-28 10:29:48.083645 by $Id: randomTrips.py 18255 2015-04-21 11:46:31Z namdre $
+  options: 
+-->
+<trips>
+    <person id="ped0" depart="4.00" >
+        <walk from="NC" to="CS" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped1" depart="29.00" >
+        <walk from="NC" to="CS" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped2" depart="69.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped3" depart="88.00" >
+        <walk from="NC" to="CS" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped4" depart="93.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped5" depart="97.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped6" depart="109.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped7" depart="159.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped8" depart="244.00" >
+        <walk from="NC" to="CS" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped9" depart="270.00" >
+        <walk from="NC" to="CS" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped10" depart="333.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped11" depart="434.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped12" depart="472.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped13" depart="509.00" >
+        <walk from="NC" to="CS" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped14" depart="534.00" >
+        <walk from="NC" to="CS" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped15" depart="606.00" >
+        <walk from="NC" to="CS" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped16" depart="611.00" >
+        <walk from="NC" to="CS" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped17" depart="616.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped18" depart="661.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped19" depart="662.00" >
+        <walk from="NC" to="CS" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped20" depart="703.00" >
+        <walk from="NC" to="CS" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped21" depart="719.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped22" depart="799.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped23" depart="822.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped24" depart="847.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped25" depart="917.00" >
+        <walk from="NC" to="CS" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped26" depart="927.00" >
+        <walk from="NC" to="CS" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped27" depart="983.00" >
+        <walk from="NC" to="CS" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped28" depart="989.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped29" depart="1051.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped30" depart="1086.00" >
+        <walk from="NC" to="CS" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped31" depart="1196.00" >
+        <walk from="NC" to="CS" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped32" depart="1213.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped33" depart="1217.00" >
+        <walk from="NC" to="CS" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped34" depart="1236.00" >
+        <walk from="NC" to="CS" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped35" depart="1266.00" >
+        <walk from="NC" to="CS" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped36" depart="1333.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped37" depart="1358.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped38" depart="1362.00" >
+        <walk from="NC" to="CS" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped39" depart="1383.00" >
+        <walk from="NC" to="CS" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped40" depart="1424.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped41" depart="1445.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped42" depart="1611.00" >
+        <walk from="NC" to="CS" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped43" depart="1635.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped44" depart="1744.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped45" depart="1745.00" >
+        <walk from="NC" to="CS" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped46" depart="1753.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped47" depart="1775.00" >
+        <walk from="NC" to="CS" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped48" depart="1803.00" >
+        <walk from="NC" to="CS" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped49" depart="1884.00" >
+        <walk from="NC" to="CS" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped50" depart="1910.00" >
+        <walk from="NC" to="CS" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped51" depart="1941.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped52" depart="1980.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped53" depart="2022.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped54" depart="2068.00" >
+        <walk from="NC" to="CS" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped55" depart="2119.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped56" depart="2153.00" >
+        <walk from="NC" to="CS" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped57" depart="2162.00" >
+        <walk from="NC" to="CS" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped58" depart="2233.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped59" depart="2369.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped60" depart="2385.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped61" depart="2390.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped62" depart="2391.00" >
+        <walk from="NC" to="CS" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped63" depart="2535.00" >
+        <walk from="NC" to="CS" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped64" depart="2549.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped65" depart="2592.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped66" depart="2628.00" >
+        <walk from="NC" to="CS" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped67" depart="2642.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped68" depart="2672.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped69" depart="2751.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped70" depart="2792.00" >
+        <walk from="NC" to="CS" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped71" depart="2836.00" >
+        <walk from="NC" to="CS" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped72" depart="2902.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped73" depart="2973.00" >
+        <walk from="NC" to="CS" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped74" depart="2983.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped75" depart="3011.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped76" depart="3101.00" >
+        <walk from="NC" to="CS" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped77" depart="3104.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped78" depart="3188.00" >
+        <walk from="NC" to="CS" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped79" depart="3221.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped80" depart="3243.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped81" depart="3289.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped82" depart="3337.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped83" depart="3366.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped84" depart="3388.00" >
+        <walk from="NC" to="CS" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped85" depart="3416.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped86" depart="3439.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped87" depart="3453.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped88" depart="3479.00" >
+        <walk from="NC" to="CS" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped89" depart="3509.00" >
+        <walk from="NC" to="CS" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped90" depart="3510.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped91" depart="3526.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped92" depart="3566.00" >
+        <walk from="CS" to="NC" departPos="random" arrivalPos="random"/>
+    </person>
+    <person id="ped93" depart="3576.00" >
+        <walk from="NC" to="CS" departPos="random" arrivalPos="random"/>
+    </person>
+</trips>
