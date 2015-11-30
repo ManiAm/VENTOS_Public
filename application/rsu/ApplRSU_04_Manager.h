@@ -28,11 +28,11 @@
 #ifndef APPLRSUMANAGER_H_
 #define APPLRSUMANAGER_H_
 
-#include "ApplRSU_03_TL_VANET.h"
+#include "ApplRSU_03a_Classify.h"
 
 namespace VENTOS {
 
-class ApplRSUManager : public ApplRSUTLVANET
+class ApplRSUManager : public ApplRSUCLASSIFY
 {
 public:
     ~ApplRSUManager();

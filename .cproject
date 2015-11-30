@@ -27,6 +27,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/eigen-3.2.1}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/rapidxml-1.13}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/snmp++-3.3.5/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/dlib-18.18}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1661494006" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
@@ -39,6 +40,7 @@
 								<option id="gnu.cpp.link.option.libs.225663967" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs"/>
 								<option id="gnu.cpp.link.option.paths.575154285" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/snmp++-3.3.5/lib}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/dlib-18.18/lib}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.1376172316" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
@@ -48,6 +50,22 @@
 							<tool id="cdt.managedbuild.tool.gnu.assembler.base.832890951" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.base">
 								<option id="gnu.both.asm.option.include.paths.560718261" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths"/>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1385495372" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
+							</tool>
+						</toolChain>
+					</folderInfo>
+					<folderInfo id="org.omnetpp.cdt.gnu.config.debug.1233576214.704082989" name="/" resourcePath="application/rsu">
+						<toolChain id="org.omnetpp.cdt.gnu.toolchain.debug.1153514840" name="GCC for OMNeT++" superClass="org.omnetpp.cdt.gnu.toolchain.debug" unusedChildren="">
+							<tool id="cdt.managedbuild.tool.gnu.archiver.base.2061502206" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base.1476762375"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.base.1946642884" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base.1771810750">
+								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.2085034035" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.c.compiler.base.535724331" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base.1886142419">
+								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1237567892" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.c.linker.base.2052360447" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base.1411654238"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.base.1977355261" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.base.97795668"/>
+							<tool id="cdt.managedbuild.tool.gnu.assembler.base.2018970097" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.base.832890951">
+								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.919928991" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
 						</toolChain>
 					</folderInfo>
@@ -84,17 +102,19 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/eigen-3.2.1}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/rapidxml-1.13}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/snmp++-3.3.5/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/dlib-18.18}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.542034100" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.compiler.base.1455757514" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base">
-								<option id="gnu.c.compiler.option.include.paths.1177774848" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath"/>
+								<option id="gnu.c.compiler.option.include.paths.1177774848" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.817579118" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.base.1080374893" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base"/>
 							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.base.455978725" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.base">
-								<option id="gnu.cpp.link.option.paths.622802193" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
+								<option id="gnu.cpp.link.option.paths.622802193" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/snmp++-3.3.5/lib}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/dlib-18.18/lib}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.1508489696" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
@@ -102,7 +122,7 @@
 								</inputType>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.assembler.base.1973378118" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.base">
-								<option id="gnu.both.asm.option.include.paths.470608334" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath"/>
+								<option id="gnu.both.asm.option.include.paths.470608334" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths"/>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1443223259" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
 						</toolChain>

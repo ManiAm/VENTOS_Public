@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <routes>
 
   <!-- Krauss Model (tau here is T_g and not controller delay!) -->
@@ -13,16 +14,46 @@
   <route id="WtoE" edges="WC CE" />     
   <route id="EtoW" edges="EC CW" />    
 
-  <flow id="route1" begin="0" end="200" vehsPerHour="500" type="TypeManual" route="WtoE" />
-  <flow id="route2" begin="0" end="200" vehsPerHour="500" type="TypeManual" route="EtoW" />
-
+  <flow id="route1" begin="0" end="1000" vehsPerHour="500" type="TypeManual" route="WtoE" />
+  <flow id="route2" begin="0" end="1000" vehsPerHour="500" type="TypeManual" route="EtoW" />
 
 
   <person id="ped1" type="pedestrian" depart="10">
       <walk from="NC" to="CS" />
   </person>
+  
+    <person id="ped1a" type="pedestrian" depart="10">
+      <walk from="NC" to="CS" />
+  </person>
+  
+    <person id="ped1b" type="pedestrian" depart="10">
+      <walk from="NC" to="CS" />
+  </person>
+  
+    <person id="ped1c" type="pedestrian" depart="10">
+      <walk from="NC" to="CS" />
+  </person>
+  
+    <person id="ped2" type="pedestrian" depart="11">
+      <walk from="NC" to="CS" />
+  </person>
+  
+    <person id="ped3" type="pedestrian" depart="12">
+      <walk from="NC" to="CS" />
+  </person>
+  
+    <person id="ped4" type="pedestrian" depart="13">
+      <walk from="NC" to="CS" />
+  </person>
+  
+    <person id="ped5" type="pedestrian" depart="14">
+      <walk from="NC" to="CS" />
+  </person>
+  
+    <person id="ped6" type="pedestrian" depart="15">
+      <walk from="NC" to="CS" />
+  </person>  
  
 
 </routes>
-
 
