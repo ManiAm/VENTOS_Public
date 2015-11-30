@@ -173,11 +173,11 @@ The terminal should look like the following picture. The script will print `List
 Now you can use sumo-cmd and sumo-gui commands instead!
 
 
-**Step 3:** Run the VENTOS project by right clicking on the `params_config.ini` file in the IDE and choose: 
+**Step 3:** Run the VENTOS project by right clicking on the project name in the IDE and choose: 
 
     "Run as" -> "Run configurations..."
 
-Choose 'OMNET++ Simulation' and click on 'New launch configuration' button at the top left. Give this configuration a name like myConfig. In Executable, choose opp_run and in 'Config name' choose a configuration from drop down list like CACCVehicleStream1. Leave the rest of the options to default. Click Apply and then click Run.
+Choose 'OMNET++ Simulation' and click on 'New launch configuration' button at the top left. Give this configuration a name like myConfig. In Executable, choose opp_run and in 'Ini file(s)' choose one of the ini files in the project like params2_CACC.ini. From 'Config name' choose a configuration from the drop down list like CACCVehicleStream1. Leave the rest of the options to default. Click Apply and then click Run.
 
 Upon the first execution, VENTOS tries to download sumoD and sumo-guiD. Type y to proceed. Try to play with other configuration scenarios to feel confortable with the environment and change different parameters to see the effect on the simulation output.
 
