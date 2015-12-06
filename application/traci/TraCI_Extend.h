@@ -39,7 +39,7 @@
 #include <rapidxml_utils.hpp>
 #include <rapidxml_print.hpp>
 
-#include <Eigen/Dense>
+#include <eigen3/Eigen/Dense>
 
 // un-defining ev!
 // why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header

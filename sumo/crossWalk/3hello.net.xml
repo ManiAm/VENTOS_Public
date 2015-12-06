@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- generated on Mon Nov 30 01:03:38 2015 by SUMO netconvert Version dev-SVN-r19463D
+<!-- generated on Tue Dec  1 23:04:24 2015 by SUMO netconvert Version dev-SVN-r19463D
 <?xml version="1.0" encoding="UTF-8"?>
 
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/netconvertConfiguration.xsd">
@@ -92,15 +92,15 @@
     </edge>
 
     <junction id="C" type="priority" x="100.00" y="50.00" incLanes="NC_0 EC_0 EC_1 EC_2 EC_3 EC_4 WC_0 WC_1 WC_2 WC_3 WC_4 :C_w1_0" intLanes=":C_0_0 :C_0_1 :C_0_2 :C_0_3 :C_4_0 :C_4_1 :C_4_2 :C_4_3 :C_c0_0" shape="98.50,63.85 101.50,63.85 103.00,62.35 103.00,37.65 101.50,36.15 98.50,36.15 97.00,37.65 97.00,62.35">
-        <request index="0" response="000000000" foes="100000000" cont="0"/>
-        <request index="1" response="000000000" foes="100000000" cont="0"/>
-        <request index="2" response="000000000" foes="100000000" cont="0"/>
-        <request index="3" response="000000000" foes="100000000" cont="0"/>
-        <request index="4" response="000000000" foes="100000000" cont="0"/>
-        <request index="5" response="000000000" foes="100000000" cont="0"/>
-        <request index="6" response="000000000" foes="100000000" cont="0"/>
-        <request index="7" response="000000000" foes="100000000" cont="0"/>
-        <request index="8" response="011111111" foes="011111111" cont="0"/>
+        <request index="0" response="100000000" foes="100000000" cont="0"/>
+        <request index="1" response="100000000" foes="100000000" cont="0"/>
+        <request index="2" response="100000000" foes="100000000" cont="0"/>
+        <request index="3" response="100000000" foes="100000000" cont="0"/>
+        <request index="4" response="100000000" foes="100000000" cont="0"/>
+        <request index="5" response="100000000" foes="100000000" cont="0"/>
+        <request index="6" response="100000000" foes="100000000" cont="0"/>
+        <request index="7" response="100000000" foes="100000000" cont="0"/>
+        <request index="8" response="000000000" foes="011111111" cont="0"/>
     </junction>
     <junction id="E" type="priority" x="200.00" y="50.00" incLanes="CE_0 CE_1 CE_2 CE_3 CE_4" intLanes=":E_0_0" shape="200.00,50.05 200.00,62.35 200.00,37.65 200.00,49.95">
         <request index="0" response="0" foes="0" cont="0"/>
@@ -113,14 +113,14 @@
 
     <connection from="CE" to="EC" fromLane="4" toLane="4" via=":E_0_0" dir="t" state="M"/>
     <connection from="CW" to="WC" fromLane="4" toLane="4" via=":W_0_0" dir="t" state="M"/>
-    <connection from="EC" to="CW" fromLane="0" toLane="0" via=":C_0_0" dir="s" state="M"/>
-    <connection from="EC" to="CW" fromLane="2" toLane="2" via=":C_0_1" dir="s" state="M"/>
-    <connection from="EC" to="CW" fromLane="3" toLane="3" via=":C_0_2" dir="s" state="M"/>
-    <connection from="EC" to="CW" fromLane="4" toLane="4" via=":C_0_3" dir="s" state="M"/>
-    <connection from="WC" to="CE" fromLane="0" toLane="0" via=":C_4_0" dir="s" state="M"/>
-    <connection from="WC" to="CE" fromLane="2" toLane="2" via=":C_4_1" dir="s" state="M"/>
-    <connection from="WC" to="CE" fromLane="3" toLane="3" via=":C_4_2" dir="s" state="M"/>
-    <connection from="WC" to="CE" fromLane="4" toLane="4" via=":C_4_3" dir="s" state="M"/>
+    <connection from="EC" to="CW" fromLane="0" toLane="0" via=":C_0_0" dir="s" state="m"/>
+    <connection from="EC" to="CW" fromLane="2" toLane="2" via=":C_0_1" dir="s" state="m"/>
+    <connection from="EC" to="CW" fromLane="3" toLane="3" via=":C_0_2" dir="s" state="m"/>
+    <connection from="EC" to="CW" fromLane="4" toLane="4" via=":C_0_3" dir="s" state="m"/>
+    <connection from="WC" to="CE" fromLane="0" toLane="0" via=":C_4_0" dir="s" state="m"/>
+    <connection from="WC" to="CE" fromLane="2" toLane="2" via=":C_4_1" dir="s" state="m"/>
+    <connection from="WC" to="CE" fromLane="3" toLane="3" via=":C_4_2" dir="s" state="m"/>
+    <connection from="WC" to="CE" fromLane="4" toLane="4" via=":C_4_3" dir="s" state="m"/>
 
     <connection from=":C_0" to="CW" fromLane="0" toLane="0" dir="s" state="M"/>
     <connection from=":C_0" to="CW" fromLane="1" toLane="2" dir="s" state="M"/>
@@ -137,7 +137,7 @@
     <connection from=":C_w0" to="CW" fromLane="0" toLane="0" dir="s" state="M"/>
     <connection from="NC" to=":C_w0" fromLane="0" toLane="0" dir="s" state="M"/>
     <connection from="EC" to=":C_w0" fromLane="0" toLane="0" dir="s" state="M"/>
-    <connection from=":C_w1" to=":C_c0" fromLane="0" toLane="0" dir="s" state="m"/>
+    <connection from=":C_w1" to=":C_c0" fromLane="0" toLane="0" dir="s" state="M"/>
     <connection from=":C_w1" to="CE" fromLane="0" toLane="0" dir="s" state="M"/>
     <connection from=":C_w1" to="CS" fromLane="0" toLane="0" dir="s" state="M"/>
     <connection from="WC" to=":C_w1" fromLane="0" toLane="0" dir="s" state="M"/>

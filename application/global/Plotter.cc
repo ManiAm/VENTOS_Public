@@ -31,7 +31,6 @@ namespace VENTOS {
 
 Define_Module(VENTOS::Plotter);
 
-
 Plotter::~Plotter()
 {
 
@@ -58,41 +57,15 @@ void Plotter::initialize(int stage)
         #endif
 
         if(pipe == NULL)
-            error("Could not open pipe!");
+            error("Could not open pipe for write!");
 
-
-        // set the terminal
+        // interactive gnuplot terminals: x11, wxt, qt (wxt and qt offer nicer output and a wider range of features)
         // persist: keep the windows open even on simulation termination
         // noraise: updating is done in the background
-        fprintf(pipe, "set term wxt enhanced 0 noraise\n");
-
-        fprintf(pipe, "set title 'minimum'\n");
-        fprintf(pipe, "set xlabel 'Sim Time'\n");
-        fprintf(pipe, "set ylabel 'Vehicle Speed'\n");
-
-        // The "-" is used to specify that the data follows the plot command.
-        fprintf(pipe, "plot '-' with lines\n");
-
-        // loop over the data. Data terminated with \n
-        for(int i = 1, j=0; i < 100; i = i*2, j++)
-            fprintf(pipe, "%d %d\n", j, i);
-
-
-//        // loop over the data. data terminated with \n
-//        for(int i = 1, j=0; i < 1000; i = i*4, j++)
-//            fprintf(pipe, "%d %d\n", j, i);
-
-        // termination character
-        fprintf(pipe, "%s\n", "e");
+        fprintf(pipe, "set term wxt enhanced 0 font 'Helvetica,14' noraise\n");
 
         // flush the pipe
         fflush(pipe);
-
-      //  fprintf(pipe, "set multiplot\n");
-
-     //   fprintf(pipe, "plot 2*x\n");
-
-     //   fflush(pipe);
     }
 }
 
@@ -112,15 +85,6 @@ void Plotter::finish()
 
 void Plotter::handleMessage(cMessage *msg)
 {
-
-}
-
-
-void Plotter::speedProfile()
-{
-    if(!on)
-        return;
-
 
 }
 

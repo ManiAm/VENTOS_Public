@@ -74,6 +74,21 @@ void ApplRSUBase::initialize(int stage)
         myTLid = par("myTLid").stringValue();   // TLid that this RSU belongs to (this parameter is set by AddRSU)
                                                 // empty string means this RSU is not associated with any TL
 
+        // get a pointer to the TrafficLight module
+        cModule *tmodule = simulation.getSystemModule()->getSubmodule("TrafficLight");
+        if(module != NULL)
+        {
+            TLControlMode = tmodule->par("TLControlMode").longValue();
+            activeDetection = tmodule->par("activeDetection").boolValue();
+            minGreenTime = tmodule->par("minGreenTime").doubleValue();
+        }
+        else
+        {
+            TLControlMode = -1;
+            activeDetection = false;
+            minGreenTime = -1;
+        }
+
         // simulate asynchronous channel access
         double offSet = dblrand() * (beaconInterval/2);
         offSet = offSet + floor(offSet/0.050)*0.050;

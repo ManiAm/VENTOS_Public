@@ -53,7 +53,10 @@ void ApplPedBase::initialize(int stage)
 		assert(myMac);
 
 		TraCI_Mobility = TraCIMobilityAccess().get(getParentModule());
-        TraCI = FindModule<TraCI_Extend*>::findGlobalModule();
+
+        // get a pointer to the TraCI module
+        cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
+        TraCI = static_cast<TraCI_Extend *>(module);
 
         annotations = AnnotationManagerAccess().getIfExists();
         ASSERT(annotations);

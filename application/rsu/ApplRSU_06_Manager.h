@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    Plotter.h
+/// @file    ApplRSU_06_Manager.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    August 2013
@@ -25,29 +25,34 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef PLOTTER_H
-#define PLOTTER_H
+#ifndef APPLRSUMANAGER_H_
+#define APPLRSUMANAGER_H_
 
-#include <BaseApplLayer.h>
-#include <Appl.h>
-#include "TraCI_Extend.h"
+#include "ApplRSU_05_Classify.h"
 
 namespace VENTOS {
 
-class Plotter : public BaseApplLayer
+class ApplRSUManager : public ApplRSUCLASSIFY
 {
-  public:
-      virtual ~Plotter();
-      virtual void finish();
-      virtual void initialize(int);
-      virtual void handleMessage(cMessage *);
+public:
+    ~ApplRSUManager();
+    virtual void initialize(int stage);
+    virtual void finish();
+    virtual void handleLowerMsg(cMessage* msg);
+    virtual void handleSelfMsg(cMessage* msg);
+    virtual void receiveSignal(cComponent *, simsignal_t, cObject *);
 
-  public:
-      FILE *pipe;  // other modules can use pipe to access gnuplot
+protected:
+    void virtual executeEachTimeStep(bool);
 
-  private:
-      TraCI_Extend *TraCI;
-      bool on;
+    virtual void onBeaconVehicle(BeaconVehicle*);
+    virtual void onBeaconBicycle(BeaconBicycle*);
+    virtual void onBeaconPedestrian(BeaconPedestrian*);
+    virtual void onBeaconRSU(BeaconRSU*);
+    virtual void onData(LaneChangeMsg*);
+
+private:
+    simsignal_t Signal_beaconSignaling;
 };
 
 }

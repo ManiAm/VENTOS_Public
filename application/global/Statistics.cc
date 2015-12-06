@@ -26,7 +26,7 @@
 //
 
 #include <Statistics.h>
-#include <ApplRSU_04_Manager.h>
+#include <ApplRSU_06_Manager.h>
 #include "Router.h"
 
 namespace VENTOS {

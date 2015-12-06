@@ -77,6 +77,10 @@ class ApplRSUBase : public BaseApplLayer
 
         static const simsignalwrap_t mobilityStateChangedSignal;
         simsignal_t Signal_executeEachTS;
+
+        int TLControlMode;
+        bool activeDetection;
+        double minGreenTime;
 };
 
 }

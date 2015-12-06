@@ -70,13 +70,11 @@ void ApplPedManager::handleLowerMsg(cMessage* msg)
     {
         BeaconVehicle* wsm = dynamic_cast<BeaconVehicle*>(msg);
         ASSERT(wsm);
-
     }
     else if (std::string(wsm->getName()) == "beaconRSU")
     {
         BeaconRSU* wsm = dynamic_cast<BeaconRSU*>(msg);
         ASSERT(wsm);
-
     }
     else if(std::string(wsm->getName()) == "platoonMsg")
     {
@@ -94,7 +92,6 @@ void ApplPedManager::onBeaconVehicle(BeaconVehicle* wsm)
 {
     // pass it down
     //ApplPedBeacon::onBeaconVehicle(wsm);
-
 }
 
 

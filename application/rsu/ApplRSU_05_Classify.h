@@ -1,8 +1,8 @@
 /****************************************************************************/
-/// @file    SNMPConnect.h
+/// @file    ApplRSU_05_Classify.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
-/// @date    August 2015
+/// @date    Nov 2015
 ///
 /****************************************************************************/
 // VENTOS, Vehicular Network Open Simulator; see http:?
@@ -25,46 +25,51 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef SNMPCONNECT_H_
-#define SNMPCONNECT_H_
+#ifndef APPLRSUCLASSIFY_H_
+#define APPLRSUCLASSIFY_H_
 
-#include <BaseApplLayer.h>
-#include "TraCI_Extend.h"
-#include "MIB_OBJ_ASC.h"
+#include "ApplRSU_04_ActiveTL.h"
+#include <Plotter.h>
 
-#define STDCXX_98_HEADERS
-#include "snmp_pp/snmp_pp.h"
+//#undef ev
+//#include "dlib/svm_threaded.h"
+//#include "dlib/rand.h"
+//#define ev  (*cSimulation::getActiveEnvir())
 
 namespace VENTOS {
 
-class TraCI_Extend;
+//// data type for 2-dimensional data
+//typedef dlib::matrix<double,2,1> sample_type_2D;
+//
+//// data type for 3-dimensional data
+//typedef dlib::matrix<double,3,1> sample_type_3D;
 
-class SNMPConnect : public BaseApplLayer
+class ApplRSUCLASSIFY : public ApplRSUTLVANET
 {
 	public:
-		virtual ~SNMPConnect();
+		~ApplRSUCLASSIFY();
 		virtual void initialize(int stage);
-        virtual void handleMessage(cMessage *msg);
 		virtual void finish();
-        virtual void receiveSignal(cComponent *, simsignal_t, long);
+        virtual void handleSelfMsg(cMessage* msg);
 
-        Snmp_pp::Vb SNMPget(std::string OID, int instance=0);
-        std::vector<Snmp_pp::Vb> SNMPwalk(std::string OID);
-        template <typename T> Snmp_pp::Vb SNMPset(std::string OID, T value, int instance=0);
+	protected:
+        void virtual executeEachTimeStep(bool);
+
+        virtual void onBeaconVehicle(BeaconVehicle*);
+        virtual void onBeaconBicycle(BeaconBicycle*);
+        virtual void onBeaconPedestrian(BeaconPedestrian*);
+        virtual void onBeaconRSU(BeaconRSU*);
+        virtual void onData(LaneChangeMsg*);
+
+        virtual void addInputToClassifier(std::string, Coord, double);
 
 	private:
-        void SNMPInitialize();
+      //  void generate_data(std::vector<sample_type_2D>& samples, std::vector<double>& labels);
+      //  void generate_data_3D(std::vector<sample_type_3D>& samples, std::vector<double>& labels);
+        void classifier();
 
 	private:
-        // NED variables
-        cModule *nodePtr;   // pointer to the Node
-        TraCI_Extend *TraCI;  // pointer to the TraCI module
-        simsignal_t Signal_executeFirstTS;
-        bool on;
-
-        boost::filesystem::path SNMP_LOG;
-        Snmp_pp::Snmp *cobalt = NULL;
-        Snmp_pp::CTarget *ctarget = NULL;
+        FILE *pipe;
 };
 
 }

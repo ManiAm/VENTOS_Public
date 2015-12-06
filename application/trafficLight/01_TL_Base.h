@@ -31,7 +31,7 @@
 #include <BaseApplLayer.h>
 #include <Appl.h>
 #include "TraCI_Extend.h"
-#include "ApplRSU_03_TL_VANET.h"
+#include "ApplRSU_04_ActiveTL.h"
 
 namespace VENTOS {
 

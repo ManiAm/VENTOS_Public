@@ -1,7 +1,7 @@
 VENTOS
 ======
 
-VENTOS is an integrated C++ simulator for studying traffic flows in Vehicular Ad-hoc Networks (VANETs). You can find more information [here](http://rubinet.ece.ucdavis.edu/projects/ventos). VENTOS framework is developed in Ubuntu OS, and we have not tested it under other operating systems (yet!). Follow these instructions in order to install VENTOS (and its prerequisites) on your Ubuntu 12 or 14 machine (we recommend Ubuntu 14).
+VENTOS is an integrated C++ simulator for studying traffic flows in Vehicular Ad-hoc Networks (VANETs). You can find more information [here](http://rubinet.ece.ucdavis.edu/projects/ventos). VENTOS framework is developed in Ubuntu OS, and we have not tested it under other operating systems (yet!). Follow these instructions in order to install VENTOS (and its prerequisites) on your Ubuntu 14 machine.
 
 
 Install OMNET++
@@ -114,32 +114,72 @@ Veins is on github, and you should clone it into your computer.
 Import VENTOS
 -------------
 
-**Step 1:** Make sure you have these packages installed:
-
-Ubuntu 12.04:
-
-    sudo apt-get install libboost-system1.48-dev libboost-filesystem1.48-dev libssl-dev libcurl4-gnutls-dev libxerces-c2-dev libfox-1.6-dev libproj-dev gnuplot gnuplot-x11
-    
-Ubuntu 14.04:
+**Step 1:** Make sure you have these packages installed on your Ubuntu 14 machine:
 
     sudo apt-get install libboost-system1.54-dev libboost-filesystem1.54-dev libssl-dev libcurl4-gnutls-dev libxerces-c2-dev libfox-1.6-dev libproj-dev gnuplot gnuplot-x11 
+    
+**Step 2:** Download snmp++ API from [here](http://www.agentpp.com/download/snmp++-3.3.5.tar.gz). Extract it and then build the library:
 
+    ./configure
+    make
+    sudo make install
 
-**Step 2:** install the git package (if you have not done it before):
+libsnmp++ library will be copied into /usr/local/lib and the header files will be copied into /usr/local/include.
 
-    sudo apt-get install git
+**Step 3:** Clone the shark repository into your computer.
 
-**Step 3:** Clone the VENTOS repository in the current directory (run the command in the same folder as Eclipse workspace that you specified before). You also need to provide your github username and password.
+    git clone https://github.com/Shark-ML/Shark/
+
+Install all the required packages:
+
+    sudo apt-get install cmake cmake-curses-gui libatlas-base-dev libboost-all-dev
+
+Then make the library:
+
+    mkdir build
+    cd build
+    cmake ../
+    
+In the build folder, open the CMakeCache.txt file and make the following modifications:
+
+- Change BUILD_EXAMPLES to OFF
+- Change BUILD_SHARED_LIBS to ON
+- Change BUILD_TESTING to OFF
+- Change CBLAS_INCLUDES:FILEPATH to /usr/include/atlas/cblas.h
+
+Then
+
+    make
+    sudo make install
+
+libshark library will be copied into /usr/local/lib and the header files will be copied into /usr/local/include.
+
+**Step 4:** Finally after installing the above shared libraries run the following command.
+
+    sudo ldconfig -v
+
+ldconfig is a program that is used to maintain the shared library cache in linux. This cache is typically stored in the file /etc/ld.so.cache and is used by the system to map a shared library name to the location of the corresponding shared library file.
+
+**Step 5:** Download Eigen library from [here](http://eigen.tuxfamily.org/index.php?title=Main_Page). Extract it and then install it on your system.
+
+    mkdir build
+    cd build
+    cmake ../
+    sudo make install
+
+Eigen consists only of header files, hence there is nothing to compile before you can use it. The header files will be copied into /usr/local/include.
+
+**Step 6:** Clone the VENTOS repository in the current directory (run the command in the same folder as Eclipse workspace that you specified before). You also need to provide your github username and password.
 
     git clone https://github.com/ManiAm/VENTOS
 
-**Step 4:** Now you can import VENTOS project into the OMNET++ IDE. Choose "File->Import" from the menu. Choose "General->Existing Projects into Workspace" from the upcoming dialog and proceed with "Next". Choose "Select root directory" and select the VENTOS folder. "VENTOS" should appear in the "Projects" section. Unselect "Copy project into workspace" if the VENTOS folder is already in your workspace. Click "Finish".
+**Step 7:** Now you can import VENTOS project into the OMNET++ IDE. Choose "File->Import" from the menu. Choose "General->Existing Projects into Workspace" from the upcoming dialog and proceed with "Next". Choose "Select root directory" and select the VENTOS folder. "VENTOS" should appear in the "Projects" section. Unselect "Copy project into workspace" if the VENTOS folder is already in your workspace. Click "Finish".
 
 Note: Wait for a while until "C/C++ Indexer" finishes its job.
 
-**Step 5:** Right click on VENTOS project name and click Properties. Go to 'Project References' and make sure veins is selected.
+**Step 8:** Right click on VENTOS project name and click Properties. Go to 'Project References' and make sure veins is selected.
 
-**Step 6:** Now you can build the VENTOS project. Use Ctrl+B or right-click on the project name and choose "Build Project". Wait for a while and then check the console windows at the bottom of the Eclipse IDE to make sure no errors occurred.
+**Step 9:** Now you can build the VENTOS project. Use Ctrl+B or right-click on the project name and choose "Build Project". Wait for a while and then check the console windows at the bottom of the Eclipse IDE to make sure no errors occurred.
     
 
 Running the VENTOS Project
