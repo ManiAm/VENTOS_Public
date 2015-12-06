@@ -62,6 +62,7 @@ void Plotter::initialize(int stage)
         // interactive gnuplot terminals: x11, wxt, qt (wxt and qt offer nicer output and a wider range of features)
         // persist: keep the windows open even on simulation termination
         // noraise: updating is done in the background
+        // link: http://gnuplot.sourceforge.net/docs_4.2/node441.html
         fprintf(pipe, "set term wxt enhanced 0 font 'Helvetica,14' noraise\n");
 
         // flush the pipe

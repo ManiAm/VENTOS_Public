@@ -126,7 +126,7 @@ Import VENTOS
 
 libsnmp++ library will be copied into /usr/local/lib and the header files will be copied into /usr/local/include.
 
-**Step 3:** Clone the shark repository into your computer.
+**Step 3:** Clone the shark repository into your computer:
 
     git clone https://github.com/Shark-ML/Shark/
 
@@ -134,17 +134,17 @@ Install all the required packages:
 
     sudo apt-get install cmake cmake-curses-gui libatlas-base-dev libboost-all-dev
 
-Then make the library:
+Go to the Shark folder and make the library:
 
     mkdir build
     cd build
     cmake ../
     
-In the build folder, open the CMakeCache.txt file and make the following modifications:
+In the build folder, open the CMakeCache.txt file and make the following changes:
 
 - Change BUILD_EXAMPLES to OFF
-- Change BUILD_SHARED_LIBS to ON
 - Change BUILD_TESTING to OFF
+- Change BUILD_SHARED_LIBS to ON
 - Change CBLAS_INCLUDES:FILEPATH to /usr/include/atlas/cblas.h
 
 Then

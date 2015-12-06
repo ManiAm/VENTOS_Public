@@ -10,6 +10,6 @@
 <dir makemake-options="--make-so -o bike -O out -lboost_filesystem -lboost_system -lmsg -ltraci --meta:auto-include-path --meta:export-library --meta:use-exported-libs --meta:feature-cflags --meta:feature-ldflags" path="application/bike" type="makemake"/>
 <dir makemake-options="--make-so -o adversary -O out -lboost_filesystem -lboost_system -lmsg -ltraci --meta:auto-include-path --meta:export-library --meta:use-exported-libs --meta:feature-cflags --meta:feature-ldflags" path="application/adversary" type="makemake"/>
 <dir makemake-options="--make-so -o trafficLight -O out -lboost_filesystem -lboost_system -lmsg -ltraci --meta:auto-include-path --meta:export-library --meta:use-exported-libs --meta:feature-cflags --meta:feature-ldflags" path="application/trafficLight" type="makemake"/>
-<dir makemake-options="--make-so -o rsu -O out -lmsg -ltraci -lboost_filesystem -lboost_system -llapack -lshark --meta:auto-include-path --meta:export-library --meta:use-exported-libs --meta:feature-cflags --meta:feature-ldflags" path="application/rsu" type="makemake"/>
+<dir makemake-options="--make-so -o rsu -O out -lmsg -ltraci -lboost_filesystem -lboost_system -llapack_atlas -lshark --meta:auto-include-path --meta:export-library --meta:use-exported-libs --meta:feature-cflags --meta:feature-ldflags" path="application/rsu" type="makemake"/>
 <dir makemake-options="-O out --meta:recurse --meta:auto-include-path --meta:export-library --meta:use-exported-libs --meta:feature-cflags --meta:feature-ldflags" path="." type="makemake"/>
 </buildspec>
