@@ -42,6 +42,7 @@ class ApplPedBeacon : public ApplPedBase
 	protected:
         // NED
         bool VANETenabled;
+        double GPSerror;
 
         // NED variables (beaconing parameters)
         bool sendBeacons;

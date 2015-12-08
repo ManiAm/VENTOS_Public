@@ -45,6 +45,7 @@ void ApplVBeacon::initialize(int stage)
     {
         // NED
         sonarDist = par("sonarDist").doubleValue();
+        GPSerror = par("GPSerror").doubleValue();
 
         // NED variables (beaconing parameters)
         sendBeacons = par("sendBeacons").boolValue();

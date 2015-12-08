@@ -8,6 +8,7 @@ simple ApplPedBeacon extends ApplPedBase
         @display("i=block/app2");
         
         bool VANETenabled = default(true);
+        double GPSerror = default(0);
                 
         bool sendBeacons = default(false); //tell the applayer to periodically send beacons
         volatile double beaconInterval = default(1s) @unit(s); //the intervall between 2 beacon messages

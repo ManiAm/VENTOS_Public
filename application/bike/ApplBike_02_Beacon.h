@@ -42,6 +42,7 @@ class ApplBikeBeacon : public ApplBikeBase
 	protected:
         // NED
         bool VANETenabled;
+        double GPSerror;
 
         // NED variables (beaconing parameters)
         bool sendBeacons;
