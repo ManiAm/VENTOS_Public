@@ -3,9 +3,13 @@
 <routes>
 
   <!-- Krauss Model (tau here is T_g and not controller delay!) -->
-  <vType id="TypeManual" length="5.0" minGap="2.0" maxSpeed="30.0" vClass="passenger">
+  <vType id="passenger" length="5.0" minGap="2.0" maxSpeed="30.0" vClass="passenger">
       <carFollowing-Krauss accel="3.0" decel="5.0" sigma="0" tau="1.64" />
   </vType>    
+  
+    <!-- bicycle -->
+  <vType id="bicycle" length="1.6" width="0.6" minGap="0.5" maxSpeed="4.2" vClass="bicycle" guiShape="bicycle">
+  </vType>
 
   <!-- pedestrian -->
   <vType id="pedestrian" length="0.3" width="0.6" minGap="1.5" maxSpeed="1.4" vClass="pedestrian" guiShape="pedestrian" color="red">
@@ -14,8 +18,8 @@
   <route id="WtoE" edges="WC CE" />     
   <route id="EtoW" edges="EC CW" />    
 
-  <flow id="route1" begin="0" end="1000" vehsPerHour="500" type="TypeManual" route="WtoE" />
-  <flow id="route2" begin="0" end="1000" vehsPerHour="500" type="TypeManual" route="EtoW" />
+  <flow id="route1" begin="0" end="1000" vehsPerHour="500" type="passenger" route="WtoE" />
+  <flow id="route2" begin="0" end="1000" vehsPerHour="500" type="passenger" route="EtoW" />
 
 
   <person id="ped1" type="pedestrian" depart="10">
