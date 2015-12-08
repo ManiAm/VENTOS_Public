@@ -48,9 +48,7 @@ class ApplRSUBase : public BaseApplLayer
 
 	protected:
         virtual void executeEachTimeStep(bool);
-		Coord *getRSUsCoord(unsigned int);
         BeaconRSU* prepareBeacon();
-        void printBeaconContent(BeaconRSU*);
 
 	protected:
 		// NED variables

@@ -74,6 +74,11 @@ void ApplRSUBase::initialize(int stage)
         myTLid = par("myTLid").stringValue();   // TLid that this RSU belongs to (this parameter is set by AddRSU)
                                                 // empty string means this RSU is not associated with any TL
 
+        // my X coordinate in SUMO
+        myCoordX = par("myCoordX").doubleValue();
+        // my Y coordinate in SUMO
+        myCoordY = par("myCoordY").doubleValue();
+
         // get a pointer to the TrafficLight module
         cModule *tmodule = simulation.getSystemModule()->getSubmodule("TrafficLight");
         if(module != NULL)
@@ -127,7 +132,6 @@ void ApplRSUBase::handleSelfMsg(cMessage* msg)
         BeaconRSU* beaconMsg = prepareBeacon();
 
         EV << "## Created beacon msg for " << myFullId << endl;
-        printBeaconContent(beaconMsg);
 
         // send it
         sendDelayed(beaconMsg, individualOffset, lowerLayerOut);
@@ -172,47 +176,12 @@ BeaconRSU* ApplRSUBase::prepareBeacon()
     wsm->setRecipient("broadcast");
 
     // set my current position
-    Coord *SUMOpos = getRSUsCoord(myId);
-    wsm->setPos(*SUMOpos);
+    Coord SUMOpos (myCoordX, myCoordY);
+    wsm->setPos(SUMOpos);
 
     return wsm;
 }
 
-
-// print beacon fields (for debugging purposes)
-void ApplRSUBase::printBeaconContent(BeaconRSU* wsm)
-{
-    EV << wsm->getWsmVersion() << " | ";
-    EV << wsm->getSecurityType() << " | ";
-    EV << wsm->getChannelNumber() << " | ";
-    EV << wsm->getDataRate() << " | ";
-    EV << wsm->getPriority() << " | ";
-    EV << wsm->getPsid() << " | ";
-    EV << wsm->getPsc() << " | ";
-    EV << wsm->getWsmLength() << " | ";
-    EV << wsm->getWsmData() << " ||| ";
-
-    EV << wsm->getSender() << " | ";
-    EV << wsm->getRecipient() << " | ";
-    EV << wsm->getPos() << endl;
-}
-
-
-// todo
-Coord *ApplRSUBase::getRSUsCoord(unsigned int index)
-{
-//    if( RSUs.size() == 0 )
-//        error("No RSUs have been initialized!");
-//
-//    if( index < 0 || index >= RSUs.size() )
-//        error("index out of bound!");
-//
-//    Coord *point = new Coord(RSUs[index]->coordX, RSUs[index]->coordY);
-//    return point;
-
-    Coord *point = new Coord(0, 0);
-    return point;
-}
 
 }
 
