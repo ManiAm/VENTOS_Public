@@ -29,7 +29,6 @@
 #define APPLRSUCLASSIFY_H_
 
 #include "ApplRSU_04_ActiveTL.h"
-#include <Plotter.h>
 
 //#undef ev
 //#include "dlib/svm_threaded.h"
@@ -66,10 +65,11 @@ class ApplRSUCLASSIFY : public ApplRSUTLVANET
 	private:
       //  void generate_data(std::vector<sample_type_2D>& samples, std::vector<double>& labels);
       //  void generate_data_3D(std::vector<sample_type_3D>& samples, std::vector<double>& labels);
-        void classifier();
+        void classifierF();
 
 	private:
         FILE *pipe;
+        const boost::filesystem::path vehApproachFilePath = "results/gui/vehApproach.txt";
 };
 
 }

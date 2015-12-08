@@ -51,6 +51,7 @@ void ApplRSUMonitor::initialize(int stage)
 
         monitorVehApproach = par("monitorVehApproach").boolValue();
         collectVehApproach = par("collectVehApproach").boolValue();
+        classifier = par("classifier").boolValue();
 
         Vec_detectedVehicles.clear();
 
@@ -85,11 +86,9 @@ void ApplRSUMonitor::executeEachTimeStep(bool simulationDone)
 {
     ApplRSUBase::executeEachTimeStep(simulationDone);
 
-    if(monitorVehApproach && collectVehApproach)
-    {
-        if(ev.isGUI()) saveVehApproach();    // (if in GUI) write what we have collected so far
-        else if(simulationDone) saveVehApproach();  // (if in CMD) write to file at the end of simulation
-    }
+    // (in CMD) write to file at the end of simulation
+    if(collectVehApproach && !ev.isGUI() && simulationDone)
+        saveVehApproach();
 }
 
 
@@ -183,6 +182,10 @@ template <typename T> void ApplRSUMonitor::onBeaconAny(T wsm)
                 counter->entrySpeed = wsm->getSpeed();
                 counter->pos = wsm->getPos();
                 counter->leaveTime = -1;
+
+                // save vehicle approach to file
+                if(collectVehApproach && ev.isGUI())
+                    saveVehApproach();
             }
             else
             {
@@ -190,8 +193,17 @@ template <typename T> void ApplRSUMonitor::onBeaconAny(T wsm)
                 detectedVehicleEntry *tmp = new detectedVehicleEntry(sender, wsm->getSenderType(), lane, wsm->getPos(), myTLid, simTime().dbl(), -1, wsm->getSpeed());
                 Vec_detectedVehicles.push_back(*tmp);
 
-                // notify classifier
-                addInputToClassifier(wsm->getSenderType(), wsm->getPos(), wsm->getSpeed());
+                // sort Vec_detectedVehicles by vehicleType (when saving to file only)
+                if(collectVehApproach)
+                    std::sort(Vec_detectedVehicles.begin(), Vec_detectedVehicles.end());
+
+                // save vehicle approach to file
+                if(collectVehApproach && ev.isGUI())
+                    saveVehApproach();
+
+                // notify classifier (should be called after saveVehApproach)
+                if(classifier)
+                    addInputToClassifier(wsm->getSenderType(), wsm->getPos(), wsm->getSpeed());
             }
 
             if (activeDetection)
@@ -210,6 +222,10 @@ template <typename T> void ApplRSUMonitor::onBeaconAny(T wsm)
             if(counter->leaveTime == -1)
             {
                 counter->leaveTime = simTime().dbl();
+
+                // save vehicle approach to file
+                if(collectVehApproach && ev.isGUI())
+                    saveVehApproach();
 
                 if (activeDetection)
                     UpdateLaneInfoRemove(counter->lane, sender);
@@ -272,8 +288,15 @@ void ApplRSUMonitor::saveVehApproach()
     fprintf (filePtr, "%-15s\n\n","leaveTime");
 
     // write body
+    std::string oldVehicleType = Vec_detectedVehicles[0].vehicleType;
     for(std::vector<detectedVehicleEntry>::iterator y = Vec_detectedVehicles.begin(); y != Vec_detectedVehicles.end(); ++y)
     {
+        if((*y).vehicleType != oldVehicleType)
+        {
+            fprintf(filePtr, "\n\n");
+            oldVehicleType = (*y).vehicleType;
+        }
+
         fprintf (filePtr, "%-20s ", (*y).vehicleName.c_str());
         fprintf (filePtr, "%-20s ", (*y).vehicleType.c_str());
         fprintf (filePtr, "%-13s ", (*y).lane.c_str());

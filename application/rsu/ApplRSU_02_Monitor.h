@@ -56,9 +56,16 @@ class detectedVehicleEntry
         this->entrySpeed = entryS;
     }
 
+    // overload == for search
     friend bool operator== (const detectedVehicleEntry &v1, const detectedVehicleEntry &v2)
     {
         return ( v1.vehicleName == v2.vehicleName );
+    }
+
+    // overload < for sort
+    friend bool operator < (const detectedVehicleEntry &v1, const detectedVehicleEntry &v2)
+    {
+        return (v1.vehicleType < v2.vehicleType);
     }
 };
 
@@ -93,6 +100,8 @@ class ApplRSUMonitor : public ApplRSUBase
         static void saveVehApproach();
 
 	protected:
+        bool classifier;
+
         // keeping track of detected vehicles (common in all RSUs)
         static std::vector<detectedVehicleEntry> Vec_detectedVehicles;
 
