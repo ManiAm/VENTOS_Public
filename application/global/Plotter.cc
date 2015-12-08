@@ -63,7 +63,7 @@ void Plotter::initialize(int stage)
         // persist: keep the windows open even on simulation termination
         // noraise: updating is done in the background
         // link: http://gnuplot.sourceforge.net/docs_4.2/node441.html
-        fprintf(pipe, "set term wxt enhanced 0 font 'Helvetica,14' noraise\n");
+        fprintf(pipe, "set term wxt enhanced 0 font 'Helvetica,' noraise\n");
 
         // flush the pipe
         fflush(pipe);
