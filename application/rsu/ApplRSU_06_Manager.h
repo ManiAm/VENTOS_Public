@@ -28,11 +28,11 @@
 #ifndef APPLRSUMANAGER_H_
 #define APPLRSUMANAGER_H_
 
-#include "ApplRSU_05_Classify.h"
+#include "ApplRSU_05_AID.h"
 
 namespace VENTOS {
 
-class ApplRSUManager : public ApplRSUCLASSIFY
+class ApplRSUManager : public ApplRSUAID
 {
 public:
     ~ApplRSUManager();

@@ -45,17 +45,20 @@ void ApplRSUMonitor::initialize(int stage)
 
     if (stage==0)
     {
+        monitorVehApproach = par("monitorVehApproach").boolValue();
+        collectVehApproach = par("collectVehApproach").boolValue();
+
+        if(activeDetection)
+        {
+            monitorVehApproach = true;
+            this->par("monitorVehApproach") = true;
+        }
+        else if(!monitorVehApproach)
+            return;
+
         // we need this RSU to be associated with a TL
         if(myTLid == "")
             error("The id of %s does not match with any TL. Check RSUsLocation.xml file!", myFullId);
-
-        monitorVehApproach = par("monitorVehApproach").boolValue();
-        collectVehApproach = par("collectVehApproach").boolValue();
-        classifier = par("classifier").boolValue();
-
-        Vec_detectedVehicles.clear();
-
-        setDetectionRegion();
 
         // for each incoming lane in this TL
         std::list<std::string> lan = TraCI->TLGetControlledLanes(myTLid);
@@ -66,6 +69,10 @@ void ApplRSUMonitor::initialize(int stage)
         // for each incoming lane
         for(std::list<std::string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
             lanesTL[*it2] = myTLid;
+
+        Vec_detectedVehicles.clear();
+
+        setDetectionRegion();
     }
 }
 
@@ -87,7 +94,7 @@ void ApplRSUMonitor::executeEachTimeStep(bool simulationDone)
     ApplRSUBase::executeEachTimeStep(simulationDone);
 
     // (in CMD) write to file at the end of simulation
-    if(collectVehApproach && !ev.isGUI() && simulationDone)
+    if(monitorVehApproach && collectVehApproach && !ev.isGUI() && simulationDone)
         saveVehApproach();
 }
 
@@ -163,14 +170,14 @@ template <typename T> void ApplRSUMonitor::onBeaconAny(T wsm)
     {
         std::string lane = wsm->getLane();
 
-        // If on one of the incoming lanes:
+        // If on one of the incoming lanes
         if(lanesTL.find(lane) != lanesTL.end() && lanesTL[lane] == myTLid)
         {
             // search queue for this vehicle
             const detectedVehicleEntry *searchFor = new detectedVehicleEntry(sender);
             std::vector<detectedVehicleEntry>::iterator counter = std::find(Vec_detectedVehicles.begin(), Vec_detectedVehicles.end(), *searchFor);
 
-            // if we have already added it
+            // return, if we have already added it
             if (counter != Vec_detectedVehicles.end() && counter->leaveTime == -1)
             {
                 return;
@@ -182,34 +189,22 @@ template <typename T> void ApplRSUMonitor::onBeaconAny(T wsm)
                 counter->entrySpeed = wsm->getSpeed();
                 counter->pos = wsm->getPos();
                 counter->leaveTime = -1;
-
-                // save vehicle approach to file
-                if(collectVehApproach && ev.isGUI())
-                    saveVehApproach();
             }
             else
             {
                 // Add entry
                 detectedVehicleEntry *tmp = new detectedVehicleEntry(sender, wsm->getSenderType(), lane, wsm->getPos(), myTLid, simTime().dbl(), -1, wsm->getSpeed());
                 Vec_detectedVehicles.push_back(*tmp);
-
-                // sort Vec_detectedVehicles by vehicleType (when saving to file only)
-                if(collectVehApproach)
-                    std::sort(Vec_detectedVehicles.begin(), Vec_detectedVehicles.end());
-
-                // save vehicle approach to file
-                if(collectVehApproach && ev.isGUI())
-                    saveVehApproach();
-
-                // notify classifier (should be called after saveVehApproach)
-                if(classifier)
-                    addInputToClassifier(wsm->getSenderType(), wsm->getPos(), wsm->getSpeed());
             }
+
+            // save vehicle approach to file
+            if(collectVehApproach && ev.isGUI())
+                saveVehApproach();
 
             if (activeDetection)
                 UpdateLaneInfoAdd(lane, sender, wsm->getSenderType(), wsm->getSpeed());
         }
-        // Else exiting queue area, so log leave time:
+        // Else exiting queue area, so log leave time
         else
         {
             // search queue for this vehicle
@@ -288,15 +283,8 @@ void ApplRSUMonitor::saveVehApproach()
     fprintf (filePtr, "%-15s\n\n","leaveTime");
 
     // write body
-    std::string oldVehicleType = Vec_detectedVehicles[0].vehicleType;
     for(std::vector<detectedVehicleEntry>::iterator y = Vec_detectedVehicles.begin(); y != Vec_detectedVehicles.end(); ++y)
     {
-        if((*y).vehicleType != oldVehicleType)
-        {
-            fprintf(filePtr, "\n\n");
-            oldVehicleType = (*y).vehicleType;
-        }
-
         fprintf (filePtr, "%-20s ", (*y).vehicleName.c_str());
         fprintf (filePtr, "%-20s ", (*y).vehicleType.c_str());
         fprintf (filePtr, "%-13s ", (*y).lane.c_str());
@@ -319,12 +307,6 @@ void ApplRSUMonitor::UpdateLaneInfoAdd(std::string lane, std::string sender, std
 
 
 void ApplRSUMonitor::UpdateLaneInfoRemove(std::string counter, std::string sender)
-{
-    error("this method can not be called directly!");
-}
-
-
-void ApplRSUMonitor::addInputToClassifier(std::string name, Coord pos, double speed)
 {
     error("this method can not be called directly!");
 }

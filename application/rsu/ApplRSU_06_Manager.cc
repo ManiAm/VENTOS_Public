@@ -39,7 +39,7 @@ ApplRSUManager::~ApplRSUManager()
 
 void ApplRSUManager::initialize(int stage)
 {
-    ApplRSUCLASSIFY::initialize(stage);
+    ApplRSUAID::initialize(stage);
 
 	if (stage==0)
 	{
@@ -52,7 +52,7 @@ void ApplRSUManager::initialize(int stage)
 
 void ApplRSUManager::finish()
 {
-    ApplRSUCLASSIFY::finish();
+    ApplRSUAID::finish();
 }
 
 
@@ -74,7 +74,7 @@ void ApplRSUManager::receiveSignal(cComponent *source, simsignal_t signalID, cOb
 
 void ApplRSUManager::handleSelfMsg(cMessage* msg)
 {
-    ApplRSUCLASSIFY::handleSelfMsg(msg);
+    ApplRSUAID::handleSelfMsg(msg);
 
 }
 
@@ -127,37 +127,37 @@ void ApplRSUManager::handleLowerMsg(cMessage* msg)
 
 void ApplRSUManager::executeEachTimeStep(bool simulationDone)
 {
-    ApplRSUCLASSIFY::executeEachTimeStep(simulationDone);
+    ApplRSUAID::executeEachTimeStep(simulationDone);
 }
 
 
 void ApplRSUManager::onBeaconVehicle(BeaconVehicle* wsm)
 {
-    ApplRSUCLASSIFY::onBeaconVehicle(wsm);
+    ApplRSUAID::onBeaconVehicle(wsm);
 }
 
 
 void ApplRSUManager::onBeaconBicycle(BeaconBicycle* wsm)
 {
-    ApplRSUCLASSIFY::onBeaconBicycle(wsm);
+    ApplRSUAID::onBeaconBicycle(wsm);
 }
 
 
 void ApplRSUManager::onBeaconPedestrian(BeaconPedestrian* wsm)
 {
-    ApplRSUCLASSIFY::onBeaconPedestrian(wsm);
+    ApplRSUAID::onBeaconPedestrian(wsm);
 }
 
 
 void ApplRSUManager::onBeaconRSU(BeaconRSU* wsm)
 {
-    ApplRSUCLASSIFY::onBeaconRSU(wsm);
+    ApplRSUAID::onBeaconRSU(wsm);
 }
 
 
 void ApplRSUManager::onData(LaneChangeMsg* wsm)
 {
-    ApplRSUCLASSIFY::onData(wsm);
+    ApplRSUAID::onData(wsm);
 }
 
 }

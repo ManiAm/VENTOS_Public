@@ -87,7 +87,7 @@ void TrafficLight_LQF_MWM::initialize(int stage)
 
     if(stage == 0)
     {
-        // turn on active detection
+        // turn on active detection (if its not on)
         activeDetection = true;
         this->par("activeDetection") = true;
 

@@ -91,26 +91,20 @@ class ApplRSUMonitor : public ApplRSUBase
         virtual void UpdateLaneInfoAdd(std::string lane, std::string sender, std::string senderType, double speed);
         virtual void UpdateLaneInfoRemove(std::string counter, std::string sender);
 
-        // virtual method implemented by ApplRSU_05_Classify
-        virtual void addInputToClassifier(std::string, Coord, double);
-
 	private:
         void setDetectionRegion();
         template <typename T> void onBeaconAny(T wsm);
         static void saveVehApproach();
 
 	protected:
-        bool classifier;
-
-        // keeping track of detected vehicles (common in all RSUs)
-        static std::vector<detectedVehicleEntry> Vec_detectedVehicles;
-
-	private:
         bool monitorVehApproach;
         bool collectVehApproach;
 
         // all incoming lanes for the intersection that this RSU belongs to
         std::map<std::string /*lane*/, std::string /*TLid*/> lanesTL;
+
+        // keeping track of detected vehicles (common in all RSUs)
+        static std::vector<detectedVehicleEntry> Vec_detectedVehicles;
 };
 
 }
