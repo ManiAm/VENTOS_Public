@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    ApplRSU_03_AID.cc
+/// @file    ApplRSU_05_AID.cc
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    August 2013
@@ -25,7 +25,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "ApplRSU_03_AID.h"
+#include "ApplRSU_05_AID.h"
 #include <boost/tokenizer.hpp>
 
 namespace VENTOS {
@@ -43,7 +43,7 @@ ApplRSUAID::~ApplRSUAID()
 
 void ApplRSUAID::initialize(int stage)
 {
-    ApplRSUMonitor::initialize(stage);
+    ApplRSUCLASSIFY::initialize(stage);
 
     if (stage==0)
     {
@@ -62,19 +62,19 @@ void ApplRSUAID::initialize(int stage)
 
 void ApplRSUAID::finish()
 {
-    ApplRSUMonitor::finish();
+    ApplRSUCLASSIFY::finish();
 }
 
 
 void ApplRSUAID::handleSelfMsg(cMessage* msg)
 {
-    ApplRSUMonitor::handleSelfMsg(msg);
+    ApplRSUCLASSIFY::handleSelfMsg(msg);
 }
 
 
 void ApplRSUAID::executeEachTimeStep(bool simulationDone)
 {
-    ApplRSUMonitor::executeEachTimeStep(simulationDone);
+    ApplRSUCLASSIFY::executeEachTimeStep(simulationDone);
 
     // only RSU[0] executes this
     if( enableAID && printIncidentDetection && std::string("RSU[0]") == myFullId )
@@ -114,31 +114,31 @@ void ApplRSUAID::incidentDetectionToFile()
 
 void ApplRSUAID::onBeaconVehicle(BeaconVehicle* wsm)
 {
-    ApplRSUMonitor::onBeaconVehicle(wsm);
+    ApplRSUCLASSIFY::onBeaconVehicle(wsm);
 }
 
 
 void ApplRSUAID::onBeaconBicycle(BeaconBicycle* wsm)
 {
-    ApplRSUMonitor::onBeaconBicycle(wsm);
+    ApplRSUCLASSIFY::onBeaconBicycle(wsm);
 }
 
 
 void ApplRSUAID::onBeaconPedestrian(BeaconPedestrian* wsm)
 {
-    ApplRSUMonitor::onBeaconPedestrian(wsm);
+    ApplRSUCLASSIFY::onBeaconPedestrian(wsm);
 }
 
 
 void ApplRSUAID::onBeaconRSU(BeaconRSU* wsm)
 {
-    ApplRSUMonitor::onBeaconRSU(wsm);
+    ApplRSUCLASSIFY::onBeaconRSU(wsm);
 }
 
 
 void ApplRSUAID::onData(LaneChangeMsg* wsm)
 {
-    ApplRSUMonitor::onData(wsm);
+    ApplRSUCLASSIFY::onData(wsm);
 
     if(!enableAID)
         return;

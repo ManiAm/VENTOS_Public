@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    ApplRSU_03_AID.h
+/// @file    ApplRSU_05_AID.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    August 2013
@@ -28,11 +28,11 @@
 #ifndef APPLRSUAID_H_
 #define APPLRSUAID_H_
 
-#include "ApplRSU_02_Monitor.h"
+#include "ApplRSU_04_Classify.h"
 
 namespace VENTOS {
 
-class ApplRSUAID : public ApplRSUMonitor
+class ApplRSUAID : public ApplRSUCLASSIFY
 {
 	public:
 		~ApplRSUAID();

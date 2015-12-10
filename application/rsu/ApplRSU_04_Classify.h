@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    ApplRSU_05_Classify.h
+/// @file    ApplRSU_04_Classify.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    Nov 2015
@@ -28,7 +28,7 @@
 #ifndef APPLRSUCLASSIFY_H_
 #define APPLRSUCLASSIFY_H_
 
-#include "ApplRSU_04_ActiveTL.h"
+#include "ApplRSU_03_ActiveTL.h"
 
 //#undef ev
 //#include "dlib/svm_threaded.h"
@@ -36,6 +36,21 @@
 //#define ev  (*cSimulation::getActiveEnvir())
 
 namespace VENTOS {
+
+class feature
+{
+public:
+    double xPos;
+    double yPos;
+    double speed;
+
+    feature(double x, double y, double z)
+    {
+        this->xPos = x;
+        this->yPos = y;
+        this->speed = z;
+    }
+};
 
 //// data type for 2-dimensional data
 //typedef dlib::matrix<double,2,1> sample_type_2D;
@@ -60,16 +75,17 @@ class ApplRSUCLASSIFY : public ApplRSUTLVANET
         virtual void onBeaconRSU(BeaconRSU*);
         virtual void onData(LaneChangeMsg*);
 
-        virtual void addInputToClassifier(std::string, Coord, double);
-
 	private:
+        void initializeGnuPlot();
+        template <typename T> void onBeaconAny(T wsm);
       //  void generate_data(std::vector<sample_type_2D>& samples, std::vector<double>& labels);
       //  void generate_data_3D(std::vector<sample_type_3D>& samples, std::vector<double>& labels);
         void classifierF();
 
 	private:
+        bool classifier;
         FILE *pipe;
-        const boost::filesystem::path vehApproachFilePath = "results/gui/vehApproach.txt";
+        std::vector<feature> dataSet [3];
 };
 
 }

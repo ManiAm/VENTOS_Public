@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    ApplRSU_05_Classify.cc
+/// @file    ApplRSU_04_Classify.cc
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    Nov 2015
@@ -25,7 +25,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "ApplRSU_05_Classify.h"
+#include "ApplRSU_04_Classify.h"
 #include <Plotter.h>
 
 #undef ev
@@ -58,58 +58,28 @@ void ApplRSUCLASSIFY::initialize(int stage)
 
     if (stage==0)
     {
+        classifier = par("classifier").boolValue();
         if(!classifier)
             return;
+
+        // we need this RSU to be associated with a TL
+        if(myTLid == "")
+            error("The id of %s does not match with any TL. Check RSUsLocation.xml file!", myFullId);
+
+        // for each incoming lane in this TL
+        std::list<std::string> lan = TraCI->TLGetControlledLanes(myTLid);
+
+        // remove duplicate entries
+        lan.unique();
+
+        // for each incoming lane
+        for(std::list<std::string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
+            lanesTL[*it2] = myTLid;
 
         pipe = NULL;
 
         if(ev.isGUI())
-        {
-            // get a pointer to the plotter module
-            cModule *pmodule = simulation.getSystemModule()->getSubmodule("plotter");
-
-            if(pmodule != NULL)
-            {
-                // check if plotter in on
-                if(pmodule->par("on").boolValue())
-                {
-                    // get a pointer to the class
-                    Plotter *plotterPtr = static_cast<Plotter *>(pmodule);
-
-                    if(plotterPtr != NULL)
-                        pipe = plotterPtr->pipe;
-                }
-            }
-
-            if(pipe != NULL)
-            {
-                // set title name
-                fprintf(pipe, "set title 'Sample Points' \n");
-
-                // set axis labels
-                fprintf(pipe, "set xlabel 'X pos' offset -5 \n");
-                fprintf(pipe, "set ylabel 'Y pos' offset 3 \n");
-                fprintf(pipe, "set zlabel 'Approach Speed' offset -2 rotate left \n");
-
-                // change ticks
-                fprintf(pipe, "set xtics 20 \n");
-                fprintf(pipe, "set ytics 20 \n");
-
-                // set grid and border
-                fprintf(pipe, "set grid \n");
-                fprintf(pipe, "set border 4095 \n");
-
-                // set agenda location
-                fprintf(pipe, "set key outside right top box \n");
-
-                // define line style
-                fprintf(pipe, "set style line 1 pointtype 7 pointsize 1 lc rgb 'red'  \n");
-                fprintf(pipe, "set style line 2 pointtype 7 pointsize 1 lc rgb 'green' \n");
-                fprintf(pipe, "set style line 3 pointtype 7 pointsize 1 lc rgb 'blue' \n");
-
-                fflush(pipe);
-            }
-        }
+            initializeGnuPlot();
 
         classifierF();
     }
@@ -137,18 +107,27 @@ void ApplRSUCLASSIFY::executeEachTimeStep(bool simulationDone)
 void ApplRSUCLASSIFY::onBeaconVehicle(BeaconVehicle* wsm)
 {
     ApplRSUTLVANET::onBeaconVehicle(wsm);
+
+    if (classifier)
+        onBeaconAny(wsm);
 }
 
 
 void ApplRSUCLASSIFY::onBeaconBicycle(BeaconBicycle* wsm)
 {
     ApplRSUTLVANET::onBeaconBicycle(wsm);
+
+    if (classifier)
+        onBeaconAny(wsm);
 }
 
 
 void ApplRSUCLASSIFY::onBeaconPedestrian(BeaconPedestrian* wsm)
 {
     ApplRSUTLVANET::onBeaconPedestrian(wsm);
+
+    if (classifier)
+        onBeaconAny(wsm);
 }
 
 
@@ -164,20 +143,108 @@ void ApplRSUCLASSIFY::onData(LaneChangeMsg* wsm)
 }
 
 
-// add each instance of input vector (posX, posY, speed) to the dataset and plot it
-void ApplRSUCLASSIFY::addInputToClassifier(std::string type, Coord pos, double speed)
+void ApplRSUCLASSIFY::initializeGnuPlot()
 {
-    // draw a new plot from the updated vehApproach file
-    if(pipe != NULL && ev.isGUI() && boost::filesystem::exists(vehApproachFilePath))
+    // get a pointer to the plotter module
+    cModule *pmodule = simulation.getSystemModule()->getSubmodule("plotter");
+
+    if(pmodule != NULL)
     {
-        fprintf(pipe, "splot '%s' index 0 using 4:5:8 with points ls 1 title 'Class 1',", vehApproachFilePath.string().c_str());
-        fprintf(pipe, "      ''   index 1 using 4:5:8 with points ls 2 title 'Class 2',");
-        fprintf(pipe, "      ''   index 2 using 4:5:8 with points ls 3 title 'Class 3' \n");
+        // check if plotter in on
+        if(pmodule->par("on").boolValue())
+        {
+            // get a pointer to the class
+            Plotter *plotterPtr = static_cast<Plotter *>(pmodule);
+
+            if(plotterPtr != NULL)
+                pipe = plotterPtr->pipe;
+        }
+    }
+
+    if(pipe != NULL)
+    {
+        // set title name
+        fprintf(pipe, "set title 'Sample Points' \n");
+
+        // set axis labels
+        fprintf(pipe, "set xlabel 'X pos' offset -5 \n");
+        fprintf(pipe, "set ylabel 'Y pos' offset 3 \n");
+        fprintf(pipe, "set zlabel 'Speed' offset -2 rotate left \n");
+
+        // change ticks
+     //   fprintf(pipe, "set xtics 20 \n");
+     //   fprintf(pipe, "set ytics 20 \n");
+
+        // set range
+        fprintf(pipe, "set yrange [894 902] \n");
+
+        // set grid and border
+        fprintf(pipe, "set grid \n");
+        fprintf(pipe, "set border 4095 \n");
+
+        // set agenda location
+        fprintf(pipe, "set key outside right top box \n");
+
+        // define line style
+        fprintf(pipe, "set style line 1 pointtype 7 pointsize 1 lc rgb 'red'  \n");
+        fprintf(pipe, "set style line 2 pointtype 7 pointsize 1 lc rgb 'green' \n");
+        fprintf(pipe, "set style line 3 pointtype 7 pointsize 1 lc rgb 'blue' \n");
 
         fflush(pipe);
     }
+}
 
 
+// update variables upon reception of any beacon (vehicle, bike, pedestrian)
+template <typename T> void ApplRSUCLASSIFY::onBeaconAny(T wsm)
+{
+    std::string sender = wsm->getSender();
+    Coord pos = wsm->getPos();
+
+    // If in the detection region:
+    // todo: change from fix values
+    // coordinates are the exact location of the middle of the LD
+    if ( (pos.x >= 851.1 /*x-pos of west LD*/) && (pos.x <= 948.8 /*x-pos of east LD*/) && (pos.y >= 851.1 /*y-pos of north LD*/) && (pos.y <= 948.8 /*y-pos of north LD*/) )
+    {
+        std::string lane = wsm->getLane();
+
+        // If on one of the incoming lanes
+        if(lanesTL.find(lane) != lanesTL.end() && lanesTL[lane] == myTLid && lane.find("WC") != std::string::npos )
+        {
+            feature *tmp = new feature(pos.x, pos.y, wsm->getSpeed());
+
+            // add each instance of input vector (posX, posY, speed) to the dataset
+            if(std::string(wsm->getSenderType()) == "passenger")
+                dataSet[0].push_back(*tmp);  // class 1
+            else if(std::string(wsm->getSenderType()) == "bicycle")
+                dataSet[1].push_back(*tmp);  // class 2
+            else if(std::string(wsm->getSenderType()) == "pedestrian")
+                dataSet[2].push_back(*tmp);  // class 3
+
+            // draw the dataset on gnuplot
+            if(pipe != NULL && ev.isGUI())
+            {
+                // create a data block out of dataset
+                fprintf(pipe, "$data << EOD \n");
+                for(auto &i : dataSet[0])
+                    fprintf(pipe, "%f  %f  %f \n", i.xPos, i.yPos, i.speed);
+                fprintf(pipe, "\n\n \n");
+                for(auto &i : dataSet[1])
+                    fprintf(pipe, "%f  %f  %f \n", i.xPos, i.yPos, i.speed);
+                fprintf(pipe, "\n\n \n");
+                for(auto &i : dataSet[2])
+                    fprintf(pipe, "%f  %f  %f \n", i.xPos, i.yPos, i.speed);
+                fprintf(pipe, "EOD \n");
+
+                // make plot
+                fprintf(pipe, "splot '$data' index 0 using 1:2:3 with points ls 1 title 'Class 1',");
+                fprintf(pipe, "      ''      index 1 using 1:2:3 with points ls 2 title 'Class 2',");
+                fprintf(pipe, "      ''      index 2 using 1:2:3 with points ls 3 title 'Class 3' \n");
+
+                fflush(pipe);
+            }
+        }
+    }
 }
 
 

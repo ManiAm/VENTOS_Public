@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    ApplRSU_04_ActiveTL.h
+/// @file    ApplRSU_03_ActiveTL.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    August 2013
@@ -28,7 +28,7 @@
 #ifndef APPLRSUTLVANET_H_
 #define APPLRSUTLVANET_H_
 
-#include "ApplRSU_03_AID.h"
+#include "ApplRSU_02_Monitor.h"
 
 namespace VENTOS {
 
@@ -70,7 +70,7 @@ public:
 };
 
 
-class ApplRSUTLVANET : public ApplRSUAID
+class ApplRSUTLVANET : public ApplRSUMonitor
 {
 public:
     ~ApplRSUTLVANET();

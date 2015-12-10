@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    ApplRSU_04_ActiveTL.cc
+/// @file    ApplRSU_03_ActiveTL.cc
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    August 2013
@@ -25,7 +25,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "ApplRSU_04_ActiveTL.h"
+#include "ApplRSU_03_ActiveTL.h"
 
 namespace VENTOS {
 
@@ -39,27 +39,24 @@ ApplRSUTLVANET::~ApplRSUTLVANET()
 
 void ApplRSUTLVANET::initialize(int stage)
 {
-    ApplRSUAID::initialize(stage);
+    ApplRSUMonitor::initialize(stage);
 
     if (stage==0)
     {
         if (!activeDetection)
             return;
 
+        if(!monitorVehApproach)
+            error("monitorVehApproach flag is not set!");
+
         // we need this RSU to be associated with a TL
         if(myTLid == "")
             error("The id of %s does not match with any TL. Check RSUsLocation.xml file!", myFullId);
 
-        // for each incoming lane in this TL
-        std::list<std::string> lan = TraCI->TLGetControlledLanes(myTLid);
-
-        // remove duplicate entries
-        lan.unique();
-
         // for each incoming lane
-        for(std::list<std::string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
+        for(auto &it2 : lanesTL)
         {
-            std::string lane = *it2;
+            std::string lane = it2.first;
 
             // get the max speed on this lane
             double maxV = TraCI->laneGetMaxSpeed(lane);
@@ -85,49 +82,49 @@ void ApplRSUTLVANET::initialize(int stage)
 
 void ApplRSUTLVANET::finish()
 {
-    ApplRSUAID::finish();
+    ApplRSUMonitor::finish();
 }
 
 
 void ApplRSUTLVANET::handleSelfMsg(cMessage* msg)
 {
-    ApplRSUAID::handleSelfMsg(msg);
+    ApplRSUMonitor::handleSelfMsg(msg);
 }
 
 
 void ApplRSUTLVANET::executeEachTimeStep(bool simulationDone)
 {
-    ApplRSUAID::executeEachTimeStep(simulationDone);
+    ApplRSUMonitor::executeEachTimeStep(simulationDone);
 }
 
 
 void ApplRSUTLVANET::onBeaconVehicle(BeaconVehicle* wsm)
 {
-    ApplRSUAID::onBeaconVehicle(wsm);
+    ApplRSUMonitor::onBeaconVehicle(wsm);
 }
 
 
 void ApplRSUTLVANET::onBeaconBicycle(BeaconBicycle* wsm)
 {
-    ApplRSUAID::onBeaconBicycle(wsm);
+    ApplRSUMonitor::onBeaconBicycle(wsm);
 }
 
 
 void ApplRSUTLVANET::onBeaconPedestrian(BeaconPedestrian* wsm)
 {
-    ApplRSUAID::onBeaconPedestrian(wsm);
+    ApplRSUMonitor::onBeaconPedestrian(wsm);
 }
 
 
 void ApplRSUTLVANET::onBeaconRSU(BeaconRSU* wsm)
 {
-    ApplRSUAID::onBeaconRSU(wsm);
+    ApplRSUMonitor::onBeaconRSU(wsm);
 }
 
 
 void ApplRSUTLVANET::onData(LaneChangeMsg* wsm)
 {
-    ApplRSUAID::onData(wsm);
+    ApplRSUMonitor::onData(wsm);
 }
 
 
