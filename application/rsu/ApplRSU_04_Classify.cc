@@ -176,7 +176,7 @@ void ApplRSUCLASSIFY::initializeGnuPlot()
      //   fprintf(pipe, "set ytics 20 \n");
 
         // set range
-        fprintf(pipe, "set yrange [894 902] \n");
+     //   fprintf(pipe, "set yrange [885:902] \n");
 
         // set grid and border
         fprintf(pipe, "set grid \n");

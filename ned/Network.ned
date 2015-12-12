@@ -96,6 +96,10 @@ network Network
             parameters:
                 @display("p=274,546;i=block/app");
         }
+        sniff: Sniff {
+            parameters:
+                @display("p=355,546;i=block/app");
+        }
 
     connections allowunconnected:
 }

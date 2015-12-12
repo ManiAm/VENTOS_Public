@@ -116,7 +116,7 @@ Import VENTOS
 
 **Step 1:** Make sure you have these packages installed on your Ubuntu 14 machine:
 
-    sudo apt-get install libboost-system1.54-dev libboost-filesystem1.54-dev libssl-dev libcurl4-gnutls-dev libxerces-c2-dev libfox-1.6-dev libproj-dev gnuplot gnuplot-x11 
+    sudo apt-get install libboost-system1.54-dev libboost-filesystem1.54-dev libssl-dev libcurl4-gnutls-dev libxerces-c2-dev libfox-1.6-dev libproj-dev libpcap-dev gnuplot gnuplot-x11 
     
 **Step 2:** Download snmp++ API from [here](http://www.agentpp.com/download/snmp++-3.3.5.tar.gz). Extract it and then build the library:
 
@@ -212,8 +212,13 @@ The terminal should look like the following picture. The script will print `List
 
 Now you can use sumo-cmd and sumo-gui commands instead!
 
+**Step 3:** libpcap library is used to sniff packets from network interfaces. We need to give permission to opp_run to be able to access the network interfaces. One approach is to give opp_run root access. A better approach is to use the following command (check [here](http://packetlife.net/blog/2010/mar/19/sniffing-wireshark-non-root-user/)):
 
-**Step 3:** Run the VENTOS project by right clicking on the project name in the IDE and choose: 
+    sudo setcap cap_net_raw,cap_net_admin=eip /home/mani/Desktop/omnetpp-4.6/bin/opp_run
+
+Note that you need to change the path to opp_run accordingly.
+
+**Step 4:** Run the VENTOS project by right clicking on the project name in the IDE and choose: 
 
     "Run as" -> "Run configurations..."
 
