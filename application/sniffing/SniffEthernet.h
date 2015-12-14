@@ -68,7 +68,8 @@ private:
     void startSniffing();
 
     static void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet);
-    static const char * formatMACaddress(const unsigned char MACData[]);
+    static const char* formatTime(struct timeval ts);
+    static const char* formatMACaddress(const unsigned char MACData[]);
     static const char* MACtoOUI(const unsigned char MACData[]);
     static void processIPv4(const u_char *packet);
     static void processIPv6(const u_char *packet);

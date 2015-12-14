@@ -113,6 +113,21 @@ void SniffEthernet::listInterfaces()
 }
 
 
+const char * SniffEthernet::formatTime(struct timeval ts)
+{
+    int hour = (long long)ts.tv_sec / 100000000;
+    int remain = (long long)ts.tv_sec % 100000000;
+    int min = remain / 1000000;
+    remain = remain % 1000000;
+    int sec = remain / 10000;
+
+    char *buffer = new char[60];
+    sprintf(buffer, "%d:%d:%d.%-6ld", hour, min, sec, ts.tv_usec);
+
+    return buffer;
+}
+
+
 void SniffEthernet::getOUI()
 {
     // OUI is downloaded from https://www.wireshark.org/tools/oui-lookup.html
@@ -273,16 +288,10 @@ void SniffEthernet::got_packet(u_char *args, const struct pcap_pkthdr *header, c
 {
     static int count = 1;  /* packet counter */
 
-    printf("\nFrame #%-3d--> ", count);
+    printf("\n#%-3d %s \n", count, formatTime(header->ts));
     count++;
 
-    // print time stamp
-    int hour = (long long)header->ts.tv_sec / 100000000;
-    int remain = (long long)header->ts.tv_sec % 100000000;
-    int min = remain / 1000000;
-    remain = remain % 1000000;
-    int sec = remain / 10000;
-    printf("Time: %d:%d:%d.%-6ld, ", hour, min, sec, header->ts.tv_usec);
+    printf("Ethernet Frame --> ");
 
     /* define Ethernet header */
     const struct ether_header *p = (struct ether_header*)(packet);
