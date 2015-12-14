@@ -33,21 +33,16 @@
 #include "TraCI_Extend.h"
 #include "pcap.h"
 
-#include <netinet/in.h>
+#include <arpa/inet.h>     // inet_ntoa
+#include <ifaddrs.h>       // ifaddrs
+#include <net/ethernet.h>  // ether_header, ETHER_ADDR_LEN, ETHER_HDR_LEN
+
 #include <netinet/if_ether.h>    // ether_arp
 #include <netinet/ip.h>          // iphdr
 #include <netinet/ip6.h>         // ipv6hdr
 #include <netinet/tcp.h>         // tcphdr
 #include <netinet/udp.h>         // udphdr
 #include <netinet/ip_icmp.h>     // icmphdr
-
-#include <arpa/inet.h>
-#include <sys/socket.h>
-#include <ifaddrs.h>
-#include <net/ethernet.h>  // ether_header, ETHER_ADDR_LEN, ETHER_HDR_LEN
-
-
-#include <netdb.h>      // Needed for the socket functions
 
 namespace VENTOS {
 
@@ -69,18 +64,22 @@ private:
     void startSniffing();
 
     static void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet);
+
     static const char* formatTime(struct timeval ts);
     static const char* formatMACaddress(const unsigned char MACData[]);
     static const char* formatIPaddressMAC(const unsigned char addr[]);
     static const char* formatIPaddress(u_int32_t addr);
+
     static const char* MACtoOUI(const unsigned char MACData[]);
+    static const char* portToApplication(int port);
+
     static void processARP(const u_char *packet);
     static void processIPv4(const u_char *packet);
     static void processIPv6(const u_char *packet);
-    static const char* portToApplication(int port);
     static void processTCP(const u_char *packet, const struct iphdr *ip);
     static void processUDP(const u_char *packet, const struct iphdr *ip);
     static void processICMP(const u_char *packet, const struct iphdr *ip);
+
     static void print_dataPayload(const u_char *payload, int len);
     static void print_hex_ascii_line(const u_char *payload, int len, int offset);
 
