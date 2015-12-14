@@ -1,7 +1,7 @@
 
 package c3po.ned;
 
-simple Sniff
+simple SniffEther
 {
     parameters:
         @class(VENTOS::SniffEthernet);

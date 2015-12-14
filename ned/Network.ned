@@ -96,9 +96,13 @@ network Network
             parameters:
                 @display("p=274,546;i=block/app");
         }
-        sniff: Sniff {
+        sniffEther: SniffEther {
             parameters:
                 @display("p=355,546;i=block/app");
+        }
+        sniffUSB: SniffUSB {
+            parameters:
+                @display("p=433,546;i=block/app");
         }
 
     connections allowunconnected:

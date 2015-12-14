@@ -1,8 +1,8 @@
 /****************************************************************************/
-/// @file    ApplRSU_05_AID.h
+/// @file    SniffUSB.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
-/// @date    August 2013
+/// @date    Dec 2015
 ///
 /****************************************************************************/
 // VENTOS, Vehicular Network Open Simulator; see http:?
@@ -25,39 +25,34 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef APPLRSUAID_H_
-#define APPLRSUAID_H_
+#ifndef SNIFFUSB
+#define SNIFFUSB
 
-#include "ApplRSU_04_Classify.h"
+#include <BaseApplLayer.h>
+#include <Appl.h>
+#include "TraCI_Extend.h"
+#include <libusb-1.0/libusb.h>
 
 namespace VENTOS {
 
-class ApplRSUAID : public ApplRSUCLASSIFY
+class SniffUSB : public BaseApplLayer
 {
-	public:
-		~ApplRSUAID();
-		virtual void initialize(int stage);
-		virtual void finish();
-        virtual void handleSelfMsg(cMessage* msg);
+public:
+    virtual ~SniffUSB();
+    virtual void finish();
+    virtual void initialize(int);
+    virtual void handleMessage(cMessage *);
 
-	protected:
-	    void virtual executeEachTimeStep(bool);
+private:
+    void startSniffing();
+    void printdev(libusb_device *dev);
 
-        virtual void onBeaconVehicle(BeaconVehicle*);
-        virtual void onBeaconBicycle(BeaconBicycle*);
-        virtual void onBeaconPedestrian(BeaconPedestrian*);
-        virtual void onBeaconRSU(BeaconRSU*);
-        virtual void onData(LaneChangeMsg*);
+private:
+    // NED variables
+    bool on;
 
-	private:
-        void incidentDetectionToFile();
-
-	private:
-        bool enableAID;
-        bool printIncidentDetection;
-
-        static Eigen::MatrixXi tableCount;
-        static Eigen::MatrixXd tableProb;
+    // variables
+    TraCI_Extend *TraCI;
 };
 
 }
