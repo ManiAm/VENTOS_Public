@@ -26,8 +26,13 @@
 //
 
 #include <SniffEthernet.h>
+#include "boost/format.hpp"
 
 namespace VENTOS {
+
+bool SniffEthernet::printDataPayload;
+std::map<std::string, std::string> SniffEthernet::OUI;
+std::map<int, std::string> SniffEthernet::portNumber;
 
 Define_Module(VENTOS::SniffEthernet);
 
@@ -47,15 +52,29 @@ void SniffEthernet::initialize(int stage)
             return;
 
         listInterfaces();
-        sniff2();
+
+        interface = par("interface").stdstringValue();
+
+        // check if interface is valid!
+        if(std::find(allDev.begin(), allDev.end(), interface.c_str()) == allDev.end())
+            error("%s is not a valid interface!", interface.c_str());
+
+        filter_exp = par("filter_exp").stdstringValue(); /* filter expression [3] */
+        num_packets = par("num_packets").longValue();    /* number of packets to capture.
+                                                            -1: loop forever and call got_packet for every received packet  */
+
+        printDataPayload = par("printDataPayload").boolValue();
+
+        getOUI();
+        getPortNumbers();
+        startSniffing();
     }
 }
 
 
 void SniffEthernet::finish()
 {
-    if(!on)
-        return;
+
 }
 
 
@@ -82,33 +101,128 @@ void SniffEthernet::listInterfaces()
             sa = (struct sockaddr_in *) ifa->ifa_addr;
             addr = inet_ntoa(sa->sin_addr);
             printf("Interface: %-10s  Address: %-20s \n", ifa->ifa_name, addr);
+
+            // add interface name
+            allDev.push_back(ifa->ifa_name);
         }
     }
 
-    std::cout << std::endl;
-
     freeifaddrs(ifap);
+
+    std::cout.flush();
 }
 
 
-void SniffEthernet::sniff2()
+void SniffEthernet::getOUI()
 {
-    const char *dev = std::string("eth0").c_str();
-    char filter_exp[] = "ip";       /* filter expression [3] */
-    int num_packets = 10;           /* number of packets to capture */
-    char errbuf[PCAP_ERRBUF_SIZE];  /* error buffer */
+    // OUI is downloaded from https://www.wireshark.org/tools/oui-lookup.html
+    boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+    boost::filesystem::path manuf_FullPath = VENTOS_FullPath / "sniff_manuf";
 
-    /* print capture info */
-    printf("Device: %s\n", dev);
-    printf("Number of packets: %d\n", num_packets);
-    printf("Filter expression: %s\n", filter_exp);
+    std::ifstream in(manuf_FullPath.string().c_str());
+    if(in == NULL)
+        error("cannot open file sniff_manuf at %s", manuf_FullPath.string().c_str());
+
+    std::string line;
+    while(getline(in, line))
+    {
+        std::vector<std::string> lineToken = cStringTokenizer(line.c_str()).asVector();
+
+        if(lineToken.size() < 2)
+            continue;
+
+        auto it = OUI.find(lineToken[0]);
+        if(it == OUI.end())
+            OUI[lineToken[0]] = lineToken[1];
+    }
+}
+
+
+const char * SniffEthernet::MACtoOUI(const unsigned char MACData[])
+{
+    boost::format fmt("%02X:%02X:%02X");
+
+    for (int i = 0; i != 3; ++i)
+        fmt % static_cast<unsigned int>(MACData[i]);
+
+    std::string firstThreeOctet =  fmt.str();
+
+    auto it = OUI.find(firstThreeOctet);
+    if(it != OUI.end())
+        return (it->second).c_str();
+    else
+        return "?";
+}
+
+
+const char * SniffEthernet::formatMACaddress(const unsigned char MACData[])
+{
+    boost::format fmt("%02X:%02X:%02X:%02X:%02X:%02X");
+
+    for (int i = 0; i != 6; ++i)
+        fmt % static_cast<unsigned int>(MACData[i]);
+
+    return fmt.str().c_str();
+}
+
+
+void SniffEthernet::getPortNumbers()
+{
+    // services files in Linux is in /etc/services
+    boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+    boost::filesystem::path services_FullPath = VENTOS_FullPath / "sniff_services";
+
+    std::ifstream in(services_FullPath.string().c_str());
+    if(in == NULL)
+        error("cannot open file sniff_services at %s", services_FullPath.string().c_str());
+
+    std::string line;
+    while(getline(in, line))
+    {
+        std::vector<std::string> lineToken = cStringTokenizer(line.c_str()).asVector();
+
+        if(lineToken.size() < 2)
+            continue;
+
+        std::vector<std::string> port_prot = cStringTokenizer(lineToken[1].c_str(), "/").asVector();
+
+        if(port_prot.size() != 2)
+            continue;
+
+        try
+        {
+            auto it = portNumber.find(std::stoi(port_prot[0]));
+            if(it == portNumber.end())
+                portNumber[std::stoi(port_prot[0])] = lineToken[0];
+        }
+        catch(std::exception e)
+        {
+            // do nothing!
+        }
+    }
+}
+
+
+const char * SniffEthernet::portToApplication(int port)
+{
+    auto it = portNumber.find(port);
+
+    if(it != portNumber.end())
+        return (it->second).c_str();
+    else return "?";
+}
+
+
+void SniffEthernet::startSniffing()
+{
+    char errbuf[PCAP_ERRBUF_SIZE];  /* error buffer */
 
     /* get network number and mask associated with capture device */
     bpf_u_int32 net;    /* ip address */
     bpf_u_int32 mask;   /* subnet mask */
-    if (pcap_lookupnet(dev, &net, &mask, errbuf) == -1)
+    if (pcap_lookupnet(interface.c_str(), &net, &mask, errbuf) == -1)
     {
-        fprintf(stderr, "Couldn't get netmask for device %s: %s\n", dev, errbuf);
+        fprintf(stderr, "Couldn't get netmask for device %s: %s\n", interface.c_str(), errbuf);
         net = 0;
         mask = 0;
     }
@@ -124,22 +238,25 @@ void SniffEthernet::sniff2()
     Note if you change "prmisc" param to anything other than zero, you will
     get all packets your device sees, whether they are intended for you or not!! */
     pcap_t *handle;
-    handle = pcap_open_live(dev, SNAP_LEN, 1, 1000, errbuf);
+    handle = pcap_open_live(interface.c_str(), SNAP_LEN, 1, 1000, errbuf);
     if (handle == NULL)
-        error("Couldn't open device %s: %s\n", dev, errbuf);
+        error("Couldn't open device %s: %s\n", interface.c_str(), errbuf);
 
     /* make sure we're capturing on an Ethernet device [2] */
     if (pcap_datalink(handle) != DLT_EN10MB)
-        error("%s is not an Ethernet", dev);
+        error("%s is not an Ethernet", interface.c_str());
 
     /* compile the filter expression */
     struct bpf_program fp;
-    if (pcap_compile(handle, &fp, filter_exp, 0, net) == -1)
-        error("Couldn't parse filter %s: %s\n", filter_exp, pcap_geterr(handle));
+    if (pcap_compile(handle, &fp, filter_exp.c_str(), 0, net) == -1)
+        error("Couldn't parse filter %s: %s\n", filter_exp.c_str(), pcap_geterr(handle));
 
     /* apply the compiled filter */
     if (pcap_setfilter(handle, &fp) == -1)
-        error("Couldn't install filter %s: %s\n", filter_exp, pcap_geterr(handle));
+        error("Couldn't install filter %s: %s\n", filter_exp.c_str(), pcap_geterr(handle));
+
+    // flush everything we have before entering loop
+    std::cout.flush();
 
     /* now we can set our callback function */
     pcap_loop(handle, num_packets, SniffEthernet::got_packet, NULL);
@@ -152,92 +269,214 @@ void SniffEthernet::sniff2()
 }
 
 
-/* dissect/print packet */
 void SniffEthernet::got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet)
 {
     static int count = 1;  /* packet counter */
 
-    printf("\nPacket number %d:\n", count);
+    printf("\nFrame #%-3d--> ", count);
     count++;
 
-    /* define ethernet header */
-    const struct sniff_ethernet *ethernet = (struct sniff_ethernet*)(packet);
+    // print time stamp
+    int hour = (long long)header->ts.tv_sec / 100000000;
+    int remain = (long long)header->ts.tv_sec % 100000000;
+    int min = remain / 1000000;
+    remain = remain % 1000000;
+    int sec = remain / 10000;
+    printf("Time: %d:%d:%d.%-6ld, ", hour, min, sec, header->ts.tv_usec);
 
-    /* define/compute ip header offset */
-    const struct sniff_ip *ip = (struct sniff_ip*)(packet + SIZE_ETHERNET);
-    int size_ip = IP_HL(ip)*4;
-    if (size_ip < 20)
+    /* define Ethernet header */
+    const struct ether_header *p = (struct ether_header*)(packet);
+
+    /* what packet type we have..*/
+    if (ntohs (p->ether_type) == ETHERTYPE_ARP)
     {
-        printf("   * Invalid IP header length: %u bytes\n", size_ip);
+        printf("Src MAC: %s (%s), ", formatMACaddress(p->ether_shost), MACtoOUI(p->ether_shost));
+        printf("Dst MAC: %s (%s), ", formatMACaddress(p->ether_dhost), MACtoOUI(p->ether_dhost));
+        printf("Type: ETHERTYPE_ARP \n");
         return;
     }
+    else if (ntohs (p->ether_type) == ETHERTYPE_IP)
+    {
+        printf("Src MAC: %s (%s), ", formatMACaddress(p->ether_shost), MACtoOUI(p->ether_shost));
+        printf("Dst MAC: %s (%s), ", formatMACaddress(p->ether_dhost), MACtoOUI(p->ether_dhost));
+        printf("Type: ETHERTYPE_IP \n");
+    }
+    else  if (ntohs (p->ether_type) == ETHERTYPE_IPV6)
+    {
+        printf("Src MAC: %s (%s), ", formatMACaddress(p->ether_shost), MACtoOUI(p->ether_shost));
+        printf("Dst MAC: %s (%s), ", formatMACaddress(p->ether_dhost), MACtoOUI(p->ether_dhost));
+        printf("Type: ETHERTYPE_IPV6 \n");
+    }
+    else
+    {
+        printf("Invalid Ethernet type %x", ntohs(p->ether_type));
+        return;
+    }
+
+    const struct iphdr *ip = (struct iphdr*)(packet + ETHER_HDR_LEN);
+
+    if(ip->version == 4)
+        processIPv4(packet);
+    else if(ip->version == 6)
+        processIPv6(packet);
+    else
+    {
+        printf("    Invalid IP version number: %u ", ip->version);
+        return;
+    }
+
+    std::cout.flush();
+}
+
+
+void SniffEthernet::processIPv4(const u_char *packet)
+{
+    const struct iphdr *ip = (struct iphdr*)(packet + ETHER_HDR_LEN);
+
+    int size_ip = ip->ihl * 4;  // size in byte
+    if (size_ip < 20) // minimum ipv4 header size is 20 bytes
+    {
+        printf("    Invalid IPv4 header length: %u bytes", size_ip);
+        return;
+    }
+
+    printf("    IPv4 packet --> ");
 
     /* print source and destination IP addresses */
-    printf("       From: %s\n", inet_ntoa(ip->ip_src));
-    printf("         To: %s\n", inet_ntoa(ip->ip_dst));
+    in_addr srcAdd; srcAdd.s_addr = ip->saddr;
+    in_addr dstAdd; dstAdd.s_addr = ip->daddr;
+    printf("From: %s, ", inet_ntoa(srcAdd));
+    printf("To: %s, ", inet_ntoa(dstAdd));
 
     /* determine protocol */
-    switch(ip->ip_p)
+    switch(ip->protocol)
     {
     case IPPROTO_TCP:
-        printf("   Protocol: TCP\n");
+        printf("Protocol: %s", "TCP");
+        processTCP(packet, ip);
         break;
     case IPPROTO_UDP:
-        printf("   Protocol: UDP\n");
-        return;
+        printf("Protocol: %s", "UDP");
+        processUDP(packet, ip);
+        break;
     case IPPROTO_ICMP:
-        printf("   Protocol: ICMP\n");
-        return;
-    case IPPROTO_IP:
-        printf("   Protocol: IP\n");
-        return;
+        printf("Protocol: %s", "ICMP");
+        processICMP(packet, ip);
+        break;
     default:
-        printf("   Protocol: unknown\n");
-        return;
-    }
-
-    /* OK, this packet is TCP */
-
-    /* define/compute tcp header offset */
-    const struct sniff_tcp *tcp;
-    tcp = (struct sniff_tcp*)(packet + SIZE_ETHERNET + size_ip);
-    int size_tcp = TH_OFF(tcp)*4;
-    if (size_tcp < 20)
-    {
-        printf("   * Invalid TCP header length: %u bytes\n", size_tcp);
-        return;
-    }
-
-    printf("   Src port: %d\n", ntohs(tcp->th_sport));
-    printf("   Dst port: %d\n", ntohs(tcp->th_dport));
-
-    /* define/compute tcp payload (segment) offset */
-    const u_char *payload;
-    payload = (const u_char *)(packet + SIZE_ETHERNET + size_ip + size_tcp);
-
-    /* compute tcp payload (segment) size */
-    int size_payload = ntohs(ip->ip_len) - (size_ip + size_tcp);
-
-    /* Print payload data; it might be binary, so don't just treat it as a string. */
-    if (size_payload > 0)
-    {
-        printf("   Payload (%d bytes):\n", size_payload);
-        print_payload(payload, size_payload);
+        printf("Protocol: %s", "?");
+        break;
     }
 }
 
 
-/* print packet payload data (avoid printing binary data) */
-void SniffEthernet::print_payload(const u_char *payload, int len)
+void SniffEthernet::processIPv6(const u_char *packet)
 {
-    int len_rem = len;
-    int line_width = 16;            /* number of bytes per line */
-    int line_len;
-    int offset = 0;                 /* zero-based offset counter */
-    const u_char *ch = payload;
+    // const struct ip6_hdr *ipv6 = (struct ip6_hdr*)(packet + ETHER_HDR_LEN);
 
+    // IPv6 header is always 40 bytes long
+
+}
+
+
+void SniffEthernet::processTCP(const u_char *packet, const struct iphdr *ip)
+{
+    /* compute tcp header offset */
+    int size_ip = ip->ihl * 4;  // size in byte
+    const struct tcphdr *tcp = (struct tcphdr*)(packet + ETHER_HDR_LEN + size_ip);
+
+    int size_tcp = tcp->th_off * 4;
+    if (size_tcp < 20)
+    {
+        printf("\n        Invalid TCP header length: %u bytes, ", size_tcp);
+        return;
+    }
+
+    printf("\n        TCP segment --> ");
+
+    printf("Src port: %d (%s), ", ntohs(tcp->th_sport), portToApplication(ntohs(tcp->th_sport)));
+    printf("Dst port: %d (%s), ", ntohs(tcp->th_dport), portToApplication(ntohs(tcp->th_dport)));
+
+    /* compute tcp payload (segment) offset */
+    const u_char *payload = (const u_char *)(packet + ETHER_HDR_LEN + size_ip + size_tcp);
+
+    /* compute tcp payload (segment) size */
+    int size_payload = ntohs(ip->tot_len) - (size_ip + size_tcp);
+    printf("Payload (%d bytes)", size_payload);
+
+    /* Print payload data; it might be binary, so don't just treat it as a string. */
+    if (size_payload > 0 && printDataPayload)
+        print_dataPayload(payload, size_payload);
+}
+
+
+void SniffEthernet::processUDP(const u_char *packet, const struct iphdr *ip)
+{
+    /* compute udp header offset */
+    int size_ip = ip->ihl * 4;  // size in byte
+    const struct udphdr *udp = (struct udphdr*)(packet + ETHER_HDR_LEN + size_ip);
+
+    int size_udp = udp->len;  // size in byte
+    if (size_udp < 8)
+    {
+        printf("\n        Invalid UDP length: %u bytes, ", size_udp);
+        return;
+    }
+
+    printf("\n        UDP datagram --> ");
+
+    printf("Src port: %d (%s), ", ntohs(udp->uh_sport), portToApplication(ntohs(udp->uh_sport)));
+    printf("Dst port: %d (%s), ", ntohs(udp->uh_dport), portToApplication(ntohs(udp->uh_dport)));
+
+    /* compute udp payload offset */
+    const u_char *payload = (const u_char *)(packet + ETHER_HDR_LEN + size_ip + 8);
+
+    /* compute udp payload size */
+    int size_payload = ntohs(ip->tot_len) - (size_ip + 8);
+    printf("Payload (%d bytes)", size_payload);
+
+    /* Print payload data; it might be binary, so don't just treat it as a string. */
+    if (size_payload > 0 && printDataPayload)
+        print_dataPayload(payload, size_payload);
+}
+
+
+void SniffEthernet::processICMP(const u_char *packet, const struct iphdr *ip)
+{
+    /* compute icmp header offset */
+    int size_ip = ip->ihl * 4;  // size in byte
+    const struct icmphdr *icmp = (struct icmphdr*)(packet + ETHER_HDR_LEN + size_ip);
+
+    printf("\n        ICMP message --> ");
+
+    printf("Type: %d, ", icmp->type);
+    printf("Code: %d, ", icmp->code);
+
+    /* compute icmp payload offset */
+    const u_char *payload = (const u_char *)(packet + ETHER_HDR_LEN + size_ip + 8);
+
+    /* compute icmp payload size */
+    int size_payload = ntohs(ip->tot_len) - (size_ip + 8);
+    printf("Payload (%d bytes)", size_payload);
+
+    /* Print payload data; it might be binary, so don't just treat it as a string. */
+    if (size_payload > 0 && printDataPayload)
+        print_dataPayload(payload, size_payload);
+}
+
+
+/* print packet payload data (avoid printing binary data) */
+void SniffEthernet::print_dataPayload(const u_char *payload, int len)
+{
+    // double-check again
     if (len <= 0)
         return;
+
+    printf("\n");
+
+    int line_width = 16;   /* number of bytes per line */
+    int offset = 0;        /* zero-based offset counter */
+    const u_char *ch = payload;
 
     /* data fits on one line */
     if (len <= line_width)
@@ -246,19 +485,27 @@ void SniffEthernet::print_payload(const u_char *payload, int len)
         return;
     }
 
+    int len_rem = len;
+    int line_len;
+
     /* data spans multiple lines */
     for ( ;; )
     {
         /* compute current line length */
         line_len = line_width % len_rem;
+
         /* print line */
         print_hex_ascii_line(ch, line_len, offset);
+
         /* compute total remaining */
         len_rem = len_rem - line_len;
+
         /* shift pointer to remaining bytes to print */
         ch = ch + line_len;
+
         /* add offset */
         offset = offset + line_width;
+
         /* check if we have line width chars or less */
         if (len_rem <= line_width)
         {
@@ -282,7 +529,7 @@ void SniffEthernet::print_hex_ascii_line(const u_char *payload, int len, int off
     const u_char *ch;
 
     /* offset */
-    printf("%05d   ", offset);
+    printf("            %05d   ", offset);
 
     /* hex */
     ch = payload;
