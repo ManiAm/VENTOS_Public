@@ -181,6 +181,26 @@ const char * SniffEthernet::formatMACaddress(const unsigned char MACData[])
 }
 
 
+const char * SniffEthernet::formatIPaddressMAC(const unsigned char addr[])
+{
+    boost::format fmt("%u.%u.%u.%u");
+
+    for(int i = 0; i < 4; ++i)
+        fmt % static_cast<unsigned int>(addr[i]);
+
+    return fmt.str().c_str();
+}
+
+
+const char * SniffEthernet::formatIPaddress(u_int32_t addr)
+{
+    in_addr srcAdd;
+    srcAdd.s_addr = addr;
+
+    return inet_ntoa(srcAdd);
+}
+
+
 void SniffEthernet::getPortNumbers()
 {
     // services files in Linux is in /etc/services
@@ -302,6 +322,9 @@ void SniffEthernet::got_packet(u_char *args, const struct pcap_pkthdr *header, c
         printf("Src MAC: %s (%s), ", formatMACaddress(p->ether_shost), MACtoOUI(p->ether_shost));
         printf("Dst MAC: %s (%s), ", formatMACaddress(p->ether_dhost), MACtoOUI(p->ether_dhost));
         printf("Type: ETHERTYPE_ARP \n");
+
+        processARP(packet);
+        std::cout.flush();
         return;
     }
     else if (ntohs (p->ether_type) == ETHERTYPE_IP)
@@ -338,6 +361,29 @@ void SniffEthernet::got_packet(u_char *args, const struct pcap_pkthdr *header, c
 }
 
 
+void SniffEthernet::processARP(const u_char *packet)
+{
+    const struct ether_arp *arp = (struct ether_arp*)(packet + ETHER_HDR_LEN);
+
+    printf("    ARP message --> ");
+
+    // print header information
+    printf("HrwType: %u, ", ntohs(arp->ea_hdr.ar_hrd));
+    printf("ProtocolType: 0x%02X, ", ntohs(arp->ea_hdr.ar_pro));
+    printf("HrwLen: %u, ", arp->ea_hdr.ar_hln);
+    printf("Protocol len: %u, ", arp->ea_hdr.ar_pln);
+    printf("Opcode: %u, \n", ntohs(arp->ea_hdr.ar_op));
+
+    // print payload information
+    printf("                    ");
+    printf("SenderHrwAdd: %s, ", formatMACaddress(arp->arp_sha));
+    printf("SenderProtAdd: %s \n", formatIPaddressMAC(arp->arp_spa));
+    printf("                    ");
+    printf("TargetHrwAdd: %s, ", formatMACaddress(arp->arp_tha));
+    printf("TargetProtAdd: %s", formatIPaddressMAC(arp->arp_tpa));
+}
+
+
 void SniffEthernet::processIPv4(const u_char *packet)
 {
     const struct iphdr *ip = (struct iphdr*)(packet + ETHER_HDR_LEN);
@@ -352,10 +398,8 @@ void SniffEthernet::processIPv4(const u_char *packet)
     printf("    IPv4 packet --> ");
 
     /* print source and destination IP addresses */
-    in_addr srcAdd; srcAdd.s_addr = ip->saddr;
-    in_addr dstAdd; dstAdd.s_addr = ip->daddr;
-    printf("From: %s, ", inet_ntoa(srcAdd));
-    printf("To: %s, ", inet_ntoa(dstAdd));
+    printf("From: %s, ", formatIPaddress(ip->saddr));
+    printf("To: %s, ", formatIPaddress(ip->daddr));
 
     /* determine protocol */
     switch(ip->protocol)
