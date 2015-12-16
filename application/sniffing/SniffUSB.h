@@ -32,8 +32,45 @@
 #include <Appl.h>
 #include "TraCI_Extend.h"
 #include <libusb-1.0/libusb.h>
+#include <unordered_map>
 
 namespace VENTOS {
+
+class usb_vender
+{
+public:
+    int id;
+    std::string name;
+
+    usb_vender(int x, std::string y)
+    {
+        this->id = x;
+        this->name = y;
+    }
+
+    bool operator<( const usb_vender& other) const
+    {
+        if(id < other.id)
+            return true;
+        else
+            return false;
+    }
+};
+
+
+class usb_device
+{
+public:
+    int id;
+    std::string name;
+
+    usb_device(int x, std::string y)
+    {
+        this->id = x;
+        this->name = y;
+    }
+};
+
 
 class SniffUSB : public BaseApplLayer
 {
@@ -44,15 +81,22 @@ public:
     virtual void handleMessage(cMessage *);
 
 private:
-    void startSniffing();
+    void getUSBids();
+    const char* USBversion(uint16_t version);
+    void getUSBdevices();
+    std::vector<std::string> USBidToName(uint16_t, uint16_t);
     void printdev(libusb_device *dev);
+    void startSniffing();
 
 private:
     // NED variables
     bool on;
+    bool listUSBdevices;
+    bool showConfDesc;
 
     // variables
     TraCI_Extend *TraCI;
+    std::map< usb_vender, std::vector<usb_device> > USBids;
 };
 
 }

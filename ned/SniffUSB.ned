@@ -8,5 +8,7 @@ simple SniffUSB
         @display("i=block/network2");
         
         bool on = default(false);
+        bool listUSBdevices;
+        bool showConfDesc;
 }
 
