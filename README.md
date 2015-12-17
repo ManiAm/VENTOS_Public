@@ -212,9 +212,9 @@ The terminal should look like the following picture. The script will print `List
 
 Now you can use sumo-cmd and sumo-gui commands instead!
 
-**Step 3:** libpcap library is used to sniff packets from network interfaces. We need to give permission to opp_run to be able to access the network interfaces. One approach is to give opp_run root access. A better approach is to use the following command (check [here](http://packetlife.net/blog/2010/mar/19/sniffing-wireshark-non-root-user/)):
+**Step 3:** libpcap library is used to sniff packets from network interfaces. We need to give permission to opp_run to be able to access the network interfaces (check [here](http://packetlife.net/blog/2010/mar/19/sniffing-wireshark-non-root-user/)). Moreover, libusb needs permission to open a USB device for read/write. This is done through setting [capabilities](http://linux.die.net/man/7/capabilities) using the following command:
 
-    sudo setcap cap_net_raw,cap_net_admin=eip /home/mani/Desktop/omnetpp-4.6/bin/opp_run
+    sudo setcap cap_dac_override,cap_net_raw,cap_net_admin=eip /home/mani/Desktop/omnetpp-4.6/bin/opp_run
 
 Note that you need to change the path to opp_run accordingly.
 
