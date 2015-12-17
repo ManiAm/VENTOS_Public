@@ -49,6 +49,20 @@ namespace VENTOS {
 /* default snap length (maximum bytes per packet to capture) */
 #define SNAP_LEN 1518
 
+class devDesc
+{
+public:
+    uint32_t address;
+    uint32_t netMask;
+
+    devDesc(uint32_t x, uint32_t y)
+    {
+        this->address = x;
+        this->netMask = y;
+    }
+};
+
+
 class SniffEthernet : public BaseApplLayer
 {
 public:
@@ -56,46 +70,53 @@ public:
     virtual void finish();
     virtual void initialize(int);
     virtual void handleMessage(cMessage *);
+    virtual void receiveSignal(cComponent *, simsignal_t, long);
 
 private:
+    void executeFirstTimeStep();
+    void executeEachTimestep(bool);
+
+    void listInterfaces();
     void getOUI();
     void getPortNumbers();
-    void listInterfaces();
+
+    std::string formatMACaddress(const unsigned char MACData[]);
+    std::string formatIPaddressMAC(const unsigned char addr[]);
+    std::string formatIPaddress(uint32_t addr);
+
+    std::string MACtoOUI(const unsigned char MACData[]);
+    std::string portToApplication(int port);
+
     void startSniffing();
+    void got_packet(const struct pcap_pkthdr *header, const u_char *packet);
 
-    static void got_packet(u_char *args, const struct pcap_pkthdr *header, const u_char *packet);
+    void processARP(const u_char *packet);
+    void processIPv4(const u_char *packet);
+    void processIPv6(const u_char *packet);
+    void processTCP(const u_char *packet, const struct iphdr *ip);
+    void processUDP(const u_char *packet, const struct iphdr *ip);
+    void processICMP(const u_char *packet, const struct iphdr *ip);
 
-    static const char* formatTime(struct timeval ts);
-    static const char* formatMACaddress(const unsigned char MACData[]);
-    static const char* formatIPaddressMAC(const unsigned char addr[]);
-    static const char* formatIPaddress(u_int32_t addr);
-
-    static const char* MACtoOUI(const unsigned char MACData[]);
-    static const char* portToApplication(int port);
-
-    static void processARP(const u_char *packet);
-    static void processIPv4(const u_char *packet);
-    static void processIPv6(const u_char *packet);
-    static void processTCP(const u_char *packet, const struct iphdr *ip);
-    static void processUDP(const u_char *packet, const struct iphdr *ip);
-    static void processICMP(const u_char *packet, const struct iphdr *ip);
-
-    static void print_dataPayload(const u_char *payload, int len);
-    static void print_hex_ascii_line(const u_char *payload, int len, int offset);
+    void print_dataPayload(const u_char *payload, int len);
+    void print_hex_ascii_line(const u_char *payload, int len, int offset);
 
 private:
     // NED variables
     bool on;
     std::string interface;
     std::string filter_exp;
-    int num_packets;
-    static bool printDataPayload;
+    bool printCaptured;
+    bool printDataPayload;
 
     // variables
     TraCI_Extend *TraCI;
-    std::vector<std::string> allDev;
-    static std::map<std::string, std::string> OUI;
-    static std::map<int, std::string> portNumber;
+    simsignal_t Signal_executeFirstTS;
+    simsignal_t Signal_executeEachTS;
+    cMessage* captureEvent;
+    pcap_t *pcap_handle;
+    std::map<std::string, devDesc> allDev;
+    std::map<std::string, std::string> OUI;
+    std::map<int, std::string> portNumber;
 };
 
 }
