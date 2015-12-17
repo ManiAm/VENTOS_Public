@@ -107,6 +107,7 @@ private:
     std::string filter_exp;
     bool printCaptured;
     bool printDataPayload;
+    bool printStat;
 
     // variables
     TraCI_Extend *TraCI;

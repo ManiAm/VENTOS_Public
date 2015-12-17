@@ -51,6 +51,7 @@ void SniffEthernet::initialize(int stage)
         filter_exp = par("filter_exp").stdstringValue();
         printCaptured = par("printCaptured").boolValue();
         printDataPayload = par("printDataPayload").boolValue();
+        printStat = par("printStat").boolValue();
 
         // register signals
         Signal_executeFirstTS = registerSignal("executeFirstTS");
@@ -83,24 +84,37 @@ void SniffEthernet::handleMessage(cMessage *msg)
         {
             struct pcap_pkthdr *header;
             const u_char *pkt_data;
+
             // check this link! https://www.winpcap.org/docs/docs_40_2/html/group__wpcap__tut4.html
             int res = pcap_next_ex(pcap_handle, &header, &pkt_data);
+
             // if the packet has been read without problems
             if(res == 1)
                 SniffEthernet::got_packet(header, pkt_data);
             // if the timeout set with pcap_open_live() has elapsed.
             // In this case pkt_header and pkt_data don't point to a valid packet
             else if(res == 0)
-                std::cout << "ERROR: Timeout" << endl;
+            {
+                // std::cout << "Capture timeout" << endl;
+            }
             // if an error occurred
             else if(res == -1)
-                std::cout << "ERROR: An error occurred!" << endl;
+                error("Capture error");
             // if EOF was reached reading from an offline capture
             else if(res == -2)
-                std::cout << "ERROR: EOF reached from an offline capture!" << endl;
+                error("EOF reached from an offline capture!");
+
+            // getting statistics
+            if(printStat)
+            {
+                struct pcap_stat stat;
+                if(pcap_stats(pcap_handle, &stat) < 0)
+                    error("Error setting the mode");
+                printf("received: %u, dropped: %u \n", stat.ps_recv, stat.ps_drop);
+            }
         }
 
-        scheduleAt(simTime() + 0.1, captureEvent);
+        scheduleAt(simTime() + 0.5, captureEvent);
     }
 }
 
@@ -137,32 +151,44 @@ void SniffEthernet::executeEachTimestep(bool simulationDone)
 
 void SniffEthernet::listInterfaces()
 {
-    // get all interfaces
-    struct ifaddrs *ifap, *ifa;
-
-    getifaddrs (&ifap);
-
     std::cout << std::endl << "List of all interfaces on this machine: " << std::endl;
-    for (ifa = ifap; ifa; ifa = ifa->ifa_next)
+
+    char errbuf[PCAP_ERRBUF_SIZE];
+    pcap_if_t *alldevs;
+    if (pcap_findalldevs(&alldevs, errbuf) == -1)
+        error("There is a problem with pcap_findalldevs: %s\n", errbuf);
+
+    /* iterate over all devices */
+    for(pcap_if_t *dev = alldevs; dev != NULL; dev = dev->next)
     {
-        if (ifa->ifa_addr->sa_family == AF_INET)
+        printf("Interface: %-15s", dev->name);
+
+        /* check if the device captureble*/
+        for (pcap_addr_t *dev_addr = dev->addresses; dev_addr != NULL; dev_addr = dev_addr->next)
         {
-            uint32_t netAdd = ( (struct sockaddr_in *)(ifa->ifa_addr) )->sin_addr.s_addr;
-            uint32_t netMask = ( (struct sockaddr_in *)(ifa->ifa_netmask) )->sin_addr.s_addr;
+            if (dev_addr->addr && dev_addr->addr->sa_family == AF_INET && dev_addr->netmask)
+            {
+                uint32_t netAdd = ( (struct sockaddr_in *)(dev_addr->addr) )->sin_addr.s_addr;
+                uint32_t netMask = ( (struct sockaddr_in *)(dev_addr->netmask) )->sin_addr.s_addr;
+                printf("Address: %-16s  NetMask: %-16s", formatIPaddress(netAdd).c_str(), formatIPaddress(netMask).c_str());
 
-            // print to output
-            printf("Interface: %-10s  Address: %-20s  NetMask: %-20s\n",
-                    ifa->ifa_name,
-                    formatIPaddress(netAdd).c_str(),
-                    formatIPaddress(netMask).c_str());
+                // add interface information
+                devDesc *des = new devDesc(netAdd, netMask);
+                allDev.insert(std::make_pair(dev->name, *des));
 
-            // add interface information
-            devDesc *des = new devDesc(netAdd, netMask);
-            allDev.insert(std::make_pair(ifa->ifa_name, *des));
+                break;
+            }
         }
+
+        if (dev->description)
+            printf("%-40s", dev->description);
+        else
+            printf("%-40s", "No description available");
+
+        printf("\n");
     }
 
-    freeifaddrs(ifap);
+    pcap_freealldevs(alldevs);
 
     std::cout.flush();
 }
@@ -300,30 +326,53 @@ std::string SniffEthernet::portToApplication(int port)
 
 void SniffEthernet::startSniffing()
 {
+    // very useful information: http://pcap.man.potaroo.net/
+
     // check if interface is valid!
     auto iterfacePtr = allDev.find(interface);
     if(iterfacePtr == allDev.end())
-        error("%s is not a valid interface!", interface.c_str());
+        error("%s is not capturable!", interface.c_str());
 
     printf(">>> Capturing started on %s with filter \"%s\" ...\n", interface.c_str(), filter_exp.c_str());
 
     // flush everything we have before entering loop
     std::cout.flush();
 
-    /* open the device for sniffing.
-    pcap_t *pcap_open_live(char *device, int snaplen, int prmisc, int to_ms, char *ebuf)
-
-    snaplen - maximum size of packets to capture in bytes
-    promisc - set card in promiscuous mode?
-    to_ms   - time to wait for packets in miliseconds before read times out
-    errbuf  - if something happens, place error string here
-
-    Note if you change "prmisc" param to anything other than zero, you will
-    get all packets your device sees, whether they are intended for you or not!! */
-    char errbuf[PCAP_ERRBUF_SIZE];  /* error buffer */
-    pcap_handle = pcap_open_live(interface.c_str(), SNAP_LEN, 1, 1000, errbuf);
+    // if something happens, place error string here
+    char errbuf[PCAP_ERRBUF_SIZE];
+    pcap_handle = pcap_create(interface.c_str(), errbuf);
     if (pcap_handle == NULL)
-        error("Couldn't open device %s: %s\n", interface.c_str(), errbuf);
+        error("pcap_create failed! %s", errbuf);
+
+    // maximum size of packets to capture in bytes
+    int status = pcap_set_snaplen(pcap_handle, SNAP_LEN);
+    if (status < 0)
+        error("pcap_set_snaplen failed!");
+
+    // set card in promiscuous mode?
+    status = pcap_set_promisc(pcap_handle, 1);
+    if (status < 0)
+        error("pcap_set_promisc failed!");
+
+    /* call the packet handler function directly when a packet is received without wait the timeout.
+       In immediate mode packets get delivered to the application as soon as they
+       arrive, rather than after a timeout. This makes it very important for latency
+       sensitive live captures. */
+    status = pcap_set_immediate_mode(pcap_handle, 1);
+    if (status < 0)
+        error("pcap_set_immediate_mode failed!");
+
+    // time to wait for packets in miliseconds before read times out
+    status = pcap_set_timeout(pcap_handle, 1);
+    if (status < 0)
+        error("pcap_set_timeout failed!");
+
+    // buffer size in byte (1 MB = 1048576 B)
+    status = pcap_set_buffer_size(pcap_handle, 1048576);
+    if (status < 0)
+        error("pcap_set_buffer_size failed!");
+
+    pcap_activate(pcap_handle);
 
     /* make sure we're capturing on an Ethernet device [2] */
     if (pcap_datalink(pcap_handle) != DLT_EN10MB)
