@@ -30,6 +30,9 @@
 
 namespace VENTOS {
 
+libusb_context * SniffUSB::ctx = NULL;
+libusb_device_handle * SniffUSB::handle = NULL;
+
 Define_Module(VENTOS::SniffUSB);
 
 SniffUSB::~SniffUSB()
@@ -48,22 +51,82 @@ void SniffUSB::initialize(int stage)
             return;
 
         listUSBdevices = par("listUSBdevices").boolValue();
-        showConfDesc = par("showConfDesc").boolValue();
+        listUSBdevicesDetailed = par("listUSBdevicesDetailed").boolValue();
+
+        // register signals
+        Signal_executeFirstTS = registerSignal("executeFirstTS");
+        simulation.getSystemModule()->subscribe("executeFirstTS", this);
+
+        Signal_executeEachTS = registerSignal("executeEachTS");
+        simulation.getSystemModule()->subscribe("executeEachTS", this);
+
+        // start a libusb session
+        int r = libusb_init(&ctx); //initialize a library session
+        if(r < 0)
+            error("failed to initialize libusb: %s\n", libusb_error_name(r));
+
+        libusb_set_debug(ctx, 3); //set verbosity level to 3, as suggested in the documentation
+
+        USBevents = new cMessage("USBevents", KIND_TIMER);
 
         getUSBids();
         getUSBdevices();
-        startSniffing();
     }
 }
 
 
 void SniffUSB::finish()
 {
+    if(!on)
+        return;
 
+    libusb_exit(ctx); //close the session
 }
 
 
 void SniffUSB::handleMessage(cMessage *msg)
+{
+    if (msg == USBevents)
+    {
+        timeval to;
+        to.tv_sec = 1;
+        int rc = libusb_handle_events_timeout_completed(ctx, &to, NULL);
+
+        //int rc = libusb_handle_events(ctx);
+        if (rc < 0)
+        {
+            printf("libusb_handle_events() failed: %s\n", libusb_error_name(rc));
+            std::cout.flush();
+        }
+
+        scheduleAt(simTime() + 0.5, USBevents);
+    }
+}
+
+
+void SniffUSB::receiveSignal(cComponent *source, simsignal_t signalID, long i)
+{
+    Enter_Method_Silent();
+
+    if(signalID == Signal_executeEachTS)
+    {
+        SniffUSB::executeEachTimestep(i);
+    }
+    else if(signalID == Signal_executeFirstTS)
+    {
+        SniffUSB::executeFirstTimeStep();
+    }
+}
+
+
+void SniffUSB::executeFirstTimeStep()
+{
+    hotPlug();
+    startSniffing();
+}
+
+
+void SniffUSB::executeEachTimestep(bool simulationDone)
 {
 
 }
@@ -190,14 +253,11 @@ const char* SniffUSB::USBversion(uint16_t version)
 
 void SniffUSB::getUSBdevices()
 {
+    // make sure ctx is not NULL
+    if(ctx == NULL)
+        error("No libusb session is established!");
+
     libusb_device **devs; //pointer to pointer of device, used to retrieve a list of devices
-    libusb_context *ctx = NULL; //a libusb session
-
-    int r = libusb_init(&ctx); //initialize a library session
-    if(r < 0)
-        error("Init Error %d", r);
-
-    libusb_set_debug(ctx, 3); //set verbosity level to 3, as suggested in the documentation
     ssize_t cnt = libusb_get_device_list(ctx, &devs); //get the list of devices
     if(cnt < 0)
         std::cout << "Get Device Error" << endl;
@@ -208,9 +268,9 @@ void SniffUSB::getUSBdevices()
 
         for(ssize_t i = 0; i < cnt; i++)
             printdev(devs[i]); //print specs of this device
-    }
 
-    std::cout.flush();
+        std::cout.flush();
+    }
 
     // open the USB device that we are looking for
     libusb_device_handle *dev_handle = libusb_open_device_with_vid_pid(ctx, 1133, 49242);
@@ -219,11 +279,14 @@ void SniffUSB::getUSBdevices()
     else
         std::cout << "Device Opened \n";
 
+    std::cout.flush();
+
+    libusb_free_device_list(devs, 1); //free the list, unref the devices in it
+
 
     // todo: read/write to USB
 
-    libusb_free_device_list(devs, 1); //free the list, unref the devices in it
-    libusb_exit(ctx); //close the session
+    libusb_close(dev_handle); //close the device we opened
 }
 
 
@@ -243,7 +306,7 @@ void SniffUSB::printdev(libusb_device *dev)
     printf("                          Manufacturer: %u, Product: %u, Serial: %u \n", desc.iManufacturer, desc.iProduct, desc.iSerialNumber);
     printf("                          USB Version: %s \n", USBversion(desc.bcdUSB));
 
-    if(showConfDesc)
+    if(listUSBdevicesDetailed)
     {
         printf("    Configuration Descriptor (#%-2u) --> \n", desc.bNumConfigurations);
         libusb_config_descriptor *config;
@@ -274,6 +337,86 @@ void SniffUSB::printdev(libusb_device *dev)
 
         libusb_free_config_descriptor(config);
     }
+}
+
+
+void SniffUSB::hotPlug()
+{
+    int vendor_id = 1133;
+    int product_id = 50475;
+    int class_id = LIBUSB_HOTPLUG_MATCH_ANY;
+    libusb_hotplug_callback_handle hp[2];
+    int rc;
+
+    if (!libusb_has_capability (LIBUSB_CAP_HAS_HOTPLUG))
+    {
+        libusb_exit (NULL);
+        error("Hotplug capabilities are not supported on this platform");
+    }
+
+    rc = libusb_hotplug_register_callback(ctx, LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED, (libusb_hotplug_flag)0, vendor_id, product_id, class_id, hotplug_callback, NULL, &hp[0]);
+    if (rc < 0)
+    {
+        libusb_exit (NULL);
+        error("Error registering callback 0");
+    }
+
+    std::cout << "HOTPLUG_EVENT_DEVICE_ARRIVED registered!" << std::endl;
+    std::cout.flush();
+
+    rc = libusb_hotplug_register_callback(ctx, LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT, (libusb_hotplug_flag)0, vendor_id, product_id, class_id, hotplug_callback_detach, NULL, &hp[1]);
+    if (rc < 0)
+    {
+        libusb_exit (NULL);
+        error("Error registering callback 1");
+    }
+
+    std::cout << "HOTPLUG_EVENT_DEVICE_LEFT registered!" << std::endl;
+    std::cout.flush();
+
+    // start monitoring events
+    scheduleAt(simTime() + 0.5, USBevents);
+}
+
+
+int SniffUSB::hotplug_callback(libusb_context *ctx, libusb_device *dev, libusb_hotplug_event event, void *user_data)
+{
+    struct libusb_device_descriptor desc;
+    int rc;
+
+    rc = libusb_get_device_descriptor(dev, &desc);
+    if (LIBUSB_SUCCESS != rc)
+        throw cRuntimeError("Error getting device descriptor");
+
+    printf("Device attached: %04x:%04x\n", desc.idVendor, desc.idProduct);
+    std::cout.flush();
+
+    if (handle)
+    {
+        libusb_close (handle);
+        handle = NULL;
+    }
+
+    rc = libusb_open (dev, &handle);
+    if (LIBUSB_SUCCESS != rc)
+        throw cRuntimeError("Error opening device");
+
+    return 0;
+}
+
+
+int LIBUSB_CALL SniffUSB::hotplug_callback_detach(libusb_context *ctx, libusb_device *dev, libusb_hotplug_event event, void *user_data)
+{
+    printf ("Device detached\n");
+    std::cout.flush();
+
+    if (handle)
+    {
+        libusb_close (handle);
+        handle = NULL;
+    }
+
+    return 0;
 }
 
 

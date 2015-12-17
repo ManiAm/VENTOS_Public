@@ -79,24 +79,39 @@ public:
     virtual void finish();
     virtual void initialize(int);
     virtual void handleMessage(cMessage *);
+    virtual void receiveSignal(cComponent *, simsignal_t, long);
 
 private:
+    void executeFirstTimeStep();
+    void executeEachTimestep(bool);
+
     void getUSBids();
     const char* USBversion(uint16_t version);
     void getUSBdevices();
     std::vector<std::string> USBidToName(uint16_t, uint16_t);
     void printdev(libusb_device *dev);
+
+    void hotPlug();
+    static int hotplug_callback(libusb_context *ctx, libusb_device *dev, libusb_hotplug_event event, void *user_data);
+    static int hotplug_callback_detach(libusb_context *ctx, libusb_device *dev, libusb_hotplug_event event, void *user_data);
+
     void startSniffing();
 
 private:
     // NED variables
     bool on;
     bool listUSBdevices;
-    bool showConfDesc;
+    bool listUSBdevicesDetailed;
 
     // variables
     TraCI_Extend *TraCI;
+    simsignal_t Signal_executeFirstTS;
+    simsignal_t Signal_executeEachTS;
+    static libusb_context *ctx;  // a libusb session
     std::map< usb_vender, std::vector<usb_device> > USBids;
+    cMessage* USBevents;
+
+    static libusb_device_handle *handle;
 };
 
 }

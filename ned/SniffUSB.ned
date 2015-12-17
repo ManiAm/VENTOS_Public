@@ -9,6 +9,6 @@ simple SniffUSB
         
         bool on = default(false);
         bool listUSBdevices;
-        bool showConfDesc;
+        bool listUSBdevicesDetailed;
 }
 
