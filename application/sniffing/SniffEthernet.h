@@ -77,8 +77,8 @@ private:
     void executeEachTimestep(bool);
 
     void listInterfaces();
-    void getOUI();
-    void getPortNumbers();
+    void getOUIFromFile();
+    void getPortNumbersFromFile();
 
     std::string formatMACaddress(const unsigned char MACData[]);
     std::string formatIPaddressMAC(const unsigned char addr[]);
@@ -115,6 +115,7 @@ private:
     simsignal_t Signal_executeEachTS;
     cMessage* captureEvent;
     pcap_t *pcap_handle;
+
     std::map<std::string, devDesc> allDev;
     std::map<std::string, std::string> OUI;
     std::map<int, std::string> portNumber;

@@ -63,8 +63,8 @@ void SniffEthernet::initialize(int stage)
         captureEvent = new cMessage("captureEvent", KIND_TIMER);
 
         listInterfaces();
-        getOUI();
-        getPortNumbers();
+        getOUIFromFile();
+        getPortNumbersFromFile();
     }
 }
 
@@ -107,14 +107,25 @@ void SniffEthernet::handleMessage(cMessage *msg)
             // getting statistics
             if(printStat)
             {
+                static u_int old_received = 0;
+                static u_int old_dropped  = 0;
                 struct pcap_stat stat;
+
                 if(pcap_stats(pcap_handle, &stat) < 0)
                     error("Error setting the mode");
-                printf("received: %u, dropped: %u \n", stat.ps_recv, stat.ps_drop);
+
+                // if either changed
+                if(stat.ps_recv != old_received || stat.ps_drop != old_dropped)
+                    printf("\nreceived: %u, dropped: %u \n", stat.ps_recv, stat.ps_drop);
+
+                old_received = stat.ps_recv;
+                old_dropped  = stat.ps_drop;
             }
         }
 
-        scheduleAt(simTime() + 0.5, captureEvent);
+        std::cout.flush();
+
+        scheduleAt(simTime() + 0.05, captureEvent);
     }
 }
 
@@ -194,7 +205,7 @@ void SniffEthernet::listInterfaces()
 }
 
 
-void SniffEthernet::getOUI()
+void SniffEthernet::getOUIFromFile()
 {
     // OUI is downloaded from https://www.wireshark.org/tools/oui-lookup.html
     boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
@@ -219,7 +230,7 @@ void SniffEthernet::getOUI()
 }
 
 
-void SniffEthernet::getPortNumbers()
+void SniffEthernet::getPortNumbersFromFile()
 {
     // services files in Linux is in /etc/services
     boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
@@ -334,8 +345,6 @@ void SniffEthernet::startSniffing()
         error("%s is not capturable!", interface.c_str());
 
     printf(">>> Capturing started on %s with filter \"%s\" ...\n", interface.c_str(), filter_exp.c_str());
-
-    // flush everything we have before entering loop
     std::cout.flush();
 
     // if something happens, place error string here
@@ -423,8 +432,6 @@ void SniffEthernet::got_packet(const struct pcap_pkthdr *header, const u_char *p
         }
 
         processARP(packet);
-        std::cout.flush();
-        return;
     }
     else if (ntohs (p->ether_type) == ETHERTYPE_IP)
     {
@@ -434,6 +441,8 @@ void SniffEthernet::got_packet(const struct pcap_pkthdr *header, const u_char *p
             printf("Dst MAC: %s (%s), ", formatMACaddress(p->ether_dhost).c_str(), MACtoOUI(p->ether_dhost).c_str());
             printf("Type: ETHERTYPE_IP \n");
         }
+
+        processIPv4(packet);
     }
     else  if (ntohs (p->ether_type) == ETHERTYPE_IPV6)
     {
@@ -443,26 +452,14 @@ void SniffEthernet::got_packet(const struct pcap_pkthdr *header, const u_char *p
             printf("Dst MAC: %s (%s), ", formatMACaddress(p->ether_dhost).c_str(), MACtoOUI(p->ether_dhost).c_str());
             printf("Type: ETHERTYPE_IPV6 \n");
         }
+
+        processIPv6(packet);
     }
     else
     {
         printf("Invalid Ethernet type %x", ntohs(p->ether_type));
         return;
     }
-
-    const struct iphdr *ip = (struct iphdr*)(packet + ETHER_HDR_LEN);
-
-    if(ip->version == 4)
-        processIPv4(packet);
-    else if(ip->version == 6)
-        processIPv6(packet);
-    else
-    {
-        printf("    Invalid IP version number: %u ", ip->version);
-        return;
-    }
-
-    std::cout.flush();
 }
 
 
@@ -495,6 +492,12 @@ void SniffEthernet::processARP(const u_char *packet)
 void SniffEthernet::processIPv4(const u_char *packet)
 {
     const struct iphdr *ip = (struct iphdr*)(packet + ETHER_HDR_LEN);
+
+    if(ip->version != 4)
+    {
+        printf("    Invalid IPv4 version number: %u ", ip->version);
+        return;
+    }
 
     int size_ip = ip->ihl * 4;  // size in byte
     if (size_ip < 20) // minimum ipv4 header size is 20 bytes
@@ -537,6 +540,13 @@ void SniffEthernet::processIPv4(const u_char *packet)
 void SniffEthernet::processIPv6(const u_char *packet)
 {
     // const struct ip6_hdr *ipv6 = (struct ip6_hdr*)(packet + ETHER_HDR_LEN);
+
+//    if(ip->version != 4)
+//    {
+//        printf("    Invalid IPv6 version number: %u ", ip->version);
+//        return;
+//    }
+
 
     // IPv6 header is always 40 bytes long
 

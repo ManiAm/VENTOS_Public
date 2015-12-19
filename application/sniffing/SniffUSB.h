@@ -85,13 +85,13 @@ private:
     void executeFirstTimeStep();
     void executeEachTimestep(bool);
 
-    void getUSBids();
+    void getUSBidsFromFile();
     const char* USBversion(uint16_t version);
     void getUSBdevices();
     std::vector<std::string> USBidToName(uint16_t, uint16_t);
     void printdev(libusb_device *dev);
 
-    void hotPlug();
+    void EnableHotPlug();
     static int hotplug_callback(libusb_context *ctx, libusb_device *dev, libusb_hotplug_event event, void *user_data);
     static int hotplug_callback_detach(libusb_context *ctx, libusb_device *dev, libusb_hotplug_event event, void *user_data);
 
@@ -102,16 +102,18 @@ private:
     bool on;
     bool listUSBdevices;
     bool listUSBdevicesDetailed;
+    bool hotPlug;
 
     // variables
     TraCI_Extend *TraCI;
     simsignal_t Signal_executeFirstTS;
     simsignal_t Signal_executeEachTS;
+
     static libusb_context *ctx;  // a libusb session
+    static libusb_device_handle *hotPlugHandle;
+
     std::map< usb_vender, std::vector<usb_device> > USBids;
     cMessage* USBevents;
-
-    static libusb_device_handle *handle;
 };
 
 }
