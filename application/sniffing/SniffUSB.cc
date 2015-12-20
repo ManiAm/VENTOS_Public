@@ -239,13 +239,13 @@ std::vector<std::string> SniffUSB::USBidToName(uint16_t idVendor, uint16_t idPro
             }
         }
 
-        std::vector<std::string> ret = { it->first.name, "" };
+        std::vector<std::string> ret = { it->first.name, "?" };
         return ret;
     }
 }
 
 
-const char* SniffUSB::USBversion(uint16_t version)
+std::string SniffUSB::USBversion(uint16_t version)
 {
     if(version == 256)
         return "1.0";
@@ -257,6 +257,101 @@ const char* SniffUSB::USBversion(uint16_t version)
         return "3.0";
     else
         return "?";
+}
+
+
+std::string SniffUSB::USBspeed(int speed)
+{
+    if(speed == 0)
+        return "SPEED_UNKNOWN";
+    else if(speed == 1)
+        return "SPEED_LOW";
+    else if(speed == 2)
+        return "SPEED_FULL";
+    else if(speed == 3)
+        return "SPEED_HIGH";
+    else if(speed == 4)
+        return "SPEED_SUPER";
+    else
+        return "?";
+}
+
+
+std::string SniffUSB::decodeEPAdd(uint8_t addr)
+{
+    int EPnumber = (addr & 0x1F);
+    std::string EPnumberStr = std::to_string(EPnumber);
+
+    int direction = (addr & 0x80);
+    std::string directionStr;
+    if(direction == LIBUSB_ENDPOINT_OUT)     /* Out: host-to-device */
+        directionStr = "ENDPOINT_OUT";
+    else if(direction == LIBUSB_ENDPOINT_IN) /* In: device-to-host */
+        directionStr = "ENDPOINT_IN";
+
+    return (EPnumberStr + ", " + directionStr);
+}
+
+
+std::string SniffUSB::decodeEPAtt(uint8_t attValue)
+{
+    std::ostringstream att;
+
+    int transferType = (attValue & 0x03);
+    switch(transferType)
+    {
+        case 0:
+            att << "Control";
+            break;
+        case 1:
+            att << "Isochronous";
+            break;
+        case 2:
+            att << "Bulk";
+            break;
+        case 3:
+            att << "Interrupt";
+            break;
+    }
+
+    if(transferType == 1)
+    {
+        int syncType = ((attValue & 0x0c) >> 2);
+        switch(syncType)
+        {
+            case 0:
+                att << ", No Sync";
+                break;
+            case 1:
+                att << ", Async";
+                break;
+            case 2:
+                att << ", Adaptive";
+                break;
+            case 3:
+                att << ", Sync";
+                break;
+        }
+
+        int usageType = ((attValue & 0x30) >> 4);
+        switch(usageType)
+        {
+            case 0:
+                att << ", Data Endpoint";
+                break;
+            case 1:
+                att << ", Feedback Endpoint";
+                break;
+            case 2:
+                att << ", Explicit Feedback Data Endpoint";
+                break;
+            case 3:
+                att << ", Reserved";
+                break;
+        }
+    }
+
+    return att.str();
 }
 
 
@@ -284,7 +379,11 @@ void SniffUSB::getUSBdevices()
 
 void SniffUSB::printdev(libusb_device *dev)
 {
-    printf("\nDevice %d connected to Port %d of Bus %d \n", libusb_get_device_address(dev), libusb_get_port_number(dev), libusb_get_bus_number(dev));
+    printf("\nDevice %d connected to Port %d of Bus %d with Speed %d (%s) \n",
+            libusb_get_device_address(dev),
+            libusb_get_port_number(dev),
+            libusb_get_bus_number(dev),
+            libusb_get_device_speed(dev), USBspeed(libusb_get_device_speed(dev)).c_str() );
 
     printf("    Device Descriptor --> ");
     libusb_device_descriptor desc;
@@ -293,10 +392,17 @@ void SniffUSB::printdev(libusb_device *dev)
         error("failed to get device descriptor");
 
     std::vector<std::string> names = USBidToName(desc.idVendor, desc.idProduct);
-    printf("VendorID: %u (%s), ProductID: %u (%s) \n", desc.idVendor, names[0].c_str(), desc.idProduct, names[1].c_str());
-    printf("                          Device Class: %u, Device Subclass: %u \n", desc.bDeviceClass, desc.bDeviceSubClass);
+    std::string className = "?";
+    auto res = USBclass.find(desc.bDeviceClass);
+    if(res != USBclass.end())
+        className = res->second;
+
+    // in windows, The USB driver stack uses bcdDevice, along with idVendor and idProduct, to generate hardware and compatible IDs for the device.
+    // You can view the those identifiers in Device Manager.
+    printf("VendorID: %04x (%s), ProductID: %04x (%s), Release Number: %u \n", desc.idVendor, names[0].c_str(), desc.idProduct, names[1].c_str(), desc.bcdDevice);
+    printf("                          Device Class: %x (%s), Device Subclass: %x \n", desc.bDeviceClass, className.c_str(), desc.bDeviceSubClass);
     printf("                          Manufacturer: %u, Product: %u, Serial: %u \n", desc.iManufacturer, desc.iProduct, desc.iSerialNumber);
-    printf("                          USB Version: %s \n", USBversion(desc.bcdUSB));
+    printf("                          USB Version: %s \n", USBversion(desc.bcdUSB).c_str());
 
     if(listUSBdevicesDetailed)
     {
@@ -308,7 +414,7 @@ void SniffUSB::printdev(libusb_device *dev)
         const libusb_interface_descriptor *interdesc;
         const libusb_endpoint_descriptor *epdesc;
 
-        printf("                                       Interface Descriptor --> \n");
+        printf("                          Interface Descriptor --> \n");
 
         for(uint8_t i=0; i<config->bNumInterfaces; i++)
         {
@@ -316,11 +422,27 @@ void SniffUSB::printdev(libusb_device *dev)
             for(int j=0; j<inter->num_altsetting; j++)
             {
                 interdesc = &inter->altsetting[j];
-                printf("                                                                Interface %-2d --> \n", interdesc->bInterfaceNumber);
+
+                std::string className = "?";
+                auto res = USBclass.find(interdesc->bInterfaceClass);
+                if(res != USBclass.end())
+                    className = res->second;
+
+                printf("                                      Interface %-2d --> Class: %x (%s), Subclass: %x \n",
+                        interdesc->bInterfaceNumber,
+                        interdesc->bInterfaceClass,
+                        className.c_str(),
+                        interdesc->bInterfaceSubClass);
+
+                printf("                                                End Points --> \n");
+
                 for(uint8_t k=0; k<interdesc->bNumEndpoints; k++)
                 {
                     epdesc = &interdesc->endpoint[k];
-                    printf("                                                                                 Descriptor Type: %d, EP Address: %d \n", epdesc->bDescriptorType, epdesc->bEndpointAddress);
+                    printf("                                                              Address: %-3u (%-16s), Attribute: %-3u (%s), Max Packet Size: %u \n",
+                            epdesc->bEndpointAddress, decodeEPAdd(epdesc->bEndpointAddress).c_str(),
+                            epdesc->bmAttributes, decodeEPAtt(epdesc->bmAttributes).c_str(),
+                            epdesc->wMaxPacketSize);
                 }
             }
 
@@ -418,20 +540,47 @@ void SniffUSB::startSniffing()
     if(ctx == NULL)
         error("No libusb session is established!");
 
+    int r;
+    uint16_t vendor_id = 0x046d;
+    uint16_t product_id = 0xc05a;
+
     // open the USB device that we are looking for
-    libusb_device_handle *dev_handle = libusb_open_device_with_vid_pid(ctx, 1133, 49242);
+    libusb_device_handle *dev_handle = libusb_open_device_with_vid_pid(ctx, vendor_id, product_id);
     if(dev_handle == NULL)
         error("Cannot open device \n");
-    else
-        std::cout << "Device Opened \n";
+
+    printf("Device %04x:%04x opened ...\n", vendor_id, product_id);
 
     std::cout.flush();
 
     // todo: read/write to USB
 
+    // find out if kernel driver is attached
+    r = libusb_kernel_driver_active(dev_handle, 0);
+    if(r == 1)
+    {
+        std::cout << "Kernel Driver Active" << endl;
+
+        // detach it (seems to be just like rmmod?)
+        if(libusb_detach_kernel_driver(dev_handle, 0) == 0)
+            std::cout << "Kernel Driver Detached!" << endl;
+    }
+
+    // claim interface 0 (the first) of device
+    r = libusb_claim_interface(dev_handle, 0);
+    if(r < 0)
+        error("Cannot Claim Interface! %s", libusb_error_name(r));
+
+    std::cout << "Claimed Interface." << endl;
+
+    // release the claimed interface
+    r = libusb_release_interface(dev_handle, 0);
+    if(r != 0)
+        error("Cannot Release Interface! %s", libusb_error_name(r));
+
+    std::cout << "Released Interface" << endl;
+
     libusb_close(dev_handle); //close the device we opened
-
 }
-
 
 }

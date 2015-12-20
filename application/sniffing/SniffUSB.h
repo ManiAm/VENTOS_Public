@@ -86,7 +86,10 @@ private:
     void executeEachTimestep(bool);
 
     void getUSBidsFromFile();
-    const char* USBversion(uint16_t version);
+    std::string USBversion(uint16_t version);
+    std::string USBspeed(int speed);
+    std::string decodeEPAdd(uint8_t add);
+    std::string decodeEPAtt(uint8_t att);
     void getUSBdevices();
     std::vector<std::string> USBidToName(uint16_t, uint16_t);
     void printdev(libusb_device *dev);
@@ -114,6 +117,28 @@ private:
 
     std::map< usb_vender, std::vector<usb_device> > USBids;
     cMessage* USBevents;
+    std::map<int, std::string> USBclass = {
+            {0, "PER_INTERFACE"},
+            {1, "AUDIO"},
+            {2, "COMM"},
+            {3, "HID"},
+            {5, "PHYSICAL"},
+            {6, "IMAGING"},
+            {7, "PRINTER"},
+            {8, "MASS_STORAGE"},
+            {9, "HUB"},
+            {0xa, "CDC_DATA"},
+            {0x0b, "SMART_CARD"},
+            {0x0d, "CONTENT_SECURITY"},
+            {0x0e, "VIDEO"},
+            {0x0f, "PERSONAL_HEALTHCARE"},
+            {0x3a, "XBOX"},
+            {0xdc, "DIAGNOSTIC_DEVICE"},
+            {0xe0, "WIRELESS"},
+            {0xef, "MISCELLANEOUS"},
+            {0xfe, "APPLICATION_SPEC"},
+            {0xff, "VENDOR_SPEC"}
+    };
 };
 
 }
