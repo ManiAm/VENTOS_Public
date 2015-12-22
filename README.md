@@ -116,7 +116,7 @@ Import VENTOS
 
 **Step 1:** Make sure you have these packages installed on your Ubuntu 14 machine:
 
-    sudo apt-get install libboost-all-dev libssl-dev libcurl4-gnutls-dev libxerces-c2-dev libfox-1.6-dev libproj-dev libpcap-dev gnuplot gnuplot-x11 
+    sudo apt-get install libboost-all-dev libssl-dev libcurl4-gnutls-dev libxerces-c2-dev libfox-1.6-dev libproj-dev libpcap-dev libusb-1.0-0-dev gnuplot gnuplot-x11 
     
 **Step 2:** Download snmp++ API from [here](http://www.agentpp.com/download/snmp++-3.3.5.tar.gz). Extract it and then build the library:
 
