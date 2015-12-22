@@ -592,7 +592,7 @@ void SniffUSB::startSniffing()
     // open the USB device that we are looking for
     dev_handle = libusb_open_device_with_vid_pid(ctx, target_vendor_id, target_product_id);
     if(dev_handle == NULL)
-        error("Cannot open device \n");
+        error("Cannot open USB device %04x:%04x. Check 'target_vendor_id' and 'target_product_id'", target_vendor_id, target_product_id);
 
     printf("Device %04x:%04x opened ...\n", target_vendor_id, target_product_id);
 
