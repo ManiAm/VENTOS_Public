@@ -30,7 +30,6 @@
 
 namespace VENTOS {
 
-libusb_context * SniffUSB::ctx = NULL;
 libusb_device_handle * SniffUSB::hotPlugHandle = NULL;
 
 Define_Module(VENTOS::SniffUSB);
@@ -54,6 +53,11 @@ void SniffUSB::initialize(int stage)
         listUSBdevicesDetailed = par("listUSBdevicesDetailed").boolValue();
         hotPlug = par("hotPlug").boolValue();
 
+        target_vendor_id = (uint16_t) par("target_vendor_id").longValue();
+        target_product_id = (uint16_t) par("target_product_id").longValue();
+        target_interfaceNumber = (uint16_t) par("target_interfaceNumber").longValue();
+        target_interruptEP = (unsigned char) par("target_interruptEP").longValue();
+
         // register signals
         Signal_executeFirstTS = registerSignal("executeFirstTS");
         simulation.getSystemModule()->subscribe("executeFirstTS", this);
@@ -69,6 +73,7 @@ void SniffUSB::initialize(int stage)
         libusb_set_debug(ctx, 3); //set verbosity level to 3, as suggested in the documentation
 
         USBevents = new cMessage("USBevents", KIND_TIMER);
+        USBInterrupt = new cMessage("USBInterrupt", KIND_TIMER);
 
         getUSBidsFromFile();
 
@@ -82,6 +87,18 @@ void SniffUSB::finish()
 {
     if(!on)
         return;
+
+    // release the claimed interface
+    if(dev_handle != NULL)
+    {
+        int r = libusb_release_interface(dev_handle, target_interfaceNumber);
+        if(r != 0)
+            error("Cannot Release Interface! %s", libusb_error_name(r));
+
+        std::cout << "Interface " << target_interfaceNumber << " Released." << endl;
+
+        libusb_close(dev_handle); //close the device we opened
+    }
 
     if(ctx != NULL)
         libusb_exit(ctx); //close the libusb session
@@ -104,6 +121,30 @@ void SniffUSB::handleMessage(cMessage *msg)
         }
 
         scheduleAt(simTime() + 0.5, USBevents);
+    }
+    else if(msg == USBInterrupt)
+    {
+        if(dev_handle != NULL && EPPacketSize > 0)
+        {
+            int actual_length = 0;
+            unsigned char data_in[65535];
+
+            libusb_interrupt_transfer(dev_handle,
+                    target_interruptEP,
+                    data_in, EPPacketSize, &actual_length, 5);
+
+            if(actual_length > 0)
+            {
+                printf("Received %u bytes via interrupt transfer:\n", actual_length);
+                for(int i = 0; i < actual_length; i++)
+                    printf("%02x ",data_in[i]);
+
+                printf("\n");
+                std::cout.flush();
+            }
+        }
+
+        scheduleAt(simTime() + 0.2, USBInterrupt);
     }
 }
 
@@ -300,18 +341,18 @@ std::string SniffUSB::decodeEPAtt(uint8_t attValue)
     int transferType = (attValue & 0x03);
     switch(transferType)
     {
-        case 0:
-            att << "Control";
-            break;
-        case 1:
-            att << "Isochronous";
-            break;
-        case 2:
-            att << "Bulk";
-            break;
-        case 3:
-            att << "Interrupt";
-            break;
+    case LIBUSB_TRANSFER_TYPE_CONTROL:
+        att << "Control";
+        break;
+    case LIBUSB_TRANSFER_TYPE_ISOCHRONOUS:
+        att << "Isochronous";
+        break;
+    case LIBUSB_TRANSFER_TYPE_BULK:
+        att << "Bulk";
+        break;
+    case LIBUSB_TRANSFER_TYPE_INTERRUPT:
+        att << "Interrupt";
+        break;
     }
 
     if(transferType == 1)
@@ -319,35 +360,35 @@ std::string SniffUSB::decodeEPAtt(uint8_t attValue)
         int syncType = ((attValue & 0x0c) >> 2);
         switch(syncType)
         {
-            case 0:
-                att << ", No Sync";
-                break;
-            case 1:
-                att << ", Async";
-                break;
-            case 2:
-                att << ", Adaptive";
-                break;
-            case 3:
-                att << ", Sync";
-                break;
+        case LIBUSB_ISO_SYNC_TYPE_NONE:
+            att << ", No Sync";
+            break;
+        case LIBUSB_ISO_SYNC_TYPE_ASYNC:
+            att << ", Async";
+            break;
+        case LIBUSB_ISO_SYNC_TYPE_ADAPTIVE:
+            att << ", Adaptive";
+            break;
+        case LIBUSB_ISO_SYNC_TYPE_SYNC:
+            att << ", Sync";
+            break;
         }
 
         int usageType = ((attValue & 0x30) >> 4);
         switch(usageType)
         {
-            case 0:
-                att << ", Data Endpoint";
-                break;
-            case 1:
-                att << ", Feedback Endpoint";
-                break;
-            case 2:
-                att << ", Explicit Feedback Data Endpoint";
-                break;
-            case 3:
-                att << ", Reserved";
-                break;
+        case LIBUSB_ISO_USAGE_TYPE_DATA:
+            att << ", Data Endpoint";
+            break;
+        case LIBUSB_ISO_USAGE_TYPE_FEEDBACK:
+            att << ", Feedback Endpoint";
+            break;
+        case LIBUSB_ISO_USAGE_TYPE_IMPLICIT:
+            att << ", Explicit Feedback Data Endpoint";
+            break;
+        case 3:
+            att << ", Reserved";
+            break;
         }
     }
 
@@ -428,18 +469,26 @@ void SniffUSB::printdev(libusb_device *dev)
                 if(res != USBclass.end())
                     className = res->second;
 
-                printf("                                      Interface %-2d --> Class: %x (%s), Subclass: %x \n",
+                char interfacePath[64];
+                snprintf(interfacePath, sizeof(interfacePath), "%04x:%04x:%02x",
+                        libusb_get_bus_number(dev),
+                        libusb_get_device_address(dev),
+                        interdesc->bInterfaceNumber);
+                interfacePath[sizeof(interfacePath)-1] = '\0';
+
+                printf("                                      Interface %-2d --> Class: %x (%s), Subclass: %x, Path: %s \n",
                         interdesc->bInterfaceNumber,
                         interdesc->bInterfaceClass,
                         className.c_str(),
-                        interdesc->bInterfaceSubClass);
+                        interdesc->bInterfaceSubClass,
+                        strdup(interfacePath));
 
                 printf("                                                End Points --> \n");
 
                 for(uint8_t k=0; k<interdesc->bNumEndpoints; k++)
                 {
                     epdesc = &interdesc->endpoint[k];
-                    printf("                                                              Address: %-3u (%-16s), Attribute: %-3u (%s), Max Packet Size: %u \n",
+                    printf("                                                              Address: %-3x (%-16s), Attribute: %-3u (%s), Max Packet Size: %u \n",
                             epdesc->bEndpointAddress, decodeEPAdd(epdesc->bEndpointAddress).c_str(),
                             epdesc->bmAttributes, decodeEPAtt(epdesc->bmAttributes).c_str(),
                             epdesc->wMaxPacketSize);
@@ -540,47 +589,118 @@ void SniffUSB::startSniffing()
     if(ctx == NULL)
         error("No libusb session is established!");
 
-    int r;
-    uint16_t vendor_id = 0x046d;
-    uint16_t product_id = 0xc05a;
-
     // open the USB device that we are looking for
-    libusb_device_handle *dev_handle = libusb_open_device_with_vid_pid(ctx, vendor_id, product_id);
+    dev_handle = libusb_open_device_with_vid_pid(ctx, target_vendor_id, target_product_id);
     if(dev_handle == NULL)
         error("Cannot open device \n");
 
-    printf("Device %04x:%04x opened ...\n", vendor_id, product_id);
+    printf("Device %04x:%04x opened ...\n", target_vendor_id, target_product_id);
 
     std::cout.flush();
 
-    // todo: read/write to USB
-
     // find out if kernel driver is attached
-    r = libusb_kernel_driver_active(dev_handle, 0);
+    int r = libusb_kernel_driver_active(dev_handle, target_interfaceNumber);
     if(r == 1)
     {
         std::cout << "Kernel Driver Active" << endl;
 
         // detach it (seems to be just like rmmod?)
-        if(libusb_detach_kernel_driver(dev_handle, 0) == 0)
+        if(libusb_detach_kernel_driver(dev_handle, target_interfaceNumber) == 0)
             std::cout << "Kernel Driver Detached!" << endl;
+
+        int cfg = -1;
+        libusb_get_configuration(dev_handle, &cfg);
+        if (cfg != 1)
+        {
+            std::cout << "Setting device configuration to 1." << std::endl;
+            r = libusb_set_configuration(dev_handle, 1);
+            if (r < 0)
+                error("libusb_set_configuration error: %s", libusb_error_name(r));
+        }
     }
 
-    // claim interface 0 (the first) of device
-    r = libusb_claim_interface(dev_handle, 0);
+    // claim interface of device
+    r = libusb_claim_interface(dev_handle, target_interfaceNumber);
     if(r < 0)
-        error("Cannot Claim Interface! %s", libusb_error_name(r));
+        error("Cannot claim interface! %s", libusb_error_name(r));
 
-    std::cout << "Claimed Interface." << endl;
+    std::cout << "Interface " << target_interfaceNumber << " Claimed." << endl;
 
-    // release the claimed interface
-    r = libusb_release_interface(dev_handle, 0);
-    if(r != 0)
-        error("Cannot Release Interface! %s", libusb_error_name(r));
+    libusb_device* thisDev = libusb_get_device(dev_handle);
+    EPPacketSize = libusb_get_max_packet_size(thisDev, target_interruptEP);
+    if(EPPacketSize < 0)
+        error("libusb_get_max_packet_size failed!");
 
-    std::cout << "Released Interface" << endl;
+    // start getting data events
+    scheduleAt(simTime() + 0.00001, USBInterrupt);
+}
 
-    libusb_close(dev_handle); //close the device we opened
+
+void SniffUSB::bulk(libusb_device_handle *devh)
+{
+    //    // Request data from the device
+    //    unsigned char data_in[200] = { 0 };
+    //    int bytes_received = libusb_control_transfer(
+    //            dev_handle,
+    //            LIBUSB_ENDPOINT_IN | LIBUSB_RECIPIENT_ENDPOINT, // request_type
+    //            LIBUSB_REQUEST_GET_STATUS,  // bRequest
+    //            0/*0x0100*/,  // wValue
+    //            0x83,  // wIndex
+    //            data_in,
+    //            200,  // wLength
+    //            1000);   // TIMEOUT_MS
+    //
+    //    if (bytes_received < 0)
+    //        error("Error receiving descriptor");
+    //
+    //    printf("Received %u bytes from the USB device:\n", bytes_received);
+    //    for(int i = 0; i < bytes_received; i++)
+    //        printf("%02x ", data_in[i]);
+    //    printf("\n");
+    //    std::cout.flush();
+
+
+
+
+    //    // data to write
+    //    unsigned char *data = new unsigned char[4];
+    //    data[0] = 'a'; data[1] = 'b'; data[2] = 'c'; data[3] = 'd';
+    //
+    //    std::cout << "Writing Data ... ";
+    //
+    //    // my device's out endpoint was 2
+    //    int actual; //used to find out how many bytes were written
+    //    r = libusb_bulk_transfer(dev_handle, (2 | LIBUSB_ENDPOINT_OUT), data, 4, &actual, 0);
+    //    if(r == 0 && actual == 4)
+    //        std::cout << "Successful!" << endl;
+    //    else
+    //        std::cout << "Error!" << endl;
+
+
+
+
+
+    //    // Request data from the device
+    //    static const int MAX_CONTROL_IN_TRANSFER_SIZE = 2;  // With firmware support, transfers can be > the endpoint's max packet size
+    //    unsigned char data_in[MAX_CONTROL_IN_TRANSFER_SIZE];
+    //    int bytes_received = libusb_control_transfer(
+    //            dev_handle,
+    //            LIBUSB_ENDPOINT_IN, // bmRequestType (direction of the request, type of request and designated recipient)
+    //            LIBUSB_REQUEST_GET_DESCRIPTOR,    // bRequest (HID_GET_REPORT)
+    //            (LIBUSB_DT_STRING << 8) | 0x00,  // value field. HID_REPORT_TYPE_FEATURE = 0x03
+    //            0,   // INTERFACE_NUMBER
+    //            data_in,
+    //            MAX_CONTROL_IN_TRANSFER_SIZE,
+    //            5000);  // TIMEOUT_MS
+    //
+    //    if (bytes_received < 0)
+    //        error("Error receiving Feature report: %s", libusb_error_name(bytes_received));
+    //
+    //    printf("Feature report data received:\n");
+    //    for(int i = 0; i < bytes_received; i++)
+    //        printf("%02x ", data_in[i]);
+    //    printf("\n");
+
 }
 
 }

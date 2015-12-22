@@ -31,8 +31,10 @@
 #include <BaseApplLayer.h>
 #include <Appl.h>
 #include "TraCI_Extend.h"
-#include <libusb-1.0/libusb.h>
 #include <unordered_map>
+
+#include <libusb-1.0/libusb.h>
+#include "hidapi/hidapi.h"
 
 namespace VENTOS {
 
@@ -99,6 +101,7 @@ private:
     static int hotplug_callback_detach(libusb_context *ctx, libusb_device *dev, libusb_hotplug_event event, void *user_data);
 
     void startSniffing();
+    void bulk(libusb_device_handle *devh);
 
 private:
     // NED variables
@@ -107,16 +110,25 @@ private:
     bool listUSBdevicesDetailed;
     bool hotPlug;
 
+    // NED variables
+    uint16_t target_vendor_id;
+    uint16_t target_product_id;
+    int target_interfaceNumber;
+    unsigned char target_interruptEP;
+
     // variables
     TraCI_Extend *TraCI;
     simsignal_t Signal_executeFirstTS;
     simsignal_t Signal_executeEachTS;
 
-    static libusb_context *ctx;  // a libusb session
+    libusb_context *ctx;  // a libusb session
     static libusb_device_handle *hotPlugHandle;
+    libusb_device_handle *dev_handle;
+    int EPPacketSize;
 
     std::map< usb_vender, std::vector<usb_device> > USBids;
     cMessage* USBevents;
+    cMessage* USBInterrupt;
     std::map<int, std::string> USBclass = {
             {0, "PER_INTERFACE"},
             {1, "AUDIO"},

@@ -11,5 +11,10 @@ simple SniffUSB
         bool listUSBdevices;
         bool listUSBdevicesDetailed;
         bool hotPlug;
+        
+        int target_vendor_id;
+		int target_product_id;
+		int target_interfaceNumber;
+		int target_interruptEP;
 }
 
