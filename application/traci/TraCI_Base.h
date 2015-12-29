@@ -30,7 +30,6 @@
 
 #include "BaseWorldUtility.h"
 #include "ConnectionManager.h"
-//#include "ObstacleControl.h"
 #include "TraCIBuffer.h"
 #include "TraCIColor.h"
 #include "TraCIConnection.h"
@@ -62,18 +61,21 @@ public:
     virtual void handleMessage(cMessage *msg);
     virtual void handleSelfMsg(cMessage *msg);
 
-    // virtual methods implemented by TraCI_Extend
-    virtual std::pair<uint32_t, std::string> getVersion();
-    virtual std::string vehicleGetTypeID(std::string);
-    virtual std::string vehicleGetClass(std::string);
-    virtual std::list<std::string> vehicleGetIDList();
-    virtual int vehicleTypeGetControllerType(std::string);
-    virtual int vehicleTypeGetControllerNumber(std::string);
-    virtual std::list<std::string> personGetIDList();
-    virtual uint32_t simulationGetMinExpectedNumber();
-    virtual uint32_t personGetIDCount();
-    virtual std::list<std::string> routeGetIDList();
-    virtual void vehicleAdd(std::string, std::string, std::string, int32_t, double, double, uint8_t);
+    // pure virtual methods implemented by TraCI_Extend
+    virtual std::pair<uint32_t, std::string> getVersion() = 0;
+    virtual std::string vehicleGetTypeID(std::string) = 0;
+    virtual std::string vehicleGetClass(std::string) = 0;
+    virtual std::list<std::string> vehicleGetIDList() = 0;
+    virtual int vehicleTypeGetControllerType(std::string) = 0;
+    virtual int vehicleTypeGetControllerNumber(std::string) = 0;
+    virtual std::list<std::string> personGetIDList() = 0;
+    virtual uint32_t simulationGetMinExpectedNumber() = 0;
+    virtual uint32_t personGetIDCount() = 0;
+    virtual std::list<std::string> routeGetIDList() = 0;
+    virtual void vehicleAdd(std::string, std::string, std::string, int32_t, double, double, uint8_t) = 0;
+    virtual std::list<std::string> polygonGetIDList() = 0;
+    virtual std::list<Coord> polygonGetShape(std::string) = 0;
+    virtual std::string polygonGetTypeID(std::string) = 0;
 
 protected:
     uint32_t getCurrentTimeMs(); /**< get current simulation time (in ms) */

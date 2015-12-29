@@ -33,16 +33,14 @@
 
 namespace VENTOS {
 
-Define_Module(VENTOS::TraCI_Base);
-
 TraCI_Base::TraCI_Base() :
-                                                        connection(0),
-                                                        myAddVehicleTimer(0),
-                                                        mobRng(0),
-                                                        connectAndStartTrigger(0),
-                                                        executeOneTimestepTrigger(0),
-                                                        world(0),
-                                                        cc(0) { }
+                                                                        connection(0),
+                                                                        myAddVehicleTimer(0),
+                                                                        mobRng(0),
+                                                                        connectAndStartTrigger(0),
+                                                                        executeOneTimestepTrigger(0),
+                                                                        world(0),
+                                                                        cc(0) { }
 
 
 TraCI_Base::~TraCI_Base()
@@ -312,26 +310,28 @@ void TraCI_Base::init_traci()
         ASSERT(buf.eof());
     }
 
-    // todo: remove comment
-    //    ObstacleControl* obstacles = ObstacleControlAccess().getIfExists();
-    //    if (obstacles) {
-    //        {
-    //            // get list of polygons
-    //            std::list<std::string> ids = getCommandInterface()->getPolygonIds();
-    //            for (std::list<std::string>::iterator i = ids.begin(); i != ids.end(); ++i) {
-    //                std::string id = *i;
-    //                std::string typeId = getCommandInterface()->polygon(id).getTypeId();
-    //                if (typeId == "building") {
-    //                    std::list<Coord> coords = getCommandInterface()->polygon(id).getShape();
-    //                    Obstacle obs(id, 9, .4); // each building gets attenuation of 9 dB per wall, 0.4 dB per meter
-    //                    std::vector<Coord> shape;
-    //                    std::copy(coords.begin(), coords.end(), std::back_inserter(shape));
-    //                    obs.setShape(shape);
-    //                    obstacles->add(obs);
-    //                }
-    //            }
-    //        }
-    //    }
+    Veins::ObstacleControl* obstacles = Veins::ObstacleControlAccess().getIfExists();
+    if (obstacles)
+    {
+        // get list of polygons
+        std::list<std::string> ids = polygonGetIDList();
+
+        for (std::list<std::string>::iterator i = ids.begin(); i != ids.end(); ++i)
+        {
+            std::string id = *i;
+            std::string typeId = polygonGetTypeID(id);
+
+            if (typeId == "building")
+            {
+                std::list<Coord> coords = polygonGetShape(id);
+                Veins::Obstacle obs(id, 9, .4); // each building gets attenuation of 9 dB per wall, 0.4 dB per meter
+                std::vector<Coord> shape;
+                std::copy(coords.begin(), coords.end(), std::back_inserter(shape));
+                obs.setShape(shape);
+                obstacles->add(obs);
+            }
+        }
+    }
 
     std::cout << "Initializing modules with TraCI support ..." << std::endl;
     simsignal_t Signal_executeFirstTS = registerSignal("executeFirstTS");
@@ -888,7 +888,7 @@ void TraCI_Base::addModule(std::string nodeId, const Coord& position, std::strin
         displayString = bikeModuleDisplayString;
         vClassEnum = SVC_BICYCLE;
     }
-    else if(vClass == "pedestrian")
+    else if(vClass == "pedestrian")  // todo: should we handle pedestrian separately?
     {
         type = pedModuleType;
         name = pedModuleName;
@@ -966,6 +966,7 @@ void TraCI_Base::addModule(std::string nodeId, const Coord& position, std::strin
 }
 
 
+// todo: work on pedestrian
 void TraCI_Base::addPedestriansToOMNET()
 {
     //cout << simTime().dbl() << ": " << allPedestrians.size() << endl;
@@ -1171,18 +1172,6 @@ void TraCI_Base::insertVehicles()
         i = tmp;
     }
 }
-
-std::string TraCI_Base::vehicleGetTypeID(std::string) { error("this method should not be called directly!"); return ""; }
-std::string TraCI_Base::vehicleGetClass(std::string){ error("this method should not be called directly!"); return ""; }
-int TraCI_Base::vehicleTypeGetControllerType(std::string) { error("this method should not be called directly!"); return -1; }
-int TraCI_Base::vehicleTypeGetControllerNumber(std::string) { error("this method should not be called directly!"); return -1; }
-std::list<std::string> TraCI_Base::personGetIDList() { error("this method should not be called directly!"); return std::list<std::string>(); }
-uint32_t TraCI_Base::simulationGetMinExpectedNumber() { error("this method should not be called directly!"); return -1; }
-uint32_t TraCI_Base::personGetIDCount() { error("this method should not be called directly!"); return -1; }
-std::pair<uint32_t, std::string> TraCI_Base::getVersion() { error("this method should not be called directly!"); return std::pair<uint32_t, std::string> (); }
-std::list<std::string> TraCI_Base::vehicleGetIDList() { error("this method should not be called directly!"); return std::list<std::string> (); }
-std::list<std::string> TraCI_Base::routeGetIDList() { error("this method should not be called directly!"); return std::list<std::string> (); }
-void TraCI_Base::vehicleAdd(std::string, std::string, std::string, int32_t, double, double, uint8_t) { error("this method should not be called directly!"); }
 
 }
 

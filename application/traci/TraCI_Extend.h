@@ -306,6 +306,7 @@ public:
     std::list<std::string> polygonGetIDList();
     uint32_t polygonGetIDCount();
     std::list<Coord> polygonGetShape(std::string);
+    std::string polygonGetTypeID(std::string);
 
     // CMD_SET_POLYGON_VARIABLE
     void polygonAddTraCI(std::string, std::string, const TraCIColor&, bool, int32_t, const std::list<TraCICoord>&);

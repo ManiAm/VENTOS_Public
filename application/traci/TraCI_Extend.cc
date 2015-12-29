@@ -1986,6 +1986,12 @@ std::list<Coord> TraCI_Extend::polygonGetShape(std::string polyId)
 }
 
 
+std::string TraCI_Extend::polygonGetTypeID(std::string polyId)
+{
+    return genericGetString(CMD_GET_POLYGON_VARIABLE, polyId, VAR_TYPE, RESPONSE_GET_POLYGON_VARIABLE);
+}
+
+
 // ########################
 // CMD_SET_POLYGON_VARIABLE
 // ########################

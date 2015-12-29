@@ -83,18 +83,14 @@ or you can create an application launcher:
     make install-menu-item
 
 
-Import VENTOS
--------------
+Import VENTOS into OMNET++
+--------------------------
 
-**Step 1:** install the git package:
+**Step 1:** Make sure you have these packages installed on your Ubuntu 14 machine:
 
-    sudo apt-get install git
-
-**Step 2:** Make sure you have these packages installed on your Ubuntu 14 machine:
-
-    sudo apt-get install libboost-all-dev libssl-dev libcurl4-gnutls-dev libxerces-c2-dev libfox-1.6-dev libproj-dev libpcap-dev libusb-1.0-0-dev gnuplot gnuplot-x11 
+    sudo apt-get install git libboost-all-dev libssl-dev libcurl4-gnutls-dev libxerces-c2-dev libfox-1.6-dev libproj-dev libpcap-dev libusb-1.0-0-dev gnuplot gnuplot-x11 
     
-**Step 3:** Download snmp++ API from [here](http://www.agentpp.com/download/snmp++-3.3.5.tar.gz). Extract it and then build the library:
+**Step 2:** Download snmp++ API from [here](http://www.agentpp.com/download/snmp++-3.3.5.tar.gz). Extract it and then build the library:
 
     ./configure
     make
@@ -102,7 +98,7 @@ Import VENTOS
 
 libsnmp++ library will be copied into /usr/local/lib and the header files will be copied into /usr/local/include.
 
-**Step 4:** Clone the shark repository into your computer:
+**Step 3:** Clone the shark repository into your computer:
 
     git clone https://github.com/Shark-ML/Shark/
 
@@ -130,13 +126,13 @@ And then
 
 libshark library will be copied into /usr/local/lib and the header files will be copied into /usr/local/include.
 
-**Step 5:** Finally after installing the above shared libraries run the following command.
+**Step 4:** Finally after installing the above shared libraries run the following command.
 
     sudo ldconfig -v
 
 ldconfig is a program that is used to maintain the shared library cache in linux. This cache is typically stored in the file /etc/ld.so.cache and is used by the system to map a shared library name to the location of the corresponding shared library file.
 
-**Step 6:** Download Eigen library from [here](http://eigen.tuxfamily.org/index.php?title=Main_Page). Extract it and then install it on your system.
+**Step 5:** Download Eigen library from [here](http://eigen.tuxfamily.org/index.php?title=Main_Page). Extract it and then install it on your system.
 
     mkdir build
     cd build
@@ -145,19 +141,19 @@ ldconfig is a program that is used to maintain the shared library cache in linux
 
 Eigen consists only of header files, hence there is nothing to compile before you can use it. The header files will be copied into /usr/local/include.
 
-**Step 7:** Clone the VENTOS repository in the current directory (run the command in the same folder as Eclipse workspace that you specified before). You also need to provide your github username and password.
+**Step 6:** Clone the VENTOS repository in the current directory (run the command in the same folder as Eclipse workspace that you specified before). You also need to provide your github username and password.
 
     git clone https://github.com/ManiAm/VENTOS
 
-**Step 8:** Now you can import VENTOS project into the OMNET++ IDE. Choose "File->Import" from the menu. Choose "General->Existing Projects into Workspace" from the upcoming dialog and proceed with "Next". Choose "Select root directory" and select the VENTOS folder. "VENTOS" should appear in the "Projects" section. Unselect "Copy project into workspace" if the VENTOS folder is already in your workspace. Click "Finish".
+**Step 7:** Now you can import VENTOS project into the OMNET++ IDE. Choose "File->Import" from the menu. Choose "General->Existing Projects into Workspace" from the upcoming dialog and proceed with "Next". Choose "Select root directory" and select the VENTOS folder. "VENTOS" should appear in the "Projects" section. Unselect "Copy project into workspace" if the VENTOS folder is already in your workspace. Click "Finish".
 
 Note: Wait for a while until "C/C++ Indexer" finishes its job.
 
-**Step 9:** Now you can build the VENTOS project. Use Ctrl+B or right-click on the project name and choose "Build Project". Wait for a while and then check the console windows at the bottom of the Eclipse IDE to make sure no errors occurred.
+**Step 8:** Now you can build the VENTOS project. Use Ctrl+B or right-click on the project name and choose "Build Project". Wait for a while and then check the console windows at the bottom of the Eclipse IDE to make sure no errors occurred.
     
 
-Running the VENTOS Project
---------------------------
+Running VENTOS
+--------------
 
 Before running the VENTOS project, latest SUMO binaries (`sumo-guiD` and `sumoD`) should be obtained. These binaries will be downloaded automatically in the VENTOS/sumoBinary folder upon the first run of the project. sumo-guiD is the GUI version that provides a graphical interface to SUMO, and is visible while the OMNET++ simulation is running (and is very useful for debugging purposes). On the other hands, sumoD is the command-line version which is faster. 
 
@@ -204,8 +200,7 @@ Upon the first execution, VENTOS tries to download sumoD and sumo-guiD. Type y t
 Running VENTOS from command-line
 --------------------------------
 
-The Eclipse IDE launcher helps you start the simulation easily by building the command line and the environment for your
-program automatically. Sometimes it would be great to start the simulation from outside the IDE. To get the command line used for running the simulation, run the simulation from the IDE. Go to 'debug view' and right click on your program and select 'properties'. The IDE shows the currently used command line such as:
+The Eclipse IDE launcher helps you start the simulation easily by building the command line and the environment for your program automatically. Sometimes it would be great to start the simulation from outside the IDE. To get the command line used for running the simulation, run the simulation from the IDE. Go to 'debug view' and right click on your program and select 'properties'. The IDE shows the currently used command line such as:
 
     opp_run -r 0 -u Cmdenv -c TrafficSignalControl -n . -l application/VENTOS params4_TL.ini
 
