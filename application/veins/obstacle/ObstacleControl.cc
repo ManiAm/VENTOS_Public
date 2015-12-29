@@ -22,9 +22,9 @@
 #include <set>
 #include "ObstacleControl.h"
 
-namespace VENTOS {
+namespace Veins {
 
-Define_Module(VENTOS::ObstacleControl);
+Define_Module(Veins::ObstacleControl);
 
 ObstacleControl::~ObstacleControl() {
 

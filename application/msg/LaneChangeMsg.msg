@@ -31,7 +31,7 @@ cplusplus {{
 typedef std::deque<std::string> stringQueue;
 }}
 
-class WaveShortMessage;
+class Veins::WaveShortMessage;
 class noncobject stringQueue;
 
 namespace VENTOS;

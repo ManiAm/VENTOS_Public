@@ -32,7 +32,7 @@
 #endif
 //#define DBG_D11P std::cerr << "[" << simTime().raw() << "] " << myPath << ".Dec "
 
-namespace VENTOS {
+namespace Veins {
 
 /**
  * @brief

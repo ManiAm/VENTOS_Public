@@ -28,7 +28,7 @@
 /**
  * stores information about an Obstacle for ObstacleControl
  */
-namespace VENTOS {
+namespace Veins {
 
 class Obstacle {
 	public:

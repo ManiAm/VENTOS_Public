@@ -38,7 +38,7 @@
 #include "SimpleObstacleShadowing.h"
 #include "TwoRayInterferenceModel.h"
 
-namespace VENTOS {
+namespace Veins {
 
 Define_Module(PhyLayer80211p);
 

@@ -4,7 +4,6 @@
 #include <map>
 #include <vector>
 #include <string>
-
 #include "MiXiMDefs.h"
 #include "ChannelAccess.h"
 #include "DeciderToPhyInterface.h"
@@ -14,7 +13,6 @@
 class AnalogueModel;
 class Decider;
 class BaseWorldUtility;
-class cXMLElement;
 
 /**
  * @brief The BasePhyLayer represents the physical layer of a nic.

@@ -1,4 +1,5 @@
 package c3po.application;
+
 import c3po.application.MIXIM.modules.*;
 import c3po.application.MIXIM.connectionManager.*;
 import c3po.application.traci.*;
@@ -16,13 +17,13 @@ network Network
         double playgroundSizeY @unit(m); // y size of the area the nodes are in (in meters)
         double playgroundSizeZ @unit(m); // z size of the area the nodes are in (in meters)
 
-        string SUMODirectory = default(""); // location of SUMO .ned and .rou files
+        string SUMODirectory = default(""); // location of SUMO files
         int debugLevel;
 
         // do not put @display here!
         // it automatically adjust itself based on the playground size in ini
         @display("bgb=400,627");
-    submodules:
+    submodules:       
         world: BaseWorldUtility {
             parameters:
                 playgroundSizeX = playgroundSizeX;

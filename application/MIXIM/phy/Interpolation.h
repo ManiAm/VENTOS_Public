@@ -839,4 +839,5 @@ public:
 		return it;
 	}
 };
+
 #endif /*INTERPOLATION_H_*/

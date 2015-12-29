@@ -32,7 +32,7 @@
 #include "NistErrorRate.h"
 #include "ConstsPhy.h"
 
-namespace VENTOS {
+namespace Veins {
 
 simtime_t Decider80211p::processNewSignal(AirFrame* msg) {
 

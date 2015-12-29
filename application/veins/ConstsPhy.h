@@ -25,7 +25,7 @@
 #include <cmath>
 #include <stdint.h>
 
-namespace VENTOS {
+namespace Veins {
 
 /** @brief Modulation and coding scheme to be used for transmission */
 enum PHY_MCS {

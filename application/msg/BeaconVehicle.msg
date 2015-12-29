@@ -30,7 +30,7 @@ cplusplus {{
 #include <Coord.h>
 }}
 
-class WaveShortMessage;
+class Veins::WaveShortMessage;
 class noncobject Coord;
 
 namespace VENTOS;

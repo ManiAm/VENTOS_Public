@@ -26,7 +26,7 @@ simple ObstacleControl
     parameters:
         bool debug = default(false);  // emit debug messages?
         xml obstacles = default(xml("<obstacles/>")); // obstacles to add at startup
-	    @class(VENTOS::ObstacleControl);
+	    @class(Veins::ObstacleControl);
         @display("i=misc/town");
         @labels(node);
 }

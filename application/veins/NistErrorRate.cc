@@ -21,7 +21,7 @@
 #include "NistErrorRate.h"
 #include <omnetpp.h>
 
-namespace VENTOS {
+namespace Veins {
 
 NistErrorRate::NistErrorRate ()
 {

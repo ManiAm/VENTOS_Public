@@ -29,7 +29,7 @@ cplusplus {{
 #include "WaveShortMessage_m.h"
 }}
 
-class WaveShortMessage;
+class Veins::WaveShortMessage;
 
 namespace VENTOS;
 

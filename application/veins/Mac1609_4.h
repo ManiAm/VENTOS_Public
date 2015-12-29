@@ -38,7 +38,7 @@
 #include "Mac80211Pkt_m.h"
 #include "WaveShortMessage_m.h"
 
-namespace VENTOS {
+namespace Veins {
 
 /**
  * @brief

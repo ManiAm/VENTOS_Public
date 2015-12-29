@@ -31,7 +31,7 @@ import c3po.application.MIXIM.phy.BasePhyLayer;
 simple PhyLayer80211p extends BasePhyLayer
 {
     parameters:
-        @class(VENTOS::PhyLayer80211p);
+        @class(Veins::PhyLayer80211p);
         headerLength @unit(bit)  = default(46 bit); //defines the length of the phy header (SIGNAL without PREAMBLE)
         //defines the CCA threshold
         double ccaThreshold @unit(dBm) = default(-65 dBm);

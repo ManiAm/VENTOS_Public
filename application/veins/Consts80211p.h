@@ -23,7 +23,7 @@
 
 #include <stdint.h>
 
-namespace VENTOS {
+namespace Veins {
 
 /** @brief Bit rates for 802.11p
  *
@@ -143,6 +143,7 @@ const SimTime SWITCHING_INTERVAL_11P = SimTime().setRaw(50000000000UL);
 const SimTime GUARD_INTERVAL_11P = SimTime().setRaw(4000000000UL);
 
 
+namespace Channels {
 /** @brief Channels as reserved by the FCC
  *
  */
@@ -155,6 +156,7 @@ enum ChannelNumber {
 	SCH4 = 182,
 	HPPS = 184
 };
+}
 
 enum t_channel {
 	type_CCH=0,

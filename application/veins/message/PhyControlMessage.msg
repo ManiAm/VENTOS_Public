@@ -19,6 +19,7 @@
 // Defines a control message that can be associated with a MAC frame to set
 // transmission power and datarate on a per packet basis
 
+namespace Veins;
 
 message PhyControlMessage {
     //modulation and coding scheme to be used (see enum TxMCS in ConstsPhy.h)

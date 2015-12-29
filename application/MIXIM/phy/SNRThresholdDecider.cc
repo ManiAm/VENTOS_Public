@@ -211,4 +211,3 @@ simtime_t SNRThresholdDecider::processSignalEnd(AirFrame* frame)
 
 	return notAgain;
 }
-

@@ -21,7 +21,7 @@
 #ifndef DECIDER80211PTOPHY80211PINTERFACE_H_
 #define DECIDER80211PTOPHY80211PINTERFACE_H_
 
-namespace VENTOS {
+namespace Veins {
 
 /**
  * @brief

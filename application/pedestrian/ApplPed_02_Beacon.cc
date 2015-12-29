@@ -153,7 +153,7 @@ BeaconPedestrian*  ApplPedBeacon::prepareBeacon()
     wsm->setWsmVersion(1);
     wsm->setSecurityType(1);
 
-    wsm->setChannelNumber(CCH);
+    wsm->setChannelNumber(Veins::Channels::CCH);
 
     wsm->setDataRate(1);
     wsm->setPriority(beaconPriority);

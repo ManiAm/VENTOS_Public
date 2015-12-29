@@ -19,9 +19,9 @@
 
 #include "AnnotationDummy.h"
 
-namespace VENTOS {
+namespace Veins {
 
-Define_Module(VENTOS::AnnotationDummy);
+Define_Module(Veins::AnnotationDummy);
 
 AnnotationDummy::~AnnotationDummy() {
 }

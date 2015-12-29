@@ -15,8 +15,8 @@ cplusplus {{
 }}
 
 class MacPkt;
+namespace Veins;
 
-//
 // Defines all fields of an 802.11 MAC frame
 //
 packet Mac80211Pkt extends MacPkt

@@ -73,4 +73,3 @@ double TwoRayInterferenceModel::Mapping::getValue(const Argument& pos) const {
 	debugEV << "Add attenuation for (freq, lambda, phi, gamma, att) = (" << freq << ", " << lambda << ", " << phi << ", " << gamma << ", " << (1/att) << ", " << FWMath::mW2dBm(att) << ")" << endl;
 	return 1/att;
 }
-

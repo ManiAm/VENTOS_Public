@@ -8,7 +8,6 @@
 #define DECIDER_H_
 
 #include <omnetpp.h>
-
 #include "MiXiMDefs.h"
 #include "DeciderToPhyInterface.h"
 #include "ChannelSenseRequest_m.h"

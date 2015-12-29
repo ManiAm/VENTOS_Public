@@ -21,7 +21,7 @@ class SimpleObstacleShadowing : public AnalogueModel
 protected:
 
 	/** @brief reference to global ObstacleControl instance */
-	VENTOS::ObstacleControl& obstacleControl;
+    Veins::ObstacleControl& obstacleControl;
 
     /** @brief carrier frequency needed for calculation */
     double carrierFrequency;
@@ -49,7 +49,7 @@ public:
 	 * @param playgroundSize information about the playground the host is moving in
 	 * @param debug display debug messages?
 	 */
-	SimpleObstacleShadowing(VENTOS::ObstacleControl& obstacleControl, double carrierFrequency, bool useTorus, const Coord& playgroundSize, bool debug);
+	SimpleObstacleShadowing(Veins::ObstacleControl& obstacleControl, double carrierFrequency, bool useTorus, const Coord& playgroundSize, bool debug);
 
 	/**
 	 * @brief Filters a specified Signal by adding an attenuation

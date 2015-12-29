@@ -82,7 +82,7 @@ void ApplRSUManager::handleSelfMsg(cMessage* msg)
 void ApplRSUManager::handleLowerMsg(cMessage* msg)
 {
     // make sure msg is of type WaveShortMessage
-    WaveShortMessage* wsm = dynamic_cast<WaveShortMessage*>(msg);
+    Veins::WaveShortMessage* wsm = dynamic_cast<Veins::WaveShortMessage*>(msg);
     ASSERT(wsm);
 
     if (std::string(wsm->getName()) == "beaconVehicle")

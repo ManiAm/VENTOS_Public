@@ -27,7 +27,7 @@
  *
  * @author Christoph Sommer
  */
-namespace VENTOS {
+namespace Veins {
 
 class AnnotationDummy : public cSimpleModule
 {

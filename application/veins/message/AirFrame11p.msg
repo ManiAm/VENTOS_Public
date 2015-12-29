@@ -18,6 +18,7 @@ cplusplus {{
 }}
 
 class AirFrame;
+namespace Veins;
 
 //
 // Extension of base AirFrame message to have the underSensitivity field

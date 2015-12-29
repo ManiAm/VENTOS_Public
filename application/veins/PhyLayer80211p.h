@@ -37,7 +37,7 @@
 #endif
 //#define DBG std::cerr << "[" << simTime().raw() << "] " << getParentModule()->getFullPath() << " "
 
-namespace VENTOS {
+namespace Veins {
 
 /**
  * @brief

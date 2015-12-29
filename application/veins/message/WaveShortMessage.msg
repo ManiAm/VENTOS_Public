@@ -23,6 +23,7 @@ cplusplus {{
 }}
 
 class noncobject Coord;
+namespace Veins;
 
 packet WaveShortMessage {
 	//Version of the Wave Short Message

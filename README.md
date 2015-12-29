@@ -207,7 +207,7 @@ Running VENTOS from command-line
 The Eclipse IDE launcher helps you start the simulation easily by building the command line and the environment for your
 program automatically. Sometimes it would be great to start the simulation from outside the IDE. To get the command line used for running the simulation, run the simulation from the IDE. Go to 'debug view' and right click on your program and select 'properties'. The IDE shows the currently used command line such as:
 
-    opp_run -r 0 -u Cmdenv -c CACCVehiclePlatoonManag1 -n .:../veins/examples/veins:../veins/src/veins --tkenv-image-path=../veins/images -l application/router/router -l application/pedestrian/pedestrian -l application/sniffing/sniffing -l application/traci/traci -l application/vehicle/vehicle -l application/global/global -l application/msg/msg -l application/trafficLightCobalt/trafficLightCobalt -l application/bike/bike -l application/adversary/adversary -l application/trafficLight/trafficLight -l application/rsu/rsu -l ../veins/src/veins params3_Platoon.ini
+    opp_run -r 0 -u Cmdenv -c TrafficSignalControl -n . -l application/VENTOS params4_TL.ini
 
 - `opp_run` allows starting simulation models that are linked as shared libraries
 - `-r <runnumber>` allows you to select runs

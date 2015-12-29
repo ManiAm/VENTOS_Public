@@ -31,7 +31,7 @@ cplusplus {{
 typedef std::list<std::string> stringList;
 }}
 
-class WaveShortMessage;
+class Veins::WaveShortMessage;
 class noncobject stringList;
 
 namespace VENTOS;

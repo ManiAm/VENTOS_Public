@@ -779,4 +779,3 @@ bool BaseMobility::handleIfOutside(BorderPolicy policy, Coord& stepTarget,
 
     return true;
 }
-

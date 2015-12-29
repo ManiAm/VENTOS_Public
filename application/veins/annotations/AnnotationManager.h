@@ -30,7 +30,7 @@
 /**
  * manages annotations on the OMNeT++ canvas.
  */
-namespace VENTOS {
+namespace Veins {
 
 class AnnotationManager : public cSimpleModule
 {

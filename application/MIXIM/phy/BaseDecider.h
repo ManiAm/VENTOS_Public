@@ -11,9 +11,9 @@
 #include "MiXiMDefs.h"
 #include "Decider.h"
 
-class Mapping;
-
 #define deciderEV (ev.isDisabled()||!debug) ? ev : ev << "[Host " << myIndex << "] - PhyLayer(Decider): "
+
+class Mapping;
 
 /**
  * @brief Provides some base functionality for most common deciders.

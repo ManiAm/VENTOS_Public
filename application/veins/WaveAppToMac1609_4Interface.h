@@ -24,7 +24,7 @@
 #ifndef ___WAVEAPPTOMAC1609_4INTERFACE_H_
 #define ___WAVEAPPTOMAC1609_4INTERFACE_H_
 
-namespace VENTOS {
+namespace Veins {
 
 /**
  * @brief

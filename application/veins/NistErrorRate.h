@@ -24,7 +24,7 @@
 #include <cmath>
 #include "ConstsPhy.h"
 
-namespace VENTOS {
+namespace Veins {
 
 /**
  * Model the error rate for different modulations and coding schemes.

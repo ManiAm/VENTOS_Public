@@ -20,7 +20,7 @@
 #include <set>
 #include "Obstacle.h"
 
-namespace VENTOS {
+namespace Veins {
 
 bool isPointInObstacle(Coord point, const Obstacle& o) {
     bool isInside = false;

@@ -33,7 +33,7 @@
  * Transmissions that cross one of the polygon's lines will have
  * their receive power set to zero.
  */
-namespace VENTOS {
+namespace Veins {
 
 class ObstacleControl : public cSimpleModule
 {

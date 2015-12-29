@@ -225,4 +225,3 @@ void ChannelInfo::getAirFrames(simtime_t_cref from, simtime_t_cref to,
 	getIntersections(activeAirFrames, from, to, out);
 }
 
-

@@ -116,7 +116,7 @@ void ApplAdversary::handleLowerMsg(cMessage* msg)
         return;
 
     // make sure msg is of type WaveShortMessage
-    WaveShortMessage* wsm = dynamic_cast<WaveShortMessage*>(msg);
+    Veins::WaveShortMessage* wsm = dynamic_cast<Veins::WaveShortMessage*>(msg);
     ASSERT(wsm);
 
     if ( std::string(wsm->getName()) == "beaconVehicle" )
@@ -199,7 +199,7 @@ DummyMsg* ApplAdversary::CreateDummyMessage()
     wsm->setWsmVersion(1);
     wsm->setSecurityType(1);
 
-    wsm->setChannelNumber(CCH);
+    wsm->setChannelNumber(Veins::Channels::CCH);
 
     wsm->setDataRate(1);
     wsm->setPriority(2);

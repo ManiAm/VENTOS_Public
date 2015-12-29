@@ -2,7 +2,6 @@
 #define MACTOPHYINTERFACE_H_
 
 #include <omnetpp.h>
-
 #include "MiXiMDefs.h"
 #include "Signal_.h"
 #include "ChannelState.h"

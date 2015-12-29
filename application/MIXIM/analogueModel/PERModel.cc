@@ -19,4 +19,3 @@ void PERModel::filterSignal(AirFrame *frame, const Coord& sendersPos, const Coor
 }
 
 
-

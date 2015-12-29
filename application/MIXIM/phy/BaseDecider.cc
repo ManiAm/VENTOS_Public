@@ -328,4 +328,3 @@ Mapping* BaseDecider::calculateRSSIMapping( simtime_t_cref start,
 	}
 	return resultMap;
 }
-

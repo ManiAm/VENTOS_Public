@@ -24,7 +24,6 @@
 
 Define_Module(BaseWorldUtility);
 
-
 const double BaseWorldUtility::speedOfLight = 299792458.0; ///< meters per second
 
 BaseWorldUtility::BaseWorldUtility():
@@ -82,4 +81,3 @@ Coord BaseWorldUtility::getRandomPosition()
                      uniform(0, playgroundSize.y),
                      use2DFlag ? 0. : uniform(0, playgroundSize.z));
 }
-

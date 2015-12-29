@@ -7,7 +7,7 @@
 #define ccEV (ev.isDisabled()||!coreDebug) ? ev : ev << getName() << ": "
 #endif
 
-Define_Module( ConnectionManager );
+Define_Module(ConnectionManager);
 
 double ConnectionManager::calcInterfDist()
 {
@@ -37,4 +37,3 @@ double ConnectionManager::calcInterfDist()
 
 	return interfDistance;
 }
-

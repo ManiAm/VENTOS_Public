@@ -136,4 +136,3 @@ std::string BaseModule::logName(void) const
 	}
 	return ost.str();
 }
-

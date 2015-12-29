@@ -27,7 +27,7 @@
 #define DBG_MAC EV
 //#define DBG_MAC std::cerr << "[" << simTime().raw() << "] " << myId << " "
 
-namespace VENTOS {
+namespace Veins {
 
 Define_Module(Mac1609_4);
 
@@ -54,13 +54,13 @@ void Mac1609_4::initialize(int stage) {
 		myMacAddress = intuniform(0,0xFFFFFFFE);
 		myId = getParentModule()->getParentModule()->getFullPath();
 		//create frequency mappings
-		frequency.insert(std::pair<int, double>(CRIT_SOL, 5.86e9));
-		frequency.insert(std::pair<int, double>(SCH1, 5.87e9));
-		frequency.insert(std::pair<int, double>(SCH2, 5.88e9));
-		frequency.insert(std::pair<int, double>(CCH, 5.89e9));
-		frequency.insert(std::pair<int, double>(SCH3, 5.90e9));
-		frequency.insert(std::pair<int, double>(SCH4, 5.91e9));
-		frequency.insert(std::pair<int, double>(HPPS, 5.92e9));
+		frequency.insert(std::pair<int, double>(Channels::CRIT_SOL, 5.86e9));
+		frequency.insert(std::pair<int, double>(Channels::SCH1, 5.87e9));
+		frequency.insert(std::pair<int, double>(Channels::SCH2, 5.88e9));
+		frequency.insert(std::pair<int, double>(Channels::CCH, 5.89e9));
+		frequency.insert(std::pair<int, double>(Channels::SCH3, 5.90e9));
+		frequency.insert(std::pair<int, double>(Channels::SCH4, 5.91e9));
+		frequency.insert(std::pair<int, double>(Channels::HPPS, 5.92e9));
 
 		//create two edca systems
 
@@ -85,10 +85,10 @@ void Mac1609_4::initialize(int stage) {
 		if (useSCH) {
 			//set the initial service channel
 			switch (par("serviceChannel").longValue()) {
-				case 1: mySCH = SCH1; break;
-				case 2: mySCH = SCH2; break;
-				case 3: mySCH = SCH3; break;
-				case 4: mySCH = SCH4; break;
+				case 1: mySCH = Channels::SCH1; break;
+				case 2: mySCH = Channels::SCH2; break;
+				case 3: mySCH = Channels::SCH3; break;
+				case 4: mySCH = Channels::SCH4; break;
 				default: opp_error("Service Channel must be between 1 and 4"); break;
 			}
 		}
@@ -160,7 +160,7 @@ void Mac1609_4::handleSelfMsg(cMessage* msg) {
 				channelBusySelf(false);
 				setActiveChannel(type_CCH);
 				channelIdle(true);
-				phy11p->changeListeningFrequency(frequency[CCH]);
+				phy11p->changeListeningFrequency(frequency[Channels::CCH]);
 				break;
 		}
 		//schedule next channel switch in 50ms
@@ -215,7 +215,7 @@ void Mac1609_4::handleSelfMsg(cMessage* msg) {
 			phy->setRadioState(Radio::TX);
 
 
-			double freq = (activeChannel == type_CCH) ? frequency[CCH] : frequency[mySCH];
+			double freq = (activeChannel == type_CCH) ? frequency[Channels::CCH] : frequency[mySCH];
 
 			attachSignal(mac, simTime()+RADIODELAY_11P, freq, datarate, txPower_mW);
 			MacToPhyControlInfo* phyInfo = dynamic_cast<MacToPhyControlInfo*>(mac->getControlInfo());
@@ -256,7 +256,7 @@ void Mac1609_4::handleUpperMsg(cMessage* msg) {
 	t_channel chan;
 
 	//rewrite SCH channel to actual SCH the Mac1609_4 is set to
-	if (thisMsg->getChannelNumber() == SCH1) {
+	if (thisMsg->getChannelNumber() == Channels::SCH1) {
 		ASSERT(useSCH);
 		thisMsg->setChannelNumber(mySCH);
 		chan = type_SCH;
@@ -264,7 +264,7 @@ void Mac1609_4::handleUpperMsg(cMessage* msg) {
 
 
 	//put this packet in its queue
-	if (thisMsg->getChannelNumber() == CCH) {
+	if (thisMsg->getChannelNumber() == Channels::CCH) {
 		chan = type_CCH;
 	}
 
@@ -469,7 +469,7 @@ simtime_t Mac1609_4::timeLeftInSlot() const {
 /* Will change the Service Channel on which the mac layer is listening and sending */
 void Mac1609_4::changeServiceChannel(int cN) {
 	ASSERT(useSCH);
-	if (cN != SCH1 && cN != SCH2 && cN != SCH3 && cN != SCH4) {
+	if (cN != Channels::SCH1 && cN != Channels::SCH2 && cN != Channels::SCH3 && cN != Channels::SCH4) {
 		opp_error("This Service Channel doesnt exit: %d",cN);
 	}
 

@@ -23,7 +23,7 @@
 
 #include "MacToPhyInterface.h"
 
-namespace VENTOS {
+namespace Veins {
 
 /**
  * @brief

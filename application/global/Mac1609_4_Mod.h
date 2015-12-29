@@ -33,7 +33,7 @@
 
 namespace VENTOS {
 
-class Mac1609_4_Mod : public Mac1609_4
+class Mac1609_4_Mod : public Veins::Mac1609_4
 {
 	public:
 		~Mac1609_4_Mod() {};

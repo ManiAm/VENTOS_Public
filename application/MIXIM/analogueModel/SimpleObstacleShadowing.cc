@@ -27,7 +27,7 @@ double SimplePathlossConstMapping::getValue(const Argument& pos) const
 #endif
 
 
-SimpleObstacleShadowing::SimpleObstacleShadowing(VENTOS::ObstacleControl& obstacleControl, double carrierFrequency, bool useTorus, const Coord& playgroundSize, bool debug) :
+SimpleObstacleShadowing::SimpleObstacleShadowing(Veins::ObstacleControl& obstacleControl, double carrierFrequency, bool useTorus, const Coord& playgroundSize, bool debug) :
 	obstacleControl(obstacleControl),
 	carrierFrequency(carrierFrequency),
 	useTorus(useTorus),
