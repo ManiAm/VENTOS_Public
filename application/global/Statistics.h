@@ -31,15 +31,11 @@
 #include <BaseApplLayer.h>
 #include <ChannelAccess.h>
 #include <WaveAppToMac1609_4Interface.h>
-#include "modules/mobility/traci/TraCIMobility.h"
-
-#include "Appl.h"
 #include "TraCI_Extend.h"
-
 
 namespace VENTOS {
 
-class Router;   // Forward-declaration so TraCI_App may hold a Router*
+class Router;   // Forward-declaration so Statistics may hold a Router*
 
 class VehicleData
 {

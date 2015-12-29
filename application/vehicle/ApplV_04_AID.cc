@@ -88,10 +88,10 @@ void ApplV_AID::onBeaconRSU(BeaconRSU* wsm)
     {
         LaneChangeMsg* dataMsg = ApplV_AID::prepareData(wsm->getSender(), laneChanges);
         sendDelayed(dataMsg, individualOffset, lowerLayerOut);
-        EV << "### " << SUMOvID << ": sent ClaneChangeMsg message." << endl;
+        EV << "### " << SUMOID << ": sent ClaneChangeMsg message." << endl;
 
         laneChanges.clear();
-       // lastLaneName = TraCI->commandGetLaneId(SUMOvID);
+       // lastLaneName = TraCI->commandGetLaneId(SUMOID);
     }
 }
 
@@ -116,19 +116,15 @@ LaneChangeMsg*  ApplV_AID::prepareData(std::string receiver, std::deque<std::str
     wsm->setSecurityType(1);
 
     if(dataOnSch)
-    {
-        wsm->setChannelNumber(Channels::SCH1);
-    }
+        wsm->setChannelNumber(SCH1);
     else
-    {
-        wsm->setChannelNumber(Channels::CCH);
-    }
+        wsm->setChannelNumber(CCH);
 
     wsm->setDataRate(1);
     wsm->setPriority(dataPriority);
     wsm->setPsid(0);
 
-    wsm->setSender(SUMOvID.c_str());
+    wsm->setSender(SUMOID.c_str());
     wsm->setRecipient(receiver.c_str());
     wsm->setLaneChange(vecValue);
 
@@ -145,13 +141,13 @@ void ApplV_AID::handlePositionUpdate(cObject* obj)
     if(!AID)
         return;
 
-    toLane = TraCI->vehicleGetLaneID(SUMOvID);
+    toLane = TraCI->vehicleGetLaneID(SUMOID);
 
     // if we change lane
     if(fromLane != toLane)
     {
         std::ostringstream str;
-        toX =  ( TraCI->vehicleGetPosition(SUMOvID) ).x;
+        toX =  ( TraCI->vehicleGetPosition(SUMOID) ).x;
         str << fromLane <<  "#" << toLane << "#" << fromX << "#" << toX << "#" << simTime().dbl();
         laneChanges.push_back( str.str() );
 

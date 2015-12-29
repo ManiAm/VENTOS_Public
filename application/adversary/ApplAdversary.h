@@ -31,10 +31,9 @@
 #include <BaseApplLayer.h>
 #include <ChannelAccess.h>
 #include <WaveAppToMac1609_4Interface.h>
-
-#include "Appl.h"
 #include "TraCI_Extend.h"
-
+#include "BeaconVehicle_m.h"
+#include "DummyMsg_m.h"
 
 namespace VENTOS {
 
@@ -61,8 +60,7 @@ class ApplAdversary : public BaseApplLayer
 	protected:
 		// NED variables
 	    cModule *nodePtr;   // pointer to the Node
-        WaveAppToMac1609_4Interface* myMac;
-        mutable TraCI_Extend* TraCI;
+        TraCI_Extend* TraCI;
 
         // NED variables
         double AttackT;
@@ -71,11 +69,11 @@ class ApplAdversary : public BaseApplLayer
         bool jammingAttack;
 
         // Class variables
-        static const simsignalwrap_t mobilityStateChangedSignal;
         int myId;
 		const char *myFullId;
         Coord curPosition;  // current position from mobility module (not from sumo)
         cMessage* JammingEvt;
+        static const simsignalwrap_t mobilityStateChangedSignal;
 };
 
 }

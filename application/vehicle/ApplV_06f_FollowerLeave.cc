@@ -49,23 +49,23 @@ void ApplVPlatoonMg::followerLeave_handleSelfMsg(cMessage* msg)
         // check if we are free agent?
         if(vehicleState == state_platoonLeader && plnSize == 1)
         {
-            TraCI->vehicleSetClass(SUMOvID, "private");   // change vClass
+            TraCI->vehicleSetClass(SUMOID, "private");   // change vClass
 
             int32_t bitset = TraCI->vehicleBuildLaneChangeMode(10, 01, 01, 01, 01);
-            TraCI->vehicleSetLaneChangeMode(SUMOvID, bitset);  // alter 'lane change' mode
-            TraCI->vehicleChangeLane(SUMOvID, 0, 5);   // change to lane 0 (normal lane)
+            TraCI->vehicleSetLaneChangeMode(SUMOID, bitset);  // alter 'lane change' mode
+            TraCI->vehicleChangeLane(SUMOID, 0, 5);   // change to lane 0 (normal lane)
 
-            TraCI->vehicleSetSpeed(SUMOvID, 30.);
+            TraCI->vehicleSetSpeed(SUMOID, 30.);
 
             // change color to yellow!
             TraCIColor newColor = TraCIColor::fromTkColor("yellow");
-            TraCI->vehicleSetColor(SUMOvID, newColor);
+            TraCI->vehicleSetColor(SUMOID, newColor);
 
             plnSize = -1;
             myPlnDepth = -1;
             busy = false;
 
-            reportManeuverToStat(SUMOvID, "-", "FLeave_End");
+            reportManeuverToStat(SUMOID, "-", "FLeave_End");
 
             vehicleState = state_idle;
             reportStateToStat();
@@ -93,14 +93,14 @@ void ApplVPlatoonMg::followerLeave_DataFSM(PlatoonMsg *wsm)
     {
         // send a unicast LEAVE_REQ to the leader
         PlatoonMsg* dataMsg = prepareData(plnID, LEAVE_REQ, plnID, myPlnDepth);
-        EV << "### " << SUMOvID << ": sent LEAVE_REQ." << endl;
+        EV << "### " << SUMOID << ": sent LEAVE_REQ." << endl;
         sendDelayed(dataMsg, individualOffset, lowerLayerOut);
         reportCommandToStat(dataMsg);
 
         vehicleState = state_waitForLeaveReply;
         reportStateToStat();
 
-        reportManeuverToStat(SUMOvID, plnID, "FLeave_Request");
+        reportManeuverToStat(SUMOID, plnID, "FLeave_Request");
 
         scheduleAt(simTime() + 5., plnTIMER10);
     }
@@ -110,7 +110,7 @@ void ApplVPlatoonMg::followerLeave_DataFSM(PlatoonMsg *wsm)
         {
             cancelEvent(plnTIMER10);
 
-            reportManeuverToStat(SUMOvID, "-", "FLeave_Reject");
+            reportManeuverToStat(SUMOID, "-", "FLeave_Reject");
 
             vehicleState = state_platoonFollower;
             reportStateToStat();
@@ -120,9 +120,9 @@ void ApplVPlatoonMg::followerLeave_DataFSM(PlatoonMsg *wsm)
             cancelEvent(plnTIMER10);
 
             if(wsm->getDblValue() == 0)
-                reportManeuverToStat(SUMOvID, "-", "MFLeave_Start");
+                reportManeuverToStat(SUMOID, "-", "MFLeave_Start");
             else if(wsm->getDblValue() == 1)
-                reportManeuverToStat(SUMOvID, "-", "LFLeave_Start");
+                reportManeuverToStat(SUMOID, "-", "LFLeave_Start");
             else
                 error("Unknwon value!");
 
@@ -137,7 +137,7 @@ void ApplVPlatoonMg::followerLeave_DataFSM(PlatoonMsg *wsm)
     else if(vehicleState == state_platoonLeader)
     {
         // leader receives a LEAVE_REQ
-        if (wsm->getType() == LEAVE_REQ && wsm->getRecipient() == SUMOvID)
+        if (wsm->getType() == LEAVE_REQ && wsm->getRecipient() == SUMOID)
         {
             if(wsm->getDblValue() <= 0 || wsm->getDblValue() >= plnSize)
                 error("depth of the follower is not right!");
@@ -149,7 +149,7 @@ void ApplVPlatoonMg::followerLeave_DataFSM(PlatoonMsg *wsm)
             // send LEAVE_ACCEPT
             // lastFollower notifies the leaving vehicle if it is the last follower or not!
             PlatoonMsg* dataMsg = prepareData(wsm->getSender(), LEAVE_ACCEPT, plnID, lastFollower);
-            EV << "### " << SUMOvID << ": sent LEAVE_ACCEPT." << endl;
+            EV << "### " << SUMOID << ": sent LEAVE_ACCEPT." << endl;
             sendDelayed(dataMsg, individualOffset, lowerLayerOut);
             reportCommandToStat(dataMsg);
 
@@ -186,7 +186,7 @@ void ApplVPlatoonMg::followerLeave_DataFSM(PlatoonMsg *wsm)
             }
         }
         // leader receives a GAP_CREATED
-        else if(wsm->getType() == GAP_CREATED && wsm->getRecipient() == SUMOvID)
+        else if(wsm->getType() == GAP_CREATED && wsm->getRecipient() == SUMOID)
         {
             RemainingSplits--;
 

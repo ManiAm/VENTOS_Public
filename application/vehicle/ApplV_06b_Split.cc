@@ -95,12 +95,12 @@ void ApplVPlatoonMg::split_handleSelfMsg(cMessage* msg)
 
             // MyCircularBufferSplit.clear();
 
-            reportManeuverToStat(SUMOvID, "-", "Split_End");
+            reportManeuverToStat(SUMOID, "-", "Split_End");
 
             // send a unicast GAP_CREATED to the old leader
             // we need this in follower/leader leave only. Other maneuvers ignore this
             PlatoonMsg* dataMsg = prepareData(oldPlnID, GAP_CREATED, oldPlnID);
-            EV << "### " << SUMOvID << ": sent GAP_CREATED." << endl;
+            EV << "### " << SUMOID << ": sent GAP_CREATED." << endl;
             sendDelayed(dataMsg, individualOffset, lowerLayerOut);
             reportCommandToStat(dataMsg);
         }
@@ -161,7 +161,7 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
 
         // send a unicast SPLIT_REQ to the follower
         PlatoonMsg* dataMsg = prepareData(splittingVehicle, SPLIT_REQ, plnID);
-        EV << "### " << SUMOvID << ": sent SPLIT_REQ." << endl;
+        EV << "### " << SUMOID << ": sent SPLIT_REQ." << endl;
         sendDelayed(dataMsg, individualOffset, lowerLayerOut);
         reportCommandToStat(dataMsg);
 
@@ -188,7 +188,7 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
     {
         // send CHANGE_PL to the splitting vehicle (last two parameters are data attached to this ucommand)
         PlatoonMsg* dataMsg = prepareData(splittingVehicle, CHANGE_PL, plnID, (-splittingDepth), splittingVehicle);
-        EV << "### " << SUMOvID << ": sent CHANGE_PL." << endl;
+        EV << "### " << SUMOID << ": sent CHANGE_PL." << endl;
         sendDelayed(dataMsg, individualOffset, lowerLayerOut);
         reportCommandToStat(dataMsg);
 
@@ -235,7 +235,7 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
         {
             // decrease Tg
             PlatoonMsg* dataMsg = prepareData("multicast", CHANGE_Tg, plnID, TG1);
-            EV << "### " << SUMOvID << ": sent CHANGE_Tg with value " << TG1 << endl;
+            EV << "### " << SUMOID << ": sent CHANGE_Tg with value " << TG1 << endl;
             sendDelayed(dataMsg, individualOffset, lowerLayerOut);
             reportCommandToStat(dataMsg);
         }
@@ -244,7 +244,7 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
         // we send two data to our follower:
         // 1) splitCaller 2) our platoon member list
         PlatoonMsg* dataMsg = prepareData(splittingVehicle, SPLIT_DONE, plnID, splitCaller, "", secondPlnMembersList);
-        EV << "### " << SUMOvID << ": sent SPLIT_DONE." << endl;
+        EV << "### " << SUMOID << ": sent SPLIT_DONE." << endl;
         sendDelayed(dataMsg, individualOffset, lowerLayerOut);
         reportCommandToStat(dataMsg);
 
@@ -277,7 +277,7 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
         {
             std::string targetVeh = *it;
             PlatoonMsg* dataMsg = prepareData(targetVeh, CHANGE_PL, plnID, (-splittingDepth), splittingVehicle);
-            EV << "### " << SUMOvID << ": sent CHANGE_PL." << endl;
+            EV << "### " << SUMOID << ": sent CHANGE_PL." << endl;
             simtime_t offset = dblrand() * maxOffset;
             sendDelayed(dataMsg, offset, lowerLayerOut);
             reportCommandToStat(dataMsg);
@@ -316,11 +316,11 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
     else if(vehicleState == state_platoonFollower)
     {
         // splitting vehicle receives a SPLIT_REQ
-        if (wsm->getType() == SPLIT_REQ && wsm->getRecipient() == SUMOvID)
+        if (wsm->getType() == SPLIT_REQ && wsm->getRecipient() == SUMOID)
         {
             // send SPLIT_ACCEPT
             PlatoonMsg* dataMsg = prepareData(plnID, SPLIT_ACCEPT, plnID);
-            EV << "### " << SUMOvID << ": sent SPLIT_ACCEPT." << endl;
+            EV << "### " << SUMOID << ": sent SPLIT_ACCEPT." << endl;
             sendDelayed(dataMsg, individualOffset, lowerLayerOut);
             reportCommandToStat(dataMsg);
 
@@ -332,7 +332,7 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
     }
     else if(vehicleState == state_waitForCHANGEPL)
     {
-        if (wsm->getType() == CHANGE_PL && wsm->getSender() == plnID && wsm->getRecipient() == SUMOvID)
+        if (wsm->getType() == CHANGE_PL && wsm->getSender() == plnID && wsm->getRecipient() == SUMOID)
         {
             cancelEvent(plnTIMER5);
 
@@ -346,7 +346,7 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
 
             // change color to red!
             TraCIColor newColor = TraCIColor::fromTkColor("red");
-            TraCI->vehicleSetColor(SUMOvID, newColor);
+            TraCI->vehicleSetColor(SUMOID, newColor);
 
             vehicleState = state_sendingACK;
             reportStateToStat();
@@ -358,7 +358,7 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
     {
         // send ACK
         PlatoonMsg* dataMsg = prepareData(oldPlnID, ACK, plnID);
-        EV << "### " << SUMOvID << ": sent ACK." << endl;
+        EV << "### " << SUMOID << ": sent ACK." << endl;
         sendDelayed(dataMsg, individualOffset, lowerLayerOut);
         reportCommandToStat(dataMsg);
 
@@ -369,7 +369,7 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
     }
     else if(vehicleState == state_waitForSplitDone)
     {
-        if(wsm->getType() == SPLIT_DONE && wsm->getSender() == oldPlnID && wsm->getRecipient() == SUMOvID)
+        if(wsm->getType() == SPLIT_DONE && wsm->getSender() == oldPlnID && wsm->getRecipient() == SUMOID)
         {
             cancelEvent(plnTIMER8);
 
@@ -380,7 +380,7 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
 
             updateColorDepth();
 
-            TraCI->vehicleSetTimeGap(SUMOvID, TP);
+            TraCI->vehicleSetTimeGap(SUMOID, TP);
 
             // check splitCaller. If 'leader leave' is on-going
             if(wsm->getDblValue() == 0)
@@ -391,17 +391,17 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
 
                 if(vleaderID == "")
                 {
-                    TraCI->vehicleSetSpeed(SUMOvID, 20.);
+                    TraCI->vehicleSetSpeed(SUMOID, 20.);
                 }
                 // if yes
                 else
                 {
-                    TraCI->vehicleSetSpeed(SUMOvID, 30.); // set max speed
+                    TraCI->vehicleSetSpeed(SUMOID, 30.); // set max speed
                 }
             }
             else
             {
-                TraCI->vehicleSetSpeed(SUMOvID, 30.); // set max speed
+                TraCI->vehicleSetSpeed(SUMOID, 30.); // set max speed
             }
 
             vehicleState = state_waitForGap;
@@ -441,7 +441,7 @@ void ApplVPlatoonMg::RemoveFollowerFromList_Split(std::string followerID)
 bool ApplVPlatoonMg::GapCreated()
 {
     // we use our sonar to check the gap
-    std::vector<std::string> vleaderIDnew = TraCI->vehicleGetLeader(SUMOvID, sonarDist);
+    std::vector<std::string> vleaderIDnew = TraCI->vehicleGetLeader(SUMOID, sonarDist);
     std::string vleaderID = vleaderIDnew[0];
     double gap = atof( vleaderIDnew[1].c_str() );
 
@@ -449,17 +449,17 @@ bool ApplVPlatoonMg::GapCreated()
         return true;
 
     // get the timeGap setting
-    double timeGapSetting = TraCI->vehicleGetTimeGap(SUMOvID);
+    double timeGapSetting = TraCI->vehicleGetTimeGap(SUMOID);
 
     // get speed
-    double speed = TraCI->vehicleGetSpeed(SUMOvID);
+    double speed = TraCI->vehicleGetSpeed(SUMOID);
 
     // get minGap
-    double minGap = TraCI->vehicleGetMinGap(SUMOvID);
+    double minGap = TraCI->vehicleGetMinGap(SUMOID);
 
     double targetGap = (speed * timeGapSetting) + minGap;
 
-    //cout << simTime().dbl() << ": " << SUMOvID << ", speed = " << speed << ", targetGap = " << targetGap << ", gap = " << gap << endl;
+    //cout << simTime().dbl() << ": " << SUMOID << ", speed = " << speed << ", targetGap = " << targetGap << ", gap = " << gap << endl;
     //if( gap >= targetGap ) cout << " BOOOM! " << endl;
 
     if( gap >= targetGap )

@@ -47,7 +47,6 @@ class Warmup : public BaseApplLayer
 
 	private:
         // NED variables
-        cModule *nodePtr;       // pointer to the Node module
         TraCI_Extend *TraCI;  // pointer to the TraCI module
         SpeedProfile *SpeedProfilePtr;
 

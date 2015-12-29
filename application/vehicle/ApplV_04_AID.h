@@ -29,6 +29,7 @@
 #define ApplVAID_H
 
 #include "ApplV_03_System.h"
+#include "PlatoonMsg_m.h"
 
 namespace VENTOS {
 

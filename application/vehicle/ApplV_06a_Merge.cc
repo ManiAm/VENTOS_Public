@@ -151,7 +151,7 @@ void ApplVPlatoonMg::merge_BeaconFSM(BeaconVehicle* wsm)
 
         // send a unicast MERGE_REQ to its platoon leader
         PlatoonMsg* dataMsg = prepareData(leadingPlnID, MERGE_REQ, leadingPlnID, -1, "", plnMembersList);
-        EV << "### " << SUMOvID << ": sent MERGE_REQ." << endl;
+        EV << "### " << SUMOID << ": sent MERGE_REQ." << endl;
         sendDelayed(dataMsg, individualOffset, lowerLayerOut);
         reportCommandToStat(dataMsg);
 
@@ -160,7 +160,7 @@ void ApplVPlatoonMg::merge_BeaconFSM(BeaconVehicle* wsm)
         vehicleState = state_waitForMergeReply;
         reportStateToStat();
 
-        reportManeuverToStat(SUMOvID, leadingPlnID, "Merge_Request");
+        reportManeuverToStat(SUMOID, leadingPlnID, "Merge_Request");
 
         // start plnTIMER1
         scheduleAt(simTime() + 1., plnTIMER1);
@@ -184,7 +184,7 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
             vehicleState = state_platoonLeader;
             reportStateToStat();
 
-            reportManeuverToStat(SUMOvID, "-", "Merge_Reject");
+            reportManeuverToStat(SUMOID, "-", "Merge_Reject");
         }
         else if(wsm->getType() == MERGE_ACCEPT && wsm->getSender() == leadingPlnID)
         {
@@ -193,7 +193,7 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
             vehicleState = state_mergeAccepted;
             reportStateToStat();
 
-            reportManeuverToStat(SUMOvID, "-", "Merge_Start");
+            reportManeuverToStat(SUMOID, "-", "Merge_Start");
 
             merge_DataFSM();
         }
@@ -201,8 +201,8 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
     else if(vehicleState == state_mergeAccepted)
     {
         cancelEvent(plnTIMER1);
-        TraCI->vehicleSetTimeGap(SUMOvID, TG1);
-        TraCI->vehicleSetSpeed(SUMOvID, 30.);  // catch-up
+        TraCI->vehicleSetTimeGap(SUMOID, TG1);
+        TraCI->vehicleSetSpeed(SUMOID, 30.);  // catch-up
 
         // now we should wait until we catch-up completely
         vehicleState = state_waitForCatchup;
@@ -220,7 +220,7 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
         {
             // send MERGE_REJECT
             PlatoonMsg* dataMsg = prepareData(wsm->getSender(), MERGE_REJECT, wsm->getSendingPlatoonID());
-            EV << "### " << SUMOvID << ": sent MERGE_REJECT." << endl;
+            EV << "### " << SUMOID << ": sent MERGE_REJECT." << endl;
             sendDelayed(dataMsg, individualOffset, lowerLayerOut);
             reportCommandToStat(dataMsg);
         }
@@ -234,20 +234,20 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
 
         // send unicast MERGE_DONE
         PlatoonMsg* dataMsg = prepareData(plnID, MERGE_DONE, plnID);
-        EV << "### " << SUMOvID << ": sent MERGE_DONE." << endl;
+        EV << "### " << SUMOID << ": sent MERGE_DONE." << endl;
         sendDelayed(dataMsg, individualOffset, lowerLayerOut);
         reportCommandToStat(dataMsg);
 
         vehicleState = state_platoonFollower;
         reportStateToStat();
 
-        reportManeuverToStat(SUMOvID, "-", "Merge_End");
+        reportManeuverToStat(SUMOID, "-", "Merge_End");
     }
     else if(vehicleState == state_notifyFollowers)
     {
         // send CHANGE_PL to all my followers (last two parameters are data attached to this ucommand)
         PlatoonMsg* dataMsg = prepareData("multicast", CHANGE_PL, leadingPlnID, leadingPlnDepth+1, leadingPlnID);
-        EV << "### " << SUMOvID << ": sent CHANGE_PL." << endl;
+        EV << "### " << SUMOID << ": sent CHANGE_PL." << endl;
         sendDelayed(dataMsg, individualOffset, lowerLayerOut);
         reportCommandToStat(dataMsg);
 
@@ -285,7 +285,7 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
             {
                 // send MERGE_REJECT
                 PlatoonMsg* dataMsg = prepareData(wsm->getSender(), MERGE_REJECT, wsm->getSendingPlatoonID());
-                EV << "### " << SUMOvID << ": sent MERGE_REJECT." << endl;
+                EV << "### " << SUMOID << ": sent MERGE_REJECT." << endl;
                 sendDelayed(dataMsg, individualOffset, lowerLayerOut);
                 reportCommandToStat(dataMsg);
             }
@@ -305,7 +305,7 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
     {
         // send MERGE_ACCEPT
         PlatoonMsg* dataMsg = prepareData(secondPlnMembersList.front().c_str(), MERGE_ACCEPT, secondPlnMembersList.front().c_str());
-        EV << "### " << SUMOvID << ": sent MERGE_ACCEPT." << endl;
+        EV << "### " << SUMOID << ": sent MERGE_ACCEPT." << endl;
         sendDelayed(dataMsg, individualOffset, lowerLayerOut);
         reportCommandToStat(dataMsg);
 
@@ -338,7 +338,7 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
         {
             // increase Tg
             PlatoonMsg* dataMsg = prepareData("multicast", CHANGE_Tg, plnID, TG2);
-            EV << "### " << SUMOvID << ": sent CHANGE_Tg with value " << TG2 << endl;
+            EV << "### " << SUMOID << ": sent CHANGE_Tg with value " << TG2 << endl;
             sendDelayed(dataMsg, individualOffset, lowerLayerOut);
             reportCommandToStat(dataMsg);
         }
@@ -380,7 +380,7 @@ void ApplVPlatoonMg::RemoveFollowerFromList_Merge(std::string followerID)
 bool ApplVPlatoonMg::CatchUpDone()
 {
     // we use our sonar to check the gap
-    std::vector<std::string> vleaderIDnew = TraCI->vehicleGetLeader(SUMOvID, sonarDist);
+    std::vector<std::string> vleaderIDnew = TraCI->vehicleGetLeader(SUMOID, sonarDist);
     std::string vleaderID = vleaderIDnew[0];
     double gap = atof( vleaderIDnew[1].c_str() );
 
@@ -388,13 +388,13 @@ bool ApplVPlatoonMg::CatchUpDone()
         return true;
 
     // get the timeGap setting
-    double timeGapSetting = TraCI->vehicleGetTimeGap(SUMOvID);
+    double timeGapSetting = TraCI->vehicleGetTimeGap(SUMOID);
 
     // get speed
-    double speed = TraCI->vehicleGetSpeed(SUMOvID);
+    double speed = TraCI->vehicleGetSpeed(SUMOID);
 
     // get minGap
-    double minGap = TraCI->vehicleGetMinGap(SUMOvID);
+    double minGap = TraCI->vehicleGetMinGap(SUMOID);
 
     double targetGap = (speed * timeGapSetting) + minGap;
 

@@ -68,7 +68,7 @@ void ApplVBeacon::initialize(int stage)
         offSet = offSet + floor(offSet/0.050)*0.050;
         individualOffset = dblrand() * maxOffset;
 
-        if(SUMOvType == "TypeObstacle")
+        if(SUMOType == "TypeObstacle")
             VANETenabled = false;
         else
             VANETenabled = par("VANETenabled").boolValue();
@@ -150,7 +150,7 @@ void ApplVBeacon::handleSelfMsg(cMessage* msg)
 // the decision of beaconing or not depends on the current location of vehicle
 void ApplVBeacon::smartBeaconingDecision()
 {
-    Coord myPos = TraCI->vehicleGetPosition(SUMOvID);
+    Coord myPos = TraCI->vehicleGetPosition(SUMOID);
 
     // vehicle enters the zone
     // todo: change from fixed coordinates
@@ -159,7 +159,7 @@ void ApplVBeacon::smartBeaconingDecision()
     if( (myPos.x >= 830) && (myPos.x <= 960) && (myPos.y >= 830) && (myPos.y <= 960) )
     {
         // get the current edge
-        std::string myEdge = TraCI->vehicleGetEdgeID(SUMOvID);
+        std::string myEdge = TraCI->vehicleGetEdgeID(SUMOID);
 
         // started to cross
         if( !crossing && (myEdge[0] == ':') && (myEdge[1] == 'C') )
@@ -202,7 +202,7 @@ BeaconVehicle*  ApplVBeacon::prepareBeacon()
     wsm->setWsmVersion(1);
     wsm->setSecurityType(1);
 
-    wsm->setChannelNumber(Channels::CCH);
+    wsm->setChannelNumber(CCH);
 
     wsm->setDataRate(1);
     wsm->setPriority(beaconPriority);
@@ -212,25 +212,25 @@ BeaconVehicle*  ApplVBeacon::prepareBeacon()
     // wsm->setTimestamp(simTime());
 
     // fill in the sender/receiver fields
-    wsm->setSender(SUMOvID.c_str());
-    wsm->setSenderType(SUMOvType.c_str());
+    wsm->setSender(SUMOID.c_str());
+    wsm->setSenderType(SUMOType.c_str());
     wsm->setRecipient("broadcast");
 
     // set current position
-    Coord cord = TraCI->vehicleGetPosition(SUMOvID);
+    Coord cord = TraCI->vehicleGetPosition(SUMOID);
     wsm->setPos(cord);
 
     // set current speed
-    wsm->setSpeed( TraCI->vehicleGetSpeed(SUMOvID) );
+    wsm->setSpeed( TraCI->vehicleGetSpeed(SUMOID) );
 
     // set current acceleration
-    wsm->setAccel( TraCI->vehicleGetCurrentAccel(SUMOvID) );
+    wsm->setAccel( TraCI->vehicleGetCurrentAccel(SUMOID) );
 
     // set maxDecel
-    wsm->setMaxDecel( TraCI->vehicleGetMaxDecel(SUMOvID) );
+    wsm->setMaxDecel( TraCI->vehicleGetMaxDecel(SUMOID) );
 
     // set current lane
-    wsm->setLane( TraCI->vehicleGetLaneID(SUMOvID).c_str() );
+    wsm->setLane( TraCI->vehicleGetLaneID(SUMOID).c_str() );
 
     return wsm;
 }
@@ -245,7 +245,7 @@ void ApplVBeacon::handlePositionUpdate(cObject* obj)
 
 bool ApplVBeacon::isBeaconFromLeading(BeaconVehicle* wsm)
 {
-    std::vector<std::string> vleaderIDnew = TraCI->vehicleGetLeader(SUMOvID, sonarDist);
+    std::vector<std::string> vleaderIDnew = TraCI->vehicleGetLeader(SUMOID, sonarDist);
     std::string vleaderID = vleaderIDnew[0];
 
     if( vleaderID == std::string(wsm->getSender()) )

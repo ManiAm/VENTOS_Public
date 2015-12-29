@@ -83,42 +83,18 @@ or you can create an application launcher:
     make install-menu-item
 
 
-Import Veins
-------------
-
-Veins is on github, and you should clone it into your computer.
+Import VENTOS
+-------------
 
 **Step 1:** install the git package:
 
     sudo apt-get install git
 
-**Step 2:** Use the following command to clone the Veins repository on your machine. This command creates a folder called veins in the current directory (run the command in the same folder as Eclipse workspace that you specified before in step 9)
-
-    git clone https://github.com/sommer/veins
-
-**Step 3:** Now you can import the Veins project into the IDE. Choose "File->Import" from the menu. Choose "General->Existing Projects into Workspace" from the upcoming dialog and proceed with "Next". Choose "Select root directory" and select the Veins folder. "veins" should appear in the "Projects" section. Unselect "Copy project into workspace" if the veins folder is already in your workspace. Click "Finish".
-
-**Step 4:** Now make these modifications in Veins source code. In the IDE, open veins project and go to 'src/veins/modules/mobility/traci/' folder.
-
-- Open TraCIScenarioManager.h file and change `void executeOneTimestep()` to `virtual void executeOneTimestep()`, and `void addModule()` to `virtual void addModule()`
-
-- Open TraCICommandInterface.h file, and change access modifier private into public.
-
-- [optional] Open TraCIConnection.cc file, and comment line "MYDEBUG << "Reading TraCI message of " << bufLength << " bytes" << endl;" and also "MYDEBUG << "Writing TraCI message of " << buf.length() << " bytes" << endl;"
-
-**Step 5:** After these modifications, build the veins project. To build the veins project use Ctrl+B or right-click on the project name and choose "Build Project". Wait for a while and then check the console windows at the bottom of the Eclipse IDE to make sure no errors occurred. At the end you should see a message like this:
-
-    00::04:42 Build Finished (took 2m:23s.177ms)
-
-
-Import VENTOS
--------------
-
-**Step 1:** Make sure you have these packages installed on your Ubuntu 14 machine:
+**Step 2:** Make sure you have these packages installed on your Ubuntu 14 machine:
 
     sudo apt-get install libboost-all-dev libssl-dev libcurl4-gnutls-dev libxerces-c2-dev libfox-1.6-dev libproj-dev libpcap-dev libusb-1.0-0-dev gnuplot gnuplot-x11 
     
-**Step 2:** Download snmp++ API from [here](http://www.agentpp.com/download/snmp++-3.3.5.tar.gz). Extract it and then build the library:
+**Step 3:** Download snmp++ API from [here](http://www.agentpp.com/download/snmp++-3.3.5.tar.gz). Extract it and then build the library:
 
     ./configure
     make
@@ -126,7 +102,7 @@ Import VENTOS
 
 libsnmp++ library will be copied into /usr/local/lib and the header files will be copied into /usr/local/include.
 
-**Step 3:** Clone the shark repository into your computer:
+**Step 4:** Clone the shark repository into your computer:
 
     git clone https://github.com/Shark-ML/Shark/
 
@@ -154,13 +130,13 @@ And then
 
 libshark library will be copied into /usr/local/lib and the header files will be copied into /usr/local/include.
 
-**Step 4:** Finally after installing the above shared libraries run the following command.
+**Step 5:** Finally after installing the above shared libraries run the following command.
 
     sudo ldconfig -v
 
 ldconfig is a program that is used to maintain the shared library cache in linux. This cache is typically stored in the file /etc/ld.so.cache and is used by the system to map a shared library name to the location of the corresponding shared library file.
 
-**Step 5:** Download Eigen library from [here](http://eigen.tuxfamily.org/index.php?title=Main_Page). Extract it and then install it on your system.
+**Step 6:** Download Eigen library from [here](http://eigen.tuxfamily.org/index.php?title=Main_Page). Extract it and then install it on your system.
 
     mkdir build
     cd build
@@ -169,15 +145,13 @@ ldconfig is a program that is used to maintain the shared library cache in linux
 
 Eigen consists only of header files, hence there is nothing to compile before you can use it. The header files will be copied into /usr/local/include.
 
-**Step 6:** Clone the VENTOS repository in the current directory (run the command in the same folder as Eclipse workspace that you specified before). You also need to provide your github username and password.
+**Step 7:** Clone the VENTOS repository in the current directory (run the command in the same folder as Eclipse workspace that you specified before). You also need to provide your github username and password.
 
     git clone https://github.com/ManiAm/VENTOS
 
-**Step 7:** Now you can import VENTOS project into the OMNET++ IDE. Choose "File->Import" from the menu. Choose "General->Existing Projects into Workspace" from the upcoming dialog and proceed with "Next". Choose "Select root directory" and select the VENTOS folder. "VENTOS" should appear in the "Projects" section. Unselect "Copy project into workspace" if the VENTOS folder is already in your workspace. Click "Finish".
+**Step 8:** Now you can import VENTOS project into the OMNET++ IDE. Choose "File->Import" from the menu. Choose "General->Existing Projects into Workspace" from the upcoming dialog and proceed with "Next". Choose "Select root directory" and select the VENTOS folder. "VENTOS" should appear in the "Projects" section. Unselect "Copy project into workspace" if the VENTOS folder is already in your workspace. Click "Finish".
 
 Note: Wait for a while until "C/C++ Indexer" finishes its job.
-
-**Step 8:** Right click on VENTOS project name and click Properties. Go to 'Project References' and make sure veins is selected.
 
 **Step 9:** Now you can build the VENTOS project. Use Ctrl+B or right-click on the project name and choose "Build Project". Wait for a while and then check the console windows at the bottom of the Eclipse IDE to make sure no errors occurred.
     

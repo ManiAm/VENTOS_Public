@@ -19,7 +19,6 @@
 
 
 #include "ConstSpeedMobility.h"
-
 #include <FWMath.h>
 
 namespace VENTOS {

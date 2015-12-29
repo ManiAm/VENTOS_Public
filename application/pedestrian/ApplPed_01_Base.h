@@ -31,11 +31,7 @@
 #include <BaseApplLayer.h>
 #include <ChannelAccess.h>
 #include <WaveAppToMac1609_4Interface.h>
-#include "modules/mobility/traci/TraCIMobility.h"
-
-#include "Appl.h"
 #include "TraCI_Extend.h"
-
 
 namespace VENTOS {
 
@@ -56,16 +52,16 @@ class ApplPedBase : public BaseApplLayer
 	protected:
 		// NED variables
 	    cModule *nodePtr;   // pointer to the Node
-        WaveAppToMac1609_4Interface* myMac;
-        TraCIMobility* TraCI_Mobility;
-        mutable TraCI_Extend* TraCI;
-        AnnotationManager* annotations;
+        TraCI_Extend* TraCI;
 
-        // Class variables
+        // module info
         int myId;
 		const char *myFullId;
-		std::string SUMOpID;
-		std::string SUMOpType;
+		std::string SUMOID;
+		std::string SUMOType;
+	    std::string vehicleClass;
+        int vehicleClassEnum;
+
         Coord curPosition;  // current position from mobility module (not from sumo)
         double entryTime;
 };

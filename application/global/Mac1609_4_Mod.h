@@ -31,7 +31,6 @@
 #include <Mac1609_4.h>
 #include "Statistics.h"
 
-
 namespace VENTOS {
 
 class Mac1609_4_Mod : public Mac1609_4
@@ -47,7 +46,6 @@ class Mac1609_4_Mod : public Mac1609_4
 		virtual void handleUpperControl(cMessage* msg);
 
 	private:
-        cModule *nodePtr;   // pointer to the Node
         Statistics *StatPtr;
         bool reportMAClayerData;
 };

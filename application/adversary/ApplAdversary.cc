@@ -46,16 +46,16 @@ void ApplAdversary::initialize(int stage)
 	if (stage==0)
 	{
         // get the ptr of the current module
-        nodePtr = FindModule<>::findHost(this);
+        nodePtr = this->getParentModule();
         if(nodePtr == NULL)
             error("can not get a pointer to the module.");
 
-        myMac = FindModule<WaveAppToMac1609_4Interface*>::findSubModule(getParentModule());
-        assert(myMac);
+        // get a pointer to the TraCI module
+        cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
+        TraCI = static_cast<TraCI_Extend *>(module);
+        ASSERT(TraCI);
 
-		TraCI = FindModule<TraCI_Extend*>::findGlobalModule();
-
-        findHost()->subscribe(mobilityStateChangedSignal, this);
+        nodePtr->subscribe(mobilityStateChangedSignal, this);
 
         // vehicle id in omnet++
 		myId = getParentModule()->getIndex();
@@ -79,7 +79,7 @@ void ApplAdversary::initialize(int stage)
 
 void ApplAdversary::finish()
 {
-    findHost()->unsubscribe(mobilityStateChangedSignal, this);
+    nodePtr->unsubscribe(mobilityStateChangedSignal, this);
 }
 
 
@@ -134,13 +134,6 @@ void ApplAdversary::handleLowerMsg(cMessage* msg)
         {
             DoReplayAttack(wsm);
         }
-    }
-    else if( std::string(wsm->getName()) == "platoonMsg" )
-    {
-        PlatoonMsg* wsm = dynamic_cast<PlatoonMsg*>(msg);
-        ASSERT(wsm);
-
-        // ignore it!
     }
 
     delete msg;
@@ -206,7 +199,7 @@ DummyMsg* ApplAdversary::CreateDummyMessage()
     wsm->setWsmVersion(1);
     wsm->setSecurityType(1);
 
-    wsm->setChannelNumber(Channels::CCH);
+    wsm->setChannelNumber(CCH);
 
     wsm->setDataRate(1);
     wsm->setPriority(2);

@@ -105,8 +105,8 @@ void ApplBikeBeacon::handleSelfMsg(cMessage* msg)
         {
             if(activeDetection)
             {
-                Coord myPos = TraCI->vehicleGetPosition(SUMObID);
-                std::string myEdge = TraCI->vehicleGetEdgeID(SUMObID);
+                Coord myPos = TraCI->vehicleGetPosition(SUMOID);
+                std::string myEdge = TraCI->vehicleGetEdgeID(SUMOID);
                 // todo: change from fixed coordinates
                 if((!hasEntered) && (myPos.x > 350) && (myPos.x < 450) && (myPos.y > 350) && (myPos.y < 450))
                 {
@@ -153,7 +153,7 @@ BeaconBicycle*  ApplBikeBeacon::prepareBeacon()
     wsm->setWsmVersion(1);
     wsm->setSecurityType(1);
 
-    wsm->setChannelNumber(Channels::CCH);
+    wsm->setChannelNumber(CCH);
 
     wsm->setDataRate(1);
     wsm->setPriority(beaconPriority);
@@ -163,25 +163,25 @@ BeaconBicycle*  ApplBikeBeacon::prepareBeacon()
     // wsm->setTimestamp(simTime());
 
     // fill in the sender/receiver fields
-    wsm->setSender(SUMObID.c_str());
-    wsm->setSenderType(SUMObType.c_str());
+    wsm->setSender(SUMOID.c_str());
+    wsm->setSenderType(SUMOType.c_str());
     wsm->setRecipient("broadcast");
 
     // set current position
-    Coord cord = TraCI->vehicleGetPosition(SUMObID);
+    Coord cord = TraCI->vehicleGetPosition(SUMOID);
     wsm->setPos(cord);
 
     // set current speed
-    wsm->setSpeed( TraCI->vehicleGetSpeed(SUMObID) );
+    wsm->setSpeed( TraCI->vehicleGetSpeed(SUMOID) );
 
     // set current acceleration
-    wsm->setAccel( TraCI->vehicleGetCurrentAccel(SUMObID) );
+    wsm->setAccel( TraCI->vehicleGetCurrentAccel(SUMOID) );
 
     // set maxDecel
-    wsm->setMaxDecel( TraCI->vehicleGetMaxDecel(SUMObID) );
+    wsm->setMaxDecel( TraCI->vehicleGetMaxDecel(SUMOID) );
 
     // set current lane
-    wsm->setLane( TraCI->vehicleGetLaneID(SUMObID).c_str() );
+    wsm->setLane( TraCI->vehicleGetLaneID(SUMOID).c_str() );
 
     return wsm;
 }

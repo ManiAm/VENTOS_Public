@@ -28,26 +28,7 @@
 #ifndef TraCIEXTEND_H
 #define TraCIEXTEND_H
 
-#include "modules/mobility/traci/TraCIScenarioManager.h"
-#include "modules/mobility/traci/TraCICommandInterface.h"
-#include "modules/mobility/traci/TraCIConstants.h"
-
-#include "Appl.h"
-#include <iomanip>
-
-#include <rapidxml.hpp>
-#include <rapidxml_utils.hpp>
-#include <rapidxml_print.hpp>
-
-#include <eigen3/Eigen/Dense>
-
-// un-defining ev!
-// why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header
-#undef ev
-#include "boost/filesystem.hpp"
-#define ev  (*cSimulation::getActiveEnvir())
-
-using namespace Veins;
+#include "TraCI_Base.h"
 
 namespace VENTOS {
 
@@ -99,18 +80,19 @@ public:
 };
 
 
-class TraCI_Extend : public TraCIScenarioManager
+class TraCI_Extend : public TraCI_Base
 {
 public:
     virtual ~TraCI_Extend();
     virtual void initialize(int stage);
     virtual void handleSelfMsg(cMessage *msg);
-    virtual void init_traci();
     virtual void finish();
 
     // ################################################################
     //                            simulation
     // ################################################################
+
+    std::pair<uint32_t, std::string> getVersion();
 
     // CMD_GET_SIM_VARIABLE
     uint32_t simulationGetLoadedVehiclesCount();
@@ -326,8 +308,16 @@ public:
     std::list<Coord> polygonGetShape(std::string);
 
     // CMD_SET_POLYGON_VARIABLE
-    void polygonAdd(std::string, std::string, const TraCIColor&, bool, int32_t, const std::list<TraCICoord>&);
+    void polygonAddTraCI(std::string, std::string, const TraCIColor&, bool, int32_t, const std::list<TraCICoord>&);
+    void polygonAdd(std::string, std::string, const TraCIColor&, bool, int32_t, const std::list<Coord>&);
     void polygonSetFilled(std::string, uint8_t);
+
+    // ################################################################
+    //                               polygon
+    // ################################################################
+
+    void addPoi(std::string poiId, std::string poiType, const TraCIColor& color, int32_t layer, const Coord& pos);
+
 
     // ################################################################
     //                               person
@@ -344,8 +334,6 @@ public:
     std::string personGetNextEdge(std::string);
 
 private:
-    void sendLaunchFile();
-
     // ################################################################
     //                    generic methods for getters
     // ################################################################
@@ -361,15 +349,6 @@ private:
     Coord genericGetCoordv2(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);                       // new command
     std::vector<double> genericGetBoundingBox(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);     // new command
     uint8_t* genericGetArrayUnsignedInt(uint8_t, std::string, uint8_t, uint8_t);                                                    // new command
-
-protected:
-    // NED variables
-    cModule *nodePtr;   // pointer to the Node
-
-    // class variables
-    boost::filesystem::path VENTOS_FullPath;
-    boost::filesystem::path SUMO_Path;
-    boost::filesystem::path SUMO_FullPath;
 };
 
 }

@@ -105,8 +105,8 @@ void ApplPedBeacon::handleSelfMsg(cMessage* msg)
         {
             if(activeDetection)
             {
-                Coord myPos = TraCI->personGetPosition(SUMOpID);
-                std::string myEdge = TraCI->personGetEdgeID(SUMOpID);
+                Coord myPos = TraCI->personGetPosition(SUMOID);
+                std::string myEdge = TraCI->personGetEdgeID(SUMOID);
                 // todo: change from fixed coordinates
                 if((!hasEntered) && (myPos.x > 350) && (myPos.x < 450) && (myPos.y > 350) && (myPos.y < 450))
                 {
@@ -153,7 +153,7 @@ BeaconPedestrian*  ApplPedBeacon::prepareBeacon()
     wsm->setWsmVersion(1);
     wsm->setSecurityType(1);
 
-    wsm->setChannelNumber(Channels::CCH);
+    wsm->setChannelNumber(CCH);
 
     wsm->setDataRate(1);
     wsm->setPriority(beaconPriority);
@@ -163,16 +163,16 @@ BeaconPedestrian*  ApplPedBeacon::prepareBeacon()
     // wsm->setTimestamp(simTime());
 
     // fill in the sender/receiver fields
-    wsm->setSender(SUMOpID.c_str());
-    wsm->setSenderType(SUMOpType.c_str());
+    wsm->setSender(SUMOID.c_str());
+    wsm->setSenderType(SUMOType.c_str());
     wsm->setRecipient("broadcast");
 
     // set current position
-    Coord cord = TraCI->personGetPosition(SUMOpID);
+    Coord cord = TraCI->personGetPosition(SUMOID);
     wsm->setPos(cord);
 
     // set current speed
-    wsm->setSpeed( TraCI->personGetSpeed(SUMOpID) );
+    wsm->setSpeed( TraCI->personGetSpeed(SUMOID) );
 
     // set current acceleration
     wsm->setAccel( -1 );
@@ -181,7 +181,7 @@ BeaconPedestrian*  ApplPedBeacon::prepareBeacon()
     wsm->setMaxDecel( -1 );
 
     // set current lane
-    wsm->setLane( TraCI->personGetEdgeID(SUMOpID).c_str() );
+    wsm->setLane( TraCI->personGetEdgeID(SUMOID).c_str() );
 
     return wsm;
 }

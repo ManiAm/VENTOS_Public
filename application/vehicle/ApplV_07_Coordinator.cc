@@ -192,7 +192,7 @@ void ApplVCoordinator::scenario3()
     // leader leaves
     else if(simTime().dbl() == 49)
     {
-        if(SUMOvID == "veh1")
+        if(SUMOID == "veh1")
         {
             ApplVPlatoonMg::leavePlatoon();
         }
@@ -200,7 +200,7 @@ void ApplVCoordinator::scenario3()
     // last follower leaves
     else if(simTime().dbl() == 68)
     {
-        if(SUMOvID == "veh6")
+        if(SUMOID == "veh6")
         {
             ApplVPlatoonMg::leavePlatoon();
         }
@@ -208,7 +208,7 @@ void ApplVCoordinator::scenario3()
     // middle follower leaves
     else if(simTime().dbl() == 80)
     {
-        if(SUMOvID == "veh3")
+        if(SUMOID == "veh3")
         {
             ApplVPlatoonMg::leavePlatoon();
         }
@@ -249,7 +249,7 @@ void ApplVCoordinator::scenario4()
     // leader leaves
     else if(simTime().dbl() == 140)
     {
-        if(SUMOvID == "veh1")
+        if(SUMOID == "veh1")
         {
             ApplVPlatoonMg::leavePlatoon();
         }
@@ -257,7 +257,7 @@ void ApplVCoordinator::scenario4()
 //    // last follower leaves
 //    else if(simTime().dbl() == 160)
 //    {
-//        if(SUMOvID == "veh5")
+//        if(SUMOID == "veh5")
 //        {
 //            ApplVPlatoonMg::leavePlatoon();
 //        }
@@ -265,7 +265,7 @@ void ApplVCoordinator::scenario4()
 //    // middle follower leaves
 //    else if(simTime().dbl() == 190)
 //    {
-//        if(SUMOvID == "veh2")
+//        if(SUMOID == "veh2")
 //        {
 //            ApplVPlatoonMg::leavePlatoon();
 //        }
@@ -284,7 +284,7 @@ void ApplVCoordinator::scenario5()
         // disable automatic merging
         mergeEnabled = false;
 
-        if(SUMOvID == "veh1")
+        if(SUMOID == "veh1")
             splitFromPlatoon(5);
     }
     else if(simTime().dbl() == 118)
@@ -314,7 +314,7 @@ void ApplVCoordinator::scenario6()
             // disable automatic merging
             mergeEnabled = false;
 
-            if(SUMOvID == "veh1")
+            if(SUMOID == "veh1")
                 splitFromPlatoon(9);
         }
         else if(simTime().dbl() == 118)
@@ -334,7 +334,7 @@ void ApplVCoordinator::scenario6()
             // disable automatic merging
             mergeEnabled = false;
 
-            if(SUMOvID == "veh1")
+            if(SUMOID == "veh1")
                 splitFromPlatoon(8);
         }
         else if(simTime().dbl() == 118)
@@ -354,7 +354,7 @@ void ApplVCoordinator::scenario6()
             // disable automatic merging
             mergeEnabled = false;
 
-            if(SUMOvID == "veh1")
+            if(SUMOID == "veh1")
                 splitFromPlatoon(7);
         }
         else if(simTime().dbl() == 118)
@@ -374,7 +374,7 @@ void ApplVCoordinator::scenario6()
             // disable automatic merging
             mergeEnabled = false;
 
-            if(SUMOvID == "veh1")
+            if(SUMOID == "veh1")
                 splitFromPlatoon(6);
         }
         else if(simTime().dbl() == 118)
@@ -394,7 +394,7 @@ void ApplVCoordinator::scenario6()
             // disable automatic merging
             mergeEnabled = false;
 
-            if(SUMOvID == "veh1")
+            if(SUMOID == "veh1")
                 splitFromPlatoon(5);
         }
         else if(simTime().dbl() == 118)
@@ -414,7 +414,7 @@ void ApplVCoordinator::scenario6()
             // disable automatic merging
             mergeEnabled = false;
 
-            if(SUMOvID == "veh1")
+            if(SUMOID == "veh1")
                 splitFromPlatoon(4);
         }
         else if(simTime().dbl() == 118)
@@ -434,7 +434,7 @@ void ApplVCoordinator::scenario6()
             // disable automatic merging
             mergeEnabled = false;
 
-            if(SUMOvID == "veh1")
+            if(SUMOID == "veh1")
                 splitFromPlatoon(3);
         }
         else if(simTime().dbl() == 118)
@@ -454,7 +454,7 @@ void ApplVCoordinator::scenario6()
             // disable automatic merging
             mergeEnabled = false;
 
-            if(SUMOvID == "veh1")
+            if(SUMOID == "veh1")
                 splitFromPlatoon(2);
         }
         else if(simTime().dbl() == 118)
@@ -474,7 +474,7 @@ void ApplVCoordinator::scenario6()
             // disable automatic merging
             mergeEnabled = false;
 
-            if(SUMOvID == "veh1")
+            if(SUMOID == "veh1")
                 splitFromPlatoon(1);
         }
         else if(simTime().dbl() == 118)
@@ -495,13 +495,13 @@ void ApplVCoordinator::scenario6()
         else if(simTime().dbl() == 73)
         {
             // leader leaves
-            if(SUMOvID == "veh1")
+            if(SUMOID == "veh1")
                 leavePlatoon();
         }
         else if(simTime().dbl() == 118)
         {
             // last follower leaves
-            if(SUMOvID == "veh10")
+            if(SUMOID == "veh10")
                 leavePlatoon();
         }
     }
@@ -513,12 +513,12 @@ void ApplVCoordinator::scenario6()
         }
         else if(simTime().dbl() == 73)
         {
-            if(SUMOvID == "veh3")
+            if(SUMOID == "veh3")
                 leavePlatoon();
         }
         else if(simTime().dbl() == 118)
         {
-            if(SUMOvID == "veh6")
+            if(SUMOID == "veh6")
                 leavePlatoon();
         }
     }
@@ -530,12 +530,12 @@ void ApplVCoordinator::scenario6()
         }
         else if(simTime().dbl() == 73)
         {
-            if(SUMOvID == "veh7")
+            if(SUMOID == "veh7")
                 leavePlatoon();
         }
         else if(simTime().dbl() == 118)
         {
-            if(SUMOvID == "veh5")
+            if(SUMOID == "veh5")
                 leavePlatoon();
         }
     }
@@ -547,12 +547,12 @@ void ApplVCoordinator::scenario6()
         }
         else if(simTime().dbl() == 73)
         {
-            if(SUMOvID == "veh8")
+            if(SUMOID == "veh8")
                 leavePlatoon();
         }
         else if(simTime().dbl() == 118)
         {
-            if(SUMOvID == "veh4")
+            if(SUMOID == "veh4")
                 leavePlatoon();
         }
     }
@@ -570,7 +570,7 @@ void ApplVCoordinator::scenario7()
         // disable automatic merging
         mergeEnabled = false;
 
-        if(SUMOvID == "veh1")
+        if(SUMOID == "veh1")
             splitFromPlatoon(4);
     }
     else if(simTime().dbl() == 118)
@@ -616,7 +616,7 @@ void ApplVCoordinator::scenario9()
         mergeEnabled = false;
 
         // leader leaves
-        if(SUMOvID == "veh1")
+        if(SUMOID == "veh1")
             dissolvePlatoon();
             //leavePlatoon();
     }

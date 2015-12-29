@@ -44,16 +44,14 @@ void ApplRSUBase::initialize(int stage)
 	if (stage==0)
 	{
         // get the ptr of the current module
-        nodePtr = FindModule<>::findHost(this);
+        nodePtr = this->getParentModule();
         if(nodePtr == NULL)
             error("can not get a pointer to the module.");
-
-		myMac = FindModule<WaveAppToMac1609_4Interface*>::findSubModule(getParentModule());
-		assert(myMac);
 
         // get a pointer to the TraCI module
         cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
         TraCI = static_cast<TraCI_Extend *>(module);
+        ASSERT(TraCI);
 
         Signal_executeEachTS = registerSignal("executeEachTS");
         simulation.getSystemModule()->subscribe("executeEachTS", this);
@@ -161,7 +159,7 @@ BeaconRSU* ApplRSUBase::prepareBeacon()
     wsm->setWsmVersion(1);
     wsm->setSecurityType(1);
 
-    wsm->setChannelNumber(Channels::CCH);
+    wsm->setChannelNumber(CCH);
 
     wsm->setDataRate(1);
     wsm->setPriority(beaconPriority);

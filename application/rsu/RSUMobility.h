@@ -36,7 +36,7 @@ namespace VENTOS {
 
 class TraCI_Extend;
 
-class MIXIM_API RSUMobility : public BaseMobility
+class RSUMobility : public BaseMobility
 {
   public:
     /** @brief Initializes mobility model parameters.*/
@@ -53,7 +53,6 @@ class MIXIM_API RSUMobility : public BaseMobility
 
 protected:
     // NED variables
-    cModule *nodePtr;   // pointer to the Node
     TraCI_Extend *TraCI;
 
     // Class variables

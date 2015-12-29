@@ -26,7 +26,7 @@
 //
 
 #include "ApplV_06_PlatoonMg.h"
-
+#include "SignalObj.h"
 
 namespace VENTOS {
 
@@ -225,19 +225,15 @@ PlatoonMsg*  ApplVPlatoonMg::prepareData(std::string receiver, uCommands type, s
     wsm->setSecurityType(1);
 
     if(dataOnSch)
-    {
-        wsm->setChannelNumber(Channels::SCH1);
-    }
+        wsm->setChannelNumber(SCH1);
     else
-    {
-        wsm->setChannelNumber(Channels::CCH);
-    }
+        wsm->setChannelNumber(CCH);
 
     wsm->setDataRate(1);
     wsm->setPriority(dataPriority);
     wsm->setPsid(0);
 
-    wsm->setSender(SUMOvID.c_str());
+    wsm->setSender(SUMOID.c_str());
     wsm->setRecipient(receiver.c_str());
     wsm->setType(type);
     wsm->setSendingPlatoonID(plnID.c_str());
@@ -281,7 +277,7 @@ void ApplVPlatoonMg::updateColorDepth()
 
 void ApplVPlatoonMg::reportStateToStat()
 {
-    CurrentVehicleState *state = new CurrentVehicleState(SUMOvID.c_str(), stateToStr(vehicleState).c_str());
+    CurrentVehicleState *state = new CurrentVehicleState(SUMOID.c_str(), stateToStr(vehicleState).c_str());
     simsignal_t Signal_VehicleState = registerSignal("VehicleState");
     nodePtr->emit(Signal_VehicleState, state);
 }

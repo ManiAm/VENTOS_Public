@@ -29,7 +29,6 @@
 #define PLOTTER_H
 
 #include <BaseApplLayer.h>
-#include <Appl.h>
 #include "TraCI_Extend.h"
 
 namespace VENTOS {

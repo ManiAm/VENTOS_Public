@@ -48,7 +48,6 @@ private:
 
 private:
     // NED variables
-    cModule *nodePtr;   // pointer to the Node
     TraCI_Extend *TraCI;  // pointer to the TraCI module
     boost::filesystem::path launchFullPath;
 

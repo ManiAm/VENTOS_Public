@@ -29,6 +29,9 @@
 #define ApplBIKEMANAGER_H
 
 #include "ApplBike_02_Beacon.h"
+#include "BeaconVehicle_m.h"
+#include "BeaconRSU_m.h"
+#include "PlatoonMsg_m.h"
 
 namespace VENTOS {
 

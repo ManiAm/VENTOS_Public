@@ -136,7 +136,7 @@ int Net::nextAcceptingPhase(double time, Edge* start, Edge* end)
 
 void Net::LoadHelloNet(std::string netBase)
 {
-    cModuleType* moduleType = cModuleType::get("c3po.ned.TL_Router");    //Get the TL module
+    cModuleType* moduleType = cModuleType::get("c3po.application.trafficLight.TL_Router");    //Get the TL module
 
     std::string netFile = netBase + "/hello.net.xml";
 

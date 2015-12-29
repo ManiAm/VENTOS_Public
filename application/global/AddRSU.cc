@@ -42,14 +42,10 @@ void AddRSU::initialize(int stage)
 {
     if(stage ==0)
     {
-        // get the ptr of the current module
-        nodePtr = FindModule<>::findHost(this);
-        if(nodePtr == NULL)
-            error("can not get a pointer to the module.");
-
         // get a pointer to the TraCI module
         cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
         TraCI = static_cast<TraCI_Extend *>(module);
+        ASSERT(TraCI);
 
         // get a pointer to the TrafficLight module
         module = simulation.getSystemModule()->getSubmodule("TrafficLight");
@@ -128,7 +124,7 @@ void AddRSU::Scenario1()
     cModule* parentMod = getParentModule();
     if (!parentMod) error("Parent Module not found");
 
-    cModuleType* nodeType = cModuleType::get("c3po.ned.RSU");
+    cModuleType* nodeType = cModuleType::get("c3po.application.rsu.RSU");
 
     std::list<std::string> TLList = TraCI->TLGetIDList();
 
@@ -259,7 +255,7 @@ void AddRSU::commandAddCirclePoly(std::string name, std::string type, const TraC
     }
 
     // create polygon in SUMO
-    TraCI->polygonAdd(name, type, color, 0, 1, circlePoints);
+    TraCI->polygonAddTraCI(name, type, color, 0, 1, circlePoints);
 }
 
 

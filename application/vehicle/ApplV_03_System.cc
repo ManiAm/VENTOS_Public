@@ -26,6 +26,7 @@
 //
 
 #include "ApplV_03_System.h"
+#include "SignalObj.h"
 
 namespace VENTOS {
 
@@ -41,7 +42,7 @@ void ApplVSystem::initialize(int stage)
 {
     ApplVBeacon::initialize(stage);
 
-    if(SUMOvType == "TypeDummy")
+    if(SUMOType == "TypeDummy")
         requestRoutes = false;
     else
         requestRoutes = par("requestRoutes").boolValue();
@@ -65,7 +66,7 @@ void ApplVSystem::initialize(int stage)
         router = static_cast< Router* >(module);
         std::string rootFilePath = SUMO_FullPath.string();
         rootFilePath += "/Vehicles" + SSTR(router->totalVehicleCount) + ".xml";
-        router->net->vehicles[SUMOvID]->maxAccel = TraCI->vehicleGetMaxAccel(SUMOvID);
+        router->net->vehicles[SUMOID]->maxAccel = TraCI->vehicleGetMaxAccel(SUMOID);
 
         // Routing
         //Temporary fix to get a vehicle's target: get it from the xml
@@ -73,7 +74,7 @@ void ApplVSystem::initialize(int stage)
         rapidxml::xml_document<> doc;                                // Build a rapidxml doc
         doc.parse<0>(xmlFile.data());                                // Fill it with data from our file
         rapidxml::xml_node<> *node = doc.first_node("vehicles");     // Parse up to the "nodes" declaration
-        for(node = node->first_node("vehicle"); node->first_attribute()->value() != SUMOvID; node = node->next_sibling()); //Find our vehicle in the .xml
+        for(node = node->first_node("vehicle"); node->first_attribute()->value() != SUMOID; node = node->next_sibling()); //Find our vehicle in the .xml
 
         rapidxml::xml_attribute<> *attr = node->first_attribute()->next_attribute()->next_attribute()->next_attribute();  //Navigate to the destination attribute
         if((std::string)attr->name() == "destination")  //Double-check
@@ -81,10 +82,10 @@ void ApplVSystem::initialize(int stage)
         else
             error("XML formatted wrong! Some vehicle was missing its destination!");
 
-        if(find(router->nonReroutingVehicles->begin(), router->nonReroutingVehicles->end(), SUMOvID.substr(1, SUMOvID.length() - 1)) != router->nonReroutingVehicles->end())
+        if(find(router->nonReroutingVehicles->begin(), router->nonReroutingVehicles->end(), SUMOID.substr(1, SUMOID.length() - 1)) != router->nonReroutingVehicles->end())
         {
             requestReroutes = false;
-            if(debugLevel > 1) std::cout << SUMOvID << " is not routing" << endl;
+            if(debugLevel > 1) std::cout << SUMOID << " is not routing" << endl;
         }
         else
         {
@@ -98,7 +99,7 @@ void ApplVSystem::initialize(int stage)
 
         //Prepare to send a system message
         Signal_system = registerSignal("system");
-        nodePtr->emit(Signal_system, new systemData("", "", SUMOvID, STARTED, std::string("system")));
+        nodePtr->emit(Signal_system, new systemData("", "", SUMOID, STARTED, std::string("system")));
 
         //Slightly offset all vehicles (0-4 seconds)
         double systemOffset = dblrand() * maxOffset;
@@ -117,12 +118,12 @@ void ApplVSystem::finish()
         return;
 
     if(debugLevel > 0)
-        std::cout << "t=" << simTime().dbl() << ": " << SUMOvID << " took " << simTime().dbl() - entryTime << " seconds to complete its route." << endl;
+        std::cout << "t=" << simTime().dbl() << ": " << SUMOID << " took " << simTime().dbl() - entryTime << " seconds to complete its route." << endl;
 
-    router->vehicleEndTimesFile << SUMOvID << " " << simTime().dbl() << endl;
+    router->vehicleEndTimesFile << SUMOID << " " << simTime().dbl() << endl;
 
     //Prepare to send a system message
-    nodePtr->emit(Signal_system, new systemData("", "", SUMOvID, DONE, std::string("system")));
+    nodePtr->emit(Signal_system, new systemData("", "", SUMOID, DONE, std::string("system")));
 
     if(requestReroutes)
     {
@@ -150,19 +151,19 @@ void ApplVSystem::handleSelfMsg(cMessage* msg)  //Internal messages to self
 void ApplVSystem::reroute()
 {
     if(debugLevel > 1)
-        std::cout << "Rerouting " << SUMOvID << " at t=" << simTime().dbl() << endl;
+        std::cout << "Rerouting " << SUMOID << " at t=" << simTime().dbl() << endl;
 
     ++numReroutes;
 
     if(routingMode == DIJKSTRA)
     {
-        nodePtr->emit(Signal_system, new systemData(TraCI->vehicleGetEdgeID(SUMOvID), targetNode, SUMOvID, DIJKSTRA, std::string("system")));
+        nodePtr->emit(Signal_system, new systemData(TraCI->vehicleGetEdgeID(SUMOID), targetNode, SUMOID, DIJKSTRA, std::string("system")));
         if(!router->UseHysteresis)
             scheduleAt(simTime() + requestInterval, sendSystemMsgEvt);// schedule for next beacon broadcast
     }
     else if(routingMode == HYPERTREE)
     {
-        nodePtr->emit(Signal_system, new systemData(TraCI->vehicleGetEdgeID(SUMOvID), targetNode, SUMOvID, HYPERTREE, std::string("system")));
+        nodePtr->emit(Signal_system, new systemData(TraCI->vehicleGetEdgeID(SUMOID), targetNode, SUMOID, HYPERTREE, std::string("system")));
         scheduleAt(simTime() + hypertreeUpdateInterval, sendSystemMsgEvt);// schedule for next beacon broadcast
     }
 }
@@ -172,7 +173,7 @@ void ApplVSystem::receiveSignal(cComponent *source, simsignal_t signalID, cObjec
     if(signalID == Signal_router)   //If the signal is of type router
     {
         systemData *s = static_cast<systemData *>(obj); //Cast to usable data
-        if(std::string(s->getSender()) == "router" and std::string(s->getRecipient()) == SUMOvID) //If sent from the router and to this vehicle
+        if(std::string(s->getSender()) == "router" and std::string(s->getRecipient()) == SUMOID) //If sent from the router and to this vehicle
         {
             if((s->getRequestType() == DIJKSTRA || s->getRequestType() == HYPERTREE)) //If sent from the router and to this vehicle
             {
@@ -180,7 +181,7 @@ void ApplVSystem::receiveSignal(cComponent *source, simsignal_t signalID, cObjec
 
                 if(debugLevel > 1)
                 {
-                    std::cout << SUMOvID << " got route ";
+                    std::cout << SUMOID << " got route ";
                     for(std::string s : sRoute)
                         std::cout << s << " ";
                     std::cout << endl;

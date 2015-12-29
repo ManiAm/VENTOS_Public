@@ -26,6 +26,7 @@
 //
 
 #include "Mac1609_4_Mod.h"
+#include "SignalObj.h"
 
 namespace VENTOS {
 
@@ -37,11 +38,6 @@ void Mac1609_4_Mod::initialize(int stage)
 
 	if (stage == 0)
 	{
-        // get the ptr of the current module
-        nodePtr = FindModule<>::findHost(this);
-        if(nodePtr == NULL)
-            error("can not get a pointer to the module.");
-
         // get the ptr of the Statistics module
         cModule *module = simulation.getSystemModule()->getSubmodule("statistics");
         StatPtr = static_cast<Statistics *>(module);
@@ -102,7 +98,7 @@ void Mac1609_4_Mod::handleUpperMsg(cMessage* msg)
     MacStat *vec = new MacStat(MacStats);
 
     simsignal_t Signal_MacStats = registerSignal("MacStats");
-    nodePtr->emit(Signal_MacStats, vec);
+    this->emit(Signal_MacStats, vec);
 }
 
 

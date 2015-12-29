@@ -49,6 +49,7 @@ void Plotter::initialize(int stage)
         // get a pointer to the TraCI module
         cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
         TraCI = static_cast<TraCI_Extend *>(module);
+        ASSERT(TraCI);
 
         #ifdef WIN32
             pipe = _popen("pgnuplot -persist", "w");

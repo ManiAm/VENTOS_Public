@@ -27,6 +27,7 @@
 
 #include "ApplV_08_Manager.h"
 #include <Statistics.h>
+#include "SignalObj.h"
 
 namespace VENTOS {
 
@@ -71,24 +72,19 @@ void ApplVManager::initialize(int stage)
         BeaconRSUCount = 0;
         PlatoonCount = 0;
 
-        WATCH(BeaconVehCount);
-        WATCH(BeaconVehDropped);
-        WATCH(BeaconRSUCount);
-        WATCH(PlatoonCount);
-
         // set parameters in SUMO
-        TraCI->vehicleSetDebug(SUMOvID, SUMOvehicleDebug);
-        TraCI->vehicleSetDowngradeToACC(SUMOvID, degradeToACC);
+        TraCI->vehicleSetDebug(SUMOID, SUMOvehicleDebug);
+        TraCI->vehicleSetDowngradeToACC(SUMOID, degradeToACC);
 
         if(measurementError)
         {
-            TraCI->vehicleSetErrorGap(SUMOvID, errorGap);
-            TraCI->vehicleSetErrorRelSpeed(SUMOvID, errorRelSpeed);
+            TraCI->vehicleSetErrorGap(SUMOID, errorGap);
+            TraCI->vehicleSetErrorRelSpeed(SUMOID, errorRelSpeed);
         }
         else
         {
-            TraCI->vehicleSetErrorGap(SUMOvID, 0.);
-            TraCI->vehicleSetErrorRelSpeed(SUMOvID, 0.);
+            TraCI->vehicleSetErrorGap(SUMOID, 0.);
+            TraCI->vehicleSetErrorRelSpeed(SUMOID, 0.);
         }
 
         // turn off 'strategic' and 'speed gain' lane change in all TL (default is 10 01 01 01 01)
@@ -96,7 +92,7 @@ void ApplVManager::initialize(int stage)
         if(TLControlMode != TL_Router && TLControlMode != TL_OFF)
         {
             int32_t bitset = TraCI->vehicleBuildLaneChangeMode(00, 01, 00, 01, 01);
-            TraCI->vehicleSetLaneChangeMode(SUMOvID, bitset);   // alter 'lane change' mode
+            TraCI->vehicleSetLaneChangeMode(SUMOID, bitset);   // alter 'lane change' mode
         }
     }
 }
@@ -159,7 +155,7 @@ void ApplVManager::handleLowerMsg(cMessage* msg)
             // report reception to statistics
             if(reportBeaconsData)
             {
-                data *pair = new data(wsm->getSender(), SUMOvID, 0);
+                data *pair = new data(wsm->getSender(), SUMOID, 0);
                 simsignal_t Signal_beacon = registerSignal("beacon");
                 nodePtr->emit(Signal_beacon, pair);
             }
@@ -172,7 +168,7 @@ void ApplVManager::handleLowerMsg(cMessage* msg)
             // report drop to statistics
             if(reportBeaconsData)
             {
-                data *pair = new data(wsm->getSender(), SUMOvID, 1);
+                data *pair = new data(wsm->getSender(), SUMOID, 1);
                 simsignal_t Signal_beacon = registerSignal("beacon");
                 nodePtr->emit(Signal_beacon, pair);
             }
@@ -216,8 +212,8 @@ bool ApplVManager::dropBeacon(double time, std::string vehicle, double plr)
     if(simTime().dbl() >= time)
     {
         // vehicle == "" --> drop beacon in all vehicles
-        // vehicle == SUMOvID --> drop beacon only in specified vehicle
-        if (vehicle == "" || vehicle == SUMOvID)
+        // vehicle == SUMOID --> drop beacon only in specified vehicle
+        if (vehicle == "" || vehicle == SUMOID)
         {
             // random number in [0,1)
             double p = dblrand();
@@ -257,7 +253,7 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
         {
             char buffer [200];
             sprintf (buffer, "%f#%f#%f#%f#%s#%s", (double)wsm->getSpeed(), (double)wsm->getAccel(), (double)wsm->getMaxDecel(), (simTime().dbl())*1000, wsm->getSender(), "preceding");
-            TraCI->vehicleSetControllerParameters(SUMOvID, buffer);
+            TraCI->vehicleSetControllerParameters(SUMOID, buffer);
         }
     }
     // model is CACC with platoon leader communication (TypeCACC2)
@@ -274,7 +270,7 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
             {
                 char buffer [200];
                 sprintf (buffer, "%f#%f#%f#%f#%s#%s", (double)wsm->getSpeed(), (double)wsm->getAccel(), (double)wsm->getMaxDecel(), (simTime().dbl())*1000, wsm->getSender(), "preceding");
-                TraCI->vehicleSetControllerParameters(SUMOvID, buffer);
+                TraCI->vehicleSetControllerParameters(SUMOID, buffer);
             }
         }
         // I am a follower
@@ -285,7 +281,7 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
             {
                 char buffer [200];
                 sprintf (buffer, "%f#%f#%f#%f#%s#%s", (double)wsm->getSpeed(), (double)wsm->getAccel(), (double)wsm->getMaxDecel(), (simTime().dbl())*1000, wsm->getSender(), "leader");
-                TraCI->vehicleSetControllerParameters(SUMOvID, buffer);
+                TraCI->vehicleSetControllerParameters(SUMOID, buffer);
             }
         }
     }
@@ -300,8 +296,6 @@ void ApplVManager::onBeaconPedestrian(BeaconPedestrian* wsm)
 {
     // pass it down
     // ApplVCoordinator::onBeaconPedestrian(wsm);
-
-    //ApplVBeacon::printBeaconContent(wsm);
 
     char buffer [200];
     sprintf (buffer, "%f#%f#%f#%f#%s#%s", (double)wsm->getSpeed(), (double)wsm->getAccel(), (double)wsm->getMaxDecel(), (simTime().dbl())*1000, wsm->getSender(), "preceding");

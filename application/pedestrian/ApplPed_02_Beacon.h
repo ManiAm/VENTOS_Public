@@ -29,6 +29,7 @@
 #define ApplPEDBeacon_H
 
 #include "ApplPed_01_Base.h"
+#include "BeaconPedestrian_m.h"
 
 namespace VENTOS {
 

@@ -27,6 +27,7 @@
 
 #include "Router.h"
 #include <stdlib.h>
+#include "SignalObj.h"
 
 namespace VENTOS {
 
@@ -100,11 +101,10 @@ void Router::initialize(int stage)
         if( !boost::filesystem::exists( SUMO_FullPath ) )
             error("SUMO directory is not valid! Check it again.");
 
-        // Build nodePtr and traci manager
-        nodePtr = FindModule<>::findHost(this);
-        TraCI = FindModule<TraCI_Extend*>::findGlobalModule();
-        if(nodePtr == NULL || TraCI == NULL)
-            error("can not get a pointer to the module.");
+        // get a pointer to the TraCI module
+        cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
+        TraCI = static_cast<TraCI_Extend *>(module);
+        ASSERT(TraCI);
 
         EWMARate = par("EWMARate").doubleValue();
         TLLookahead = par("TLLookahead").doubleValue();
@@ -263,7 +263,7 @@ void Router::receiveDijkstraRequest(Edge* origin, Node* destination, std::string
 
     // Systemdata wants string edge, string node, string sender, int requestType, string recipient, list<string> edgeList
     simsignal_t Signal_router = registerSignal("router");
-    nodePtr->emit(Signal_router, new systemData("", "", "router", DIJKSTRA, sender, dijkstraRoutes[key]));
+    this->emit(Signal_router, new systemData("", "", "router", DIJKSTRA, sender, dijkstraRoutes[key]));
 }
 
 void Router::receiveHypertreeRequest(Edge* origin, Node* destination, std::string sender)
@@ -280,7 +280,7 @@ void Router::receiveHypertreeRequest(Edge* origin, Node* destination, std::strin
         info.push_back(nextEdge);
 
     simsignal_t Signal_router = registerSignal("router");
-    nodePtr->emit(Signal_router, new systemData("", "", "router", HYPERTREE, sender, info));
+    this->emit(Signal_router, new systemData("", "", "router", HYPERTREE, sender, info));
 }
 
 void Router::receiveDoneRequest(std::string sender)

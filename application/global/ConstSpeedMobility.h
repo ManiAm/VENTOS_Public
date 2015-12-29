@@ -38,7 +38,7 @@ namespace VENTOS {
  * @author Steffen Sroka, Marc Loebbers, Daniel Willkomm
  * @sa ConnectionManager
  */
-class MIXIM_API ConstSpeedMobility : public BaseMobility
+class ConstSpeedMobility : public BaseMobility
 {
   protected:
     /** @name parameters to handle the movement of the host*/

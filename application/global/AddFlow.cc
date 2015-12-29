@@ -41,14 +41,10 @@ void AddFlow::initialize(int stage)
 {
     if(stage ==0)
     {
-        // get the ptr of the current module
-        nodePtr = FindModule<>::findHost(this);
-        if(nodePtr == NULL)
-            error("can not get a pointer to the module.");
-
         // get a pointer to the TraCI module
         cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
         TraCI = static_cast<TraCI_Extend *>(module);
+        ASSERT(TraCI);
 
         // get path to the launchFile
         std::string launchFile = module->par("launchFile").stringValue();
@@ -94,13 +90,13 @@ void AddFlow::receiveSignal(cComponent *source, simsignal_t signalID, long i)
         std::string sumoRou = getFullPathToSumoRou(sumoConfig);
 
         // read flows.xml file and extract a flow set
-   //     getFlowSet();
+        //     getFlowSet();
 
         // copy the flow set into a new rou file in %TMP%
-   //     addFlowSetToNewRou();
+        //     addFlowSetToNewRou();
 
         // add a new entry to copy the new rou, and also modify sumo.cfg
-    //    applyChanges();
+        //    applyChanges();
     }
 }
 

@@ -45,32 +45,29 @@ void ApplBikeBase::initialize(int stage)
 	if (stage==0)
 	{
         // get the ptr of the current module
-        nodePtr = FindModule<>::findHost(this);
+        nodePtr = this->getParentModule();
         if(nodePtr == NULL)
             error("can not get a pointer to the module.");
 
-		myMac = FindModule<WaveAppToMac1609_4Interface*>::findSubModule(getParentModule());
-		assert(myMac);
-
-		TraCI_Mobility = TraCIMobilityAccess().get(getParentModule());
-        TraCI = FindModule<TraCI_Extend*>::findGlobalModule();
-
-        annotations = AnnotationManagerAccess().getIfExists();
-        ASSERT(annotations);
+        // get a pointer to the TraCI module
+        cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
+        TraCI = static_cast<TraCI_Extend *>(module);
+        ASSERT(TraCI);
 
         headerLength = par("headerLength").longValue();
 
         // bike id in omnet++
 		myId = getParentModule()->getIndex();
-
         // bike full id in omnet++
 		myFullId = getParentModule()->getFullName();
-
         // bike id in sumo
-        SUMObID = TraCI_Mobility->getExternalId();
-
+        SUMOID = par("SUMOID").stdstringValue();
         // bike type in sumo
-        SUMObType = TraCI->vehicleGetTypeID(SUMObID);
+        SUMOType = par("SUMOType").stdstringValue();
+        // vehicle class in sumo
+        vehicleClass = par("vehicleClass").stdstringValue();
+        // vehicle class code
+        vehicleClassEnum = par("vehicleClassEnum").longValue();
 
         // store the time of entry
         entryTime = simTime().dbl();

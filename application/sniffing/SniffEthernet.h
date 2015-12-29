@@ -29,7 +29,6 @@
 #define SNIFFETHERNET
 
 #include <BaseApplLayer.h>
-#include <Appl.h>
 #include "TraCI_Extend.h"
 #include "pcap.h"
 

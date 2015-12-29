@@ -57,7 +57,6 @@ class SNMPConnect : public BaseApplLayer
 
 	private:
         // NED variables
-        cModule *nodePtr;   // pointer to the Node
         TraCI_Extend *TraCI;  // pointer to the TraCI module
         simsignal_t Signal_executeFirstTS;
         bool on;

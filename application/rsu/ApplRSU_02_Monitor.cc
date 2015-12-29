@@ -120,7 +120,7 @@ void ApplRSUMonitor::setDetectionRegion()
 
     std::string polID = "detectionArea_" + myTLid;
 
-    TraCI->polygonAdd(polID, "region", TraCIColor::fromTkColor("blue"), 0, 1, detectionRegion);
+    TraCI->polygonAddTraCI(polID, "region", TraCIColor::fromTkColor("blue"), 0, 1, detectionRegion);
 }
 
 

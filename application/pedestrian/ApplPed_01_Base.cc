@@ -45,35 +45,29 @@ void ApplPedBase::initialize(int stage)
 	if (stage==0)
 	{
         // get the ptr of the current module
-        nodePtr = FindModule<>::findHost(this);
+        nodePtr = this->getParentModule();
         if(nodePtr == NULL)
             error("can not get a pointer to the module.");
-
-		myMac = FindModule<WaveAppToMac1609_4Interface*>::findSubModule(getParentModule());
-		assert(myMac);
-
-		TraCI_Mobility = TraCIMobilityAccess().get(getParentModule());
 
         // get a pointer to the TraCI module
         cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
         TraCI = static_cast<TraCI_Extend *>(module);
-
-        annotations = AnnotationManagerAccess().getIfExists();
-        ASSERT(annotations);
+        ASSERT(TraCI);
 
         headerLength = par("headerLength").longValue();
 
         // pedestrian id in omnet++
 		myId = getParentModule()->getIndex();
-
 		// pedestrian full id in omnet++
 		myFullId = getParentModule()->getFullName();
-
         // pedestrian id in sumo
-        SUMOpID = TraCI_Mobility->getExternalId();
-
+        SUMOID = par("SUMOID").stringValue();
         // pedestrian type in sumo
-        SUMOpType = TraCI->personGetTypeID(SUMOpID);
+        SUMOType = par("SUMOType").stringValue();
+        // vehicle class in sumo
+        vehicleClass = par("vehicleClass").stringValue();
+        // vehicle class code
+        vehicleClassEnum = par("vehicleClassEnum").longValue();
 
         // store the time of entry
         entryTime = simTime().dbl();

@@ -40,26 +40,43 @@ ApplVBase::~ApplVBase()
 
 void ApplVBase::initialize(int stage)
 {
-	BaseApplLayer::initialize(stage);
+    BaseApplLayer::initialize(stage);
 
-	if (stage==0)
-	{
+    if (stage==0)
+    {
         // get the ptr of the current module
-        nodePtr = FindModule<>::findHost(this);
+        nodePtr = this->getParentModule();
         if(nodePtr == NULL)
             error("can not get a pointer to the module.");
 
-		myMac = FindModule<WaveAppToMac1609_4Interface*>::findSubModule(getParentModule());
-		assert(myMac);
-
-		TraCI_Mobility = TraCIMobilityAccess().get(getParentModule());
-
         // get a pointer to the TraCI module
-        cModule *tmodule = simulation.getSystemModule()->getSubmodule("TraCI");
-        TraCI = static_cast<TraCI_Extend *>(tmodule);
+        cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
+        TraCI = static_cast<TraCI_Extend *>(module);
+        ASSERT(TraCI);
 
-        annotations = AnnotationManagerAccess().getIfExists();
-        ASSERT(annotations);
+        // get a pointer to traffic light module
+        module = simulation.getSystemModule()->getSubmodule("TrafficLight");
+        TLControlMode = module->par("TLControlMode").longValue();
+        activeDetection = module->par("activeDetection").boolValue();
+
+        headerLength = par("headerLength").longValue();
+
+        // vehicle id in omnet++
+        myId = getParentModule()->getIndex();
+        // vehicle full id in omnet++
+        myFullId = getParentModule()->getFullName();
+        // vehicle id in sumo
+        SUMOID = par("SUMOID").stringValue();
+        // vehicle type in sumo
+        SUMOType = par("SUMOType").stringValue();
+        // vehicle class in sumo
+        vehicleClass = par("vehicleClass").stringValue();
+        // vehicle class code
+        vehicleClassEnum = par("vehicleClassEnum").longValue();
+        // get controller type from SUMO
+        SUMOControllerType = par("SUMOControllerType").longValue();
+        // get controller number from SUMO
+        SUMOControllerNumber = par("SUMOControllerNumber").longValue();
 
         VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
         SUMO_Path = simulation.getSystemModule()->par("SUMODirectory").stringValue();
@@ -67,36 +84,12 @@ void ApplVBase::initialize(int stage)
         if( !boost::filesystem::exists( SUMO_FullPath ) )
             error("SUMO directory is not valid! Check it again.");
 
-        headerLength = par("headerLength").longValue();
-
-        // vehicle id in omnet++
-		myId = getParentModule()->getIndex();
-
-        // vehicle full id in omnet++
-		myFullId = getParentModule()->getFullName();
-
         // store the time of entry
         entryTime = simTime().dbl();
 
-        // vehicle id in sumo
-        SUMOvID = TraCI_Mobility->getExternalId();
-
-        // vehicle type in sumo
-        SUMOvType = TraCI->vehicleGetTypeID(SUMOvID);
-
-        // get controller type from SUMO
-        SUMOControllerType = TraCI->vehicleTypeGetControllerType(SUMOvType);
-
-        // get controller number from SUMO
-        SUMOControllerNumber = TraCI->vehicleTypeGetControllerNumber(SUMOvType);
-
-        cModule *module = simulation.getSystemModule()->getSubmodule("TrafficLight");
-        TLControlMode = module->par("TLControlMode").longValue();
-        activeDetection = module->par("activeDetection").boolValue();
-
         // comment this to speed-up the simulation
         //findHost()->subscribe(mobilityStateChangedSignal, this);
-	}
+    }
 }
 
 

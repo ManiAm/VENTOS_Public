@@ -31,11 +31,7 @@
 #include <BaseApplLayer.h>
 #include <ChannelAccess.h>
 #include <WaveAppToMac1609_4Interface.h>
-#include "modules/mobility/traci/TraCIMobility.h"
-
-#include "Appl.h"
 #include "TraCI_Extend.h"
-
 
 namespace VENTOS {
 
@@ -53,11 +49,20 @@ protected:
 
 protected:
     // NED variables
-    cModule *nodePtr;   // pointer to the Node
-    WaveAppToMac1609_4Interface* myMac;
-    TraCIMobility* TraCI_Mobility;
-    mutable TraCI_Extend* TraCI;
-    AnnotationManager* annotations;
+    cModule *nodePtr;
+    TraCI_Extend* TraCI;
+    int TLControlMode;
+    bool activeDetection;
+
+    // module info
+    int myId;
+    const char *myFullId;
+    std::string SUMOID;
+    std::string SUMOType;
+    std::string vehicleClass;
+    int vehicleClassEnum;
+    int SUMOControllerType;
+    int SUMOControllerNumber;
 
     static const simsignalwrap_t mobilityStateChangedSignal;
 
@@ -66,20 +71,8 @@ protected:
     boost::filesystem::path SUMO_FullPath;
 
     // Class variables
-    int myId;
-    const char *myFullId;
-
     Coord curPosition;  // current position from mobility module (not from sumo)
     double entryTime;
-
-    std::string SUMOvID;
-    std::string SUMOvType;
-
-    int SUMOControllerType;
-    int SUMOControllerNumber;
-
-    int TLControlMode;
-    bool activeDetection;
 };
 
 }

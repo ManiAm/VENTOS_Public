@@ -63,7 +63,7 @@ void ApplVPlatoonMg::dissolve_DataFSM(PlatoonMsg* wsm)
 
         // send a unicast DISSOLVE message my follower
         PlatoonMsg* dataMsg = prepareData(lastVeh, DISSOLVE, plnID);
-        EV << "### " << SUMOvID << ": sent DISSOLVE to followers." << endl;
+        EV << "### " << SUMOID << ": sent DISSOLVE to followers." << endl;
         sendDelayed(dataMsg, individualOffset, lowerLayerOut);
         reportCommandToStat(dataMsg);
 
@@ -94,26 +94,26 @@ void ApplVPlatoonMg::dissolve_DataFSM(PlatoonMsg* wsm)
     }
     else if(vehicleState == state_platoonFollower)
     {
-        if ( wsm->getType() == DISSOLVE && wsm->getSender() == plnID && wsm->getRecipient() == SUMOvID )
+        if ( wsm->getType() == DISSOLVE && wsm->getSender() == plnID && wsm->getRecipient() == SUMOID )
         {
             // send ACK
             PlatoonMsg* dataMsg = prepareData(wsm->getSender(), ACK, wsm->getSendingPlatoonID());
-            EV << "### " << SUMOvID << ": sent ACK." << endl;
+            EV << "### " << SUMOID << ": sent ACK." << endl;
             sendDelayed(dataMsg, individualOffset, lowerLayerOut);
             reportCommandToStat(dataMsg);
 
             // make it a free agent
-            plnID = SUMOvID;
+            plnID = SUMOID;
             myPlnDepth = 0;
             plnSize = 1;
-            plnMembersList.push_back(SUMOvID);
-            TraCI->vehicleSetTimeGap(SUMOvID, TP);
+            plnMembersList.push_back(SUMOID);
+            TraCI->vehicleSetTimeGap(SUMOID, TP);
 
             busy = false;
 
             // change color to red!
             TraCIColor newColor = TraCIColor::fromTkColor("red");
-            TraCI->vehicleSetColor(SUMOvID, newColor);
+            TraCI->vehicleSetColor(SUMOID, newColor);
 
             vehicleState = state_platoonLeader;
             reportStateToStat();

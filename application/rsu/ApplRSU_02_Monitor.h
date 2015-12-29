@@ -29,6 +29,11 @@
 #define APPLRSUMONITOR_H_
 
 #include "ApplRSU_01_Base.h"
+#include "BeaconVehicle_m.h"
+#include "BeaconBicycle_m.h"
+#include "BeaconPedestrian_m.h"
+#include "BeaconRSU_m.h"
+#include "LaneChangeMsg_m.h"
 
 namespace VENTOS {
 

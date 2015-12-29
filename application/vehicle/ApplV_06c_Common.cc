@@ -49,11 +49,11 @@ void ApplVPlatoonMg::common_DataFSM(PlatoonMsg* wsm)
     {
         if ( wsm->getType() == CHANGE_PL && wsm->getSender() == plnID )
         {
-            if( std::string(wsm->getRecipient()) == "multicast" || wsm->getRecipient() == SUMOvID )
+            if( std::string(wsm->getRecipient()) == "multicast" || wsm->getRecipient() == SUMOID )
             {
                 // send ACK
                 PlatoonMsg* dataMsg = prepareData(wsm->getSender(), ACK, wsm->getSendingPlatoonID());
-                EV << "### " << SUMOvID << ": sent ACK." << endl;
+                EV << "### " << SUMOID << ": sent ACK." << endl;
                 sendDelayed(dataMsg, individualOffset, lowerLayerOut);
                 reportCommandToStat(dataMsg);
 
@@ -69,18 +69,18 @@ void ApplVPlatoonMg::common_DataFSM(PlatoonMsg* wsm)
         // I have done it before, so I only ACK
         else if( wsm->getType() == CHANGE_PL && wsm->getSender() == oldPlnID && wsm->getStrValue() == plnID )
         {
-            if( std::string(wsm->getRecipient()) == "multicast" || wsm->getRecipient() == SUMOvID )
+            if( std::string(wsm->getRecipient()) == "multicast" || wsm->getRecipient() == SUMOID )
             {
                 // send ACK
                 PlatoonMsg* dataMsg = prepareData(wsm->getSender(), ACK, wsm->getSendingPlatoonID());
-                EV << "### " << SUMOvID << ": sent ACK." << endl;
+                EV << "### " << SUMOID << ": sent ACK." << endl;
                 sendDelayed(dataMsg, individualOffset, lowerLayerOut);
                 reportCommandToStat(dataMsg);
             }
         }
         else if(wsm->getType() == CHANGE_Tg && wsm->getSender() == plnID)
         {
-            TraCI->vehicleSetTimeGap(SUMOvID, wsm->getDblValue());
+            TraCI->vehicleSetTimeGap(SUMOID, wsm->getDblValue());
         }
     }
 }

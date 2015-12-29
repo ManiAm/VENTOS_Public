@@ -54,10 +54,10 @@ void ApplVPlatoonFormed::initialize(int stage)
 	    preDefinedPlatoonID = par("preDefinedPlatoonID").stringValue();
 
 	    // I am the platoon leader.
-	    if(SUMOvID == preDefinedPlatoonID)
+	    if(SUMOID == preDefinedPlatoonID)
 	    {
 	        // we only set these two!
-	        plnID = SUMOvID;
+	        plnID = SUMOID;
 	        myPlnDepth = 0;
 	    }
 	}
@@ -95,7 +95,7 @@ void ApplVPlatoonFormed::onBeaconVehicle(BeaconVehicle* wsm)
 
             // change the color to blue
             TraCIColor newColor = TraCIColor::fromTkColor("blue");
-            TraCI->vehicleSetColor(SUMOvID, newColor);
+            TraCI->vehicleSetColor(SUMOID, newColor);
         }
     }
     // platoonID != "" which means I am already part of a platoon

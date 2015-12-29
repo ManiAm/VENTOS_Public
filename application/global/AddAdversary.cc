@@ -42,14 +42,10 @@ void AddAdversary::initialize(int stage)
 {
     if(stage ==0)
     {
-        // get the ptr of the current module
-        nodePtr = FindModule<>::findHost(this);
-        if(nodePtr == NULL)
-            error("can not get a pointer to the module.");
-
         // get a pointer to the TraCI module
         cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
         TraCI = static_cast<TraCI_Extend *>(module);
+        ASSERT(TraCI);
 
         Signal_executeFirstTS = registerSignal("executeFirstTS");
         simulation.getSystemModule()->subscribe("executeFirstTS", this);
@@ -92,7 +88,7 @@ void AddAdversary::Add()
     cModule* parentMod = getParentModule();
     if (!parentMod) error("Parent Module not found");
 
-    cModuleType* nodeType = cModuleType::get("c3po.ned.Adversary");
+    cModuleType* nodeType = cModuleType::get("c3po.application.adversary.Adversary");
 
     // do not use create("adversary", parentMod);
     // instead create an array of adversaries

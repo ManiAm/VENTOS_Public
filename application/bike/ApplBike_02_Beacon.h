@@ -29,6 +29,7 @@
 #define ApplBIKEBeacon_H
 
 #include "ApplBike_01_Base.h"
+#include "BeaconBicycle_m.h"
 
 namespace VENTOS {
 

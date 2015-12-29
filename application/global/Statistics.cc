@@ -28,6 +28,7 @@
 #include <Statistics.h>
 #include <ApplRSU_06_Manager.h>
 #include "Router.h"
+#include "SignalObj.h"
 
 namespace VENTOS {
 
@@ -49,6 +50,8 @@ void Statistics::initialize(int stage)
         // get a pointer to the TraCI module
         cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
         TraCI = static_cast<TraCI_Extend *>(module);
+        ASSERT(TraCI);
+
         terminate = module->par("terminate").doubleValue();
         updateInterval = module->par("updateInterval").doubleValue();
 

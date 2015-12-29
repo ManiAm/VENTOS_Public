@@ -47,7 +47,6 @@ class SpeedProfile : public BaseApplLayer
 	private:
 
         // NED variables
-        cModule *nodePtr;   // pointer to the Node
         TraCI_Extend *TraCI;
         bool on;
         double startTime;  // the time that speed profiling starts

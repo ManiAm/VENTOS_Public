@@ -63,20 +63,20 @@ void ApplVPlatoonMg::leaderLeave_DataFSM(PlatoonMsg *wsm)
     {
         // send a multicast VOTE_LEADER to all followers
         PlatoonMsg* dataMsg = prepareData("multicast", VOTE_LEADER, plnID);
-        EV << "### " << SUMOvID << ": sent VOTE_LEADER." << endl;
+        EV << "### " << SUMOID << ": sent VOTE_LEADER." << endl;
         sendDelayed(dataMsg, individualOffset, lowerLayerOut);
         reportCommandToStat(dataMsg);
 
         vehicleState = state_waitForVoteReply;
         reportStateToStat();
 
-        reportManeuverToStat(SUMOvID, "-", "LLeave_Start");
+        reportManeuverToStat(SUMOID, "-", "LLeave_Start");
 
         scheduleAt(simTime() + 1., plnTIMER9);
     }
     else if(vehicleState == state_waitForVoteReply)
     {
-        if(wsm->getType() == ELECTED_LEADER && wsm->getRecipient() == SUMOvID)
+        if(wsm->getType() == ELECTED_LEADER && wsm->getRecipient() == SUMOID)
         {
             cancelEvent(plnTIMER9);
 
@@ -94,25 +94,25 @@ void ApplVPlatoonMg::leaderLeave_DataFSM(PlatoonMsg *wsm)
     else if(vehicleState == state_splitCompleted)
     {
         // now we can leave the platoon
-        if(wsm->getType() == GAP_CREATED && wsm->getRecipient() == SUMOvID)
+        if(wsm->getType() == GAP_CREATED && wsm->getRecipient() == SUMOID)
         {
-            TraCI->vehicleSetClass(SUMOvID, "private");   // change vClass
+            TraCI->vehicleSetClass(SUMOID, "private");   // change vClass
 
             int32_t bitset = TraCI->vehicleBuildLaneChangeMode(10, 01, 01, 01, 01);
-            TraCI->vehicleSetLaneChangeMode(SUMOvID, bitset);  // alter 'lane change' mode
-            TraCI->vehicleChangeLane(SUMOvID, 0, 5);   // change to lane 0 (normal lane)
+            TraCI->vehicleSetLaneChangeMode(SUMOID, bitset);  // alter 'lane change' mode
+            TraCI->vehicleChangeLane(SUMOID, 0, 5);   // change to lane 0 (normal lane)
 
-            TraCI->vehicleSetSpeed(SUMOvID, 30.);
+            TraCI->vehicleSetSpeed(SUMOID, 30.);
 
             // change color to yellow!
             TraCIColor newColor = TraCIColor::fromTkColor("yellow");
-            TraCI->vehicleSetColor(SUMOvID, newColor);
+            TraCI->vehicleSetColor(SUMOID, newColor);
 
             plnSize = -1;
             myPlnDepth = -1;
             busy = false;
 
-            reportManeuverToStat(SUMOvID, "-", "LLeave_End");
+            reportManeuverToStat(SUMOID, "-", "LLeave_End");
 
             vehicleState = state_idle;
             reportStateToStat();
@@ -128,7 +128,7 @@ void ApplVPlatoonMg::leaderLeave_DataFSM(PlatoonMsg *wsm)
             {
                 // send ELECTED_LEADER
                 PlatoonMsg* dataMsg = prepareData(plnID, ELECTED_LEADER, plnID, myPlnDepth);
-                EV << "### " << SUMOvID << ": sent ELECTED_LEADER." << endl;
+                EV << "### " << SUMOID << ": sent ELECTED_LEADER." << endl;
                 sendDelayed(dataMsg, individualOffset, lowerLayerOut);
                 reportCommandToStat(dataMsg);
             }

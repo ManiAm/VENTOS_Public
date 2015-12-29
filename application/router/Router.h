@@ -116,7 +116,6 @@ protected:
     std::map<std::string, int> dijkstraTimes;
 
     //Message passing
-    cModule *nodePtr;               //pointer to the Node
     mutable TraCI_Extend* TraCI;    //Link to TraCI
     simsignal_t Signal_system;      //Receives signals to here
 
