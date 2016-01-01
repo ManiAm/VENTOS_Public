@@ -149,9 +149,9 @@ void TrafficLightLowDelay::executeFirstTimeStep()
 }
 
 
-void TrafficLightLowDelay::executeEachTimeStep(bool simulationDone)
+void TrafficLightLowDelay::executeEachTimeStep()
 {
-    TrafficLightAdaptiveQueue::executeEachTimeStep(simulationDone);
+    TrafficLightAdaptiveQueue::executeEachTimeStep();
 
     if(TLControlMode != TL_LowDelay)
         return;

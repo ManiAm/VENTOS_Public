@@ -60,6 +60,8 @@ void SniffEthernet::initialize(int stage)
         Signal_executeEachTS = registerSignal("executeEachTS");
         simulation.getSystemModule()->subscribe("executeEachTS", this);
 
+        pcap_handle = NULL;
+
         captureEvent = new cMessage("captureEvent", KIND_TIMER);
 
         listInterfaces();
@@ -71,6 +73,9 @@ void SniffEthernet::initialize(int stage)
 
 void SniffEthernet::finish()
 {
+    if(!on)
+        return;
+
     if(pcap_handle != NULL)
         pcap_close(pcap_handle);
 }
@@ -136,7 +141,7 @@ void SniffEthernet::receiveSignal(cComponent *source, simsignal_t signalID, long
 
     if(signalID == Signal_executeEachTS)
     {
-        SniffEthernet::executeEachTimestep(i);
+        SniffEthernet::executeEachTimestep();
     }
     else if(signalID == Signal_executeFirstTS)
     {
@@ -154,7 +159,7 @@ void SniffEthernet::executeFirstTimeStep()
 }
 
 
-void SniffEthernet::executeEachTimestep(bool simulationDone)
+void SniffEthernet::executeEachTimestep()
 {
 
 }

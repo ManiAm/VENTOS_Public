@@ -151,10 +151,10 @@ void TrafficLightActuated::executeFirstTimeStep()
 }
 
 
-void TrafficLightActuated::executeEachTimeStep(bool simulationDone)
+void TrafficLightActuated::executeEachTimeStep()
 {
     // call parent
-    TrafficLightWebster::executeEachTimeStep(simulationDone);
+    TrafficLightWebster::executeEachTimeStep();
 
     if(TLControlMode != TL_TrafficActuated)
         return;

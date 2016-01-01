@@ -41,7 +41,7 @@ public:
 
 protected:
     void virtual executeFirstTimeStep();
-    void virtual executeEachTimeStep(bool);
+    void virtual executeEachTimeStep();
     void getMovements(std::string);
 
 private:

@@ -48,7 +48,7 @@ class ApplRSUBase : public BaseApplLayer
 	    virtual void receiveSignal(cComponent *, simsignal_t, long);
 
 	protected:
-        virtual void executeEachTimeStep(bool);
+        virtual void executeEachTimeStep();
         BeaconRSU* prepareBeacon();
 
 	protected:

@@ -36,7 +36,7 @@ Define_Module(VENTOS::Router);
 //Generates n random unique ints in range [rangeMin, rangeMax)
 //Not a very efficient implementation, but it shouldn't matter much
 std::set<std::string>* randomUniqueVehiclesInRange(int numInts, int rangeMin, int rangeMax)
-{
+        {
     std::vector<int>* initialInts = new std::vector<int>;
     for(int i = rangeMin; i < rangeMax; i++)
         initialInts->push_back(i);
@@ -49,7 +49,7 @@ std::set<std::string>* randomUniqueVehiclesInRange(int numInts, int rangeMin, in
         randInts->insert(SSTR(initialInts->at(i) + 1));
 
     return randInts;
-}
+        }
 
 std::string key(Node* n1, Node* n2, int time)
 {
@@ -218,15 +218,15 @@ void Router::initialize(int stage)
     }
 }
 
-void Router::handleMessage(cMessage* msg)
-{
-    checkEdgeRemovals();
 
-    routerMsg = new cMessage("routerMsg");   //Create a new internal message
-    scheduleAt(simTime().dbl() + AccidentCheckInterval, routerMsg); //Schedule them to start sending
+void Router::finish()
+{
+    if(laneCostsMode == MODE_RECORD)
+        LaneCostsToFile();
 }
 
-//Receives a singnal every time-step and a special one on the last timestep
+
+//Receives a signal every time-step
 void Router::receiveSignal(cComponent *source, simsignal_t signalID, long done)
 {
     Enter_Method_Silent();
@@ -236,15 +236,18 @@ void Router::receiveSignal(cComponent *source, simsignal_t signalID, long done)
     {
         if(laneCostsMode == MODE_EWMA || laneCostsMode == MODE_RECORD || UseHysteresis)
             laneCostsData();
-
-        // if simulation is about to end
-        if((bool)done)
-        {
-            if(laneCostsMode == MODE_RECORD)
-                LaneCostsToFile();
-        }
     }
 }
+
+
+void Router::handleMessage(cMessage* msg)
+{
+    checkEdgeRemovals();
+
+    routerMsg = new cMessage("routerMsg");   //Create a new internal message
+    scheduleAt(simTime().dbl() + AccidentCheckInterval, routerMsg); //Schedule them to start sending
+}
+
 
 void Router::receiveDijkstraRequest(Edge* origin, Node* destination, std::string sender)
 {
@@ -412,7 +415,7 @@ void Router::checkEdgeRemovals()
                         if(TraCI->vehicleGetLanePosition(veh) + 100 < er.pos) // Here, we ask the vehicle to stop at the location 100 meters ahead of its current position to avoid the error of " too close to stop". This is not ideal, but it works for the purpose
                         {
                             //if(veh == "v22")
-                                //std::cout << "Found it!" << std::endl;
+                            //std::cout << "Found it!" << std::endl;
                             issueStop(veh, er.edge, TraCI->vehicleGetLanePosition(veh) + 100, er.laneIndex);
                             // Change its color to red
                             TraCIColor newColor = TraCIColor::fromTkColor("red");

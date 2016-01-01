@@ -126,9 +126,9 @@ void TrafficLightWebster::executeFirstTimeStep()
 }
 
 
-void TrafficLightWebster::executeEachTimeStep(bool simulationDone)
+void TrafficLightWebster::executeEachTimeStep()
 {
-    TrafficLightFixed::executeEachTimeStep(simulationDone);
+    TrafficLightFixed::executeEachTimeStep();
 
     if(TLControlMode != TL_Adaptive_Webster)
         return;

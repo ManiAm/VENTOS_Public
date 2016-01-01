@@ -80,6 +80,10 @@ void ApplRSUMonitor::initialize(int stage)
 void ApplRSUMonitor::finish()
 {
     ApplRSUBase::finish();
+
+    // write to file at the end of simulation
+    if(monitorVehApproach && collectVehApproach)
+        saveVehApproach();
 }
 
 
@@ -89,13 +93,9 @@ void ApplRSUMonitor::handleSelfMsg(cMessage* msg)
 }
 
 
-void ApplRSUMonitor::executeEachTimeStep(bool simulationDone)
+void ApplRSUMonitor::executeEachTimeStep()
 {
-    ApplRSUBase::executeEachTimeStep(simulationDone);
-
-    // (in CMD) write to file at the end of simulation
-    if(monitorVehApproach && collectVehApproach && !ev.isGUI() && simulationDone)
-        saveVehApproach();
+    ApplRSUBase::executeEachTimeStep();
 }
 
 
@@ -197,10 +197,6 @@ template <typename T> void ApplRSUMonitor::onBeaconAny(T wsm)
                 Vec_detectedVehicles.push_back(*tmp);
             }
 
-            // save vehicle approach to file
-            if(collectVehApproach && ev.isGUI())
-                saveVehApproach();
-
             if (activeDetection)
                 UpdateLaneInfoAdd(lane, sender, wsm->getSenderType(), wsm->getSpeed());
         }
@@ -217,10 +213,6 @@ template <typename T> void ApplRSUMonitor::onBeaconAny(T wsm)
             if(counter->leaveTime == -1)
             {
                 counter->leaveTime = simTime().dbl();
-
-                // save vehicle approach to file
-                if(collectVehApproach && ev.isGUI())
-                    saveVehApproach();
 
                 if (activeDetection)
                     UpdateLaneInfoRemove(counter->lane, sender);

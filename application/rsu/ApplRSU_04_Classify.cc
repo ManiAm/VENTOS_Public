@@ -98,9 +98,9 @@ void ApplRSUCLASSIFY::handleSelfMsg(cMessage* msg)
 }
 
 
-void ApplRSUCLASSIFY::executeEachTimeStep(bool simulationDone)
+void ApplRSUCLASSIFY::executeEachTimeStep()
 {
-    ApplRSUTLVANET::executeEachTimeStep(simulationDone);
+    ApplRSUTLVANET::executeEachTimeStep();
 }
 
 

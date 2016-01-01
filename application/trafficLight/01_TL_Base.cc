@@ -93,7 +93,7 @@ void TrafficLightBase::receiveSignal(cComponent *source, simsignal_t signalID, l
     }
     else if(signalID == Signal_executeEachTS)
     {
-        executeEachTimeStep((bool)i);
+        executeEachTimeStep();
     }
 }
 
@@ -106,7 +106,7 @@ void TrafficLightBase::executeFirstTimeStep()
 }
 
 
-void TrafficLightBase::executeEachTimeStep(bool simulationDone)
+void TrafficLightBase::executeEachTimeStep()
 {
 
 }

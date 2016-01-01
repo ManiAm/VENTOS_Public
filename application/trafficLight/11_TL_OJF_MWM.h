@@ -41,7 +41,7 @@ class TrafficLight_OJF_MWM : public TrafficLight_LQF_MWM
 
   protected:
     void virtual executeFirstTimeStep();
-    void virtual executeEachTimeStep(bool);
+    void virtual executeEachTimeStep();
 
   private:
     void chooseNextInterval();

@@ -87,10 +87,10 @@ void TrafficLightFixed::executeFirstTimeStep()
 }
 
 
-void TrafficLightFixed::executeEachTimeStep(bool simulationDone)
+void TrafficLightFixed::executeEachTimeStep()
 {
     // call parent
-    TrafficLightAllowedMoves::executeEachTimeStep(simulationDone);
+    TrafficLightAllowedMoves::executeEachTimeStep();
 
     if (TLControlMode != TL_Fix_Time)
         return;

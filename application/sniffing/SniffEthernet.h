@@ -73,7 +73,7 @@ public:
 
 private:
     void executeFirstTimeStep();
-    void executeEachTimestep(bool);
+    void executeEachTimestep();
 
     void listInterfaces();
     void getOUIFromFile();

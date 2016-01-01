@@ -154,7 +154,7 @@ class LoopDetectors : public TrafficLightBase
 
   protected:
     void virtual executeFirstTimeStep();
-    void virtual executeEachTimeStep(bool);
+    void virtual executeEachTimeStep();
 
     void updateTLstate(std::string, std::string, std::string = "", bool = false);
 

@@ -155,7 +155,7 @@ void SniffUSB::receiveSignal(cComponent *source, simsignal_t signalID, long i)
 
     if(signalID == Signal_executeEachTS)
     {
-        SniffUSB::executeEachTimestep(i);
+        SniffUSB::executeEachTimestep();
     }
     else if(signalID == Signal_executeFirstTS)
     {
@@ -176,7 +176,7 @@ void SniffUSB::executeFirstTimeStep()
 }
 
 
-void SniffUSB::executeEachTimestep(bool simulationDone)
+void SniffUSB::executeEachTimestep()
 {
 
 }

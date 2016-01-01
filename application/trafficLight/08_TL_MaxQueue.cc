@@ -201,9 +201,9 @@ void TrafficLightAdaptiveQueue::executeFirstTimeStep()
 }
 
 
-void TrafficLightAdaptiveQueue::executeEachTimeStep(bool simulationDone)
+void TrafficLightAdaptiveQueue::executeEachTimeStep()
 {
-    TrafficLightActuated::executeEachTimeStep(simulationDone);
+    TrafficLightActuated::executeEachTimeStep();
 
     if(TLControlMode != TL_Adaptive_Time_Queue)
         return;

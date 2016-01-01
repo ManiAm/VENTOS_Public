@@ -105,6 +105,15 @@ void LoopDetectors::initialize(int stage)
 void LoopDetectors::finish()
 {
     TrafficLightBase::finish();
+
+    if(collectInductionLoopData)
+        saveLDsData();
+
+    if(collectTLQueuingData)
+        saveTLQueueingData();
+
+    if(collectTLPhasingData)
+        saveTLPhasingData();
 }
 
 
@@ -204,38 +213,15 @@ void LoopDetectors::executeFirstTimeStep()
 }
 
 
-void LoopDetectors::executeEachTimeStep(bool simulationDone)
+void LoopDetectors::executeEachTimeStep()
 {
-    TrafficLightBase::executeEachTimeStep(simulationDone);
+    TrafficLightBase::executeEachTimeStep();
 
     if(collectInductionLoopData)
-    {
         collectLDsData();    // collecting induction loop data in each timeStep
-
-        if(ev.isGUI())
-            saveLDsData();  // (if in GUI) write to file what we have collected so far
-        else if(simulationDone)
-            saveLDsData();  // (if in CMD) write to file at the end of simulation
-    }
 
     if(measureIntersectionQueue || measureTrafficDemand)
         measureTrafficParameters();
-
-    if(collectTLQueuingData)
-    {
-        if(ev.isGUI())
-            saveTLQueueingData();  // (if in GUI) write to file what we have collected so far
-        else if(simulationDone)
-            saveTLQueueingData();  // (if in CMD) write to file at the end of simulation
-    }
-
-    if(collectTLPhasingData)
-    {
-        if(ev.isGUI())
-            saveTLPhasingData();  // (if in GUI) write to file what we have collected so far
-        else if(simulationDone)
-            saveTLPhasingData();  // (if in CMD) write to file at the end of simulation
-    }
 }
 
 

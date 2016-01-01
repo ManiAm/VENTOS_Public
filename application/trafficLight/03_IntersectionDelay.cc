@@ -67,6 +67,9 @@ void IntersectionDelay::initialize(int stage)
 void IntersectionDelay::finish()
 {
     LoopDetectors::finish();
+
+    if(collectVehDelay)
+        vehiclesDelayToFile();
 }
 
 
@@ -96,18 +99,13 @@ void IntersectionDelay::executeFirstTimeStep()
 }
 
 
-void IntersectionDelay::executeEachTimeStep(bool simulationDone)
+void IntersectionDelay::executeEachTimeStep()
 {
     // call parent
-    LoopDetectors::executeEachTimeStep(simulationDone);
+    LoopDetectors::executeEachTimeStep();
 
     if(collectVehDelay)
-    {
         vehiclesDelay();
-
-        if(ev.isGUI()) vehiclesDelayToFile();   // (if in GUI) write what we have collected so far
-        else if(simulationDone) vehiclesDelayToFile();  // (if in CMD) write to file at the end of simulation
-    }
 }
 
 

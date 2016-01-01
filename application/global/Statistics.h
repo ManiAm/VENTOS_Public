@@ -202,7 +202,7 @@ private:
 
 private:
     void executeFirstTimeStep();
-    void executeEachTimestep(bool);
+    void executeEachTimestep();
 
     void vehiclesData();
     void saveVehicleData(std::string);

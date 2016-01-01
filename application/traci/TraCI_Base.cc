@@ -155,7 +155,7 @@ void TraCI_Base::initialize(int stage)
 
 void TraCI_Base::finish()
 {
-    if (connection)
+    if (connection && !par("TraCIclosed").boolValue())
         TraCIBuffer buf = connection->query(CMD_CLOSE, TraCIBuffer());
 
     while (hosts.begin() != hosts.end())
@@ -1123,7 +1123,8 @@ void TraCI_Base::executeOneTimestep()
     this->emit(Signal_executeEachTS, (long)simulationDone);
 
     if(simulationDone)
-        endSimulation();   // terminate the simulation (TraCI connection will be closed by veins)
+        endSimulation();   // terminate the simulation (finish method is also called for all modules).
+                           // Note: TraCI_Base::finish() closes the TraCI connection
 }
 
 

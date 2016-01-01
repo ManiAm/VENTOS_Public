@@ -79,7 +79,7 @@ public:
     virtual void handleSelfMsg(cMessage* msg);
 
 protected:
-    void virtual executeEachTimeStep(bool);
+    void virtual executeEachTimeStep();
 
     virtual void onBeaconVehicle(BeaconVehicle*);
     virtual void onBeaconBicycle(BeaconBicycle*);

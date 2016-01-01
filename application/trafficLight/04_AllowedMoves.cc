@@ -67,9 +67,9 @@ void TrafficLightAllowedMoves::executeFirstTimeStep()
 }
 
 
-void TrafficLightAllowedMoves::executeEachTimeStep(bool simulationDone)
+void TrafficLightAllowedMoves::executeEachTimeStep()
 {
-    IntersectionDelay::executeEachTimeStep(simulationDone);
+    IntersectionDelay::executeEachTimeStep();
 }
 
 

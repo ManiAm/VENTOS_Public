@@ -41,7 +41,7 @@ class TrafficLightFixed : public TrafficLightAllowedMoves
 
   protected:
     void virtual executeFirstTimeStep();
-    void virtual executeEachTimeStep(bool);
+    void virtual executeEachTimeStep();
 
   protected:
     std::map<std::string /*TLid*/, std::string /*first green interval*/> firstGreen;

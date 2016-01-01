@@ -82,7 +82,7 @@ public:
 
 private:
     void executeFirstTimeStep();
-    void executeEachTimestep(bool);
+    void executeEachTimestep();
 
     void getUSBidsFromFile();
     std::string USBversion(uint16_t version);

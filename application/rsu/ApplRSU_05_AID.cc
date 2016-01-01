@@ -72,9 +72,9 @@ void ApplRSUAID::handleSelfMsg(cMessage* msg)
 }
 
 
-void ApplRSUAID::executeEachTimeStep(bool simulationDone)
+void ApplRSUAID::executeEachTimeStep()
 {
-    ApplRSUCLASSIFY::executeEachTimeStep(simulationDone);
+    ApplRSUCLASSIFY::executeEachTimeStep();
 
     // only RSU[0] executes this
     if( enableAID && printIncidentDetection && std::string("RSU[0]") == myFullId )

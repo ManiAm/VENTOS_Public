@@ -41,7 +41,7 @@ class TrafficLightManager : public TrafficLightRouter
 
   protected:
     void virtual executeFirstTimeStep();
-    void virtual executeEachTimeStep(bool);
+    void virtual executeEachTimeStep();
 
 };
 

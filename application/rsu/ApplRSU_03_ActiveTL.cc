@@ -92,9 +92,9 @@ void ApplRSUTLVANET::handleSelfMsg(cMessage* msg)
 }
 
 
-void ApplRSUTLVANET::executeEachTimeStep(bool simulationDone)
+void ApplRSUTLVANET::executeEachTimeStep()
 {
-    ApplRSUMonitor::executeEachTimeStep(simulationDone);
+    ApplRSUMonitor::executeEachTimeStep();
 }
 
 

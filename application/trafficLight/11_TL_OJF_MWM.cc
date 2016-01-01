@@ -160,10 +160,10 @@ void TrafficLight_OJF_MWM::executeFirstTimeStep()
 }
 
 
-void TrafficLight_OJF_MWM::executeEachTimeStep(bool simulationDone)
+void TrafficLight_OJF_MWM::executeEachTimeStep()
 {
     // call parent
-    TrafficLight_LQF_MWM::executeEachTimeStep(simulationDone);
+    TrafficLight_LQF_MWM::executeEachTimeStep();
 
     if(TLControlMode != TL_OJF_MWM)
         return;

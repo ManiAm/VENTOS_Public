@@ -15,6 +15,7 @@
 
 #include "TraCIConnection.h"
 #include "TraCIConstants.h"
+#include "TraCI_Extend.h"
 
 #define MYDEBUG EV
 
@@ -164,11 +165,13 @@ std::string TraCIConnection::receiveMessage()
 				printf("ERROR: Connection to TraCI server closed unexpectedly.\n");
 				std::cout.flush();
 
-			    // notify modules that simulation is about to end
-			    simsignal_t Signal_executeEachTS = registerSignal("executeEachTS");
-			    this->emit(Signal_executeEachTS, (long)true);
+                // set flag for finish() code
+		        cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
+		        module->par("TraCIclosed") = true;
 
-				endSimulation();
+                // end the simulation
+		        TraCI_Extend *TraCI = static_cast<TraCI_Extend *>(module);
+				TraCI->endSimulation();
 			}
 			else
 			{
@@ -178,11 +181,13 @@ std::string TraCIConnection::receiveMessage()
 				printf("ERROR: Connection to TraCI server lost: %d: %s\n", sock_errno(), strerror(sock_errno()));
                 std::cout.flush();
 
-                // notify modules that simulation is about to end
-                simsignal_t Signal_executeEachTS = registerSignal("executeEachTS");
-                this->emit(Signal_executeEachTS, (long)true);
+                // set flag for finish() code
+                cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
+                module->par("TraCIclosed") = true;
 
-                endSimulation();
+                // end the simulation
+                TraCI_Extend *TraCI = static_cast<TraCI_Extend *>(module);
+                TraCI->endSimulation();
 			}
 		}
 
@@ -202,28 +207,32 @@ std::string TraCIConnection::receiveMessage()
 				bytesRead += receivedBytes;
 			else if (receivedBytes == 0)
 			{
-				printf("Connection to TraCI server closed unexpectedly.\n");
+				printf("ERROR: Connection to TraCI server closed unexpectedly.\n");
                 std::cout.flush();
 
-                // notify modules that simulation is about to end
-                simsignal_t Signal_executeEachTS = registerSignal("executeEachTS");
-                this->emit(Signal_executeEachTS, (long)true);
+                // set flag for finish() code
+                cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
+                module->par("TraCIclosed") = true;
 
-                endSimulation();
+                // end the simulation
+                TraCI_Extend *TraCI = static_cast<TraCI_Extend *>(module);
+                TraCI->endSimulation();
 			}
 			else
 			{
 				if (sock_errno() == EINTR) continue;
 				if (sock_errno() == EAGAIN) continue;
 
-				printf("Connection to TraCI server lost: %d: %s\n", sock_errno(), strerror(sock_errno()));
+				printf("ERROR: Connection to TraCI server lost: %d: %s\n", sock_errno(), strerror(sock_errno()));
                 std::cout.flush();
 
-                // notify modules that simulation is about to end
-                simsignal_t Signal_executeEachTS = registerSignal("executeEachTS");
-                this->emit(Signal_executeEachTS, (long)true);
+                // set flag for finish() code
+                cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
+                module->par("TraCIclosed") = true;
 
-                endSimulation();
+                // end the simulation
+                TraCI_Extend *TraCI = static_cast<TraCI_Extend *>(module);
+                TraCI->endSimulation();
 			}
 		}
 	}
@@ -252,14 +261,16 @@ void TraCIConnection::sendMessage(std::string buf)
 				if (sock_errno() == EINTR) continue;
 				if (sock_errno() == EAGAIN) continue;
 
-				printf("Connection to TraCI server lost: %d: %s\n", sock_errno(), strerror(sock_errno()));
+				printf("ERROR: Connection to TraCI server lost: %d: %s\n", sock_errno(), strerror(sock_errno()));
                 std::cout.flush();
 
-                // notify modules that simulation is about to end
-                simsignal_t Signal_executeEachTS = registerSignal("executeEachTS");
-                this->emit(Signal_executeEachTS, (long)true);
+                // set flag for finish() code
+                cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
+                module->par("TraCIclosed") = true;
 
-                endSimulation();
+                // end the simulation
+                TraCI_Extend *TraCI = static_cast<TraCI_Extend *>(module);
+                TraCI->endSimulation();
 			}
 		}
 	}
@@ -277,14 +288,16 @@ void TraCIConnection::sendMessage(std::string buf)
 				if (sock_errno() == EINTR) continue;
 				if (sock_errno() == EAGAIN) continue;
 
-				printf("Connection to TraCI server lost: %d: %s\n", sock_errno(), strerror(sock_errno()));
+				printf("ERROR: Connection to TraCI server lost: %d: %s\n", sock_errno(), strerror(sock_errno()));
                 std::cout.flush();
 
-                // notify modules that simulation is about to end
-                simsignal_t Signal_executeEachTS = registerSignal("executeEachTS");
-                this->emit(Signal_executeEachTS, (long)true);
+                // set flag for finish() code
+                cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
+                module->par("TraCIclosed") = true;
 
-                endSimulation();
+                // end the simulation
+                TraCI_Extend *TraCI = static_cast<TraCI_Extend *>(module);
+                TraCI->endSimulation();
 			}
 		}
 	}

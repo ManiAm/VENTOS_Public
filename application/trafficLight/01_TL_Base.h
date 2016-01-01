@@ -60,7 +60,7 @@ class TrafficLightBase : public BaseApplLayer
 
   protected:
       virtual void executeFirstTimeStep();
-      virtual void executeEachTimeStep(bool);
+      virtual void executeEachTimeStep();
 
   private:
       void findRSU(std::string);

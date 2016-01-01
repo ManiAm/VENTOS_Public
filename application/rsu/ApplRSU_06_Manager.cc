@@ -125,9 +125,9 @@ void ApplRSUManager::handleLowerMsg(cMessage* msg)
 }
 
 
-void ApplRSUManager::executeEachTimeStep(bool simulationDone)
+void ApplRSUManager::executeEachTimeStep()
 {
-    ApplRSUAID::executeEachTimeStep(simulationDone);
+    ApplRSUAID::executeEachTimeStep();
 }
 
 

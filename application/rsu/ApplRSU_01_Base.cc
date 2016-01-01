@@ -118,7 +118,7 @@ void ApplRSUBase::receiveSignal(cComponent *source, simsignal_t signalID, long i
 
     if(signalID == Signal_executeEachTS)
     {
-        executeEachTimeStep((bool)i);
+        executeEachTimeStep();
     }
 }
 
@@ -140,7 +140,7 @@ void ApplRSUBase::handleSelfMsg(cMessage* msg)
 }
 
 
-void ApplRSUBase::executeEachTimeStep(bool simulationDone)
+void ApplRSUBase::executeEachTimeStep()
 {
 
 }

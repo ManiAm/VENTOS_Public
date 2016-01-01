@@ -169,10 +169,10 @@ void TrafficLight_LQF_MWM::executeFirstTimeStep()
 }
 
 
-void TrafficLight_LQF_MWM::executeEachTimeStep(bool simulationDone)
+void TrafficLight_LQF_MWM::executeEachTimeStep()
 {
     // call parent
-    TrafficLightLowDelay::executeEachTimeStep(simulationDone);
+    TrafficLightLowDelay::executeEachTimeStep();
 
     if(TLControlMode != TL_LQF_MWM)
         return;

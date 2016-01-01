@@ -41,7 +41,7 @@ class TrafficLightWebster : public TrafficLightFixed
 
   protected:
     void virtual executeFirstTimeStep();
-    void virtual executeEachTimeStep(bool);
+    void virtual executeEachTimeStep();
 
   private:
     void chooseNextInterval();

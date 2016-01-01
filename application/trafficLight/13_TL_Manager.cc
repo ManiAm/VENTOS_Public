@@ -75,10 +75,10 @@ void TrafficLightManager::executeFirstTimeStep()
 }
 
 
-void TrafficLightManager::executeEachTimeStep(bool simulationDone)
+void TrafficLightManager::executeEachTimeStep()
 {
     // call parent
-    TrafficLightRouter::executeEachTimeStep(simulationDone);
+    TrafficLightRouter::executeEachTimeStep();
 }
 
 }

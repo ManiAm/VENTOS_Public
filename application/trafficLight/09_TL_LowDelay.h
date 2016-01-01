@@ -41,7 +41,7 @@ class TrafficLightLowDelay : public TrafficLightAdaptiveQueue
 
   protected:
     void virtual executeFirstTimeStep();
-    void virtual executeEachTimeStep(bool);
+    void virtual executeEachTimeStep();
 
   private:
     void chooseNextInterval();

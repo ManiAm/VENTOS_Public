@@ -92,7 +92,20 @@ void Statistics::initialize(int stage)
 
 void Statistics::finish()
 {
+    if(collectVehiclesData)
+        vehiclesDataToFile();
 
+    if(reportMAClayerData)
+        MAClayerToFile();
+
+    if(reportPlnManagerData)
+    {
+        plnManageToFile();
+        plnStatToFile();
+    }
+
+    if(reportBeaconsData)
+        beaconToFile();
 }
 
 
@@ -108,7 +121,7 @@ void Statistics::receiveSignal(cComponent *source, simsignal_t signalID, long i)
 
     if(signalID == Signal_executeEachTS)
     {
-        Statistics::executeEachTimestep(i);
+        Statistics::executeEachTimestep();
     }
     else if(signalID == Signal_executeFirstTS)
     {
@@ -189,42 +202,10 @@ void Statistics::executeFirstTimeStep()
 }
 
 
-void Statistics::executeEachTimestep(bool simulationDone)
+void Statistics::executeEachTimestep()
 {
     if(collectVehiclesData)
-    {
         vehiclesData();   // collecting data from all vehicles in each timeStep
-
-        if(ev.isGUI()) vehiclesDataToFile();   // (if in GUI) write what we have collected so far
-        else if(simulationDone) vehiclesDataToFile();  // (if in CMD) write to file at the end of simulation
-    }
-
-    if(reportMAClayerData)
-    {
-        if(ev.isGUI()) MAClayerToFile();    // (if in GUI) write what we have collected so far
-        else if(simulationDone) MAClayerToFile();  // (if in CMD) write to file at the end of simulation
-    }
-
-    if(reportPlnManagerData)
-    {
-        // (if in GUI) write what we have collected so far
-        if(ev.isGUI())
-        {
-            plnManageToFile();
-            plnStatToFile();
-        }
-        else if(simulationDone)
-        {
-            plnManageToFile();
-            plnStatToFile();
-        }
-    }
-
-    if(reportBeaconsData)
-    {
-        if(ev.isGUI()) beaconToFile();    // (if in GUI) write what we have collected so far
-        else if(simulationDone) beaconToFile();  // (if in CMD) write to file at the end of simulation
-    }
 }
 
 

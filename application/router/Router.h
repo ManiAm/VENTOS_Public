@@ -61,6 +61,7 @@ class Router : public BaseApplLayer    //Responsible for routing cars in our sys
 public:
     ~Router();
     virtual void initialize(int stage);
+    virtual void finish();
     virtual void handleMessage(cMessage* msg);
     virtual void receiveSignal(cComponent *, simsignal_t, cObject *);
     virtual void receiveSignal(cComponent *source, simsignal_t signalID, long i);
