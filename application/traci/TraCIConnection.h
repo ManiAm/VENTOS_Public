@@ -8,7 +8,7 @@
 
 namespace VENTOS {
 
-class TraCIConnection
+class TraCIConnection : public cSimpleModule
 {
 	public:
 		static TraCIConnection* connect(const char* host, int port);

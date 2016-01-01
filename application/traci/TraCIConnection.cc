@@ -160,17 +160,32 @@ std::string TraCIConnection::receiveMessage()
 			if (receivedBytes > 0)
 				bytesRead += receivedBytes;
 			else if (receivedBytes == 0)
-				throw cRuntimeError("Connection to TraCI server closed unexpectedly. Check your server's log");
+			{
+				printf("ERROR: Connection to TraCI server closed unexpectedly.\n");
+				std::cout.flush();
+
+			    // notify modules that simulation is about to end
+			    simsignal_t Signal_executeEachTS = registerSignal("executeEachTS");
+			    this->emit(Signal_executeEachTS, (long)true);
+
+				endSimulation();
+			}
 			else
 			{
 				if (sock_errno() == EINTR) continue;
 				if (sock_errno() == EAGAIN) continue;
 
-				throw cRuntimeError("Connection to TraCI server lost. Check your server's log. throw cRuntimeError message: %d: %s",
-				        sock_errno(),
-				        strerror(sock_errno()));
+				printf("ERROR: Connection to TraCI server lost: %d: %s\n", sock_errno(), strerror(sock_errno()));
+                std::cout.flush();
+
+                // notify modules that simulation is about to end
+                simsignal_t Signal_executeEachTS = registerSignal("executeEachTS");
+                this->emit(Signal_executeEachTS, (long)true);
+
+                endSimulation();
 			}
 		}
+
 		TraCIBuffer(std::string(buf2, sizeof(uint32_t))) >> msgLength;
 	}
 
@@ -186,15 +201,29 @@ std::string TraCIConnection::receiveMessage()
 			if (receivedBytes > 0)
 				bytesRead += receivedBytes;
 			else if (receivedBytes == 0)
-				throw cRuntimeError("Connection to TraCI server closed unexpectedly. Check your server's log");
+			{
+				printf("Connection to TraCI server closed unexpectedly.\n");
+                std::cout.flush();
+
+                // notify modules that simulation is about to end
+                simsignal_t Signal_executeEachTS = registerSignal("executeEachTS");
+                this->emit(Signal_executeEachTS, (long)true);
+
+                endSimulation();
+			}
 			else
 			{
 				if (sock_errno() == EINTR) continue;
 				if (sock_errno() == EAGAIN) continue;
 
-				throw cRuntimeError("Connection to TraCI server lost. Check your server's log. throw cRuntimeError message: %d: %s",
-				        sock_errno(),
-				        strerror(sock_errno()));
+				printf("Connection to TraCI server lost: %d: %s\n", sock_errno(), strerror(sock_errno()));
+                std::cout.flush();
+
+                // notify modules that simulation is about to end
+                simsignal_t Signal_executeEachTS = registerSignal("executeEachTS");
+                this->emit(Signal_executeEachTS, (long)true);
+
+                endSimulation();
 			}
 		}
 	}
@@ -222,7 +251,15 @@ void TraCIConnection::sendMessage(std::string buf)
 			{
 				if (sock_errno() == EINTR) continue;
 				if (sock_errno() == EAGAIN) continue;
-				throw cRuntimeError("Connection to TraCI server lost. Check your server's log. throw cRuntimeError message: %d: %s", sock_errno(), strerror(sock_errno()));
+
+				printf("Connection to TraCI server lost: %d: %s\n", sock_errno(), strerror(sock_errno()));
+                std::cout.flush();
+
+                // notify modules that simulation is about to end
+                simsignal_t Signal_executeEachTS = registerSignal("executeEachTS");
+                this->emit(Signal_executeEachTS, (long)true);
+
+                endSimulation();
 			}
 		}
 	}
@@ -239,9 +276,15 @@ void TraCIConnection::sendMessage(std::string buf)
 			{
 				if (sock_errno() == EINTR) continue;
 				if (sock_errno() == EAGAIN) continue;
-				throw cRuntimeError("Connection to TraCI server lost. Check your server's log. throw cRuntimeError message: %d: %s",
-				        sock_errno(),
-				        strerror(sock_errno()));
+
+				printf("Connection to TraCI server lost: %d: %s\n", sock_errno(), strerror(sock_errno()));
+                std::cout.flush();
+
+                // notify modules that simulation is about to end
+                simsignal_t Signal_executeEachTS = registerSignal("executeEachTS");
+                this->emit(Signal_executeEachTS, (long)true);
+
+                endSimulation();
 			}
 		}
 	}
