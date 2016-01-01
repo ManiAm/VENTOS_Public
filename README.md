@@ -159,15 +159,15 @@ Before running the VENTOS project, latest SUMO binaries (`sumo-guiD` and `sumoD`
 
 Note: you can not use the official SUMO binaries since we have extended the TraCI commands, car-following models, etc. Using the official SUMO binaries will probably give you run-time error.
 
-**Step 1:** To save you the trouble of manually running SUMO prior to every OMNeT++ simulation, the Veins module framework comes with a small python script (sumo-launchd.py) to do that for you. This script will proxy TCP connections between OMNeT++ and SUMO, starting a new copy of the SUMO simulation for every OMNeT++ simulation connecting. From the veins folder, run either of the following commands (we assumed that VENTOS folder is on Desktop):
+**Step 1:** To save you the trouble of manually running SUMO prior to every OMNeT++ simulation, the Veins module framework comes with a small python script (veins-sumo-launchd.py) to do that for you. This script will proxy TCP connections between OMNeT++ and SUMO, starting a new copy of the SUMO simulation for every OMNeT++ simulation connecting. From the VENTOS folder, run either of the following commands:
 
 SUMO in graphical mode:
 
-    python sumo-launchd.py -vv -c /home/mani/Desktop/VENTOS/sumoBinary/sumo-guiD
+    python veins-sumo-launchd.py -vv -c sumoBinary/sumo-guiD
 
 SUMO in command-line mode:
 
-    python sumo-launchd.py -vv -c /home/mani/Desktop/VENTOS/sumoBinary/sumoD
+    python veins-sumo-launchd.py -vv -c sumoBinary/sumoD
 
 The terminal should look like the following picture. The script will print `Listening on port 9999` and wait for the simulation to start. Note that after running either of these commands, DO NOT close the terminal window. Leave it open.
 
@@ -175,10 +175,10 @@ The terminal should look like the following picture. The script will print `List
 
 **Step 2:** To make the life easier, you can create an alias command to make a shortcut to the above long commands. Open .bashrc and add these lines at the end (you should change the PATHs accordingly).
 
-    export veinsPATH=/home/mani/Desktop/veins
-    export sumoBinaryPATH=/home/mani/Desktop/VENTOS/sumoBinary
-    alias sumo-cmd='python $veinsPATH/sumo-launchd.py -vv -c $sumoBinaryPATH/sumoD'
-    alias sumo-gui='python $veinsPATH/sumo-launchd.py -vv -c $sumoBinaryPATH/sumo-guiD'
+    export VENTOSPATH=/home/mani/Desktop/VENTOS
+    export sumoBinaryPATH=$VENTOSPATH/sumoBinary
+    alias sumo-cmd='python $VENTOSPATH/veins-sumo-launchd.py -vv -c $sumoBinaryPATH/sumoD'
+    alias sumo-gui='python $VENTOSPATH/veins-sumo-launchd.py -vv -c $sumoBinaryPATH/sumo-guiD'
 
 Now you can use sumo-cmd and sumo-gui commands instead!
 
