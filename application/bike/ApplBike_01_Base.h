@@ -37,33 +37,34 @@ namespace VENTOS {
 
 class ApplBikeBase : public BaseApplLayer
 {
-	public:
-		~ApplBikeBase();
-		virtual void initialize(int stage);
-		virtual void finish();
-		virtual void receiveSignal(cComponent* source, simsignal_t signalID, cObject* obj);
+public:
+    ~ApplBikeBase();
+    virtual void initialize(int stage);
+    virtual void finish();
+    virtual void receiveSignal(cComponent* source, simsignal_t signalID, cObject* obj);
 
-	protected:
-		static const simsignalwrap_t mobilityStateChangedSignal;
+protected:
+    virtual void handleSelfMsg(cMessage* msg);
+    virtual void handlePositionUpdate(cObject* obj);
 
-		virtual void handleSelfMsg(cMessage* msg);
-		virtual void handlePositionUpdate(cObject* obj);
+protected:
+    // NED variables
+    cModule *nodePtr;   // pointer to the Node
+    TraCI_Extend* TraCI;
+    int TLControlMode;
 
-	protected:
-		// NED variables
-	    cModule *nodePtr;   // pointer to the Node
-        TraCI_Extend* TraCI;
+    // module info
+    int myId;
+    const char *myFullId;
+    std::string SUMOID;
+    std::string SUMOType;
+    std::string vehicleClass;
+    int vehicleClassEnum;
 
-        // module info
-        int myId;
-		const char *myFullId;
-		std::string SUMOID;
-		std::string SUMOType;
-	    std::string vehicleClass;
-	    int vehicleClassEnum;
+    static const simsignalwrap_t mobilityStateChangedSignal;
 
-        Coord curPosition;  // current position from mobility module (not from sumo)
-        double entryTime;
+    Coord curPosition;  // current position from mobility module (not from sumo)
+    double entryTime;
 };
 
 }

@@ -41,9 +41,9 @@ void ApplBikeBeacon::initialize(int stage)
 {
     ApplBikeBase::initialize(stage);
 
-	if (stage == 0)
-	{
-	    // NED
+    if (stage == 0)
+    {
+        // NED
         VANETenabled = par("VANETenabled").boolValue();
         GPSerror = par("GPSerror").doubleValue();
 
@@ -56,9 +56,6 @@ void ApplBikeBeacon::initialize(int stage)
 
         // NED variables
         smartBeaconing = par("smartBeaconing").boolValue();
-        cModule *module = simulation.getSystemModule()->getSubmodule("TrafficLight");
-        TLControlMode = module->par("TLControlMode").longValue();
-        activeDetection = module->par("activeDetection").boolValue();
 
         // NED variables (data parameters)
         dataLengthBits = par("dataLengthBits").longValue();
@@ -74,9 +71,9 @@ void ApplBikeBeacon::initialize(int stage)
         if (VANETenabled)
             scheduleAt(simTime() + offSet, BicycleBeaconEvt);
 
-        hasEntered = false;
-        hasLeft = false;
-	}
+        crossing = false;
+        leaving = false;
+    }
 }
 
 
@@ -101,42 +98,64 @@ void ApplBikeBeacon::handleSelfMsg(cMessage* msg)
 
     if (msg == BicycleBeaconEvt)
     {
-        if(VANETenabled && smartBeaconing)
+        if(VANETenabled)
         {
-            if(activeDetection)
+            if(smartBeaconing)
+                smartBeaconingDecision();
+
+            if(sendBeacons)
             {
-                Coord myPos = TraCI->vehicleGetPosition(SUMOID);
-                std::string myEdge = TraCI->vehicleGetEdgeID(SUMOID);
-                // todo: change from fixed coordinates
-                if((!hasEntered) && (myPos.x > 350) && (myPos.x < 450) && (myPos.y > 350) && (myPos.y < 450))
-                {
-                    hasEntered = true;
-                    sendBeacons = true;
-                }
-                else if((!hasLeft) && (myEdge[0] == ':') && (myEdge[1] == 'C'))
-                {
-                    hasLeft = true;
-                    sendBeacons = true;
-                }
-                else
-                    sendBeacons = false;
+                BeaconBicycle* beaconMsg = ApplBikeBeacon::prepareBeacon();
+
+                // send it
+                sendDelayed(beaconMsg, individualOffset, lowerLayerOut);
             }
-            // turn off beaconing for any other TL controller
-            else
-                sendBeacons = false;
-        }
-
-        if(VANETenabled && sendBeacons)
-        {
-            BeaconBicycle* beaconMsg = ApplBikeBeacon::prepareBeacon();
-
-            // send it
-            sendDelayed(beaconMsg, individualOffset, lowerLayerOut);
         }
 
         // schedule for next beacon broadcast
         scheduleAt(simTime() + beaconInterval, BicycleBeaconEvt);
     }
+}
+
+
+void ApplBikeBeacon::smartBeaconingDecision()
+{
+    Coord myPos = TraCI->vehicleGetPosition(SUMOID);
+
+    // bike enters the zone
+    // todo: change from fixed coordinates
+    // coordinates should be a little bigger than the detection region
+    // the bike should start beaconing a little bit sooner
+    if( (myPos.x >= 830) && (myPos.x <= 960) && (myPos.y >= 830) && (myPos.y <= 960) )
+    {
+        // get the current edge
+        std::string myEdge = TraCI->vehicleGetEdgeID(SUMOID);
+
+        // started to cross
+        if( !crossing && (myEdge[0] == ':') && (myEdge[1] == 'C') )
+        {
+            crossing = true;
+            sendBeacons = true;   // keep beaconing 'on' during crossing
+        }
+        // crossed the intersection
+        else if( crossing && ((myEdge[0] != ':') || (myEdge[1] != 'C')) )
+        {
+            crossing = false;
+            leaving = true;
+            sendBeacons = false;
+        }
+        else if(leaving)
+        {
+            sendBeacons = false;
+        }
+        // not crossed yet or during crossing
+        else
+        {
+            sendBeacons = true;
+        }
+    }
+    else
+        sendBeacons = false;
 }
 
 

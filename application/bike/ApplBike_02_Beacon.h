@@ -41,6 +41,14 @@ class ApplBikeBeacon : public ApplBikeBase
         virtual void finish();
 
 	protected:
+	        virtual void handleSelfMsg(cMessage*);
+	        virtual void handlePositionUpdate(cObject*);
+
+	private:
+        void smartBeaconingDecision();
+        BeaconBicycle* prepareBeacon();
+
+	protected:
         // NED
         bool VANETenabled;
         double GPSerror;
@@ -52,10 +60,7 @@ class ApplBikeBeacon : public ApplBikeBase
         int beaconLengthBits;
         int beaconPriority;
 
-        // NED variables
         bool smartBeaconing;
-        int TLControlMode;
-        bool activeDetection;
 
         // NED variables (data message parameters)
         int dataLengthBits;
@@ -66,14 +71,9 @@ class ApplBikeBeacon : public ApplBikeBase
         simtime_t individualOffset;
         cMessage* BicycleBeaconEvt;
 
-        bool hasEntered;
-        bool hasLeft;
-
-protected:
-        virtual void handleSelfMsg(cMessage*);
-        virtual void handlePositionUpdate(cObject*);
-
-        BeaconBicycle* prepareBeacon();
+	private:
+	    bool crossing;
+	    bool leaving;
 };
 
 }

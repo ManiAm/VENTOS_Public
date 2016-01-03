@@ -57,7 +57,6 @@ void ApplVBase::initialize(int stage)
         // get a pointer to traffic light module
         module = simulation.getSystemModule()->getSubmodule("TrafficLight");
         TLControlMode = module->par("TLControlMode").longValue();
-        activeDetection = module->par("activeDetection").boolValue();
 
         headerLength = par("headerLength").longValue();
 

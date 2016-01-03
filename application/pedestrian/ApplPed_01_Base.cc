@@ -54,6 +54,10 @@ void ApplPedBase::initialize(int stage)
         TraCI = static_cast<TraCI_Extend *>(module);
         ASSERT(TraCI);
 
+        // get a pointer to the traffic light
+        module = simulation.getSystemModule()->getSubmodule("TrafficLight");
+        TLControlMode = module->par("TLControlMode").longValue();
+
         headerLength = par("headerLength").longValue();
 
         // pedestrian id in omnet++

@@ -84,7 +84,7 @@ class ApplRSUCLASSIFY : public ApplRSUTLVANET
 
 	private:
         bool classifier;
-        FILE *pipe;
+        FILE *plotterPtr = NULL;
         std::vector<feature> dataSet [3];
 };
 

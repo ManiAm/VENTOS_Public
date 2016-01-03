@@ -54,6 +54,10 @@ void ApplBikeBase::initialize(int stage)
         TraCI = static_cast<TraCI_Extend *>(module);
         ASSERT(TraCI);
 
+        // get a pointer to traffic light
+        module = simulation.getSystemModule()->getSubmodule("TrafficLight");
+        TLControlMode = module->par("TLControlMode").longValue();
+
         headerLength = par("headerLength").longValue();
 
         // bike id in omnet++

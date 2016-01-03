@@ -44,8 +44,9 @@ void ApplVBeacon::initialize(int stage)
     if (stage == 0)
     {
         // NED
-        sonarDist = par("sonarDist").doubleValue();
+        VANETenabled = par("VANETenabled").boolValue();
         GPSerror = par("GPSerror").doubleValue();
+        sonarDist = par("sonarDist").doubleValue();
 
         // NED variables (beaconing parameters)
         sendBeacons = par("sendBeacons").boolValue();
@@ -68,10 +69,9 @@ void ApplVBeacon::initialize(int stage)
         offSet = offSet + floor(offSet/0.050)*0.050;
         individualOffset = dblrand() * maxOffset;
 
+        // obstacle vehicles do not broadcast
         if(SUMOType == "TypeObstacle")
             VANETenabled = false;
-        else
-            VANETenabled = par("VANETenabled").boolValue();
 
         VehicleBeaconEvt = new cMessage("BeaconEvt", KIND_TIMER);
         if (VANETenabled)
@@ -117,7 +117,7 @@ void ApplVBeacon::handleSelfMsg(cMessage* msg)
         // make sure VANETenabled is true
         if(VANETenabled)
         {
-            if(activeDetection && smartBeaconing)
+            if(smartBeaconing)
                 smartBeaconingDecision();
 
             if(sendBeacons)
@@ -147,7 +147,7 @@ void ApplVBeacon::handleSelfMsg(cMessage* msg)
 }
 
 
-// the decision of beaconing or not depends on the current location of vehicle
+// set/unset sendBeacons based on the location of vehicle
 void ApplVBeacon::smartBeaconingDecision()
 {
     Coord myPos = TraCI->vehicleGetPosition(SUMOID);

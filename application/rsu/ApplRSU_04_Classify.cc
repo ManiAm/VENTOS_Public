@@ -76,8 +76,6 @@ void ApplRSUCLASSIFY::initialize(int stage)
         for(std::list<std::string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
             lanesTL[*it2] = myTLid;
 
-        pipe = NULL;
-
         if(ev.isGUI())
             initializeGnuPlot();
 
@@ -148,50 +146,48 @@ void ApplRSUCLASSIFY::initializeGnuPlot()
     // get a pointer to the plotter module
     cModule *pmodule = simulation.getSystemModule()->getSubmodule("plotter");
 
-    if(pmodule != NULL)
-    {
-        // check if plotter in on
-        if(pmodule->par("on").boolValue())
-        {
-            // get a pointer to the class
-            Plotter *plotterPtr = static_cast<Plotter *>(pmodule);
+    if(pmodule == NULL)
+        error("plotter module is not found!");
 
-            if(plotterPtr != NULL)
-                pipe = plotterPtr->pipe;
-        }
-    }
+    // return if plotter is off
+    if(!pmodule->par("on").boolValue())
+        return;
 
-    if(pipe != NULL)
-    {
-        // set title name
-        fprintf(pipe, "set title 'Sample Points' \n");
+    // get a pointer to the class
+    Plotter *pltPtr = static_cast<Plotter *>(pmodule);
+    ASSERT(pltPtr);
 
-        // set axis labels
-        fprintf(pipe, "set xlabel 'X pos' offset -5 \n");
-        fprintf(pipe, "set ylabel 'Y pos' offset 3 \n");
-        fprintf(pipe, "set zlabel 'Speed' offset -2 rotate left \n");
+    plotterPtr = pltPtr->pipe;
+    ASSERT(plotterPtr);
 
-        // change ticks
-     //   fprintf(pipe, "set xtics 20 \n");
-     //   fprintf(pipe, "set ytics 20 \n");
+    // set title name
+    fprintf(plotterPtr, "set title 'Sample Points' \n");
 
-        // set range
-     //   fprintf(pipe, "set yrange [885:902] \n");
+    // set axis labels
+    fprintf(plotterPtr, "set xlabel 'X pos' offset -5 \n");
+    fprintf(plotterPtr, "set ylabel 'Y pos' offset 3 \n");
+    fprintf(plotterPtr, "set zlabel 'Speed' offset -2 rotate left \n");
 
-        // set grid and border
-        fprintf(pipe, "set grid \n");
-        fprintf(pipe, "set border 4095 \n");
+    // change ticks
+    //   fprintf(pipe, "set xtics 20 \n");
+    //   fprintf(pipe, "set ytics 20 \n");
 
-        // set agenda location
-        fprintf(pipe, "set key outside right top box \n");
+    // set range
+    //   fprintf(pipe, "set yrange [885:902] \n");
 
-        // define line style
-        fprintf(pipe, "set style line 1 pointtype 7 pointsize 1 lc rgb 'red'  \n");
-        fprintf(pipe, "set style line 2 pointtype 7 pointsize 1 lc rgb 'green' \n");
-        fprintf(pipe, "set style line 3 pointtype 7 pointsize 1 lc rgb 'blue' \n");
+    // set grid and border
+    fprintf(plotterPtr, "set grid \n");
+    fprintf(plotterPtr, "set border 4095 \n");
 
-        fflush(pipe);
-    }
+    // set agenda location
+    fprintf(plotterPtr, "set key outside right top box \n");
+
+    // define line style
+    fprintf(plotterPtr, "set style line 1 pointtype 7 pointsize 1 lc rgb 'red'  \n");
+    fprintf(plotterPtr, "set style line 2 pointtype 7 pointsize 1 lc rgb 'green' \n");
+    fprintf(plotterPtr, "set style line 3 pointtype 7 pointsize 1 lc rgb 'blue' \n");
+
+    fflush(plotterPtr);
 }
 
 
@@ -225,23 +221,23 @@ template <typename T> void ApplRSUCLASSIFY::onBeaconAny(T wsm)
             if(pipe != NULL && ev.isGUI())
             {
                 // create a data block out of dataset
-                fprintf(pipe, "$data << EOD \n");
+                fprintf(plotterPtr, "$data << EOD \n");
                 for(auto &i : dataSet[0])
-                    fprintf(pipe, "%f  %f  %f \n", i.xPos, i.yPos, i.speed);
-                fprintf(pipe, "\n\n \n");
+                    fprintf(plotterPtr, "%f  %f  %f \n", i.xPos, i.yPos, i.speed);
+                fprintf(plotterPtr, "\n\n \n");
                 for(auto &i : dataSet[1])
-                    fprintf(pipe, "%f  %f  %f \n", i.xPos, i.yPos, i.speed);
-                fprintf(pipe, "\n\n \n");
+                    fprintf(plotterPtr, "%f  %f  %f \n", i.xPos, i.yPos, i.speed);
+                fprintf(plotterPtr, "\n\n \n");
                 for(auto &i : dataSet[2])
-                    fprintf(pipe, "%f  %f  %f \n", i.xPos, i.yPos, i.speed);
-                fprintf(pipe, "EOD \n");
+                    fprintf(plotterPtr, "%f  %f  %f \n", i.xPos, i.yPos, i.speed);
+                fprintf(plotterPtr, "EOD \n");
 
                 // make plot
-                fprintf(pipe, "splot '$data' index 0 using 1:2:3 with points ls 1 title 'Class 1',");
-                fprintf(pipe, "      ''      index 1 using 1:2:3 with points ls 2 title 'Class 2',");
-                fprintf(pipe, "      ''      index 2 using 1:2:3 with points ls 3 title 'Class 3' \n");
+                fprintf(plotterPtr, "splot '$data' index 0 using 1:2:3 with points ls 1 title 'Class 1',");
+                fprintf(plotterPtr, "      ''      index 1 using 1:2:3 with points ls 2 title 'Class 2',");
+                fprintf(plotterPtr, "      ''      index 2 using 1:2:3 with points ls 3 title 'Class 3' \n");
 
-                fflush(pipe);
+                fflush(plotterPtr);
             }
         }
     }

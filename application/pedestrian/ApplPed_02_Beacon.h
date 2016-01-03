@@ -35,45 +35,45 @@ namespace VENTOS {
 
 class ApplPedBeacon : public ApplPedBase
 {
-	public:
-        ~ApplPedBeacon();
-		virtual void initialize(int stage);
-        virtual void finish();
-
-	protected:
-        // NED
-        bool VANETenabled;
-        double GPSerror;
-
-        // NED variables (beaconing parameters)
-        bool sendBeacons;
-		double beaconInterval;
-		double maxOffset;
-        int beaconLengthBits;
-        int beaconPriority;
-
-        // NED variables
-        bool smartBeaconing;
-        int TLControlMode;
-        bool activeDetection;
-
-        // NED variables (data message parameters)
-        int dataLengthBits;
-        bool dataOnSch;
-        int dataPriority;
-
-        // Class variables
-        simtime_t individualOffset;
-        cMessage* PedestrianBeaconEvt;
-
-        bool hasEntered;
-        bool hasLeft;
+public:
+    ~ApplPedBeacon();
+    virtual void initialize(int stage);
+    virtual void finish();
 
 protected:
-        virtual void handleSelfMsg(cMessage*);
-        virtual void handlePositionUpdate(cObject*);
+    virtual void handleSelfMsg(cMessage*);
+    virtual void handlePositionUpdate(cObject*);
 
-        BeaconPedestrian* prepareBeacon();
+private:
+    void smartBeaconingDecision();
+    BeaconPedestrian* prepareBeacon();
+
+protected:
+    // NED
+    bool VANETenabled;
+    double GPSerror;
+
+    // NED variables (beaconing parameters)
+    bool sendBeacons;
+    double beaconInterval;
+    double maxOffset;
+    int beaconLengthBits;
+    int beaconPriority;
+
+    // NED variables
+    bool smartBeaconing;
+
+    // NED variables (data message parameters)
+    int dataLengthBits;
+    bool dataOnSch;
+    int dataPriority;
+
+    // Class variables
+    simtime_t individualOffset;
+    cMessage* PedestrianBeaconEvt;
+
+    bool crossing;
+    bool leaving;
 };
 
 }
