@@ -62,329 +62,7 @@ void TraCI_Extend::handleSelfMsg(cMessage *msg)
 
 
 // ################################################################
-//                    generic methods for getters
-// ################################################################
-
-double TraCI_Extend::genericGetDouble(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId)
-{
-    uint8_t resultTypeId = TYPE_DOUBLE;
-    double res;
-
-    TraCIBuffer buf = connection->query(commandId, TraCIBuffer() << variableId << objectId);
-
-    uint8_t cmdLength; buf >> cmdLength;
-    if (cmdLength == 0) {
-        uint32_t cmdLengthX;
-        buf >> cmdLengthX;
-    }
-    uint8_t commandId_r; buf >> commandId_r;
-    ASSERT(commandId_r == responseId);
-    uint8_t varId; buf >> varId;
-    ASSERT(varId == variableId);
-    std::string objectId_r; buf >> objectId_r;
-    ASSERT(objectId_r == objectId);
-    uint8_t resType_r; buf >> resType_r;
-    ASSERT(resType_r == resultTypeId);
-    buf >> res;
-
-    ASSERT(buf.eof());
-
-    return res;
-}
-
-
-int32_t TraCI_Extend::genericGetInt(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId)
-{
-    uint8_t resultTypeId = TYPE_INTEGER;
-    int32_t res;
-
-    TraCIBuffer buf = connection->query(commandId, TraCIBuffer() << variableId << objectId);
-
-    uint8_t cmdLength; buf >> cmdLength;
-    if (cmdLength == 0) {
-        uint32_t cmdLengthX;
-        buf >> cmdLengthX;
-    }
-    uint8_t commandId_r; buf >> commandId_r;
-    ASSERT(commandId_r == responseId);
-    uint8_t varId; buf >> varId;
-    ASSERT(varId == variableId);
-    std::string objectId_r; buf >> objectId_r;
-    ASSERT(objectId_r == objectId);
-    uint8_t resType_r; buf >> resType_r;
-    ASSERT(resType_r == resultTypeId);
-    buf >> res;
-
-    ASSERT(buf.eof());
-
-    return res;
-}
-
-
-std::string TraCI_Extend::genericGetString(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId)
-{
-    uint8_t resultTypeId = TYPE_STRING;
-    std::string res;
-
-    TraCIBuffer buf = connection->query(commandId, TraCIBuffer() << variableId << objectId);
-
-    uint8_t cmdLength; buf >> cmdLength;
-    if (cmdLength == 0) {
-        uint32_t cmdLengthX;
-        buf >> cmdLengthX;
-    }
-    uint8_t commandId_r; buf >> commandId_r;
-    ASSERT(commandId_r == responseId);
-    uint8_t varId; buf >> varId;
-    ASSERT(varId == variableId);
-    std::string objectId_r; buf >> objectId_r;
-    ASSERT(objectId_r == objectId);
-    uint8_t resType_r; buf >> resType_r;
-    ASSERT(resType_r == resultTypeId);
-    buf >> res;
-
-    ASSERT(buf.eof());
-
-    return res;
-}
-
-
-std::list<std::string> TraCI_Extend::genericGetStringList(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId)
-{
-    uint8_t resultTypeId = TYPE_STRINGLIST;
-    std::list<std::string> res;
-
-    TraCIBuffer buf = connection->query(commandId, TraCIBuffer() << variableId << objectId);
-
-    uint8_t cmdLength; buf >> cmdLength;
-    if (cmdLength == 0) {
-        uint32_t cmdLengthX;
-        buf >> cmdLengthX;
-    }
-    uint8_t commandId_r; buf >> commandId_r;
-    ASSERT(commandId_r == responseId);
-    uint8_t varId; buf >> varId;
-    ASSERT(varId == variableId);
-    std::string objectId_r; buf >> objectId_r;
-    ASSERT(objectId_r == objectId);
-    uint8_t resType_r; buf >> resType_r;
-    ASSERT(resType_r == resultTypeId);
-    uint32_t count; buf >> count;
-    for (uint32_t i = 0; i < count; i++) {
-        std::string id; buf >> id;
-        res.push_back(id);
-    }
-
-    // todo: in 'laneGetAllowedClasses' buf is not empty
-    // ASSERT(buf.eof());
-
-    return res;
-}
-
-
-Coord TraCI_Extend::genericGetCoord(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId)
-{
-    uint8_t resultTypeId = POSITION_2D;
-    double x;
-    double y;
-
-    TraCIBuffer buf = connection->query(commandId, TraCIBuffer() << variableId << objectId);
-
-    uint8_t cmdLength; buf >> cmdLength;
-    if (cmdLength == 0) {
-        uint32_t cmdLengthX;
-        buf >> cmdLengthX;
-    }
-    uint8_t commandId_r; buf >> commandId_r;
-    ASSERT(commandId_r == responseId);
-    uint8_t varId; buf >> varId;
-    ASSERT(varId == variableId);
-    std::string objectId_r; buf >> objectId_r;
-    ASSERT(objectId_r == objectId);
-    uint8_t resType_r; buf >> resType_r;
-    ASSERT(resType_r == resultTypeId);
-    buf >> x;
-    buf >> y;
-
-    ASSERT(buf.eof());
-
-    return connection->traci2omnet(TraCICoord(x, y));
-}
-
-
-std::list<Coord> TraCI_Extend::genericGetCoordList(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId)
-{
-    uint8_t resultTypeId = TYPE_POLYGON;
-    std::list<Coord> res;
-
-    TraCIBuffer buf = connection->query(commandId, TraCIBuffer() << variableId << objectId);
-
-    uint8_t cmdLength; buf >> cmdLength;
-    if (cmdLength == 0) {
-        uint32_t cmdLengthX;
-        buf >> cmdLengthX;
-    }
-    uint8_t commandId_r; buf >> commandId_r;
-    ASSERT(commandId_r == responseId);
-    uint8_t varId; buf >> varId;
-    ASSERT(varId == variableId);
-    std::string objectId_r; buf >> objectId_r;
-    ASSERT(objectId_r == objectId);
-    uint8_t resType_r; buf >> resType_r;
-    ASSERT(resType_r == resultTypeId);
-    uint8_t count; buf >> count;
-    for (uint32_t i = 0; i < count; i++) {
-        double x; buf >> x;
-        double y; buf >> y;
-        res.push_back(connection->traci2omnet(TraCICoord(x, y)));
-    }
-
-    ASSERT(buf.eof());
-
-    return res;
-}
-
-
-uint8_t TraCI_Extend::genericGetUnsignedByte(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId)
-{
-    uint8_t resultTypeId = TYPE_UBYTE;
-    int8_t res;
-
-    TraCIBuffer buf = connection->query(commandId, TraCIBuffer() << variableId << objectId);
-
-    uint8_t cmdLength; buf >> cmdLength;
-    if (cmdLength == 0) {
-        uint32_t cmdLengthX;
-        buf >> cmdLengthX;
-    }
-    uint8_t commandId_r; buf >> commandId_r;
-    ASSERT(commandId_r == responseId);
-    uint8_t varId; buf >> varId;
-    ASSERT(varId == variableId);
-    std::string objectId_r; buf >> objectId_r;
-    ASSERT(objectId_r == objectId);
-    uint8_t resType_r; buf >> resType_r;
-    ASSERT(resType_r == resultTypeId);
-    buf >> res;
-
-    ASSERT(buf.eof());
-
-    return res;
-}
-
-
-// same as genericGetCoordv, but no conversion to omnet++ coordinates at the end
-Coord TraCI_Extend::genericGetCoordv2(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId)
-{
-    uint8_t resultTypeId = POSITION_2D;
-    double x;
-    double y;
-
-    TraCIBuffer buf = connection->query(commandId, TraCIBuffer() << variableId << objectId);
-
-    uint8_t cmdLength; buf >> cmdLength;
-    if (cmdLength == 0) {
-        uint32_t cmdLengthX;
-        buf >> cmdLengthX;
-    }
-    uint8_t commandId_r; buf >> commandId_r;
-    ASSERT(commandId_r == responseId);
-    uint8_t varId; buf >> varId;
-    ASSERT(varId == variableId);
-    std::string objectId_r; buf >> objectId_r;
-    ASSERT(objectId_r == objectId);
-    uint8_t resType_r; buf >> resType_r;
-    ASSERT(resType_r == resultTypeId);
-
-    // now we start getting real data that we are looking for
-    buf >> x;
-    buf >> y;
-
-    ASSERT(buf.eof());
-
-    return Coord(x, y);
-}
-
-
-// Boundary Box (4 doubles)
-std::vector<double> TraCI_Extend::genericGetBoundingBox(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId)
-{
-    uint8_t resultTypeId = TYPE_BOUNDINGBOX;
-    double LowerLeftX;
-    double LowerLeftY;
-    double UpperRightX;
-    double UpperRightY;
-    std::vector<double> res;
-
-    TraCIBuffer buf = connection->query(commandId, TraCIBuffer() << variableId << objectId);
-
-    uint8_t cmdLength; buf >> cmdLength;
-    if (cmdLength == 0) {
-        uint32_t cmdLengthX;
-        buf >> cmdLengthX;
-    }
-    uint8_t commandId_r; buf >> commandId_r;
-    ASSERT(commandId_r == responseId);
-    uint8_t varId; buf >> varId;
-    ASSERT(varId == variableId);
-    std::string objectId_r; buf >> objectId_r;
-    ASSERT(objectId_r == objectId);
-    uint8_t resType_r; buf >> resType_r;
-    ASSERT(resType_r == resultTypeId);
-
-    buf >> LowerLeftX;
-    res.push_back(LowerLeftX);
-
-    buf >> LowerLeftY;
-    res.push_back(LowerLeftY);
-
-    buf >> UpperRightX;
-    res.push_back(UpperRightX);
-
-    buf >> UpperRightY;
-    res.push_back(UpperRightY);
-
-    ASSERT(buf.eof());
-
-    return res;
-}
-
-
-uint8_t* TraCI_Extend::genericGetArrayUnsignedInt(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId)
-{
-    uint8_t resultTypeId = TYPE_COLOR;
-    uint8_t* color = new uint8_t[4]; // RGBA
-
-    TraCIBuffer buf = connection->query(commandId, TraCIBuffer() << variableId << objectId);
-
-    uint8_t cmdLength; buf >> cmdLength;
-    if (cmdLength == 0) {
-        uint32_t cmdLengthX;
-        buf >> cmdLengthX;
-    }
-    uint8_t commandId_r; buf >> commandId_r;
-    ASSERT(commandId_r == responseId);
-    uint8_t varId; buf >> varId;
-    ASSERT(varId == variableId);
-    std::string objectId_r; buf >> objectId_r;
-    ASSERT(objectId_r == objectId);
-    uint8_t resType_r; buf >> resType_r;
-    ASSERT(resType_r == resultTypeId);
-
-    // now we start getting real data that we are looking for
-    buf >> color[0];
-    buf >> color[1];
-    buf >> color[2];
-    buf >> color[3];
-
-    ASSERT(buf.eof());
-
-    return color;
-}
-
-
-// ################################################################
-//                            simulation
+//                           python interaction
 // ################################################################
 
 std::pair<uint32_t, std::string> TraCI_Extend::getVersion()
@@ -408,6 +86,10 @@ std::pair<uint32_t, std::string> TraCI_Extend::getVersion()
     return std::pair<uint32_t, std::string>(apiVersion, serverVersion);
 }
 
+
+// ################################################################
+//                            simulation
+// ################################################################
 
 // ####################
 // CMD_GET_SIM_VARIABLE
@@ -2126,6 +1808,328 @@ double TraCI_Extend::personGetSpeed(std::string pId)
 std::string TraCI_Extend::personGetNextEdge(std::string pId)
 {
     return genericGetString(0xae, pId, 0xc1, 0xbe);
+}
+
+
+// ################################################################
+//                    generic methods for getters
+// ################################################################
+
+double TraCI_Extend::genericGetDouble(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId)
+{
+    uint8_t resultTypeId = TYPE_DOUBLE;
+    double res;
+
+    TraCIBuffer buf = connection->query(commandId, TraCIBuffer() << variableId << objectId);
+
+    uint8_t cmdLength; buf >> cmdLength;
+    if (cmdLength == 0) {
+        uint32_t cmdLengthX;
+        buf >> cmdLengthX;
+    }
+    uint8_t commandId_r; buf >> commandId_r;
+    ASSERT(commandId_r == responseId);
+    uint8_t varId; buf >> varId;
+    ASSERT(varId == variableId);
+    std::string objectId_r; buf >> objectId_r;
+    ASSERT(objectId_r == objectId);
+    uint8_t resType_r; buf >> resType_r;
+    ASSERT(resType_r == resultTypeId);
+    buf >> res;
+
+    ASSERT(buf.eof());
+
+    return res;
+}
+
+
+int32_t TraCI_Extend::genericGetInt(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId)
+{
+    uint8_t resultTypeId = TYPE_INTEGER;
+    int32_t res;
+
+    TraCIBuffer buf = connection->query(commandId, TraCIBuffer() << variableId << objectId);
+
+    uint8_t cmdLength; buf >> cmdLength;
+    if (cmdLength == 0) {
+        uint32_t cmdLengthX;
+        buf >> cmdLengthX;
+    }
+    uint8_t commandId_r; buf >> commandId_r;
+    ASSERT(commandId_r == responseId);
+    uint8_t varId; buf >> varId;
+    ASSERT(varId == variableId);
+    std::string objectId_r; buf >> objectId_r;
+    ASSERT(objectId_r == objectId);
+    uint8_t resType_r; buf >> resType_r;
+    ASSERT(resType_r == resultTypeId);
+    buf >> res;
+
+    ASSERT(buf.eof());
+
+    return res;
+}
+
+
+std::string TraCI_Extend::genericGetString(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId)
+{
+    uint8_t resultTypeId = TYPE_STRING;
+    std::string res;
+
+    TraCIBuffer buf = connection->query(commandId, TraCIBuffer() << variableId << objectId);
+
+    uint8_t cmdLength; buf >> cmdLength;
+    if (cmdLength == 0) {
+        uint32_t cmdLengthX;
+        buf >> cmdLengthX;
+    }
+    uint8_t commandId_r; buf >> commandId_r;
+    ASSERT(commandId_r == responseId);
+    uint8_t varId; buf >> varId;
+    ASSERT(varId == variableId);
+    std::string objectId_r; buf >> objectId_r;
+    ASSERT(objectId_r == objectId);
+    uint8_t resType_r; buf >> resType_r;
+    ASSERT(resType_r == resultTypeId);
+    buf >> res;
+
+    ASSERT(buf.eof());
+
+    return res;
+}
+
+
+std::list<std::string> TraCI_Extend::genericGetStringList(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId)
+{
+    uint8_t resultTypeId = TYPE_STRINGLIST;
+    std::list<std::string> res;
+
+    TraCIBuffer buf = connection->query(commandId, TraCIBuffer() << variableId << objectId);
+
+    uint8_t cmdLength; buf >> cmdLength;
+    if (cmdLength == 0) {
+        uint32_t cmdLengthX;
+        buf >> cmdLengthX;
+    }
+    uint8_t commandId_r; buf >> commandId_r;
+    ASSERT(commandId_r == responseId);
+    uint8_t varId; buf >> varId;
+    ASSERT(varId == variableId);
+    std::string objectId_r; buf >> objectId_r;
+    ASSERT(objectId_r == objectId);
+    uint8_t resType_r; buf >> resType_r;
+    ASSERT(resType_r == resultTypeId);
+    uint32_t count; buf >> count;
+    for (uint32_t i = 0; i < count; i++) {
+        std::string id; buf >> id;
+        res.push_back(id);
+    }
+
+    // todo: in 'laneGetAllowedClasses' buf is not empty
+    // ASSERT(buf.eof());
+
+    return res;
+}
+
+
+Coord TraCI_Extend::genericGetCoord(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId)
+{
+    uint8_t resultTypeId = POSITION_2D;
+    double x;
+    double y;
+
+    TraCIBuffer buf = connection->query(commandId, TraCIBuffer() << variableId << objectId);
+
+    uint8_t cmdLength; buf >> cmdLength;
+    if (cmdLength == 0) {
+        uint32_t cmdLengthX;
+        buf >> cmdLengthX;
+    }
+    uint8_t commandId_r; buf >> commandId_r;
+    ASSERT(commandId_r == responseId);
+    uint8_t varId; buf >> varId;
+    ASSERT(varId == variableId);
+    std::string objectId_r; buf >> objectId_r;
+    ASSERT(objectId_r == objectId);
+    uint8_t resType_r; buf >> resType_r;
+    ASSERT(resType_r == resultTypeId);
+    buf >> x;
+    buf >> y;
+
+    ASSERT(buf.eof());
+
+    return connection->traci2omnet(TraCICoord(x, y));
+}
+
+
+std::list<Coord> TraCI_Extend::genericGetCoordList(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId)
+{
+    uint8_t resultTypeId = TYPE_POLYGON;
+    std::list<Coord> res;
+
+    TraCIBuffer buf = connection->query(commandId, TraCIBuffer() << variableId << objectId);
+
+    uint8_t cmdLength; buf >> cmdLength;
+    if (cmdLength == 0) {
+        uint32_t cmdLengthX;
+        buf >> cmdLengthX;
+    }
+    uint8_t commandId_r; buf >> commandId_r;
+    ASSERT(commandId_r == responseId);
+    uint8_t varId; buf >> varId;
+    ASSERT(varId == variableId);
+    std::string objectId_r; buf >> objectId_r;
+    ASSERT(objectId_r == objectId);
+    uint8_t resType_r; buf >> resType_r;
+    ASSERT(resType_r == resultTypeId);
+    uint8_t count; buf >> count;
+    for (uint32_t i = 0; i < count; i++) {
+        double x; buf >> x;
+        double y; buf >> y;
+        res.push_back(connection->traci2omnet(TraCICoord(x, y)));
+    }
+
+    ASSERT(buf.eof());
+
+    return res;
+}
+
+
+uint8_t TraCI_Extend::genericGetUnsignedByte(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId)
+{
+    uint8_t resultTypeId = TYPE_UBYTE;
+    int8_t res;
+
+    TraCIBuffer buf = connection->query(commandId, TraCIBuffer() << variableId << objectId);
+
+    uint8_t cmdLength; buf >> cmdLength;
+    if (cmdLength == 0) {
+        uint32_t cmdLengthX;
+        buf >> cmdLengthX;
+    }
+    uint8_t commandId_r; buf >> commandId_r;
+    ASSERT(commandId_r == responseId);
+    uint8_t varId; buf >> varId;
+    ASSERT(varId == variableId);
+    std::string objectId_r; buf >> objectId_r;
+    ASSERT(objectId_r == objectId);
+    uint8_t resType_r; buf >> resType_r;
+    ASSERT(resType_r == resultTypeId);
+    buf >> res;
+
+    ASSERT(buf.eof());
+
+    return res;
+}
+
+
+// same as genericGetCoordv, but no conversion to omnet++ coordinates at the end
+Coord TraCI_Extend::genericGetCoordv2(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId)
+{
+    uint8_t resultTypeId = POSITION_2D;
+    double x;
+    double y;
+
+    TraCIBuffer buf = connection->query(commandId, TraCIBuffer() << variableId << objectId);
+
+    uint8_t cmdLength; buf >> cmdLength;
+    if (cmdLength == 0) {
+        uint32_t cmdLengthX;
+        buf >> cmdLengthX;
+    }
+    uint8_t commandId_r; buf >> commandId_r;
+    ASSERT(commandId_r == responseId);
+    uint8_t varId; buf >> varId;
+    ASSERT(varId == variableId);
+    std::string objectId_r; buf >> objectId_r;
+    ASSERT(objectId_r == objectId);
+    uint8_t resType_r; buf >> resType_r;
+    ASSERT(resType_r == resultTypeId);
+
+    // now we start getting real data that we are looking for
+    buf >> x;
+    buf >> y;
+
+    ASSERT(buf.eof());
+
+    return Coord(x, y);
+}
+
+
+// Boundary Box (4 doubles)
+std::vector<double> TraCI_Extend::genericGetBoundingBox(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId)
+{
+    uint8_t resultTypeId = TYPE_BOUNDINGBOX;
+    double LowerLeftX;
+    double LowerLeftY;
+    double UpperRightX;
+    double UpperRightY;
+    std::vector<double> res;
+
+    TraCIBuffer buf = connection->query(commandId, TraCIBuffer() << variableId << objectId);
+
+    uint8_t cmdLength; buf >> cmdLength;
+    if (cmdLength == 0) {
+        uint32_t cmdLengthX;
+        buf >> cmdLengthX;
+    }
+    uint8_t commandId_r; buf >> commandId_r;
+    ASSERT(commandId_r == responseId);
+    uint8_t varId; buf >> varId;
+    ASSERT(varId == variableId);
+    std::string objectId_r; buf >> objectId_r;
+    ASSERT(objectId_r == objectId);
+    uint8_t resType_r; buf >> resType_r;
+    ASSERT(resType_r == resultTypeId);
+
+    buf >> LowerLeftX;
+    res.push_back(LowerLeftX);
+
+    buf >> LowerLeftY;
+    res.push_back(LowerLeftY);
+
+    buf >> UpperRightX;
+    res.push_back(UpperRightX);
+
+    buf >> UpperRightY;
+    res.push_back(UpperRightY);
+
+    ASSERT(buf.eof());
+
+    return res;
+}
+
+
+uint8_t* TraCI_Extend::genericGetArrayUnsignedInt(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId)
+{
+    uint8_t resultTypeId = TYPE_COLOR;
+    uint8_t* color = new uint8_t[4]; // RGBA
+
+    TraCIBuffer buf = connection->query(commandId, TraCIBuffer() << variableId << objectId);
+
+    uint8_t cmdLength; buf >> cmdLength;
+    if (cmdLength == 0) {
+        uint32_t cmdLengthX;
+        buf >> cmdLengthX;
+    }
+    uint8_t commandId_r; buf >> commandId_r;
+    ASSERT(commandId_r == responseId);
+    uint8_t varId; buf >> varId;
+    ASSERT(varId == variableId);
+    std::string objectId_r; buf >> objectId_r;
+    ASSERT(objectId_r == objectId);
+    uint8_t resType_r; buf >> resType_r;
+    ASSERT(resType_r == resultTypeId);
+
+    // now we start getting real data that we are looking for
+    buf >> color[0];
+    buf >> color[1];
+    buf >> color[2];
+    buf >> color[3];
+
+    ASSERT(buf.eof());
+
+    return color;
 }
 
 }

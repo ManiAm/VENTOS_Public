@@ -89,10 +89,15 @@ public:
     virtual void finish();
 
     // ################################################################
-    //                            simulation
+    //                           python interaction
     // ################################################################
 
     std::pair<uint32_t, std::string> getVersion();
+
+
+    // ################################################################
+    //                            simulation
+    // ################################################################
 
     // CMD_GET_SIM_VARIABLE
     uint32_t simulationGetLoadedVehiclesCount();
@@ -314,10 +319,10 @@ public:
     void polygonSetFilled(std::string, uint8_t);
 
     // ################################################################
-    //                               polygon
+    //                               POI
     // ################################################################
 
-    void addPoi(std::string poiId, std::string poiType, const TraCIColor& color, int32_t layer, const Coord& pos);
+    void addPoi(std::string, std::string, const TraCIColor&, int32_t, const Coord&);
 
 
     // ################################################################
