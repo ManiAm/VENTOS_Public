@@ -186,7 +186,7 @@ void SniffUSB::getUSBidsFromFile()
 {
     // usbids is downloaded from http://www.linux-usb.org/usb.ids
     boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-    boost::filesystem::path usbids_FullPath = VENTOS_FullPath / "sniff_usb_ids";
+    boost::filesystem::path usbids_FullPath = VENTOS_FullPath / "application/sniffing/sniff_usb_ids";
 
     std::ifstream in(usbids_FullPath.string().c_str());
     if(in == NULL)

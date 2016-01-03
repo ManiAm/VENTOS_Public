@@ -214,7 +214,7 @@ void SniffEthernet::getOUIFromFile()
 {
     // OUI is downloaded from https://www.wireshark.org/tools/oui-lookup.html
     boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-    boost::filesystem::path manuf_FullPath = VENTOS_FullPath / "sniff_manuf";
+    boost::filesystem::path manuf_FullPath = VENTOS_FullPath / "application/sniffing/sniff_manuf";
 
     std::ifstream in(manuf_FullPath.string().c_str());
     if(in == NULL)
@@ -239,7 +239,7 @@ void SniffEthernet::getPortNumbersFromFile()
 {
     // services files in Linux is in /etc/services
     boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-    boost::filesystem::path services_FullPath = VENTOS_FullPath / "sniff_services";
+    boost::filesystem::path services_FullPath = VENTOS_FullPath / "application/sniffing/sniff_services";
     std::ifstream in(services_FullPath.string().c_str());
     if(in == NULL)
         error("cannot open file sniff_services at %s", services_FullPath.string().c_str());
