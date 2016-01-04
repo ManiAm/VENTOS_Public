@@ -59,7 +59,7 @@ TraCIConnection::~TraCIConnection()
 
 TraCIConnection* TraCIConnection::connect(const char* host, int port)
 {
-    std::cout << std::endl << "Connecting to TraCI server ..." << endl;
+    std::cout << ">>> Connecting to TraCI server ..." << endl;
 
 	if (initsocketlibonce() != 0)
 	    throw cRuntimeError("Could not init socketlib");

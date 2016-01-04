@@ -41,8 +41,15 @@ class Plotter : public BaseApplLayer
       virtual void initialize(int);
       virtual void handleMessage(cMessage *);
 
+  private:
+      void getVersion();
+
   public:
-      FILE *pipe = NULL;  // other modules can use pipe to access gnuplot
+      FILE *pipeGnuPlot = NULL;  // other modules can use pipe to access gnuplot
+
+      double vers = 0.0;
+      int majvers = 0;
+      int minvers = 0;
 
   private:
       TraCI_Extend *TraCI;

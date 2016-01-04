@@ -40,7 +40,7 @@ Plotter::~Plotter()
 void Plotter::initialize(int stage)
 {
     if(stage == 0)
-	{
+    {
         on = par("on").boolValue();
 
         if(!on)
@@ -51,24 +51,55 @@ void Plotter::initialize(int stage)
         TraCI = static_cast<TraCI_Extend *>(module);
         ASSERT(TraCI);
 
-        #ifdef WIN32
-            pipe = _popen("pgnuplot -persist", "w");
-        #else
-            pipe = popen("gnuplot", "w");
-        #endif
+#ifdef WIN32
+        pipeGnuPlot = _popen("pgnuplot -persist", "w");
+#else
+        pipeGnuPlot = popen("gnuplot", "w");
+#endif
 
-        if(pipe == NULL)
+        if(pipeGnuPlot == NULL)
             error("Could not open pipe for write!");
+
+        getVersion();
 
         // interactive gnuplot terminals: x11, wxt, qt (wxt and qt offer nicer output and a wider range of features)
         // persist: keep the windows open even on simulation termination
         // noraise: updating is done in the background
         // link: http://gnuplot.sourceforge.net/docs_4.2/node441.html
-       // fprintf(pipe, "set term wxt enhanced 0 font 'Helvetica,' noraise\n");
+        // fprintf(pipeGnuPlot, "set term wxt enhanced 0 font 'Helvetica,' noraise\n");
 
         // flush the pipe
-        fflush(pipe);
+        fflush(pipeGnuPlot);
     }
+}
+
+
+void Plotter::getVersion()
+{
+    FILE* pipversion = popen("gnuplot --version", "r");
+    if (!pipversion)
+        error("can not open pipe!");
+
+    char lineversion[128];
+    memset (lineversion, 0, sizeof(lineversion));
+    if (!fgets(lineversion, sizeof(lineversion), pipversion))
+        error("fgets error!");
+
+    std::cout << std::endl << "GNUPLOT Version: " << lineversion << std::endl;
+
+    // now parsing lineversion (gnuplot 5.0 patchlevel 1)
+    sscanf(lineversion, "gnuplot %lf", &vers);
+
+    int pos= -1;
+    char* restvers = NULL;
+    if (sscanf(lineversion, "gnuplot %d.%d %n", &majvers, &minvers, &pos) >= 2)
+    {
+        assert(pos>=0);
+        restvers = lineversion+pos;
+    }
+
+    pclose(pipversion);
+    pipversion = NULL;
 }
 
 
@@ -77,11 +108,11 @@ void Plotter::finish()
     if(!on)
         return;
 
-    #ifdef WIN32
-        _pclose(pipe);
-    #else
-        pclose(pipe);
-    #endif
+#ifdef WIN32
+    _pclose(pipeGnuPlot);
+#else
+    pclose(pipeGnuPlot);
+#endif
 }
 
 

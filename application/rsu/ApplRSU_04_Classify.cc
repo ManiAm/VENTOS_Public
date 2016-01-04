@@ -157,8 +157,12 @@ void ApplRSUCLASSIFY::initializeGnuPlot()
     Plotter *pltPtr = static_cast<Plotter *>(pmodule);
     ASSERT(pltPtr);
 
-    plotterPtr = pltPtr->pipe;
+    plotterPtr = pltPtr->pipeGnuPlot;
     ASSERT(plotterPtr);
+
+    // We need feature in GNUPLOT 5.0 and above
+    if(pltPtr->vers < 5)
+        error("GNUPLOT version should be >= 5");
 
     // set title name
     fprintf(plotterPtr, "set title 'Sample Points' \n");
@@ -218,18 +222,30 @@ template <typename T> void ApplRSUCLASSIFY::onBeaconAny(T wsm)
                 dataSet[2].push_back(*tmp);  // class 3
 
             // draw the dataset on gnuplot
-            if(pipe != NULL && ev.isGUI())
+            if(plotterPtr != NULL)
             {
-                // create a data block out of dataset
+                // create a data blocks out of dataset (only gnuplot > 5.0 supports this)
                 fprintf(plotterPtr, "$data << EOD \n");
+
+                // data block 1
                 for(auto &i : dataSet[0])
                     fprintf(plotterPtr, "%f  %f  %f \n", i.xPos, i.yPos, i.speed);
+
+                // two blank lines as data block separator
                 fprintf(plotterPtr, "\n\n \n");
+
+                // data block 2
                 for(auto &i : dataSet[1])
                     fprintf(plotterPtr, "%f  %f  %f \n", i.xPos, i.yPos, i.speed);
+
+                // two blank lines as data block separator
                 fprintf(plotterPtr, "\n\n \n");
+
+                // data block 3
                 for(auto &i : dataSet[2])
                     fprintf(plotterPtr, "%f  %f  %f \n", i.xPos, i.yPos, i.speed);
+
+                // data block terminator
                 fprintf(plotterPtr, "EOD \n");
 
                 // make plot
