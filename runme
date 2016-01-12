@@ -60,13 +60,13 @@ fi
 
 # refresh the databse of available packages
 echo "updating available packages ..."
-sudo apt-get update
+sudo apt-get update > /dev/null
 
 echo ""
 echo "Check libraries"
 echo "==============="
 
-array=( "build-essential" "gcc" "g++" "bison" "flex" "perl" "tcl-dev" "tk-dev" "libxml2-dev" "zlib1g-dev" "default-jre" "doxygen" "graphviz" "libwebkitgtk-1.0-0" "openmpi-bin" "libopenmpi-dev" "libpcap-dev" )
+array=( "build-essential" "gcc" "g++" "bison" "flex" "perl" "tcl-dev" "tk-dev" "libxml2-dev" "zlib1g-dev" "doxygen" "graphviz" "libwebkitgtk-1.0-0" "openmpi-bin" "libopenmpi-dev" "libpcap-dev" )
 for i in "${array[@]}"
 do
     # check if package $i is installed

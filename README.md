@@ -19,7 +19,7 @@ Note 1: Pay attention to the error and warning messages in the configure script.
 
 Note 2: Open your .bashrc and set the JAVA_HOME variable similar to the following:
 
-    export JAVA_HOME=/usr/lib/jvm/java-7-oracle
+    export JAVA_HOME=/usr/lib/jvm/java-8-oracle
 
 Note 3: OMNeT++ requires that its bin directory be in the PATH. Append the OMNET++ bin path to the PATH varibale in .bashrc similar to the following (note that you should change the path accordinglly).
 
