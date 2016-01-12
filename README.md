@@ -15,15 +15,19 @@ VENTOS is an integrated C++ simulator for studying traffic flows in Vehicular Ad
 
     sudo ./runme
 
-Pay attention to the error and warning messages in the configure script (ignore warning message for MPI and Akaroa). Open your .bashrc and set the JAVA_HOME variable similar to the following:
+Note 1: Pay attention to the error and warning messages in the configure script. Ignore warning messages for MPI and Akaroa.
+
+Note 2: Open your .bashrc and set the JAVA_HOME variable similar to the following:
 
     export JAVA_HOME=/usr/lib/jvm/java-7-oracle
 
-Moreover, OMNeT++ requires that its bin directory be in the PATH. Append the OMNET++ bin path to the PATH varibale in .bashrc similar to the following (note that you should change the path accordinglly):
+Note 3: OMNeT++ requires that its bin directory be in the PATH. Append the OMNET++ bin path to the PATH varibale in .bashrc similar to the following (note that you should change the path accordinglly).
 
     export PATH=$PATH:/home/mani/Desktop/VENTOS/VENTOS/omnetpp-4.6/bin
 
-Save the file and then close/re-open the terminal for the changes to take effect. Finally, run `runme` script again.
+Save the .basrc file and then **close/re-open the terminal** for the changes to take effect. Finally, run `runme` script again.
+
+Note 4: Ignore warning messages during OMNET++ compilation.
 
 **Step 4:** OMNET++ installation is done and you can verify this by running a sample simulation. For example, the dyna simulation is started by entering the following commands. First go to the sample/dyna folder, and then run it.
 

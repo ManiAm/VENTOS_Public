@@ -32,8 +32,6 @@ fi
 echo "Start script on" $OS $VER, $ARCH
 cd ..
 
-sleep 5d
-
 # check java version
 version=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}')
 # print java version
@@ -43,7 +41,7 @@ fi
 
 if ! [[ "$version" > "1.7" ]]; then
     echo "Java version should be higher than 1.7"
-    echo -n "Install Java 8 (y/n)? "
+    echo -n "Install Java 1.8 (y/n)? "
     read answer
     if echo "$answer" | grep -iq "^y" ;then
         echo "installing java ..."
@@ -184,7 +182,7 @@ do
     PKG_OK=$(dpkg -s $i 2> /dev/null | grep "install ok installed")
     if [ "" == "$PKG_OK" ]; then
         echo "installing"
-        #apt-get --force-yes --yes install $i
+        sudo apt-get --force-yes --yes install $i > /dev/null
     else
         echo "ok"
     fi
@@ -218,7 +216,7 @@ progressfilt ()
 
 
 echo ""
-echo "Installing Shark"
+echo "Installing shark"
 echo "================"
 
 # libshark library will be copied into /usr/local/lib and the header files will be copied into /usr/local/include.
@@ -239,7 +237,7 @@ else
         PKG_OK=$(dpkg -s $i 2> /dev/null | grep "install ok installed")
         if [ "" == "$PKG_OK" ]; then
             echo "installing"
-            #apt-get --force-yes --yes install $i
+            sudo apt-get --force-yes --yes install $i > /dev/null
         else
             echo "ok"
         fi
@@ -285,11 +283,10 @@ else
 
     cd snmp++-3.3.5
 
-    echo -n "installing snmp++ ..."
+    echo "installing snmp++ ..."
     ./configure > /dev/null
     make
     sudo make install > /dev/null
-    echo "done!"
 
     cd ..
 fi
@@ -305,7 +302,7 @@ if [ -d "/usr/local/include/eigen3" ]; then
 else
     if [ ! -f "3.2.7.tar.gz" ]; then
         # download eigen library
-        echo "Downloading Eigen library"
+        echo "Downloading eigen library"
         wget --progress=bar:force http://bitbucket.org/eigen/eigen/get/3.2.7.tar.gz 2>&1 | progressfilt
     fi
 
@@ -372,12 +369,18 @@ echo "done!"
 cd ..
 cd ..
 
+echo -n "removing temporary data ..."
+# removing files
+rm -f 3.2.7.tar.gz
+rm -f snmp++-3.3.5.tar.gz
+rm -f omnetpp-4.6-src.tgz
+
+# removing folders
+rm -r eigen
+rm -r Shark
+rm -r snmp++-3.3.5
+echo "done!"
+
 echo ""
 echo "finished!"
-
-
-#sleep 5d
-
-
-
 
