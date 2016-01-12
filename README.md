@@ -60,11 +60,11 @@ Note: you can not use the official SUMO binaries since we have extended the TraC
 
 SUMO in graphical mode:
 
-    python veins-sumo-launchd.py -vv -c sumoBinary/sumo-guiD
+    python veins-sumo-launchd.py -vv -c /home/mani/Desktop/VENTOS/VENTOS/sumoBinary/sumo-guiD
 
 SUMO in command-line mode:
 
-    python veins-sumo-launchd.py -vv -c sumoBinary/sumoD
+    python veins-sumo-launchd.py -vv -c /home/mani/Desktop/VENTOS/VENTOS/sumoBinary/sumoD
 
 The terminal should look like the following picture. The script will print `Listening on port 9999` and wait for the simulation to start. Note that after running either of these commands, DO NOT close the terminal window. Leave it open.
 

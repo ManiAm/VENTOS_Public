@@ -20,7 +20,7 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
         VER=$(sw_vers -productVersion)
         ARCH=$(uname -m)
 else
-        echo "ERROR: This OS is not supported!"
+        echo "ERROR: this OS is not supported!"
         exit 1 # terminate and indicate error
 fi
 
@@ -29,19 +29,19 @@ if [[ "$ARCH" != "x86_64" ]]; then
     exit 1
 fi
 
-echo "Start script on" $OS $VER, $ARCH
+echo "start script on" $OS $VER, $ARCH
 cd ..
 
 # check java version
 version=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}')
 # print java version
 if [ "" != "$version" ]; then
-    echo "Java version is" $version
+    echo "java version is" $version
 fi
 
 if ! [[ "$version" > "1.7" ]]; then
-    echo "Java version should be higher than 1.7"
-    echo -n "Install Java 1.8 (y/n)? "
+    echo "java version should be higher than 1.7"
+    echo -n "install Java 1.8 (y/n)? "
     read answer
     if echo "$answer" | grep -iq "^y" ;then
         echo "installing java ..."
@@ -63,8 +63,8 @@ echo "updating available packages ..."
 sudo apt-get update > /dev/null
 
 echo ""
-echo "Check libraries"
-echo "==============="
+echo "Check libraries for OMNET++"
+echo "==========================="
 
 array=( "build-essential" "gcc" "g++" "bison" "flex" "perl" "tcl-dev" "tk-dev" "libxml2-dev" "zlib1g-dev" "doxygen" "graphviz" "libwebkitgtk-1.0-0" "openmpi-bin" "libopenmpi-dev" "libpcap-dev" )
 for i in "${array[@]}"
@@ -79,6 +79,10 @@ do
         echo "ok"
     fi
 done
+
+echo ""
+echo "Make OMNET++ ready"
+echo "=================="
 
 # check if omnet directory exists
 if [ ! -d "omnetpp-4.6" ]; then
@@ -97,10 +101,12 @@ if [ ! -d "omnetpp-4.6" ]; then
         tar zxf $omnetFile  
         echo "done!"
     fi
+else
+    echo "omnetpp-4.6 folder already exists!"
 fi
 
 echo ""
-echo "running OMNET++ configure"
+echo "Running OMNET++ configure"
 echo "========================="
 
 # In the OMNET++ folder you can see the `configure.in` file that is used by autoconf to generate the `configure` script. Additional input parameters for configure script are defined in `configure.user` file. The configure script detects installed software and configuration of your system, and generates three outputs: `config.log`, `config.status`, and `Makefile.inc`. The first two files are used for debugging purposes, and the last file will be read later by the makefiles during the build process.
@@ -145,7 +151,7 @@ echo "Making OMNET++"
 echo "=============="
 
 # start making omnet++
-printf "Compiling takes some time, so relax, grab a cup of coffee and \nwatch: https://www.youtube.com/watch?v=A6XUVjK9W4o \n"
+printf "compiling takes some time, so relax, grab a cup of coffee and \nwatch: https://www.youtube.com/watch?v=A6XUVjK9W4o \n"
 echo " "
 make > /dev/null
 echo "make is finished!"
@@ -157,14 +163,14 @@ echo "================="
 # Running OMNET++ each time from command line might not be desirable for you. You can create a shortcut or launcher to OMNET++ on your desktop.
 
 # creating shortcut
-echo -n "Do you wish to create a shortcut on your desktop? (y/n)? "
+echo -n "do you wish to create a shortcut on your desktop? (y/n)? "
 read answer
 if echo "$answer" | grep -iq "^y" ;then
     make install-desktop-icon
 fi
 
 # creating launcher
-echo -n "Do you wish to create an application launcher? (y/n)? "
+echo -n "do you wish to create an application launcher? (y/n)? "
 read answer
 if echo "$answer" | grep -iq "^y" ;then
     make install-menu-item
@@ -268,7 +274,7 @@ if [ "" != "$installed" ]; then
 else
     if [ ! -f "snmp++-3.3.5.tar.gz" ]; then
         # download snmp++ API
-        echo "Downloading snmp++ API"
+        echo "downloading snmp++ API"
         wget --progress=bar:force http://www.agentpp.com/download/snmp++-3.3.5.tar.gz 2>&1 | progressfilt
     fi
 
@@ -302,12 +308,12 @@ if [ -d "/usr/local/include/eigen3" ]; then
 else
     if [ ! -f "3.2.7.tar.gz" ]; then
         # download eigen library
-        echo "Downloading eigen library"
+        echo "downloading eigen library"
         wget --progress=bar:force http://bitbucket.org/eigen/eigen/get/3.2.7.tar.gz 2>&1 | progressfilt
     fi
 
     if [ ! -f "3.2.7.tar.gz" ]; then
-       echo "Download error!"
+       echo "download error!"
        exit 1
     else
        echo -n "extracting eigen ..."
@@ -333,14 +339,14 @@ echo "Downloading SUMO binaries"
 echo "========================="
 
 if [ ! -f VENTOS/sumoBinary/sumo-guiD ]; then
-    echo "Downloading sumo-guiD"
+    echo "downloading sumo-guiD"
     wget --progress=bar:force --directory-prefix=VENTOS/sumoBinary https://dl.dropboxusercontent.com/u/5153771/SUMObinary/sumo-guiD 2>&1 | progressfilt
 else
     echo "sumo-guiD already exists!"
 fi
 
 if [ ! -f VENTOS/sumoBinary/sumoD ]; then
-    echo "Downloading sumoD"
+    echo "downloading sumoD"
     wget --progress=bar:force --directory-prefix=VENTOS/sumoBinary https://dl.dropboxusercontent.com/u/5153771/SUMObinary/sumoD 2>&1 | progressfilt
 else
     echo "sumoD already exists!"
@@ -376,9 +382,9 @@ rm -f snmp++-3.3.5.tar.gz
 rm -f omnetpp-4.6-src.tgz
 
 # removing folders
-rm -r eigen
-rm -r Shark
-rm -r snmp++-3.3.5
+rm -rf eigen
+rm -rf Shark
+rm -rf snmp++-3.3.5
 echo "done!"
 
 echo ""
