@@ -7,11 +7,13 @@ VENTOS is an integrated C++ simulator for studying traffic flows in Vehicular Ad
 
     sudo apt-get install git
 
-**Step 2:** Clone the VENTOS repository on a folder that you have write permission (folder path should not have space). Note that you need to provide your github username and password. We run this command on Desktop:
+**Step 2:** Clone the VENTOS repository on a folder that you have write permission (folder path should not have space). Note that you need to provide your github username and password. We run this command on Desktop, thus git clone creates VENTOS_all folder on Desktop with VENTOS sub-folder.
 
-    git clone https://github.com/ManiAm/VENTOS VENTOS/VENTOS
+    git clone https://github.com/ManiAm/VENTOS VENTOS_all/VENTOS
 
-**Step 3:** Open VENTOS folder and run the `runme` script. Some of the commands need sudo access and you need to type your sudo password. Moreover, you need Internet connection to download packages.
+**Step 3:** Download the latest OMNET++ compressed file from [here](http://www.omnetpp.org/omnetpp) and move it into the VENTOS_all folder (do not extract the file). So by now, you would have VENTOS folder and omnetpp compressed file inside the VENTOS_all folder.
+
+**Step 4:** Go to the VENTOS folder and run the `runme` script. Some of the commands need sudo access and you need to type your sudo password. Moreover, you need Internet connection to download packages.
 
     sudo ./runme
 
@@ -23,18 +25,18 @@ Note 2: Open your .bashrc and set the JAVA_HOME variable similar to the followin
 
 Note 3: OMNeT++ requires that its bin directory be in the PATH. Append the OMNET++ bin path to the PATH varibale in .bashrc similar to the following (note that you should change the path accordinglly).
 
-    export PATH=$PATH:/home/mani/Desktop/VENTOS/VENTOS/omnetpp-4.6/bin
+    export PATH=$PATH:/home/mani/Desktop/VENTOS_all/VENTOS/omnetpp-4.6/bin
 
 Save the .basrc file and then **close/re-open the terminal** for the changes to take effect. Finally, run `runme` script again.
 
 Note 4: Ignore warning messages during OMNET++ compilation.
 
-**Step 4:** OMNET++ installation is done and you can verify this by running a sample simulation. For example, the dyna simulation is started by entering the following commands. First go to the sample/dyna folder, and then run it.
+**Step 5:** OMNET++ installation is done and you can verify this by running a sample simulation. For example, the dyna simulation is started by entering the following commands. First go to the sample/dyna folder, and then run it.
 
     cd samples/dyna
     ./dyna
 
-**Step 5:** You can run the Eclipse IDE by typing the following command in the terminal:
+**Step 6:** You can run the Eclipse IDE by typing the following command in the terminal:
 
     omnetpp
 
@@ -42,11 +44,11 @@ The first time you run OMNET++, Eclipse IDE asks you to select a workspace. Sele
 
 "Introduction to OMNET++" page will appear. Click on "Workbench". Then it asks you to install INET framework or import some examples into your workspace. Uncheck them both since we do not need them for the time being.
 
-**Step 6:** Now you can import VENTOS project into the OMNET++ IDE. Choose "File->Import" from the menu. Choose "General->Existing Projects into Workspace" from the upcoming dialog and proceed with "Next". Choose "Select root directory" and select the VENTOS folder. "VENTOS" should appear in the "Projects" section. Unselect "Copy project into workspace" if the VENTOS folder is already in your workspace. Click "Finish".
+**Step 7:** Now you can import VENTOS project into the OMNET++ IDE. Choose "File->Import" from the menu. Choose "General->Existing Projects into Workspace" from the upcoming dialog and proceed with "Next". Choose "Select root directory" and select the VENTOS folder. "VENTOS" should appear in the "Projects" section. Unselect "Copy project into workspace" if the VENTOS folder is already in your workspace. Click "Finish".
 
 Note: Wait for a while until "C/C++ Indexer" finishes its job.
 
-**Step 7:** Now you can build the VENTOS project. Use Ctrl+B or right-click on the project name and choose "Build Project". Wait for a while and then check the console windows at the bottom of the Eclipse IDE to make sure no errors occurred.
+**Step 8:** Now you can build the VENTOS project. Use Ctrl+B or right-click on the project name and choose "Build Project". Wait for a while and then check the console windows at the bottom of the Eclipse IDE to make sure no errors occurred.
 
 
 Running VENTOS
@@ -60,11 +62,11 @@ Note: you can not use the official SUMO binaries since we have extended the TraC
 
 SUMO in graphical mode:
 
-    python veins-sumo-launchd.py -vv -c /home/mani/Desktop/VENTOS/VENTOS/sumoBinary/sumo-guiD
+    python veins-sumo-launchd.py -vv -c /home/mani/Desktop/VENTOS_all/VENTOS/sumoBinary/sumo-guiD
 
 SUMO in command-line mode:
 
-    python veins-sumo-launchd.py -vv -c /home/mani/Desktop/VENTOS/VENTOS/sumoBinary/sumoD
+    python veins-sumo-launchd.py -vv -c /home/mani/Desktop/VENTOS_all/VENTOS/sumoBinary/sumoD
 
 The terminal should look like the following picture. The script will print `Listening on port 9999` and wait for the simulation to start. Note that after running either of these commands, DO NOT close the terminal window. Leave it open.
 
@@ -72,7 +74,7 @@ The terminal should look like the following picture. The script will print `List
 
 **Step 2:** To make the life easier, you can create an alias command to make a shortcut to the above long commands. Open .bashrc and add these lines at the end (you should change the PATHs accordingly).
 
-    export VENTOSPATH=/home/mani/Desktop/VENTOS/VENTOS
+    export VENTOSPATH=/home/mani/Desktop/VENTOS_all/VENTOS
     export sumoBinaryPATH=$VENTOSPATH/sumoBinary
     alias sumo-cmd='python $VENTOSPATH/veins-sumo-launchd.py -vv -c $sumoBinaryPATH/sumoD'
     alias sumo-gui='python $VENTOSPATH/veins-sumo-launchd.py -vv -c $sumoBinaryPATH/sumo-guiD'
