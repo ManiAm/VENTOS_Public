@@ -260,6 +260,112 @@ template <typename T> void ApplRSUCLASSIFY::onBeaconAny(T wsm)
 }
 
 
+void ApplRSUCLASSIFY::classifierF()
+{
+    // Load data, use 70% for training and 30% for testing
+    shark::ClassificationDataset traindata, testdata;
+    shark::importCSV(traindata, "/home/mani/Desktop/dataset/quickstartData.csv", shark::LAST_COLUMN, ' ');
+    testdata = shark::splitAtElement(traindata, 70 * traindata.numberOfElements() / 100);
+
+    shark::GaussianRbfKernel<shark::RealVector> kernel(1.0);  // gamma: kernel bandwidth parameter
+    shark::KernelClassifier<shark::RealVector> model(&kernel);
+    shark::CSvmTrainer<shark::RealVector> trainer(
+            &kernel,
+            10.0,   // C: regularization parameter
+            true);  // true: train model with offset
+
+    trainer.train(model, traindata);
+
+    shark::Data<unsigned int> prediction = model(testdata.inputs());
+
+    shark::ZeroOneLoss<unsigned int> loss;
+    double error_rate = loss(testdata.labels(), prediction);
+
+    std::cout << "model: " << model.name() << std::endl
+            << "trainer: " << trainer.name() << std::endl
+            << "test error rate: " << error_rate << std::endl << std::endl;
+
+
+
+
+
+    //    std::vector<sample_type_2D> samples;
+    //    std::vector<double> labels;
+    //
+    //    // First, get our labeled set of training data
+    //    generate_data(samples, labels);
+    //
+    //    try
+    //    {
+    //        // Program we will work with a one_vs_one_trainer object which stores any
+    //        // kind of trainer that uses our sample_type samples.
+    //        typedef dlib::one_vs_one_trainer<dlib::any_trainer<sample_type_2D> > ovo_trainer;
+    //
+    //        // Finally, make the one_vs_one_trainer.
+    //        ovo_trainer trainer;
+    //
+    //        // making the second binary classification trainer object.
+    //        // this uses 'kernel ridge regression' and 'RBF kernels'
+    //        typedef dlib::radial_basis_kernel<sample_type_2D> rbf_kernel;
+    //        dlib::krr_trainer<rbf_kernel> rbf_trainer;  // make the binary trainer
+    //        rbf_trainer.set_kernel(rbf_kernel(0.1));    // set some parameters
+    //
+    //        // making the first binary classification trainer object.
+    //        // this uses 'support vector machine' and 'polynomial kernels'
+    //        typedef dlib::polynomial_kernel<sample_type_2D> poly_kernel;
+    //        dlib::svm_nu_trainer<poly_kernel> poly_trainer;   // make the binary trainer
+    //        poly_trainer.set_kernel(poly_kernel(0.1, 1, 2));  // set some parameters
+    //
+    //        // Now tell the one_vs_one_trainer that, by default, it should use the rbf_trainer
+    //        // to solve the individual binary classification subproblems.
+    //        trainer.set_trainer(rbf_trainer);
+    //
+    //        // We can also get more specific. Here we tell the one_vs_one_trainer to use the
+    //        // poly_trainer to solve the class 1 vs class 2 subproblem. All the others will
+    //        // still be solved with the rbf_trainer.
+    //        trainer.set_trainer(poly_trainer, 1, 2);
+    //
+    //        // Now let's do 5-fold cross-validation using the one_vs_one_trainer we just setup.
+    //        // As an aside, always shuffle the order of the samples before doing cross validation.
+    //        // For a discussion of why this is a good idea see the svm_ex.cpp example.
+    //        //randomize_samples(samples, labels);
+    //        //std::cout << "cross validation: \n" << cross_validate_multiclass_trainer(trainer, samples, labels, 5) << endl;
+    //
+    //        // The output is shown below.  It is the confusion matrix which describes the results.  Each row
+    //        // corresponds to a class of data and each column to a prediction.  Reading from top to bottom,
+    //        // the rows correspond to the class labels if the labels have been listed in sorted order.  So the
+    //        // top row corresponds to class 1, the middle row to class 2, and the bottom row to class 3.  The
+    //        // columns are organized similarly, with the left most column showing how many samples were predicted
+    //        // as members of class 1.
+    //        //
+    //        // So in the results below we can see that, for the class 1 samples, 60 of them were correctly predicted
+    //        // to be members of class 1 and 0 were incorrectly classified.  Similarly, the other two classes of data
+    //        // are perfectly classified.
+    //        /*
+    //            cross validation:
+    //            60  0  0
+    //            0 70  0
+    //            0  0 80
+    //        */
+    //
+    //        // Next, if you wanted to obtain the decision rule learned by a one_vs_one_trainer you
+    //        // would store it into a one_vs_one_decision_function.
+    //        dlib::one_vs_one_decision_function<ovo_trainer> df = trainer.train(samples, labels);
+    //
+    //        sample_type_2D newPoint;
+    //        newPoint(0) = 15;
+    //        newPoint(1) = 30;
+    //
+    //        std::cout << "predicted label: " << df(newPoint) << endl << endl;
+    //    }
+    //    catch (std::exception& e)
+    //    {
+    //        std::cout << "exception thrown!" << endl;
+    //        std::cout << e.what() << endl;
+    //    }
+}
+
+
 /*
 The classes are as follows:
     - class 1: points very close to the origin
@@ -360,119 +466,5 @@ The classes are as follows:
 //    fflush(pipe);
 //    fprintf(pipe, "e\n"); // termination character
 //}
-
-
-void ApplRSUCLASSIFY::classifierF()
-{
-
-    // Load data, use 70% for training and 30% for testing.
-    // The path is hard coded; make sure to invoke the executable
-    // from a place where the data file can be found. It is located
-    // under [shark]/examples/Supervised/data.
-    shark::ClassificationDataset traindata, testdata;
-    shark::importCSV(traindata, "/home/mani/Desktop/dataset/quickstartData.csv", shark::LAST_COLUMN, ' ');
-    testdata = shark::splitAtElement(traindata, 70 * traindata.numberOfElements() / 100);
-    //###end<skeleton>
-
-    //###begin<SVM>
-    double gamma = 1.0;         // kernel bandwidth parameter
-    double C = 10.0;            // regularization parameter
-    shark::GaussianRbfKernel<shark::RealVector> kernel(gamma);
-    shark::KernelClassifier<shark::RealVector> model(&kernel);
-    shark::CSvmTrainer<shark::RealVector> trainer(
-            &kernel,
-            C,
-            true); /* true: train model with offset */
-    //###end<SVM>
-
-    //###begin<skeleton>
-    trainer.train(model, traindata);
-
-    shark::Data<unsigned int> prediction = model(testdata.inputs());
-
-    shark::ZeroOneLoss<unsigned int> loss;
-    double error_rate = loss(testdata.labels(), prediction);
-
-    std::cout << "model: " << model.name() << std::endl
-            << "trainer: " << trainer.name() << std::endl
-            << "test error rate: " << error_rate << std::endl;
-
-
-
-    //    std::vector<sample_type_2D> samples;
-    //    std::vector<double> labels;
-    //
-    //    // First, get our labeled set of training data
-    //    generate_data(samples, labels);
-    //
-    //    try
-    //    {
-    //        // Program we will work with a one_vs_one_trainer object which stores any
-    //        // kind of trainer that uses our sample_type samples.
-    //        typedef dlib::one_vs_one_trainer<dlib::any_trainer<sample_type_2D> > ovo_trainer;
-    //
-    //        // Finally, make the one_vs_one_trainer.
-    //        ovo_trainer trainer;
-    //
-    //        // making the second binary classification trainer object.
-    //        // this uses 'kernel ridge regression' and 'RBF kernels'
-    //        typedef dlib::radial_basis_kernel<sample_type_2D> rbf_kernel;
-    //        dlib::krr_trainer<rbf_kernel> rbf_trainer;  // make the binary trainer
-    //        rbf_trainer.set_kernel(rbf_kernel(0.1));    // set some parameters
-    //
-    //        // making the first binary classification trainer object.
-    //        // this uses 'support vector machine' and 'polynomial kernels'
-    //        typedef dlib::polynomial_kernel<sample_type_2D> poly_kernel;
-    //        dlib::svm_nu_trainer<poly_kernel> poly_trainer;   // make the binary trainer
-    //        poly_trainer.set_kernel(poly_kernel(0.1, 1, 2));  // set some parameters
-    //
-    //        // Now tell the one_vs_one_trainer that, by default, it should use the rbf_trainer
-    //        // to solve the individual binary classification subproblems.
-    //        trainer.set_trainer(rbf_trainer);
-    //
-    //        // We can also get more specific. Here we tell the one_vs_one_trainer to use the
-    //        // poly_trainer to solve the class 1 vs class 2 subproblem. All the others will
-    //        // still be solved with the rbf_trainer.
-    //        trainer.set_trainer(poly_trainer, 1, 2);
-    //
-    //        // Now let's do 5-fold cross-validation using the one_vs_one_trainer we just setup.
-    //        // As an aside, always shuffle the order of the samples before doing cross validation.
-    //        // For a discussion of why this is a good idea see the svm_ex.cpp example.
-    //        //randomize_samples(samples, labels);
-    //        //std::cout << "cross validation: \n" << cross_validate_multiclass_trainer(trainer, samples, labels, 5) << endl;
-    //
-    //        // The output is shown below.  It is the confusion matrix which describes the results.  Each row
-    //        // corresponds to a class of data and each column to a prediction.  Reading from top to bottom,
-    //        // the rows correspond to the class labels if the labels have been listed in sorted order.  So the
-    //        // top row corresponds to class 1, the middle row to class 2, and the bottom row to class 3.  The
-    //        // columns are organized similarly, with the left most column showing how many samples were predicted
-    //        // as members of class 1.
-    //        //
-    //        // So in the results below we can see that, for the class 1 samples, 60 of them were correctly predicted
-    //        // to be members of class 1 and 0 were incorrectly classified.  Similarly, the other two classes of data
-    //        // are perfectly classified.
-    //        /*
-    //            cross validation:
-    //            60  0  0
-    //            0 70  0
-    //            0  0 80
-    //        */
-    //
-    //        // Next, if you wanted to obtain the decision rule learned by a one_vs_one_trainer you
-    //        // would store it into a one_vs_one_decision_function.
-    //        dlib::one_vs_one_decision_function<ovo_trainer> df = trainer.train(samples, labels);
-    //
-    //        sample_type_2D newPoint;
-    //        newPoint(0) = 15;
-    //        newPoint(1) = 30;
-    //
-    //        std::cout << "predicted label: " << df(newPoint) << endl << endl;
-    //    }
-    //    catch (std::exception& e)
-    //    {
-    //        std::cout << "exception thrown!" << endl;
-    //        std::cout << e.what() << endl;
-    //    }
-}
 
 }

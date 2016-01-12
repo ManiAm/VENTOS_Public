@@ -1,161 +1,54 @@
 VENTOS
 ======
 
-VENTOS is an integrated C++ simulator for studying traffic flows in Vehicular Ad-hoc Networks (VANETs). You can find more information [here](http://rubinet.ece.ucdavis.edu/projects/ventos). VENTOS framework is developed in Ubuntu OS, and we have not tested it under other operating systems (yet!). Follow these instructions in order to install VENTOS (and its prerequisites) on your Ubuntu 14 machine.
+VENTOS is an integrated C++ simulator for studying traffic flows in Vehicular Ad-hoc Networks (VANETs). You can find more information [here](http://rubinet.ece.ucdavis.edu/projects/ventos). Follow these instructions to install VENTOS (and its prerequisites) on your OS. Currently we support Ubuntu 14 and have not tested it under other operating systems.
 
+**Step 1:** If you do not have git installed, then install it: 
 
-Install OMNET++
----------------
+    sudo apt-get install git
 
-**Step 1:** Download the latest OMNET++ compressed file from [here](http://www.omnetpp.org/omnetpp) and extract it into a folder (folder name should not have space), and make sure you have write permission in that folder.
+**Step 2:** Clone the VENTOS repository on a folder that you have write permission (folder path should not have space). Note that you need to provide your github username and password. We run this command on Desktop:
 
+    git clone https://github.com/ManiAm/VENTOS VENTOS/VENTOS
 
-**Step 2:** You should install a couple of packages, but first refresh the database of available packages:
+**Step 3:** Open VENTOS folder and run the `runme` script. Some of the commands need sudo access and you need to type your sudo password. Moreover, you need Internet connection to download packages.
 
-    sudo apt-get update
+    sudo ./runme
 
-Then
+Pay attention to the error and warning messages in the configure script (ignore warning message for Akaroa). Open your .bashrc and set the JAVA_HOME variable similar to the following:
 
-    sudo apt-get install build-essential gcc g++ bison flex perl tcl-dev tk-dev libxml2-dev zlib1g-dev default-jre doxygen graphviz libwebkitgtk-1.0-0 openmpi-bin libopenmpi-dev libpcap-dev
+    export JAVA_HOME=/usr/lib/jvm/java-7-oracle
 
-
-**Step 3:** Use `java -version` to check your current version of java, and make sure it is 1.7 or higher. If not, install it as follows:
-
-    sudo add-apt-repository ppa:webupd8team/java
-    sudo apt-get update
-    sudo apt-get install oracle-java7-installer
-    sudo apt-get install oracle-java7-set-default
-
-**Step 4:** OMNeT++ requires that its bin directory be in the PATH. You should add the following line to your .bashrc (note that you should change the path accordinglly):
+Moreover, OMNeT++ requires that its bin directory be in the PATH. Append the OMNET++ bin path to the PATH varibale in .bashrc similar to the following (note that you should change the path accordinglly):
 
     export PATH=$PATH:/home/mani/Desktop/omnetpp-4.6/bin
 
-Save the file and then close/re-open the terminal for the changes to take effect.
+Save the file and then close/re-open the terminal for the changes to take effect. Finally, run `runme` script again.
 
-**Step 5:** In the OMNeT++ directory, type the following command. Pay close attention to errors and warnings, and ignore warnings regarding Akaroa!.
-
-    ./configure
-
-For geeks: In the OMNET++ folder you can see the `configure.in` file that is used by autoconf to generate the `configure` script. Additional input parameters for configure script are defined in `configure.user` file. The configure script detects installed software and configuration of your system, and generates three outputs: `config.log`, `config.status`, and `Makefile.inc`. The first two files are used for debugging purposes, and the last file will be read later by the makefiles during the build process.
-
-**Step 6:** Starting from version 4.6, OMNET++ uses C++11 standard (formerly known as C++0x) by default. This means that OMNET++ source code as well as all the imported projects will be compiled with this flag. Look for this line in the configure output, and make sure that it is 'yes'.
-
-    checking whether g++ supports -std=c++11... yes
-
-If not, first navigate to OMNET++ folder and open the 'configure.user' file. Find USE_CXX11 flag and set it to 'yes'. If USE_CXX11 is already set to 'yes', then your g++ compiler does not support C++11 standard. Follow these instructions to install g++ 4.8:
-
-    sudo add-apt-repository ppa:ubuntu-toolchain-r/test
-    sudo apt-get update
-    sudo update-alternatives --remove-all gcc 
-    sudo update-alternatives --remove-all g++
-    sudo apt-get install gcc-4.8
-    sudo apt-get install g++-4.8
-    sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 20
-    sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 20
-    sudo update-alternatives --config gcc
-    sudo update-alternatives --config g++
-
-Run ./configure again and re-check.
-
-**Step 7:** Now you can compile OMNET++ by using make. Compiling takes some time, so relax, grab a cup of coffee <img src="https://github.com/ManiAm/VENTOS/blob/master/coffee.png" width="25" height="25" /> and watch [this](https://www.youtube.com/watch?v=A6XUVjK9W4o).
-
-    make
-
-**Step 8:** OMNET++ installation is done and you can verify this by running a sample simulation. For example, the dyna simulation is started by entering the following commands. First go to the sample/dyna folder, and then run it.
+**Step 4:** OMNET++ installation is done and you can verify this by running a sample simulation. For example, the dyna simulation is started by entering the following commands. First go to the sample/dyna folder, and then run it.
 
     cd samples/dyna
     ./dyna
 
-**Step 9:** Good! You can run the Eclipse IDE by typing the following command in the terminal:
+**Step 5:** You can run the Eclipse IDE by typing the following command in the terminal:
 
     omnetpp
 
-The first time you run OMNET++, Eclipse IDE asks you to select a workspace. Select the folder that you will use to store all your project files (Veins, VENTOS, INET, etc). If you have intention to store all your projects on Desktop, then change the workspace to Desktop. Also check "Use this as the default and do not ask again".
+The first time you run OMNET++, Eclipse IDE asks you to select a workspace. Select the folder that you will use to store all your project files (VENTOS). If you have intention to store all your projects on Desktop, then change the workspace to Desktop. Also check "Use this as the default and do not ask again".
 
 "Introduction to OMNET++" page will appear. Click on "Workbench". Then it asks you to install INET framework or import some examples into your workspace. Uncheck them both since we do not need them for the time being.
 
-**Step 10:** Running OMNET++ each time from command line might not be desirable for you. You can create a shortcut to OMNET++ on your desktop. To do this type the following command in OMNET++ directory.
-
-    make install-desktop-icon
-
-or you can create an application launcher:
-
-    make install-menu-item
-
-
-Import VENTOS into OMNET++
---------------------------
-
-**Step 1:** Make sure you have these packages installed on your Ubuntu 14 machine:
-
-    sudo apt-get install git libboost-all-dev libssl-dev libcurl4-gnutls-dev libxerces-c2-dev libfox-1.6-dev libproj-dev libpcap-dev libusb-1.0-0-dev gnuplot gnuplot-x11 
-    
-**Step 2:** Download snmp++ API from [here](http://www.agentpp.com/download/snmp++-3.3.5.tar.gz). Extract it and then build the library:
-
-    ./configure
-    make
-    sudo make install
-
-libsnmp++ library will be copied into /usr/local/lib and the header files will be copied into /usr/local/include.
-
-**Step 3:** Clone the shark repository into your computer:
-
-    git clone https://github.com/Shark-ML/Shark/
-
-Install all the required packages:
-
-    sudo apt-get install cmake cmake-curses-gui libatlas-base-dev libboost-all-dev
-
-Go to the Shark folder and make the library:
-
-    mkdir build
-    cd build
-    cmake ../
-    
-In the build folder, open the CMakeCache.txt file and make the following changes:
-
-- Change BUILD_EXAMPLES to OFF
-- Change BUILD_TESTING to OFF
-- Change BUILD_SHARED_LIBS to ON
-- Change CBLAS_INCLUDES:FILEPATH to /usr/include/atlas/cblas.h
-
-And then
-
-    make
-    sudo make install
-
-libshark library will be copied into /usr/local/lib and the header files will be copied into /usr/local/include.
-
-**Step 4:** Finally after installing the above shared libraries run the following command.
-
-    sudo ldconfig -v
-
-ldconfig is a program that is used to maintain the shared library cache in linux. This cache is typically stored in the file /etc/ld.so.cache and is used by the system to map a shared library name to the location of the corresponding shared library file.
-
-**Step 5:** Download Eigen library from [here](http://eigen.tuxfamily.org/index.php?title=Main_Page). Extract it and then install it on your system.
-
-    mkdir build
-    cd build
-    cmake ../
-    sudo make install
-
-Eigen consists only of header files, hence there is nothing to compile before you can use it. The header files will be copied into /usr/local/include.
-
-**Step 6:** Clone the VENTOS repository in the current directory (run the command in the same folder as Eclipse workspace that you specified before). You also need to provide your github username and password.
-
-    git clone https://github.com/ManiAm/VENTOS
-
-**Step 7:** Now you can import VENTOS project into the OMNET++ IDE. Choose "File->Import" from the menu. Choose "General->Existing Projects into Workspace" from the upcoming dialog and proceed with "Next". Choose "Select root directory" and select the VENTOS folder. "VENTOS" should appear in the "Projects" section. Unselect "Copy project into workspace" if the VENTOS folder is already in your workspace. Click "Finish".
+**Step 6:** Now you can import VENTOS project into the OMNET++ IDE. Choose "File->Import" from the menu. Choose "General->Existing Projects into Workspace" from the upcoming dialog and proceed with "Next". Choose "Select root directory" and select the VENTOS folder. "VENTOS" should appear in the "Projects" section. Unselect "Copy project into workspace" if the VENTOS folder is already in your workspace. Click "Finish".
 
 Note: Wait for a while until "C/C++ Indexer" finishes its job.
 
-**Step 8:** Now you can build the VENTOS project. Use Ctrl+B or right-click on the project name and choose "Build Project". Wait for a while and then check the console windows at the bottom of the Eclipse IDE to make sure no errors occurred.
-    
+**Step 7:** Now you can build the VENTOS project. Use Ctrl+B or right-click on the project name and choose "Build Project". Wait for a while and then check the console windows at the bottom of the Eclipse IDE to make sure no errors occurred.
+
 
 Running VENTOS
 --------------
 
-Before running the VENTOS project, latest SUMO binaries (`sumo-guiD` and `sumoD`) should be obtained. These binaries will be downloaded automatically in the VENTOS/sumoBinary folder upon the first run of the project. sumo-guiD is the GUI version that provides a graphical interface to SUMO, and is visible while the OMNET++ simulation is running (and is very useful for debugging purposes). On the other hands, sumoD is the command-line version which is faster. 
+Before running the VENTOS project, latest SUMO binaries (`sumo-guiD` and `sumoD`) should be obtained. These binaries will be downloaded automatically in the VENTOS/sumoBinary folder upon running the `runme` script. sumo-guiD is the GUI version that provides a graphical interface to SUMO, and is visible while the OMNET++ simulation is running (and is very useful for debugging purposes). On the other hands, sumoD is the command-line version which is faster. 
 
 Note: you can not use the official SUMO binaries since we have extended the TraCI commands, car-following models, etc. Using the official SUMO binaries will probably give you run-time error.
 
@@ -175,20 +68,14 @@ The terminal should look like the following picture. The script will print `List
 
 **Step 2:** To make the life easier, you can create an alias command to make a shortcut to the above long commands. Open .bashrc and add these lines at the end (you should change the PATHs accordingly).
 
-    export VENTOSPATH=/home/mani/Desktop/VENTOS
+    export VENTOSPATH=/home/mani/Desktop/VENTOS/VENTOS
     export sumoBinaryPATH=$VENTOSPATH/sumoBinary
     alias sumo-cmd='python $VENTOSPATH/veins-sumo-launchd.py -vv -c $sumoBinaryPATH/sumoD'
     alias sumo-gui='python $VENTOSPATH/veins-sumo-launchd.py -vv -c $sumoBinaryPATH/sumo-guiD'
 
 Now you can use sumo-cmd and sumo-gui commands instead!
 
-**Step 3:** libpcap library is used to sniff packets from network interfaces. We need to give permission to opp_run to be able to access the network interfaces (check [here](http://packetlife.net/blog/2010/mar/19/sniffing-wireshark-non-root-user/)). Moreover, libusb needs permission to open a USB device for read/write. This is done through setting [capabilities](http://linux.die.net/man/7/capabilities) using the following command:
-
-    sudo setcap cap_dac_override,cap_net_raw,cap_net_admin=eip /home/mani/Desktop/omnetpp-4.6/bin/opp_run
-
-Note that you need to change the path to opp_run accordingly.
-
-**Step 4:** Run the VENTOS project by right clicking on the project name in the IDE and choose: 
+**Step 3:** Run the VENTOS project by right clicking on the project name in the IDE and choose: 
 
     "Run as" -> "Run configurations..."
 

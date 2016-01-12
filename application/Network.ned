@@ -23,7 +23,7 @@ network Network
         // do not put @display here!
         // it automatically adjust itself based on the playground size in ini
         @display("bgb=400,627");
-    submodules:       
+    submodules:
         world: BaseWorldUtility {
             parameters:
                 playgroundSizeX = playgroundSizeX;
@@ -42,13 +42,9 @@ network Network
             parameters:
                 @display("p=48,132");
         }
-        SumoBinary: SumoBinary {
-            parameters:
-                @display("p=151,132");
-        }
         SumoServer: SumoServer {
             parameters:
-                @display("p=272,132");
+                @display("p=151,132");
         }
         Tracking: Tracking {
             parameters:

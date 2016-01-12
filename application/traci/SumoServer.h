@@ -52,9 +52,6 @@ class SumoServer : public BaseApplLayer
 
 	protected:
         // NED variables
-        bool update;
-        std::string SUMO_CMD_FileName;
-        std::string SUMO_GUI_FileName;
 
         boost::filesystem::path VENTOS_FullPath;
         boost::filesystem::path SUMO_Binary_FullPath;

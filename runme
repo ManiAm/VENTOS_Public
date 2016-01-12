@@ -1,0 +1,363 @@
+#!/bin/bash
+
+#if [ "$EUID" -ne 0 ]; then 
+#  echo "Please run as root"
+#  exit 1
+#fi
+
+OS='unknown'
+VER='unknown'
+ARCH='unknown'
+
+if [[ "$OSTYPE" == "linux-gnu" ]]; then
+        # Ubuntu
+        OS=$(lsb_release -si)
+        VER=$(lsb_release -sr)
+        ARCH=$(uname -m)
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+        # Mac OSX
+        OS=$(sw_vers -productName)
+        VER=$(sw_vers -productVersion)
+        ARCH=$(uname -m)
+else
+        echo "ERROR: This OS is not supported!"
+        exit 1 # terminate and indicate error
+fi
+
+echo "Start running script on" $OS $VER
+cd ..
+
+# check if omnet directory exists
+if [ ! -d "omnetpp-4.6" ]; then
+    # searching for omnet++ archive
+    findings=$(find ./ -name "omnetpp*.tgz" -o -name "omnetpp*.tar" | wc -l)
+    if [[ "$findings" = "0" ]]; then
+        echo "ERROR: cannot find omnet++ archive file!"
+        exit 1
+    elif [[ "$findings" > "1" ]]; then
+        echo "ERROR: more than one omnet++ archive file exists!"
+        exit 1
+    else
+        omnetFile=$(find ./ -name "omnetpp*.tgz" -o -name "omnetpp*.tar")
+        echo "found" $omnetFile
+        echo -n "extracting omnet ..."
+        tar zxf $omnetFile  
+        echo "done!"
+    fi
+fi
+
+# check java version
+version=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}')
+echo "Java version is" $version
+if ! [[ "$version" > "1.7" ]]; then
+    big="Java version should be higher than 1.7. Run these commands: 
+    sudo add-apt-repository ppa:webupd8team/java
+    sudo apt-get update
+    sudo apt-get install oracle-java7-installer
+    sudo apt-get install oracle-java7-set-default" 
+    printf "%s\n" "$big" 
+    exit 1
+fi
+
+# refresh the databse of available packages
+echo "updating available packages ..."
+sudo apt-get update
+
+echo ""
+echo "Check libraries"
+echo "==============="
+
+array=( "build-essential" "gcc" "g++" "bison" "flex" "perl" "tcl-dev" "tk-dev" "libxml2-dev" "zlib1g-dev" "default-jre" "doxygen" "graphviz" "libwebkitgtk-1.0-0" "openmpi-bin" "libopenmpi-dev" "libpcap-dev" )
+for i in "${array[@]}"
+do
+    # check if package $i is installed
+    echo -n $i "..."
+    PKG_OK=$(dpkg -s $i 2> /dev/null | grep "install ok installed")
+    if [ "" == "$PKG_OK" ]; then
+        echo "installing"
+        #apt-get --force-yes --yes install $i
+    else
+        echo "ok"
+    fi
+done
+
+echo ""
+echo "running OMNET++ configure"
+echo "========================="
+
+# In the OMNET++ folder you can see the `configure.in` file that is used by autoconf to generate the `configure` script. Additional input parameters for configure script are defined in `configure.user` file. The configure script detects installed software and configuration of your system, and generates three outputs: `config.log`, `config.status`, and `Makefile.inc`. The first two files are used for debugging purposes, and the last file will be read later by the makefiles during the build process.
+
+# run configure in omnet directory
+cd omnetpp-4.6
+confOut=$( { ./configure > /tmp/out.zvapoq; } 2>&1 )
+printf "%s \n" "$confOut"
+
+# should we terminate this script
+check=$(echo "$confOut" | grep "your PATH doesn't contain")
+if [ "" != "$check" ]; then
+    exit 1
+fi
+
+# check if g++ suports c++11
+# Starting from version 4.6, OMNET++ uses C++11 standard (formerly known as C++0x) by default. This means that OMNET++ source code as well as all the imported projects will be compiled with this flag. Look for this line in the configure output, and make sure that it is 'yes'.
+value=$(</tmp/out.zvapoq)
+res=$(echo "$value" | grep "supports -std=c++11... yes")
+if [ "" = "$res" ]; then
+    bigtext="ERROR: g++ does not support c++11. First navigate to OMNET++ folder and open the 'configure.user' file. Find USE_CXX11 flag and set it to 'yes'. If USE_CXX11 is already set to 'yes', then your g++ compiler does not support C++11 standard. Run these commands to install g++ 4.8:
+    sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+    sudo apt-get update
+    sudo update-alternatives --remove-all gcc 
+    sudo update-alternatives --remove-all g++
+    sudo apt-get install gcc-4.8
+    sudo apt-get install g++-4.8
+    sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 20
+    sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 20
+    sudo update-alternatives --config gcc
+    sudo update-alternatives --config g++"
+
+    printf "%s \n" "$bigtext"
+    exit 1
+fi
+
+# get g++ version
+#G++VER=$(gcc --version | grep ^gcc | sed 's/^.* //g')
+
+echo ""
+echo "Making OMNET++"
+echo "=============="
+
+# start making omnet++
+printf "Compiling takes some time, so relax, grab a cup of coffee and \nwatch: https://www.youtube.com/watch?v=A6XUVjK9W4o \n"
+echo " "
+make > /dev/null
+echo "make is finished!"
+
+echo ""
+echo "Creating shortcut"
+echo "================="
+
+# Running OMNET++ each time from command line might not be desirable for you. You can create a shortcut or launcher to OMNET++ on your desktop.
+
+# creating shortcut
+echo -n "Do you wish to create a shortcut on your desktop? (y/n)? "
+read answer
+if echo "$answer" | grep -iq "^y" ;then
+    make install-desktop-icon
+fi
+
+# creating launcher
+echo -n "Do you wish to create an application launcher? (y/n)? "
+read answer
+if echo "$answer" | grep -iq "^y" ;then
+    make install-menu-item
+fi
+
+echo ""
+echo "Check libraries for VENTOS"
+echo "=========================="
+
+array2=( "libboost-all-dev" "libssl-dev" "libcurl4-gnutls-dev" "libxerces-c2-dev" "libfox-1.6-dev" "libproj-dev" "libpcap-dev" "libusb-1.0-0-dev" "gnuplot" "gnuplot-x11" )
+for i in "${array2[@]}"
+do
+    # check if package $i is installed
+    echo -n $i "..."
+    PKG_OK=$(dpkg -s $i 2> /dev/null | grep "install ok installed")
+    if [ "" == "$PKG_OK" ]; then
+        echo "installing"
+        #apt-get --force-yes --yes install $i
+    else
+        echo "ok"
+    fi
+done
+
+# change directory
+cd ..
+
+progressfilt ()
+{
+    local flag=false c count cr=$'\r' nl=$'\n'
+    while IFS='' read -d '' -rn 1 c
+    do
+        if $flag
+        then
+            printf '%c' "$c"
+        else
+            if [[ $c != $cr && $c != $nl ]]
+            then
+                count=0
+            else
+                ((count++))
+                if ((count > 1))
+                then
+                    flag=true
+                fi
+            fi
+        fi
+    done
+}
+
+
+echo ""
+echo "Installing Shark"
+echo "================"
+
+# libshark library will be copied into /usr/local/lib and the header files will be copied into /usr/local/include.
+
+installed=$(ldconfig -p | grep libshark)
+if [ "" != "$installed" ]; then
+    echo "shark is already installed!"
+else
+    if [ ! -d "Shark" ]; then
+        git clone https://github.com/Shark-ML/Shark/
+    fi
+
+    array3=( "cmake" "cmake-curses-gui" "libatlas-base-dev" "libboost-all-dev" )
+    for i in "${array3[@]}"
+    do
+        # check if package $i is installed
+        echo -n $i "..."
+        PKG_OK=$(dpkg -s $i 2> /dev/null | grep "install ok installed")
+        if [ "" == "$PKG_OK" ]; then
+            echo "installing"
+            #apt-get --force-yes --yes install $i
+        else
+            echo "ok"
+        fi
+    done
+
+    cd Shark
+
+    echo "installing shark ..."
+    mkdir build
+    cd build
+    cmake "-DBUILD_EXAMPLES=OFF" "-DBUILD_TESTING=OFF" "-DBUILD_SHARED_LIBS=ON" "-DCBLAS_INCLUDES:FILEPATH=/usr/include/atlas/cblas.h" ../ > /dev/null
+    make
+    sudo make install > /dev/null
+
+    cd ..
+    cd ..
+fi
+
+echo ""
+echo "Installing snmp++"
+echo "================="
+
+# libsnmp++ library will be copied into /usr/local/lib and the header files will be copied into /usr/local/include.
+
+installed=$(ldconfig -p | grep libsnmp++)
+if [ "" != "$installed" ]; then
+    echo "snmp++ is already installed!"
+else
+    if [ ! -f "snmp++-3.3.5.tar.gz" ]; then
+        # download snmp++ API
+        echo "Downloading snmp++ API"
+        wget --progress=bar:force http://www.agentpp.com/download/snmp++-3.3.5.tar.gz 2>&1 | progressfilt
+    fi
+
+    if [ ! -f "snmp++-3.3.5.tar.gz" ]; then
+       echo "Download error!"
+       exit 1
+    else
+       echo -n "extracting snmp++ ..."
+       tar zxf snmp++-3.3.5.tar.gz 
+       echo "done!"
+    fi
+
+    cd snmp++-3.3.5
+
+    echo -n "installing snmp++ ..."
+    ./configure > /dev/null
+    make
+    sudo make install > /dev/null
+    echo "done!"
+
+    cd ..
+fi
+
+echo ""
+echo "Installing eigne"
+echo "================"
+
+# Eigen consists only of header files, hence there is nothing to compile before you can use it. The header files will be copied into /usr/local/include.
+
+if [ -d "/usr/local/include/eigen3" ]; then
+    echo "eigen is already installed!"
+else
+    if [ ! -f "3.2.7.tar.gz" ]; then
+        # download eigen library
+        echo "Downloading Eigen library"
+        wget --progress=bar:force http://bitbucket.org/eigen/eigen/get/3.2.7.tar.gz 2>&1 | progressfilt
+    fi
+
+    if [ ! -f "3.2.7.tar.gz" ]; then
+       echo "Download error!"
+       exit 1
+    else
+       echo -n "extracting eigen ..."
+       mkdir eigen
+       tar zxf 3.2.7.tar.gz -C eigen --strip 1 
+       echo "done!"
+    fi
+
+    cd eigen
+
+    echo "installing eigen ..."
+    mkdir build
+    cd build
+    cmake ../ > /dev/null
+    sudo make install > /dev/null
+
+    cd ..
+    cd ..
+fi
+
+echo ""
+echo "Downloading SUMO binaries"
+echo "========================="
+
+if [ ! -f VENTOS/sumoBinary/sumo-guiD ]; then
+    echo "Downloading sumo-guiD"
+    wget --progress=bar:force --directory-prefix=VENTOS/sumoBinary https://dl.dropboxusercontent.com/u/5153771/SUMObinary/sumo-guiD 2>&1 | progressfilt
+else
+    echo "sumo-guiD already exists!"
+fi
+
+if [ ! -f VENTOS/sumoBinary/sumoD ]; then
+    echo "Downloading sumoD"
+    wget --progress=bar:force --directory-prefix=VENTOS/sumoBinary https://dl.dropboxusercontent.com/u/5153771/SUMObinary/sumoD 2>&1 | progressfilt
+else
+    echo "sumoD already exists!"
+fi
+
+# make both files executable
+echo -n "making both files executable ..."
+chmod +x VENTOS/sumoBinary/sumo-guiD
+chmod +x VENTOS/sumoBinary/sumoD
+echo "done!"
+
+echo ""
+echo "Wrapping-up"
+echo "==========="
+
+# ldconfig is a program that is used to maintain the shared library cache in linux. This cache is typically stored in the file /etc/ld.so.cache and is used by the system to map a shared library name to the location of the corresponding shared library file.
+echo -n "registering shared libraries ..."
+sudo ldconfig
+echo "done!"
+
+# libpcap library is used to sniff packets from network interfaces. We need to give permission to opp_run to be able to access the network interfaces (check [here](http://packetlife.net/blog/2010/mar/19/sniffing-wireshark-non-root-user/)). Moreover, libusb needs permission to open a USB device for read/write. This is done through setting [capabilities](http://linux.die.net/man/7/capabilities) using the following command:
+echo -n "set capability for opp_run ..."
+cd omnetpp-4.6/bin
+sudo setcap cap_dac_override,cap_net_raw,cap_net_admin=eip opp_run
+echo "done!"
+cd ..
+cd ..
+
+echo ""
+echo "finished!"
+
+
+#sleep 5d
+
+
+
+
