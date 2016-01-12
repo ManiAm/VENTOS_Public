@@ -21,7 +21,7 @@ Pay attention to the error and warning messages in the configure script (ignore 
 
 Moreover, OMNeT++ requires that its bin directory be in the PATH. Append the OMNET++ bin path to the PATH varibale in .bashrc similar to the following (note that you should change the path accordinglly):
 
-    export PATH=$PATH:/home/mani/Desktop/omnetpp-4.6/bin
+    export PATH=$PATH:/home/mani/Desktop/VENTOS/VENTOS/omnetpp-4.6/bin
 
 Save the file and then close/re-open the terminal for the changes to take effect. Finally, run `runme` script again.
 
@@ -80,8 +80,6 @@ Now you can use sumo-cmd and sumo-gui commands instead!
     "Run as" -> "Run configurations..."
 
 Choose 'OMNET++ Simulation' and click on 'New launch configuration' button at the top left. Give this configuration a name like myConfig. In Executable, choose opp_run and in 'Ini file(s)' choose one of the ini files in the project like params2_CACC.ini. From 'Config name' choose a configuration from the drop down list like CACCVehicleStream1. Leave the rest of the options to default. Click Apply and then click Run.
-
-Upon the first execution, VENTOS tries to download sumoD and sumo-guiD. Type y to proceed. Try to play with other configuration scenarios to feel confortable with the environment and change different parameters to see the effect on the simulation output.
 
 
 Running VENTOS from command-line

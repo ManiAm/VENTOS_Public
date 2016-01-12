@@ -27,25 +27,6 @@ fi
 echo "Start running script on" $OS $VER
 cd ..
 
-# check if omnet directory exists
-if [ ! -d "omnetpp-4.6" ]; then
-    # searching for omnet++ archive
-    findings=$(find ./ -name "omnetpp*.tgz" -o -name "omnetpp*.tar" | wc -l)
-    if [[ "$findings" = "0" ]]; then
-        echo "ERROR: cannot find omnet++ archive file!"
-        exit 1
-    elif [[ "$findings" > "1" ]]; then
-        echo "ERROR: more than one omnet++ archive file exists!"
-        exit 1
-    else
-        omnetFile=$(find ./ -name "omnetpp*.tgz" -o -name "omnetpp*.tar")
-        echo "found" $omnetFile
-        echo -n "extracting omnet ..."
-        tar zxf $omnetFile  
-        echo "done!"
-    fi
-fi
-
 # check java version
 version=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}')
 echo "Java version is" $version
@@ -75,11 +56,30 @@ do
     PKG_OK=$(dpkg -s $i 2> /dev/null | grep "install ok installed")
     if [ "" == "$PKG_OK" ]; then
         echo "installing"
-        #apt-get --force-yes --yes install $i
+        apt-get --force-yes --yes install $i
     else
         echo "ok"
     fi
 done
+
+# check if omnet directory exists
+if [ ! -d "omnetpp-4.6" ]; then
+    # searching for omnet++ archive
+    findings=$(find ./ -name "omnetpp*.tgz" -o -name "omnetpp*.tar" | wc -l)
+    if [[ "$findings" = "0" ]]; then
+        echo "ERROR: cannot find omnet++ archive file!"
+        exit 1
+    elif [[ "$findings" > "1" ]]; then
+        echo "ERROR: more than one omnet++ archive file exists!"
+        exit 1
+    else
+        omnetFile=$(find ./ -name "omnetpp*.tgz" -o -name "omnetpp*.tar")
+        echo "found" $omnetFile
+        echo -n "extracting omnet ..."
+        tar zxf $omnetFile  
+        echo "done!"
+    fi
+fi
 
 echo ""
 echo "running OMNET++ configure"
