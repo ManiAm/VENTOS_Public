@@ -24,20 +24,40 @@ else
         exit 1 # terminate and indicate error
 fi
 
-echo "Start running script on" $OS $VER
+if [[ "$ARCH" != "x86_64" ]]; then
+    echo "only x86_64 architecture is supported!"
+    exit 1
+fi
+
+echo "Start script on" $OS $VER, $ARCH
 cd ..
+
+sleep 5d
 
 # check java version
 version=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}')
-echo "Java version is" $version
+# print java version
+if [ "" != "$version" ]; then
+    echo "Java version is" $version
+fi
+
 if ! [[ "$version" > "1.7" ]]; then
-    big="Java version should be higher than 1.7. Run these commands: 
-    sudo add-apt-repository ppa:webupd8team/java
-    sudo apt-get update
-    sudo apt-get install oracle-java7-installer
-    sudo apt-get install oracle-java7-set-default" 
-    printf "%s\n" "$big" 
-    exit 1
+    echo "Java version should be higher than 1.7"
+    echo -n "Install Java 8 (y/n)? "
+    read answer
+    if echo "$answer" | grep -iq "^y" ;then
+        echo "installing java ..."
+        sudo add-apt-repository -y ppa:webupd8team/java > /dev/null
+        sudo apt-get update > /dev/null
+        # accept the Oracle JDK8 license automatically 
+        echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
+        sudo apt-get --force-yes --yes install oracle-java8-installer
+        # set the Java environment variables
+        sudo apt-get install oracle-java8-set-default > /dev/null
+        echo "done!"        
+    else
+        exit 1;
+    fi
 fi
 
 # refresh the databse of available packages
@@ -56,7 +76,7 @@ do
     PKG_OK=$(dpkg -s $i 2> /dev/null | grep "install ok installed")
     if [ "" == "$PKG_OK" ]; then
         echo "installing"
-        apt-get --force-yes --yes install $i
+        sudo apt-get --force-yes --yes install $i > /dev/null
     else
         echo "ok"
     fi

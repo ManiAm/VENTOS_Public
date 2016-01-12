@@ -1,7 +1,7 @@
 VENTOS
 ======
 
-VENTOS is an integrated C++ simulator for studying traffic flows in Vehicular Ad-hoc Networks (VANETs). You can find more information [here](http://rubinet.ece.ucdavis.edu/projects/ventos). Follow these instructions to install VENTOS (and its prerequisites) on your OS. Currently we support Ubuntu 14 and have not tested it under other operating systems.
+VENTOS is an integrated C++ simulator for studying traffic flows in Vehicular Ad-hoc Networks (VANETs). You can find more information [here](http://rubinet.ece.ucdavis.edu/projects/ventos). Follow these instructions to install VENTOS (and its prerequisites) on your OS. Currently we support Ubuntu 14, 64 bit and have not tested it under other operating systems.
 
 **Step 1:** If you do not have git installed, then install it: 
 
@@ -15,7 +15,7 @@ VENTOS is an integrated C++ simulator for studying traffic flows in Vehicular Ad
 
     sudo ./runme
 
-Pay attention to the error and warning messages in the configure script (ignore warning message for Akaroa). Open your .bashrc and set the JAVA_HOME variable similar to the following:
+Pay attention to the error and warning messages in the configure script (ignore warning message for MPI and Akaroa). Open your .bashrc and set the JAVA_HOME variable similar to the following:
 
     export JAVA_HOME=/usr/lib/jvm/java-7-oracle
 
