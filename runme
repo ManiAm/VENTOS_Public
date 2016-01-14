@@ -63,10 +63,48 @@ echo "updating available packages ..."
 sudo apt-get update > /dev/null
 
 echo ""
-echo "Check libraries for OMNET++"
-echo "==========================="
+echo "Check main libraries for OMNET++"
+echo "================================"
 
-array=( "build-essential" "gcc" "g++" "bison" "flex" "perl" "tcl-dev" "tk-dev" "libxml2-dev" "zlib1g-dev" "doxygen" "graphviz" "libwebkitgtk-1.0-0" "openmpi-bin" "libopenmpi-dev" "libpcap-dev" )
+array=( "build-essential" "gcc" "g++" "bison" "flex" "perl" "tcl-dev" "tk-dev" "libxml2-dev" "zlib1g-dev" "doxygen" "graphviz" "libwebkitgtk-1.0-0" )
+for i in "${array[@]}"
+do
+    # check if package $i is installed
+    echo -n $i "..."
+    PKG_OK=$(dpkg -s $i 2> /dev/null | grep "install ok installed")
+    if [ "" == "$PKG_OK" ]; then
+        echo "installing"
+        sudo apt-get --force-yes --yes install $i > /dev/null
+    else
+        echo "ok"
+    fi
+done
+
+echo ""
+echo "Check additional libraries for OMNET++"
+echo "======================================"
+
+# "openmpi-bin" and "libopenmpi-dev are for parallel simulation support (MPI)
+
+array=( "openmpi-bin" "libopenmpi-dev" "libpcap-dev" "gnome-color-chooser" )
+for i in "${array[@]}"
+do
+    # check if package $i is installed
+    echo -n $i "..."
+    PKG_OK=$(dpkg -s $i 2> /dev/null | grep "install ok installed")
+    if [ "" == "$PKG_OK" ]; then
+        echo "installing"
+        sudo apt-get --force-yes --yes install $i > /dev/null
+    else
+        echo "ok"
+    fi
+done
+
+echo ""
+echo "Check 3D visualization libraries for OMNET++"
+echo "============================================"
+
+array=( "qt4-qmake" "libqt4-dev" "libqt4-opengl-dev" "openscenegraph" "libopenscenegraph-dev" "openscenegraph-plugin-osgearth" "osgearth" "osgearth-data" "libosgearth-dev" )
 for i in "${array[@]}"
 do
     # check if package $i is installed
@@ -119,6 +157,7 @@ printf "%s \n" "$confOut"
 # should we terminate this script
 check=$(echo "$confOut" | grep "your PATH doesn't contain")
 if [ "" != "$check" ]; then
+    printf "\n\e[1;31mAfter changing PATH, close this terminal and run the script again!\e[0m \n"
     exit 1
 fi
 
@@ -163,14 +202,14 @@ echo "================="
 # Running OMNET++ each time from command line might not be desirable for you. You can create a shortcut or launcher to OMNET++ on your desktop.
 
 # creating shortcut
-echo -n "do you wish to create a shortcut on your desktop? (y/n)? "
+echo -n "do you wish to create a shortcut on your desktop? (y/n) "
 read answer
 if echo "$answer" | grep -iq "^y" ;then
     make install-desktop-icon
 fi
 
 # creating launcher
-echo -n "do you wish to create an application launcher? (y/n)? "
+echo -n "do you wish to create an application launcher? (y/n) "
 read answer
 if echo "$answer" | grep -iq "^y" ;then
     make install-menu-item
@@ -386,6 +425,14 @@ rm -rf eigen
 rm -rf Shark
 rm -rf snmp++-3.3.5
 echo "done!"
+
+# creating shortcut
+echo -n "do you wish to fix tooltip colors? (y/n) "
+read answer
+if echo "$answer" | grep -iq "^y" ;then
+    printf "\e[1;32mOn the Specific tab, find the Tooltips group and change the settings to 'black' foreground over 'pale yellow' background. Click Apply.\e[0m \n\n"
+    gnome-color-chooser 2> /dev/null
+fi
 
 echo ""
 echo "finished!"
