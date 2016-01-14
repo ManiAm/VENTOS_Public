@@ -201,19 +201,13 @@ echo "================="
 
 # Running OMNET++ each time from command line might not be desirable for you. You can create a shortcut or launcher to OMNET++ on your desktop.
 
-# creating shortcut
-echo -n "do you wish to create a shortcut on your desktop? (y/n) "
-read answer
-if echo "$answer" | grep -iq "^y" ;then
-    make install-desktop-icon
-fi
+echo -n "creating desktop shortcut ... "
+make install-desktop-icon
+echo "done!"
 
-# creating launcher
-echo -n "do you wish to create an application launcher? (y/n) "
-read answer
-if echo "$answer" | grep -iq "^y" ;then
-    make install-menu-item
-fi
+echo -n "creating application launcher ... "
+sudo make install-menu-item
+echo "done!"
 
 echo ""
 echo "Check libraries for VENTOS"
