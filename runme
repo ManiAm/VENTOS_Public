@@ -6,39 +6,90 @@
 #fi
 
 OS='unknown'
+CODENAME='unknown'
 VER='unknown'
 ARCH='unknown'
 
+# get current OS information
 if [[ "$OSTYPE" == "linux-gnu" ]]; then
-        # Ubuntu
-        OS=$(lsb_release -si)
-        VER=$(lsb_release -sr)
-        ARCH=$(uname -m)
+    # Ubuntu
+    OS=$(lsb_release -si)
+    VER=$(lsb_release -sr)
+    CODENAME=$(lsb_release -sc)
+    ARCH=$(uname -m)
 elif [[ "$OSTYPE" == "darwin"* ]]; then
-        # Mac OSX
-        OS=$(sw_vers -productName)
-        VER=$(sw_vers -productVersion)
-        ARCH=$(uname -m)
+    # Mac OSX
+    OS=$(sw_vers -productName)
+    VER=$(sw_vers -productVersion)
+    ARCH=$(uname -m)
+fi
+
+echo "Detected OS:" $OSTYPE $OS $VER "("$CODENAME")", $ARCH
+
+# check OS support
+arrIN=(${VER//./ })
+VER_major=${arrIN[0]}
+VER_minor=${arrIN[1]}
+if [[ ("$OSTYPE" == "linux-gnu" && "$OS" == "Ubuntu" && "$VER_major" == "14" && "$ARCH" == "x86_64") || \
+     ("$OSTYPE" == "darwin"* && "$OS" == "Mac OS X" && "$VER_major" == "10" && "$VER_minor" == "11" && "$ARCH" == "x86_64") ]]; then
+    echo "Starting script ..."
 else
-        echo "ERROR: this OS is not supported!"
+    echo -n "This OS is not supported (yet)! Do you want to continue anyway? (y/n) "
+    read answer
+    if echo "$answer" | grep -iq "^y" ;then
+        echo "Starting script ..."
+    else
         exit 1 # terminate and indicate error
+    fi
 fi
 
-if [[ "$ARCH" != "x86_64" ]]; then
-    echo "only x86_64 architecture is supported!"
-    exit 1
-fi
+install_LIB_linux()
+{
+    declare -a argAry=("${!1}")
+    for i in "${argAry[@]}"
+    do
+        # check if package $i is installed
+        echo -n $i "..."
+        PKG_OK=$(dpkg -s $i 2> /dev/null | grep "install ok installed")
+        if [ "" == "$PKG_OK" ]; then
+            echo "installing"
+            sudo apt-get --force-yes --yes install $i > /dev/null
+        else
+            echo "ok"
+        fi
+    done
+}
 
-echo "start script on" $OS $VER, $ARCH
-cd ..
+progressfilt ()
+{
+    local flag=false c count cr=$'\r' nl=$'\n'
+    while IFS='' read -d '' -rn 1 c
+    do
+        if $flag
+        then
+            printf '%c' "$c"
+        else
+            if [[ $c != $cr && $c != $nl ]]
+            then
+                count=0
+            else
+                ((count++))
+                if ((count > 1))
+                then
+                    flag=true
+                fi
+            fi
+        fi
+    done
+}
 
 # check java version
 version=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}')
-# print java version
 if [ "" != "$version" ]; then
     echo "java version is" $version
 fi
 
+# should we install java?
 if ! [[ "$version" > "1.7" ]]; then
     echo "java version should be higher than 1.7"
     echo -n "install Java 1.8 (y/n)? "
@@ -65,58 +116,24 @@ sudo apt-get update > /dev/null
 echo ""
 echo "Check main libraries for OMNET++"
 echo "================================"
-
-array=( "build-essential" "gcc" "g++" "bison" "flex" "perl" "tcl-dev" "tk-dev" "libxml2-dev" "zlib1g-dev" "doxygen" "graphviz" "libwebkitgtk-1.0-0" )
-for i in "${array[@]}"
-do
-    # check if package $i is installed
-    echo -n $i "..."
-    PKG_OK=$(dpkg -s $i 2> /dev/null | grep "install ok installed")
-    if [ "" == "$PKG_OK" ]; then
-        echo "installing"
-        sudo apt-get --force-yes --yes install $i > /dev/null
-    else
-        echo "ok"
-    fi
-done
+libs=("build-essential" "gcc" "g++" "bison" "flex" "perl" "tcl-dev" "tk-dev" "libxml2-dev" "zlib1g-dev" "doxygen" "graphviz" "libwebkitgtk-1.0-0")
+install_LIB_linux libs[@]
 
 echo ""
 echo "Check additional libraries for OMNET++"
 echo "======================================"
-
 # "openmpi-bin" and "libopenmpi-dev are for parallel simulation support (MPI)
-
-array=( "openmpi-bin" "libopenmpi-dev" "libpcap-dev" "gnome-color-chooser" )
-for i in "${array[@]}"
-do
-    # check if package $i is installed
-    echo -n $i "..."
-    PKG_OK=$(dpkg -s $i 2> /dev/null | grep "install ok installed")
-    if [ "" == "$PKG_OK" ]; then
-        echo "installing"
-        sudo apt-get --force-yes --yes install $i > /dev/null
-    else
-        echo "ok"
-    fi
-done
+libs=("openmpi-bin" "libopenmpi-dev" "libpcap-dev" "gnome-color-chooser")
+install_LIB_linux libs[@]
 
 echo ""
 echo "Check 3D visualization libraries for OMNET++"
 echo "============================================"
+libs=("qt4-qmake" "libqt4-dev" "libqt4-opengl-dev" "openscenegraph" "libopenscenegraph-dev" "openscenegraph-plugin-osgearth" "osgearth" "osgearth-data" "libosgearth-dev")
+install_LIB_linux libs[@]
 
-array=( "qt4-qmake" "libqt4-dev" "libqt4-opengl-dev" "openscenegraph" "libopenscenegraph-dev" "openscenegraph-plugin-osgearth" "osgearth" "osgearth-data" "libosgearth-dev" )
-for i in "${array[@]}"
-do
-    # check if package $i is installed
-    echo -n $i "..."
-    PKG_OK=$(dpkg -s $i 2> /dev/null | grep "install ok installed")
-    if [ "" == "$PKG_OK" ]; then
-        echo "installing"
-        sudo apt-get --force-yes --yes install $i > /dev/null
-    else
-        echo "ok"
-    fi
-done
+# change directory to VENTOS_all
+cd ..
 
 echo ""
 echo "Make OMNET++ ready"
@@ -212,47 +229,11 @@ echo "done!"
 echo ""
 echo "Check libraries for VENTOS"
 echo "=========================="
-
-array2=( "libboost-all-dev" "libssl-dev" "libcurl4-gnutls-dev" "libxerces-c2-dev" "libfox-1.6-dev" "libproj-dev" "libpcap-dev" "libusb-1.0-0-dev" "gnuplot" "gnuplot-x11" )
-for i in "${array2[@]}"
-do
-    # check if package $i is installed
-    echo -n $i "..."
-    PKG_OK=$(dpkg -s $i 2> /dev/null | grep "install ok installed")
-    if [ "" == "$PKG_OK" ]; then
-        echo "installing"
-        sudo apt-get --force-yes --yes install $i > /dev/null
-    else
-        echo "ok"
-    fi
-done
+libs=("libboost-all-dev" "libssl-dev" "libcurl4-gnutls-dev" "libxerces-c2-dev" "libfox-1.6-dev" "libproj-dev" "libpcap-dev" "libusb-1.0-0-dev" "gnuplot" "gnuplot-x11")
+install_LIB_linux libs[@]
 
 # change directory
 cd ..
-
-progressfilt ()
-{
-    local flag=false c count cr=$'\r' nl=$'\n'
-    while IFS='' read -d '' -rn 1 c
-    do
-        if $flag
-        then
-            printf '%c' "$c"
-        else
-            if [[ $c != $cr && $c != $nl ]]
-            then
-                count=0
-            else
-                ((count++))
-                if ((count > 1))
-                then
-                    flag=true
-                fi
-            fi
-        fi
-    done
-}
-
 
 echo ""
 echo "Installing shark"
@@ -268,19 +249,8 @@ else
         git clone https://github.com/Shark-ML/Shark/
     fi
 
-    array3=( "cmake" "cmake-curses-gui" "libatlas-base-dev" "libboost-all-dev" )
-    for i in "${array3[@]}"
-    do
-        # check if package $i is installed
-        echo -n $i "..."
-        PKG_OK=$(dpkg -s $i 2> /dev/null | grep "install ok installed")
-        if [ "" == "$PKG_OK" ]; then
-            echo "installing"
-            sudo apt-get --force-yes --yes install $i > /dev/null
-        else
-            echo "ok"
-        fi
-    done
+    libs=("cmake" "cmake-curses-gui" "libatlas-base-dev" "libboost-all-dev")
+    install_LIB_linux libs[@]
 
     cd Shark
 
@@ -430,4 +400,5 @@ fi
 
 echo ""
 echo "finished!"
+
 
