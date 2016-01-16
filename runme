@@ -184,24 +184,36 @@ fi
 value=$(</tmp/out.zvapoq)
 res=$(echo "$value" | grep "supports -std=c++11... yes")
 if [ "" = "$res" ]; then
-    bigtext="ERROR: g++ does not support c++11. First navigate to OMNET++ folder and open the 'configure.user' file. Find USE_CXX11 flag and set it to 'yes'. If USE_CXX11 is already set to 'yes', then your g++ compiler does not support C++11 standard. Run these commands to install g++ 4.8:
-    sudo add-apt-repository ppa:ubuntu-toolchain-r/test
-    sudo apt-get update
-    sudo update-alternatives --remove-all gcc 
-    sudo update-alternatives --remove-all g++
-    sudo apt-get install gcc-4.8
-    sudo apt-get install g++-4.8
-    sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 20
-    sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 20
-    sudo update-alternatives --config gcc
-    sudo update-alternatives --config g++"
+    printf "\n\e[1;31mconfigure script reports that g++ does not support c++11.\e[0m \n\n"
+    # get g++ version
+    gppVER=$(g++ --version | grep ^g++ | sed 's/^.* //g')
 
-    printf "%s \n" "$bigtext"
-    exit 1
+    # should we install g++ 4.8?
+    if [[ "$gppVER" < "4.8" ]]; then
+        echo -n "g++ version is" gppVER ". Install g++ 4.8 (y/n)?"
+        read answer
+        if echo "$answer" | grep -iq "^y" ;then
+            echo "installing g++ 4.8 ..."
+            sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test > /dev/null
+            sudo apt-get update > /dev/null
+            sudo update-alternatives --remove-all gcc > /dev/null
+            sudo update-alternatives --remove-all g++ > /dev/null
+            sudo apt-get install gcc-4.8 > /dev/null
+            sudo apt-get install g++-4.8 > /dev/null
+            sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 20 > /dev/null
+            sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 20 > /dev/null
+            sudo update-alternatives --config gcc > /dev/null
+            sudo update-alternatives --config g++ > /dev/null
+            echo "done!"
+        else
+            exit 1;
+        fi
+    else
+        # g++ version is >= 4.8. USE_CXX11 must be unset 
+        printf "\e[1;31mc++11 is not enabled in OMNET++. Go to OMNET++ folder and open the 'configure.user' file. Find USE_CXX11 flag and set it to 'yes'.\e[0m"
+        exit 1
+    fi
 fi
-
-# get g++ version
-#G++VER=$(gcc --version | grep ^gcc | sed 's/^.* //g')
 
 echo ""
 echo "Making OMNET++"
