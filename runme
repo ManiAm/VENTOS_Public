@@ -84,6 +84,41 @@ progressfilt ()
     done
 }
 
+# 0: equal
+# 1: $1 > $2
+# 2: $1 < $2
+vercomp () 
+{
+    if [[ $1 == $2 ]]
+    then
+        return 0
+    fi
+    local IFS=.
+    local i ver1=($1) ver2=($2)
+    # fill empty fields in ver1 with zeros
+    for ((i=${#ver1[@]}; i<${#ver2[@]}; i++))
+    do
+        ver1[i]=0
+    done
+    for ((i=0; i<${#ver1[@]}; i++))
+    do
+        if [[ -z ${ver2[i]} ]]
+        then
+            # fill empty fields in ver2 with zeros
+            ver2[i]=0
+        fi
+        if ((10#${ver1[i]} > 10#${ver2[i]}))
+        then
+            return 1
+        fi
+        if ((10#${ver1[i]} < 10#${ver2[i]}))
+        then
+            return 2
+        fi
+    done
+    return 0
+}
+
 # check java version
 version=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}')
 if [ "" != "$version" ]; then
@@ -91,20 +126,20 @@ if [ "" != "$version" ]; then
 fi
 
 # should we install java?
-if ! [[ "$version" > "1.7" ]]; then
+vercomp "$version" "1.7"
+result=$?
+if ! [[ "$result" == "1" ]]; then
     echo "java version should be higher than 1.7"
     echo -n "install Java 1.8 (y/n)? "
     read answer
     if echo "$answer" | grep -iq "^y" ;then
-        echo "installing java ..."
         sudo add-apt-repository -y ppa:webupd8team/java > /dev/null
         sudo apt-get update > /dev/null
         # accept the Oracle JDK8 license automatically 
         echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
         sudo apt-get --force-yes --yes install oracle-java8-installer
         # set the Java environment variables
-        sudo apt-get install oracle-java8-set-default > /dev/null
-        echo "done!"        
+        sudo apt-get install oracle-java8-set-default > /dev/null        
     else
         exit 1;
     fi
@@ -189,28 +224,31 @@ if [ "" = "$res" ]; then
     gppVER=$(g++ --version | grep ^g++ | sed 's/^.* //g')
 
     # should we install g++ 4.8?
-    if [[ "$gppVER" < "4.8" ]]; then
-        echo -n "g++ version is" gppVER ". Install g++ 4.8 (y/n)?"
+    vercomp "$gppVER" "4.8"
+    result=$?
+    if [[ "$result" == "2" ]]; then
+        echo -n "g++ version is" $gppVER". Install g++ 4.8 (y/n)? "
         read answer
         if echo "$answer" | grep -iq "^y" ;then
-            echo "installing g++ 4.8 ..."
             sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test > /dev/null
             sudo apt-get update > /dev/null
             sudo update-alternatives --remove-all gcc > /dev/null
             sudo update-alternatives --remove-all g++ > /dev/null
-            sudo apt-get install gcc-4.8 > /dev/null
-            sudo apt-get install g++-4.8 > /dev/null
+            sudo apt-get --force-yes --yes install gcc-4.8
+            sudo apt-get --force-yes --yes install g++-4.8
             sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 20 > /dev/null
             sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 20 > /dev/null
             sudo update-alternatives --config gcc > /dev/null
             sudo update-alternatives --config g++ > /dev/null
-            echo "done!"
+
+            printf "\n\e[1;31mClose this terminal and run the script again!\e[0m \n"
+            exit 1
         else
             exit 1;
         fi
     else
         # g++ version is >= 4.8. USE_CXX11 must be unset 
-        printf "\e[1;31mc++11 is not enabled in OMNET++. Go to OMNET++ folder and open the 'configure.user' file. Find USE_CXX11 flag and set it to 'yes'.\e[0m"
+        printf "\e[1;31mc++11 is not enabled in OMNET++. Go to OMNET++ folder and open the 'configure.user' file. Find USE_CXX11 flag and set it to 'yes'.\e[0m \n"
         exit 1
     fi
 fi
@@ -220,7 +258,7 @@ echo "Making OMNET++"
 echo "=============="
 
 # start making omnet++
-printf "compiling takes some time, so relax, grab a cup of coffee and \nwatch: https://www.youtube.com/watch?v=A6XUVjK9W4o \n"
+printf "\e[1;32mcompiling takes some time, so relax, grab a cup of coffee and \nwatch: https://www.youtube.com/watch?v=A6XUVjK9W4o \e[0m \n"
 echo " "
 make > /dev/null
 echo "make is finished!"
@@ -249,30 +287,44 @@ install_LIB_linux libs[@]
 cd ..
 
 echo ""
-echo "Installing shark"
-echo "================"
+echo "Check cmake"
+echo "==========="
+libs=("cmake" "cmake-curses-gui")
+install_LIB_linux libs[@]
 
-# libshark library will be copied into /usr/local/lib and the header files will be copied into /usr/local/include.
+# now check the cmake version (shark needs higher versions!)
+version=$(cmake -version | grep ^'cmake version' | sed 's/^.* //g')
+echo "cmake version is" $version
 
-installed=$(ldconfig -p | grep libshark)
-if [ "" != "$installed" ]; then
-    echo "shark is already installed!"
-else
-    if [ ! -d "Shark" ]; then
-        git clone https://github.com/Shark-ML/Shark/
+# should we install a newer version?
+vercomp "$version" "2.8.7"
+result=$?
+if ! [[ "$result" == "1" ]]; then
+    if [ ! -f "cmake-3.4.1.tar.gz" ]; then
+        # download cmake
+        echo "downloading cmake"
+        wget --progress=bar:force https://cmake.org/files/v3.4/cmake-3.4.1.tar.gz 2>&1 | progressfilt
     fi
 
-    libs=("cmake" "cmake-curses-gui" "libatlas-base-dev" "libboost-all-dev")
-    install_LIB_linux libs[@]
+    if [ ! -f "cmake-3.4.1.tar.gz" ]; then
+       echo "Download error!"
+       exit 1
+    else
+       echo -n "extracting cmake ..."
+       tar zxf cmake-3.4.1.tar.gz 
+       echo "done!"
+    fi
 
-    cd Shark
+    cd cmake-3.4.1
 
-    echo "installing shark ..."
-    mkdir build
-    cd build
-    cmake "-DBUILD_EXAMPLES=OFF" "-DBUILD_TESTING=OFF" "-DBUILD_SHARED_LIBS=ON" "-DCBLAS_INCLUDES:FILEPATH=/usr/include/atlas/cblas.h" ../ > /dev/null
-    make
+    echo "installing cmake ..."
+    mkdir _build
+    cd _build
+    cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr > /dev/null
+    make > /dev/null
     sudo make install > /dev/null
+    sudo ldconfig  # we need cmake in the next step
+    echo "done!"
 
     cd ..
     cd ..
@@ -351,6 +403,37 @@ else
 fi
 
 echo ""
+echo "Installing shark"
+echo "================"
+
+# libshark library will be copied into /usr/local/lib and the header files will be copied into /usr/local/include.
+
+installed=$(ldconfig -p | grep libshark)
+if [ "" != "$installed" ]; then
+    echo "shark is already installed!"
+else
+    if [ ! -d "Shark" ]; then
+        git clone https://github.com/Shark-ML/Shark/
+    fi
+
+    # make sure the required libraries are installed
+    libs=("cmake" "cmake-curses-gui" "libatlas-base-dev" "libboost-all-dev")
+    install_LIB_linux libs[@]
+
+    cd Shark
+
+    echo "installing shark ..."
+    mkdir build
+    cd build
+    cmake "-DBUILD_EXAMPLES=OFF" "-DBUILD_TESTING=OFF" "-DBUILD_SHARED_LIBS=ON" "-DCBLAS_INCLUDES:FILEPATH=/usr/include/atlas/cblas.h" ../ > /dev/null
+    make 
+    sudo make install > /dev/null
+
+    cd ..
+    cd ..
+fi
+
+echo ""
 echo "Downloading SUMO binaries"
 echo "========================="
 
@@ -399,15 +482,15 @@ rm -f omnetpp-4.6-src.tgz
 
 # removing folders
 rm -rf eigen
-rm -rf Shark
 rm -rf snmp++-3.3.5
+rm -rf Shark
 echo "done!"
 
 # creating shortcut
 echo -n "do you wish to fix tooltip colors? (y/n) "
 read answer
 if echo "$answer" | grep -iq "^y" ;then
-    printf "\e[1;32mOn the Specific tab, find the Tooltips group and change the settings to 'black' foreground over 'pale yellow' background. Click Apply.\e[0m \n\n"
+    printf "\e[1;32mOn the Specific tab, find the Tooltips group and change the settings to 'black' foreground over 'pale yellow' background. Click Apply and then Close.\e[0m \n\n"
     gnome-color-chooser 2> /dev/null
 fi
 
