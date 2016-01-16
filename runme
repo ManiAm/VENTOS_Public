@@ -30,8 +30,9 @@ echo "Detected OS:" $OSTYPE $OS $VER "("$CODENAME")", $ARCH
 arrIN=(${VER//./ })
 VER_major=${arrIN[0]}
 VER_minor=${arrIN[1]}
-if [[ ("$OSTYPE" == "linux-gnu" && "$OS" == "Ubuntu" && "$VER_major" == "14" && "$ARCH" == "x86_64") || \
-     ("$OSTYPE" == "darwin"* && "$OS" == "Mac OS X" && "$VER_major" == "10" && "$VER_minor" == "11" && "$ARCH" == "x86_64") ]]; then
+if [[ ("$OSTYPE" == "linux-gnu" && "$OS" == "Ubuntu" && "$VER_major" == "14" && "$VER_minor" == "04" && "$ARCH" == "x86_64") || \
+      ("$OSTYPE" == "linux-gnu" && "$OS" == "Ubuntu" && "$VER_major" == "12" && "$VER_minor" == "04" && "$ARCH" == "x86_64") || \
+      ("$OSTYPE" == "darwin"* && "$OS" == "Mac OS X" && "$VER_major" == "10" && "$VER_minor" == "11" && "$ARCH" == "x86_64") ]]; then
     echo "Starting script ..."
 else
     echo -n "This OS is not supported (yet)! Do you want to continue anyway? (y/n) "
