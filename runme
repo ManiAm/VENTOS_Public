@@ -286,19 +286,68 @@ if [[ "$OSTYPE" == "linux-gnu" && "$OS" == "Ubuntu" && "$VER_major" == "12" && "
 else
     boostLIB="libboost-all-dev"
 fi
-libs=("$boostLIB" "libssl-dev" "libcurl4-gnutls-dev" "libxerces-c2-dev" "libfox-1.6-dev" "libproj-dev" "libpcap-dev" "libusb-1.0-0-dev" "gnuplot" "gnuplot-x11")
+libs=("$boostLIB" "libssl-dev" "libcurl4-gnutls-dev" "libxerces-c2-dev" "libfox-1.6-dev" "libproj-dev" "gnuplot" "gnuplot-x11")
 install_LIB_linux libs[@]
 
 # change directory
 cd ..
 
 echo ""
+echo "Check libpcap"
+echo "============="
+
+installed=$(ldconfig -p | grep libpcap)
+if [ "" != "$installed" ]; then
+    echo "libpcap is already installed!"
+else
+    if [ ! -d "libpcap" ]; then
+        git clone https://github.com/the-tcpdump-group/libpcap.git
+    fi
+
+    cd libpcap
+
+    echo "installing libpcap ..."
+    ./configure > /dev/null
+    make > /dev/null
+    sudo make install > /dev/null
+
+    cd ..
+fi
+
+echo ""
+echo "Check libusb"
+echo "============"
+
+libs=("automake" "autotools-dev" "libudev-dev" )
+install_LIB_linux libs[@]
+
+installed=$(ldconfig -p | grep libusb)
+if [ "" != "$installed" ]; then
+    echo "libusb is already installed!"
+else
+    if [ ! -d "libusb" ]; then
+        git clone https://github.com/libusb/libusb
+    fi
+
+    cd libusb
+
+    echo "installing libusb ..."
+    ./autogen.sh > /dev/null
+    ./configure > /dev/null
+    make > /dev/null
+    sudo make install > /dev/null
+
+    cd ..
+fi
+
+echo ""
 echo "Check cmake"
 echo "==========="
+# install the default cmake
 libs=("cmake" "cmake-curses-gui")
 install_LIB_linux libs[@]
 
-# now check the cmake version (shark needs higher versions!)
+# check the cmake version (shark needs higher versions!)
 version=$(cmake -version | grep ^'cmake version' | sed 's/^.* //g')
 echo "cmake version is" $version
 
@@ -306,22 +355,11 @@ echo "cmake version is" $version
 vercomp "$version" "2.8.7"
 result=$?
 if ! [[ "$result" == "1" ]]; then
-    if [ ! -f "cmake-3.4.1.tar.gz" ]; then
-        # download cmake
-        echo "downloading cmake"
-        wget --progress=bar:force https://cmake.org/files/v3.4/cmake-3.4.1.tar.gz 2>&1 | progressfilt
+    if [ ! -d "CMake" ]; then
+        git clone https://github.com/Kitware/CMake
     fi
 
-    if [ ! -f "cmake-3.4.1.tar.gz" ]; then
-       echo "Download error!"
-       exit 1
-    else
-       echo -n "extracting cmake ..."
-       tar zxf cmake-3.4.1.tar.gz 
-       echo "done!"
-    fi
-
-    cd cmake-3.4.1
+    cd CMake
 
     echo "installing cmake ..."
     mkdir _build
@@ -380,20 +418,8 @@ echo "================"
 if [ -d "/usr/local/include/eigen3" ]; then
     echo "eigen is already installed!"
 else
-    if [ ! -f "3.2.7.tar.gz" ]; then
-        # download eigen library
-        echo "downloading eigen library"
-        wget --progress=bar:force http://bitbucket.org/eigen/eigen/get/3.2.7.tar.gz 2>&1 | progressfilt
-    fi
-
-    if [ ! -f "3.2.7.tar.gz" ]; then
-       echo "download error!"
-       exit 1
-    else
-       echo -n "extracting eigen ..."
-       mkdir eigen
-       tar zxf 3.2.7.tar.gz -C eigen --strip 1 
-       echo "done!"
+    if [ ! -d "eigen" ]; then
+        git clone https://github.com/RLovelett/eigen
     fi
 
     cd eigen
@@ -423,7 +449,7 @@ else
     fi
 
     # make sure the required libraries are installed
-    libs=("cmake" "cmake-curses-gui" "libatlas-base-dev" "libboost-all-dev")
+    libs=("libatlas-base-dev")
     install_LIB_linux libs[@]
 
     cd Shark
@@ -482,7 +508,6 @@ cd ..
 
 echo -n "removing temporary data ..."
 # removing files
-rm -f 3.2.7.tar.gz
 rm -f snmp++-3.3.5.tar.gz
 rm -f omnetpp-4.6-src.tgz
 
@@ -490,6 +515,9 @@ rm -f omnetpp-4.6-src.tgz
 rm -rf eigen
 rm -rf snmp++-3.3.5
 rm -rf Shark
+rm -rf CMake
+rm -rf libpcap
+rm -rf libusb
 echo "done!"
 
 # creating shortcut

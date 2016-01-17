@@ -598,7 +598,7 @@ void SniffEthernet::processUDP(const u_char *packet, const struct iphdr *ip)
     int size_ip = ip->ihl * 4;  // size in byte
     const struct udphdr *udp = (struct udphdr*)(packet + ETHER_HDR_LEN + size_ip);
 
-    int size_udp = udp->len;  // size in byte
+    int size_udp = udp->uh_ulen;  // size in byte
     if (size_udp < 8)
     {
         printf("\n        Invalid UDP length: %u bytes, ", size_udp);

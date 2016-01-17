@@ -36,6 +36,7 @@
 #include <ifaddrs.h>       // ifaddrs
 #include <net/ethernet.h>  // ether_header, ETHER_ADDR_LEN, ETHER_HDR_LEN
 
+# define __FAVOR_BSD
 #include <netinet/if_ether.h>    // ether_arp
 #include <netinet/ip.h>          // iphdr
 #include <netinet/ip6.h>         // ipv6hdr
