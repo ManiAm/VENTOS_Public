@@ -280,7 +280,13 @@ echo "done!"
 echo ""
 echo "Check libraries for VENTOS"
 echo "=========================="
-libs=("libboost-all-dev" "libssl-dev" "libcurl4-gnutls-dev" "libxerces-c2-dev" "libfox-1.6-dev" "libproj-dev" "libpcap-dev" "libusb-1.0-0-dev" "gnuplot" "gnuplot-x11")
+# in Ubuntu 12.04, libboost-all-dev installs 1.46 but we need 1.48 at minimum
+if [[ "$OSTYPE" == "linux-gnu" && "$OS" == "Ubuntu" && "$VER_major" == "12" && "$VER_minor" == "04" && "$ARCH" == "x86_64" ]]; then
+    boostLIB="libboost1.48-all-dev"
+else
+    boostLIB="libboost-all-dev"
+fi
+libs=("$boostLIB" "libssl-dev" "libcurl4-gnutls-dev" "libxerces-c2-dev" "libfox-1.6-dev" "libproj-dev" "libpcap-dev" "libusb-1.0-0-dev" "gnuplot" "gnuplot-x11")
 install_LIB_linux libs[@]
 
 # change directory
