@@ -371,10 +371,13 @@ vercomp "$version" "2.8.7"
 result=$?
 if ! [[ "$result" == "1" ]]; then
     if [ ! -d "CMake" ]; then
-        git clone https://github.com/Kitware/CMake
+        echo "downloading CMake"
+        wget --progress=bar:force https://github.com/Kitware/CMake/archive/master.zip 2>&1 | progressfilt
+        unzip master.zip -d CMake > /dev/null
     fi
 
     cd CMake
+    cd CMake-master
 
     echo "installing cmake ..."
     mkdir _build
@@ -387,6 +390,7 @@ if ! [[ "$result" == "1" ]]; then
 
     cd ..
     cd ..
+    cd ..
 fi
 
 echo ""
@@ -396,16 +400,20 @@ getAllLibVersionLinux "libpcap" "1.7"
 result=$?
 if [[ ("$result" == "1") || ("$result" == "2") ]]; then
     if [ ! -d "libpcap" ]; then
-        git clone https://github.com/the-tcpdump-group/libpcap.git
+        echo "downloading libpcap"
+        wget --progress=bar:force https://github.com/the-tcpdump-group/libpcap/archive/master.zip 2>&1 | progressfilt
+        unzip master.zip -d libpcap > /dev/null
     fi
 
     cd libpcap
+    cd libpcap-master
 
     echo "installing libpcap ..."
     ./configure > /dev/null
     make > /dev/null
     sudo make install > /dev/null
 
+    cd ..
     cd ..
 else
     echo "libpcap is already installed!"
@@ -418,7 +426,9 @@ getAllLibVersionLinux "libusb-1.0" "0.1.0"
 result=$?
 if [[ ("$result" == "1") || ("$result" == "2") ]]; then
     if [ ! -d "libusb" ]; then
-        git clone https://github.com/libusb/libusb
+        echo "downloading libusb"
+        wget --progress=bar:force https://github.com/libusb/libusb/archive/master.zip 2>&1 | progressfilt
+        unzip master.zip -d libusb > /dev/null
     fi
 
     # installing the required libs for making libusb
@@ -426,6 +436,7 @@ if [[ ("$result" == "1") || ("$result" == "2") ]]; then
     install_LIB_linux libs[@]
 
     cd libusb
+    cd libusb-master
 
     echo "installing libusb ..."
     ./autogen.sh > /dev/null
@@ -433,6 +444,7 @@ if [[ ("$result" == "1") || ("$result" == "2") ]]; then
     make > /dev/null
     sudo make install > /dev/null
 
+    cd ..
     cd ..
 else
     echo "libusb is already installed!"
@@ -484,10 +496,13 @@ if [ -d "/usr/local/include/eigen3" ]; then
     echo "eigen is already installed!"
 else
     if [ ! -d "eigen" ]; then
-        git clone https://github.com/RLovelett/eigen
+        echo "downloading eigen"
+        wget --progress=bar:force https://github.com/RLovelett/eigen/archive/master.zip 2>&1 | progressfilt
+        unzip master.zip -d eigen > /dev/null
     fi
 
     cd eigen
+    cd eigen-master
 
     echo "installing eigen ..."
     mkdir build
@@ -495,6 +510,7 @@ else
     cmake ../ > /dev/null
     sudo make install > /dev/null
 
+    cd ..
     cd ..
     cd ..
 fi
@@ -509,7 +525,9 @@ getAllLibVersionLinux "libshark" "3.0.0"
 result=$?
 if [[ ("$result" == "1") || ("$result" == "2") ]]; then
     if [ ! -d "Shark" ]; then
-        git clone https://github.com/Shark-ML/Shark/
+        echo "downloading shark"
+        wget --progress=bar:force https://github.com/Shark-ML/Shark/archive/master.zip 2>&1 | progressfilt
+        unzip master.zip -d shark > /dev/null
     fi
 
     # make sure the required libraries are installed
@@ -517,6 +535,7 @@ if [[ ("$result" == "1") || ("$result" == "2") ]]; then
     install_LIB_linux libs[@]
 
     cd Shark
+    cd Shark-master
 
     echo "installing shark ..."
     mkdir build
@@ -525,6 +544,7 @@ if [[ ("$result" == "1") || ("$result" == "2") ]]; then
     make 
     sudo make install > /dev/null
 
+    cd ..
     cd ..
     cd ..
 else
