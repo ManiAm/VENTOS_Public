@@ -119,6 +119,68 @@ vercomp ()
     return 0
 }
 
+# 0: found
+# 1: older lib found
+# 2: no lib found
+getAllLibVersionLinux()
+{
+    allLIBs=$(ldconfig -p | grep $1)
+    declare new_value=''
+    arr=()
+
+    # read line by line
+    while IFS= read -r a; do
+        loc=$(echo $a | awk '{print $4}')
+
+        if [[ "" != "$loc" ]]; then
+            # resolve if a sym link
+            if [[ -h $loc ]]; then
+                loc=$(readlink -f $loc)
+            fi
+
+            # first time? (removing duplicates)
+            if [[ ! $new_value =~ $loc ]] ; then
+                new_value="$new_value $loc"
+                arr+=("$loc")
+            fi
+        fi
+    done < <(echo "$allLIBs")
+
+    # no lib found
+    if [ ${#arr[@]} -eq 0 ]; then
+        return 2
+    fi
+
+    # sort arr
+    IFS=$'\n' arr=($(sort <<<"${arr[*]}"))
+
+    # print the found libs
+    echo "$1 found in these locations:"
+    for i in "${arr[@]}"
+    do
+        echo "    $i"
+    done
+
+    for i in "${arr[@]}"
+    do
+        # get lib name
+        libName=$(basename $i)
+
+        # extract version
+        version=$(echo $libName | grep -Po '\.so\.\K([0-9]+\.)*[0-9]+')
+
+        # if a suitable version found!
+        vercomp "$version" "$2"
+        result=$?
+        if ! [[ "$result" == "2" ]]; then
+            return 0
+        fi
+    done
+
+    # older lib found
+    return 1
+}
+
 # check java version
 version=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}')
 if [ "" != "$version" ]; then
@@ -293,57 +355,10 @@ install_LIB_linux libs[@]
 cd ..
 
 echo ""
-echo "Check libpcap"
-echo "============="
-
-installed=$(ldconfig -p | grep libpcap)
-if [ "" != "$installed" ]; then
-    echo "libpcap is already installed!"
-else
-    if [ ! -d "libpcap" ]; then
-        git clone https://github.com/the-tcpdump-group/libpcap.git
-    fi
-
-    cd libpcap
-
-    echo "installing libpcap ..."
-    ./configure > /dev/null
-    make > /dev/null
-    sudo make install > /dev/null
-
-    cd ..
-fi
-
-echo ""
-echo "Check libusb"
-echo "============"
-
-libs=("automake" "autotools-dev" "libudev-dev" )
-install_LIB_linux libs[@]
-
-installed=$(ldconfig -p | grep libusb)
-if [ "" != "$installed" ]; then
-    echo "libusb is already installed!"
-else
-    if [ ! -d "libusb" ]; then
-        git clone https://github.com/libusb/libusb
-    fi
-
-    cd libusb
-
-    echo "installing libusb ..."
-    ./autogen.sh > /dev/null
-    ./configure > /dev/null
-    make > /dev/null
-    sudo make install > /dev/null
-
-    cd ..
-fi
-
-echo ""
 echo "Check cmake"
 echo "==========="
 # install the default cmake
+# installing a new version of cmake needs cmake!
 libs=("cmake" "cmake-curses-gui")
 install_LIB_linux libs[@]
 
@@ -375,15 +390,63 @@ if ! [[ "$result" == "1" ]]; then
 fi
 
 echo ""
+echo "Check libpcap"
+echo "============="
+getAllLibVersionLinux "libpcap" "1.7"
+result=$?
+if [[ ("$result" == "1") || ("$result" == "2") ]]; then
+    if [ ! -d "libpcap" ]; then
+        git clone https://github.com/the-tcpdump-group/libpcap.git
+    fi
+
+    cd libpcap
+
+    echo "installing libpcap ..."
+    ./configure > /dev/null
+    make > /dev/null
+    sudo make install > /dev/null
+
+    cd ..
+else
+    echo "libpcap is already installed!"
+fi
+
+echo ""
+echo "Check libusb"
+echo "============"
+getAllLibVersionLinux "libusb-1.0" "0.1.0"
+result=$?
+if [[ ("$result" == "1") || ("$result" == "2") ]]; then
+    if [ ! -d "libusb" ]; then
+        git clone https://github.com/libusb/libusb
+    fi
+
+    # installing the required libs for making libusb
+    libs=("libtool" "automake" "autotools-dev" "libudev-dev" )
+    install_LIB_linux libs[@]
+
+    cd libusb
+
+    echo "installing libusb ..."
+    ./autogen.sh > /dev/null
+    ./configure > /dev/null
+    make > /dev/null
+    sudo make install > /dev/null
+
+    cd ..
+else
+    echo "libusb is already installed!"
+fi
+
+echo ""
 echo "Installing snmp++"
 echo "================="
 
 # libsnmp++ library will be copied into /usr/local/lib and the header files will be copied into /usr/local/include.
 
-installed=$(ldconfig -p | grep libsnmp++)
-if [ "" != "$installed" ]; then
-    echo "snmp++ is already installed!"
-else
+getAllLibVersionLinux "libsnmp++" "33.0.5"
+result=$?
+if [[ ("$result" == "1") || ("$result" == "2") ]]; then
     if [ ! -f "snmp++-3.3.5.tar.gz" ]; then
         # download snmp++ API
         echo "downloading snmp++ API"
@@ -407,10 +470,12 @@ else
     sudo make install > /dev/null
 
     cd ..
+else
+    echo "snmp++ is already installed!"
 fi
 
 echo ""
-echo "Installing eigne"
+echo "Installing eigen"
 echo "================"
 
 # Eigen consists only of header files, hence there is nothing to compile before you can use it. The header files will be copied into /usr/local/include.
@@ -440,10 +505,9 @@ echo "================"
 
 # libshark library will be copied into /usr/local/lib and the header files will be copied into /usr/local/include.
 
-installed=$(ldconfig -p | grep libshark)
-if [ "" != "$installed" ]; then
-    echo "shark is already installed!"
-else
+getAllLibVersionLinux "libshark" "3.0.0"
+result=$?
+if [[ ("$result" == "1") || ("$result" == "2") ]]; then
     if [ ! -d "Shark" ]; then
         git clone https://github.com/Shark-ML/Shark/
     fi
@@ -463,6 +527,8 @@ else
 
     cd ..
     cd ..
+else
+    echo "libshark is already installed!"
 fi
 
 echo ""
