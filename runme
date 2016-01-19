@@ -221,7 +221,7 @@ echo ""
 echo "Check additional libraries for OMNET++"
 echo "======================================"
 # "openmpi-bin" and "libopenmpi-dev are for parallel simulation support (MPI)
-libs=("openmpi-bin" "libopenmpi-dev" "gnome-color-chooser")
+libs=("openmpi-bin" "libopenmpi-dev" "libpcap-dev" "gnome-color-chooser")
 install_LIB_linux libs[@]
 
 echo ""
@@ -232,28 +232,34 @@ install_LIB_linux libs[@]
 
 # change directory to VENTOS_all
 cd ..
+# tmp stores all downloaded files
+mkdir tmp
 
 echo ""
 echo "Make OMNET++ ready"
 echo "=================="
+# make sure lftp is installed
+libs=("lftp")
+install_LIB_linux libs[@]
 
 # check if omnet directory exists
 if [ ! -d "omnetpp-4.6" ]; then
     # searching for omnet++ archive
-    findings=$(find ./ -name "omnetpp*.tgz" -o -name "omnetpp*.tar" | wc -l)
-    if [[ "$findings" = "0" ]]; then
-        echo "ERROR: cannot find omnet++ archive file!"
-        exit 1
+    findings=$(find ./tmp -name "omnetpp*.tgz" -o -name "omnetpp*.tar" | wc -l)
+    if [[ "$findings" = "0" ]]; then        
+        echo "downloading omnet++"
+        lftp -e 'get omnetpp-4.6-src.tgz -o tmp/omnetpp.tgz; bye' -p 28 -u userftp,userftp ftp://rubinet.ece.ucdavis.edu/download
     elif [[ "$findings" > "1" ]]; then
         echo "ERROR: more than one omnet++ archive file exists!"
         exit 1
-    else
-        omnetFile=$(find ./ -name "omnetpp*.tgz" -o -name "omnetpp*.tar")
-        echo "found" $omnetFile
-        echo -n "extracting omnet ..."
-        tar zxf $omnetFile  
-        echo "done!"
     fi
+    
+    # now that we have the file, extract!
+    omnetFile=$(find ./tmp -name "omnetpp*.tgz" -o -name "omnetpp*.tar")
+    echo "found" $omnetFile
+    echo -n "extracting omnet ..."
+    tar zxf $omnetFile  
+    echo "done!"
 else
     echo "omnetpp-4.6 folder already exists!"
 fi
@@ -339,6 +345,9 @@ echo -n "creating application launcher ... "
 sudo make install-menu-item
 echo "done!"
 
+# change directory to parent (VENTOS_all)
+cd ..
+
 echo ""
 echo "Check base libraries"
 echo "===================="
@@ -351,8 +360,8 @@ fi
 libs=("$boostLIB" "libssl-dev" "libcurl4-gnutls-dev" "libxerces-c2-dev" "libfox-1.6-dev" "libproj-dev")
 install_LIB_linux libs[@]
 
-# change directory
-cd ..
+# cd to tmp
+cd tmp
 
 echo ""
 echo "Check gnuplot"
@@ -381,7 +390,7 @@ if [[ "$result" == "2" ]]; then
 
     cd gnuplot
 
-    echo "installing cmake ..."
+    echo "installing gnuplot ..."
     ./configure > /dev/null 2> /dev/null
     make > /dev/null
     sudo make install > /dev/null
@@ -430,10 +439,7 @@ fi
 echo ""
 echo "Check libpcap"
 echo "============="
-# we need lipcap dev package
-libs=("libpcap-dev")
-install_LIB_linux libs[@]
-
+# note: libpcap-dev is installed earlier
 getAllLibVersionLinux "libpcap" "1.7"
 result=$?
 #if [[ ("$result" == "1") || ("$result" == "2") ]]; then
@@ -515,7 +521,7 @@ if [[ ("$result" == "1") || ("$result" == "2") ]]; then
 
     echo "installing snmp++ ..."
     ./configure > /dev/null
-    make
+    make > /dev/null
     sudo make install > /dev/null
 
     cd ..
@@ -594,14 +600,14 @@ echo "========================="
 
 if [ ! -f VENTOS/sumoBinary/sumo-guiD ]; then
     echo "downloading sumo-guiD"
-    wget --progress=bar:force --directory-prefix=VENTOS/sumoBinary https://dl.dropboxusercontent.com/u/5153771/SUMObinary/sumo-guiD 2>&1 | progressfilt
+    lftp -e 'get sumo-guiD -o VENTOS/sumoBinary; bye' -p 28 -u userftp,userftp ftp://rubinet.ece.ucdavis.edu/download
 else
     echo "sumo-guiD already exists!"
 fi
 
 if [ ! -f VENTOS/sumoBinary/sumoD ]; then
     echo "downloading sumoD"
-    wget --progress=bar:force --directory-prefix=VENTOS/sumoBinary https://dl.dropboxusercontent.com/u/5153771/SUMObinary/sumoD 2>&1 | progressfilt
+    lftp -e 'get sumoD -o VENTOS/sumoBinary; bye' -p 28 -u userftp,userftp ftp://rubinet.ece.ucdavis.edu/download
 else
     echo "sumoD already exists!"
 fi
@@ -630,25 +636,7 @@ cd ..
 cd ..
 
 echo -n "removing temporary data ..."
-# removing files
-rm -f omnetpp-4.6-src.tgz
-rm -f gnuplot.tar.gz
-rm -f cmake.zip
-rm -f libpcap.zip
-rm -f libusb.zip
-rm -f snmp.tar.gz
-rm -f eigen.zip
-rm -f shark.zip
-
-# removing folders
-rm -rf CMake
-rm -rf gnuplot
-rm -rf libpcap
-rm -rf libusb
-rm -rf snmp
-rm -rf eigen
-rm -rf Shark
-
+rm -rf tmp
 echo "done!"
 
 # creating shortcut
