@@ -372,9 +372,9 @@ void SniffEthernet::startSniffing()
        In immediate mode packets get delivered to the application as soon as they
        arrive, rather than after a timeout. This makes it very important for latency
        sensitive live captures. */
-    status = pcap_set_immediate_mode(pcap_handle, 1);
-    if (status < 0)
-        error("pcap_set_immediate_mode failed!");
+    //status = pcap_set_immediate_mode(pcap_handle, 1);  // todo: not supported on Ubuntu 12.04
+    //if (status < 0)
+        //error("pcap_set_immediate_mode failed!");
 
     // time to wait for packets in miliseconds before read times out
     status = pcap_set_timeout(pcap_handle, 1);
