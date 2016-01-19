@@ -3,8 +3,8 @@ VENTOS
 
 VENTOS is an integrated C++ simulator for studying traffic flows in Vehicular Ad-hoc Networks (VANETs). You can find more information [here](http://rubinet.ece.ucdavis.edu/projects/ventos). Follow these instructions to install VENTOS (and its prerequisites) on your OS. Currently we support the following operating systems:
 
-* Ubuntu 12, 64-bit
 * Ubuntu 14, 64-bit
+* Ubuntu 12, 64-bit
 
 **Step 1:** If you do not have git installed, then install it: 
 
