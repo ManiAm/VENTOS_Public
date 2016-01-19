@@ -230,25 +230,37 @@ echo "============================================"
 libs=("qt4-qmake" "libqt4-dev" "libqt4-opengl-dev" "openscenegraph" "libopenscenegraph-dev" "openscenegraph-plugin-osgearth" "osgearth" "osgearth-data" "libosgearth-dev")
 install_LIB_linux libs[@]
 
+echo ""
+echo "Preparing to install OMNET++"
+echo "============================"
+
 # change directory to VENTOS_all
 cd ..
 # tmp stores all downloaded files
 mkdir tmp
 
-echo ""
-echo "Make OMNET++ ready"
-echo "=================="
 # make sure lftp is installed
 libs=("lftp")
 install_LIB_linux libs[@]
 
+ver=$(opp_run -v 2> /dev/null | grep 'Build:' | awk '{print $2}')
+if [ "" != "$ver" ]; then
+    loc=$(which opp_run)
+    echo "found $ver in"
+    echo "    $loc"
+    echo "skip downloading/making omnet++"    
+else
+
+echo ""
+echo "Downloading OMNET++"
+echo "==================="
 # check if omnet directory exists
 if [ ! -d "omnetpp-4.6" ]; then
     # searching for omnet++ archive
     findings=$(find ./tmp -name "omnetpp*.tgz" -o -name "omnetpp*.tar" | wc -l)
     if [[ "$findings" = "0" ]]; then        
         echo "downloading omnet++"
-        lftp -e 'get omnetpp-4.6-src.tgz -o tmp/omnetpp.tgz; bye' -p 28 -u userftp,userftp ftp://rubinet.ece.ucdavis.edu/download
+        lftp -e 'pget -n 5 omnetpp-4.6-src.tgz -o tmp/omnetpp.tgz; bye' -p 28 -u userftp,userftp ftp://rubinet.ece.ucdavis.edu/download
     elif [[ "$findings" > "1" ]]; then
         echo "ERROR: more than one omnet++ archive file exists!"
         exit 1
@@ -347,6 +359,12 @@ echo "done!"
 
 # change directory to parent (VENTOS_all)
 cd ..
+
+fi  # end of omnetpp installation
+
+#########################
+## VENTOS installation ##
+#########################
 
 echo ""
 echo "Check base libraries"
@@ -594,20 +612,23 @@ else
     echo "libshark is already installed!"
 fi
 
+# go out of tmp folder
+cd ..
+
 echo ""
 echo "Downloading SUMO binaries"
 echo "========================="
 
 if [ ! -f VENTOS/sumoBinary/sumo-guiD ]; then
     echo "downloading sumo-guiD"
-    lftp -e 'get sumo-guiD -o VENTOS/sumoBinary; bye' -p 28 -u userftp,userftp ftp://rubinet.ece.ucdavis.edu/download
+    lftp -e 'pget -n 5 sumo-guiD -o VENTOS/sumoBinary; bye' -p 28 -u userftp,userftp ftp://rubinet.ece.ucdavis.edu/download
 else
     echo "sumo-guiD already exists!"
 fi
 
 if [ ! -f VENTOS/sumoBinary/sumoD ]; then
     echo "downloading sumoD"
-    lftp -e 'get sumoD -o VENTOS/sumoBinary; bye' -p 28 -u userftp,userftp ftp://rubinet.ece.ucdavis.edu/download
+    lftp -e 'pget -n 5 sumoD -o VENTOS/sumoBinary; bye' -p 28 -u userftp,userftp ftp://rubinet.ece.ucdavis.edu/download
 else
     echo "sumoD already exists!"
 fi
