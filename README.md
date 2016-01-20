@@ -14,29 +14,25 @@ VENTOS is an integrated C++ simulator for studying traffic flows in Vehicular Ad
 
     git clone https://github.com/ManiAm/VENTOS VENTOS_all/VENTOS
 
-**Step 3:** Go to the VENTOS folder and run the `runme` script. Some of the commands need sudo access and you need to type your sudo password. Moreover, you need Internet connection to download packages.
+**Step 3:** Go to the VENTOS folder and run the `runme` script. This bash script checks your system and installs the required packages and libraries. Some of the commands need sudo access and you need to type your sudo password at least once. Script execution takes some time, so be patient.
 
     sudo ./runme
 
-Note 1: Pay attention to the error and warning messages in the configure script. Ignore warning messages for MPI and Akaroa.
+The script might show you many warning messages and you can safely ignore many of them, but pay attension to these warnings:
 
-Note 2: Open your .bashrc and set the JAVA_HOME variable similar to:
+**Setting the JAVA_HOME variable:** Open your .bashrc and set the JAVA_HOME variable accordingly. Go to /usr/lib/jvm to see what version of java is installed on your machine and then set JAVA_HOME similar to the following:
 
     export JAVA_HOME=/usr/lib/jvm/java-8-oracle
-
+    
 or
 
     export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64
 
-depending on the java version installed on your machine (you can go to /usr/lib/jvm to see what version is installed)
-
-Note 3: OMNeT++ requires that its bin directory be in the PATH. Append the OMNET++ bin path to the PATH varibale in .bashrc similar to the following (note that you should change the path accordinglly).
+**Update PATH to include OMNET++ bin:** OMNeT++ requires that its bin directory be in the PATH. Append the OMNET++ bin path to the PATH varibale in .bashrc similar to the following (note that you should change the path accordinglly).
 
     export PATH=$PATH:/home/mani/Desktop/VENTOS_all/VENTOS/omnetpp-4.6/bin
 
 Save the .basrc file and then **close/re-open the terminal** for the changes to take effect. Finally, run `runme` script again.
-
-Note 4: Ignore warning messages during OMNET++ compilation.
 
 **Step 4:** You can run the Eclipse IDE using the desktop shortcut, application launcher or typing `omnetpp` in terminal. The first time you run OMNET++, Eclipse IDE asks you to select a workspace. Select the folder that you will use to store all your project files. If you have intention to store all your projects on Desktop, then change the workspace to Desktop. Also check "Use this as the default and do not ask again".
 

@@ -5,6 +5,8 @@
 #  exit 1
 #fi
 
+echo "Bash version is: $BASH_VERSION$"
+
 OS='unknown'
 CODENAME='unknown'
 VER='unknown'
@@ -183,7 +185,7 @@ getAllLibVersionLinux()
 
 # check java version
 version=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}')
-if [ "" != "$version" ]; then
+if [[ "" != "$version" ]]; then
     echo "java version is" $version
 fi
 
@@ -199,7 +201,7 @@ if [[ "$result" == "2" ]]; then
     read answer
     if [[ ("$answer" == "") || ("$answer" == "1") ]]; then
         sudo apt-get --force-yes --yes install openjdk-7-jre
-    elif [[ ("$answer" == "2") ]]; then
+    elif [[ "$answer" == "2" ]]; then
         sudo add-apt-repository -y ppa:webupd8team/java > /dev/null
         sudo apt-get update > /dev/null
         # accept the Oracle JDK8 license automatically 
@@ -249,7 +251,7 @@ libs=("lftp")
 install_LIB_linux libs[@]
 
 ver=$(opp_run -v 2> /dev/null | grep 'Build:' | awk '{print $2}')
-if [ "" != "$ver" ]; then
+if [[ "" != "$ver" ]]; then
     loc=$(which opp_run)
     echo "found $ver in"
     echo "    $loc"
