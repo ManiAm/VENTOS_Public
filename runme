@@ -192,16 +192,20 @@ vercomp "$version" "1.7"
 result=$?
 if ! [[ "$result" == "1" ]]; then
     echo "java version should be higher than 1.7"
-    echo -n "install Java 1.8 (y/n)? "
+    echo "[1] install OpenJDK 1.7"
+    echo "[2] install Oracle Java 1.8"
+    echo -n "your selection? [1] "
     read answer
-    if echo "$answer" | grep -iq "^y" ;then
+    if [[ ("$answer" == "") || ("$answer" == "1") ]]; then
+        sudo apt-get --force-yes --yes install openjdk-7-jre
+    elif [[ ("$answer" == "2") ]]; then
         sudo add-apt-repository -y ppa:webupd8team/java > /dev/null
         sudo apt-get update > /dev/null
         # accept the Oracle JDK8 license automatically 
         echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
         sudo apt-get --force-yes --yes install oracle-java8-installer
         # set the Java environment variables
-        sudo apt-get install oracle-java8-set-default > /dev/null        
+        sudo apt-get install oracle-java8-set-default > /dev/null       
     else
         exit 1;
     fi
