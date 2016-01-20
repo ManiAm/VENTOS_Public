@@ -188,10 +188,11 @@ if [ "" != "$version" ]; then
 fi
 
 # should we install java?
+version=$(echo $version | sed 's/_.*$//') # remove the _
 vercomp "$version" "1.7"
 result=$?
-if ! [[ "$result" == "1" ]]; then
-    echo "java version should be higher than 1.7"
+if [[ "$result" == "2" ]]; then
+    echo "java version should be >= 1.7"
     echo "[1] install OpenJDK 1.7"
     echo "[2] install Oracle Java 1.8"
     echo -n "your selection? [1] "

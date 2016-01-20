@@ -20,9 +20,15 @@ VENTOS is an integrated C++ simulator for studying traffic flows in Vehicular Ad
 
 Note 1: Pay attention to the error and warning messages in the configure script. Ignore warning messages for MPI and Akaroa.
 
-Note 2: Open your .bashrc and set the JAVA_HOME variable similar to the following:
+Note 2: Open your .bashrc and set the JAVA_HOME variable similar to:
 
     export JAVA_HOME=/usr/lib/jvm/java-8-oracle
+
+or
+
+    export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64
+
+depending on the java version installed on your machine (you can go to /usr/lib/jvm to see what version is installed)
 
 Note 3: OMNeT++ requires that its bin directory be in the PATH. Append the OMNET++ bin path to the PATH varibale in .bashrc similar to the following (note that you should change the path accordinglly).
 
