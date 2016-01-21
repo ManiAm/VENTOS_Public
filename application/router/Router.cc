@@ -47,14 +47,14 @@ std::set<std::string>* randomUniqueVehiclesInRange(int numInts, int rangeMin, in
 
     std::set<std::string>* randInts = new std::set<std::string>;
     for(int i = 0; i < numInts; i++)
-        randInts->insert(SSTR(initialInts->at(i) + 1));
+        randInts->insert(std::to_string(initialInts->at(i) + 1));
 
     return randInts;
         }
 
 std::string key(Node* n1, Node* n2, int time)
 {
-    return n1->id + "#" + n2->id + "#" + SSTR(time);
+    return n1->id + "#" + n2->id + "#" + std::to_string(time);
 }
 
 struct EdgeRemoval

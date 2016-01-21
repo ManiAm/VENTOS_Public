@@ -37,8 +37,6 @@
 #include "boost/filesystem.hpp"
 #define ev  (*cSimulation::getActiveEnvir())
 
-#define SSTR(x) dynamic_cast< std::ostringstream & >( (std::ostringstream() << std::dec << x ) ).str()
-
 namespace VENTOS {
 
 class AddEntity : public BaseApplLayer

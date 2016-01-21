@@ -43,8 +43,6 @@
 #include "Hypertree.h"
 #include "ApplV_02_Beacon.h"
 
-#define SSTR( x ) dynamic_cast< std::ostringstream & >( (std::ostringstream() << std::dec << x ) ).str()
-
 namespace VENTOS {
 
 class Node;

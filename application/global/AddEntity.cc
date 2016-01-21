@@ -28,6 +28,7 @@
 #include "AddEntity.h"
 #include "Router.h"
 #include <algorithm>
+#include <random>
 
 namespace VENTOS {
 
@@ -413,7 +414,7 @@ void generateVehicles(std::string dir, Router* r)
     std::vector<std::string> nodeNames = getNodeNames(netName);
 
     srand(time(NULL));
-    std::string vName = dir + "/Vehicles" + SSTR(r->totalVehicleCount) + ".xml";
+    std::string vName = dir + "/Vehicles" + std::to_string(r->totalVehicleCount) + ".xml";
     std::ofstream vFile(vName.c_str());
     vFile << "<vehicles>" << endl;
     for(int i = 1; i <= r->totalVehicleCount; i++)
@@ -434,7 +435,7 @@ void AddEntity::Scenario8()
     cModule *module = simulation.getSystemModule()->getSubmodule("router");
     Router *r = static_cast< Router* >(module);
 
-    std::string vehFile = ("/Vehicles" + SSTR(r->totalVehicleCount) + ".xml");
+    std::string vehFile = ("/Vehicles" + std::to_string(r->totalVehicleCount) + ".xml");
     std::string xmlFileName = SUMO_FullPath.string();
     xmlFileName += vehFile;
 

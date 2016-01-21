@@ -26,7 +26,7 @@
 //
 
 #ifndef ADVERSARYADD_H_
-#define ADVERSARY_H_
+#define ADVERSARYADD_H_
 
 #include "TraCI_Commands.h"
 #include <BaseApplLayer.h>
