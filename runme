@@ -32,10 +32,42 @@ echo "Detected OS:" $OSTYPE $OS $VER "("$CODENAME")", $ARCH
 arrIN=(${VER//./ })
 VER_major=${arrIN[0]}
 VER_minor=${arrIN[1]}
-if [[ ("$OSTYPE" == "linux-gnu" && "$OS" == "Ubuntu" && "$VER_major" == "14" && "$VER_minor" == "04" && "$ARCH" == "x86_64") || \
-      ("$OSTYPE" == "linux-gnu" && "$OS" == "Ubuntu" && "$VER_major" == "12" && "$VER_minor" == "04" && "$ARCH" == "x86_64") || \
-      ("$OSTYPE" == "darwin"* && "$OS" == "Mac OS X" && "$VER_major" == "10" && "$VER_minor" == "11" && "$ARCH" == "x86_64") ]]; then
+if [[ ("$OSTYPE" == "linux-gnu" && "$OS" == "Ubuntu" && "$VER_major" == "14" && "$VER_minor" == "04" && "$ARCH" == "x86_64") ]]; then
     echo "Starting script ..."
+
+elif [[ ("$OSTYPE" == "linux-gnu" && "$OS" == "Ubuntu" && "$VER_major" == "12" && "$VER_minor" == "04" && "$ARCH" == "x86_64") ]]; then
+    echo "Starting script ..."
+
+elif [[ ("$OSTYPE" == "darwin"* && "$OS" == "Mac OS X" && "$VER_major" == "10" && "$VER_minor" == "11" && "$ARCH" == "x86_64") ]]; then
+    echo "Starting script ..."
+
+    # check if Command Line Tools is installed
+    xcode-select -p > /dev/null 2> /dev/null
+    result=$?
+    if [[ $result == "2" ]]; then
+        echo "installing command line tools ..."
+        printf "\e[1;32mChoose the Install button in the window that pops up.\e[0m \n"
+        printf "\e[1;32mAfter completion, run the script again.\e[0m \n\n"
+        xcode-select --install
+        exit 1
+    elif [[ $result == "0" ]]; then
+        ver=$(pkgutil --pkg-info=com.apple.pkg.CLTools_Executables | grep 'version:' | awk '{print $2}')
+        echo "Command line tools version $ver found!"
+    fi
+
+    # check if Homebrew is installed
+    which -s brew
+    if [[ $? != 0 ]] ; then
+        # Install Homebrew
+        echo "installing homebrew ..."
+        ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+    else
+        ver=$(brew -v 2> /dev/null | awk '{print $2}')
+        echo "Homebrew version $ver found!"
+        echo -n "updating homebrew ... "
+        brew update > /dev/null 2> /dev/null
+        echo "ok"
+    fi
 else
     echo -n "This OS is not supported (yet)! Do you want to continue anyway? (y/n) "
     read answer
@@ -46,7 +78,7 @@ else
     fi
 fi
 
-install_LIB_linux()
+install_LIB_linux ()
 {
     declare -a argAry=("${!1}")
     for i in "${argAry[@]}"
@@ -63,6 +95,30 @@ install_LIB_linux()
     done
 }
 
+install_LIB_Mac ()
+{
+# brew list
+# brew install <>
+# brew remove <>
+# brew search
+# homebrew installs in /usr/local/Cellar/
+
+    declare -a argAry=("${!1}")
+    for i in "${argAry[@]}"
+    do
+        # check if package $i is installed
+        echo -n $i "..."
+        PKG_OK=$(brew list | grep -w $i)
+        if [[ "" == "$PKG_OK" ]]; then
+            echo "installing"
+            brew install $i > /dev/null
+        else
+            echo "ok"
+        fi
+    done
+}
+
+# wget --progress=bar:force -O gnuplot.tar.gz URL.tar.gz 2>&1 | progressfilt
 progressfilt ()
 {
     local flag=false c count cr=$'\r' nl=$'\n'
@@ -124,7 +180,7 @@ vercomp ()
 # 0: found
 # 1: older lib found
 # 2: no lib found
-getAllLibVersionLinux()
+getLibVersions_Linux ()
 {
     allLIBs=$(ldconfig -p | grep $1)
     declare new_value=''
@@ -183,6 +239,15 @@ getAllLibVersionLinux()
     return 1
 }
 
+# 0: found
+# 1: older lib found
+# 2: no lib found
+getLibVersions_Mac ()
+{
+    # older lib found
+    return 0
+}
+
 # check java version
 version=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}')
 if [[ "" != "$version" ]]; then
@@ -194,61 +259,82 @@ version=$(echo $version | sed 's/_.*$//') # remove the _
 vercomp "$version" "1.7"
 result=$?
 if [[ "$result" == "2" ]]; then
-    echo "java version should be >= 1.7"
-    echo "[1] install OpenJDK 1.7"
-    echo "[2] install Oracle Java 1.8"
-    echo -n "your selection? [1] "
-    read answer
-    if [[ ("$answer" == "") || ("$answer" == "1") ]]; then
-        sudo apt-get --force-yes --yes install openjdk-7-jre
-    elif [[ "$answer" == "2" ]]; then
-        sudo add-apt-repository -y ppa:webupd8team/java > /dev/null
-        sudo apt-get update > /dev/null
-        # accept the Oracle JDK8 license automatically 
-        echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
-        sudo apt-get --force-yes --yes install oracle-java8-installer
-        # set the Java environment variables
-        sudo apt-get install oracle-java8-set-default > /dev/null       
+    if [[ "$OS" == "Mac OS X" ]]; then
+        # on Mac OS
+        java > /dev/null 2> /dev/null    # requesting install
+        echo "requesting to install java ..."
+        printf "\e[1;32mChoose the More Info button in the window that pops up. Then install the latest Java SE runtime. After completion, run the script again.\e[0m \n\n"
+        exit 1
     else
-        exit 1;
+        # on Ubuntu
+        echo "java version should be >= 1.7"
+        echo "[1] install OpenJDK 1.7"
+        echo "[2] install Oracle Java 1.8"
+        echo -n "your selection? [1] "
+        read answer
+        if [[ ("$answer" == "") || ("$answer" == "1") ]]; then
+            sudo apt-get --force-yes --yes install openjdk-7-jre
+        elif [[ "$answer" == "2" ]]; then
+            sudo add-apt-repository -y ppa:webupd8team/java > /dev/null
+            sudo apt-get update > /dev/null
+            # accept the Oracle JDK8 license automatically 
+            echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
+            sudo apt-get --force-yes --yes install oracle-java8-installer
+            # set the Java environment variables
+            sudo apt-get install oracle-java8-set-default > /dev/null       
+        else
+            exit 1;
+        fi
     fi
 fi
 
-# refresh the databse of available packages
-echo "updating available packages ..."
-sudo apt-get update > /dev/null
+if [[ "$OS" == "Ubuntu" ]]; then
+    # refresh the databse of available packages
+    echo "updating available packages ..."
+    sudo apt-get update > /dev/null
 
-echo ""
-echo "Check main libraries for OMNET++"
-echo "================================"
-libs=("build-essential" "gcc" "g++" "bison" "flex" "perl" "tcl-dev" "tk-dev" "libxml2-dev" "zlib1g-dev" "doxygen" "graphviz" "libwebkitgtk-1.0-0")
-install_LIB_linux libs[@]
+    echo ""
+    echo "Check main libraries for OMNET++"
+    echo "================================"
+    libs=("build-essential" "gcc" "g++" "bison" "flex" "perl" "tcl-dev" "tk-dev" "libxml2-dev" "zlib1g-dev" "doxygen" "graphviz" "libwebkitgtk-1.0-0")
+    install_LIB_linux libs[@]
 
-echo ""
-echo "Check additional libraries for OMNET++"
-echo "======================================"
-# "openmpi-bin" and "libopenmpi-dev are for parallel simulation support (MPI)
-libs=("openmpi-bin" "libopenmpi-dev" "libpcap-dev" "gnome-color-chooser")
-install_LIB_linux libs[@]
+    echo ""
+    echo "Check additional libraries for OMNET++"
+    echo "======================================"
+    # "openmpi-bin" and "libopenmpi-dev are for parallel simulation support (MPI)
+    libs=("openmpi-bin" "libopenmpi-dev" "libpcap-dev" "gnome-color-chooser")
+    install_LIB_linux libs[@]
 
-echo ""
-echo "Check 3D visualization libraries for OMNET++"
-echo "============================================"
-libs=("qt4-qmake" "libqt4-dev" "libqt4-opengl-dev" "openscenegraph" "libopenscenegraph-dev" "openscenegraph-plugin-osgearth" "osgearth" "osgearth-data" "libosgearth-dev")
-install_LIB_linux libs[@]
+    echo ""
+    echo "Check 3D visualization libraries for OMNET++"
+    echo "============================================"
+    libs=("qt4-qmake" "libqt4-dev" "libqt4-opengl-dev" "openscenegraph" "libopenscenegraph-dev" "openscenegraph-plugin-osgearth" "osgearth" "osgearth-data" "libosgearth-dev")
+    install_LIB_linux libs[@]
+
+    echo ""
+    echo "Checking downloaders"
+    echo "===================="
+    libs=("lftp" "curl")  # curl is prefered over wget since Mac OS X has curl by default
+    install_LIB_linux libs[@]
+
+elif [[ "$OS" == "Mac OS X" ]]; then
+    libs=("open-mpi" "lftp" "curl" "Caskroom/cask/xquartz")
+    install_LIB_Mac libs[@]
+fi
 
 echo ""
 echo "Preparing to install OMNET++"
 echo "============================"
 
+# get current directory
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# change directory to VENTOS
+cd $DIR
 # change directory to VENTOS_all
 cd ..
 # tmp stores all downloaded files
 mkdir tmp
-
-# make sure lftp is installed
-libs=("lftp")
-install_LIB_linux libs[@]
 
 ver=$(opp_run -v 2> /dev/null | grep 'Build:' | awk '{print $2}')
 if [[ "" != "$ver" ]]; then
@@ -264,7 +350,7 @@ echo "==================="
 # check if omnet directory exists
 if [ ! -d "omnetpp-4.6" ]; then
     # searching for omnet++ archive
-    findings=$(find ./tmp -name "omnetpp*.tgz" -o -name "omnetpp*.tar" | wc -l)
+    findings=$(find ./tmp -name "omnetpp*.tgz" -o -name "omnetpp*.tar" | wc -l | xargs)  # xargs: remove all whitespaces
     if [[ "$findings" = "0" ]]; then        
         echo "downloading omnet++"
         lftp -e 'pget -n 5 omnetpp-4.6-src.tgz -o tmp/omnetpp.tgz; bye' -p 28 -u userftp,userftp ftp://rubinet.ece.ucdavis.edu/download
@@ -273,7 +359,7 @@ if [ ! -d "omnetpp-4.6" ]; then
         exit 1
     fi
     
-    # now that we have the file, extract!
+    # now that we have the file, we can extract!
     omnetFile=$(find ./tmp -name "omnetpp*.tgz" -o -name "omnetpp*.tar")
     echo "found" $omnetFile
     echo -n "extracting omnet ..."
@@ -293,6 +379,13 @@ echo "========================="
 cd omnetpp-4.6
 confOut=$( { ./configure > /tmp/out.zvapoq; } 2>&1 )
 printf "%s \n" "$confOut"
+
+# should we terminate this script
+check=$(echo "$confOut" | grep "configure: error")
+if [ "" != "$check" ]; then
+    echo ""    # insert new line for readability
+    exit 1
+fi
 
 # should we terminate this script
 check=$(echo "$confOut" | grep "your PATH doesn't contain")
@@ -369,31 +462,38 @@ cd ..
 
 fi  # end of omnetpp installation
 
-#########################
-## VENTOS installation ##
-#########################
+###############################
+## Start VENTOS installation ##
+###############################
 
 echo ""
 echo "Check base libraries"
 echo "===================="
-# in Ubuntu 12.04, libboost-all-dev installs 1.46 but we need 1.48 at minimum
-if [[ "$OSTYPE" == "linux-gnu" && "$OS" == "Ubuntu" && "$VER_major" == "12" && "$VER_minor" == "04" && "$ARCH" == "x86_64" ]]; then
-    boostLIB="libboost1.48-all-dev"
-else
-    boostLIB="libboost-all-dev"
+
+if [[ "$OS" == "Ubuntu" ]]; then
+
+    # in Ubuntu 12.04, libboost-all-dev installs 1.46 but we need 1.48 at minimum
+    if [[ "$VER_major" == "12" && "$VER_minor" == "04" ]]; then
+        boostLIB="libboost1.48-all-dev"
+    else
+        boostLIB="libboost-all-dev"
+    fi
+
+    libs=("$boostLIB" "libssl-dev" "libcurl4-gnutls-dev" "libxerces-c2-dev" "libfox-1.6-dev" "libproj-dev" "gnuplot" "gnuplot-x11" "cmake" "cmake-curses-gui" "libusb-1.0-0-dev" "libtool" "automake" "autotools-dev" "libudev-dev" "libatlas-base-dev")
+    install_LIB_linux libs[@]
+
+elif [[ "$OS" == "Mac OS X" ]]; then
+
+    libs=("boost" "gnuplot" "cmake" "libusb" "libtool" "automake")
+    install_LIB_Mac libs[@]
 fi
-libs=("$boostLIB" "libssl-dev" "libcurl4-gnutls-dev" "libxerces-c2-dev" "libfox-1.6-dev" "libproj-dev")
-install_LIB_linux libs[@]
 
 # cd to tmp
 cd tmp
 
 echo ""
-echo "Check gnuplot"
-echo "============="
-libs=("gnuplot" "gnuplot-x11")
-install_LIB_linux libs[@]
-
+echo "Check gnuplot version"
+echo "====================="
 # check version
 version=$(gnuplot --version | awk '{print $2}')
 echo "gnuplot version is" $version
@@ -404,7 +504,7 @@ result=$?
 if [[ "$result" == "2" ]]; then
     if [ ! -d "gnuplot" ]; then
         echo "downloading gnuplot"
-        wget --progress=bar:force -O gnuplot.tar.gz ftp://ftp.dante.de/pub/tex/graphics/gnuplot/5.0.2/gnuplot-5.0.2.tar.gz 2>&1 | progressfilt
+        curl -o gnuplot.tar.gz ftp://ftp.dante.de/pub/tex/graphics/gnuplot/5.0.2/gnuplot-5.0.2.tar.gz
         mkdir gnuplot
         tar zxf gnuplot.tar.gz -C gnuplot --strip 1
     fi
@@ -424,13 +524,8 @@ if [[ "$result" == "2" ]]; then
 fi
 
 echo ""
-echo "Check cmake"
-echo "==========="
-# install the default cmake
-# installing a new version of cmake needs cmake!
-libs=("cmake" "cmake-curses-gui")
-install_LIB_linux libs[@]
-
+echo "Check cmake version"
+echo "==================="
 # check the cmake version (shark needs higher versions!)
 version=$(cmake -version | grep ^'cmake version' | sed 's/^.* //g')
 echo "cmake version is" $version
@@ -441,7 +536,7 @@ result=$?
 if ! [[ "$result" == "1" ]]; then
     if [ ! -d "CMake" ]; then
         echo "downloading CMake"
-        wget --progress=bar:force -O cmake.zip https://github.com/Kitware/CMake/archive/master.zip 2>&1 | progressfilt
+        curl -o cmake.zip -LOk https://github.com/Kitware/CMake/archive/master.zip
         unzip cmake.zip -d CMake > /dev/null
     fi
 
@@ -454,7 +549,9 @@ if ! [[ "$result" == "1" ]]; then
     cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr > /dev/null
     make
     sudo make install > /dev/null
-    sudo ldconfig  # we need cmake in the next step
+    if [[ "$OS" == "Ubuntu" ]]; then
+        sudo ldconfig  # we need cmake in the next step
+    fi
 
     cd ..
     cd ..
@@ -462,16 +559,19 @@ if ! [[ "$result" == "1" ]]; then
 fi
 
 echo ""
-echo "Check libpcap"
-echo "============="
-# note: libpcap-dev is installed earlier
-getAllLibVersionLinux "libpcap" "1.7"
+echo "Check libpcap version"
+echo "====================="
+if [[ "$OS" == "Ubuntu" ]]; then
+    getLibVersions_Linux "libpcap" "1.7"
+elif [[ "$OS" == "Mac OS X" ]]; then
+    getLibVersions_Mac "libpcap" "1.7"
+fi
 result=$?
 #if [[ ("$result" == "1") || ("$result" == "2") ]]; then
 if [[ 1 ]]; then
     if [ ! -d "libpcap" ]; then
         echo "downloading libpcap"
-        wget --progress=bar:force -O libpcap.zip https://github.com/the-tcpdump-group/libpcap/archive/master.zip 2>&1 | progressfilt
+        curl -o libpcap.zip -LOk https://github.com/the-tcpdump-group/libpcap/archive/master.zip
         unzip libpcap.zip -d libpcap > /dev/null
     fi
 
@@ -490,25 +590,21 @@ else
 fi
 
 echo ""
-echo "Check libusb"
-echo "============"
-# we need libusb dev package
-libs=("libusb-1.0-0-dev")
-install_LIB_linux libs[@]
-
-getAllLibVersionLinux "libusb-1.0" "0.1.0"
+echo "Check libusb version"
+echo "===================="
+if [[ "$OS" == "Ubuntu" ]]; then
+    getLibVersions_Linux "libusb-1.0" "0.1.0"
+elif [[ "$OS" == "Mac OS X" ]]; then
+    getLibVersions_Mac "libusb-1.0" "0.1.0"
+fi
 result=$?
 #if [[ ("$result" == "1") || ("$result" == "2") ]]; then
 if [[ 1 ]]; then
     if [ ! -d "libusb" ]; then
         echo "downloading libusb"
-        wget --progress=bar:force -O libusb.zip https://github.com/libusb/libusb/archive/master.zip 2>&1 | progressfilt
+        curl -o libusb.zip -LOk https://github.com/libusb/libusb/archive/master.zip
         unzip libusb.zip -d libusb > /dev/null
     fi
-
-    # installing the required libs for making libusb
-    libs=("libtool" "automake" "autotools-dev" "libudev-dev" )
-    install_LIB_linux libs[@]
 
     cd libusb
     cd libusb-master
@@ -531,18 +627,25 @@ echo "================="
 
 # libsnmp++ library will be copied into /usr/local/lib and the header files will be copied into /usr/local/include.
 
-getAllLibVersionLinux "libsnmp++" "33.0.5"
+if [[ "$OS" == "Ubuntu" ]]; then
+    getLibVersions_Linux "libsnmp++" "33.0.5"
+elif [[ "$OS" == "Mac OS X" ]]; then
+    getLibVersions_Mac "libsnmp++" "33.0.5"
+fi
 result=$?
 if [[ ("$result" == "1") || ("$result" == "2") ]]; then
     if [ ! -f "snmp++-3.3.5.tar.gz" ]; then
         # download snmp++ API
         echo "downloading snmp++"
-        wget --progress=bar:force -O snmp.tar.gz http://www.agentpp.com/download/snmp++-3.3.5.tar.gz 2>&1 | progressfilt
+        curl -o snmp.tar.gz http://www.agentpp.com/download/snmp++-3.3.5.tar.gz
         mkdir snmp
         tar zxf snmp.tar.gz -C snmp --strip 1 
     fi
 
     cd snmp
+
+    # make executable (Mac OS X)
+    chmod +x build-aux/install-sh
 
     echo "installing snmp++ ..."
     ./configure > /dev/null
@@ -565,7 +668,7 @@ if [ -d "/usr/local/include/eigen3" ]; then
 else
     if [ ! -d "eigen" ]; then
         echo "downloading eigen"
-        wget --progress=bar:force -O eigen.zip https://github.com/RLovelett/eigen/archive/master.zip 2>&1 | progressfilt
+        curl -o eigen.zip -LOk https://github.com/RLovelett/eigen/archive/master.zip
         unzip eigen.zip -d eigen > /dev/null
     fi
 
@@ -589,18 +692,18 @@ echo "================"
 
 # libshark library will be copied into /usr/local/lib and the header files will be copied into /usr/local/include.
 
-getAllLibVersionLinux "libshark" "3.0.0"
+if [[ "$OS" == "Ubuntu" ]]; then
+    getLibVersions_Linux "libshark" "3.0.0"
+elif [[ "$OS" == "Mac OS X" ]]; then
+    getLibVersions_Mac "libshark" "3.0.0"
+fi
 result=$?
 if [[ ("$result" == "1") || ("$result" == "2") ]]; then
     if [ ! -d "Shark" ]; then
         echo "downloading shark"
-        wget --progress=bar:force -O shark.zip https://github.com/Shark-ML/Shark/archive/master.zip 2>&1 | progressfilt
+        curl -o shark.zip -LOk https://github.com/Shark-ML/Shark/archive/master.zip
         unzip shark.zip -d Shark > /dev/null
     fi
-
-    # make sure the required libraries are installed
-    libs=("libatlas-base-dev")
-    install_LIB_linux libs[@]
 
     cd Shark
     cd Shark-master
@@ -650,30 +753,32 @@ echo ""
 echo "Wrapping-up"
 echo "==========="
 
-# ldconfig is a program that is used to maintain the shared library cache in linux. This cache is typically stored in the file /etc/ld.so.cache and is used by the system to map a shared library name to the location of the corresponding shared library file.
-echo -n "registering shared libraries ..."
-sudo ldconfig
-echo "done!"
+if [[ "$OS" == "Ubuntu" ]]; then
+    # ldconfig is a program that is used to maintain the shared library cache in linux. This cache is typically stored in the file /etc/ld.so.cache and is used by the system to map a shared library name to the location of the corresponding shared library file.
+    echo -n "registering shared libraries ..."
+    sudo ldconfig
+    echo "done!"
 
-# libpcap library is used to sniff packets from network interfaces. We need to give permission to opp_run to be able to access the network interfaces (check [here](http://packetlife.net/blog/2010/mar/19/sniffing-wireshark-non-root-user/)). Moreover, libusb needs permission to open a USB device for read/write. This is done through setting [capabilities](http://linux.die.net/man/7/capabilities) using the following command:
-echo -n "set capability for opp_run ..."
-cd omnetpp-4.6/bin
-sudo setcap cap_dac_override,cap_net_raw,cap_net_admin=eip opp_run
-echo "done!"
-cd ..
-cd ..
+    # libpcap library is used to sniff packets from network interfaces. We need to give permission to opp_run to be able to access the network interfaces (check [here](http://packetlife.net/blog/2010/mar/19/sniffing-wireshark-non-root-user/)). Moreover, libusb needs permission to open a USB device for read/write. This is done through setting [capabilities](http://linux.die.net/man/7/capabilities) using the following command:
+    echo -n "set capability for opp_run ..."
+    cd omnetpp-4.6/bin  # for some reasons we must change our current directory to bin first
+    sudo setcap cap_dac_override,cap_net_raw,cap_net_admin=eip opp_run
+    echo "done!"
+    cd ..
+    cd ..
+
+    # fix tooltip
+    echo -n "do you wish to fix tooltip colors? (y/n) "
+    read answer
+    if echo "$answer" | grep -iq "^y" ;then
+        printf "\e[1;32mOn the Specific tab, find the Tooltips group and change the settings to 'black' foreground over 'pale yellow' background. Click Apply and then Close.\e[0m \n\n"
+        gnome-color-chooser 2> /dev/null
+    fi
+fi
 
 echo -n "removing temporary data ..."
 rm -rf tmp
 echo "done!"
-
-# creating shortcut
-echo -n "do you wish to fix tooltip colors? (y/n) "
-read answer
-if echo "$answer" | grep -iq "^y" ;then
-    printf "\e[1;32mOn the Specific tab, find the Tooltips group and change the settings to 'black' foreground over 'pale yellow' background. Click Apply and then Close.\e[0m \n\n"
-    gnome-color-chooser 2> /dev/null
-fi
 
 echo ""
 echo "finished!"
