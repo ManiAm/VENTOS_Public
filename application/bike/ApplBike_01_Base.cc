@@ -51,7 +51,7 @@ void ApplBikeBase::initialize(int stage)
 
         // get a pointer to the TraCI module
         cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
-        TraCI = static_cast<TraCI_Extend *>(module);
+        TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
 
         // get a pointer to traffic light

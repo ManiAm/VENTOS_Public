@@ -1,6 +1,8 @@
 //
 // Copyright (C) 2006-2012 Christoph Sommer <christoph.sommer@uibk.ac.at>
 //
+// Second author 2: Mani Amoozadeh <maniam@ucdavis.edu>
+//
 // Documentation for these modules is at http://veins.car2x.org/
 //
 // This program is free software; you can redistribute it and/or modify
@@ -18,32 +20,31 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <fstream>
-#include <vector>
-#include <algorithm>
-#include <stdexcept>
+#include "TraCI_Start.h"
+#include "TraCIConstants.h"
+#include "ObstacleControl.h"
+#include "TraCIScenarioManagerInet.h"
+#include "TraCIMobility.h"
+
+#include <rapidxml.hpp>
+#include <rapidxml_utils.hpp>
+#include <rapidxml_print.hpp>
 
 #define MYDEBUG EV
 
-#include "TraCI_Base.h"
-#include "TraCIConstants.h"
-#include "TraCIMobility.h"
-#include "TraCIScenarioManagerInet.h"
-#include "ObstacleControl.h"
-
 namespace VENTOS {
 
-TraCI_Base::TraCI_Base() :
-                                                                        connection(0),
-                                                                        myAddVehicleTimer(0),
-                                                                        mobRng(0),
-                                                                        connectAndStartTrigger(0),
-                                                                        executeOneTimestepTrigger(0),
-                                                                        world(0),
-                                                                        cc(0) { }
+Define_Module(VENTOS::TraCI_Start);
+
+TraCI_Start::TraCI_Start() : myAddVehicleTimer(0),
+        mobRng(0),
+        connectAndStartTrigger(0),
+        executeOneTimestepTrigger(0),
+        world(0),
+        cc(0) { }
 
 
-TraCI_Base::~TraCI_Base()
+TraCI_Start::~TraCI_Start()
 {
     cancelAndDelete(connectAndStartTrigger);
     cancelAndDelete(executeOneTimestepTrigger);
@@ -53,9 +54,9 @@ TraCI_Base::~TraCI_Base()
 }
 
 
-void TraCI_Base::initialize(int stage)
+void TraCI_Start::initialize(int stage)
 {
-    cSimpleModule::initialize(stage);
+    TraCI_Commands::initialize(stage);
 
     if (stage == 1)
     {
@@ -153,8 +154,10 @@ void TraCI_Base::initialize(int stage)
 }
 
 
-void TraCI_Base::finish()
+void TraCI_Start::finish()
 {
+    TraCI_Commands::finish();
+
     if (connection && !par("TraCIclosed").boolValue())
         TraCIBuffer buf = connection->query(CMD_CLOSE, TraCIBuffer());
 
@@ -163,19 +166,21 @@ void TraCI_Base::finish()
 }
 
 
-void TraCI_Base::handleMessage(cMessage *msg)
+void TraCI_Start::handleMessage(cMessage *msg)
 {
+    TraCI_Commands::handleMessage(msg);
+
     if (msg->isSelfMessage())
     {
         handleSelfMsg(msg);
         return;
     }
 
-    error("TraCI_Base doesn't handle messages from other modules");
+    error("TraCI_Start doesn't handle messages from other modules");
 }
 
 
-void TraCI_Base::handleSelfMsg(cMessage *msg)
+void TraCI_Start::handleSelfMsg(cMessage *msg)
 {
     if (msg == connectAndStartTrigger)
     {
@@ -229,11 +234,11 @@ void TraCI_Base::handleSelfMsg(cMessage *msg)
         return;
     }
 
-    error("TraCI_Base received unknown self-message");
+    error("TraCI_Start received unknown self-message");
 }
 
 
-void TraCI_Base::init_traci()
+void TraCI_Start::init_traci()
 {
     // get the version of python launchd
     std::pair<uint32_t, std::string> versionP = getVersion();
@@ -254,58 +259,42 @@ void TraCI_Base::init_traci()
     if (apiVersionS == 10)
         std::cout << "SUMO TraCI server \"" << serverVersionS << "\" reports API version " << apiVersionS << endl;
     else
-        error("TraCI server \"%s\" reports API version %d, which is unsupported. We recommend using SUMO 0.21.0.", serverVersionS.c_str(), apiVersionS);
+        error("TraCI server \"%s\" reports API version %d, which is unsupported.", serverVersionS.c_str(), apiVersionS);
 
-    {
-        // query road network boundaries
-        TraCIBuffer buf = connection->query(CMD_GET_SIM_VARIABLE, TraCIBuffer() << static_cast<uint8_t>(VAR_NET_BOUNDING_BOX) << std::string("sim0"));
-        uint8_t cmdLength_resp; buf >> cmdLength_resp;
-        uint8_t commandId_resp; buf >> commandId_resp; ASSERT(commandId_resp == RESPONSE_GET_SIM_VARIABLE);
-        uint8_t variableId_resp; buf >> variableId_resp; ASSERT(variableId_resp == VAR_NET_BOUNDING_BOX);
-        std::string simId; buf >> simId;
-        uint8_t typeId_resp; buf >> typeId_resp; ASSERT(typeId_resp == TYPE_BOUNDINGBOX);
-        double x1; buf >> x1;
-        double y1; buf >> y1;
-        double x2; buf >> x2;
-        double y2; buf >> y2;
-        ASSERT(buf.eof());
+    // query road network boundaries
+    double *boundaries = simulationGetNetBoundary();
 
-        TraCICoord netbounds1 = TraCICoord(x1, y1);
-        TraCICoord netbounds2 = TraCICoord(x2, y2);
-        std::cout << "TraCI reports network boundaries (" << x1 << ", " << y1 << ")-(" << x2 << ", " << y2 << ")" << endl;
-        connection->setNetbounds(netbounds1, netbounds2, par("margin"));
-        if ((connection->traci2omnet(netbounds2).x > world->getPgs()->x) || (connection->traci2omnet(netbounds1).y > world->getPgs()->y))
-            std::cout << "WARNING: Playground size (" << world->getPgs()->x << ", " << world->getPgs()->y << ") might be too small for vehicle at network bounds (" << connection->traci2omnet(netbounds2).x << ", " << connection->traci2omnet(netbounds1).y << ")" << endl;
-    }
+    double x1 = boundaries[0];  // x1
+    double y1 = boundaries[1];  // y1
+    double x2 = boundaries[2];  // x2
+    double y2 = boundaries[3];  // y2
+
+    std::cout << "TraCI reports network boundaries (" << x1 << ", " << y1 << ")-(" << x2 << ", " << y2 << ")" << endl;
+
+    TraCICoord netbounds1 = TraCICoord(x1, y1);
+    TraCICoord netbounds2 = TraCICoord(x2, y2);
+    connection->setNetbounds(netbounds1, netbounds2, par("margin"));
+    if ((connection->traci2omnet(netbounds2).x > world->getPgs()->x) || (connection->traci2omnet(netbounds1).y > world->getPgs()->y))
+        std::cout << "WARNING: Playground size (" << world->getPgs()->x << ", " << world->getPgs()->y << ") might be too small for vehicle at network bounds (" << connection->traci2omnet(netbounds2).x << ", " << connection->traci2omnet(netbounds1).y << ")" << endl;
 
     {
         // subscribe to list of departed and arrived vehicles, as well as simulation time
-        uint32_t beginTime = 0;
-        uint32_t endTime = 0x7FFFFFFF;
-        std::string objectId = "";
-        uint8_t variableNumber = 7;
-        uint8_t variable1 = VAR_DEPARTED_VEHICLES_IDS;
-        uint8_t variable2 = VAR_ARRIVED_VEHICLES_IDS;
-        uint8_t variable3 = VAR_TIME_STEP;
-        uint8_t variable4 = VAR_TELEPORT_STARTING_VEHICLES_IDS;
-        uint8_t variable5 = VAR_TELEPORT_ENDING_VEHICLES_IDS;
-        uint8_t variable6 = VAR_PARKING_STARTING_VEHICLES_IDS;
-        uint8_t variable7 = VAR_PARKING_ENDING_VEHICLES_IDS;
-
-        TraCIBuffer buf = connection->query(CMD_SUBSCRIBE_SIM_VARIABLE, TraCIBuffer() << beginTime << endTime << objectId << variableNumber << variable1 << variable2 << variable3 << variable4 << variable5 << variable6 << variable7);
+        std::vector<uint8_t> variables {VAR_DEPARTED_VEHICLES_IDS,
+            VAR_ARRIVED_VEHICLES_IDS,
+            VAR_TIME_STEP,
+            VAR_TELEPORT_STARTING_VEHICLES_IDS,
+            VAR_TELEPORT_ENDING_VEHICLES_IDS,
+            VAR_PARKING_STARTING_VEHICLES_IDS,
+            VAR_PARKING_ENDING_VEHICLES_IDS};
+        TraCIBuffer buf = simulationSubscribe(0, 0x7FFFFFFF, "", variables);
         processSubcriptionResult(buf);
         ASSERT(buf.eof());
     }
 
     {
         // subscribe to list of vehicle ids
-        uint32_t beginTime = 0;
-        uint32_t endTime = 0x7FFFFFFF;
-        std::string objectId = "";
-        uint8_t variableNumber = 1;
-        uint8_t variable1 = ID_LIST;
-
-        TraCIBuffer buf = connection->query(CMD_SUBSCRIBE_VEHICLE_VARIABLE, TraCIBuffer() << beginTime << endTime << objectId << variableNumber << variable1);
+        std::vector<uint8_t> variables {ID_LIST};
+        TraCIBuffer buf = vehicleSubscribe(0, 0x7FFFFFFF, "", variables);
         processSubcriptionResult(buf);
         ASSERT(buf.eof());
     }
@@ -339,7 +328,7 @@ void TraCI_Base::init_traci()
 }
 
 
-void TraCI_Base::sendLaunchFile()
+void TraCI_Start::sendLaunchFile()
 {
     std::string launchFile = par("launchFile").stringValue();
     boost::filesystem::path launchFullPath = SUMO_FullPath / launchFile;
@@ -409,7 +398,7 @@ void TraCI_Base::sendLaunchFile()
 }
 
 
-void TraCI_Base::processSubcriptionResult(TraCIBuffer& buf)
+void TraCI_Start::processSubcriptionResult(TraCIBuffer& buf)
 {
     uint8_t cmdLength_resp; buf >> cmdLength_resp;
     uint32_t cmdLengthExt_resp; buf >> cmdLengthExt_resp;
@@ -425,7 +414,7 @@ void TraCI_Base::processSubcriptionResult(TraCIBuffer& buf)
 }
 
 
-void TraCI_Base::processVehicleSubscription(std::string objectId, TraCIBuffer& buf)
+void TraCI_Start::processVehicleSubscription(std::string objectId, TraCIBuffer& buf)
 {
     bool isSubscribed = (subscribedVehicles.find(objectId) != subscribedVehicles.end());
     double px;
@@ -475,7 +464,12 @@ void TraCI_Base::processVehicleSubscription(std::string objectId, TraCIBuffer& b
             for (std::set<std::string>::const_iterator i = needSubscribe.begin(); i != needSubscribe.end(); ++i)
             {
                 subscribedVehicles.insert(*i);
-                subscribeToVehicleVariables(*i);
+
+                // subscribe to some attributes of the vehicle
+                std::vector<uint8_t> variables {VAR_POSITION, VAR_ROAD_ID, VAR_SPEED, VAR_ANGLE, VAR_SIGNALS};
+                TraCIBuffer buf = vehicleSubscribe(0, 0x7FFFFFFF, *i, variables);
+                processSubcriptionResult(buf);
+                ASSERT(buf.eof());
             }
 
             // check for vehicles that need unsubscribing from
@@ -484,7 +478,11 @@ void TraCI_Base::processVehicleSubscription(std::string objectId, TraCIBuffer& b
             for (std::set<std::string>::const_iterator i = needUnsubscribe.begin(); i != needUnsubscribe.end(); ++i)
             {
                 subscribedVehicles.erase(*i);
-                unsubscribeFromVehicleVariables(*i);
+
+                // unsubscribe
+                std::vector<uint8_t> variables;
+                TraCIBuffer buf = vehicleSubscribe(0, 0x7FFFFFFF, *i, variables);
+                ASSERT(buf.eof());
             }
         }
         else if (variable1_resp == VAR_POSITION)
@@ -585,7 +583,7 @@ void TraCI_Base::processVehicleSubscription(std::string objectId, TraCIBuffer& b
 }
 
 
-void TraCI_Base::processSimSubscription(std::string objectId, TraCIBuffer& buf)
+void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
 {
     uint8_t variableNumber_resp; buf >> variableNumber_resp;
     for (uint8_t j = 0; j < variableNumber_resp; ++j)
@@ -631,7 +629,11 @@ void TraCI_Base::processSimSubscription(std::string objectId, TraCIBuffer& buf)
                 if (subscribedVehicles.find(idstring) != subscribedVehicles.end())
                 {
                     subscribedVehicles.erase(idstring);
-                    unsubscribeFromVehicleVariables(idstring);
+
+                    // unsubscribe
+                    std::vector<uint8_t> variables;
+                    TraCIBuffer buf = vehicleSubscribe(0, 0x7FFFFFFF, idstring, variables);
+                    ASSERT(buf.eof());
                 }
 
                 // check if this object has been deleted already (e.g. because it was outside the ROI)
@@ -746,39 +748,7 @@ void TraCI_Base::processSimSubscription(std::string objectId, TraCIBuffer& buf)
 }
 
 
-void TraCI_Base::subscribeToVehicleVariables(std::string vehicleId)
-{
-    // subscribe to some attributes of the vehicle
-    uint32_t beginTime = 0;
-    uint32_t endTime = 0x7FFFFFFF;
-    std::string objectId = vehicleId;
-    uint8_t variableNumber = 5;
-    uint8_t variable1 = VAR_POSITION;
-    uint8_t variable2 = VAR_ROAD_ID;
-    uint8_t variable3 = VAR_SPEED;
-    uint8_t variable4 = VAR_ANGLE;
-    uint8_t variable5 = VAR_SIGNALS;
-
-    TraCIBuffer buf = connection->query(CMD_SUBSCRIBE_VEHICLE_VARIABLE, TraCIBuffer() << beginTime << endTime << objectId << variableNumber << variable1 << variable2 << variable3 << variable4 << variable5);
-    processSubcriptionResult(buf);
-    ASSERT(buf.eof());
-}
-
-
-void TraCI_Base::unsubscribeFromVehicleVariables(std::string vehicleId)
-{
-    // subscribe to some attributes of the vehicle
-    uint32_t beginTime = 0;
-    uint32_t endTime = 0x7FFFFFFF;
-    std::string objectId = vehicleId;
-    uint8_t variableNumber = 0;
-
-    TraCIBuffer buf = connection->query(CMD_SUBSCRIBE_VEHICLE_VARIABLE, TraCIBuffer() << beginTime << endTime << objectId << variableNumber);
-    ASSERT(buf.eof());
-}
-
-
-cModule* TraCI_Base::getManagedModule(std::string nodeId)
+cModule* TraCI_Start::getManagedModule(std::string nodeId)
 {
     if (hosts.find(nodeId) == hosts.end())
         return 0;
@@ -787,7 +757,7 @@ cModule* TraCI_Base::getManagedModule(std::string nodeId)
 }
 
 
-bool TraCI_Base::isInRegionOfInterest(const TraCICoord& position, std::string road_id, double speed, double angle)
+bool TraCI_Start::isInRegionOfInterest(const TraCICoord& position, std::string road_id, double speed, double angle)
 {
     if ((roiRoads.size() == 0) && (roiRects.size() == 0))
         return true;
@@ -814,7 +784,7 @@ bool TraCI_Base::isInRegionOfInterest(const TraCICoord& position, std::string ro
 }
 
 
-void TraCI_Base::deleteManagedModule(std::string nodeId)
+void TraCI_Start::deleteManagedModule(std::string nodeId)
 {
     cModule* mod = getManagedModule(nodeId);
     if (!mod) error("no vehicle with Id \"%s\" found", nodeId.c_str());
@@ -827,7 +797,7 @@ void TraCI_Base::deleteManagedModule(std::string nodeId)
 }
 
 
-bool TraCI_Base::isModuleUnequipped(std::string nodeId)
+bool TraCI_Start::isModuleUnequipped(std::string nodeId)
 {
     if (unEquippedHosts.find(nodeId) == unEquippedHosts.end())
         return false;
@@ -837,7 +807,7 @@ bool TraCI_Base::isModuleUnequipped(std::string nodeId)
 
 
 // name: host; Car; i=vehicle.gif
-void TraCI_Base::addModule(std::string nodeId, const Coord& position, std::string road_id, double speed, double angle)
+void TraCI_Start::addModule(std::string nodeId, const Coord& position, std::string road_id, double speed, double angle)
 {
     std::string type = "";
     std::string name = "";
@@ -967,7 +937,7 @@ void TraCI_Base::addModule(std::string nodeId, const Coord& position, std::strin
 
 
 // todo: work on pedestrian
-void TraCI_Base::addPedestriansToOMNET()
+void TraCI_Start::addPedestriansToOMNET()
 {
     //cout << simTime().dbl() << ": " << allPedestrians.size() << endl;
 
@@ -1082,13 +1052,13 @@ void TraCI_Base::addPedestriansToOMNET()
 }
 
 
-uint32_t TraCI_Base::getCurrentTimeMs()
+uint32_t TraCI_Start::getCurrentTimeMs()
 {
     return static_cast<uint32_t>(round(simTime().dbl() * 1000));
 }
 
 
-void TraCI_Base::executeOneTimestep()
+void TraCI_Start::executeOneTimestep()
 {
     //MYDEBUG << "Triggering TraCI server simulation advance to t=" << simTime() <<endl;
 
@@ -1124,11 +1094,11 @@ void TraCI_Base::executeOneTimestep()
 
     if(simulationDone)
         endSimulation();   // terminate the simulation (finish method is also called for all modules).
-                           // Note: TraCI_Base::finish() closes the TraCI connection
+    // Note: TraCI_Start::finish() closes the TraCI connection
 }
 
 
-void TraCI_Base::insertNewVehicle()
+void TraCI_Start::insertNewVehicle()
 {
     std::string type;
     if (vehicleTypeIds.size())
@@ -1146,7 +1116,7 @@ void TraCI_Base::insertNewVehicle()
 }
 
 
-void TraCI_Base::insertVehicles()
+void TraCI_Start::insertVehicles()
 {
     for (std::map<int, std::queue<std::string> >::iterator i = vehicleInsertQueue.begin(); i != vehicleInsertQueue.end(); )
     {

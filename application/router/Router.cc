@@ -28,6 +28,7 @@
 #include "Router.h"
 #include <stdlib.h>
 #include "SignalObj.h"
+#include <queue>
 
 namespace VENTOS {
 
@@ -103,7 +104,7 @@ void Router::initialize(int stage)
 
         // get a pointer to the TraCI module
         cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
-        TraCI = static_cast<TraCI_Extend *>(module);
+        TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
 
         EWMARate = par("EWMARate").doubleValue();
@@ -648,7 +649,8 @@ std::list<std::string> Router::getRoute(Edge* origin, Node* destination, std::st
         e->visited = 0;
     }
 
-    std::priority_queue<Edge*, std::vector<Edge*>, routerCompare> heap;   // Build a priority queue of edge pointers, based on a vector of edge pointers, sorted via routerCompare funciton
+    // Build a priority queue of edge pointers, based on a vector of edge pointers, sorted via routerCompare funciton
+    std::priority_queue<Edge*, std::vector<Edge*>, routerCompare> heap;
 
     origin->curCost = 0;    // Set the origin's start cost to 0
     heap.push(origin);      // Add the origin to the heap

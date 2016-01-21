@@ -29,15 +29,19 @@
 #define SNMPCONNECT_H_
 
 #include <BaseApplLayer.h>
-#include "TraCI_Extend.h"
+#include "TraCI_Commands.h"
 #include "MIB_OBJ_ASC.h"
+
+// un-defining ev!
+// why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header
+#undef ev
+#include "boost/filesystem.hpp"
+#define ev  (*cSimulation::getActiveEnvir())
 
 #define STDCXX_98_HEADERS
 #include "snmp_pp/snmp_pp.h"
 
 namespace VENTOS {
-
-class TraCI_Extend;
 
 class SNMPConnect : public BaseApplLayer
 {
@@ -57,7 +61,7 @@ class SNMPConnect : public BaseApplLayer
 
 	private:
         // NED variables
-        TraCI_Extend *TraCI;  // pointer to the TraCI module
+        TraCI_Commands *TraCI;  // pointer to the TraCI module
         simsignal_t Signal_executeFirstTS;
         bool on;
 

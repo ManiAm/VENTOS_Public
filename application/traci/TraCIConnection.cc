@@ -15,7 +15,7 @@
 
 #include "TraCIConnection.h"
 #include "TraCIConstants.h"
-#include "TraCI_Extend.h"
+#include "TraCI_Commands.h"
 
 #define MYDEBUG EV
 
@@ -59,7 +59,7 @@ TraCIConnection::~TraCIConnection()
 
 TraCIConnection* TraCIConnection::connect(const char* host, int port)
 {
-    std::cout << ">>> Connecting to TraCI server ..." << endl;
+    std::cout << std::endl << ">>> Connecting to TraCI server ..." << endl;
 
 	if (initsocketlibonce() != 0)
 	    throw cRuntimeError("Could not init socketlib");
@@ -170,7 +170,7 @@ std::string TraCIConnection::receiveMessage()
 		        module->par("TraCIclosed") = true;
 
                 // end the simulation
-		        TraCI_Extend *TraCI = static_cast<TraCI_Extend *>(module);
+		        TraCI_Commands *TraCI = static_cast<TraCI_Commands *>(module);
 				TraCI->endSimulation();
 			}
 			else
@@ -186,7 +186,7 @@ std::string TraCIConnection::receiveMessage()
                 module->par("TraCIclosed") = true;
 
                 // end the simulation
-                TraCI_Extend *TraCI = static_cast<TraCI_Extend *>(module);
+                TraCI_Commands *TraCI = static_cast<TraCI_Commands *>(module);
                 TraCI->endSimulation();
 			}
 		}
@@ -215,7 +215,7 @@ std::string TraCIConnection::receiveMessage()
                 module->par("TraCIclosed") = true;
 
                 // end the simulation
-                TraCI_Extend *TraCI = static_cast<TraCI_Extend *>(module);
+                TraCI_Commands *TraCI = static_cast<TraCI_Commands *>(module);
                 TraCI->endSimulation();
 			}
 			else
@@ -231,7 +231,7 @@ std::string TraCIConnection::receiveMessage()
                 module->par("TraCIclosed") = true;
 
                 // end the simulation
-                TraCI_Extend *TraCI = static_cast<TraCI_Extend *>(module);
+                TraCI_Commands *TraCI = static_cast<TraCI_Commands *>(module);
                 TraCI->endSimulation();
 			}
 		}
@@ -269,7 +269,7 @@ void TraCIConnection::sendMessage(std::string buf)
                 module->par("TraCIclosed") = true;
 
                 // end the simulation
-                TraCI_Extend *TraCI = static_cast<TraCI_Extend *>(module);
+                TraCI_Commands *TraCI = static_cast<TraCI_Commands *>(module);
                 TraCI->endSimulation();
 			}
 		}
@@ -296,7 +296,7 @@ void TraCIConnection::sendMessage(std::string buf)
                 module->par("TraCIclosed") = true;
 
                 // end the simulation
-                TraCI_Extend *TraCI = static_cast<TraCI_Extend *>(module);
+                TraCI_Commands *TraCI = static_cast<TraCI_Commands *>(module);
                 TraCI->endSimulation();
 			}
 		}

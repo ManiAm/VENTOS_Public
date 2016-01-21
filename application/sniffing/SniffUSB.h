@@ -29,7 +29,6 @@
 #define SNIFFUSB
 
 #include <BaseApplLayer.h>
-#include "TraCI_Extend.h"
 #include <unordered_map>
 #include <libusb-1.0/libusb.h>
 
@@ -114,7 +113,6 @@ private:
     unsigned char target_interruptEP;
 
     // variables
-    TraCI_Extend *TraCI;
     simsignal_t Signal_executeFirstTS;
     simsignal_t Signal_executeEachTS;
 

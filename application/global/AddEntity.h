@@ -29,7 +29,13 @@
 #define ADDENTITY
 
 #include "BaseApplLayer.h"
-#include "TraCI_Extend.h"
+#include "TraCI_Commands.h"
+
+// un-defining ev!
+// why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header
+#undef ev
+#include "boost/filesystem.hpp"
+#define ev  (*cSimulation::getActiveEnvir())
 
 #define SSTR(x) dynamic_cast< std::ostringstream & >( (std::ostringstream() << std::dec << x ) ).str()
 
@@ -58,7 +64,7 @@ private:
 
 private:
     // NED variables
-    TraCI_Extend *TraCI;  // pointer to the TraCI module
+    TraCI_Commands *TraCI;  // pointer to the TraCI module
     double terminate;
 
     bool on;

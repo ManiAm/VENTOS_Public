@@ -28,6 +28,12 @@
 #include "RSUMobility.h"
 #include <FWMath.h>
 
+// un-defining ev!
+// why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header
+#undef ev
+#include "boost/filesystem.hpp"
+#define ev  (*cSimulation::getActiveEnvir())
+
 namespace VENTOS {
 
 Define_Module(VENTOS::RSUMobility);
@@ -41,7 +47,7 @@ void RSUMobility::initialize(int stage)
     {
         // get a pointer to the TraCI module
         cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
-        TraCI = static_cast<TraCI_Extend *>(module);
+        TraCI = static_cast<TraCI_Commands *>(module);
 
         boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
         boost::filesystem::path SUMO_Path = simulation.getSystemModule()->par("SUMODirectory").stringValue();

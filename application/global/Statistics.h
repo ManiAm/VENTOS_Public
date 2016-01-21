@@ -31,7 +31,7 @@
 #include <BaseApplLayer.h>
 #include <ChannelAccess.h>
 #include <WaveAppToMac1609_4Interface.h>
-#include "TraCI_Extend.h"
+#include "TraCI_Commands.h"
 
 namespace VENTOS {
 
@@ -175,7 +175,7 @@ private:
     bool reportBeaconsData;
 
     // NED variables
-    TraCI_Extend *TraCI;
+    TraCI_Commands *TraCI;
     double updateInterval;
     double terminate;
     Router* router;

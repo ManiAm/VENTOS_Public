@@ -25,6 +25,7 @@
 //
 
 #include <10_TL_LQF_MWM.h>
+#include <queue>
 
 namespace VENTOS {
 

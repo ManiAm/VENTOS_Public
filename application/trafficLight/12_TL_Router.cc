@@ -59,7 +59,7 @@ public:
     double eta;
     std::string id;
 
-    VState(std::string vehicle, TraCI_Extend *TraCI, Router* router, std::string currentEdge, double maxAccel, double lane1velocity, double lane2length = 0, double lane2velocity = 30): id(vehicle)
+    VState(std::string vehicle, TraCI_Commands *TraCI, Router* router, std::string currentEdge, double maxAccel, double lane1velocity, double lane2length = 0, double lane2velocity = 30): id(vehicle)
     {
         double lane1length = router->net->edges.at(currentEdge)->length - TraCI->vehicleGetLanePosition(vehicle);
         position = lane1length + lane2length;//position is distance from the TL along roads

@@ -27,6 +27,10 @@
 
 #include "AddRSU.h"
 
+#include <rapidxml.hpp>
+#include <rapidxml_utils.hpp>
+#include <rapidxml_print.hpp>
+
 namespace VENTOS {
 
 Define_Module(VENTOS::AddRSU);
@@ -44,7 +48,7 @@ void AddRSU::initialize(int stage)
     {
         // get a pointer to the TraCI module
         cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
-        TraCI = static_cast<TraCI_Extend *>(module);
+        TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
 
         // get a pointer to the TrafficLight module

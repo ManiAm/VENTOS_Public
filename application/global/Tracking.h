@@ -29,7 +29,7 @@
 #define TRACKING
 
 #include "BaseApplLayer.h"
-#include "TraCI_Extend.h"
+#include "TraCI_Commands.h"
 
 namespace VENTOS {
 
@@ -44,7 +44,7 @@ class Tracking : public BaseApplLayer
 
 	private:
         // NED variables
-        TraCI_Extend *TraCI;  // pointer to the TraCI module
+        TraCI_Commands *TraCI;  // pointer to the TraCI module
         simsignal_t Signal_executeFirstTS;
 
         // NED variables (GUI)

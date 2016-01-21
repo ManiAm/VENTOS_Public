@@ -31,7 +31,13 @@
 #include <BaseApplLayer.h>
 #include <ChannelAccess.h>
 #include <WaveAppToMac1609_4Interface.h>
-#include "TraCI_Extend.h"
+#include "TraCI_Commands.h"
+
+// un-defining ev!
+// why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header
+#undef ev
+#include "boost/filesystem.hpp"
+#define ev  (*cSimulation::getActiveEnvir())
 
 namespace VENTOS {
 
@@ -50,7 +56,7 @@ protected:
 protected:
     // NED variables
     cModule *nodePtr;
-    TraCI_Extend* TraCI;
+    TraCI_Commands* TraCI;
     int TLControlMode;
     bool activeDetection;
 

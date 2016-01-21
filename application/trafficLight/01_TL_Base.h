@@ -29,8 +29,14 @@
 #define TRAFFICLIGHTBASE_H
 
 #include <BaseApplLayer.h>
-#include "TraCI_Extend.h"
+#include "TraCI_Commands.h"
 #include "ApplRSU_03_ActiveTL.h"
+
+// un-defining ev!
+// why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header
+#undef ev
+#include "boost/filesystem.hpp"
+#define ev  (*cSimulation::getActiveEnvir())
 
 namespace VENTOS {
 
@@ -49,7 +55,7 @@ class TrafficLightBase : public BaseApplLayer
       bool activeDetection;
       int debugLevel;
 
-      TraCI_Extend *TraCI;
+      TraCI_Commands *TraCI;
       ApplRSUTLVANET *RSUptr;
       simsignal_t Signal_executeFirstTS;
       simsignal_t Signal_executeEachTS;

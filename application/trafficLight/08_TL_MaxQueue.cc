@@ -25,6 +25,7 @@
 //
 
 #include <08_TL_MaxQueue.h>
+#include <queue>
 
 namespace VENTOS {
 

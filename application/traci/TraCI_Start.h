@@ -21,25 +21,10 @@
 #ifndef TRACIBASE_H
 #define TRACIBASE_H
 
-#include <map>
-#include <list>
 #include <queue>
-#include <omnetpp.h>
-#include <iomanip>
-#include "ConstsVENTOS.h"
-
 #include "BaseWorldUtility.h"
 #include "ConnectionManager.h"
-#include "TraCIBuffer.h"
-#include "TraCIColor.h"
-#include "TraCIConnection.h"
-#include "TraCICoord.h"
-
-#include <rapidxml.hpp>
-#include <rapidxml_utils.hpp>
-#include <rapidxml_print.hpp>
-
-#include <eigen3/Eigen/Dense>
+#include "TraCI_Commands.h"
 
 // un-defining ev!
 // why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header
@@ -49,11 +34,11 @@
 
 namespace VENTOS {
 
-class TraCI_Base : public cSimpleModule
+class TraCI_Start :  public TraCI_Commands
 {
 public:
-    TraCI_Base();
-    ~TraCI_Base();
+    TraCI_Start();
+    ~TraCI_Start();
 
     virtual void initialize(int stage);
     virtual int numInitStages() const { return std::max(cSimpleModule::numInitStages(), 2); }
@@ -61,36 +46,28 @@ public:
     virtual void handleMessage(cMessage *msg);
     virtual void handleSelfMsg(cMessage *msg);
 
-    // pure virtual methods implemented by TraCI_Extend
-    virtual std::pair<uint32_t, std::string> getVersion() = 0;
-    virtual std::string vehicleGetTypeID(std::string) = 0;
-    virtual std::string vehicleGetClass(std::string) = 0;
-    virtual std::list<std::string> vehicleGetIDList() = 0;
-    virtual int vehicleTypeGetControllerType(std::string) = 0;
-    virtual int vehicleTypeGetControllerNumber(std::string) = 0;
-    virtual std::list<std::string> personGetIDList() = 0;
-    virtual uint32_t simulationGetMinExpectedNumber() = 0;
-    virtual uint32_t personGetIDCount() = 0;
-    virtual std::list<std::string> routeGetIDList() = 0;
-    virtual void vehicleAdd(std::string, std::string, std::string, int32_t, double, double, uint8_t) = 0;
-    virtual std::list<std::string> polygonGetIDList() = 0;
-    virtual std::list<Coord> polygonGetShape(std::string) = 0;
-    virtual std::string polygonGetTypeID(std::string) = 0;
-
 protected:
-    uint32_t getCurrentTimeMs(); /**< get current simulation time (in ms) */
-
-    virtual void executeOneTimestep(); /**< read and execute all commands for the next timestep */
+    /**< read and execute all commands for the next timestep */
+    virtual void executeOneTimestep();
 
     virtual void init_traci();
     void sendLaunchFile();
 
+    void processSimSubscription(std::string objectId, TraCIBuffer& buf);
+    void processVehicleSubscription(std::string objectId, TraCIBuffer& buf);
+    void processSubcriptionResult(TraCIBuffer& buf);
+
+    /**< get current simulation time (in ms) */
+    uint32_t getCurrentTimeMs();
+
     virtual void addModule(std::string nodeId, const Coord& position, std::string road_id = "", double speed = -1, double angle = -1);
     void addPedestriansToOMNET();
-    cModule* getManagedModule(std::string nodeId); /**< returns a pointer to the managed module named moduleName, or 0 if no module can be found */
+    /**< returns a pointer to the managed module named moduleName, or 0 if no module can be found */
+    cModule* getManagedModule(std::string nodeId);
     void deleteManagedModule(std::string nodeId);
 
-    bool isModuleUnequipped(std::string nodeId); /**< returns true if this vehicle is Unequipped */
+    /**< returns true if this vehicle is Unequipped */
+    bool isModuleUnequipped(std::string nodeId);
 
     /**
      * returns whether a given position lies within the simulation's region of interest.
@@ -98,24 +75,11 @@ protected:
      */
     bool isInRegionOfInterest(const TraCICoord& position, std::string road_id, double speed, double angle);
 
-    /**
-     * adds a new vehicle to the queue which are tried to be inserted at the next SUMO time step;
-     */
+    /** adds a new vehicle to the queue which are tried to be inserted at the next SUMO time step */
     void insertNewVehicle();
 
-    /**
-     * tries to add all vehicles in the vehicle queue to SUMO;
-     */
+    /**< tries to add all vehicles in the vehicle queue to SUMO */
     void insertVehicles();
-
-    void subscribeToVehicleVariables(std::string vehicleId);
-    void unsubscribeFromVehicleVariables(std::string vehicleId);
-    void processSimSubscription(std::string objectId, TraCIBuffer& buf);
-    void processVehicleSubscription(std::string objectId, TraCIBuffer& buf);
-    void processSubcriptionResult(TraCIBuffer& buf);
-
-public:
-    TraCIConnection* connection;
 
 protected:
     bool debug; /**< whether to emit debug messages */

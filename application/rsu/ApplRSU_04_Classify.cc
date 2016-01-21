@@ -264,7 +264,7 @@ void ApplRSUCLASSIFY::classifierF()
 {
     // Load data, use 70% for training and 30% for testing
     shark::ClassificationDataset traindata, testdata;
-    shark::importCSV(traindata, "/home/mani/Desktop/dataset/quickstartData.csv", shark::LAST_COLUMN, ' ');
+    shark::importCSV(traindata, "/home/mani/Desktop/VENTOS_all/dataset/quickstartData.csv", shark::LAST_COLUMN, ' ');
     testdata = shark::splitAtElement(traindata, 70 * traindata.numberOfElements() / 100);
 
     shark::GaussianRbfKernel<shark::RealVector> kernel(1.0);  // gamma: kernel bandwidth parameter

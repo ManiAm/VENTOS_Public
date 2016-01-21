@@ -117,7 +117,7 @@ protected:
     std::map<std::string, int> dijkstraTimes;
 
     //Message passing
-    mutable TraCI_Extend* TraCI;    //Link to TraCI
+    TraCI_Commands* TraCI;    //Link to TraCI
     simsignal_t Signal_system;      //Receives signals to here
 
     simsignal_t Signal_executeEachTS;

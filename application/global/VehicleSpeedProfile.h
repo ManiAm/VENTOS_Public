@@ -29,7 +29,7 @@
 #define SPEEDPROFILE
 
 #include "BaseApplLayer.h"
-#include "TraCI_Extend.h"
+#include "TraCI_Commands.h"
 
 namespace VENTOS {
 
@@ -47,7 +47,7 @@ class SpeedProfile : public BaseApplLayer
 	private:
 
         // NED variables
-        TraCI_Extend *TraCI;
+        TraCI_Commands *TraCI;
         bool on;
         double startTime;  // the time that speed profiling starts
 	    int mode;

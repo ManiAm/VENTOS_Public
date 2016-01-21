@@ -30,12 +30,11 @@
 
 #include <BaseApplLayer.h>
 #include <WaveAppToMac1609_4Interface.h>
-#include "TraCI_Extend.h"
+#include "TraCI_Commands.h"
 #include "BeaconRSU_m.h"
 
 namespace VENTOS {
 
-class TraCI_Extend;
 class RSUAdd;
 
 class ApplRSUBase : public BaseApplLayer
@@ -54,7 +53,7 @@ class ApplRSUBase : public BaseApplLayer
 	protected:
 		// NED variables
 	    cModule *nodePtr;   // pointer to the Node
-        TraCI_Extend* TraCI;
+	    TraCI_Commands* TraCI;
 
         // NED variables (beaconing parameters)
         bool sendBeacons;

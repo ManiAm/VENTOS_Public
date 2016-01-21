@@ -3,11 +3,11 @@
 
 package c3po.application.traci;
 
-simple TraCI_Base
+simple TraCI_Start extends TraCI_Commands
 {
     parameters:
         @display("i=block/network2");
-        @class(VENTOS::TraCI_Base);
+        @class(VENTOS::TraCI_Start);
 
         string launchFile = default("");
         double terminate = default(200s) @unit(s);    

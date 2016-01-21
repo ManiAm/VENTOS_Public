@@ -34,7 +34,7 @@
 
 namespace VENTOS {
 
-class TraCI_Extend;
+class TraCI_Commands;
 class Net;
 
 class Phase

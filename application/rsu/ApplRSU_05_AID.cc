@@ -26,7 +26,15 @@
 //
 
 #include "ApplRSU_05_AID.h"
+#include <iomanip>
+#include <fstream>
 #include <boost/tokenizer.hpp>
+
+// un-defining ev!
+// why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header
+#undef ev
+#include "boost/filesystem.hpp"
+#define ev  (*cSimulation::getActiveEnvir())
 
 namespace VENTOS {
 

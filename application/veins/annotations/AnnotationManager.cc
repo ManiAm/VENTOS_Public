@@ -330,7 +330,7 @@ void AnnotationManager::show(const Annotation* annotation) {
 
         // get a pointer to the TraCI module
         cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
-        VENTOS::TraCI_Extend *TraCI = static_cast<VENTOS::TraCI_Extend *>(module);
+        VENTOS::TraCI_Commands *TraCI = static_cast<VENTOS::TraCI_Commands *>(module);
         ASSERT(TraCI);
         TraCI->addPoi(nameBuilder.str(), "Annotation", VENTOS::TraCIColor::fromTkColor(o->color), 6, o->pos);
         annotation->traciPoiIds.push_back(nameBuilder.str());
@@ -353,7 +353,7 @@ void AnnotationManager::show(const Annotation* annotation) {
 
         // get a pointer to the TraCI module
         cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
-        VENTOS::TraCI_Extend *TraCI = static_cast<VENTOS::TraCI_Extend *>(module);
+        VENTOS::TraCI_Commands *TraCI = static_cast<VENTOS::TraCI_Commands *>(module);
         ASSERT(TraCI);
         std::list<Coord> coords; coords.push_back(l->p1); coords.push_back(l->p2);
         std::stringstream nameBuilder;
@@ -392,7 +392,7 @@ void AnnotationManager::show(const Annotation* annotation) {
 
         // get a pointer to the TraCI module
         cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
-        VENTOS::TraCI_Extend *TraCI = static_cast<VENTOS::TraCI_Extend *>(module);
+        VENTOS::TraCI_Commands *TraCI = static_cast<VENTOS::TraCI_Commands *>(module);
         ASSERT(TraCI);
         std::stringstream nameBuilder; nameBuilder << "Annotation" << ev.getUniqueNumber();
         TraCI->polygonAdd(nameBuilder.str(), "Annotation", VENTOS::TraCIColor::fromTkColor(p->color), false, 4, p->coords);

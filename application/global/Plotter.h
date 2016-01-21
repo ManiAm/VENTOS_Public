@@ -29,7 +29,7 @@
 #define PLOTTER_H
 
 #include <BaseApplLayer.h>
-#include "TraCI_Extend.h"
+#include "TraCI_Commands.h"
 
 namespace VENTOS {
 
@@ -52,7 +52,7 @@ class Plotter : public BaseApplLayer
       int minvers = 0;
 
   private:
-      TraCI_Extend *TraCI;
+      TraCI_Commands *TraCI;
       bool on;
 };
 

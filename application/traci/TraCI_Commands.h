@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    TraCI_Extend.h
+/// @file    TraCI_Commands.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    August 2013
@@ -25,10 +25,16 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef TraCIEXTEND_H
-#define TraCIEXTEND_H
+#ifndef TraCICOMMANDS_H
+#define TraCICOMMANDS_H
 
-#include "TraCI_Base.h"
+#include "TraCIConnection.h"
+#include "TraCIBuffer.h"
+#include "TraCIColor.h"
+#include "TraCICoord.h"
+
+#include "Coord.h"
+#include "ConstsVENTOS.h"
 
 namespace VENTOS {
 
@@ -80,12 +86,12 @@ public:
 };
 
 
-class TraCI_Extend : public TraCI_Base
+class TraCI_Commands : public cSimpleModule
 {
 public:
-    virtual ~TraCI_Extend();
+    virtual ~TraCI_Commands();
     virtual void initialize(int stage);
-    virtual void handleSelfMsg(cMessage *msg);
+    virtual void handleMessage(cMessage *msg);
     virtual void finish();
 
     // ################################################################
@@ -98,6 +104,9 @@ public:
     // ################################################################
     //                            simulation
     // ################################################################
+
+    // CMD_SUBSCRIBE_SIM_VARIABLE
+    TraCIBuffer simulationSubscribe(uint32_t beginTime, uint32_t endTime, std::string objectId, std::vector<uint8_t> variables);
 
     // CMD_GET_SIM_VARIABLE
     uint32_t simulationGetLoadedVehiclesCount();
@@ -112,6 +121,9 @@ public:
     // ################################################################
     //                            vehicle
     // ################################################################
+
+    // CMD_SUBSCRIBE_VEHICLE_VARIABLE
+    TraCIBuffer vehicleSubscribe(uint32_t beginTime, uint32_t endTime, std::string objectId, std::vector<uint8_t> variables);
 
     // CMD_GET_VEHICLE_VARIABLE
     std::list<std::string> vehicleGetIDList();
@@ -355,6 +367,9 @@ private:
     Coord genericGetCoordv2(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);                       // new command
     std::vector<double> genericGetBoundingBox(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);     // new command
     uint8_t* genericGetArrayUnsignedInt(uint8_t, std::string, uint8_t, uint8_t);                                                    // new command
+
+protected:
+    TraCIConnection* connection = NULL;  // connection is set by TraCI_Start class
 };
 
 }

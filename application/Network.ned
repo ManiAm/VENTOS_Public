@@ -38,7 +38,7 @@ network Network
         obstacles: ObstacleControl {
             @display("p=272,43");
         }
-        TraCI: TraCI_Extend {
+        TraCI: TraCI_Start {
             parameters:
                 @display("p=48,132");
         }

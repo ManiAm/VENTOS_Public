@@ -29,7 +29,7 @@
 #define SNIFFETHERNET
 
 #include <BaseApplLayer.h>
-#include "TraCI_Extend.h"
+#include "TraCI_Commands.h"
 #include "pcap.h"
 
 #include <arpa/inet.h>     // inet_ntoa
@@ -110,7 +110,7 @@ private:
     bool printStat;
 
     // variables
-    TraCI_Extend *TraCI;
+    TraCI_Commands *TraCI;
     simsignal_t Signal_executeFirstTS;
     simsignal_t Signal_executeEachTS;
     cMessage* captureEvent;

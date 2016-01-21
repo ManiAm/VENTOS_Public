@@ -25,7 +25,7 @@
 #include <omnetpp.h>
 #include "FindModule.h"
 #include "Coord.h"
-#include "TraCI_Extend.h"
+#include "TraCI_Commands.h"
 
 /**
  * manages annotations on the OMNeT++ canvas.

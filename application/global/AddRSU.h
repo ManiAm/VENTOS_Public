@@ -28,8 +28,14 @@
 #ifndef RSUADD_H_
 #define RSUADD_H_
 
-#include "TraCI_Extend.h"
+#include "TraCI_Commands.h"
 #include <BaseApplLayer.h>
+
+// un-defining ev!
+// why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header
+#undef ev
+#include "boost/filesystem.hpp"
+#define ev  (*cSimulation::getActiveEnvir())
 
 namespace VENTOS {
 
@@ -67,7 +73,7 @@ class AddRSU : public BaseApplLayer
 
 	private:
         // NED variables
-        TraCI_Extend *TraCI;  // pointer to the TraCI module
+        TraCI_Commands *TraCI;  // pointer to the TraCI module
         simsignal_t Signal_executeFirstTS;
 
         bool on;

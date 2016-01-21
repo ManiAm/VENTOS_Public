@@ -25,6 +25,7 @@
 //
 
 #include <11_TL_OJF_MWM.h>
+#include <queue>
 
 namespace VENTOS {
 

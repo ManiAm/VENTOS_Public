@@ -28,7 +28,7 @@
 #ifndef WARMPUP
 #define WARMPUP
 
-#include "TraCI_Extend.h"
+#include "TraCI_Commands.h"
 #include "VehicleSpeedProfile.h"
 
 namespace VENTOS {
@@ -47,7 +47,7 @@ class Warmup : public BaseApplLayer
 
 	private:
         // NED variables
-        TraCI_Extend *TraCI;  // pointer to the TraCI module
+        TraCI_Commands *TraCI;  // pointer to the TraCI module
         SpeedProfile *SpeedProfilePtr;
 
         // NED variables

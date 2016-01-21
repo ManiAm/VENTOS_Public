@@ -31,7 +31,7 @@
 #include <BaseApplLayer.h>
 #include <ChannelAccess.h>
 #include <WaveAppToMac1609_4Interface.h>
-#include "TraCI_Extend.h"
+#include "TraCI_Commands.h"
 
 namespace VENTOS {
 
@@ -50,7 +50,7 @@ protected:
 protected:
     // NED variables
     cModule *nodePtr;   // pointer to the Node
-    TraCI_Extend* TraCI;
+    TraCI_Commands* TraCI;
     int TLControlMode;
 
     // module info

@@ -28,7 +28,7 @@
 #ifndef ADVERSARYADD_H_
 #define ADVERSARY_H_
 
-#include "TraCI_Extend.h"
+#include "TraCI_Commands.h"
 #include <BaseApplLayer.h>
 
 namespace VENTOS {
@@ -46,7 +46,7 @@ class AddAdversary : public BaseApplLayer
 
 	private:
         // NED variables
-        TraCI_Extend *TraCI;  // pointer to the TraCI module
+        TraCI_Commands *TraCI;  // pointer to the TraCI module
         simsignal_t Signal_executeFirstTS;
         bool on;
         int mode;

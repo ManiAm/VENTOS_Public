@@ -30,7 +30,7 @@
 
 #include "MiXiMDefs.h"
 #include "BaseMobility.h"
-#include "TraCI_Extend.h"
+#include "TraCI_Commands.h"
 
 namespace VENTOS {
 
@@ -53,7 +53,7 @@ class RSUMobility : public BaseMobility
 
 protected:
     // NED variables
-    TraCI_Extend *TraCI;
+    TraCI_Commands *TraCI;
 
     // Class variables
     int myId;

@@ -28,7 +28,7 @@
 #include <list>
 #include <stdexcept>
 #include "BaseMobility.h"
-#include "TraCI_Extend.h"
+#include "TraCI_Commands.h"
 
 /**
  * @brief
@@ -113,7 +113,7 @@ class TraCIMobilityMod : public BaseMobility
         Coord calculateAntennaPosition(const Coord& vehiclePos) const;
 
 	protected:
-        TraCI_Extend* TraCI;
+        TraCI_Commands* TraCI;
         int vClassEnum;
 
 		bool debug; /**< whether to emit debug messages */
