@@ -461,7 +461,7 @@ echo -n "creating application launcher ... "
 sudo make install-menu-item
 echo "done!"
 
-# go out of omnetpp folder and go to VENTOS
+# go out of omnetpp folder
 cd ..
 
 fi  # end of omnetpp installation
@@ -726,8 +726,10 @@ else
     echo "libshark is already installed!"
 fi
 
-# get current directory
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+#############################
+## End of lib installation ##
+#############################
+
 # change directory to VENTOS
 cd $DIR
 # change directory to parent of VENTOS
