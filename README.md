@@ -5,14 +5,17 @@ VENTOS is an integrated C++ simulator for studying traffic flows in Vehicular Ad
 
 * Ubuntu 14, 64-bit
 * Ubuntu 12, 64-bit
+* Mac OS X El Capitan (10.11)
 
-**Step 1:** If you do not have git installed, then install it: 
+**Step 1:** If you do not have git installed on your machine, then install it. In Ubuntu, simply run the following command in terminal: 
 
     sudo apt-get install git
 
-**Step 2:** Clone the VENTOS repository on a folder that you have write permission (folder path should not have space). Note that you need to provide your github username and password. We run this command on Desktop, thus git clone creates VENTOS_all folder on Desktop with VENTOS sub-folder.
+In Mac OS, type git in terminal and choose the Install button in the window that pops up. This will install command line tools that includes git.
 
-    git clone https://github.com/ManiAm/VENTOS VENTOS_all/VENTOS
+**Step 2:** Clone the VENTOS repository on a folder that you have write permission such as Desktop or home folder (folder path should not have space). Note that you need to provide your github username and password.
+
+    git clone https://github.com/ManiAm/VENTOS
 
 **Step 3:** Go to the VENTOS folder and run the `runme` script. This bash script checks your system and installs the required packages and libraries. Some of the commands need sudo access and you need to type your sudo password at least once. Script execution takes some time, so be patient.
 
@@ -30,7 +33,7 @@ or
 
 **Update PATH to include OMNET++ bin:** OMNeT++ requires that its bin directory be in the PATH. Append the OMNET++ bin path to the PATH varibale in .bashrc similar to the following (note that you should change the path accordinglly).
 
-    export PATH=$PATH:/home/mani/Desktop/VENTOS_all/VENTOS/omnetpp-4.6/bin
+    export PATH=$PATH:/home/mani/Desktop/VENTOS/omnetpp-4.6/bin
 
 Save the .basrc file and then **close/re-open the terminal** for the changes to take effect. Finally, run `runme` script again.
 
@@ -56,11 +59,11 @@ Note: you can not use the official SUMO binaries since we have extended the TraC
 
 SUMO in graphical mode:
 
-    python veins-sumo-launchd.py -vv -c /home/mani/Desktop/VENTOS_all/VENTOS/sumoBinary/sumo-guiD
+    python veins-sumo-launchd.py -vv -c /home/mani/Desktop/VENTOS/sumoBinary/sumo-guiD
 
 SUMO in command-line mode:
 
-    python veins-sumo-launchd.py -vv -c /home/mani/Desktop/VENTOS_all/VENTOS/sumoBinary/sumoD
+    python veins-sumo-launchd.py -vv -c /home/mani/Desktop/VENTOS/sumoBinary/sumoD
 
 The terminal should look like the following picture. The script will print `Listening on port 9999` and wait for the simulation to start. Note that after running either of these commands, DO NOT close the terminal window. Leave it open.
 
@@ -68,7 +71,7 @@ The terminal should look like the following picture. The script will print `List
 
 **Step 2:** To make the life easier, you can create an alias command to make a shortcut to the above long commands. Open .bashrc and add these lines at the end (you should change the PATHs accordingly).
 
-    export VENTOSPATH=/home/mani/Desktop/VENTOS_all/VENTOS
+    export VENTOSPATH=/home/mani/Desktop/VENTOS
     export sumoBinaryPATH=$VENTOSPATH/sumoBinary
     alias sumo-cmd='python $VENTOSPATH/veins-sumo-launchd.py -vv -c $sumoBinaryPATH/sumoD'
     alias sumo-gui='python $VENTOSPATH/veins-sumo-launchd.py -vv -c $sumoBinaryPATH/sumo-guiD'
@@ -135,7 +138,7 @@ If X server is not installed on your machine, then install it:
     sudo apt-get install xorg
     sudo apt-get install openbox
 
-**Step 3:** Follow the same instructions in previous sections to install OMNET++, Veins and VENTOS on the remote server.
+**Step 3:** Follow the same instructions in previous sections to install VENTOS on the remote server.
 
 **Step 4:** While using OMNET++, the SSH session should be open. Closing the terminal windows or restarting your machine terminates the SSH session and the running simulation will be closed. To keep the SSH session open, you need to use `screen` or `tmux`. We will use `tmux` since it is more powerfull. 
 

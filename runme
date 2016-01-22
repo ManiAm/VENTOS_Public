@@ -261,9 +261,9 @@ result=$?
 if [[ "$result" == "2" ]]; then
     if [[ "$OS" == "Mac OS X" ]]; then
         # on Mac OS
-        java > /dev/null 2> /dev/null    # requesting install
+        # we have already requested to install java
         echo "requesting to install java ..."
-        printf "\e[1;32mChoose the More Info button in the window that pops up. Then install the latest Java SE runtime. After completion, run the script again.\e[0m \n\n"
+        printf "\e[1;32mChoose the More Info button in the window that pops up and install the latest JDK. After completion, run the script again.\e[0m \n\n"
         exit 1
     else
         # on Ubuntu
@@ -319,6 +319,10 @@ if [[ "$OS" == "Ubuntu" ]]; then
     install_LIB_linux libs[@]
 
 elif [[ "$OS" == "Mac OS X" ]]; then
+
+    echo ""
+    echo "Check main libraries for OMNET++"
+    echo "================================"
     libs=("open-mpi" "lftp" "curl" "Caskroom/cask/xquartz")
     install_LIB_Mac libs[@]
 fi
@@ -331,10 +335,10 @@ echo "============================"
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # change directory to VENTOS
 cd $DIR
-# change directory to VENTOS_all
+# change directory to parent of VENTOS
 cd ..
-# tmp stores all downloaded files
-mkdir tmp
+# make directory in tmp to store all downloaded files
+mkdir /tmp/VENTOS_tmp
 
 ver=$(opp_run -v 2> /dev/null | grep 'Build:' | awk '{print $2}')
 if [[ "" != "$ver" ]]; then
@@ -350,17 +354,17 @@ echo "==================="
 # check if omnet directory exists
 if [ ! -d "omnetpp-4.6" ]; then
     # searching for omnet++ archive
-    findings=$(find ./tmp -name "omnetpp*.tgz" -o -name "omnetpp*.tar" | wc -l | xargs)  # xargs: remove all whitespaces
+    findings=$(find /tmp/VENTOS_tmp -name "omnetpp*.tgz" -o -name "omnetpp*.tar" | wc -l | xargs)  # xargs: remove all whitespaces
     if [[ "$findings" = "0" ]]; then        
         echo "downloading omnet++"
-        lftp -e 'pget -n 5 omnetpp-4.6-src.tgz -o tmp/omnetpp.tgz; bye' -p 28 -u userftp,userftp ftp://rubinet.ece.ucdavis.edu/download
+        lftp -e 'pget -n 5 omnetpp-4.6-src.tgz -o /tmp/VENTOS_tmp/omnetpp.tgz; bye' -p 28 -u userftp,userftp ftp://rubinet.ece.ucdavis.edu/download
     elif [[ "$findings" > "1" ]]; then
         echo "ERROR: more than one omnet++ archive file exists!"
         exit 1
     fi
     
     # now that we have the file, we can extract!
-    omnetFile=$(find ./tmp -name "omnetpp*.tgz" -o -name "omnetpp*.tar")
+    omnetFile=$(find /tmp/VENTOS_tmp -name "omnetpp*.tgz" -o -name "omnetpp*.tar")
     echo "found" $omnetFile
     echo -n "extracting omnet ..."
     tar zxf $omnetFile  
@@ -377,7 +381,7 @@ echo "========================="
 
 # run configure in omnet directory
 cd omnetpp-4.6
-confOut=$( { ./configure > /tmp/out.zvapoq; } 2>&1 )
+confOut=$( { ./configure > /tmp/VENTOS_tmp/out.zvapoq; } 2>&1 )
 printf "%s \n" "$confOut"
 
 # should we terminate this script
@@ -396,7 +400,7 @@ fi
 
 # check if g++ suports c++11
 # Starting from version 4.6, OMNET++ uses C++11 standard (formerly known as C++0x) by default. This means that OMNET++ source code as well as all the imported projects will be compiled with this flag. Look for this line in the configure output, and make sure that it is 'yes'.
-value=$(</tmp/out.zvapoq)
+value=$(</tmp/VENTOS_tmp/out.zvapoq)
 res=$(echo "$value" | grep "supports -std=c++11... yes")
 if [ "" = "$res" ]; then
     printf "\n\e[1;31mconfigure script reports that g++ does not support c++11.\e[0m \n\n"
@@ -457,7 +461,7 @@ echo -n "creating application launcher ... "
 sudo make install-menu-item
 echo "done!"
 
-# change directory to parent (VENTOS_all)
+# go out of omnetpp folder and go to VENTOS
 cd ..
 
 fi  # end of omnetpp installation
@@ -489,7 +493,7 @@ elif [[ "$OS" == "Mac OS X" ]]; then
 fi
 
 # cd to tmp
-cd tmp
+cd /tmp/VENTOS_tmp
 
 echo ""
 echo "Check gnuplot version"
@@ -722,7 +726,11 @@ else
     echo "libshark is already installed!"
 fi
 
-# go out of tmp folder
+# get current directory
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# change directory to VENTOS
+cd $DIR
+# change directory to parent of VENTOS
 cd ..
 
 echo ""
@@ -777,7 +785,7 @@ if [[ "$OS" == "Ubuntu" ]]; then
 fi
 
 echo -n "removing temporary data ..."
-rm -rf tmp
+rm -rf /tmp/VENTOS_tmp
 echo "done!"
 
 echo ""
