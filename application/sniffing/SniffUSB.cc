@@ -197,7 +197,7 @@ void SniffUSB::getUSBidsFromFile()
     boost::filesystem::path usbids_FullPath = VENTOS_FullPath / "application/sniffing/sniff_usb_ids";
 
     std::ifstream in(usbids_FullPath.string().c_str());
-    if(in == NULL)
+    if(in.fail())
         error("cannot open file sniff_usb_ids at %s", usbids_FullPath.string().c_str());
 
     std::string line;

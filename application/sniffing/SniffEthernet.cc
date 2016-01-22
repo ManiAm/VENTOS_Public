@@ -224,7 +224,7 @@ void SniffEthernet::getOUIFromFile()
     boost::filesystem::path manuf_FullPath = VENTOS_FullPath / "application/sniffing/sniff_manuf";
 
     std::ifstream in(manuf_FullPath.string().c_str());
-    if(in == NULL)
+    if(in.fail())
         error("cannot open file sniff_manuf at %s", manuf_FullPath.string().c_str());
 
     std::string line;
@@ -248,7 +248,7 @@ void SniffEthernet::getPortNumbersFromFile()
     boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
     boost::filesystem::path services_FullPath = VENTOS_FullPath / "application/sniffing/sniff_services";
     std::ifstream in(services_FullPath.string().c_str());
-    if(in == NULL)
+    if(in.fail())
         error("cannot open file sniff_services at %s", services_FullPath.string().c_str());
 
     std::string line;
