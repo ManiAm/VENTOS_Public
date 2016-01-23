@@ -17,7 +17,7 @@ In Mac OS, type git in terminal and choose the Install button in the window that
 
     git clone https://github.com/ManiAm/VENTOS
 
-**Step 3:** Go to the VENTOS folder and run the `runme` script. This bash script checks your system and installs the required packages and libraries. Some of the commands need sudo access and you need to type your sudo password at least once. Script execution takes some time, so be patient.
+**Step 3:** Go to the VENTOS folder and run the `runme` script. This bash script checks your system and installs the required packages and libraries. Script execution takes some time, so be patient. **Do not run the script using sudo.** Some of the commands need sudo access and you need to type your sudo password at least once.
 
     sudo ./runme
 
@@ -37,6 +37,8 @@ or
 
 Save the .basrc file and then **close/re-open the terminal** for the changes to take effect. Finally, run `runme` script again.
 
+**Update PATH to include SUMO bin:** You need to add SUMO bin directory into PATH.
+
 **Step 4:** You can run the Eclipse IDE using the desktop shortcut, application launcher or typing `omnetpp` in terminal. The first time you run OMNET++, Eclipse IDE asks you to select a workspace. Select the folder that you will use to store all your project files. If you have intention to store all your projects on Desktop, then change the workspace to Desktop. Also check "Use this as the default and do not ask again".
 
 "Introduction to OMNET++" page will appear. Click on "Workbench". Then it asks you to install INET framework or import some examples into your workspace. Uncheck them both since we do not need them for the time being.
@@ -49,19 +51,17 @@ Save the .basrc file and then **close/re-open the terminal** for the changes to 
 Running VENTOS
 --------------
 
-Before running the VENTOS project, latest SUMO binaries (`sumo-guiD` and `sumoD`) should be obtained. These binaries will be downloaded automatically in the VENTOS/sumoBinary folder upon running the `runme` script. sumo-guiD is the GUI version that provides a graphical interface to SUMO, and is visible while the OMNET++ simulation is running (and is very useful for debugging purposes). On the other hands, sumoD is the command-line version which is faster. 
-
-Note: you can not use the official SUMO binaries since we have extended the TraCI commands, car-following models, etc. Using the official SUMO binaries will probably give you run-time error.
+SUMO binaries (`sumo-guiD` and `sumoD`) are located in SUMO bin folder. sumo-guiD is the GUI version that provides a graphical interface to SUMO, and is visible while the OMNET++ simulation is running (and is very useful for debugging purposes). On the other hands, sumoD is the command-line version which is faster.Note that you can not use the official SUMO binaries since we have extended the TraCI commands, car-following models, etc. Using the official SUMO binaries will probably give you run-time error.
 
 **Step 1:** To save you the trouble of manually running SUMO prior to every OMNeT++ simulation, the Veins module framework comes with a small python script (veins-sumo-launchd.py) to do that for you. This script will proxy TCP connections between OMNeT++ and SUMO, starting a new copy of the SUMO simulation for every OMNeT++ simulation connecting. From the VENTOS folder, run either of the following commands:
 
 SUMO in graphical mode:
 
-    python veins-sumo-launchd.py -vv -c /home/mani/Desktop/VENTOS/sumoBinary/sumo-guiD
+    python veins-sumo-launchd.py -vv -c sumo-guiD
 
 SUMO in command-line mode:
 
-    python veins-sumo-launchd.py -vv -c /home/mani/Desktop/VENTOS/sumoBinary/sumoD
+    python veins-sumo-launchd.py -vv -c sumoD
 
 The terminal should look like the following picture. The script will print `Listening on port 9999` and wait for the simulation to start. Note that after running either of these commands, DO NOT close the terminal window. Leave it open.
 
@@ -70,9 +70,8 @@ The terminal should look like the following picture. The script will print `List
 **Step 2:** To make the life easier, you can create an alias command to make a shortcut to the above long commands. Open .bashrc and add these lines at the end (you should change the PATHs accordingly).
 
     export VENTOSPATH=/home/mani/Desktop/VENTOS
-    export sumoBinaryPATH=$VENTOSPATH/sumoBinary
-    alias sumo-cmd='python $VENTOSPATH/veins-sumo-launchd.py -vv -c $sumoBinaryPATH/sumoD'
-    alias sumo-gui='python $VENTOSPATH/veins-sumo-launchd.py -vv -c $sumoBinaryPATH/sumo-guiD'
+    alias sumo-cmd='python $VENTOSPATH/veins-sumo-launchd.py -vv -c sumoD'
+    alias sumo-gui='python $VENTOSPATH/veins-sumo-launchd.py -vv -c sumo-guiD'
 
 Now you can use sumo-cmd and sumo-gui commands instead!
 
