@@ -794,6 +794,18 @@ void TraCI_Start::deleteManagedModule(std::string nodeId)
     hosts.erase(nodeId);
     mod->callFinish();
     mod->deleteModule();
+
+    if(equilibrium_vehicle)
+    {
+        auto it = addedNodes.find(nodeId);
+        if(it == addedNodes.end())
+            error("cannot find %s in the addedNodes map! Was this node added using vehicleAdd() method?", nodeId.c_str());
+
+        std::cout << "t=" << simTime().dbl() << ": " << nodeId << " arrived. Inserting it again ..." << std::endl;
+        departedNodes node = it->second;
+        addedNodes.erase(it);  // remove this entry
+        vehicleAdd(node.vehicleId, node.vehicleTypeId, node.routeId, (simTime().dbl() * 1000)+1, node.pos, node.speed, node.lane);
+    }
 }
 
 

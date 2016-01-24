@@ -86,6 +86,28 @@ public:
 };
 
 
+class departedNodes
+{
+public:
+    std::string vehicleId;
+    std::string vehicleTypeId;
+    std::string routeId;
+    double pos;
+    double speed;
+    uint8_t lane;
+
+    departedNodes(std::string str1, std::string str2, std::string str3, double d1, double d2, uint8_t i2)
+    {
+        this->vehicleId = str1;
+        this->vehicleTypeId = str2;
+        this->routeId = str3;
+        this->pos = d1;
+        this->speed = d2;
+        this->lane = i2;
+    }
+};
+
+
 class TraCI_Commands : public cSimpleModule
 {
 public:
@@ -369,7 +391,12 @@ private:
     uint8_t* genericGetArrayUnsignedInt(uint8_t, std::string, uint8_t, uint8_t);                                                    // new command
 
 protected:
-    TraCIConnection* connection = NULL;  // connection is set by TraCI_Start class
+    // NED
+    bool equilibrium_vehicle;
+
+    // class
+    TraCIConnection* connection;  // connection is set by TraCI_Start class
+    std::map<std::string, departedNodes> addedNodes;
 };
 
 }

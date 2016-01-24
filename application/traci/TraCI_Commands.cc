@@ -44,8 +44,10 @@ void TraCI_Commands::initialize(int stage)
 
     if (stage == 1)
     {
+        equilibrium_vehicle = par("equilibrium_vehicle").boolValue();
 
-
+        connection = NULL;
+        addedNodes.clear();
     }
 }
 
@@ -776,6 +778,17 @@ void TraCI_Commands::vehicleAdd(std::string vehicleId, std::string vehicleTypeId
             << lane);          // departure lane
 
     ASSERT(buf.eof());
+
+    if(equilibrium_vehicle)
+    {
+        // saving information for implementing equilibrium
+        departedNodes *node = new departedNodes(vehicleId, vehicleTypeId, routeId, pos, speed, lane);
+        auto it = addedNodes.find(vehicleId);
+        if(it != addedNodes.end())
+            error("%s was added before!", vehicleId.c_str());
+        else
+            addedNodes.insert(std::make_pair(vehicleId, *node));
+    }
 }
 
 

@@ -321,7 +321,7 @@ if [[ "$OS" == "Ubuntu" ]]; then
     echo "Check additional libraries for OMNET++"
     echo "======================================"
     # "openmpi-bin" and "libopenmpi-dev are for parallel simulation support (MPI)
-    libs=("openmpi-bin" "libopenmpi-dev" "libpcap-dev" "gnome-color-chooser")
+    libs=("openmpi-bin" "libopenmpi-dev" "libpcap-dev" "gnome-color-chooser" "valgrind")
     install_LIB_linux libs[@]
 
     echo ""
@@ -482,8 +482,8 @@ fi  # end of omnetpp installation
 ###############################
 
 echo ""
-echo "Check base libraries"
-echo "===================="
+echo "Check main libraries for VENTOS"
+echo "==============================="
 
 if [[ "$OS" == "Ubuntu" ]]; then
 
