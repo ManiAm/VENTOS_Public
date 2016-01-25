@@ -753,6 +753,8 @@ fi
 ################################
 ## Start of SUMO installation ##
 ################################
+# following instructions in here
+# http://sumo.dlr.de/wiki/Installing/MacOS_Build_w_Homebrew
 
 # change directory to VENTOS
 cd $DIR
@@ -859,7 +861,7 @@ echo "Making SUMO"
 echo "==========="
 
 # start making SUMO
-printf "\e[1;32mcompiling takes some time, so relax, grab a cup of coffee and \nwatch: https://www.youtube.com/watch?v=A6XUVjK9W4o \e[0m \n"
+printf "\e[1;32mcompiling takes some time, so relax and \nwatch: https://www.youtube.com/watch?v=BlFdAm2AjAk \e[0m \n"
 echo " "
 make -j8 > /dev/null
 echo "make is finished!"
