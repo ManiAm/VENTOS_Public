@@ -11,7 +11,7 @@ VENTOS is an integrated C++ simulator for studying traffic flows in Vehicular Ad
 
     sudo apt-get install git
 
-In Mac OS, type git in terminal and choose the Install button in the window that pops up. This will install command line tools that includes git.
+In Mac OS, type `git` in terminal and choose the Install button in the window that pops up. This will install command line tools that includes git.
 
 **Step 2:** Clone the VENTOS repository on a folder that you have write permission such as Desktop or home folder (folder path should not have space). Note that you need to provide your github username and password.
 

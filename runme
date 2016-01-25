@@ -457,7 +457,7 @@ echo "=============="
 # start making omnet++
 printf "\e[1;32mcompiling takes some time, so relax, grab a cup of coffee and \nwatch: https://www.youtube.com/watch?v=A6XUVjK9W4o \e[0m \n"
 echo " "
-make -j8 > /dev/null
+make -j4 > /dev/null
 echo "make is finished!"
 
 echo ""
@@ -820,7 +820,7 @@ echo "generating configure file ..."
 make -f Makefile.cvs > /dev/null
 
 echo "running configure ..."
-confOut=$( { ./configure --enable-debug --with-proj-gdal --with-proj-libraries=/usr > /tmp/VENTOS_tmp/out.xzevap; } 2>&1 )
+confOut=$( { ./configure --enable-debug --with-proj-gdal=/usr/local > /tmp/VENTOS_tmp/out.xzevap; } 2>&1 )
 printf "%s \n" "$confOut"
 
 # should we terminate this script
@@ -863,7 +863,7 @@ echo "==========="
 # start making SUMO
 printf "\e[1;32mcompiling takes some time, so relax and \nwatch: https://www.youtube.com/watch?v=BlFdAm2AjAk \e[0m \n"
 echo " "
-make -j8 > /dev/null
+make -j4 > /dev/null
 echo "make is finished!"
 
 # go out of SUMO folder
