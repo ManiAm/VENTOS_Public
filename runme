@@ -729,7 +729,7 @@ if [[ ("$result" == "1") || ("$result" == "2") ]]; then
     echo "installing shark ..."
     mkdir build
     cd build
-    cmake "-DBUILD_EXAMPLES=OFF" "-DBUILD_TESTING=OFF" "-DBUILD_SHARED_LIBS=ON" "-DCBLAS_INCLUDES:FILEPATH=/usr/include/atlas/cblas.h" ../ > /dev/null
+    cmake "-DBUILD_EXAMPLES=OFF" "-DBUILD_TESTING=OFF" "-DBUILD_SHARED_LIBS=ON" "-DCMAKE_BUILD_TYPE=Debug" ../ > /dev/null
     make 
     sudo make install > /dev/null
 
