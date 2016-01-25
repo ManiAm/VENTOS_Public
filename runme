@@ -292,9 +292,11 @@ if [[ "$result" == "2" ]]; then
     fi
 fi
 
-# refresh the databse of available packages
-echo "updating available packages ..."
-sudo apt-get update > /dev/null
+if [[ "$OS" == "Ubuntu" ]]; then
+    # refresh the databse of available packages
+    echo "updating available packages ..."
+    sudo apt-get update > /dev/null
+fi
 
 echo ""
 echo "Checking downloaders"
@@ -741,9 +743,9 @@ if [[ "$OS" == "Ubuntu" ]]; then
         echo "libshark is already installed!"
     fi
 
-# in mac OS shark installation is much easier thanks to brew
+# in mac OS, shark installation is much easier thanks to brew
 elif [[ "$OS" == "Mac OS X" ]]; then
-    libs=("shark")
+    libs=("homebrew/science/shark")
     install_LIB_Mac libs[@]
 fi
 
@@ -760,9 +762,15 @@ cd ..
 echo ""
 echo "Check main libraries for SUMO"
 echo "============================="
-# should we add "libxerces-c2-dev" ? installing libgdal-dev removes libxerces-c2-dev!
-libs=("automake" "autoconf" "libfox-1.6-dev" "libproj-dev" "libgdal-dev")
-install_LIB_linux libs[@]
+
+if [[ "$OS" == "Ubuntu" ]]; then
+    # should we add "libxerces-c2-dev" ? installing libgdal-dev removes libxerces-c2-dev!
+    libs=("automake" "autoconf" "pkg-config" "libfox-1.6-dev" "libproj-dev" "libgdal-dev")
+    install_LIB_linux libs[@]
+elif [[ "$OS" == "Mac OS X" ]]; then
+    libs=("automake" "autoconf" "pkg-config" "homebrew/x11/fox" "proj" "gdal" "xerces-c")
+    install_LIB_Mac libs[@]
+fi
 
 echo ""
 echo "Preparing to install SUMO"
@@ -799,6 +807,12 @@ echo "Running SUMO configure"
 echo "======================"
 
 cd VENTOS_SUMO
+
+if [[ "$OS" == "Mac OS X" ]]; then
+    # homebrew installs xquartz in /opt/x11/
+    export CPPFLAGS="$CPPFLAGS -I/opt/X11/include/"
+    export LDFLAGS="-L/opt/X11/lib"
+fi
 
 echo "generating configure file ..."
 make -f Makefile.cvs > /dev/null
@@ -847,7 +861,7 @@ echo "==========="
 # start making SUMO
 printf "\e[1;32mcompiling takes some time, so relax, grab a cup of coffee and \nwatch: https://www.youtube.com/watch?v=A6XUVjK9W4o \e[0m \n"
 echo " "
-make > /dev/null
+make -j8 > /dev/null
 echo "make is finished!"
 
 # go out of SUMO folder
