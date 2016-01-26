@@ -38,6 +38,7 @@
 #include "boost/filesystem.hpp"
 #define ev  (*cSimulation::getActiveEnvir())
 
+#include <sys/socket.h>        // solve in Mac os x: unknown type name socklen_t
 #define STDCXX_98_HEADERS
 #include "snmp_pp/snmp_pp.h"
 

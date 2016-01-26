@@ -639,14 +639,14 @@ void SniffEthernet::processICMP(const u_char *packet, const struct ip *ip_packet
 {
     /* compute icmp header offset */
     int size_ip = ip_packet->ip_hl * 4;  // size in byte
-    const struct icmphdr *icmp = (struct icmphdr*)(packet + ETHER_HDR_LEN + size_ip);
+    const struct icmp *icmp_msg = (struct icmp*)(packet + ETHER_HDR_LEN + size_ip);
 
     if(printCaptured)
     {
         printf("\n        ICMP message --> ");
 
-        printf("Type: %d, ", icmp->type);
-        printf("Code: %d, ", icmp->code);
+        printf("Type: %d, ", icmp_msg->icmp_type);
+        printf("Code: %d, ", icmp_msg->icmp_code);
     }
 
     /* compute icmp payload offset */

@@ -26,13 +26,17 @@ In Mac OS, type `git` in terminal and choose the Install button in the window th
 
 The script might show you many warning messages and you can safely ignore many of them, but pay attension to these warnings:
 
-**Setting the JAVA_HOME variable:** Open your .bashrc and set the JAVA_HOME variable accordingly. Go to /usr/lib/jvm to see what version of java is installed on your machine and then set JAVA_HOME similar to the following:
+**Setting the JAVA_HOME variable:** Open your .bashrc and set the JAVA_HOME variable accordingly. In Ubuntu, go to /usr/lib/jvm to see what version of java is installed on your machine and then set JAVA_HOME similar to the following:
 
     export JAVA_HOME=/usr/lib/jvm/java-8-oracle
     
 or
 
     export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64
+
+Mac OS X users can set JAVA_HOME by adding the following line to .bashrc:
+
+    export JAVA_HOME=`/usr/libexec/java_home`
 
 **Update PATH to include OMNET++ bin:** OMNeT++ requires that its bin directory be in the PATH. Append the OMNET++ bin path to the PATH varibale in .bashrc similar to the following (note that you should change the path accordinglly).
 
