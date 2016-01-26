@@ -93,9 +93,9 @@ private:
     void processARP(const u_char *packet);
     void processIPv4(const u_char *packet);
     void processIPv6(const u_char *packet);
-    void processTCP(const u_char *packet, const struct iphdr *ip);
-    void processUDP(const u_char *packet, const struct iphdr *ip);
-    void processICMP(const u_char *packet, const struct iphdr *ip);
+    void processTCP(const u_char *packet, const struct ip *);
+    void processUDP(const u_char *packet, const struct ip *);
+    void processICMP(const u_char *packet, const struct ip *);
 
     void print_dataPayload(const u_char *payload, int len);
     void print_hex_ascii_line(const u_char *payload, int len, int offset);

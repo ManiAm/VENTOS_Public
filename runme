@@ -72,6 +72,11 @@ elif [[ ("$OSTYPE" == "darwin"* && "$OS" == "Mac OS X" && "$VER_major" == "10" &
         brew update > /dev/null 2> /dev/null
         echo "ok"
     fi
+
+    # installing brew cask
+    echo "checking brew cask ..."
+    brew cask list > /dev/null 2> /dev/null
+
 else
     echo -n "This OS is not supported (yet)! Do you want to continue anyway? (y/n) "
     read answer
@@ -110,12 +115,15 @@ install_LIB_Mac ()
     declare -a argAry=("${!1}")
     for i in "${argAry[@]}"
     do
-        # check if package $i is installed
-        echo -n $i "..."
-        PKG_OK=$(brew list | grep -w $i)
-        if [[ "" == "$PKG_OK" ]]; then
+        # get the last component like Caskroom/cask/xquartz
+        last=$(basename $i)
+        # check if package $last is installed
+        echo -n $last "..."
+        PKG_OK1=$(brew list | grep -w $last)
+        PKG_OK2=$(brew cask list 2> /dev/null | grep -w $last)
+        if [[ ("" == "$PKG_OK1") && ("" == "$PKG_OK2") ]]; then
             echo "installing"
-            brew install $i > /dev/null
+            brew install $i > /dev/null  # $i: we need the full package name!
         else
             echo "ok"
         fi
@@ -747,6 +755,9 @@ if [[ "$OS" == "Ubuntu" ]]; then
 elif [[ "$OS" == "Mac OS X" ]]; then
     libs=("homebrew/science/shark")
     install_LIB_Mac libs[@]
+
+    # we need to create a sym link manually?!
+    sudo ln -s /usr/local/Cellar/shark/3.0.0/include/shark /usr/local/include
 fi
 
 
@@ -888,7 +899,7 @@ if [[ "$OS" == "Ubuntu" ]]; then
     # libpcap library is used to sniff packets from network interfaces. We need to give permission to opp_run to be able to access the network interfaces (check [here](http://packetlife.net/blog/2010/mar/19/sniffing-wireshark-non-root-user/)). Moreover, libusb needs permission to open a USB device for read/write. This is done through setting [capabilities](http://linux.die.net/man/7/capabilities) using the following command:
     echo -n "set capability for opp_run ..."
     cd omnetpp-4.6/bin  # for some reasons we must change our current directory to bin first
-    sudo setcap cap_dac_override,cap_net_raw,cap_net_admin=eip opp_run
+    sudo setcap cap_dac_override,cap_net_raw,cap_net_admin=eip opp_run  # https://www.insecure.ws/linux/getcap_setcap.html
     echo "done!"
     cd ..
     cd ..

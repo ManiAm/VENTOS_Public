@@ -503,15 +503,15 @@ void SniffEthernet::processARP(const u_char *packet)
 
 void SniffEthernet::processIPv4(const u_char *packet)
 {
-    const struct iphdr *ip = (struct iphdr*)(packet + ETHER_HDR_LEN);
+    const struct ip *ip_packet = (struct ip*)(packet + ETHER_HDR_LEN);
 
-    if(ip->version != 4)
+    if(ip_packet->ip_v != 4)
     {
-        printf("    Invalid IPv4 version number: %u ", ip->version);
+        printf("    Invalid IPv4 version number: %u ", ip_packet->ip_v);
         return;
     }
 
-    int size_ip = ip->ihl * 4;  // size in byte
+    int size_ip = ip_packet->ip_hl * 4;  // size in byte
     if (size_ip < 20) // minimum ipv4 header size is 20 bytes
     {
         printf("    Invalid IPv4 header length: %u bytes", size_ip);
@@ -523,24 +523,26 @@ void SniffEthernet::processIPv4(const u_char *packet)
         printf("    IPv4 packet --> ");
 
         /* print source and destination IP addresses */
-        printf("From: %s, ", formatIPaddress(ip->saddr).c_str());
-        printf("To: %s, ", formatIPaddress(ip->daddr).c_str());
+        uint32_t sAdd = ( (struct in_addr)(ip_packet->ip_src) ).s_addr;
+        uint32_t dAdd = ( (struct in_addr)(ip_packet->ip_dst) ).s_addr;
+        printf("From: %s, ", formatIPaddress(sAdd).c_str());
+        printf("To: %s, ", formatIPaddress(dAdd).c_str());
     }
 
     /* determine protocol */
-    switch(ip->protocol)
+    switch(ip_packet->ip_p)
     {
     case IPPROTO_TCP:
         if(printCaptured) printf("Protocol: %s", "TCP");
-        processTCP(packet, ip);
+        processTCP(packet, ip_packet);
         break;
     case IPPROTO_UDP:
         if(printCaptured) printf("Protocol: %s", "UDP");
-        processUDP(packet, ip);
+        processUDP(packet, ip_packet);
         break;
     case IPPROTO_ICMP:
         if(printCaptured) printf("Protocol: %s", "ICMP");
-        processICMP(packet, ip);
+        processICMP(packet, ip_packet);
         break;
     default:
         if(printCaptured) printf("Protocol: %s", "?");
@@ -553,9 +555,9 @@ void SniffEthernet::processIPv6(const u_char *packet)
 {
     // const struct ip6_hdr *ipv6 = (struct ip6_hdr*)(packet + ETHER_HDR_LEN);
 
-//    if(ip->version != 4)
+//    if(ip_packet->version != 4)
 //    {
-//        printf("    Invalid IPv6 version number: %u ", ip->version);
+//        printf("    Invalid IPv6 version number: %u ", ip_packet->version);
 //        return;
 //    }
 
@@ -565,10 +567,10 @@ void SniffEthernet::processIPv6(const u_char *packet)
 }
 
 
-void SniffEthernet::processTCP(const u_char *packet, const struct iphdr *ip)
+void SniffEthernet::processTCP(const u_char *packet, const struct ip *ip_packet)
 {
     /* compute tcp header offset */
-    int size_ip = ip->ihl * 4;  // size in byte
+    int size_ip = ip_packet->ip_hl * 4;  // size in byte
     const struct tcphdr *tcp = (struct tcphdr*)(packet + ETHER_HDR_LEN + size_ip);
 
     int size_tcp = tcp->th_off * 4;
@@ -590,7 +592,7 @@ void SniffEthernet::processTCP(const u_char *packet, const struct iphdr *ip)
     const u_char *payload = (const u_char *)(packet + ETHER_HDR_LEN + size_ip + size_tcp);
 
     /* compute tcp payload (segment) size */
-    int size_payload = ntohs(ip->tot_len) - (size_ip + size_tcp);
+    int size_payload = ntohs(ip_packet->ip_len) - (size_ip + size_tcp);
     if(printCaptured) printf("Payload (%d bytes)\n", size_payload);
 
     /* Print payload data; it might be binary, so don't just treat it as a string. */
@@ -599,10 +601,10 @@ void SniffEthernet::processTCP(const u_char *packet, const struct iphdr *ip)
 }
 
 
-void SniffEthernet::processUDP(const u_char *packet, const struct iphdr *ip)
+void SniffEthernet::processUDP(const u_char *packet, const struct ip *ip_packet)
 {
     /* compute udp header offset */
-    int size_ip = ip->ihl * 4;  // size in byte
+    int size_ip = ip_packet->ip_hl * 4;  // size in byte
     const struct udphdr *udp = (struct udphdr*)(packet + ETHER_HDR_LEN + size_ip);
 
     int size_udp = udp->uh_ulen;  // size in byte
@@ -624,7 +626,7 @@ void SniffEthernet::processUDP(const u_char *packet, const struct iphdr *ip)
     const u_char *payload = (const u_char *)(packet + ETHER_HDR_LEN + size_ip + 8);
 
     /* compute udp payload size */
-    int size_payload = ntohs(ip->tot_len) - (size_ip + 8);
+    int size_payload = ntohs(ip_packet->ip_len) - (size_ip + 8);
     if(printCaptured) printf("Payload (%d bytes)\n", size_payload);
 
     /* Print payload data; it might be binary, so don't just treat it as a string. */
@@ -633,10 +635,10 @@ void SniffEthernet::processUDP(const u_char *packet, const struct iphdr *ip)
 }
 
 
-void SniffEthernet::processICMP(const u_char *packet, const struct iphdr *ip)
+void SniffEthernet::processICMP(const u_char *packet, const struct ip *ip_packet)
 {
     /* compute icmp header offset */
-    int size_ip = ip->ihl * 4;  // size in byte
+    int size_ip = ip_packet->ip_hl * 4;  // size in byte
     const struct icmphdr *icmp = (struct icmphdr*)(packet + ETHER_HDR_LEN + size_ip);
 
     if(printCaptured)
@@ -651,7 +653,7 @@ void SniffEthernet::processICMP(const u_char *packet, const struct iphdr *ip)
     const u_char *payload = (const u_char *)(packet + ETHER_HDR_LEN + size_ip + 8);
 
     /* compute icmp payload size */
-    int size_payload = ntohs(ip->tot_len) - (size_ip + 8);
+    int size_payload = ntohs(ip_packet->ip_len) - (size_ip + 8);
     if(printCaptured) printf("Payload (%d bytes)\n", size_payload);
 
     /* Print payload data; it might be binary, so don't just treat it as a string. */
