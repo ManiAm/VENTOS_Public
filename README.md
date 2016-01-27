@@ -20,7 +20,7 @@ In Mac OS, type `git` in terminal and choose the Install button in the window th
 
     git clone https://github.com/ManiAm/VENTOS
 
-**Step 3:** Go to the VENTOS folder and run the `runme` script. This bash script checks your system and installs the required packages and libraries. Script execution takes some time, so be patient. **Do not run the script using sudo.** Some of the commands need sudo access and you need to type your sudo password at least once. The script might show you many warning messages and you can safely ignore many of them.
+**Step 3:** Go to the VENTOS folder and run the `runme` script. This bash script checks your system and installs the required packages and libraries. Script execution takes some time, so be patient. **Do not run the script using sudo.** Some of the commands need sudo access and you need to type your sudo password at least once. The script might show you many compile-time warning messages and you can safely ignore many of them.
 
     sudo ./runme
 

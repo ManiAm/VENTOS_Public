@@ -532,16 +532,21 @@ if [[ "$OS" == "Mac OS X" ]]; then
     else
         echo "gdb is not signed!"
 
-        # make a directory in omnet to store keys and certificates
-        mkdir omnetpp-4.6/keys
-        # go to the directory
-        cd omnetpp-4.6/keys
-        # check if change directory was successful (next command is dangerous!)
-        if [[ $? -ne 0 ]]; then
-            exit 1
-        fi
-        # delete whats inside keys
-        rm -rf * .* 2> /dev/null
+        # looking for certificate VENTOS
+        exists=$(security find-identity -p codesigning -s "VENTOS" | grep "identities found" | head -n1 | xargs | awk '{print $1}')
+        if [[ $exists != 0 ]]; then
+            echo "certificate VENTOS already exists!"
+        else
+            # make a directory in omnet to store keys and certificates
+            mkdir omnetpp-4.6/keys
+            # go to the directory
+            cd omnetpp-4.6/keys
+            # check if change directory was successful (next command is dangerous!)
+            if [[ $? -ne 0 ]]; then
+                exit 1
+            fi
+            # delete whats inside keys
+            rm -rf * .* 2> /dev/null
 
 cat > myconfig.cnf << EOF
 
@@ -569,39 +574,83 @@ keyUsage = digitalSignature
 extendedKeyUsage = codeSigning
 
 EOF
+            # .key is a PEM formatted file containing just the private-key and 
+            # is merely a conventional name and not a standardized one. 
+            echo "generating the private key ..."
+            openssl genrsa -des3 -passout pass:foobar -out server.key 2048
 
-        echo "generating the private key ..."
-        openssl genrsa -des3 -passout pass:foobar -out server.key 2048
+            # .csr is a 'Certificate Signing Request' and an application can generate it for submission to certificate-authorities. 
+            # The actual format is PKCS10 which is defined in RFC 2986. It includes some/all of the key details of the requested 
+            # certificate such as subject, organization, state, whatnot, as well as the public key of the certificate to get signed. 
+            # -config myconfig.cnf -extensions 'my server exts' tells openssl the company name, etc. We could do this by passing the info 
+            # in command line: http://stackoverflow.com/questions/8075274/is-it-possible-making-openssl-skipping-the-country-common-name-prompts 
+            echo ""
+            echo "generating the CSR (certificate signing request) ..."
+            openssl req -new -passin pass:foobar -passout pass:foobar -key server.key -out server.csr -config myconfig.cnf -extensions 'my server exts'
 
-        # no prompt (second approach):
-        # http://stackoverflow.com/questions/8075274/is-it-possible-making-openssl-skipping-the-country-common-name-prompts
-        echo ""
-        echo "generating the CSR (certificate signing request) ..."
-        openssl req -new -passin pass:foobar -passout pass:foobar -key server.key -out server.csr -config myconfig.cnf -extensions 'my server exts'
+            if [[ $? -ne 0 ]]; then
+                exit 1
+            fi
 
-        if [[ $? -ne 0 ]]; then
+            # previously generated .csr is get signed by the CA and a certificate is returned (usually in x509 format). 
+            # Note that the certificate contains the 'public key' but not the 'private key'.
+            # -config myconfig.cnf -extensions 'my server exts' tells openssl to use extendedKeyUsage = codeSigning
+            echo ""
+            echo "generating the self-signed certificate ..."
+            openssl x509 -req -passin pass:foobar -days 6666 -in server.csr -signkey server.key -out server.crt -extfile myconfig.cnf -extensions 'my server exts'
+
+            if [[ $? -ne 0 ]]; then
+                exit 1
+            fi
+
+            # .pkcs12 .pfx .p12 originally defined by RSA in the Public-Key Cryptography Standards, the "12" variant was enhanced by Microsoft. 
+            # This is a passworded container format that contains both public and private certificate pairs (this container is fully encrypted)
+            echo ""
+            echo "convert crt + RSA private key into a PKCS12 (PFX) file ..."
+            openssl pkcs12 -export -passin pass:foobar -passout pass:foobar -in server.crt -inkey server.key -out server.pfx
+
+            # .pem Defined in RFC's 1421 through 1424, this is a container format that may include just the public certificate (such as with 
+            # Apache installs, and CA certificate files /etc/ssl/certs), or may include an entire certificate chain including public key, 
+            # private key, and root certificates. PEM files are not used in this script
+            echo ""
+            echo "convert crt + RSA private key into a PEM file ..."
+            openssl x509 -inform PEM -in server.crt -out server.public.pem
+            openssl rsa -passin pass:foobar -in server.key -out server.private.pem
+            cat server.crt server.key > server.pem  # private key should come after
+
+            # convert PKCS12 to PEM (this PEM contains certificate and then RSA private key)
+            # openssl pkcs12 -passin pass:foobar -passout pass:foobar -in server.pfx -out server22.pem
+
+            if [[ $? -ne 0 ]]; then
+                exit 1
+            fi
+
+            echo ""
+            echo "importing the certificate ..."
+            sudo security import server.pfx -k /Library/Keychains/System.keychain -P foobar
+            
+            # add-trusted-cer supports DER or PEM format (its not possible to import both cer and private key)
+            #sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain server.pem
+
+            if [[ $? -ne 0 ]]; then
+                exit 1
+            fi
+        fi
+
+        # check if certificate VENTOS is trusted?
+        valid=$(security find-identity -p codesigning -s "VENTOS" | grep "identities found" | tail -n1 | xargs | awk '{print $1}')
+        if [[ $valid != 0 ]]; then
+            echo "certificate VENTOS is trusted. Good!"
+        else
+            echo ""
+            echo "change trust of certificate VENTOS ..."
+            printf "\e[1;32mIn Keychain Access window, select 'System' keychains from top left and 'Certificates' category from bottom left. Right-click on certificate VENTOS and select 'Get Info'. Open the Trust item and set Code Signing to 'Always Trust'. Close Keychain Access window and re-run this script. \e[0m \n\n"
+            open -a 'Keychain Access'
             exit 1
         fi
 
-        echo ""
-        echo "generating the self-signed certificate ..."
-        openssl x509 -req -passin pass:foobar -days 6666 -in server.csr -signkey server.key -out server.crt -extfile myconfig.cnf -extensions 'my server exts'
-
-        if [[ $? -ne 0 ]]; then
-            exit 1
-        fi
-
-        echo ""
-        echo "convert crt + RSA private key into a PKCS12 (PFX) file ..."
-        openssl pkcs12 -export -passin pass:foobar -passout pass:foobar -in server.crt -inkey server.key -out server.pfx
-
-        echo ""
-        echo "importing the certificate ..."
-        sudo security import server.pfx -k /Library/Keychains/System.keychain -P foobar
-        #sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain server.pfx
-
-        # always trust code signing
-        # ?
+        # before signing, we should either restart or run this
+        sudo killall taskgated
 
         echo ""
         echo "signing gdb ..."
@@ -611,12 +660,13 @@ EOF
             exit 1
         fi
 
-        # killall taskgated
-        # ?
-
         cd ..  # go out of key folder
         cd ..  # go out of omnet folder
-    fi
+    fi  # end of gdb signing
+
+    # show a message that user needs to change the path to gdb
+    printf "\e[1;32mDo not forget to modify 'GDB debugger' in OMNET++ Eclipse to \e[0m \n"
+    printf "\e[1;32m    "$(which gdb)" \e[0m \n"
 fi
 
 
