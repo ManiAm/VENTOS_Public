@@ -20,31 +20,9 @@ In Mac OS, type `git` in terminal and choose the Install button in the window th
 
     git clone https://github.com/ManiAm/VENTOS
 
-**Step 3:** Go to the VENTOS folder and run the `runme` script. This bash script checks your system and installs the required packages and libraries. Script execution takes some time, so be patient. **Do not run the script using sudo.** Some of the commands need sudo access and you need to type your sudo password at least once.
+**Step 3:** Go to the VENTOS folder and run the `runme` script. This bash script checks your system and installs the required packages and libraries. Script execution takes some time, so be patient. **Do not run the script using sudo.** Some of the commands need sudo access and you need to type your sudo password at least once. The script might show you many warning messages and you can safely ignore many of them.
 
     sudo ./runme
-
-The script might show you many warning messages and you can safely ignore many of them, but pay attension to these warnings:
-
-**Setting the JAVA_HOME variable:** Open your .bashrc and set the JAVA_HOME variable accordingly. In Ubuntu, go to /usr/lib/jvm to see what version of java is installed on your machine and then set JAVA_HOME similar to the following:
-
-    export JAVA_HOME=/usr/lib/jvm/java-8-oracle
-    
-or
-
-    export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64
-
-Mac OS X users can set JAVA_HOME by adding the following line to .bashrc:
-
-    export JAVA_HOME=`/usr/libexec/java_home`
-
-**Update PATH to include OMNET++ bin:** OMNeT++ requires that its bin directory be in the PATH. Append the OMNET++ bin path to the PATH varibale in .bashrc similar to the following (note that you should change the path accordinglly).
-
-    export PATH=$PATH:/home/mani/Desktop/VENTOS/omnetpp-4.6/bin
-
-Save the .basrc file and then **close/re-open the terminal** for the changes to take effect. Finally, run `runme` script again.
-
-**Update PATH to include SUMO bin:** You need to add SUMO bin directory into PATH.
 
 **Step 4:** You can run the Eclipse IDE using the desktop shortcut, application launcher or typing `omnetpp` in terminal. The first time you run OMNET++, Eclipse IDE asks you to select a workspace. Select the folder that you will use to store all your project files. If you have intention to store all your projects on Desktop, then change the workspace to Desktop. Also check "Use this as the default and do not ask again".
 

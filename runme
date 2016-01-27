@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ "$EUID" -eq 0 ]; then 
-  printf "\e[1;31mNo! No! No! Do not run the script with sudo permission! \e[0m \n\n"
+  printf "\e[1;31mDo not run the script with sudo permission! \e[0m \n\n"
   exit 1
 fi
 
@@ -400,22 +400,40 @@ echo "========================="
 
 # In the OMNET++ folder you can see the `configure.in` file that is used by autoconf to generate the `configure` script. Additional input parameters for configure script are defined in `configure.user` file. The configure script detects installed software and configuration of your system, and generates three outputs: `config.log`, `config.status`, and `Makefile.inc`. The first two files are used for debugging purposes, and the last file will be read later by the makefiles during the build process.
 
-# run configure in omnet directory
+# go to omnet directory
 cd omnetpp-4.6
+if [[ $? -ne 0 ]]; then
+    exit 1
+fi
+
+# run configure
 confOut=$( { ./configure > /tmp/VENTOS_tmp/out.zvapoq; } 2>&1 )
 printf "%s \n" "$confOut"
 
-# should we terminate this script
+# terminate script on error
 check=$(echo "$confOut" | grep "configure: error")
 if [ "" != "$check" ]; then
     echo ""    # insert new line for readability
     exit 1
 fi
 
-# should we terminate this script
-check=$(echo "$confOut" | grep "your PATH doesn't contain")
+# show instruction on setting java_path
+check=$(echo "$confOut" | grep "configure: WARNING: JAVA_HOME")
 if [ "" != "$check" ]; then
-    printf "\n\e[1;31mAfter changing PATH, close this terminal and run the script again!\e[0m \n"
+
+    if [[ "$OS" == "Ubuntu" ]]; then
+        printf "\n\e[1;32mTo set JAVA_HOME, go to /usr/lib/jvm to see what version of java is installed on your machine. Set JAVA_HOME similar to the following: \n     export JAVA_HOME=/usr/lib/jvm/java-8-oracle  \n or \n     export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64\e[0m \n"
+
+    elif [[ "$OS" == "Mac OS X" ]]; then
+        printf "\n\e[1;32mSet JAVA_HOME by adding the following line to .bashrc: \n    export JAVA_HOME=`/usr/libexec/java_home` \e[0m \n"
+
+    fi
+fi
+
+# terminate script on java_home and omnet bin path warning
+check=$(echo "$confOut" | grep -e "configure: WARNING: JAVA_HOME" -e "WARNING: your PATH doesn't contain")
+if [ "" != "$check" ]; then
+    printf "\n\e[1;31mAfter changing PATH, close this terminal and run the script again!\e[0m \n\n"
     exit 1
 fi
 
@@ -475,17 +493,132 @@ echo "================="
 # Running OMNET++ each time from command line might not be desirable for you. You can create a shortcut or launcher to OMNET++ on your desktop.
 
 echo -n "creating desktop shortcut ... "
-make install-desktop-icon
+make install-desktop-icon > /dev/null 2> /dev/null
 echo "done!"
 
 echo -n "creating application launcher ... "
-sudo make install-menu-item
+sudo make install-menu-item > /dev/null 2> /dev/null
 echo "done!"
 
 # go out of omnetpp folder
 cd ..
 
 fi  # end of omnetpp installation
+
+echo ""
+echo "Check gdb"
+echo "========="
+
+which -s gdb
+if [[ $? != 0 ]] ; then
+    # install gdb for debugging in eclipse
+    if [[ "$OS" == "Ubuntu" ]]; then
+        libs=("gdb")
+        install_LIB_Linux libs[@]
+    elif [[ "$OS" == "Mac OS X" ]]; then
+        libs=("gdb" "openssl")
+        install_LIB_Mac libs[@]
+    fi
+else
+    echo "gdb found in"
+    echo "    $(which gdb)"
+fi
+
+# OS X 10.9 and later requires that you sign the gdb executable with a certificate
+if [[ "$OS" == "Mac OS X" ]]; then
+    autho=$(codesign --display --verbose=4 $(which gdb) 2>&1 | grep 'Authority')
+    if [[ "" != "$autho" ]]; then
+        echo "gdb is signed with $autho"
+    else
+        echo "gdb is not signed!"
+
+        # make a directory in omnet to store keys and certificates
+        mkdir omnetpp-4.6/keys
+        # go to the directory
+        cd omnetpp-4.6/keys
+        # check if change directory was successful (next command is dangerous!)
+        if [[ $? -ne 0 ]]; then
+            exit 1
+        fi
+        # delete whats inside keys
+        rm -rf * .* 2> /dev/null
+
+cat > myconfig.cnf << EOF
+
+[ req ]
+prompt             = no
+distinguished_name = my dn
+
+[ my dn ]
+# The bare minimum is probably a commonName
+commonName = VENTOS
+countryName = XX
+localityName = Fun Land
+organizationName = MyCo LLC LTD INC (d.b.a. OurCo)
+organizationalUnitName = SSL Dept.
+stateOrProvinceName = YY
+emailAddress = ssl-admin@example.com
+name = John Doe
+surname = Doe
+givenName = John
+initials = JXD
+dnQualifier = some
+
+[ my server exts ]
+keyUsage = digitalSignature
+extendedKeyUsage = codeSigning
+
+EOF
+
+        echo "generating the private key ..."
+        openssl genrsa -des3 -passout pass:foobar -out server.key 2048
+
+        # no prompt (second approach):
+        # http://stackoverflow.com/questions/8075274/is-it-possible-making-openssl-skipping-the-country-common-name-prompts
+        echo ""
+        echo "generating the CSR (certificate signing request) ..."
+        openssl req -new -passin pass:foobar -passout pass:foobar -key server.key -out server.csr -config myconfig.cnf -extensions 'my server exts'
+
+        if [[ $? -ne 0 ]]; then
+            exit 1
+        fi
+
+        echo ""
+        echo "generating the self-signed certificate ..."
+        openssl x509 -req -passin pass:foobar -days 6666 -in server.csr -signkey server.key -out server.crt -extfile myconfig.cnf -extensions 'my server exts'
+
+        if [[ $? -ne 0 ]]; then
+            exit 1
+        fi
+
+        echo ""
+        echo "convert crt + RSA private key into a PKCS12 (PFX) file ..."
+        openssl pkcs12 -export -passin pass:foobar -passout pass:foobar -in server.crt -inkey server.key -out server.pfx
+
+        echo ""
+        echo "importing the certificate ..."
+        sudo security import server.pfx -k /Library/Keychains/System.keychain -P foobar
+        #sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain server.pfx
+
+        # always trust code signing
+        # ?
+
+        echo ""
+        echo "signing gdb ..."
+        sudo codesign -s VENTOS "$(which gdb)"
+
+        if [[ $? -ne 0 ]]; then
+            exit 1
+        fi
+
+        # killall taskgated
+        # ?
+
+        cd ..  # go out of key folder
+        cd ..  # go out of omnet folder
+    fi
+fi
+
 
 ################################
 ## Start of SUMO installation ##
@@ -495,6 +628,9 @@ fi  # end of omnetpp installation
 
 # change directory to VENTOS
 cd $DIR
+if [[ $? -ne 0 ]]; then
+    exit 1
+fi
 # change directory to parent of VENTOS
 cd ..
 
@@ -504,10 +640,10 @@ echo "============================="
 
 if [[ "$OS" == "Ubuntu" ]]; then
     # should we add "libxerces-c2-dev" ? installing libgdal-dev removes libxerces-c2-dev!
-    libs=("automake" "autoconf" "pkg-config" "libfox-1.6-dev" "libproj-dev" "libgdal-dev")
+    libs=("libtool" "automake" "autoconf" "pkg-config" "libfox-1.6-dev" "libproj-dev" "libgdal-dev")
     install_LIB_linux libs[@]
 elif [[ "$OS" == "Mac OS X" ]]; then
-    libs=("automake" "autoconf" "pkg-config" "homebrew/x11/fox" "proj" "gdal" "xerces-c")
+    libs=("libtool" "automake" "autoconf" "pkg-config" "homebrew/x11/fox" "proj" "gdal" "xerces-c")
     install_LIB_Mac libs[@]
 fi
 
@@ -546,6 +682,9 @@ echo "Running SUMO configure"
 echo "======================"
 
 cd VENTOS_SUMO
+if [[ $? -ne 0 ]]; then
+    exit 1
+fi
 
 if [[ "$OS" == "Mac OS X" ]]; then
     # homebrew installs xquartz in /opt/x11/
@@ -626,24 +765,82 @@ if [[ "$OS" == "Ubuntu" ]]; then
         boostLIB="libboost-all-dev"
     fi
     
-    # "cmake" "cmake-curses-gui" are used by eigen and shark
-    # "libtool" "automake" "autotools-dev" "libudev-dev" are for making libusb
-    # "libatlas-base-dev" is for shark
-    libs=("$boostLIB" "libssl-dev" "libcurl4-gnutls-dev" "gnuplot" "gnuplot-x11" "cmake" "cmake-curses-gui" "libusb-1.0-0-dev" "libtool" "automake" "autotools-dev" "libudev-dev" "libatlas-base-dev")
+    libs=("$boostLIB" "libssl-dev" "libcurl4-gnutls-dev")
     install_LIB_linux libs[@]
 
 elif [[ "$OS" == "Mac OS X" ]]; then
 
-    libs=("boost" "gnuplot" "cmake" "libusb" "libtool" "automake")
+    libs=("boost")
     install_LIB_Mac libs[@]
 fi
 
 # cd to tmp
 cd /tmp/VENTOS_tmp
+if [[ $? -ne 0 ]]; then
+    exit 1
+fi
 
 echo ""
-echo "Check gnuplot version"
-echo "====================="
+echo "Check cmake"
+echo "==========="
+
+# install cmake lib
+if [[ "$OS" == "Ubuntu" ]]; then
+    libs=("cmake" "cmake-curses-gui")
+    install_LIB_linux libs[@]
+elif [[ "$OS" == "Mac OS X" ]]; then
+    libs=("cmake")
+    install_LIB_Mac libs[@]
+fi
+
+# check the cmake version (shark needs higher versions!)
+version=$(cmake -version | grep ^'cmake version' | sed 's/^.* //g')
+echo "cmake version is" $version
+
+# should we install a newer version?
+vercomp "$version" "2.8.7"
+result=$?
+if ! [[ "$result" == "1" ]]; then
+    if [ ! -d "CMake" ]; then
+        echo "downloading CMake"
+        curl -o cmake.zip -LOk https://github.com/Kitware/CMake/archive/master.zip
+        unzip cmake.zip -d CMake > /dev/null
+    fi
+
+    cd CMake
+    cd CMake-master
+    if [[ $? -ne 0 ]]; then
+        exit 1
+    fi
+
+    echo "installing cmake ..."
+    mkdir _build
+    cd _build
+    cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr > /dev/null
+    make
+    sudo make install > /dev/null
+    if [[ "$OS" == "Ubuntu" ]]; then
+        sudo ldconfig  # we need cmake in the next step
+    fi
+
+    cd ..
+    cd ..
+    cd ..
+fi
+
+echo ""
+echo "Check gnuplot"
+echo "============="
+
+# install gnuplot
+if [[ "$OS" == "Ubuntu" ]]; then
+    libs=("gnuplot" "gnuplot-x11")
+    install_LIB_linux libs[@]
+elif [[ "$OS" == "Mac OS X" ]]; then
+    libs=("gnuplot")
+    install_LIB_Mac libs[@]
+fi
+
 # check version
 version=$(gnuplot --version | awk '{print $2}')
 echo "gnuplot version is" $version
@@ -664,6 +861,9 @@ if [[ "$result" == "2" ]]; then
 #libwxgtk2.8-dev
 
     cd gnuplot
+    if [[ $? -ne 0 ]]; then
+        exit 1
+    fi
 
     echo "installing gnuplot ..."
     ./configure > /dev/null 2> /dev/null
@@ -674,44 +874,13 @@ if [[ "$result" == "2" ]]; then
 fi
 
 echo ""
-echo "Check cmake version"
-echo "==================="
-# check the cmake version (shark needs higher versions!)
-version=$(cmake -version | grep ^'cmake version' | sed 's/^.* //g')
-echo "cmake version is" $version
+echo "Check libpcap"
+echo "============="
 
-# should we install a newer version?
-vercomp "$version" "2.8.7"
-result=$?
-if ! [[ "$result" == "1" ]]; then
-    if [ ! -d "CMake" ]; then
-        echo "downloading CMake"
-        curl -o cmake.zip -LOk https://github.com/Kitware/CMake/archive/master.zip
-        unzip cmake.zip -d CMake > /dev/null
-    fi
-
-    cd CMake
-    cd CMake-master
-
-    echo "installing cmake ..."
-    mkdir _build
-    cd _build
-    cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr > /dev/null
-    make
-    sudo make install > /dev/null
-    if [[ "$OS" == "Ubuntu" ]]; then
-        sudo ldconfig  # we need cmake in the next step
-    fi
-
-    cd ..
-    cd ..
-    cd ..
-fi
-
-echo ""
-echo "Check libpcap version"
-echo "====================="
 if [[ "$OS" == "Ubuntu" ]]; then
+    libs=("libpcap-dev")
+    install_LIB_linux libs[@]
+
     getLibVersions_Linux "libpcap" "1.7"
 elif [[ "$OS" == "Mac OS X" ]]; then
     getLibVersions_Mac "libpcap" "1.7"
@@ -728,6 +897,9 @@ if [[ 1 ]]; then
 
     cd libpcap
     cd libpcap-master
+    if [[ $? -ne 0 ]]; then
+        exit 1
+    fi
 
     echo "installing libpcap ..."
     ./configure > /dev/null
@@ -741,11 +913,19 @@ else
 fi
 
 echo ""
-echo "Check libusb version"
-echo "===================="
+echo "Check libusb"
+echo "============"
+
 if [[ "$OS" == "Ubuntu" ]]; then
+    libs=("libusb-1.0-0-dev" "libtool" "automake" "autotools-dev" "libudev-dev")
+    install_LIB_linux libs[@]
+
     getLibVersions_Linux "libusb-1.0" "0.1.0"
+
 elif [[ "$OS" == "Mac OS X" ]]; then
+    libs=("libusb" "libtool" "automake")
+    install_LIB_Mac libs[@]
+
     getLibVersions_Mac "libusb-1.0" "0.1.0"
 fi
 
@@ -760,6 +940,9 @@ if [[ 1 ]]; then
 
     cd libusb
     cd libusb-master
+    if [[ $? -ne 0 ]]; then
+        exit 1
+    fi
 
     echo "installing libusb ..."
     ./autogen.sh > /dev/null
@@ -774,13 +957,14 @@ else
 fi
 
 echo ""
-echo "Installing snmp++"
-echo "================="
+echo "check snmp++"
+echo "============"
 
 # libsnmp++ library will be copied into /usr/local/lib and the header files will be copied into /usr/local/include.
 
 if [[ "$OS" == "Ubuntu" ]]; then
     getLibVersions_Linux "libsnmp++" "33.0.5"
+
 elif [[ "$OS" == "Mac OS X" ]]; then
     getLibVersions_Mac "libsnmp++" "33.0.5"
 fi
@@ -797,6 +981,9 @@ if [[ 1 ]]; then
     fi
 
     cd snmp
+    if [[ $? -ne 0 ]]; then
+        exit 1
+    fi
 
     # make executable (Mac OS X)
     chmod +x build-aux/install-sh
@@ -812,8 +999,8 @@ else
 fi
 
 echo ""
-echo "Installing eigen"
-echo "================"
+echo "check eigen"
+echo "==========="
 
 # Eigen consists only of header files, hence there is nothing to compile before you can use it. The header files will be copied into /usr/local/include.
 
@@ -828,6 +1015,9 @@ else
 
     cd eigen
     cd eigen-master
+    if [[ $? -ne 0 ]]; then
+        exit 1
+    fi
 
     echo "installing eigen ..."
     mkdir build
@@ -841,15 +1031,22 @@ else
 fi
 
 echo ""
-echo "Installing shark"
-echo "================"
+echo "check shark"
+echo "==========="
 
 # libshark library will be copied into /usr/local/lib and the header files will be copied into /usr/local/include.
 # in mac os x, brew install shark does not make symbolic links for include:
 # sudo ln -s /usr/local/Cellar/shark/3.0.0/include/shark /usr/local/include
 # moreover, we need shark_debug shared library. So shark should be compiled manually!
 
-getLibVersions_Linux "libshark" "3.0.0"
+if [[ "$OS" == "Ubuntu" ]]; then
+    libs=("libatlas-base-dev")
+    install_LIB_linux libs[@]
+
+    getLibVersions_Linux "libshark" "3.0.0"
+elif [[ "$OS" == "Mac OS X" ]]; then
+    getLibVersions_Mac "libshark" "3.0.0"
+fi
 
 result=$?
 #if [[ ("$result" == "1") || ("$result" == "2") ]]; then
@@ -862,6 +1059,9 @@ if [[ 1 ]]; then
 
     cd Shark
     cd Shark-master
+    if [[ $? -ne 0 ]]; then
+        exit 1
+    fi
 
     echo "installing shark ..."
     mkdir build
@@ -895,6 +1095,9 @@ if [[ "$OS" == "Ubuntu" ]]; then
     # libpcap library is used to sniff packets from network interfaces. We need to give permission to opp_run to be able to access the network interfaces (check [here](http://packetlife.net/blog/2010/mar/19/sniffing-wireshark-non-root-user/)). Moreover, libusb needs permission to open a USB device for read/write. This is done through setting [capabilities](http://linux.die.net/man/7/capabilities) using the following command:
     echo -n "set capability for opp_run ..."
     cd omnetpp-4.6/bin  # for some reasons we must change our current directory to bin first
+    if [[ $? -ne 0 ]]; then
+        exit 1
+    fi
     sudo setcap cap_dac_override,cap_net_raw,cap_net_admin=eip opp_run  # https://www.insecure.ws/linux/getcap_setcap.html
     echo "done!"
     cd ..
