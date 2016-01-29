@@ -34,6 +34,28 @@
 
 namespace VENTOS {
 
+class departedNodes
+{
+public:
+    std::string vehicleId;
+    std::string vehicleTypeId;
+    std::string routeId;
+    double pos;
+    double speed;
+    uint8_t lane;
+
+    departedNodes(std::string str1, std::string str2, std::string str3, double d1, double d2, uint8_t i2)
+    {
+        this->vehicleId = str1;
+        this->vehicleTypeId = str2;
+        this->routeId = str3;
+        this->pos = d1;
+        this->speed = d2;
+        this->lane = i2;
+    }
+};
+
+
 class TraCI_Start :  public TraCI_Commands
 {
 public:
@@ -148,6 +170,9 @@ protected:
     boost::filesystem::path VENTOS_FullPath;
     boost::filesystem::path SUMO_Path;
     boost::filesystem::path SUMO_FullPath;
+
+    bool equilibrium_vehicle;
+    std::map<std::string, departedNodes> addedNodes;
 };
 
 }

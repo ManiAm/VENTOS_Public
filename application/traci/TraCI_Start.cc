@@ -125,6 +125,9 @@ void TraCI_Start::initialize(int stage)
         SUMO_FullPath = VENTOS_FullPath / SUMO_Path;
         if( !boost::filesystem::exists( SUMO_FullPath ) )
             error("SUMO directory is not valid! Check it again.");
+
+        equilibrium_vehicle = par("equilibrium_vehicle").boolValue();
+        addedNodes.clear();
     }
 }
 
@@ -294,7 +297,7 @@ void TraCI_Start::init_traci()
         }
     }
 
-    std::cout << "Initializing modules with TraCI support ..." << std::endl;
+    std::cout << "Initializing modules with TraCI support ..." << std::endl << std::endl;
     simsignal_t Signal_executeFirstTS = registerSignal("executeFirstTS");
     this->emit(Signal_executeFirstTS, 1);
 
@@ -777,6 +780,23 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
             {
                 std::string idstring; buf >> idstring;
                 // adding modules is handled on the fly when entering/leaving the ROI
+
+                if(equilibrium_vehicle)
+                {
+                    // saving information for later use
+                    departedNodes *node = new departedNodes(idstring,
+                            vehicleGetTypeID(idstring),
+                            vehicleGetRouteID(idstring),
+                            vehicleGetLanePosition(idstring),
+                            vehicleGetSpeed(idstring),
+                            vehicleGetLaneIndex(idstring));
+
+                    auto it = addedNodes.find(idstring);
+                    if(it != addedNodes.end())
+                        error("%s was added before!", idstring.c_str());
+                    else
+                        addedNodes.insert(std::make_pair(idstring, *node));
+                }
             }
 
             activeVehicleCount += count;
@@ -807,6 +827,18 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
 
                 if(unEquippedHosts.find(idstring) != unEquippedHosts.end())
                     unEquippedHosts.erase(idstring);
+
+                if(equilibrium_vehicle)
+                {
+                    auto it = addedNodes.find(idstring);
+                    if(it == addedNodes.end())
+                        error("cannot find %s in the addedNodes map!", idstring.c_str());
+
+                    std::cout << "t=" << simTime().dbl() << ": " << idstring << " arrived. Inserting it again ..." << std::endl;
+                    departedNodes node = it->second;
+                    addedNodes.erase(it);  // remove this entry
+                    vehicleAdd(node.vehicleId, node.vehicleTypeId, node.routeId, (simTime().dbl() * 1000)+1, node.pos, node.speed, node.lane);
+                }
             }
 
             // should we proceed with sumo simulation?
@@ -958,18 +990,6 @@ void TraCI_Start::deleteManagedModule(std::string nodeId)
     hosts.erase(nodeId);
     mod->callFinish();
     mod->deleteModule();
-
-    if(equilibrium_vehicle)
-    {
-        auto it = addedNodes.find(nodeId);
-        if(it == addedNodes.end())
-            error("cannot find %s in the addedNodes map! Was this node added using vehicleAdd() method?", nodeId.c_str());
-
-        std::cout << "t=" << simTime().dbl() << ": " << nodeId << " arrived. Inserting it again ..." << std::endl;
-        departedNodes node = it->second;
-        addedNodes.erase(it);  // remove this entry
-        vehicleAdd(node.vehicleId, node.vehicleTypeId, node.routeId, (simTime().dbl() * 1000)+1, node.pos, node.speed, node.lane);
-    }
 }
 
 

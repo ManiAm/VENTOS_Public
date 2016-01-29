@@ -41,6 +41,11 @@ void Tracking::initialize(int stage)
 {
     if(stage ==0)
     {
+        on = par("on").boolValue();
+
+        if(!on)
+            return;
+
         // get a pointer to the TraCI module
         cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
         TraCI = static_cast<TraCI_Commands *>(module);
@@ -48,8 +53,6 @@ void Tracking::initialize(int stage)
 
         Signal_executeFirstTS = registerSignal("executeFirstTS");
         simulation.getSystemModule()->subscribe("executeFirstTS", this);
-
-        on = par("on").boolValue();
 
         zoom = par("zoom").doubleValue();
         if(zoom < 0)

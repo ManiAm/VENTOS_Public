@@ -97,9 +97,9 @@ void ApplRSUBase::initialize(int stage)
         offSet = offSet + floor(offSet/0.050)*0.050;
         individualOffset = dblrand() * maxOffset;
 
-        RSUBeaconEvt = new cMessage("RSUBeaconEvt", KIND_TIMER);
         if (sendBeacons)
         {
+            RSUBeaconEvt = new cMessage("RSUBeaconEvt", KIND_TIMER);
             scheduleAt(simTime() + offSet, RSUBeaconEvt);
         }
 	}

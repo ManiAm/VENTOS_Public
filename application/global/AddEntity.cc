@@ -184,7 +184,7 @@ void AddEntity::Add()
     }
 
     int loadedVehCount = TraCI->simulationGetLoadedVehiclesCount();
-    std::cout << endl << ">>> AddEntity module loaded " << loadedVehCount << " entities: " << endl;
+    std::cout << ">>> AddEntity module loaded " << loadedVehCount << " entities: " << endl;
     std::list<std::string> loadedVehList = TraCI->simulationGetLoadedVehiclesIDList();
     std::list<std::string> loadedVehType;
     for(std::string vehID : loadedVehList)
