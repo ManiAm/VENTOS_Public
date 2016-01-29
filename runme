@@ -45,38 +45,6 @@ elif [[ ("$OSTYPE" == "linux-gnu" && "$OS" == "Ubuntu" && "$VER_major" == "12" &
 elif [[ ("$OSTYPE" == "darwin"* && "$OS" == "Mac OS X" && "$VER_major" == "10" && "$VER_minor" == "11") ]]; then
     echo "Starting script ..."
 
-    # check if Command Line Tools is installed
-    xcode-select -p > /dev/null 2> /dev/null
-    result=$?
-    if [[ $result == "2" ]]; then
-        echo "installing command line tools ..."
-        printf "\e[1;32mChoose the Install button in the window that pops up.\e[0m \n"
-        printf "\e[1;32mAfter completion, run the script again.\e[0m \n\n"
-        xcode-select --install
-        exit 1
-    elif [[ $result == "0" ]]; then
-        ver=$(pkgutil --pkg-info=com.apple.pkg.CLTools_Executables | grep 'version:' | awk '{print $2}')
-        echo "Command line tools version $ver found!"
-    fi
-
-    # check if Homebrew is installed
-    which -s brew
-    if [[ $? != 0 ]] ; then
-        # Install Homebrew
-        echo "installing homebrew ..."
-        ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-    else
-        ver=$(brew -v 2> /dev/null | awk '{print $2}')
-        echo "Homebrew version $ver found!"
-        echo -n "updating homebrew ... "
-        brew update > /dev/null 2> /dev/null
-        echo "ok"
-    fi
-
-    # installing brew cask
-    echo "checking brew cask ..."
-    brew cask list > /dev/null 2> /dev/null
-
 else
     echo -n "This OS is not supported (yet)! Do you want to continue anyway? (y/n) "
     read answer
@@ -259,6 +227,46 @@ getLibVersions_Mac ()
     # older lib found
     return 0
 }
+
+
+####################
+## Starting point ##
+####################
+
+if [[ "$OS" == "Mac OS X" ]]; then
+
+    # check if Command Line Tools is installed
+    xcode-select -p > /dev/null 2> /dev/null
+    result=$?
+    if [[ $result == "2" ]]; then
+        echo "installing command line tools ..."
+        printf "\e[1;32mChoose the Install button in the window that pops up.\e[0m \n"
+        printf "\e[1;32mAfter completion, run the script again.\e[0m \n\n"
+        xcode-select --install
+        exit 1
+    elif [[ $result == "0" ]]; then
+        ver=$(pkgutil --pkg-info=com.apple.pkg.CLTools_Executables | grep 'version:' | awk '{print $2}')
+        echo "Command line tools version $ver found!"
+    fi
+
+    # check if Homebrew is installed
+    which -s brew
+    if [[ $? != 0 ]] ; then
+        # Install Homebrew
+        echo "installing homebrew ..."
+        ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+    else
+        ver=$(brew -v 2> /dev/null | awk '{print $2}')
+        echo "Homebrew version $ver found!"
+        echo -n "updating homebrew ... "
+        brew update > /dev/null 2> /dev/null
+        echo "ok"
+    fi
+
+    # installing brew cask
+    echo "checking brew cask ..."
+    brew cask list > /dev/null 2> /dev/null
+fi
 
 # check java version
 version=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}')
@@ -1163,7 +1171,7 @@ if [[ "$OS" == "Ubuntu" ]]; then
 fi
 
 echo -n "removing temporary data ..."
-rm -rf /tmp/VENTOS_tmp
+sudo rm -rf /tmp/VENTOS_tmp
 echo "done!"
 
 echo ""
