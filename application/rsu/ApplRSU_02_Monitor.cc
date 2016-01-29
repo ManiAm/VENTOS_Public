@@ -79,8 +79,6 @@ void ApplRSUMonitor::initialize(int stage)
             lanesTL[*it2] = myTLid;
 
         Vec_detectedVehicles.clear();
-
-        setDetectionRegion();
     }
 }
 
@@ -104,31 +102,6 @@ void ApplRSUMonitor::handleSelfMsg(cMessage* msg)
 void ApplRSUMonitor::executeEachTimeStep()
 {
     ApplRSUBase::executeEachTimeStep();
-}
-
-
-// draws a polygon to show the detection region
-// it is for the purpose of region demonstration
-void ApplRSUMonitor::setDetectionRegion()
-{
-    Coord pos = TraCI->junctionGetPosition(myTLid);
-
-    // todo: change from fix
-    double x_length = 2*35 + 40;
-    double y_length = 2*35 + 40;
-
-    // draw detection region for junction TLid
-    std::list<TraCICoord> detectionRegion;
-
-    detectionRegion.push_back(TraCICoord( pos.x - x_length/2., pos.y + y_length/2.) );
-    detectionRegion.push_back(TraCICoord( pos.x - x_length/2., pos.y - y_length/2.) );
-    detectionRegion.push_back(TraCICoord( pos.x + x_length/2., pos.y - y_length/2.) );
-    detectionRegion.push_back(TraCICoord( pos.x + x_length/2., pos.y + y_length/2.) );
-    detectionRegion.push_back(TraCICoord( pos.x - x_length/2., pos.y + y_length/2.) );
-
-    std::string polID = "detectionArea_" + myTLid;
-
-    TraCI->polygonAddTraCI(polID, "region", TraCIColor::fromTkColor("blue"), 0, 1, detectionRegion);
 }
 
 

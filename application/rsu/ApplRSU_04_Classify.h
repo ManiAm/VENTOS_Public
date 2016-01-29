@@ -60,32 +60,32 @@ public:
 
 class ApplRSUCLASSIFY : public ApplRSUTLVANET
 {
-	public:
-		~ApplRSUCLASSIFY();
-		virtual void initialize(int stage);
-		virtual void finish();
-        virtual void handleSelfMsg(cMessage* msg);
+public:
+    ~ApplRSUCLASSIFY();
+    virtual void initialize(int stage);
+    virtual void finish();
+    virtual void handleSelfMsg(cMessage* msg);
 
-	protected:
-        void virtual executeEachTimeStep();
+protected:
+    void virtual executeEachTimeStep();
 
-        virtual void onBeaconVehicle(BeaconVehicle*);
-        virtual void onBeaconBicycle(BeaconBicycle*);
-        virtual void onBeaconPedestrian(BeaconPedestrian*);
-        virtual void onBeaconRSU(BeaconRSU*);
-        virtual void onData(LaneChangeMsg*);
+    virtual void onBeaconVehicle(BeaconVehicle*);
+    virtual void onBeaconBicycle(BeaconBicycle*);
+    virtual void onBeaconPedestrian(BeaconPedestrian*);
+    virtual void onBeaconRSU(BeaconRSU*);
+    virtual void onData(LaneChangeMsg*);
 
-	private:
-        void initializeGnuPlot();
-        template <typename T> void onBeaconAny(T wsm);
-      //  void generate_data(std::vector<sample_type_2D>& samples, std::vector<double>& labels);
-      //  void generate_data_3D(std::vector<sample_type_3D>& samples, std::vector<double>& labels);
-        void classifierF();
+private:
+    void initializeGnuPlot();
+    template <typename T> void onBeaconAny(T wsm);
+    //  void generate_data(std::vector<sample_type_2D>& samples, std::vector<double>& labels);
+    //  void generate_data_3D(std::vector<sample_type_3D>& samples, std::vector<double>& labels);
+    void classifierF();
 
-	private:
-        bool classifier;
-        FILE *plotterPtr = NULL;
-        std::vector<feature> dataSet [3];
+private:
+    bool classifier;
+    FILE *plotterPtr = NULL;
+    std::vector<feature> dataSet [3];
 };
 
 }

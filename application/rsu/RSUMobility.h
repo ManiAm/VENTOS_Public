@@ -38,11 +38,11 @@ class TraCI_Extend;
 
 class RSUMobility : public BaseMobility
 {
-  public:
+public:
     /** @brief Initializes mobility model parameters.*/
     virtual void initialize(int);
 
-  protected:
+protected:
     bool isInBoundary(Coord c, Coord lowerBound, Coord upperBound);
 
     /** @brief Calculate the target position to move to*/

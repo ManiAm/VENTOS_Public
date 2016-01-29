@@ -56,7 +56,6 @@ void ApplVBeacon::initialize(int stage)
         beaconPriority = par("beaconPriority").longValue();
 
         // NED variables
-        smartBeaconing = par("smartBeaconing").boolValue();
         signalBeaconing = par("signalBeaconing").boolValue();
 
         // NED variables (data parameters)
@@ -86,9 +85,6 @@ void ApplVBeacon::initialize(int stage)
         WATCH(myPlnDepth);
         WATCH(plnSize);
         WATCH(VANETenabled);
-
-        crossing = false;
-        leaving = false;
     }
 }
 
@@ -115,77 +111,29 @@ void ApplVBeacon::handleSelfMsg(cMessage* msg)
     if (msg == VehicleBeaconEvt)
     {
         // make sure VANETenabled is true
-        if(VANETenabled)
+        if(VANETenabled && sendBeacons)
         {
-            if(smartBeaconing)
-                smartBeaconingDecision();
+            BeaconVehicle* beaconMsg = prepareBeacon();
 
-            if(sendBeacons)
+            // fill-in the related fields to platoon
+            beaconMsg->setPlatoonID(plnID.c_str());
+            beaconMsg->setPlatoonDepth(myPlnDepth);
+
+            // send the beacon as a signal. Any module registered to this signal can
+            // receive a copy of the beacon (for now, only RSUs are registered)
+            if(signalBeaconing)
             {
-                BeaconVehicle* beaconMsg = prepareBeacon();
-
-                // fill-in the related fields to platoon
-                beaconMsg->setPlatoonID(plnID.c_str());
-                beaconMsg->setPlatoonDepth(myPlnDepth);
-
-                // send the beacon as a signal. Any module registered to this signal can
-                // receive a copy of the beacon (for now, only RSUs are registered)
-                if(signalBeaconing)
-                {
-                    simsignal_t Signal_beaconSignaling = registerSignal("beaconSignaling");
-                    nodePtr->emit(Signal_beaconSignaling, beaconMsg);
-                }
-                // broadcast the beacon wirelessly using IEEE 802.11p
-                else
-                    sendDelayed(beaconMsg, individualOffset, lowerLayerOut);
+                simsignal_t Signal_beaconSignaling = registerSignal("beaconSignaling");
+                nodePtr->emit(Signal_beaconSignaling, beaconMsg);
             }
+            // broadcast the beacon wirelessly using IEEE 802.11p
+            else
+                sendDelayed(beaconMsg, individualOffset, lowerLayerOut);
         }
 
         // schedule for next beacon broadcast
         scheduleAt(simTime() + beaconInterval, VehicleBeaconEvt);
     }
-}
-
-
-// set/unset sendBeacons based on the location of vehicle
-void ApplVBeacon::smartBeaconingDecision()
-{
-    Coord myPos = TraCI->vehicleGetPosition(SUMOID);
-
-    // vehicle enters the zone
-    // todo: change from fixed coordinates
-    // coordinates should be a little bigger than the detection region
-    // the vehicle should start beaconing a little bit sooner
-    if( (myPos.x >= 830) && (myPos.x <= 960) && (myPos.y >= 830) && (myPos.y <= 960) )
-    {
-        // get the current edge
-        std::string myEdge = TraCI->vehicleGetEdgeID(SUMOID);
-
-        // started to cross
-        if( !crossing && (myEdge[0] == ':') && (myEdge[1] == 'C') )
-        {
-            crossing = true;
-            sendBeacons = true;   // keep beaconing 'on' during crossing
-        }
-        // crossed the intersection
-        else if( crossing && ((myEdge[0] != ':') || (myEdge[1] != 'C')) )
-        {
-            crossing = false;
-            leaving = true;
-            sendBeacons = false;
-        }
-        else if(leaving)
-        {
-            sendBeacons = false;
-        }
-        // not crossed yet or during crossing
-        else
-        {
-            sendBeacons = true;
-        }
-    }
-    else
-        sendBeacons = false;
 }
 
 

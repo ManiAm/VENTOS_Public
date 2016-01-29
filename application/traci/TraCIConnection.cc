@@ -1,11 +1,13 @@
+
 #define WANT_WINSOCK2
 #include <platdep/sockets.h>
+
 #if defined(_WIN32) || defined(__WIN32__) || defined(WIN32) || defined(__CYGWIN__) || defined(_WIN64)
-#include <ws2tcpip.h>
+    #include <ws2tcpip.h>
 #else
-#include <netinet/tcp.h>
-#include <netdb.h>
-#include <arpa/inet.h>
+    #include <netinet/tcp.h>
+    #include <netdb.h>
+    #include <arpa/inet.h>
 #endif
 
 #include <cenvir.h>

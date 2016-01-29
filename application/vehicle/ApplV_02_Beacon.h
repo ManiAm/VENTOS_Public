@@ -48,7 +48,6 @@ protected:
     bool isBeaconFromMyPlatoonLeader(BeaconVehicle*);
 
 private:
-    void smartBeaconingDecision();
     BeaconVehicle* prepareBeacon();
 
 protected:
@@ -64,7 +63,6 @@ protected:
     int beaconLengthBits;
     int beaconPriority;
 
-    bool smartBeaconing;
     bool signalBeaconing;
 
     // NED variables (data message parameters)
@@ -80,10 +78,6 @@ protected:
     int myPlnDepth;
     int plnSize;
     std::deque<std::string> plnMembersList;
-
-private:
-    bool crossing;
-    bool leaving;
 };
 
 }

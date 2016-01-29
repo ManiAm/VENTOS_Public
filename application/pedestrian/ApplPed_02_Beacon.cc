@@ -70,9 +70,6 @@ void ApplPedBeacon::initialize(int stage)
         PedestrianBeaconEvt = new cMessage("BeaconEvt", KIND_TIMER);
         if (VANETenabled)
             scheduleAt(simTime() + offSet, PedestrianBeaconEvt);
-
-        crossing = false;
-        leaving = false;
     }
 }
 
@@ -98,64 +95,17 @@ void ApplPedBeacon::handleSelfMsg(cMessage* msg)
 
     if (msg == PedestrianBeaconEvt)
     {
-        if(VANETenabled)
+        if(VANETenabled && sendBeacons)
         {
-            if(smartBeaconing)
-                smartBeaconingDecision();
+            BeaconPedestrian* beaconMsg = ApplPedBeacon::prepareBeacon();
 
-            if(sendBeacons)
-            {
-                BeaconPedestrian* beaconMsg = ApplPedBeacon::prepareBeacon();
-
-                // send it
-                sendDelayed(beaconMsg, individualOffset, lowerLayerOut);
-            }
+            // send it
+            sendDelayed(beaconMsg, individualOffset, lowerLayerOut);
         }
 
         // schedule for next beacon broadcast
         scheduleAt(simTime() + beaconInterval, PedestrianBeaconEvt);
     }
-}
-
-
-void ApplPedBeacon::smartBeaconingDecision()
-{
-    Coord myPos = TraCI->vehicleGetPosition(SUMOID);
-
-    // pedestrian enters the zone
-    // todo: change from fixed coordinates
-    // coordinates should be a little bigger than the detection region
-    // the pedestrian should start beaconing a little bit sooner
-    if( (myPos.x >= 830) && (myPos.x <= 960) && (myPos.y >= 830) && (myPos.y <= 960) )
-    {
-        // get the current edge
-        std::string myEdge = TraCI->vehicleGetEdgeID(SUMOID);
-
-        // started to cross
-        if( !crossing && (myEdge[0] == ':') && (myEdge[1] == 'C') )
-        {
-            crossing = true;
-            sendBeacons = true;   // keep beaconing 'on' during crossing
-        }
-        // crossed the intersection
-        else if( crossing && ((myEdge[0] != ':') || (myEdge[1] != 'C')) )
-        {
-            crossing = false;
-            leaving = true;
-            sendBeacons = false;
-        }
-        else if(leaving)
-        {
-            sendBeacons = false;
-        }
-        // not crossed yet or during crossing
-        else
-        {
-            sendBeacons = true;
-        }
-    }
-    else
-        sendBeacons = false;
 }
 
 

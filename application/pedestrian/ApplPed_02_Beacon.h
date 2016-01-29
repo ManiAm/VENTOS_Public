@@ -45,7 +45,6 @@ protected:
     virtual void handlePositionUpdate(cObject*);
 
 private:
-    void smartBeaconingDecision();
     BeaconPedestrian* prepareBeacon();
 
 protected:
@@ -71,9 +70,6 @@ protected:
     // Class variables
     simtime_t individualOffset;
     cMessage* PedestrianBeaconEvt;
-
-    bool crossing;
-    bool leaving;
 };
 
 }

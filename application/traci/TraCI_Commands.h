@@ -390,12 +390,14 @@ private:
     std::vector<double> genericGetBoundingBox(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);     // new command
     uint8_t* genericGetArrayUnsignedInt(uint8_t, std::string, uint8_t, uint8_t);                                                    // new command
 
+public:
+    TraCIConnection* connection;  // connection is set by TraCI_Start class
+
 protected:
     // NED
     bool equilibrium_vehicle;
 
     // class
-    TraCIConnection* connection;  // connection is set by TraCI_Start class
     std::map<std::string, departedNodes> addedNodes;
 };
 

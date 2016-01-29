@@ -53,6 +53,9 @@ void ApplRSUManager::initialize(int stage)
 void ApplRSUManager::finish()
 {
     ApplRSUAID::finish();
+
+    // unsubscribe
+    simulation.getSystemModule()->unsubscribe("beaconSignaling", this);
 }
 
 

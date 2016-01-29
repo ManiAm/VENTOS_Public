@@ -114,7 +114,7 @@ void TrafficLightBase::executeEachTimeStep()
 
 void TrafficLightBase::findRSU(std::string TLid)
 {
-    // get a pointer to the RSU module that controls this intersection
+    // get a pointer to the first RSU
     cModule *module = simulation.getSystemModule()->getSubmodule("RSU", 0);
     if(module == NULL)
         error("No RSU module was found in the network!");

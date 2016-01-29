@@ -90,7 +90,7 @@ void BaseMobility::initialize(int stage)
 		// initialize Move parameter
         bool use2D = world->use2D();
 
-        //initalize position with random values
+        //Initialize position with random values
         Coord pos = world->getRandomPosition();
 
         //read coordinates from parameters if available
@@ -119,31 +119,32 @@ void BaseMobility::initialize(int stage)
     else if (stage == 1){
         coreEV << "initializing BaseMobility stage " << stage << endl;
 
-        //get playground scaling
-        if (world->getParentModule() != NULL )
-        {
-        	const cDisplayString& dispWorldOwner
-					= world->getParentModule()->getDisplayString();
-
-        	if( dispWorldOwner.containsTag("bgb") )
-			{
-        		double origPGWidth = 0.0;
-        		double origPGHeight= 0.0;
-        		// normally this should be equal to playground size
-				std::istringstream(dispWorldOwner.getTagArg("bgb", 0))
-						>> origPGWidth;
-				std::istringstream(dispWorldOwner.getTagArg("bgb", 1))
-						>> origPGHeight;
-
-				//bgb of zero means size isn't set manually
-				if(origPGWidth > 0) {
-					playgroundScaleX = origPGWidth / playgroundSizeX();
-				}
-				if(origPGHeight > 0) {
-					playgroundScaleY = origPGHeight / playgroundSizeY();
-				}
-			}
-        }
+        // no scaling even if bgb is set for the world
+//        //get playground scaling
+//        if (world->getParentModule() != NULL )
+//        {
+//        	const cDisplayString& dispWorldOwner
+//					= world->getParentModule()->getDisplayString();
+//
+//        	if( dispWorldOwner.containsTag("bgb") )
+//			{
+//        		double origPGWidth = 0.0;
+//        		double origPGHeight= 0.0;
+//        		// normally this should be equal to playground size
+//				std::istringstream(dispWorldOwner.getTagArg("bgb", 0))
+//						>> origPGWidth;
+//				std::istringstream(dispWorldOwner.getTagArg("bgb", 1))
+//						>> origPGHeight;
+//
+//				//bgb of zero means size isn't set manually
+//				if(origPGWidth > 0) {
+//					playgroundScaleX = origPGWidth / playgroundSizeX();
+//				}
+//				if(origPGHeight > 0) {
+//					playgroundScaleY = origPGHeight / playgroundSizeY();
+//				}
+//			}
+//        }
 
         //get original display of host
 		cDisplayString& disp = findHost()->getDisplayString();

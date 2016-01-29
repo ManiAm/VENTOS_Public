@@ -16,7 +16,6 @@ simple ApplBikeBeacon extends ApplBikeBase
         int beaconLengthBits = default(256bit) @unit(bit); //the length of a beacon packet
         int beaconPriority = default(3); //the access category of the beacon messages
         
-        bool smartBeaconing = default(false);
         bool signalBeaconing = default(false);
         
         int dataLengthBits = default(1024bit) @unit(bit); //the length of a data packet

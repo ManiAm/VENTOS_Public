@@ -45,7 +45,6 @@ class ApplBikeBeacon : public ApplBikeBase
 	        virtual void handlePositionUpdate(cObject*);
 
 	private:
-        void smartBeaconingDecision();
         BeaconBicycle* prepareBeacon();
 
 	protected:
@@ -60,8 +59,6 @@ class ApplBikeBeacon : public ApplBikeBase
         int beaconLengthBits;
         int beaconPriority;
 
-        bool smartBeaconing;
-
         // NED variables (data message parameters)
         int dataLengthBits;
         bool dataOnSch;
@@ -70,10 +67,6 @@ class ApplBikeBeacon : public ApplBikeBase
         // Class variables
         simtime_t individualOffset;
         cMessage* BicycleBeaconEvt;
-
-	private:
-	    bool crossing;
-	    bool leaving;
 };
 
 }

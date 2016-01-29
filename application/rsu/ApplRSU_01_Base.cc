@@ -109,6 +109,9 @@ void ApplRSUBase::initialize(int stage)
 void ApplRSUBase::finish()
 {
     BaseApplLayer::finish();
+
+    // unsubscribe
+    simulation.getSystemModule()->unsubscribe("executeEachTS", this);
 }
 
 

@@ -35,30 +35,30 @@ namespace VENTOS {
 
 class ApplRSUAID : public ApplRSUCLASSIFY
 {
-	public:
-		~ApplRSUAID();
-		virtual void initialize(int stage);
-		virtual void finish();
-        virtual void handleSelfMsg(cMessage* msg);
+public:
+    ~ApplRSUAID();
+    virtual void initialize(int stage);
+    virtual void finish();
+    virtual void handleSelfMsg(cMessage* msg);
 
-	protected:
-	    void virtual executeEachTimeStep();
+protected:
+    void virtual executeEachTimeStep();
 
-        virtual void onBeaconVehicle(BeaconVehicle*);
-        virtual void onBeaconBicycle(BeaconBicycle*);
-        virtual void onBeaconPedestrian(BeaconPedestrian*);
-        virtual void onBeaconRSU(BeaconRSU*);
-        virtual void onData(LaneChangeMsg*);
+    virtual void onBeaconVehicle(BeaconVehicle*);
+    virtual void onBeaconBicycle(BeaconBicycle*);
+    virtual void onBeaconPedestrian(BeaconPedestrian*);
+    virtual void onBeaconRSU(BeaconRSU*);
+    virtual void onData(LaneChangeMsg*);
 
-	private:
-        void incidentDetectionToFile();
+private:
+    void incidentDetectionToFile();
 
-	private:
-        bool enableAID;
-        bool printIncidentDetection;
+private:
+    bool enableAID;
+    bool printIncidentDetection;
 
-        static Eigen::MatrixXi tableCount;
-        static Eigen::MatrixXd tableProb;
+    static Eigen::MatrixXi tableCount;
+    static Eigen::MatrixXd tableProb;
 };
 
 }

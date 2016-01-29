@@ -20,8 +20,6 @@ network Network
         string SUMODirectory = default(""); // location of SUMO files
         int debugLevel;
 
-        // do not put @display here!
-        // it automatically adjust itself based on the playground size in ini
         @display("bgb=400,627");
     submodules:
         world: BaseWorldUtility {

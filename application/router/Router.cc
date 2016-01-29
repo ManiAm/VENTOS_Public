@@ -228,7 +228,7 @@ void Router::finish()
 
 
 //Receives a signal every time-step
-void Router::receiveSignal(cComponent *source, simsignal_t signalID, long done)
+void Router::receiveSignal(cComponent *source, simsignal_t signalID, long i)
 {
     Enter_Method_Silent();
 

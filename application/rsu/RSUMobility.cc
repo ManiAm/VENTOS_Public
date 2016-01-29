@@ -28,12 +28,6 @@
 #include "RSUMobility.h"
 #include <FWMath.h>
 
-// un-defining ev!
-// why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header
-#undef ev
-#include "boost/filesystem.hpp"
-#define ev  (*cSimulation::getActiveEnvir())
-
 namespace VENTOS {
 
 Define_Module(VENTOS::RSUMobility);
@@ -49,17 +43,9 @@ void RSUMobility::initialize(int stage)
         cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
         TraCI = static_cast<TraCI_Commands *>(module);
 
-        boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-        boost::filesystem::path SUMO_Path = simulation.getSystemModule()->par("SUMODirectory").stringValue();
-        boost::filesystem::path SUMO_FullPath = VENTOS_FullPath / SUMO_Path;
-        if( !boost::filesystem::exists( SUMO_FullPath ) )
-            error("SUMO directory is not valid! Check it again.");
-
-        // vehicle id in omnet++
+        // RSU id in omnet++
         myId = getParentModule()->getIndex();
         myFullId = getParentModule()->getFullName();
-
-        Coord pos = world->getRandomPosition();
 
         // read coordinates from parameters if available
         double myCoordX = getParentModule()->getSubmodule("appl")->par("myCoordX").doubleValue();
@@ -67,9 +53,8 @@ void RSUMobility::initialize(int stage)
         if(myCoordX == -1 || myCoordY == -1)
             error("RSU coordinates are not set correctly!");
 
-        pos.x = myCoordX;
-        pos.y = myCoordY;
-        pos.z = 0;
+        // change coordinates to omnet
+        Coord pos = TraCI->connection->traci2omnet(TraCICoord(myCoordX, myCoordY));
 
         // set start-position and start-time (i.e. current simulation-time) of the Move
         move.setStart(pos);

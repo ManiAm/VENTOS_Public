@@ -46,46 +46,57 @@ public:
     virtual void handleMessage(cMessage *msg);
     virtual void handleSelfMsg(cMessage *msg);
 
-protected:
-    /**< read and execute all commands for the next timestep */
-    virtual void executeOneTimestep();
-
-    virtual void init_traci();
+private:
+    void init_traci();
     void sendLaunchFile();
+    void initRoi();
+    void roiRSUs();
+    void drawRoi();
+
+    /** get current simulation time (in ms) */
+    uint32_t getCurrentTimeMs();
+    /** read and execute all commands for the next timestep */
+    void executeOneTimestep();
+    /** adds a new vehicle to the queue which are tried to be inserted at the next SUMO time step */
+    void insertNewVehicle();
+    /** tries to add all vehicles in the vehicle queue to SUMO */
+    void insertVehicles();
 
     void processSimSubscription(std::string objectId, TraCIBuffer& buf);
     void processVehicleSubscription(std::string objectId, TraCIBuffer& buf);
     void processSubcriptionResult(TraCIBuffer& buf);
 
-    /**< get current simulation time (in ms) */
-    uint32_t getCurrentTimeMs();
-
-    virtual void addModule(std::string nodeId, const Coord& position, std::string road_id = "", double speed = -1, double angle = -1);
+    void addModule(std::string nodeId, const Coord& position, std::string road_id = "", double speed = -1, double angle = -1);
     void addPedestriansToOMNET();
-    /**< returns a pointer to the managed module named moduleName, or 0 if no module can be found */
-    cModule* getManagedModule(std::string nodeId);
     void deleteManagedModule(std::string nodeId);
 
-    /**< returns true if this vehicle is Unequipped */
+    /** returns a pointer to the managed module named moduleName, or 0 if no module can be found */
+    cModule* getManagedModule(std::string nodeId);
+    /** returns true if this vehicle is Unequipped */
     bool isModuleUnequipped(std::string nodeId);
-
     /**
      * returns whether a given position lies within the simulation's region of interest.
      * Modules are destroyed and re-created as managed vehicles leave and re-enter the ROI
      */
     bool isInRegionOfInterest(const TraCICoord& position, std::string road_id, double speed, double angle);
 
-    /** adds a new vehicle to the queue which are tried to be inserted at the next SUMO time step */
-    void insertNewVehicle();
-
-    /**< tries to add all vehicles in the vehicle queue to SUMO */
-    void insertVehicles();
-
 protected:
+    // NED
+    BaseWorldUtility* world;
+    ConnectionManager* cc;
+
     bool debug; /**< whether to emit debug messages */
     simtime_t connectAt; /**< when to connect to TraCI server (must be the initial timestep of the server) */
     simtime_t firstStepAt; /**< when to start synchronizing with the TraCI server (-1: immediately after connecting) */
     simtime_t updateInterval; /**< time interval of hosts' position updates */
+
+    std::string host;
+    int port;
+
+    // NED variables
+    double terminate;
+    bool autoShutdown; /**< Shutdown module as soon as no more vehicles are in the simulation */
+    bool autoShutdownTriggered;
 
     // NED (motor vehicle)
     std::string moduleType; /**< module type to be used in the simulation for each managed vehicle */
@@ -102,45 +113,36 @@ protected:
     std::string pedModuleName;
     std::string pedModuleDisplayString;
 
-    // NED variables
-    double terminate;
+    int numVehicles;
+    double penetrationRate;
+    int vehicleRngIndex;
+    cRNG* mobRng;
 
     // class variables
+    uint32_t vehicleNameCounter;
+    uint32_t activeVehicleCount; /**< number of vehicles, be it parking or driving **/
+    uint32_t parkingVehicleCount; /**< number of parking vehicles, derived from parking start/end events */
+    uint32_t drivingVehicleCount; /**< number of driving, as reported by sumo */
+
+    size_t nextNodeVectorIndex; /**< next OMNeT++ module vector index to use */
+    std::map<std::string, cModule*> hosts; /**< vector of all hosts managed by us */
+    std::set<std::string> subscribedVehicles; /**< all vehicles we have already subscribed to */
     std::set<std::string> subscribedPedestrians; /**< all pedestrians we have already subscribed to */
     std::list<std::string> allPedestrians;
+    std::set<std::string> unEquippedHosts;
 
-    std::string host;
-    int port;
-
-    uint32_t vehicleNameCounter;
     cMessage* myAddVehicleTimer;
+    cMessage* connectAndStartTrigger; /**< self-message scheduled for when to connect to TraCI server and start running */
+    cMessage* executeOneTimestepTrigger; /**< self-message scheduled for when to next call executeOneTimestep */
+
     std::vector<std::string> vehicleTypeIds;
     std::map<int, std::queue<std::string> > vehicleInsertQueue;
     std::set<std::string> queuedVehicles;
     std::vector<std::string> routeIds;
-    int vehicleRngIndex;
-    int numVehicles;
 
-    cRNG* mobRng;
-
-    bool autoShutdown; /**< Shutdown module as soon as no more vehicles are in the simulation */
-    double penetrationRate;
     std::list<std::string> roiRoads; /**< which roads (e.g. "hwy1 hwy2") are considered to consitute the region of interest, if not empty */
     std::list<std::pair<TraCICoord, TraCICoord> > roiRects; /**< which rectangles (e.g. "0,0-10,10 20,20-30,30) are considered to consitute the region of interest, if not empty */
-
-    size_t nextNodeVectorIndex; /**< next OMNeT++ module vector index to use */
-    std::map<std::string, cModule*> hosts; /**< vector of all hosts managed by us */
-    std::set<std::string> unEquippedHosts;
-    std::set<std::string> subscribedVehicles; /**< all vehicles we have already subscribed to */
-    uint32_t activeVehicleCount; /**< number of vehicles, be it parking or driving **/
-    uint32_t parkingVehicleCount; /**< number of parking vehicles, derived from parking start/end events */
-    uint32_t drivingVehicleCount; /**< number of driving, as reported by sumo */
-    bool autoShutdownTriggered;
-    cMessage* connectAndStartTrigger; /**< self-message scheduled for when to connect to TraCI server and start running */
-    cMessage* executeOneTimestepTrigger; /**< self-message scheduled for when to next call executeOneTimestep */
-
-    BaseWorldUtility* world;
-    ConnectionManager* cc;
+    double roiSquareSizeRSU;
 
     // class variables
     boost::filesystem::path VENTOS_FullPath;

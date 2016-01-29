@@ -30,6 +30,7 @@
 
 #include "TraCI_Commands.h"
 #include <BaseApplLayer.h>
+#include "ConnectionManager.h"
 
 // un-defining ev!
 // why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header
@@ -41,48 +42,51 @@ namespace VENTOS {
 
 class RSUEntry
 {
-  public:
-      std::string type;
-      double coordX;
-      double coordY;
+public:
+    std::string type;
+    double coordX;
+    double coordY;
 
-      RSUEntry(std::string str, double x, double y)
-      {
-          this->type = str;
-          this->coordX = x;
-          this->coordY = y;
-      }
+    RSUEntry(std::string str, double x, double y)
+    {
+        this->type = str;
+        this->coordX = x;
+        this->coordY = y;
+    }
 };
 
 class TraCI_Extend;
 
 class AddRSU : public BaseApplLayer
 {
-	public:
-		virtual ~AddRSU();
-		virtual void initialize(int stage);
-        virtual void handleMessage(cMessage *msg);
-		virtual void finish();
-        virtual void receiveSignal(cComponent *, simsignal_t, long);
+public:
+    virtual ~AddRSU();
+    virtual void initialize(int stage);
+    virtual void handleMessage(cMessage *msg);
+    virtual void finish();
+    virtual void receiveSignal(cComponent *, simsignal_t, long);
 
-	private:
-        void Add();
-        void Scenario1();
-        std::map<std::string, RSUEntry> commandReadRSUsCoord(std::string);
-        void commandAddCirclePoly(std::string, std::string, const TraCIColor& color, Coord*, double);
+private:
+    void Add();
+    void Scenario1();
+    std::map<std::string, RSUEntry> commandReadRSUsCoord(std::string);
+    void commandAddCirclePoly(std::string, std::string, const TraCIColor& color, Coord*, double);
 
-	private:
-        // NED variables
-        TraCI_Commands *TraCI;  // pointer to the TraCI module
-        simsignal_t Signal_executeFirstTS;
+private:
+    // NED variables
+    ConnectionManager* cc;
+    TraCI_Commands *TraCI;  // pointer to the TraCI module
+    simsignal_t Signal_executeFirstTS;
 
-        bool on;
-        int mode;
-        int TLControlMode;
+    bool on;
+    int mode;
+    int TLControlMode;
 
-        boost::filesystem::path VENTOS_FullPath;
-        boost::filesystem::path SUMO_Path;
-        boost::filesystem::path SUMO_FullPath;
+    boost::filesystem::path VENTOS_FullPath;
+    boost::filesystem::path SUMO_Path;
+    boost::filesystem::path SUMO_FullPath;
+
+    std::map<int, cModule*> hosts; /**< vector of all RSUs managed by us */
 };
 
 }

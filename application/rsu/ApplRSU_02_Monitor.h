@@ -39,7 +39,7 @@ namespace VENTOS {
 
 class detectedVehicleEntry
 {
-  public:
+public:
     std::string vehicleName;
     std::string vehicleType;
     std::string lane;
@@ -63,9 +63,9 @@ class detectedVehicleEntry
 
     // overload == for search
     friend bool operator== (const detectedVehicleEntry &v1, const detectedVehicleEntry &v2)
-    {
+                    {
         return ( v1.vehicleName == v2.vehicleName );
-    }
+                    }
 
     // overload < for sort
     friend bool operator < (const detectedVehicleEntry &v1, const detectedVehicleEntry &v2)
@@ -77,39 +77,38 @@ class detectedVehicleEntry
 
 class ApplRSUMonitor : public ApplRSUBase
 {
-	public:
-		~ApplRSUMonitor();
-		virtual void initialize(int stage);
-		virtual void finish();
-        virtual void handleSelfMsg(cMessage* msg);
+public:
+    ~ApplRSUMonitor();
+    virtual void initialize(int stage);
+    virtual void finish();
+    virtual void handleSelfMsg(cMessage* msg);
 
-	protected:
-        void virtual executeEachTimeStep();
+protected:
+    void virtual executeEachTimeStep();
 
-        virtual void onBeaconVehicle(BeaconVehicle*);
-        virtual void onBeaconBicycle(BeaconBicycle*);
-        virtual void onBeaconPedestrian(BeaconPedestrian*);
-        virtual void onBeaconRSU(BeaconRSU*);
-        virtual void onData(LaneChangeMsg*);
+    virtual void onBeaconVehicle(BeaconVehicle*);
+    virtual void onBeaconBicycle(BeaconBicycle*);
+    virtual void onBeaconPedestrian(BeaconPedestrian*);
+    virtual void onBeaconRSU(BeaconRSU*);
+    virtual void onData(LaneChangeMsg*);
 
-        // virtual methods implemented by ApplRSU_04_ActiveTL
-        virtual void UpdateLaneInfoAdd(std::string lane, std::string sender, std::string senderType, double speed);
-        virtual void UpdateLaneInfoRemove(std::string counter, std::string sender);
+    // virtual methods implemented by ApplRSU_04_ActiveTL
+    virtual void UpdateLaneInfoAdd(std::string lane, std::string sender, std::string senderType, double speed);
+    virtual void UpdateLaneInfoRemove(std::string counter, std::string sender);
 
-	private:
-        void setDetectionRegion();
-        template <typename T> void onBeaconAny(T wsm);
-        static void saveVehApproach();
+private:
+    template <typename T> void onBeaconAny(T wsm);
+    static void saveVehApproach();
 
-	protected:
-        bool monitorVehApproach;
-        bool collectVehApproach;
+protected:
+    bool monitorVehApproach;
+    bool collectVehApproach;
 
-        // all incoming lanes for the intersection that this RSU belongs to
-        std::map<std::string /*lane*/, std::string /*TLid*/> lanesTL;
+    // all incoming lanes for the intersection that this RSU belongs to
+    std::map<std::string /*lane*/, std::string /*TLid*/> lanesTL;
 
-        // keeping track of detected vehicles (common in all RSUs)
-        static std::vector<detectedVehicleEntry> Vec_detectedVehicles;
+    // keeping track of detected vehicles (common in all RSUs)
+    static std::vector<detectedVehicleEntry> Vec_detectedVehicles;
 };
 
 }

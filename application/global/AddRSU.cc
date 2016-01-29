@@ -46,8 +46,12 @@ void AddRSU::initialize(int stage)
 {
     if(stage ==0)
     {
+        cModule *module = simulation.getSystemModule()->getSubmodule("connMan");
+        cc = static_cast<ConnectionManager*>(module);
+        ASSERT(cc);
+
         // get a pointer to the TraCI module
-        cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
+        module = simulation.getSystemModule()->getSubmodule("TraCI");
         TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
 
@@ -72,7 +76,15 @@ void AddRSU::initialize(int stage)
 
 void AddRSU::finish()
 {
+    // delete all RSU modules in omnet
+    for(auto i : hosts)
+    {
+        cModule* mod = i.second;
+        cc->unregisterNic(mod->getSubmodule("nic"));
 
+        mod->callFinish();
+        mod->deleteModule();
+    }
 }
 
 
@@ -116,7 +128,7 @@ void AddRSU::Scenario1()
     boost::filesystem::path RSUfilePath = SUMO_FullPath / RSUfile;
 
     // check if this file is valid?
-    if( !boost::filesystem::exists( RSUfilePath ) )
+    if( !boost::filesystem::exists(RSUfilePath) )
         error("RSU file does not exist in %s", RSUfilePath.string().c_str());
 
     std::map<std::string, RSUEntry> RSUs = commandReadRSUsCoord(RSUfilePath.string());
@@ -165,6 +177,9 @@ void AddRSU::Scenario1()
 
         mod->scheduleStart(simTime());
         mod->callInitialize();
+
+        // store the cModule of this RSU
+        hosts[count] = mod;
 
         count++;
     }

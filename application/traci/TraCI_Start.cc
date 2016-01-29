@@ -38,12 +38,12 @@ namespace VENTOS {
 
 Define_Module(VENTOS::TraCI_Start);
 
-TraCI_Start::TraCI_Start() : myAddVehicleTimer(0),
+TraCI_Start::TraCI_Start() : world(0),
+        cc(0),
         mobRng(0),
+        myAddVehicleTimer(0),
         connectAndStartTrigger(0),
-        executeOneTimestepTrigger(0),
-        world(0),
-        cc(0) { }
+        executeOneTimestepTrigger(0) { }
 
 
 TraCI_Start::~TraCI_Start()
@@ -62,9 +62,19 @@ void TraCI_Start::initialize(int stage)
 
     if (stage == 1)
     {
+        cModule *module = simulation.getSystemModule()->getSubmodule("world");
+        world = static_cast<BaseWorldUtility*>(module);
+        ASSERT(world);
+
+        module = simulation.getSystemModule()->getSubmodule("connMan");
+        cc = static_cast<ConnectionManager*>(module);
+        ASSERT(cc);
+
+        debug = par("debug");
         connectAt = par("connectAt");
-        updateInterval = par("updateInterval");
         firstStepAt = par("firstStepAt");
+        updateInterval = par("updateInterval");
+
         if (firstStepAt == -1) firstStepAt = connectAt + updateInterval;
         ASSERT(firstStepAt > connectAt);
 
@@ -74,8 +84,12 @@ void TraCI_Start::initialize(int stage)
         executeOneTimestepTrigger = new cMessage("step");
         scheduleAt(firstStepAt, executeOneTimestepTrigger);
 
+        host = par("host").stdstringValue();
+        port = par("port");
+
         terminate = par("terminate").doubleValue();
-        debug = par("debug");
+        autoShutdown = par("autoShutdown");
+        autoShutdownTriggered = false;
 
         moduleType = par("moduleType").stdstringValue();
         moduleName = par("moduleName").stdstringValue();
@@ -89,61 +103,20 @@ void TraCI_Start::initialize(int stage)
         pedModuleName = par("pedModuleName").stringValue();
         pedModuleDisplayString = par("pedModuleDisplayString").stringValue();
 
-        penetrationRate = par("penetrationRate").doubleValue();
-
-        host = par("host").stdstringValue();
-        port = par("port");
-        autoShutdown = par("autoShutdown");
-
-        vehicleNameCounter = 0;
-        vehicleRngIndex = par("vehicleRngIndex");
         numVehicles = par("numVehicles").longValue();
+        penetrationRate = par("penetrationRate").doubleValue();
+        vehicleRngIndex = par("vehicleRngIndex");
         mobRng = getRNG(vehicleRngIndex);
 
-        std::string roiRoads_s = par("roiRoads");
-
-        // parse roiRoads
-        roiRoads.clear();
-        std::istringstream roiRoads_i(roiRoads_s);
-        std::string road;
-        while (std::getline(roiRoads_i, road, ' '))
-            roiRoads.push_back(road);
-
-        std::string roiRects_s = par("roiRects");
-
-        // parse roiRects
-        roiRects.clear();
-        std::istringstream roiRects_i(roiRects_s);
-        std::string rect;
-        while (std::getline(roiRects_i, rect, ' '))
-        {
-            std::istringstream rect_i(rect);
-            double x1; rect_i >> x1; ASSERT(rect_i);
-            char c1; rect_i >> c1; ASSERT(rect_i);
-            double y1; rect_i >> y1; ASSERT(rect_i);
-            char c2; rect_i >> c2; ASSERT(rect_i);
-            double x2; rect_i >> x2; ASSERT(rect_i);
-            char c3; rect_i >> c3; ASSERT(rect_i);
-            double y2; rect_i >> y2; ASSERT(rect_i);
-            roiRects.push_back(std::pair<TraCICoord, TraCICoord>(TraCICoord(x1, y1), TraCICoord(x2, y2)));
-        }
+        vehicleNameCounter = 0;
+        activeVehicleCount = 0;
+        parkingVehicleCount = 0;
+        drivingVehicleCount = 0;
 
         nextNodeVectorIndex = 0;
         hosts.clear();
         subscribedVehicles.clear();
         subscribedPedestrians.clear();
-        activeVehicleCount = 0;
-        parkingVehicleCount = 0;
-        drivingVehicleCount = 0;
-        autoShutdownTriggered = false;
-
-        cModule *module = simulation.getSystemModule()->getSubmodule("world");
-        world = static_cast<BaseWorldUtility*>(module);
-        ASSERT(world);
-
-        module = simulation.getSystemModule()->getSubmodule("connMan");
-        cc = static_cast<ConnectionManager*>(module);
-        ASSERT(cc);
 
         myAddVehicleTimer = new cMessage("myAddVehicleTimer");
 
@@ -214,13 +187,10 @@ void TraCI_Start::handleSelfMsg(cMessage *msg)
                 for (std::list<std::string>::const_iterator i = routes.begin(); i != routes.end(); ++i)
                 {
                     std::string routeId = *i;
-                    if (par("useRouteDistributions").boolValue() == true)
+                    if (par("useRouteDistributions").boolValue() && std::count(routeId.begin(), routeId.end(), '#') >= 1)
                     {
-                        if (std::count(routeId.begin(), routeId.end(), '#') >= 1)
-                        {
-                            //MYDEBUG << "Omitting route " << routeId << " as it seems to be a member of a route distribution (found '#' in name)" << std::endl;
-                            continue;
-                        }
+                        //MYDEBUG << "Omitting route " << routeId << " as it seems to be a member of a route distribution (found '#' in name)" << std::endl;
+                        continue;
                     }
 
                     //MYDEBUG << "Adding " << routeId << " to list of possible routes" << std::endl;
@@ -327,6 +297,11 @@ void TraCI_Start::init_traci()
     std::cout << "Initializing modules with TraCI support ..." << std::endl;
     simsignal_t Signal_executeFirstTS = registerSignal("executeFirstTS");
     this->emit(Signal_executeFirstTS, 1);
+
+    initRoi();
+    if(par("roiSquareSizeRSU").doubleValue() > 0)
+        roiRSUs(); // this method should be called after sending executeFirstTS so that all RSUs are built
+    drawRoi();
 }
 
 
@@ -397,6 +372,196 @@ void TraCI_Start::sendLaunchFile()
     std::string description; obuf >> description;
     if (result != RTYPE_OK)
         std::cout << "Warning: Received non-OK response from TraCI server to command " << commandId << ":" << description.c_str() << endl;
+}
+
+
+void TraCI_Start::initRoi()
+{
+    std::string roiRoads_s = par("roiRoads");
+
+    // parse roiRoads
+    roiRoads.clear();
+    std::istringstream roiRoads_i(roiRoads_s);
+    std::string road;
+    while (std::getline(roiRoads_i, road, ' '))
+        roiRoads.push_back(road);
+
+    std::string roiRects_s = par("roiRects");
+
+    // parse roiRects
+    roiRects.clear();
+    std::istringstream roiRects_i(roiRects_s);
+    std::string rect;
+    while (std::getline(roiRects_i, rect, ' '))
+    {
+        std::istringstream rect_i(rect);
+
+        double x1; rect_i >> x1; ASSERT(rect_i);
+        char c1; rect_i >> c1; ASSERT(rect_i);
+        double y1; rect_i >> y1; ASSERT(rect_i);
+        char c2; rect_i >> c2; ASSERT(rect_i);
+        double x2; rect_i >> x2; ASSERT(rect_i);
+        char c3; rect_i >> c3; ASSERT(rect_i);
+        double y2; rect_i >> y2; ASSERT(rect_i);
+
+        // make sure coordinates are correct
+        ASSERT(x2 > x1);
+        ASSERT(y2 > y1);
+
+        roiRects.push_back(std::pair<TraCICoord, TraCICoord>(TraCICoord(x1, y1), TraCICoord(x2, y2)));
+    }
+}
+
+
+void TraCI_Start::roiRSUs()
+{
+    // get a pointer to the first RSU
+    cModule *module = simulation.getSystemModule()->getSubmodule("RSU", 0);
+    // no RSUs in the network
+    if(module == NULL)
+        return;
+
+    // how many RSUs are in the network?
+    int RSUcount = module->getVectorSize();
+
+    // iterate over RSUs
+    for(int i = 0; i < RSUcount; ++i)
+    {
+        module = simulation.getSystemModule()->getSubmodule("RSU", i);
+        cModule *appl =  module->getSubmodule("appl");
+        double centerX = appl->par("myCoordX").doubleValue();
+        double centerY = appl->par("myCoordY").doubleValue();
+
+        double squSize = par("roiSquareSizeRSU").doubleValue();
+
+        // calculate corners of the roi square
+        TraCICoord bottomLeft = TraCICoord(centerX - squSize, centerY - squSize);
+        TraCICoord topRight = TraCICoord(centerX + squSize, centerY + squSize);
+
+        // add them into roiRects
+        roiRects.push_back(std::pair<TraCICoord, TraCICoord>(bottomLeft, topRight));
+    }
+}
+
+
+void TraCI_Start::drawRoi()
+{
+    int roiCount = 0;
+
+    // draws a polygon in SUMO to show the roi
+    for(auto i : roiRects)
+    {
+        TraCICoord bottomLeft = i.first;
+        TraCICoord topRight = i.second;
+
+        // calculate the other two corners
+        TraCICoord topLeft = TraCICoord(bottomLeft.x, topRight.y);
+        TraCICoord bottomRight = TraCICoord(topRight.x, bottomLeft.y);
+
+        // draw roi in SUMO
+        std::list<TraCICoord> detectionRegion;
+
+        detectionRegion.push_back(topLeft);
+        detectionRegion.push_back(topRight);
+        detectionRegion.push_back(bottomRight);
+        detectionRegion.push_back(bottomLeft);
+        detectionRegion.push_back(topLeft);
+
+        roiCount++;
+        std::string polID = "roi_" + std::to_string(roiCount);
+
+        polygonAddTraCI(polID, "region", TraCIColor::fromTkColor("green"), 0, 1, detectionRegion);
+    }
+}
+
+
+uint32_t TraCI_Start::getCurrentTimeMs()
+{
+    return static_cast<uint32_t>(round(simTime().dbl() * 1000));
+}
+
+
+void TraCI_Start::executeOneTimestep()
+{
+    //MYDEBUG << "Triggering TraCI server simulation advance to t=" << simTime() <<endl;
+
+    uint32_t targetTime = getCurrentTimeMs();
+
+    if (targetTime > round(connectAt.dbl() * 1000))
+    {
+        insertVehicles();
+
+        TraCIBuffer buf = connection->query(CMD_SIMSTEP2, TraCIBuffer() << targetTime);
+        uint32_t count; buf >> count;  // count: number of subscription results
+        for (uint32_t i = 0; i < count; ++i)
+            processSubcriptionResult(buf);
+
+        // todo: should get pedestrians using subscription
+        allPedestrians.clear();
+        allPedestrians = personGetIDList();
+        if(!allPedestrians.empty())
+            addPedestriansToOMNET();
+    }
+
+    // notify other modules to run one simulation TS
+    simsignal_t Signal_executeEachTS = registerSignal("executeEachTS");
+    this->emit(Signal_executeEachTS, 0);
+
+    // we reached to max simtime and should terminate OMNET++ simulation
+    // upon calling endSimulation(), TraCI_Start::finish() will close TraCI connection
+    if(simTime().dbl() >= terminate)
+        endSimulation();
+
+    // schedule the next SUMO simulation if autoShutdownTriggered = false
+    if (!autoShutdownTriggered)
+        scheduleAt(simTime() + updateInterval, executeOneTimestepTrigger);
+}
+
+
+void TraCI_Start::insertNewVehicle()
+{
+    std::string type;
+    if (vehicleTypeIds.size())
+    {
+        int vehTypeId = mobRng->intRand(vehicleTypeIds.size());
+        type = vehicleTypeIds[vehTypeId];
+    }
+    else
+    {
+        type = "DEFAULT_VEHTYPE";
+    }
+
+    int routeId = mobRng->intRand(routeIds.size());
+    vehicleInsertQueue[routeId].push(type);
+}
+
+
+void TraCI_Start::insertVehicles()
+{
+    for (std::map<int, std::queue<std::string> >::iterator i = vehicleInsertQueue.begin(); i != vehicleInsertQueue.end(); )
+    {
+        std::string route = routeIds[i->first];
+        //MYDEBUG << "process " << route << std::endl;
+        std::queue<std::string> vehicles = i->second;
+        while (!i->second.empty())
+        {
+            std::string type = i->second.front();
+            std::stringstream veh;
+            veh << type << "_" << vehicleNameCounter;
+            //MYDEBUG << "trying to add " << veh.str() << " with " << route << " vehicle type " << type << std::endl;
+
+            vehicleAdd(veh.str(), type, route, std::floor(simTime().dbl() * 1000), -4/*DEPART_POS_BASE*/, -3/*DEPART_SPEED_MAX*/, -5 /*DEPART_LANE_BEST_FREE*/);
+            //MYDEBUG << "successful inserted " << veh.str() << std::endl;
+            queuedVehicles.insert(veh.str());
+            i->second.pop();
+            vehicleNameCounter++;
+        }
+
+        std::map<int, std::queue<std::string> >::iterator tmp = i;
+        ++tmp;
+        vehicleInsertQueue.erase(i);
+        i = tmp;
+    }
 }
 
 
@@ -607,8 +772,7 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
         {
             uint8_t varType; buf >> varType;
             ASSERT(varType == TYPE_STRINGLIST);
-            uint32_t count; buf >> count;
-            //MYDEBUG << "TraCI reports " << count << " departed vehicles." << endl;
+            uint32_t count; buf >> count;  // count: number of departed vehicles
             for (uint32_t i = 0; i < count; ++i)
             {
                 std::string idstring; buf >> idstring;
@@ -622,8 +786,7 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
         {
             uint8_t varType; buf >> varType;
             ASSERT(varType == TYPE_STRINGLIST);
-            uint32_t count; buf >> count;
-            //MYDEBUG << "TraCI reports " << count << " arrived vehicles." << endl;
+            uint32_t count; buf >> count;  // count: number of arrived vehicles
             for (uint32_t i = 0; i < count; ++i)
             {
                 std::string idstring; buf >> idstring;
@@ -646,7 +809,11 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
                     unEquippedHosts.erase(idstring);
             }
 
-            if ((count > 0) && (count >= activeVehicleCount) && autoShutdown) autoShutdownTriggered = true;
+            // should we proceed with sumo simulation?
+            int pedCount = personGetIDCount();
+            if (autoShutdown && count > 0 && count >= activeVehicleCount && pedCount == 0)
+                autoShutdownTriggered = true;
+
             activeVehicleCount -= count;
             drivingVehicleCount -= count;
         }
@@ -654,8 +821,7 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
         {
             uint8_t varType; buf >> varType;
             ASSERT(varType == TYPE_STRINGLIST);
-            uint32_t count; buf >> count;
-            //MYDEBUG << "TraCI reports " << count << " vehicles starting to teleport." << endl;
+            uint32_t count; buf >> count;   // count: number of vehicles starting to teleport
             for (uint32_t i = 0; i < count; ++i)
             {
                 std::string idstring; buf >> idstring;
@@ -675,8 +841,7 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
         {
             uint8_t varType; buf >> varType;
             ASSERT(varType == TYPE_STRINGLIST);
-            uint32_t count; buf >> count;
-            //MYDEBUG << "TraCI reports " << count << " vehicles ending teleport." << endl;
+            uint32_t count; buf >> count;  // count: number of vehicles ending teleport
             for (uint32_t i = 0; i < count; ++i)
             {
                 std::string idstring; buf >> idstring;
@@ -690,8 +855,7 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
         {
             uint8_t varType; buf >> varType;
             ASSERT(varType == TYPE_STRINGLIST);
-            uint32_t count; buf >> count;
-            //MYDEBUG << "TraCI reports " << count << " vehicles starting to park." << endl;
+            uint32_t count; buf >> count;  // count: number of vehicles starting to park
             for (uint32_t i = 0; i < count; ++i)
             {
                 std::string idstring; buf >> idstring;
@@ -714,8 +878,7 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
         {
             uint8_t varType; buf >> varType;
             ASSERT(varType == TYPE_STRINGLIST);
-            uint32_t count; buf >> count;
-            //MYDEBUG << "TraCI reports " << count << " vehicles ending to park." << endl;
+            uint32_t count; buf >> count;  // count: number of vehicles ending to park
             for (uint32_t i = 0; i < count; ++i)
             {
                 std::string idstring; buf >> idstring;
@@ -737,8 +900,7 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
         {
             uint8_t varType; buf >> varType;
             ASSERT(varType == TYPE_INTEGER);
-            uint32_t serverTimestep; buf >> serverTimestep;
-            //MYDEBUG << "TraCI reports current time step as " << serverTimestep << "ms." << endl;
+            uint32_t serverTimestep; buf >> serverTimestep; // serverTimestep: current timestep reported by server in ms
             uint32_t omnetTimestep = getCurrentTimeMs();
             ASSERT(omnetTimestep == serverTimestep);
         }
@@ -1063,99 +1225,6 @@ void TraCI_Start::addPedestriansToOMNET()
     //        }
     //    }
     //
-}
-
-
-uint32_t TraCI_Start::getCurrentTimeMs()
-{
-    return static_cast<uint32_t>(round(simTime().dbl() * 1000));
-}
-
-
-void TraCI_Start::executeOneTimestep()
-{
-    //MYDEBUG << "Triggering TraCI server simulation advance to t=" << simTime() <<endl;
-
-    uint32_t targetTime = getCurrentTimeMs();
-
-    if (targetTime > round(connectAt.dbl() * 1000))
-    {
-        insertVehicles();
-        TraCIBuffer buf = connection->query(CMD_SIMSTEP2, TraCIBuffer() << targetTime);
-
-        uint32_t count; buf >> count;
-        //MYDEBUG << "Getting " << count << " subscription results" << endl;
-        for (uint32_t i = 0; i < count; ++i)
-            processSubcriptionResult(buf);
-    }
-
-    if (!autoShutdownTriggered) scheduleAt(simTime()+updateInterval, executeOneTimestepTrigger);
-
-    allPedestrians.clear();
-    allPedestrians = personGetIDList();
-    if(!allPedestrians.empty())
-        addPedestriansToOMNET();
-
-    // check if simulationDone flag should be set
-    int NoVehAndBike = simulationGetMinExpectedNumber();
-    int NoPed = personGetIDCount();
-    int totalModules = NoVehAndBike + NoPed;
-    bool simulationDone = (simTime().dbl() >= terminate) or (totalModules == 0);
-
-    // notify other modules to run one simulation TS
-    simsignal_t Signal_executeEachTS = registerSignal("executeEachTS");
-    this->emit(Signal_executeEachTS, (long)simulationDone);
-
-    if(simulationDone)
-        endSimulation();   // terminate the simulation (finish method is also called for all modules).
-    // Note: TraCI_Start::finish() closes the TraCI connection
-}
-
-
-void TraCI_Start::insertNewVehicle()
-{
-    std::string type;
-    if (vehicleTypeIds.size())
-    {
-        int vehTypeId = mobRng->intRand(vehicleTypeIds.size());
-        type = vehicleTypeIds[vehTypeId];
-    }
-    else
-    {
-        type = "DEFAULT_VEHTYPE";
-    }
-
-    int routeId = mobRng->intRand(routeIds.size());
-    vehicleInsertQueue[routeId].push(type);
-}
-
-
-void TraCI_Start::insertVehicles()
-{
-    for (std::map<int, std::queue<std::string> >::iterator i = vehicleInsertQueue.begin(); i != vehicleInsertQueue.end(); )
-    {
-        std::string route = routeIds[i->first];
-        //MYDEBUG << "process " << route << std::endl;
-        std::queue<std::string> vehicles = i->second;
-        while (!i->second.empty())
-        {
-            std::string type = i->second.front();
-            std::stringstream veh;
-            veh << type << "_" << vehicleNameCounter;
-            //MYDEBUG << "trying to add " << veh.str() << " with " << route << " vehicle type " << type << std::endl;
-
-            vehicleAdd(veh.str(), type, route, std::floor(simTime().dbl() * 1000), -4/*DEPART_POS_BASE*/, -3/*DEPART_SPEED_MAX*/, -5 /*DEPART_LANE_BEST_FREE*/);
-            //MYDEBUG << "successful inserted " << veh.str() << std::endl;
-            queuedVehicles.insert(veh.str());
-            i->second.pop();
-            vehicleNameCounter++;
-        }
-
-        std::map<int, std::queue<std::string> >::iterator tmp = i;
-        ++tmp;
-        vehicleInsertQueue.erase(i);
-        i = tmp;
-    }
 }
 
 }
