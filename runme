@@ -5,6 +5,18 @@ if [ "$EUID" -eq 0 ]; then
   exit 1
 fi
 
+if [[ -f ~/.bashrc ]]; then
+    source ~/.bashrc
+fi
+
+if [[ -f ~/.bash_profile ]]; then
+    source ~/.bash_profile
+fi
+
+if [[ -f ~/.profile ]]; then
+    source ~/.profile
+fi
+
 echo "Bash version is: $BASH_VERSION$"
 
 OS='unknown'
@@ -29,7 +41,7 @@ fi
 echo "Detected OS:" $OSTYPE $OS $VER "("$CODENAME")", $ARCH
 
 # check OS support
-arrIN=(${VER//./ })
+arrIN=(${VER//./ })  # split version into array x.y.z --> x | y | z
 VER_major=${arrIN[0]}
 VER_minor=${arrIN[1]}
 
@@ -42,6 +54,11 @@ elif [[ ("$OSTYPE" == "linux-gnu" && "$OS" == "Ubuntu" && "$VER_major" == "14" &
 elif [[ ("$OSTYPE" == "linux-gnu" && "$OS" == "Ubuntu" && "$VER_major" == "12" && "$VER_minor" == "04") ]]; then
     echo "Starting script ..."
 
+# Yosemiti
+elif [[ ("$OSTYPE" == "darwin"* && "$OS" == "Mac OS X" && "$VER_major" == "10" && "$VER_minor" == "10") ]]; then
+    echo "Starting script ..."
+
+# El Capitan
 elif [[ ("$OSTYPE" == "darwin"* && "$OS" == "Mac OS X" && "$VER_major" == "10" && "$VER_minor" == "11") ]]; then
     echo "Starting script ..."
 
@@ -92,6 +109,10 @@ install_LIB_Mac ()
         if [[ ("" == "$PKG_OK1") && ("" == "$PKG_OK2") ]]; then
             echo "installing"
             brew install $i > /dev/null  # $i: we need the full package name!
+            # check if everything went well?
+            if [[ $? -ne 0 ]]; then
+                exit 1
+            fi
         else
             echo "ok"
         fi
@@ -441,7 +462,7 @@ fi
 # terminate script on java_home and omnet bin path warning
 check=$(echo "$confOut" | grep -e "configure: WARNING: JAVA_HOME" -e "WARNING: your PATH doesn't contain")
 if [ "" != "$check" ]; then
-    printf "\n\e[1;31mAfter changing PATH, close this terminal and run the script again!\e[0m \n\n"
+    # printf "\n\e[1;31mAfter changing PATH, close this terminal and run the script again!\e[0m \n\n"
     exit 1
 fi
 
@@ -780,7 +801,7 @@ else
     echo "Your PATH contains $SUMO_BIN_DIR. Good!"
   else
       printf "WARNING: your PATH doesn't contain $SUMO_BIN_DIR! \nAdd the following line to your .profile or .bash_profile (provided you use bash): \nexport PATH=\$PATH:$SUMO_BIN_DIR \n"
-      printf "\n\e[1;31mAfter changing PATH, close this terminal and run the script again!\e[0m \n"
+      # printf "\n\e[1;31mAfter changing PATH, close this terminal and run the script again!\e[0m \n"
       # removing the prob file
       rm $SUMO_BIN_DIR/$probefile
       exit 1
