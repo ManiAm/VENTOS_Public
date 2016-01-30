@@ -462,7 +462,7 @@ fi
 # terminate script on java_home and omnet bin path warning
 check=$(echo "$confOut" | grep -e "configure: WARNING: JAVA_HOME" -e "WARNING: your PATH doesn't contain")
 if [ "" != "$check" ]; then
-    # printf "\n\e[1;31mAfter changing PATH, close this terminal and run the script again!\e[0m \n\n"
+    printf "\n\e[1;31mAfter changing PATH, run the script again!\e[0m \n\n"
     exit 1
 fi
 
@@ -801,7 +801,7 @@ else
     echo "Your PATH contains $SUMO_BIN_DIR. Good!"
   else
       printf "WARNING: your PATH doesn't contain $SUMO_BIN_DIR! \nAdd the following line to your .profile or .bash_profile (provided you use bash): \nexport PATH=\$PATH:$SUMO_BIN_DIR \n"
-      # printf "\n\e[1;31mAfter changing PATH, close this terminal and run the script again!\e[0m \n"
+      printf "\n\e[1;31mAfter changing PATH, run the script again!\e[0m \n"
       # removing the prob file
       rm $SUMO_BIN_DIR/$probefile
       exit 1
