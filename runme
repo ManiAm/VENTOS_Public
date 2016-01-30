@@ -5,18 +5,6 @@ if [ "$EUID" -eq 0 ]; then
   exit 1
 fi
 
-if [[ -f ~/.bashrc ]]; then
-    source ~/.bashrc
-fi
-
-if [[ -f ~/.bash_profile ]]; then
-    source ~/.bash_profile
-fi
-
-if [[ -f ~/.profile ]]; then
-    source ~/.profile
-fi
-
 echo "Bash version is: $BASH_VERSION$"
 
 OS='unknown'
@@ -82,7 +70,7 @@ install_LIB_linux ()
         PKG_OK=$(dpkg -s $i 2> /dev/null | grep "install ok installed")
         if [ "" == "$PKG_OK" ]; then
             echo "installing"
-            sudo apt-get --force-yes --yes install $i > /dev/null
+            echo $sudoPass | sudo -S apt-get --force-yes --yes install $i > /dev/null
         else
             echo "ok"
         fi
@@ -254,6 +242,30 @@ getLibVersions_Mac ()
 ## Starting point ##
 ####################
 
+# ask for sudo password only once
+while true; do 
+    unset sudoPass
+    prompt="[sudo] password for $USER: "
+    while IFS= read -p "$prompt" -r -s -n 1 char
+    do
+        if [[ $char == $'\0' ]]
+        then
+            break
+        fi
+        prompt='*'
+        sudoPass+="$char"
+    done
+    echo ""
+
+    # now check if we have sudo access?
+    echo $sudoPass | sudo -k -S -v > /dev/null 2> /dev/null
+    if [[ $? -eq 0 ]]; then
+        break;
+    else
+        echo "sudo password is not correct!"
+    fi
+done
+
 if [[ "$OS" == "Mac OS X" ]]; then
 
     # check if Command Line Tools is installed
@@ -314,15 +326,15 @@ if [[ "$result" == "2" ]]; then
         echo -n "your selection? [1] "
         read answer
         if [[ ("$answer" == "") || ("$answer" == "1") ]]; then
-            sudo apt-get --force-yes --yes install openjdk-7-jre
+            echo $sudoPass | sudo -S apt-get --force-yes --yes install openjdk-7-jre
         elif [[ "$answer" == "2" ]]; then
-            sudo add-apt-repository -y ppa:webupd8team/java > /dev/null
-            sudo apt-get update > /dev/null
+            echo $sudoPass | sudo -S add-apt-repository -y ppa:webupd8team/java > /dev/null
+            echo $sudoPass | sudo -S apt-get update > /dev/null
             # accept the Oracle JDK8 license automatically 
             echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
-            sudo apt-get --force-yes --yes install oracle-java8-installer
+            echo $sudoPass | sudo -S apt-get --force-yes --yes install oracle-java8-installer
             # set the Java environment variables
-            sudo apt-get install oracle-java8-set-default > /dev/null       
+            echo $sudoPass | sudo -S apt-get install oracle-java8-set-default > /dev/null       
         else
             exit 1;
         fi
@@ -332,7 +344,7 @@ fi
 if [[ "$OS" == "Ubuntu" ]]; then
     # refresh the databse of available packages
     echo "updating available packages ..."
-    sudo apt-get update > /dev/null
+    echo $sudoPass | sudo -S apt-get update > /dev/null 2> /dev/null
 fi
 
 echo ""
@@ -451,18 +463,55 @@ check=$(echo "$confOut" | grep "configure: WARNING: JAVA_HOME")
 if [ "" != "$check" ]; then
 
     if [[ "$OS" == "Ubuntu" ]]; then
-        printf "\n\e[1;32mTo set JAVA_HOME, go to /usr/lib/jvm to see what version of java is installed on your machine. Set JAVA_HOME similar to the following: \n     export JAVA_HOME=/usr/lib/jvm/java-8-oracle  \n or \n     export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64\e[0m \n"
+help="follow these steps to set JAVA_HOME: 
+1. Open ~/.bashrc in any text editor:
+       gedit ~/.bashrc
+2. Append the following line (change <java_folder> accordingly):
+       export JAVA_HOME=/usr/lib/jvm/<java_folder>
+3. Use source to reload .bashrc:
+       source ~/.bashrc"
+        printf "\n\e[1;32m$help\e[0m \n"
 
     elif [[ "$OS" == "Mac OS X" ]]; then
-        printf "\n\e[1;32mSet JAVA_HOME by adding the following line to .bashrc: \n    export JAVA_HOME=`/usr/libexec/java_home` \e[0m \n"
+help="follow these steps to set JAVA_HOME: 
+1. Open ~/.bash_profile in any text editor:
+       nano ~/.bash_profile
+2. Append the following line:
+       export JAVA_HOME=`/usr/libexec/java_home`
+3. Use source to reload .bashrc:
+       source ~/.bash_profile"
+        printf "\n\e[1;32m$help\e[0m \n"
+    fi
+fi
 
+# show instruction on setting omnet path
+check=$(echo "$confOut" | grep "WARNING: your PATH doesn't contain")
+if [ "" != "$check" ]; then
+
+    if [[ "$OS" == "Ubuntu" ]]; then
+help="follow these steps to add OMNET++ bin folder to PATH: 
+1. Open ~/.bashrc in any text editor:
+       gedit ~/.bashrc
+2. Append the above export command into .bashrc
+3. Use source to reload .bashrc:
+       source ~/.bashrc"
+        printf "\n\e[1;32m$help\e[0m \n"
+
+    elif [[ "$OS" == "Mac OS X" ]]; then
+help="follow these steps to add OMNET++ bin folder to PATH: 
+1. Open ~/.bash_profile in any text editor:
+       gedit ~/.bash_profile
+2. Append the above export command into .bash_profile
+3. Use source to reload .bash_profile:
+       source ~/.bash_profile"
+        printf "\n\e[1;32m$help\e[0m \n"
     fi
 fi
 
 # terminate script on java_home and omnet bin path warning
 check=$(echo "$confOut" | grep -e "configure: WARNING: JAVA_HOME" -e "WARNING: your PATH doesn't contain")
 if [ "" != "$check" ]; then
-    printf "\n\e[1;31mAfter changing PATH, run the script again!\e[0m \n\n"
+    printf "\n\e[1;31mAfter applying the changes, run the script again!\e[0m \n\n"
     exit 1
 fi
 
@@ -482,16 +531,16 @@ if [ "" = "$res" ]; then
         echo -n "g++ version is" $gppVER". Install g++ 4.8 (y/n)? "
         read answer
         if echo "$answer" | grep -iq "^y" ;then
-            sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test > /dev/null
-            sudo apt-get update > /dev/null
-            sudo update-alternatives --remove-all gcc > /dev/null
-            sudo update-alternatives --remove-all g++ > /dev/null
-            sudo apt-get --force-yes --yes install gcc-4.8
-            sudo apt-get --force-yes --yes install g++-4.8
-            sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 20 > /dev/null
-            sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 20 > /dev/null
-            sudo update-alternatives --config gcc > /dev/null
-            sudo update-alternatives --config g++ > /dev/null
+            echo $sudoPass | sudo -S add-apt-repository -y ppa:ubuntu-toolchain-r/test > /dev/null
+            echo $sudoPass | sudo -S apt-get update > /dev/null
+            echo $sudoPass | sudo -S update-alternatives --remove-all gcc > /dev/null
+            echo $sudoPass | sudo -S update-alternatives --remove-all g++ > /dev/null
+            echo $sudoPass | sudo -S apt-get --force-yes --yes install gcc-4.8
+            echo $sudoPass | sudo -S apt-get --force-yes --yes install g++-4.8
+            echo $sudoPass | sudo -S update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 20 > /dev/null
+            echo $sudoPass | sudo -S update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 20 > /dev/null
+            echo $sudoPass | sudo -S update-alternatives --config gcc > /dev/null
+            echo $sudoPass | sudo -S update-alternatives --config g++ > /dev/null
 
             printf "\n\e[1;31mClose this terminal and run the script again!\e[0m \n"
             exit 1
@@ -526,7 +575,7 @@ make install-desktop-icon > /dev/null 2> /dev/null
 echo "done!"
 
 echo -n "creating application launcher ... "
-sudo make install-menu-item > /dev/null 2> /dev/null
+echo $sudoPass | sudo -S make install-menu-item > /dev/null 2> /dev/null
 echo "done!"
 
 # go out of omnetpp folder
@@ -656,7 +705,7 @@ EOF
 
             echo ""
             echo "importing the certificate ..."
-            sudo security import server.pfx -k /Library/Keychains/System.keychain -P foobar
+            echo $sudoPass | sudo -S security import server.pfx -k /Library/Keychains/System.keychain -P foobar
             
             # add-trusted-cer supports DER or PEM format (its not possible to import both cer and private key)
             #sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain server.pem
@@ -679,11 +728,11 @@ EOF
         fi
 
         # before signing, we should either restart or run this
-        sudo killall taskgated
+        echo $sudoPass | sudo -S killall taskgated
 
         echo ""
         echo "signing gdb ..."
-        sudo codesign -s VENTOS "$(which gdb)"
+        echo $sudoPass | sudo -S codesign -s VENTOS "$(which gdb)"
 
         if [[ $? -ne 0 ]]; then
             exit 1
@@ -801,7 +850,29 @@ else
     echo "Your PATH contains $SUMO_BIN_DIR. Good!"
   else
       printf "WARNING: your PATH doesn't contain $SUMO_BIN_DIR! \nAdd the following line to your .profile or .bash_profile (provided you use bash): \nexport PATH=\$PATH:$SUMO_BIN_DIR \n"
-      printf "\n\e[1;31mAfter changing PATH, run the script again!\e[0m \n"
+
+      # show instruction on setting sumo path
+      if [[ "$OS" == "Ubuntu" ]]; then
+help="follow these steps to add SUMO bin folder to PATH: 
+1. Open ~/.bashrc in any text editor:
+       gedit ~/.bashrc
+2. Append the above export command into .bashrc
+3. Use source to reload .bashrc:
+       source ~/.bashrc"
+          printf "\n\e[1;32m$help\e[0m \n"
+
+      elif [[ "$OS" == "Mac OS X" ]]; then
+help="follow these steps to add SUMO bin folder to PATH: 
+1. Open ~/.bash_profile in any text editor:
+       gedit ~/.bash_profile
+2. Append the above export command into .bash_profile
+3. Use source to reload .bash_profile:
+       source ~/.bash_profile"
+          printf "\n\e[1;32m$help\e[0m \n"
+      fi
+
+      printf "\n\e[1;31mAfter applying the changes, run the script again!\e[0m \n"
+
       # removing the prob file
       rm $SUMO_BIN_DIR/$probefile
       exit 1
@@ -897,9 +968,9 @@ if ! [[ "$result" == "1" ]]; then
     cd _build
     cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr > /dev/null
     make
-    sudo make install > /dev/null
+    echo $sudoPass | sudo -S make install > /dev/null
     if [[ "$OS" == "Ubuntu" ]]; then
-        sudo ldconfig  # we need cmake in the next step
+        echo $sudoPass | sudo -S ldconfig  # we need cmake in the next step
     fi
 
     cd ..
@@ -947,7 +1018,7 @@ if [[ "$result" == "2" ]]; then
     echo "installing gnuplot ..."
     ./configure > /dev/null 2> /dev/null
     make > /dev/null
-    sudo make install > /dev/null
+    echo $sudoPass | sudo -S make install > /dev/null
 
     cd ..
 fi
@@ -983,7 +1054,7 @@ if [[ 1 ]]; then
     echo "installing libpcap ..."
     ./configure > /dev/null
     make > /dev/null
-    sudo make install > /dev/null
+    echo $sudoPass | sudo -S make install > /dev/null
 
     cd ..
     cd ..
@@ -1027,7 +1098,7 @@ if [[ 1 ]]; then
     ./autogen.sh > /dev/null
     ./configure > /dev/null
     make > /dev/null
-    sudo make install > /dev/null
+    echo $sudoPass | sudo -S make install > /dev/null
 
     cd ..
     cd ..
@@ -1070,7 +1141,7 @@ if [[ 1 ]]; then
     echo "installing snmp++ ..."
     ./configure > /dev/null
     make > /dev/null
-    sudo make install > /dev/null
+    echo $sudoPass | sudo -S make install > /dev/null
 
     cd ..
 else
@@ -1102,7 +1173,7 @@ else
     mkdir build
     cd build
     cmake ../ > /dev/null
-    sudo make install > /dev/null
+    echo $sudoPass | sudo -S make install > /dev/null
 
     cd ..
     cd ..
@@ -1147,7 +1218,7 @@ if [[ 1 ]]; then
     cd build
     cmake "-DBUILD_EXAMPLES=OFF" "-DBUILD_TESTING=OFF" "-DBUILD_SHARED_LIBS=ON" "-DCMAKE_BUILD_TYPE=Debug" ../ > /dev/null
     make 
-    sudo make install > /dev/null
+    echo $sudoPass | sudo -S make install > /dev/null
 
     cd ..
     cd ..
@@ -1168,7 +1239,7 @@ echo "==========="
 if [[ "$OS" == "Ubuntu" ]]; then
     # ldconfig is a program that is used to maintain the shared library cache in linux. This cache is typically stored in the file /etc/ld.so.cache and is used by the system to map a shared library name to the location of the corresponding shared library file.
     echo -n "registering shared libraries ..."
-    sudo ldconfig
+    echo $sudoPass | sudo -S ldconfig
     echo "done!"
 
     # libpcap library is used to sniff packets from network interfaces. We need to give permission to opp_run to be able to access the network interfaces (check [here](http://packetlife.net/blog/2010/mar/19/sniffing-wireshark-non-root-user/)). Moreover, libusb needs permission to open a USB device for read/write. This is done through setting [capabilities](http://linux.die.net/man/7/capabilities) using the following command:
@@ -1177,7 +1248,7 @@ if [[ "$OS" == "Ubuntu" ]]; then
     if [[ $? -ne 0 ]]; then
         exit 1
     fi
-    sudo setcap cap_dac_override,cap_net_raw,cap_net_admin=eip opp_run  # https://www.insecure.ws/linux/getcap_setcap.html
+    echo $sudoPass | sudo -S setcap cap_dac_override,cap_net_raw,cap_net_admin=eip opp_run  # https://www.insecure.ws/linux/getcap_setcap.html
     echo "done!"
     cd ..
     cd ..
@@ -1192,7 +1263,7 @@ if [[ "$OS" == "Ubuntu" ]]; then
 fi
 
 echo -n "removing temporary data ..."
-sudo rm -rf /tmp/VENTOS_tmp
+echo $sudoPass | sudo -S rm -rf /tmp/VENTOS_tmp
 echo "done!"
 
 echo ""
