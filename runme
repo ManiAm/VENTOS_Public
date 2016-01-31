@@ -96,6 +96,7 @@ install_LIB_Mac ()
         PKG_OK2=$(brew cask list 2> /dev/null | grep -w $last)
         if [[ ("" == "$PKG_OK1") && ("" == "$PKG_OK2") ]]; then
             echo "installing"
+            echo $sudoPass | sudo -S -v  # brew install might need sudo access
             brew install $i > /dev/null  # $i: we need the full package name!
             # check if everything went well?
             if [[ $? -ne 0 ]]; then
@@ -266,6 +267,35 @@ while true; do
     fi
 done
 
+: <<'END'
+# ask for github username/pass
+while true; do
+    unset gitUsername 
+    read -p "github username: " gitUsername
+
+    unset gitPass
+    prompt="github password: "
+    while IFS= read -p "$prompt" -r -s -n 1 char
+    do
+        if [[ $char == $'\0' ]]
+        then
+            break
+        fi
+        prompt='*'
+        gitPass+="$char"
+    done
+    echo ""
+
+    # now check if username/pass is correct
+    git ls-remote https://$gitUsername:$gitPass@github.com/ManiAm/VENTOS > /dev/null 2> /dev/null
+    if [[ $? -eq 0 ]]; then
+        break;
+    else
+        echo "github username/password is not correct!"
+    fi
+done
+END
+
 if [[ "$OS" == "Mac OS X" ]]; then
 
     # check if Command Line Tools is installed
@@ -287,7 +317,9 @@ if [[ "$OS" == "Mac OS X" ]]; then
     if [[ $? != 0 ]] ; then
         # Install Homebrew
         echo "installing homebrew ..."
-        ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+        echo $sudoPass | sudo -S -v
+        # note the <
+        ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" < /dev/null
     else
         ver=$(brew -v 2> /dev/null | awk '{print $2}')
         echo "Homebrew version $ver found!"
@@ -298,6 +330,7 @@ if [[ "$OS" == "Mac OS X" ]]; then
 
     # installing brew cask
     echo "checking brew cask ..."
+    echo $sudoPass | sudo -S -v
     brew cask list > /dev/null 2> /dev/null
 fi
 
@@ -500,7 +533,7 @@ help="follow these steps to add OMNET++ bin folder to PATH:
     elif [[ "$OS" == "Mac OS X" ]]; then
 help="follow these steps to add OMNET++ bin folder to PATH: 
 1. Open ~/.bash_profile in any text editor:
-       gedit ~/.bash_profile
+       nano ~/.bash_profile
 2. Append the above export command into .bash_profile
 3. Use source to reload .bash_profile:
        source ~/.bash_profile"
@@ -864,7 +897,7 @@ help="follow these steps to add SUMO bin folder to PATH:
       elif [[ "$OS" == "Mac OS X" ]]; then
 help="follow these steps to add SUMO bin folder to PATH: 
 1. Open ~/.bash_profile in any text editor:
-       gedit ~/.bash_profile
+       nano ~/.bash_profile
 2. Append the above export command into .bash_profile
 3. Use source to reload .bash_profile:
        source ~/.bash_profile"
