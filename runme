@@ -345,14 +345,8 @@ version=$(echo $version | sed 's/_.*$//') # remove the _
 vercomp "$version" "1.7"
 result=$?
 if [[ "$result" == "2" ]]; then
-    if [[ "$OS" == "Mac OS X" ]]; then
-        # on Mac OS
-        # we have already requested to install java
-        echo "requesting to install java ..."
-        printf "\e[1;32mChoose the More Info button in the window that pops up and install the latest JDK. After completion, run the script again.\e[0m \n\n"
-        exit 1
-    else
-        # on Ubuntu
+
+    if [[ "$OS" == "Ubuntu" ]]; then
         echo "java version should be >= 1.7"
         echo "[1] install OpenJDK 1.7"
         echo "[2] install Oracle Java 1.8"
@@ -371,7 +365,18 @@ if [[ "$result" == "2" ]]; then
         else
             exit 1;
         fi
+    elif [[ "$OS" == "Mac OS X" ]]; then
+        # we have already requested to install java
+        echo "requesting to install java ..."
+        printf "\e[1;32mChoose the More Info button in the window that pops up and install the latest JDK. After completion, run the script again.\e[0m \n\n"
+        exit 1
     fi
+fi
+
+# we need to install java 6 legacy as well
+if [[ "$OS" == "Mac OS X" ]]; then
+libs=("Caskroom/versions/java6")
+    install_LIB_Mac libs[@]
 fi
 
 if [[ "$OS" == "Ubuntu" ]]; then
