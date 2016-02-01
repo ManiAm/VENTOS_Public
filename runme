@@ -7,6 +7,11 @@ fi
 
 echo "Bash version is: $BASH_VERSION$"
 
+
+##############
+## Check OS ##
+##############
+
 OS='unknown'
 CODENAME='unknown'
 VER='unknown'
@@ -59,6 +64,11 @@ else
         exit 1 # terminate and indicate error
     fi
 fi
+
+
+##################
+## function def ##
+##################
 
 install_LIB_linux ()
 {
@@ -296,6 +306,15 @@ while true; do
 done
 END
 
+# get current directory
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# change directory to VENTOS
+cd $DIR
+# change directory to parent of VENTOS (Desktop)
+cd ..
+# make directory in tmp to store all downloaded files
+mkdir /tmp/VENTOS_tmp
+
 if [[ "$OS" == "Mac OS X" ]]; then
 
     # check if Command Line Tools is installed
@@ -395,6 +414,7 @@ elif [[ "$OS" == "Mac OS X" ]]; then
     install_LIB_Mac libs[@]
 fi
 
+
 ################################
 ## Start OMNET++ installation ##
 ################################
@@ -430,16 +450,6 @@ fi
 echo ""
 echo "Preparing to install OMNET++"
 echo "============================"
-
-# get current directory
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-# change directory to VENTOS
-cd $DIR
-# change directory to parent of VENTOS
-cd ..
-# make directory in tmp to store all downloaded files
-mkdir /tmp/VENTOS_tmp
-
 ver=$(opp_run -v 2> /dev/null | grep 'Build:' | awk '{print $2}')
 if [[ "" != "$ver" ]]; then
     loc=$(which opp_run)
@@ -942,6 +952,14 @@ fi # end of SUMO installation
 ## Start VENTOS installation ##
 ###############################
 
+# change directory to VENTOS
+cd $DIR
+if [[ $? -ne 0 ]]; then
+    exit 1
+fi
+# change directory to parent of VENTOS
+cd ..
+
 echo ""
 echo "Check main libraries for VENTOS"
 echo "==============================="
@@ -1271,6 +1289,14 @@ fi
 ######################
 ## Finishing up ... ##
 ######################
+
+# change directory to VENTOS
+cd $DIR
+if [[ $? -ne 0 ]]; then
+    exit 1
+fi
+# change directory to parent of VENTOS
+cd ..
 
 echo ""
 echo "Wrapping-up"
