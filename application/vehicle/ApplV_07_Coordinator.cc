@@ -44,12 +44,15 @@ void ApplVCoordinator::initialize(int stage)
 {
     ApplVPlatoonMg::initialize(stage);
 
-    if (stage == 0 && plnMode == platoonManagement)
+    if (stage == 0)
     {
-        coordinationMode = par("coordinationMode").longValue();
+        if(plnMode == platoonManagement)
+        {
+            coordinationMode = par("coordinationMode").longValue();
 
-        coordination = new cMessage("coordination timer", KIND_TIMER);
-        scheduleAt(simTime(), coordination);
+            platoonCoordination = new cMessage("coordination timer", KIND_TIMER);
+            scheduleAt(simTime(), platoonCoordination);
+        }
     }
 }
 
@@ -64,7 +67,7 @@ void ApplVCoordinator::handleSelfMsg(cMessage* msg)
 {
     ApplVPlatoonMg::handleSelfMsg(msg);
 
-    if(msg == coordination)
+    if(msg == platoonCoordination)
     {
         coordinator();
     }
@@ -149,7 +152,7 @@ void ApplVCoordinator::coordinator()
     else
         error("not a valid coordination mode!");
 
-    scheduleAt(simTime() + 0.1, coordination);
+    scheduleAt(simTime() + 0.1, platoonCoordination);
 }
 
 // -----------------------------------------------------------
@@ -254,22 +257,22 @@ void ApplVCoordinator::scenario4()
             ApplVPlatoonMg::leavePlatoon();
         }
     }
-//    // last follower leaves
-//    else if(simTime().dbl() == 160)
-//    {
-//        if(SUMOID == "veh5")
-//        {
-//            ApplVPlatoonMg::leavePlatoon();
-//        }
-//    }
-//    // middle follower leaves
-//    else if(simTime().dbl() == 190)
-//    {
-//        if(SUMOID == "veh2")
-//        {
-//            ApplVPlatoonMg::leavePlatoon();
-//        }
-//    }
+    //    // last follower leaves
+    //    else if(simTime().dbl() == 160)
+    //    {
+    //        if(SUMOID == "veh5")
+    //        {
+    //            ApplVPlatoonMg::leavePlatoon();
+    //        }
+    //    }
+    //    // middle follower leaves
+    //    else if(simTime().dbl() == 190)
+    //    {
+    //        if(SUMOID == "veh2")
+    //        {
+    //            ApplVPlatoonMg::leavePlatoon();
+    //        }
+    //    }
 }
 
 
@@ -618,7 +621,7 @@ void ApplVCoordinator::scenario9()
         // leader leaves
         if(SUMOID == "veh1")
             dissolvePlatoon();
-            //leavePlatoon();
+        //leavePlatoon();
     }
 }
 

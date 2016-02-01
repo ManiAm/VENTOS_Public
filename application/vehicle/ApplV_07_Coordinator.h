@@ -60,7 +60,7 @@ private:
     void scenario9();
 
     int coordinationMode;
-    cMessage* coordination;
+    cMessage* platoonCoordination;
     static double stopTime;
 };
 
