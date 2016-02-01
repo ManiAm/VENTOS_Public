@@ -848,6 +848,7 @@ echo "Running SUMO configure"
 echo "======================"
 
 cd VENTOS_SUMO
+cd sumo
 if [[ $? -ne 0 ]]; then
     exit 1
 fi
@@ -930,7 +931,8 @@ echo " "
 make -j4 > /dev/null
 echo "make is finished!"
 
-# go out of SUMO folder
+# go out of VENTOS_SUMO folder
+cd ..
 cd ..
 
 fi # end of SUMO installation
