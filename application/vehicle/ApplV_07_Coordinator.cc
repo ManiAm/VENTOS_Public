@@ -67,9 +67,10 @@ void ApplVCoordinator::handleSelfMsg(cMessage* msg)
 {
     ApplVPlatoonMg::handleSelfMsg(msg);
 
-    if(msg == platoonCoordination)
+    if(plnMode == platoonManagement)
     {
-        coordinator();
+        if(msg == platoonCoordination)
+            coordinator();
     }
 }
 
