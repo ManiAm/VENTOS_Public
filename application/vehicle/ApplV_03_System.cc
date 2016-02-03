@@ -88,9 +88,8 @@ void ApplVSystem::initialize(int stage)
             if(debugLevel > 1) std::cout << SUMOID << " is not routing" << endl;
         }
         else
-        {
             requestReroutes = true;
-        }
+
         numReroutes = 0;
 
         //Register to receive signals from the router
@@ -141,7 +140,11 @@ void ApplVSystem::handleSelfMsg(cMessage* msg)  //Internal messages to self
 {
     ApplVBeacon::handleSelfMsg(msg);    //Pass it down
 
-    if (requestRoutes && msg == sendSystemMsgEvt)  //If it's a system message
+    if(!requestRoutes)
+        return;
+
+    //If it's a system message
+    if (msg == sendSystemMsgEvt)
     {
         if(requestReroutes || (routingMode == DIJKSTRA and numReroutes == 0))
             reroute();

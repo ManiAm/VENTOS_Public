@@ -68,7 +68,7 @@ void ApplVBeacon::initialize(int stage)
         offSet = offSet + floor(offSet/0.050)*0.050;
         individualOffset = dblrand() * maxOffset;
 
-        // obstacle vehicles do not broadcast
+        // vehicles of type "TypeObstacle" do not broadcast
         if(SUMOType == "TypeObstacle")
             VANETenabled = false;
 
@@ -94,13 +94,9 @@ void ApplVBeacon::finish()
     ApplVBase::finish();
 
     if (VehicleBeaconEvt->isScheduled())
-    {
         cancelAndDelete(VehicleBeaconEvt);
-    }
     else
-    {
         delete VehicleBeaconEvt;
-    }
 }
 
 
@@ -208,7 +204,7 @@ bool ApplVBeacon::isBeaconFromMyPlatoonLeader(BeaconVehicle* wsm)
     // check if a platoon leader is sending this
     if( wsm->getPlatoonDepth() == 0 )
     {
-        // check if this is actually my platoon leader
+        // check if this is my platoon leader
         if( std::string(wsm->getPlatoonID()) == plnID)
         {
             // note: we should not check myPlnDepth != 0

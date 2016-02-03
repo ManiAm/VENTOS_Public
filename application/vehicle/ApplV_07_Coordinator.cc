@@ -46,13 +46,13 @@ void ApplVCoordinator::initialize(int stage)
 
     if (stage == 0)
     {
-        if(plnMode == platoonManagement)
-        {
-            coordinationMode = par("coordinationMode").longValue();
+        if(plnMode != platoonManagement)
+            return;
 
-            platoonCoordination = new cMessage("coordination timer", KIND_TIMER);
-            scheduleAt(simTime(), platoonCoordination);
-        }
+        coordinationMode = par("coordinationMode").longValue();
+
+        platoonCoordination = new cMessage("coordination timer", KIND_TIMER);
+        scheduleAt(simTime(), platoonCoordination);
     }
 }
 
@@ -67,11 +67,11 @@ void ApplVCoordinator::handleSelfMsg(cMessage* msg)
 {
     ApplVPlatoonMg::handleSelfMsg(msg);
 
-    if(plnMode == platoonManagement)
-    {
-        if(msg == platoonCoordination)
-            coordinator();
-    }
+    if(plnMode != platoonManagement)
+        return;
+
+    if(msg == platoonCoordination)
+        coordinator();
 }
 
 

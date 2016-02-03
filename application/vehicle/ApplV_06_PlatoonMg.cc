@@ -209,9 +209,7 @@ void ApplVPlatoonMg::onData(PlatoonMsg* wsm)
 PlatoonMsg*  ApplVPlatoonMg::prepareData(std::string receiver, uCommands type, std::string receivingPlatoonID, double dblValue, std::string strValue, std::deque<std::string> vecValue)
 {
     if(plnMode != platoonManagement)
-    {
         error("This application mode does not support platoon management!");
-    }
 
     PlatoonMsg* wsm = new PlatoonMsg("platoonMsg");
 

@@ -332,7 +332,7 @@ if [[ "$OS" == "Mac OS X" ]]; then
     fi
 
     # check if Homebrew is installed
-    which -s brew
+    which brew
     if [[ $? != 0 ]] ; then
         # Install Homebrew
         echo "installing homebrew ..."
@@ -635,12 +635,12 @@ echo ""
 echo "Check gdb"
 echo "========="
 
-which -s gdb
+which gdb
 if [[ $? != 0 ]] ; then
     # install gdb for debugging in eclipse
     if [[ "$OS" == "Ubuntu" ]]; then
         libs=("gdb")
-        install_LIB_Linux libs[@]
+        install_LIB_linux libs[@]
     elif [[ "$OS" == "Mac OS X" ]]; then
         libs=("gdb" "openssl")
         install_LIB_Mac libs[@]
