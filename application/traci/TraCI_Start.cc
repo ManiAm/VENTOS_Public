@@ -784,11 +784,12 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
                 if(equilibrium_vehicle)
                 {
                     // saving information for later use
+                    // todo: always set entryPos and entrySpeed to 0
                     departedNodes *node = new departedNodes(idstring,
                             vehicleGetTypeID(idstring),
                             vehicleGetRouteID(idstring),
-                            vehicleGetLanePosition(idstring),
-                            vehicleGetSpeed(idstring),
+                            0 /*vehicleGetLanePosition(idstring)*/,
+                            0 /*vehicleGetSpeed(idstring)*/,
                             vehicleGetLaneIndex(idstring));
 
                     auto it = addedNodes.find(idstring);
@@ -834,20 +835,40 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
                     if(it == addedNodes.end())
                         error("cannot find %s in the addedNodes map!", idstring.c_str());
 
-                    std::cout << "t=" << simTime().dbl() << ": " << idstring << " arrived. Inserting it again ..." << std::endl;
                     departedNodes node = it->second;
-                    addedNodes.erase(it);  // remove this entry
+
+                    std::cout << "t=" << simTime().dbl() << ": " << " vehicle arrived. Inserting again ("
+                            << "id:" << node.vehicleId << ", "
+                            << "type:" << node.vehicleTypeId << ", "
+                            << "routeId:" << node.routeId << ", "
+                            << "pos:" << node.pos << ", "
+                            << "entrySpeed:" << node.speed << ", "
+                            << "entryLaneIndex:" << node.lane << ")"
+                            << std::endl;
+
+                    addedNodes.erase(it);  // remove this entry before adding
                     vehicleAdd(node.vehicleId, node.vehicleTypeId, node.routeId, (simTime().dbl() * 1000)+1, node.pos, node.speed, node.lane);
                 }
             }
 
-            // should we proceed with sumo simulation?
-            int pedCount = personGetIDCount();
-            if (autoShutdown && count > 0 && count >= activeVehicleCount && pedCount == 0)
-                autoShutdownTriggered = true;
-
             activeVehicleCount -= count;
             drivingVehicleCount -= count;
+
+            // should we stop SUMO simulation?
+            if(autoShutdown)
+            {
+                // terminate only if equilibrium_vehicle is off
+                if(!equilibrium_vehicle)
+                {
+                    // get number of vehicles and bikes
+                    int count1 = simulationGetMinExpectedNumber();
+                    // get number of pedestrians
+                    int count2 = personGetIDCount();
+                    // terminate if all departed vehicles have arrived
+                    if (count1 + count2 == 0)
+                        autoShutdownTriggered = true;
+                }
+            }
         }
         else if (variable1_resp == VAR_TELEPORT_STARTING_VEHICLES_IDS)
         {

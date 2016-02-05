@@ -18,8 +18,8 @@
   <route id="WtoE" edges="WC CE" />     
   <route id="EtoW" edges="EC CW" />    
 
-  <flow id="route1" begin="0" end="1000" vehsPerHour="500" type="passenger" route="WtoE" />
-  <flow id="route2" begin="0" end="1000" vehsPerHour="500" type="passenger" route="EtoW" />
+  <flow id="route1" begin="10" end="1000" vehsPerHour="500" type="passenger" route="WtoE" />
+  <flow id="route2" begin="10" end="1000" vehsPerHour="500" type="passenger" route="EtoW" />
 
 
   <person id="ped1" type="pedestrian" depart="10">

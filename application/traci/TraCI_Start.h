@@ -42,9 +42,9 @@ public:
     std::string routeId;
     double pos;
     double speed;
-    uint8_t lane;
+    uint32_t lane;
 
-    departedNodes(std::string str1, std::string str2, std::string str3, double d1, double d2, uint8_t i2)
+    departedNodes(std::string str1, std::string str2, std::string str3, double d1, double d2, uint32_t i2)
     {
         this->vehicleId = str1;
         this->vehicleTypeId = str2;
