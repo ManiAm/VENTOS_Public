@@ -400,7 +400,7 @@ void ApplRSUCLASSIFY::trainClassifier()
         shark::Data<unsigned int> output = kc_model(data.inputs());
         double train_error = loss.eval(data.labels(), output);
 
-        std::cout << train_error;
+        std::cout << train_error << std::endl;
         std::cout.flush();
     }
 }
