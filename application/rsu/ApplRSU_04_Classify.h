@@ -52,6 +52,12 @@
 
 #define ev  (*cSimulation::getActiveEnvir())
 
+// un-defining ev!
+// why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header
+#undef ev
+#include "boost/filesystem.hpp"
+#define ev  (*cSimulation::getActiveEnvir())
+
 namespace VENTOS {
 
 class sample_type
@@ -99,12 +105,14 @@ private:
     bool collectTrainingData;
 
     FILE *plotterPtr = NULL;
+    boost::filesystem::path trainingFilePath      = "results/ML/trainData.txt";
+    boost::filesystem::path trainingClassFilePath = "results/ML/trainClass.txt";
     std::vector<sample_type> samples;
     std::vector<int> labels;
 
     std::map<std::string /*lane*/, int /*class number*/> entityClasses;
     shark::blas::matrix<double, shark::blas::row_major> shark_sample;
-    shark::KernelClassifier<shark::RealVector> kc_model;
+    shark::KernelClassifier<shark::RealVector> *kc_model;
 };
 
 }

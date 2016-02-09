@@ -28,12 +28,6 @@
 #include "ApplRSU_04_Classify.h"
 #include <Plotter.h>
 
-// un-defining ev!
-// why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header
-#undef ev
-#include "boost/filesystem.hpp"
-#define ev  (*cSimulation::getActiveEnvir())
-
 namespace VENTOS {
 
 Define_Module(VENTOS::ApplRSUCLASSIFY);
@@ -53,8 +47,6 @@ void ApplRSUCLASSIFY::initialize(int stage)
         classifier = par("classifier").boolValue();
         if(!classifier)
             return;
-
-        collectTrainingData = par("collectTrainingData").boolValue();
 
         // we need this RSU to be associated with a TL
         if(myTLid == "")
@@ -76,8 +68,19 @@ void ApplRSUCLASSIFY::initialize(int stage)
         if(ev.isGUI())
             initializeGnuPlot();
 
-        if(!collectTrainingData)
+        // check if training data exist?
+        if( (!boost::filesystem::exists(trainingFilePath)) || (!boost::filesystem::exists(trainingClassFilePath)) )
+        {
+            collectTrainingData = true;
+            std::cout << "no training data found at " << trainingFilePath.parent_path().string() << std::endl;
+            std::cout << "run simulation once to collect training data!" << std::endl << std::endl;
+        }
+        else
+        {
+            collectTrainingData = false;
+            std::cout << "found training data at " << trainingFilePath.parent_path().string() << std::endl;
             trainClassifier();
+        }
     }
 }
 
@@ -207,7 +210,8 @@ void ApplRSUCLASSIFY::onBeaconAny(beaconGeneral wsm)
     }
 
     // on one of the incoming lanes?
-    auto it = lanesTL.find(wsm->getLane());
+    std::string lane = wsm->getLane();
+    auto it = lanesTL.find(lane);
 
     // not on any incoming lanes
     if(it == lanesTL.end())
@@ -222,12 +226,17 @@ void ApplRSUCLASSIFY::onBeaconAny(beaconGeneral wsm)
     shark_sample(0,1) = (double) pos.y;            // yPos
     shark_sample(0,2) = (double) wsm->getSpeed();  // entry speed
 
+    auto re = entityClasses.find(lane);
+    if(re == entityClasses.end())
+        error("class %s not found!", lane.c_str());
+
     // print debug information
-    printf("%0.3f, %0.3f, %06.3f --> predicted label: %d, sender: %s \n",
+    printf("%0.3f, %0.3f, %06.3f --> predicted label: %2d, true label: %2d, sender: %s \n",
             shark_sample(0,0),
             shark_sample(0,1),
             shark_sample(0,2),
-            kc_model(shark_sample)[0],
+            (*kc_model)(shark_sample)[0],
+            re->second,
             wsm->getSender());
 
     std::cout.flush();
@@ -308,11 +317,17 @@ void ApplRSUCLASSIFY::collectSample(beaconGeneral wsm)
 
 void ApplRSUCLASSIFY::saveSampleToFile()
 {
-    boost::filesystem::path filePath = "application/rsu/trainData.txt";
-    FILE *filePtr = fopen (filePath.string().c_str(), "w");
+    FILE *filePtr = fopen (trainingFilePath.string().c_str(), "w");
 
     for(unsigned int i = 0; i < samples.size(); ++i)
         fprintf (filePtr, "%f %f %f %d \n", samples[i].xPos, samples[i].yPos, samples[i].speed, labels[i]);
+
+    fclose(filePtr);
+
+    filePtr = fopen (trainingClassFilePath.string().c_str(), "w");
+
+    for(auto i : entityClasses)
+        fprintf (filePtr, "%s %d \n", (i.first).c_str(), i.second);
 
     fclose(filePtr);
 }
@@ -326,7 +341,7 @@ void ApplRSUCLASSIFY::trainClassifier()
     {
         std::cout << "reading training samples... " << std::flush;
         // Load data from external file
-        shark::importCSV(data, "application/rsu/trainData.txt", shark::LAST_COLUMN /*label position*/, ' ' /*separator*/);
+        shark::importCSV(data, trainingFilePath.string(), shark::LAST_COLUMN /*label position*/, ' ' /*separator*/);
         std::cout << data.elements().size() << " samples fetched! \n" << std::flush;
     }
     catch (std::exception& e)
@@ -339,70 +354,91 @@ void ApplRSUCLASSIFY::trainClassifier()
     int classCount = 0;
     for(auto i : classSizes(data))
     {
-        std::cout << "  class " << classCount << ": " << i << std::endl;
+        std::printf("  class %-2d: %-5lu, ", classCount, i);
         classCount++;
+
+        if(classCount % 3 == 0)
+            std::cout << std::endl;
     }
 
-    //    std::cout << "shuffling training samples... " << std::flush;
-    //    // shuffle data
-    //    data.shuffle();
-    //    std::cout << "done \n" << std::flush;
+    std::cout << "shuffling training samples... " << std::flush;
+    data.shuffle();   // shuffle data
+    std::cout << "done \n" << std::flush;
 
     shark::GaussianRbfKernel<> *kernel = new shark::GaussianRbfKernel<shark::RealVector> (0.5 /*kernel bandwidth parameter*/);
-    // shark::CSvmTrainer<shark::RealVector> trainer(kernel, 1000.0 /*regularization parameter*/, true /*use bias/offset*/);
 
-    double C = 10.0;
+    kc_model = new shark::KernelClassifier<shark::RealVector> (kernel);
 
-    // There are 9 trainers for multi-class SVMs in Shark which can train with or without bias:
-    shark::AbstractSvmTrainer<shark::RealVector, unsigned int> *trainer[18];
+    // Training of a multi-class SVM by the one-versus-all (OVA) method
+    shark::AbstractSvmTrainer<shark::RealVector, unsigned int> *trainer[2];
+    trainer[0]  = new shark::McSvmOVATrainer<shark::RealVector>(kernel, 10.0, false /*without bias*/);
+    trainer[1]  = new shark::McSvmOVATrainer<shark::RealVector>(kernel, 10.0, true  /*with bias*/);
 
-    trainer[0]  = new shark::McSvmOVATrainer<shark::RealVector>(kernel, C, false);
-    trainer[1]  = new shark::McSvmCSTrainer<shark::RealVector>(kernel, C, false);
-    trainer[2]  = new shark::McSvmWWTrainer<shark::RealVector>(kernel, C, false);
-    trainer[3]  = new shark::McSvmLLWTrainer<shark::RealVector>(kernel, C, false);
-    trainer[4]  = new shark::McSvmADMTrainer<shark::RealVector>(kernel, C, false);
-    trainer[5]  = new shark::McSvmATSTrainer<shark::RealVector>(kernel, C, false);
-    trainer[6]  = new shark::McSvmATMTrainer<shark::RealVector>(kernel, C, false);
-    trainer[7]  = new shark::McSvmMMRTrainer<shark::RealVector>(kernel, C, false);
-    trainer[8]  = new shark::McReinforcedSvmTrainer<shark::RealVector>(kernel, C, false);
+    // Training of a binary-class SVM
+    // shark::CSvmTrainer<shark::RealVector> trainer(kernel, 1000.0 /*regularization parameter*/, true /*with bias*/);
 
-    trainer[9]  = new shark::McSvmOVATrainer<shark::RealVector>(kernel, C, true);
-    trainer[10] = new shark::McSvmCSTrainer<shark::RealVector>(kernel, C, true);
-    trainer[11] = new shark::McSvmWWTrainer<shark::RealVector>(kernel, C, true);
-    trainer[12] = new shark::McSvmLLWTrainer<shark::RealVector>(kernel, C, true);
-    trainer[13] = new shark::McSvmADMTrainer<shark::RealVector>(kernel, C, true);
-    trainer[14] = new shark::McSvmATSTrainer<shark::RealVector>(kernel, C, true);
-    trainer[15] = new shark::McSvmATMTrainer<shark::RealVector>(kernel, C, true);
-    trainer[16] = new shark::McSvmMMRTrainer<shark::RealVector>(kernel, C, true);
-    trainer[17] = new shark::McReinforcedSvmTrainer<shark::RealVector>(kernel, C, true);
-
-    for (int i = 0; i < 18; i++)
+    for (int i = 0; i <= 1; i++)
     {
-        std::printf("[%2d] training model %10s %s... \n",
-                i,
-                trainer[i]->name().c_str(),
-                trainer[i]->trainOffset()? "with bias   ":"without bias");
-        std::cout.flush();
+        std::string bias = trainer[i]->trainOffset()? "_withBias":"_withoutBias";
+        std::string fileName = trainer[i]->name() + bias + ".model";
+        boost::filesystem::path filePath = "results/ML/" + fileName;
 
-        // start training
-        trainer[i]->train(kc_model, data);
+        // check if trained model already exists on disk
+        std::ifstream ifs(filePath.string());
+        if(!ifs.fail())
+        {
+            std::cout << "loading " << fileName << " from disk... ";
+            boost::archive::polymorphic_text_iarchive ia(ifs);
+            kc_model->read(ia);
+            ifs.close();
+            std::cout << "done \n";
+        }
+        else
+        {
+            std::printf("training model %10s %s... \n",
+                    trainer[i]->name().c_str(),
+                    trainer[i]->trainOffset()? "with bias":"without bias");
+            std::cout.flush();
 
-        std::printf("  iterations= %d, accuracy= %f, time= %g seconds \n",
-                (int)trainer[i]->solutionProperties().iterations,
-                trainer[i]->solutionProperties().accuracy,
-                trainer[i]->solutionProperties().seconds);
+            // start training
+            trainer[i]->train(*kc_model, data);
 
-        std::cout << "  training error= ";
-        std::cout.flush();
+            std::printf("  iterations= %d, accuracy= %f, time= %g seconds \n",
+                    (int)trainer[i]->solutionProperties().iterations,
+                    trainer[i]->solutionProperties().accuracy,
+                    trainer[i]->solutionProperties().seconds);
 
-        // evaluate the model on training set
-        shark::ZeroOneLoss<unsigned int> loss; // 0-1 loss
-        shark::Data<unsigned int> output = kc_model(data.inputs());
-        double train_error = loss.eval(data.labels(), output);
+            std::cout << "  training error= " << std::flush;
 
-        std::cout << train_error << std::endl;
-        std::cout.flush();
+            // evaluate the model on training set
+            shark::ZeroOneLoss<unsigned int> loss; // 0-1 loss
+            shark::Data<unsigned int> output = (*kc_model)(data.inputs());
+            double train_error = loss.eval(data.labels(), output);
+
+            std::cout << train_error << std::endl << std::flush;
+
+            // save the model to the file "svm.model"
+            std::ofstream ofs(filePath.string());
+            boost::archive::polymorphic_text_oarchive oa(ofs);
+            kc_model->write(oa);
+            ofs.close();
+        }
     }
+
+    // read training class file
+    std::cout << "reading classes... " << std::flush;
+    std::string cName;
+    unsigned int cNum;
+    std::ifstream infile(trainingClassFilePath.string());
+    while (infile >> cName >> cNum)
+    {
+        auto se = entityClasses.find(cName);
+        if(se == entityClasses.end())
+            entityClasses[cName] = cNum;
+        else
+            error("duplicate class name %s", cName.c_str());
+    }
+    std::cout << "done \n\n";
 }
 
 }
