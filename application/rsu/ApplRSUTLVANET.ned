@@ -8,5 +8,7 @@ simple ApplRSUTLVANET extends ApplRSUAID
         
         bool monitorVehApproach;
         bool collectVehApproach;
+        
         bool classifier;
+        bool collectTrainingData;
 }

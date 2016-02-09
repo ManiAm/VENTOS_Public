@@ -30,21 +30,38 @@
 
 #include "ApplRSU_03_ActiveTL.h"
 
-//#undef ev
-//#include "dlib/svm_threaded.h"
-//#include "dlib/rand.h"
-//#define ev  (*cSimulation::getActiveEnvir())
+#undef ev
+
+#include <shark/Data/Dataset.h>
+#include <shark/Data/Csv.h>
+#include <shark/ObjectiveFunctions/Loss/ZeroOneLoss.h>
+
+#include <shark/LinAlg/Base.h>
+#include <shark/Rng/GlobalRng.h>
+#include <shark/Models/Converter.h>
+#include <shark/Models/Kernels/GaussianRbfKernel.h>
+#include <shark/Algorithms/Trainers/McSvmOVATrainer.h>
+#include <shark/Algorithms/Trainers/McSvmCSTrainer.h>
+#include <shark/Algorithms/Trainers/McSvmWWTrainer.h>
+#include <shark/Algorithms/Trainers/McSvmLLWTrainer.h>
+#include <shark/Algorithms/Trainers/McSvmADMTrainer.h>
+#include <shark/Algorithms/Trainers/McSvmATSTrainer.h>
+#include <shark/Algorithms/Trainers/McSvmATMTrainer.h>
+#include <shark/Algorithms/Trainers/McSvmMMRTrainer.h>
+#include <shark/Algorithms/Trainers/McReinforcedSvmTrainer.h>
+
+#define ev  (*cSimulation::getActiveEnvir())
 
 namespace VENTOS {
 
-class feature
+class sample_type
 {
 public:
     double xPos;
     double yPos;
     double speed;
 
-    feature(double x, double y, double z)
+    sample_type(double x, double y, double z)
     {
         this->xPos = x;
         this->yPos = y;
@@ -52,11 +69,6 @@ public:
     }
 };
 
-//// data type for 2-dimensional data
-//typedef dlib::matrix<double,2,1> sample_type_2D;
-//
-//// data type for 3-dimensional data
-//typedef dlib::matrix<double,3,1> sample_type_3D;
 
 class ApplRSUCLASSIFY : public ApplRSUTLVANET
 {
@@ -77,15 +89,22 @@ protected:
 
 private:
     void initializeGnuPlot();
-    template <typename T> void onBeaconAny(T wsm);
-    //  void generate_data(std::vector<sample_type_2D>& samples, std::vector<double>& labels);
-    //  void generate_data_3D(std::vector<sample_type_3D>& samples, std::vector<double>& labels);
-    void classifierF();
+    template <typename beaconGeneral> void onBeaconAny(beaconGeneral wsm);
+    template <typename beaconGeneral> void collectSample(beaconGeneral wsm);
+    void saveSampleToFile();
+    void trainClassifier();
 
 private:
     bool classifier;
+    bool collectTrainingData;
+
     FILE *plotterPtr = NULL;
-    std::vector<feature> dataSet [3];
+    std::vector<sample_type> samples;
+    std::vector<int> labels;
+
+    std::map<std::string /*lane*/, int /*class number*/> entityClasses;
+    shark::blas::matrix<double, shark::blas::row_major> shark_sample;
+    shark::KernelClassifier<shark::RealVector> kc_model;
 };
 
 }
