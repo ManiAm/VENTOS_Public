@@ -387,7 +387,7 @@ void ApplRSUCLASSIFY::trainClassifier()
         // start training
         trainer[i]->train(kc_model, data);
 
-        std::printf("  iterations=%10d, accuracy=%f, time=%9.4g seconds \n",
+        std::printf("  iterations= %d, accuracy= %f, time= %g seconds \n",
                 (int)trainer[i]->solutionProperties().iterations,
                 trainer[i]->solutionProperties().accuracy,
                 trainer[i]->solutionProperties().seconds);
