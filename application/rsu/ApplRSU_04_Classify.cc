@@ -48,6 +48,12 @@ void ApplRSUCLASSIFY::initialize(int stage)
         if(!classifier)
             return;
 
+        GPSerror = par("GPSerror").doubleValue();
+        if(GPSerror < 0)
+            error("GPSerror value is not correct!");
+
+        debugLevel = simulation.getSystemModule()->par("debugLevel").longValue();
+
         // we need this RSU to be associated with a TL
         if(myTLid == "")
             error("The id of %s does not match with any TL. Check RSUsLocation.xml file!", myFullId);
@@ -91,6 +97,8 @@ void ApplRSUCLASSIFY::finish()
 
     if(collectTrainingData)
         saveSampleToFile();
+
+    saveClassificationResults();
 }
 
 
@@ -199,6 +207,44 @@ void ApplRSUCLASSIFY::initializeGnuPlot()
 }
 
 
+void ApplRSUCLASSIFY::draw()
+{
+    if(plotterPtr == NULL)
+        return;
+
+    // create a data blocks out of dataset (only gnuplot > 5.0 supports this)
+    fprintf(plotterPtr, "$data << EOD \n");
+
+    // data block 1
+    //    for(auto &i : dataSet[0])
+    //            fprintf(plotterPtr, "%f  %f  %f \n", i.xPos, i.yPos, i.speed);
+
+    // two blank lines as data block separator
+    fprintf(plotterPtr, "\n\n \n");
+
+    // data block 2
+    //      for(auto &i : dataSet[1])
+    //           fprintf(plotterPtr, "%f  %f  %f \n", i.xPos, i.yPos, i.speed);
+
+    // two blank lines as data block separator
+    fprintf(plotterPtr, "\n\n \n");
+
+    // data block 3
+    //        for(auto &i : dataSet[2])
+    //            fprintf(plotterPtr, "%f  %f  %f \n", i.xPos, i.yPos, i.speed);
+
+    // data block terminator
+    fprintf(plotterPtr, "EOD \n");
+
+    // make plot
+    fprintf(plotterPtr, "splot '$data' index 0 using 1:2:3 with points ls 1 title 'passenger',");
+    fprintf(plotterPtr, "      ''      index 1 using 1:2:3 with points ls 2 title 'bicycle',");
+    fprintf(plotterPtr, "      ''      index 2 using 1:2:3 with points ls 3 title 'pedestrian' \n");
+
+    fflush(plotterPtr);
+}
+
+
 // update variables upon reception of any beacon (vehicle, bike, pedestrian)
 template <typename beaconGeneral>
 void ApplRSUCLASSIFY::onBeaconAny(beaconGeneral wsm)
@@ -221,25 +267,64 @@ void ApplRSUCLASSIFY::onBeaconAny(beaconGeneral wsm)
     if(it->second != myTLid)
         return;
 
-    Coord pos = wsm->getPos();
-    shark_sample(0,0) = (double) pos.x;            // xPos
-    shark_sample(0,1) = (double) pos.y;            // yPos
-    shark_sample(0,2) = (double) wsm->getSpeed();  // entry speed
+    // retrieve info from beacon
+    double posX = wsm->getPos().x;
+    double posY = wsm->getPos().y;
+    double speed = wsm->getSpeed();
+
+    if(GPSerror != 0)
+    {
+        double r = 0;
+
+        // add error to posX
+        r = ( ( rand() / double(RAND_MAX) ) - 0.5 ) * 2;   // -1 <= r1 <= 1
+        posX = posX + (r * GPSerror);
+
+        // add error to posY
+        r = ( ( rand() / double(RAND_MAX) ) - 0.5 ) * 2;   // -1 <= r1 <= 1
+        posY = posY + (r * GPSerror);
+
+        // add error to speed
+        r = ( ( rand() / double(RAND_MAX) ) - 0.5 ) * 2;   // -1 <= r1 <= 1
+        //speed = speed + speed * (r * GPSerror);  // todo
+    }
+
+    shark_sample(0,0) = posX;  // xPos
+    shark_sample(0,1) = posY;  // yPos
+    shark_sample(0,2) = speed; // speed
 
     auto re = entityClasses.find(lane);
     if(re == entityClasses.end())
         error("class %s not found!", lane.c_str());
 
-    // print debug information
-    printf("%0.3f, %0.3f, %06.3f --> predicted label: %2d, true label: %2d, sender: %s \n",
-            shark_sample(0,0),
-            shark_sample(0,1),
-            shark_sample(0,2),
-            (*kc_model)(shark_sample)[0],
-            re->second,
-            wsm->getSender());
+    std::string sender = wsm->getSender();
 
-    std::cout.flush();
+    // save classification results
+    result *res = new result((*kc_model)(shark_sample)[0], re->second, simTime().dbl());
+    auto xr = classifyResults.find(sender);
+    if(xr == classifyResults.end())
+    {
+        std::vector<result> tmp {*res};
+        classifyResults[sender] = tmp;
+    }
+    else
+    {
+        xr->second.push_back(*res);
+    }
+
+    // print debug information
+    if(debugLevel > 1)
+    {
+        printf("%0.3f, %0.3f, %06.3f --> predicted label: %2d, true label: %2d, sender: %s \n",
+                shark_sample(0,0),
+                shark_sample(0,1),
+                shark_sample(0,2),
+                (*kc_model)(shark_sample)[0],
+                re->second,
+                sender.c_str());
+
+        std::cout.flush();
+    }
 }
 
 
@@ -277,41 +362,6 @@ void ApplRSUCLASSIFY::collectSample(beaconGeneral wsm)
         samples.push_back(*m);
         labels.push_back(it2->second);
     }
-
-    // plot each sample, live on gnuplot
-    //    if(plotterPtr != NULL)
-    //    {
-    //        // create a data blocks out of dataset (only gnuplot > 5.0 supports this)
-    //        fprintf(plotterPtr, "$data << EOD \n");
-    //
-    //        // data block 1
-    //        //    for(auto &i : dataSet[0])
-    //        //            fprintf(plotterPtr, "%f  %f  %f \n", i.xPos, i.yPos, i.speed);
-    //
-    //        // two blank lines as data block separator
-    //        fprintf(plotterPtr, "\n\n \n");
-    //
-    //        // data block 2
-    //        //      for(auto &i : dataSet[1])
-    //        //           fprintf(plotterPtr, "%f  %f  %f \n", i.xPos, i.yPos, i.speed);
-    //
-    //        // two blank lines as data block separator
-    //        fprintf(plotterPtr, "\n\n \n");
-    //
-    //        // data block 3
-    //        //        for(auto &i : dataSet[2])
-    //        //            fprintf(plotterPtr, "%f  %f  %f \n", i.xPos, i.yPos, i.speed);
-    //
-    //        // data block terminator
-    //        fprintf(plotterPtr, "EOD \n");
-    //
-    //        // make plot
-    //        fprintf(plotterPtr, "splot '$data' index 0 using 1:2:3 with points ls 1 title 'passenger',");
-    //        fprintf(plotterPtr, "      ''      index 1 using 1:2:3 with points ls 2 title 'bicycle',");
-    //        fprintf(plotterPtr, "      ''      index 2 using 1:2:3 with points ls 3 title 'pedestrian' \n");
-    //
-    //        fflush(plotterPtr);
-    //    }
 }
 
 
@@ -383,7 +433,7 @@ void ApplRSUCLASSIFY::trainClassifier()
         std::string fileName = trainer[i]->name() + bias + ".model";
         boost::filesystem::path filePath = "results/ML/" + fileName;
 
-        // check if trained model already exists on disk
+        // check if this model was trained before
         std::ifstream ifs(filePath.string());
         if(!ifs.fail())
         {
@@ -417,7 +467,7 @@ void ApplRSUCLASSIFY::trainClassifier()
 
             std::cout << train_error << std::endl << std::flush;
 
-            // save the model to the file "svm.model"
+            // save the model to file
             std::ofstream ofs(filePath.string());
             boost::archive::polymorphic_text_oarchive oa(ofs);
             kc_model->write(oa);
@@ -425,7 +475,7 @@ void ApplRSUCLASSIFY::trainClassifier()
         }
     }
 
-    // read training class file
+    // read classes from file
     std::cout << "reading classes... " << std::flush;
     std::string cName;
     unsigned int cNum;
@@ -438,7 +488,29 @@ void ApplRSUCLASSIFY::trainClassifier()
         else
             error("duplicate class name %s", cName.c_str());
     }
+
+    if(entityClasses.empty())
+        error("No classes found!");
+
     std::cout << "done \n\n";
+}
+
+
+void ApplRSUCLASSIFY::saveClassificationResults()
+{
+    FILE *filePtr = fopen (classificationResults.string().c_str(), "w");
+
+    for(auto i : classifyResults)
+    {
+        fprintf (filePtr, "%s ", i.first.c_str());
+
+        for(auto j : i.second)
+            fprintf (filePtr, "(%0.2f %u %u) ", j.time, j.label_predicted, j.label_true);
+
+        fprintf (filePtr, "\n\n");
+    }
+
+    fclose(filePtr);
 }
 
 }

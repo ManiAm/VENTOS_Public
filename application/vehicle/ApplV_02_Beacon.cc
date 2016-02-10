@@ -45,7 +45,6 @@ void ApplVBeacon::initialize(int stage)
     {
         // NED
         VANETenabled = par("VANETenabled").boolValue();
-        GPSerror = par("GPSerror").doubleValue();
         sonarDist = par("sonarDist").doubleValue();
 
         // NED variables (beaconing parameters)

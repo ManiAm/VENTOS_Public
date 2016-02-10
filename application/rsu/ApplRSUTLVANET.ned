@@ -10,4 +10,5 @@ simple ApplRSUTLVANET extends ApplRSUAID
         bool collectVehApproach;
         
         bool classifier;
+        double GPSerror @unit("m") = default(0m);
 }

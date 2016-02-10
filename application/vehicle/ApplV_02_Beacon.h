@@ -54,7 +54,6 @@ protected:
     // NED
     bool VANETenabled;
     double sonarDist;
-    double GPSerror;
 
     // NED variables (beaconing parameters)
     bool sendBeacons;

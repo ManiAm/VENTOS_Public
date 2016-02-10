@@ -76,6 +76,22 @@ public:
 };
 
 
+class result
+{
+public:
+    unsigned int label_predicted;
+    unsigned int label_true;
+    double time;
+
+    result(unsigned int i1, unsigned int i2, double d)
+    {
+        this->label_predicted = i1;
+        this->label_true = i2;
+        this->time = d;
+    }
+};
+
+
 class ApplRSUCLASSIFY : public ApplRSUTLVANET
 {
 public:
@@ -95,24 +111,30 @@ protected:
 
 private:
     void initializeGnuPlot();
+    void draw();
     template <typename beaconGeneral> void onBeaconAny(beaconGeneral wsm);
     template <typename beaconGeneral> void collectSample(beaconGeneral wsm);
     void saveSampleToFile();
     void trainClassifier();
+    void saveClassificationResults();
 
 private:
     bool classifier;
     bool collectTrainingData;
+    double GPSerror;
+    int debugLevel;
 
     FILE *plotterPtr = NULL;
     boost::filesystem::path trainingFilePath      = "results/ML/trainData.txt";
     boost::filesystem::path trainingClassFilePath = "results/ML/trainClass.txt";
+    boost::filesystem::path classificationResults = "results/ML/classificationResults.txt";
     std::vector<sample_type> samples;
     std::vector<int> labels;
 
     std::map<std::string /*lane*/, int /*class number*/> entityClasses;
     shark::blas::matrix<double, shark::blas::row_major> shark_sample;
     shark::KernelClassifier<shark::RealVector> *kc_model;
+    std::map< std::string /*id*/, std::vector<result> > classifyResults;
 };
 
 }

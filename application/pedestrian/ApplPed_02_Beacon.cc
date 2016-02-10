@@ -45,7 +45,6 @@ void ApplPedBeacon::initialize(int stage)
     {
         // NED
         VANETenabled = par("VANETenabled").boolValue();
-        GPSerror = par("GPSerror").doubleValue();
 
         // NED variables (beaconing parameters)
         sendBeacons = par("sendBeacons").boolValue();
