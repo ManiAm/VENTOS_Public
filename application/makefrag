@@ -1,1 +1,2 @@
-COPTS += -fopenmp
+CFLAGS += -fopenmp
+LDFLAGS +=  -fopenmp
