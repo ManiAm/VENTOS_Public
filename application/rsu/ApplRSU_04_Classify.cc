@@ -293,23 +293,40 @@ void ApplRSUCLASSIFY::onBeaconAny(beaconGeneral wsm)
     shark_sample(0,1) = posY;  // yPos
     shark_sample(0,2) = speed; // speed
 
+    // make prediction
+    unsigned int predicted_label = (*kc_model)(shark_sample)[0];
+
+    // get the real label
     auto re = entityClasses.find(lane);
     if(re == entityClasses.end())
         error("class %s not found!", lane.c_str());
-
-    std::string sender = wsm->getSender();
+    unsigned int real_label = re->second;
 
     // save classification results
-    result *res = new result((*kc_model)(shark_sample)[0], re->second, simTime().dbl());
+    std::string sender = wsm->getSender();
+    resultEntry *res = new resultEntry(predicted_label, real_label, simTime().dbl());
     auto xr = classifyResults.find(sender);
     if(xr == classifyResults.end())
     {
-        std::vector<result> tmp {*res};
+        std::vector<resultEntry> tmp {*res};
         classifyResults[sender] = tmp;
     }
     else
-    {
         xr->second.push_back(*res);
+
+    // save classification statistics
+    bool correct = (predicted_label == real_label) ? true : false;
+    auto xs = classifyStat.find(sender);
+    if(xs == classifyStat.end())
+    {
+        statEntry *res = new statEntry(1, correct ? 1 : 0);
+        classifyStat.insert(std::make_pair(sender, *res));
+    }
+    else
+    {
+        xs->second.total_predicted += 1;
+        if(correct)
+            xs->second.correct_predicted += 1;
     }
 
     // print debug information
@@ -319,8 +336,8 @@ void ApplRSUCLASSIFY::onBeaconAny(beaconGeneral wsm)
                 shark_sample(0,0),
                 shark_sample(0,1),
                 shark_sample(0,2),
-                (*kc_model)(shark_sample)[0],
-                re->second,
+                predicted_label,
+                real_label,
                 sender.c_str());
 
         std::cout.flush();
@@ -498,14 +515,35 @@ void ApplRSUCLASSIFY::trainClassifier()
 
 void ApplRSUCLASSIFY::saveClassificationResults()
 {
-    FILE *filePtr = fopen (classificationResults.string().c_str(), "w");
+    boost::filesystem::path filePath;
+
+    if(ev.isGUI())
+    {
+        filePath = "results/ML/classificationResults.txt";
+    }
+    else
+    {
+        // get the current run number
+        int currentRun = ev.getConfigEx()->getActiveRunNumber();
+        std::ostringstream fileName;
+        fileName << std::setfill('0') << std::setw(3) << currentRun << "_classificationResults.txt";
+        filePath = "results/ML/cmd/" + fileName.str();
+    }
+
+    FILE *filePtr = fopen (filePath.string().c_str(), "w");
 
     for(auto i : classifyResults)
     {
         fprintf (filePtr, "%s ", i.first.c_str());
 
+        auto r = classifyStat.find(i.first);
+        if(r == classifyStat.end())
+            error("cannot find %s in classifyStat", i.first.c_str());
+        else
+            fprintf (filePtr, "%u %u ", r->second.total_predicted, r->second.correct_predicted);
+
         for(auto j : i.second)
-            fprintf (filePtr, "(%0.2f %u %u) ", j.time, j.label_predicted, j.label_true);
+            fprintf (filePtr, "%0.2f %u %u ", j.time, j.label_predicted, j.label_true);
 
         fprintf (filePtr, "\n\n");
     }

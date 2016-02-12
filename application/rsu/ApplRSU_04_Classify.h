@@ -76,18 +76,32 @@ public:
 };
 
 
-class result
+class resultEntry
 {
 public:
     unsigned int label_predicted;
     unsigned int label_true;
     double time;
 
-    result(unsigned int i1, unsigned int i2, double d)
+    resultEntry(unsigned int i1, unsigned int i2, double d)
     {
         this->label_predicted = i1;
         this->label_true = i2;
         this->time = d;
+    }
+};
+
+
+class statEntry
+{
+public:
+    unsigned int total_predicted;
+    unsigned int correct_predicted;
+
+    statEntry(unsigned int i1, unsigned int i2)
+    {
+        this->total_predicted = i1;
+        this->correct_predicted = i2;
     }
 };
 
@@ -127,14 +141,14 @@ private:
     FILE *plotterPtr = NULL;
     boost::filesystem::path trainingFilePath      = "results/ML/trainData.txt";
     boost::filesystem::path trainingClassFilePath = "results/ML/trainClass.txt";
-    boost::filesystem::path classificationResults = "results/ML/classificationResults.txt";
     std::vector<sample_type> samples;
     std::vector<int> labels;
 
     std::map<std::string /*lane*/, int /*class number*/> entityClasses;
     shark::blas::matrix<double, shark::blas::row_major> shark_sample;
     shark::KernelClassifier<shark::RealVector> *kc_model;
-    std::map< std::string /*id*/, std::vector<result> > classifyResults;
+    std::map< std::string /*entity id*/, std::vector<resultEntry> > classifyResults;
+    std::map< std::string /*entity id*/, statEntry > classifyStat;
 };
 
 }
