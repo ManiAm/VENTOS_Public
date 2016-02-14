@@ -514,10 +514,10 @@ unsigned int ApplRSUCLASSIFY::makePrediction(beaconGeneral wsm)
     {
         it->second.push_back(predicted_label);
 
+        std::vector<int> histogram(21, 0); // we assume that maximum class number is 20
         // iterate over the circular buffer to find the mode
-        std::vector<int> histogram(10,0);
         for(auto i : it->second)
-                ++histogram[i];
+            ++histogram[i];
 
         return std::max_element( histogram.begin(), histogram.end() ) - histogram.begin();
     }
