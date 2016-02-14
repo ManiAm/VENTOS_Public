@@ -577,8 +577,7 @@ void ApplRSUCLASSIFY::saveClassificationResults()
                 correctPredictions++;
         }
 
-        fprintf (filePtr, "%u %u ", totalPredictions, correctPredictions);
-        fprintf (filePtr, "\n\n");
+        fprintf (filePtr, "| %u %u \n\n", totalPredictions, correctPredictions);
     }
 
     fclose(filePtr);
