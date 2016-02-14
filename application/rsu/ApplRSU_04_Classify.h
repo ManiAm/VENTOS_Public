@@ -124,6 +124,7 @@ private:
 private:
     bool classifier;
     bool collectTrainingData;
+    double trainError;
     double GPSerror;
     int debugLevel;
 

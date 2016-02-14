@@ -48,6 +48,10 @@ void ApplRSUCLASSIFY::initialize(int stage)
         if(!classifier)
             return;
 
+        trainError = par("trainError").doubleValue();
+        if(trainError < 0)
+            error("trainError value is not correct!");
+
         GPSerror = par("GPSerror").doubleValue();
         if(GPSerror < 0)
             error("GPSerror value is not correct!");
@@ -254,7 +258,7 @@ int ApplRSUCLASSIFY::loadTrainer()
     // Training of a multi-class SVM by the one-versus-all (OVA) method
     shark::AbstractSvmTrainer<shark::RealVector, unsigned int> *trainer[1];
     trainer[0]  = new shark::McSvmOVATrainer<shark::RealVector>(kernel, 10.0, true /*with bias*/);
-  //  trainer[1]  = new shark::McSvmOVATrainer<shark::RealVector>(kernel, 10.0, false  /*without bias*/);
+    //  trainer[1]  = new shark::McSvmOVATrainer<shark::RealVector>(kernel, 10.0, false  /*without bias*/);
 
     // Training of a binary-class SVM
     // shark::CSvmTrainer<shark::RealVector> trainer(kernel, 1000.0 /*regularization parameter*/, true /*with bias*/);
@@ -494,19 +498,42 @@ void ApplRSUCLASSIFY::collectSample(beaconGeneral wsm)
     if(it->second != myTLid)
         return;
 
-    // make an instance
-    Coord pos = wsm->getPos();
-    sample_type *m = new sample_type(pos.x, pos.y, wsm->getSpeed());
-
-    // check instance's class
+    // get class label
     auto it2 = classLabel.find(lane);
     if(it2 == classLabel.end())
         error("class %s not found in classLabel!", lane.c_str());
-    else
+    unsigned int label = it2->second;
+
+    // retrieve info from beacon
+    double posX = wsm->getPos().x;
+    double posY = wsm->getPos().y;
+    double speed = wsm->getSpeed();
+
+    if(trainError != 0)
     {
-        samples.push_back(*m);
-        labels.push_back(it2->second);
+        double r = 0;
+
+        // Produce a random double in the range [0,1) using generator 0, then scale it to -1 <= r < 1
+        r = (dblrand() - 0.5) * 2;
+        // add error to posX
+        posX = posX + (r * trainError);
+
+        // Produce a random double in the range [0,1) using generator 0, then scale it to -1 <= r < 1
+        r = (dblrand() - 0.5) * 2;
+        // add error to posY
+        posY = posY + (r * trainError);
+
+        // Produce a random double in the range [0,1) using generator 0, then scale it to -1 <= r < 1
+        r = (dblrand() - 0.5) * 2;
+        // add error to speed
+        //speed = speed + speed * (r * trainError);  // todo
     }
+
+    // make an instance
+    sample_type *m = new sample_type(posX, posY, speed);
+
+    samples.push_back(*m);
+    labels.push_back(label);
 }
 
 
