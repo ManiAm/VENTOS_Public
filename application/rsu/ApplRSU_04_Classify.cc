@@ -97,8 +97,8 @@ void ApplRSUCLASSIFY::finish()
 
     if(collectTrainingData)
         saveSampleToFile();
-
-    saveClassificationResults();
+    else
+        saveClassificationResults();
 }
 
 
@@ -252,14 +252,14 @@ int ApplRSUCLASSIFY::loadTrainer()
     kc_model = new shark::KernelClassifier<shark::RealVector> (kernel);
 
     // Training of a multi-class SVM by the one-versus-all (OVA) method
-    shark::AbstractSvmTrainer<shark::RealVector, unsigned int> *trainer[2];
-    trainer[0]  = new shark::McSvmOVATrainer<shark::RealVector>(kernel, 10.0, false /*without bias*/);
-    trainer[1]  = new shark::McSvmOVATrainer<shark::RealVector>(kernel, 10.0, true  /*with bias*/);
+    shark::AbstractSvmTrainer<shark::RealVector, unsigned int> *trainer[1];
+    trainer[0]  = new shark::McSvmOVATrainer<shark::RealVector>(kernel, 10.0, true /*with bias*/);
+  //  trainer[1]  = new shark::McSvmOVATrainer<shark::RealVector>(kernel, 10.0, false  /*without bias*/);
 
     // Training of a binary-class SVM
     // shark::CSvmTrainer<shark::RealVector> trainer(kernel, 1000.0 /*regularization parameter*/, true /*with bias*/);
 
-    for (int i = 0; i <= 1; i++)
+    for (int i = 0; i <= 0; i++)
     {
         std::string bias = trainer[i]->trainOffset()? "_withBias":"_withoutBias";
         std::string fileName = trainer[i]->name() + bias + ".model";
@@ -277,6 +277,7 @@ int ApplRSUCLASSIFY::loadTrainer()
         }
         else
         {
+            // takes around 20 min for 29162 training samples collected during 300s
             int status = trainClassifier(trainer[i]);
 
             // check if training was successful
@@ -290,37 +291,6 @@ int ApplRSUCLASSIFY::loadTrainer()
             ofs.close();
         }
     }
-
-    // read classes from file
-    std::cout << "reading classes... " << std::flush;
-    std::string cName;
-    unsigned int cNum;
-    std::ifstream infile(trainingClassFilePath.string());
-    if(infile.fail())
-    {
-        std::cout << trainingClassFilePath.string() << " not found! \n";
-        return -1;
-    }
-
-    while (infile >> cName >> cNum)
-    {
-        auto se = entityClasses.find(cName);
-        if(se == entityClasses.end())
-            entityClasses[cName] = cNum;
-        else
-        {
-            std::cout << "duplicate class name " << cName.c_str() << "\n";
-            return -1;
-        }
-    }
-
-    if(entityClasses.empty())
-    {
-        std::cout << "No classes found! \n";
-        return -1;
-    }
-
-    std::cout << "done \n";
 
     return 0;
 }
@@ -412,8 +382,8 @@ void ApplRSUCLASSIFY::onBeaconAny(beaconGeneral wsm)
     unsigned int predicted_label = makePrediction(wsm);
 
     // get the real label
-    auto re = entityClasses.find(lane);
-    if(re == entityClasses.end())
+    auto re = classLabel.find(lane);
+    if(re == classLabel.end())
         error("class %s not found!", lane.c_str());
     unsigned int real_label = re->second;
 
@@ -428,21 +398,6 @@ void ApplRSUCLASSIFY::onBeaconAny(beaconGeneral wsm)
     }
     else
         xr->second.push_back(*res);
-
-    // save classification statistics
-    bool correct = (predicted_label == real_label) ? true : false;
-    auto xs = classifyStat.find(sender);
-    if(xs == classifyStat.end())
-    {
-        statEntry *res = new statEntry(1, correct ? 1 : 0);
-        classifyStat.insert(std::make_pair(sender, *res));
-    }
-    else
-    {
-        xs->second.total_predicted += 1;
-        if(correct)
-            xs->second.correct_predicted += 1;
-    }
 
     // print debug information
     if(debugLevel > 1)
@@ -544,15 +499,9 @@ void ApplRSUCLASSIFY::collectSample(beaconGeneral wsm)
     sample_type *m = new sample_type(pos.x, pos.y, wsm->getSpeed());
 
     // check instance's class
-    auto it2 = entityClasses.find(lane);
-    if(it2 == entityClasses.end())
-    {
-        int classNum = entityClasses.size();
-        entityClasses[lane] = classNum;
-
-        samples.push_back(*m);
-        labels.push_back(classNum);
-    }
+    auto it2 = classLabel.find(lane);
+    if(it2 == classLabel.end())
+        error("class %s not found in classLabel!", lane.c_str());
     else
     {
         samples.push_back(*m);
@@ -567,13 +516,6 @@ void ApplRSUCLASSIFY::saveSampleToFile()
 
     for(unsigned int i = 0; i < samples.size(); ++i)
         fprintf (filePtr, "%f %f %f %d \n", samples[i].xPos, samples[i].yPos, samples[i].speed, labels[i]);
-
-    fclose(filePtr);
-
-    filePtr = fopen (trainingClassFilePath.string().c_str(), "w");
-
-    for(auto i : entityClasses)
-        fprintf (filePtr, "%s %d \n", (i.first).c_str(), i.second);
 
     fclose(filePtr);
 }
@@ -624,15 +566,18 @@ void ApplRSUCLASSIFY::saveClassificationResults()
     {
         fprintf (filePtr, "%s ", i.first.c_str());
 
-        auto r = classifyStat.find(i.first);
-        if(r == classifyStat.end())
-            error("cannot find %s in classifyStat", i.first.c_str());
-        else
-            fprintf (filePtr, "%u %u ", r->second.total_predicted, r->second.correct_predicted);
-
+        int totalPredictions = 0;
+        int correctPredictions = 0;
         for(auto j : i.second)
+        {
             fprintf (filePtr, "%0.2f %u %u ", j.time, j.label_predicted, j.label_true);
 
+            totalPredictions++;
+            if(j.label_predicted == j.label_true)
+                correctPredictions++;
+        }
+
+        fprintf (filePtr, "%u %u ", totalPredictions, correctPredictions);
         fprintf (filePtr, "\n\n");
     }
 

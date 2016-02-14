@@ -93,20 +93,6 @@ public:
 };
 
 
-class statEntry
-{
-public:
-    unsigned int total_predicted;
-    unsigned int correct_predicted;
-
-    statEntry(unsigned int i1, unsigned int i2)
-    {
-        this->total_predicted = i1;
-        this->correct_predicted = i2;
-    }
-};
-
-
 class ApplRSUCLASSIFY : public ApplRSUTLVANET
 {
 public:
@@ -143,16 +129,28 @@ private:
 
     FILE *plotterPtr = NULL;
     boost::filesystem::path trainingFilePath      = "results/ML/trainData.txt";
-    boost::filesystem::path trainingClassFilePath = "results/ML/trainClass.txt";
     std::vector<sample_type> samples;
     std::vector<int> labels;
 
+    std::map< std::string /*class name*/, unsigned int /*label*/> classLabel = {
+            {"WC_4", 0},
+            {"SC_4", 1},
+            {"NC_4", 2},
+            {"EC_4", 3},
+            {"NC_2", 4},
+            {"EC_2", 5},
+            {"WC_2", 6},
+            {"SC_2", 7},
+            {"EC_3", 8},
+            {"WC_3", 9},
+            {"NC_3", 10},
+            {"SC_3", 11}
+    };
+
     shark::ClassificationDataset sampleData;
-    std::map<std::string /*lane*/, int /*class number*/> entityClasses;
     shark::blas::matrix<double, shark::blas::row_major> shark_sample;
     shark::KernelClassifier<shark::RealVector> *kc_model;
     std::map< std::string /*entity id*/, std::vector<resultEntry> > classifyResults;
-    std::map< std::string /*entity id*/, statEntry > classifyStat;
     std::map< std::string /*entity id*/, boost::circular_buffer<unsigned int> > lastClassifications;
 };
 
