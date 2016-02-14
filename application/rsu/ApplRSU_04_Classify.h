@@ -29,6 +29,7 @@
 #define APPLRSUCLASSIFY_H_
 
 #include "ApplRSU_03_ActiveTL.h"
+#include <boost/circular_buffer.hpp>
 
 #undef ev
 
@@ -129,6 +130,7 @@ private:
     int loadTrainer();
     int trainClassifier(shark::AbstractSvmTrainer<shark::RealVector, unsigned int> *);
     template <typename beaconGeneral> void onBeaconAny(beaconGeneral wsm);
+    template <typename beaconGeneral> unsigned int makePrediction(beaconGeneral wsm);
     template <typename beaconGeneral> void collectSample(beaconGeneral wsm);
     void saveSampleToFile();
     void saveClassificationResults();
@@ -151,6 +153,7 @@ private:
     shark::KernelClassifier<shark::RealVector> *kc_model;
     std::map< std::string /*entity id*/, std::vector<resultEntry> > classifyResults;
     std::map< std::string /*entity id*/, statEntry > classifyStat;
+    std::map< std::string /*entity id*/, boost::circular_buffer<unsigned int> > lastClassifications;
 };
 
 }

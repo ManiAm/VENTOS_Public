@@ -408,37 +408,8 @@ void ApplRSUCLASSIFY::onBeaconAny(beaconGeneral wsm)
     if(it->second != myTLid)
         return;
 
-    // retrieve info from beacon
-    double posX = wsm->getPos().x;
-    double posY = wsm->getPos().y;
-    double speed = wsm->getSpeed();
-
-    if(GPSerror != 0)
-    {
-        double r = 0;
-
-        // Produce a random double in the range [0,1) using generator 0, then scale it to -1 <= r < 1
-        r = (dblrand() - 0.5) * 2;
-        // add error to posX
-        posX = posX + (r * GPSerror);
-
-        // Produce a random double in the range [0,1) using generator 0, then scale it to -1 <= r < 1
-        r = (dblrand() - 0.5) * 2;
-        // add error to posY
-        posY = posY + (r * GPSerror);
-
-        // Produce a random double in the range [0,1) using generator 0, then scale it to -1 <= r < 1
-        r = (dblrand() - 0.5) * 2;
-        // add error to speed
-        //speed = speed + speed * (r * GPSerror);  // todo
-    }
-
-    shark_sample(0,0) = posX;  // xPos
-    shark_sample(0,1) = posY;  // yPos
-    shark_sample(0,2) = speed; // speed
-
-    // make prediction
-    unsigned int predicted_label = (*kc_model)(shark_sample)[0];
+    // get the predicted label
+    unsigned int predicted_label = makePrediction(wsm);
 
     // get the real label
     auto re = entityClasses.find(lane);
@@ -485,6 +456,70 @@ void ApplRSUCLASSIFY::onBeaconAny(beaconGeneral wsm)
                 sender.c_str());
 
         std::cout.flush();
+    }
+}
+
+
+template <typename beaconGeneral>
+unsigned int ApplRSUCLASSIFY::makePrediction(beaconGeneral wsm)
+{
+    // retrieve info from beacon
+    double posX = wsm->getPos().x;
+    double posY = wsm->getPos().y;
+    double speed = wsm->getSpeed();
+
+    if(GPSerror != 0)
+    {
+        double r = 0;
+
+        // Produce a random double in the range [0,1) using generator 0, then scale it to -1 <= r < 1
+        r = (dblrand() - 0.5) * 2;
+        // add error to posX
+        posX = posX + (r * GPSerror);
+
+        // Produce a random double in the range [0,1) using generator 0, then scale it to -1 <= r < 1
+        r = (dblrand() - 0.5) * 2;
+        // add error to posY
+        posY = posY + (r * GPSerror);
+
+        // Produce a random double in the range [0,1) using generator 0, then scale it to -1 <= r < 1
+        r = (dblrand() - 0.5) * 2;
+        // add error to speed
+        //speed = speed + speed * (r * GPSerror);  // todo
+    }
+
+    shark_sample(0,0) = posX;  // xPos
+    shark_sample(0,1) = posY;  // yPos
+    shark_sample(0,2) = speed; // speed
+
+    // make prediction
+    unsigned int predicted_label = (*kc_model)(shark_sample)[0];
+
+    std::string sender = wsm->getSender();
+
+    // search for entity name in lastClassifications
+    auto it = lastClassifications.find(sender);
+    if(it == lastClassifications.end())
+    {
+        boost::circular_buffer<unsigned int> CB_class;  // create a circular buffer
+        CB_class.set_capacity(10);                      // set max capacity
+        CB_class.clear();
+        CB_class.push_back(predicted_label);
+
+        lastClassifications[sender] = CB_class;
+
+        return predicted_label;
+    }
+    else
+    {
+        it->second.push_back(predicted_label);
+
+        // iterate over the circular buffer to find the mode
+        std::vector<int> histogram(10,0);
+        for(auto i : it->second)
+                ++histogram[i];
+
+        return std::max_element( histogram.begin(), histogram.end() ) - histogram.begin();
     }
 }
 
