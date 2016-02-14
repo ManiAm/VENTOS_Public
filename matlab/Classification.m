@@ -18,13 +18,13 @@ for runNumber = 1:runTotal
 
 path = sprintf('%s/%s', basePATH, TLqueuingData(runNumber).name);
 file_id = fopen(path);
-C_text = textscan(file_id, '%s %d %d %[^\n]', 'HeaderLines', 6);
+C_text = textscan(file_id, '%s %[^|] %c %d %d', 'HeaderLines', 6);
 fclose(file_id);
 
 name = C_text{1,1};
-total_prediction = C_text{1,2};
-correct_prediction = C_text{1,3};  
-predictions = C_text{1,4};
+predictions = C_text{1,2};
+total_prediction = C_text{1,4};
+correct_prediction = C_text{1,5};  
 
 % ---------------------------------------------------------------
 
