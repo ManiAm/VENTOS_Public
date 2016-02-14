@@ -865,7 +865,7 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
                     // get number of pedestrians
                     int count2 = personGetIDCount();
                     // terminate if all departed vehicles have arrived
-                    if (count1 + count2 == 0)
+                    if (count > 0 && count1 + count2 == 0)
                         autoShutdownTriggered = true;
                 }
             }
