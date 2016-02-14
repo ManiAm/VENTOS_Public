@@ -52,6 +52,11 @@ void ApplRSUCLASSIFY::initialize(int stage)
         if(trainError < 0)
             error("trainError value is not correct!");
 
+        // construct file name for training data
+        std::stringstream stream;
+        stream << std::fixed << std::setprecision(3) << trainError;
+        trainingFilePath = "results/ML/trainData_" + stream.str() + ".txt";
+
         GPSerror = par("GPSerror").doubleValue();
         if(GPSerror < 0)
             error("GPSerror value is not correct!");
@@ -100,7 +105,16 @@ void ApplRSUCLASSIFY::finish()
     ApplRSUTLVANET::finish();
 
     if(collectTrainingData)
+    {
         saveSampleToFile();
+
+        // now we can start training
+        int status = loadTrainer();
+        if(status == -1)
+            std::cout << "Cannot train the algorithm!" << std::endl << std::endl;
+        else
+            std::cout << "Training was successful." << std::endl << std::endl;
+    }
     else
         saveClassificationResults();
 }
@@ -265,8 +279,10 @@ int ApplRSUCLASSIFY::loadTrainer()
 
     for (int i = 0; i <= 0; i++)
     {
-        std::string bias = trainer[i]->trainOffset()? "_withBias":"_withoutBias";
-        std::string fileName = trainer[i]->name() + bias + ".model";
+        std::string bias = trainer[i]->trainOffset() ? "_withBias" : "_withoutBias";
+        std::stringstream stream;
+        stream << std::fixed << std::setprecision(3) << trainError;
+        std::string fileName = trainer[i]->name() + bias + "_" + stream.str() + ".model";
         boost::filesystem::path filePath = "results/ML/" + fileName;
 
         // check if this model was trained before
@@ -550,6 +566,9 @@ void ApplRSUCLASSIFY::saveSampleToFile()
 
 void ApplRSUCLASSIFY::saveClassificationResults()
 {
+    if(classifyResults.empty())
+        return;
+
     boost::filesystem::path filePath;
 
     if(ev.isGUI())

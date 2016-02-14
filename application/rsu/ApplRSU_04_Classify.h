@@ -129,7 +129,7 @@ private:
     int debugLevel;
 
     FILE *plotterPtr = NULL;
-    boost::filesystem::path trainingFilePath      = "results/ML/trainData.txt";
+    boost::filesystem::path trainingFilePath;
     std::vector<sample_type> samples;
     std::vector<int> labels;
 
