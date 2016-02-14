@@ -68,24 +68,24 @@ void ApplRSUCLASSIFY::initialize(int stage)
         for(std::list<std::string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
             lanesTL[*it2] = myTLid;
 
-        // 3 is number of features
+        // resize shark_sample to the correct size
+        // we have 3 features, thus shark_sample should be 1 * 3
         shark_sample.resize(1,3);
 
         if(ev.isGUI())
             initializeGnuPlot();
 
-        // check if training data exist?
-        if( (!boost::filesystem::exists(trainingFilePath)) || (!boost::filesystem::exists(trainingClassFilePath)) )
+        int status = loadTrainer();
+        // cannot load trainer from the disk and there is no training data
+        if(status == -1)
         {
             collectTrainingData = true;
-            std::cout << "no training data found at " << trainingFilePath.parent_path().string() << std::endl;
-            std::cout << "run simulation once to collect training data!" << std::endl << std::endl;
+            std::cout << "Cannot train the algorithm! Run simulation to collect training data!" << std::endl << std::endl;
         }
         else
         {
             collectTrainingData = false;
-            std::cout << "found training data at " << trainingFilePath.parent_path().string() << std::endl;
-            trainClassifier();
+            std::cout << "Training was successful." << std::endl << std::endl;
         }
     }
 }
@@ -245,6 +245,147 @@ void ApplRSUCLASSIFY::draw()
 }
 
 
+int ApplRSUCLASSIFY::loadTrainer()
+{
+    shark::GaussianRbfKernel<> *kernel = new shark::GaussianRbfKernel<shark::RealVector> (0.5 /*kernel bandwidth parameter*/);
+
+    kc_model = new shark::KernelClassifier<shark::RealVector> (kernel);
+
+    // Training of a multi-class SVM by the one-versus-all (OVA) method
+    shark::AbstractSvmTrainer<shark::RealVector, unsigned int> *trainer[2];
+    trainer[0]  = new shark::McSvmOVATrainer<shark::RealVector>(kernel, 10.0, false /*without bias*/);
+    trainer[1]  = new shark::McSvmOVATrainer<shark::RealVector>(kernel, 10.0, true  /*with bias*/);
+
+    // Training of a binary-class SVM
+    // shark::CSvmTrainer<shark::RealVector> trainer(kernel, 1000.0 /*regularization parameter*/, true /*with bias*/);
+
+    for (int i = 0; i <= 1; i++)
+    {
+        std::string bias = trainer[i]->trainOffset()? "_withBias":"_withoutBias";
+        std::string fileName = trainer[i]->name() + bias + ".model";
+        boost::filesystem::path filePath = "results/ML/" + fileName;
+
+        // check if this model was trained before
+        std::ifstream ifs(filePath.string());
+        if(!ifs.fail())
+        {
+            std::cout << "loading " << fileName << " from disk... ";
+            boost::archive::polymorphic_text_iarchive ia(ifs);
+            kc_model->read(ia);
+            ifs.close();
+            std::cout << "done \n";
+        }
+        else
+        {
+            int status = trainClassifier(trainer[i]);
+
+            // check if training was successful
+            if(status == -1)
+                return -1;
+
+            // save the model to file
+            std::ofstream ofs(filePath.string());
+            boost::archive::polymorphic_text_oarchive oa(ofs);
+            kc_model->write(oa);
+            ofs.close();
+        }
+    }
+
+    // read classes from file
+    std::cout << "reading classes... " << std::flush;
+    std::string cName;
+    unsigned int cNum;
+    std::ifstream infile(trainingClassFilePath.string());
+    if(infile.fail())
+    {
+        std::cout << trainingClassFilePath.string() << " not found! \n";
+        return -1;
+    }
+
+    while (infile >> cName >> cNum)
+    {
+        auto se = entityClasses.find(cName);
+        if(se == entityClasses.end())
+            entityClasses[cName] = cNum;
+        else
+        {
+            std::cout << "duplicate class name " << cName.c_str() << "\n";
+            return -1;
+        }
+    }
+
+    if(entityClasses.empty())
+    {
+        std::cout << "No classes found! \n";
+        return -1;
+    }
+
+    std::cout << "done \n";
+
+    return 0;
+}
+
+
+int ApplRSUCLASSIFY::trainClassifier(shark::AbstractSvmTrainer<shark::RealVector, unsigned int> *trainer)
+{
+    // load sampleData only once
+    if(sampleData.elements().empty())
+    {
+        try
+        {
+            std::cout << "reading training samples... " << std::flush;
+            // Load data from external file
+            shark::importCSV(sampleData, trainingFilePath.string(), shark::LAST_COLUMN /*label position*/, ' ' /*separator*/);
+            std::cout << sampleData.elements().size() << " samples fetched! \n" << std::flush;
+        }
+        catch (std::exception& e)
+        {
+            std::cout << std::endl << e.what() << std::endl;
+            return -1;
+        }
+
+        std::cout << "number of classes: " << numberOfClasses(sampleData) << std::endl;
+        int classCount = 0;
+        for(auto i : classSizes(sampleData))
+        {
+            std::printf("  class %-2d: %-5lu, ", classCount, i);
+            classCount++;
+
+            if(classCount % 3 == 0)
+                std::cout << std::endl;
+        }
+
+        std::cout << "shuffling training samples... " << std::flush;
+        sampleData.shuffle();   // shuffle sampleData
+        std::cout << "done \n" << std::flush;
+    }
+
+    std::printf("training model %10s %s... \n",
+            trainer->name().c_str(),
+            trainer->trainOffset()? "with bias":"without bias");
+    std::cout.flush();
+
+    // start training
+    trainer->train(*kc_model, sampleData);
+
+    std::printf("  iterations= %d, accuracy= %f, time= %g seconds \n",
+            (int)trainer->solutionProperties().iterations,
+            trainer->solutionProperties().accuracy,
+            trainer->solutionProperties().seconds);
+
+    std::cout << "  training error= " << std::flush;
+
+    // evaluate the model on training set
+    shark::ZeroOneLoss<unsigned int> loss; // 0-1 loss
+    shark::Data<unsigned int> output = (*kc_model)(sampleData.inputs());
+    double train_error = loss.eval(sampleData.labels(), output);
+
+    std::cout << train_error << std::endl << std::flush;
+
+    return 0;
+}
+
+
 // update variables upon reception of any beacon (vehicle, bike, pedestrian)
 template <typename beaconGeneral>
 void ApplRSUCLASSIFY::onBeaconAny(beaconGeneral wsm)
@@ -276,16 +417,19 @@ void ApplRSUCLASSIFY::onBeaconAny(beaconGeneral wsm)
     {
         double r = 0;
 
+        // Produce a random double in the range [0,1) using generator 0, then scale it to -1 <= r < 1
+        r = (dblrand() - 0.5) * 2;
         // add error to posX
-        r = ( ( rand() / double(RAND_MAX) ) - 0.5 ) * 2;   // -1 <= r1 <= 1
         posX = posX + (r * GPSerror);
 
+        // Produce a random double in the range [0,1) using generator 0, then scale it to -1 <= r < 1
+        r = (dblrand() - 0.5) * 2;
         // add error to posY
-        r = ( ( rand() / double(RAND_MAX) ) - 0.5 ) * 2;   // -1 <= r1 <= 1
         posY = posY + (r * GPSerror);
 
+        // Produce a random double in the range [0,1) using generator 0, then scale it to -1 <= r < 1
+        r = (dblrand() - 0.5) * 2;
         // add error to speed
-        r = ( ( rand() / double(RAND_MAX) ) - 0.5 ) * 2;   // -1 <= r1 <= 1
         //speed = speed + speed * (r * GPSerror);  // todo
     }
 
@@ -400,119 +544,6 @@ void ApplRSUCLASSIFY::saveSampleToFile()
 }
 
 
-void ApplRSUCLASSIFY::trainClassifier()
-{
-    shark::ClassificationDataset data;
-
-    try
-    {
-        std::cout << "reading training samples... " << std::flush;
-        // Load data from external file
-        shark::importCSV(data, trainingFilePath.string(), shark::LAST_COLUMN /*label position*/, ' ' /*separator*/);
-        std::cout << data.elements().size() << " samples fetched! \n" << std::flush;
-    }
-    catch (std::exception& e)
-    {
-        std::cout << std::endl << e.what() << std::endl;
-        endSimulation();
-    }
-
-    std::cout << "number of classes: " << numberOfClasses(data) << std::endl;
-    int classCount = 0;
-    for(auto i : classSizes(data))
-    {
-        std::printf("  class %-2d: %-5lu, ", classCount, i);
-        classCount++;
-
-        if(classCount % 3 == 0)
-            std::cout << std::endl;
-    }
-
-    std::cout << "shuffling training samples... " << std::flush;
-    data.shuffle();   // shuffle data
-    std::cout << "done \n" << std::flush;
-
-    shark::GaussianRbfKernel<> *kernel = new shark::GaussianRbfKernel<shark::RealVector> (0.5 /*kernel bandwidth parameter*/);
-
-    kc_model = new shark::KernelClassifier<shark::RealVector> (kernel);
-
-    // Training of a multi-class SVM by the one-versus-all (OVA) method
-    shark::AbstractSvmTrainer<shark::RealVector, unsigned int> *trainer[2];
-    trainer[0]  = new shark::McSvmOVATrainer<shark::RealVector>(kernel, 10.0, false /*without bias*/);
-    trainer[1]  = new shark::McSvmOVATrainer<shark::RealVector>(kernel, 10.0, true  /*with bias*/);
-
-    // Training of a binary-class SVM
-    // shark::CSvmTrainer<shark::RealVector> trainer(kernel, 1000.0 /*regularization parameter*/, true /*with bias*/);
-
-    for (int i = 0; i <= 1; i++)
-    {
-        std::string bias = trainer[i]->trainOffset()? "_withBias":"_withoutBias";
-        std::string fileName = trainer[i]->name() + bias + ".model";
-        boost::filesystem::path filePath = "results/ML/" + fileName;
-
-        // check if this model was trained before
-        std::ifstream ifs(filePath.string());
-        if(!ifs.fail())
-        {
-            std::cout << "loading " << fileName << " from disk... ";
-            boost::archive::polymorphic_text_iarchive ia(ifs);
-            kc_model->read(ia);
-            ifs.close();
-            std::cout << "done \n";
-        }
-        else
-        {
-            std::printf("training model %10s %s... \n",
-                    trainer[i]->name().c_str(),
-                    trainer[i]->trainOffset()? "with bias":"without bias");
-            std::cout.flush();
-
-            // start training
-            trainer[i]->train(*kc_model, data);
-
-            std::printf("  iterations= %d, accuracy= %f, time= %g seconds \n",
-                    (int)trainer[i]->solutionProperties().iterations,
-                    trainer[i]->solutionProperties().accuracy,
-                    trainer[i]->solutionProperties().seconds);
-
-            std::cout << "  training error= " << std::flush;
-
-            // evaluate the model on training set
-            shark::ZeroOneLoss<unsigned int> loss; // 0-1 loss
-            shark::Data<unsigned int> output = (*kc_model)(data.inputs());
-            double train_error = loss.eval(data.labels(), output);
-
-            std::cout << train_error << std::endl << std::flush;
-
-            // save the model to file
-            std::ofstream ofs(filePath.string());
-            boost::archive::polymorphic_text_oarchive oa(ofs);
-            kc_model->write(oa);
-            ofs.close();
-        }
-    }
-
-    // read classes from file
-    std::cout << "reading classes... " << std::flush;
-    std::string cName;
-    unsigned int cNum;
-    std::ifstream infile(trainingClassFilePath.string());
-    while (infile >> cName >> cNum)
-    {
-        auto se = entityClasses.find(cName);
-        if(se == entityClasses.end())
-            entityClasses[cName] = cNum;
-        else
-            error("duplicate class name %s", cName.c_str());
-    }
-
-    if(entityClasses.empty())
-        error("No classes found!");
-
-    std::cout << "done \n\n";
-}
-
-
 void ApplRSUCLASSIFY::saveClassificationResults()
 {
     boost::filesystem::path filePath;
@@ -531,6 +562,28 @@ void ApplRSUCLASSIFY::saveClassificationResults()
     }
 
     FILE *filePtr = fopen (filePath.string().c_str(), "w");
+
+    // write simulation parameters at the beginning of the file in CMD mode
+    if(!ev.isGUI())
+    {
+        // get the current config name
+        std::string configName = ev.getConfigEx()->getVariable("configname");
+
+        // get number of total runs in this config
+        int totalRun = ev.getConfigEx()->getNumRunsInConfig(configName.c_str());
+
+        // get the current run number
+        int currentRun = ev.getConfigEx()->getActiveRunNumber();
+
+        // get all iteration variables
+        std::vector<std::string> iterVar = ev.getConfigEx()->unrollConfig(configName.c_str(), false);
+
+        // write to file
+        fprintf (filePtr, "configName      %s\n", configName.c_str());
+        fprintf (filePtr, "totalRun        %d\n", totalRun);
+        fprintf (filePtr, "currentRun      %d\n", currentRun);
+        fprintf (filePtr, "currentConfig   %s\n\n\n", iterVar[currentRun].c_str());
+    }
 
     for(auto i : classifyResults)
     {

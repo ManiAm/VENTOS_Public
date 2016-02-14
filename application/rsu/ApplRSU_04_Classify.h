@@ -126,10 +126,11 @@ protected:
 private:
     void initializeGnuPlot();
     void draw();
+    int loadTrainer();
+    int trainClassifier(shark::AbstractSvmTrainer<shark::RealVector, unsigned int> *);
     template <typename beaconGeneral> void onBeaconAny(beaconGeneral wsm);
     template <typename beaconGeneral> void collectSample(beaconGeneral wsm);
     void saveSampleToFile();
-    void trainClassifier();
     void saveClassificationResults();
 
 private:
@@ -144,6 +145,7 @@ private:
     std::vector<sample_type> samples;
     std::vector<int> labels;
 
+    shark::ClassificationDataset sampleData;
     std::map<std::string /*lane*/, int /*class number*/> entityClasses;
     shark::blas::matrix<double, shark::blas::row_major> shark_sample;
     shark::KernelClassifier<shark::RealVector> *kc_model;
