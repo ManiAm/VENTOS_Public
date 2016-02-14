@@ -72,14 +72,20 @@ Running VENTOS from command-line
 
 The Eclipse IDE launcher helps you start the simulation easily by building the command line and the environment for your program automatically. Sometimes it would be great to start the simulation from outside the IDE. To get the command line used for running the simulation, run the simulation from the IDE. Go to 'debug view' and right click on your program and select 'properties'. The IDE shows the currently used command line such as:
 
-    opp_run -r 0 -u Cmdenv -c TrafficSignalControl -n . -l application/VENTOS params4_TL.ini
+    opp_run -u Cmdenv -c TrafficSignalControl -n . -l application/VENTOS params4_TL.ini -r 0
 
 - `opp_run` allows starting simulation models that are linked as shared libraries
-- `-r <runnumber>` allows you to select runs
 - `-u Cmdenv` tells omnetpp to run under Cmdenv (command-line environment)
 - `-c <configname>` option is used to select a configuration
 - `-n` option is used to specify the NED path
 - `-l` option is used to load additional shared libraries
+- `-r <runnumber>` allows you to select runs
+
+OMNET has a utility program called opp_runall which allows you to execute a simulation batch in command line mode. You must specify the whole command line you would use to run your batch in Cmdenv. For example:
+
+    opp_runall -j24 opp_run -u Cmdenv -c TrafficSignalControl -n . -l application/VENTOS params4_TL.ini -r 0..30
+
+The -j option is used to specify the maximum number of parallel runs allowed. opp_runall basically expands the -r option; for example, a simulation command line containing -r 0..2,8,10 will generate 5 commands with the -r 0, -r 1, -r 2, -r 8 and -r 10 options, respectively.
 
 
 Running VENTOS on a Server
