@@ -77,12 +77,7 @@ void ApplRSUCLASSIFY::initialize(int stage)
         for(std::list<std::string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
             lanesTL[*it2] = myTLid;
 
-        // resize shark_sample to the correct size
-        // we have 3 features, thus shark_sample should be 1 * 3
-        shark_sample.resize(1,3);
-
-        if(ev.isGUI())
-            initializeGnuPlot();
+        initializeGnuPlot();
 
         int status = loadTrainer();
         // cannot load trainer from the disk and there is no training data
@@ -225,39 +220,54 @@ void ApplRSUCLASSIFY::initializeGnuPlot()
 }
 
 
-void ApplRSUCLASSIFY::draw()
+template <typename beaconGeneral>
+void ApplRSUCLASSIFY::draw(beaconGeneral &wsm, unsigned int real_label)
 {
-    if(plotterPtr == NULL)
-        return;
+    // save real label into plotClass
+    sample_type *tmp = new sample_type(wsm->getPos().x, wsm->getPos().y, wsm->getSpeed());
+    auto it = plotClass.find(real_label);
+    if(it == plotClass.end())
+    {
+        std::vector<sample_type> v {*tmp};
+        plotClass[real_label] = v;
+    }
+    else
+        it->second.push_back(*tmp);
 
     // create a data blocks out of dataset (only gnuplot > 5.0 supports this)
     fprintf(plotterPtr, "$data << EOD \n");
 
-    // data block 1
-    //    for(auto &i : dataSet[0])
-    //            fprintf(plotterPtr, "%f  %f  %f \n", i.xPos, i.yPos, i.speed);
+    for(auto &labelName : plotClass)
+    {
+        // data block i
+        for(auto &sample : labelName.second)
+        {
+            fprintf(plotterPtr, "%f  %f  %f \n", sample.xPos, sample.yPos, sample.speed);
+        }
 
-    // two blank lines as data block separator
-    fprintf(plotterPtr, "\n\n \n");
-
-    // data block 2
-    //      for(auto &i : dataSet[1])
-    //           fprintf(plotterPtr, "%f  %f  %f \n", i.xPos, i.yPos, i.speed);
-
-    // two blank lines as data block separator
-    fprintf(plotterPtr, "\n\n \n");
-
-    // data block 3
-    //        for(auto &i : dataSet[2])
-    //            fprintf(plotterPtr, "%f  %f  %f \n", i.xPos, i.yPos, i.speed);
+        // two blank lines as data block separator
+        fprintf(plotterPtr, "\n\n \n");
+    }
 
     // data block terminator
     fprintf(plotterPtr, "EOD \n");
 
     // make plot
-    fprintf(plotterPtr, "splot '$data' index 0 using 1:2:3 with points ls 1 title 'passenger',");
-    fprintf(plotterPtr, "      ''      index 1 using 1:2:3 with points ls 2 title 'bicycle',");
-    fprintf(plotterPtr, "      ''      index 2 using 1:2:3 with points ls 3 title 'pedestrian' \n");
+    fprintf(plotterPtr, "splot '$data' index 0 using 1:2:3 with points ls 1 title 'class 0',");
+    fprintf(plotterPtr, "      ''      index 1 using 1:2:3 with points ls 2 title 'class 1',");
+    fprintf(plotterPtr, "      ''      index 2 using 1:2:3 with points ls 3 title 'class 2',");
+
+    fprintf(plotterPtr, "      ''      index 3 using 1:2:3 with points ls 1 title 'class 3',");
+    fprintf(plotterPtr, "      ''      index 4 using 1:2:3 with points ls 2 title 'class 4',");
+    fprintf(plotterPtr, "      ''      index 5 using 1:2:3 with points ls 3 title 'class 5',");
+
+    fprintf(plotterPtr, "      ''      index 6 using 1:2:3 with points ls 1 title 'class 6',");
+    fprintf(plotterPtr, "      ''      index 7 using 1:2:3 with points ls 2 title 'class 7',");
+    fprintf(plotterPtr, "      ''      index 8 using 1:2:3 with points ls 3 title 'class 8',");
+
+    fprintf(plotterPtr, "      ''      index 9 using 1:2:3 with points ls 1 title 'class 9',");
+    fprintf(plotterPtr, "      ''      index 10 using 1:2:3 with points ls 2 title 'class 10',");
+    fprintf(plotterPtr, "      ''      index 11 using 1:2:3 with points ls 3 title 'class 11' \n");
 
     fflush(plotterPtr);
 }
@@ -297,7 +307,6 @@ int ApplRSUCLASSIFY::loadTrainer()
         }
         else
         {
-            // takes around 20 min for 29162 training samples collected during 300s
             int status = trainClassifier(trainer[i]);
 
             // check if training was successful
@@ -356,6 +365,8 @@ int ApplRSUCLASSIFY::trainClassifier(shark::AbstractSvmTrainer<shark::RealVector
     std::cout.flush();
 
     // start training
+    // training takes around 20 min for 29162 training samples collected during 300s with training error 0m
+    // for training error of 3m, training takes around 50 min!
     trainer->train(*kc_model, sampleData);
 
     std::printf("  iterations= %d, accuracy= %f, time= %g seconds \n",
@@ -380,12 +391,6 @@ int ApplRSUCLASSIFY::trainClassifier(shark::AbstractSvmTrainer<shark::RealVector
 template <typename beaconGeneral>
 void ApplRSUCLASSIFY::onBeaconAny(beaconGeneral wsm)
 {
-    if(collectTrainingData)
-    {
-        collectSample(wsm);
-        return;
-    }
-
     // on one of the incoming lanes?
     std::string lane = wsm->getLane();
     auto it = lanesTL.find(lane);
@@ -398,6 +403,32 @@ void ApplRSUCLASSIFY::onBeaconAny(beaconGeneral wsm)
     if(it->second != myTLid)
         return;
 
+    if(collectTrainingData)
+    {
+        // add trainError to beacon
+        if(trainError != 0)
+            addError(wsm, trainError);
+
+        // make an instance and push it to samples
+        sample_type *m = new sample_type(wsm->getPos().x, wsm->getPos().y, wsm->getSpeed());
+        samples.push_back(*m);
+
+        // get class label
+        std::string lane = wsm->getLane();
+        auto it2 = classLabel.find(lane);
+        if(it2 == classLabel.end())
+            error("class %s not found in classLabel!", lane.c_str());
+
+        // push to labels
+        labels.push_back(it2->second);
+
+        return;
+    }
+
+    // add GPSerror to beacon
+    if(GPSerror != 0)
+        addError(wsm, GPSerror);
+
     // get the predicted label
     unsigned int predicted_label = makePrediction(wsm);
 
@@ -407,8 +438,22 @@ void ApplRSUCLASSIFY::onBeaconAny(beaconGeneral wsm)
         error("class %s not found!", lane.c_str());
     unsigned int real_label = re->second;
 
-    // save classification results
+    // print debug information
     std::string sender = wsm->getSender();
+    if(debugLevel > 1)
+    {
+        printf("%0.3f, %0.3f, %06.3f --> predicted label: %2d, true label: %2d, sender: %s \n",
+                wsm->getPos().x,
+                wsm->getPos().y,
+                wsm->getSpeed(),
+                predicted_label,
+                real_label,
+                sender.c_str());
+
+        std::cout.flush();
+    }
+
+    // save classification results for each entity
     resultEntry *res = new resultEntry(predicted_label, real_label, simTime().dbl());
     auto xr = classifyResults.find(sender);
     if(xr == classifyResults.end())
@@ -419,69 +464,38 @@ void ApplRSUCLASSIFY::onBeaconAny(beaconGeneral wsm)
     else
         xr->second.push_back(*res);
 
-    // print debug information
-    if(debugLevel > 1)
-    {
-        printf("%0.3f, %0.3f, %06.3f --> predicted label: %2d, true label: %2d, sender: %s \n",
-                shark_sample(0,0),
-                shark_sample(0,1),
-                shark_sample(0,2),
-                predicted_label,
-                real_label,
-                sender.c_str());
-
-        std::cout.flush();
-    }
+    // draw samples on Gnuplot
+    if(plotterPtr != NULL && lane.find("WC") != std::string::npos)
+        draw(wsm, real_label);
 }
 
 
 template <typename beaconGeneral>
 unsigned int ApplRSUCLASSIFY::makePrediction(beaconGeneral wsm)
 {
+    // we have 3 features, thus shark_sample should be 1 * 3
+    shark::blas::matrix<double, shark::blas::row_major> shark_sample(1,3);
+
     // retrieve info from beacon
-    double posX = wsm->getPos().x;
-    double posY = wsm->getPos().y;
-    double speed = wsm->getSpeed();
-
-    if(GPSerror != 0)
-    {
-        double r = 0;
-
-        // Produce a random double in the range [0,1) using generator 0, then scale it to -1 <= r < 1
-        r = (dblrand() - 0.5) * 2;
-        // add error to posX
-        posX = posX + (r * GPSerror);
-
-        // Produce a random double in the range [0,1) using generator 0, then scale it to -1 <= r < 1
-        r = (dblrand() - 0.5) * 2;
-        // add error to posY
-        posY = posY + (r * GPSerror);
-
-        // Produce a random double in the range [0,1) using generator 0, then scale it to -1 <= r < 1
-        r = (dblrand() - 0.5) * 2;
-        // add error to speed
-        //speed = speed + speed * (r * GPSerror);  // todo
-    }
-
-    shark_sample(0,0) = posX;  // xPos
-    shark_sample(0,1) = posY;  // yPos
-    shark_sample(0,2) = speed; // speed
+    shark_sample(0,0) = wsm->getPos().x;
+    shark_sample(0,1) = wsm->getPos().y;
+    shark_sample(0,2) = wsm->getSpeed();
 
     // make prediction
     unsigned int predicted_label = (*kc_model)(shark_sample)[0];
 
     std::string sender = wsm->getSender();
 
-    // search for entity name in lastClassifications
-    auto it = lastClassifications.find(sender);
-    if(it == lastClassifications.end())
+    // search for entity name in predictionQueue
+    auto it = predictionQueue.find(sender);
+    if(it == predictionQueue.end())
     {
         boost::circular_buffer<unsigned int> CB_class;  // create a circular buffer
         CB_class.set_capacity(10);                      // set max capacity
         CB_class.clear();
         CB_class.push_back(predicted_label);
 
-        lastClassifications[sender] = CB_class;
+        predictionQueue[sender] = CB_class;
 
         return predicted_label;
     }
@@ -490,7 +504,7 @@ unsigned int ApplRSUCLASSIFY::makePrediction(beaconGeneral wsm)
         it->second.push_back(predicted_label);
 
         std::vector<int> histogram(21, 0); // we assume that maximum class number is 20
-        // iterate over the circular buffer to find the mode
+        // iterate over the circular buffer to find the node
         for(auto i : it->second)
             ++histogram[i];
 
@@ -500,56 +514,32 @@ unsigned int ApplRSUCLASSIFY::makePrediction(beaconGeneral wsm)
 
 
 template <typename beaconGeneral>
-void ApplRSUCLASSIFY::collectSample(beaconGeneral wsm)
+void ApplRSUCLASSIFY::addError(beaconGeneral &wsm, double maxError)
 {
-    std::string lane = wsm->getLane();
-
-    auto it = lanesTL.find(lane);
-
-    // not on any incoming lanes
-    if(it == lanesTL.end())
-        return;
-
-    // I do not control this lane!
-    if(it->second != myTLid)
-        return;
-
-    // get class label
-    auto it2 = classLabel.find(lane);
-    if(it2 == classLabel.end())
-        error("class %s not found in classLabel!", lane.c_str());
-    unsigned int label = it2->second;
-
     // retrieve info from beacon
     double posX = wsm->getPos().x;
     double posY = wsm->getPos().y;
     double speed = wsm->getSpeed();
 
-    if(trainError != 0)
-    {
-        double r = 0;
+    double r = 0;
 
-        // Produce a random double in the range [0,1) using generator 0, then scale it to -1 <= r < 1
-        r = (dblrand() - 0.5) * 2;
-        // add error to posX
-        posX = posX + (r * trainError);
+    // Produce a random double in the range [0,1) using generator 0, then scale it to -1 <= r < 1
+    r = (dblrand() - 0.5) * 2;
+    // add error to posX
+    posX = posX + (r * maxError);
 
-        // Produce a random double in the range [0,1) using generator 0, then scale it to -1 <= r < 1
-        r = (dblrand() - 0.5) * 2;
-        // add error to posY
-        posY = posY + (r * trainError);
+    // Produce a random double in the range [0,1) using generator 0, then scale it to -1 <= r < 1
+    r = (dblrand() - 0.5) * 2;
+    // add error to posY
+    posY = posY + (r * maxError);
 
-        // Produce a random double in the range [0,1) using generator 0, then scale it to -1 <= r < 1
-        r = (dblrand() - 0.5) * 2;
-        // add error to speed
-        //speed = speed + speed * (r * trainError);  // todo
-    }
+    // Produce a random double in the range [0,1) using generator 0, then scale it to -1 <= r < 1
+    r = (dblrand() - 0.5) * 2;
+    // add error to speed
+    speed = speed + speed * (r * maxError);  // todo: how to set error for speed?
 
-    // make an instance
-    sample_type *m = new sample_type(posX, posY, speed);
-
-    samples.push_back(*m);
-    labels.push_back(label);
+    // set the changes
+    wsm->setPos( Coord(posX, posY) );
 }
 
 

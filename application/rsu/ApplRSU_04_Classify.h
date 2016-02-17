@@ -112,12 +112,12 @@ protected:
 
 private:
     void initializeGnuPlot();
-    void draw();
+    template <typename beaconGeneral> void draw(beaconGeneral &, unsigned int);
     int loadTrainer();
     int trainClassifier(shark::AbstractSvmTrainer<shark::RealVector, unsigned int> *);
-    template <typename beaconGeneral> void onBeaconAny(beaconGeneral wsm);
-    template <typename beaconGeneral> unsigned int makePrediction(beaconGeneral wsm);
-    template <typename beaconGeneral> void collectSample(beaconGeneral wsm);
+    template <typename beaconGeneral> void onBeaconAny(beaconGeneral);
+    template <typename beaconGeneral> unsigned int makePrediction(beaconGeneral);
+    template <typename beaconGeneral> void addError(beaconGeneral &, double);
     void saveSampleToFile();
     void saveClassificationResults();
 
@@ -134,25 +134,28 @@ private:
     std::vector<int> labels;
 
     std::map< std::string /*class name*/, unsigned int /*label*/> classLabel = {
-            {"WC_4", 0},
-            {"SC_4", 1},
+            {"NC_2", 0},
+            {"NC_3", 1},
             {"NC_4", 2},
-            {"EC_4", 3},
-            {"NC_2", 4},
-            {"EC_2", 5},
+
+            {"SC_2", 3},
+            {"SC_3", 4},
+            {"SC_4", 5},
+
             {"WC_2", 6},
-            {"SC_2", 7},
-            {"EC_3", 8},
-            {"WC_3", 9},
-            {"NC_3", 10},
-            {"SC_3", 11}
+            {"WC_3", 7},
+            {"WC_4", 8},
+
+            {"EC_2", 9},
+            {"EC_3", 10},
+            {"EC_4", 11}
     };
 
     shark::ClassificationDataset sampleData;
-    shark::blas::matrix<double, shark::blas::row_major> shark_sample;
     shark::KernelClassifier<shark::RealVector> *kc_model;
+    std::map< std::string /*entity id*/, boost::circular_buffer<unsigned int> > predictionQueue;
     std::map< std::string /*entity id*/, std::vector<resultEntry> > classifyResults;
-    std::map< std::string /*entity id*/, boost::circular_buffer<unsigned int> > lastClassifications;
+    std::map< unsigned int /*class label*/, std::vector<sample_type> > plotClass;
 };
 
 }
