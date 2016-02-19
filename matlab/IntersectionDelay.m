@@ -7,9 +7,9 @@ clc;    % position the cursor at the top of the screen
 % ---------------------------------------------------------------
 
 % path to folder
-basePATH = '../results/cmd/2_effect_active_detection/3_full_poisson_balanced_routeDist_70_30';
+basePATH = '../results/cmd/3_existing_multiClass/5_full_poisson_unbalanced_routeDist_70_30';
 
-option = 1;  % 1: benefits of active detection   2: existing_multiClass   3: MWM
+option = 2;  % 1: benefits of active detection   2: existing_multiClass   3: MWM
 
 TLqueuingData = dir([basePATH, '/*_TLqueuingData.txt']);
 TLphasingData = dir([basePATH, '/*_TLphasingData.txt']);
@@ -379,7 +379,8 @@ if(true)
         lineMark = '--';
     end
     
-    subplot(3,1,1);    
+    %subplot(3,1,1);    
+    subplot(2,2,[1,2]);
     plot(timeSteps_MQ/60, maxQueueSize, lineMark, 'LineWidth', 1, 'Color', 'k');
 
     % set font size
@@ -412,7 +413,8 @@ if(true)
         set(gca, 'ytick' , 0:20:Ylimit(2));
     end
     
-    subplot(3,1,2);    
+    %subplot(3,1,2);    
+    subplot(2,2,3);
     
     if(option == 1)    
         plot(timeSteps_D/60, delayPassenger/60, lineMark, 'LineWidth', 1, 'Color', 'k');
@@ -459,11 +461,12 @@ if(true)
         n8 = size(delayDist{2,4},2);
         
         group = [repmat({'Fix-Time (P)'}, n1, 1); repmat({'Fix-Time (S)'}, n5, 1);
-                 repmat({'T-Act (P)'}, n2, 1); repmat({'T-Act (S)'}, n6, 1);
-                 repmat({'L-Queue (P)'}, n3, 1); repmat({'L-Queue (S)'}, n7, 1);
+                 repmat({'Traffic actuated (P)'}, n2, 1); repmat({'Traffic actuated (S)'}, n6, 1);
+                 repmat({'Longest Queue (P)'}, n3, 1); repmat({'Longest Queue (S)'}, n7, 1);
                  repmat({'OJF (P)'}, n4, 1); repmat({'OJF (S)'}, n8, 1)];
              
-        boxplot(data,group,'colors', 'k');
+        boxplot(data, group,'colors', 'k');        
+        set(gca,'XTickLabelRotation',25);
 
         set(findobj(gca,'Type','text'),'FontSize',20);
         
@@ -491,6 +494,7 @@ if(true)
                  repmat({'OJF_MWM (S)'}, n6, 1)];
 
         boxplot(data,group,'colors', 'k');
+        set(gca,'XTickLabelRotation',25);
 
         set(findobj(gca,'Type','text'),'FontSize',20);
         
@@ -503,7 +507,8 @@ if(true)
         
     end
 
-    subplot(3,1,3);
+    %subplot(3,1,3);
+    subplot(2,2,4);
     
     if(option == 1) 
         plot(timeSteps_T/60, throughput, lineMark, 'LineWidth', 1, 'Color', 'k');
@@ -545,7 +550,8 @@ if(true)
         group = [repmat({'Fix-time'}, n1, 1); repmat({'Traffic actuated'}, n2, 1); repmat({'Longest Queue'}, n3, 1); repmat({'OJF'}, n4, 1)];
 
         boxplot(data,group,'colors', 'k');
-
+        set(gca,'XTickLabelRotation',20);
+        
         set(findobj(gca,'Type','text'),'FontSize',20);
         
         % set font size
@@ -599,7 +605,8 @@ if(true)
         end
         
         for g=1:endNum
-            subplot(3,1,g);
+            %subplot(3,1,g);
+            subplot(2,2,[1,2]);
             
             Ylimit = get(gca,'ylim');
             arrowYLoc = Ylimit(2) + (0.05 * Ylimit(2));

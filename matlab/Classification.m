@@ -5,7 +5,16 @@ clc;
 
 % ---------------------------------------------------------------
 
-basePATH = '../results/ML/cmd';
+for iteration=1:3
+
+if (iteration == 1)
+     basePATH = '../results/ML/cmd/02_trainError0m';
+elseif (iteration == 2)
+     basePATH = '../results/ML/cmd/03_trainError3m';
+elseif(iteration == 3)
+     basePATH = '../results/ML/cmd/04_trainError5m';
+end
+
 repetition = 5;
 
 TLqueuingData = dir([basePATH, '/*_classificationResults.txt']);
@@ -49,17 +58,25 @@ end
 
 % plot speed profile of vehicles    
 
-figure('name', 'Classification', 'units', 'normalized', 'outerposition', [0 0 1 1]);
+if(iteration == 1)
+    figure('name', 'Classification', 'units', 'normalized', 'outerposition', [0 0 1 1]);
+    subaxis(2,2,1,'SpacingVert',0.1,'SpacingHoriz',0.06,'MA',0.02,'MB',0.1,'MR',0.02,'ML',0.01);
+end
 
-handle1 = boxplot([classifyResult(1,:)', classifyResult(2,:)', classifyResult(3,:)', classifyResult(4,:)', classifyResult(5,:)', classifyResult(6,:)', classifyResult(7,:)'], 'labels', {'0','0.5','1','3','5','7','10'});
+subaxis(2,2,iteration);
+%subplot(2,2,iteration);
+
+handle1 = boxplot([classifyResult(1,:)', classifyResult(2,:)', classifyResult(3,:)', classifyResult(4,:)', classifyResult(5,:)', classifyResult(6,:)', classifyResult(7,:)'], 'labels', {'0','0.5','1','3','5','7','10'}, 'colors', 'k');
 
 % set font size
-set(gca, 'FontSize', 19);
+set(gca, 'FontSize', 20);
 
 % set the axis labels
-xlabel('Maximum GPS Error (m)', 'FontSize', 19);
-ylabel('Classification Ratio', 'FontSize', 19);
+xlabel('Maximum Location Error (m)', 'FontSize', 20);
+ylabel('Classification Success Ratio', 'FontSize', 20);
 
 grid on;   
+
+end
 
        
