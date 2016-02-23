@@ -29,6 +29,7 @@
 #define APPLRSUCLASSIFY_H_
 
 #include "ApplRSU_03_ActiveTL.h"
+#include <Plotter.h>
 #include <boost/circular_buffer.hpp>
 
 #undef ev
@@ -93,6 +94,20 @@ public:
 };
 
 
+class dataBlockEntry
+{
+public:
+    unsigned int counter;
+    HSV color;
+
+    dataBlockEntry(unsigned int u1, HSV c)
+    {
+        this->counter = u1;
+        this->color = c;
+    }
+};
+
+
 class ApplRSUCLASSIFY : public ApplRSUTLVANET
 {
 public:
@@ -128,6 +143,7 @@ private:
     double GPSerror;
     int debugLevel;
 
+    Plotter *pltPtr = NULL;
     FILE *plotterPtr = NULL;
     boost::filesystem::path trainingFilePath;
     std::vector<sample_type> samples;
@@ -155,7 +171,11 @@ private:
     shark::KernelClassifier<shark::RealVector> *kc_model;
     std::map< std::string /*entity id*/, boost::circular_buffer<unsigned int> > predictionQueue;
     std::map< std::string /*entity id*/, std::vector<resultEntry> > classifyResults;
-    std::map< unsigned int /*class label*/, std::vector<sample_type> > plotClass;
+
+    /* two-level categorization for plotting:
+     *     level 1: beacons of the same class
+     *     level 2: different entities within each class */
+    std::map< unsigned int /*class label*/, std::map< std::string /*entity id*/, dataBlockEntry > > dataBlockCounter;
 };
 
 }

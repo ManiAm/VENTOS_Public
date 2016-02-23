@@ -26,7 +26,6 @@
 //
 
 #include "ApplRSU_04_Classify.h"
-#include <Plotter.h>
 
 namespace VENTOS {
 
@@ -170,24 +169,23 @@ void ApplRSUCLASSIFY::initializeGnuPlot()
 {
     // get a pointer to the plotter module
     cModule *pmodule = simulation.getSystemModule()->getSubmodule("plotter");
-
     if(pmodule == NULL)
         error("plotter module is not found!");
 
-    // return if plotter is off
-    if(!pmodule->par("on").boolValue())
-        return;
-
     // get a pointer to the class
-    Plotter *pltPtr = static_cast<Plotter *>(pmodule);
+    pltPtr = static_cast<Plotter *>(pmodule);
     ASSERT(pltPtr);
 
-    plotterPtr = pltPtr->pipeGnuPlot;
-    ASSERT(plotterPtr);
+    if( !pltPtr->par("on").boolValue() )
+        return;
 
-    // We need feature in GNUPLOT 5.0 and above
+    // we need feature in GNUPLOT 5.0 and above
     if(pltPtr->vers < 5)
         error("GNUPLOT version should be >= 5");
+
+    // get a reference to gnuplot pipe
+    plotterPtr = pltPtr->pipeGnuPlot;
+    ASSERT(plotterPtr);
 
     // set title name
     fprintf(plotterPtr, "set title 'Sample Points' \n");
@@ -211,11 +209,6 @@ void ApplRSUCLASSIFY::initializeGnuPlot()
     // set agenda location
     fprintf(plotterPtr, "set key outside right top box \n");
 
-    // define line style
-    fprintf(plotterPtr, "set style line 1 pointtype 7 pointsize 1 lc rgb 'red'  \n");
-    fprintf(plotterPtr, "set style line 2 pointtype 7 pointsize 1 lc rgb 'green' \n");
-    fprintf(plotterPtr, "set style line 3 pointtype 7 pointsize 1 lc rgb 'blue' \n");
-
     fflush(plotterPtr);
 }
 
@@ -223,51 +216,114 @@ void ApplRSUCLASSIFY::initializeGnuPlot()
 template <typename beaconGeneral>
 void ApplRSUCLASSIFY::draw(beaconGeneral &wsm, unsigned int real_label)
 {
-    // save real label into plotClass
-    sample_type *tmp = new sample_type(wsm->getPos().x, wsm->getPos().y, wsm->getSpeed());
-    auto it = plotClass.find(real_label);
-    if(it == plotClass.end())
+    auto it1 = dataBlockCounter.find(real_label);
+    // this label already exists
+    if(it1 != dataBlockCounter.end())
     {
-        std::vector<sample_type> v {*tmp};
-        plotClass[real_label] = v;
+        // search for vehicle name in the nested map
+        auto it2 = (it1->second).find(wsm->getSender());
+        // this vehicle already exists
+        if(it2 != (it1->second).end())
+        {
+            // append the new point to the datablock
+            fprintf(plotterPtr, "set print $data%d append \n", (it2->second).counter);
+            fprintf(plotterPtr, "print \"%0.2f %0.2f %0.2f\" \n", wsm->getPos().x, wsm->getPos().y, wsm->getSpeed());
+        }
+        else
+        {
+            int size = 0;
+            for(auto i : dataBlockCounter)
+                for(auto j : i.second)
+                    size++;
+
+            auto firstElement = it1->second.begin();  // get the first element of the nested map
+            HSV color = firstElement->second.color;   // get the color in this block
+            dataBlockEntry *entry = new dataBlockEntry(size + 1, color);
+            (it1->second).insert( std::make_pair(wsm->getSender(), *entry) );
+
+            // update color shades
+            std::vector<double> shades = pltPtr->generateColorShades(it1->second.size());
+            int counter = 0;
+            for(auto &c : it1->second)
+            {
+                c.second.color.saturation = shades[counter];
+                counter++;
+            }
+
+            // creating a new datablock
+            fprintf(plotterPtr, "$data%d << EOD \n", size + 1);
+            fprintf(plotterPtr, "%0.2f %0.2f %0.2f \n", wsm->getPos().x, wsm->getPos().y, wsm->getSpeed());
+            fprintf(plotterPtr, "EOD \n");
+        }
     }
     else
-        it->second.push_back(*tmp);
-
-    // create a data blocks out of dataset (only gnuplot > 5.0 supports this)
-    fprintf(plotterPtr, "$data << EOD \n");
-
-    for(auto &labelName : plotClass)
     {
-        // data block i
-        for(auto &sample : labelName.second)
-        {
-            fprintf(plotterPtr, "%f  %f  %f \n", sample.xPos, sample.yPos, sample.speed);
-        }
+        int size = 0;
+        for(auto i : dataBlockCounter)
+            for(auto j : i.second)
+                size++;
 
-        // two blank lines as data block separator
-        fprintf(plotterPtr, "\n\n \n");
+        HSV color = pltPtr->getUniqueHSVColor();
+        dataBlockEntry *entry = new dataBlockEntry(size + 1, color);
+        dataBlockCounter[real_label].insert( std::make_pair(wsm->getSender(), *entry) );
+
+        // creating a new datablock
+        fprintf(plotterPtr, "$data%d << EOD \n", size + 1);
+        fprintf(plotterPtr, "%0.2f %0.2f %0.2f \n", wsm->getPos().x, wsm->getPos().y, wsm->getSpeed());
+        fprintf(plotterPtr, "EOD \n");
     }
 
-    // data block terminator
-    fprintf(plotterPtr, "EOD \n");
+    // debugging
+    if(false)
+    {
+        for(auto &i : dataBlockCounter)
+        {
+            std::cout << "label: " << i.first << std::endl;
+            for(auto &j : i.second)
+            {
+                std::cout << "    Id: " << j.first
+                        << ", blockNum: " << j.second.counter
+                        << ", color: (" << j.second.color.hue << "," << j.second.color.saturation << "," << j.second.color.value << ")"
+                        << std::endl;
+
+                // prints datablock value
+//                fprintf(plotterPtr, "set print \n");
+//                fprintf(plotterPtr, "print $data%d \n", j.second.counter);
+            }
+        }
+
+        std::cout << std::endl;
+    }
+
+    // merge all small datablocks
+    fprintf(plotterPtr, "undefine $dataAll \n");
+    fprintf(plotterPtr, "set print $dataAll \n");
+    for(auto &i : dataBlockCounter)
+    {
+        for(auto &j : i.second)
+        {
+            fprintf(plotterPtr, "print $data%d \n", j.second.counter);
+            fprintf(plotterPtr, "print \"\" \n");
+        }
+    }
 
     // make plot
-    fprintf(plotterPtr, "splot '$data' index 0 using 1:2:3 with points ls 1 title 'class 0',");
-    fprintf(plotterPtr, "      ''      index 1 using 1:2:3 with points ls 2 title 'class 1',");
-    fprintf(plotterPtr, "      ''      index 2 using 1:2:3 with points ls 3 title 'class 2',");
+    fprintf(plotterPtr, "splot ");
 
-    fprintf(plotterPtr, "      ''      index 3 using 1:2:3 with points ls 1 title 'class 3',");
-    fprintf(plotterPtr, "      ''      index 4 using 1:2:3 with points ls 2 title 'class 4',");
-    fprintf(plotterPtr, "      ''      index 5 using 1:2:3 with points ls 3 title 'class 5',");
+    int index = 0;
+    for(auto &i : dataBlockCounter)
+    {
+        for(auto &j : i.second)
+        {
+            // get the color for this block
+            HSV color = j.second.color;
+            fprintf(plotterPtr, "'$dataAll' index %d using 1:2:3 with points pointtype 7 pointsize 1 linecolor rgbcolor hsv2rgb(%f,%f,%f) linewidth 1 title 'class %d',", index, color.hue/360, color.saturation/100, color.value/100, i.first);
+            index++;
+        }
+    }
 
-    fprintf(plotterPtr, "      ''      index 6 using 1:2:3 with points ls 1 title 'class 6',");
-    fprintf(plotterPtr, "      ''      index 7 using 1:2:3 with points ls 2 title 'class 7',");
-    fprintf(plotterPtr, "      ''      index 8 using 1:2:3 with points ls 3 title 'class 8',");
-
-    fprintf(plotterPtr, "      ''      index 9 using 1:2:3 with points ls 1 title 'class 9',");
-    fprintf(plotterPtr, "      ''      index 10 using 1:2:3 with points ls 2 title 'class 10',");
-    fprintf(plotterPtr, "      ''      index 11 using 1:2:3 with points ls 3 title 'class 11' \n");
+    // complete the splot command
+    fprintf(plotterPtr, " \n");
 
     fflush(plotterPtr);
 }
@@ -464,7 +520,7 @@ void ApplRSUCLASSIFY::onBeaconAny(beaconGeneral wsm)
     else
         xr->second.push_back(*res);
 
-    // draw samples on Gnuplot
+    // draw samples on West direction in Gnuplot
     if(plotterPtr != NULL && lane.find("WC") != std::string::npos)
         draw(wsm, real_label);
 }
