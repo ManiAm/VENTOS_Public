@@ -117,7 +117,6 @@ protected:
     // NED variables
     double terminate;
     bool autoShutdown; /**< Shutdown module as soon as no more vehicles are in the simulation */
-    bool autoShutdownTriggered;
 
     // NED (motor vehicle)
     std::string moduleType; /**< module type to be used in the simulation for each managed vehicle */

@@ -132,8 +132,6 @@ void TraCI_Start::initialize(int stage)
             addedNodes.clear();
         }
 
-        autoShutdownTriggered = false;
-
         VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
         SUMO_Path = simulation.getSystemModule()->par("SUMODirectory").stringValue();
         SUMO_FullPath = VENTOS_FullPath / SUMO_Path;
@@ -180,7 +178,19 @@ void TraCI_Start::handleMessage(cMessage *msg)
     }
     else if (msg == executeOneTimestepTrigger)
     {
-        executeOneTimestep();
+        if (connectAt != -1)
+            executeOneTimestep();
+
+        // notify other modules to run one simulation TS
+        simsignal_t Signal_executeEachTS = registerSignal("executeEachTS");
+        this->emit(Signal_executeEachTS, 0);
+
+        // we reached to max simtime and should terminate OMNET++ simulation
+        // upon calling endSimulation(), TraCI_Start::finish() will close TraCI connection
+        if(terminate != -1 && simTime().dbl() >= terminate)
+            endSimulation();
+
+        scheduleAt(simTime() + updateInterval, executeOneTimestepTrigger);
     }
     else
     {
@@ -453,77 +463,61 @@ uint32_t TraCI_Start::getCurrentTimeMs()
 
 void TraCI_Start::executeOneTimestep()
 {
-    if (connectAt != -1)
+    if (simTime() > 1)
     {
-        if (simTime() > 1)
+        if (vehicleTypeIds.size() == 0)
         {
-            if (vehicleTypeIds.size()==0)
+            std::list<std::string> vehTypes = vehicleGetIDList();
+            for (std::list<std::string>::const_iterator i = vehTypes.begin(); i != vehTypes.end(); ++i)
             {
-                std::list<std::string> vehTypes = vehicleGetIDList();
-                for (std::list<std::string>::const_iterator i = vehTypes.begin(); i != vehTypes.end(); ++i)
+                if (i->compare("DEFAULT_VEHTYPE") != 0)
                 {
-                    if (i->compare("DEFAULT_VEHTYPE") != 0)
-                    {
-                        //MYDEBUG << *i << std::endl;
-                        vehicleTypeIds.push_back(*i);
-                    }
+                    //MYDEBUG << *i << std::endl;
+                    vehicleTypeIds.push_back(*i);
                 }
             }
-
-            if (routeIds.size()==0)
-            {
-                std::list<std::string> routes = routeGetIDList();
-                for (std::list<std::string>::const_iterator i = routes.begin(); i != routes.end(); ++i)
-                {
-                    std::string routeId = *i;
-                    if (par("useRouteDistributions").boolValue() && std::count(routeId.begin(), routeId.end(), '#') >= 1)
-                    {
-                        //MYDEBUG << "Omitting route " << routeId << " as it seems to be a member of a route distribution (found '#' in name)" << std::endl;
-                        continue;
-                    }
-
-                    //MYDEBUG << "Adding " << routeId << " to list of possible routes" << std::endl;
-                    routeIds.push_back(routeId);
-                }
-            }
-
-            for (int i = activeVehicleCount + queuedVehicles.size(); i < numVehicles; i++)
-                insertNewVehicle();
         }
 
-        //MYDEBUG << "Triggering TraCI server simulation advance to t=" << simTime() <<endl;
-
-        uint32_t targetTime = getCurrentTimeMs();
-
-        if (targetTime > round(connectAt.dbl() * 1000))
+        if (routeIds.size() == 0)
         {
-            insertVehicles();
+            std::list<std::string> routes = routeGetIDList();
+            for (std::list<std::string>::const_iterator i = routes.begin(); i != routes.end(); ++i)
+            {
+                std::string routeId = *i;
+                if (par("useRouteDistributions").boolValue() && std::count(routeId.begin(), routeId.end(), '#') >= 1)
+                {
+                    //MYDEBUG << "Omitting route " << routeId << " as it seems to be a member of a route distribution (found '#' in name)" << std::endl;
+                    continue;
+                }
 
-            TraCIBuffer buf = connection->query(CMD_SIMSTEP2, TraCIBuffer() << targetTime);
-            uint32_t count; buf >> count;  // count: number of subscription results
-            for (uint32_t i = 0; i < count; ++i)
-                processSubcriptionResult(buf);
-
-            // todo: should get pedestrians using subscription
-            allPedestrians.clear();
-            allPedestrians = personGetIDList();
-            if(!allPedestrians.empty())
-                addPedestriansToOMNET();
+                //MYDEBUG << "Adding " << routeId << " to list of possible routes" << std::endl;
+                routeIds.push_back(routeId);
+            }
         }
+
+        for (int i = activeVehicleCount + queuedVehicles.size(); i < numVehicles; i++)
+            insertNewVehicle();
     }
 
-    // notify other modules to run one simulation TS
-    simsignal_t Signal_executeEachTS = registerSignal("executeEachTS");
-    this->emit(Signal_executeEachTS, 0);
+    //MYDEBUG << "Triggering TraCI server simulation advance to t=" << simTime() <<endl;
 
-    // we reached to max simtime and should terminate OMNET++ simulation
-    // upon calling endSimulation(), TraCI_Start::finish() will close TraCI connection
-    if(terminate != -1 && simTime().dbl() >= terminate)
-        endSimulation();
+    uint32_t targetTime = getCurrentTimeMs();
 
-    // schedule the next SUMO simulation if autoShutdownTriggered = false
-    if (!autoShutdownTriggered)
-        scheduleAt(simTime() + updateInterval, executeOneTimestepTrigger);
+    if (targetTime > round(connectAt.dbl() * 1000))
+    {
+        insertVehicles();
+
+        TraCIBuffer buf = connection->query(CMD_SIMSTEP2, TraCIBuffer() << targetTime);
+        uint32_t count; buf >> count;  // count: number of subscription results
+        for (uint32_t i = 0; i < count; ++i)
+            processSubcriptionResult(buf);
+
+        // todo: should get pedestrians using subscription
+        allPedestrians.clear();
+        allPedestrians = personGetIDList();
+        if(!allPedestrians.empty())
+            addPedestriansToOMNET();
+    }
 }
 
 
@@ -860,7 +854,7 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
             activeVehicleCount -= count;
             drivingVehicleCount -= count;
 
-            // should we stop SUMO simulation?
+            // should we stop simulation?
             if(autoShutdown)
             {
                 // terminate only if equilibrium_vehicle is off
@@ -872,7 +866,7 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
                     int count2 = personGetIDCount();
                     // terminate if all departed vehicles have arrived
                     if (count > 0 && count1 + count2 == 0)
-                        autoShutdownTriggered = true;
+                        endSimulation();
                 }
             }
         }
