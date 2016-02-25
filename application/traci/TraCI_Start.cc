@@ -62,72 +62,83 @@ void TraCI_Start::initialize(int stage)
 
     if (stage == 1)
     {
-        cModule *module = simulation.getSystemModule()->getSubmodule("world");
-        world = static_cast<BaseWorldUtility*>(module);
-        ASSERT(world);
-
-        module = simulation.getSystemModule()->getSubmodule("connMan");
-        cc = static_cast<ConnectionManager*>(module);
-        ASSERT(cc);
-
         debug = par("debug");
         connectAt = par("connectAt");
-        firstStepAt = par("firstStepAt");
+        terminate = par("terminate").doubleValue();
         updateInterval = par("updateInterval");
 
-        if (firstStepAt == -1) firstStepAt = connectAt + updateInterval;
-        ASSERT(firstStepAt > connectAt);
+        // no need to bring up SUMO
+        if(connectAt == -1)
+        {
+            executeOneTimestepTrigger = new cMessage("step");
+            scheduleAt(updateInterval, executeOneTimestepTrigger);
+        }
+        else
+        {
+            connectAndStartTrigger = new cMessage("connect");
+            scheduleAt(connectAt, connectAndStartTrigger);
 
-        connectAndStartTrigger = new cMessage("connect");
-        scheduleAt(connectAt, connectAndStartTrigger);
+            firstStepAt = par("firstStepAt");
+            if (firstStepAt == -1)
+                firstStepAt = connectAt + updateInterval;
+            ASSERT(firstStepAt > connectAt);
 
-        executeOneTimestepTrigger = new cMessage("step");
-        scheduleAt(firstStepAt, executeOneTimestepTrigger);
+            executeOneTimestepTrigger = new cMessage("step");
+            scheduleAt(firstStepAt, executeOneTimestepTrigger);
 
-        host = par("host").stdstringValue();
-        port = par("port");
+            host = par("host").stdstringValue();
+            port = par("port");
 
-        terminate = par("terminate").doubleValue();
-        autoShutdown = par("autoShutdown");
+            autoShutdown = par("autoShutdown");
+
+            moduleType = par("moduleType").stdstringValue();
+            moduleName = par("moduleName").stdstringValue();
+            moduleDisplayString = par("moduleDisplayString").stdstringValue();
+
+            bikeModuleType = par("bikeModuleType").stringValue();
+            bikeModuleName = par("bikeModuleName").stringValue();
+            bikeModuleDisplayString = par("bikeModuleDisplayString").stringValue();
+
+            pedModuleType = par("pedModuleType").stringValue();
+            pedModuleName = par("pedModuleName").stringValue();
+            pedModuleDisplayString = par("pedModuleDisplayString").stringValue();
+
+            numVehicles = par("numVehicles").longValue();
+            penetrationRate = par("penetrationRate").doubleValue();
+            vehicleRngIndex = par("vehicleRngIndex");
+            mobRng = getRNG(vehicleRngIndex);
+
+            vehicleNameCounter = 0;
+            activeVehicleCount = 0;
+            parkingVehicleCount = 0;
+            drivingVehicleCount = 0;
+
+            nextNodeVectorIndex = 0;
+            hosts.clear();
+            subscribedVehicles.clear();
+            subscribedPedestrians.clear();
+
+            myAddVehicleTimer = new cMessage("myAddVehicleTimer");
+
+            cModule *module = simulation.getSystemModule()->getSubmodule("world");
+            world = static_cast<BaseWorldUtility*>(module);
+            ASSERT(world);
+
+            module = simulation.getSystemModule()->getSubmodule("connMan");
+            cc = static_cast<ConnectionManager*>(module);
+            ASSERT(cc);
+
+            equilibrium_vehicle = par("equilibrium_vehicle").boolValue();
+            addedNodes.clear();
+        }
+
         autoShutdownTriggered = false;
-
-        moduleType = par("moduleType").stdstringValue();
-        moduleName = par("moduleName").stdstringValue();
-        moduleDisplayString = par("moduleDisplayString").stdstringValue();
-
-        bikeModuleType = par("bikeModuleType").stringValue();
-        bikeModuleName = par("bikeModuleName").stringValue();
-        bikeModuleDisplayString = par("bikeModuleDisplayString").stringValue();
-
-        pedModuleType = par("pedModuleType").stringValue();
-        pedModuleName = par("pedModuleName").stringValue();
-        pedModuleDisplayString = par("pedModuleDisplayString").stringValue();
-
-        numVehicles = par("numVehicles").longValue();
-        penetrationRate = par("penetrationRate").doubleValue();
-        vehicleRngIndex = par("vehicleRngIndex");
-        mobRng = getRNG(vehicleRngIndex);
-
-        vehicleNameCounter = 0;
-        activeVehicleCount = 0;
-        parkingVehicleCount = 0;
-        drivingVehicleCount = 0;
-
-        nextNodeVectorIndex = 0;
-        hosts.clear();
-        subscribedVehicles.clear();
-        subscribedPedestrians.clear();
-
-        myAddVehicleTimer = new cMessage("myAddVehicleTimer");
 
         VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
         SUMO_Path = simulation.getSystemModule()->par("SUMODirectory").stringValue();
         SUMO_FullPath = VENTOS_FullPath / SUMO_Path;
         if( !boost::filesystem::exists( SUMO_FullPath ) )
             error("SUMO directory is not valid! Check it again.");
-
-        equilibrium_vehicle = par("equilibrium_vehicle").boolValue();
-        addedNodes.clear();
     }
 }
 
@@ -148,68 +159,33 @@ void TraCI_Start::handleMessage(cMessage *msg)
 {
     TraCI_Commands::handleMessage(msg);
 
-    if (msg->isSelfMessage())
-    {
-        handleSelfMsg(msg);
-        return;
-    }
+    if (! msg->isSelfMessage())
+        error("TraCI_Start doesn't handle messages from other modules");
 
-    error("TraCI_Start doesn't handle messages from other modules");
-}
-
-
-void TraCI_Start::handleSelfMsg(cMessage *msg)
-{
     if (msg == connectAndStartTrigger)
     {
         connection = TraCIConnection::connect(host.c_str(), port);
+
+        // initialize SUMO TraCI
         init_traci();
-        return;
-    }
 
-    if (msg == executeOneTimestepTrigger)
+        std::cout << "Initializing modules with TraCI support ..." << std::endl << std::endl;
+        simsignal_t Signal_executeFirstTS = registerSignal("executeFirstTS");
+        this->emit(Signal_executeFirstTS, 1);
+
+        initRoi();
+        if(par("roiSquareSizeRSU").doubleValue() > 0)
+            roiRSUs(); // this method should be called after sending executeFirstTS so that all RSUs are built
+        drawRoi();
+    }
+    else if (msg == executeOneTimestepTrigger)
     {
-        if (simTime() > 1)
-        {
-            if (vehicleTypeIds.size()==0)
-            {
-                std::list<std::string> vehTypes = vehicleGetIDList();
-                for (std::list<std::string>::const_iterator i = vehTypes.begin(); i != vehTypes.end(); ++i)
-                {
-                    if (i->compare("DEFAULT_VEHTYPE") != 0)
-                    {
-                        //MYDEBUG << *i << std::endl;
-                        vehicleTypeIds.push_back(*i);
-                    }
-                }
-            }
-
-            if (routeIds.size()==0)
-            {
-                std::list<std::string> routes = routeGetIDList();
-                for (std::list<std::string>::const_iterator i = routes.begin(); i != routes.end(); ++i)
-                {
-                    std::string routeId = *i;
-                    if (par("useRouteDistributions").boolValue() && std::count(routeId.begin(), routeId.end(), '#') >= 1)
-                    {
-                        //MYDEBUG << "Omitting route " << routeId << " as it seems to be a member of a route distribution (found '#' in name)" << std::endl;
-                        continue;
-                    }
-
-                    //MYDEBUG << "Adding " << routeId << " to list of possible routes" << std::endl;
-                    routeIds.push_back(routeId);
-                }
-            }
-
-            for (int i = activeVehicleCount + queuedVehicles.size(); i < numVehicles; i++)
-                insertNewVehicle();
-        }
-
         executeOneTimestep();
-        return;
     }
-
-    error("TraCI_Start received unknown self-message");
+    else
+    {
+        error("TraCI_Start received unknown self-message");
+    }
 }
 
 
@@ -296,15 +272,6 @@ void TraCI_Start::init_traci()
             }
         }
     }
-
-    std::cout << "Initializing modules with TraCI support ..." << std::endl << std::endl;
-    simsignal_t Signal_executeFirstTS = registerSignal("executeFirstTS");
-    this->emit(Signal_executeFirstTS, 1);
-
-    initRoi();
-    if(par("roiSquareSizeRSU").doubleValue() > 0)
-        roiRSUs(); // this method should be called after sending executeFirstTS so that all RSUs are built
-    drawRoi();
 }
 
 
@@ -486,24 +453,63 @@ uint32_t TraCI_Start::getCurrentTimeMs()
 
 void TraCI_Start::executeOneTimestep()
 {
-    //MYDEBUG << "Triggering TraCI server simulation advance to t=" << simTime() <<endl;
-
-    uint32_t targetTime = getCurrentTimeMs();
-
-    if (targetTime > round(connectAt.dbl() * 1000))
+    if (connectAt != -1)
     {
-        insertVehicles();
+        if (simTime() > 1)
+        {
+            if (vehicleTypeIds.size()==0)
+            {
+                std::list<std::string> vehTypes = vehicleGetIDList();
+                for (std::list<std::string>::const_iterator i = vehTypes.begin(); i != vehTypes.end(); ++i)
+                {
+                    if (i->compare("DEFAULT_VEHTYPE") != 0)
+                    {
+                        //MYDEBUG << *i << std::endl;
+                        vehicleTypeIds.push_back(*i);
+                    }
+                }
+            }
 
-        TraCIBuffer buf = connection->query(CMD_SIMSTEP2, TraCIBuffer() << targetTime);
-        uint32_t count; buf >> count;  // count: number of subscription results
-        for (uint32_t i = 0; i < count; ++i)
-            processSubcriptionResult(buf);
+            if (routeIds.size()==0)
+            {
+                std::list<std::string> routes = routeGetIDList();
+                for (std::list<std::string>::const_iterator i = routes.begin(); i != routes.end(); ++i)
+                {
+                    std::string routeId = *i;
+                    if (par("useRouteDistributions").boolValue() && std::count(routeId.begin(), routeId.end(), '#') >= 1)
+                    {
+                        //MYDEBUG << "Omitting route " << routeId << " as it seems to be a member of a route distribution (found '#' in name)" << std::endl;
+                        continue;
+                    }
 
-        // todo: should get pedestrians using subscription
-        allPedestrians.clear();
-        allPedestrians = personGetIDList();
-        if(!allPedestrians.empty())
-            addPedestriansToOMNET();
+                    //MYDEBUG << "Adding " << routeId << " to list of possible routes" << std::endl;
+                    routeIds.push_back(routeId);
+                }
+            }
+
+            for (int i = activeVehicleCount + queuedVehicles.size(); i < numVehicles; i++)
+                insertNewVehicle();
+        }
+
+        //MYDEBUG << "Triggering TraCI server simulation advance to t=" << simTime() <<endl;
+
+        uint32_t targetTime = getCurrentTimeMs();
+
+        if (targetTime > round(connectAt.dbl() * 1000))
+        {
+            insertVehicles();
+
+            TraCIBuffer buf = connection->query(CMD_SIMSTEP2, TraCIBuffer() << targetTime);
+            uint32_t count; buf >> count;  // count: number of subscription results
+            for (uint32_t i = 0; i < count; ++i)
+                processSubcriptionResult(buf);
+
+            // todo: should get pedestrians using subscription
+            allPedestrians.clear();
+            allPedestrians = personGetIDList();
+            if(!allPedestrians.empty())
+                addPedestriansToOMNET();
+        }
     }
 
     // notify other modules to run one simulation TS
@@ -512,7 +518,7 @@ void TraCI_Start::executeOneTimestep()
 
     // we reached to max simtime and should terminate OMNET++ simulation
     // upon calling endSimulation(), TraCI_Start::finish() will close TraCI connection
-    if(simTime().dbl() >= terminate)
+    if(terminate != -1 && simTime().dbl() >= terminate)
         endSimulation();
 
     // schedule the next SUMO simulation if autoShutdownTriggered = false

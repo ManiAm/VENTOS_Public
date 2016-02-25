@@ -66,7 +66,6 @@ public:
     virtual int numInitStages() const { return std::max(cSimpleModule::numInitStages(), 2); }
     virtual void finish();
     virtual void handleMessage(cMessage *msg);
-    virtual void handleSelfMsg(cMessage *msg);
 
 private:
     void init_traci();

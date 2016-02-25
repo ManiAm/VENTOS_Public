@@ -159,16 +159,19 @@ void SniffEthernet::receiveSignal(cComponent *source, simsignal_t signalID, long
 
 void SniffEthernet::executeFirstTimeStep()
 {
-    if(!on)
-        return;
 
-    startSniffing();
 }
 
 
 void SniffEthernet::executeEachTimestep()
 {
-
+    // run this code only once
+    static bool wasExecuted = false;
+    if (on && !wasExecuted)
+    {
+        startSniffing();
+        wasExecuted = true;
+    }
 }
 
 

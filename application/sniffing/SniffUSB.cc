@@ -74,11 +74,11 @@ void SniffUSB::initialize(int stage)
         simulation.getSystemModule()->subscribe("executeEachTS", this);
 
         // start a libusb session
-        int r = libusb_init(&ctx); //initialize a library session
+        int r = libusb_init(&ctx); // initialize a library session
         if(r < 0)
             error("failed to initialize libusb: %s\n", libusb_error_name(r));
 
-        libusb_set_debug(ctx, 3); //set verbosity level to 3, as suggested in the documentation
+        libusb_set_debug(ctx, 3); // set verbosity level to 3, as suggested in the documentation
 
         USBevents = new cMessage("USBevents", KIND_TIMER);
         USBInterrupt = new cMessage("USBInterrupt", KIND_TIMER);
@@ -174,19 +174,23 @@ void SniffUSB::receiveSignal(cComponent *source, simsignal_t signalID, long i)
 
 void SniffUSB::executeFirstTimeStep()
 {
-    if(!on)
-        return;
 
-    if(hotPlug)
-        EnableHotPlug();
-
-    startSniffing();
 }
 
 
 void SniffUSB::executeEachTimestep()
 {
+    // run this code only once
+    static bool wasExecuted = false;
+    if (on && !wasExecuted)
+    {
+        if(hotPlug)
+            EnableHotPlug();
 
+        startSniffing();
+
+        wasExecuted = true;
+    }
 }
 
 
