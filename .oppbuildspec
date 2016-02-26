@@ -1,4 +1,4 @@
 <buildspec version="4.0">
-<dir makemake-options="--deep --make-so -o VENTOS -O out -lboost_system -lboost_filesystem -lboost_serialization -lpcap -lusb-1.0 -lsnmp++ -lcurl -lshark_debug -llapack_atlas --meta:recurse --meta:auto-include-path --meta:export-library --meta:use-exported-libs --meta:feature-cflags --meta:feature-ldflags" path="application" type="makemake"/>
+<dir makemake-options="--deep --make-so -o VENTOS -O out -lboost_system -lboost_filesystem -lboost_serialization -lpcap -lusb-1.0 -lbluetooth -lsnmp++ -lcurl -lshark_debug -llapack_atlas --meta:recurse --meta:auto-include-path --meta:export-library --meta:use-exported-libs --meta:feature-cflags --meta:feature-ldflags" path="application" type="makemake"/>
 <dir makemake-options="-O out --meta:recurse --meta:auto-include-path --meta:export-library --meta:use-exported-libs --meta:feature-cflags --meta:feature-ldflags" path="." type="makemake"/>
 </buildspec>

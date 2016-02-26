@@ -92,13 +92,17 @@ network Network
             parameters:
                 @display("p=294,381;i=block/app");
         }
-        sniffEther: SniffEther {
+        sniffEthernet: SniffEthernet {
             parameters:
                 @display("p=48,468;i=block/network");
         }
         sniffUSB: SniffUSB {
             parameters:
-                @display("p=127,468;i=block/mac");
+                @display("p=130,468;i=block/mac");
+        }
+        sniffBluetooth: SniffBluetooth {
+            parameters:
+                @display("p=221,468;i=block/mac");
         }
 
     connections allowunconnected:
