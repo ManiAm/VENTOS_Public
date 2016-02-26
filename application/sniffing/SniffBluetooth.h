@@ -31,7 +31,27 @@
 #include <BaseApplLayer.h>
 #include "TraCI_Commands.h"
 
+// un-defining ev!
+// why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header
+#undef ev
+#include "boost/filesystem.hpp"
+#define ev  (*cSimulation::getActiveEnvir())
+
 namespace VENTOS {
+
+class BTdevEntry
+{
+public:
+    std::string name;       // BT device name
+    std::string timeStamp;  // BT device last detection time
+
+    BTdevEntry(std::string str1, std::string str2)
+    {
+        this->name = str1;
+        this->timeStamp = str2;
+    }
+};
+
 
 class SniffBluetooth : public BaseApplLayer
 {
@@ -46,8 +66,11 @@ private:
     void executeFirstTimeStep();
     void executeEachTimestep();
 
+    void getCachedDevices();
     void scanNearbyDevices();
+    const std::string currentDateTime();
     std::string classInfo(uint8_t dev_class[3]);
+    void saveCachedDevices();
     void serviceDiscovery(std::string, uint16_t = 0);
     void startSniffing();
     void got_packet(const struct pcap_pkthdr *header, const u_char *packet);
@@ -61,6 +84,10 @@ private:
     TraCI_Commands *TraCI;
     simsignal_t Signal_executeFirstTS;
     simsignal_t Signal_executeEachTS;
+    boost::filesystem::path cached_BT_devices_filePATH;
+
+    // stores all BT devices (cached and newly detected)
+    std::map<std::string /*BT address*/, BTdevEntry> allBTdevices;
 
     const std::map<unsigned int, std::string> ProtocolUUIDs =
     {
