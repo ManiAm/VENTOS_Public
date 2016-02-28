@@ -27,16 +27,8 @@
 
 #include <SniffBluetooth.h>
 #include <fstream>
-
-#include <bluetooth/bluetooth.h>
-#include <bluetooth/hci.h>
-#include <bluetooth/hci_lib.h>
-
-// service discovery
-#include <bluetooth/sdp.h>
-#include <bluetooth/sdp_lib.h>
-
 #include <boost/algorithm/string/trim.hpp>
+#include <sys/ioctl.h>
 
 namespace VENTOS {
 
@@ -56,8 +48,6 @@ void SniffBluetooth::initialize(int stage)
 
         if(!on)
             return;
-
-        interface = par("interface").stdstringValue();
 
         // register signals
         Signal_executeFirstTS = registerSignal("executeFirstTS");
@@ -113,11 +103,14 @@ void SniffBluetooth::executeEachTimestep()
     static bool wasExecuted = false;
     if (on && !wasExecuted)
     {
+        // display local devices
+        getLocalDevs();
+
         // cached BT devices from previous scans
-        getCachedDevices();
+        loadCachedDevices();
 
         // looking for nearby BT devices
-        scanNearbyDevices();
+        scan();
 
         // request for service
         serviceDiscovery("30:75:12:6D:B2:3A");
@@ -128,7 +121,43 @@ void SniffBluetooth::executeEachTimestep()
 }
 
 
-void SniffBluetooth::getCachedDevices()
+static int dev_info(int s, int dev_id, long arg)
+{
+    struct hci_dev_info di = {};
+    di.dev_id = dev_id;
+
+    if (ioctl(s, HCIGETDEVINFO, (void *) &di))
+        return 0;
+
+    printf("    name: %s \n", di.name);
+
+    // display address
+    char addr[18];
+    ba2str(&di.bdaddr, addr);
+    printf("    address: %s \n", addr);
+
+    // get features
+    //    char *tmp = lmp_featurestostr(di.features, "\t\t", 63);
+    //    printf("    LMP features: 0x%2.2x 0x%2.2x 0x%2.2x 0x%2.2x 0x%2.2x 0x%2.2x 0x%2.2x 0x%2.2x \n",
+    //            di.features[0], di.features[1],
+    //            di.features[2], di.features[3],
+    //            di.features[4], di.features[5],
+    //            di.features[6], di.features[7]);
+    //    printf("%s \n", tmp);
+
+    return 0;
+}
+
+
+void SniffBluetooth::getLocalDevs()
+{
+    std::cout << std::endl << ">>> Showing local Bluetooth devices: \n";
+    std::cout << "Found devices: " << std::endl;
+    hci_for_each_dev(HCI_UP, dev_info, 0);
+}
+
+
+void SniffBluetooth::loadCachedDevices()
 {
     std::ifstream infile(cached_BT_devices_filePATH.string().c_str());
     // no such file exists!
@@ -182,26 +211,30 @@ void SniffBluetooth::saveCachedDevices()
 }
 
 
-void SniffBluetooth::scanNearbyDevices()
+// scanNearbyDevices
+void SniffBluetooth::scan()
 {
     int dev_id = hci_get_route(NULL);  // get the first available Bluetooth adapter
+    if(dev_id < 0)
+        error("Device is not available");
+
     int sock = hci_open_dev(dev_id);
-    if (dev_id < 0 || sock < 0)
-        error("opening socket");
+    if (sock < 0)
+        error("HCI device open failed");
 
     int len  = 8;       // inquiry lasts for at most 1.28 * len seconds (= 10.24 seconds)
     int max_rsp = 255;  // at most max_rsp devices will be returned
     int flags = IREQ_CACHE_FLUSH; // the cache of previously detected devices is flushed before performing the current inquiry
     inquiry_info *ii = (inquiry_info*)malloc(max_rsp * sizeof(inquiry_info));
 
-    std::cout << std::endl << ">>> Starting Bluetooth device discovery... " << std::flush;
+    std::cout << std::endl << ">>> Scan for Bluetooth devices... " << std::flush;
     // num_rsp contains the number of discovered devices
     // ii contains the discovered devices info
     int num_rsp = hci_inquiry(dev_id, len, max_rsp, NULL, &ii, flags);
 
     if(num_rsp < 0)
     {
-        error("hci_inquiry");
+        error("Inquiry failed");
     }
     else if(num_rsp == 0)
     {
@@ -226,16 +259,16 @@ void SniffBluetooth::scanNearbyDevices()
 
             // get device address
             ba2str(&(ii+i)->bdaddr, addr);
-            printf("    address: %s \n", addr);
+            printf("    address: %s [mode %d, clkoffset 0x%4.4x] \n", addr, (ii+i)->pscan_rep_mode, btohs((ii+i)->clock_offset));
+
+            std::string comp = companyInfo((ii+i)->bdaddr);
+            char oui[9];
+            ba2oui(&(ii+i)->bdaddr, oui);
+            printf("    OUI company: %s (%s) \n", comp.c_str(), oui);
 
             // get device class
             std::string dev_class = classInfo((ii+i)->dev_class);
             printf("    device_class: %s \n", dev_class.c_str());
-
-            // get more detailed info
-            printf("    pscan_rep_mode: %02x \n", (ii+i)->pscan_rep_mode);
-            printf("    pscan_mode: %02x \n", (ii+i)->pscan_mode);
-            printf("    clock_offset: %04x \n\n", (ii+i)->clock_offset);
 
             // save device info
             std::string timeDate = currentDateTime();
@@ -275,6 +308,13 @@ const std::string SniffBluetooth::currentDateTime()
     strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct);
 
     return buf;
+}
+
+
+// todo:
+std::string SniffBluetooth::companyInfo(bdaddr_t bdaddr)
+{
+    return "";
 }
 
 
@@ -461,10 +501,21 @@ void SniffBluetooth::serviceDiscovery(std::string bdaddr, uint16_t UUID)
                         it = ProtocolUUIDs.find(proto);
                         if(it != ProtocolUUIDs.end())
                             protocolName = it->second;
-                        printf("    protocol: 0x%04x (%s) \n", proto, protocolName.c_str());
-                        break;
-                    case SDP_UINT8:
-                        if(proto == RFCOMM_UUID) printf("    RFCOMM channel: %d \n", d->val.int8);
+                        printf("    protocol: 0x%04x (%s)", proto, protocolName.c_str());
+
+                        if(proto == RFCOMM_UUID)
+                        {
+                            int port = sdp_get_proto_port(proto_list, RFCOMM_UUID);
+                            printf(", channel: %d \n", port);
+                        }
+                        else if(proto == L2CAP_UUID)
+                        {
+                            int psm = sdp_get_proto_port(proto_list, L2CAP_UUID);
+                            printf(", psm: %d \n", psm);
+                        }
+                        else
+                            printf("\n");
+
                         break;
                     }
                 }

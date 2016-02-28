@@ -1314,7 +1314,7 @@ if [[ "$OS" == "Ubuntu" ]]; then
     if [[ $? -ne 0 ]]; then
         exit 1
     fi
-    echo $sudoPass | sudo -S setcap cap_dac_override,cap_net_raw,cap_net_admin=eip opp_run  # https://www.insecure.ws/linux/getcap_setcap.html
+    echo $sudoPass | sudo -S setcap cap_dac_override,cap_net_raw,cap_net_admin+eip opp_run  # https://www.insecure.ws/linux/getcap_setcap.html
     echo "done!"
     cd ..
     cd ..

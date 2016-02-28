@@ -1,10 +1,10 @@
 
 package c3po.application.sniffing;
 
-simple SniffBluetooth
+simple SniffBluetoothLE
 {
     parameters:
-        @class(VENTOS::SniffBluetooth);
+        @class(VENTOS::SniffBluetoothLE);
         @display("i=block/network2");
         
         bool on = default(false);

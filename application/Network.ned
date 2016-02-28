@@ -20,7 +20,7 @@ network Network
         string SUMODirectory = default(""); // location of SUMO files
         int debugLevel;
 
-        @display("bgb=400,627");
+        @display("bgb=428,627");
     submodules:
         world: BaseWorldUtility {
             parameters:
@@ -103,6 +103,10 @@ network Network
         sniffBluetooth: SniffBluetooth {
             parameters:
                 @display("p=221,468;i=block/mac");
+        }
+        sniffBluetoothLE: SniffBluetoothLE {
+            parameters:
+                @display("p=339,468;i=block/mac");
         }
 
     connections allowunconnected:

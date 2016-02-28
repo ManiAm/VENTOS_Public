@@ -31,6 +31,14 @@
 #include <BaseApplLayer.h>
 #include "TraCI_Commands.h"
 
+#include <bluetooth/bluetooth.h>
+#include <bluetooth/hci.h>
+#include <bluetooth/hci_lib.h>
+
+// service discovery
+#include <bluetooth/sdp.h>
+#include <bluetooth/sdp_lib.h>
+
 // un-defining ev!
 // why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header
 #undef ev
@@ -66,19 +74,21 @@ private:
     void executeFirstTimeStep();
     void executeEachTimestep();
 
-    void getCachedDevices();
-    void scanNearbyDevices();
+    void getLocalDevs();
+    void loadCachedDevices();
+    void scan();
     const std::string currentDateTime();
+    std::string companyInfo(bdaddr_t);
     std::string classInfo(uint8_t dev_class[3]);
     void saveCachedDevices();
     void serviceDiscovery(std::string, uint16_t = 0);
+
     void startSniffing();
     void got_packet(const struct pcap_pkthdr *header, const u_char *packet);
 
 private:
     // NED variables
     bool on;
-    std::string interface;
 
     // variables
     TraCI_Commands *TraCI;
