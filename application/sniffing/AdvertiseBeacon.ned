@@ -1,12 +1,18 @@
 
 package c3po.application.sniffing;
 
-simple SniffBluetoothLEAdv extends SniffBluetoothLE
+simple AdvertiseBeacon extends SniffBluetoothLE
 {
     parameters:
-        @class(VENTOS::SniffBluetoothLEAdv);
+        @class(VENTOS::AdvertiseBeacon);
         @display("i=block/network2");
         
         bool advertisement = default(false);
+        int beaconType;
+        
+        string UUID;
+        string major;
+        string minor;
+        string TXpower;
 }
 
