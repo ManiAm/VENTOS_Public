@@ -28,6 +28,9 @@
 #ifndef SNIFFBLUETOOTH
 #define SNIFFBLUETOOTH
 
+// BT specifications:
+// https://www.bluetooth.com/specifications/adopted-specifications
+
 #include <BaseApplLayer.h>
 #include "TraCI_Commands.h"
 
@@ -68,32 +71,38 @@ public:
     virtual void finish();
     virtual void initialize(int);
     virtual void handleMessage(cMessage *);
-    virtual void receiveSignal(cComponent *, simsignal_t, long);
 
-private:
+protected:
     void executeFirstTimeStep();
     void executeEachTimestep();
 
     void getLocalDevs();
-    void loadCachedDevices();
-    void scan();
-    const std::string currentDateTime();
-    std::string companyInfo(bdaddr_t);
-    std::string classInfo(uint8_t dev_class[3]);
-    void saveCachedDevices();
-    void serviceDiscovery(std::string, uint16_t = 0);
+    void print_dev_info(struct hci_dev_info *di);
 
-    void startSniffing();
-    void got_packet(const struct pcap_pkthdr *header, const u_char *packet);
+    void cmd_up(int hdev);
+    void cmd_down(int hdev);
+    const std::string currentDateTime();
 
 private:
-    // NED variables
-    bool on;
+    void loadCachedDevices();
+    void saveCachedDevices();
 
+    void scan();
+    std::string companyInfo(bdaddr_t);
+    std::string classInfo(uint8_t dev_class[3]);
+
+    void serviceDiscovery(std::string, uint16_t = 0);
+
+protected:
     // variables
     TraCI_Commands *TraCI;
     simsignal_t Signal_executeFirstTS;
     simsignal_t Signal_executeEachTS;
+
+private:
+    // NED variables
+    bool BTon;
+
     boost::filesystem::path cached_BT_devices_filePATH;
 
     // stores all BT devices (cached and newly detected)

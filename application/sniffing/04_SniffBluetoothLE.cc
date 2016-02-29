@@ -25,16 +25,17 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <SniffBluetoothLE.h>
+#include <04_SniffBluetoothLE.h>
 #include <fstream>
 #include <boost/algorithm/string/trim.hpp>
+#include <linux/errno.h>
 
 namespace VENTOS {
 
-#define EIR_FLAGS                   0x01  /* flags */
-#define EIR_NAME_SHORT              0x08  /* shortened local name */
-#define EIR_NAME_COMPLETE           0x09  /* complete local name */
-#define EIR_APPEARANCE          0x19      /* Device appearance */
+#define EIR_FLAGS           0x01  /* flags */
+#define EIR_NAME_SHORT      0x08  /* shortened local name */
+#define EIR_NAME_COMPLETE   0x09  /* complete local name */
+#define EIR_APPEARANCE      0x19  /* Device appearance */
 
 Define_Module(VENTOS::SniffBluetoothLE);
 
@@ -46,19 +47,14 @@ SniffBluetoothLE::~SniffBluetoothLE()
 
 void SniffBluetoothLE::initialize(int stage)
 {
+    SniffBluetooth::initialize(stage);
+
     if(stage == 0)
     {
-        on = par("on").boolValue();
+        LEBTon = par("LEBTon").boolValue();
 
-        if(!on)
+        if(!LEBTon)
             return;
-
-        // register signals
-        Signal_executeFirstTS = registerSignal("executeFirstTS");
-        simulation.getSystemModule()->subscribe("executeFirstTS", this);
-
-        Signal_executeEachTS = registerSignal("executeEachTS");
-        simulation.getSystemModule()->subscribe("executeEachTS", this);
 
         boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
         cached_LEBT_devices_filePATH = VENTOS_FullPath / "application/sniffing/cached_LEBT_devices";
@@ -68,50 +64,43 @@ void SniffBluetoothLE::initialize(int stage)
 
 void SniffBluetoothLE::finish()
 {
-
+    SniffBluetooth::finish();
 
 }
 
 
 void SniffBluetoothLE::handleMessage(cMessage *msg)
 {
+    SniffBluetooth::handleMessage(msg);
 
-
-}
-
-
-void SniffBluetoothLE::receiveSignal(cComponent *source, simsignal_t signalID, long i)
-{
-    Enter_Method_Silent();
-
-    if(signalID == Signal_executeEachTS)
-    {
-        SniffBluetoothLE::executeEachTimestep();
-    }
-    else if(signalID == Signal_executeFirstTS)
-    {
-        SniffBluetoothLE::executeFirstTimeStep();
-    }
 }
 
 
 void SniffBluetoothLE::executeFirstTimeStep()
 {
+    SniffBluetooth::executeFirstTimeStep();
 
 }
 
 
 void SniffBluetoothLE::executeEachTimestep()
 {
+    SniffBluetooth::executeEachTimestep();
+
     // run this code only once
     static bool wasExecuted = false;
-    if (on && !wasExecuted)
+    if (LEBTon && !wasExecuted)
     {
+        // display local devices
+        getLocalDevs();
+
         // cached LE BT devices from previous scans
         loadCachedDevices();
 
         // scan for Low Energy (LE) bluetooth device
-        lescan();
+        //lescan();
+
+        // uint16_t handle = leCreateConnection("CC:4B:DA:B0:F8:28");
 
         wasExecuted = true;
     }
@@ -152,7 +141,7 @@ void SniffBluetoothLE::loadCachedDevices()
         counter++;
     }
 
-    std::cout << std::endl << ">>> " << counter << " cached LE BT devices read from file.";
+    std::cout << ">>> " << counter << " cached LE BT devices read from file.";
 }
 
 
@@ -184,24 +173,33 @@ void SniffBluetoothLE::lescan()
 
     std::cout << std::endl << ">>> Scan for Bluetooth LE devices... " << std::flush;
 
-    uint8_t scan_type = 0x01;  // 0x00: passive, 0x01: active
+    uint8_t scan_type = 0x01;  // 0x00: passive, 0x01: active  More info: http://stackoverflow.com/questions/24994776/android-ble-passive-scan
     uint16_t interval = htobs(0x0010);
     uint16_t window = htobs(0x0010);
     uint8_t own_type = 0x00;  // 0x01: enable privacy
     uint8_t filter_policy = 0x00;  // 0x00: accept all, 0x01: white_list
     int err = hci_le_set_scan_parameters(dd, scan_type, interval, window, own_type, filter_policy, 1000);
     if (err < 0)
+    {
+        hci_close_dev(dd);
         error("Set scan parameters failed");
+    }
 
     uint8_t filter_dup = 1;
     err = hci_le_set_scan_enable(dd, 0x01 /*enable*/, filter_dup, 1000 /*timeout*/);
     if (err < 0)
+    {
+        hci_close_dev(dd);
         error("Enable scan failed");
+    }
 
     struct hci_filter of;
     socklen_t olen = sizeof(of);
     if (getsockopt(dd, SOL_HCI, HCI_FILTER, &of, &olen) < 0)
+    {
+        hci_close_dev(dd);
         error("Could not get socket options");
+    }
 
     struct hci_filter nf;
     hci_filter_clear(&nf);
@@ -209,7 +207,10 @@ void SniffBluetoothLE::lescan()
     hci_filter_set_event(EVT_LE_META_EVENT, &nf);
 
     if (setsockopt(dd, SOL_HCI, HCI_FILTER, &nf, sizeof(nf)) < 0)
+    {
+        hci_close_dev(dd);
         error("Could not set socket options");
+    }
 
     print_advertising_devices(dd, 10 /*timeout in seconds*/);
 
@@ -238,7 +239,10 @@ void SniffBluetoothLE::lescan()
 
     err = hci_le_set_scan_enable(dd, 0x00 /*disable*/, filter_dup, 1000 /*timeout*/);
     if (err < 0)
+    {
+        hci_close_dev(dd);
         error("Disable scan failed");
+    }
 
     hci_close_dev(dd);
 }
@@ -281,6 +285,8 @@ void SniffBluetoothLE::print_advertising_devices(int dd, int timeout)
             char addr[18];
             ba2str(&info->bdaddr, addr);
 
+            // printf("RSSI %d \n", (char)info->data[info->length]);
+
             // get name
             std::string name = parse_name(info->data, info->length);
 
@@ -313,22 +319,6 @@ void SniffBluetoothLE::print_advertising_devices(int dd, int timeout)
 
         wait.tv_sec = timeout - elapsed;
     }
-}
-
-
-// Get current date/time, format is YYYY-MM-DD.HH:mm:ss
-const std::string SniffBluetoothLE::currentDateTime()
-{
-    time_t     now = time(0);
-    struct tm  tstruct;
-    char       buf[80];
-    tstruct = *localtime(&now);
-
-    // Visit http://en.cppreference.com/w/cpp/chrono/c/strftime
-    // for more information about date/time format
-    strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct);
-
-    return buf;
 }
 
 
@@ -422,15 +412,130 @@ std::string SniffBluetoothLE::parse_name(uint8_t* data, size_t size)
 }
 
 
-void SniffBluetoothLE::startSniffing()
+uint16_t SniffBluetoothLE::leCreateConnection(std::string str_bdaddr)
 {
+    int dev_id = hci_get_route(NULL);
+    if (dev_id < 0)
+        error("Device is not available");
 
+    int dd = hci_open_dev(dev_id);
+    if (dd < 0)
+        error("Could not open device");
+
+    uint16_t interval = htobs(0x0004);
+    uint16_t window = htobs(0x0004);
+    uint8_t initiator_filter = 0;  // Use peer address
+    uint8_t peer_bdaddr_type = LE_PUBLIC_ADDRESS;
+    uint8_t own_bdaddr_type = 0x00;
+    uint16_t min_interval = htobs(0x000F);
+    uint16_t max_interval = htobs(0x000F);
+    uint16_t latency = htobs(0x0000);
+    uint16_t supervision_timeout = htobs(0x0C80);
+    uint16_t min_ce_length = htobs(0x0001);
+    uint16_t max_ce_length = htobs(0x0001);
+    uint16_t handle;
+
+    bdaddr_t bdaddr;
+    memset(&bdaddr, 0, sizeof(bdaddr_t));
+    str2ba(str_bdaddr.c_str(), &bdaddr);
+
+    int err = hci_le_create_conn(dd, interval, window, initiator_filter,
+            peer_bdaddr_type, bdaddr, own_bdaddr_type, min_interval,
+            max_interval, latency, supervision_timeout,
+            min_ce_length, max_ce_length, &handle, 10000 /*timeout milliseconds*/);
+    if (err < 0)
+    {
+        hci_close_dev(dd);
+        error("Could not create connection");
+    }
+
+    printf("Connection handle %d \n", handle);
+
+    hci_close_dev(dd);
+
+    return handle;
 }
 
 
-void SniffBluetoothLE::got_packet(const struct pcap_pkthdr *header, const u_char *packet)
+void SniffBluetoothLE::cmd_cmd(int dev_id, uint8_t ogf, uint16_t ocf, std::string payload)
 {
+    if (dev_id < 0)
+        error("Not a valid device");
 
+    int dd = hci_open_dev(dev_id);
+    if (dd < 0)
+        error("Device open failed");
+
+    std::cout << std::endl << ">>> Sending command... " << std::endl << std::flush;
+
+    std::vector<std::string> tokens = cStringTokenizer(payload.c_str()).asVector();
+    int len = tokens.size();
+
+    unsigned char buf[HCI_MAX_EVENT_SIZE];
+    unsigned char *ptr = buf;
+    for (auto &i : tokens)
+        *ptr++ = (uint8_t) strtol(i.c_str(), NULL, 16);
+
+    /* Setup filter */
+    struct hci_filter flt;
+    hci_filter_clear(&flt);
+    hci_filter_set_ptype(HCI_EVENT_PKT, &flt);
+    hci_filter_all_events(&flt);
+    if (setsockopt(dd, SOL_HCI, HCI_FILTER, &flt, sizeof(flt)) < 0)
+    {
+        hci_close_dev(dd);
+        error("HCI filter setup failed");
+    }
+
+    printf("    < HCI Command: ogf 0x%02x, ocf 0x%04x, plen %d \n", ogf, ocf, len);
+    hex_dump("    ", 200, buf, len);
+    fflush(stdout);
+
+    if (hci_send_cmd(dd, ogf, ocf, len, buf) < 0)
+    {
+        hci_close_dev(dd);
+        error("Send failed");
+    }
+
+    len = read(dd, buf, sizeof(buf));
+    if (len < 0)
+    {
+        hci_close_dev(dd);
+        error("Read failed");
+    }
+
+    hci_event_hdr *hdr = (hci_event_hdr *)(buf + 1);
+    ptr = buf + (1 + HCI_EVENT_HDR_SIZE);
+    len -= (1 + HCI_EVENT_HDR_SIZE);
+
+    printf("    > HCI Event: 0x%02x plen %d \n", hdr->evt, hdr->plen);
+    hex_dump("    ", 200, ptr, len);
+    fflush(stdout);
+
+    hci_close_dev(dd);
+}
+
+
+void SniffBluetoothLE::hex_dump(std::string pref, int width, unsigned char *buf, int len)
+{
+    register int i,n;
+
+    for (i = 0, n = 1; i < len; i++, n++)
+    {
+        if (n == 1)
+            printf("%s", pref.c_str());
+
+        printf("%2.2X ", buf[i]);
+
+        if (n == width)
+        {
+            printf("\n");
+            n = 0;
+        }
+    }
+
+    if (i && n != 1)
+        printf("\n");
 }
 
 }

@@ -1308,7 +1308,10 @@ if [[ "$OS" == "Ubuntu" ]]; then
     echo $sudoPass | sudo -S ldconfig
     echo "done!"
 
-    # libpcap library is used to sniff packets from network interfaces. We need to give permission to opp_run to be able to access the network interfaces (check [here](http://packetlife.net/blog/2010/mar/19/sniffing-wireshark-non-root-user/)). Moreover, libusb needs permission to open a USB device for read/write. This is done through setting [capabilities](http://linux.die.net/man/7/capabilities) using the following command:
+    # we need to set some capabilities for opp_run. More on capabilities here: http://linux.die.net/man/7/capabilities
+    # libpcap --> http://packetlife.net/blog/2010/mar/19/sniffing-wireshark-non-root-user/
+    # libusb --> 
+    # bluZ LE scan --> http://unix.stackexchange.com/questions/96106/bluetooth-le-scan-as-non-root
     echo -n "set capability for opp_run ..."
     cd omnetpp-4.6/bin  # for some reasons we must change our current directory to bin first
     if [[ $? -ne 0 ]]; then

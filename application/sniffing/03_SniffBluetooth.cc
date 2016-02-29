@@ -25,10 +25,11 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <SniffBluetooth.h>
+#include <03_SniffBluetooth.h>
 #include <fstream>
 #include <boost/algorithm/string/trim.hpp>
 #include <sys/ioctl.h>
+#include <linux/errno.h>
 
 namespace VENTOS {
 
@@ -44,17 +45,10 @@ void SniffBluetooth::initialize(int stage)
 {
     if(stage == 0)
     {
-        on = par("on").boolValue();
+        BTon = par("BTon").boolValue();
 
-        if(!on)
+        if(!BTon)
             return;
-
-        // register signals
-        Signal_executeFirstTS = registerSignal("executeFirstTS");
-        simulation.getSystemModule()->subscribe("executeFirstTS", this);
-
-        Signal_executeEachTS = registerSignal("executeEachTS");
-        simulation.getSystemModule()->subscribe("executeEachTS", this);
 
         boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
         cached_BT_devices_filePATH = VENTOS_FullPath / "application/sniffing/cached_BT_devices";
@@ -76,21 +70,6 @@ void SniffBluetooth::handleMessage(cMessage *msg)
 }
 
 
-void SniffBluetooth::receiveSignal(cComponent *source, simsignal_t signalID, long i)
-{
-    Enter_Method_Silent();
-
-    if(signalID == Signal_executeEachTS)
-    {
-        SniffBluetooth::executeEachTimestep();
-    }
-    else if(signalID == Signal_executeFirstTS)
-    {
-        SniffBluetooth::executeFirstTimeStep();
-    }
-}
-
-
 void SniffBluetooth::executeFirstTimeStep()
 {
 
@@ -101,7 +80,7 @@ void SniffBluetooth::executeEachTimestep()
 {
     // run this code only once
     static bool wasExecuted = false;
-    if (on && !wasExecuted)
+    if (BTon && !wasExecuted)
     {
         // display local devices
         getLocalDevs();
@@ -121,39 +100,136 @@ void SniffBluetooth::executeEachTimestep()
 }
 
 
-static int dev_info(int s, int dev_id, long arg)
-{
-    struct hci_dev_info di = {};
-    di.dev_id = dev_id;
-
-    if (ioctl(s, HCIGETDEVINFO, (void *) &di))
-        return 0;
-
-    printf("    name: %s \n", di.name);
-
-    // display address
-    char addr[18];
-    ba2str(&di.bdaddr, addr);
-    printf("    address: %s \n", addr);
-
-    // get features
-    //    char *tmp = lmp_featurestostr(di.features, "\t\t", 63);
-    //    printf("    LMP features: 0x%2.2x 0x%2.2x 0x%2.2x 0x%2.2x 0x%2.2x 0x%2.2x 0x%2.2x 0x%2.2x \n",
-    //            di.features[0], di.features[1],
-    //            di.features[2], di.features[3],
-    //            di.features[4], di.features[5],
-    //            di.features[6], di.features[7]);
-    //    printf("%s \n", tmp);
-
-    return 0;
-}
-
-
 void SniffBluetooth::getLocalDevs()
 {
     std::cout << std::endl << ">>> Showing local Bluetooth devices: \n";
-    std::cout << "Found devices: " << std::endl;
-    hci_for_each_dev(HCI_UP, dev_info, 0);
+
+    /* Open HCI socket  */
+    int ctl;
+    if ((ctl = socket(AF_BLUETOOTH, SOCK_RAW, BTPROTO_HCI)) < 0)
+        error("Can't open HCI socket");
+
+    struct hci_dev_list_req *dl;
+    if (!(dl = (hci_dev_list_req *) malloc(HCI_MAX_DEV * sizeof(struct hci_dev_req) + sizeof(uint16_t))))
+    {
+        close(ctl);
+        error("Can't allocate memory");
+    }
+
+    dl->dev_num = HCI_MAX_DEV;
+    struct hci_dev_req *dr = dl->dev_req;
+
+    if (ioctl(ctl, HCIGETDEVLIST, (void *) dl) < 0)
+    {
+        close(ctl);
+        error("Can't get device list");
+    }
+
+    for (int i = 0; i< dl->dev_num; i++)
+    {
+        struct hci_dev_info di;
+        di.dev_id = (dr+i)->dev_id;
+
+        if (ioctl(ctl, HCIGETDEVINFO, (void *) &di) < 0)
+            continue;
+
+        const bdaddr_t BDADDR = {0, 0, 0, 0, 0, 0};
+        if (hci_test_bit(HCI_RAW, &di.flags) && !bacmp(&di.bdaddr, &BDADDR))
+        {
+            int dd = hci_open_dev(di.dev_id);
+            hci_read_bd_addr(dd, &di.bdaddr, 1000);
+            hci_close_dev(dd);
+        }
+
+        if (di.dev_id != -1)
+            print_dev_info(&di);
+    }
+}
+
+
+void SniffBluetooth::print_dev_info(struct hci_dev_info *di)
+{
+    char addr[18];
+    ba2str(&di->bdaddr, addr);
+
+    printf("%s:\tType: %s  Bus: %s \n",
+            di->name,
+            hci_typetostr((di->type & 0x30) >> 4),
+            hci_bustostr(di->type & 0x0f));
+
+    printf("\tBD Address: %s  ACL MTU: %d:%d  SCO MTU: %d:%d \n",
+            addr,
+            di->acl_mtu,
+            di->acl_pkts,
+            di->sco_mtu,
+            di->sco_pkts);
+
+    // return the HCI device flags string given its code
+    char *str = hci_dflagstostr(di->flags);
+    printf("\t%s \n", str);
+    bt_free(str);
+
+    struct hci_dev_stats *st = &di->stat;
+    printf("\tRX bytes:%d acl:%d sco:%d events:%d errors:%d\n",
+            st->byte_rx, st->acl_rx, st->sco_rx, st->evt_rx, st->err_rx);
+
+    printf("\tTX bytes:%d acl:%d sco:%d commands:%d errors:%d\n",
+            st->byte_tx, st->acl_tx, st->sco_tx, st->cmd_tx, st->err_tx);
+
+    // print dev features
+    printf("\tLMP features: 0x%2.2x 0x%2.2x 0x%2.2x 0x%2.2x 0x%2.2x 0x%2.2x 0x%2.2x 0x%2.2x \n",
+            di->features[0], di->features[1],
+            di->features[2], di->features[3],
+            di->features[4], di->features[5],
+            di->features[6], di->features[7]);
+
+    printf("\tLE support: ");
+    std::string featuresStr = lmp_featurestostr(di->features, "\t\t", 63);
+    if(featuresStr.find("LE support") != std::string::npos)
+        printf("Yes \n");
+    else
+        printf("No \n");
+
+    printf("\n");
+}
+
+
+void SniffBluetooth::cmd_up(int hdev)
+{
+    /* Open HCI socket  */
+    int ctl;
+    if ((ctl = socket(AF_BLUETOOTH, SOCK_RAW, BTPROTO_HCI)) < 0)
+        error("Can't open HCI socket.");
+
+    /* Start HCI device */
+    if (ioctl(ctl, HCIDEVUP, hdev) < 0)
+    {
+        if (errno == EALREADY)
+        {
+            close(ctl);
+            return;
+        }
+
+        error("Can't init device hci%d: %s (%d) \n", hdev, strerror(errno), errno);
+    }
+}
+
+
+void SniffBluetooth::cmd_down(int hdev)
+{
+    /* Open HCI socket  */
+    int ctl;
+    if ((ctl = socket(AF_BLUETOOTH, SOCK_RAW, BTPROTO_HCI)) < 0)
+        error("Can't open HCI socket.");
+
+    /* Stop HCI device */
+    if (ioctl(ctl, HCIDEVDOWN, hdev) < 0)
+    {
+        close(ctl);
+        error("Can't down device hci%d: %s (%d) \n", hdev, strerror(errno), errno);
+    }
+
+    close(ctl);
 }
 
 
@@ -191,7 +267,7 @@ void SniffBluetooth::loadCachedDevices()
         counter++;
     }
 
-    std::cout << std::endl << ">>> " << counter << " cached BT devices read from file.";
+    std::cout << ">>> " << counter << " cached BT devices read from file.";
 }
 
 
@@ -268,7 +344,7 @@ void SniffBluetooth::scan()
 
             // get device class
             std::string dev_class = classInfo((ii+i)->dev_class);
-            printf("    device_class: %s \n", dev_class.c_str());
+            printf("    device_class: %s \n\n", dev_class.c_str());
 
             // save device info
             std::string timeDate = currentDateTime();
@@ -528,18 +604,6 @@ void SniffBluetooth::serviceDiscovery(std::string bdaddr, uint16_t UUID)
 
     free(seq);
     sdp_close(session);
-}
-
-
-void SniffBluetooth::startSniffing()
-{
-
-}
-
-
-void SniffBluetooth::got_packet(const struct pcap_pkthdr *header, const u_char *packet)
-{
-
 }
 
 }

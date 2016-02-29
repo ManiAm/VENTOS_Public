@@ -28,18 +28,7 @@
 #ifndef SNIFFBLUETOOTHLE
 #define SNIFFBLUETOOTHLE
 
-#include <BaseApplLayer.h>
-#include "TraCI_Commands.h"
-
-#include <bluetooth/bluetooth.h>
-#include <bluetooth/hci.h>
-#include <bluetooth/hci_lib.h>
-
-// un-defining ev!
-// why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header
-#undef ev
-#include "boost/filesystem.hpp"
-#define ev  (*cSimulation::getActiveEnvir())
+#include "03_SniffBluetooth.h"
 
 namespace VENTOS {
 
@@ -56,38 +45,38 @@ public:
     }
 };
 
-class SniffBluetoothLE : public BaseApplLayer
+
+class SniffBluetoothLE : public SniffBluetooth
 {
 public:
     virtual ~SniffBluetoothLE();
     virtual void finish();
     virtual void initialize(int);
     virtual void handleMessage(cMessage *);
-    virtual void receiveSignal(cComponent *, simsignal_t, long);
 
-private:
+protected:
     void executeFirstTimeStep();
     void executeEachTimestep();
 
+    void cmd_cmd(int dev_id, uint8_t ogf, uint16_t ocf, std::string payload);
+    void hex_dump(std::string pref, int width, unsigned char *buf, int len);
+
+private:
     void loadCachedDevices();
+    void saveCachedDevices();
+
     void lescan();
     void print_advertising_devices(int dd, int timeout);
-    const std::string currentDateTime();
     int parse_flags(uint8_t* data, size_t size);
     int parse_appearance(uint8_t* data, size_t size);
     std::string parse_name(uint8_t* data, size_t size);
-    void saveCachedDevices();
-    void startSniffing();
-    void got_packet(const struct pcap_pkthdr *header, const u_char *packet);
+
+    uint16_t leCreateConnection(std::string bdaddr);
 
 private:
     // NED variables
-    bool on;
+    bool LEBTon;
 
-    // variables
-    TraCI_Commands *TraCI;
-    simsignal_t Signal_executeFirstTS;
-    simsignal_t Signal_executeEachTS;
     boost::filesystem::path cached_LEBT_devices_filePATH;
 
     // stores all LE BT devices (cached and newly detected)

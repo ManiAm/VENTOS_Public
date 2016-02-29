@@ -7,6 +7,6 @@ simple SniffBluetooth
         @class(VENTOS::SniffBluetooth);
         @display("i=block/network2");
         
-        bool on = default(false);
+        bool BTon = default(false);
 }
 

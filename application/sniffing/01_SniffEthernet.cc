@@ -25,7 +25,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <SniffEthernet.h>
+#include <01_SniffEthernet.h>
 #include <fstream>
 #include "boost/format.hpp"
 

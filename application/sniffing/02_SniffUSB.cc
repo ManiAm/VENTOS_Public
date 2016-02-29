@@ -25,7 +25,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <SniffUSB.h>
+#include <02_SniffUSB.h>
 #include "TraCI_Commands.h"
 #include <fstream>
 #include <boost/tokenizer.hpp>
