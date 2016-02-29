@@ -52,6 +52,13 @@ private:
 private:
     // NED variables
     bool advertisement;
+    int beaconType;
+
+    // iBeacon parameters
+    std::string UUID;
+    std::string major;
+    std::string minor;
+    std::string TXpower;
 };
 
 }

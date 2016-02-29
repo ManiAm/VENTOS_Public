@@ -466,6 +466,9 @@ void SniffBluetoothLE::cmd_cmd(int dev_id, uint8_t ogf, uint16_t ocf, std::strin
     if (dd < 0)
         error("Device open failed");
 
+    if(payload == "")
+        error("payload is empty!");
+
     std::cout << std::endl << ">>> Sending command... " << std::endl << std::flush;
 
     std::vector<std::string> tokens = cStringTokenizer(payload.c_str()).asVector();

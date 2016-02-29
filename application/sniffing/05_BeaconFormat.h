@@ -28,6 +28,13 @@
 #ifndef BEACONFORMAT
 #define BEACONFORMAT
 
+enum BeaconTypeEnum
+{
+    iBeaconType = 0,
+    AltBeaconType,
+};
+
+
 class iBeacon
 {
 public:
@@ -110,10 +117,15 @@ public:
             throw cRuntimeError("TXpower length should be 1 byte!");
 
         for(auto i : str)
-        {
             this->payload += (i + " ");
-        }
     }
+};
+
+
+// todo
+class AltBeacon
+{
+
 };
 
 #endif

@@ -56,6 +56,14 @@ void AdvertiseBeacon::initialize(int stage)
 
         if(!advertisement)
             return;
+
+        beaconType = par("beaconType").longValue();
+
+        // iBeacon parameter
+        UUID = par("UUID").stringValue();
+        major = par("major").stringValue();
+        minor = par("minor").stringValue();
+        TXpower = par("TXpower").stringValue();
     }
 }
 
@@ -111,22 +119,34 @@ void AdvertiseBeacon:: advertiseBeacon()
     // then, enable LE advertising
     le_adv(dev_id, ADV_NONCONN_IND);
 
-    // generate an iBeacon message
-    iBeacon *msg = new iBeacon(std::vector<std::string>
-    {
-        "02 01 1a" /*adv flags*/,
-        "1a ff"    /*adv header*/,
-        "4c 00"    /*company id*/,
-        "02"       /*iBeacon type*/,
-        "15"       /*iBeacon length*/,
-        "e2 c5 6d b5 df fb 48 d2 b0 60 d0 f5 a7 10 96 e0" /*proximity uuid*/,
-        "00 02"  /*major*/,
-        "00 01"  /*minor*/,
-        "c5"     /*TX power*/
-    });
+    std::vector<std::string> params;  // stores beacon parameters
+    std::string payload = "";         // contains beacon payload as a single string
 
-    // pre-pending number of significant data octets (max of 31)
-    std::string payload = msg->size + " " + msg->payload;
+    if(beaconType == iBeaconType)
+    {
+        params.push_back("02 01 1a");  // adv flags
+        params.push_back("1a ff");     // adv header
+        params.push_back("4c 00");     // company id
+        params.push_back("02");        // iBeacon type
+        params.push_back("15");        // iBeacon length
+        params.push_back(UUID);
+        params.push_back(major);
+        params.push_back(minor);
+        params.push_back(TXpower);
+
+        // generate an iBeacon message
+        iBeacon *msg = new iBeacon(params);
+
+        // pre-pending number of significant data octets (max of 31)
+        payload = msg->size + " " + msg->payload;
+    }
+    // todo
+    else if(beaconType == AltBeaconType)
+    {
+
+    }
+    else
+        error("beaconType %d is not valid!", beaconType);
 
     // ogf = 0x08:  Bluetooth Command Group
     // ocf = 0x008: 'LE Set Advertising Data' command

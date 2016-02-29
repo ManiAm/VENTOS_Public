@@ -1,7 +1,7 @@
 
 package c3po.application.sniffing;
 
-simple SniffBluetoothDump extends SniffBluetoothLEAdv
+simple SniffBluetoothDump extends AdvertiseBeacon
 {
     parameters:
         @class(VENTOS::SniffBluetoothDump);
