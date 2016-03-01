@@ -54,8 +54,6 @@ void SniffUSB::initialize(int stage)
 {
     if(stage == 0)
     {
-        getUSBidsFromFile();
-
         on = par("on").boolValue();
         if(!on)
             return;
@@ -198,82 +196,154 @@ void SniffUSB::executeEachTimestep()
 }
 
 
-void SniffUSB::getUSBidsFromFile()
+// listUSBdevicesDetailed: shows 'Configuration Descriptor' for each device
+// productID: looks only for this productID
+void SniffUSB::getUSBdevices(bool listUSBdevicesDetailed, std::string productID)
 {
-    // usbids is downloaded from http://www.linux-usb.org/usb.ids
-    boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-    boost::filesystem::path usbids_FullPath = VENTOS_FullPath / "application/sniffing/sniff_usb_ids";
-
-    std::ifstream in(usbids_FullPath.string().c_str());
-    if(in.fail())
-        error("cannot open file sniff_usb_ids at %s", usbids_FullPath.string().c_str());
-
-    std::string line;
-    usb_vender *v = NULL;
-    while(getline(in, line))
+    // make sure ctx is not NULL
+    if(ctx == NULL)
     {
-        boost::char_separator<char> sep("\x09", "", boost::keep_empty_tokens);
-        boost::tokenizer< boost::char_separator<char> > tokens(line, sep);
+        // start a libusb session
+        int r = libusb_init(&ctx); // initialize a library session
+        if(r < 0)
+            error("failed to initialize libusb: %s\n", libusb_error_name(r));
 
-        int vendor_id = -1;
-        std::string vendor_name = "?";
-        int device_id = -1;
-        std::string device_name = "?";
-
-        for(auto beg = tokens.begin(); beg != tokens.end(); ++beg)
-        {
-            try
-            {
-                // vendor
-                if(*beg != "" && *beg != "#")
-                {
-                    std::size_t found = (*beg).find(' ');
-                    if (found != std::string::npos)
-                    {
-                        // vendor_id will be in decimal
-                        vendor_id = std::stoi((*beg).substr(0, found), nullptr, 16);
-                        vendor_name = (*beg).substr(found+2);
-                    }
-
-                    v = new usb_vender(vendor_id, vendor_name);
-                    if(USBids.find(*v) == USBids.end())
-                        USBids[*v] = std::vector<usb_device>();
-                    else
-                        error("vender %d exists more than once!", vendor_id);
-                }
-                // device
-                else if(*beg == "")
-                {
-                    // advance iterator forward
-                    std::advance (beg,1);
-
-                    std::size_t found = (*beg).find(' ');
-                    if (found != std::string::npos)
-                    {
-                        // device_id will be in decimal
-                        device_id = std::stoi((*beg).substr(0, found), nullptr, 16);
-                        device_name = (*beg).substr(found+2);
-
-                        usb_device *d = new usb_device(device_id, device_name);
-                        auto it = USBids.find(*v);
-                        if(it != USBids.end())
-                            (it->second).push_back(*d);
-                        else
-                            error("vendor does not exist for %d", device_id);
-                    }
-                }
-            }
-            catch(std::exception e)
-            {
-                // do nothing!
-            }
-        }
+        libusb_set_debug(ctx, 3); // set verbosity level to 3, as suggested in the documentation
     }
+
+    libusb_device **devs; //pointer to pointer of device, used to retrieve a list of devices
+    ssize_t cnt = libusb_get_device_list(ctx, &devs); //get the list of devices
+    if(cnt < 0)
+        std::cout << "Get Device Error" << endl;
+
+    // iterate over each found USB device
+    for(ssize_t i = 0; i < cnt; i++)
+    {
+        // get device descriptor first!
+        libusb_device_descriptor desc;
+        int r = libusb_get_device_descriptor(devs[i], &desc);
+        if (r < 0)
+            error("failed to get device descriptor");
+
+        // decode vendorID and productID
+        std::vector<std::string> names = USBidTostr(desc.idVendor, desc.idProduct);
+
+        std::string pID = names[1];
+        boost::algorithm::to_lower(pID);
+        boost::algorithm::to_lower(productID);
+        if( productID != "" && pID.find(productID) == std::string::npos )
+            continue;
+
+        // decode class name
+        std::string className = "?";
+        auto res = USBclass.find(desc.bDeviceClass);
+        if(res != USBclass.end())
+            className = res->second;
+
+        printf("Device %d connected to Port %d of Bus %d with Speed %d (%s) \n",
+                libusb_get_device_address(devs[i]),
+                libusb_get_port_number(devs[i]),
+                libusb_get_bus_number(devs[i]),
+                libusb_get_device_speed(devs[i]), USBspeedTostr(libusb_get_device_speed(devs[i])).c_str() );
+
+        printf("    Device Descriptor --> ");
+        // in windows, The USB driver stack uses bcdDevice, along with idVendor and idProduct, to generate hardware and compatible IDs for the device.
+        // You can view the those identifiers in Device Manager.
+        printf("VendorID: %04x (%s), ProductID: %04x (%s), Release Number: %u \n", desc.idVendor, names[0].c_str(), desc.idProduct, names[1].c_str(), desc.bcdDevice);
+        printf("                          Device Class: %x (%s), Device Subclass: %x \n", desc.bDeviceClass, className.c_str(), desc.bDeviceSubClass);
+        printf("                          Manufacturer: %u, Product: %u, Serial: %u \n", desc.iManufacturer, desc.iProduct, desc.iSerialNumber);
+        printf("                          USB Version: %s \n", USBversionTostr(desc.bcdUSB).c_str());
+
+        if(listUSBdevicesDetailed)
+        {
+            printf("    Configuration Descriptor (#%-2u) --> \n", desc.bNumConfigurations);
+            printConfDesc(devs[i]);
+        }
+
+        printf("\n");
+    }
+
+    std::cout.flush();
+
+    libusb_free_device_list(devs, 1); //free the list, unref the devices in it
 }
 
 
-std::vector<std::string> SniffUSB::USBidToName(uint16_t idVendor, uint16_t idProduct)
+std::vector<std::string> SniffUSB::USBidTostr(uint16_t idVendor, uint16_t idProduct)
 {
+    if(USBids.empty())
+    {
+        // usbids is downloaded from http://www.linux-usb.org/usb.ids
+        boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+        boost::filesystem::path usbids_FullPath = VENTOS_FullPath / "application/sniffing/sniff_usb_ids";
+
+        std::ifstream in(usbids_FullPath.string().c_str());
+        if(in.fail())
+            error("cannot open file sniff_usb_ids at %s", usbids_FullPath.string().c_str());
+
+        std::string line;
+        usb_vender *v = NULL;
+        while(getline(in, line))
+        {
+            boost::char_separator<char> sep("\x09", "", boost::keep_empty_tokens);
+            boost::tokenizer< boost::char_separator<char> > tokens(line, sep);
+
+            int vendor_id = -1;
+            std::string vendor_name = "?";
+            int device_id = -1;
+            std::string device_name = "?";
+
+            for(auto beg = tokens.begin(); beg != tokens.end(); ++beg)
+            {
+                try
+                {
+                    // vendor
+                    if(*beg != "" && *beg != "#")
+                    {
+                        std::size_t found = (*beg).find(' ');
+                        if (found != std::string::npos)
+                        {
+                            // vendor_id will be in decimal
+                            vendor_id = std::stoi((*beg).substr(0, found), nullptr, 16);
+                            vendor_name = (*beg).substr(found+2);
+                        }
+
+                        v = new usb_vender(vendor_id, vendor_name);
+                        if(USBids.find(*v) == USBids.end())
+                            USBids[*v] = std::vector<usb_device>();
+                        else
+                            error("vender %d exists more than once!", vendor_id);
+                    }
+                    // device
+                    else if(*beg == "")
+                    {
+                        // advance iterator forward
+                        std::advance (beg,1);
+
+                        std::size_t found = (*beg).find(' ');
+                        if (found != std::string::npos)
+                        {
+                            // device_id will be in decimal
+                            device_id = std::stoi((*beg).substr(0, found), nullptr, 16);
+                            device_name = (*beg).substr(found+2);
+
+                            usb_device *d = new usb_device(device_id, device_name);
+                            auto it = USBids.find(*v);
+                            if(it != USBids.end())
+                                (it->second).push_back(*d);
+                            else
+                                error("vendor does not exist for %d", device_id);
+                        }
+                    }
+                }
+                catch(std::exception e)
+                {
+                    // std::cout << "Error parsing sniff_usb_ids file, " << e.what() << std::endl << std::flush;
+                }
+            }
+        }
+    }
+
     // vender_name is not important
     usb_vender *v = new usb_vender(idVendor, "");
     auto it = USBids.find(*v);
@@ -302,7 +372,7 @@ std::vector<std::string> SniffUSB::USBidToName(uint16_t idVendor, uint16_t idPro
 }
 
 
-std::string SniffUSB::USBversion(uint16_t version)
+std::string SniffUSB::USBversionTostr(uint16_t version)
 {
     if(version == 256)
         return "1.0";
@@ -317,7 +387,7 @@ std::string SniffUSB::USBversion(uint16_t version)
 }
 
 
-std::string SniffUSB::USBspeed(int speed)
+std::string SniffUSB::USBspeedTostr(int speed)
 {
     if(speed == 0)
         return "SPEED_UNKNOWN";
@@ -334,7 +404,63 @@ std::string SniffUSB::USBspeed(int speed)
 }
 
 
-std::string SniffUSB::decodeEPAdd(uint8_t addr)
+void SniffUSB::printConfDesc(libusb_device *dev)
+{
+    libusb_config_descriptor *config;
+    libusb_get_config_descriptor(dev, 0, &config);
+
+    const libusb_interface *inter;
+    const libusb_interface_descriptor *interdesc;
+    const libusb_endpoint_descriptor *epdesc;
+
+    printf("                          Interface Descriptor --> \n");
+
+    for(uint8_t i=0; i<config->bNumInterfaces; i++)
+    {
+        inter = &config->interface[i];
+        for(int j=0; j<inter->num_altsetting; j++)
+        {
+            interdesc = &inter->altsetting[j];
+
+            std::string className = "?";
+            auto res = USBclass.find(interdesc->bInterfaceClass);
+            if(res != USBclass.end())
+                className = res->second;
+
+            char interfacePath[64];
+            snprintf(interfacePath, sizeof(interfacePath), "%04x:%04x:%02x",
+                    libusb_get_bus_number(dev),
+                    libusb_get_device_address(dev),
+                    interdesc->bInterfaceNumber);
+            interfacePath[sizeof(interfacePath)-1] = '\0';
+
+            printf("                                      Interface %-2d --> Class: %x (%s), Subclass: %x, Path: %s \n",
+                    interdesc->bInterfaceNumber,
+                    interdesc->bInterfaceClass,
+                    className.c_str(),
+                    interdesc->bInterfaceSubClass,
+                    strdup(interfacePath));
+
+            printf("                                                End Points --> \n");
+
+            for(uint8_t k=0; k<interdesc->bNumEndpoints; k++)
+            {
+                epdesc = &interdesc->endpoint[k];
+                printf("                                                              Address: %-3x (%-16s), Attribute: %-3u (%s), Max Packet Size: %u \n",
+                        epdesc->bEndpointAddress, EPAddTostr(epdesc->bEndpointAddress).c_str(),
+                        epdesc->bmAttributes, EPAttTostr(epdesc->bmAttributes).c_str(),
+                        epdesc->wMaxPacketSize);
+            }
+        }
+
+        std::cout << std::endl;
+    }
+
+    libusb_free_config_descriptor(config);
+}
+
+
+std::string SniffUSB::EPAddTostr(uint8_t addr)
 {
     int EPnumber = (addr & 0x1F);
     std::string EPnumberStr = std::to_string(EPnumber);
@@ -350,7 +476,7 @@ std::string SniffUSB::decodeEPAdd(uint8_t addr)
 }
 
 
-std::string SniffUSB::decodeEPAtt(uint8_t attValue)
+std::string SniffUSB::EPAttTostr(uint8_t attValue)
 {
     std::ostringstream att;
 
@@ -409,135 +535,6 @@ std::string SniffUSB::decodeEPAtt(uint8_t attValue)
     }
 
     return att.str();
-}
-
-
-// listUSBdevicesDetailed: shows 'Configuration Descriptor' for each device
-// productID: looks only for this productID
-void SniffUSB::getUSBdevices(bool listUSBdevicesDetailed, std::string productID)
-{
-    // make sure ctx is not NULL
-    if(ctx == NULL)
-    {
-        // start a libusb session
-        int r = libusb_init(&ctx); // initialize a library session
-        if(r < 0)
-            error("failed to initialize libusb: %s\n", libusb_error_name(r));
-
-        libusb_set_debug(ctx, 3); // set verbosity level to 3, as suggested in the documentation
-    }
-
-    libusb_device **devs; //pointer to pointer of device, used to retrieve a list of devices
-    ssize_t cnt = libusb_get_device_list(ctx, &devs); //get the list of devices
-    if(cnt < 0)
-        std::cout << "Get Device Error" << endl;
-
-    // iterate over each found USB device
-    for(ssize_t i = 0; i < cnt; i++)
-    {
-        // get device descriptor first!
-        libusb_device_descriptor desc;
-        int r = libusb_get_device_descriptor(devs[i], &desc);
-        if (r < 0)
-            error("failed to get device descriptor");
-
-        // decode vendorID and productID
-        std::vector<std::string> names = USBidToName(desc.idVendor, desc.idProduct);
-
-        std::string pID = names[1];
-        boost::algorithm::to_lower(pID);
-        boost::algorithm::to_lower(productID);
-        if( productID != "" && pID.find(productID) == std::string::npos )
-            continue;
-
-        // decode class name
-        std::string className = "?";
-        auto res = USBclass.find(desc.bDeviceClass);
-        if(res != USBclass.end())
-            className = res->second;
-
-        printf("Device %d connected to Port %d of Bus %d with Speed %d (%s) \n",
-                libusb_get_device_address(devs[i]),
-                libusb_get_port_number(devs[i]),
-                libusb_get_bus_number(devs[i]),
-                libusb_get_device_speed(devs[i]), USBspeed(libusb_get_device_speed(devs[i])).c_str() );
-
-        printf("    Device Descriptor --> ");
-        // in windows, The USB driver stack uses bcdDevice, along with idVendor and idProduct, to generate hardware and compatible IDs for the device.
-        // You can view the those identifiers in Device Manager.
-        printf("VendorID: %04x (%s), ProductID: %04x (%s), Release Number: %u \n", desc.idVendor, names[0].c_str(), desc.idProduct, names[1].c_str(), desc.bcdDevice);
-        printf("                          Device Class: %x (%s), Device Subclass: %x \n", desc.bDeviceClass, className.c_str(), desc.bDeviceSubClass);
-        printf("                          Manufacturer: %u, Product: %u, Serial: %u \n", desc.iManufacturer, desc.iProduct, desc.iSerialNumber);
-        printf("                          USB Version: %s \n", USBversion(desc.bcdUSB).c_str());
-
-        if(listUSBdevicesDetailed)
-        {
-            printf("    Configuration Descriptor (#%-2u) --> \n", desc.bNumConfigurations);
-            printConfDesc(devs[i]);
-        }
-
-        printf("\n");
-    }
-
-    std::cout.flush();
-
-    libusb_free_device_list(devs, 1); //free the list, unref the devices in it
-}
-
-
-void SniffUSB::printConfDesc(libusb_device *dev)
-{
-    libusb_config_descriptor *config;
-    libusb_get_config_descriptor(dev, 0, &config);
-
-    const libusb_interface *inter;
-    const libusb_interface_descriptor *interdesc;
-    const libusb_endpoint_descriptor *epdesc;
-
-    printf("                          Interface Descriptor --> \n");
-
-    for(uint8_t i=0; i<config->bNumInterfaces; i++)
-    {
-        inter = &config->interface[i];
-        for(int j=0; j<inter->num_altsetting; j++)
-        {
-            interdesc = &inter->altsetting[j];
-
-            std::string className = "?";
-            auto res = USBclass.find(interdesc->bInterfaceClass);
-            if(res != USBclass.end())
-                className = res->second;
-
-            char interfacePath[64];
-            snprintf(interfacePath, sizeof(interfacePath), "%04x:%04x:%02x",
-                    libusb_get_bus_number(dev),
-                    libusb_get_device_address(dev),
-                    interdesc->bInterfaceNumber);
-            interfacePath[sizeof(interfacePath)-1] = '\0';
-
-            printf("                                      Interface %-2d --> Class: %x (%s), Subclass: %x, Path: %s \n",
-                    interdesc->bInterfaceNumber,
-                    interdesc->bInterfaceClass,
-                    className.c_str(),
-                    interdesc->bInterfaceSubClass,
-                    strdup(interfacePath));
-
-            printf("                                                End Points --> \n");
-
-            for(uint8_t k=0; k<interdesc->bNumEndpoints; k++)
-            {
-                epdesc = &interdesc->endpoint[k];
-                printf("                                                              Address: %-3x (%-16s), Attribute: %-3u (%s), Max Packet Size: %u \n",
-                        epdesc->bEndpointAddress, decodeEPAdd(epdesc->bEndpointAddress).c_str(),
-                        epdesc->bmAttributes, decodeEPAtt(epdesc->bmAttributes).c_str(),
-                        epdesc->wMaxPacketSize);
-            }
-        }
-
-        std::cout << std::endl;
-    }
-
-    libusb_free_config_descriptor(config);
 }
 
 

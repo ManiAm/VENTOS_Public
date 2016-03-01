@@ -171,7 +171,7 @@ void SniffBluetooth::getLocalDevs()
     }
 
     if(upCounter == 0)
-        std::cout << "** WARNING ** All BT devices are DOWN in this machine! \n\n";
+        std::cout << "** WARNING ** All BT devices are DOWN! \n\n";
 }
 
 

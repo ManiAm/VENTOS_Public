@@ -86,15 +86,12 @@ private:
     void executeFirstTimeStep();
     void executeEachTimestep();
 
-    void getUSBidsFromFile();
-
+    std::vector<std::string> USBidTostr(uint16_t, uint16_t);
+    std::string USBversionTostr(uint16_t version);
+    std::string USBspeedTostr(int speed);
     void printConfDesc(libusb_device *);
-
-    std::vector<std::string> USBidToName(uint16_t, uint16_t);
-    std::string USBversion(uint16_t version);
-    std::string USBspeed(int speed);
-    std::string decodeEPAdd(uint8_t add);
-    std::string decodeEPAtt(uint8_t att);
+    std::string EPAddTostr(uint8_t add);
+    std::string EPAttTostr(uint8_t att);
 
     void EnableHotPlug();
     static int hotplug_callback(libusb_context *ctx, libusb_device *dev, libusb_hotplug_event event, void *user_data);
@@ -125,8 +122,6 @@ private:
     int EPPacketSize;
 
     std::map< usb_vender, std::vector<usb_device> > USBids;
-    cMessage* USBevents;
-    cMessage* USBInterrupt;
     std::map<int, std::string> USBclass = {
             {0, "PER_INTERFACE"},
             {1, "AUDIO"},
@@ -149,6 +144,9 @@ private:
             {0xfe, "APPLICATION_SPEC"},
             {0xff, "VENDOR_SPEC"}
     };
+
+    cMessage* USBevents;
+    cMessage* USBInterrupt;
 };
 
 }
