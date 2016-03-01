@@ -26,6 +26,8 @@
 //
 
 #include <03_SniffBluetooth.h>
+#include <02_SniffUSB.h>
+
 #include <fstream>
 #include <boost/algorithm/string/trim.hpp>
 #include <sys/ioctl.h>
@@ -52,6 +54,14 @@ void SniffBluetooth::initialize(int stage)
 
         boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
         cached_BT_devices_filePATH = VENTOS_FullPath / "application/sniffing/cached_BT_devices";
+
+        // get BT chip on this machine
+        getBTchip();
+
+        // display local devices
+        getLocalDevs();
+
+        std::cout.flush();
     }
 }
 
@@ -82,9 +92,6 @@ void SniffBluetooth::executeEachTimestep()
     static bool wasExecuted = false;
     if (BTon && !wasExecuted)
     {
-        // display local devices
-        getLocalDevs();
-
         // cached BT devices from previous scans
         loadCachedDevices();
 
@@ -100,9 +107,21 @@ void SniffBluetooth::executeEachTimestep()
 }
 
 
+void SniffBluetooth::getBTchip()
+{
+    // get a pointer to the USB module
+    cModule *module = simulation.getSystemModule()->getSubmodule("sniffUSB");
+    SniffUSB *USBptr = static_cast<SniffUSB *>(module);
+    ASSERT(USBptr);
+
+    std::cout << std::endl << ">>> Bluetooth USB devices found on this machine: \n";
+    USBptr->getUSBdevices(false /*do not show Configuration Descriptor*/, "bluetooth");
+}
+
+
 void SniffBluetooth::getLocalDevs()
 {
-    std::cout << std::endl << ">>> Showing local Bluetooth devices: \n";
+    std::cout << std::endl << ">>> Local Bluetooth devices found on this machin: \n";
 
     /* Open HCI socket  */
     int ctl;

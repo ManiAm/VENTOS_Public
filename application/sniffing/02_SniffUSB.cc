@@ -28,7 +28,9 @@
 #include <02_SniffUSB.h>
 #include "TraCI_Commands.h"
 #include <fstream>
+
 #include <boost/tokenizer.hpp>
+#include <boost/algorithm/string.hpp>
 
 // un-defining ev!
 // why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header
@@ -52,26 +54,19 @@ void SniffUSB::initialize(int stage)
 {
     if(stage == 0)
     {
-        on = par("on").boolValue();
+        getUSBidsFromFile();
 
+        on = par("on").boolValue();
         if(!on)
             return;
 
         listUSBdevices = par("listUSBdevices").boolValue();
-        listUSBdevicesDetailed = par("listUSBdevicesDetailed").boolValue();
         hotPlug = par("hotPlug").boolValue();
 
         target_vendor_id = (uint16_t) par("target_vendor_id").longValue();
         target_product_id = (uint16_t) par("target_product_id").longValue();
         target_interfaceNumber = (uint16_t) par("target_interfaceNumber").longValue();
         target_interruptEP = (unsigned char) par("target_interruptEP").longValue();
-
-        // register signals
-        Signal_executeFirstTS = registerSignal("executeFirstTS");
-        simulation.getSystemModule()->subscribe("executeFirstTS", this);
-
-        Signal_executeEachTS = registerSignal("executeEachTS");
-        simulation.getSystemModule()->subscribe("executeEachTS", this);
 
         // start a libusb session
         int r = libusb_init(&ctx); // initialize a library session
@@ -80,13 +75,22 @@ void SniffUSB::initialize(int stage)
 
         libusb_set_debug(ctx, 3); // set verbosity level to 3, as suggested in the documentation
 
+        // register signals
+        Signal_executeFirstTS = registerSignal("executeFirstTS");
+        simulation.getSystemModule()->subscribe("executeFirstTS", this);
+
+        Signal_executeEachTS = registerSignal("executeEachTS");
+        simulation.getSystemModule()->subscribe("executeEachTS", this);
+
         USBevents = new cMessage("USBevents", KIND_TIMER);
         USBInterrupt = new cMessage("USBInterrupt", KIND_TIMER);
 
-        getUSBidsFromFile();
-
         if(listUSBdevices)
-            getUSBdevices();
+        {
+            std::cout << std::endl << ">>> USB devices found on this machine: \n";
+            bool detail = par("listUSBdevicesDetailed").boolValue();
+            getUSBdevices(detail, "");
+        }
     }
 }
 
@@ -408,21 +412,72 @@ std::string SniffUSB::decodeEPAtt(uint8_t attValue)
 }
 
 
-void SniffUSB::getUSBdevices()
+// listUSBdevicesDetailed: shows 'Configuration Descriptor' for each device
+// productID: looks only for this productID
+void SniffUSB::getUSBdevices(bool listUSBdevicesDetailed, std::string productID)
 {
     // make sure ctx is not NULL
     if(ctx == NULL)
-        error("No libusb session is established!");
+    {
+        // start a libusb session
+        int r = libusb_init(&ctx); // initialize a library session
+        if(r < 0)
+            error("failed to initialize libusb: %s\n", libusb_error_name(r));
+
+        libusb_set_debug(ctx, 3); // set verbosity level to 3, as suggested in the documentation
+    }
 
     libusb_device **devs; //pointer to pointer of device, used to retrieve a list of devices
     ssize_t cnt = libusb_get_device_list(ctx, &devs); //get the list of devices
     if(cnt < 0)
         std::cout << "Get Device Error" << endl;
 
-    std::cout << std::endl << cnt << " USB devices found on this machine: \n";
-
+    // iterate over each found USB device
     for(ssize_t i = 0; i < cnt; i++)
-        printdev(devs[i]); //print specs of this device
+    {
+        // get device descriptor first!
+        libusb_device_descriptor desc;
+        int r = libusb_get_device_descriptor(devs[i], &desc);
+        if (r < 0)
+            error("failed to get device descriptor");
+
+        // decode vendorID and productID
+        std::vector<std::string> names = USBidToName(desc.idVendor, desc.idProduct);
+
+        std::string pID = names[1];
+        boost::algorithm::to_lower(pID);
+        boost::algorithm::to_lower(productID);
+        if( productID != "" && pID.find(productID) == std::string::npos )
+            continue;
+
+        // decode class name
+        std::string className = "?";
+        auto res = USBclass.find(desc.bDeviceClass);
+        if(res != USBclass.end())
+            className = res->second;
+
+        printf("Device %d connected to Port %d of Bus %d with Speed %d (%s) \n",
+                libusb_get_device_address(devs[i]),
+                libusb_get_port_number(devs[i]),
+                libusb_get_bus_number(devs[i]),
+                libusb_get_device_speed(devs[i]), USBspeed(libusb_get_device_speed(devs[i])).c_str() );
+
+        printf("    Device Descriptor --> ");
+        // in windows, The USB driver stack uses bcdDevice, along with idVendor and idProduct, to generate hardware and compatible IDs for the device.
+        // You can view the those identifiers in Device Manager.
+        printf("VendorID: %04x (%s), ProductID: %04x (%s), Release Number: %u \n", desc.idVendor, names[0].c_str(), desc.idProduct, names[1].c_str(), desc.bcdDevice);
+        printf("                          Device Class: %x (%s), Device Subclass: %x \n", desc.bDeviceClass, className.c_str(), desc.bDeviceSubClass);
+        printf("                          Manufacturer: %u, Product: %u, Serial: %u \n", desc.iManufacturer, desc.iProduct, desc.iSerialNumber);
+        printf("                          USB Version: %s \n", USBversion(desc.bcdUSB).c_str());
+
+        if(listUSBdevicesDetailed)
+        {
+            printf("    Configuration Descriptor (#%-2u) --> \n", desc.bNumConfigurations);
+            printConfDesc(devs[i]);
+        }
+
+        printf("\n");
+    }
 
     std::cout.flush();
 
@@ -430,88 +485,59 @@ void SniffUSB::getUSBdevices()
 }
 
 
-void SniffUSB::printdev(libusb_device *dev)
+void SniffUSB::printConfDesc(libusb_device *dev)
 {
-    printf("\nDevice %d connected to Port %d of Bus %d with Speed %d (%s) \n",
-            libusb_get_device_address(dev),
-            libusb_get_port_number(dev),
-            libusb_get_bus_number(dev),
-            libusb_get_device_speed(dev), USBspeed(libusb_get_device_speed(dev)).c_str() );
+    libusb_config_descriptor *config;
+    libusb_get_config_descriptor(dev, 0, &config);
 
-    printf("    Device Descriptor --> ");
-    libusb_device_descriptor desc;
-    int r = libusb_get_device_descriptor(dev, &desc);
-    if (r < 0)
-        error("failed to get device descriptor");
+    const libusb_interface *inter;
+    const libusb_interface_descriptor *interdesc;
+    const libusb_endpoint_descriptor *epdesc;
 
-    std::vector<std::string> names = USBidToName(desc.idVendor, desc.idProduct);
-    std::string className = "?";
-    auto res = USBclass.find(desc.bDeviceClass);
-    if(res != USBclass.end())
-        className = res->second;
+    printf("                          Interface Descriptor --> \n");
 
-    // in windows, The USB driver stack uses bcdDevice, along with idVendor and idProduct, to generate hardware and compatible IDs for the device.
-    // You can view the those identifiers in Device Manager.
-    printf("VendorID: %04x (%s), ProductID: %04x (%s), Release Number: %u \n", desc.idVendor, names[0].c_str(), desc.idProduct, names[1].c_str(), desc.bcdDevice);
-    printf("                          Device Class: %x (%s), Device Subclass: %x \n", desc.bDeviceClass, className.c_str(), desc.bDeviceSubClass);
-    printf("                          Manufacturer: %u, Product: %u, Serial: %u \n", desc.iManufacturer, desc.iProduct, desc.iSerialNumber);
-    printf("                          USB Version: %s \n", USBversion(desc.bcdUSB).c_str());
-
-    if(listUSBdevicesDetailed)
+    for(uint8_t i=0; i<config->bNumInterfaces; i++)
     {
-        printf("    Configuration Descriptor (#%-2u) --> \n", desc.bNumConfigurations);
-        libusb_config_descriptor *config;
-        libusb_get_config_descriptor(dev, 0, &config);
-
-        const libusb_interface *inter;
-        const libusb_interface_descriptor *interdesc;
-        const libusb_endpoint_descriptor *epdesc;
-
-        printf("                          Interface Descriptor --> \n");
-
-        for(uint8_t i=0; i<config->bNumInterfaces; i++)
+        inter = &config->interface[i];
+        for(int j=0; j<inter->num_altsetting; j++)
         {
-            inter = &config->interface[i];
-            for(int j=0; j<inter->num_altsetting; j++)
+            interdesc = &inter->altsetting[j];
+
+            std::string className = "?";
+            auto res = USBclass.find(interdesc->bInterfaceClass);
+            if(res != USBclass.end())
+                className = res->second;
+
+            char interfacePath[64];
+            snprintf(interfacePath, sizeof(interfacePath), "%04x:%04x:%02x",
+                    libusb_get_bus_number(dev),
+                    libusb_get_device_address(dev),
+                    interdesc->bInterfaceNumber);
+            interfacePath[sizeof(interfacePath)-1] = '\0';
+
+            printf("                                      Interface %-2d --> Class: %x (%s), Subclass: %x, Path: %s \n",
+                    interdesc->bInterfaceNumber,
+                    interdesc->bInterfaceClass,
+                    className.c_str(),
+                    interdesc->bInterfaceSubClass,
+                    strdup(interfacePath));
+
+            printf("                                                End Points --> \n");
+
+            for(uint8_t k=0; k<interdesc->bNumEndpoints; k++)
             {
-                interdesc = &inter->altsetting[j];
-
-                std::string className = "?";
-                auto res = USBclass.find(interdesc->bInterfaceClass);
-                if(res != USBclass.end())
-                    className = res->second;
-
-                char interfacePath[64];
-                snprintf(interfacePath, sizeof(interfacePath), "%04x:%04x:%02x",
-                        libusb_get_bus_number(dev),
-                        libusb_get_device_address(dev),
-                        interdesc->bInterfaceNumber);
-                interfacePath[sizeof(interfacePath)-1] = '\0';
-
-                printf("                                      Interface %-2d --> Class: %x (%s), Subclass: %x, Path: %s \n",
-                        interdesc->bInterfaceNumber,
-                        interdesc->bInterfaceClass,
-                        className.c_str(),
-                        interdesc->bInterfaceSubClass,
-                        strdup(interfacePath));
-
-                printf("                                                End Points --> \n");
-
-                for(uint8_t k=0; k<interdesc->bNumEndpoints; k++)
-                {
-                    epdesc = &interdesc->endpoint[k];
-                    printf("                                                              Address: %-3x (%-16s), Attribute: %-3u (%s), Max Packet Size: %u \n",
-                            epdesc->bEndpointAddress, decodeEPAdd(epdesc->bEndpointAddress).c_str(),
-                            epdesc->bmAttributes, decodeEPAtt(epdesc->bmAttributes).c_str(),
-                            epdesc->wMaxPacketSize);
-                }
+                epdesc = &interdesc->endpoint[k];
+                printf("                                                              Address: %-3x (%-16s), Attribute: %-3u (%s), Max Packet Size: %u \n",
+                        epdesc->bEndpointAddress, decodeEPAdd(epdesc->bEndpointAddress).c_str(),
+                        epdesc->bmAttributes, decodeEPAtt(epdesc->bmAttributes).c_str(),
+                        epdesc->wMaxPacketSize);
             }
-
-            std::cout << std::endl;
         }
 
-        libusb_free_config_descriptor(config);
+        std::cout << std::endl;
     }
+
+    libusb_free_config_descriptor(config);
 }
 
 

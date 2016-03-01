@@ -49,6 +49,9 @@ void SniffEthernet::initialize(int stage)
 {
     if(stage == 0)
     {
+        getOUIFromFile();
+        getPortNumbersFromFile();
+
         on = par("on").boolValue();
 
         if(!on)
@@ -72,8 +75,6 @@ void SniffEthernet::initialize(int stage)
         captureEvent = new cMessage("captureEvent", KIND_TIMER);
 
         listInterfaces();
-        getOUIFromFile();
-        getPortNumbersFromFile();
     }
 }
 

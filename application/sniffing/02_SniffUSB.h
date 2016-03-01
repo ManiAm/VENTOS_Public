@@ -79,18 +79,22 @@ public:
     virtual void handleMessage(cMessage *);
     virtual void receiveSignal(cComponent *, simsignal_t, long);
 
+public:
+    void getUSBdevices(bool, std::string);
+
 private:
     void executeFirstTimeStep();
     void executeEachTimestep();
 
     void getUSBidsFromFile();
+
+    void printConfDesc(libusb_device *);
+
+    std::vector<std::string> USBidToName(uint16_t, uint16_t);
     std::string USBversion(uint16_t version);
     std::string USBspeed(int speed);
     std::string decodeEPAdd(uint8_t add);
     std::string decodeEPAtt(uint8_t att);
-    void getUSBdevices();
-    std::vector<std::string> USBidToName(uint16_t, uint16_t);
-    void printdev(libusb_device *dev);
 
     void EnableHotPlug();
     static int hotplug_callback(libusb_context *ctx, libusb_device *dev, libusb_hotplug_event event, void *user_data);
@@ -103,7 +107,6 @@ private:
     // NED variables
     bool on;
     bool listUSBdevices;
-    bool listUSBdevicesDetailed;
     bool hotPlug;
 
     // NED variables
@@ -116,7 +119,7 @@ private:
     simsignal_t Signal_executeFirstTS;
     simsignal_t Signal_executeEachTS;
 
-    libusb_context *ctx;  // a libusb session
+    libusb_context *ctx = NULL;  // a libusb session
     static libusb_device_handle *hotPlugHandle;
     libusb_device_handle *dev_handle;
     int EPPacketSize;

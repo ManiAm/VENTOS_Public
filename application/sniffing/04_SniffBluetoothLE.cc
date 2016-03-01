@@ -58,6 +58,14 @@ void SniffBluetoothLE::initialize(int stage)
 
         boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
         cached_LEBT_devices_filePATH = VENTOS_FullPath / "application/sniffing/cached_LEBT_devices";
+
+        // get BT chip on this machine
+        getBTchip();
+
+        // display local devices
+        getLocalDevs();
+
+        std::cout.flush();
     }
 }
 
@@ -91,9 +99,6 @@ void SniffBluetoothLE::executeEachTimestep()
     static bool wasExecuted = false;
     if (LEBTon && !wasExecuted)
     {
-        // display local devices
-        getLocalDevs();
-
         // cached LE BT devices from previous scans
         loadCachedDevices();
 

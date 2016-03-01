@@ -70,6 +70,14 @@ void AdvertiseBeacon::initialize(int stage)
         AltBeacon_beaconID = par("AltBeacon_beaconID").stringValue();
         AltBeacon_refRSSI = par("AltBeacon_refRSSI").stringValue();
         AltBeacon_MFGRSVD = par("AltBeacon_MFGRSVD").stringValue();
+
+        // get BT chip on this machine
+        getBTchip();
+
+        // display local devices
+        getLocalDevs();
+
+        std::cout.flush();
     }
 }
 
@@ -103,9 +111,6 @@ void AdvertiseBeacon::executeEachTimestep()
     static bool wasExecuted = false;
     if (advertisement && !wasExecuted)
     {
-        // display local devices
-        getLocalDevs();
-
         advertiseBeacon();
 
         wasExecuted = true;

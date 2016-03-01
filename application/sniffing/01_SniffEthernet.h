@@ -72,11 +72,13 @@ public:
     virtual void handleMessage(cMessage *);
     virtual void receiveSignal(cComponent *, simsignal_t, long);
 
+public:
+    void listInterfaces();
+
 private:
     void executeFirstTimeStep();
     void executeEachTimestep();
 
-    void listInterfaces();
     void getOUIFromFile();
     void getPortNumbersFromFile();
 

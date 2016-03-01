@@ -76,6 +76,7 @@ protected:
     void executeFirstTimeStep();
     void executeEachTimestep();
 
+    void getBTchip();
     void getLocalDevs();
     void print_dev_info(struct hci_dev_info *di);
 
