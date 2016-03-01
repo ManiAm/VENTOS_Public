@@ -10,9 +10,14 @@ simple AdvertiseBeacon extends SniffBluetoothLE
         bool advertisement = default(false);
         int beaconType;
         
-        string UUID;
-        string major;
-        string minor;
-        string TXpower;
+        string iBeacon_UUID;
+        string iBeacon_major;
+        string iBeacon_minor;
+        string iBeacon_TXpower;
+        
+        string AltBeacon_MFGID;
+        string AltBeacon_beaconID;
+        string AltBeacon_refRSSI;
+        string AltBeacon_MFGRSVD;
 }
 

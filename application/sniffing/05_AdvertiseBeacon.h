@@ -47,7 +47,8 @@ protected:
 private:
     void advertiseBeacon();
     void no_le_adv(int hdev);
-    void le_adv(int hdev, uint8_t type = -1);
+    void le_adv(int hdev, uint8_t type);
+    std::string generateBeacon();
 
 private:
     // NED variables
@@ -55,10 +56,16 @@ private:
     int beaconType;
 
     // iBeacon parameters
-    std::string UUID;
-    std::string major;
-    std::string minor;
-    std::string TXpower;
+    std::string iBeacon_UUID;
+    std::string iBeacon_major;
+    std::string iBeacon_minor;
+    std::string iBeacon_TXpower;
+
+    // AltBeacon parameters
+    std::string AltBeacon_MFGID;
+    std::string AltBeacon_beaconID;
+    std::string AltBeacon_refRSSI;
+    std::string AltBeacon_MFGRSVD;
 };
 
 }

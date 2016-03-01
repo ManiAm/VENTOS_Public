@@ -81,6 +81,7 @@ protected:
 
     void cmd_up(int hdev);
     void cmd_down(int hdev);
+    bool isDown(int hdev);
     const std::string currentDateTime();
 
 private:

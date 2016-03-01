@@ -30,17 +30,22 @@
 
 enum BeaconTypeEnum
 {
-    iBeaconType = 0,
-    AltBeaconType,
+    iBeacon_Type = 0,   // Apple
+    AltBeacon_Type,     // Radius Networks
+    EddystoneUID_type,  // Google
+    EddystoneURL_type,  // Google
+    SamsungType,
 };
 
-
+// iBeacon technology creates a small area of detection where customized notifications can
+// be sent to iBeacon-enabled apps on iPhone, iPad, iPod touch
+// or Android devices that support Bluetooth 4.0 technology.
 class iBeacon
 {
 public:
     // iBeacon Prefix (always fixed) = 02 01 1A 1A FF 4C 00 02 15
-    std::string adv_flags;
-    std::string adv_header;
+    std::string advFlags;
+    std::string advHeader;
     std::string companyId;
     std::string iBeaconType;
     std::string iBeaconLenght;
@@ -58,63 +63,63 @@ public:
     iBeacon(std::vector<std::string> str)
     {
         if(str.size() != 9)
-            throw cRuntimeError("Number of arguments should be 9");
+            throw cRuntimeError("Number of arguments in iBeacon should be 9");
 
         std::vector<std::string> tokens;
 
         tokens = cStringTokenizer(str[0].c_str()).asVector();
         if(tokens.size() == 3)
-            this->adv_flags = str[0];
+            this->advFlags = str[0];
         else
-            throw cRuntimeError("adv_flags length should be 3 bytes!");
+            throw cRuntimeError("advFlags should be 3 bytes!");
 
         tokens = cStringTokenizer(str[1].c_str()).asVector();
         if(tokens.size() == 2)
-            this->adv_header = str[1];
+            this->advHeader = str[1];
         else
-            throw cRuntimeError("adv_header length should be 2 bytes!");
+            throw cRuntimeError("advHeader should be 2 bytes!");
 
         tokens = cStringTokenizer(str[2].c_str()).asVector();
         if(tokens.size() == 2)
             this->companyId = str[2];
         else
-            throw cRuntimeError("companyId length should be 2 bytes!");
+            throw cRuntimeError("companyId should be 2 bytes!");
 
         tokens = cStringTokenizer(str[3].c_str()).asVector();
         if(tokens.size() == 1)
             this->iBeaconType = str[3];
         else
-            throw cRuntimeError("iBeaconType length should be 1 byte!");
+            throw cRuntimeError("iBeaconType should be 1 byte!");
 
         tokens = cStringTokenizer(str[4].c_str()).asVector();
         if(tokens.size() == 1)
             this->iBeaconLenght = str[4];
         else
-            throw cRuntimeError("iBeaconLenght length should be 1 byte!");
+            throw cRuntimeError("iBeaconLenght should be 1 byte!");
 
         tokens = cStringTokenizer(str[5].c_str()).asVector();
         if(tokens.size() == 16)
             this->UUID = str[5];
         else
-            throw cRuntimeError("UUID length should be 16 bytes!");
+            throw cRuntimeError("UUID should be 16 bytes!");
 
         tokens = cStringTokenizer(str[6].c_str()).asVector();
         if(tokens.size() == 2)
             this->majorNumber = str[6];
         else
-            throw cRuntimeError("majorNumber length should be 2 bytes!");
+            throw cRuntimeError("majorNumber should be 2 bytes!");
 
         tokens = cStringTokenizer(str[7].c_str()).asVector();
         if(tokens.size() == 2)
             this->minorNumber = str[7];
         else
-            throw cRuntimeError("minorNumber length should be 2 bytes!");
+            throw cRuntimeError("minorNumber should be 2 bytes!");
 
         tokens = cStringTokenizer(str[8].c_str()).asVector();
         if(tokens.size() == 1)
             this->TXpower = str[8];
         else
-            throw cRuntimeError("TXpower length should be 1 byte!");
+            throw cRuntimeError("TXpower should be 1 byte!");
 
         for(auto i : str)
             this->payload += (i + " ");
@@ -122,10 +127,101 @@ public:
 };
 
 
-// todo
+// Format: https://github.com/AltBeacon/spec
 class AltBeacon
+{
+public:
+    std::string adLength;
+    std::string adType;
+
+    std::string MFGID;
+    std::string beaconCode;
+    std::string beaconID;
+    std::string refRSSI;
+    std::string MFGRSVD;   // holds specific manufacturer information
+
+    // AltBeacon total size in bytes in "hex notation"
+    std::string size = "1c";
+    std::string payload = "";
+
+    AltBeacon(std::vector<std::string> str)
+    {
+        if(str.size() != 7)
+            throw cRuntimeError("Number of arguments in AltBeacon should be 7");
+
+        std::vector<std::string> tokens;
+
+        tokens = cStringTokenizer(str[0].c_str()).asVector();
+        if(tokens.size() == 1)
+            this->adLength = str[0];
+        else
+            throw cRuntimeError("adLength should be 1 byte!");
+
+        tokens = cStringTokenizer(str[1].c_str()).asVector();
+        if(tokens.size() == 1)
+            this->adType = str[1];
+        else
+            throw cRuntimeError("adType should be 1 byte!");
+
+        tokens = cStringTokenizer(str[2].c_str()).asVector();
+        if(tokens.size() == 2)
+            this->MFGID = str[2];
+        else
+            throw cRuntimeError("MFGID should be 2 bytes!");
+
+        tokens = cStringTokenizer(str[3].c_str()).asVector();
+        if(tokens.size() == 2)
+            this->beaconCode = str[3];
+        else
+            throw cRuntimeError("beaconCode should be 2 bytes!");
+
+        tokens = cStringTokenizer(str[4].c_str()).asVector();
+        if(tokens.size() == 20)
+            this->beaconID = str[4];
+        else
+            throw cRuntimeError("beaconID should be 20 bytes!");
+
+        tokens = cStringTokenizer(str[5].c_str()).asVector();
+        if(tokens.size() == 1)
+            this->refRSSI = str[5];
+        else
+            throw cRuntimeError("refRSSI should be 1 byte!");
+
+        tokens = cStringTokenizer(str[6].c_str()).asVector();
+        if(tokens.size() == 1)
+            this->MFGRSVD = str[6];
+        else
+            throw cRuntimeError("MFGRSVD should be 1 byte!");
+
+        for(auto i : str)
+            this->payload += (i + " ");
+    }
+};
+
+
+
+// Eddystone, an open Bluetooth® Smart beacon format from Google.
+// The Eddystone specification includes a number of broadcast frame types, including Eddystone-URL, the backbone of the Physical Web.
+
+// check here:
+// https://community.estimote.com/hc/en-us/articles/200868188-How-to-modify-UUID-Major-and-Minor-values-
+
+// todo
+class EddystoneUID
 {
 
 };
+
+
+// todo
+class EddystoneURL
+{
+
+};
+
+// others: google for ibeacon hardware
+// Estimote, Gelo (pronounced JEE-low), Swirl, Beaconic and Datzing.
+// https://kstechnologies.com/shop/particle/
+
 
 #endif

@@ -412,6 +412,7 @@ std::string SniffBluetoothLE::parse_name(uint8_t* data, size_t size)
 }
 
 
+// check this: http://stackoverflow.com/questions/16224561/multiple-ble-connections-using-linux-and-bluez-5-0
 uint16_t SniffBluetoothLE::leCreateConnection(std::string str_bdaddr)
 {
     int dev_id = hci_get_route(NULL);

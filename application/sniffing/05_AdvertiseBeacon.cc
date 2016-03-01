@@ -59,11 +59,17 @@ void AdvertiseBeacon::initialize(int stage)
 
         beaconType = par("beaconType").longValue();
 
-        // iBeacon parameter
-        UUID = par("UUID").stringValue();
-        major = par("major").stringValue();
-        minor = par("minor").stringValue();
-        TXpower = par("TXpower").stringValue();
+        // iBeacon parameters
+        iBeacon_UUID = par("iBeacon_UUID").stringValue();
+        iBeacon_major = par("iBeacon_major").stringValue();
+        iBeacon_minor = par("iBeacon_minor").stringValue();
+        iBeacon_TXpower = par("iBeacon_TXpower").stringValue();
+
+        // AltBeacon parameters
+        AltBeacon_MFGID = par("AltBeacon_MFGID").stringValue();
+        AltBeacon_beaconID = par("AltBeacon_beaconID").stringValue();
+        AltBeacon_refRSSI = par("AltBeacon_refRSSI").stringValue();
+        AltBeacon_MFGRSVD = par("AltBeacon_MFGRSVD").stringValue();
     }
 }
 
@@ -119,34 +125,8 @@ void AdvertiseBeacon:: advertiseBeacon()
     // then, enable LE advertising
     le_adv(dev_id, ADV_NONCONN_IND);
 
-    std::vector<std::string> params;  // stores beacon parameters
-    std::string payload = "";         // contains beacon payload as a single string
-
-    if(beaconType == iBeaconType)
-    {
-        params.push_back("02 01 1a");  // adv flags
-        params.push_back("1a ff");     // adv header
-        params.push_back("4c 00");     // company id
-        params.push_back("02");        // iBeacon type
-        params.push_back("15");        // iBeacon length
-        params.push_back(UUID);
-        params.push_back(major);
-        params.push_back(minor);
-        params.push_back(TXpower);
-
-        // generate an iBeacon message
-        iBeacon *msg = new iBeacon(params);
-
-        // pre-pending number of significant data octets (max of 31)
-        payload = msg->size + " " + msg->payload;
-    }
-    // todo
-    else if(beaconType == AltBeaconType)
-    {
-
-    }
-    else
-        error("beaconType %d is not valid!", beaconType);
+    // generate BLE advertising PDU
+    std::string payload = generateBeacon();
 
     // ogf = 0x08:  Bluetooth Command Group
     // ocf = 0x008: 'LE Set Advertising Data' command
@@ -208,7 +188,7 @@ void AdvertiseBeacon::le_adv(int hdev, uint8_t type)
     memset(&adv_params_cp, 0, sizeof(adv_params_cp));
     adv_params_cp.min_interval = htobs(0x0800);
     adv_params_cp.max_interval = htobs(0x0800);
-    if (type != -1) adv_params_cp.advtype = type;
+    adv_params_cp.advtype = type;
     adv_params_cp.chan_map = 7;  // all channels are enabled, check page 966 of BT spec 4.1
 
     uint8_t status;
@@ -253,5 +233,85 @@ void AdvertiseBeacon::le_adv(int hdev, uint8_t type)
     if (status)
         printf("LE set advertise enable on hci%d returned status %d \n", hdev, status);
 }
+
+
+std::string AdvertiseBeacon::generateBeacon()
+{
+    std::vector<std::string> params;  // stores beacon parameters
+    std::string payload = "";         // contains beacon payload as a single string
+
+    // iBeacon format: http://stackoverflow.com/questions/18906988/what-is-the-ibeacon-bluetooth-profile
+    if(beaconType == iBeacon_Type)
+    {
+        /* ADV flags:
+           02 # Number of bytes that follow in first AD structure
+           01 # Flags AD type
+           1A # Flags value 0x1A = 000011010
+               bit 0 (OFF) LE Limited Discoverable Mode
+               bit 1 (ON) LE General Discoverable Mode
+               bit 2 (OFF) BR/EDR Not Supported
+               bit 3 (ON) Simultaneous LE and BR/EDR to Same Device Capable (controller)
+               bit 4 (ON) Simultaneous LE and BR/EDR to Same Device Capable (Host)
+         */
+        params.push_back("02 01 1a");
+
+        /* ADV header:
+           1A # Number of bytes that follow in second (and last) AD structure
+           FF # Manufacturer specific data AD type
+         */
+        params.push_back("1a ff");
+
+        // Company identifier code (https://www.bluetooth.com/specifications/assigned-numbers/company-Identifiers)
+        // 0x004C == Apple
+        // 0x0059 == Nordic Semi.
+        // 0x0078 == Nike
+        // 0x015D == Estimote
+        // 0x0171 == Amazon Fulfillment Service
+        params.push_back("4c 00");
+
+        // iBeacon advertisement indicator
+        params.push_back("02");  // Byte 0 (iBeacon type)
+        params.push_back("15");  // Byte 1 (iBeacon length)
+
+        params.push_back(iBeacon_UUID);
+        params.push_back(iBeacon_major);
+        params.push_back(iBeacon_minor);
+
+        // The 2's complement of the calibrated Tx Power
+        // More on transmission power here: https://github.com/AltBeacon/altbeacon-transmitter-android
+        params.push_back(iBeacon_TXpower);
+
+        // generate an iBeacon message
+        iBeacon *msg = new iBeacon(params);
+
+        // pre-pending number of significant data octets (max of 31)
+        payload = msg->size + " " + msg->payload;
+    }
+    else if(beaconType == AltBeacon_Type)
+    {
+        // AD length
+        params.push_back("1b");
+
+        // AD type
+        params.push_back("ff");
+
+        params.push_back(AltBeacon_MFGID);
+        params.push_back("be ac");  // beacon code should be 0xBEAC
+        params.push_back(AltBeacon_beaconID);
+        params.push_back("AltBeacon_refRSSI");
+        params.push_back(AltBeacon_MFGRSVD);
+
+        // generate an AltBeacon message
+        AltBeacon *msg = new AltBeacon(params);
+
+        // pre-pending number of significant data octets
+        payload = msg->size + " " + msg->payload;
+    }
+    else
+        error("beaconType %d is not valid!", beaconType);
+
+    return payload;
+}
+
 
 }
