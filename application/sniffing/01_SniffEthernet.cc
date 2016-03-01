@@ -49,11 +49,7 @@ void SniffEthernet::initialize(int stage)
 {
     if(stage == 0)
     {
-        getOUIFromFile();
-        getPortNumbersFromFile();
-
         on = par("on").boolValue();
-
         if(!on)
             return;
 
@@ -178,7 +174,7 @@ void SniffEthernet::executeEachTimestep()
 
 void SniffEthernet::listInterfaces()
 {
-    std::cout << std::endl << "List of all interfaces on this machine: " << std::endl;
+    std::cout << std::endl << ">>> List of all interfaces on this machine: " << std::endl;
 
     char errbuf[PCAP_ERRBUF_SIZE];
     pcap_if_t *alldevs;
@@ -197,7 +193,7 @@ void SniffEthernet::listInterfaces()
             {
                 uint32_t netAdd = ( (struct sockaddr_in *)(dev_addr->addr) )->sin_addr.s_addr;
                 uint32_t netMask = ( (struct sockaddr_in *)(dev_addr->netmask) )->sin_addr.s_addr;
-                printf("Address: %-16s  NetMask: %-16s", formatIPaddress(netAdd).c_str(), formatIPaddress(netMask).c_str());
+                printf("Address: %-16s  NetMask: %-16s", IPaddrTostr(netAdd).c_str(), IPaddrTostr(netMask).c_str());
 
                 // add interface information
                 devDesc *des = new devDesc(netAdd, netMask);
@@ -221,95 +217,34 @@ void SniffEthernet::listInterfaces()
 }
 
 
-void SniffEthernet::getOUIFromFile()
-{
-    // OUI is downloaded from https://www.wireshark.org/tools/oui-lookup.html
-    boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-    boost::filesystem::path manuf_FullPath = VENTOS_FullPath / "application/sniffing/sniff_manuf";
-
-    std::ifstream in(manuf_FullPath.string().c_str());
-    if(in.fail())
-        error("cannot open file sniff_manuf at %s", manuf_FullPath.string().c_str());
-
-    std::string line;
-    while(getline(in, line))
-    {
-        std::vector<std::string> lineToken = cStringTokenizer(line.c_str()).asVector();
-
-        if(lineToken.size() < 2)
-            continue;
-
-        auto it = OUI.find(lineToken[0]);
-        if(it == OUI.end())
-            OUI[lineToken[0]] = lineToken[1];
-    }
-}
-
-
-void SniffEthernet::getPortNumbersFromFile()
-{
-    // services files in Linux is in /etc/services
-    boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-    boost::filesystem::path services_FullPath = VENTOS_FullPath / "application/sniffing/sniff_services";
-    std::ifstream in(services_FullPath.string().c_str());
-    if(in.fail())
-        error("cannot open file sniff_services at %s", services_FullPath.string().c_str());
-
-    std::string line;
-    while(getline(in, line))
-    {
-        std::vector<std::string> lineToken = cStringTokenizer(line.c_str()).asVector();
-
-        if(lineToken.size() < 2)
-            continue;
-
-        std::vector<std::string> port_prot = cStringTokenizer(lineToken[1].c_str(), "/").asVector();
-
-        if(port_prot.size() != 2)
-            continue;
-
-        try
-        {
-            auto it = portNumber.find(std::stoi(port_prot[0]));
-            if(it == portNumber.end())
-                portNumber[std::stoi(port_prot[0])] = lineToken[0];
-        }
-        catch(std::exception e)
-        {
-            // do nothing!
-        }
-    }
-}
-
-
-std::string SniffEthernet::formatMACaddress(const unsigned char MACData[])
+std::string SniffEthernet::MACaddrTostr(const unsigned char MACaddr[])
 {
     boost::format fmt("%02X:%02X:%02X:%02X:%02X:%02X");
 
     for (int i = 0; i != 6; ++i)
-        fmt % static_cast<unsigned int>(MACData[i]);
+        fmt % static_cast<unsigned int>(MACaddr[i]);
 
     return fmt.str();
 }
 
 
 // u_int8_t arp_spa[4];
-std::string SniffEthernet::formatIPaddressMAC(const unsigned char addr[])
+std::string SniffEthernet::IPaddrTostr(const unsigned char IPaddr[])
 {
     boost::format fmt("%u.%u.%u.%u");
 
     for(int i = 0; i < 4; ++i)
-        fmt % static_cast<unsigned int>(addr[i]);
+        fmt % static_cast<unsigned int>(IPaddr[i]);
 
     return fmt.str();
 }
 
 
 // u_int32_t saddr
-std::string SniffEthernet::formatIPaddress(uint32_t addr)
+std::string SniffEthernet::IPaddrTostr(uint32_t IPaddr)
 {
     in_addr srcAdd;
-    srcAdd.s_addr = addr;
+    srcAdd.s_addr = IPaddr;
 
     return inet_ntoa(srcAdd);
 
@@ -325,13 +260,82 @@ std::string SniffEthernet::formatIPaddress(uint32_t addr)
 }
 
 
-std::string SniffEthernet::MACtoOUI(const unsigned char MACData[])
+std::string SniffEthernet::serverPortTostr(int port)
 {
+    if(portNumber.empty())
+    {
+        // services files in Linux is in /etc/services
+        boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+        boost::filesystem::path services_FullPath = VENTOS_FullPath / "application/sniffing/DB_transportLayerServerPorts";
+        std::ifstream in(services_FullPath.string().c_str());
+        if(in.fail())
+            error("cannot open file sniff_services at %s", services_FullPath.string().c_str());
+
+        std::string line;
+        while(getline(in, line))
+        {
+            std::vector<std::string> lineToken = cStringTokenizer(line.c_str()).asVector();
+
+            if(lineToken.size() < 2)
+                continue;
+
+            std::vector<std::string> port_prot = cStringTokenizer(lineToken[1].c_str(), "/").asVector();
+
+            if(port_prot.size() != 2)
+                continue;
+
+            try
+            {
+                auto it = portNumber.find(std::stoi(port_prot[0]));
+                if(it == portNumber.end())
+                    portNumber[std::stoi(port_prot[0])] = lineToken[0];
+            }
+            catch(std::exception e)
+            {
+                // do nothing!
+            }
+        }
+    }
+
+    auto it = portNumber.find(port);
+
+    if(it != portNumber.end())
+        return it->second;
+    else return "?";
+}
+
+
+std::string SniffEthernet::OUITostr(const unsigned char MACaddr[])
+{
+    if(OUI.empty())
+    {
+        // OUI is downloaded from https://www.wireshark.org/tools/oui-lookup.html
+        boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+        boost::filesystem::path manuf_FullPath = VENTOS_FullPath / "application/sniffing/DB_OUI";
+
+        std::ifstream in(manuf_FullPath.string().c_str());
+        if(in.fail())
+            error("cannot open file sniff_manuf at %s", manuf_FullPath.string().c_str());
+
+        std::string line;
+        while(getline(in, line))
+        {
+            std::vector<std::string> lineToken = cStringTokenizer(line.c_str()).asVector();
+
+            if(lineToken.size() < 2)
+                continue;
+
+            auto it = OUI.find(lineToken[0]);
+            if(it == OUI.end())
+                OUI[lineToken[0]] = lineToken[1];
+        }
+    }
+
     // get the first three octet
     boost::format fmt("%02X:%02X:%02X");
 
     for (int i = 0; i != 3; ++i)
-        fmt % static_cast<unsigned int>(MACData[i]);
+        fmt % static_cast<unsigned int>(MACaddr[i]);
 
     auto it = OUI.find(fmt.str());
     if(it != OUI.end())
@@ -341,20 +345,9 @@ std::string SniffEthernet::MACtoOUI(const unsigned char MACData[])
 }
 
 
-std::string SniffEthernet::portToApplication(int port)
-{
-    auto it = portNumber.find(port);
-
-    if(it != portNumber.end())
-        return it->second;
-    else return "?";
-}
-
-
+// very useful information: http://pcap.man.potaroo.net/
 void SniffEthernet::startSniffing()
 {
-    // very useful information: http://pcap.man.potaroo.net/
-
     // check if interface is valid!
     auto iterfacePtr = allDev.find(interface);
     if(iterfacePtr == allDev.end())
@@ -385,7 +378,7 @@ void SniffEthernet::startSniffing()
        sensitive live captures. */
     //status = pcap_set_immediate_mode(pcap_handle, 1);  // todo: not supported on Ubuntu 12.04
     //if (status < 0)
-        //error("pcap_set_immediate_mode failed!");
+    //error("pcap_set_immediate_mode failed!");
 
     // time to wait for packets in miliseconds before read times out
     status = pcap_set_timeout(pcap_handle, 1);
@@ -442,8 +435,8 @@ void SniffEthernet::got_packet(const struct pcap_pkthdr *header, const u_char *p
     {
         if(printCaptured)
         {
-            printf("Src MAC: %s (%s), ", formatMACaddress(p->ether_shost).c_str(), MACtoOUI(p->ether_shost).c_str());
-            printf("Dst MAC: %s (%s), ", formatMACaddress(p->ether_dhost).c_str(), MACtoOUI(p->ether_dhost).c_str());
+            printf("Src MAC: %s (%s), ", MACaddrTostr(p->ether_shost).c_str(), OUITostr(p->ether_shost).c_str());
+            printf("Dst MAC: %s (%s), ", MACaddrTostr(p->ether_dhost).c_str(), OUITostr(p->ether_dhost).c_str());
             printf("Type: ETHERTYPE_ARP \n");
         }
 
@@ -453,8 +446,8 @@ void SniffEthernet::got_packet(const struct pcap_pkthdr *header, const u_char *p
     {
         if(printCaptured)
         {
-            printf("Src MAC: %s (%s), ", formatMACaddress(p->ether_shost).c_str(), MACtoOUI(p->ether_shost).c_str());
-            printf("Dst MAC: %s (%s), ", formatMACaddress(p->ether_dhost).c_str(), MACtoOUI(p->ether_dhost).c_str());
+            printf("Src MAC: %s (%s), ", MACaddrTostr(p->ether_shost).c_str(), OUITostr(p->ether_shost).c_str());
+            printf("Dst MAC: %s (%s), ", MACaddrTostr(p->ether_dhost).c_str(), OUITostr(p->ether_dhost).c_str());
             printf("Type: ETHERTYPE_IP \n");
         }
 
@@ -464,8 +457,8 @@ void SniffEthernet::got_packet(const struct pcap_pkthdr *header, const u_char *p
     {
         if(printCaptured)
         {
-            printf("Src MAC: %s (%s), ", formatMACaddress(p->ether_shost).c_str(), MACtoOUI(p->ether_shost).c_str());
-            printf("Dst MAC: %s (%s), ", formatMACaddress(p->ether_dhost).c_str(), MACtoOUI(p->ether_dhost).c_str());
+            printf("Src MAC: %s (%s), ", MACaddrTostr(p->ether_shost).c_str(), OUITostr(p->ether_shost).c_str());
+            printf("Dst MAC: %s (%s), ", MACaddrTostr(p->ether_dhost).c_str(), OUITostr(p->ether_dhost).c_str());
             printf("Type: ETHERTYPE_IPV6 \n");
         }
 
@@ -496,11 +489,11 @@ void SniffEthernet::processARP(const u_char *packet)
 
         // print payload information
         printf("                    ");
-        printf("SenderHrwAdd: %s, ", formatMACaddress(arp->arp_sha).c_str());
-        printf("SenderProtAdd: %s \n", formatIPaddressMAC(arp->arp_spa).c_str());
+        printf("SenderHrwAdd: %s, ", MACaddrTostr(arp->arp_sha).c_str());
+        printf("SenderProtAdd: %s \n", IPaddrTostr(arp->arp_spa).c_str());
         printf("                    ");
-        printf("TargetHrwAdd: %s, ", formatMACaddress(arp->arp_tha).c_str());
-        printf("TargetProtAdd: %s", formatIPaddressMAC(arp->arp_tpa).c_str());
+        printf("TargetHrwAdd: %s, ", MACaddrTostr(arp->arp_tha).c_str());
+        printf("TargetProtAdd: %s", IPaddrTostr(arp->arp_tpa).c_str());
     }
 }
 
@@ -529,8 +522,8 @@ void SniffEthernet::processIPv4(const u_char *packet)
         /* print source and destination IP addresses */
         uint32_t sAdd = ( (struct in_addr)(ip_packet->ip_src) ).s_addr;
         uint32_t dAdd = ( (struct in_addr)(ip_packet->ip_dst) ).s_addr;
-        printf("From: %s, ", formatIPaddress(sAdd).c_str());
-        printf("To: %s, ", formatIPaddress(dAdd).c_str());
+        printf("From: %s, ", IPaddrTostr(sAdd).c_str());
+        printf("To: %s, ", IPaddrTostr(dAdd).c_str());
     }
 
     /* determine protocol */
@@ -559,15 +552,14 @@ void SniffEthernet::processIPv6(const u_char *packet)
 {
     // const struct ip6_hdr *ipv6 = (struct ip6_hdr*)(packet + ETHER_HDR_LEN);
 
-//    if(ip_packet->version != 4)
-//    {
-//        printf("    Invalid IPv6 version number: %u ", ip_packet->version);
-//        return;
-//    }
+    //    if(ip_packet->version != 4)
+    //    {
+    //        printf("    Invalid IPv6 version number: %u ", ip_packet->version);
+    //        return;
+    //    }
 
 
     // IPv6 header is always 40 bytes long
-
 }
 
 
@@ -588,8 +580,8 @@ void SniffEthernet::processTCP(const u_char *packet, const struct ip *ip_packet)
     {
         printf("\n        TCP segment --> ");
 
-        printf("Src port: %d (%s), ", ntohs(tcp->th_sport), portToApplication(ntohs(tcp->th_sport)).c_str());
-        printf("Dst port: %d (%s), ", ntohs(tcp->th_dport), portToApplication(ntohs(tcp->th_dport)).c_str());
+        printf("Src port: %d (%s), ", ntohs(tcp->th_sport), serverPortTostr(ntohs(tcp->th_sport)).c_str());
+        printf("Dst port: %d (%s), ", ntohs(tcp->th_dport), serverPortTostr(ntohs(tcp->th_dport)).c_str());
     }
 
     /* compute tcp payload (segment) offset */
@@ -622,8 +614,8 @@ void SniffEthernet::processUDP(const u_char *packet, const struct ip *ip_packet)
     {
         printf("\n        UDP datagram --> ");
 
-        printf("Src port: %d (%s), ", ntohs(udp->uh_sport), portToApplication(ntohs(udp->uh_sport)).c_str());
-        printf("Dst port: %d (%s), ", ntohs(udp->uh_dport), portToApplication(ntohs(udp->uh_dport)).c_str());
+        printf("Src port: %d (%s), ", ntohs(udp->uh_sport), serverPortTostr(ntohs(udp->uh_sport)).c_str());
+        printf("Dst port: %d (%s), ", ntohs(udp->uh_dport), serverPortTostr(ntohs(udp->uh_dport)).c_str());
     }
 
     /* compute udp payload offset */

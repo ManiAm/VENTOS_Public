@@ -79,15 +79,11 @@ private:
     void executeFirstTimeStep();
     void executeEachTimestep();
 
-    void getOUIFromFile();
-    void getPortNumbersFromFile();
-
-    std::string formatMACaddress(const unsigned char MACData[]);
-    std::string formatIPaddressMAC(const unsigned char addr[]);
-    std::string formatIPaddress(uint32_t addr);
-
-    std::string MACtoOUI(const unsigned char MACData[]);
-    std::string portToApplication(int port);
+    std::string MACaddrTostr(const unsigned char MACData[]);
+    std::string IPaddrTostr(const unsigned char addr[]);
+    std::string IPaddrTostr(uint32_t addr);
+    std::string serverPortTostr(int port);
+    std::string OUITostr(const unsigned char MACData[]);
 
     void startSniffing();
     void got_packet(const struct pcap_pkthdr *header, const u_char *packet);
