@@ -144,6 +144,9 @@ void SniffBluetooth::getLocalDevs()
         error("Can't get device list");
     }
 
+    // how many devs are up?
+    unsigned int upCounter = 0;
+
     for (int i = 0; i< dl->dev_num; i++)
     {
         struct hci_dev_info di;
@@ -161,8 +164,14 @@ void SniffBluetooth::getLocalDevs()
         }
 
         if (di.dev_id != -1)
+        {
             print_dev_info(&di);
+            if(!isDown(di.dev_id)) upCounter++;
+        }
     }
+
+    if(upCounter == 0)
+        std::cout << "** WARNING ** All BT devices are DOWN in this machine! \n\n";
 }
 
 
