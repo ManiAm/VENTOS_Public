@@ -238,9 +238,7 @@ bool SniffBluetooth::isDown(int hdev)
     struct hci_dev_info di;
     di.dev_id = hdev;
 
-    char *str = hci_dflagstostr(di.flags);
-
-    if(std::string(str).find("DOWN") != std::string::npos)
+    if (!hci_test_bit(HCI_UP, &di.flags))
         return true;
     else
         return false;
