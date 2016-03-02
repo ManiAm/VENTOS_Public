@@ -87,7 +87,6 @@ protected:
     std::string cmd_class(int);
     std::string cmd_class(uint8_t dev_class[3]);
     std::string cmd_company(int);
-    std::string cmd_oui(bdaddr_t);
 
     void cmd_up(int hdev);
     void cmd_down(int hdev);

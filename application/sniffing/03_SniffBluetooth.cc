@@ -586,10 +586,10 @@ void SniffBluetooth::scan()
             std::string dev_class = cmd_class((ii+i)->dev_class);
             printf("    Device class: %s \n", dev_class.c_str());
 
-            std::string comp = cmd_oui((ii+i)->bdaddr);
-            char oui[9];
-            ba2oui(&(ii+i)->bdaddr, oui);
-            printf("    Manufacturer: %s (%s) \n\n", comp.c_str(), oui);  // todo
+            // show Manufacturer
+            const u_int8_t BTaddr[3] = {(&(ii+i)->bdaddr)->b[5], (&(ii+i)->bdaddr)->b[4], (&(ii+i)->bdaddr)->b[3]};
+            std::string OUI = EtherPtr->OUITostr(BTaddr);
+            printf("    Manufacturer: %s \n\n", OUI.c_str());
 
             // save device info
             std::string timeDate = currentDateTime();
@@ -632,13 +632,6 @@ const std::string SniffBluetooth::currentDateTime()
     strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct);
 
     return buf;
-}
-
-
-// todo:
-std::string SniffBluetooth::cmd_oui(bdaddr_t bdaddr)
-{
-    return "";
 }
 
 
