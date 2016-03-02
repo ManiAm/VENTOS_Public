@@ -105,7 +105,7 @@ void SniffBluetooth::executeEachTimestep()
 
 void SniffBluetooth::getLocalDevs()
 {
-    std::cout << std::endl << ">>> Local Bluetooth devices found on this machin: \n";
+    std::cout << std::endl << ">>> Local Bluetooth devices on this machin: \n";
 
     /* Open HCI socket  */
     int ctl;
@@ -128,6 +128,8 @@ void SniffBluetooth::getLocalDevs()
         error("Can't get device list");
     }
 
+    // count how many BT devices
+    unsigned int devCounter = 0;
     // count how many BT devices are UP ?
     unsigned int upCounter = 0;
 
@@ -149,12 +151,16 @@ void SniffBluetooth::getLocalDevs()
 
         if (di.dev_id != -1)
         {
+            devCounter++;
             print_dev_info(&di);
 
             if(!isDown(di.dev_id))
                 upCounter++;
         }
     }
+
+    if(devCounter == 0)
+        std::cout << "No devices found!" << std::endl;
 
     if(upCounter == 0)
         std::cout << "** WARNING ** All BT devices are DOWN! \n\n";

@@ -85,7 +85,7 @@ void SniffUSB::initialize(int stage)
 
         if(listUSBdevices)
         {
-            std::cout << std::endl << ">>> USB devices found on this machine: \n";
+            std::cout << std::endl << ">>> USB devices on this machine: \n";
             bool detail = par("listUSBdevicesDetailed").boolValue();
             getUSBdevices(detail);
         }
