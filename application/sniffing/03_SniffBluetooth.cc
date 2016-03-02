@@ -26,7 +26,6 @@
 //
 
 #include <03_SniffBluetooth.h>
-#include <02_SniffUSB.h>
 
 #include <fstream>
 #include <boost/algorithm/string/trim.hpp>
@@ -54,9 +53,6 @@ void SniffBluetooth::initialize(int stage)
 
         boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
         cached_BT_devices_filePATH = VENTOS_FullPath / "application/sniffing/cached_BT_devices";
-
-        // get BT chip on this machine
-        getBTchip();
 
         // display local devices
         getLocalDevs();
@@ -107,18 +103,6 @@ void SniffBluetooth::executeEachTimestep()
 }
 
 
-void SniffBluetooth::getBTchip()
-{
-    // get a pointer to the USB module
-    cModule *module = simulation.getSystemModule()->getSubmodule("sniffUSB");
-    SniffUSB *USBptr = static_cast<SniffUSB *>(module);
-    ASSERT(USBptr);
-
-    std::cout << std::endl << ">>> Bluetooth USB devices found on this machine: \n";
-    USBptr->getUSBdevices(false /*do not show Configuration Descriptor*/, "bluetooth");
-}
-
-
 void SniffBluetooth::getLocalDevs()
 {
     std::cout << std::endl << ">>> Local Bluetooth devices found on this machin: \n";
@@ -144,7 +128,7 @@ void SniffBluetooth::getLocalDevs()
         error("Can't get device list");
     }
 
-    // how many devs are up?
+    // count how many BT devices are UP ?
     unsigned int upCounter = 0;
 
     for (int i = 0; i< dl->dev_num; i++)
@@ -166,7 +150,9 @@ void SniffBluetooth::getLocalDevs()
         if (di.dev_id != -1)
         {
             print_dev_info(&di);
-            if(!isDown(di.dev_id)) upCounter++;
+
+            if(!isDown(di.dev_id))
+                upCounter++;
         }
     }
 
@@ -218,232 +204,79 @@ void SniffBluetooth::print_dev_info(struct hci_dev_info *di)
     else
         printf("No \n");
 
+    if (hci_test_bit(HCI_UP, &di->flags))
+    {
+        // get name
+        std::string name = cmd_name(di->dev_id);
+        printf("\tName: %s \n", name.c_str());
+
+        // get class
+        std::string dev_class = cmd_class(di->dev_id);
+        printf("\tDevice class: %s \n", dev_class.c_str());
+
+        // get manufacture
+        std::string version = cmd_company(di->dev_id);
+        printf("\tManufacturer: %s \n", version.c_str());
+    }
+
     printf("\n");
 }
 
 
-void SniffBluetooth::cmd_up(int hdev)
+std::string SniffBluetooth::cmd_name(int dev_id)
 {
-    /* Open HCI socket  */
-    int ctl;
-    if ((ctl = socket(AF_BLUETOOTH, SOCK_RAW, BTPROTO_HCI)) < 0)
-        error("Can't open HCI socket.");
+    // open device
+    int dd = hci_open_dev(dev_id);
+    if(dd < 0)
+        error("Can not open device!");
 
-    /* Start HCI device */
-    if (ioctl(ctl, HCIDEVUP, hdev) < 0)
+    char name[249];
+
+    if (hci_read_local_name(dd, sizeof(name), name, 1000) < 0)
+        error("Can't read local name: %s (%d)\n", strerror(errno), errno);
+
+    for (int i = 0; i < 248 && name[i]; i++)
     {
-        if (errno == EALREADY)
-        {
-            close(ctl);
-            return;
-        }
-
-        error("Can't init device hci%d: %s (%d) \n", hdev, strerror(errno), errno);
-    }
-}
-
-
-void SniffBluetooth::cmd_down(int hdev)
-{
-    /* Open HCI socket  */
-    int ctl;
-    if ((ctl = socket(AF_BLUETOOTH, SOCK_RAW, BTPROTO_HCI)) < 0)
-        error("Can't open HCI socket.");
-
-    /* Stop HCI device */
-    if (ioctl(ctl, HCIDEVDOWN, hdev) < 0)
-    {
-        close(ctl);
-        error("Can't down device hci%d: %s (%d) \n", hdev, strerror(errno), errno);
+        if ((unsigned char) name[i] < 32 || name[i] == 127)
+            name[i] = '.';
     }
 
-    close(ctl);
+    name[248] = '\0';
+
+    hci_close_dev(dd);
+
+    return std::string(name);
 }
 
 
-bool SniffBluetooth::isDown(int hdev)
+std::string SniffBluetooth::cmd_class(int dev_id)
 {
-    struct hci_dev_info di;
-    di.dev_id = hdev;
+    // open device
+    int dd = hci_open_dev(dev_id);
+    if(dd < 0)
+        error("Can not open device!");
 
-    if (!hci_test_bit(HCI_UP, &di.flags))
-        return true;
-    else
-        return false;
-}
+    // get device class
+    uint8_t cls[3];
+    if (hci_read_class_of_dev(dd, cls, 1000) < 0)
+        error("Can't read class of device on hci%d: %s (%d) \n", dev_id, strerror(errno), errno);
 
+    hci_close_dev(dd);
 
-void SniffBluetooth::loadCachedDevices()
-{
-    std::ifstream infile(cached_BT_devices_filePATH.string().c_str());
-    // no such file exists!
-    if(infile.fail())
-        return;
-
-    int counter = 0;
-    std::string line;
-    while (std::getline(infile, line))
-    {
-        std::vector<std::string> tokens = cStringTokenizer(line.c_str(), ",,").asVector();
-        if(tokens.size() < 3)
-            error("file format is not correct!");
-
-        std::string BTaddr = tokens[0] ;
-        std::string BTname = tokens[1];
-        std::string timeStamp = tokens[2];
-
-        // Remove leading and trailing spaces from string
-        boost::trim(BTaddr);
-        boost::trim(BTname);
-        boost::trim(timeStamp);
-
-        auto it = allBTdevices.find(BTaddr);
-        if(it == allBTdevices.end())
-        {
-            BTdevEntry *v = new BTdevEntry(BTname, timeStamp);
-            allBTdevices.insert(std::make_pair(BTaddr, *v));
-        }
-
-        counter++;
-    }
-
-    std::cout << ">>> " << counter << " cached BT devices read from file.";
-}
-
-
-void SniffBluetooth::saveCachedDevices()
-{
-    if(allBTdevices.empty())
-        return;
-
-    FILE *filePtr = fopen (cached_BT_devices_filePATH.string().c_str(), "w");
-    if(!filePtr)
-        error("can not open file for writing!");
-
-    for(auto &i : allBTdevices)
-        fprintf (filePtr, "%s  ,,  %s  ,,  %s \n", i.first.c_str(), i.second.name.c_str(), i.second.timeStamp.c_str());
-
-    fclose(filePtr);
-}
-
-
-// scanNearbyDevices
-void SniffBluetooth::scan()
-{
-    int dev_id = hci_get_route(NULL);  // get the first available Bluetooth adapter
-    if(dev_id < 0)
-        error("Device is not available");
-
-    int sock = hci_open_dev(dev_id);
-    if (sock < 0)
-        error("HCI device open failed");
-
-    int len  = 8;       // inquiry lasts for at most 1.28 * len seconds (= 10.24 seconds)
-    int max_rsp = 255;  // at most max_rsp devices will be returned
-    int flags = IREQ_CACHE_FLUSH; // the cache of previously detected devices is flushed before performing the current inquiry
-    inquiry_info *ii = (inquiry_info*)malloc(max_rsp * sizeof(inquiry_info));
-
-    std::cout << std::endl << ">>> Scan for Bluetooth devices... " << std::flush;
-    // num_rsp contains the number of discovered devices
-    // ii contains the discovered devices info
-    int num_rsp = hci_inquiry(dev_id, len, max_rsp, NULL, &ii, flags);
-
-    if(num_rsp < 0)
-    {
-        error("Inquiry failed");
-    }
-    else if(num_rsp == 0)
-    {
-        std::cout << "Done!" << std::endl;
-        std::cout << "No devices found!" << std::endl;
-    }
-    else if(num_rsp > 0)
-    {
-        std::cout << "Done!" << std::endl;
-        std::cout << num_rsp << " devices found: " << std::endl;
-
-        char addr[19] = { 0 };
-        char name[248] = { 0 };
-        for (int i = 0; i < num_rsp; i++)
-        {
-            // get user-friendly name associated with this device
-            memset(name, 0, sizeof(name));
-            int ret = hci_read_remote_name(sock, &(ii+i)->bdaddr, sizeof(name), name, 0 /*timeout milliseconds*/);
-            // on failure
-            if (ret < 0) strcpy(name, "[unknown]");
-            printf("    name: %s \n", name);
-
-            // get device address
-            ba2str(&(ii+i)->bdaddr, addr);
-            printf("    address: %s [mode %d, clkoffset 0x%4.4x] \n", addr, (ii+i)->pscan_rep_mode, btohs((ii+i)->clock_offset));
-
-            std::string comp = companyInfo((ii+i)->bdaddr);
-            char oui[9];
-            ba2oui(&(ii+i)->bdaddr, oui);
-            printf("    OUI company: %s (%s) \n", comp.c_str(), oui);
-
-            // get device class
-            std::string dev_class = classInfo((ii+i)->dev_class);
-            printf("    device_class: %s \n\n", dev_class.c_str());
-
-            // save device info
-            std::string timeDate = currentDateTime();
-            auto it = allBTdevices.find(std::string(addr));
-            // new BT device
-            if(it == allBTdevices.end())
-            {
-                BTdevEntry *v = new BTdevEntry(std::string(name), timeDate);
-                allBTdevices.insert( std::make_pair(std::string(addr), *v) );
-            }
-            // if BT address already exists, then only update name and timestamp
-            else
-            {
-                it->second.name = std::string(name);
-                it->second.timeStamp = timeDate;
-            }
-        }
-    }
-
-    saveCachedDevices();
-
-    free(ii);
-    close(sock);
-}
-
-
-// Get current date/time, format is YYYY-MM-DD.HH:mm:ss
-const std::string SniffBluetooth::currentDateTime()
-{
-    time_t     now = time(0);
-    struct tm  tstruct;
-    char       buf[80];
-    tstruct = *localtime(&now);
-
-    // Visit http://en.cppreference.com/w/cpp/chrono/c/strftime
-    // for more information about date/time format
-    strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct);
-
-    return buf;
-}
-
-
-// todo:
-std::string SniffBluetooth::companyInfo(bdaddr_t bdaddr)
-{
-    return "";
+    return classTostr(cls);
 }
 
 
 // Decode device class
 // from https://www.bluetooth.com/specifications/assigned-numbers/baseband
-std::string SniffBluetooth::classInfo(uint8_t dev_class[3])
+std::string SniffBluetooth::classTostr(uint8_t dev_class[3])
 {
-    std::ostringstream os;
-    os.str("");
-
     int flags = dev_class[2];
     int majorNum = dev_class[1];
     int minorNum = dev_class[0] >> 2;
+
+    std::ostringstream os;
+    os.str("");
 
     os << "[ ";
     if (flags & 0x1)  os << "Positioning ";
@@ -541,6 +374,250 @@ std::string SniffBluetooth::classInfo(uint8_t dev_class[3])
 }
 
 
+std::string SniffBluetooth::cmd_company(int dev_id)
+{
+    // open device
+    int dd = hci_open_dev(dev_id);
+    if(dd < 0)
+        error("Can not open device!");
+
+    struct hci_version ver;
+    if (hci_read_local_version(dd, &ver, 1000) < 0)
+        error("Can't read version info: %s (%d) \n", strerror(errno), errno);
+
+    char buffer[200];
+    sprintf (buffer, "%s (%d)", bt_compidtostr(ver.manufacturer), ver.manufacturer);
+
+    hci_close_dev(dd);
+
+    return buffer;
+}
+
+
+void SniffBluetooth::cmd_up(int hdev)
+{
+    /* Open HCI socket  */
+    int ctl;
+    if ((ctl = socket(AF_BLUETOOTH, SOCK_RAW, BTPROTO_HCI)) < 0)
+        error("Can't open HCI socket.");
+
+    /* Start HCI device */
+    if (ioctl(ctl, HCIDEVUP, hdev) < 0)
+    {
+        if (errno == EALREADY)
+        {
+            close(ctl);
+            return;
+        }
+
+        error("Can't init device hci%d: %s (%d) \n", hdev, strerror(errno), errno);
+    }
+}
+
+
+void SniffBluetooth::cmd_down(int hdev)
+{
+    /* Open HCI socket  */
+    int ctl;
+    if ((ctl = socket(AF_BLUETOOTH, SOCK_RAW, BTPROTO_HCI)) < 0)
+        error("Can't open HCI socket.");
+
+    /* Stop HCI device */
+    if (ioctl(ctl, HCIDEVDOWN, hdev) < 0)
+    {
+        close(ctl);
+        error("Can't down device hci%d: %s (%d) \n", hdev, strerror(errno), errno);
+    }
+
+    close(ctl);
+}
+
+
+bool SniffBluetooth::isDown(int hdev)
+{
+    int ctl;
+    if ((ctl = socket(AF_BLUETOOTH, SOCK_RAW, BTPROTO_HCI)) < 0)
+        error("Can't open HCI socket.");
+
+    struct hci_dev_info di;
+    di.dev_id = hdev;
+
+    if (ioctl(ctl, HCIGETDEVINFO, (void *) &di) < 0)
+        error("can not get dev info!");
+
+    if (!hci_test_bit(HCI_UP, &di.flags))
+        return true;
+    else
+        return false;
+}
+
+
+void SniffBluetooth::loadCachedDevices()
+{
+    std::ifstream infile(cached_BT_devices_filePATH.string().c_str());
+    // no such file exists!
+    if(infile.fail())
+        return;
+
+    int counter = 0;
+    std::string line;
+    while (std::getline(infile, line))
+    {
+        std::vector<std::string> tokens = cStringTokenizer(line.c_str(), ",,").asVector();
+        if(tokens.size() < 3)
+            error("file format is not correct!");
+
+        std::string BTaddr = tokens[0] ;
+        std::string BTname = tokens[1];
+        std::string timeStamp = tokens[2];
+
+        // Remove leading and trailing spaces from string
+        boost::trim(BTaddr);
+        boost::trim(BTname);
+        boost::trim(timeStamp);
+
+        auto it = allBTdevices.find(BTaddr);
+        if(it == allBTdevices.end())
+        {
+            BTdevEntry *v = new BTdevEntry(BTname, timeStamp);
+            allBTdevices.insert(std::make_pair(BTaddr, *v));
+        }
+
+        counter++;
+    }
+
+    std::cout << ">>> " << counter << " cached BT devices read from file.";
+}
+
+
+void SniffBluetooth::saveCachedDevices()
+{
+    if(allBTdevices.empty())
+        return;
+
+    FILE *filePtr = fopen (cached_BT_devices_filePATH.string().c_str(), "w");
+    if(!filePtr)
+        error("can not open file for writing!");
+
+    for(auto &i : allBTdevices)
+        fprintf (filePtr, "%s  ,,  %s  ,,  %s \n", i.first.c_str(), i.second.name.c_str(), i.second.timeStamp.c_str());
+
+    fclose(filePtr);
+}
+
+
+// scanNearbyDevices
+void SniffBluetooth::scan()
+{
+    int dev_id = hci_get_route(NULL);  // get the first available Bluetooth adapter
+    if(dev_id < 0)
+        error("Device is not available");
+
+    int sock = hci_open_dev(dev_id);
+    if (sock < 0)
+        error("HCI device open failed");
+
+    int len  = 8;       // inquiry lasts for at most 1.28 * len seconds (= 10.24 seconds)
+    int max_rsp = 255;  // at most max_rsp devices will be returned
+    int flags = IREQ_CACHE_FLUSH; // the cache of previously detected devices is flushed before performing the current inquiry
+    inquiry_info *ii = (inquiry_info*)malloc(max_rsp * sizeof(inquiry_info));
+
+    std::cout << std::endl << ">>> Scan for Bluetooth devices... " << std::flush;
+    // num_rsp contains the number of discovered devices
+    // ii contains the discovered devices info
+    int num_rsp = hci_inquiry(dev_id, len, max_rsp, NULL, &ii, flags);
+
+    if(num_rsp < 0)
+    {
+        error("Inquiry failed");
+    }
+    else if(num_rsp == 0)
+    {
+        std::cout << "Done!" << std::endl;
+        std::cout << "No devices found!" << std::endl;
+        std::cout.flush();
+    }
+    else if(num_rsp > 0)
+    {
+        std::cout << "Done!" << std::endl;
+        std::cout << num_rsp << " devices found: " << std::endl;
+        std::cout.flush();
+
+        char addr[19] = { 0 };
+        char name[248] = { 0 };
+        for (int i = 0; i < num_rsp; i++)
+        {
+            // get user-friendly name associated with this device
+            memset(name, 0, sizeof(name));
+            int ret = hci_read_remote_name(sock, &(ii+i)->bdaddr, sizeof(name), name, 0 /*timeout milliseconds*/);
+            // on failure
+            if (ret < 0) strcpy(name, "[unknown]");
+            printf("    Name: %s \n", name);
+
+            // get device address
+            ba2str(&(ii+i)->bdaddr, addr);
+            printf("    BD Address: %s [mode %d, clkoffset 0x%4.4x] \n", addr, (ii+i)->pscan_rep_mode, btohs((ii+i)->clock_offset));
+
+            // get device class
+            std::string dev_class = classTostr((ii+i)->dev_class);
+            printf("    Device class: %s \n", dev_class.c_str());
+
+            std::string comp = companyInfo((ii+i)->bdaddr);
+            char oui[9];
+            ba2oui(&(ii+i)->bdaddr, oui);
+            printf("    OUI company: %s (%s) \n\n", comp.c_str(), oui);  // todo
+
+            // save device info
+            std::string timeDate = currentDateTime();
+            auto it = allBTdevices.find(std::string(addr));
+            // new BT device
+            if(it == allBTdevices.end())
+            {
+                BTdevEntry *v = new BTdevEntry(std::string(name), timeDate);
+                allBTdevices.insert( std::make_pair(std::string(addr), *v) );
+            }
+            // if BT address already exists, then only update name and timestamp
+            else
+            {
+                it->second.name = std::string(name);
+                it->second.timeStamp = timeDate;
+            }
+
+            // flush what we have so far
+            std::cout.flush();
+        }
+    }
+
+    saveCachedDevices();
+
+    free(ii);
+    hci_close_dev(sock);
+}
+
+
+// Get current date/time, format is YYYY-MM-DD.HH:mm:ss
+const std::string SniffBluetooth::currentDateTime()
+{
+    time_t     now = time(0);
+    struct tm  tstruct;
+    char       buf[80];
+    tstruct = *localtime(&now);
+
+    // Visit http://en.cppreference.com/w/cpp/chrono/c/strftime
+    // for more information about date/time format
+    strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct);
+
+    return buf;
+}
+
+
+// todo:
+std::string SniffBluetooth::companyInfo(bdaddr_t bdaddr)
+{
+    return "";
+}
+
+
 // check this command: sdptool browse 4C:A5:6D:58:7C:14
 void SniffBluetooth::serviceDiscovery(std::string bdaddr, uint16_t UUID)
 {
@@ -635,10 +712,10 @@ void SniffBluetooth::serviceDiscovery(std::string bdaddr, uint16_t UUID)
                         break;
                     }
                 }
-
-                // flush what we have so far
-                std::cout.flush();
             }
+
+            // flush what we have so far
+            std::cout.flush();
         }
     }
 

@@ -71,9 +71,6 @@ void AdvertiseBeacon::initialize(int stage)
         AltBeacon_refRSSI = par("AltBeacon_refRSSI").stringValue();
         AltBeacon_MFGRSVD = par("AltBeacon_MFGRSVD").stringValue();
 
-        // get BT chip on this machine
-        getBTchip();
-
         // display local devices
         getLocalDevs();
 

@@ -76,9 +76,13 @@ protected:
     void executeFirstTimeStep();
     void executeEachTimestep();
 
-    void getBTchip();
     void getLocalDevs();
     void print_dev_info(struct hci_dev_info *di);
+    std::string cmd_name(int);
+    std::string cmd_class(int);
+    std::string classTostr(uint8_t dev_class[3]);
+    std::string cmd_company(int);
+    std::string companyInfo(bdaddr_t);
 
     void cmd_up(int hdev);
     void cmd_down(int hdev);
@@ -90,8 +94,6 @@ private:
     void saveCachedDevices();
 
     void scan();
-    std::string companyInfo(bdaddr_t);
-    std::string classInfo(uint8_t dev_class[3]);
 
     void serviceDiscovery(std::string, uint16_t = 0);
 
