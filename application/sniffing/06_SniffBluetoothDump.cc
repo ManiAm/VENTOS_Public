@@ -31,7 +31,7 @@
 
 namespace VENTOS {
 
-#define SNAP_LEN    HCI_MAX_FRAME_SIZE
+#define SNAP_LEN_BT     HCI_MAX_FRAME_SIZE
 #define DUMP_BTSNOOP    0x1000
 #define DUMP_VERBOSE    0x0200
 
@@ -231,7 +231,7 @@ void SniffBluetoothDump::process_frames(int dev_id, int sock, unsigned long flag
     if (flags & DUMP_BTSNOOP)
         hdr_size = BTSNOOP_PKT_SIZE;
 
-    int snap_len = SNAP_LEN;
+    int snap_len = SNAP_LEN_BT;
     char *buf = (char *) malloc(snap_len + hdr_size);
     if (!buf)
         error("Can't allocate data buffer");
