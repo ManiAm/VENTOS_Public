@@ -49,16 +49,18 @@ void SniffBluetoothLE::initialize(int stage)
 {
     SniffBluetooth::initialize(stage);
 
+    LEBTon = par("LEBTon").boolValue();
+
+    if(!LEBTon)
+        return;
+
     if(stage == 0)
     {
-        LEBTon = par("LEBTon").boolValue();
-
-        if(!LEBTon)
-            return;
-
         boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
         cached_LEBT_devices_filePATH = VENTOS_FullPath / "application/sniffing/cached_LEBT_devices";
-
+    }
+    else if(stage == 1)
+    {
         // display local devices
         getLocalDevs();
 
@@ -100,7 +102,7 @@ void SniffBluetoothLE::executeEachTimestep()
         loadCachedDevices();
 
         // scan for Low Energy (LE) bluetooth device
-        //lescan();
+        lescan();
 
         // uint16_t handle = leCreateConnection("CC:4B:DA:B0:F8:28");
 
@@ -173,7 +175,7 @@ void SniffBluetoothLE::lescan()
     if (dd < 0)
         error("Could not open device");
 
-    std::cout << std::endl << ">>> Scan for Bluetooth LE devices... " << std::flush;
+    std::cout << std::endl << ">>> Scan for Bluetooth LE devices... \n" << std::flush;
 
     uint8_t scan_type = 0x01;  // 0x00: passive, 0x01: active  More info: http://stackoverflow.com/questions/24994776/android-ble-passive-scan
     uint16_t interval = htobs(0x0010);
@@ -214,26 +216,10 @@ void SniffBluetoothLE::lescan()
         error("Could not set socket options");
     }
 
-    print_advertising_devices(dd, 10 /*timeout in seconds*/);
+    int num_rsp = print_advertising_devices(dd, 10 /*timeout in seconds*/);
 
-    std::cout << "Done!" << std::endl;
-
-    if(allLEBTdevices.empty())
-    {
+    if(num_rsp == 0)
         std::cout << "No devices found!" << std::endl;
-    }
-    else
-    {
-        std::cout << allLEBTdevices.size() << " devices found: " << std::endl;
-        for(auto i : allLEBTdevices)
-        {
-            printf("    addr: %s \n", i.first.c_str());
-            printf("    name: %s \n", i.second.name.c_str());
-        }
-    }
-
-    // flush what we have
-    std::cout.flush();
 
     saveCachedDevices();
 
@@ -250,7 +236,7 @@ void SniffBluetoothLE::lescan()
 }
 
 
-void SniffBluetoothLE::print_advertising_devices(int dd, int timeout)
+unsigned int SniffBluetoothLE::print_advertising_devices(int dd, int timeout)
 {
     unsigned char buffer[HCI_MAX_EVENT_SIZE];
     fd_set read_set;
@@ -260,6 +246,9 @@ void SniffBluetoothLE::print_advertising_devices(int dd, int timeout)
     wait.tv_usec = 0;
 
     int ts = time(NULL);  // get current time
+
+    // count how many BLE devices
+    unsigned int BLEdevCounter = 0;
 
     while(1)
     {
@@ -283,14 +272,21 @@ void SniffBluetoothLE::print_advertising_devices(int dd, int timeout)
             le_advertising_info* info;
             info = (le_advertising_info*) (meta->data + 1);
 
+            // get name
+            std::string name = parse_name(info->data, info->length);
+            printf("    Name: %s \n\n", name.c_str());
+
             // get address
             char addr[18];
             ba2str(&info->bdaddr, addr);
+            printf("    BD Addr: %s \n", addr);
+
+            // show Manufacturer
+            const u_int8_t BTaddr[3] = {(&info->bdaddr)->b[5], (&info->bdaddr)->b[4], (&info->bdaddr)->b[3]};
+            std::string OUI = EtherPtr->OUITostr(BTaddr);
+            printf("    OUI: %s \n", OUI.c_str());
 
             // printf("RSSI %d \n", (char)info->data[info->length]);
-
-            // get name
-            std::string name = parse_name(info->data, info->length);
 
             // get flags
             //int flags = parse_flags(info->data, info->length);
@@ -313,6 +309,11 @@ void SniffBluetoothLE::print_advertising_devices(int dd, int timeout)
                 it->second.name = std::string(name);
                 it->second.timeStamp = timeDate;
             }
+
+            BLEdevCounter++;
+
+            // flush what we have
+            std::cout.flush();
         }
 
         int elapsed = time(NULL) - ts;
@@ -321,6 +322,8 @@ void SniffBluetoothLE::print_advertising_devices(int dd, int timeout)
 
         wait.tv_sec = timeout - elapsed;
     }
+
+    return BLEdevCounter;
 }
 
 

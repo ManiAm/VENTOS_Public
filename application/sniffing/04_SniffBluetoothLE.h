@@ -66,7 +66,7 @@ private:
     void saveCachedDevices();
 
     void lescan();
-    void print_advertising_devices(int dd, int timeout);
+    unsigned int print_advertising_devices(int dd, int timeout);
     int parse_flags(uint8_t* data, size_t size);
     int parse_appearance(uint8_t* data, size_t size);
     std::string parse_name(uint8_t* data, size_t size);

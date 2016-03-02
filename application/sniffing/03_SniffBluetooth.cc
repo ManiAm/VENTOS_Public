@@ -44,13 +44,13 @@ SniffBluetooth::~SniffBluetooth()
 
 void SniffBluetooth::initialize(int stage)
 {
-    BTon = par("BTon").boolValue();
-
-    if(!BTon)
-        return;
-
     if(stage == 0)
     {
+        BTon = par("BTon").boolValue();
+
+        if(!BTon)
+            return;
+
         // get a pointer to the TraCI module
         cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
         TraCI = static_cast<TraCI_Commands *>(module);
@@ -66,6 +66,9 @@ void SniffBluetooth::initialize(int stage)
         cModule *module = simulation.getSystemModule()->getSubmodule("sniffEthernet");
         EtherPtr = static_cast<SniffEthernet *>(module);
         ASSERT(EtherPtr);
+
+        if(!BTon)
+            return;
 
         // display local devices
         getLocalDevs();
@@ -118,7 +121,7 @@ void SniffBluetooth::executeEachTimestep()
 
 void SniffBluetooth::getLocalDevs()
 {
-    std::cout << std::endl << ">>> Local Bluetooth devices on this machin: \n";
+    std::cout << std::endl << ">>> Local Bluetooth devices on this machine: \n";
 
     /* Open HCI socket  */
     int ctl;
@@ -582,14 +585,14 @@ void SniffBluetooth::scan()
             ba2str(&(ii+i)->bdaddr, addr);
             printf("    BD Address: %s [mode %d, clkoffset 0x%4.4x] \n", addr, (ii+i)->pscan_rep_mode, btohs((ii+i)->clock_offset));
 
-            // get device class
-            std::string dev_class = cmd_class((ii+i)->dev_class);
-            printf("    Device class: %s \n", dev_class.c_str());
-
             // show Manufacturer
             const u_int8_t BTaddr[3] = {(&(ii+i)->bdaddr)->b[5], (&(ii+i)->bdaddr)->b[4], (&(ii+i)->bdaddr)->b[3]};
             std::string OUI = EtherPtr->OUITostr(BTaddr);
-            printf("    Manufacturer: %s \n\n", OUI.c_str());
+            printf("    OUI: %s \n", OUI.c_str());
+
+            // get device class
+            std::string dev_class = cmd_class((ii+i)->dev_class);
+            printf("    Device class: %s \n\n", dev_class.c_str());
 
             // save device info
             std::string timeDate = currentDateTime();
