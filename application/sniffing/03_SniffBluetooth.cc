@@ -53,6 +53,13 @@ void SniffBluetooth::initialize(int stage)
 
         boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
         cached_BT_devices_filePATH = VENTOS_FullPath / "application/sniffing/cached_BT_devices";
+    }
+    else if(stage == 1)
+    {
+        // get a pointer to SniffEthernet module
+        cModule *module = simulation.getSystemModule()->getSubmodule("sniffEthernet");
+        EtherPtr = static_cast<SniffEthernet *>(module);
+        ASSERT(EtherPtr);
 
         // display local devices
         getLocalDevs();
@@ -184,6 +191,11 @@ void SniffBluetooth::print_dev_info(struct hci_dev_info *di)
             di->sco_mtu,
             di->sco_pkts);
 
+    // show OUI lookup name
+    const u_int8_t BTaddr[3] = {(&di->bdaddr)->b[5], (&di->bdaddr)->b[4], (&di->bdaddr)->b[3]};
+    std::string OUI = EtherPtr->OUITostr(BTaddr);
+    printf("\tOUI: %s \n", OUI.c_str());
+
     // return the HCI device flags string given its code
     char *str = hci_dflagstostr(di->flags);
     printf("\t%s \n", str);
@@ -269,13 +281,13 @@ std::string SniffBluetooth::cmd_class(int dev_id)
 
     hci_close_dev(dd);
 
-    return classTostr(cls);
+    return cmd_class(cls);
 }
 
 
 // Decode device class
 // from https://www.bluetooth.com/specifications/assigned-numbers/baseband
-std::string SniffBluetooth::classTostr(uint8_t dev_class[3])
+std::string SniffBluetooth::cmd_class(uint8_t dev_class[3])
 {
     int flags = dev_class[2];
     int majorNum = dev_class[1];
@@ -565,10 +577,10 @@ void SniffBluetooth::scan()
             printf("    BD Address: %s [mode %d, clkoffset 0x%4.4x] \n", addr, (ii+i)->pscan_rep_mode, btohs((ii+i)->clock_offset));
 
             // get device class
-            std::string dev_class = classTostr((ii+i)->dev_class);
+            std::string dev_class = cmd_class((ii+i)->dev_class);
             printf("    Device class: %s \n", dev_class.c_str());
 
-            std::string comp = companyInfo((ii+i)->bdaddr);
+            std::string comp = cmd_oui((ii+i)->bdaddr);
             char oui[9];
             ba2oui(&(ii+i)->bdaddr, oui);
             printf("    Manufacturer: %s (%s) \n\n", comp.c_str(), oui);  // todo
@@ -618,7 +630,7 @@ const std::string SniffBluetooth::currentDateTime()
 
 
 // todo:
-std::string SniffBluetooth::companyInfo(bdaddr_t bdaddr)
+std::string SniffBluetooth::cmd_oui(bdaddr_t bdaddr)
 {
     return "";
 }

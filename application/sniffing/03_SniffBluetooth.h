@@ -33,6 +33,7 @@
 
 #include <BaseApplLayer.h>
 #include "TraCI_Commands.h"
+#include <01_SniffEthernet.h>
 
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/hci.h>
@@ -70,6 +71,10 @@ public:
     virtual ~SniffBluetooth();
     virtual void finish();
     virtual void initialize(int);
+    virtual int numInitStages() const
+    {
+        return 2;  // stage 0, 1
+    }
     virtual void handleMessage(cMessage *);
 
 protected:
@@ -80,9 +85,9 @@ protected:
     void print_dev_info(struct hci_dev_info *di);
     std::string cmd_name(int);
     std::string cmd_class(int);
-    std::string classTostr(uint8_t dev_class[3]);
+    std::string cmd_class(uint8_t dev_class[3]);
     std::string cmd_company(int);
-    std::string companyInfo(bdaddr_t);
+    std::string cmd_oui(bdaddr_t);
 
     void cmd_up(int hdev);
     void cmd_down(int hdev);
@@ -100,6 +105,7 @@ private:
 protected:
     // variables
     TraCI_Commands *TraCI;
+    SniffEthernet *EtherPtr;
     simsignal_t Signal_executeFirstTS;
     simsignal_t Signal_executeEachTS;
 
