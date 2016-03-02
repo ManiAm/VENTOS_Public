@@ -80,7 +80,7 @@ public:
     virtual void receiveSignal(cComponent *, simsignal_t, long);
 
 public:
-    void getUSBdevices(bool, std::string);
+    void getUSBdevices(bool);
 
 private:
     void executeFirstTimeStep();

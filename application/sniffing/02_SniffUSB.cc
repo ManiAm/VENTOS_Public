@@ -87,7 +87,7 @@ void SniffUSB::initialize(int stage)
         {
             std::cout << std::endl << ">>> USB devices found on this machine: \n";
             bool detail = par("listUSBdevicesDetailed").boolValue();
-            getUSBdevices(detail, "");
+            getUSBdevices(detail);
         }
     }
 }
@@ -198,7 +198,7 @@ void SniffUSB::executeEachTimestep()
 
 // listUSBdevicesDetailed: shows 'Configuration Descriptor' for each device
 // productID: looks only for this productID
-void SniffUSB::getUSBdevices(bool listUSBdevicesDetailed, std::string productID)
+void SniffUSB::getUSBdevices(bool listUSBdevicesDetailed)
 {
     // make sure ctx is not NULL
     if(ctx == NULL)
@@ -219,7 +219,13 @@ void SniffUSB::getUSBdevices(bool listUSBdevicesDetailed, std::string productID)
     // iterate over each found USB device
     for(ssize_t i = 0; i < cnt; i++)
     {
-        // get device descriptor first!
+        printf("Device %d connected to Port %d of Bus %d with Speed %d (%s) \n",
+                libusb_get_device_address(devs[i]),
+                libusb_get_port_number(devs[i]),
+                libusb_get_bus_number(devs[i]),
+                libusb_get_device_speed(devs[i]), USBspeedTostr(libusb_get_device_speed(devs[i])).c_str() );
+
+        // get device descriptor
         libusb_device_descriptor desc;
         int r = libusb_get_device_descriptor(devs[i], &desc);
         if (r < 0)
@@ -228,23 +234,11 @@ void SniffUSB::getUSBdevices(bool listUSBdevicesDetailed, std::string productID)
         // decode vendorID and productID
         std::vector<std::string> names = USBidTostr(desc.idVendor, desc.idProduct);
 
-        std::string pID = names[1];
-        boost::algorithm::to_lower(pID);
-        boost::algorithm::to_lower(productID);
-        if( productID != "" && pID.find(productID) == std::string::npos )
-            continue;
-
         // decode class name
         std::string className = "?";
         auto res = USBclass.find(desc.bDeviceClass);
         if(res != USBclass.end())
             className = res->second;
-
-        printf("Device %d connected to Port %d of Bus %d with Speed %d (%s) \n",
-                libusb_get_device_address(devs[i]),
-                libusb_get_port_number(devs[i]),
-                libusb_get_bus_number(devs[i]),
-                libusb_get_device_speed(devs[i]), USBspeedTostr(libusb_get_device_speed(devs[i])).c_str() );
 
         printf("    Device Descriptor --> ");
         // in windows, The USB driver stack uses bcdDevice, along with idVendor and idProduct, to generate hardware and compatible IDs for the device.
@@ -265,7 +259,7 @@ void SniffUSB::getUSBdevices(bool listUSBdevicesDetailed, std::string productID)
 
     std::cout.flush();
 
-    libusb_free_device_list(devs, 1); //free the list, unref the devices in it
+    libusb_free_device_list(devs, 1); // free the list, unref the devices in it
 }
 
 
