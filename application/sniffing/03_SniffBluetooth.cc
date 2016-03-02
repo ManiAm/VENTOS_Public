@@ -160,7 +160,7 @@ void SniffBluetooth::getLocalDevs()
     }
 
     if(devCounter == 0)
-        std::cout << "No devices found!" << std::endl;
+        std::cout << "No devices found! \n\n";
 
     if(upCounter == 0)
         std::cout << "** WARNING ** All BT devices are DOWN! \n\n";
@@ -571,7 +571,7 @@ void SniffBluetooth::scan()
             std::string comp = companyInfo((ii+i)->bdaddr);
             char oui[9];
             ba2oui(&(ii+i)->bdaddr, oui);
-            printf("    OUI company: %s (%s) \n\n", comp.c_str(), oui);  // todo
+            printf("    Manufacturer: %s (%s) \n\n", comp.c_str(), oui);  // todo
 
             // save device info
             std::string timeDate = currentDateTime();
