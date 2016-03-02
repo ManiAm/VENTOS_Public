@@ -74,16 +74,16 @@ public:
 
 public:
     void listInterfaces();
+    std::string OUITostr(const u_int8_t MACData[]);
 
 private:
     void executeFirstTimeStep();
     void executeEachTimestep();
 
-    std::string MACaddrTostr(const unsigned char MACData[]);
-    std::string IPaddrTostr(const unsigned char addr[]);
+    std::string MACaddrTostr(const u_int8_t MACData[]);
+    std::string IPaddrTostr(const u_int8_t addr[]);
     std::string IPaddrTostr(uint32_t addr);
     std::string serverPortTostr(int port);
-    std::string OUITostr(const unsigned char MACData[]);
 
     void startSniffing();
     void got_packet(const struct pcap_pkthdr *header, const u_char *packet);

@@ -217,7 +217,7 @@ void SniffEthernet::listInterfaces()
 }
 
 
-std::string SniffEthernet::MACaddrTostr(const unsigned char MACaddr[])
+std::string SniffEthernet::MACaddrTostr(const u_int8_t MACaddr[])
 {
     boost::format fmt("%02X:%02X:%02X:%02X:%02X:%02X");
 
@@ -229,7 +229,7 @@ std::string SniffEthernet::MACaddrTostr(const unsigned char MACaddr[])
 
 
 // u_int8_t arp_spa[4];
-std::string SniffEthernet::IPaddrTostr(const unsigned char IPaddr[])
+std::string SniffEthernet::IPaddrTostr(const u_int8_t IPaddr[])
 {
     boost::format fmt("%u.%u.%u.%u");
 
@@ -305,7 +305,7 @@ std::string SniffEthernet::serverPortTostr(int port)
 }
 
 
-std::string SniffEthernet::OUITostr(const unsigned char MACaddr[])
+std::string SniffEthernet::OUITostr(const u_int8_t MACaddr[])
 {
     if(OUI.empty())
     {
