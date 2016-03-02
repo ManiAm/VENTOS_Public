@@ -356,7 +356,7 @@ int ApplRSUCLASSIFY::loadTrainer()
         if(!ifs.fail())
         {
             std::cout << "loading " << fileName << " from disk... ";
-            boost::archive::polymorphic_text_iarchive ia(ifs);
+            shark::TextInArchive ia(ifs);
             kc_model->read(ia);
             ifs.close();
             std::cout << "done \n";
@@ -371,7 +371,7 @@ int ApplRSUCLASSIFY::loadTrainer()
 
             // save the model to file
             std::ofstream ofs(filePath.string());
-            boost::archive::polymorphic_text_oarchive oa(ofs);
+            shark::TextOutArchive oa(ofs);
             kc_model->write(oa);
             ofs.close();
         }

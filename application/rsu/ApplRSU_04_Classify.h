@@ -33,7 +33,6 @@
 #include <boost/circular_buffer.hpp>
 
 #undef ev
-
 #include <shark/Data/Dataset.h>
 #include <shark/Data/Csv.h>
 #include <shark/ObjectiveFunctions/Loss/ZeroOneLoss.h>
