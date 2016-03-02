@@ -1,7 +1,7 @@
 VENTOS
 ======
 
-VENTOS is an integrated C++ simulator for studying traffic flows in Vehicular Ad-hoc Networks (VANETs). You can find more information [here](http://rubinet.ece.ucdavis.edu/projects/ventos). Follow these instructions to install VENTOS (and its prerequisites) on your OS. Currently we support the following operating systems:
+VENTOS is an integrated C++ simulator for studying traffic flows in Vehicular Ad-hoc Networks (VANETs). You can find more information [here](http://rubinet.ece.ucdavis.edu/projects/ventos). Currently we support the following operating systems:
 
   Ubuntu    |     Mac OS X
 :---------: | :------------------:
@@ -9,6 +9,11 @@ VENTOS is an integrated C++ simulator for studying traffic flows in Vehicular Ad
 14          | Yosemite (10.10)
 12          |
 
+
+Installing VENTOS
+-----------------
+
+Follow these instructions to install VENTOS (and its prerequisites) on your OS.
 
 **Step 1:** If you do not have git installed on your machine, then install it. In Ubuntu, simply run the following command in terminal: 
 
@@ -36,7 +41,7 @@ In Mac OS, type `git` in terminal and choose the Install button in the window th
 Running VENTOS
 --------------
 
-SUMO binaries (`sumo-guiD` and `sumoD`) are located in SUMO bin folder. sumo-guiD is the GUI version that provides a graphical interface to SUMO, and is visible while the OMNET++ simulation is running (and is very useful for debugging purposes). On the other hands, sumoD is the command-line version which is faster.Note that you can not use the official SUMO binaries since we have extended the TraCI commands, car-following models, etc. Using the official SUMO binaries will probably give you run-time error.
+SUMO binaries (`sumo-guiD` and `sumoD`) are located in SUMO bin folder. sumo-guiD is the GUI version that provides a graphical interface to SUMO, and is visible while the OMNET++ simulation is running (and is very useful for debugging purposes). On the other hands, sumoD is the command-line version which is faster. Note that you can not use the official SUMO binaries since we have extended the TraCI commands, car-following models, etc. Using the official SUMO binaries will probably give you run-time error.
 
 **Step 1:** To save you the trouble of manually running SUMO prior to every OMNeT++ simulation, the Veins module framework comes with a small python script (veins-sumo-launchd.py) to do that for you. This script will proxy TCP connections between OMNeT++ and SUMO, starting a new copy of the SUMO simulation for every OMNeT++ simulation connecting. From the VENTOS folder, run either of the following commands:
 
