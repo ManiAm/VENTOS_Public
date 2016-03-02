@@ -44,12 +44,17 @@ SniffBluetooth::~SniffBluetooth()
 
 void SniffBluetooth::initialize(int stage)
 {
+    BTon = par("BTon").boolValue();
+
+    if(!BTon)
+        return;
+
     if(stage == 0)
     {
-        BTon = par("BTon").boolValue();
-
-        if(!BTon)
-            return;
+        // get a pointer to the TraCI module
+        cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
+        TraCI = static_cast<TraCI_Commands *>(module);
+        ASSERT(TraCI);
 
         boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
         cached_BT_devices_filePATH = VENTOS_FullPath / "application/sniffing/cached_BT_devices";
@@ -57,6 +62,7 @@ void SniffBluetooth::initialize(int stage)
     else if(stage == 1)
     {
         // get a pointer to SniffEthernet module
+        // we need to call OUITostr
         cModule *module = simulation.getSystemModule()->getSubmodule("sniffEthernet");
         EtherPtr = static_cast<SniffEthernet *>(module);
         ASSERT(EtherPtr);

@@ -106,8 +106,6 @@ protected:
     // variables
     TraCI_Commands *TraCI;
     SniffEthernet *EtherPtr;
-    simsignal_t Signal_executeFirstTS;
-    simsignal_t Signal_executeEachTS;
 
 private:
     // NED variables

@@ -26,9 +26,8 @@
 //
 
 #include <02_SniffUSB.h>
-#include "TraCI_Commands.h"
-#include <fstream>
 
+#include <fstream>
 #include <boost/tokenizer.hpp>
 #include <boost/algorithm/string.hpp>
 
@@ -57,6 +56,11 @@ void SniffUSB::initialize(int stage)
         on = par("on").boolValue();
         if(!on)
             return;
+
+        // get a pointer to the TraCI module
+        cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
+        TraCI = static_cast<TraCI_Commands *>(module);
+        ASSERT(TraCI);
 
         listUSBdevices = par("listUSBdevices").boolValue();
         hotPlug = par("hotPlug").boolValue();

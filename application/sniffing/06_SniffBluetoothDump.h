@@ -54,6 +54,9 @@ private:
 private:
     // NED variables
     bool dumpOn;
+
+    simsignal_t Signal_executeFirstTS;
+    simsignal_t Signal_executeEachTS;
 };
 
 }

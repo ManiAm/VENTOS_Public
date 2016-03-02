@@ -53,6 +53,11 @@ void SniffEthernet::initialize(int stage)
         if(!on)
             return;
 
+        // get a pointer to the TraCI module
+        cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
+        TraCI = static_cast<TraCI_Commands *>(module);
+        ASSERT(TraCI);
+
         interface = par("interface").stdstringValue();
         filter_exp = par("filter_exp").stdstringValue();
         printCaptured = par("printCaptured").boolValue();
