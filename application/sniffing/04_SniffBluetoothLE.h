@@ -32,20 +32,6 @@
 
 namespace VENTOS {
 
-class LEBTdevEntry
-{
-public:
-    std::string name;       // LE BT device name
-    std::string timeStamp;  // LE BT device last detection time
-
-    LEBTdevEntry(std::string str1, std::string str2)
-    {
-        this->name = str1;
-        this->timeStamp = str2;
-    }
-};
-
-
 class SniffBluetoothLE : public SniffBluetooth
 {
 public:
@@ -65,8 +51,8 @@ private:
     void loadCachedDevices();
     void saveCachedDevices();
 
-    void lescan();
-    unsigned int print_advertising_devices(int dd, int timeout);
+    void lescan(int);
+    std::map<std::string /*BT add*/, std::vector<std::string>> print_advertising_devices(int dd, int timeout);
     int parse_flags(uint8_t* data, size_t size);
     int parse_appearance(uint8_t* data, size_t size);
     std::string parse_name(uint8_t* data, size_t size);
@@ -80,7 +66,7 @@ private:
     boost::filesystem::path cached_LEBT_devices_filePATH;
 
     // stores all LE BT devices (cached and newly detected)
-    std::map<std::string /*BT address*/, LEBTdevEntry> allLEBTdevices;
+    std::map<std::string /*BT address*/, BTdevEntry> allLEBTdevices;
 };
 
 }

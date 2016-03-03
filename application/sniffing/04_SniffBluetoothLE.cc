@@ -101,8 +101,13 @@ void SniffBluetoothLE::executeEachTimestep()
         // cached LE BT devices from previous scans
         loadCachedDevices();
 
+        // get the first available Bluetooth adapter
+        int dev_id = hci_get_route(NULL);
+        if(dev_id < 0)
+            error("Device is not available");
+
         // scan for Low Energy (LE) bluetooth device
-        lescan();
+        lescan(dev_id);
 
         // uint16_t handle = leCreateConnection("CC:4B:DA:B0:F8:28");
 
@@ -138,7 +143,7 @@ void SniffBluetoothLE::loadCachedDevices()
         auto it = allLEBTdevices.find(BTaddr);
         if(it == allLEBTdevices.end())
         {
-            LEBTdevEntry *v = new LEBTdevEntry(BTname, timeStamp);
+            BTdevEntry *v = new BTdevEntry(BTname, timeStamp);
             allLEBTdevices.insert(std::make_pair(BTaddr, *v));
         }
 
@@ -165,17 +170,11 @@ void SniffBluetoothLE::saveCachedDevices()
 }
 
 
-void SniffBluetoothLE::lescan()
+void SniffBluetoothLE::lescan(int dev_id)
 {
-    int dev_id = hci_get_route(NULL);  // get the first available Bluetooth adapter
-    if(dev_id < 0)
-        error("Device is not available");
-
     int dd = hci_open_dev(dev_id);
     if (dd < 0)
         error("Could not open device");
-
-    std::cout << std::endl << ">>> Scan for Bluetooth LE devices... \n" << std::flush;
 
     uint8_t scan_type = 0x01;  // 0x00: passive, 0x01: active  More info: http://stackoverflow.com/questions/24994776/android-ble-passive-scan
     uint16_t interval = htobs(0x0010);
@@ -216,10 +215,46 @@ void SniffBluetoothLE::lescan()
         error("Could not set socket options");
     }
 
-    int num_rsp = print_advertising_devices(dd, 10 /*timeout in seconds*/);
+    int scanTime = 10;  // time in seconds
+    std::cout << std::endl << ">>> Scan Bluetooth LE devices on hci" << dev_id << " for " << scanTime << " seconds... " << std::flush;
 
-    if(num_rsp == 0)
+    auto rsp = print_advertising_devices(dd, scanTime);
+
+    if(rsp.empty())
+    {
+        std::cout << "Done!" << std::endl;
         std::cout << "No devices found!" << std::endl;
+    }
+    else
+    {
+        std::cout << "Done!" << std::endl;
+        std::cout << rsp.size() << " devices found: " << std::endl;
+
+        for(auto i : rsp)
+        {
+            printf("    Name: %s \n", i.second[0].c_str());
+            printf("    BD Addr: %s \n", i.first.c_str());
+            printf("    OUI: %s \n\n", i.second[1].c_str());
+
+            // save device info
+            auto it = allLEBTdevices.find(i.first);
+            // new LE BT device
+            if(it == allLEBTdevices.end())
+            {
+                BTdevEntry *v = new BTdevEntry(i.second[0] /*name*/, i.second[2] /*timestamp*/);
+                allLEBTdevices.insert( std::make_pair(i.first /*BT address*/, *v) );
+            }
+            // if LE BT address already exists, then only update name and timestamp
+            else
+            {
+                it->second.name = i.second[0];
+                it->second.timeStamp = i.second[2];
+            }
+        }
+    }
+
+    // flush what we have so far
+    std::cout.flush();
 
     saveCachedDevices();
 
@@ -236,7 +271,7 @@ void SniffBluetoothLE::lescan()
 }
 
 
-unsigned int SniffBluetoothLE::print_advertising_devices(int dd, int timeout)
+std::map<std::string /*BT add*/, std::vector<std::string>> SniffBluetoothLE::print_advertising_devices(int dd, int timeout)
 {
     unsigned char buffer[HCI_MAX_EVENT_SIZE];
     fd_set read_set;
@@ -247,8 +282,8 @@ unsigned int SniffBluetoothLE::print_advertising_devices(int dd, int timeout)
 
     int ts = time(NULL);  // get current time
 
-    // count how many BLE devices
-    unsigned int BLEdevCounter = 0;
+    std::map<std::string /*BT add*/, std::vector<std::string>> scannedDevs;
+    scannedDevs.clear();
 
     while(1)
     {
@@ -274,46 +309,40 @@ unsigned int SniffBluetoothLE::print_advertising_devices(int dd, int timeout)
 
             // get name
             std::string name = parse_name(info->data, info->length);
-            printf("    Name: %s \n\n", name.c_str());
 
             // get address
             char addr[18];
             ba2str(&info->bdaddr, addr);
-            printf("    BD Addr: %s \n", addr);
 
-            // show Manufacturer
-            const u_int8_t BTaddr[3] = {(&info->bdaddr)->b[5], (&info->bdaddr)->b[4], (&info->bdaddr)->b[3]};
-            std::string OUI = EtherPtr->OUITostr(BTaddr);
-            printf("    OUI: %s \n", OUI.c_str());
-
-            // printf("RSSI %d \n", (char)info->data[info->length]);
-
-            // get flags
-            //int flags = parse_flags(info->data, info->length);
-
-            // get appearance
-            //int appearance = parse_appearance(info->data, info->length);
-
-            // save device info
+            // get current timestamp
             std::string timeDate = currentDateTime();
-            auto it = allLEBTdevices.find(std::string(addr));
-            // new LE BT device
-            if(it == allLEBTdevices.end())
+
+            // check if this is a new device
+            auto it = scannedDevs.find(std::string(addr));
+            if(it == scannedDevs.end())
             {
-                LEBTdevEntry *v = new LEBTdevEntry(std::string(name), timeDate);
-                allLEBTdevices.insert( std::make_pair(std::string(addr), *v) );
+                // get Manufacturer
+                const u_int8_t BTaddr[3] = {(&info->bdaddr)->b[5], (&info->bdaddr)->b[4], (&info->bdaddr)->b[3]};
+                std::string OUI = EtherPtr->OUITostr(BTaddr);
+
+                // get RSSI value
+                //int RSSI = (char)info->data[info->length];
+
+                // get flags
+                //int flags = parse_flags(info->data, info->length);
+
+                // get appearance
+                //int appearance = parse_appearance(info->data, info->length);
+
+                std::vector<std::string> values = {name, OUI, timeDate};
+                scannedDevs[std::string(addr)] = values;
             }
-            // if LE BT address already exists, then only update name and timestamp
             else
             {
-                it->second.name = std::string(name);
-                it->second.timeStamp = timeDate;
+                // only update name and timestamp
+                (it->second)[0] = std::string(name);
+                (it->second)[2] = timeDate;
             }
-
-            BLEdevCounter++;
-
-            // flush what we have
-            std::cout.flush();
         }
 
         int elapsed = time(NULL) - ts;
@@ -323,7 +352,7 @@ unsigned int SniffBluetoothLE::print_advertising_devices(int dd, int timeout)
         wait.tv_sec = timeout - elapsed;
     }
 
-    return BLEdevCounter;
+    return scannedDevs;
 }
 
 
@@ -475,7 +504,7 @@ void SniffBluetoothLE::cmd_cmd(int dev_id, uint8_t ogf, uint16_t ocf, std::strin
     if(payload == "")
         error("payload is empty!");
 
-    std::cout << std::endl << ">>> Sending command... " << std::endl << std::flush;
+    std::cout << std::endl << ">>> Sending command on hci" << dev_id << "... \n" << std::flush;
 
     std::vector<std::string> tokens = cStringTokenizer(payload.c_str()).asVector();
     int len = tokens.size();

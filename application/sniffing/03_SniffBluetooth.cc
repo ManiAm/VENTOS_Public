@@ -107,8 +107,13 @@ void SniffBluetooth::executeEachTimestep()
         // cached BT devices from previous scans
         loadCachedDevices();
 
+        // get the first available Bluetooth adapter
+        int dev_id = hci_get_route(NULL);
+        if(dev_id < 0)
+            error("Device is not available");
+
         // looking for nearby BT devices
-        scan();
+        scan(dev_id);
 
         // request for service
         serviceDiscovery("30:75:12:6D:B2:3A");
@@ -533,23 +538,21 @@ void SniffBluetooth::saveCachedDevices()
 }
 
 
-// scanNearbyDevices
-void SniffBluetooth::scan()
+// scan nearby BT devices
+void SniffBluetooth::scan(int dev_id)
 {
-    int dev_id = hci_get_route(NULL);  // get the first available Bluetooth adapter
-    if(dev_id < 0)
-        error("Device is not available");
-
     int sock = hci_open_dev(dev_id);
     if (sock < 0)
         error("HCI device open failed");
 
-    int len  = 8;       // inquiry lasts for at most 1.28 * len seconds (= 10.24 seconds)
     int max_rsp = 255;  // at most max_rsp devices will be returned
     int flags = IREQ_CACHE_FLUSH; // the cache of previously detected devices is flushed before performing the current inquiry
     inquiry_info *ii = (inquiry_info*)malloc(max_rsp * sizeof(inquiry_info));
+    int len  = 8;       // inquiry lasts for at most 1.28 * len seconds (= 10.24 seconds)
 
-    std::cout << std::endl << ">>> Scan for Bluetooth devices... " << std::flush;
+    int scanTime = round(len * 1.28);  // in seconds
+    std::cout << std::endl << ">>> Scan Bluetooth devices on hci" << dev_id << " for " << scanTime << " seconds... " << std::flush;
+
     // num_rsp contains the number of discovered devices
     // ii contains the discovered devices info
     int num_rsp = hci_inquiry(dev_id, len, max_rsp, NULL, &ii, flags);
@@ -578,7 +581,7 @@ void SniffBluetooth::scan()
             memset(name, 0, sizeof(name));
             int ret = hci_read_remote_name(sock, &(ii+i)->bdaddr, sizeof(name), name, 0 /*timeout milliseconds*/);
             // on failure
-            if (ret < 0) strcpy(name, "[unknown]");
+            if (ret < 0) strcpy(name, "unknown");
             printf("    Name: %s \n", name);
 
             // get device address

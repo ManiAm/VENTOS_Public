@@ -50,27 +50,17 @@ void AdvertiseBeacon::initialize(int stage)
 {
     SniffBluetoothLE::initialize(stage);
 
+    advertisement = par("advertisement").boolValue();
+
+    if(!advertisement)
+        return;
+
     if(stage == 0)
     {
-        advertisement = par("advertisement").boolValue();
 
-        if(!advertisement)
-            return;
-
-        beaconType = par("beaconType").longValue();
-
-        // iBeacon parameters
-        iBeacon_UUID = par("iBeacon_UUID").stringValue();
-        iBeacon_major = par("iBeacon_major").stringValue();
-        iBeacon_minor = par("iBeacon_minor").stringValue();
-        iBeacon_TXpower = par("iBeacon_TXpower").stringValue();
-
-        // AltBeacon parameters
-        AltBeacon_MFGID = par("AltBeacon_MFGID").stringValue();
-        AltBeacon_beaconID = par("AltBeacon_beaconID").stringValue();
-        AltBeacon_refRSSI = par("AltBeacon_refRSSI").stringValue();
-        AltBeacon_MFGRSVD = par("AltBeacon_MFGRSVD").stringValue();
-
+    }
+    else if(stage == 1)
+    {
         // display local devices
         getLocalDevs();
 
@@ -108,27 +98,36 @@ void AdvertiseBeacon::executeEachTimestep()
     static bool wasExecuted = false;
     if (advertisement && !wasExecuted)
     {
-        advertiseBeacon();
+        // get the first available BT device
+        int dev_id = hci_get_route(NULL);
+        if (dev_id < 0)
+            error("Device is not available");
+
+        int beaconType = par("beaconType").longValue();
+
+        advertiseBeacon(dev_id, ADV_NONCONN_IND, beaconType);
 
         wasExecuted = true;
     }
 }
 
 
-void AdvertiseBeacon:: advertiseBeacon()
+/*
+ Commands in linux:
+     sudo hciconfig hci0 up
+     sudo hciconfig hci0 leadv 3
+     sudo hcitool -i hci0 cmd 0x08 0x0008 1e 02 01 1a 1a ff 4c 00 02 15 e2 c5 6d b5 df fb 48 d2 b0 60 d0 f5 a7 10 96 e0 00 00 00 00 c5
+ */
+void AdvertiseBeacon:: advertiseBeacon(int dev_id, uint8_t ADtype, int beaconType)
 {
-    int dev_id = hci_get_route(NULL);
-    if (dev_id < 0)
-        error("Device is not available");
-
     // disable LE advertising first
     no_le_adv(dev_id);
 
     // then, enable LE advertising
-    le_adv(dev_id, ADV_NONCONN_IND);
+    le_adv(dev_id, ADtype);
 
     // generate BLE advertising PDU
-    std::string payload = generateBeacon();
+    std::string payload = generateBeacon(beaconType);
 
     // ogf = 0x08:  Bluetooth Command Group
     // ocf = 0x008: 'LE Set Advertising Data' command
@@ -145,7 +144,7 @@ void AdvertiseBeacon::no_le_adv(int hdev)
     if (dd < 0)
         error("Could not open device");
 
-    std::cout << std::endl << ">>> Disabling LE advertising... " << std::endl << std::flush;
+    std::cout << std::endl << ">>> Disabling LE advertising on hci" << hdev << "... \n" << std::flush;
 
     le_set_advertise_enable_cp advertise_cp;
     memset(&advertise_cp, 0, sizeof(advertise_cp));
@@ -184,7 +183,7 @@ void AdvertiseBeacon::le_adv(int hdev, uint8_t type)
     if (dd < 0)
         error("Could not open device");
 
-    std::cout << std::endl << ">>> Enabling LE advertising... " << std::endl << std::flush;
+    std::cout << std::endl << ">>> Enabling type " << (int)type << " LE advertising on hci" << hdev << "... \n" << std::flush;
 
     le_set_advertising_parameters_cp adv_params_cp;
     memset(&adv_params_cp, 0, sizeof(adv_params_cp));
@@ -237,14 +236,22 @@ void AdvertiseBeacon::le_adv(int hdev, uint8_t type)
 }
 
 
-std::string AdvertiseBeacon::generateBeacon()
+std::string AdvertiseBeacon::generateBeacon(int beaconType)
 {
+    std::cout << std::endl << ">>> Generating type " << beaconType << " beacon... \n" << std::flush;
+
     std::vector<std::string> params;  // stores beacon parameters
     std::string payload = "";         // contains beacon payload as a single string
 
     // iBeacon format: http://stackoverflow.com/questions/18906988/what-is-the-ibeacon-bluetooth-profile
     if(beaconType == iBeacon_Type)
     {
+        // iBeacon parameters
+        std::string iBeacon_UUID = par("iBeacon_UUID").stringValue();
+        std::string iBeacon_major = par("iBeacon_major").stringValue();
+        std::string iBeacon_minor = par("iBeacon_minor").stringValue();
+        std::string iBeacon_TXpower = par("iBeacon_TXpower").stringValue();
+
         /* ADV flags:
            02 # Number of bytes that follow in first AD structure
            01 # Flags AD type
@@ -291,6 +298,12 @@ std::string AdvertiseBeacon::generateBeacon()
     }
     else if(beaconType == AltBeacon_Type)
     {
+        // AltBeacon parameters
+        std::string AltBeacon_MFGID = par("AltBeacon_MFGID").stringValue();
+        std::string AltBeacon_beaconID = par("AltBeacon_beaconID").stringValue();
+        std::string AltBeacon_refRSSI = par("AltBeacon_refRSSI").stringValue();
+        std::string AltBeacon_MFGRSVD = par("AltBeacon_MFGRSVD").stringValue();
+
         // AD length
         params.push_back("1b");
 

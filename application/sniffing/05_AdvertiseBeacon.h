@@ -45,27 +45,14 @@ protected:
     void executeEachTimestep();
 
 private:
-    void advertiseBeacon();
+    void advertiseBeacon(int, uint8_t, int);
     void no_le_adv(int hdev);
     void le_adv(int hdev, uint8_t type);
-    std::string generateBeacon();
+    std::string generateBeacon(int);
 
 private:
     // NED variables
     bool advertisement;
-    int beaconType;
-
-    // iBeacon parameters
-    std::string iBeacon_UUID;
-    std::string iBeacon_major;
-    std::string iBeacon_minor;
-    std::string iBeacon_TXpower;
-
-    // AltBeacon parameters
-    std::string AltBeacon_MFGID;
-    std::string AltBeacon_beaconID;
-    std::string AltBeacon_refRSSI;
-    std::string AltBeacon_MFGRSVD;
 };
 
 }

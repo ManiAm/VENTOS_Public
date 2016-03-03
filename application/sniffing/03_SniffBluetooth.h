@@ -71,10 +71,6 @@ public:
     virtual ~SniffBluetooth();
     virtual void finish();
     virtual void initialize(int);
-    virtual int numInitStages() const
-    {
-        return 2;  // stage 0, 1
-    }
     virtual void handleMessage(cMessage *);
 
 protected:
@@ -97,7 +93,7 @@ private:
     void loadCachedDevices();
     void saveCachedDevices();
 
-    void scan();
+    void scan(int);
 
     void serviceDiscovery(std::string, uint16_t = 0);
 
