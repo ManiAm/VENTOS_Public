@@ -51,7 +51,7 @@ private:
     void loadCachedDevices();
     void saveCachedDevices();
 
-    void lescan(int);
+    void lescan(int dev_id, int scanTime);
     std::map<std::string /*BT add*/, std::vector<std::string>> print_advertising_devices(int dd, int timeout);
     int parse_flags(uint8_t* data, size_t size);
     int parse_appearance(uint8_t* data, size_t size);
@@ -61,7 +61,7 @@ private:
 
 private:
     // NED variables
-    bool LEBTon;
+    bool BLEon;
 
     boost::filesystem::path cached_LEBT_devices_filePATH;
 

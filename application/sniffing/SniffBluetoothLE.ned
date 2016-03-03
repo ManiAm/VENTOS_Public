@@ -7,6 +7,8 @@ simple SniffBluetoothLE extends SniffBluetooth
         @class(VENTOS::SniffBluetoothLE);
         @display("i=block/network2");
         
-        bool LEBTon = default(false);
+        bool BLEon = default(false);
+        int BLEscanDeviceID;
+        int scanTime = default(10s) @unit(s);
 }
 

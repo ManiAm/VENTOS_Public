@@ -93,7 +93,7 @@ private:
     void loadCachedDevices();
     void saveCachedDevices();
 
-    void scan(int);
+    void scan(int dev_id, int len);
 
     void serviceDiscovery(std::string, uint16_t = 0);
 

@@ -45,14 +45,15 @@ protected:
     void executeEachTimestep();
 
 private:
-    void advertiseBeacon(int, uint8_t, int);
+    void advertiseBeacon(int dev_id, int minInterval, int maxInterval, uint8_t ADVtype, uint8_t channelNumber, int beaconType);
     void no_le_adv(int hdev);
-    void le_adv(int hdev, uint8_t type);
+    void le_adv(int hdev, uint16_t minInterval, uint16_t maxInterval, uint8_t ADVtype, uint8_t channelNumber);
     std::string generateBeacon(int);
 
 private:
     // NED variables
     bool advertisement;
+    int advertisementType;
 };
 
 }

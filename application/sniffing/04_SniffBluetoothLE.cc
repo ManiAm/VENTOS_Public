@@ -49,9 +49,9 @@ void SniffBluetoothLE::initialize(int stage)
 {
     SniffBluetooth::initialize(stage);
 
-    LEBTon = par("LEBTon").boolValue();
+    BLEon = par("BLEon").boolValue();
 
-    if(!LEBTon)
+    if(!BLEon)
         return;
 
     if(stage == 0)
@@ -96,18 +96,25 @@ void SniffBluetoothLE::executeEachTimestep()
 
     // run this code only once
     static bool wasExecuted = false;
-    if (LEBTon && !wasExecuted)
+    if (BLEon && !wasExecuted)
     {
         // cached LE BT devices from previous scans
         loadCachedDevices();
 
-        // get the first available Bluetooth adapter
-        int dev_id = hci_get_route(NULL);
-        if(dev_id < 0)
-            error("Device is not available");
+        int dev_id = par("BLEscanDeviceID").longValue();
+
+        if(dev_id == -1)
+        {
+            // get the first available BT device
+            dev_id = hci_get_route(NULL);
+            if (dev_id < 0)
+                error("Device is not available");
+        }
+
+        int scanTime = par("scanTime").longValue();
 
         // scan for Low Energy (LE) bluetooth device
-        lescan(dev_id);
+        lescan(dev_id, scanTime);
 
         // uint16_t handle = leCreateConnection("CC:4B:DA:B0:F8:28");
 
@@ -170,7 +177,7 @@ void SniffBluetoothLE::saveCachedDevices()
 }
 
 
-void SniffBluetoothLE::lescan(int dev_id)
+void SniffBluetoothLE::lescan(int dev_id, int scanTime)
 {
     int dd = hci_open_dev(dev_id);
     if (dd < 0)
@@ -215,7 +222,6 @@ void SniffBluetoothLE::lescan(int dev_id)
         error("Could not set socket options");
     }
 
-    int scanTime = 10;  // time in seconds
     std::cout << std::endl << ">>> Scan Bluetooth LE devices on hci" << dev_id << " for " << scanTime << " seconds... " << std::flush;
 
     auto rsp = print_advertising_devices(dd, scanTime);

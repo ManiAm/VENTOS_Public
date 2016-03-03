@@ -107,13 +107,20 @@ void SniffBluetooth::executeEachTimestep()
         // cached BT devices from previous scans
         loadCachedDevices();
 
-        // get the first available Bluetooth adapter
-        int dev_id = hci_get_route(NULL);
-        if(dev_id < 0)
-            error("Device is not available");
+        int dev_id = par("BTscanDeviceID").longValue();
+
+        if(dev_id == -1)
+        {
+            // get the first available BT device
+            dev_id = hci_get_route(NULL);
+            if (dev_id < 0)
+                error("Device is not available");
+        }
+
+        int scanLength = par("scanLength").longValue();
 
         // looking for nearby BT devices
-        scan(dev_id);
+        scan(dev_id, scanLength);
 
         // request for service
         serviceDiscovery("30:75:12:6D:B2:3A");
@@ -539,7 +546,7 @@ void SniffBluetooth::saveCachedDevices()
 
 
 // scan nearby BT devices
-void SniffBluetooth::scan(int dev_id)
+void SniffBluetooth::scan(int dev_id, int len)
 {
     int sock = hci_open_dev(dev_id);
     if (sock < 0)
@@ -548,9 +555,9 @@ void SniffBluetooth::scan(int dev_id)
     int max_rsp = 255;  // at most max_rsp devices will be returned
     int flags = IREQ_CACHE_FLUSH; // the cache of previously detected devices is flushed before performing the current inquiry
     inquiry_info *ii = (inquiry_info*)malloc(max_rsp * sizeof(inquiry_info));
-    int len  = 8;       // inquiry lasts for at most 1.28 * len seconds (= 10.24 seconds)
 
-    int scanTime = round(len * 1.28);  // in seconds
+    // inquiry lasts for at most 1.28 * len seconds (= 10.24 seconds)
+    int scanTime = round(len * 1.28);
     std::cout << std::endl << ">>> Scan Bluetooth devices on hci" << dev_id << " for " << scanTime << " seconds... " << std::flush;
 
     // num_rsp contains the number of discovered devices

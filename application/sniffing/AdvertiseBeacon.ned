@@ -8,6 +8,12 @@ simple AdvertiseBeacon extends SniffBluetoothLE
         @display("i=block/network2");
         
         bool advertisement = default(false);
+        
+        int advDeviceID;        
+        int minInterval;
+        int maxInterval;
+        int advType;
+        int channelNumber;        
         int beaconType;
         
         string iBeacon_UUID;

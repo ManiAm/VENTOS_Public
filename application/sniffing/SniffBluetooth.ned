@@ -8,5 +8,7 @@ simple SniffBluetooth
         @display("i=block/network2");
         
         bool BTon = default(false);
+        int BTscanDeviceID;        
+        int scanLength = default(8);
 }
 

@@ -31,13 +31,6 @@
 
 namespace VENTOS {
 
-/* Advertising report event types */
-#define ADV_IND         0x00    // Connectable undirected advertising
-#define ADV_DIRECT_IND  0x01    // Connectable high duty cycle directed advertising
-#define ADV_SCAN_IND    0x02    // Scannable undirected advertising
-#define ADV_NONCONN_IND 0x03    // Non connectable undirected advertising
-#define ADV_SCAN_RSP    0x04
-
 Define_Module(VENTOS::AdvertiseBeacon);
 
 AdvertiseBeacon::~AdvertiseBeacon()
@@ -98,14 +91,23 @@ void AdvertiseBeacon::executeEachTimestep()
     static bool wasExecuted = false;
     if (advertisement && !wasExecuted)
     {
-        // get the first available BT device
-        int dev_id = hci_get_route(NULL);
-        if (dev_id < 0)
-            error("Device is not available");
+        int dev_id = par("advDeviceID").longValue();
 
+        if(dev_id == -1)
+        {
+            // get the first available BT device
+            dev_id = hci_get_route(NULL);
+            if (dev_id < 0)
+                error("Device is not available");
+        }
+
+        int minInterval = par("minInterval").longValue();
+        int maxInterval = par("maxInterval").longValue();
+        uint8_t ADVtype = par("advType").longValue();
+        uint8_t channelNumber = par("channelNumber").longValue();
         int beaconType = par("beaconType").longValue();
 
-        advertiseBeacon(dev_id, ADV_NONCONN_IND, beaconType);
+        advertiseBeacon(dev_id, minInterval, maxInterval, ADVtype, channelNumber, beaconType);
 
         wasExecuted = true;
     }
@@ -118,13 +120,13 @@ void AdvertiseBeacon::executeEachTimestep()
      sudo hciconfig hci0 leadv 3
      sudo hcitool -i hci0 cmd 0x08 0x0008 1e 02 01 1a 1a ff 4c 00 02 15 e2 c5 6d b5 df fb 48 d2 b0 60 d0 f5 a7 10 96 e0 00 00 00 00 c5
  */
-void AdvertiseBeacon:: advertiseBeacon(int dev_id, uint8_t ADtype, int beaconType)
+void AdvertiseBeacon:: advertiseBeacon(int dev_id, int minInterval, int maxInterval, uint8_t ADVtype, uint8_t channelNumber, int beaconType)
 {
     // disable LE advertising first
     no_le_adv(dev_id);
 
     // then, enable LE advertising
-    le_adv(dev_id, ADtype);
+    le_adv(dev_id, minInterval, maxInterval, ADVtype, channelNumber);
 
     // generate BLE advertising PDU
     std::string payload = generateBeacon(beaconType);
@@ -174,7 +176,7 @@ void AdvertiseBeacon::no_le_adv(int hdev)
 }
 
 
-void AdvertiseBeacon::le_adv(int hdev, uint8_t type)
+void AdvertiseBeacon::le_adv(int hdev, uint16_t minInterval, uint16_t maxInterval, uint8_t ADVtype, uint8_t channel)
 {
     if (hdev < 0)
         error("Not a valid device");
@@ -183,14 +185,20 @@ void AdvertiseBeacon::le_adv(int hdev, uint8_t type)
     if (dd < 0)
         error("Could not open device");
 
-    std::cout << std::endl << ">>> Enabling type " << (int)type << " LE advertising on hci" << hdev << "... \n" << std::flush;
+    std::cout << std::endl << ">>> Enabling LE advertising on hci" << hdev << "... \n";
+    std::cout << "    Min interval: " << minInterval << std::endl;
+    std::cout << "    Max interval: " << maxInterval << std::endl;
+    std::cout << "    Advertisement type: " << (int)ADVtype << std::endl;
+    std::cout << "    Channel number: " << (int)channel << std::endl;
+
+    std::cout << std::flush;
 
     le_set_advertising_parameters_cp adv_params_cp;
     memset(&adv_params_cp, 0, sizeof(adv_params_cp));
-    adv_params_cp.min_interval = htobs(0x0800);
-    adv_params_cp.max_interval = htobs(0x0800);
-    adv_params_cp.advtype = type;
-    adv_params_cp.chan_map = 7;  // all channels are enabled, check page 966 of BT spec 4.1
+    adv_params_cp.min_interval = htobs(minInterval);
+    adv_params_cp.max_interval = htobs(maxInterval);
+    adv_params_cp.advtype = ADVtype;
+    adv_params_cp.chan_map = channel;
 
     uint8_t status;
     struct hci_request rq;
