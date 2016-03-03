@@ -7,8 +7,8 @@ simple SniffBluetooth
         @class(VENTOS::SniffBluetooth);
         @display("i=block/network2");
         
-        bool BTon = default(false);
-        int BTscanDeviceID;        
-        int scanLength = default(8);
+        bool BT_on = default(false);
+        int BT_scan_deviceID;        
+        int BT_scan_length = default(8);
 }
 

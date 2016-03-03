@@ -52,8 +52,7 @@ private:
 
 private:
     // NED variables
-    bool advertisement;
-    int advertisementType;
+    bool BLE_advertisement;
 };
 
 }

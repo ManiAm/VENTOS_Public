@@ -49,9 +49,9 @@ void SniffBluetoothLE::initialize(int stage)
 {
     SniffBluetooth::initialize(stage);
 
-    BLEon = par("BLEon").boolValue();
+    BLE_on = par("BLE_on").boolValue();
 
-    if(!BLEon)
+    if(!BLE_on)
         return;
 
     if(stage == 0)
@@ -96,12 +96,12 @@ void SniffBluetoothLE::executeEachTimestep()
 
     // run this code only once
     static bool wasExecuted = false;
-    if (BLEon && !wasExecuted)
+    if (BLE_on && !wasExecuted)
     {
         // cached LE BT devices from previous scans
         loadCachedDevices();
 
-        int dev_id = par("BLEscanDeviceID").longValue();
+        int dev_id = par("BLE_scan_deviceID").longValue();
 
         if(dev_id == -1)
         {
@@ -111,10 +111,15 @@ void SniffBluetoothLE::executeEachTimestep()
                 error("Device is not available");
         }
 
-        int scanTime = par("scanTime").longValue();
+        int scan_type = par("BLE_scan_type").longValue();
+        uint16_t interval = par("BLE_interval").longValue();
+        uint16_t window = par("BLE_window").longValue();
+        uint8_t own_type = par("BLE_own_type").longValue();
+        uint8_t filter_policy = par("BLE_filter_policy").longValue();
+        int scan_time = par("BLE_scan_time").longValue();
 
         // scan for Low Energy (LE) bluetooth device
-        lescan(dev_id, scanTime);
+        lescan(dev_id, scan_type, interval, window, own_type, filter_policy, scan_time);
 
         // uint16_t handle = leCreateConnection("CC:4B:DA:B0:F8:28");
 
@@ -177,17 +182,21 @@ void SniffBluetoothLE::saveCachedDevices()
 }
 
 
-void SniffBluetoothLE::lescan(int dev_id, int scanTime)
+void SniffBluetoothLE::lescan(int dev_id, uint8_t scan_type, uint16_t interval, uint16_t window, uint8_t own_type, uint8_t filter_policy, int scan_time)
 {
     int dd = hci_open_dev(dev_id);
     if (dd < 0)
         error("Could not open device");
 
-    uint8_t scan_type = 0x01;  // 0x00: passive, 0x01: active  More info: http://stackoverflow.com/questions/24994776/android-ble-passive-scan
-    uint16_t interval = htobs(0x0010);
-    uint16_t window = htobs(0x0010);
-    uint8_t own_type = 0x00;  // 0x01: enable privacy
-    uint8_t filter_policy = 0x00;  // 0x00: accept all, 0x01: white_list
+    std::cout << std::endl << ">>> Scanning Bluetooth LE devices on hci" << dev_id << " for " << scan_time << " seconds... \n";
+    std::cout << "    Scan type: " << (int)scan_type;
+    std::cout << ", Interval: " << interval;
+    std::cout << ", Window: " << window;
+    std::cout << ", Own type: " << (int)own_type;
+    std::cout << ", Filter policy: " << (int)filter_policy << std::endl;
+
+    std::cout << std::flush;
+
     int err = hci_le_set_scan_parameters(dd, scan_type, interval, window, own_type, filter_policy, 1000);
     if (err < 0)
     {
@@ -222,18 +231,14 @@ void SniffBluetoothLE::lescan(int dev_id, int scanTime)
         error("Could not set socket options");
     }
 
-    std::cout << std::endl << ">>> Scan Bluetooth LE devices on hci" << dev_id << " for " << scanTime << " seconds... " << std::flush;
-
-    auto rsp = print_advertising_devices(dd, scanTime);
+    auto rsp = print_advertising_devices(dd, scan_time);
 
     if(rsp.empty())
     {
-        std::cout << "Done!" << std::endl;
         std::cout << "No devices found!" << std::endl;
     }
     else
     {
-        std::cout << "Done!" << std::endl;
         std::cout << rsp.size() << " devices found: " << std::endl;
 
         for(auto i : rsp)

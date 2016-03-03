@@ -46,9 +46,9 @@ void SniffBluetooth::initialize(int stage)
 {
     if(stage == 0)
     {
-        BTon = par("BTon").boolValue();
+        BT_on = par("BT_on").boolValue();
 
-        if(!BTon)
+        if(!BT_on)
             return;
 
         // get a pointer to the TraCI module
@@ -67,7 +67,7 @@ void SniffBluetooth::initialize(int stage)
         EtherPtr = static_cast<SniffEthernet *>(module);
         ASSERT(EtherPtr);
 
-        if(!BTon)
+        if(!BT_on)
             return;
 
         // display local devices
@@ -102,12 +102,12 @@ void SniffBluetooth::executeEachTimestep()
 {
     // run this code only once
     static bool wasExecuted = false;
-    if (BTon && !wasExecuted)
+    if (BT_on && !wasExecuted)
     {
         // cached BT devices from previous scans
         loadCachedDevices();
 
-        int dev_id = par("BTscanDeviceID").longValue();
+        int dev_id = par("BT_scan_deviceID").longValue();
 
         if(dev_id == -1)
         {
@@ -117,7 +117,7 @@ void SniffBluetooth::executeEachTimestep()
                 error("Device is not available");
         }
 
-        int scanLength = par("scanLength").longValue();
+        int scanLength = par("BT_scan_length").longValue();
 
         // looking for nearby BT devices
         scan(dev_id, scanLength);
@@ -558,7 +558,7 @@ void SniffBluetooth::scan(int dev_id, int len)
 
     // inquiry lasts for at most 1.28 * len seconds (= 10.24 seconds)
     int scanTime = round(len * 1.28);
-    std::cout << std::endl << ">>> Scan Bluetooth devices on hci" << dev_id << " for " << scanTime << " seconds... " << std::flush;
+    std::cout << std::endl << ">>> Scanning Bluetooth devices on hci" << dev_id << " for " << scanTime << " seconds... \n" << std::flush;
 
     // num_rsp contains the number of discovered devices
     // ii contains the discovered devices info
@@ -570,13 +570,11 @@ void SniffBluetooth::scan(int dev_id, int len)
     }
     else if(num_rsp == 0)
     {
-        std::cout << "Done!" << std::endl;
         std::cout << "No devices found!" << std::endl;
         std::cout.flush();
     }
     else if(num_rsp > 0)
     {
-        std::cout << "Done!" << std::endl;
         std::cout << num_rsp << " devices found: " << std::endl;
         std::cout.flush();
 

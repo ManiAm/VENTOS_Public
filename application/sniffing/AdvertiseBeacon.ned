@@ -7,14 +7,14 @@ simple AdvertiseBeacon extends SniffBluetoothLE
         @class(VENTOS::AdvertiseBeacon);
         @display("i=block/network2");
         
-        bool advertisement = default(false);
+        bool BLE_advertisement = default(false);
         
-        int advDeviceID;        
-        int minInterval;
-        int maxInterval;
-        int advType;
-        int channelNumber;        
-        int beaconType;
+        int BLE_adv_deviceID;        
+        int BLE_minInterval;
+        int BLE_maxInterval;
+        int BLE_adv_type;
+        int BLE_channelNumber;        
+        int BLE_beaconType;
         
         string iBeacon_UUID;
         string iBeacon_major;

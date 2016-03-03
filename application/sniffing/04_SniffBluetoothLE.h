@@ -51,7 +51,8 @@ private:
     void loadCachedDevices();
     void saveCachedDevices();
 
-    void lescan(int dev_id, int scanTime);
+    void lescan(int dev_id, uint8_t scan_type, uint16_t interval, uint16_t window, uint8_t own_type, uint8_t filter_policy, int scanTime);
+
     std::map<std::string /*BT add*/, std::vector<std::string>> print_advertising_devices(int dd, int timeout);
     int parse_flags(uint8_t* data, size_t size);
     int parse_appearance(uint8_t* data, size_t size);
@@ -61,7 +62,7 @@ private:
 
 private:
     // NED variables
-    bool BLEon;
+    bool BLE_on;
 
     boost::filesystem::path cached_LEBT_devices_filePATH;
 

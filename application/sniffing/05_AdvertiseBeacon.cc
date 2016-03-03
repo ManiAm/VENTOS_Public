@@ -43,9 +43,9 @@ void AdvertiseBeacon::initialize(int stage)
 {
     SniffBluetoothLE::initialize(stage);
 
-    advertisement = par("advertisement").boolValue();
+    BLE_advertisement = par("BLE_advertisement").boolValue();
 
-    if(!advertisement)
+    if(!BLE_advertisement)
         return;
 
     if(stage == 0)
@@ -89,9 +89,9 @@ void AdvertiseBeacon::executeEachTimestep()
 
     // run this code only once
     static bool wasExecuted = false;
-    if (advertisement && !wasExecuted)
+    if (BLE_advertisement && !wasExecuted)
     {
-        int dev_id = par("advDeviceID").longValue();
+        int dev_id = par("BLE_adv_deviceID").longValue();
 
         if(dev_id == -1)
         {
@@ -101,11 +101,11 @@ void AdvertiseBeacon::executeEachTimestep()
                 error("Device is not available");
         }
 
-        int minInterval = par("minInterval").longValue();
-        int maxInterval = par("maxInterval").longValue();
-        uint8_t ADVtype = par("advType").longValue();
-        uint8_t channelNumber = par("channelNumber").longValue();
-        int beaconType = par("beaconType").longValue();
+        int minInterval = par("BLE_minInterval").longValue();
+        int maxInterval = par("BLE_maxInterval").longValue();
+        uint8_t ADVtype = par("BLE_adv_type").longValue();
+        uint8_t channelNumber = par("BLE_channelNumber").longValue();
+        int beaconType = par("BLE_beaconType").longValue();
 
         advertiseBeacon(dev_id, minInterval, maxInterval, ADVtype, channelNumber, beaconType);
 
@@ -186,10 +186,10 @@ void AdvertiseBeacon::le_adv(int hdev, uint16_t minInterval, uint16_t maxInterva
         error("Could not open device");
 
     std::cout << std::endl << ">>> Enabling LE advertising on hci" << hdev << "... \n";
-    std::cout << "    Min interval: " << minInterval << std::endl;
-    std::cout << "    Max interval: " << maxInterval << std::endl;
-    std::cout << "    Advertisement type: " << (int)ADVtype << std::endl;
-    std::cout << "    Channel number: " << (int)channel << std::endl;
+    std::cout << "    Min interval: " << minInterval;
+    std::cout << ", Max interval: " << maxInterval;
+    std::cout << ", Advertisement type: " << (int)ADVtype;
+    std::cout << ", Channel number: " << (int)channel << std::endl;
 
     std::cout << std::flush;
 
