@@ -7,6 +7,8 @@ simple SniffBluetoothDump extends AdvertiseBeacon
         @class(VENTOS::SniffBluetoothDump);
         @display("i=block/network2");
         
-        bool dumpOn = default(false);
+        bool dump_On = default(false);
+        int BLE_dump_deviceID;
+        int sniff_time = default(-1s) @unit(s);
 }
 

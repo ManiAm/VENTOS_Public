@@ -87,7 +87,11 @@ protected:
     void cmd_up(int hdev);
     void cmd_down(int hdev);
     bool isDown(int hdev);
+
     const std::string currentDateTime();
+
+    void cmd_cmd(int dev_id, uint8_t ogf, uint16_t ocf, std::string payload);
+    void hex_dump(std::string pref, int width, unsigned char *buf, int len);
 
 private:
     void loadCachedDevices();

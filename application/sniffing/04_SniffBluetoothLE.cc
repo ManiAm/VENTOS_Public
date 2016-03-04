@@ -359,11 +359,46 @@ std::map<std::string /*BT add*/, std::vector<std::string>> SniffBluetoothLE::pri
         int elapsed = time(NULL) - ts;
         if (elapsed >= timeout)
             break;
-
-        wait.tv_sec = timeout - elapsed;
     }
 
     return scannedDevs;
+}
+
+
+std::string SniffBluetoothLE::parse_name(uint8_t* data, size_t size)
+{
+    size_t offset = 0;
+    std::string unknown = "unknown";
+
+    while (offset < size)
+    {
+        uint8_t field_len = data[0];
+        size_t name_len;
+
+        if (field_len == 0 || offset + field_len > size)
+            return unknown;
+
+        switch (data[1])
+        {
+        case EIR_NAME_SHORT:
+        case EIR_NAME_COMPLETE:
+            name_len = field_len - 1;
+
+            // remove any trailing \x00s
+            if (data[1 + name_len] == '\0')
+                name_len--;
+
+            if (name_len > size)
+                return unknown;
+
+            return std::string((const char*)(data + 2), name_len);
+        }
+
+        offset += field_len + 1;
+        data += field_len + 1;
+    }
+
+    return unknown;
 }
 
 
@@ -420,43 +455,6 @@ int SniffBluetoothLE::parse_appearance(uint8_t* data, size_t size)
 }
 
 
-std::string SniffBluetoothLE::parse_name(uint8_t* data, size_t size)
-{
-    size_t offset = 0;
-    std::string unknown = "unknown";
-
-    while (offset < size)
-    {
-        uint8_t field_len = data[0];
-        size_t name_len;
-
-        if (field_len == 0 || offset + field_len > size)
-            return unknown;
-
-        switch (data[1])
-        {
-        case EIR_NAME_SHORT:
-        case EIR_NAME_COMPLETE:
-            name_len = field_len - 1;
-
-            // remove any trailing \x00s
-            if (data[1 + name_len] == '\0')
-                name_len--;
-
-            if (name_len > size)
-                return unknown;
-
-            return std::string((const char*)(data + 2), name_len);
-        }
-
-        offset += field_len + 1;
-        data += field_len + 1;
-    }
-
-    return unknown;
-}
-
-
 // check this: http://stackoverflow.com/questions/16224561/multiple-ble-connections-using-linux-and-bluez-5-0
 uint16_t SniffBluetoothLE::leCreateConnection(std::string str_bdaddr)
 {
@@ -500,91 +498,6 @@ uint16_t SniffBluetoothLE::leCreateConnection(std::string str_bdaddr)
     hci_close_dev(dd);
 
     return handle;
-}
-
-
-void SniffBluetoothLE::cmd_cmd(int dev_id, uint8_t ogf, uint16_t ocf, std::string payload)
-{
-    if (dev_id < 0)
-        error("Not a valid device");
-
-    int dd = hci_open_dev(dev_id);
-    if (dd < 0)
-        error("Device open failed");
-
-    if(payload == "")
-        error("payload is empty!");
-
-    std::cout << std::endl << ">>> Sending command on hci" << dev_id << "... \n" << std::flush;
-
-    std::vector<std::string> tokens = cStringTokenizer(payload.c_str()).asVector();
-    int len = tokens.size();
-
-    unsigned char buf[HCI_MAX_EVENT_SIZE];
-    unsigned char *ptr = buf;
-    for (auto &i : tokens)
-        *ptr++ = (uint8_t) strtol(i.c_str(), NULL, 16);
-
-    /* Setup filter */
-    struct hci_filter flt;
-    hci_filter_clear(&flt);
-    hci_filter_set_ptype(HCI_EVENT_PKT, &flt);
-    hci_filter_all_events(&flt);
-    if (setsockopt(dd, SOL_HCI, HCI_FILTER, &flt, sizeof(flt)) < 0)
-    {
-        hci_close_dev(dd);
-        error("HCI filter setup failed");
-    }
-
-    printf("    < HCI Command: ogf 0x%02x, ocf 0x%04x, plen %d \n", ogf, ocf, len);
-    hex_dump("    ", 200, buf, len);
-    fflush(stdout);
-
-    if (hci_send_cmd(dd, ogf, ocf, len, buf) < 0)
-    {
-        hci_close_dev(dd);
-        error("Send failed");
-    }
-
-    len = read(dd, buf, sizeof(buf));
-    if (len < 0)
-    {
-        hci_close_dev(dd);
-        error("Read failed");
-    }
-
-    hci_event_hdr *hdr = (hci_event_hdr *)(buf + 1);
-    ptr = buf + (1 + HCI_EVENT_HDR_SIZE);
-    len -= (1 + HCI_EVENT_HDR_SIZE);
-
-    printf("    > HCI Event: 0x%02x plen %d \n", hdr->evt, hdr->plen);
-    hex_dump("    ", 200, ptr, len);
-    fflush(stdout);
-
-    hci_close_dev(dd);
-}
-
-
-void SniffBluetoothLE::hex_dump(std::string pref, int width, unsigned char *buf, int len)
-{
-    register int i,n;
-
-    for (i = 0, n = 1; i < len; i++, n++)
-    {
-        if (n == 1)
-            printf("%s", pref.c_str());
-
-        printf("%2.2X ", buf[i]);
-
-        if (n == width)
-        {
-            printf("\n");
-            n = 0;
-        }
-    }
-
-    if (i && n != 1)
-        printf("\n");
 }
 
 }

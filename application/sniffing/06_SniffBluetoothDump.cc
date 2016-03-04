@@ -34,15 +34,8 @@ namespace VENTOS {
 #define SNAP_LEN_BT     HCI_MAX_FRAME_SIZE
 #define DUMP_BTSNOOP    0x1000
 #define DUMP_VERBOSE    0x0200
-
-/* Modes */
-enum {
-    PARSE,
-    READ,
-    WRITE,
-    PPPDUMP,
-    AUDIO
-};
+#define DUMP_RAW        0x0008
+#define DUMP_WIDTH  20
 
 struct hcidump_hdr {
     uint16_t    len;
@@ -104,9 +97,9 @@ void SniffBluetoothDump::initialize(int stage)
         Signal_executeEachTS = registerSignal("executeEachTS");
         simulation.getSystemModule()->subscribe("executeEachTS", this);
 
-        dumpOn = par("dumpOn").boolValue();
+        dump_On = par("dump_On").boolValue();
 
-        if(!dumpOn)
+        if(!dump_On)
             return;
     }
 }
@@ -154,19 +147,30 @@ void SniffBluetoothDump::executeEachTimestep()
 
     // run this code only once
     static bool wasExecuted = false;
-    if (dumpOn && !wasExecuted)
+    if (dump_On && !wasExecuted)
     {
-        unsigned long flags = 0;
-        flags |= DUMP_VERBOSE;
+        int dev_id = par("BLE_dump_deviceID").longValue();
 
-        int dev_id = hci_get_route(NULL);
-        if(dev_id < 0)
-            error("Device is not available");
+        if(dev_id == -1)
+        {
+            // get the first available BT device
+            dev_id = hci_get_route(NULL);
+            if (dev_id < 0)
+                error("Device is not available");
+        }
 
         int sok = open_socket(dev_id);
 
-        if(sok >= 0)  // double-check sok is >= 0
-            process_frames(dev_id, sok, flags);
+        // make sure sok is valid
+        if(sok >= 0)
+        {
+            unsigned long flags = 0;
+            flags |= DUMP_RAW;
+
+            int timeout = par("sniff_time").longValue();
+
+            process_frames(dev_id, sok, flags, timeout);
+        }
 
         wasExecuted = true;
     }
@@ -225,7 +229,7 @@ int SniffBluetoothDump::open_socket(int dev_id)
 }
 
 
-void SniffBluetoothDump::process_frames(int dev_id, int sock, unsigned long flags)
+void SniffBluetoothDump::process_frames(int dev_id, int sock, unsigned long flags, int timeout)
 {
     int hdr_size = HCIDUMP_HDR_SIZE;
     if (flags & DUMP_BTSNOOP)
@@ -258,8 +262,14 @@ void SniffBluetoothDump::process_frames(int dev_id, int sock, unsigned long flag
     nfds++;
 
     std::cout << std::endl;
-    printf(">>> Start dumping (snap_len is %d)...  \n", snap_len);
+    printf(">>> Start sniffing hci%d for %d seconds (snap_len is %d)...  \n\n", dev_id, timeout, snap_len);
     std::cout.flush();
+
+    struct timeval wait;
+    wait.tv_sec = timeout;
+    wait.tv_usec = 0;
+
+    int ts = time(NULL);  // get current time
 
     while (1)
     {
@@ -327,37 +337,49 @@ void SniffBluetoothDump::process_frames(int dev_id, int sock, unsigned long flag
         frm.len = frm.data_len;
 
         // Parse and print
-        // todo: parse(&frm);
+        hex_dump(&frm);
+
+        std::cout << std::endl;
+
+        // flush what we have so far
+        std::cout.flush();
+
+        int elapsed = time(NULL) - ts;
+        if (timeout != -1 && elapsed >= timeout)
+            break;
     }
 }
 
 
-inline int SniffBluetoothDump::write_n(int fd, char *buf, int len)
-{
-    int t = 0, w;
+/* Sample output
 
-    while (len > 0)
+04 3E 2A 02 01 03 00 '30 CD DD DC 84 0C'
+'1E' '02 01 1A' '1A FF' '4C 00' '02 15' 'E2 C5 6D B5 DF FB 48 D2 B0 60 D0 F5 A7 10 96 E0' '00 02' '00 01' 'C5 C5'
+
+ */
+void SniffBluetoothDump::hex_dump(struct frame *frm)
+{
+    if (!frm->len)
+        return;
+
+    std::string timeStamp = currentDateTime();
+    printf("Timestamp: %s \n", timeStamp.c_str());
+
+    unsigned int i, n;
+    unsigned char *buf = (unsigned char *)frm->ptr;
+    for (i = 0, n = 1; i < frm->len; i++, n++)
     {
-        if ((w = write(fd, buf, len)) < 0)
+        printf("%2.2X ", buf[i]);
+
+        if (n == DUMP_WIDTH)
         {
-            if (errno == EINTR || errno == EAGAIN)
-                continue;
-            return -1;
+            printf("\n");
+            n = 0;
         }
-
-        if (!w)
-            return 0;
-
-        len -= w; buf += w; t += w;
     }
 
-    return t;
-}
-
-
-void SniffBluetoothDump::got_packet(const struct pcap_pkthdr *header, const u_char *packet)
-{
-
+    if (i && n != 1)
+        printf("\n");
 }
 
 }

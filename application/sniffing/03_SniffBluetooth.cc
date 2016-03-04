@@ -751,4 +751,89 @@ void SniffBluetooth::serviceDiscovery(std::string bdaddr, uint16_t UUID)
     sdp_close(session);
 }
 
+
+void SniffBluetooth::cmd_cmd(int dev_id, uint8_t ogf, uint16_t ocf, std::string payload)
+{
+    if (dev_id < 0)
+        error("Not a valid device");
+
+    int dd = hci_open_dev(dev_id);
+    if (dd < 0)
+        error("Device open failed");
+
+    if(payload == "")
+        error("payload is empty!");
+
+    std::cout << std::endl << ">>> Sending command on hci" << dev_id << "... \n" << std::flush;
+
+    std::vector<std::string> tokens = cStringTokenizer(payload.c_str()).asVector();
+    int len = tokens.size();
+
+    unsigned char buf[HCI_MAX_EVENT_SIZE];
+    unsigned char *ptr = buf;
+    for (auto &i : tokens)
+        *ptr++ = (uint8_t) strtol(i.c_str(), NULL, 16);
+
+    /* Setup filter */
+    struct hci_filter flt;
+    hci_filter_clear(&flt);
+    hci_filter_set_ptype(HCI_EVENT_PKT, &flt);
+    hci_filter_all_events(&flt);
+    if (setsockopt(dd, SOL_HCI, HCI_FILTER, &flt, sizeof(flt)) < 0)
+    {
+        hci_close_dev(dd);
+        error("HCI filter setup failed");
+    }
+
+    printf("    < HCI Command: ogf 0x%02x, ocf 0x%04x, plen %d \n", ogf, ocf, len);
+    hex_dump("    ", 200, buf, len);
+    fflush(stdout);
+
+    if (hci_send_cmd(dd, ogf, ocf, len, buf) < 0)
+    {
+        hci_close_dev(dd);
+        error("Send failed");
+    }
+
+    len = read(dd, buf, sizeof(buf));
+    if (len < 0)
+    {
+        hci_close_dev(dd);
+        error("Read failed");
+    }
+
+    hci_event_hdr *hdr = (hci_event_hdr *)(buf + 1);
+    ptr = buf + (1 + HCI_EVENT_HDR_SIZE);
+    len -= (1 + HCI_EVENT_HDR_SIZE);
+
+    printf("    > HCI Event: 0x%02x plen %d \n", hdr->evt, hdr->plen);
+    hex_dump("    ", 200, ptr, len);
+    fflush(stdout);
+
+    hci_close_dev(dd);
+}
+
+
+void SniffBluetooth::hex_dump(std::string pref, int width, unsigned char *buf, int len)
+{
+    register int i,n;
+
+    for (i = 0, n = 1; i < len; i++, n++)
+    {
+        if (n == 1)
+            printf("%s", pref.c_str());
+
+        printf("%2.2X ", buf[i]);
+
+        if (n == width)
+        {
+            printf("\n");
+            n = 0;
+        }
+    }
+
+    if (i && n != 1)
+        printf("\n");
+}
+
 }

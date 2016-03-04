@@ -51,13 +51,13 @@ protected:
 
 private:
     int open_socket(int dev_id);
-    void process_frames(int dev_id, int sock, unsigned long flags);
-    inline int write_n(int fd, char *buf, int len);
-    void got_packet(const struct pcap_pkthdr *header, const u_char *packet);
+    void process_frames(int dev_id, int sock, unsigned long flags, int timeout);
+    void hex_dump(struct frame *frm);
 
 private:
     // NED variables
-    bool dumpOn;
+    bool dump_On;
+    int BLE_dump_deviceID;
 
     simsignal_t Signal_executeFirstTS;
     simsignal_t Signal_executeEachTS;

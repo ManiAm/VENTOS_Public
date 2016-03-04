@@ -44,9 +44,6 @@ protected:
     void executeFirstTimeStep();
     void executeEachTimestep();
 
-    void cmd_cmd(int dev_id, uint8_t ogf, uint16_t ocf, std::string payload);
-    void hex_dump(std::string pref, int width, unsigned char *buf, int len);
-
 private:
     void loadCachedDevices();
     void saveCachedDevices();
@@ -54,9 +51,9 @@ private:
     void lescan(int dev_id, uint8_t scan_type, uint16_t interval, uint16_t window, uint8_t own_type, uint8_t filter_policy, int scanTime);
 
     std::map<std::string /*BT add*/, std::vector<std::string>> print_advertising_devices(int dd, int timeout);
+    std::string parse_name(uint8_t* data, size_t size);
     int parse_flags(uint8_t* data, size_t size);
     int parse_appearance(uint8_t* data, size_t size);
-    std::string parse_name(uint8_t* data, size_t size);
 
     uint16_t leCreateConnection(std::string bdaddr);
 
