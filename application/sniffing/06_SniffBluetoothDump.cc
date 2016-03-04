@@ -32,9 +32,6 @@
 namespace VENTOS {
 
 #define SNAP_LEN_BT     HCI_MAX_FRAME_SIZE
-#define DUMP_BTSNOOP    0x1000
-#define DUMP_VERBOSE    0x0200
-#define DUMP_RAW        0x0008
 #define DUMP_WIDTH  20
 
 struct hcidump_hdr {
@@ -161,16 +158,9 @@ void SniffBluetoothDump::executeEachTimestep()
 
         int sok = open_socket(dev_id);
 
-        // make sure sok is valid
-        if(sok >= 0)
-        {
-            unsigned long flags = 0;
-            flags |= DUMP_RAW;
+        int timeout = par("sniff_time").longValue();
 
-            int timeout = par("sniff_time").longValue();
-
-            process_frames(dev_id, sok, flags, timeout);
-        }
+        process_frames(dev_id, sok, timeout);
 
         wasExecuted = true;
     }
@@ -225,15 +215,16 @@ int SniffBluetoothDump::open_socket(int dev_id)
     if (bind(sk, (struct sockaddr *) &addr, sizeof(addr)) < 0)
         error("Can't attach to device hci%d. %s(%d) \n", dev_id, strerror(errno), errno);
 
+    if(sk < 0)
+        error("Socket number is invalid");
+
     return sk;
 }
 
 
-void SniffBluetoothDump::process_frames(int dev_id, int sock, unsigned long flags, int timeout)
+void SniffBluetoothDump::process_frames(int dev_id, int sock, int timeout)
 {
     int hdr_size = HCIDUMP_HDR_SIZE;
-    if (flags & DUMP_BTSNOOP)
-        hdr_size = BTSNOOP_PKT_SIZE;
 
     int snap_len = SNAP_LEN_BT;
     char *buf = (char *) malloc(snap_len + hdr_size);
@@ -265,10 +256,6 @@ void SniffBluetoothDump::process_frames(int dev_id, int sock, unsigned long flag
     printf(">>> Start sniffing hci%d for %d seconds (snap_len is %d)...  \n\n", dev_id, timeout, snap_len);
     std::cout.flush();
 
-    struct timeval wait;
-    wait.tv_sec = timeout;
-    wait.tv_usec = 0;
-
     int ts = time(NULL);  // get current time
 
     while (1)
@@ -282,9 +269,9 @@ void SniffBluetoothDump::process_frames(int dev_id, int sock, unsigned long flag
             if (fds[i].revents & (POLLHUP | POLLERR | POLLNVAL))
             {
                 if (fds[i].fd == sock)
-                    printf("device: disconnected \n");
+                    printf("Device disconnected \n");
                 else
-                    printf("client: disconnect \n");
+                    printf("Client disconnect \n");
 
                 return;
             }
@@ -362,8 +349,14 @@ void SniffBluetoothDump::hex_dump(struct frame *frm)
     if (!frm->len)
         return;
 
-    std::string timeStamp = currentDateTime();
-    printf("Timestamp: %s \n", timeStamp.c_str());
+    /* convert timestamp to readable format */
+    time_t local_tv_sec = frm->ts.tv_sec;
+    struct tm *ltime = localtime(&local_tv_sec);
+    char timestr[16];
+    strftime(timestr, sizeof timestr, "%H:%M:%S", ltime);
+    printf("Timestamp: %s:%ld", timestr, frm->ts.tv_usec);
+
+    printf(", Channel: %d \n", frm->channel);
 
     unsigned int i, n;
     unsigned char *buf = (unsigned char *)frm->ptr;

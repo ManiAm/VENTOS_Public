@@ -357,7 +357,7 @@ std::map<std::string /*BT add*/, std::vector<std::string>> SniffBluetoothLE::pri
         }
 
         int elapsed = time(NULL) - ts;
-        if (elapsed >= timeout)
+        if (timeout != -1 && elapsed >= timeout)
             break;
     }
 
