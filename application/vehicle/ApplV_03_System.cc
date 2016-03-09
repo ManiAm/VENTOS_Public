@@ -85,7 +85,11 @@ void ApplVSystem::initialize(int stage)
         if(find(router->nonReroutingVehicles->begin(), router->nonReroutingVehicles->end(), SUMOID.substr(1, SUMOID.length() - 1)) != router->nonReroutingVehicles->end())
         {
             requestReroutes = false;
-            if(debugLevel > 1) std::cout << SUMOID << " is not routing" << endl;
+            if(ev.isGUI() && debugLevel > 1)
+            {
+                std::cout << SUMOID << " is not routing" << endl;
+                std::cout.flush();
+            }
         }
         else
             requestReroutes = true;
@@ -116,8 +120,11 @@ void ApplVSystem::finish()
     if(!requestRoutes)
         return;
 
-    if(debugLevel > 0)
+    if(ev.isGUI() && debugLevel > 0)
+    {
         std::cout << "t=" << simTime().dbl() << ": " << SUMOID << " took " << simTime().dbl() - entryTime << " seconds to complete its route." << endl;
+        std::cout.flush();
+    }
 
     router->vehicleEndTimesFile << SUMOID << " " << simTime().dbl() << endl;
 
@@ -153,8 +160,11 @@ void ApplVSystem::handleSelfMsg(cMessage* msg)  //Internal messages to self
 
 void ApplVSystem::reroute()
 {
-    if(debugLevel > 1)
+    if(ev.isGUI() && debugLevel > 1)
+    {
         std::cout << "Rerouting " << SUMOID << " at t=" << simTime().dbl() << endl;
+        std::cout.flush();
+    }
 
     ++numReroutes;
 
@@ -182,13 +192,15 @@ void ApplVSystem::receiveSignal(cComponent *source, simsignal_t signalID, cObjec
             {
                 std::list<std::string> sRoute = s->getInfo(); //Copy the info from the signal (breaks if we don't do this, for some reason)
 
-                if(debugLevel > 1)
+                if(ev.isGUI() && debugLevel > 1)
                 {
                     std::cout << SUMOID << " got route ";
                     for(std::string s : sRoute)
                         std::cout << s << " ";
                     std::cout << endl;
+                    std::cout.flush();
                 }
+
                 if (*sRoute.begin() != "failed")
                     TraCI->vehicleSetRoute(s->getRecipient(), sRoute);  //Update this vehicle's path with the proper info
             }

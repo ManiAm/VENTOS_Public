@@ -143,11 +143,12 @@ void TrafficLightActuated::executeFirstTimeStep()
     else
         error("passageTime value is not set correctly!");
 
-    if(debugLevel > 0)
+    if(ev.isGUI() && debugLevel > 0)
     {
         char buff[300];
         sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
         std::cout << endl << buff << endl << endl;
+        std::cout.flush();
     }
 }
 
@@ -213,11 +214,12 @@ void TrafficLightActuated::chooseNextInterval()
         // update TL status for this phase
         updateTLstate("C", "red");
 
-        if(debugLevel > 0)
+        if(ev.isGUI() && debugLevel > 0)
         {
             char buff[300];
             sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
             std::cout << buff << endl << endl;
+            std::cout.flush();
         }
     }
     else if (currentInterval == "red")
@@ -235,11 +237,12 @@ void TrafficLightActuated::chooseNextInterval()
         intervalElapseTime = 0.0;
         intervalOffSet = minGreenTime;
 
-        if(debugLevel > 0)
+        if(ev.isGUI() && debugLevel > 0)
         {
             char buff[300];
             sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
             std::cout << buff << endl << endl;
+            std::cout.flush();
         }
     }
     else
@@ -250,19 +253,23 @@ void TrafficLightActuated::chooseNextInterval()
 void TrafficLightActuated::chooseNextGreenInterval()
 {
     // print for debugging
-    if(debugLevel > 1)
+    if(ev.isGUI() && debugLevel > 1)
     {
         std::cout << "SimTime: " << std::setprecision(2) << std::fixed << simTime().dbl() << " | Passage time value per lane: ";
         for (auto &LD : passageTimePerLane)
             std::cout << LD.first << " (" << LD.second << ") | ";
         std::cout << endl;
+        std::cout.flush();
     }
 
     // get loop detector information
     std::map<std::string,double> LastActuatedTime;
 
-    if(debugLevel > 1)
+    if(ev.isGUI() && debugLevel > 1)
+    {
         std::cout << "SimTime: " << std::setprecision(2) << std::fixed << simTime().dbl() << " | Actuated LDs (lane, elapsed time): ";
+        std::cout.flush();
+    }
 
     // (*LD).first is 'lane id' and (*LD).second is detector id
     for (auto &LD : LD_actuated)
@@ -271,8 +278,11 @@ void TrafficLightActuated::chooseNextGreenInterval()
         LastActuatedTime[LD.first] = elapsedT;
 
         // print for debugging
-        if(abs( simTime().dbl() - (elapsedT + updateInterval) ) >= updateInterval && debugLevel > 1)
+        if(ev.isGUI() && abs(simTime().dbl() - (elapsedT + updateInterval)) >= updateInterval && debugLevel > 1)
+        {
             std::cout << LD.first << " (" << elapsedT << ") | ";
+            std::cout.flush();
+        }
     }
 
     std::cout << endl;
@@ -457,13 +467,19 @@ void TrafficLightActuated::chooseNextGreenInterval()
             intervalOffSet = 0.0001;
             intervalElapseTime = maxGreenTime;
 
-            if(debugLevel > 0)
+            if(ev.isGUI() && debugLevel > 0)
+            {
                 std::cout << ">>> Green extension offset is too small. Terminating the current phase ..." << endl << endl;
+                std::cout.flush();
+            }
         }
         else
         {
-            if(debugLevel > 0)
+            if(ev.isGUI() && debugLevel > 0)
+            {
                 std::cout << ">>> Extending green for both movements by " << intervalOffSet << "s" << endl << endl;
+                std::cout.flush();
+            }
         }
     }
     // we should terminate the current green interval
@@ -478,11 +494,12 @@ void TrafficLightActuated::chooseNextGreenInterval()
         // update TL status for this phase
         updateTLstate("C", "yellow");
 
-        if(debugLevel > 0)
+        if(ev.isGUI() && debugLevel > 0)
         {
             char buff[300];
             sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
             std::cout << buff << endl << endl;
+            std::cout.flush();
         }
     }
 }

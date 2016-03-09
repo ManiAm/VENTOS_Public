@@ -254,11 +254,12 @@ void LoopDetectors::getAllDetectors()
             AD_queue[lane] = it;
     }
 
-    if(debugLevel > 0)
+    if(ev.isGUI() && debugLevel > 0)
     {
         std::cout << LD_demand.size() << " demand loop detectors found!" << endl;
         std::cout << LD_actuated.size() << " actuated loop detectors found!" << endl;
         std::cout << AD_queue.size() << " area detectors found!" << endl << endl;
+        std::cout.flush();
     }
 
     // make sure we have all detectors we need
@@ -703,8 +704,11 @@ void LoopDetectors::updateTrafficDemand()
                 (location->second).clear();
             }
 
-            if(debugLevel > 1)
+            if(ev.isGUI() && debugLevel > 1)
+            {
                 std::cout << ">>> Traffic demand measurement restarted for lane " << lane << endl << endl;
+                std::cout.flush();
+            }
         }
 
         if(TD != 0)

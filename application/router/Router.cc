@@ -148,7 +148,11 @@ void Router::initialize(int stage)
                 EdgeRemovals.push_back(EdgeRemoval(edgeID, start, end, pos, laneIndex, false));
             }
 
-            if(debugLevel > 1) std::cout << "Loaded " << EdgeRemovals.size() << " accidents from " << AccidentFile << endl;
+            if(ev.isGUI() && debugLevel > 1)
+            {
+                std::cout << "Loaded " << EdgeRemovals.size() << " accidents from " << AccidentFile << endl;
+                std::cout.flush();
+            }
 
             if(EdgeRemovals.size() > 0)
             {
@@ -187,7 +191,12 @@ void Router::initialize(int stage)
                 while(NonReroutingFile >> vehNum)
                     nonReroutingVehicles->insert(vehNum);
                 NonReroutingFile.close();
-                if(debugLevel > 1) std::cout << "Loaded " << numNonRerouting << " nonRerouting vehicles from file " << NonReroutingFileName << endl;
+
+                if(ev.isGUI() && debugLevel > 1)
+                {
+                    std::cout << "Loaded " << numNonRerouting << " nonRerouting vehicles from file " << NonReroutingFileName << endl;
+                    std::cout.flush();
+                }
             }
             else
             {
@@ -197,7 +206,12 @@ void Router::initialize(int stage)
                 for(std::string veh : *nonReroutingVehicles)
                     NonReroutingFile << veh << endl;
                 NonReroutingFile.close();
-                if(debugLevel > 1) std::cout << "Created " << numNonRerouting << "-vehicle nonRerouting file " << NonReroutingFileName << endl;
+
+                if(ev.isGUI() && debugLevel > 1)
+                {
+                    std::cout << "Created " << numNonRerouting << "-vehicle nonRerouting file " << NonReroutingFileName << endl;
+                    std::cout.flush();
+                }
             }
         }
         else
@@ -211,7 +225,13 @@ void Router::initialize(int stage)
         if(collectVehicleTimeData)
         {
             std::string TravelTimesFileName = VENTOS_FullPath.string() + "results/router/" + filePrefix.str() + ".txt";
-            if(debugLevel > 1) std::cout << "Opened edge-weights file at " << TravelTimesFileName << endl;
+
+            if(ev.isGUI() && debugLevel > 1)
+            {
+                std::cout << "Opened edge-weights file at " << TravelTimesFileName << endl;
+                std::cout.flush();
+            }
+
             vehicleTravelTimesFile.open(TravelTimesFileName.c_str());  //Open the edgeWeights file
         }
 
@@ -258,11 +278,20 @@ void Router::receiveDijkstraRequest(Edge* origin, Node* destination, std::string
     {
         dijkstraTimes[key] = simTime().dbl();
         dijkstraRoutes[key] = getRoute(origin, destination, sender);
-        if(debugLevel > 2) std::cout << "Created dijkstra's route from " << origin->id << " to " << destination->id << " at t=" << simTime().dbl() << endl;
+
+        if(ev.isGUI() && debugLevel > 2)
+        {
+            std::cout << "Created dijkstra's route from " << origin->id << " to " << destination->id << " at t=" << simTime().dbl() << endl;
+            std::cout.flush();
+        }
     }
     else
     {
-        if(debugLevel > 2) std::cout << "Using old dijkstras route at t=" << simTime().dbl() << endl;
+        if(ev.isGUI() && debugLevel > 2)
+        {
+            std::cout << "Using old dijkstras route at t=" << simTime().dbl() << endl;
+            std::cout.flush();
+        }
     }
 
     // Systemdata wants string edge, string node, string sender, int requestType, string recipient, list<string> edgeList
@@ -292,8 +321,11 @@ void Router::receiveDoneRequest(std::string sender)
     //Decrement vehicle count, print
     currentVehicleCount--;
 
-    if(debugLevel > 0)
+    if(ev.isGUI() && debugLevel > 0)
+    {
         std::cout << currentVehicleCount << " vehicles left." << endl;
+        std::cout.flush();
+    }
 
     //DTODO: Write currentRun to a file
     //int currentRun = ev.getConfigEx()->getActiveRunNumber();
@@ -478,8 +510,13 @@ void Router::parseLaneCostsFile()
         }
 
         net->edges.at(edgeName)->travelTimes = EdgeCosts(m);
-        if(debugLevel > 1) std::cout << "Loaded costs for " << edgeName << ": " << net->edges.at(edgeName)->travelTimes.average << endl;
+        if(ev.isGUI() && debugLevel > 1)
+        {
+            std::cout << "Loaded costs for " << edgeName << ": " << net->edges.at(edgeName)->travelTimes.average << endl;
+            std::cout.flush();
+        }
     }
+
     inFile.close();
 }
 
@@ -522,7 +559,11 @@ void Router::laneCostsData()
             {
                 if(vehicleEdges[vehicle] != curEdge)
                 {
-                    if(debugLevel > 2) std::cout << vehicle << " changes lanes to " << curEdge << " at t=" << simTime().dbl() << "(" << vehicleLaneChangeCount[vehicle] << ")" << endl;
+                    if(ev.isGUI() && debugLevel > 2)
+                    {
+                        std::cout << vehicle << " changes lanes to " << curEdge << " at t=" << simTime().dbl() << "(" << vehicleLaneChangeCount[vehicle] << ")" << endl;
+                        std::cout.flush();
+                    }
 
                     double time = simTime().dbl() - vehicleTimes[vehicle];
                     net->edges.at(vehicleEdges[vehicle])->travelTimes.insert(time);
@@ -534,7 +575,11 @@ void Router::laneCostsData()
                         vehicleLaneChangeCount[vehicle] = 0;
 
                         sendRerouteSignal(vehicle);
-                        if(debugLevel > 1) std::cout << "Hystereis rerouting " << vehicle << " at t=" << simTime().dbl() << endl;
+                        if(ev.isGUI() && debugLevel > 1)
+                        {
+                            std::cout << "Hystereis rerouting " << vehicle << " at t=" << simTime().dbl() << endl;
+                            std::cout.flush();
+                        }
                     }
                 }
             }
@@ -576,7 +621,13 @@ Hypertree* Router::buildHypertree(int startTime, Node* destination)
             }
         }
     }
-    if(debugLevel > 2) std::cout << "Generating a hypertree for " << destination->id << endl;
+
+    if(ev.isGUI() && debugLevel > 2)
+    {
+        std::cout << "Generating a hypertree for " << destination->id << endl;
+        std::cout.flush();
+    }
+
     Node* D = destination;    // Find the destination, call it D
     for(int t = startTime; t <= timePeriodMax; t++)           // For every second in the time interval
     {
@@ -704,9 +755,12 @@ std::list<std::string> Router::getRoute(Edge* origin, Node* destination, std::st
         }
     }// While heap isn't empty
 
-    if(debugLevel > 0)
+    if(ev.isGUI() && debugLevel > 0)
+    {
         // Either destination cannot be reached or vehicle is on an edge with an accident. Route will not be changed.
         std::cout << "t=" << simTime().dbl() << ": " << "Pathing failed from " << origin->id << " to " << destination->id << endl;
+        std::cout.flush();
+    }
 
     std::list<std::string> ret;
     ret.push_back("failed");

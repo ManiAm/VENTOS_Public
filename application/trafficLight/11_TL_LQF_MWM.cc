@@ -154,11 +154,12 @@ void TrafficLight_LQF_MWM::executeFirstTimeStep()
         updateTLstate(TL, "init", currentInterval);
     }
 
-    if(debugLevel > 0)
+    if(ev.isGUI() && debugLevel > 0)
     {
         char buff[300];
         sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
         std::cout << endl << buff << endl << endl;
+        std::cout.flush();
     }
 }
 
@@ -218,11 +219,12 @@ void TrafficLight_LQF_MWM::chooseNextInterval()
     else
         chooseNextGreenInterval();
 
-    if(debugLevel > 0)
+    if(ev.isGUI() && debugLevel > 0)
     {
         char buff[300];
         sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
         std::cout << buff << endl << endl;
+        std::cout.flush();
     }
 }
 
@@ -372,14 +374,17 @@ void TrafficLight_LQF_MWM::calculatePhases(std::string TLid)
     );
     greenInterval.erase( rme, greenInterval.end() );
     int newSize = greenInterval.size();
-    if(oldSize != newSize && debugLevel > 1)
+    if(ev.isGUI() && debugLevel > 1 && oldSize != newSize)
+    {
         std::cout << ">>> " << oldSize - newSize << " phase(s) removed due to zero queue size!" << endl << endl;
+        std::cout.flush();
+    }
 
     // make sure the green splits are bounded
     for (auto &i : greenInterval)
         i.greenTime = std::min(std::max(i.greenTime, minGreenTime), maxGreenTime);
 
-    if(debugLevel > 1)
+    if(ev.isGUI() && debugLevel > 1)
     {
         std::cout << "Ordered green intervals for this cycle: " << endl;
         for (auto &i : greenInterval)
@@ -390,6 +395,7 @@ void TrafficLight_LQF_MWM::calculatePhases(std::string TLid)
             << ", green= " << i.greenTime << "s" << endl;
 
         std::cout << endl;
+        std::cout.flush();
     }
 }
 

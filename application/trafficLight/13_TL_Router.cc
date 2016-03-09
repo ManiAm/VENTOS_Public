@@ -228,7 +228,11 @@ void TrafficLightRouter::switchToPhase(int phaseSwitch, double greenDuration, in
 
     nextDuration = greenDuration;
 
-    if(debugLevel > 2) std::cout << "Switching to transition phase " << (currentPhase + 1) % phases.size() << endl;
+    if(ev.isGUI() && debugLevel > 2)
+    {
+        std::cout << "Switching to transition phase " << (currentPhase + 1) % phases.size() << endl;
+        std::cout.flush();
+    }
 
     TraCI->TLSetPhaseIndex(id, (currentPhase + 1) % phases.size());           //Manually switch to the yellow phase in SUMO
 
@@ -249,22 +253,42 @@ void TrafficLightRouter::handleMessage(cMessage* msg)  //Internal messages to se
     {
         if(msg->isName("tl evt"))   //Out-of-sync TL Algorithms take place here
         {
-            if(debugLevel > 2) std::cout << "TL " << id << " got an asynchronous self-message at t=" << simTime().dbl() << endl;
+            if(ev.isGUI() && debugLevel > 2)
+            {
+                std::cout << "TL " << id << " got an asynchronous self-message at t=" << simTime().dbl() << endl;
+                std::cout.flush();
+            }
+
             ASynchronousMessage();
         }
         else if(msg->isName("tl switch evt"))   //Operations in sync with normal phase switching happens here
         {
-            if(debugLevel > 2) std::cout << "TL " << id << " got a synchronous self-message at t=" << simTime().dbl() << endl;
+            if(ev.isGUI() && debugLevel > 2)
+            {
+                std::cout << "TL " << id << " got a synchronous self-message at t=" << simTime().dbl() << endl;
+                std::cout.flush();
+            }
+
             SynchronousMessage();
         }
         else if(msg->isName("tl transition evt"))
         {
 
-            if(debugLevel > 2) std::cout << "TL " << id << " got a transition self-message at t=" << simTime().dbl() << endl;
+            if(ev.isGUI() && debugLevel > 2)
+            {
+                std::cout << "TL " << id << " got a transition self-message at t=" << simTime().dbl() << endl;
+                std::cout.flush();
+            }
+
             currentPhase = nextPhase;
             TraCI->TLSetPhaseIndex(id, currentPhase);           //Manually switch to the yellow phase in SUMO
 
-            if(debugLevel > 2) std::cout << "Switching to actual phase " << currentPhase << endl;
+            if(ev.isGUI() && debugLevel > 2)
+            {
+                std::cout << "Switching to actual phase " << currentPhase << endl;
+                std::cout.flush();
+            }
+
             lastSwitchTime = simTime().dbl();
 
             TraCI->TLSetPhaseDuration(id, 10000000);
@@ -283,20 +307,20 @@ void TrafficLightRouter::SynchronousMessage()
 {
     switch(TLLogicMode)
     {
-        case FIXED:
-            switchToPhase(currentPhase + 2);
-            break;
-        case HIGHDENSITY:
-            switchToPhase(currentPhase + 2);
-            break;
-        case LOWDENSITY:
-            LowDensityRecalculate();
-            break;
-        case COOPERATIVE:
-            FlowRateRecalculate();
-            break;
-        default:
-            break;
+    case FIXED:
+        switchToPhase(currentPhase + 2);
+        break;
+    case HIGHDENSITY:
+        switchToPhase(currentPhase + 2);
+        break;
+    case LOWDENSITY:
+        LowDensityRecalculate();
+        break;
+    case COOPERATIVE:
+        FlowRateRecalculate();
+        break;
+    default:
+        break;
     }
 }
 
@@ -330,14 +354,18 @@ void TrafficLightRouter::HighDensityRecalculate()
             {
                 phaseVehicleCounts[*it] += vehCount;    //Add the number of vehicles on that lane to that phase
                 total += vehCount; //And add to the totals
-                    //If we  want each vehicle to contribute exactly 1 weight, add vehCount/greenPhases.size() instead.
+                //If we  want each vehicle to contribute exactly 1 weight, add vehCount/greenPhases.size() instead.
             }
         }
     }
 
     if(total > 0)  //If there are vehicles on the lane
     {
-        if(debugLevel > 2) std::cout << "For TL " << id << " at t=" << simTime().dbl() << ": " << endl;
+        if(ev.isGUI() && debugLevel > 2)
+        {
+            std::cout << "For TL " << id << " at t=" << simTime().dbl() << ": " << endl;
+            std::cout.flush();
+        }
 
         for(unsigned int i = 0; i < phases.size(); i++)  //For each phase
         {
@@ -348,7 +376,12 @@ void TrafficLightRouter::HighDensityRecalculate()
                 if(duration < 3)    //If the duration is too short, set it to a minimum
                     duration = 3;
 
-                if(debugLevel > 2) std::cout << "    Phase " << i << " set to " << duration << endl;
+                if(ev.isGUI() && debugLevel > 2)
+                {
+                    std::cout << "    Phase " << i << " set to " << duration << endl;
+                    std::cout.flush();
+                }
+
                 phases[i]->duration = duration; //Update durations. These will take affect starting with the next phase
             }
         }
@@ -483,7 +516,12 @@ void TrafficLightRouter::FlowRateRecalculate()
 
     if(maxFlowTime >= MinPhaseDuration) //if any vehicles will arrive before the light's max duration, maxFlowTime will have been set
     {
-        if(debugLevel > 2) std::cout << "Switching tl " << id << " to phase " << maxFlowPhase << " for " << maxFlowTime << " seconds" << endl;
+        if(ev.isGUI() && debugLevel > 2)
+        {
+            std::cout << "Switching tl " << id << " to phase " << maxFlowPhase << " for " << maxFlowTime << " seconds" << endl;
+            std::cout.flush();
+        }
+
         switchToPhase(maxFlowPhase, maxFlowTime);   //So switch to that phase
     }
     else    //No vehicles are nearby. Continue TL operations as normal.
@@ -495,7 +533,12 @@ void TrafficLightRouter::LowDensityRecalculate()
 {
     if(LowDensityVehicleCheck())
     {
-        if(debugLevel > 2) std::cout << "Extending tl " << id << " by " << LowDensityExtendTime << " seconds" << endl;
+        if(ev.isGUI() && debugLevel > 2)
+        {
+            std::cout << "Extending tl " << id << " by " << LowDensityExtendTime << " seconds" << endl;
+            std::cout.flush();
+        }
+
         TLSwitchEvent = new cMessage("tl switch evt");
         scheduleAt(simTime().dbl() + LowDensityExtendTime, TLSwitchEvent);
     }
@@ -565,9 +608,9 @@ void TrafficLightRouter::finish()
 void TrafficLightRouter::print() // Print a node
 {
     if(ev.isGUI()) std::cout<<"id: "<< std::setw(4) << std::left << id <<
-                              "type: " << std::left << type <<
-                              "  programID: "<< std::setw(4) << std::left << programID <<
-                              "offset: "<< std::setw(4) << std::left << offset;
+            "type: " << std::left << type <<
+            "  programID: "<< std::setw(4) << std::left << programID <<
+            "offset: "<< std::setw(4) << std::left << offset;
 
     for(std::vector<Phase*>::iterator it = phases.begin(); it != phases.end(); it++)
     {

@@ -154,11 +154,12 @@ void TrafficLight_OJFM::executeFirstTimeStep()
         updateTLstate(TL, "init", currentInterval);
     }
 
-    if(debugLevel > 0)
+    if(ev.isGUI() && debugLevel > 0)
     {
-    char buff[300];
-    sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
-    std::cout << buff << endl << endl;
+        char buff[300];
+        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
+        std::cout << buff << endl << endl;
+        std::cout.flush();
     }
 }
 
@@ -216,11 +217,12 @@ void TrafficLight_OJFM::chooseNextInterval()
     else
         chooseNextGreenInterval();
 
-    if(debugLevel > 0)
+    if(ev.isGUI() && debugLevel > 0)
     {
-    char buff[300];
-    sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
-    std::cout << buff << endl << endl;
+        char buff[300];
+        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
+        std::cout << buff << endl << endl;
+        std::cout.flush();
     }
 }
 
@@ -338,12 +340,18 @@ void TrafficLight_OJFM::chooseNextGreenInterval()
 
     // allocate enough green time to move all vehicles
     int maxVehCount = entry.maxVehCount;
-    if(debugLevel > 1)
+    if(ev.isGUI() && debugLevel > 1)
+    {
         std::cout << "Maximum of " << maxVehCount << " vehicle(s) are waiting. ";
+        std::cout.flush();
+    }
     double greenTime = (double)maxVehCount * (minGreenTime / 5.);
     nextGreenTime = std::min(std::max(greenTime, minGreenTime), maxGreenTime);      // bound green time
-    if(debugLevel > 1)
+    if(ev.isGUI() && debugLevel > 1)
+    {
         std::cout << "Next green time is " << nextGreenTime << endl << endl;
+        std::cout.flush();
+    }
 
     if(needYellowInterval)
     {
@@ -359,8 +367,11 @@ void TrafficLight_OJFM::chooseNextGreenInterval()
     else
     {
         intervalOffSet = nextGreenTime;
-        if(debugLevel > 0)
+        if(ev.isGUI() && debugLevel > 0)
+        {
             std::cout << ">>> Continue the last green interval." << endl << endl;
+            std::cout.flush();
+        }
     }
 }
 

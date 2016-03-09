@@ -118,7 +118,8 @@ void TrafficLightAllowedMoves::getMovements(std::string TLid)
     if(allMovements.empty())
         error("allMovements vector is empty!");
 
-    allMovementBatch(14);
+    if(ev.isGUI() && debugLevel > 2)
+        allMovementBatch(14);
 }
 
 
@@ -497,6 +498,7 @@ void TrafficLightAllowedMoves::allMovementBatch(unsigned int linkNumber)
     }
 
     std::cout << std::endl;
+    std::cout.flush();
 }
 
 }

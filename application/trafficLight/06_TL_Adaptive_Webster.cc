@@ -117,11 +117,12 @@ void TrafficLightWebster::executeFirstTimeStep()
         updateTLstate(TL, "init", currentInterval);
     }
 
-    if(debugLevel > 0)
+    if(ev.isGUI() && debugLevel > 0)
     {
         char buff[300];
         sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
         std::cout << buff << endl << endl;
+        std::cout.flush();
     }
 }
 
@@ -182,11 +183,12 @@ void TrafficLightWebster::chooseNextInterval()
     else
         chooseNextGreenInterval();
 
-    if(debugLevel > 0)
+    if(ev.isGUI() && debugLevel > 0)
     {
         char buff[300];
         sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
         std::cout << buff << endl << endl;
+        std::cout.flush();
     }
 }
 
@@ -230,7 +232,7 @@ void TrafficLightWebster::chooseNextGreenInterval()
 void TrafficLightWebster::calculateGreenSplits()
 {
     // debugging (print traffic demand)
-    if(debugLevel > 1)
+    if(ev.isGUI() && debugLevel > 1)
     {
         std::cout << ">>> Measured traffic demands at the beginning of this cycle: ";
         for(auto &y : laneTD)
@@ -256,6 +258,7 @@ void TrafficLightWebster::calculateGreenSplits()
             }
         }
         std::cout << endl << endl;
+        std::cout.flush();
     }
 
     std::vector<double> critical;
@@ -302,14 +305,14 @@ void TrafficLightWebster::calculateGreenSplits()
     }
 
     // print Y_i for each phase
-    if(debugLevel > 1) std::cout << ">>> critical v/c for each phase: ";
+    if(ev.isGUI() && debugLevel > 1) std::cout << ">>> critical v/c for each phase: ";
     int activePhases = 0;
     for(double y : critical)
     {
-        if(debugLevel > 1) std::cout << y << ", ";
+        if(ev.isGUI() && debugLevel > 1) std::cout << y << ", ";
         if(y != 0) activePhases++;
     }
-    if(debugLevel > 1) std::cout << endl << endl;
+    if(ev.isGUI() && debugLevel > 1) std::cout << endl << endl;
 
     if(Y < 0)
     {
@@ -318,8 +321,11 @@ void TrafficLightWebster::calculateGreenSplits()
     // no TD in any directions. Give G_min to each phase
     else if(Y == 0)
     {
-        if(debugLevel > 0)
+        if(ev.isGUI() && debugLevel > 0)
+        {
             std::cout << ">>> Total critical v/c is zero! Set green split for each phase to G_min=" << minGreenTime << endl << endl;
+            std::cout.flush();
+        }
 
         // green split for each phase
         for (std::string prog : phases)
@@ -335,10 +341,11 @@ void TrafficLightWebster::calculateGreenSplits()
 
         double cycle = ((1.5*totalLoss) + 5) / (1 - Y);  // cycle length
 
-        if(debugLevel > 1)
+        if(ev.isGUI() && debugLevel > 1)
         {
             std::cout << ">>> Webster Calculation: " << endl;
             std::cout << "total critical v/c=" << Y << ", total loss time=" << totalLoss << ", cycle length=" << cycle << endl;
+            std::cout.flush();
         }
 
         // make sure that cycle length is not too big.
@@ -360,12 +367,13 @@ void TrafficLightWebster::calculateGreenSplits()
             phaseNumber++;
         }
 
-        if(debugLevel > 1)
+        if(ev.isGUI() && debugLevel > 1)
         {
             std::cout << "Updating green splits for each phase: ";
             for(auto &y : greenSplit)
                 std::cout << y.second << ", ";
             std::cout << endl << endl;
+            std::cout.flush();
         }
     }
     else if(Y >= 1)

@@ -96,7 +96,6 @@ void IntersectionDelay::executeFirstTimeStep()
         // initialize laneDelay
         laneDelay[lane] = std::map<std::string,double> ();
     }
-
 }
 
 
@@ -195,6 +194,13 @@ void IntersectionDelay::vehiclesDelayEach(std::string vID)
             {
                 loc->second.lastLane = laneID;
                 loc->second.intersectionEntrance = simTime().dbl();
+
+                if(ev.isGUI() && debugLevel > 2)
+                {
+                    printf("*** %-10s is approaching TL %s on lane %s \n", vID.c_str(), loc->second.TLid.c_str(), laneID.c_str());
+                    std::cout.flush();
+                }
+
                 found = true;
                 break;
             }
@@ -215,6 +221,12 @@ void IntersectionDelay::vehiclesDelayEach(std::string vID)
         {
             loc->second.crossedIntersection = true;
             loc->second.crossedTime = simTime().dbl();
+
+            if(ev.isGUI() && debugLevel > 2)
+            {
+                printf("*** %-10s crossed TL %s on lane %s \n", vID.c_str(), loc->second.TLid.c_str(), loc->second.lastLane.c_str());
+                std::cout.flush();
+            }
         }
     }
 
@@ -256,6 +268,12 @@ void IntersectionDelay::vehiclesDelayEach(std::string vID)
                 loc->second.lastSpeeds.clear();
 
                 loc->second.lastSignals.clear();
+
+                if(ev.isGUI() && debugLevel > 2)
+                {
+                    printf("*** %-10s is decelerating on lane %s \n", vID.c_str(), loc->second.lastLane.c_str());
+                    std::cout.flush();
+                }
             }
             else return;
         }
@@ -294,6 +312,12 @@ void IntersectionDelay::vehiclesDelayEach(std::string vID)
             {
                 loc->second.startStopping = loc->second.lastSpeeds[0].first;
                 loc->second.lastSpeeds.clear();
+
+                if(ev.isGUI() && debugLevel > 2)
+                {
+                    printf("*** %-10s is stopping on lane %s. \n", vID.c_str(), loc->second.lastLane.c_str());
+                    std::cout.flush();
+                }
             }
         }
     }
@@ -313,6 +337,12 @@ void IntersectionDelay::vehiclesDelayEach(std::string vID)
 
             loc->second.startAccel = loc->second.lastSpeeds2[0].first;
             loc->second.lastSpeeds2.clear();
+
+            if(ev.isGUI() && debugLevel > 2)
+            {
+                printf("*** %-10s is accelerating on lane %s. \n", vID.c_str(), loc->second.lastLane.c_str());
+                std::cout.flush();
+            }
         }
         else return;
     }

@@ -59,7 +59,12 @@ double Edge::getCost()
     if(travelTimes.average > 0)
         return travelTimes.average;
 
-    if(debugLevel > 2) std::cout << "Using length / speed for cost of edge " << id << std::endl;
+    if(ev.isGUI() && debugLevel > 2)
+    {
+        std::cout << "Using length / speed for cost of edge " << id << std::endl;
+        std::cout.flush();
+    }
+
     return length / speed;
 }
 

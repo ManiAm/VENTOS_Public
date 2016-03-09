@@ -70,7 +70,11 @@ double Net::turnTypeCost(Edge* start, Edge* end)
         return uTurnCost;
     }
 
-    if(debugLevel > 1) std::cout << "Turn did not have an associated type!  This should never happen." << endl;
+    if(ev.isGUI() && debugLevel > 1)
+    {
+        std::cout << "Turn did not have an associated type!  This should never happen." << endl;
+        std::cout.flush();
+    }
 
     return 100000;
 }

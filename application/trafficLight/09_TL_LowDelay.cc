@@ -142,11 +142,12 @@ void TrafficLightLowDelay::executeFirstTimeStep()
         updateTLstate(TL, "init", currentInterval);
     }
 
-    if(debugLevel > 0)
+    if(ev.isGUI() && debugLevel > 0)
     {
         char buff[300];
         sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
         std::cout << buff << endl << endl;
+        std::cout.flush();
     }
 }
 
@@ -204,11 +205,12 @@ void TrafficLightLowDelay::chooseNextInterval()
     else
         chooseNextGreenInterval();
 
-    if(debugLevel > 0)
+    if(ev.isGUI() && debugLevel > 0)
     {
         char buff[300];
         sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
         std::cout << buff << endl << endl;
+        std::cout.flush();
     }
 }
 
@@ -216,7 +218,7 @@ void TrafficLightLowDelay::chooseNextInterval()
 void TrafficLightLowDelay::chooseNextGreenInterval()
 {
     // for debugging
-    if(debugLevel > 1)
+    if(ev.isGUI() && debugLevel > 1)
     {
         std::cout << "Accumulated delay of vehicles on each lane: " << endl;
         for(auto &y : laneDelay)
@@ -238,6 +240,7 @@ void TrafficLightLowDelay::chooseNextGreenInterval()
             std::cout << " --> total delay = " << totalDelay << endl;
         }
         std::cout << endl;
+        std::cout.flush();
     }
 
     // batch of all non-conflicting movements, sorted by total vehicle delay per batch
@@ -318,12 +321,18 @@ void TrafficLightLowDelay::chooseNextGreenInterval()
 
     // allocate enough green time to move all delayed vehicle
     int maxVehCount = entry.maxVehCount;
-    if(debugLevel > 1)
+    if(ev.isGUI() && debugLevel > 1)
+    {
         std::cout << "Maximum of " << maxVehCount << " vehicle(s) are waiting. ";
+        std::cout.flush();
+    }
     double greenTime = (double)maxVehCount * (minGreenTime / 5.);
     nextGreenTime = std::min(std::max(greenTime, minGreenTime), maxGreenTime);  // bound green time
-    if(debugLevel > 1)
+    if(ev.isGUI() && debugLevel > 1)
+    {
         std::cout << "Next green time is " << nextGreenTime << endl << endl;
+        std::cout.flush();
+    }
 
     if(needYellowInterval)
     {
@@ -339,8 +348,11 @@ void TrafficLightLowDelay::chooseNextGreenInterval()
     else
     {
         intervalOffSet = nextGreenTime;
-        if(debugLevel > 0)
+        if(ev.isGUI() && debugLevel > 0)
+        {
             std::cout << ">>> Continue the last green interval." << endl << endl;
+            std::cout.flush();
+        }
     }
 }
 

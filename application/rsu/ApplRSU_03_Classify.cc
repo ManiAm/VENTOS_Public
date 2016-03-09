@@ -496,7 +496,7 @@ void ApplRSUCLASSIFY::onBeaconAny(beaconGeneral wsm)
 
     // print debug information
     std::string sender = wsm->getSender();
-    if(debugLevel > 1)
+    if(ev.isGUI() && debugLevel > 1)
     {
         printf("%0.3f, %0.3f, %06.3f --> predicted label: %2d, true label: %2d, sender: %s \n",
                 wsm->getPos().x,
