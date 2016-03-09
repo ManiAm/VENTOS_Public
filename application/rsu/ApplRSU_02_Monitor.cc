@@ -170,10 +170,10 @@ template <typename T> void ApplRSUMonitor::onBeaconAny(T wsm)
     std::string sender = wsm->getSender();
     Coord pos = wsm->getPos();
 
-    // If in the detection region:
     // todo: change from fix values
-    // coordinates are the exact location of the middle of the LD
-    if ( (pos.x >= 851.1 /*x-pos of west LD*/) && (pos.x <= 948.8 /*x-pos of east LD*/) && (pos.y >= 851.1 /*y-pos of north LD*/) && (pos.y <= 948.8 /*y-pos of north LD*/) )
+    // Check if entity is in the detection region:
+    // Coordinates can be locations of the middle of the LD ( 851.1 <= x <= 948.8 and 851.1 <= y <= 948.8)
+    if ( (pos.x >= 486.21) && (pos.x <= 1313.91) && (pos.y >= 486.21) && (pos.y <= 1313.85) )
     {
         std::string lane = wsm->getLane();
 
