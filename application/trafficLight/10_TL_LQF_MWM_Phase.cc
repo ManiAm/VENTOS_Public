@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    TL_LQF_MWM.cc
+/// @file    TL_LQF_MWM_Phase.cc
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @date    Jul 2015
 ///
@@ -24,12 +24,12 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <10_TL_LQF_MWM.h>
+#include <10_TL_LQF_MWM_Phase.h>
 #include <queue>
 
 namespace VENTOS {
 
-Define_Module(VENTOS::TrafficLight_LQF_MWM);
+Define_Module(VENTOS::TrafficLight_LQF_MWM_Phase);
 
 class sortedEntryLQF
 {
@@ -64,51 +64,38 @@ public:
 };
 
 
-bool noGreenTime(greenIntervalInfo_LQF v)
-{
-    if (v.greenTime == 0.0)
-        return true;
-    else
-        return false;
-}
-
-
-TrafficLight_LQF_MWM::~TrafficLight_LQF_MWM()
+TrafficLight_LQF_MWM_Phase::~TrafficLight_LQF_MWM_Phase()
 {
 
 }
 
 
-void TrafficLight_LQF_MWM::initialize(int stage)
+void TrafficLight_LQF_MWM_Phase::initialize(int stage)
 {
     TrafficLightLowDelay::initialize(stage);
 
-    if(TLControlMode != TL_LQF_MWM)
+    if(TLControlMode != TL_LQF_MWM_Phase)
         return;
 
     if(stage == 0)
     {
-        // turn on active detection (if its not on)
-        activeDetection = true;
-        this->par("activeDetection") = true;
-
         nextGreenIsNewCycle = false;
         ChangeEvt = new cMessage("ChangeEvt", 1);
     }
 }
 
 
-void TrafficLight_LQF_MWM::finish()
+void TrafficLight_LQF_MWM_Phase::finish()
 {
     TrafficLightLowDelay::finish();
 }
 
 
-void TrafficLight_LQF_MWM::handleMessage(cMessage *msg)
+void TrafficLight_LQF_MWM_Phase::handleMessage(cMessage *msg)
 {
     TrafficLightLowDelay::handleMessage(msg);
 
-    if(TLControlMode != TL_LQF_MWM)
+    if(TLControlMode != TL_LQF_MWM_Phase)
         return;
 
     if (msg == ChangeEvt)
@@ -127,15 +114,24 @@ void TrafficLight_LQF_MWM::handleMessage(cMessage *msg)
 }
 
 
-void TrafficLight_LQF_MWM::executeFirstTimeStep()
+void TrafficLight_LQF_MWM_Phase::executeFirstTimeStep()
 {
     // call parent
     TrafficLightLowDelay::executeFirstTimeStep();
 
-    if(TLControlMode != TL_LQF_MWM)
+    if(TLControlMode != TL_LQF_MWM_Phase)
         return;
 
-    std::cout << endl << "Multi-class LQF-MWM traffic signal control ..." << endl << endl;
+    std::cout << endl << "Multi-class LQF-MWM-Phase traffic signal control ..." << endl << endl;
+
+    // find the RSU module that controls this TL
+    findRSU("C");
+
+    // make sure RSUptr is pointing to our corresponding RSU
+    ASSERT(RSUptr);
+
+    // turn on active detection on this RSU
+    RSUptr->par("activeDetection") = true;
 
     // calculate phases at the beginning of the cycle
     calculatePhases("C");
@@ -158,9 +154,6 @@ void TrafficLight_LQF_MWM::executeFirstTimeStep()
         updateTLstate(TL, "init", currentInterval);
     }
 
-    // make sure RSUptr is pointing to our corresponding RSU
-    ASSERT(RSUptr);
-
     if(debugLevel > 0)
     {
         char buff[300];
@@ -170,19 +163,19 @@ void TrafficLight_LQF_MWM::executeFirstTimeStep()
 }
 
 
-void TrafficLight_LQF_MWM::executeEachTimeStep()
+void TrafficLight_LQF_MWM_Phase::executeEachTimeStep()
 {
     // call parent
     TrafficLightLowDelay::executeEachTimeStep();
 
-    if(TLControlMode != TL_LQF_MWM)
+    if(TLControlMode != TL_LQF_MWM_Phase)
         return;
 
     intervalElapseTime += updateInterval;
 }
 
 
-void TrafficLight_LQF_MWM::chooseNextInterval()
+void TrafficLight_LQF_MWM_Phase::chooseNextInterval()
 {
     if (currentInterval == "yellow")
     {
@@ -234,7 +227,7 @@ void TrafficLight_LQF_MWM::chooseNextInterval()
 }
 
 
-void TrafficLight_LQF_MWM::chooseNextGreenInterval()
+void TrafficLight_LQF_MWM_Phase::chooseNextGreenInterval()
 {
     // Remove current old phase:
     greenInterval.erase(greenInterval.begin());
@@ -269,7 +262,7 @@ void TrafficLight_LQF_MWM::chooseNextGreenInterval()
 }
 
 
-void TrafficLight_LQF_MWM::calculatePhases(std::string TLid)
+void TrafficLight_LQF_MWM_Phase::calculatePhases(std::string TLid)
 {
     std::map<std::string, laneInfoEntry> laneInfo = RSUptr->laneInfo;
 
@@ -360,7 +353,16 @@ void TrafficLight_LQF_MWM::calculatePhases(std::string TLid)
 
     // If no green time (0s) is given to a phase, then this queue is empty and useless:
     int oldSize = greenInterval.size();
-    greenInterval.erase( std::remove_if(greenInterval.begin(), greenInterval.end(), noGreenTime), greenInterval.end() );
+    auto rme = std::remove_if(greenInterval.begin(), greenInterval.end(),
+            [](const greenIntervalInfo_LQF v)
+            {
+        if (v.greenTime == 0.0)
+            return true;
+        else
+            return false;
+            }
+    );
+    greenInterval.erase( rme, greenInterval.end() );
     int newSize = greenInterval.size();
     if(oldSize != newSize && debugLevel > 1)
         std::cout << ">>> " << oldSize - newSize << " phase(s) removed due to zero queue size!" << endl << endl;

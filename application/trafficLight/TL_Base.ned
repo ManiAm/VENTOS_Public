@@ -7,6 +7,5 @@ simple TL_Base
         @class(VENTOS::TrafficLightBase);
         @display("i=block/network2");  
         
-        int TLControlMode; 
-        bool activeDetection;  
+        int TLControlMode;
 }

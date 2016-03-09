@@ -76,7 +76,6 @@ class ApplRSUBase : public BaseApplLayer
         simsignal_t Signal_executeEachTS;
 
         int TLControlMode;
-        bool activeDetection;
         double minGreenTime;
 };
 

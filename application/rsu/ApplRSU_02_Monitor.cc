@@ -51,34 +51,12 @@ void ApplRSUMonitor::initialize(int stage)
 {
     ApplRSUBase::initialize(stage);
 
-    if (stage==0)
+    if (stage == 0)
     {
-        monitorVehApproach = par("monitorVehApproach").boolValue();
+        // note that TLs set 'activeDetection' after RSU creation
+        activeDetection = par("activeDetection").boolValue();
+
         collectVehApproach = par("collectVehApproach").boolValue();
-
-        if(activeDetection)
-        {
-            monitorVehApproach = true;
-            this->par("monitorVehApproach") = true;
-        }
-        else if(!monitorVehApproach)
-            return;
-
-        // we need this RSU to be associated with a TL
-        if(myTLid == "")
-            error("The id of %s does not match with any TL. Check RSUsLocation.xml file!", myFullId);
-
-        // for each incoming lane in this TL
-        std::list<std::string> lan = TraCI->TLGetControlledLanes(myTLid);
-
-        // remove duplicate entries
-        lan.unique();
-
-        // for each incoming lane
-        for(std::list<std::string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
-            lanesTL[*it2] = myTLid;
-
-        Vec_detectedVehicles.clear();
     }
 }
 
@@ -88,7 +66,7 @@ void ApplRSUMonitor::finish()
     ApplRSUBase::finish();
 
     // write to file at the end of simulation
-    if(monitorVehApproach && collectVehApproach)
+    if(activeDetection && collectVehApproach)
         saveVehApproach();
 }
 
@@ -107,21 +85,24 @@ void ApplRSUMonitor::executeEachTimeStep()
 
 void ApplRSUMonitor::onBeaconVehicle(BeaconVehicle* wsm)
 {
-    if (monitorVehApproach)
+    activeDetection = par("activeDetection").boolValue();
+    if(activeDetection)
         onBeaconAny(wsm);
 }
 
 
 void ApplRSUMonitor::onBeaconBicycle(BeaconBicycle* wsm)
 {
-    if (monitorVehApproach)
+    activeDetection = par("activeDetection").boolValue();
+    if(activeDetection)
         onBeaconAny(wsm);
 }
 
 
 void ApplRSUMonitor::onBeaconPedestrian(BeaconPedestrian* wsm)
 {
-    if (monitorVehApproach)
+    activeDetection = par("activeDetection").boolValue();
+    if(activeDetection)
         onBeaconAny(wsm);
 }
 
@@ -138,9 +119,52 @@ void ApplRSUMonitor::onData(LaneChangeMsg* wsm)
 }
 
 
+void ApplRSUMonitor::getAllLanes()
+{
+    // we need this RSU to be associated with a TL
+    if(myTLid == "")
+        error("The id of %s does not match with any TL. Check RSUsLocation.xml file!", myFullId);
+
+    // for each incoming lane in this TL
+    std::list<std::string> lan = TraCI->TLGetControlledLanes(myTLid);
+
+    // remove duplicate entries
+    lan.unique();
+
+    // for each incoming lane
+    for(auto &it2 :lan)
+    {
+        std::string lane = it2;
+
+        lanesTL[lane] = myTLid;
+
+        // get the max speed on this lane
+        double maxV = TraCI->laneGetMaxSpeed(lane);
+
+        // calculate initial passageTime for this lane
+        // todo: change fix value
+        double pass = 35. / maxV;
+
+        // check if not greater than Gmin
+        if(pass > minGreenTime)
+        {
+            std::cout << "WARNING (" << myFullId << "): Passage time is greater than Gmin in lane " << lane << endl;
+            pass = minGreenTime;
+        }
+
+        // add this lane to the laneInfo map
+        laneInfoEntry *entry = new laneInfoEntry(myTLid, 0, 0, pass, 0, std::map<std::string, queuedVehiclesEntry>());
+        laneInfo.insert( std::make_pair(lane, *entry) );
+    }
+}
+
+
 // update variables upon reception of any beacon (vehicle, bike, pedestrian)
 template <typename T> void ApplRSUMonitor::onBeaconAny(T wsm)
 {
+    if(lanesTL.empty())
+        getAllLanes();
+
     std::string sender = wsm->getSender();
     Coord pos = wsm->getPos();
 
@@ -178,8 +202,7 @@ template <typename T> void ApplRSUMonitor::onBeaconAny(T wsm)
                 Vec_detectedVehicles.push_back(*tmp);
             }
 
-            if (activeDetection)
-                UpdateLaneInfoAdd(lane, sender, wsm->getSenderType(), wsm->getSpeed());
+            LaneInfoAdd(lane, sender, wsm->getSenderType(), wsm->getSpeed());
         }
         // Else exiting queue area, so log leave time
         else
@@ -195,8 +218,7 @@ template <typename T> void ApplRSUMonitor::onBeaconAny(T wsm)
             {
                 counter->leaveTime = simTime().dbl();
 
-                if (activeDetection)
-                    UpdateLaneInfoRemove(counter->lane, sender);
+                LaneInfoRemove(counter->lane, sender);
             }
         }
     }
@@ -273,15 +295,61 @@ void ApplRSUMonitor::saveVehApproach()
 }
 
 
-void ApplRSUMonitor::UpdateLaneInfoAdd(std::string lane, std::string sender, std::string senderType, double speed)
+// update laneInfo
+void ApplRSUMonitor::LaneInfoAdd(std::string lane, std::string sender, std::string senderType, double speed)
 {
-    error("this method can not be called directly!");
+    // look for this lane in laneInfo map
+    std::map<std::string, laneInfoEntry>::iterator loc = laneInfo.find(lane);
+    if(loc == laneInfo.end())
+        error("lane %s does not exist in laneInfo map!", lane.c_str());
+
+    // update total vehicle count
+    loc->second.totalVehCount = loc->second.totalVehCount + 1;
+
+    // this is the first vehicle on this lane
+    if(loc->second.totalVehCount == 1)
+        loc->second.firstDetectedTime = simTime().dbl();
+
+    // update detectedTime
+    loc->second.lastDetectedTime = simTime().dbl();
+
+    // add it as a queued vehicle on this lane
+    queuedVehiclesEntry *newVeh = new queuedVehiclesEntry( senderType, simTime().dbl(), speed );
+    loc->second.queuedVehicles.insert( std::make_pair(sender, *newVeh) );
+
+    // get the approach speed from the beacon
+    double approachSpeed = speed;
+    // update passage time for this lane
+    if(approachSpeed > 0)
+    {
+        // calculate passageTime for this lane
+        // todo: change fix value
+        double pass = 35. / approachSpeed;
+        // check if not greater than Gmin
+        if(pass > minGreenTime)
+            pass = minGreenTime;
+
+        // update passage time
+        std::map<std::string, laneInfoEntry>::iterator location = laneInfo.find(lane);
+        location->second.passageTime = pass;
+    }
 }
 
 
-void ApplRSUMonitor::UpdateLaneInfoRemove(std::string counter, std::string sender)
+// update laneInfo
+void ApplRSUMonitor::LaneInfoRemove(std::string lane, std::string sender)
 {
-    error("this method can not be called directly!");
+    // look for this lane in laneInfo map
+    std::map<std::string, laneInfoEntry>::iterator loc = laneInfo.find(lane);
+    if(loc == laneInfo.end())
+        error("lane %s does not exist in laneInfo map!", lane.c_str());
+
+    // remove it from the queued vehicles
+    std::map<std::string, queuedVehiclesEntry>::iterator ref = loc->second.queuedVehicles.find(sender);
+    if(ref != loc->second.queuedVehicles.end())
+        loc->second.queuedVehicles.erase(ref);
+    else
+        error("vehicle %s was not added into lane %s in laneInfo map!", sender.c_str(), lane.c_str());
 }
 
 }

@@ -1,7 +1,7 @@
 
 package c3po.application.trafficLight;
 
-simple TL_Router extends TL_OJF_MWM
+simple TL_Router extends TL_OJFM
 {
     parameters:
         @class(VENTOS::TrafficLightRouter);

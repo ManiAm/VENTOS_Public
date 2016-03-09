@@ -82,13 +82,11 @@ void ApplRSUBase::initialize(int stage)
         if(module != NULL)
         {
             TLControlMode = tmodule->par("TLControlMode").longValue();
-            activeDetection = tmodule->par("activeDetection").boolValue();
             minGreenTime = tmodule->par("minGreenTime").doubleValue();
         }
         else
         {
             TLControlMode = -1;
-            activeDetection = false;
             minGreenTime = -1;
         }
 

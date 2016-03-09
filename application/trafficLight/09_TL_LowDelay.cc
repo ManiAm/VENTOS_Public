@@ -246,7 +246,7 @@ void TrafficLightLowDelay::chooseNextGreenInterval()
     // clear the priority queue
     sortedMovements = std::priority_queue < sortedEntryD, std::vector<sortedEntryD>, sortCompareD >();
 
-    // get which row has the highest delay
+    // Calculate totalDelay and vehCount for each movement batch
     for(unsigned int i = 0; i < allMovements.size(); ++i)  // row
     {
         double totalDelayRow = 0;
@@ -277,7 +277,7 @@ void TrafficLightLowDelay::chooseNextGreenInterval()
             maxVehCount = std::max(maxVehCount, vehCount);
         }
 
-        // add this batch of movements to priority_queue
+        // add this movement batch to priority_queue
         sortedEntryD *entry = new sortedEntryD(oneCount, maxVehCount, totalDelayRow, allMovements[i]);
         sortedMovements.push(*entry);
     }

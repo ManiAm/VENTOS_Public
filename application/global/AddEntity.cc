@@ -178,6 +178,10 @@ void AddEntity::Add()
     {
         Scenario11();
     }
+    else if(mode == 12)
+    {
+        Scenario12();
+    }
     else
     {
         error("not a valid mode!");
@@ -1232,6 +1236,25 @@ void AddEntity::Scenario11()
             }
         }
     }
+}
+
+
+void AddEntity::Scenario12()
+{
+    int depart = 0;
+
+    for(int i=1; i<=1000; i++)
+    {
+        char vehicleName[90];
+        sprintf(vehicleName, "veh%d", i);
+        depart = depart + interval;
+
+        TraCI->vehicleAdd(vehicleName, "passenger", "movement8", depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+    }
+
+    char bikeName[90];
+    sprintf(bikeName, "bike%d", 1);
+    TraCI->vehicleAdd(bikeName, "bicycle", "movement2", 5000, 600 /*pos*/, 0 /*speed*/, -5 /*lane*/);
 }
 
 

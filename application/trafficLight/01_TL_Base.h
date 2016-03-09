@@ -30,7 +30,7 @@
 
 #include <BaseApplLayer.h>
 #include "TraCI_Commands.h"
-#include "ApplRSU_03_ActiveTL.h"
+#include "ApplRSU_02_Monitor.h"
 
 // un-defining ev!
 // why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header
@@ -50,26 +50,23 @@ class TrafficLightBase : public BaseApplLayer
       virtual void receiveSignal(cComponent *, simsignal_t, long);
 
   protected:
+      virtual void executeFirstTimeStep();
+      virtual void executeEachTimeStep();
+      void findRSU(std::string);
+
+  protected:
       double updateInterval;
       int TLControlMode;
-      bool activeDetection;
       int debugLevel;
 
       TraCI_Commands *TraCI;
-      ApplRSUTLVANET *RSUptr;
+      ApplRSUMonitor *RSUptr;
       simsignal_t Signal_executeFirstTS;
       simsignal_t Signal_executeEachTS;
 
       boost::filesystem::path VENTOS_FullPath;
       boost::filesystem::path SUMO_Path;
       boost::filesystem::path SUMO_FullPath;
-
-  protected:
-      virtual void executeFirstTimeStep();
-      virtual void executeEachTimeStep();
-
-  private:
-      void findRSU(std::string);
 };
 
 }

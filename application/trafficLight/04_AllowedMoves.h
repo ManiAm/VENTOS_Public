@@ -46,6 +46,7 @@ protected:
 
 private:
     void generateAllAllowedMovements();
+    void allMovementBatch(unsigned int linkNumber);
 
 protected:
     int rightTurns[8] = {0, 2, 5, 7, 10, 12, 15, 17};

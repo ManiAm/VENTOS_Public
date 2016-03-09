@@ -25,7 +25,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "ApplRSU_04_Classify.h"
+#include "ApplRSU_03_Classify.h"
 
 namespace VENTOS {
 
@@ -39,7 +39,7 @@ ApplRSUCLASSIFY::~ApplRSUCLASSIFY()
 
 void ApplRSUCLASSIFY::initialize(int stage)
 {
-    ApplRSUTLVANET::initialize(stage);
+    ApplRSUMonitor::initialize(stage);
 
     if (stage==0)
     {
@@ -96,7 +96,7 @@ void ApplRSUCLASSIFY::initialize(int stage)
 
 void ApplRSUCLASSIFY::finish()
 {
-    ApplRSUTLVANET::finish();
+    ApplRSUMonitor::finish();
 
     if(collectTrainingData)
     {
@@ -116,19 +116,19 @@ void ApplRSUCLASSIFY::finish()
 
 void ApplRSUCLASSIFY::handleSelfMsg(cMessage* msg)
 {
-    ApplRSUTLVANET::handleSelfMsg(msg);
+    ApplRSUMonitor::handleSelfMsg(msg);
 }
 
 
 void ApplRSUCLASSIFY::executeEachTimeStep()
 {
-    ApplRSUTLVANET::executeEachTimeStep();
+    ApplRSUMonitor::executeEachTimeStep();
 }
 
 
 void ApplRSUCLASSIFY::onBeaconVehicle(BeaconVehicle* wsm)
 {
-    ApplRSUTLVANET::onBeaconVehicle(wsm);
+    ApplRSUMonitor::onBeaconVehicle(wsm);
 
     if (classifier)
         onBeaconAny(wsm);
@@ -137,7 +137,7 @@ void ApplRSUCLASSIFY::onBeaconVehicle(BeaconVehicle* wsm)
 
 void ApplRSUCLASSIFY::onBeaconBicycle(BeaconBicycle* wsm)
 {
-    ApplRSUTLVANET::onBeaconBicycle(wsm);
+    ApplRSUMonitor::onBeaconBicycle(wsm);
 
     if (classifier)
         onBeaconAny(wsm);
@@ -146,7 +146,7 @@ void ApplRSUCLASSIFY::onBeaconBicycle(BeaconBicycle* wsm)
 
 void ApplRSUCLASSIFY::onBeaconPedestrian(BeaconPedestrian* wsm)
 {
-    ApplRSUTLVANET::onBeaconPedestrian(wsm);
+    ApplRSUMonitor::onBeaconPedestrian(wsm);
 
     if (classifier)
         onBeaconAny(wsm);
@@ -155,13 +155,13 @@ void ApplRSUCLASSIFY::onBeaconPedestrian(BeaconPedestrian* wsm)
 
 void ApplRSUCLASSIFY::onBeaconRSU(BeaconRSU* wsm)
 {
-    ApplRSUTLVANET::onBeaconRSU(wsm);
+    ApplRSUMonitor::onBeaconRSU(wsm);
 }
 
 
 void ApplRSUCLASSIFY::onData(LaneChangeMsg* wsm)
 {
-    ApplRSUTLVANET::onData(wsm);
+    ApplRSUMonitor::onData(wsm);
 }
 
 

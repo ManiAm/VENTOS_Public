@@ -28,7 +28,7 @@
 #ifndef APPLRSUCLASSIFY_H_
 #define APPLRSUCLASSIFY_H_
 
-#include "ApplRSU_03_ActiveTL.h"
+#include "ApplRSU_02_Monitor.h"
 #include <Plotter.h>
 #include <boost/circular_buffer.hpp>
 
@@ -107,7 +107,7 @@ public:
 };
 
 
-class ApplRSUCLASSIFY : public ApplRSUTLVANET
+class ApplRSUCLASSIFY : public ApplRSUMonitor
 {
 public:
     ~ApplRSUCLASSIFY();
@@ -148,7 +148,11 @@ private:
     std::vector<sample_type> samples;
     std::vector<int> labels;
 
-    std::map< std::string /*class name*/, unsigned int /*label*/> classLabel = {
+    // all incoming lanes for the intersection that this RSU belongs to
+    std::map<std::string /*lane*/, std::string /*TLid*/> lanesTL;
+
+    std::map< std::string /*class name*/, unsigned int /*label*/> classLabel =
+    {
             {"NC_2", 0},
             {"NC_3", 1},
             {"NC_4", 2},

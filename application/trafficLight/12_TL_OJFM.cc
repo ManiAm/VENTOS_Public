@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    TL_OJF_MWM.cc
+/// @file    TL_OJFM.cc
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @date    Jul 2015
 ///
@@ -24,12 +24,12 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <11_TL_OJF_MWM.h>
+#include <12_TL_OJFM.h>
 #include <queue>
 
 namespace VENTOS {
 
-Define_Module(VENTOS::TrafficLight_OJF_MWM);
+Define_Module(VENTOS::TrafficLight_OJFM);
 
 class sortedEntryOJF
 {
@@ -68,41 +68,37 @@ public:
 };
 
 
-TrafficLight_OJF_MWM::~TrafficLight_OJF_MWM()
+TrafficLight_OJFM::~TrafficLight_OJFM()
 {
 
 }
 
 
-void TrafficLight_OJF_MWM::initialize(int stage)
+void TrafficLight_OJFM::initialize(int stage)
 {
     TrafficLight_LQF_MWM::initialize(stage);
 
-    if(TLControlMode != TL_OJF_MWM)
+    if(TLControlMode != TL_OJFM)
         return;
 
     if(stage == 0)
     {
-        // turn on active detection
-        activeDetection = true;
-        this->par("activeDetection") = true;
-
         ChangeEvt = new cMessage("ChangeEvt", 1);
     }
 }
 
 
-void TrafficLight_OJF_MWM::finish()
+void TrafficLight_OJFM::finish()
 {
     TrafficLight_LQF_MWM::finish();
 }
 
 
-void TrafficLight_OJF_MWM::handleMessage(cMessage *msg)
+void TrafficLight_OJFM::handleMessage(cMessage *msg)
 {
     TrafficLight_LQF_MWM::handleMessage(msg);
 
-    if(TLControlMode != TL_OJF_MWM)
+    if(TLControlMode != TL_OJFM)
         return;
 
     if (msg == ChangeEvt)
@@ -118,15 +114,24 @@ void TrafficLight_OJF_MWM::handleMessage(cMessage *msg)
 }
 
 
-void TrafficLight_OJF_MWM::executeFirstTimeStep()
+void TrafficLight_OJFM::executeFirstTimeStep()
 {
     // call parent
     TrafficLight_LQF_MWM::executeFirstTimeStep();
 
-    if(TLControlMode != TL_OJF_MWM)
+    if(TLControlMode != TL_OJFM)
         return;
 
     std::cout << endl << "Multi-class OJF-MWM traffic signal control ..." << endl << endl;
+
+    // find the RSU module that controls this TL
+    findRSU("C");
+
+    // make sure RSUptr is pointing to our corresponding RSU
+    ASSERT(RSUptr);
+
+    // turn on active detection on this RSU
+    RSUptr->par("activeDetection") = true;
 
     // set initial values
     currentInterval = phase1_5;
@@ -149,9 +154,6 @@ void TrafficLight_OJF_MWM::executeFirstTimeStep()
         updateTLstate(TL, "init", currentInterval);
     }
 
-    // make sure RSUptr is pointing to our corresponding RSU
-    ASSERT(RSUptr);
-
     if(debugLevel > 0)
     {
     char buff[300];
@@ -161,19 +163,19 @@ void TrafficLight_OJF_MWM::executeFirstTimeStep()
 }
 
 
-void TrafficLight_OJF_MWM::executeEachTimeStep()
+void TrafficLight_OJFM::executeEachTimeStep()
 {
     // call parent
     TrafficLight_LQF_MWM::executeEachTimeStep();
 
-    if(TLControlMode != TL_OJF_MWM)
+    if(TLControlMode != TL_OJFM)
         return;
 
     intervalElapseTime += updateInterval;
 }
 
 
-void TrafficLight_OJF_MWM::chooseNextInterval()
+void TrafficLight_OJFM::chooseNextInterval()
 {
     if (currentInterval == "yellow")
     {
@@ -223,7 +225,7 @@ void TrafficLight_OJF_MWM::chooseNextInterval()
 }
 
 
-void TrafficLight_OJF_MWM::chooseNextGreenInterval()
+void TrafficLight_OJFM::chooseNextGreenInterval()
 {
     std::map<std::string, laneInfoEntry> laneInfo = RSUptr->laneInfo;
 
@@ -233,7 +235,7 @@ void TrafficLight_OJF_MWM::chooseNextGreenInterval()
     // clear the priority queue
     sortedMovements = std::priority_queue < sortedEntryOJF, std::vector<sortedEntryOJF>, sortCompareOJF >();
 
-    // get which row has the highest delay
+    // calculate delay, max weight for each movement combination
     for(unsigned int i = 0; i < allMovements.size(); ++i)  // row
     {
         double maxWeight = 0;  // maximum weight for this batch

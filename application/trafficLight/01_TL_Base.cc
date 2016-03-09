@@ -55,7 +55,6 @@ void TrafficLightBase::initialize(int stage)
 
         updateInterval = TraCI->par("updateInterval").doubleValue();
         TLControlMode = par("TLControlMode").longValue();
-        activeDetection = par("activeDetection").boolValue();
         debugLevel = simulation.getSystemModule()->par("debugLevel").longValue();
 
         // initialize RSUptr with NULL
@@ -100,9 +99,8 @@ void TrafficLightBase::receiveSignal(cComponent *source, simsignal_t signalID, l
 
 void TrafficLightBase::executeFirstTimeStep()
 {
-    // get a pointer to the RSU module that controls this TL
-    if(activeDetection)
-        findRSU("C");
+
+
 }
 
 
@@ -133,7 +131,7 @@ void TrafficLightBase::findRSU(std::string TLid)
         // we found our RSU
         if(myTLid == TLid)
         {
-            RSUptr = static_cast<ApplRSUTLVANET *>(appl);
+            RSUptr = static_cast<ApplRSUMonitor *>(appl);
             if(RSUptr == NULL)
                 error("Can not get a reference to our RSU!");
 

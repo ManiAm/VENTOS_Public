@@ -44,16 +44,6 @@ struct hcidump_hdr {
 
 #define HCIDUMP_HDR_SIZE (sizeof(struct hcidump_hdr))
 
-struct btsnoop_pkt {
-    uint32_t    size;       /* Original Length */
-    uint32_t    len;        /* Included Length */
-    uint32_t    flags;      /* Packet Flags */
-    uint32_t    drops;      /* Cumulative Drops */
-    uint64_t    ts;     /* Timestamp microseconds */
-    uint8_t     data[0];    /* Packet Data */
-} __attribute__ ((packed));
-#define BTSNOOP_PKT_SIZE (sizeof(struct btsnoop_pkt))
-
 struct frame {
     void        *data;
     uint32_t    data_len;
@@ -323,8 +313,11 @@ void SniffBluetoothDump::process_frames(int dev_id, int sock, int timeout)
         frm.ptr = frm.data;
         frm.len = frm.data_len;
 
-        // Parse and print
+        // hex dump
         hex_dump(&frm);
+
+        // decode packet
+        hci_dump(&frm);
 
         std::cout << std::endl;
 
@@ -350,11 +343,12 @@ void SniffBluetoothDump::hex_dump(struct frame *frm)
         return;
 
     /* convert timestamp to readable format */
-    time_t local_tv_sec = frm->ts.tv_sec;
-    struct tm *ltime = localtime(&local_tv_sec);
-    char timestr[16];
-    strftime(timestr, sizeof timestr, "%H:%M:%S", ltime);
-    printf("Timestamp: %s:%ld", timestr, frm->ts.tv_usec);
+    struct tm tm;
+    time_t t = frm->ts.tv_sec;
+    localtime_r(&t, &tm);
+    printf("%04d-%02d-%02d %02d:%02d:%02d.%06lu",
+        tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
+        tm.tm_hour, tm.tm_min, tm.tm_sec, frm->ts.tv_usec);
 
     printf(", Channel: %d \n", frm->channel);
 
@@ -373,6 +367,47 @@ void SniffBluetoothDump::hex_dump(struct frame *frm)
 
     if (i && n != 1)
         printf("\n");
+}
+
+
+void SniffBluetoothDump::hci_dump(struct frame *frm)
+{
+    uint8_t type = *(uint8_t *)frm->ptr;
+
+    frm->ptr = (unsigned char *)frm->ptr + 1;
+    frm->len--;
+
+    switch (type)
+    {
+    case HCI_COMMAND_PKT:
+        //command_dump(0, frm);
+        printf("HCI_COMMAND_PKT \n");
+        break;
+
+    case HCI_EVENT_PKT:
+        //event_dump(0, frm);
+        printf("HCI_EVENT_PKT \n");
+        break;
+
+    case HCI_ACLDATA_PKT:
+        //acl_dump(0, frm);
+        printf("HCI_ACLDATA_PKT \n");
+        break;
+
+    case HCI_SCODATA_PKT:
+        //sco_dump(0, frm);
+        printf("HCI_SCODATA_PKT \n");
+        break;
+
+    case HCI_VENDOR_PKT:
+        //vendor_dump(0, frm);
+        printf("HCI_VENDOR_PKT \n");
+        break;
+
+    default:
+        printf("Unknown: type 0x%2.2x len %d\n", type, frm->len);
+        break;
+    }
 }
 
 }

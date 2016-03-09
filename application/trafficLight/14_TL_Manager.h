@@ -1,7 +1,7 @@
 /****************************************************************************/
-/// @file    TL_LQF_MWM.h
+/// @file    TL_Manager.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
-/// @date    Jul 2015
+/// @date    August 2013
 ///
 /****************************************************************************/
 // VENTOS, Vehicular Network Open Simulator; see http:?
@@ -24,63 +24,25 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef TRAFFICLIGHTLQFMWM_H
-#define TRAFFICLIGHTLQFMWM_H
+#ifndef TRAFFICLIGHTMANAGER_H
+#define TRAFFICLIGHTMANAGER_H
 
-#include <09_TL_LowDelay.h>
+#include "13_TL_Router.h"
 
 namespace VENTOS {
 
-class greenIntervalInfo_LQF
+class TrafficLightManager : public TrafficLightRouter
 {
-public:
-    int maxVehCount;
-    double totalWeight;
-    int oneCount;
-    double greenTime;
-    std::string greenString;
-
-    greenIntervalInfo_LQF(int i1, double d0, int i2, double d1, std::string str)
-    {
-        this->maxVehCount = i1;
-        this->totalWeight = d0;
-        this->oneCount = i2;
-        this->greenTime = d1;
-        this->greenString = str;
-    }
-};
-
-
-class TrafficLight_LQF_MWM : public TrafficLightLowDelay
-{
-public:
-    virtual ~TrafficLight_LQF_MWM();
+  public:
+    virtual ~TrafficLightManager();
     virtual void finish();
     virtual void initialize(int);
     virtual void handleMessage(cMessage *);
 
-protected:
+  protected:
     void virtual executeFirstTimeStep();
     void virtual executeEachTimeStep();
 
-private:
-    void chooseNextInterval();
-    void chooseNextGreenInterval();
-    void calculatePhases(std::string);
-
-protected:
-    std::map<std::string /*className*/, double /*weight*/> classWeight = {
-            {"emergency", 50},
-            {"passenger", 40},
-            {"bicycle", 30},
-            {"pedestrian", 20},
-            {"bus", 10},
-            {"truck", 1} };
-
-private:
-    std::vector<std::string> phases = {phase1_5, phase2_5, phase1_6, phase2_6, phase3_7, phase3_8, phase4_7, phase4_8};
-    std::vector<greenIntervalInfo_LQF> greenInterval;
-    bool nextGreenIsNewCycle;
 };
 
 }

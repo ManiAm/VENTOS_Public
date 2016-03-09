@@ -53,6 +53,7 @@ private:
     int open_socket(int dev_id);
     void process_frames(int dev_id, int sock, int timeout);
     void hex_dump(struct frame *frm);
+    void hci_dump(struct frame *frm);
 
 private:
     // NED variables

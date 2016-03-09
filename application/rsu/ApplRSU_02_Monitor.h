@@ -74,6 +74,43 @@ public:
     }
 };
 
+class queuedVehiclesEntry
+{
+public:
+    std::string vehicleType;
+    double entryTime;
+    double entrySpeed;
+
+    queuedVehiclesEntry(std::string str1, double d1, double d2)
+    {
+        this->vehicleType = str1;
+        this->entryTime = d1;
+        this->entrySpeed = d2;
+    }
+};
+
+
+class laneInfoEntry
+{
+public:
+    std::string TLid;
+    double firstDetectedTime;
+    double lastDetectedTime;
+    double passageTime;
+    int totalVehCount;
+    std::map<std::string /*vehicle id*/, queuedVehiclesEntry> queuedVehicles;
+
+    laneInfoEntry(std::string str1, double d1, double d2, double d3, int i1, std::map<std::string, queuedVehiclesEntry> mapV)
+    {
+        this->TLid = str1;
+        this->firstDetectedTime = d1;
+        this->lastDetectedTime = d2;
+        this->passageTime = d3;
+        this->totalVehCount = i1;
+        this->queuedVehicles = mapV;
+    }
+};
+
 
 class ApplRSUMonitor : public ApplRSUBase
 {
@@ -92,23 +129,26 @@ protected:
     virtual void onBeaconRSU(BeaconRSU*);
     virtual void onData(LaneChangeMsg*);
 
-    // virtual methods implemented by ApplRSU_04_ActiveTL
-    virtual void UpdateLaneInfoAdd(std::string lane, std::string sender, std::string senderType, double speed);
-    virtual void UpdateLaneInfoRemove(std::string counter, std::string sender);
-
 private:
     template <typename T> void onBeaconAny(T wsm);
-    static void saveVehApproach();
+    void getAllLanes();
+    static void saveVehApproach();  // used by all RSUs
 
-protected:
-    bool monitorVehApproach;
+    void LaneInfoAdd(std::string lane, std::string sender, std::string senderType, double speed);
+    void LaneInfoRemove(std::string counter, std::string sender);
+
+public:
+    std::map<std::string /*lane*/, laneInfoEntry> laneInfo;   // collected info per lane by this RSU. Note that each RSU has
+                                                              // a local copy of laneInfo that contains the lane info for this specific TL
+private:
+    bool activeDetection;
     bool collectVehApproach;
 
     // all incoming lanes for the intersection that this RSU belongs to
     std::map<std::string /*lane*/, std::string /*TLid*/> lanesTL;
 
     // keeping track of detected vehicles (common in all RSUs)
-    static std::vector<detectedVehicleEntry> Vec_detectedVehicles;
+    static std::vector<detectedVehicleEntry> Vec_detectedVehicles;  // used by all RSUs
 };
 
 }

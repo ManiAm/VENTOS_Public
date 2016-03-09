@@ -54,10 +54,6 @@ void ApplVBase::initialize(int stage)
         TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
 
-        // get a pointer to traffic light module
-        module = simulation.getSystemModule()->getSubmodule("TrafficLight");
-        TLControlMode = module->par("TLControlMode").longValue();
-
         headerLength = par("headerLength").longValue();
 
         // vehicle id in omnet++

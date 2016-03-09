@@ -28,7 +28,7 @@
 #ifndef TRAFFICLIGHTROUTER_H
 #define TRAFFICLIGHTROUTER_H
 
-#include <11_TL_OJF_MWM.h>
+#include <12_TL_OJFM.h>
 #include "Net.h"
 #include <vector>
 
@@ -48,7 +48,7 @@ public:
 
 class Router;
 
-class TrafficLightRouter : public TrafficLight_OJF_MWM
+class TrafficLightRouter : public TrafficLight_OJFM
 {
 public:
     TrafficLightRouter();

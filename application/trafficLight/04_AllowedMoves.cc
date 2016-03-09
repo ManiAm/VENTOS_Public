@@ -117,6 +117,8 @@ void TrafficLightAllowedMoves::getMovements(std::string TLid)
 
     if(allMovements.empty())
         error("allMovements vector is empty!");
+
+    allMovementBatch(14);
 }
 
 
@@ -131,8 +133,44 @@ void TrafficLightAllowedMoves::generateAllAllowedMovements()
     // Create the graph object
     Graph conflictGraph(LINKSIZE);
 
+    /* these are the list of all movements in our intersection
+        Movements from north:
+        0: NW, bike
+        1: NS, bike
+        2: NW, veh
+        3: NS, veh
+        4: NE, veh
+
+        Movements from east:
+        5: EN, bike
+        6: EW, bike
+        7: EN, veh
+        8: EW, veh
+        9: ES, veh
+
+        Movements from south:
+        10: SE, bike
+        11: SN, bike
+        12: SE, veh
+        13: SN, veh
+        14: SW, veh
+
+        Movements from west:
+        15: WS, bike
+        16: WE, bike
+        17: WS, veh
+        18: WE, veh
+        19: WN, veh
+
+        Pedestrian crossings:
+        20: N
+        21: E
+        22: S
+        23: W
+     */
+
     // Add edges for link 3 (vehNS)
-    add_edge(3, 8, conflictGraph);
+    add_edge(3, 8, conflictGraph);  // movement 3 (NS) and movement 8 (EW) are conflicting
     add_edge(3, 9, conflictGraph);
     add_edge(3, 14, conflictGraph);
     add_edge(3, 18, conflictGraph);
@@ -346,7 +384,7 @@ void TrafficLightAllowedMoves::generateAllAllowedMovements()
                 break;
         }
 
-        // if this row has no conflicts
+        // if this row contains no conflicts
         if(!conflictFound)
         {
             // now we check if this row covers all the right turns
@@ -385,6 +423,80 @@ void TrafficLightAllowedMoves::generateAllAllowedMovements()
 
     fclose(filePtr);
     std::cout << "Done!" << endl << endl;
+}
+
+
+void TrafficLightAllowedMoves::allMovementBatch(unsigned int linkNumber)
+{
+    std::map<unsigned int, std::string> linkStr =
+    {
+            // Movements from north
+            {0, "NW_b"},
+            {1, "NS_b"},
+            {2, "NW_v"},
+            {3, "NS_v"},
+            {4, "NE_v"},
+
+            // Movements from east
+            {5, "EN_b"},
+            {6, "EW_b"},
+            {7, "EN_v"},
+            {8, "EW_v"},
+            {9, "ES_v"},
+
+            // Movements from south
+            {10, "SE_b"},
+            {11, "SN_b"},
+            {12, "SE_v"},
+            {13, "SN_v"},
+            {14, "SW_v"},
+
+            // Movements from west
+            {15, "WS_b"},
+            {16, "WE_b"},
+            {17, "WS_v"},
+            {18, "WE_v"},
+            {19, "WN_v"},
+
+            // Pedestrian crossings
+            {20, "N_p"},
+            {21, "E_p"},
+            {22, "S_p"},
+            {23, "W_p"},
+    };
+
+    printf("Non-conflicting movements with movement %d (%s): \n", linkNumber, linkStr[linkNumber].c_str());
+
+    std::vector<std::string> linkName;
+    for(auto row : allMovements)
+    {
+        if(row[linkNumber] == 0)
+            continue;
+
+        linkName.clear();
+        for(unsigned int j = 0; j < row.size(); j++)
+        {
+            bool rightTurn = std::find(std::begin(rightTurns), std::end(rightTurns), j) != std::end(rightTurns);
+
+            if(rightTurn)
+                std::cout << "* ";
+            else
+            {
+                std::cout << row[j] << " ";
+                if(row[j] == 1 && j != linkNumber)
+                    linkName.push_back(linkStr[j]);
+            }
+        }
+
+        std::cout << " --> ";
+
+        for(auto k : linkName)
+            std::cout << k << ", ";
+
+        std::cout << std::endl;
+    }
+
+    std::cout << std::endl;
 }
 
 }

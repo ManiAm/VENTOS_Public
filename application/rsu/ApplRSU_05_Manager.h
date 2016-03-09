@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    ApplRSU_03_ActiveTL.h
+/// @file    ApplRSU_06_Manager.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    August 2013
@@ -25,58 +25,22 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef APPLRSUTLVANET_H_
-#define APPLRSUTLVANET_H_
+#ifndef APPLRSUMANAGER_H_
+#define APPLRSUMANAGER_H_
 
-#include "ApplRSU_02_Monitor.h"
+#include "ApplRSU_04_AID.h"
 
 namespace VENTOS {
 
-class queuedVehiclesEntry
+class ApplRSUManager : public ApplRSUAID
 {
 public:
-    std::string vehicleType;
-    double entryTime;
-    double entrySpeed;
-
-    queuedVehiclesEntry(std::string str1, double d1, double d2)
-    {
-        this->vehicleType = str1;
-        this->entryTime = d1;
-        this->entrySpeed = d2;
-    }
-};
-
-
-class laneInfoEntry
-{
-public:
-    std::string TLid;
-    double firstDetectedTime;
-    double lastDetectedTime;
-    double passageTime;
-    int totalVehCount;
-    std::map<std::string /*vehicle id*/, queuedVehiclesEntry> queuedVehicles;
-
-    laneInfoEntry(std::string str1, double d1, double d2, double d3, int i1, std::map<std::string, queuedVehiclesEntry> mapV)
-    {
-        this->TLid = str1;
-        this->firstDetectedTime = d1;
-        this->lastDetectedTime = d2;
-        this->passageTime = d3;
-        this->totalVehCount = i1;
-        this->queuedVehicles = mapV;
-    }
-};
-
-
-class ApplRSUTLVANET : public ApplRSUMonitor
-{
-public:
-    ~ApplRSUTLVANET();
+    ~ApplRSUManager();
     virtual void initialize(int stage);
     virtual void finish();
+    virtual void handleLowerMsg(cMessage* msg);
     virtual void handleSelfMsg(cMessage* msg);
+    virtual void receiveSignal(cComponent *, simsignal_t, cObject *);
 
 protected:
     void virtual executeEachTimeStep();
@@ -87,12 +51,8 @@ protected:
     virtual void onBeaconRSU(BeaconRSU*);
     virtual void onData(LaneChangeMsg*);
 
-    void UpdateLaneInfoAdd(std::string lane, std::string sender, std::string senderType, double speed);
-    void UpdateLaneInfoRemove(std::string counter, std::string sender);
-
-public:
-    std::map<std::string /*lane*/, laneInfoEntry> laneInfo;   // collected info per lane by this RSU. Note that each RSU has
-                                                              // a local copy of laneInfo that contains the lane info for this specific TL
+private:
+    simsignal_t Signal_beaconSignaling;
 };
 
 }

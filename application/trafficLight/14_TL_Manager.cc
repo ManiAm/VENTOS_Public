@@ -24,7 +24,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <13_TL_Manager.h>
+#include <14_TL_Manager.h>
 
 namespace VENTOS {
 
@@ -68,7 +68,7 @@ void TrafficLightManager::executeFirstTimeStep()
     TrafficLightRouter::executeFirstTimeStep();
 
     // check if the TLControlMode number is valid?
-    if(TLControlMode < 0 || TLControlMode > 8)
+    if(TLControlMode < 0 || TLControlMode > 9)
     {
         error("Invalid TLControlMode!");
     }

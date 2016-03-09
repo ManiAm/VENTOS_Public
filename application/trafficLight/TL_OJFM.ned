@@ -1,10 +1,10 @@
 
 package c3po.application.trafficLight;
 
-simple TL_OJF_MWM extends TL_LQF_MWM
+simple TL_OJFM extends TL_LQF_MWM
 {
     parameters:
-        @class(VENTOS::TrafficLight_OJF_MWM);
+        @class(VENTOS::TrafficLight_OJFM);
         @display("i=block/network2");  
         
 }

@@ -59,6 +59,7 @@ private:
     void Scenario9();
     void Scenario10();
     void Scenario11();
+    void Scenario12();
 
 private:
     // NED variables

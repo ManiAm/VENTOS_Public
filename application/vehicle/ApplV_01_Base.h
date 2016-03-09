@@ -57,8 +57,6 @@ protected:
     // NED variables
     cModule *nodePtr;
     TraCI_Commands* TraCI;
-    int TLControlMode;
-    bool activeDetection;
 
     // module info
     int myId;

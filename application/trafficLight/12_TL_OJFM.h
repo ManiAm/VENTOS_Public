@@ -1,8 +1,7 @@
 /****************************************************************************/
-/// @file    ApplRSU_06_Manager.h
+/// @file    TL_OJFM.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
-/// @author  second author name
-/// @date    August 2013
+/// @date    Jul 2015
 ///
 /****************************************************************************/
 // VENTOS, Vehicular Network Open Simulator; see http:?
@@ -25,34 +24,31 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef APPLRSUMANAGER_H_
-#define APPLRSUMANAGER_H_
+#ifndef TRAFFICLIGHTOJFMWM_H
+#define TRAFFICLIGHTOJFMWM_H
 
-#include "ApplRSU_05_AID.h"
+#include <11_TL_LQF_MWM.h>
 
 namespace VENTOS {
 
-class ApplRSUManager : public ApplRSUAID
+class TrafficLight_OJFM : public TrafficLight_LQF_MWM
 {
-public:
-    ~ApplRSUManager();
-    virtual void initialize(int stage);
+  public:
+    virtual ~TrafficLight_OJFM();
     virtual void finish();
-    virtual void handleLowerMsg(cMessage* msg);
-    virtual void handleSelfMsg(cMessage* msg);
-    virtual void receiveSignal(cComponent *, simsignal_t, cObject *);
+    virtual void initialize(int);
+    virtual void handleMessage(cMessage *);
 
-protected:
+  protected:
+    void virtual executeFirstTimeStep();
     void virtual executeEachTimeStep();
 
-    virtual void onBeaconVehicle(BeaconVehicle*);
-    virtual void onBeaconBicycle(BeaconBicycle*);
-    virtual void onBeaconPedestrian(BeaconPedestrian*);
-    virtual void onBeaconRSU(BeaconRSU*);
-    virtual void onData(LaneChangeMsg*);
+  private:
+    void chooseNextInterval();
+    void chooseNextGreenInterval();
 
-private:
-    simsignal_t Signal_beaconSignaling;
+  private:
+    double nextGreenTime;
 };
 
 }
