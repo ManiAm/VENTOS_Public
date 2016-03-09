@@ -269,26 +269,30 @@ void TrafficLight_OJFM::chooseNextGreenInterval()
                         error("Can not find lane %s in laneInfo!", lane.c_str());
 
                     // get all queued vehicles on this lane
-                    std::map<std::string /*vehicle id*/, queuedVehiclesEntry> queuedVehicles = (*res).second.queuedVehicles;
-
-                    vehCount = queuedVehicles.size();
+                    auto vehicles = (*res).second.allVehicles;
 
                     // for each vehicle
-                    for(auto& entry : queuedVehicles)
+                    for(auto& entry : vehicles)
                     {
-                        std::string vID = entry.first;
-                        std::string vType = entry.second.vehicleType;
+                        // we only care about waiting vehicles on this lane
+                        if(entry.second.vehStatus == VEH_STATUS_Waiting)
+                        {
+                            vehCount++;
 
-                        // max weight of entities on this lane
-                        auto loc = classWeight.find(vType);
-                        if(loc == classWeight.end())
-                            error("entity %s with type %s does not have a weight in classWeight map!", vID.c_str(), vType.c_str());
-                        maxWeight = std::max(maxWeight, loc->second);
+                            std::string vID = entry.first;
+                            std::string vType = entry.second.vehType;
 
-                        // total delay in this lane
-                        auto locc = laneDelay[lane].find(vID);
-                        if(locc != laneDelay[lane].end())
-                            totalDelay += locc->second;
+                            // max weight of entities on this lane
+                            auto loc = classWeight.find(vType);
+                            if(loc == classWeight.end())
+                                error("entity %s with type %s does not have a weight in classWeight map!", vID.c_str(), vType.c_str());
+                            maxWeight = std::max(maxWeight, loc->second);
+
+                            // total delay in this lane
+                            auto locc = laneDelay[lane].find(vID);
+                            if(locc != laneDelay[lane].end())
+                                totalDelay += locc->second;
+                        }
                     }
                 }
 

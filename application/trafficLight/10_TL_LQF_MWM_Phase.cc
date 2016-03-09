@@ -260,21 +260,25 @@ void TrafficLight_LQF_MWM_Phase::chooseNextGreenInterval()
                         error("Can not find lane %s in laneInfo!", lane.c_str());
 
                     // get all queued vehicles on this lane
-                    std::map<std::string /*vehicle id*/, queuedVehiclesEntry> queuedVehicles = (*res).second.queuedVehicles;
-
-                    vehCount = queuedVehicles.size();
+                    auto vehicles = (*res).second.allVehicles;
 
                     // for each vehicle
-                    for(auto& entry : queuedVehicles)
+                    for(auto& entry : vehicles)
                     {
-                        std::string vID = entry.first;
-                        std::string vType = entry.second.vehicleType;
+                        // we only care about waiting vehicles on this lane
+                        if(entry.second.vehStatus == VEH_STATUS_Waiting)
+                        {
+                            vehCount++;
 
-                        // total weight of entities on this lane
-                        auto loc = classWeight.find(vType);
-                        if(loc == classWeight.end())
-                            error("entity %s with type %s does not have a weight in classWeight map!", vID.c_str(), vType.c_str());
-                        totalWeight += loc->second;
+                            std::string vID = entry.first;
+                            std::string vType = entry.second.vehType;
+
+                            // total weight of entities on this lane
+                            auto loc = classWeight.find(vType);
+                            if(loc == classWeight.end())
+                                error("entity %s with type %s does not have a weight in classWeight map!", vID.c_str(), vType.c_str());
+                            totalWeight += loc->second;
+                        }
                     }
                 }
 
@@ -313,8 +317,10 @@ void TrafficLight_LQF_MWM_Phase::chooseNextGreenInterval()
     int maxVehCount = entry.maxVehCount;
     if(ev.isGUI() && debugLevel > 1)
     {
-        std::cout << "Maximum of " << maxVehCount << " vehicle(s) are waiting. ";
-        std::cout << "Total weight is " << entry.totalWeight << ". ";
+        printf("The following phase has the maximum weight out of %lu phases: \n", phases.size());
+        printf("  Phase: %s \n", entry.phase.c_str());
+        printf("  Weight: %0.2f \n", entry.totalWeight);
+        printf("  Maximum waiting vehicles is %d \n\n", entry.maxVehCount);
         std::cout.flush();
     }
     double greenTime = (double)maxVehCount * (minGreenTime / 5.);

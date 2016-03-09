@@ -44,6 +44,9 @@ void ApplRSUManager::initialize(int stage)
 	if (stage==0)
 	{
         // register signal
+        Signal_executeEachTS = registerSignal("executeEachTS");
+        simulation.getSystemModule()->subscribe("executeEachTS", this);
+
         Signal_beaconSignaling = registerSignal("beaconSignaling");
         simulation.getSystemModule()->subscribe("beaconSignaling", this);
 	}
@@ -56,6 +59,17 @@ void ApplRSUManager::finish()
 
     // unsubscribe
     simulation.getSystemModule()->unsubscribe("beaconSignaling", this);
+}
+
+
+void ApplRSUManager::receiveSignal(cComponent *source, simsignal_t signalID, long i)
+{
+    Enter_Method_Silent();
+
+    if(signalID == Signal_executeEachTS)
+    {
+        executeEachTimeStep();
+    }
 }
 
 

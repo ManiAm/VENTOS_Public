@@ -40,6 +40,7 @@ public:
     virtual void finish();
     virtual void handleLowerMsg(cMessage* msg);
     virtual void handleSelfMsg(cMessage* msg);
+    virtual void receiveSignal(cComponent *, simsignal_t, long);
     virtual void receiveSignal(cComponent *, simsignal_t, cObject *);
 
 protected:
@@ -52,7 +53,9 @@ protected:
     virtual void onData(LaneChangeMsg*);
 
 private:
+    simsignal_t Signal_executeEachTS;
     simsignal_t Signal_beaconSignaling;
+    static const simsignalwrap_t mobilityStateChangedSignal;
 };
 
 }

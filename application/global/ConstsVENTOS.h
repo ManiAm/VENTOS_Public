@@ -135,6 +135,11 @@ enum SUMOVehicleClass {
     SVC_NON_ROAD = SVC_TRAM | SVC_RAIL | SVC_RAIL_URBAN | SVC_RAIL_ELECTRIC | SVC_SHIP
 };
 
+enum VehicleStatus {
+    VEH_STATUS_Driving = 0,
+    VEH_STATUS_Waiting,
+    VEH_STATUS_Parking,
+};
 
 // SUMO signaling for vehicles
 enum VehicleSignal {
@@ -171,7 +176,6 @@ enum VehicleSignal {
     VEH_SIGNAL_EMERGENCY_YELLOW = 8192
 };
 
-
 enum TLControlTypes
 {
     TL_OFF,
@@ -185,7 +189,6 @@ enum TLControlTypes
     TL_OJFM,
     TL_Router
 };
-
 
 // LinkState in SUMO
 enum LinkState {
@@ -218,7 +221,6 @@ enum LinkState {
     /// @brief This is a dead end link
     LINKSTATE_DEADEND = '-'
 };
-
 
 enum LaneCostsMode
 {

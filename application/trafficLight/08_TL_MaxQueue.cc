@@ -95,15 +95,6 @@ private:
 };
 
 
-bool noGreenTime(greenIntervalInfo_Maxqueue v)
-{
-    if (v.greenTime == 0.0)
-        return true;
-    else
-        return false;
-}
-
-
 TrafficLightAdaptiveQueue::~TrafficLightAdaptiveQueue()
 {
 
@@ -418,13 +409,13 @@ void TrafficLightAdaptiveQueue::calculatePhases(std::string TLid)
         batchMovementVector.erase( std::remove_if(batchMovementVector.begin(), batchMovementVector.end(), served(bestMovement)), batchMovementVector.end() );
     }
 
-    // calculate maxVehCount in a cycle
-    int maxVehCountCycle = 0;
+    // calculate number of vehicles in the intersection
+    int vehCountIntersection = 0;
     for (auto &i : greenInterval)
-        maxVehCountCycle += i.maxVehCount;
+        vehCountIntersection += i.maxVehCount;
 
-    // If no vehicles in queue, then run each green interval with minGreenTime:
-    if (maxVehCountCycle == 0)
+    // If intersection is empty, then run each green interval with minGreenTime:
+    if (vehCountIntersection == 0)
     {
         for (auto &i : greenInterval)
             i.greenTime = minGreenTime;
@@ -437,7 +428,16 @@ void TrafficLightAdaptiveQueue::calculatePhases(std::string TLid)
 
     // If no green time (0s) is given to a phase, then this queue is empty and useless:
     int oldSize = greenInterval.size();
-    greenInterval.erase( std::remove_if(greenInterval.begin(), greenInterval.end(), noGreenTime), greenInterval.end() );
+    auto rme = std::remove_if(greenInterval.begin(), greenInterval.end(),
+            [](const greenIntervalInfo_Maxqueue v)
+            {
+        if (v.greenTime == 0.0)
+            return true;
+        else
+            return false;
+            }
+    );
+    greenInterval.erase( rme, greenInterval.end() );
 
     // throw error if cycle contains more than 4 phases:
     if (greenInterval.size() > 4)

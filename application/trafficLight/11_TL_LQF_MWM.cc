@@ -304,21 +304,25 @@ void TrafficLight_LQF_MWM::calculatePhases(std::string TLid)
                         error("Can not find lane %s in laneInfo!", lane.c_str());
 
                     // get all queued vehicles on this lane
-                    std::map<std::string /*vehicle id*/, queuedVehiclesEntry> queuedVehicles = (*res).second.queuedVehicles;
-
-                    vehCount = queuedVehicles.size();
+                    auto vehicles = (*res).second.allVehicles;
 
                     // for each vehicle
-                    for(auto& entry : queuedVehicles)
+                    for(auto& entry : vehicles)
                     {
-                        std::string vID = entry.first;
-                        std::string vType = entry.second.vehicleType;
+                        // we only care about waiting vehicles on this lane
+                        if(entry.second.vehStatus == VEH_STATUS_Waiting)
+                        {
+                            vehCount++;
 
-                        // total weight of entities on this lane
-                        auto loc = classWeight.find(vType);
-                        if(loc == classWeight.end())
-                            error("entity %s with type %s does not have a weight in classWeight map!", vID.c_str(), vType.c_str());
-                        totalWeight += loc->second;
+                            std::string vID = entry.first;
+                            std::string vType = entry.second.vehType;
+
+                            // total weight of entities on this lane
+                            auto loc = classWeight.find(vType);
+                            if(loc == classWeight.end())
+                                error("entity %s with type %s does not have a weight in classWeight map!", vID.c_str(), vType.c_str());
+                            totalWeight += loc->second;
+                        }
                     }
                 }
 
@@ -334,6 +338,7 @@ void TrafficLight_LQF_MWM::calculatePhases(std::string TLid)
         sortedMovements.push(*entry);
     }
 
+    // todo
     while(!sortedMovements.empty())
     {
         sortedEntryLQF entry = sortedMovements.top();
@@ -344,13 +349,13 @@ void TrafficLight_LQF_MWM::calculatePhases(std::string TLid)
         sortedMovements.pop();
     }
 
-    // calculate maxVehCount in a cycle
-    int maxVehCountCycle = 0;
+    // calculate number of vehicles in the intersection
+    int vehCountIntersection = 0;
     for (auto &i : greenInterval)
-        maxVehCountCycle += i.maxVehCount;
+        vehCountIntersection += i.maxVehCount;
 
-    // If no vehicles in queue, then run each green interval with minGreenTime:
-    if (maxVehCountCycle == 0)
+    // If intersection is empty, then run each green interval with minGreenTime:
+    if (vehCountIntersection == 0)
     {
         for (auto &i : greenInterval)
             i.greenTime = minGreenTime;

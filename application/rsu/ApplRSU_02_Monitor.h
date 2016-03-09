@@ -74,16 +74,18 @@ public:
     }
 };
 
-class queuedVehiclesEntry
+class allVehiclesEntry
 {
 public:
-    std::string vehicleType;
+    std::string vehType;
+    int vehStatus;    // driving, waiting ?
     double entryTime;
     double entrySpeed;
 
-    queuedVehiclesEntry(std::string str1, double d1, double d2)
+    allVehiclesEntry(std::string str1, int i1, double d1, double d2)
     {
-        this->vehicleType = str1;
+        this->vehType = str1;
+        this->vehStatus = i1;
         this->entryTime = d1;
         this->entrySpeed = d2;
     }
@@ -98,16 +100,16 @@ public:
     double lastDetectedTime;
     double passageTime;
     int totalVehCount;
-    std::map<std::string /*vehicle id*/, queuedVehiclesEntry> queuedVehicles;
+    std::map<std::string /*vehicle id*/, allVehiclesEntry> allVehicles;
 
-    laneInfoEntry(std::string str1, double d1, double d2, double d3, int i1, std::map<std::string, queuedVehiclesEntry> mapV)
+    laneInfoEntry(std::string str1, double d1, double d2, double d3, int i1, std::map<std::string, allVehiclesEntry> mapV)
     {
         this->TLid = str1;
         this->firstDetectedTime = d1;
         this->lastDetectedTime = d2;
         this->passageTime = d3;
         this->totalVehCount = i1;
-        this->queuedVehicles = mapV;
+        this->allVehicles = mapV;
     }
 };
 
@@ -135,6 +137,7 @@ private:
     static void saveVehApproach();  // used by all RSUs
 
     void LaneInfoAdd(std::string lane, std::string sender, std::string senderType, double speed);
+    void LaneInfoUpdate(std::string lane, std::string sender, std::string senderType, double speed);
     void LaneInfoRemove(std::string counter, std::string sender);
 
 public:

@@ -44,7 +44,6 @@ class ApplRSUBase : public BaseApplLayer
 		virtual void initialize(int stage);
 		virtual void finish();
         virtual void handleSelfMsg(cMessage* msg);
-	    virtual void receiveSignal(cComponent *, simsignal_t, long);
 
 	protected:
         virtual void executeEachTimeStep();
@@ -54,6 +53,7 @@ class ApplRSUBase : public BaseApplLayer
 		// NED variables
 	    cModule *nodePtr;   // pointer to the Node
 	    TraCI_Commands* TraCI;
+	    cModule* TLptr;
 
         // NED variables (beaconing parameters)
         bool sendBeacons;
@@ -72,11 +72,8 @@ class ApplRSUBase : public BaseApplLayer
         simtime_t individualOffset;
         cMessage* RSUBeaconEvt;
 
-        static const simsignalwrap_t mobilityStateChangedSignal;
-        simsignal_t Signal_executeEachTS;
-
-        int TLControlMode;
-        double minGreenTime;
+        int TLControlMode = -1;
+        double minGreenTime = -1;
 };
 
 }

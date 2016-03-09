@@ -39,10 +39,10 @@ ApplRSUBase::~ApplRSUBase()
 
 void ApplRSUBase::initialize(int stage)
 {
-	BaseApplLayer::initialize(stage);
+    BaseApplLayer::initialize(stage);
 
-	if (stage==0)
-	{
+    if (stage==0)
+    {
         // get the ptr of the current module
         nodePtr = this->getParentModule();
         if(nodePtr == NULL)
@@ -53,8 +53,11 @@ void ApplRSUBase::initialize(int stage)
         TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
 
-        Signal_executeEachTS = registerSignal("executeEachTS");
-        simulation.getSystemModule()->subscribe("executeEachTS", this);
+        // get a pointer to the TrafficLight module
+        TLptr = simulation.getSystemModule()->getSubmodule("TrafficLight");
+        ASSERT(TLptr);
+        TLControlMode = TLptr->par("TLControlMode").longValue();
+        minGreenTime = TLptr->par("minGreenTime").doubleValue();
 
         headerLength = par("headerLength").longValue();
 
@@ -66,29 +69,16 @@ void ApplRSUBase::initialize(int stage)
         beaconPriority = par("beaconPriority").longValue();
 
         // id in omnet++
-		myId = getParentModule()->getIndex();
-		myFullId = getParentModule()->getFullName();
+        myId = getParentModule()->getIndex();
+        myFullId = getParentModule()->getFullName();
 
         myTLid = par("myTLid").stringValue();   // TLid that this RSU belongs to (this parameter is set by AddRSU)
-                                                // empty string means this RSU is not associated with any TL
+        // empty string means this RSU is not associated with any TL
 
         // my X coordinate in SUMO
         myCoordX = par("myCoordX").doubleValue();
         // my Y coordinate in SUMO
         myCoordY = par("myCoordY").doubleValue();
-
-        // get a pointer to the TrafficLight module
-        cModule *tmodule = simulation.getSystemModule()->getSubmodule("TrafficLight");
-        if(module != NULL)
-        {
-            TLControlMode = tmodule->par("TLControlMode").longValue();
-            minGreenTime = tmodule->par("minGreenTime").doubleValue();
-        }
-        else
-        {
-            TLControlMode = -1;
-            minGreenTime = -1;
-        }
 
         // simulate asynchronous channel access
         double offSet = dblrand() * (beaconInterval/2);
@@ -100,7 +90,7 @@ void ApplRSUBase::initialize(int stage)
             RSUBeaconEvt = new cMessage("RSUBeaconEvt", KIND_TIMER);
             scheduleAt(simTime() + offSet, RSUBeaconEvt);
         }
-	}
+    }
 }
 
 
@@ -110,17 +100,6 @@ void ApplRSUBase::finish()
 
     // unsubscribe
     simulation.getSystemModule()->unsubscribe("executeEachTS", this);
-}
-
-
-void ApplRSUBase::receiveSignal(cComponent *source, simsignal_t signalID, long i)
-{
-    Enter_Method_Silent();
-
-    if(signalID == Signal_executeEachTS)
-    {
-        executeEachTimeStep();
-    }
 }
 
 

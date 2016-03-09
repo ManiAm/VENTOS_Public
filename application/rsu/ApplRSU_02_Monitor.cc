@@ -93,7 +93,7 @@ void ApplRSUMonitor::initialize(int stage)
                 }
 
                 // add this lane to the laneInfo map
-                laneInfoEntry *entry = new laneInfoEntry(myTLid, 0, 0, pass, 0, std::map<std::string, queuedVehiclesEntry>());
+                laneInfoEntry *entry = new laneInfoEntry(myTLid, 0, 0, pass, 0, std::map<std::string, allVehiclesEntry>());
                 laneInfo.insert( std::make_pair(lane, *entry) );
             }
         }
@@ -184,9 +184,11 @@ template <typename T> void ApplRSUMonitor::onBeaconAny(T wsm)
             const detectedVehicleEntry *searchFor = new detectedVehicleEntry(sender);
             std::vector<detectedVehicleEntry>::iterator counter = std::find(Vec_detectedVehicles.begin(), Vec_detectedVehicles.end(), *searchFor);
 
-            // return, if we have already added it
+            // we have already added this vehicle
             if (counter != Vec_detectedVehicles.end() && counter->leaveTime == -1)
             {
+                LaneInfoUpdate(lane, sender, wsm->getSenderType(), wsm->getSpeed());
+
                 return;
             }
             // the vehicle is visiting the intersection more than once
@@ -206,7 +208,7 @@ template <typename T> void ApplRSUMonitor::onBeaconAny(T wsm)
 
             LaneInfoAdd(lane, sender, wsm->getSenderType(), wsm->getSpeed());
         }
-        // Else exiting queue area, so log leave time
+        // Else exiting queue area, so log the leave time
         else
         {
             // search queue for this vehicle
@@ -297,7 +299,7 @@ void ApplRSUMonitor::saveVehApproach()
 }
 
 
-// update laneInfo
+// add a new vehicle
 void ApplRSUMonitor::LaneInfoAdd(std::string lane, std::string sender, std::string senderType, double speed)
 {
     // look for this lane in laneInfo map
@@ -315,9 +317,19 @@ void ApplRSUMonitor::LaneInfoAdd(std::string lane, std::string sender, std::stri
     // update detectedTime
     loc->second.lastDetectedTime = simTime().dbl();
 
-    // add it as a queued vehicle on this lane
-    queuedVehiclesEntry *newVeh = new queuedVehiclesEntry( senderType, simTime().dbl(), speed );
-    loc->second.queuedVehicles.insert( std::make_pair(sender, *newVeh) );
+    // get stopping speed threshold
+    double stoppingDelayThreshold = 0;
+    if(senderType == "bicycle")
+        stoppingDelayThreshold = TLptr->par("bikeStoppingDelayThreshold").doubleValue();
+    else
+        stoppingDelayThreshold = TLptr->par("vehStoppingDelayThreshold").doubleValue();
+
+    // get vehicle status
+    int vehStatus = speed > stoppingDelayThreshold ? VEH_STATUS_Driving : VEH_STATUS_Waiting;
+
+    // add it to vehicle list on this lane
+    allVehiclesEntry *newVeh = new allVehiclesEntry( senderType, vehStatus, simTime().dbl(), speed );
+    loc->second.allVehicles.insert( std::make_pair(sender, *newVeh) );
 
     // get the approach speed from the beacon
     double approachSpeed = speed;
@@ -338,7 +350,35 @@ void ApplRSUMonitor::LaneInfoAdd(std::string lane, std::string sender, std::stri
 }
 
 
-// update laneInfo
+// update vehStatus of vehicles in laneInfo
+void ApplRSUMonitor::LaneInfoUpdate(std::string lane, std::string sender, std::string senderType, double speed)
+{
+    // look for this lane in laneInfo map
+    std::map<std::string, laneInfoEntry>::iterator loc = laneInfo.find(lane);
+    if(loc == laneInfo.end())
+        error("lane %s does not exist in laneInfo map!", lane.c_str());
+
+    // look for this vehicle in this lane
+    std::map<std::string, allVehiclesEntry>::iterator ref = loc->second.allVehicles.find(sender);
+    if(ref == loc->second.allVehicles.end())
+        error("vehicle %s was not added into lane %s in laneInfo map!", sender.c_str(), lane.c_str());
+
+
+    // get stopping speed threshold
+    double stoppingDelayThreshold = 0;
+    if(senderType == "bicycle")
+        stoppingDelayThreshold = TLptr->par("bikeStoppingDelayThreshold").doubleValue();
+    else
+        stoppingDelayThreshold = TLptr->par("vehStoppingDelayThreshold").doubleValue();
+
+    // get vehicle status
+    int vehStatus = speed > stoppingDelayThreshold ? VEH_STATUS_Driving : VEH_STATUS_Waiting;
+
+    ref->second.vehStatus = vehStatus;
+}
+
+
+// removing an existing vehicle
 void ApplRSUMonitor::LaneInfoRemove(std::string lane, std::string sender)
 {
     // look for this lane in laneInfo map
@@ -346,12 +386,13 @@ void ApplRSUMonitor::LaneInfoRemove(std::string lane, std::string sender)
     if(loc == laneInfo.end())
         error("lane %s does not exist in laneInfo map!", lane.c_str());
 
-    // remove it from the queued vehicles
-    std::map<std::string, queuedVehiclesEntry>::iterator ref = loc->second.queuedVehicles.find(sender);
-    if(ref != loc->second.queuedVehicles.end())
-        loc->second.queuedVehicles.erase(ref);
-    else
+    // look for this vehicle in this lane
+    std::map<std::string, allVehiclesEntry>::iterator ref = loc->second.allVehicles.find(sender);
+    if(ref == loc->second.allVehicles.end())
         error("vehicle %s was not added into lane %s in laneInfo map!", sender.c_str(), lane.c_str());
+
+    // remove it from the vehicles list
+    loc->second.allVehicles.erase(ref);
 }
 
 }

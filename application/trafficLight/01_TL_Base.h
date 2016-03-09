@@ -55,10 +55,6 @@ class TrafficLightBase : public BaseApplLayer
       void findRSU(std::string);
 
   protected:
-      double updateInterval;
-      int TLControlMode;
-      int debugLevel;
-
       TraCI_Commands *TraCI;
       ApplRSUMonitor *RSUptr;
       simsignal_t Signal_executeFirstTS;
@@ -67,6 +63,10 @@ class TrafficLightBase : public BaseApplLayer
       boost::filesystem::path VENTOS_FullPath;
       boost::filesystem::path SUMO_Path;
       boost::filesystem::path SUMO_FullPath;
+
+      int TLControlMode;
+      int debugLevel;
+      double updateInterval;
 };
 
 }
