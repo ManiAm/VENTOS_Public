@@ -377,7 +377,7 @@ void TrafficLightAdaptiveQueue::calculatePhases(std::string TLid)
         sortedMovements.pop();
     }
 
-    // Select at most 4 phases for new cycle:
+    // Select phases for the new cycle:
     while(!batchMovementVector.empty())
     {
         // Always select the first movement because it will be the best(?):
@@ -413,10 +413,6 @@ void TrafficLightAdaptiveQueue::calculatePhases(std::string TLid)
         batchMovementVector.erase( std::remove_if(batchMovementVector.begin(), batchMovementVector.end(), served(bestMovement)), batchMovementVector.end() );
     }
 
-    // throw error if cycle is more than 4 phases:
-    if (greenInterval.size() > 4)
-        error("cycle contains more than 4 phases!");
-
     // calculate maxVehCount in a cycle
     int maxVehCountCycle = 0;
     for (auto &i : greenInterval)
@@ -437,6 +433,11 @@ void TrafficLightAdaptiveQueue::calculatePhases(std::string TLid)
     // If no green time (0s) is given to a phase, then this queue is empty and useless:
     int oldSize = greenInterval.size();
     greenInterval.erase( std::remove_if(greenInterval.begin(), greenInterval.end(), noGreenTime), greenInterval.end() );
+
+    // throw error if cycle contains more than 4 phases:
+    if (greenInterval.size() > 4)
+        error("cycle contains %d phases which is more than 4!", greenInterval.size());
+
     int newSize = greenInterval.size();
     if(oldSize != newSize && debugLevel > 1)
         std::cout << ">>> " << oldSize - newSize << " phase(s) removed due to zero queue size!" << endl << endl;

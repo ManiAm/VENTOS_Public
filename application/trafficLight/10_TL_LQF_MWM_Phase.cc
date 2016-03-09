@@ -79,7 +79,6 @@ void TrafficLight_LQF_MWM_Phase::initialize(int stage)
 
     if(stage == 0)
     {
-        nextGreenIsNewCycle = false;
         ChangeEvt = new cMessage("ChangeEvt", 1);
     }
 }
@@ -100,9 +99,6 @@ void TrafficLight_LQF_MWM_Phase::handleMessage(cMessage *msg)
 
     if (msg == ChangeEvt)
     {
-        if(greenInterval.empty())
-            calculatePhases("C");
-
         chooseNextInterval();
 
         if(intervalOffSet <= 0)
@@ -133,12 +129,9 @@ void TrafficLight_LQF_MWM_Phase::executeFirstTimeStep()
     // turn on active detection on this RSU
     RSUptr->par("activeDetection") = true;
 
-    // calculate phases at the beginning of the cycle
-    calculatePhases("C");
-
-    // set initial settings:
-    currentInterval = greenInterval.front().greenString;
-    intervalOffSet = greenInterval.front().greenTime;
+    // set initial values
+    currentInterval = phase1_5;
+    intervalOffSet = minGreenTime;
     intervalElapseTime = 0;
 
     scheduleAt(simTime().dbl() + intervalOffSet, ChangeEvt);
@@ -200,11 +193,9 @@ void TrafficLight_LQF_MWM_Phase::chooseNextInterval()
     }
     else if (currentInterval == "red")
     {
-        if(nextGreenIsNewCycle)
-        {
-            updateTLstate("C", "phaseEnd", nextGreenInterval, true);  // a new cycle
-            nextGreenIsNewCycle = false;
-        }
+        // update TL status for this phase
+        if(nextGreenInterval == firstGreen["C"])
+            updateTLstate("C", "phaseEnd", nextGreenInterval, true);  //todo: notion of cycle?
         else
             updateTLstate("C", "phaseEnd", nextGreenInterval);
 
@@ -213,7 +204,7 @@ void TrafficLight_LQF_MWM_Phase::chooseNextInterval()
         // set the new state
         TraCI->TLSetState("C", nextGreenInterval);
         intervalElapseTime = 0.0;
-        intervalOffSet = greenInterval.front().greenTime;
+        intervalOffSet = minGreenTime;
     }
     else
         chooseNextGreenInterval();
@@ -229,42 +220,10 @@ void TrafficLight_LQF_MWM_Phase::chooseNextInterval()
 
 void TrafficLight_LQF_MWM_Phase::chooseNextGreenInterval()
 {
-    // Remove current old phase:
-    greenInterval.erase(greenInterval.begin());
-
-    // Assign new green:
-    if (greenInterval.empty())
-    {
-        calculatePhases("C");
-        nextGreenIsNewCycle = true;
-    }
-
-    nextGreenInterval = greenInterval.front().greenString;
-
-    // calculate 'next interval'
-    std::string nextInterval = "";
-    for(unsigned int linkNumber = 0; linkNumber < currentInterval.size(); ++linkNumber)
-    {
-        if( (currentInterval[linkNumber] == 'G' || currentInterval[linkNumber] == 'g') && nextGreenInterval[linkNumber] == 'r')
-            nextInterval += 'y';
-        else
-            nextInterval += currentInterval[linkNumber];
-    }
-
-    currentInterval = "yellow";
-    TraCI->TLSetState("C", nextInterval);
-
-    intervalElapseTime = 0.0;
-    intervalOffSet =  yellowTime;
-
-    // update TL status for this phase
-    updateTLstate("C", "yellow");
-}
-
-
-void TrafficLight_LQF_MWM_Phase::calculatePhases(std::string TLid)
-{
     std::map<std::string, laneInfoEntry> laneInfo = RSUptr->laneInfo;
+
+    if(laneInfo.empty())
+        error("LaneInfo is empty! Is active detection on in %s ?", RSUptr->getFullName());
 
     // batch of all non-conflicting movements, sorted by total weight + oneCount per batch
     std::priority_queue< sortedEntryLQF /*type of each element*/, std::vector<sortedEntryLQF> /*container*/, sortCompareLQF > sortedMovements;
@@ -288,10 +247,15 @@ void TrafficLight_LQF_MWM_Phase::calculatePhases(std::string TLid)
                 if(!rightTurn)
                 {
                     // get the corresponding lane for this link
-                    std::string lane = linkLane[std::make_pair(TLid,linkNumber)];
+                    auto itt = linkLane.find(std::make_pair("C",linkNumber));
+                    if(itt == linkLane.end())
+                        error("linkNumber %s is not found in TL %s", linkNumber, "C");
+                    std::string lane = itt->second;
 
                     // find this lane in laneInfo
                     auto res = laneInfo.find(lane);
+                    if(res == laneInfo.end())
+                        error("Can not find lane %s in laneInfo!", lane.c_str());
 
                     // get all queued vehicles on this lane
                     std::map<std::string /*vehicle id*/, queuedVehiclesEntry> queuedVehicles = (*res).second.queuedVehicles;
@@ -312,7 +276,7 @@ void TrafficLight_LQF_MWM_Phase::calculatePhases(std::string TLid)
                     }
                 }
 
-                // including right turns
+                // number of movements in this phase (including right turns)
                 oneCount++;
             }
 
@@ -324,64 +288,53 @@ void TrafficLight_LQF_MWM_Phase::calculatePhases(std::string TLid)
         sortedMovements.push(*entry);
     }
 
-    while(!sortedMovements.empty())
+    // get the movement batch with the highest weight + delay + oneCount
+    sortedEntryLQF entry = sortedMovements.top();
+    // this will be the next green interval
+    nextGreenInterval = entry.phase;
+
+    // calculate 'next interval'
+    std::string nextInterval = "";
+    bool needYellowInterval = false;  // if we have at least one yellow interval
+    for(unsigned int linkNumber = 0; linkNumber < nextGreenInterval.size(); ++linkNumber)
     {
-        sortedEntryLQF entry = sortedMovements.top();
-
-        greenIntervalInfo_LQF *entry2 = new greenIntervalInfo_LQF(entry.maxVehCount, entry.totalWeight, entry.oneCount, 0.0, entry.phase);
-        greenInterval.push_back(*entry2);
-
-        sortedMovements.pop();
+        if( (currentInterval[linkNumber] == 'G' || currentInterval[linkNumber] == 'g') && nextGreenInterval[linkNumber] == 'r')
+        {
+            nextInterval += 'y';
+            needYellowInterval = true;
+        }
+        else
+            nextInterval += currentInterval[linkNumber];
     }
 
-    // calculate maxVehCount in a cycle
-    int maxVehCountCycle = 0;
-    for (auto &i : greenInterval)
-        maxVehCountCycle += i.maxVehCount;
-
-    // If no vehicles in queue, then run each green interval with minGreenTime:
-    if (maxVehCountCycle == 0)
+    // allocate enough green time to move all vehicles
+    int maxVehCount = entry.maxVehCount;
+    if(debugLevel > 1)
     {
-        for (auto &i : greenInterval)
-            i.greenTime = minGreenTime;
+        std::cout << "Maximum of " << maxVehCount << " vehicle(s) are waiting. ";
+        std::cout << "Total weight is " << entry.totalWeight << ". ";
+    }
+    double greenTime = (double)maxVehCount * (minGreenTime / 5.);
+    nextGreenTime = std::min(std::max(greenTime, minGreenTime), maxGreenTime);      // bound green time
+    if(debugLevel > 1)
+        std::cout << "Next green time is " << nextGreenTime << endl << endl;
+
+    if(needYellowInterval)
+    {
+        currentInterval = "yellow";
+        TraCI->TLSetState("C", nextInterval);
+
+        intervalElapseTime = 0.0;
+        intervalOffSet =  yellowTime;
+
+        // update TL status for this phase
+        updateTLstate("C", "yellow");
     }
     else
     {
-        for (auto &i : greenInterval)
-            i.greenTime = (double)i.maxVehCount * (minGreenTime / 5.);
-    }
-
-    // If no green time (0s) is given to a phase, then this queue is empty and useless:
-    int oldSize = greenInterval.size();
-    auto rme = std::remove_if(greenInterval.begin(), greenInterval.end(),
-            [](const greenIntervalInfo_LQF v)
-            {
-        if (v.greenTime == 0.0)
-            return true;
-        else
-            return false;
-            }
-    );
-    greenInterval.erase( rme, greenInterval.end() );
-    int newSize = greenInterval.size();
-    if(oldSize != newSize && debugLevel > 1)
-        std::cout << ">>> " << oldSize - newSize << " phase(s) removed due to zero queue size!" << endl << endl;
-
-    // make sure the green splits are bounded
-    for (auto &i : greenInterval)
-        i.greenTime = std::min(std::max(i.greenTime, minGreenTime), maxGreenTime);
-
-    if(debugLevel > 1)
-    {
-        std::cout << "Ordered green intervals for this cycle: " << endl;
-        for (auto &i : greenInterval)
-            std::cout << "movement: " << i.greenString
-            << ", totalWeight= " << i.totalWeight
-            << ", oneCount= " << i.oneCount
-            << ", maxVehCount= " << i.maxVehCount
-            << ", green= " << i.greenTime << "s" << endl;
-
-        std::cout << endl;
+        intervalOffSet = nextGreenTime;
+        if(debugLevel > 0)
+            std::cout << ">>> Continue the last green interval." << endl << endl;
     }
 }
 

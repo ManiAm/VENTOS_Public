@@ -229,6 +229,9 @@ void TrafficLight_OJFM::chooseNextGreenInterval()
 {
     std::map<std::string, laneInfoEntry> laneInfo = RSUptr->laneInfo;
 
+    if(laneInfo.empty())
+        error("LaneInfo is empty! Is active detection on in %s ?", RSUptr->getFullName());
+
     // batch of all non-conflicting movements, sorted by maxWeight + total delay + oneCount
     std::priority_queue< sortedEntryOJF /*type of each element*/, std::vector<sortedEntryOJF> /*container*/, sortCompareOJF > sortedMovements;
 
@@ -253,10 +256,15 @@ void TrafficLight_OJFM::chooseNextGreenInterval()
                 if(!rightTurn)
                 {
                     // get the corresponding lane for this link
-                    std::string lane = linkLane[std::make_pair("C",linkNumber)];
+                    auto itt = linkLane.find(std::make_pair("C",linkNumber));
+                    if(itt == linkLane.end())
+                        error("linkNumber %s is not found in TL %s", linkNumber, "C");
+                    std::string lane = itt->second;
 
                     // find this lane in laneInfo
                     auto res = laneInfo.find(lane);
+                    if(res == laneInfo.end())
+                        error("Can not find lane %s in laneInfo!", lane.c_str());
 
                     // get all queued vehicles on this lane
                     std::map<std::string /*vehicle id*/, queuedVehiclesEntry> queuedVehicles = (*res).second.queuedVehicles;
@@ -282,7 +290,7 @@ void TrafficLight_OJFM::chooseNextGreenInterval()
                     }
                 }
 
-                // including right turns
+                // number of movements in this phase (including right turns)
                 oneCount++;
             }
 

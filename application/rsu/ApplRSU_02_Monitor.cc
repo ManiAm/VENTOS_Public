@@ -55,8 +55,53 @@ void ApplRSUMonitor::initialize(int stage)
     {
         // note that TLs set 'activeDetection' after RSU creation
         activeDetection = par("activeDetection").boolValue();
-
         collectVehApproach = par("collectVehApproach").boolValue();
+
+        // get a list of all TLs
+        std::list<std::string> TLlist = TraCI->TLGetIDList();
+
+        // look for myTLid in TL list
+        auto it = std::find(TLlist.begin(), TLlist.end(), myTLid);
+
+        if(it != TLlist.end())
+        {
+            // for each incoming lane in this TL
+            std::list<std::string> lan = TraCI->TLGetControlledLanes(myTLid);
+
+            // remove duplicate entries
+            lan.unique();
+
+            // for each incoming lane
+            for(auto &it2 :lan)
+            {
+                std::string lane = it2;
+
+                lanesTL[lane] = myTLid;
+
+                // get the max speed on this lane
+                double maxV = TraCI->laneGetMaxSpeed(lane);
+
+                // calculate initial passageTime for this lane
+                // todo: change fix value
+                double pass = 35. / maxV;
+
+                // check if not greater than Gmin
+                if(pass > minGreenTime)
+                {
+                    std::cout << "WARNING (" << myFullId << "): Passage time is greater than Gmin in lane " << lane << endl;
+                    pass = minGreenTime;
+                }
+
+                // add this lane to the laneInfo map
+                laneInfoEntry *entry = new laneInfoEntry(myTLid, 0, 0, pass, 0, std::map<std::string, queuedVehiclesEntry>());
+                laneInfo.insert( std::make_pair(lane, *entry) );
+            }
+        }
+        else if(!TLlist.empty())
+        {
+            printf("%s with name \"%s\" does not match any TLs \n", myFullId, myTLid.c_str());
+            std::cout.flush();
+        }
     }
 }
 
@@ -119,52 +164,9 @@ void ApplRSUMonitor::onData(LaneChangeMsg* wsm)
 }
 
 
-void ApplRSUMonitor::getAllLanes()
-{
-    // we need this RSU to be associated with a TL
-    if(myTLid == "")
-        error("The id of %s does not match with any TL. Check RSUsLocation.xml file!", myFullId);
-
-    // for each incoming lane in this TL
-    std::list<std::string> lan = TraCI->TLGetControlledLanes(myTLid);
-
-    // remove duplicate entries
-    lan.unique();
-
-    // for each incoming lane
-    for(auto &it2 :lan)
-    {
-        std::string lane = it2;
-
-        lanesTL[lane] = myTLid;
-
-        // get the max speed on this lane
-        double maxV = TraCI->laneGetMaxSpeed(lane);
-
-        // calculate initial passageTime for this lane
-        // todo: change fix value
-        double pass = 35. / maxV;
-
-        // check if not greater than Gmin
-        if(pass > minGreenTime)
-        {
-            std::cout << "WARNING (" << myFullId << "): Passage time is greater than Gmin in lane " << lane << endl;
-            pass = minGreenTime;
-        }
-
-        // add this lane to the laneInfo map
-        laneInfoEntry *entry = new laneInfoEntry(myTLid, 0, 0, pass, 0, std::map<std::string, queuedVehiclesEntry>());
-        laneInfo.insert( std::make_pair(lane, *entry) );
-    }
-}
-
-
 // update variables upon reception of any beacon (vehicle, bike, pedestrian)
 template <typename T> void ApplRSUMonitor::onBeaconAny(T wsm)
 {
-    if(lanesTL.empty())
-        getAllLanes();
-
     std::string sender = wsm->getSender();
     Coord pos = wsm->getPos();
 

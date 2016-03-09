@@ -1241,15 +1241,26 @@ void AddEntity::Scenario11()
 
 void AddEntity::Scenario12()
 {
+    // WE vehicles
     int depart = 0;
-
     for(int i=1; i<=1000; i++)
     {
         char vehicleName[90];
-        sprintf(vehicleName, "veh%d", i);
-        depart = depart + interval;
+        sprintf(vehicleName, "vehWE%d", i);
+        depart = depart + 500;
 
-        TraCI->vehicleAdd(vehicleName, "passenger", "movement8", depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+        TraCI->vehicleAdd(vehicleName, "passenger", "movement8", depart, 0 /*pos*/, 20 /*speed*/, -5 /*lane*/);
+    }
+
+    // ES vehicles
+    depart = 0;
+    for(int i=1; i<=1000; i++)
+    {
+        char vehicleName[90];
+        sprintf(vehicleName, "vehES%d", i);
+        depart = depart + 500;
+
+        TraCI->vehicleAdd(vehicleName, "passenger", "movement7", depart, 0 /*pos*/, 20 /*speed*/, -5 /*lane*/);
     }
 
     char bikeName[90];
