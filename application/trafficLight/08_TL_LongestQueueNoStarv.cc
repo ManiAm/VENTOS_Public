@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    TL_MaxQueue.cc
+/// @file    TL_LongestQueueNoStarv.cc
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @date    August 2013
 ///
@@ -24,12 +24,12 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <08_TL_MaxQueue.h>
+#include <08_TL_LongestQueueNoStarv.h>
 #include <queue>
 
 namespace VENTOS {
 
-Define_Module(VENTOS::TrafficLightAdaptiveQueue);
+Define_Module(VENTOS::TrafficLightLongestQueueNoStarv);
 
 class sortedEntryQ
 {
@@ -95,13 +95,13 @@ private:
 };
 
 
-TrafficLightAdaptiveQueue::~TrafficLightAdaptiveQueue()
+TrafficLightLongestQueueNoStarv::~TrafficLightLongestQueueNoStarv()
 {
 
 }
 
 
-void TrafficLightAdaptiveQueue::initialize(int stage)
+void TrafficLightLongestQueueNoStarv::initialize(int stage)
 {
     TrafficLightActuated::initialize(stage);
 
@@ -124,13 +124,13 @@ void TrafficLightAdaptiveQueue::initialize(int stage)
 }
 
 
-void TrafficLightAdaptiveQueue::finish()
+void TrafficLightLongestQueueNoStarv::finish()
 {
     TrafficLightActuated::finish();
 }
 
 
-void TrafficLightAdaptiveQueue::handleMessage(cMessage *msg)
+void TrafficLightLongestQueueNoStarv::handleMessage(cMessage *msg)
 {
     TrafficLightActuated::handleMessage(msg);
 
@@ -153,7 +153,7 @@ void TrafficLightAdaptiveQueue::handleMessage(cMessage *msg)
 }
 
 
-void TrafficLightAdaptiveQueue::executeFirstTimeStep()
+void TrafficLightLongestQueueNoStarv::executeFirstTimeStep()
 {
     TrafficLightActuated::executeFirstTimeStep();
 
@@ -194,7 +194,7 @@ void TrafficLightAdaptiveQueue::executeFirstTimeStep()
 }
 
 
-void TrafficLightAdaptiveQueue::executeEachTimeStep()
+void TrafficLightLongestQueueNoStarv::executeEachTimeStep()
 {
     TrafficLightActuated::executeEachTimeStep();
 
@@ -205,7 +205,7 @@ void TrafficLightAdaptiveQueue::executeEachTimeStep()
 }
 
 
-void TrafficLightAdaptiveQueue::chooseNextInterval()
+void TrafficLightLongestQueueNoStarv::chooseNextInterval()
 {
     if (currentInterval == "yellow")
     {
@@ -259,7 +259,7 @@ void TrafficLightAdaptiveQueue::chooseNextInterval()
 }
 
 
-void TrafficLightAdaptiveQueue::chooseNextGreenInterval()
+void TrafficLightLongestQueueNoStarv::chooseNextGreenInterval()
 {
     // Remove current old phase:
     greenInterval.erase(greenInterval.begin());
@@ -313,7 +313,7 @@ void TrafficLightAdaptiveQueue::chooseNextGreenInterval()
 
 
 // calculate all phases (up to 4)
-void TrafficLightAdaptiveQueue::calculatePhases(std::string TLid)
+void TrafficLightLongestQueueNoStarv::calculatePhases(std::string TLid)
 {
     if(ev.isGUI() && debugLevel > 1)
     {
@@ -373,7 +373,7 @@ void TrafficLightAdaptiveQueue::calculatePhases(std::string TLid)
         sortedMovements.pop();
     }
 
-    // Select phases for the new cycle:
+    // Select only the necessary phases for the new cycle:
     while(!batchMovementVector.empty())
     {
         // Always select the first movement because it will be the best(?):
@@ -395,7 +395,8 @@ void TrafficLightAdaptiveQueue::calculatePhases(std::string TLid)
                 nextInterval += 'G';
         }
 
-        // Avoid pushing "only permissive right turns" phase: todo: is this necessary?
+        // todo: is this necessary?
+        // Avoid pushing "only permissive right turns" phase:
         if (nextInterval == "grgrrgrgrrgrgrrgrgrrrrrr")
         {
             batchMovementVector.erase(batchMovementVector.begin());
@@ -458,7 +459,9 @@ void TrafficLightAdaptiveQueue::calculatePhases(std::string TLid)
     {
         std::cout << "Selected green intervals for this cycle: " << endl;
         for (auto &i : greenInterval)
-            std::cout << "Movement " << i.greenString << " with maxVehCount of " << i.maxVehCount << " for " << i.greenTime << "s" << endl;
+            std::cout << "Movement " << i.greenString
+            << " with maxVehCount of " << i.maxVehCount
+            << " for " << i.greenTime << "s" << endl;
 
         std::cout << endl;
         std::cout.flush();

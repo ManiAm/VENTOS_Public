@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    TL_LowDelay.h
+/// @file    TL_OJF.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @date    Jul 2015
 ///
@@ -24,17 +24,17 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef TRAFFICLIGHTLOWDELAY_H
-#define TRAFFICLIGHTLOWDELAY_H
+#ifndef TRAFFICLIGHTOJF_H
+#define TRAFFICLIGHTOJF_H
 
-#include <08_TL_MaxQueue.h>
+#include <08_TL_LongestQueueNoStarv.h>
 
 namespace VENTOS {
 
-class TrafficLightLowDelay : public TrafficLightAdaptiveQueue
+class TrafficLightOJF : public TrafficLightLongestQueueNoStarv
 {
   public:
-    virtual ~TrafficLightLowDelay();
+    virtual ~TrafficLightOJF();
     virtual void finish();
     virtual void initialize(int);
     virtual void handleMessage(cMessage *);

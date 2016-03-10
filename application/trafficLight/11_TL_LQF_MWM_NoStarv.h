@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    TL_LQF_MWM_Phase.h
+/// @file    TL_LQF_MWM_NoStarv.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @date    Jul 2015
 ///
@@ -24,40 +24,17 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-// This algorithm is implemented according to the paper, but suffers from starvation.
-// It performs the scheduling per phase (and not per cycle)
+#ifndef TRAFFICLIGHTLQFMWMNOSTARV_H
+#define TRAFFICLIGHTLQFMWMNOSTARV_H
 
-#ifndef TRAFFICLIGHTLQFMWMPHASE_H
-#define TRAFFICLIGHTLQFMWMPHASE_H
-
-#include <09_TL_LowDelay.h>
+#include <10_TL_LQF_MWM.h>
 
 namespace VENTOS {
 
-class greenIntervalInfo_LQF
+class TrafficLight_LQF_MWM_NoStarv : public TrafficLight_LQF_MWM
 {
 public:
-    int maxVehCount;
-    double totalWeight;
-    int oneCount;
-    double greenTime;
-    std::string greenString;
-
-    greenIntervalInfo_LQF(int i1, double d0, int i2, double d1, std::string str)
-    {
-        this->maxVehCount = i1;
-        this->totalWeight = d0;
-        this->oneCount = i2;
-        this->greenTime = d1;
-        this->greenString = str;
-    }
-};
-
-
-class TrafficLight_LQF_MWM_Phase : public TrafficLightLowDelay
-{
-public:
-    virtual ~TrafficLight_LQF_MWM_Phase();
+    virtual ~TrafficLight_LQF_MWM_NoStarv();
     virtual void finish();
     virtual void initialize(int);
     virtual void handleMessage(cMessage *);
@@ -69,22 +46,11 @@ protected:
 private:
     void chooseNextInterval();
     void chooseNextGreenInterval();
-
-protected:
-    std::map<std::string /*className*/, double /*weight*/> classWeight =
-    {
-            {"emergency", 50},
-            {"passenger", 40},
-            {"bicycle", 30},
-            {"pedestrian", 20},
-            {"bus", 10},
-            {"truck", 1}
-    };
-
-    std::vector<std::string> phases = {phase1_5, phase2_5, phase1_6, phase2_6, phase3_7, phase3_8, phase4_7, phase4_8};
+    void calculatePhases(std::string);
 
 private:
-    double nextGreenTime;
+    std::vector<greenIntervalInfo_LQF> greenInterval;
+    bool nextGreenIsNewCycle;
 };
 
 }

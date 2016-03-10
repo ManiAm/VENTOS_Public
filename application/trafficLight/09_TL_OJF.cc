@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    TL_LowDelay.cc
+/// @file    TL_OJF.cc
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @date    Jul 2015
 ///
@@ -24,14 +24,14 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <09_TL_LowDelay.h>
+#include <09_TL_OJF.h>
 #include <algorithm>
 #include <iomanip>
 #include <queue>
 
 namespace VENTOS {
 
-Define_Module(VENTOS::TrafficLightLowDelay);
+Define_Module(VENTOS::TrafficLightOJF);
 
 class sortedEntryD
 {
@@ -66,15 +66,15 @@ public:
 };
 
 
-TrafficLightLowDelay::~TrafficLightLowDelay()
+TrafficLightOJF::~TrafficLightOJF()
 {
 
 }
 
 
-void TrafficLightLowDelay::initialize(int stage)
+void TrafficLightOJF::initialize(int stage)
 {
-    TrafficLightAdaptiveQueue::initialize(stage);
+    TrafficLightLongestQueueNoStarv::initialize(stage);
 
     if(TLControlMode != TL_LowDelay)
         return;
@@ -86,15 +86,15 @@ void TrafficLightLowDelay::initialize(int stage)
 }
 
 
-void TrafficLightLowDelay::finish()
+void TrafficLightOJF::finish()
 {
-    TrafficLightAdaptiveQueue::finish();
+    TrafficLightLongestQueueNoStarv::finish();
 }
 
 
-void TrafficLightLowDelay::handleMessage(cMessage *msg)
+void TrafficLightOJF::handleMessage(cMessage *msg)
 {
-    TrafficLightAdaptiveQueue::handleMessage(msg);
+    TrafficLightLongestQueueNoStarv::handleMessage(msg);
 
     if(TLControlMode != TL_LowDelay)
         return;
@@ -112,9 +112,9 @@ void TrafficLightLowDelay::handleMessage(cMessage *msg)
 }
 
 
-void TrafficLightLowDelay::executeFirstTimeStep()
+void TrafficLightOJF::executeFirstTimeStep()
 {
-    TrafficLightAdaptiveQueue::executeFirstTimeStep();
+    TrafficLightLongestQueueNoStarv::executeFirstTimeStep();
 
     if(TLControlMode != TL_LowDelay)
         return;
@@ -152,9 +152,9 @@ void TrafficLightLowDelay::executeFirstTimeStep()
 }
 
 
-void TrafficLightLowDelay::executeEachTimeStep()
+void TrafficLightOJF::executeEachTimeStep()
 {
-    TrafficLightAdaptiveQueue::executeEachTimeStep();
+    TrafficLightLongestQueueNoStarv::executeEachTimeStep();
 
     if(TLControlMode != TL_LowDelay)
         return;
@@ -163,7 +163,7 @@ void TrafficLightLowDelay::executeEachTimeStep()
 }
 
 
-void TrafficLightLowDelay::chooseNextInterval()
+void TrafficLightOJF::chooseNextInterval()
 {
     if (currentInterval == "yellow")
     {
@@ -215,7 +215,7 @@ void TrafficLightLowDelay::chooseNextInterval()
 }
 
 
-void TrafficLightLowDelay::chooseNextGreenInterval()
+void TrafficLightOJF::chooseNextGreenInterval()
 {
     // for debugging
     if(ev.isGUI() && debugLevel > 1)

@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    TL_LQF_MWM.cc
+/// @file    TL_LQF_MWM_NoStarv.cc
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @date    Jul 2015
 ///
@@ -24,12 +24,12 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <11_TL_LQF_MWM.h>
+#include <11_TL_LQF_MWM_NoStarv.h>
 #include <queue>
 
 namespace VENTOS {
 
-Define_Module(VENTOS::TrafficLight_LQF_MWM);
+Define_Module(VENTOS::TrafficLight_LQF_MWM_NoStarv);
 
 class sortedEntryLQF
 {
@@ -64,15 +64,15 @@ public:
 };
 
 
-TrafficLight_LQF_MWM::~TrafficLight_LQF_MWM()
+TrafficLight_LQF_MWM_NoStarv::~TrafficLight_LQF_MWM_NoStarv()
 {
 
 }
 
 
-void TrafficLight_LQF_MWM::initialize(int stage)
+void TrafficLight_LQF_MWM_NoStarv::initialize(int stage)
 {
-    TrafficLight_LQF_MWM_Phase::initialize(stage);
+    TrafficLight_LQF_MWM::initialize(stage);
 
     if(TLControlMode != TL_LQF_MWM)
         return;
@@ -85,15 +85,15 @@ void TrafficLight_LQF_MWM::initialize(int stage)
 }
 
 
-void TrafficLight_LQF_MWM::finish()
+void TrafficLight_LQF_MWM_NoStarv::finish()
 {
-    TrafficLight_LQF_MWM_Phase::finish();
+    TrafficLight_LQF_MWM::finish();
 }
 
 
-void TrafficLight_LQF_MWM::handleMessage(cMessage *msg)
+void TrafficLight_LQF_MWM_NoStarv::handleMessage(cMessage *msg)
 {
-    TrafficLight_LQF_MWM_Phase::handleMessage(msg);
+    TrafficLight_LQF_MWM::handleMessage(msg);
 
     if(TLControlMode != TL_LQF_MWM)
         return;
@@ -114,10 +114,10 @@ void TrafficLight_LQF_MWM::handleMessage(cMessage *msg)
 }
 
 
-void TrafficLight_LQF_MWM::executeFirstTimeStep()
+void TrafficLight_LQF_MWM_NoStarv::executeFirstTimeStep()
 {
     // call parent
-    TrafficLight_LQF_MWM_Phase::executeFirstTimeStep();
+    TrafficLight_LQF_MWM::executeFirstTimeStep();
 
     if(TLControlMode != TL_LQF_MWM)
         return;
@@ -164,10 +164,10 @@ void TrafficLight_LQF_MWM::executeFirstTimeStep()
 }
 
 
-void TrafficLight_LQF_MWM::executeEachTimeStep()
+void TrafficLight_LQF_MWM_NoStarv::executeEachTimeStep()
 {
     // call parent
-    TrafficLight_LQF_MWM_Phase::executeEachTimeStep();
+    TrafficLight_LQF_MWM::executeEachTimeStep();
 
     if(TLControlMode != TL_LQF_MWM)
         return;
@@ -176,7 +176,7 @@ void TrafficLight_LQF_MWM::executeEachTimeStep()
 }
 
 
-void TrafficLight_LQF_MWM::chooseNextInterval()
+void TrafficLight_LQF_MWM_NoStarv::chooseNextInterval()
 {
     if (currentInterval == "yellow")
     {
@@ -229,7 +229,7 @@ void TrafficLight_LQF_MWM::chooseNextInterval()
 }
 
 
-void TrafficLight_LQF_MWM::chooseNextGreenInterval()
+void TrafficLight_LQF_MWM_NoStarv::chooseNextGreenInterval()
 {
     // Remove current old phase:
     greenInterval.erase(greenInterval.begin());
@@ -264,7 +264,7 @@ void TrafficLight_LQF_MWM::chooseNextGreenInterval()
 }
 
 
-void TrafficLight_LQF_MWM::calculatePhases(std::string TLid)
+void TrafficLight_LQF_MWM_NoStarv::calculatePhases(std::string TLid)
 {
     std::map<std::string, laneInfoEntry> laneInfo = RSUptr->laneInfo;
 
@@ -349,6 +349,11 @@ void TrafficLight_LQF_MWM::calculatePhases(std::string TLid)
         sortedMovements.pop();
     }
 
+
+
+
+
+
     // calculate number of vehicles in the intersection
     int vehCountIntersection = 0;
     for (auto &i : greenInterval)
@@ -391,7 +396,7 @@ void TrafficLight_LQF_MWM::calculatePhases(std::string TLid)
 
     if(ev.isGUI() && debugLevel > 1)
     {
-        std::cout << "Ordered green intervals for this cycle: " << endl;
+        std::cout << "Selected green intervals for this cycle: " << endl;
         for (auto &i : greenInterval)
             std::cout << "movement: " << i.greenString
             << ", totalWeight= " << i.totalWeight

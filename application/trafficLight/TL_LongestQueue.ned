@@ -1,10 +1,10 @@
 
 package c3po.application.trafficLight;
 
-simple TL_AdaptiveQueue extends TL_Actuated
+simple TL_LongestQueue extends TL_Actuated
 {
     parameters:
-        @class(VENTOS::TrafficLightAdaptiveQueue);
+        @class(VENTOS::TrafficLightLongestQueueNoStarv);
         @display("i=block/network2");  
         
         int maxQueueSize = default(-1);              

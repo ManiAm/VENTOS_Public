@@ -1,9 +1,9 @@
 
 package c3po.application.trafficLight;
 
-simple TL_LowDelay extends TL_AdaptiveQueue
+simple TL_OJF extends TL_LongestQueue
 {
     parameters:
-        @class(VENTOS::TrafficLightLowDelay);
+        @class(VENTOS::TrafficLightOJF);
         @display("i=block/network2");              
 }

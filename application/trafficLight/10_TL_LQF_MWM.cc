@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    TL_LQF_MWM_Phase.cc
+/// @file    TL_LQF_MWM.cc
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @date    Jul 2015
 ///
@@ -24,12 +24,12 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <10_TL_LQF_MWM_Phase.h>
+#include <10_TL_LQF_MWM.h>
 #include <queue>
 
 namespace VENTOS {
 
-Define_Module(VENTOS::TrafficLight_LQF_MWM_Phase);
+Define_Module(VENTOS::TrafficLight_LQF_MWM);
 
 class sortedEntryLQF
 {
@@ -64,15 +64,15 @@ public:
 };
 
 
-TrafficLight_LQF_MWM_Phase::~TrafficLight_LQF_MWM_Phase()
+TrafficLight_LQF_MWM::~TrafficLight_LQF_MWM()
 {
 
 }
 
 
-void TrafficLight_LQF_MWM_Phase::initialize(int stage)
+void TrafficLight_LQF_MWM::initialize(int stage)
 {
-    TrafficLightLowDelay::initialize(stage);
+    TrafficLightOJF::initialize(stage);
 
     if(TLControlMode != TL_LQF_MWM_Phase)
         return;
@@ -84,15 +84,15 @@ void TrafficLight_LQF_MWM_Phase::initialize(int stage)
 }
 
 
-void TrafficLight_LQF_MWM_Phase::finish()
+void TrafficLight_LQF_MWM::finish()
 {
-    TrafficLightLowDelay::finish();
+    TrafficLightOJF::finish();
 }
 
 
-void TrafficLight_LQF_MWM_Phase::handleMessage(cMessage *msg)
+void TrafficLight_LQF_MWM::handleMessage(cMessage *msg)
 {
-    TrafficLightLowDelay::handleMessage(msg);
+    TrafficLightOJF::handleMessage(msg);
 
     if(TLControlMode != TL_LQF_MWM_Phase)
         return;
@@ -110,10 +110,10 @@ void TrafficLight_LQF_MWM_Phase::handleMessage(cMessage *msg)
 }
 
 
-void TrafficLight_LQF_MWM_Phase::executeFirstTimeStep()
+void TrafficLight_LQF_MWM::executeFirstTimeStep()
 {
     // call parent
-    TrafficLightLowDelay::executeFirstTimeStep();
+    TrafficLightOJF::executeFirstTimeStep();
 
     if(TLControlMode != TL_LQF_MWM_Phase)
         return;
@@ -157,10 +157,10 @@ void TrafficLight_LQF_MWM_Phase::executeFirstTimeStep()
 }
 
 
-void TrafficLight_LQF_MWM_Phase::executeEachTimeStep()
+void TrafficLight_LQF_MWM::executeEachTimeStep()
 {
     // call parent
-    TrafficLightLowDelay::executeEachTimeStep();
+    TrafficLightOJF::executeEachTimeStep();
 
     if(TLControlMode != TL_LQF_MWM_Phase)
         return;
@@ -169,7 +169,7 @@ void TrafficLight_LQF_MWM_Phase::executeEachTimeStep()
 }
 
 
-void TrafficLight_LQF_MWM_Phase::chooseNextInterval()
+void TrafficLight_LQF_MWM::chooseNextInterval()
 {
     if (currentInterval == "yellow")
     {
@@ -220,7 +220,7 @@ void TrafficLight_LQF_MWM_Phase::chooseNextInterval()
 }
 
 
-void TrafficLight_LQF_MWM_Phase::chooseNextGreenInterval()
+void TrafficLight_LQF_MWM::chooseNextGreenInterval()
 {
     std::map<std::string, laneInfoEntry> laneInfo = RSUptr->laneInfo;
 

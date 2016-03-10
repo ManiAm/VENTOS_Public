@@ -27,11 +27,11 @@
 #ifndef TRAFFICLIGHTOJFMWM_H
 #define TRAFFICLIGHTOJFMWM_H
 
-#include <11_TL_LQF_MWM.h>
+#include <11_TL_LQF_MWM_NoStarv.h>
 
 namespace VENTOS {
 
-class TrafficLight_OJFM : public TrafficLight_LQF_MWM
+class TrafficLight_OJFM : public TrafficLight_LQF_MWM_NoStarv
 {
   public:
     virtual ~TrafficLight_OJFM();
