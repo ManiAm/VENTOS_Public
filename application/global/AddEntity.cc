@@ -1242,31 +1242,84 @@ void AddEntity::Scenario11()
 // testing starvation
 void AddEntity::Scenario12()
 {
-    // WE vehicles
-    int depart = 0;
-    for(int i=1; i<=1000; i++)
+    // add a single bike (north to south)
+    TraCI->vehicleAdd("bike1", "bicycle", "movement2", 5000, 600 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+
+    // mersenne twister engine (seed is fixed to make tests reproducible)
+    std::mt19937 generator(43);
+
+    // uniform distribution for vehicle class (emergency, passenger, bus, truck)
+    std::uniform_real_distribution<> vehClassDist(0,1);
+
+    // vehicles in ES direction
+    std::poisson_distribution<int> distribution1(7./36.);
+
+    // vehicles in WE direction
+    std::poisson_distribution<int> distribution2(7./36.);
+
+    std::ostringstream name;  // name is in the form of '100_N_T_1' where 100 is Traffic demand, N is north, T is through, 1 is vehCounter
+
+    int vehCounter = 1;
+    int vehInsertMain = 0;   // number of vehicles that should be inserted from W and E in each second
+    int vehInsertMain2 = 0;  // number of vehicles that should be inserted from N and S in each second
+    double vehClass = 0;
+
+    for(int depart = 0; depart < terminate; ++depart)
     {
-        char vehicleName[90];
-        sprintf(vehicleName, "vehWE%d", i);
-        depart = depart + 500;
+        vehInsertMain = distribution1(generator);
 
-        TraCI->vehicleAdd(vehicleName, "passenger", "movement8", depart, 0 /*pos*/, 20 /*speed*/, -5 /*lane*/);
+        // insert vehicles ES
+        for(int count = 0; count < vehInsertMain; ++count)
+        {
+            // default vehicle type
+            std::string vehType = "passenger";
+
+            if(vehMultiClass)
+            {
+                vehClass = vehClassDist(generator);
+
+                // passenger vehicle
+                if( vehClass >= 0 && vehClass < vehClassDistribution[0]/100. )
+                    vehType = "passenger";
+                // emergency vehicle
+                else if( vehClass >= vehClassDistribution[0]/100. && vehClass <= (vehClassDistribution[0]/100. + vehClassDistribution[1]/100.) )
+                    vehType = "emergency";
+            }
+
+            name.str("");
+            name << "_E_L_" << vehCounter;
+            TraCI->vehicleAdd(name.str(), vehType, "movement7", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+
+            vehCounter++;
+        }
+
+        vehInsertMain2 = distribution2(generator);
+
+        // insert vehicles WE
+        for(int count = 0; count < vehInsertMain2; ++count)
+        {
+            // default vehicle type
+            std::string vehType = "passenger";
+
+            if(vehMultiClass)
+            {
+                vehClass = vehClassDist(generator);
+
+                // passenger vehicle
+                if( vehClass >= 0 && vehClass < vehClassDistribution[0]/100. )
+                    vehType = "passenger";
+                // emergency vehicle
+                else if( vehClass >= vehClassDistribution[0]/100. && vehClass <= (vehClassDistribution[0]/100. + vehClassDistribution[1]/100.) )
+                    vehType = "emergency";
+            }
+
+            name.str("");
+            name << "_W_T_" << vehCounter;
+            TraCI->vehicleAdd(name.str(), vehType, "movement8", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+
+            vehCounter++;
+        }
     }
-
-    // ES vehicles
-    depart = 0;
-    for(int i=1; i<=1000; i++)
-    {
-        char vehicleName[90];
-        sprintf(vehicleName, "vehES%d", i);
-        depart = depart + 500;
-
-        TraCI->vehicleAdd(vehicleName, "passenger", "movement7", depart, 0 /*pos*/, 20 /*speed*/, -5 /*lane*/);
-    }
-
-    char bikeName[90];
-    sprintf(bikeName, "bike%d", 1);
-    TraCI->vehicleAdd(bikeName, "bicycle", "movement2", 5000, 600 /*pos*/, 0 /*speed*/, -5 /*lane*/);
 }
 
 
