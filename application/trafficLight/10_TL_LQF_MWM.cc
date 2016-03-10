@@ -315,19 +315,19 @@ void TrafficLight_LQF_MWM::chooseNextGreenInterval()
 
     // allocate enough green time to move all vehicles
     int maxVehCount = entry.maxVehCount;
-    if(ev.isGUI() && debugLevel > 1)
-    {
-        printf("The following phase has the maximum weight out of %lu phases: \n", phases.size());
-        printf("  Phase: %s \n", entry.phase.c_str());
-        printf("  Weight: %0.2f \n", entry.totalWeight);
-        printf("  Maximum waiting vehicles is %d \n\n", entry.maxVehCount);
-        std::cout.flush();
-    }
     double greenTime = (double)maxVehCount * (minGreenTime / 5.);
     nextGreenTime = std::min(std::max(greenTime, minGreenTime), maxGreenTime);      // bound green time
+
     if(ev.isGUI() && debugLevel > 1)
     {
-        std::cout << "Next green time is " << nextGreenTime << endl << endl;
+        printf("The following phase has the highest totalWeight out of %lu phases: \n", phases.size());
+        printf("phase= %s", entry.phase.c_str());
+        printf(", maxVehCount= %d", entry.maxVehCount);
+        printf(", totalWeight= %0.2f", entry.totalWeight);
+        printf(", oneCount= %d", entry.oneCount);
+        printf(", green= %0.2fs \n", nextGreenTime);
+
+        std::cout << endl;
         std::cout.flush();
     }
 

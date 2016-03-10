@@ -74,9 +74,9 @@ protected:
     std::map<std::string /*className*/, double /*weight*/> classWeight =
     {
             {"emergency", 50},
-            {"passenger", 40},
-            {"bicycle", 30},
-            {"pedestrian", 20},
+            {"bicycle", 40},
+            {"pedestrian", 30},
+            {"passenger", 20},
             {"bus", 10},
             {"truck", 1}
     };

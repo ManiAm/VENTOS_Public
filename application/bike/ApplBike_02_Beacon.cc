@@ -53,6 +53,9 @@ void ApplBikeBeacon::initialize(int stage)
         beaconLengthBits = par("beaconLengthBits").longValue();
         beaconPriority = par("beaconPriority").longValue();
 
+        // NED variables
+        signalBeaconing = par("signalBeaconing").boolValue();
+
         // NED variables (data parameters)
         dataLengthBits = par("dataLengthBits").longValue();
         dataOnSch = par("dataOnSch").boolValue();
@@ -91,12 +94,21 @@ void ApplBikeBeacon::handleSelfMsg(cMessage* msg)
 
     if (msg == BicycleBeaconEvt)
     {
+        // make sure VANETenabled is true
         if(VANETenabled && sendBeacons)
         {
-            BeaconBicycle* beaconMsg = ApplBikeBeacon::prepareBeacon();
+            BeaconBicycle* beaconMsg = prepareBeacon();
 
-            // send it
-            sendDelayed(beaconMsg, individualOffset, lowerLayerOut);
+            // send the beacon as a signal. Any module registered to this signal can
+            // receive a copy of the beacon (for now, only RSUs are registered)
+            if(signalBeaconing)
+            {
+                simsignal_t Signal_beaconSignaling = registerSignal("beaconSignaling");
+                nodePtr->emit(Signal_beaconSignaling, beaconMsg);
+            }
+            // broadcast the beacon wirelessly using IEEE 802.11p
+            else
+                sendDelayed(beaconMsg, individualOffset, lowerLayerOut);
         }
 
         // schedule for next beacon broadcast

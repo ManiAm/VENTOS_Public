@@ -64,6 +64,34 @@ public:
 };
 
 
+// using a 'functor' rather than a 'function'
+// Reason: to be able to pass an additional argument (bestMovement) to predicate
+struct servedLQF
+{
+public:
+    servedLQF(std::string str)
+{
+        this->thisPhase = str;
+}
+
+    bool operator () (const sortedEntryLQF v)
+    {
+        std::string phase = v.phase;
+
+        for(unsigned int i = 0; i < phase.size(); i++)
+        {
+            if (phase[i] == 'G' && thisPhase[i] == 'G')
+                return true;
+        }
+
+        return false;
+    }
+
+private:
+    std::string thisPhase;
+};
+
+
 TrafficLight_LQF_MWM_NoStarv::~TrafficLight_LQF_MWM_NoStarv()
 {
 
@@ -338,21 +366,27 @@ void TrafficLight_LQF_MWM_NoStarv::calculatePhases(std::string TLid)
         sortedMovements.push(*entry);
     }
 
-    // todo
+    // copy sortedMovements to a vector for iteration:
+    std::vector<sortedEntryLQF> batchMovementVector;
     while(!sortedMovements.empty())
     {
-        sortedEntryLQF entry = sortedMovements.top();
+        batchMovementVector.push_back(sortedMovements.top());
+        sortedMovements.pop();
+    }
+
+    // Select only the necessary phases for the new cycle:
+    while(!batchMovementVector.empty())
+    {
+        // Always select the first movement because it will be the best(?):
+        sortedEntryLQF entry = batchMovementVector.front();
+        std::string nextInterval = entry.phase;
 
         greenIntervalInfo_LQF *entry2 = new greenIntervalInfo_LQF(entry.maxVehCount, entry.totalWeight, entry.oneCount, 0.0, entry.phase);
         greenInterval.push_back(*entry2);
 
-        sortedMovements.pop();
+        // Now delete these movements because they should never occur again:
+        batchMovementVector.erase( std::remove_if(batchMovementVector.begin(), batchMovementVector.end(), servedLQF(nextInterval)), batchMovementVector.end() );
     }
-
-
-
-
-
 
     // calculate number of vehicles in the intersection
     int vehCountIntersection = 0;
@@ -399,9 +433,9 @@ void TrafficLight_LQF_MWM_NoStarv::calculatePhases(std::string TLid)
         std::cout << "Selected green intervals for this cycle: " << endl;
         for (auto &i : greenInterval)
             std::cout << "movement: " << i.greenString
+            << ", maxVehCount= " << i.maxVehCount
             << ", totalWeight= " << i.totalWeight
             << ", oneCount= " << i.oneCount
-            << ", maxVehCount= " << i.maxVehCount
             << ", green= " << i.greenTime << "s" << endl;
 
         std::cout << endl;

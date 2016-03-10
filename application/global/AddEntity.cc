@@ -1239,6 +1239,7 @@ void AddEntity::Scenario11()
 }
 
 
+// testing starvation
 void AddEntity::Scenario12()
 {
     // WE vehicles

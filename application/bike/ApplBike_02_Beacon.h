@@ -58,6 +58,8 @@ class ApplBikeBeacon : public ApplBikeBase
         int beaconLengthBits;
         int beaconPriority;
 
+        bool signalBeaconing;
+
         // NED variables (data message parameters)
         int dataLengthBits;
         bool dataOnSch;

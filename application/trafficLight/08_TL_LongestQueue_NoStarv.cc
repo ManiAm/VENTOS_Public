@@ -24,7 +24,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <08_TL_LongestQueueNoStarv.h>
+#include <08_TL_LongestQueue_NoStarv.h>
 #include <queue>
 
 namespace VENTOS {
@@ -66,10 +66,10 @@ public:
 
 // using a 'functor' rather than a 'function'
 // Reason: to be able to pass an additional argument (bestMovement) to predicate
-struct served
+struct servedLQ
 {
 public:
-    served(std::vector<int> best)
+    servedLQ(std::vector<int> best)
 {
         bestMovement.swap(best);
 }
@@ -407,7 +407,7 @@ void TrafficLightLongestQueueNoStarv::calculatePhases(std::string TLid)
         greenInterval.push_back(*entry);
 
         // Now delete these movements because they should never occur again:
-        batchMovementVector.erase( std::remove_if(batchMovementVector.begin(), batchMovementVector.end(), served(bestMovement)), batchMovementVector.end() );
+        batchMovementVector.erase( std::remove_if(batchMovementVector.begin(), batchMovementVector.end(), servedLQ(bestMovement)), batchMovementVector.end() );
     }
 
     // calculate number of vehicles in the intersection
