@@ -345,7 +345,7 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
             plnSize = 1;
 
             // change color to red!
-            TraCIColor newColor = TraCIColor::fromTkColor("red");
+            RGB newColor = Color::colorNameToRGB("red");
             TraCI->vehicleSetColor(SUMOID, newColor);
 
             vehicleState = state_sendingACK;

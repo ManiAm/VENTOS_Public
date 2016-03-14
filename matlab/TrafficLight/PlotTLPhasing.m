@@ -19,25 +19,25 @@ function PlotTLPhasing(runNumber, timeSteps_SW, totalCycles, timeSteps_GR, total
     end
     
     subplot(2,1,1);
-    plot(timeSteps_SW/60, totalCycles, lineMark, 'LineWidth', 1);
+    plot(timeSteps_SW/60, totalCycles, lineMark, 'LineWidth', 1, 'Color', 'k');
 
     % set font size
-    set(gca, 'FontSize', 17);
+    set(gca, 'FontSize', 20);
 
-    xlabel('Time (min)', 'FontSize', 17);
-    ylabel('Cycle Count', 'FontSize', 17);
+    xlabel('Time (min)', 'FontSize', 20);
+    ylabel('Cycle Count', 'FontSize', 20);
 
     grid on;
     hold on;
     
     subplot(2,1,2);
-    plot(timeSteps_GR/60, totalGreenTime/60, lineMark, 'LineWidth', 1);
+    plot(timeSteps_GR/60, totalGreenTime/60, lineMark, 'LineWidth', 1, 'Color', 'k');
             
     % set font size
-    set(gca, 'FontSize', 17);
+    set(gca, 'FontSize', 20);
 
-    xlabel('Time (min)', 'FontSize', 17);
-    ylabel('Total Green Time (min)', 'FontSize', 17);
+    xlabel('Time (min)', 'FontSize', 20);
+    ylabel('Total Green Time (min)', 'FontSize', 20);
 
     grid on;
     hold on;
@@ -79,27 +79,27 @@ function PlotTLPhasing(runNumber, timeSteps_SW, totalCycles, timeSteps_GR, total
             Start = [0 arrowYLoc];
             Stop = [800/60 arrowYLoc];
             arrow(Start, Stop, 'Ends', 3);  
-            text((400-150)/60, textYLoc, 'Light Traffic', 'FontSize', 17);
+            text((400-150)/60, textYLoc, 'Light Traffic', 'FontSize', 20);
             
             Start = [800/60 arrowYLoc];
             Stop = [1600/60 arrowYLoc];
             arrow(Start, Stop, 'Ends', 3); 
-            text((1200-150)/60, textYLoc, 'Medium Traffic', 'FontSize', 17);
+            text((1200-150)/60, textYLoc, 'Medium Traffic', 'FontSize', 20);
             
             Start = [1600/60 arrowYLoc];
             Stop = [2400/60 arrowYLoc];
             arrow(Start, Stop, 'Ends', 3); 
-            text((2000-150)/60, textYLoc, 'Heavy Traffic', 'FontSize', 17);
+            text((2000-150)/60, textYLoc, 'Heavy Traffic', 'FontSize', 20);
             
             Start = [2400/60 arrowYLoc];
             Stop = [3200/60 arrowYLoc];
             arrow(Start, Stop, 'Ends', 3); 
-            text((2800-150)/60, textYLoc, 'Medium Traffic', 'FontSize', 17);
+            text((2800-150)/60, textYLoc, 'Medium Traffic', 'FontSize', 20);
             
             Start = [3200/60 arrowYLoc];
             Stop = [Xlimit(2) arrowYLoc];
             arrow(Start, Stop, 'Ends', 3); 
-            text((3400-150)/60, textYLoc, 'Light Traffic', 'FontSize', 17);
+            text((3400-150)/60, textYLoc, 'Light Traffic', 'FontSize', 20);
         end 
     
     end

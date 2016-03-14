@@ -451,7 +451,7 @@ void Router::checkEdgeRemovals()
                             //std::cout << "Found it!" << std::endl;
                             issueStop(veh, er.edge, TraCI->vehicleGetLanePosition(veh) + 100, er.laneIndex);
                             // Change its color to red
-                            TraCIColor newColor = TraCIColor::fromTkColor("red");
+                            RGB newColor = Color::colorNameToRGB("red");
                             TraCI->vehicleSetColor(veh, newColor);
                             er.blocked = true;
                             break;
@@ -476,7 +476,7 @@ void Router::checkEdgeRemovals()
                     {
                         issueStart(veh);
                         // Change its color to white denotes the vehicle starts to moving again
-                        TraCIColor newColor = TraCIColor::fromTkColor("white");
+                        RGB newColor = Color::colorNameToRGB("white");
                         TraCI->vehicleSetColor(veh, newColor);
                         er.blocked = false;
                         break;

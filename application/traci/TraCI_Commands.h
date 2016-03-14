@@ -30,7 +30,7 @@
 
 #include "TraCIConnection.h"
 #include "TraCIBuffer.h"
-#include "TraCIColor.h"
+#include "Color.h"
 #include "TraCICoord.h"
 
 #include "Coord.h"
@@ -163,7 +163,7 @@ public:
     void vehicleChangeLane(std::string, uint8_t, double);
     void vehicleSetRoute(std::string, std::list<std::string> value);
     void vehicleSetRouteID(std::string, std::string);
-    void vehicleSetColor(std::string, const TraCIColor&);
+    void vehicleSetColor(std::string, const RGB);
     void vehicleSetClass(std::string, std::string);
     void vehicleSetMaxAccel(std::string, double);
     void vehicleSetMaxDecel(std::string, double);
@@ -326,15 +326,15 @@ public:
     std::string polygonGetTypeID(std::string);
 
     // CMD_SET_POLYGON_VARIABLE
-    void polygonAddTraCI(std::string, std::string, const TraCIColor&, bool, int32_t, const std::list<TraCICoord>&);
-    void polygonAdd(std::string, std::string, const TraCIColor&, bool, int32_t, const std::list<Coord>&);
+    void polygonAddTraCI(std::string, std::string, const RGB, bool, int32_t, const std::list<TraCICoord>&);
+    void polygonAdd(std::string, std::string, const RGB, bool, int32_t, const std::list<Coord>&);
     void polygonSetFilled(std::string, uint8_t);
 
     // ################################################################
     //                               POI
     // ################################################################
 
-    void addPoi(std::string, std::string, const TraCIColor&, int32_t, const Coord&);
+    void addPoi(std::string, std::string, const RGB, int32_t, const Coord&);
 
 
     // ################################################################

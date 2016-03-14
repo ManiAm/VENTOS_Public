@@ -332,7 +332,7 @@ void AnnotationManager::show(const Annotation* annotation) {
         cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
         VENTOS::TraCI_Commands *TraCI = static_cast<VENTOS::TraCI_Commands *>(module);
         ASSERT(TraCI);
-        TraCI->addPoi(nameBuilder.str(), "Annotation", VENTOS::TraCIColor::fromTkColor(o->color), 6, o->pos);
+        TraCI->addPoi(nameBuilder.str(), "Annotation", VENTOS::Color::colorNameToRGB(o->color), 6, o->pos);
         annotation->traciPoiIds.push_back(nameBuilder.str());
     }
     else if (const Line* l = dynamic_cast<const Line*>(annotation)) {
@@ -358,7 +358,7 @@ void AnnotationManager::show(const Annotation* annotation) {
         std::list<Coord> coords; coords.push_back(l->p1); coords.push_back(l->p2);
         std::stringstream nameBuilder;
         nameBuilder << "Annotation" << ev.getUniqueNumber();
-        TraCI->polygonAdd(nameBuilder.str(), "Annotation", VENTOS::TraCIColor::fromTkColor(l->color), false, 5, coords);
+        TraCI->polygonAdd(nameBuilder.str(), "Annotation", VENTOS::Color::colorNameToRGB(l->color), false, 5, coords);
         annotation->traciLineIds.push_back(nameBuilder.str());
     }
     else if (const Polygon* p = dynamic_cast<const Polygon*>(annotation)) {
@@ -395,7 +395,7 @@ void AnnotationManager::show(const Annotation* annotation) {
         VENTOS::TraCI_Commands *TraCI = static_cast<VENTOS::TraCI_Commands *>(module);
         ASSERT(TraCI);
         std::stringstream nameBuilder; nameBuilder << "Annotation" << ev.getUniqueNumber();
-        TraCI->polygonAdd(nameBuilder.str(), "Annotation", VENTOS::TraCIColor::fromTkColor(p->color), false, 4, p->coords);
+        TraCI->polygonAdd(nameBuilder.str(), "Annotation", VENTOS::Color::colorNameToRGB(p->color), false, 4, p->coords);
         annotation->traciPolygonsIds.push_back(nameBuilder.str());
     }
     else {

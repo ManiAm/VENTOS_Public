@@ -58,7 +58,7 @@ void ApplVPlatoonMg::followerLeave_handleSelfMsg(cMessage* msg)
             TraCI->vehicleSetSpeed(SUMOID, 30.);
 
             // change color to yellow!
-            TraCIColor newColor = TraCIColor::fromTkColor("yellow");
+            RGB newColor = Color::colorNameToRGB("yellow");
             TraCI->vehicleSetColor(SUMOID, newColor);
 
             plnSize = -1;

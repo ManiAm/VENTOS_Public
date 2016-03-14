@@ -142,7 +142,6 @@ private:
     double GPSerror;
     int debugLevel;
 
-    Plotter *pltPtr = NULL;
     FILE *plotterPtr = NULL;
     boost::filesystem::path trainingFilePath;
     std::vector<sample_type> samples;

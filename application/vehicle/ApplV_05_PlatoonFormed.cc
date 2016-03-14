@@ -94,7 +94,7 @@ void ApplVPlatoonFormed::onBeaconVehicle(BeaconVehicle* wsm)
             plnID = wsm->getPlatoonID();
 
             // change the color to blue
-            TraCIColor newColor = TraCIColor::fromTkColor("blue");
+            RGB newColor = Color::colorNameToRGB("blue");
             TraCI->vehicleSetColor(SUMOID, newColor);
         }
     }

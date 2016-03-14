@@ -450,7 +450,7 @@ void TraCI_Start::drawRoi()
         roiCount++;
         std::string polID = "roi_" + std::to_string(roiCount);
 
-        polygonAddTraCI(polID, "region", TraCIColor::fromTkColor("green"), 0, 1, detectionRegion);
+        polygonAddTraCI(polID, "region", Color::colorNameToRGB("green"), 0, 1, detectionRegion);
     }
 }
 

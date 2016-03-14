@@ -1,8 +1,8 @@
 /****************************************************************************/
-/// @file    ApplRSU_06_Manager.h
+/// @file    Color.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
-/// @date    August 2013
+/// @date    March 13 2016
 ///
 /****************************************************************************/
 // VENTOS, Vehicular Network Open Simulator; see http:?
@@ -15,7 +15,7 @@
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
 //
-// This program is distributed in the hope that it will be useful,
+// This program is distributed in the hope that it will be useful}},
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
@@ -25,39 +25,50 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef APPLRSUMANAGER_H_
-#define APPLRSUMANAGER_H_
+#ifndef COLOR_H
+#define COLOR_H
 
-#include "ApplRSU_04_AID.h"
+#include <omnetpp.h>
 
 namespace VENTOS {
 
-class ApplRSUManager : public ApplRSUAID
+struct RGB
+{
+    double red, green, blue;
+};
+
+struct HSV
+{
+    double hue, saturation, value;
+};
+
+struct HSL
+{
+    double hue, saturation, lightness;
+};
+
+class Color
 {
 public:
-    ~ApplRSUManager();
-    virtual void initialize(int stage);
-    virtual void finish();
-    virtual void handleLowerMsg(cMessage* msg);
-    virtual void handleSelfMsg(cMessage* msg);
-    virtual void receiveSignal(cComponent *, simsignal_t, long);
-    virtual void receiveSignal(cComponent *, simsignal_t, cObject *);
+    static RGB colorNameToRGB(std::string tkColorName);
 
-protected:
-    void virtual executeEachTimeStep();
+    HSL rgbToHsl(double, double, double);
+    RGB hslToRgb(double, double, double);
 
-    virtual void onBeaconVehicle(BeaconVehicle*);
-    virtual void onBeaconBicycle(BeaconBicycle*);
-    virtual void onBeaconPedestrian(BeaconPedestrian*);
-    virtual void onBeaconRSU(BeaconRSU*);
-    virtual void onData(LaneChangeMsg*);
+    static HSV rgb2hsv(double, double, double);
+    static RGB hsv2rgb(double, double, double);
+
+    static HSV getUniqueHSVColor();
+    static std::vector<double> generateColorShades(unsigned int);
+    unsigned long createRGB(int r, int g, int b);
 
 private:
-    simsignal_t Signal_executeEachTS;
-    simsignal_t Signal_beaconSignaling;
-    static const simsignalwrap_t mobilityStateChangedSignal;
+    // colors in HSV model
+    static std::vector<HSV> uniqueColors;
+    static const std::map<std::string, RGB> RGBcolorCodes;
 };
 
 }
 
 #endif
+

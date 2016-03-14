@@ -375,7 +375,7 @@ void AddEntity::Scenario7()
     TraCI->vehicleSetLaneChangeMode("obstacle", 0);
 
     // and change its color to red
-    TraCIColor newColor = TraCIColor::fromTkColor("red");
+    RGB newColor = Color::colorNameToRGB("red");
     TraCI->vehicleSetColor("obstacle", newColor);
 }
 
@@ -499,7 +499,7 @@ void AddEntity::Scenario8()
         std::string veh = id.substr(1,-1);
         if(find(r->nonReroutingVehicles->begin(), r->nonReroutingVehicles->end(), veh) != r->nonReroutingVehicles->end())
         {
-            TraCIColor newColor = TraCIColor::fromTkColor("green");
+            RGB newColor = Color::colorNameToRGB("green");
             TraCI->vehicleSetColor(id, newColor);
         }
     }

@@ -70,7 +70,7 @@ private:
     void Add();
     void Scenario1();
     std::map<std::string, RSUEntry> commandReadRSUsCoord(std::string);
-    void commandAddCirclePoly(std::string, std::string, const TraCIColor& color, Coord*, double);
+    void commandAddCirclePoly(std::string, std::string, const RGB color, Coord*, double);
 
 private:
     // NED variables

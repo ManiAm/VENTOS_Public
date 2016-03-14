@@ -173,7 +173,7 @@ void ApplRSUCLASSIFY::initializeGnuPlot()
         error("plotter module is not found!");
 
     // get a pointer to the class
-    pltPtr = static_cast<Plotter *>(pmodule);
+    Plotter *pltPtr = static_cast<Plotter *>(pmodule);
     ASSERT(pltPtr);
 
     if( !pltPtr->par("on").boolValue() )
@@ -242,7 +242,7 @@ void ApplRSUCLASSIFY::draw(beaconGeneral &wsm, unsigned int real_label)
             (it1->second).insert( std::make_pair(wsm->getSender(), *entry) );
 
             // update color shades
-            std::vector<double> shades = pltPtr->generateColorShades(it1->second.size());
+            std::vector<double> shades = Color::generateColorShades(it1->second.size());
             int counter = 0;
             for(auto &c : it1->second)
             {
@@ -263,7 +263,7 @@ void ApplRSUCLASSIFY::draw(beaconGeneral &wsm, unsigned int real_label)
             for(auto j : i.second)
                 size++;
 
-        HSV color = pltPtr->getUniqueHSVColor();
+        HSV color = Color::getUniqueHSVColor();
         dataBlockEntry *entry = new dataBlockEntry(size + 1, color);
         dataBlockCounter[real_label].insert( std::make_pair(wsm->getSender(), *entry) );
 

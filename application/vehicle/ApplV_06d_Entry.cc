@@ -83,7 +83,7 @@ void ApplVPlatoonMg::entry_handleSelfMsg(cMessage* msg)
             }
 
             // change color to red!
-            TraCIColor newColor = TraCIColor::fromTkColor("red");
+            RGB newColor = Color::colorNameToRGB("red");
             TraCI->vehicleSetColor(SUMOID, newColor);
 
             // change state to platoon leader

@@ -199,7 +199,7 @@ void AddRSU::Scenario1()
         double radius = atof( module->getDisplayString().getTagArg("r",0) );
 
         Coord *center = new Coord(entry.coordX, entry.coordY);
-        commandAddCirclePoly(RSUname, "RSU", TraCIColor::fromTkColor("blue"), center, radius);
+        commandAddCirclePoly(RSUname, "RSU", Color::colorNameToRGB("blue"), center, radius);
 
         count++;
     }
@@ -260,7 +260,7 @@ std::map<std::string, RSUEntry> AddRSU::commandReadRSUsCoord(std::string RSUfile
 }
 
 
-void AddRSU::commandAddCirclePoly(std::string name, std::string type, const TraCIColor& color, Coord *center, double radius)
+void AddRSU::commandAddCirclePoly(std::string name, std::string type, const RGB color, Coord *center, double radius)
 {
     std::list<TraCICoord> circlePoints;
 

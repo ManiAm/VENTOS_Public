@@ -63,7 +63,10 @@ public:
     ~TraCI_Start();
 
     virtual void initialize(int stage);
-    virtual int numInitStages() const { return std::max(cSimpleModule::numInitStages(), 2); }
+    virtual int numInitStages() const
+    {
+        return std::max(cSimpleModule::numInitStages(), 2);
+    }
     virtual void finish();
     virtual void handleMessage(cMessage *msg);
 

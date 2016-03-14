@@ -254,21 +254,18 @@ void ApplVPlatoonMg::updateColorDepth()
     if(plnSize == 1)
         return;
 
-    int offset = 255 / (plnSize-1);
-    int *pickColor = new int[plnSize];
-    pickColor[0] = -1;
-    int count = 0;
-    for(int i = 1; i < plnSize; ++i)
-    {
-        pickColor[i] = count;
-        count = count + offset;
-    }
+    RGB colorRGB = Color::colorNameToRGB("blue");
+    HSV colorHSV = Color::rgb2hsv(colorRGB.red, colorRGB.green, colorRGB.blue);
+
+    // get different saturation
+    std::vector<double> shades = Color::generateColorShades(plnSize - 1);
 
     // leader has all the followers in plnMembersList list
     for(unsigned int depth = 1; depth < plnMembersList.size(); ++depth)
     {
-        TraCIColor newColor = TraCIColor(pickColor[depth], pickColor[depth], 255, 255);
-        TraCI->vehicleSetColor(plnMembersList[depth], newColor);
+        HSV newColorHSV = {colorHSV.hue, shades[depth-1], colorHSV.value};
+        RGB newColorRGB = Color::hsv2rgb(newColorHSV.hue, newColorHSV.saturation, newColorHSV.value);
+        TraCI->vehicleSetColor(plnMembersList[depth], newColorRGB);
     }
 }
 

@@ -693,12 +693,12 @@ void TraCI_Commands::vehicleSetRouteID(std::string nodeId, std::string routeID)
 }
 
 
-void TraCI_Commands::vehicleSetColor(std::string nodeId, const TraCIColor& color)
+void TraCI_Commands::vehicleSetColor(std::string nodeId, const RGB color)
 {
     TraCIBuffer p;
     p << static_cast<uint8_t>(VAR_COLOR);
     p << nodeId;
-    p << static_cast<uint8_t>(TYPE_COLOR) << color.red << color.green << color.blue << color.alpha;
+    p << static_cast<uint8_t>(TYPE_COLOR) << (uint8_t)color.red << (uint8_t)color.green << (uint8_t)color.blue << (uint8_t)255 /*alpha*/;
     TraCIBuffer buf = connection->query(CMD_SET_VEHICLE_VARIABLE, p);
 
     ASSERT(buf.eof());
@@ -1712,14 +1712,14 @@ std::string TraCI_Commands::polygonGetTypeID(std::string polyId)
 // CMD_SET_POLYGON_VARIABLE
 // ########################
 
-void TraCI_Commands::polygonAddTraCI(std::string polyId, std::string polyType, const TraCIColor& color, bool filled, int32_t layer, const std::list<TraCICoord>& points)
+void TraCI_Commands::polygonAddTraCI(std::string polyId, std::string polyType, const RGB color, bool filled, int32_t layer, const std::list<TraCICoord>& points)
 {
     TraCIBuffer p;
 
     p << static_cast<uint8_t>(ADD) << polyId;
     p << static_cast<uint8_t>(TYPE_COMPOUND) << static_cast<int32_t>(5);
     p << static_cast<uint8_t>(TYPE_STRING) << polyType;
-    p << static_cast<uint8_t>(TYPE_COLOR) << color.red << color.green << color.blue << color.alpha;
+    p << static_cast<uint8_t>(TYPE_COLOR) << (uint8_t)color.red << (uint8_t)color.green << (uint8_t)color.blue << (uint8_t)255 /*alpha*/;
     p << static_cast<uint8_t>(TYPE_UBYTE) << static_cast<uint8_t>(filled);
     p << static_cast<uint8_t>(TYPE_INTEGER) << layer;
     p << static_cast<uint8_t>(TYPE_POLYGON) << static_cast<uint8_t>(points.size());
@@ -1735,14 +1735,14 @@ void TraCI_Commands::polygonAddTraCI(std::string polyId, std::string polyType, c
 }
 
 
-void TraCI_Commands::polygonAdd(std::string polyId, std::string polyType, const TraCIColor& color, bool filled, int32_t layer, const std::list<Coord>& points)
+void TraCI_Commands::polygonAdd(std::string polyId, std::string polyType, const RGB color, bool filled, int32_t layer, const std::list<Coord>& points)
 {
     TraCIBuffer p;
 
     p << static_cast<uint8_t>(ADD) << polyId;
     p << static_cast<uint8_t>(TYPE_COMPOUND) << static_cast<int32_t>(5);
     p << static_cast<uint8_t>(TYPE_STRING) << polyType;
-    p << static_cast<uint8_t>(TYPE_COLOR) << color.red << color.green << color.blue << color.alpha;
+    p << static_cast<uint8_t>(TYPE_COLOR) << (uint8_t)color.red << (uint8_t)color.green << (uint8_t)color.blue << (uint8_t)255 /*alpha*/;
     p << static_cast<uint8_t>(TYPE_UBYTE) << static_cast<uint8_t>(filled);
     p << static_cast<uint8_t>(TYPE_INTEGER) << layer;
     p << static_cast<uint8_t>(TYPE_POLYGON) << static_cast<uint8_t>(points.size());
@@ -1772,7 +1772,7 @@ void TraCI_Commands::polygonSetFilled(std::string polyId, uint8_t filled)
 //                               POI
 // ################################################################
 
-void TraCI_Commands::addPoi(std::string poiId, std::string poiType, const TraCIColor& color, int32_t layer, const Coord& pos_)
+void TraCI_Commands::addPoi(std::string poiId, std::string poiType, const RGB color, int32_t layer, const Coord& pos_)
 {
     TraCIBuffer p;
 
@@ -1780,7 +1780,7 @@ void TraCI_Commands::addPoi(std::string poiId, std::string poiType, const TraCIC
     p << static_cast<uint8_t>(ADD) << poiId;
     p << static_cast<uint8_t>(TYPE_COMPOUND) << static_cast<int32_t>(4);
     p << static_cast<uint8_t>(TYPE_STRING) << poiType;
-    p << static_cast<uint8_t>(TYPE_COLOR) << color.red << color.green << color.blue << color.alpha;
+    p << static_cast<uint8_t>(TYPE_COLOR) << (uint8_t)color.red << (uint8_t)color.green << (uint8_t)color.blue << (uint8_t)255 /*alpha*/;
     p << static_cast<uint8_t>(TYPE_INTEGER) << layer;
     p << pos;
 
