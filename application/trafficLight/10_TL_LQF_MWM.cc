@@ -118,7 +118,7 @@ void TrafficLight_LQF_MWM::executeFirstTimeStep()
     if(TLControlMode != TL_LQF_MWM_Phase)
         return;
 
-    std::cout << endl << "Multi-class LQF-MWM-Phase traffic signal control ..." << endl << endl;
+    std::cout << endl << "Multi-class LQF-MWM traffic signal control ..." << endl << endl;
 
     // find the RSU module that controls this TL
     findRSU("C");

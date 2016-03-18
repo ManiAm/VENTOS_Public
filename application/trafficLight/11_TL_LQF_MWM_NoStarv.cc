@@ -150,7 +150,7 @@ void TrafficLight_LQF_MWM_NoStarv::executeFirstTimeStep()
     if(TLControlMode != TL_LQF_MWM)
         return;
 
-    std::cout << endl << "Multi-class LQF-MWM traffic signal control ..." << endl << endl;
+    std::cout << endl << "Multi-class LQF-MWM-NoStarv traffic signal control ..." << endl << endl;
 
     // find the RSU module that controls this TL
     findRSU("C");

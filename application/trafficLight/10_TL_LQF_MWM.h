@@ -71,7 +71,8 @@ private:
     void chooseNextGreenInterval();
 
 protected:
-    std::map<std::string /*className*/, double /*weight*/> classWeight =
+    // vehicle type should be identical to vehicle type in beacon field
+    std::map<std::string /*vehicleType*/, double /*weight*/> classWeight =
     {
             {"emergency", 50},
             {"bicycle", 40},
