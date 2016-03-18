@@ -137,7 +137,7 @@ private:
 
 private:
     bool classifier;
-    bool collectTrainingData;
+    bool collectTrainingData = false;
     double trainError;
     double GPSerror;
     int debugLevel;
