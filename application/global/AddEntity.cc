@@ -1271,8 +1271,9 @@ void AddEntity::Scenario12()
         // insert vehicles ES
         for(int count = 0; count < vehInsertMain; ++count)
         {
-            // default vehicle type
+            // vehicle type. In single-class all vehicles are passenger
             std::string vehType = "passenger";
+            std::string vehColor = "blue";
 
             if(vehMultiClass)
             {
@@ -1280,15 +1281,25 @@ void AddEntity::Scenario12()
 
                 // passenger vehicle
                 if( vehClass >= 0 && vehClass < vehClassDistribution[0]/100. )
+                {
                     vehType = "passenger";
+                    vehColor = "blue";
+                }
                 // emergency vehicle
                 else if( vehClass >= vehClassDistribution[0]/100. && vehClass <= (vehClassDistribution[0]/100. + vehClassDistribution[1]/100.) )
+                {
                     vehType = "emergency";
+                    vehColor = "red";
+                }
             }
 
             name.str("");
             name << "_E_L_" << vehCounter;
             TraCI->vehicleAdd(name.str(), vehType, "movement7", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+
+            // change vehicle color
+            RGB newColor = Color::colorNameToRGB(vehColor);
+            TraCI->vehicleSetColor(name.str(), newColor);
 
             vehCounter++;
         }
@@ -1298,8 +1309,9 @@ void AddEntity::Scenario12()
         // insert vehicles WE
         for(int count = 0; count < vehInsertMain2; ++count)
         {
-            // default vehicle type
+            // vehicle type. In single-class all vehicles are passenger
             std::string vehType = "passenger";
+            std::string vehColor = "blue";
 
             if(vehMultiClass)
             {
@@ -1307,15 +1319,25 @@ void AddEntity::Scenario12()
 
                 // passenger vehicle
                 if( vehClass >= 0 && vehClass < vehClassDistribution[0]/100. )
+                {
                     vehType = "passenger";
+                    vehColor = "blue";
+                }
                 // emergency vehicle
                 else if( vehClass >= vehClassDistribution[0]/100. && vehClass <= (vehClassDistribution[0]/100. + vehClassDistribution[1]/100.) )
+                {
                     vehType = "emergency";
+                    vehColor = "red";
+                }
             }
 
             name.str("");
             name << "_W_T_" << vehCounter;
             TraCI->vehicleAdd(name.str(), vehType, "movement8", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+
+            // change vehicle color
+            RGB newColor = Color::colorNameToRGB(vehColor);
+            TraCI->vehicleSetColor(name.str(), newColor);
 
             vehCounter++;
         }
