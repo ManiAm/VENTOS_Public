@@ -110,7 +110,7 @@ function PlotPerfTSCmultiModal(runNumber, timeSteps_MQ, maxQueueSize, delayDist,
         % set font size
         set(gca, 'FontSize', 20);
 
-        ylabel({'Bikes Max Delay', 'Distribution (s)'}, 'FontSize', 20);
+        ylabel({'Bikes Max Waiting', 'Distribution (s)'}, 'FontSize', 20);
 
         grid on;         
     end

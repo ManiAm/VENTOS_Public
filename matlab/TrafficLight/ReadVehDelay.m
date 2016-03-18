@@ -1,5 +1,5 @@
 
-function [entityIDs, crossed, indexTS, VehNumbers, vehicleType] = ReadVehDelay(basePATH, name)
+function [entityIDs, indexTS, VehNumbers, vehicleType] = ReadVehDelay(basePATH, name)
 
 path = sprintf('%s/%s', basePATH, name);
 file_id = fopen(path);
@@ -26,6 +26,7 @@ VehNumbers = size(entityIDs,1);
 
 % preallocating and initialization
 indexTS = zeros(6,rows) - 1;
+unfinished = 0;
 
 for i=1:rows 
     
@@ -42,16 +43,23 @@ for i=1:rows
     indexTS(5,vNumber) = double(startAccel(i,1));
     indexTS(6,vNumber) = double(endDelay(i,1));
     
-    if(double(startAccel(i,1)) == -1 && double(startDecel(i,1)) ~= -1)
-        error('startAccel can not be -1');
-    end
+    % check if simulation is terminated at the middle of simulation
+    if(double(startDecel(i,1)) ~= -1 && double(startAccel(i,1)) == -1)
+        unfinished = unfinished + 1;
+        %error('startAccel can not be -1');
+    end    
     
+    % if vehicle crossed the intersection, then crossedTime should be valid
     if(crossed(i) == 1 && double(crossedTime(i,1)) == -1)
         error('crossedTime can not be -1');
     end
 
 end
 
-fprintf( 'totalEntity: %d, crossed: %d, noSlowDown: %d, noWaiting: %d \n', VehNumbers, sum(crossed(:,1) == 1), sum(indexTS(2,:) == -1), sum(indexTS(3,:) == -1) );
+fprintf( '    totalEntity: %d \n', VehNumbers );
+fprintf( '    crossed: %d \n', sum(crossed(:,1) == 1) );
+fprintf( '    noSlowDown: %d \n', sum(indexTS(2,:) == -1) );
+fprintf( '    slowDownWithoutSpeedUp: %d --> non-zero value usually indicates simulation termination before completion \n', unfinished );
+fprintf( '    noWaiting: %d \n', sum(indexTS(3,:) == -1) );
 
 end

@@ -9,7 +9,7 @@ clc;    % position the cursor at the top of the screen
 % total number of simulation runs
 runTotal = 3;
 
-parfor runNumber = 0:runTotal-1
+for runNumber = 0:runTotal-1
 
 basePATH = '../results/cmd/full_fix_web_adap_balanced_newFormat';
 path = sprintf('%s/%d_vehicleData.txt', basePATH, runNumber);

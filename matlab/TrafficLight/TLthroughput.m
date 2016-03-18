@@ -1,5 +1,5 @@
 
-function [throughput, timeSteps_T] = TLthroughput(timeSteps, VehNumbers, crossed, indexTS, interval_throughput)
+function [throughput, timeSteps_T] = TLthroughput(timeSteps, VehNumbers, indexTS, interval_throughput)
 
 rows = size(timeSteps, 1);
 index = 1;
@@ -15,7 +15,7 @@ for i=1 : interval_throughput-1 : rows-interval_throughput
     vehCounter = 0;
 
     for j=1:VehNumbers       
-        if( crossed(j) == 1 && indexTS(4,j) >= startT && indexTS(4,j) < endT )
+        if( indexTS(4,j) ~= -1 && indexTS(4,j) >= startT && indexTS(4,j) < endT )
             vehCounter = vehCounter + 1;
         end       
     end 

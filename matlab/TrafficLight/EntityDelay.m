@@ -1,5 +1,12 @@
 
-function [delayPassenger, delayEmergency, delayBike, timeSteps_D] = EntityDelay(timeSteps, VehNumbers, vehicleType, crossed, indexTS, interval_delay)
+% indexTS(1,vNumber): entrance time for vehicle vNumber        
+% indexTS(2,vNumber): start of decel for vehicle vNumber
+% indexTS(3,vNumber): start of stopping delay for vehicle vNumber
+% indexTS(4,vNumber): crossing time for vehicle vNumber 
+% indexTS(5,vNumber): start of accel for vehicle vNumber
+% indexTS(6,vNumber): end of delay for vehicle vNumber
+
+function [delayPassenger, delayEmergency, delayBike, timeSteps_D] = EntityDelay(timeSteps, VehNumbers, vehicleType, indexTS, interval_delay)
 
 indexCounter = 1;
 
@@ -12,16 +19,16 @@ for j=1 : interval_delay-1 : rows-interval_delay
    startT = timeSteps(startIndex);
    endT = timeSteps(endIndex);
     
-   delayedCountVehPassenger = 0;
-   nonDelayedCountVehPassenger = 0;
-   totalDelayVehPassenger = 0;
+   vehPassengerCountDelayed = 0;
+   vehPassengerCountNonDelayed = 0;
+   vehPassengerTotalDelay = 0;
    
-   delayedCountVehEmergency = 0;
-   nonDelayedCountVehEmergency = 0;
-   totalDelayVehEmergency = 0;
+   vehEmergencyCountDelayed = 0;
+   vehEmergencyCountNonDelayed = 0;
+   vehEmergencyTotalDelay = 0;
    
-   maxDelayBike = 0;
-   maxDelayPed = 0;
+   bikeMaxDelay = 0;
+   pedMaxDelay = 0;
 
    for i=1:VehNumbers
        
@@ -39,12 +46,8 @@ for j=1 : interval_delay-1 : rows-interval_delay
        else
            continue;
        end       
-       
-       if(crossed(i) == 0)
-           % this vehicle does not cross the intersection at all
-           % We ignore this vehicle
            
-       elseif(indexTS(1,i) > endT)
+       if(indexTS(1,i) > endT)
            % veh entrance is after this interval
            % We ignore this vehicle   
            
@@ -54,14 +57,12 @@ for j=1 : interval_delay-1 : rows-interval_delay
                % NOTE: in SUMO a vehicle slows down on g, but this slowing down is not due to
                % red or yellow light thus, indexTS(2,i) is still -1 
                
-               % we need to check if the vehicle crossess the intersection at this interval
-               
+               % if the vehicle crossess the intersection at this interval               
                if(indexTS(4,i) >= startT && indexTS(4,i) < endT)
-                   % this vehicle crosses the intersection at this interval
                    if(mode == 1)
-                       nonDelayedCountVehPassenger = nonDelayedCountVehPassenger + 1;
+                       vehPassengerCountNonDelayed = vehPassengerCountNonDelayed + 1;
                    elseif(mode == 2)
-                       nonDelayedCountVehEmergency = nonDelayedCountVehEmergency + 1;
+                       vehEmergencyCountNonDelayed = vehEmergencyCountNonDelayed + 1;
                    end
                end
            
@@ -74,42 +75,47 @@ for j=1 : interval_delay-1 : rows-interval_delay
                if(indexTS(2,i) >= startT && indexTS(2,i) < endT)
                    % slowing down occurs in this interval     
                    if(mode == 1)
-                       delayedCountVehPassenger = delayedCountVehPassenger + 1;
+                       vehPassengerCountDelayed = vehPassengerCountDelayed + 1;
                        startDelay = indexTS(2,i);
-                       endDelay = min( endT, indexTS(5,i) );
-                       totalDelayVehPassenger = totalDelayVehPassenger + (endDelay - startDelay); 
+                       endDelay = min(endT, getLastTime(timeSteps, indexTS(3,i), indexTS(5,i)));
+                       vehPassengerTotalDelay = vehPassengerTotalDelay + (endDelay - startDelay); 
                    elseif(mode == 2)
-                       delayedCountVehEmergency = delayedCountVehEmergency + 1;
+                       vehEmergencyCountDelayed = vehEmergencyCountDelayed + 1;
                        startDelay = indexTS(2,i);
-                       endDelay = min( endT, indexTS(5,i) );
-                       totalDelayVehEmergency = totalDelayVehEmergency + (endDelay - startDelay); 
-                   elseif(mode == 3 && indexTS(3,i) ~= -1 && indexTS(3,i) < endT)
-                       % bike
-                       startDelay = indexTS(3,i);
-                       endDelay = min( endT, indexTS(5,i) );
-                       maxDelayBike = max(maxDelayBike, (endDelay - startDelay));
+                       endDelay = min(endT, getLastTime(timeSteps, indexTS(3,i), indexTS(5,i)));
+                       vehEmergencyTotalDelay = vehEmergencyTotalDelay + (endDelay - startDelay); 
+                   elseif(mode == 3)
+                       % we only measure the waiting time for bikes
+                       if(indexTS(3,i) ~= -1 && indexTS(3,i) < endT)
+                           startDelay = indexTS(3,i);
+                           endDelay = min(endT, getLastTime(timeSteps, -1, indexTS(5,i)));
+                           bikeMaxDelay = max(bikeMaxDelay, (endDelay - startDelay));
+                       end
                    elseif(mode == 4)
                        % pedestrian
                        
                    end
            
-               elseif(indexTS(2,i) < startT && indexTS(4,i) >= startT)
-                   % slowing down occured in a previous interval                  
+               elseif(indexTS(2,i) < startT && (indexTS(4,i) == -1 || indexTS(4,i) >= startT))
+                   % slowing down occured in a previous interval, but not crossed yet!                  
                    if(mode == 1)
-                       delayedCountVehPassenger = delayedCountVehPassenger + 1;
+                       vehPassengerCountDelayed = vehPassengerCountDelayed + 1;
                        startDelay = indexTS(2,i);
-                       endDelay = min( endT, indexTS(5,i) );
-                       totalDelayVehPassenger = totalDelayVehPassenger + (endDelay - startDelay); 
+                       endDelay = min(endT, getLastTime(timeSteps, indexTS(3,i), indexTS(5,i)));
+                       vehPassengerTotalDelay = vehPassengerTotalDelay + (endDelay - startDelay); 
                    elseif(mode == 2)
-                       delayedCountVehEmergency = delayedCountVehEmergency + 1;
+                       vehEmergencyCountDelayed = vehEmergencyCountDelayed + 1;
                        startDelay = indexTS(2,i);
-                       endDelay = min( endT, indexTS(5,i) );
-                       totalDelayVehEmergency = totalDelayVehEmergency + (endDelay - startDelay); 
-                   elseif(mode == 3 && indexTS(3,i) ~= -1 && indexTS(5,i) >= startT)
-                       % bike
-                       startDelay = max( startT, indexTS(3,i) );
-                       endDelay = min( endT, indexTS(5,i) );
-                       maxDelayBike = max(maxDelayBike, (endDelay - startDelay));                       
+                       endDelay = min(endT, getLastTime(timeSteps, indexTS(3,i), indexTS(5,i)));
+                       vehEmergencyTotalDelay = vehEmergencyTotalDelay + (endDelay - startDelay); 
+                   elseif(mode == 3)
+                       % we only measure the waiting time for bikes
+                       last = getLastTime(timeSteps, -1, indexTS(5,i));
+                       if(indexTS(3,i) ~= -1 && last >= startT)
+                           startDelay = indexTS(3,i);
+                           endDelay = min(endT, last);
+                           bikeMaxDelay = max(bikeMaxDelay, (endDelay - startDelay));   
+                       end
                    elseif(mode == 4)
                        % pedestrian
                        
@@ -119,29 +125,45 @@ for j=1 : interval_delay-1 : rows-interval_delay
    end
 
    % passenger vehicle
-   totalCountVehPassenger = nonDelayedCountVehPassenger + delayedCountVehPassenger;
+   totalCountVehPassenger = vehPassengerCountNonDelayed + vehPassengerCountDelayed;
    if(totalCountVehPassenger ~= 0)
-       delayPassenger(indexCounter) = totalDelayVehPassenger / totalCountVehPassenger;
+       delayPassenger(indexCounter) = vehPassengerTotalDelay / totalCountVehPassenger;
    else
        delayPassenger(indexCounter) = 0;
    end
    
    % emergency vehicle
-   totalCountVehEmergency = nonDelayedCountVehEmergency + delayedCountVehEmergency;
+   totalCountVehEmergency = vehEmergencyCountNonDelayed + vehEmergencyCountDelayed;
    if(totalCountVehEmergency ~= 0)
-       delayEmergency(indexCounter) = totalDelayVehEmergency / totalCountVehEmergency;
+       delayEmergency(indexCounter) = vehEmergencyTotalDelay / totalCountVehEmergency;
    else
        delayEmergency(indexCounter) = 0;
    end
    
    % bike
-   delayBike(indexCounter) = maxDelayBike;
+   delayBike(indexCounter) = bikeMaxDelay;
    
    middleIndex = floor( double((startIndex + endIndex)) / 2. );
    timeSteps_D(indexCounter) = timeSteps(middleIndex);
     
    indexCounter = indexCounter + 1;
 
+end
+
+end
+
+
+function last = getLastTime(timeSteps, startStopping, startAccel)
+
+if(startAccel ~= -1)
+    last = startAccel;
+    return;
+elseif(startAccel == -1 && startStopping ~= -1)
+    last = startStopping;
+    return;
+elseif(startAccel == -1 && startStopping == -1)
+    last = timeSteps(end);
+    return;    
 end
 
 end
