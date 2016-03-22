@@ -220,7 +220,24 @@ void SniffBluetooth::print_dev_info(struct hci_dev_info *di)
     // return the HCI device flags string given its code
     char *str = hci_dflagstostr(di->flags);
     printf("\t%s \n", str);
-    bt_free(str);
+
+//    /* HCI dev flags mapping */
+//    { "UP",      HCI_UP      },
+//    { "INIT",    HCI_INIT    },
+//    { "RUNNING", HCI_RUNNING },
+//    { "RAW",     HCI_RAW     },
+//    { "PSCAN",   HCI_PSCAN   },
+//    { "ISCAN",   HCI_ISCAN   },
+//    { "INQUIRY", HCI_INQUIRY },
+//    { "AUTH",    HCI_AUTH    },
+//    { "ENCRYPT", HCI_ENCRYPT },
+
+    printf("\tDiscovarable: ");
+    std::string status = str;
+    if(status.find("PSCAN") != std::string::npos && status.find("ISCAN") != std::string::npos)
+        printf("Yes \n");
+    else
+        printf("No \n");
 
     struct hci_dev_stats *st = &di->stat;
     printf("\tRX bytes:%d acl:%d sco:%d events:%d errors:%d\n",
@@ -488,6 +505,30 @@ bool SniffBluetooth::isDown(int hdev)
         return true;
     else
         return false;
+}
+
+
+void SniffBluetooth::piscan(int hdev, std::string scan)
+{
+    /* Open HCI socket  */
+    int ctl;
+    if ((ctl = socket(AF_BLUETOOTH, SOCK_RAW, BTPROTO_HCI)) < 0)
+        error("Can't open HCI socket");
+
+    struct hci_dev_req dr;
+    dr.dev_id  = hdev;
+
+    if(scan == "noscan")
+        dr.dev_opt = SCAN_DISABLED;             // Disable scan
+    else if(scan == "iscan")
+        dr.dev_opt = SCAN_INQUIRY;              // Enable Inquiry scan
+    else if(scan == "pscan")
+        dr.dev_opt = SCAN_PAGE;                 // Enable Page scan
+    else if(scan == "piscan")
+        dr.dev_opt = SCAN_PAGE | SCAN_INQUIRY;  // Enable Page and Inquiry scan
+
+    if (ioctl(ctl, HCISETSCAN, (unsigned long) &dr) < 0)
+        error("Can't set scan mode on hci%d: %s (%d) \n", hdev, strerror(errno), errno);
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    TL_OJFM.cc
+/// @file    TL_FMSC.cc
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @date    Jul 2015
 ///
@@ -24,12 +24,12 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <12_TL_OJFM.h>
+#include <12_TL_FMSC.h>
 #include <queue>
 
 namespace VENTOS {
 
-Define_Module(VENTOS::TrafficLight_OJFM);
+Define_Module(VENTOS::TrafficLight_FMSC);
 
 class sortedEntryOJF
 {
@@ -68,13 +68,13 @@ public:
 };
 
 
-TrafficLight_OJFM::~TrafficLight_OJFM()
+TrafficLight_FMSC::~TrafficLight_FMSC()
 {
 
 }
 
 
-void TrafficLight_OJFM::initialize(int stage)
+void TrafficLight_FMSC::initialize(int stage)
 {
     TrafficLight_LQF_MWM_NoStarv::initialize(stage);
 
@@ -88,13 +88,13 @@ void TrafficLight_OJFM::initialize(int stage)
 }
 
 
-void TrafficLight_OJFM::finish()
+void TrafficLight_FMSC::finish()
 {
     TrafficLight_LQF_MWM_NoStarv::finish();
 }
 
 
-void TrafficLight_OJFM::handleMessage(cMessage *msg)
+void TrafficLight_FMSC::handleMessage(cMessage *msg)
 {
     TrafficLight_LQF_MWM_NoStarv::handleMessage(msg);
 
@@ -114,7 +114,7 @@ void TrafficLight_OJFM::handleMessage(cMessage *msg)
 }
 
 
-void TrafficLight_OJFM::executeFirstTimeStep()
+void TrafficLight_FMSC::executeFirstTimeStep()
 {
     // call parent
     TrafficLight_LQF_MWM_NoStarv::executeFirstTimeStep();
@@ -122,7 +122,7 @@ void TrafficLight_OJFM::executeFirstTimeStep()
     if(TLControlMode != TL_OJFM)
         return;
 
-    std::cout << endl << "Multi-class OJF-MWM traffic signal control ..." << endl << endl;
+    std::cout << endl << "FMSC traffic signal control ..." << endl << endl;
 
     // find the RSU module that controls this TL
     findRSU("C");
@@ -164,7 +164,7 @@ void TrafficLight_OJFM::executeFirstTimeStep()
 }
 
 
-void TrafficLight_OJFM::executeEachTimeStep()
+void TrafficLight_FMSC::executeEachTimeStep()
 {
     // call parent
     TrafficLight_LQF_MWM_NoStarv::executeEachTimeStep();
@@ -176,7 +176,7 @@ void TrafficLight_OJFM::executeEachTimeStep()
 }
 
 
-void TrafficLight_OJFM::chooseNextInterval()
+void TrafficLight_FMSC::chooseNextInterval()
 {
     if (currentInterval == "yellow")
     {
@@ -227,7 +227,7 @@ void TrafficLight_OJFM::chooseNextInterval()
 }
 
 
-void TrafficLight_OJFM::chooseNextGreenInterval()
+void TrafficLight_FMSC::chooseNextGreenInterval()
 {
     std::map<std::string, laneInfoEntry> laneInfo = RSUptr->laneInfo;
 

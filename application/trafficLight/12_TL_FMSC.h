@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    TL_OJFM.h
+/// @file    TL_FMSC.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @date    Jul 2015
 ///
@@ -24,17 +24,17 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef TRAFFICLIGHTOJFMWM_H
-#define TRAFFICLIGHTOJFMWM_H
+#ifndef TRAFFICLIGHTFMSC_H
+#define TRAFFICLIGHTFMSC_H
 
 #include <11_TL_LQF_MWM_NoStarv.h>
 
 namespace VENTOS {
 
-class TrafficLight_OJFM : public TrafficLight_LQF_MWM_NoStarv
+class TrafficLight_FMSC : public TrafficLight_LQF_MWM_NoStarv
 {
   public:
-    virtual ~TrafficLight_OJFM();
+    virtual ~TrafficLight_FMSC();
     virtual void finish();
     virtual void initialize(int);
     virtual void handleMessage(cMessage *);
