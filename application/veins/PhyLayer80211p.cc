@@ -37,6 +37,7 @@
 #include "PERModel.h"
 #include "SimpleObstacleShadowing.h"
 #include "TwoRayInterferenceModel.h"
+#include "NakagamiFading.h"
 
 namespace Veins {
 
@@ -87,6 +88,10 @@ AnalogueModel* PhyLayer80211p::getAnalogueModelFromName(std::string name, Parame
     {
         if (world->use2D()) error("The TwoRayInterferenceModel uses nodes' z-position as the antenna height over ground. Refusing to work in a 2D world");
         return initializeTwoRayInterferenceModel(params);
+    }
+    else if (name == "NakagamiFading")
+    {
+        return initializeNakagamiFading(params);
     }
 
     return BasePhyLayer::getAnalogueModelFromName(name, params);
@@ -215,6 +220,15 @@ AnalogueModel* PhyLayer80211p::initializeTwoRayInterferenceModel(ParameterMap& p
     double dielectricConstant= params["DielectricConstant"].doubleValue();
 
     return new TwoRayInterferenceModel(dielectricConstant, coreDebug);
+}
+
+AnalogueModel* PhyLayer80211p::initializeNakagamiFading(ParameterMap& params) {
+    bool constM = params["constM"].boolValue();
+    double m = 0;
+    if (constM) {
+        m = params["m"].doubleValue();
+    }
+    return new NakagamiFading(constM, m, coreDebug);
 }
 
 AnalogueModel* PhyLayer80211p::initializeSimplePathlossModel(ParameterMap& params){
