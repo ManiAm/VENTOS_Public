@@ -71,7 +71,7 @@
  * @author Andreas Koepke
  */
 class MIXIM_API BaseModule: public cSimpleModule, public cListener {
-  protected:
+protected:
     /** @brief Debug switch for all other modules*/
     bool debug;
 
@@ -109,7 +109,15 @@ protected:
     const cModule *const findHost(void) const;
     /** @brief Function to get the logging name of id*/
     //std::string getLogName(int);
-  public:
+
+    virtual void finish() {
+        cSimpleModule::finish();
+    }
+
+    virtual void finish(cComponent* component, simsignal_t signalID) {
+        cListener::finish(component, signalID);
+    }
+public:
 
     BaseModule();
     BaseModule(unsigned stacksize);
@@ -130,7 +138,7 @@ protected:
      * itself in stage 0.
      */
     virtual int numInitStages() const {
-    	return 2;
+        return 2;
     }
 
     /**
@@ -146,7 +154,7 @@ protected:
      * @brief Get a reference to the local node module
      */
     const cModule *const getNode() const {
-    	return findHost();
+        return findHost();
     };
 
     /**
