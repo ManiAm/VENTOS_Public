@@ -271,15 +271,14 @@ void TraCI_Start::init_traci()
             std::string id = *i;
             std::string typeId = polygonGetTypeID(id);
 
-            if (typeId == "building")
-            {
-                std::list<Coord> coords = polygonGetShape(id);
-                Veins::Obstacle obs(id, 9, .4); // each building gets attenuation of 9 dB per wall, 0.4 dB per meter
-                std::vector<Coord> shape;
-                std::copy(coords.begin(), coords.end(), std::back_inserter(shape));
-                obs.setShape(shape);
-                obstacles->add(obs);
-            }
+
+            if (!obstacles->isTypeSupported(typeId))
+                continue;
+
+            std::list<Coord> coords = polygonGetShape(id);
+            std::vector<Coord> shape;
+            std::copy(coords.begin(), coords.end(), std::back_inserter(shape));
+            obstacles->addFromTypeAndShape(id, typeId, shape);
         }
     }
 }
