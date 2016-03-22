@@ -25,6 +25,7 @@ simple ObstacleControl
 {
     parameters:
         @class(Veins::ObstacleControl);
+        
         bool debug = default(false);  // emit debug messages?
         xml obstacles = default(xml("<obstacles/>")); // list of obstacle types and obstacles to load
         

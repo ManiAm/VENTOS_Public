@@ -32,12 +32,17 @@ simple PhyLayer80211p extends BasePhyLayer
 {
     parameters:
         @class(Veins::PhyLayer80211p);
-        headerLength @unit(bit)  = default(46 bit); //defines the length of the phy header (SIGNAL without PREAMBLE)
+        
+        //defines the length of the phy header (SIGNAL without PREAMBLE)
+        headerLength @unit(bit)  = default(46 bit);
+        
         //defines the CCA threshold
         double ccaThreshold @unit(dBm) = default(-65 dBm);
+        
         //enables/disables collection of statistics about collision. notice that
         //enabling this feature increases simulation time
         bool collectCollisionStatistics = default(false);
+        
         //decides whether aborting the simulation or not if the MAC layer
         //requires phy to transmit a frame while currently receiveing another
         bool allowTxDuringRx = default(false);

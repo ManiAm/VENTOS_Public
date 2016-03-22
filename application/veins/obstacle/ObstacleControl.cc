@@ -32,10 +32,11 @@ ObstacleControl::~ObstacleControl() {
 
 void ObstacleControl::initialize(int stage) {
     if (stage == 1)	{
-        debug = par("debug");
 
         obstacles.clear();
         cacheEntries.clear();
+
+        debug = par("debug");
 
         annotations = AnnotationManagerAccess().getIfExists();
         if (annotations) annotationGroup = annotations->createGroup("obstacles");
@@ -52,6 +53,7 @@ void ObstacleControl::finish() {
             while (j->begin() != j->end()) erase(*j->begin());
         }
     }
+
     obstacles.clear();
 }
 

@@ -33,9 +33,6 @@ network Network
             parameters:
                 @display("p=151,43;i=abstract/multicast");
         }
-        obstacles: ObstacleControl {
-            @display("p=272,43");
-        }
         TraCI: TraCI_Start {
             parameters:
                 @display("p=48,132");
