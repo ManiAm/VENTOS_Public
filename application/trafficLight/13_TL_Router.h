@@ -28,7 +28,7 @@
 #ifndef TRAFFICLIGHTROUTER_H
 #define TRAFFICLIGHTROUTER_H
 
-#include <12_TL_OJFM.h>
+#include <12_TL_FMSC.h>
 #include "Net.h"
 #include <vector>
 
@@ -48,14 +48,13 @@ public:
 
 class Router;
 
-class TrafficLightRouter : public TrafficLight_OJFM
+class TrafficLightRouter : public TrafficLight_FMSC
 {
 public:
     TrafficLightRouter();
     virtual void finish();
     virtual void initialize(int stage);
     virtual void handleMessage(cMessage *);
-
 
 public:
     std::string id;

@@ -77,7 +77,8 @@ void SNMPConnect::initialize(int stage)
 
 void SNMPConnect::finish()
 {
-    cobalt->socket_cleanup();  // Shut down socket subsystem
+    if(cobalt != NULL)
+        cobalt->socket_cleanup();  // Shut down socket subsystem
 }
 
 

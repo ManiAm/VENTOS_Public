@@ -40,7 +40,7 @@ disp('making uitable ...');
 disp('calculating intersection delay for vehicle/bike/ped ...');
 % 700 means in each 70 seconds interval, we measure delay for 
 % each vehicle and then take an average
-[delayPassenger, delayEmergency, delayBike, timeSteps_D] = EntityDelay(timeSteps, VehNumbers, vehicleType, indexTS, 700);
+[delayPassenger, delayEmergency, delayBike, timeSteps_D] = EntityDelay(timeSteps, VehNumbers, vehicleType, indexTS, 100);
 
 delayDist{1,runNumber} = num2cell(delayPassenger / 60.);
 delayDist{2,runNumber} = num2cell(delayEmergency / 60.);
@@ -71,7 +71,7 @@ elseif(option == 3)
     PlotTLPhasing(runNumber, timeSteps_SW, totalCycles, timeSteps_GR, totalGreenTime, runTotal); 
 elseif(option == 4)
     disp('plotting the LQF-MWM starvation problem ...');
-    PlotStarvation(runNumber, timeSteps_MQ, delayDist, runTotal);
+    PlotStarvation(runNumber, timeSteps_D, delayDist, runTotal);
 elseif(option == 5)
     disp('plotting the performance of FMSC ...');
     PlotFMSC(runNumber, timeSteps_MQ, maxQueueSize, delayDist, runTotal);
