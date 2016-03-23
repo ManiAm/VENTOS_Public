@@ -18,10 +18,3 @@
 #include <cassert>
 #include "SimpleAddress.h"
 
-const LAddress::L2Type LAddress::L2BROADCAST = 
-    LAddress::L2Type(-1);
-const LAddress::L2Type LAddress::L2NULL      = 
-    LAddress::L2Type(0);
-
-const LAddress::L3Type LAddress::L3BROADCAST = LAddress::L3Type(-1);
-const LAddress::L3Type LAddress::L3NULL      = LAddress::L3Type(0);

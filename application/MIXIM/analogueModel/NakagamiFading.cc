@@ -36,7 +36,6 @@ void NakagamiFading::filterSignal(AirFrame *frame, const Coord& senderPos, const
 
 	debugEV << "Add NakagamiFading ..." << endl;
 
-
 	// get average TX power
 	// FIXME: really use average power (instead of max)
 	debugEV << "Finding max TX power ..." << endl;
@@ -82,8 +81,8 @@ void NakagamiFading::filterSignal(AirFrame *frame, const Coord& senderPos, const
 	debugEV << "factor is: " << factor << " (i.e. " << FWMath::mW2dBm(factor) << " dB)" << endl;
 
 	// create (and add) mapping that reflects this factor
-	bool hasFrequency = s.getTransmissionPower()->getDimensionSet().hasDimension(Dimension::frequency);
-	const DimensionSet& domain = hasFrequency ? DimensionSet::timeFreqDomain : DimensionSet::timeDomain;
+	bool hasFrequency = s.getTransmissionPower()->getDimensionSet().hasDimension(Dimension::frequency());
+	const DimensionSet& domain = hasFrequency ? DimensionSet::timeFreqDomain() : DimensionSet::timeDomain();
 	ConstantSimpleConstMapping* attMapping = new ConstantSimpleConstMapping(domain, factor);
 	s.addAttenuation(attMapping);
 }

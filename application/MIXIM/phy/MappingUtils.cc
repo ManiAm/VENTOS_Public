@@ -14,10 +14,6 @@ FilledUpMappingIterator::FilledUpMappingIterator(FilledUpMapping& mapping):
 FilledUpMappingIterator::FilledUpMappingIterator(FilledUpMapping& mapping, const Argument& pos):
 	MultiDimMappingIterator<Linear>(mapping, pos) {}
 
-
-const Argument::mapped_type MappingUtils::cMinNotFound =  std::numeric_limits<Argument::mapped_type>::infinity();
-const Argument::mapped_type MappingUtils::cMaxNotFound = -std::numeric_limits<Argument::mapped_type>::infinity();
-
 const ConstMapping *const MappingUtils::createCompatibleMapping(const ConstMapping& src, const ConstMapping& dst){
 	typedef FilledUpMapping::KeySet KeySet;
 	typedef FilledUpMapping::KeyMap KeyMap;
@@ -82,7 +78,7 @@ bool MappingUtils::iterateToNext(ConstMappingIterator* it1, ConstMappingIterator
 }
 
 Mapping* MappingUtils::createMapping(const DimensionSet& domain, Mapping::InterpolationMethod intpl) {
-	assert(domain.hasDimension(Dimension::time));
+	assert(domain.hasDimension(Dimension::time()));
 
 	if(domain.size() == 1){
 		switch(intpl){
@@ -114,7 +110,7 @@ Mapping* MappingUtils::createMapping(const DimensionSet& domain, Mapping::Interp
 }
 
 Mapping* MappingUtils::createMapping(Mapping::argument_value_cref_t outOfRangeVal, const DimensionSet& domain, Mapping::InterpolationMethod intpl) {
-	assert(domain.hasDimension(Dimension::time));
+	assert(domain.hasDimension(Dimension::time()));
 
 	if(domain.size() == 1){
 		switch(intpl){

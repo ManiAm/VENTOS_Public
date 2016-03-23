@@ -30,7 +30,6 @@ class JakesFading;
  */
 class MIXIM_API JakesFadingMapping: public SimpleConstMapping {
 protected:
-	static DimensionSet dimensions;
 
 	/** @brief Pointer to the model.*/
 	JakesFading* model;
@@ -47,7 +46,7 @@ public:
 					   const Argument& start,
 					   const Argument& interval,
 					   const Argument& end):
-		SimpleConstMapping(dimensions, start, end, interval),
+		SimpleConstMapping(Dimension::time(), start, end, interval),
 		model(model), relSpeed(relSpeed)
 	{}
 

@@ -18,8 +18,6 @@
 #include "AirFrame_m.h"
 #include "ChannelAccess.h"
 
-DimensionSet JakesFadingMapping::dimensions(Dimension::time);
-
 double JakesFadingMapping::getValue(const Argument& pos) const {
 	double f = model->carrierFrequency;
 	double v = relSpeed;
@@ -28,7 +26,7 @@ double JakesFadingMapping::getValue(const Argument& pos) const {
 	double im_h = 0;
 
 	// Compute Doppler shift.
-	double doppler_shift = v * f / BaseWorldUtility::speedOfLight;
+	double doppler_shift = v * f / BaseWorldUtility::speedOfLight();
 
 	for (int i = 0; i < model->fadingPaths; i++) {
 		// Some math for complex numbers:
