@@ -116,7 +116,7 @@ void TrafficLightLongestQueueNoStarv::initialize(int stage)
             error("maxQueueSize value is set incorrectly!");
 
         nextGreenIsNewCycle = false;
-        ChangeEvt = new cMessage("ChangeEvt", 1);
+        intervalChangeEVT = new cMessage("intervalChangeEVT", 1);
 
         // collect queue information
         measureIntersectionQueue = true;
@@ -137,18 +137,18 @@ void TrafficLightLongestQueueNoStarv::handleMessage(cMessage *msg)
     if(TLControlMode != TL_Adaptive_Time_Queue)
         return;
 
-    if (msg == ChangeEvt)
+    if (msg == intervalChangeEVT)
     {
         if(greenInterval.empty())
             calculatePhases("C");
 
         chooseNextInterval();
 
-        if(intervalOffSet <= 0)
-            error("intervalOffSet is <= 0");
+        if(intervalDuration <= 0)
+            error("intervalDuration is <= 0");
 
         // Schedule next light change event:
-        scheduleAt(simTime().dbl() + intervalOffSet, ChangeEvt);
+        scheduleAt(simTime().dbl() + intervalDuration, intervalChangeEVT);
     }
 }
 
@@ -165,15 +165,18 @@ void TrafficLightLongestQueueNoStarv::executeFirstTimeStep()
     // get all non-conflicting movements in allMovements vector
     TrafficLightAllowedMoves::getMovements("C");
 
+    // make sure allMovements vector is not empty
+    ASSERT(!allMovements.empty());
+
     // calculate phases at the beginning of the cycle
     calculatePhases("C");
 
     // set initial settings:
     currentInterval = greenInterval.front().greenString;
-    intervalOffSet = greenInterval.front().greenTime;
+    intervalDuration = greenInterval.front().greenTime;
     intervalElapseTime = 0;
 
-    scheduleAt(simTime().dbl() + intervalOffSet, ChangeEvt);
+    scheduleAt(simTime().dbl() + intervalDuration, intervalChangeEVT);
 
     for (auto &TL :TLList)
     {
@@ -187,7 +190,7 @@ void TrafficLightLongestQueueNoStarv::executeFirstTimeStep()
     if(ev.isGUI() && debugLevel > 0)
     {
         char buff[300];
-        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
+        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalDuration);
         std::cout << buff << endl << endl;
         std::cout.flush();
     }
@@ -224,7 +227,7 @@ void TrafficLightLongestQueueNoStarv::chooseNextInterval()
         // set the new state
         TraCI->TLSetState("C", nextInterval);
         intervalElapseTime = 0.0;
-        intervalOffSet = redTime;
+        intervalDuration = redTime;
 
         // update TL status for this phase
         updateTLstate("C", "red");
@@ -244,7 +247,7 @@ void TrafficLightLongestQueueNoStarv::chooseNextInterval()
         // set the new state
         TraCI->TLSetState("C", nextGreenInterval);
         intervalElapseTime = 0.0;
-        intervalOffSet = greenInterval.front().greenTime;
+        intervalDuration = greenInterval.front().greenTime;
     }
     else
         chooseNextGreenInterval();
@@ -252,7 +255,7 @@ void TrafficLightLongestQueueNoStarv::chooseNextInterval()
     if(ev.isGUI() && debugLevel > 0)
     {
         char buff[300];
-        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
+        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalDuration);
         std::cout << buff << endl << endl;
         std::cout.flush();
     }
@@ -293,7 +296,7 @@ void TrafficLightLongestQueueNoStarv::chooseNextGreenInterval()
         TraCI->TLSetState("C", nextInterval);
 
         intervalElapseTime = 0.0;
-        intervalOffSet =  yellowTime;
+        intervalDuration =  yellowTime;
 
         // update TL status for this phase
         updateTLstate("C", "yellow");
@@ -301,7 +304,7 @@ void TrafficLightLongestQueueNoStarv::chooseNextGreenInterval()
     // extend the current green interval
     else
     {
-        intervalOffSet = greenInterval.front().greenTime;
+        intervalDuration = greenInterval.front().greenTime;
 
         if(ev.isGUI() && debugLevel > 0)
         {

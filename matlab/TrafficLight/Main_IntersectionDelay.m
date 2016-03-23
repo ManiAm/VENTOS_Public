@@ -6,7 +6,7 @@ clc;    % position the cursor at the top of the screen
 addpath ../libs
 
 % path to folder
-basePATH = '../../results/cmd/3a_starvation';
+basePATH = '../../results/cmd/4_LQF_MWM_starvation';
 
 TLqueuingData = dir([basePATH, '/*_TLqueuingData.txt']);
 TLphasingData = dir([basePATH, '/*_TLphasingData.txt']);

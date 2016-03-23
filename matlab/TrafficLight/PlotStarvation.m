@@ -16,6 +16,8 @@ function PlotStarvation(runNumber, timeSteps_D, delayDist, runTotal)
         lineMark = '--';
     end
     
+    subplot(1,2,1);
+    
     % max waiting for bikes
     plot(timeSteps_D, cell2mat(delayDist{3,runNumber}), lineMark, 'LineWidth', 1, 'Color', 'k');
     
@@ -25,15 +27,34 @@ function PlotStarvation(runNumber, timeSteps_D, delayDist, runTotal)
     xlabel('Time (min)', 'FontSize', 20);
     ylabel('Bike Waiting Time (s)', 'FontSize', 20);
     
-    % set the x-axis limit
-    set( gca, 'XLim', [50 150] );
+    % set the axis limit
+    set( gca, 'XLim', [50 130] );
+    set( gca, 'YLim', [0 50] );
 
     grid on;
     hold on;
     
     if(runNumber == runTotal)
         legend('LQF-MWM', 'LQF-MWM2', 'Location', 'northwest');
-    end        
+    end    
+    
+    subplot(1,2,2);
+    
+    bar([0.1 0.9]);
+    set(gca,'XTickLabel',{'LQF-MWM', 'LQF-MWM2'});
+    
+    % set the axis limit
+    set( gca, 'YLim', [0 1] );
+    
+    % set font size
+    set(gca, 'FontSize', 20);
+
+    ylabel('Fairness Index', 'FontSize', 20);
+    
+    grid on;
+    hold on;
+    
+    
     
 %     subplot(2,2,runNumber+2);
 %         

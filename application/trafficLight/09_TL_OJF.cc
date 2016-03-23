@@ -81,7 +81,7 @@ void TrafficLightOJF::initialize(int stage)
 
     if(stage == 0)
     {
-        ChangeEvt = new cMessage("ChangeEvt", 1);
+        intervalChangeEVT = new cMessage("intervalChangeEVT", 1);
     }
 }
 
@@ -99,15 +99,15 @@ void TrafficLightOJF::handleMessage(cMessage *msg)
     if(TLControlMode != TL_LowDelay)
         return;
 
-    if (msg == ChangeEvt)
+    if (msg == intervalChangeEVT)
     {
         chooseNextInterval();
 
-        if(intervalOffSet <= 0)
-            error("intervalOffSet is <= 0");
+        if(intervalDuration <= 0)
+            error("intervalDuration is <= 0");
 
         // Schedule next light change event:
-        scheduleAt(simTime().dbl() + intervalOffSet, ChangeEvt);
+        scheduleAt(simTime().dbl() + intervalDuration, intervalChangeEVT);
     }
 }
 
@@ -123,13 +123,16 @@ void TrafficLightOJF::executeFirstTimeStep()
 
     // set initial values
     currentInterval = phase1_5;
-    intervalOffSet = minGreenTime;
+    intervalDuration = minGreenTime;
     intervalElapseTime = 0;
 
-    scheduleAt(simTime().dbl() + intervalOffSet, ChangeEvt);
+    scheduleAt(simTime().dbl() + intervalDuration, intervalChangeEVT);
 
     // get all non-conflicting movements in allMovements vector
     TrafficLightAllowedMoves::getMovements("C");
+
+    // make sure allMovements vector is not empty
+    ASSERT(!allMovements.empty());
 
     for (auto &TL : TLList)
     {
@@ -145,7 +148,7 @@ void TrafficLightOJF::executeFirstTimeStep()
     if(ev.isGUI() && debugLevel > 0)
     {
         char buff[300];
-        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
+        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalDuration);
         std::cout << buff << endl << endl;
         std::cout.flush();
     }
@@ -182,7 +185,7 @@ void TrafficLightOJF::chooseNextInterval()
         // set the new state
         TraCI->TLSetState("C", nextInterval);
         intervalElapseTime = 0.0;
-        intervalOffSet = redTime;
+        intervalDuration = redTime;
 
         // update TL status for this phase
         updateTLstate("C", "red");
@@ -200,7 +203,7 @@ void TrafficLightOJF::chooseNextInterval()
         // set the new state
         TraCI->TLSetState("C", nextGreenInterval);
         intervalElapseTime = 0.0;
-        intervalOffSet = nextGreenTime;
+        intervalDuration = nextGreenTime;
     }
     else
         chooseNextGreenInterval();
@@ -208,7 +211,7 @@ void TrafficLightOJF::chooseNextInterval()
     if(ev.isGUI() && debugLevel > 0)
     {
         char buff[300];
-        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
+        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalDuration);
         std::cout << buff << endl << endl;
         std::cout.flush();
     }
@@ -340,14 +343,14 @@ void TrafficLightOJF::chooseNextGreenInterval()
         TraCI->TLSetState("C", nextInterval);
 
         intervalElapseTime = 0.0;
-        intervalOffSet =  yellowTime;
+        intervalDuration =  yellowTime;
 
         // update TL status for this phase
         updateTLstate("C", "yellow");
     }
     else
     {
-        intervalOffSet = nextGreenTime;
+        intervalDuration = nextGreenTime;
         if(ev.isGUI() && debugLevel > 0)
         {
             std::cout << ">>> Continue the last green interval." << endl << endl;

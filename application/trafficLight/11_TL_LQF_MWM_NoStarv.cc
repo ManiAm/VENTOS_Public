@@ -34,9 +34,9 @@ Define_Module(VENTOS::TrafficLight_LQF_MWM_NoStarv);
 class sortedEntryLQF
 {
 public:
-    double totalWeight;
     int oneCount;
     int maxVehCount;
+    double totalWeight;
     std::string phase;
 
     sortedEntryLQF(double d1, int i1, int i2, std::string p)
@@ -108,7 +108,7 @@ void TrafficLight_LQF_MWM_NoStarv::initialize(int stage)
     if(stage == 0)
     {
         nextGreenIsNewCycle = false;
-        ChangeEvt = new cMessage("ChangeEvt", 1);
+        intervalChangeEVT = new cMessage("intervalChangeEVT", 1);
     }
 }
 
@@ -126,18 +126,18 @@ void TrafficLight_LQF_MWM_NoStarv::handleMessage(cMessage *msg)
     if(TLControlMode != TL_LQF_MWM)
         return;
 
-    if (msg == ChangeEvt)
+    if (msg == intervalChangeEVT)
     {
         if(greenInterval.empty())
             calculatePhases("C");
 
         chooseNextInterval();
 
-        if(intervalOffSet <= 0)
-            error("intervalOffSet is <= 0");
+        if(intervalDuration <= 0)
+            error("intervalDuration is <= 0");
 
         // Schedule next light change event:
-        scheduleAt(simTime().dbl() + intervalOffSet, ChangeEvt);
+        scheduleAt(simTime().dbl() + intervalDuration, intervalChangeEVT);
     }
 }
 
@@ -166,10 +166,10 @@ void TrafficLight_LQF_MWM_NoStarv::executeFirstTimeStep()
 
     // set initial settings:
     currentInterval = greenInterval.front().greenString;
-    intervalOffSet = greenInterval.front().greenTime;
+    intervalDuration = greenInterval.front().greenTime;
     intervalElapseTime = 0;
 
-    scheduleAt(simTime().dbl() + intervalOffSet, ChangeEvt);
+    scheduleAt(simTime().dbl() + intervalDuration, intervalChangeEVT);
 
     for (auto &TL : TLList)
     {
@@ -185,7 +185,7 @@ void TrafficLight_LQF_MWM_NoStarv::executeFirstTimeStep()
     if(ev.isGUI() && debugLevel > 0)
     {
         char buff[300];
-        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
+        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalDuration);
         std::cout << endl << buff << endl << endl;
         std::cout.flush();
     }
@@ -222,7 +222,7 @@ void TrafficLight_LQF_MWM_NoStarv::chooseNextInterval()
         // set the new state
         TraCI->TLSetState("C", nextInterval);
         intervalElapseTime = 0.0;
-        intervalOffSet = redTime;
+        intervalDuration = redTime;
 
         // update TL status for this phase
         updateTLstate("C", "red");
@@ -242,7 +242,7 @@ void TrafficLight_LQF_MWM_NoStarv::chooseNextInterval()
         // set the new state
         TraCI->TLSetState("C", nextGreenInterval);
         intervalElapseTime = 0.0;
-        intervalOffSet = greenInterval.front().greenTime;
+        intervalDuration = greenInterval.front().greenTime;
     }
     else
         chooseNextGreenInterval();
@@ -250,7 +250,7 @@ void TrafficLight_LQF_MWM_NoStarv::chooseNextInterval()
     if(ev.isGUI() && debugLevel > 0)
     {
         char buff[300];
-        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
+        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalDuration);
         std::cout << buff << endl << endl;
         std::cout.flush();
     }
@@ -285,7 +285,7 @@ void TrafficLight_LQF_MWM_NoStarv::chooseNextGreenInterval()
     TraCI->TLSetState("C", nextInterval);
 
     intervalElapseTime = 0.0;
-    intervalOffSet =  yellowTime;
+    intervalDuration =  yellowTime;
 
     // update TL status for this phase
     updateTLstate("C", "yellow");

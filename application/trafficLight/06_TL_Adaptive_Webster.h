@@ -50,12 +50,12 @@ class TrafficLightWebster : public TrafficLightFixed
 
   protected:
     // class variables
-    double intervalOffSet;
+    double intervalDuration;
     std::string nextGreenInterval;
     double intervalElapseTime;
     std::string currentInterval;
 
-    cMessage* ChangeEvt;
+    cMessage* intervalChangeEVT;
 
   private:
     std::string phase1_5 = "grgrGgrgrrgrgrGgrgrrrrrr";

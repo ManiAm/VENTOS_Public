@@ -51,7 +51,7 @@ void TrafficLightWebster::initialize(int stage)
         if(alpha < 0 || alpha > 1)
             error("alpha value should be [0,1]");
 
-        ChangeEvt = new cMessage("ChangeEvt", 1);
+        intervalChangeEVT = new cMessage("intervalChangeEVT", 1);
 
         greenSplit.clear();
 
@@ -74,15 +74,15 @@ void TrafficLightWebster::handleMessage(cMessage *msg)
     if(TLControlMode != TL_Adaptive_Webster)
         return;
 
-    if (msg == ChangeEvt)
+    if (msg == intervalChangeEVT)
     {
         chooseNextInterval();
 
-        if(intervalOffSet <= 0)
-            error("intervalOffSet is <= 0");
+        if(intervalDuration <= 0)
+            error("intervalDuration is <= 0");
 
         // Schedule next light change event:
-        scheduleAt(simTime().dbl() + intervalOffSet, ChangeEvt);
+        scheduleAt(simTime().dbl() + intervalDuration, intervalChangeEVT);
     }
 }
 
@@ -101,10 +101,10 @@ void TrafficLightWebster::executeFirstTimeStep()
 
     // set initial values
     currentInterval = phase1_5;
-    intervalOffSet = greenSplit[phase1_5];
+    intervalDuration = greenSplit[phase1_5];
     intervalElapseTime = 0;
 
-    scheduleAt(simTime().dbl() + intervalOffSet, ChangeEvt);
+    scheduleAt(simTime().dbl() + intervalDuration, intervalChangeEVT);
 
     for (auto &TL : TLList)
     {
@@ -120,7 +120,7 @@ void TrafficLightWebster::executeFirstTimeStep()
     if(ev.isGUI() && debugLevel > 0)
     {
         char buff[300];
-        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
+        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalDuration);
         std::cout << buff << endl << endl;
         std::cout.flush();
     }
@@ -157,7 +157,7 @@ void TrafficLightWebster::chooseNextInterval()
         // set the new state
         TraCI->TLSetState("C", nextInterval);
         intervalElapseTime = 0.0;
-        intervalOffSet = redTime;
+        intervalDuration = redTime;
 
         // update TL status for this phase
         updateTLstate("C", "red");
@@ -178,7 +178,7 @@ void TrafficLightWebster::chooseNextInterval()
         // set the new state
         TraCI->TLSetState("C", nextGreenInterval);
         intervalElapseTime = 0.0;
-        intervalOffSet = greenSplit[nextGreenInterval];
+        intervalDuration = greenSplit[nextGreenInterval];
     }
     else
         chooseNextGreenInterval();
@@ -186,7 +186,7 @@ void TrafficLightWebster::chooseNextInterval()
     if(ev.isGUI() && debugLevel > 0)
     {
         char buff[300];
-        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
+        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalDuration);
         std::cout << buff << endl << endl;
         std::cout.flush();
     }
@@ -222,7 +222,7 @@ void TrafficLightWebster::chooseNextGreenInterval()
     TraCI->TLSetState("C", nextInterval);
 
     intervalElapseTime = 0.0;
-    intervalOffSet =  yellowTime;
+    intervalDuration =  yellowTime;
 
     // update TL status for this phase
     updateTLstate("C", "yellow");

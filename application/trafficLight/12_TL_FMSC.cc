@@ -31,16 +31,16 @@ namespace VENTOS {
 
 Define_Module(VENTOS::TrafficLight_FMSC);
 
-class sortedEntryOJF
+class sortedEntryFMSC
 {
 public:
-    double maxWeight;
-    double totalDelay;
     int oneCount;
     int maxVehCount;
+    double totalDelay;
+    double maxWeight;
     std::vector<int> batchMovements;
 
-    sortedEntryOJF(double d1, double d2, int i1, int i2, std::vector<int> bm)
+    sortedEntryFMSC(double d1, double d2, int i1, int i2, std::vector<int> bm)
     {
         this->maxWeight = d1;
         this->totalDelay = d2;
@@ -51,10 +51,10 @@ public:
 };
 
 
-class sortCompareOJF
+class sortCompareFMSC
 {
 public:
-    bool operator()(sortedEntryOJF p1, sortedEntryOJF p2)
+    bool operator()(sortedEntryFMSC p1, sortedEntryFMSC p2)
     {
         if(p1.maxWeight < p2.maxWeight)
             return true;
@@ -83,7 +83,7 @@ void TrafficLight_FMSC::initialize(int stage)
 
     if(stage == 0)
     {
-        ChangeEvt = new cMessage("ChangeEvt", 1);
+        intervalChangeEVT = new cMessage("intervalChangeEVT", 1);
     }
 }
 
@@ -101,15 +101,15 @@ void TrafficLight_FMSC::handleMessage(cMessage *msg)
     if(TLControlMode != TL_OJFM)
         return;
 
-    if (msg == ChangeEvt)
+    if (msg == intervalChangeEVT)
     {
         chooseNextInterval();
 
-        if(intervalOffSet <= 0)
-            error("intervalOffSet is <= 0");
+        if(intervalDuration <= 0)
+            error("intervalDuration is <= 0");
 
         // Schedule next light change event:
-        scheduleAt(simTime().dbl() + intervalOffSet, ChangeEvt);
+        scheduleAt(simTime().dbl() + intervalDuration, intervalChangeEVT);
     }
 }
 
@@ -135,13 +135,16 @@ void TrafficLight_FMSC::executeFirstTimeStep()
 
     // set initial values
     currentInterval = phase1_5;
-    intervalOffSet = minGreenTime;
+    intervalDuration = minGreenTime;
     intervalElapseTime = 0;
 
-    scheduleAt(simTime().dbl() + intervalOffSet, ChangeEvt);
+    scheduleAt(simTime().dbl() + intervalDuration, intervalChangeEVT);
 
     // get all non-conflicting movements in allMovements vector
     TrafficLightAllowedMoves::getMovements("C");
+
+    // make sure allMovements vector is not empty
+    ASSERT(!allMovements.empty());
 
     for (auto &TL : TLList)
     {
@@ -157,7 +160,7 @@ void TrafficLight_FMSC::executeFirstTimeStep()
     if(ev.isGUI() && debugLevel > 0)
     {
         char buff[300];
-        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
+        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalDuration);
         std::cout << buff << endl << endl;
         std::cout.flush();
     }
@@ -194,7 +197,7 @@ void TrafficLight_FMSC::chooseNextInterval()
         // set the new state
         TraCI->TLSetState("C", nextInterval);
         intervalElapseTime = 0.0;
-        intervalOffSet = redTime;
+        intervalDuration = redTime;
 
         // update TL status for this phase
         updateTLstate("C", "red");
@@ -212,7 +215,7 @@ void TrafficLight_FMSC::chooseNextInterval()
         // set the new state
         TraCI->TLSetState("C", nextGreenInterval);
         intervalElapseTime = 0.0;
-        intervalOffSet = minGreenTime;
+        intervalDuration = minGreenTime;
     }
     else
         chooseNextGreenInterval();
@@ -220,7 +223,7 @@ void TrafficLight_FMSC::chooseNextInterval()
     if(ev.isGUI() && debugLevel > 0)
     {
         char buff[300];
-        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
+        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalDuration);
         std::cout << buff << endl << endl;
         std::cout.flush();
     }
@@ -235,10 +238,10 @@ void TrafficLight_FMSC::chooseNextGreenInterval()
         error("LaneInfo is empty! Is active detection on in %s ?", RSUptr->getFullName());
 
     // batch of all non-conflicting movements, sorted by maxWeight + total delay + oneCount
-    std::priority_queue< sortedEntryOJF /*type of each element*/, std::vector<sortedEntryOJF> /*container*/, sortCompareOJF > sortedMovements;
+    std::priority_queue< sortedEntryFMSC /*type of each element*/, std::vector<sortedEntryFMSC> /*container*/, sortCompareFMSC > sortedMovements;
 
     // clear the priority queue
-    sortedMovements = std::priority_queue < sortedEntryOJF, std::vector<sortedEntryOJF>, sortCompareOJF >();
+    sortedMovements = std::priority_queue < sortedEntryFMSC, std::vector<sortedEntryFMSC>, sortCompareFMSC >();
 
     // calculate delay, max weight for each movement combination
     for(unsigned int i = 0; i < allMovements.size(); ++i)  // row
@@ -304,12 +307,12 @@ void TrafficLight_FMSC::chooseNextGreenInterval()
         }
 
         // add this batch of movements to priority_queue
-        sortedEntryOJF *entry = new sortedEntryOJF(maxWeight, totalDelay, oneCount, maxVehCount, allMovements[i]);
+        sortedEntryFMSC *entry = new sortedEntryFMSC(maxWeight, totalDelay, oneCount, maxVehCount, allMovements[i]);
         sortedMovements.push(*entry);
     }
 
     // get the movement batch with the highest weight + delay + oneCount
-    sortedEntryOJF entry = sortedMovements.top();
+    sortedEntryFMSC entry = sortedMovements.top();
     std::vector<int> batchMovements = entry.batchMovements;
 
     // calculate the next green interval.
@@ -363,14 +366,14 @@ void TrafficLight_FMSC::chooseNextGreenInterval()
         TraCI->TLSetState("C", nextInterval);
 
         intervalElapseTime = 0.0;
-        intervalOffSet =  yellowTime;
+        intervalDuration =  yellowTime;
 
         // update TL status for this phase
         updateTLstate("C", "yellow");
     }
     else
     {
-        intervalOffSet = nextGreenTime;
+        intervalDuration = nextGreenTime;
         if(ev.isGUI() && debugLevel > 0)
         {
             std::cout << ">>> Continue the last green interval." << endl << endl;

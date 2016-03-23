@@ -52,7 +52,7 @@ void TrafficLightActuated::initialize(int stage)
         passageTime = par("passageTime").doubleValue();
         greenExtension = par("greenExtension").boolValue();
 
-        ChangeEvt = new cMessage("ChangeEvt", 1);
+        intervalChangeEVT = new cMessage("intervalChangeEVT", 1);
     }
 }
 
@@ -70,15 +70,15 @@ void TrafficLightActuated::handleMessage(cMessage *msg)
     if(TLControlMode != TL_TrafficActuated)
         return;
 
-    if (msg == ChangeEvt)
+    if (msg == intervalChangeEVT)
     {
         chooseNextInterval();
 
-        if(intervalOffSet <= 0)
-            error("intervalOffSet is <= 0");
+        if(intervalDuration <= 0)
+            error("intervalDuration is <= 0");
 
         // Schedule next light change event:
-        scheduleAt(simTime().dbl() + intervalOffSet, ChangeEvt);
+        scheduleAt(simTime().dbl() + intervalDuration, intervalChangeEVT);
     }
 }
 
@@ -95,10 +95,10 @@ void TrafficLightActuated::executeFirstTimeStep()
 
     // set initial values
     currentInterval = phase1_5;
-    intervalOffSet = minGreenTime;
+    intervalDuration = minGreenTime;
     intervalElapseTime = 0;
 
-    scheduleAt(simTime().dbl() + intervalOffSet, ChangeEvt);
+    scheduleAt(simTime().dbl() + intervalDuration, intervalChangeEVT);
 
     for (auto &TL : TLList)
     {
@@ -146,7 +146,7 @@ void TrafficLightActuated::executeFirstTimeStep()
     if(ev.isGUI() && debugLevel > 0)
     {
         char buff[300];
-        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
+        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalDuration);
         std::cout << endl << buff << endl << endl;
         std::cout.flush();
     }
@@ -209,7 +209,7 @@ void TrafficLightActuated::chooseNextInterval()
         // set the new state
         TraCI->TLSetState("C", nextInterval);
         intervalElapseTime = 0.0;
-        intervalOffSet = redTime;
+        intervalDuration = redTime;
 
         // update TL status for this phase
         updateTLstate("C", "red");
@@ -217,7 +217,7 @@ void TrafficLightActuated::chooseNextInterval()
         if(ev.isGUI() && debugLevel > 0)
         {
             char buff[300];
-            sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
+            sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalDuration);
             std::cout << buff << endl << endl;
             std::cout.flush();
         }
@@ -235,12 +235,12 @@ void TrafficLightActuated::chooseNextInterval()
         // set the new state
         TraCI->TLSetState("C", nextGreenInterval);
         intervalElapseTime = 0.0;
-        intervalOffSet = minGreenTime;
+        intervalDuration = minGreenTime;
 
         if(ev.isGUI() && debugLevel > 0)
         {
             char buff[300];
-            sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
+            sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalDuration);
             std::cout << buff << endl << endl;
             std::cout.flush();
         }
@@ -297,7 +297,7 @@ void TrafficLightActuated::chooseNextGreenInterval()
                 LastActuatedTime["NC_4"] < passageTimePerLane["NC_4"] &&
                 LastActuatedTime["SC_4"] < passageTimePerLane["SC_4"])
         {
-            intervalOffSet = std::max(passageTimePerLane["NC_4"]-LastActuatedTime["NC_4"], passageTimePerLane["SC_4"]-LastActuatedTime["SC_4"]);
+            intervalDuration = std::max(passageTimePerLane["NC_4"]-LastActuatedTime["NC_4"], passageTimePerLane["SC_4"]-LastActuatedTime["SC_4"]);
             extend = true;
         }
         else if (LastActuatedTime["NC_4"] < passageTimePerLane["NC_4"])
@@ -324,7 +324,7 @@ void TrafficLightActuated::chooseNextGreenInterval()
         if (greenExtension && intervalElapseTime < maxGreenTime &&
                 LastActuatedTime["NC_4"] < passageTimePerLane["NC_4"])
         {
-            intervalOffSet = passageTimePerLane["NC_4"] - LastActuatedTime["NC_4"];
+            intervalDuration = passageTimePerLane["NC_4"] - LastActuatedTime["NC_4"];
             extend = true;
         }
         else
@@ -339,7 +339,7 @@ void TrafficLightActuated::chooseNextGreenInterval()
         if (greenExtension && intervalElapseTime < maxGreenTime &&
                 LastActuatedTime["SC_4"] < passageTimePerLane["SC_4"])
         {
-            intervalOffSet = passageTimePerLane["SC_4"] - LastActuatedTime["SC_4"];
+            intervalDuration = passageTimePerLane["SC_4"] - LastActuatedTime["SC_4"];
             extend = true;
         }
         else
@@ -359,7 +359,7 @@ void TrafficLightActuated::chooseNextGreenInterval()
         {
             double biggest1 = std::max(passageTimePerLane["NC_2"]-LastActuatedTime["NC_2"], passageTimePerLane["SC_2"]-LastActuatedTime["SC_2"]);
             double biggest2 = std::max(passageTimePerLane["NC_3"]-LastActuatedTime["NC_3"], passageTimePerLane["SC_3"]-LastActuatedTime["SC_3"]);
-            intervalOffSet = std::max(biggest1, biggest2);
+            intervalDuration = std::max(biggest1, biggest2);
             extend = true;
         }
         else
@@ -375,7 +375,7 @@ void TrafficLightActuated::chooseNextGreenInterval()
                 LastActuatedTime["WC_4"] < passageTimePerLane["WC_4"] &&
                 LastActuatedTime["EC_4"] < passageTimePerLane["EC_4"])
         {
-            intervalOffSet = std::max(passageTimePerLane["WC_4"]-LastActuatedTime["WC_4"], passageTimePerLane["EC_4"]-LastActuatedTime["EC_4"]);
+            intervalDuration = std::max(passageTimePerLane["WC_4"]-LastActuatedTime["WC_4"], passageTimePerLane["EC_4"]-LastActuatedTime["EC_4"]);
             extend = true;
         }
         else if (LastActuatedTime["WC_4"] < passageTimePerLane["WC_4"])
@@ -402,7 +402,7 @@ void TrafficLightActuated::chooseNextGreenInterval()
         if (greenExtension && intervalElapseTime < maxGreenTime &&
                 LastActuatedTime["WC_4"] < passageTimePerLane["WC_4"])
         {
-            intervalOffSet = passageTimePerLane["WC_4"] - LastActuatedTime["WC_4"];
+            intervalDuration = passageTimePerLane["WC_4"] - LastActuatedTime["WC_4"];
             extend = true;
         }
         else
@@ -417,7 +417,7 @@ void TrafficLightActuated::chooseNextGreenInterval()
         if (greenExtension && intervalElapseTime < maxGreenTime &&
                 LastActuatedTime["EC_4"] < passageTimePerLane["EC_4"])
         {
-            intervalOffSet = passageTimePerLane["EC_4"] - LastActuatedTime["EC_4"];
+            intervalDuration = passageTimePerLane["EC_4"] - LastActuatedTime["EC_4"];
             extend = true;
         }
         else
@@ -437,7 +437,7 @@ void TrafficLightActuated::chooseNextGreenInterval()
         {
             double biggest1 = std::max(passageTimePerLane["WC_2"]-LastActuatedTime["WC_2"], passageTimePerLane["EC_2"]-LastActuatedTime["EC_2"]);
             double biggest2 = std::max(passageTimePerLane["WC_3"]-LastActuatedTime["WC_3"], passageTimePerLane["EC_3"]-LastActuatedTime["EC_3"]);
-            intervalOffSet = std::max(biggest1, biggest2);
+            intervalDuration = std::max(biggest1, biggest2);
             extend = true;
         }
         else
@@ -452,19 +452,19 @@ void TrafficLightActuated::chooseNextGreenInterval()
     if(extend)
     {
         // give a lower bound
-        intervalOffSet = std::max(updateInterval, intervalOffSet);
+        intervalDuration = std::max(updateInterval, intervalDuration);
 
         // interval duration after this offset
-        double newIntervalTime = intervalElapseTime + intervalOffSet;
+        double newIntervalTime = intervalElapseTime + intervalDuration;
 
         // never extend past maxGreenTime
         if (newIntervalTime > maxGreenTime)
-            intervalOffSet = intervalOffSet - (newIntervalTime - maxGreenTime);
+            intervalDuration = intervalDuration - (newIntervalTime - maxGreenTime);
 
         // offset can not be too small
-        if(intervalOffSet < updateInterval)
+        if(intervalDuration < updateInterval)
         {
-            intervalOffSet = 0.0001;
+            intervalDuration = 0.0001;
             intervalElapseTime = maxGreenTime;
 
             if(ev.isGUI() && debugLevel > 0)
@@ -477,7 +477,7 @@ void TrafficLightActuated::chooseNextGreenInterval()
         {
             if(ev.isGUI() && debugLevel > 0)
             {
-                std::cout << ">>> Extending green for both movements by " << intervalOffSet << "s" << endl << endl;
+                std::cout << ">>> Extending green for both movements by " << intervalDuration << "s" << endl << endl;
                 std::cout.flush();
             }
         }
@@ -489,7 +489,7 @@ void TrafficLightActuated::chooseNextGreenInterval()
         TraCI->TLSetState("C", nextInterval);
 
         intervalElapseTime = 0.0;
-        intervalOffSet =  yellowTime;
+        intervalDuration =  yellowTime;
 
         // update TL status for this phase
         updateTLstate("C", "yellow");
@@ -497,7 +497,7 @@ void TrafficLightActuated::chooseNextGreenInterval()
         if(ev.isGUI() && debugLevel > 0)
         {
             char buff[300];
-            sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalOffSet);
+            sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalDuration);
             std::cout << buff << endl << endl;
             std::cout.flush();
         }
