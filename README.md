@@ -133,10 +133,15 @@ If X server is not installed on your machine, then install it:
 
 **Step 3:** Follow the same instructions in previous sections to install VENTOS on the remote server.
 
-**Step 4:** While using OMNET++, the SSH session should be open. Closing the terminal windows or restarting your machine terminates the SSH session and the running simulation will be closed. To keep the SSH session open, you need to use `screen` or `tmux`. We will use `tmux` since it is more powerfull. 
+**Hint 1:** While using OMNET++, the SSH session should be open. Closing the terminal windows or restarting your machine terminates the SSH session and the running simulation will be closed. To keep the SSH session open, you need to use `screen` or `tmux`. `tmux` (terminal multiplexer) is more powerfull and we recommend it over `screen`. You can find more information [here](http://www.sitepoint.com/tmux-a-simple-start/) and [here](https://www.youtube.com/watch?v=BHhA_ZKjyxo). With the help of tmux you can create sessions with multiple windows and panes like the following.
 
-Start tmux by typing `tmux` into the shell. When you do that, it just looks like your screen clears and you’re back at the same terminal prompt. You will notice that the terminal now has a green bar along the bottom. Type `omnetpp` to start the IDE and then type `sumo-cmd &` to run the python script in the background.
+<img src="https://github.com/ManiAm/VENTOS/blob/master/tmux.png" />
 
-**Step 5:** Detach the tmux session by pressing `Ctrl+B` and then typing `D`. You can now safely logoff from the remote machine, your process will keep running inside tmux. When you come back again and want to check the status of your process you can use `tmux attach` to attach to your tmux session.
+After `detaching` your tmux session, you can safely logoff from the remote machine; your process will keep running inside tmux. When you come back again and want to check the status of your process you can `attach` to your tmux session.
 
-In order to exchange files between your computer and remote server, you can use filezilla.
+**Hint 2:** The simulation saves many output txt files. In order to exchange files between your computer and remote server, you can use filezilla.
+
+    sudo add-apt-repository ppa:n-muench/programs-ppa
+    sudo apt-get update
+    sudo apt-get install filezilla
+    
