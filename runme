@@ -873,7 +873,7 @@ echo "generating configure file ..."
 make -f Makefile.cvs > /dev/null
 
 echo "running configure ..."
-confOut=$( { ./configure --enable-debug --with-proj-gdal=/usr/local > /tmp/VENTOS_tmp/out.xzevap; } 2>&1 )
+confOut=$( { ./configure --enable-debug --with-proj-gdal=/usr > /tmp/VENTOS_tmp/out.xzevap; } 2>&1 )
 printf "%s \n" "$confOut"
 
 # should we terminate this script
