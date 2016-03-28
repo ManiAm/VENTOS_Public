@@ -43,26 +43,24 @@ class Tracking : public BaseApplLayer
         virtual void receiveSignal(cComponent *, simsignal_t, long);
 
 	private:
+        void TrackingGUI();
+
+	private:
         // NED variables
         TraCI_Commands *TraCI;  // pointer to the TraCI module
         simsignal_t Signal_executeFirstTS;
 
         // NED variables (GUI)
-        bool on;
+        int mode;
         double zoom;
         double initialWindowsOffset;
         double trackingInterval;
-        int mode;
         std::string trackingV;
         std::string trackingLane;
         double windowsOffset;
 
         // class variables
         cMessage* updataGUI;
-
-        // methods
-        void Start();
-        void TrackingGUI();
 };
 
 }

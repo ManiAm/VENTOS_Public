@@ -41,9 +41,9 @@ void Tracking::initialize(int stage)
 {
     if(stage ==0)
     {
-        on = par("on").boolValue();
+        mode = par("mode").longValue();
 
-        if(!on)
+        if(mode < 0)
             return;
 
         // get a pointer to the TraCI module
@@ -66,7 +66,6 @@ void Tracking::initialize(int stage)
         if(trackingInterval <= 0)
             error("Tracking interval should be positive!");
 
-        mode = par("mode").longValue();
         trackingV = par("trackingV").stdstringValue();
         trackingLane = par("trackingLane").stringValue();
         windowsOffset = par("windowsOffset").doubleValue();
@@ -88,26 +87,29 @@ void Tracking::receiveSignal(cComponent *source, simsignal_t signalID, long i)
 
     if(signalID == Signal_executeFirstTS)
     {
-        Tracking::Start();
+        // todo:
+        // first check if we are really running in GUI mode
+
+        if(mode < 0)
+            return;
+
+        if(mode == 0)
+        {
+            TraCI->GUISetZoom("View #0", zoom);
+            return;
+        }
+
+        if(mode == 1 || mode == 2)
+        {
+            // zoom-in GUI
+            TraCI->GUISetZoom("View #0", zoom);
+
+            // adjust Windows initially
+            TraCI->GUISetOffset("View #0", initialWindowsOffset, 0.);
+
+            TrackingGUI();
+        }
     }
-}
-
-
-void Tracking::Start()
-{
-    // todo:
-    // use TraCI command, to also check if we are really running in GUI mode
-
-    if(!on)
-        return;
-
-    // zoom-in GUI
-    TraCI->GUISetZoom(zoom);
-
-    // adjust Windows initially
-    TraCI->GUISetOffset(initialWindowsOffset, 0.);
-
-    TrackingGUI();
 }
 
 
@@ -128,7 +130,7 @@ void Tracking::TrackingGUI()
         Coord co = TraCI->vehicleGetPosition(trackingV);
 
         if(co.x > 0)
-            TraCI->GUISetOffset(co.x, co.y);
+            TraCI->GUISetOffset("View #0", co.x, co.y);
     }
     else if(mode == 2)
     {
@@ -137,31 +139,25 @@ void Tracking::TrackingGUI()
 
         if(!myList.empty())
         {
-            // get iterator to the end
-            std::list<std::string>::iterator it = myList.end();
-
             // iterator pointing to the last element
+            std::list<std::string>::iterator it = myList.end();
             --it;
 
-            // first inserted vehicle on this lane
+            // get the first inserted vehicle on this lane
             std::string lastVehicleId = *it;
 
             Coord lastVehiclePos = TraCI->vehicleGetPosition(lastVehicleId);
 
             // get GUI windows boundary
-            std::vector<double> windowsFrame = TraCI->GUIGetBoundry();
+            std::vector<double> windowsFrame = TraCI->GUIGetBoundry("View #0");
 
             // vehicle goes out of frame?
             if(lastVehiclePos.x > windowsFrame[2] || lastVehiclePos.y > windowsFrame[3])
-            {
-                TraCI->GUISetOffset(windowsFrame[0] + windowsOffset, 0);
-            }
+                TraCI->GUISetOffset("View #0", windowsFrame[0] + windowsOffset, 0);
         }
     }
     else
-    {
         error("not a valid mode!");
-    }
 
     scheduleAt(simTime() + trackingInterval, updataGUI);
 }
