@@ -261,8 +261,8 @@ void TrafficLight_FMSC::chooseNextGreenInterval()
                 if(!rightTurn)
                 {
                     // get the corresponding lane for this link
-                    auto itt = linkLane.find(std::make_pair("C",linkNumber));
-                    if(itt == linkLane.end())
+                    auto itt = linkToLane.find(std::make_pair("C",linkNumber));
+                    if(itt == linkToLane.end())
                         error("linkNumber %s is not found in TL %s", linkNumber, "C");
                     std::string lane = itt->second;
 

@@ -321,8 +321,8 @@ void TrafficLight_LQF_MWM_NoStarv::calculatePhases(std::string TLid)
                 if(!rightTurn)
                 {
                     // get the corresponding lane for this link
-                    auto itt = linkLane.find(std::make_pair(TLid,linkNumber));
-                    if(itt == linkLane.end())
+                    auto itt = linkToLane.find(std::make_pair(TLid,linkNumber));
+                    if(itt == linkToLane.end())
                         error("linkNumber %s is not found in TL %s", linkNumber, TLid.c_str());
                     std::string lane = itt->second;
 

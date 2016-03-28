@@ -249,8 +249,8 @@ void TrafficLight_LQF_MWM::chooseNextGreenInterval()
                 if(!rightTurn)
                 {
                     // get the corresponding lane for this link
-                    auto itt = linkLane.find(std::make_pair("C",linkNumber));
-                    if(itt == linkLane.end())
+                    auto itt = linkToLane.find(std::make_pair("C",linkNumber));
+                    if(itt == linkToLane.end())
                         error("linkNumber %s is not found in TL %s", linkNumber, "C");
                     std::string lane = itt->second;
 
@@ -316,7 +316,7 @@ void TrafficLight_LQF_MWM::chooseNextGreenInterval()
     // allocate enough green time to move all vehicles
     int maxVehCount = entry.maxVehCount;
     double greenTime = (double)maxVehCount * (minGreenTime / 5.);
-    nextGreenTime = std::min(std::max(greenTime, minGreenTime), maxGreenTime);      // bound green time
+    nextGreenTime = std::min(std::max(greenTime, minGreenTime), maxGreenTime);  // bound green time
 
     if(ev.isGUI() && debugLevel > 1)
     {
