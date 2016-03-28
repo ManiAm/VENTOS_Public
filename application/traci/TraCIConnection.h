@@ -59,12 +59,13 @@ class TraCIConnection
 
 	private:
 		TraCIConnection(void*);
+		void terminateSimulation();
 
+	private:
 		void* socketPtr;
 		TraCICoord netbounds1; /* network boundaries as reported by TraCI (x1, y1) */
 		TraCICoord netbounds2; /* network boundaries as reported by TraCI (x2, y2) */
 		int margin;
-
 };
 
 /**
