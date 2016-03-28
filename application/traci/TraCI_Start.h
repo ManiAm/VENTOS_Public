@@ -104,6 +104,8 @@ private:
      */
     bool isInRegionOfInterest(const TraCICoord& position, std::string road_id, double speed, double angle);
 
+    void TraCIexchangeToFile();
+
 protected:
     // NED
     BaseWorldUtility* world;
@@ -172,6 +174,7 @@ protected:
     boost::filesystem::path SUMO_Path;
     boost::filesystem::path SUMO_FullPath;
 
+    bool logTraCIcommands;
     bool equilibrium_vehicle;
     std::map<std::string, departedNodes> addedNodes;
 };

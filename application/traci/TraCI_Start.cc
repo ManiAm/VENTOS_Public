@@ -21,6 +21,7 @@
 //
 
 #include <cmath>
+#include <iomanip>
 
 #include "TraCI_Start.h"
 #include "TraCIConstants.h"
@@ -62,6 +63,8 @@ void TraCI_Start::initialize(int stage)
 
     if (stage == 1)
     {
+        logTraCIcommands = par("logTraCIcommands").boolValue();
+
         debug = par("debug");
         connectAt = par("connectAt");
         terminate = par("terminate").doubleValue();
@@ -150,6 +153,9 @@ void TraCI_Start::finish()
 
     while (hosts.begin() != hosts.end())
         deleteManagedModule(hosts.begin()->first);
+
+    if(logTraCIcommands)
+        TraCIexchangeToFile();
 }
 
 
@@ -506,8 +512,15 @@ void TraCI_Start::executeOneTimestep()
     {
         insertVehicles();
 
+        updateTraCIlog("commandStart", CMD_SIMSTEP2, 0xff);
+
+        // proceed simulation to targetTime
         TraCIBuffer buf = connection->query(CMD_SIMSTEP2, TraCIBuffer() << targetTime);
-        uint32_t count; buf >> count;  // count: number of subscription results
+        uint32_t count;
+        buf >> count;  // count: number of subscription results
+
+        updateTraCIlog("commandComplete", CMD_SIMSTEP2, 0xff);
+
         for (uint32_t i = 0; i < count; ++i)
             processSubcriptionResult(buf);
 
@@ -1269,5 +1282,63 @@ void TraCI_Start::addPedestriansToOMNET()
     //
 }
 
+
+void TraCI_Start::TraCIexchangeToFile()
+{
+    if(exchangedTraCIcommands.empty())
+        return;
+
+    boost::filesystem::path filePath;
+
+    if(ev.isGUI())
+    {
+        filePath = "results/gui/TraCI_log.txt";
+    }
+    else
+    {
+        // get the current run number
+        int currentRun = ev.getConfigEx()->getActiveRunNumber();
+        std::ostringstream fileName;
+        fileName << std::setfill('0') << std::setw(3) << currentRun << "_TraCI_log.txt";
+        filePath = "results/cmd/" + fileName.str();
+    }
+
+    FILE *filePtr = fopen (filePath.string().c_str(), "w");
+
+    // write header
+    fprintf (filePtr, "%-15s", "sentAt");
+    fprintf (filePtr, "%-15s", "duration(ms)");
+    fprintf (filePtr, "%-20s", "commandGroupId");
+    fprintf (filePtr, "%-19s", "commandId");
+    fprintf (filePtr, "%-40s \n\n", "commandName");
+
+    // write body
+    double oldTime = -1;
+    for(auto &y : exchangedTraCIcommands)
+    {
+        // search for command name in TraCIcommandsMap
+        auto it = TraCIcommandsMap.find(std::make_pair(y.commandGroupId, y.commandId));
+        if(it == TraCIcommandsMap.end())
+            error("can not find pair (0x%x, 0x%x) in TraCIcommandsMap", y.commandGroupId, y.commandId);
+
+        // make the log more readable :)
+        if(y.timeStamp != oldTime)
+        {
+            fprintf(filePtr, "\n");
+            oldTime = y.timeStamp;
+        }
+
+        std::chrono::duration<double, std::milli> fp_ms = y.completeAt - y.sentAt;
+        double duration = fp_ms.count();
+
+        fprintf (filePtr, "%-15.2f", y.timeStamp);
+        fprintf (filePtr, "%-15.2f", duration);
+        fprintf (filePtr, "0x%-20x", y.commandGroupId);
+        fprintf (filePtr, "0x%-15x", y.commandId);
+        fprintf (filePtr, "%-40s \n", it->second.c_str());
+    }
+
+    fclose(filePtr);
 }
 
+}
