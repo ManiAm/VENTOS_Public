@@ -27,6 +27,7 @@
 
 #include "TraCI_Commands.h"
 #include "TraCIConstants.h"
+#include "algorithm"
 
 namespace VENTOS {
 
@@ -52,6 +53,7 @@ void TraCI_Commands::initialize(int stage)
 void TraCI_Commands::finish()
 {
 
+
 }
 
 
@@ -62,11 +64,13 @@ void TraCI_Commands::handleMessage(cMessage *msg)
 
 
 // ################################################################
-//                           python interaction
+//                           Python interaction
 // ################################################################
 
 std::pair<uint32_t, std::string> TraCI_Commands::getVersion()
 {
+    updateTraCIlog("commandStart", CMD_GETVERSION, 0xff);
+
     bool success = false;
     TraCIBuffer buf = connection->queryOptional(CMD_GETVERSION, TraCIBuffer(), success);
 
@@ -83,20 +87,37 @@ std::pair<uint32_t, std::string> TraCI_Commands::getVersion()
     std::string serverVersion; buf >> serverVersion;
     ASSERT(buf.eof());
 
+    updateTraCIlog("commandComplete", CMD_GETVERSION, 0xff);
+
     return std::pair<uint32_t, std::string>(apiVersion, serverVersion);
 }
 
 
 // ################################################################
-//                            simulation
+//                      simulation control
 // ################################################################
 
-// ##########################
-// CMD_SUBSCRIBE_SIM_VARIABLE
-// ##########################
+void TraCI_Commands::simulationTerminate()
+{
+    updateTraCIlog("commandStart", CMD_CLOSE, 0xff);
 
+    TraCIBuffer buf = connection->query(CMD_CLOSE, TraCIBuffer() << 0);
+
+    uint32_t count;
+    buf >> count;
+
+    updateTraCIlog("commandComplete", CMD_CLOSE, 0xff);
+}
+
+// ################################################################
+//                            subscription
+// ################################################################
+
+// CMD_SUBSCRIBE_SIM_VARIABLE
 TraCIBuffer TraCI_Commands::simulationSubscribe(uint32_t beginTime, uint32_t endTime, std::string objectId, std::vector<uint8_t> variables)
 {
+    updateTraCIlog("commandStart", CMD_SUBSCRIBE_SIM_VARIABLE, 0xff);
+
     TraCIBuffer p;
     p << beginTime << endTime << objectId << (uint8_t)variables.size();
     for(uint8_t i : variables)
@@ -104,9 +125,33 @@ TraCIBuffer TraCI_Commands::simulationSubscribe(uint32_t beginTime, uint32_t end
 
     TraCIBuffer buf = connection->query(CMD_SUBSCRIBE_SIM_VARIABLE, p);
 
+    updateTraCIlog("commandComplete", CMD_SUBSCRIBE_SIM_VARIABLE, 0xff);
+
     return buf;
 }
 
+
+// CMD_SUBSCRIBE_VEHICLE_VARIABLE
+TraCIBuffer TraCI_Commands::vehicleSubscribe(uint32_t beginTime, uint32_t endTime, std::string objectId, std::vector<uint8_t> variables)
+{
+    updateTraCIlog("commandStart", CMD_SUBSCRIBE_VEHICLE_VARIABLE, 0xff);
+
+    TraCIBuffer p;
+    p << beginTime << endTime << objectId << (uint8_t)variables.size();
+    for(uint8_t i : variables)
+        p << i;
+
+    TraCIBuffer buf = connection->query(CMD_SUBSCRIBE_VEHICLE_VARIABLE, p);
+
+    updateTraCIlog("commandComplete", CMD_SUBSCRIBE_VEHICLE_VARIABLE, 0xff);
+
+    return buf;
+}
+
+
+// ################################################################
+//                            simulation
+// ################################################################
 
 // ####################
 // CMD_GET_SIM_VARIABLE
@@ -114,6 +159,8 @@ TraCIBuffer TraCI_Commands::simulationSubscribe(uint32_t beginTime, uint32_t end
 
 uint32_t TraCI_Commands::simulationGetLoadedVehiclesCount()
 {
+    updateTraCIlog("commandStart", CMD_GET_SIM_VARIABLE, VAR_LOADED_VEHICLES_NUMBER);
+
     // query road network boundaries
     TraCIBuffer buf = connection->query(CMD_GET_SIM_VARIABLE, TraCIBuffer() << static_cast<uint8_t>(VAR_LOADED_VEHICLES_NUMBER) << std::string("sim0"));
 
@@ -131,12 +178,16 @@ uint32_t TraCI_Commands::simulationGetLoadedVehiclesCount()
 
     ASSERT(buf.eof());
 
+    updateTraCIlog("commandComplete", CMD_GET_SIM_VARIABLE, VAR_LOADED_VEHICLES_NUMBER);
+
     return val;
 }
 
 
 std::list<std::string> TraCI_Commands::simulationGetLoadedVehiclesIDList()
 {
+    updateTraCIlog("commandStart", CMD_GET_SIM_VARIABLE, VAR_LOADED_VEHICLES_IDS);
+
     uint8_t resultTypeId = TYPE_STRINGLIST;
     std::list<std::string> res;
 
@@ -162,13 +213,16 @@ std::list<std::string> TraCI_Commands::simulationGetLoadedVehiclesIDList()
 
     ASSERT(buf.eof());
 
-    return res;
+    updateTraCIlog("commandComplete", CMD_GET_SIM_VARIABLE, VAR_LOADED_VEHICLES_IDS);
 
+    return res;
 }
 
 
 double* TraCI_Commands::simulationGetNetBoundary()
 {
+    updateTraCIlog("commandStart", CMD_GET_SIM_VARIABLE, VAR_NET_BOUNDING_BOX);
+
     // query road network boundaries
     TraCIBuffer buf = connection->query(CMD_GET_SIM_VARIABLE, TraCIBuffer() << static_cast<uint8_t>(VAR_NET_BOUNDING_BOX) << std::string("sim0"));
 
@@ -190,12 +244,16 @@ double* TraCI_Commands::simulationGetNetBoundary()
 
     ASSERT(buf.eof());
 
+    updateTraCIlog("commandComplete", CMD_GET_SIM_VARIABLE, VAR_NET_BOUNDING_BOX);
+
     return boundaries;
 }
 
 
 uint32_t TraCI_Commands::simulationGetMinExpectedNumber()
 {
+    updateTraCIlog("commandStart", CMD_GET_SIM_VARIABLE, VAR_MIN_EXPECTED_VEHICLES);
+
     // query road network boundaries
     TraCIBuffer buf = connection->query(CMD_GET_SIM_VARIABLE, TraCIBuffer() << static_cast<uint8_t>(VAR_MIN_EXPECTED_VEHICLES) << std::string("sim0"));
 
@@ -213,12 +271,16 @@ uint32_t TraCI_Commands::simulationGetMinExpectedNumber()
 
     ASSERT(buf.eof());
 
+    updateTraCIlog("commandComplete", CMD_GET_SIM_VARIABLE, VAR_MIN_EXPECTED_VEHICLES);
+
     return val;
 }
 
 
 uint32_t TraCI_Commands::simulationGetArrivedNumber()
 {
+    updateTraCIlog("commandStart", CMD_GET_SIM_VARIABLE, VAR_ARRIVED_VEHICLES_NUMBER);
+
     // query road network boundaries
     TraCIBuffer buf = connection->query(CMD_GET_SIM_VARIABLE, TraCIBuffer() << static_cast<uint8_t>(VAR_ARRIVED_VEHICLES_NUMBER) << std::string("sim0"));
 
@@ -236,43 +298,15 @@ uint32_t TraCI_Commands::simulationGetArrivedNumber()
 
     ASSERT(buf.eof());
 
+    updateTraCIlog("commandComplete", CMD_GET_SIM_VARIABLE, VAR_ARRIVED_VEHICLES_NUMBER);
+
     return val;
-}
-
-
-// #########################
-// Control-related commands
-// #########################
-
-void TraCI_Commands::simulationTerminate()
-{
-    TraCIBuffer buf = connection->query(CMD_CLOSE, TraCIBuffer() << 0);
-
-    uint32_t count;
-    buf >> count;
 }
 
 
 // ################################################################
 //                            vehicle
 // ################################################################
-
-// ##############################
-// CMD_SUBSCRIBE_VEHICLE_VARIABLE
-// ##############################
-
-TraCIBuffer TraCI_Commands::vehicleSubscribe(uint32_t beginTime, uint32_t endTime, std::string objectId, std::vector<uint8_t> variables)
-{
-    TraCIBuffer p;
-    p << beginTime << endTime << objectId << (uint8_t)variables.size();
-    for(uint8_t i : variables)
-        p << i;
-
-    TraCIBuffer buf = connection->query(CMD_SUBSCRIBE_VEHICLE_VARIABLE, p);
-
-    return buf;
-}
-
 
 // #########################
 // CMD_GET_VEHICLE_VARIABLE
@@ -281,19 +315,34 @@ TraCIBuffer TraCI_Commands::vehicleSubscribe(uint32_t beginTime, uint32_t endTim
 // gets a list of all vehicles in the network (alphabetically!!!)
 std::list<std::string> TraCI_Commands::vehicleGetIDList()
 {
-    return genericGetStringList(CMD_GET_VEHICLE_VARIABLE, "", ID_LIST, RESPONSE_GET_VEHICLE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_VEHICLE_VARIABLE, ID_LIST);
+
+    std::list<std::string> result = genericGetStringList(CMD_GET_VEHICLE_VARIABLE, "", ID_LIST, RESPONSE_GET_VEHICLE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_VEHICLE_VARIABLE, ID_LIST);
+    return result;
 }
 
 
 uint32_t TraCI_Commands::vehicleGetIDCount()
 {
-    return genericGetInt(CMD_GET_VEHICLE_VARIABLE, "", ID_COUNT, RESPONSE_GET_VEHICLE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_VEHICLE_VARIABLE, ID_COUNT);
+
+    int32_t result = genericGetInt(CMD_GET_VEHICLE_VARIABLE, "", ID_COUNT, RESPONSE_GET_VEHICLE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_VEHICLE_VARIABLE, ID_COUNT);
+    return result;
 }
 
 
 double TraCI_Commands::vehicleGetSpeed(std::string nodeId)
 {
-    return genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_SPEED, RESPONSE_GET_VEHICLE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_VEHICLE_VARIABLE,VAR_SPEED);
+
+    double result = genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_SPEED, RESPONSE_GET_VEHICLE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_VEHICLE_VARIABLE,VAR_SPEED);
+    return result;
 }
 
 // value = 1 * stopped + 2  * parking + 4 * triggered + 8 * containerTriggered +
@@ -306,66 +355,118 @@ double TraCI_Commands::vehicleGetSpeed(std::string nodeId)
 // isAtContainerStop   value & 32 == 32   whether the vehicle is stopped at a container stop
 uint8_t TraCI_Commands::vehicleGetStopState(std::string nodeId)
 {
-    return genericGetUnsignedByte(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_STOPSTATE, RESPONSE_GET_VEHICLE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_VEHICLE_VARIABLE, VAR_STOPSTATE);
+
+    uint8_t result = genericGetUnsignedByte(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_STOPSTATE, RESPONSE_GET_VEHICLE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_VEHICLE_VARIABLE, VAR_STOPSTATE);
+    return result;
 }
 
 
 Coord TraCI_Commands::vehicleGetPosition(std::string nodeId)
 {
-    return genericGetCoordv2(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_POSITION, RESPONSE_GET_VEHICLE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_VEHICLE_VARIABLE, VAR_POSITION);
+
+    Coord result = genericGetCoordv2(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_POSITION, RESPONSE_GET_VEHICLE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_VEHICLE_VARIABLE, VAR_POSITION);
+    return result;
 }
 
 
 std::string TraCI_Commands::vehicleGetEdgeID(std::string nodeId)
 {
-    return genericGetString(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_ROAD_ID, RESPONSE_GET_VEHICLE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_VEHICLE_VARIABLE, VAR_ROAD_ID);
+
+    std::string result = genericGetString(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_ROAD_ID, RESPONSE_GET_VEHICLE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_VEHICLE_VARIABLE, VAR_ROAD_ID);
+    return result;
 }
 
 
 std::string TraCI_Commands::vehicleGetLaneID(std::string nodeId)
 {
-    return genericGetString(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_LANE_ID, RESPONSE_GET_VEHICLE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_VEHICLE_VARIABLE, VAR_LANE_ID);
+
+    std::string result = genericGetString(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_LANE_ID, RESPONSE_GET_VEHICLE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_VEHICLE_VARIABLE, VAR_LANE_ID);
+    return result;
 }
 
 
 uint32_t TraCI_Commands::vehicleGetLaneIndex(std::string nodeId)
 {
-    return genericGetInt(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_LANE_INDEX, RESPONSE_GET_VEHICLE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_VEHICLE_VARIABLE, VAR_LANE_INDEX);
+
+    int32_t result = genericGetInt(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_LANE_INDEX, RESPONSE_GET_VEHICLE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_VEHICLE_VARIABLE, VAR_LANE_INDEX);
+    return result;
 }
 
 
 double TraCI_Commands::vehicleGetLanePosition(std::string nodeId)
 {
-    return genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_LANEPOSITION, RESPONSE_GET_VEHICLE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_VEHICLE_VARIABLE, VAR_LANEPOSITION);
+
+    double result = genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_LANEPOSITION, RESPONSE_GET_VEHICLE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_VEHICLE_VARIABLE, VAR_LANEPOSITION);
+    return result;
 }
 
 
 std::string TraCI_Commands::vehicleGetTypeID(std::string nodeId)
 {
-    return genericGetString(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_TYPE, RESPONSE_GET_VEHICLE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_VEHICLE_VARIABLE, VAR_TYPE);
+
+    std::string result = genericGetString(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_TYPE, RESPONSE_GET_VEHICLE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_VEHICLE_VARIABLE, VAR_TYPE);
+    return result;
 }
 
 
 std::string TraCI_Commands::vehicleGetRouteID(std::string nodeId)
 {
-    return genericGetString(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_ROUTE_ID, RESPONSE_GET_VEHICLE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_VEHICLE_VARIABLE, VAR_ROUTE_ID);
+
+    std::string result = genericGetString(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_ROUTE_ID, RESPONSE_GET_VEHICLE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_VEHICLE_VARIABLE, VAR_ROUTE_ID);
+    return result;
 }
 
 
 std::list<std::string> TraCI_Commands::vehicleGetRoute(std::string nodeId)
 {
-    return genericGetStringList(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_EDGES, RESPONSE_GET_VEHICLE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_VEHICLE_VARIABLE, VAR_EDGES);
+
+    std::list<std::string> result = genericGetStringList(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_EDGES, RESPONSE_GET_VEHICLE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_VEHICLE_VARIABLE, VAR_EDGES);
+    return result;
 }
 
 
 uint32_t TraCI_Commands::vehicleGetRouteIndex(std::string nodeId)
 {
-    return genericGetInt(CMD_GET_VEHICLE_VARIABLE, nodeId, 0x69, RESPONSE_GET_VEHICLE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_VEHICLE_VARIABLE, VAR_ROUTE_INDEX);
+
+    int32_t result = genericGetInt(CMD_GET_VEHICLE_VARIABLE, nodeId, 0x69, RESPONSE_GET_VEHICLE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_VEHICLE_VARIABLE, VAR_ROUTE_INDEX);
+    return result;
 }
 
 
 std::map<int,bestLanesEntry> TraCI_Commands::vehicleGetBestLanes(std::string nodeId)
 {
+    updateTraCIlog("commandStart", CMD_GET_VEHICLE_VARIABLE, VAR_BEST_LANES);
+
     uint8_t resultTypeId = TYPE_COMPOUND;
     uint8_t variableId = VAR_BEST_LANES;
     uint8_t responseId = RESPONSE_GET_VEHICLE_VARIABLE;
@@ -440,63 +541,107 @@ std::map<int,bestLanesEntry> TraCI_Commands::vehicleGetBestLanes(std::string nod
 
     ASSERT(buf.eof());
 
+    updateTraCIlog("commandComplete", CMD_GET_VEHICLE_VARIABLE, VAR_BEST_LANES);
+
     return final;
 }
 
 
 uint8_t* TraCI_Commands::vehicleGetColor(std::string nodeId)
 {
-    return genericGetArrayUnsignedInt(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_COLOR, RESPONSE_GET_VEHICLE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_VEHICLE_VARIABLE, VAR_COLOR);
+
+    uint8_t *result = genericGetArrayUnsignedInt(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_COLOR, RESPONSE_GET_VEHICLE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_VEHICLE_VARIABLE, VAR_COLOR);
+    return result;
 }
 
 
 uint32_t TraCI_Commands::vehicleGetSignalStatus(std::string nodeId)
 {
-    return genericGetInt(CMD_GET_VEHICLE_VARIABLE, nodeId, 0x5b, RESPONSE_GET_VEHICLE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_VEHICLE_VARIABLE, VAR_SIGNALS);
+
+    uint32_t result = genericGetInt(CMD_GET_VEHICLE_VARIABLE, nodeId, 0x5b, RESPONSE_GET_VEHICLE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_VEHICLE_VARIABLE, VAR_SIGNALS);
+    return result;
 }
 
 
 double TraCI_Commands::vehicleGetLength(std::string nodeId)
 {
-    return genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_LENGTH, RESPONSE_GET_VEHICLE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_VEHICLE_VARIABLE, VAR_LENGTH);
+
+    double result = genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_LENGTH, RESPONSE_GET_VEHICLE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_VEHICLE_VARIABLE, VAR_LENGTH);
+    return result;
 }
 
 
 double TraCI_Commands::vehicleGetMinGap(std::string nodeId)
 {
-    return genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_MINGAP, RESPONSE_GET_VEHICLE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_VEHICLE_VARIABLE, VAR_MINGAP);
+
+    double result = genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_MINGAP, RESPONSE_GET_VEHICLE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_VEHICLE_VARIABLE, VAR_MINGAP);
+    return result;
 }
 
 
 double TraCI_Commands::vehicleGetMaxAccel(std::string nodeId)
 {
-    return genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_ACCEL, RESPONSE_GET_VEHICLE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_VEHICLE_VARIABLE, VAR_ACCEL);
+
+    double result = genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_ACCEL, RESPONSE_GET_VEHICLE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_VEHICLE_VARIABLE, VAR_ACCEL);
+    return result;
 }
 
 
 double TraCI_Commands::vehicleGetMaxDecel(std::string nodeId)
 {
-    return genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_DECEL, RESPONSE_GET_VEHICLE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_VEHICLE_VARIABLE, VAR_DECEL);
+
+    double result = genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_DECEL, RESPONSE_GET_VEHICLE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_VEHICLE_VARIABLE, VAR_DECEL);
+    return result;
 }
 
 
 double TraCI_Commands::vehicleGetTimeGap(std::string nodeId)
 {
-    return genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_TAU, RESPONSE_GET_VEHICLE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_VEHICLE_VARIABLE, VAR_TAU);
+
+    double result = genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_TAU, RESPONSE_GET_VEHICLE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_VEHICLE_VARIABLE, VAR_TAU);
+    return result;
 }
 
 
 std::string TraCI_Commands::vehicleGetClass(std::string nodeId)
 {
-    return genericGetString(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_VEHICLECLASS, RESPONSE_GET_VEHICLE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_VEHICLE_VARIABLE, VAR_VEHICLECLASS);
+
+    std::string result = genericGetString(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_VEHICLECLASS, RESPONSE_GET_VEHICLE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_VEHICLE_VARIABLE, VAR_VEHICLECLASS);
+    return result;
 }
 
 
 std::vector<std::string> TraCI_Commands::vehicleGetLeader(std::string nodeId, double look_ahead_distance)
 {
+    updateTraCIlog("commandStart", CMD_GET_VEHICLE_VARIABLE, VAR_LEADER);
+
     uint8_t requestTypeId = TYPE_DOUBLE;
     uint8_t resultTypeId = TYPE_COMPOUND;
-    uint8_t variableId = 0x68;
+    uint8_t variableId = VAR_LEADER;
     uint8_t responseId = RESPONSE_GET_VEHICLE_VARIABLE;
 
     TraCIBuffer buf = connection->query(CMD_GET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << requestTypeId << look_ahead_distance);
@@ -538,31 +683,52 @@ std::vector<std::string> TraCI_Commands::vehicleGetLeader(std::string nodeId, do
 
     ASSERT(buf.eof());
 
+    updateTraCIlog("commandComplete", CMD_GET_VEHICLE_VARIABLE, VAR_LEADER);
+
     return res;
 }
 
 
 double TraCI_Commands::vehicleGetCurrentAccel(std::string nodeId)
 {
-    return genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, 0x70, RESPONSE_GET_VEHICLE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_VEHICLE_VARIABLE, 0x70);
+
+    double result = genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, 0x70, RESPONSE_GET_VEHICLE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_VEHICLE_VARIABLE, 0x70);
+    return result;
 }
 
 
 int TraCI_Commands::vehicleGetCarFollowingMode(std::string nodeId)
 {
-    return genericGetInt(CMD_GET_VEHICLE_VARIABLE, nodeId, 0x71, RESPONSE_GET_VEHICLE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_VEHICLE_VARIABLE, 0x71);
+
+    int result = genericGetInt(CMD_GET_VEHICLE_VARIABLE, nodeId, 0x71, RESPONSE_GET_VEHICLE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_VEHICLE_VARIABLE, 0x71);
+    return result;
 }
 
 
 std::string TraCI_Commands::vehicleGetTLID(std::string nodeId)
 {
-    return genericGetString(CMD_GET_VEHICLE_VARIABLE, nodeId, 0x72, RESPONSE_GET_VEHICLE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_VEHICLE_VARIABLE, 0x72);
+
+    std::string result = genericGetString(CMD_GET_VEHICLE_VARIABLE, nodeId, 0x72, RESPONSE_GET_VEHICLE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_VEHICLE_VARIABLE, 0x72);
+    return result;
 }
 
 
 char TraCI_Commands::vehicleGetTLLinkStatus(std::string nodeId)
 {
+    updateTraCIlog("commandStart", CMD_GET_VEHICLE_VARIABLE, 0x73);
+
     int result = genericGetInt(CMD_GET_VEHICLE_VARIABLE, nodeId, 0x73, RESPONSE_GET_VEHICLE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_VEHICLE_VARIABLE, 0x73);
 
     // covert to character
     return (char)result;
@@ -577,6 +743,8 @@ char TraCI_Commands::vehicleGetTLLinkStatus(std::string nodeId)
 // The vehicle will stop for the given duration.
 void TraCI_Commands::vehicleSetStop(std::string nodeId, std::string edgeId, double stopPos, uint8_t laneId, double waitT, uint8_t flag)
 {
+    updateTraCIlog("commandStart", CMD_SET_VEHICLE_VARIABLE, CMD_STOP);
+
     uint8_t variableId = CMD_STOP;
     uint8_t variableType = TYPE_COMPOUND;
     int32_t count = 5;
@@ -596,11 +764,15 @@ void TraCI_Commands::vehicleSetStop(std::string nodeId, std::string edgeId, doub
             << flagT << flag);
 
     ASSERT(buf.eof());
+
+    updateTraCIlog("commandComplete", CMD_SET_VEHICLE_VARIABLE, CMD_STOP);
 }
 
 
 void TraCI_Commands::vehicleResume(std::string nodeId)
 {
+    updateTraCIlog("commandStart", CMD_SET_VEHICLE_VARIABLE, CMD_RESUME);
+
     uint8_t variableId = CMD_RESUME;
     uint8_t variableType = TYPE_COMPOUND;
     int32_t count = 0;
@@ -609,16 +781,22 @@ void TraCI_Commands::vehicleResume(std::string nodeId)
             << variableType << count);
 
     ASSERT(buf.eof());
+
+    updateTraCIlog("commandComplete", CMD_SET_VEHICLE_VARIABLE, CMD_RESUME);
 }
 
 
 void TraCI_Commands::vehicleSetSpeed(std::string nodeId, double speed)
 {
+    updateTraCIlog("commandStart", CMD_SET_VEHICLE_VARIABLE, VAR_SPEED);
+
     uint8_t variableId = VAR_SPEED;
     uint8_t variableType = TYPE_DOUBLE;
     TraCIBuffer buf = connection->query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << speed);
 
     ASSERT(buf.eof());
+
+    updateTraCIlog("commandComplete", CMD_SET_VEHICLE_VARIABLE, VAR_SPEED);
 }
 
 
@@ -639,15 +817,21 @@ int32_t TraCI_Commands::vehicleBuildLaneChangeMode(uint8_t TraciLaneChangePriori
 
 void TraCI_Commands::vehicleSetLaneChangeMode(std::string nodeId, int32_t bitset)
 {
+    updateTraCIlog("commandStart", CMD_SET_VEHICLE_VARIABLE, VAR_LANECHANGE_MODE);
+
     uint8_t variableId = 0xb6;
     uint8_t variableType = TYPE_INTEGER;
     TraCIBuffer buf = connection->query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << bitset);
     ASSERT(buf.eof());
+
+    updateTraCIlog("commandComplete", CMD_SET_VEHICLE_VARIABLE, VAR_LANECHANGE_MODE);
 }
 
 
 void TraCI_Commands::vehicleChangeLane(std::string nodeId, uint8_t laneId, double duration)
 {
+    updateTraCIlog("commandStart", CMD_SET_VEHICLE_VARIABLE, CMD_CHANGELANE);
+
     uint8_t variableId = CMD_CHANGELANE;
     uint8_t variableType = TYPE_COMPOUND;
     int32_t count = 2;
@@ -661,11 +845,15 @@ void TraCI_Commands::vehicleChangeLane(std::string nodeId, uint8_t laneId, doubl
             << durationT << durationMS);
 
     ASSERT(buf.eof());
+
+    updateTraCIlog("commandComplete", CMD_SET_VEHICLE_VARIABLE, CMD_CHANGELANE);
 }
 
 
 void TraCI_Commands::vehicleSetRoute(std::string id, std::list<std::string> value)
 {
+    updateTraCIlog("commandStart", CMD_SET_VEHICLE_VARIABLE, VAR_ROUTE);
+
     uint8_t variableId = VAR_ROUTE;
     uint8_t variableTypeSList = TYPE_STRINGLIST;
 
@@ -680,21 +868,29 @@ void TraCI_Commands::vehicleSetRoute(std::string id, std::list<std::string> valu
     TraCIBuffer buf = connection->query(CMD_SET_VEHICLE_VARIABLE, buffer);
 
     ASSERT(buf.eof());
+
+    updateTraCIlog("commandComplete", CMD_SET_VEHICLE_VARIABLE, VAR_ROUTE);
 }
 
 
 void TraCI_Commands::vehicleSetRouteID(std::string nodeId, std::string routeID)
 {
+    updateTraCIlog("commandStart", CMD_SET_VEHICLE_VARIABLE, VAR_ROUTE_ID);
+
     uint8_t variableId = VAR_ROUTE_ID;
     uint8_t variableType = TYPE_STRING;
     TraCIBuffer buf = connection->query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << routeID);
 
     ASSERT(buf.eof());
+
+    updateTraCIlog("commandComplete", CMD_SET_VEHICLE_VARIABLE, VAR_ROUTE_ID);
 }
 
 
 void TraCI_Commands::vehicleSetColor(std::string nodeId, const RGB color)
 {
+    updateTraCIlog("commandStart", CMD_SET_VEHICLE_VARIABLE, VAR_COLOR);
+
     TraCIBuffer p;
     p << static_cast<uint8_t>(VAR_COLOR);
     p << nodeId;
@@ -702,56 +898,76 @@ void TraCI_Commands::vehicleSetColor(std::string nodeId, const RGB color)
     TraCIBuffer buf = connection->query(CMD_SET_VEHICLE_VARIABLE, p);
 
     ASSERT(buf.eof());
+
+    updateTraCIlog("commandComplete", CMD_SET_VEHICLE_VARIABLE, VAR_COLOR);
 }
 
 
 void TraCI_Commands::vehicleSetClass(std::string nodeId, std::string vClass)
 {
+    updateTraCIlog("commandStart", CMD_SET_VEHICLE_VARIABLE, VAR_VEHICLECLASS);
+
     uint8_t variableId = VAR_VEHICLECLASS;
     uint8_t variableType = TYPE_STRING;
 
     TraCIBuffer buf = connection->query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << vClass);
 
     ASSERT(buf.eof());
+
+    updateTraCIlog("commandComplete", CMD_SET_VEHICLE_VARIABLE, VAR_VEHICLECLASS);
 }
 
 
 void TraCI_Commands::vehicleSetMaxAccel(std::string nodeId, double value)
 {
+    updateTraCIlog("commandStart", CMD_SET_VEHICLE_VARIABLE, VAR_ACCEL);
+
     uint8_t variableId = VAR_ACCEL;
     uint8_t variableType = TYPE_DOUBLE;
 
     TraCIBuffer buf = connection->query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
 
     ASSERT(buf.eof());
+
+    updateTraCIlog("commandComplete", CMD_SET_VEHICLE_VARIABLE, VAR_ACCEL);
 }
 
 
 void TraCI_Commands::vehicleSetMaxDecel(std::string nodeId, double value)
 {
+    updateTraCIlog("commandStart", CMD_SET_VEHICLE_VARIABLE, VAR_DECEL);
+
     uint8_t variableId = VAR_DECEL;
     uint8_t variableType = TYPE_DOUBLE;
 
     TraCIBuffer buf = connection->query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
 
     ASSERT(buf.eof());
+
+    updateTraCIlog("commandComplete", CMD_SET_VEHICLE_VARIABLE, VAR_DECEL);
 }
 
 
 // this changes vehicle type!
 void TraCI_Commands::vehicleSetTimeGap(std::string nodeId, double value)
 {
+    updateTraCIlog("commandStart", CMD_SET_VEHICLE_VARIABLE, VAR_TAU);
+
     uint8_t variableId = VAR_TAU;
     uint8_t variableType = TYPE_DOUBLE;
 
     TraCIBuffer buf = connection->query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
 
     ASSERT(buf.eof());
+
+    updateTraCIlog("commandComplete", CMD_SET_VEHICLE_VARIABLE, VAR_TAU);
 }
 
 
 void TraCI_Commands::vehicleAdd(std::string vehicleId, std::string vehicleTypeId, std::string routeId, int32_t depart, double pos, double speed, uint8_t lane)
 {
+    updateTraCIlog("commandStart", CMD_SET_VEHICLE_VARIABLE, ADD);
+
     uint8_t variableId = ADD;
     uint8_t variableType = TYPE_COMPOUND;
     uint8_t variableTypeS = TYPE_STRING;
@@ -775,12 +991,16 @@ void TraCI_Commands::vehicleAdd(std::string vehicleId, std::string vehicleTypeId
             << lane);          // departure lane
 
     ASSERT(buf.eof());
+
+    updateTraCIlog("commandComplete", CMD_SET_VEHICLE_VARIABLE, ADD);
 }
 
 
 // todo:
 //void TraCI_Commands::vehicleAddSimple(std::string vehicleId, std::string vehicleTypeId, std::string routeId, simtime_t emitTime_st, double emitPosition, double emitSpeed, int8_t emitLane)
 //{
+//    updateTraCIlog("commandStart", , );
+
 //    bool success = false;
 //    uint8_t variableId = ADD;
 //    uint8_t variableType = TYPE_COMPOUND;
@@ -803,71 +1023,97 @@ void TraCI_Commands::vehicleAdd(std::string vehicleId, std::string vehicleTypeId
 //            << emitLane, success);
 //
 //    ASSERT(buf.eof());
+
+//    updateTraCIlog("commandComplete");
 //}
 
 
 void TraCI_Commands::vehicleRemove(std::string nodeId, uint8_t reason)
 {
+    updateTraCIlog("commandStart", CMD_SET_VEHICLE_VARIABLE, REMOVE);
+
     uint8_t variableId = REMOVE;
     uint8_t variableType = TYPE_BYTE;
     TraCIBuffer buf = connection->query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << reason);
 
     ASSERT(buf.eof());
+
+    updateTraCIlog("commandComplete", CMD_SET_VEHICLE_VARIABLE, REMOVE);
 }
 
 
 void TraCI_Commands::vehicleSetControllerParameters(std::string nodeId, std::string value)
 {
+    updateTraCIlog("commandStart", CMD_SET_VEHICLE_VARIABLE, 0x15);
+
     uint8_t variableId = 0x15;
     uint8_t variableType = TYPE_STRING;
 
     TraCIBuffer buf = connection->query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
 
     ASSERT(buf.eof());
+
+    updateTraCIlog("commandComplete", CMD_SET_VEHICLE_VARIABLE, 0x15);
 }
 
 
 void TraCI_Commands::vehicleSetErrorGap(std::string nodeId, double value)
 {
+    updateTraCIlog("commandStart", CMD_SET_VEHICLE_VARIABLE, 0x20);
+
     uint8_t variableId = 0x20;
     uint8_t variableType = TYPE_DOUBLE;
 
     TraCIBuffer buf = connection->query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
 
     ASSERT(buf.eof());
+
+    updateTraCIlog("commandComplete", CMD_SET_VEHICLE_VARIABLE, 0x20);
 }
 
 
 void TraCI_Commands::vehicleSetErrorRelSpeed(std::string nodeId, double value)
 {
+    updateTraCIlog("commandStart", CMD_SET_VEHICLE_VARIABLE, 0x21);
+
     uint8_t variableId = 0x21;
     uint8_t variableType = TYPE_DOUBLE;
 
     TraCIBuffer buf = connection->query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
 
     ASSERT(buf.eof());
+
+    updateTraCIlog("commandComplete", CMD_SET_VEHICLE_VARIABLE, 0x21);
 }
 
 
 void TraCI_Commands::vehicleSetDowngradeToACC(std::string nodeId, bool value)
 {
+    updateTraCIlog("commandStart", CMD_SET_VEHICLE_VARIABLE, 0x17);
+
     uint8_t variableId = 0x17;
     uint8_t variableType = TYPE_INTEGER;
 
     TraCIBuffer buf = connection->query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << (int)value);
 
     ASSERT(buf.eof());
+
+    updateTraCIlog("commandComplete", CMD_SET_VEHICLE_VARIABLE, 0x17);
 }
 
 
 void TraCI_Commands::vehicleSetDebug(std::string nodeId, bool value)
 {
+    updateTraCIlog("commandStart", CMD_SET_VEHICLE_VARIABLE, 0x16);
+
     uint8_t variableId = 0x16;
     uint8_t variableType = TYPE_INTEGER;
 
     TraCIBuffer buf = connection->query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << (int)value);
 
     ASSERT(buf.eof());
+
+    updateTraCIlog("commandComplete", CMD_SET_VEHICLE_VARIABLE, 0x16);
 }
 
 
@@ -882,37 +1128,67 @@ void TraCI_Commands::vehicleSetDebug(std::string nodeId, bool value)
 
 std::list<std::string> TraCI_Commands::vehicleTypeGetIDList()
 {
-    return genericGetStringList(CMD_GET_VEHICLETYPE_VARIABLE, "", ID_LIST, RESPONSE_GET_VEHICLETYPE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_VEHICLETYPE_VARIABLE, ID_LIST);
+
+    std::list<std::string> result = genericGetStringList(CMD_GET_VEHICLETYPE_VARIABLE, "", ID_LIST, RESPONSE_GET_VEHICLETYPE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_VEHICLETYPE_VARIABLE, ID_LIST);
+    return result;
 }
 
 
 uint32_t TraCI_Commands::vehicleTypeGetIDCount()
 {
-    return genericGetInt(CMD_GET_VEHICLETYPE_VARIABLE, "", ID_COUNT, RESPONSE_GET_VEHICLETYPE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_VEHICLETYPE_VARIABLE, ID_COUNT);
+
+    uint32_t result = genericGetInt(CMD_GET_VEHICLETYPE_VARIABLE, "", ID_COUNT, RESPONSE_GET_VEHICLETYPE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_VEHICLETYPE_VARIABLE, ID_COUNT);
+    return result;
 }
 
 
 double TraCI_Commands::vehicleTypeGetLength(std::string nodeId)
 {
-    return genericGetDouble(CMD_GET_VEHICLETYPE_VARIABLE, nodeId, VAR_LENGTH, RESPONSE_GET_VEHICLETYPE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_VEHICLETYPE_VARIABLE, VAR_LENGTH);
+
+    double result = genericGetDouble(CMD_GET_VEHICLETYPE_VARIABLE, nodeId, VAR_LENGTH, RESPONSE_GET_VEHICLETYPE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_VEHICLETYPE_VARIABLE, VAR_LENGTH);
+    return result;
 }
 
 
 double TraCI_Commands::vehicleTypeGetMaxSpeed(std::string nodeId)
 {
-    return genericGetDouble(CMD_GET_VEHICLETYPE_VARIABLE, nodeId, VAR_MAXSPEED, RESPONSE_GET_VEHICLETYPE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_VEHICLETYPE_VARIABLE, VAR_MAXSPEED);
+
+    double result = genericGetDouble(CMD_GET_VEHICLETYPE_VARIABLE, nodeId, VAR_MAXSPEED, RESPONSE_GET_VEHICLETYPE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_VEHICLETYPE_VARIABLE, VAR_MAXSPEED);
+    return result;
 }
 
 
 int TraCI_Commands::vehicleTypeGetControllerType(std::string nodeId)
 {
-    return genericGetInt(CMD_GET_VEHICLETYPE_VARIABLE, nodeId, 0x02, RESPONSE_GET_VEHICLETYPE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_VEHICLETYPE_VARIABLE, 0x02);
+
+    int result = genericGetInt(CMD_GET_VEHICLETYPE_VARIABLE, nodeId, 0x02, RESPONSE_GET_VEHICLETYPE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_VEHICLETYPE_VARIABLE, 0x02);
+    return result;
 }
 
 
 int TraCI_Commands::vehicleTypeGetControllerNumber(std::string nodeId)
 {
-    return genericGetInt(CMD_GET_VEHICLETYPE_VARIABLE, nodeId, 0x03, RESPONSE_GET_VEHICLETYPE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_VEHICLETYPE_VARIABLE, 0x03);
+
+    int result = genericGetInt(CMD_GET_VEHICLETYPE_VARIABLE, nodeId, 0x03, RESPONSE_GET_VEHICLETYPE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_VEHICLETYPE_VARIABLE, 0x03);
+    return result;
 }
 
 
@@ -922,42 +1198,58 @@ int TraCI_Commands::vehicleTypeGetControllerNumber(std::string nodeId)
 
 void TraCI_Commands::vehicleTypeSetMaxSpeed(std::string nodeId, double speed)
 {
+    updateTraCIlog("commandStart", CMD_SET_VEHICLETYPE_VARIABLE, VAR_MAXSPEED);
+
     uint8_t variableId = VAR_MAXSPEED;
     uint8_t variableType = TYPE_DOUBLE;
     TraCIBuffer buf = connection->query(CMD_SET_VEHICLETYPE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << speed);
 
     ASSERT(buf.eof());
+
+    updateTraCIlog("commandComplete", CMD_SET_VEHICLETYPE_VARIABLE, VAR_MAXSPEED);
 }
 
 
 void TraCI_Commands::vehicleTypeSetVint(std::string nodeId, double value)
 {
+    updateTraCIlog("commandStart", CMD_SET_VEHICLETYPE_VARIABLE, 0x22);
+
     uint8_t variableId = 0x22;
     uint8_t variableType = TYPE_DOUBLE;
 
     TraCIBuffer buf = connection->query(CMD_SET_VEHICLETYPE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
 
     ASSERT(buf.eof());
+
+    updateTraCIlog("commandComplete", CMD_SET_VEHICLETYPE_VARIABLE, 0x22);
 }
 
 
 void TraCI_Commands::vehicleTypeSetComfAccel(std::string nodeId, double speed)
 {
+    updateTraCIlog("commandStart", CMD_SET_VEHICLETYPE_VARIABLE, 0x23);
+
     uint8_t variableId = 0x23;
     uint8_t variableType = TYPE_DOUBLE;
     TraCIBuffer buf = connection->query(CMD_SET_VEHICLETYPE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << speed);
 
     ASSERT(buf.eof());
+
+    updateTraCIlog("commandComplete", CMD_SET_VEHICLETYPE_VARIABLE, 0x23);
 }
 
 
 void TraCI_Commands::vehicleTypeSetComfDecel(std::string nodeId, double speed)
 {
+    updateTraCIlog("commandStart", CMD_SET_VEHICLETYPE_VARIABLE, 0x24);
+
     uint8_t variableId = 0x24;
     uint8_t variableType = TYPE_DOUBLE;
     TraCIBuffer buf = connection->query(CMD_SET_VEHICLETYPE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << speed);
 
     ASSERT(buf.eof());
+
+    updateTraCIlog("commandComplete", CMD_SET_VEHICLETYPE_VARIABLE, 0x24);
 }
 
 
@@ -971,19 +1263,34 @@ void TraCI_Commands::vehicleTypeSetComfDecel(std::string nodeId, double speed)
 
 std::list<std::string> TraCI_Commands::routeGetIDList()
 {
-    return genericGetStringList(CMD_GET_ROUTE_VARIABLE, "", ID_LIST, RESPONSE_GET_ROUTE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_ROUTE_VARIABLE, ID_LIST);
+
+    std::list<std::string> result = genericGetStringList(CMD_GET_ROUTE_VARIABLE, "", ID_LIST, RESPONSE_GET_ROUTE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_ROUTE_VARIABLE, ID_LIST);
+    return result;
 }
 
 
 uint32_t TraCI_Commands::routeGetIDCount()
 {
-    return genericGetInt(CMD_GET_ROUTE_VARIABLE, "", ID_COUNT, RESPONSE_GET_ROUTE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_ROUTE_VARIABLE, ID_COUNT);
+
+    uint32_t result = genericGetInt(CMD_GET_ROUTE_VARIABLE, "", ID_COUNT, RESPONSE_GET_ROUTE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_ROUTE_VARIABLE, ID_COUNT);
+    return result;
 }
 
 
 std::list<std::string> TraCI_Commands::routeGetEdges(std::string routeID)
 {
-    return genericGetStringList(CMD_GET_ROUTE_VARIABLE, routeID, VAR_EDGES, RESPONSE_GET_ROUTE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_ROUTE_VARIABLE, VAR_EDGES);
+
+    std::list<std::string> result = genericGetStringList(CMD_GET_ROUTE_VARIABLE, routeID, VAR_EDGES, RESPONSE_GET_ROUTE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_ROUTE_VARIABLE, VAR_EDGES);
+    return result;
 }
 
 
@@ -993,6 +1300,8 @@ std::list<std::string> TraCI_Commands::routeGetEdges(std::string routeID)
 
 void TraCI_Commands::routeAdd(std::string name, std::list<std::string> route)
 {
+    updateTraCIlog("commandStart", CMD_SET_ROUTE_VARIABLE, ADD);
+
     uint8_t variableId = ADD;
     uint8_t variableTypeS = TYPE_STRINGLIST;
 
@@ -1008,6 +1317,7 @@ void TraCI_Commands::routeAdd(std::string name, std::list<std::string> route)
     TraCIBuffer buf = connection->query(CMD_SET_ROUTE_VARIABLE, buffer);
     ASSERT(buf.eof());
 
+    updateTraCIlog("commandComplete", CMD_SET_ROUTE_VARIABLE, ADD);
 }
 
 
@@ -1021,49 +1331,89 @@ void TraCI_Commands::routeAdd(std::string name, std::list<std::string> route)
 
 std::list<std::string> TraCI_Commands::edgeGetIDList()
 {
-    return genericGetStringList(CMD_GET_EDGE_VARIABLE, "", ID_LIST, RESPONSE_GET_EDGE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_EDGE_VARIABLE, ID_LIST);
+
+    std::list<std::string> result = genericGetStringList(CMD_GET_EDGE_VARIABLE, "", ID_LIST, RESPONSE_GET_EDGE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_EDGE_VARIABLE, ID_LIST);
+    return result;
 }
 
 
 uint32_t TraCI_Commands::edgeGetIDCount()
 {
-    return genericGetInt(CMD_GET_EDGE_VARIABLE, "", ID_COUNT, RESPONSE_GET_EDGE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_EDGE_VARIABLE, ID_COUNT);
+
+    uint32_t result = genericGetInt(CMD_GET_EDGE_VARIABLE, "", ID_COUNT, RESPONSE_GET_EDGE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_EDGE_VARIABLE, ID_COUNT);
+    return result;
 }
 
 
 double TraCI_Commands::edgeGetMeanTravelTime(std::string Id)
 {
-    return genericGetDouble(CMD_GET_EDGE_VARIABLE, Id, VAR_CURRENT_TRAVELTIME, RESPONSE_GET_EDGE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_EDGE_VARIABLE, VAR_CURRENT_TRAVELTIME);
+
+    double result = genericGetDouble(CMD_GET_EDGE_VARIABLE, Id, VAR_CURRENT_TRAVELTIME, RESPONSE_GET_EDGE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_EDGE_VARIABLE, VAR_CURRENT_TRAVELTIME);
+    return result;
 }
 
 
 uint32_t TraCI_Commands::edgeGetLastStepVehicleNumber(std::string Id)
 {
-    return genericGetInt(CMD_GET_EDGE_VARIABLE, Id, LAST_STEP_VEHICLE_NUMBER, RESPONSE_GET_EDGE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_EDGE_VARIABLE, LAST_STEP_VEHICLE_NUMBER);
+
+    uint32_t result = genericGetInt(CMD_GET_EDGE_VARIABLE, Id, LAST_STEP_VEHICLE_NUMBER, RESPONSE_GET_EDGE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_EDGE_VARIABLE, LAST_STEP_VEHICLE_NUMBER);
+    return result;
 }
 
 
 std::list<std::string> TraCI_Commands::edgeGetLastStepVehicleIDs(std::string Id)
 {
-    return genericGetStringList(CMD_GET_EDGE_VARIABLE, Id, LAST_STEP_VEHICLE_ID_LIST, RESPONSE_GET_EDGE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_EDGE_VARIABLE, LAST_STEP_VEHICLE_ID_LIST);
+
+    std::list<std::string> result = genericGetStringList(CMD_GET_EDGE_VARIABLE, Id, LAST_STEP_VEHICLE_ID_LIST, RESPONSE_GET_EDGE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_EDGE_VARIABLE, LAST_STEP_VEHICLE_ID_LIST);
+    return result;
 }
 
 
 double TraCI_Commands::edgeGetLastStepMeanVehicleSpeed(std::string Id)
 {
-    return genericGetDouble(CMD_GET_EDGE_VARIABLE, Id, LAST_STEP_MEAN_SPEED, RESPONSE_GET_EDGE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_EDGE_VARIABLE, LAST_STEP_MEAN_SPEED);
+
+    double result = genericGetDouble(CMD_GET_EDGE_VARIABLE, Id, LAST_STEP_MEAN_SPEED, RESPONSE_GET_EDGE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_EDGE_VARIABLE, LAST_STEP_MEAN_SPEED);
+    return result;
 }
 
 
 double TraCI_Commands::edgeGetLastStepMeanVehicleLength(std::string Id)
 {
-    return genericGetDouble(CMD_GET_EDGE_VARIABLE, Id, LAST_STEP_LENGTH, RESPONSE_GET_EDGE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_EDGE_VARIABLE, LAST_STEP_LENGTH);
+
+    double result = genericGetDouble(CMD_GET_EDGE_VARIABLE, Id, LAST_STEP_LENGTH, RESPONSE_GET_EDGE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_EDGE_VARIABLE, LAST_STEP_LENGTH);
+    return result;
 }
 
 
 std::list<std::string> TraCI_Commands::edgeGetLastStepPersonIDs(std::string Id)
 {
-    return genericGetStringList(CMD_GET_EDGE_VARIABLE, Id, 0x1a, RESPONSE_GET_EDGE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_EDGE_VARIABLE, LAST_STEP_PERSON_ID_LIST);
+
+    std::list<std::string> result = genericGetStringList(CMD_GET_EDGE_VARIABLE, Id, 0x1a, RESPONSE_GET_EDGE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_EDGE_VARIABLE, LAST_STEP_PERSON_ID_LIST);
+    return result;
 }
 
 
@@ -1073,6 +1423,8 @@ std::list<std::string> TraCI_Commands::edgeGetLastStepPersonIDs(std::string Id)
 
 void TraCI_Commands::edgeSetGlobalTravelTime(std::string edgeId, int32_t beginT, int32_t endT, double value)
 {
+    updateTraCIlog("commandStart", CMD_SET_EDGE_VARIABLE, VAR_EDGE_TRAVELTIME);
+
     uint8_t variableId = VAR_EDGE_TRAVELTIME;
     uint8_t variableType = TYPE_COMPOUND;
     int32_t count = 3;
@@ -1086,6 +1438,8 @@ void TraCI_Commands::edgeSetGlobalTravelTime(std::string edgeId, int32_t beginT,
             << valueD << value);
 
     ASSERT(buf.eof());
+
+    updateTraCIlog("commandComplete", CMD_SET_EDGE_VARIABLE, VAR_EDGE_TRAVELTIME);
 }
 
 
@@ -1100,24 +1454,41 @@ void TraCI_Commands::edgeSetGlobalTravelTime(std::string edgeId, int32_t beginT,
 // gets a list of all lanes in the network
 std::list<std::string> TraCI_Commands::laneGetIDList()
 {
-    return genericGetStringList(CMD_GET_LANE_VARIABLE, "", ID_LIST, RESPONSE_GET_LANE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_LANE_VARIABLE, ID_LIST);
+
+    std::list<std::string> result = genericGetStringList(CMD_GET_LANE_VARIABLE, "", ID_LIST, RESPONSE_GET_LANE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_LANE_VARIABLE, ID_LIST);
+    return result;
 }
 
 
 uint32_t TraCI_Commands::laneGetIDCount()
 {
-    return genericGetInt(CMD_GET_LANE_VARIABLE, "", ID_COUNT, RESPONSE_GET_LANE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_LANE_VARIABLE, ID_COUNT);
+
+    uint32_t result = genericGetInt(CMD_GET_LANE_VARIABLE, "", ID_COUNT, RESPONSE_GET_LANE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_LANE_VARIABLE, ID_COUNT);
+    return result;
 }
 
 
 uint8_t TraCI_Commands::laneGetLinkNumber(std::string laneId)
 {
-    return genericGetUnsignedByte(CMD_GET_LANE_VARIABLE, laneId, LANE_LINK_NUMBER, RESPONSE_GET_LANE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_LANE_VARIABLE, LANE_LINK_NUMBER);
+
+    uint8_t result = genericGetUnsignedByte(CMD_GET_LANE_VARIABLE, laneId, LANE_LINK_NUMBER, RESPONSE_GET_LANE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_LANE_VARIABLE, LANE_LINK_NUMBER);
+    return result;
 }
 
 
 std::map<int,linkEntry> TraCI_Commands::laneGetLinks(std::string laneId)
 {
+    updateTraCIlog("commandStart", CMD_GET_LANE_VARIABLE, LANE_LINKS);
+
     uint8_t resultTypeId = TYPE_COMPOUND;
     uint8_t variableId = LANE_LINKS;
     uint8_t responseId = RESPONSE_GET_LANE_VARIABLE;
@@ -1196,55 +1567,97 @@ std::map<int,linkEntry> TraCI_Commands::laneGetLinks(std::string laneId)
 
     ASSERT(buf.eof());
 
+    updateTraCIlog("commandComplete", CMD_GET_LANE_VARIABLE, LANE_LINKS);
+
     return final;
 }
 
 
 std::list<std::string> TraCI_Commands::laneGetAllowedClasses(std::string laneId)
 {
-    return genericGetStringList(CMD_GET_LANE_VARIABLE, laneId, LANE_ALLOWED, RESPONSE_GET_LANE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_LANE_VARIABLE, LANE_ALLOWED);
+
+    std::list<std::string> result = genericGetStringList(CMD_GET_LANE_VARIABLE, laneId, LANE_ALLOWED, RESPONSE_GET_LANE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_LANE_VARIABLE, LANE_ALLOWED);
+    return result;
 }
 
 
 std::string TraCI_Commands::laneGetEdgeID(std::string laneId)
 {
-    return genericGetString(CMD_GET_LANE_VARIABLE, laneId, LANE_EDGE_ID, RESPONSE_GET_LANE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_LANE_VARIABLE, LANE_EDGE_ID);
+
+    std::string result = genericGetString(CMD_GET_LANE_VARIABLE, laneId, LANE_EDGE_ID, RESPONSE_GET_LANE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_LANE_VARIABLE, LANE_EDGE_ID);
+    return result;
 }
 
 
 double TraCI_Commands::laneGetLength(std::string laneId)
 {
-    return genericGetDouble(CMD_GET_LANE_VARIABLE, laneId, VAR_LENGTH, RESPONSE_GET_LANE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_LANE_VARIABLE, VAR_LENGTH);
+
+    double result = genericGetDouble(CMD_GET_LANE_VARIABLE, laneId, VAR_LENGTH, RESPONSE_GET_LANE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_LANE_VARIABLE, VAR_LENGTH);
+    return result;
 }
 
 
 double TraCI_Commands::laneGetMaxSpeed(std::string laneId)
 {
-    return genericGetDouble(CMD_GET_LANE_VARIABLE, laneId, VAR_MAXSPEED, RESPONSE_GET_LANE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_LANE_VARIABLE, VAR_MAXSPEED);
+
+    double result = genericGetDouble(CMD_GET_LANE_VARIABLE, laneId, VAR_MAXSPEED, RESPONSE_GET_LANE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_LANE_VARIABLE, VAR_MAXSPEED);
+    return result;
 }
 
 
 uint32_t TraCI_Commands::laneGetLastStepVehicleNumber(std::string laneId)
 {
-    return genericGetInt(CMD_GET_LANE_VARIABLE, laneId, LAST_STEP_VEHICLE_NUMBER, RESPONSE_GET_LANE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_LANE_VARIABLE, LAST_STEP_VEHICLE_NUMBER);
+
+    uint32_t result = genericGetInt(CMD_GET_LANE_VARIABLE, laneId, LAST_STEP_VEHICLE_NUMBER, RESPONSE_GET_LANE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_LANE_VARIABLE, LAST_STEP_VEHICLE_NUMBER);
+    return result;
 }
 
 
 std::list<std::string> TraCI_Commands::laneGetLastStepVehicleIDs(std::string laneId)
 {
-    return genericGetStringList(CMD_GET_LANE_VARIABLE, laneId, LAST_STEP_VEHICLE_ID_LIST, RESPONSE_GET_LANE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_LANE_VARIABLE, LAST_STEP_VEHICLE_ID_LIST);
+
+    std::list<std::string> result = genericGetStringList(CMD_GET_LANE_VARIABLE, laneId, LAST_STEP_VEHICLE_ID_LIST, RESPONSE_GET_LANE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_LANE_VARIABLE, LAST_STEP_VEHICLE_ID_LIST);
+    return result;
 }
 
 
 double TraCI_Commands::laneGetLastStepMeanVehicleSpeed(std::string laneId)
 {
-    return genericGetDouble(CMD_GET_LANE_VARIABLE, laneId, LAST_STEP_MEAN_SPEED, RESPONSE_GET_LANE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_LANE_VARIABLE, LAST_STEP_MEAN_SPEED);
+
+    double result = genericGetDouble(CMD_GET_LANE_VARIABLE, laneId, LAST_STEP_MEAN_SPEED, RESPONSE_GET_LANE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_LANE_VARIABLE, LAST_STEP_MEAN_SPEED);
+    return result;
 }
 
 
 double TraCI_Commands::laneGetLastStepMeanVehicleLength(std::string laneId)
 {
-    return genericGetDouble(CMD_GET_LANE_VARIABLE, laneId, LAST_STEP_LENGTH, RESPONSE_GET_LANE_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_LANE_VARIABLE, LAST_STEP_LENGTH);
+
+    double result = genericGetDouble(CMD_GET_LANE_VARIABLE, laneId, LAST_STEP_LENGTH, RESPONSE_GET_LANE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_LANE_VARIABLE, LAST_STEP_LENGTH);
+    return result;
 }
 
 
@@ -1254,11 +1667,15 @@ double TraCI_Commands::laneGetLastStepMeanVehicleLength(std::string laneId)
 
 void TraCI_Commands::laneSetMaxSpeed(std::string laneId, double value)
 {
+    updateTraCIlog("commandStart", CMD_SET_LANE_VARIABLE, VAR_MAXSPEED);
+
     uint8_t variableId = VAR_MAXSPEED;
     uint8_t variableType = TYPE_DOUBLE;
 
     TraCIBuffer buf = connection->query(CMD_SET_LANE_VARIABLE, TraCIBuffer() << variableId << laneId << variableType << value);
     ASSERT(buf.eof());
+
+    updateTraCIlog("commandComplete", CMD_SET_LANE_VARIABLE, VAR_MAXSPEED);
 }
 
 
@@ -1273,56 +1690,98 @@ void TraCI_Commands::laneSetMaxSpeed(std::string laneId, double value)
 
 std::list<std::string> TraCI_Commands::LDGetIDList()
 {
-    return genericGetStringList(CMD_GET_INDUCTIONLOOP_VARIABLE, "", 0x00, RESPONSE_GET_INDUCTIONLOOP_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_INDUCTIONLOOP_VARIABLE, ID_LIST);
+
+    std::list<std::string> result = genericGetStringList(CMD_GET_INDUCTIONLOOP_VARIABLE, "", ID_LIST, RESPONSE_GET_INDUCTIONLOOP_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_INDUCTIONLOOP_VARIABLE, ID_LIST);
+    return result;
 }
 
 
 uint32_t TraCI_Commands::LDGetIDCount(std::string loopId)
 {
-    return genericGetInt(CMD_GET_INDUCTIONLOOP_VARIABLE, loopId, 0x01, RESPONSE_GET_INDUCTIONLOOP_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_INDUCTIONLOOP_VARIABLE, ID_COUNT);
+
+    uint32_t result = genericGetInt(CMD_GET_INDUCTIONLOOP_VARIABLE, loopId, ID_COUNT, RESPONSE_GET_INDUCTIONLOOP_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_INDUCTIONLOOP_VARIABLE, ID_COUNT);
+    return result;
 }
 
 
 std::string TraCI_Commands::LDGetLaneID(std::string loopId)
 {
-    return genericGetString(CMD_GET_INDUCTIONLOOP_VARIABLE, loopId, 0x51, RESPONSE_GET_INDUCTIONLOOP_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_INDUCTIONLOOP_VARIABLE, VAR_LANE_ID);
+
+    std::string result = genericGetString(CMD_GET_INDUCTIONLOOP_VARIABLE, loopId, VAR_LANE_ID, RESPONSE_GET_INDUCTIONLOOP_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_INDUCTIONLOOP_VARIABLE, VAR_LANE_ID);
+    return result;
 }
 
 
 double TraCI_Commands::LDGetPosition(std::string loopId)
 {
-    return genericGetDouble(CMD_GET_INDUCTIONLOOP_VARIABLE, loopId, 0x42, RESPONSE_GET_INDUCTIONLOOP_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_INDUCTIONLOOP_VARIABLE, VAR_POSITION);
+
+    double result = genericGetDouble(CMD_GET_INDUCTIONLOOP_VARIABLE, loopId, VAR_POSITION, RESPONSE_GET_INDUCTIONLOOP_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_INDUCTIONLOOP_VARIABLE, VAR_POSITION);
+    return result;
 }
 
 
 uint32_t TraCI_Commands::LDGetLastStepVehicleNumber(std::string loopId)
 {
-    return genericGetInt(CMD_GET_INDUCTIONLOOP_VARIABLE, loopId, 0x10, RESPONSE_GET_INDUCTIONLOOP_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_INDUCTIONLOOP_VARIABLE, LAST_STEP_VEHICLE_NUMBER);
+
+    uint32_t result = genericGetInt(CMD_GET_INDUCTIONLOOP_VARIABLE, loopId, LAST_STEP_VEHICLE_NUMBER, RESPONSE_GET_INDUCTIONLOOP_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_INDUCTIONLOOP_VARIABLE, LAST_STEP_VEHICLE_NUMBER);
+    return result;
 }
 
 
 std::list<std::string> TraCI_Commands::LDGetLastStepVehicleIDs(std::string loopId)
 {
-    return genericGetStringList(CMD_GET_INDUCTIONLOOP_VARIABLE, loopId, 0x12, RESPONSE_GET_INDUCTIONLOOP_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_INDUCTIONLOOP_VARIABLE, LAST_STEP_VEHICLE_ID_LIST);
+
+    std::list<std::string> result = genericGetStringList(CMD_GET_INDUCTIONLOOP_VARIABLE, loopId, LAST_STEP_VEHICLE_ID_LIST, RESPONSE_GET_INDUCTIONLOOP_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_INDUCTIONLOOP_VARIABLE, LAST_STEP_VEHICLE_ID_LIST);
+    return result;
 }
 
 
 double TraCI_Commands::LDGetLastStepMeanVehicleSpeed(std::string loopId)
 {
-    return genericGetDouble(CMD_GET_INDUCTIONLOOP_VARIABLE, loopId, 0x11, RESPONSE_GET_INDUCTIONLOOP_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_INDUCTIONLOOP_VARIABLE, LAST_STEP_MEAN_SPEED);
+
+    double result = genericGetDouble(CMD_GET_INDUCTIONLOOP_VARIABLE, loopId, LAST_STEP_MEAN_SPEED, RESPONSE_GET_INDUCTIONLOOP_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_INDUCTIONLOOP_VARIABLE, LAST_STEP_MEAN_SPEED);
+    return result;
 }
 
 
 double TraCI_Commands::LDGetElapsedTimeLastDetection(std::string loopId)
 {
-    return genericGetDouble(CMD_GET_INDUCTIONLOOP_VARIABLE, loopId, 0x16, RESPONSE_GET_INDUCTIONLOOP_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_INDUCTIONLOOP_VARIABLE, LAST_STEP_TIME_SINCE_DETECTION);
+
+    double result = genericGetDouble(CMD_GET_INDUCTIONLOOP_VARIABLE, loopId, LAST_STEP_TIME_SINCE_DETECTION, RESPONSE_GET_INDUCTIONLOOP_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_INDUCTIONLOOP_VARIABLE, LAST_STEP_TIME_SINCE_DETECTION);
+    return result;
 }
 
 
 std::vector<std::string> TraCI_Commands::LDGetLastStepVehicleData(std::string loopId)
 {
+    updateTraCIlog("commandStart", CMD_GET_INDUCTIONLOOP_VARIABLE, LAST_STEP_VEHICLE_DATA);
+
     uint8_t resultTypeId = TYPE_COMPOUND;   // note: type is compound!
-    uint8_t variableId = 0x17;
+    uint8_t variableId = LAST_STEP_VEHICLE_DATA;
     uint8_t responseId = RESPONSE_GET_INDUCTIONLOOP_VARIABLE;
 
     TraCIBuffer buf = connection->query(CMD_GET_INDUCTIONLOOP_VARIABLE, TraCIBuffer() << variableId << loopId);
@@ -1389,6 +1848,8 @@ std::vector<std::string> TraCI_Commands::LDGetLastStepVehicleData(std::string lo
 
     ASSERT(buf.eof());
 
+    updateTraCIlog("commandComplete", CMD_GET_INDUCTIONLOOP_VARIABLE, LAST_STEP_VEHICLE_DATA);
+
     return res;
 }
 
@@ -1403,42 +1864,78 @@ std::vector<std::string> TraCI_Commands::LDGetLastStepVehicleData(std::string lo
 
 std::list<std::string> TraCI_Commands::LADGetIDList()
 {
-    return genericGetStringList(0xad, "", 0x00, 0xbd);
+    updateTraCIlog("commandStart", CMD_GET_AREAL_DETECTOR_VARIABLE, ID_LIST);
+
+    std::list<std::string> result = genericGetStringList(CMD_GET_AREAL_DETECTOR_VARIABLE, "", ID_LIST, RESPONSE_GET_AREAL_DETECTOR_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_AREAL_DETECTOR_VARIABLE, ID_LIST);
+    return result;
 }
 
 
 uint32_t TraCI_Commands::LADGetIDCount(std::string loopId)
 {
-    return genericGetInt(0xad, loopId, 0x01, 0xbd);
+    updateTraCIlog("commandStart", CMD_GET_AREAL_DETECTOR_VARIABLE, ID_COUNT);
+
+    uint32_t result = genericGetInt(CMD_GET_AREAL_DETECTOR_VARIABLE, loopId, ID_COUNT, RESPONSE_GET_AREAL_DETECTOR_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_AREAL_DETECTOR_VARIABLE, ID_COUNT);
+    return result;
 }
+
 
 std::string TraCI_Commands::LADGetLaneID(std::string loopId)
 {
-    return genericGetString(0xad, loopId, 0x51, 0xbd);
+    updateTraCIlog("commandStart", CMD_GET_AREAL_DETECTOR_VARIABLE, VAR_LANE_ID);
+
+    std::string result = genericGetString(CMD_GET_AREAL_DETECTOR_VARIABLE, loopId, VAR_LANE_ID, RESPONSE_GET_AREAL_DETECTOR_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_AREAL_DETECTOR_VARIABLE, VAR_LANE_ID);
+    return result;
 }
 
 
 uint32_t TraCI_Commands::LADGetLastStepVehicleNumber(std::string loopId)
 {
-    return genericGetInt(0xad, loopId, 0x10, 0xbd);
+    updateTraCIlog("commandStart", CMD_GET_AREAL_DETECTOR_VARIABLE, LAST_STEP_VEHICLE_NUMBER);
+
+    uint32_t result = genericGetInt(CMD_GET_AREAL_DETECTOR_VARIABLE, loopId, LAST_STEP_VEHICLE_NUMBER, RESPONSE_GET_AREAL_DETECTOR_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_AREAL_DETECTOR_VARIABLE, LAST_STEP_VEHICLE_NUMBER);
+    return result;
 }
 
 
 std::list<std::string> TraCI_Commands::LADGetLastStepVehicleIDs(std::string loopId)
 {
-    return genericGetStringList(0xad, loopId, 0x12, 0xbd);
+    updateTraCIlog("commandStart", CMD_GET_AREAL_DETECTOR_VARIABLE, LAST_STEP_VEHICLE_ID_LIST);
+
+    std::list<std::string> result = genericGetStringList(CMD_GET_AREAL_DETECTOR_VARIABLE, loopId, LAST_STEP_VEHICLE_ID_LIST, RESPONSE_GET_AREAL_DETECTOR_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_AREAL_DETECTOR_VARIABLE, LAST_STEP_VEHICLE_ID_LIST);
+    return result;
 }
 
 
 double TraCI_Commands::LADGetLastStepMeanVehicleSpeed(std::string loopId)
 {
-    return genericGetDouble(0xad, loopId, 0x11, 0xbd);
+    updateTraCIlog("commandStart", CMD_GET_AREAL_DETECTOR_VARIABLE, LAST_STEP_MEAN_SPEED);
+
+    double result = genericGetDouble(CMD_GET_AREAL_DETECTOR_VARIABLE, loopId, LAST_STEP_MEAN_SPEED, RESPONSE_GET_AREAL_DETECTOR_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_AREAL_DETECTOR_VARIABLE, LAST_STEP_MEAN_SPEED);
+    return result;
 }
 
 
 uint32_t TraCI_Commands::LADGetLastStepVehicleHaltingNumber(std::string loopId)
 {
-    return genericGetInt(0xad, loopId, 0x14, 0xbd);
+    updateTraCIlog("commandStart", CMD_GET_AREAL_DETECTOR_VARIABLE, LAST_STEP_VEHICLE_HALTING_NUMBER);
+
+    double result = genericGetInt(CMD_GET_AREAL_DETECTOR_VARIABLE, loopId, LAST_STEP_VEHICLE_HALTING_NUMBER, RESPONSE_GET_AREAL_DETECTOR_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_AREAL_DETECTOR_VARIABLE, LAST_STEP_VEHICLE_HALTING_NUMBER);
+    return result;
 }
 
 
@@ -1453,24 +1950,41 @@ uint32_t TraCI_Commands::LADGetLastStepVehicleHaltingNumber(std::string loopId)
 
 std::list<std::string> TraCI_Commands::TLGetIDList()
 {
-    return genericGetStringList(CMD_GET_TL_VARIABLE, "",ID_LIST, RESPONSE_GET_TL_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_TL_VARIABLE, ID_LIST);
+
+    std::list<std::string> result = genericGetStringList(CMD_GET_TL_VARIABLE, "", ID_LIST, RESPONSE_GET_TL_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_TL_VARIABLE, ID_LIST);
+    return result;
 }
 
 
 uint32_t TraCI_Commands::TLGetIDCount()
 {
-    return genericGetInt(CMD_GET_TL_VARIABLE, "",ID_COUNT, RESPONSE_GET_TL_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_TL_VARIABLE, ID_COUNT);
+
+    uint32_t result = genericGetInt(CMD_GET_TL_VARIABLE, "", ID_COUNT, RESPONSE_GET_TL_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_TL_VARIABLE, ID_COUNT);
+    return result;
 }
 
 
 std::list<std::string> TraCI_Commands::TLGetControlledLanes(std::string TLid)
 {
-    return genericGetStringList(CMD_GET_TL_VARIABLE, TLid, TL_CONTROLLED_LANES, RESPONSE_GET_TL_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_TL_VARIABLE, TL_CONTROLLED_LANES);
+
+    std::list<std::string> result = genericGetStringList(CMD_GET_TL_VARIABLE, TLid, TL_CONTROLLED_LANES, RESPONSE_GET_TL_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_TL_VARIABLE, TL_CONTROLLED_LANES);
+    return result;
 }
 
 
 std::map<int,std::vector<std::string>> TraCI_Commands::TLGetControlledLinks(std::string TLid)
 {
+    updateTraCIlog("commandStart", CMD_GET_TL_VARIABLE, TL_CONTROLLED_LINKS);
+
     uint8_t resultTypeId = TYPE_COMPOUND;
     uint8_t variableId = TL_CONTROLLED_LINKS;
 
@@ -1514,37 +2028,64 @@ std::map<int,std::vector<std::string>> TraCI_Commands::TLGetControlledLinks(std:
         myMap[i] = lanesForThisLink;
     }
 
+    updateTraCIlog("commandComplete", CMD_GET_TL_VARIABLE, TL_CONTROLLED_LINKS);
+
     return myMap;
 }
 
 
 std::string TraCI_Commands::TLGetProgram(std::string TLid)
 {
-    return genericGetString(CMD_GET_TL_VARIABLE, TLid, TL_CURRENT_PROGRAM, RESPONSE_GET_TL_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_TL_VARIABLE, TL_CURRENT_PROGRAM);
+
+    std::string result = genericGetString(CMD_GET_TL_VARIABLE, TLid, TL_CURRENT_PROGRAM, RESPONSE_GET_TL_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_TL_VARIABLE, TL_CURRENT_PROGRAM);
+    return result;
 }
 
 
 uint32_t TraCI_Commands::TLGetPhase(std::string TLid)
 {
-    return genericGetInt(CMD_GET_TL_VARIABLE, TLid, TL_CURRENT_PHASE, RESPONSE_GET_TL_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_TL_VARIABLE, TL_CURRENT_PHASE);
+
+    uint32_t result = genericGetInt(CMD_GET_TL_VARIABLE, TLid, TL_CURRENT_PHASE, RESPONSE_GET_TL_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_TL_VARIABLE, TL_CURRENT_PHASE);
+    return result;
 }
 
 
 std::string TraCI_Commands::TLGetState(std::string TLid)
 {
-    return genericGetString(CMD_GET_TL_VARIABLE, TLid, TL_RED_YELLOW_GREEN_STATE, RESPONSE_GET_TL_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_TL_VARIABLE, TL_RED_YELLOW_GREEN_STATE);
+
+    std::string result = genericGetString(CMD_GET_TL_VARIABLE, TLid, TL_RED_YELLOW_GREEN_STATE, RESPONSE_GET_TL_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_TL_VARIABLE, TL_RED_YELLOW_GREEN_STATE);
+    return result;
 }
 
 
 uint32_t TraCI_Commands::TLGetPhaseDuration(std::string TLid)
 {
-    return genericGetInt(CMD_GET_TL_VARIABLE, TLid, TL_PHASE_DURATION, RESPONSE_GET_TL_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_TL_VARIABLE, TL_PHASE_DURATION);
+
+    uint32_t result = genericGetInt(CMD_GET_TL_VARIABLE, TLid, TL_PHASE_DURATION, RESPONSE_GET_TL_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_TL_VARIABLE, TL_PHASE_DURATION);
+    return result;
 }
 
 
 uint32_t TraCI_Commands::TLGetNextSwitchTime(std::string TLid)
 {
-    return genericGetInt(CMD_GET_TL_VARIABLE, TLid, TL_NEXT_SWITCH, RESPONSE_GET_TL_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_TL_VARIABLE, TL_NEXT_SWITCH);
+
+    uint32_t result = genericGetInt(CMD_GET_TL_VARIABLE, TLid, TL_NEXT_SWITCH, RESPONSE_GET_TL_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_TL_VARIABLE, TL_NEXT_SWITCH);
+    return result;
 }
 
 
@@ -1554,41 +2095,57 @@ uint32_t TraCI_Commands::TLGetNextSwitchTime(std::string TLid)
 
 void TraCI_Commands::TLSetProgram(std::string TLid, std::string value)
 {
+    updateTraCIlog("commandStart", CMD_SET_TL_VARIABLE, TL_PROGRAM);
+
     uint8_t variableId = TL_PROGRAM;
     uint8_t variableType = TYPE_STRING;
 
     TraCIBuffer buf = connection->query(CMD_SET_TL_VARIABLE, TraCIBuffer() << variableId << TLid << variableType << value);
     ASSERT(buf.eof());
+
+    updateTraCIlog("commandComplete", CMD_SET_TL_VARIABLE, TL_PROGRAM);
 }
 
 
 void TraCI_Commands::TLSetPhaseIndex(std::string TLid, int value)
 {
+    updateTraCIlog("commandStart", CMD_SET_TL_VARIABLE, TL_PHASE_INDEX);
+
     uint8_t variableId = TL_PHASE_INDEX;
     uint8_t variableType = TYPE_INTEGER;
 
     TraCIBuffer buf = connection->query(CMD_SET_TL_VARIABLE, TraCIBuffer() << variableId << TLid << variableType << value);
     ASSERT(buf.eof());
+
+    updateTraCIlog("commandComplete", CMD_SET_TL_VARIABLE, TL_PHASE_INDEX);
 }
 
 
 void TraCI_Commands::TLSetPhaseDuration(std::string TLid, int value)
 {
+    updateTraCIlog("commandStart", CMD_SET_TL_VARIABLE, TL_PHASE_DURATION);
+
     uint8_t variableId = TL_PHASE_DURATION;
     uint8_t variableType = TYPE_INTEGER;
 
     TraCIBuffer buf = connection->query(CMD_SET_TL_VARIABLE, TraCIBuffer() << variableId << TLid << variableType << value);
     ASSERT(buf.eof());
+
+    updateTraCIlog("commandComplete", CMD_SET_TL_VARIABLE, TL_PHASE_DURATION);
 }
 
 
 void TraCI_Commands::TLSetState(std::string TLid, std::string value)
 {
+    updateTraCIlog("commandStart", CMD_SET_TL_VARIABLE, TL_RED_YELLOW_GREEN_STATE);
+
     uint8_t variableId = TL_RED_YELLOW_GREEN_STATE;
     uint8_t variableType = TYPE_STRING;
 
     TraCIBuffer buf = connection->query(CMD_SET_TL_VARIABLE, TraCIBuffer() << variableId << TLid << variableType << value);
     ASSERT(buf.eof());
+
+    updateTraCIlog("commandComplete", CMD_SET_TL_VARIABLE, TL_RED_YELLOW_GREEN_STATE);
 }
 
 
@@ -1602,19 +2159,34 @@ void TraCI_Commands::TLSetState(std::string TLid, std::string value)
 
 std::list<std::string> TraCI_Commands::junctionGetIDList()
 {
-    return genericGetStringList(CMD_GET_JUNCTION_VARIABLE, "",ID_LIST, RESPONSE_GET_JUNCTION_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_JUNCTION_VARIABLE, ID_LIST);
+
+    std::list<std::string> result = genericGetStringList(CMD_GET_JUNCTION_VARIABLE, "", ID_LIST, RESPONSE_GET_JUNCTION_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_JUNCTION_VARIABLE, ID_LIST);
+    return result;
 }
 
 
 uint32_t TraCI_Commands::junctionGetIDCount()
 {
-    return genericGetInt(CMD_GET_JUNCTION_VARIABLE, "",ID_COUNT, RESPONSE_GET_JUNCTION_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_JUNCTION_VARIABLE, ID_COUNT);
+
+    uint32_t result = genericGetInt(CMD_GET_JUNCTION_VARIABLE, "", ID_COUNT, RESPONSE_GET_JUNCTION_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_JUNCTION_VARIABLE, ID_COUNT);
+    return result;
 }
 
 
 Coord TraCI_Commands::junctionGetPosition(std::string id)
 {
-    return genericGetCoordv2(CMD_GET_JUNCTION_VARIABLE, id, VAR_POSITION, RESPONSE_GET_JUNCTION_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_JUNCTION_VARIABLE, VAR_POSITION);
+
+    Coord result = genericGetCoordv2(CMD_GET_JUNCTION_VARIABLE, id, VAR_POSITION, RESPONSE_GET_JUNCTION_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_JUNCTION_VARIABLE, VAR_POSITION);
+    return result;
 }
 
 
@@ -1626,15 +2198,25 @@ Coord TraCI_Commands::junctionGetPosition(std::string id)
 // CMD_GET_GUI_VARIABLE
 // #####################
 
-Coord TraCI_Commands::GUIGetOffset()
+Coord TraCI_Commands::GUIGetOffset(std::string viewID)
 {
-    return genericGetCoordv2(CMD_GET_GUI_VARIABLE, "View #0", VAR_VIEW_OFFSET, RESPONSE_GET_GUI_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_GUI_VARIABLE, VAR_VIEW_OFFSET);
+
+    Coord result = genericGetCoordv2(CMD_GET_GUI_VARIABLE, viewID, VAR_VIEW_OFFSET, RESPONSE_GET_GUI_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_GUI_VARIABLE, VAR_VIEW_OFFSET);
+    return result;
 }
 
 
-std::vector<double> TraCI_Commands::GUIGetBoundry()
+std::vector<double> TraCI_Commands::GUIGetBoundry(std::string viewID)
 {
-    return genericGetBoundingBox(CMD_GET_GUI_VARIABLE, "View #0", VAR_VIEW_BOUNDARY, RESPONSE_GET_GUI_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_GUI_VARIABLE, VAR_VIEW_BOUNDARY);
+
+    std::vector<double> result = genericGetBoundingBox(CMD_GET_GUI_VARIABLE, viewID, VAR_VIEW_BOUNDARY, RESPONSE_GET_GUI_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_GUI_VARIABLE, VAR_VIEW_BOUNDARY);
+    return result;
 }
 
 
@@ -1642,37 +2224,46 @@ std::vector<double> TraCI_Commands::GUIGetBoundry()
 // CMD_SET_GUI_VARIABLE
 // #####################
 
-void TraCI_Commands::GUISetZoom(double value)
+void TraCI_Commands::GUISetZoom(std::string viewID, double value)
 {
+    updateTraCIlog("commandStart", CMD_SET_GUI_VARIABLE, VAR_VIEW_ZOOM);
+
     uint8_t variableId = VAR_VIEW_ZOOM;
-    std::string viewID = "View #0";
     uint8_t variableType = TYPE_DOUBLE;
 
     TraCIBuffer buf = connection->query(CMD_SET_GUI_VARIABLE, TraCIBuffer() << variableId << viewID << variableType << value);
     ASSERT(buf.eof());
+
+    updateTraCIlog("commandComplete", CMD_SET_GUI_VARIABLE, VAR_VIEW_ZOOM);
 }
 
 
-void TraCI_Commands::GUISetOffset(double x, double y)
+void TraCI_Commands::GUISetOffset(std::string viewID, double x, double y)
 {
+    updateTraCIlog("commandStart", CMD_SET_GUI_VARIABLE, VAR_VIEW_OFFSET);
+
     uint8_t variableId = VAR_VIEW_OFFSET;
-    std::string viewID = "View #0";
     uint8_t variableType = POSITION_2D;
 
     TraCIBuffer buf = connection->query(CMD_SET_GUI_VARIABLE, TraCIBuffer() << variableId << viewID << variableType << x << y);
     ASSERT(buf.eof());
+
+    updateTraCIlog("commandComplete", CMD_SET_GUI_VARIABLE, VAR_VIEW_OFFSET);
 }
 
 
 // very slow!
-void TraCI_Commands::GUISetTrackVehicle(std::string nodeId)
+void TraCI_Commands::GUISetTrackVehicle(std::string viewID, std::string nodeId)
 {
+    updateTraCIlog("commandStart", CMD_SET_GUI_VARIABLE, VAR_TRACK_VEHICLE);
+
     uint8_t variableId = VAR_TRACK_VEHICLE;
-    std::string viewID = "View #0";
     uint8_t variableType = TYPE_STRING;
 
     TraCIBuffer buf = connection->query(CMD_SET_GUI_VARIABLE, TraCIBuffer() << variableId << viewID << variableType << nodeId);
     ASSERT(buf.eof());
+
+    updateTraCIlog("commandComplete", CMD_SET_GUI_VARIABLE, VAR_TRACK_VEHICLE);
 }
 
 
@@ -1686,25 +2277,45 @@ void TraCI_Commands::GUISetTrackVehicle(std::string nodeId)
 
 std::list<std::string> TraCI_Commands::polygonGetIDList()
 {
-    return genericGetStringList(CMD_GET_POLYGON_VARIABLE, "", ID_LIST, RESPONSE_GET_POLYGON_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_POLYGON_VARIABLE, ID_LIST);
+
+    std::list<std::string> result = genericGetStringList(CMD_GET_POLYGON_VARIABLE, "", ID_LIST, RESPONSE_GET_POLYGON_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_POLYGON_VARIABLE, ID_LIST);
+    return result;
 }
 
 
 uint32_t TraCI_Commands::polygonGetIDCount()
 {
-    return genericGetInt(CMD_GET_POLYGON_VARIABLE, "",ID_COUNT, RESPONSE_GET_POLYGON_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_POLYGON_VARIABLE, ID_COUNT);
+
+    uint32_t result = genericGetInt(CMD_GET_POLYGON_VARIABLE, "", ID_COUNT, RESPONSE_GET_POLYGON_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_POLYGON_VARIABLE, ID_COUNT);
+    return result;
 }
 
 
 std::list<Coord> TraCI_Commands::polygonGetShape(std::string polyId)
 {
-    return genericGetCoordList(CMD_GET_POLYGON_VARIABLE, polyId, VAR_SHAPE, RESPONSE_GET_POLYGON_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_POLYGON_VARIABLE, VAR_SHAPE);
+
+    std::list<Coord> result = genericGetCoordList(CMD_GET_POLYGON_VARIABLE, polyId, VAR_SHAPE, RESPONSE_GET_POLYGON_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_POLYGON_VARIABLE, VAR_SHAPE);
+    return result;
 }
 
 
 std::string TraCI_Commands::polygonGetTypeID(std::string polyId)
 {
-    return genericGetString(CMD_GET_POLYGON_VARIABLE, polyId, VAR_TYPE, RESPONSE_GET_POLYGON_VARIABLE);
+    updateTraCIlog("commandStart", CMD_GET_POLYGON_VARIABLE, VAR_TYPE);
+
+    std::string result = genericGetString(CMD_GET_POLYGON_VARIABLE, polyId, VAR_TYPE, RESPONSE_GET_POLYGON_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_POLYGON_VARIABLE, VAR_TYPE);
+    return result;
 }
 
 
@@ -1714,6 +2325,8 @@ std::string TraCI_Commands::polygonGetTypeID(std::string polyId)
 
 void TraCI_Commands::polygonAddTraCI(std::string polyId, std::string polyType, const RGB color, bool filled, int32_t layer, const std::list<TraCICoord>& points)
 {
+    updateTraCIlog("commandStart", CMD_SET_POLYGON_VARIABLE, ADD);
+
     TraCIBuffer p;
 
     p << static_cast<uint8_t>(ADD) << polyId;
@@ -1732,11 +2345,15 @@ void TraCI_Commands::polygonAddTraCI(std::string polyId, std::string polyType, c
 
     TraCIBuffer buf = connection->query(CMD_SET_POLYGON_VARIABLE, p);
     ASSERT(buf.eof());
+
+    updateTraCIlog("commandComplete", CMD_SET_POLYGON_VARIABLE, ADD);
 }
 
 
 void TraCI_Commands::polygonAdd(std::string polyId, std::string polyType, const RGB color, bool filled, int32_t layer, const std::list<Coord>& points)
 {
+    updateTraCIlog("commandStart", CMD_SET_POLYGON_VARIABLE, ADD);
+
     TraCIBuffer p;
 
     p << static_cast<uint8_t>(ADD) << polyId;
@@ -1755,16 +2372,22 @@ void TraCI_Commands::polygonAdd(std::string polyId, std::string polyType, const 
 
     TraCIBuffer buf = connection->query(CMD_SET_POLYGON_VARIABLE, p);
     ASSERT(buf.eof());
+
+    updateTraCIlog("commandComplete", CMD_SET_POLYGON_VARIABLE, ADD);
 }
 
 
 void TraCI_Commands::polygonSetFilled(std::string polyId, uint8_t filled)
 {
+    updateTraCIlog("commandStart", CMD_SET_POLYGON_VARIABLE, VAR_FILL);
+
     uint8_t variableId = VAR_FILL;
     uint8_t variableType = TYPE_UBYTE;
 
     TraCIBuffer buf = connection->query(CMD_SET_POLYGON_VARIABLE, TraCIBuffer() << variableId << polyId << variableType << filled);
     ASSERT(buf.eof());
+
+    updateTraCIlog("commandComplete", CMD_SET_POLYGON_VARIABLE, VAR_FILL);
 }
 
 
@@ -1774,6 +2397,8 @@ void TraCI_Commands::polygonSetFilled(std::string polyId, uint8_t filled)
 
 void TraCI_Commands::addPoi(std::string poiId, std::string poiType, const RGB color, int32_t layer, const Coord& pos_)
 {
+    updateTraCIlog("commandStart", CMD_SET_POI_VARIABLE, ADD);
+
     TraCIBuffer p;
 
     TraCICoord pos = connection->omnet2traci(pos_);
@@ -1786,6 +2411,8 @@ void TraCI_Commands::addPoi(std::string poiId, std::string poiType, const RGB co
 
     TraCIBuffer buf = connection->query(CMD_SET_POI_VARIABLE, p);
     ASSERT(buf.eof());
+
+    updateTraCIlog("commandComplete", CMD_SET_POI_VARIABLE, ADD);
 }
 
 
@@ -1799,49 +2426,89 @@ void TraCI_Commands::addPoi(std::string poiId, std::string poiType, const RGB co
 
 std::list<std::string> TraCI_Commands::personGetIDList()
 {
-    return genericGetStringList(0xae, "", ID_LIST, 0xbe);
+    updateTraCIlog("commandStart", CMD_GET_PERSON_VARIABLE, ID_LIST);
+
+    std::list<std::string> result = genericGetStringList(CMD_GET_PERSON_VARIABLE, "", ID_LIST, RESPONSE_GET_PERSON_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_PERSON_VARIABLE, ID_LIST);
+    return result;
 }
 
 
 uint32_t TraCI_Commands::personGetIDCount()
 {
-    return genericGetInt(0xae, "", ID_COUNT, 0xbe);
+    updateTraCIlog("commandStart", CMD_GET_PERSON_VARIABLE, ID_COUNT);
+
+    uint32_t result = genericGetInt(CMD_GET_PERSON_VARIABLE, "", ID_COUNT, RESPONSE_GET_PERSON_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_PERSON_VARIABLE, ID_COUNT);
+    return result;
 }
 
 
 std::string TraCI_Commands::personGetTypeID(std::string pId)
 {
-    return genericGetString(0xae, pId, VAR_TYPE, 0xbe);
+    updateTraCIlog("commandStart", CMD_GET_PERSON_VARIABLE, VAR_TYPE);
+
+    std::string result = genericGetString(CMD_GET_PERSON_VARIABLE, pId, VAR_TYPE, RESPONSE_GET_PERSON_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_PERSON_VARIABLE, VAR_TYPE);
+    return result;
 }
 
 
 Coord TraCI_Commands::personGetPosition(std::string pId)
 {
-    return genericGetCoordv2(0xae, pId, VAR_POSITION, 0xbe);
+    updateTraCIlog("commandStart", CMD_GET_PERSON_VARIABLE, VAR_POSITION);
+
+    Coord result = genericGetCoordv2(CMD_GET_PERSON_VARIABLE, pId, VAR_POSITION, RESPONSE_GET_PERSON_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_PERSON_VARIABLE, VAR_POSITION);
+    return result;
 }
 
 
 std::string TraCI_Commands::personGetEdgeID(std::string pId)
 {
-    return genericGetString(0xae, pId, VAR_ROAD_ID, 0xbe);
+    updateTraCIlog("commandStart", CMD_GET_PERSON_VARIABLE, VAR_ROAD_ID);
+
+    std::string result = genericGetString(CMD_GET_PERSON_VARIABLE, pId, VAR_ROAD_ID, RESPONSE_GET_PERSON_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_PERSON_VARIABLE, VAR_ROAD_ID);
+    return result;
 }
 
 
 double TraCI_Commands::personGetEdgePosition(std::string pId)
 {
-    return genericGetDouble(0xae, pId, 0x56, 0xbe);
+    updateTraCIlog("commandStart", CMD_GET_PERSON_VARIABLE, VAR_LANEPOSITION);
+
+    double result = genericGetDouble(CMD_GET_PERSON_VARIABLE, pId, VAR_LANEPOSITION, RESPONSE_GET_PERSON_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_PERSON_VARIABLE, VAR_LANEPOSITION);
+    return result;
 }
 
 
 double TraCI_Commands::personGetSpeed(std::string pId)
 {
-    return genericGetDouble(0xae, pId, VAR_SPEED, 0xbe);
+    updateTraCIlog("commandStart", CMD_GET_PERSON_VARIABLE, VAR_SPEED);
+
+    double result = genericGetDouble(CMD_GET_PERSON_VARIABLE, pId, VAR_SPEED, RESPONSE_GET_PERSON_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_PERSON_VARIABLE, VAR_SPEED);
+    return result;
 }
 
 
 std::string TraCI_Commands::personGetNextEdge(std::string pId)
 {
-    return genericGetString(0xae, pId, 0xc1, 0xbe);
+    updateTraCIlog("commandStart", CMD_GET_PERSON_VARIABLE, VAR_NEXT_EDGE);
+
+    std::string result = genericGetString(CMD_GET_PERSON_VARIABLE, pId, VAR_NEXT_EDGE, RESPONSE_GET_PERSON_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_PERSON_VARIABLE, VAR_NEXT_EDGE);
+    return result;
 }
 
 
@@ -2164,6 +2831,44 @@ uint8_t* TraCI_Commands::genericGetArrayUnsignedInt(uint8_t commandId, std::stri
     ASSERT(buf.eof());
 
     return color;
+}
+
+
+void TraCI_Commands::updateTraCIlog(std::string state, uint8_t commandGroupId, uint8_t commandId)
+{
+    // check if logging is enabled
+    bool logEnabled = par("logTraCIcommands").boolValue();
+    if(!logEnabled)
+        return;
+
+    if(state == "commandStart")
+    {
+        Htime_t t = std::chrono::high_resolution_clock::now();
+
+        TraCIcommandEntry *entry = new TraCIcommandEntry(simTime().dbl(), t, t, commandGroupId, commandId);
+        exchangedTraCIcommands.push_back(*entry);
+    }
+    else if(state == "commandComplete")
+    {
+        // do not include vector search in command finish time
+        Htime_t t = std::chrono::high_resolution_clock::now();
+
+        bool found = false;
+        std::vector<TraCIcommandEntry>::reverse_iterator it;
+        for (it = exchangedTraCIcommands.rbegin(); it != exchangedTraCIcommands.rend(); ++it)
+        {
+            if(it->commandGroupId == commandGroupId && it->commandId == commandId)
+            {
+                found = true;
+                break;
+            }
+        }
+
+        if(!found)
+            error("pair (%x, %x) is not found in exchangedTraCIcommands \n", commandGroupId, commandId);
+
+        it->completeAt = t;
+    }
 }
 
 }
