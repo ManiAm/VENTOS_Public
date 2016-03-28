@@ -8,6 +8,9 @@ addpath ../libs
 % path to folder
 basePATH = '../../results/cmd/4_LQF_MWM_starvation';
 
+% what to plot?
+option = 4;
+
 TLqueuingData = dir([basePATH, '/*_TLqueuingData.txt']);
 TLphasingData = dir([basePATH, '/*_TLphasingData.txt']);
 
@@ -32,19 +35,42 @@ disp('calculating max queue size for vehicles ...');
 disp('reading vehicleDelay.txt file ...');
 vehDelay = dir([basePATH, '/*_vehDelay.txt']);
 [entityIDs, indexTS, VehNumbers, vehicleType] = ReadVehDelay(basePATH, vehDelay(runNumber).name);
+% indexTS containsvaluable information for each entity
+%     indexTS(1,vNumber): entrance time for vehicle vNumber        
+%     indexTS(2,vNumber): start of decel for vehicle vNumber
+%     indexTS(3,vNumber): start of stopping delay for vehicle vNumber
+%     indexTS(4,vNumber): crossing time for vehicle vNumber 
+%     indexTS(5,vNumber): start of accel for vehicle vNumber
+%     indexTS(6,vNumber): end of delay for vehicle vNumber
 
 % making a cell array that contains the complete view of the system
 disp('making uitable ...');
 %PresentData(entityIDs, crossed, indexTS);
 
-disp('calculating intersection delay for vehicle/bike/ped ...');
+disp('calculating intersection delay for each class in each interval ...');
 % 700 means in each 70 seconds interval, we measure delay for 
 % each vehicle and then take an average
-[delayPassenger, delayEmergency, delayBike, timeSteps_D] = EntityDelay(timeSteps, VehNumbers, vehicleType, indexTS, 100);
+if(option == 4)
+    interval = 100;
+else
+    interval = 700;
+end
+[aveDelayPassenger, aveDelayEmergency, maxDelayBike, timeSteps_D] = DelayPerClass(timeSteps, VehNumbers, vehicleType, indexTS, interval);
 
-delayDist{1,runNumber} = num2cell(delayPassenger / 60.);
-delayDist{2,runNumber} = num2cell(delayEmergency / 60.);
-delayDist{3,runNumber} = num2cell(delayBike);
+% save delay for all entities in each time step
+delayDist{1,runNumber} = num2cell(aveDelayPassenger / 60.);
+delayDist{2,runNumber} = num2cell(aveDelayEmergency / 60.);
+delayDist{3,runNumber} = num2cell(maxDelayBike);
+
+disp('calculating delay for each entity ...');
+delayAllEntity = DelayPerEntity(timeSteps, indexTS);
+
+disp('calculating fairness index ...');
+[jain, stDeviation] = FairnessIndex(delayAllEntity, vehicleType);
+
+% save both fairness measures in each time step
+allFairness{1, runNumber} = num2cell(jain);
+allFairness{2, runNumber} = num2cell(stDeviation);
 
 disp('calculating throughput ...');
 [throughput, timeSteps_T] = TLthroughput(timeSteps, VehNumbers, indexTS, 900);
@@ -58,21 +84,22 @@ disp('calculate TL total cycles ...');
 disp('calculate TL total green time ...');
 [timeSteps_GR, totalGreenTime] = TLtotalGreenTime(timeSteps, totalPhases, phaseDurationTS, 400);
 
-option = 4;
-
 if(option == 1)
     disp('plotting the benefits of active detection ...');
-    PlotBenefitOfActiveDetection(runNumber, timeSteps_MQ, maxQueueSize, timeSteps_D, delayPassenger, timeSteps_T, throughput, runTotal);
+    PlotBenefitOfActiveDetection(runNumber, timeSteps_MQ, maxQueueSize, timeSteps_D, aveDelayPassenger, timeSteps_T, throughput, runTotal);
 elseif(option == 2)
     disp('plotting the performance of VANET-enables TSC under multi-modal traffic ...');
-    PlotPerfTSCmultiModal(runNumber, timeSteps_MQ, maxQueueSize, delayDist, runTotal);
+    PlotPerfTSCmultiModal(runNumber, timeSteps_MQ, maxQueueSize, delayDist, allFairness, runTotal);
 elseif(option == 3)  
     disp('plotting TL phasing information ...');
     PlotTLPhasing(runNumber, timeSteps_SW, totalCycles, timeSteps_GR, totalGreenTime, runTotal); 
 elseif(option == 4)
     disp('plotting the LQF-MWM starvation problem ...');
-    PlotStarvation(runNumber, timeSteps_D, delayDist, runTotal);
+    PlotStarvation(runNumber, timeSteps_D, delayDist, allFairness, runTotal);
 elseif(option == 5)
+    disp('plotting the performance of LQF_MWM and LQF_MWM2 ...');
+    PlotLQFMWM(runNumber, timeSteps_MQ, maxQueueSize, delayDist, runTotal);
+elseif(option == 6)
     disp('plotting the performance of FMSC ...');
     PlotFMSC(runNumber, timeSteps_MQ, maxQueueSize, delayDist, runTotal);
 end

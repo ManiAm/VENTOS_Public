@@ -1,17 +1,19 @@
 
-function PlotFMSC(runNumber, timeSteps_MQ, maxQueueSize, delayDist, runTotal)
+function PlotLQFMWM(runNumber, timeSteps_MQ, maxQueueSize, delayDist, runTotal)
 
     if(runNumber == 1)
         figure('name', 'Speed', 'units', 'normalized', 'outerposition', [0 0 1 1]);
     end
 
     if(runNumber == 1)
-        lineMark = '-.x';    
+        lineMark = '-.';
     elseif(runNumber == 2)
-        lineMark = '-.v';
+        lineMark = '-.x';    
     elseif(runNumber == 3)
-        lineMark = '-';
+        lineMark = '-.v';
     elseif(runNumber == 4)
+        lineMark = '-';
+    elseif(runNumber == 5)
         lineMark = '--';
     else
         lineMark = '--';
@@ -30,7 +32,7 @@ function PlotFMSC(runNumber, timeSteps_MQ, maxQueueSize, delayDist, runTotal)
     hold on;
     
     if(runNumber == runTotal)    
-        legend('OJF' , 'LQF\_MWM2', 'Location', 'northwest');
+        legend('LQF\_MWM' , 'LQF\_MWM2', 'Location', 'northwest');
         
         % set the x-axis limit
         set( gca, 'XLim', [0 3700/60] );
@@ -57,8 +59,8 @@ function PlotFMSC(runNumber, timeSteps_MQ, maxQueueSize, delayDist, runTotal)
         n2 = size(delayDist{1,2},2);   % passenger
         n6 = size(delayDist{2,2},2);   % emergency
         
-        group = [repmat({'OJF (P)'}, n1, 1); 
-                 repmat({'OJF (S)'}, n5, 1);
+        group = [repmat({'LQF_MWM (P)'}, n1, 1); 
+                 repmat({'LQF_MWM (S)'}, n5, 1);
                  repmat({'LQF_MWM2 (P)'}, n2, 1);  
                  repmat({'LQF_MWM2 (S)'}, n6, 1)];
 
@@ -85,7 +87,7 @@ function PlotFMSC(runNumber, timeSteps_MQ, maxQueueSize, delayDist, runTotal)
 
         n1 = size(delayDist{3,1},2);
         n2 = size(delayDist{3,2},2);
-        group = [repmat({'OJF'}, n1, 1); repmat({'LQF_MWM2'}, n2, 1)];
+        group = [repmat({'LQF_MWM'}, n1, 1); repmat({'LQF_MWM2'}, n2, 1)];
 
         boxplot(data,group,'colors', 'k');
 

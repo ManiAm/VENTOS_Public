@@ -6,7 +6,7 @@
 % indexTS(5,vNumber): start of accel for vehicle vNumber
 % indexTS(6,vNumber): end of delay for vehicle vNumber
 
-function [delayPassenger, delayEmergency, delayBike, timeSteps_D] = EntityDelay(timeSteps, VehNumbers, vehicleType, indexTS, interval_delay)
+function [aveDelayPassenger, aveDelayEmergency, maxDelayBike, timeSteps_D] = DelayPerClass(timeSteps, VehNumbers, vehicleType, indexTS, interval_delay)
 
 indexCounter = 1;
 
@@ -127,21 +127,21 @@ for j=1 : interval_delay-1 : rows-interval_delay
    % passenger vehicle
    totalCountVehPassenger = vehPassengerCountNonDelayed + vehPassengerCountDelayed;
    if(totalCountVehPassenger ~= 0)
-       delayPassenger(indexCounter) = vehPassengerTotalDelay / totalCountVehPassenger;
+       aveDelayPassenger(indexCounter) = vehPassengerTotalDelay / totalCountVehPassenger;
    else
-       delayPassenger(indexCounter) = 0;
+       aveDelayPassenger(indexCounter) = 0;
    end
    
    % emergency vehicle
    totalCountVehEmergency = vehEmergencyCountNonDelayed + vehEmergencyCountDelayed;
    if(totalCountVehEmergency ~= 0)
-       delayEmergency(indexCounter) = vehEmergencyTotalDelay / totalCountVehEmergency;
+       aveDelayEmergency(indexCounter) = vehEmergencyTotalDelay / totalCountVehEmergency;
    else
-       delayEmergency(indexCounter) = 0;
+       aveDelayEmergency(indexCounter) = 0;
    end
    
    % bike
-   delayBike(indexCounter) = bikeMaxDelay;
+   maxDelayBike(indexCounter) = bikeMaxDelay;
    
    middleIndex = floor( double((startIndex + endIndex)) / 2. );
    timeSteps_D(indexCounter) = timeSteps(middleIndex);

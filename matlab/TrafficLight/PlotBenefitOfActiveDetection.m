@@ -33,7 +33,7 @@ function PlotBenefitOfActiveDetection (runNumber, timeSteps_MQ, maxQueueSize, ti
     hold on;
     
     if(runNumber == runTotal)        
-        legend('Adaptive Webster (active)', 'Traffic-actuated (active)' , 'Traffic-actuated', 'Longest queue', 'Longest queue (active)', 'Location', 'northwest');
+        legend('Adaptive Webster (active)', 'Traffic-actuated (active)' , 'Traffic-actuated', 'LQF', 'LQF (active)', 'Location', 'northwest');
 
         % set the x-axis limit
         set( gca, 'XLim', [0 3700/60] );

@@ -1,5 +1,5 @@
 
-function PlotPerfTSCmultiModal(runNumber, timeSteps_MQ, maxQueueSize, delayDist, runTotal)
+function PlotPerfTSCmultiModal(runNumber, timeSteps_MQ, maxQueueSize, delayDist, allFairness, runTotal)
 
     % make a windows figure only once
     if(runNumber == 1)
@@ -20,7 +20,8 @@ function PlotPerfTSCmultiModal(runNumber, timeSteps_MQ, maxQueueSize, delayDist,
         lineMark = '--';
     end
     
-    subplot(2,2,[1,2]);    
+    %     subaxis(2,3,[1,3],'SpacingVert',0.1,'SpacingHoriz',0.06,'MA',0.02,'MB',0.1,'MR',0.02,'ML',0.01);
+    subplot(2,3,[1,3]);    
     plot(timeSteps_MQ/60, maxQueueSize, lineMark, 'LineWidth', 1, 'Color', 'k');
 
     % set font size
@@ -33,7 +34,7 @@ function PlotPerfTSCmultiModal(runNumber, timeSteps_MQ, maxQueueSize, delayDist,
     hold on;
     
     if(runNumber == runTotal)    
-        legend('Fix-time', 'Traffic-actuated', 'Longest queue', 'OJF', 'Location', 'northwest');
+        legend('Fix-time (I)', 'Traffic-actuated (II)', 'LQF (III)', 'OJF (IV)', 'Location', 'northwest');
         
         % set the x-axis limit
         set( gca, 'XLim', [0 3700/60] );
@@ -47,7 +48,7 @@ function PlotPerfTSCmultiModal(runNumber, timeSteps_MQ, maxQueueSize, delayDist,
         set(gca, 'ytick' , 0:20:Ylimit(2));
     end
     
-    subplot(2,2,3);
+    subplot(2,3,4);
         
     if(runNumber == runTotal)        
         % distribution of average veh delay        
@@ -68,13 +69,13 @@ function PlotPerfTSCmultiModal(runNumber, timeSteps_MQ, maxQueueSize, delayDist,
         n4 = size(delayDist{1,4},2);        
         n8 = size(delayDist{2,4},2);
         
-        group = [repmat({'Fix-Time (P)'}, n1, 1); repmat({'Fix-Time (S)'}, n5, 1);
-                 repmat({'Traffic actuated (P)'}, n2, 1); repmat({'Traffic actuated (S)'}, n6, 1);
-                 repmat({'Longest Queue (P)'}, n3, 1); repmat({'Longest Queue (S)'}, n7, 1);
-                 repmat({'OJF (P)'}, n4, 1); repmat({'OJF (S)'}, n8, 1)];
+        group = [repmat({'I (P)'}, n1, 1); repmat({'I (S)'}, n5, 1);
+                 repmat({'II (P)'}, n2, 1); repmat({'II (S)'}, n6, 1);
+                 repmat({'III (P)'}, n3, 1); repmat({'III (S)'}, n7, 1);
+                 repmat({'IV (P)'}, n4, 1); repmat({'IV (S)'}, n8, 1)];
              
         boxplot(data, group, 'colors', 'k');        
-        set(gca,'XTickLabelRotation', 25);
+        set(gca,'XTickLabelRotation', 40);
 
         set(findobj(gca,'Type','text'),'FontSize',20);
         
@@ -86,7 +87,7 @@ function PlotPerfTSCmultiModal(runNumber, timeSteps_MQ, maxQueueSize, delayDist,
         grid on;        
     end        
 
-    subplot(2,2,4);    
+    subplot(2,3,5);    
         
     if(runNumber == runTotal)
         % distribution of max bike delay       
@@ -100,10 +101,9 @@ function PlotPerfTSCmultiModal(runNumber, timeSteps_MQ, maxQueueSize, delayDist,
         n3 = size(delayDist{3,3},2);
         n4 = size(delayDist{3,4},2);
         
-        group = [repmat({'Fix-time'}, n1, 1); repmat({'Traffic actuated'}, n2, 1); repmat({'Longest Queue'}, n3, 1); repmat({'OJF'}, n4, 1)];
+        group = [repmat({'I'}, n1, 1); repmat({'II'}, n2, 1); repmat({'III'}, n3, 1); repmat({'IV'}, n4, 1)];
 
         boxplot(data,group,'colors', 'k');
-        set(gca,'XTickLabelRotation',20);
         
         set(findobj(gca,'Type','text'),'FontSize',20);
         
@@ -114,7 +114,24 @@ function PlotPerfTSCmultiModal(runNumber, timeSteps_MQ, maxQueueSize, delayDist,
 
         grid on;         
     end
+    
+    subplot(2,3,6);
 
+    if(runNumber == runTotal)
+        bar([cell2mat(allFairness{2,1}), cell2mat(allFairness{2,2}), cell2mat(allFairness{2,3}), cell2mat(allFairness{2,4})]);
+        set(gca, 'XTickLabel', {'I', 'II', 'III', 'IV'});
+    
+        % set the axis limit
+        %set(gca, 'YLim', [0 1]);
+    
+        % set font size
+        set(gca, 'FontSize', 20);
+
+        ylabel('Fairness Measure', 'FontSize', 20);
+    
+        grid on;   
+    end
+    
     % at the end of the last iteration
     if(runNumber == runTotal)    
     
@@ -128,7 +145,7 @@ function PlotPerfTSCmultiModal(runNumber, timeSteps_MQ, maxQueueSize, delayDist,
 %         end
         
         % mark light/medium/heavy traffic with arrows 
-        subplot(2,2,[1,2]);
+        subplot(2,3,[1,3]);
             
         Ylimit = get(gca,'ylim');
         arrowYLoc = Ylimit(2) + (0.05 * Ylimit(2));

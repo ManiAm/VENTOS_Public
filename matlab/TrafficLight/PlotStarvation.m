@@ -1,5 +1,5 @@
 
-function PlotStarvation(runNumber, timeSteps_D, delayDist, runTotal)
+function PlotStarvation(runNumber, timeSteps_D, delayDist, allFairness, runTotal)
 
     % make a windows figure only once
     if(runNumber == 1)
@@ -28,31 +28,34 @@ function PlotStarvation(runNumber, timeSteps_D, delayDist, runTotal)
     ylabel('Bike Waiting Time (s)', 'FontSize', 20);
     
     % set the axis limit
-    set( gca, 'XLim', [50 130] );
-    set( gca, 'YLim', [0 50] );
+    set(gca, 'XLim', [50 130]);
+    set(gca, 'YLim', [0 50]);
 
     grid on;
     hold on;
     
     if(runNumber == runTotal)
-        legend('LQF-MWM', 'LQF-MWM2', 'Location', 'northwest');
+        legend('LQF-MWM', 'FMSC', 'Location', 'northwest');
     end    
     
-    subplot(1,2,2);
     
-    bar([0.1 0.9]);
-    set(gca,'XTickLabel',{'LQF-MWM', 'LQF-MWM2'});
+    if(runNumber == runTotal)    
+        subplot(1,2,2);
     
-    % set the axis limit
-    set( gca, 'YLim', [0 1] );
+        b = bar([cell2mat(allFairness{1,1}), cell2mat(allFairness{1,2})]);
+        b.BarWidth = 0.3;
+        set(gca, 'XTickLabel', {'LQF-MWM', 'FMSC'});
     
-    % set font size
-    set(gca, 'FontSize', 20);
+        % set the axis limit
+        set(gca, 'YLim', [0 1]);
+    
+        % set font size
+        set(gca, 'FontSize', 20);
 
-    ylabel('Fairness Index', 'FontSize', 20);
+        ylabel('Jains Fairness Index', 'FontSize', 20);
     
-    grid on;
-    hold on;
+        grid on;
+    end
     
     
     

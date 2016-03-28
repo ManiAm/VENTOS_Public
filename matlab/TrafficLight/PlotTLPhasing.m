@@ -57,7 +57,7 @@ function PlotTLPhasing(runNumber, timeSteps_SW, totalCycles, timeSteps_GR, total
         end 
         
         subplot(2,1,1);
-        legend('Fix-time' , 'Traffic-actuated', 'Longest queue', 'OJF', 'Location', 'northwest');
+        legend('Fix-time' , 'Traffic-actuated', 'LQF', 'OJF', 'Location', 'northwest');
     
 %         % mark change of demand with vertical lines
 %         for threshold=400:400:Xlimit(2)            
