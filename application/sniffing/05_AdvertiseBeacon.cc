@@ -43,21 +43,12 @@ void AdvertiseBeacon::initialize(int stage)
 {
     SniffBluetoothLE::initialize(stage);
 
-    BLE_advertisement = par("BLE_advertisement").boolValue();
-
-    if(!BLE_advertisement)
-        return;
-
     if(stage == 0)
     {
+        BLE_advertisement = par("BLE_advertisement").boolValue();
 
-    }
-    else if(stage == 1)
-    {
-        // display local devices
-        getLocalDevs();
-
-        std::cout.flush();
+        if(!BLE_advertisement)
+            return;
     }
 }
 

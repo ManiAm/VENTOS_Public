@@ -49,22 +49,15 @@ void SniffBluetoothLE::initialize(int stage)
 {
     SniffBluetooth::initialize(stage);
 
-    BLE_on = par("BLE_on").boolValue();
-
-    if(!BLE_on)
-        return;
-
     if(stage == 0)
     {
+        BLE_on = par("BLE_on").boolValue();
+
+        if(!BLE_on)
+            return;
+
         boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
         cached_LEBT_devices_filePATH = VENTOS_FullPath / "application/sniffing/cached_LEBT_devices";
-    }
-    else if(stage == 1)
-    {
-        // display local devices
-        getLocalDevs();
-
-        std::cout.flush();
     }
 }
 
@@ -197,14 +190,14 @@ void SniffBluetoothLE::lescan(int dev_id, uint8_t scan_type, uint16_t interval, 
 
     std::cout << std::flush;
 
-    int err = hci_le_set_scan_parameters(dd, scan_type, interval, window, own_type, filter_policy, 1000);
+    int err = hci_le_set_scan_parameters(dd, scan_type, interval, window, own_type, filter_policy, 1000 /*timeout*/);
     if (err < 0)
     {
         hci_close_dev(dd);
-        error("Set scan parameters failed");
+        error("Set scan parameters failed: %s", strerror(errno));
     }
 
-    uint8_t filter_dup = 1;
+    uint8_t filter_dup = 1;   // filter duplicates
     err = hci_le_set_scan_enable(dd, 0x01 /*enable*/, filter_dup, 1000 /*timeout*/);
     if (err < 0)
     {

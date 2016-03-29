@@ -46,34 +46,33 @@ void SniffBluetooth::initialize(int stage)
 {
     if(stage == 0)
     {
-        BT_on = par("BT_on").boolValue();
-
-        if(!BT_on)
-            return;
-
         // get a pointer to the TraCI module
         cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
         TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
 
-        boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-        cached_BT_devices_filePATH = VENTOS_FullPath / "application/sniffing/cached_BT_devices";
-    }
-    else if(stage == 1)
-    {
         // get a pointer to SniffEthernet module
         // we need to call OUITostr
-        cModule *module = simulation.getSystemModule()->getSubmodule("sniffEthernet");
-        EtherPtr = static_cast<SniffEthernet *>(module);
+        cModule *module2 = simulation.getSystemModule()->getSubmodule("sniffEthernet");
+        EtherPtr = static_cast<SniffEthernet *>(module2);
         ASSERT(EtherPtr);
+
+        listLocalDevices = par("listLocalDevices").boolValue();
+
+        // display local devices
+        if(listLocalDevices)
+        {
+            getLocalDevs();
+            std::cout.flush();
+        }
+
+        BT_on = par("BT_on").boolValue();
 
         if(!BT_on)
             return;
 
-        // display local devices
-        getLocalDevs();
-
-        std::cout.flush();
+        boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+        cached_BT_devices_filePATH = VENTOS_FullPath / "application/sniffing/cached_BT_devices";
     }
 }
 
@@ -221,16 +220,16 @@ void SniffBluetooth::print_dev_info(struct hci_dev_info *di)
     char *str = hci_dflagstostr(di->flags);
     printf("\t%s \n", str);
 
-//    /* HCI dev flags mapping */
-//    { "UP",      HCI_UP      },
-//    { "INIT",    HCI_INIT    },
-//    { "RUNNING", HCI_RUNNING },
-//    { "RAW",     HCI_RAW     },
-//    { "PSCAN",   HCI_PSCAN   },
-//    { "ISCAN",   HCI_ISCAN   },
-//    { "INQUIRY", HCI_INQUIRY },
-//    { "AUTH",    HCI_AUTH    },
-//    { "ENCRYPT", HCI_ENCRYPT },
+    //    /* HCI dev flags mapping */
+    //    { "UP",      HCI_UP      },
+    //    { "INIT",    HCI_INIT    },
+    //    { "RUNNING", HCI_RUNNING },
+    //    { "RAW",     HCI_RAW     },
+    //    { "PSCAN",   HCI_PSCAN   },
+    //    { "ISCAN",   HCI_ISCAN   },
+    //    { "INQUIRY", HCI_INQUIRY },
+    //    { "AUTH",    HCI_AUTH    },
+    //    { "ENCRYPT", HCI_ENCRYPT },
 
     printf("\tDiscovarable: ");
     std::string status = str;

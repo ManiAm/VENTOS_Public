@@ -31,8 +31,8 @@
 
 namespace VENTOS {
 
-#define SNAP_LEN_BT     HCI_MAX_FRAME_SIZE
-#define DUMP_WIDTH  20
+#define SNAP_LEN_BT  HCI_MAX_FRAME_SIZE
+#define DUMP_WIDTH   20
 
 struct hcidump_hdr {
     uint16_t    len;
@@ -85,9 +85,6 @@ void SniffBluetoothDump::initialize(int stage)
         simulation.getSystemModule()->subscribe("executeEachTS", this);
 
         dump_On = par("dump_On").boolValue();
-
-        if(!dump_On)
-            return;
     }
 }
 
@@ -146,14 +143,76 @@ void SniffBluetoothDump::executeEachTimestep()
                 error("Device is not available");
         }
 
-        int sok = open_socket(dev_id);
+        int scan_type = par("BLE_scan_type").longValue();
+        uint16_t interval = par("BLE_interval").longValue();
+        uint16_t window = par("BLE_window").longValue();
+        uint8_t own_type = par("BLE_own_type").longValue();
+        uint8_t filter_policy = par("BLE_filter_policy").longValue();
+        lescanEnable(dev_id, scan_type, interval, window, own_type, filter_policy);
 
+        int sock = open_socket(dev_id);
         int timeout = par("sniff_time").longValue();
+        process_frames(dev_id, sock, timeout);
 
-        process_frames(dev_id, sok, timeout);
+        // disable LE scan
+        lescanDisable(dev_id);
+        // close the socket
+        close(sock);
 
         wasExecuted = true;
     }
+}
+
+
+void SniffBluetoothDump::lescanEnable(int dev_id, uint8_t scan_type, uint16_t interval, uint16_t window, uint8_t own_type, uint8_t filter_policy)
+{
+    int dd = hci_open_dev(dev_id);
+    if (dd < 0)
+        error("Can't open device");
+
+    std::cout << ">>> Enabling BLE scan on hci" << dev_id << " ... \n";
+    std::cout << "    Scan type: " << (int)scan_type;
+    std::cout << ", Interval: " << interval;
+    std::cout << ", Window: " << window;
+    std::cout << ", Own type: " << (int)own_type;
+    std::cout << ", Filter policy: " << (int)filter_policy << std::endl;
+
+    std::cout << std::flush;
+
+    int err = hci_le_set_scan_parameters(dd, scan_type, interval, window, own_type, filter_policy, 1000 /*timeout*/);
+    if (err < 0)
+    {
+        hci_close_dev(dd);
+        error("Set scan parameters failed: %s", strerror(errno));
+    }
+
+    uint8_t filter_dup = 0x00;  // do not filter duplicates
+    err = hci_le_set_scan_enable(dd, 0x01 /*enable*/, filter_dup, 1000 /*timeout*/);
+    if (err < 0)
+    {
+        hci_close_dev(dd);
+        error("Enable scan failed");
+    }
+
+    hci_close_dev(dd);
+}
+
+
+void SniffBluetoothDump::lescanDisable(int dev_id)
+{
+    int dd = hci_open_dev(dev_id);
+    if (dd < 0)
+        error("Can't open device");
+
+    uint8_t filter_dup = 0x00;  // do not filter duplicates
+    int err = hci_le_set_scan_enable(dd, 0x00 /*disable*/, filter_dup, 1000 /*timeout*/);
+    if (err < 0)
+    {
+        hci_close_dev(dd);
+        error("Disable scan failed");
+    }
+
+    hci_close_dev(dd);
 }
 
 
@@ -250,9 +309,16 @@ void SniffBluetoothDump::process_frames(int dev_id, int sock, int timeout)
 
     while (1)
     {
-        int n = poll(fds, nfds, -1);
+        int n = poll(fds, nfds, timeout);
         if (n <= 0)
+        {
+            // should we terminate sniffing?
+            int elapsed = time(NULL) - ts;
+            if (timeout != -1 && elapsed >= timeout)
+                break;
+
             continue;
+        }
 
         for (int i = 0; i < nfds; i++)
         {

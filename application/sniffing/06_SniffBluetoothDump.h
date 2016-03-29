@@ -38,10 +38,6 @@ public:
     virtual ~SniffBluetoothDump();
     virtual void finish();
     virtual void initialize(int);
-    virtual int numInitStages() const
-    {
-        return 2;  // stage 0, 1
-    }
     virtual void handleMessage(cMessage *);
     virtual void receiveSignal(cComponent *, simsignal_t, long);
 
@@ -50,6 +46,8 @@ protected:
     void executeEachTimestep();
 
 private:
+    void lescanEnable(int dev_id, uint8_t scan_type, uint16_t interval, uint16_t window, uint8_t own_type, uint8_t filter_policy);
+    void lescanDisable(int dev_id);
     int open_socket(int dev_id);
     void process_frames(int dev_id, int sock, int timeout);
     void hex_dump(struct frame *frm);

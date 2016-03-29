@@ -109,6 +109,7 @@ protected:
 
 private:
     // NED variables
+    bool listLocalDevices;
     bool BT_on;
 
     boost::filesystem::path cached_BT_devices_filePATH;
