@@ -29,7 +29,7 @@
 #define SNIFFUSB
 
 #include <BaseApplLayer.h>
-#include "TraCI_Commands.h"
+#include "TraCICommands.h"
 #include <unordered_map>
 #include <libusb-1.0/libusb.h>
 

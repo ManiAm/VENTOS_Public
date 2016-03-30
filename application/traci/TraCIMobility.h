@@ -28,7 +28,7 @@
 #include <list>
 #include <stdexcept>
 #include "BaseMobility.h"
-#include "TraCI_Commands.h"
+#include "TraCICommands.h"
 
 /**
  * @brief

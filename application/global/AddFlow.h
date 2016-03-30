@@ -29,7 +29,7 @@
 #define ADDFLOW
 
 #include "BaseApplLayer.h"
-#include "TraCI_Commands.h"
+#include "TraCICommands.h"
 
 // un-defining ev!
 // why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header

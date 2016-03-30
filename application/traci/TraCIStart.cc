@@ -20,10 +20,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <cmath>
-#include <iomanip>
-
-#include "TraCI_Start.h"
+#include "TraCIStart.h"
 #include "TraCIConstants.h"
 #include "ObstacleControl.h"
 #include "TraCIScenarioManagerInet.h"
@@ -63,8 +60,6 @@ void TraCI_Start::initialize(int stage)
 
     if (stage == 1)
     {
-        logTraCIcommands = par("logTraCIcommands").boolValue();
-
         debug = par("debug");
         connectAt = par("connectAt");
         terminate = par("terminate").doubleValue();
@@ -153,9 +148,6 @@ void TraCI_Start::finish()
 
     while (hosts.begin() != hosts.end())
         deleteManagedModule(hosts.begin()->first);
-
-    if(logTraCIcommands)
-        TraCIexchangeToFile();
 }
 
 
@@ -228,7 +220,7 @@ void TraCI_Start::init_traci()
     else
         error("TraCI server \"%s\" reports API version %d, which is unsupported.", serverVersionS.c_str(), apiVersionS);
 
-    // query road network boundaries
+    // query road network boundaries from SUMO
     double *boundaries = simulationGetNetBoundary();
 
     double x1 = boundaries[0];  // x1
@@ -238,11 +230,11 @@ void TraCI_Start::init_traci()
 
     std::cout << "TraCI reports network boundaries (" << x1 << ", " << y1 << ")-(" << x2 << ", " << y2 << ")" << endl;
 
-    TraCICoord netbounds1 = TraCICoord(x1, y1);
-    TraCICoord netbounds2 = TraCICoord(x2, y2);
-    connection->setNetbounds(netbounds1, netbounds2, par("margin"));
-    if ((connection->traci2omnet(netbounds2).x > world->getPgs()->x) || (connection->traci2omnet(netbounds1).y > world->getPgs()->y))
-        std::cout << "WARNING: Playground size (" << world->getPgs()->x << ", " << world->getPgs()->y << ") might be too small for vehicle at network bounds (" << connection->traci2omnet(netbounds2).x << ", " << connection->traci2omnet(netbounds1).y << ")" << endl;
+    netbounds1 = TraCICoord(x1, y1);
+    netbounds2 = TraCICoord(x2, y2);
+
+    if ((traci2omnet(netbounds2).x > world->getPgs()->x) || (traci2omnet(netbounds1).y > world->getPgs()->y))
+        std::cout << "WARNING: Playground size (" << world->getPgs()->x << ", " << world->getPgs()->y << ") might be too small for vehicle at network bounds (" << traci2omnet(netbounds2).x << ", " << traci2omnet(netbounds1).y << ")" << endl;
 
     {
         // subscribe to list of departed and arrived vehicles, as well as simulation time
@@ -512,17 +504,11 @@ void TraCI_Start::executeOneTimestep()
     {
         insertVehicles();
 
-        updateTraCIlog("commandStart", CMD_SIMSTEP2, 0xff);
+        // proceed SUMO simulation to targetTime
+        std::pair<TraCIBuffer, uint32_t> output = simulationTimeStep(targetTime);
 
-        // proceed simulation to targetTime
-        TraCIBuffer buf = connection->query(CMD_SIMSTEP2, TraCIBuffer() << targetTime);
-        uint32_t count;
-        buf >> count;  // count: number of subscription results
-
-        updateTraCIlog("commandComplete", CMD_SIMSTEP2, 0xff);
-
-        for (uint32_t i = 0; i < count; ++i)
-            processSubcriptionResult(buf);
+        for (uint32_t i = 0; i < output.second /*# of subscription results*/; ++i)
+            processSubcriptionResult(output.first);
 
         // todo: should get pedestrians using subscription
         allPedestrians.clear();
@@ -715,11 +701,11 @@ void TraCI_Start::processVehicleSubscription(std::string objectId, TraCIBuffer& 
     // make sure we got updates for all attributes
     if (numRead != 5) return;
 
-    Coord p = connection->traci2omnet(TraCICoord(px, py));
+    Coord p = traci2omnet(TraCICoord(px, py));
     if ((p.x < 0) || (p.y < 0))
         error("received bad node position (%.2f, %.2f), translated to (%.2f, %.2f)", px, py, p.x, p.y);
 
-    double angle = connection->traci2omnetAngle(angle_traci);
+    double angle = traci2omnetAngle(angle_traci);
 
     cModule* mod = getManagedModule(objectId);
 
@@ -1280,65 +1266,6 @@ void TraCI_Start::addPedestriansToOMNET()
     //        }
     //    }
     //
-}
-
-
-void TraCI_Start::TraCIexchangeToFile()
-{
-    if(exchangedTraCIcommands.empty())
-        return;
-
-    boost::filesystem::path filePath;
-
-    if(ev.isGUI())
-    {
-        filePath = "results/gui/TraCI_log.txt";
-    }
-    else
-    {
-        // get the current run number
-        int currentRun = ev.getConfigEx()->getActiveRunNumber();
-        std::ostringstream fileName;
-        fileName << std::setfill('0') << std::setw(3) << currentRun << "_TraCI_log.txt";
-        filePath = "results/cmd/" + fileName.str();
-    }
-
-    FILE *filePtr = fopen (filePath.string().c_str(), "w");
-
-    // write header
-    fprintf (filePtr, "%-15s", "sentAt");
-    fprintf (filePtr, "%-15s", "duration(ms)");
-    fprintf (filePtr, "%-20s", "commandGroupId");
-    fprintf (filePtr, "%-19s", "commandId");
-    fprintf (filePtr, "%-40s \n\n", "commandName");
-
-    // write body
-    double oldTime = -1;
-    for(auto &y : exchangedTraCIcommands)
-    {
-        // search for command name in TraCIcommandsMap
-        auto it = TraCIcommandsMap.find(std::make_pair(y.commandGroupId, y.commandId));
-        if(it == TraCIcommandsMap.end())
-            error("can not find pair (0x%x, 0x%x) in TraCIcommandsMap", y.commandGroupId, y.commandId);
-
-        // make the log more readable :)
-        if(y.timeStamp != oldTime)
-        {
-            fprintf(filePtr, "\n");
-            oldTime = y.timeStamp;
-        }
-
-        std::chrono::duration<double, std::milli> fp_ms = y.completeAt - y.sentAt;
-        double duration = fp_ms.count();
-
-        fprintf (filePtr, "%-15.2f", y.timeStamp);
-        fprintf (filePtr, "%-15.2f", duration);
-        fprintf (filePtr, "0x%-20x", y.commandGroupId);
-        fprintf (filePtr, "0x%-15x", y.commandId);
-        fprintf (filePtr, "%-40s \n", it->second.c_str());
-    }
-
-    fclose(filePtr);
 }
 
 }

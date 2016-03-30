@@ -30,7 +30,7 @@
 
 #include <BaseApplLayer.h>
 #include <WaveAppToMac1609_4Interface.h>
-#include "TraCI_Commands.h"
+#include "TraCICommands.h"
 #include "BeaconRSU_m.h"
 
 namespace VENTOS {

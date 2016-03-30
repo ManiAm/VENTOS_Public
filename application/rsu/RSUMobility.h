@@ -30,7 +30,7 @@
 
 #include "MiXiMDefs.h"
 #include "BaseMobility.h"
-#include "TraCI_Commands.h"
+#include "TraCICommands.h"
 
 namespace VENTOS {
 

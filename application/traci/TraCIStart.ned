@@ -3,14 +3,14 @@
 
 package c3po.application.traci;
 
-simple TraCI_Start extends TraCI_Commands
+simple TraCIStart
 {
     parameters:
         @display("i=block/network2");
         @class(VENTOS::TraCI_Start);
         
         bool logTraCIcommands = default(false);
-                
+                        
         bool debug = default(false);                      // emit debug messages?
         double connectAt @unit("s") = default(0s);        // when to connect to TraCI server (must be the initial timestep of the server)
         double firstStepAt @unit("s") = default(-1s);     // when to start synchronizing with the TraCI server (-1: immediately after connecting)
@@ -43,6 +43,7 @@ simple TraCI_Start extends TraCI_Commands
         int vehicleRngIndex = default(0);             // index of the RNG stream to be used, all random numbers concerning the managed vehicles
         int margin = default(25);                     // margin to add to all received vehicle positions
         bool useRouteDistributions = default(false);
+        bool equilibrium_vehicle;
         
         string roiRoads = default("");  // which roads (e.g. "hwy1 hwy2") are considered to consitute the region of interest, if not empty
         string roiRects = default("");  // which rectangles (e.g. "0,0-10,10 20,20-30,30) are considered to consitute the region of interest, if not empty (in SUMO coordinate)

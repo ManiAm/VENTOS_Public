@@ -92,6 +92,7 @@ public:
 
 typedef std::chrono::high_resolution_clock::time_point Htime_t;
 
+// logging TraCI command exchange
 class TraCIcommandEntry
 {
 public:
@@ -131,6 +132,7 @@ public:
     // ################################################################
 
     void simulationTerminate();
+    std::pair<TraCIBuffer, uint32_t> simulationTimeStep(uint32_t targetTime);
 
     // ################################################################
     //                          subscription
@@ -382,6 +384,17 @@ public:
     double personGetSpeed(std::string);
     std::string personGetNextEdge(std::string);
 
+
+    // ################################################################
+    //                      coordinate conversion
+    // ################################################################
+
+    double traci2omnetAngle(double angle) const;    // convert TraCI angle to OMNeT++ angle (in rad)
+    double omnet2traciAngle(double angle) const;    // convert OMNeT++ angle (in rad) to TraCI angle
+
+    Coord traci2omnet(TraCICoord coord) const;      // convert TraCI coordinates to OMNeT++ coordinates
+    TraCICoord omnet2traci(Coord coord) const;      // convert OMNeT++ coordinates to TraCI coordinates
+
 private:
     // ################################################################
     //                    generic methods for getters
@@ -394,18 +407,24 @@ private:
     Coord genericGetCoord(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
     std::list<Coord> genericGetCoordList(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
 
-    uint8_t genericGetUnsignedByte(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);                // new command
-    Coord genericGetCoordv2(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);                       // new command
-    std::vector<double> genericGetBoundingBox(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);     // new command
-    uint8_t* genericGetArrayUnsignedInt(uint8_t, std::string, uint8_t, uint8_t);                                                    // new command
+    uint8_t genericGetUnsignedByte(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
+    Coord genericGetCoordv2(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
+    std::vector<double> genericGetBoundingBox(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
+    uint8_t* genericGetArrayUnsignedInt(uint8_t, std::string, uint8_t, uint8_t);
 
-protected:
+    // method used internally to log TraCI exchange
     void updateTraCIlog(std::string, uint8_t, uint8_t);
-
-public:
-    TraCIConnection* connection = NULL;  // connection is set by TraCI_Start class
+    void TraCIexchangeToFile();
 
 protected:
+    // these variables are set by TraCIStart class
+    TraCIConnection* connection = NULL;
+    TraCICoord netbounds1;   /* network boundaries as reported by TraCI (x1, y1) */
+    TraCICoord netbounds2;   /* network boundaries as reported by TraCI (x2, y2) */
+
+private:
+    bool logTraCIcommands;
+    int margin;
     std::vector<TraCIcommandEntry> exchangedTraCIcommands;
 
     std::map<std::pair<uint8_t /*command group*/, uint8_t /*command*/>, std::string /*command str*/> TraCIcommandsMap = {

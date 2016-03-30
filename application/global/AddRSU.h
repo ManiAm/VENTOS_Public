@@ -28,7 +28,7 @@
 #ifndef RSUADD_H_
 #define RSUADD_H_
 
-#include "TraCI_Commands.h"
+#include "TraCICommands.h"
 #include <BaseApplLayer.h>
 #include "ConnectionManager.h"
 

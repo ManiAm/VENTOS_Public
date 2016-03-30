@@ -31,7 +31,7 @@
 #include <BaseApplLayer.h>
 #include <ChannelAccess.h>
 #include <WaveAppToMac1609_4Interface.h>
-#include "TraCI_Commands.h"
+#include "TraCICommands.h"
 
 namespace VENTOS {
 

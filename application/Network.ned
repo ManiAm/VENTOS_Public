@@ -20,7 +20,7 @@ network Network
         string SUMODirectory = default(""); // location of SUMO files
         int debugLevel;
 
-        @display("bgb=382,627");
+        @display("bgb=382,470");
     submodules:
         world: BaseWorldUtility {
             parameters:
@@ -33,73 +33,69 @@ network Network
             parameters:
                 @display("p=151,43;i=abstract/multicast");
         }
-        TraCI: TraCI_Start {
+        TraCI: TraCIStart {
             parameters:
-                @display("p=48,132");
-        }
-        SumoServer: SumoServer {
-            parameters:
-                @display("p=151,132");
+                @display("p=241,43");
         }
         Tracking: Tracking {
             parameters:
-                @display("p=209,381;i=block/circle");
+                @display("p=209,212;i=block/circle");
         }
         addEntity: AddEntity {
             parameters:
-                @display("p=48,296;i=old/bwsink");
+                @display("p=48,127;i=old/bwsink");
         }
         addFlow: AddFlow {
             parameters:
-                @display("p=127,296;i=old/bwsink");
+                @display("p=127,127;i=old/bwsink");
         }
         addRSU: AddRSU {
             parameters:
-                @display("p=209,296;i=old/bwsink");
+                @display("p=209,127;i=old/bwsink");
         }
         addAdversary: AddAdversary {
             parameters:
-                @display("p=297,296;i=old/bwsink");
+                @display("p=297,127;i=old/bwsink");
         }
         warmup: Warmup {
             parameters:
-                @display("p=48,381;i=block/table");
+                @display("p=48,212;i=block/table");
         }
         speedprofile: SpeedProfile {
             parameters:
-                @display("p=127,381;i=block/table");
+                @display("p=127,212;i=block/table");
         }
         statistics: Statistics {
             parameters:
-                @display("p=48,216;i=block/timer");
+                @display("p=325,43;i=block/timer");
         }
         router: Router {
             parameters:
-                @display("p=202,558;i=block/broadcast");
+                @display("p=202,389;i=block/broadcast");
         }
         TrafficLight: TL_Manager {
             parameters:
-                @display("p=48,558;i=block/broadcast");
+                @display("p=48,389;i=block/broadcast");
         }
         cobalt: Cobalt {
             parameters:
-                @display("p=130,558;i=block/broadcast");
+                @display("p=130,389;i=block/broadcast");
         }
         plotter: Plotter {
             parameters:
-                @display("p=294,381;i=block/app");
+                @display("p=294,212;i=block/app");
         }
         sniffEthernet: SniffEthernet {
             parameters:
-                @display("p=48,468;i=block/network");
+                @display("p=48,299;i=block/network");
         }
         sniffUSB: SniffUSB {
             parameters:
-                @display("p=130,468;i=block/mac");
+                @display("p=130,299;i=block/mac");
         }
         sniffBluetooth: SniffBluetoothDump {
             parameters:
-                @display("p=221,468;i=block/mac");
+                @display("p=221,299;i=block/mac");
         }
 
     connections allowunconnected:

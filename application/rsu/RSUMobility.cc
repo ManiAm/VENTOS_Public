@@ -54,7 +54,7 @@ void RSUMobility::initialize(int stage)
             error("RSU coordinates are not set correctly!");
 
         // change coordinates to omnet
-        Coord pos = TraCI->connection->traci2omnet(TraCICoord(myCoordX, myCoordY));
+        Coord pos = TraCI->traci2omnet(TraCICoord(myCoordX, myCoordY));
 
         // set start-position and start-time (i.e. current simulation-time) of the Move
         move.setStart(pos);

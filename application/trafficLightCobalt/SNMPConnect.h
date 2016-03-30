@@ -29,7 +29,7 @@
 #define SNMPCONNECT_H_
 
 #include <BaseApplLayer.h>
-#include "TraCI_Commands.h"
+#include "TraCICommands.h"
 #include "MIB_OBJ_ASC.h"
 
 // un-defining ev!

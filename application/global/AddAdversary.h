@@ -28,7 +28,7 @@
 #ifndef ADVERSARYADD_H_
 #define ADVERSARYADD_H_
 
-#include "TraCI_Commands.h"
+#include "TraCICommands.h"
 #include <BaseApplLayer.h>
 
 namespace VENTOS {

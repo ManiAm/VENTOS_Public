@@ -29,7 +29,7 @@
 #define SNIFFETHERNET
 
 #include <BaseApplLayer.h>
-#include "TraCI_Commands.h"
+#include "TraCICommands.h"
 #include "pcap.h"
 
 #include <arpa/inet.h>     // inet_ntoa

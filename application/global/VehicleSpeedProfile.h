@@ -29,7 +29,7 @@
 #define SPEEDPROFILE
 
 #include "BaseApplLayer.h"
-#include "TraCI_Commands.h"
+#include "TraCICommands.h"
 
 namespace VENTOS {
 

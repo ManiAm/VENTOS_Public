@@ -25,9 +25,18 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "TraCI_Commands.h"
+#include "TraCICommands.h"
 #include "TraCIConstants.h"
+
+#include <cmath>
+#include <iomanip>
 #include "algorithm"
+
+// un-defining ev!
+// why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header
+#undef ev
+#include "boost/filesystem.hpp"
+#define ev  (*cSimulation::getActiveEnvir())
 
 namespace VENTOS {
 
@@ -43,17 +52,18 @@ void TraCI_Commands::initialize(int stage)
 {
     cSimpleModule::initialize(stage);
 
-    if (stage == 1)
+    if (stage == 0)
     {
-
+        logTraCIcommands = par("logTraCIcommands").boolValue();
+        margin = par("margin").longValue();
     }
 }
 
 
 void TraCI_Commands::finish()
 {
-
-
+    if(logTraCIcommands)
+        TraCIexchangeToFile();
 }
 
 
@@ -108,6 +118,22 @@ void TraCI_Commands::simulationTerminate()
 
     updateTraCIlog("commandComplete", CMD_CLOSE, 0xff);
 }
+
+
+// proceed SUMO simulation to targetTime
+std::pair<TraCIBuffer, uint32_t> TraCI_Commands::simulationTimeStep(uint32_t targetTime)
+{
+    updateTraCIlog("commandStart", CMD_SIMSTEP2, 0xff);
+
+    TraCIBuffer buf = connection->query(CMD_SIMSTEP2, TraCIBuffer() << targetTime);
+    uint32_t count;
+    buf >> count;  // count: number of subscription results
+
+    updateTraCIlog("commandComplete", CMD_SIMSTEP2, 0xff);
+
+    return std::make_pair(buf, count);
+}
+
 
 // ################################################################
 //                            subscription
@@ -2401,7 +2427,7 @@ void TraCI_Commands::addPoi(std::string poiId, std::string poiType, const RGB co
 
     TraCIBuffer p;
 
-    TraCICoord pos = connection->omnet2traci(pos_);
+    TraCICoord pos = omnet2traci(pos_);
     p << static_cast<uint8_t>(ADD) << poiId;
     p << static_cast<uint8_t>(TYPE_COMPOUND) << static_cast<int32_t>(4);
     p << static_cast<uint8_t>(TYPE_STRING) << poiType;
@@ -2659,7 +2685,7 @@ Coord TraCI_Commands::genericGetCoord(uint8_t commandId, std::string objectId, u
 
     ASSERT(buf.eof());
 
-    return connection->traci2omnet(TraCICoord(x, y));
+    return traci2omnet(TraCICoord(x, y));
 }
 
 
@@ -2687,7 +2713,7 @@ std::list<Coord> TraCI_Commands::genericGetCoordList(uint8_t commandId, std::str
     for (uint32_t i = 0; i < count; i++) {
         double x; buf >> x;
         double y; buf >> y;
-        res.push_back(connection->traci2omnet(TraCICoord(x, y)));
+        res.push_back(traci2omnet(TraCICoord(x, y)));
     }
 
     ASSERT(buf.eof());
@@ -2834,6 +2860,58 @@ uint8_t* TraCI_Commands::genericGetArrayUnsignedInt(uint8_t commandId, std::stri
 }
 
 
+// ################################################################
+//                      coordinate conversion
+// ################################################################
+
+Coord TraCI_Commands::traci2omnet(TraCICoord coord) const
+{
+    return Coord(coord.x - netbounds1.x + margin, (netbounds2.y - netbounds1.y) - (coord.y - netbounds1.y) + margin);
+}
+
+
+TraCICoord TraCI_Commands::omnet2traci(Coord coord) const
+{
+    return TraCICoord(coord.x + netbounds1.x - margin, (netbounds2.y - netbounds1.y) - (coord.y - netbounds1.y) + margin);
+}
+
+
+double TraCI_Commands::traci2omnetAngle(double angle) const
+{
+    // rotate angle so 0 is east (in TraCI's angle interpretation 0 is north, 90 is east)
+    angle = 90 - angle;
+
+    // convert to rad
+    angle = angle * M_PI / 180.0;
+
+    // normalize angle to -M_PI <= angle < M_PI
+    while (angle < -M_PI) angle += 2 * M_PI;
+    while (angle >= M_PI) angle -= 2 * M_PI;
+
+    return angle;
+}
+
+
+double TraCI_Commands::omnet2traciAngle(double angle) const
+{
+    // convert to degrees
+    angle = angle * 180 / M_PI;
+
+    // rotate angle so 0 is south (in OMNeT++'s angle interpretation 0 is east, 90 is north)
+    angle = 90 - angle;
+
+    // normalize angle to -180 <= angle < 180
+    while (angle < -180) angle += 360;
+    while (angle >= 180) angle -= 360;
+
+    return angle;
+}
+
+
+// ################################################################
+//               logging TraCI commands exchange
+// ################################################################
+
 void TraCI_Commands::updateTraCIlog(std::string state, uint8_t commandGroupId, uint8_t commandId)
 {
     // check if logging is enabled
@@ -2869,6 +2947,65 @@ void TraCI_Commands::updateTraCIlog(std::string state, uint8_t commandGroupId, u
 
         it->completeAt = t;
     }
+}
+
+
+void TraCI_Commands::TraCIexchangeToFile()
+{
+    if(exchangedTraCIcommands.empty())
+        return;
+
+    boost::filesystem::path filePath;
+
+    if(ev.isGUI())
+    {
+        filePath = "results/gui/TraCI_log.txt";
+    }
+    else
+    {
+        // get the current run number
+        int currentRun = ev.getConfigEx()->getActiveRunNumber();
+        std::ostringstream fileName;
+        fileName << std::setfill('0') << std::setw(3) << currentRun << "_TraCI_log.txt";
+        filePath = "results/cmd/" + fileName.str();
+    }
+
+    FILE *filePtr = fopen (filePath.string().c_str(), "w");
+
+    // write header
+    fprintf (filePtr, "%-15s", "sentAt");
+    fprintf (filePtr, "%-15s", "duration(ms)");
+    fprintf (filePtr, "%-20s", "commandGroupId");
+    fprintf (filePtr, "%-19s", "commandId");
+    fprintf (filePtr, "%-40s \n\n", "commandName");
+
+    // write body
+    double oldTime = -1;
+    for(auto &y : exchangedTraCIcommands)
+    {
+        // search for command name in TraCIcommandsMap
+        auto it = TraCIcommandsMap.find(std::make_pair(y.commandGroupId, y.commandId));
+        if(it == TraCIcommandsMap.end())
+            error("can not find pair (0x%x, 0x%x) in TraCIcommandsMap", y.commandGroupId, y.commandId);
+
+        // make the log more readable :)
+        if(y.timeStamp != oldTime)
+        {
+            fprintf(filePtr, "\n");
+            oldTime = y.timeStamp;
+        }
+
+        std::chrono::duration<double, std::milli> fp_ms = y.completeAt - y.sentAt;
+        double duration = fp_ms.count();
+
+        fprintf (filePtr, "%-15.2f", y.timeStamp);
+        fprintf (filePtr, "%-15.2f", duration);
+        fprintf (filePtr, "0x%-20x", y.commandGroupId);
+        fprintf (filePtr, "0x%-15x", y.commandId);
+        fprintf (filePtr, "%-40s \n", it->second.c_str());
+    }
+
+    fclose(filePtr);
 }
 
 }

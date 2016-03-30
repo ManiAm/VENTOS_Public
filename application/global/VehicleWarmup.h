@@ -28,7 +28,7 @@
 #ifndef WARMPUP
 #define WARMPUP
 
-#include "TraCI_Commands.h"
+#include "TraCICommands.h"
 #include "VehicleSpeedProfile.h"
 
 namespace VENTOS {
