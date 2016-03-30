@@ -26,9 +26,9 @@ simple TraCIStart
         bool autoShutdown = default(true);           // Shutdown module as soon as no more vehicles are in the simulation
         bool TraCIclosed = default(false);           // for internal use
         
-        string moduleType = default("inet.nodes.wireless.WirelessHostSimplified");      // module type to be used in the simulation for each managed vehicle
-        string moduleName = default("host");                                            // module name to be used in the simulation for each managed vehicle
-        string moduleDisplayString = default("i=misc/node2;is=vs;r=0,,#707070,1");      // module displayString to be used in the simulation for each managed vehicle  
+        string vehicleModuleType = default("inet.nodes.wireless.WirelessHostSimplified");    // module type to be used in the simulation for each managed vehicle
+        string vehicleModuleName = default("host");                                          // module name to be used in the simulation for each managed vehicle
+        string vehicleModuleDisplayString = default("i=misc/node2;is=vs;r=0,,#707070,1");    // module displayString to be used in the simulation for each managed vehicle  
         
         string bikeModuleType = default("inet.nodes.wireless.WirelessHostSimplified");  // module type to be used in the simulation for each managed bicycle       
         string bikeModuleName = default("host");                                        // module name to be used in the simulation for each managed bicycle        

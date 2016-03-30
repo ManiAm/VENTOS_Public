@@ -18,8 +18,8 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef TRACIBASE_H
-#define TRACIBASE_H
+#ifndef TRACISTART_H
+#define TRACISTART_H
 
 #include <queue>
 #include "BaseWorldUtility.h"
@@ -105,27 +105,27 @@ private:
      */
     bool isInRegionOfInterest(const TraCICoord& position, std::string road_id, double speed, double angle);
 
-protected:
+private:
     // NED
     BaseWorldUtility* world;
     ConnectionManager* cc;
 
-    bool debug; /**< whether to emit debug messages */
-    simtime_t connectAt; /**< when to connect to TraCI server (must be the initial timestep of the server) */
-    simtime_t firstStepAt; /**< when to start synchronizing with the TraCI server (-1: immediately after connecting) */
-    simtime_t updateInterval; /**< time interval of hosts' position updates */
+    bool debug;                /**< whether to emit debug messages */
+    simtime_t connectAt;       /**< when to connect to TraCI server (must be the initial timestep of the server) */
+    simtime_t firstStepAt;     /**< when to start synchronizing with the TraCI server (-1: immediately after connecting) */
+    simtime_t updateInterval;  /**< time interval of hosts' position updates */
 
     std::string host;
     int port;
 
     // NED variables
     double terminate;
-    bool autoShutdown; /**< Shutdown module as soon as no more vehicles are in the simulation */
+    bool autoShutdown;    /**< Shutdown module as soon as no more vehicles are in the simulation */
 
-    // NED (motor vehicle)
-    std::string moduleType; /**< module type to be used in the simulation for each managed vehicle */
-    std::string moduleName; /**< module name to be used in the simulation for each managed vehicle */
-    std::string moduleDisplayString; /**< module displayString to be used in the simulation for each managed vehicle */
+    // NED (vehicles)
+    std::string vehicleModuleType;
+    std::string vehicleModuleName;
+    std::string vehicleModuleDisplayString;
 
     // NED (bicycles)
     std::string bikeModuleType;

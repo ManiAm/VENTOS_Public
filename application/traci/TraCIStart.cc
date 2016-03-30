@@ -89,9 +89,9 @@ void TraCI_Start::initialize(int stage)
 
             autoShutdown = par("autoShutdown");
 
-            moduleType = par("moduleType").stdstringValue();
-            moduleName = par("moduleName").stdstringValue();
-            moduleDisplayString = par("moduleDisplayString").stdstringValue();
+            vehicleModuleType = par("vehicleModuleType").stdstringValue();
+            vehicleModuleName = par("vehicleModuleName").stdstringValue();
+            vehicleModuleDisplayString = par("vehicleModuleDisplayString").stdstringValue();
 
             bikeModuleType = par("bikeModuleType").stringValue();
             bikeModuleName = par("bikeModuleName").stringValue();
@@ -1035,37 +1035,37 @@ void TraCI_Start::addModule(std::string nodeId, const Coord& position, std::stri
 
     if(vClass == "passenger")
     {
-        type = moduleType;
-        name =  moduleName;
-        displayString = moduleDisplayString;
+        type = vehicleModuleType;
+        name =  vehicleModuleName;
+        displayString = vehicleModuleDisplayString;
         vClassEnum = SVC_PASSENGER;
     }
     else if(vClass == "private")
     {
-        type = moduleType;
-        name =  moduleName;
-        displayString = moduleDisplayString;
+        type = vehicleModuleType;
+        name =  vehicleModuleName;
+        displayString = vehicleModuleDisplayString;
         vClassEnum = SVC_PRIVATE;
     }
     else if(vClass == "emergency")
     {
-        type = moduleType;
-        name =  moduleName;
-        displayString = moduleDisplayString;
+        type = vehicleModuleType;
+        name =  vehicleModuleName;
+        displayString = vehicleModuleDisplayString;
         vClassEnum = SVC_EMERGENCY;
     }
     else if(vClass == "bus")
     {
-        type = moduleType;
-        name =  moduleName;
-        displayString = moduleDisplayString;
+        type = vehicleModuleType;
+        name =  vehicleModuleName;
+        displayString = vehicleModuleDisplayString;
         vClassEnum = SVC_BUS;
     }
     else if(vClass == "truck")
     {
-        type = moduleType;
-        name =  moduleName;
-        displayString = moduleDisplayString;
+        type = vehicleModuleType;
+        name =  vehicleModuleName;
+        displayString = vehicleModuleDisplayString;
         vClassEnum = SVC_TRUCK;
     }
     else if(vClass == "bicycle")
