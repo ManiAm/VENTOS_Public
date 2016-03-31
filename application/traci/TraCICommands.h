@@ -304,6 +304,7 @@ public:
     std::list<std::string> LADGetLastStepVehicleIDs(std::string);
     double LADGetLastStepMeanVehicleSpeed(std::string);
     uint32_t LADGetLastStepVehicleHaltingNumber(std::string);
+    double LADGetLastStepJamLengthInMeter(std::string);
 
     // ################################################################
     //                          traffic light
@@ -558,6 +559,7 @@ private:
             {{0xad, 0x12}, "LADGetLastStepVehicleIDs"},
             {{0xad, 0x11}, "LADGetLastStepMeanVehicleSpeed"},
             {{0xad, 0x14}, "LADGetLastStepVehicleHaltingNumber"},
+            {{0xad, 0x19}, "LADGetLastStepJamLengthInMeter"},
 
             {{0xa2, 0x00}, "TLGetIDList"},
             {{0xa2, 0x01}, "TLGetIDCount"},

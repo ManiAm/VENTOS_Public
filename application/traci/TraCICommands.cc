@@ -1964,6 +1964,15 @@ uint32_t TraCI_Commands::LADGetLastStepVehicleHaltingNumber(std::string loopId)
     return result;
 }
 
+double TraCI_Commands::LADGetLastStepJamLengthInMeter(std::string loopId)
+{
+    updateTraCIlog("commandStart", CMD_GET_AREAL_DETECTOR_VARIABLE, JAM_LENGTH_METERS);
+
+    double result = genericGetDouble(CMD_GET_AREAL_DETECTOR_VARIABLE, loopId, JAM_LENGTH_METERS, RESPONSE_GET_AREAL_DETECTOR_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_AREAL_DETECTOR_VARIABLE, JAM_LENGTH_METERS);
+    return result;
+}
 
 
 // ################################################################
