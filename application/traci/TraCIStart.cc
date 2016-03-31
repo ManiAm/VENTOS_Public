@@ -33,6 +33,12 @@
 #include <cmath>
 #include <algorithm>
 
+// un-defining ev!
+// why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header
+#undef ev
+#include "boost/filesystem.hpp"
+#define ev  (*cSimulation::getActiveEnvir())
+
 #define MYDEBUG EV
 
 namespace VENTOS {
@@ -156,9 +162,15 @@ void TraCI_Start::handleMessage(cMessage *msg)
 
     if (msg == connectAndStartTrigger)
     {
-        // start SUMO TraCI server
+        // get SUMO executable
         std::string SUMOexe = par("SUMOexe").stringValue();
+        // check if this file exists?
+        if( !boost::filesystem::exists(SUMOexe) )
+            error("SUMO executable not found at %s. Check SUMOexe variable!", SUMOexe.c_str());
+
         int seed = par("seed").longValue();
+
+        // start SUMO TraCI server
         int port = TraCIConnection::startServer(SUMOexe, getSUMOConfigFullPath(), seed);
 
         // connect to SUMO TraCI server
