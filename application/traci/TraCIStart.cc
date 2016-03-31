@@ -235,7 +235,7 @@ void TraCI_Start::init_traci()
     double x2 = boundaries[2];  // x2
     double y2 = boundaries[3];  // y2
 
-    std::cout << "TraCI reports network boundaries (" << x1 << ", " << y1 << ")-(" << x2 << ", " << y2 << ")" << endl;
+    std::cout << "TraCI reports network boundaries (" << x1 << "," << y1 << ")-(" << x2 << "," << y2 << ")" << endl;
 
     netbounds1 = TraCICoord(x1, y1);
     netbounds2 = TraCICoord(x2, y2);
