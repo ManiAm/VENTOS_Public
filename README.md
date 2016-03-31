@@ -37,13 +37,17 @@ In Mac OS, type `git` in terminal and choose the Install button in the window th
 
 **Step 6:** Now you can build the VENTOS project. Use Ctrl+B or right-click on the project name and choose "Build Project". Wait for a while and then check the console windows at the bottom of the Eclipse IDE to make sure no errors occurred.
 
-**Step 7:** Run the VENTOS project by right clicking on the project name in the IDE and choose: 
+**Step 7:** Open params1_General.ini file and change the absolute path of SUMO executable accordingly.
+
+    Network.TraCI.SUMOexe = "/home/mani/Desktop/VENTOS_SUMO/sumo/bin/sumo-guiD"
+
+SUMO binaries (`sumo-guiD` and `sumoD`) are located in SUMO bin folder. sumo-guiD is the GUI version that provides a graphical interface to SUMO, and is visible while the OMNET++ simulation is running (and is very useful for debugging purposes). On the other hands, sumoD is the command-line version which is faster. Note that you can not use the official SUMO binaries since we have extended the TraCI commands, car-following models, etc. Using the official SUMO binaries will probably give you run-time error.
+
+**Step 8:** Run the VENTOS project by right clicking on the project name in the IDE and choose: 
 
     "Run as" -> "Run configurations..."
 
 Choose 'OMNET++ Simulation' and click on 'New launch configuration' button at the top left. Give this configuration a name like myConfig. In Executable, choose opp_run and in 'Ini file(s)' choose one of the ini files in the project like params2_CACC.ini. From 'Config name' choose a configuration from the drop down list like CACCVehicleStream1. Leave the rest of the options to default. Click Apply and then click Run.
-
-Note: SUMO binaries (`sumo-guiD` and `sumoD`) are located in SUMO bin folder. sumo-guiD is the GUI version that provides a graphical interface to SUMO, and is visible while the OMNET++ simulation is running (and is very useful for debugging purposes). On the other hands, sumoD is the command-line version which is faster. Note that you can not use the official SUMO binaries since we have extended the TraCI commands, car-following models, etc. Using the official SUMO binaries will probably give you run-time error.
 
 
 Running VENTOS from command-line
