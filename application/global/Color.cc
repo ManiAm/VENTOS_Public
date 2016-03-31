@@ -848,7 +848,7 @@ HSL Color::rgbToHsl(double red, double green, double blue)
     red /= 255, green /= 255, blue /= 255; // normalize value between [0,1]
     double max = std::max(red, std::max(green, blue));
     double min = std::min(red, std::min(green, blue));
-    double h, s, l = (max + min) / 2;
+    double h = 0, s, l = (max + min) / 2;
 
     if(max == min)
     {
