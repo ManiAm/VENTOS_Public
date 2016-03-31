@@ -37,20 +37,24 @@ In Mac OS, type `git` in terminal and choose the Install button in the window th
 
 **Step 6:** Now you can build the VENTOS project. Use Ctrl+B or right-click on the project name and choose "Build Project". Wait for a while and then check the console windows at the bottom of the Eclipse IDE to make sure no errors occurred.
 
-**Step 7:** Open params1_General.ini file and change the absolute path of SUMO executable accordingly.
+
+Running VENTOS from IDE
+-----------------------
+
+**Step 1:** Open params1_General.ini file and change the absolute path of SUMO executable accordingly.
 
     Network.TraCI.SUMOexe = "/home/mani/Desktop/VENTOS_SUMO/sumo/bin/sumo-guiD"
 
 SUMO binaries (`sumo-guiD` and `sumoD`) are located in SUMO bin folder. sumo-guiD is the GUI version that provides a graphical interface to SUMO, and is visible while the OMNET++ simulation is running (and is very useful for debugging purposes). On the other hands, sumoD is the command-line version which is faster. Note that you can not use the official SUMO binaries since we have extended the TraCI commands, car-following models, etc. Using the official SUMO binaries will probably give you run-time error.
 
-**Step 8:** Run the VENTOS project by right clicking on the project name in the IDE and choose: 
+**Step 2:** Run the VENTOS project by right clicking on the project name in the IDE and choose: 
 
     "Run as" -> "Run configurations..."
 
 Choose 'OMNET++ Simulation' and click on 'New launch configuration' button at the top left. Give this configuration a name like myConfig. In Executable, choose opp_run and in 'Ini file(s)' choose one of the ini files in the project like params2_CACC.ini. From 'Config name' choose a configuration from the drop down list like CACCVehicleStream1. Leave the rest of the options to default. Click Apply and then click Run.
 
 
-Running VENTOS from command-line
+Running VENTOS from Command-line
 --------------------------------
 
 The Eclipse IDE launcher helps you start the simulation easily by building the command line and the environment for your program automatically. Sometimes it would be great to start the simulation from outside the IDE. To get the command line used for running the simulation, run the simulation from the IDE. Go to 'debug view' and right click on your program and select 'properties'. The IDE shows the currently used command line such as:
@@ -71,8 +75,8 @@ OMNET has a utility program called opp_runall which allows you to execute a simu
 The -j option is used to specify the maximum number of parallel runs allowed. opp_runall basically expands the -r option; for example, a simulation command line containing -r 0..2,8,10 will generate 5 commands with the -r 0, -r 1, -r 2, -r 8 and -r 10 options, respectively.
 
 
-Running VENTOS on a Server
---------------------------
+Running VENTOS on a Remote Server
+---------------------------------
 
 You can run the project on a remote server (Ubuntu Server preferably). 
 
