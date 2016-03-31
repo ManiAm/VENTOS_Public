@@ -400,6 +400,7 @@ public:
     // ################################################################
     //                       SUMO directory
     // ################################################################
+
     std::string getSUMOFullDir();
     std::string getSUMOConfigFullPath();
 

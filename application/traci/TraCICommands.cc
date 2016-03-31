@@ -87,7 +87,7 @@ std::pair<uint32_t, std::string> TraCI_Commands::getVersion()
     if (!success)
     {
         ASSERT(buf.eof());
-        return std::pair<uint32_t, std::string>(0, "(unknown)");
+        return std::make_pair(0, "(unknown)");
     }
 
     uint8_t cmdLength; buf >> cmdLength;
@@ -99,7 +99,7 @@ std::pair<uint32_t, std::string> TraCI_Commands::getVersion()
 
     updateTraCIlog("commandComplete", CMD_GETVERSION, 0xff);
 
-    return std::pair<uint32_t, std::string>(apiVersion, serverVersion);
+    return std::make_pair(apiVersion, serverVersion);
 }
 
 
