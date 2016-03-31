@@ -26,12 +26,6 @@
 #include "ConnectionManager.h"
 #include "TraCICommands.h"
 
-// un-defining ev!
-// why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header
-#undef ev
-#include "boost/filesystem.hpp"
-#define ev  (*cSimulation::getActiveEnvir())
-
 namespace VENTOS {
 
 // used for equilibrium logic
@@ -73,7 +67,6 @@ public:
 
 private:
     void init_traci();
-    void sendLaunchFile();
     void initRoi();
     void roiRSUs();
     void drawRoi();
@@ -116,7 +109,6 @@ private:
     simtime_t updateInterval;  /**< time interval of hosts' position updates */
 
     std::string host;
-    int port;
 
     // NED variables
     double terminate;
@@ -169,10 +161,6 @@ private:
     double roiSquareSizeRSU;
 
     // class variables
-    boost::filesystem::path VENTOS_FullPath;
-    boost::filesystem::path SUMO_Path;
-    boost::filesystem::path SUMO_FullPath;
-
     bool equilibrium_vehicle;
     std::map<std::string, departedNodes> addedNodes;
 };

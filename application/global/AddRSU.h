@@ -32,12 +32,6 @@
 #include <BaseApplLayer.h>
 #include "ConnectionManager.h"
 
-// un-defining ev!
-// why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header
-#undef ev
-#include "boost/filesystem.hpp"
-#define ev  (*cSimulation::getActiveEnvir())
-
 namespace VENTOS {
 
 class RSUEntry
@@ -81,10 +75,6 @@ private:
     bool on;
     int mode;
     int TLControlMode;
-
-    boost::filesystem::path VENTOS_FullPath;
-    boost::filesystem::path SUMO_Path;
-    boost::filesystem::path SUMO_FullPath;
 
     std::map<int, cModule*> hosts; /**< vector of all RSUs managed by us */
 };

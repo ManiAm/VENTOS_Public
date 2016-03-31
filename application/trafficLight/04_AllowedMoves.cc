@@ -83,7 +83,8 @@ void TrafficLightAllowedMoves::getMovements(std::string TLid)
     if(LINKSIZE == 0)
         error("LINKSIZE can not be zero for this TL!");
 
-    movementsFilePath = SUMO_FullPath / "allMovements.txt";
+    boost::filesystem::path dir (TraCI->getSUMOFullDir());
+    movementsFilePath = dir / "allMovements.txt";
 
     // check if this file exists?
     if( boost::filesystem::exists( movementsFilePath ) )

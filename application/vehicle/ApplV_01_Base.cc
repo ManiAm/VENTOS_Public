@@ -73,12 +73,6 @@ void ApplVBase::initialize(int stage)
         // get controller number from SUMO
         SUMOControllerNumber = par("SUMOControllerNumber").longValue();
 
-        VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-        SUMO_Path = simulation.getSystemModule()->par("SUMODirectory").stringValue();
-        SUMO_FullPath = VENTOS_FullPath / SUMO_Path;
-        if( !boost::filesystem::exists( SUMO_FullPath ) )
-            error("SUMO directory is not valid! Check it again.");
-
         // store the time of entry
         entryTime = simTime().dbl();
 

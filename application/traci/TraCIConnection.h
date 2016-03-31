@@ -1,16 +1,20 @@
-#ifndef VEINS_MOBILITY_TRACI_TRACICONNECTION_H_
-#define VEINS_MOBILITY_TRACI_TRACICONNECTION_H_
+#ifndef TRACICONNECTION_H_
+#define TRACICONNECTION_H_
 
 #include <stdint.h>
+#include "Coord.h"
+
 #include "TraCIBuffer.h"
 #include "TraCICoord.h"
-#include "Coord.h"
 
 namespace VENTOS {
 
 class TraCIConnection
 {
 	public:
+        static int startServer(std::string SUMOexe, std::string SUMOconfig, int seed);
+        static int getFreeEphemeralPort();
+        static void TraCILauncher(std::string commandLine);
 		static TraCIConnection* connect(const char* host, int port);
 		~TraCIConnection();
 
@@ -40,6 +44,7 @@ class TraCIConnection
 
 	private:
 		void* socketPtr;
+        static pid_t pid;
 };
 
 /**

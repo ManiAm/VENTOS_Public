@@ -395,6 +395,13 @@ public:
     Coord traci2omnet(TraCICoord coord) const;      // convert TraCI coordinates to OMNeT++ coordinates
     TraCICoord omnet2traci(Coord coord) const;      // convert OMNeT++ coordinates to TraCI coordinates
 
+
+    // ################################################################
+    //                       SUMO directory
+    // ################################################################
+    std::string getSUMOFullDir();
+    std::string getSUMOConfigFullPath();
+
 private:
     // ################################################################
     //                    generic methods for getters

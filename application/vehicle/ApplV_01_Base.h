@@ -33,12 +33,6 @@
 #include <WaveAppToMac1609_4Interface.h>
 #include "TraCICommands.h"
 
-// un-defining ev!
-// why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header
-#undef ev
-#include "boost/filesystem.hpp"
-#define ev  (*cSimulation::getActiveEnvir())
-
 namespace VENTOS {
 
 class ApplVBase : public BaseApplLayer
@@ -69,10 +63,6 @@ protected:
     int SUMOControllerNumber;
 
     static const simsignalwrap_t mobilityStateChangedSignal;
-
-    boost::filesystem::path VENTOS_FullPath;
-    boost::filesystem::path SUMO_Path;
-    boost::filesystem::path SUMO_FullPath;
 
     // Class variables
     Coord curPosition;  // current position from mobility module (not from sumo)

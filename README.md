@@ -37,39 +37,13 @@ In Mac OS, type `git` in terminal and choose the Install button in the window th
 
 **Step 6:** Now you can build the VENTOS project. Use Ctrl+B or right-click on the project name and choose "Build Project". Wait for a while and then check the console windows at the bottom of the Eclipse IDE to make sure no errors occurred.
 
-
-Running VENTOS
---------------
-
-SUMO binaries (`sumo-guiD` and `sumoD`) are located in SUMO bin folder. sumo-guiD is the GUI version that provides a graphical interface to SUMO, and is visible while the OMNET++ simulation is running (and is very useful for debugging purposes). On the other hands, sumoD is the command-line version which is faster. Note that you can not use the official SUMO binaries since we have extended the TraCI commands, car-following models, etc. Using the official SUMO binaries will probably give you run-time error.
-
-**Step 1:** To save you the trouble of manually running SUMO prior to every OMNeT++ simulation, the Veins module framework comes with a small python script (veins-sumo-launchd.py) to do that for you. This script will proxy TCP connections between OMNeT++ and SUMO, starting a new copy of the SUMO simulation for every OMNeT++ simulation connecting. From the VENTOS folder, run either of the following commands:
-
-SUMO in graphical mode:
-
-    python veins-sumo-launchd.py -vv -c sumo-guiD
-
-SUMO in command-line mode:
-
-    python veins-sumo-launchd.py -vv -c sumoD
-
-The terminal should look like the following picture. The script will print `Listening on port 9999` and wait for the simulation to start. Note that after running either of these commands, DO NOT close the terminal window. Leave it open.
-
-<img src="https://github.com/ManiAm/VENTOS/blob/master/launchd.png" />
-
-**Step 2:** To make the life easier, you can create an alias command to make a shortcut to the above long commands. Open .bashrc and add these lines at the end (you should change the PATHs accordingly).
-
-    export VENTOSPATH=/home/mani/Desktop/VENTOS
-    alias sumo-cmd='python $VENTOSPATH/veins-sumo-launchd.py -vv -c sumoD'
-    alias sumo-gui='python $VENTOSPATH/veins-sumo-launchd.py -vv -c sumo-guiD'
-
-Now you can use sumo-cmd and sumo-gui commands instead!
-
-**Step 3:** Run the VENTOS project by right clicking on the project name in the IDE and choose: 
+**Step 7:** Run the VENTOS project by right clicking on the project name in the IDE and choose: 
 
     "Run as" -> "Run configurations..."
 
 Choose 'OMNET++ Simulation' and click on 'New launch configuration' button at the top left. Give this configuration a name like myConfig. In Executable, choose opp_run and in 'Ini file(s)' choose one of the ini files in the project like params2_CACC.ini. From 'Config name' choose a configuration from the drop down list like CACCVehicleStream1. Leave the rest of the options to default. Click Apply and then click Run.
+
+Note: SUMO binaries (`sumo-guiD` and `sumoD`) are located in SUMO bin folder. sumo-guiD is the GUI version that provides a graphical interface to SUMO, and is visible while the OMNET++ simulation is running (and is very useful for debugging purposes). On the other hands, sumoD is the command-line version which is faster. Note that you can not use the official SUMO binaries since we have extended the TraCI commands, car-following models, etc. Using the official SUMO binaries will probably give you run-time error.
 
 
 Running VENTOS from command-line

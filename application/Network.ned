@@ -17,7 +17,6 @@ network Network
         double playgroundSizeY @unit(m); // y size of the area the nodes are in (in meters)
         double playgroundSizeZ @unit(m); // z size of the area the nodes are in (in meters)
 
-        string SUMODirectory = default(""); // location of SUMO files
         int debugLevel;
 
         @display("bgb=382,470");

@@ -107,12 +107,6 @@ void AddEntity::initialize(int stage)
 
         Signal_executeFirstTS = registerSignal("executeFirstTS");
         simulation.getSystemModule()->subscribe("executeFirstTS", this);
-
-        boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-        boost::filesystem::path SUMO_Path = simulation.getSystemModule()->par("SUMODirectory").stringValue();
-        SUMO_FullPath = VENTOS_FullPath / SUMO_Path;
-        if( !boost::filesystem::exists( SUMO_FullPath ) )
-            error("SUMO directory is not valid! Check it again.");
     }
 }
 
@@ -440,11 +434,11 @@ void AddEntity::Scenario8()
     Router *r = static_cast< Router* >(module);
 
     std::string vehFile = ("/Vehicles" + std::to_string(r->totalVehicleCount) + ".xml");
-    std::string xmlFileName = SUMO_FullPath.string();
+    std::string xmlFileName = TraCI->getSUMOFullDir();
     xmlFileName += vehFile;
 
     if( !boost::filesystem::exists(xmlFileName) )
-        generateVehicles(SUMO_FullPath.string(), r);
+        generateVehicles(TraCI->getSUMOFullDir(), r);
 
     rapidxml::file<> xmlFile( xmlFileName.c_str() );          // Convert our file to a rapid-xml readable object
     rapidxml::xml_document<> doc;                             // Build a rapidxml doc

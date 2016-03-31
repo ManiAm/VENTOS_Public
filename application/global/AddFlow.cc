@@ -50,21 +50,11 @@ void AddFlow::initialize(int stage)
         TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
 
-        // get path to the launchFile
-        std::string launchFile = module->par("launchFile").stringValue();
-        launchFullPath = SUMO_FullPath / launchFile;
-
         on = par("on").boolValue();
         flowSetId = par("flowSetId").stringValue();
 
         Signal_addFlow = registerSignal("addFlow");
         simulation.getSystemModule()->subscribe("addFlow", this);
-
-        boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-        boost::filesystem::path SUMO_Path = simulation.getSystemModule()->par("SUMODirectory").stringValue();
-        SUMO_FullPath = VENTOS_FullPath / SUMO_Path;
-        if( !boost::filesystem::exists( SUMO_FullPath ) )
-            error("SUMO directory is not valid! Check it again.");
     }
 }
 
@@ -87,8 +77,8 @@ void AddFlow::receiveSignal(cComponent *source, simsignal_t signalID, long i)
 
     if(signalID == Signal_addFlow && on)
     {
-        // read launch file and get path to the sumo.cfg file
-        std::string sumoConfig = getFullPathToSumoConfig(launchFullPath.string());
+        // get full path to the sumo.cfg file
+        std::string sumoConfig = TraCI->getSUMOConfigFullPath();
 
         // read sumo.cfg file and get the path to rou file
         std::string sumoRou = getFullPathToSumoRou(sumoConfig);
@@ -102,15 +92,6 @@ void AddFlow::receiveSignal(cComponent *source, simsignal_t signalID, long i)
         // add a new entry to copy the new rou, and also modify sumo.cfg
         //    applyChanges();
     }
-}
-
-
-std::string AddFlow::getFullPathToSumoConfig(std::string launchFullPath)
-{
-    rapidxml::file<> xmlFile(launchFullPath.c_str());
-    rapidxml::xml_document<> doc;
-    doc.parse<0>(xmlFile.data());
-
 }
 
 

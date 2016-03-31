@@ -31,12 +31,6 @@
 #include "BaseApplLayer.h"
 #include "TraCICommands.h"
 
-// un-defining ev!
-// why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header
-#undef ev
-#include "boost/filesystem.hpp"
-#define ev  (*cSimulation::getActiveEnvir())
-
 namespace VENTOS {
 
 class AddEntity : public BaseApplLayer
@@ -83,7 +77,6 @@ private:
 
     // class variables
     simsignal_t Signal_executeFirstTS;
-    boost::filesystem::path SUMO_FullPath;
 
     std::vector<double> vehRouteDistribution;
     std::vector<double> vehClassDistribution;

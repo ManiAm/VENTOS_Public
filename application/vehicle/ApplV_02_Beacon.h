@@ -30,6 +30,7 @@
 
 #include "ApplV_01_Base.h"
 #include "BeaconVehicle_m.h"
+#include <deque>
 
 namespace VENTOS {
 

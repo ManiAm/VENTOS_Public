@@ -93,19 +93,12 @@ void Router::initialize(int stage)
 
     if(stage == 0)
     {
-        debugLevel = simulation.getSystemModule()->par("debugLevel").longValue();
-
-        // get the file paths
-        VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-        SUMO_Path = simulation.getSystemModule()->par("SUMODirectory").stringValue();
-        SUMO_FullPath = VENTOS_FullPath / SUMO_Path;
-        if( !boost::filesystem::exists( SUMO_FullPath ) )
-            error("SUMO directory is not valid! Check it again.");
-
         // get a pointer to the TraCI module
         cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
         TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
+
+        debugLevel = simulation.getSystemModule()->par("debugLevel").longValue();
 
         EWMARate = par("EWMARate").doubleValue();
         TLLookahead = par("TLLookahead").doubleValue();
@@ -130,6 +123,11 @@ void Router::initialize(int stage)
         simulation.getSystemModule()->subscribe("system", this);
         Signal_executeEachTS = registerSignal("executeEachTS");
         simulation.getSystemModule()->subscribe("executeEachTS", this);
+
+        // get the file paths
+        SUMO_FullPath = TraCI->getSUMOFullDir();
+        if( !boost::filesystem::exists( SUMO_FullPath ) )
+            error("SUMO directory is not valid! Check it again.");
 
         if(UseAccidents)
         {

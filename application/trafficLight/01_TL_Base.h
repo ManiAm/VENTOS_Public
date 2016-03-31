@@ -60,10 +60,6 @@ class TrafficLightBase : public BaseApplLayer
       simsignal_t Signal_executeFirstTS;
       simsignal_t Signal_executeEachTS;
 
-      boost::filesystem::path VENTOS_FullPath;
-      boost::filesystem::path SUMO_Path;
-      boost::filesystem::path SUMO_FullPath;
-
       int TLControlMode;
       int debugLevel;
       double updateInterval;

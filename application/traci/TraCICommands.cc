@@ -2909,6 +2909,38 @@ double TraCI_Commands::omnet2traciAngle(double angle) const
 
 
 // ################################################################
+//                       SUMO directory
+// ################################################################
+
+std::string TraCI_Commands::getSUMOFullDir()
+{
+    boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+    std::string SUMOconfig = par("SUMOconfig").stringValue();
+    boost::filesystem::path SUMOconfigFullPath = VENTOS_FullPath / SUMOconfig;
+
+    // get the directory
+    boost::filesystem::path dir = SUMOconfigFullPath.parent_path();
+
+    if( !boost::filesystem::exists( dir ) )
+        error("SUMO directory is not found in %s", dir.string().c_str());
+
+    return dir.string();
+}
+
+
+std::string  TraCI_Commands::getSUMOConfigFullPath()
+{
+    boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+    std::string SUMOconfig = par("SUMOconfig").stringValue();
+    boost::filesystem::path SUMOconfigFullPath = VENTOS_FullPath / SUMOconfig;
+
+    if( !boost::filesystem::exists( SUMOconfigFullPath ) )
+        error("SUMO cinfigure file is not found in %s", SUMOconfigFullPath.string().c_str());
+
+    return SUMOconfigFullPath.string();
+}
+
+// ################################################################
 //               logging TraCI commands exchange
 // ################################################################
 

@@ -9,22 +9,23 @@ simple TraCIStart
         @display("i=block/network2");
         @class(VENTOS::TraCI_Start);
         
-        bool logTraCIcommands = default(false);
-                        
-        bool debug = default(false);                      // emit debug messages?
+        bool debug = default(false);           // emit debug messages?
+        
+        string host = default("localhost");    // sumo-launchd.py server hostname
+        string SUMOexe = default("sumo");
+        int seed = default(-1);                // seed value to set in launch configuration, if missing (-1: current run number)
+        string SUMOconfig = default("");       // launch configuration to send to sumo-launchd.py
+        int margin = default(25);              // margin to add to all received vehicle positions 
+        
         double connectAt @unit("s") = default(0s);        // when to connect to TraCI server (must be the initial timestep of the server)
         double firstStepAt @unit("s") = default(-1s);     // when to start synchronizing with the TraCI server (-1: immediately after connecting)
         double updateInterval @unit("s") = default(1s);   // time interval of hosts' position updates
         
-        string host = default("localhost");    // sumo-launchd.py server hostname
-        int port = default(9999);              // sumo-launchd.py server port
-        
-        string launchFile = default("");             // launch configuration to send to sumo-launchd.py
-        // xml launchConfig;                         // [obsolete] launch configuration to send to sumo-launchd.py
-        int seed = default(-1);                      // seed value to set in launch configuration, if missing (-1: current run number)
         double terminate = default(200s) @unit(s);   // maximum simulation time
         bool autoShutdown = default(true);           // Shutdown module as soon as no more vehicles are in the simulation
         bool TraCIclosed = default(false);           // for internal use
+        bool equilibrium_vehicle;
+        bool logTraCIcommands = default(false);
         
         string vehicleModuleType = default("inet.nodes.wireless.WirelessHostSimplified");    // module type to be used in the simulation for each managed vehicle
         string vehicleModuleName = default("host");                                          // module name to be used in the simulation for each managed vehicle
@@ -41,9 +42,7 @@ simple TraCIStart
         int numVehicles = default(0);
         double penetrationRate = default(1);          //the probability of a vehicle being equipped with Car2X technology
         int vehicleRngIndex = default(0);             // index of the RNG stream to be used, all random numbers concerning the managed vehicles
-        int margin = default(25);                     // margin to add to all received vehicle positions
         bool useRouteDistributions = default(false);
-        bool equilibrium_vehicle;
         
         string roiRoads = default("");  // which roads (e.g. "hwy1 hwy2") are considered to consitute the region of interest, if not empty
         string roiRects = default("");  // which rectangles (e.g. "0,0-10,10 20,20-30,30) are considered to consitute the region of interest, if not empty (in SUMO coordinate)

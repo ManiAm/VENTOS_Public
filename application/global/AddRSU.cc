@@ -31,6 +31,12 @@
 #include <rapidxml_utils.hpp>
 #include <rapidxml_print.hpp>
 
+// un-defining ev!
+// why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header
+#undef ev
+#include "boost/filesystem.hpp"
+#define ev  (*cSimulation::getActiveEnvir())
+
 namespace VENTOS {
 
 Define_Module(VENTOS::AddRSU);
@@ -64,12 +70,6 @@ void AddRSU::initialize(int stage)
 
         on = par("on").boolValue();
         mode = par("mode").longValue();
-
-        VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-        SUMO_Path = simulation.getSystemModule()->par("SUMODirectory").stringValue();
-        SUMO_FullPath = VENTOS_FullPath / SUMO_Path;
-        if( !boost::filesystem::exists( SUMO_FullPath ) )
-            error("SUMO directory is not valid! Check it again.");
     }
 }
 
@@ -125,7 +125,8 @@ void AddRSU::Scenario1()
     // ####################################
 
     std::string RSUfile = par("RSUfile").stringValue();
-    boost::filesystem::path RSUfilePath = SUMO_FullPath / RSUfile;
+    boost::filesystem::path dir (TraCI->getSUMOFullDir());
+    boost::filesystem::path RSUfilePath = dir / RSUfile;
 
     // check if this file is valid?
     if( !boost::filesystem::exists(RSUfilePath) )

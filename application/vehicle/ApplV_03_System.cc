@@ -64,7 +64,7 @@ void ApplVSystem::initialize(int stage)
         // get the rootFilePath
         cModule *module = simulation.getSystemModule()->getSubmodule("router");
         router = static_cast< Router* >(module);
-        std::string rootFilePath = SUMO_FullPath.string();
+        std::string rootFilePath = TraCI->getSUMOFullDir();
         rootFilePath += "/Vehicles" + std::to_string(router->totalVehicleCount) + ".xml";
         router->net->vehicles[SUMOID]->maxAccel = TraCI->vehicleGetMaxAccel(SUMOID);
 

@@ -59,13 +59,6 @@ void TrafficLightBase::initialize(int stage)
 
         // initialize RSUptr with NULL
         RSUptr = NULL;
-
-        // get the file paths
-        VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-        SUMO_Path = simulation.getSystemModule()->par("SUMODirectory").stringValue();
-        SUMO_FullPath = VENTOS_FullPath / SUMO_Path;
-        if( !boost::filesystem::exists( SUMO_FullPath ) )
-            error("SUMO directory is not valid! Check it again.");
     }
 }
 

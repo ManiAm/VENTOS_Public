@@ -30,6 +30,9 @@
 #include <rapidxml_utils.hpp>
 #include <rapidxml_print.hpp>
 
+#include <cmath>
+#include <algorithm>
+
 #define MYDEBUG EV
 
 namespace VENTOS {
@@ -85,7 +88,6 @@ void TraCI_Start::initialize(int stage)
             scheduleAt(firstStepAt, executeOneTimestepTrigger);
 
             host = par("host").stdstringValue();
-            port = par("port");
 
             autoShutdown = par("autoShutdown");
 
@@ -129,12 +131,6 @@ void TraCI_Start::initialize(int stage)
             equilibrium_vehicle = par("equilibrium_vehicle").boolValue();
             addedNodes.clear();
         }
-
-        VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-        SUMO_Path = simulation.getSystemModule()->par("SUMODirectory").stringValue();
-        SUMO_FullPath = VENTOS_FullPath / SUMO_Path;
-        if( !boost::filesystem::exists( SUMO_FullPath ) )
-            error("SUMO directory is not valid! Check it again.");
     }
 }
 
@@ -160,10 +156,20 @@ void TraCI_Start::handleMessage(cMessage *msg)
 
     if (msg == connectAndStartTrigger)
     {
+        // start SUMO TraCI server
+        std::string SUMOexe = par("SUMOexe").stringValue();
+        int seed = par("seed").longValue();
+        int port = TraCIConnection::startServer(SUMOexe, getSUMOConfigFullPath(), seed);
+
+        // connect to SUMO TraCI server
         connection = TraCIConnection::connect(host.c_str(), port);
 
-        // initialize SUMO TraCI
+        // initialize TraCI
         init_traci();
+
+        // call AddVehicle to insert flows if needed
+        simsignal_t Signal_addFlow = registerSignal("addFlow");
+        this->emit(Signal_addFlow, 0);
 
         std::cout << "Initializing modules with TraCI support ..." << std::endl << std::endl;
         simsignal_t Signal_executeFirstTS = registerSignal("executeFirstTS");
@@ -199,17 +205,6 @@ void TraCI_Start::handleMessage(cMessage *msg)
 
 void TraCI_Start::init_traci()
 {
-    // get the version of python launchd
-    std::pair<uint32_t, std::string> versionP = getVersion();
-    uint32_t apiVersionP = versionP.first;
-    std::string serverVersionP = versionP.second;
-    std::cout << "Python script reports apiVersion: " << apiVersionP << " and serverVersion: " << serverVersionP << endl;
-    ASSERT(apiVersionP == 1);
-
-    // send the launch file to python script
-    std::cout << "Sending launch file ..." << std::endl;
-    sendLaunchFile();
-
     // get the version of SUMO TraCI API
     std::pair<uint32_t, std::string> versionS = getVersion();
     uint32_t apiVersionS = versionS.first;
@@ -279,76 +274,6 @@ void TraCI_Start::init_traci()
             obstacles->addFromTypeAndShape(id, typeId, shape);
         }
     }
-}
-
-
-void TraCI_Start::sendLaunchFile()
-{
-    std::string launchFile = par("launchFile").stringValue();
-    boost::filesystem::path launchFullPath = SUMO_FullPath / launchFile;
-
-    rapidxml::file<> xmlFile( launchFullPath.string().c_str() );
-    rapidxml::xml_document<> doc;
-    doc.parse<0>(xmlFile.data());
-
-    // create a node called basedir
-    rapidxml::xml_node<> *basedir = doc.allocate_node(rapidxml::node_element, "basedir");
-
-    // append attribute to basedir
-    rapidxml::xml_attribute<> *attr = doc.allocate_attribute("path", SUMO_FullPath.c_str());
-    basedir->append_attribute(attr);
-
-    // append basedir to the launch
-    rapidxml::xml_node<> *node = doc.first_node("launch");
-    node->append_node(basedir);
-
-    // seed value to set in launch configuration, if missing (-1: current run number)
-    int seed = par("seed");
-
-    if (seed == -1)
-    {
-        // default seed is current repetition
-        const char* seed_s = cSimulation::getActiveSimulation()->getEnvir()->getConfigEx()->getVariable(CFGVAR_RUNNUMBER);
-        seed = atoi(seed_s);
-    }
-
-    // create a node called seed
-    rapidxml::xml_node<> *seedN = doc.allocate_node(rapidxml::node_element, "seed");
-
-    // append attribute to seed
-    std::stringstream ss; ss << seed;
-    rapidxml::xml_attribute<> *attr1 = doc.allocate_attribute( "value", ss.str().c_str() );
-    seedN->append_attribute(attr1);
-
-    // append seed to the launch
-    rapidxml::xml_node<> *node1 = doc.first_node("launch");
-    node1->append_node(seedN);
-
-    // convert to std::string
-    std::stringstream os;
-    os << doc;
-    std::string contents = os.str();
-
-    // call AddVehicle to insert flows if needed
-    simsignal_t Signal_addFlow = registerSignal("addFlow");
-    this->emit(Signal_addFlow, 0);
-
-    // send the std::string of the launch file to Python
-    uint8_t commandId = 0x75;
-    TraCIBuffer buf;
-    buf << std::string("sumo-launchd.launch.xml") << contents;
-    connection->sendMessage(makeTraCICommand(commandId, buf));
-
-    TraCIBuffer obuf( connection->receiveMessage() );
-    uint8_t cmdLength; obuf >> cmdLength;
-    uint8_t commandResp; obuf >> commandResp;
-    if (commandResp != commandId)
-        error("Expected response to command %d, but got one for command %d", commandId, commandResp);
-
-    uint8_t result; obuf >> result;
-    std::string description; obuf >> description;
-    if (result != RTYPE_OK)
-        std::cout << "Warning: Received non-OK response from TraCI server to command " << commandId << ":" << description.c_str() << endl;
 }
 
 
