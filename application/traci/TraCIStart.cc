@@ -276,7 +276,6 @@ void TraCI_Start::init_traci()
             std::string id = *i;
             std::string typeId = polygonGetTypeID(id);
 
-
             if (!obstacles->isTypeSupported(typeId))
                 continue;
 

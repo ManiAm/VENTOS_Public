@@ -216,6 +216,8 @@ void SniffEthernet::listInterfaces()
         printf("\n");
     }
 
+    printf("\n");
+
     pcap_freealldevs(alldevs);
 
     std::cout.flush();
