@@ -2955,8 +2955,8 @@ std::string  TraCI_Commands::getSUMOConfigFullPath()
     std::string SUMOconfig = par("SUMOconfig").stringValue();
     boost::filesystem::path SUMOconfigFullPath = VENTOS_FullPath / SUMOconfig;
 
-    if( !boost::filesystem::exists( SUMOconfigFullPath ) )
-        error("SUMO cinfigure file is not found in %s", SUMOconfigFullPath.string().c_str());
+    if( !boost::filesystem::exists(SUMOconfigFullPath) || !boost::filesystem::is_regular_file(SUMOconfigFullPath) )
+        error("SUMO configure file is not found in %s", SUMOconfigFullPath.string().c_str());
 
     return SUMOconfigFullPath.string();
 }
