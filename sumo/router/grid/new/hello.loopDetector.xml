@@ -1,0 +1,133 @@
+<additional xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo-sim.org/xsd/additional_file.xsd">
+
+   <e1Detector id="flow_00to10_0_0" lane="00to10_0" pos="0" freq="60" file="NUL"/>  
+   <e1Detector id="flow_00to10_1_0" lane="00to10_1" pos="0" freq="60" file="NUL"/>
+   <e1Detector id="flow_00to10_0_1" lane="00to10_0" pos="150" freq="60" file="NUL"/>  
+   <e1Detector id="flow_00to10_1_1" lane="00to10_1" pos="150" freq="60" file="NUL"/>
+  
+   <e1Detector id="flow_10to20_0_0" lane="10to20_0" pos="0" freq="60" file="NUL"/> 
+   <e1Detector id="flow_10to20_1_0" lane="10to20_1" pos="0" freq="60" file="NUL"/>
+   <e1Detector id="flow_10to20_0_1" lane="10to20_0" pos="150" freq="60" file="NUL"/> 
+   <e1Detector id="flow_10to20_1_1" lane="10to20_1" pos="150" freq="60" file="NUL"/>
+
+   <e1Detector id="flow_01to00_0_0" lane="01to00_0" pos="0" freq="60" file="NUL"/> 
+   <e1Detector id="flow_01to00_1_0" lane="01to00_1" pos="0" freq="60" file="NUL"/>
+   <e1Detector id="flow_01to00_0_1" lane="01to00_0" pos="150" freq="60" file="NUL"/> 
+   <e1Detector id="flow_01to00_1_1" lane="01to00_1" pos="150" freq="60" file="NUL"/>
+
+   <e1Detector id="flow_02to01_0_0" lane="02to01_0" pos="0" freq="60" file="NUL"/> 
+   <e1Detector id="flow_02to01_1_0" lane="02to01_1" pos="0" freq="60" file="NUL"/>
+   <e1Detector id="flow_02to01_0_1" lane="02to01_0" pos="150" freq="60" file="NUL"/> 
+   <e1Detector id="flow_02to01_1_1" lane="02to01_1" pos="150" freq="60" file="NUL"/>
+
+   <e1Detector id="flow_20to21_0_0" lane="20to21_0" pos="0" freq="60" file="NUL"/> 
+   <e1Detector id="flow_20to21_1_0" lane="20to21_1" pos="0" freq="60" file="NUL"/>
+   <e1Detector id="flow_20to21_0_1" lane="20to21_0" pos="150" freq="60" file="NUL"/> 
+   <e1Detector id="flow_20to21_1_1" lane="20to21_1" pos="150" freq="60" file="NUL"/>
+
+   <e1Detector id="flow_21to22_0_0" lane="21to22_0" pos="0" freq="60" file="NUL"/>
+   <e1Detector id="flow_21to22_1_0" lane="21to22_1" pos="0" freq="60" file="NUL"/>
+   <e1Detector id="flow_21to22_0_1" lane="21to22_0" pos="150" freq="60" file="NUL"/>
+   <e1Detector id="flow_21to22_1_1" lane="21to22_1" pos="150" freq="60" file="NUL"/>
+
+   <e1Detector id="flow_22to12_0_0" lane="22to12_0" pos="0" freq="60" file="NUL"/>
+   <e1Detector id="flow_22to12_1_0" lane="22to12_1" pos="0" freq="60" file="NUL"/>
+   <e1Detector id="flow_22to12_0_1" lane="22to12_0" pos="150" freq="60" file="NUL"/>
+   <e1Detector id="flow_22to12_1_1" lane="22to12_1" pos="150" freq="60" file="NUL"/>
+
+   <e1Detector id="flow_12to02_0_0" lane="12to02_0" pos="0" freq="60" file="NUL"/>
+   <e1Detector id="flow_12to02_1_0" lane="12to02_1" pos="0" freq="60" file="NUL"/>
+   <e1Detector id="flow_12to02_0_1" lane="12to02_0" pos="150" freq="60" file="NUL"/>
+   <e1Detector id="flow_12to02_1_1" lane="12to02_1" pos="150" freq="60" file="NUL"/>
+
+   <e1Detector id="flow_11to10_0_0" lane="11to10_0" pos="0" freq="60" file="NUL"/>
+   <e1Detector id="flow_11to10_1_0" lane="11to10_1" pos="0" freq="60" file="NUL"/>
+   <e1Detector id="flow_11to10_0_1" lane="11to10_0" pos="150" freq="60" file="NUL"/>
+   <e1Detector id="flow_11to10_1_1" lane="11to10_1" pos="150" freq="60" file="NUL"/>
+
+   <e1Detector id="flow_10to11_0_0" lane="10to11_0" pos="0" freq="60" file="NUL"/>
+   <e1Detector id="flow_10to11_1_0" lane="10to11_1" pos="0" freq="60" file="NUL"/>
+   <e1Detector id="flow_10to11_0_1" lane="10to11_0" pos="150" freq="60" file="NUL"/>
+   <e1Detector id="flow_10to11_1_1" lane="10to11_1" pos="150" freq="60" file="NUL"/>
+
+   <e1Detector id="flow_11to12_0_0" lane="11to12_0" pos="0" freq="60" file="NUL"/>
+   <e1Detector id="flow_11to12_1_0" lane="11to12_1" pos="0" freq="60" file="NUL"/>
+   <e1Detector id="flow_11to12_0_1" lane="11to12_0" pos="150" freq="60" file="NUL"/>
+   <e1Detector id="flow_11to12_1_1" lane="11to12_1" pos="150" freq="60" file="NUL"/>
+
+   <e1Detector id="flow_12to11_0_0" lane="12to11_0" pos="0" freq="60" file="NUL"/>
+   <e1Detector id="flow_12to11_1_0" lane="12to11_1" pos="0" freq="60" file="NUL"/>
+   <e1Detector id="flow_12to11_0_1" lane="12to11_0" pos="150" freq="60" file="NUL"/>
+   <e1Detector id="flow_12to11_1_1" lane="12to11_1" pos="150" freq="60" file="NUL"/>
+
+   <e1Detector id="flow_11to01_0_0" lane="11to01_0" pos="0" freq="60" file="NUL"/>
+   <e1Detector id="flow_11to01_1_0" lane="11to01_1" pos="0" freq="60" file="NUL"/>
+   <e1Detector id="flow_11to01_0_1" lane="11to01_0" pos="150" freq="60" file="NUL"/>
+   <e1Detector id="flow_11to01_1_1" lane="11to01_1" pos="150" freq="60" file="NUL"/>
+
+   <e1Detector id="flow_01to11_0_0" lane="01to11_0" pos="0" freq="60" file="NUL"/>
+   <e1Detector id="flow_01to11_1_0" lane="01to11_1" pos="0" freq="60" file="NUL"/>
+   <e1Detector id="flow_01to11_0_1" lane="01to11_0" pos="150" freq="60" file="NUL"/>
+   <e1Detector id="flow_01to11_1_1" lane="01to11_1" pos="150" freq="60" file="NUL"/>
+
+   <e1Detector id="flow_11to21_0_0" lane="11to21_0" pos="0" freq="60" file="NUL"/>
+   <e1Detector id="flow_11to21_1_0" lane="11to21_1" pos="0" freq="60" file="NUL"/>
+   <e1Detector id="flow_11to21_0_1" lane="11to21_0" pos="150" freq="60" file="NUL"/>
+   <e1Detector id="flow_11to21_1_1" lane="11to21_1" pos="150" freq="60" file="NUL"/>
+
+   <e1Detector id="flow_21to11_0_0" lane="21to11_0" pos="0" freq="60" file="NUL"/>
+   <e1Detector id="flow_21to11_1_0" lane="21to11_1" pos="0" freq="60" file="NUL"/>
+   <e1Detector id="flow_21to11_0_1" lane="21to11_0" pos="150" freq="60" file="NUL"/>
+   <e1Detector id="flow_21to11_1_1" lane="21to11_1" pos="150" freq="60" file="NUL"/>
+
+
+
+
+   <e2Detector id="queue_00to10_0" lane="00to10_0" pos="10" length="130" freq="60" file="NUL"/>  
+   <e2Detector id="queue_00to10_1" lane="00to10_1" pos="10" length="130" freq="60" file="NUL"/>
+   
+   <e2Detector id="queue_10to20_0" lane="10to20_0" pos="10" length="130" freq="60" file="NUL"/> 
+   <e2Detector id="queue_10to20_1" lane="10to20_1" pos="10" length="130" freq="60" file="NUL"/>
+
+   <e2Detector id="queue_01to00_0" lane="01to00_0" pos="10" length="130" freq="60" file="NUL"/> 
+   <e2Detector id="queue_01to00_1" lane="01to00_1" pos="10" length="130" freq="60" file="NUL"/>
+
+   <e2Detector id="queue_02to01_0" lane="02to01_0" pos="10" length="130" freq="60" file="NUL"/> 
+   <e2Detector id="queue_02to01_1" lane="02to01_1" pos="10" length="130" freq="60" file="NUL"/>
+
+   <e2Detector id="queue_20to21_0" lane="20to21_0" pos="10" length="130" freq="60" file="NUL"/> 
+   <e2Detector id="queue_20to21_1" lane="20to21_1" pos="10" length="130" freq="60" file="NUL"/>
+   
+   <e2Detector id="queue_21to22_0" lane="21to22_0" pos="10" length="130" freq="60" file="NUL"/>
+   <e2Detector id="queue_21to22_1" lane="21to22_1" pos="10" length="130" freq="60" file="NUL"/>
+
+   <e2Detector id="queue_22to12_0" lane="22to12_0" pos="10" length="130" freq="60" file="NUL"/>
+   <e2Detector id="queue_22to12_1" lane="22to12_1" pos="10" length="130" freq="60" file="NUL"/>
+   
+   <e2Detector id="queue_12to02_0" lane="12to02_0" pos="10" length="130" freq="60" file="NUL"/>
+   <e2Detector id="queue_12to02_1" lane="12to02_1" pos="10" length="130" freq="60" file="NUL"/>
+   
+   <e2Detector id="queue_11to10_0" lane="11to10_0" pos="10" length="130" freq="60" file="NUL"/>
+   <e2Detector id="queue_11to10_1" lane="11to10_1" pos="10" length="130" freq="60" file="NUL"/>
+   
+   <e2Detector id="queue_10to11_0" lane="10to11_0" pos="10" length="130" freq="60" file="NUL"/>
+   <e2Detector id="queue_10to11_1" lane="10to11_1" pos="10" length="130" freq="60" file="NUL"/>
+   
+   <e2Detector id="queue_11to12_0" lane="11to12_0" pos="10" length="130" freq="60" file="NUL"/>
+   <e2Detector id="queue_11to12_1" lane="11to12_1" pos="10" length="130" freq="60" file="NUL"/>
+   
+   <e2Detector id="queue_12to11_0" lane="12to11_0" pos="10" length="130" freq="60" file="NUL"/>
+   <e2Detector id="queue_12to11_1" lane="12to11_1" pos="10" length="130" freq="60" file="NUL"/>
+   
+   <e2Detector id="queue_11to01_0" lane="11to01_0" pos="10" length="130" freq="60" file="NUL"/>
+   <e2Detector id="queue_11to01_1" lane="11to01_1" pos="10" length="130" freq="60" file="NUL"/>
+   
+   <e2Detector id="queue_01to11_0" lane="01to11_0" pos="10" length="130" freq="60" file="NUL"/>
+   <e2Detector id="queue_01to11_1" lane="01to11_1" pos="10" length="130" freq="60" file="NUL"/>
+   
+   <e2Detector id="queue_11to21_0" lane="11to21_0" pos="10" length="130" freq="60" file="NUL"/>
+   <e2Detector id="queue_11to21_1" lane="11to21_1" pos="10" length="130" freq="60" file="NUL"/>
+   
+   <e2Detector id="queue_21to11_0" lane="21to11_0" pos="10" length="130" freq="60" file="NUL"/>
+   <e2Detector id="queue_21to11_1" lane="21to11_1" pos="10" length="130" freq="60" file="NUL"/>
+</additional>

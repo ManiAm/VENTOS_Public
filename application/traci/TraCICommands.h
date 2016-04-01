@@ -291,6 +291,7 @@ public:
     double LDGetLastStepMeanVehicleSpeed(std::string);
     double LDGetElapsedTimeLastDetection(std::string);
     std::vector<std::string> LDGetLastStepVehicleData(std::string);
+    double LDGetLastStepOccupancy(std::string);
 
     // ################################################################
     //                lane area detector (E2-Detectors)
@@ -552,6 +553,7 @@ private:
             {{0xa0, 0x11}, "LDGetLastStepMeanVehicleSpeed"},
             {{0xa0, 0x16}, "LDGetElapsedTimeLastDetection"},
             {{0xa0, 0x17}, "LDGetLastStepVehicleData"},
+            {{0xa0, 0x13}, "LDGetLastStepOccupancy"},
 
             {{0xad, 0x00}, "LADGetIDList"},
             {{0xad, 0x01}, "LADGetIDCount"},

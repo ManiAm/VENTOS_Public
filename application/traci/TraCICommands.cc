@@ -1880,6 +1880,18 @@ std::vector<std::string> TraCI_Commands::LDGetLastStepVehicleData(std::string lo
 }
 
 
+double TraCI_Commands::LDGetLastStepOccupancy(std::string loopId)
+{
+    updateTraCIlog("commandStart", CMD_GET_INDUCTIONLOOP_VARIABLE, LAST_STEP_OCCUPANCY);
+
+    double result = genericGetDouble(CMD_GET_INDUCTIONLOOP_VARIABLE, loopId, 0x13, RESPONSE_GET_INDUCTIONLOOP_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_INDUCTIONLOOP_VARIABLE, LAST_STEP_OCCUPANCY);
+
+    return result;
+}
+
+
 // ################################################################
 //                lane area detector (E2-Detectors)
 // ################################################################

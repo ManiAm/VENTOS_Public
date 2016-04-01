@@ -357,7 +357,7 @@ void Statistics::vehiclesDataToFile()
         {
             int TLMode = (*router->net->TLs.begin()).second->TLLogicMode;
             std::ostringstream filePrefix;
-            filePrefix << router->totalVehicleCount << "_" << router->nonReroutingVehiclePercent << "_" << TLMode;
+            filePrefix << router->totalVehicleCount << "_" << 1- router->nonReroutingVehiclePercent << "_" << TLMode;
             fileName << filePrefix.str() << "_vehicleData.txt";
         }
         else
