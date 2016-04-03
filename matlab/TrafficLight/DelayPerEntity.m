@@ -71,8 +71,9 @@ function delayAllEntity = DelayPerEntity(timeSteps, indexTS)
            error('delay is negative!');
        end
        
-       % total delay is the summation of three delays
-       delayAllEntity(4,i) = delayAllEntity(1,i) + delayAllEntity(2,i) + delayAllEntity(3,i);
+       % total delay is the summation of all delays
+       % NOTE: we DO NOT consider the acceleration delay
+       delayAllEntity(4,i) = delayAllEntity(1,i) + delayAllEntity(2,i);
    end
 
 end

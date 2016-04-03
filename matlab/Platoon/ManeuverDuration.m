@@ -244,7 +244,6 @@ hold on
 errorbar((1:5), data, Xci(:,1), Xci(:,2), 'r', 'LineWidth', 2, 'LineStyle', 'none')
 hold off
 
-
 disp('done!');
 
 

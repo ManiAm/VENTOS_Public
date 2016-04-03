@@ -1,5 +1,5 @@
 
-function PlotPerfTSCmultiModal(runNumber, timeSteps_MQ, maxQueueSize, delayDist, allFairness, runTotal)
+function PlotPerfTSCmultiModal(runNumber, timeSteps_MQ, maxQueueSize, delayDist, perClassFairness, perLaneFairness, runTotal)
 
     % make a windows figure only once
     if(runNumber == 1)
@@ -20,7 +20,6 @@ function PlotPerfTSCmultiModal(runNumber, timeSteps_MQ, maxQueueSize, delayDist,
         lineMark = '--';
     end
     
-    %     subaxis(2,3,[1,3],'SpacingVert',0.1,'SpacingHoriz',0.06,'MA',0.02,'MB',0.1,'MR',0.02,'ML',0.01);
     subplot(2,3,[1,3]);    
     plot(timeSteps_MQ/60, maxQueueSize, lineMark, 'LineWidth', 1, 'Color', 'k');
 
@@ -118,9 +117,26 @@ function PlotPerfTSCmultiModal(runNumber, timeSteps_MQ, maxQueueSize, delayDist,
     subplot(2,3,6);
 
     if(runNumber == runTotal)
-        bar([cell2mat(allFairness{2,1}), cell2mat(allFairness{2,2}), cell2mat(allFairness{2,3}), cell2mat(allFairness{2,4})]);
-        set(gca, 'XTickLabel', {'I', 'II', 'III', 'IV'});
-    
+        b = bar([cell2mat(perClassFairness{1,1}),  ...
+            cell2mat(perClassFairness{1,2}), ...
+            cell2mat(perClassFairness{1,3}), ...
+            cell2mat(perClassFairness{1,4}) ; ...
+            
+            cell2mat(perLaneFairness{1,1}),  ...
+            cell2mat(perLaneFairness{1,2}), ...
+            cell2mat(perLaneFairness{1,3}), ...
+            cell2mat(perLaneFairness{1,4})], 'k');
+        
+        b(1).FaceColor = hsv2rgb(0,0,0);
+        b(2).FaceColor = hsv2rgb(0,0,0.5);
+        b(3).FaceColor = hsv2rgb(0,0,0.8);
+        b(4).FaceColor = hsv2rgb(0,0,1);
+                
+        set(gca, 'XTickLabel', {'Inter-class'; 'Inter-lane'});
+        set(gca,'XTickLabelRotation', 15);
+        
+        set(gca,'YTick', 0:20:100);
+            
         % set the axis limit
         %set(gca, 'YLim', [0 1]);
     
@@ -128,6 +144,8 @@ function PlotPerfTSCmultiModal(runNumber, timeSteps_MQ, maxQueueSize, delayDist,
         set(gca, 'FontSize', 20);
 
         ylabel('Fairness Measure', 'FontSize', 20);
+        
+        legend('I', 'II', 'III', 'IV', 'Location', 'northeast');
     
         grid on;   
     end

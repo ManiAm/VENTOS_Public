@@ -6,10 +6,10 @@ clc;    % position the cursor at the top of the screen
 addpath ../libs
 
 % path to folder
-basePATH = '../../results/cmd/4_LQF_MWM_starvation';
+basePATH = '../../results/cmd/3_existing_multiClass/5_full_poisson_unbalanced_routeDist_70_30';
 
 % what to plot?
-option = 4;
+option = 2;
 
 TLqueuingData = dir([basePATH, '/*_TLqueuingData.txt']);
 TLphasingData = dir([basePATH, '/*_TLphasingData.txt']);
@@ -34,7 +34,7 @@ disp('calculating max queue size for vehicles ...');
 
 disp('reading vehicleDelay.txt file ...');
 vehDelay = dir([basePATH, '/*_vehDelay.txt']);
-[entityIDs, indexTS, VehNumbers, vehicleType] = ReadVehDelay(basePATH, vehDelay(runNumber).name);
+[entityIDs, indexTS, VehNumbers, vehicleType, vehicleLane] = ReadVehDelay(basePATH, vehDelay(runNumber).name);
 % indexTS containsvaluable information for each entity
 %     indexTS(1,vNumber): entrance time for vehicle vNumber        
 %     indexTS(2,vNumber): start of decel for vehicle vNumber
@@ -55,22 +55,37 @@ if(option == 4)
 else
     interval = 700;
 end
-[aveDelayPassenger, aveDelayEmergency, maxDelayBike, timeSteps_D] = DelayPerClass(timeSteps, VehNumbers, vehicleType, indexTS, interval);
+[aveDelayPassenger, aveDelayEmergency, maxDelayBike, timeSteps_D] = DelayPerInterval(timeSteps, VehNumbers, vehicleType, indexTS, interval);
 
 % save delay for all entities in each time step
 delayDist{1,runNumber} = num2cell(aveDelayPassenger / 60.);
 delayDist{2,runNumber} = num2cell(aveDelayEmergency / 60.);
 delayDist{3,runNumber} = num2cell(maxDelayBike);
 
-disp('calculating delay for each entity ...');
+disp('calculating deceleration/waiting/acceleration delay for each entity ...');
 delayAllEntity = DelayPerEntity(timeSteps, indexTS);
 
-disp('calculating fairness index ...');
-[jain, stDeviation] = FairnessIndex(delayAllEntity, vehicleType);
+disp('calculating min/max/average delay for each class ...');
+[delayAllClass, allClasses] = DelayPerClass(delayAllEntity, vehicleType);
+
+disp('calculating min/max/average delay for each lane ...');
+[delayAllLanes, allLanes] = DelayPerLane(delayAllEntity(4,:), vehicleLane);
+
+disp('calculating per-class fairness index ...');
+% sending average delay in each class
+[stDeviation, jain] = FairnessIndex(delayAllClass(:,3));
 
 % save both fairness measures in each time step
-allFairness{1, runNumber} = num2cell(jain);
-allFairness{2, runNumber} = num2cell(stDeviation);
+perClassFairness{1, runNumber} = num2cell(stDeviation);
+perClassFairness{2, runNumber} = num2cell(jain);
+
+disp('calculating per-lane fairness index ...');
+% sending average delay in each lane
+[stDeviation, jain] = FairnessIndex(delayAllLanes(:,3));
+
+% save both fairness measures in each time step
+perLaneFairness{1, runNumber} = num2cell(stDeviation);
+perLaneFairness{2, runNumber} = num2cell(jain);
 
 disp('calculating throughput ...');
 [throughput, timeSteps_T] = TLthroughput(timeSteps, VehNumbers, indexTS, 900);
@@ -89,13 +104,13 @@ if(option == 1)
     PlotBenefitOfActiveDetection(runNumber, timeSteps_MQ, maxQueueSize, timeSteps_D, aveDelayPassenger, timeSteps_T, throughput, runTotal);
 elseif(option == 2)
     disp('plotting the performance of VANET-enables TSC under multi-modal traffic ...');
-    PlotPerfTSCmultiModal(runNumber, timeSteps_MQ, maxQueueSize, delayDist, allFairness, runTotal);
+    PlotPerfTSCmultiModal(runNumber, timeSteps_MQ, maxQueueSize, delayDist, perClassFairness, perLaneFairness, runTotal);
 elseif(option == 3)  
     disp('plotting TL phasing information ...');
     PlotTLPhasing(runNumber, timeSteps_SW, totalCycles, timeSteps_GR, totalGreenTime, runTotal); 
 elseif(option == 4)
     disp('plotting the LQF-MWM starvation problem ...');
-    PlotStarvation(runNumber, timeSteps_D, delayDist, allFairness, runTotal);
+    PlotStarvation(runNumber, timeSteps_D, delayDist, perClassFairness, perLaneFairness, runTotal);
 elseif(option == 5)
     disp('plotting the performance of LQF_MWM and LQF_MWM2 ...');
     PlotLQFMWM(runNumber, timeSteps_MQ, maxQueueSize, delayDist, runTotal);

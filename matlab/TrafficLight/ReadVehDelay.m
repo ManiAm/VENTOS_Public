@@ -1,5 +1,5 @@
 
-function [entityIDs, indexTS, VehNumbers, vehicleType] = ReadVehDelay(basePATH, name)
+function [entityIDs, indexTS, VehNumbers, vehicleType, vehicleLane] = ReadVehDelay(basePATH, name)
 
 path = sprintf('%s/%s', basePATH, name);
 file_id = fopen(path);
@@ -9,6 +9,7 @@ fclose(file_id);
 
 vehicles = C_text{1,1};
 vehiclesType = C_text{1,2};
+vehiclesLane = C_text{1,4};
 entrance = C_text{1,5};
 crossed = C_text{1,6};
 startDecel = C_text{1,8};
@@ -34,7 +35,8 @@ for i=1:rows
     vehicle = char(vehicles(i,1));        
     vNumber = find(ismember(entityIDs,vehicle)); 
     
-    vehicleType(vNumber) = (vehiclesType(i,1));
+    vehicleType(vNumber) = vehiclesType(i,1);
+    vehicleLane(vNumber) = vehiclesLane(i,1);
 
     indexTS(1,vNumber) = double(entrance(i,1));       
     indexTS(2,vNumber) = double(startDecel(i,1));

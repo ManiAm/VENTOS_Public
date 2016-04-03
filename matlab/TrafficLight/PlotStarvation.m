@@ -1,5 +1,5 @@
 
-function PlotStarvation(runNumber, timeSteps_D, delayDist, allFairness, runTotal)
+function PlotStarvation(runNumber, timeSteps_D, delayDist, perClassFairness, perLaneFairness, runTotal)
 
     % make a windows figure only once
     if(runNumber == 1)
@@ -42,7 +42,7 @@ function PlotStarvation(runNumber, timeSteps_D, delayDist, allFairness, runTotal
     if(runNumber == runTotal)    
         subplot(1,2,2);
     
-        b = bar([cell2mat(allFairness{1,1}), cell2mat(allFairness{1,2})]);
+        b = bar([cell2mat(perClassFairness{1,1}), cell2mat(perClassFairness{1,2})]);
         b.BarWidth = 0.3;
         set(gca, 'XTickLabel', {'LQF-MWM', 'FMSC'});
     
