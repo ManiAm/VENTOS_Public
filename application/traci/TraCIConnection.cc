@@ -75,7 +75,8 @@ int TraCIConnection::startServer(std::string SUMOexe, std::string SUMOconfig, in
     commandLine << SUMOexe
             << " --remote-port " << port
             << " --seed " << seed
-            << " --configuration-file " << SUMOconfig;
+            << " --configuration-file " << SUMOconfig
+            << " --no-step-log";
 
     TraCIConnection::TraCILauncher(commandLine.str());
 
