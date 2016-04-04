@@ -34,8 +34,6 @@ namespace VENTOS {
 
 Define_Module(VENTOS::Statistics);
 
-class ApplRSUManager;
-
 
 Statistics::~Statistics()
 {
