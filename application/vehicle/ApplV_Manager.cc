@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    ApplV_08_Manager.cc
+/// @file    ApplV_Manager.cc
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    August 2013
@@ -25,7 +25,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "ApplV_08_Manager.h"
+#include "ApplV_Manager.h"
 #include <Statistics.h>
 #include "SignalObj.h"
 

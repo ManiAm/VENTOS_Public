@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    ApplV_05_PlatoonFormed.cc
+/// @file    ApplV_01_PlatoonFormed.cc
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    August 2013
@@ -25,7 +25,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "ApplV_05_PlatoonFormed.h"
+#include "ApplV_01_PlatoonFormed.h"
 
 namespace VENTOS {
 

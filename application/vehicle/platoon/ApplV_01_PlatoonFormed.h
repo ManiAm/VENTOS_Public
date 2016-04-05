@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    ApplV_07_Coordinator.h
+/// @file    ApplV_01_PlatoonFormed.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    August 2013
@@ -25,21 +25,22 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef APPLVCOORDINATOR_H
-#define APPLVCOORDINATOR_H
+#ifndef APPLVPLATOONFORMED_H
+#define APPLVPLATOONFORMED_H
 
-#include "ApplV_06_PlatoonMg.h"
+#include "ApplV_04_AID.h"
 
 namespace VENTOS {
 
-class ApplVCoordinator : public ApplVPlatoonMg
+class ApplVPlatoonFormed : public ApplV_AID
 {
 public:
-    ~ApplVCoordinator();
+    ~ApplVPlatoonFormed();
     virtual void initialize(int stage);
     virtual void finish();
 
 protected:
+    // Methods
     virtual void handleSelfMsg(cMessage*);
     virtual void handlePositionUpdate(cObject*);
 
@@ -47,23 +48,17 @@ protected:
     virtual void onBeaconRSU(BeaconRSU*);
     virtual void onData(PlatoonMsg* wsm);
 
-private:
-    void coordinator();
+protected:
+    int plnMode;
+    std::string preDefinedPlatoonID;
 
-    void scenario2();
-    void scenario3();
-    void scenario4();
-    void scenario5();
-    void scenario6();
-    void scenario7();
-    void scenario8();
-    void scenario9();
-
-    int coordinationMode;
-    cMessage* platoonCoordination;
-    static double stopTime;
+    enum platooningMode
+    {
+        platoonOff = 1,
+        platoonFormed = 2,
+        platoonManagement = 3,
+    };
 };
-
 }
 
 #endif

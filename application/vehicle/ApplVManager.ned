@@ -1,5 +1,6 @@
 
 package c3po.application.vehicle;
+import c3po.application.vehicle.platoon.ApplVPlatoonMg;
 
 simple ApplVManager extends ApplVPlatoonMg
 {

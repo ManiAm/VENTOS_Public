@@ -38,25 +38,34 @@ function PlotStarvation(runNumber, timeSteps_D, delayDist, perClassFairness, per
         legend('LQF-MWM', 'FMSC', 'Location', 'northwest');
     end    
     
-    
     if(runNumber == runTotal)    
         subplot(1,2,2);
     
-        b = bar([cell2mat(perClassFairness{1,1}), cell2mat(perClassFairness{1,2})]);
-        b.BarWidth = 0.3;
-        set(gca, 'XTickLabel', {'LQF-MWM', 'FMSC'});
+        b = bar([cell2mat(perClassFairness{1,1}), ...
+            cell2mat(perClassFairness{1,2}) ; ...
+            
+            cell2mat(perLaneFairness{1,1}),  ...
+            cell2mat(perLaneFairness{1,2})], 'k');       
+        
+        %b(1).BarWidth = 0.3;
+        
+        b(1).FaceColor = hsv2rgb(0,0,0);
+        b(2).FaceColor = hsv2rgb(0,0,0.5);
+        
+        set(gca, 'XTickLabel', {'Inter-class'; 'Inter-lane'});
     
         % set the axis limit
-        set(gca, 'YLim', [0 1]);
+        %set(gca, 'YLim', [0 1]);
     
         % set font size
         set(gca, 'FontSize', 20);
 
-        ylabel('Jains Fairness Index', 'FontSize', 20);
+        ylabel('Fairness Measure', 'FontSize', 20);
+        
+        legend('LQF-MWM', 'FMSC', 'Location', 'northeast');
     
         grid on;
-    end
-    
+    end   
     
     
 %     subplot(2,2,runNumber+2);
@@ -76,4 +85,5 @@ function PlotStarvation(runNumber, timeSteps_D, delayDist, perClassFairness, per
 %     
 %     grid on;
 %     legend('LQF-MWM', 'LQF-MWM2', 'Location', 'northwest');
+
 end

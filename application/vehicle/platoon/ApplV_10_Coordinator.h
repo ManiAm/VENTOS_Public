@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    ApplV_08_Manager.h
+/// @file    ApplV_10_Coordinator.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    August 2013
@@ -25,55 +25,43 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef ApplVMANAGER_H
-#define ApplVMANAGER_H
+#ifndef APPLVCOORDINATOR_H
+#define APPLVCOORDINATOR_H
 
-#include "ApplV_07_Coordinator.h"
+#include "ApplV_02_PlatoonMg.h"
 
 namespace VENTOS {
 
-class ApplVManager : public ApplVCoordinator
+class ApplVCoordinator : public ApplVPlatoonMg
 {
 public:
-    ~ApplVManager();
+    ~ApplVCoordinator();
     virtual void initialize(int stage);
     virtual void finish();
 
 protected:
-    virtual void handleLowerMsg(cMessage*);
     virtual void handleSelfMsg(cMessage*);
     virtual void handlePositionUpdate(cObject*);
 
     virtual void onBeaconVehicle(BeaconVehicle*);
-    virtual void onBeaconPedestrian(BeaconPedestrian*);
     virtual void onBeaconRSU(BeaconRSU*);
     virtual void onData(PlatoonMsg* wsm);
 
 private:
-    bool dropBeacon(double time, std::string vehicle, double plr);
+    void coordinator();
 
-protected:
-    // NED variables (packet loss ratio)
-    double droppT;
-    std::string droppV;
-    double plr;
+    void scenario2();
+    void scenario3();
+    void scenario4();
+    void scenario5();
+    void scenario6();
+    void scenario7();
+    void scenario8();
+    void scenario9();
 
-    // NED variable
-    bool degradeToACC;
-    bool SUMOvehicleDebug;
-
-    // NED variables (measurement error)
-    bool measurementError;
-    double errorGap;
-    double errorRelSpeed;
-
-    bool reportBeaconsData;
-
-    long BeaconVehCount;
-    long BeaconVehDropped;
-    long BeaconRSUCount;
-    long PlatoonCount;
-    long BeaconPedCount;
+    int coordinationMode;
+    cMessage* platoonCoordination;
+    static double stopTime;
 };
 
 }

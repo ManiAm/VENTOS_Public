@@ -1,5 +1,5 @@
 
-package c3po.application.vehicle;
+package c3po.application.vehicle.platoon;
 
 simple ApplVPlatoonMg extends ApplVPlatoonFormed
 {

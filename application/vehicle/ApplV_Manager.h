@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    ApplV_05_PlatoonFormed.h
+/// @file    ApplV_Manager.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    August 2013
@@ -25,40 +25,57 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef APPLVPLATOONFORMED_H
-#define APPLVPLATOONFORMED_H
+#ifndef ApplVMANAGER_H
+#define ApplVMANAGER_H
 
-#include "ApplV_04_AID.h"
+#include "ApplV_10_Coordinator.h"
 
 namespace VENTOS {
 
-class ApplVPlatoonFormed : public ApplV_AID
+class ApplVManager : public ApplVCoordinator
 {
 public:
-    ~ApplVPlatoonFormed();
+    ~ApplVManager();
     virtual void initialize(int stage);
     virtual void finish();
 
 protected:
-    // Methods
+    virtual void handleLowerMsg(cMessage*);
     virtual void handleSelfMsg(cMessage*);
     virtual void handlePositionUpdate(cObject*);
 
     virtual void onBeaconVehicle(BeaconVehicle*);
+    virtual void onBeaconPedestrian(BeaconPedestrian*);
     virtual void onBeaconRSU(BeaconRSU*);
     virtual void onData(PlatoonMsg* wsm);
 
-protected:
-    int plnMode;
-    std::string preDefinedPlatoonID;
+private:
+    bool dropBeacon(double time, std::string vehicle, double plr);
 
-    enum platooningMode
-    {
-        platoonOff = 1,
-        platoonFormed = 2,
-        platoonManagement = 3,
-    };
+protected:
+    // NED variables (packet loss ratio)
+    double droppT;
+    std::string droppV;
+    double plr;
+
+    // NED variable
+    bool degradeToACC;
+    bool SUMOvehicleDebug;
+
+    // NED variables (measurement error)
+    bool measurementError;
+    double errorGap;
+    double errorRelSpeed;
+
+    bool reportBeaconsData;
+
+    long BeaconVehCount;
+    long BeaconVehDropped;
+    long BeaconRSUCount;
+    long PlatoonCount;
+    long BeaconPedCount;
 };
+
 }
 
 #endif
