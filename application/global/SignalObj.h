@@ -32,6 +32,18 @@
 
 namespace VENTOS {
 
+class MacStat : public cObject, noncopyable
+{
+public:
+    std::vector<long> vec;
+
+    MacStat( std::vector<long> v)
+    {
+        vec.swap(v);
+    }
+};
+
+
 class systemData : public cObject, noncopyable
 {
     std::string edge;
@@ -144,21 +156,6 @@ public:
         this->from = str1;
         this->to = str2;
         this->maneuver = str3;
-    }
-};
-
-class TimeData : public cObject, noncopyable
-{
-public:
-    std::string vName;
-    int time;
-    bool end;
-
-    TimeData(std::string vName, int time, bool end)
-    {
-        this->vName = vName;
-        this->time = time;
-        this->end = end;
     }
 };
 

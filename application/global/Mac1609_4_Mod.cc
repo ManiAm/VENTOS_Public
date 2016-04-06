@@ -28,15 +28,7 @@
 #include "Mac1609_4_Mod.h"
 #include "SignalObj.h"
 
-// un-defining ev!
-// why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header
-#undef ev
-#include "boost/filesystem.hpp"
-#define ev  (*cSimulation::getActiveEnvir())
-
 namespace VENTOS {
-
-std::vector<MacStatEntry> Mac1609_4_Mod::Vec_MacStat;
 
 Define_Module(VENTOS::Mac1609_4_Mod);
 
@@ -46,8 +38,11 @@ void Mac1609_4_Mod::initialize(int stage)
 
     if (stage == 0)
     {
-        reportMAClayerData = par("reportMAClayerData").boolValue();
-        Vec_MacStat.clear();
+        // get a pointer to the Statistics module
+        cModule *module = simulation.getSystemModule()->getSubmodule("statistics");
+        ASSERT(module);
+
+        reportMAClayerData = module->par("reportMAClayerData").boolValue();
     }
 }
 
@@ -55,14 +50,6 @@ void Mac1609_4_Mod::initialize(int stage)
 void Mac1609_4_Mod::finish()
 {
     Mac1609_4::finish();
-
-    // run this code only once
-    static bool wasExecuted = false;
-    if(reportMAClayerData && !wasExecuted)
-    {
-        MAClayerToFile();
-        wasExecuted = true;
-    }
 }
 
 
@@ -105,22 +92,10 @@ void Mac1609_4_Mod::handleUpperMsg(cMessage* msg)
     MacStats.push_back(statsReceivedPackets);     // Received a data packet addressed to me
     MacStats.push_back(statsReceivedBroadcasts);  // Received a broadcast data packet
 
-    std::string name = this->getParentModule()->getParentModule()->getFullName();
-    const MacStatEntry *searchFor = new MacStatEntry(-1, name, std::vector<long>());
-    auto counter = std::find(Vec_MacStat.begin(), Vec_MacStat.end(), *searchFor);
-
-    // its a new entry, so we add it
-    if(counter == Vec_MacStat.end())
-    {
-        MacStatEntry *tmp = new MacStatEntry(simTime().dbl(), name, MacStats);
-        Vec_MacStat.push_back(*tmp);
-    }
-    // if found, just update the existing fields
-    else
-    {
-        counter->time = simTime().dbl();
-        counter->MacStatsVec = MacStats;
-    }
+    // send a signal to statistics
+    MacStat *vec = new MacStat(MacStats);
+    simsignal_t Signal_MacStats = registerSignal("MacStats");
+    this->getParentModule()->getParentModule()->emit(Signal_MacStats, vec);
 }
 
 
@@ -133,84 +108,6 @@ void Mac1609_4_Mod::handleLowerControl(cMessage* msg)
 void Mac1609_4_Mod::handleLowerMsg(cMessage* msg)
 {
     Mac1609_4::handleLowerMsg(msg);
-}
-
-
-void Mac1609_4_Mod::MAClayerToFile()
-{
-    boost::filesystem::path filePath;
-
-    if(ev.isGUI())
-    {
-        filePath = "results/gui/MACdata.txt";
-    }
-    else
-    {
-        // get the current run number
-        int currentRun = ev.getConfigEx()->getActiveRunNumber();
-        std::ostringstream fileName;
-        fileName << std::setfill('0') << std::setw(3) << currentRun << "_MACdata.txt";
-        filePath = "results/cmd/" + fileName.str();
-    }
-
-    FILE *filePtr = fopen (filePath.string().c_str(), "w");
-
-    // write simulation parameters at the beginning of the file in CMD mode
-    if(!ev.isGUI())
-    {
-        // get the current config name
-        std::string configName = ev.getConfigEx()->getVariable("configname");
-
-        // get number of total runs in this config
-        int totalRun = ev.getConfigEx()->getNumRunsInConfig(configName.c_str());
-
-        // get the current run number
-        int currentRun = ev.getConfigEx()->getActiveRunNumber();
-
-        // get all iteration variables
-        std::vector<std::string> iterVar = ev.getConfigEx()->unrollConfig(configName.c_str(), false);
-
-        // write to file
-        fprintf (filePtr, "configName      %s\n", configName.c_str());
-        fprintf (filePtr, "totalRun        %d\n", totalRun);
-        fprintf (filePtr, "currentRun      %d\n", currentRun);
-        fprintf (filePtr, "currentConfig   %s\n\n\n", iterVar[currentRun].c_str());
-    }
-
-    // write header
-    fprintf (filePtr, "%-20s","timeStep");
-    fprintf (filePtr, "%-20s","vehicleName");
-    fprintf (filePtr, "%-20s","DroppedPackets");
-    fprintf (filePtr, "%-20s","NumTooLittleTime");
-    fprintf (filePtr, "%-30s","NumInternalContention");
-    fprintf (filePtr, "%-20s","NumBackoff");
-    fprintf (filePtr, "%-20s","SlotsBackoff");
-    fprintf (filePtr, "%-20s","TotalBusyTime");
-    fprintf (filePtr, "%-20s","SentPackets");
-    fprintf (filePtr, "%-20s","SNIRLostPackets");
-    fprintf (filePtr, "%-20s","TXRXLostPackets");
-    fprintf (filePtr, "%-20s","ReceivedPackets");
-    fprintf (filePtr, "%-20s\n\n","ReceivedBroadcasts");
-
-    // write body
-    for(auto &y : Vec_MacStat)
-    {
-        fprintf (filePtr, "%-20.2f ", y.time);
-        fprintf (filePtr, "%-20s ", y.name.c_str());
-        fprintf (filePtr, "%-20ld ", y.MacStatsVec[0]);
-        fprintf (filePtr, "%-20ld ", y.MacStatsVec[1]);
-        fprintf (filePtr, "%-30ld ", y.MacStatsVec[2]);
-        fprintf (filePtr, "%-20ld ", y.MacStatsVec[3]);
-        fprintf (filePtr, "%-20ld ", y.MacStatsVec[4]);
-        fprintf (filePtr, "%-20ld ", y.MacStatsVec[5]);
-        fprintf (filePtr, "%-20ld ", y.MacStatsVec[6]);
-        fprintf (filePtr, "%-20ld ", y.MacStatsVec[7]);
-        fprintf (filePtr, "%-20ld ", y.MacStatsVec[8]);
-        fprintf (filePtr, "%-20ld ", y.MacStatsVec[9]);
-        fprintf (filePtr, "%-20ld\n", y.MacStatsVec[10]);
-    }
-
-    fclose(filePtr);
 }
 
 }

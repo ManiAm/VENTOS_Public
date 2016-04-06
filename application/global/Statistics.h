@@ -35,7 +35,26 @@
 
 namespace VENTOS {
 
-class Router;   // Forward-declaration so Statistics may hold a Router*
+class MacStatEntry
+{
+public:
+    double time;
+    std::string name;
+    std::vector<long> MacStatsVec;
+
+    MacStatEntry(double t, std::string str, std::vector<long> v)
+    {
+        this->time = t;
+        this->name = str;
+        MacStatsVec.swap(v);
+    }
+
+    friend bool operator== (const MacStatEntry &v1, const MacStatEntry &v2)
+    {
+        return ( v1.name == v2.name );
+    }
+};
+
 
 class plnManagement
 {
@@ -106,7 +125,21 @@ public:
     virtual void receiveSignal(cComponent *, simsignal_t, cObject *);
 
 private:
+    void executeFirstTimeStep();
+    void executeEachTimestep();
+
+    void MAClayerToFile();
+
+    void plnManageToFile();
+    void plnStatToFile();
+
+    void beaconToFile();
+
+    int getNodeIndex(std::string);
+
+private:
     // NED variables
+    bool reportMAClayerData;
     bool reportPlnManagerData;
     bool reportBeaconsData;
 
@@ -116,26 +149,17 @@ private:
     // class variables (signals)
     simsignal_t Signal_executeFirstTS;
     simsignal_t Signal_executeEachTS;
+    simsignal_t Signal_MacStats;
     simsignal_t Signal_SentPlatoonMsg;
     simsignal_t Signal_VehicleState;
     simsignal_t Signal_PlnManeuver;
     simsignal_t Signal_beacon;
 
     // class variables (vectors)
+    std::vector<MacStatEntry> Vec_MacStat;
     std::vector<plnManagement> Vec_plnManagement;
     std::vector<plnStat> Vec_plnStat;
     std::vector<BeaconStat> Vec_Beacons;
-
-private:
-    void executeFirstTimeStep();
-    void executeEachTimestep();
-
-    void plnManageToFile();
-    void plnStatToFile();
-
-    void beaconToFile();
-
-    int getNodeIndex(std::string);
 };
 
 }
