@@ -59,7 +59,6 @@ void Statistics::initialize(int stage)
         collectVehiclesData = par("collectVehiclesData").boolValue();
         vehicleDataLevel = par("vehicleDataLevel").longValue();
 
-        reportMAClayerData = par("reportMAClayerData").boolValue();
         reportPlnManagerData = par("reportPlnManagerData").boolValue();
         reportBeaconsData = par("reportBeaconsData").boolValue();
 
@@ -69,9 +68,6 @@ void Statistics::initialize(int stage)
 
         Signal_executeEachTS = registerSignal("executeEachTS");
         simulation.getSystemModule()->subscribe("executeEachTS", this);
-
-        Signal_MacStats = registerSignal("MacStats");
-        simulation.getSystemModule()->subscribe("MacStats", this);
 
         Signal_SentPlatoonMsg = registerSignal("SentPlatoonMsg");
         simulation.getSystemModule()->subscribe("SentPlatoonMsg", this);
@@ -92,9 +88,6 @@ void Statistics::finish()
 {
     if(collectVehiclesData)
         vehiclesDataToFile();
-
-    if(reportMAClayerData)
-        MAClayerToFile();
 
     if(reportPlnManagerData)
     {
@@ -134,28 +127,7 @@ void Statistics::receiveSignal(cComponent *source, simsignal_t signalID, cObject
 
     int nodeIndex = getNodeIndex(source->getFullName());
 
-    if(reportMAClayerData && signalID == Signal_MacStats)
-    {
-        MacStat *m = static_cast<MacStat *>(obj);
-        if (m == NULL) return;
-
-        const MacStatEntry *searchFor = new MacStatEntry(-1, source->getFullName(), -1, std::vector<long>());
-        auto counter = std::find(Vec_MacStat.begin(), Vec_MacStat.end(), *searchFor);
-
-        // its a new entry, so we add it
-        if(counter == Vec_MacStat.end())
-        {
-            MacStatEntry *tmp = new MacStatEntry(simTime().dbl(), source->getFullName(), nodeIndex, m->vec);
-            Vec_MacStat.push_back(*tmp);
-        }
-        // if found, just update the existing fields
-        else
-        {
-            counter->time = simTime().dbl();
-            counter->MacStatsVec = m->vec;
-        }
-    }
-    else if(reportPlnManagerData && signalID == Signal_VehicleState)
+    if(reportPlnManagerData && signalID == Signal_VehicleState)
     {
         CurrentVehicleState *state = dynamic_cast<CurrentVehicleState*>(obj);
         ASSERT(state);
@@ -439,84 +411,6 @@ void Statistics::vehiclesDataToFile()
         if(y.linkStatus != '\0') fprintf (filePtr, "%-17c", y.linkStatus);
 
         fprintf (filePtr, "\n");
-    }
-
-    fclose(filePtr);
-}
-
-
-void Statistics::MAClayerToFile()
-{
-    boost::filesystem::path filePath;
-
-    if(ev.isGUI())
-    {
-        filePath = "results/gui/MACdata.txt";
-    }
-    else
-    {
-        // get the current run number
-        int currentRun = ev.getConfigEx()->getActiveRunNumber();
-        std::ostringstream fileName;
-        fileName << std::setfill('0') << std::setw(3) << currentRun << "_MACdata.txt";
-        filePath = "results/cmd/" + fileName.str();
-    }
-
-    FILE *filePtr = fopen (filePath.string().c_str(), "w");
-
-    // write simulation parameters at the beginning of the file in CMD mode
-    if(!ev.isGUI())
-    {
-        // get the current config name
-        std::string configName = ev.getConfigEx()->getVariable("configname");
-
-        // get number of total runs in this config
-        int totalRun = ev.getConfigEx()->getNumRunsInConfig(configName.c_str());
-
-        // get the current run number
-        int currentRun = ev.getConfigEx()->getActiveRunNumber();
-
-        // get all iteration variables
-        std::vector<std::string> iterVar = ev.getConfigEx()->unrollConfig(configName.c_str(), false);
-
-        // write to file
-        fprintf (filePtr, "configName      %s\n", configName.c_str());
-        fprintf (filePtr, "totalRun        %d\n", totalRun);
-        fprintf (filePtr, "currentRun      %d\n", currentRun);
-        fprintf (filePtr, "currentConfig   %s\n\n\n", iterVar[currentRun].c_str());
-    }
-
-    // write header
-    fprintf (filePtr, "%-20s","timeStep");
-    fprintf (filePtr, "%-20s","vehicleName");
-    fprintf (filePtr, "%-20s","DroppedPackets");
-    fprintf (filePtr, "%-20s","NumTooLittleTime");
-    fprintf (filePtr, "%-30s","NumInternalContention");
-    fprintf (filePtr, "%-20s","NumBackoff");
-    fprintf (filePtr, "%-20s","SlotsBackoff");
-    fprintf (filePtr, "%-20s","TotalBusyTime");
-    fprintf (filePtr, "%-20s","SentPackets");
-    fprintf (filePtr, "%-20s","SNIRLostPackets");
-    fprintf (filePtr, "%-20s","TXRXLostPackets");
-    fprintf (filePtr, "%-20s","ReceivedPackets");
-    fprintf (filePtr, "%-20s\n\n","ReceivedBroadcasts");
-
-    // write body
-    for(auto &y : Vec_MacStat)
-    {
-        fprintf (filePtr, "%-20.2f ", y.time);
-        fprintf (filePtr, "%-20s ", y.name.c_str());
-        fprintf (filePtr, "%-20ld ", y.MacStatsVec[0]);
-        fprintf (filePtr, "%-20ld ", y.MacStatsVec[1]);
-        fprintf (filePtr, "%-30ld ", y.MacStatsVec[2]);
-        fprintf (filePtr, "%-20ld ", y.MacStatsVec[3]);
-        fprintf (filePtr, "%-20ld ", y.MacStatsVec[4]);
-        fprintf (filePtr, "%-20ld ", y.MacStatsVec[5]);
-        fprintf (filePtr, "%-20ld ", y.MacStatsVec[6]);
-        fprintf (filePtr, "%-20ld ", y.MacStatsVec[7]);
-        fprintf (filePtr, "%-20ld ", y.MacStatsVec[8]);
-        fprintf (filePtr, "%-20ld ", y.MacStatsVec[9]);
-        fprintf (filePtr, "%-20ld\n ", y.MacStatsVec[10]);
     }
 
     fclose(filePtr);

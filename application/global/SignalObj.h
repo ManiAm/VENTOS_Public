@@ -103,17 +103,6 @@ public:
     }
 };
 
-class MacStat : public cObject, noncopyable
-{
-public:
-    std::vector<long> vec;
-
-    MacStat( std::vector<long> v)
-    {
-        vec.swap(v);
-    }
-};
-
 
 class CurrentVehicleState : public cObject, noncopyable
 {

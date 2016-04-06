@@ -9,7 +9,6 @@ simple Statistics
         bool collectVehiclesData;
         int vehicleDataLevel;
         
-        bool reportMAClayerData;
         bool reportPlnManagerData;
         bool reportBeaconsData;
 }

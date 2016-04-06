@@ -75,29 +75,6 @@ public:
 };
 
 
-class MacStatEntry
-{
-public:
-    double time;
-    std::string name;
-    int nodeID;  // is used to sort the std::vector (used as a key)
-    std::vector<long> MacStatsVec;
-
-    MacStatEntry(double t, std::string str, int id, std::vector<long> v)
-    {
-        this->time = t;
-        this->name = str;
-        this->nodeID = id;
-        MacStatsVec.swap(v);
-    }
-
-    friend bool operator== (const MacStatEntry &v1, const MacStatEntry &v2)
-    {
-        return ( v1.name == v2.name );
-    }
-};
-
-
 class plnManagement
 {
 public:
@@ -170,7 +147,6 @@ private:
     // NED variables
     bool collectVehiclesData;
     int vehicleDataLevel;
-    bool reportMAClayerData;
     bool reportPlnManagerData;
     bool reportBeaconsData;
 
@@ -183,7 +159,6 @@ private:
     // class variables (signals)
     simsignal_t Signal_executeFirstTS;
     simsignal_t Signal_executeEachTS;
-    simsignal_t Signal_MacStats;
     simsignal_t Signal_SentPlatoonMsg;
     simsignal_t Signal_VehicleState;
     simsignal_t Signal_PlnManeuver;
@@ -195,7 +170,6 @@ private:
 
     // class variables (vectors)
     std::vector<VehicleData> Vec_vehiclesData;
-    std::vector<MacStatEntry> Vec_MacStat;
     std::vector<plnManagement> Vec_plnManagement;
     std::vector<plnStat> Vec_plnStat;
     std::vector<BeaconStat> Vec_Beacons;
@@ -207,8 +181,6 @@ private:
     void vehiclesData();
     void saveVehicleData(std::string);
     void vehiclesDataToFile();
-
-    void MAClayerToFile();
 
     void plnManageToFile();
     void plnStatToFile();

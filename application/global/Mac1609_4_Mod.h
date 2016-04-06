@@ -29,9 +29,29 @@
 #define _MAC1609_4_MOD_H_
 
 #include <Mac1609_4.h>
-#include "Statistics.h"
 
 namespace VENTOS {
+
+class MacStatEntry
+{
+public:
+    double time;
+    std::string name;
+    std::vector<long> MacStatsVec;
+
+    MacStatEntry(double t, std::string str, std::vector<long> v)
+    {
+        this->time = t;
+        this->name = str;
+        MacStatsVec.swap(v);
+    }
+
+    friend bool operator== (const MacStatEntry &v1, const MacStatEntry &v2)
+    {
+        return ( v1.name == v2.name );
+    }
+};
+
 
 class Mac1609_4_Mod : public Veins::Mac1609_4
 {
@@ -39,6 +59,7 @@ class Mac1609_4_Mod : public Veins::Mac1609_4
 		~Mac1609_4_Mod() {};
         virtual void finish();
         virtual void initialize(int);
+
 	    virtual void handleSelfMsg(cMessage*);
 		virtual void handleLowerMsg(cMessage*);
 	    virtual void handleLowerControl(cMessage* msg);
@@ -46,8 +67,11 @@ class Mac1609_4_Mod : public Veins::Mac1609_4
 		virtual void handleUpperControl(cMessage* msg);
 
 	private:
-        Statistics *StatPtr;
+	    void MAClayerToFile();
+
+	private:
         bool reportMAClayerData;
+        static std::vector<MacStatEntry> Vec_MacStat;
 };
 
 }
