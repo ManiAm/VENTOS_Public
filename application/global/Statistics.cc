@@ -25,6 +25,11 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
+/*
+ * This class collects simulation data from entities that are created/removed dynamically
+ * in the simulation (like vehicles and bikes).
+ * */
+
 #include <Statistics.h>
 #include <ApplRSU_05_Manager.h>
 #include "SignalObj.h"
@@ -32,7 +37,6 @@
 namespace VENTOS {
 
 Define_Module(VENTOS::Statistics);
-
 
 Statistics::~Statistics()
 {
@@ -184,7 +188,6 @@ void Statistics::executeFirstTimeStep()
 void Statistics::executeEachTimestep()
 {
 
-
 }
 
 
@@ -271,6 +274,9 @@ void Statistics::MAClayerToFile()
 
 void Statistics::plnManageToFile()
 {
+    if(Vec_plnManagement.empty())
+        return;
+
     boost::filesystem::path filePath;
 
     if(ev.isGUI())
@@ -346,6 +352,9 @@ void Statistics::plnManageToFile()
 
 void Statistics::plnStatToFile()
 {
+    if(Vec_plnStat.empty())
+        return;
+
     boost::filesystem::path filePath;
 
     if(ev.isGUI())
@@ -414,6 +423,9 @@ void Statistics::plnStatToFile()
 
 void Statistics::beaconToFile()
 {
+    if(Vec_Beacons.empty())
+        return;
+
     boost::filesystem::path filePath;
 
     if(ev.isGUI())

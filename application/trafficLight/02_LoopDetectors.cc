@@ -345,6 +345,9 @@ void LoopDetectors::collectLDsData()
 
 void LoopDetectors::saveLDsData()
 {
+    if(Vec_loopDetectors.empty())
+        return;
+
     boost::filesystem::path filePath;
 
     if(ev.isGUI())
@@ -736,6 +739,9 @@ void LoopDetectors::updateTrafficDemand()
 
 void LoopDetectors::saveTLQueueingData()
 {
+    if(Vec_queueSize.empty())
+        return;
+
     boost::filesystem::path filePath;
 
     if(ev.isGUI())
@@ -809,6 +815,9 @@ void LoopDetectors::saveTLQueueingData()
 
 void LoopDetectors::saveTLPhasingData()
 {
+    if(statusTL.empty())
+        return;
+
     boost::filesystem::path filePath;
 
     if(ev.isGUI())
