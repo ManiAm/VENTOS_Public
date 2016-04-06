@@ -51,6 +51,44 @@ public:
 };
 
 
+class VehicleData
+{
+public:
+    double time;
+    std::string vehicleName;
+    std::string vehicleType;
+    std::string lane;
+    double pos;
+    double speed;
+    double accel;
+    std::string CFMode;
+    double timeGapSetting;
+    double spaceGap;
+    double timeGap;
+    std::string TLid;  // TLid that controls this vehicle
+    char linkStatus;  // status of the TL
+
+    VehicleData(double t, std::string str1, std::string str2, std::string str3,
+            double d2, double d3, double d4, std::string str4, double d3a, double d5, double d6,
+            std::string str5, char st)
+    {
+        this->time = t;
+        this->vehicleName = str1;
+        this->vehicleType = str2;
+        this->lane = str3;
+        this->pos = d2;
+        this->speed = d3;
+        this->accel = d4;
+        this->CFMode = str4;
+        this->timeGapSetting = d3a;
+        this->spaceGap = d5;
+        this->timeGap = d6;
+        this->TLid = str5;
+        this->linkStatus = st;
+    }
+};
+
+
 class TraCI_Start :  public TraCI_Commands
 {
 public:
@@ -70,6 +108,9 @@ private:
     void initRoi();
     void roiRSUs();
     void drawRoi();
+
+    void saveVehicleData(std::string);
+    void vehiclesDataToFile();
 
     /** get current simulation time (in ms) */
     uint32_t getCurrentTimeMs();
@@ -102,6 +143,8 @@ private:
     // NED
     BaseWorldUtility* world;
     ConnectionManager* cc;
+    bool collectVehiclesData;
+    int vehicleDataLevel;
 
     bool debug;                /**< whether to emit debug messages */
     simtime_t connectAt;       /**< when to connect to TraCI server (must be the initial timestep of the server) */
@@ -163,6 +206,7 @@ private:
     // class variables
     bool equilibrium_vehicle;
     std::map<std::string, departedNodes> addedNodes;
+    std::vector<VehicleData> Vec_vehiclesData;
 };
 
 }

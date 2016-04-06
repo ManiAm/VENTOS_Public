@@ -27,6 +27,9 @@ simple TraCIStart
         bool equilibrium_vehicle;
         bool logTraCIcommands = default(false);
         
+        bool collectVehiclesData;
+        int vehicleDataLevel;
+        
         string vehicleModuleType = default("inet.nodes.wireless.WirelessHostSimplified");    // module type to be used in the simulation for each managed vehicle
         string vehicleModuleName = default("host");                                          // module name to be used in the simulation for each managed vehicle
         string vehicleModuleDisplayString = default("i=misc/node2;is=vs;r=0,,#707070,1");    // module displayString to be used in the simulation for each managed vehicle  
