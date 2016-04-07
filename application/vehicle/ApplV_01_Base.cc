@@ -88,5 +88,12 @@ void ApplVBase::handleSelfMsg(cMessage* msg)
 
 }
 
+
+// is called, every time the position of vehicle changes
+void ApplVBase::handlePositionUpdate(cObject* obj)
+{
+
+}
+
 }
 

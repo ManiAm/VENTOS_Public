@@ -39,42 +39,42 @@ class RSUAdd;
 
 class ApplRSUBase : public BaseApplLayer
 {
-	public:
-		~ApplRSUBase();
-		virtual void initialize(int stage);
-		virtual void finish();
-        virtual void handleSelfMsg(cMessage* msg);
+public:
+    ~ApplRSUBase();
+    virtual void initialize(int stage);
+    virtual void finish();
+    virtual void handleSelfMsg(cMessage* msg);
 
-	protected:
-        virtual void executeEachTimeStep();
-        BeaconRSU* prepareBeacon();
+protected:
+    virtual void executeEachTimeStep();
+    BeaconRSU* prepareBeacon();
 
-	protected:
-		// NED variables
-	    cModule *nodePtr;   // pointer to the Node
-	    TraCI_Commands* TraCI;
-	    cModule* TLptr;
+protected:
+    // NED variables
+    cModule *nodePtr;   // pointer to the Node
+    TraCI_Commands* TraCI;
+    cModule* TLptr;
 
-        // NED variables (beaconing parameters)
-        bool sendBeacons;
-        double beaconInterval;
-        double maxOffset;
-        int beaconLengthBits;
-        int beaconPriority;
+    // NED variables (beaconing parameters)
+    bool sendBeacons;
+    double beaconInterval;
+    double maxOffset;
+    int beaconLengthBits;
+    int beaconPriority;
 
-        // Class variables
-        int myId;
-		const char *myFullId;
-		std::string SUMOID;
-        std::string myTLid;
-        double myCoordX;    // my X coordinate in SUMO
-        double myCoordY;    // my Y coordinate in SUMO
+    // Class variables
+    int myId;
+    const char *myFullId;
+    std::string SUMOID;
+    std::string myTLid;
+    double myCoordX;    // my X coordinate in SUMO
+    double myCoordY;    // my Y coordinate in SUMO
 
-        simtime_t individualOffset;
-        cMessage* RSUBeaconEvt;
+    simtime_t individualOffset;
+    cMessage* RSUBeaconEvt;
 
-        int TLControlMode = -1;
-        double minGreenTime = -1;
+    int TLControlMode = -1;
+    double minGreenTime = -1;
 };
 
 }

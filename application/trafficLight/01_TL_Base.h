@@ -42,24 +42,24 @@ namespace VENTOS {
 
 class TrafficLightBase : public BaseApplLayer
 {
-  public:
-      virtual ~TrafficLightBase();
-      virtual void initialize(int);
-      virtual void finish();
-      virtual void handleMessage(cMessage *);
+public:
+    virtual ~TrafficLightBase();
+    virtual void initialize(int);
+    virtual void finish();
+    virtual void handleMessage(cMessage *);
 
-  protected:
-      virtual void executeFirstTimeStep();
-      virtual void executeEachTimeStep();
-      void findRSU(std::string);
+protected:
+    virtual void executeFirstTimeStep();
+    virtual void executeEachTimeStep();
+    void findRSU(std::string);
 
-  protected:
-      TraCI_Commands *TraCI;
-      ApplRSUMonitor *RSUptr;
+protected:
+    TraCI_Commands *TraCI;
+    ApplRSUMonitor *RSUptr;
 
-      int TLControlMode;
-      int debugLevel;
-      double updateInterval;
+    int TLControlMode;
+    int debugLevel;
+    double updateInterval;
 };
 
 }
