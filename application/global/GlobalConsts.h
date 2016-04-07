@@ -30,13 +30,11 @@
 
 namespace VENTOS {
 
-enum WaveApplMessageKinds
-{
+enum WaveApplMessageKinds {
     KIND_TIMER,
 };
 
-enum ControllerTypes
-{
+enum ControllerTypes {
     SUMO_TAG_CF_KRAUSS = 103,
     SUMO_TAG_CF_KRAUSS_PLUS_SLOPE,
     SUMO_TAG_CF_KRAUSS_ORIG1,
@@ -175,8 +173,7 @@ enum VehicleSignal {
     VEH_SIGNAL_EMERGENCY_YELLOW = 8192
 };
 
-enum TLControlTypes
-{
+enum TLControlTypes {
     TL_OFF,
     TL_Fix_Time,
     TL_Adaptive_Webster,
@@ -187,6 +184,18 @@ enum TLControlTypes
     TL_LQF_MWM,
     TL_OJFM,
     TL_Router
+};
+
+enum CRLdistAlgorithm {
+    CRL_RSU_Only,
+    CRL_C2C_Epidemic,
+    CRL_MPB,
+    CRL_ICE,
+    CRL_ICEv2,
+    CRL_Broadcast,
+    CRL_BBroadcast,
+    CRL_C2C_Epidemic_Ideal,
+    CRL_NewMPB,
 };
 
 // LinkState in SUMO
@@ -221,15 +230,13 @@ enum LinkState {
     LINKSTATE_DEADEND = '-'
 };
 
-enum LaneCostsMode
-{
+enum LaneCostsMode {
     MODE_NOTHING,
     MODE_RECORD,
     MODE_EWMA
 };
 
-enum RouterMessage
-{
+enum RouterMessage {
     DIJKSTRA,
     HYPERTREE,
     DONE,

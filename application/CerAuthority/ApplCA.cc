@@ -31,32 +31,6 @@
 
 namespace VENTOS {
 
-enum MessageType
-{
-    // Self Messages
-    Timer_Initial_Wait_CA,
-    Timer_CRL_Interval_RSU,
-    Timer_Beacon_RSU,
-    Timer_Beacon_V,
-    Timer_Wait_Beacon_V,
-    Timer_Wait_CRL_Over_V,
-    Timer_Wait_CRL_Over_V_2,
-    Timer_Magic_Req,
-    Timer_Statistics_SnapShot,
-    Timer_Wait_PList,
-    Timer_Sending_Compromised_Msg,
-    Timer_Wait_Verify,
-
-    // Messages
-    Msg_CRL_CA,
-    Msg_CRL_RSU,
-    Msg_CRL_V,
-    Msg_Compromised_V,
-    Msg_Pieces_list,
-    Msg_Beacon_V,
-    Msg_Beacon_RSU,
-};
-
 Define_Module(VENTOS::ApplCA);
 
 ApplCA::~ApplCA()
@@ -124,7 +98,7 @@ void ApplCA::initialize(int stage)
         Signal_Magic_Req = registerSignal("Magic_Req");
         simulation.getSystemModule()->subscribe("Magic_Req", this);
 
-        Timer1 = new cMessage("Timer_Initial_Wait_CA", Timer_Initial_Wait_CA);
+        Timer1 = new cMessage("Timer_Initial_Wait_CA", KIND_TIMER);
         scheduleAt(simTime() + InitialWait, Timer1);
     }
 }
@@ -144,7 +118,7 @@ void ApplCA::finish()
 
 void ApplCA::handleSelfMsg(cMessage *msg)
 {
-    if(msg->getKind() == Timer_Initial_Wait_CA)
+    if(msg == Timer1)
         createCRL();
     else
         error("Unknown message! -> delete, kind: %d", msg->getKind());
@@ -413,7 +387,7 @@ std::vector<CRL_Piece *> ApplCA::addHeader(std::vector<std::string> vec)
     for(unsigned int i=0; i< vec.size(); i++)
     {
         // create the packet for transmitting a certificate
-        CRL_Piece *pkt = new CRL_Piece(moduleName.c_str(), Msg_CRL_CA);
+        CRL_Piece *pkt = new CRL_Piece(moduleName.c_str());
 
         pkt->setCRLversion(1);
         pkt->setTimestamp(0);
@@ -444,7 +418,7 @@ std::vector<CRL_Piece *> ApplCA::addHeader(std::vector<std::string> vec)
 // assign CRL pieces to each of the RSUs
 void ApplCA::sendPiecesToRSUs()
 {
-    printf(">>> %s is sending CRL pieces to each RSU \n", moduleName.c_str());
+    printf(">>> %s is sending CRL pieces to each RSU \n\n", moduleName.c_str());
 
     // get a pointer to the first RSU
     cModule *module = simulation.getSystemModule()->getSubmodule("RSU", 0);
@@ -458,11 +432,6 @@ void ApplCA::sendPiecesToRSUs()
     {
         if(!EnableShuffle)
         {
-            std::cout <<  "    RSU " << i << ": ";
-            for(auto &ii : PiecesCRL)
-                std::cout << ii->getSeqNo() << "  ";
-            std::cout << std::endl;
-
             cModule *rmodule = simulation.getSystemModule()->getSubmodule("RSU", i);
             if(rmodule == NULL)
                 error("RSU %d was found in the network!", i);
@@ -477,11 +446,6 @@ void ApplCA::sendPiecesToRSUs()
         {
             // shuffle PiecesCRL
             std::vector<CRL_Piece *> PiecesCRL_shuffled= shuffle(PiecesCRL);  // passing by value!
-
-            std::cout <<  "    sending CRL pieces to RSU " << i << ": ";
-            for(auto &ii : PiecesCRL_shuffled)
-                std::cout << ii->getSeqNo() << "  ";
-            std::cout << std::endl;
 
             cModule *rmodule = simulation.getSystemModule()->getSubmodule("RSU", i);
             if(rmodule == NULL)

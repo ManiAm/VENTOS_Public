@@ -63,9 +63,9 @@ public:
 
     // overload == for search
     friend bool operator== (const detectedVehicleEntry &v1, const detectedVehicleEntry &v2)
-                    {
+            {
         return ( v1.vehicleName == v2.vehicleName );
-                    }
+            }
 
     // overload < for sort
     friend bool operator < (const detectedVehicleEntry &v1, const detectedVehicleEntry &v2)
@@ -142,7 +142,7 @@ private:
 
 public:
     std::map<std::string /*lane*/, laneInfoEntry> laneInfo;   // collected info per lane by this RSU. Note that each RSU has
-                                                              // a local copy of laneInfo that contains the lane info for this specific TL
+    // a local copy of laneInfo that contains the lane info for this specific TL
 private:
     bool activeDetection;
     bool collectVehApproach;

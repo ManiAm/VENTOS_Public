@@ -25,12 +25,18 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
+cplusplus {{
+#include "WaveShortMessage_m.h"
+}}
+
+class Veins::WaveShortMessage;
+
 namespace VENTOS;
 
-packet CRL_Piece
+packet CRL_Piece extends WaveShortMessage 
 {
     int CRLversion;
-    int Timestamp;
+    int CRLTimestamp;
     int SeqNo;
     int CAid;
     int pad;

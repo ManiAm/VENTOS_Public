@@ -32,7 +32,7 @@
 #include <map>
 #include <iostream>
 #include <map>
-#include "ConstsVENTOS.h"
+#include "GlobalConsts.h"
 
 namespace VENTOS {
 

@@ -34,7 +34,7 @@
 #include "TraCICoord.h"
 
 #include "Coord.h"
-#include "ConstsVENTOS.h"
+#include "GlobalConsts.h"
 
 #include <chrono>
 #include <ctime>

@@ -1,7 +1,7 @@
 
 package c3po.application.rsu;
 
-simple ApplRSUManager extends ApplRSUAID
+simple ApplRSUManager extends ApplRSUCRL
 {
     parameters:
         @class(VENTOS::ApplRSUManager);   

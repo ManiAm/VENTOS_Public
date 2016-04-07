@@ -28,11 +28,11 @@
 #ifndef APPLRSUMANAGER_H_
 #define APPLRSUMANAGER_H_
 
-#include "ApplRSU_04_AID.h"
+#include "ApplRSU_05_CRL.h"
 
 namespace VENTOS {
 
-class ApplRSUManager : public ApplRSUAID
+class ApplRSUManager : public ApplRSUCRL
 {
 public:
     ~ApplRSUManager();
@@ -55,6 +55,7 @@ protected:
 private:
     simsignal_t Signal_executeEachTS;
     simsignal_t Signal_beaconSignaling;
+    simsignal_t Signal_CRL_pieces;
     static const simsignalwrap_t mobilityStateChangedSignal;
 };
 
