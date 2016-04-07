@@ -178,11 +178,12 @@ enum TLControlTypes {
     TL_Fix_Time,
     TL_Adaptive_Webster,
     TL_TrafficActuated,
-    TL_Adaptive_Time_Queue,
-    TL_LowDelay,
-    TL_LQF_MWM_Phase,
+    TL_LQF,
+    TL_OJF,
     TL_LQF_MWM,
-    TL_OJFM,
+    TL_LQF_MWM_Aging,
+    TL_LQF_MWM_Cycle,
+    TL_FMSC,
     TL_Router
 };
 

@@ -1,7 +1,7 @@
 /****************************************************************************/
-/// @file    TL_Manager.h
+/// @file    TL_LQF_MWM_Cycle.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
-/// @date    August 2013
+/// @date    Jul 2015
 ///
 /****************************************************************************/
 // VENTOS, Vehicular Network Open Simulator; see http:?
@@ -24,30 +24,33 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef TRAFFICLIGHTMANAGER_H
-#define TRAFFICLIGHTMANAGER_H
+#ifndef TRAFFICLIGHTLQFMWMCYCLE_H
+#define TRAFFICLIGHTLQFMWMCYCLE_H
 
-#include "13_TL_Router.h"
+#include <11_TL_LQF_MWM_Aging.h>
 
 namespace VENTOS {
 
-class TrafficLightManager : public TrafficLightRouter
+class TrafficLight_LQF_MWM_Cycle : public TrafficLight_LQF_MWM_Aging
 {
-  public:
-    virtual ~TrafficLightManager();
+public:
+    virtual ~TrafficLight_LQF_MWM_Cycle();
     virtual void initialize(int);
     virtual void finish();
     virtual void handleMessage(cMessage *);
-    virtual void receiveSignal(cComponent *, simsignal_t, long);
 
-  protected:
+protected:
     void virtual executeFirstTimeStep();
     void virtual executeEachTimeStep();
 
-  private:
-    simsignal_t Signal_executeFirstTS;
-    simsignal_t Signal_executeEachTS;
+private:
+    void chooseNextInterval();
+    void chooseNextGreenInterval();
+    void calculatePhases(std::string);
 
+private:
+    std::vector<greenIntervalInfo_LQF> greenInterval;
+    bool nextGreenIsNewCycle;
 };
 
 }

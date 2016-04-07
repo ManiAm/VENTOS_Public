@@ -200,7 +200,6 @@ void AddEntity::Add()
         int count = std::count(loadedVehType.begin(), loadedVehType.end(), type);
         std::cout << count << " entities are loaded of type " << type << endl;
     }
-    std::cout << endl;
 }
 
 

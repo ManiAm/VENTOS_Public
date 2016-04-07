@@ -76,7 +76,7 @@ void TrafficLightOJF::initialize(int stage)
 {
     TrafficLightLongestQueueNoStarv::initialize(stage);
 
-    if(TLControlMode != TL_LowDelay)
+    if(TLControlMode != TL_OJF)
         return;
 
     if(stage == 0)
@@ -96,7 +96,7 @@ void TrafficLightOJF::handleMessage(cMessage *msg)
 {
     TrafficLightLongestQueueNoStarv::handleMessage(msg);
 
-    if(TLControlMode != TL_LowDelay)
+    if(TLControlMode != TL_OJF)
         return;
 
     if (msg == intervalChangeEVT)
@@ -116,10 +116,10 @@ void TrafficLightOJF::executeFirstTimeStep()
 {
     TrafficLightLongestQueueNoStarv::executeFirstTimeStep();
 
-    if(TLControlMode != TL_LowDelay)
+    if(TLControlMode != TL_OJF)
         return;
 
-    std::cout << "Low delay traffic signal control ... " << endl << endl;
+    std::cout << endl << "Low delay traffic signal control ... " << endl << endl;
 
     // set initial values
     currentInterval = phase1_5;
@@ -159,7 +159,7 @@ void TrafficLightOJF::executeEachTimeStep()
 {
     TrafficLightLongestQueueNoStarv::executeEachTimeStep();
 
-    if(TLControlMode != TL_LowDelay)
+    if(TLControlMode != TL_OJF)
         return;
 
     intervalElapseTime += updateInterval;

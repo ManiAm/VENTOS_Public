@@ -91,7 +91,7 @@ void TrafficLightActuated::executeFirstTimeStep()
     if(TLControlMode != TL_TrafficActuated)
         return;
 
-    std::cout << "Traffic-actuated traffic signal control ..."  << endl;
+    std::cout << endl << "Traffic-actuated traffic signal control ..."  << endl;
 
     // set initial values
     currentInterval = phase1_5;

@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    TL_FMSC.h
+/// @file    11_TL_LQF_MWM_Aging.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @date    Jul 2015
 ///
@@ -24,30 +24,33 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef TRAFFICLIGHTFMSC_H
-#define TRAFFICLIGHTFMSC_H
+// This algorithm is implemented according to the paper, but suffers from starvation.
+// It performs the scheduling per phase (and not per cycle)
 
-#include <11_TL_LQF_MWM_NoStarv.h>
+#ifndef TRAFFICLIGHTLQFMWMAGING_H
+#define TRAFFICLIGHTLQFMWMAGING_H
+
+#include <10_TL_LQF_MWM.h>
 
 namespace VENTOS {
 
-class TrafficLight_FMSC : public TrafficLight_LQF_MWM_NoStarv
+class TrafficLight_LQF_MWM_Aging : public TrafficLight_LQF_MWM
 {
-  public:
-    virtual ~TrafficLight_FMSC();
+public:
+    virtual ~TrafficLight_LQF_MWM_Aging();
     virtual void initialize(int);
     virtual void finish();
     virtual void handleMessage(cMessage *);
 
-  protected:
+protected:
     void virtual executeFirstTimeStep();
     void virtual executeEachTimeStep();
 
-  private:
+private:
     void chooseNextInterval();
     void chooseNextGreenInterval();
 
-  private:
+private:
     double nextGreenTime;
 };
 

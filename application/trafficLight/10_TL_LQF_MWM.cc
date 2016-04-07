@@ -74,7 +74,7 @@ void TrafficLight_LQF_MWM::initialize(int stage)
 {
     TrafficLightOJF::initialize(stage);
 
-    if(TLControlMode != TL_LQF_MWM_Phase)
+    if(TLControlMode != TL_LQF_MWM)
         return;
 
     if(stage == 0)
@@ -94,7 +94,7 @@ void TrafficLight_LQF_MWM::handleMessage(cMessage *msg)
 {
     TrafficLightOJF::handleMessage(msg);
 
-    if(TLControlMode != TL_LQF_MWM_Phase)
+    if(TLControlMode != TL_LQF_MWM)
         return;
 
     if (msg == intervalChangeEVT)
@@ -115,7 +115,7 @@ void TrafficLight_LQF_MWM::executeFirstTimeStep()
     // call parent
     TrafficLightOJF::executeFirstTimeStep();
 
-    if(TLControlMode != TL_LQF_MWM_Phase)
+    if(TLControlMode != TL_LQF_MWM)
         return;
 
     std::cout << endl << "Multi-class LQF-MWM traffic signal control ..." << endl << endl;
@@ -162,7 +162,7 @@ void TrafficLight_LQF_MWM::executeEachTimeStep()
     // call parent
     TrafficLightOJF::executeEachTimeStep();
 
-    if(TLControlMode != TL_LQF_MWM_Phase)
+    if(TLControlMode != TL_LQF_MWM)
         return;
 
     intervalElapseTime += updateInterval;

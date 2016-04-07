@@ -71,7 +71,7 @@ void TrafficLightFixed::executeFirstTimeStep()
     if (TLControlMode != TL_Fix_Time)
         return;
 
-    std::cout << "Fixed-time traffic signal control ... " << endl << endl;
+    std::cout << endl << "Fixed-time traffic signal control ... " << endl << endl;
 
     for (auto &TL : TLList)
     {

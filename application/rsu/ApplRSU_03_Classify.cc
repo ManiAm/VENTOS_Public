@@ -83,12 +83,12 @@ void ApplRSUCLASSIFY::initialize(int stage)
         if(status == -1)
         {
             collectTrainingData = true;
-            std::cout << "Cannot train the algorithm! Run simulation to collect training data!" << std::endl << std::endl;
+            std::cout << "Cannot train the algorithm! Run simulation to collect training data!" << std::endl;
         }
         else
         {
             collectTrainingData = false;
-            std::cout << "Training was successful." << std::endl << std::endl;
+            std::cout << "Training was successful." << std::endl;
         }
     }
 }
@@ -102,12 +102,12 @@ void ApplRSUCLASSIFY::finish()
     {
         saveSampleToFile();
 
-        // now we can start training
+        // at the end of simulation, we can start training
         int status = loadTrainer();
         if(status == -1)
-            std::cout << "Cannot train the algorithm!" << std::endl << std::endl;
+            std::cout << "Cannot train the algorithm!" << std::endl;
         else
-            std::cout << "Training was successful." << std::endl << std::endl;
+            std::cout << "Training was successful." << std::endl;
     }
     else
         saveClassificationResults();
@@ -355,6 +355,7 @@ int ApplRSUCLASSIFY::loadTrainer()
         std::ifstream ifs(filePath.string());
         if(!ifs.fail())
         {
+            std::cout << std::endl;
             std::cout << "loading " << fileName << " from disk... ";
             shark::TextInArchive ia(ifs);
             kc_model->read(ia);

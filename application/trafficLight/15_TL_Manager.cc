@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    TL_Manager.cc
+/// @file    15_TL_Manager.cc
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @date    August 2013
 ///
@@ -24,7 +24,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <14_TL_Manager.h>
+#include <15_TL_Manager.h>
 
 namespace VENTOS {
 
@@ -90,7 +90,7 @@ void TrafficLightManager::executeFirstTimeStep()
     TrafficLightRouter::executeFirstTimeStep();
 
     // check if the TLControlMode number is valid?
-    if(TLControlMode < 0 || TLControlMode > 9)
+    if(TLControlMode < 0 || TLControlMode > 10)
     {
         error("Invalid TLControlMode!");
     }

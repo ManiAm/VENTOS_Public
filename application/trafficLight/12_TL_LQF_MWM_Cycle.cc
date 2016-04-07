@@ -1,7 +1,7 @@
 /****************************************************************************/
-/// @file    TL_LongestQueueNoStarv.cc
+/// @file    TL_LQF_MWM_Cycle.cc
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
-/// @date    August 2013
+/// @date    Jul 2015
 ///
 /****************************************************************************/
 // VENTOS, Vehicular Network Open Simulator; see http:?
@@ -24,39 +24,39 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <08_TL_LongestQueue_NoStarv.h>
+#include <12_TL_LQF_MWM_Cycle.h>
 #include <queue>
 
 namespace VENTOS {
 
-Define_Module(VENTOS::TrafficLightLongestQueueNoStarv);
+Define_Module(VENTOS::TrafficLight_LQF_MWM_Cycle);
 
-class sortedEntryQ
+class sortedEntryLQF
 {
 public:
     int oneCount;
-    int totalQueue;
     int maxVehCount;
-    std::vector<int> batchMovements;
+    double totalWeight;
+    std::string phase;
 
-    sortedEntryQ(int i1, int i2, int i3, std::vector<int> bm)
+    sortedEntryLQF(double d1, int i1, int i2, std::string p)
     {
+        this->totalWeight = d1;
         this->oneCount = i1;
-        this->totalQueue = i2;
-        this->maxVehCount = i3;
-        batchMovements.swap(bm);
+        this->maxVehCount = i2;
+        this->phase = p;
     }
 };
 
 
-class sortCompareQ
+class sortCompareLQF
 {
 public:
-    bool operator()(sortedEntryQ p1, sortedEntryQ p2)
+    bool operator()(sortedEntryLQF p1, sortedEntryLQF p2)
     {
-        if(p1.totalQueue < p2.totalQueue)
+        if( p1.totalWeight < p2.totalWeight )
             return true;
-        else if(p1.totalQueue == p2.totalQueue && p1.oneCount < p2.oneCount)
+        else if( p1.totalWeight == p2.totalWeight && p1.oneCount < p2.oneCount)
             return true;
         else
             return false;
@@ -66,24 +66,21 @@ public:
 
 // using a 'functor' rather than a 'function'
 // Reason: to be able to pass an additional argument (bestMovement) to predicate
-struct servedLQ
+struct servedLQF
 {
 public:
-    servedLQ(std::vector<int> best)
+    servedLQF(std::string str)
 {
-        bestMovement.swap(best);
+        this->thisPhase = str;
 }
 
-    bool operator () (const sortedEntryQ v)
+    bool operator () (const sortedEntryLQF v)
     {
-        for (unsigned int linkNumber = 0; linkNumber < v.batchMovements.size(); linkNumber++)
-        {
-            // Ignore all permissive right turns since these are always green:
-            int rightTurns[8] = {0, 2, 5, 7, 10, 12, 15, 17};
-            bool rightTurn = std::find(std::begin(rightTurns), std::end(rightTurns), linkNumber) != std::end(rightTurns);
+        std::string phase = v.phase;
 
-            // Want to remove movements that have already been done:
-            if (!rightTurn && v.batchMovements[linkNumber] == 1 && bestMovement[linkNumber] == 1)
+        for(unsigned int i = 0; i < phase.size(); i++)
+        {
+            if (phase[i] == 'G' && thisPhase[i] == 'G')
                 return true;
         }
 
@@ -91,50 +88,42 @@ public:
     }
 
 private:
-    std::vector<int> bestMovement;
+    std::string thisPhase;
 };
 
 
-TrafficLightLongestQueueNoStarv::~TrafficLightLongestQueueNoStarv()
+TrafficLight_LQF_MWM_Cycle::~TrafficLight_LQF_MWM_Cycle()
 {
 
 }
 
 
-void TrafficLightLongestQueueNoStarv::initialize(int stage)
+void TrafficLight_LQF_MWM_Cycle::initialize(int stage)
 {
-    TrafficLightActuated::initialize(stage);
+    TrafficLight_LQF_MWM_Aging::initialize(stage);
 
-    if(TLControlMode != TL_LQF)
+    if(TLControlMode != TL_LQF_MWM_Cycle)
         return;
 
     if(stage == 0)
     {
-        maxQueueSize = par("maxQueueSize").longValue();
-
-        if(maxQueueSize <= 0 && maxQueueSize != -1)
-            error("maxQueueSize value is set incorrectly!");
-
         nextGreenIsNewCycle = false;
         intervalChangeEVT = new cMessage("intervalChangeEVT", 1);
-
-        // collect queue information
-        measureIntersectionQueue = true;
     }
 }
 
 
-void TrafficLightLongestQueueNoStarv::finish()
+void TrafficLight_LQF_MWM_Cycle::finish()
 {
-    TrafficLightActuated::finish();
+    TrafficLight_LQF_MWM_Aging::finish();
 }
 
 
-void TrafficLightLongestQueueNoStarv::handleMessage(cMessage *msg)
+void TrafficLight_LQF_MWM_Cycle::handleMessage(cMessage *msg)
 {
-    TrafficLightActuated::handleMessage(msg);
+    TrafficLight_LQF_MWM_Aging::handleMessage(msg);
 
-    if(TLControlMode != TL_LQF)
+    if(TLControlMode != TL_LQF_MWM_Cycle)
         return;
 
     if (msg == intervalChangeEVT)
@@ -153,20 +142,24 @@ void TrafficLightLongestQueueNoStarv::handleMessage(cMessage *msg)
 }
 
 
-void TrafficLightLongestQueueNoStarv::executeFirstTimeStep()
+void TrafficLight_LQF_MWM_Cycle::executeFirstTimeStep()
 {
-    TrafficLightActuated::executeFirstTimeStep();
+    // call parent
+    TrafficLight_LQF_MWM_Aging::executeFirstTimeStep();
 
-    if(TLControlMode != TL_LQF)
+    if(TLControlMode != TL_LQF_MWM_Cycle)
         return;
 
-    std::cout << endl << "Longest Queue traffic signal control ..." << endl << endl;
+    std::cout << endl << "Multi-class LQF-MWM-Cycle traffic signal control ..." << endl << endl;
 
-    // get all non-conflicting movements in allMovements vector
-    TrafficLightAllowedMoves::getMovements("C");
+    // find the RSU module that controls this TL
+    findRSU("C");
 
-    // make sure allMovements vector is not empty
-    ASSERT(!allMovements.empty());
+    // make sure RSUptr is pointing to our corresponding RSU
+    ASSERT(RSUptr);
+
+    // turn on active detection on this RSU
+    RSUptr->par("activeDetection") = true;
 
     // calculate phases at the beginning of the cycle
     calculatePhases("C");
@@ -178,10 +171,12 @@ void TrafficLightLongestQueueNoStarv::executeFirstTimeStep()
 
     scheduleAt(simTime().dbl() + intervalDuration, intervalChangeEVT);
 
-    for (auto &TL :TLList)
+    for (auto &TL : TLList)
     {
         TraCI->TLSetProgram(TL, "adaptive-time");
         TraCI->TLSetState(TL, currentInterval);
+
+        firstGreen[TL] = currentInterval;
 
         // initialize TL status
         updateTLstate(TL, "init", currentInterval);
@@ -191,30 +186,30 @@ void TrafficLightLongestQueueNoStarv::executeFirstTimeStep()
     {
         char buff[300];
         sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalDuration);
-        std::cout << buff << endl << endl;
+        std::cout << endl << buff << endl << endl;
         std::cout.flush();
     }
 }
 
 
-void TrafficLightLongestQueueNoStarv::executeEachTimeStep()
+void TrafficLight_LQF_MWM_Cycle::executeEachTimeStep()
 {
-    TrafficLightActuated::executeEachTimeStep();
+    // call parent
+    TrafficLight_LQF_MWM_Aging::executeEachTimeStep();
 
-    if(TLControlMode != TL_LQF)
+    if(TLControlMode != TL_LQF_MWM_Cycle)
         return;
 
     intervalElapseTime += updateInterval;
 }
 
 
-void TrafficLightLongestQueueNoStarv::chooseNextInterval()
+void TrafficLight_LQF_MWM_Cycle::chooseNextInterval()
 {
     if (currentInterval == "yellow")
     {
         currentInterval = "red";
 
-        // change all 'y' to 'r'
         std::string str = TraCI->TLGetState("C");
         std::string nextInterval = "";
         for(char& c : str) {
@@ -262,7 +257,7 @@ void TrafficLightLongestQueueNoStarv::chooseNextInterval()
 }
 
 
-void TrafficLightLongestQueueNoStarv::chooseNextGreenInterval()
+void TrafficLight_LQF_MWM_Cycle::chooseNextGreenInterval()
 {
     // Remove current old phase:
     greenInterval.erase(greenInterval.begin());
@@ -278,98 +273,101 @@ void TrafficLightLongestQueueNoStarv::chooseNextGreenInterval()
 
     // calculate 'next interval'
     std::string nextInterval = "";
-    bool needYellowInterval = false;  // if we have at least one yellow interval
     for(unsigned int linkNumber = 0; linkNumber < currentInterval.size(); ++linkNumber)
     {
         if( (currentInterval[linkNumber] == 'G' || currentInterval[linkNumber] == 'g') && nextGreenInterval[linkNumber] == 'r')
-        {
             nextInterval += 'y';
-            needYellowInterval = true;
-        }
         else
             nextInterval += currentInterval[linkNumber];
     }
 
-    if(needYellowInterval)
-    {
-        currentInterval = "yellow";
-        TraCI->TLSetState("C", nextInterval);
+    currentInterval = "yellow";
+    TraCI->TLSetState("C", nextInterval);
 
-        intervalElapseTime = 0.0;
-        intervalDuration =  yellowTime;
+    intervalElapseTime = 0.0;
+    intervalDuration =  yellowTime;
 
-        // update TL status for this phase
-        updateTLstate("C", "yellow");
-    }
-    // extend the current green interval
-    else
-    {
-        intervalDuration = greenInterval.front().greenTime;
-
-        if(ev.isGUI() && debugLevel > 0)
-        {
-            std::cout << ">>> Continue the last green interval." << endl << endl;
-            std::cout.flush();
-        }
-    }
+    // update TL status for this phase
+    updateTLstate("C", "yellow");
 }
 
 
-// calculate all phases (up to 4)
-void TrafficLightLongestQueueNoStarv::calculatePhases(std::string TLid)
+void TrafficLight_LQF_MWM_Cycle::calculatePhases(std::string TLid)
 {
-    if(ev.isGUI() && debugLevel > 1)
-    {
-        std::cout << "Queue size per lane: ";
-        for(auto& entry : laneQueueSize)
-        {
-            std::string lane = entry.first;
-            int qSize = entry.second.second;
-            if(qSize != 0)
-                std::cout << lane << " (" << qSize << ") | ";
-        }
-        std::cout << endl << endl;
-    }
+    std::map<std::string, laneInfoEntry> laneInfo = RSUptr->laneInfo;
 
-    // batch of all non-conflicting movements, sorted by total queue size per batch
-    std::priority_queue< sortedEntryQ /*type of each element*/, std::vector<sortedEntryQ> /*container*/, sortCompareQ > sortedMovements;
+    if(laneInfo.empty())
+        error("LaneInfo is empty! Is active detection on in %s ?", RSUptr->getFullName());
+
+    // batch of all non-conflicting movements, sorted by total weight + oneCount per batch
+    std::priority_queue< sortedEntryLQF /*type of each element*/, std::vector<sortedEntryLQF> /*container*/, sortCompareLQF > sortedMovements;
 
     // clear the priority queue
-    sortedMovements = std::priority_queue < sortedEntryQ, std::vector<sortedEntryQ>, sortCompareQ >();
+    sortedMovements = std::priority_queue < sortedEntryLQF, std::vector<sortedEntryLQF>, sortCompareLQF >();
 
-    for(unsigned int i = 0; i < allMovements.size(); ++i)  // row
+    for(std::string phase : phases)
     {
-        int totalQueueRow = 0;  // total queue size for this batch of movements
+        double totalWeight = 0;  // total weight for each batch
         int oneCount = 0;
-
-        // for each batch of movement get
-        // - 'total queue size' : total queue size
-        // - 'one count'        : # of allowed movements (except right turns)
-        // - 'maxVehCount'      : max queue size
         int maxVehCount = 0;
-        for(unsigned int j = 0; j < allMovements[i].size(); ++j)  // column (link number)
+
+        for(unsigned int linkNumber = 0; linkNumber < phase.size(); ++linkNumber)
         {
-            // if a right turn
-            bool rightTurn = std::find(std::begin(rightTurns), std::end(rightTurns), j) != std::end(rightTurns);
-
-            if(allMovements[i][j] == 1 && !rightTurn)
+            int vehCount = 0;
+            if(phase[linkNumber] == 'G')
             {
-                int queueSize = linkQueueSize[std::make_pair(TLid,j)];
-                int queueSizeBounded = (maxQueueSize == -1) ? queueSize : std::min(maxQueueSize,queueSize);
+                bool rightTurn = std::find(std::begin(rightTurns), std::end(rightTurns), linkNumber) != std::end(rightTurns);
+                // ignore this link if right turn
+                if(!rightTurn)
+                {
+                    // get the corresponding lane for this link
+                    auto itt = linkToLane.find(std::make_pair(TLid,linkNumber));
+                    if(itt == linkToLane.end())
+                        error("linkNumber %s is not found in TL %s", linkNumber, TLid.c_str());
+                    std::string lane = itt->second;
 
-                totalQueueRow = totalQueueRow + queueSizeBounded;
+                    // find this lane in laneInfo
+                    auto res = laneInfo.find(lane);
+                    if(res == laneInfo.end())
+                        error("Can not find lane %s in laneInfo!", lane.c_str());
+
+                    // get all queued vehicles on this lane
+                    auto vehicles = (*res).second.allVehicles;
+
+                    // for each vehicle
+                    for(auto& entry : vehicles)
+                    {
+                        // we only care about waiting vehicles on this lane
+                        if(entry.second.vehStatus == VEH_STATUS_Waiting)
+                        {
+                            vehCount++;
+
+                            std::string vID = entry.first;
+                            std::string vType = entry.second.vehType;
+
+                            // total weight of entities on this lane
+                            auto loc = classWeight.find(vType);
+                            if(loc == classWeight.end())
+                                error("entity %s with type %s does not have a weight in classWeight map!", vID.c_str(), vType.c_str());
+                            totalWeight += loc->second;
+                        }
+                    }
+                }
+
+                // number of movements in this phase (including right turns)
                 oneCount++;
-                maxVehCount = std::max(maxVehCount, queueSizeBounded);
             }
+
+            maxVehCount = std::max(maxVehCount, vehCount);
         }
 
         // add this batch of movements to priority_queue
-        sortedEntryQ *entry = new sortedEntryQ(oneCount, totalQueueRow, maxVehCount, allMovements[i]);
+        sortedEntryLQF *entry = new sortedEntryLQF(totalWeight, oneCount, maxVehCount, phase);
         sortedMovements.push(*entry);
     }
 
     // copy sortedMovements to a vector for iteration:
-    std::vector<sortedEntryQ> batchMovementVector;
+    std::vector<sortedEntryLQF> batchMovementVector;
     while(!sortedMovements.empty())
     {
         batchMovementVector.push_back(sortedMovements.top());
@@ -380,37 +378,14 @@ void TrafficLightLongestQueueNoStarv::calculatePhases(std::string TLid)
     while(!batchMovementVector.empty())
     {
         // Always select the first movement because it will be the best(?):
-        std::vector<int> bestMovement = batchMovementVector.front().batchMovements;
+        sortedEntryLQF entry = batchMovementVector.front();
+        std::string nextInterval = entry.phase;
 
-        // calculate the next green interval.
-        // right-turns are all permissive and are given 'g'
-        std::string nextInterval = "";
-        for(unsigned linkNumber = 0; linkNumber < bestMovement.size(); ++linkNumber)
-        {
-            // if a right turn
-            bool rightTurn = std::find(std::begin(rightTurns), std::end(rightTurns), linkNumber) != std::end(rightTurns);
-
-            if(bestMovement[linkNumber] == 0)
-                nextInterval += 'r';
-            else if(bestMovement[linkNumber] == 1 && rightTurn)
-                nextInterval += 'g';
-            else if(bestMovement[linkNumber] == 1 && !rightTurn)
-                nextInterval += 'G';
-        }
-
-        // todo: is this necessary?
-        // Avoid pushing "only permissive right turns" phase:
-        if (nextInterval == "grgrrgrgrrgrgrrgrgrrrrrr")
-        {
-            batchMovementVector.erase(batchMovementVector.begin());
-            continue;
-        }
-
-        greenIntervalInfo_Maxqueue *entry = new greenIntervalInfo_Maxqueue(batchMovementVector.front().maxVehCount, 0.0, nextInterval);
-        greenInterval.push_back(*entry);
+        greenIntervalInfo_LQF *entry2 = new greenIntervalInfo_LQF(entry.maxVehCount, entry.totalWeight, entry.oneCount, 0.0, entry.phase);
+        greenInterval.push_back(*entry2);
 
         // Now delete these movements because they should never occur again:
-        batchMovementVector.erase( std::remove_if(batchMovementVector.begin(), batchMovementVector.end(), servedLQ(bestMovement)), batchMovementVector.end() );
+        batchMovementVector.erase( std::remove_if(batchMovementVector.begin(), batchMovementVector.end(), servedLQF(nextInterval)), batchMovementVector.end() );
     }
 
     // calculate number of vehicles in the intersection
@@ -433,7 +408,7 @@ void TrafficLightLongestQueueNoStarv::calculatePhases(std::string TLid)
     // If no green time (0s) is given to a phase, then this queue is empty and useless:
     int oldSize = greenInterval.size();
     auto rme = std::remove_if(greenInterval.begin(), greenInterval.end(),
-            [](const greenIntervalInfo_Maxqueue v)
+            [](const greenIntervalInfo_LQF v)
             {
         if (v.greenTime == 0.0)
             return true;
@@ -442,11 +417,6 @@ void TrafficLightLongestQueueNoStarv::calculatePhases(std::string TLid)
             }
     );
     greenInterval.erase( rme, greenInterval.end() );
-
-    // throw error if cycle contains more than 4 phases:
-    if (greenInterval.size() > 4)
-        error("cycle contains %d phases which is more than 4!", greenInterval.size());
-
     int newSize = greenInterval.size();
     if(ev.isGUI() && debugLevel > 1 && oldSize != newSize)
     {
@@ -462,9 +432,11 @@ void TrafficLightLongestQueueNoStarv::calculatePhases(std::string TLid)
     {
         std::cout << "Selected green intervals for this cycle: " << endl;
         for (auto &i : greenInterval)
-            std::cout << "Movement " << i.greenString
-            << " with maxVehCount of " << i.maxVehCount
-            << " for " << i.greenTime << "s" << endl;
+            std::cout << "movement: " << i.greenString
+            << ", maxVehCount= " << i.maxVehCount
+            << ", totalWeight= " << i.totalWeight
+            << ", oneCount= " << i.oneCount
+            << ", green= " << i.greenTime << "s" << endl;
 
         std::cout << endl;
         std::cout.flush();

@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    TL_FMSC.cc
+/// @file    13_TL_FMSC.cc
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @date    Jul 2015
 ///
@@ -24,7 +24,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <12_TL_FMSC.h>
+#include <13_TL_FMSC.h>
 #include <queue>
 
 namespace VENTOS {
@@ -76,9 +76,9 @@ TrafficLight_FMSC::~TrafficLight_FMSC()
 
 void TrafficLight_FMSC::initialize(int stage)
 {
-    TrafficLight_LQF_MWM_NoStarv::initialize(stage);
+    TrafficLight_LQF_MWM_Cycle::initialize(stage);
 
-    if(TLControlMode != TL_OJFM)
+    if(TLControlMode != TL_FMSC)
         return;
 
     if(stage == 0)
@@ -90,15 +90,15 @@ void TrafficLight_FMSC::initialize(int stage)
 
 void TrafficLight_FMSC::finish()
 {
-    TrafficLight_LQF_MWM_NoStarv::finish();
+    TrafficLight_LQF_MWM_Cycle::finish();
 }
 
 
 void TrafficLight_FMSC::handleMessage(cMessage *msg)
 {
-    TrafficLight_LQF_MWM_NoStarv::handleMessage(msg);
+    TrafficLight_LQF_MWM_Cycle::handleMessage(msg);
 
-    if(TLControlMode != TL_OJFM)
+    if(TLControlMode != TL_FMSC)
         return;
 
     if (msg == intervalChangeEVT)
@@ -117,9 +117,9 @@ void TrafficLight_FMSC::handleMessage(cMessage *msg)
 void TrafficLight_FMSC::executeFirstTimeStep()
 {
     // call parent
-    TrafficLight_LQF_MWM_NoStarv::executeFirstTimeStep();
+    TrafficLight_LQF_MWM_Cycle::executeFirstTimeStep();
 
-    if(TLControlMode != TL_OJFM)
+    if(TLControlMode != TL_FMSC)
         return;
 
     std::cout << endl << "FMSC traffic signal control ..." << endl << endl;
@@ -170,9 +170,9 @@ void TrafficLight_FMSC::executeFirstTimeStep()
 void TrafficLight_FMSC::executeEachTimeStep()
 {
     // call parent
-    TrafficLight_LQF_MWM_NoStarv::executeEachTimeStep();
+    TrafficLight_LQF_MWM_Cycle::executeEachTimeStep();
 
-    if(TLControlMode != TL_OJFM)
+    if(TLControlMode != TL_FMSC)
         return;
 
     intervalElapseTime += updateInterval;

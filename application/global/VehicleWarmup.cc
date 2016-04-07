@@ -127,6 +127,7 @@ bool Warmup::DoWarmup()
     if(startTime == -1)
     {
         startTime = simTime().dbl();
+        std::cout << std::endl;
         std::cout << "t=" << simTime().dbl() << ": Warm-up phase is started ..." << endl;
     }
 
