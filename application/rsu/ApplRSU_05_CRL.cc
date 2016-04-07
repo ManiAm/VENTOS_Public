@@ -63,13 +63,13 @@ void ApplRSUCRL::initialize(int stage)
         ASSERT(nicPtr);
         cModule *macPtr = nicPtr->getSubmodule("mac1609_4");
         ASSERT(macPtr);
-        bitrate = macPtr->par("bitrate");   // get bitrate from the MAC layer
+        bitrate = macPtr->par("bitrate");  // get bitrate from the MAC layer
 
         // RSUs broadcast CRL pieces periodically
         if(CRLdistAlg == CRL_RSU_Only || CRLdistAlg == CRL_C2C_Epidemic)
         {
             Timer2 = new cMessage("Timer_CRL_Interval_RSU", KIND_TIMER);
-            scheduleAt(simTime() + dblrand() * 10, Timer2);
+            scheduleAt(simTime() + dblrand() * 10, Timer2);  // CRL broadcast start is random in each RSU
         }
         // otherwise RSUs send beacon
         else
@@ -265,6 +265,7 @@ void ApplRSUCRL::broadcastCRL()
 
         // send the pkt
         send(pkt, lowerLayerOut);
+        // sendDelayed(pkt, individualOffset, lowerLayerOut);  --> todo
 
         // start over if all pieces are broadcasted
         if(forCounter >= PiecesCRLfromCA.size())

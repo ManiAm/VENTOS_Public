@@ -35,8 +35,8 @@ class TrafficLightFixed : public TrafficLightAllowedMoves
 {
   public:
     virtual ~TrafficLightFixed();
-    virtual void finish();
     virtual void initialize(int);
+    virtual void finish();
     virtual void handleMessage(cMessage *);
 
   protected:

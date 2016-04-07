@@ -85,8 +85,8 @@ class IntersectionDelay : public LoopDetectors
 {
 public:
     virtual ~IntersectionDelay();
-    virtual void finish();
     virtual void initialize(int);
+    virtual void finish();
     virtual void handleMessage(cMessage *);
 
 protected:

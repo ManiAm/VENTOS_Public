@@ -1,10 +1,10 @@
 
-package c3po.application.global;
+package c3po.application.global.addToSim;
 
-simple AddCA
+simple AddAdversary
 {
     parameters:
-        @class(VENTOS::AddCA);
+        @class(VENTOS::AddAdversary);
         @display("i=block/network2");
         
         bool on = default(false);

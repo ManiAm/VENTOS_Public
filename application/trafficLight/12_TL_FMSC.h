@@ -35,8 +35,8 @@ class TrafficLight_FMSC : public TrafficLight_LQF_MWM_NoStarv
 {
   public:
     virtual ~TrafficLight_FMSC();
-    virtual void finish();
     virtual void initialize(int);
+    virtual void finish();
     virtual void handleMessage(cMessage *);
 
   protected:

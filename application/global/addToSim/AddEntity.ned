@@ -1,5 +1,5 @@
 
-package c3po.application.global;
+package c3po.application.global.addToSim;
 
 simple AddEntity
 {

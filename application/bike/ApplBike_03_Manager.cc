@@ -29,6 +29,8 @@
 
 namespace VENTOS {
 
+const simsignalwrap_t ApplBikeManager::mobilityStateChangedSignal = simsignalwrap_t(MIXIM_SIGNAL_MOBILITY_CHANGE_NAME);
+
 Define_Module(VENTOS::ApplBikeManager);
 
 ApplBikeManager::~ApplBikeManager()
@@ -44,6 +46,7 @@ void ApplBikeManager::initialize(int stage)
 	if (stage == 0)
 	{
 
+        // findHost()->subscribe(mobilityStateChangedSignal, this);
 	}
 }
 
@@ -51,6 +54,19 @@ void ApplBikeManager::initialize(int stage)
 void ApplBikeManager::finish()
 {
     ApplBikeBeacon::finish();
+
+    //findHost()->unsubscribe(mobilityStateChangedSignal, this);
+}
+
+
+void ApplBikeManager::receiveSignal(cComponent* source, simsignal_t signalID, cObject* obj)
+{
+    Enter_Method_Silent();
+
+    if (signalID == mobilityStateChangedSignal)
+    {
+        handlePositionUpdate(obj);
+    }
 }
 
 
@@ -90,6 +106,16 @@ void ApplBikeManager::handleLowerMsg(cMessage* msg)
 }
 
 
+// is called, every time the position of vehicle changes
+void ApplBikeManager::handlePositionUpdate(cObject* obj)
+{
+    ApplBikeBeacon::handlePositionUpdate(obj);
+
+    ChannelMobilityPtrType const mobility = check_and_cast<ChannelMobilityPtrType>(obj);
+    curPosition = mobility->getCurrentPosition();
+}
+
+
 void ApplBikeManager::onBeaconVehicle(BeaconVehicle* wsm)
 {
     // pass it down
@@ -109,14 +135,6 @@ void ApplBikeManager::onData(PlatoonMsg* wsm)
 {
     // pass it down
     //ApplBikeBeacon::onData(wsm);
-}
-
-
-// is called, every time the position of vehicle changes
-void ApplBikeManager::handlePositionUpdate(cObject* obj)
-{
-    // pass it down
-    ApplBikeBeacon::handlePositionUpdate(obj);
 }
 
 

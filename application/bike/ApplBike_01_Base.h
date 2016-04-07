@@ -41,7 +41,6 @@ public:
     ~ApplBikeBase();
     virtual void initialize(int stage);
     virtual void finish();
-    virtual void receiveSignal(cComponent* source, simsignal_t signalID, cObject* obj);
 
 protected:
     virtual void handleSelfMsg(cMessage* msg);
@@ -60,8 +59,6 @@ protected:
     std::string SUMOType;
     std::string vehicleClass;
     int vehicleClassEnum;
-
-    static const simsignalwrap_t mobilityStateChangedSignal;
 
     Coord curPosition;  // current position from mobility module (not from sumo)
     double entryTime;

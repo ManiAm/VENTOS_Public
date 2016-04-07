@@ -47,12 +47,6 @@ void TrafficLightBase::initialize(int stage)
         TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
 
-        Signal_executeFirstTS = registerSignal("executeFirstTS");
-        simulation.getSystemModule()->subscribe("executeFirstTS", this);
-
-        Signal_executeEachTS = registerSignal("executeEachTS");
-        simulation.getSystemModule()->subscribe("executeEachTS", this);
-
         updateInterval = TraCI->par("updateInterval").doubleValue();
         TLControlMode = par("TLControlMode").longValue();
         debugLevel = simulation.getSystemModule()->par("debugLevel").longValue();
@@ -72,21 +66,6 @@ void TrafficLightBase::finish()
 void TrafficLightBase::handleMessage(cMessage *msg)
 {
 
-}
-
-
-void TrafficLightBase::receiveSignal(cComponent *source, simsignal_t signalID, long i)
-{
-    Enter_Method_Silent();
-
-    if(signalID == Signal_executeFirstTS)
-    {
-        executeFirstTimeStep();
-    }
-    else if(signalID == Signal_executeEachTS)
-    {
-        executeEachTimeStep();
-    }
 }
 
 

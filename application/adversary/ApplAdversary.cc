@@ -55,8 +55,6 @@ void ApplAdversary::initialize(int stage)
         TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
 
-        nodePtr->subscribe(mobilityStateChangedSignal, this);
-
         // vehicle id in omnet++
 		myId = getParentModule()->getIndex();
 
@@ -73,13 +71,16 @@ void ApplAdversary::initialize(int stage)
 	    {
             //scheduleAt(simTime(), JammingEvt);
 	    }
+
+        // comment this to speedup simulation
+        // nodePtr->subscribe(mobilityStateChangedSignal, this);
 	}
 }
 
 
 void ApplAdversary::finish()
 {
-    nodePtr->unsubscribe(mobilityStateChangedSignal, this);
+    // nodePtr->unsubscribe(mobilityStateChangedSignal, this);
 }
 
 

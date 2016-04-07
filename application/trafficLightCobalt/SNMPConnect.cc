@@ -99,12 +99,12 @@ void SNMPConnect::receiveSignal(cComponent *source, simsignal_t signalID, long i
         SNMPset("1.3.6.1.2.1.1.4", "manoo");
 
 
-//        std::vector<Snmp_pp::Vb> result = SNMPwalk("1.3.6.1.4.1.1206.4.2.1.11.1");
-//        for(auto& entry : result)
-//        {
-//            std::cout << entry.get_printable_oid() << " = ";
-//            std::cout << entry.get_printable_value() << endl;
-//        }
+        //        std::vector<Snmp_pp::Vb> result = SNMPwalk("1.3.6.1.4.1.1206.4.2.1.11.1");
+        //        for(auto& entry : result)
+        //        {
+        //            std::cout << entry.get_printable_oid() << " = ";
+        //            std::cout << entry.get_printable_value() << endl;
+        //        }
     }
 }
 

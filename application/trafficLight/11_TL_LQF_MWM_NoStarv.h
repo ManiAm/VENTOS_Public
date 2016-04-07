@@ -35,8 +35,8 @@ class TrafficLight_LQF_MWM_NoStarv : public TrafficLight_LQF_MWM
 {
 public:
     virtual ~TrafficLight_LQF_MWM_NoStarv();
-    virtual void finish();
     virtual void initialize(int);
+    virtual void finish();
     virtual void handleMessage(cMessage *);
 
 protected:

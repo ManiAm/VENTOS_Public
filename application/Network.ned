@@ -4,6 +4,7 @@ import c3po.application.MIXIM.modules.*;
 import c3po.application.MIXIM.connectionManager.*;
 import c3po.application.traci.*;
 import c3po.application.global.*;
+import c3po.application.global.addToSim.*;
 import c3po.application.router.*;
 import c3po.application.sniffing.*;
 import c3po.application.trafficLight.*;

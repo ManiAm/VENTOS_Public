@@ -46,29 +46,29 @@ namespace VENTOS {
 
 class SNMPConnect : public BaseApplLayer
 {
-	public:
-		virtual ~SNMPConnect();
-		virtual void initialize(int stage);
-        virtual void handleMessage(cMessage *msg);
-		virtual void finish();
-        virtual void receiveSignal(cComponent *, simsignal_t, long);
+public:
+    virtual ~SNMPConnect();
+    virtual void initialize(int stage);
+    virtual void finish();
+    virtual void handleMessage(cMessage *msg);
+    virtual void receiveSignal(cComponent *, simsignal_t, long);
 
-        Snmp_pp::Vb SNMPget(std::string OID, int instance=0);
-        std::vector<Snmp_pp::Vb> SNMPwalk(std::string OID);
-        template <typename T> Snmp_pp::Vb SNMPset(std::string OID, T value, int instance=0);
+    Snmp_pp::Vb SNMPget(std::string OID, int instance=0);
+    std::vector<Snmp_pp::Vb> SNMPwalk(std::string OID);
+    template <typename T> Snmp_pp::Vb SNMPset(std::string OID, T value, int instance=0);
 
-	private:
-        void SNMPInitialize();
+private:
+    void SNMPInitialize();
 
-	private:
-        // NED variables
-        TraCI_Commands *TraCI;  // pointer to the TraCI module
-        simsignal_t Signal_executeFirstTS;
-        bool on;
+private:
+    // NED variables
+    TraCI_Commands *TraCI;  // pointer to the TraCI module
+    simsignal_t Signal_executeFirstTS;
+    bool on;
 
-        boost::filesystem::path SNMP_LOG;
-        Snmp_pp::Snmp *cobalt = NULL;
-        Snmp_pp::CTarget *ctarget = NULL;
+    boost::filesystem::path SNMP_LOG;
+    Snmp_pp::Snmp *cobalt = NULL;
+    Snmp_pp::CTarget *ctarget = NULL;
 };
 
 }

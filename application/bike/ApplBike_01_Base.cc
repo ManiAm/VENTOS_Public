@@ -29,8 +29,6 @@
 
 namespace VENTOS {
 
-const simsignalwrap_t ApplBikeBase::mobilityStateChangedSignal = simsignalwrap_t(MIXIM_SIGNAL_MOBILITY_CHANGE_NAME);
-
 Define_Module(VENTOS::ApplBikeBase);
 
 ApplBikeBase::~ApplBikeBase()
@@ -75,39 +73,19 @@ void ApplBikeBase::initialize(int stage)
 
         // store the time of entry
         entryTime = simTime().dbl();
-
-        // findHost()->subscribe(mobilityStateChangedSignal, this);
 	}
 }
 
 
 void ApplBikeBase::finish()
 {
-    //findHost()->unsubscribe(mobilityStateChangedSignal, this);
-}
 
-
-void ApplBikeBase::receiveSignal(cComponent* source, simsignal_t signalID, cObject* obj)
-{
-    Enter_Method_Silent();
-
-    if (signalID == mobilityStateChangedSignal)
-    {
-        handlePositionUpdate(obj);
-    }
 }
 
 
 void ApplBikeBase::handleSelfMsg(cMessage* msg)
 {
 
-}
-
-
-void ApplBikeBase::handlePositionUpdate(cObject* obj)
-{
-    ChannelMobilityPtrType const mobility = check_and_cast<ChannelMobilityPtrType>(obj);
-    curPosition = mobility->getCurrentPosition();
 }
 
 }

@@ -44,10 +44,9 @@ class TrafficLightBase : public BaseApplLayer
 {
   public:
       virtual ~TrafficLightBase();
-      virtual void finish();
       virtual void initialize(int);
+      virtual void finish();
       virtual void handleMessage(cMessage *);
-      virtual void receiveSignal(cComponent *, simsignal_t, long);
 
   protected:
       virtual void executeFirstTimeStep();
@@ -57,8 +56,6 @@ class TrafficLightBase : public BaseApplLayer
   protected:
       TraCI_Commands *TraCI;
       ApplRSUMonitor *RSUptr;
-      simsignal_t Signal_executeFirstTS;
-      simsignal_t Signal_executeEachTS;
 
       int TLControlMode;
       int debugLevel;

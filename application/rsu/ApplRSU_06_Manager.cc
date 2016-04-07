@@ -62,6 +62,7 @@ void ApplRSUManager::finish()
     ApplRSUCRL::finish();
 
     // unsubscribe
+    simulation.getSystemModule()->unsubscribe("executeEachTS", this);
     simulation.getSystemModule()->unsubscribe("beaconSignaling", this);
     simulation.getSystemModule()->unsubscribe("CRL_pieces", this);
 }

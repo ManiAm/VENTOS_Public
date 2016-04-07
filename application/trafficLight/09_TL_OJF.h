@@ -35,8 +35,8 @@ class TrafficLightOJF : public TrafficLightLongestQueueNoStarv
 {
   public:
     virtual ~TrafficLightOJF();
-    virtual void finish();
     virtual void initialize(int);
+    virtual void finish();
     virtual void handleMessage(cMessage *);
 
   protected:

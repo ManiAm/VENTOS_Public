@@ -41,6 +41,7 @@ class ApplBikeManager : public ApplBikeBeacon
         ~ApplBikeManager();
 		virtual void initialize(int stage);
         virtual void finish();
+        virtual void receiveSignal(cComponent* source, simsignal_t signalID, cObject* obj);
 
 	protected:
         // Methods
@@ -51,6 +52,9 @@ class ApplBikeManager : public ApplBikeBeacon
 		virtual void onBeaconVehicle(BeaconVehicle*);
         virtual void onBeaconRSU(BeaconRSU*);
         virtual void onData(PlatoonMsg* wsm);
+
+	private:
+        static const simsignalwrap_t mobilityStateChangedSignal;
 };
 
 }

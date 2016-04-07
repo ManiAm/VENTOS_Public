@@ -41,6 +41,7 @@ class ApplPedManager : public ApplPedBeacon
         ~ApplPedManager();
 		virtual void initialize(int stage);
         virtual void finish();
+        virtual void receiveSignal(cComponent* source, simsignal_t signalID, cObject* obj);
 
 	protected:
         // Methods
@@ -55,6 +56,8 @@ class ApplPedManager : public ApplPedBeacon
 	protected:
         // NED variable
         bool SUMOvehicleDebug;
+
+        static const simsignalwrap_t mobilityStateChangedSignal;
 };
 
 }

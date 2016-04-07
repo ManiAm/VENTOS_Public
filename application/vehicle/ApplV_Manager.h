@@ -38,6 +38,7 @@ public:
     ~ApplVManager();
     virtual void initialize(int stage);
     virtual void finish();
+    virtual void receiveSignal(cComponent* source, simsignal_t signalID, cObject* obj);
 
 protected:
     virtual void handleLowerMsg(cMessage*);
@@ -74,6 +75,8 @@ protected:
     long BeaconRSUCount;
     long PlatoonCount;
     long BeaconPedCount;
+
+    static const simsignalwrap_t mobilityStateChangedSignal;
 };
 
 }

@@ -41,8 +41,8 @@ class TrafficLightAllowedMoves : public IntersectionDelay
 {
 public:
     virtual ~TrafficLightAllowedMoves();
-    virtual void finish();
     virtual void initialize(int);
+    virtual void finish();
     virtual void handleMessage(cMessage *);
 
 protected:

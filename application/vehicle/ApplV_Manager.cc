@@ -31,6 +31,8 @@
 
 namespace VENTOS {
 
+const simsignalwrap_t ApplVManager::mobilityStateChangedSignal = simsignalwrap_t(MIXIM_SIGNAL_MOBILITY_CHANGE_NAME);
+
 Define_Module(VENTOS::ApplVManager);
 
 ApplVManager::~ApplVManager()
@@ -96,6 +98,9 @@ void ApplVManager::initialize(int stage)
             int32_t bitset = TraCI->vehicleBuildLaneChangeMode(00, 01, 00, 01, 01);
             TraCI->vehicleSetLaneChangeMode(SUMOID, bitset);   // alter 'lane change' mode
         }
+
+        // comment this to speed-up the simulation
+        //findHost()->subscribe(mobilityStateChangedSignal, this);
     }
 }
 
@@ -103,6 +108,19 @@ void ApplVManager::initialize(int stage)
 void ApplVManager::finish()
 {
     ApplVCoordinator::finish();
+
+    //findHost()->unsubscribe(mobilityStateChangedSignal, this);
+}
+
+
+void ApplVManager::receiveSignal(cComponent* source, simsignal_t signalID, cObject* obj)
+{
+    Enter_Method_Silent();
+
+    if (signalID == mobilityStateChangedSignal)
+    {
+        handlePositionUpdate(obj);
+    }
 }
 
 
@@ -205,6 +223,16 @@ void ApplVManager::handleLowerMsg(cMessage* msg)
     }
 
     delete msg;
+}
+
+
+// is called, every time the position of vehicle changes
+void ApplVManager::handlePositionUpdate(cObject* obj)
+{
+    ApplVCoordinator::handlePositionUpdate(obj);
+
+    ChannelMobilityPtrType const mobility = check_and_cast<ChannelMobilityPtrType>(obj);
+    curPosition = mobility->getCurrentPosition();
 }
 
 
@@ -316,14 +344,6 @@ void ApplVManager::onData(PlatoonMsg* wsm)
     // pass it down
     ApplVCoordinator::onData(wsm);
 }
-
-
-// is called, every time the position of vehicle changes
-void ApplVManager::handlePositionUpdate(cObject* obj)
-{
-    ApplVCoordinator::handlePositionUpdate(obj);
-}
-
 
 }
 

@@ -29,6 +29,8 @@
 
 namespace VENTOS {
 
+const simsignalwrap_t ApplPedManager::mobilityStateChangedSignal = simsignalwrap_t(MIXIM_SIGNAL_MOBILITY_CHANGE_NAME);
+
 Define_Module(VENTOS::ApplPedManager);
 
 ApplPedManager::~ApplPedManager()
@@ -44,6 +46,7 @@ void ApplPedManager::initialize(int stage)
 	if (stage == 0)
 	{
 
+        // findHost()->subscribe(mobilityStateChangedSignal, this);
 	}
 }
 
@@ -51,6 +54,19 @@ void ApplPedManager::initialize(int stage)
 void ApplPedManager::finish()
 {
     ApplPedBeacon::finish();
+
+    // findHost()->unsubscribe(mobilityStateChangedSignal, this);
+}
+
+
+void ApplPedManager::receiveSignal(cComponent* source, simsignal_t signalID, cObject* obj)
+{
+    Enter_Method_Silent();
+
+    if (signalID == mobilityStateChangedSignal)
+    {
+        handlePositionUpdate(obj);
+    }
 }
 
 
@@ -88,6 +104,17 @@ void ApplPedManager::handleLowerMsg(cMessage* msg)
 }
 
 
+// is called, every time the position of vehicle changes
+void ApplPedManager::handlePositionUpdate(cObject* obj)
+{
+    // pass it down
+    ApplPedBeacon::handlePositionUpdate(obj);
+
+    ChannelMobilityPtrType const mobility = check_and_cast<ChannelMobilityPtrType>(obj);
+    curPosition = mobility->getCurrentPosition();
+}
+
+
 void ApplPedManager::onBeaconVehicle(BeaconVehicle* wsm)
 {
     // pass it down
@@ -106,14 +133,6 @@ void ApplPedManager::onData(PlatoonMsg* wsm)
 {
     // pass it down
     //ApplPedBeacon::onData(wsm);
-}
-
-
-// is called, every time the position of vehicle changes
-void ApplPedManager::handlePositionUpdate(cObject* obj)
-{
-    // pass it down
-    ApplPedBeacon::handlePositionUpdate(obj);
 }
 
 

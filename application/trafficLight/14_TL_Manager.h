@@ -35,13 +35,18 @@ class TrafficLightManager : public TrafficLightRouter
 {
   public:
     virtual ~TrafficLightManager();
-    virtual void finish();
     virtual void initialize(int);
+    virtual void finish();
     virtual void handleMessage(cMessage *);
+    virtual void receiveSignal(cComponent *, simsignal_t, long);
 
   protected:
     void virtual executeFirstTimeStep();
     void virtual executeEachTimeStep();
+
+  private:
+    simsignal_t Signal_executeFirstTS;
+    simsignal_t Signal_executeEachTS;
 
 };
 

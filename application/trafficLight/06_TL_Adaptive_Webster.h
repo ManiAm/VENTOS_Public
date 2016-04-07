@@ -35,8 +35,8 @@ class TrafficLightWebster : public TrafficLightFixed
 {
   public:
     virtual ~TrafficLightWebster();
-    virtual void finish();
     virtual void initialize(int);
+    virtual void finish();
     virtual void handleMessage(cMessage *);
 
   protected:
