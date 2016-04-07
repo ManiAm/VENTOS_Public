@@ -65,6 +65,7 @@ class ApplRSUBase : public BaseApplLayer
         // Class variables
         int myId;
 		const char *myFullId;
+		std::string SUMOID;
         std::string myTLid;
         double myCoordX;    // my X coordinate in SUMO
         double myCoordY;    // my Y coordinate in SUMO

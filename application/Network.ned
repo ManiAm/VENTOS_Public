@@ -19,7 +19,7 @@ network Network
 
         int debugLevel;
 
-        @display("bgb=382,470");
+        @display("bgb=460,470");
     submodules:
         world: BaseWorldUtility {
             parameters:
@@ -55,6 +55,10 @@ network Network
         addAdversary: AddAdversary {
             parameters:
                 @display("p=297,127;i=old/bwsink");
+        }
+        addCA: AddCA {
+            parameters:
+                @display("p=392,127;i=old/bwsink");
         }
         warmup: Warmup {
             parameters:

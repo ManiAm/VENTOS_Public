@@ -1,0 +1,87 @@
+/****************************************************************************/
+/// @file    ApplCA.h
+/// @author  Mani Amoozadeh <maniam@ucdavis.edu>
+/// @author  second author name
+/// @date    Apr 2016
+///
+/****************************************************************************/
+// VENTOS, Vehicular Network Open Simulator; see http:?
+// Copyright (C) 2013-2015
+/****************************************************************************/
+//
+// This file is part of VENTOS.
+// VENTOS is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//
+
+#ifndef APPLCA_H_
+#define APPLCA_H_
+
+#include <BaseApplLayer.h>
+#include <ChannelAccess.h>
+#include <WaveAppToMac1609_4Interface.h>
+#include "TraCICommands.h"
+#include "Certificate.h"
+#include "CRL_Piece_m.h"
+#include <eigen3/Eigen/Dense>
+
+namespace VENTOS {
+
+class ApplCA : public BaseApplLayer
+{
+  public:
+    virtual ~ApplCA();
+    virtual void initialize(int);
+    virtual void finish();
+	virtual void receiveSignal(cComponent *, simsignal_t, cObject *);
+
+  protected:
+    virtual void handleSelfMsg(cMessage* msg);
+
+  private:
+    void CalculateMatrixA();
+    void createCRL();
+    std::vector<std::string> NOerasure(std::ostringstream &);
+    std::vector<std::string> erasure(std::ostringstream &);
+    std::vector<CRL_Piece *> addHeader(std::vector<std::string>);
+    void sendPiecesToRSUs();
+    std::vector<CRL_Piece *> shuffle(std::vector<CRL_Piece *>);
+
+  public:
+    // all entities use the same Matrix_A
+    Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> Matrix_A;
+
+  private:
+    bool active;
+    bool ErasureCode;
+    double Pseudonym_lifeTime;
+    int NoSegments;
+    int totalPieces;
+    int M;
+    int N;
+
+	int InitialWait;
+	int CRLsize;
+	bool EnableShuffle;
+    int pad;   // how many padding are added
+
+    std::string moduleName;
+	cMessage *Timer1;
+	simsignal_t Signal_Magic_Req;
+	std::vector<CRL_Piece *> PiecesCRL;
+};
+
+}
+
+#endif

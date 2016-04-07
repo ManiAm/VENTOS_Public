@@ -29,6 +29,7 @@
 #define SIGNALOBJ_H
 
 #include "PlatoonMsg_m.h"
+#include "CRL_Piece_m.h"
 
 namespace VENTOS {
 
@@ -156,6 +157,21 @@ public:
         this->from = str1;
         this->to = str2;
         this->maneuver = str3;
+    }
+};
+
+
+// is used to send CRL pieces to an RSU or vehicle
+class CRLPiecesData : public cObject, noncopyable
+{
+  public:
+    std::string name;  // Recipient name
+    std::vector<CRL_Piece *> data;
+
+    CRLPiecesData(std::string str, std::vector<CRL_Piece *> d)
+    {
+        this->name = str;
+        this->data = d;
     }
 };
 

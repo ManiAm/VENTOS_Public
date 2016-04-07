@@ -1,0 +1,24 @@
+
+Convert OSM file to SUMO network file
+
+netconvert --osm-files 01_stock.osm -o 02_stock_tl.net.xml --geometry.remove --roundabouts.guess --ramps.guess --junctions.join --tls.guess-signals --tls.discard-simple --tls.join
+
+
+
+Get polygons
+
+polyconvert --net-file 02_stock_tl.net.xml --osm-files 01_stock.osm -o stock.poly2.xml
+
+
+
+Generating random trips
+
+/home/mani/Desktop/VENTOS_SUMO/sumo/tools/randomTrips.py -n 02_stock_tl.net.xml -l
+
+
+
+
+Generate route from trips
+
+duarouter -n 02_stock_tl.net.xml -t trips.trip.xml -o 05_stock.rout.xml
+

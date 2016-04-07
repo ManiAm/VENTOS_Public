@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+  <!-- an RSU that belongs to a TL, should have the same id as TL. Type should always be RSU -->
+
+<RSUs>
+
+     <poly id="RSU0" type="RSU" center="403.30,1271.46"/>  
+     <poly id="RSU1" type="RSU" center="1778.41,2223.92"/> 
+     <poly id="RSU2" type="RSU" center="2888.35,2219.63"/> 
+     <poly id="RSU3" type="RSU" center="1963.90,1463.26"/> 
+     <poly id="RSU4" type="RSU" center="3201.40,916.57"/> 
+     <poly id="RSU5" type="RSU" center="4927.74,639.66"/>     
+        
+</RSUs>

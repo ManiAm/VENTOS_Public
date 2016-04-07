@@ -39,41 +39,41 @@ namespace VENTOS {
 
 class ApplAdversary : public BaseApplLayer
 {
-	public:
-		~ApplAdversary();
-		virtual void initialize(int stage);
-		virtual void finish();
-		virtual void receiveSignal(cComponent* source, simsignal_t signalID, cObject* obj);
+public:
+    ~ApplAdversary();
+    virtual void initialize(int stage);
+    virtual void finish();
+    virtual void receiveSignal(cComponent* source, simsignal_t signalID, cObject* obj);
 
-	protected:
-		virtual void handleLowerMsg(cMessage* msg);
-		virtual void handleSelfMsg(cMessage* msg);
-		virtual void handlePositionUpdate(cObject* obj);
+protected:
+    virtual void handleLowerMsg(cMessage* msg);
+    virtual void handleSelfMsg(cMessage* msg);
+    virtual void handlePositionUpdate(cObject* obj);
 
-	private:
-        void DoFalsificationAttack(BeaconVehicle * wsm);
-        void DoReplayAttack(BeaconVehicle * wsm);
-        void DoJammingAttack();
+private:
+    void DoFalsificationAttack(BeaconVehicle * wsm);
+    void DoReplayAttack(BeaconVehicle * wsm);
+    void DoJammingAttack();
 
-        DummyMsg* CreateDummyMessage();
+    DummyMsg* CreateDummyMessage();
 
-	protected:
-		// NED variables
-	    cModule *nodePtr;   // pointer to the Node
-	    TraCI_Commands* TraCI;
+protected:
+    // NED variables
+    cModule *nodePtr;   // pointer to the Node
+    TraCI_Commands* TraCI;
 
-        // NED variables
-        double AttackT;
-        bool falsificationAttack;
-        bool replayAttack;
-        bool jammingAttack;
+    // NED variables
+    double AttackT;
+    bool falsificationAttack;
+    bool replayAttack;
+    bool jammingAttack;
 
-        // Class variables
-        int myId;
-		const char *myFullId;
-        Coord curPosition;  // current position from mobility module (not from sumo)
-        cMessage* JammingEvt;
-        static const simsignalwrap_t mobilityStateChangedSignal;
+    // Class variables
+    int myId;
+    const char *myFullId;
+    Coord curPosition;  // current position from mobility module (not from sumo)
+    cMessage* JammingEvt;
+    static const simsignalwrap_t mobilityStateChangedSignal;
 };
 
 }

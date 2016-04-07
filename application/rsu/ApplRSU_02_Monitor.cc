@@ -99,7 +99,7 @@ void ApplRSUMonitor::initialize(int stage)
         }
         else if(!TLlist.empty())
         {
-            printf("%s with name \"%s\" does not match any TLs \n", myFullId, myTLid.c_str());
+            printf("%s's name (%s) does not match with any of %lu TLs \n", myFullId, SUMOID.c_str(), TLlist.size());
             std::cout.flush();
         }
     }

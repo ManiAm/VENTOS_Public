@@ -172,6 +172,8 @@ void AddRSU::Scenario1()
         // then set the myTLid parameter
         mod->getSubmodule("appl")->par("myTLid") = myTLid;
 
+        mod->getSubmodule("appl")->par("SUMOID") = RSUname;
+
         // set coordinates (RSUMobility uses these to move the RSU to the correct location)
         mod->getSubmodule("appl")->par("myCoordX") = entry.coordX;
         mod->getSubmodule("appl")->par("myCoordY") = entry.coordY;
@@ -200,7 +202,7 @@ void AddRSU::Scenario1()
         double radius = atof( module->getDisplayString().getTagArg("r",0) );
 
         Coord *center = new Coord(entry.coordX, entry.coordY);
-        commandAddCirclePoly(RSUname, "RSU", Color::colorNameToRGB("blue"), center, radius);
+        commandAddCirclePoly(RSUname, "RSU", Color::colorNameToRGB("green"), center, radius);
 
         count++;
     }

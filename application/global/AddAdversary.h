@@ -37,21 +37,22 @@ class TraCI_Extend;
 
 class AddAdversary : public BaseApplLayer
 {
-	public:
-		virtual ~AddAdversary();
-		virtual void initialize(int stage);
-        virtual void handleMessage(cMessage *msg);
-		virtual void finish();
-        virtual void receiveSignal(cComponent *, simsignal_t, long);
+public:
+    virtual ~AddAdversary();
+    virtual void initialize(int stage);
+    virtual void handleMessage(cMessage *msg);
+    virtual void finish();
+    virtual void receiveSignal(cComponent *, simsignal_t, long);
 
-	private:
-        // NED variables
-        TraCI_Commands *TraCI;  // pointer to the TraCI module
-        simsignal_t Signal_executeFirstTS;
-        bool on;
-        int mode;
+private:
+    void Add();
 
-        void Add();
+private:
+    // NED variables
+    TraCI_Commands *TraCI;  // pointer to the TraCI module
+    simsignal_t Signal_executeFirstTS;
+    bool on;
+    int mode;
 };
 
 }
