@@ -136,7 +136,6 @@ void TrafficLight_FMSC::executeFirstTimeStep()
     // set initial values
     currentInterval = phase1_5;
     intervalDuration = minGreenTime;
-    intervalElapseTime = 0;
 
     scheduleAt(simTime().dbl() + intervalDuration, intervalChangeEVT);
 
@@ -174,8 +173,6 @@ void TrafficLight_FMSC::executeEachTimeStep()
 
     if(TLControlMode != TL_FMSC)
         return;
-
-    intervalElapseTime += updateInterval;
 }
 
 
@@ -196,7 +193,6 @@ void TrafficLight_FMSC::chooseNextInterval()
 
         // set the new state
         TraCI->TLSetState("C", nextInterval);
-        intervalElapseTime = 0.0;
         intervalDuration = redTime;
 
         // update TL status for this phase
@@ -214,7 +210,6 @@ void TrafficLight_FMSC::chooseNextInterval()
 
         // set the new state
         TraCI->TLSetState("C", nextGreenInterval);
-        intervalElapseTime = 0.0;
         intervalDuration = minGreenTime;
     }
     else
@@ -365,7 +360,6 @@ void TrafficLight_FMSC::chooseNextGreenInterval()
         currentInterval = "yellow";
         TraCI->TLSetState("C", nextInterval);
 
-        intervalElapseTime = 0.0;
         intervalDuration =  yellowTime;
 
         // update TL status for this phase

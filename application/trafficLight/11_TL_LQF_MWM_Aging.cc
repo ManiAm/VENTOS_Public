@@ -132,7 +132,6 @@ void TrafficLight_LQF_MWM_Aging::executeFirstTimeStep()
     // set initial values
     currentInterval = phase1_5;
     intervalDuration = minGreenTime;
-    intervalElapseTime = 0;
 
     scheduleAt(simTime().dbl() + intervalDuration, intervalChangeEVT);
 
@@ -164,8 +163,6 @@ void TrafficLight_LQF_MWM_Aging::executeEachTimeStep()
 
     if(TLControlMode != TL_LQF_MWM_Aging)
         return;
-
-    intervalElapseTime += updateInterval;
 }
 
 
@@ -186,7 +183,6 @@ void TrafficLight_LQF_MWM_Aging::chooseNextInterval()
 
         // set the new state
         TraCI->TLSetState("C", nextInterval);
-        intervalElapseTime = 0.0;
         intervalDuration = redTime;
 
         // update TL status for this phase
@@ -204,7 +200,6 @@ void TrafficLight_LQF_MWM_Aging::chooseNextInterval()
 
         // set the new state
         TraCI->TLSetState("C", nextGreenInterval);
-        intervalElapseTime = 0.0;
         intervalDuration = minGreenTime;
     }
     else
@@ -336,7 +331,6 @@ void TrafficLight_LQF_MWM_Aging::chooseNextGreenInterval()
         currentInterval = "yellow";
         TraCI->TLSetState("C", nextInterval);
 
-        intervalElapseTime = 0.0;
         intervalDuration =  yellowTime;
 
         // update TL status for this phase

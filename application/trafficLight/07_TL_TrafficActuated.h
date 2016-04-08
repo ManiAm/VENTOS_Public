@@ -63,6 +63,7 @@ class TrafficLightActuated : public TrafficLightWebster
     // NED variables
     double passageTime;
     bool greenExtension;
+    double intervalElapseTime;
 
     // class variables
     std::map<std::string,double> passageTimePerLane;

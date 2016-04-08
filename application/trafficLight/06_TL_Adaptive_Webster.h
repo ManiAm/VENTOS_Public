@@ -52,7 +52,6 @@ class TrafficLightWebster : public TrafficLightFixed
     // class variables
     double intervalDuration;
     std::string nextGreenInterval;
-    double intervalElapseTime;
     std::string currentInterval;
 
     cMessage* intervalChangeEVT;

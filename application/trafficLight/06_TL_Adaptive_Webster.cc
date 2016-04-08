@@ -102,7 +102,6 @@ void TrafficLightWebster::executeFirstTimeStep()
     // set initial values
     currentInterval = phase1_5;
     intervalDuration = greenSplit[phase1_5];
-    intervalElapseTime = 0;
 
     scheduleAt(simTime().dbl() + intervalDuration, intervalChangeEVT);
 
@@ -133,8 +132,6 @@ void TrafficLightWebster::executeEachTimeStep()
 
     if(TLControlMode != TL_Adaptive_Webster)
         return;
-
-    intervalElapseTime += updateInterval;
 }
 
 
@@ -156,7 +153,6 @@ void TrafficLightWebster::chooseNextInterval()
 
         // set the new state
         TraCI->TLSetState("C", nextInterval);
-        intervalElapseTime = 0.0;
         intervalDuration = redTime;
 
         // update TL status for this phase
@@ -177,7 +173,6 @@ void TrafficLightWebster::chooseNextInterval()
 
         // set the new state
         TraCI->TLSetState("C", nextGreenInterval);
-        intervalElapseTime = 0.0;
         intervalDuration = greenSplit[nextGreenInterval];
     }
     else
@@ -221,7 +216,6 @@ void TrafficLightWebster::chooseNextGreenInterval()
     currentInterval = "yellow";
     TraCI->TLSetState("C", nextInterval);
 
-    intervalElapseTime = 0.0;
     intervalDuration =  yellowTime;
 
     // update TL status for this phase

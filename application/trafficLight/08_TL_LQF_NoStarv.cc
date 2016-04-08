@@ -174,7 +174,6 @@ void TrafficLightLQF_NoStarv::executeFirstTimeStep()
     // set initial settings:
     currentInterval = greenInterval.front().greenString;
     intervalDuration = greenInterval.front().greenTime;
-    intervalElapseTime = 0;
 
     scheduleAt(simTime().dbl() + intervalDuration, intervalChangeEVT);
 
@@ -203,8 +202,6 @@ void TrafficLightLQF_NoStarv::executeEachTimeStep()
 
     if(TLControlMode != TL_LQF)
         return;
-
-    intervalElapseTime += updateInterval;
 }
 
 
@@ -226,7 +223,6 @@ void TrafficLightLQF_NoStarv::chooseNextInterval()
 
         // set the new state
         TraCI->TLSetState("C", nextInterval);
-        intervalElapseTime = 0.0;
         intervalDuration = redTime;
 
         // update TL status for this phase
@@ -246,7 +242,6 @@ void TrafficLightLQF_NoStarv::chooseNextInterval()
 
         // set the new state
         TraCI->TLSetState("C", nextGreenInterval);
-        intervalElapseTime = 0.0;
         intervalDuration = greenInterval.front().greenTime;
     }
     else
@@ -295,7 +290,6 @@ void TrafficLightLQF_NoStarv::chooseNextGreenInterval()
         currentInterval = "yellow";
         TraCI->TLSetState("C", nextInterval);
 
-        intervalElapseTime = 0.0;
         intervalDuration =  yellowTime;
 
         // update TL status for this phase
