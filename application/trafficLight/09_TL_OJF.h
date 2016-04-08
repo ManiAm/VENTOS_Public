@@ -27,11 +27,11 @@
 #ifndef TRAFFICLIGHTOJF_H
 #define TRAFFICLIGHTOJF_H
 
-#include <08_TL_LongestQueue_NoStarv.h>
+#include <08_TL_LQF_NoStarv.h>
 
 namespace VENTOS {
 
-class TrafficLightOJF : public TrafficLightLongestQueueNoStarv
+class TrafficLightOJF : public TrafficLightLQF_NoStarv
 {
   public:
     virtual ~TrafficLightOJF();

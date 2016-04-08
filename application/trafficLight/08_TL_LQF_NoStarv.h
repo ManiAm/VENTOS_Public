@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    TL_LongestQueueNoStarv.h
+/// @file    TL_LQF_NoStarv.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @date    August 2013
 ///
@@ -24,8 +24,8 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef TRAFFICLIGHTLONGESTQUEUENOSTARV_H
-#define TRAFFICLIGHTLONGESTQUEUENOSTARV_H
+#ifndef TRAFFICLIGHTLQFNOSTARV_H
+#define TRAFFICLIGHTLQFNOSTARV_H
 
 #include <07_TL_TrafficActuated.h>
 
@@ -47,10 +47,10 @@ public:
 };
 
 
-class TrafficLightLongestQueueNoStarv : public TrafficLightActuated
+class TrafficLightLQF_NoStarv : public TrafficLightActuated
 {
 public:
-    virtual ~TrafficLightLongestQueueNoStarv();
+    virtual ~TrafficLightLQF_NoStarv();
     virtual void initialize(int);
     virtual void finish();
     virtual void handleMessage(cMessage *);

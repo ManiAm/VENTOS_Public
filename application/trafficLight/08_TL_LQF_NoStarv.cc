@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    TL_LongestQueueNoStarv.cc
+/// @file    TL_LQF_NoStarv.cc
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @date    August 2013
 ///
@@ -24,12 +24,12 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <08_TL_LongestQueue_NoStarv.h>
+#include <08_TL_LQF_NoStarv.h>
 #include <queue>
 
 namespace VENTOS {
 
-Define_Module(VENTOS::TrafficLightLongestQueueNoStarv);
+Define_Module(VENTOS::TrafficLightLQF_NoStarv);
 
 class sortedEntryQ
 {
@@ -95,13 +95,13 @@ private:
 };
 
 
-TrafficLightLongestQueueNoStarv::~TrafficLightLongestQueueNoStarv()
+TrafficLightLQF_NoStarv::~TrafficLightLQF_NoStarv()
 {
 
 }
 
 
-void TrafficLightLongestQueueNoStarv::initialize(int stage)
+void TrafficLightLQF_NoStarv::initialize(int stage)
 {
     TrafficLightActuated::initialize(stage);
 
@@ -124,13 +124,13 @@ void TrafficLightLongestQueueNoStarv::initialize(int stage)
 }
 
 
-void TrafficLightLongestQueueNoStarv::finish()
+void TrafficLightLQF_NoStarv::finish()
 {
     TrafficLightActuated::finish();
 }
 
 
-void TrafficLightLongestQueueNoStarv::handleMessage(cMessage *msg)
+void TrafficLightLQF_NoStarv::handleMessage(cMessage *msg)
 {
     TrafficLightActuated::handleMessage(msg);
 
@@ -153,7 +153,7 @@ void TrafficLightLongestQueueNoStarv::handleMessage(cMessage *msg)
 }
 
 
-void TrafficLightLongestQueueNoStarv::executeFirstTimeStep()
+void TrafficLightLQF_NoStarv::executeFirstTimeStep()
 {
     TrafficLightActuated::executeFirstTimeStep();
 
@@ -197,7 +197,7 @@ void TrafficLightLongestQueueNoStarv::executeFirstTimeStep()
 }
 
 
-void TrafficLightLongestQueueNoStarv::executeEachTimeStep()
+void TrafficLightLQF_NoStarv::executeEachTimeStep()
 {
     TrafficLightActuated::executeEachTimeStep();
 
@@ -208,7 +208,7 @@ void TrafficLightLongestQueueNoStarv::executeEachTimeStep()
 }
 
 
-void TrafficLightLongestQueueNoStarv::chooseNextInterval()
+void TrafficLightLQF_NoStarv::chooseNextInterval()
 {
     if (currentInterval == "yellow")
     {
@@ -262,7 +262,7 @@ void TrafficLightLongestQueueNoStarv::chooseNextInterval()
 }
 
 
-void TrafficLightLongestQueueNoStarv::chooseNextGreenInterval()
+void TrafficLightLQF_NoStarv::chooseNextGreenInterval()
 {
     // Remove current old phase:
     greenInterval.erase(greenInterval.begin());
@@ -316,7 +316,7 @@ void TrafficLightLongestQueueNoStarv::chooseNextGreenInterval()
 
 
 // calculate all phases (up to 4)
-void TrafficLightLongestQueueNoStarv::calculatePhases(std::string TLid)
+void TrafficLightLQF_NoStarv::calculatePhases(std::string TLid)
 {
     if(ev.isGUI() && debugLevel > 1)
     {
