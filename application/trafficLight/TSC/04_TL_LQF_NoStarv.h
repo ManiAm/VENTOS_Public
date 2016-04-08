@@ -1,8 +1,7 @@
 /****************************************************************************/
-/// @file    LoopDetectors.h
+/// @file    TL_LQF_NoStarv.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
-/// @author
-/// @date    April 2015
+/// @date    August 2013
 ///
 /****************************************************************************/
 // VENTOS, Vehicular Network Open Simulator; see http:?
@@ -25,62 +24,50 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef LOOPDETECTORS_H
-#define LOOPDETECTORS_H
+#ifndef TRAFFICLIGHTLQFNOSTARV_H
+#define TRAFFICLIGHTLQFNOSTARV_H
 
-#include <01_TL_Base.h>
+#include <03_TL_TrafficActuated.h>
 
 namespace VENTOS {
 
-class LoopDetectorData
+class greenIntervalInfo_Maxqueue
 {
-  public:
-    std::string detectorName;
-    std::string lane;
-    std::string vehicleName;
-    double entryTime;
-    double leaveTime;
-    double entrySpeed;
-    double leaveSpeed;
+public:
+    int maxVehCount;
+    double greenTime;
+    std::string greenString;
 
-    LoopDetectorData( std::string str1, std::string str2, std::string str3, double entryT=-1, double leaveT=-1, double entryS=-1, double leaveS=-1 )
+    greenIntervalInfo_Maxqueue(int i1, double d1, std::string str)
     {
-        this->detectorName = str1;
-        this->lane = str2;
-        this->vehicleName = str3;
-        this->entryTime = entryT;
-        this->leaveTime = leaveT;
-        this->entrySpeed = entryS;
-        this->leaveSpeed = leaveS;
-    }
-
-    friend bool operator== (const LoopDetectorData &v1, const LoopDetectorData &v2)
-    {
-        return ( v1.detectorName == v2.detectorName && v1.vehicleName == v2.vehicleName );
+        this->maxVehCount = i1;
+        this->greenTime = d1;
+        this->greenString = str;
     }
 };
 
 
-class LoopDetectors : public TrafficLightBase
+class TrafficLightLQF_NoStarv : public TrafficLightActuated
 {
-  public:
-    virtual ~LoopDetectors();
+public:
+    virtual ~TrafficLightLQF_NoStarv();
     virtual void initialize(int);
     virtual void finish();
     virtual void handleMessage(cMessage *);
 
-  protected:
+protected:
     void virtual executeFirstTimeStep();
     void virtual executeEachTimeStep();
 
-  private:
-    void collectLDsData();
-    void saveLDsData();
+private:
+    void chooseNextInterval();
+    void chooseNextGreenInterval();
+    void calculatePhases(std::string);
 
-  private:
-    bool collectInductionLoopData;
-    std::list<std::string> AllLDs;
-    std::vector<LoopDetectorData> Vec_loopDetectors;
+private:
+    int maxQueueSize;
+    bool nextGreenIsNewCycle;
+    std::vector<greenIntervalInfo_Maxqueue> greenInterval;
 };
 
 }

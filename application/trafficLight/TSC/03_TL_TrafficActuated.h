@@ -1,8 +1,8 @@
 /****************************************************************************/
-/// @file    LoopDetectors.h
+/// @file    TL_TrafficActuated.h
+/// @author  Philip Vo <foxvo@ucdavis.edu>
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
-/// @author
-/// @date    April 2015
+/// @date    August 2013
 ///
 /****************************************************************************/
 // VENTOS, Vehicular Network Open Simulator; see http:?
@@ -25,46 +25,17 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef LOOPDETECTORS_H
-#define LOOPDETECTORS_H
+#ifndef TRAFFICLIGHTACTUATED_H
+#define TRAFFICLIGHTACTUATED_H
 
-#include <01_TL_Base.h>
+#include <02_TL_Adaptive_Webster.h>
 
 namespace VENTOS {
 
-class LoopDetectorData
+class TrafficLightActuated : public TrafficLightWebster
 {
   public:
-    std::string detectorName;
-    std::string lane;
-    std::string vehicleName;
-    double entryTime;
-    double leaveTime;
-    double entrySpeed;
-    double leaveSpeed;
-
-    LoopDetectorData( std::string str1, std::string str2, std::string str3, double entryT=-1, double leaveT=-1, double entryS=-1, double leaveS=-1 )
-    {
-        this->detectorName = str1;
-        this->lane = str2;
-        this->vehicleName = str3;
-        this->entryTime = entryT;
-        this->leaveTime = leaveT;
-        this->entrySpeed = entryS;
-        this->leaveSpeed = leaveS;
-    }
-
-    friend bool operator== (const LoopDetectorData &v1, const LoopDetectorData &v2)
-    {
-        return ( v1.detectorName == v2.detectorName && v1.vehicleName == v2.vehicleName );
-    }
-};
-
-
-class LoopDetectors : public TrafficLightBase
-{
-  public:
-    virtual ~LoopDetectors();
+    virtual ~TrafficLightActuated();
     virtual void initialize(int);
     virtual void finish();
     virtual void handleMessage(cMessage *);
@@ -74,13 +45,28 @@ class LoopDetectors : public TrafficLightBase
     void virtual executeEachTimeStep();
 
   private:
-    void collectLDsData();
-    void saveLDsData();
+    void chooseNextInterval();
+    void chooseNextGreenInterval();
+
+  protected:
+    std::string phase1_5 = "grgrGgrgrrgrgrGgrgrrrrrr";
+    std::string phase2_5 = "gGgGGgrgrrgrgrrgrgrrrrrG";
+    std::string phase1_6 = "grgrrgrgrrgGgGGgrgrrrGrr";
+    std::string phase2_6 = "gGgGrgrgrrgGgGrgrgrrrGrG";
+
+    std::string phase3_7 = "grgrrgrgrGgrgrrgrgrGrrrr";
+    std::string phase3_8 = "grgrrgrgrrgrgrrgGgGGrrGr";
+    std::string phase4_7 = "grgrrgGgGGgrgrrgrgrrGrrr";
+    std::string phase4_8 = "grgrrgGgGrgrgrrgGgGrGrGr";
 
   private:
-    bool collectInductionLoopData;
-    std::list<std::string> AllLDs;
-    std::vector<LoopDetectorData> Vec_loopDetectors;
+    // NED variables
+    double passageTime;
+    bool greenExtension;
+    double intervalElapseTime;
+
+    // class variables
+    std::map<std::string,double> passageTimePerLane;
 };
 
 }

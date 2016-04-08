@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    LoopDetectors.h
+/// @file    TLStateRecord.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author
 /// @date    April 2015
@@ -25,46 +25,45 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef LOOPDETECTORS_H
-#define LOOPDETECTORS_H
+#ifndef TLSTATERECORD_H
+#define TLSTATERECORD_H
 
-#include <01_TL_Base.h>
+#include <04_MeasureTrafficParams.h>
 
 namespace VENTOS {
 
-class LoopDetectorData
+class currentStatusTL
 {
-  public:
-    std::string detectorName;
-    std::string lane;
-    std::string vehicleName;
-    double entryTime;
-    double leaveTime;
-    double entrySpeed;
-    double leaveSpeed;
+public:
+    int cycle;
+    std::string allowedMovements;
+    double greenLength;
+    double greenStart;
+    double yellowStart;
+    double redStart;
+    double phaseEnd;
+    int incommingLanes;
+    int totalQueueSize;
 
-    LoopDetectorData( std::string str1, std::string str2, std::string str3, double entryT=-1, double leaveT=-1, double entryS=-1, double leaveS=-1 )
+    currentStatusTL(int i0, std::string str1, double d0, double d1, double d2, double d3, double d4, int i1, int i2)
     {
-        this->detectorName = str1;
-        this->lane = str2;
-        this->vehicleName = str3;
-        this->entryTime = entryT;
-        this->leaveTime = leaveT;
-        this->entrySpeed = entryS;
-        this->leaveSpeed = leaveS;
-    }
-
-    friend bool operator== (const LoopDetectorData &v1, const LoopDetectorData &v2)
-    {
-        return ( v1.detectorName == v2.detectorName && v1.vehicleName == v2.vehicleName );
+        this->cycle = i0;
+        this->allowedMovements = str1;
+        this->greenLength = d0;
+        this->greenStart = d1;
+        this->yellowStart = d2;
+        this->redStart = d3;
+        this->phaseEnd = d4;
+        this->incommingLanes = i1;
+        this->totalQueueSize = i2;
     }
 };
 
 
-class LoopDetectors : public TrafficLightBase
+class TLStateRecord : public MeasureTrafficParams
 {
   public:
-    virtual ~LoopDetectors();
+    virtual ~TLStateRecord();
     virtual void initialize(int);
     virtual void finish();
     virtual void handleMessage(cMessage *);
@@ -73,14 +72,23 @@ class LoopDetectors : public TrafficLightBase
     void virtual executeFirstTimeStep();
     void virtual executeEachTimeStep();
 
-  private:
-    void collectLDsData();
-    void saveLDsData();
+    void updateTLstate(std::string, std::string, std::string = "", bool = false);
 
   private:
-    bool collectInductionLoopData;
-    std::list<std::string> AllLDs;
-    std::vector<LoopDetectorData> Vec_loopDetectors;
+    void saveTLPhasingData();
+
+  protected:
+    // NED variables
+    double minGreenTime;
+    double maxGreenTime;
+    double yellowTime;
+    double redTime;
+    double maxCycleLength;
+
+    // current phase in each TL
+    std::unordered_map<std::string /*TLid*/, int /*phase number*/> phaseTL;
+    // current status of each TL in each phase
+    std::map<std::pair<std::string /*TLid*/, int /*phase number*/>, currentStatusTL> statusTL;
 };
 
 }

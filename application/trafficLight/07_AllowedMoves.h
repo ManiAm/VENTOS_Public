@@ -1,8 +1,7 @@
 /****************************************************************************/
-/// @file    LoopDetectors.h
+/// @file    AllowedMoves.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
-/// @author
-/// @date    April 2015
+/// @date    August 2013
 ///
 /****************************************************************************/
 // VENTOS, Vehicular Network Open Simulator; see http:?
@@ -25,62 +24,43 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef LOOPDETECTORS_H
-#define LOOPDETECTORS_H
+#ifndef TRAFFICLIGHTALLOWEDMOVES_H
+#define TRAFFICLIGHTALLOWEDMOVES_H
 
-#include <01_TL_Base.h>
+#include <06_IntersectionDelay.h>
+
+// un-defining ev!
+// why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header
+#undef ev
+#include "boost/filesystem.hpp"
+#define ev  (*cSimulation::getActiveEnvir())
 
 namespace VENTOS {
 
-class LoopDetectorData
+class TrafficLightAllowedMoves : public IntersectionDelay
 {
-  public:
-    std::string detectorName;
-    std::string lane;
-    std::string vehicleName;
-    double entryTime;
-    double leaveTime;
-    double entrySpeed;
-    double leaveSpeed;
-
-    LoopDetectorData( std::string str1, std::string str2, std::string str3, double entryT=-1, double leaveT=-1, double entryS=-1, double leaveS=-1 )
-    {
-        this->detectorName = str1;
-        this->lane = str2;
-        this->vehicleName = str3;
-        this->entryTime = entryT;
-        this->leaveTime = leaveT;
-        this->entrySpeed = entryS;
-        this->leaveSpeed = leaveS;
-    }
-
-    friend bool operator== (const LoopDetectorData &v1, const LoopDetectorData &v2)
-    {
-        return ( v1.detectorName == v2.detectorName && v1.vehicleName == v2.vehicleName );
-    }
-};
-
-
-class LoopDetectors : public TrafficLightBase
-{
-  public:
-    virtual ~LoopDetectors();
+public:
+    virtual ~TrafficLightAllowedMoves();
     virtual void initialize(int);
     virtual void finish();
     virtual void handleMessage(cMessage *);
 
-  protected:
+protected:
     void virtual executeFirstTimeStep();
     void virtual executeEachTimeStep();
+    void getMovements(std::string);
 
-  private:
-    void collectLDsData();
-    void saveLDsData();
+private:
+    void generateAllAllowedMovements();
+    void allMovementBatch(unsigned int linkNumber);
 
-  private:
-    bool collectInductionLoopData;
-    std::list<std::string> AllLDs;
-    std::vector<LoopDetectorData> Vec_loopDetectors;
+protected:
+    int rightTurns[8] = {0, 2, 5, 7, 10, 12, 15, 17};
+    std::vector< std::vector<int> > allMovements;
+
+private:
+    int LINKSIZE;
+    boost::filesystem::path movementsFilePath;
 };
 
 }

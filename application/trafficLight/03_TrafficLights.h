@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    LoopDetectors.h
+/// @file    TrafficLights.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author
 /// @date    April 2015
@@ -25,46 +25,18 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef LOOPDETECTORS_H
-#define LOOPDETECTORS_H
+#ifndef TRAFFICLIGHTS_H
+#define TRAFFICLIGHTS_H
 
-#include <01_TL_Base.h>
+#include <02_LoopDetectors.h>
+#include <unordered_map>
 
 namespace VENTOS {
 
-class LoopDetectorData
+class TrafficLights : public LoopDetectors
 {
   public:
-    std::string detectorName;
-    std::string lane;
-    std::string vehicleName;
-    double entryTime;
-    double leaveTime;
-    double entrySpeed;
-    double leaveSpeed;
-
-    LoopDetectorData( std::string str1, std::string str2, std::string str3, double entryT=-1, double leaveT=-1, double entryS=-1, double leaveS=-1 )
-    {
-        this->detectorName = str1;
-        this->lane = str2;
-        this->vehicleName = str3;
-        this->entryTime = entryT;
-        this->leaveTime = leaveT;
-        this->entrySpeed = entryS;
-        this->leaveSpeed = leaveS;
-    }
-
-    friend bool operator== (const LoopDetectorData &v1, const LoopDetectorData &v2)
-    {
-        return ( v1.detectorName == v2.detectorName && v1.vehicleName == v2.vehicleName );
-    }
-};
-
-
-class LoopDetectors : public TrafficLightBase
-{
-  public:
-    virtual ~LoopDetectors();
+    virtual ~TrafficLights();
     virtual void initialize(int);
     virtual void finish();
     virtual void handleMessage(cMessage *);
@@ -73,14 +45,26 @@ class LoopDetectors : public TrafficLightBase
     void virtual executeFirstTimeStep();
     void virtual executeEachTimeStep();
 
-  private:
-    void collectLDsData();
-    void saveLDsData();
+  protected:
 
-  private:
-    bool collectInductionLoopData;
-    std::list<std::string> AllLDs;
-    std::vector<LoopDetectorData> Vec_loopDetectors;
+    // list of all traffic lights in the network
+    std::list<std::string> TLList;
+
+
+    // list of all 'incoming lanes' in each TL
+    std::unordered_map< std::string /*TLid*/, std::pair<int /*lane count*/, std::list<std::string>> > laneListTL;
+    // list of all 'bike lanes' in each TL
+    std::unordered_map< std::string /*TLid*/, std::list<std::string> > bikeLaneListTL;
+    // list of all 'side walks' in each TL
+    std::unordered_map< std::string /*TLid*/, std::list<std::string> > sideWalkListTL;
+
+
+    // all incoming lanes in all traffic lights
+    std::unordered_map<std::string /*lane*/, std::string /*TLid*/> allIncomingLanes;
+    // all outgoing link # for each incoming lane
+    std::multimap<std::string /*lane*/, std::pair<std::string /*TLid*/, int /*link number*/>> outgoingLinks;
+    // the corresponding lane for each outgoing link #
+    std::map<std::pair<std::string /*TLid*/, int /*link*/>, std::string /*lane*/> linkToLane;
 };
 
 }

@@ -1,8 +1,7 @@
 /****************************************************************************/
-/// @file    LoopDetectors.h
+/// @file    TL_LQF_MWM.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
-/// @author
-/// @date    April 2015
+/// @date    Jul 2015
 ///
 /****************************************************************************/
 // VENTOS, Vehicular Network Open Simulator; see http:?
@@ -25,62 +24,68 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef LOOPDETECTORS_H
-#define LOOPDETECTORS_H
+// This algorithm is implemented according to the paper, but suffers from starvation.
+// It performs the scheduling per phase (and not per cycle)
 
-#include <01_TL_Base.h>
+#ifndef TRAFFICLIGHTLQFMWM_H
+#define TRAFFICLIGHTLQFMWM_H
+
+#include <05_TL_OJF.h>
 
 namespace VENTOS {
 
-class LoopDetectorData
+class greenIntervalInfo_LQF
 {
-  public:
-    std::string detectorName;
-    std::string lane;
-    std::string vehicleName;
-    double entryTime;
-    double leaveTime;
-    double entrySpeed;
-    double leaveSpeed;
+public:
+    int maxVehCount;
+    double totalWeight;
+    int oneCount;
+    double greenTime;
+    std::string greenString;
 
-    LoopDetectorData( std::string str1, std::string str2, std::string str3, double entryT=-1, double leaveT=-1, double entryS=-1, double leaveS=-1 )
+    greenIntervalInfo_LQF(int i1, double d0, int i2, double d1, std::string str)
     {
-        this->detectorName = str1;
-        this->lane = str2;
-        this->vehicleName = str3;
-        this->entryTime = entryT;
-        this->leaveTime = leaveT;
-        this->entrySpeed = entryS;
-        this->leaveSpeed = leaveS;
-    }
-
-    friend bool operator== (const LoopDetectorData &v1, const LoopDetectorData &v2)
-    {
-        return ( v1.detectorName == v2.detectorName && v1.vehicleName == v2.vehicleName );
+        this->maxVehCount = i1;
+        this->totalWeight = d0;
+        this->oneCount = i2;
+        this->greenTime = d1;
+        this->greenString = str;
     }
 };
 
 
-class LoopDetectors : public TrafficLightBase
+class TrafficLight_LQF_MWM : public TrafficLightOJF
 {
-  public:
-    virtual ~LoopDetectors();
+public:
+    virtual ~TrafficLight_LQF_MWM();
     virtual void initialize(int);
     virtual void finish();
     virtual void handleMessage(cMessage *);
 
-  protected:
+protected:
     void virtual executeFirstTimeStep();
     void virtual executeEachTimeStep();
 
-  private:
-    void collectLDsData();
-    void saveLDsData();
+private:
+    void chooseNextInterval();
+    void chooseNextGreenInterval();
 
-  private:
-    bool collectInductionLoopData;
-    std::list<std::string> AllLDs;
-    std::vector<LoopDetectorData> Vec_loopDetectors;
+protected:
+    // vehicle type should be identical to vehicle type in beacon field
+    std::map<std::string /*vehicleType*/, double /*weight*/> classWeight =
+    {
+            {"emergency", 50},
+            {"bicycle", 40},
+            {"pedestrian", 30},
+            {"passenger", 20},
+            {"bus", 10},
+            {"truck", 1}
+    };
+
+    std::vector<std::string> phases = {phase1_5, phase2_5, phase1_6, phase2_6, phase3_7, phase3_8, phase4_7, phase4_8};
+
+private:
+    double nextGreenTime;
 };
 
 }

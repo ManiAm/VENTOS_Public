@@ -783,13 +783,12 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
 
                     departedNodes node = it->second;
 
-                    std::cout << "t=" << simTime().dbl() << ": " << " vehicle arrived. Inserting again ("
-                            << "id:" << node.vehicleId << ", "
-                            << "type:" << node.vehicleTypeId << ", "
-                            << "routeId:" << node.routeId << ", "
-                            << "pos:" << node.pos << ", "
-                            << "entrySpeed:" << node.speed << ", "
-                            << "entryLaneIndex:" << node.lane << ")"
+                    std::cout << "t=" << simTime().dbl() << ": " << node.vehicleId
+                            << " of type " << node.vehicleTypeId << " arrived. "
+                            << "Inserting it again on edge " << node.routeId
+                            << " in pos " << node.pos
+                            << " with entrySpeed of " << node.speed
+                            << " from lane " << node.lane
                             << std::endl;
 
                     addedNodes.erase(it);  // remove this entry before adding

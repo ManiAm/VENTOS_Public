@@ -1,7 +1,7 @@
 
 package c3po.application.trafficLight;
 
-simple IntersectionDelay extends TL_LoopDetectors
+simple IntersectionDelay extends TL_TLStateRecord
 {
     parameters:
         @class(VENTOS::IntersectionDelay);

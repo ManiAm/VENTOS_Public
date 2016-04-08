@@ -122,7 +122,7 @@ void ApplVSystem::finish()
 
     if(ev.isGUI() && debugLevel > 0)
     {
-        std::cout << "t=" << simTime().dbl() << ": " << SUMOID << " took " << simTime().dbl() - entryTime << " seconds to complete its route." << endl;
+        std::cout << std::endl <<"t=" << simTime().dbl() << ": " << SUMOID << " took " << simTime().dbl() - entryTime << " seconds to complete its route." << endl;
         std::cout.flush();
     }
 
