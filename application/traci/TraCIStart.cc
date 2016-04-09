@@ -41,8 +41,6 @@
 #include "boost/filesystem.hpp"
 #define ev  (*cSimulation::getActiveEnvir())
 
-#define MYDEBUG EV
-
 namespace VENTOS {
 
 Define_Module(VENTOS::TraCI_Start);
@@ -412,10 +410,7 @@ void TraCI_Start::executeOneTimestep()
             for (std::list<std::string>::const_iterator i = vehTypes.begin(); i != vehTypes.end(); ++i)
             {
                 if (i->compare("DEFAULT_VEHTYPE") != 0)
-                {
-                    //MYDEBUG << *i << std::endl;
                     vehicleTypeIds.push_back(*i);
-                }
             }
         }
 
@@ -427,11 +422,11 @@ void TraCI_Start::executeOneTimestep()
                 std::string routeId = *i;
                 if (par("useRouteDistributions").boolValue() && std::count(routeId.begin(), routeId.end(), '#') >= 1)
                 {
-                    //MYDEBUG << "Omitting route " << routeId << " as it seems to be a member of a route distribution (found '#' in name)" << std::endl;
+                    std::cout << "Omitting route " << routeId << " as it seems to be a member of a route distribution (found '#' in name)" << std::endl;
                     continue;
                 }
 
-                //MYDEBUG << "Adding " << routeId << " to list of possible routes" << std::endl;
+                std::cout << "Adding " << routeId << " to list of possible routes" << std::endl;
                 routeIds.push_back(routeId);
             }
         }
@@ -440,15 +435,13 @@ void TraCI_Start::executeOneTimestep()
             insertNewVehicle();
     }
 
-    //MYDEBUG << "Triggering TraCI server simulation advance to t=" << simTime() <<endl;
-
     uint32_t targetTime = getCurrentTimeMs();
 
     if (targetTime > round(connectAt.dbl() * 1000))
     {
         insertVehicles();
 
-        // proceed SUMO simulation to targetTime
+        // proceed SUMO simulation to advance to targetTime
         std::pair<TraCIBuffer, uint32_t> output = simulationTimeStep(targetTime);
 
         for (uint32_t i = 0; i < output.second /*# of subscription results*/; ++i)
@@ -486,17 +479,13 @@ void TraCI_Start::insertVehicles()
     for (std::map<int, std::queue<std::string> >::iterator i = vehicleInsertQueue.begin(); i != vehicleInsertQueue.end(); )
     {
         std::string route = routeIds[i->first];
-        //MYDEBUG << "process " << route << std::endl;
         std::queue<std::string> vehicles = i->second;
         while (!i->second.empty())
         {
             std::string type = i->second.front();
             std::stringstream veh;
             veh << type << "_" << vehicleNameCounter;
-            //MYDEBUG << "trying to add " << veh.str() << " with " << route << " vehicle type " << type << std::endl;
-
             vehicleAdd(veh.str(), type, route, std::floor(simTime().dbl() * 1000), -4/*DEPART_POS_BASE*/, -3/*DEPART_SPEED_MAX*/, -5 /*DEPART_LANE_BEST_FREE*/);
-            //MYDEBUG << "successful inserted " << veh.str() << std::endl;
             queuedVehicles.insert(veh.str());
             i->second.pop();
             vehicleNameCounter++;
@@ -560,9 +549,9 @@ void TraCI_Start::processVehicleSubscription(std::string objectId, TraCIBuffer& 
         {
             uint8_t varType; buf >> varType;
             ASSERT(varType == TYPE_STRINGLIST);
-            uint32_t count; buf >> count;
-            //MYDEBUG << "TraCI reports " << count << " active vehicles." << endl;
-            ASSERT(count == drivingVehicleCount);
+            uint32_t count; buf >> count;  // count: number of active vehicles
+            if(count == drivingVehicleCount)
+                error("Mismatched number of active vehicles! Vehicle accident might have occurred!");
             std::set<std::string> drivingVehicles;
             for (uint32_t i = 0; i < count; ++i)
             {
@@ -661,16 +650,12 @@ void TraCI_Start::processVehicleSubscription(std::string objectId, TraCIBuffer& 
     bool inRoi = isInRegionOfInterest(TraCICoord(px, py), edge, speed, angle);
     if (!inRoi)
     {
+        // vehicle leaving the region of interest
         if (mod)
-        {
             deleteManagedModule(objectId);
-            //MYDEBUG << "Vehicle #" << objectId << " left region of interest" << endl;
-        }
+        // vehicle (un-equipped) leaving the region of interest
         else if(unEquippedHosts.find(objectId) != unEquippedHosts.end())
-        {
             unEquippedHosts.erase(objectId);
-            //MYDEBUG << "Vehicle (unequipped) # " << objectId<< " left region of interest" << endl;
-        }
 
         return;
     }
@@ -691,9 +676,8 @@ void TraCI_Start::processVehicleSubscription(std::string objectId, TraCIBuffer& 
             cModule* submod = iter();
             ifInetTraCIMobilityCallNextPosition(submod, p, edge, speed, angle);
             TraCIMobilityMod* mm = dynamic_cast<TraCIMobilityMod*>(submod);
-            if (!mm) continue;
-            //MYDEBUG << "module " << objectId << " moving to " << p.x << "," << p.y << endl;
-            mm->nextPosition(p, edge, speed, angle);
+            if (mm)
+                mm->nextPosition(p, edge, speed, angle);
         }
     }
 }

@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    ConstsVENTOS.h
+/// @file    GlobalConsts.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    August 2013
