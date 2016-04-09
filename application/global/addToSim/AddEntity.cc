@@ -50,6 +50,9 @@ void AddEntity::initialize(int stage)
         ASSERT(TraCI);
 
         terminate = module->par("terminate").doubleValue();
+        // if user specifies no termination time, set it to a big value
+        if(terminate == -1)
+            terminate = 100000;
 
         on = par("on").boolValue();
         mode = par("mode").longValue();
