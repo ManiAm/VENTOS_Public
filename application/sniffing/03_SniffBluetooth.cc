@@ -189,8 +189,11 @@ void SniffBluetooth::getLocalDevs()
     if(devCounter == 0)
         std::cout << "No devices found! \n\n";
 
-    if(upCounter == 0)
-        std::cout << "** WARNING ** All BT devices are DOWN! \n\n";
+    if(devCounter > 0 && upCounter == 0)
+    {
+        std::cout << "** WARNING ** All BT devices are DOWN! \n";
+        std::cout << "Use 'sudo hciconfig <device> up' to enable Bluetooth device. \n\n";
+    }
 }
 
 
