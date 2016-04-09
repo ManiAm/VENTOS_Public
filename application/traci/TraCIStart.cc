@@ -550,8 +550,8 @@ void TraCI_Start::processVehicleSubscription(std::string objectId, TraCIBuffer& 
             uint8_t varType; buf >> varType;
             ASSERT(varType == TYPE_STRINGLIST);
             uint32_t count; buf >> count;  // count: number of active vehicles
-            if(count == drivingVehicleCount)
-                error("Mismatched number of active vehicles! Vehicle accident might have occurred!");
+            if(count != drivingVehicleCount)
+                error("Mismatched number of active vehicles! Do you have vehicle accident?");
             std::set<std::string> drivingVehicles;
             for (uint32_t i = 0; i < count; ++i)
             {
