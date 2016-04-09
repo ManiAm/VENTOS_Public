@@ -1,6 +1,7 @@
 
 package c3po.application.vehicle;
-import c3po.application.MIXIM.modules.*;
+
+import c3po.application.MIXIM.modules.IBaseApplLayer;
 
 simple ApplVBase like IBaseApplLayer
 {

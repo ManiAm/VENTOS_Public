@@ -18,6 +18,7 @@
 // **************************************************************************/
 
 package c3po.application.global;
+
 import c3po.application.MIXIM.modules.BaseMobility;
 
 // Controls all movement related things of a host

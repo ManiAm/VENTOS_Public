@@ -1,5 +1,6 @@
 
 package c3po.application.adversary;
+
 import c3po.application.global.*;
 import c3po.application.MIXIM.modules.*;
 

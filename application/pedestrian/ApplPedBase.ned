@@ -1,6 +1,7 @@
 
 package c3po.application.pedestrian;
-import c3po.application.MIXIM.modules.*;
+
+import c3po.application.MIXIM.modules.IBaseApplLayer;
 
 simple ApplPedBase like IBaseApplLayer
 {
