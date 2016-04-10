@@ -193,8 +193,8 @@ void MeasureTrafficParams::CheckDetectors()
     {
         std::cout << std::endl;
         std::cout << str.size() << " loop detectors found!" << endl;
-        std::cout << "   " << LD_demand.size() << " demand loop detectors." << endl;
-        std::cout << "   " << LD_actuated.size() << " actuated loop detectors." << endl;
+        std::cout << "  " << LD_demand.size() << " demand loop detectors." << endl;
+        std::cout << "  " << LD_actuated.size() << " actuated loop detectors." << endl;
         std::cout << AD_queue.size() << " area detectors found!" << endl;
         std::cout.flush();
     }

@@ -186,8 +186,8 @@ void TraCIConnection::TraCILauncher(std::string commandLine)
     }
     else
     {
-        printf("   Parent PID %d \n", getpid());
-        printf("   Child  PID %d \n", pid);
+        printf("  Parent PID %d \n", getpid());
+        printf("  Child  PID %d \n", pid);
     }
 
 #endif

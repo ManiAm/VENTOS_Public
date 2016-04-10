@@ -88,6 +88,7 @@ void ApplRSUMonitor::initialize(int stage)
                 // check if not greater than Gmin
                 if(pass > minGreenTime)
                 {
+                    std::cout << std::endl;
                     std::cout << "WARNING (" << myFullId << "): Passage time is greater than Gmin in lane " << lane << endl;
                     pass = minGreenTime;
                 }
