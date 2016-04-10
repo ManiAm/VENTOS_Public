@@ -61,6 +61,8 @@ void TLStateRecord::initialize(int stage)
         if( maxCycleLength < (minGreenTime + yellowTime + redTime) )
             error("maxCycleLength value is wrong!");
 
+        collectTLPhasingData = par("collectTLPhasingData").boolValue();
+
         phaseTL.clear();
         statusTL.clear();
     }
@@ -176,9 +178,8 @@ void TLStateRecord::updateTLstate(std::string TLid, std::string stage, std::stri
                 // increase cycle number by 1
                 cycleNumber++;
 
-                // update traffic demand at the begining of each cycle
-                if(measureTrafficDemand && measureTrafficDemandMode == 2)
-                    updateTrafficDemand();
+                // update traffic demand at the beginning of each cycle
+                updateTrafficDemand();
             }
 
             // increase phase number by 1

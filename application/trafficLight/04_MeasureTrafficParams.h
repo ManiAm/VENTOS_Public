@@ -88,42 +88,29 @@ public:
 
 class MeasureTrafficParams : public TrafficLights
 {
-  public:
+public:
     virtual ~MeasureTrafficParams();
     virtual void initialize(int);
     virtual void finish();
     virtual void handleMessage(cMessage *);
 
-  protected:
+protected:
     void virtual executeFirstTimeStep();
     void virtual executeEachTimeStep();
     void updateTrafficDemand();
 
-  private:
+private:
     void CheckDetectors();
     void measureTrafficParameters();
     void saveTLQueueingData();
 
-  protected:
-    // NED variables
-    bool measureIntersectionQueue;
-    bool measureTrafficDemand;
-    int measureTrafficDemandMode;
-    int trafficDemandBuffSize;
-
-    bool collectTLPhasingData;
-    bool collectTLQueuingData;
-
-    double saturationTD;
-
-
+protected:
     // loop detector ids used for measuring incoming traffic demand
     std::unordered_map<std::string /*lane*/, std::pair<std::string /*LD id*/, double /*last actuation*/>> LD_demand;
     // loop detector ids used for actuated-time signal control
     std::unordered_map<std::string /*lane*/, std::string /*LD id*/> LD_actuated;
     // area detector ids used for measuring queue length
     std::unordered_map<std::string /*lane*/, std::string /*AD id*/> AD_queue;
-
 
     // real-time queue size for each incoming lane for each intersection
     std::unordered_map<std::string /*lane*/, std::pair<std::string /*TLid*/, int /*queue size*/>> laneQueueSize;
@@ -132,14 +119,25 @@ class MeasureTrafficParams : public TrafficLights
     // real-time queue size data for each TLid
     std::unordered_map<std::string /*TLid*/, queueDataEntry> queueSizeTL;
 
-
     // real-time traffic demand for each incoming lane for each intersection
     std::unordered_map<std::string /*lane*/, std::pair<std::string /*TLid*/, boost::circular_buffer<std::vector<double>> /*TD*/>> laneTD;
     // real-time traffic demand for each link in each intersection
     std::map<std::pair<std::string /*TLid*/, int /*link*/>, boost::circular_buffer<std::vector<double>> /*TD*/> linkTD;
     std::unordered_map<std::string /*lane*/, std::pair<std::string /*TLid*/, laneVehInfo> > laneTotalVehCount;
 
-  private:
+protected:
+    bool measureIntersectionQueue;
+    bool measureTrafficDemand;
+    int measureTrafficDemandMode;
+    int trafficDemandBuffSize;
+
+    double saturationTD;
+
+private:
+    // NED variables
+    bool collectTLPhasingData;
+    bool collectTLQueuingData;
+
     std::vector<queueDataEntryDetailed> Vec_queueSize;
 };
 

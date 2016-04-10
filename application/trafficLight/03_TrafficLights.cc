@@ -51,6 +51,7 @@ void TrafficLights::initialize(int stage)
 
         allIncomingLanes.clear();
         outgoingLinks.clear();
+        linkToLane.clear();
     }
 }
 

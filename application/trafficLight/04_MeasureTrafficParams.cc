@@ -394,6 +394,12 @@ void MeasureTrafficParams::measureTrafficParameters()
 // this method is called only when measureTrafficDemandMode == 2
 void MeasureTrafficParams::updateTrafficDemand()
 {
+    if(!measureTrafficDemand)
+        return;
+
+    if(measureTrafficDemandMode != 2)
+        return;
+
     for(auto & u : laneTotalVehCount)
     {
         std::string lane = u.first;

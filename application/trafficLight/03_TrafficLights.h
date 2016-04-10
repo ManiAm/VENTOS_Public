@@ -35,21 +35,20 @@ namespace VENTOS {
 
 class TrafficLights : public LoopDetectors
 {
-  public:
+public:
     virtual ~TrafficLights();
     virtual void initialize(int);
     virtual void finish();
     virtual void handleMessage(cMessage *);
 
-  protected:
+protected:
     void virtual executeFirstTimeStep();
     void virtual executeEachTimeStep();
 
-  protected:
+protected:
 
     // list of all traffic lights in the network
     std::list<std::string> TLList;
-
 
     // list of all 'incoming lanes' in each TL
     std::unordered_map< std::string /*TLid*/, std::pair<int /*lane count*/, std::list<std::string>> > laneListTL;
@@ -57,7 +56,6 @@ class TrafficLights : public LoopDetectors
     std::unordered_map< std::string /*TLid*/, std::list<std::string> > bikeLaneListTL;
     // list of all 'side walks' in each TL
     std::unordered_map< std::string /*TLid*/, std::list<std::string> > sideWalkListTL;
-
 
     // all incoming lanes in all traffic lights
     std::unordered_map<std::string /*lane*/, std::string /*TLid*/> allIncomingLanes;

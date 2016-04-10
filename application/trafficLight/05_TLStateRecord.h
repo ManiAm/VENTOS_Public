@@ -89,6 +89,9 @@ class TLStateRecord : public MeasureTrafficParams
     std::unordered_map<std::string /*TLid*/, int /*phase number*/> phaseTL;
     // current status of each TL in each phase
     std::map<std::pair<std::string /*TLid*/, int /*phase number*/>, currentStatusTL> statusTL;
+
+  private:
+    bool collectTLPhasingData;
 };
 
 }
