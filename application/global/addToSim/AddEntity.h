@@ -44,6 +44,7 @@ public:
 
 private:
     void Add();
+    void printLoadedStatistics();
 
     void Scenario1();
     void Scenario5();
