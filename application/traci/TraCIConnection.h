@@ -12,7 +12,7 @@ namespace VENTOS {
 class TraCIConnection
 {
 	public:
-        static int startServer(std::string SUMOexe, std::string SUMOconfig, int seed);
+        static int startServer(std::string SUMOexe, std::string SUMOconfig, std::string switches, int seed);
         static int getFreeEphemeralPort();
         static void TraCILauncher(std::string commandLine);
 		static TraCIConnection* connect(const char* host, int port);

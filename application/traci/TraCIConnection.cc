@@ -19,8 +19,6 @@
 #include "TraCIConstants.h"
 #include "TraCICommands.h"
 
-#define MYDEBUG EV
-
 namespace VENTOS {
 
 pid_t TraCIConnection::pid = -1;
@@ -55,7 +53,7 @@ TraCIConnection::~TraCIConnection()
 }
 
 
-int TraCIConnection::startServer(std::string SUMOexe, std::string SUMOconfig, int seed)
+int TraCIConnection::startServer(std::string SUMOexe, std::string SUMOconfig, std::string switches, int seed)
 {
     int port = TraCIConnection::getFreeEphemeralPort();
 
@@ -76,7 +74,7 @@ int TraCIConnection::startServer(std::string SUMOexe, std::string SUMOconfig, in
             << " --remote-port " << port
             << " --seed " << seed
             << " --configuration-file " << SUMOconfig
-            << " --no-step-log";
+            << switches;
 
     TraCIConnection::TraCILauncher(commandLine.str());
 
@@ -340,7 +338,6 @@ std::string TraCIConnection::receiveMessage()
     char buf[bufLength];
 
     {
-        // MYDEBUG << "Reading TraCI message of " << bufLength << " bytes" << endl;
         uint32_t bytesRead = 0;
         while (bytesRead < bufLength)
         {
@@ -397,7 +394,6 @@ void TraCIConnection::sendMessage(std::string buf)
     }
 
     {
-        // MYDEBUG << "Writing TraCI message of " << buf.length() << " bytes" << endl;
         uint32_t bytesWritten = 0;
         while (bytesWritten < buf.length())
         {

@@ -188,8 +188,15 @@ void TraCI_Start::init_traci()
         error("SUMO executable not found at %s. Check SUMOexe variable!", SUMOexe.c_str());
 
     std::string switches = "";
-    //" --start --no-step-log --quit-on-end"
 
+    if(par("quitOnEnd").boolValue())
+        switches = switches + " --quit-on-end";
+
+    if(par("startAfterLoading").boolValue())
+        switches = switches + " --start";
+
+    if(par("CMDstepLog").boolValue())
+        switches = switches + " --no-step-log";
 
     int seed = par("seed").longValue();
 

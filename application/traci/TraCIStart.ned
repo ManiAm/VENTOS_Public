@@ -13,8 +13,11 @@ simple TraCIStart
         
         string host = default("localhost");    // sumo-launchd.py server hostname
         string SUMOexe = default("sumo");
-        int seed = default(-1);                // seed value to set in launch configuration, if missing (-1: current run number)
         string SUMOconfig = default("");       // launch configuration to send to sumo-launchd.py
+        bool quitOnEnd = default(false);
+        bool startAfterLoading = default(false);
+        bool CMDstepLog = default(false);        
+        int seed = default(-1);                // seed value to set in launch configuration, if missing (-1: current run number)
         int margin = default(25);              // margin to add to all received vehicle positions 
         
         double connectAt @unit("s") = default(0s);        // when to connect to TraCI server (must be the initial timestep of the server)
