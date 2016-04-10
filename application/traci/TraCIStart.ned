@@ -42,9 +42,7 @@ simple TraCIStart
         string pedModuleName = default("host");                                         // module name to be used in the simulation for each managed pedestrian        
         string pedModuleDisplayString = default("i=misc/node2;is=vs;r=0,,#707070,1");   // module displayString to be used in the simulation for each managed pedestrian
         
-        int numVehicles = default(0);
         double penetrationRate = default(1);          //the probability of a vehicle being equipped with Car2X technology
-        int vehicleRngIndex = default(0);             // index of the RNG stream to be used, all random numbers concerning the managed vehicles
         bool useRouteDistributions = default(false);
         
         string roiRoads = default("");  // which roads (e.g. "hwy1 hwy2") are considered to consitute the region of interest, if not empty

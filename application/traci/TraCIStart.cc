@@ -47,8 +47,6 @@ Define_Module(VENTOS::TraCI_Start);
 
 TraCI_Start::TraCI_Start() : world(0),
         cc(0),
-        mobRng(0),
-        myAddVehicleTimer(0),
         connectAndStartTrigger(0),
         executeOneTimestepTrigger(0) { }
 
@@ -57,7 +55,6 @@ TraCI_Start::~TraCI_Start()
 {
     cancelAndDelete(connectAndStartTrigger);
     cancelAndDelete(executeOneTimestepTrigger);
-    cancelAndDelete(myAddVehicleTimer);
 
     delete connection;
 }
@@ -112,12 +109,8 @@ void TraCI_Start::initialize(int stage)
             pedModuleName = par("pedModuleName").stringValue();
             pedModuleDisplayString = par("pedModuleDisplayString").stringValue();
 
-            numVehicles = par("numVehicles").longValue();
             penetrationRate = par("penetrationRate").doubleValue();
-            vehicleRngIndex = par("vehicleRngIndex");
-            mobRng = getRNG(vehicleRngIndex);
 
-            vehicleNameCounter = 0;
             activeVehicleCount = 0;
             parkingVehicleCount = 0;
             drivingVehicleCount = 0;
@@ -126,8 +119,6 @@ void TraCI_Start::initialize(int stage)
             hosts.clear();
             subscribedVehicles.clear();
             subscribedPedestrians.clear();
-
-            myAddVehicleTimer = new cMessage("myAddVehicleTimer");
 
             cModule *module = simulation.getSystemModule()->getSubmodule("world");
             world = static_cast<BaseWorldUtility*>(module);
@@ -168,35 +159,7 @@ void TraCI_Start::handleMessage(cMessage *msg)
 
     if (msg == connectAndStartTrigger)
     {
-        // get SUMO executable
-        std::string SUMOexe = par("SUMOexe").stringValue();
-        // check if this file exists?
-        if( !boost::filesystem::exists(SUMOexe) )
-            error("SUMO executable not found at %s. Check SUMOexe variable!", SUMOexe.c_str());
-
-        int seed = par("seed").longValue();
-
-        // start SUMO TraCI server
-        int port = TraCIConnection::startServer(SUMOexe, getSUMOConfigFullPath(), seed);
-
-        // connect to SUMO TraCI server
-        connection = TraCIConnection::connect(host.c_str(), port);
-
-        // initialize TraCI
         init_traci();
-
-        // call AddVehicle to insert flows if needed
-        simsignal_t Signal_addFlow = registerSignal("addFlow");
-        this->emit(Signal_addFlow, 0);
-
-        std::cout << "Initializing modules with TraCI support ..." << std::endl << std::endl;
-        simsignal_t Signal_executeFirstTS = registerSignal("executeFirstTS");
-        this->emit(Signal_executeFirstTS, 1);
-
-        initRoi();
-        if(par("roiSquareSizeRSU").doubleValue() > 0)
-            roiRSUs(); // this method should be called after sending executeFirstTS so that all RSUs are built
-        drawRoi();
     }
     else if (msg == executeOneTimestepTrigger)
     {
@@ -223,13 +186,27 @@ void TraCI_Start::handleMessage(cMessage *msg)
 
 void TraCI_Start::init_traci()
 {
+    // get SUMO executable
+    std::string SUMOexe = par("SUMOexe").stringValue();
+    // check if this file exists?
+    if( !boost::filesystem::exists(SUMOexe) )
+        error("SUMO executable not found at %s. Check SUMOexe variable!", SUMOexe.c_str());
+
+    int seed = par("seed").longValue();
+
+    // start SUMO TraCI server
+    int port = TraCIConnection::startServer(SUMOexe, getSUMOConfigFullPath(), seed);
+
+    // connect to SUMO TraCI server
+    connection = TraCIConnection::connect(host.c_str(), port);
+
     // get the version of SUMO TraCI API
     std::pair<uint32_t, std::string> versionS = getVersion();
     uint32_t apiVersionS = versionS.first;
     std::string serverVersionS = versionS.second;
 
     if (apiVersionS == 10)
-        std::cout << "SUMO TraCI server \"" << serverVersionS << "\" reports API version " << apiVersionS << endl;
+        std::cout << "  SUMO TraCI server \"" << serverVersionS << "\" reports API version " << apiVersionS << endl;
     else
         error("TraCI server \"%s\" reports API version %d, which is unsupported.", serverVersionS.c_str(), apiVersionS);
 
@@ -241,7 +218,7 @@ void TraCI_Start::init_traci()
     double x2 = boundaries[2];  // x2
     double y2 = boundaries[3];  // y2
 
-    std::cout << "TraCI reports network boundaries (" << x1 << "," << y1 << ")-(" << x2 << "," << y2 << ")" << endl;
+    std::cout << "  TraCI reports network boundaries (" << x1 << "," << y1 << ")-(" << x2 << "," << y2 << ")" << endl;
 
     netbounds1 = TraCICoord(x1, y1);
     netbounds2 = TraCICoord(x2, y2);
@@ -291,6 +268,19 @@ void TraCI_Start::init_traci()
             obstacles->addFromTypeAndShape(id, typeId, shape);
         }
     }
+
+    // call AddVehicle to insert flows if needed
+    simsignal_t Signal_addFlow = registerSignal("addFlow");
+    this->emit(Signal_addFlow, 0);
+
+    std::cout << "  Initializing modules with TraCI support ..." << std::endl << std::endl;
+    simsignal_t Signal_executeFirstTS = registerSignal("executeFirstTS");
+    this->emit(Signal_executeFirstTS, 1);
+
+    initRoi();
+    if(par("roiSquareSizeRSU").doubleValue() > 0)
+        roiRSUs(); // this method should be called after sending executeFirstTS so that all RSUs are built
+    drawRoi();
 }
 
 
@@ -402,45 +392,10 @@ uint32_t TraCI_Start::getCurrentTimeMs()
 
 void TraCI_Start::executeOneTimestep()
 {
-    if (simTime() > 1)
-    {
-        if (vehicleTypeIds.size() == 0)
-        {
-            std::list<std::string> vehTypes = vehicleGetIDList();
-            for (std::list<std::string>::const_iterator i = vehTypes.begin(); i != vehTypes.end(); ++i)
-            {
-                if (i->compare("DEFAULT_VEHTYPE") != 0)
-                    vehicleTypeIds.push_back(*i);
-            }
-        }
-
-        if (routeIds.size() == 0)
-        {
-            std::list<std::string> routes = routeGetIDList();
-            for (std::list<std::string>::const_iterator i = routes.begin(); i != routes.end(); ++i)
-            {
-                std::string routeId = *i;
-                if (par("useRouteDistributions").boolValue() && std::count(routeId.begin(), routeId.end(), '#') >= 1)
-                {
-                    std::cout << "Omitting route " << routeId << " as it seems to be a member of a route distribution (found '#' in name)" << std::endl;
-                    continue;
-                }
-
-                std::cout << "Adding " << routeId << " to list of possible routes" << std::endl;
-                routeIds.push_back(routeId);
-            }
-        }
-
-        for (int i = activeVehicleCount + queuedVehicles.size(); i < numVehicles; i++)
-            insertNewVehicle();
-    }
-
     uint32_t targetTime = getCurrentTimeMs();
 
     if (targetTime > round(connectAt.dbl() * 1000))
     {
-        insertVehicles();
-
         // proceed SUMO simulation to advance to targetTime
         std::pair<TraCIBuffer, uint32_t> output = simulationTimeStep(targetTime);
 
@@ -452,49 +407,6 @@ void TraCI_Start::executeOneTimestep()
         allPedestrians = personGetIDList();
         if(!allPedestrians.empty())
             addPedestriansToOMNET();
-    }
-}
-
-
-void TraCI_Start::insertNewVehicle()
-{
-    std::string type;
-    if (vehicleTypeIds.size())
-    {
-        int vehTypeId = mobRng->intRand(vehicleTypeIds.size());
-        type = vehicleTypeIds[vehTypeId];
-    }
-    else
-    {
-        type = "DEFAULT_VEHTYPE";
-    }
-
-    int routeId = mobRng->intRand(routeIds.size());
-    vehicleInsertQueue[routeId].push(type);
-}
-
-
-void TraCI_Start::insertVehicles()
-{
-    for (std::map<int, std::queue<std::string> >::iterator i = vehicleInsertQueue.begin(); i != vehicleInsertQueue.end(); )
-    {
-        std::string route = routeIds[i->first];
-        std::queue<std::string> vehicles = i->second;
-        while (!i->second.empty())
-        {
-            std::string type = i->second.front();
-            std::stringstream veh;
-            veh << type << "_" << vehicleNameCounter;
-            vehicleAdd(veh.str(), type, route, std::floor(simTime().dbl() * 1000), -4/*DEPART_POS_BASE*/, -3/*DEPART_SPEED_MAX*/, -5 /*DEPART_LANE_BEST_FREE*/);
-            queuedVehicles.insert(veh.str());
-            i->second.pop();
-            vehicleNameCounter++;
-        }
-
-        std::map<int, std::queue<std::string> >::iterator tmp = i;
-        ++tmp;
-        vehicleInsertQueue.erase(i);
-        i = tmp;
     }
 }
 
@@ -1020,9 +932,6 @@ void TraCI_Start::addModule(std::string nodeId, const Coord& position, std::stri
 
     if (hosts.find(nodeId) != hosts.end())
         error("tried adding duplicate module");
-
-    if (queuedVehicles.find(nodeId) != queuedVehicles.end())
-        queuedVehicles.erase(nodeId);
 
     double option1 = hosts.size() / (hosts.size() + unEquippedHosts.size() + 1.0);
     double option2 = (hosts.size() + 1) / (hosts.size() + unEquippedHosts.size() + 1.0);

@@ -109,17 +109,8 @@ private:
     void roiRSUs();
     void drawRoi();
 
-    void saveVehicleData(std::string);
-    void vehiclesDataToFile();
-
-    /** get current simulation time (in ms) */
-    uint32_t getCurrentTimeMs();
-    /** read and execute all commands for the next timestep */
-    void executeOneTimestep();
-    /** adds a new vehicle to the queue which are tried to be inserted at the next SUMO time step */
-    void insertNewVehicle();
-    /** tries to add all vehicles in the vehicle queue to SUMO */
-    void insertVehicles();
+    uint32_t getCurrentTimeMs();  // get current simulation time (in ms)
+    void executeOneTimestep();    // read and execute all commands for the next timestep
 
     void processSimSubscription(std::string objectId, TraCIBuffer& buf);
     void processVehicleSubscription(std::string objectId, TraCIBuffer& buf);
@@ -138,6 +129,9 @@ private:
      * Modules are destroyed and re-created as managed vehicles leave and re-enter the ROI
      */
     bool isInRegionOfInterest(const TraCICoord& position, std::string road_id, double speed, double angle);
+
+    void saveVehicleData(std::string);
+    void vehiclesDataToFile();
 
 private:
     // NED
@@ -172,13 +166,9 @@ private:
     std::string pedModuleName;
     std::string pedModuleDisplayString;
 
-    int numVehicles;
     double penetrationRate;
-    int vehicleRngIndex;
-    cRNG* mobRng;
 
     // class variables
-    uint32_t vehicleNameCounter;
     uint32_t activeVehicleCount; /**< number of vehicles, be it parking or driving **/
     uint32_t parkingVehicleCount; /**< number of parking vehicles, derived from parking start/end events */
     uint32_t drivingVehicleCount; /**< number of driving, as reported by sumo */
@@ -190,14 +180,8 @@ private:
     std::list<std::string> allPedestrians;
     std::set<std::string> unEquippedHosts;
 
-    cMessage* myAddVehicleTimer;
     cMessage* connectAndStartTrigger; /**< self-message scheduled for when to connect to TraCI server and start running */
     cMessage* executeOneTimestepTrigger; /**< self-message scheduled for when to next call executeOneTimestep */
-
-    std::vector<std::string> vehicleTypeIds;
-    std::map<int, std::queue<std::string> > vehicleInsertQueue;
-    std::set<std::string> queuedVehicles;
-    std::vector<std::string> routeIds;
 
     std::list<std::string> roiRoads; /**< which roads (e.g. "hwy1 hwy2") are considered to consitute the region of interest, if not empty */
     std::list<std::pair<TraCICoord, TraCICoord> > roiRects; /**< which rectangles (e.g. "0,0-10,10 20,20-30,30) are considered to consitute the region of interest, if not empty */
