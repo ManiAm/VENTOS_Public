@@ -31,39 +31,6 @@ namespace VENTOS {
 
 Define_Module(VENTOS::TrafficLight_LQF_MWM);
 
-class sortedEntryLQF
-{
-public:
-    int oneCount;
-    int maxVehCount;
-    double totalWeight;
-    std::string phase;
-
-    sortedEntryLQF(double d1, int i1, int i2, std::string p)
-    {
-        this->totalWeight = d1;
-        this->oneCount = i1;
-        this->maxVehCount = i2;
-        this->phase = p;
-    }
-};
-
-
-class sortCompareLQF
-{
-public:
-    bool operator()(sortedEntryLQF p1, sortedEntryLQF p2)
-    {
-        if( p1.totalWeight < p2.totalWeight )
-            return true;
-        else if( p1.totalWeight == p2.totalWeight && p1.oneCount < p2.oneCount)
-            return true;
-        else
-            return false;
-    }
-};
-
-
 TrafficLight_LQF_MWM::~TrafficLight_LQF_MWM()
 {
 
@@ -217,7 +184,8 @@ void TrafficLight_LQF_MWM::chooseNextInterval()
 
 void TrafficLight_LQF_MWM::chooseNextGreenInterval()
 {
-    std::map<std::string, laneInfoEntry> laneInfo = RSUptr->laneInfo;
+    // get all incoming lanes for this TL only
+    std::map<std::string /*lane*/, laneInfoEntry> laneInfo = RSUptr->laneInfo;
 
     if(laneInfo.empty())
         error("LaneInfo is empty! Is active detection on in %s ?", RSUptr->getFullName());
@@ -291,22 +259,6 @@ void TrafficLight_LQF_MWM::chooseNextGreenInterval()
 
     // get the movement batch with the highest weight + delay + oneCount
     sortedEntryLQF entry = sortedMovements.top();
-    // this will be the next green interval
-    nextGreenInterval = entry.phase;
-
-    // calculate 'next interval'
-    std::string nextInterval = "";
-    bool needYellowInterval = false;  // if we have at least one yellow interval
-    for(unsigned int linkNumber = 0; linkNumber < nextGreenInterval.size(); ++linkNumber)
-    {
-        if( (currentInterval[linkNumber] == 'G' || currentInterval[linkNumber] == 'g') && nextGreenInterval[linkNumber] == 'r')
-        {
-            nextInterval += 'y';
-            needYellowInterval = true;
-        }
-        else
-            nextInterval += currentInterval[linkNumber];
-    }
 
     // allocate enough green time to move all vehicles
     int maxVehCount = entry.maxVehCount;
@@ -324,6 +276,23 @@ void TrafficLight_LQF_MWM::chooseNextGreenInterval()
 
         std::cout << endl;
         std::cout.flush();
+    }
+
+    // this will be the next green interval
+    nextGreenInterval = entry.phase;
+
+    // calculate 'next interval'
+    std::string nextInterval = "";
+    bool needYellowInterval = false;  // if we have at least one yellow interval
+    for(unsigned int linkNumber = 0; linkNumber < nextGreenInterval.size(); ++linkNumber)
+    {
+        if( (currentInterval[linkNumber] == 'G' || currentInterval[linkNumber] == 'g') && nextGreenInterval[linkNumber] == 'r')
+        {
+            nextInterval += 'y';
+            needYellowInterval = true;
+        }
+        else
+            nextInterval += currentInterval[linkNumber];
     }
 
     if(needYellowInterval)

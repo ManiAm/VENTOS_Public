@@ -143,6 +143,9 @@ void AddEntity::Add()
     if (!on)
         return;
 
+    std::cout << ">>> AddEntity module is loading entities ..." << endl << endl;
+    std::cout.flush();
+
     if(mode == 1)
     {
         Scenario1();

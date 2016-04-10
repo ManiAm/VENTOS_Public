@@ -31,6 +31,7 @@
 #define TRAFFICLIGHTLQFMWMAGING_H
 
 #include <06_TL_LQF_MWM.h>
+#include <queue>
 
 namespace VENTOS {
 

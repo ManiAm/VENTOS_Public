@@ -54,6 +54,39 @@ public:
 };
 
 
+class sortedEntryLQF
+{
+public:
+    int oneCount;
+    int maxVehCount;
+    double totalWeight;
+    std::string phase;
+
+    sortedEntryLQF(double d1, int i1, int i2, std::string p)
+    {
+        this->totalWeight = d1;
+        this->oneCount = i1;
+        this->maxVehCount = i2;
+        this->phase = p;
+    }
+};
+
+
+class sortCompareLQF
+{
+public:
+    bool operator()(sortedEntryLQF p1, sortedEntryLQF p2)
+    {
+        if( p1.totalWeight < p2.totalWeight )
+            return true;
+        else if( p1.totalWeight == p2.totalWeight && p1.oneCount < p2.oneCount)
+            return true;
+        else
+            return false;
+    }
+};
+
+
 class TrafficLight_LQF_MWM : public TrafficLightOJF
 {
 public:

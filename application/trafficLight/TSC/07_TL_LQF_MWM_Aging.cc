@@ -25,44 +25,39 @@
 //
 
 #include <07_TL_LQF_MWM_Aging.h>
-#include <queue>
 
 namespace VENTOS {
 
-Define_Module(VENTOS::TrafficLight_LQF_MWM_Aging);
-
-class sortedEntryLQF
+class sortedEntryDelayLQF : public sortedEntryLQF
 {
 public:
-    int oneCount;
-    int maxVehCount;
-    double totalWeight;
-    std::string phase;
+    double maxDelay;
 
-    sortedEntryLQF(double d1, int i1, int i2, std::string p)
+    sortedEntryDelayLQF(double d1, int i1, int i2, double d2, std::string p) : sortedEntryLQF(d1, i1, i2, p)
     {
-        this->totalWeight = d1;
-        this->oneCount = i1;
-        this->maxVehCount = i2;
-        this->phase = p;
+        this->maxDelay = d2;
     }
 };
 
 
-class sortCompareLQF
+class CompareDelay
 {
 public:
-    bool operator()(sortedEntryLQF p1, sortedEntryLQF p2)
+    bool operator()(sortedEntryDelayLQF n1, sortedEntryDelayLQF n2)
     {
-        if( p1.totalWeight < p2.totalWeight )
+        if (n1.maxDelay < n2.maxDelay)
             return true;
-        else if( p1.totalWeight == p2.totalWeight && p1.oneCount < p2.oneCount)
+        else if (n1.maxDelay == n2.maxDelay && n1.totalWeight < n2.totalWeight)
+            return true;
+        else if (n1.maxDelay == n2.maxDelay && n1.totalWeight == n2.totalWeight && n1.oneCount < n2.oneCount)
             return true;
         else
             return false;
     }
 };
 
+
+Define_Module(VENTOS::TrafficLight_LQF_MWM_Aging);
 
 TrafficLight_LQF_MWM_Aging::~TrafficLight_LQF_MWM_Aging()
 {
@@ -217,7 +212,8 @@ void TrafficLight_LQF_MWM_Aging::chooseNextInterval()
 
 void TrafficLight_LQF_MWM_Aging::chooseNextGreenInterval()
 {
-    std::map<std::string, laneInfoEntry> laneInfo = RSUptr->laneInfo;
+    // get all incoming lanes for this TL only
+    std::map<std::string /*lane*/, laneInfoEntry> laneInfo = RSUptr->laneInfo;
 
     if(laneInfo.empty())
         error("LaneInfo is empty! Is active detection on in %s ?", RSUptr->getFullName());
@@ -228,11 +224,18 @@ void TrafficLight_LQF_MWM_Aging::chooseNextGreenInterval()
     // clear the priority queue
     sortedMovements = std::priority_queue < sortedEntryLQF, std::vector<sortedEntryLQF>, sortCompareLQF >();
 
+    // maximum delay in each phase
+    std::priority_queue< sortedEntryDelayLQF, std::vector<sortedEntryDelayLQF>, CompareDelay > maxDelayPerPhase;
+
+    // clear the priority queue
+    maxDelayPerPhase = std::priority_queue< sortedEntryDelayLQF, std::vector<sortedEntryDelayLQF>, CompareDelay > ();
+
     for(std::string phase : phases)
     {
         double totalWeight = 0;  // total weight for each batch
         int oneCount = 0;
         int maxVehCount = 0;
+        double maxDelay = 0;
 
         for(unsigned int linkNumber = 0; linkNumber < phase.size(); ++linkNumber)
         {
@@ -273,6 +276,11 @@ void TrafficLight_LQF_MWM_Aging::chooseNextGreenInterval()
                             if(loc == classWeight.end())
                                 error("entity %s with type %s does not have a weight in classWeight map!", vID.c_str(), vType.c_str());
                             totalWeight += loc->second;
+
+                            // max delay in this movement
+                            auto ii = vehDelay.find(vID);
+                            if(ii != vehDelay.end())
+                                maxDelay = std::max(maxDelay, ii->second.accumDelay);  // todo: should we consider waiting time only?
                         }
                     }
                 }
@@ -287,12 +295,74 @@ void TrafficLight_LQF_MWM_Aging::chooseNextGreenInterval()
         // add this batch of movements to priority_queue
         sortedEntryLQF *entry = new sortedEntryLQF(totalWeight, oneCount, maxVehCount, phase);
         sortedMovements.push(*entry);
+
+        // add this batch of movements to priority_queue
+        sortedEntryDelayLQF *entry2 = new sortedEntryDelayLQF(totalWeight, oneCount, maxVehCount, maxDelay, phase);
+        maxDelayPerPhase.push(*entry2);
     }
 
     // get the movement batch with the highest weight + delay + oneCount
-    sortedEntryLQF entry = sortedMovements.top();
+    sortedEntryLQF bestChoice = sortedMovements.top();
+
+    // bestChoice selects the phase with the highest total weight.
+    // We need to check the max delay in each phase too!
+    sortedEntryLQF finalChoice = bestChoice;
+    bool found = false;
+    while(!maxDelayPerPhase.empty())
+    {
+        double maxDelay = maxDelayPerPhase.top().maxDelay;
+        // do we exceed 'max delay' in a phase?
+        if(!found && maxDelay + yellowTime + redTime > 20)
+        {
+            finalChoice = maxDelayPerPhase.top();
+            found = true;
+        }
+
+        if(ev.isGUI() && debugLevel > 1)
+        {
+            printf("Max delay in phase %s is %0.2f \n", maxDelayPerPhase.top().phase.c_str(), maxDelay);
+
+            // todo
+            // max delay in this movement
+            auto ii = vehDelay.find("bike1");
+            if(ii != vehDelay.end())
+                std::cout << "bike delay is " << ii->second.accumDelay << std::endl;
+        }
+
+        maxDelayPerPhase.pop();
+    }
+
+    // allocate enough green time to move all vehicles
+    int maxVehCount = finalChoice.maxVehCount;
+    double greenTime = (double)maxVehCount * (minGreenTime / 5.);
+    nextGreenTime = std::min(std::max(greenTime, minGreenTime), maxGreenTime);  // bound green time
+
+    if(ev.isGUI() && debugLevel > 1)
+    {
+        printf("\n");
+
+        if(bestChoice.phase == finalChoice.phase)
+        {
+            printf("The following phase has the highest totalWeight out of %lu phases: \n", phases.size());
+        }
+        else
+        {
+            printf("Phase %s will not be scheduled! \n", bestChoice.phase.c_str());
+            printf("Max delay in phase %s exceeds %ds \n", finalChoice.phase.c_str(), 20);
+        }
+
+        printf("phase= %s", finalChoice.phase.c_str());
+        printf(", maxVehCount= %d", finalChoice.maxVehCount);
+        printf(", totalWeight= %0.2f", finalChoice.totalWeight);
+        printf(", oneCount= %d", finalChoice.oneCount);
+        printf(", green= %0.2fs \n", nextGreenTime);
+
+        std::cout << endl;
+        std::cout.flush();
+    }
+
     // this will be the next green interval
-    nextGreenInterval = entry.phase;
+    nextGreenInterval = finalChoice.phase;
 
     // calculate 'next interval'
     std::string nextInterval = "";
@@ -306,24 +376,6 @@ void TrafficLight_LQF_MWM_Aging::chooseNextGreenInterval()
         }
         else
             nextInterval += currentInterval[linkNumber];
-    }
-
-    // allocate enough green time to move all vehicles
-    int maxVehCount = entry.maxVehCount;
-    double greenTime = (double)maxVehCount * (minGreenTime / 5.);
-    nextGreenTime = std::min(std::max(greenTime, minGreenTime), maxGreenTime);  // bound green time
-
-    if(ev.isGUI() && debugLevel > 1)
-    {
-        printf("The following phase has the highest totalWeight out of %lu phases: \n", phases.size());
-        printf("phase= %s", entry.phase.c_str());
-        printf(", maxVehCount= %d", entry.maxVehCount);
-        printf(", totalWeight= %0.2f", entry.totalWeight);
-        printf(", oneCount= %d", entry.oneCount);
-        printf(", green= %0.2fs \n", nextGreenTime);
-
-        std::cout << endl;
-        std::cout.flush();
     }
 
     if(needYellowInterval)

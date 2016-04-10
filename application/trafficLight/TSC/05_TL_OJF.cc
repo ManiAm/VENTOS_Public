@@ -285,6 +285,22 @@ void TrafficLightOJF::chooseNextGreenInterval()
 
     // get the movement batch with the highest delay
     sortedEntryD entry = sortedMovements.top();
+
+    // allocate enough green time to move all delayed vehicle
+    int maxVehCount = entry.maxVehCount;
+    if(ev.isGUI() && debugLevel > 1)
+    {
+        std::cout << "Maximum of " << maxVehCount << " vehicle(s) are waiting. ";
+        std::cout.flush();
+    }
+    double greenTime = (double)maxVehCount * (minGreenTime / 5.);
+    nextGreenTime = std::min(std::max(greenTime, minGreenTime), maxGreenTime);  // bound green time
+    if(ev.isGUI() && debugLevel > 1)
+    {
+        std::cout << "Next green time is " << nextGreenTime << endl << endl;
+        std::cout.flush();
+    }
+
     std::vector<int> batchMovements = entry.batchMovements;
 
     // calculate the next green interval.
@@ -315,21 +331,6 @@ void TrafficLightOJF::chooseNextGreenInterval()
         }
         else
             nextInterval += currentInterval[linkNumber];
-    }
-
-    // allocate enough green time to move all delayed vehicle
-    int maxVehCount = entry.maxVehCount;
-    if(ev.isGUI() && debugLevel > 1)
-    {
-        std::cout << "Maximum of " << maxVehCount << " vehicle(s) are waiting. ";
-        std::cout.flush();
-    }
-    double greenTime = (double)maxVehCount * (minGreenTime / 5.);
-    nextGreenTime = std::min(std::max(greenTime, minGreenTime), maxGreenTime);  // bound green time
-    if(ev.isGUI() && debugLevel > 1)
-    {
-        std::cout << "Next green time is " << nextGreenTime << endl << endl;
-        std::cout.flush();
     }
 
     if(needYellowInterval)

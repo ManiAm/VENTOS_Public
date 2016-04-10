@@ -187,6 +187,11 @@ void TrafficLightActuated::executeEachTimeStep()
     }
 
     intervalElapseTime += updateInterval;
+
+    // todo: change intervalElapseTime to the following code
+//    if(intervalChangeEVT->isScheduled())
+//        if(currentInterval != "yellow" && currentInterval != "red")
+//            std::cout << "### " << intervalChangeEVT->getArrivalTime() - simTime() << std::endl;
 }
 
 

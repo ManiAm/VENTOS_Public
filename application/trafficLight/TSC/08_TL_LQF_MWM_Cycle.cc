@@ -31,39 +31,6 @@ namespace VENTOS {
 
 Define_Module(VENTOS::TrafficLight_LQF_MWM_Cycle);
 
-class sortedEntryLQF
-{
-public:
-    int oneCount;
-    int maxVehCount;
-    double totalWeight;
-    std::string phase;
-
-    sortedEntryLQF(double d1, int i1, int i2, std::string p)
-    {
-        this->totalWeight = d1;
-        this->oneCount = i1;
-        this->maxVehCount = i2;
-        this->phase = p;
-    }
-};
-
-
-class sortCompareLQF
-{
-public:
-    bool operator()(sortedEntryLQF p1, sortedEntryLQF p2)
-    {
-        if( p1.totalWeight < p2.totalWeight )
-            return true;
-        else if( p1.totalWeight == p2.totalWeight && p1.oneCount < p2.oneCount)
-            return true;
-        else
-            return false;
-    }
-};
-
-
 // using a 'functor' rather than a 'function'
 // Reason: to be able to pass an additional argument (bestMovement) to predicate
 struct servedLQF
@@ -288,7 +255,8 @@ void TrafficLight_LQF_MWM_Cycle::chooseNextGreenInterval()
 
 void TrafficLight_LQF_MWM_Cycle::calculatePhases(std::string TLid)
 {
-    std::map<std::string, laneInfoEntry> laneInfo = RSUptr->laneInfo;
+    // get all incoming lanes for this TL only
+    std::map<std::string /*lane*/, laneInfoEntry> laneInfo = RSUptr->laneInfo;
 
     if(laneInfo.empty())
         error("LaneInfo is empty! Is active detection on in %s ?", RSUptr->getFullName());
