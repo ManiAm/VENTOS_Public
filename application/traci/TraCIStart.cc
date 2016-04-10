@@ -154,9 +154,6 @@ void TraCI_Start::handleMessage(cMessage *msg)
 {
     TraCI_Commands::handleMessage(msg);
 
-    if (! msg->isSelfMessage())
-        error("TraCI_Start doesn't handle messages from other modules");
-
     if (msg == connectAndStartTrigger)
     {
         init_traci();
@@ -178,9 +175,7 @@ void TraCI_Start::handleMessage(cMessage *msg)
         scheduleAt(simTime() + updateInterval, executeOneTimestepTrigger);
     }
     else
-    {
         error("TraCI_Start received unknown self-message");
-    }
 }
 
 
@@ -192,12 +187,16 @@ void TraCI_Start::init_traci()
     if( !boost::filesystem::exists(SUMOexe) )
         error("SUMO executable not found at %s. Check SUMOexe variable!", SUMOexe.c_str());
 
+    std::string switches = "";
+    //" --start --no-step-log --quit-on-end"
+
+
     int seed = par("seed").longValue();
 
-    // start SUMO TraCI server
-    int port = TraCIConnection::startServer(SUMOexe, getSUMOConfigFullPath(), seed);
+    // start 'SUMO TraCI server' first
+    int port = TraCIConnection::startServer(SUMOexe, getSUMOConfigFullPath(), switches, seed);
 
-    // connect to SUMO TraCI server
+    // then connect to the 'SUMO TraCI server'
     connection = TraCIConnection::connect(host.c_str(), port);
 
     // get the version of SUMO TraCI API
