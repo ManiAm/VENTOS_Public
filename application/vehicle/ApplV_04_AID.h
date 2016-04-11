@@ -28,12 +28,12 @@
 #ifndef ApplVAID_H
 #define ApplVAID_H
 
-#include "ApplV_03_System.h"
+#include "ApplV_03_DynamicRouting.h"
 #include "PlatoonMsg_m.h"
 
 namespace VENTOS {
 
-class ApplV_AID : public ApplVSystem
+class ApplV_AID : public ApplVDynamicRouting
 {
 public:
     ~ApplV_AID();
@@ -51,7 +51,7 @@ protected:
     LaneChangeMsg* prepareData(std::string, std::deque<std::string>);
 
 private:
-    typedef ApplVSystem super;
+    typedef ApplVDynamicRouting super;
 
 protected:
     // NED

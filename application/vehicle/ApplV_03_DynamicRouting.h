@@ -1,6 +1,7 @@
 /****************************************************************************/
-/// @file    ApplV_03_System.h
+/// @file    ApplV_03_DynamicRouting.h
 /// @author  Dylan Smith <dilsmith@ucdavis.edu>
+/// @author  Huajun Chai <hjchai@ucdavis.edu>
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @date    August 2013
 ///
@@ -25,8 +26,8 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef ApplVSystem_H
-#define ApplVSystem_H
+#ifndef ApplVDYNAMICROUTING_H
+#define ApplVDYNAMICROUTING_H
 
 #include "ApplV_02_Beacon.h"
 #include "Router.h"
@@ -37,10 +38,10 @@ namespace VENTOS {
 class Router;
 class Hypertree;
 
-class ApplVSystem : public ApplVBeacon
+class ApplVDynamicRouting : public ApplVBeacon
 {
 public:
-    ~ApplVSystem();
+    ~ApplVDynamicRouting();
     virtual void initialize(int stage);
     virtual void finish();
     virtual void receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj);

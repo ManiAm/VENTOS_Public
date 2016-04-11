@@ -1,6 +1,7 @@
 /****************************************************************************/
-/// @file    ApplV_03_System.h
+/// @file    ApplV_03_DynamicRouting.cc
 /// @author  Dylan Smith <dilsmith@ucdavis.edu>
+/// @author  Huajun Chai <hjchai@ucdavis.edu>
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @date    August 2013
 ///
@@ -25,20 +26,20 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "ApplV_03_System.h"
+#include "ApplV_03_DynamicRouting.h"
 #include "SignalObj.h"
 
 namespace VENTOS {
 
-Define_Module(VENTOS::ApplVSystem);
+Define_Module(VENTOS::ApplVDynamicRouting);
 
-ApplVSystem::~ApplVSystem()
+ApplVDynamicRouting::~ApplVDynamicRouting()
 {
 
 }
 
 
-void ApplVSystem::initialize(int stage)
+void ApplVDynamicRouting::initialize(int stage)
 {
     super::initialize(stage);
 
@@ -113,7 +114,7 @@ void ApplVSystem::initialize(int stage)
 }
 
 
-void ApplVSystem::finish()
+void ApplVDynamicRouting::finish()
 {
     super::finish();
 
@@ -143,7 +144,7 @@ void ApplVSystem::finish()
     simulation.getSystemModule()->unsubscribe("system",this);
 }
 
-void ApplVSystem::handleSelfMsg(cMessage* msg)  //Internal messages to self
+void ApplVDynamicRouting::handleSelfMsg(cMessage* msg)  //Internal messages to self
 {
     super::handleSelfMsg(msg);    //Pass it down
 
@@ -158,7 +159,7 @@ void ApplVSystem::handleSelfMsg(cMessage* msg)  //Internal messages to self
     }
 }
 
-void ApplVSystem::reroute()
+void ApplVDynamicRouting::reroute()
 {
     if(ev.isGUI() && debugLevel > 1)
     {
@@ -181,7 +182,7 @@ void ApplVSystem::reroute()
     }
 }
 
-void ApplVSystem::receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj) //Ran upon receiving signals
+void ApplVDynamicRouting::receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj) //Ran upon receiving signals
 {
     if(signalID == Signal_router)   //If the signal is of type router
     {
@@ -217,7 +218,7 @@ void ApplVSystem::receiveSignal(cComponent *source, simsignal_t signalID, cObjec
 
 
 // is called, every time the position of vehicle changes
-void ApplVSystem::handlePositionUpdate(cObject* obj)
+void ApplVDynamicRouting::handlePositionUpdate(cObject* obj)
 {
     super::handlePositionUpdate(obj);
 }
