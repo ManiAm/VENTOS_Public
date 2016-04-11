@@ -78,6 +78,8 @@ class LoopDetectors : public TrafficLightBase
     void saveLDsData();
 
   private:
+    typedef TrafficLightBase super;
+
     bool collectInductionLoopData;
     std::list<std::string> AllLDs;
     std::vector<LoopDetectorData> Vec_loopDetectors;

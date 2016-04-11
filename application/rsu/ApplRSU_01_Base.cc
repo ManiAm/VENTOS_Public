@@ -39,7 +39,7 @@ ApplRSUBase::~ApplRSUBase()
 
 void ApplRSUBase::initialize(int stage)
 {
-    BaseApplLayer::initialize(stage);
+    super::initialize(stage);
 
     if (stage==0)
     {
@@ -99,7 +99,7 @@ void ApplRSUBase::initialize(int stage)
 
 void ApplRSUBase::finish()
 {
-    BaseApplLayer::finish();
+    super::finish();
 
     // unsubscribe
     simulation.getSystemModule()->unsubscribe("executeEachTS", this);

@@ -51,6 +51,8 @@ private:
     std::string generateBeacon(int);
 
 private:
+    typedef SniffBluetoothLE super;
+
     // NED variables
     bool BLE_advertisement;
 };

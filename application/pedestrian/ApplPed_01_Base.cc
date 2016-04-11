@@ -38,7 +38,7 @@ ApplPedBase::~ApplPedBase()
 
 void ApplPedBase::initialize(int stage)
 {
-	BaseApplLayer::initialize(stage);
+	super::initialize(stage);
 
 	if (stage==0)
 	{

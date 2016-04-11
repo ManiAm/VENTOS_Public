@@ -75,6 +75,9 @@ protected:
 
     int TLControlMode = -1;
     double minGreenTime = -1;
+
+private:
+    typedef BaseApplLayer super;
 };
 
 }

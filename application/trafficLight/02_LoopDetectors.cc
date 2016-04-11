@@ -41,7 +41,7 @@ LoopDetectors::~LoopDetectors()
 
 void LoopDetectors::initialize(int stage)
 {
-    TrafficLightBase::initialize(stage);
+    super::initialize(stage);
 
     if(stage == 0)
     {
@@ -54,7 +54,7 @@ void LoopDetectors::initialize(int stage)
 
 void LoopDetectors::finish()
 {
-    TrafficLightBase::finish();
+    super::finish();
 
     if(collectInductionLoopData)
         saveLDsData();
@@ -63,13 +63,13 @@ void LoopDetectors::finish()
 
 void LoopDetectors::handleMessage(cMessage *msg)
 {
-    TrafficLightBase::handleMessage(msg);
+    super::handleMessage(msg);
 }
 
 
 void LoopDetectors::executeFirstTimeStep()
 {
-    TrafficLightBase::executeFirstTimeStep();
+    super::executeFirstTimeStep();
 
     if(collectInductionLoopData)
         AllLDs = TraCI->LDGetIDList();   // get all loop detectors
@@ -78,7 +78,7 @@ void LoopDetectors::executeFirstTimeStep()
 
 void LoopDetectors::executeEachTimeStep()
 {
-    TrafficLightBase::executeEachTimeStep();
+    super::executeEachTimeStep();
 
     if(collectInductionLoopData)
         collectLDsData();    // collecting induction loop data in each timeStep

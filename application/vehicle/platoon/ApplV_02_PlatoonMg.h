@@ -68,7 +68,6 @@ protected:
     void dissolvePlatoon();
 
 private:
-
     enum uCommands
     {
         MERGE_REQ, MERGE_ACCEPT, MERGE_REJECT, MERGE_DONE,
@@ -198,6 +197,8 @@ protected:
     states vehicleState;
 
 private:
+    typedef ApplVPlatoonFormed super;
+
     bool busy;
 
     // entry

@@ -48,6 +48,7 @@ class TrafficLight_FMSC : public TrafficLight_LQF_MWM_Cycle
     void chooseNextGreenInterval();
 
   private:
+    typedef TrafficLight_LQF_MWM_Cycle super;
     double nextGreenTime;
 };
 

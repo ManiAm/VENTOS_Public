@@ -45,6 +45,8 @@ class TrafficLightManager : public TrafficLightRouter
     void virtual executeEachTimeStep();
 
   private:
+    typedef TrafficLightRouter super;
+
     simsignal_t Signal_executeFirstTS;
     simsignal_t Signal_executeEachTS;
 };

@@ -59,6 +59,8 @@ protected:
     std::vector< std::vector<int> > allMovements;
 
 private:
+    typedef IntersectionDelay super;
+
     int LINKSIZE;
     boost::filesystem::path movementsFilePath;
 };

@@ -39,7 +39,7 @@ TrafficLightManager::~TrafficLightManager()
 
 void TrafficLightManager::initialize(int stage)
 {
-    TrafficLightRouter::initialize(stage);
+    super::initialize(stage);
 
     if(stage == 0)
     {
@@ -54,7 +54,7 @@ void TrafficLightManager::initialize(int stage)
 
 void TrafficLightManager::finish()
 {
-    TrafficLightRouter::finish();
+    super::finish();
 
     // unsubscribe
     simulation.getSystemModule()->unsubscribe("executeFirstTS", this);
@@ -64,7 +64,7 @@ void TrafficLightManager::finish()
 
 void TrafficLightManager::handleMessage(cMessage *msg)
 {
-    TrafficLightRouter::handleMessage(msg);
+    super::handleMessage(msg);
 
 }
 
@@ -87,7 +87,7 @@ void TrafficLightManager::receiveSignal(cComponent *source, simsignal_t signalID
 void TrafficLightManager::executeFirstTimeStep()
 {
     // call parent
-    TrafficLightRouter::executeFirstTimeStep();
+    super::executeFirstTimeStep();
 
     // check if the TLControlMode number is valid?
     if(TLControlMode < 0 || TLControlMode > 10)
@@ -100,7 +100,7 @@ void TrafficLightManager::executeFirstTimeStep()
 void TrafficLightManager::executeEachTimeStep()
 {
     // call parent
-    TrafficLightRouter::executeEachTimeStep();
+    super::executeEachTimeStep();
 }
 
 }

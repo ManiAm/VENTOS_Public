@@ -39,7 +39,7 @@ ApplVPlatoonFormed::~ApplVPlatoonFormed()
 
 void ApplVPlatoonFormed::initialize(int stage)
 {
-    ApplV_AID::initialize(stage);
+    super::initialize(stage);
 
 	if (stage == 0)
 	{
@@ -66,21 +66,21 @@ void ApplVPlatoonFormed::initialize(int stage)
 
 void ApplVPlatoonFormed::finish()
 {
-    ApplV_AID::finish();
+    super::finish();
 }
 
 
 void ApplVPlatoonFormed::handleSelfMsg(cMessage* msg)
 {
     // pass it down!
-    ApplV_AID::handleSelfMsg(msg);
+    super::handleSelfMsg(msg);
 }
 
 
 void ApplVPlatoonFormed::onBeaconVehicle(BeaconVehicle* wsm)
 {
     // pass it down!
-    ApplV_AID::onBeaconVehicle(wsm);
+    super::onBeaconVehicle(wsm);
 
     if(plnMode != platoonFormed)
         return;
@@ -116,14 +116,14 @@ void ApplVPlatoonFormed::onBeaconVehicle(BeaconVehicle* wsm)
 void ApplVPlatoonFormed::onBeaconRSU(BeaconRSU* wsm)
 {
     // pass it down!
-    ApplV_AID::onBeaconRSU(wsm);
+    super::onBeaconRSU(wsm);
 }
 
 
 void ApplVPlatoonFormed::onData(PlatoonMsg* wsm)
 {
     // pass it down!
-    ApplV_AID::onData(wsm);
+    super::onData(wsm);
 }
 
 
@@ -131,7 +131,7 @@ void ApplVPlatoonFormed::onData(PlatoonMsg* wsm)
 void ApplVPlatoonFormed::handlePositionUpdate(cObject* obj)
 {
     // pass it down!
-    ApplV_AID::handlePositionUpdate(obj);
+    super::handlePositionUpdate(obj);
 }
 
 }

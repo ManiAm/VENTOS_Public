@@ -60,6 +60,8 @@ class TrafficLightActuated : public TrafficLightWebster
     std::string phase4_8 = "grgrrgGgGrgrgrrgGgGrGrGr";
 
   private:
+    typedef TrafficLightWebster super;
+
     // NED variables
     double passageTime;
     bool greenExtension;

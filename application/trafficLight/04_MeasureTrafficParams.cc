@@ -41,7 +41,7 @@ MeasureTrafficParams::~MeasureTrafficParams()
 
 void MeasureTrafficParams::initialize(int stage)
 {
-    TrafficLights::initialize(stage);
+    super::initialize(stage);
 
     if(stage == 0)
     {
@@ -76,7 +76,7 @@ void MeasureTrafficParams::initialize(int stage)
 
 void MeasureTrafficParams::finish()
 {
-    TrafficLights::finish();
+    super::finish();
 
     if(collectTLQueuingData)
         saveTLQueueingData();
@@ -85,13 +85,13 @@ void MeasureTrafficParams::finish()
 
 void MeasureTrafficParams::handleMessage(cMessage *msg)
 {
-    TrafficLights::handleMessage(msg);
+    super::handleMessage(msg);
 }
 
 
 void MeasureTrafficParams::executeFirstTimeStep()
 {
-    TrafficLights::executeFirstTimeStep();
+    super::executeFirstTimeStep();
 
     // for each traffic light
     for (auto &it : TLList)
@@ -154,7 +154,7 @@ void MeasureTrafficParams::executeFirstTimeStep()
 
 void MeasureTrafficParams::executeEachTimeStep()
 {
-    TrafficLights::executeEachTimeStep();
+    super::executeEachTimeStep();
 
     if(measureIntersectionQueue || measureTrafficDemand)
         measureTrafficParameters();

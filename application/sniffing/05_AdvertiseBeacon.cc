@@ -41,7 +41,7 @@ AdvertiseBeacon::~AdvertiseBeacon()
 
 void AdvertiseBeacon::initialize(int stage)
 {
-    SniffBluetoothLE::initialize(stage);
+    super::initialize(stage);
 
     if(stage == 0)
     {
@@ -55,28 +55,28 @@ void AdvertiseBeacon::initialize(int stage)
 
 void AdvertiseBeacon::finish()
 {
-    SniffBluetoothLE::finish();
+    super::finish();
 
 }
 
 
 void AdvertiseBeacon::handleMessage(cMessage *msg)
 {
-    SniffBluetoothLE::handleMessage(msg);
+    super::handleMessage(msg);
 
 }
 
 
 void AdvertiseBeacon::executeFirstTimeStep()
 {
-    SniffBluetoothLE::executeFirstTimeStep();
+    super::executeFirstTimeStep();
 
 }
 
 
 void AdvertiseBeacon::executeEachTimestep()
 {
-    SniffBluetoothLE::executeEachTimestep();
+    super::executeEachTimestep();
 
     // run this code only once
     static bool wasExecuted = false;

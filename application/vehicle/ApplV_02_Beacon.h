@@ -51,6 +51,9 @@ protected:
 private:
     BeaconVehicle* prepareBeacon();
 
+private:
+    typedef ApplVBase super;
+
 protected:
     // NED
     bool VANETenabled;

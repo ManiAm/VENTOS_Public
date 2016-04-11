@@ -40,7 +40,7 @@ TrafficLightAllowedMoves::~TrafficLightAllowedMoves()
 
 void TrafficLightAllowedMoves::initialize(int stage)
 {
-    IntersectionDelay::initialize(stage);
+    super::initialize(stage);
 
     if(stage == 0)
     {
@@ -51,25 +51,25 @@ void TrafficLightAllowedMoves::initialize(int stage)
 
 void TrafficLightAllowedMoves::finish()
 {
-    IntersectionDelay::finish();
+    super::finish();
 }
 
 
 void TrafficLightAllowedMoves::handleMessage(cMessage *msg)
 {
-    IntersectionDelay::handleMessage(msg);
+    super::handleMessage(msg);
 }
 
 
 void TrafficLightAllowedMoves::executeFirstTimeStep()
 {
-    IntersectionDelay::executeFirstTimeStep();
+    super::executeFirstTimeStep();
 }
 
 
 void TrafficLightAllowedMoves::executeEachTimeStep()
 {
-    IntersectionDelay::executeEachTimeStep();
+    super::executeEachTimeStep();
 }
 
 

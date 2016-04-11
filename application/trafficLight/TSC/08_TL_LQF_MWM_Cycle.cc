@@ -67,7 +67,7 @@ TrafficLight_LQF_MWM_Cycle::~TrafficLight_LQF_MWM_Cycle()
 
 void TrafficLight_LQF_MWM_Cycle::initialize(int stage)
 {
-    TrafficLight_LQF_MWM_Aging::initialize(stage);
+    super::initialize(stage);
 
     if(TLControlMode != TL_LQF_MWM_Cycle)
         return;
@@ -82,13 +82,13 @@ void TrafficLight_LQF_MWM_Cycle::initialize(int stage)
 
 void TrafficLight_LQF_MWM_Cycle::finish()
 {
-    TrafficLight_LQF_MWM_Aging::finish();
+    super::finish();
 }
 
 
 void TrafficLight_LQF_MWM_Cycle::handleMessage(cMessage *msg)
 {
-    TrafficLight_LQF_MWM_Aging::handleMessage(msg);
+    super::handleMessage(msg);
 
     if(TLControlMode != TL_LQF_MWM_Cycle)
         return;
@@ -112,7 +112,7 @@ void TrafficLight_LQF_MWM_Cycle::handleMessage(cMessage *msg)
 void TrafficLight_LQF_MWM_Cycle::executeFirstTimeStep()
 {
     // call parent
-    TrafficLight_LQF_MWM_Aging::executeFirstTimeStep();
+    super::executeFirstTimeStep();
 
     if(TLControlMode != TL_LQF_MWM_Cycle)
         return;
@@ -161,7 +161,7 @@ void TrafficLight_LQF_MWM_Cycle::executeFirstTimeStep()
 void TrafficLight_LQF_MWM_Cycle::executeEachTimeStep()
 {
     // call parent
-    TrafficLight_LQF_MWM_Aging::executeEachTimeStep();
+    super::executeEachTimeStep();
 
     if(TLControlMode != TL_LQF_MWM_Cycle)
         return;

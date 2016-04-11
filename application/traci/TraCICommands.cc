@@ -50,7 +50,7 @@ TraCI_Commands::~TraCI_Commands()
 
 void TraCI_Commands::initialize(int stage)
 {
-    cSimpleModule::initialize(stage);
+    super::initialize(stage);
 
     if (stage == 0)
     {

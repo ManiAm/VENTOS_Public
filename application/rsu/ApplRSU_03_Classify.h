@@ -136,6 +136,8 @@ private:
     void saveClassificationResults();
 
 private:
+    typedef ApplRSUMonitor super;
+
     bool classifier;
     bool collectTrainingData = false;
     double trainError;

@@ -58,6 +58,9 @@ class ApplPedManager : public ApplPedBeacon
         bool SUMOvehicleDebug;
 
         static const simsignalwrap_t mobilityStateChangedSignal;
+
+	private:
+	    typedef ApplPedBeacon super;
 };
 
 }

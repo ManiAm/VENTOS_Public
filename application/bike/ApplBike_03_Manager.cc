@@ -41,7 +41,7 @@ ApplBikeManager::~ApplBikeManager()
 
 void ApplBikeManager::initialize(int stage)
 {
-    ApplBikeBeacon::initialize(stage);
+    super::initialize(stage);
 
 	if (stage == 0)
 	{
@@ -53,7 +53,7 @@ void ApplBikeManager::initialize(int stage)
 
 void ApplBikeManager::finish()
 {
-    ApplBikeBeacon::finish();
+    super::finish();
 
     //findHost()->unsubscribe(mobilityStateChangedSignal, this);
 }
@@ -72,7 +72,7 @@ void ApplBikeManager::receiveSignal(cComponent* source, simsignal_t signalID, cO
 
 void ApplBikeManager::handleSelfMsg(cMessage* msg)
 {
-    ApplBikeBeacon::handleSelfMsg(msg);
+    super::handleSelfMsg(msg);
 }
 
 
@@ -109,7 +109,7 @@ void ApplBikeManager::handleLowerMsg(cMessage* msg)
 // is called, every time the position of vehicle changes
 void ApplBikeManager::handlePositionUpdate(cObject* obj)
 {
-    ApplBikeBeacon::handlePositionUpdate(obj);
+    super::handlePositionUpdate(obj);
 
     ChannelMobilityPtrType const mobility = check_and_cast<ChannelMobilityPtrType>(obj);
     curPosition = mobility->getCurrentPosition();
@@ -119,7 +119,7 @@ void ApplBikeManager::handlePositionUpdate(cObject* obj)
 void ApplBikeManager::onBeaconVehicle(BeaconVehicle* wsm)
 {
     // pass it down
-    //ApplBikeBeacon::onBeaconVehicle(wsm);
+    //super::onBeaconVehicle(wsm);
 
 }
 
@@ -127,14 +127,14 @@ void ApplBikeManager::onBeaconVehicle(BeaconVehicle* wsm)
 void ApplBikeManager::onBeaconRSU(BeaconRSU* wsm)
 {
     // pass it down
-    //ApplBikeBeacon::onBeaconRSU(wsm);
+    //super::onBeaconRSU(wsm);
 }
 
 
 void ApplBikeManager::onData(PlatoonMsg* wsm)
 {
     // pass it down
-    //ApplBikeBeacon::onData(wsm);
+    //super::onData(wsm);
 }
 
 

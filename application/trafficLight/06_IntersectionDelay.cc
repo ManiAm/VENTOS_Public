@@ -40,7 +40,7 @@ IntersectionDelay::~IntersectionDelay()
 
 void IntersectionDelay::initialize(int stage)
 {
-    TLStateRecord::initialize(stage);
+    super::initialize(stage);
 
     if(stage == 0)
     {
@@ -67,7 +67,7 @@ void IntersectionDelay::initialize(int stage)
 
 void IntersectionDelay::finish()
 {
-    TLStateRecord::finish();
+    super::finish();
 
     if(collectVehDelay)
         vehiclesDelayToFile();
@@ -76,14 +76,14 @@ void IntersectionDelay::finish()
 
 void IntersectionDelay::handleMessage(cMessage *msg)
 {
-    TLStateRecord::handleMessage(msg);
+    super::handleMessage(msg);
 }
 
 
 void IntersectionDelay::executeFirstTimeStep()
 {
     // call parent
-    TLStateRecord::executeFirstTimeStep();
+    super::executeFirstTimeStep();
 
     // get all lanes in the network
     lanesList = TraCI->laneGetIDList();
@@ -102,7 +102,7 @@ void IntersectionDelay::executeFirstTimeStep()
 void IntersectionDelay::executeEachTimeStep()
 {
     // call parent
-    TLStateRecord::executeEachTimeStep();
+    super::executeEachTimeStep();
 
     if(collectVehDelay)
         vehiclesDelay();

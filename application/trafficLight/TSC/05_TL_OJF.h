@@ -48,6 +48,7 @@ class TrafficLightOJF : public TrafficLightLQF_NoStarv
     void chooseNextGreenInterval();
 
   private:
+    typedef TrafficLightLQF_NoStarv super;
     double nextGreenTime;
 };
 

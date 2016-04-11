@@ -41,7 +41,7 @@ ApplPedManager::~ApplPedManager()
 
 void ApplPedManager::initialize(int stage)
 {
-    ApplPedBeacon::initialize(stage);
+    super::initialize(stage);
 
 	if (stage == 0)
 	{
@@ -53,7 +53,7 @@ void ApplPedManager::initialize(int stage)
 
 void ApplPedManager::finish()
 {
-    ApplPedBeacon::finish();
+    super::finish();
 
     // findHost()->unsubscribe(mobilityStateChangedSignal, this);
 }
@@ -72,7 +72,7 @@ void ApplPedManager::receiveSignal(cComponent* source, simsignal_t signalID, cOb
 
 void ApplPedManager::handleSelfMsg(cMessage* msg)
 {
-    ApplPedBeacon::handleSelfMsg(msg);
+    super::handleSelfMsg(msg);
 }
 
 
@@ -108,7 +108,7 @@ void ApplPedManager::handleLowerMsg(cMessage* msg)
 void ApplPedManager::handlePositionUpdate(cObject* obj)
 {
     // pass it down
-    ApplPedBeacon::handlePositionUpdate(obj);
+    super::handlePositionUpdate(obj);
 
     ChannelMobilityPtrType const mobility = check_and_cast<ChannelMobilityPtrType>(obj);
     curPosition = mobility->getCurrentPosition();
@@ -118,21 +118,21 @@ void ApplPedManager::handlePositionUpdate(cObject* obj)
 void ApplPedManager::onBeaconVehicle(BeaconVehicle* wsm)
 {
     // pass it down
-    //ApplPedBeacon::onBeaconVehicle(wsm);
+    //super::onBeaconVehicle(wsm);
 }
 
 
 void ApplPedManager::onBeaconRSU(BeaconRSU* wsm)
 {
     // pass it down
-    //ApplPedBeacon::onBeaconRSU(wsm);
+    //super::onBeaconRSU(wsm);
 }
 
 
 void ApplPedManager::onData(PlatoonMsg* wsm)
 {
     // pass it down
-    //ApplPedBeacon::onData(wsm);
+    //super::onData(wsm);
 }
 
 

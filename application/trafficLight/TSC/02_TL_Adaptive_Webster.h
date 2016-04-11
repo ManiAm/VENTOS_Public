@@ -57,6 +57,8 @@ class TrafficLightWebster : public TrafficLightFixed
     cMessage* intervalChangeEVT;
 
   private:
+    typedef TrafficLightFixed super;
+
     std::string phase1_5 = "grgrGgrgrrgrgrGgrgrrrrrr";
     std::string phase2_6 = "gGgGrgrgrrgGgGrgrgrrrGrG";
     std::string phase3_7 = "grgrrgrgrGgrgrrgrgrGrrrr";

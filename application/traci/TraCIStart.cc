@@ -62,7 +62,7 @@ TraCI_Start::~TraCI_Start()
 
 void TraCI_Start::initialize(int stage)
 {
-    TraCI_Commands::initialize(stage);
+    super::initialize(stage);
 
     if (stage == 1)
     {
@@ -137,7 +137,7 @@ void TraCI_Start::initialize(int stage)
 
 void TraCI_Start::finish()
 {
-    TraCI_Commands::finish();
+    super::finish();
 
     if(collectVehiclesData)
         vehiclesDataToFile();
@@ -152,7 +152,7 @@ void TraCI_Start::finish()
 
 void TraCI_Start::handleMessage(cMessage *msg)
 {
-    TraCI_Commands::handleMessage(msg);
+    super::handleMessage(msg);
 
     if (msg == connectAndStartTrigger)
     {

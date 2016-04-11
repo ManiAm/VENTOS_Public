@@ -39,7 +39,7 @@ ApplBikeBeacon::~ApplBikeBeacon()
 
 void ApplBikeBeacon::initialize(int stage)
 {
-    ApplBikeBase::initialize(stage);
+    super::initialize(stage);
 
     if (stage == 0)
     {
@@ -75,7 +75,7 @@ void ApplBikeBeacon::initialize(int stage)
 
 void ApplBikeBeacon::finish()
 {
-    ApplBikeBase::finish();
+    super::finish();
 
     if (BicycleBeaconEvt->isScheduled())
     {
@@ -90,7 +90,7 @@ void ApplBikeBeacon::finish()
 
 void ApplBikeBeacon::handleSelfMsg(cMessage* msg)
 {
-    ApplBikeBase::handleSelfMsg(msg);
+    super::handleSelfMsg(msg);
 
     if (msg == BicycleBeaconEvt)
     {
@@ -167,7 +167,7 @@ BeaconBicycle*  ApplBikeBeacon::prepareBeacon()
 // is called, every time the position of bicycle changes
 void ApplBikeBeacon::handlePositionUpdate(cObject* obj)
 {
-    ApplBikeBase::handlePositionUpdate(obj);
+    super::handlePositionUpdate(obj);
 }
 
 }

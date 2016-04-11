@@ -60,6 +60,10 @@ protected:
     int TLControlMode;
     int debugLevel;
     double updateInterval;
+
+private:
+    typedef BaseApplLayer super;
+
 };
 
 }

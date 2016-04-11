@@ -73,7 +73,7 @@ SniffBluetoothDump::~SniffBluetoothDump()
 
 void SniffBluetoothDump::initialize(int stage)
 {
-    AdvertiseBeacon::initialize(stage);
+    super::initialize(stage);
 
     if(stage == 0)
     {
@@ -91,14 +91,14 @@ void SniffBluetoothDump::initialize(int stage)
 
 void SniffBluetoothDump::finish()
 {
-    AdvertiseBeacon::finish();
+    super::finish();
 
 }
 
 
 void SniffBluetoothDump::handleMessage(cMessage *msg)
 {
-    AdvertiseBeacon::handleMessage(msg);
+    super::handleMessage(msg);
 
 }
 
@@ -120,14 +120,14 @@ void SniffBluetoothDump::receiveSignal(cComponent *source, simsignal_t signalID,
 
 void SniffBluetoothDump::executeFirstTimeStep()
 {
-    AdvertiseBeacon::executeFirstTimeStep();
+    super::executeFirstTimeStep();
 
 }
 
 
 void SniffBluetoothDump::executeEachTimestep()
 {
-    AdvertiseBeacon::executeEachTimestep();
+    super::executeEachTimestep();
 
     // run this code only once
     static bool wasExecuted = false;

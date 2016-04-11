@@ -41,7 +41,7 @@ TrafficLightActuated::~TrafficLightActuated()
 
 void TrafficLightActuated::initialize(int stage)
 {
-    TrafficLightWebster::initialize(stage);
+    super::initialize(stage);
 
     if(TLControlMode != TL_TrafficActuated)
         return;
@@ -59,13 +59,13 @@ void TrafficLightActuated::initialize(int stage)
 
 void TrafficLightActuated::finish()
 {
-    TrafficLightWebster::finish();
+    super::finish();
 }
 
 
 void TrafficLightActuated::handleMessage(cMessage *msg)
 {
-    TrafficLightWebster::handleMessage(msg);
+    super::handleMessage(msg);
 
     if(TLControlMode != TL_TrafficActuated)
         return;
@@ -86,7 +86,7 @@ void TrafficLightActuated::handleMessage(cMessage *msg)
 void TrafficLightActuated::executeFirstTimeStep()
 {
     // call parent
-    TrafficLightWebster::executeFirstTimeStep();
+    super::executeFirstTimeStep();
 
     if(TLControlMode != TL_TrafficActuated)
         return;
@@ -156,7 +156,7 @@ void TrafficLightActuated::executeFirstTimeStep()
 void TrafficLightActuated::executeEachTimeStep()
 {
     // call parent
-    TrafficLightWebster::executeEachTimeStep();
+    super::executeEachTimeStep();
 
     if(TLControlMode != TL_TrafficActuated)
         return;

@@ -40,7 +40,7 @@ ApplVSystem::~ApplVSystem()
 
 void ApplVSystem::initialize(int stage)
 {
-    ApplVBeacon::initialize(stage);
+    super::initialize(stage);
 
     if(SUMOType == "TypeDummy")
         requestRoutes = false;
@@ -115,7 +115,7 @@ void ApplVSystem::initialize(int stage)
 
 void ApplVSystem::finish()
 {
-    ApplVBeacon::finish();
+    super::finish();
 
     if(!requestRoutes)
         return;
@@ -145,7 +145,7 @@ void ApplVSystem::finish()
 
 void ApplVSystem::handleSelfMsg(cMessage* msg)  //Internal messages to self
 {
-    ApplVBeacon::handleSelfMsg(msg);    //Pass it down
+    super::handleSelfMsg(msg);    //Pass it down
 
     if(!requestRoutes)
         return;
@@ -210,13 +210,16 @@ void ApplVSystem::receiveSignal(cComponent *source, simsignal_t signalID, cObjec
             }
         }
     }
+    // pass it up, if we do not know how to handle the signal
+    else
+        super::receiveSignal(source, signalID, obj);
 }
 
 
 // is called, every time the position of vehicle changes
 void ApplVSystem::handlePositionUpdate(cObject* obj)
 {
-    ApplVBeacon::handlePositionUpdate(obj);
+    super::handlePositionUpdate(obj);
 }
 
 }

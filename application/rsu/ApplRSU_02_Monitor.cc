@@ -49,7 +49,7 @@ ApplRSUMonitor::~ApplRSUMonitor()
 
 void ApplRSUMonitor::initialize(int stage)
 {
-    ApplRSUBase::initialize(stage);
+    super::initialize(stage);
 
     if (stage == 0)
     {
@@ -109,7 +109,7 @@ void ApplRSUMonitor::initialize(int stage)
 
 void ApplRSUMonitor::finish()
 {
-    ApplRSUBase::finish();
+    super::finish();
 
     // write to file at the end of simulation
     if(activeDetection && collectVehApproach)
@@ -119,13 +119,13 @@ void ApplRSUMonitor::finish()
 
 void ApplRSUMonitor::handleSelfMsg(cMessage* msg)
 {
-    ApplRSUBase::handleSelfMsg(msg);
+    super::handleSelfMsg(msg);
 }
 
 
 void ApplRSUMonitor::executeEachTimeStep()
 {
-    ApplRSUBase::executeEachTimeStep();
+    super::executeEachTimeStep();
 }
 
 

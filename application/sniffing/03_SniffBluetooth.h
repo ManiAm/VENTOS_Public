@@ -108,6 +108,8 @@ protected:
     SniffEthernet *EtherPtr;
 
 private:
+    typedef BaseApplLayer super;
+
     // NED variables
     bool listLocalDevices;
     bool BT_on;

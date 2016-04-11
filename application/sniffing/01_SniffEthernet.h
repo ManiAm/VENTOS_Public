@@ -99,6 +99,8 @@ private:
     void print_hex_ascii_line(const u_char *payload, int len, int offset);
 
 private:
+    typedef BaseApplLayer super;
+
     // NED variables
     bool on;
     std::string interface;

@@ -47,7 +47,7 @@ SniffBluetoothLE::~SniffBluetoothLE()
 
 void SniffBluetoothLE::initialize(int stage)
 {
-    SniffBluetooth::initialize(stage);
+    super::initialize(stage);
 
     if(stage == 0)
     {
@@ -64,28 +64,28 @@ void SniffBluetoothLE::initialize(int stage)
 
 void SniffBluetoothLE::finish()
 {
-    SniffBluetooth::finish();
+    super::finish();
 
 }
 
 
 void SniffBluetoothLE::handleMessage(cMessage *msg)
 {
-    SniffBluetooth::handleMessage(msg);
+    super::handleMessage(msg);
 
 }
 
 
 void SniffBluetoothLE::executeFirstTimeStep()
 {
-    SniffBluetooth::executeFirstTimeStep();
+    super::executeFirstTimeStep();
 
 }
 
 
 void SniffBluetoothLE::executeEachTimestep()
 {
-    SniffBluetooth::executeEachTimestep();
+    super::executeEachTimestep();
 
     // run this code only once
     static bool wasExecuted = false;

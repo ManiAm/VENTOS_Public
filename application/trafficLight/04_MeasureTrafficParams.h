@@ -134,6 +134,8 @@ protected:
     double saturationTD;
 
 private:
+    typedef TrafficLights super;
+
     // NED variables
     bool collectTLPhasingData;
     bool collectTLQueuingData;

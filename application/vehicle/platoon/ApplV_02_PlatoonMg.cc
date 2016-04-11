@@ -40,17 +40,17 @@ ApplVPlatoonMg::~ApplVPlatoonMg()
 
 void ApplVPlatoonMg::initialize(int stage)
 {
-    ApplVPlatoonFormed::initialize(stage);
+    super::initialize(stage);
 
-	if (stage == 0)
-	{
+    if (stage == 0)
+    {
         if(plnMode != platoonManagement)
             return;
 
-	    if(!VANETenabled)
-	        error("This vehicle is not VANET-enabled!");
+        if(!VANETenabled)
+            error("This vehicle is not VANET-enabled!");
 
-	    maxPlnSize = par("maxPlatoonSize").longValue();
+        maxPlnSize = par("maxPlatoonSize").longValue();
         optPlnSize = par("optPlatoonSize").longValue();
 
         adaptiveTG = par("adaptiveTG").boolValue();
@@ -124,13 +124,13 @@ void ApplVPlatoonMg::initialize(int stage)
         // used in dissolve
         // ----------------
         plnTIMER12 = new cMessage("wait for DISSOLVE ACK", KIND_TIMER);
-	}
+    }
 }
 
 
 void ApplVPlatoonMg::finish()
 {
-    ApplVPlatoonFormed::finish();
+    super::finish();
 }
 
 
@@ -138,14 +138,14 @@ void ApplVPlatoonMg::finish()
 void ApplVPlatoonMg::handlePositionUpdate(cObject* obj)
 {
     // pass it down!
-    ApplVPlatoonFormed::handlePositionUpdate(obj);
+    super::handlePositionUpdate(obj);
 }
 
 
 void ApplVPlatoonMg::handleSelfMsg(cMessage* msg)
 {
     // pass it down!
-    ApplVPlatoonFormed::handleSelfMsg(msg);
+    super::handleSelfMsg(msg);
 
     if(plnMode != platoonManagement)
         return;
@@ -163,7 +163,7 @@ void ApplVPlatoonMg::handleSelfMsg(cMessage* msg)
 void ApplVPlatoonMg::onBeaconVehicle(BeaconVehicle* wsm)
 {
     // pass it down!
-    ApplVPlatoonFormed::onBeaconVehicle(wsm);
+    super::onBeaconVehicle(wsm);
 
     if(plnMode != platoonManagement)
         return;
@@ -181,7 +181,7 @@ void ApplVPlatoonMg::onBeaconVehicle(BeaconVehicle* wsm)
 void ApplVPlatoonMg::onBeaconRSU(BeaconRSU* wsm)
 {
     // pass it down!
-    ApplVPlatoonFormed::onBeaconRSU(wsm);
+    super::onBeaconRSU(wsm);
 
     if(plnMode != platoonManagement)
         return;
@@ -191,7 +191,7 @@ void ApplVPlatoonMg::onBeaconRSU(BeaconRSU* wsm)
 void ApplVPlatoonMg::onData(PlatoonMsg* wsm)
 {
     // pass it down!
-    ApplVPlatoonFormed::onData(wsm);
+    super::onData(wsm);
 
     if(plnMode != platoonManagement)
         return;
@@ -281,24 +281,24 @@ void ApplVPlatoonMg::reportStateToStat()
 const std::string ApplVPlatoonMg::stateToStr(int s)
 {
     const char * statesStrings[] = {
-        "state_idle", "state_platoonLeader", "state_platoonFollower",
+            "state_idle", "state_platoonLeader", "state_platoonFollower",
 
-        "state_waitForLaneChange",
+            "state_waitForLaneChange",
 
-        "state_sendMergeReq", "state_waitForMergeReply", "state_mergeAccepted", "state_waitForCatchup",
-        "state_sendMergeDone", "state_notifyFollowers",
-        "state_state_waitForAllAcks", "state_sendMergeAccept",
-        "state_waitForMergeDone", "state_mergeDone",
+            "state_sendMergeReq", "state_waitForMergeReply", "state_mergeAccepted", "state_waitForCatchup",
+            "state_sendMergeDone", "state_notifyFollowers",
+            "state_state_waitForAllAcks", "state_sendMergeAccept",
+            "state_waitForMergeDone", "state_mergeDone",
 
-        "state_sendSplitReq", "state_waitForSplitReply", "state_makeItFreeAgent",
-        "state_waitForAck", "state_splitDone", "state_changePL", "state_waitForAllAcks2",
-        "state_waitForCHANGEPL", "state_sendingACK", "state_waitForSplitDone", "state_waitForGap",
+            "state_sendSplitReq", "state_waitForSplitReply", "state_makeItFreeAgent",
+            "state_waitForAck", "state_splitDone", "state_changePL", "state_waitForAllAcks2",
+            "state_waitForCHANGEPL", "state_sendingACK", "state_waitForSplitDone", "state_waitForGap",
 
-        "state_sendVoteLeader", "state_waitForVoteReply", "state_splitCompleted",
+            "state_sendVoteLeader", "state_waitForVoteReply", "state_splitCompleted",
 
-        "state_sendLeaveReq", "state_waitForLeaveReply", "state_secondSplit",
+            "state_sendLeaveReq", "state_waitForLeaveReply", "state_secondSplit",
 
-        "state_sendDissolve", "state_waitForDissolveAck",
+            "state_sendDissolve", "state_waitForDissolveAck",
     };
 
     return statesStrings[s];
@@ -316,12 +316,12 @@ void ApplVPlatoonMg::reportCommandToStat(PlatoonMsg* dataMsg)
 const std::string ApplVPlatoonMg::uCommandToStr(int c)
 {
     const char * uCommandStrings[] = {
-        "MERGE_REQ", "MERGE_ACCEPT", "MERGE_REJECT", "MERGE_DONE",
-        "SPLIT_REQ", "SPLIT_ACCEPT", "SPLIT_REJECT", "SPLIT_DONE",
-        "CHANGE_PL", "CHANGE_Tg",
-        "VOTE_LEADER", "ELECTED_LEADER", "DISSOLVE",
-        "LEAVE_REQ", "LEAVE_ACCEPT", "LEAVE_REJECT", "GAP_CREATED",
-        "ACK",
+            "MERGE_REQ", "MERGE_ACCEPT", "MERGE_REJECT", "MERGE_DONE",
+            "SPLIT_REQ", "SPLIT_ACCEPT", "SPLIT_REJECT", "SPLIT_DONE",
+            "CHANGE_PL", "CHANGE_Tg",
+            "VOTE_LEADER", "ELECTED_LEADER", "DISSOLVE",
+            "LEAVE_REQ", "LEAVE_ACCEPT", "LEAVE_REJECT", "GAP_CREATED",
+            "ACK",
     };
 
     return uCommandStrings[c];

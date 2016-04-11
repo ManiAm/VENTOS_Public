@@ -76,7 +76,7 @@ TrafficLight_FMSC::~TrafficLight_FMSC()
 
 void TrafficLight_FMSC::initialize(int stage)
 {
-    TrafficLight_LQF_MWM_Cycle::initialize(stage);
+    super::initialize(stage);
 
     if(TLControlMode != TL_FMSC)
         return;
@@ -90,13 +90,13 @@ void TrafficLight_FMSC::initialize(int stage)
 
 void TrafficLight_FMSC::finish()
 {
-    TrafficLight_LQF_MWM_Cycle::finish();
+    super::finish();
 }
 
 
 void TrafficLight_FMSC::handleMessage(cMessage *msg)
 {
-    TrafficLight_LQF_MWM_Cycle::handleMessage(msg);
+    super::handleMessage(msg);
 
     if(TLControlMode != TL_FMSC)
         return;
@@ -117,7 +117,7 @@ void TrafficLight_FMSC::handleMessage(cMessage *msg)
 void TrafficLight_FMSC::executeFirstTimeStep()
 {
     // call parent
-    TrafficLight_LQF_MWM_Cycle::executeFirstTimeStep();
+    super::executeFirstTimeStep();
 
     if(TLControlMode != TL_FMSC)
         return;
@@ -169,7 +169,7 @@ void TrafficLight_FMSC::executeFirstTimeStep()
 void TrafficLight_FMSC::executeEachTimeStep()
 {
     // call parent
-    TrafficLight_LQF_MWM_Cycle::executeEachTimeStep();
+    super::executeEachTimeStep();
 
     if(TLControlMode != TL_FMSC)
         return;

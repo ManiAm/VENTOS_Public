@@ -50,6 +50,9 @@ protected:
 
     LaneChangeMsg* prepareData(std::string, std::deque<std::string>);
 
+private:
+    typedef ApplVSystem super;
+
 protected:
     // NED
     bool AID;

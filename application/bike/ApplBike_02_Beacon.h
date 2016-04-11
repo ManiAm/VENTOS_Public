@@ -35,39 +35,42 @@ namespace VENTOS {
 
 class ApplBikeBeacon : public ApplBikeBase
 {
-	public:
-        ~ApplBikeBeacon();
-		virtual void initialize(int stage);
-        virtual void finish();
+public:
+    ~ApplBikeBeacon();
+    virtual void initialize(int stage);
+    virtual void finish();
 
-	protected:
-	        virtual void handleSelfMsg(cMessage*);
-	        virtual void handlePositionUpdate(cObject*);
+protected:
+    virtual void handleSelfMsg(cMessage*);
+    virtual void handlePositionUpdate(cObject*);
 
-	private:
-        BeaconBicycle* prepareBeacon();
+private:
+    BeaconBicycle* prepareBeacon();
 
-	protected:
-        // NED
-        bool VANETenabled;
+protected:
+    // NED
+    bool VANETenabled;
 
-        // NED variables (beaconing parameters)
-        bool sendBeacons;
-		double beaconInterval;
-		double maxOffset;
-        int beaconLengthBits;
-        int beaconPriority;
+    // NED variables (beaconing parameters)
+    bool sendBeacons;
+    double beaconInterval;
+    double maxOffset;
+    int beaconLengthBits;
+    int beaconPriority;
 
-        bool signalBeaconing;
+    bool signalBeaconing;
 
-        // NED variables (data message parameters)
-        int dataLengthBits;
-        bool dataOnSch;
-        int dataPriority;
+    // NED variables (data message parameters)
+    int dataLengthBits;
+    bool dataOnSch;
+    int dataPriority;
 
-        // Class variables
-        simtime_t individualOffset;
-        cMessage* BicycleBeaconEvt;
+    // Class variables
+    simtime_t individualOffset;
+    cMessage* BicycleBeaconEvt;
+
+private:
+    typedef ApplBikeBase super;
 };
 
 }

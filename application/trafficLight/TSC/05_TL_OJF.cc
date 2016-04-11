@@ -74,7 +74,7 @@ TrafficLightOJF::~TrafficLightOJF()
 
 void TrafficLightOJF::initialize(int stage)
 {
-    TrafficLightLQF_NoStarv::initialize(stage);
+    super::initialize(stage);
 
     if(TLControlMode != TL_OJF)
         return;
@@ -88,13 +88,13 @@ void TrafficLightOJF::initialize(int stage)
 
 void TrafficLightOJF::finish()
 {
-    TrafficLightLQF_NoStarv::finish();
+    super::finish();
 }
 
 
 void TrafficLightOJF::handleMessage(cMessage *msg)
 {
-    TrafficLightLQF_NoStarv::handleMessage(msg);
+    super::handleMessage(msg);
 
     if(TLControlMode != TL_OJF)
         return;
@@ -114,7 +114,7 @@ void TrafficLightOJF::handleMessage(cMessage *msg)
 
 void TrafficLightOJF::executeFirstTimeStep()
 {
-    TrafficLightLQF_NoStarv::executeFirstTimeStep();
+    super::executeFirstTimeStep();
 
     if(TLControlMode != TL_OJF)
         return;
@@ -156,7 +156,7 @@ void TrafficLightOJF::executeFirstTimeStep()
 
 void TrafficLightOJF::executeEachTimeStep()
 {
-    TrafficLightLQF_NoStarv::executeEachTimeStep();
+    super::executeEachTimeStep();
 
     if(TLControlMode != TL_OJF)
         return;

@@ -39,6 +39,7 @@ class ApplRSUCRL : public ApplRSUAID
     virtual ~ApplRSUCRL();
     virtual void initialize(int);
     virtual void finish();
+    virtual void receiveSignal(cComponent *, simsignal_t, cObject *);
 	virtual void handleSelfMsg(cMessage *);
 
   protected:
@@ -63,6 +64,8 @@ class ApplRSUCRL : public ApplRSUAID
     int IsExist(int);
 
   private:
+    typedef ApplRSUAID super;
+
     // parameters
     int CRLdistAlg;
     double CRL_Interval;
@@ -74,6 +77,8 @@ class ApplRSUCRL : public ApplRSUAID
 	cMessage *Timer1;   // beacon
 	cMessage *Timer2;   // CRL_Interval
 	cMessage *Timer3;
+
+    simsignal_t Signal_CRL_pieces;
 
 	int totalPieces = -1;
     unsigned int forCounter = 0;  // save forCounter between calls

@@ -69,6 +69,9 @@ protected:
     // Class variables
     simtime_t individualOffset;
     cMessage* PedestrianBeaconEvt;
+
+private:
+    typedef ApplPedBase super;
 };
 
 }

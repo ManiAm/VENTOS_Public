@@ -41,7 +41,7 @@ TrafficLights::~TrafficLights()
 
 void TrafficLights::initialize(int stage)
 {
-    LoopDetectors::initialize(stage);
+    super::initialize(stage);
 
     if(stage == 0)
     {
@@ -58,19 +58,19 @@ void TrafficLights::initialize(int stage)
 
 void TrafficLights::finish()
 {
-    LoopDetectors::finish();
+    super::finish();
 }
 
 
 void TrafficLights::handleMessage(cMessage *msg)
 {
-    LoopDetectors::handleMessage(msg);
+    super::handleMessage(msg);
 }
 
 
 void TrafficLights::executeFirstTimeStep()
 {
-    LoopDetectors::executeFirstTimeStep();
+    super::executeFirstTimeStep();
 
     TLList = TraCI->TLGetIDList();
 
@@ -130,7 +130,7 @@ void TrafficLights::executeFirstTimeStep()
 
 void TrafficLights::executeEachTimeStep()
 {
-    LoopDetectors::executeEachTimeStep();
+    super::executeEachTimeStep();
 
 }
 

@@ -103,7 +103,7 @@ TrafficLightLQF_NoStarv::~TrafficLightLQF_NoStarv()
 
 void TrafficLightLQF_NoStarv::initialize(int stage)
 {
-    TrafficLightActuated::initialize(stage);
+    super::initialize(stage);
 
     if(TLControlMode != TL_LQF)
         return;
@@ -126,13 +126,13 @@ void TrafficLightLQF_NoStarv::initialize(int stage)
 
 void TrafficLightLQF_NoStarv::finish()
 {
-    TrafficLightActuated::finish();
+    super::finish();
 }
 
 
 void TrafficLightLQF_NoStarv::handleMessage(cMessage *msg)
 {
-    TrafficLightActuated::handleMessage(msg);
+    super::handleMessage(msg);
 
     if(TLControlMode != TL_LQF)
         return;
@@ -155,7 +155,7 @@ void TrafficLightLQF_NoStarv::handleMessage(cMessage *msg)
 
 void TrafficLightLQF_NoStarv::executeFirstTimeStep()
 {
-    TrafficLightActuated::executeFirstTimeStep();
+    super::executeFirstTimeStep();
 
     if(TLControlMode != TL_LQF)
         return;
@@ -198,7 +198,7 @@ void TrafficLightLQF_NoStarv::executeFirstTimeStep()
 
 void TrafficLightLQF_NoStarv::executeEachTimeStep()
 {
-    TrafficLightActuated::executeEachTimeStep();
+    super::executeEachTimeStep();
 
     if(TLControlMode != TL_LQF)
         return;

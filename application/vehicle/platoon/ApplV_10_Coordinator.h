@@ -59,6 +59,8 @@ private:
     void scenario8();
     void scenario9();
 
+private:
+    typedef ApplVPlatoonMg super;
     int coordinationMode;
     cMessage* platoonCoordination;
     static double stopTime;

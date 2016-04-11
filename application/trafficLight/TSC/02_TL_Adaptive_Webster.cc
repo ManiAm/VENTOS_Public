@@ -40,7 +40,7 @@ TrafficLightWebster::~TrafficLightWebster()
 
 void TrafficLightWebster::initialize(int stage)
 {
-    TrafficLightFixed::initialize(stage);
+    super::initialize(stage);
 
     if(TLControlMode != TL_Adaptive_Webster)
         return;
@@ -63,13 +63,13 @@ void TrafficLightWebster::initialize(int stage)
 
 void TrafficLightWebster::finish()
 {
-    TrafficLightFixed::finish();
+    super::finish();
 }
 
 
 void TrafficLightWebster::handleMessage(cMessage *msg)
 {
-    TrafficLightFixed::handleMessage(msg);
+    super::handleMessage(msg);
 
     if(TLControlMode != TL_Adaptive_Webster)
         return;
@@ -89,7 +89,7 @@ void TrafficLightWebster::handleMessage(cMessage *msg)
 
 void TrafficLightWebster::executeFirstTimeStep()
 {
-    TrafficLightFixed::executeFirstTimeStep();
+    super::executeFirstTimeStep();
 
     if(TLControlMode != TL_Adaptive_Webster)
         return;
@@ -128,7 +128,7 @@ void TrafficLightWebster::executeFirstTimeStep()
 
 void TrafficLightWebster::executeEachTimeStep()
 {
-    TrafficLightFixed::executeEachTimeStep();
+    super::executeEachTimeStep();
 
     if(TLControlMode != TL_Adaptive_Webster)
         return;

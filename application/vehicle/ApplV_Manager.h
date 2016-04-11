@@ -53,6 +53,9 @@ protected:
 private:
     bool dropBeacon(double time, std::string vehicle, double plr);
 
+private:
+    typedef ApplVCoordinator super;
+
 protected:
     // NED variables (packet loss ratio)
     double droppT;

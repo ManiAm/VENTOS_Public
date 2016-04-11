@@ -52,6 +52,7 @@ private:
     void chooseNextGreenInterval();
 
 private:
+    typedef TrafficLight_LQF_MWM super;
     double nextGreenTime;
 };
 

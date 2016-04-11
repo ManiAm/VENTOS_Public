@@ -39,7 +39,7 @@ ApplVBeacon::~ApplVBeacon()
 
 void ApplVBeacon::initialize(int stage)
 {
-    ApplVBase::initialize(stage);
+    super::initialize(stage);
 
     if (stage == 0)
     {
@@ -90,7 +90,7 @@ void ApplVBeacon::initialize(int stage)
 
 void ApplVBeacon::finish()
 {
-    ApplVBase::finish();
+    super::finish();
 
     if (VehicleBeaconEvt->isScheduled())
         cancelAndDelete(VehicleBeaconEvt);
@@ -101,7 +101,7 @@ void ApplVBeacon::finish()
 
 void ApplVBeacon::handleSelfMsg(cMessage* msg)
 {
-    ApplVBase::handleSelfMsg(msg);
+    super::handleSelfMsg(msg);
 
     if (msg == VehicleBeaconEvt)
     {
@@ -182,7 +182,7 @@ BeaconVehicle*  ApplVBeacon::prepareBeacon()
 // is called, every time the position of vehicle changes
 void ApplVBeacon::handlePositionUpdate(cObject* obj)
 {
-    ApplVBase::handlePositionUpdate(obj);
+    super::handlePositionUpdate(obj);
 }
 
 

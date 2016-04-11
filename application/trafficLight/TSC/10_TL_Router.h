@@ -98,6 +98,7 @@ public:
     void LowDensityRecalculate();
 
 private:
+    typedef TrafficLight_FMSC super;
     Router* router;
     int nextDuration;
     int nextPhase;

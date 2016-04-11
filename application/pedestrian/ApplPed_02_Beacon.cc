@@ -39,7 +39,7 @@ ApplPedBeacon::~ApplPedBeacon()
 
 void ApplPedBeacon::initialize(int stage)
 {
-    ApplPedBase::initialize(stage);
+    super::initialize(stage);
 
     if (stage == 0)
     {
@@ -75,7 +75,7 @@ void ApplPedBeacon::initialize(int stage)
 
 void ApplPedBeacon::finish()
 {
-    ApplPedBase::finish();
+    super::finish();
 
     if (PedestrianBeaconEvt->isScheduled())
     {
@@ -90,7 +90,7 @@ void ApplPedBeacon::finish()
 
 void ApplPedBeacon::handleSelfMsg(cMessage* msg)
 {
-    ApplPedBase::handleSelfMsg(msg);
+    super::handleSelfMsg(msg);
 
     if (msg == PedestrianBeaconEvt)
     {
@@ -158,7 +158,7 @@ BeaconPedestrian*  ApplPedBeacon::prepareBeacon()
 // is called, every time the position of pedestrian changes
 void ApplPedBeacon::handlePositionUpdate(cObject* obj)
 {
-    ApplPedBase::handlePositionUpdate(obj);
+    super::handlePositionUpdate(obj);
 }
 
 }

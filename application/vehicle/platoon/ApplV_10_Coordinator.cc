@@ -41,7 +41,7 @@ ApplVCoordinator::~ApplVCoordinator()
 
 void ApplVCoordinator::initialize(int stage)
 {
-    ApplVPlatoonMg::initialize(stage);
+    super::initialize(stage);
 
     if (stage == 0)
     {
@@ -58,13 +58,13 @@ void ApplVCoordinator::initialize(int stage)
 
 void ApplVCoordinator::finish()
 {
-    ApplVPlatoonMg::finish();
+    super::finish();
 }
 
 
 void ApplVCoordinator::handleSelfMsg(cMessage* msg)
 {
-    ApplVPlatoonMg::handleSelfMsg(msg);
+    super::handleSelfMsg(msg);
 
     if(plnMode != platoonManagement)
         return;
@@ -77,28 +77,28 @@ void ApplVCoordinator::handleSelfMsg(cMessage* msg)
 void ApplVCoordinator::onBeaconVehicle(BeaconVehicle* wsm)
 {
     // pass it down
-    ApplVPlatoonMg::onBeaconVehicle(wsm);
+    super::onBeaconVehicle(wsm);
 }
 
 
 void ApplVCoordinator::onBeaconRSU(BeaconRSU* wsm)
 {
     // pass it down
-    ApplVPlatoonMg::onBeaconRSU(wsm);
+    super::onBeaconRSU(wsm);
 }
 
 
 void ApplVCoordinator::onData(PlatoonMsg* wsm)
 {
     // pass it down
-    ApplVPlatoonMg::onData(wsm);
+    super::onData(wsm);
 }
 
 
 // is called, every time the position of vehicle changes
 void ApplVCoordinator::handlePositionUpdate(cObject* obj)
 {
-    ApplVPlatoonMg::handlePositionUpdate(obj);
+    super::handlePositionUpdate(obj);
 }
 
 
@@ -197,7 +197,7 @@ void ApplVCoordinator::scenario3()
     {
         if(SUMOID == "veh1")
         {
-            ApplVPlatoonMg::leavePlatoon();
+            super::leavePlatoon();
         }
     }
     // last follower leaves
@@ -205,7 +205,7 @@ void ApplVCoordinator::scenario3()
     {
         if(SUMOID == "veh6")
         {
-            ApplVPlatoonMg::leavePlatoon();
+            super::leavePlatoon();
         }
     }
     // middle follower leaves
@@ -213,7 +213,7 @@ void ApplVCoordinator::scenario3()
     {
         if(SUMOID == "veh3")
         {
-            ApplVPlatoonMg::leavePlatoon();
+            super::leavePlatoon();
         }
     }
 }
@@ -254,7 +254,7 @@ void ApplVCoordinator::scenario4()
     {
         if(SUMOID == "veh1")
         {
-            ApplVPlatoonMg::leavePlatoon();
+            super::leavePlatoon();
         }
     }
     //    // last follower leaves
@@ -262,7 +262,7 @@ void ApplVCoordinator::scenario4()
     //    {
     //        if(SUMOID == "veh5")
     //        {
-    //            ApplVPlatoonMg::leavePlatoon();
+    //            super::leavePlatoon();
     //        }
     //    }
     //    // middle follower leaves
@@ -270,7 +270,7 @@ void ApplVCoordinator::scenario4()
     //    {
     //        if(SUMOID == "veh2")
     //        {
-    //            ApplVPlatoonMg::leavePlatoon();
+    //            super::leavePlatoon();
     //        }
     //    }
 }

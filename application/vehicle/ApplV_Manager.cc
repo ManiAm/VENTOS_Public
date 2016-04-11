@@ -43,7 +43,7 @@ ApplVManager::~ApplVManager()
 
 void ApplVManager::initialize(int stage)
 {
-    ApplVCoordinator::initialize(stage);
+    super::initialize(stage);
 
     if (stage == 0)
     {
@@ -107,7 +107,7 @@ void ApplVManager::initialize(int stage)
 
 void ApplVManager::finish()
 {
-    ApplVCoordinator::finish();
+    super::finish();
 
     //findHost()->unsubscribe(mobilityStateChangedSignal, this);
 }
@@ -121,12 +121,15 @@ void ApplVManager::receiveSignal(cComponent* source, simsignal_t signalID, cObje
     {
         handlePositionUpdate(obj);
     }
+    // pass it up, if we do not know how to handle the signal
+    else
+        super::receiveSignal(source, signalID, obj);
 }
 
 
 void ApplVManager::handleSelfMsg(cMessage* msg)
 {
-    ApplVCoordinator::handleSelfMsg(msg);
+    super::handleSelfMsg(msg);
 }
 
 
@@ -229,7 +232,7 @@ void ApplVManager::handleLowerMsg(cMessage* msg)
 // is called, every time the position of vehicle changes
 void ApplVManager::handlePositionUpdate(cObject* obj)
 {
-    ApplVCoordinator::handlePositionUpdate(obj);
+    super::handlePositionUpdate(obj);
 
     ChannelMobilityPtrType const mobility = check_and_cast<ChannelMobilityPtrType>(obj);
     curPosition = mobility->getCurrentPosition();
@@ -264,7 +267,7 @@ bool ApplVManager::dropBeacon(double time, std::string vehicle, double plr)
 void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
 {
     // pass it down
-    ApplVCoordinator::onBeaconVehicle(wsm);
+    super::onBeaconVehicle(wsm);
 
     // model is Krauss (TypeManual)
     if(SUMOControllerType == SUMO_TAG_CF_KRAUSS)
@@ -325,7 +328,7 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
 void ApplVManager::onBeaconPedestrian(BeaconPedestrian* wsm)
 {
     // pass it down
-    // ApplVCoordinator::onBeaconPedestrian(wsm);
+    // super::onBeaconPedestrian(wsm);
 
     char buffer [200];
     sprintf (buffer, "%f#%f#%f#%f#%s#%s", (double)wsm->getSpeed(), (double)wsm->getAccel(), (double)wsm->getMaxDecel(), (simTime().dbl())*1000, wsm->getSender(), "preceding");
@@ -335,14 +338,14 @@ void ApplVManager::onBeaconPedestrian(BeaconPedestrian* wsm)
 void ApplVManager::onBeaconRSU(BeaconRSU* wsm)
 {
     // pass it down
-    ApplVCoordinator::onBeaconRSU(wsm);
+    super::onBeaconRSU(wsm);
 }
 
 
 void ApplVManager::onData(PlatoonMsg* wsm)
 {
     // pass it down
-    ApplVCoordinator::onData(wsm);
+    super::onData(wsm);
 }
 
 }

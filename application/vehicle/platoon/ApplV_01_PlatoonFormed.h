@@ -58,7 +58,11 @@ protected:
         platoonFormed = 2,
         platoonManagement = 3,
     };
+
+private:
+    typedef ApplV_AID super;
 };
+
 }
 
 #endif

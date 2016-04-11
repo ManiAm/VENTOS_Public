@@ -54,6 +54,8 @@ private:
     void hci_dump(struct frame *frm);
 
 private:
+    typedef AdvertiseBeacon super;
+
     // NED variables
     bool dump_On;
     int BLE_dump_deviceID;

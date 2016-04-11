@@ -46,6 +46,9 @@ protected:
     virtual void handleSelfMsg(cMessage* msg);
     virtual void handlePositionUpdate(cObject* obj);
 
+private:
+    typedef BaseApplLayer super;
+
 protected:
     // NED variables
     cModule *nodePtr;

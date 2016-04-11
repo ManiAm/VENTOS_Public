@@ -39,7 +39,7 @@ ApplRSUCLASSIFY::~ApplRSUCLASSIFY()
 
 void ApplRSUCLASSIFY::initialize(int stage)
 {
-    ApplRSUMonitor::initialize(stage);
+    super::initialize(stage);
 
     if (stage==0)
     {
@@ -96,7 +96,7 @@ void ApplRSUCLASSIFY::initialize(int stage)
 
 void ApplRSUCLASSIFY::finish()
 {
-    ApplRSUMonitor::finish();
+    super::finish();
 
     if(collectTrainingData)
     {
@@ -116,19 +116,19 @@ void ApplRSUCLASSIFY::finish()
 
 void ApplRSUCLASSIFY::handleSelfMsg(cMessage* msg)
 {
-    ApplRSUMonitor::handleSelfMsg(msg);
+    super::handleSelfMsg(msg);
 }
 
 
 void ApplRSUCLASSIFY::executeEachTimeStep()
 {
-    ApplRSUMonitor::executeEachTimeStep();
+    super::executeEachTimeStep();
 }
 
 
 void ApplRSUCLASSIFY::onBeaconVehicle(BeaconVehicle* wsm)
 {
-    ApplRSUMonitor::onBeaconVehicle(wsm);
+    super::onBeaconVehicle(wsm);
 
     if (classifier)
         onBeaconAny(wsm);
@@ -137,7 +137,7 @@ void ApplRSUCLASSIFY::onBeaconVehicle(BeaconVehicle* wsm)
 
 void ApplRSUCLASSIFY::onBeaconBicycle(BeaconBicycle* wsm)
 {
-    ApplRSUMonitor::onBeaconBicycle(wsm);
+    super::onBeaconBicycle(wsm);
 
     if (classifier)
         onBeaconAny(wsm);
@@ -146,7 +146,7 @@ void ApplRSUCLASSIFY::onBeaconBicycle(BeaconBicycle* wsm)
 
 void ApplRSUCLASSIFY::onBeaconPedestrian(BeaconPedestrian* wsm)
 {
-    ApplRSUMonitor::onBeaconPedestrian(wsm);
+    super::onBeaconPedestrian(wsm);
 
     if (classifier)
         onBeaconAny(wsm);
@@ -155,13 +155,13 @@ void ApplRSUCLASSIFY::onBeaconPedestrian(BeaconPedestrian* wsm)
 
 void ApplRSUCLASSIFY::onBeaconRSU(BeaconRSU* wsm)
 {
-    ApplRSUMonitor::onBeaconRSU(wsm);
+    super::onBeaconRSU(wsm);
 }
 
 
 void ApplRSUCLASSIFY::onData(LaneChangeMsg* wsm)
 {
-    ApplRSUMonitor::onData(wsm);
+    super::onData(wsm);
 }
 
 

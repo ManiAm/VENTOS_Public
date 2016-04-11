@@ -51,7 +51,7 @@ ApplRSUAID::~ApplRSUAID()
 
 void ApplRSUAID::initialize(int stage)
 {
-    ApplRSUCLASSIFY::initialize(stage);
+    super::initialize(stage);
 
     if (stage==0)
     {
@@ -70,19 +70,19 @@ void ApplRSUAID::initialize(int stage)
 
 void ApplRSUAID::finish()
 {
-    ApplRSUCLASSIFY::finish();
+    super::finish();
 }
 
 
 void ApplRSUAID::handleSelfMsg(cMessage* msg)
 {
-    ApplRSUCLASSIFY::handleSelfMsg(msg);
+    super::handleSelfMsg(msg);
 }
 
 
 void ApplRSUAID::executeEachTimeStep()
 {
-    ApplRSUCLASSIFY::executeEachTimeStep();
+    super::executeEachTimeStep();
 
     // only RSU[0] executes this
     if( enableAID && printIncidentDetection && std::string("RSU[0]") == myFullId )
@@ -122,31 +122,31 @@ void ApplRSUAID::incidentDetectionToFile()
 
 void ApplRSUAID::onBeaconVehicle(BeaconVehicle* wsm)
 {
-    ApplRSUCLASSIFY::onBeaconVehicle(wsm);
+    super::onBeaconVehicle(wsm);
 }
 
 
 void ApplRSUAID::onBeaconBicycle(BeaconBicycle* wsm)
 {
-    ApplRSUCLASSIFY::onBeaconBicycle(wsm);
+    super::onBeaconBicycle(wsm);
 }
 
 
 void ApplRSUAID::onBeaconPedestrian(BeaconPedestrian* wsm)
 {
-    ApplRSUCLASSIFY::onBeaconPedestrian(wsm);
+    super::onBeaconPedestrian(wsm);
 }
 
 
 void ApplRSUAID::onBeaconRSU(BeaconRSU* wsm)
 {
-    ApplRSUCLASSIFY::onBeaconRSU(wsm);
+    super::onBeaconRSU(wsm);
 }
 
 
 void ApplRSUAID::onData(LaneChangeMsg* wsm)
 {
-    ApplRSUCLASSIFY::onData(wsm);
+    super::onData(wsm);
 
     if(!enableAID)
         return;

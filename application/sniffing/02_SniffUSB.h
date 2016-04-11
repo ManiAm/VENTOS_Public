@@ -102,6 +102,8 @@ private:
     void bulk(libusb_device_handle *devh);
 
 private:
+    typedef BaseApplLayer super;
+
     // NED variables
     bool on;
     bool listUSBdevices;

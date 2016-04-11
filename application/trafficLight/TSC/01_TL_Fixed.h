@@ -45,6 +45,9 @@ class TrafficLightFixed : public TrafficLightAllowedMoves
 
   protected:
     std::map<std::string /*TLid*/, std::string /*first green interval*/> firstGreen;
+
+  private:
+      typedef TrafficLightAllowedMoves super;
 };
 
 }

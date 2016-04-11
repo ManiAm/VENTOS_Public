@@ -49,6 +49,9 @@ protected:
     virtual void handleSelfMsg(cMessage*);
     virtual void handlePositionUpdate(cObject*);
 
+private:
+    typedef ApplVBeacon super;
+
 protected:
     // NED variables (beaconing parameters)
     bool requestRoutes;         //like sendBeacons;

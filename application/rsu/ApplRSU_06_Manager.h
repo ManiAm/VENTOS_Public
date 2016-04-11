@@ -53,9 +53,10 @@ protected:
     virtual void onData(LaneChangeMsg*);
 
 private:
+    typedef ApplRSUCRL super;
+
     simsignal_t Signal_executeEachTS;
     simsignal_t Signal_beaconSignaling;
-    simsignal_t Signal_CRL_pieces;
     static const simsignalwrap_t mobilityStateChangedSignal;
 };
 

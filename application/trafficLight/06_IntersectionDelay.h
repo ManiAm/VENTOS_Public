@@ -112,6 +112,9 @@ protected:
     std::map<std::string /*vehID*/, delayEntry> vehDelay;   // vehicle intersection delay
     std::map<std::string /*lane*/, std::map<std::string /*vehID*/, double /*accum delay of vehID*/>> laneDelay;  // accumulated delay of each vehicle on each incoming lane
     std::map<std::pair<std::string /*TLid*/, int /*link*/>, std::map<std::string /*vehID*/, double /*accum delay of vehID*/>> linkDelay;  // accumulated delay of each vehicle for each link
+
+private:
+    typedef TLStateRecord super;
 };
 
 }

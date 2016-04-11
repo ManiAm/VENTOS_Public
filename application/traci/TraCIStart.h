@@ -134,6 +134,8 @@ private:
     void vehiclesDataToFile();
 
 private:
+    typedef TraCI_Commands super;
+
     // NED
     BaseWorldUtility* world;
     ConnectionManager* cc;

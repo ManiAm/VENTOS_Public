@@ -63,6 +63,9 @@ protected:
     std::multimap<std::string /*lane*/, std::pair<std::string /*TLid*/, int /*link number*/>> outgoingLinks;
     // the corresponding lane for each outgoing link #
     std::map<std::pair<std::string /*TLid*/, int /*link*/>, std::string /*lane*/> linkToLane;
+
+private:
+    typedef LoopDetectors super;
 };
 
 }

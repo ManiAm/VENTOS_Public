@@ -39,7 +39,7 @@ TrafficLightFixed::~TrafficLightFixed()
 
 void TrafficLightFixed::initialize(int stage)
 {
-    TrafficLightAllowedMoves::initialize(stage);
+    super::initialize(stage);
 
     if(TLControlMode != TL_Fix_Time)
         return;
@@ -53,20 +53,20 @@ void TrafficLightFixed::initialize(int stage)
 
 void TrafficLightFixed::finish()
 {
-    TrafficLightAllowedMoves::finish();
+    super::finish();
 }
 
 
 void TrafficLightFixed::handleMessage(cMessage *msg)
 {
-    TrafficLightAllowedMoves::handleMessage(msg);
+    super::handleMessage(msg);
 }
 
 
 void TrafficLightFixed::executeFirstTimeStep()
 {
     // call parent
-    TrafficLightAllowedMoves::executeFirstTimeStep();
+    super::executeFirstTimeStep();
 
     if (TLControlMode != TL_Fix_Time)
         return;
@@ -90,7 +90,7 @@ void TrafficLightFixed::executeFirstTimeStep()
 void TrafficLightFixed::executeEachTimeStep()
 {
     // call parent
-    TrafficLightAllowedMoves::executeEachTimeStep();
+    super::executeEachTimeStep();
 
     if (TLControlMode != TL_Fix_Time)
         return;

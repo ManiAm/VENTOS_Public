@@ -40,7 +40,7 @@ TLStateRecord::~TLStateRecord()
 
 void TLStateRecord::initialize(int stage)
 {
-    MeasureTrafficParams::initialize(stage);
+    super::initialize(stage);
 
     if(stage == 0)
     {
@@ -71,7 +71,7 @@ void TLStateRecord::initialize(int stage)
 
 void TLStateRecord::finish()
 {
-    MeasureTrafficParams::finish();
+    super::finish();
 
     if(collectTLPhasingData)
         saveTLPhasingData();
@@ -80,20 +80,20 @@ void TLStateRecord::finish()
 
 void TLStateRecord::handleMessage(cMessage *msg)
 {
-    MeasureTrafficParams::handleMessage(msg);
+    super::handleMessage(msg);
 }
 
 
 void TLStateRecord::executeFirstTimeStep()
 {
-    MeasureTrafficParams::executeFirstTimeStep();
+    super::executeFirstTimeStep();
 
 }
 
 
 void TLStateRecord::executeEachTimeStep()
 {
-    MeasureTrafficParams::executeEachTimeStep();
+    super::executeEachTimeStep();
 
 }
 

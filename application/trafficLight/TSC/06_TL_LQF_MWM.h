@@ -118,6 +118,7 @@ protected:
     std::vector<std::string> phases = {phase1_5, phase2_5, phase1_6, phase2_6, phase3_7, phase3_8, phase4_7, phase4_8};
 
 private:
+    typedef TrafficLightOJF super;
     double nextGreenTime;
 };
 

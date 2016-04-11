@@ -44,6 +44,8 @@ SniffBluetooth::~SniffBluetooth()
 
 void SniffBluetooth::initialize(int stage)
 {
+    super::initialize(stage);
+
     if(stage == 0)
     {
         // get a pointer to the TraCI module

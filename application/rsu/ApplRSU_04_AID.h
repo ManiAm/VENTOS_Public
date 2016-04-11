@@ -54,6 +54,8 @@ private:
     void incidentDetectionToFile();
 
 private:
+    typedef ApplRSUCLASSIFY super;
+
     bool enableAID;
     bool printIncidentDetection;
 

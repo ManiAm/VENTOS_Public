@@ -58,6 +58,8 @@ private:
     uint16_t leCreateConnection(std::string bdaddr);
 
 private:
+    typedef SniffBluetooth super;
+
     // NED variables
     bool BLE_on;
 

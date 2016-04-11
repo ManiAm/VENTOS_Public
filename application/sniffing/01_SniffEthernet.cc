@@ -47,6 +47,8 @@ SniffEthernet::~SniffEthernet()
 
 void SniffEthernet::initialize(int stage)
 {
+    super::initialize(stage);
+
     if(stage == 0)
     {
         on = par("on").boolValue();

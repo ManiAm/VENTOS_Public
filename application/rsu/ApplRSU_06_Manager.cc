@@ -26,7 +26,6 @@
 //
 
 #include "ApplRSU_06_Manager.h"
-#include "SignalObj.h"
 
 namespace VENTOS {
 
@@ -40,7 +39,7 @@ ApplRSUManager::~ApplRSUManager()
 
 void ApplRSUManager::initialize(int stage)
 {
-    ApplRSUCRL::initialize(stage);
+    super::initialize(stage);
 
 	if (stage==0)
 	{
@@ -50,16 +49,13 @@ void ApplRSUManager::initialize(int stage)
 
         Signal_beaconSignaling = registerSignal("beaconSignaling");
         simulation.getSystemModule()->subscribe("beaconSignaling", this);
-
-        Signal_CRL_pieces = registerSignal("CRL_pieces");
-        simulation.getSystemModule()->subscribe("CRL_pieces", this);
 	}
 }
 
 
 void ApplRSUManager::finish()
 {
-    ApplRSUCRL::finish();
+    super::finish();
 
     // unsubscribe
     simulation.getSystemModule()->unsubscribe("executeEachTS", this);
@@ -92,21 +88,15 @@ void ApplRSUManager::receiveSignal(cComponent *source, simsignal_t signalID, cOb
         // calling ApplRSU_04_Manager::handleLowerMsg
         handleLowerMsg(msg);
     }
-    // CA sends this RSU a CRL
-    else if(signalID == Signal_CRL_pieces)
-    {
-        CRLPiecesData *m = static_cast<CRLPiecesData *>(obj);
-        ASSERT(m);
-
-        if(m->name == std::string(myFullId))
-            recieveCRL(m->data);
-    }
+    // pass it up, if we do not know how to handle the signal
+    else
+        super::receiveSignal(source, signalID, obj);
 }
 
 
 void ApplRSUManager::handleSelfMsg(cMessage* msg)
 {
-    ApplRSUCRL::handleSelfMsg(msg);
+    super::handleSelfMsg(msg);
 
 }
 
@@ -159,37 +149,37 @@ void ApplRSUManager::handleLowerMsg(cMessage* msg)
 
 void ApplRSUManager::executeEachTimeStep()
 {
-    ApplRSUCRL::executeEachTimeStep();
+    super::executeEachTimeStep();
 }
 
 
 void ApplRSUManager::onBeaconVehicle(BeaconVehicle* wsm)
 {
-    ApplRSUCRL::onBeaconVehicle(wsm);
+    super::onBeaconVehicle(wsm);
 }
 
 
 void ApplRSUManager::onBeaconBicycle(BeaconBicycle* wsm)
 {
-    ApplRSUCRL::onBeaconBicycle(wsm);
+    super::onBeaconBicycle(wsm);
 }
 
 
 void ApplRSUManager::onBeaconPedestrian(BeaconPedestrian* wsm)
 {
-    ApplRSUCRL::onBeaconPedestrian(wsm);
+    super::onBeaconPedestrian(wsm);
 }
 
 
 void ApplRSUManager::onBeaconRSU(BeaconRSU* wsm)
 {
-    ApplRSUCRL::onBeaconRSU(wsm);
+    super::onBeaconRSU(wsm);
 }
 
 
 void ApplRSUManager::onData(LaneChangeMsg* wsm)
 {
-    ApplRSUCRL::onData(wsm);
+    super::onData(wsm);
 }
 
 }

@@ -91,6 +91,7 @@ class TLStateRecord : public MeasureTrafficParams
     std::map<std::pair<std::string /*TLid*/, int /*phase number*/>, currentStatusTL> statusTL;
 
   private:
+    typedef MeasureTrafficParams super;
     bool collectTLPhasingData;
 };
 

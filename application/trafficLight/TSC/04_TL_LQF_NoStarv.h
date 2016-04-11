@@ -65,6 +65,7 @@ private:
     void calculatePhases(std::string);
 
 private:
+    typedef TrafficLightActuated super;
     int maxQueueSize;
     bool nextGreenIsNewCycle;
     std::vector<greenIntervalInfo_Maxqueue> greenInterval;

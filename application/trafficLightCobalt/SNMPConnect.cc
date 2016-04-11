@@ -40,6 +40,8 @@ SNMPConnect::~SNMPConnect()
 
 void SNMPConnect::initialize(int stage)
 {
+    super::initialize(stage);
+
     if(stage ==0)
     {
         // get a pointer to the TraCI module

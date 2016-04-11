@@ -49,6 +49,7 @@ private:
     void calculatePhases(std::string);
 
 private:
+    typedef TrafficLight_LQF_MWM_Aging super;
     std::vector<greenIntervalInfo_LQF> greenInterval;
     bool nextGreenIsNewCycle;
 };

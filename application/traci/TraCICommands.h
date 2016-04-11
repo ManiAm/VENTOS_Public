@@ -433,6 +433,8 @@ protected:
     TraCICoord netbounds2;   /* network boundaries as reported by TraCI (x2, y2) */
 
 private:
+    typedef cSimpleModule super;
+
     bool logTraCIcommands;
     int margin;
     std::vector<TraCIcommandEntry> exchangedTraCIcommands;
