@@ -21,7 +21,7 @@
 
 namespace VENTOS {
 
-pid_t TraCIConnection::pid = -1;
+pid_t TraCIConnection::child_pid = -1;
 
 SOCKET socket(void* ptr)
 {
@@ -47,8 +47,8 @@ TraCIConnection::~TraCIConnection()
 #if defined(_WIN32) || defined(__WIN32__) || defined(WIN32) || defined(__CYGWIN__) || defined(_WIN64)
 #else
     // send SIGINT
-    if (pid)
-        kill(pid, 15);
+    if (child_pid)
+        kill(child_pid, 15);
 #endif
 }
 
@@ -158,14 +158,14 @@ void TraCIConnection::TraCILauncher(std::string commandLine)
 
     // create a child process
     // forking creates an exact copy of the parent process at the time of forking.
-    pid = fork();
+    child_pid = fork();
 
     // fork failed
-    if(pid < 0)
+    if(child_pid < 0)
         throw cRuntimeError("fork() failed!");
 
     // in child process
-    if(pid == 0)
+    if(child_pid == 0)
     {
         // make the child process ignore the SIGINT signal
         signal(SIGINT, SIG_IGN);
@@ -185,7 +185,7 @@ void TraCIConnection::TraCILauncher(std::string commandLine)
     else
     {
         printf("  Parent PID %d \n", getpid());
-        printf("  Child  PID %d \n", pid);
+        printf("  Child  PID %d \n", child_pid);
     }
 
 #endif

@@ -44,7 +44,7 @@ class TraCIConnection
 
 	private:
 		void* socketPtr;
-        static pid_t pid;
+        static pid_t child_pid;
 };
 
 /**
