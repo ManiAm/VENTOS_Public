@@ -47,10 +47,6 @@ void ApplVManager::initialize(int stage)
 
     if (stage == 0)
     {
-        // NED variables
-        degradeToACC = par("degradeToACC").boolValue();
-        SUMOvehicleDebug = par("SUMOvehicleDebug").boolValue();
-
         // NED variables (packet loss ratio)
         droppT = par("droppT").doubleValue();
         droppV = par("droppV").stringValue();
@@ -75,8 +71,8 @@ void ApplVManager::initialize(int stage)
         PlatoonCount = 0;
 
         // set parameters in SUMO
-        TraCI->vehicleSetDebug(SUMOID, SUMOvehicleDebug);
-        TraCI->vehicleSetDowngradeToACC(SUMOID, degradeToACC);
+        TraCI->vehicleSetDebug(SUMOID, par("SUMOvehicleDebug").boolValue());
+        TraCI->vehicleSetDowngradeToACC(SUMOID, par("degradeToACC").boolValue());
 
         if(measurementError)
         {

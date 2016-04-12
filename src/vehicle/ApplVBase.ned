@@ -8,7 +8,7 @@ simple ApplVBase like IBaseApplLayer
     parameters:
         @class(VENTOS::ApplVBase);
         
-        int headerLength = default(88bit) @unit(bit); //header length of the application        
+        int headerLength = default(256bit) @unit(bit); //header length of the application        
         bool debug = default(false); //whether to print debug output
         
         string SUMOID = default("");

@@ -8,7 +8,7 @@ simple SniffBluetoothDump extends AdvertiseBeacon
         @display("i=block/network2");
         
         bool dump_On = default(false);
-        int BLE_dump_deviceID;
+        int BLE_dump_deviceID = default(-1);
         int sniff_time = default(-1s) @unit(s);
 }
 

@@ -11,14 +11,14 @@ simple BasePhyLayer like IWirelessPhy
         bool recordStats = default(false); //enable/disable tracking of statistics (eg. cOutvectors)
         int headerLength = default(0) @unit(bit); //defines the length of the phy header (/preamble)
         
-        bool usePropagationDelay;		//Should transmission delay be simulated?
-        double thermalNoise @unit(dBm);	//the strength of the thermal noise [dBm]
-        bool useThermalNoise;			//should thermal noise be considered?
+        bool usePropagationDelay = default(true);		//Should transmission delay be simulated?
+        double thermalNoise = default(-110dBm) @unit(dBm);	//the strength of the thermal noise [dBm]
+        bool useThermalNoise = default(true);			//should thermal noise be considered?
 
-        xml analogueModels; 			//Specification of the analogue models to use and their parameters
-        xml decider;					//Specification of the decider to use and its parameters
+        xml analogueModels = default(xmldoc("src/veins/config.xml")); 			//Specification of the analogue models to use and their parameters
+        xml decider = default(xmldoc("src/veins/config.xml"));					//Specification of the decider to use and its parameters
 
-		double sensitivity @unit(dBm);	//The sensitivity of the physical layer [dBm]
+		double sensitivity = default(-89dBm) @unit(dBm);	//The sensitivity of the physical layer [dBm]
 
         //# switch times [s]:
         double timeRXToTX       = default(0) @unit(s); // Elapsed time to switch from receive to send state

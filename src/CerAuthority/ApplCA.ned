@@ -8,20 +8,20 @@ simple ApplCA like IBaseApplLayer
     parameters:
         @class(VENTOS::ApplCA);
         
-        int headerLength = default(88bit) @unit(bit); // header length of the application   
-        bool active = default(false);  
+        bool active = default(false); 
+        int headerLength = default(256bit) @unit(bit); // header length of the application    
         
-        int InitialWait;
-        int CRLsize;
-        bool EnableShuffle;
-        bool ErasureCode;
+        int InitialWait = default(0);
+        int CRLsize = default(1000);
+        bool EnableShuffle = default(false);
+        bool ErasureCode = default(true);
         
-        int NoSegments;        
+        int NoSegments = default(20);  // number of CRL pieces (only when ErasureCode = false)
 
-        int M;
-        int N; 
+        int M = default(20);
+        int N = default(30); 
         
-        double Pseudonym_lifeTime @unit(s);
+        double Pseudonym_lifeTime = default(120s) @unit(s);
 
     gates:
         input lowerLayerIn;    // from mac layer

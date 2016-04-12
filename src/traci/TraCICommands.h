@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    TraCI_Commands.h
+/// @file    TraCICommands.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    August 2013

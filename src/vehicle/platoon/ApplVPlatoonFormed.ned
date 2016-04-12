@@ -7,6 +7,10 @@ simple ApplVPlatoonFormed extends ApplVAID
     parameters:
         @class(VENTOS::ApplVPlatoonFormed); 
         
-        int plnMode = default(0);
-        string preDefinedPlatoonID;        
+        // plnMode = 1: no platooning
+        // plnMode = 2: pre-defined platoon
+        // plnMode = 3: platoon management is active
+        int plnMode = default(1);
+        
+        string preDefinedPlatoonID = default("CACC1"); // only in plnMode = 2
 }

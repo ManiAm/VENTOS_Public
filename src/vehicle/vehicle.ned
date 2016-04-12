@@ -2,13 +2,12 @@
 package VENTOS.src.vehicle;
 
 import VENTOS.src.global.*;
+import VENTOS.src.traci.*;
 import VENTOS.src.MIXIM.modules.*;
 
 module vehicle
 {
     parameters:
-        //   string applType; //type of the application layer
-        string mobilityType; //type of the mobility module
         
     gates:
         input radioIn; // gate for sendDirect
@@ -24,10 +23,11 @@ module vehicle
                 @display("p=60,166");
         }
 
-        mobility: <mobilityType> like IMobility {
+        mobility: TraCIMobilityMod {
             parameters:
                 @display("p=130,172;i=block/cogwheel");
         }
+        
     connections:
         nic.upperLayerOut --> appl.lowerLayerIn;
         nic.upperLayerIn <-- appl.lowerLayerOut;
@@ -35,6 +35,5 @@ module vehicle
         nic.upperControlIn <-- appl.lowerControlOut;
 
         radioIn --> nic.radioIn;
-
 }
 

@@ -7,9 +7,11 @@ simple TL_Router extends TL_OJFM
         @class(VENTOS::TrafficLightRouter);
         @display("i=block/network2");  
         
-        int TLLogicMode;
-        double HighDensityRecalculateFrequency;
-        double LowDensityExtendTime;
-        double MaxPhaseDuration;     
-        double MinPhaseDuration;   
+        // 0=no TLControl, 1=HighDensity, 2=LowDensity 3=Cooperative
+        int TLLogicMode = default(0);
+        
+        double HighDensityRecalculateFrequency = default(30);
+        double LowDensityExtendTime = default(3);
+        double MaxPhaseDuration = default(60);  // Low density/Cooperative will not extend traffic lights to last longer than this  
+        double MinPhaseDuration = default(10);  // Cooperative control will not assign a phase duration shorter than this
 }

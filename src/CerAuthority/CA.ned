@@ -21,7 +21,7 @@ module CA
                 @display("p=60,166");
         }
 
-        mobility: <mobilityType> like IMobility {
+        mobility: ConstSpeedMobility {
             parameters:
                 @display("p=130,172;i=block/cogwheel");
         }

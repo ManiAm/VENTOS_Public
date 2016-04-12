@@ -42,17 +42,19 @@ simple ConnectionManager
                 
         // debug switch for core framework
         bool coreDebug;
-        // send directly to the node or create separate gates for every connection
-        bool sendDirect;
+
         // maximum sending power used for this network [mW]
-        double pMax @unit(mW);
+        double pMax @unit(mW) = default(20mW);
         // minimum signal attenuation threshold [dBm]
-        double sat @unit(dBm);
+        double sat @unit(dBm) = default(-89dBm);
         // minimum path loss coefficient
-        double alpha;
+        double alpha = default(2.0);
         // minimum carrier frequency of the channel [Hz]
-        double carrierFrequency @unit(Hz);
+        double carrierFrequency @unit(Hz) = default(5.890e9Hz);
+        
+        // send directly to the node or create separate gates for every connection
+        bool sendDirect = default(true);
         // should the maximum interference distance be displayed for each node?
-        bool drawMaxIntfDist = default(false);
+        bool drawMaxIntfDist = default(true);
 }
 

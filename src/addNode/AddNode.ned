@@ -9,6 +9,6 @@ simple AddNode
         
         string RSUfile = default("RSUsLocation.xml");
         string flowFile = default("flows.xml");
-        string flowSetId;
+        string flowSetId = default("");
 }
 

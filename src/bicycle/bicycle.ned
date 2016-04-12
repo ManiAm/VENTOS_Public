@@ -2,13 +2,12 @@
 package VENTOS.src.bicycle;
 
 import VENTOS.src.global.*;
+import VENTOS.src.traci.*;
 import VENTOS.src.MIXIM.modules.*;
 
 module bicycle
 {
     parameters:
-        //   string applType; //type of the application layer
-        string mobilityType; //type of the mobility module
         
     gates:
         input radioIn; // gate for sendDirect
@@ -24,7 +23,7 @@ module bicycle
                 @display("p=60,166");
         }
 
-        mobility: <mobilityType> like IMobility {
+        mobility: TraCIMobilityMod {
             parameters:
                 @display("p=130,172;i=block/cogwheel");
         }
@@ -35,5 +34,4 @@ module bicycle
         nic.upperControlIn <-- appl.lowerControlOut;
 
         radioIn --> nic.radioIn;
-
 }

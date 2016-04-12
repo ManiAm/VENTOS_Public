@@ -6,6 +6,6 @@ simple ApplRSUAID extends ApplRSUClassify
     parameters:
         @class(VENTOS::ApplRSUAID);
         
-        bool enableAID;
-        bool printIncidentDetection;
+        bool enableAID = default(false);
+        bool printIncidentDetection = default(false);
 }

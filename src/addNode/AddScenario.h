@@ -57,10 +57,10 @@ private:
 
 private:
     int mode;
+    typedef AddNode super;
 
     // class variables
     simsignal_t Signal_executeFirstTS;
-    simsignal_t Signal_addFlow;
 };
 
 }

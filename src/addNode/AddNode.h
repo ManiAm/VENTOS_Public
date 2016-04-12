@@ -56,6 +56,7 @@ public:
     virtual void initialize(int stage);
     virtual void handleMessage(cMessage *msg);
     virtual void finish();
+    virtual void receiveSignal(cComponent *, simsignal_t, long);
 
 protected:
     void addAdversary();
@@ -77,6 +78,7 @@ protected:
     double terminate;
 
 private:
+    simsignal_t Signal_addFlow;
     std::map<int, cModule*> RSUhosts; /**< vector of all RSUs managed by us */
 };
 

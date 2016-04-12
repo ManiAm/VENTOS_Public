@@ -7,9 +7,10 @@ import VENTOS.src.MIXIM.modules.*;
 module Adversary
 {
     parameters:
-        string mobilityType; //type of the mobility module
+
     gates:
         input radioIn; // gate for sendDirect
+        
     submodules:
         appl: ApplAdversary {  
             parameters:
@@ -21,7 +22,7 @@ module Adversary
                 @display("p=60,166");
         }
 
-        mobility: <mobilityType> like IMobility {
+        mobility: ConstSpeedMobility {
             parameters:
                 @display("p=130,172;i=block/cogwheel");
         }

@@ -7,5 +7,5 @@ simple TL_Webster extends TL_Fixed
         @class(VENTOS::TrafficLightWebster);
         @display("i=block/network2");    
         
-        double alpha;          
+        double alpha = default(0.125);          
 }

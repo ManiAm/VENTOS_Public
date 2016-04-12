@@ -7,5 +7,5 @@ simple TL_LoopDetectors extends TL_Base
         @class(VENTOS::LoopDetectors);
         @display("i=block/network2");
         
-        bool collectInductionLoopData; 
+        bool collectInductionLoopData = default(false); 
 }

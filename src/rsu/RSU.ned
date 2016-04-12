@@ -23,7 +23,7 @@ module RSU
                 @display("p=60,166");
         }
         
-        mobility: <mobilityType> like IMobility {
+        mobility: RSUMobility {
             parameters:
                 @display("p=130,172;i=block/cogwheel");
         }

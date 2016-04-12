@@ -42,36 +42,38 @@ AddScenario::~AddScenario()
 
 void AddScenario::initialize(int stage)
 {
+    super::initialize(stage);
+
     if(stage ==0)
     {
         mode = par("mode").longValue();
 
         Signal_executeFirstTS = registerSignal("executeFirstTS");
         simulation.getSystemModule()->subscribe("executeFirstTS", this);
-
-        Signal_addFlow = registerSignal("addFlow");
-        simulation.getSystemModule()->subscribe("addFlow", this);
     }
 }
 
 
 void AddScenario::finish()
 {
-
+    super::finish();
 }
 
 
 void AddScenario::handleMessage(cMessage *msg)
 {
-
+    super::handleMessage(msg);
 }
 
 
 void AddScenario::receiveSignal(cComponent *source, simsignal_t signalID, long i)
 {
+    if(mode <= -1)
+        return;
+
     Enter_Method_Silent();
 
-    if(signalID == Signal_executeFirstTS && mode > -1)
+    if(signalID == Signal_executeFirstTS)
     {
         std::cout << ">>> AddScenario module is loading entities ..." << endl << endl;
         std::cout.flush();
@@ -81,10 +83,10 @@ void AddScenario::receiveSignal(cComponent *source, simsignal_t signalID, long i
         printLoadedStatistics();
         std::cout.flush();
     }
-    else if(signalID == Signal_addFlow && mode > -1)
-    {
-        addFlow();
-    }
+    // pass it up, if we do not know how to handle the signal
+    else
+        super::receiveSignal(source, signalID, i);
+
 }
 
 

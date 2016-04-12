@@ -44,15 +44,19 @@ void Warmup::initialize(int stage)
     {
         // get a pointer to the TraCI module
         cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
+        ASSERT(module);
         TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
 
         // get a pointer to the VehicleSpeedProfile module
         module = simulation.getSystemModule()->getSubmodule("speedprofile");
+        ASSERT(module);
         SpeedProfilePtr = static_cast<SpeedProfile *>(module);
 
-        // get totoal vehicles from addEntity module
-        totalVehicles = simulation.getSystemModule()->getSubmodule("addEntity")->par("totalVehicles").longValue();
+        // get totoal vehicles from addScenario module
+        module = simulation.getSystemModule()->getSubmodule("addScenario");
+        ASSERT(module);
+        totalVehicles = module->par("totalVehicles").longValue();
 
         Signal_executeEachTS = registerSignal("executeEachTS");
         simulation.getSystemModule()->subscribe("executeEachTS", this);

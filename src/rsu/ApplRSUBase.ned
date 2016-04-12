@@ -13,14 +13,14 @@ simple ApplRSUBase like IBaseApplLayer
         
         bool sendBeacons = default(false); //tell the applayer to periodically send beacons
         volatile double beaconInterval = default(1s) @unit(s); //the intervall between 2 beacon messages
-        double maxOffset = default(0s) @unit(s); //the maximum delay of messages sent down to avoid synchronous channel access
-        int beaconLengthBits = default(256bit) @unit(bit); //the length of a beacon packet
+        double maxOffset = default(0.005s) @unit(s); //the maximum delay of messages sent down to avoid synchronous channel access
+        int beaconLengthBits = default(512bit) @unit(bit); //the length of a beacon packet
         int beaconPriority = default(3); //the access category of the beacon messages  
         
-        string myTLid;    
+        string myTLid = default("");    
         string SUMOID = default("");
-        double myCoordX;    // my X coordinate in SUMO
-        double myCoordY;    // my Y coordinate in SUMO  
+        double myCoordX = default(-1);    // my X coordinate in SUMO
+        double myCoordY = default(-1);    // my Y coordinate in SUMO  
 
     gates:
         input lowerLayerIn;     // from mac layer

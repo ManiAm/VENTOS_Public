@@ -9,13 +9,14 @@ simple SniffUSB
         
         int headerLength = default(88bit) @unit(bit); //header length of the application 
         bool on = default(false);
-        bool listUSBdevices;
-        bool listUSBdevicesDetailed;
-        bool hotPlug;
         
-        int target_vendor_id;
-		int target_product_id;
-		int target_interfaceNumber;
-		int target_interruptEP;
+        bool listUSBdevices = default(false);
+        bool listUSBdevicesDetailed = default(false);
+        bool hotPlug = default(false);
+        
+        int target_vendor_id = default(0x0);
+		int target_product_id = default(0x0);
+		int target_interfaceNumber = default(0);
+		int target_interruptEP = default(0x80);
 }
 

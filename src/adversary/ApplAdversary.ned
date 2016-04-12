@@ -8,9 +8,10 @@ simple ApplAdversary like IBaseApplLayer
     parameters:
         @class(VENTOS::ApplAdversary);
         
-        int headerLength = default(88bit) @unit(bit); // header length of the application   
         bool on = default(false); 
-        double AttackT;
+        int headerLength = default(256bit) @unit(bit); // header length of the application 
+          
+        double AttackT = default(100);
         bool falsificationAttack = default(false);  
         bool replayAttack = default(false); 
         bool jammingAttack = default(false);  

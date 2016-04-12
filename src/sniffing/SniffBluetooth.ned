@@ -9,9 +9,10 @@ simple SniffBluetooth
         
         int headerLength = default(88bit) @unit(bit); //header length of the application
         
-        bool listLocalDevices;        
+        bool listLocalDevices = default(false);
+                
         bool BT_on = default(false);
-        int BT_scan_deviceID;        
+        int BT_scan_deviceID = default(-1);        
         int BT_scan_length = default(8);
 }
 

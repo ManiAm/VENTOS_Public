@@ -8,5 +8,8 @@ simple TL_Actuated extends TL_Webster
         @display("i=block/network2");        
         
         bool greenExtension = default(true);
-        double passageTime = default(0s) @unit(s);
+        
+        // -1 : passage time is calculated precisely for each incoming lane (might not be realistic!)
+        // > 0: value set by the user (2.0s gives good results if LD is at 35m distance)
+        double passageTime = default(-1s) @unit(s);
 }

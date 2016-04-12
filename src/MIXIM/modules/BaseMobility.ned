@@ -10,11 +10,13 @@ package VENTOS.src.MIXIM.modules;
 simple BaseMobility like IMobility
 {
     parameters:
+        @display("i=block/cogwheel");
+                
         bool notAffectedByHostState = default(true);
         bool coreDebug = default(false); // debug switch for the core framework
-        double x; // x coordinate of the nodes' position (-1 = random)
-        double y; // y coordinate of the nodes' position (-1 = random)
-        double z; // z coordinate of the nodes' position (-1 = random)
-        @display("i=block/cogwheel");
+        
+        double x = default(0); // x coordinate of the nodes' position (-1 = random)
+        double y = default(0); // y coordinate of the nodes' position (-1 = random)
+        double z = default(0); // z coordinate of the nodes' position (-1 = random)
 }
 

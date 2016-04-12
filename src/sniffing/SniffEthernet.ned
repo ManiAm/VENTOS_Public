@@ -9,10 +9,11 @@ simple SniffEthernet
         
         int headerLength = default(88bit) @unit(bit); //header length of the application 
         bool on = default(false);
-        string interface;
-        string filter_exp;
-        bool printCaptured;
-        bool printDataPayload;
-        bool printStat;
+        
+        string interface = default("eth0");
+        string filter_exp = default("ip");
+        bool printCaptured = default(false);
+        bool printDataPayload = default(false);
+        bool printStat = default(false);
 }
 

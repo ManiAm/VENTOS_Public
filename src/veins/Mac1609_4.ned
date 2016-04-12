@@ -38,7 +38,7 @@ simple Mac1609_4 extends BaseMacLayer
         @class(Mac1609_4);
 
         // cycle between an SCH and the CCH (or stay on CCH all the time)
-        bool useServiceChannel = default(true);
+        bool useServiceChannel = default(false);
 
         // the service channel this maclayer listens on
         int serviceChannel = default(1);
@@ -56,7 +56,7 @@ simple Mac1609_4 extends BaseMacLayer
         double syncOffset @unit(s) = default(0.0003s);
 
         //tx power [mW]
-        double txPower @unit(mW);
+        double txPower = default(20mW) @unit(mW);
 
         int queueSize = default(0);
 

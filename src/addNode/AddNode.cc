@@ -61,6 +61,9 @@ void AddNode::initialize(int stage)
         // if user specifies no termination time, set it to a big value
         if(terminate == -1)
             terminate = 100000;
+
+        Signal_addFlow = registerSignal("addFlow");
+        simulation.getSystemModule()->subscribe("addFlow", this);
     }
 }
 
@@ -86,6 +89,17 @@ void AddNode::finish()
 void AddNode::handleMessage(cMessage *msg)
 {
 
+}
+
+
+void AddNode::receiveSignal(cComponent *source, simsignal_t signalID, long i)
+{
+    Enter_Method_Silent();
+
+    if(signalID == Signal_addFlow)
+    {
+        addFlow();
+    }
 }
 
 

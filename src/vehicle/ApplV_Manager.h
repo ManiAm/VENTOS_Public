@@ -62,10 +62,6 @@ protected:
     std::string droppV;
     double plr;
 
-    // NED variable
-    bool degradeToACC;
-    bool SUMOvehicleDebug;
-
     // NED variables (measurement error)
     bool measurementError;
     double errorGap;
