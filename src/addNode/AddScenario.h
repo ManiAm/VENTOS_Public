@@ -1,8 +1,8 @@
 /****************************************************************************/
-/// @file    AddEntity.h
+/// @file    AddScenario.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
-/// @date    August 2013
+/// @date    Apr 2016
 ///
 /****************************************************************************/
 // VENTOS, Vehicular Network Open Simulator; see http:?
@@ -25,18 +25,18 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef ADDENTITY
-#define ADDENTITY
+#ifndef ADDSCENARIO_H
+#define ADDSCENARIO_H
 
-#include "BaseApplLayer.h"
+#include "AddNode.h"
 #include "TraCICommands.h"
 
 namespace VENTOS {
 
-class AddEntity : public BaseApplLayer
+class AddScenario : public AddNode
 {
 public:
-    virtual ~AddEntity();
+    virtual ~AddScenario();
     virtual void initialize(int stage);
     virtual void handleMessage(cMessage *msg);
     virtual void finish();
@@ -44,7 +44,6 @@ public:
 
 private:
     void Add();
-    void printLoadedStatistics();
 
     void Scenario1();
     void Scenario5();
@@ -57,31 +56,11 @@ private:
     void Scenario12();
 
 private:
-    // NED variables
-    TraCI_Commands *TraCI;  // pointer to the TraCI module
-    double terminate;
-
-    bool on;
     int mode;
-    int totalVehicles;
-    std::string vehiclesType;
-    int distribution;
-    int interval;
-    double lambda;
-
-    int plnSize;
-    double plnSpace;
-
-    double overlap;
-    bool vehMultiClass;
-    bool bike;
 
     // class variables
     simsignal_t Signal_executeFirstTS;
-
-    std::vector<double> vehRouteDistribution;
-    std::vector<double> vehClassDistribution;
-    std::vector<double> bikeRouteDistribution;
+    simsignal_t Signal_addFlow;
 };
 
 }

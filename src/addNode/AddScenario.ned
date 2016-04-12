@@ -1,15 +1,13 @@
 
-package VENTOS.src.global.addToSim;
+package VENTOS.src.addNode;
 
-simple AddEntity
+simple AddScenario extends AddNode
 {
     parameters:
-        @class(VENTOS::AddEntity);
+        @class(VENTOS::AddScenario);
         @display("i=block/network2");
         
-        bool on = default(true);
-        int mode;
-        
+        int mode;        
         int totalVehicles;
         string vehiclesType;
         int distribution;
@@ -22,6 +20,7 @@ simple AddEntity
         string vehRouteDist;
         bool vehMultiClass;
         string vehClassDist;
+        
         bool bike;
         string bikeRouteDist;
 }

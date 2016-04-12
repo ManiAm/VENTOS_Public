@@ -1,8 +1,8 @@
 /****************************************************************************/
-/// @file    AddAdversary.h
+/// @file    AddNode.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
-/// @date    August 2013
+/// @date    Apr 2016
 ///
 /****************************************************************************/
 // VENTOS, Vehicular Network Open Simulator; see http:?
@@ -25,34 +25,59 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef ADVERSARYADD_H_
-#define ADVERSARYADD_H_
+#ifndef ADDNODE_H_
+#define ADDNODE_H_
 
 #include "TraCICommands.h"
 #include <BaseApplLayer.h>
 
 namespace VENTOS {
 
-class TraCI_Extend;
-
-class AddAdversary : public BaseApplLayer
+class RSUEntry
 {
 public:
-    virtual ~AddAdversary();
+    std::string type;
+    double coordX;
+    double coordY;
+
+    RSUEntry(std::string str, double x, double y)
+    {
+        this->type = str;
+        this->coordX = x;
+        this->coordY = y;
+    }
+};
+
+
+class AddNode : public BaseApplLayer
+{
+public:
+    virtual ~AddNode();
     virtual void initialize(int stage);
     virtual void handleMessage(cMessage *msg);
     virtual void finish();
-    virtual void receiveSignal(cComponent *, simsignal_t, long);
+
+protected:
+    void addAdversary();
+    void addvehicle();
+    void addBicycle();
+    void addRSU();
+    void addCA();
+    void addFlow();
+
+    void printLoadedStatistics();
 
 private:
-    void Add();
+    std::map<std::string, RSUEntry> commandReadRSUsCoord(std::string);
+    void commandAddCirclePoly(std::string, std::string, const RGB color, Coord*, double);
+    std::string getFullPathToSumoRou(std::string);
 
-private:
-    // NED variables
+protected:
     TraCI_Commands *TraCI;  // pointer to the TraCI module
-    simsignal_t Signal_executeFirstTS;
-    bool on;
-    int mode;
+    double terminate;
+
+private:
+    std::map<int, cModule*> RSUhosts; /**< vector of all RSUs managed by us */
 };
 
 }

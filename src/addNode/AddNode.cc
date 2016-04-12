@@ -1,8 +1,8 @@
 /****************************************************************************/
-/// @file    AddRSU.cc
+/// @file    AddNode.cc
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
-/// @date    August 2013
+/// @date    Apr 2016
 ///
 /****************************************************************************/
 // VENTOS, Vehicular Network Open Simulator; see http:?
@@ -25,7 +25,8 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "AddRSU.h"
+#include "AddNode.h"
+#include "ConnectionManager.h"
 
 #include <rapidxml.hpp>
 #include <rapidxml_utils.hpp>
@@ -39,45 +40,39 @@
 
 namespace VENTOS {
 
-Define_Module(VENTOS::AddRSU);
+Define_Module(VENTOS::AddNode);
 
-
-AddRSU::~AddRSU()
+AddNode::~AddNode()
 {
 
 }
 
 
-void AddRSU::initialize(int stage)
+void AddNode::initialize(int stage)
 {
     if(stage ==0)
     {
-        cModule *module = simulation.getSystemModule()->getSubmodule("connMan");
-        cc = static_cast<ConnectionManager*>(module);
-        ASSERT(cc);
-
         // get a pointer to the TraCI module
-        module = simulation.getSystemModule()->getSubmodule("TraCI");
+        cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
         TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
 
-        // get a pointer to the TrafficLight module
-        module = simulation.getSystemModule()->getSubmodule("TrafficLight");
-        TLControlMode = module->par("TLControlMode").longValue();
-
-        Signal_executeFirstTS = registerSignal("executeFirstTS");
-        simulation.getSystemModule()->subscribe("executeFirstTS", this);
-
-        on = par("on").boolValue();
-        mode = par("mode").longValue();
+        terminate = module->par("terminate").doubleValue();
+        // if user specifies no termination time, set it to a big value
+        if(terminate == -1)
+            terminate = 100000;
     }
 }
 
 
-void AddRSU::finish()
+void AddNode::finish()
 {
+    cModule *module = simulation.getSystemModule()->getSubmodule("connMan");
+    ConnectionManager *cc = static_cast<ConnectionManager*>(module);
+    ASSERT(cc);
+
     // delete all RSU modules in omnet
-    for(auto i : hosts)
+    for(auto i : RSUhosts)
     {
         cModule* mod = i.second;
         cc->unregisterNic(mod->getSubmodule("nic"));
@@ -88,37 +83,46 @@ void AddRSU::finish()
 }
 
 
-void AddRSU::handleMessage(cMessage *msg)
+void AddNode::handleMessage(cMessage *msg)
 {
 
 }
 
 
-void AddRSU::receiveSignal(cComponent *source, simsignal_t signalID, long i)
+void AddNode::addAdversary()
 {
-    Enter_Method_Silent();
+    cModule* parentMod = getParentModule();
+    if (!parentMod)
+        error("Parent Module not found");
 
-    if(signalID == Signal_executeFirstTS)
-    {
-        AddRSU::Add();
-    }
+    cModuleType* nodeType = cModuleType::get("c3po.application.adversary.Adversary");
+
+    // do not use create("adversary", parentMod);
+    // instead create an array of adversaries
+    cModule* mod = nodeType->create("adversary", parentMod, 1, 0);
+    mod->finalizeParameters();
+    mod->getDisplayString().updateWith("i=old/comp_a");
+    mod->buildInside();
+    mod->scheduleStart(simTime());
+    mod->callInitialize();
 }
 
 
-void AddRSU::Add()
+void AddNode::addvehicle()
 {
-    // if dynamic adding is off, return
-    if (!on)
-        return;
 
-    if(mode == 1)
-    {
-        Scenario1();
-    }
+
 }
 
 
-void AddRSU::Scenario1()
+void AddNode::addBicycle()
+{
+
+
+}
+
+
+void AddNode::addRSU()
 {
     // ####################################
     // Step 1: read RSU locations from file
@@ -139,7 +143,8 @@ void AddRSU::Scenario1()
     // ##############################
 
     cModule* parentMod = getParentModule();
-    if (!parentMod) error("Parent Module not found");
+    if (!parentMod)
+        error("Parent Module not found");
 
     cModuleType* nodeType = cModuleType::get("VENTOS.src.rsu.RSU");
 
@@ -182,7 +187,7 @@ void AddRSU::Scenario1()
         mod->callInitialize();
 
         // store the cModule of this RSU
-        hosts[count] = mod;
+        RSUhosts[count] = mod;
 
         count++;
     }
@@ -209,7 +214,7 @@ void AddRSU::Scenario1()
 }
 
 
-std::map<std::string, RSUEntry> AddRSU::commandReadRSUsCoord(std::string RSUfilePath)
+std::map<std::string, RSUEntry> AddNode::commandReadRSUsCoord(std::string RSUfilePath)
 {
     rapidxml::file<> xmlFile( RSUfilePath.c_str() );        // Convert our file to a rapid-xml readable object
     rapidxml::xml_document<> doc;                           // Build a rapidxml doc
@@ -263,7 +268,7 @@ std::map<std::string, RSUEntry> AddRSU::commandReadRSUsCoord(std::string RSUfile
 }
 
 
-void AddRSU::commandAddCirclePoly(std::string name, std::string type, const RGB color, Coord *center, double radius)
+void AddNode::commandAddCirclePoly(std::string name, std::string type, const RGB color, Coord *center, double radius)
 {
     std::list<TraCICoord> circlePoints;
 
@@ -280,6 +285,145 @@ void AddRSU::commandAddCirclePoly(std::string name, std::string type, const RGB 
     TraCI->polygonAddTraCI(name, type, color, 0, 1, circlePoints);
 }
 
+
+void AddNode::addCA()
+{
+    cModule* parentMod = getParentModule();
+    if (!parentMod)
+        error("Parent Module not found");
+
+    cModuleType* nodeType = cModuleType::get("VENTOS.src.CerAuthority.CA");
+
+    // do not use create("CA", parentMod);
+    // instead create an array of adversaries
+    cModule* mod = nodeType->create("CA", parentMod, 1, 0);
+    mod->finalizeParameters();
+    mod->getDisplayString().updateWith("i=old/comp_a");
+    mod->buildInside();
+    mod->scheduleStart(simTime());
+    mod->callInitialize();
+}
+
+
+void AddNode::addFlow()
+{
+    // get full path to the sumo.cfg file
+    std::string sumoConfig = TraCI->getSUMOConfigFullPath();
+
+    // read sumo.cfg file and get the path to rou file
+    std::string sumoRou = getFullPathToSumoRou(sumoConfig);
+
+    // read flows.xml file and extract a flow set
+    //     getFlowSet();
+
+    // copy the flow set into a new rou file in %TMP%
+    //     addFlowSetToNewRou();
+
+    // add a new entry to copy the new rou, and also modify sumo.cfg
+    //    applyChanges();
+}
+
+
+std::string AddNode::getFullPathToSumoRou(std::string sumoConfigFullPath)
+{
+
+    return "";
+
+}
+
+
+void AddNode::printLoadedStatistics()
+{
+    // ######################
+    // list all entities type
+    //#######################
+
+    std::list<std::string> loadedVehList = TraCI->simulationGetLoadedVehiclesIDList();
+    std::cout << ">>> AddScenario module loaded " << loadedVehList.size() << " entities: " << endl;
+    std::cout << endl;
+
+    {
+        std::list<std::string> loadedVehTypeList = TraCI->vehicleTypeGetIDList();
+        std::cout << "  " << loadedVehTypeList.size() << " possible vehicle types are loaded: " << endl;
+        std::cout << "      ";
+        unsigned int counter = 1;
+        for(std::string type : loadedVehTypeList)
+        {
+            std::cout << type << "  ";
+
+            // introduce new line after each 4 routes
+            if(counter % 4 == 0 && counter != loadedVehTypeList.size())
+                std::cout << std::endl << "      ";
+
+            counter++;
+        }
+
+        std::cout << std::endl;
+        std::cout << std::endl;
+
+        std::list<std::string> loadedVehType;
+        for(std::string vehID : loadedVehList)
+        {
+            std::string type = TraCI->vehicleGetTypeID(vehID);
+            loadedVehType.push_back(type);
+        }
+
+        std::list<std::string> loadedVehTypeListUnique = loadedVehType;
+        loadedVehTypeListUnique.sort();  // we need sort the list first before calling unique
+        loadedVehTypeListUnique.unique();
+
+        for(std::string type : loadedVehTypeListUnique)
+        {
+            int count = std::count(loadedVehType.begin(), loadedVehType.end(), type);
+            std::cout << "  ";
+            std::cout << count << " entities are loaded of type " << "\"" << type << "\"" << endl;
+        }
+    }
+
+    //###########################
+    // list all the loaded routes
+    //###########################
+
+    {
+        std::list<std::string> loadedRouteList = TraCI->routeGetIDList();
+        std::cout << std::endl;
+        std::cout << "  " << loadedRouteList.size() << " possible routes are loaded: " << endl;
+        std::cout << "      ";
+        unsigned int counter = 1;
+        for(std::string route : loadedRouteList)
+        {
+            std::cout << route << "  ";
+
+            // introduce new line after each 4 routes
+            if(counter % 4 == 0 && counter != loadedRouteList.size())
+                std::cout << std::endl << "      ";
+
+            counter++;
+        }
+
+        std::cout << std::endl;
+        std::cout << std::endl;
+        std::cout << "  route distributions are: " << endl;
+
+        std::list<std::string> loadedVehRoute;
+        for(std::string vehID : loadedVehList)
+        {
+            std::string route = TraCI->vehicleGetRouteID(vehID);
+            loadedVehRoute.push_back(route);
+        }
+
+        std::list<std::string> loadedVehRouteListUnique = loadedVehRoute;
+        loadedVehRouteListUnique.sort();  // we need sort the list first before calling unique
+        loadedVehRouteListUnique.unique();
+
+        for(std::string route : loadedVehRouteListUnique)
+        {
+            int count = std::count(loadedVehRoute.begin(), loadedVehRoute.end(), route);
+            std::cout << "      ";
+            std::cout << count << " entities have route " << "\"" << route << "\"" << endl;
+        }
+    }
+}
 
 }
 

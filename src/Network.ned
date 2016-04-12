@@ -4,7 +4,7 @@ import VENTOS.src.MIXIM.modules.*;
 import VENTOS.src.MIXIM.connectionManager.*;
 import VENTOS.src.traci.*;
 import VENTOS.src.global.*;
-import VENTOS.src.global.addToSim.*;
+import VENTOS.src.addNode.*;
 import VENTOS.src.router.*;
 import VENTOS.src.sniffing.*;
 import VENTOS.src.trafficLight.*;
@@ -20,7 +20,7 @@ network Network
 
         int debugLevel;
 
-        @display("bgb=460,470");
+        @display("bgb=389,470");
     submodules:
         world: BaseWorldUtility {
             parameters:
@@ -35,31 +35,15 @@ network Network
         }
         TraCI: TraCIStart {
             parameters:
-                @display("p=241,43");
+                @display("p=48,135");
         }
         Tracking: Tracking {
             parameters:
-                @display("p=209,212;i=block/circle");
+                @display("p=245,212;i=block/circle");
         }
-        addEntity: AddEntity {
+        addScenario: AddScenario {
             parameters:
-                @display("p=48,127;i=old/bwsink");
-        }
-        addFlow: AddFlow {
-            parameters:
-                @display("p=127,127;i=old/bwsink");
-        }
-        addRSU: AddRSU {
-            parameters:
-                @display("p=209,127;i=old/bwsink");
-        }
-        addAdversary: AddAdversary {
-            parameters:
-                @display("p=297,127;i=old/bwsink");
-        }
-        addCA: AddCA {
-            parameters:
-                @display("p=392,127;i=old/bwsink");
+                @display("p=245,135;i=old/bwsink");
         }
         warmup: Warmup {
             parameters:
@@ -67,15 +51,15 @@ network Network
         }
         speedprofile: SpeedProfile {
             parameters:
-                @display("p=127,212;i=block/table");
+                @display("p=144,212;i=block/table");
         }
         statistics: Statistics {
             parameters:
-                @display("p=325,43;i=block/timer");
+                @display("p=144,135;i=block/timer");
         }
         router: Router {
             parameters:
-                @display("p=202,389;i=block/broadcast");
+                @display("p=245,389;i=block/broadcast");
         }
         TrafficLight: TL_Manager {
             parameters:
@@ -83,11 +67,11 @@ network Network
         }
         cobalt: Cobalt {
             parameters:
-                @display("p=130,389;i=block/broadcast");
+                @display("p=144,389;i=block/broadcast");
         }
         plotter: Plotter {
             parameters:
-                @display("p=294,212;i=block/app");
+                @display("p=338,212;i=block/app");
         }
         sniffEthernet: SniffEthernet {
             parameters:
@@ -95,11 +79,11 @@ network Network
         }
         sniffUSB: SniffUSB {
             parameters:
-                @display("p=130,299;i=block/mac");
+                @display("p=144,299;i=block/mac");
         }
         sniffBluetooth: SniffBluetoothDump {
             parameters:
-                @display("p=221,299;i=block/mac");
+                @display("p=245,299;i=block/mac");
         }
 
     connections allowunconnected:

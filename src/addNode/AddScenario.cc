@@ -1,8 +1,8 @@
 /****************************************************************************/
-/// @file    AddEntity.cc
+/// @file    AddScenario.cc
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
-/// @author  depart author name
-/// @date    August 2013
+/// @author  second author name
+/// @date    Apr 2016
 ///
 /****************************************************************************/
 // VENTOS, Vehicular Network Open Simulator; see http:?
@@ -25,127 +25,71 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "AddEntity.h"
+#include "AddScenario.h"
 #include "Router.h"
 #include <algorithm>
 #include <random>
 
 namespace VENTOS {
 
-Define_Module(VENTOS::AddEntity);
+Define_Module(VENTOS::AddScenario);
 
-AddEntity::~AddEntity()
+AddScenario::~AddScenario()
 {
 
 }
 
 
-void AddEntity::initialize(int stage)
+void AddScenario::initialize(int stage)
 {
     if(stage ==0)
     {
-        // get a pointer to the TraCI module
-        cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
-        TraCI = static_cast<TraCI_Commands *>(module);
-        ASSERT(TraCI);
-
-        terminate = module->par("terminate").doubleValue();
-        // if user specifies no termination time, set it to a big value
-        if(terminate == -1)
-            terminate = 100000;
-
-        on = par("on").boolValue();
         mode = par("mode").longValue();
-        totalVehicles = par("totalVehicles").longValue();
-        vehiclesType = par("vehiclesType").stringValue();
-        distribution = par("distribution").longValue();
-        interval = par("interval").longValue();
-        lambda = par("lambda").longValue();
-
-        plnSize = par("plnSize").longValue();
-        plnSpace = par("plnSpace").doubleValue();
-
-        overlap = par("overlap").doubleValue();
-        vehMultiClass = par("vehMultiClass").boolValue();
-        bike = par("bike").boolValue();
-
-        vehRouteDistribution = cStringTokenizer(par("vehRouteDist").stringValue(), ",").asDoubleVector();
-        if(vehRouteDistribution.size() != 3)
-            error("Three values should be specified for vehicle route distribution!");
-
-        // make sure vehicle route distributions are set correctly
-        double totalDist = 0;
-        for(double i : vehRouteDistribution)
-            totalDist += i;
-        if(totalDist != 100)
-            error("vehicle route distributions do not add up to 100 percent!");
-
-        if(vehMultiClass)
-        {
-            vehClassDistribution = cStringTokenizer(par("vehClassDist").stringValue(), ",").asDoubleVector();
-            if(vehClassDistribution.size() != 2)
-                error("Two values should be specified for vehicle class distribution!");
-
-            // make sure vehicle class distributions are set correctly
-            totalDist = 0;
-            for(double i : vehClassDistribution)
-                totalDist += i;
-            if(totalDist != 100)
-                error("vehicle class distributions do not add up to 100 percent!");
-        }
-
-        if(bike)
-        {
-            bikeRouteDistribution = cStringTokenizer(par("bikeRouteDist").stringValue(), ",").asDoubleVector();
-            if(bikeRouteDistribution.size() != 3)
-                error("Three values should be specified for bike route distribution!");
-
-            // make sure vehicle bike route distributions are set correctly
-            totalDist = 0;
-            for(double i : bikeRouteDistribution)
-                totalDist += i;
-            if(totalDist != 100)
-                error("bike route distributions do not add up to 100 percent!");
-        }
 
         Signal_executeFirstTS = registerSignal("executeFirstTS");
         simulation.getSystemModule()->subscribe("executeFirstTS", this);
+
+        Signal_addFlow = registerSignal("addFlow");
+        simulation.getSystemModule()->subscribe("addFlow", this);
     }
 }
 
 
-void AddEntity::finish()
+void AddScenario::finish()
 {
 
 }
 
 
-void AddEntity::handleMessage(cMessage *msg)
+void AddScenario::handleMessage(cMessage *msg)
 {
 
 }
 
 
-void AddEntity::receiveSignal(cComponent *source, simsignal_t signalID, long i)
+void AddScenario::receiveSignal(cComponent *source, simsignal_t signalID, long i)
 {
     Enter_Method_Silent();
 
-    if(signalID == Signal_executeFirstTS)
+    if(signalID == Signal_executeFirstTS && mode > -1)
     {
-        AddEntity::Add();
+        std::cout << ">>> AddScenario module is loading entities ..." << endl << endl;
+        std::cout.flush();
+
+        AddScenario::Add();
+
+        printLoadedStatistics();
+        std::cout.flush();
+    }
+    else if(signalID == Signal_addFlow && mode > -1)
+    {
+        addFlow();
     }
 }
 
 
-void AddEntity::Add()
+void AddScenario::Add()
 {
-    // if dynamic adding is off, return
-    if (!on)
-        return;
-
-    std::cout << ">>> AddEntity module is loading entities ..." << endl << endl;
-    std::cout.flush();
-
     if(mode == 1)
     {
         Scenario1();
@@ -186,110 +130,18 @@ void AddEntity::Add()
     {
         error("not a valid mode!");
     }
-
-    printLoadedStatistics();
-}
-
-
-void AddEntity::printLoadedStatistics()
-{
-    // ######################
-    // list all entities type
-    //#######################
-
-    std::list<std::string> loadedVehList = TraCI->simulationGetLoadedVehiclesIDList();
-    std::cout << ">>> AddEntity module loaded " << loadedVehList.size() << " entities: " << endl;
-    std::cout << endl;
-
-    {
-        std::list<std::string> loadedVehTypeList = TraCI->vehicleTypeGetIDList();
-        std::cout << "  " << loadedVehTypeList.size() << " possible vehicle types are loaded: " << endl;
-        std::cout << "      ";
-        unsigned int counter = 1;
-        for(std::string type : loadedVehTypeList)
-        {
-            std::cout << type << "  ";
-
-            // introduce new line after each 4 routes
-            if(counter % 4 == 0 && counter != loadedVehTypeList.size())
-                std::cout << std::endl << "      ";
-
-            counter++;
-        }
-
-        std::cout << std::endl;
-        std::cout << std::endl;
-
-        std::list<std::string> loadedVehType;
-        for(std::string vehID : loadedVehList)
-        {
-            std::string type = TraCI->vehicleGetTypeID(vehID);
-            loadedVehType.push_back(type);
-        }
-
-        std::list<std::string> loadedVehTypeListUnique = loadedVehType;
-        loadedVehTypeListUnique.sort();  // we need sort the list first before calling unique
-        loadedVehTypeListUnique.unique();
-
-        for(std::string type : loadedVehTypeListUnique)
-        {
-            int count = std::count(loadedVehType.begin(), loadedVehType.end(), type);
-            std::cout << "  ";
-            std::cout << count << " entities are loaded of type " << "\"" << type << "\"" << endl;
-        }
-    }
-
-    //###########################
-    // list all the loaded routes
-    //###########################
-
-    {
-        std::list<std::string> loadedRouteList = TraCI->routeGetIDList();
-        std::cout << std::endl;
-        std::cout << "  " << loadedRouteList.size() << " possible routes are loaded: " << endl;
-        std::cout << "      ";
-        unsigned int counter = 1;
-        for(std::string route : loadedRouteList)
-        {
-            std::cout << route << "  ";
-
-            // introduce new line after each 4 routes
-            if(counter % 4 == 0 && counter != loadedRouteList.size())
-                std::cout << std::endl << "      ";
-
-            counter++;
-        }
-
-        std::cout << std::endl;
-        std::cout << std::endl;
-        std::cout << "  route distributions are: " << endl;
-
-        std::list<std::string> loadedVehRoute;
-        for(std::string vehID : loadedVehList)
-        {
-            std::string route = TraCI->vehicleGetRouteID(vehID);
-            loadedVehRoute.push_back(route);
-        }
-
-        std::list<std::string> loadedVehRouteListUnique = loadedVehRoute;
-        loadedVehRouteListUnique.sort();  // we need sort the list first before calling unique
-        loadedVehRouteListUnique.unique();
-
-        for(std::string route : loadedVehRouteListUnique)
-        {
-            int count = std::count(loadedVehRoute.begin(), loadedVehRoute.end(), route);
-            std::cout << "      ";
-            std::cout << count << " entities have route " << "\"" << route << "\"" << endl;
-        }
-    }
-
-    std::cout.flush();
 }
 
 
 // adding 'totalVehicles' vehicles with type 'vehiclesType'
-void AddEntity::Scenario1()
+void AddScenario::Scenario1()
 {
+    int totalVehicles = par("totalVehicles").longValue();
+    std::string vehiclesType = par("vehiclesType").stringValue();
+    int distribution = par("distribution").longValue();
+    int interval = par("interval").longValue();
+    double lambda = par("lambda").longValue();
+
     // deterministic distribution every 'interval'
     if(distribution == 1)
     {
@@ -360,7 +212,7 @@ void AddEntity::Scenario1()
 
 
 // todo: remove this scenario (background traffic)
-void AddEntity::Scenario5()
+void AddScenario::Scenario5()
 {
     int depart = 0;
 
@@ -384,8 +236,13 @@ void AddEntity::Scenario5()
 }
 
 
-void AddEntity::Scenario6()
+void AddScenario::Scenario6()
 {
+    int totalVehicles = par("totalVehicles").longValue();
+    double lambda = par("lambda").longValue();
+    int plnSize = par("plnSize").longValue();
+    double plnSpace = par("plnSpace").doubleValue();
+
     // change from 'veh/h' to 'veh/s'
     lambda = lambda / 3600;
 
@@ -428,8 +285,10 @@ void AddEntity::Scenario6()
 
 
 // incident detection
-void AddEntity::Scenario7()
+void AddScenario::Scenario7()
 {
+    int totalVehicles = par("totalVehicles").longValue();
+
     int depart = 0;
 
     for(int i=1; i<=totalVehicles; i++)
@@ -511,7 +370,7 @@ void generateVehicles(std::string dir, Router* r)
     vFile.close();
 }
 
-void AddEntity::Scenario8()
+void AddScenario::Scenario8()
 {
     cModule *module = simulation.getSystemModule()->getSubmodule("router");
     Router *r = static_cast< Router* >(module);
@@ -583,7 +442,7 @@ void AddEntity::Scenario8()
 }
 
 
-void AddEntity::Scenario9()
+void AddScenario::Scenario9()
 {
     // demand per depart for north inbound
     double pNS = 700. / 3600.;
@@ -713,8 +572,53 @@ void AddEntity::Scenario9()
 
 
 // balanced traffic
-void AddEntity::Scenario10()
+void AddScenario::Scenario10()
 {
+    double overlap = par("overlap").doubleValue();
+
+    bool vehMultiClass = par("vehMultiClass").boolValue();
+    std::vector<double> vehClassDistribution;
+    if(vehMultiClass)
+    {
+        vehClassDistribution = cStringTokenizer(par("vehClassDist").stringValue(), ",").asDoubleVector();
+        if(vehClassDistribution.size() != 2)
+            error("Two values should be specified for vehicle class distribution!");
+
+        // make sure vehicle class distributions are set correctly
+        double totalDist = 0;
+        for(double i : vehClassDistribution)
+            totalDist += i;
+        if(totalDist != 100)
+            error("vehicle class distributions do not add up to 100 percent!");
+    }
+
+    std::vector<double> vehRouteDistribution;
+    vehRouteDistribution = cStringTokenizer(par("vehRouteDist").stringValue(), ",").asDoubleVector();
+    if(vehRouteDistribution.size() != 3)
+        error("Three values should be specified for vehicle route distribution!");
+    // make sure vehicle route distributions are set correctly
+    double totalDist = 0;
+    for(double i : vehRouteDistribution)
+        totalDist += i;
+    if(totalDist != 100)
+        error("vehicle route distributions do not add up to 100 percent!");
+
+    bool bike = par("bike").boolValue();
+    std::vector<double> bikeRouteDistribution;
+    if(bike)
+    {
+        bikeRouteDistribution = cStringTokenizer(par("bikeRouteDist").stringValue(), ",").asDoubleVector();
+        if(bikeRouteDistribution.size() != 3)
+            error("Three values should be specified for bike route distribution!");
+
+        // make sure vehicle bike route distributions are set correctly
+        totalDist = 0;
+        for(double i : bikeRouteDistribution)
+            totalDist += i;
+        if(totalDist != 100)
+            error("bike route distributions do not add up to 100 percent!");
+    }
+
     // mersenne twister engine (seed is fixed to make tests reproducible)
     std::mt19937 generator(43);
 
@@ -994,8 +898,53 @@ void AddEntity::Scenario10()
 
 
 // unbalanced traffic
-void AddEntity::Scenario11()
+void AddScenario::Scenario11()
 {
+    double overlap = par("overlap").doubleValue();
+
+    bool vehMultiClass = par("vehMultiClass").boolValue();
+    std::vector<double> vehClassDistribution;
+    if(vehMultiClass)
+    {
+        vehClassDistribution = cStringTokenizer(par("vehClassDist").stringValue(), ",").asDoubleVector();
+        if(vehClassDistribution.size() != 2)
+            error("Two values should be specified for vehicle class distribution!");
+
+        // make sure vehicle class distributions are set correctly
+        double totalDist = 0;
+        for(double i : vehClassDistribution)
+            totalDist += i;
+        if(totalDist != 100)
+            error("vehicle class distributions do not add up to 100 percent!");
+    }
+
+    std::vector<double> vehRouteDistribution;
+    vehRouteDistribution = cStringTokenizer(par("vehRouteDist").stringValue(), ",").asDoubleVector();
+    if(vehRouteDistribution.size() != 3)
+        error("Three values should be specified for vehicle route distribution!");
+    // make sure vehicle route distributions are set correctly
+    double totalDist = 0;
+    for(double i : vehRouteDistribution)
+        totalDist += i;
+    if(totalDist != 100)
+        error("vehicle route distributions do not add up to 100 percent!");
+
+    bool bike = par("bike").boolValue();
+    std::vector<double> bikeRouteDistribution;
+    if(bike)
+    {
+        bikeRouteDistribution = cStringTokenizer(par("bikeRouteDist").stringValue(), ",").asDoubleVector();
+        if(bikeRouteDistribution.size() != 3)
+            error("Three values should be specified for bike route distribution!");
+
+        // make sure vehicle bike route distributions are set correctly
+        totalDist = 0;
+        for(double i : bikeRouteDistribution)
+            totalDist += i;
+        if(totalDist != 100)
+            error("bike route distributions do not add up to 100 percent!");
+    }
+
     // mersenne twister engine (seed is fixed to make tests reproducible)
     std::mt19937 generator(43);
 
@@ -1317,8 +1266,24 @@ void AddEntity::Scenario11()
 
 
 // testing starvation
-void AddEntity::Scenario12()
+void AddScenario::Scenario12()
 {
+    bool vehMultiClass = par("vehMultiClass").boolValue();
+    std::vector<double> vehClassDistribution;
+    if(vehMultiClass)
+    {
+        vehClassDistribution = cStringTokenizer(par("vehClassDist").stringValue(), ",").asDoubleVector();
+        if(vehClassDistribution.size() != 2)
+            error("Two values should be specified for vehicle class distribution!");
+
+        // make sure vehicle class distributions are set correctly
+        double totalDist = 0;
+        for(double i : vehClassDistribution)
+            totalDist += i;
+        if(totalDist != 100)
+            error("vehicle class distributions do not add up to 100 percent!");
+    }
+
     // add a single bike (north to south)
     TraCI->vehicleAdd("bike1", "bicycle", "movement2", 5000, 600 /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
