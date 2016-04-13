@@ -48,6 +48,11 @@ void AddScenario::initialize(int stage)
     {
         mode = par("mode").longValue();
 
+        // get a pointer to the TrafficLight module
+        cModule *TLptr = simulation.getSystemModule()->getSubmodule("TrafficLight");
+        ASSERT(TLptr);
+        TLControlMode = TLptr->par("TLControlMode").longValue();
+
         Signal_executeFirstTS = registerSignal("executeFirstTS");
         simulation.getSystemModule()->subscribe("executeFirstTS", this);
     }
@@ -75,7 +80,7 @@ void AddScenario::receiveSignal(cComponent *source, simsignal_t signalID, long i
 
     if(signalID == Signal_executeFirstTS)
     {
-        std::cout << ">>> AddScenario module is loading entities ..." << endl << endl;
+        std::cout << ">>> AddScenario is adding nodes into the simulation ..." << endl;
         std::cout.flush();
 
         // create a map of functions
@@ -108,12 +113,117 @@ void AddScenario::receiveSignal(cComponent *source, simsignal_t signalID, long i
         pfunc f = i->second;
         (this->*f)();
 
+        std::cout << std::endl;
+        std::cout << ">>> AddScenario is done adding nodes. Here is a summary: " << endl;
+        std::cout.flush();
         printLoadedStatistics();
         std::cout.flush();
     }
     // pass it up, if we do not know how to handle the signal
     else
         super::receiveSignal(source, signalID, i);
+}
+
+
+void AddScenario::printLoadedStatistics()
+{
+    //#####################
+    // Get the list of RUSs
+    //#####################
+
+    // get a pointer to the first RSU
+    cModule *module = simulation.getSystemModule()->getSubmodule("RSU", 0);
+    if(module == NULL)
+    {
+        printf("  No RSUs is added!");
+    }
+    else
+    {
+        // how many RSUs are in the network?
+        int RSUcount = module->getVectorSize();
+        printf("  %d RSUs are added: ", RSUcount);
+
+        // iterate over RSUs
+        for(int i = 0; i < RSUcount; ++i)
+        {
+            // get a pointer to the RSU
+            module = simulation.getSystemModule()->getSubmodule("RSU", i);
+
+            // get OMNET id
+            std::string RSUfullId = module->getFullName();
+
+            // get SUMO id
+            cModule *appl =  module->getSubmodule("appl");
+            std::string SUMOID = appl->par("SUMOID").stringValue();
+
+            printf("%s (%s), ", RSUfullId.c_str(), SUMOID.c_str());
+        }
+    }
+
+    printf("\n");
+
+    //###################################
+    // Get the list of all possible route
+    //###################################
+
+    std::list<std::string> loadedRouteList = TraCI->routeGetIDList();
+    printf("  %lu possible routes are loaded: ", loadedRouteList.size());
+    for(std::string route : loadedRouteList)
+        printf("%s, ", route.c_str());
+
+    printf("\n");
+
+    //##################################
+    // Get the list of all vehicle types
+    //##################################
+
+    std::list<std::string> loadedVehTypeList = TraCI->vehicleTypeGetIDList();
+    printf("  %lu vehicle/bike types are loaded: ", loadedVehTypeList.size());
+    for(std::string type : loadedVehTypeList)
+        printf("%s, ", type.c_str());
+
+    printf("\n");
+
+    //#############################
+    // Get the list of all vehicles
+    //#############################
+
+    std::list<std::string> loadedVehList = TraCI->simulationGetLoadedVehiclesIDList();
+    printf("  %lu vehicles/bikes are loaded out of which: \n", loadedVehList.size());
+
+    // get vehicle/bike type distribution
+    std::list<std::string> loadedVehType;
+    for(std::string vehID : loadedVehList)
+    {
+        std::string type = TraCI->vehicleGetTypeID(vehID);
+        loadedVehType.push_back(type);
+    }
+    std::list<std::string> loadedVehTypeListUnique = loadedVehType;
+    loadedVehTypeListUnique.sort();  // we need sort the list first before calling unique
+    loadedVehTypeListUnique.unique();
+    for(std::string type : loadedVehTypeListUnique)
+    {
+        int count = std::count(loadedVehType.begin(), loadedVehType.end(), type);
+        printf("      %d nodes are added of type \"%s\" \n", count, type.c_str());
+    }
+
+    printf("\n");
+
+    // get route distribution
+    std::list<std::string> loadedVehRoute;
+    for(std::string vehID : loadedVehList)
+    {
+        std::string route = TraCI->vehicleGetRouteID(vehID);
+        loadedVehRoute.push_back(route);
+    }
+    std::list<std::string> loadedVehRouteListUnique = loadedVehRoute;
+    loadedVehRouteListUnique.sort();  // we need sort the list first before calling unique
+    loadedVehRouteListUnique.unique();
+    for(std::string route : loadedVehRouteListUnique)
+    {
+        int count = std::count(loadedVehRoute.begin(), loadedVehRoute.end(), route);
+        printf("      %d nodes have route \"%s\" \n", count, route.c_str());
+    }
 }
 
 
@@ -315,6 +425,9 @@ void AddScenario::Scenario7()
     // and change its color to red
     RGB newColor = Color::colorNameToRGB("red");
     TraCI->vehicleSetColor("obstacle", newColor);
+
+    std::string RSUfile = par("RSUfile").stringValue();
+    addRSU(RSUfile);
 }
 
 
@@ -431,7 +544,7 @@ void AddScenario::Scenario8()
         }
 
         //Send a TraCI add call -- might not need to be *1000.
-        TraCI->vehicleAdd(id/*vehID*/, type/*vehType*/, origin/*routeID*/, 1000 * depart, 0/*pos*/, 0/*initial speed*/, 0/*lane*/);
+        addVehicle(id/*vehID*/, type/*vehType*/, origin/*routeID*/, 1000 * depart, 0/*pos*/, 0/*initial speed*/, 0/*lane*/);
 
         //Change color of non-rerouting vehicle to green.
         std::string veh = id.substr(1,-1);
@@ -479,7 +592,7 @@ void AddScenario::Scenario9()
             vehNum++;
             sprintf(vehicleName, "Veh-NS-%d", vehNum);
 
-            TraCI->vehicleAdd(vehicleName, "TypeManual", "route1", i, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+            addVehicle(vehicleName, "TypeManual", "route1", i, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
         }
 
         if( distribution(generator) < pNW )
@@ -487,7 +600,7 @@ void AddScenario::Scenario9()
             vehNum++;
             sprintf(vehicleName, "Veh-NW-%d", vehNum);
 
-            TraCI->vehicleAdd(vehicleName, "TypeManual", "route2", i, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+            addVehicle(vehicleName, "TypeManual", "route2", i, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
         }
 
         if( distribution(generator) < pNE )
@@ -495,7 +608,7 @@ void AddScenario::Scenario9()
             vehNum++;
             sprintf(vehicleName, "Veh-NE-%d", vehNum);
 
-            TraCI->vehicleAdd(vehicleName, "TypeManual", "route3", i, 0 /*pos*/, 30 /*speed*/, 4 /*lane*/);
+            addVehicle(vehicleName, "TypeManual", "route3", i, 0 /*pos*/, 30 /*speed*/, 4 /*lane*/);
         }
 
         if( distribution(generator) < pSN )
@@ -503,7 +616,7 @@ void AddScenario::Scenario9()
             vehNum++;
             sprintf(vehicleName, "Veh-SN-%d", vehNum);
 
-            TraCI->vehicleAdd(vehicleName, "TypeManual", "route4", i, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+            addVehicle(vehicleName, "TypeManual", "route4", i, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
         }
 
         if( distribution(generator) < pSE )
@@ -511,7 +624,7 @@ void AddScenario::Scenario9()
             vehNum++;
             sprintf(vehicleName, "Veh-SE-%d", vehNum);
 
-            TraCI->vehicleAdd(vehicleName, "TypeManual", "route5", i, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+            addVehicle(vehicleName, "TypeManual", "route5", i, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
         }
 
         if( distribution(generator) < pSW )
@@ -519,7 +632,7 @@ void AddScenario::Scenario9()
             vehNum++;
             sprintf(vehicleName, "Veh-SW-%d", vehNum);
 
-            TraCI->vehicleAdd(vehicleName, "TypeManual", "route6", i, 0 /*pos*/, 30 /*speed*/, 4 /*lane*/);
+            addVehicle(vehicleName, "TypeManual", "route6", i, 0 /*pos*/, 30 /*speed*/, 4 /*lane*/);
         }
 
         if( distribution(generator) < pWE )
@@ -527,7 +640,7 @@ void AddScenario::Scenario9()
             vehNum++;
             sprintf(vehicleName, "Veh-WE-%d", vehNum);
 
-            TraCI->vehicleAdd(vehicleName, "TypeManual", "route7", i, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+            addVehicle(vehicleName, "TypeManual", "route7", i, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
         }
 
         if( distribution(generator) < pWS )
@@ -535,7 +648,7 @@ void AddScenario::Scenario9()
             vehNum++;
             sprintf(vehicleName, "Veh-WS-%d", vehNum);
 
-            TraCI->vehicleAdd(vehicleName, "TypeManual", "route8", i, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+            addVehicle(vehicleName, "TypeManual", "route8", i, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
         }
 
         if( distribution(generator) < pWN )
@@ -543,7 +656,7 @@ void AddScenario::Scenario9()
             vehNum++;
             sprintf(vehicleName, "Veh-WN-%d", vehNum);
 
-            TraCI->vehicleAdd(vehicleName, "TypeManual", "route9", i, 0 /*pos*/, 30 /*speed*/, 4 /*lane*/);
+            addVehicle(vehicleName, "TypeManual", "route9", i, 0 /*pos*/, 30 /*speed*/, 4 /*lane*/);
         }
 
         if( distribution(generator) < pEW )
@@ -551,7 +664,7 @@ void AddScenario::Scenario9()
             vehNum++;
             sprintf(vehicleName, "Veh-EW-%d", vehNum);
 
-            TraCI->vehicleAdd(vehicleName, "TypeManual", "route10", i, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+            addVehicle(vehicleName, "TypeManual", "route10", i, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
         }
 
         if( distribution(generator) < pEN )
@@ -559,7 +672,7 @@ void AddScenario::Scenario9()
             vehNum++;
             sprintf(vehicleName, "Veh-EN-%d", vehNum);
 
-            TraCI->vehicleAdd(vehicleName, "TypeManual", "route11", i, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
+            addVehicle(vehicleName, "TypeManual", "route11", i, 0 /*pos*/, 30 /*speed*/, 3 /*lane*/);
         }
 
         if( distribution(generator) < pES )
@@ -567,7 +680,7 @@ void AddScenario::Scenario9()
             vehNum++;
             sprintf(vehicleName, "Veh-ES-%d", vehNum);
 
-            TraCI->vehicleAdd(vehicleName, "TypeManual", "route12", i, 0 /*pos*/, 30 /*speed*/, 4 /*lane*/);
+            addVehicle(vehicleName, "TypeManual", "route12", i, 0 /*pos*/, 30 /*speed*/, 4 /*lane*/);
         }
     }
 }
@@ -771,57 +884,57 @@ void AddScenario::Scenario10()
             {
                 name.str("");
                 name << vehDemand << "_N_T_" << vehCounter;
-                TraCI->vehicleAdd(name.str(), vehType, "movement2", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                addVehicle(name.str(), vehType, "movement2", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
                 name.str("");
                 name << vehDemand << "_S_T_" << vehCounter;
-                TraCI->vehicleAdd(name.str(), vehType, "movement6", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                addVehicle(name.str(), vehType, "movement6", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
                 name.str("");
                 name << vehDemand << "_W_T_" << vehCounter;
-                TraCI->vehicleAdd(name.str(), vehType, "movement8", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                addVehicle(name.str(), vehType, "movement8", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
                 name.str("");
                 name << vehDemand << "_E_T_" << vehCounter;
-                TraCI->vehicleAdd(name.str(), vehType, "movement4", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                addVehicle(name.str(), vehType, "movement4", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
             }
             // left vehicle
             else if( vehRoute >= vehRouteDistribution[0]/100. && vehRoute < (vehRouteDistribution[0]/100. + vehRouteDistribution[1]/100.) )
             {
                 name.str("");
                 name << vehDemand << "_N_L_" << vehCounter;
-                TraCI->vehicleAdd(name.str(), vehType, "movement5", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                addVehicle(name.str(), vehType, "movement5", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
                 name.str("");
                 name << vehDemand << "_S_L_" << vehCounter;
-                TraCI->vehicleAdd(name.str(), vehType, "movement1", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                addVehicle(name.str(), vehType, "movement1", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
                 name.str("");
                 name << vehDemand << "_W_L_" << vehCounter;
-                TraCI->vehicleAdd(name.str(), vehType, "movement3", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                addVehicle(name.str(), vehType, "movement3", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
                 name.str("");
                 name << vehDemand << "_E_L_" << vehCounter;
-                TraCI->vehicleAdd(name.str(), vehType, "movement7", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                addVehicle(name.str(), vehType, "movement7", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
             }
             // right vehicle
             else if( vehRoute >= (vehRouteDistribution[0]/100. + vehRouteDistribution[1]/100.) && vehRoute <= (vehRouteDistribution[0]/100. + vehRouteDistribution[1]/100. + vehRouteDistribution[2]/100.) )
             {
                 name.str("");
                 name << vehDemand << "_N_R_" << vehCounter;
-                TraCI->vehicleAdd(name.str(), vehType, "route1", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                addVehicle(name.str(), vehType, "route1", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
                 name.str("");
                 name << vehDemand << "_S_R_" << vehCounter;
-                TraCI->vehicleAdd(name.str(), vehType, "route2", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                addVehicle(name.str(), vehType, "route2", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
                 name.str("");
                 name << vehDemand << "_W_R_" << vehCounter;
-                TraCI->vehicleAdd(name.str(), vehType, "route3", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                addVehicle(name.str(), vehType, "route3", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
                 name.str("");
                 name << vehDemand << "_E_R_" << vehCounter;
-                TraCI->vehicleAdd(name.str(), vehType, "route4", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                addVehicle(name.str(), vehType, "route4", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
             }
 
             vehCounter++;
@@ -839,63 +952,66 @@ void AddScenario::Scenario10()
                 {
                     name.str("");
                     name << bikeDemand << "_N_T_" << vehCounter;
-                    TraCI->vehicleAdd(name.str(), "bicycle", "movement2", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                    addBicycle(name.str(), "bicycle", "movement2", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
                     name.str("");
                     name << bikeDemand << "_S_T_" << vehCounter;
-                    TraCI->vehicleAdd(name.str(), "bicycle", "movement6", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                    addBicycle(name.str(), "bicycle", "movement6", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
                     name.str("");
                     name << bikeDemand << "_W_T_" << vehCounter;
-                    TraCI->vehicleAdd(name.str(), "bicycle", "movement8", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                    addBicycle(name.str(), "bicycle", "movement8", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
                     name.str("");
                     name << bikeDemand << "_E_T_" << vehCounter;
-                    TraCI->vehicleAdd(name.str(), "bicycle", "movement4", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                    addBicycle(name.str(), "bicycle", "movement4", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
                 }
                 // left bike
                 else if( bikeRoute >= bikeRouteDistribution[0]/100. && bikeRoute < (bikeRouteDistribution[0]/100. + bikeRouteDistribution[1]/100.) )
                 {
                     name.str("");
                     name << bikeDemand << "_N_L_" << vehCounter;
-                    TraCI->vehicleAdd(name.str(), "bicycle", "movement5", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                    addBicycle(name.str(), "bicycle", "movement5", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
                     name.str("");
                     name << bikeDemand << "_S_L_" << vehCounter;
-                    TraCI->vehicleAdd(name.str(), "bicycle", "movement1", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                    addBicycle(name.str(), "bicycle", "movement1", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
                     name.str("");
                     name << bikeDemand << "_W_L_" << vehCounter;
-                    TraCI->vehicleAdd(name.str(), "bicycle", "movement3", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                    addBicycle(name.str(), "bicycle", "movement3", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
                     name.str("");
                     name << bikeDemand << "_E_L_" << vehCounter;
-                    TraCI->vehicleAdd(name.str(), "bicycle", "movement7", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                    addBicycle(name.str(), "bicycle", "movement7", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
                 }
                 // right bike
                 else if( bikeRoute >= (bikeRouteDistribution[0]/100. + bikeRouteDistribution[1]/100.) && bikeRoute <= (bikeRouteDistribution[0]/100. + bikeRouteDistribution[1]/100. + bikeRouteDistribution[2]/100.) )
                 {
                     name.str("");
                     name << bikeDemand << "_N_R_" << vehCounter;
-                    TraCI->vehicleAdd(name.str(), "bicycle", "route1", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                    addBicycle(name.str(), "bicycle", "route1", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
                     name.str("");
                     name << bikeDemand << "_S_R_" << vehCounter;
-                    TraCI->vehicleAdd(name.str(), "bicycle", "route2", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                    addBicycle(name.str(), "bicycle", "route2", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
                     name.str("");
                     name << bikeDemand << "_W_R_" << vehCounter;
-                    TraCI->vehicleAdd(name.str(), "bicycle", "route3", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                    addBicycle(name.str(), "bicycle", "route3", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
                     name.str("");
                     name << bikeDemand << "_E_R_" << vehCounter;
-                    TraCI->vehicleAdd(name.str(), "bicycle", "route4", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                    addBicycle(name.str(), "bicycle", "route4", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
                 }
 
                 vehCounter++;
             }
         }
     }
+
+    std::string RSUfile = par("RSUfile").stringValue();
+    addRSU(RSUfile);
 }
 
 
@@ -1130,33 +1246,33 @@ void AddScenario::Scenario11()
             {
                 name.str("");
                 name << vehDemandMain << "_W_T_" << vehCounter;
-                TraCI->vehicleAdd(name.str(), vehType, "movement8", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                addVehicle(name.str(), vehType, "movement8", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
                 name.str("");
                 name << vehDemandMain << "_E_T_" << vehCounter;
-                TraCI->vehicleAdd(name.str(), vehType, "movement4", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                addVehicle(name.str(), vehType, "movement4", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
             }
             // left
             else if( vehRoute >= vehRouteDistribution[0]/100. && vehRoute < (vehRouteDistribution[0]/100. + vehRouteDistribution[1]/100.) )
             {
                 name.str("");
                 name << vehDemandMain << "_W_L_" << vehCounter;
-                TraCI->vehicleAdd(name.str(), vehType, "movement3", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                addVehicle(name.str(), vehType, "movement3", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
                 name.str("");
                 name << vehDemandMain << "_E_L_" << vehCounter;
-                TraCI->vehicleAdd(name.str(), vehType, "movement7", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                addVehicle(name.str(), vehType, "movement7", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
             }
             // right
             else if( vehRoute >= (vehRouteDistribution[0]/100. + vehRouteDistribution[1]/100.) && vehRoute <= (vehRouteDistribution[0]/100. + vehRouteDistribution[1]/100. + vehRouteDistribution[2]/100.) )
             {
                 name.str("");
                 name << vehDemandMain << "_W_R_" << vehCounter;
-                TraCI->vehicleAdd(name.str(), vehType, "route3", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                addVehicle(name.str(), vehType, "route3", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
                 name.str("");
                 name << vehDemandMain << "_E_R_" << vehCounter;
-                TraCI->vehicleAdd(name.str(), vehType, "route4", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                addVehicle(name.str(), vehType, "route4", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
             }
 
             vehCounter++;
@@ -1187,33 +1303,33 @@ void AddScenario::Scenario11()
             {
                 name.str("");
                 name << vehDemandSide << "_N_T_" << vehCounter;
-                TraCI->vehicleAdd(name.str(), vehType, "movement2", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                addVehicle(name.str(), vehType, "movement2", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
                 name.str("");
                 name << vehDemandSide << "_S_T_" << vehCounter;
-                TraCI->vehicleAdd(name.str(), vehType, "movement6", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                addVehicle(name.str(), vehType, "movement6", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
             }
             // left
             else if( vehRoute >= vehRouteDistribution[0]/100. && vehRoute < (vehRouteDistribution[0]/100. + vehRouteDistribution[1]/100.) )
             {
                 name.str("");
                 name << vehDemandSide << "_N_L_" << vehCounter;
-                TraCI->vehicleAdd(name.str(), vehType, "movement5", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                addVehicle(name.str(), vehType, "movement5", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
                 name.str("");
                 name << vehDemandSide << "_S_L_" << vehCounter;
-                TraCI->vehicleAdd(name.str(), vehType, "movement1", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                addVehicle(name.str(), vehType, "movement1", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
             }
             // right
             else if( vehRoute >= (vehRouteDistribution[0]/100. + vehRouteDistribution[1]/100.) && vehRoute <= (vehRouteDistribution[0]/100. + vehRouteDistribution[1]/100. + vehRouteDistribution[2]/100.) )
             {
                 name.str("");
                 name << vehDemandSide << "_N_R_" << vehCounter;
-                TraCI->vehicleAdd(name.str(), vehType, "route1", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                addVehicle(name.str(), vehType, "route1", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
                 name.str("");
                 name << vehDemandSide << "_S_R_" << vehCounter;
-                TraCI->vehicleAdd(name.str(), vehType, "route2", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                addVehicle(name.str(), vehType, "route2", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
             }
 
             vehCounter++;
@@ -1231,39 +1347,42 @@ void AddScenario::Scenario11()
                 {
                     name.str("");
                     name << bikeDemand << "_W_T_" << vehCounter;
-                    TraCI->vehicleAdd(name.str(), "bicycle", "movement8", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                    addBicycle(name.str(), "bicycle", "movement8", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
                     name.str("");
                     name << bikeDemand << "_E_T_" << vehCounter;
-                    TraCI->vehicleAdd(name.str(), "bicycle", "movement4", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                    addBicycle(name.str(), "bicycle", "movement4", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
                 }
                 // left bike
                 else if( bikeRoute >= bikeRouteDistribution[0]/100. && bikeRoute < (bikeRouteDistribution[0]/100. + bikeRouteDistribution[1]/100.) )
                 {
                     name.str("");
                     name << bikeDemand << "_W_L_" << vehCounter;
-                    TraCI->vehicleAdd(name.str(), "bicycle", "movement3", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                    addBicycle(name.str(), "bicycle", "movement3", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
                     name.str("");
                     name << bikeDemand << "_E_L_" << vehCounter;
-                    TraCI->vehicleAdd(name.str(), "bicycle", "movement7", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                    addBicycle(name.str(), "bicycle", "movement7", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
                 }
                 // right bike
                 else if( bikeRoute >= (bikeRouteDistribution[0]/100. + bikeRouteDistribution[1]/100.) && bikeRoute <= (bikeRouteDistribution[0]/100. + bikeRouteDistribution[1]/100. + bikeRouteDistribution[2]/100.) )
                 {
                     name.str("");
                     name << bikeDemand << "_W_R_" << vehCounter;
-                    TraCI->vehicleAdd(name.str(), "bicycle", "route3", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                    addBicycle(name.str(), "bicycle", "route3", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
                     name.str("");
                     name << bikeDemand << "_E_R_" << vehCounter;
-                    TraCI->vehicleAdd(name.str(), "bicycle", "route4", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
+                    addBicycle(name.str(), "bicycle", "route4", 1000*depart, bikeInsertionPos /*pos*/, 0 /*speed*/, -5 /*lane*/);
                 }
 
                 vehCounter++;
             }
         }
     }
+
+    std::string RSUfile = par("RSUfile").stringValue();
+    addRSU(RSUfile);
 }
 
 
@@ -1287,7 +1406,7 @@ void AddScenario::Scenario12()
     }
 
     // add a single bike (north to south)
-    TraCI->vehicleAdd("bike1", "bicycle", "movement2", 5000, 600 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+    addBicycle("bike1", "bicycle", "movement2", 5000, 600 /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
     // mersenne twister engine (seed is fixed to make tests reproducible)
     std::mt19937 generator(43);
@@ -1339,7 +1458,7 @@ void AddScenario::Scenario12()
 
             name.str("");
             name << "_E_L_" << vehCounter;
-            TraCI->vehicleAdd(name.str(), vehType, "movement7", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+            addVehicle(name.str(), vehType, "movement7", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
             // change vehicle color
             RGB newColor = Color::colorNameToRGB(vehColor);
@@ -1377,7 +1496,7 @@ void AddScenario::Scenario12()
 
             name.str("");
             name << "_W_T_" << vehCounter;
-            TraCI->vehicleAdd(name.str(), vehType, "movement8", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
+            addVehicle(name.str(), vehType, "movement8", 1000*depart, 0 /*pos*/, 0 /*speed*/, -5 /*lane*/);
 
             // change vehicle color
             RGB newColor = Color::colorNameToRGB(vehColor);
@@ -1386,7 +1505,9 @@ void AddScenario::Scenario12()
             vehCounter++;
         }
     }
-}
 
+    std::string RSUfile = par("RSUfile").stringValue();
+    addRSU(RSUfile);
+}
 
 }

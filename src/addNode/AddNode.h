@@ -66,8 +66,6 @@ protected:
     void addRSU(std::string RSUfile);
     void addFlow();
 
-    void printLoadedStatistics();
-
 private:
     std::map<std::string, RSUEntry> commandReadRSUsCoord(std::string);
     void commandAddCirclePoly(std::string, std::string, const RGB color, Coord*, double);

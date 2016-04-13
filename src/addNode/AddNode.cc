@@ -124,7 +124,7 @@ void AddNode::addAdversary()
     if (!parentMod)
         error("Parent Module not found");
 
-    cModuleType* nodeType = cModuleType::get("c3po.application.adversary.Adversary");
+    cModuleType* nodeType = cModuleType::get("c3po.src.adversary.Adversary");
 
     // do not use create("adversary", parentMod);
     // instead create an array of adversaries
@@ -345,100 +345,6 @@ std::string AddNode::getFullPathToSumoRou(std::string sumoConfigFullPath)
 
     return "";
 
-}
-
-
-void AddNode::printLoadedStatistics()
-{
-    // ######################
-    // list all entities type
-    //#######################
-
-    std::list<std::string> loadedVehList = TraCI->simulationGetLoadedVehiclesIDList();
-    std::cout << ">>> AddScenario module loaded " << loadedVehList.size() << " entities: " << endl;
-    std::cout << endl;
-
-    {
-        std::list<std::string> loadedVehTypeList = TraCI->vehicleTypeGetIDList();
-        std::cout << "  " << loadedVehTypeList.size() << " possible vehicle types are loaded: " << endl;
-        std::cout << "      ";
-        unsigned int counter = 1;
-        for(std::string type : loadedVehTypeList)
-        {
-            std::cout << type << "  ";
-
-            // introduce new line after each 4 routes
-            if(counter % 4 == 0 && counter != loadedVehTypeList.size())
-                std::cout << std::endl << "      ";
-
-            counter++;
-        }
-
-        std::cout << std::endl;
-        std::cout << std::endl;
-
-        std::list<std::string> loadedVehType;
-        for(std::string vehID : loadedVehList)
-        {
-            std::string type = TraCI->vehicleGetTypeID(vehID);
-            loadedVehType.push_back(type);
-        }
-
-        std::list<std::string> loadedVehTypeListUnique = loadedVehType;
-        loadedVehTypeListUnique.sort();  // we need sort the list first before calling unique
-        loadedVehTypeListUnique.unique();
-
-        for(std::string type : loadedVehTypeListUnique)
-        {
-            int count = std::count(loadedVehType.begin(), loadedVehType.end(), type);
-            std::cout << "  ";
-            std::cout << count << " entities are loaded of type " << "\"" << type << "\"" << endl;
-        }
-    }
-
-    //###########################
-    // list all the loaded routes
-    //###########################
-
-    {
-        std::list<std::string> loadedRouteList = TraCI->routeGetIDList();
-        std::cout << std::endl;
-        std::cout << "  " << loadedRouteList.size() << " possible routes are loaded: " << endl;
-        std::cout << "      ";
-        unsigned int counter = 1;
-        for(std::string route : loadedRouteList)
-        {
-            std::cout << route << "  ";
-
-            // introduce new line after each 4 routes
-            if(counter % 4 == 0 && counter != loadedRouteList.size())
-                std::cout << std::endl << "      ";
-
-            counter++;
-        }
-
-        std::cout << std::endl;
-        std::cout << std::endl;
-        std::cout << "  route distributions are: " << endl;
-
-        std::list<std::string> loadedVehRoute;
-        for(std::string vehID : loadedVehList)
-        {
-            std::string route = TraCI->vehicleGetRouteID(vehID);
-            loadedVehRoute.push_back(route);
-        }
-
-        std::list<std::string> loadedVehRouteListUnique = loadedVehRoute;
-        loadedVehRouteListUnique.sort();  // we need sort the list first before calling unique
-        loadedVehRouteListUnique.unique();
-
-        for(std::string route : loadedVehRouteListUnique)
-        {
-            int count = std::count(loadedVehRoute.begin(), loadedVehRoute.end(), route);
-            std::cout << "      ";
-            std::cout << count << " entities have route " << "\"" << route << "\"" << endl;
-        }
-    }
 }
 
 }

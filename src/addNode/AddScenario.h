@@ -43,6 +43,8 @@ public:
     virtual void receiveSignal(cComponent *, simsignal_t, long);
 
 private:
+    void printLoadedStatistics();
+
     void Scenario1();
     void Scenario2();
     void Scenario3();
@@ -58,6 +60,7 @@ private:
 
 private:
     int mode;
+    int TLControlMode;
     typedef AddNode super;
 
     // class variables
