@@ -57,7 +57,7 @@ void SniffBluetoothLE::initialize(int stage)
             return;
 
         boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-        cached_LEBT_devices_filePATH = VENTOS_FullPath / "application/sniffing/cached_LEBT_devices";
+        cached_LEBT_devices_filePATH = VENTOS_FullPath / "src/sniffing/cached_LEBT_devices";
     }
 }
 

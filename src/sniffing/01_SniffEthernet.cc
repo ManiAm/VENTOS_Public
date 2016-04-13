@@ -275,7 +275,7 @@ std::string SniffEthernet::serverPortTostr(int port)
     {
         // services files in Linux is in /etc/services
         boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-        boost::filesystem::path services_FullPath = VENTOS_FullPath / "application/sniffing/DB_transportLayerServerPorts";
+        boost::filesystem::path services_FullPath = VENTOS_FullPath / "src/sniffing/DB_transportLayerServerPorts";
         std::ifstream in(services_FullPath.string().c_str());
         if(in.fail())
             error("cannot open file sniff_services at %s", services_FullPath.string().c_str());
@@ -320,7 +320,7 @@ std::string SniffEthernet::OUITostr(const u_int8_t MACaddr[])
     {
         // OUI is downloaded from https://www.wireshark.org/tools/oui-lookup.html
         boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-        boost::filesystem::path manuf_FullPath = VENTOS_FullPath / "application/sniffing/DB_OUI";
+        boost::filesystem::path manuf_FullPath = VENTOS_FullPath / "src/sniffing/DB_OUI";
 
         std::ifstream in(manuf_FullPath.string().c_str());
         if(in.fail())
