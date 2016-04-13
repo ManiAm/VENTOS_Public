@@ -43,8 +43,6 @@ public:
     virtual void receiveSignal(cComponent *, simsignal_t, long);
 
 private:
-    void Add();
-
     void Scenario1();
     void Scenario5();
     void Scenario6();

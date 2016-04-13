@@ -78,7 +78,31 @@ void AddScenario::receiveSignal(cComponent *source, simsignal_t signalID, long i
         std::cout << ">>> AddScenario module is loading entities ..." << endl << endl;
         std::cout.flush();
 
-        AddScenario::Add();
+        // create a map of functions
+        typedef void (AddScenario::*pfunc)(void);
+        std::map<std::string /*func name*/, pfunc> funcMap;
+        funcMap["Scenario1"] = &AddScenario::Scenario1;
+        funcMap["Scenario5"] = &AddScenario::Scenario5;
+        funcMap["Scenario6"] = &AddScenario::Scenario6;
+        funcMap["Scenario7"] = &AddScenario::Scenario7;
+        funcMap["Scenario8"] = &AddScenario::Scenario8;
+        funcMap["Scenario9"] = &AddScenario::Scenario9;
+        funcMap["Scenario10"] = &AddScenario::Scenario10;
+        funcMap["Scenario11"] = &AddScenario::Scenario11;
+        funcMap["Scenario12"] = &AddScenario::Scenario12;
+
+        std::ostringstream out;
+        out << "Scenario" << mode;
+        std::string funcName = out.str();
+
+        // find the method in map
+        auto i = funcMap.find(funcName.c_str());
+        if(i == funcMap.end())
+            error("Method %s not found!", funcName.c_str());
+
+        // and then call it
+        pfunc f = i->second;
+        (this->*f)();
 
         printLoadedStatistics();
         std::cout.flush();
@@ -86,52 +110,6 @@ void AddScenario::receiveSignal(cComponent *source, simsignal_t signalID, long i
     // pass it up, if we do not know how to handle the signal
     else
         super::receiveSignal(source, signalID, i);
-
-}
-
-
-void AddScenario::Add()
-{
-    if(mode == 1)
-    {
-        Scenario1();
-    }
-    else if(mode == 5)
-    {
-        Scenario5();
-    }
-    else if(mode == 6)
-    {
-        Scenario6();
-    }
-    else if(mode == 7)
-    {
-        Scenario7();
-    }
-    else if(mode == 8)
-    {
-        Scenario8();
-    }
-    else if(mode == 9)
-    {
-        Scenario9();
-    }
-    else if(mode == 10)
-    {
-        Scenario10();
-    }
-    else if(mode == 11)
-    {
-        Scenario11();
-    }
-    else if(mode == 12)
-    {
-        Scenario12();
-    }
-    else
-    {
-        error("not a valid mode!");
-    }
 }
 
 
