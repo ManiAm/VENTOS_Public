@@ -60,7 +60,7 @@ class Tracking : public BaseApplLayer
         double windowsOffset;
 
         // class variables
-        cMessage* updataGUI;
+        cMessage* updataGUI = NULL;
 };
 
 }
