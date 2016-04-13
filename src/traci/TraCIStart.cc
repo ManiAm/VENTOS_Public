@@ -142,8 +142,10 @@ void TraCI_Start::finish()
     if(collectVehiclesData)
         vehiclesDataToFile();
 
-    if (connection && !par("TraCIclosed").boolValue())
-        TraCIBuffer buf = connection->query(CMD_CLOSE, TraCIBuffer());
+    // if the TraCI link was not closed due to error
+    if(!par("TraCIclosed").boolValue())
+        if (connection)
+            TraCIBuffer buf = connection->query(CMD_CLOSE, TraCIBuffer());
 
     while (hosts.begin() != hosts.end())
         deleteManagedModule(hosts.begin()->first);

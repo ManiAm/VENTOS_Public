@@ -191,11 +191,17 @@ void MeasureTrafficParams::CheckDetectors()
 
     if(ev.isGUI() && debugLevel > 0)
     {
-        std::cout << std::endl;
-        std::cout << str.size() << " loop detectors found!" << endl;
-        std::cout << "  " << LD_demand.size() << " demand loop detectors." << endl;
-        std::cout << "  " << LD_actuated.size() << " actuated loop detectors." << endl;
-        std::cout << AD_queue.size() << " area detectors found!" << endl;
+        printf("\n");
+
+        printf(">>> %lu loop detectors are added out of which: \n", str.size());
+        printf("  %lu are demand loop detectors \n", LD_demand.size());
+        printf("  %lu are actuated loop detectors \n", LD_actuated.size());
+
+        printf("\n");
+
+        printf(">>> %lu area detectors are added out of which: \n", str2.size());
+        printf("  %lu are used for queue measurement \n", AD_queue.size());
+
         std::cout.flush();
     }
 
