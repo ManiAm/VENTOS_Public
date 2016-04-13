@@ -17,7 +17,6 @@ simple AddScenario extends AddNode
         
         int totalVehicles = default(10);
         string vehiclesType = default("Type_CACC1");
-        int distribution = default(1);   // 1: deterministic   # 2: poisson
         int interval = default(1000ms) @unit(ms);  // insertion interval in deterministic distribution
         int lambda = default(1300);  // insertion rate [veh/h]
         
@@ -31,5 +30,9 @@ simple AddScenario extends AddNode
         string vehClassDist = default("90,10"); // multi-class vehicle distribution (passenger vehicle (normal), emergency vehicle)
         bool bike = default(false);  // turn on/off insertion of bikes
         string bikeRouteDist = default("100,0,0");
+        
+        string RSUfile = default("RSUsLocation.xml");
+        string flowFile = default("flows.xml");
+        string flowSetId = default("");
 }
 

@@ -29,7 +29,7 @@ simple TraCIStart
         bool TraCIclosed = default(false);           // for internal use
         bool equilibrium_vehicle = default(false);
         
-        bool logTraCIcommands = default(false);        
+        bool logTraCIcommands = default(true);        
         bool collectVehiclesData = default(false);
         int vehicleDataLevel = default(1);   // 1:record full vehicle data    2:for router scenario   3:for TL
         

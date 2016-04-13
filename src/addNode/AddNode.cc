@@ -103,6 +103,21 @@ void AddNode::receiveSignal(cComponent *source, simsignal_t signalID, long i)
 }
 
 
+// ask SUMO to add a vehicle
+void AddNode::addVehicle(std::string vehicleId, std::string vehicleTypeId, std::string routeId, int32_t depart, double pos, double speed, uint8_t lane)
+{
+    TraCI->vehicleAdd(vehicleId, vehicleTypeId, routeId, depart, pos, speed, lane);
+}
+
+
+// ask SUMO to add a bicycle
+void AddNode::addBicycle(std::string vehicleId, std::string vehicleTypeId, std::string routeId, int32_t depart, double pos, double speed, uint8_t lane)
+{
+    TraCI->vehicleAdd(vehicleId, vehicleTypeId, routeId, depart, pos, speed, lane);
+}
+
+
+// add adversary module to OMNET
 void AddNode::addAdversary()
 {
     cModule* parentMod = getParentModule();
@@ -122,27 +137,33 @@ void AddNode::addAdversary()
 }
 
 
-void AddNode::addvehicle()
+// add Certificate Authority (CA) module to OMNET
+void AddNode::addCA()
 {
+    cModule* parentMod = getParentModule();
+    if (!parentMod)
+        error("Parent Module not found");
 
+    cModuleType* nodeType = cModuleType::get("VENTOS.src.CerAuthority.CA");
 
+    // do not use create("CA", parentMod);
+    // instead create an array of adversaries
+    cModule* mod = nodeType->create("CA", parentMod, 1, 0);
+    mod->finalizeParameters();
+    mod->getDisplayString().updateWith("i=old/comp_a");
+    mod->buildInside();
+    mod->scheduleStart(simTime());
+    mod->callInitialize();
 }
 
 
-void AddNode::addBicycle()
-{
-
-
-}
-
-
-void AddNode::addRSU()
+// add RSUs according to the file into OMNET/SUMO
+void AddNode::addRSU(std::string RSUfile)
 {
     // ####################################
     // Step 1: read RSU locations from file
     // ####################################
 
-    std::string RSUfile = par("RSUfile").stringValue();
     boost::filesystem::path dir (TraCI->getSUMOFullDir());
     boost::filesystem::path RSUfilePath = dir / RSUfile;
 
@@ -297,25 +318,6 @@ void AddNode::commandAddCirclePoly(std::string name, std::string type, const RGB
 
     // create polygon in SUMO
     TraCI->polygonAddTraCI(name, type, color, 0, 1, circlePoints);
-}
-
-
-void AddNode::addCA()
-{
-    cModule* parentMod = getParentModule();
-    if (!parentMod)
-        error("Parent Module not found");
-
-    cModuleType* nodeType = cModuleType::get("VENTOS.src.CerAuthority.CA");
-
-    // do not use create("CA", parentMod);
-    // instead create an array of adversaries
-    cModule* mod = nodeType->create("CA", parentMod, 1, 0);
-    mod->finalizeParameters();
-    mod->getDisplayString().updateWith("i=old/comp_a");
-    mod->buildInside();
-    mod->scheduleStart(simTime());
-    mod->callInitialize();
 }
 
 

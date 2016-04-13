@@ -80,8 +80,11 @@ void AddScenario::receiveSignal(cComponent *source, simsignal_t signalID, long i
 
         // create a map of functions
         typedef void (AddScenario::*pfunc)(void);
-        std::map<std::string /*func name*/, pfunc> funcMap;
+        std::map<std::string, pfunc> funcMap;
         funcMap["Scenario1"] = &AddScenario::Scenario1;
+        funcMap["Scenario2"] = &AddScenario::Scenario2;
+        funcMap["Scenario3"] = &AddScenario::Scenario3;
+        funcMap["Scenario4"] = &AddScenario::Scenario4;
         funcMap["Scenario5"] = &AddScenario::Scenario5;
         funcMap["Scenario6"] = &AddScenario::Scenario6;
         funcMap["Scenario7"] = &AddScenario::Scenario7;
@@ -91,6 +94,7 @@ void AddScenario::receiveSignal(cComponent *source, simsignal_t signalID, long i
         funcMap["Scenario11"] = &AddScenario::Scenario11;
         funcMap["Scenario12"] = &AddScenario::Scenario12;
 
+        // construct the method name
         std::ostringstream out;
         out << "Scenario" << mode;
         std::string funcName = out.str();
@@ -114,84 +118,102 @@ void AddScenario::receiveSignal(cComponent *source, simsignal_t signalID, long i
 
 
 // adding 'totalVehicles' vehicles with type 'vehiclesType'
+// according to deterministic distribution every 'interval'
 void AddScenario::Scenario1()
 {
     int totalVehicles = par("totalVehicles").longValue();
     std::string vehiclesType = par("vehiclesType").stringValue();
-    int distribution = par("distribution").longValue();
     int interval = par("interval").longValue();
-    double lambda = par("lambda").longValue();
 
-    // deterministic distribution every 'interval'
-    if(distribution == 1)
+    int depart = 0;
+
+    for(int i=1; i<=totalVehicles; i++)
     {
-        int depart = 0;
+        char vehicleName[90];
+        sprintf(vehicleName, "veh%d", i);
+        depart = depart + interval;
 
-        for(int i=1; i<=totalVehicles; i++)
-        {
-            char vehicleName[90];
-            sprintf(vehicleName, "veh%d", i);
-            depart = depart + interval;
-
-            TraCI->vehicleAdd(vehicleName, vehiclesType, "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
-        }
+        addVehicle(vehicleName, vehiclesType, "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
     }
-    // Poisson distribution with rate lambda
-    else if(distribution == 2)
-    {
-        // change from 'veh/h' to 'veh/s'
-        lambda = lambda / 3600;
-
-        // 1 vehicle per 'interval' milliseconds
-        double interval = (1 / lambda) * 1000;
-
-        int depart = 0;
-
-        for(int i=0; i<totalVehicles; i++)
-        {
-            char vehicleName[90];
-            sprintf(vehicleName, "veh%d", i+1);
-            depart = depart + interval;
-
-            TraCI->vehicleAdd(vehicleName, "TypeCACC1", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
-        }
-
-        // todo: use this instead! (it throws error)
-        //        // mersenne twister engine (seed is fixed to make tests reproducible)
-        //        std::mt19937 generator(43);
-        //
-        //        // Poisson distribution with rate lambda veh/h
-        //        std::poisson_distribution<int> distribution(lambda/3600.);
-        //
-        //        // how many vehicles are inserted in each seconds
-        //        int vehInsert;
-        //
-        //        // how many vehicles are inserted until now
-        //        int vehCount = 1;
-        //
-        //        // on each second
-        //        for(int depart=0; depart < terminate; depart++)
-        //        {
-        //            vehInsert = distribution(generator);
-        //
-        //            for(int j=1; j<=vehInsert; ++j)
-        //            {
-        //                char vehicleName[90];
-        //                sprintf(vehicleName, "veh%d", vehCount);
-        //                TraCI->vehicleAdd(vehicleName, vehiclesType, "route1", 1000*depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
-        //
-        //                vehCount++;
-        //
-        //                if(vehCount > 3)
-        //                    return;
-        //            }
-        //        }
-    }
-    else error("not a valid distribution type!");
 }
 
 
-// todo: remove this scenario (background traffic)
+// adding 'totalVehicles' vehicles with type 'vehiclesType'
+// according to Poisson distribution with rate lambda
+void AddScenario::Scenario2()
+{
+    int totalVehicles = par("totalVehicles").longValue();
+    std::string vehiclesType = par("vehiclesType").stringValue();
+    double lambda = par("lambda").longValue();
+
+    // change from 'veh/h' to 'veh/s'
+    lambda = lambda / 3600;
+
+    // 1 vehicle per 'interval' milliseconds
+    double interval = (1 / lambda) * 1000;
+
+    int depart = 0;
+
+    for(int i=0; i<totalVehicles; i++)
+    {
+        char vehicleName[90];
+        sprintf(vehicleName, "veh%d", i+1);
+        depart = depart + interval;
+
+        addVehicle(vehicleName, vehiclesType, "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
+    }
+
+    // todo: use this instead! (it throws error)
+    //        // mersenne twister engine (seed is fixed to make tests reproducible)
+    //        std::mt19937 generator(43);
+    //
+    //        // Poisson distribution with rate lambda veh/h
+    //        std::poisson_distribution<int> distribution(lambda/3600.);
+    //
+    //        // how many vehicles are inserted in each seconds
+    //        int vehInsert;
+    //
+    //        // how many vehicles are inserted until now
+    //        int vehCount = 1;
+    //
+    //        // on each second
+    //        for(int depart=0; depart < terminate; depart++)
+    //        {
+    //            vehInsert = distribution(generator);
+    //
+    //            for(int j=1; j<=vehInsert; ++j)
+    //            {
+    //                char vehicleName[90];
+    //                sprintf(vehicleName, "veh%d", vehCount);
+    //                addVehicle(vehicleName, vehiclesType, "route1", 1000*depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
+    //
+    //                vehCount++;
+    //
+    //                if(vehCount > 3)
+    //                    return;
+    //            }
+    //        }
+}
+
+
+void AddScenario::Scenario3()
+{
+    Scenario1();
+
+    addAdversary();
+}
+
+
+void AddScenario::Scenario4()
+{
+    addCA();
+
+    std::string RSUfile = par("RSUfile").stringValue();
+    addRSU(RSUfile);
+}
+
+
+// todo: change this scenario (background traffic)
 void AddScenario::Scenario5()
 {
     int depart = 0;
@@ -202,7 +224,7 @@ void AddScenario::Scenario5()
         sprintf(vehicleName, "veh%d", i);
         depart = depart + 1000;
 
-        TraCI->vehicleAdd(vehicleName, "TypeCACC1", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
+        addVehicle(vehicleName, "TypeCACC1", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
     }
 
     for(int i=11; i<=100; i++)
@@ -211,7 +233,7 @@ void AddScenario::Scenario5()
         sprintf(vehicleName, "veh%d", i);
         depart = depart + 10000;
 
-        TraCI->vehicleAdd(vehicleName, "veh1", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
+        addVehicle(vehicleName, "veh1", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
     }
 }
 
@@ -244,7 +266,7 @@ void AddScenario::Scenario6()
         sprintf(vehicleName, "veh%d", i+1);
         depart = depart + interval;
 
-        TraCI->vehicleAdd(vehicleName, "TypeCACC1", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
+        addVehicle(vehicleName, "TypeCACC1", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
 
         if(i == 0)
         {
@@ -279,12 +301,12 @@ void AddScenario::Scenario7()
 
         uint8_t lane = intrand(3);  // random number in [0,3)
 
-        TraCI->vehicleAdd(vehicleName, "TypeManual", "route1", depart, 0, 0, lane);
+        addVehicle(vehicleName, "TypeManual", "route1", depart, 0, 0, lane);
         TraCI->vehicleSetLaneChangeMode(vehicleName, 0b1000010101 /*0b1000100101*/);
     }
 
     // now we add a vehicle as obstacle
-    TraCI->vehicleAdd("obstacle", "TypeObstacle", "route1", 50, 3200, 0, 1);
+    addVehicle("obstacle", "TypeObstacle", "route1", 50, 3200, 0, 1);
 
     // and make it stop on the lane!
     TraCI->vehicleSetSpeed("obstacle", 0.);

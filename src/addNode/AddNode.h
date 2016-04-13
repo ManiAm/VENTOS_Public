@@ -59,11 +59,11 @@ public:
     virtual void receiveSignal(cComponent *, simsignal_t, long);
 
 protected:
+    void addVehicle(std::string vehicleId, std::string vehicleTypeId, std::string routeId, int32_t depart, double pos, double speed, uint8_t lane);
+    void addBicycle(std::string vehicleId, std::string vehicleTypeId, std::string routeId, int32_t depart, double pos, double speed, uint8_t lane);
     void addAdversary();
-    void addvehicle();
-    void addBicycle();
-    void addRSU();
     void addCA();
+    void addRSU(std::string RSUfile);
     void addFlow();
 
     void printLoadedStatistics();
