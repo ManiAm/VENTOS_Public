@@ -14,7 +14,7 @@ simple TraCIStart
         string host = default("localhost");    // sumo-launchd.py server hostname
         string SUMOexe = default("/home/mani/Desktop/VENTOS_SUMO/sumo/bin/sumo-guiD");   // sumoD: comamnd-line interface    sumo-guiD; graphical interface
         string SUMOconfig = default("");       // SUMO configure file relative path
-        bool quitOnEnd = default(true);      // quits the GUI when the simulation stops
+        bool quitOnEnd = default(true);        // quits the GUI when the simulation stops
         bool startAfterLoading = default(true);  // start the simulation after loading
         bool CMDstepLog = default(true);         // show console output of current simulation step
         int seed = default(0);       // seed value to set in launch configuration, if missing (-1: current run number)
@@ -22,14 +22,14 @@ simple TraCIStart
         
         double connectAt @unit("s") = default(0s);        // when to connect to TraCI server (must be the initial timestep of the server). -1 means no SUMO!
         double firstStepAt @unit("s") = default(-1s);     // when to start synchronizing with the TraCI server (-1: immediately after connecting)
-        double updateInterval @unit("s") = default(0.1s);   // time interval of hosts' position updates
+        double updateInterval @unit("s") = default(0.1s); // time interval of hosts' position updates
         
         double terminate = default(-1s) @unit(s);   // maximum simulation time. -1 means simulate forever!
-        bool autoShutdown = default(true);           // Shutdown module as soon as no more vehicles are in the simulation        
-        bool TraCIclosed = default(false);           // for internal use
+        bool autoShutdown = default(true);          // Shutdown module as soon as no more vehicles are in the simulation        
+        bool TraCIclosed = default(false);          // for internal use
         bool equilibrium_vehicle = default(false);
         
-        bool logTraCIcommands = default(true);        
+        bool logTraCIcommands = default(false);        
         bool collectVehiclesData = default(false);
         int vehicleDataLevel = default(1);   // 1:record full vehicle data    2:for router scenario   3:for TL
         

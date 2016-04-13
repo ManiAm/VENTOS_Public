@@ -7,7 +7,6 @@ import VENTOS.src.MIXIM.modules.*;
 module RSU
 {
     parameters:
-         string mobilityType; //type of the mobility module
 
     gates:
         input radioIn; // gate for sendDirect

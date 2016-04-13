@@ -15,6 +15,11 @@ simple ApplBikeBase like IBaseApplLayer
         string SUMOType = default("");
         string vehicleClass = default("");
         int vehicleClassEnum = default(-1);
+        
+        // bike does not need these two varibales but
+        // it makes the job simpler for TraCIstart.cc
+        int SUMOControllerType = default(-1);
+        int SUMOControllerNumber = default(-1);
 
     gates:
         input lowerLayerIn;    // from mac layer

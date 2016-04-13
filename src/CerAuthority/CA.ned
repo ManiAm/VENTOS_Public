@@ -7,9 +7,11 @@ import VENTOS.src.MIXIM.modules.*;
 module CA
 {
     parameters:
-        string mobilityType; //type of the mobility module
+
+
     gates:
         input radioIn; // gate for sendDirect
+        
     submodules:
         appl: ApplCA {  
             parameters:
