@@ -61,13 +61,12 @@ public:
 protected:
     void addVehicle(std::string vehicleId, std::string vehicleTypeId, std::string routeId, int32_t depart, double pos, double speed, uint8_t lane);
     void addBicycle(std::string vehicleId, std::string vehicleTypeId, std::string routeId, int32_t depart, double pos, double speed, uint8_t lane);
-    void addAdversary();
-    void addCA();
-    void addRSU(std::string RSUfile);
+    void addAdversary(int num = 1);
+    void addCA(int num = 1);
+    void addRSU(int num = 1);
     void addFlow();
 
 private:
-    std::map<std::string, RSUEntry> commandReadRSUsCoord(std::string);
     void commandAddCirclePoly(std::string, std::string, const RGB color, Coord*, double);
     std::string getFullPathToSumoRou(std::string);
 

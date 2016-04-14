@@ -31,7 +31,6 @@ simple AddScenario extends AddNode
         bool bike = default(false);  // turn on/off insertion of bikes
         string bikeRouteDist = default("100,0,0");
         
-        string RSUfile = default("RSUsLocation.xml");
         string flowFile = default("flows.xml");
         string flowSetId = default("");
 }

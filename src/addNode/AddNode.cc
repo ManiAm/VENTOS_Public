@@ -118,64 +118,66 @@ void AddNode::addBicycle(std::string vehicleId, std::string vehicleTypeId, std::
 
 
 // add adversary module to OMNET
-void AddNode::addAdversary()
+void AddNode::addAdversary(int num)
 {
+    if(num <= 0)
+        error("num should be > 0");
+
     cModule* parentMod = getParentModule();
     if (!parentMod)
         error("Parent Module not found");
 
-    cModuleType* nodeType = cModuleType::get("c3po.src.adversary.Adversary");
+    cModuleType* nodeType = cModuleType::get("VENTOS.src.adversary.Adversary");
 
-    // do not use create("adversary", parentMod);
-    // instead create an array of adversaries
-    cModule* mod = nodeType->create("adversary", parentMod, 1, 0);
-    mod->finalizeParameters();
-    mod->getDisplayString().updateWith("i=old/comp_a");
-    mod->buildInside();
-    mod->scheduleStart(simTime());
-    mod->callInitialize();
+    for(int i = 0; i < num; i++)
+    {
+        // do not use create("adversary", parentMod);
+        // instead create an array of adversaries
+        cModule* mod = nodeType->create("adversary", parentMod, num, i);
+        mod->finalizeParameters();
+        mod->getDisplayString().updateWith("i=old/comp_a");
+        mod->buildInside();
+        mod->scheduleStart(simTime());
+        mod->callInitialize();
+    }
 }
 
 
 // add Certificate Authority (CA) module to OMNET
-void AddNode::addCA()
+void AddNode::addCA(int num)
 {
+    if(num <= 0)
+        error("num should be > 0");
+
     cModule* parentMod = getParentModule();
     if (!parentMod)
         error("Parent Module not found");
 
     cModuleType* nodeType = cModuleType::get("VENTOS.src.CerAuthority.CA");
 
-    // do not use create("CA", parentMod);
-    // instead create an array of adversaries
-    cModule* mod = nodeType->create("CA", parentMod, 1, 0);
-    mod->finalizeParameters();
-    mod->getDisplayString().updateWith("i=old/comp_a");
-    mod->buildInside();
-    mod->scheduleStart(simTime());
-    mod->callInitialize();
+    for(int i = 0; i < num; i++)
+    {
+        // do not use create("CA", parentMod);
+        // instead create an array of adversaries
+        cModule* mod = nodeType->create("CA", parentMod, num, i);
+        mod->finalizeParameters();
+        mod->getDisplayString().updateWith("i=old/comp_a");
+        mod->buildInside();
+        mod->scheduleStart(simTime());
+        mod->callInitialize();
+    }
 }
 
 
-// add RSUs according to the file into OMNET/SUMO
-void AddNode::addRSU(std::string RSUfile)
+// add RSU modules to OMNET/SUMO
+void AddNode::addRSU(int num)
 {
-    // ####################################
-    // Step 1: read RSU locations from file
-    // ####################################
+    if(num <= 0)
+        error("num should be > 0");
 
-    boost::filesystem::path dir (TraCI->getSUMOFullDir());
-    boost::filesystem::path RSUfilePath = dir / RSUfile;
-
-    // check if this file is valid?
-    if( !boost::filesystem::exists(RSUfilePath) )
-        error("RSU file does not exist in %s", RSUfilePath.string().c_str());
-
-    std::map<std::string, RSUEntry> RSUs = commandReadRSUsCoord(RSUfilePath.string());
-
-    // ##############################
-    // Step 2: create RSUs in OMNET++
-    // ##############################
+    // ######################
+    // create RSUs in OMNET++
+    // ######################
 
     cModule* parentMod = getParentModule();
     if (!parentMod)
@@ -186,120 +188,59 @@ void AddNode::addRSU(std::string RSUfile)
     std::list<std::string> TLList = TraCI->TLGetIDList();
 
     // creating RSU modules in OMNET (without moving them to the correct position)
-    int count = 0;
-    for(auto &z : RSUs)
+    for(int i = 0; i < num; i++)
     {
-        std::string RSUname = z.first;
-        RSUEntry entry = z.second;
-
-        cModule* mod = nodeType->create("RSU", parentMod, RSUs.size(), count);
+        cModule* mod = nodeType->create("RSU", parentMod, num, i);
 
         mod->finalizeParameters();
         mod->getDisplayString().updateWith("i=device/antennatower");
         mod->buildInside();
 
+        std::string RSUname = mod->getSubmodule("appl")->par("SUMOID").stringValue();
+
         // check if any TLid is associated with this RSU
         std::string myTLid = "";
-        for(auto &y : TLList)
+        for(std::string TLid : TLList)
         {
-            std::string TLid = y;
-            if( TLid == RSUname )
+            if(TLid == RSUname)
             {
                 myTLid = TLid;
                 break;
             }
         }
+
         // then set the myTLid parameter
         mod->getSubmodule("appl")->par("myTLid") = myTLid;
-
-        mod->getSubmodule("appl")->par("SUMOID") = RSUname;
-
-        // set coordinates (RSUMobility uses these to move the RSU to the correct location)
-        mod->getSubmodule("appl")->par("myCoordX") = entry.coordX;
-        mod->getSubmodule("appl")->par("myCoordY") = entry.coordY;
 
         mod->scheduleStart(simTime());
         mod->callInitialize();
 
         // store the cModule of this RSU
-        RSUhosts[count] = mod;
-
-        count++;
+        RSUhosts[i] = mod;
     }
 
     // ###############################################################
-    // Step 3: draw RSU in SUMO (using a circle to show radio coverage)
+    // draw RSUs in SUMO (using a circle to show radio coverage)
     // ###############################################################
 
-    count = 0;
-    for(auto &z : RSUs)
+    for(int i = 0; i < num; i++)
     {
-        std::string RSUname = z.first;
-        RSUEntry entry = z.second;
+        // get a reference to this RSU
+        cModule *module = simulation.getSystemModule()->getSubmodule("RSU", i);
+
+        // get SUMOID
+        std::string RSUname = module->getSubmodule("appl")->par("SUMOID").stringValue();
 
         // get the radius of this RSU
-        cModule *module = simulation.getSystemModule()->getSubmodule("RSU", count);
         double radius = atof( module->getDisplayString().getTagArg("r",0) );
 
-        Coord *center = new Coord(entry.coordX, entry.coordY);
+        // get SUMO X and Y
+        double X = module->getSubmodule("mobility")->par("x").doubleValue();
+        double Y = module->getSubmodule("mobility")->par("y").doubleValue();
+
+        Coord *center = new Coord(X,Y);
         commandAddCirclePoly(RSUname, "RSU", Color::colorNameToRGB("green"), center, radius);
-
-        count++;
     }
-}
-
-
-std::map<std::string, RSUEntry> AddNode::commandReadRSUsCoord(std::string RSUfilePath)
-{
-    rapidxml::file<> xmlFile( RSUfilePath.c_str() );        // Convert our file to a rapid-xml readable object
-    rapidxml::xml_document<> doc;                           // Build a rapidxml doc
-    doc.parse<0>(xmlFile.data());                 // Fill it with data from our file
-    rapidxml::xml_node<> *node = doc.first_node("RSUs");    // Parse up to the "RSUs" declaration
-
-    std::map<std::string, RSUEntry> RSUs;
-
-    for(node = node->first_node("poly"); node; node = node->next_sibling())
-    {
-        std::string RSUname = "";
-        std::string RSUtype = "";
-        std::string RSUcoordinates = "";
-        int readCount = 1;
-
-        // For each node, iterate over its attributes until we reach "shape"
-        for(rapidxml::xml_attribute<> *attr = node->first_attribute(); attr; attr = attr->next_attribute())
-        {
-            if(readCount == 1)
-            {
-                RSUname = attr->value();
-            }
-            else if(readCount == 2)
-            {
-                RSUtype = attr->value();
-
-                if(RSUtype != "RSU")
-                    error("RSU type should be 'RSU'");
-            }
-            else if(readCount == 3)
-            {
-                RSUcoordinates = attr->value();
-            }
-
-            readCount++;
-        }
-
-        if(readCount != 4)
-            error("format of RSUsLocation.xml file is wrong!");
-
-        std::vector<double> vec = cStringTokenizer(RSUcoordinates.c_str(), ",").asDoubleVector();
-        if(vec.size() != 2)
-            error("center coordinate format is wrong!");
-
-        // add it into queue (with TraCI coordinates)
-        RSUEntry *entry = new RSUEntry(RSUtype, vec[0], vec[1]);
-        RSUs.insert( std::make_pair(RSUname, *entry) );
-    }
-
-    return RSUs;
 }
 
 

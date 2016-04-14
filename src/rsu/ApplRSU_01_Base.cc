@@ -76,12 +76,12 @@ void ApplRSUBase::initialize(int stage)
         SUMOID = par("SUMOID").stringValue();
 
         myTLid = par("myTLid").stringValue();   // TLid that this RSU belongs to (this parameter is set by AddRSU)
-        // empty string means this RSU is not associated with any TL
+                                                // empty string means this RSU is not associated with any TL
 
         // my X coordinate in SUMO
-        myCoordX = par("myCoordX").doubleValue();
+        myCoordX = this->getParentModule()->getSubmodule("mobility")->par("x").doubleValue();
         // my Y coordinate in SUMO
-        myCoordY = par("myCoordY").doubleValue();
+        myCoordY = this->getParentModule()->getSubmodule("mobility")->par("y").doubleValue();
 
         // simulate asynchronous channel access
         double offSet = dblrand() * (beaconInterval/2);

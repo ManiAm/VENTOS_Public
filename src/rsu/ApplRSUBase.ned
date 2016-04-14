@@ -18,9 +18,7 @@ simple ApplRSUBase like IBaseApplLayer
         int beaconPriority = default(3); //the access category of the beacon messages  
         
         string myTLid = default("");    
-        string SUMOID = default("");
-        double myCoordX = default(-1);    // my X coordinate in SUMO
-        double myCoordY = default(-1);    // my Y coordinate in SUMO  
+        string SUMOID = default(""); 
 
     gates:
         input lowerLayerIn;     // from mac layer

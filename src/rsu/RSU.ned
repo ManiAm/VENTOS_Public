@@ -22,7 +22,7 @@ module RSU
                 @display("p=60,166");
         }
         
-        mobility: RSUMobility {
+        mobility: ConstSpeedMobility {
             parameters:
                 @display("p=130,172;i=block/cogwheel");
         }

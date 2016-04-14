@@ -314,12 +314,12 @@ void AddScenario::Scenario3()
 }
 
 
+// CRL distribution
 void AddScenario::Scenario4()
 {
     addCA();
 
-    std::string RSUfile = par("RSUfile").stringValue();
-    addRSU(RSUfile);
+    addRSU(6);
 }
 
 
@@ -426,8 +426,7 @@ void AddScenario::Scenario7()
     RGB newColor = Color::colorNameToRGB("red");
     TraCI->vehicleSetColor("obstacle", newColor);
 
-    std::string RSUfile = par("RSUfile").stringValue();
-    addRSU(RSUfile);
+    addRSU(8);
 }
 
 
@@ -1010,8 +1009,7 @@ void AddScenario::Scenario10()
         }
     }
 
-    std::string RSUfile = par("RSUfile").stringValue();
-    addRSU(RSUfile);
+    addRSU(1);
 }
 
 
@@ -1381,8 +1379,7 @@ void AddScenario::Scenario11()
         }
     }
 
-    std::string RSUfile = par("RSUfile").stringValue();
-    addRSU(RSUfile);
+    addRSU(1);
 }
 
 
@@ -1506,8 +1503,7 @@ void AddScenario::Scenario12()
         }
     }
 
-    std::string RSUfile = par("RSUfile").stringValue();
-    addRSU(RSUfile);
+    addRSU(1);
 }
 
 }
