@@ -1,11 +1,13 @@
 
 package VENTOS.src.addNode;
 
-simple AddScenario extends AddNode
+simple AddMobileNode
 {
     parameters:
-        @class(VENTOS::AddScenario);
+        @class(VENTOS::AddMobileNode);
         @display("i=block/network2");
+        
+        int headerLength = default(256bit) @unit(bit); //header length of the application  
         
         // mode = 1: for incident detection
         // mode = 2: ACC
@@ -33,9 +35,5 @@ simple AddScenario extends AddNode
         
         string flowFile = default("flows.xml");
         string flowSetId = default("");
-        
-        int numRSUs = default(0);
-        int numAdversary = default(0);
-        int numCA = default(0);
 }
 

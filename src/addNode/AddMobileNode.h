@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    AddNode.h
+/// @file    AddMobileNode.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    Apr 2016
@@ -25,57 +25,53 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef ADDNODE_H_
-#define ADDNODE_H_
+#ifndef ADDMOBILENODE_H
+#define ADDMOBILENODE_H
 
+#include "BaseApplLayer.h"
 #include "TraCICommands.h"
-#include <BaseApplLayer.h>
 
 namespace VENTOS {
 
-class RSUEntry
+class AddMobileNode : public BaseApplLayer
 {
 public:
-    std::string type;
-    double coordX;
-    double coordY;
-
-    RSUEntry(std::string str, double x, double y)
-    {
-        this->type = str;
-        this->coordX = x;
-        this->coordY = y;
-    }
-};
-
-
-class AddNode : public BaseApplLayer
-{
-public:
-    virtual ~AddNode();
+    virtual ~AddMobileNode();
     virtual void initialize(int stage);
     virtual void handleMessage(cMessage *msg);
     virtual void finish();
     virtual void receiveSignal(cComponent *, simsignal_t, long);
 
-protected:
-    void addVehicle(std::string vehicleId, std::string vehicleTypeId, std::string routeId, int32_t depart, double pos, double speed, uint8_t lane);
-    void addBicycle(std::string vehicleId, std::string vehicleTypeId, std::string routeId, int32_t depart, double pos, double speed, uint8_t lane);
-    void addAdversary(int num = 1);
-    void addCA(int num = 1);
-    void addRSU(int num = 1);
-    void addFlow();
-
 private:
-    void commandAddCirclePoly(std::string, std::string, const RGB color, Coord*, double);
+    void beginLoading();
+    void printLoadedStatistics();
+
+    void Scenario1();
+    void Scenario2();
+    void Scenario3();
+    void Scenario4();
+    void Scenario5();
+    void Scenario6();
+    void Scenario7();
+    void Scenario8();
+    void Scenario9();
+    void Scenario10();
+    void Scenario11();
+    void Scenario12();
+
+    void addFlow();
     std::string getFullPathToSumoRou(std::string);
 
-protected:
-    TraCI_Commands *TraCI;  // pointer to the TraCI module
-
 private:
+    typedef BaseApplLayer super;
+
+    TraCI_Commands *TraCI;
+    int mode;
+    double terminate;
+
+    // class variables
+    simsignal_t Signal_executeFirstTS;
     simsignal_t Signal_addFlow;
-    std::map<int, cModule*> RSUhosts; /**< vector of all RSUs managed by us */
 };
 
 }

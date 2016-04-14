@@ -44,9 +44,13 @@ network Network
             parameters:
                 @display("p=48,135;i=block/circle");
         }
-        addScenario: AddScenario {
+        addStationaryNode: AddStationaryNode {
             parameters:
                 @display("p=245,135;i=old/bwsink");
+        }
+        addMobileNode: AddMobileNode {
+            parameters:
+                @display("p=387,135;i=old/bwsink");
         }
         warmup: Warmup {
             parameters:

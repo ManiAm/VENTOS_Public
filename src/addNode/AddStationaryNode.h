@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    AddScenario.h
+/// @file    AddStationaryNode.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    Apr 2016
@@ -25,48 +25,55 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef ADDSCENARIO_H
-#define ADDSCENARIO_H
+#ifndef ADDSTATIONARYNODE_H_
+#define ADDSTATIONARYNODE_H_
 
-#include "AddNode.h"
 #include "TraCICommands.h"
+#include <BaseApplLayer.h>
 
 namespace VENTOS {
 
-class AddScenario : public AddNode
+class RSUEntry
 {
 public:
-    virtual ~AddScenario();
+    std::string type;
+    double coordX;
+    double coordY;
+
+    RSUEntry(std::string str, double x, double y)
+    {
+        this->type = str;
+        this->coordX = x;
+        this->coordY = y;
+    }
+};
+
+
+class AddStationaryNode : public BaseApplLayer
+{
+public:
+    virtual ~AddStationaryNode();
     virtual void initialize(int stage);
     virtual void handleMessage(cMessage *msg);
     virtual void finish();
     virtual void receiveSignal(cComponent *, simsignal_t, long);
 
 private:
+    void beginLoading();
     void printLoadedStatistics();
 
-    void Scenario1();
-    void Scenario2();
-    void Scenario3();
-    void Scenario4();
-    void Scenario5();
-    void Scenario6();
-    void Scenario7();
-    void Scenario8();
-    void Scenario9();
-    void Scenario10();
-    void Scenario11();
-    void Scenario12();
+    void addAdversary(int num = 1);
+    void addCA(int num = 1);
+
+    void addRSU(int num = 1);
+    void commandAddCirclePoly(std::string, std::string, const RGB color, Coord*, double);
 
 private:
-    typedef AddNode super;
+    typedef BaseApplLayer super;
 
-    int mode;
-    int TLControlMode;
-    double terminate;
-
-    // class variables
+    TraCI_Commands *TraCI;
     simsignal_t Signal_executeFirstTS;
+    std::map<int, cModule*> RSUhosts; /**< vector of all RSUs managed by us */
 };
 
 }

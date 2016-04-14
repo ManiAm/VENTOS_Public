@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    AddNode.cc
+/// @file    AddStationaryNode.cc
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    Apr 2016
@@ -25,12 +25,8 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "AddNode.h"
+#include "AddStationaryNode.h"
 #include "ConnectionManager.h"
-
-#include <rapidxml.hpp>
-#include <rapidxml_utils.hpp>
-#include <rapidxml_print.hpp>
 
 // un-defining ev!
 // why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header
@@ -40,16 +36,18 @@
 
 namespace VENTOS {
 
-Define_Module(VENTOS::AddNode);
+Define_Module(VENTOS::AddStationaryNode);
 
-AddNode::~AddNode()
+AddStationaryNode::~AddStationaryNode()
 {
 
 }
 
 
-void AddNode::initialize(int stage)
+void AddStationaryNode::initialize(int stage)
 {
+    super::initialize(stage);
+
     if(stage ==0)
     {
         // get a pointer to the TraCI module
@@ -57,13 +55,13 @@ void AddNode::initialize(int stage)
         TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
 
-        Signal_addFlow = registerSignal("addFlow");
-        simulation.getSystemModule()->subscribe("addFlow", this);
+        Signal_executeFirstTS = registerSignal("executeFirstTS");
+        simulation.getSystemModule()->subscribe("executeFirstTS", this);
     }
 }
 
 
-void AddNode::finish()
+void AddStationaryNode::finish()
 {
     cModule *module = simulation.getSystemModule()->getSubmodule("connMan");
     ConnectionManager *cc = static_cast<ConnectionManager*>(module);
@@ -81,39 +79,97 @@ void AddNode::finish()
 }
 
 
-void AddNode::handleMessage(cMessage *msg)
+void AddStationaryNode::handleMessage(cMessage *msg)
 {
 
 }
 
 
-void AddNode::receiveSignal(cComponent *source, simsignal_t signalID, long i)
+void AddStationaryNode::receiveSignal(cComponent *source, simsignal_t signalID, long i)
 {
     Enter_Method_Silent();
 
-    if(signalID == Signal_addFlow)
+    if(signalID == Signal_executeFirstTS)
     {
-        addFlow();
+        beginLoading();
     }
 }
 
 
-// ask SUMO to add a vehicle
-void AddNode::addVehicle(std::string vehicleId, std::string vehicleTypeId, std::string routeId, int32_t depart, double pos, double speed, uint8_t lane)
+void AddStationaryNode::beginLoading()
 {
-    TraCI->vehicleAdd(vehicleId, vehicleTypeId, routeId, depart, pos, speed, lane);
+    std::cout << ">>> AddStationaryNode is adding nodes into the simulation ..." << endl;
+    std::cout.flush();
+
+    int numRSUs = par("numRSUs").longValue();
+    if(numRSUs > 0)
+        addRSU(numRSUs);
+
+    int numCA = par("numCA").longValue();
+    if(numCA > 0)
+        addCA(numCA);
+
+    int numAdversary = par("numAdversary").longValue();
+    if(numAdversary > 0)
+        addAdversary(numAdversary);
+
+    std::cout << std::endl;
+    std::cout << ">>> AddStationaryNode is done adding nodes. Here is a summary: " << endl;
+    std::cout.flush();
+    printLoadedStatistics();
+    std::cout.flush();
 }
 
 
-// ask SUMO to add a bicycle
-void AddNode::addBicycle(std::string vehicleId, std::string vehicleTypeId, std::string routeId, int32_t depart, double pos, double speed, uint8_t lane)
+void AddStationaryNode::printLoadedStatistics()
 {
-    TraCI->vehicleAdd(vehicleId, vehicleTypeId, routeId, depart, pos, speed, lane);
+    //#####################
+    // Get the list of RUSs
+    //#####################
+
+    // get a pointer to the first RSU
+    cModule *module = simulation.getSystemModule()->getSubmodule("RSU", 0);
+    if(module == NULL)
+    {
+        printf("  No RSUs is added!");
+    }
+    else
+    {
+        // how many RSUs are in the network?
+        int RSUcount = module->getVectorSize();
+        printf("  %d RSUs are added: ", RSUcount);
+
+        // iterate over RSUs
+        for(int i = 0; i < RSUcount; ++i)
+        {
+            // get a pointer to the RSU
+            module = simulation.getSystemModule()->getSubmodule("RSU", i);
+
+            // get OMNET id
+            std::string RSUfullId = module->getFullName();
+
+            // get SUMO id
+            cModule *appl =  module->getSubmodule("appl");
+            std::string SUMOID = appl->par("SUMOID").stringValue();
+
+            printf("%s (%s), ", RSUfullId.c_str(), SUMOID.c_str());
+        }
+    }
+
+    printf("\n");
+
+    //############################
+    // Get the list of Adversaries
+    //############################
+
+    // todo
+
+
 }
 
 
 // add adversary module to OMNET
-void AddNode::addAdversary(int num)
+void AddStationaryNode::addAdversary(int num)
 {
     if(num <= 0)
         error("num should be > 0");
@@ -139,7 +195,7 @@ void AddNode::addAdversary(int num)
 
 
 // add Certificate Authority (CA) module to OMNET
-void AddNode::addCA(int num)
+void AddStationaryNode::addCA(int num)
 {
     if(num <= 0)
         error("num should be > 0");
@@ -165,7 +221,7 @@ void AddNode::addCA(int num)
 
 
 // add RSU modules to OMNET/SUMO
-void AddNode::addRSU(int num)
+void AddStationaryNode::addRSU(int num)
 {
     if(num <= 0)
         error("num should be > 0");
@@ -239,7 +295,7 @@ void AddNode::addRSU(int num)
 }
 
 
-void AddNode::commandAddCirclePoly(std::string name, std::string type, const RGB color, Coord *center, double radius)
+void AddStationaryNode::commandAddCirclePoly(std::string name, std::string type, const RGB color, Coord *center, double radius)
 {
     std::list<TraCICoord> circlePoints;
 
@@ -254,33 +310,6 @@ void AddNode::commandAddCirclePoly(std::string name, std::string type, const RGB
 
     // create polygon in SUMO
     TraCI->polygonAddTraCI(name, type, color, 0, 1, circlePoints);
-}
-
-
-void AddNode::addFlow()
-{
-    // get full path to the sumo.cfg file
-    std::string sumoConfig = TraCI->getSUMOConfigFullPath();
-
-    // read sumo.cfg file and get the path to rou file
-    std::string sumoRou = getFullPathToSumoRou(sumoConfig);
-
-    // read flows.xml file and extract a flow set
-    //     getFlowSet();
-
-    // copy the flow set into a new rou file in %TMP%
-    //     addFlowSetToNewRou();
-
-    // add a new entry to copy the new rou, and also modify sumo.cfg
-    //    applyChanges();
-}
-
-
-std::string AddNode::getFullPathToSumoRou(std::string sumoConfigFullPath)
-{
-
-    return "";
-
 }
 
 }

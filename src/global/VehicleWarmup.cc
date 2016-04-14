@@ -53,8 +53,8 @@ void Warmup::initialize(int stage)
         ASSERT(module);
         SpeedProfilePtr = static_cast<SpeedProfile *>(module);
 
-        // get totoal vehicles from addScenario module
-        module = simulation.getSystemModule()->getSubmodule("addScenario");
+        // get totoal vehicles from addMobileNode module
+        module = simulation.getSystemModule()->getSubmodule("addMobileNode");
         ASSERT(module);
         numVehicles = module->par("numVehicles").longValue();
 

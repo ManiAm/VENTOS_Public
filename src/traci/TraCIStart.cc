@@ -345,9 +345,9 @@ void TraCI_Start::roiRSUs()
     for(int i = 0; i < RSUcount; ++i)
     {
         module = simulation.getSystemModule()->getSubmodule("RSU", i);
-        cModule *appl =  module->getSubmodule("appl");
-        double centerX = appl->par("myCoordX").doubleValue();
-        double centerY = appl->par("myCoordY").doubleValue();
+        cModule *mob =  module->getSubmodule("mobility");
+        double centerX = mob->par("x").doubleValue();
+        double centerY = mob->par("y").doubleValue();
 
         double squSize = par("roiSquareSizeRSU").doubleValue();
 
