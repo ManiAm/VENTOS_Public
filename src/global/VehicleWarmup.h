@@ -56,7 +56,7 @@ class Warmup : public BaseApplLayer
         double stopPosition;  // the position that first vehicle should stop waiting for others
         double warmUpSpeed;
         double waitingTime;
-        int totalVehicles;
+        int numVehicles;
 
         // class variables
         simsignal_t Signal_executeEachTS;

@@ -15,7 +15,7 @@ simple AddScenario extends AddNode
         // mode = 6: bi-directional control
         int mode = default(-1);        
         
-        int totalVehicles = default(10);
+        int numVehicles = default(10);
         string vehiclesType = default("Type_CACC1");
         int interval = default(1000ms) @unit(ms);  // insertion interval in deterministic distribution
         int lambda = default(1300);  // insertion rate [veh/h]

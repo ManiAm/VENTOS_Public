@@ -56,14 +56,14 @@ void Warmup::initialize(int stage)
         // get totoal vehicles from addScenario module
         module = simulation.getSystemModule()->getSubmodule("addScenario");
         ASSERT(module);
-        totalVehicles = module->par("totalVehicles").longValue();
+        numVehicles = module->par("numVehicles").longValue();
 
         Signal_executeEachTS = registerSignal("executeEachTS");
         simulation.getSystemModule()->subscribe("executeEachTS", this);
 
         on = par("on").boolValue();
         laneId = par("laneId").stringValue();
-        stopPosition = par("stopPosition").doubleValue() * totalVehicles;
+        stopPosition = par("stopPosition").doubleValue() * numVehicles;
         warmUpSpeed = par("warmUpSpeed").doubleValue();
         waitingTime = par("waitingTime").doubleValue();
 
@@ -150,7 +150,7 @@ bool Warmup::DoWarmup()
         int n = TraCI->vehicleGetIDCount();
 
         // if all vehicles are in the simulation, then wait for waitingTime before finishing warm-up
-        if(n == totalVehicles)
+        if(n == numVehicles)
         {
             scheduleAt(simTime() + waitingTime, finishingWarmup);
             std::cout << "t=" << simTime().dbl() << ": Waiting for " << waitingTime << "s before finishing warm-up ..." << endl;

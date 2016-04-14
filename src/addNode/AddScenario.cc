@@ -227,17 +227,17 @@ void AddScenario::printLoadedStatistics()
 }
 
 
-// adding 'totalVehicles' vehicles with type 'vehiclesType'
+// adding 'numVehicles' vehicles with type 'vehiclesType'
 // according to deterministic distribution every 'interval'
 void AddScenario::Scenario1()
 {
-    int totalVehicles = par("totalVehicles").longValue();
+    int numVehicles = par("numVehicles").longValue();
     std::string vehiclesType = par("vehiclesType").stringValue();
     int interval = par("interval").longValue();
 
     int depart = 0;
 
-    for(int i=1; i<=totalVehicles; i++)
+    for(int i=1; i<=numVehicles; i++)
     {
         char vehicleName[90];
         sprintf(vehicleName, "veh%d", i);
@@ -248,11 +248,11 @@ void AddScenario::Scenario1()
 }
 
 
-// adding 'totalVehicles' vehicles with type 'vehiclesType'
+// adding 'numVehicles' vehicles with type 'vehiclesType'
 // according to Poisson distribution with rate lambda
 void AddScenario::Scenario2()
 {
-    int totalVehicles = par("totalVehicles").longValue();
+    int numVehicles = par("numVehicles").longValue();
     std::string vehiclesType = par("vehiclesType").stringValue();
     double lambda = par("lambda").longValue();
 
@@ -264,7 +264,7 @@ void AddScenario::Scenario2()
 
     int depart = 0;
 
-    for(int i=0; i<totalVehicles; i++)
+    for(int i=0; i<numVehicles; i++)
     {
         char vehicleName[90];
         sprintf(vehicleName, "veh%d", i+1);
@@ -350,7 +350,7 @@ void AddScenario::Scenario5()
 
 void AddScenario::Scenario6()
 {
-    int totalVehicles = par("totalVehicles").longValue();
+    int numVehicles = par("numVehicles").longValue();
     double lambda = par("lambda").longValue();
     int plnSize = par("plnSize").longValue();
     double plnSpace = par("plnSpace").doubleValue();
@@ -370,7 +370,7 @@ void AddScenario::Scenario6()
     TraCI->vehicleTypeSetVint("TypeCACC1", 400.);
     TraCI->vehicleTypeSetComfAccel("TypeCACC1", 400.);
 
-    for(int i=0; i<totalVehicles; i++)
+    for(int i=0; i<numVehicles; i++)
     {
         char vehicleName[90];
         sprintf(vehicleName, "veh%d", i+1);
@@ -399,11 +399,11 @@ void AddScenario::Scenario6()
 // incident detection
 void AddScenario::Scenario7()
 {
-    int totalVehicles = par("totalVehicles").longValue();
+    int numVehicles = par("numVehicles").longValue();
 
     int depart = 0;
 
-    for(int i=1; i<=totalVehicles; i++)
+    for(int i=1; i<=numVehicles; i++)
     {
         char vehicleName[90];
         sprintf(vehicleName, "veh%d", i);
