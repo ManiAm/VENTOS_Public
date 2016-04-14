@@ -72,7 +72,6 @@ private:
 
 protected:
     TraCI_Commands *TraCI;  // pointer to the TraCI module
-    double terminate;
 
 private:
     simsignal_t Signal_addFlow;

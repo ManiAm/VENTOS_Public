@@ -33,5 +33,9 @@ simple AddScenario extends AddNode
         
         string flowFile = default("flows.xml");
         string flowSetId = default("");
+        
+        int numRSUs = default(0);
+        int numAdversary = default(0);
+        int numCA = default(0);
 }
 

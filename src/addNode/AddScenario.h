@@ -59,9 +59,11 @@ private:
     void Scenario12();
 
 private:
+    typedef AddNode super;
+
     int mode;
     int TLControlMode;
-    typedef AddNode super;
+    double terminate;
 
     // class variables
     simsignal_t Signal_executeFirstTS;

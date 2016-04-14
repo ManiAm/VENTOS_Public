@@ -53,6 +53,11 @@ void AddScenario::initialize(int stage)
         ASSERT(TLptr);
         TLControlMode = TLptr->par("TLControlMode").longValue();
 
+        terminate = TraCI->par("terminate").doubleValue();
+        // if user specifies no termination time, set it to a big value
+        if(terminate == -1)
+            terminate = 100000;
+
         Signal_executeFirstTS = registerSignal("executeFirstTS");
         simulation.getSystemModule()->subscribe("executeFirstTS", this);
     }
@@ -310,16 +315,19 @@ void AddScenario::Scenario3()
 {
     Scenario1();
 
-    addAdversary();
+    int numAdversary = par("numAdversary").longValue();
+    addAdversary(numAdversary);
 }
 
 
 // CRL distribution
 void AddScenario::Scenario4()
 {
-    addCA();
+    int numCA = par("numCA").longValue();
+    addCA(numCA);
 
-    addRSU(6);
+    int numRSUs = par("numRSUs").longValue();
+    addRSU(numRSUs);
 }
 
 
@@ -426,7 +434,8 @@ void AddScenario::Scenario7()
     RGB newColor = Color::colorNameToRGB("red");
     TraCI->vehicleSetColor("obstacle", newColor);
 
-    addRSU(8);
+    int numRSUs = par("numRSUs").longValue();
+    addRSU(numRSUs);
 }
 
 
@@ -1009,7 +1018,8 @@ void AddScenario::Scenario10()
         }
     }
 
-    addRSU(1);
+    int numRSUs = par("numRSUs").longValue();
+    addRSU(numRSUs);
 }
 
 
@@ -1379,7 +1389,8 @@ void AddScenario::Scenario11()
         }
     }
 
-    addRSU(1);
+    int numRSUs = par("numRSUs").longValue();
+    addRSU(numRSUs);
 }
 
 
@@ -1503,7 +1514,8 @@ void AddScenario::Scenario12()
         }
     }
 
-    addRSU(1);
+    int numRSUs = par("numRSUs").longValue();
+    addRSU(numRSUs);
 }
 
 }

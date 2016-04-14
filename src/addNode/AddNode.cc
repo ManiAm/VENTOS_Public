@@ -57,11 +57,6 @@ void AddNode::initialize(int stage)
         TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
 
-        terminate = module->par("terminate").doubleValue();
-        // if user specifies no termination time, set it to a big value
-        if(terminate == -1)
-            terminate = 100000;
-
         Signal_addFlow = registerSignal("addFlow");
         simulation.getSystemModule()->subscribe("addFlow", this);
     }
