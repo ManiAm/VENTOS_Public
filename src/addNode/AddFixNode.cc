@@ -121,10 +121,6 @@ void AddFixNode::printLoadedStatistics()
     std::cout << ">>> AddFixNode is done adding nodes. Here is a summary: " << endl;
     std::cout.flush();
 
-    //#####################
-    // Get the list of RUSs
-    //#####################
-
     // get a pointer to the first RSU
     cModule *module = simulation.getSystemModule()->getSubmodule("RSU", 0);
     if(module != NULL)
@@ -152,10 +148,6 @@ void AddFixNode::printLoadedStatistics()
         printf("\n");
     }
 
-    //############################
-    // Get the list of Adversaries
-    //############################
-
     // get a pointer to the first Adversary
     module = simulation.getSystemModule()->getSubmodule("adversary", 0);
     if(module != NULL)
@@ -178,10 +170,6 @@ void AddFixNode::printLoadedStatistics()
 
         printf("\n");
     }
-
-    //####################
-    // Get the list of CA
-    //####################
 
     // get a pointer to the first CA
     module = simulation.getSystemModule()->getSubmodule("CA", 0);
@@ -210,7 +198,7 @@ void AddFixNode::printLoadedStatistics()
 }
 
 
-// add adversary module to OMNET
+// add adversary modules to OMNET (without moving them to the correct position)
 void AddFixNode::addAdversary(int num)
 {
     if(num <= 0)
@@ -233,10 +221,30 @@ void AddFixNode::addAdversary(int num)
         mod->scheduleStart(simTime());
         mod->callInitialize();
     }
+
+    // now we draw adversary modules in SUMO (using a circle to show radio coverage)
+    for(int i = 0; i < num; i++)
+    {
+        // get a reference to this adversary
+        cModule *module = simulation.getSystemModule()->getSubmodule("adversary", i);
+        ASSERT(module);
+
+        // get ID
+        std::string name = module->getFullName();
+        // get the radius of this RSU
+        double radius = atof( module->getDisplayString().getTagArg("r",0) );
+
+        // get SUMO X and Y
+        double X = module->getSubmodule("mobility")->par("x").doubleValue();
+        double Y = module->getSubmodule("mobility")->par("y").doubleValue();
+
+        Coord *center = new Coord(X,Y);
+        addCircle(name, "Adv", Color::colorNameToRGB("green"), 1, center, radius);
+    }
 }
 
 
-// add Certificate Authority (CA) module to OMNET
+// add Certificate Authority (CA) modules to OMNET (without moving them to the correct position)
 void AddFixNode::addCA(int num)
 {
     if(num <= 0)
@@ -262,15 +270,11 @@ void AddFixNode::addCA(int num)
 }
 
 
-// add RSU modules to OMNET/SUMO
+// add RSU modules to OMNET/SUMO (without moving them to the correct position)
 void AddFixNode::addRSU(int num)
 {
     if(num <= 0)
         error("num should be > 0");
-
-    // ######################
-    // create RSUs in OMNET++
-    // ######################
 
     cModule* parentMod = getParentModule();
     if (!parentMod)
@@ -280,7 +284,6 @@ void AddFixNode::addRSU(int num)
 
     std::list<std::string> TLList = TraCI->TLGetIDList();
 
-    // creating RSU modules in OMNET (without moving them to the correct position)
     for(int i = 0; i < num; i++)
     {
         cModule* mod = nodeType->create("RSU", parentMod, num, i);
@@ -312,17 +315,16 @@ void AddFixNode::addRSU(int num)
         RSUhosts[i] = mod;
     }
 
-    // ###############################################################
-    // draw RSUs in SUMO (using a circle to show radio coverage)
-    // ###############################################################
 
+    // now we draw RSUs in SUMO (using a circle to show radio coverage)
     for(int i = 0; i < num; i++)
     {
         // get a reference to this RSU
         cModule *module = simulation.getSystemModule()->getSubmodule("RSU", i);
+        ASSERT(module);
 
         // get SUMOID
-        std::string RSUname = module->getSubmodule("appl")->par("SUMOID").stringValue();
+        std::string name = module->getSubmodule("appl")->par("SUMOID").stringValue();
 
         // get the radius of this RSU
         double radius = atof( module->getDisplayString().getTagArg("r",0) );
@@ -332,12 +334,12 @@ void AddFixNode::addRSU(int num)
         double Y = module->getSubmodule("mobility")->par("y").doubleValue();
 
         Coord *center = new Coord(X,Y);
-        commandAddCirclePoly(RSUname, "RSU", Color::colorNameToRGB("green"), center, radius);
+        addCircle(name, "RSU", Color::colorNameToRGB("green"), 0, center, radius);
     }
 }
 
 
-void AddFixNode::commandAddCirclePoly(std::string name, std::string type, const RGB color, Coord *center, double radius)
+void AddFixNode::addCircle(std::string name, std::string type, const RGB color, bool filled, Coord *center, double radius)
 {
     std::list<TraCICoord> circlePoints;
 
@@ -351,7 +353,7 @@ void AddFixNode::commandAddCirclePoly(std::string name, std::string type, const 
     }
 
     // create polygon in SUMO
-    TraCI->polygonAddTraCI(name, type, color, 0, 1, circlePoints);
+    TraCI->polygonAddTraCI(name, type, color, filled /*filled*/, 1 /*layer*/, circlePoints);
 }
 
 }

@@ -48,7 +48,6 @@ private:
 
     void Scenario1();
     void Scenario2();
-    void Scenario3();
     void Scenario4();
     void Scenario5();
     void Scenario6();

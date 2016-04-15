@@ -56,7 +56,7 @@ void AddMobileNode::initialize(int stage)
         terminate = TraCI->par("terminate").doubleValue();
         // if user specifies no termination time, set it to a big value
         if(terminate == -1)
-            terminate = 100000;
+            terminate = 10000;
 
         Signal_executeFirstTS = registerSignal("executeFirstTS");
         simulation.getSystemModule()->subscribe("executeFirstTS", this);
@@ -104,7 +104,6 @@ void AddMobileNode::beginLoading()
     std::map<std::string, pfunc> funcMap;
     funcMap["Scenario1"] = &AddMobileNode::Scenario1;
     funcMap["Scenario2"] = &AddMobileNode::Scenario2;
-    funcMap["Scenario3"] = &AddMobileNode::Scenario3;
     funcMap["Scenario4"] = &AddMobileNode::Scenario4;
     funcMap["Scenario5"] = &AddMobileNode::Scenario5;
     funcMap["Scenario6"] = &AddMobileNode::Scenario6;
@@ -282,14 +281,6 @@ void AddMobileNode::Scenario2()
     //                    return;
     //            }
     //        }
-}
-
-
-void AddMobileNode::Scenario3()
-{
-    Scenario1();
-
-
 }
 
 

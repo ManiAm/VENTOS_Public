@@ -66,7 +66,7 @@ private:
     void addCA(int num = 1);
 
     void addRSU(int num = 1);
-    void commandAddCirclePoly(std::string, std::string, const RGB color, Coord*, double);
+    void addCircle(std::string, std::string, const RGB, bool, Coord*, double);
 
 private:
     typedef BaseApplLayer super;
