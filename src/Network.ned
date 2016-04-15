@@ -44,7 +44,7 @@ network Network
             parameters:
                 @display("p=48,135;i=block/circle");
         }
-        addStationaryNode: AddStationaryNode {
+        addFixNode: AddFixNode {
             parameters:
                 @display("p=245,135;i=old/bwsink");
         }

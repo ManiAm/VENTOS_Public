@@ -1,10 +1,10 @@
 
 package VENTOS.src.addNode;
 
-simple AddStationaryNode
+simple AddFixNode
 {
     parameters:
-        @class(VENTOS::AddStationaryNode);
+        @class(VENTOS::AddFixNode);
         @display("i=block/network2");
         
         int headerLength = default(256bit) @unit(bit); //header length of the application   

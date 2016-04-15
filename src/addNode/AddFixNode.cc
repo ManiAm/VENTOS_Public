@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    AddStationaryNode.cc
+/// @file    AddFixNode.cc
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    Apr 2016
@@ -25,7 +25,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "AddStationaryNode.h"
+#include "AddFixNode.h"
 #include "ConnectionManager.h"
 
 // un-defining ev!
@@ -36,15 +36,15 @@
 
 namespace VENTOS {
 
-Define_Module(VENTOS::AddStationaryNode);
+Define_Module(VENTOS::AddFixNode);
 
-AddStationaryNode::~AddStationaryNode()
+AddFixNode::~AddFixNode()
 {
 
 }
 
 
-void AddStationaryNode::initialize(int stage)
+void AddFixNode::initialize(int stage)
 {
     super::initialize(stage);
 
@@ -61,7 +61,7 @@ void AddStationaryNode::initialize(int stage)
 }
 
 
-void AddStationaryNode::finish()
+void AddFixNode::finish()
 {
     cModule *module = simulation.getSystemModule()->getSubmodule("connMan");
     ConnectionManager *cc = static_cast<ConnectionManager*>(module);
@@ -79,13 +79,13 @@ void AddStationaryNode::finish()
 }
 
 
-void AddStationaryNode::handleMessage(cMessage *msg)
+void AddFixNode::handleMessage(cMessage *msg)
 {
 
 }
 
 
-void AddStationaryNode::receiveSignal(cComponent *source, simsignal_t signalID, long i)
+void AddFixNode::receiveSignal(cComponent *source, simsignal_t signalID, long i)
 {
     Enter_Method_Silent();
 
@@ -96,7 +96,7 @@ void AddStationaryNode::receiveSignal(cComponent *source, simsignal_t signalID, 
 }
 
 
-void AddStationaryNode::beginLoading()
+void AddFixNode::beginLoading()
 {
     int numRSUs = par("numRSUs").longValue();
     if(numRSUs > 0)
@@ -115,10 +115,10 @@ void AddStationaryNode::beginLoading()
 }
 
 
-void AddStationaryNode::printLoadedStatistics()
+void AddFixNode::printLoadedStatistics()
 {
     std::cout << std::endl;
-    std::cout << ">>> AddStationaryNode is done adding nodes. Here is a summary: " << endl;
+    std::cout << ">>> AddFixNode is done adding nodes. Here is a summary: " << endl;
     std::cout.flush();
 
     //#####################
@@ -211,7 +211,7 @@ void AddStationaryNode::printLoadedStatistics()
 
 
 // add adversary module to OMNET
-void AddStationaryNode::addAdversary(int num)
+void AddFixNode::addAdversary(int num)
 {
     if(num <= 0)
         error("num should be > 0");
@@ -237,7 +237,7 @@ void AddStationaryNode::addAdversary(int num)
 
 
 // add Certificate Authority (CA) module to OMNET
-void AddStationaryNode::addCA(int num)
+void AddFixNode::addCA(int num)
 {
     if(num <= 0)
         error("num should be > 0");
@@ -263,7 +263,7 @@ void AddStationaryNode::addCA(int num)
 
 
 // add RSU modules to OMNET/SUMO
-void AddStationaryNode::addRSU(int num)
+void AddFixNode::addRSU(int num)
 {
     if(num <= 0)
         error("num should be > 0");
@@ -337,7 +337,7 @@ void AddStationaryNode::addRSU(int num)
 }
 
 
-void AddStationaryNode::commandAddCirclePoly(std::string name, std::string type, const RGB color, Coord *center, double radius)
+void AddFixNode::commandAddCirclePoly(std::string name, std::string type, const RGB color, Coord *center, double radius)
 {
     std::list<TraCICoord> circlePoints;
 

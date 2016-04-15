@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    AddStationaryNode.h
+/// @file    AddFixNode.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    Apr 2016
@@ -25,8 +25,8 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef ADDSTATIONARYNODE_H_
-#define ADDSTATIONARYNODE_H_
+#ifndef AddFixNode_H_
+#define AddFixNode_H_
 
 #include "TraCICommands.h"
 #include <BaseApplLayer.h>
@@ -49,10 +49,10 @@ public:
 };
 
 
-class AddStationaryNode : public BaseApplLayer
+class AddFixNode : public BaseApplLayer
 {
 public:
-    virtual ~AddStationaryNode();
+    virtual ~AddFixNode();
     virtual void initialize(int stage);
     virtual void handleMessage(cMessage *msg);
     virtual void finish();
