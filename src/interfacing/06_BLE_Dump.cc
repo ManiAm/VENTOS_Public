@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    SniffBluetoothDump.cc
+/// @file    BLE_Dump.cc
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    Feb 2016
@@ -25,7 +25,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <06_SniffBluetoothDump.h>
+#include <06_BLE_Dump.h>
 #include <sys/ioctl.h>
 #include <sys/poll.h>
 
@@ -63,15 +63,15 @@ struct frame {
     int     audio_fd;
 };
 
-Define_Module(VENTOS::SniffBluetoothDump);
+Define_Module(VENTOS::BLE_Dump);
 
-SniffBluetoothDump::~SniffBluetoothDump()
+BLE_Dump::~BLE_Dump()
 {
 
 }
 
 
-void SniffBluetoothDump::initialize(int stage)
+void BLE_Dump::initialize(int stage)
 {
     super::initialize(stage);
 
@@ -89,43 +89,43 @@ void SniffBluetoothDump::initialize(int stage)
 }
 
 
-void SniffBluetoothDump::finish()
+void BLE_Dump::finish()
 {
     super::finish();
 
 }
 
 
-void SniffBluetoothDump::handleMessage(cMessage *msg)
+void BLE_Dump::handleMessage(cMessage *msg)
 {
     super::handleMessage(msg);
 
 }
 
 
-void SniffBluetoothDump::receiveSignal(cComponent *source, simsignal_t signalID, long i)
+void BLE_Dump::receiveSignal(cComponent *source, simsignal_t signalID, long i)
 {
     Enter_Method_Silent();
 
     if(signalID == Signal_executeEachTS)
     {
-        SniffBluetoothDump::executeEachTimestep();
+        BLE_Dump::executeEachTimestep();
     }
     else if(signalID == Signal_executeFirstTS)
     {
-        SniffBluetoothDump::executeFirstTimeStep();
+        BLE_Dump::executeFirstTimeStep();
     }
 }
 
 
-void SniffBluetoothDump::executeFirstTimeStep()
+void BLE_Dump::executeFirstTimeStep()
 {
     super::executeFirstTimeStep();
 
 }
 
 
-void SniffBluetoothDump::executeEachTimestep()
+void BLE_Dump::executeEachTimestep()
 {
     super::executeEachTimestep();
 
@@ -164,7 +164,7 @@ void SniffBluetoothDump::executeEachTimestep()
 }
 
 
-void SniffBluetoothDump::lescanEnable(int dev_id, uint8_t scan_type, uint16_t interval, uint16_t window, uint8_t own_type, uint8_t filter_policy)
+void BLE_Dump::lescanEnable(int dev_id, uint8_t scan_type, uint16_t interval, uint16_t window, uint8_t own_type, uint8_t filter_policy)
 {
     int dd = hci_open_dev(dev_id);
     if (dd < 0)
@@ -198,7 +198,7 @@ void SniffBluetoothDump::lescanEnable(int dev_id, uint8_t scan_type, uint16_t in
 }
 
 
-void SniffBluetoothDump::lescanDisable(int dev_id)
+void BLE_Dump::lescanDisable(int dev_id)
 {
     int dd = hci_open_dev(dev_id);
     if (dd < 0)
@@ -216,7 +216,7 @@ void SniffBluetoothDump::lescanDisable(int dev_id)
 }
 
 
-int SniffBluetoothDump::open_socket(int dev_id)
+int BLE_Dump::open_socket(int dev_id)
 {
     int dd = hci_open_dev(dev_id);
     if (dd < 0)
@@ -271,7 +271,7 @@ int SniffBluetoothDump::open_socket(int dev_id)
 }
 
 
-void SniffBluetoothDump::process_frames(int dev_id, int sock, int timeout)
+void BLE_Dump::process_frames(int dev_id, int sock, int timeout)
 {
     int hdr_size = HCIDUMP_HDR_SIZE;
 
@@ -403,7 +403,7 @@ void SniffBluetoothDump::process_frames(int dev_id, int sock, int timeout)
 '1E' '02 01 1A' '1A FF' '4C 00' '02 15' 'E2 C5 6D B5 DF FB 48 D2 B0 60 D0 F5 A7 10 96 E0' '00 02' '00 01' 'C5 C5'
 
  */
-void SniffBluetoothDump::hex_dump(struct frame *frm)
+void BLE_Dump::hex_dump(struct frame *frm)
 {
     if (!frm->len)
         return;
@@ -436,7 +436,7 @@ void SniffBluetoothDump::hex_dump(struct frame *frm)
 }
 
 
-void SniffBluetoothDump::hci_dump(struct frame *frm)
+void BLE_Dump::hci_dump(struct frame *frm)
 {
     uint8_t type = *(uint8_t *)frm->ptr;
 

@@ -37,6 +37,7 @@ enum BeaconTypeEnum
     SamsungType,
 };
 
+
 // iBeacon technology creates a small area of detection where customized notifications can
 // be sent to iBeacon-enabled apps on iPhone, iPad, iPod touch
 // or Android devices that support Bluetooth 4.0 technology.
@@ -199,7 +200,6 @@ public:
 };
 
 
-
 // Eddystone, an open Bluetooth® Smart beacon format from Google.
 // The Eddystone specification includes a number of broadcast frame types, including Eddystone-URL, the backbone of the Physical Web.
 
@@ -219,9 +219,9 @@ class EddystoneURL
 
 };
 
+
 // others: google for ibeacon hardware
 // Estimote, Gelo (pronounced JEE-low), Swirl, Beaconic and Datzing.
 // https://kstechnologies.com/shop/particle/
-
 
 #endif

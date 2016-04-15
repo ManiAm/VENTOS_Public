@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    SniffUSB.h
+/// @file    USB.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    Dec 2015
@@ -71,10 +71,10 @@ public:
 };
 
 
-class SniffUSB : public BaseApplLayer
+class USB : public BaseApplLayer
 {
 public:
-    virtual ~SniffUSB();
+    virtual ~USB();
     virtual void finish();
     virtual void initialize(int);
     virtual void handleMessage(cMessage *);

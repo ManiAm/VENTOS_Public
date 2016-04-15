@@ -1,10 +1,10 @@
 
-package VENTOS.src.sniffing;
+package VENTOS.src.interfacing;
 
-simple SniffBluetoothLE extends SniffBluetooth
+simple BLE extends Bluetooth
 {
     parameters:
-        @class(VENTOS::SniffBluetoothLE);
+        @class(VENTOS::BLE);
         @display("i=block/network2");
         
         bool BLE_on = default(false);

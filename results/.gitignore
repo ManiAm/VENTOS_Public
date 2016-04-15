@@ -1,4 +1,5 @@
-# Compiled source
 *.sca
 
+# VENTOS generate files
+cached_*
 

@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    SniffBluetooth.h
+/// @file    Bluetooth.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    Feb 2016
@@ -33,7 +33,7 @@
 
 #include <BaseApplLayer.h>
 #include "TraCICommands.h"
-#include <01_SniffEthernet.h>
+#include <01_Ethernet.h>
 
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/hci.h>
@@ -65,10 +65,10 @@ public:
 };
 
 
-class SniffBluetooth : public BaseApplLayer
+class Bluetooth : public BaseApplLayer
 {
 public:
-    virtual ~SniffBluetooth();
+    virtual ~Bluetooth();
     virtual void finish();
     virtual void initialize(int);
     virtual void handleMessage(cMessage *);
@@ -105,7 +105,7 @@ private:
 protected:
     // variables
     TraCI_Commands *TraCI;
-    SniffEthernet *EtherPtr;
+    Ethernet *EtherPtr;
 
 private:
     typedef BaseApplLayer super;

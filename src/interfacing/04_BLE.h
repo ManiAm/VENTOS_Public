@@ -28,14 +28,14 @@
 #ifndef SNIFFBLUETOOTHLE
 #define SNIFFBLUETOOTHLE
 
-#include "03_SniffBluetooth.h"
+#include "03_Bluetooth.h"
 
 namespace VENTOS {
 
-class SniffBluetoothLE : public SniffBluetooth
+class BLE : public Bluetooth
 {
 public:
-    virtual ~SniffBluetoothLE();
+    virtual ~BLE();
     virtual void finish();
     virtual void initialize(int);
     virtual void handleMessage(cMessage *);
@@ -58,7 +58,7 @@ private:
     uint16_t leCreateConnection(std::string bdaddr);
 
 private:
-    typedef SniffBluetooth super;
+    typedef Bluetooth super;
 
     // NED variables
     bool BLE_on;

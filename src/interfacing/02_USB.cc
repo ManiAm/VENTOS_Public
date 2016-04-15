@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    SniffUSB.cc
+/// @file    USB.cc
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    Dec 2015
@@ -25,7 +25,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <02_SniffUSB.h>
+#include <02_USB.h>
 
 #include <fstream>
 #include <boost/tokenizer.hpp>
@@ -39,17 +39,17 @@
 
 namespace VENTOS {
 
-libusb_device_handle * SniffUSB::hotPlugHandle = NULL;
+libusb_device_handle * USB::hotPlugHandle = NULL;
 
-Define_Module(VENTOS::SniffUSB);
+Define_Module(VENTOS::USB);
 
-SniffUSB::~SniffUSB()
+USB::~USB()
 {
 
 }
 
 
-void SniffUSB::initialize(int stage)
+void USB::initialize(int stage)
 {
     super::initialize(stage);
 
@@ -99,7 +99,7 @@ void SniffUSB::initialize(int stage)
 }
 
 
-void SniffUSB::finish()
+void USB::finish()
 {
     if(!on)
         return;
@@ -121,7 +121,7 @@ void SniffUSB::finish()
 }
 
 
-void SniffUSB::handleMessage(cMessage *msg)
+void USB::handleMessage(cMessage *msg)
 {
     if (msg == USBevents)
     {
@@ -165,28 +165,28 @@ void SniffUSB::handleMessage(cMessage *msg)
 }
 
 
-void SniffUSB::receiveSignal(cComponent *source, simsignal_t signalID, long i)
+void USB::receiveSignal(cComponent *source, simsignal_t signalID, long i)
 {
     Enter_Method_Silent();
 
     if(signalID == Signal_executeEachTS)
     {
-        SniffUSB::executeEachTimestep();
+        USB::executeEachTimestep();
     }
     else if(signalID == Signal_executeFirstTS)
     {
-        SniffUSB::executeFirstTimeStep();
+        USB::executeFirstTimeStep();
     }
 }
 
 
-void SniffUSB::executeFirstTimeStep()
+void USB::executeFirstTimeStep()
 {
 
 }
 
 
-void SniffUSB::executeEachTimestep()
+void USB::executeEachTimestep()
 {
     // run this code only once
     static bool wasExecuted = false;
@@ -204,7 +204,7 @@ void SniffUSB::executeEachTimestep()
 
 // listUSBdevicesDetailed: shows 'Configuration Descriptor' for each device
 // productID: looks only for this productID
-void SniffUSB::getUSBdevices(bool listUSBdevicesDetailed)
+void USB::getUSBdevices(bool listUSBdevicesDetailed)
 {
     // make sure ctx is not NULL
     if(ctx == NULL)
@@ -269,13 +269,13 @@ void SniffUSB::getUSBdevices(bool listUSBdevicesDetailed)
 }
 
 
-std::vector<std::string> SniffUSB::USBidTostr(uint16_t idVendor, uint16_t idProduct)
+std::vector<std::string> USB::USBidTostr(uint16_t idVendor, uint16_t idProduct)
 {
     if(USBids.empty())
     {
         // usbids is downloaded from http://www.linux-usb.org/usb.ids
         boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-        boost::filesystem::path usbids_FullPath = VENTOS_FullPath / "src/sniffing/DB_USBidentificationCodes";
+        boost::filesystem::path usbids_FullPath = VENTOS_FullPath / "src/interfacing/DB/USBidentificationCodes";
 
         std::ifstream in(usbids_FullPath.string().c_str());
         if(in.fail())
@@ -372,7 +372,7 @@ std::vector<std::string> SniffUSB::USBidTostr(uint16_t idVendor, uint16_t idProd
 }
 
 
-std::string SniffUSB::USBversionTostr(uint16_t version)
+std::string USB::USBversionTostr(uint16_t version)
 {
     if(version == 256)
         return "1.0";
@@ -387,7 +387,7 @@ std::string SniffUSB::USBversionTostr(uint16_t version)
 }
 
 
-std::string SniffUSB::USBspeedTostr(int speed)
+std::string USB::USBspeedTostr(int speed)
 {
     if(speed == 0)
         return "SPEED_UNKNOWN";
@@ -404,7 +404,7 @@ std::string SniffUSB::USBspeedTostr(int speed)
 }
 
 
-void SniffUSB::printConfDesc(libusb_device *dev)
+void USB::printConfDesc(libusb_device *dev)
 {
     libusb_config_descriptor *config;
     libusb_get_config_descriptor(dev, 0, &config);
@@ -460,7 +460,7 @@ void SniffUSB::printConfDesc(libusb_device *dev)
 }
 
 
-std::string SniffUSB::EPAddTostr(uint8_t addr)
+std::string USB::EPAddTostr(uint8_t addr)
 {
     int EPnumber = (addr & 0x1F);
     std::string EPnumberStr = std::to_string(EPnumber);
@@ -476,7 +476,7 @@ std::string SniffUSB::EPAddTostr(uint8_t addr)
 }
 
 
-std::string SniffUSB::EPAttTostr(uint8_t attValue)
+std::string USB::EPAttTostr(uint8_t attValue)
 {
     std::ostringstream att;
 
@@ -538,7 +538,7 @@ std::string SniffUSB::EPAttTostr(uint8_t attValue)
 }
 
 
-void SniffUSB::EnableHotPlug()
+void USB::EnableHotPlug()
 {
     int vendor_id = 1133;
     int product_id = 50475;
@@ -577,7 +577,7 @@ void SniffUSB::EnableHotPlug()
 }
 
 
-int SniffUSB::hotplug_callback(libusb_context *ctx, libusb_device *dev, libusb_hotplug_event event, void *user_data)
+int USB::hotplug_callback(libusb_context *ctx, libusb_device *dev, libusb_hotplug_event event, void *user_data)
 {
     struct libusb_device_descriptor desc;
     int rc;
@@ -603,7 +603,7 @@ int SniffUSB::hotplug_callback(libusb_context *ctx, libusb_device *dev, libusb_h
 }
 
 
-int LIBUSB_CALL SniffUSB::hotplug_callback_detach(libusb_context *ctx, libusb_device *dev, libusb_hotplug_event event, void *user_data)
+int LIBUSB_CALL USB::hotplug_callback_detach(libusb_context *ctx, libusb_device *dev, libusb_hotplug_event event, void *user_data)
 {
     printf ("Device detached. \n");
     std::cout.flush();
@@ -618,7 +618,7 @@ int LIBUSB_CALL SniffUSB::hotplug_callback_detach(libusb_context *ctx, libusb_de
 }
 
 
-void SniffUSB::startSniffing()
+void USB::startSniffing()
 {
     // make sure ctx is not NULL
     if(ctx == NULL)
@@ -671,7 +671,7 @@ void SniffUSB::startSniffing()
 }
 
 
-void SniffUSB::bulk(libusb_device_handle *devh)
+void USB::bulk(libusb_device_handle *devh)
 {
     //    // Request data from the device
     //    unsigned char data_in[200] = { 0 };

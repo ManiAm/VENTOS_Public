@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    SniffEthernet.h
+/// @file    Ethernet.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    Dec 2015
@@ -63,10 +63,10 @@ public:
 };
 
 
-class SniffEthernet : public BaseApplLayer
+class Ethernet : public BaseApplLayer
 {
 public:
-    virtual ~SniffEthernet();
+    virtual ~Ethernet();
     virtual void finish();
     virtual void initialize(int);
     virtual void handleMessage(cMessage *);

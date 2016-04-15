@@ -1,10 +1,10 @@
 
-package VENTOS.src.sniffing;
+package VENTOS.src.interfacing;
 
-simple SniffEthernet
+simple Ethernet
 {
     parameters:
-        @class(VENTOS::SniffEthernet);
+        @class(VENTOS::Ethernet);
         @display("i=block/network2");
         
         int headerLength = default(88bit) @unit(bit); //header length of the application 

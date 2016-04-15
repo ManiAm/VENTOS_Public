@@ -6,7 +6,7 @@ import VENTOS.src.traci.*;
 import VENTOS.src.global.*;
 import VENTOS.src.addNode.*;
 import VENTOS.src.router.*;
-import VENTOS.src.sniffing.*;
+import VENTOS.src.interfacing.*;
 import VENTOS.src.trafficLight.*;
 import VENTOS.src.trafficLightCobalt.*;
 import VENTOS.src.veins.*;
@@ -80,15 +80,15 @@ network Network
             parameters:
                 @display("p=337,43;i=block/app");
         }
-        sniffEthernet: SniffEthernet {
+        Ethernet: Ethernet {
             parameters:
                 @display("p=48,299;i=block/network");
         }
-        sniffUSB: SniffUSB {
+        USB: USB {
             parameters:
                 @display("p=144,299;i=block/mac");
         }
-        sniffBluetooth: SniffBluetoothDump {
+        Bluetooth: BLE_Dump {
             parameters:
                 @display("p=245,299;i=block/mac");
         }

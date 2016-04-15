@@ -1,10 +1,10 @@
 
-package VENTOS.src.sniffing;
+package VENTOS.src.interfacing;
 
-simple SniffBluetoothDump extends AdvertiseBeacon
+simple BLE_Dump extends BLE_Advertisement
 {
     parameters:
-        @class(VENTOS::SniffBluetoothDump);
+        @class(VENTOS::BLE_Dump);
         @display("i=block/network2");
         
         bool dump_On = default(false);

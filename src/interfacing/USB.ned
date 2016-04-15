@@ -1,10 +1,10 @@
 
-package VENTOS.src.sniffing;
+package VENTOS.src.interfacing;
 
-simple SniffUSB
+simple USB
 {
     parameters:
-        @class(VENTOS::SniffUSB);
+        @class(VENTOS::USB);
         @display("i=block/network2");
         
         int headerLength = default(88bit) @unit(bit); //header length of the application 

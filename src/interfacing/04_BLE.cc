@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    SniffBluetoothLE.cc
+/// @file    BLE.cc
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    Feb 2016
@@ -25,7 +25,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <04_SniffBluetoothLE.h>
+#include <04_BLE.h>
 #include <fstream>
 #include <boost/algorithm/string/trim.hpp>
 #include <linux/errno.h>
@@ -37,15 +37,15 @@ namespace VENTOS {
 #define EIR_NAME_COMPLETE   0x09  /* complete local name */
 #define EIR_APPEARANCE      0x19  /* Device appearance */
 
-Define_Module(VENTOS::SniffBluetoothLE);
+Define_Module(VENTOS::BLE);
 
-SniffBluetoothLE::~SniffBluetoothLE()
+BLE::~BLE()
 {
 
 }
 
 
-void SniffBluetoothLE::initialize(int stage)
+void BLE::initialize(int stage)
 {
     super::initialize(stage);
 
@@ -57,33 +57,33 @@ void SniffBluetoothLE::initialize(int stage)
             return;
 
         boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-        cached_LEBT_devices_filePATH = VENTOS_FullPath / "src/sniffing/cached_LEBT_devices";
+        cached_LEBT_devices_filePATH = VENTOS_FullPath / "results/cached_LEBT_devices";
     }
 }
 
 
-void SniffBluetoothLE::finish()
+void BLE::finish()
 {
     super::finish();
 
 }
 
 
-void SniffBluetoothLE::handleMessage(cMessage *msg)
+void BLE::handleMessage(cMessage *msg)
 {
     super::handleMessage(msg);
 
 }
 
 
-void SniffBluetoothLE::executeFirstTimeStep()
+void BLE::executeFirstTimeStep()
 {
     super::executeFirstTimeStep();
 
 }
 
 
-void SniffBluetoothLE::executeEachTimestep()
+void BLE::executeEachTimestep()
 {
     super::executeEachTimestep();
 
@@ -121,7 +121,7 @@ void SniffBluetoothLE::executeEachTimestep()
 }
 
 
-void SniffBluetoothLE::loadCachedDevices()
+void BLE::loadCachedDevices()
 {
     std::ifstream infile(cached_LEBT_devices_filePATH.string().c_str());
     // no such file exists!
@@ -159,7 +159,7 @@ void SniffBluetoothLE::loadCachedDevices()
 }
 
 
-void SniffBluetoothLE::saveCachedDevices()
+void BLE::saveCachedDevices()
 {
     if(allLEBTdevices.empty())
         return;
@@ -175,7 +175,7 @@ void SniffBluetoothLE::saveCachedDevices()
 }
 
 
-void SniffBluetoothLE::lescan(int dev_id, uint8_t scan_type, uint16_t interval, uint16_t window, uint8_t own_type, uint8_t filter_policy, int scan_time)
+void BLE::lescan(int dev_id, uint8_t scan_type, uint16_t interval, uint16_t window, uint8_t own_type, uint8_t filter_policy, int scan_time)
 {
     int dd = hci_open_dev(dev_id);
     if (dd < 0)
@@ -275,7 +275,7 @@ void SniffBluetoothLE::lescan(int dev_id, uint8_t scan_type, uint16_t interval, 
 }
 
 
-std::map<std::string /*BT add*/, std::vector<std::string>> SniffBluetoothLE::print_advertising_devices(int dd, int timeout)
+std::map<std::string /*BT add*/, std::vector<std::string>> BLE::print_advertising_devices(int dd, int timeout)
 {
     unsigned char buffer[HCI_MAX_EVENT_SIZE];
     fd_set read_set;
@@ -358,7 +358,7 @@ std::map<std::string /*BT add*/, std::vector<std::string>> SniffBluetoothLE::pri
 }
 
 
-std::string SniffBluetoothLE::parse_name(uint8_t* data, size_t size)
+std::string BLE::parse_name(uint8_t* data, size_t size)
 {
     size_t offset = 0;
     std::string unknown = "unknown";
@@ -395,7 +395,7 @@ std::string SniffBluetoothLE::parse_name(uint8_t* data, size_t size)
 }
 
 
-int SniffBluetoothLE::parse_flags(uint8_t* data, size_t size)
+int BLE::parse_flags(uint8_t* data, size_t size)
 {
     size_t offset = 0;
 
@@ -420,7 +420,7 @@ int SniffBluetoothLE::parse_flags(uint8_t* data, size_t size)
 }
 
 
-int SniffBluetoothLE::parse_appearance(uint8_t* data, size_t size)
+int BLE::parse_appearance(uint8_t* data, size_t size)
 {
     size_t offset = 0;
 
@@ -449,7 +449,7 @@ int SniffBluetoothLE::parse_appearance(uint8_t* data, size_t size)
 
 
 // check this: http://stackoverflow.com/questions/16224561/multiple-ble-connections-using-linux-and-bluez-5-0
-uint16_t SniffBluetoothLE::leCreateConnection(std::string str_bdaddr)
+uint16_t BLE::leCreateConnection(std::string str_bdaddr)
 {
     int dev_id = hci_get_route(NULL);
     if (dev_id < 0)

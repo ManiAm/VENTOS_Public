@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    SniffBluetooth.cc
+/// @file    Bluetooth.cc
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    Feb 2016
@@ -25,7 +25,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <03_SniffBluetooth.h>
+#include <03_Bluetooth.h>
 
 #include <fstream>
 #include <boost/algorithm/string/trim.hpp>
@@ -34,15 +34,15 @@
 
 namespace VENTOS {
 
-Define_Module(VENTOS::SniffBluetooth);
+Define_Module(VENTOS::Bluetooth);
 
-SniffBluetooth::~SniffBluetooth()
+Bluetooth::~Bluetooth()
 {
 
 }
 
 
-void SniffBluetooth::initialize(int stage)
+void Bluetooth::initialize(int stage)
 {
     super::initialize(stage);
 
@@ -55,8 +55,8 @@ void SniffBluetooth::initialize(int stage)
 
         // get a pointer to SniffEthernet module
         // we need to call OUITostr
-        cModule *module2 = simulation.getSystemModule()->getSubmodule("sniffEthernet");
-        EtherPtr = static_cast<SniffEthernet *>(module2);
+        cModule *module2 = simulation.getSystemModule()->getSubmodule("Ethernet");
+        EtherPtr = static_cast<Ethernet *>(module2);
         ASSERT(EtherPtr);
 
         listLocalDevices = par("listLocalDevices").boolValue();
@@ -74,32 +74,32 @@ void SniffBluetooth::initialize(int stage)
             return;
 
         boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-        cached_BT_devices_filePATH = VENTOS_FullPath / "src/sniffing/cached_BT_devices";
+        cached_BT_devices_filePATH = VENTOS_FullPath / "results/cached_BT_devices";
     }
 }
 
 
-void SniffBluetooth::finish()
+void Bluetooth::finish()
 {
 
 
 }
 
 
-void SniffBluetooth::handleMessage(cMessage *msg)
+void Bluetooth::handleMessage(cMessage *msg)
 {
 
 
 }
 
 
-void SniffBluetooth::executeFirstTimeStep()
+void Bluetooth::executeFirstTimeStep()
 {
 
 }
 
 
-void SniffBluetooth::executeEachTimestep()
+void Bluetooth::executeEachTimestep()
 {
     // run this code only once
     static bool wasExecuted = false;
@@ -132,7 +132,7 @@ void SniffBluetooth::executeEachTimestep()
 }
 
 
-void SniffBluetooth::getLocalDevs()
+void Bluetooth::getLocalDevs()
 {
     std::cout << std::endl << ">>> Local Bluetooth devices on this machine: \n";
 
@@ -199,7 +199,7 @@ void SniffBluetooth::getLocalDevs()
 }
 
 
-void SniffBluetooth::print_dev_info(struct hci_dev_info *di)
+void Bluetooth::print_dev_info(struct hci_dev_info *di)
 {
     char addr[18];
     ba2str(&di->bdaddr, addr);
@@ -283,7 +283,7 @@ void SniffBluetooth::print_dev_info(struct hci_dev_info *di)
 }
 
 
-std::string SniffBluetooth::cmd_name(int dev_id)
+std::string Bluetooth::cmd_name(int dev_id)
 {
     // open device
     int dd = hci_open_dev(dev_id);
@@ -309,7 +309,7 @@ std::string SniffBluetooth::cmd_name(int dev_id)
 }
 
 
-std::string SniffBluetooth::cmd_class(int dev_id)
+std::string Bluetooth::cmd_class(int dev_id)
 {
     // open device
     int dd = hci_open_dev(dev_id);
@@ -329,7 +329,7 @@ std::string SniffBluetooth::cmd_class(int dev_id)
 
 // Decode device class
 // from https://www.bluetooth.com/specifications/assigned-numbers/baseband
-std::string SniffBluetooth::cmd_class(uint8_t dev_class[3])
+std::string Bluetooth::cmd_class(uint8_t dev_class[3])
 {
     int flags = dev_class[2];
     int majorNum = dev_class[1];
@@ -434,7 +434,7 @@ std::string SniffBluetooth::cmd_class(uint8_t dev_class[3])
 }
 
 
-std::string SniffBluetooth::cmd_company(int dev_id)
+std::string Bluetooth::cmd_company(int dev_id)
 {
     // open device
     int dd = hci_open_dev(dev_id);
@@ -454,7 +454,7 @@ std::string SniffBluetooth::cmd_company(int dev_id)
 }
 
 
-void SniffBluetooth::cmd_up(int hdev)
+void Bluetooth::cmd_up(int hdev)
 {
     /* Open HCI socket  */
     int ctl;
@@ -475,7 +475,7 @@ void SniffBluetooth::cmd_up(int hdev)
 }
 
 
-void SniffBluetooth::cmd_down(int hdev)
+void Bluetooth::cmd_down(int hdev)
 {
     /* Open HCI socket  */
     int ctl;
@@ -493,7 +493,7 @@ void SniffBluetooth::cmd_down(int hdev)
 }
 
 
-bool SniffBluetooth::isDown(int hdev)
+bool Bluetooth::isDown(int hdev)
 {
     int ctl;
     if ((ctl = socket(AF_BLUETOOTH, SOCK_RAW, BTPROTO_HCI)) < 0)
@@ -512,7 +512,7 @@ bool SniffBluetooth::isDown(int hdev)
 }
 
 
-void SniffBluetooth::piscan(int hdev, std::string scan)
+void Bluetooth::piscan(int hdev, std::string scan)
 {
     /* Open HCI socket  */
     int ctl;
@@ -536,7 +536,7 @@ void SniffBluetooth::piscan(int hdev, std::string scan)
 }
 
 
-void SniffBluetooth::loadCachedDevices()
+void Bluetooth::loadCachedDevices()
 {
     std::ifstream infile(cached_BT_devices_filePATH.string().c_str());
     // no such file exists!
@@ -574,7 +574,7 @@ void SniffBluetooth::loadCachedDevices()
 }
 
 
-void SniffBluetooth::saveCachedDevices()
+void Bluetooth::saveCachedDevices()
 {
     if(allBTdevices.empty())
         return;
@@ -591,7 +591,7 @@ void SniffBluetooth::saveCachedDevices()
 
 
 // scan nearby BT devices
-void SniffBluetooth::scan(int dev_id, int len)
+void Bluetooth::scan(int dev_id, int len)
 {
     int sock = hci_open_dev(dev_id);
     if (sock < 0)
@@ -676,7 +676,7 @@ void SniffBluetooth::scan(int dev_id, int len)
 
 
 // Get current date/time, format is YYYY-MM-DD.HH:mm:ss
-const std::string SniffBluetooth::currentDateTime()
+const std::string Bluetooth::currentDateTime()
 {
     time_t     now = time(0);
     struct tm  tstruct;
@@ -692,7 +692,7 @@ const std::string SniffBluetooth::currentDateTime()
 
 
 // check this command: sdptool browse 4C:A5:6D:58:7C:14
-void SniffBluetooth::serviceDiscovery(std::string bdaddr, uint16_t UUID)
+void Bluetooth::serviceDiscovery(std::string bdaddr, uint16_t UUID)
 {
     bdaddr_t src = {0, 0, 0, 0, 0, 0};  // broadcast address
     bdaddr_t dst;
@@ -797,7 +797,7 @@ void SniffBluetooth::serviceDiscovery(std::string bdaddr, uint16_t UUID)
 }
 
 
-void SniffBluetooth::cmd_cmd(int dev_id, uint8_t ogf, uint16_t ocf, std::string payload)
+void Bluetooth::cmd_cmd(int dev_id, uint8_t ogf, uint16_t ocf, std::string payload)
 {
     if (dev_id < 0)
         error("Not a valid device");
@@ -859,7 +859,7 @@ void SniffBluetooth::cmd_cmd(int dev_id, uint8_t ogf, uint16_t ocf, std::string 
 }
 
 
-void SniffBluetooth::hex_dump(std::string pref, int width, unsigned char *buf, int len)
+void Bluetooth::hex_dump(std::string pref, int width, unsigned char *buf, int len)
 {
     register int i,n;
 

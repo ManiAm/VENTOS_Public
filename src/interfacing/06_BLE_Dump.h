@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    SniffBluetoothDump.h
+/// @file    BLE_Dump.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    Feb 2016
@@ -28,14 +28,14 @@
 #ifndef SNIFFBLUETOOTHDUMP
 #define SNIFFBLUETOOTHDUMP
 
-#include "05_AdvertiseBeacon.h"
+#include "05_BLE_Advertisement.h"
 
 namespace VENTOS {
 
-class SniffBluetoothDump : public AdvertiseBeacon
+class BLE_Dump : public BLE_Advertisement
 {
 public:
-    virtual ~SniffBluetoothDump();
+    virtual ~BLE_Dump();
     virtual void finish();
     virtual void initialize(int);
     virtual void handleMessage(cMessage *);
@@ -54,7 +54,7 @@ private:
     void hci_dump(struct frame *frm);
 
 private:
-    typedef AdvertiseBeacon super;
+    typedef BLE_Advertisement super;
 
     // NED variables
     bool dump_On;

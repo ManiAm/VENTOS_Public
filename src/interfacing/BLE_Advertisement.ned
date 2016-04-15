@@ -1,10 +1,10 @@
 
-package VENTOS.src.sniffing;
+package VENTOS.src.interfacing;
 
-simple AdvertiseBeacon extends SniffBluetoothLE
+simple BLE_Advertisement extends BLE
 {
     parameters:
-        @class(VENTOS::AdvertiseBeacon);
+        @class(VENTOS::BLE_Advertisement);
         @display("i=block/network2");
        
         bool BLE_advertisement = default(false);        

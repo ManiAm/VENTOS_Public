@@ -1,10 +1,10 @@
 
-package VENTOS.src.sniffing;
+package VENTOS.src.interfacing;
 
-simple SniffBluetooth
+simple Bluetooth
 {
     parameters:
-        @class(VENTOS::SniffBluetooth);
+        @class(VENTOS::Bluetooth);
         @display("i=block/network2");
         
         int headerLength = default(88bit) @unit(bit); //header length of the application

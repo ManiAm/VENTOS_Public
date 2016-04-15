@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    SniffBluetoothLEAdv.cc
+/// @file    BLE_Advertisement.cc
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    Feb 2016
@@ -25,21 +25,21 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <05_AdvertiseBeacon.h>
-#include <05_BeaconFormat.h>
+#include <05_BLE_Advertisement.h>
+#include <BeaconFormat.h>
 #include <linux/errno.h>       // include this at the end!
 
 namespace VENTOS {
 
-Define_Module(VENTOS::AdvertiseBeacon);
+Define_Module(VENTOS::BLE_Advertisement);
 
-AdvertiseBeacon::~AdvertiseBeacon()
+BLE_Advertisement::~BLE_Advertisement()
 {
 
 }
 
 
-void AdvertiseBeacon::initialize(int stage)
+void BLE_Advertisement::initialize(int stage)
 {
     super::initialize(stage);
 
@@ -53,28 +53,28 @@ void AdvertiseBeacon::initialize(int stage)
 }
 
 
-void AdvertiseBeacon::finish()
+void BLE_Advertisement::finish()
 {
     super::finish();
 
 }
 
 
-void AdvertiseBeacon::handleMessage(cMessage *msg)
+void BLE_Advertisement::handleMessage(cMessage *msg)
 {
     super::handleMessage(msg);
 
 }
 
 
-void AdvertiseBeacon::executeFirstTimeStep()
+void BLE_Advertisement::executeFirstTimeStep()
 {
     super::executeFirstTimeStep();
 
 }
 
 
-void AdvertiseBeacon::executeEachTimestep()
+void BLE_Advertisement::executeEachTimestep()
 {
     super::executeEachTimestep();
 
@@ -111,7 +111,7 @@ void AdvertiseBeacon::executeEachTimestep()
      sudo hciconfig hci0 leadv 3
      sudo hcitool -i hci0 cmd 0x08 0x0008 1e 02 01 1a 1a ff 4c 00 02 15 e2 c5 6d b5 df fb 48 d2 b0 60 d0 f5 a7 10 96 e0 00 00 00 00 c5
  */
-void AdvertiseBeacon:: advertiseBeacon(int dev_id, int minInterval, int maxInterval, uint8_t ADVtype, uint8_t channelNumber, int beaconType)
+void BLE_Advertisement:: advertiseBeacon(int dev_id, int minInterval, int maxInterval, uint8_t ADVtype, uint8_t channelNumber, int beaconType)
 {
     // disable LE advertising first
     no_le_adv(dev_id);
@@ -128,7 +128,7 @@ void AdvertiseBeacon:: advertiseBeacon(int dev_id, int minInterval, int maxInter
 }
 
 
-void AdvertiseBeacon::no_le_adv(int hdev)
+void BLE_Advertisement::no_le_adv(int hdev)
 {
     if (hdev < 0)
         error("Not a valid device");
@@ -167,7 +167,7 @@ void AdvertiseBeacon::no_le_adv(int hdev)
 }
 
 
-void AdvertiseBeacon::le_adv(int hdev, uint16_t minInterval, uint16_t maxInterval, uint8_t ADVtype, uint8_t channel)
+void BLE_Advertisement::le_adv(int hdev, uint16_t minInterval, uint16_t maxInterval, uint8_t ADVtype, uint8_t channel)
 {
     if (hdev < 0)
         error("Not a valid device");
@@ -235,7 +235,7 @@ void AdvertiseBeacon::le_adv(int hdev, uint16_t minInterval, uint16_t maxInterva
 }
 
 
-std::string AdvertiseBeacon::generateBeacon(int beaconType)
+std::string BLE_Advertisement::generateBeacon(int beaconType)
 {
     std::cout << std::endl << ">>> Generating type " << beaconType << " beacon... \n" << std::flush;
 

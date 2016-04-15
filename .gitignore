@@ -3,8 +3,5 @@
 *.so
 **Makefile
 
-# VENTOS generate files
-cached_*
-
 # Directory
 out/

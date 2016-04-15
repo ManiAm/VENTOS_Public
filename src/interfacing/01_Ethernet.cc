@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    SniffEthernet.cc
+/// @file    Ethernet.cc
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    Dec 2015
@@ -25,7 +25,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <01_SniffEthernet.h>
+#include <01_Ethernet.h>
 #include <fstream>
 #include "boost/format.hpp"
 
@@ -37,15 +37,15 @@
 
 namespace VENTOS {
 
-Define_Module(VENTOS::SniffEthernet);
+Define_Module(VENTOS::Ethernet);
 
-SniffEthernet::~SniffEthernet()
+Ethernet::~Ethernet()
 {
 
 }
 
 
-void SniffEthernet::initialize(int stage)
+void Ethernet::initialize(int stage)
 {
     super::initialize(stage);
 
@@ -82,7 +82,7 @@ void SniffEthernet::initialize(int stage)
 }
 
 
-void SniffEthernet::finish()
+void Ethernet::finish()
 {
     if(!on)
         return;
@@ -92,7 +92,7 @@ void SniffEthernet::finish()
 }
 
 
-void SniffEthernet::handleMessage(cMessage *msg)
+void Ethernet::handleMessage(cMessage *msg)
 {
     if(msg == captureEvent)
     {
@@ -106,7 +106,7 @@ void SniffEthernet::handleMessage(cMessage *msg)
 
             // if the packet has been read without problems
             if(res == 1)
-                SniffEthernet::got_packet(header, pkt_data);
+                Ethernet::got_packet(header, pkt_data);
             // if the timeout set with pcap_open_live() has elapsed.
             // In this case pkt_header and pkt_data don't point to a valid packet
             else if(res == 0)
@@ -146,28 +146,28 @@ void SniffEthernet::handleMessage(cMessage *msg)
 }
 
 
-void SniffEthernet::receiveSignal(cComponent *source, simsignal_t signalID, long i)
+void Ethernet::receiveSignal(cComponent *source, simsignal_t signalID, long i)
 {
     Enter_Method_Silent();
 
     if(signalID == Signal_executeEachTS)
     {
-        SniffEthernet::executeEachTimestep();
+        Ethernet::executeEachTimestep();
     }
     else if(signalID == Signal_executeFirstTS)
     {
-        SniffEthernet::executeFirstTimeStep();
+        Ethernet::executeFirstTimeStep();
     }
 }
 
 
-void SniffEthernet::executeFirstTimeStep()
+void Ethernet::executeFirstTimeStep()
 {
 
 }
 
 
-void SniffEthernet::executeEachTimestep()
+void Ethernet::executeEachTimestep()
 {
     // run this code only once
     static bool wasExecuted = false;
@@ -179,7 +179,7 @@ void SniffEthernet::executeEachTimestep()
 }
 
 
-void SniffEthernet::listInterfaces()
+void Ethernet::listInterfaces()
 {
     std::cout << std::endl << ">>> List of all interfaces on this machine: " << std::endl;
 
@@ -226,7 +226,7 @@ void SniffEthernet::listInterfaces()
 }
 
 
-std::string SniffEthernet::MACaddrTostr(const u_int8_t MACaddr[])
+std::string Ethernet::MACaddrTostr(const u_int8_t MACaddr[])
 {
     boost::format fmt("%02X:%02X:%02X:%02X:%02X:%02X");
 
@@ -238,7 +238,7 @@ std::string SniffEthernet::MACaddrTostr(const u_int8_t MACaddr[])
 
 
 // u_int8_t arp_spa[4];
-std::string SniffEthernet::IPaddrTostr(const u_int8_t IPaddr[])
+std::string Ethernet::IPaddrTostr(const u_int8_t IPaddr[])
 {
     boost::format fmt("%u.%u.%u.%u");
 
@@ -250,7 +250,7 @@ std::string SniffEthernet::IPaddrTostr(const u_int8_t IPaddr[])
 
 
 // u_int32_t saddr
-std::string SniffEthernet::IPaddrTostr(uint32_t IPaddr)
+std::string Ethernet::IPaddrTostr(uint32_t IPaddr)
 {
     in_addr srcAdd;
     srcAdd.s_addr = IPaddr;
@@ -269,13 +269,13 @@ std::string SniffEthernet::IPaddrTostr(uint32_t IPaddr)
 }
 
 
-std::string SniffEthernet::serverPortTostr(int port)
+std::string Ethernet::serverPortTostr(int port)
 {
     if(portNumber.empty())
     {
         // services files in Linux is in /etc/services
         boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-        boost::filesystem::path services_FullPath = VENTOS_FullPath / "src/sniffing/DB_transportLayerServerPorts";
+        boost::filesystem::path services_FullPath = VENTOS_FullPath / "src/interfacing/DB/ServerPorts";
         std::ifstream in(services_FullPath.string().c_str());
         if(in.fail())
             error("cannot open file sniff_services at %s", services_FullPath.string().c_str());
@@ -314,13 +314,13 @@ std::string SniffEthernet::serverPortTostr(int port)
 }
 
 
-std::string SniffEthernet::OUITostr(const u_int8_t MACaddr[])
+std::string Ethernet::OUITostr(const u_int8_t MACaddr[])
 {
     if(OUI.empty())
     {
         // OUI is downloaded from https://www.wireshark.org/tools/oui-lookup.html
         boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-        boost::filesystem::path manuf_FullPath = VENTOS_FullPath / "src/sniffing/DB_OUI";
+        boost::filesystem::path manuf_FullPath = VENTOS_FullPath / "src/interfacing/DB/OUI";
 
         std::ifstream in(manuf_FullPath.string().c_str());
         if(in.fail())
@@ -355,7 +355,7 @@ std::string SniffEthernet::OUITostr(const u_int8_t MACaddr[])
 
 
 // very useful information: http://pcap.man.potaroo.net/
-void SniffEthernet::startSniffing()
+void Ethernet::startSniffing()
 {
     // check if interface is valid!
     auto iterfacePtr = allDev.find(interface);
@@ -421,7 +421,7 @@ void SniffEthernet::startSniffing()
 }
 
 
-void SniffEthernet::got_packet(const struct pcap_pkthdr *header, const u_char *packet)
+void Ethernet::got_packet(const struct pcap_pkthdr *header, const u_char *packet)
 {
     static int count = 1;  /* packet counter */
 
@@ -481,7 +481,7 @@ void SniffEthernet::got_packet(const struct pcap_pkthdr *header, const u_char *p
 }
 
 
-void SniffEthernet::processARP(const u_char *packet)
+void Ethernet::processARP(const u_char *packet)
 {
     const struct ether_arp *arp = (struct ether_arp*)(packet + ETHER_HDR_LEN);
 
@@ -507,7 +507,7 @@ void SniffEthernet::processARP(const u_char *packet)
 }
 
 
-void SniffEthernet::processIPv4(const u_char *packet)
+void Ethernet::processIPv4(const u_char *packet)
 {
     const struct ip *ip_packet = (struct ip*)(packet + ETHER_HDR_LEN);
 
@@ -557,7 +557,7 @@ void SniffEthernet::processIPv4(const u_char *packet)
 }
 
 
-void SniffEthernet::processIPv6(const u_char *packet)
+void Ethernet::processIPv6(const u_char *packet)
 {
     // const struct ip6_hdr *ipv6 = (struct ip6_hdr*)(packet + ETHER_HDR_LEN);
 
@@ -572,7 +572,7 @@ void SniffEthernet::processIPv6(const u_char *packet)
 }
 
 
-void SniffEthernet::processTCP(const u_char *packet, const struct ip *ip_packet)
+void Ethernet::processTCP(const u_char *packet, const struct ip *ip_packet)
 {
     /* compute tcp header offset */
     int size_ip = ip_packet->ip_hl * 4;  // size in byte
@@ -606,7 +606,7 @@ void SniffEthernet::processTCP(const u_char *packet, const struct ip *ip_packet)
 }
 
 
-void SniffEthernet::processUDP(const u_char *packet, const struct ip *ip_packet)
+void Ethernet::processUDP(const u_char *packet, const struct ip *ip_packet)
 {
     /* compute udp header offset */
     int size_ip = ip_packet->ip_hl * 4;  // size in byte
@@ -640,7 +640,7 @@ void SniffEthernet::processUDP(const u_char *packet, const struct ip *ip_packet)
 }
 
 
-void SniffEthernet::processICMP(const u_char *packet, const struct ip *ip_packet)
+void Ethernet::processICMP(const u_char *packet, const struct ip *ip_packet)
 {
     /* compute icmp header offset */
     int size_ip = ip_packet->ip_hl * 4;  // size in byte
@@ -668,7 +668,7 @@ void SniffEthernet::processICMP(const u_char *packet, const struct ip *ip_packet
 
 
 /* print packet payload data (avoid printing binary data) */
-void SniffEthernet::print_dataPayload(const u_char *payload, int len)
+void Ethernet::print_dataPayload(const u_char *payload, int len)
 {
     // double-check again
     if (len <= 0)
@@ -722,7 +722,7 @@ void SniffEthernet::print_dataPayload(const u_char *payload, int len)
  *
  * 00000   47 45 54 20 2f 20 48 54  54 50 2f 31 2e 31 0d 0a   GET / HTTP/1.1..
  */
-void SniffEthernet::print_hex_ascii_line(const u_char *payload, int len, int offset)
+void Ethernet::print_hex_ascii_line(const u_char *payload, int len, int offset)
 {
     int i;
     int gap;

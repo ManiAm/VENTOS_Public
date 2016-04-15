@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    SniffBluetoothLEAdv.h
+/// @file    BLE_Advertisement.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    Feb 2016
@@ -28,14 +28,14 @@
 #ifndef ADVERTISEBEACON
 #define ADVERTISEBEACON
 
-#include "04_SniffBluetoothLE.h"
+#include "04_BLE.h"
 
 namespace VENTOS {
 
-class AdvertiseBeacon : public SniffBluetoothLE
+class BLE_Advertisement : public BLE
 {
 public:
-    virtual ~AdvertiseBeacon();
+    virtual ~BLE_Advertisement();
     virtual void finish();
     virtual void initialize(int);
     virtual void handleMessage(cMessage *);
@@ -51,7 +51,7 @@ private:
     std::string generateBeacon(int);
 
 private:
-    typedef SniffBluetoothLE super;
+    typedef BLE super;
 
     // NED variables
     bool BLE_advertisement;
