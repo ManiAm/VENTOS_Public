@@ -98,9 +98,6 @@ void AddStationaryNode::receiveSignal(cComponent *source, simsignal_t signalID, 
 
 void AddStationaryNode::beginLoading()
 {
-    std::cout << ">>> AddStationaryNode is adding nodes into the simulation ..." << endl;
-    std::cout.flush();
-
     int numRSUs = par("numRSUs").longValue();
     if(numRSUs > 0)
         addRSU(numRSUs);
@@ -113,58 +110,103 @@ void AddStationaryNode::beginLoading()
     if(numAdversary > 0)
         addAdversary(numAdversary);
 
-    std::cout << std::endl;
-    std::cout << ">>> AddStationaryNode is done adding nodes. Here is a summary: " << endl;
-    std::cout.flush();
-    printLoadedStatistics();
-    std::cout.flush();
+    if(numRSUs > 0 || numCA > 0 || numAdversary > 0)
+        printLoadedStatistics();
 }
 
 
 void AddStationaryNode::printLoadedStatistics()
 {
+    std::cout << std::endl;
+    std::cout << ">>> AddStationaryNode is done adding nodes. Here is a summary: " << endl;
+    std::cout.flush();
+
     //#####################
     // Get the list of RUSs
     //#####################
 
     // get a pointer to the first RSU
     cModule *module = simulation.getSystemModule()->getSubmodule("RSU", 0);
-    if(module == NULL)
-    {
-        printf("  No RSUs is added!");
-    }
-    else
+    if(module != NULL)
     {
         // how many RSUs are in the network?
         int RSUcount = module->getVectorSize();
-        printf("  %d RSUs are added: ", RSUcount);
+        printf("  %d RSU modules are added: ", RSUcount);
 
-        // iterate over RSUs
+        // iterate over modules
         for(int i = 0; i < RSUcount; ++i)
         {
             // get a pointer to the RSU
             module = simulation.getSystemModule()->getSubmodule("RSU", i);
 
             // get OMNET id
-            std::string RSUfullId = module->getFullName();
+            std::string fullId = module->getFullName();
 
             // get SUMO id
             cModule *appl =  module->getSubmodule("appl");
             std::string SUMOID = appl->par("SUMOID").stringValue();
 
-            printf("%s (%s), ", RSUfullId.c_str(), SUMOID.c_str());
+            printf("%s (%s), ", fullId.c_str(), SUMOID.c_str());
         }
-    }
 
-    printf("\n");
+        printf("\n");
+    }
 
     //############################
     // Get the list of Adversaries
     //############################
 
-    // todo
+    // get a pointer to the first Adversary
+    module = simulation.getSystemModule()->getSubmodule("adversary", 0);
+    if(module != NULL)
+    {
+        // how many Adversaries are in the network?
+        int advCount = module->getVectorSize();
+        printf("  %d adversary modules are added: ", advCount);
 
+        // iterate over modules
+        for(int i = 0; i < advCount; ++i)
+        {
+            // get a pointer to the RSU
+            module = simulation.getSystemModule()->getSubmodule("adversary", i);
 
+            // get OMNET id
+            std::string fullId = module->getFullName();
+
+            printf("%s, ", fullId.c_str());
+        }
+
+        printf("\n");
+    }
+
+    //####################
+    // Get the list of CA
+    //####################
+
+    // get a pointer to the first CA
+    module = simulation.getSystemModule()->getSubmodule("CA", 0);
+    if(module != NULL)
+    {
+        // how many Adversaries are in the network?
+        int CACount = module->getVectorSize();
+        printf("  %d CA modules are added: ", CACount);
+
+        // iterate over modules
+        for(int i = 0; i < CACount; ++i)
+        {
+            // get a pointer to the CA
+            module = simulation.getSystemModule()->getSubmodule("CA", i);
+
+            // get OMNET id
+            std::string fullId = module->getFullName();
+
+            printf("%s, ", fullId.c_str());
+        }
+
+        printf("\n");
+    }
+
+    std::cout.flush();
 }
 
 

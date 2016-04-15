@@ -99,10 +99,6 @@ void AddMobileNode::receiveSignal(cComponent *source, simsignal_t signalID, long
 
 void AddMobileNode::beginLoading()
 {
-    std::cout << std::endl;
-    std::cout << ">>> AddMobileNode is adding nodes into the simulation ..." << endl;
-    std::cout.flush();
-
     // create a map of functions
     typedef void (AddMobileNode::*pfunc)(void);
     std::map<std::string, pfunc> funcMap;
@@ -133,16 +129,16 @@ void AddMobileNode::beginLoading()
     pfunc f = i->second;
     (this->*f)();
 
-    std::cout << std::endl;
-    std::cout << ">>> AddMobileNode is done adding nodes. Here is a summary: " << endl;
-    std::cout.flush();
     printLoadedStatistics();
-    std::cout.flush();
 }
 
 
 void AddMobileNode::printLoadedStatistics()
 {
+    std::cout << std::endl;
+    std::cout << ">>> AddMobileNode is done adding nodes. Here is a summary: " << endl;
+    std::cout.flush();
+
     //###################################
     // Get the list of all possible route
     //###################################
@@ -205,6 +201,8 @@ void AddMobileNode::printLoadedStatistics()
         int count = std::count(loadedVehRoute.begin(), loadedVehRoute.end(), route);
         printf("      %d nodes have route \"%s\" \n", count, route.c_str());
     }
+
+    std::cout.flush();
 }
 
 

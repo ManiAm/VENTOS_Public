@@ -281,7 +281,7 @@ void TraCI_Start::init_traci()
     simsignal_t Signal_addFlow = registerSignal("addFlow");
     this->emit(Signal_addFlow, 0);
 
-    std::cout << "  Initializing modules with TraCI support ..." << std::endl << std::endl;
+    std::cout << "  Initializing modules with TraCI support ..." << std::endl;
     simsignal_t Signal_executeFirstTS = registerSignal("executeFirstTS");
     this->emit(Signal_executeFirstTS, 1);
 
