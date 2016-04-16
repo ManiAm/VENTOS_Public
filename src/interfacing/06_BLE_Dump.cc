@@ -78,8 +78,8 @@ void BLE_Dump::initialize(int stage)
     if(stage == 0)
     {
         // register signals
-        Signal_executeFirstTS = registerSignal("executeFirstTS");
-        simulation.getSystemModule()->subscribe("executeFirstTS", this);
+        Signal_initialize_withTraCI = registerSignal("initialize_withTraCI");
+        simulation.getSystemModule()->subscribe("initialize_withTraCI", this);
 
         Signal_executeEachTS = registerSignal("executeEachTS");
         simulation.getSystemModule()->subscribe("executeEachTS", this);
@@ -93,6 +93,9 @@ void BLE_Dump::finish()
 {
     super::finish();
 
+    // unsubscribe
+    simulation.getSystemModule()->unsubscribe("initialize_withTraCI", this);
+    simulation.getSystemModule()->unsubscribe("executeEachTS", this);
 }
 
 
@@ -111,16 +114,16 @@ void BLE_Dump::receiveSignal(cComponent *source, simsignal_t signalID, long i)
     {
         BLE_Dump::executeEachTimestep();
     }
-    else if(signalID == Signal_executeFirstTS)
+    else if(signalID == Signal_initialize_withTraCI)
     {
-        BLE_Dump::executeFirstTimeStep();
+        BLE_Dump::initialize_withTraCI();
     }
 }
 
 
-void BLE_Dump::executeFirstTimeStep()
+void BLE_Dump::initialize_withTraCI()
 {
-    super::executeFirstTimeStep();
+    super::initialize_withTraCI();
 
 }
 

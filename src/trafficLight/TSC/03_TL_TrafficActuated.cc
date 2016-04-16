@@ -83,10 +83,10 @@ void TrafficLightActuated::handleMessage(cMessage *msg)
 }
 
 
-void TrafficLightActuated::executeFirstTimeStep()
+void TrafficLightActuated::initialize_withTraCI()
 {
     // call parent
-    super::executeFirstTimeStep();
+    super::initialize_withTraCI();
 
     if(TLControlMode != TL_TrafficActuated)
         return;

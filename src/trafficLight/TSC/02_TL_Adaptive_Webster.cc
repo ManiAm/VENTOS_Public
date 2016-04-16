@@ -87,9 +87,9 @@ void TrafficLightWebster::handleMessage(cMessage *msg)
 }
 
 
-void TrafficLightWebster::executeFirstTimeStep()
+void TrafficLightWebster::initialize_withTraCI()
 {
-    super::executeFirstTimeStep();
+    super::initialize_withTraCI();
 
     if(TLControlMode != TL_Adaptive_Webster)
         return;

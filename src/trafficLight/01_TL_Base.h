@@ -49,7 +49,7 @@ public:
     virtual void handleMessage(cMessage *);
 
 protected:
-    virtual void executeFirstTimeStep();
+    virtual void initialize_withTraCI();
     virtual void executeEachTimeStep();
     void findRSU(std::string);
 

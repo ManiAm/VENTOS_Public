@@ -72,7 +72,7 @@ private:
     typedef BaseApplLayer super;
 
     TraCI_Commands *TraCI;
-    simsignal_t Signal_executeFirstTS;
+    simsignal_t Signal_initialize_withTraCI;
     std::map<int, cModule*> RSUhosts; /**< vector of all RSUs managed by us */
 };
 

@@ -42,7 +42,7 @@ public:
     virtual void receiveSignal(cComponent *, simsignal_t, long);
 
 protected:
-    void executeFirstTimeStep();
+    void initialize_withTraCI();
     void executeEachTimestep();
 
 private:
@@ -60,7 +60,7 @@ private:
     bool dump_On;
     int BLE_dump_deviceID;
 
-    simsignal_t Signal_executeFirstTS;
+    simsignal_t Signal_initialize_withTraCI;
     simsignal_t Signal_executeEachTS;
 };
 

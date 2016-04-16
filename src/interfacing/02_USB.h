@@ -84,7 +84,7 @@ public:
     void getUSBdevices(bool);
 
 private:
-    void executeFirstTimeStep();
+    void initialize_withTraCI();
     void executeEachTimestep();
 
     std::vector<std::string> USBidTostr(uint16_t, uint16_t);
@@ -117,7 +117,7 @@ private:
 
     // variables
     TraCI_Commands *TraCI;
-    simsignal_t Signal_executeFirstTS;
+    simsignal_t Signal_initialize_withTraCI;
     simsignal_t Signal_executeEachTS;
 
     libusb_context *ctx = NULL;  // a libusb session

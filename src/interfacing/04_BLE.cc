@@ -76,9 +76,9 @@ void BLE::handleMessage(cMessage *msg)
 }
 
 
-void BLE::executeFirstTimeStep()
+void BLE::initialize_withTraCI()
 {
-    super::executeFirstTimeStep();
+    super::initialize_withTraCI();
 
 }
 

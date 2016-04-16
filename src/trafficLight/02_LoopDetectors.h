@@ -70,7 +70,7 @@ class LoopDetectors : public TrafficLightBase
     virtual void handleMessage(cMessage *);
 
   protected:
-    void virtual executeFirstTimeStep();
+    void virtual initialize_withTraCI();
     void virtual executeEachTimeStep();
 
   private:

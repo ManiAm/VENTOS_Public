@@ -78,7 +78,7 @@ public:
     std::string OUITostr(const u_int8_t MACData[]);
 
 private:
-    void executeFirstTimeStep();
+    void initialize_withTraCI();
     void executeEachTimestep();
 
     std::string MACaddrTostr(const u_int8_t MACData[]);
@@ -113,7 +113,7 @@ private:
 
     // variables
     TraCI_Commands *TraCI;
-    simsignal_t Signal_executeFirstTS;
+    simsignal_t Signal_initialize_withTraCI;
     simsignal_t Signal_executeEachTS;
     pcap_t *pcap_handle = NULL;
     std::mutex theLock;

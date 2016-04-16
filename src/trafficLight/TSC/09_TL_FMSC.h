@@ -40,7 +40,7 @@ class TrafficLight_FMSC : public TrafficLight_LQF_MWM_Cycle
     virtual void handleMessage(cMessage *);
 
   protected:
-    void virtual executeFirstTimeStep();
+    void virtual initialize_withTraCI();
     void virtual executeEachTimeStep();
 
   private:

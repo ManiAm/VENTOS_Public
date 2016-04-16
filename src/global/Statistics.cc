@@ -58,8 +58,8 @@ void Statistics::initialize(int stage)
         reportBeaconsData = par("reportBeaconsData").boolValue();
 
         // register signals
-        Signal_executeFirstTS = registerSignal("executeFirstTS");
-        simulation.getSystemModule()->subscribe("executeFirstTS", this);
+        Signal_initialize_withTraCI = registerSignal("initialize_withTraCI");
+        simulation.getSystemModule()->subscribe("initialize_withTraCI", this);
 
         Signal_executeEachTS = registerSignal("executeEachTS");
         simulation.getSystemModule()->subscribe("executeEachTS", this);
@@ -95,6 +95,10 @@ void Statistics::finish()
         plnManageToFile();
         plnStatToFile();
     }
+
+    // unsubscribe
+    simulation.getSystemModule()->unsubscribe("initialize_withTraCI", this);
+    simulation.getSystemModule()->unsubscribe("executeEachTS", this);
 }
 
 
@@ -112,9 +116,9 @@ void Statistics::receiveSignal(cComponent *source, simsignal_t signalID, long i)
     {
         Statistics::executeEachTimestep();
     }
-    else if(signalID == Signal_executeFirstTS)
+    else if(signalID == Signal_initialize_withTraCI)
     {
-        Statistics::executeFirstTimeStep();
+        Statistics::initialize_withTraCI();
     }
 }
 
@@ -179,7 +183,7 @@ void Statistics::receiveSignal(cComponent *source, simsignal_t signalID, cObject
 }
 
 
-void Statistics::executeFirstTimeStep()
+void Statistics::initialize_withTraCI()
 {
 
 }

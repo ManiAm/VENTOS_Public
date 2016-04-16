@@ -78,8 +78,8 @@ void Warmup::initialize(int stage)
 
 void Warmup::finish()
 {
-
-
+    // unsubscribe
+    simulation.getSystemModule()->unsubscribe("executeEachTS", this);
 }
 
 

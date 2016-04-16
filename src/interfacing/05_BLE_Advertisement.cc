@@ -67,9 +67,9 @@ void BLE_Advertisement::handleMessage(cMessage *msg)
 }
 
 
-void BLE_Advertisement::executeFirstTimeStep()
+void BLE_Advertisement::initialize_withTraCI()
 {
-    super::executeFirstTimeStep();
+    super::initialize_withTraCI();
 
 }
 

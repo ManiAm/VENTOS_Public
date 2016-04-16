@@ -40,7 +40,7 @@ class TrafficLightOJF : public TrafficLightLQF_NoStarv
     virtual void handleMessage(cMessage *);
 
   protected:
-    void virtual executeFirstTimeStep();
+    void virtual initialize_withTraCI();
     void virtual executeEachTimeStep();
 
   private:

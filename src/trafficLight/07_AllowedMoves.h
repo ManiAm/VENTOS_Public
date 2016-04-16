@@ -46,7 +46,7 @@ public:
     virtual void handleMessage(cMessage *);
 
 protected:
-    void virtual executeFirstTimeStep();
+    void virtual initialize_withTraCI();
     void virtual executeEachTimeStep();
     void getMovements(std::string);
 

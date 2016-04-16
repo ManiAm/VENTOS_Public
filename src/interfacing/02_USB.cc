@@ -80,8 +80,8 @@ void USB::initialize(int stage)
         libusb_set_debug(ctx, 3); // set verbosity level to 3, as suggested in the documentation
 
         // register signals
-        Signal_executeFirstTS = registerSignal("executeFirstTS");
-        simulation.getSystemModule()->subscribe("executeFirstTS", this);
+        Signal_initialize_withTraCI = registerSignal("initialize_withTraCI");
+        simulation.getSystemModule()->subscribe("initialize_withTraCI", this);
 
         Signal_executeEachTS = registerSignal("executeEachTS");
         simulation.getSystemModule()->subscribe("executeEachTS", this);
@@ -118,6 +118,10 @@ void USB::finish()
 
     if(ctx != NULL)
         libusb_exit(ctx); //close the libusb session
+
+    // unsubscribe
+    simulation.getSystemModule()->unsubscribe("initialize_withTraCI", this);
+    simulation.getSystemModule()->unsubscribe("executeEachTS", this);
 }
 
 
@@ -173,14 +177,14 @@ void USB::receiveSignal(cComponent *source, simsignal_t signalID, long i)
     {
         USB::executeEachTimestep();
     }
-    else if(signalID == Signal_executeFirstTS)
+    else if(signalID == Signal_initialize_withTraCI)
     {
-        USB::executeFirstTimeStep();
+        USB::initialize_withTraCI();
     }
 }
 
 
-void USB::executeFirstTimeStep()
+void USB::initialize_withTraCI()
 {
 
 }

@@ -67,9 +67,9 @@ void LoopDetectors::handleMessage(cMessage *msg)
 }
 
 
-void LoopDetectors::executeFirstTimeStep()
+void LoopDetectors::initialize_withTraCI()
 {
-    super::executeFirstTimeStep();
+    super::initialize_withTraCI();
 
     if(collectInductionLoopData)
         AllLDs = TraCI->LDGetIDList();   // get all loop detectors

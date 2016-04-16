@@ -61,9 +61,9 @@ void TrafficLightAllowedMoves::handleMessage(cMessage *msg)
 }
 
 
-void TrafficLightAllowedMoves::executeFirstTimeStep()
+void TrafficLightAllowedMoves::initialize_withTraCI()
 {
-    super::executeFirstTimeStep();
+    super::initialize_withTraCI();
 }
 
 

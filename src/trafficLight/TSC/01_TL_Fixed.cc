@@ -63,10 +63,10 @@ void TrafficLightFixed::handleMessage(cMessage *msg)
 }
 
 
-void TrafficLightFixed::executeFirstTimeStep()
+void TrafficLightFixed::initialize_withTraCI()
 {
     // call parent
-    super::executeFirstTimeStep();
+    super::initialize_withTraCI();
 
     if (TLControlMode != TL_Fix_Time)
         return;

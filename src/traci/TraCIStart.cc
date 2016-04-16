@@ -144,8 +144,10 @@ void TraCI_Start::finish()
 
     // if the TraCI link was not closed due to error
     if(!par("TraCIclosed").boolValue())
+    {
         if (connection)
             TraCIBuffer buf = connection->query(CMD_CLOSE, TraCIBuffer());
+    }
 
     while (hosts.begin() != hosts.end())
         deleteManagedModule(hosts.begin()->first);
@@ -282,12 +284,12 @@ void TraCI_Start::init_traci()
     this->emit(Signal_addFlow, 0);
 
     std::cout << "  Initializing modules with TraCI support ..." << std::endl;
-    simsignal_t Signal_executeFirstTS = registerSignal("executeFirstTS");
-    this->emit(Signal_executeFirstTS, 1);
+    simsignal_t Signal_initialize_withTraCI = registerSignal("initialize_withTraCI");
+    this->emit(Signal_initialize_withTraCI, 1);
 
     initRoi();
     if(par("roiSquareSizeRSU").doubleValue() > 0)
-        roiRSUs(); // this method should be called after sending executeFirstTS so that all RSUs are built
+        roiRSUs(); // this method should be called after sending initialize_withTraCI so that all RSUs are built
     drawRoi();
 }
 

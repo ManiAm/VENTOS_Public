@@ -80,10 +80,10 @@ void IntersectionDelay::handleMessage(cMessage *msg)
 }
 
 
-void IntersectionDelay::executeFirstTimeStep()
+void IntersectionDelay::initialize_withTraCI()
 {
     // call parent
-    super::executeFirstTimeStep();
+    super::initialize_withTraCI();
 
     // get all lanes in the network
     lanesList = TraCI->laneGetIDList();

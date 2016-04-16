@@ -43,8 +43,8 @@ void TrafficLightManager::initialize(int stage)
 
     if(stage == 0)
     {
-        Signal_executeFirstTS = registerSignal("executeFirstTS");
-        simulation.getSystemModule()->subscribe("executeFirstTS", this);
+        Signal_initialize_withTraCI = registerSignal("initialize_withTraCI");
+        simulation.getSystemModule()->subscribe("initialize_withTraCI", this);
 
         Signal_executeEachTS = registerSignal("executeEachTS");
         simulation.getSystemModule()->subscribe("executeEachTS", this);
@@ -57,7 +57,7 @@ void TrafficLightManager::finish()
     super::finish();
 
     // unsubscribe
-    simulation.getSystemModule()->unsubscribe("executeFirstTS", this);
+    simulation.getSystemModule()->unsubscribe("initialize_withTraCI", this);
     simulation.getSystemModule()->unsubscribe("executeEachTS", this);
 }
 
@@ -73,9 +73,9 @@ void TrafficLightManager::receiveSignal(cComponent *source, simsignal_t signalID
 {
     Enter_Method_Silent();
 
-    if(signalID == Signal_executeFirstTS)
+    if(signalID == Signal_initialize_withTraCI)
     {
-        executeFirstTimeStep();
+        initialize_withTraCI();
     }
     else if(signalID == Signal_executeEachTS)
     {
@@ -84,10 +84,10 @@ void TrafficLightManager::receiveSignal(cComponent *source, simsignal_t signalID
 }
 
 
-void TrafficLightManager::executeFirstTimeStep()
+void TrafficLightManager::initialize_withTraCI()
 {
     // call parent
-    super::executeFirstTimeStep();
+    super::initialize_withTraCI();
 
     // check if the TLControlMode number is valid?
     if(TLControlMode < 0 || TLControlMode > 10)

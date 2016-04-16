@@ -49,8 +49,8 @@ void SNMPConnect::initialize(int stage)
         TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
 
-        Signal_executeFirstTS = registerSignal("executeFirstTS");
-        simulation.getSystemModule()->subscribe("executeFirstTS", this);
+        Signal_initialize_withTraCI = registerSignal("initialize_withTraCI");
+        simulation.getSystemModule()->subscribe("initialize_withTraCI", this);
 
         boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
         SNMP_LOG = VENTOS_FullPath / "results" / "snmp_pp.log";
@@ -94,7 +94,7 @@ void SNMPConnect::receiveSignal(cComponent *source, simsignal_t signalID, long i
 {
     Enter_Method_Silent();
 
-    if(signalID == Signal_executeFirstTS && on)
+    if(signalID == Signal_initialize_withTraCI && on)
     {
         // todo:
 

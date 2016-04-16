@@ -69,7 +69,7 @@ class TLStateRecord : public MeasureTrafficParams
     virtual void handleMessage(cMessage *);
 
   protected:
-    void virtual executeFirstTimeStep();
+    void virtual initialize_withTraCI();
     void virtual executeEachTimeStep();
 
     void updateTLstate(std::string, std::string, std::string = "", bool = false);

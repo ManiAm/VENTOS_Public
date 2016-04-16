@@ -93,7 +93,7 @@ void Bluetooth::handleMessage(cMessage *msg)
 }
 
 
-void Bluetooth::executeFirstTimeStep()
+void Bluetooth::initialize_withTraCI()
 {
 
 }

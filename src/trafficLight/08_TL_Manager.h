@@ -41,13 +41,13 @@ class TrafficLightManager : public TrafficLightRouter
     virtual void receiveSignal(cComponent *, simsignal_t, long);
 
   protected:
-    void virtual executeFirstTimeStep();
+    void virtual initialize_withTraCI();
     void virtual executeEachTimeStep();
 
   private:
     typedef TrafficLightRouter super;
 
-    simsignal_t Signal_executeFirstTS;
+    simsignal_t Signal_initialize_withTraCI;
     simsignal_t Signal_executeEachTS;
 };
 

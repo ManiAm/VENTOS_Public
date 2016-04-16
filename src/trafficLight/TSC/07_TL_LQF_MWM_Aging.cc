@@ -105,10 +105,10 @@ void TrafficLight_LQF_MWM_Aging::handleMessage(cMessage *msg)
 }
 
 
-void TrafficLight_LQF_MWM_Aging::executeFirstTimeStep()
+void TrafficLight_LQF_MWM_Aging::initialize_withTraCI()
 {
     // call parent
-    super::executeFirstTimeStep();
+    super::initialize_withTraCI();
 
     if(TLControlMode != TL_LQF_MWM_Aging)
         return;

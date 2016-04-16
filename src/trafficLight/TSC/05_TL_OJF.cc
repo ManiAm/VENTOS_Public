@@ -112,9 +112,9 @@ void TrafficLightOJF::handleMessage(cMessage *msg)
 }
 
 
-void TrafficLightOJF::executeFirstTimeStep()
+void TrafficLightOJF::initialize_withTraCI()
 {
-    super::executeFirstTimeStep();
+    super::initialize_withTraCI();
 
     if(TLControlMode != TL_OJF)
         return;

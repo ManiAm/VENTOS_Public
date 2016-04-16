@@ -89,9 +89,9 @@ void MeasureTrafficParams::handleMessage(cMessage *msg)
 }
 
 
-void MeasureTrafficParams::executeFirstTimeStep()
+void MeasureTrafficParams::initialize_withTraCI()
 {
-    super::executeFirstTimeStep();
+    super::initialize_withTraCI();
 
     // for each traffic light
     for (auto &it : TLList)

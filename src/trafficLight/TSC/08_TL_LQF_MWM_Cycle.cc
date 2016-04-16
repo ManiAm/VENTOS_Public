@@ -109,10 +109,10 @@ void TrafficLight_LQF_MWM_Cycle::handleMessage(cMessage *msg)
 }
 
 
-void TrafficLight_LQF_MWM_Cycle::executeFirstTimeStep()
+void TrafficLight_LQF_MWM_Cycle::initialize_withTraCI()
 {
     // call parent
-    super::executeFirstTimeStep();
+    super::initialize_withTraCI();
 
     if(TLControlMode != TL_LQF_MWM_Cycle)
         return;

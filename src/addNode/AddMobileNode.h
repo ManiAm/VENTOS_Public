@@ -69,7 +69,7 @@ private:
     double terminate;
 
     // class variables
-    simsignal_t Signal_executeFirstTS;
+    simsignal_t Signal_initialize_withTraCI;
     simsignal_t Signal_addFlow;
 };
 

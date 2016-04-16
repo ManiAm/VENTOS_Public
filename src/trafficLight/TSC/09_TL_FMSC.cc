@@ -114,10 +114,10 @@ void TrafficLight_FMSC::handleMessage(cMessage *msg)
 }
 
 
-void TrafficLight_FMSC::executeFirstTimeStep()
+void TrafficLight_FMSC::initialize_withTraCI()
 {
     // call parent
-    super::executeFirstTimeStep();
+    super::initialize_withTraCI();
 
     if(TLControlMode != TL_FMSC)
         return;

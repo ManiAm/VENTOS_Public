@@ -71,7 +71,7 @@ void TrafficLightBase::handleMessage(cMessage *msg)
 }
 
 
-void TrafficLightBase::executeFirstTimeStep()
+void TrafficLightBase::initialize_withTraCI()
 {
 
 

@@ -68,9 +68,9 @@ void TrafficLights::handleMessage(cMessage *msg)
 }
 
 
-void TrafficLights::executeFirstTimeStep()
+void TrafficLights::initialize_withTraCI()
 {
-    super::executeFirstTimeStep();
+    super::initialize_withTraCI();
 
     TLList = TraCI->TLGetIDList();
 

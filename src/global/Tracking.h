@@ -48,7 +48,7 @@ class Tracking : public BaseApplLayer
 	private:
         // NED variables
         TraCI_Commands *TraCI;  // pointer to the TraCI module
-        simsignal_t Signal_executeFirstTS;
+        simsignal_t Signal_initialize_withTraCI;
 
         // NED variables (GUI)
         int mode;

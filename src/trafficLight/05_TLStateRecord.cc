@@ -84,9 +84,9 @@ void TLStateRecord::handleMessage(cMessage *msg)
 }
 
 
-void TLStateRecord::executeFirstTimeStep()
+void TLStateRecord::initialize_withTraCI()
 {
-    super::executeFirstTimeStep();
+    super::initialize_withTraCI();
 
 }
 

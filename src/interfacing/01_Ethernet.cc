@@ -69,8 +69,8 @@ void Ethernet::initialize(int stage)
         printStat = par("printStat").boolValue();
 
         // register signals
-        Signal_executeFirstTS = registerSignal("executeFirstTS");
-        simulation.getSystemModule()->subscribe("executeFirstTS", this);
+        Signal_initialize_withTraCI = registerSignal("initialize_withTraCI");
+        simulation.getSystemModule()->subscribe("initialize_withTraCI", this);
 
         Signal_executeEachTS = registerSignal("executeEachTS");
         simulation.getSystemModule()->subscribe("executeEachTS", this);
@@ -87,6 +87,10 @@ void Ethernet::finish()
 
     if(pcap_handle != NULL)
         pcap_close(pcap_handle);
+
+    // unsubscribe
+    simulation.getSystemModule()->unsubscribe("initialize_withTraCI", this);
+    simulation.getSystemModule()->unsubscribe("executeEachTS", this);
 }
 
 
@@ -104,14 +108,14 @@ void Ethernet::receiveSignal(cComponent *source, simsignal_t signalID, long i)
     {
         Ethernet::executeEachTimestep();
     }
-    else if(signalID == Signal_executeFirstTS)
+    else if(signalID == Signal_initialize_withTraCI)
     {
-        Ethernet::executeFirstTimeStep();
+        Ethernet::initialize_withTraCI();
     }
 }
 
 
-void Ethernet::executeFirstTimeStep()
+void Ethernet::initialize_withTraCI()
 {
 
 }
@@ -358,7 +362,7 @@ void Ethernet::initSniffing()
 
     // time to wait for packets in milliseconds before read times out -- ignored if immediate mode is set
     // check this link: http://www.tcpdump.org/manpages/pcap_set_timeout.3pcap.txt
-    status = pcap_set_timeout(pcap_handle, 1000);
+    status = pcap_set_timeout(pcap_handle, 10000);
     if (status < 0)
         error("pcap_set_timeout failed!");
 

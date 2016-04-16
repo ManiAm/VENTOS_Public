@@ -100,6 +100,9 @@ void ApplRSUCRL::finish()
 
     for(unsigned int i=0; i<PiecesCRLfromCA.size(); i++)
         delete PiecesCRLfromCA[i];
+
+    // unsubscribe
+    simulation.getSystemModule()->unsubscribe("CRL_pieces", this);
 }
 
 

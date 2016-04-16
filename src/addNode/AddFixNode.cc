@@ -55,8 +55,8 @@ void AddFixNode::initialize(int stage)
         TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
 
-        Signal_executeFirstTS = registerSignal("executeFirstTS");
-        simulation.getSystemModule()->subscribe("executeFirstTS", this);
+        Signal_initialize_withTraCI = registerSignal("initialize_withTraCI");
+        simulation.getSystemModule()->subscribe("initialize_withTraCI", this);
     }
 }
 
@@ -76,6 +76,10 @@ void AddFixNode::finish()
         mod->callFinish();
         mod->deleteModule();
     }
+
+    // unsubscribe
+    simulation.getSystemModule()->unsubscribe("initialize_withTraCI", this);
+    simulation.getSystemModule()->unsubscribe("executeEachTS", this);
 }
 
 
@@ -89,7 +93,7 @@ void AddFixNode::receiveSignal(cComponent *source, simsignal_t signalID, long i)
 {
     Enter_Method_Silent();
 
-    if(signalID == Signal_executeFirstTS)
+    if(signalID == Signal_initialize_withTraCI)
     {
         beginLoading();
     }

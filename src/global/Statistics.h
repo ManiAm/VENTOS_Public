@@ -125,7 +125,7 @@ public:
     virtual void receiveSignal(cComponent *, simsignal_t, cObject *);
 
 private:
-    void executeFirstTimeStep();
+    void initialize_withTraCI();
     void executeEachTimestep();
 
     void MAClayerToFile();
@@ -147,7 +147,7 @@ private:
     TraCI_Commands *TraCI;
 
     // class variables (signals)
-    simsignal_t Signal_executeFirstTS;
+    simsignal_t Signal_initialize_withTraCI;
     simsignal_t Signal_executeEachTS;
     simsignal_t Signal_MacStats;
     simsignal_t Signal_SentPlatoonMsg;

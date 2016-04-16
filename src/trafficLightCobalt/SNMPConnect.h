@@ -65,7 +65,7 @@ private:
 
     // NED variables
     TraCI_Commands *TraCI;  // pointer to the TraCI module
-    simsignal_t Signal_executeFirstTS;
+    simsignal_t Signal_initialize_withTraCI;
     bool on;
 
     boost::filesystem::path SNMP_LOG;

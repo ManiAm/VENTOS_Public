@@ -74,7 +74,7 @@ public:
     virtual void handleMessage(cMessage *);
 
 protected:
-    void executeFirstTimeStep();
+    void initialize_withTraCI();
     void executeEachTimestep();
 
     void getLocalDevs();

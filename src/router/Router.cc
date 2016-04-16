@@ -121,6 +121,7 @@ void Router::initialize(int stage)
         // register and subscribe to signals
         Signal_system = registerSignal("system");
         simulation.getSystemModule()->subscribe("system", this);
+
         Signal_executeEachTS = registerSignal("executeEachTS");
         simulation.getSystemModule()->subscribe("executeEachTS", this);
 
@@ -242,6 +243,9 @@ void Router::finish()
 {
     if(laneCostsMode == MODE_RECORD)
         LaneCostsToFile();
+
+    // unsubscribe
+    simulation.getSystemModule()->unsubscribe("executeEachTS", this);
 }
 
 

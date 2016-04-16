@@ -153,9 +153,9 @@ void TrafficLightLQF_NoStarv::handleMessage(cMessage *msg)
 }
 
 
-void TrafficLightLQF_NoStarv::executeFirstTimeStep()
+void TrafficLightLQF_NoStarv::initialize_withTraCI()
 {
-    super::executeFirstTimeStep();
+    super::initialize_withTraCI();
 
     if(TLControlMode != TL_LQF)
         return;

@@ -51,8 +51,8 @@ void Tracking::initialize(int stage)
         TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
 
-        Signal_executeFirstTS = registerSignal("executeFirstTS");
-        simulation.getSystemModule()->subscribe("executeFirstTS", this);
+        Signal_initialize_withTraCI = registerSignal("initialize_withTraCI");
+        simulation.getSystemModule()->subscribe("initialize_withTraCI", this);
 
         zoom = par("zoom").doubleValue();
         if(zoom < 0)
@@ -77,7 +77,9 @@ void Tracking::initialize(int stage)
 
 void Tracking::finish()
 {
-
+    // unsubscribe
+    simulation.getSystemModule()->unsubscribe("initialize_withTraCI", this);
+    simulation.getSystemModule()->unsubscribe("executeEachTS", this);
 }
 
 
@@ -85,7 +87,7 @@ void Tracking::receiveSignal(cComponent *source, simsignal_t signalID, long i)
 {
     Enter_Method_Silent();
 
-    if(signalID == Signal_executeFirstTS)
+    if(signalID == Signal_initialize_withTraCI)
     {
         // todo:
         // first check if we are really running in GUI mode
