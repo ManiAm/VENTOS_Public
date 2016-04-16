@@ -352,11 +352,12 @@ void Ethernet::initSniffing()
        In immediate mode packets get delivered to the application as soon as they
        arrive, rather than after a timeout. This makes it very important for latency
        sensitive live captures. */
-    //status = pcap_set_immediate_mode(pcap_handle, 1);  // todo: not supported on Ubuntu 12.04
-    //if (status < 0)
-    //error("pcap_set_immediate_mode failed!");
+    status = pcap_set_immediate_mode(pcap_handle, 1);  // todo: not supported on Ubuntu 12.04
+    if (status < 0)
+        error("pcap_set_immediate_mode failed!");
 
-    // time to wait for packets in miliseconds before read times out
+    // time to wait for packets in milliseconds before read times out -- ignored if immediate mode is set
+    // check this link: http://www.tcpdump.org/manpages/pcap_set_timeout.3pcap.txt
     status = pcap_set_timeout(pcap_handle, 1000);
     if (status < 0)
         error("pcap_set_timeout failed!");
@@ -392,6 +393,7 @@ void Ethernet::startSniffing()
 
     struct pcap_pkthdr *header;
     const u_char *pkt_data;
+    u_long timeOutCount = 0;
 
     while(true)
     {
@@ -405,7 +407,7 @@ void Ethernet::startSniffing()
         // In this case pkt_header and pkt_data don't point to a valid packet
         else if(res == 0)
         {
-            // std::cout << "Capture timeout" << endl;
+            timeOutCount++;
         }
         else if(res == 1)
         {
@@ -418,21 +420,25 @@ void Ethernet::startSniffing()
         {
             static u_int old_received = 0;
             static u_int old_dropped  = 0;
+            static u_long old_timeOut = 0;
+            static u_int old_buffSize  = 0;
             struct pcap_stat stat;
 
             if(pcap_stats(pcap_handle, &stat) < 0)
                 error("Error setting the mode");
 
             // if either changed
-            if(stat.ps_recv != old_received || stat.ps_drop != old_dropped)
+            if(stat.ps_recv != old_received || stat.ps_drop != old_dropped || old_timeOut != timeOutCount || framesQueue.size() != old_buffSize)
             {
                 printf("\n");
-                printf("received: %u, dropped: %u, in buffer: %lu \n", stat.ps_recv, stat.ps_drop, framesQueue.size());
+                printf("received: %u, dropped: %u, timeOut: %lu, in buffer: %lu \n", stat.ps_recv, stat.ps_drop, timeOutCount, framesQueue.size());
                 std::cout.flush();
             }
 
             old_received = stat.ps_recv;
             old_dropped  = stat.ps_drop;
+            old_timeOut = timeOutCount;
+            old_buffSize = framesQueue.size();
         }
 
         // sleep the child thread
