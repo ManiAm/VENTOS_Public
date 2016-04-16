@@ -27,6 +27,8 @@
 
 #include <01_Ethernet.h>
 #include <fstream>
+#include <thread>
+#include <chrono>
 #include "boost/format.hpp"
 
 // un-defining ev!
@@ -73,10 +75,6 @@ void Ethernet::initialize(int stage)
         Signal_executeEachTS = registerSignal("executeEachTS");
         simulation.getSystemModule()->subscribe("executeEachTS", this);
 
-        pcap_handle = NULL;
-
-        captureEvent = new cMessage("captureEvent", KIND_TIMER);
-
         listInterfaces();
     }
 }
@@ -94,55 +92,7 @@ void Ethernet::finish()
 
 void Ethernet::handleMessage(cMessage *msg)
 {
-    if(msg == captureEvent)
-    {
-        if(pcap_handle != NULL)
-        {
-            struct pcap_pkthdr *header;
-            const u_char *pkt_data;
 
-            // check this link! https://www.winpcap.org/docs/docs_40_2/html/group__wpcap__tut4.html
-            int res = pcap_next_ex(pcap_handle, &header, &pkt_data);
-
-            // if the packet has been read without problems
-            if(res == 1)
-                Ethernet::got_packet(header, pkt_data);
-            // if the timeout set with pcap_open_live() has elapsed.
-            // In this case pkt_header and pkt_data don't point to a valid packet
-            else if(res == 0)
-            {
-                // std::cout << "Capture timeout" << endl;
-            }
-            // if an error occurred
-            else if(res == -1)
-                error("Capture error");
-            // if EOF was reached reading from an offline capture
-            else if(res == -2)
-                error("EOF reached from an offline capture!");
-
-            // getting statistics
-            if(printStat)
-            {
-                static u_int old_received = 0;
-                static u_int old_dropped  = 0;
-                struct pcap_stat stat;
-
-                if(pcap_stats(pcap_handle, &stat) < 0)
-                    error("Error setting the mode");
-
-                // if either changed
-                if(stat.ps_recv != old_received || stat.ps_drop != old_dropped)
-                    printf("\nreceived: %u, dropped: %u \n", stat.ps_recv, stat.ps_drop);
-
-                old_received = stat.ps_recv;
-                old_dropped  = stat.ps_drop;
-            }
-        }
-
-        std::cout.flush();
-
-        scheduleAt(simTime() + 0.05, captureEvent);
-    }
 }
 
 
@@ -173,8 +123,25 @@ void Ethernet::executeEachTimestep()
     static bool wasExecuted = false;
     if (on && !wasExecuted)
     {
-        startSniffing();
+        initSniffing();
+
+        // launch a thread to do the sniffing
+        std::thread t1(&Ethernet::startSniffing, this);
+
+        t1.detach();
+
         wasExecuted = true;
+    }
+
+    {
+        std::lock_guard<std::mutex> lock(theLock);
+
+        if(!framesQueue.empty())
+        {
+            auto &frame = framesQueue.back();
+            got_packet(frame.first, frame.second);
+            framesQueue.pop_back();
+        }
     }
 }
 
@@ -355,7 +322,7 @@ std::string Ethernet::OUITostr(const u_int8_t MACaddr[])
 
 
 // very useful information: http://pcap.man.potaroo.net/
-void Ethernet::startSniffing()
+void Ethernet::initSniffing()
 {
     // check if interface is valid!
     auto iterfacePtr = allDev.find(interface);
@@ -390,7 +357,7 @@ void Ethernet::startSniffing()
     //error("pcap_set_immediate_mode failed!");
 
     // time to wait for packets in miliseconds before read times out
-    status = pcap_set_timeout(pcap_handle, 1);
+    status = pcap_set_timeout(pcap_handle, 1000);
     if (status < 0)
         error("pcap_set_timeout failed!");
 
@@ -415,9 +382,62 @@ void Ethernet::startSniffing()
         error("Couldn't install filter %s: %s\n", filter_exp.c_str(), pcap_geterr(pcap_handle));
 
     pcap_freecode(&fp);
+}
 
-    // start capturing packets
-    scheduleAt(simTime() + 0.00001, captureEvent);
+
+void Ethernet::startSniffing()
+{
+    if(pcap_handle == NULL)
+        error("pcap_handle is invalid!");
+
+    struct pcap_pkthdr *header;
+    const u_char *pkt_data;
+
+    while(true)
+    {
+        // check this link! https://www.winpcap.org/docs/docs_40_2/html/group__wpcap__tut4.html
+        int res = pcap_next_ex(pcap_handle, &header, &pkt_data);
+
+        // if an error occurred
+        if(res < 0)
+            error("Error reading the packets: %s \n", pcap_geterr(pcap_handle));
+        // if the timeout set with pcap_open_live() has elapsed.
+        // In this case pkt_header and pkt_data don't point to a valid packet
+        else if(res == 0)
+        {
+            // std::cout << "Capture timeout" << endl;
+        }
+        else if(res == 1)
+        {
+            std::lock_guard<std::mutex> lock(theLock);
+            framesQueue.push_back( std::make_pair(header,pkt_data) );
+        }
+
+        // getting statistics
+        if(printStat)
+        {
+            static u_int old_received = 0;
+            static u_int old_dropped  = 0;
+            struct pcap_stat stat;
+
+            if(pcap_stats(pcap_handle, &stat) < 0)
+                error("Error setting the mode");
+
+            // if either changed
+            if(stat.ps_recv != old_received || stat.ps_drop != old_dropped)
+            {
+                printf("\n");
+                printf("received: %u, dropped: %u, in buffer: %lu \n", stat.ps_recv, stat.ps_drop, framesQueue.size());
+                std::cout.flush();
+            }
+
+            old_received = stat.ps_recv;
+            old_dropped  = stat.ps_drop;
+        }
+
+        // sleep the child thread
+        std::this_thread::sleep_for (std::chrono::milliseconds(50));
+    }
 }
 
 

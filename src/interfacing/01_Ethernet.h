@@ -31,6 +31,7 @@
 #include <BaseApplLayer.h>
 #include "TraCICommands.h"
 #include "pcap.h"
+#include <mutex>
 
 #include <arpa/inet.h>     // inet_ntoa
 #include <ifaddrs.h>       // ifaddrs
@@ -85,6 +86,7 @@ private:
     std::string IPaddrTostr(uint32_t addr);
     std::string serverPortTostr(int port);
 
+    void initSniffing();
     void startSniffing();
     void got_packet(const struct pcap_pkthdr *header, const u_char *packet);
 
@@ -113,12 +115,13 @@ private:
     TraCI_Commands *TraCI;
     simsignal_t Signal_executeFirstTS;
     simsignal_t Signal_executeEachTS;
-    cMessage* captureEvent;
-    pcap_t *pcap_handle;
+    pcap_t *pcap_handle = NULL;
+    std::mutex theLock;
 
     std::map<std::string, devDesc> allDev;
     std::map<std::string, std::string> OUI;
     std::map<int, std::string> portNumber;
+    std::vector< std::pair<struct pcap_pkthdr *, const u_char *> > framesQueue;
 };
 
 }

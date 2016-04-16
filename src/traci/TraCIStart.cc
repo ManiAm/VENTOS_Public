@@ -169,7 +169,7 @@ void TraCI_Start::handleMessage(cMessage *msg)
         simsignal_t Signal_executeEachTS = registerSignal("executeEachTS");
         this->emit(Signal_executeEachTS, 0);
 
-        // we reached to max simtime and should terminate OMNET++ simulation
+        // we reached max simtime and should terminate OMNET++ simulation
         // upon calling endSimulation(), TraCI_Start::finish() will close TraCI connection
         if(terminate != -1 && simTime().dbl() >= terminate)
             endSimulation();
