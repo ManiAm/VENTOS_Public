@@ -58,7 +58,7 @@ private:
     simsignal_t Signal_initialize_withTraCI;
     bool on;
 
-    SNMP *cobaltSNMP;
+    SNMP *cobaltSNMP = NULL;
 };
 
 }

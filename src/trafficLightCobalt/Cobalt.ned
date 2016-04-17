@@ -9,7 +9,7 @@ simple Cobalt
         
         int headerLength = default(88bit) @unit(bit); //header length of the application 
         bool on = default(false);   
-        string host = default("cobalt.ece.ucdavis.edu"); 
-        string port = default("501");
+        string host = default("localhost"); 
+        string port = default("");
 }
 

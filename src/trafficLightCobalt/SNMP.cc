@@ -25,19 +25,30 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
+#define WANT_WINSOCK2
+#include <platdep/sockets.h>
+
 #include "SNMP.h"
-#include <cexception.h>
+#include <omnetpp.h>
+
+// un-defining ev!
+// why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header
+#undef ev
+#include "boost/filesystem.hpp"
+#define ev  (*cSimulation::getActiveEnvir())
 
 namespace VENTOS {
 
+
 SNMP::~SNMP()
 {
-    if(cobalt != NULL)
-        cobalt->socket_cleanup();  // Shut down socket subsystem
+    if(session != NULL)
+        session->socket_cleanup();  // Shut down socket subsystem
 }
 
+
 // constructor
-SNMP::SNMP(std::string host, std::string port, std::string SNMP_LOG)
+SNMP::SNMP(std::string host, std::string port)
 {
     Snmp_pp::IpAddress IPAddress(host.c_str());
 
@@ -57,19 +68,21 @@ SNMP::SNMP(std::string host, std::string port, std::string SNMP_LOG)
     std::cout << "Done!" << std::endl;
     std::cout << "Creating SNMP session ... ";
 
-    int status;                                  // return status
-    cobalt = new Snmp_pp::Snmp(status, 0);       // create a SNMP++ session (0: bind to any port)
-    if (status != SNMP_CLASS_SUCCESS)            // check creation status
-        throw cRuntimeError("%s", cobalt->error_msg(status));  // if fail, print error string
+    int randomPort = getFreeEphemeralPort();
 
-    std::cout << "Done! \n";
+    int status;   // return status
+    session = new Snmp_pp::Snmp(status, randomPort);  // create a SNMP++ session
+    if (status != SNMP_CLASS_SUCCESS) // check creation status
+        throw cRuntimeError("%s", session->error_msg(status));  // if fail, print error string
+
+    std::cout << "Done! -- ephemeral port " << randomPort << "\n";
 
     Snmp_pp::UdpAddress address(IPAddress);
-    address.set_port(std::stoi(port));       // SNMP port for Econolite virtual controller
+    address.set_port(std::stoi(port));         // SNMP port for Econolite virtual controller
 
     ctarget = new Snmp_pp::CTarget(address);   // community target
 
-    ctarget->set_version(Snmp_pp::version1);   // set the SNMP version SNMPV1
+    ctarget->set_version(Snmp_pp::version1);   // set the SNMP version to SNMPV1
     ctarget->set_retry(1);                     // set the number of auto retries
     ctarget->set_timeout(100);                 // set timeout
     Snmp_pp::OctetStr rcommunity("public");    // read community name
@@ -78,10 +91,18 @@ SNMP::SNMP(std::string host, std::string port, std::string SNMP_LOG)
     ctarget->set_writecommunity(wcommunity);   // write community name
 
     std::cout << "Connected to " << ctarget->get_address().get_printable();
+    std::cout << std::endl;
+
+    // construct the snmp log file path
+    boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+    std::ostringstream fileName;
+    fileName << "snmp_" << IPAddress.get_printable() << "_" << randomPort << ".log";
+    boost::filesystem::path logFilePath = VENTOS_FullPath / "results" / fileName.str();
+    std::cout << "Logging at " << logFilePath.string();
     std::cout << std::endl << std::endl;
 
     // set the log file
-    Snmp_pp::AgentLogImpl *logFile = new Snmp_pp::AgentLogImpl(SNMP_LOG.c_str());
+    Snmp_pp::AgentLogImpl *logFile = new Snmp_pp::AgentLogImpl(logFilePath.string().c_str());
     Snmp_pp::DefaultLog::init(logFile);
 
     // set filter for logging
@@ -94,10 +115,42 @@ SNMP::SNMP(std::string host, std::string port, std::string SNMP_LOG)
 }
 
 
+// get a random Ephemeral port from the system
+int SNMP::getFreeEphemeralPort()
+{
+    if (initsocketlibonce() != 0)
+        throw cRuntimeError("Could not init socketlib");
+
+    SOCKET sock = ::socket(AF_INET, SOCK_DGRAM, 0);
+    if (sock < 0)
+        throw cRuntimeError("Failed to create socket: %s", strerror(errno));
+
+    struct sockaddr_in serv_addr;
+    struct sockaddr* serv_addr_p = (struct sockaddr*)&serv_addr;
+    memset(serv_addr_p, 0, sizeof(serv_addr));
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    serv_addr.sin_port = 0;   // get a random Ephemeral port
+
+    if (::bind(sock, serv_addr_p, sizeof(serv_addr)) < 0)
+        throw cRuntimeError("Failed to bind socket: %s", strerror(errno));
+
+    socklen_t len = sizeof(serv_addr);
+    if (getsockname(sock, serv_addr_p, &len) < 0)
+        throw cRuntimeError("Failed to get hostname: %s", strerror(errno));
+
+    int port = ntohs(serv_addr.sin_port);
+
+    closesocket(sock);
+
+    return port;
+}
+
+
 Snmp_pp::Vb SNMP::SNMPget(std::string OID, int instance)
 {
     // make sure snmp pointer is valid
-    ASSERT(cobalt);
+    ASSERT(session);
 
     if(instance < 0)
         throw cRuntimeError("instance in SNMPget is less than zero!");
@@ -111,10 +164,10 @@ Snmp_pp::Vb SNMP::SNMPget(std::string OID, int instance)
     Snmp_pp::Pdu pdu;
     pdu += vb;    // add the variable binding to the PDU
 
-    int status = cobalt->get(pdu, *ctarget);     // invoke a SNMP++ get
+    int status = session->get(pdu, *ctarget);   // invoke a SNMP++ get
 
     if (status != SNMP_CLASS_SUCCESS)
-        std::cout << cobalt->error_msg(status) << std::endl;
+        std::cout << session->error_msg(status) << std::endl;
     else
         pdu.get_vb(vb,0);   // extract the variable binding from PDU
 
@@ -127,7 +180,7 @@ Snmp_pp::Vb SNMP::SNMPget(std::string OID, int instance)
 std::vector<Snmp_pp::Vb> SNMP::SNMPwalk(std::string OID)
 {
     // make sure snmp pointer is valid
-    ASSERT(cobalt);
+    ASSERT(session);
 
     Snmp_pp::Oid myOID(OID.c_str());
     Snmp_pp::Vb vb(myOID);   // variable Binding Object
@@ -139,7 +192,7 @@ std::vector<Snmp_pp::Vb> SNMP::SNMPwalk(std::string OID)
     const int BULK_MAX = 10;
     std::vector<Snmp_pp::Vb> collection;
 
-    while( (status = cobalt->get_bulk(pdu, *ctarget, 0, BULK_MAX)) == SNMP_CLASS_SUCCESS )
+    while( (status = session->get_bulk(pdu, *ctarget, 0, BULK_MAX)) == SNMP_CLASS_SUCCESS )
     {
         for (int z = 0; z < pdu.get_vb_count(); z++)
         {
@@ -164,7 +217,7 @@ std::vector<Snmp_pp::Vb> SNMP::SNMPwalk(std::string OID)
     }
 
     if (status != SNMP_ERROR_NO_SUCH_NAME)
-        std::cout << "SNMP++ snmpWalk Error, " << cobalt->error_msg(status) << std::endl;
+        std::cout << "SNMP++ snmpWalk Error, " << session->error_msg(status) << std::endl;
 
     return collection;
 }
@@ -173,7 +226,7 @@ std::vector<Snmp_pp::Vb> SNMP::SNMPwalk(std::string OID)
 Snmp_pp::Vb SNMP::SNMPset(std::string OID, std::string value, int instance)
 {
     // make sure snmp pointer is valid
-    ASSERT(cobalt);
+    ASSERT(session);
 
     if(instance < 0)
         throw cRuntimeError("instance in SNMPget is less than zero!");
@@ -189,10 +242,10 @@ Snmp_pp::Vb SNMP::SNMPset(std::string OID, std::string value, int instance)
     Snmp_pp::Pdu pdu;
     pdu += vb;    // add the variable binding to the PDU
 
-    int status = cobalt->set(pdu, *ctarget);     // invoke a SNMP++ set
+    int status = session->set(pdu, *ctarget);     // invoke a SNMP++ set
 
     if (status != SNMP_CLASS_SUCCESS)
-        std::cout << cobalt->error_msg(status) << std::endl;
+        std::cout << session->error_msg(status) << std::endl;
     else
         pdu.get_vb(vb,0);   // extract the variable binding from PDU
 

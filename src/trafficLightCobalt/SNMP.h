@@ -30,7 +30,7 @@
 
 #include "vector"
 
-#include <sys/socket.h>        // solve in Mac os x: unknown type name socklen_t
+#include <sys/socket.h>    // solve 'unknown type name socklen_t' in Mac OS X:
 #define STDCXX_98_HEADERS
 #include "snmp_pp/snmp_pp.h"
 
@@ -39,7 +39,7 @@ namespace VENTOS {
 class SNMP
 {
 public:
-    SNMP(std::string, std::string, std::string);
+    SNMP(std::string, std::string);
     virtual ~SNMP();
 
     Snmp_pp::Vb SNMPget(std::string OID, int instance=0);
@@ -47,7 +47,10 @@ public:
     Snmp_pp::Vb SNMPset(std::string OID, std::string value, int instance=0);
 
 private:
-    Snmp_pp::Snmp *cobalt = NULL;
+    int getFreeEphemeralPort();
+
+private:
+    Snmp_pp::Snmp *session = NULL;
     Snmp_pp::CTarget *ctarget = NULL;
 };
 

@@ -28,12 +28,6 @@
 #include "Cobalt.h"
 #include "MIB_OBJ_ASC.h"
 
-// un-defining ev!
-// why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header
-#undef ev
-#include "boost/filesystem.hpp"
-#define ev  (*cSimulation::getActiveEnvir())
-
 namespace VENTOS {
 
 Define_Module(VENTOS::Cobalt);
@@ -72,7 +66,8 @@ void Cobalt::initialize(int stage)
 
 void Cobalt::finish()
 {
-
+    if(cobaltSNMP)
+        delete cobaltSNMP;
 }
 
 
@@ -130,11 +125,7 @@ void Cobalt::init_cobalt()
 {
     std::string host = par("host").stringValue();
     std::string port = par("port").stringValue();
-
-    boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-    boost::filesystem::path SNMP_LOG = VENTOS_FullPath / "results" / "snmp_pp.log";
-
-    cobaltSNMP = new SNMP(host, port, SNMP_LOG.string());
+    cobaltSNMP = new SNMP(host, port);
     ASSERT(cobaltSNMP);
 
     Snmp_pp::Vb name = cobaltSNMP->SNMPget(sysName);
