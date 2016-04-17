@@ -8,7 +8,7 @@ import VENTOS.src.addNode.*;
 import VENTOS.src.router.*;
 import VENTOS.src.interfacing.*;
 import VENTOS.src.trafficLight.*;
-import VENTOS.src.trafficLightCobalt.*;
+import VENTOS.src.cobalt.*;
 import VENTOS.src.veins.*;
 
 network Network

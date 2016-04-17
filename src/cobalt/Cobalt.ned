@@ -1,5 +1,5 @@
 
-package VENTOS.src.trafficLightCobalt;
+package VENTOS.src.cobalt;
 
 simple Cobalt
 {

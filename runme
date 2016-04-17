@@ -1000,7 +1000,7 @@ if [[ "$OS" == "Ubuntu" ]]; then
         boostLIB="libboost-all-dev"
     fi
     
-    libs=("$boostLIB" "libssl-dev" "libcurl4-gnutls-dev" "libbluetooth-dev")
+    libs=("$boostLIB" "libssl-dev" "libcurl4-gnutls-dev" "libbluetooth-dev" "libssh-dev")
     install_LIB_linux libs[@]
 
 elif [[ "$OS" == "Mac OS X" ]]; then
