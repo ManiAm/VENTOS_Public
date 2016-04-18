@@ -1,8 +1,8 @@
 /****************************************************************************/
-/// @file    VehicleWarmup.h
+/// @file    codeLoader.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
-/// @date    August 2013
+/// @date    Apr 2016
 ///
 /****************************************************************************/
 // VENTOS, Vehicular Network Open Simulator; see http:?
@@ -25,44 +25,40 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef WARMPUP
-#define WARMPUP
+#ifndef CODELOADER_H_
+#define CODELOADER_H_
 
+#include <BaseApplLayer.h>
 #include "TraCICommands.h"
-#include "VehicleSpeedProfile.h"
+#include "SSH.h"
 
 namespace VENTOS {
 
-class Warmup : public BaseApplLayer
+class codeLoader : public BaseApplLayer
 {
-	public:
-		virtual ~Warmup();
-		virtual void initialize(int stage);
-        virtual void handleMessage(cMessage *msg);
-		virtual void finish();
-	    virtual void receiveSignal(cComponent *, simsignal_t, long);
+public:
+    virtual ~codeLoader();
+    virtual void initialize(int stage);
+    virtual void finish();
+    virtual void handleMessage(cMessage *msg);
+    virtual void receiveSignal(cComponent *, simsignal_t, long);
 
-	private:
-        bool DoWarmup();
+private:
+    void init_loader();
 
-	private:
-        // NED variables
-        TraCI_Commands *TraCI;  // pointer to the TraCI module
-        SpeedProfile *SpeedProfilePtr;
+    void initialize_withTraCI();
+    void executeEachTimestep();
 
-        // NED variables
-        bool on;
-        std::string laneId;
-        double stopPosition;  // the position that first vehicle should stop waiting for others
-        double warmUpSpeed;
-        double waitingTime;
-        int numVehicles;
+private:
+    typedef BaseApplLayer super;
 
-        // class variables
-        simsignal_t Signal_executeEachTS;
-        double startTime;     // the time that Warmup starts
-        bool IsWarmUpFinished;
-        cMessage* finishingWarmup;
+    // NED variables
+    TraCI_Commands *TraCI;  // pointer to the TraCI module
+    simsignal_t Signal_executeEachTS;
+    simsignal_t Signal_initialize_withTraCI;
+    bool on;
+
+    SSH *IMX = NULL;
 };
 
 }

@@ -7,6 +7,7 @@ import VENTOS.src.global.*;
 import VENTOS.src.addNode.*;
 import VENTOS.src.router.*;
 import VENTOS.src.interfacing.*;
+import VENTOS.src.codeLoader.*;
 import VENTOS.src.trafficLight.*;
 import VENTOS.src.cobalt.*;
 import VENTOS.src.veins.*;
@@ -91,6 +92,10 @@ network Network
         Bluetooth: BLE_Dump {
             parameters:
                 @display("p=245,299;i=block/mac");
+        }
+        codeLoader: codeLoader {
+            parameters:
+                @display("p=337,299;i=block/mac");
         }
 
     connections allowunconnected:

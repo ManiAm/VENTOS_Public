@@ -42,8 +42,8 @@ namespace VENTOS {
 
 SNMP::~SNMP()
 {
-    if(session != NULL)
-        session->socket_cleanup();  // Shut down socket subsystem
+    if(SNMP_session != NULL)
+        SNMP_session->socket_cleanup();  // Shut down socket subsystem
 }
 
 
@@ -65,17 +65,19 @@ SNMP::SNMP(std::string host, std::string port)
     if(result != 0)
         throw cRuntimeError("device at %s is not responding!", IPAddress.get_printable());
 
-    std::cout << "Done!" << std::endl;
+    std::cout << "Done! \n";
     std::cout << "Creating SNMP session ... ";
+    std::cout.flush();
 
     int randomPort = getFreeEphemeralPort();
 
     int status;   // return status
-    session = new Snmp_pp::Snmp(status, randomPort);  // create a SNMP++ session
+    SNMP_session = new Snmp_pp::Snmp(status, randomPort);  // create a SNMP++ session
     if (status != SNMP_CLASS_SUCCESS) // check creation status
-        throw cRuntimeError("%s", session->error_msg(status));  // if fail, print error string
+        throw cRuntimeError("%s", SNMP_session->error_msg(status));  // if fail, print error string
 
     std::cout << "Done! -- ephemeral port " << randomPort << "\n";
+    std::cout.flush();
 
     Snmp_pp::UdpAddress address(IPAddress);
     address.set_port(std::stoi(port));         // SNMP port for Econolite virtual controller
@@ -150,7 +152,7 @@ int SNMP::getFreeEphemeralPort()
 Snmp_pp::Vb SNMP::SNMPget(std::string OID, int instance)
 {
     // make sure snmp pointer is valid
-    ASSERT(session);
+    ASSERT(SNMP_session);
 
     if(instance < 0)
         throw cRuntimeError("instance in SNMPget is less than zero!");
@@ -164,10 +166,10 @@ Snmp_pp::Vb SNMP::SNMPget(std::string OID, int instance)
     Snmp_pp::Pdu pdu;
     pdu += vb;    // add the variable binding to the PDU
 
-    int status = session->get(pdu, *ctarget);   // invoke a SNMP++ get
+    int status = SNMP_session->get(pdu, *ctarget);   // invoke a SNMP++ get
 
     if (status != SNMP_CLASS_SUCCESS)
-        std::cout << session->error_msg(status) << std::endl;
+        std::cout << SNMP_session->error_msg(status) << std::endl;
     else
         pdu.get_vb(vb,0);   // extract the variable binding from PDU
 
@@ -180,7 +182,7 @@ Snmp_pp::Vb SNMP::SNMPget(std::string OID, int instance)
 std::vector<Snmp_pp::Vb> SNMP::SNMPwalk(std::string OID)
 {
     // make sure snmp pointer is valid
-    ASSERT(session);
+    ASSERT(SNMP_session);
 
     Snmp_pp::Oid myOID(OID.c_str());
     Snmp_pp::Vb vb(myOID);   // variable Binding Object
@@ -192,7 +194,7 @@ std::vector<Snmp_pp::Vb> SNMP::SNMPwalk(std::string OID)
     const int BULK_MAX = 10;
     std::vector<Snmp_pp::Vb> collection;
 
-    while( (status = session->get_bulk(pdu, *ctarget, 0, BULK_MAX)) == SNMP_CLASS_SUCCESS )
+    while( (status = SNMP_session->get_bulk(pdu, *ctarget, 0, BULK_MAX)) == SNMP_CLASS_SUCCESS )
     {
         for (int z = 0; z < pdu.get_vb_count(); z++)
         {
@@ -217,7 +219,7 @@ std::vector<Snmp_pp::Vb> SNMP::SNMPwalk(std::string OID)
     }
 
     if (status != SNMP_ERROR_NO_SUCH_NAME)
-        std::cout << "SNMP++ snmpWalk Error, " << session->error_msg(status) << std::endl;
+        std::cout << "SNMP++ snmpWalk Error, " << SNMP_session->error_msg(status) << std::endl;
 
     return collection;
 }
@@ -226,7 +228,7 @@ std::vector<Snmp_pp::Vb> SNMP::SNMPwalk(std::string OID)
 Snmp_pp::Vb SNMP::SNMPset(std::string OID, std::string value, int instance)
 {
     // make sure snmp pointer is valid
-    ASSERT(session);
+    ASSERT(SNMP_session);
 
     if(instance < 0)
         throw cRuntimeError("instance in SNMPget is less than zero!");
@@ -242,10 +244,10 @@ Snmp_pp::Vb SNMP::SNMPset(std::string OID, std::string value, int instance)
     Snmp_pp::Pdu pdu;
     pdu += vb;    // add the variable binding to the PDU
 
-    int status = session->set(pdu, *ctarget);     // invoke a SNMP++ set
+    int status = SNMP_session->set(pdu, *ctarget);     // invoke a SNMP++ set
 
     if (status != SNMP_CLASS_SUCCESS)
-        std::cout << session->error_msg(status) << std::endl;
+        std::cout << SNMP_session->error_msg(status) << std::endl;
     else
         pdu.get_vb(vb,0);   // extract the variable binding from PDU
 

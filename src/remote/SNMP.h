@@ -50,7 +50,7 @@ private:
     int getFreeEphemeralPort();
 
 private:
-    Snmp_pp::Snmp *session = NULL;
+    Snmp_pp::Snmp *SNMP_session = NULL;
     Snmp_pp::CTarget *ctarget = NULL;
 };
 

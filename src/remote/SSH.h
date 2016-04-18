@@ -1,8 +1,8 @@
 /****************************************************************************/
-/// @file    VehicleWarmup.h
+/// @file    SSH.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
-/// @date    August 2013
+/// @date    Apr 2016
 ///
 /****************************************************************************/
 // VENTOS, Vehicular Network Open Simulator; see http:?
@@ -25,44 +25,30 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef WARMPUP
-#define WARMPUP
+#ifndef SSHCONNECT_H_
+#define SSHCONNECT_H_
 
-#include "TraCICommands.h"
-#include "VehicleSpeedProfile.h"
+#include <string>
+
+#include <libssh/libsshpp.hpp>
+#include <stdlib.h>
 
 namespace VENTOS {
 
-class Warmup : public BaseApplLayer
+class SSH
 {
-	public:
-		virtual ~Warmup();
-		virtual void initialize(int stage);
-        virtual void handleMessage(cMessage *msg);
-		virtual void finish();
-	    virtual void receiveSignal(cComponent *, simsignal_t, long);
+public:
+    SSH(std::string, int, std::string, std::string);
+    virtual ~SSH();
 
-	private:
-        bool DoWarmup();
+    int run_command(std::string);
 
-	private:
-        // NED variables
-        TraCI_Commands *TraCI;  // pointer to the TraCI module
-        SpeedProfile *SpeedProfilePtr;
+private:
+    int verify_knownhost(ssh_session session);
 
-        // NED variables
-        bool on;
-        std::string laneId;
-        double stopPosition;  // the position that first vehicle should stop waiting for others
-        double warmUpSpeed;
-        double waitingTime;
-        int numVehicles;
+private:
+    ssh_session SSH_session;
 
-        // class variables
-        simsignal_t Signal_executeEachTS;
-        double startTime;     // the time that Warmup starts
-        bool IsWarmUpFinished;
-        cMessage* finishingWarmup;
 };
 
 }
