@@ -32,6 +32,7 @@ if [ "$EUID" -eq 0 ]; then
   exit 1
 fi
 
+echo ""
 echo "Bash version is: $BASH_VERSION$"
 
 
@@ -1000,7 +1001,7 @@ if [[ "$OS" == "Ubuntu" ]]; then
         boostLIB="libboost-all-dev"
     fi
     
-    libs=("$boostLIB" "libssl-dev" "libcurl4-gnutls-dev" "libbluetooth-dev" "libssh-dev")
+    libs=("$boostLIB" "libssl-dev" "libcurl4-gnutls-dev" "libbluetooth-dev")
     install_LIB_linux libs[@]
 
 elif [[ "$OS" == "Mac OS X" ]]; then
@@ -1052,7 +1053,13 @@ if ! [[ "$result" == "1" ]]; then
     mkdir _build
     cd _build
     cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr > /dev/null
+    if [[ $? -ne 0 ]]; then
+        exit 1
+    fi
     make
+    if [[ $? -ne 0 ]]; then
+        exit 1
+    fi
     echo $sudoPass | sudo -S make install > /dev/null
     if [[ "$OS" == "Ubuntu" ]]; then
         echo $sudoPass | sudo -S ldconfig  # we need cmake in the next step
@@ -1103,6 +1110,9 @@ if [[ "$result" == "2" ]]; then
     echo "installing gnuplot ..."
     ./configure > /dev/null 2> /dev/null
     make > /dev/null
+    if [[ $? -ne 0 ]]; then
+        exit 1
+    fi
     echo $sudoPass | sudo -S make install > /dev/null
 
     cd ..
@@ -1139,6 +1149,9 @@ if [[ 1 ]]; then
     echo "installing libpcap ..."
     ./configure > /dev/null
     make > /dev/null
+    if [[ $? -ne 0 ]]; then
+        exit 1
+    fi
     echo $sudoPass | sudo -S make install > /dev/null
 
     cd ..
@@ -1183,6 +1196,9 @@ if [[ 1 ]]; then
     ./autogen.sh > /dev/null
     ./configure > /dev/null
     make > /dev/null
+    if [[ $? -ne 0 ]]; then
+        exit 1
+    fi
     echo $sudoPass | sudo -S make install > /dev/null
 
     cd ..
@@ -1226,6 +1242,9 @@ if [[ 1 ]]; then
     echo "installing snmp++ ..."
     ./configure > /dev/null
     make > /dev/null
+    if [[ $? -ne 0 ]]; then
+        exit 1
+    fi
     echo $sudoPass | sudo -S make install > /dev/null
 
     cd ..
@@ -1258,11 +1277,59 @@ else
     mkdir build
     cd build
     cmake ../ > /dev/null
+    if [[ $? -ne 0 ]]; then
+        exit 1
+    fi
     echo $sudoPass | sudo -S make install > /dev/null
 
     cd ..
     cd ..
     cd ..
+fi
+
+echo ""
+echo "Check libssh"
+echo "============"
+
+getLibVersions_Linux "libssh" "0.1.0"
+result=$?
+#if [[ ("$result" == "1") || ("$result" == "2") ]]; then
+if [[ 1 ]]; then
+
+    # check if directory exists
+    if [ ! -d "libssh" ]; then
+        # cloning git
+        if ! git clone git://git.libssh.org/projects/libssh.git; then
+            exit 1
+        fi
+        # make sure the folder is created
+        if [[ ! -d "libssh" ]]; then
+            echo "libssh folder does not exist!"
+            exit 1
+        fi
+    else
+        echo "libssh folder already exists!"
+    fi
+
+    cd libssh
+    if [[ $? -ne 0 ]]; then
+        exit 1
+    fi
+
+    echo "installing libssh ..."
+    mkdir _build
+    cd _build
+    cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Debug -DWITH_GCRYPT=ON -DWITH_STATIC_LIB=ON ../ > /dev/null
+    if [[ $? -ne 0 ]]; then
+        exit 1
+    fi
+    echo $sudoPass | sudo -S make install > /dev/null
+
+    cd ..
+    cd ..
+    cd ..
+else
+    echo "libssh is already installed!"
 fi
 
 echo ""
