@@ -65,8 +65,8 @@ void codeLoader::initialize(int stage)
 
 void codeLoader::finish()
 {
-    if(IMX)
-        delete IMX;
+    if(IMX_board1)
+        delete IMX_board1;
 }
 
 
@@ -119,12 +119,14 @@ void codeLoader::init_loader()
     int port = par("port").longValue();
     std::string username = par("username").stringValue();
     std::string password = par("password").stringValue();
-    IMX = new SSH(host, port, username, password);
-    ASSERT(IMX);
 
-    IMX->run_command("ls -l");
+    // create a new SSH session
+    IMX_board1 = new SSH(host, port, username, password);
+    ASSERT(IMX_board1);
 
-    IMX->run_command("lsusb");
+    IMX_board1->run_command("ls -l");
+
+    IMX_board1->run_command("lsusb");
 }
 
 }

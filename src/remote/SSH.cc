@@ -35,6 +35,7 @@
 
 #include "SSH.h"
 #include <omnetpp.h>
+#include "utf8.h"
 
 namespace VENTOS {
 
@@ -88,7 +89,7 @@ SSH::SSH(std::string host, int port, std::string username, std::string password)
     int verbosity = SSH_LOG_NOLOG;
     ssh_options_set(SSH_session, SSH_OPTIONS_LOG_VERBOSITY, &verbosity);
 
-    printf("ssh %s@%s -p %d \n", username.c_str(), host.c_str(), port );
+    printf("SSH to %s@%s at port %d \n", username.c_str(), host.c_str(), port );
     std::cout.flush();
 
     int rc = ssh_connect(SSH_session);
@@ -96,39 +97,11 @@ SSH::SSH(std::string host, int port, std::string username, std::string password)
         throw cRuntimeError("Error connecting to localhost: %s", ssh_get_error(SSH_session));
 
     // Verify the server's identity
-    if (verify_knownhost(SSH_session) < 0)
+    if (verify_knownhost() < 0)
     {
         ssh_disconnect(SSH_session);
         ssh_free(SSH_session);
         throw cRuntimeError("oh no!");
-    }
-
-    // Authenticate ourselves
-    rc = ssh_userauth_password(SSH_session, NULL, password.c_str());
-    if (rc != SSH_AUTH_SUCCESS)
-    {
-        std::cout << "Password is not correct. Try again! \n";
-        std::cout.flush();
-
-        int retry = 0;
-        while(true)
-        {
-            char *password = getpass("Password: ");
-            rc = ssh_userauth_password(SSH_session, NULL, password);
-            if (rc == SSH_AUTH_SUCCESS)
-                break;
-
-            retry++;
-            if(retry == 3)
-            {
-                ssh_disconnect(SSH_session);
-                ssh_free(SSH_session);
-                throw cRuntimeError("Error authenticating with password: %s", ssh_get_error(SSH_session));
-            }
-
-            std::cout << "Password is not correct. Try again! \n";
-            std::cout.flush();
-        }
     }
 
     // Get the protocol version of the session
@@ -145,14 +118,20 @@ SSH::SSH(std::string host, int port, std::string username, std::string password)
     if(str)
         std::cout << "Issue banner: " << str << std::endl;
 
+    std::cout << "Authenticating ..." << std::endl;
+    authenticate(password);
+
+    std::cout << "Connected to the remote board successfully!" << std::endl;
     std::cout << std::endl << std::flush;
 }
 
 
-int SSH::verify_knownhost(ssh_session session)
+int SSH::verify_knownhost()
 {
+    ASSERT(SSH_session);
+
     ssh_key srv_pubkey;
-    int rc = ssh_get_publickey(session, &srv_pubkey);
+    int rc = ssh_get_publickey(SSH_session, &srv_pubkey);
     if (rc < 0)
         return -1;
 
@@ -163,7 +142,7 @@ int SSH::verify_knownhost(ssh_session session)
     if (rc < 0)
         return -1;
 
-    int state = ssh_is_server_known(session);
+    int state = ssh_is_server_known(SSH_session);
 
     switch (state)
     {
@@ -201,7 +180,7 @@ int SSH::verify_knownhost(ssh_session session)
             free(hash);
             return -1;
         }
-        if (ssh_write_knownhost(session) < 0)
+        if (ssh_write_knownhost(SSH_session) < 0)
         {
             fprintf(stderr, "Error %s\n", strerror(errno));
             free(hash);
@@ -210,13 +189,145 @@ int SSH::verify_knownhost(ssh_session session)
         break;
     }
     case SSH_SERVER_ERROR:
-        fprintf(stderr, "Error %s", ssh_get_error(session));
+        fprintf(stderr, "Error %s", ssh_get_error(SSH_session));
         free(hash);
         return -1;
     }
 
     free(hash);
     return 0;
+}
+
+
+void SSH::authenticate(std::string password)
+{
+    // Try to authenticate through the "none" method
+    int rc = 0;
+    do {
+        rc = ssh_userauth_none(SSH_session, NULL);
+    } while (rc == SSH_AUTH_AGAIN);  // In nonblocking mode, you've got to call this again later.
+
+    if (rc == SSH_AUTH_ERROR)
+        throw cRuntimeError("Authentication failed.");
+
+    // this requires the function ssh_userauth_none() to be called before the methods are available.
+    int method = ssh_userauth_list(SSH_session, NULL);
+
+    std::cout << "Supported authentication methods: ";
+    if(method & SSH_AUTH_METHOD_PASSWORD)
+        std::cout << "PASSWORD, ";
+    if(method & SSH_AUTH_METHOD_PUBLICKEY)
+        std::cout << "PUBLICKEY, ";
+    if(method & SSH_AUTH_METHOD_HOSTBASED)
+        std::cout << "HOSTBASED, ";
+    if(method & SSH_AUTH_METHOD_INTERACTIVE)
+        std::cout << "INTERACTIVE, ";
+    if(method & SSH_AUTH_METHOD_GSSAPI_MIC)
+        std::cout << "GSSAPI_MIC, ";
+
+    std::cout << std::endl;
+    std::cout.flush();
+
+    while (rc != SSH_AUTH_SUCCESS)
+    {
+        // Try to authenticate with public key first
+        if (method & SSH_AUTH_METHOD_PUBLICKEY)
+        {
+            rc = ssh_userauth_publickey_auto(SSH_session, NULL, NULL);
+            if (rc == SSH_AUTH_ERROR)
+                throw cRuntimeError("Authentication failed.");
+            else if (rc == SSH_AUTH_SUCCESS)
+                break;
+        }
+
+        // Try to authenticate with keyboard interactive"
+        if (method & SSH_AUTH_METHOD_INTERACTIVE)
+        {
+            rc = authenticate_kbdint();
+            if (rc == SSH_AUTH_ERROR)
+                throw cRuntimeError("Authentication failed.");
+            else if (rc == SSH_AUTH_SUCCESS)
+                break;
+        }
+
+        // Try to authenticate with password
+        if (method & SSH_AUTH_METHOD_PASSWORD)
+        {
+            // make sure the password is in UFT-8
+            std::string temp;
+            utf8::replace_invalid(password.begin(), password.end(), back_inserter(temp));
+            password = temp;
+
+            // Authenticate ourselves
+            rc = ssh_userauth_password(SSH_session, NULL, password.c_str());
+            if (rc == SSH_AUTH_ERROR)
+                throw cRuntimeError("Authentication failed.");
+            else if (rc == SSH_AUTH_SUCCESS)
+                break;
+        }
+
+        // In SSH2 sometimes we need to ask the password interactively!
+        char *passUser = getpass("Password: ");
+
+        rc = ssh_userauth_password(SSH_session, NULL, passUser);
+        if (rc == SSH_AUTH_ERROR)
+            throw cRuntimeError("Authentication failed.");
+        else if (rc == SSH_AUTH_SUCCESS)
+            break;
+    }
+}
+
+
+int SSH::authenticate_kbdint()
+{
+    ASSERT(SSH_session);
+
+    int rc = ssh_userauth_kbdint(SSH_session, NULL, NULL);
+    while (rc == SSH_AUTH_INFO)
+    {
+        const char *name = ssh_userauth_kbdint_getname(SSH_session);
+        const char *instruction = ssh_userauth_kbdint_getinstruction(SSH_session);
+        int nprompts = ssh_userauth_kbdint_getnprompts(SSH_session);
+        if (strlen(name) > 0)
+            printf("%s\n", name);
+
+        if (strlen(instruction) > 0)
+            printf("%s\n", instruction);
+
+        for (int iprompt = 0; iprompt < nprompts; iprompt++)
+        {
+            char echo;
+            const char *prompt = ssh_userauth_kbdint_getprompt(SSH_session, iprompt, &echo);
+            if (echo)
+            {
+                char buffer[128], *ptr;
+                printf("%s", prompt);
+
+                if (fgets(buffer, sizeof(buffer), stdin) == NULL)
+                    return SSH_AUTH_ERROR;
+
+                buffer[sizeof(buffer) - 1] = '\0';
+
+                if ((ptr = strchr(buffer, '\n')) != NULL)
+                    *ptr = '\0';
+
+                if (ssh_userauth_kbdint_setanswer(SSH_session, iprompt, buffer) < 0)
+                    return SSH_AUTH_ERROR;
+
+                memset(buffer, 0, strlen(buffer));
+            }
+            else
+            {
+                char *ptr = getpass(prompt);
+                if (ssh_userauth_kbdint_setanswer(SSH_session, iprompt, ptr) < 0)
+                    return SSH_AUTH_ERROR;
+            }
+        }
+
+        rc = ssh_userauth_kbdint(SSH_session, NULL, NULL);
+    }
+
+    return rc;
 }
 
 

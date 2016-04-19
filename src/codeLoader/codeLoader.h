@@ -58,7 +58,7 @@ private:
     simsignal_t Signal_initialize_withTraCI;
     bool on;
 
-    SSH *IMX = NULL;
+    SSH *IMX_board1 = NULL;
 };
 
 }

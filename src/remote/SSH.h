@@ -44,7 +44,9 @@ public:
     int run_command(std::string);
 
 private:
-    int verify_knownhost(ssh_session session);
+    void authenticate(std::string password);
+    int authenticate_kbdint();
+    int verify_knownhost();
 
 private:
     ssh_session SSH_session;
