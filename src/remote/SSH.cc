@@ -124,6 +124,23 @@ SSH::SSH(std::string host, int port, std::string username, std::string password)
 
     std::cout << "Connected to the remote board successfully!" << std::endl;
 
+    std::cout << "Creating SFTP session ... ";
+    std::cout.flush();
+
+    SFTP_session = sftp_new(SSH_session);
+    if (SFTP_session == NULL)
+        throw cRuntimeError("Error allocating SFTP session: %s", ssh_get_error(SSH_session));
+
+    rc = sftp_init(SFTP_session);
+    if (rc != SSH_OK)
+    {
+        sftp_free(SFTP_session);
+        throw cRuntimeError("Error initializing SFTP session: %s.", ssh_get_error(SFTP_session));
+    }
+
+    std::cout << "Done! \n";
+    std::cout.flush();
+
     std::cout << std::endl << std::flush;
 }
 
@@ -360,7 +377,7 @@ int SSH::copyFile_SCP(boost::filesystem::path source, boost::filesystem::path de
     // read file contents into a string
     std::ifstream ifs(source.c_str());
     std::string content( (std::istreambuf_iterator<char>(ifs) ),
-                         (std::istreambuf_iterator<char>()    ) );
+            (std::istreambuf_iterator<char>()    ) );
     int length = content.size();
 
     std::string fileName = source.filename().string();
@@ -382,26 +399,16 @@ int SSH::copyFile_SCP(boost::filesystem::path source, boost::filesystem::path de
 int SSH::copyFile_SFTP(boost::filesystem::path source, boost::filesystem::path dest)
 {
     ASSERT(SSH_session);
+    ASSERT(SFTP_session);
 
     // make sure file at 'source' exists
     if (!boost::filesystem::exists(source))
         throw cRuntimeError("File %s not found!", source.c_str());
 
-    sftp_session SFTP_session = sftp_new(SSH_session);
-    if (SFTP_session == NULL)
-        throw cRuntimeError("Error allocating SFTP session: %s", ssh_get_error(SSH_session));
-
-    int rc = sftp_init(SFTP_session);
-    if (rc != SSH_OK)
-    {
-        sftp_free(SFTP_session);
-        throw cRuntimeError("Error initializing SFTP session: %s.", ssh_get_error(SFTP_session));
-    }
-
     // read file contents into a string
     std::ifstream ifs(source.c_str());
     std::string content( (std::istreambuf_iterator<char>(ifs) ),
-                         (std::istreambuf_iterator<char>()    ) );
+            (std::istreambuf_iterator<char>()    ) );
     int length = content.size();
 
     boost::filesystem::path remoteFile = dest / source.filename();
@@ -414,11 +421,44 @@ int SSH::copyFile_SFTP(boost::filesystem::path source, boost::filesystem::path d
     if (nwritten != length)
         throw cRuntimeError("Can't write data to file: %s", ssh_get_error(SSH_session));
 
-    rc = sftp_close(file);
+    int rc = sftp_close(file);
     if (rc != SSH_OK)
         throw cRuntimeError("Can't close the written file: %s", ssh_get_error(SSH_session));
 
     return SSH_OK;
+}
+
+
+std::vector<sftp_attributes> SSH::listDir(boost::filesystem::path dirpath)
+{
+    ASSERT(SSH_session);
+    ASSERT(SFTP_session);
+
+    sftp_dir dir = sftp_opendir(SFTP_session, dirpath.c_str());
+    if (!dir)
+        throw cRuntimeError("Directory not opened: %s", ssh_get_error(SSH_session));
+
+    std::vector<sftp_attributes> dirListings;
+
+    sftp_attributes attributes;
+    while ((attributes = sftp_readdir(SFTP_session, dir)) != NULL)
+        dirListings.push_back(attributes);
+
+    if (!sftp_dir_eof(dir))
+    {
+        sftp_closedir(dir);
+        throw cRuntimeError("Can't list directory: %s", ssh_get_error(SSH_session));
+    }
+
+    int rc = sftp_closedir(dir);
+    if (rc != SSH_OK)
+        throw cRuntimeError("Can't close directory: %s", ssh_get_error(SSH_session));
+
+    // sort
+    std::sort(dirListings.begin(), dirListings.end(),
+              [] (sftp_attributes const& a, sftp_attributes const& b) { return std::string(a->name) < std::string(b->name); });
+
+    return dirListings;
 }
 
 

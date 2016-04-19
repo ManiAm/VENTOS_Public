@@ -132,6 +132,24 @@ void codeLoader::init_loader()
     // start 1609 stack in WAVE mode
     //IMX_board1->run_command("/home/dsrc/release/rsi_1609");
 
+    std::vector<sftp_attributes> listing = IMX_board1->listDir("/home/dsrc/source/sample_apps");
+
+    //     printf("Name                       Size Perms    Owner\tGroup\n");
+    for(auto &i : listing)
+    {
+        printf("%-20s %10llu %.8o %s(%d)\t%s(%d)\n",
+                i->name,
+                (long long unsigned int) i->size,
+                i->permissions,
+                i->owner,
+                i->uid,
+                i->group,
+                i->gid);
+
+        sftp_attributes_free(i);
+    }
+    std::cout.flush();
+
     // add a second parameter to run_command to take newChannel?
 }
 

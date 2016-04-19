@@ -51,6 +51,7 @@ public:
 
     int copyFile_SCP(boost::filesystem::path, boost::filesystem::path);
     int copyFile_SFTP(boost::filesystem::path, boost::filesystem::path);
+    std::vector<sftp_attributes> listDir(boost::filesystem::path dirpath);
     int run_command(std::string);
 
 private:
@@ -60,6 +61,7 @@ private:
 
 private:
     ssh_session SSH_session;
+    sftp_session SFTP_session;
 };
 
 }
