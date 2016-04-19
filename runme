@@ -46,7 +46,7 @@ VER='unknown'
 ARCH='unknown'
 
 # get current OS information
-if [[ "$OSTYPE" == "linux-gnu" ]]; then
+if [[ "$OSTYPE" == "linux-gnu" || "$OSTYPE" == "linux-gnueabihf" ]]; then
     # Ubuntu
     OS=$(lsb_release -si)
     VER=$(lsb_release -sr)
