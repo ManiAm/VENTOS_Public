@@ -49,15 +49,17 @@ public:
     SSH(std::string, int, std::string, std::string);
     virtual ~SSH();
 
-    int copyFile_SCP(boost::filesystem::path, boost::filesystem::path);
-    int copyFile_SFTP(boost::filesystem::path, boost::filesystem::path);
+    void copyFile_SCP(boost::filesystem::path, boost::filesystem::path);
+    void copyFile_SFTP(boost::filesystem::path, boost::filesystem::path);
     std::vector<sftp_attributes> listDir(boost::filesystem::path dirpath);
-    int run_command(std::string);
+    void syncDir(boost::filesystem::path source, boost::filesystem::path destination);
+    void run_command(std::string);
 
 private:
     void authenticate(std::string password);
     int authenticate_kbdint();
     int verify_knownhost();
+    void run_command_thread(ssh_channel, std::string);
 
 private:
     ssh_session SSH_session;

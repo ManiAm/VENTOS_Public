@@ -36,6 +36,7 @@
 #include "SSH.h"
 #include <fstream>
 #include "utf8.h"
+#include <thread>
 #include <omnetpp.h>
 
 namespace VENTOS {
@@ -355,7 +356,7 @@ int SSH::authenticate_kbdint()
 }
 
 
-int SSH::copyFile_SCP(boost::filesystem::path source, boost::filesystem::path dest)
+void SSH::copyFile_SCP(boost::filesystem::path source, boost::filesystem::path dest)
 {
     ASSERT(SSH_session);
 
@@ -391,12 +392,10 @@ int SSH::copyFile_SCP(boost::filesystem::path source, boost::filesystem::path de
 
     ssh_scp_close(SCP_session);
     ssh_scp_free(SCP_session);
-
-    return SSH_OK;
 }
 
 
-int SSH::copyFile_SFTP(boost::filesystem::path source, boost::filesystem::path dest)
+void SSH::copyFile_SFTP(boost::filesystem::path source, boost::filesystem::path dest)
 {
     ASSERT(SSH_session);
     ASSERT(SFTP_session);
@@ -424,11 +423,10 @@ int SSH::copyFile_SFTP(boost::filesystem::path source, boost::filesystem::path d
     int rc = sftp_close(file);
     if (rc != SSH_OK)
         throw cRuntimeError("Can't close the written file: %s", ssh_get_error(SSH_session));
-
-    return SSH_OK;
 }
 
 
+// get the remote directory content --list both files and directories
 std::vector<sftp_attributes> SSH::listDir(boost::filesystem::path dirpath)
 {
     ASSERT(SSH_session);
@@ -454,35 +452,106 @@ std::vector<sftp_attributes> SSH::listDir(boost::filesystem::path dirpath)
     if (rc != SSH_OK)
         throw cRuntimeError("Can't close directory: %s", ssh_get_error(SSH_session));
 
-    // sort
+    // sort by name
     std::sort(dirListings.begin(), dirListings.end(),
-              [] (sftp_attributes const& a, sftp_attributes const& b) { return std::string(a->name) < std::string(b->name); });
+            [] (sftp_attributes const& a, sftp_attributes const& b) { return std::string(a->name) < std::string(b->name); });
 
     return dirListings;
 }
 
 
-int SSH::run_command(std::string command)
+// copy all new/modified files in local directory to remote directory
+void SSH::syncDir(boost::filesystem::path source, boost::filesystem::path destination)
+{
+    ASSERT(SSH_session);
+    ASSERT(SFTP_session);
+
+    // make sure source directory exists
+    if (!boost::filesystem::exists(source))
+        throw cRuntimeError("Directory %s not found!", source.c_str());
+
+    // make sure source path is a directory
+    if(!boost::filesystem::is_directory(source))
+        throw cRuntimeError("source is not a directory!: %s", source.c_str());
+
+    // get local directory listing
+    std::vector<boost::filesystem::path> localDirListing;
+    boost::filesystem::recursive_directory_iterator end;
+    for (boost::filesystem::recursive_directory_iterator i(source); i != end; ++i)
+        localDirListing.push_back((*i));
+
+    // get the list of files in remote directory
+    std::vector<sftp_attributes> remoteDirListing = listDir(destination);
+
+    // iterate over local files
+    std::vector<boost::filesystem::path> needCopy;
+    for(auto &i : localDirListing)
+    {
+        if(boost::filesystem::is_directory(i))
+            continue;
+
+        // extract the file name from the full path
+        std::string localFileName = i.filename().string();
+
+        // search for file name in remote dir
+        auto it = std::find_if(remoteDirListing.begin(), remoteDirListing.end(),
+                [&localFileName](const sftp_attributes& obj) {return std::string(obj->name) == localFileName;});
+
+        // the file does not exist in remote dir
+        if(it == remoteDirListing.end())
+            needCopy.push_back(i);
+        else
+        {
+            // check this link http://stackoverflow.com/questions/12760574/string-size-is-different-on-windows-than-on-linux
+            uint64_t size_local = boost::filesystem::file_size(i);
+            uint64_t size_remote = (*it)->size;
+
+            // check this link http://stackoverflow.com/questions/3385203/regarding-access-time-unix
+            //int64_t modTime_local = boost::filesystem::last_write_time(i);
+            //uint32_t modTime_remote = (*it)->mtime;
+
+            if(size_local != size_remote /*|| modTime_local != modTime_remote*/)  // todo: comparing modification times is not correct!
+                needCopy.push_back(i);
+        }
+    }
+
+    // copy all new/modified files to the remote dir
+    for(auto &i : needCopy)
+        copyFile_SFTP(i, destination);
+}
+
+
+void SSH::run_command(std::string command)
 {
     ASSERT(SSH_session);
 
     ssh_channel channel = ssh_channel_new(SSH_session);
     if (channel == NULL)
-        return SSH_ERROR;
+        throw cRuntimeError("SSH error in run_command");
 
     int rc = ssh_channel_open_session(channel);
     if (rc != SSH_OK)
     {
         ssh_channel_free(channel);
-        return rc;
+        throw cRuntimeError("SSH error in run_command");
     }
 
-    rc = ssh_channel_request_exec(channel, command.c_str());
+    // run the command in a child thread
+    std::thread cmd_th(&SSH::run_command_thread, this, channel, command);
+    cmd_th.detach();
+}
+
+
+void SSH::run_command_thread(ssh_channel channel, std::string command)
+{
+    ASSERT(channel);
+
+    int rc = ssh_channel_request_exec(channel, command.c_str());
     if (rc != SSH_OK)
     {
         ssh_channel_close(channel);
         ssh_channel_free(channel);
-        return rc;
+        throw cRuntimeError("SSH error in run_command_thread");
     }
 
     char buffer[256];
@@ -493,7 +562,7 @@ int SSH::run_command(std::string command)
         {
             ssh_channel_close(channel);
             ssh_channel_free(channel);
-            return SSH_ERROR;
+            throw cRuntimeError("SSH error in run_command_thread");
         }
 
         nbytes = ssh_channel_read(channel, buffer, sizeof(buffer), 0);
@@ -503,14 +572,12 @@ int SSH::run_command(std::string command)
     {
         ssh_channel_close(channel);
         ssh_channel_free(channel);
-        return SSH_ERROR;
+        throw cRuntimeError("SSH error in run_command_thread");
     }
 
     ssh_channel_send_eof(channel);
     ssh_channel_close(channel);
     ssh_channel_free(channel);
-
-    return SSH_OK;
 }
 
 }

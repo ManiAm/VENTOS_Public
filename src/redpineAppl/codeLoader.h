@@ -64,7 +64,7 @@ private:
     simsignal_t Signal_initialize_withTraCI;
     bool on;
 
-    boost::filesystem::path script_FullPath;
+    boost::filesystem::path redpineAppl_FullPath;
     SSH *IMX_board1 = NULL;
 };
 

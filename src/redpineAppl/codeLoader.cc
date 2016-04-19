@@ -57,7 +57,7 @@ void codeLoader::initialize(int stage)
 
         // construct the path to VENTOS_Start_WAVE
         boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-        script_FullPath = VENTOS_FullPath / "src" / "codeLoader" / "VENTOS_Start_WAVE";
+        redpineAppl_FullPath = VENTOS_FullPath / "src" / "redpineAppl";
 
         on = par("on").boolValue();
 
@@ -124,33 +124,40 @@ void codeLoader::init_loader()
     ASSERT(IMX_board1);
 
     // copy the VENTOS_Start_WAVE script to the board
+    boost::filesystem::path script_FullPath = redpineAppl_FullPath / "VENTOS_Start_WAVE";
     IMX_board1->copyFile_SFTP(script_FullPath, "/home/dsrc/release");
 
     // run the script
-    //IMX_board1->run_command("sudo /home/dsrc/release/VENTOS_Start_WAVE");
+    IMX_board1->run_command("sudo /home/dsrc/release/VENTOS_Start_WAVE");
 
     // start 1609 stack in WAVE mode
     //IMX_board1->run_command("/home/dsrc/release/rsi_1609");
 
-    std::vector<sftp_attributes> listing = IMX_board1->listDir("/home/dsrc/source/sample_apps");
+//    std::vector<sftp_attributes> dirListings = IMX_board1->listDir("/home/dsrc/source/sample_apps");
+//
+//    for(auto &i : dirListings)
+//    {
+//        printf("%-30s  %u  %10llu  %.8o  %s(%d)  %s(%d)  %-15u  %-15lu  %-15u \n",
+//                i->name,
+//                i->type,
+//                (long long unsigned int) i->size,
+//                i->permissions,
+//                i->owner,
+//                i->uid,
+//                i->group,
+//                i->gid,
+//                i->atime,
+//                i->createtime,
+//                i->mtime);
+//
+//        sftp_attributes_free(i);
+//    }
+//    std::cout.flush();
 
-    //     printf("Name                       Size Perms    Owner\tGroup\n");
-    for(auto &i : listing)
-    {
-        printf("%-20s %10llu %.8o %s(%d)\t%s(%d)\n",
-                i->name,
-                (long long unsigned int) i->size,
-                i->permissions,
-                i->owner,
-                i->uid,
-                i->group,
-                i->gid);
+    // copy all new/modified files in local directory to remote directory
+    //boost::filesystem::path sampleAppl_FullPath = redpineAppl_FullPath / "sampleAppl";
+    //IMX_board1->syncDir(sampleAppl_FullPath, "/home/dsrc/source/sample_apps");
 
-        sftp_attributes_free(i);
-    }
-    std::cout.flush();
-
-    // add a second parameter to run_command to take newChannel?
 }
 
 }

@@ -131,7 +131,6 @@ void Ethernet::executeEachTimestep()
 
         // launch a thread to do the sniffing
         std::thread t1(&Ethernet::startSniffing, this);
-
         t1.detach();
 
         wasExecuted = true;
