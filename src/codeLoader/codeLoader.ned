@@ -9,9 +9,5 @@ simple codeLoader
         
         int headerLength = default(88bit) @unit(bit); //header length of the application 
         bool on = default(false);   
-        string host = default("localhost"); 
-        int port = default(22);
-        string username = default("ubuntu");
-        string password = default("Redpine");
 }
 
