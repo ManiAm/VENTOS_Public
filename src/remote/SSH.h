@@ -33,6 +33,12 @@
 #include <libssh/libsshpp.hpp>
 #include <stdlib.h>
 
+// un-defining ev!
+// why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header
+#undef ev
+#include "boost/filesystem.hpp"
+#define ev  (*cSimulation::getActiveEnvir())
+
 namespace VENTOS {
 
 class SSH
@@ -41,6 +47,7 @@ public:
     SSH(std::string, int, std::string, std::string);
     virtual ~SSH();
 
+    int copyFile(boost::filesystem::path, boost::filesystem::path);
     int run_command(std::string);
 
 private:
@@ -50,7 +57,6 @@ private:
 
 private:
     ssh_session SSH_session;
-
 };
 
 }

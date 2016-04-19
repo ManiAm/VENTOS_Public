@@ -34,8 +34,9 @@
 #endif
 
 #include "SSH.h"
-#include <omnetpp.h>
+#include <fstream>
 #include "utf8.h"
+#include <omnetpp.h>
 
 namespace VENTOS {
 
@@ -122,6 +123,7 @@ SSH::SSH(std::string host, int port, std::string username, std::string password)
     authenticate(password);
 
     std::cout << "Connected to the remote board successfully!" << std::endl;
+
     std::cout << std::endl << std::flush;
 }
 
@@ -148,21 +150,25 @@ int SSH::verify_knownhost()
     {
     case SSH_SERVER_KNOWN_OK:
         break; /* ok */
+
     case SSH_SERVER_KNOWN_CHANGED:
         fprintf(stderr, "Host key for server changed: it is now:\n");
         ssh_print_hexa("Public key hash", hash, hlen);
         fprintf(stderr, "For security reasons, connection will be stopped\n");
         free(hash);
         return -1;
+
     case SSH_SERVER_FOUND_OTHER:
         fprintf(stderr, "The host key for this server was not found but an other type of key exists.\n");
         fprintf(stderr, "An attacker might change the default server key to confuse your client into thinking the key does not exist\n");
         free(hash);
         return -1;
+
     case SSH_SERVER_FILE_NOT_FOUND:
         fprintf(stderr, "Could not find known host file.\n");
         fprintf(stderr, "If you accept the host key here, the file will be automatically created.\n");
         /* fallback to SSH_SERVER_NOT_KNOWN behavior */
+
     case SSH_SERVER_NOT_KNOWN:
     {
         char *hexa = ssh_get_hexa(hash, hlen);
@@ -188,6 +194,7 @@ int SSH::verify_knownhost()
         }
         break;
     }
+
     case SSH_SERVER_ERROR:
         fprintf(stderr, "Error %s", ssh_get_error(SSH_session));
         free(hash);
@@ -328,6 +335,47 @@ int SSH::authenticate_kbdint()
     }
 
     return rc;
+}
+
+
+int SSH::copyFile(boost::filesystem::path source, boost::filesystem::path dest)
+{
+    ASSERT(SSH_session);
+
+    // make sure file at 'source' exists
+    if (!boost::filesystem::exists(source))
+        throw cRuntimeError("File %s not found!", source.c_str());
+
+    ssh_scp SCP_session = ssh_scp_new(SSH_session, SSH_SCP_WRITE | SSH_SCP_RECURSIVE, dest.c_str());
+    if (SCP_session == NULL)
+        throw cRuntimeError("Error allocating SCP session: %s", ssh_get_error(SSH_session));
+
+    int rc = ssh_scp_init(SCP_session);
+    if (rc != SSH_OK)
+    {
+        ssh_scp_free(SCP_session);
+        throw cRuntimeError("Error initializing SCP session: %s.", ssh_get_error(SCP_session));
+    }
+
+    // read file contents into a string
+    std::ifstream ifs(source.c_str());
+    std::string content( (std::istreambuf_iterator<char>(ifs) ),
+                         (std::istreambuf_iterator<char>()    ) );
+    int length = content.size();
+
+    std::string fileName = source.filename().string();
+    rc = ssh_scp_push_file(SCP_session, fileName.c_str(), length, S_IRWXU);
+    if (rc != SSH_OK)
+        throw cRuntimeError("Can't open remote file: %s", ssh_get_error(SSH_session));
+
+    rc = ssh_scp_write(SCP_session, content.c_str(), length);
+    if (rc != SSH_OK)
+        throw cRuntimeError("Can't write to remote file: %s", ssh_get_error(SSH_session));
+
+    ssh_scp_close(SCP_session);
+    ssh_scp_free(SCP_session);
+
+    return SSH_OK;
 }
 
 

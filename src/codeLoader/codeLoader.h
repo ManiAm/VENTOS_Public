@@ -32,6 +32,12 @@
 #include "TraCICommands.h"
 #include "SSH.h"
 
+// un-defining ev!
+// why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header
+#undef ev
+#include "boost/filesystem.hpp"
+#define ev  (*cSimulation::getActiveEnvir())
+
 namespace VENTOS {
 
 class codeLoader : public BaseApplLayer
@@ -58,6 +64,7 @@ private:
     simsignal_t Signal_initialize_withTraCI;
     bool on;
 
+    boost::filesystem::path script_FullPath;
     SSH *IMX_board1 = NULL;
 };
 

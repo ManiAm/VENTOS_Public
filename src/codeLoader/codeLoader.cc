@@ -55,6 +55,10 @@ void codeLoader::initialize(int stage)
         Signal_executeEachTS = registerSignal("executeEachTS");
         simulation.getSystemModule()->subscribe("executeEachTS", this);
 
+        // construct the path to VENTOS_Start_WAVE
+        boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+        script_FullPath = VENTOS_FullPath / "src" / "codeLoader" / "VENTOS_Start_WAVE";
+
         on = par("on").boolValue();
 
         if(on)
@@ -115,18 +119,18 @@ void codeLoader::executeEachTimestep()
 
 void codeLoader::init_loader()
 {
-    std::string host = par("host").stringValue();
-    int port = par("port").longValue();
-    std::string username = par("username").stringValue();
-    std::string password = par("password").stringValue();
-
-    // create a new SSH session
-    IMX_board1 = new SSH(host, port, username, password);
+    // make a new SSH session
+    IMX_board1 = new SSH("192.168.60.42", 22, "ubuntu", "Redpine");
     ASSERT(IMX_board1);
 
-    IMX_board1->run_command("ls -l");
+    // copy the VENTOS_Start_WAVE script to the board
+    IMX_board1->copyFile(script_FullPath, "/home/dsrc/release");
 
-    IMX_board1->run_command("lsusb");
+    // run the script
+    IMX_board1->run_command("sudo /home/dsrc/release/VENTOS_Start_WAVE");
+
+    // start 1609 stack in WAVE mode
+    IMX_board1->run_command("/home/dsrc/release/rsi_1609");
 }
 
 }
