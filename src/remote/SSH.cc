@@ -338,7 +338,7 @@ int SSH::authenticate_kbdint()
 }
 
 
-int SSH::copyFile(boost::filesystem::path source, boost::filesystem::path dest)
+int SSH::copyFile_SCP(boost::filesystem::path source, boost::filesystem::path dest)
 {
     ASSERT(SSH_session);
 
@@ -374,6 +374,49 @@ int SSH::copyFile(boost::filesystem::path source, boost::filesystem::path dest)
 
     ssh_scp_close(SCP_session);
     ssh_scp_free(SCP_session);
+
+    return SSH_OK;
+}
+
+
+int SSH::copyFile_SFTP(boost::filesystem::path source, boost::filesystem::path dest)
+{
+    ASSERT(SSH_session);
+
+    // make sure file at 'source' exists
+    if (!boost::filesystem::exists(source))
+        throw cRuntimeError("File %s not found!", source.c_str());
+
+    sftp_session SFTP_session = sftp_new(SSH_session);
+    if (SFTP_session == NULL)
+        throw cRuntimeError("Error allocating SFTP session: %s", ssh_get_error(SSH_session));
+
+    int rc = sftp_init(SFTP_session);
+    if (rc != SSH_OK)
+    {
+        sftp_free(SFTP_session);
+        throw cRuntimeError("Error initializing SFTP session: %s.", ssh_get_error(SFTP_session));
+    }
+
+    // read file contents into a string
+    std::ifstream ifs(source.c_str());
+    std::string content( (std::istreambuf_iterator<char>(ifs) ),
+                         (std::istreambuf_iterator<char>()    ) );
+    int length = content.size();
+
+    boost::filesystem::path remoteFile = dest / source.filename();
+    int access_type = O_WRONLY | O_CREAT | O_TRUNC;
+    sftp_file file = sftp_open(SFTP_session, remoteFile.c_str(), access_type, S_IRWXU);
+    if (file == NULL)
+        throw cRuntimeError("Can't open file for writing: %s", ssh_get_error(SSH_session));
+
+    int nwritten = sftp_write(file, content.c_str(), length);
+    if (nwritten != length)
+        throw cRuntimeError("Can't write data to file: %s", ssh_get_error(SSH_session));
+
+    rc = sftp_close(file);
+    if (rc != SSH_OK)
+        throw cRuntimeError("Can't close the written file: %s", ssh_get_error(SSH_session));
 
     return SSH_OK;
 }

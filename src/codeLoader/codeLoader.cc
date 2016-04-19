@@ -120,17 +120,19 @@ void codeLoader::executeEachTimestep()
 void codeLoader::init_loader()
 {
     // make a new SSH session
-    IMX_board1 = new SSH("192.168.60.42", 22, "ubuntu", "Redpine");
+    IMX_board1 = new SSH("192.168.60.43", 22, "ubuntu", "Redpine");
     ASSERT(IMX_board1);
 
     // copy the VENTOS_Start_WAVE script to the board
-    IMX_board1->copyFile(script_FullPath, "/home/dsrc/release");
+    IMX_board1->copyFile_SFTP(script_FullPath, "/home/dsrc/release");
 
     // run the script
-    IMX_board1->run_command("sudo /home/dsrc/release/VENTOS_Start_WAVE");
+    //IMX_board1->run_command("sudo /home/dsrc/release/VENTOS_Start_WAVE");
 
     // start 1609 stack in WAVE mode
-    IMX_board1->run_command("/home/dsrc/release/rsi_1609");
+    //IMX_board1->run_command("/home/dsrc/release/rsi_1609");
+
+    // add a second parameter to run_command to take newChannel?
 }
 
 }

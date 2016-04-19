@@ -31,6 +31,8 @@
 #include <string>
 
 #include <libssh/libsshpp.hpp>
+#include <libssh/sftp.h>
+#include <fcntl.h>   // def of  O_WRONLY | O_CREAT | O_TRUNC
 #include <stdlib.h>
 
 // un-defining ev!
@@ -47,7 +49,8 @@ public:
     SSH(std::string, int, std::string, std::string);
     virtual ~SSH();
 
-    int copyFile(boost::filesystem::path, boost::filesystem::path);
+    int copyFile_SCP(boost::filesystem::path, boost::filesystem::path);
+    int copyFile_SFTP(boost::filesystem::path, boost::filesystem::path);
     int run_command(std::string);
 
 private:
