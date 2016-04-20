@@ -79,12 +79,6 @@ void codeLoader::initialize(int stage)
         redpineAppl_FullPath = VENTOS_FullPath / "src" / "redpineAppl";
 
         on = par("on").boolValue();
-
-        if(on)
-        {
-            make_connection();
-            init_board();
-        }
     }
 }
 
@@ -132,6 +126,8 @@ void codeLoader::executeEachTimestep()
     static bool wasExecuted = false;
     if (on && !wasExecuted)
     {
+        make_connection();
+        init_board();
 
         wasExecuted = true;
     }
@@ -164,7 +160,7 @@ void codeLoader::make_connection()
         mod->getDisplayString().updateWith("p=0,0");
         mod->buildInside();
         mod->scheduleStart(simTime());
-        //mod->callInitialize();  do not call initialize at this point!
+        mod->callInitialize();
     }
 
     std::vector<remoteDev> remoteDevs;
