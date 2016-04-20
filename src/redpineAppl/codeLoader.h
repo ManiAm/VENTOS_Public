@@ -65,7 +65,7 @@ private:
     bool on;
 
     boost::filesystem::path redpineAppl_FullPath;
-    SSH *IMX_board1 = NULL;
+    std::vector<SSH *> IMX_board;
 };
 
 }

@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    SSH.h
+/// @file    codeLoader.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    Apr 2016
@@ -25,45 +25,38 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef SSHCONNECT_H_
-#define SSHCONNECT_H_
+#ifndef DEV_H
+#define DEV_H
 
-#include <string>
-
-#include <libssh/libsshpp.hpp>
-#include <libssh/sftp.h>
-#include <fcntl.h>   // def of  O_WRONLY | O_CREAT | O_TRUNC
-#include <stdlib.h>
-
-// un-defining ev!
-// why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header
-#undef ev
-#include "boost/filesystem.hpp"
-#define ev  (*cSimulation::getActiveEnvir())
+#include <BaseApplLayer.h>
+#include "TraCICommands.h"
 
 namespace VENTOS {
 
-class SSH
+class dev : public BaseApplLayer
 {
 public:
-    SSH(std::string, int, std::string, std::string);
-    virtual ~SSH();
-
-    void copyFile_SCP(boost::filesystem::path, boost::filesystem::path);
-    void copyFile_SFTP(boost::filesystem::path, boost::filesystem::path);
-    std::vector<sftp_attributes> listDir(boost::filesystem::path dirpath);
-    void syncDir(boost::filesystem::path source, boost::filesystem::path destination);
-    void run_command(std::string);
-
-private:
-    void authenticate(std::string password);
-    int authenticate_kbdint();
-    int verify_knownhost();
-    void run_command_thread(ssh_channel, std::string);
+    virtual ~dev();
+    virtual void initialize(int stage);
+    virtual int numInitStages() const
+    {
+        return 1;
+    }
+    virtual void finish();
+    virtual void handleMessage(cMessage *msg);
+    virtual void receiveSignal(cComponent *, simsignal_t, long);
 
 private:
-    ssh_session SSH_session;
-    sftp_session SFTP_session;
+    void initialize_withTraCI();
+    void executeEachTimestep();
+
+private:
+    typedef BaseApplLayer super;
+
+    // NED variables
+    TraCI_Commands *TraCI;  // pointer to the TraCI module
+    simsignal_t Signal_executeEachTS;
+    simsignal_t Signal_initialize_withTraCI;
 };
 
 }

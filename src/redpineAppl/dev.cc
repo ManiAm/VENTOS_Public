@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    SSH.h
+/// @file    dev.cc
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    Apr 2016
@@ -25,47 +25,76 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef SSHCONNECT_H_
-#define SSHCONNECT_H_
-
-#include <string>
-
-#include <libssh/libsshpp.hpp>
-#include <libssh/sftp.h>
-#include <fcntl.h>   // def of  O_WRONLY | O_CREAT | O_TRUNC
-#include <stdlib.h>
-
-// un-defining ev!
-// why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header
-#undef ev
-#include "boost/filesystem.hpp"
-#define ev  (*cSimulation::getActiveEnvir())
+#include "dev.h"
 
 namespace VENTOS {
 
-class SSH
+Define_Module(VENTOS::dev);
+
+dev::~dev()
 {
-public:
-    SSH(std::string, int, std::string, std::string);
-    virtual ~SSH();
-
-    void copyFile_SCP(boost::filesystem::path, boost::filesystem::path);
-    void copyFile_SFTP(boost::filesystem::path, boost::filesystem::path);
-    std::vector<sftp_attributes> listDir(boost::filesystem::path dirpath);
-    void syncDir(boost::filesystem::path source, boost::filesystem::path destination);
-    void run_command(std::string);
-
-private:
-    void authenticate(std::string password);
-    int authenticate_kbdint();
-    int verify_knownhost();
-    void run_command_thread(ssh_channel, std::string);
-
-private:
-    ssh_session SSH_session;
-    sftp_session SFTP_session;
-};
 
 }
 
-#endif
+
+void dev::initialize(int stage)
+{
+    super::initialize(stage);
+
+    if(stage ==0)
+    {
+        // get a pointer to the TraCI module
+        cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
+        ASSERT(module);
+        TraCI = static_cast<TraCI_Commands *>(module);
+        ASSERT(TraCI);
+
+        Signal_initialize_withTraCI = registerSignal("initialize_withTraCI");
+        simulation.getSystemModule()->subscribe("initialize_withTraCI", this);
+
+        Signal_executeEachTS = registerSignal("executeEachTS");
+        simulation.getSystemModule()->subscribe("executeEachTS", this);
+    }
+}
+
+
+void dev::finish()
+{
+
+}
+
+
+void dev::handleMessage(cMessage *msg)
+{
+
+}
+
+
+void dev::receiveSignal(cComponent *source, simsignal_t signalID, long i)
+{
+    Enter_Method_Silent();
+
+    if(signalID == Signal_initialize_withTraCI)
+    {
+        initialize_withTraCI();
+    }
+    else if(signalID == Signal_executeEachTS)
+    {
+        executeEachTimestep();
+    }
+}
+
+
+void dev::initialize_withTraCI()
+{
+
+}
+
+
+void dev::executeEachTimestep()
+{
+
+}
+
+}
+

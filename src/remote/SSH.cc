@@ -48,6 +48,9 @@ SSH::~SSH()
         ssh_disconnect(SSH_session);
         ssh_free(SSH_session);
     }
+
+    if(SFTP_session)
+        sftp_free(SFTP_session);
 }
 
 
