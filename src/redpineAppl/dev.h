@@ -47,16 +47,10 @@ public:
     virtual void receiveSignal(cComponent *, simsignal_t, long);
 
 private:
-    void initialize_withTraCI();
-    void executeEachTimestep();
-
-private:
     typedef BaseApplLayer super;
 
     // NED variables
     TraCI_Commands *TraCI;  // pointer to the TraCI module
-    simsignal_t Signal_executeEachTS;
-    simsignal_t Signal_initialize_withTraCI;
 };
 
 }

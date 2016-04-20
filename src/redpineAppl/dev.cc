@@ -48,12 +48,6 @@ void dev::initialize(int stage)
         ASSERT(module);
         TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
-
-        Signal_initialize_withTraCI = registerSignal("initialize_withTraCI");
-        simulation.getSystemModule()->subscribe("initialize_withTraCI", this);
-
-        Signal_executeEachTS = registerSignal("executeEachTS");
-        simulation.getSystemModule()->subscribe("executeEachTS", this);
     }
 }
 
@@ -73,26 +67,6 @@ void dev::handleMessage(cMessage *msg)
 void dev::receiveSignal(cComponent *source, simsignal_t signalID, long i)
 {
     Enter_Method_Silent();
-
-    if(signalID == Signal_initialize_withTraCI)
-    {
-        initialize_withTraCI();
-    }
-    else if(signalID == Signal_executeEachTS)
-    {
-        executeEachTimestep();
-    }
-}
-
-
-void dev::initialize_withTraCI()
-{
-
-}
-
-
-void dev::executeEachTimestep()
-{
 
 }
 
