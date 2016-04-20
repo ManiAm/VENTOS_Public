@@ -36,7 +36,6 @@
 #include "SSH.h"
 #include <fstream>
 #include "utf8.h"
-#include <thread>
 #include <omnetpp.h>
 
 namespace VENTOS {
@@ -57,36 +56,13 @@ SSH::~SSH()
 // constructor
 SSH::SSH(std::string host, int port, std::string username, std::string password)
 {
-    struct hostent *he = gethostbyname(host.c_str());
-    if (he == NULL)
-        throw cRuntimeError("hostname %s is invalid!", host.c_str());
+    this->this_host = host;
 
-    struct in_addr **addr_list = (struct in_addr **) he->h_addr_list;
-
-    char IPAddress[100];
-    for(int i = 0; addr_list[i] != NULL; i++)
-        strcpy(IPAddress, inet_ntoa(*addr_list[i]));
-
-    std::cout << std::endl << "Pinging " << IPAddress << " ... ";
-    std::cout.flush();
-
-    // test if IPAdd is alive?
-    std::string cmd = "ping -c 1 -s 1 " + std::string(IPAddress) + " > /dev/null 2>&1";
-    int result = system(cmd.c_str());
-
-    if(result != 0)
-        throw cRuntimeError("host at %s is not responding!", IPAddress);
-
-    std::cout << "Done!" << std::endl;
-    std::cout << "Creating SSH session ... ";
-    std::cout.flush();
+    checkHost(host);
 
     SSH_session = ssh_new();
     if (SSH_session == NULL)
         throw cRuntimeError("SSH session error!");
-
-    std::cout << "Done! \n";
-    std::cout.flush();
 
     ssh_options_set(SSH_session, SSH_OPTIONS_HOST, host.c_str());
     ssh_options_set(SSH_session, SSH_OPTIONS_PORT, &port);
@@ -94,14 +70,14 @@ SSH::SSH(std::string host, int port, std::string username, std::string password)
     int verbosity = SSH_LOG_NOLOG;
     ssh_options_set(SSH_session, SSH_OPTIONS_LOG_VERBOSITY, &verbosity);
 
-    printf("SSH to %s@%s at port %d \n", username.c_str(), host.c_str(), port );
+    printf("  SSH to %s@%s at port %d \n", username.c_str(), host.c_str(), port);
     std::cout.flush();
 
     int rc = ssh_connect(SSH_session);
     if (rc != SSH_OK)
         throw cRuntimeError("Error connecting to localhost: %s", ssh_get_error(SSH_session));
 
-    // Verify the server's identity
+    // verify the server's identity
     if (verify_knownhost() < 0)
     {
         ssh_disconnect(SSH_session);
@@ -109,27 +85,22 @@ SSH::SSH(std::string host, int port, std::string username, std::string password)
         throw cRuntimeError("oh no!");
     }
 
-    // Get the protocol version of the session
-    std::cout << "SSH version: " << ssh_get_version(SSH_session) << std::endl;
-
-    // openssh version
-    std::cout << "OpenSSH version: " << ssh_get_openssh_version(SSH_session) << std::endl;
+    // get the protocol version of the session
+    printf("  SSH version @%s: %d \n", host.c_str(), ssh_get_version(SSH_session));
+    std::cout.flush();
 
     // get the server banner
-    std::cout << "Server banner: " << ssh_get_serverbanner(SSH_session) << std::endl;
+    printf("  Server banner @%s: %s \n", host.c_str(), ssh_get_serverbanner(SSH_session));
+    std::cout.flush();
 
     // get issue banner
     char *str = ssh_get_issue_banner(SSH_session);
     if(str)
         std::cout << "Issue banner: " << str << std::endl;
 
-    std::cout << "Authenticating ..." << std::endl;
-    authenticate(password);
-
-    std::cout << "Connected to the remote board successfully!" << std::endl;
-
-    std::cout << "Creating SFTP session ... ";
+    printf("  Authenticating to %s ... Please Wait \n", host.c_str());
     std::cout.flush();
+    authenticate(password);
 
     SFTP_session = sftp_new(SSH_session);
     if (SFTP_session == NULL)
@@ -141,11 +112,35 @@ SSH::SSH(std::string host, int port, std::string username, std::string password)
         sftp_free(SFTP_session);
         throw cRuntimeError("Error initializing SFTP session: %s.", ssh_get_error(SFTP_session));
     }
+}
 
-    std::cout << "Done! \n";
+
+std::string SSH::getHost()
+{
+    return this->this_host;
+}
+
+
+void SSH::checkHost(std::string host)
+{
+    struct hostent *he = gethostbyname(host.c_str());  // needs Internet connection to resolve DNS names
+    if (he == NULL)
+        throw cRuntimeError("hostname %s is invalid!", host.c_str());
+
+    struct in_addr **addr_list = (struct in_addr **) he->h_addr_list;
+
+    char IPAddress[100];
+    for(int i = 0; addr_list[i] != NULL; i++)
+        strcpy(IPAddress, inet_ntoa(*addr_list[i]));
+
+    std::cout << "  Pinging " << IPAddress << "\n";
     std::cout.flush();
 
-    std::cout << std::endl << std::flush;
+    // test if IPAdd is alive?
+    std::string cmd = "ping -c 1 -s 1 " + std::string(IPAddress) + " > /dev/null 2>&1";
+    int result = system(cmd.c_str());
+    if(result != 0)
+        throw cRuntimeError("host at %s is not responding!", IPAddress);
 }
 
 
@@ -241,7 +236,8 @@ void SSH::authenticate(std::string password)
     // this requires the function ssh_userauth_none() to be called before the methods are available.
     int method = ssh_userauth_list(SSH_session, NULL);
 
-    std::cout << "Supported authentication methods: ";
+
+    printf("  Supported authentication methods @%s: ", getHost().c_str());
     if(method & SSH_AUTH_METHOD_PASSWORD)
         std::cout << "PASSWORD, ";
     if(method & SSH_AUTH_METHOD_PUBLICKEY)
@@ -524,7 +520,7 @@ void SSH::syncDir(boost::filesystem::path source, boost::filesystem::path destin
 }
 
 
-void SSH::run_command(std::string command)
+void SSH::run_command(std::string command, bool printOutput)
 {
     ASSERT(SSH_session);
 
@@ -539,17 +535,7 @@ void SSH::run_command(std::string command)
         throw cRuntimeError("SSH error in run_command");
     }
 
-    // run the command in a child thread
-    std::thread cmd_th(&SSH::run_command_thread, this, channel, command);
-    cmd_th.detach();
-}
-
-
-void SSH::run_command_thread(ssh_channel channel, std::string command)
-{
-    ASSERT(channel);
-
-    int rc = ssh_channel_request_exec(channel, command.c_str());
+    rc = ssh_channel_request_exec(channel, command.c_str());
     if (rc != SSH_OK)
     {
         ssh_channel_close(channel);
@@ -557,11 +543,19 @@ void SSH::run_command_thread(ssh_channel channel, std::string command)
         throw cRuntimeError("SSH error in run_command_thread");
     }
 
+    int fd = 1;  /*write to standard output*/
+    if(!printOutput)
+    {
+        fd = open("/dev/null", O_WRONLY);
+        if (fd == -1)
+            throw cRuntimeError("Cannot open /dev/null");
+    }
+
     char buffer[256];
     int nbytes = ssh_channel_read(channel, buffer, sizeof(buffer), 0);
     while (nbytes > 0)
     {
-        if (write(1, buffer, nbytes) != (unsigned int) nbytes)
+        if (write(fd, buffer, nbytes) != (unsigned int) nbytes)
         {
             ssh_channel_close(channel);
             ssh_channel_free(channel);

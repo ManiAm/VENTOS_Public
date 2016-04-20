@@ -26,6 +26,7 @@
 //
 
 #include "codeLoader.h"
+#include <thread>
 
 namespace VENTOS {
 
@@ -80,7 +81,10 @@ void codeLoader::initialize(int stage)
         on = par("on").boolValue();
 
         if(on)
-            init_loader();
+        {
+            make_connection();
+            init_board();
+        }
     }
 }
 
@@ -134,13 +138,17 @@ void codeLoader::executeEachTimestep()
 }
 
 
-void codeLoader::init_loader()
+void codeLoader::make_connection()
 {
     int numDev = par("numDev").longValue();
     if(numDev < 0)
         error("numDev should be >= 0");
     else if(numDev == 0)
         return;
+
+    printf("\n");
+    printf(">>> Connecting to '%u' remote devices ... \n", numDev);
+    std::cout.flush();
 
     cModule* parentMod = getParentModule();
     if (!parentMod)
@@ -175,23 +183,79 @@ void codeLoader::init_loader()
         remoteDevs.push_back(*dev);
     }
 
+    // vector container stores threads
+    std::vector<std::thread> workers;
+
     for(unsigned int i = 0; i < remoteDevs.size(); i++)
     {
-        // create SSH connection to the remote device
-        SSH *new_session = new SSH(remoteDevs[i].host, remoteDevs[i].port, remoteDevs[i].username, remoteDevs[i].password);
-        ASSERT(new_session);
-        IMX_board.push_back(new_session);
+        workers.push_back(std::thread([=]() {  // pass by value
+            // delay each new thread
+            std::this_thread::sleep_for(std::chrono::milliseconds(i*50));
+
+            // create SSH connection to the remote device
+            SSH *new_session = new SSH(remoteDevs[i].host, remoteDevs[i].port, remoteDevs[i].username, remoteDevs[i].password);
+            ASSERT(new_session);
+            IMX_board.push_back(new_session);
+        }));
     }
 
-    // copy the VENTOS_Start_WAVE script to the board
-    boost::filesystem::path script_FullPath = redpineAppl_FullPath / "VENTOS_Start_WAVE";
-    IMX_board[0]->copyFile_SFTP(script_FullPath, "/home/dsrc/release");
+    // wait for all threads to finish
+    std::for_each(workers.begin(), workers.end(), [](std::thread &t) {
+        t.join();
+    });
 
-    // run the script
-    IMX_board[0]->run_command("sudo /home/dsrc/release/VENTOS_Start_WAVE");
+    std::cout << "  Done! \n\n";
+    std::cout.flush();
+}
+
+
+void codeLoader::init_board()
+{
+    // first make sure all pointers are valid
+    for(auto &board : IMX_board)
+        ASSERT(board);
+
+    // copy the init script to all boards
+    boost::filesystem::path script_FullPath = redpineAppl_FullPath / "VENTOS_Start_WAVE";
+    boost::filesystem::path destDir = "/home/dsrc/release";
+    for(auto &board : IMX_board)
+    {
+        printf(">>> Copying the init script to %s:%s ... ", board->getHost().c_str(), destDir.c_str());
+        std::cout.flush();
+        board->copyFile_SFTP(script_FullPath, destDir);
+        printf("Done!\n");
+        std::cout.flush();
+    }
+
+    std::cout << std::endl;
+
+    // vector container stores threads
+    std::vector<std::thread> workers;
+
+    // run the script in all boards
+    for(auto &board : IMX_board)
+    {
+        workers.push_back(std::thread([=]() {  // pass by value
+            printf(">>> Running the init script at %s ... \n", board->getHost().c_str());
+            std::cout.flush();
+            board->run_command("sudo /home/dsrc/release/VENTOS_Start_WAVE", true);
+        }));
+    }
+
+    // wait for all threads to finish
+    std::for_each(workers.begin(), workers.end(), [](std::thread &t) {
+        t.join();
+    });
+
+
+
+
+
+    std::cout << "yeayy! \n" << std::flush;
 
     // start 1609 stack in WAVE mode
-    //IMX_board[0]->run_command("/home/dsrc/release/rsi_1609");
+    //IMX_board[0]->run_command("sudo /home/dsrc/release/rsi_1609");
+
 
     //    std::vector<sftp_attributes> dirListings = IMX_board[0]->listDir("/home/dsrc/source/sample_apps");
     //
@@ -214,10 +278,10 @@ void codeLoader::init_loader()
     //    }
     //    std::cout.flush();
 
+
     // copy all new/modified files in local directory to remote directory
     //boost::filesystem::path sampleAppl_FullPath = redpineAppl_FullPath / "sampleAppl";
     //IMX_board[0]->syncDir(sampleAppl_FullPath, "/home/dsrc/source/sample_apps");
-
 }
 
 }

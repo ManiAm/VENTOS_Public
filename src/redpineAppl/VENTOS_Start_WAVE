@@ -5,6 +5,7 @@ if [ "$EUID" -ne 0 ]; then
   exit 1
 fi
 
+echo ""
 echo "Bash version is: $BASH_VERSION$"
 
 ##############
@@ -165,7 +166,7 @@ PARAMS=$PARAMS" bt_rf_power_mode=$BT_RF_PWR_MODE"
 PARAMS=$PARAMS" zigb_rf_power_mode=$ZIGB_RF_PWR_MODE"
 PARAMS=$PARAMS" country_code=$SET_COUNTRY_CODE"
 
-# show each parameter in a seperate line
+# show each parameter in a separate line
 IFS=' ' read -ra TOKENS <<< "$PARAMS"
 for i in "${TOKENS[@]}"; do
     echo "$i"

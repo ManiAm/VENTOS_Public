@@ -50,7 +50,8 @@ public:
     virtual void receiveSignal(cComponent *, simsignal_t, long);
 
 private:
-    void init_loader();
+    void make_connection();
+    void init_board();
 
     void initialize_withTraCI();
     void executeEachTimestep();
