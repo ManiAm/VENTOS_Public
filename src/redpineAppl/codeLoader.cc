@@ -76,9 +76,13 @@ void codeLoader::initialize(int stage)
         Signal_executeEachTS = registerSignal("executeEachTS");
         simulation.getSystemModule()->subscribe("executeEachTS", this);
 
-        // construct the path to VENTOS_Start_WAVE
+        // construct the path to redpineAppl folder
         boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
         redpineAppl_FullPath = VENTOS_FullPath / "src" / "redpineAppl";
+
+        initScriptName = par("initScriptName").stringValue();
+        if(initScriptName == "")
+            error("initScriptName is empty!");
 
         on = par("on").boolValue();
     }
@@ -214,7 +218,7 @@ void codeLoader::init_board()
         ASSERT(board);
 
     // copy the init script to all boards
-    boost::filesystem::path script_FullPath = redpineAppl_FullPath / "VENTOS_Start_WAVE";
+    boost::filesystem::path script_FullPath = redpineAppl_FullPath / initScriptName;
     boost::filesystem::path destDir = "/home/dsrc/release";
     for(auto &board : IMX_board)
     {
@@ -230,7 +234,7 @@ void codeLoader::init_board()
         substituteParams(board->getHost(), content);
 
         // do the copying
-        board->copyFileStr_SFTP("VENTOS_Start_WAVE", content, destDir);
+        board->copyFileStr_SFTP(initScriptName, content, destDir);
 
         printf("Done!\n");
         std::cout.flush();
@@ -249,7 +253,7 @@ void codeLoader::init_board()
             std::cout.flush();
 
             board->run_command("cd /home/dsrc/release", false);
-            board->run_command("sudo ./VENTOS_Start_WAVE", false);
+            board->run_command("sudo ./" + initScriptName, false);
         }));
     }
 

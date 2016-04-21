@@ -66,6 +66,7 @@ private:
     simsignal_t Signal_initialize_withTraCI;
     bool on;
 
+    std::string initScriptName = "";
     boost::filesystem::path redpineAppl_FullPath;
     std::vector<SSH *> IMX_board;
 };

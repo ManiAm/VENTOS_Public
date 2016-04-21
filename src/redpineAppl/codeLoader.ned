@@ -9,6 +9,7 @@ simple codeLoader
         
         int headerLength = default(88bit) @unit(bit); //header length of the application 
         bool on = default(false);   
-        int numDev = default(0); 
+        string initScriptName = default("VENTOS_Start_WAVE");
+        int numDev = default(0);
 }
 
