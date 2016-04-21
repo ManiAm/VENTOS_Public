@@ -34,6 +34,7 @@
 #include <libssh/sftp.h>
 #include <fcntl.h>   // def of  O_WRONLY | O_CREAT | O_TRUNC
 #include <stdlib.h>
+#include <mutex>
 
 // un-defining ev!
 // why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header
@@ -65,6 +66,8 @@ private:
     void openShell();
 
 private:
+    static std::mutex theLock;
+
     std::string this_host;
     ssh_session SSH_session;
     sftp_session SFTP_session;

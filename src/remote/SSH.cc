@@ -40,6 +40,10 @@
 
 namespace VENTOS {
 
+static std::mutex theLock;
+
+std::mutex SSH::theLock;
+
 SSH::~SSH()
 {
     if(SSH_channel)
@@ -64,6 +68,15 @@ SSH::~SSH()
 // constructor
 SSH::SSH(std::string host, int port, std::string username, std::string password)
 {
+    if(host == "")
+        throw cRuntimeError("host is empty!");
+
+    if(port <= 0)
+        throw cRuntimeError("port number is invalid!");
+
+    if(username == "")
+        throw cRuntimeError("username is empty!");
+
     this->this_host = host;
 
     checkHost(host);
@@ -98,7 +111,7 @@ SSH::SSH(std::string host, int port, std::string username, std::string password)
     std::cout.flush();
 
     // get the server banner
-    printf("  Server banner @%s: \n    %s \n", host.c_str(), ssh_get_serverbanner(SSH_session));
+    printf("  Server banner @%s: \n      %s \n", host.c_str(), ssh_get_serverbanner(SSH_session));
     std::cout.flush();
 
     // get issue banner
@@ -239,22 +252,6 @@ void SSH::authenticate(std::string password)
     // this requires the function ssh_userauth_none() to be called before the methods are available.
     int method = ssh_userauth_list(SSH_session, NULL);
 
-
-    printf("  Supported authentication methods @%s: ", getHost().c_str());
-    if(method & SSH_AUTH_METHOD_PASSWORD)
-        std::cout << "PASSWORD, ";
-    if(method & SSH_AUTH_METHOD_PUBLICKEY)
-        std::cout << "PUBLICKEY, ";
-    if(method & SSH_AUTH_METHOD_HOSTBASED)
-        std::cout << "HOSTBASED, ";
-    if(method & SSH_AUTH_METHOD_INTERACTIVE)
-        std::cout << "INTERACTIVE, ";
-    if(method & SSH_AUTH_METHOD_GSSAPI_MIC)
-        std::cout << "GSSAPI_MIC, ";
-
-    std::cout << std::endl;
-    std::cout.flush();
-
     while (rc != SSH_AUTH_SUCCESS)
     {
         // Try to authenticate with public key first
@@ -280,6 +277,16 @@ void SSH::authenticate(std::string password)
         // Try to authenticate with password
         if (method & SSH_AUTH_METHOD_PASSWORD)
         {
+            // if no password is provided, then ask the user
+            if(password == "")
+            {
+                // only one thread can access this
+                std::lock_guard<std::mutex> lock(theLock);
+
+                std::string prompt = "  Password @" + getHost() + ": ";
+                password = getpass(prompt.c_str());
+            }
+
             // make sure the password is in UFT-8
             std::string temp;
             utf8::replace_invalid(password.begin(), password.end(), back_inserter(temp));
@@ -294,9 +301,15 @@ void SSH::authenticate(std::string password)
         }
 
         // In SSH2 sometimes we need to ask the password interactively!
-        char *passUser = getpass("Password: ");
+        {
+            // only one thread can access this
+            std::lock_guard<std::mutex> lock(theLock);
 
-        rc = ssh_userauth_password(SSH_session, NULL, passUser);
+            std::string prompt = "  Password @" + getHost() + ": ";
+            password = getpass(prompt.c_str());
+        }
+
+        rc = ssh_userauth_password(SSH_session, NULL, password.c_str());
         if (rc == SSH_AUTH_ERROR)
             throw cRuntimeError("Authentication failed.");
         else if (rc == SSH_AUTH_SUCCESS)
@@ -378,9 +391,6 @@ void SSH::createSession_SFTP()
 void SSH::openShell()
 {
     ASSERT(SSH_session);
-
-    printf("  Opening a remote shell @%s \n", getHost().c_str());
-    std::cout.flush();
 
     SSH_channel = ssh_channel_new(SSH_session);
     if (SSH_channel == NULL)

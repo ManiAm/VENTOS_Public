@@ -11,8 +11,8 @@ simple dev
         
         string host = default("localhost"); 
         int port = default(22);
-        string username = default("ubuntu");
-        string password = default("Redpine"); 
+        string username = default("");
+        string password = default(""); 
         
         // Driver Mode:
         // 1  END-TO-END mode, 
