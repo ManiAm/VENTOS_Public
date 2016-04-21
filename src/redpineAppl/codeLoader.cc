@@ -262,38 +262,33 @@ void codeLoader::init_board()
         t.join();
     });
 
+    std::cout << std::endl;
+
+    // clear the worker thread vector
+    workers.clear();
+
+    // start 1609 stack in WAVE mode
+    for(auto &board : IMX_board)
+    {
+        workers.push_back(std::thread([=]() {  // pass by value
+            printf(">>> Start 1609 stack in WAVE mode at %s ... \n", board->getHost().c_str());
+            std::cout.flush();
+
+            board->run_command("cd /home/dsrc/release", false);
+            board->run_command("sudo ./rsi_1609", true);
+        }));
+    }
+
+    // wait for all threads to finish
+    std::for_each(workers.begin(), workers.end(), [](std::thread &t) {
+        t.join();
+    });
+
 
 
 
 
     std::cout << "yeayy! \n" << std::flush;
-
-    //IMX_board[0]->interactive_shell();
-
-    // start 1609 stack in WAVE mode
-    //IMX_board[0]->run_command("sudo /home/dsrc/release/rsi_1609");
-
-
-    //    std::vector<sftp_attributes> dirListings = IMX_board[0]->listDir("/home/dsrc/source/sample_apps");
-    //
-    //    for(auto &i : dirListings)
-    //    {
-    //        printf("%-30s  %u  %10llu  %.8o  %s(%d)  %s(%d)  %-15u  %-15lu  %-15u \n",
-    //                i->name,
-    //                i->type,
-    //                (long long unsigned int) i->size,
-    //                i->permissions,
-    //                i->owner,
-    //                i->uid,
-    //                i->group,
-    //                i->gid,
-    //                i->atime,
-    //                i->createtime,
-    //                i->mtime);
-    //
-    //        sftp_attributes_free(i);
-    //    }
-    //    std::cout.flush();
 
 
     // copy all new/modified files in local directory to remote directory
