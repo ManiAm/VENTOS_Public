@@ -36,13 +36,15 @@
 #include "SSH.h"
 #include <fstream>
 #include "utf8.h"
+#include <boost/algorithm/string.hpp>
 #include <omnetpp.h>
+
+#define READ_TIMEOUT_MS  2000
 
 namespace VENTOS {
 
-static std::mutex theLock;
-
-std::mutex SSH::theLock;
+std::mutex SSH::lock_prompt;
+std::mutex SSH::lock_print;
 
 SSH::~SSH()
 {
@@ -91,7 +93,7 @@ SSH::SSH(std::string host, int port, std::string username, std::string password)
     int verbosity = SSH_LOG_NOLOG;
     ssh_options_set(SSH_session, SSH_OPTIONS_LOG_VERBOSITY, &verbosity);
 
-    printf("  SSH to %s@%s at port %d \n", username.c_str(), host.c_str(), port);
+    printf("    SSH to %s@%s at port %d \n", username.c_str(), host.c_str(), port);
     std::cout.flush();
 
     int rc = ssh_connect(SSH_session);
@@ -107,19 +109,19 @@ SSH::SSH(std::string host, int port, std::string username, std::string password)
     }
 
     // get the protocol version of the session
-    printf("  SSH version @%s: %d \n", host.c_str(), ssh_get_version(SSH_session));
+    printf("    SSH version @%s: %d \n", host.c_str(), ssh_get_version(SSH_session));
     std::cout.flush();
 
     // get the server banner
-    printf("  Server banner @%s: \n      %s \n", host.c_str(), ssh_get_serverbanner(SSH_session));
+    printf("    Server banner @%s: \n        %s \n", host.c_str(), ssh_get_serverbanner(SSH_session));
     std::cout.flush();
 
     // get issue banner
     char *str = ssh_get_issue_banner(SSH_session);
     if(str)
-        std::cout << "Issue banner: " << str << std::endl;
+        std::cout << "    Issue banner: " << str << std::endl;
 
-    printf("  Authenticating to %s ... Please Wait \n", host.c_str());
+    printf("    Authenticating to %s ... Please Wait \n", host.c_str());
     std::cout.flush();
     authenticate(password);
 
@@ -149,7 +151,7 @@ void SSH::checkHost(std::string host)
     for(int i = 0; addr_list[i] != NULL; i++)
         strcpy(IPAddress, inet_ntoa(*addr_list[i]));
 
-    std::cout << "  Pinging " << IPAddress << "\n";
+    std::cout << "    Pinging " << IPAddress << "\n";
     std::cout.flush();
 
     // test if IPAdd is alive?
@@ -280,10 +282,10 @@ void SSH::authenticate(std::string password)
             // if no password is provided, then ask the user
             if(password == "")
             {
-                // only one thread can access this
-                std::lock_guard<std::mutex> lock(theLock);
+                // only one thread should access this
+                std::lock_guard<std::mutex> lock(lock_prompt);
 
-                std::string prompt = "  Password @" + getHost() + ": ";
+                std::string prompt = "    Password @" + getHost() + ": ";
                 password = getpass(prompt.c_str());
             }
 
@@ -302,10 +304,10 @@ void SSH::authenticate(std::string password)
 
         // In SSH2 sometimes we need to ask the password interactively!
         {
-            // only one thread can access this
-            std::lock_guard<std::mutex> lock(theLock);
+            // only one thread should access this
+            std::lock_guard<std::mutex> lock(lock_prompt);
 
-            std::string prompt = "  Password @" + getHost() + ": ";
+            std::string prompt = "    Password @" + getHost() + ": ";
             password = getpass(prompt.c_str());
         }
 
@@ -430,7 +432,7 @@ void SSH::openShell()
 
     // read the greeting message from remote shell but redirect it to /dev/null
     char buffer[256];
-    int nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, 2000);
+    int nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, READ_TIMEOUT_MS);
     while (nbytes > 0)
     {
         if (write(fd, buffer, nbytes) != (unsigned int) nbytes)
@@ -442,7 +444,7 @@ void SSH::openShell()
 
         std::cout.flush();
 
-        nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, 2000);
+        nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, READ_TIMEOUT_MS);
     }
 }
 
@@ -617,29 +619,16 @@ void SSH::run_command(std::string command, bool printOutput)
             throw cRuntimeError("SSH error in writing command to shell");
     }
 
-    int fd = 1;  /*write to standard output*/
-    if(!printOutput)
-    {
-        fd = open("/dev/null", O_WRONLY);
-        if (fd == -1)
-            throw cRuntimeError("Cannot open /dev/null");
-    }
-
     // read the output from remote shell
     char buffer[256];
-    int nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, 2000);
+    int nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, READ_TIMEOUT_MS);
+    std::ostringstream command_output;  // save the command output
     while (nbytes > 0)
     {
-        if (write(fd, buffer, nbytes) != (unsigned int) nbytes)
-        {
-            ssh_channel_close(SSH_channel);
-            ssh_channel_free(SSH_channel);
-            throw cRuntimeError("SSH error in run_command");
-        }
+        for (int ii = 0; ii < nbytes; ii++)
+            command_output << static_cast<char>(buffer[ii]);
 
-        std::cout.flush();
-
-        nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, 2000);
+        nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, READ_TIMEOUT_MS);
     }
 
     if (nbytes < 0)
@@ -647,6 +636,63 @@ void SSH::run_command(std::string command, bool printOutput)
         ssh_channel_close(SSH_channel);
         ssh_channel_free(SSH_channel);
         throw cRuntimeError("SSH error in run_command");
+    }
+
+    last_command_succeeded(command, command_output, printOutput);
+}
+
+
+void SSH::last_command_succeeded(std::string &lastCommand, std::ostringstream &command_output, bool printOutput)
+{
+    {
+        // run echo %? to get the return value
+        std::string command = "echo $? \n";
+        int nbytes = command.size();
+        int nwritten = ssh_channel_write(SSH_channel, command.c_str(), nbytes);
+        if (nwritten != nbytes)
+            throw cRuntimeError("SSH error in writing command to shell");
+    }
+
+    // read the output from remote shell
+    char buffer[256];
+    int nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, READ_TIMEOUT_MS);
+    std::ostringstream out;
+    while (nbytes > 0)
+    {
+        for (int ii = 0; ii < nbytes; ii++)
+            out << static_cast<char>(buffer[ii]);
+
+        nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, READ_TIMEOUT_MS);
+    }
+
+    if (nbytes < 0)
+    {
+        ssh_channel_close(SSH_channel);
+        ssh_channel_free(SSH_channel);
+        throw cRuntimeError("SSH error in run_command");
+    }
+
+    {
+        // only one thread should access this
+        std::lock_guard<std::mutex> lock(lock_print);
+
+        std::string outputStr = command_output.str();
+
+        std::size_t found = out.str().find("1");
+        if (found != std::string::npos)
+            throw cRuntimeError("Command '%s' failed @%s: %s", lastCommand.c_str(), getHost().c_str(), outputStr.c_str());
+        // command succeeded, but we need to check the printOutput flag before printing the command output
+        else if(printOutput)
+        {
+            outputStr = "    " + outputStr;  // add indentation to the first line
+            boost::replace_all(outputStr, "\n", "\n    ");  // add indentation at the beginning of each line
+
+            printf("\n");
+            printf("---[ output of '%s' @%s ]--- \n\n", lastCommand.c_str(), getHost().c_str());
+            printf("%s", outputStr.c_str());
+            printf("\n");
+            std::cout.flush();
+        }
     }
 }
 

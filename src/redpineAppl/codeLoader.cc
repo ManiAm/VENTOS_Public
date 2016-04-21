@@ -206,7 +206,7 @@ void codeLoader::make_connection()
         t.join();
     });
 
-    std::cout << "  Done! \n\n";
+    std::cout << "    Done! \n\n";
     std::cout.flush();
 }
 
@@ -253,7 +253,7 @@ void codeLoader::init_board()
             std::cout.flush();
 
             board->run_command("cd /home/dsrc/release", false);
-            board->run_command("sudo ./" + initScriptName, false);
+            board->run_command("sudo ./" + initScriptName, true);
         }));
     }
 

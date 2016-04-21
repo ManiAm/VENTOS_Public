@@ -64,9 +64,11 @@ private:
     int verify_knownhost();
     void createSession_SFTP();
     void openShell();
+    void last_command_succeeded(std::string &, std::ostringstream &, bool);
 
 private:
-    static std::mutex theLock;
+    static std::mutex lock_prompt;
+    static std::mutex lock_print;
 
     std::string this_host;
     ssh_session SSH_session;
