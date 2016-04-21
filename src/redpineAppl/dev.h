@@ -46,6 +46,9 @@ public:
     virtual void handleMessage(cMessage *msg);
     virtual void receiveSignal(cComponent *, simsignal_t, long);
 
+public:
+    void substituteParams(std::string &);
+
 private:
     typedef BaseApplLayer super;
 

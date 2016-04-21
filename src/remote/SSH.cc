@@ -42,11 +42,17 @@ namespace VENTOS {
 
 SSH::~SSH()
 {
-    // free SFTP session first
+    if(SSH_channel)
+    {
+        ssh_channel_send_eof(SSH_channel);
+        ssh_channel_close(SSH_channel);
+        ssh_channel_free(SSH_channel);
+    }
+
     if(SFTP_session)
         sftp_free(SFTP_session);
 
-    // then free SSH session
+    // free SSH session at the end
     if(SSH_session)
     {
         ssh_disconnect(SSH_session);
@@ -92,7 +98,7 @@ SSH::SSH(std::string host, int port, std::string username, std::string password)
     std::cout.flush();
 
     // get the server banner
-    printf("  Server banner @%s: %s \n", host.c_str(), ssh_get_serverbanner(SSH_session));
+    printf("  Server banner @%s: \n    %s \n", host.c_str(), ssh_get_serverbanner(SSH_session));
     std::cout.flush();
 
     // get issue banner
@@ -104,16 +110,11 @@ SSH::SSH(std::string host, int port, std::string username, std::string password)
     std::cout.flush();
     authenticate(password);
 
-    SFTP_session = sftp_new(SSH_session);
-    if (SFTP_session == NULL)
-        throw cRuntimeError("Error allocating SFTP session: %s", ssh_get_error(SSH_session));
+    // create a new SFTP session for file transfer
+    createSession_SFTP();
 
-    rc = sftp_init(SFTP_session);
-    if (rc != SSH_OK)
-    {
-        sftp_free(SFTP_session);
-        throw cRuntimeError("Error initializing SFTP session: %s.", ssh_get_error(SFTP_session));
-    }
+    // create a new channel and open shell to run commands
+    openShell();
 }
 
 
@@ -357,46 +358,86 @@ int SSH::authenticate_kbdint()
 }
 
 
-void SSH::copyFile_SCP(boost::filesystem::path source, boost::filesystem::path dest)
+void SSH::createSession_SFTP()
 {
     ASSERT(SSH_session);
 
-    // make sure file at 'source' exists
-    if (!boost::filesystem::exists(source))
-        throw cRuntimeError("File %s not found!", source.c_str());
+    SFTP_session = sftp_new(SSH_session);
+    if (SFTP_session == NULL)
+        throw cRuntimeError("Error allocating SFTP session: %s", ssh_get_error(SSH_session));
 
-    ssh_scp SCP_session = ssh_scp_new(SSH_session, SSH_SCP_WRITE | SSH_SCP_RECURSIVE, dest.c_str());
-    if (SCP_session == NULL)
-        throw cRuntimeError("Error allocating SCP session: %s", ssh_get_error(SSH_session));
-
-    int rc = ssh_scp_init(SCP_session);
+    int rc = sftp_init(SFTP_session);
     if (rc != SSH_OK)
     {
-        ssh_scp_free(SCP_session);
-        throw cRuntimeError("Error initializing SCP session: %s.", ssh_get_error(SCP_session));
+        sftp_free(SFTP_session);
+        throw cRuntimeError("Error initializing SFTP session: %s.", ssh_get_error(SFTP_session));
     }
-
-    // read file contents into a string
-    std::ifstream ifs(source.c_str());
-    std::string content( (std::istreambuf_iterator<char>(ifs) ),
-            (std::istreambuf_iterator<char>()    ) );
-    int length = content.size();
-
-    std::string fileName = source.filename().string();
-    rc = ssh_scp_push_file(SCP_session, fileName.c_str(), length, S_IRWXU);
-    if (rc != SSH_OK)
-        throw cRuntimeError("Can't open remote file: %s", ssh_get_error(SSH_session));
-
-    rc = ssh_scp_write(SCP_session, content.c_str(), length);
-    if (rc != SSH_OK)
-        throw cRuntimeError("Can't write to remote file: %s", ssh_get_error(SSH_session));
-
-    ssh_scp_close(SCP_session);
-    ssh_scp_free(SCP_session);
 }
 
 
-void SSH::copyFile_SFTP(boost::filesystem::path source, boost::filesystem::path dest)
+void SSH::openShell()
+{
+    ASSERT(SSH_session);
+
+    printf("  Opening a remote shell @%s \n", getHost().c_str());
+    std::cout.flush();
+
+    SSH_channel = ssh_channel_new(SSH_session);
+    if (SSH_channel == NULL)
+        throw cRuntimeError("SSH error in openShell");
+
+    int rc = ssh_channel_open_session(SSH_channel);
+    if (rc != SSH_OK)
+    {
+        ssh_channel_free(SSH_channel);
+        throw cRuntimeError("SSH error in openShell");
+    }
+
+    rc = ssh_channel_request_pty(SSH_channel);
+    if (rc != SSH_OK)
+    {
+        ssh_channel_free(SSH_channel);
+        throw cRuntimeError("SSH error in openShell");
+    }
+
+    rc = ssh_channel_change_pty_size(SSH_channel, 80, 24);
+    if (rc != SSH_OK)
+    {
+        ssh_channel_free(SSH_channel);
+        throw cRuntimeError("SSH error in openShell");
+    }
+
+    rc = ssh_channel_request_shell(SSH_channel);
+    if (rc != SSH_OK)
+    {
+        ssh_channel_free(SSH_channel);
+        throw cRuntimeError("SSH error in openShell");
+    }
+
+    int fd = open("/dev/null", O_WRONLY);
+    if (fd == -1)
+        throw cRuntimeError("Cannot open /dev/null");
+
+    // read the greeting message from remote shell but redirect it to /dev/null
+    char buffer[256];
+    int nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, 2000);
+    while (nbytes > 0)
+    {
+        if (write(fd, buffer, nbytes) != (unsigned int) nbytes)
+        {
+            ssh_channel_close(SSH_channel);
+            ssh_channel_free(SSH_channel);
+            throw cRuntimeError("SSH error in run_command");
+        }
+
+        std::cout.flush();
+
+        nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, 2000);
+    }
+}
+
+
+void SSH::copyFile_SFTP(boost::filesystem::path source, boost::filesystem::path remote_dir)
 {
     ASSERT(SSH_session);
     ASSERT(SFTP_session);
@@ -411,7 +452,35 @@ void SSH::copyFile_SFTP(boost::filesystem::path source, boost::filesystem::path 
             (std::istreambuf_iterator<char>()    ) );
     int length = content.size();
 
-    boost::filesystem::path remoteFile = dest / source.filename();
+    boost::filesystem::path remoteFile = remote_dir / source.filename();
+    int access_type = O_WRONLY | O_CREAT | O_TRUNC;
+    sftp_file file = sftp_open(SFTP_session, remoteFile.c_str(), access_type, S_IRWXU);
+    if (file == NULL)
+        throw cRuntimeError("Can't open file for writing: %s", ssh_get_error(SSH_session));
+
+    int nwritten = sftp_write(file, content.c_str(), length);
+    if (nwritten != length)
+        throw cRuntimeError("Can't write data to file: %s", ssh_get_error(SSH_session));
+
+    int rc = sftp_close(file);
+    if (rc != SSH_OK)
+        throw cRuntimeError("Can't close the written file: %s", ssh_get_error(SSH_session));
+}
+
+
+void SSH::copyFileStr_SFTP(std::string fileName, std::string content, boost::filesystem::path remote_dir)
+{
+    ASSERT(SSH_session);
+    ASSERT(SFTP_session);
+
+    int length = content.size();
+    if(length <= 0)
+        throw cRuntimeError("content length should be > 0");
+
+    if(fileName == "")
+        throw cRuntimeError("fileName is empty!");
+
+    boost::filesystem::path remoteFile = remote_dir / fileName;
     int access_type = O_WRONLY | O_CREAT | O_TRUNC;
     sftp_file file = sftp_open(SFTP_session, remoteFile.c_str(), access_type, S_IRWXU);
     if (file == NULL)
@@ -428,12 +497,12 @@ void SSH::copyFile_SFTP(boost::filesystem::path source, boost::filesystem::path 
 
 
 // get the remote directory content --list both files and directories
-std::vector<sftp_attributes> SSH::listDir(boost::filesystem::path dirpath)
+std::vector<sftp_attributes> SSH::listDir(boost::filesystem::path remote_dir)
 {
     ASSERT(SSH_session);
     ASSERT(SFTP_session);
 
-    sftp_dir dir = sftp_opendir(SFTP_session, dirpath.c_str());
+    sftp_dir dir = sftp_opendir(SFTP_session, remote_dir.c_str());
     if (!dir)
         throw cRuntimeError("Directory not opened: %s", ssh_get_error(SSH_session));
 
@@ -462,7 +531,7 @@ std::vector<sftp_attributes> SSH::listDir(boost::filesystem::path dirpath)
 
 
 // copy all new/modified files in local directory to remote directory
-void SSH::syncDir(boost::filesystem::path source, boost::filesystem::path destination)
+void SSH::syncDir(boost::filesystem::path source, boost::filesystem::path remote_dir)
 {
     ASSERT(SSH_session);
     ASSERT(SFTP_session);
@@ -482,7 +551,7 @@ void SSH::syncDir(boost::filesystem::path source, boost::filesystem::path destin
         localDirListing.push_back((*i));
 
     // get the list of files in remote directory
-    std::vector<sftp_attributes> remoteDirListing = listDir(destination);
+    std::vector<sftp_attributes> remoteDirListing = listDir(remote_dir);
 
     // iterate over local files
     std::vector<boost::filesystem::path> needCopy;
@@ -518,31 +587,24 @@ void SSH::syncDir(boost::filesystem::path source, boost::filesystem::path destin
 
     // copy all new/modified files to the remote dir
     for(auto &i : needCopy)
-        copyFile_SFTP(i, destination);
+        copyFile_SFTP(i, remote_dir);
 }
 
 
 void SSH::run_command(std::string command, bool printOutput)
 {
-    ASSERT(SSH_session);
+    ASSERT(SSH_channel);
 
-    ssh_channel channel = ssh_channel_new(SSH_session);
-    if (channel == NULL)
-        throw cRuntimeError("SSH error in run_command");
+    if(command == "")
+        throw cRuntimeError("command is empty!");
 
-    int rc = ssh_channel_open_session(channel);
-    if (rc != SSH_OK)
     {
-        ssh_channel_free(channel);
-        throw cRuntimeError("SSH error in run_command");
-    }
-
-    rc = ssh_channel_request_exec(channel, command.c_str());
-    if (rc != SSH_OK)
-    {
-        ssh_channel_close(channel);
-        ssh_channel_free(channel);
-        throw cRuntimeError("SSH error in run_command_thread");
+        // run the command in shell
+        char buffer[1000];
+        int nbytes = sprintf (buffer, "%s \n", command.c_str());
+        int nwritten = ssh_channel_write(SSH_channel, buffer, nbytes);
+        if (nwritten != nbytes)
+            throw cRuntimeError("SSH error in writing command to shell");
     }
 
     int fd = 1;  /*write to standard output*/
@@ -553,31 +615,29 @@ void SSH::run_command(std::string command, bool printOutput)
             throw cRuntimeError("Cannot open /dev/null");
     }
 
+    // read the output from remote shell
     char buffer[256];
-    int nbytes = ssh_channel_read(channel, buffer, sizeof(buffer), 0);
+    int nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, 2000);
     while (nbytes > 0)
     {
         if (write(fd, buffer, nbytes) != (unsigned int) nbytes)
         {
-            ssh_channel_close(channel);
-            ssh_channel_free(channel);
-            throw cRuntimeError("SSH error in run_command_thread");
+            ssh_channel_close(SSH_channel);
+            ssh_channel_free(SSH_channel);
+            throw cRuntimeError("SSH error in run_command");
         }
 
-        nbytes = ssh_channel_read(channel, buffer, sizeof(buffer), 0);
+        std::cout.flush();
+
+        nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, 2000);
     }
 
     if (nbytes < 0)
     {
-        ssh_channel_close(channel);
-        ssh_channel_free(channel);
-        throw cRuntimeError("SSH error in run_command_thread");
+        ssh_channel_close(SSH_channel);
+        ssh_channel_free(SSH_channel);
+        throw cRuntimeError("SSH error in run_command");
     }
-
-    ssh_channel_send_eof(channel);
-    ssh_channel_close(channel);
-    ssh_channel_free(channel);
 }
 
 }
-

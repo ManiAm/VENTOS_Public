@@ -27,6 +27,8 @@
 
 #include "codeLoader.h"
 #include <thread>
+#include <fstream>
+#include "dev.h"
 
 namespace VENTOS {
 
@@ -218,7 +220,18 @@ void codeLoader::init_board()
     {
         printf(">>> Copying the init script to %s:%s ... ", board->getHost().c_str(), destDir.c_str());
         std::cout.flush();
-        board->copyFile_SFTP(script_FullPath, destDir);
+
+        // read file contents into a string
+        std::ifstream ifs(script_FullPath.c_str());
+        std::string content( (std::istreambuf_iterator<char>(ifs) ),
+                (std::istreambuf_iterator<char>()    ) );
+
+        // replace HW parameters in the init script
+        substituteParams(board->getHost(), content);
+
+        // do the copying
+        board->copyFileStr_SFTP("VENTOS_Start_WAVE", content, destDir);
+
         printf("Done!\n");
         std::cout.flush();
     }
@@ -234,7 +247,9 @@ void codeLoader::init_board()
         workers.push_back(std::thread([=]() {  // pass by value
             printf(">>> Running the init script at %s ... \n", board->getHost().c_str());
             std::cout.flush();
-            board->run_command("sudo /home/dsrc/release/VENTOS_Start_WAVE", true);
+
+            board->run_command("cd /home/dsrc/release", false);
+            board->run_command("sudo ./VENTOS_Start_WAVE", false);
         }));
     }
 
@@ -248,6 +263,8 @@ void codeLoader::init_board()
 
 
     std::cout << "yeayy! \n" << std::flush;
+
+    //IMX_board[0]->interactive_shell();
 
     // start 1609 stack in WAVE mode
     //IMX_board[0]->run_command("sudo /home/dsrc/release/rsi_1609");
@@ -278,6 +295,43 @@ void codeLoader::init_board()
     // copy all new/modified files in local directory to remote directory
     //boost::filesystem::path sampleAppl_FullPath = redpineAppl_FullPath / "sampleAppl";
     //IMX_board[0]->syncDir(sampleAppl_FullPath, "/home/dsrc/source/sample_apps");
+}
+
+
+void codeLoader::substituteParams(std::string host, std::string &content)
+{
+    // looking for the dev
+    cModule *module = simulation.getSystemModule()->getSubmodule("dev", 0);
+    if(module == NULL)
+        throw cRuntimeError("No dev module exists!");
+
+    // how many devs are in the network?
+    int numDev = module->getVectorSize();
+
+    // iterate over modules
+    for(int i = 0; i < numDev; ++i)
+    {
+        // get a pointer to this dev
+        module = simulation.getSystemModule()->getSubmodule("dev", i);
+
+        // get host of this dev
+        std::string devHost = module->par("host").stringValue();
+
+        // found our dev with matching host
+        if(devHost == host)
+        {
+            // get a class pointer
+            dev *devPtr = static_cast<dev *>(module);
+            ASSERT(devPtr);
+
+            // ask the dev to substitute its parameters for us
+            devPtr->substituteParams(content);
+
+            return;
+        }
+    }
+
+    throw cRuntimeError("Cannot find dev with host %s", host.c_str());
 }
 
 }

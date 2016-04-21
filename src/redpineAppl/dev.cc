@@ -70,5 +70,36 @@ void dev::receiveSignal(cComponent *source, simsignal_t signalID, long i)
 
 }
 
+
+void dev::substituteParams(std::string &content)
+{
+    std::ostringstream buffer;
+    buffer << "PARAMS=\"";
+
+    buffer << "driver_mode=" << par("DRIVER_MODE").longValue() << " ";
+    buffer << "firmware_path=$PWD/firmware/" << " ";
+    buffer << "onebox_zone_enabled=0x10001" << " ";
+    buffer << "ta_aggr=" << par("TA_AGGR").longValue() << " ";
+    buffer << "skip_fw_load=" << par("SKIP_FW_LOAD").longValue() << " ";
+    buffer << "fw_load_mode=" << par("FW_LOAD_MODE").longValue() << " ";
+    buffer << "sdio_clock=" << par("SDIO_CLOCK_SPEED").longValue() << " ";
+    buffer << "enable_antenna_diversity=" << par("RSI_ANTENNA_DIVERSITY").longValue() << " ";
+    buffer << "coex_mode=" << par("COEX_MODE").longValue() << " ";
+    // buffer << "ps_handshake_mode=" << par("HANDSHAKE_MODE").longValue() << " ";
+    buffer << "obm_ant_sel_val=" << par("ANT_SEL_VAL").longValue() << " ";
+    buffer << "wlan_rf_power_mode=" << par("WLAN_RF_PWR_MODE").longValue() << " ";
+    buffer << "bt_rf_power_mode=" << par("BT_RF_PWR_MODE").longValue() << " ";
+    buffer << "zigb_rf_power_mode=" << par("ZIGB_RF_PWR_MODE").longValue() << " ";
+    buffer << "country_code=" << par("SET_COUNTRY_CODE").longValue() << " ";
+
+    buffer << "\"";
+
+    const std::string& from = "# [params]";
+    size_t start_pos = content.find(from);
+    if(start_pos == std::string::npos)
+        error("cannot find %s in the string!", from.c_str());
+    content.replace(start_pos, from.length(), buffer.str().c_str());
+}
+
 }
 
