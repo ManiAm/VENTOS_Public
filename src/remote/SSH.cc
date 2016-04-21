@@ -659,10 +659,9 @@ void SSH::run_command(std::string command, bool printOutput)
         command_output = "    " + command_output;  // add indentation to the first line
         boost::replace_all(command_output, "\n", "\n    ");  // add indentation to the rest of the lines
 
-        printf("\n");
         printf("---[ output of '%s' @%s ]--- \n\n", command.c_str(), getHost().c_str());
         printf("%s", command_output.c_str());
-        printf("\n");
+        printf("\n\n");
         std::cout.flush();
     }
 }

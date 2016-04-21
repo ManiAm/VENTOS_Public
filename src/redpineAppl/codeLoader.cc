@@ -213,65 +213,49 @@ void codeLoader::make_connection()
 
 void codeLoader::init_board()
 {
-    // first make sure all pointers are valid
-    for(auto &board : IMX_board)
-        ASSERT(board);
-
-    // copy the init script to all boards
-    boost::filesystem::path script_FullPath = redpineAppl_FullPath / initScriptName;
-    boost::filesystem::path destDir = "/home/dsrc/release";
-    for(auto &board : IMX_board)
-    {
-        printf(">>> Copying the init script to %s:%s ... ", board->getHost().c_str(), destDir.c_str());
-        std::cout.flush();
-
-        // read file contents into a string
-        std::ifstream ifs(script_FullPath.c_str());
-        std::string content( (std::istreambuf_iterator<char>(ifs) ),
-                (std::istreambuf_iterator<char>()    ) );
-
-        // replace HW parameters in the init script
-        substituteParams(board->getHost(), content);
-
-        // do the copying
-        board->copyFileStr_SFTP(initScriptName, content, destDir);
-
-        printf("Done!\n");
-        std::cout.flush();
-    }
-
-    std::cout << std::endl;
-
-    // vector container stores threads
+    // vector container child threads
     std::vector<std::thread> workers;
 
-    // run the script in all boards
     for(auto &board : IMX_board)
     {
+        // make sure the pointer is valid
+        ASSERT(board);
+
         workers.push_back(std::thread([=]() {  // pass by value
-            printf(">>> Running the init script at %s ... \n", board->getHost().c_str());
+
+            //#############################
+            // Step 1: copy the init script
+            //#############################
+            boost::filesystem::path script_FullPath = redpineAppl_FullPath / initScriptName;
+            boost::filesystem::path destDir = "/home/dsrc/release";
+
+            printf(">>> Copying the init script to %s:%s ... \n\n", board->getHost().c_str(), destDir.c_str());
+            std::cout.flush();
+
+            // read file contents into a string
+            std::ifstream ifs(script_FullPath.c_str());
+            std::string content( (std::istreambuf_iterator<char>(ifs) ),
+                    (std::istreambuf_iterator<char>()    ) );
+
+            // replace HW parameters in the init script
+            substituteParams(board->getHost(), content);
+
+            // do the copying
+            board->copyFileStr_SFTP(initScriptName, content, destDir);
+
+            //#######################
+            // Step 2: run the script
+            //#######################
+            printf(">>> Running the init script at %s ... \n\n", board->getHost().c_str());
             std::cout.flush();
 
             board->run_command("cd /home/dsrc/release", false);
             board->run_command("sudo ./" + initScriptName, true);
-        }));
-    }
 
-    // wait for all threads to finish
-    std::for_each(workers.begin(), workers.end(), [](std::thread &t) {
-        t.join();
-    });
-
-    std::cout << std::endl;
-
-    // clear the worker thread vector
-    workers.clear();
-
-    // start 1609 stack in WAVE mode
-    for(auto &board : IMX_board)
-    {
-        workers.push_back(std::thread([=]() {  // pass by value
-            printf(">>> Start 1609 stack in WAVE mode at %s ... \n", board->getHost().c_str());
+            //######################################
+            // Step 3: start 1609 stack in WAVE mode
+            //######################################
+            printf(">>> Start 1609 stack in WAVE mode at %s ... \n\n", board->getHost().c_str());
             std::cout.flush();
 
             board->run_command("cd /home/dsrc/release", false);
