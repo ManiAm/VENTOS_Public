@@ -64,7 +64,8 @@ private:
     int verify_knownhost();
     void createSession_SFTP();
     void openShell();
-    void last_command_succeeded(std::string &, std::ostringstream &, bool);
+    bool last_command_failed();
+    void removeFirstLine(std::string &, std::string &);
 
 private:
     static std::mutex lock_prompt;

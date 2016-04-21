@@ -622,11 +622,11 @@ void SSH::run_command(std::string command, bool printOutput)
     // read the output from remote shell
     char buffer[256];
     int nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, READ_TIMEOUT_MS);
-    std::ostringstream command_output;  // save the command output
+    std::string command_output = "";  // save the command output
     while (nbytes > 0)
     {
         for (int ii = 0; ii < nbytes; ii++)
-            command_output << static_cast<char>(buffer[ii]);
+            command_output += static_cast<char>(buffer[ii]);
 
         nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, READ_TIMEOUT_MS);
     }
@@ -638,17 +638,45 @@ void SSH::run_command(std::string command, bool printOutput)
         throw cRuntimeError("SSH error in run_command");
     }
 
-    last_command_succeeded(command, command_output, printOutput);
+    // get rid of the first line of command_output
+    // it contains the command itself!
+    removeFirstLine(command_output, command);
+
+    if(last_command_failed())
+    {
+        throw cRuntimeError("Command '%s' failed @%s: %s", command.c_str(), getHost().c_str(), command_output.c_str());
+    }
+    // command succeeded, but we need to check the printOutput flag before printing the command output
+    else if(printOutput)
+    {
+        // only one thread should access this
+        std::lock_guard<std::mutex> lock(lock_print);
+
+        // substituting all \r\n with \n
+        // Windows = CR LF, Linux = LF, MAC < 0SX = CR
+        boost::replace_all(command_output, "\r\n", "\n");
+
+        command_output = "    " + command_output;  // add indentation to the first line
+        boost::replace_all(command_output, "\n", "\n    ");  // add indentation to the rest of the lines
+
+        printf("\n");
+        printf("---[ output of '%s' @%s ]--- \n\n", command.c_str(), getHost().c_str());
+        printf("%s", command_output.c_str());
+        printf("\n");
+        std::cout.flush();
+    }
 }
 
 
-void SSH::last_command_succeeded(std::string &lastCommand, std::ostringstream &command_output, bool printOutput)
+bool SSH::last_command_failed()
 {
+    // run echo %? to get the return value
+    std::string new_command = "echo $?";
+
     {
-        // run echo %? to get the return value
-        std::string command = "echo $? \n";
-        int nbytes = command.size();
-        int nwritten = ssh_channel_write(SSH_channel, command.c_str(), nbytes);
+        char buffer[1000];
+        int nbytes = sprintf (buffer, "%s \n", new_command.c_str());
+        int nwritten = ssh_channel_write(SSH_channel, buffer, nbytes);
         if (nwritten != nbytes)
             throw cRuntimeError("SSH error in writing command to shell");
     }
@@ -656,11 +684,11 @@ void SSH::last_command_succeeded(std::string &lastCommand, std::ostringstream &c
     // read the output from remote shell
     char buffer[256];
     int nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, READ_TIMEOUT_MS);
-    std::ostringstream out;
+    std::string new_command_output = "";
     while (nbytes > 0)
     {
         for (int ii = 0; ii < nbytes; ii++)
-            out << static_cast<char>(buffer[ii]);
+            new_command_output += static_cast<char>(buffer[ii]);
 
         nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, READ_TIMEOUT_MS);
     }
@@ -672,28 +700,39 @@ void SSH::last_command_succeeded(std::string &lastCommand, std::ostringstream &c
         throw cRuntimeError("SSH error in run_command");
     }
 
-    {
-        // only one thread should access this
-        std::lock_guard<std::mutex> lock(lock_print);
+    // get rid of the first line of new_command_output
+    // it contains the command itself!
+    removeFirstLine(new_command_output, new_command);
 
-        std::string outputStr = command_output.str();
+    // get the first line
+    std::istringstream inputStr(new_command_output);
+    std::string firstLine = "";
+    std::getline(inputStr, firstLine);
 
-        std::size_t found = out.str().find("1");
-        if (found != std::string::npos)
-            throw cRuntimeError("Command '%s' failed @%s: %s", lastCommand.c_str(), getHost().c_str(), outputStr.c_str());
-        // command succeeded, but we need to check the printOutput flag before printing the command output
-        else if(printOutput)
-        {
-            outputStr = "    " + outputStr;  // add indentation to the first line
-            boost::replace_all(outputStr, "\n", "\n    ");  // add indentation at the beginning of each line
+    std::size_t found = firstLine.find("1");
+    if (found != std::string::npos)
+        return true;
+    else
+        return false;
+}
 
-            printf("\n");
-            printf("---[ output of '%s' @%s ]--- \n\n", lastCommand.c_str(), getHost().c_str());
-            printf("%s", outputStr.c_str());
-            printf("\n");
-            std::cout.flush();
-        }
-    }
+
+void SSH::removeFirstLine(std::string &multiLineStr, std::string &command)
+{
+    std::istringstream inputStr(multiLineStr);
+    std::string line = "";
+
+    std::getline(inputStr, line); // get the first line
+    if(line.find(command) == std::string::npos)
+        throw cRuntimeError("command mismatch!");
+
+    std::getline(inputStr, line); // get the second line
+
+    std::size_t start_pos = multiLineStr.find(line);
+    if (start_pos == std::string::npos)
+        throw cRuntimeError("string is not multi-line!");
+
+    multiLineStr.replace(0, start_pos, "");
 }
 
 }
