@@ -52,6 +52,7 @@ public:
 private:
     void make_connection();
     void init_board(SSH *);
+    double rebootDev(SSH *, int);
     void substituteParams(std::string, std::string &);
 
     void initialize_withTraCI();

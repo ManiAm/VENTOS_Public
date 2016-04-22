@@ -225,13 +225,21 @@ void codeLoader::init_board(SSH *board)
     // make sure the pointer is valid
     ASSERT(board);
 
+    printf(">>> Re-booting device @%s ... Please wait \n\n", board->getHostName().c_str());
+    std::cout.flush();
+
+    double bootDuration_s = rebootDev(board, 20000 /*timeout in ms*/) / 1000.;
+
+    printf(">>> Device @%s is up and running! Boot time ~ %.2f seconds \n\n", board->getHostName().c_str(), bootDuration_s);
+    std::cout.flush();
+
     //#############################
     // Step 1: copy the init script
     //#############################
     boost::filesystem::path script_FullPath = redpineAppl_FullPath / initScriptName;
     boost::filesystem::path destDir = "/home/dsrc/release";
 
-    printf(">>> Copying the init script to %s:%s ... \n\n", board->getHost().c_str(), destDir.c_str());
+    printf(">>> Copying the init script to %s:%s ... \n\n", board->getHostName().c_str(), destDir.c_str());
     std::cout.flush();
 
     // read file contents into a string
@@ -240,7 +248,7 @@ void codeLoader::init_board(SSH *board)
             (std::istreambuf_iterator<char>()    ) );
 
     // replace HW parameters in the init script
-    substituteParams(board->getHost(), content);
+    substituteParams(board->getHostName(), content);
 
     // do the copying
     board->copyFileStr_SFTP(initScriptName, content, destDir);
@@ -248,25 +256,70 @@ void codeLoader::init_board(SSH *board)
     //#######################
     // Step 2: run the script
     //#######################
-    printf(">>> Running the init script at %s ... \n\n", board->getHost().c_str());
+    printf(">>> Running the init script at %s ... \n\n", board->getHostName().c_str());
     std::cout.flush();
 
-    board->run_command("cd /home/dsrc/release", false);
+    board->run_command("cd /home/dsrc/release");
     board->run_command("sudo ./" + initScriptName, true);
 
     //######################################
     // Step 3: start 1609 stack in WAVE mode
     //######################################
-    printf(">>> Start 1609 stack in WAVE mode at %s ... \n\n", board->getHost().c_str());
+    printf(">>> Start 1609 stack in WAVE mode at %s ... \n\n", board->getHostName().c_str());
     std::cout.flush();
 
-    board->run_command("cd /home/dsrc/release", false);
+    board->run_command("cd /home/dsrc/release");
     board->run_command("sudo ./rsi_1609", true);
 
+    //########################################################
+    // Step 4: copying new/modified source codes to remote dir
+    //########################################################
+    printf(">>> Syncing source codes @%s ... \n\n", board->getHostName().c_str());
+    std::cout.flush();
 
-    // copy all new/modified files in local directory to remote directory
-    //boost::filesystem::path sampleAppl_FullPath = redpineAppl_FullPath / "sampleAppl";
-    //IMX_board[0]->syncDir(sampleAppl_FullPath, "/home/dsrc/source/sample_apps");
+    boost::filesystem::path sampleAppl_FullPath = redpineAppl_FullPath / "sampleAppl";
+    IMX_board[0]->syncDir(sampleAppl_FullPath, "/home/dsrc/source/sample_apps");
+}
+
+
+double codeLoader::rebootDev(SSH *board, int timeOut)
+{
+    if(timeOut <= 0)
+        throw cRuntimeError("timeOut value is wrong!");
+
+    typedef std::chrono::high_resolution_clock::time_point Htime_t;
+
+    // start measuring boot time here
+    Htime_t startBoot = std::chrono::high_resolution_clock::now();
+
+    board->run_command("sudo reboot");
+
+    Htime_t startPing = std::chrono::high_resolution_clock::now();
+
+    // keep pinging dev
+    while(true)
+    {
+        // wait for 500ms
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+        std::string cmd = "ping -c 1 -s 1 " + board->getHostAddress() + " > /dev/null 2>&1";
+        int result = system(cmd.c_str());
+        if(result == 0)
+            break;
+
+        Htime_t currentTime = std::chrono::high_resolution_clock::now();
+
+        // waiting too long for dev?
+        std::chrono::duration<double, std::milli> fp_ms = currentTime - startPing;
+        if(fp_ms.count() > timeOut)
+            throw cRuntimeError("dev reboot timeout!");
+    }
+
+    // end measuring boot time here
+    Htime_t endBoot = std::chrono::high_resolution_clock::now();
+
+    std::chrono::duration<double, std::milli> fp_ms = endBoot - startBoot;
+    return fp_ms.count();
 }
 
 
