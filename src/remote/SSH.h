@@ -50,12 +50,13 @@ public:
     SSH(std::string, int, std::string, std::string);
     virtual ~SSH();
 
-    std::string getHost();
+    std::string getHostName();
+    std::string getHostAddress();
     void copyFile_SFTP(boost::filesystem::path, boost::filesystem::path);
     void copyFileStr_SFTP(std::string, std::string, boost::filesystem::path);
     std::vector<sftp_attributes> listDir(boost::filesystem::path dirpath);
     void syncDir(boost::filesystem::path, boost::filesystem::path);
-    void run_command(std::string, bool);
+    void run_command(std::string, bool = false);
 
 private:
     void checkHost(std::string host);
@@ -71,7 +72,8 @@ private:
     static std::mutex lock_prompt;
     static std::mutex lock_print;
 
-    std::string this_host;
+    std::string hostName = "";
+    std::string hostIP = "";
     ssh_session SSH_session;
     sftp_session SFTP_session;
     ssh_channel SSH_channel;

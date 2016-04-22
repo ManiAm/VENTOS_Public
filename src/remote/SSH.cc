@@ -79,8 +79,6 @@ SSH::SSH(std::string host, int port, std::string username, std::string password)
     if(username == "")
         throw cRuntimeError("username is empty!");
 
-    this->this_host = host;
-
     checkHost(host);
 
     SSH_session = ssh_new();
@@ -121,7 +119,7 @@ SSH::SSH(std::string host, int port, std::string username, std::string password)
     if(str)
         std::cout << "    Issue banner: " << str << std::endl;
 
-    printf("    Authenticating to %s ... Please Wait \n", host.c_str());
+    printf("    Authenticating to %s ... Please wait \n", host.c_str());
     std::cout.flush();
     authenticate(password);
 
@@ -133,14 +131,22 @@ SSH::SSH(std::string host, int port, std::string username, std::string password)
 }
 
 
-std::string SSH::getHost()
+std::string SSH::getHostName()
 {
-    return this->this_host;
+    return this->hostName;
+}
+
+
+std::string SSH::getHostAddress()
+{
+    return this->hostIP;
 }
 
 
 void SSH::checkHost(std::string host)
 {
+    this->hostName = host;
+
     struct hostent *he = gethostbyname(host.c_str());  // needs Internet connection to resolve DNS names
     if (he == NULL)
         throw cRuntimeError("hostname %s is invalid!", host.c_str());
@@ -150,6 +156,8 @@ void SSH::checkHost(std::string host)
     char IPAddress[100];
     for(int i = 0; addr_list[i] != NULL; i++)
         strcpy(IPAddress, inet_ntoa(*addr_list[i]));
+
+    this->hostIP = IPAddress;
 
     std::cout << "    Pinging " << IPAddress << "\n";
     std::cout.flush();
@@ -285,7 +293,7 @@ void SSH::authenticate(std::string password)
                 // only one thread should access this
                 std::lock_guard<std::mutex> lock(lock_prompt);
 
-                std::string prompt = "    Password @" + getHost() + ": ";
+                std::string prompt = "    Password @" + hostName + ": ";
                 password = getpass(prompt.c_str());
             }
 
@@ -307,7 +315,7 @@ void SSH::authenticate(std::string password)
             // only one thread should access this
             std::lock_guard<std::mutex> lock(lock_prompt);
 
-            std::string prompt = "    Password @" + getHost() + ": ";
+            std::string prompt = "    Password @" + hostName + ": ";
             password = getpass(prompt.c_str());
         }
 
@@ -644,7 +652,7 @@ void SSH::run_command(std::string command, bool printOutput)
 
     if(last_command_failed())
     {
-        throw cRuntimeError("Command '%s' failed @%s: %s", command.c_str(), getHost().c_str(), command_output.c_str());
+        throw cRuntimeError("Command '%s' failed @%s: %s", command.c_str(), hostName.c_str(), command_output.c_str());
     }
     // command succeeded, but we need to check the printOutput flag before printing the command output
     else if(printOutput)
@@ -659,7 +667,7 @@ void SSH::run_command(std::string command, bool printOutput)
         command_output = "    " + command_output;  // add indentation to the first line
         boost::replace_all(command_output, "\n", "\n    ");  // add indentation to the rest of the lines
 
-        printf("---[ output of '%s' @%s ]--- \n\n", command.c_str(), getHost().c_str());
+        printf("---[ output of '%s' @%s ]--- \n\n", command.c_str(), hostName.c_str());
         printf("%s", command_output.c_str());
         printf("\n\n");
         std::cout.flush();
