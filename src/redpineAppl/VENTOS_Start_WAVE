@@ -5,7 +5,7 @@ if [ "$EUID" -ne 0 ]; then
   exit 1
 fi
 
-echo "Bash version is: $BASH_VERSION$"
+echo "Bash version is: $BASH_VERSION"
 
 ##############
 ## Check OS ##
