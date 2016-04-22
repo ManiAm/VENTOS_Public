@@ -33,7 +33,7 @@ if [ "$EUID" -eq 0 ]; then
 fi
 
 echo ""
-echo "Bash version is: $BASH_VERSION$"
+echo "Bash version is: $BASH_VERSION"
 
 
 ##############
