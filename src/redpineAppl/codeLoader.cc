@@ -133,7 +133,19 @@ void codeLoader::executeEachTimestep()
     if (on && !wasExecuted)
     {
         make_connection();
-        init_board();
+
+        // launch a child thread for each remote dev
+        std::vector<std::thread> workers;
+        for(auto &ii : IMX_board)
+            workers.push_back( std::thread (&codeLoader::init_board, this, ii) );
+
+        // wait for all threads to finish
+        std::for_each(workers.begin(), workers.end(), [](std::thread &t) {
+            t.join();
+        });
+
+
+        std::cout << "yeayy! \n" << std::flush;
 
         wasExecuted = true;
     }
@@ -185,17 +197,14 @@ void codeLoader::make_connection()
         remoteDevs.push_back(*dev);
     }
 
-    // vector container stores threads
+    // vector container to store threads
     std::vector<std::thread> workers;
 
-    for(unsigned int i = 0; i < remoteDevs.size(); i++)
+    // create SSH connection to all remote devices at the same time
+    for(auto &ii : remoteDevs)
     {
         workers.push_back(std::thread([=]() {  // pass by value
-            // delay each new thread
-            std::this_thread::sleep_for(std::chrono::milliseconds(i*50));
-
-            // create SSH connection to the remote device
-            SSH *new_session = new SSH(remoteDevs[i].host, remoteDevs[i].port, remoteDevs[i].username, remoteDevs[i].password);
+            SSH *new_session = new SSH(ii.host, ii.port, ii.username, ii.password);
             ASSERT(new_session);
             IMX_board.push_back(new_session);
         }));
@@ -211,68 +220,48 @@ void codeLoader::make_connection()
 }
 
 
-void codeLoader::init_board()
+void codeLoader::init_board(SSH *board)
 {
-    // vector container child threads
-    std::vector<std::thread> workers;
+    // make sure the pointer is valid
+    ASSERT(board);
 
-    for(auto &board : IMX_board)
-    {
-        // make sure the pointer is valid
-        ASSERT(board);
+    //#############################
+    // Step 1: copy the init script
+    //#############################
+    boost::filesystem::path script_FullPath = redpineAppl_FullPath / initScriptName;
+    boost::filesystem::path destDir = "/home/dsrc/release";
 
-        workers.push_back(std::thread([=]() {  // pass by value
+    printf(">>> Copying the init script to %s:%s ... \n\n", board->getHost().c_str(), destDir.c_str());
+    std::cout.flush();
 
-            //#############################
-            // Step 1: copy the init script
-            //#############################
-            boost::filesystem::path script_FullPath = redpineAppl_FullPath / initScriptName;
-            boost::filesystem::path destDir = "/home/dsrc/release";
+    // read file contents into a string
+    std::ifstream ifs(script_FullPath.c_str());
+    std::string content( (std::istreambuf_iterator<char>(ifs) ),
+            (std::istreambuf_iterator<char>()    ) );
 
-            printf(">>> Copying the init script to %s:%s ... \n\n", board->getHost().c_str(), destDir.c_str());
-            std::cout.flush();
+    // replace HW parameters in the init script
+    substituteParams(board->getHost(), content);
 
-            // read file contents into a string
-            std::ifstream ifs(script_FullPath.c_str());
-            std::string content( (std::istreambuf_iterator<char>(ifs) ),
-                    (std::istreambuf_iterator<char>()    ) );
+    // do the copying
+    board->copyFileStr_SFTP(initScriptName, content, destDir);
 
-            // replace HW parameters in the init script
-            substituteParams(board->getHost(), content);
+    //#######################
+    // Step 2: run the script
+    //#######################
+    printf(">>> Running the init script at %s ... \n\n", board->getHost().c_str());
+    std::cout.flush();
 
-            // do the copying
-            board->copyFileStr_SFTP(initScriptName, content, destDir);
+    board->run_command("cd /home/dsrc/release", false);
+    board->run_command("sudo ./" + initScriptName, true);
 
-            //#######################
-            // Step 2: run the script
-            //#######################
-            printf(">>> Running the init script at %s ... \n\n", board->getHost().c_str());
-            std::cout.flush();
+    //######################################
+    // Step 3: start 1609 stack in WAVE mode
+    //######################################
+    printf(">>> Start 1609 stack in WAVE mode at %s ... \n\n", board->getHost().c_str());
+    std::cout.flush();
 
-            board->run_command("cd /home/dsrc/release", false);
-            board->run_command("sudo ./" + initScriptName, true);
-
-            //######################################
-            // Step 3: start 1609 stack in WAVE mode
-            //######################################
-            printf(">>> Start 1609 stack in WAVE mode at %s ... \n\n", board->getHost().c_str());
-            std::cout.flush();
-
-            board->run_command("cd /home/dsrc/release", false);
-            board->run_command("sudo ./rsi_1609", true);
-        }));
-    }
-
-    // wait for all threads to finish
-    std::for_each(workers.begin(), workers.end(), [](std::thread &t) {
-        t.join();
-    });
-
-
-
-
-
-    std::cout << "yeayy! \n" << std::flush;
+    board->run_command("cd /home/dsrc/release", false);
+    board->run_command("sudo ./rsi_1609", true);
 
 
     // copy all new/modified files in local directory to remote directory
