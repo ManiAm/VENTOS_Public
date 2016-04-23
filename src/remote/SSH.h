@@ -47,19 +47,24 @@ namespace VENTOS {
 class SSH
 {
 public:
-    SSH(std::string, int, std::string, std::string);
+    SSH(std::string, int, std::string, std::string, bool = true);
     virtual ~SSH();
 
     std::string getHostName();
     std::string getHostAddress();
+    int getPort();
+    std::string getUsername();
+    std::string getPassword();
+
     void copyFile_SFTP(boost::filesystem::path, boost::filesystem::path);
     void copyFileStr_SFTP(std::string, std::string, boost::filesystem::path);
     std::vector<sftp_attributes> listDir(boost::filesystem::path dirpath);
     void syncDir(boost::filesystem::path, boost::filesystem::path);
     void run_command(std::string, bool = false);
+    void sendReboot();
 
 private:
-    void checkHost(std::string host);
+    void checkHost(std::string host, bool);
     void authenticate(std::string password);
     int authenticate_kbdint();
     int verify_knownhost();
@@ -72,8 +77,12 @@ private:
     static std::mutex lock_prompt;
     static std::mutex lock_print;
 
-    std::string hostName = "";
-    std::string hostIP = "";
+    std::string dev_hostName = "";
+    std::string dev_hostIP = "";
+    int dev_port = -1;
+    std::string dev_username = "";
+    std::string dev_password = "";
+
     ssh_session SSH_session;
     sftp_session SFTP_session;
     ssh_channel SSH_channel;

@@ -68,7 +68,7 @@ SSH::~SSH()
 
 
 // constructor
-SSH::SSH(std::string host, int port, std::string username, std::string password)
+SSH::SSH(std::string host, int port, std::string username, std::string password, bool printOutput)
 {
     if(host == "")
         throw cRuntimeError("host is empty!");
@@ -79,7 +79,12 @@ SSH::SSH(std::string host, int port, std::string username, std::string password)
     if(username == "")
         throw cRuntimeError("username is empty!");
 
-    checkHost(host);
+    this->dev_hostName = host;
+    this->dev_port = port;;
+    this->dev_username = username;
+    this->dev_password = password;
+
+    checkHost(host, printOutput);
 
     SSH_session = ssh_new();
     if (SSH_session == NULL)
@@ -91,8 +96,11 @@ SSH::SSH(std::string host, int port, std::string username, std::string password)
     int verbosity = SSH_LOG_NOLOG;
     ssh_options_set(SSH_session, SSH_OPTIONS_LOG_VERBOSITY, &verbosity);
 
-    printf("    SSH to %s@%s at port %d \n", username.c_str(), host.c_str(), port);
-    std::cout.flush();
+    if(printOutput)
+    {
+        printf("    SSH to %s@%s at port %d \n", username.c_str(), host.c_str(), port);
+        std::cout.flush();
+    }
 
     int rc = ssh_connect(SSH_session);
     if (rc != SSH_OK)
@@ -106,21 +114,28 @@ SSH::SSH(std::string host, int port, std::string username, std::string password)
         throw cRuntimeError("oh no!");
     }
 
-    // get the protocol version of the session
-    printf("    SSH version @%s: %d \n", host.c_str(), ssh_get_version(SSH_session));
-    std::cout.flush();
+    if(printOutput)
+    {
+        // get the protocol version of the session
+        printf("    SSH version @%s: %d \n", host.c_str(), ssh_get_version(SSH_session));
+        std::cout.flush();
 
-    // get the server banner
-    printf("    Server banner @%s: \n        %s \n", host.c_str(), ssh_get_serverbanner(SSH_session));
-    std::cout.flush();
+        // get the server banner
+        printf("    Server banner @%s: \n        %s \n", host.c_str(), ssh_get_serverbanner(SSH_session));
+        std::cout.flush();
 
-    // get issue banner
-    char *str = ssh_get_issue_banner(SSH_session);
-    if(str)
-        std::cout << "    Issue banner: " << str << std::endl;
+        // get issue banner
+        char *str = ssh_get_issue_banner(SSH_session);
+        if(str)
+            std::cout << "    Issue banner: " << str << std::endl;
+    }
 
-    printf("    Authenticating to %s ... Please wait \n", host.c_str());
-    std::cout.flush();
+    if(printOutput)
+    {
+        printf("    Authenticating to %s ... Please wait \n", host.c_str());
+        std::cout.flush();
+    }
+
     authenticate(password);
 
     // create a new SFTP session for file transfer
@@ -131,22 +146,8 @@ SSH::SSH(std::string host, int port, std::string username, std::string password)
 }
 
 
-std::string SSH::getHostName()
+void SSH::checkHost(std::string host, bool printOutput)
 {
-    return this->hostName;
-}
-
-
-std::string SSH::getHostAddress()
-{
-    return this->hostIP;
-}
-
-
-void SSH::checkHost(std::string host)
-{
-    this->hostName = host;
-
     struct hostent *he = gethostbyname(host.c_str());  // needs Internet connection to resolve DNS names
     if (he == NULL)
         throw cRuntimeError("hostname %s is invalid!", host.c_str());
@@ -157,10 +158,13 @@ void SSH::checkHost(std::string host)
     for(int i = 0; addr_list[i] != NULL; i++)
         strcpy(IPAddress, inet_ntoa(*addr_list[i]));
 
-    this->hostIP = IPAddress;
+    this->dev_hostIP = IPAddress;
 
-    std::cout << "    Pinging " << IPAddress << "\n";
-    std::cout.flush();
+    if(printOutput)
+    {
+        std::cout << "    Pinging " << IPAddress << "\n";
+        std::cout.flush();
+    }
 
     // test if IPAdd is alive?
     std::string cmd = "ping -c 1 -s 1 " + std::string(IPAddress) + " > /dev/null 2>&1";
@@ -293,7 +297,7 @@ void SSH::authenticate(std::string password)
                 // only one thread should access this
                 std::lock_guard<std::mutex> lock(lock_prompt);
 
-                std::string prompt = "    Password @" + hostName + ": ";
+                std::string prompt = "    Password @" + dev_hostName + ": ";
                 password = getpass(prompt.c_str());
             }
 
@@ -315,7 +319,7 @@ void SSH::authenticate(std::string password)
             // only one thread should access this
             std::lock_guard<std::mutex> lock(lock_prompt);
 
-            std::string prompt = "    Password @" + hostName + ": ";
+            std::string prompt = "    Password @" + dev_hostName + ": ";
             password = getpass(prompt.c_str());
         }
 
@@ -652,7 +656,7 @@ void SSH::run_command(std::string command, bool printOutput)
 
     if(last_command_failed())
     {
-        throw cRuntimeError("Command '%s' failed @%s: %s", command.c_str(), hostName.c_str(), command_output.c_str());
+        throw cRuntimeError("Command '%s' failed @%s: %s", command.c_str(), dev_hostName.c_str(), command_output.c_str());
     }
     // command succeeded, but we need to check the printOutput flag before printing the command output
     else if(printOutput)
@@ -667,7 +671,7 @@ void SSH::run_command(std::string command, bool printOutput)
         command_output = "    " + command_output;  // add indentation to the first line
         boost::replace_all(command_output, "\n", "\n    ");  // add indentation to the rest of the lines
 
-        printf("---[ output of '%s' @%s ]--- \n\n", command.c_str(), hostName.c_str());
+        printf("---[ output of '%s' @%s ]--- \n\n", command.c_str(), dev_hostName.c_str());
         printf("%s", command_output.c_str());
         printf("\n\n");
         std::cout.flush();
@@ -740,6 +744,46 @@ void SSH::removeFirstLine(std::string &multiLineStr, std::string &command)
         throw cRuntimeError("string is not multi-line!");
 
     multiLineStr.replace(0, start_pos, "");
+}
+
+
+void SSH::sendReboot()
+{
+    // writing the command without waiting for response
+    char buffer[1000];
+    int nbytes = sprintf (buffer, "%s \n", "sudo reboot");
+    if (ssh_channel_write(SSH_channel, buffer, nbytes) != nbytes)
+        throw cRuntimeError("SSH error in writing command to shell");
+}
+
+
+std::string SSH::getHostName()
+{
+    return this->dev_hostName;
+}
+
+
+std::string SSH::getHostAddress()
+{
+    return this->dev_hostIP;
+}
+
+
+int SSH::getPort()
+{
+    return this->dev_port;
+}
+
+
+std::string SSH::getUsername()
+{
+    return this->dev_username;
+}
+
+
+std::string SSH::getPassword()
+{
+    return this->dev_password;
 }
 
 }

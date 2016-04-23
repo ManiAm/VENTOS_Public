@@ -63,12 +63,15 @@ private:
 
     // NED variables
     TraCI_Commands *TraCI;  // pointer to the TraCI module
-    simsignal_t Signal_executeEachTS;
-    simsignal_t Signal_initialize_withTraCI;
     bool on;
 
     std::string initScriptName = "";
+    boost::filesystem::path remoteDir_Driver = "";
+    boost::filesystem::path remoteDir_SourceCode = "";
     boost::filesystem::path redpineAppl_FullPath;
+
+    simsignal_t Signal_executeEachTS;
+    simsignal_t Signal_initialize_withTraCI;
     std::vector<SSH *> IMX_board;
 };
 

@@ -64,6 +64,10 @@ void codeLoader::initialize(int stage)
 
     if(stage ==0)
     {
+        on = par("on").boolValue();
+        if(!on)
+            return;
+
         // get a pointer to the TraCI module
         cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
         ASSERT(module);
@@ -84,7 +88,13 @@ void codeLoader::initialize(int stage)
         if(initScriptName == "")
             error("initScriptName is empty!");
 
-        on = par("on").boolValue();
+        remoteDir_Driver = par("remoteDir_Driver").stringValue();
+        if(remoteDir_Driver == "")
+            error("remoteDir_Driver is empty!");
+
+        remoteDir_SourceCode = par("remoteDir_SourceCode").stringValue();
+        if(remoteDir_SourceCode == "")
+            error("remoteDir_SourceCode is empty!");
     }
 }
 
@@ -228,18 +238,21 @@ void codeLoader::init_board(SSH *board)
     printf(">>> Re-booting device @%s ... Please wait \n\n", board->getHostName().c_str());
     std::cout.flush();
 
-    double bootDuration_s = rebootDev(board, 20000 /*timeout in ms*/) / 1000.;
+    double duration_ms = rebootDev(board, 50000 /*timeout in ms*/);
 
-    printf(">>> Device @%s is up and running! Boot time ~ %.2f seconds \n\n", board->getHostName().c_str(), bootDuration_s);
+    printf(">>> Device @%s is up and running! Boot time ~ %.2f seconds. Reconnecting ... \n\n", board->getHostName().c_str(), duration_ms / 1000.);
     std::cout.flush();
 
-    //#############################
-    // Step 1: copy the init script
-    //#############################
-    boost::filesystem::path script_FullPath = redpineAppl_FullPath / initScriptName;
-    boost::filesystem::path destDir = "/home/dsrc/release";
+    // re-connect to the dev
+    board = new SSH(board->getHostName(), board->getPort(), board->getUsername(), board->getPassword(), false);
+    ASSERT(board);
 
-    printf(">>> Copying the init script to %s:%s ... \n\n", board->getHostName().c_str(), destDir.c_str());
+    //#################################################
+    // Step 1: copy the init script to remoteDir_Driver
+    //#################################################
+    boost::filesystem::path script_FullPath = redpineAppl_FullPath / initScriptName;
+
+    printf(">>> Copying the init script to %s:%s ... \n\n", board->getHostName().c_str(), remoteDir_Driver.c_str());
     std::cout.flush();
 
     // read file contents into a string
@@ -251,15 +264,15 @@ void codeLoader::init_board(SSH *board)
     substituteParams(board->getHostName(), content);
 
     // do the copying
-    board->copyFileStr_SFTP(initScriptName, content, destDir);
+    board->copyFileStr_SFTP(initScriptName, content, remoteDir_Driver);
 
-    //#######################
-    // Step 2: run the script
-    //#######################
+    //########################################################
+    // Step 2: run the script remotely in the remoteDir_Driver
+    //########################################################
     printf(">>> Running the init script at %s ... \n\n", board->getHostName().c_str());
     std::cout.flush();
 
-    board->run_command("cd /home/dsrc/release");
+    board->run_command("cd " + remoteDir_Driver.string());
     board->run_command("sudo ./" + initScriptName, true);
 
     //######################################
@@ -268,17 +281,11 @@ void codeLoader::init_board(SSH *board)
     printf(">>> Start 1609 stack in WAVE mode at %s ... \n\n", board->getHostName().c_str());
     std::cout.flush();
 
-    board->run_command("cd /home/dsrc/release");
+    board->run_command("cd " + remoteDir_Driver.string());
     board->run_command("sudo ./rsi_1609", true);
 
-    //########################################################
-    // Step 4: copying new/modified source codes to remote dir
-    //########################################################
-    printf(">>> Syncing source codes @%s ... \n\n", board->getHostName().c_str());
-    std::cout.flush();
 
-    boost::filesystem::path sampleAppl_FullPath = redpineAppl_FullPath / "sampleAppl";
-    IMX_board[0]->syncDir(sampleAppl_FullPath, "/home/dsrc/source/sample_apps");
+
 }
 
 
@@ -292,24 +299,27 @@ double codeLoader::rebootDev(SSH *board, int timeOut)
     // start measuring boot time here
     Htime_t startBoot = std::chrono::high_resolution_clock::now();
 
-    board->run_command("sudo reboot");
+    board->sendReboot();
 
     Htime_t startPing = std::chrono::high_resolution_clock::now();
 
     // keep pinging dev
+    bool disconnected = false;
     while(true)
     {
-        // wait for 500ms
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        // wait for 100 ms
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
         std::string cmd = "ping -c 1 -s 1 " + board->getHostAddress() + " > /dev/null 2>&1";
         int result = system(cmd.c_str());
-        if(result == 0)
+        if(!disconnected && result != 0)
+            disconnected = true;
+
+        if(disconnected && result == 0)
             break;
 
+        // waiting too long for dev to boot?
         Htime_t currentTime = std::chrono::high_resolution_clock::now();
-
-        // waiting too long for dev?
         std::chrono::duration<double, std::milli> fp_ms = currentTime - startPing;
         if(fp_ms.count() > timeOut)
             throw cRuntimeError("dev reboot timeout!");
@@ -317,8 +327,8 @@ double codeLoader::rebootDev(SSH *board, int timeOut)
 
     // end measuring boot time here
     Htime_t endBoot = std::chrono::high_resolution_clock::now();
-
     std::chrono::duration<double, std::milli> fp_ms = endBoot - startBoot;
+
     return fp_ms.count();
 }
 
