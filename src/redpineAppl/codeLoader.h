@@ -50,6 +50,7 @@ public:
     virtual void receiveSignal(cComponent *, simsignal_t, long);
 
 private:
+    void start();
     void make_connection();
     void init_board(SSH *);
     double rebootDev(SSH *, int);

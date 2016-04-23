@@ -34,23 +34,6 @@ namespace VENTOS {
 
 Define_Module(VENTOS::codeLoader);
 
-class remoteDev
-{
-public:
-    std::string host;
-    int port;
-    std::string username;
-    std::string password;
-
-    remoteDev(std::string h, int p, std::string ur, std::string pass)
-    {
-        this->host = h;
-        this->port = p;
-        this->username = ur;
-        this->password = pass;
-    }
-};
-
 
 codeLoader::~codeLoader()
 {
@@ -142,23 +125,29 @@ void codeLoader::executeEachTimestep()
     static bool wasExecuted = false;
     if (on && !wasExecuted)
     {
-        make_connection();
-
-        // launch a child thread for each remote dev
-        std::vector<std::thread> workers;
-        for(auto &ii : IMX_board)
-            workers.push_back( std::thread (&codeLoader::init_board, this, ii) );
-
-        // wait for all threads to finish
-        std::for_each(workers.begin(), workers.end(), [](std::thread &t) {
-            t.join();
-        });
-
-
-        std::cout << "yeayy! \n" << std::flush;
-
+        start();
         wasExecuted = true;
     }
+}
+
+
+void codeLoader::start()
+{
+    make_connection();
+
+    // call init_board for each board in a separate child thread
+    std::vector<std::thread> workers;
+    for(auto &ii : IMX_board)
+        workers.push_back( std::thread (&codeLoader::init_board, this, ii) );
+
+    // wait for all threads to finish
+    std::for_each(workers.begin(), workers.end(), [](std::thread &t) {
+        t.join();
+    });
+
+
+
+    std::cout << "yeayy! \n" << std::flush;
 }
 
 
@@ -169,10 +158,6 @@ void codeLoader::make_connection()
         error("numDev should be >= 0");
     else if(numDev == 0)
         return;
-
-    printf("\n");
-    printf(">>> Connecting to '%u' remote devices ... \n", numDev);
-    std::cout.flush();
 
     cModule* parentMod = getParentModule();
     if (!parentMod)
@@ -191,30 +176,26 @@ void codeLoader::make_connection()
         mod->callInitialize();
     }
 
-    std::vector<remoteDev> remoteDevs;
+    printf("\n");
+    printf(">>> Connecting to '%u' remote devices ... \n", numDev);
+    std::cout.flush();
+
+    // vector container to store threads
+    std::vector<std::thread> workers;
+
+    // create SSH connection to all remote devices at the same time
     for(int i = 0; i < numDev; i++)
     {
         // get a reference to dev
         cModule *module = simulation.getSystemModule()->getSubmodule("dev", i);
         ASSERT(module);
 
-        std::string host = module->par("host");
-        int port = module->par("port");
-        std::string username = module->par("username");
-        std::string password = module->par("password");
-
-        remoteDev *dev = new remoteDev(host, port, username, password);
-        remoteDevs.push_back(*dev);
-    }
-
-    // vector container to store threads
-    std::vector<std::thread> workers;
-
-    // create SSH connection to all remote devices at the same time
-    for(auto &ii : remoteDevs)
-    {
         workers.push_back(std::thread([=]() {  // pass by value
-            SSH *new_session = new SSH(ii.host, ii.port, ii.username, ii.password);
+            SSH *new_session = new SSH(module->par("host").stringValue(),
+                    module->par("port").longValue(),
+                    module->par("username").stringValue(),
+                    module->par("password").stringValue());
+
             ASSERT(new_session);
             IMX_board.push_back(new_session);
         }));
@@ -235,10 +216,13 @@ void codeLoader::init_board(SSH *board)
     // make sure the pointer is valid
     ASSERT(board);
 
+    //######################################################
+    // Step 0: reboot the device -- todo: remove this later!
+    //######################################################
     printf(">>> Re-booting device @%s ... Please wait \n\n", board->getHostName().c_str());
     std::cout.flush();
 
-    double duration_ms = rebootDev(board, 50000 /*timeout in ms*/);
+    double duration_ms = rebootDev(board, 40000 /*timeout in ms*/);
 
     printf(">>> Device @%s is up and running! Boot time ~ %.2f seconds. Reconnecting ... \n\n", board->getHostName().c_str(), duration_ms / 1000.);
     std::cout.flush();
@@ -283,6 +267,7 @@ void codeLoader::init_board(SSH *board)
 
     board->run_command("cd " + remoteDir_Driver.string());
     board->run_command("sudo ./rsi_1609", true);
+
 
 
 
