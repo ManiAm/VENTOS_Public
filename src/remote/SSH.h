@@ -61,7 +61,7 @@ public:
     std::vector<sftp_attributes> listDir(boost::filesystem::path dirpath);
     void syncDir(boost::filesystem::path, boost::filesystem::path);
     void run_command(std::string, bool = false);
-    void sendReboot();
+    void run_command_reboot();
 
 private:
     void checkHost(std::string host, bool);

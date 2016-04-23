@@ -276,6 +276,8 @@ void codeLoader::init_board(SSH *board)
 
 double codeLoader::rebootDev(SSH *board, int timeOut)
 {
+    ASSERT(board);
+
     if(timeOut <= 0)
         throw cRuntimeError("timeOut value is wrong!");
 
@@ -284,7 +286,7 @@ double codeLoader::rebootDev(SSH *board, int timeOut)
     // start measuring boot time here
     Htime_t startBoot = std::chrono::high_resolution_clock::now();
 
-    board->sendReboot();
+    board->run_command_reboot();
 
     Htime_t startPing = std::chrono::high_resolution_clock::now();
 

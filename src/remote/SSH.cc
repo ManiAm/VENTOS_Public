@@ -747,9 +747,9 @@ void SSH::removeFirstLine(std::string &multiLineStr, std::string &command)
 }
 
 
-void SSH::sendReboot()
+void SSH::run_command_reboot()
 {
-    // writing the command without waiting for response
+    // sending the command without waiting for response
     char buffer[1000];
     int nbytes = sprintf (buffer, "%s \n", "sudo reboot");
     if (ssh_channel_write(SSH_channel, buffer, nbytes) != nbytes)
