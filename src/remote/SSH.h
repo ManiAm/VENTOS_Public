@@ -60,8 +60,11 @@ public:
     void copyFileStr_SFTP(std::string, std::string, boost::filesystem::path);
     std::vector<sftp_attributes> listDir(boost::filesystem::path dirpath);
     void syncDir(boost::filesystem::path, boost::filesystem::path);
-    void run_command(std::string, bool = false);
-    void run_command_reboot();
+
+    ssh_channel openShell();
+    void closeShell(ssh_channel);
+    void run_command(ssh_channel, std::string, bool = false);
+    void run_command_reboot(ssh_channel SSH_channel);
 
 private:
     void checkHost(std::string host, bool);
@@ -69,8 +72,7 @@ private:
     int authenticate_kbdint();
     int verify_knownhost();
     void createSession_SFTP();
-    void openShell();
-    bool last_command_failed();
+    bool last_command_failed(ssh_channel);
     void removeFirstLine(std::string &, std::string &);
 
 private:
@@ -85,7 +87,6 @@ private:
 
     ssh_session SSH_session;
     sftp_session SFTP_session;
-    ssh_channel SSH_channel;
 };
 
 }

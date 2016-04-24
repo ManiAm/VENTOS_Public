@@ -48,13 +48,6 @@ std::mutex SSH::lock_print;
 
 SSH::~SSH()
 {
-    if(SSH_channel)
-    {
-        ssh_channel_send_eof(SSH_channel);
-        ssh_channel_close(SSH_channel);
-        ssh_channel_free(SSH_channel);
-    }
-
     if(SFTP_session)
         sftp_free(SFTP_session);
 
@@ -140,9 +133,6 @@ SSH::SSH(std::string host, int port, std::string username, std::string password,
 
     // create a new SFTP session for file transfer
     createSession_SFTP();
-
-    // create a new channel and open shell to run commands
-    openShell();
 }
 
 
@@ -402,65 +392,6 @@ void SSH::createSession_SFTP()
 }
 
 
-void SSH::openShell()
-{
-    ASSERT(SSH_session);
-
-    SSH_channel = ssh_channel_new(SSH_session);
-    if (SSH_channel == NULL)
-        throw cRuntimeError("SSH error in openShell");
-
-    int rc = ssh_channel_open_session(SSH_channel);
-    if (rc != SSH_OK)
-    {
-        ssh_channel_free(SSH_channel);
-        throw cRuntimeError("SSH error in openShell");
-    }
-
-    rc = ssh_channel_request_pty(SSH_channel);
-    if (rc != SSH_OK)
-    {
-        ssh_channel_free(SSH_channel);
-        throw cRuntimeError("SSH error in openShell");
-    }
-
-    rc = ssh_channel_change_pty_size(SSH_channel, 80, 24);
-    if (rc != SSH_OK)
-    {
-        ssh_channel_free(SSH_channel);
-        throw cRuntimeError("SSH error in openShell");
-    }
-
-    rc = ssh_channel_request_shell(SSH_channel);
-    if (rc != SSH_OK)
-    {
-        ssh_channel_free(SSH_channel);
-        throw cRuntimeError("SSH error in openShell");
-    }
-
-    int fd = open("/dev/null", O_WRONLY);
-    if (fd == -1)
-        throw cRuntimeError("Cannot open /dev/null");
-
-    // read the greeting message from remote shell but redirect it to /dev/null
-    char buffer[256];
-    int nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, READ_TIMEOUT_MS);
-    while (nbytes > 0)
-    {
-        if (write(fd, buffer, nbytes) != (unsigned int) nbytes)
-        {
-            ssh_channel_close(SSH_channel);
-            ssh_channel_free(SSH_channel);
-            throw cRuntimeError("SSH error in run_command");
-        }
-
-        std::cout.flush();
-
-        nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, READ_TIMEOUT_MS);
-    }
-}
-
-
 void SSH::copyFile_SFTP(boost::filesystem::path source, boost::filesystem::path remote_dir)
 {
     ASSERT(SSH_session);
@@ -615,7 +546,77 @@ void SSH::syncDir(boost::filesystem::path source, boost::filesystem::path remote
 }
 
 
-void SSH::run_command(std::string command, bool printOutput)
+ssh_channel SSH::openShell()
+{
+    ASSERT(SSH_session);
+
+    ssh_channel SSH_channel = ssh_channel_new(SSH_session);
+    if (SSH_channel == NULL)
+        throw cRuntimeError("SSH error in openShell");
+
+    int rc = ssh_channel_open_session(SSH_channel);
+    if (rc != SSH_OK)
+    {
+        ssh_channel_free(SSH_channel);
+        throw cRuntimeError("SSH error in openShell");
+    }
+
+    rc = ssh_channel_request_pty(SSH_channel);
+    if (rc != SSH_OK)
+    {
+        ssh_channel_free(SSH_channel);
+        throw cRuntimeError("SSH error in openShell");
+    }
+
+    rc = ssh_channel_change_pty_size(SSH_channel, 80, 24);
+    if (rc != SSH_OK)
+    {
+        ssh_channel_free(SSH_channel);
+        throw cRuntimeError("SSH error in openShell");
+    }
+
+    rc = ssh_channel_request_shell(SSH_channel);
+    if (rc != SSH_OK)
+    {
+        ssh_channel_free(SSH_channel);
+        throw cRuntimeError("SSH error in openShell");
+    }
+
+    int fd = open("/dev/null", O_WRONLY);
+    if (fd == -1)
+        throw cRuntimeError("Cannot open /dev/null");
+
+    // read the greeting message from remote shell but redirect it to /dev/null
+    char buffer[256];
+    int nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, READ_TIMEOUT_MS);
+    while (nbytes > 0)
+    {
+        if (write(fd, buffer, nbytes) != (unsigned int) nbytes)
+        {
+            ssh_channel_close(SSH_channel);
+            ssh_channel_free(SSH_channel);
+            throw cRuntimeError("SSH error in run_command");
+        }
+
+        nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, READ_TIMEOUT_MS);
+    }
+
+    return SSH_channel;
+}
+
+
+void SSH::closeShell(ssh_channel SSH_channel)
+{
+    if(SSH_channel)
+    {
+        ssh_channel_send_eof(SSH_channel);
+        ssh_channel_close(SSH_channel);
+        ssh_channel_free(SSH_channel);
+    }
+}
+
+
+void SSH::run_command(ssh_channel SSH_channel, std::string command, bool printOutput)
 {
     ASSERT(SSH_channel);
 
@@ -654,7 +655,7 @@ void SSH::run_command(std::string command, bool printOutput)
     // it contains the command itself!
     removeFirstLine(command_output, command);
 
-    if(last_command_failed())
+    if(last_command_failed(SSH_channel))
     {
         throw cRuntimeError("Command '%s' failed @%s: %s", command.c_str(), dev_hostName.c_str(), command_output.c_str());
     }
@@ -679,7 +680,7 @@ void SSH::run_command(std::string command, bool printOutput)
 }
 
 
-bool SSH::last_command_failed()
+bool SSH::last_command_failed(ssh_channel SSH_channel)
 {
     // run echo %? to get the return value
     std::string new_command = "echo $?";
@@ -747,7 +748,7 @@ void SSH::removeFirstLine(std::string &multiLineStr, std::string &command)
 }
 
 
-void SSH::run_command_reboot()
+void SSH::run_command_reboot(ssh_channel SSH_channel)
 {
     // sending the command without waiting for response
     char buffer[1000];
