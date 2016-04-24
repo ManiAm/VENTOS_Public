@@ -216,26 +216,39 @@ void codeLoader::init_board(SSH *board)
     // make sure the pointer is valid
     ASSERT(board);
 
-    //######################################################
-    // Step 0: reboot the device -- todo: remove this later!
-    //######################################################
-    printf(">>> Re-booting device @%s ... Please wait \n\n", board->getHostName().c_str());
-    std::cout.flush();
+    // get a pointer to the dev module
+    cModule *module = findDev(board);
+    ASSERT(module);
 
-    // create a shell
-    ssh_channel rebootShell = board->openShell();
+    std::string applName = module->par("applName").stringValue();
+    if(applName == "")
+        throw cRuntimeError("applName is empty!");
 
-    double duration_ms = board->rebootDev(rebootShell, 40000 /*timeout in ms*/);
+    // get a pointer to the dev class
+    dev *devPtr = static_cast<dev *>(module);
+    ASSERT(devPtr);
 
-    // close the shell
-    board->closeShell(rebootShell);
+    // should we reboot this dev before proceeding?
+    if(module->par("rebootAtStart").boolValue())
+    {
+        printf(">>> Re-booting device @%s ... Please wait \n\n", board->getHostName().c_str());
+        std::cout.flush();
 
-    printf(">>> Device @%s is up and running! Boot time ~ %.2f seconds. Reconnecting ... \n\n", board->getHostName().c_str(), duration_ms / 1000.);
-    std::cout.flush();
+        // create a shell
+        ssh_channel rebootShell = board->openShell();
 
-    // re-connect to the dev
-    board = new SSH(board->getHostName(), board->getPort(), board->getUsername(), board->getPassword(), false);
-    ASSERT(board);
+        double duration_ms = board->rebootDev(rebootShell, 40000 /*timeout in ms*/);
+
+        // close the shell
+        board->closeShell(rebootShell);
+
+        printf(">>> Device @%s is up and running! Boot time ~ %.2f seconds. Reconnecting ... \n\n", board->getHostName().c_str(), duration_ms / 1000.);
+        std::cout.flush();
+
+        // re-connect to the dev
+        board = new SSH(board->getHostName(), board->getPort(), board->getUsername(), board->getPassword(), false);
+        ASSERT(board);
+    }
 
     //#################################################
     // Step 1: copy the init script to remoteDir_Driver
@@ -249,12 +262,6 @@ void codeLoader::init_board(SSH *board)
     std::ifstream ifs(script_FullPath.c_str());
     std::string content( (std::istreambuf_iterator<char>(ifs) ),
             (std::istreambuf_iterator<char>()    ) );
-
-    // get a class pointer
-    cModule *module = findDev(board);
-    ASSERT(module);
-    dev *devPtr = static_cast<dev *>(module);
-    ASSERT(devPtr);
 
     // ask dev to substitute its parameters in the init script
     devPtr->substituteParams(content);
@@ -274,13 +281,6 @@ void codeLoader::init_board(SSH *board)
     //##################################
     // Step 3: remotely compile the code
     //##################################
-    // get the application name
-    module = findDev(board);
-    ASSERT(module);
-    std::string applName = module->par("applName").stringValue();
-    if(applName == "")
-        throw cRuntimeError("applName is empty!");
-
     printf(">>> Compiling %s @%s ... \n\n", applName.c_str(), board->getHostName().c_str());
     std::cout.flush();
 
