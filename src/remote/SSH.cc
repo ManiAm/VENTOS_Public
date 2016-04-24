@@ -248,6 +248,7 @@ void SSH::authenticate(std::string password)
     // Try to authenticate through the "none" method
     int rc = 0;
     do {
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
         rc = ssh_userauth_none(SSH_session, NULL);
     } while (rc == SSH_AUTH_AGAIN);  // In nonblocking mode, you've got to call this again later.
 
