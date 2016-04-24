@@ -50,12 +50,6 @@ public:
     SSH(std::string, int, std::string, std::string, bool = true);
     virtual ~SSH();
 
-    std::string getHostName();
-    std::string getHostAddress();
-    int getPort();
-    std::string getUsername();
-    std::string getPassword();
-
     void copyFile_SFTP(boost::filesystem::path, boost::filesystem::path);
     void copyFileStr_SFTP(std::string, std::string, boost::filesystem::path);
     std::vector<sftp_attributes> listDir(boost::filesystem::path dirpath);
@@ -63,8 +57,14 @@ public:
 
     ssh_channel openShell();
     void closeShell(ssh_channel);
+    double rebootDev(ssh_channel, int);
     void run_command(ssh_channel, std::string, bool = false);
-    void run_command_reboot(ssh_channel SSH_channel);
+
+    std::string getHostName();
+    std::string getHostAddress();
+    int getPort();
+    std::string getUsername();
+    std::string getPassword();
 
 private:
     void checkHost(std::string host, bool);

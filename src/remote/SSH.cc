@@ -35,6 +35,7 @@
 
 #include "SSH.h"
 #include <fstream>
+#include <thread>
 #include "utf8.h"
 #include <boost/algorithm/string.hpp>
 #include <omnetpp.h>
@@ -616,6 +617,56 @@ void SSH::closeShell(ssh_channel SSH_channel)
 }
 
 
+double SSH::rebootDev(ssh_channel SSH_channel, int timeOut)
+{
+    ASSERT(SSH_channel);
+
+    if(timeOut <= 0)
+        throw cRuntimeError("timeOut value is wrong!");
+
+    typedef std::chrono::high_resolution_clock::time_point Htime_t;
+
+    // start measuring boot time here
+    Htime_t startBoot = std::chrono::high_resolution_clock::now();
+
+    // sending the reboot command without waiting for response
+    char buffer[1000];
+    int nbytes = sprintf (buffer, "%s \n", "sudo reboot");
+    if (ssh_channel_write(SSH_channel, buffer, nbytes) != nbytes)
+        throw cRuntimeError("SSH error in writing command to shell");
+
+    Htime_t startPing = std::chrono::high_resolution_clock::now();
+
+    // keep pinging dev
+    bool disconnected = false;
+    while(true)
+    {
+        // wait for 100 ms
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+        std::string cmd = "ping -c 1 -s 1 " + dev_hostIP + " > /dev/null 2>&1";
+        int result = system(cmd.c_str());
+        if(!disconnected && result != 0)
+            disconnected = true;
+
+        if(disconnected && result == 0)
+            break;
+
+        // waiting too long for dev to boot?
+        Htime_t currentTime = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double, std::milli> fp_ms = currentTime - startPing;
+        if(fp_ms.count() > timeOut)
+            throw cRuntimeError("dev reboot timeout!");
+    }
+
+    // end measuring boot time here
+    Htime_t endBoot = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> fp_ms = endBoot - startBoot;
+
+    return fp_ms.count();
+}
+
+
 void SSH::run_command(ssh_channel SSH_channel, std::string command, bool printOutput)
 {
     ASSERT(SSH_channel);
@@ -745,16 +796,6 @@ void SSH::removeFirstLine(std::string &multiLineStr, std::string &command)
         throw cRuntimeError("string is not multi-line!");
 
     multiLineStr.replace(0, start_pos, "");
-}
-
-
-void SSH::run_command_reboot(ssh_channel SSH_channel)
-{
-    // sending the command without waiting for response
-    char buffer[1000];
-    int nbytes = sprintf (buffer, "%s \n", "sudo reboot");
-    if (ssh_channel_write(SSH_channel, buffer, nbytes) != nbytes)
-        throw cRuntimeError("SSH error in writing command to shell");
 }
 
 

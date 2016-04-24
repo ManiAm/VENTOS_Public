@@ -225,7 +225,7 @@ void codeLoader::init_board(SSH *board)
     // create a shell
     ssh_channel rebootShell = board->openShell();
 
-    double duration_ms = rebootDev(board, rebootShell, 40000 /*timeout in ms*/);
+    double duration_ms = board->rebootDev(rebootShell, 40000 /*timeout in ms*/);
 
     // close the shell
     board->closeShell(rebootShell);
@@ -334,52 +334,6 @@ void codeLoader::init_board(SSH *board)
     board->run_command(applShell, "sudo su", false);
     board->run_command(applShell, "cd " + remoteDir_SourceCode.string());
     board->run_command(applShell, "./" + applName, true);  // should not close the shell
-}
-
-
-double codeLoader::rebootDev(SSH *board, ssh_channel SSH_channel, int timeOut)
-{
-    ASSERT(board);
-
-    if(timeOut <= 0)
-        throw cRuntimeError("timeOut value is wrong!");
-
-    typedef std::chrono::high_resolution_clock::time_point Htime_t;
-
-    // start measuring boot time here
-    Htime_t startBoot = std::chrono::high_resolution_clock::now();
-
-    board->run_command_reboot(SSH_channel);
-
-    Htime_t startPing = std::chrono::high_resolution_clock::now();
-
-    // keep pinging dev
-    bool disconnected = false;
-    while(true)
-    {
-        // wait for 100 ms
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-        std::string cmd = "ping -c 1 -s 1 " + board->getHostAddress() + " > /dev/null 2>&1";
-        int result = system(cmd.c_str());
-        if(!disconnected && result != 0)
-            disconnected = true;
-
-        if(disconnected && result == 0)
-            break;
-
-        // waiting too long for dev to boot?
-        Htime_t currentTime = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double, std::milli> fp_ms = currentTime - startPing;
-        if(fp_ms.count() > timeOut)
-            throw cRuntimeError("dev reboot timeout!");
-    }
-
-    // end measuring boot time here
-    Htime_t endBoot = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double, std::milli> fp_ms = endBoot - startBoot;
-
-    return fp_ms.count();
 }
 
 

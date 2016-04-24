@@ -53,7 +53,6 @@ private:
     void start();
     void make_connection();
     void init_board(SSH *);
-    double rebootDev(SSH *, ssh_channel, int);
     cModule * findDev(SSH *);
 
     void initialize_withTraCI();
