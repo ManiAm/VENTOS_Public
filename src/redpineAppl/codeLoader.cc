@@ -276,7 +276,7 @@ void codeLoader::init_board(SSH *board)
     std::cout.flush();
 
     boost::filesystem::path sampleAppl_FullPath = redpineAppl_FullPath / "sampleAppl";
-    //board->syncDir(sampleAppl_FullPath, remoteDir_SourceCode);  // todo
+    board->syncDir(sampleAppl_FullPath, remoteDir_SourceCode);  // todo
 
     //##################################
     // Step 3: remotely compile the code
@@ -288,8 +288,14 @@ void codeLoader::init_board(SSH *board)
     ssh_channel compileShell = board->openShell();
 
     // compile the application source code
-    board->run_command(compileShell, "cd " + remoteDir_SourceCode.string(), false);
-    board->run_command(compileShell, "gcc " + applName + ".c " + "-o " + applName + " ./rsi_wave_api/lib_rsi_wave_api.a" + " ./dsrc/libdsrc.a" + " -I ./dsrc/includes/" + " -lpthread", true);
+    board->run_command(compileShell, "cd " + remoteDir_SourceCode.string(), 2000, false);
+    board->run_command(compileShell, "gcc "
+            + applName + ".c"
+            + " -o " + applName
+            + " ./rsi_wave_api/lib_rsi_wave_api.a"
+            + " ./dsrc/libdsrc.a"
+            + " -I ./dsrc/includes/"
+            + " -lpthread", 2000, true);
 
     // close the shell
     board->closeShell(compileShell);
@@ -303,9 +309,9 @@ void codeLoader::init_board(SSH *board)
     // create a shell for running the init script
     ssh_channel driverShell = board->openShell();
 
-    board->run_command(driverShell, "sudo su", false);
-    board->run_command(driverShell, "cd " + remoteDir_Driver.string(), false);
-    board->run_command(driverShell, "./" + initScriptName, false);
+    board->run_command(driverShell, "sudo su", 2000, false);
+    board->run_command(driverShell, "cd " + remoteDir_Driver.string(), 2000,  false);
+    board->run_command(driverShell, "./" + initScriptName, 2000, false);
 
     // close the shell
     board->closeShell(driverShell);
@@ -319,9 +325,9 @@ void codeLoader::init_board(SSH *board)
     // create a shell for running the 1609
     ssh_channel rsi1609Shell = board->openShell();
 
-    board->run_command(rsi1609Shell, "sudo su", false);
-    board->run_command(rsi1609Shell, "cd " + remoteDir_Driver.string(), false);
-    board->run_command(rsi1609Shell, "if ! pgrep rsi_1609 > /dev/null; then ./rsi_1609; fi", false);  // should not close the shell
+    board->run_command(rsi1609Shell, "sudo su", 2000, false);
+    board->run_command(rsi1609Shell, "cd " + remoteDir_Driver.string(), 2000, false);
+    board->run_command(rsi1609Shell, "if ! pgrep rsi_1609 > /dev/null; then ./rsi_1609; fi", 2000, false);  // should not close the shell
 
     //##############################
     // Step 6: remotely run the code
@@ -332,9 +338,9 @@ void codeLoader::init_board(SSH *board)
     // create a shell for running the code
     ssh_channel applShell = board->openShell();
 
-    board->run_command(applShell, "sudo su", false);
-    board->run_command(applShell, "cd " + remoteDir_SourceCode.string(), false);
-    board->run_command(applShell, "./" + applName, true);  // should not close the shell
+    board->run_command(applShell, "sudo su", 2000, false);
+    board->run_command(applShell, "cd " + remoteDir_SourceCode.string(), 2000, false);
+    board->run_command(applShell, "./" + applName, 2000, true);  // should not close the shell
 }
 
 

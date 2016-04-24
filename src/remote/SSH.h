@@ -58,7 +58,7 @@ public:
     ssh_channel openShell();
     void closeShell(ssh_channel);
     double rebootDev(ssh_channel, int);
-    void run_command(ssh_channel, std::string, bool);
+    void run_command(ssh_channel, std::string, int, bool);
 
     std::string getHostName();
     std::string getHostAddress();
@@ -72,7 +72,7 @@ private:
     int authenticate_kbdint();
     int verify_knownhost();
     void createSession_SFTP();
-    bool last_command_failed(ssh_channel);
+    bool last_command_failed(ssh_channel, int);
     void removeFirstLine(std::string &, std::string &);
 
 private:

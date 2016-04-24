@@ -40,7 +40,6 @@
 #include <boost/algorithm/string.hpp>
 #include <omnetpp.h>
 
-#define READ_TIMEOUT_MS  2000
 
 namespace VENTOS {
 
@@ -84,10 +83,13 @@ SSH::SSH(std::string host, int port, std::string username, std::string password,
     if (SSH_session == NULL)
         throw cRuntimeError("SSH session error!");
 
+    long timeout = 10;  // timeout for the connection in seconds
+    int verbosity = SSH_LOG_NOLOG;
+
     ssh_options_set(SSH_session, SSH_OPTIONS_HOST, host.c_str());
     ssh_options_set(SSH_session, SSH_OPTIONS_PORT, &port);
     ssh_options_set(SSH_session, SSH_OPTIONS_USER, username.c_str());
-    int verbosity = SSH_LOG_NOLOG;
+    ssh_options_set(SSH_session, SSH_OPTIONS_TIMEOUT, &timeout);
     ssh_options_set(SSH_session, SSH_OPTIONS_LOG_VERBOSITY, &verbosity);
 
     if(printOutput)
@@ -98,7 +100,7 @@ SSH::SSH(std::string host, int port, std::string username, std::string password,
 
     int rc = ssh_connect(SSH_session);
     if (rc != SSH_OK)
-        throw cRuntimeError("Error connecting to localhost: %s", ssh_get_error(SSH_session));
+        throw cRuntimeError("Error connecting to dev: %s", ssh_get_error(SSH_session));
 
     // verify the server's identity
     if (verify_knownhost() < 0)
@@ -590,7 +592,7 @@ ssh_channel SSH::openShell()
 
     // read the greeting message from remote shell but redirect it to /dev/null
     char buffer[256];
-    int nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, READ_TIMEOUT_MS);
+    int nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, 2000);
     while (nbytes > 0)
     {
         if (write(fd, buffer, nbytes) != (unsigned int) nbytes)
@@ -600,7 +602,7 @@ ssh_channel SSH::openShell()
             throw cRuntimeError("SSH error in run_command");
         }
 
-        nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, READ_TIMEOUT_MS);
+        nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, 2000);
     }
 
     return SSH_channel;
@@ -668,7 +670,7 @@ double SSH::rebootDev(ssh_channel SSH_channel, int timeOut)
 }
 
 
-void SSH::run_command(ssh_channel SSH_channel, std::string command, bool printOutput)
+void SSH::run_command(ssh_channel SSH_channel, std::string command, int timeOut, bool printOutput)
 {
     ASSERT(SSH_channel);
 
@@ -686,14 +688,14 @@ void SSH::run_command(ssh_channel SSH_channel, std::string command, bool printOu
 
     // read the output from remote shell
     char buffer[256];
-    int nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, READ_TIMEOUT_MS);
+    int nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, timeOut);
     std::string command_output = "";  // save the command output
     while (nbytes > 0)
     {
         for (int ii = 0; ii < nbytes; ii++)
             command_output += static_cast<char>(buffer[ii]);
 
-        nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, READ_TIMEOUT_MS);
+        nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, timeOut);
     }
 
     if (nbytes < 0)
@@ -707,7 +709,7 @@ void SSH::run_command(ssh_channel SSH_channel, std::string command, bool printOu
     // it contains the command itself!
     removeFirstLine(command_output, command);
 
-    if(last_command_failed(SSH_channel))
+    if(last_command_failed(SSH_channel, timeOut))
     {
         throw cRuntimeError("Command '%s' failed @%s: %s", command.c_str(), dev_hostName.c_str(), command_output.c_str());
     }
@@ -732,7 +734,7 @@ void SSH::run_command(ssh_channel SSH_channel, std::string command, bool printOu
 }
 
 
-bool SSH::last_command_failed(ssh_channel SSH_channel)
+bool SSH::last_command_failed(ssh_channel SSH_channel, int timeOut)
 {
     // run echo %? to get the return value
     std::string new_command = "echo $?";
@@ -747,14 +749,14 @@ bool SSH::last_command_failed(ssh_channel SSH_channel)
 
     // read the output from remote shell
     char buffer[256];
-    int nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, READ_TIMEOUT_MS);
+    int nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, timeOut);
     std::string new_command_output = "";
     while (nbytes > 0)
     {
         for (int ii = 0; ii < nbytes; ii++)
             new_command_output += static_cast<char>(buffer[ii]);
 
-        nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, READ_TIMEOUT_MS);
+        nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, timeOut);
     }
 
     if (nbytes < 0)
@@ -790,7 +792,7 @@ void SSH::removeFirstLine(std::string &multiLineStr, std::string &command)
     if(line.find(command) == std::string::npos)
         //throw cRuntimeError("command mismatch!");
 
-    std::getline(inputStr, line); // get the second line
+        std::getline(inputStr, line); // get the second line
 
     std::size_t start_pos = multiLineStr.find(line);
     if (start_pos == std::string::npos)
