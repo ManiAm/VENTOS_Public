@@ -13,6 +13,7 @@ simple dev
         int port = default(22);
         string username = default("");
         string password = default(""); 
+        string applName = default("");
         
         // Driver Mode:
         // 1  END-TO-END mode, 

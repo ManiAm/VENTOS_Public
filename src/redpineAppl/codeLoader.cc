@@ -222,7 +222,13 @@ void codeLoader::init_board(SSH *board)
     printf(">>> Re-booting device @%s ... Please wait \n\n", board->getHostName().c_str());
     std::cout.flush();
 
-    double duration_ms = rebootDev(board, 40000 /*timeout in ms*/);
+    // create a shell
+    ssh_channel rebootShell = board->openShell();
+
+    double duration_ms = rebootDev(board, rebootShell, 40000 /*timeout in ms*/);
+
+    // close the shell
+    board->closeShell(rebootShell);
 
     printf(">>> Device @%s is up and running! Boot time ~ %.2f seconds. Reconnecting ... \n\n", board->getHostName().c_str(), duration_ms / 1000.);
     std::cout.flush();
@@ -244,37 +250,94 @@ void codeLoader::init_board(SSH *board)
     std::string content( (std::istreambuf_iterator<char>(ifs) ),
             (std::istreambuf_iterator<char>()    ) );
 
-    // replace HW parameters in the init script
-    substituteParams(board->getHostName(), content);
+    // get a class pointer
+    cModule *module = findDev(board);
+    ASSERT(module);
+    dev *devPtr = static_cast<dev *>(module);
+    ASSERT(devPtr);
+
+    // ask dev to substitute its parameters in the init script
+    devPtr->substituteParams(content);
 
     // do the copying
     board->copyFileStr_SFTP(initScriptName, content, remoteDir_Driver);
 
-    //########################################################
-    // Step 2: run the script remotely in the remoteDir_Driver
-    //########################################################
-    printf(">>> Running the init script at %s ... \n\n", board->getHostName().c_str());
+    //##################################################################
+    // Step 2: copying new/modified source codes to remoteDir_SourceCode
+    //##################################################################
+    printf(">>> Syncing source codes with %s ... \n\n", board->getHostName().c_str());
     std::cout.flush();
 
-    board->run_command("cd " + remoteDir_Driver.string());
-    board->run_command("sudo ./" + initScriptName, true);
+    boost::filesystem::path sampleAppl_FullPath = redpineAppl_FullPath / "sampleAppl";
+    //board->syncDir(sampleAppl_FullPath, remoteDir_SourceCode);  // todo
 
-    //######################################
-    // Step 3: start 1609 stack in WAVE mode
-    //######################################
-    printf(">>> Start 1609 stack in WAVE mode at %s ... \n\n", board->getHostName().c_str());
+    //##################################
+    // Step 3: remotely compile the code
+    //##################################
+    // get the application name
+    module = findDev(board);
+    ASSERT(module);
+    std::string applName = module->par("applName").stringValue();
+    if(applName == "")
+        throw cRuntimeError("applName is empty!");
+
+    printf(">>> Compiling %s @%s ... \n\n", applName.c_str(), board->getHostName().c_str());
     std::cout.flush();
 
-    board->run_command("cd " + remoteDir_Driver.string());
-    board->run_command("sudo ./rsi_1609", true);
+    // create a shell for compiling the code
+    ssh_channel compileShell = board->openShell();
+
+    // todo: compile the code. return any error
 
 
+    // close the shell
+    board->closeShell(compileShell);
 
+    //########################################################
+    // Step 4: remotely run the script in the remoteDir_Driver
+    //########################################################
+    printf(">>> Running the init script @%s ... \n\n", board->getHostName().c_str());
+    std::cout.flush();
 
+    // create a shell for running the init script
+    ssh_channel driverShell = board->openShell();
+
+    board->run_command(driverShell, "sudo su", false);
+    board->run_command(driverShell, "cd " + remoteDir_Driver.string());
+    board->run_command(driverShell, "./" + initScriptName, false);
+
+    // close the shell
+    board->closeShell(driverShell);
+
+    //###############################################
+    // Step 5: remotely start 1609 stack in WAVE mode
+    //###############################################
+    printf(">>> Start 1609 stack in WAVE mode @%s ... \n\n", board->getHostName().c_str());
+    std::cout.flush();
+
+    // create a shell for running the 1609
+    ssh_channel rsi1609Shell = board->openShell();
+
+    board->run_command(rsi1609Shell, "sudo su", false);
+    board->run_command(rsi1609Shell, "cd " + remoteDir_Driver.string());
+    board->run_command(rsi1609Shell, "if ! pgrep rsi_1609 > \\dev\\null; then \rsi_1609; fi", false);  // should not close the shell
+
+    //##############################
+    // Step 6: remotely run the code
+    //##############################
+    printf(">>> Running %s @%s ... \n\n", applName.c_str(), board->getHostName().c_str());
+    std::cout.flush();
+
+    // create a shell for running the code
+    ssh_channel applShell = board->openShell();
+
+    board->run_command(applShell, "sudo su", false);
+    board->run_command(applShell, "cd " + remoteDir_SourceCode.string());
+    board->run_command(applShell, "./" + applName, true);  // should not close the shell
 }
 
 
-double codeLoader::rebootDev(SSH *board, int timeOut)
+double codeLoader::rebootDev(SSH *board, ssh_channel SSH_channel, int timeOut)
 {
     ASSERT(board);
 
@@ -286,7 +349,7 @@ double codeLoader::rebootDev(SSH *board, int timeOut)
     // start measuring boot time here
     Htime_t startBoot = std::chrono::high_resolution_clock::now();
 
-    board->run_command_reboot();
+    board->run_command_reboot(SSH_channel);
 
     Htime_t startPing = std::chrono::high_resolution_clock::now();
 
@@ -320,8 +383,10 @@ double codeLoader::rebootDev(SSH *board, int timeOut)
 }
 
 
-void codeLoader::substituteParams(std::string host, std::string &content)
+cModule * codeLoader::findDev(SSH *board)
 {
+    ASSERT(board);
+
     // looking for the dev
     cModule *module = simulation.getSystemModule()->getSubmodule("dev", 0);
     if(module == NULL)
@@ -340,20 +405,11 @@ void codeLoader::substituteParams(std::string host, std::string &content)
         std::string devHost = module->par("host").stringValue();
 
         // found our dev with matching host
-        if(devHost == host)
-        {
-            // get a class pointer
-            dev *devPtr = static_cast<dev *>(module);
-            ASSERT(devPtr);
-
-            // ask the dev to substitute its parameters for us
-            devPtr->substituteParams(content);
-
-            return;
-        }
+        if(devHost == board->getHostName())
+            return module;
     }
 
-    throw cRuntimeError("Cannot find dev with host %s", host.c_str());
+    return NULL;
 }
 
 }

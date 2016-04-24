@@ -53,8 +53,8 @@ private:
     void start();
     void make_connection();
     void init_board(SSH *);
-    double rebootDev(SSH *, int);
-    void substituteParams(std::string, std::string &);
+    double rebootDev(SSH *, ssh_channel, int);
+    cModule * findDev(SSH *);
 
     void initialize_withTraCI();
     void executeEachTimestep();
