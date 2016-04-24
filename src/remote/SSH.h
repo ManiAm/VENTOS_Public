@@ -58,7 +58,7 @@ public:
     ssh_channel openShell();
     void closeShell(ssh_channel);
     double rebootDev(ssh_channel, int);
-    void run_command(ssh_channel, std::string, bool = false);
+    void run_command(ssh_channel, std::string, bool);
 
     std::string getHostName();
     std::string getHostAddress();

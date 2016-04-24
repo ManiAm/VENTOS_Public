@@ -569,7 +569,7 @@ ssh_channel SSH::openShell()
         throw cRuntimeError("SSH error in openShell");
     }
 
-    rc = ssh_channel_change_pty_size(SSH_channel, 80, 24);
+    rc = ssh_channel_change_pty_size(SSH_channel, 80 /*cols*/, 30 /*rows*/);
     if (rc != SSH_OK)
     {
         ssh_channel_free(SSH_channel);
@@ -787,7 +787,7 @@ void SSH::removeFirstLine(std::string &multiLineStr, std::string &command)
 
     std::getline(inputStr, line); // get the first line
     if(line.find(command) == std::string::npos)
-        throw cRuntimeError("command mismatch!");
+        //throw cRuntimeError("command mismatch!");
 
     std::getline(inputStr, line); // get the second line
 
