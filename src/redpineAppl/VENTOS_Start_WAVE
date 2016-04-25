@@ -48,8 +48,11 @@ insert_module ()
         base=${i%.*}
         PKG_OK=$(lsmod 2> /dev/null | grep $base)
         if [ "" == "$PKG_OK" ]; then
-            echo "done!"
             sudo insmod $i > /dev/null
+            if [[ $? -ne 0 ]]; then
+                exit 1
+            fi
+            echo "done!"
         else
             echo "ok"
         fi
@@ -92,30 +95,62 @@ echo "ANT_SEL REG value"
 echo "================="
 
 sleep 1
-./onebox_util rpine0 ant_sel 2
-sleep 1
-./onebox_util rpine0 ant_sel 5
 
+./onebox_util rpine0 ant_sel 2
+if [[ $? -ne 0 ]]; then
+    exit 1
+fi
+
+sleep 1
+
+./onebox_util rpine0 ant_sel 5
+if [[ $? -ne 0 ]]; then
+    exit 1
+fi
 
 echo ""
 echo "Next step"
 echo "========="
 
 sleep 0.5
+
 ./onebox_util rpine0 create_vap wifi0 wave
+if [[ $? -ne 0 ]]; then
+    exit 1
+fi
+
 sleep 0.5
 
 sleep 1
+
 ./onebox_util rpine0 set_country 840
+if [[ $? -ne 0 ]]; then
+    exit 1
+fi
+
 sleep 0.5
 
-ifconfig wifi0 up 
-
+ifconfig wifi0 up
+if [[ $? -ne 0 ]]; then
+    exit 1
+fi
 
 echo ""
 echo "Running WAVE"
 echo "============"
+
 iwpriv wifi0 mode 8
+if [[ $? -ne 0 ]]; then
+    exit 1
+fi
+
 ./onebox_util rpine0 set_chwidth 16
+if [[ $? -ne 0 ]]; then
+    exit 1
+fi
+
 ./onebox_util rpine0 set_channel 178
+if [[ $? -ne 0 ]]; then
+    exit 1
+fi
 
