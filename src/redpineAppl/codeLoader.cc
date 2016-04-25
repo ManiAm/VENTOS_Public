@@ -234,13 +234,9 @@ void codeLoader::init_board(SSH *board)
         printf(">>> Re-booting device @%s ... Please wait \n\n", board->getHostName().c_str());
         std::cout.flush();
 
-        // create a shell
-        ssh_channel rebootShell = board->openShell();
-
+        ssh_channel rebootShell = board->openShell();  // open a shell
         double duration_ms = board->rebootDev(rebootShell, 40000 /*timeout in ms*/);
-
-        // close the shell
-        board->closeShell(rebootShell);
+        board->closeShell(rebootShell);  // close the shell
 
         printf(">>> Device @%s is up and running! Boot time ~ %.2f seconds. Reconnecting ... \n\n", board->getHostName().c_str(), duration_ms / 1000.);
         std::cout.flush();
@@ -284,21 +280,16 @@ void codeLoader::init_board(SSH *board)
     printf(">>> Compiling %s @%s ... \n\n", applName.c_str(), board->getHostName().c_str());
     std::cout.flush();
 
-    // create a shell for compiling the code
-    ssh_channel compileShell = board->openShell();
-
-    // compile the application source code
-    board->run_command(compileShell, "cd " + remoteDir_SourceCode.string(), 2000, false);
+    ssh_channel compileShell = board->openShell();  // open a shell
+    board->run_command(compileShell, "cd " + remoteDir_SourceCode.string(), 2, false);
     board->run_command(compileShell, "gcc "
             + applName + ".c"
             + " -o " + applName
             + " ./rsi_wave_api/lib_rsi_wave_api.a"
             + " ./dsrc/libdsrc.a"
             + " -I ./dsrc/includes/"
-            + " -lpthread", 2000, true);
-
-    // close the shell
-    board->closeShell(compileShell);
+            + " -lpthread", 5, true);
+    board->closeShell(compileShell);  // close the shell
 
     //########################################################
     // Step 4: remotely run the script in the remoteDir_Driver
@@ -306,15 +297,11 @@ void codeLoader::init_board(SSH *board)
     printf(">>> Running the init script @%s ... \n\n", board->getHostName().c_str());
     std::cout.flush();
 
-    // create a shell for running the init script
-    ssh_channel driverShell = board->openShell();
-
-    board->run_command(driverShell, "sudo su", 2000, false);
-    board->run_command(driverShell, "cd " + remoteDir_Driver.string(), 2000,  false);
-    board->run_command(driverShell, "./" + initScriptName, 2000, false);
-
-    // close the shell
-    board->closeShell(driverShell);
+    ssh_channel driverShell = board->openShell();  // open a shell
+    board->run_command(driverShell, "sudo su", 2, false);
+    board->run_command(driverShell, "cd " + remoteDir_Driver.string(), 2,  false);
+    board->run_command(driverShell, "./" + initScriptName, 10, true);
+    board->closeShell(driverShell);  // close the shell
 
     //###############################################
     // Step 5: remotely start 1609 stack in WAVE mode
@@ -322,12 +309,10 @@ void codeLoader::init_board(SSH *board)
     printf(">>> Start 1609 stack in WAVE mode @%s ... \n\n", board->getHostName().c_str());
     std::cout.flush();
 
-    // create a shell for running the 1609
-    ssh_channel rsi1609Shell = board->openShell();
-
-    board->run_command(rsi1609Shell, "sudo su", 2000, false);
-    board->run_command(rsi1609Shell, "cd " + remoteDir_Driver.string(), 2000, false);
-    board->run_command(rsi1609Shell, "if ! pgrep rsi_1609 > /dev/null; then ./rsi_1609; fi", 2000, false);  // should not close the shell
+    ssh_channel rsi1609Shell = board->openShell();  // open a shell
+    board->run_command(rsi1609Shell, "sudo su", 2, false);
+    board->run_command(rsi1609Shell, "cd " + remoteDir_Driver.string(), 2, false);
+    board->run_command(rsi1609Shell, "if ! pgrep rsi_1609 > /dev/null; then ./rsi_1609; fi", 10, false);  // should not close this shell
 
     //##############################
     // Step 6: remotely run the code
@@ -335,12 +320,10 @@ void codeLoader::init_board(SSH *board)
     printf(">>> Running %s @%s ... \n\n", applName.c_str(), board->getHostName().c_str());
     std::cout.flush();
 
-    // create a shell for running the code
-    ssh_channel applShell = board->openShell();
-
-    board->run_command(applShell, "sudo su", 2000, false);
-    board->run_command(applShell, "cd " + remoteDir_SourceCode.string(), 2000, false);
-    board->run_command(applShell, "./" + applName, 2000, true);  // should not close the shell
+    ssh_channel applShell = board->openShell();  // open a shell
+    board->run_command(applShell, "sudo su", 2, false);
+    board->run_command(applShell, "cd " + remoteDir_SourceCode.string(), 2, false);
+    //board->run_command(applShell, "./" + applName, 3, true);  // should not close this shell
 }
 
 
