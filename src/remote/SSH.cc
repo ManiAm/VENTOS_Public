@@ -749,14 +749,24 @@ void SSH::run_command(ssh_channel SSH_channel, std::string command, int maxTimeO
         }
     }
 
+    // add two new lines after printing output to improve readability
     if(printOutput)
         printf("\n\n");
 
     // check if this command failed or not!
     if(last_command_failed(SSH_channel))
     {
-        printf("%s \n\n", command_output.c_str());
-        std::cout.flush();
+        // we have already printed the output if printOutput = true
+        if(!printOutput)
+        {
+            // format output
+            command_output = "    " + command_output;
+            boost::replace_all(command_output, "\r\n", "\n");
+            boost::replace_all(command_output, "\n", "\n    ");
+
+            printf("%s \n\n", command_output.c_str());
+            std::cout.flush();
+        }
 
         throw cRuntimeError("Command '%s' failed @%s", command.c_str(), dev_hostName.c_str());
     }

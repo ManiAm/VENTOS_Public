@@ -47,7 +47,7 @@ namespace VENTOS {
 class SSH
 {
 public:
-    SSH(std::string, int, std::string, std::string, bool = true);
+    SSH(std::string, int, std::string, std::string, bool = false);
     virtual ~SSH();
 
     void copyFile_SFTP(boost::filesystem::path, boost::filesystem::path);
@@ -58,7 +58,7 @@ public:
     ssh_channel openShell();
     void closeShell(ssh_channel);
     double rebootDev(ssh_channel, int);
-    void run_command(ssh_channel, std::string, int, bool);
+    void run_command(ssh_channel, std::string, int = 2, bool = false);
 
     std::string getHostName();
     std::string getHostAddress();
