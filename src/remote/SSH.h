@@ -72,10 +72,11 @@ private:
     int authenticate_kbdint();
     int verify_knownhost();
     void createSession_SFTP();
-    bool last_command_failed(ssh_channel, int);
-    void removeFirstLine(std::string &, std::string &);
+    bool last_command_failed(ssh_channel);
 
 private:
+    typedef std::chrono::high_resolution_clock::time_point Htime_t;
+
     static std::mutex lock_prompt;
     static std::mutex lock_print;
 
