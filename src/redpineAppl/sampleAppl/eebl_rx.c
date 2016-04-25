@@ -1,64 +1,68 @@
+
+#define _BSD_SOURCE
+
 #include <signal.h>
 #include <pthread.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <sys/fcntl.h>
 #include "rsi_wave_util.h"
 #include "BSM_create.h"
-#include <time.h>
+#include <sys/time.h>
 
 
-#define OPERATING_CLASS   17
-#define CONTROL_CHANNEL   178
-#define CCH_INTERVEL      50
-#define SCH_INTERVEL      50
-#define SYNC_TOLERANCE    02
-#define MAX_SWITCH_TIME   02
-#define ADD               01
-#define DELETE            02
-#define CCH_INTERVAL 1
-#define SCH_INTERVAL 2
-#define CCH_AND_SCH_INTERVAL 3
-#define RSI_CCH_SERVICE_REQUEST 0x19
-#define RSI_USER_SERVICE_REQUEST 0x20
-#define RSI_WSMP_SEND 	       0x21
-#define RSI_AVAIL_SRVC          0x27
-#define SUCCESSS           0
-#define FAILURE            -1
-#define AVAILABLE          0
-#define	REJECTED           1
+#define OPERATING_CLASS            17
+#define CONTROL_CHANNEL            178
+#define CCH_INTERVEL               50
+#define SCH_INTERVEL               50
+#define SYNC_TOLERANCE             02
+#define MAX_SWITCH_TIME            02
+#define ADD                        01
+#define DELETE                     02
+#define CCH_INTERVAL               1
+#define SCH_INTERVAL               2
+#define CCH_AND_SCH_INTERVAL       3
+#define RSI_CCH_SERVICE_REQUEST    0x19
+#define RSI_USER_SERVICE_REQUEST   0x20
+#define RSI_WSMP_SEND 	           0x21
+#define RSI_AVAIL_SRVC             0x27
+#define SUCCESSS                   0
+#define FAILURE                    -1
+#define AVAILABLE                  0
+#define	REJECTED                   1
 
+
+void sigint(int sigint);
 void process_wsmp(char *buf,int len);
 asn_dec_rval_t J2735_decode(void* ,int );
-void sigint(int sigint);
-void * message_tx();
-pthread_t thread_id_tx;
-pthread_t thread_id_rx;
-bsm_t	*bsm_message = NULL;
 
-char *buff_rx = NULL;
-char *pay_load = NULL;
+// defined globally to be accessible in sigint
+int gpio6 = 6;
 int lsi = 0;
-char psid[4]={0x20};
-waveShortMessage *wsm = NULL;
+char psid[4] = {0x20};
+char *pay_load = NULL;
+bsm_t *bsm_message = NULL;
+blob_t *blob = NULL;
+char *buff_rx = NULL;
 
 
 int main(void)
 {
-    int status = 0;
-    void* res = 0;
-    int pay_load_len = 0;
-    int i = 0;
-    struct timeval tv;
-    time_t current_time = 0;
-    char peer_mac_address[6] = {0xff,0xff,0xff,0xff,0xff,0xff};
-    blob_t *blob = NULL;
-
     signal(SIGINT, sigint);
 
+    // un-exporting at the beginning
+    int fd = open("/sys/class/gpio/unexport", O_WRONLY);
+    if(fd == -1)
+        perror("closed");
+    char status_buf[80] = {0};
+    sprintf(status_buf, "%d", gpio6);
+    write(fd, status_buf, strlen(status_buf));
+    close(fd);
+
     printf("Initialization Queue... ");
-    status = rsi_wavecombo_msgqueue_init();
+    int status = rsi_wavecombo_msgqueue_init();
     if(status == FAILURE)
         return 1;
 
@@ -74,17 +78,17 @@ int main(void)
         return 1;
     printf("Done! \n");
 
-    printf("Setting UTC... ");
-    status = rsi_wavecombo_set_utc();
-    if(status == FAILURE)
-        return 1;
-    printf("Done! \n");
+    //    printf("Setting UTC... ");
+    //    status = rsi_wavecombo_set_utc();
+    //    if(status == FAILURE)
+    //        return 1;
+    //    printf("Done! \n");
 
     lsi = rsi_wavecombo_local_service_index_request();
     if(lsi <= 0)
         return 1;
 
-    status =  rsi_wavecombo_wsmp_queue_init(lsi);
+    status = rsi_wavecombo_wsmp_queue_init(lsi);
 
     printf("Sending WSMP service request... ");
     status = rsi_wavecombo_wsmp_service_req(ADD, lsi, psid);
@@ -98,10 +102,9 @@ int main(void)
         return 1;
     printf("Done! \n");
 
-
-    //pthread_create(&thread_id_rx,NULL,message_rx,NULL);
-
-    /****************************************		****************/
+    // ##########################
+    // start of memory allocation
+    // ##########################
 
     pay_load = malloc(512);
     if(!pay_load)
@@ -118,26 +121,58 @@ int main(void)
         perror("malloc");
     memset(bsm_message,0,sizeof(sizeof(bsm_t)));
 
-    // export the gpio and set the direction only once
-    system("echo 6 > /sys/class/gpio/export");
-    system("echo \"out\" > /sys/class/gpio/gpio6/direction");
+    // ########################
+    // end of memory allocation
+    // ########################
+
+    printf("Exporting the GPIO pin... ");
+    fd = open("/sys/class/gpio/export", O_WRONLY);
+    if(fd == -1)
+        perror("open:export");
+    sprintf(status_buf, "%d", gpio6);
+    write(fd, status_buf, strlen(status_buf));
+    close(fd);
+    printf("Done! \n");
+
+    printf("Feeding direction 'out' to GPIO... ");
+    sprintf(status_buf, "/sys/class/gpio/gpio%d/direction", gpio6);
+    fd = open(status_buf, O_WRONLY);
+    if(fd == -1)
+        perror("open:direction");
+    write(fd, "out", 3);
+    close(fd);
+    printf("Done! \n");
+
+    buff_rx = malloc(1300);
+    if(!buff_rx)
+        perror("malloc");
 
     while(1)
     {
-        int len, length;
-        buff_rx = malloc(1300);
-        if(!buff_rx)
-            perror("malloc");
-
-        while(1)
+        printf("Listening... \n\n");
+        int length = rsi_wavecombo_receive_wsmp_packet(buff_rx, 1300);
+        if(length > 0)
         {
-            length = rsi_wavecombo_receive_wsmp_packet(buff_rx, 1300);
-            if(length > 0)
-                process_wsmp(buff_rx,length);
+            printf("EEBL message received of size %d... \n", length);
+            process_wsmp(buff_rx, length);
         }
     }
 
-    free(buff_rx);
+    // ############
+    // finishing up
+    // ############
+
+    if(buff_rx)
+        free(buff_rx);
+
+    // un-exporting at the beginning
+    fd = open("/sys/class/gpio/unexport", O_WRONLY);
+    if(fd == -1)
+        perror("closed");
+    sprintf(status_buf, "%d", gpio6);
+    write(fd, status_buf, strlen(status_buf));
+    close(fd);
+
     status = rsi_wavecombo_wsmp_service_req(DELETE, lsi, psid);
     rsi_wavecombo_msgqueue_deinit();
 
@@ -147,57 +182,51 @@ int main(void)
 
 void process_wsmp(char *buf,int len)
 {
-    static int j=0 ;
     int psid_len = 0;
-    int payload_len = 0;
-    int fd;
-    int gpio6 = 6;
-    char status_buf[40];
+    while( buf[14] & (0x80>>psid_len++) );
 
-    asn_dec_rval_t Rval;
-    blob_t *blob_brk = NULL;
-    BasicSafetyMessage_t *bsm_brk =NULL;
-
-    while(buf[14] & (0x80>>psid_len++));
-    printf("\nEEBL message received :%d\n",j++);
-    payload_len = len - WSMP_PAY_LOAD_OFFSET - psid_len;
-    Rval = J2735_decode(buf + WSMP_PAY_LOAD_OFFSET + psid_len,payload_len);
+    int payload_len = len - WSMP_PAY_LOAD_OFFSET - psid_len;
+    asn_dec_rval_t Rval = J2735_decode(buf + WSMP_PAY_LOAD_OFFSET + psid_len, payload_len);
     if(Rval.Message != NULL)
     {
-        bsm_brk =(BasicSafetyMessage_t *) Rval.Message;
-        blob_brk= (blob_t *)bsm_brk->blob1.buf;
-        if(blob_brk == NULL) {
+        BasicSafetyMessage_t *bsm_brk =(BasicSafetyMessage_t *) Rval.Message;
+        blob_t *blob_brk = (blob_t *) bsm_brk->blob1.buf;
+        if(blob_brk == NULL)
+        {
 
         }
-
         else if(blob_brk->Brakes == 1)
         {
+            // turn on LED
             system("echo 1 > /sys/class/gpio/gpio6/value");
-            //printf(" *************LED ON***************\n");
+
             usleep(500000);
 
-            //printf("*************LED OFF****************\n");
+            // turn off LED
             system("echo 0 > /sys/class/gpio/gpio6/value");
         }
 
-        J2735_print(Rval.Message,Rval.Type);
-        J2735_free(Rval.Message,Rval.Type);
+        J2735_print(Rval.Message, Rval.Type);
+        J2735_free(Rval.Message, Rval.Type);
     }
 }
 
 
 void sigint(int signum)
 {
-    /*Clean up.......*/
-    int status = 0;
-    void* res = 0;
-
-    system("echo 6 > /sys/class/gpio/unexport"); // unexport  the gpio
-    status = rsi_wavecombo_wsmp_service_req(DELETE, lsi, psid);
-    rsi_wavecombo_msgqueue_deinit();
-
     if(buff_rx != NULL)
         free(buff_rx);
+
+    int fd = open("/sys/class/gpio/unexport", O_WRONLY);
+    if(fd == -1)
+        perror("closed");
+    char status_buf[80] = {0};
+    sprintf(status_buf, "%d", gpio6);
+    write(fd, status_buf, strlen(status_buf));
+    close(fd);
+
+    int status = rsi_wavecombo_wsmp_service_req(DELETE, lsi, psid);
+    rsi_wavecombo_msgqueue_deinit();
 
     exit(0);
 }
