@@ -194,7 +194,7 @@ void codeLoader::make_connection()
             SSH *new_session = new SSH(module->par("host").stringValue(),
                     module->par("port").longValue(),
                     module->par("username").stringValue(),
-                    module->par("password").stringValue());
+                    module->par("password").stringValue(), true);
 
             ASSERT(new_session);
             IMX_board.push_back(new_session);
@@ -241,8 +241,8 @@ void codeLoader::init_board(SSH *board)
         printf(">>> Device @%s is up and running! Boot time ~ %.2f seconds. Reconnecting ... \n\n", board->getHostName().c_str(), duration_ms / 1000.);
         std::cout.flush();
 
-        // re-connect to the dev
-        board = new SSH(board->getHostName(), board->getPort(), board->getUsername(), board->getPassword(), false);
+        // previous SSH connection is lost. Re-connect to the dev
+        board = new SSH(board->getHostName(), board->getPort(), board->getUsername(), board->getPassword());
         ASSERT(board);
     }
 
@@ -272,7 +272,7 @@ void codeLoader::init_board(SSH *board)
     std::cout.flush();
 
     boost::filesystem::path sampleAppl_FullPath = redpineAppl_FullPath / "sampleAppl";
-    board->syncDir(sampleAppl_FullPath, remoteDir_SourceCode);  // todo
+    board->syncDir(sampleAppl_FullPath, remoteDir_SourceCode);
 
     //##################################
     // Step 3: remotely compile the code
@@ -280,15 +280,12 @@ void codeLoader::init_board(SSH *board)
     printf(">>> Compiling %s @%s ... \n\n", applName.c_str(), board->getHostName().c_str());
     std::cout.flush();
 
+    char command[500];
+    sprintf(command, "gcc %s.c -o %s ./rsi_wave_api/lib_rsi_wave_api.a ./dsrc/libdsrc.a -I ./dsrc/includes/ -lpthread", applName.c_str(), applName.c_str());
+
     ssh_channel compileShell = board->openShell();  // open a shell
-    board->run_command(compileShell, "cd " + remoteDir_SourceCode.string(), 2, false);
-    board->run_command(compileShell, "gcc "
-            + applName + ".c"
-            + " -o " + applName
-            + " ./rsi_wave_api/lib_rsi_wave_api.a"
-            + " ./dsrc/libdsrc.a"
-            + " -I ./dsrc/includes/"
-            + " -lpthread", 5, true);
+    board->run_command(compileShell, "cd " + remoteDir_SourceCode.string());
+    board->run_command(compileShell, command, 5, false);
     board->closeShell(compileShell);  // close the shell
 
     //########################################################
@@ -298,9 +295,9 @@ void codeLoader::init_board(SSH *board)
     std::cout.flush();
 
     ssh_channel driverShell = board->openShell();  // open a shell
-    board->run_command(driverShell, "sudo su", 2, false);
-    board->run_command(driverShell, "cd " + remoteDir_Driver.string(), 2,  false);
-    board->run_command(driverShell, "./" + initScriptName, 10, true);
+    board->run_command(driverShell, "sudo su");
+    board->run_command(driverShell, "cd " + remoteDir_Driver.string());
+    board->run_command(driverShell, "./" + initScriptName, 10, false);
     board->closeShell(driverShell);  // close the shell
 
     //###############################################
@@ -310,8 +307,8 @@ void codeLoader::init_board(SSH *board)
     std::cout.flush();
 
     ssh_channel rsi1609Shell = board->openShell();  // open a shell
-    board->run_command(rsi1609Shell, "sudo su", 2, false);
-    board->run_command(rsi1609Shell, "cd " + remoteDir_Driver.string(), 2, false);
+    board->run_command(rsi1609Shell, "sudo su");
+    board->run_command(rsi1609Shell, "cd " + remoteDir_Driver.string());
     board->run_command(rsi1609Shell, "if ! pgrep rsi_1609 > /dev/null; then ./rsi_1609; fi", 10, false);  // should not close this shell
 
     //##############################
@@ -321,9 +318,9 @@ void codeLoader::init_board(SSH *board)
     std::cout.flush();
 
     ssh_channel applShell = board->openShell();  // open a shell
-    board->run_command(applShell, "sudo su", 2, false);
-    board->run_command(applShell, "cd " + remoteDir_SourceCode.string(), 2, false);
-    //board->run_command(applShell, "./" + applName, 3, true);  // should not close this shell
+    board->run_command(applShell, "sudo su");
+    board->run_command(applShell, "cd " + remoteDir_SourceCode.string());
+    board->run_command(applShell, "./" + applName, 3, true);  // should not close this shell
 }
 
 
