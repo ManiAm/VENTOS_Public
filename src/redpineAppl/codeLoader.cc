@@ -238,6 +238,28 @@ void codeLoader::init_board(cModule *mod)
     boost::filesystem::path sampleAppl_FullPath = redpineAppl_FullPath / "sampleAppl";
     board->syncDir(sampleAppl_FullPath, remoteDir_SourceCode);
 
+    //########################################################
+    // Step 4: remotely run the script in the remoteDir_Driver
+    //########################################################
+    printf(">>> Running the init script @%s ... \n\n", board->getHostName().c_str());
+    std::cout.flush();
+
+    // open a shell
+    ssh_channel firstShell = board->openShell();
+
+    board->run_command(firstShell, "sudo su");
+    board->run_command(firstShell, "cd " + remoteDir_Driver.string());
+    board->run_command(firstShell, "./" + initScriptName, 10, false);
+
+    //###############################################
+    // Step 5: remotely start 1609 stack in WAVE mode
+    //###############################################
+    printf(">>> Start 1609 stack in WAVE mode @%s ... \n\n", board->getHostName().c_str());
+    std::cout.flush();
+
+    // should not close this shell
+    board->run_command(firstShell, "if ! pgrep rsi_1609 > /dev/null; then ./rsi_1609; fi", 10, false);
+
     //##################################
     // Step 3: remotely compile the code
     //##################################
@@ -251,33 +273,12 @@ void codeLoader::init_board(cModule *mod)
     char command[500];
     sprintf(command, "gcc %s.c -o %s ./rsi_wave_api/lib_rsi_wave_api.a ./dsrc/libdsrc.a -I ./dsrc/includes/ -lpthread", applName.c_str(), applName.c_str());
 
-    ssh_channel compileShell = board->openShell();  // open a shell
-    board->run_command(compileShell, "cd " + remoteDir_SourceCode.string());
-    board->run_command(compileShell, command, 5, false);
-    board->closeShell(compileShell);  // close the shell
+    // open a shell
+    ssh_channel secondShell = board->openShell();
 
-    //########################################################
-    // Step 4: remotely run the script in the remoteDir_Driver
-    //########################################################
-    printf(">>> Running the init script @%s ... \n\n", board->getHostName().c_str());
-    std::cout.flush();
-
-    ssh_channel driverShell = board->openShell();  // open a shell
-    board->run_command(driverShell, "sudo su");
-    board->run_command(driverShell, "cd " + remoteDir_Driver.string());
-    board->run_command(driverShell, "./" + initScriptName, 10, false);
-    board->closeShell(driverShell);  // close the shell
-
-    //###############################################
-    // Step 5: remotely start 1609 stack in WAVE mode
-    //###############################################
-    printf(">>> Start 1609 stack in WAVE mode @%s ... \n\n", board->getHostName().c_str());
-    std::cout.flush();
-
-    ssh_channel rsi1609Shell = board->openShell();  // open a shell
-    board->run_command(rsi1609Shell, "sudo su");
-    board->run_command(rsi1609Shell, "cd " + remoteDir_Driver.string());
-    board->run_command(rsi1609Shell, "if ! pgrep rsi_1609 > /dev/null; then ./rsi_1609; fi", 10, false);  // should not close this shell
+    board->run_command(secondShell, "sudo su");
+    board->run_command(secondShell, "cd " + remoteDir_SourceCode.string());
+    board->run_command(secondShell, command, 5, false);
 
     //##############################
     // Step 6: remotely run the code
@@ -285,10 +286,8 @@ void codeLoader::init_board(cModule *mod)
     printf(">>> Running %s @%s ... \n\n", applName.c_str(), board->getHostName().c_str());
     std::cout.flush();
 
-    ssh_channel applShell = board->openShell();  // open a shell
-    board->run_command(applShell, "sudo su");
-    board->run_command(applShell, "cd " + remoteDir_SourceCode.string());
-    board->run_command(applShell, "./" + applName, 3, true);  // should not close this shell
+    // should not close this shell
+    board->run_command(secondShell, "./" + applName, 3, true);
 
     // we are done with the SSH session
     delete board;
