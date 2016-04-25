@@ -84,8 +84,7 @@ void codeLoader::initialize(int stage)
 
 void codeLoader::finish()
 {
-    for(auto &i : IMX_board)
-        if(i) delete i;
+
 }
 
 
@@ -133,26 +132,6 @@ void codeLoader::executeEachTimestep()
 
 void codeLoader::start()
 {
-    make_connection();
-
-    // call init_board for each board in a separate child thread
-    std::vector<std::thread> workers;
-    for(auto &ii : IMX_board)
-        workers.push_back( std::thread (&codeLoader::init_board, this, ii) );
-
-    // wait for all threads to finish
-    std::for_each(workers.begin(), workers.end(), [](std::thread &t) {
-        t.join();
-    });
-
-
-
-    std::cout << "yeayy! \n" << std::flush;
-}
-
-
-void codeLoader::make_connection()
-{
     int numDev = par("numDev").longValue();
     if(numDev < 0)
         error("numDev should be >= 0");
@@ -176,29 +155,13 @@ void codeLoader::make_connection()
         mod->callInitialize();
     }
 
-    printf("\n");
-    printf(">>> Connecting to '%u' remote devices ... \n", numDev);
-    std::cout.flush();
-
-    // vector container to store threads
+    // call init_board for each board in a separate child thread
     std::vector<std::thread> workers;
-
-    // create SSH connection to all remote devices at the same time
-    for(int i = 0; i < numDev; i++)
+    for(int ii = 0; ii < numDev; ii++)
     {
-        // get a reference to dev
-        cModule *module = simulation.getSystemModule()->getSubmodule("dev", i);
+        cModule *module = simulation.getSystemModule()->getSubmodule("dev", ii);
         ASSERT(module);
-
-        workers.push_back(std::thread([=]() {  // pass by value
-            SSH *new_session = new SSH(module->par("host").stringValue(),
-                    module->par("port").longValue(),
-                    module->par("username").stringValue(),
-                    module->par("password").stringValue(), true);
-
-            ASSERT(new_session);
-            IMX_board.push_back(new_session);
-        }));
+        workers.push_back( std::thread (&codeLoader::init_board, this, module) );
     }
 
     // wait for all threads to finish
@@ -206,30 +169,27 @@ void codeLoader::make_connection()
         t.join();
     });
 
-    std::cout << "    Done! \n\n";
-    std::cout.flush();
+    std::cout << "All done! \n" << std::flush;
 }
 
 
-void codeLoader::init_board(SSH *board)
+void codeLoader::init_board(cModule *mod)
 {
-    // make sure the pointer is valid
+    ASSERT(mod);
+
+    printf(">>> Connecting to %s ... \n\n", mod->par("host").stringValue());
+    std::cout.flush();
+
+    // create SSH connection to the dev
+    SSH *board = new SSH(mod->par("host").stringValue(),
+            mod->par("port").longValue(),
+            mod->par("username").stringValue(),
+            mod->par("password").stringValue(), true);
+
     ASSERT(board);
 
-    // get a pointer to the dev module
-    cModule *module = findDev(board);
-    ASSERT(module);
-
-    std::string applName = module->par("applName").stringValue();
-    if(applName == "")
-        throw cRuntimeError("applName is empty!");
-
-    // get a pointer to the dev class
-    dev *devPtr = static_cast<dev *>(module);
-    ASSERT(devPtr);
-
     // should we reboot this dev before proceeding?
-    if(module->par("rebootAtStart").boolValue())
+    if(mod->par("rebootAtStart").boolValue())
     {
         printf(">>> Re-booting device @%s ... Please wait \n\n", board->getHostName().c_str());
         std::cout.flush();
@@ -259,6 +219,10 @@ void codeLoader::init_board(SSH *board)
     std::string content( (std::istreambuf_iterator<char>(ifs) ),
             (std::istreambuf_iterator<char>()    ) );
 
+    // get a pointer to the dev class
+    dev *devPtr = static_cast<dev *>(mod);
+    ASSERT(devPtr);
+
     // ask dev to substitute its parameters in the init script
     devPtr->substituteParams(content);
 
@@ -277,6 +241,10 @@ void codeLoader::init_board(SSH *board)
     //##################################
     // Step 3: remotely compile the code
     //##################################
+    std::string applName = mod->par("applName").stringValue();
+    if(applName == "")
+        throw cRuntimeError("applName is empty!");
+
     printf(">>> Compiling %s @%s ... \n\n", applName.c_str(), board->getHostName().c_str());
     std::cout.flush();
 
@@ -321,36 +289,9 @@ void codeLoader::init_board(SSH *board)
     board->run_command(applShell, "sudo su");
     board->run_command(applShell, "cd " + remoteDir_SourceCode.string());
     board->run_command(applShell, "./" + applName, 3, true);  // should not close this shell
-}
 
-
-cModule * codeLoader::findDev(SSH *board)
-{
-    ASSERT(board);
-
-    // looking for the dev
-    cModule *module = simulation.getSystemModule()->getSubmodule("dev", 0);
-    if(module == NULL)
-        throw cRuntimeError("No dev module exists!");
-
-    // how many devs are in the network?
-    int numDev = module->getVectorSize();
-
-    // iterate over modules
-    for(int i = 0; i < numDev; ++i)
-    {
-        // get a pointer to this dev
-        module = simulation.getSystemModule()->getSubmodule("dev", i);
-
-        // get host of this dev
-        std::string devHost = module->par("host").stringValue();
-
-        // found our dev with matching host
-        if(devHost == board->getHostName())
-            return module;
-    }
-
-    return NULL;
+    // we are done with the SSH session
+    delete board;
 }
 
 }

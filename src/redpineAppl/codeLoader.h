@@ -51,9 +51,7 @@ public:
 
 private:
     void start();
-    void make_connection();
-    void init_board(SSH *);
-    cModule * findDev(SSH *);
+    void init_board(cModule *mod);
 
     void initialize_withTraCI();
     void executeEachTimestep();
@@ -72,7 +70,6 @@ private:
 
     simsignal_t Signal_executeEachTS;
     simsignal_t Signal_initialize_withTraCI;
-    std::vector<SSH *> IMX_board;
 };
 
 }
