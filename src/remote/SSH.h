@@ -78,7 +78,6 @@ private:
     typedef std::chrono::high_resolution_clock::time_point Htime_t;
 
     static std::mutex lock_prompt;
-    static std::mutex lock_print;
 
     std::string dev_hostName = "";
     std::string dev_hostIP = "";

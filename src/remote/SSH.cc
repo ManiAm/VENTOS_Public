@@ -45,7 +45,6 @@ namespace VENTOS {
 #define TIMEOUT_MS 200
 
 std::mutex SSH::lock_prompt;
-std::mutex SSH::lock_print;
 
 SSH::~SSH()
 {
@@ -101,7 +100,7 @@ SSH::SSH(std::string host, int port, std::string username, std::string password,
 
     int rc = ssh_connect(SSH_session);
     if (rc != SSH_OK)
-        throw cRuntimeError("Error connecting to dev: %s", ssh_get_error(SSH_session));
+        throw cRuntimeError("%s", ssh_get_error(SSH_session));
 
     // verify the server's identity
     if (verify_knownhost() < 0)
