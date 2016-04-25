@@ -754,7 +754,12 @@ void SSH::run_command(ssh_channel SSH_channel, std::string command, int maxTimeO
 
     // check if this command failed or not!
     if(last_command_failed(SSH_channel))
-        throw cRuntimeError("Command '%s' failed @%s: %s", command.c_str(), dev_hostName.c_str(), command_output.c_str());
+    {
+        printf("%s \n\n", command_output.c_str());
+        std::cout.flush();
+
+        throw cRuntimeError("Command '%s' failed @%s", command.c_str(), dev_hostName.c_str());
+    }
 }
 
 
