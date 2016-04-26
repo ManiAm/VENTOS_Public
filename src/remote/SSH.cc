@@ -287,7 +287,7 @@ void SSH::authenticate(std::string password)
             // if no password is provided, then ask the user
             if(password == "")
             {
-                // only one thread should access this
+                // only one SSH connection should access this
                 std::lock_guard<std::mutex> lock(lock_prompt);
 
                 std::cout << "    Password @" + dev_hostName + ": ";

@@ -82,7 +82,7 @@ protected:
     sftp_session SFTP_session;
 
 private:
-    static std::mutex lock_prompt;
+    static std::mutex lock_prompt;  // all SSH connections share the same lock
 
 };
 
