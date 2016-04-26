@@ -37,7 +37,6 @@
 #include <fstream>
 #include <thread>
 #include "utf8.h"
-#include <boost/algorithm/string.hpp>
 #include <omnetpp.h>
 
 namespace VENTOS {
@@ -260,30 +259,30 @@ void SSH::authenticate(std::string password)
     // this requires the function ssh_userauth_none() to be called before the methods are available.
     int method = ssh_userauth_list(SSH_session, NULL);
 
-    while (rc != SSH_AUTH_SUCCESS)
+    // Try to authenticate with public key first
+    if (method & SSH_AUTH_METHOD_PUBLICKEY)
     {
-        // Try to authenticate with public key first
-        if (method & SSH_AUTH_METHOD_PUBLICKEY)
-        {
-            rc = ssh_userauth_publickey_auto(SSH_session, NULL, NULL);
-            if (rc == SSH_AUTH_ERROR)
-                throw cRuntimeError("Authentication failed.");
-            else if (rc == SSH_AUTH_SUCCESS)
-                break;
-        }
+        rc = ssh_userauth_publickey_auto(SSH_session, NULL, NULL);
+        if (rc == SSH_AUTH_ERROR)
+            throw cRuntimeError("Authentication failed.");
+        else if (rc == SSH_AUTH_SUCCESS)
+            return;
+    }
 
-        // Try to authenticate with keyboard interactive"
-        if (method & SSH_AUTH_METHOD_INTERACTIVE)
-        {
-            rc = authenticate_kbdint();
-            if (rc == SSH_AUTH_ERROR)
-                throw cRuntimeError("Authentication failed.");
-            else if (rc == SSH_AUTH_SUCCESS)
-                break;
-        }
+    // Try to authenticate with keyboard interactive"
+    if (method & SSH_AUTH_METHOD_INTERACTIVE)
+    {
+        rc = authenticate_kbdint();
+        if (rc == SSH_AUTH_ERROR)
+            throw cRuntimeError("Authentication failed.");
+        else if (rc == SSH_AUTH_SUCCESS)
+            return;
+    }
 
-        // Try to authenticate with password
-        if (method & SSH_AUTH_METHOD_PASSWORD)
+    // Try to authenticate with password
+    if (method & SSH_AUTH_METHOD_PASSWORD)
+    {
+        while(true)
         {
             // if no password is provided, then ask the user
             if(password == "")
@@ -291,8 +290,8 @@ void SSH::authenticate(std::string password)
                 // only one thread should access this
                 std::lock_guard<std::mutex> lock(lock_prompt);
 
-                std::string prompt = "    Password @" + dev_hostName + ": ";
-                password = getpass(prompt.c_str());
+                std::cout << "    Password @" + dev_hostName + ": ";
+                getline(std::cin, password);
             }
 
             // make sure the password is in UFT-8
@@ -305,23 +304,11 @@ void SSH::authenticate(std::string password)
             if (rc == SSH_AUTH_ERROR)
                 throw cRuntimeError("Authentication failed.");
             else if (rc == SSH_AUTH_SUCCESS)
-                break;
+                return;
+
+            printf("    Username/password combination is not correct. Try again! \n");
+            std::cout.flush();
         }
-
-        // In SSH2 sometimes we need to ask the password interactively!
-        {
-            // only one thread should access this
-            std::lock_guard<std::mutex> lock(lock_prompt);
-
-            std::string prompt = "    Password @" + dev_hostName + ": ";
-            password = getpass(prompt.c_str());
-        }
-
-        rc = ssh_userauth_password(SSH_session, NULL, password.c_str());
-        if (rc == SSH_AUTH_ERROR)
-            throw cRuntimeError("Authentication failed.");
-        else if (rc == SSH_AUTH_SUCCESS)
-            break;
     }
 }
 
@@ -539,8 +526,8 @@ void SSH::syncDir(boost::filesystem::path source, boost::filesystem::path remote
             //int64_t modTime_local = boost::filesystem::last_write_time(i);
             //uint32_t modTime_remote = (*it)->mtime;
 
-            if(size_local != size_remote /*|| modTime_local != modTime_remote*/)  // todo: comparing modification times is not correct!
-                needCopy.push_back(i);
+            //if(size_local != size_remote /*|| modTime_local != modTime_remote*/)  // todo: comparing modification times is not correct!
+            needCopy.push_back(i);
         }
     }
 
@@ -586,7 +573,7 @@ ssh_channel SSH::openShell()
         throw cRuntimeError("SSH error in openShell");
     }
 
-    // read the greeting message from remote shell but redirect it to /dev/null
+    // read the greeting message from remote shell and redirect it to /dev/null
     char buffer[1000];
     while (true)
     {
@@ -618,226 +605,6 @@ void SSH::closeShell(ssh_channel SSH_channel)
         ssh_channel_send_eof(SSH_channel);
         ssh_channel_close(SSH_channel);
         ssh_channel_free(SSH_channel);
-    }
-}
-
-
-double SSH::rebootDev(ssh_channel SSH_channel, int timeOut)
-{
-    ASSERT(SSH_channel);
-
-    if(timeOut <= 0)
-        throw cRuntimeError("timeOut value is wrong!");
-
-    // start measuring boot time here
-    Htime_t startBoot = std::chrono::high_resolution_clock::now();
-
-    // sending the reboot command without waiting for response
-    char buffer[1000];
-    int nbytes = sprintf (buffer, "%s \n", "sudo reboot");
-    if (ssh_channel_write(SSH_channel, buffer, nbytes) != nbytes)
-        throw cRuntimeError("SSH error in writing command to shell");
-
-    Htime_t startPing = std::chrono::high_resolution_clock::now();
-
-    // keep pinging dev
-    bool disconnected = false;
-    while(true)
-    {
-        // wait for 100 ms
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-        std::string cmd = "ping -c 1 -s 1 " + dev_hostIP + " > /dev/null 2>&1";
-        int result = system(cmd.c_str());
-        if(!disconnected && result != 0)
-            disconnected = true;
-
-        if(disconnected && result == 0)
-            break;
-
-        // waiting too long for dev to boot?
-        Htime_t currentTime = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double, std::milli> fp_ms = currentTime - startPing;
-        if(fp_ms.count() > timeOut)
-            throw cRuntimeError("dev reboot timeout!");
-    }
-
-    // end measuring boot time here
-    Htime_t endBoot = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double, std::milli> fp_ms = endBoot - startBoot;
-
-    return fp_ms.count();
-}
-
-
-void SSH::run_command(ssh_channel SSH_channel, std::string command, int maxTimeOutCount, bool printOutput)
-{
-    ASSERT(SSH_channel);
-
-    if(command == "")
-        throw cRuntimeError("command is empty!");
-
-    if(maxTimeOutCount <= 0)
-        throw cRuntimeError("maxTimeOutCount value is invalid!");
-
-    {
-        // run the command in shell
-        char buffer[1000];
-        int nbytes = sprintf (buffer, "%s \n", command.c_str());
-        int nwritten = ssh_channel_write(SSH_channel, buffer, nbytes);
-        if (nwritten != nbytes)
-            throw cRuntimeError("SSH error in writing command to shell");
-    }
-
-    // read the output from remote shell
-    char buffer[1000];
-    std::string command_output = "";
-    int numTimeouts = 0;
-    bool identFirstLine = false;
-    while (true)
-    {
-        int nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, TIMEOUT_MS);
-
-        // SSH_ERROR
-        if(nbytes < 0)
-        {
-            ssh_channel_close(SSH_channel);
-            ssh_channel_free(SSH_channel);
-            throw cRuntimeError("SSH error in run_command");
-        }
-        // time out
-        else if(nbytes == 0)
-        {
-            numTimeouts++;
-            // did we wait long enough?
-            if(numTimeouts >= maxTimeOutCount)
-                break;
-        }
-        // buffer has data
-        else if(nbytes > 0)
-        {
-            // reset counter
-            numTimeouts = 0;
-
-            // save output -- show when error occurs
-            for (int ii = 0; ii < nbytes; ii++)
-                command_output += static_cast<char>(buffer[ii]);
-
-            // print what we have in buffer
-            if(printOutput)
-            {
-                std::string cOutput = "";
-                for (int ii = 0; ii < nbytes; ii++)
-                    cOutput += static_cast<char>(buffer[ii]);
-
-                // add indentation to the first line
-                if(!identFirstLine)
-                {
-                    cOutput = "    " + cOutput;
-                    identFirstLine = true;
-                }
-
-                // substituting all \r\n with \n
-                // Windows = CR LF, Linux = LF, MAC < 0SX = CR
-                boost::replace_all(cOutput, "\r\n", "\n");
-                boost::replace_all(cOutput, "\n", "\n    ");  // add indentation to the rest of the lines
-
-                std::cout << cOutput;
-                std::cout.flush();
-            }
-        }
-    }
-
-    // add two new lines after printing output to improve readability
-    if(printOutput)
-        printf("\n\n");
-
-    // check if this command failed or not!
-    if(last_command_failed(SSH_channel))
-    {
-        // we have already printed the output if printOutput = true
-        if(!printOutput)
-        {
-            // format output
-            command_output = "    " + command_output;
-            boost::replace_all(command_output, "\r\n", "\n");
-            boost::replace_all(command_output, "\n", "\n    ");
-
-            printf("%s \n\n", command_output.c_str());
-            std::cout.flush();
-        }
-
-        throw cRuntimeError("Command '%s' failed @%s", command.c_str(), dev_hostName.c_str());
-    }
-}
-
-
-bool SSH::last_command_failed(ssh_channel SSH_channel)
-{
-    // run echo %? to get the return value
-    std::string new_command = "echo $?";
-
-    {
-        char buffer[1000];
-        int nbytes = sprintf (buffer, "%s \n", new_command.c_str());
-        int nwritten = ssh_channel_write(SSH_channel, buffer, nbytes);
-        if (nwritten != nbytes)
-            throw cRuntimeError("SSH error in writing command to shell");
-    }
-
-    // read the output from remote shell
-    char buffer[1000];
-    std::string new_command_output = "";
-    while (true)
-    {
-        int nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, TIMEOUT_MS);
-
-        // SSH_ERROR
-        if(nbytes < 0)
-        {
-            ssh_channel_close(SSH_channel);
-            ssh_channel_free(SSH_channel);
-            throw cRuntimeError("SSH error in run_command");
-        }
-        // end of file
-        else if(nbytes == 0)
-            break;
-
-        for (int ii = 0; ii < nbytes; ii++)
-            new_command_output += static_cast<char>(buffer[ii]);
-    }
-
-    // get number of lines
-    std::istringstream inputStr(new_command_output);
-    std::string line = "";
-    int numLines = 0;
-    while(std::getline(inputStr, line))
-        numLines++;
-
-    // if 'echo $?' did not return any results
-    // this might happen if the last command is still running
-    if(numLines == 1)
-        return false;
-
-    // get the second line
-    inputStr.str(new_command_output);
-    inputStr.clear();
-    std::string secondLine = "";
-    std::getline(inputStr, secondLine);
-    std::getline(inputStr, secondLine);
-
-    try
-    {
-        int returnCode = std::stoi(secondLine);
-        if (returnCode != 0)
-            return true;
-        else
-            return false;
-    }
-    catch (const std::exception& ex) {
-        printf("Cannot check if the last command failed or not! @%s", dev_hostName.c_str());
-        std::cout.flush();
-        return true;
     }
 }
 

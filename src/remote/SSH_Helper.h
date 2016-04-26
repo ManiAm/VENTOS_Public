@@ -1,8 +1,8 @@
 /****************************************************************************/
-/// @file    VehicleWarmup.h
+/// @file    SSH_Helper.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
-/// @date    August 2013
+/// @date    Apr 2016
 ///
 /****************************************************************************/
 // VENTOS, Vehicular Network Open Simulator; see http:?
@@ -25,44 +25,39 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef WARMPUP
-#define WARMPUP
+#ifndef SSHOS_H_
+#define SSHOS_H_
 
-#include "TraCICommands.h"
-#include "VehicleSpeedProfile.h"
+#include "SSH.h"
+#include <thread>
 
 namespace VENTOS {
 
-class Warmup : public BaseApplLayer
+class SSH_Helper : public SSH
 {
-	public:
-		virtual ~Warmup();
-		virtual void initialize(int stage);
-        virtual void handleMessage(cMessage *msg);
-		virtual void finish();
-	    virtual void receiveSignal(cComponent *, simsignal_t, long);
+public:
+    SSH_Helper(std::string, int, std::string, std::string, bool = false);
+    virtual ~SSH_Helper();
 
-	private:
-        bool DoWarmup();
+    // sends sudo reboot to the remote dev
+    double rebootDev(ssh_channel, int);
+    // switch to sudo space
+    void getSudo(ssh_channel);
+    // run a non-blocking command and returns its output
+    std::string run_command(ssh_channel, std::string, int = 2, bool = false);
+    // check if the last executed command failed or not
+    int last_command_failed(ssh_channel);
+    // run a blocking command
+    void run_command_loop(ssh_channel, std::string, int, bool = false);
 
-	private:
-        // NED variables
-        TraCI_Commands *TraCI;  // pointer to the TraCI module
-        SpeedProfile *SpeedProfilePtr;
+    // active threads in this SSH session
+    int getNumActiveThreads();
 
-        // NED variables
-        bool on;
-        std::string laneId;
-        double stopPosition;  // the position that first vehicle should stop waiting for others
-        double warmUpSpeed;
-        double waitingTime;
-        int numVehicles;
+private:
+    typedef std::chrono::high_resolution_clock::time_point Htime_t;
 
-        // class variables
-        simsignal_t Signal_executeEachTS;
-        double startTime;     // the time that Warmup starts
-        bool IsWarmUpFinished;
-        cMessage* finishingWarmup;
+    // number of active threads in this SSH session
+    int active_threads = 0;
 };
 
 }

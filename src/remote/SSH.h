@@ -57,8 +57,6 @@ public:
 
     ssh_channel openShell();
     void closeShell(ssh_channel);
-    double rebootDev(ssh_channel, int);
-    void run_command(ssh_channel, std::string, int = 2, bool = false);
 
     std::string getHostName();
     std::string getHostAddress();
@@ -72,13 +70,8 @@ private:
     int authenticate_kbdint();
     int verify_knownhost();
     void createSession_SFTP();
-    bool last_command_failed(ssh_channel);
 
-private:
-    typedef std::chrono::high_resolution_clock::time_point Htime_t;
-
-    static std::mutex lock_prompt;
-
+protected:
     std::string dev_hostName = "";
     std::string dev_hostIP = "";
     int dev_port = -1;
@@ -87,6 +80,10 @@ private:
 
     ssh_session SSH_session;
     sftp_session SFTP_session;
+
+private:
+    static std::mutex lock_prompt;
+
 };
 
 }

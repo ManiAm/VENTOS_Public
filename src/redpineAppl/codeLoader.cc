@@ -34,6 +34,7 @@ namespace VENTOS {
 
 Define_Module(VENTOS::codeLoader);
 
+std::mutex codeLoader::lock_vector;
 
 codeLoader::~codeLoader()
 {
@@ -84,7 +85,9 @@ void codeLoader::initialize(int stage)
 
 void codeLoader::finish()
 {
-
+    // delete all active SSH sessions
+    for(auto &ii : active_SSH)
+        delete ii;
 }
 
 
@@ -181,7 +184,7 @@ void codeLoader::init_board(cModule *mod)
     std::cout.flush();
 
     // create SSH connection to the dev
-    SSH *board = new SSH(mod->par("host").stringValue(),
+    SSH_Helper *board = new SSH_Helper(mod->par("host").stringValue(),
             mod->par("port").longValue(),
             mod->par("username").stringValue(),
             mod->par("password").stringValue(), true);
@@ -195,14 +198,14 @@ void codeLoader::init_board(cModule *mod)
         std::cout.flush();
 
         ssh_channel rebootShell = board->openShell();  // open a shell
-        double duration_ms = board->rebootDev(rebootShell, 40000 /*timeout in ms*/);
+        double duration_ms = board->rebootDev(rebootShell, 40000);
         board->closeShell(rebootShell);  // close the shell
 
         printf(">>> Device @%s is up and running! Boot time ~ %.2f seconds. Reconnecting ... \n\n", board->getHostName().c_str(), duration_ms / 1000.);
         std::cout.flush();
 
         // previous SSH connection is lost. Re-connect to the dev
-        board = new SSH(board->getHostName(), board->getPort(), board->getUsername(), board->getPassword());
+        board = new SSH_Helper(board->getHostName(), board->getPort(), board->getUsername(), board->getPassword());
         ASSERT(board);
     }
 
@@ -238,13 +241,34 @@ void codeLoader::init_board(cModule *mod)
     boost::filesystem::path sampleAppl_FullPath = redpineAppl_FullPath / "sampleAppl";
     board->syncDir(sampleAppl_FullPath, remoteDir_SourceCode);
 
+    //##################################
+    // Step 3: remotely compile the code
+    //##################################
+    std::string applName = mod->par("applName").stringValue();
+    if(applName == "")
+        throw cRuntimeError("applName is empty!");
+
+    printf(">>> Compiling %s @%s ... \n\n", applName.c_str(), board->getHostName().c_str());
+    std::cout.flush();
+
+    // -std=c99 or -std=gnu99
+    char command[500];
+    sprintf(command, "gcc -std=c99 %s.c -o %s ./rsi_wave_api/lib_rsi_wave_api.a ./dsrc/libdsrc.a -I ./dsrc/includes/ -lpthread", applName.c_str(), applName.c_str());
+
+    // open a shell -- do not close, we will use this shell later
+    ssh_channel compileShell = board->openShell();
+
+    board->run_command(compileShell, "sudo su");
+    board->run_command(compileShell, "cd " + remoteDir_SourceCode.string());
+    board->run_command(compileShell, command, 10, false);
+
     //########################################################
     // Step 4: remotely run the script in the remoteDir_Driver
     //########################################################
     printf(">>> Running the init script @%s ... \n\n", board->getHostName().c_str());
     std::cout.flush();
 
-    // open a shell
+    // open a shell -- do not close, we will use this shell later
     ssh_channel firstShell = board->openShell();
 
     board->run_command(firstShell, "sudo su");
@@ -257,28 +281,7 @@ void codeLoader::init_board(cModule *mod)
     printf(">>> Start 1609 stack in WAVE mode @%s ... \n\n", board->getHostName().c_str());
     std::cout.flush();
 
-    // should not close this shell
-    board->run_command(firstShell, "if ! pgrep rsi_1609 > /dev/null; then ./rsi_1609; fi", 10, false);
-
-    //##################################
-    // Step 3: remotely compile the code
-    //##################################
-    std::string applName = mod->par("applName").stringValue();
-    if(applName == "")
-        throw cRuntimeError("applName is empty!");
-
-    printf(">>> Compiling %s @%s ... \n\n", applName.c_str(), board->getHostName().c_str());
-    std::cout.flush();
-
-    char command[500];
-    sprintf(command, "gcc %s.c -o %s ./rsi_wave_api/lib_rsi_wave_api.a ./dsrc/libdsrc.a -I ./dsrc/includes/ -lpthread", applName.c_str(), applName.c_str());
-
-    // open a shell
-    ssh_channel secondShell = board->openShell();
-
-    board->run_command(secondShell, "sudo su");
-    board->run_command(secondShell, "cd " + remoteDir_SourceCode.string());
-    board->run_command(secondShell, command, 5, false);
+    board->run_command_loop(firstShell, "if ! pgrep rsi_1609 > /dev/null; then ./rsi_1609; fi", 7000, true);
 
     //##############################
     // Step 6: remotely run the code
@@ -286,12 +289,16 @@ void codeLoader::init_board(cModule *mod)
     printf(">>> Running %s @%s ... \n\n", applName.c_str(), board->getHostName().c_str());
     std::cout.flush();
 
-    // should not close this shell
-    board->run_command(secondShell, "./" + applName, 3, true);
+    board->run_command_loop(compileShell, "./" + applName, 7000, true);
 
-    // we are done with the SSH session
-    delete board;
+    // wrapping up --delete this SSH session if no active threads exist
+    if(board->getNumActiveThreads() == 0)
+        delete board;
+    else
+    {
+        std::lock_guard<std::mutex> lock(lock_vector);
+        active_SSH.push_back(board);
+    }
 }
 
 }
-

@@ -30,7 +30,7 @@
 
 #include <BaseApplLayer.h>
 #include "TraCICommands.h"
-#include "SSH.h"
+#include "SSH_Helper.h"
 
 // un-defining ev!
 // why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header
@@ -70,6 +70,10 @@ private:
 
     simsignal_t Signal_executeEachTS;
     simsignal_t Signal_initialize_withTraCI;
+
+    // active SSH sessions
+    std::vector<SSH_Helper *> active_SSH;
+    static std::mutex lock_vector;
 };
 
 }
