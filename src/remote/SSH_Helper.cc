@@ -37,14 +37,20 @@ namespace VENTOS {
 
 SSH_Helper::~SSH_Helper()
 {
+    // set the terminating flag
+    terminating = true;
 
-
+    // wait until all threads terminate
+    while(active_threads > 0)
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
 }
 
 
 // constructor
 SSH_Helper::SSH_Helper(std::string host, int port, std::string username, std::string password, bool printOutput) : SSH(host, port, username, password, printOutput)
 {
+    active_threads = 0;
+    terminating = false;
 
 
 }
@@ -328,13 +334,14 @@ void SSH_Helper::run_command_loop(ssh_channel SSH_channel, std::string command, 
         if (nwritten != nbytes)
             throw cRuntimeError("SSH error in writing command to shell");
     }
+
     // run the loop in a child thread
     std::thread thd = std::thread([=]() {  // pass by value
 
         // read the output from remote shell
         char buffer[1000];
         bool identFirstLine = false;
-        while (true)
+        while (!terminating)
         {
             int nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, TIMEOUT_MS);
 
@@ -373,6 +380,8 @@ void SSH_Helper::run_command_loop(ssh_channel SSH_channel, std::string command, 
             }
         }
 
+        if(active_threads > 0)
+            active_threads--;
     });
 
     thd.detach();

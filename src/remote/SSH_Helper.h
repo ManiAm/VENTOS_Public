@@ -30,6 +30,7 @@
 
 #include "SSH.h"
 #include <thread>
+#include <atomic>
 
 namespace VENTOS {
 
@@ -43,21 +44,21 @@ public:
     double rebootDev(ssh_channel, int);
     // switch to sudo space
     void getSudo(ssh_channel);
-    // run a non-blocking command and returns its output
+    // runs a non-blocking command, checks if it did not fail and returns its output
     std::string run_command(ssh_channel, std::string, int = 2, bool = false);
-    // check if the last executed command failed or not
+    // checks if the last executed command failed or not
     int last_command_failed(ssh_channel);
-    // run a blocking command
+    // runs a blocking command and continuously monitor output -- does not check if command failed!
     void run_command_loop(ssh_channel, std::string, int, bool = false);
 
-    // active threads in this SSH session
+    // active number of threads in this SSH session
     int getNumActiveThreads();
 
 private:
     typedef std::chrono::high_resolution_clock::time_point Htime_t;
 
-    // number of active threads in this SSH session
-    int active_threads = 0;
+    std::atomic<int> active_threads;  // number of active threads in this SSH session
+    std::atomic<bool> terminating;
 };
 
 }
