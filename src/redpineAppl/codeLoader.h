@@ -50,8 +50,8 @@ public:
     virtual void receiveSignal(cComponent *, simsignal_t, long);
 
 private:
-    void start();
-    void init_board(cModule *mod);
+    void make_connection();
+    void init_board(cModule *, SSH_Helper *);
 
     void initialize_withTraCI();
     void executeEachTimestep();
@@ -72,7 +72,7 @@ private:
     simsignal_t Signal_initialize_withTraCI;
 
     // active SSH sessions
-    std::vector<SSH_Helper *> active_SSH;
+    std::vector< std::pair<cModule *, SSH_Helper *> > active_SSH;
     static std::mutex lock_vector;
 };
 

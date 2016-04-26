@@ -87,7 +87,10 @@ void codeLoader::finish()
 {
     // delete all active SSH sessions
     for(auto &ii : active_SSH)
-        delete ii;
+    {
+        if(ii.second)
+            delete ii.second;
+    }
 }
 
 
@@ -127,13 +130,13 @@ void codeLoader::executeEachTimestep()
     static bool wasExecuted = false;
     if (on && !wasExecuted)
     {
-        start();
+        make_connection();
         wasExecuted = true;
     }
 }
 
 
-void codeLoader::start()
+void codeLoader::make_connection()
 {
     int numDev = par("numDev").longValue();
     if(numDev < 0)
@@ -158,13 +161,32 @@ void codeLoader::start()
         mod->callInitialize();
     }
 
-    // call init_board for each board in a separate child thread
+    // make connection to each device in a separate child thread
     std::vector<std::thread> workers;
     for(int ii = 0; ii < numDev; ii++)
     {
         cModule *module = simulation.getSystemModule()->getSubmodule("dev", ii);
         ASSERT(module);
-        workers.push_back( std::thread (&codeLoader::init_board, this, module) );
+
+        workers.push_back(std::thread([=]() {  // pass by value
+
+            printf(">>> Connecting to %s ... \n\n", module->par("host").stringValue());
+            std::cout.flush();
+
+            // create SSH connection to the dev
+            SSH_Helper *board = new SSH_Helper(module->par("host").stringValue(),
+                    module->par("port").longValue(),
+                    module->par("username").stringValue(),
+                    module->par("password").stringValue(), true);
+
+            ASSERT(board);
+
+            {
+                std::lock_guard<std::mutex> lock(lock_vector);
+                active_SSH.push_back( std::make_pair(module, board) );
+            }
+
+        }));
     }
 
     // wait for all threads to finish
@@ -172,27 +194,37 @@ void codeLoader::start()
         t.join();
     });
 
+    // make sure all dev are connected
+    ASSERT(active_SSH.size() == (unsigned int)numDev);
+
+    // call init_board for each device in a separate child thread
+    workers.clear();
+    for(auto &ii : active_SSH)
+        workers.push_back( std::thread (&codeLoader::init_board, this, ii.first, ii.second) );
+
+    // wait for all threads to finish
+    std::for_each(workers.begin(), workers.end(), [](std::thread &t) {
+        t.join();
+    });
+
     std::cout << "All done! \n" << std::flush;
+
+    // delete all SSH sessions that have no active threads
+    for(auto &ii : active_SSH)
+    {
+        if(ii.second->getNumActiveThreads() == 0)
+            delete ii.second;
+    }
 }
 
 
-void codeLoader::init_board(cModule *mod)
+void codeLoader::init_board(cModule *module, SSH_Helper *board)
 {
-    ASSERT(mod);
-
-    printf(">>> Connecting to %s ... \n\n", mod->par("host").stringValue());
-    std::cout.flush();
-
-    // create SSH connection to the dev
-    SSH_Helper *board = new SSH_Helper(mod->par("host").stringValue(),
-            mod->par("port").longValue(),
-            mod->par("username").stringValue(),
-            mod->par("password").stringValue(), true);
-
+    ASSERT(module);
     ASSERT(board);
 
     // should we reboot this dev before proceeding?
-    if(mod->par("rebootAtStart").boolValue())
+    if(module->par("rebootAtStart").boolValue())
     {
         printf(">>> Re-booting device @%s ... Please wait \n\n", board->getHostName().c_str());
         std::cout.flush();
@@ -223,7 +255,7 @@ void codeLoader::init_board(cModule *mod)
             (std::istreambuf_iterator<char>()    ) );
 
     // get a pointer to the dev class
-    dev *devPtr = static_cast<dev *>(mod);
+    dev *devPtr = static_cast<dev *>(module);
     ASSERT(devPtr);
 
     // ask dev to substitute its parameters in the init script
@@ -244,7 +276,7 @@ void codeLoader::init_board(cModule *mod)
     //##################################
     // Step 3: remotely compile the code
     //##################################
-    std::string applName = mod->par("applName").stringValue();
+    std::string applName = module->par("applName").stringValue();
     if(applName == "")
         throw cRuntimeError("applName is empty!");
 
@@ -290,15 +322,6 @@ void codeLoader::init_board(cModule *mod)
     std::cout.flush();
 
     board->run_command_loop(compileShell, "./" + applName, 7000, true);
-
-    // wrapping up --delete this SSH session if no active threads exist
-    if(board->getNumActiveThreads() == 0)
-        delete board;
-    else
-    {
-        std::lock_guard<std::mutex> lock(lock_vector);
-        active_SSH.push_back(board);
-    }
 }
 
 }
