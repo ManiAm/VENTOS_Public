@@ -213,7 +213,10 @@ void codeLoader::make_connection()
     for(auto &ii : active_SSH)
     {
         if(ii.second->getNumActiveThreads() == 0)
+        {
             delete ii.second;
+            ii.second = NULL;  // make SSH pointer NULL
+        }
     }
 }
 
