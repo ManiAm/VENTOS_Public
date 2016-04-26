@@ -34,7 +34,6 @@ namespace VENTOS {
 
 Define_Module(VENTOS::codeLoader);
 
-std::mutex codeLoader::lock_vector;
 
 codeLoader::~codeLoader()
 {
@@ -86,10 +85,10 @@ void codeLoader::initialize(int stage)
 void codeLoader::finish()
 {
     // delete all active SSH sessions
-    for(auto &ii : active_SSH)
+    for(auto &i : active_SSH)
     {
-        if(ii.second)
-            delete ii.second;
+        if(i.second)
+            delete i.second;
     }
 }
 
@@ -168,17 +167,18 @@ void codeLoader::make_connection()
         cModule *module = simulation.getSystemModule()->getSubmodule("dev", ii);
         ASSERT(module);
 
+        std::string host = module->par("host").stringValue();
+        int port = module->par("port").longValue();
+        std::string username = module->par("username").stringValue();
+        std::string password = module->par("password").stringValue();
+
         workers.push_back(std::thread([=]() {  // pass by value
 
             printf(">>> Connecting to %s ... \n\n", module->par("host").stringValue());
             std::cout.flush();
 
             // create SSH connection to the dev
-            SSH_Helper *board = new SSH_Helper(module->par("host").stringValue(),
-                    module->par("port").longValue(),
-                    module->par("username").stringValue(),
-                    module->par("password").stringValue(), true);
-
+            SSH_Helper *board = new SSH_Helper(host, port, username, password, true);
             ASSERT(board);
 
             {

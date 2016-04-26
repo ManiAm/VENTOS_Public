@@ -73,7 +73,7 @@ private:
 
     // active SSH sessions
     std::vector< std::pair<cModule *, SSH_Helper *> > active_SSH;
-    static std::mutex lock_vector;
+    std::mutex lock_vector;
 };
 
 }
