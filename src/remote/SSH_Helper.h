@@ -45,7 +45,7 @@ public:
     // switch to sudo space
     void getSudo(ssh_channel);
     // runs a non-blocking command, checks if it did not fail and returns its output
-    std::string run_command(ssh_channel, std::string, int = 2, bool = false);
+    std::string run_command(ssh_channel, std::string, int = 3, bool = false);
     // checks if the last executed command failed or not
     int last_command_failed(ssh_channel);
     // runs a blocking command and continuously monitor output -- does not check if command failed!

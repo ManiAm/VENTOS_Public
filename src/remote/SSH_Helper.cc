@@ -76,7 +76,7 @@ double SSH_Helper::rebootDev(ssh_channel SSH_channel, int timeOut)
 
     // keep pinging dev
     bool disconnected = false;
-    while(true)
+    while(ssh_channel_is_open(SSH_channel) && !ssh_channel_is_eof(SSH_channel))
     {
         // wait for 100 ms
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -163,7 +163,7 @@ std::string SSH_Helper::run_command(ssh_channel SSH_channel, std::string command
     std::string command_output = "";
     int numTimeouts = 0;
     bool identFirstLine = false;
-    while (true)
+    while (ssh_channel_is_open(SSH_channel) && !ssh_channel_is_eof(SSH_channel))
     {
         int nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, TIMEOUT_MS);
 
@@ -264,7 +264,7 @@ int SSH_Helper::last_command_failed(ssh_channel SSH_channel)
     // read the output from remote shell
     char buffer[1000];
     std::string command_output = "";
-    while (true)
+    while (ssh_channel_is_open(SSH_channel) && !ssh_channel_is_eof(SSH_channel))
     {
         int nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, TIMEOUT_MS);
 
@@ -341,7 +341,7 @@ void SSH_Helper::run_command_loop(ssh_channel SSH_channel, std::string command, 
         // read the output from remote shell
         char buffer[1000];
         bool identFirstLine = false;
-        while (!terminating)
+        while (ssh_channel_is_open(SSH_channel) && !ssh_channel_is_eof(SSH_channel) && !terminating)
         {
             int nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, TIMEOUT_MS);
 

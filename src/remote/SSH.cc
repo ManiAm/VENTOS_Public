@@ -602,7 +602,7 @@ ssh_channel SSH::openShell()
 
     // read the greeting message from remote shell and redirect it to /dev/null
     char buffer[1000];
-    while (true)
+    while (ssh_channel_is_open(SSH_channel) && !ssh_channel_is_eof(SSH_channel))
     {
         int nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, TIMEOUT_MS);
 
@@ -632,6 +632,8 @@ void SSH::closeShell(ssh_channel SSH_channel)
         ssh_channel_send_eof(SSH_channel);
         ssh_channel_close(SSH_channel);
         ssh_channel_free(SSH_channel);
+
+        SSH_channel = NULL;
     }
 }
 
