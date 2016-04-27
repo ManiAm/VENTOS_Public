@@ -8,9 +8,10 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/fcntl.h>
+#include <sys/time.h>
+
 #include "rsi_wave_util.h"
 #include "BSM_create.h"
-#include <sys/time.h>
 
 
 #define OPERATING_CLASS            17

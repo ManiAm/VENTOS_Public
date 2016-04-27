@@ -200,7 +200,11 @@ void codeLoader::make_connection()
     // call init_board for each device in a separate child thread
     workers.clear();
     for(auto &ii : active_SSH)
+    {
+        // todo: make sure it is redpine board
+
         workers.push_back( std::thread (&codeLoader::init_board, this, ii.first, ii.second) );
+    }
 
     // wait for all threads to finish
     std::for_each(workers.begin(), workers.end(), [](std::thread &t) {
@@ -273,8 +277,11 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
     printf(">>> Syncing source codes with %s ... \n\n", board->getHostName().c_str());
     std::cout.flush();
 
-    boost::filesystem::path sampleAppl_FullPath = redpineAppl_FullPath / "sampleAppl";
-    board->syncDir(sampleAppl_FullPath, remoteDir_SourceCode);
+    board->createDir(remoteDir_SourceCode);  // create a directory to store all our source codes
+    board->createDir(remoteDir_SourceCode / "libs");  // create an empty sub-directory called libs
+
+    board->syncDir(redpineAppl_FullPath / "headers", remoteDir_SourceCode); // copy local folder 'header'
+    board->syncDir(redpineAppl_FullPath / "sampleAppl", remoteDir_SourceCode); // copy local folder 'sampleAppl'
 
     //##################################
     // Step 3: remotely compile the code
@@ -288,13 +295,13 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
 
     // -std=c99 or -std=gnu99
     char command[500];
-    sprintf(command, "gcc -std=c99 %s.c -o %s ./rsi_wave_api/lib_rsi_wave_api.a ./dsrc/libdsrc.a -I ./dsrc/includes/ -lpthread", applName.c_str(), applName.c_str());
+    sprintf(command, "gcc -std=c99 %s.c -o %s ../libs/lib_rsi_wave_api.a ../libs/libdsrc.a -lpthread -I ../headers -I ../headers/DSRC_J2735/ -I ../headers/rsi_wave_api/", applName.c_str(), applName.c_str());
 
     // open a shell -- do not close, we will use this shell later
     ssh_channel compileShell = board->openShell();
 
     board->run_command(compileShell, "sudo su");
-    board->run_command(compileShell, "cd " + remoteDir_SourceCode.string());
+    board->run_command(compileShell, "cd " + (remoteDir_SourceCode / "sampleAppl").string());
     board->run_command(compileShell, command, 10, false);
 
     //########################################################
