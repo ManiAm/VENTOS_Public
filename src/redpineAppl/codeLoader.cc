@@ -300,7 +300,6 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
     // open a shell -- do not close, we will use this shell later
     ssh_channel compileShell = board->openShell();
 
-    board->run_command(compileShell, "sudo su");
     board->run_command(compileShell, "cd " + (remoteDir_SourceCode / "sampleAppl").string());
     board->run_command(compileShell, command, 10, false);
 
@@ -313,9 +312,8 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
     // open a shell -- do not close, we will use this shell later
     ssh_channel firstShell = board->openShell();
 
-    board->run_command(firstShell, "sudo su");
     board->run_command(firstShell, "cd " + remoteDir_Driver.string());
-    board->run_command(firstShell, "./" + initScriptName, 10, false);
+    board->run_command(firstShell, "sudo ./" + initScriptName, 10, false);
 
     //###############################################
     // Step 5: remotely start 1609 stack in WAVE mode
@@ -323,7 +321,7 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
     printf(">>> Start 1609 stack in WAVE mode @%s ... \n\n", board->getHostName().c_str());
     std::cout.flush();
 
-    board->run_command_loop(firstShell, "if ! pgrep rsi_1609 > /dev/null; then ./rsi_1609; fi", 7000, true);
+    board->run_command_loop(firstShell, "if ! pgrep rsi_1609 > /dev/null; then sudo ./rsi_1609; fi", 7000, true);
 
     //##############################
     // Step 6: remotely run the code
@@ -331,7 +329,7 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
     printf(">>> Running %s @%s ... \n\n", applName.c_str(), board->getHostName().c_str());
     std::cout.flush();
 
-    board->run_command_loop(compileShell, "./" + applName, 7000, true);
+    board->run_command_loop(compileShell, "sudo ./" + applName, 7000, true);
 }
 
 }
