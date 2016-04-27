@@ -248,6 +248,10 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
         ASSERT(board);
     }
 
+    // open as many shells as we need
+    ssh_channel shell1 = board->openShell();
+    ssh_channel shell2 = board->openShell();
+
     //#################################################
     // Step 1: copy the init script to remoteDir_Driver
     //#################################################
@@ -297,11 +301,8 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
     char command[500];
     sprintf(command, "gcc -std=c99 %s.c -o %s ../libs/lib_rsi_wave_api.a ../libs/libdsrc.a -lpthread -I ../headers -I ../headers/DSRC_J2735/ -I ../headers/rsi_wave_api/", applName.c_str(), applName.c_str());
 
-    // open a shell -- do not close, we will use this shell later
-    ssh_channel compileShell = board->openShell();
-
-    board->run_command(compileShell, "cd " + (remoteDir_SourceCode / "sampleAppl").string());
-    board->run_command(compileShell, command, 10, false);
+    board->run_command(shell1, "cd " + (remoteDir_SourceCode / "sampleAppl").string());
+    board->run_command(shell1, command, 10, false);
 
     //########################################################
     // Step 4: remotely run the script in the remoteDir_Driver
@@ -309,11 +310,8 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
     printf(">>> Running the init script @%s ... \n\n", board->getHostName().c_str());
     std::cout.flush();
 
-    // open a shell -- do not close, we will use this shell later
-    ssh_channel firstShell = board->openShell();
-
-    board->run_command(firstShell, "cd " + remoteDir_Driver.string());
-    board->run_command(firstShell, "sudo ./" + initScriptName, 10, false);
+    board->run_command(shell1, "cd " + remoteDir_Driver.string());
+    board->run_command(shell1, "sudo ./" + initScriptName, 10, false);
 
     //###############################################
     // Step 5: remotely start 1609 stack in WAVE mode
@@ -321,7 +319,8 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
     printf(">>> Start 1609 stack in WAVE mode @%s ... \n\n", board->getHostName().c_str());
     std::cout.flush();
 
-    board->run_command_loop(firstShell, "if ! pgrep rsi_1609 > /dev/null; then sudo ./rsi_1609; fi", 7000, true);
+    board->run_command(shell1, "cd " + remoteDir_Driver.string());
+    board->run_command_loop(shell1, "if ! pgrep rsi_1609 > /dev/null; then sudo ./rsi_1609; fi", 7000, false);
 
     //##############################
     // Step 6: remotely run the code
@@ -329,7 +328,8 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
     printf(">>> Running %s @%s ... \n\n", applName.c_str(), board->getHostName().c_str());
     std::cout.flush();
 
-    board->run_command_loop(compileShell, "sudo ./" + applName, 7000, true);
+    board->run_command(shell2, "cd " + (remoteDir_SourceCode / "sampleAppl").string());
+    board->run_command_loop(shell2, "sudo ./" + applName, 7000, true);
 }
 
 }
