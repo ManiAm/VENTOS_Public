@@ -476,7 +476,21 @@ std::vector<sftp_attributes> SSH::listDir(boost::filesystem::path remote_dir)
 }
 
 
-// copy all new/modified files in local directory to remote directory
+void SSH::createDir(boost::filesystem::path newDirpath)
+{
+    ASSERT(SSH_session);
+    ASSERT(SFTP_session);
+
+    int rc = sftp_mkdir(SFTP_session, newDirpath.c_str(), S_IRWXU);
+    if (rc != SSH_OK)
+    {
+        if (sftp_get_error(SFTP_session) != SSH_FX_FILE_ALREADY_EXISTS)
+            throw cRuntimeError("Can't create directory: %s", ssh_get_error(SSH_session));
+    }
+}
+
+
+// copy all new/modified files/folders in local directory to remote directory
 void SSH::syncDir(boost::filesystem::path source, boost::filesystem::path remote_dir)
 {
     ASSERT(SSH_session);
@@ -490,50 +504,63 @@ void SSH::syncDir(boost::filesystem::path source, boost::filesystem::path remote
     if(!boost::filesystem::is_directory(source))
         throw cRuntimeError("source is not a directory!: %s", source.c_str());
 
-    // get local directory listing
-    std::vector<boost::filesystem::path> localDirListing;
-    boost::filesystem::recursive_directory_iterator end;
-    for (boost::filesystem::recursive_directory_iterator i(source); i != end; ++i)
-        localDirListing.push_back((*i));
+    std::vector<boost::filesystem::path> directories;
+    directories.push_back(source);
 
-    // get the list of files in remote directory
-    std::vector<sftp_attributes> remoteDirListing = listDir(remote_dir);
-
-    // iterate over local files
-    std::vector<boost::filesystem::path> needCopy;
-    for(auto &i : localDirListing)
+    while(!directories.empty())
     {
-        if(boost::filesystem::is_directory(i))
-            continue;
+        boost::filesystem::path currentDir = directories.back();
+        directories.pop_back();
 
-        // extract the file name from the full path
-        std::string localFileName = i.filename().string();
+        // get local directory listing
+        std::vector<boost::filesystem::path> localDirListing;
+        boost::filesystem::directory_iterator end;
+        for (boost::filesystem::directory_iterator i(currentDir); i != end; ++i)
+            localDirListing.push_back((*i));
 
-        // search for file name in remote dir
-        auto it = std::find_if(remoteDirListing.begin(), remoteDirListing.end(),
-                [&localFileName](const sftp_attributes& obj) {return std::string(obj->name) == localFileName;});
+        std::string relativePath = currentDir.string();
+        relativePath.erase(0, source.string().size());
+        boost::filesystem::path newRemoteDir = remote_dir / source.filename().string() / relativePath;
 
-        // the file does not exist in remote dir
-        if(it == remoteDirListing.end())
-            needCopy.push_back(i);
-        else
+        createDir(newRemoteDir);  // create directory with the same name in the remote device
+
+        // get the list of files in remote directory
+        std::vector<sftp_attributes> remoteDirListing = listDir(newRemoteDir);  // todo: list  only files
+
+        // iterate over local files/directories
+        for(auto &i : localDirListing)
         {
-            // check this link http://stackoverflow.com/questions/12760574/string-size-is-different-on-windows-than-on-linux
-            uint64_t size_local = boost::filesystem::file_size(i);
-            uint64_t size_remote = (*it)->size;
+            if(boost::filesystem::is_directory(i))
+            {
+                directories.push_back(i);
+                continue;
+            }
 
-            // check this link http://stackoverflow.com/questions/3385203/regarding-access-time-unix
-            //int64_t modTime_local = boost::filesystem::last_write_time(i);
-            //uint32_t modTime_remote = (*it)->mtime;
+            // extract the file name from the full path
+            std::string localFileName = i.filename().string();
 
-            //if(size_local != size_remote /*|| modTime_local != modTime_remote*/)  // todo: comparing modification times is not correct!
-            needCopy.push_back(i);
+            // search for file name in remote dir
+            auto it = std::find_if(remoteDirListing.begin(), remoteDirListing.end(),
+                    [&localFileName](const sftp_attributes& obj) {return std::string(obj->name) == localFileName;});
+
+            // the file does not exist in remote dir
+            if(it == remoteDirListing.end())
+                copyFile_SFTP(i, newRemoteDir);
+            else
+            {
+                // check this link http://stackoverflow.com/questions/12760574/string-size-is-different-on-windows-than-on-linux
+                uint64_t size_local = boost::filesystem::file_size(i);
+                uint64_t size_remote = (*it)->size;
+
+                // check this link http://stackoverflow.com/questions/3385203/regarding-access-time-unix
+                //int64_t modTime_local = boost::filesystem::last_write_time(i);
+                //uint32_t modTime_remote = (*it)->mtime;
+
+                //if(size_local != size_remote /*|| modTime_local != modTime_remote*/)  // todo: comparing modification times is not correct!
+                copyFile_SFTP(i, newRemoteDir);
+            }
         }
     }
-
-    // copy all new/modified files to the remote dir
-    for(auto &i : needCopy)
-        copyFile_SFTP(i, remote_dir);
 }
 
 

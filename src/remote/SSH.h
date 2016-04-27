@@ -53,6 +53,7 @@ public:
     void copyFile_SFTP(boost::filesystem::path, boost::filesystem::path);
     void copyFileStr_SFTP(std::string, std::string, boost::filesystem::path);
     std::vector<sftp_attributes> listDir(boost::filesystem::path dirpath);
+    void createDir(boost::filesystem::path newDirpath);
     void syncDir(boost::filesystem::path, boost::filesystem::path);
 
     ssh_channel openShell();
