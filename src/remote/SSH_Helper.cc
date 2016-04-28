@@ -175,7 +175,6 @@ std::string SSH_Helper::run_command(ssh_channel SSH_channel, std::string command
 
         {
             std::lock_guard<std::mutex> lock(lock_SSH_Session);
-
             nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, TIMEOUT_MS);
         }
 
@@ -284,7 +283,6 @@ int SSH_Helper::last_command_failed(ssh_channel SSH_channel)
 
         {
             std::lock_guard<std::mutex> lock(lock_SSH_Session);
-
             nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, TIMEOUT_MS);
         }
 
@@ -372,7 +370,6 @@ void SSH_Helper::run_command_loop(ssh_channel SSH_channel, std::string command, 
 
             {
                 std::lock_guard<std::mutex> lock(lock_SSH_Session);
-
                 nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, TIMEOUT_MS);
             }
 
