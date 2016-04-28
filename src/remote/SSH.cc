@@ -282,17 +282,34 @@ void SSH::authenticate(std::string password)
     // Try to authenticate with password
     if (method & SSH_AUTH_METHOD_PASSWORD)
     {
+        // if password is provided then try it
+        if(password != "")
+        {
+            // make sure the password is in UFT-8
+            std::string temp;
+            utf8::replace_invalid(password.begin(), password.end(), back_inserter(temp));
+            password = temp;
+
+            // Authenticate ourselves
+            rc = ssh_userauth_password(SSH_session, NULL, password.c_str());
+            if (rc == SSH_AUTH_ERROR)
+                throw cRuntimeError("Authentication failed.");
+            else if (rc == SSH_AUTH_SUCCESS)
+                return;
+
+            printf("    Username/password combination is not correct. Try again! \n");
+            std::cout.flush();
+        }
+
+        // if we are here then the password did not work!
+
         while(true)
         {
-            // if no password is provided, then ask the user
-            if(password == "")
-            {
-                // only one SSH connection should access this
-                std::lock_guard<std::mutex> lock(lock_prompt);
+            // only one SSH connection should access this
+            std::lock_guard<std::mutex> lock(lock_prompt);
 
-                std::cout << "    Password @" + dev_hostName + ": ";
-                getline(std::cin, password);
-            }
+            std::cout << "    Password @" + dev_hostName + ": ";
+            getline(std::cin, password);
 
             // make sure the password is in UFT-8
             std::string temp;
