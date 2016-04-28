@@ -232,7 +232,7 @@ std::string SSH_Helper::run_command(ssh_channel SSH_channel, std::string command
     if(printOutput)
         printf("\n\n");
 
-    int ret = last_command_failed(SSH_channel);
+    int ret = last_command_failed(SSH_channel, 2);
     // last command failed (ret=1) or we did not get any result (ret=-1)
     if(ret != 0)
     {
@@ -259,7 +259,7 @@ std::string SSH_Helper::run_command(ssh_channel SSH_channel, std::string command
 }
 
 
-int SSH_Helper::last_command_failed(ssh_channel SSH_channel)
+int SSH_Helper::last_command_failed(ssh_channel SSH_channel, int maxTimeOutCount)
 {
     // run echo %? to get the return value
     std::string command = "echo $?";
@@ -277,6 +277,7 @@ int SSH_Helper::last_command_failed(ssh_channel SSH_channel)
     // read the output from remote shell
     char buffer[1000];
     std::string command_output = "";
+    int numTimeouts = 0;
     while (ssh_channel_is_open(SSH_channel) && !ssh_channel_is_eof(SSH_channel))
     {
         int nbytes = 0;
@@ -295,10 +296,20 @@ int SSH_Helper::last_command_failed(ssh_channel SSH_channel)
         }
         // end of file
         else if(nbytes == 0)
-            break;
+        {
+            numTimeouts++;
+            // did we wait long enough?
+            if(numTimeouts >= maxTimeOutCount)
+                break;
+        }
+        else if(nbytes > 0)
+        {
+            // reset counter
+            numTimeouts = 0;
 
-        for (int ii = 0; ii < nbytes; ii++)
-            command_output += static_cast<char>(buffer[ii]);
+            for (int ii = 0; ii < nbytes; ii++)
+                command_output += static_cast<char>(buffer[ii]);
+        }
     }
 
     // get number of lines
