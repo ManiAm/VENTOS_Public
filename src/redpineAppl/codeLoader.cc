@@ -197,13 +197,17 @@ void codeLoader::make_connection()
     // make sure all dev are connected
     ASSERT(active_SSH.size() == (unsigned int)numDev);
 
+    printf("\n");
+    std::cout.flush();
+
     // call init_board for each device in a separate child thread
     workers.clear();
     for(auto &ii : active_SSH)
     {
         // todo: make sure it is redpine board
+        workers.push_back( std::thread (&codeLoader::init_test, this, ii.first, ii.second) );
 
-        workers.push_back( std::thread (&codeLoader::init_board, this, ii.first, ii.second) );
+        //workers.push_back( std::thread (&codeLoader::init_board, this, ii.first, ii.second) );
     }
 
     // wait for all threads to finish
@@ -330,6 +334,22 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
 
     board->run_command(shell2, "cd " + (remoteDir_SourceCode / "sampleAppl").string());
     board->run_command_loop(shell2, "sudo ./" + applName, 7000, true);
+}
+
+
+void codeLoader::init_test(cModule *module, SSH_Helper *board)
+{
+    ASSERT(module);
+    ASSERT(board);
+
+    ssh_channel shell1 = board->openShell("shell1", true);
+
+    //board->run_command(shell1, "[[ $- == *i* ]] && echo 'Interactive' || echo 'Not interactive'", 5, true);
+    //board->run_command(shell1, "shopt -q login_shell && echo 'Login shell' || echo 'Not login shell'", 5, true);
+
+    //board->run_command(shell1, "tmux set -g status off", 10, true);
+    //board->run_command(shell1, "tmux", 10, true);
+
 }
 
 }
