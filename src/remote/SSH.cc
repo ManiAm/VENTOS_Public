@@ -564,47 +564,58 @@ void SSH::syncDir(boost::filesystem::path source, boost::filesystem::path remote
 }
 
 
-ssh_channel SSH::openShell()
+ssh_channel SSH::openShell(std::string shellName, bool keepRunning)
 {
     ASSERT(SSH_session);
 
-    ssh_channel SSH_channel = ssh_channel_new(SSH_session);
-    if (SSH_channel == NULL)
-        throw cRuntimeError("SSH error in openShell");
+    ssh_channel SSH_channel = NULL;
 
-    int rc = ssh_channel_open_session(SSH_channel);
-    if (rc != SSH_OK)
     {
-        ssh_channel_free(SSH_channel);
-        throw cRuntimeError("SSH error in openShell");
-    }
+        std::lock_guard<std::mutex> lock(lock_SSH_Session);
 
-    rc = ssh_channel_request_pty(SSH_channel);
-    if (rc != SSH_OK)
-    {
-        ssh_channel_free(SSH_channel);
-        throw cRuntimeError("SSH error in openShell");
-    }
+        SSH_channel = ssh_channel_new(SSH_session);
+        if (SSH_channel == NULL)
+            throw cRuntimeError("SSH error in openShell");
 
-    rc = ssh_channel_change_pty_size(SSH_channel, 80 /*cols*/, 30 /*rows*/);
-    if (rc != SSH_OK)
-    {
-        ssh_channel_free(SSH_channel);
-        throw cRuntimeError("SSH error in openShell");
-    }
+        int rc = ssh_channel_open_session(SSH_channel);
+        if (rc != SSH_OK)
+        {
+            ssh_channel_free(SSH_channel);
+            throw cRuntimeError("SSH error in openShell");
+        }
 
-    rc = ssh_channel_request_shell(SSH_channel);
-    if (rc != SSH_OK)
-    {
-        ssh_channel_free(SSH_channel);
-        throw cRuntimeError("SSH error in openShell");
+        rc = ssh_channel_request_pty(SSH_channel);
+        if (rc != SSH_OK)
+        {
+            ssh_channel_free(SSH_channel);
+            throw cRuntimeError("SSH error in openShell");
+        }
+
+        rc = ssh_channel_change_pty_size(SSH_channel, 80 /*cols*/, 30 /*rows*/);
+        if (rc != SSH_OK)
+        {
+            ssh_channel_free(SSH_channel);
+            throw cRuntimeError("SSH error in openShell");
+        }
+
+        rc = ssh_channel_request_shell(SSH_channel);
+        if (rc != SSH_OK)
+        {
+            ssh_channel_free(SSH_channel);
+            throw cRuntimeError("SSH error in openShell");
+        }
     }
 
     // read the greeting message from remote shell and redirect it to /dev/null
     char buffer[1000];
     while (ssh_channel_is_open(SSH_channel) && !ssh_channel_is_eof(SSH_channel))
     {
-        int nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, TIMEOUT_MS);
+        int nbytes = 0;
+
+        {
+            std::lock_guard<std::mutex> lock(lock_SSH_Session);
+            nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, TIMEOUT_MS);
+        }
 
         // SSH_ERROR
         if(nbytes < 0)

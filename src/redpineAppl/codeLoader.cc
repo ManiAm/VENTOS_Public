@@ -236,7 +236,7 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
         printf(">>> Re-booting device @%s ... Please wait \n\n", board->getHostName().c_str());
         std::cout.flush();
 
-        ssh_channel rebootShell = board->openShell();  // open a shell
+        ssh_channel rebootShell = board->openShell("rebootShell");  // open a shell
         double duration_ms = board->rebootDev(rebootShell, 40000);
         board->closeShell(rebootShell);  // close the shell
 
@@ -249,8 +249,8 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
     }
 
     // open as many shells as we need
-    ssh_channel shell1 = board->openShell();
-    ssh_channel shell2 = board->openShell();
+    ssh_channel shell1 = board->openShell("shell1", true);
+    ssh_channel shell2 = board->openShell("shell2", true);
 
     //#################################################
     // Step 1: copy the init script to remoteDir_Driver

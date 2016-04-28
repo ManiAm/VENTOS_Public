@@ -67,16 +67,20 @@ double SSH_Helper::rebootDev(ssh_channel SSH_channel, int timeOut)
     Htime_t startBoot = std::chrono::high_resolution_clock::now();
 
     // sending the reboot command without waiting for response
-    char buffer[1000];
-    int nbytes = sprintf (buffer, "%s \n", "sudo reboot");
-    if (ssh_channel_write(SSH_channel, buffer, nbytes) != nbytes)
-        throw cRuntimeError("SSH error in writing command to shell");
+    {
+        std::lock_guard<std::mutex> lock(lock_SSH_Session);
+
+        char buffer[1000];
+        int nbytes = sprintf (buffer, "%s \n", "sudo reboot");
+        if (ssh_channel_write(SSH_channel, buffer, nbytes) != nbytes)
+            throw cRuntimeError("SSH error in writing command to shell");
+    }
 
     Htime_t startPing = std::chrono::high_resolution_clock::now();
 
     // keep pinging dev
     bool disconnected = false;
-    while(ssh_channel_is_open(SSH_channel) && !ssh_channel_is_eof(SSH_channel))
+    while(true)
     {
         // wait for 100 ms
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -150,6 +154,8 @@ std::string SSH_Helper::run_command(ssh_channel SSH_channel, std::string command
         throw cRuntimeError("maxTimeOutCount value is invalid!");
 
     {
+        std::lock_guard<std::mutex> lock(lock_SSH_Session);
+
         // run the command in shell
         char buffer[1000];
         int nbytes = sprintf (buffer, "%s \n", command.c_str());
@@ -165,54 +171,58 @@ std::string SSH_Helper::run_command(ssh_channel SSH_channel, std::string command
     bool identFirstLine = false;
     while (ssh_channel_is_open(SSH_channel) && !ssh_channel_is_eof(SSH_channel))
     {
-        int nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, TIMEOUT_MS);
-
-        // SSH_ERROR
-        if(nbytes < 0)
         {
-            ssh_channel_close(SSH_channel);
-            ssh_channel_free(SSH_channel);
-            throw cRuntimeError("SSH error in run_command");
-        }
-        // time out
-        else if(nbytes == 0)
-        {
-            numTimeouts++;
-            // did we wait long enough?
-            if(numTimeouts >= maxTimeOutCount)
-                break;
-        }
-        // buffer has data
-        else if(nbytes > 0)
-        {
-            // reset counter
-            numTimeouts = 0;
+            std::lock_guard<std::mutex> lock(lock_SSH_Session);
 
-            // save output
-            for (int ii = 0; ii < nbytes; ii++)
-                command_output += static_cast<char>(buffer[ii]);
+            int nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, TIMEOUT_MS);
 
-            // print what we have received so far in buffer
-            if(printOutput)
+            // SSH_ERROR
+            if(nbytes < 0)
             {
-                std::string cOutput = "";
+                ssh_channel_close(SSH_channel);
+                ssh_channel_free(SSH_channel);
+                throw cRuntimeError("SSH error in run_command");
+            }
+            // time out
+            else if(nbytes == 0)
+            {
+                numTimeouts++;
+                // did we wait long enough?
+                if(numTimeouts >= maxTimeOutCount)
+                    break;
+            }
+            // buffer has data
+            else if(nbytes > 0)
+            {
+                // reset counter
+                numTimeouts = 0;
+
+                // save output
                 for (int ii = 0; ii < nbytes; ii++)
-                    cOutput += static_cast<char>(buffer[ii]);
+                    command_output += static_cast<char>(buffer[ii]);
 
-                // add indentation to the first line
-                if(!identFirstLine)
+                // print what we have received so far in buffer
+                if(printOutput)
                 {
-                    cOutput = "    " + cOutput;
-                    identFirstLine = true;
+                    std::string cOutput = "";
+                    for (int ii = 0; ii < nbytes; ii++)
+                        cOutput += static_cast<char>(buffer[ii]);
+
+                    // add indentation to the first line
+                    if(!identFirstLine)
+                    {
+                        cOutput = "    " + cOutput;
+                        identFirstLine = true;
+                    }
+
+                    // substituting all \r\n with \n
+                    // Windows = CR LF, Linux = LF, MAC < 0SX = CR
+                    boost::replace_all(cOutput, "\r\n", "\n");
+                    boost::replace_all(cOutput, "\n", "\n    ");  // add indentation to the rest of the lines
+
+                    std::cout << cOutput;
+                    std::cout.flush();
                 }
-
-                // substituting all \r\n with \n
-                // Windows = CR LF, Linux = LF, MAC < 0SX = CR
-                boost::replace_all(cOutput, "\r\n", "\n");
-                boost::replace_all(cOutput, "\n", "\n    ");  // add indentation to the rest of the lines
-
-                std::cout << cOutput;
-                std::cout.flush();
             }
         }
     }
@@ -254,6 +264,8 @@ int SSH_Helper::last_command_failed(ssh_channel SSH_channel)
     std::string command = "echo $?";
 
     {
+        std::lock_guard<std::mutex> lock(lock_SSH_Session);
+
         char buffer[1000];
         int nbytes = sprintf (buffer, "%s \n", command.c_str());
         int nwritten = ssh_channel_write(SSH_channel, buffer, nbytes);
@@ -266,21 +278,25 @@ int SSH_Helper::last_command_failed(ssh_channel SSH_channel)
     std::string command_output = "";
     while (ssh_channel_is_open(SSH_channel) && !ssh_channel_is_eof(SSH_channel))
     {
-        int nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, TIMEOUT_MS);
-
-        // SSH_ERROR
-        if(nbytes < 0)
         {
-            ssh_channel_close(SSH_channel);
-            ssh_channel_free(SSH_channel);
-            throw cRuntimeError("SSH error in run_command");
-        }
-        // end of file
-        else if(nbytes == 0)
-            break;
+            std::lock_guard<std::mutex> lock(lock_SSH_Session);
 
-        for (int ii = 0; ii < nbytes; ii++)
-            command_output += static_cast<char>(buffer[ii]);
+            int nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, TIMEOUT_MS);
+
+            // SSH_ERROR
+            if(nbytes < 0)
+            {
+                ssh_channel_close(SSH_channel);
+                ssh_channel_free(SSH_channel);
+                throw cRuntimeError("SSH error in run_command");
+            }
+            // end of file
+            else if(nbytes == 0)
+                break;
+
+            for (int ii = 0; ii < nbytes; ii++)
+                command_output += static_cast<char>(buffer[ii]);
+        }
     }
 
     // get number of lines
@@ -327,6 +343,8 @@ void SSH_Helper::run_command_loop(ssh_channel SSH_channel, std::string command, 
         throw cRuntimeError("waitTime value is invalid!");
 
     {
+        std::lock_guard<std::mutex> lock(lock_SSH_Session);
+
         // run the command in shell
         char buffer[1000];
         int nbytes = sprintf (buffer, "%s \n", command.c_str());
@@ -343,41 +361,48 @@ void SSH_Helper::run_command_loop(ssh_channel SSH_channel, std::string command, 
         bool identFirstLine = false;
         while (ssh_channel_is_open(SSH_channel) && !ssh_channel_is_eof(SSH_channel) && !terminating)
         {
-            int nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, TIMEOUT_MS);
+            {
+                std::lock_guard<std::mutex> lock(lock_SSH_Session);
 
-            // SSH_ERROR
-            if(nbytes < 0)
-            {
-                ssh_channel_close(SSH_channel);
-                ssh_channel_free(SSH_channel);
-                break;   // do not throw error
-            }
-            // buffer has data
-            else if(nbytes > 0)
-            {
-                // print what we have received so far in buffer
-                if(printOutput)
+                int nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, TIMEOUT_MS);
+
+                // SSH_ERROR
+                if(nbytes < 0)
                 {
-                    std::string cOutput = "";
-                    for (int ii = 0; ii < nbytes; ii++)
-                        cOutput += static_cast<char>(buffer[ii]);
-
-                    // add indentation to the first line
-                    if(!identFirstLine)
+                    ssh_channel_close(SSH_channel);
+                    ssh_channel_free(SSH_channel);
+                    break;   // do not throw error
+                }
+                // buffer has data
+                else if(nbytes > 0)
+                {
+                    // print what we have received so far in buffer
+                    if(printOutput)
                     {
-                        cOutput = "    " + cOutput;
-                        identFirstLine = true;
+                        std::string cOutput = "";
+                        for (int ii = 0; ii < nbytes; ii++)
+                            cOutput += static_cast<char>(buffer[ii]);
+
+                        // add indentation to the first line
+                        if(!identFirstLine)
+                        {
+                            cOutput = "    " + cOutput;
+                            identFirstLine = true;
+                        }
+
+                        // substituting all \r\n with \n
+                        // Windows = CR LF, Linux = LF, MAC < 0SX = CR
+                        boost::replace_all(cOutput, "\r\n", "\n");
+                        boost::replace_all(cOutput, "\n", "\n    ");  // add indentation to the rest of the lines
+
+                        std::cout << cOutput;
+                        std::cout.flush();
                     }
-
-                    // substituting all \r\n with \n
-                    // Windows = CR LF, Linux = LF, MAC < 0SX = CR
-                    boost::replace_all(cOutput, "\r\n", "\n");
-                    boost::replace_all(cOutput, "\n", "\n    ");  // add indentation to the rest of the lines
-
-                    std::cout << cOutput;
-                    std::cout.flush();
                 }
             }
+
+            // let other threads run
+            std::this_thread::yield();
         }
 
         if(active_threads > 0)
@@ -390,8 +415,11 @@ void SSH_Helper::run_command_loop(ssh_channel SSH_channel, std::string command, 
     std::this_thread::sleep_for(std::chrono::milliseconds(waitTime));
 
     // add two new lines for readability
-    printf("\n\n");
-    std::cout.flush();
+    if(printOutput)
+    {
+        printf("\n\n");
+        std::cout.flush();
+    }
 
     active_threads++;
 }

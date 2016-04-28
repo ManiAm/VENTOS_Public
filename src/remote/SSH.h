@@ -56,7 +56,7 @@ public:
     void createDir(boost::filesystem::path newDirpath);
     void syncDir(boost::filesystem::path, boost::filesystem::path);
 
-    ssh_channel openShell();
+    ssh_channel openShell(std::string, bool = false);
     void closeShell(ssh_channel);
 
     std::string getHostName();
@@ -81,6 +81,8 @@ protected:
 
     ssh_session SSH_session;
     sftp_session SFTP_session;
+
+    std::mutex lock_SSH_Session;  // control access to SSH session
 
 private:
     static std::mutex lock_prompt;  // all SSH connections share the same lock
