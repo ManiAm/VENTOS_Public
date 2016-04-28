@@ -566,8 +566,8 @@ void SSH::syncDir(boost::filesystem::path source, boost::filesystem::path remote
             else
             {
                 // check this link http://stackoverflow.com/questions/12760574/string-size-is-different-on-windows-than-on-linux
-                uint64_t size_local = boost::filesystem::file_size(i);
-                uint64_t size_remote = (*it)->size;
+                //uint64_t size_local = boost::filesystem::file_size(i);
+                //uint64_t size_remote = (*it)->size;
 
                 // check this link http://stackoverflow.com/questions/3385203/regarding-access-time-unix
                 //int64_t modTime_local = boost::filesystem::last_write_time(i);
@@ -581,7 +581,7 @@ void SSH::syncDir(boost::filesystem::path source, boost::filesystem::path remote
 }
 
 
-ssh_channel SSH::openShell(std::string shellName, bool keepRunning)
+ssh_channel SSH::openShell(std::string shellName, bool interactive, bool keepAlive)
 {
     ASSERT(SSH_session);
 
@@ -601,18 +601,29 @@ ssh_channel SSH::openShell(std::string shellName, bool keepRunning)
             throw cRuntimeError("SSH error in openShell");
         }
 
-        rc = ssh_channel_request_pty(SSH_channel);
-        if (rc != SSH_OK)
+        /*
+         * Interactive: any shell process that you use to type commands,
+         * and get back output from those commands. The shell
+         * can prompt the user to enter input.
+         *
+         * Non-interactive: the shell is probably run from an automated process so
+         * it can't assume if can request input or that someone will see the output.
+         */
+        if(interactive)
         {
-            ssh_channel_free(SSH_channel);
-            throw cRuntimeError("SSH error in openShell");
-        }
+            rc = ssh_channel_request_pty(SSH_channel);
+            if (rc != SSH_OK)
+            {
+                ssh_channel_free(SSH_channel);
+                throw cRuntimeError("SSH error in openShell");
+            }
 
-        rc = ssh_channel_change_pty_size(SSH_channel, 80 /*cols*/, 30 /*rows*/);
-        if (rc != SSH_OK)
-        {
-            ssh_channel_free(SSH_channel);
-            throw cRuntimeError("SSH error in openShell");
+            rc = ssh_channel_change_pty_size(SSH_channel, 80 /*cols*/, 30 /*rows*/);
+            if (rc != SSH_OK)
+            {
+                ssh_channel_free(SSH_channel);
+                throw cRuntimeError("SSH error in openShell");
+            }
         }
 
         rc = ssh_channel_request_shell(SSH_channel);
@@ -622,6 +633,11 @@ ssh_channel SSH::openShell(std::string shellName, bool keepRunning)
             throw cRuntimeError("SSH error in openShell");
         }
     }
+
+    std::string shell_mode = interactive ? "interactive" : "non-interactive";
+    std::string keepAlive_mode = keepAlive ? "active" : "disabled";
+    printf(">>> Opening %s shell '%s'. KeepAlive is %s. \n\n", shell_mode.c_str(), shellName.c_str(), keepAlive_mode.c_str());
+    std::cout.flush();
 
     // read the greeting message from remote shell and redirect it to /dev/null
     char buffer[1000];
@@ -646,7 +662,7 @@ ssh_channel SSH::openShell(std::string shellName, bool keepRunning)
             break;
 
         //for (int ii = 0; ii < nbytes; ii++)
-        //   std::cout << static_cast<char>(buffer[ii]) << std::flush;
+        //    std::cout << static_cast<char>(buffer[ii]) << std::flush;
     }
 
     return SSH_channel;

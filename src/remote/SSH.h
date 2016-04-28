@@ -56,7 +56,7 @@ public:
     void createDir(boost::filesystem::path newDirpath);
     void syncDir(boost::filesystem::path, boost::filesystem::path);
 
-    ssh_channel openShell(std::string, bool = false);
+    ssh_channel openShell(std::string, bool = true, bool = false);
     void closeShell(ssh_channel);
 
     std::string getHostName();
