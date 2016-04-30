@@ -205,9 +205,9 @@ void codeLoader::make_connection()
     for(auto &ii : active_SSH)
     {
         // todo: make sure it is redpine board
-        workers.push_back( std::thread (&codeLoader::init_test, this, ii.first, ii.second) );
+        //workers.push_back( std::thread (&codeLoader::init_test, this, ii.first, ii.second) );
 
-        //workers.push_back( std::thread (&codeLoader::init_board, this, ii.first, ii.second) );
+        workers.push_back( std::thread (&codeLoader::init_board, this, ii.first, ii.second) );
     }
 
     // wait for all threads to finish
@@ -305,8 +305,8 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
     char command[500];
     sprintf(command, "gcc -std=c99 %s.c -o %s ../libs/lib_rsi_wave_api.a ../libs/libdsrc.a -lpthread -I ../headers -I ../headers/DSRC_J2735/ -I ../headers/rsi_wave_api/", applName.c_str(), applName.c_str());
 
-    board->run_command(shell1, "cd " + (remoteDir_SourceCode / "sampleAppl").string());
-    board->run_command(shell1, command, 10, false);
+    board->run_command_blocking(shell1, "cd " + (remoteDir_SourceCode / "sampleAppl").string());
+    board->run_command_blocking(shell1, command);
 
     //########################################################
     // Step 4: remotely run the script in the remoteDir_Driver
@@ -314,8 +314,8 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
     printf(">>> Running the init script @%s ... \n\n", board->getHostName().c_str());
     std::cout.flush();
 
-    board->run_command(shell1, "cd " + remoteDir_Driver.string());
-    board->run_command(shell1, "sudo ./" + initScriptName, 10, false);
+    board->run_command_blocking(shell1, "cd " + remoteDir_Driver.string());
+    board->run_command_blocking(shell1, "sudo ./" + initScriptName, true);
 
     //###############################################
     // Step 5: remotely start 1609 stack in WAVE mode
@@ -323,8 +323,11 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
     printf(">>> Start 1609 stack in WAVE mode @%s ... \n\n", board->getHostName().c_str());
     std::cout.flush();
 
-    board->run_command(shell1, "cd " + remoteDir_Driver.string());
-    board->run_command_loop(shell1, "if ! pgrep rsi_1609 > /dev/null; then sudo ./rsi_1609; fi", 7000, false);
+    board->run_command_blocking(shell1, "cd " + remoteDir_Driver.string());
+    board->run_command_nonblocking(shell1, "if ! pgrep rsi_1609 > /dev/null; then sudo ./rsi_1609; fi", true);
+
+    // put the main thread to sleep -- let the last non-blocking command to run for a while
+    std::this_thread::sleep_for(std::chrono::milliseconds(5000));
 
     //##############################
     // Step 6: remotely run the code
@@ -332,8 +335,8 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
     printf(">>> Running %s @%s ... \n\n", applName.c_str(), board->getHostName().c_str());
     std::cout.flush();
 
-    board->run_command(shell2, "cd " + (remoteDir_SourceCode / "sampleAppl").string());
-    board->run_command_loop(shell2, "sudo ./" + applName, 7000, true);
+    board->run_command_blocking(shell2, "cd " + (remoteDir_SourceCode / "sampleAppl").string());
+    board->run_command_nonblocking(shell2, "sudo ./" + applName, true);
 }
 
 
@@ -342,7 +345,7 @@ void codeLoader::init_test(cModule *module, SSH_Helper *board)
     ASSERT(module);
     ASSERT(board);
 
-    ssh_channel shell1 = board->openShell("shell1", true);
+    //ssh_channel shell1 = board->openShell("shell1", true);
 
     //board->run_command(shell1, "[[ $- == *i* ]] && echo 'Interactive' || echo 'Not interactive'", 5, true);
     //board->run_command(shell1, "shopt -q login_shell && echo 'Login shell' || echo 'Not login shell'", 5, true);

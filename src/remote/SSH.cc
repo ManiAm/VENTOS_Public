@@ -41,8 +41,6 @@
 
 namespace VENTOS {
 
-#define TIMEOUT_MS 200
-
 std::mutex SSH::lock_prompt;
 
 SSH::~SSH()
@@ -635,8 +633,8 @@ ssh_channel SSH::openShell(std::string shellName, bool interactive, bool keepAli
     }
 
     std::string shell_mode = interactive ? "interactive" : "non-interactive";
-    std::string keepAlive_mode = keepAlive ? "active" : "disabled";
-    printf(">>> Opening %s shell '%s'. KeepAlive is %s. \n\n", shell_mode.c_str(), shellName.c_str(), keepAlive_mode.c_str());
+    std::string keepAlive_mode = keepAlive ? "with" : "without";
+    printf(">>> Opening %s shell '%s' %s keepAlive. \n\n", shell_mode.c_str(), shellName.c_str(), keepAlive_mode.c_str());
     std::cout.flush();
 
     // read the greeting message from remote shell and redirect it to /dev/null

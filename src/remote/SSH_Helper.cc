@@ -32,8 +32,6 @@
 
 namespace VENTOS {
 
-#define TIMEOUT_MS 200
-
 
 SSH_Helper::~SSH_Helper()
 {
@@ -51,7 +49,6 @@ SSH_Helper::SSH_Helper(std::string host, int port, std::string username, std::st
 {
     active_threads = 0;
     terminating = false;
-
 
 }
 
@@ -110,7 +107,7 @@ double SSH_Helper::rebootDev(ssh_channel SSH_channel, int timeOut)
 
 void SSH_Helper::getSudo(ssh_channel SSH_channel)
 {
-    std::string output = run_command(SSH_channel, "sudo -n uptime 2>&1 | grep 'load' | wc -l");
+    std::string output = run_command_blocking(SSH_channel, "sudo -n uptime 2>&1 | grep 'load' | wc -l");
 
     // get the second line of the output
     std::istringstream inputStr(output);
@@ -123,7 +120,7 @@ void SSH_Helper::getSudo(ssh_channel SSH_channel)
         // we are either in sudo mode or sudo doesn't require pass
         if (std::stoi(secondLine) > 0)
         {
-            run_command(SSH_channel, "sudo su");
+            //run_command_blocking(SSH_channel, "sudo su");  // todo: this loops forever cause after sudo su, echo EOCMD is never executed!
         }
         // we need password
         else
@@ -142,241 +139,48 @@ void SSH_Helper::getSudo(ssh_channel SSH_channel)
 }
 
 
-// run a command and wait until it finishes execution
-std::string SSH_Helper::run_command(ssh_channel SSH_channel, std::string command, int maxTimeOutCount, bool printOutput)
+std::string SSH_Helper::run_command_nonblocking(ssh_channel SSH_channel, std::string command, bool printOutput)
+{
+    return run_command(SSH_channel, command, false, printOutput);
+}
+
+
+std::string SSH_Helper::run_command_blocking(ssh_channel SSH_channel, std::string command, bool printOutput)
+{
+    return run_command(SSH_channel, command, true, printOutput);
+}
+
+
+std::string SSH_Helper::run_command(ssh_channel SSH_channel, std::string command, bool blocking, bool printOutput)
 {
     ASSERT(SSH_channel);
 
     if(command == "")
         throw cRuntimeError("command is empty!");
 
-    if(maxTimeOutCount <= 0)
-        throw cRuntimeError("maxTimeOutCount value is invalid!");
-
     {
         std::lock_guard<std::mutex> lock(lock_SSH_Session);
 
         // run the command in shell
         char buffer[1000];
-        int nbytes = sprintf (buffer, "%s \n", command.c_str());
+        int nbytes = sprintf (buffer, "%s ; echo $? ; echo %s \n", command.c_str(), EOCMD);
         int nwritten = ssh_channel_write(SSH_channel, buffer, nbytes);
         if (nwritten != nbytes)
             throw cRuntimeError("SSH error in writing command to shell");
     }
 
-    // read the output from remote shell
-    char buffer[1000];
     std::string command_output = "";
-    int numTimeouts = 0;
-    bool identFirstLine = false;
-    while (ssh_channel_is_open(SSH_channel) && !ssh_channel_is_eof(SSH_channel))
-    {
-        int nbytes = 0;
-
-        {
-            std::lock_guard<std::mutex> lock(lock_SSH_Session);
-            nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, TIMEOUT_MS);
-        }
-
-        // SSH_ERROR
-        if(nbytes < 0)
-        {
-            ssh_channel_close(SSH_channel);
-            ssh_channel_free(SSH_channel);
-            throw cRuntimeError("SSH error in run_command");
-        }
-        // time out
-        else if(nbytes == 0)
-        {
-            numTimeouts++;
-            // did we wait long enough?
-            if(numTimeouts >= maxTimeOutCount)
-                break;
-        }
-        // buffer has data
-        else if(nbytes > 0)
-        {
-            // reset counter
-            numTimeouts = 0;
-
-            // save output
-            for (int ii = 0; ii < nbytes; ii++)
-                command_output += static_cast<char>(buffer[ii]);
-
-            // print what we have received so far in buffer
-            if(printOutput)
-            {
-                std::string cOutput = "";
-                for (int ii = 0; ii < nbytes; ii++)
-                    cOutput += static_cast<char>(buffer[ii]);
-
-                // add indentation to the first line
-                if(!identFirstLine)
-                {
-                    cOutput = "    " + cOutput;
-                    identFirstLine = true;
-                }
-
-                // substituting all \r\n with \n
-                // Windows = CR LF, Linux = LF, MAC < 0SX = CR
-                boost::replace_all(cOutput, "\r\n", "\n");
-                boost::replace_all(cOutput, "\n", "\n    ");  // add indentation to the rest of the lines
-
-                std::cout << cOutput;
-                std::cout.flush();
-            }
-        }
-    }
-
-    // add two new lines after printing output to improve readability
-    if(printOutput)
-        printf("\n\n");
-
-    int ret = last_command_failed(SSH_channel, 2);
-    // last command failed (ret=1) or we did not get any result (ret=-1)
-    if(ret != 0)
-    {
-        // we have already printed the output if printOutput = true
-        if(!printOutput)
-        {
-            // format output
-            command_output = "    " + command_output;
-            boost::replace_all(command_output, "\r\n", "\n");
-            boost::replace_all(command_output, "\n", "\n    ");
-
-            printf("%s \n\n", command_output.c_str());
-            std::cout.flush();
-        }
-
-        // let the user know
-        if(ret == 1)
-            throw cRuntimeError("Command '%s' failed @%s", command.c_str(), dev_hostName.c_str());
-        else if(ret == -1)
-            throw cRuntimeError("Cannot check if the last command failed or not! @%s. Make sure the command is not blocking and allow enough time for the command to execute completely by increasing maxTimeOutCount", dev_hostName.c_str());
-    }
-
-    return command_output;
-}
-
-
-int SSH_Helper::last_command_failed(ssh_channel SSH_channel, int maxTimeOutCount)
-{
-    // run echo %? to get the return value
-    std::string command = "echo $?";
-
-    {
-        std::lock_guard<std::mutex> lock(lock_SSH_Session);
-
-        char buffer[1000];
-        int nbytes = sprintf (buffer, "%s \n", command.c_str());
-        int nwritten = ssh_channel_write(SSH_channel, buffer, nbytes);
-        if (nwritten != nbytes)
-            throw cRuntimeError("SSH error in writing command to shell");
-    }
-
-    // read the output from remote shell
-    char buffer[1000];
-    std::string command_output = "";
-    int numTimeouts = 0;
-    while (ssh_channel_is_open(SSH_channel) && !ssh_channel_is_eof(SSH_channel))
-    {
-        int nbytes = 0;
-
-        {
-            std::lock_guard<std::mutex> lock(lock_SSH_Session);
-            nbytes = ssh_channel_read_timeout(SSH_channel, buffer, sizeof(buffer), 0, TIMEOUT_MS);
-        }
-
-        // SSH_ERROR
-        if(nbytes < 0)
-        {
-            ssh_channel_close(SSH_channel);
-            ssh_channel_free(SSH_channel);
-            throw cRuntimeError("SSH error in run_command");
-        }
-        // end of file
-        else if(nbytes == 0)
-        {
-            numTimeouts++;
-            // did we wait long enough?
-            if(numTimeouts >= maxTimeOutCount)
-                break;
-        }
-        else if(nbytes > 0)
-        {
-            // reset counter
-            numTimeouts = 0;
-
-            for (int ii = 0; ii < nbytes; ii++)
-                command_output += static_cast<char>(buffer[ii]);
-        }
-    }
-
-    // get number of lines
-    std::istringstream inputStr(command_output);
-    std::string line = "";
-    int numLines = 0;
-    while(std::getline(inputStr, line))
-        numLines++;
-
-    // if 'echo $?' did not return any results
-    // this might happen if the last command is still running
-    if(numLines == 1)
-        return -1;
-
-    // get the second line
-    inputStr.str(command_output);
-    inputStr.clear();
-    std::string secondLine = "";
-    std::getline(inputStr, secondLine);
-    std::getline(inputStr, secondLine);
-
-    try
-    {
-        if (std::stoi(secondLine) != 0)
-            return 1;
-        else
-            return 0;
-    }
-    catch (const std::exception& ex)
-    {
-        return -1;
-    }
-}
-
-
-void SSH_Helper::run_command_loop(ssh_channel SSH_channel, std::string command, int waitTime, bool printOutput)
-{
-    ASSERT(SSH_channel);
-
-    if(command == "")
-        throw cRuntimeError("command is empty!");
-
-    if(waitTime < 0)
-        throw cRuntimeError("waitTime value is invalid!");
-
-    {
-        std::lock_guard<std::mutex> lock(lock_SSH_Session);
-
-        // run the command in shell
-        char buffer[1000];
-        int nbytes = sprintf (buffer, "%s \n", command.c_str());
-        int nwritten = ssh_channel_write(SSH_channel, buffer, nbytes);
-        if (nwritten != nbytes)
-            throw cRuntimeError("SSH error in writing command to shell");
-    }
 
     // run the loop in a child thread
-    std::thread thd = std::thread([=]() {  // pass by value
+    std::thread thd = std::thread([=]() mutable {  // pass by value
 
         // read the output from remote shell
         char buffer[1000];
         bool identFirstLine = false;
+        int returnCode = -1;
+        long int numEOF = 0;
         while (ssh_channel_is_open(SSH_channel) && !ssh_channel_is_eof(SSH_channel) && !terminating)
         {
-            // let other threads run
-            std::this_thread::yield();
-
             int nbytes = 0;
 
             {
@@ -391,9 +195,21 @@ void SSH_Helper::run_command_loop(ssh_channel SSH_channel, std::string command, 
                 ssh_channel_free(SSH_channel);
                 break;   // do not throw error
             }
+            // time-out in non-blocking commands
+            else if(nbytes == 0 && !blocking)
+            {
+                numEOF++;
+
+                // keep yielding to other threads as long as we do not print anything!
+                if(numEOF > 20)
+                    std::this_thread::yield();
+            }
             // buffer has data
             else if(nbytes > 0)
             {
+                // reset numEOF
+                numEOF = 0;
+
                 // print what we have received so far in buffer
                 if(printOutput)
                 {
@@ -416,26 +232,98 @@ void SSH_Helper::run_command_loop(ssh_channel SSH_channel, std::string command, 
                     std::cout << cOutput;
                     std::cout.flush();
                 }
+
+                // save output
+                for (int ii = 0; ii < nbytes; ii++)
+                    command_output += static_cast<char>(buffer[ii]);
+
+                // monitor command output and look for EOCMD
+                returnCode = isFinished(command_output);  // todo: make it more efficient? we test the whole command_output every timeh;
+
+                if(returnCode == 1 || returnCode == 2)
+                    break;
             }
         }
 
-        if(active_threads > 0)
+        // add two new lines for readability
+        if(printOutput)
+        {
+            printf("\n\n");
+            std::cout.flush();
+        }
+
+        // last command failed
+        if(returnCode == 2)
+        {
+            // if we have not already printed the output
+            if(!printOutput)
+            {
+                // format output
+                command_output = "    " + command_output;
+                boost::replace_all(command_output, "\r\n", "\n");
+                boost::replace_all(command_output, "\n", "\n    ");
+
+                printf("%s \n\n", command_output.c_str());
+                std::cout.flush();
+            }
+
+            // let the user know
+            throw cRuntimeError("Command '%s' failed @%s", command.c_str(), dev_hostName.c_str());
+        }
+
+        if(!blocking && active_threads > 0)
             active_threads--;
     });
 
-    thd.detach();
-
-    // wait before returning
-    std::this_thread::sleep_for(std::chrono::milliseconds(waitTime));
-
-    // add two new lines for readability
-    if(printOutput)
+    if(!blocking)
     {
-        printf("\n\n");
-        std::cout.flush();
+        thd.detach();
+        active_threads++;
+    }
+    else
+        thd.join();
+
+    return command_output;
+}
+
+
+// 0: command is still running
+// 1: command execution is finished without error
+// 2: command execution is finished with error
+int SSH_Helper::isFinished(std::string multiLineStr)
+{
+    // tokenize all lines
+    std::istringstream inputStr(multiLineStr);
+    std::string line = "";
+    std::vector<std::string> tokens;
+    while(std::getline(inputStr, line))
+        tokens.push_back(line);
+
+    if(tokens.size() <= 1)
+        return 0;
+
+    // note: start parsing tokens vector from the second entry!
+    for(unsigned int ii = 1; ii < tokens.size(); ii++)
+    {
+        std::size_t pos = tokens[ii].find(EOCMD);
+        // EOCMD is found
+        if(pos != std::string::npos)
+        {
+            try
+            {
+                if (std::stoi(tokens[ii-1]) != 0)
+                    return 2;
+                else
+                    return 1;
+            }
+            catch (const std::exception& ex)
+            {
+                return 2;
+            }
+        }
     }
 
-    active_threads++;
+    return 0;
 }
 
 

@@ -44,6 +44,9 @@
 
 namespace VENTOS {
 
+#define TIMEOUT_MS 100
+#define EOCMD "done109enod"
+
 class SSH
 {
 public:
