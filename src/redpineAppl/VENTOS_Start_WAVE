@@ -54,7 +54,7 @@ insert_module ()
             fi
             echo "done!"
         else
-            echo "ok"
+            echo "already loaded!"
         fi
     done
 }
