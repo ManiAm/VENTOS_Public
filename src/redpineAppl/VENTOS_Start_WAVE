@@ -1,11 +1,29 @@
 #!/bin/bash
 
+# @file VENTOS_Start_WAVE
+# @author  
+# @author  Mani Amoozadeh
+# @date    Apr 2016
+#
+# @section LICENSE
+#
+# This software embodies materials and concepts that are confidential to Redpine
+# Signals and is made available solely pursuant to the terms of a written license
+# agreement with Redpine Signals
+#
+# @section DESCRIPTION
+#
+# This bash script prepare the Redpine board to run WAVE applications
+#
+
+
 if [ "$EUID" -ne 0 ]; then 
   printf "\e[1;31mRun the script with sudo permission! \e[0m \n\n"
   exit 1
 fi
 
 echo "Bash version is: $BASH_VERSION"
+
 
 ##############
 ## Check OS ##

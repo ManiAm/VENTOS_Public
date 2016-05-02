@@ -1,3 +1,17 @@
+/****************************************************************************/
+/// @file    tim_create.h
+/// @author
+/// @author
+/// @date
+///
+/****************************************************************************/
+// @section LICENSE
+//
+// This software embodies materials and concepts that are confidential to Redpine
+// Signals and is made available solely pursuant to the terms of a written license
+// agreement with Redpine Signals
+//
+
 #ifndef __TIM_CREATE__H__
 #define __TIM_CREATE__H__
 

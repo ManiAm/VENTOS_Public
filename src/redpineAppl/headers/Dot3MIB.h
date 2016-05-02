@@ -1,3 +1,17 @@
+/****************************************************************************/
+/// @file    Dot3MIB.h
+/// @author
+/// @author
+/// @date
+///
+/****************************************************************************/
+// @section LICENSE
+//
+// This software embodies materials and concepts that are confidential to Redpine
+// Signals and is made available solely pursuant to the terms of a written license
+// agreement with Redpine Signals
+//
+
 #ifndef __ONEBOX_DOT3MIB_H__
 #define __ONEBOX_DOT3MIB_H__
 

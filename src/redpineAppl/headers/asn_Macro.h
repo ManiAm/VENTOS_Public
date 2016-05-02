@@ -1,3 +1,17 @@
+/****************************************************************************/
+/// @file    asn_Macro.h
+/// @author
+/// @author
+/// @date
+///
+/****************************************************************************/
+// @section LICENSE
+//
+// This software embodies materials and concepts that are confidential to Redpine
+// Signals and is made available solely pursuant to the terms of a written license
+// agreement with Redpine Signals
+//
+
 #ifndef _asn_MACRO_H_
 #define _asn_MACRO_H_
 

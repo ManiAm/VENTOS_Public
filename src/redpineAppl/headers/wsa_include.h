@@ -1,3 +1,17 @@
+/****************************************************************************/
+/// @file    wsa_include.h
+/// @author
+/// @author
+/// @date
+///
+/****************************************************************************/
+// @section LICENSE
+//
+// This software embodies materials and concepts that are confidential to Redpine
+// Signals and is made available solely pursuant to the terms of a written license
+// agreement with Redpine Signals
+//
+
 #ifndef _ONEBOX_WSA_H_
 #define _ONEBOX_WSA_H_
 

@@ -1,5 +1,16 @@
-
-//#include "Dot4MIB.h"
+/****************************************************************************/
+/// @file    rsi_wave_util.h
+/// @author
+/// @author
+/// @date
+///
+/****************************************************************************/
+// @section LICENSE
+//
+// This software embodies materials and concepts that are confidential to Redpine
+// Signals and is made available solely pursuant to the terms of a written license
+// agreement with Redpine Signals
+//
 
 #ifndef __RSI_WAVE_UTIL_H__
 #define __RSI_WAVE_UTIL_H__
