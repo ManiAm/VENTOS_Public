@@ -484,6 +484,12 @@ ver=$(opp_run -v 2> /dev/null | grep 'Build:' | awk '{print $2}' | sed 's/^.*-//
 vercomp "$ver" "5.0"
 result=$?
 if ! [[ "$result" == "2" ]]; then
+    loc=$(which opp_run)
+    echo "found $ver in"
+    echo "    $loc"
+    echo "skip downloading/making omnet++" 
+
+else
 
 echo ""
 echo "Downloading OMNET++"
@@ -656,13 +662,6 @@ echo "done!"
 # go out of omnetpp folder
 cd ..
 
-# if omnet++ ver >= 5.0 is already installed
-else
-    loc=$(which opp_run)
-    echo "found $ver in"
-    echo "    $loc"
-    echo "skip downloading/making omnet++" 
-
 fi  # end of omnetpp installation
 
 echo ""
@@ -698,9 +697,9 @@ if [[ "$OS" == "Mac OS X" ]]; then
             echo "certificate VENTOS already exists!"
         else
             # make a directory in omnet to store keys and certificates
-            mkdir omnetpp-4.6/keys
+            mkdir omnetpp-5.0/keys
             # go to the directory
-            cd omnetpp-4.6/keys
+            cd omnetpp-5.0/keys
             # check if change directory was successful (next command is dangerous!)
             if [[ $? -ne 0 ]]; then
                 exit 1
@@ -1416,7 +1415,7 @@ if [[ "$OS" == "Ubuntu" ]]; then
     # libusb --> 
     # bluZ LE scan --> http://unix.stackexchange.com/questions/96106/bluetooth-le-scan-as-non-root
     echo -n "set capability for opp_run ..."
-    cd omnetpp-4.6/bin  # for some reasons we must change our current directory to bin first
+    cd omnetpp-5.0/bin  # for some reasons we must change our current directory to bin first
     if [[ $? -ne 0 ]]; then
         exit 1
     fi
