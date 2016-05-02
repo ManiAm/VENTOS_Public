@@ -643,6 +643,9 @@ echo "=============="
 printf "\e[1;32mcompiling takes some time, so relax, grab a cup of coffee and \nwatch: https://www.youtube.com/watch?v=A6XUVjK9W4o \e[0m \n"
 echo " "
 make -j4 > /dev/null
+if [[ $? -ne 0 ]]; then
+    exit 1
+fi
 echo "make is finished!"
 
 echo ""
@@ -972,6 +975,9 @@ echo "==========="
 printf "\e[1;32mcompiling takes some time, so relax and \nwatch: https://www.youtube.com/watch?v=BlFdAm2AjAk \e[0m \n"
 echo " "
 make -j4 > /dev/null
+if [[ $? -ne 0 ]]; then
+    exit 1
+fi
 echo "make is finished!"
 
 # go out of VENTOS_SUMO folder
