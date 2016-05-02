@@ -478,24 +478,23 @@ fi
 echo ""
 echo "Preparing to install OMNET++"
 echo "============================"
-ver=$(opp_run -v 2> /dev/null | grep 'Build:' | awk '{print $2}')
-if [[ "" != "$ver" ]]; then
-    loc=$(which opp_run)
-    echo "found $ver in"
-    echo "    $loc"
-    echo "skip downloading/making omnet++"    
-else
+ver=$(opp_run -v 2> /dev/null | grep 'Build:' | awk '{print $2}' | sed 's/^.*-//g')
+
+# should we install a newer version?
+vercomp "$ver" "5.0"
+result=$?
+if ! [[ "$result" == "2" ]]; then
 
 echo ""
 echo "Downloading OMNET++"
 echo "==================="
 # check if omnet directory exists
-if [ ! -d "omnetpp-4.6" ]; then
+if [ ! -d "omnetpp-5.0" ]; then
     # searching for omnet++ archive
     findings=$(find /tmp/VENTOS_tmp -name "omnetpp*.tgz" -o -name "omnetpp*.tar" | wc -l | xargs)  # xargs: remove all whitespaces
     if [[ "$findings" = "0" ]]; then        
         echo "downloading omnet++"
-        lftp -e 'pget -n 5 omnetpp-4.6-src.tgz -o /tmp/VENTOS_tmp/omnetpp.tgz; bye' -p 28 -u userftp,userftp ftp://rubinet.ece.ucdavis.edu/download
+        lftp -e 'pget -n 5 omnetpp-5.0-src.tgz -o /tmp/VENTOS_tmp/omnetpp.tgz; bye' -p 28 -u userftp,userftp ftp://rubinet.ece.ucdavis.edu/download
     elif [[ "$findings" > "1" ]]; then
         echo "ERROR: more than one omnet++ archive file exists!"
         exit 1
@@ -508,7 +507,7 @@ if [ ! -d "omnetpp-4.6" ]; then
     tar zxf $omnetFile  
     echo "done!"
 else
-    echo "omnetpp-4.6 folder already exists!"
+    echo "omnetpp-5.0 folder already exists!"
 fi
 
 echo ""
@@ -518,7 +517,7 @@ echo "========================="
 # In the OMNET++ folder you can see the `configure.in` file that is used by autoconf to generate the `configure` script. Additional input parameters for configure script are defined in `configure.user` file. The configure script detects installed software and configuration of your system, and generates three outputs: `config.log`, `config.status`, and `Makefile.inc`. The first two files are used for debugging purposes, and the last file will be read later by the makefiles during the build process.
 
 # go to omnet directory
-cd omnetpp-4.6
+cd omnetpp-5.0
 if [[ $? -ne 0 ]]; then
     exit 1
 fi
@@ -656,6 +655,13 @@ echo "done!"
 
 # go out of omnetpp folder
 cd ..
+
+# if omnet++ ver >= 5.0 is already installed
+else
+    loc=$(which opp_run)
+    echo "found $ver in"
+    echo "    $loc"
+    echo "skip downloading/making omnet++" 
 
 fi  # end of omnetpp installation
 
