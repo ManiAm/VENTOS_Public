@@ -1346,7 +1346,7 @@ if [[ 1 ]]; then
     echo "installing libssh ..."
     mkdir _build
     cd _build
-    cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Debug -DWITH_GCRYPT=ON -DWITH_STATIC_LIB=ON ../ > /dev/null
+    cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Debug -DWITH_STATIC_LIB=ON ../ > /dev/null
     if [[ $? -ne 0 ]]; then
         exit 1
     fi
