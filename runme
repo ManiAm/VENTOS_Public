@@ -478,10 +478,11 @@ fi
 echo ""
 echo "Preparing to install OMNET++"
 echo "============================"
-ver=$(opp_run -v 2> /dev/null | grep 'Build:' | awk '{print $2}' | sed 's/^.*-//g')
+ver=$(opp_run -v 2> /dev/null | grep 'Build:' | awk '{print $2}')
+verNum=$(echo $ver | sed 's/^.*-//g')
 
 # should we install a newer version?
-vercomp "$ver" "5.0"
+vercomp "$verNum" "5.0"
 result=$?
 if ! [[ "$result" == "2" ]]; then
     loc=$(which opp_run)
@@ -490,6 +491,16 @@ if ! [[ "$result" == "2" ]]; then
     echo "skip downloading/making omnet++" 
 
 else
+# we need to install omnet
+
+if [[ "$ver" == "" ]]; then
+    echo "no previous omnet++ installation found!"
+else
+    loc=$(which opp_run)
+    echo "found $ver in"
+    echo "    $loc"
+    echo "downloading a newer version of omnet++"
+fi
 
 echo ""
 echo "Downloading OMNET++"
@@ -1302,6 +1313,11 @@ echo ""
 echo "Check libssh"
 echo "============"
 
+if [[ "$OS" == "Ubuntu" ]]; then
+    libs=("libssh-dev")
+    install_LIB_linux libs[@]
+fi
+
 getLibVersions_Linux "libssh" "0.1.0"
 result=$?
 #if [[ ("$result" == "1") || ("$result" == "2") ]]; then
@@ -1335,6 +1351,9 @@ if [[ 1 ]]; then
         exit 1
     fi
     echo $sudoPass | sudo -S make install > /dev/null
+    if [[ $? -ne 0 ]]; then
+        exit 1
+    fi
 
     cd ..
     cd ..
@@ -1385,6 +1404,9 @@ if [[ 1 ]]; then
         exit 1
     fi
     echo $sudoPass | sudo -S make install > /dev/null
+    if [[ $? -ne 0 ]]; then
+        exit 1
+    fi
 
     cd ..
     cd ..
