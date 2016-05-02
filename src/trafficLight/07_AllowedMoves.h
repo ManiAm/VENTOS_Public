@@ -33,7 +33,6 @@
 // why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header
 #undef ev
 #include "boost/filesystem.hpp"
-#define ev  (*cSimulation::getActiveEnvir())
 
 namespace VENTOS {
 
@@ -43,7 +42,7 @@ public:
     virtual ~TrafficLightAllowedMoves();
     virtual void initialize(int);
     virtual void finish();
-    virtual void handleMessage(cMessage *);
+    virtual void handleMessage(omnetpp::cMessage *);
 
 protected:
     void virtual initialize_withTraCI();

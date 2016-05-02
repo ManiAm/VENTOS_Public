@@ -51,13 +51,11 @@
 #include <shark/Algorithms/Trainers/McSvmMMRTrainer.h>
 #include <shark/Algorithms/Trainers/McReinforcedSvmTrainer.h>
 
-#define ev  (*cSimulation::getActiveEnvir())
 
 // un-defining ev!
 // why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header
 #undef ev
 #include "boost/filesystem.hpp"
-#define ev  (*cSimulation::getActiveEnvir())
 
 namespace VENTOS {
 
@@ -113,7 +111,7 @@ public:
     ~ApplRSUCLASSIFY();
     virtual void initialize(int stage);
     virtual void finish();
-    virtual void handleSelfMsg(cMessage* msg);
+    virtual void handleSelfMsg(omnetpp::cMessage* msg);
 
 protected:
     void virtual executeEachTimeStep();

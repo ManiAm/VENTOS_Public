@@ -51,7 +51,7 @@ public:
 	 * @brief Fills the passed AirFrameVector with all AirFrames that intersect
 	 * with the time interval [from, to]
 	 */
-	virtual void getChannelInfo(simtime_t_cref from, simtime_t_cref to, AirFrameVector& out) = 0;
+	virtual void getChannelInfo(omnetpp::simtime_t_cref from, omnetpp::simtime_t_cref to, AirFrameVector& out) = 0;
 
 	/**
 	 * @brief Returns a Mapping which defines the thermal noise in
@@ -60,7 +60,7 @@ public:
 	 * The implementing class of this method keeps ownership of the
 	 * Mapping.
 	 */
-	virtual ConstMapping* getThermalNoise(simtime_t_cref from, simtime_t_cref to) = 0;
+	virtual ConstMapping* getThermalNoise(omnetpp::simtime_t_cref from, omnetpp::simtime_t_cref to) = 0;
 
 	/**
 	 * @brief Called by the Decider to send a control message to the MACLayer
@@ -68,7 +68,7 @@ public:
 	 * This function can be used to answer a ChannelSenseRequest to the MACLayer
 	 *
 	 */
-	virtual void sendControlMsgToMac(cMessage* msg) = 0;
+	virtual void sendControlMsgToMac(omnetpp::cMessage* msg) = 0;
 
 	/**
 	 * @brief Called to send an AirFrame with DeciderResult to the MACLayer
@@ -84,7 +84,7 @@ public:
 	 * @brief Returns the current simulation time
 	 *
 	 */
-	virtual simtime_t getSimTime() = 0;
+	virtual omnetpp::simtime_t getSimTime() = 0;
 
 	/**
 	 * @brief Tells the PhyLayer to cancel a scheduled message (AirFrame or
@@ -93,7 +93,7 @@ public:
 	 * Used by the Decider if it doesn't need to handle an AirFrame or
 	 * ControlMessage again anymore.
 	 */
-	virtual void cancelScheduledMessage(cMessage* msg) = 0;
+	virtual void cancelScheduledMessage(omnetpp::cMessage* msg) = 0;
 
 	/**
 	 * @brief Tells the PhyLayer to reschedule a message (AirFrame or
@@ -103,7 +103,7 @@ public:
 	 * earlier than it has returned to the PhyLayer the last time the Decider
 	 * handled that message.
 	 */
-	virtual void rescheduleMessage(cMessage* msg, simtime_t_cref t) = 0;
+	virtual void rescheduleMessage(omnetpp::cMessage* msg, omnetpp::simtime_t_cref t) = 0;
 
 	/**
 	 * @brief Enables the Decider to draw Power from the

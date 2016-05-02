@@ -41,7 +41,8 @@
  * @author Hermann S. Lichte, Karl Wessel (port for MiXiM)
  * @date 2007-08-15
  **/
-class MIXIM_API LogNormalShadowing: public AnalogueModel {
+class MIXIM_API LogNormalShadowing: public AnalogueModel
+{
 protected:
 	/** @brief Mean of the random attenuation in dB */
 	double mean;
@@ -50,7 +51,7 @@ protected:
 	double stdDev;
 
 	/** @brief The interval to set attenuation entries in. */
-	simtime_t interval;
+	omnetpp::simtime_t interval;
 
 protected:
 	/**
@@ -66,7 +67,7 @@ public:
 	 * distributed attenuation values as well as the inteval in which
 	 * to define key entries in (accuracy of the model).
 	 */
-	LogNormalShadowing(double mean, double stdDev, simtime_t_cref interval);
+	LogNormalShadowing(double mean, double stdDev, omnetpp::simtime_t_cref interval);
 
 	virtual ~LogNormalShadowing();
 

@@ -37,7 +37,7 @@ class ChannelAccess;
  * @author Daniel Willkomm
  * @sa ConnectionManager
  */
-class MIXIM_API NicEntry : public cObject
+class MIXIM_API NicEntry : public omnetpp::cObject
 {
 protected:
 	class NicEntryComparator {
@@ -48,13 +48,13 @@ protected:
 	};
   public:
 	/** @brief Type for map from NicEntry pointer to a gate.*/
-    typedef std::map<const NicEntry*, cGate*, NicEntryComparator> GateList;
+    typedef std::map<const NicEntry*, omnetpp::cGate*, NicEntryComparator> GateList;
 
     /** @brief module id of the nic for which information is stored*/
     int nicId;
 
     /** @brief Pointer to the NIC module */
-    cModule *nicPtr;
+    omnetpp::cModule *nicPtr;
 
     /** @brief Module id of the host module this nic belongs to*/
     int hostId;
@@ -115,7 +115,7 @@ protected:
      *
      * @param to pointer to the NicEntry to which the packet is about to be sent
      */
-    const cGate* getOutGateTo(const NicEntry* to)
+    const omnetpp::cGate* getOutGateTo(const NicEntry* to)
     {
     	return outConns[to];
     };

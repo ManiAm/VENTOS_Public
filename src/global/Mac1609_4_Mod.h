@@ -39,11 +39,11 @@ class Mac1609_4_Mod : public Veins::Mac1609_4
         virtual void finish();
         virtual void initialize(int);
 
-	    virtual void handleSelfMsg(cMessage*);
-		virtual void handleLowerMsg(cMessage*);
-	    virtual void handleLowerControl(cMessage* msg);
-		virtual void handleUpperMsg(cMessage*);
-		virtual void handleUpperControl(cMessage* msg);
+	    virtual void handleSelfMsg(omnetpp::cMessage*);
+		virtual void handleLowerMsg(omnetpp::cMessage*);
+	    virtual void handleLowerControl(omnetpp::cMessage* msg);
+		virtual void handleUpperMsg(omnetpp::cMessage*);
+		virtual void handleUpperControl(omnetpp::cMessage* msg);
 
 	private:
         bool reportMAClayerData;

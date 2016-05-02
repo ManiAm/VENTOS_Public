@@ -34,7 +34,6 @@
 // why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header
 #undef ev
 #include "boost/filesystem.hpp"
-#define ev  (*cSimulation::getActiveEnvir())
 
 namespace VENTOS {
 
@@ -74,7 +73,7 @@ void ApplRSUAID::finish()
 }
 
 
-void ApplRSUAID::handleSelfMsg(cMessage* msg)
+void ApplRSUAID::handleSelfMsg(omnetpp::cMessage* msg)
 {
     super::handleSelfMsg(msg);
 }
@@ -96,14 +95,14 @@ void ApplRSUAID::incidentDetectionToFile()
 {
     boost::filesystem::path filePath;
 
-    if(ev.isGUI())
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI())
     {
         filePath = "results/gui/IncidentTable.txt";
     }
     else
     {
         // get the current run number
-        int currentRun = ev.getConfigEx()->getActiveRunNumber();
+        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
         std::ostringstream fileName;
         fileName << std::setfill('0') << std::setw(3) << currentRun << "_IncidentTable.txt";
         filePath = "results/cmd/" + fileName.str();

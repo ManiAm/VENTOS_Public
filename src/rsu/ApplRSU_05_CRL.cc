@@ -60,7 +60,7 @@ void ApplRSUCRL::initialize(int stage)
             error("value for I2V_tho is incorrect !!");
 
         // get a pointer to the MAC submodule
-        cModule *nicPtr = nodePtr->getSubmodule("nic");
+        cModule *nicPtr = this->getParentModule()->getSubmodule("nic");
         ASSERT(nicPtr);
         cModule *macPtr = nicPtr->getSubmodule("mac1609_4");
         ASSERT(macPtr);
@@ -69,20 +69,20 @@ void ApplRSUCRL::initialize(int stage)
         // RSUs broadcast CRL pieces periodically
         if(CRLdistAlg == CRL_RSU_Only || CRLdistAlg == CRL_C2C_Epidemic)
         {
-            Timer2 = new cMessage("Timer_CRL_Interval_RSU", KIND_TIMER);
-            scheduleAt(simTime() + dblrand() * 10, Timer2);  // CRL broadcast start is random in each RSU
+            Timer2 = new omnetpp::cMessage("Timer_CRL_Interval_RSU", KIND_TIMER);
+            scheduleAt(omnetpp::simTime() + dblrand() * 10, Timer2);  // CRL broadcast start is random in each RSU
         }
         // otherwise RSUs send beacon
         else
         {
-            Timer1 = new cMessage("Timer_Beacon_RSU", KIND_TIMER);
-            scheduleAt(simTime() + dblrand() * beacon_Interval, Timer1);
+            Timer1 = new omnetpp::cMessage("Timer_Beacon_RSU", KIND_TIMER);
+            scheduleAt(omnetpp::simTime() + dblrand() * beacon_Interval, Timer1);
 
-            Timer3 = new cMessage("Timer_Wait_Beacon_V", KIND_TIMER);
+            Timer3 = new omnetpp::cMessage("Timer_Wait_Beacon_V", KIND_TIMER);
         }
 
         Signal_CRL_pieces = registerSignal("CRL_pieces");
-        simulation.getSystemModule()->subscribe("CRL_pieces", this);
+        omnetpp::getSimulation()->getSystemModule()->subscribe("CRL_pieces", this);
     }
 }
 
@@ -98,15 +98,12 @@ void ApplRSUCRL::finish()
     cancelAndDelete(Timer2);
     cancelAndDelete(Timer3);
 
-    for(unsigned int i=0; i<PiecesCRLfromCA.size(); i++)
-        delete PiecesCRLfromCA[i];
-
     // unsubscribe
-    simulation.getSystemModule()->unsubscribe("CRL_pieces", this);
+    omnetpp::getSimulation()->getSystemModule()->unsubscribe("CRL_pieces", this);
 }
 
 
-void ApplRSUCRL::receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj)
+void ApplRSUCRL::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t signalID, cObject *obj, cObject* details)
 {
     // CA sends this RSU a CRL
     if(signalID == Signal_CRL_pieces)
@@ -120,7 +117,7 @@ void ApplRSUCRL::receiveSignal(cComponent *source, simsignal_t signalID, cObject
 }
 
 
-void ApplRSUCRL::handleSelfMsg(cMessage *msg)
+void ApplRSUCRL::handleSelfMsg(omnetpp::cMessage *msg)
 {
     super::handleSelfMsg(msg);
 
@@ -130,7 +127,7 @@ void ApplRSUCRL::handleSelfMsg(cMessage *msg)
     if(msg == Timer2)
     {
         broadcastCRL();
-        scheduleAt(simTime() + CRL_Interval, Timer2);
+        scheduleAt(omnetpp::simTime() + CRL_Interval, Timer2);
     }
     else if(msg == Timer1)
     {
@@ -225,7 +222,7 @@ void ApplRSUCRL::onData(LaneChangeMsg* wsm)
 // Receive CRL from the CA
 void ApplRSUCRL::recieveCRL(std::vector<CRL_Piece *> data)
 {
-    if ( ev.isGUI() )
+    if ( omnetpp::cSimulation::getActiveEnvir()->isGUI() )
     {
         printf(">>> %s received these CRL pieces from CA: \n", myFullId);
 
@@ -304,14 +301,14 @@ void ApplRSUCRL::broadcastCRL_Mask()
 {
     //    if(!AnyoneNeedCRL)
     //    {
-    //        EV << "**** " << nodePtr->getFullName() << " broadcasting canceled!" << endl;
+    //        EV << "**** " << this->getParentModule()->getFullName() << " broadcasting canceled!" << endl;
     //        return;
     //    }
     //
     //    if ( ev.isGUI() )
     //    {
-    //        nodePtr->bubble("Sending CRLs");
-    //        EV << "**** " << nodePtr->getFullName();
+    //        this->getParentModule()->bubble("Sending CRLs");
+    //        EV << "**** " << this->getParentModule()->getFullName();
     //        EV << ": sending pieces on channel " << nicClassPtr->getChannel() << endl;
     //
     //        EV << "broadcastMask is: ";
@@ -340,7 +337,7 @@ void ApplRSUCRL::broadcastCRL_Mask()
     //        // create the packet for transmitting a certificate
     //        CRL_Piece *pkt = PiecesCRLfromCA[i]->dup();
     //
-    //        pkt->setName(nodePtr->getFullName());
+    //        pkt->setName(this->getParentModule()->getFullName());
     //        pkt->setKind(Msg_CRL_RSU);
     //        pkt->setBitLength(18400);
     //        pkt->setControlInfo( new NetwControlInfo(-1) );
@@ -375,7 +372,7 @@ void ApplRSUCRL::broadcastCRL_Mask()
     //    if(counter > 0)
     //    {
     //        simsignal_t Signal_Broadcast_RSU = registerSignal("Broadcast_RSU");
-    //        nodePtr->emit(Signal_Broadcast_RSU, 1);
+    //        this->getParentModule()->emit(Signal_Broadcast_RSU, 1);
     //    }
 }
 
@@ -385,14 +382,14 @@ void ApplRSUCRL::broadcastCRL_Maskv2()
 {
     //    if(!AnyoneNeedCRL)
     //    {
-    //        EV << "**** " << nodePtr->getFullName() << " broadcasting canceled!" << endl;
+    //        EV << "**** " << this->getParentModule()->getFullName() << " broadcasting canceled!" << endl;
     //        return;
     //    }
     //
     //    if ( ev.isGUI() )
     //    {
-    //        nodePtr->bubble("Sending CRLs");
-    //        EV << "**** " << nodePtr->getFullName();
+    //        this->getParentModule()->bubble("Sending CRLs");
+    //        EV << "**** " << this->getParentModule()->getFullName();
     //        EV << ": sending pieces on channel " << nicClassPtr->getChannel() << endl;
     //
     //        EV << "broadcastMask in RSU is: ";
@@ -429,7 +426,7 @@ void ApplRSUCRL::broadcastCRL_Maskv2()
     //        // create the packet for transmitting a certificate
     //        CRL_Piece *pkt = PiecesCRLfromCA[result]->dup();
     //
-    //        pkt->setName(nodePtr->getFullName());
+    //        pkt->setName(this->getParentModule()->getFullName());
     //        pkt->setKind(Msg_CRL_RSU);
     //        pkt->setBitLength(18400);
     //        pkt->setControlInfo( new NetwControlInfo(-1) );
@@ -464,22 +461,22 @@ void ApplRSUCRL::broadcastCRL_Maskv2()
     //    if(counter > 0)
     //    {
     //        simsignal_t Signal_Broadcast_RSU = registerSignal("Broadcast_RSU");
-    //        nodePtr->emit(Signal_Broadcast_RSU, 1);
+    //        this->getParentModule()->emit(Signal_Broadcast_RSU, 1);
     //    }
 
 }
 
 
 // receive beacon from vehicles
-void ApplRSUCRL::recieveBeacon(cMessage *msg)
+void ApplRSUCRL::recieveBeacon(omnetpp::cMessage *msg)
 {
     //    Beacon *m = static_cast<Beacon *>(msg);
     //    if (m == NULL) return;
     //
     //    if(ev.isGUI())
     //    {
-    //        EV << "*** " << nodePtr->getFullName() << " received a beacon from " << m->getNodeName() << endl;
-    //        nodePtr->bubble("received a beacon");
+    //        EV << "*** " << this->getParentModule()->getFullName() << " received a beacon from " << m->getNodeName() << endl;
+    //        this->getParentModule()->bubble("received a beacon");
     //
     //        EV << "*** Extracting beacon information: " << endl;
     //
@@ -504,7 +501,7 @@ void ApplRSUCRL::recieveBeacon(cMessage *msg)
     //            // and by this the vehicle is notified about the piece_count of RSU
     //            scheduleAt(simTime() + 1, Timer3);
     //
-    //            EV << endl << "*** " << nodePtr->getFullName() << ": Waiting ..." << endl;
+    //            EV << endl << "*** " << this->getParentModule()->getFullName() << ": Waiting ..." << endl;
     //            state = STATE_WAIT;
     //        }
     //    }
@@ -530,7 +527,7 @@ void ApplRSUCRL::recieveBeacon(cMessage *msg)
     //            // and by this the vehicle is notified about the range of RSU
     //            scheduleAt(simTime() + 1, Timer3);
     //
-    //            EV << endl << "*** " << nodePtr->getFullName() << ": Waiting ..." << endl;
+    //            EV << endl << "*** " << this->getParentModule()->getFullName() << ": Waiting ..." << endl;
     //            state = STATE_WAIT;
     //        }
     //        else if(state == STATE_WAIT)
@@ -562,7 +559,7 @@ void ApplRSUCRL::recieveBeacon(cMessage *msg)
     //            // and by this the vehicle is notified about the range of RSU
     //            scheduleAt(simTime() + 1, Timer3);
     //
-    //            EV << endl << "*** " << nodePtr->getFullName() << ": Waiting ..." << endl;
+    //            EV << endl << "*** " << this->getParentModule()->getFullName() << ": Waiting ..." << endl;
     //            state = STATE_WAIT;
     //        }
     //        else if(state == STATE_WAIT)
@@ -580,22 +577,22 @@ void ApplRSUCRL::recieveBeacon(cMessage *msg)
 // send beacon (only in MPB and ICE)
 void ApplRSUCRL::sendBeacon()
 {
-    //    EV << "**** " << nodePtr->getFullName() << " is sending a broadcast beacon." << endl;
-    //    if ( ev.isGUI() ) nodePtr->bubble("Sending beacon");
+    //    EV << "**** " << this->getParentModule()->getFullName() << " is sending a broadcast beacon." << endl;
+    //    if ( ev.isGUI() ) this->getParentModule()->bubble("Sending beacon");
     //
     //    simsignal_t Signal_Beacon_RSU = registerSignal("Beacon_RSU");
-    //    nodePtr->emit(Signal_Beacon_RSU, 1);
+    //    this->getParentModule()->emit(Signal_Beacon_RSU, 1);
     //
-    //    Beacon *pkt = new Beacon(nodePtr->getFullName(), Msg_Beacon_RSU);
+    //    Beacon *pkt = new Beacon(this->getParentModule()->getFullName(), Msg_Beacon_RSU);
     //
     //    pkt->setSrcAddr(nodeID);
     //    pkt->setDestAddr(-1);   // its a broadcast beacon
     //
-    //    pkt->setNodeName(nodePtr->getFullName());
+    //    pkt->setNodeName(this->getParentModule()->getFullName());
     //
     //    // get and then set the current position of the node
-    //    int xPos = std::atoi( nodePtr->getDisplayString().getTagArg("p",0) );  // x-coordinate of node
-    //    int yPos = std::atoi( nodePtr->getDisplayString().getTagArg("p",1) );  // y-coordinate of node
+    //    int xPos = std::atoi( this->getParentModule()->getDisplayString().getTagArg("p",0) );  // x-coordinate of node
+    //    int yPos = std::atoi( this->getParentModule()->getDisplayString().getTagArg("p",1) );  // y-coordinate of node
     //    pkt->setPositionX( xPos );
     //    pkt->setPositionY( yPos );
     //

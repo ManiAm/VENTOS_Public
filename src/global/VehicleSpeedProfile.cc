@@ -44,7 +44,7 @@ void SpeedProfile::initialize(int stage)
     if(stage ==0)
     {
         // get a pointer to the TraCI module
-        cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
+        cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
         TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
 
@@ -75,7 +75,7 @@ void SpeedProfile::finish()
 }
 
 
-void SpeedProfile::handleMessage(cMessage *msg)
+void SpeedProfile::handleMessage(omnetpp::cMessage *msg)
 {
 
 }
@@ -97,11 +97,11 @@ void SpeedProfile::Change()
     // if startTime is not specified, then store the current simulation time as startTime
     if(startTime == -1)
     {
-        startTime = simTime().dbl();
-        std::cout << "t=" << simTime().dbl() << ": Speed profiling phase is started ..." << endl;
+        startTime = omnetpp::simTime().dbl();
+        std::cout << "t=" << omnetpp::simTime().dbl() << ": Speed profiling phase is started ..." << std::endl;
     }
     // if user specifies a startTime, we should wait for it
-    else if(startTime > simTime().dbl())
+    else if(startTime > omnetpp::simTime().dbl())
         return;
 
     // get the first leading vehicle
@@ -110,7 +110,7 @@ void SpeedProfile::Change()
     // when the profileVehicle leaves the current lane, for the new profileVehicle,
     // speed profiling should re-start from current simulation time.
     if(lastProfileVehicle != "" && profileVehicle != lastProfileVehicle)
-        startTime = simTime().dbl();
+        startTime = omnetpp::simTime().dbl();
 
     lastProfileVehicle = profileVehicle;
 
@@ -145,7 +145,7 @@ void SpeedProfile::Change()
         // note1: when we change maxDecel or maxAccel of a vehicle, its type will change!
         // note2: we have to make sure the trajectory entered into the simulation, before changing MaxAccel and MaxDecel
         // note3: and we have to change maxDeccel and maxAccel only once!
-        if( simTime().dbl() == startTime )
+        if( omnetpp::simTime().dbl() == startTime )
         {
             TraCI->vehicleSetMaxAccel(profileVehicle, 1.5);
             TraCI->vehicleSetMaxDecel(profileVehicle, 2.);
@@ -171,7 +171,7 @@ void SpeedProfile::Change()
     // hysteresis
     else if(mode == 7)
     {
-        if( simTime().dbl() == startTime )
+        if( omnetpp::simTime().dbl() == startTime )
         {
             TraCI->vehicleSetMaxAccel(profileVehicle, 1);
             TraCI->vehicleSetMaxDecel(profileVehicle, 1);
@@ -189,7 +189,7 @@ void SpeedProfile::Change()
 // trajectory like a pulse
 void SpeedProfile::AccelDecel(double startT, double minV, double maxV)
 {
-    if( simTime().dbl() == startT )
+    if( omnetpp::simTime().dbl() == startT )
     {
         TraCI->vehicleSetSpeed(profileVehicle, maxV);
         return;
@@ -200,7 +200,7 @@ void SpeedProfile::AccelDecel(double startT, double minV, double maxV)
     if( old_speed != v )
     {
         old_speed = v;
-        old_time = simTime().dbl();
+        old_time = omnetpp::simTime().dbl();
     }
     // as soon as current speed is equal to old speed
     else
@@ -208,7 +208,7 @@ void SpeedProfile::AccelDecel(double startT, double minV, double maxV)
         if(v == maxV)
         {
             // waiting time between speed change
-            if(simTime().dbl() - old_time >= switchTime)
+            if(omnetpp::simTime().dbl() - old_time >= switchTime)
             {
                 TraCI->vehicleSetSpeed(profileVehicle, minV);
             }
@@ -216,7 +216,7 @@ void SpeedProfile::AccelDecel(double startT, double minV, double maxV)
         else if(v == minV)
         {
             // waiting time between speed change
-            if(simTime().dbl() - old_time >= switchTime)
+            if(omnetpp::simTime().dbl() - old_time >= switchTime)
             {
                 TraCI->vehicleSetSpeed(profileVehicle, maxV);
             }
@@ -227,7 +227,7 @@ void SpeedProfile::AccelDecel(double startT, double minV, double maxV)
 
 void SpeedProfile::AccelDecelZikZak(double startT, double minV, double maxV)
 {
-    if( simTime().dbl() == startT )
+    if( omnetpp::simTime().dbl() == startT )
     {
         TraCI->vehicleSetSpeed(profileVehicle, maxV);
         return;
@@ -256,16 +256,16 @@ void SpeedProfile::AccelDecelZikZak(double startT, double minV, double maxV)
 
 void SpeedProfile::AccelDecelPeriodic(double startT, double offset, double A, double w)
 {
-    if( simTime().dbl() == startT )
+    if( omnetpp::simTime().dbl() == startT )
     {
         TraCI->vehicleSetSpeed(profileVehicle, offset);
     }
-    else if( simTime().dbl() < (startT + 10) )
+    else if( omnetpp::simTime().dbl() < (startT + 10) )
     {
         return;
     }
 
-    double t = simTime().dbl();
+    double t = omnetpp::simTime().dbl();
     double newSpeed = offset + A * sin(w * t);
 
     TraCI->vehicleSetSpeed(profileVehicle, newSpeed);
@@ -289,13 +289,13 @@ void SpeedProfile::ExTrajectory(double startT)
     if(endOfFile)
         return;
 
-    if( simTime().dbl() == startT )
+    if( omnetpp::simTime().dbl() == startT )
     {
         // set the leading vehicle speed equal with the first speed of real trajectory data
         TraCI->vehicleSetSpeed(profileVehicle, 13.8);
         return;
     }
-    else if( simTime().dbl() < 120 )
+    else if( omnetpp::simTime().dbl() < 120 )
     {
         return;
     }

@@ -45,13 +45,13 @@ void TrafficLightBase::initialize(int stage)
     if(stage == 0)
 	{
         // get a pointer to the TraCI module
-        cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
+        cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
         TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
 
         updateInterval = TraCI->par("updateInterval").doubleValue();
         TLControlMode = par("TLControlMode").longValue();
-        debugLevel = simulation.getSystemModule()->par("debugLevel").longValue();
+        debugLevel = omnetpp::getSimulation()->getSystemModule()->par("debugLevel").longValue();
 
         // initialize RSUptr with NULL
         RSUptr = NULL;
@@ -65,7 +65,7 @@ void TrafficLightBase::finish()
 }
 
 
-void TrafficLightBase::handleMessage(cMessage *msg)
+void TrafficLightBase::handleMessage(omnetpp::cMessage *msg)
 {
 
 }
@@ -87,7 +87,7 @@ void TrafficLightBase::executeEachTimeStep()
 void TrafficLightBase::findRSU(std::string TLid)
 {
     // get a pointer to the first RSU
-    cModule *module = simulation.getSystemModule()->getSubmodule("RSU", 0);
+    cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("RSU", 0);
     if(module == NULL)
         error("No RSU module was found in the network!");
 
@@ -98,7 +98,7 @@ void TrafficLightBase::findRSU(std::string TLid)
     bool found = false;
     for(int i = 0; i < RSUcount; ++i)
     {
-        module = simulation.getSystemModule()->getSubmodule("RSU", i);
+        module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("RSU", i);
         cModule *appl =  module->getSubmodule("appl");
         std::string myTLid = appl->par("myTLid").stringValue();
 

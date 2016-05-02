@@ -37,7 +37,7 @@ class TrafficLight_FMSC : public TrafficLight_LQF_MWM_Cycle
     virtual ~TrafficLight_FMSC();
     virtual void initialize(int);
     virtual void finish();
-    virtual void handleMessage(cMessage *);
+    virtual void handleMessage(omnetpp::cMessage *);
 
   protected:
     void virtual initialize_withTraCI();

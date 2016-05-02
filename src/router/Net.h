@@ -62,7 +62,7 @@ public:
 class Net
 {
 public:
-    Net(std::string netBase, cModule* router, int ltc, int rtc, int stc, int utc);
+    Net(std::string netBase, omnetpp::cModule* router, int ltc, int rtc, int stc, int utc);
     ~Net();
 
     double junctionCost(double time, Edge* start, Edge* end);       //If it's a TL, returns the time spent waiting.  If not, returns turnTypeCost
@@ -77,7 +77,7 @@ private:
 public:
     double leftTurnCost, rightTurnCost, straightCost, uTurnCost;
     int debugLevel;
-    cModule* routerModule;
+    omnetpp::cModule* routerModule;
 
     std::map<std::string, TrafficLightRouter*> TLs;
     std::map<std::string, Edge*> edges;

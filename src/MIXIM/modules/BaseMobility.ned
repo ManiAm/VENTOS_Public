@@ -11,6 +11,7 @@ simple BaseMobility like IMobility
 {
     parameters:
         @display("i=block/cogwheel");
+        @signal[veinsmobilityStateChanged](type="BaseMobility");
                 
         bool notAffectedByHostState = default(true);
         bool coreDebug = default(false); // debug switch for the core framework

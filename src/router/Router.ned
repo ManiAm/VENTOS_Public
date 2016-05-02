@@ -6,6 +6,7 @@ simple Router
     parameters:
         @class(VENTOS::Router);
         @display("i=block/network2");  
+        @signal[router]();
         
         bool enableRouter = default(false);
         bool collectVehicleTimeData = default(false);

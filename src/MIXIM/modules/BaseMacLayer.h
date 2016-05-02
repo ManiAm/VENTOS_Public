@@ -46,13 +46,16 @@ class MIXIM_API BaseMacLayer : public BaseLayer
 {
 public:
     /** @brief Message kinds used by this layer.*/
-    enum BaseMacMessageKinds {
+    enum BaseMacMessageKinds
+    {
         /** Stores the id on which classes extending BaseMac should
          * continue their own message kinds.*/
         LAST_BASE_MAC_MESSAGE_KIND = 23000,
     };
+
     /** @brief Control message kinds used by this layer.*/
-    enum BaseMacControlKinds {
+    enum BaseMacControlKinds
+    {
         /** Indicates the end of a transmission*/
         TX_OVER = 23500,
         /** Tells the netw layer that a packet to be sent has been dropped.*/
@@ -66,9 +69,6 @@ protected:
 
     /** @brief Handler to the physical layer.*/
     MacToPhyInterface* phy;
-
-    /** @brief Pointer to the arp module*/
-    //BaseArp* arp;
 
     /**
      * @brief Length of the MacPkt header
@@ -94,16 +94,8 @@ protected:
 
 public:
     //Module_Class_Members( BaseMacLayer, BaseLayer, 0 );
-    BaseMacLayer() 
-      : BaseLayer()
-      , phy(NULL)
-      , myMacAddr(LAddress::L2NULL())
-    {}
-    BaseMacLayer(unsigned stacksize) 
-      : BaseLayer(stacksize)
-      , phy(NULL)
-      , myMacAddr(LAddress::L2NULL())
-    {}
+    BaseMacLayer() : BaseLayer(), phy(NULL), myMacAddr(LAddress::L2NULL()) { }
+    BaseMacLayer(unsigned stacksize) : BaseLayer(stacksize), phy(NULL), myMacAddr(LAddress::L2NULL()) { }
 
     /** @brief Initialization of the module and some variables*/
     virtual void initialize(int);
@@ -130,29 +122,32 @@ protected:
      *
      *  @sa encapsMsg, sendDown
      */
-    virtual void handleUpperMsg(cMessage *msg);
+    virtual void handleUpperMsg(omnetpp::cMessage *msg);
 
     /**
      * If message arrives from lower layer, check whether it is for
      * us. Send it up if yes.
      */
-    virtual void handleLowerMsg(cMessage *msg);
+    virtual void handleLowerMsg(omnetpp::cMessage *msg);
 
-    virtual void handleSelfMsg(cMessage* msg){
-	error("BaseMacLayer does not handle self messages");
+    virtual void handleSelfMsg(omnetpp::cMessage* msg)
+    {
+        error("BaseMacLayer does not handle self messages");
     };
-    virtual void handleLowerControl(cMessage* msg);
 
-    virtual void handleUpperControl(cMessage* msg){
-	error("BaseMacLayer does not handle control messages from upper layers");
+    virtual void handleLowerControl(omnetpp::cMessage* msg);
+
+    virtual void handleUpperControl(omnetpp::cMessage* msg)
+    {
+        error("BaseMacLayer does not handle control messages from upper layers");
     };
 
 
     /** @brief decapsulate the network message from the MacPkt */
-    virtual cPacket* decapsMsg(MacPkt*);
+    virtual omnetpp::cPacket* decapsMsg(MacPkt*);
 
     /** @brief Encapsulate the NetwPkt into an MacPkt */
-    virtual MacPkt* encapsMsg(cPacket*);
+    virtual MacPkt* encapsMsg(omnetpp::cPacket*);
 
     /**
      * @brief Creates a simple Signal defined over time with the
@@ -169,29 +164,29 @@ protected:
      * transmission-power is still zero at the exact start and end.
      * Please see the method MappingUtils::addDiscontinuity for the reason.
      */
-    virtual Signal* createSignal(simtime_t_cref start, simtime_t_cref length, double power, double bitrate);
+    virtual Signal* createSimpleSignal(omnetpp::simtime_t_cref start, omnetpp::simtime_t_cref length, double power, double bitrate);
 
     /**
      * @brief Creates a simple Mapping with a constant curve
      * progression at the passed value.
      *
-     * Used by "createSignal" to create the bitrate mapping.
+     * Used by "createSimpleSignal" to create the bitrate mapping.
      */
-    Mapping* createConstantMapping(simtime_t_cref start, simtime_t_cref end, Argument::mapped_type_cref value);
+    Mapping* createConstantMapping(omnetpp::simtime_t_cref start, omnetpp::simtime_t_cref end, Argument::mapped_type_cref value);
 
     /**
      * @brief Creates a simple Mapping with a constant curve
      * progression at the passed value and discontinuities at the boundaries.
      *
-     * Used by "createSignal" to create the power mapping.
+     * Used by "createSimpleSignal" to create the power mapping.
      */
-    Mapping* createRectangleMapping(simtime_t_cref start, simtime_t_cref end, Argument::mapped_type_cref value);
+    Mapping* createRectangleMapping(omnetpp::simtime_t_cref start, omnetpp::simtime_t_cref end, Argument::mapped_type_cref value);
 
     /**
      * @brief Creates a Mapping defined over time and frequency with
      * constant power in a certain frequency band.
      */
-    ConstMapping* createSingleFrequencyMapping(simtime_t_cref start, simtime_t_cref end, Argument::mapped_type_cref centerFreq, Argument::mapped_type_cref bandWith, Argument::mapped_type_cref value);
+    ConstMapping* createSingleFrequencyMapping(omnetpp::simtime_t_cref start, omnetpp::simtime_t_cref end, Argument::mapped_type_cref centerFreq, Argument::mapped_type_cref bandWith, Argument::mapped_type_cref value);
 
     /**
      * @brief Returns a pointer to this MACs NICs ConnectionManager module.
@@ -222,7 +217,7 @@ protected:
      * @param pMsg		The message where the "control info" shall be attached.
      * @param pSrcAddr	The MAC address of the message receiver.
      */
-    virtual cObject *const setUpControlInfo(cMessage *const pMsg, const LAddress::L2Type& pSrcAddr);
+    virtual omnetpp::cObject *const setUpControlInfo(omnetpp::cMessage *const pMsg, const LAddress::L2Type& pSrcAddr);
     /**
      * @brief Attaches a "control info" (MacToPhy) structure (object) to the message pMsg.
      *
@@ -236,7 +231,7 @@ protected:
      * @param pMsg		The message where the "control info" shall be attached.
      * @param pSignal	The signal which should be send.
      */
-    virtual cObject *const setDownControlInfo(cMessage *const pMsg, Signal *const pSignal);
+    virtual omnetpp::cObject *const setDownControlInfo(omnetpp::cMessage *const pMsg, Signal *const pSignal);
 };
 
 #endif

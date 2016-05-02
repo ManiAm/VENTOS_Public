@@ -83,7 +83,7 @@ void MeasureTrafficParams::finish()
 }
 
 
-void MeasureTrafficParams::handleMessage(cMessage *msg)
+void MeasureTrafficParams::handleMessage(omnetpp::cMessage *msg)
 {
     super::handleMessage(msg);
 }
@@ -189,7 +189,7 @@ void MeasureTrafficParams::CheckDetectors()
             AD_queue[lane] = it;
     }
 
-    if(ev.isGUI() && debugLevel > 0)
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 0)
     {
         printf("\n");
 
@@ -226,15 +226,15 @@ void MeasureTrafficParams::CheckDetectors()
 
             // traffic-actuated TSC needs one actuated LD on each incoming lane
             if( TLControlMode == TL_TrafficActuated && LD_actuated.find(lane) == LD_actuated.end() )
-                std::cout << "WARNING: no loop detector found on lane (" << lane << "). No actuation is available for this lane." << endl;
+                std::cout << "WARNING: no loop detector found on lane (" << lane << "). No actuation is available for this lane." << std::endl;
 
             // if we are measuring queue length then make sure we have an area detector in each lane
             if( measureIntersectionQueue && AD_queue.find(lane) == AD_queue.end() )
-                std::cout << "WARNING: no area detector found on lane (" << lane << "). No queue measurement is available for this lane." << endl;
+                std::cout << "WARNING: no area detector found on lane (" << lane << "). No queue measurement is available for this lane." << std::endl;
 
             // if we are measuring traffic demand using loop detectors then make sure we have an LD on each lane
             if( measureTrafficDemand && LD_demand.find(lane) == LD_demand.end() )
-                std::cout << "WARNING: no loop detector found on lane (" << lane << "). No traffic demand measurement is available for this lane." << endl;
+                std::cout << "WARNING: no loop detector found on lane (" << lane << "). No traffic demand measurement is available for this lane." << std::endl;
         }
     }
 }
@@ -316,7 +316,7 @@ void MeasureTrafficParams::measureTrafficParameters()
                 // traffic measurement is done by measuring headway time between each two consecutive vehicles
                 if(measureTrafficDemandMode == 1)
                 {
-                    double diff = simTime().dbl() - lastDetection_old - updateInterval;
+                    double diff = omnetpp::simTime().dbl() - lastDetection_old - updateInterval;
 
                     // ignore the very first detection on this LD
                     if(diff > 0.0001)
@@ -335,7 +335,7 @@ void MeasureTrafficParams::measureTrafficParameters()
 
                         // push it into the circular buffer
                         auto loc = laneTD.find(lane);
-                        std::vector<double> entry {TD /*traffic demand*/, simTime().dbl() /*time of measure*/, lagT /*time it takes to arrive at intersection*/};
+                        std::vector<double> entry {TD /*traffic demand*/, omnetpp::simTime().dbl() /*time of measure*/, lagT /*time it takes to arrive at intersection*/};
                         (loc->second).second.push_back(entry);
 
                         // iterate over outgoing links
@@ -346,7 +346,7 @@ void MeasureTrafficParams::measureTrafficParameters()
 
                             // push the new TD into the circular buffer
                             auto location = linkTD.find( make_pair(TLid,linkNumber) );
-                            std::vector<double> entry {TD /*traffic demand*/, simTime().dbl() /*time of measure*/, lagT /*time it takes to arrive at intersection*/};
+                            std::vector<double> entry {TD /*traffic demand*/, omnetpp::simTime().dbl() /*time of measure*/, lagT /*time it takes to arrive at intersection*/};
                             (location->second).push_back(entry);
                         }
                     }
@@ -364,10 +364,10 @@ void MeasureTrafficParams::measureTrafficParameters()
 
                     // if this is the first vehicle on this lane
                     if((*u).second.second.totalVehCount == 1)
-                        (*u).second.second.firstArrivalTime = simTime().dbl();
+                        (*u).second.second.firstArrivalTime = omnetpp::simTime().dbl();
 
                     // last detection time
-                    (*u).second.second.lastArrivalTime = simTime().dbl();
+                    (*u).second.second.lastArrivalTime = omnetpp::simTime().dbl();
                 }
             }
 
@@ -385,7 +385,7 @@ void MeasureTrafficParams::measureTrafficParameters()
             int maxQueue = y.second.maxQueueSize;
             int laneCount = y.second.totalLanes;
 
-            queueDataEntryDetailed *entry = new queueDataEntryDetailed(simTime().dbl(), TLid, totalQueue, maxQueue, laneCount);
+            queueDataEntryDetailed *entry = new queueDataEntryDetailed(omnetpp::simTime().dbl(), TLid, totalQueue, maxQueue, laneCount);
             Vec_queueSize.push_back(*entry);
 
             // reset values
@@ -426,7 +426,7 @@ void MeasureTrafficParams::updateTrafficDemand()
         if(interval >= 200)
         {
             u.second.second.totalVehCount = 0;
-            u.second.second.firstArrivalTime = simTime().dbl();
+            u.second.second.firstArrivalTime = omnetpp::simTime().dbl();
 
             // clear buffer for this lane in laneTD
             const auto &loc = laneTD.find(lane);
@@ -443,9 +443,9 @@ void MeasureTrafficParams::updateTrafficDemand()
                 (location->second).clear();
             }
 
-            if(ev.isGUI() && debugLevel > 1)
+            if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 1)
             {
-                std::cout << ">>> Traffic demand measurement restarted for lane " << lane << endl << endl;
+                std::cout << ">>> Traffic demand measurement restarted for lane " << lane << std::endl << std::endl;
                 std::cout.flush();
             }
         }
@@ -454,7 +454,7 @@ void MeasureTrafficParams::updateTrafficDemand()
         {
             // push it into the circular buffer
             auto loc = laneTD.find(lane);
-            std::vector<double> entry {TD /*traffic demand*/, simTime().dbl() /*time of measure*/, -1};
+            std::vector<double> entry {TD /*traffic demand*/, omnetpp::simTime().dbl() /*time of measure*/, -1};
             (loc->second).second.push_back(entry);
 
             // iterate over outgoing links
@@ -465,7 +465,7 @@ void MeasureTrafficParams::updateTrafficDemand()
 
                 // push the new TD into the circular buffer
                 auto location = linkTD.find( make_pair(TLid,linkNumber) );
-                std::vector<double> entry {TD /*traffic demand*/, simTime().dbl() /*time of measure*/, -1};
+                std::vector<double> entry {TD /*traffic demand*/, omnetpp::simTime().dbl() /*time of measure*/, -1};
                 (location->second).push_back(entry);
             }
         }
@@ -480,14 +480,14 @@ void MeasureTrafficParams::saveTLQueueingData()
 
     boost::filesystem::path filePath;
 
-    if(ev.isGUI())
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI())
     {
         filePath = "results/gui/TLqueuingData.txt";
     }
     else
     {
         // get the current run number
-        int currentRun = ev.getConfigEx()->getActiveRunNumber();
+        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
         std::ostringstream fileName;
         fileName << std::setfill('0') << std::setw(3) << currentRun << "_TLqueuingData.txt";
         filePath = "results/cmd/" + fileName.str();
@@ -496,19 +496,19 @@ void MeasureTrafficParams::saveTLQueueingData()
     FILE *filePtr = fopen (filePath.string().c_str(), "w");
 
     // write simulation parameters at the beginning of the file in CMD mode
-    if(!ev.isGUI())
+    if(!omnetpp::cSimulation::getActiveEnvir()->isGUI())
     {
         // get the current config name
-        std::string configName = ev.getConfigEx()->getVariable("configname");
+        std::string configName = omnetpp::getEnvir()->getConfigEx()->getVariable("configname");
 
         // get number of total runs in this config
-        int totalRun = ev.getConfigEx()->getNumRunsInConfig(configName.c_str());
+        int totalRun = omnetpp::getEnvir()->getConfigEx()->getNumRunsInConfig(configName.c_str());
 
         // get the current run number
-        int currentRun = ev.getConfigEx()->getActiveRunNumber();
+        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
 
         // get all iteration variables
-        std::vector<std::string> iterVar = ev.getConfigEx()->unrollConfig(configName.c_str(), false);
+        std::vector<std::string> iterVar = omnetpp::getEnvir()->getConfigEx()->unrollConfig(configName.c_str(), false);
 
         // write to file
         fprintf (filePtr, "configName      %s\n", configName.c_str());

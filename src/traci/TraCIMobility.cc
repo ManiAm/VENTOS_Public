@@ -41,7 +41,7 @@ void TraCIMobilityMod::initialize(int stage)
 		BaseMobility::initialize(stage);
 
         // get a pointer to the TraCI module
-        cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
+        cModule *module =  omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
         TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
 
@@ -71,10 +71,10 @@ void TraCIMobilityMod::initialize(int stage)
 
 		if (accidentCount > 0)
 		{
-			simtime_t accidentStart = par("accidentStart");
-			startAccidentMsg = new cMessage("scheduledAccident");
-			stopAccidentMsg = new cMessage("scheduledAccidentResolved");
-			scheduleAt(simTime() + accidentStart, startAccidentMsg);
+		    omnetpp::simtime_t accidentStart = par("accidentStart");
+			startAccidentMsg = new omnetpp::cMessage("scheduledAccident");
+			stopAccidentMsg = new omnetpp::cMessage("scheduledAccidentResolved");
+			scheduleAt(omnetpp::simTime() + accidentStart, startAccidentMsg);
 		}
 	}
 	else if (stage == 1)
@@ -95,13 +95,13 @@ void TraCIMobilityMod::finish()
 	isPreInitialized = false;
 }
 
-void TraCIMobilityMod::handleSelfMsg(cMessage *msg)
+void TraCIMobilityMod::handleSelfMsg(omnetpp::cMessage *msg)
 {
 	if (msg == startAccidentMsg)
 	{
 	    TraCI->vehicleSetSpeed(getExternalId(), 0);
-		simtime_t accidentDuration = par("accidentDuration");
-		scheduleAt(simTime() + accidentDuration, stopAccidentMsg);
+	    omnetpp::simtime_t accidentDuration = par("accidentDuration");
+		scheduleAt(omnetpp::simTime() + accidentDuration, stopAccidentMsg);
 		accidentCount--;
 	}
 	else if (msg == stopAccidentMsg)
@@ -109,8 +109,8 @@ void TraCIMobilityMod::handleSelfMsg(cMessage *msg)
         TraCI->vehicleSetSpeed(getExternalId(), -1);
 		if (accidentCount > 0)
 		{
-			simtime_t accidentInterval = par("accidentInterval");
-			scheduleAt(simTime() + accidentInterval, startAccidentMsg);
+		    omnetpp::simtime_t accidentInterval = par("accidentInterval");
+			scheduleAt(omnetpp::simTime() + accidentInterval, startAccidentMsg);
 		}
 	}
 }
@@ -151,18 +151,18 @@ void TraCIMobilityMod::nextPosition(const Coord& position, std::string road_id, 
 void TraCIMobilityMod::changePosition()
 {
 	// ensure we're not called twice in one time step
-	ASSERT(lastUpdate != simTime());
+	ASSERT(lastUpdate != omnetpp::simTime());
 
 	Coord nextPos = calculateAntennaPosition(roadPosition);
 	nextPos.z = move.getCurrentPosition().z;
 
-	this->lastUpdate = simTime();
+	this->lastUpdate = omnetpp::simTime();
 
 	move.setStart(Coord(nextPos.x, nextPos.y, move.getCurrentPosition().z)); // keep z position
 	move.setDirectionByVector(Coord(cos(angle), -sin(angle)));
 	move.setSpeed(speed);
 
-	if (ev.isGUI())
+	if (omnetpp::cSimulation::getActiveEnvir()->isGUI())
 	    updateDisplayString();
 
 	fixIfHostGetsOutside();

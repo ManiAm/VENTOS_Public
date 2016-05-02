@@ -56,7 +56,7 @@ void BLE::initialize(int stage)
         if(!BLE_on)
             return;
 
-        boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+        boost::filesystem::path VENTOS_FullPath = omnetpp::getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
         cached_LEBT_devices_filePATH = VENTOS_FullPath / "results/cached_LEBT_devices";
     }
 }
@@ -69,7 +69,7 @@ void BLE::finish()
 }
 
 
-void BLE::handleMessage(cMessage *msg)
+void BLE::handleMessage(omnetpp::cMessage *msg)
 {
     super::handleMessage(msg);
 
@@ -132,7 +132,7 @@ void BLE::loadCachedDevices()
     std::string line;
     while (std::getline(infile, line))
     {
-        std::vector<std::string> tokens = cStringTokenizer(line.c_str(), ",,").asVector();
+        std::vector<std::string> tokens = omnetpp::cStringTokenizer(line.c_str(), ",,").asVector();
         if(tokens.size() < 3)
             error("file format is not correct!");
 

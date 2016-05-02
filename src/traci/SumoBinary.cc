@@ -43,7 +43,7 @@ void SumoBinary::initialize(int stage)
         SUMO_CMD_URL = par("SUMO_CMD_URL").stringValue();
         SUMO_Version_URL = par("SUMO_Version_URL").stringValue();
 
-        VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+        VENTOS_FullPath = omnetpp::getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
         SUMO_Binary_FullPath = VENTOS_FullPath / "sumoBinary";
 
         SUMO_GUI_Binary_FullPath = SUMO_Binary_FullPath / SUMO_GUI_FileName;
@@ -65,7 +65,7 @@ void SumoBinary::finish()
 }
 
 
-void SumoBinary::handleMessage(cMessage *msg)
+void SumoBinary::handleMessage(omnetpp::cMessage *msg)
 {
 
 }
@@ -76,7 +76,7 @@ void SumoBinary::checkForMissingBinary()
     // both binaries are missing
     if( !boost::filesystem::exists( SUMO_CMD_Binary_FullPath ) && !exists( SUMO_GUI_Binary_FullPath ) )
     {
-        std::cout << "\nNo SUMO binaries found in " << SUMO_Binary_FullPath.string() << endl;
+        std::cout << "\nNo SUMO binaries found in " << SUMO_Binary_FullPath.string() << std::endl;
         std::cout << "Do you want to download the latest SUMO binaries? [y/n]: ";
         std::string answer;
         std::cin >> answer;
@@ -88,12 +88,12 @@ void SumoBinary::checkForMissingBinary()
             downloadBinary(SUMO_CMD_FileName, SUMO_CMD_Binary_FullPath.string(), SUMO_CMD_URL);
         }
         else
-            std::cout << "Ok! have fun." << endl;
+            std::cout << "Ok! have fun." << std::endl;
     }
     // only GUI binary is missing
     else if( boost::filesystem::exists( SUMO_CMD_Binary_FullPath ) && !exists( SUMO_GUI_Binary_FullPath ) )
     {
-        std::cout << "\nSUMO GUI binary is missing in " << SUMO_Binary_FullPath.string() << endl;
+        std::cout << "\nSUMO GUI binary is missing in " << SUMO_Binary_FullPath.string() << std::endl;
         std::cout << "Do you want to download it ? [y/n]: ";
         std::string answer;
         std::cin >> answer;
@@ -105,7 +105,7 @@ void SumoBinary::checkForMissingBinary()
     // only CMD binary is missing
     else if( !boost::filesystem::exists( SUMO_CMD_Binary_FullPath ) && exists( SUMO_GUI_Binary_FullPath ) )
     {
-        std::cout << "\nSUMO CMD binary is missing in " << SUMO_Binary_FullPath.string() << endl;
+        std::cout << "\nSUMO CMD binary is missing in " << SUMO_Binary_FullPath.string() << std::endl;
         std::cout << "Do you want to download it ? [y/n]: ";
         std::string answer;
         std::cin >> answer;
@@ -160,7 +160,7 @@ void SumoBinary::downloadBinary(std::string binaryName, std::string filePath, st
     }
     else
     {
-        std::cout << " done!" << endl;
+        std::cout << " done!" << std::endl;
         fclose(fp);
         makeExecutable(binaryName, filePath);
     }
@@ -180,7 +180,7 @@ void SumoBinary::makeExecutable(std::string binaryName, std::string filePath)
     FILE* pipe = popen(command, "r");
     if (!pipe)
     {
-        std::cout << "failed! (can not open pipe)" << endl;
+        std::cout << "failed! (can not open pipe)" << std::endl;
         return;
     }
 
@@ -193,7 +193,7 @@ void SumoBinary::makeExecutable(std::string binaryName, std::string filePath)
     }
     pclose(pipe);
 
-    std::cout << " done!" << endl;
+    std::cout << " done!" << std::endl;
 }
 
 
@@ -251,7 +251,7 @@ void SumoBinary::checkIfNewerVersionExists()
     FILE* pipe = popen(command, "r");
     if (!pipe)
     {
-        std::cout << "failed! (can not open pipe)" << endl;
+        std::cout << "failed! (can not open pipe)" << std::endl;
         return;
     }
 
@@ -265,7 +265,7 @@ void SumoBinary::checkIfNewerVersionExists()
     pclose(pipe);
 
     // store each line in a separate entry
-    std::vector<std::string> vec = cStringTokenizer(result.c_str(), "\n").asVector();
+    std::vector<std::string> vec = omnetpp::cStringTokenizer(result.c_str(), "\n").asVector();
     // first line
     std::string firstLine = vec[0];
     // look for the start of version
@@ -280,17 +280,17 @@ void SumoBinary::checkIfNewerVersionExists()
         return;
 
     // store each line in a separate entry
-    std::vector<std::string> vec2 = cStringTokenizer(remoteVer.c_str(), "\n").asVector();
+    std::vector<std::string> vec2 = omnetpp::cStringTokenizer(remoteVer.c_str(), "\n").asVector();
     // first line
     std::string remoteVer = vec2[0];
 
     if( localVer.compare(remoteVer) == 0 )
     {
-        std::cout << "Up to date!" << endl;
+        std::cout << "Up to date!" << std::endl;
     }
     else if( localVer.compare(remoteVer) < 0 )
     {
-        std::cout << "\nYour current version is " << localVer << endl;
+        std::cout << "\nYour current version is " << localVer << std::endl;
         std::cout << "Do you want to update to version " << remoteVer << " ? [y/n]: ";
         std::string answer;
         std::cin >> answer;

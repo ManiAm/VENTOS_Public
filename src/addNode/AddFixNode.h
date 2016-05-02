@@ -54,9 +54,9 @@ class AddFixNode : public BaseApplLayer
 public:
     virtual ~AddFixNode();
     virtual void initialize(int stage);
-    virtual void handleMessage(cMessage *msg);
+    virtual void handleMessage(omnetpp::cMessage *msg);
     virtual void finish();
-    virtual void receiveSignal(cComponent *, simsignal_t, long);
+    virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, long, cObject* details);
 
 private:
     void beginLoading();
@@ -72,7 +72,7 @@ private:
     typedef BaseApplLayer super;
 
     TraCI_Commands *TraCI;
-    simsignal_t Signal_initialize_withTraCI;
+    omnetpp::simsignal_t Signal_initialize_withTraCI;
     std::map<int, cModule*> RSUhosts; /**< vector of all RSUs managed by us */
 };
 

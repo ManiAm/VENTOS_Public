@@ -61,13 +61,13 @@ SSH::~SSH()
 SSH::SSH(std::string host, int port, std::string username, std::string password, bool printOutput)
 {
     if(host == "")
-        throw cRuntimeError("host is empty!");
+        throw omnetpp::cRuntimeError("host is empty!");
 
     if(port <= 0)
-        throw cRuntimeError("port number is invalid!");
+        throw omnetpp::cRuntimeError("port number is invalid!");
 
     if(username == "")
-        throw cRuntimeError("username is empty!");
+        throw omnetpp::cRuntimeError("username is empty!");
 
     this->dev_hostName = host;
     this->dev_port = port;;
@@ -78,7 +78,7 @@ SSH::SSH(std::string host, int port, std::string username, std::string password,
 
     SSH_session = ssh_new();
     if (SSH_session == NULL)
-        throw cRuntimeError("SSH session error!");
+        throw omnetpp::cRuntimeError("SSH session error!");
 
     long timeout = 10;  // timeout for the connection in seconds
     int verbosity = SSH_LOG_NOLOG;
@@ -97,14 +97,14 @@ SSH::SSH(std::string host, int port, std::string username, std::string password,
 
     int rc = ssh_connect(SSH_session);
     if (rc != SSH_OK)
-        throw cRuntimeError("%s", ssh_get_error(SSH_session));
+        throw omnetpp::cRuntimeError("%s", ssh_get_error(SSH_session));
 
     // verify the server's identity
     if (verify_knownhost() < 0)
     {
         ssh_disconnect(SSH_session);
         ssh_free(SSH_session);
-        throw cRuntimeError("oh no!");
+        throw omnetpp::cRuntimeError("oh no!");
     }
 
     if(printOutput)
@@ -140,7 +140,7 @@ void SSH::checkHost(std::string host, bool printOutput)
 {
     struct hostent *he = gethostbyname(host.c_str());  // needs Internet connection to resolve DNS names
     if (he == NULL)
-        throw cRuntimeError("hostname %s is invalid!", host.c_str());
+        throw omnetpp::cRuntimeError("hostname %s is invalid!", host.c_str());
 
     struct in_addr **addr_list = (struct in_addr **) he->h_addr_list;
 
@@ -160,7 +160,7 @@ void SSH::checkHost(std::string host, bool printOutput)
     std::string cmd = "ping -c 1 -s 1 " + std::string(IPAddress) + " > /dev/null 2>&1";
     int result = system(cmd.c_str());
     if(result != 0)
-        throw cRuntimeError("host at %s is not responding!", IPAddress);
+        throw omnetpp::cRuntimeError("host at %s is not responding!", IPAddress);
 }
 
 
@@ -252,7 +252,7 @@ void SSH::authenticate(std::string password)
     } while (rc == SSH_AUTH_AGAIN);  // In nonblocking mode, you've got to call this again later.
 
     if (rc == SSH_AUTH_ERROR)
-        throw cRuntimeError("Authentication failed.");
+        throw omnetpp::cRuntimeError("Authentication failed.");
 
     // this requires the function ssh_userauth_none() to be called before the methods are available.
     int method = ssh_userauth_list(SSH_session, NULL);
@@ -262,7 +262,7 @@ void SSH::authenticate(std::string password)
     {
         rc = ssh_userauth_publickey_auto(SSH_session, NULL, NULL);
         if (rc == SSH_AUTH_ERROR)
-            throw cRuntimeError("Authentication failed.");
+            throw omnetpp::cRuntimeError("Authentication failed.");
         else if (rc == SSH_AUTH_SUCCESS)
             return;
     }
@@ -272,7 +272,7 @@ void SSH::authenticate(std::string password)
     {
         rc = authenticate_kbdint();
         if (rc == SSH_AUTH_ERROR)
-            throw cRuntimeError("Authentication failed.");
+            throw omnetpp::cRuntimeError("Authentication failed.");
         else if (rc == SSH_AUTH_SUCCESS)
             return;
     }
@@ -291,7 +291,7 @@ void SSH::authenticate(std::string password)
             // Authenticate ourselves
             rc = ssh_userauth_password(SSH_session, NULL, password.c_str());
             if (rc == SSH_AUTH_ERROR)
-                throw cRuntimeError("Authentication failed.");
+                throw omnetpp::cRuntimeError("Authentication failed.");
             else if (rc == SSH_AUTH_SUCCESS)
                 return;
 
@@ -317,7 +317,7 @@ void SSH::authenticate(std::string password)
             // Authenticate ourselves
             rc = ssh_userauth_password(SSH_session, NULL, password.c_str());
             if (rc == SSH_AUTH_ERROR)
-                throw cRuntimeError("Authentication failed.");
+                throw omnetpp::cRuntimeError("Authentication failed.");
             else if (rc == SSH_AUTH_SUCCESS)
                 return;
 
@@ -387,13 +387,13 @@ void SSH::createSession_SFTP()
 
     SFTP_session = sftp_new(SSH_session);
     if (SFTP_session == NULL)
-        throw cRuntimeError("Error allocating SFTP session: %s", ssh_get_error(SSH_session));
+        throw omnetpp::cRuntimeError("Error allocating SFTP session: %s", ssh_get_error(SSH_session));
 
     int rc = sftp_init(SFTP_session);
     if (rc != SSH_OK)
     {
         sftp_free(SFTP_session);
-        throw cRuntimeError("Error initializing SFTP session: %s.", ssh_get_error(SFTP_session));
+        throw omnetpp::cRuntimeError("Error initializing SFTP session: %s.", ssh_get_error(SFTP_session));
     }
 }
 
@@ -405,7 +405,7 @@ void SSH::copyFile_SFTP(boost::filesystem::path source, boost::filesystem::path 
 
     // make sure file at 'source' exists
     if (!boost::filesystem::exists(source))
-        throw cRuntimeError("File %s not found!", source.c_str());
+        throw omnetpp::cRuntimeError("File %s not found!", source.c_str());
 
     // read file contents into a string
     std::ifstream ifs(source.c_str());
@@ -417,15 +417,15 @@ void SSH::copyFile_SFTP(boost::filesystem::path source, boost::filesystem::path 
     int access_type = O_WRONLY | O_CREAT | O_TRUNC;
     sftp_file file = sftp_open(SFTP_session, remoteFile.c_str(), access_type, S_IRWXU);
     if (file == NULL)
-        throw cRuntimeError("Can't open file for writing: %s", ssh_get_error(SSH_session));
+        throw omnetpp::cRuntimeError("Can't open file for writing: %s", ssh_get_error(SSH_session));
 
     int nwritten = sftp_write(file, content.c_str(), length);
     if (nwritten != length)
-        throw cRuntimeError("Can't write data to file: %s", ssh_get_error(SSH_session));
+        throw omnetpp::cRuntimeError("Can't write data to file: %s", ssh_get_error(SSH_session));
 
     int rc = sftp_close(file);
     if (rc != SSH_OK)
-        throw cRuntimeError("Can't close the written file: %s", ssh_get_error(SSH_session));
+        throw omnetpp::cRuntimeError("Can't close the written file: %s", ssh_get_error(SSH_session));
 }
 
 
@@ -436,24 +436,24 @@ void SSH::copyFileStr_SFTP(std::string fileName, std::string content, boost::fil
 
     int length = content.size();
     if(length <= 0)
-        throw cRuntimeError("content length should be > 0");
+        throw omnetpp::cRuntimeError("content length should be > 0");
 
     if(fileName == "")
-        throw cRuntimeError("fileName is empty!");
+        throw omnetpp::cRuntimeError("fileName is empty!");
 
     boost::filesystem::path remoteFile = remote_dir / fileName;
     int access_type = O_WRONLY | O_CREAT | O_TRUNC;
     sftp_file file = sftp_open(SFTP_session, remoteFile.c_str(), access_type, S_IRWXU);
     if (file == NULL)
-        throw cRuntimeError("Can't open file for writing: %s", ssh_get_error(SSH_session));
+        throw omnetpp::cRuntimeError("Can't open file for writing: %s", ssh_get_error(SSH_session));
 
     int nwritten = sftp_write(file, content.c_str(), length);
     if (nwritten != length)
-        throw cRuntimeError("Can't write data to file: %s", ssh_get_error(SSH_session));
+        throw omnetpp::cRuntimeError("Can't write data to file: %s", ssh_get_error(SSH_session));
 
     int rc = sftp_close(file);
     if (rc != SSH_OK)
-        throw cRuntimeError("Can't close the written file: %s", ssh_get_error(SSH_session));
+        throw omnetpp::cRuntimeError("Can't close the written file: %s", ssh_get_error(SSH_session));
 }
 
 
@@ -465,7 +465,7 @@ std::vector<sftp_attributes> SSH::listDir(boost::filesystem::path remote_dir)
 
     sftp_dir dir = sftp_opendir(SFTP_session, remote_dir.c_str());
     if (!dir)
-        throw cRuntimeError("Directory not opened: %s", ssh_get_error(SSH_session));
+        throw omnetpp::cRuntimeError("Directory not opened: %s", ssh_get_error(SSH_session));
 
     std::vector<sftp_attributes> dirListings;
 
@@ -476,12 +476,12 @@ std::vector<sftp_attributes> SSH::listDir(boost::filesystem::path remote_dir)
     if (!sftp_dir_eof(dir))
     {
         sftp_closedir(dir);
-        throw cRuntimeError("Can't list directory: %s", ssh_get_error(SSH_session));
+        throw omnetpp::cRuntimeError("Can't list directory: %s", ssh_get_error(SSH_session));
     }
 
     int rc = sftp_closedir(dir);
     if (rc != SSH_OK)
-        throw cRuntimeError("Can't close directory: %s", ssh_get_error(SSH_session));
+        throw omnetpp::cRuntimeError("Can't close directory: %s", ssh_get_error(SSH_session));
 
     // sort by name
     std::sort(dirListings.begin(), dirListings.end(),
@@ -500,7 +500,7 @@ void SSH::createDir(boost::filesystem::path newDirpath)
     if (rc != SSH_OK)
     {
         if (sftp_get_error(SFTP_session) != SSH_FX_FILE_ALREADY_EXISTS)
-            throw cRuntimeError("Can't create directory: %s", ssh_get_error(SSH_session));
+            throw omnetpp::cRuntimeError("Can't create directory: %s", ssh_get_error(SSH_session));
     }
 }
 
@@ -513,11 +513,11 @@ void SSH::syncDir(boost::filesystem::path source, boost::filesystem::path remote
 
     // make sure source directory exists
     if (!boost::filesystem::exists(source))
-        throw cRuntimeError("Directory %s not found!", source.c_str());
+        throw omnetpp::cRuntimeError("Directory %s not found!", source.c_str());
 
     // make sure source path is a directory
     if(!boost::filesystem::is_directory(source))
-        throw cRuntimeError("source is not a directory!: %s", source.c_str());
+        throw omnetpp::cRuntimeError("source is not a directory!: %s", source.c_str());
 
     std::vector<boost::filesystem::path> directories;
     directories.push_back(source);
@@ -590,13 +590,13 @@ ssh_channel SSH::openShell(std::string shellName, bool interactive, bool keepAli
 
         SSH_channel = ssh_channel_new(SSH_session);
         if (SSH_channel == NULL)
-            throw cRuntimeError("SSH error in openShell");
+            throw omnetpp::cRuntimeError("SSH error in openShell");
 
         int rc = ssh_channel_open_session(SSH_channel);
         if (rc != SSH_OK)
         {
             ssh_channel_free(SSH_channel);
-            throw cRuntimeError("SSH error in openShell");
+            throw omnetpp::cRuntimeError("SSH error in openShell");
         }
 
         /*
@@ -613,14 +613,14 @@ ssh_channel SSH::openShell(std::string shellName, bool interactive, bool keepAli
             if (rc != SSH_OK)
             {
                 ssh_channel_free(SSH_channel);
-                throw cRuntimeError("SSH error in openShell");
+                throw omnetpp::cRuntimeError("SSH error in openShell");
             }
 
             rc = ssh_channel_change_pty_size(SSH_channel, 80 /*cols*/, 30 /*rows*/);
             if (rc != SSH_OK)
             {
                 ssh_channel_free(SSH_channel);
-                throw cRuntimeError("SSH error in openShell");
+                throw omnetpp::cRuntimeError("SSH error in openShell");
             }
         }
 
@@ -628,7 +628,7 @@ ssh_channel SSH::openShell(std::string shellName, bool interactive, bool keepAli
         if (rc != SSH_OK)
         {
             ssh_channel_free(SSH_channel);
-            throw cRuntimeError("SSH error in openShell");
+            throw omnetpp::cRuntimeError("SSH error in openShell");
         }
     }
 
@@ -653,7 +653,7 @@ ssh_channel SSH::openShell(std::string shellName, bool interactive, bool keepAli
         {
             ssh_channel_close(SSH_channel);
             ssh_channel_free(SSH_channel);
-            throw cRuntimeError("SSH error in run_command");
+            throw omnetpp::cRuntimeError("SSH error in run_command");
         }
         // time out
         else if(nbytes == 0)

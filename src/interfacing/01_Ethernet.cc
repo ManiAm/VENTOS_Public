@@ -58,7 +58,7 @@ void Ethernet::initialize(int stage)
             return;
 
         // get a pointer to the TraCI module
-        cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
+        cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
         TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
 
@@ -70,10 +70,10 @@ void Ethernet::initialize(int stage)
 
         // register signals
         Signal_initialize_withTraCI = registerSignal("initialize_withTraCI");
-        simulation.getSystemModule()->subscribe("initialize_withTraCI", this);
+        omnetpp::getSimulation()->getSystemModule()->subscribe("initialize_withTraCI", this);
 
         Signal_executeEachTS = registerSignal("executeEachTS");
-        simulation.getSystemModule()->subscribe("executeEachTS", this);
+        omnetpp::getSimulation()->getSystemModule()->subscribe("executeEachTS", this);
 
         listInterfaces();
     }
@@ -89,18 +89,18 @@ void Ethernet::finish()
         pcap_close(pcap_handle);
 
     // unsubscribe
-    simulation.getSystemModule()->unsubscribe("initialize_withTraCI", this);
-    simulation.getSystemModule()->unsubscribe("executeEachTS", this);
+    omnetpp::getSimulation()->getSystemModule()->unsubscribe("initialize_withTraCI", this);
+    omnetpp::getSimulation()->getSystemModule()->unsubscribe("executeEachTS", this);
 }
 
 
-void Ethernet::handleMessage(cMessage *msg)
+void Ethernet::handleMessage(omnetpp::cMessage *msg)
 {
 
 }
 
 
-void Ethernet::receiveSignal(cComponent *source, simsignal_t signalID, long i)
+void Ethernet::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t signalID, long i, cObject* details)
 {
     Enter_Method_Silent();
 
@@ -244,7 +244,7 @@ std::string Ethernet::serverPortTostr(int port)
     if(portNumber.empty())
     {
         // services files in Linux is in /etc/services
-        boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+        boost::filesystem::path VENTOS_FullPath = omnetpp::getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
         boost::filesystem::path services_FullPath = VENTOS_FullPath / "src/interfacing/DB/ServerPorts";
         std::ifstream in(services_FullPath.string().c_str());
         if(in.fail())
@@ -253,12 +253,12 @@ std::string Ethernet::serverPortTostr(int port)
         std::string line;
         while(getline(in, line))
         {
-            std::vector<std::string> lineToken = cStringTokenizer(line.c_str()).asVector();
+            std::vector<std::string> lineToken = omnetpp::cStringTokenizer(line.c_str()).asVector();
 
             if(lineToken.size() < 2)
                 continue;
 
-            std::vector<std::string> port_prot = cStringTokenizer(lineToken[1].c_str(), "/").asVector();
+            std::vector<std::string> port_prot = omnetpp::cStringTokenizer(lineToken[1].c_str(), "/").asVector();
 
             if(port_prot.size() != 2)
                 continue;
@@ -289,7 +289,7 @@ std::string Ethernet::OUITostr(const u_int8_t MACaddr[])
     if(OUI.empty())
     {
         // OUI is downloaded from https://www.wireshark.org/tools/oui-lookup.html
-        boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+        boost::filesystem::path VENTOS_FullPath = omnetpp::getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
         boost::filesystem::path manuf_FullPath = VENTOS_FullPath / "src/interfacing/DB/OUI";
 
         std::ifstream in(manuf_FullPath.string().c_str());
@@ -299,7 +299,7 @@ std::string Ethernet::OUITostr(const u_int8_t MACaddr[])
         std::string line;
         while(getline(in, line))
         {
-            std::vector<std::string> lineToken = cStringTokenizer(line.c_str()).asVector();
+            std::vector<std::string> lineToken = omnetpp::cStringTokenizer(line.c_str()).asVector();
 
             if(lineToken.size() < 2)
                 continue;

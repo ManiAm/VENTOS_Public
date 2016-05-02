@@ -29,7 +29,7 @@
  *
  * @ingroup baseModules
  */
-class MIXIM_API BaseWorldUtility : public cSimpleModule
+class MIXIM_API BaseWorldUtility : public omnetpp::cSimpleModule
 {
 protected:
     /**
@@ -109,8 +109,8 @@ public:
         // if counter has done one complete cycle and will be set to a value it already had
         if (airFrameId == -1){
             // print a warning
-            ev << "WARNING: AirFrameId-Counter has done one complete cycle."
-                    << " AirFrameIds are repeating now and may not be unique anymore." << endl;
+            EV << "WARNING: AirFrameId-Counter has done one complete cycle."
+                    << " AirFrameIds are repeating now and may not be unique anymore." << std::endl;
         }
 
         return airFrameId++;

@@ -49,13 +49,13 @@ void Bluetooth::initialize(int stage)
     if(stage == 0)
     {
         // get a pointer to the TraCI module
-        cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
+        cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
         TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
 
         // get a pointer to SniffEthernet module
         // we need to call OUITostr
-        cModule *module2 = simulation.getSystemModule()->getSubmodule("Ethernet");
+        cModule *module2 = omnetpp::getSimulation()->getSystemModule()->getSubmodule("Ethernet");
         EtherPtr = static_cast<Ethernet *>(module2);
         ASSERT(EtherPtr);
 
@@ -73,7 +73,7 @@ void Bluetooth::initialize(int stage)
         if(!BT_on)
             return;
 
-        boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+        boost::filesystem::path VENTOS_FullPath = omnetpp::getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
         cached_BT_devices_filePATH = VENTOS_FullPath / "results/cached_BT_devices";
     }
 }
@@ -86,7 +86,7 @@ void Bluetooth::finish()
 }
 
 
-void Bluetooth::handleMessage(cMessage *msg)
+void Bluetooth::handleMessage(omnetpp::cMessage *msg)
 {
 
 
@@ -547,7 +547,7 @@ void Bluetooth::loadCachedDevices()
     std::string line;
     while (std::getline(infile, line))
     {
-        std::vector<std::string> tokens = cStringTokenizer(line.c_str(), ",,").asVector();
+        std::vector<std::string> tokens = omnetpp::cStringTokenizer(line.c_str(), ",,").asVector();
         if(tokens.size() < 3)
             error("file format is not correct!");
 
@@ -811,7 +811,7 @@ void Bluetooth::cmd_cmd(int dev_id, uint8_t ogf, uint16_t ocf, std::string paylo
 
     std::cout << std::endl << ">>> Sending command on hci" << dev_id << "... \n" << std::flush;
 
-    std::vector<std::string> tokens = cStringTokenizer(payload.c_str()).asVector();
+    std::vector<std::string> tokens = omnetpp::cStringTokenizer(payload.c_str()).asVector();
     int len = tokens.size();
 
     unsigned char buf[HCI_MAX_EVENT_SIZE];

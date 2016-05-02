@@ -37,8 +37,8 @@ class TrafficLightManager : public TrafficLightRouter
     virtual ~TrafficLightManager();
     virtual void initialize(int);
     virtual void finish();
-    virtual void handleMessage(cMessage *);
-    virtual void receiveSignal(cComponent *, simsignal_t, long);
+    virtual void handleMessage(omnetpp::cMessage *);
+    virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, long, cObject* details);
 
   protected:
     void virtual initialize_withTraCI();
@@ -47,8 +47,8 @@ class TrafficLightManager : public TrafficLightRouter
   private:
     typedef TrafficLightRouter super;
 
-    simsignal_t Signal_initialize_withTraCI;
-    simsignal_t Signal_executeEachTS;
+    omnetpp::simsignal_t Signal_initialize_withTraCI;
+    omnetpp::simsignal_t Signal_executeEachTS;
 };
 
 }

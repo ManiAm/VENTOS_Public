@@ -54,7 +54,7 @@ public:
     TrafficLightRouter();
     virtual void finish();
     virtual void initialize(int stage);
-    virtual void handleMessage(cMessage *);
+    virtual void handleMessage(omnetpp::cMessage *);
 
 public:
     std::string id;
@@ -66,8 +66,8 @@ public:
     Net* net;
 
     //OmNET
-    cMessage* TLEvent;
-    cMessage* TLSwitchEvent;
+    omnetpp::cMessage* TLEvent;
+    omnetpp::cMessage* TLSwitchEvent;
     void print();
 
     void build(std::string id, std::string type, std::string programID, double offset, std::vector<Phase*>& phases, Net* net);

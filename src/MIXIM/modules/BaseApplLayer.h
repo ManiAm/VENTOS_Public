@@ -90,7 +90,7 @@ protected:
 	 * Define this function if you want to process timer or other kinds
 	 * of self messages
 	 **/
-	virtual void handleSelfMsg(cMessage* msg) {
+	virtual void handleSelfMsg(omnetpp::cMessage* msg) {
 		EV << "BaseApplLayer: handleSelfMsg not redefined; delete msg\n";
 		delete msg;
 	};
@@ -104,7 +104,7 @@ protected:
 	 * The basic application layer just silently deletes all messages it
 	 * receives.
 	 **/
-	virtual void handleLowerMsg(cMessage* msg) {
+	virtual void handleLowerMsg(omnetpp::cMessage* msg) {
 		EV << "BaseApplLayer: handleLowerMsg not redefined; delete msg\n";
 		delete msg;
 	};
@@ -115,7 +115,7 @@ protected:
 	 * The basic application layer just silently deletes all messages it
 	 * receives.
 	 **/
-	virtual void handleLowerControl(cMessage* msg) {
+	virtual void handleLowerControl(omnetpp::cMessage* msg) {
 		EV << "BaseApplLayer: handleLowerControl not redefined; delete msg\n";
 		delete msg;
 	};
@@ -125,23 +125,23 @@ protected:
 	 * This function is pure virtual here, because there is no
 	 * reasonable guess what to do with it by default.
 	 */
-	virtual void handleUpperMsg(cMessage *msg) {
+	virtual void handleUpperMsg(omnetpp::cMessage *msg) {
 		assert(false);
-		opp_error("Application has no upper layers!");
+		throw omnetpp::cRuntimeError("Application has no upper layers!");
 		delete msg;
 	}
 
 	/** @brief Handle control messages from upper layer */
-	virtual void handleUpperControl(cMessage *msg) {
+	virtual void handleUpperControl(omnetpp::cMessage *msg) {
 		assert(false);
-		opp_error("Application has no upper layers!");
+		throw omnetpp::cRuntimeError("Application has no upper layers!");
 		delete msg;
 	}
 
 	/*@}*/
 
 	/** @brief Sends a message delayed to the lower layer*/
-	void sendDelayedDown(cMessage *, simtime_t_cref);
+	void sendDelayedDown(omnetpp::cMessage *, omnetpp::simtime_t_cref);
 
 	/**
 	 * @brief Return my application layer address

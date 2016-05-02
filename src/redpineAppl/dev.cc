@@ -44,7 +44,7 @@ void dev::initialize(int stage)
     if(stage ==0)
     {
         // get a pointer to the TraCI module
-        cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
+        cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
         ASSERT(module);
         TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
@@ -58,13 +58,13 @@ void dev::finish()
 }
 
 
-void dev::handleMessage(cMessage *msg)
+void dev::handleMessage(omnetpp::cMessage *msg)
 {
 
 }
 
 
-void dev::receiveSignal(cComponent *source, simsignal_t signalID, long i)
+void dev::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t signalID, long i, cObject* details)
 {
     Enter_Method_Silent();
 

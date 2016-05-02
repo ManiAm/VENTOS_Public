@@ -36,7 +36,6 @@
 // why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header
 #undef ev
 #include "boost/filesystem.hpp"
-#define ev  (*cSimulation::getActiveEnvir())
 
 namespace VENTOS {
 
@@ -67,7 +66,7 @@ void TraCI_Commands::finish()
 }
 
 
-void TraCI_Commands::handleMessage(cMessage *msg)
+void TraCI_Commands::handleMessage(omnetpp::cMessage *msg)
 {
 
 }
@@ -2935,7 +2934,7 @@ double TraCI_Commands::omnet2traciAngle(double angle) const
 
 std::string TraCI_Commands::getSUMOFullDir()
 {
-    boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+    boost::filesystem::path VENTOS_FullPath = omnetpp::getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
     std::string SUMOconfig = par("SUMOconfig").stringValue();
     boost::filesystem::path SUMOconfigFullPath = VENTOS_FullPath / SUMOconfig;
 
@@ -2951,7 +2950,7 @@ std::string TraCI_Commands::getSUMOFullDir()
 
 std::string  TraCI_Commands::getSUMOConfigFullPath()
 {
-    boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+    boost::filesystem::path VENTOS_FullPath = omnetpp::getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
     std::string SUMOconfig = par("SUMOconfig").stringValue();
     boost::filesystem::path SUMOconfigFullPath = VENTOS_FullPath / SUMOconfig;
 
@@ -2976,7 +2975,7 @@ void TraCI_Commands::updateTraCIlog(std::string state, uint8_t commandGroupId, u
     {
         Htime_t t = std::chrono::high_resolution_clock::now();
 
-        TraCIcommandEntry *entry = new TraCIcommandEntry(simTime().dbl(), t, t, commandGroupId, commandId);
+        TraCIcommandEntry *entry = new TraCIcommandEntry(omnetpp::simTime().dbl(), t, t, commandGroupId, commandId);
         exchangedTraCIcommands.push_back(*entry);
     }
     else if(state == "commandComplete")
@@ -3010,14 +3009,14 @@ void TraCI_Commands::TraCIexchangeToFile()
 
     boost::filesystem::path filePath;
 
-    if(ev.isGUI())
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI())
     {
         filePath = "results/gui/TraCI_log.txt";
     }
     else
     {
         // get the current run number
-        int currentRun = ev.getConfigEx()->getActiveRunNumber();
+        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
         std::ostringstream fileName;
         fileName << std::setfill('0') << std::setw(3) << currentRun << "_TraCI_log.txt";
         filePath = "results/cmd/" + fileName.str();

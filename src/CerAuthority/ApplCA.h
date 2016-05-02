@@ -44,10 +44,10 @@ class ApplCA : public BaseApplLayer
     virtual ~ApplCA();
     virtual void initialize(int);
     virtual void finish();
-	virtual void receiveSignal(cComponent *, simsignal_t, cObject *);
+	virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, omnetpp::cObject *, cObject* details);
 
   protected:
-    virtual void handleSelfMsg(cMessage* msg);
+    virtual void handleSelfMsg(omnetpp::cMessage* msg);
 
   private:
     void CalculateMatrixA();
@@ -77,8 +77,8 @@ class ApplCA : public BaseApplLayer
     int pad;   // how many padding are added
 
     std::string moduleName;
-	cMessage *Timer1;
-	simsignal_t Signal_Magic_Req;
+    omnetpp::cMessage *Timer1;
+    omnetpp::simsignal_t Signal_Magic_Req;
 	std::vector<CRL_Piece *> PiecesCRL;
 };
 

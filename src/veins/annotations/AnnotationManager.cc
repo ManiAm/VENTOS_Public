@@ -29,7 +29,8 @@ namespace Veins {
 
 Define_Module(Veins::AnnotationManager);
 
-void AnnotationManager::initialize() {
+void AnnotationManager::initialize()
+{
     debug = par("debug");
 
     scheduledEraseEvts.clear();
@@ -37,52 +38,61 @@ void AnnotationManager::initialize() {
     annotations.clear();
     groups.clear();
 
-#if OMNETPP_CANVAS_VERSION == 0x20140709
-    annotationLayer = new cGroupFigure();
-    cCanvas* canvas = getParentModule()->getCanvas();
+    annotationLayer = new omnetpp::cGroupFigure();
+    omnetpp::cCanvas* canvas = getParentModule()->getCanvas();
     canvas->addFigure(annotationLayer, canvas->findFigure("submodules"));
-#endif
 
     annotationsXml = par("annotations");
     addFromXml(annotationsXml);
 }
 
-void AnnotationManager::finish() {
+void AnnotationManager::finish()
+{
     hideAll();
 }
 
-AnnotationManager::~AnnotationManager() {
-    while (scheduledEraseEvts.begin() != scheduledEraseEvts.end()) {
+AnnotationManager::~AnnotationManager()
+{
+    while (scheduledEraseEvts.begin() != scheduledEraseEvts.end())
+    {
         cancelAndDelete(*scheduledEraseEvts.begin());
         scheduledEraseEvts.erase(scheduledEraseEvts.begin());
     }
+
     scheduledEraseEvts.clear();
 
-    while (annotations.begin() != annotations.end()) {
+    while (annotations.begin() != annotations.end())
+    {
         delete *annotations.begin();
         annotations.erase(annotations.begin());
     }
+
     annotations.clear();
 
-    while (groups.begin() != groups.end()) {
+    while (groups.begin() != groups.end())
+    {
         delete *groups.begin();
         groups.erase(groups.begin());
     }
-    groups.clear();
 
+    groups.clear();
 }
 
-void AnnotationManager::handleMessage(cMessage *msg) {
-    if (msg->isSelfMessage()) {
+void AnnotationManager::handleMessage(omnetpp::cMessage *msg)
+{
+    if (msg->isSelfMessage())
+    {
         handleSelfMsg(msg);
         return;
     }
+
     error("AnnotationManager doesn't handle messages from other modules");
 }
 
-void AnnotationManager::handleSelfMsg(cMessage *msg) {
-
-    if (msg->getKind() == EVT_SCHEDULED_ERASE) {
+void AnnotationManager::handleSelfMsg(omnetpp::cMessage *msg)
+{
+    if (msg->getKind() == EVT_SCHEDULED_ERASE)
+    {
         Annotation* a = static_cast<Annotation*>(msg->getContextPointer());
         ASSERT(a);
 
@@ -96,13 +106,14 @@ void AnnotationManager::handleSelfMsg(cMessage *msg) {
     error("unknown self message type");
 }
 
-void AnnotationManager::handleParameterChange(const char *parname) {
-    if (parname && (std::string(parname) == "draw")) {
-        if (par("draw")) {
+void AnnotationManager::handleParameterChange(const char *parname)
+{
+    if (parname && (std::string(parname) == "draw"))
+    {
+        if (par("draw"))
             showAll();
-        } else {
+        else
             hideAll();
-        }
     }
 }
 
@@ -114,78 +125,87 @@ void AnnotationManager::handleParameterChange(const char *parname) {
  *   <poly color="#0F0" shape="16,64 8,77.8564 -8,77.8564 -16,64 -8,50.1436 8,50.1436" />
  * </annotations>
  */
-void AnnotationManager::addFromXml(cXMLElement* xml) {
+void AnnotationManager::addFromXml(omnetpp::cXMLElement* xml)
+{
     std::string rootTag = xml->getTagName();
     ASSERT (rootTag == "annotations");
 
-    cXMLElementList list = xml->getChildren();
-    for (cXMLElementList::const_iterator i = list.begin(); i != list.end(); ++i) {
-        cXMLElement* e = *i;
+    omnetpp::cXMLElementList list = xml->getChildren();
+    for (omnetpp::cXMLElementList::const_iterator i = list.begin(); i != list.end(); ++i)
+    {
+        omnetpp::cXMLElement* e = *i;
 
         std::string tag = e->getTagName();
 
-        if (tag == "point") {
+        if (tag == "point")
+        {
             ASSERT(e->getAttribute("text"));
             std::string text = e->getAttribute("text");
             ASSERT(e->getAttribute("color"));
             std::string color = e->getAttribute("color");
             ASSERT(e->getAttribute("shape"));
             std::string shape = e->getAttribute("shape");
-            std::vector<std::string> points = cStringTokenizer(shape.c_str(), " ").asVector();
+            std::vector<std::string> points = omnetpp::cStringTokenizer(shape.c_str(), " ").asVector();
             ASSERT(points.size() == 2);
 
-            std::vector<double> p1a = cStringTokenizer(points[0].c_str(), ",").asDoubleVector();
+            std::vector<double> p1a = omnetpp::cStringTokenizer(points[0].c_str(), ",").asDoubleVector();
             ASSERT(p1a.size() == 2);
 
             drawPoint(Coord(p1a[0], p1a[1]), color, text);
         }
-        else if (tag == "line") {
+        else if (tag == "line")
+        {
             ASSERT(e->getAttribute("color"));
             std::string color = e->getAttribute("color");
             ASSERT(e->getAttribute("shape"));
             std::string shape = e->getAttribute("shape");
-            std::vector<std::string> points = cStringTokenizer(shape.c_str(), " ").asVector();
+            std::vector<std::string> points = omnetpp::cStringTokenizer(shape.c_str(), " ").asVector();
             ASSERT(points.size() == 2);
 
-            std::vector<double> p1a = cStringTokenizer(points[0].c_str(), ",").asDoubleVector();
+            std::vector<double> p1a = omnetpp::cStringTokenizer(points[0].c_str(), ",").asDoubleVector();
             ASSERT(p1a.size() == 2);
-            std::vector<double> p2a = cStringTokenizer(points[1].c_str(), ",").asDoubleVector();
+            std::vector<double> p2a = omnetpp::cStringTokenizer(points[1].c_str(), ",").asDoubleVector();
             ASSERT(p2a.size() == 2);
 
             drawLine(Coord(p1a[0], p1a[1]), Coord(p2a[0], p2a[1]), color);
         }
-        else if (tag == "poly") {
+        else if (tag == "poly")
+        {
             ASSERT(e->getAttribute("color"));
             std::string color = e->getAttribute("color");
             ASSERT(e->getAttribute("shape"));
             std::string shape = e->getAttribute("shape");
-            std::vector<std::string> points = cStringTokenizer(shape.c_str(), " ").asVector();
+            std::vector<std::string> points = omnetpp::cStringTokenizer(shape.c_str(), " ").asVector();
             ASSERT(points.size() >= 2);
 
             std::vector<Coord> coords;
-            for (std::vector<std::string>::const_iterator i = points.begin(); i != points.end(); ++i) {
-                std::vector<double> pa = cStringTokenizer(i->c_str(), ",").asDoubleVector();
+            for (std::vector<std::string>::const_iterator i = points.begin(); i != points.end(); ++i)
+            {
+                std::vector<double> pa = omnetpp::cStringTokenizer(i->c_str(), ",").asDoubleVector();
                 ASSERT(pa.size() == 2);
                 coords.push_back(Coord(pa[0], pa[1]));
             }
 
             drawPolygon(coords, color);
         }
-        else {
+        else
+        {
             error("while reading annotations xml: expected 'line' or 'poly', but got '%s'", tag.c_str());
         }
     }
 
 }
 
-AnnotationManager::Group* AnnotationManager::createGroup(std::string title) {
+AnnotationManager::Group* AnnotationManager::createGroup(std::string title)
+{
     Group* group = new Group(title);
     groups.push_back(group);
 
     return group;
 }
 
-AnnotationManager::Point* AnnotationManager::drawPoint(Coord p, std::string color, std::string text, Group* group) {
+AnnotationManager::Point* AnnotationManager::drawPoint(Coord p, std::string color, std::string text, Group* group)
+{
     Point* o = new Point(p, color, text);
     o->group = group;
 
@@ -196,7 +216,8 @@ AnnotationManager::Point* AnnotationManager::drawPoint(Coord p, std::string colo
     return o;
 }
 
-AnnotationManager::Line* AnnotationManager::drawLine(Coord p1, Coord p2, std::string color, Group* group) {
+AnnotationManager::Line* AnnotationManager::drawLine(Coord p1, Coord p2, std::string color, Group* group)
+{
     Line* l = new Line(p1, p2, color);
     l->group = group;
 
@@ -207,7 +228,8 @@ AnnotationManager::Line* AnnotationManager::drawLine(Coord p1, Coord p2, std::st
     return l;
 }
 
-AnnotationManager::Polygon* AnnotationManager::drawPolygon(std::list<Coord> coords, std::string color, Group* group) {
+AnnotationManager::Polygon* AnnotationManager::drawPolygon(std::list<Coord> coords, std::string color, Group* group)
+{
     Polygon* p = new Polygon(coords, color);
     p->group = group;
 
@@ -218,11 +240,13 @@ AnnotationManager::Polygon* AnnotationManager::drawPolygon(std::list<Coord> coor
     return p;
 }
 
-AnnotationManager::Polygon* AnnotationManager::drawPolygon(std::vector<Coord> coords, std::string color, Group* group) {
+AnnotationManager::Polygon* AnnotationManager::drawPolygon(std::vector<Coord> coords, std::string color, Group* group)
+{
     return drawPolygon(std::list<Coord>(coords.begin(), coords.end()), color, group);
 }
 
-void AnnotationManager::drawBubble(Coord p1, std::string text) {
+void AnnotationManager::drawBubble(Coord p1, std::string text)
+{
     std::string pxOld = getDisplayString().getTagArg("p", 0);
     std::string pyOld = getDisplayString().getTagArg("p", 1);
 
@@ -238,163 +262,104 @@ void AnnotationManager::drawBubble(Coord p1, std::string text) {
     getDisplayString().setTagArg("p", 1, pyOld.c_str());
 }
 
-void AnnotationManager::erase(const Annotation* annotation) {
+void AnnotationManager::erase(const Annotation* annotation)
+{
     hide(annotation);
     annotations.remove(const_cast<Annotation*>(annotation));
     delete annotation;
 }
 
-void AnnotationManager::eraseAll(Group* group) {
-    for (Annotations::iterator i = annotations.begin(); i != annotations.end(); ) {
-        if ((!group) || ((*i)->group == group)) {
+void AnnotationManager::eraseAll(Group* group)
+{
+    for (Annotations::iterator i = annotations.begin(); i != annotations.end(); )
+    {
+        if ((!group) || ((*i)->group == group))
             erase(*i++);
-        } else {
+        else
             i++;
-        }
     }
 }
 
-void AnnotationManager::scheduleErase(simtime_t deltaT, Annotation* annotation) {
+void AnnotationManager::scheduleErase(omnetpp::simtime_t deltaT, Annotation* annotation)
+{
     Enter_Method_Silent();
 
-    cMessage* evt = new cMessage("erase", EVT_SCHEDULED_ERASE);
+    omnetpp::cMessage* evt = new omnetpp::cMessage("erase", EVT_SCHEDULED_ERASE);
     evt->setContextPointer(annotation);
 
-    scheduleAt(simTime() + deltaT, evt);
+    scheduleAt(omnetpp::simTime() + deltaT, evt);
 
     scheduledEraseEvts.push_back(evt);
 
 }
 
-#if OMNETPP_CANVAS_VERSION == 0x20140709
-#else
-cModule* AnnotationManager::createDummyModule(std::string displayString) {
-    static int32_t nodeVectorIndex = -1;
-
-    cModule* parentmod = getParentModule();
-    if (!parentmod) error("Parent Module not found");
-
-    cModuleType* nodeType = cModuleType::get("AnnotationDummy");
-
-    //TODO: this trashes the vectsize member of the cModule, although nobody seems to use it
-    nodeVectorIndex++;
-    cModule* mod = nodeType->create("annotation", parentmod, nodeVectorIndex, nodeVectorIndex);
-    mod->finalizeParameters();
-    mod->getDisplayString().parse(displayString.c_str());
-    mod->buildInside();
-    mod->scheduleStart(simTime());
-
-    return mod;
-}
-
-cModule* AnnotationManager::createDummyModuleLine(Coord p1, Coord p2, std::string color) {
-    double w = std::abs(p2.x - p1.x);
-    double h = std::abs(p2.y - p1.y);
-    double px = 0;
-    if (p1.x <= p2.x) {
-        px = p1.x + 0.5 * w;
-    } else {
-        px = p2.x + 0.5 * w;
-        w = -w;
-    }
-    double py = 0;
-    if (p1.y <= p2.y) {
-        py = p1.y + 0.5 * h;
-    } else {
-        py = p2.y + 0.5 * h;
-        h = -h;
-    }
-
-    std::stringstream ss;
-    ss << "p=" << px << "," << py << ";b=" << w << ", " << h << ",polygon," << color << "," << color << ",1";
-    std::string displayString = ss.str();
-
-    return createDummyModule(displayString);
-}
-#endif
-
-void AnnotationManager::show(const Annotation* annotation) {
-#if OMNETPP_CANVAS_VERSION == 0x20140709
+void AnnotationManager::show(const Annotation* annotation)
+{
     if (annotation->figure) return;
-#else
-    if (annotation->dummyObjects.size() > 0) return;
-#endif
 
-    if (const Point* o = dynamic_cast<const Point*>(annotation)) {
-
-        if (ev.isGUI()) {
+    if (const Point* o = dynamic_cast<const Point*>(annotation))
+    {
+        if (omnetpp::cSimulation::getActiveEnvir()->isGUI())
+        {
             // no corresponding TkEnv representation
         }
 
-        std::stringstream nameBuilder; nameBuilder << o->text << " " << ev.getUniqueNumber();
+        std::stringstream nameBuilder;
+        nameBuilder << o->text << " " << omnetpp::getEnvir()->getUniqueNumber();
 
         // get a pointer to the TraCI module
-        cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
+        omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
         VENTOS::TraCI_Commands *TraCI = static_cast<VENTOS::TraCI_Commands *>(module);
         ASSERT(TraCI);
         TraCI->addPoi(nameBuilder.str(), "Annotation", VENTOS::Color::colorNameToRGB(o->color), 6, o->pos);
         annotation->traciPoiIds.push_back(nameBuilder.str());
     }
-    else if (const Line* l = dynamic_cast<const Line*>(annotation)) {
-
-        if (ev.isGUI()) {
-#if OMNETPP_CANVAS_VERSION == 0x20140709
-            cLineFigure* figure = new cLineFigure();
-            figure->setStart(cFigure::Point(l->p1.x, l->p1.y));
-            figure->setEnd(cFigure::Point(l->p2.x, l->p2.y));
-            figure->setLineColor(cFigure::Color::byName(l->color.c_str()));
+    else if (const Line* l = dynamic_cast<const Line*>(annotation))
+    {
+        if (omnetpp::cSimulation::getActiveEnvir()->isGUI())
+        {
+            omnetpp::cLineFigure* figure = new omnetpp::cLineFigure();
+            figure->setStart(omnetpp::cFigure::Point(l->p1.x, l->p1.y));
+            figure->setEnd(omnetpp::cFigure::Point(l->p2.x, l->p2.y));
+            figure->setLineColor( omnetpp::cFigure::Color(l->color.c_str()) );
             annotation->figure = figure;
             annotationLayer->addFigure(annotation->figure);
-#else
-            cModule* mod = createDummyModuleLine(l->p1, l->p2, l->color);
-            annotation->dummyObjects.push_back(mod);
-#endif
         }
 
         // get a pointer to the TraCI module
-        cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
+        cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
         VENTOS::TraCI_Commands *TraCI = static_cast<VENTOS::TraCI_Commands *>(module);
         ASSERT(TraCI);
         std::list<Coord> coords; coords.push_back(l->p1); coords.push_back(l->p2);
         std::stringstream nameBuilder;
-        nameBuilder << "Annotation" << ev.getUniqueNumber();
+        nameBuilder << "Annotation" << omnetpp::getEnvir()->getUniqueNumber();
         TraCI->polygonAdd(nameBuilder.str(), "Annotation", VENTOS::Color::colorNameToRGB(l->color), false, 5, coords);
         annotation->traciLineIds.push_back(nameBuilder.str());
     }
-    else if (const Polygon* p = dynamic_cast<const Polygon*>(annotation)) {
-
+    else if (const Polygon* p = dynamic_cast<const Polygon*>(annotation))
+    {
         ASSERT(p->coords.size() >= 2);
 
-        if (ev.isGUI()) {
-#if OMNETPP_CANVAS_VERSION == 0x20140709
-            cPolygonFigure* figure = new cPolygonFigure();
-            std::vector<cFigure::Point> points;
-            for (std::list<Coord>::const_iterator i = p->coords.begin(); i != p->coords.end(); ++i) {
-                points.push_back(cFigure::Point(i->x, i->y));
-            }
+        if (omnetpp::cSimulation::getActiveEnvir()->isGUI())
+        {
+            omnetpp::cPolygonFigure* figure = new omnetpp::cPolygonFigure();
+            std::vector<omnetpp::cFigure::Point> points;
+            for (std::list<Coord>::const_iterator i = p->coords.begin(); i != p->coords.end(); ++i)
+                points.push_back(omnetpp::cFigure::Point(i->x, i->y));
+
             figure->setPoints(points);
-            figure->setLineColor(cFigure::Color::byName(p->color.c_str()));
+            figure->setLineColor( omnetpp::cFigure::Color(p->color.c_str()) );
             figure->setFilled(false);
             annotation->figure = figure;
             annotationLayer->addFigure(annotation->figure);
-#else
-            Coord lastCoords = *p->coords.rbegin();
-            for (std::list<Coord>::const_iterator i = p->coords.begin(); i != p->coords.end(); ++i) {
-                Coord c1 = *i;
-                Coord c2 = lastCoords;
-                lastCoords = c1;
-
-                cModule* mod = createDummyModuleLine(c1, c2, p->color);
-                annotation->dummyObjects.push_back(mod);
-            }
-#endif
         }
 
         // get a pointer to the TraCI module
-        cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
+        cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
         VENTOS::TraCI_Commands *TraCI = static_cast<VENTOS::TraCI_Commands *>(module);
         ASSERT(TraCI);
-        std::stringstream nameBuilder; nameBuilder << "Annotation" << ev.getUniqueNumber();
+        std::stringstream nameBuilder;
+        nameBuilder << "Annotation" << omnetpp::getEnvir()->getUniqueNumber();
         TraCI->polygonAdd(nameBuilder.str(), "Annotation", VENTOS::Color::colorNameToRGB(p->color), false, 4, p->coords);
         annotation->traciPolygonsIds.push_back(nameBuilder.str());
     }
@@ -403,49 +368,48 @@ void AnnotationManager::show(const Annotation* annotation) {
     }
 }
 
-void AnnotationManager::hide(const Annotation* annotation) {
-#if OMNETPP_CANVAS_VERSION == 0x20140709
-    if (annotation->figure) {
+void AnnotationManager::hide(const Annotation* annotation)
+{
+    if (annotation->figure)
+    {
         delete annotationLayer->removeFigure(annotation->figure);
         annotation->figure = 0;
     }
-#else
-    for (std::list<cModule*>::const_iterator i = annotation->dummyObjects.begin(); i != annotation->dummyObjects.end(); ++i) {
-        cModule* mod = *i;
-        mod->deleteModule();
-    }
-    annotation->dummyObjects.clear();
-#endif
+
 
     // todo: change this
-//    TraCIScenarioManager* traci = TraCIScenarioManagerAccess().get();
-//    if (traci && traci->isConnected()) {
-//        for (std::list<std::string>::const_iterator i = annotation->traciPolygonsIds.begin(); i != annotation->traciPolygonsIds.end(); ++i) {
-//            std::string id = *i;
-//            traci->getCommandInterface()->polygon(id).remove(3);
-//        }
-//        annotation->traciPolygonsIds.clear();
-//        for (std::list<std::string>::const_iterator i = annotation->traciLineIds.begin(); i != annotation->traciLineIds.end(); ++i) {
-//            std::string id = *i;
-//            traci->getCommandInterface()->polygon(id).remove(4);
-//        }
-//        annotation->traciLineIds.clear();
-//        for (std::list<std::string>::const_iterator i = annotation->traciPoiIds.begin(); i != annotation->traciPoiIds.end(); ++i) {
-//            std::string id = *i;
-//            traci->getCommandInterface()->poi(id).remove(5);
-//        }
-//        annotation->traciPoiIds.clear();
-//    }
+    //    TraCIScenarioManager* traci = TraCIScenarioManagerAccess().get();
+    //    if (traci && traci->isConnected()) {
+    //        for (std::list<std::string>::const_iterator i = annotation->traciPolygonsIds.begin(); i != annotation->traciPolygonsIds.end(); ++i) {
+    //            std::string id = *i;
+    //            traci->getCommandInterface()->polygon(id).remove(3);
+    //        }
+    //        annotation->traciPolygonsIds.clear();
+    //        for (std::list<std::string>::const_iterator i = annotation->traciLineIds.begin(); i != annotation->traciLineIds.end(); ++i) {
+    //            std::string id = *i;
+    //            traci->getCommandInterface()->polygon(id).remove(4);
+    //        }
+    //        annotation->traciLineIds.clear();
+    //        for (std::list<std::string>::const_iterator i = annotation->traciPoiIds.begin(); i != annotation->traciPoiIds.end(); ++i) {
+    //            std::string id = *i;
+    //            traci->getCommandInterface()->poi(id).remove(5);
+    //        }
+    //        annotation->traciPoiIds.clear();
+    //    }
 }
 
-void AnnotationManager::showAll(Group* group) {
-    for (Annotations::const_iterator i = annotations.begin(); i != annotations.end(); ++i) {
+void AnnotationManager::showAll(Group* group)
+{
+    for (Annotations::const_iterator i = annotations.begin(); i != annotations.end(); ++i)
+    {
         if ((!group) || ((*i)->group == group)) show(*i);
     }
 }
 
-void AnnotationManager::hideAll(Group* group) {
-    for (Annotations::const_iterator i = annotations.begin(); i != annotations.end(); ++i) {
+void AnnotationManager::hideAll(Group* group)
+{
+    for (Annotations::const_iterator i = annotations.begin(); i != annotations.end(); ++i)
+    {
         if ((!group) || ((*i)->group == group)) hide(*i);
     }
 }

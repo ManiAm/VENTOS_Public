@@ -52,19 +52,19 @@ void codeLoader::initialize(int stage)
             return;
 
         // get a pointer to the TraCI module
-        cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
+        cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
         ASSERT(module);
         TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
 
         Signal_initialize_withTraCI = registerSignal("initialize_withTraCI");
-        simulation.getSystemModule()->subscribe("initialize_withTraCI", this);
+        omnetpp::getSimulation()->getSystemModule()->subscribe("initialize_withTraCI", this);
 
         Signal_executeEachTS = registerSignal("executeEachTS");
-        simulation.getSystemModule()->subscribe("executeEachTS", this);
+        omnetpp::getSimulation()->getSystemModule()->subscribe("executeEachTS", this);
 
         // construct the path to redpineAppl folder
-        boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+        boost::filesystem::path VENTOS_FullPath = omnetpp::getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
         redpineAppl_FullPath = VENTOS_FullPath / "src" / "redpineAppl";
 
         initScriptName = par("initScriptName").stringValue();
@@ -93,13 +93,13 @@ void codeLoader::finish()
 }
 
 
-void codeLoader::handleMessage(cMessage *msg)
+void codeLoader::handleMessage(omnetpp::cMessage *msg)
 {
 
 }
 
 
-void codeLoader::receiveSignal(cComponent *source, simsignal_t signalID, long i)
+void codeLoader::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t signalID, long i, cObject* details)
 {
     if(!on)
         return;
@@ -147,7 +147,7 @@ void codeLoader::make_connection()
     if (!parentMod)
         error("Parent Module not found");
 
-    cModuleType* nodeType = cModuleType::get("VENTOS.src.redpineAppl.dev");
+    omnetpp::cModuleType* nodeType = omnetpp::cModuleType::get("VENTOS.src.redpineAppl.dev");
 
     for(int i = 0; i < numDev; i++)
     {
@@ -156,7 +156,7 @@ void codeLoader::make_connection()
         mod->getDisplayString().updateWith("i=old/x_yellow");
         mod->getDisplayString().updateWith("p=0,0");
         mod->buildInside();
-        mod->scheduleStart(simTime());
+        mod->scheduleStart(omnetpp::simTime());
         mod->callInitialize();
     }
 
@@ -164,7 +164,7 @@ void codeLoader::make_connection()
     std::vector<std::thread> workers;
     for(int ii = 0; ii < numDev; ii++)
     {
-        cModule *module = simulation.getSystemModule()->getSubmodule("dev", ii);
+        cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("dev", ii);
         ASSERT(module);
 
         std::string host = module->par("host").stringValue();
@@ -296,7 +296,7 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
     //##################################
     std::string applName = module->par("applName").stringValue();
     if(applName == "")
-        throw cRuntimeError("applName is empty!");
+        throw omnetpp::cRuntimeError("applName is empty!");
 
     printf(">>> Compiling %s @%s ... \n\n", applName.c_str(), board->getHostName().c_str());
     std::cout.flush();

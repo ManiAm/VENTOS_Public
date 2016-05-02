@@ -8,9 +8,8 @@
 #include "FindModule.h"
 
 #ifndef ccEV
-#define ccEV (ev.isDisabled()||!coreDebug) ? ev : ev << getName() << ": "
+#define ccEV EV << getName() << ": "
 #endif
-
 
 /**
  * On a torus the end and the begin of the axes are connected so you
@@ -108,7 +107,7 @@ void BaseConnectionManager::initialize(int stage)
         }
         ccEV << " using " << gridDim.x << "x" <<
                 gridDim.y << "x" <<
-                gridDim.z << " grid" << endl;
+                gridDim.z << " grid" << std::endl;
 
         //step 3 -	calculate the factor which maps the coordinate of a node
         //			to the grid cell
@@ -142,7 +141,7 @@ void BaseConnectionManager::initialize(int stage)
         assert(GridCoord(*playgroundSize, findDistance).x == gridDim.x - 1);
         assert(GridCoord(*playgroundSize, findDistance).y == gridDim.y - 1);
         assert(GridCoord(*playgroundSize, findDistance).z == gridDim.z - 1);
-        ccEV << "findDistance is " << findDistance.info() << endl;
+        ccEV << "findDistance is " << findDistance.info() << std::endl;
     }
     else if (stage == 1)
     {
@@ -221,7 +220,7 @@ void BaseConnectionManager::checkGrid(BaseConnectionManager::GridCoord& oldCell,
 
     GridCoord* c = gridUnion.next();
     while(c != 0) {
-        ccEV << "Update cons in [" << c->info() << "]" << endl;
+        ccEV << "Update cons in [" << c->info() << "]" << std::endl;
         updateNicConnections(getCellEntries(*c), nic);
         c = gridUnion.next();
     }
@@ -297,7 +296,7 @@ void BaseConnectionManager::updateNicConnections(NicEntries& nmap, BaseConnectio
             // nodes within communication range: connect
             // nodes within communication range && not yet connected
             ccEV << "nic #" << id << " and #" << nic_i->nicId
-                    << " are in range" << endl;
+                    << " are in range" << std::endl;
             nic->connectTo( nic_i );
             nic_i->connectTo( nic );
         }
@@ -305,7 +304,7 @@ void BaseConnectionManager::updateNicConnections(NicEntries& nmap, BaseConnectio
             // out of range: disconnect
             // out of range, and still connected
             ccEV << "nic #" << id << " and #" << nic_i->nicId
-                    << " are NOT in range" << endl;
+                    << " are NOT in range" << std::endl;
             nic->disconnectFrom( nic_i );
             nic_i->disconnectFrom( nic );
         }
@@ -319,7 +318,7 @@ bool BaseConnectionManager::registerNic(cModule* nic,
     assert(nic != 0);
 
     int nicID = nic->getId();
-    ccEV << " registering nic #" << nicID << endl;
+    ccEV << " registering nic #" << nicID << std::endl;
 
     // create new NicEntry
     NicEntries::mapped_type nicEntry;
@@ -356,7 +355,7 @@ bool BaseConnectionManager::unregisterNic(cModule* nicModule)
 
     // find nicEntry
     int nicID = nicModule->getId();
-    ccEV << " unregistering nic #" << nicID << endl;
+    ccEV << " unregistering nic #" << nicID << std::endl;
 
     //we assume that the module was previously registered with this CM
     //TODO: maybe change this to an omnet-error instead of an assertion
@@ -375,7 +374,7 @@ bool BaseConnectionManager::unregisterNic(cModule* nicModule)
     // disconnect from all NICs in these grid squares
     GridCoord* c = gridUnion.next();
     while(c != 0) {
-        ccEV << "Update cons in [" << c->info() << "]" << endl;
+        ccEV << "Update cons in [" << c->info() << "]" << std::endl;
         NicEntries& nmap = getCellEntries(*c);
         for(NicEntries::iterator i = nmap.begin(); i != nmap.end(); ++i) {
             NicEntries::mapped_type other = i->second;
@@ -420,7 +419,7 @@ const NicEntry::GateList& BaseConnectionManager::getGateList(int nicID) const
     return ItNic->second->getGateList();
 }
 
-const cGate* BaseConnectionManager::getOutGateTo(const NicEntry* nic,
+const omnetpp::cGate* BaseConnectionManager::getOutGateTo(const NicEntry* nic,
         const NicEntry* targetNic) const
 {
     NicEntries::const_iterator ItNic = nics.find(nic->nicId);

@@ -38,8 +38,8 @@ public:
     virtual ~BLE_Dump();
     virtual void finish();
     virtual void initialize(int);
-    virtual void handleMessage(cMessage *);
-    virtual void receiveSignal(cComponent *, simsignal_t, long);
+    virtual void handleMessage(omnetpp::cMessage *);
+    virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, long, cObject* details);
 
 protected:
     void initialize_withTraCI();
@@ -60,8 +60,8 @@ private:
     bool dump_On;
     int BLE_dump_deviceID;
 
-    simsignal_t Signal_initialize_withTraCI;
-    simsignal_t Signal_executeEachTS;
+    omnetpp::simsignal_t Signal_initialize_withTraCI;
+    omnetpp::simsignal_t Signal_executeEachTS;
 };
 
 }

@@ -7,8 +7,8 @@ import VENTOS.src.MIXIM.modules.*;
 module CA
 {
     parameters:
-
-
+        @signal[CRL_pieces]();
+        
     gates:
         input radioIn; // gate for sendDirect
         
@@ -17,12 +17,12 @@ module CA
             parameters:
                 @display("p=60,50");
         }
-
+        
         nic: Nic80211p_Mod {
             parameters:
                 @display("p=60,166");
         }
-
+        
         mobility: ConstSpeedMobility {
             parameters:
                 @display("p=130,172;i=block/cogwheel");
@@ -32,6 +32,6 @@ module CA
         nic.upperLayerIn <-- appl.lowerLayerOut;
         nic.upperControlOut --> appl.lowerControlIn;
         nic.upperControlIn <-- appl.lowerControlOut;
-
+        
         radioIn --> nic.radioIn;
 }

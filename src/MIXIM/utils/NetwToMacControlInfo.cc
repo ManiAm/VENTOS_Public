@@ -19,7 +19,7 @@
 
 typedef NetwToMacControlInfo  tNetwToMacControlInfoBase;
 
-cObject *const NetwToMacControlInfo::setControlInfo(cMessage *const pMsg, const LAddress::L2Type& pDestAddr)
+omnetpp::cObject *const NetwToMacControlInfo::setControlInfo(omnetpp::cMessage *const pMsg, const LAddress::L2Type& pDestAddr)
 {
 	tNetwToMacControlInfoBase *const cCtrlInfo = new tNetwToMacControlInfoBase();
 

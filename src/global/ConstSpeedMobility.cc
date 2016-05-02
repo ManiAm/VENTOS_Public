@@ -46,7 +46,7 @@ void ConstSpeedMobility::initialize(int stage)
 		stepSize = Coord(0,0,0);
 
 		debugEV << "Initialize: move speed: " << move.getSpeed() << " (" << par("speed").doubleValue() << ")"
-           << " pos: " << move.info() << endl;
+           << " pos: " << move.info() << std::endl;
     }
     else if( stage == 1 ){
     	stepTarget = move.getStartPos();
@@ -60,17 +60,17 @@ void ConstSpeedMobility::initialize(int stage)
  */
 void ConstSpeedMobility::setTargetPosition()
 {
-	debugEV << "start setTargetPosistion: " << move.info() << endl;
+	debugEV << "start setTargetPosistion: " << move.info() << std::endl;
 
     do{
 	targetPos = getRandomPosition();
 
 	double distance = move.getStartPos().distance(targetPos);
-	simtime_t totalTime = distance / move.getSpeed();
+	omnetpp::simtime_t totalTime = distance / move.getSpeed();
 	numSteps = FWMath::round(totalTime / updateInterval);
 
 	debugEV << "new targetPos: " << targetPos.info() << " distance=" << distance
-	   << " totalTime=" << totalTime << " numSteps=" << numSteps << endl;
+	   << " totalTime=" << totalTime << " numSteps=" << numSteps << std::endl;
     }
     while( numSteps == 0 );
 
@@ -80,12 +80,12 @@ void ConstSpeedMobility::setTargetPosition()
 
     stepTarget = move.getStartPos() + stepSize;
 
-    debugEV << "stepSize: " << stepSize.info() << " target: " << (stepSize*numSteps).info() << endl;
+    debugEV << "stepSize: " << stepSize.info() << " target: " << (stepSize*numSteps).info() << std::endl;
 
     step = 0;
     move.setDirectionByTarget(targetPos);
 
-    debugEV << "end setTargetPosistion: " << move.info() << endl;
+    debugEV << "end setTargetPosistion: " << move.info() << std::endl;
 }
 
 
@@ -102,24 +102,24 @@ void ConstSpeedMobility::makeMove()
 		// last step
 		//stepSize.x =
 		// step forward
-		move.setStart(stepTarget, simTime());
+		move.setStart(stepTarget, omnetpp::simTime());
 
 		debugEV << "stepping forward. step #=" << step
-		   << " startPos: " << move.getStartPos().info() << endl;
+		   << " startPos: " << move.getStartPos().info() << std::endl;
 
 
 		// get new target position
 		debugEV << "destination reached.\n"
-		   << move.info() << endl;
+		   << move.info() << std::endl;
 		setTargetPosition();
     }
     else if( step < numSteps ){
 		// step forward
-		move.setStart(stepTarget, simTime());
+		move.setStart(stepTarget, omnetpp::simTime());
 		stepTarget += stepSize;
 
 		debugEV << "stepping forward. step #=" << step
-		   << " startPos: " << move.getStartPos().info() << endl;
+		   << " startPos: " << move.getStartPos().info() << std::endl;
 
     }
     else{

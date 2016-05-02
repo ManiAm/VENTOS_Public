@@ -51,11 +51,11 @@ Dimension::Dimension(const Dimension::DimensionNameType& name)
 
 //--Argument implementation---------------------------
 
-Argument::Argument(simtime_t_cref timeVal):
+Argument::Argument(omnetpp::simtime_t_cref timeVal):
 	        time(timeVal), values()
 {}
 
-Argument::Argument(const DimensionSet & dims, simtime_t_cref timeVal):
+Argument::Argument(const DimensionSet & dims, omnetpp::simtime_t_cref timeVal):
 	        time(timeVal), values()
 {
     DimensionSet::const_iterator       it    = dims.begin();
@@ -68,12 +68,12 @@ Argument::Argument(const DimensionSet & dims, simtime_t_cref timeVal):
     }
 }
 
-simtime_t_cref Argument::getTime() const
+omnetpp::simtime_t_cref Argument::getTime() const
 {
     return time;
 }
 
-void Argument::setTime(simtime_t_cref time)
+void Argument::setTime(omnetpp::simtime_t_cref time)
 {
     this->time = time;
 }
@@ -324,12 +324,12 @@ SimpleConstMappingIterator::SimpleConstMappingIterator(const ConstMapping*      
 void SimpleConstMapping::createKeyEntries(const Argument& from, const Argument& to, const Argument& step, Argument& pos)
 {
     //get iteration borders and steps
-    simtime_t_cref fromT = from.getTime();
-    simtime_t_cref toT   = to.getTime();
-    simtime_t_cref stepT = step.getTime();
+    omnetpp::simtime_t_cref fromT = from.getTime();
+    omnetpp::simtime_t_cref toT   = to.getTime();
+    omnetpp::simtime_t_cref stepT = step.getTime();
 
     //iterate over interval without the end of the interval
-    for(simtime_t t = fromT; t < toT; t += stepT){
+    for(omnetpp::simtime_t t = fromT; t < toT; t += stepT){
         //create key entry at current position
         pos.setTime(t);
         keyEntries.insert(pos);

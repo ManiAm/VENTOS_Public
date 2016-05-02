@@ -45,7 +45,7 @@ protected:
     bool debug;
 
     /** logs computed pathlosses. */
-    cOutVector pathlosses;
+    omnetpp::cOutVector pathlosses;
 
 public:
 	/**

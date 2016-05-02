@@ -120,9 +120,9 @@ public:
     virtual ~Statistics();
     virtual void finish();
     virtual void initialize(int);
-    virtual void handleMessage(cMessage *);
-    virtual void receiveSignal(cComponent *, simsignal_t, long);
-    virtual void receiveSignal(cComponent *, simsignal_t, cObject *);
+    virtual void handleMessage(omnetpp::cMessage *);
+    virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, long, cObject* details);
+    virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, cObject *, cObject* details);
 
 private:
     void initialize_withTraCI();
@@ -147,13 +147,13 @@ private:
     TraCI_Commands *TraCI;
 
     // class variables (signals)
-    simsignal_t Signal_initialize_withTraCI;
-    simsignal_t Signal_executeEachTS;
-    simsignal_t Signal_MacStats;
-    simsignal_t Signal_SentPlatoonMsg;
-    simsignal_t Signal_VehicleState;
-    simsignal_t Signal_PlnManeuver;
-    simsignal_t Signal_beacon;
+    omnetpp::simsignal_t Signal_initialize_withTraCI;
+    omnetpp::simsignal_t Signal_executeEachTS;
+    omnetpp::simsignal_t Signal_MacStats;
+    omnetpp::simsignal_t Signal_SentPlatoonMsg;
+    omnetpp::simsignal_t Signal_VehicleState;
+    omnetpp::simsignal_t Signal_PlnManeuver;
+    omnetpp::simsignal_t Signal_beacon;
 
     // class variables (vectors)
     std::vector<MacStatEntry> Vec_MacStat;

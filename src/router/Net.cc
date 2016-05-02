@@ -34,9 +34,9 @@ Net::~Net()
 
 }
 
-Net::Net(std::string netBase, cModule* router, int ltc, int rtc, int stc, int utc):leftTurnCost(ltc), rightTurnCost(rtc), straightCost(stc), uTurnCost(utc)
+Net::Net(std::string netBase, omnetpp::cModule* router, int ltc, int rtc, int stc, int utc):leftTurnCost(ltc), rightTurnCost(rtc), straightCost(stc), uTurnCost(utc)
 {
-    debugLevel = simulation.getSystemModule()->par("debugLevel").longValue();
+    debugLevel = omnetpp::getSimulation()->getSystemModule()->par("debugLevel").longValue();
 
     routerModule = router;
     LoadHelloNet(netBase);
@@ -70,9 +70,9 @@ double Net::turnTypeCost(Edge* start, Edge* end)
         return uTurnCost;
     }
 
-    if(ev.isGUI() && debugLevel > 1)
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 1)
     {
-        std::cout << "Turn did not have an associated type!  This should never happen." << endl;
+        std::cout << "Turn did not have an associated type!  This should never happen." << std::endl;
         std::cout.flush();
     }
 
@@ -140,7 +140,7 @@ int Net::nextAcceptingPhase(double time, Edge* start, Edge* end)
 
 void Net::LoadHelloNet(std::string netBase)
 {
-    cModuleType* moduleType = cModuleType::get("VENTOS.src.trafficLight.TSC.TL_Router");    //Get the TL module
+    omnetpp::cModuleType* moduleType = omnetpp::cModuleType::get("VENTOS.src.trafficLight.TSC.TL_Router");    //Get the TL module
 
     std::string netFile = netBase + "/hello.net.xml";
 
@@ -207,8 +207,8 @@ void Net::LoadHelloNet(std::string netBase)
                         phasesVec.push_back(ph);   //Build and link a new phase for each attribute
                     }
 
-                    cModule *mod = moduleType->create("TrafficLight", routerModule); //Create a TL module with router as its parent
-                    tl = check_and_cast<TrafficLightRouter*>(mod);                   //Cast the new module to a TL
+                    omnetpp::cModule *mod = moduleType->create("TrafficLight", routerModule); //Create a TL module with router as its parent
+                    tl = omnetpp::check_and_cast<TrafficLightRouter*>(mod);                   //Cast the new module to a TL
                     tl->build(tlid, tltype, programID, tloffset, phasesVec, this);   //And build the traffic light with all this info
                     TLs[tlid] = tl; //Add the TL to the TL set
                     break;

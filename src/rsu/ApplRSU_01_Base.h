@@ -43,7 +43,7 @@ public:
     ~ApplRSUBase();
     virtual void initialize(int stage);
     virtual void finish();
-    virtual void handleSelfMsg(cMessage* msg);
+    virtual void handleSelfMsg(omnetpp::cMessage* msg);
 
 protected:
     virtual void executeEachTimeStep();
@@ -51,7 +51,6 @@ protected:
 
 protected:
     // NED variables
-    cModule *nodePtr;   // pointer to the Node
     TraCI_Commands* TraCI;
     cModule* TLptr;
 
@@ -71,8 +70,8 @@ protected:
     double myCoordX;    // my X coordinate in SUMO
     double myCoordY;    // my Y coordinate in SUMO
 
-    simtime_t individualOffset;
-    cMessage* RSUBeaconEvt;
+    omnetpp::simtime_t individualOffset;
+    omnetpp::cMessage* RSUBeaconEvt;
 
     int TLControlMode = -1;
     double minGreenTime = -1;

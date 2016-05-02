@@ -38,10 +38,10 @@ public:
     ~ApplRSUManager();
     virtual void initialize(int stage);
     virtual void finish();
-    virtual void handleLowerMsg(cMessage* msg);
-    virtual void handleSelfMsg(cMessage* msg);
-    virtual void receiveSignal(cComponent *, simsignal_t, long);
-    virtual void receiveSignal(cComponent *, simsignal_t, cObject *);
+    virtual void handleLowerMsg(omnetpp::cMessage* msg);
+    virtual void handleSelfMsg(omnetpp::cMessage* msg);
+    virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, long, cObject* details);
+    virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, cObject *, cObject* details);
 
 protected:
     void virtual executeEachTimeStep();
@@ -55,8 +55,8 @@ protected:
 private:
     typedef ApplRSUCRL super;
 
-    simsignal_t Signal_executeEachTS;
-    simsignal_t Signal_beaconSignaling;
+    omnetpp::simsignal_t Signal_executeEachTS;
+    omnetpp::simsignal_t Signal_beaconSignaling;
     static const simsignalwrap_t mobilityStateChangedSignal;
 };
 

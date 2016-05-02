@@ -21,7 +21,7 @@
 double JakesFadingMapping::getValue(const Argument& pos) const {
 	double f = model->carrierFrequency;
 	double v = relSpeed;
-	simtime_t t = pos.getTime();
+	omnetpp::simtime_t t = pos.getTime();
 	double re_h = 0;
 	double im_h = 0;
 
@@ -61,18 +61,17 @@ double JakesFadingMapping::getValue(const Argument& pos) const {
 }
 
 
-JakesFading::JakesFading(int fadingPaths, simtime_t_cref delayRMS,
-						 double carrierFrequency, simtime_t_cref interval):
+JakesFading::JakesFading(int fadingPaths, omnetpp::simtime_t_cref delayRMS, double carrierFrequency, omnetpp::simtime_t_cref interval):
 	fadingPaths(fadingPaths),
 	carrierFrequency(carrierFrequency),
 	interval(interval)
 {
 	angleOfArrival = new double[fadingPaths];
-	delay = new simtime_t[fadingPaths];
+	delay = new omnetpp::simtime_t[fadingPaths];
 
 	for (int i = 0; i < fadingPaths; i++) {
-		angleOfArrival[i] = cos(uniform(0, M_PI));
-		delay[i] = exponential(delayRMS);
+		angleOfArrival[i] = cos(omnetpp::cSimulation::getActiveSimulation()->getContext()->uniform(0, M_PI));
+		delay[i] = omnetpp::cSimulation::getActiveSimulation()->getContext()->exponential(delayRMS);
 	}
 }
 

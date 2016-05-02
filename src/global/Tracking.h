@@ -38,9 +38,9 @@ class Tracking : public BaseApplLayer
 	public:
 		virtual ~Tracking();
 		virtual void initialize(int stage);
-        virtual void handleMessage(cMessage *msg);
+        virtual void handleMessage(omnetpp::cMessage *msg);
 		virtual void finish();
-        virtual void receiveSignal(cComponent *, simsignal_t, long);
+        virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, long, cObject* details);
 
 	private:
         void TrackingGUI();
@@ -48,7 +48,7 @@ class Tracking : public BaseApplLayer
 	private:
         // NED variables
         TraCI_Commands *TraCI;  // pointer to the TraCI module
-        simsignal_t Signal_initialize_withTraCI;
+        omnetpp::simsignal_t Signal_initialize_withTraCI;
 
         // NED variables (GUI)
         int mode;
@@ -60,7 +60,7 @@ class Tracking : public BaseApplLayer
         double windowsOffset;
 
         // class variables
-        cMessage* updataGUI = NULL;
+        omnetpp::cMessage* updataGUI = NULL;
 };
 
 }

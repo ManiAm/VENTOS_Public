@@ -74,11 +74,11 @@ void ApplVPlatoonMg::initialize(int stage)
         // ----------------------
         if(entryEnabled)
         {
-            entryManeuverEvt = new cMessage("EntryEvt", KIND_TIMER);
+            entryManeuverEvt = new omnetpp::cMessage("EntryEvt", KIND_TIMER);
             //double offset = dblrand() * 10;
-            scheduleAt(simTime() + 4., entryManeuverEvt); // todo: no offset for now!
+            scheduleAt(omnetpp::simTime() + 4., entryManeuverEvt); // todo: no offset for now!
 
-            plnTIMER0 = new cMessage("listening to beacons", KIND_TIMER);
+            plnTIMER0 = new omnetpp::cMessage("listening to beacons", KIND_TIMER);
         }
 
         // used in merge maneuver
@@ -87,10 +87,10 @@ void ApplVPlatoonMg::initialize(int stage)
         leadingPlnID = "";
         leadingPlnDepth = -1;
 
-        plnTIMER1  = new cMessage("wait for merge reply", KIND_TIMER);
-        plnTIMER1a = new cMessage("wait to catchup", KIND_TIMER);
-        plnTIMER2  = new cMessage("wait for followers ack", KIND_TIMER);
-        plnTIMER3  = new cMessage("wait for merge done", KIND_TIMER);
+        plnTIMER1  = new omnetpp::cMessage("wait for merge reply", KIND_TIMER);
+        plnTIMER1a = new omnetpp::cMessage("wait to catchup", KIND_TIMER);
+        plnTIMER2  = new omnetpp::cMessage("wait for followers ack", KIND_TIMER);
+        plnTIMER3  = new omnetpp::cMessage("wait for merge done", KIND_TIMER);
 
         // used in split maneuver
         // ----------------------
@@ -101,29 +101,29 @@ void ApplVPlatoonMg::initialize(int stage)
         TotalACKsRx = 0;
         splitCaller = -1;
 
-        plnTIMER4  = new cMessage("wait for split reply", KIND_TIMER);
-        plnTIMER6  = new cMessage("wait for free agent ACK", KIND_TIMER);
-        plnTIMER7  = new cMessage("wait for all ACKs", KIND_TIMER);
-        plnTIMER5  = new cMessage("wait for change_pl", KIND_TIMER);
-        plnTIMER8  = new cMessage("wait for split done", KIND_TIMER);
-        plnTIMER8a = new cMessage("wait for enough gap", KIND_TIMER);
+        plnTIMER4  = new omnetpp::cMessage("wait for split reply", KIND_TIMER);
+        plnTIMER6  = new omnetpp::cMessage("wait for free agent ACK", KIND_TIMER);
+        plnTIMER7  = new omnetpp::cMessage("wait for all ACKs", KIND_TIMER);
+        plnTIMER5  = new omnetpp::cMessage("wait for change_pl", KIND_TIMER);
+        plnTIMER8  = new omnetpp::cMessage("wait for split done", KIND_TIMER);
+        plnTIMER8a = new omnetpp::cMessage("wait for enough gap", KIND_TIMER);
 
-        mgrTIMER = new cMessage("manager", KIND_TIMER);
-        scheduleAt(simTime() + 0.1, mgrTIMER);
+        mgrTIMER = new omnetpp::cMessage("manager", KIND_TIMER);
+        scheduleAt(omnetpp::simTime() + 0.1, mgrTIMER);
 
         // used in leader leave
         // --------------------
-        plnTIMER9 = new cMessage("wait for VOTE reply", KIND_TIMER);
+        plnTIMER9 = new omnetpp::cMessage("wait for VOTE reply", KIND_TIMER);
 
         // used in follower leave
         // ----------------------
         RemainingSplits = 0;
-        plnTIMER10 = new cMessage("wait for leave reply", KIND_TIMER);
-        plnTIMER11 = new cMessage("wait for split completion", KIND_TIMER);
+        plnTIMER10 = new omnetpp::cMessage("wait for leave reply", KIND_TIMER);
+        plnTIMER11 = new omnetpp::cMessage("wait for split completion", KIND_TIMER);
 
         // used in dissolve
         // ----------------
-        plnTIMER12 = new cMessage("wait for DISSOLVE ACK", KIND_TIMER);
+        plnTIMER12 = new omnetpp::cMessage("wait for DISSOLVE ACK", KIND_TIMER);
     }
 }
 
@@ -142,7 +142,7 @@ void ApplVPlatoonMg::handlePositionUpdate(cObject* obj)
 }
 
 
-void ApplVPlatoonMg::handleSelfMsg(cMessage* msg)
+void ApplVPlatoonMg::handleSelfMsg(omnetpp::cMessage* msg)
 {
     // pass it down!
     super::handleSelfMsg(msg);
@@ -273,8 +273,8 @@ void ApplVPlatoonMg::updateColorDepth()
 void ApplVPlatoonMg::reportStateToStat()
 {
     CurrentVehicleState *state = new CurrentVehicleState(SUMOID.c_str(), stateToStr(vehicleState).c_str());
-    simsignal_t Signal_VehicleState = registerSignal("VehicleState");
-    nodePtr->emit(Signal_VehicleState, state);
+    omnetpp::simsignal_t Signal_VehicleState = registerSignal("VehicleState");
+    this->getParentModule()->emit(Signal_VehicleState, state);
 }
 
 
@@ -308,8 +308,8 @@ const std::string ApplVPlatoonMg::stateToStr(int s)
 void ApplVPlatoonMg::reportCommandToStat(PlatoonMsg* dataMsg)
 {
     CurrentPlnMsg *plnMsg = new CurrentPlnMsg(dataMsg, uCommandToStr(dataMsg->getType()).c_str());
-    simsignal_t Signal_SentPlatoonMsg = registerSignal("SentPlatoonMsg");
-    nodePtr->emit(Signal_SentPlatoonMsg, plnMsg);
+    omnetpp::simsignal_t Signal_SentPlatoonMsg = registerSignal("SentPlatoonMsg");
+    this->getParentModule()->emit(Signal_SentPlatoonMsg, plnMsg);
 }
 
 
@@ -331,8 +331,8 @@ const std::string ApplVPlatoonMg::uCommandToStr(int c)
 void ApplVPlatoonMg::reportManeuverToStat(std::string from, std::string to, std::string maneuver)
 {
     PlnManeuver *com = new PlnManeuver(from.c_str(), to.c_str(), maneuver.c_str());
-    simsignal_t Signal_PlnManeuver = registerSignal("PlnManeuver");
-    nodePtr->emit(Signal_PlnManeuver, com);
+    omnetpp::simsignal_t Signal_PlnManeuver = registerSignal("PlnManeuver");
+    this->getParentModule()->emit(Signal_PlnManeuver, com);
 }
 
 

@@ -29,6 +29,7 @@
 #define SNMPCONNECT_H_
 
 #include "vector"
+#include <omnetpp.h>
 
 #include <sys/socket.h>    // solve 'unknown type name socklen_t' in Mac OS X:
 #define STDCXX_98_HEADERS

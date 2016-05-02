@@ -42,7 +42,7 @@ public:
     virtual void finish();
 
 protected:
-    virtual void handleSelfMsg(cMessage*);
+    virtual void handleSelfMsg(omnetpp::cMessage*);
     virtual void handlePositionUpdate(cObject*);
 
     bool isBeaconFromLeading(BeaconVehicle*);
@@ -74,8 +74,8 @@ protected:
     int dataPriority;
 
     // Class variables
-    simtime_t individualOffset;
-    cMessage* VehicleBeaconEvt;
+    omnetpp::simtime_t individualOffset;
+    omnetpp::cMessage* VehicleBeaconEvt;
 
     std::string plnID;
     int myPlnDepth;

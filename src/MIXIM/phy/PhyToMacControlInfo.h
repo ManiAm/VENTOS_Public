@@ -13,7 +13,7 @@
  * @ingroup phyLayer
  * @ingroup macLayer
  */
-class MIXIM_API PhyToMacControlInfo: public cObject {
+class MIXIM_API PhyToMacControlInfo: public omnetpp::cObject {
 protected:
 	/** The result of the decider evaluation.*/
 	DeciderResult * result;
@@ -55,7 +55,7 @@ public:
      * @param pMsg				The message where the "control info" shall be attached.
      * @param pDeciderResult	The decider results.
      */
-    static cObject *const setControlInfo(cMessage *const pMsg, DeciderResult *const pDeciderResult) {
+    static cObject *const setControlInfo(omnetpp::cMessage *const pMsg, DeciderResult *const pDeciderResult) {
     	PhyToMacControlInfo *const cCtrlInfo = new PhyToMacControlInfo(pDeciderResult);
     	pMsg->setControlInfo(cCtrlInfo);
 
@@ -64,7 +64,7 @@ public:
     /**
      * @brief extracts the decider result from message "control info".
      */
-    static DeciderResult *const getDeciderResult(cMessage *const pMsg) {
+    static DeciderResult *const getDeciderResult(omnetpp::cMessage *const pMsg) {
     	return getDeciderResultFromControlInfo(pMsg->getControlInfo());
     }
     /**

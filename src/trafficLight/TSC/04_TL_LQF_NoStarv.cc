@@ -116,7 +116,7 @@ void TrafficLightLQF_NoStarv::initialize(int stage)
             error("maxQueueSize value is set incorrectly!");
 
         nextGreenIsNewCycle = false;
-        intervalChangeEVT = new cMessage("intervalChangeEVT", 1);
+        intervalChangeEVT = new omnetpp::cMessage("intervalChangeEVT", 1);
 
         // collect queue information
         measureIntersectionQueue = true;
@@ -130,7 +130,7 @@ void TrafficLightLQF_NoStarv::finish()
 }
 
 
-void TrafficLightLQF_NoStarv::handleMessage(cMessage *msg)
+void TrafficLightLQF_NoStarv::handleMessage(omnetpp::cMessage *msg)
 {
     super::handleMessage(msg);
 
@@ -148,7 +148,7 @@ void TrafficLightLQF_NoStarv::handleMessage(cMessage *msg)
             error("intervalDuration is <= 0");
 
         // Schedule next light change event:
-        scheduleAt(simTime().dbl() + intervalDuration, intervalChangeEVT);
+        scheduleAt(omnetpp::simTime().dbl() + intervalDuration, intervalChangeEVT);
     }
 }
 
@@ -160,7 +160,7 @@ void TrafficLightLQF_NoStarv::initialize_withTraCI()
     if(TLControlMode != TL_LQF)
         return;
 
-    std::cout << endl << "Longest Queue traffic signal control ..." << endl << endl;
+    std::cout << std::endl << "Longest Queue traffic signal control ..." << std::endl << std::endl;
 
     // get all non-conflicting movements in allMovements vector
     TrafficLightAllowedMoves::getMovements("C");
@@ -175,7 +175,7 @@ void TrafficLightLQF_NoStarv::initialize_withTraCI()
     currentInterval = greenInterval.front().greenString;
     intervalDuration = greenInterval.front().greenTime;
 
-    scheduleAt(simTime().dbl() + intervalDuration, intervalChangeEVT);
+    scheduleAt(omnetpp::simTime().dbl() + intervalDuration, intervalChangeEVT);
 
     for (auto &TL :TLList)
     {
@@ -186,11 +186,11 @@ void TrafficLightLQF_NoStarv::initialize_withTraCI()
         updateTLstate(TL, "init", currentInterval);
     }
 
-    if(ev.isGUI() && debugLevel > 0)
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 0)
     {
         char buff[300];
-        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalDuration);
-        std::cout << buff << endl << endl;
+        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", omnetpp::simTime().dbl(), currentInterval.c_str(), omnetpp::simTime().dbl(), omnetpp::simTime().dbl() + intervalDuration);
+        std::cout << buff << std::endl << std::endl;
         std::cout.flush();
     }
 }
@@ -247,11 +247,11 @@ void TrafficLightLQF_NoStarv::chooseNextInterval()
     else
         chooseNextGreenInterval();
 
-    if(ev.isGUI() && debugLevel > 0)
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 0)
     {
         char buff[300];
-        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalDuration);
-        std::cout << buff << endl << endl;
+        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", omnetpp::simTime().dbl(), currentInterval.c_str(), omnetpp::simTime().dbl(), omnetpp::simTime().dbl() + intervalDuration);
+        std::cout << buff << std::endl << std::endl;
         std::cout.flush();
     }
 }
@@ -300,9 +300,9 @@ void TrafficLightLQF_NoStarv::chooseNextGreenInterval()
     {
         intervalDuration = greenInterval.front().greenTime;
 
-        if(ev.isGUI() && debugLevel > 0)
+        if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 0)
         {
-            std::cout << ">>> Continue the last green interval." << endl << endl;
+            std::cout << ">>> Continue the last green interval." << std::endl << std::endl;
             std::cout.flush();
         }
     }
@@ -312,7 +312,7 @@ void TrafficLightLQF_NoStarv::chooseNextGreenInterval()
 // calculate all phases (up to 4)
 void TrafficLightLQF_NoStarv::calculatePhases(std::string TLid)
 {
-    if(ev.isGUI() && debugLevel > 1)
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 1)
     {
         std::cout << "Queue size per lane: ";
         for(auto& entry : laneQueueSize)
@@ -322,7 +322,7 @@ void TrafficLightLQF_NoStarv::calculatePhases(std::string TLid)
             if(qSize != 0)
                 std::cout << lane << " (" << qSize << ") | ";
         }
-        std::cout << endl << endl;
+        std::cout << std::endl << std::endl;
     }
 
     // batch of all non-conflicting movements, sorted by total queue size per batch
@@ -442,9 +442,9 @@ void TrafficLightLQF_NoStarv::calculatePhases(std::string TLid)
         error("cycle contains %d phases which is more than 4!", greenInterval.size());
 
     int newSize = greenInterval.size();
-    if(ev.isGUI() && debugLevel > 1 && oldSize != newSize)
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 1 && oldSize != newSize)
     {
-        std::cout << ">>> " << oldSize - newSize << " phase(s) removed due to zero queue size!" << endl << endl;
+        std::cout << ">>> " << oldSize - newSize << " phase(s) removed due to zero queue size!" << std::endl << std::endl;
         std::cout.flush();
     }
 
@@ -452,15 +452,15 @@ void TrafficLightLQF_NoStarv::calculatePhases(std::string TLid)
     for (auto &i : greenInterval)
         i.greenTime = std::min(std::max(i.greenTime, minGreenTime), maxGreenTime);
 
-    if(ev.isGUI() && debugLevel > 1)
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 1)
     {
-        std::cout << "Selected green intervals for this cycle: " << endl;
+        std::cout << "Selected green intervals for this cycle: " << std::endl;
         for (auto &i : greenInterval)
             std::cout << "Movement " << i.greenString
             << " with maxVehCount of " << i.maxVehCount
-            << " for " << i.greenTime << "s" << endl;
+            << " for " << i.greenTime << "s" << std::endl;
 
-        std::cout << endl;
+        std::cout << std::endl;
         std::cout.flush();
     }
 }

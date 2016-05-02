@@ -43,7 +43,7 @@ public:
     virtual void finish();
 
 protected:
-    virtual void handleSelfMsg(cMessage* msg);
+    virtual void handleSelfMsg(omnetpp::cMessage* msg);
     virtual void handlePositionUpdate(cObject* obj);
 
 private:
@@ -51,7 +51,6 @@ private:
 
 protected:
     // NED variables
-    cModule *nodePtr;
     TraCI_Commands* TraCI;
 
     // module info

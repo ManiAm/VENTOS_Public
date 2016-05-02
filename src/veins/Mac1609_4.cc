@@ -24,23 +24,23 @@
 #include "PhyToMacControlInfo.h"
 #include "PhyControlMessage_m.h"
 
-#define DBG_MAC EV
-//#define DBG_MAC std::cerr << "[" << simTime().raw() << "] " << myId << " "
-
 namespace Veins {
 
-Define_Module(Mac1609_4);
+Define_Module(Veins::Mac1609_4);
 
-void Mac1609_4::initialize(int stage) {
+
+void Mac1609_4::initialize(int stage)
+{
 	BaseMacLayer::initialize(stage);
-	if (stage == 0) {
 
+	if (stage == 0)
+	{
 		phy11p = FindModule<Mac80211pToPhy11pInterface*>::findSubModule(
 		             getParentModule());
 		assert(phy11p);
 
 		//this is required to circumvent double precision issues with constants from CONST80211p.h
-		assert(simTime().getScaleExp() == -12);
+		assert(omnetpp::simTime().getScaleExp() == -12);
 
 		sigChannelBusy = registerSignal("sigChannelBusy");
 		sigCollision = registerSignal("sigCollision");
@@ -64,7 +64,7 @@ void Mac1609_4::initialize(int stage) {
 
 		//create two edca systems
 
-		myEDCA[type_CCH] = new EDCA(type_CCH,par("queueSize").longValue());
+		myEDCA[type_CCH] = new EDCA(this, type_CCH, par("queueSize").longValue());
 		myEDCA[type_CCH]->myId = myId;
 		myEDCA[type_CCH]->myId.append(" CCH");
 
@@ -73,7 +73,7 @@ void Mac1609_4::initialize(int stage) {
 		myEDCA[type_CCH]->createQueue(6,CWMIN_11P,CWMAX_11P,AC_BE);
 		myEDCA[type_CCH]->createQueue(9,CWMIN_11P,CWMAX_11P,AC_BK);
 
-		myEDCA[type_SCH] = new EDCA(type_SCH,par("queueSize").longValue());
+		myEDCA[type_SCH] = new EDCA(this, type_SCH, par("queueSize").longValue());
 		myEDCA[type_SCH]->myId = myId;
 		myEDCA[type_SCH]->myId.append(" SCH");
 		myEDCA[type_SCH]->createQueue(2,(((CWMIN_11P+1)/4)-1),(((CWMIN_11P +1)/2)-1),AC_VO);
@@ -82,40 +82,42 @@ void Mac1609_4::initialize(int stage) {
 		myEDCA[type_SCH]->createQueue(9,CWMIN_11P,CWMAX_11P,AC_BK);
 
 		useSCH = par("useServiceChannel").boolValue();
-		if (useSCH) {
+		if (useSCH)
+		{
 			//set the initial service channel
-			switch (par("serviceChannel").longValue()) {
+			switch (par("serviceChannel").longValue())
+			{
 				case 1: mySCH = Channels::SCH1; break;
 				case 2: mySCH = Channels::SCH2; break;
 				case 3: mySCH = Channels::SCH3; break;
 				case 4: mySCH = Channels::SCH4; break;
-				default: opp_error("Service Channel must be between 1 and 4"); break;
+				default: throw omnetpp::cRuntimeError("Service Channel must be between 1 and 4"); break;
 			}
 		}
 
 		headerLength = par("headerLength");
 
-		nextMacEvent = new cMessage("next Mac Event");
+		nextMacEvent = new omnetpp::cMessage("next Mac Event");
 
-		if (useSCH) {
+		if (useSCH)
+		{
 			// introduce a little asynchronization between radios, but no more than .3 milliseconds
-			uint64_t currenTime = simTime().raw();
+			uint64_t currenTime = omnetpp::simTime().raw();
 			uint64_t switchingTime = SWITCHING_INTERVAL_11P.raw();
-			double timeToNextSwitch = (double)(switchingTime
-							   - (currenTime % switchingTime)) / simTime().getScale();
-			if ((currenTime / switchingTime) % 2 == 0) {
+			double timeToNextSwitch = (double)(switchingTime - (currenTime % switchingTime)) / omnetpp::simTime().getScale();
+
+			if ((currenTime / switchingTime) % 2 == 0)
 				setActiveChannel(type_CCH);
-			}
-			else {
+			else
 				setActiveChannel(type_SCH);
-			}
 
 			// channel switching active
-			nextChannelSwitch = new cMessage("Channel Switch");
-			simtime_t offset = dblrand() * par("syncOffset").doubleValue();
-			scheduleAt(simTime() + offset + timeToNextSwitch, nextChannelSwitch);
+			nextChannelSwitch = new omnetpp::cMessage("Channel Switch");
+			omnetpp::simtime_t offset = dblrand() * par("syncOffset").doubleValue();
+			scheduleAt(omnetpp::simTime() + offset + timeToNextSwitch, nextChannelSwitch);
 		}
-		else {
+		else
+		{
 			// no channel switching
 			nextChannelSwitch = 0;
 			setActiveChannel(type_CCH);
@@ -136,27 +138,30 @@ void Mac1609_4::initialize(int stage) {
 		statsTotalBusyTime = 0;
 
 		idleChannel = true;
-		lastBusy = simTime();
+		lastBusy = omnetpp::simTime();
 		channelIdle(true);
 	}
 }
 
-void Mac1609_4::handleSelfMsg(cMessage* msg) {
-	if (msg == nextChannelSwitch) {
+void Mac1609_4::handleSelfMsg(omnetpp::cMessage* msg)
+{
+	if (msg == nextChannelSwitch)
+	{
 		ASSERT(useSCH);
 
-		scheduleAt(simTime() + SWITCHING_INTERVAL_11P, nextChannelSwitch);
+		scheduleAt(omnetpp::simTime() + SWITCHING_INTERVAL_11P, nextChannelSwitch);
 
-		switch (activeChannel) {
+		switch (activeChannel)
+		{
 			case type_CCH:
-				DBG_MAC << "CCH --> SCH" << std::endl;
+				EV << "CCH --> SCH" << std::endl;
 				channelBusySelf(false);
 				setActiveChannel(type_SCH);
 				channelIdle(true);
 				phy11p->changeListeningFrequency(frequency[mySCH]);
 				break;
 			case type_SCH:
-				DBG_MAC << "SCH --> CCH" << std::endl;
+				EV << "SCH --> CCH" << std::endl;
 				channelBusySelf(false);
 				setActiveChannel(type_CCH);
 				channelIdle(true);
@@ -164,17 +169,16 @@ void Mac1609_4::handleSelfMsg(cMessage* msg) {
 				break;
 		}
 		//schedule next channel switch in 50ms
-
 	}
-	else if (msg ==  nextMacEvent) {
-
+	else if (msg ==  nextMacEvent)
+	{
 		//we actually came to the point where we can send a packet
 		channelBusySelf(true);
 		WaveShortMessage* pktToSend = myEDCA[activeChannel]->initiateTransmit(lastIdle);
 
 		lastAC = mapPriority(pktToSend->getPriority());
 
-		DBG_MAC << "MacEvent received. Trying to send packet with priority" << lastAC << std::endl;
+		EV << "MacEvent received. Trying to send packet with priority" << lastAC << std::endl;
 
 		//send the packet
 		Mac80211Pkt* mac = new Mac80211Pkt(pktToSend->getName(), pktToSend->getKind());
@@ -186,47 +190,49 @@ void Mac1609_4::handleSelfMsg(cMessage* msg) {
 		double txPower_mW;
 		uint64_t datarate;
 		PhyControlMessage *controlInfo = dynamic_cast<PhyControlMessage *>(pktToSend->getControlInfo());
-		if (controlInfo) {
+		if (controlInfo)
+		{
 			//if MCS is not specified, just use the default one
 			mcs = (enum PHY_MCS)controlInfo->getMcs();
-			if (mcs != MCS_DEFAULT) {
+			if (mcs != MCS_DEFAULT)
 				datarate = getOfdmDatarate(mcs, BW_OFDM_10_MHZ);
-			}
-			else {
+			else
 				datarate = bitrate;
-			}
+
 			//apply the same principle to tx power
 			txPower_mW = controlInfo->getTxPower_mW();
-			if (txPower_mW < 0) {
+			if (txPower_mW < 0)
 				txPower_mW = txPower;
-			}
 		}
-		else {
+		else
+		{
 			mcs = MCS_DEFAULT;
 			txPower_mW = txPower;
 			datarate = bitrate;
 		}
 
-		simtime_t sendingDuration = RADIODELAY_11P + getFrameDuration(mac->getBitLength(), mcs);
-		DBG_MAC << "Sending duration will be" << sendingDuration << std::endl;
-		if ((!useSCH) || (timeLeftInSlot() > sendingDuration)) {
-			if (useSCH) DBG_MAC << " Time in this slot left: " << timeLeftInSlot() << std::endl;
+		omnetpp::simtime_t sendingDuration = RADIODELAY_11P + getFrameDuration(mac->getBitLength(), mcs);
+		EV << "Sending duration will be" << sendingDuration << std::endl;
+		if ((!useSCH) || (timeLeftInSlot() > sendingDuration))
+		{
+			if (useSCH) EV << " Time in this slot left: " << timeLeftInSlot() << std::endl;
 			// give time for the radio to be in Tx state before transmitting
 			phy->setRadioState(Radio::TX);
 
-
 			double freq = (activeChannel == type_CCH) ? frequency[Channels::CCH] : frequency[mySCH];
 
-			attachSignal(mac, simTime()+RADIODELAY_11P, freq, datarate, txPower_mW);
+			attachSignal(mac, omnetpp::simTime()+RADIODELAY_11P, freq, datarate, txPower_mW);
 			MacToPhyControlInfo* phyInfo = dynamic_cast<MacToPhyControlInfo*>(mac->getControlInfo());
 			assert(phyInfo);
-			DBG_MAC << "Sending a Packet. Frequency " << freq << " Priority" << lastAC << std::endl;
+			EV << "Sending a Packet. Frequency " << freq << " Priority" << lastAC << std::endl;
 			sendDelayed(mac, RADIODELAY_11P, lowerLayerOut);
 			statsSentPackets++;
 		}
-		else {   //not enough time left now
-			DBG_MAC << "Too little Time left. This packet cannot be send in this slot." << std::endl;
+		else
+		{   //not enough time left now
+			EV << "Too little Time left. This packet cannot be send in this slot." << std::endl;
 			statsNumTooLittleTime++;
+
 			//revoke TXOP
 			myEDCA[activeChannel]->revokeTxOPs();
 			delete mac;
@@ -236,27 +242,28 @@ void Mac1609_4::handleSelfMsg(cMessage* msg) {
 	}
 }
 
-void Mac1609_4::handleUpperControl(cMessage* msg) {
+void Mac1609_4::handleUpperControl(omnetpp::cMessage* msg)
+{
 	assert(false);
 }
 
-void Mac1609_4::handleUpperMsg(cMessage* msg) {
-
+void Mac1609_4::handleUpperMsg(omnetpp::cMessage* msg)
+{
 	WaveShortMessage* thisMsg;
-	if ((thisMsg = dynamic_cast<WaveShortMessage*>(msg)) == NULL) {
+	if ((thisMsg = dynamic_cast<WaveShortMessage*>(msg)) == NULL)
 		error("WaveMac only accepts WaveShortMessages");
-	}
 
 	t_access_category ac = mapPriority(thisMsg->getPriority());
 
-	DBG_MAC << "Received a message from upper layer for channel "
+	EV << "Received a message from upper layer for channel "
 	        << thisMsg->getChannelNumber() << " Access Category (Priority):  "
 	        << ac << std::endl;
 
 	t_channel chan;
 
 	//rewrite SCH channel to actual SCH the Mac1609_4 is set to
-	if (thisMsg->getChannelNumber() == Channels::SCH1) {
+	if (thisMsg->getChannelNumber() == Channels::SCH1)
+	{
 		ASSERT(useSCH);
 		thisMsg->setChannelNumber(mySCH);
 		chan = type_SCH;
@@ -264,61 +271,64 @@ void Mac1609_4::handleUpperMsg(cMessage* msg) {
 
 
 	//put this packet in its queue
-	if (thisMsg->getChannelNumber() == Channels::CCH) {
+	if (thisMsg->getChannelNumber() == Channels::CCH)
 		chan = type_CCH;
-	}
 
 	int num = myEDCA[chan]->queuePacket(ac,thisMsg);
 
 	//packet was dropped in Mac
-	if (num == -1) {
+	if (num == -1)
+	{
 		statsDroppedPackets++;
 		return;
 	}
 
 	//if this packet is not at the front of a new queue we dont have to reevaluate times
-	DBG_MAC << "sorted packet into queue of EDCA " << chan << " this packet is now at position: " << num << std::endl;
+	EV << "sorted packet into queue of EDCA " << chan << " this packet is now at position: " << num << std::endl;
 
-	if (chan == activeChannel) {
-		DBG_MAC << "this packet is for the currently active channel" << std::endl;
-	}
-	else {
-		DBG_MAC << "this packet is NOT for the currently active channel" << std::endl;
-	}
+	if (chan == activeChannel)
+		EV << "this packet is for the currently active channel" << std::endl;
+	else
+		EV << "this packet is NOT for the currently active channel" << std::endl;
 
-	if (num == 1 && idleChannel == true && chan == activeChannel) {
+	if (num == 1 && idleChannel == true && chan == activeChannel)
+	{
+	    omnetpp::simtime_t nextEvent = myEDCA[chan]->startContent(lastIdle,guardActive());
 
-		simtime_t nextEvent = myEDCA[chan]->startContent(lastIdle,guardActive());
-
-		if (nextEvent != -1) {
-			if ((!useSCH) || (nextEvent <= nextChannelSwitch->getArrivalTime())) {
-				if (nextMacEvent->isScheduled()) {
+		if (nextEvent != -1)
+		{
+			if ((!useSCH) || (nextEvent <= nextChannelSwitch->getArrivalTime()))
+			{
+				if (nextMacEvent->isScheduled())
 					cancelEvent(nextMacEvent);
-				}
+
 				scheduleAt(nextEvent,nextMacEvent);
-				DBG_MAC << "Updated nextMacEvent:" << nextMacEvent->getArrivalTime().raw() << std::endl;
+				EV << "Updated nextMacEvent:" << nextMacEvent->getArrivalTime().raw() << std::endl;
 			}
-			else {
-				DBG_MAC << "Too little time in this interval. Will not schedule nextMacEvent" << std::endl;
+			else
+			{
+				EV << "Too little time in this interval. Will not schedule nextMacEvent" << std::endl;
+
 				//it is possible that this queue has an txop. we have to revoke it
 				myEDCA[activeChannel]->revokeTxOPs();
 				statsNumTooLittleTime++;
 			}
 		}
-		else {
+		else
+		{
 			cancelEvent(nextMacEvent);
 		}
 	}
-	if (num == 1 && idleChannel == false && myEDCA[chan]->myQueues[ac].currentBackoff == 0 && chan == activeChannel) {
-		myEDCA[chan]->backoff(ac);
-	}
 
+	if (num == 1 && idleChannel == false && myEDCA[chan]->myQueues[ac].currentBackoff == 0 && chan == activeChannel)
+		myEDCA[chan]->backoff(ac);
 }
 
-void Mac1609_4::handleLowerControl(cMessage* msg) {
-	if (msg->getKind() == MacToPhyInterface::TX_OVER) {
-
-		DBG_MAC << "Successfully transmitted a packet on " << lastAC << std::endl;
+void Mac1609_4::handleLowerControl(omnetpp::cMessage* msg)
+{
+	if (msg->getKind() == MacToPhyInterface::TX_OVER)
+	{
+		EV << "Successfully transmitted a packet on " << lastAC << std::endl;
 
 		phy->setRadioState(Radio::RX);
 
@@ -328,52 +338,60 @@ void Mac1609_4::handleLowerControl(cMessage* msg) {
 		//channel just turned idle.
 		//don't set the chan to idle. the PHY layer decides, not us.
 
-		if (guardActive()) {
-			opp_error("We shouldnt have sent a packet in guard!");
-		}
+		if (guardActive())
+			throw omnetpp::cRuntimeError("We shouldnt have sent a packet in guard!");
 	}
-	else if (msg->getKind() == Mac80211pToPhy11pInterface::CHANNEL_BUSY) {
+	else if (msg->getKind() == Mac80211pToPhy11pInterface::CHANNEL_BUSY)
+	{
 		channelBusy();
 	}
-	else if (msg->getKind() == Mac80211pToPhy11pInterface::CHANNEL_IDLE) {
+	else if (msg->getKind() == Mac80211pToPhy11pInterface::CHANNEL_IDLE)
+	{
 		channelIdle();
 	}
-	else if (msg->getKind() == Decider80211p::BITERROR || msg->getKind() == Decider80211p::COLLISION) {
+	else if (msg->getKind() == Decider80211p::BITERROR || msg->getKind() == Decider80211p::COLLISION)
+	{
 		statsSNIRLostPackets++;
-		DBG_MAC << "A packet was not received due to biterrors" << std::endl;
+		EV << "A packet was not received due to biterrors" << std::endl;
 	}
-	else if (msg->getKind() == Decider80211p::RECWHILESEND) {
+	else if (msg->getKind() == Decider80211p::RECWHILESEND)
+	{
 		statsTXRXLostPackets++;
-		DBG_MAC << "A packet was not received because we were sending while receiving" << std::endl;
+		EV << "A packet was not received because we were sending while receiving" << std::endl;
 	}
-	else if (msg->getKind() == MacToPhyInterface::RADIO_SWITCHING_OVER) {
-		DBG_MAC << "Phylayer said radio switching is done" << std::endl;
+	else if (msg->getKind() == MacToPhyInterface::RADIO_SWITCHING_OVER)
+	{
+		EV << "Phylayer said radio switching is done" << std::endl;
 	}
-	else if (msg->getKind() == BaseDecider::PACKET_DROPPED) {
+	else if (msg->getKind() == BaseDecider::PACKET_DROPPED)
+	{
 		phy->setRadioState(Radio::RX);
-		DBG_MAC << "Phylayer said packet was dropped" << std::endl;
+		EV << "Phylayer said packet was dropped" << std::endl;
 	}
-	else {
-		DBG_MAC << "Invalid control message type (type=NOTHING) : name=" << msg->getName() << " modulesrc=" << msg->getSenderModule()->getFullPath() << "." << std::endl;
+	else
+	{
+		EV << "Invalid control message type (type=NOTHING) : name=" << msg->getName() << " modulesrc=" << msg->getSenderModule()->getFullPath() << "." << std::endl;
 		assert(false);
 	}
 
-	if (msg->getKind() == Decider80211p::COLLISION) {
+	if (msg->getKind() == Decider80211p::COLLISION)
 		emit(sigCollision, true);
-	}
 
 	delete msg;
 }
 
-void Mac1609_4::setActiveChannel(t_channel state) {
+void Mac1609_4::setActiveChannel(t_channel state)
+{
 	activeChannel = state;
 	assert(state == type_CCH || (useSCH && state == type_SCH));
 }
 
-void Mac1609_4::finish() {
+void Mac1609_4::finish()
+{
 	//clean up queues.
 
-	for (std::map<t_channel,EDCA*>::iterator iter = myEDCA.begin(); iter != myEDCA.end(); iter++) {
+	for (std::map<t_channel,EDCA*>::iterator iter = myEDCA.begin(); iter != myEDCA.end(); iter++)
+	{
 		statsNumInternalContention += iter->second->statsNumInternalContention;
 		statsNumBackoff += iter->second->statsNumBackoff;
 		statsSlotsBackoff += iter->second->statsSlotsBackoff;
@@ -383,12 +401,11 @@ void Mac1609_4::finish() {
 
 	myEDCA.clear();
 
-	if (nextMacEvent->isScheduled()) {
+	if (nextMacEvent->isScheduled())
 		cancelAndDelete(nextMacEvent);
-	}
-	else {
+	else
 		delete nextMacEvent;
-	}
+
 	if (nextChannelSwitch && nextChannelSwitch->isScheduled())
 		cancelAndDelete(nextChannelSwitch);
 
@@ -405,21 +422,21 @@ void Mac1609_4::finish() {
 	recordScalar("SlotsBackoff",statsSlotsBackoff);
 	recordScalar("NumInternalContention",statsNumInternalContention);
 	recordScalar("totalBusyTime",statsTotalBusyTime.dbl());
-
 }
 
-void Mac1609_4::attachSignal(Mac80211Pkt* mac, simtime_t startTime, double frequency, uint64_t datarate, double txPower_mW) {
+void Mac1609_4::attachSignal(Mac80211Pkt* mac, omnetpp::simtime_t startTime, double frequency, uint64_t datarate, double txPower_mW)
+{
+    omnetpp::simtime_t duration = getFrameDuration(mac->getBitLength());
 
-	simtime_t duration = getFrameDuration(mac->getBitLength());
-
-	Signal* s = createSignal(startTime, duration, txPower_mW, datarate, frequency);
+    Signal* s = createSignal(startTime, duration, txPower_mW, datarate, frequency);
 	MacToPhyControlInfo* cinfo = new MacToPhyControlInfo(s);
 
 	mac->setControlInfo(cinfo);
 }
 
-Signal* Mac1609_4::createSignal(simtime_t start, simtime_t length, double power, uint64_t bitrate, double frequency) {
-	simtime_t end = start + length;
+Signal* Mac1609_4::createSignal(omnetpp::simtime_t start, omnetpp::simtime_t length, double power, uint64_t bitrate, double frequency)
+{
+    omnetpp::simtime_t end = start + length;
 	//create signal with start at current simtime and passed length
 	Signal* s = new Signal(start, length);
 
@@ -441,61 +458,74 @@ Signal* Mac1609_4::createSignal(simtime_t start, simtime_t length, double power,
 }
 
 /* checks if guard is active */
-bool Mac1609_4::guardActive() const {
-	if (!useSCH) return false;
-	if (simTime().dbl() - nextChannelSwitch->getSendingTime() <= GUARD_INTERVAL_11P)
+bool Mac1609_4::guardActive() const
+{
+	if (!useSCH)
+	    return false;
+
+	if (omnetpp::simTime().dbl() - nextChannelSwitch->getSendingTime() <= GUARD_INTERVAL_11P)
 		return true;
+
 	return false;
 }
 
 /* returns the time until the guard is over */
-simtime_t Mac1609_4::timeLeftTillGuardOver() const {
+omnetpp::simtime_t Mac1609_4::timeLeftTillGuardOver() const
+{
 	ASSERT(useSCH);
-	simtime_t sTime = simTime();
-	if (sTime - nextChannelSwitch->getSendingTime() <= GUARD_INTERVAL_11P) {
-		return GUARD_INTERVAL_11P
-		       - (sTime - nextChannelSwitch->getSendingTime());
+
+	omnetpp::simtime_t sTime = omnetpp::simTime();
+	if (sTime - nextChannelSwitch->getSendingTime() <= GUARD_INTERVAL_11P)
+	{
+		return GUARD_INTERVAL_11P - (sTime - nextChannelSwitch->getSendingTime());
 	}
 	else
 		return 0;
 }
 
 /* returns the time left in this channel window */
-simtime_t Mac1609_4::timeLeftInSlot() const {
+omnetpp::simtime_t Mac1609_4::timeLeftInSlot() const
+{
 	ASSERT(useSCH);
-	return nextChannelSwitch->getArrivalTime() - simTime();
+	return nextChannelSwitch->getArrivalTime() - omnetpp::simTime();
 }
 
 /* Will change the Service Channel on which the mac layer is listening and sending */
-void Mac1609_4::changeServiceChannel(int cN) {
+void Mac1609_4::changeServiceChannel(int cN)
+{
 	ASSERT(useSCH);
-	if (cN != Channels::SCH1 && cN != Channels::SCH2 && cN != Channels::SCH3 && cN != Channels::SCH4) {
-		opp_error("This Service Channel doesnt exit: %d",cN);
-	}
+	if (cN != Channels::SCH1 && cN != Channels::SCH2 && cN != Channels::SCH3 && cN != Channels::SCH4)
+		throw omnetpp::cRuntimeError("This Service Channel doesnt exit: %d",cN);
 
 	mySCH = cN;
 
-	if (activeChannel == type_SCH) {
+	if (activeChannel == type_SCH)
+	{
 		//change to new chan immediately if we are in a SCH slot,
 		//otherwise it will switch to the new SCH upon next channel switch
 		phy11p->changeListeningFrequency(frequency[mySCH]);
 	}
 }
 
-void Mac1609_4::setTxPower(double txPower_mW) {
+void Mac1609_4::setTxPower(double txPower_mW)
+{
 	txPower = txPower_mW;
 }
-void Mac1609_4::setMCS(enum PHY_MCS mcs) {
+
+void Mac1609_4::setMCS(enum PHY_MCS mcs)
+{
 	ASSERT2(mcs != MCS_DEFAULT, "invalid MCS selected");
 	bitrate = getOfdmDatarate(mcs, BW_OFDM_10_MHZ);
 	setParametersForBitrate(bitrate);
 }
 
-void Mac1609_4::setCCAThreshold(double ccaThreshold_dBm) {
+void Mac1609_4::setCCAThreshold(double ccaThreshold_dBm)
+{
 	phy11p->setCCAThreshold(ccaThreshold_dBm);
 }
 
-void Mac1609_4::handleLowerMsg(cMessage* msg) {
+void Mac1609_4::handleLowerMsg(omnetpp::cMessage* msg)
+{
 	Mac80211Pkt* macPkt = static_cast<Mac80211Pkt*>(msg);
 	ASSERT(macPkt);
 
@@ -509,42 +539,48 @@ void Mac1609_4::handleLowerMsg(cMessage* msg) {
 
 	long dest = macPkt->getDestAddr();
 
-	DBG_MAC << "Received frame name= " << macPkt->getName()
+	EV << "Received frame name= " << macPkt->getName()
 	        << ", myState=" << " src=" << macPkt->getSrcAddr()
 	        << " dst=" << macPkt->getDestAddr() << " myAddr="
 	        << myMacAddress << std::endl;
 
-	if (macPkt->getDestAddr() == myMacAddress) {
-		DBG_MAC << "Received a data packet addressed to me." << std::endl;
+	if (macPkt->getDestAddr() == myMacAddress)
+	{
+		EV << "Received a data packet addressed to me." << std::endl;
 		statsReceivedPackets++;
 		sendUp(wsm);
 	}
-	else if (dest == LAddress::L2BROADCAST()) {
+	else if (dest == LAddress::L2BROADCAST())
+	{
 		statsReceivedBroadcasts++;
 		sendUp(wsm);
 	}
-	else {
-		DBG_MAC << "Packet not for me, deleting..." << std::endl;
+	else
+	{
+		EV << "Packet not for me, deleting..." << std::endl;
 		delete wsm;
 	}
+
 	delete macPkt;
 }
 
-int Mac1609_4::EDCA::queuePacket(t_access_category ac,WaveShortMessage* msg) {
+int Mac1609_4::EDCA::queuePacket(t_access_category ac,WaveShortMessage* msg)
+{
 
-	if (maxQueueSize && myQueues[ac].queue.size() >= maxQueueSize) {
+	if (maxQueueSize && myQueues[ac].queue.size() >= maxQueueSize)
+	{
 		delete msg;
 		return -1;
 	}
+
 	myQueues[ac].queue.push(msg);
 	return myQueues[ac].queue.size();
 }
 
-int Mac1609_4::EDCA::createQueue(int aifsn, int cwMin, int cwMax,t_access_category ac) {
-
-	if (myQueues.find(ac) != myQueues.end()) {
-		opp_error("You can only add one queue per Access Category per EDCA subsystem");
-	}
+int Mac1609_4::EDCA::createQueue(int aifsn, int cwMin, int cwMax,t_access_category ac)
+{
+	if (myQueues.find(ac) != myQueues.end())
+		throw omnetpp::cRuntimeError("You can only add one queue per Access Category per EDCA subsystem");
 
 	EDCAQueue newQueue(aifsn,cwMin,cwMax,ac);
 	myQueues[ac] = newQueue;
@@ -552,148 +588,178 @@ int Mac1609_4::EDCA::createQueue(int aifsn, int cwMin, int cwMax,t_access_catego
 	return ++numQueues;
 }
 
-Mac1609_4::t_access_category Mac1609_4::mapPriority(int prio) {
+Mac1609_4::t_access_category Mac1609_4::mapPriority(int prio)
+{
 	//dummy mapping function
-	switch (prio) {
+	switch (prio)
+	{
 		case 0: return AC_BK;
 		case 1: return AC_BE;
 		case 2: return AC_VI;
 		case 3: return AC_VO;
-		default: opp_error("MacLayer received a packet with unknown priority"); break;
+		default: throw omnetpp::cRuntimeError("MacLayer received a packet with unknown priority"); break;
 	}
+
 	return AC_VO;
 }
 
-WaveShortMessage* Mac1609_4::EDCA::initiateTransmit(simtime_t lastIdle) {
+WaveShortMessage* Mac1609_4::EDCA::initiateTransmit(omnetpp::simtime_t lastIdle)
+{
+    EV_STATICCONTEXT
 
 	//iterate through the queues to return the packet we want to send
 	WaveShortMessage* pktToSend = NULL;
 
-	simtime_t idleTime = simTime() - lastIdle;
+	omnetpp::simtime_t idleTime = omnetpp::simTime() - lastIdle;
 
-	DBG_MAC << "Initiating transmit at " << simTime() << ". I've been idle since " << idleTime << std::endl;
+	EV << "Initiating transmit at " << omnetpp::simTime() << ". I've been idle since " << idleTime << std::endl;
 
-	for (std::map<t_access_category, EDCAQueue>::iterator iter = myQueues.begin(); iter != myQueues.end(); iter++) {
-		if (iter->second.queue.size() != 0) {
-			if (idleTime >= iter->second.aifsn* SLOTLENGTH_11P + SIFS_11P && iter->second.txOP == true) {
-
-				DBG_MAC << "Queue " << iter->first << " is ready to send!" << std::endl;
+	for (std::map<t_access_category, EDCAQueue>::iterator iter = myQueues.begin(); iter != myQueues.end(); iter++)
+	{
+		if (iter->second.queue.size() != 0)
+		{
+			if (idleTime >= iter->second.aifsn* SLOTLENGTH_11P + SIFS_11P && iter->second.txOP == true)
+			{
+			    EV << "Queue " << iter->first << " is ready to send!" << std::endl;
 
 				iter->second.txOP = false;
 				//this queue is ready to send
-				if (pktToSend == NULL) {
+				if (pktToSend == NULL)
+				{
 					pktToSend = iter->second.queue.front();
 				}
-				else {
+				else
+				{
 					//there was already another packet ready. we have to go increase cw and go into backoff. It's called internal contention and its wonderful
 
 					statsNumInternalContention++;
 					iter->second.cwCur = std::min(iter->second.cwMax,iter->second.cwCur*2);
-					iter->second.currentBackoff = intuniform(0,iter->second.cwCur);
-					DBG_MAC << "Internal contention for queue " << iter->first  << " : "<< iter->second.currentBackoff << ". Increase cwCur to " << iter->second.cwCur << std::endl;
+					iter->second.currentBackoff = owner->intuniform(0,iter->second.cwCur);
+					EV << "Internal contention for queue " << iter->first  << " : "<< iter->second.currentBackoff << ". Increase cwCur to " << iter->second.cwCur << std::endl;
 				}
 			}
 		}
 	}
 
-	if (pktToSend == NULL) {
-		opp_error("No packet was ready");
+	if (pktToSend == NULL)
+	{
+		throw omnetpp::cRuntimeError("No packet was ready");
 	}
+
 	return pktToSend;
 }
 
-simtime_t Mac1609_4::EDCA::startContent(simtime_t idleSince,bool guardActive) {
+omnetpp::simtime_t Mac1609_4::EDCA::startContent(omnetpp::simtime_t idleSince, bool guardActive)
+{
+    EV_STATICCONTEXT
 
-	DBG_MAC << "Restarting contention." << std::endl;
+    EV << "Restarting contention." << std::endl;
 
-	simtime_t nextEvent = -1;
+    omnetpp::simtime_t nextEvent = -1;
 
-	simtime_t idleTime = SimTime().setRaw(std::max((int64_t)0,(simTime() - idleSince).raw()));;
+    omnetpp::simtime_t idleTime = omnetpp::SimTime().setRaw(std::max((int64_t)0,(omnetpp::simTime() - idleSince).raw()));;
 
 	lastStart = idleSince;
 
-	DBG_MAC << "Channel is already idle for:" << idleTime << " since " << idleSince << std::endl;
+	EV << "Channel is already idle for:" << idleTime << " since " << idleSince << std::endl;
 
 	//this returns the nearest possible event in this EDCA subsystem after a busy channel
 
-	for (std::map<t_access_category, EDCAQueue>::iterator iter = myQueues.begin(); iter != myQueues.end(); iter++) {
-		if (iter->second.queue.size() != 0) {
-
+	for (std::map<t_access_category, EDCAQueue>::iterator iter = myQueues.begin(); iter != myQueues.end(); iter++)
+	{
+		if (iter->second.queue.size() != 0)
+		{
 			/* 1609_4 says that when attempting to send (backoff == 0) when guard is active, a random backoff is invoked */
 
-			if (guardActive == true && iter->second.currentBackoff == 0) {
+			if (guardActive == true && iter->second.currentBackoff == 0)
+			{
 				//cw is not increased
-				iter->second.currentBackoff = intuniform(0,iter->second.cwCur);
+				iter->second.currentBackoff = owner->intuniform(0,iter->second.cwCur);
 				statsNumBackoff++;
 			}
 
-			simtime_t DIFS = iter->second.aifsn * SLOTLENGTH_11P + SIFS_11P;
+			omnetpp::simtime_t DIFS = iter->second.aifsn * SLOTLENGTH_11P + SIFS_11P;
 
 			//the next possible time to send can be in the past if the channel was idle for a long time, meaning we COULD have sent earlier if we had a packet
-			simtime_t possibleNextEvent = DIFS + iter->second.currentBackoff * SLOTLENGTH_11P;
+			omnetpp::simtime_t possibleNextEvent = DIFS + iter->second.currentBackoff * SLOTLENGTH_11P;
 
 
-			DBG_MAC << "Waiting Time for Queue " << iter->first <<  ":" << possibleNextEvent << "=" << iter->second.aifsn << " * "  << SLOTLENGTH_11P << " + " << SIFS_11P << "+" << iter->second.currentBackoff << "*" << SLOTLENGTH_11P << "; Idle time: " << idleTime << std::endl;
+			EV << "Waiting Time for Queue " << iter->first <<  ":" << possibleNextEvent << "=" << iter->second.aifsn << " * "  << SLOTLENGTH_11P << " + " << SIFS_11P << "+" << iter->second.currentBackoff << "*" << SLOTLENGTH_11P << "; Idle time: " << idleTime << std::endl;
 
-			if (idleTime > possibleNextEvent) {
-				DBG_MAC << "Could have already send if we had it earlier" << std::endl;
+			if (idleTime > possibleNextEvent)
+			{
+			    EV << "Could have already send if we had it earlier" << std::endl;
 				//we could have already sent. round up to next boundary
-				simtime_t base = idleSince + DIFS;
-				possibleNextEvent =  simTime() - simtime_t().setRaw((simTime() - base).raw() % SLOTLENGTH_11P.raw()) + SLOTLENGTH_11P;
+			    omnetpp::simtime_t base = idleSince + DIFS;
+				possibleNextEvent =  omnetpp::simTime() - omnetpp::simtime_t().setRaw((omnetpp::simTime() - base).raw() % SLOTLENGTH_11P.raw()) + SLOTLENGTH_11P;
 			}
-			else {
+			else
+			{
 				//we are gonna send in the future
-				DBG_MAC << "Sending in the future" << std::endl;
+			    EV << "Sending in the future" << std::endl;
 				possibleNextEvent =  idleSince + possibleNextEvent;
 			}
+
 			nextEvent == -1? nextEvent =  possibleNextEvent : nextEvent = std::min(nextEvent,possibleNextEvent);
 		}
 	}
+
 	return nextEvent;
 }
 
-void Mac1609_4::EDCA::stopContent(bool allowBackoff, bool generateTxOp) {
+void Mac1609_4::EDCA::stopContent(bool allowBackoff, bool generateTxOp)
+{
+    EV_STATICCONTEXT
+
 	//update all Queues
 
-	DBG_MAC << "Stopping Contention at " << simTime().raw() << std::endl;
+    EV << "Stopping Contention at " << omnetpp::simTime().raw() << std::endl;
 
-	simtime_t passedTime = simTime() - lastStart;
+    omnetpp::simtime_t passedTime = omnetpp::simTime() - lastStart;
 
-	DBG_MAC << "Channel was idle for " << passedTime << std::endl;
+	EV << "Channel was idle for " << passedTime << std::endl;
 
 	lastStart = -1; //indicate that there was no last start
 
-	for (std::map<t_access_category, EDCAQueue>::iterator iter = myQueues.begin(); iter != myQueues.end(); iter++) {
-		if (iter->second.currentBackoff != 0 || iter->second.queue.size() != 0) {
+	for (std::map<t_access_category, EDCAQueue>::iterator iter = myQueues.begin(); iter != myQueues.end(); iter++)
+	{
+		if (iter->second.currentBackoff != 0 || iter->second.queue.size() != 0)
+		{
 			//check how many slots we already waited until the chan became busy
 
 			int oldBackoff = iter->second.currentBackoff;
 
 			std::string info;
-			if (passedTime < iter->second.aifsn * SLOTLENGTH_11P + SIFS_11P) {
+			if (passedTime < iter->second.aifsn * SLOTLENGTH_11P + SIFS_11P)
+			{
 				//we didnt even make it one DIFS :(
 				info.append(" No DIFS");
 			}
-			else {
+			else
+			{
 				//decrease the backoff by one because we made it longer than one DIFS
 				iter->second.currentBackoff--;
 
 				//check how many slots we waited after the first DIFS
-				int passedSlots = (int)((passedTime - SimTime(iter->second.aifsn * SLOTLENGTH_11P + SIFS_11P)) / SLOTLENGTH_11P);
+				int passedSlots = (int)((passedTime - omnetpp::SimTime(iter->second.aifsn * SLOTLENGTH_11P + SIFS_11P)) / SLOTLENGTH_11P);
 
-				DBG_MAC << "Passed slots after DIFS: " << passedSlots << std::endl;
+				EV << "Passed slots after DIFS: " << passedSlots << std::endl;
 
 
-				if (iter->second.queue.size() == 0) {
+				if (iter->second.queue.size() == 0)
+				{
 					//this can be below 0 because of post transmit backoff -> backoff on empty queues will not generate macevents,
 					//we dont want to generate a txOP for empty queues
 					iter->second.currentBackoff -= std::min(iter->second.currentBackoff,passedSlots);
 					info.append(" PostCommit Over");
 				}
-				else {
+				else
+				{
 					iter->second.currentBackoff -= passedSlots;
-					if (iter->second.currentBackoff <= -1) {
-						if (generateTxOp) {
+					if (iter->second.currentBackoff <= -1)
+					{
+						if (generateTxOp)
+						{
 							iter->second.txOP = true; info.append(" TXOP");
 						}
 						//else: this packet couldnt be sent because there was too little time. we could have generated a txop, but the channel switched
@@ -702,157 +768,194 @@ void Mac1609_4::EDCA::stopContent(bool allowBackoff, bool generateTxOp) {
 
 				}
 			}
-			DBG_MAC << "Updating backoff for Queue " << iter->first << ": " << oldBackoff << " -> " << iter->second.currentBackoff << info <<std::endl;
+
+			EV << "Updating backoff for Queue " << iter->first << ": " << oldBackoff << " -> " << iter->second.currentBackoff << info <<std::endl;
 		}
 	}
 }
-void Mac1609_4::EDCA::backoff(t_access_category ac) {
-	myQueues[ac].currentBackoff = intuniform(0,myQueues[ac].cwCur);
+
+void Mac1609_4::EDCA::backoff(t_access_category ac)
+{
+    EV_STATICCONTEXT
+
+	myQueues[ac].currentBackoff = owner->intuniform(0,myQueues[ac].cwCur);
 	statsSlotsBackoff += myQueues[ac].currentBackoff;
 	statsNumBackoff++;
-	DBG_MAC << "Going into Backoff because channel was busy when new packet arrived from upperLayer" << std::endl;
+	EV << "Going into Backoff because channel was busy when new packet arrived from upperLayer" << std::endl;
 }
 
-void Mac1609_4::EDCA::postTransmit(t_access_category ac) {
+void Mac1609_4::EDCA::postTransmit(t_access_category ac)
+{
+    EV_STATICCONTEXT
+
 	delete myQueues[ac].queue.front();
 	myQueues[ac].queue.pop();
 	myQueues[ac].cwCur = myQueues[ac].cwMin;
 	//post transmit backoff
-	myQueues[ac].currentBackoff = intuniform(0,myQueues[ac].cwCur);
+	myQueues[ac].currentBackoff = owner->intuniform(0,myQueues[ac].cwCur);
 	statsSlotsBackoff += myQueues[ac].currentBackoff;
 	statsNumBackoff++;
-	DBG_MAC << "Queue " << ac << " will go into post-transmit backoff for " << myQueues[ac].currentBackoff << " slots" << std::endl;
+	EV << "Queue " << ac << " will go into post-transmit backoff for " << myQueues[ac].currentBackoff << " slots" << std::endl;
 }
 
-void Mac1609_4::EDCA::cleanUp() {
-	for (std::map<t_access_category, EDCAQueue>::iterator iter = myQueues.begin(); iter != myQueues.end(); iter++) {
-		while (iter->second.queue.size() != 0) {
+void Mac1609_4::EDCA::cleanUp()
+{
+	for (std::map<t_access_category, EDCAQueue>::iterator iter = myQueues.begin(); iter != myQueues.end(); iter++)
+	{
+		while (iter->second.queue.size() != 0)
+		{
 			delete iter->second.queue.front();
 			iter->second.queue.pop();
 		}
 	}
+
 	myQueues.clear();
 }
 
-void Mac1609_4::EDCA::revokeTxOPs() {
-	for (std::map<t_access_category, EDCAQueue>::iterator iter = myQueues.begin(); iter != myQueues.end(); iter++) {
-		if (iter->second.txOP == true) {
+void Mac1609_4::EDCA::revokeTxOPs()
+{
+	for (std::map<t_access_category, EDCAQueue>::iterator iter = myQueues.begin(); iter != myQueues.end(); iter++)
+	{
+		if (iter->second.txOP == true)
+		{
 			iter->second.txOP = false;
 			iter->second.currentBackoff = 0;
 		}
 	}
 }
 
-void Mac1609_4::channelBusySelf(bool generateTxOp) {
-
+void Mac1609_4::channelBusySelf(bool generateTxOp)
+{
 	//the channel turned busy because we're sending. we don't want our queues to go into backoff
 	//internal contention is already handled in initiateTransmission
 
 	if (!idleChannel) return;
 	idleChannel = false;
-	DBG_MAC << "Channel turned busy: Switch or Self-Send" << std::endl;
+	EV << "Channel turned busy: Switch or Self-Send" << std::endl;
 
-	lastBusy = simTime();
+	lastBusy = omnetpp::simTime();
 
 	//channel turned busy
-	if (nextMacEvent->isScheduled() == true) {
+	if (nextMacEvent->isScheduled() == true)
+	{
 		cancelEvent(nextMacEvent);
 	}
-	else {
+	else
+	{
 		//the edca subsystem was not doing anything anyway.
 	}
+
 	myEDCA[activeChannel]->stopContent(false, generateTxOp);
 
 	emit(sigChannelBusy, true);
 }
 
-void Mac1609_4::channelBusy() {
-
+void Mac1609_4::channelBusy()
+{
 	if (!idleChannel) return;
 
 	//the channel turned busy because someone else is sending
 	idleChannel = false;
-	DBG_MAC << "Channel turned busy: External sender" << std::endl;
-	lastBusy = simTime();
+	EV << "Channel turned busy: External sender" << std::endl;
+	lastBusy = omnetpp::simTime();
 
 	//channel turned busy
-	if (nextMacEvent->isScheduled() == true) {
+	if (nextMacEvent->isScheduled() == true)
+	{
 		cancelEvent(nextMacEvent);
 	}
-	else {
+	else
+	{
 		//the edca subsystem was not doing anything anyway.
 	}
+
 	myEDCA[activeChannel]->stopContent(true,false);
 
 	emit(sigChannelBusy, true);
 }
 
-void Mac1609_4::channelIdle(bool afterSwitch) {
+void Mac1609_4::channelIdle(bool afterSwitch)
+{
+	EV << "Channel turned idle: Switch: " << afterSwitch << std::endl;
 
-	DBG_MAC << "Channel turned idle: Switch: " << afterSwitch << std::endl;
-
-	if (nextMacEvent->isScheduled() == true) {
+	if (nextMacEvent->isScheduled() == true)
+	{
 		//this rare case can happen when another node's time has such a big offset that the node sent a packet although we already changed the channel
 		//the workaround is not trivial and requires a lot of changes to the phy and decider
 		return;
-		//opp_error("channel turned idle but contention timer was scheduled!");
+		//throw omnetpp::cRuntimeError("channel turned idle but contention timer was scheduled!");
 	}
 
 	idleChannel = true;
 
-	simtime_t delay = 0;
+	omnetpp::simtime_t delay = 0;
 
 	//account for 1609.4 guards
-	if (afterSwitch) {
+	if (afterSwitch)
+	{
 		//	delay = GUARD_INTERVAL_11P;
 	}
-	if (useSCH) {
+
+	if (useSCH)
+	{
 		delay += timeLeftTillGuardOver();
 	}
 
 	//channel turned idle! lets start contention!
-	lastIdle = delay + simTime();
-	statsTotalBusyTime += simTime() - lastBusy;
+	lastIdle = delay + omnetpp::simTime();
+	statsTotalBusyTime += omnetpp::simTime() - lastBusy;
 
 	//get next Event from current EDCA subsystem
-	simtime_t nextEvent = myEDCA[activeChannel]->startContent(lastIdle,guardActive());
-	if (nextEvent != -1) {
-		if ((!useSCH) || (nextEvent < nextChannelSwitch->getArrivalTime())) {
+	omnetpp::simtime_t nextEvent = myEDCA[activeChannel]->startContent(lastIdle,guardActive());
+	if (nextEvent != -1)
+	{
+		if ((!useSCH) || (nextEvent < nextChannelSwitch->getArrivalTime()))
+		{
 			scheduleAt(nextEvent,nextMacEvent);
-			DBG_MAC << "next Event is at " << nextMacEvent->getArrivalTime().raw() << std::endl;
+			EV << "next Event is at " << nextMacEvent->getArrivalTime().raw() << std::endl;
 		}
-		else {
-			DBG_MAC << "Too little time in this interval. will not schedule macEvent" << std::endl;
+		else
+		{
+			EV << "Too little time in this interval. will not schedule macEvent" << std::endl;
 			statsNumTooLittleTime++;
 			myEDCA[activeChannel]->revokeTxOPs();
 		}
 	}
-	else {
-		DBG_MAC << "I don't have any new events in this EDCA sub system" << std::endl;
+	else
+	{
+		EV << "I don't have any new events in this EDCA sub system" << std::endl;
 	}
 
 	emit(sigChannelBusy, false);
 
 }
 
-void Mac1609_4::setParametersForBitrate(uint64_t bitrate) {
-	for (unsigned int i = 0; i < NUM_BITRATES_80211P; i++) {
-		if (bitrate == BITRATES_80211P[i]) {
+void Mac1609_4::setParametersForBitrate(uint64_t bitrate)
+{
+	for (unsigned int i = 0; i < NUM_BITRATES_80211P; i++)
+	{
+		if (bitrate == BITRATES_80211P[i])
+		{
 			n_dbps = N_DBPS_80211P[i];
 			return;
 		}
 	}
-	opp_error("Chosen Bitrate is not valid for 802.11p: Valid rates are: 3Mbps, 4.5Mbps, 6Mbps, 9Mbps, 12Mbps, 18Mbps, 24Mbps and 27Mbps. Please adjust your omnetpp.ini file accordingly.");
+
+	throw omnetpp::cRuntimeError("Chosen Bitrate is not valid for 802.11p: Valid rates are: 3Mbps, 4.5Mbps, 6Mbps, 9Mbps, 12Mbps, 18Mbps, 24Mbps and 27Mbps. Please adjust your omnetpp.ini file accordingly.");
 }
 
 
-simtime_t Mac1609_4::getFrameDuration(int payloadLengthBits, enum PHY_MCS mcs) const {
-    simtime_t duration;
-    if (mcs == MCS_DEFAULT) {
+omnetpp::simtime_t Mac1609_4::getFrameDuration(int payloadLengthBits, enum PHY_MCS mcs) const
+{
+    omnetpp::simtime_t duration;
+
+    if (mcs == MCS_DEFAULT)
+    {
         // calculate frame duration according to Equation (17-29) of the IEEE 802.11-2007 standard
         duration = PHY_HDR_PREAMBLE_DURATION + PHY_HDR_PLCPSIGNAL_DURATION + T_SYM_80211P * ceil( (16 + payloadLengthBits + 6)/(n_dbps) );
     }
-    else {
+    else
+    {
         uint32_t ndbps = getNDBPS(mcs);
         duration = PHY_HDR_PREAMBLE_DURATION + PHY_HDR_PLCPSIGNAL_DURATION + T_SYM_80211P * ceil( (16 + payloadLengthBits + 6)/(ndbps) );
     }

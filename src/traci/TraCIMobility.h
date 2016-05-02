@@ -56,7 +56,7 @@ class TraCIMobilityMod : public BaseMobility
 		~TraCIMobilityMod() { }
 		virtual void initialize(int);
 		virtual void finish();
-		virtual void handleSelfMsg(cMessage *msg);
+		virtual void handleSelfMsg(omnetpp::cMessage *msg);
 
 		virtual void preInitialize(std::string external_id, const Coord& position, std::string road_id = "", double speed = -1, double angle = -1);
 		virtual void nextPosition(const Coord& position, std::string road_id = "", double speed = -1, double angle = -1, VehicleSignal signals = VEH_SIGNAL_UNDEF);
@@ -66,25 +66,25 @@ class TraCIMobilityMod : public BaseMobility
 		virtual void setExternalId(std::string external_id) { this->external_id = external_id; }
 		virtual std::string getExternalId() const {
 			if (external_id == "")
-			    throw cRuntimeError("TraCIMobility::getExternalId called with no external_id set yet");
+			    throw omnetpp::cRuntimeError("TraCIMobility::getExternalId called with no external_id set yet");
 			return external_id;
 		}
 		virtual double getAntennaPositionOffset() const { return antennaPositionOffset; }
-		virtual Coord getPositionAt(const simtime_t& t) const { return move.getPositionAt(t); }
+		virtual Coord getPositionAt(const omnetpp::simtime_t& t) const { return move.getPositionAt(t); }
 		virtual bool getParkingState() const { return isParking; }
 		virtual std::string getRoadId() const {
 			if (road_id == "")
-			    throw cRuntimeError("TraCIMobility::getRoadId called with no road_id set yet");
+			    throw omnetpp::cRuntimeError("TraCIMobility::getRoadId called with no road_id set yet");
 			return road_id;
 		}
 		virtual double getSpeed() const {
 			if (speed == -1)
-			    throw cRuntimeError("TraCIMobility::getSpeed called with no speed set yet");
+			    throw omnetpp::cRuntimeError("TraCIMobility::getSpeed called with no speed set yet");
 			return speed;
 		}
 		virtual VehicleSignal getSignals() const {
 			if (signals == -1)
-			    throw cRuntimeError("TraCIMobility::getSignals called with no signals set yet");
+			    throw omnetpp::cRuntimeError("TraCIMobility::getSignals called with no signals set yet");
 			return signals;
 		}
 		/**
@@ -92,7 +92,7 @@ class TraCIMobilityMod : public BaseMobility
 		 */
 		virtual double getAngleRad() const {
 			if (angle == M_PI)
-			    throw cRuntimeError("TraCIMobility::getAngleRad called with no angle set yet");
+			    throw omnetpp::cRuntimeError("TraCIMobility::getAngleRad called with no angle set yet");
 			return angle;
 		}
 
@@ -124,15 +124,15 @@ class TraCIMobilityMod : public BaseMobility
 		std::string external_id; /**< updated by setExternalId() */
 		double antennaPositionOffset; /**< front offset for the antenna on this car */
 
-		simtime_t lastUpdate; /**< updated by nextPosition() */
+		omnetpp::simtime_t lastUpdate; /**< updated by nextPosition() */
 		Coord roadPosition; /**< position of front bumper, updated by nextPosition() */
 		std::string road_id; /**< updated by nextPosition() */
 		double speed; /**< updated by nextPosition() */
 		double angle; /**< updated by nextPosition() */
 		VehicleSignal signals; /**<updated by nextPosition() */
 
-		cMessage* startAccidentMsg;
-		cMessage* stopAccidentMsg;
+		omnetpp::cMessage* startAccidentMsg;
+		omnetpp::cMessage* stopAccidentMsg;
 		double last_speed;
 
 		const static simsignalwrap_t parkingStateChangedSignal;

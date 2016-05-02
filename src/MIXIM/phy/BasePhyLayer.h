@@ -118,7 +118,7 @@ protected:
      * @brief Used at initialisation to pass the parameters
      * to the AnalogueModel and Decider
      */
-    typedef std::map<std::string, cMsgPar> ParameterMap;
+    typedef std::map<std::string, omnetpp::cMsgPar> ParameterMap;
 
     /** @brief The id of the in-data gate from the Mac layer */
     int upperLayerIn;
@@ -133,13 +133,13 @@ protected:
      * @brief Self message scheduled to the point in time when the
      * switching process of the radio is over.
      */
-    cMessage* radioSwitchingOverTimer;
+    omnetpp::cMessage* radioSwitchingOverTimer;
 
     /**
      * @brief Self message scheduled to the point in time when the
      * transmission of an AirFrame is over.
      */
-    cMessage* txOverTimer;
+    omnetpp::cMessage* txOverTimer;
 
     /** @brief The states of the receiving process for AirFrames.*/
     enum AirFrameStates {
@@ -166,19 +166,19 @@ private:
      * @brief Utility function. Reads the parameters of a XML element
      * and stores them in the passed ParameterMap reference.
      */
-    void getParametersFromXML(cXMLElement* xmlData, ParameterMap& outputMap);
+    void getParametersFromXML(omnetpp::cXMLElement* xmlData, ParameterMap& outputMap);
 
     /**
      * @brief Initializes the AnalogueModels with the data from the
      * passed XML-config data.
      */
-    void initializeAnalogueModels(cXMLElement* xmlConfig);
+    void initializeAnalogueModels(omnetpp::cXMLElement* xmlConfig);
 
     /**
      * @brief Initializes the Decider with the data from the
      * passed XML-config data.
      */
-    void initializeDecider(cXMLElement* xmlConfig);
+    void initializeDecider(omnetpp::cXMLElement* xmlConfig);
 
 
 
@@ -215,7 +215,7 @@ protected:
      * - ControllMesasges from MAC layer
      * - self messages like TX_OVER and RADIO_SWITCHED
      */
-    virtual void handleMessage(cMessage* msg);
+    virtual void handleMessage(omnetpp::cMessage* msg);
 
     /**
      * @brief Initializes and returns the radio class to use.
@@ -272,25 +272,25 @@ protected:
      * @brief Handles messages received from the upper layer through the
      * data gate.
      */
-    virtual void handleUpperMessage(cMessage* msg);
+    virtual void handleUpperMessage(omnetpp::cMessage* msg);
 
     /**
      * @brief Handles messages received from the upper layer through the
      * control gate.
      */
-    virtual void handleUpperControlMessage(cMessage* msg);
+    virtual void handleUpperControlMessage(omnetpp::cMessage* msg);
 
     /**
      * @brief Handles self scheduled messages.
      */
-    virtual void handleSelfMessage(cMessage* msg);
+    virtual void handleSelfMessage(omnetpp::cMessage* msg);
 
     /**
      * @brief Handles reception of a ChannelSenseRequest by forwarding it
      * to the decider and scheduling it to the point in time
      * returned by the decider.
      */
-    virtual void handleChannelSenseRequest(cMessage* msg);
+    virtual void handleChannelSenseRequest(omnetpp::cMessage* msg);
 
     /**
      * @brief Handles incoming AirFrames with the state FIRST_RECEIVE.
@@ -322,12 +322,12 @@ protected:
     /**
      * @brief Sends the passed control message to the upper layer.
      */
-    void sendControlMessageUp(cMessage* msg);
+    void sendControlMessageUp(omnetpp::cMessage* msg);
 
     /**
      * @brief Sends the passed MacPkt to the upper layer.
      */
-    void sendMacPktUp(cMessage* pkt);
+    void sendMacPktUp(omnetpp::cMessage* pkt);
 
     /**
      * @brief Sends the passed AirFrame to the channel
@@ -337,7 +337,7 @@ protected:
     /**
      * @brief Schedule self message to passed point in time.
      */
-    void sendSelfMessage(cMessage* msg, simtime_t_cref time);
+    void sendSelfMessage(omnetpp::cMessage* msg, omnetpp::simtime_t_cref time);
 
     /*@}*/
 
@@ -345,7 +345,7 @@ protected:
      * @brief This function encapsulates messages from the upper layer into an
      * AirFrame and sets all necessary attributes.
      */
-    virtual AirFrame *encapsMsg(cPacket *msg);
+    virtual AirFrame *encapsMsg(omnetpp::cPacket *msg);
 
     /**
      * @brief Filters the passed AirFrame's Signal by every registered AnalogueModel.
@@ -422,7 +422,7 @@ public:
      * @return	-1: Error code if the Radio is currently switching
      *			else: switching time from the current RadioState to the new RadioState
      */
-    virtual simtime_t setRadioState(int rs);
+    virtual omnetpp::simtime_t setRadioState(int rs);
 
     /**
      * @brief Returns the current state of the channel.
@@ -463,7 +463,7 @@ public:
      * @brief Fills the passed AirFrameVector with all AirFrames that intersect
      * with the time interval [from, to]
      */
-    virtual void getChannelInfo(simtime_t_cref from, simtime_t_cref to, AirFrameVector& out);
+    virtual void getChannelInfo(omnetpp::simtime_t_cref from, omnetpp::simtime_t_cref to, AirFrameVector& out);
 
     /**
      * @brief Returns a Mapping which defines the thermal noise in
@@ -478,7 +478,7 @@ public:
      * Override this method if you want to define a more complex
      * thermal noise.
      */
-    virtual ConstMapping* getThermalNoise(simtime_t_cref from, simtime_t_cref to);
+    virtual ConstMapping* getThermalNoise(omnetpp::simtime_t_cref from, omnetpp::simtime_t_cref to);
 
     /**
      * @brief Called by the Decider to send a control message to the MACLayer
@@ -486,7 +486,7 @@ public:
      * This function can be used to answer a ChannelSenseRequest to the MACLayer
      *
      */
-    virtual void sendControlMsgToMac(cMessage* msg);
+    virtual void sendControlMsgToMac(omnetpp::cMessage* msg);
 
     /**
      * @brief Called to send an AirFrame with DeciderResult to the MACLayer
@@ -501,7 +501,7 @@ public:
     /**
      * @brief Returns the current simulation time
      */
-    virtual simtime_t getSimTime();
+    virtual omnetpp::simtime_t getSimTime();
 
     /**
      * @brief Tells the PhyLayer to cancel a scheduled message (AirFrame or
@@ -510,7 +510,7 @@ public:
      * Used by the Decider if it doesn't need to handle an AirFrame or
      * ControlMessage again anymore.
      */
-    virtual void cancelScheduledMessage(cMessage* msg);
+    virtual void cancelScheduledMessage(omnetpp::cMessage* msg);
 
     /**
      * @brief Tells the PhyLayer to reschedule a message (AirFrame or
@@ -520,7 +520,7 @@ public:
      * earlier than it has returned to the PhyLayer the last time the Decider
      * handled that message.
      */
-    virtual void rescheduleMessage(cMessage* msg, simtime_t_cref t);
+    virtual void rescheduleMessage(omnetpp::cMessage* msg, omnetpp::simtime_t_cref t);
 
     /**
      * @brief Does nothing. For an actual power supporting
@@ -556,7 +556,7 @@ public:
      * @param pMsg		The message where the "control info" shall be attached.
      * @param pSrcAddr	The MAC address of the message receiver.
      */
-    virtual cObject *const setUpControlInfo(cMessage *const pMsg, DeciderResult *const pDeciderResult);
+    virtual omnetpp::cObject *const setUpControlInfo(omnetpp::cMessage *const pMsg, DeciderResult *const pDeciderResult);
 };
 
 #endif /*BASEPHYLAYER_*/

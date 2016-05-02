@@ -38,9 +38,9 @@ class AddMobileNode : public BaseApplLayer
 public:
     virtual ~AddMobileNode();
     virtual void initialize(int stage);
-    virtual void handleMessage(cMessage *msg);
+    virtual void handleMessage(omnetpp::cMessage *msg);
     virtual void finish();
-    virtual void receiveSignal(cComponent *, simsignal_t, long);
+    virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, long, cObject* details);
 
 private:
     void beginLoading();
@@ -69,8 +69,8 @@ private:
     double terminate;
 
     // class variables
-    simsignal_t Signal_initialize_withTraCI;
-    simsignal_t Signal_addFlow;
+    omnetpp::simsignal_t Signal_initialize_withTraCI;
+    omnetpp::simsignal_t Signal_addFlow;
 };
 
 }

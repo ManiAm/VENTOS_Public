@@ -11,7 +11,7 @@
  * @ingroup phyLayer
  * @ingroup macLayer
  */
-class MIXIM_API MacToPhyControlInfo: public cObject {
+class MIXIM_API MacToPhyControlInfo: public omnetpp::cObject {
 protected:
 	/** @brief A pointer to the signal representing the transmission.*/
 	Signal* signal;
@@ -77,7 +77,7 @@ public:
      * @param pMsg		The message where the "control info" shall be attached.
      * @param pSignal	The signal which should be send.
      */
-    static cObject *const setControlInfo(cMessage *const pMsg, Signal *const pSignal) {
+    static omnetpp::cObject *const setControlInfo(omnetpp::cMessage *const pMsg, Signal *const pSignal) {
     	MacToPhyControlInfo *const cCtrlInfo = new MacToPhyControlInfo(pSignal);
     	pMsg->setControlInfo(cCtrlInfo);
 
@@ -86,7 +86,7 @@ public:
     /**
      * @brief extracts the signal from message "control info".
      */
-    static Signal *const getSignal(cMessage *const pMsg) {
+    static Signal *const getSignal(omnetpp::cMessage *const pMsg) {
     	return getSignalFromControlInfo(pMsg->getControlInfo());
     }
     /**

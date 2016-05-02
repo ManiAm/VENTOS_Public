@@ -51,7 +51,7 @@ void TrafficLightWebster::initialize(int stage)
         if(alpha < 0 || alpha > 1)
             error("alpha value should be [0,1]");
 
-        intervalChangeEVT = new cMessage("intervalChangeEVT", 1);
+        intervalChangeEVT = new omnetpp::cMessage("intervalChangeEVT", 1);
 
         greenSplit.clear();
 
@@ -67,7 +67,7 @@ void TrafficLightWebster::finish()
 }
 
 
-void TrafficLightWebster::handleMessage(cMessage *msg)
+void TrafficLightWebster::handleMessage(omnetpp::cMessage *msg)
 {
     super::handleMessage(msg);
 
@@ -82,7 +82,7 @@ void TrafficLightWebster::handleMessage(cMessage *msg)
             error("intervalDuration is <= 0");
 
         // Schedule next light change event:
-        scheduleAt(simTime().dbl() + intervalDuration, intervalChangeEVT);
+        scheduleAt(omnetpp::simTime().dbl() + intervalDuration, intervalChangeEVT);
     }
 }
 
@@ -94,7 +94,7 @@ void TrafficLightWebster::initialize_withTraCI()
     if(TLControlMode != TL_Adaptive_Webster)
         return;
 
-    std::cout << endl << "Adaptive Webster traffic signal control ... " << endl << endl;
+    std::cout << std::endl << "Adaptive Webster traffic signal control ... " << std::endl << std::endl;
 
     // run Webster at the beginning of the cycle
     calculateGreenSplits();
@@ -103,7 +103,7 @@ void TrafficLightWebster::initialize_withTraCI()
     currentInterval = phase1_5;
     intervalDuration = greenSplit[phase1_5];
 
-    scheduleAt(simTime().dbl() + intervalDuration, intervalChangeEVT);
+    scheduleAt(omnetpp::simTime().dbl() + intervalDuration, intervalChangeEVT);
 
     for (auto &TL : TLList)
     {
@@ -116,11 +116,11 @@ void TrafficLightWebster::initialize_withTraCI()
         updateTLstate(TL, "init", currentInterval);
     }
 
-    if(ev.isGUI() && debugLevel > 0)
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 0)
     {
         char buff[300];
-        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalDuration);
-        std::cout << buff << endl << endl;
+        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", omnetpp::simTime().dbl(), currentInterval.c_str(), omnetpp::simTime().dbl(), omnetpp::simTime().dbl() + intervalDuration);
+        std::cout << buff << std::endl << std::endl;
         std::cout.flush();
     }
 }
@@ -178,11 +178,11 @@ void TrafficLightWebster::chooseNextInterval()
     else
         chooseNextGreenInterval();
 
-    if(ev.isGUI() && debugLevel > 0)
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 0)
     {
         char buff[300];
-        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalDuration);
-        std::cout << buff << endl << endl;
+        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", omnetpp::simTime().dbl(), currentInterval.c_str(), omnetpp::simTime().dbl(), omnetpp::simTime().dbl() + intervalDuration);
+        std::cout << buff << std::endl << std::endl;
         std::cout.flush();
     }
 }
@@ -226,7 +226,7 @@ void TrafficLightWebster::chooseNextGreenInterval()
 void TrafficLightWebster::calculateGreenSplits()
 {
     // debugging (print traffic demand)
-    if(ev.isGUI() && debugLevel > 1)
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 1)
     {
         std::cout << ">>> Measured traffic demands at the beginning of this cycle: ";
         for(auto &y : laneTD)
@@ -251,7 +251,7 @@ void TrafficLightWebster::calculateGreenSplits()
                     std::cout << lane << ": " << aveTD << " | ";
             }
         }
-        std::cout << endl << endl;
+        std::cout << std::endl << std::endl;
         std::cout.flush();
     }
 
@@ -299,14 +299,14 @@ void TrafficLightWebster::calculateGreenSplits()
     }
 
     // print Y_i for each phase
-    if(ev.isGUI() && debugLevel > 1) std::cout << ">>> critical v/c for each phase: ";
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 1) std::cout << ">>> critical v/c for each phase: ";
     int activePhases = 0;
     for(double y : critical)
     {
-        if(ev.isGUI() && debugLevel > 1) std::cout << y << ", ";
+        if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 1) std::cout << y << ", ";
         if(y != 0) activePhases++;
     }
-    if(ev.isGUI() && debugLevel > 1) std::cout << endl << endl;
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 1) std::cout << std::endl << std::endl;
 
     if(Y < 0)
     {
@@ -315,9 +315,9 @@ void TrafficLightWebster::calculateGreenSplits()
     // no TD in any directions. Give G_min to each phase
     else if(Y == 0)
     {
-        if(ev.isGUI() && debugLevel > 0)
+        if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 0)
         {
-            std::cout << ">>> Total critical v/c is zero! Set green split for each phase to G_min=" << minGreenTime << endl << endl;
+            std::cout << ">>> Total critical v/c is zero! Set green split for each phase to G_min=" << minGreenTime << std::endl << std::endl;
             std::cout.flush();
         }
 
@@ -335,10 +335,10 @@ void TrafficLightWebster::calculateGreenSplits()
 
         double cycle = ((1.5*totalLoss) + 5) / (1 - Y);  // cycle length
 
-        if(ev.isGUI() && debugLevel > 1)
+        if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 1)
         {
-            std::cout << ">>> Webster Calculation: " << endl;
-            std::cout << "total critical v/c=" << Y << ", total loss time=" << totalLoss << ", cycle length=" << cycle << endl;
+            std::cout << ">>> Webster Calculation: " << std::endl;
+            std::cout << "total critical v/c=" << Y << ", total loss time=" << totalLoss << ", cycle length=" << cycle << std::endl;
             std::cout.flush();
         }
 
@@ -346,7 +346,7 @@ void TrafficLightWebster::calculateGreenSplits()
         // this happens when Y is too close to 1
         if(cycle > maxCycleLength)
         {
-            std::cout << "WARNING: cycle length exceeds max C_y=" << maxCycleLength << endl;
+            std::cout << "WARNING: cycle length exceeds max C_y=" << maxCycleLength << std::endl;
             cycle = maxCycleLength;
         }
 
@@ -361,12 +361,12 @@ void TrafficLightWebster::calculateGreenSplits()
             phaseNumber++;
         }
 
-        if(ev.isGUI() && debugLevel > 1)
+        if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 1)
         {
             std::cout << "Updating green splits for each phase: ";
             for(auto &y : greenSplit)
                 std::cout << y.second << ", ";
-            std::cout << endl << endl;
+            std::cout << std::endl << std::endl;
             std::cout.flush();
         }
     }

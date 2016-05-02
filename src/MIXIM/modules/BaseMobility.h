@@ -112,10 +112,10 @@ class MIXIM_API BaseMobility : public BatteryAccess
     const static simsignalwrap_t mobilityStateChangedSignal;
 
     /** @brief Time interval (in seconds) to update the hosts position*/
-    simtime_t updateInterval;
+    omnetpp::simtime_t updateInterval;
 
     /** @brief Self message to trigger movement */
-    cMessage* moveMsg;
+    omnetpp::cMessage* moveMsg;
 
     /** @brief debug this core module? */
     bool coreDebug;
@@ -146,7 +146,7 @@ class MIXIM_API BaseMobility : public BatteryAccess
      * Dispatches border messages to handleBorderMsg() and all other
      * self-messages to handleSelfMsg()
      */
-    virtual void handleMessage(cMessage *msg);
+    virtual void handleMessage(omnetpp::cMessage *msg);
 
     /** @brief Initializes mobility model parameters.
      *
@@ -204,7 +204,7 @@ class MIXIM_API BaseMobility : public BatteryAccess
      * movement. Afterward updatePosition updates the position with the
      * display.
      */
-    virtual void handleSelfMsg( cMessage* );
+    virtual void handleSelfMsg( omnetpp::cMessage* );
 
     /** @brief Called upon arrival of a border messages
      *
@@ -215,7 +215,7 @@ class MIXIM_API BaseMobility : public BatteryAccess
      * cases where the host moved in both (x and y) direction outside the
      * playground.
      */
-    virtual void handleBorderMsg( cMessage* );
+    virtual void handleBorderMsg( omnetpp::cMessage* );
 
     /**
      * @brief Moves the host
@@ -227,7 +227,7 @@ class MIXIM_API BaseMobility : public BatteryAccess
      * You should call fixIfHostGetsOutside here for border handling
      */
     virtual void makeMove(){
-    	error("BaseMobility does not move the host");
+        throw omnetpp::cRuntimeError("BaseMobility does not move the host");
     };
 
     /** @brief Update the position information for this node
@@ -304,7 +304,7 @@ class MIXIM_API BaseMobility : public BatteryAccess
      * @sa HandleIfOutside
      */
     virtual void fixIfHostGetsOutside(){
-    	error("fixIfHostGetsOutside has to be redefined by the user");
+        throw omnetpp::cRuntimeError("fixIfHostGetsOutside has to be redefined by the user");
     };
 
     /**

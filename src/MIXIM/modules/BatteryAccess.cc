@@ -21,9 +21,12 @@ BatteryAccess::BatteryAccess(unsigned stacksize):
 void BatteryAccess::registerWithBattery(const std::string& name, int numAccounts) {
 	battery = FindModule<BaseBattery*>::findSubModule(findHost());
 
-	if(!battery) {
-		opp_warning("No battery module defined!");
-	} else {
+	if(!battery)
+	{
+	    throw omnetpp::cRuntimeError("No battery module defined!");
+	}
+	else
+	{
 		deviceID = battery->registerDevice(name, numAccounts);
 	}
 }

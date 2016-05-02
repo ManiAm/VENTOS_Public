@@ -60,7 +60,7 @@ void ApplRSUCLASSIFY::initialize(int stage)
         if(GPSerror < 0)
             error("GPSerror value is not correct!");
 
-        debugLevel = simulation.getSystemModule()->par("debugLevel").longValue();
+        debugLevel = omnetpp::getSimulation()->getSystemModule()->par("debugLevel").longValue();
 
         // we need this RSU to be associated with a TL
         if(myTLid == "")
@@ -114,7 +114,7 @@ void ApplRSUCLASSIFY::finish()
 }
 
 
-void ApplRSUCLASSIFY::handleSelfMsg(cMessage* msg)
+void ApplRSUCLASSIFY::handleSelfMsg(omnetpp::cMessage* msg)
 {
     super::handleSelfMsg(msg);
 }
@@ -168,7 +168,7 @@ void ApplRSUCLASSIFY::onData(LaneChangeMsg* wsm)
 void ApplRSUCLASSIFY::initializeGnuPlot()
 {
     // get a pointer to the plotter module
-    cModule *pmodule = simulation.getSystemModule()->getSubmodule("plotter");
+    cModule *pmodule = omnetpp::getSimulation()->getSystemModule()->getSubmodule("plotter");
     if(pmodule == NULL)
         error("plotter module is not found!");
 
@@ -497,7 +497,7 @@ void ApplRSUCLASSIFY::onBeaconAny(beaconGeneral wsm)
 
     // print debug information
     std::string sender = wsm->getSender();
-    if(ev.isGUI() && debugLevel > 1)
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 1)
     {
         printf("%0.3f, %0.3f, %06.3f --> predicted label: %2d, true label: %2d, sender: %s \n",
                 wsm->getPos().x,
@@ -511,7 +511,7 @@ void ApplRSUCLASSIFY::onBeaconAny(beaconGeneral wsm)
     }
 
     // save classification results for each entity
-    resultEntry *res = new resultEntry(predicted_label, real_label, simTime().dbl());
+    resultEntry *res = new resultEntry(predicted_label, real_label, omnetpp::simTime().dbl());
     auto xr = classifyResults.find(sender);
     if(xr == classifyResults.end())
     {
@@ -618,14 +618,14 @@ void ApplRSUCLASSIFY::saveClassificationResults()
 
     boost::filesystem::path filePath;
 
-    if(ev.isGUI())
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI())
     {
         filePath = "results/ML/classificationResults.txt";
     }
     else
     {
         // get the current run number
-        int currentRun = ev.getConfigEx()->getActiveRunNumber();
+        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
         std::ostringstream fileName;
         fileName << std::setfill('0') << std::setw(3) << currentRun << "_classificationResults.txt";
         filePath = "results/ML/cmd/" + fileName.str();
@@ -634,19 +634,19 @@ void ApplRSUCLASSIFY::saveClassificationResults()
     FILE *filePtr = fopen (filePath.string().c_str(), "w");
 
     // write simulation parameters at the beginning of the file in CMD mode
-    if(!ev.isGUI())
+    if(!omnetpp::cSimulation::getActiveEnvir()->isGUI())
     {
         // get the current config name
-        std::string configName = ev.getConfigEx()->getVariable("configname");
+        std::string configName = omnetpp::getEnvir()->getConfigEx()->getVariable("configname");
 
         // get number of total runs in this config
-        int totalRun = ev.getConfigEx()->getNumRunsInConfig(configName.c_str());
+        int totalRun = omnetpp::getEnvir()->getConfigEx()->getNumRunsInConfig(configName.c_str());
 
         // get the current run number
-        int currentRun = ev.getConfigEx()->getActiveRunNumber();
+        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
 
         // get all iteration variables
-        std::vector<std::string> iterVar = ev.getConfigEx()->unrollConfig(configName.c_str(), false);
+        std::vector<std::string> iterVar = omnetpp::getEnvir()->getConfigEx()->unrollConfig(configName.c_str(), false);
 
         // write to file
         fprintf (filePtr, "configName      %s\n", configName.c_str());

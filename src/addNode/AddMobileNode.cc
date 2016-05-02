@@ -49,7 +49,7 @@ void AddMobileNode::initialize(int stage)
         mode = par("mode").longValue();
 
         // get a pointer to the TraCI module
-        cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
+        omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
         TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
 
@@ -59,10 +59,10 @@ void AddMobileNode::initialize(int stage)
             terminate = 10000;
 
         Signal_initialize_withTraCI = registerSignal("initialize_withTraCI");
-        simulation.getSystemModule()->subscribe("initialize_withTraCI", this);
+        omnetpp::getSimulation()->getSystemModule()->subscribe("initialize_withTraCI", this);
 
         Signal_addFlow = registerSignal("addFlow");
-        simulation.getSystemModule()->subscribe("addFlow", this);
+        omnetpp::getSimulation()->getSystemModule()->subscribe("addFlow", this);
     }
 }
 
@@ -70,18 +70,18 @@ void AddMobileNode::initialize(int stage)
 void AddMobileNode::finish()
 {
     // unsubscribe
-    simulation.getSystemModule()->unsubscribe("initialize_withTraCI", this);
-    simulation.getSystemModule()->unsubscribe("executeEachTS", this);
+    omnetpp::getSimulation()->getSystemModule()->unsubscribe("initialize_withTraCI", this);
+    omnetpp::getSimulation()->getSystemModule()->unsubscribe("executeEachTS", this);
 }
 
 
-void AddMobileNode::handleMessage(cMessage *msg)
+void AddMobileNode::handleMessage(omnetpp::cMessage *msg)
 {
 
 }
 
 
-void AddMobileNode::receiveSignal(cComponent *source, simsignal_t signalID, long i)
+void AddMobileNode::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t signalID, long i, cObject* details)
 {
     if(mode <= -1)
         return;
@@ -137,7 +137,7 @@ void AddMobileNode::beginLoading()
 void AddMobileNode::printLoadedStatistics()
 {
     std::cout << std::endl;
-    std::cout << ">>> AddMobileNode is done adding nodes. Here is a summary: " << endl;
+    std::cout << ">>> AddMobileNode is done adding nodes. Here is a summary: " << std::endl;
     std::cout.flush();
 
     //###################################
@@ -439,7 +439,7 @@ void generateVehicles(std::string dir, Router* r)
     srand(time(NULL));
     std::string vName = dir + "/Vehicles" + std::to_string(r->totalVehicleCount) + ".xml";
     std::ofstream vFile(vName.c_str());
-    vFile << "<vehicles>" << endl;
+    vFile << "<vehicles>" << std::endl;
     for(int i = 1; i <= r->totalVehicleCount; i++)
     {
         std::string edge = edgeNames[rand() % edgeNames.size()];
@@ -447,15 +447,15 @@ void generateVehicles(std::string dir, Router* r)
         //vFile << "   <vehicle id=\"v" << i << "\" type=\"TypeManual\" origin=\"" << edge << "\" destination=\"" << node << "\" depart=\"" << i * r->createTime / r->totalVehicleCount << "\" />" << endl;
 
         vFile << "   <vehicle id=\"v" << i << "\" type=\"TypeManual\" origin=\"" << edge << "\" destination=\""
-                << node << "\" depart=\"" << curve((double)i/r->totalVehicleCount) * r->createTime << "\" />" << endl;
+                << node << "\" depart=\"" << curve((double)i/r->totalVehicleCount) * r->createTime << "\" />" << std::endl;
     }
-    vFile << "</vehicles>" << endl;
+    vFile << "</vehicles>" << std::endl;
     vFile.close();
 }
 
 void AddMobileNode::Scenario8()
 {
-    cModule *module = simulation.getSystemModule()->getSubmodule("router");
+    cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("router");
     Router *r = static_cast< Router* >(module);
 
     std::string vehFile = ("/Vehicles" + std::to_string(r->totalVehicleCount) + ".xml");
@@ -663,7 +663,7 @@ void AddMobileNode::Scenario10()
     std::vector<double> vehClassDistribution;
     if(vehMultiClass)
     {
-        vehClassDistribution = cStringTokenizer(par("vehClassDist").stringValue(), ",").asDoubleVector();
+        vehClassDistribution = omnetpp::cStringTokenizer(par("vehClassDist").stringValue(), ",").asDoubleVector();
         if(vehClassDistribution.size() != 2)
             error("Two values should be specified for vehicle class distribution!");
 
@@ -676,7 +676,7 @@ void AddMobileNode::Scenario10()
     }
 
     std::vector<double> vehRouteDistribution;
-    vehRouteDistribution = cStringTokenizer(par("vehRouteDist").stringValue(), ",").asDoubleVector();
+    vehRouteDistribution = omnetpp::cStringTokenizer(par("vehRouteDist").stringValue(), ",").asDoubleVector();
     if(vehRouteDistribution.size() != 3)
         error("Three values should be specified for vehicle route distribution!");
     // make sure vehicle route distributions are set correctly
@@ -690,7 +690,7 @@ void AddMobileNode::Scenario10()
     std::vector<double> bikeRouteDistribution;
     if(bike)
     {
-        bikeRouteDistribution = cStringTokenizer(par("bikeRouteDist").stringValue(), ",").asDoubleVector();
+        bikeRouteDistribution = omnetpp::cStringTokenizer(par("bikeRouteDist").stringValue(), ",").asDoubleVector();
         if(bikeRouteDistribution.size() != 3)
             error("Three values should be specified for bike route distribution!");
 
@@ -989,7 +989,7 @@ void AddMobileNode::Scenario11()
     std::vector<double> vehClassDistribution;
     if(vehMultiClass)
     {
-        vehClassDistribution = cStringTokenizer(par("vehClassDist").stringValue(), ",").asDoubleVector();
+        vehClassDistribution = omnetpp::cStringTokenizer(par("vehClassDist").stringValue(), ",").asDoubleVector();
         if(vehClassDistribution.size() != 2)
             error("Two values should be specified for vehicle class distribution!");
 
@@ -1002,7 +1002,7 @@ void AddMobileNode::Scenario11()
     }
 
     std::vector<double> vehRouteDistribution;
-    vehRouteDistribution = cStringTokenizer(par("vehRouteDist").stringValue(), ",").asDoubleVector();
+    vehRouteDistribution = omnetpp::cStringTokenizer(par("vehRouteDist").stringValue(), ",").asDoubleVector();
     if(vehRouteDistribution.size() != 3)
         error("Three values should be specified for vehicle route distribution!");
     // make sure vehicle route distributions are set correctly
@@ -1016,7 +1016,7 @@ void AddMobileNode::Scenario11()
     std::vector<double> bikeRouteDistribution;
     if(bike)
     {
-        bikeRouteDistribution = cStringTokenizer(par("bikeRouteDist").stringValue(), ",").asDoubleVector();
+        bikeRouteDistribution = omnetpp::cStringTokenizer(par("bikeRouteDist").stringValue(), ",").asDoubleVector();
         if(bikeRouteDistribution.size() != 3)
             error("Three values should be specified for bike route distribution!");
 
@@ -1355,7 +1355,7 @@ void AddMobileNode::Scenario12()
     std::vector<double> vehClassDistribution;
     if(vehMultiClass)
     {
-        vehClassDistribution = cStringTokenizer(par("vehClassDist").stringValue(), ",").asDoubleVector();
+        vehClassDistribution = omnetpp::cStringTokenizer(par("vehClassDist").stringValue(), ",").asDoubleVector();
         if(vehClassDistribution.size() != 2)
             error("Two values should be specified for vehicle class distribution!");
 

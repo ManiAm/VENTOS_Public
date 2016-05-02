@@ -40,7 +40,7 @@
  * @ingroup utils
  * @author Christian Frank
  */
-class MIXIM_API Coord : public cObject
+class MIXIM_API Coord : public omnetpp::cObject
 {
 public:
     /** @brief Constant with all values set to 0. */
@@ -67,8 +67,7 @@ public:
         : x(x), y(y), z(z) {}
 
     /** @brief Initializes coordinate from other coordinate. */
-    Coord(const Coord& other)
-        : cObject(other) { copy(other); }
+    Coord(const Coord& other) : cObject(other) { copy(other); }
 
     /** @brief Returns a string with the value of the coordinate. */
     std::string info() const;

@@ -160,13 +160,13 @@ protected:
      * @brief This function encapsulates messages from the upper layer into an
      * AirFrame and sets all necessary attributes.
      */
-    virtual AirFrame *encapsMsg(cPacket *msg);
+    virtual AirFrame *encapsMsg(omnetpp::cPacket *msg);
 
     virtual void changeListeningFrequency(double freq);
 
-    virtual void handleSelfMessage(cMessage* msg);
+    virtual void handleSelfMessage(omnetpp::cMessage* msg);
     virtual int getRadioState();
-    virtual simtime_t setRadioState(int rs);
+    virtual omnetpp::simtime_t setRadioState(int rs);
 };
 
 }

@@ -32,7 +32,6 @@
 #include "BaseWorldUtility.h"
 #include "BaseConnectionManager.h"
 
-using std::endl;
 
 const simsignalwrap_t ChannelAccess::mobilityStateChangedSignal = simsignalwrap_t(MIXIM_SIGNAL_MOBILITY_CHANGE_NAME);
 
@@ -42,7 +41,7 @@ BaseConnectionManager* ChannelAccess::getConnectionManager(cModule* nic)
 						 ? nic->par("connectionManagerName").stringValue()
 						 : "";
 	if (cmName != ""){
-		cModule* ccModule = simulation.getModuleByPath(cmName.c_str());
+		omnetpp::cModule* ccModule = omnetpp::cSimulation::getActiveSimulation()->getModuleByPath(cmName.c_str());
 
 		return dynamic_cast<BaseConnectionManager *>(ccModule);
 	}
@@ -71,7 +70,7 @@ void ChannelAccess::initialize( int stage )
 
 
 
-void ChannelAccess::sendToChannel(cPacket *msg)
+void ChannelAccess::sendToChannel(omnetpp::cPacket *msg)
 {
     const NicEntry::GateList& gateList = cc->getGateList( getParentModule()->getId());
     NicEntry::GateList::const_iterator i = gateList.begin();
@@ -79,7 +78,7 @@ void ChannelAccess::sendToChannel(cPacket *msg)
     if(useSendDirect){
         // use Andras stuff
         if( i != gateList.end() ){
-        	simtime_t delay = SIMTIME_ZERO;
+            omnetpp::simtime_t delay = SIMTIME_ZERO;
             for(; i != --gateList.end(); ++i){
             	//calculate delay (Propagation) to this receiving nic
             	delay = calculatePropagationDelay(i->first);
@@ -87,7 +86,7 @@ void ChannelAccess::sendToChannel(cPacket *msg)
                 int radioStart = i->second->getId();
                 int radioEnd = radioStart + i->second->size();
                 for (int g = radioStart; g != radioEnd; ++g)
-                    sendDirect(static_cast<cPacket*>(msg->dup()),
+                    sendDirect(static_cast<omnetpp::cPacket*>(msg->dup()),
                                delay, msg->getDuration(), i->second->getOwnerModule(), g);
             }
             //calculate delay (Propagation) to this receiving nic
@@ -96,13 +95,13 @@ void ChannelAccess::sendToChannel(cPacket *msg)
             int radioStart = i->second->getId();
             int radioEnd = radioStart + i->second->size();
             for (int g = radioStart; g != --radioEnd; ++g)
-                sendDirect(static_cast<cPacket*>(msg->dup()),
+                sendDirect(static_cast<omnetpp::cPacket*>(msg->dup()),
                            delay, msg->getDuration(), i->second->getOwnerModule(), g);
 
             sendDirect(msg, delay, msg->getDuration(), i->second->getOwnerModule(), radioEnd);
         }
         else{
-            coreEV << "Nic is not connected to any gates!" << endl;
+            coreEV << "Nic is not connected to any gates!" << std::endl;
             delete msg;
         }
     }
@@ -110,12 +109,12 @@ void ChannelAccess::sendToChannel(cPacket *msg)
         // use our stuff
         coreEV <<"sendToChannel: sending to gates\n";
         if( i != gateList.end() ){
-        	simtime_t delay = SIMTIME_ZERO;
+            omnetpp::simtime_t delay = SIMTIME_ZERO;
             for(; i != --gateList.end(); ++i){
             	//calculate delay (Propagation) to this receiving nic
 				delay = calculatePropagationDelay(i->first);
 
-                sendDelayed( static_cast<cPacket*>(msg->dup()),
+                sendDelayed( static_cast<omnetpp::cPacket*>(msg->dup()),
                              delay, i->second );
             }
             //calculate delay (Propagation) to this receiving nic
@@ -124,13 +123,13 @@ void ChannelAccess::sendToChannel(cPacket *msg)
             sendDelayed( msg, delay, i->second );
         }
         else{
-            coreEV << "Nic is not connected to any gates!" << endl;
+            coreEV << "Nic is not connected to any gates!" << std::endl;
             delete msg;
         }
     }
 }
 
-simtime_t ChannelAccess::calculatePropagationDelay(const NicEntry* nic) {
+omnetpp::simtime_t ChannelAccess::calculatePropagationDelay(const NicEntry* nic) {
 	if(!usePropagationDelay)
 		return 0;
 
@@ -148,10 +147,10 @@ simtime_t ChannelAccess::calculatePropagationDelay(const NicEntry* nic) {
 	return receiverPos.distance(sendersPos) / BaseWorldUtility::speedOfLight();
 }
 
-void ChannelAccess::receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj)
+void ChannelAccess::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t signalID, omnetpp::cObject *obj, cObject* details)
 {
     if(signalID == mobilityStateChangedSignal) {
-    	ChannelMobilityPtrType const mobility = check_and_cast<ChannelMobilityPtrType>(obj);
+    	ChannelMobilityPtrType const mobility = omnetpp::check_and_cast<ChannelMobilityPtrType>(obj);
         Coord                        pos      = mobility->getCurrentPosition();
 
         if(isRegistered) {

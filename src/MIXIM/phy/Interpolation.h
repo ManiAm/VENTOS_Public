@@ -369,7 +369,7 @@ T cast_it(T rValToCast) {
 }
 
 template<class T>
-T cast_it(simtime_t rValToCast) {
+T cast_it(omnetpp::simtime_t rValToCast) {
 	return cast_it(SIMTIME_DBL(rValToCast));
 }
 

@@ -39,7 +39,7 @@ class Plotter : public BaseApplLayer
       virtual ~Plotter();
       virtual void finish();
       virtual void initialize(int);
-      virtual void handleMessage(cMessage *);
+      virtual void handleMessage(omnetpp::cMessage *);
 
   private:
       void getVersion();

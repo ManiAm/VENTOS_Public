@@ -83,7 +83,7 @@ void TrafficLight_FMSC::initialize(int stage)
 
     if(stage == 0)
     {
-        intervalChangeEVT = new cMessage("intervalChangeEVT", 1);
+        intervalChangeEVT = new omnetpp::cMessage("intervalChangeEVT", 1);
     }
 }
 
@@ -94,7 +94,7 @@ void TrafficLight_FMSC::finish()
 }
 
 
-void TrafficLight_FMSC::handleMessage(cMessage *msg)
+void TrafficLight_FMSC::handleMessage(omnetpp::cMessage *msg)
 {
     super::handleMessage(msg);
 
@@ -109,7 +109,7 @@ void TrafficLight_FMSC::handleMessage(cMessage *msg)
             error("intervalDuration is <= 0");
 
         // Schedule next light change event:
-        scheduleAt(simTime().dbl() + intervalDuration, intervalChangeEVT);
+        scheduleAt(omnetpp::simTime().dbl() + intervalDuration, intervalChangeEVT);
     }
 }
 
@@ -122,7 +122,7 @@ void TrafficLight_FMSC::initialize_withTraCI()
     if(TLControlMode != TL_FMSC)
         return;
 
-    std::cout << endl << "FMSC traffic signal control ..." << endl << endl;
+    std::cout << std::endl << "FMSC traffic signal control ..." << std::endl << std::endl;
 
     // find the RSU module that controls this TL
     findRSU("C");
@@ -137,7 +137,7 @@ void TrafficLight_FMSC::initialize_withTraCI()
     currentInterval = phase1_5;
     intervalDuration = minGreenTime;
 
-    scheduleAt(simTime().dbl() + intervalDuration, intervalChangeEVT);
+    scheduleAt(omnetpp::simTime().dbl() + intervalDuration, intervalChangeEVT);
 
     // get all non-conflicting movements in allMovements vector
     TrafficLightAllowedMoves::getMovements("C");
@@ -156,11 +156,11 @@ void TrafficLight_FMSC::initialize_withTraCI()
         updateTLstate(TL, "init", currentInterval);
     }
 
-    if(ev.isGUI() && debugLevel > 0)
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 0)
     {
         char buff[300];
-        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalDuration);
-        std::cout << buff << endl << endl;
+        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", omnetpp::simTime().dbl(), currentInterval.c_str(), omnetpp::simTime().dbl(), omnetpp::simTime().dbl() + intervalDuration);
+        std::cout << buff << std::endl << std::endl;
         std::cout.flush();
     }
 }
@@ -215,11 +215,11 @@ void TrafficLight_FMSC::chooseNextInterval()
     else
         chooseNextGreenInterval();
 
-    if(ev.isGUI() && debugLevel > 0)
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 0)
     {
         char buff[300];
-        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalDuration);
-        std::cout << buff << endl << endl;
+        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", omnetpp::simTime().dbl(), currentInterval.c_str(), omnetpp::simTime().dbl(), omnetpp::simTime().dbl() + intervalDuration);
+        std::cout << buff << std::endl << std::endl;
         std::cout.flush();
     }
 }
@@ -342,16 +342,16 @@ void TrafficLight_FMSC::chooseNextGreenInterval()
 
     // allocate enough green time to move all vehicles
     int maxVehCount = entry.maxVehCount;
-    if(ev.isGUI() && debugLevel > 1)
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 1)
     {
         std::cout << "Maximum of " << maxVehCount << " vehicle(s) are waiting. ";
         std::cout.flush();
     }
     double greenTime = (double)maxVehCount * (minGreenTime / 5.);
     nextGreenTime = std::min(std::max(greenTime, minGreenTime), maxGreenTime);      // bound green time
-    if(ev.isGUI() && debugLevel > 1)
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 1)
     {
-        std::cout << "Next green time is " << nextGreenTime << endl << endl;
+        std::cout << "Next green time is " << nextGreenTime << std::endl << std::endl;
         std::cout.flush();
     }
 
@@ -368,9 +368,9 @@ void TrafficLight_FMSC::chooseNextGreenInterval()
     else
     {
         intervalDuration = nextGreenTime;
-        if(ev.isGUI() && debugLevel > 0)
+        if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 0)
         {
-            std::cout << ">>> Continue the last green interval." << endl << endl;
+            std::cout << ">>> Continue the last green interval." << std::endl << std::endl;
             std::cout.flush();
         }
     }

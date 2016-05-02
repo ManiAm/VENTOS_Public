@@ -1,6 +1,4 @@
 
-#include <cxmlelement.h>
-
 #include "BasePhyLayer.h"
 #include "MacToPhyControlInfo.h"
 #include "PhyToMacControlInfo.h"
@@ -18,21 +16,21 @@ Coord NoMobiltyPos = Coord::ZERO;
 //--Initialization----------------------------------
 
 BasePhyLayer::BasePhyLayer():
-	protocolId(GENERIC),
-	thermalNoise(0),
-	radio(0),
-	decider(0),
-	radioSwitchingOverTimer(0),
-	txOverTimer(0),
-	headerLength(-1),
-	world(NULL)
+	                protocolId(GENERIC),
+	                thermalNoise(0),
+	                radio(0),
+	                decider(0),
+	                radioSwitchingOverTimer(0),
+	                txOverTimer(0),
+	                headerLength(-1),
+	                world(NULL)
 {}
 
 template<class T> T BasePhyLayer::readPar(const char* parName, const T defaultValue){
-	if(hasPar(parName))
-		return par(parName);
-	else
-		return defaultValue;
+    if(hasPar(parName))
+        return par(parName);
+    else
+        return defaultValue;
 }
 
 // the following line is needed to allow linking when compiled in RELEASE mode.
@@ -41,816 +39,817 @@ template<class T> T BasePhyLayer::readPar(const char* parName, const T defaultVa
 // used in base (double and simtime_t). Needed with (at least): gcc 4.4.1.
 template int BasePhyLayer::readPar<int>(const char* parName, const int);
 template double BasePhyLayer::readPar<double>(const char* parName, const double);
-template simtime_t BasePhyLayer::readPar<simtime_t>(const char* parName, const simtime_t);
+template omnetpp::simtime_t BasePhyLayer::readPar<omnetpp::simtime_t>(const char* parName, const omnetpp::simtime_t);
 template bool BasePhyLayer::readPar<bool>(const char* parName, const bool);
 
 void BasePhyLayer::initialize(int stage) {
 
-	ChannelAccess::initialize(stage);
+    ChannelAccess::initialize(stage);
 
-	if (stage == 0) {
-		// if using sendDirect, make sure that messages arrive without delay
-		gate("radioIn")->setDeliverOnReceptionStart(true);
+    if (stage == 0) {
+        // if using sendDirect, make sure that messages arrive without delay
+        gate("radioIn")->setDeliverOnReceptionStart(true);
 
-		//get gate ids
-		upperLayerIn = findGate("upperLayerIn");
-		upperLayerOut = findGate("upperLayerOut");
-		upperControlOut = findGate("upperControlOut");
-		upperControlIn = findGate("upperControlIn");
+        //get gate ids
+        upperLayerIn = findGate("upperLayerIn");
+        upperLayerOut = findGate("upperLayerOut");
+        upperControlOut = findGate("upperControlOut");
+        upperControlIn = findGate("upperControlIn");
 
-		//read simple ned-parameters
-		//	- initialize basic parameters
-		if(par("useThermalNoise").boolValue()) {
-			double thermalNoiseVal = FWMath::dBm2mW(par("thermalNoise").doubleValue());
-			thermalNoise = new ConstantSimpleConstMapping(DimensionSet::timeDomain(),
-														  thermalNoiseVal);
-		} else {
-			thermalNoise = 0;
-		}
-		headerLength = par("headerLength").longValue();
-		sensitivity = par("sensitivity").doubleValue();
-		sensitivity = FWMath::dBm2mW(sensitivity);
+        //read simple ned-parameters
+        //	- initialize basic parameters
+        if(par("useThermalNoise").boolValue()) {
+            double thermalNoiseVal = FWMath::dBm2mW(par("thermalNoise").doubleValue());
+            thermalNoise = new ConstantSimpleConstMapping(DimensionSet::timeDomain(),
+                    thermalNoiseVal);
+        } else {
+            thermalNoise = 0;
+        }
+        headerLength = par("headerLength").longValue();
+        sensitivity = par("sensitivity").doubleValue();
+        sensitivity = FWMath::dBm2mW(sensitivity);
 
-		recordStats = par("recordStats").boolValue();
+        recordStats = par("recordStats").boolValue();
 
-		//	- initialize radio
-		radio = initializeRadio();
+        //	- initialize radio
+        radio = initializeRadio();
 
-		// get pointer to the world module
-		world = FindModule<BaseWorldUtility*>::findGlobalModule();
+        // get pointer to the world module
+        world = FindModule<BaseWorldUtility*>::findGlobalModule();
         if (world == NULL) {
-            opp_error("Could not find BaseWorldUtility module");
+            throw omnetpp::cRuntimeError("Could not find BaseWorldUtility module");
         }
 
         if(cc->hasPar("sat")
-		   && (sensitivity - FWMath::dBm2mW(cc->par("sat").doubleValue())) < -0.000001) {
-            opp_error("Sensitivity can't be smaller than the "
-					  "signal attenuation threshold (sat) in ConnectionManager. "
-					  "Please adjust your omnetpp.ini file accordingly.");
-		}
+                && (sensitivity - FWMath::dBm2mW(cc->par("sat").doubleValue())) < -0.000001) {
+            throw omnetpp::cRuntimeError("Sensitivity can't be smaller than the "
+                    "signal attenuation threshold (sat) in ConnectionManager. "
+                    "Please adjust your omnetpp.ini file accordingly.");
+        }
 
-//	} else if (stage == 1){
-		//read complex(xml) ned-parameters
-		//	- analogue model parameters
-		initializeAnalogueModels(par("analogueModels").xmlValue());
-		//	- decider parameters
-		initializeDecider(par("decider").xmlValue());
+        //	} else if (stage == 1){
+        //read complex(xml) ned-parameters
+        //	- analogue model parameters
+        initializeAnalogueModels(par("analogueModels").xmlValue());
+        //	- decider parameters
+        initializeDecider(par("decider").xmlValue());
 
-		//initialise timer messages
-		radioSwitchingOverTimer = new cMessage("radio switching over", RADIO_SWITCHING_OVER);
-		txOverTimer = new cMessage("transmission over", TX_OVER);
+        //initialise timer messages
+        radioSwitchingOverTimer = new omnetpp::cMessage("radio switching over", RADIO_SWITCHING_OVER);
+        txOverTimer = new omnetpp::cMessage("transmission over", TX_OVER);
 
-	}
+    }
 }
 
 Radio* BasePhyLayer::initializeRadio() {
-	int initialRadioState = par("initialRadioState").longValue();
-	double radioMinAtt = par("radioMinAtt").doubleValue();
-	double radioMaxAtt = par("radioMaxAtt").doubleValue();
-	int nbRadioChannels = readPar("nbRadioChannels", 1);
-	int initialRadioChannel = readPar("initialRadioChannel", 0);
+    int initialRadioState = par("initialRadioState").longValue();
+    double radioMinAtt = par("radioMinAtt").doubleValue();
+    double radioMaxAtt = par("radioMaxAtt").doubleValue();
+    int nbRadioChannels = readPar("nbRadioChannels", 1);
+    int initialRadioChannel = readPar("initialRadioChannel", 0);
 
-	Radio* radio = Radio::createNewRadio(recordStats, initialRadioState,
-										 radioMinAtt, radioMaxAtt,
-										 initialRadioChannel, nbRadioChannels);
+    Radio* radio = Radio::createNewRadio(recordStats, initialRadioState,
+            radioMinAtt, radioMaxAtt,
+            initialRadioChannel, nbRadioChannels);
 
-	//	- switch times to TX
-	//if no RX to TX defined asume same time as sleep to TX
-	radio->setSwitchTime(Radio::RX, Radio::TX, (hasPar("timeRXToTX") ? par("timeRXToTX") : par("timeSleepToTX")).doubleValue());
-	//if no sleep to TX defined asume same time as RX to TX
-	radio->setSwitchTime(Radio::SLEEP, Radio::TX, (hasPar("timeSleepToTX") ? par("timeSleepToTX") : par("timeRXToTX")).doubleValue());
+    //	- switch times to TX
+    //if no RX to TX defined asume same time as sleep to TX
+    radio->setSwitchTime(Radio::RX, Radio::TX, (hasPar("timeRXToTX") ? par("timeRXToTX") : par("timeSleepToTX")).doubleValue());
+    //if no sleep to TX defined asume same time as RX to TX
+    radio->setSwitchTime(Radio::SLEEP, Radio::TX, (hasPar("timeSleepToTX") ? par("timeSleepToTX") : par("timeRXToTX")).doubleValue());
 
-	//	- switch times to RX
-	//if no TX to RX defined asume same time as sleep to RX
-	radio->setSwitchTime(Radio::TX, Radio::RX, (hasPar("timeTXToRX") ? par("timeTXToRX") : par("timeSleepToRX")).doubleValue());
-	//if no sleep to RX defined asume same time as TX to RX
-	radio->setSwitchTime(Radio::SLEEP, Radio::RX, (hasPar("timeSleepToRX") ? par("timeSleepToRX") : par("timeTXToRX")).doubleValue());
+    //	- switch times to RX
+    //if no TX to RX defined asume same time as sleep to RX
+    radio->setSwitchTime(Radio::TX, Radio::RX, (hasPar("timeTXToRX") ? par("timeTXToRX") : par("timeSleepToRX")).doubleValue());
+    //if no sleep to RX defined asume same time as TX to RX
+    radio->setSwitchTime(Radio::SLEEP, Radio::RX, (hasPar("timeSleepToRX") ? par("timeSleepToRX") : par("timeTXToRX")).doubleValue());
 
-	//	- switch times to sleep
-	//if no TX to sleep defined asume same time as RX to sleep
-	radio->setSwitchTime(Radio::TX, Radio::SLEEP, (hasPar("timeTXToSleep") ? par("timeTXToSleep") : par("timeRXToSleep")).doubleValue());
-	//if no RX to sleep defined asume same time as TX to sleep
-	radio->setSwitchTime(Radio::RX, Radio::SLEEP, (hasPar("timeRXToSleep") ? par("timeRXToSleep") : par("timeTXToSleep")).doubleValue());
+    //	- switch times to sleep
+    //if no TX to sleep defined asume same time as RX to sleep
+    radio->setSwitchTime(Radio::TX, Radio::SLEEP, (hasPar("timeTXToSleep") ? par("timeTXToSleep") : par("timeRXToSleep")).doubleValue());
+    //if no RX to sleep defined asume same time as TX to sleep
+    radio->setSwitchTime(Radio::RX, Radio::SLEEP, (hasPar("timeRXToSleep") ? par("timeRXToSleep") : par("timeTXToSleep")).doubleValue());
 
-	return radio;
+    return radio;
 }
 
-void BasePhyLayer::getParametersFromXML(cXMLElement* xmlData, ParameterMap& outputMap) {
-	cXMLElementList parameters = xmlData->getElementsByTagName("Parameter");
+void BasePhyLayer::getParametersFromXML(omnetpp::cXMLElement* xmlData, ParameterMap& outputMap) {
+    omnetpp::cXMLElementList parameters = xmlData->getElementsByTagName("Parameter");
 
-	for(cXMLElementList::const_iterator it = parameters.begin();
-		it != parameters.end(); it++) {
+    for(omnetpp::cXMLElementList::const_iterator it = parameters.begin();
+            it != parameters.end(); it++) {
 
-		const char* name = (*it)->getAttribute("name");
-		const char* type = (*it)->getAttribute("type");
-		const char* value = (*it)->getAttribute("value");
-		if(name == 0 || type == 0 || value == 0) {
-			ev << "Invalid parameter, could not find name, type or value." << endl;
-			continue;
-		}
+        const char* name = (*it)->getAttribute("name");
+        const char* type = (*it)->getAttribute("type");
+        const char* value = (*it)->getAttribute("value");
+        if(name == 0 || type == 0 || value == 0)
+        {
+            throw omnetpp::cRuntimeError("Invalid parameter, could not find name, type or value.");
+            continue;
+        }
 
-		std::string sType = type; 	//needed for easier comparision
-		std::string sValue = value;	//needed for easier comparision
+        std::string sType = type; 	//needed for easier comparision
+        std::string sValue = value;	//needed for easier comparision
 
-		cMsgPar param(name);
+        omnetpp::cMsgPar param(name);
 
-		//parse type of parameter and set value
-		if (sType == "bool") {
-			param.setBoolValue(sValue == "true" || sValue == "1");
+        //parse type of parameter and set value
+        if (sType == "bool") {
+            param.setBoolValue(sValue == "true" || sValue == "1");
 
-		} else if (sType == "double") {
-			param.setDoubleValue(strtod(value, 0));
+        } else if (sType == "double") {
+            param.setDoubleValue(strtod(value, 0));
 
-		} else if (sType == "string") {
-			param.setStringValue(value);
+        } else if (sType == "string") {
+            param.setStringValue(value);
 
-		} else if (sType == "long") {
-			param.setLongValue(strtol(value, 0, 0));
+        } else if (sType == "long") {
+            param.setLongValue(strtol(value, 0, 0));
 
-		} else {
-			ev << "Unknown parameter type: \"" << sType << "\"" << endl;
-			continue;
-		}
+        } else {
+            throw omnetpp::cRuntimeError("Unknown parameter type: '%s'", sType.c_str());
+        }
 
-		//add parameter to output map
-		outputMap[name] = param;
-	}
+        //add parameter to output map
+        outputMap[name] = param;
+    }
 }
 
 void BasePhyLayer::finish(){
-	// give decider the chance to do something
-	decider->finish();
+    // give decider the chance to do something
+    decider->finish();
 }
 
 //-----Decider initialization----------------------
 
 
-void BasePhyLayer::initializeDecider(cXMLElement* xmlConfig) {
+void BasePhyLayer::initializeDecider(omnetpp::cXMLElement* xmlConfig) {
 
-	decider = 0;
+    decider = 0;
 
-	if(xmlConfig == 0) {
-		opp_error("No decider configuration file specified.");
-		return;
-	}
+    if(xmlConfig == 0) {
+        throw omnetpp::cRuntimeError("No decider configuration file specified.");
+        return;
+    }
 
-	cXMLElementList deciderList = xmlConfig->getElementsByTagName("Decider");
+    omnetpp::cXMLElementList deciderList = xmlConfig->getElementsByTagName("Decider");
 
-	if(deciderList.empty()) {
-		opp_error("No decider configuration found in configuration file.");
-		return;
-	}
+    if(deciderList.empty()) {
+        throw omnetpp::cRuntimeError("No decider configuration found in configuration file.");
+        return;
+    }
 
-	if(deciderList.size() > 1) {
-		opp_error("More than one decider configuration found in configuration file.");
-		return;
-	}
+    if(deciderList.size() > 1) {
+        throw omnetpp::cRuntimeError("More than one decider configuration found in configuration file.");
+        return;
+    }
 
-	cXMLElement* deciderData = deciderList.front();
+    omnetpp::cXMLElement* deciderData = deciderList.front();
 
-	const char* name = deciderData->getAttribute("type");
+    const char* name = deciderData->getAttribute("type");
 
-	if(name == 0) {
-		opp_error("Could not read type of decider from configuration file.");
-		return;
-	}
+    if(name == 0) {
+        throw omnetpp::cRuntimeError("Could not read type of decider from configuration file.");
+        return;
+    }
 
-	ParameterMap params;
-	getParametersFromXML(deciderData, params);
+    ParameterMap params;
+    getParametersFromXML(deciderData, params);
 
-	decider = getDeciderFromName(name, params);
+    decider = getDeciderFromName(name, params);
 
-	if(decider == 0) {
-		opp_error("Could not find a decider with the name \"%s\".", name);
-		return;
-	}
+    if(decider == 0) {
+        throw omnetpp::cRuntimeError("Could not find a decider with the name \"%s\".", name);
+        return;
+    }
 
-	coreEV << "Decider \"" << name << "\" loaded." << endl;
+    coreEV << "Decider \"" << name << "\" loaded." << std::endl;
 }
 
 Decider* BasePhyLayer::getDeciderFromName(std::string name, ParameterMap& params)
 {
-	return 0;
+    return 0;
 }
 
 
 //-----AnalogueModels initialization----------------
 
-void BasePhyLayer::initializeAnalogueModels(cXMLElement* xmlConfig) {
+void BasePhyLayer::initializeAnalogueModels(omnetpp::cXMLElement* xmlConfig) {
 
-	/*
-	* first of all, attach the AnalogueModel that represents the RadioState
-	* to the AnalogueModelList as first element.
-	*/
+    /*
+     * first of all, attach the AnalogueModel that represents the RadioState
+     * to the AnalogueModelList as first element.
+     */
 
-	std::string s("RadioStateAnalogueModel");
-	ParameterMap p;
+    std::string s("RadioStateAnalogueModel");
+    ParameterMap p;
 
-	AnalogueModel* newAnalogueModel = getAnalogueModelFromName(s, p);
+    AnalogueModel* newAnalogueModel = getAnalogueModelFromName(s, p);
 
-	if(newAnalogueModel == 0)
-	{
-		opp_warning("Could not find an analogue model with the name \"%s\".", s.c_str());
-	}
-	else
-	{
-		analogueModels.push_back(newAnalogueModel);
-	}
-
-
-	if(xmlConfig == 0) {
-		opp_warning("No analogue models configuration file specified.");
-		return;
-	}
-
-	cXMLElementList analogueModelList = xmlConfig->getElementsByTagName("AnalogueModel");
-
-	if(analogueModelList.empty()) {
-		opp_warning("No analogue models configuration found in configuration file.");
-		return;
-	}
-
-	// iterate over all AnalogueModel-entries, get a new AnalogueModel instance and add
-	// it to analogueModels
-	for(cXMLElementList::const_iterator it = analogueModelList.begin();
-		it != analogueModelList.end(); it++) {
+    if(newAnalogueModel == 0)
+    {
+        throw omnetpp::cRuntimeError("Could not find an analogue model with the name \"%s\".", s.c_str());
+    }
+    else
+    {
+        analogueModels.push_back(newAnalogueModel);
+    }
 
 
-		cXMLElement* analogueModelData = *it;
+    if(xmlConfig == 0) {
+        throw omnetpp::cRuntimeError("No analogue models configuration file specified.");
+        return;
+    }
 
-		const char* name = analogueModelData->getAttribute("type");
+    omnetpp::cXMLElementList analogueModelList = xmlConfig->getElementsByTagName("AnalogueModel");
 
-		if(name == 0) {
-			opp_warning("Could not read name of analogue model.");
-			continue;
-		}
+    if(analogueModelList.empty()) {
+        throw omnetpp::cRuntimeError("No analogue models configuration found in configuration file.");
+        return;
+    }
 
-		ParameterMap params;
-		getParametersFromXML(analogueModelData, params);
+    // iterate over all AnalogueModel-entries, get a new AnalogueModel instance and add
+    // it to analogueModels
+    for(omnetpp::cXMLElementList::const_iterator it = analogueModelList.begin();
+            it != analogueModelList.end(); it++) {
 
-		AnalogueModel* newAnalogueModel = getAnalogueModelFromName(name, params);
 
-		if(newAnalogueModel == 0) {
-			opp_warning("Could not find an analogue model with the name \"%s\".", name);
-			continue;
-		}
+        omnetpp::cXMLElement* analogueModelData = *it;
 
-		// attach the new AnalogueModel to the AnalogueModelList
-		analogueModels.push_back(newAnalogueModel);
+        const char* name = analogueModelData->getAttribute("type");
 
-		coreEV << "AnalogueModel \"" << name << "\" loaded." << endl;
+        if(name == 0) {
+            throw omnetpp::cRuntimeError("Could not read name of analogue model.");
+            continue;
+        }
 
-	} // end iterator loop
+        ParameterMap params;
+        getParametersFromXML(analogueModelData, params);
+
+        AnalogueModel* newAnalogueModel = getAnalogueModelFromName(name, params);
+
+        if(newAnalogueModel == 0) {
+            throw omnetpp::cRuntimeError("Could not find an analogue model with the name \"%s\".", name);
+            continue;
+        }
+
+        // attach the new AnalogueModel to the AnalogueModelList
+        analogueModels.push_back(newAnalogueModel);
+
+        coreEV << "AnalogueModel \"" << name << "\" loaded." << std::endl;
+
+    } // end iterator loop
 
 
 }
 
 AnalogueModel* BasePhyLayer::getAnalogueModelFromName(std::string name, ParameterMap& params) {
 
-	// add default analogue models here
+    // add default analogue models here
 
-	// case "RSAM", pointer is valid as long as the radio exists
-	if (name == "RadioStateAnalogueModel")
-	{
-		return radio->getAnalogueModel();
-	}
+    // case "RSAM", pointer is valid as long as the radio exists
+    if (name == "RadioStateAnalogueModel")
+    {
+        return radio->getAnalogueModel();
+    }
 
-	return 0;
+    return 0;
 }
 
 //--Message handling--------------------------------------
 
-void BasePhyLayer::handleMessage(cMessage* msg) {
+void BasePhyLayer::handleMessage(omnetpp::cMessage* msg) {
 
-	//self messages
-	if(msg->isSelfMessage()) {
-		handleSelfMessage(msg);
+    //self messages
+    if(msg->isSelfMessage()) {
+        handleSelfMessage(msg);
 
-	//MacPkts <- MacToPhyControlInfo
-	} else if(msg->getArrivalGateId() == upperLayerIn) {
-		handleUpperMessage(msg);
+        //MacPkts <- MacToPhyControlInfo
+    } else if(msg->getArrivalGateId() == upperLayerIn) {
+        handleUpperMessage(msg);
 
-	//controlmessages
-	} else if(msg->getArrivalGateId() == upperControlIn) {
-		handleUpperControlMessage(msg);
+        //controlmessages
+    } else if(msg->getArrivalGateId() == upperControlIn) {
+        handleUpperControlMessage(msg);
 
-	//AirFrames
-	} else if(msg->getKind() == AIR_FRAME){
-		handleAirFrame(static_cast<AirFrame*>(msg));
+        //AirFrames
+    } else if(msg->getKind() == AIR_FRAME){
+        handleAirFrame(static_cast<AirFrame*>(msg));
 
-	//unknown message
-	} else {
-		ev << "Unknown message received." << endl;
-		delete msg;
-	}
+        //unknown message
+    } else {
+        EV << "Unknown message received." << std::endl;
+        delete msg;
+    }
 }
 
 void BasePhyLayer::handleAirFrame(AirFrame* frame) {
-	//TODO: ask jerome to set air frame priority in his UWBIRPhy
-	//assert(frame->getSchedulingPriority() == airFramePriority());
+    //TODO: ask jerome to set air frame priority in his UWBIRPhy
+    //assert(frame->getSchedulingPriority() == airFramePriority());
 
-	switch(frame->getState()) {
-	case START_RECEIVE:
-		handleAirFrameStartReceive(frame);
-		break;
+    switch(frame->getState()) {
+    case START_RECEIVE:
+        handleAirFrameStartReceive(frame);
+        break;
 
-	case RECEIVING: {
-		handleAirFrameReceiving(frame);
-		break;
-	}
-	case END_RECEIVE:
-		handleAirFrameEndReceive(frame);
-		break;
+    case RECEIVING: {
+        handleAirFrameReceiving(frame);
+        break;
+    }
+    case END_RECEIVE:
+        handleAirFrameEndReceive(frame);
+        break;
 
-	default:
-		opp_error( "Unknown AirFrame state: %s", frame->getState());
-		break;
-	}
+    default:
+        throw omnetpp::cRuntimeError( "Unknown AirFrame state: %s", frame->getState());
+        break;
+    }
 }
 
 void BasePhyLayer::handleAirFrameStartReceive(AirFrame* frame) {
-	coreEV << "Received new AirFrame " << frame << " from channel." << endl;
+    coreEV << "Received new AirFrame " << frame << " from channel." << std::endl;
 
-	if(channelInfo.isChannelEmpty()) {
-		radio->setTrackingModeTo(true);
-	}
+    if(channelInfo.isChannelEmpty()) {
+        radio->setTrackingModeTo(true);
+    }
 
-	channelInfo.addAirFrame(frame, simTime());
-	assert(!channelInfo.isChannelEmpty());
+    channelInfo.addAirFrame(frame, omnetpp::simTime());
+    assert(!channelInfo.isChannelEmpty());
 
-	if(usePropagationDelay) {
-		Signal& s = frame->getSignal();
-		simtime_t delay = simTime() - s.getSendingStart();
-		s.setPropagationDelay(delay);
-	}
-	assert(frame->getSignal().getReceptionStart() == simTime());
+    if(usePropagationDelay) {
+        Signal& s = frame->getSignal();
+        omnetpp::simtime_t delay = omnetpp::simTime() - s.getSendingStart();
+        s.setPropagationDelay(delay);
+    }
+    assert(frame->getSignal().getReceptionStart() == omnetpp::simTime());
 
-	frame->getSignal().setReceptionSenderInfo(frame);
-	filterSignal(frame);
+    frame->getSignal().setReceptionSenderInfo(frame);
+    filterSignal(frame);
 
-	if(decider && isKnownProtocolId(frame->getProtocolId())) {
-		frame->setState(RECEIVING);
+    if(decider && isKnownProtocolId(frame->getProtocolId())) {
+        frame->setState(RECEIVING);
 
-		//pass the AirFrame the first time to the Decider
-		handleAirFrameReceiving(frame);
+        //pass the AirFrame the first time to the Decider
+        handleAirFrameReceiving(frame);
 
-	//if no decider is defined we will schedule the message directly to its end
-	} else {
-		Signal& signal = frame->getSignal();
+        //if no decider is defined we will schedule the message directly to its end
+    } else {
+        Signal& signal = frame->getSignal();
 
-		simtime_t signalEndTime = signal.getReceptionStart() + frame->getDuration();
-		frame->setState(END_RECEIVE);
+        omnetpp::simtime_t signalEndTime = signal.getReceptionStart() + frame->getDuration();
+        frame->setState(END_RECEIVE);
 
-		sendSelfMessage(frame, signalEndTime);
-	}
+        sendSelfMessage(frame, signalEndTime);
+    }
 }
 
 void BasePhyLayer::handleAirFrameReceiving(AirFrame* frame) {
 
-	Signal& signal = frame->getSignal();
-	simtime_t nextHandleTime = decider->processSignal(frame);
+    Signal& signal = frame->getSignal();
+    omnetpp::simtime_t nextHandleTime = decider->processSignal(frame);
 
-	assert(signal.getDuration() == frame->getDuration());
-	simtime_t signalEndTime = signal.getReceptionStart() + frame->getDuration();
+    assert(signal.getDuration() == frame->getDuration());
+    omnetpp::simtime_t signalEndTime = signal.getReceptionStart() + frame->getDuration();
 
-	//check if this is the end of the receiving process
-	if(simTime() >= signalEndTime) {
-		frame->setState(END_RECEIVE);
-		handleAirFrameEndReceive(frame);
-		return;
-	}
+    //check if this is the end of the receiving process
+    if(omnetpp::simTime() >= signalEndTime) {
+        frame->setState(END_RECEIVE);
+        handleAirFrameEndReceive(frame);
+        return;
+    }
 
-	//smaller zero means don't give it to me again
-	if(nextHandleTime < 0) {
-		nextHandleTime = signalEndTime;
-		frame->setState(END_RECEIVE);
+    //smaller zero means don't give it to me again
+    if(nextHandleTime < 0) {
+        nextHandleTime = signalEndTime;
+        frame->setState(END_RECEIVE);
 
-	//invalid point in time
-	} else if(nextHandleTime < simTime() || nextHandleTime > signalEndTime) {
-		opp_error("Invalid next handle time returned by Decider. Expected a value between current simulation time (%.2f) and end of signal (%.2f) but got %.2f",
-								SIMTIME_DBL(simTime()), SIMTIME_DBL(signalEndTime), SIMTIME_DBL(nextHandleTime));
-	}
+        //invalid point in time
+    } else if(nextHandleTime < omnetpp::simTime() || nextHandleTime > signalEndTime) {
+        throw omnetpp::cRuntimeError("Invalid next handle time returned by Decider. Expected a value between current simulation time (%.2f) and end of signal (%.2f) but got %.2f",
+                SIMTIME_DBL(omnetpp::simTime()), SIMTIME_DBL(signalEndTime), SIMTIME_DBL(nextHandleTime));
+    }
 
-	coreEV << "Handed AirFrame with ID " << frame->getId() << " to Decider. Next handling in " << nextHandleTime - simTime() << "s." << endl;
+    coreEV << "Handed AirFrame with ID " << frame->getId() << " to Decider. Next handling in " << nextHandleTime - omnetpp::simTime() << "s." << std::endl;
 
-	sendSelfMessage(frame, nextHandleTime);
+    sendSelfMessage(frame, nextHandleTime);
 }
 
 void BasePhyLayer::handleAirFrameEndReceive(AirFrame* frame) {
-	coreEV << "End of Airframe with ID " << frame->getId() << "." << endl;
+    coreEV << "End of Airframe with ID " << frame->getId() << "." << std::endl;
 
-	simtime_t earliestInfoPoint = channelInfo.removeAirFrame(frame);
+    omnetpp::simtime_t earliestInfoPoint = channelInfo.removeAirFrame(frame);
 
-	/* clean information in the radio until earliest time-point
-	*  of information in the ChannelInfo,
-	*  since this time-point might have changed due to removal of
-	*  the AirFrame
-	*/
-	if(channelInfo.isChannelEmpty()) {
-		earliestInfoPoint = simTime();
-		radio->setTrackingModeTo(false);
-	}
+    /* clean information in the radio until earliest time-point
+     *  of information in the ChannelInfo,
+     *  since this time-point might have changed due to removal of
+     *  the AirFrame
+     */
+    if(channelInfo.isChannelEmpty()) {
+        earliestInfoPoint = omnetpp::simTime();
+        radio->setTrackingModeTo(false);
+    }
 
-	radio->cleanAnalogueModelUntil(earliestInfoPoint);
+    radio->cleanAnalogueModelUntil(earliestInfoPoint);
 }
 
-void BasePhyLayer::handleUpperMessage(cMessage* msg){
+void BasePhyLayer::handleUpperMessage(omnetpp::cMessage* msg){
 
-	// check if Radio is in TX state
-	if (radio->getCurrentState() != Radio::TX)
-	{
+    // check if Radio is in TX state
+    if (radio->getCurrentState() != Radio::TX)
+    {
         delete msg;
         msg = 0;
-		opp_error("Error: message for sending received, but radio not in state TX");
-	}
+        throw omnetpp::cRuntimeError("Error: message for sending received, but radio not in state TX");
+    }
 
-	// check if not already sending
-	if(txOverTimer->isScheduled())
-	{
+    // check if not already sending
+    if(txOverTimer->isScheduled())
+    {
         delete msg;
         msg = 0;
-		opp_error("Error: message for sending received, but radio already sending");
-	}
+        throw omnetpp::cRuntimeError("Error: message for sending received, but radio already sending");
+    }
 
-	// build the AirFrame to send
-	assert(dynamic_cast<cPacket*>(msg) != 0);
+    // build the AirFrame to send
+    assert(dynamic_cast<omnetpp::cPacket*>(msg) != 0);
 
-	AirFrame* frame = encapsMsg(static_cast<cPacket*>(msg));
+    AirFrame* frame = encapsMsg(static_cast<omnetpp::cPacket*>(msg));
 
-	// make sure there is no self message of kind TX_OVER scheduled
-	// and schedule the actual one
-	assert (!txOverTimer->isScheduled());
-	sendSelfMessage(txOverTimer, simTime() + frame->getDuration());
+    // make sure there is no self message of kind TX_OVER scheduled
+    // and schedule the actual one
+    assert (!txOverTimer->isScheduled());
+    sendSelfMessage(txOverTimer, omnetpp::simTime() + frame->getDuration());
 
-	sendMessageDown(frame);
+    sendMessageDown(frame);
 }
 
-AirFrame *BasePhyLayer::encapsMsg(cPacket *macPkt)
+AirFrame *BasePhyLayer::encapsMsg(omnetpp::cPacket *macPkt)
 {
-	// the cMessage passed must be a MacPacket... but no cast needed here
-	// MacPkt* pkt = static_cast<MacPkt*>(msg);
+    // the cMessage passed must be a MacPacket... but no cast needed here
+    // MacPkt* pkt = static_cast<MacPkt*>(msg);
 
-	// ...and must always have a ControlInfo attached (contains Signal)
-	cObject* ctrlInfo = macPkt->removeControlInfo();
-	assert(ctrlInfo);
+    // ...and must always have a ControlInfo attached (contains Signal)
+    cObject* ctrlInfo = macPkt->removeControlInfo();
+    assert(ctrlInfo);
 
-	// create the new AirFrame
-	AirFrame* frame = new AirFrame(macPkt->getName(), AIR_FRAME);
+    // create the new AirFrame
+    AirFrame* frame = new AirFrame(macPkt->getName(), AIR_FRAME);
 
-	// Retrieve the pointer to the Signal-instance from the ControlInfo-instance.
-	// We are now the new owner of this instance.
-	Signal* s = MacToPhyControlInfo::getSignalFromControlInfo(ctrlInfo);
-	// make sure we really obtained a pointer to an instance
-	assert(s);
+    // Retrieve the pointer to the Signal-instance from the ControlInfo-instance.
+    // We are now the new owner of this instance.
+    Signal* s = MacToPhyControlInfo::getSignalFromControlInfo(ctrlInfo);
+    // make sure we really obtained a pointer to an instance
+    assert(s);
 
-	// set the members
-	assert(s->getDuration() > 0);
-	frame->setDuration(s->getDuration());
-	// copy the signal into the AirFrame
-	frame->setSignal(*s);
-	//set priority of AirFrames above the normal priority to ensure
-	//channel consistency (before any thing else happens at a time
-	//point t make sure that the channel has removed every AirFrame
-	//ended at t and added every AirFrame started at t)
-	frame->setSchedulingPriority(airFramePriority());
-	frame->setProtocolId(myProtocolId());
-	frame->setBitLength(headerLength);
-	frame->setId(world->getUniqueAirFrameId());
-	frame->setChannel(radio->getCurrentChannel());
+    // set the members
+    assert(s->getDuration() > 0);
+    frame->setDuration(s->getDuration());
+    // copy the signal into the AirFrame
+    frame->setSignal(*s);
+    //set priority of AirFrames above the normal priority to ensure
+    //channel consistency (before any thing else happens at a time
+    //point t make sure that the channel has removed every AirFrame
+    //ended at t and added every AirFrame started at t)
+    frame->setSchedulingPriority(airFramePriority());
+    frame->setProtocolId(myProtocolId());
+    frame->setBitLength(headerLength);
+    frame->setId(world->getUniqueAirFrameId());
+    frame->setChannel(radio->getCurrentChannel());
 
 
-	// pointer and Signal not needed anymore
-	delete s;
-	s = 0;
+    // pointer and Signal not needed anymore
+    delete s;
+    s = 0;
 
-	// delete the Control info
-	delete ctrlInfo;
-	ctrlInfo = 0;
+    // delete the Control info
+    delete ctrlInfo;
+    ctrlInfo = 0;
 
-	frame->encapsulate(macPkt);
+    frame->encapsulate(macPkt);
 
-	// --- from here on, the AirFrame is the owner of the MacPacket ---
-	macPkt = 0;
-	coreEV <<"AirFrame encapsulated, length: " << frame->getBitLength() << "\n";
+    // --- from here on, the AirFrame is the owner of the MacPacket ---
+    macPkt = 0;
+    coreEV <<"AirFrame encapsulated, length: " << frame->getBitLength() << "\n";
 
-	return frame;
+    return frame;
 }
 
-void BasePhyLayer::handleChannelSenseRequest(cMessage* msg) {
-	ChannelSenseRequest* senseReq = static_cast<ChannelSenseRequest*>(msg);
+void BasePhyLayer::handleChannelSenseRequest(omnetpp::cMessage* msg) {
+    ChannelSenseRequest* senseReq = static_cast<ChannelSenseRequest*>(msg);
 
-	simtime_t nextHandleTime = decider->handleChannelSenseRequest(senseReq);
+    omnetpp::simtime_t nextHandleTime = decider->handleChannelSenseRequest(senseReq);
 
-	if(nextHandleTime >= simTime()) { //schedule request for next handling
-		sendSelfMessage(msg, nextHandleTime);
+    if(nextHandleTime >= omnetpp::simTime()) { //schedule request for next handling
+        sendSelfMessage(msg, nextHandleTime);
 
-		//don't throw away any AirFrames while ChannelSenseRequest is active
-		if(!channelInfo.isRecording()) {
-			channelInfo.startRecording(simTime());
-		}
-	} else if(nextHandleTime >= 0.0){
-		opp_error("Next handle time of ChannelSenseRequest returned by the Decider is smaller then current simulation time: %.2f",
-				SIMTIME_DBL(nextHandleTime));
-	}
+        //don't throw away any AirFrames while ChannelSenseRequest is active
+        if(!channelInfo.isRecording()) {
+            channelInfo.startRecording(omnetpp::simTime());
+        }
+    } else if(nextHandleTime >= 0.0){
+        throw omnetpp::cRuntimeError("Next handle time of ChannelSenseRequest returned by the Decider is smaller then current simulation time: %.2f",
+                SIMTIME_DBL(nextHandleTime));
+    }
 
-	// else, i.e. nextHandleTime < 0.0, the Decider doesn't want to handle
-	// the request again
+    // else, i.e. nextHandleTime < 0.0, the Decider doesn't want to handle
+    // the request again
 }
 
-void BasePhyLayer::handleUpperControlMessage(cMessage* msg){
+void BasePhyLayer::handleUpperControlMessage(omnetpp::cMessage* msg){
 
-	switch(msg->getKind()) {
-	case CHANNEL_SENSE_REQUEST:
-		handleChannelSenseRequest(msg);
-		break;
-	default:
-		ev << "Received unknown control message from upper layer!" << endl;
-		break;
-	}
+    switch(msg->getKind())
+    {
+    case CHANNEL_SENSE_REQUEST:
+        handleChannelSenseRequest(msg);
+        break;
+    default:
+        throw omnetpp::cRuntimeError("Received unknown control message from upper layer!");
+        break;
+    }
 }
 
-void BasePhyLayer::handleSelfMessage(cMessage* msg) {
+void BasePhyLayer::handleSelfMessage(omnetpp::cMessage* msg) {
 
-	switch(msg->getKind()) {
-	//transmission over
-	case TX_OVER:
-		assert(msg == txOverTimer);
-		sendControlMsgToMac(new cMessage("Transmission over", TX_OVER));
-		break;
+    switch(msg->getKind()) {
+    //transmission over
+    case TX_OVER:
+        assert(msg == txOverTimer);
+        sendControlMsgToMac(new omnetpp::cMessage("Transmission over", TX_OVER));
+        break;
 
-	//radio switch over
-	case RADIO_SWITCHING_OVER:
-		assert(msg == radioSwitchingOverTimer);
-		finishRadioSwitching();
-		break;
+        //radio switch over
+    case RADIO_SWITCHING_OVER:
+        assert(msg == radioSwitchingOverTimer);
+        finishRadioSwitching();
+        break;
 
-	//AirFrame
-	case AIR_FRAME:
-		handleAirFrame(static_cast<AirFrame*>(msg));
-		break;
+        //AirFrame
+    case AIR_FRAME:
+        handleAirFrame(static_cast<AirFrame*>(msg));
+        break;
 
-	//ChannelSenseRequest
-	case CHANNEL_SENSE_REQUEST:
-		handleChannelSenseRequest(msg);
-		break;
+        //ChannelSenseRequest
+    case CHANNEL_SENSE_REQUEST:
+        handleChannelSenseRequest(msg);
+        break;
 
-	default:
-		break;
-	}
+    default:
+        break;
+    }
 }
 
 //--Send messages------------------------------
 
-void BasePhyLayer::sendControlMessageUp(cMessage* msg) {
-	send(msg, upperControlOut);
+void BasePhyLayer::sendControlMessageUp(omnetpp::cMessage* msg) {
+    send(msg, upperControlOut);
 }
 
-void BasePhyLayer::sendMacPktUp(cMessage* pkt) {
-	send(pkt, upperLayerOut);
+void BasePhyLayer::sendMacPktUp(omnetpp::cMessage* pkt) {
+    send(pkt, upperLayerOut);
 }
 
 void BasePhyLayer::sendMessageDown(AirFrame* msg) {
 
-	sendToChannel(msg);
+    sendToChannel(msg);
 }
 
-void BasePhyLayer::sendSelfMessage(cMessage* msg, simtime_t_cref time) {
-	//TODO: maybe delete this method because it doesn't makes much sense,
-	//		or change it to "scheduleIn(msg, timeDelta)" which schedules
-	//		a message to +timeDelta from current time
-	scheduleAt(time, msg);
+void BasePhyLayer::sendSelfMessage(omnetpp::cMessage* msg, omnetpp::simtime_t_cref time) {
+    //TODO: maybe delete this method because it doesn't makes much sense,
+    //		or change it to "scheduleIn(msg, timeDelta)" which schedules
+    //		a message to +timeDelta from current time
+    scheduleAt(time, msg);
 }
 
 
 void BasePhyLayer::filterSignal(AirFrame *frame) {
-	if (analogueModels.empty())
-		return;
+    if (analogueModels.empty())
+        return;
 
-	ChannelAccess *const senderModule   = dynamic_cast<ChannelAccess *const>(frame->getSenderModule());
-	ChannelAccess *const receiverModule = dynamic_cast<ChannelAccess *const>(frame->getArrivalModule());
-	//const simtime_t      sStart         = frame->getSignal().getReceptionStart();
+    ChannelAccess *const senderModule   = dynamic_cast<ChannelAccess *const>(frame->getSenderModule());
+    ChannelAccess *const receiverModule = dynamic_cast<ChannelAccess *const>(frame->getArrivalModule());
+    //const simtime_t      sStart         = frame->getSignal().getReceptionStart();
 
-	assert(senderModule); assert(receiverModule);
+    assert(senderModule); assert(receiverModule);
 
-	/** claim the Move pattern of the sender from the Signal */
-	ChannelMobilityPtrType sendersMobility  = senderModule   ? senderModule->getMobilityModule()   : NULL;
-	ChannelMobilityPtrType receiverMobility = receiverModule ? receiverModule->getMobilityModule() : NULL;
+    /** claim the Move pattern of the sender from the Signal */
+    ChannelMobilityPtrType sendersMobility  = senderModule   ? senderModule->getMobilityModule()   : NULL;
+    ChannelMobilityPtrType receiverMobility = receiverModule ? receiverModule->getMobilityModule() : NULL;
 
-	const Coord sendersPos  = sendersMobility  ? sendersMobility->getCurrentPosition(/*sStart*/) : NoMobiltyPos;
-	const Coord receiverPos = receiverMobility ? receiverMobility->getCurrentPosition(/*sStart*/): NoMobiltyPos;
+    const Coord sendersPos  = sendersMobility  ? sendersMobility->getCurrentPosition(/*sStart*/) : NoMobiltyPos;
+    const Coord receiverPos = receiverMobility ? receiverMobility->getCurrentPosition(/*sStart*/): NoMobiltyPos;
 
-	for(AnalogueModelList::const_iterator it = analogueModels.begin(); it != analogueModels.end(); it++)
-		(*it)->filterSignal(frame, sendersPos, receiverPos);
+    for(AnalogueModelList::const_iterator it = analogueModels.begin(); it != analogueModels.end(); it++)
+        (*it)->filterSignal(frame, sendersPos, receiverPos);
 }
 
 //--Destruction--------------------------------
 
 BasePhyLayer::~BasePhyLayer() {
-	//get AirFrames from ChannelInfo and delete
-	//(although ChannelInfo normally owns the AirFrames it
-	//is not able to cancel and delete them itself
-	AirFrameVector channel;
-	channelInfo.getAirFrames(0, simTime(), channel);
+    //get AirFrames from ChannelInfo and delete
+    //(although ChannelInfo normally owns the AirFrames it
+    //is not able to cancel and delete them itself
+    AirFrameVector channel;
+    channelInfo.getAirFrames(0, omnetpp::simTime(), channel);
 
-	for(AirFrameVector::iterator it = channel.begin();
-		it != channel.end(); ++it)
-	{
-		cancelAndDelete(*it);
-	}
+    for(AirFrameVector::iterator it = channel.begin();
+            it != channel.end(); ++it)
+    {
+        cancelAndDelete(*it);
+    }
 
-	//free timer messages
-	if(txOverTimer) {
-		cancelAndDelete(txOverTimer);
-	}
-	if(radioSwitchingOverTimer) {
+    //free timer messages
+    if(txOverTimer) {
+        cancelAndDelete(txOverTimer);
+    }
+    if(radioSwitchingOverTimer) {
         cancelAndDelete(radioSwitchingOverTimer);
-	}
+    }
 
-	//free thermal noise mapping
-	if(thermalNoise) {
-		delete thermalNoise;
-	}
+    //free thermal noise mapping
+    if(thermalNoise) {
+        delete thermalNoise;
+    }
 
-	//free Decider
-	if(decider != 0) {
-		delete decider;
-	}
+    //free Decider
+    if(decider != 0) {
+        delete decider;
+    }
 
-	/*
-	 * get a pointer to the radios RSAM again to avoid deleting it,
-	 * it is not created by calling new (BasePhyLayer is not the owner)!
-	 */
-	AnalogueModel* rsamPointer = radio ? radio->getAnalogueModel() : NULL;
+    /*
+     * get a pointer to the radios RSAM again to avoid deleting it,
+     * it is not created by calling new (BasePhyLayer is not the owner)!
+     */
+    AnalogueModel* rsamPointer = radio ? radio->getAnalogueModel() : NULL;
 
-	//free AnalogueModels
-	for(AnalogueModelList::iterator it = analogueModels.begin();
-		it != analogueModels.end(); it++) {
+    //free AnalogueModels
+    for(AnalogueModelList::iterator it = analogueModels.begin();
+            it != analogueModels.end(); it++) {
 
-		AnalogueModel* tmp = *it;
+        AnalogueModel* tmp = *it;
 
-		// do not delete the RSAM, it's not allocated by new!
-		if (tmp == rsamPointer)
-		{
-			rsamPointer = 0;
-			continue;
-		}
+        // do not delete the RSAM, it's not allocated by new!
+        if (tmp == rsamPointer)
+        {
+            rsamPointer = 0;
+            continue;
+        }
 
-		if(tmp != 0) {
-			delete tmp;
-		}
-	}
+        if(tmp != 0) {
+            delete tmp;
+        }
+    }
 
 
-	// free radio
-	if(radio != 0)
-	{
-		delete radio;
-	}
+    // free radio
+    if(radio != 0)
+    {
+        delete radio;
+    }
 }
 
 //--MacToPhyInterface implementation-----------------------
 
 int BasePhyLayer::getRadioState() {
-	Enter_Method_Silent();
-	assert(radio);
-	return radio->getCurrentState();
+    Enter_Method_Silent();
+    assert(radio);
+    return radio->getCurrentState();
 }
 
 void BasePhyLayer::finishRadioSwitching()
 {
-	radio->endSwitch(simTime());
-	sendControlMsgToMac(new cMessage("Radio switching over", RADIO_SWITCHING_OVER));
+    radio->endSwitch(omnetpp::simTime());
+    sendControlMsgToMac(new omnetpp::cMessage("Radio switching over", RADIO_SWITCHING_OVER));
 }
 
-simtime_t BasePhyLayer::setRadioState(int rs) {
-	Enter_Method_Silent();
-	assert(radio);
+omnetpp::simtime_t BasePhyLayer::setRadioState(int rs) {
+    Enter_Method_Silent();
+    assert(radio);
 
-	if(txOverTimer && txOverTimer->isScheduled()) {
-		opp_warning("Switched radio while sending an AirFrame. The effects this would have on the transmission are not simulated by the BasePhyLayer!");
-	}
+    if(txOverTimer && txOverTimer->isScheduled()) {
+        EV_WARN << "Switched radio while sending an AirFrame. The effects this would have on the transmission are not simulated by the BasePhyLayer!";
+    }
 
-	simtime_t switchTime = radio->switchTo(rs, simTime());
+    omnetpp::simtime_t switchTime = radio->switchTo(rs, omnetpp::simTime());
 
-	//invalid switch time, we are probably already switching
-	if(switchTime < 0)
-		return switchTime;
+    //invalid switch time, we are probably already switching
+    if(switchTime < 0)
+        return switchTime;
 
-	// if switching is done in exactly zero-time no extra self-message is scheduled
-	if (switchTime == 0.0)
-	{
-		// TODO: in case of zero-time-switch, send no control-message to mac!
-		// maybe call a method finishRadioSwitchingSilent()
-		finishRadioSwitching();
-	} else
-	{
-		sendSelfMessage(radioSwitchingOverTimer, simTime() + switchTime);
-	}
+    // if switching is done in exactly zero-time no extra self-message is scheduled
+    if (switchTime == 0.0)
+    {
+        // TODO: in case of zero-time-switch, send no control-message to mac!
+        // maybe call a method finishRadioSwitchingSilent()
+        finishRadioSwitching();
+    } else
+    {
+        sendSelfMessage(radioSwitchingOverTimer, omnetpp::simTime() + switchTime);
+    }
 
-	return switchTime;
+    return switchTime;
 }
 
 ChannelState BasePhyLayer::getChannelState() {
-	Enter_Method_Silent();
-	assert(decider);
-	return decider->getChannelState();
+    Enter_Method_Silent();
+    assert(decider);
+    return decider->getChannelState();
 }
 
 int BasePhyLayer::getPhyHeaderLength() {
-	Enter_Method_Silent();
-	if (headerLength < 0)
-		return par("headerLength").longValue();
-	return headerLength;
+    Enter_Method_Silent();
+    if (headerLength < 0)
+        return par("headerLength").longValue();
+    return headerLength;
 }
 
 void BasePhyLayer::setCurrentRadioChannel(int newRadioChannel) {
-	if(txOverTimer && txOverTimer->isScheduled()) {
-		opp_warning("Switched channel while sending an AirFrame. The effects this would have on the transmission are not simulated by the BasePhyLayer!");
-	}
+    if(txOverTimer && txOverTimer->isScheduled()) {
+        EV_WARN << "Switched channel while sending an AirFrame. The effects this would have on the transmission are not simulated by the BasePhyLayer!";
+    }
 
-	radio->setCurrentChannel(newRadioChannel);
-	decider->channelChanged(newRadioChannel);
-	coreEV << "Switched radio to channel " << newRadioChannel << endl;
+    radio->setCurrentChannel(newRadioChannel);
+    decider->channelChanged(newRadioChannel);
+    coreEV << "Switched radio to channel " << newRadioChannel << std::endl;
 }
 
 int BasePhyLayer::getCurrentRadioChannel() {
-	return radio->getCurrentChannel();
+    return radio->getCurrentChannel();
 }
 
 int BasePhyLayer::getNbRadioChannels() {
-	return par("nbRadioChannels");
+    return par("nbRadioChannels");
 }
 
 //--DeciderToPhyInterface implementation------------
 
-void BasePhyLayer::getChannelInfo(simtime_t_cref from, simtime_t_cref to, AirFrameVector& out) {
-	channelInfo.getAirFrames(from, to, out);
+void BasePhyLayer::getChannelInfo(omnetpp::simtime_t_cref from, omnetpp::simtime_t_cref to, AirFrameVector& out) {
+    channelInfo.getAirFrames(from, to, out);
 }
 
-ConstMapping* BasePhyLayer::getThermalNoise(simtime_t_cref from, simtime_t_cref to) {
-	if(thermalNoise)
-		thermalNoise->initializeArguments(Argument(from));
+ConstMapping* BasePhyLayer::getThermalNoise(omnetpp::simtime_t_cref from, omnetpp::simtime_t_cref to) {
+    if(thermalNoise)
+        thermalNoise->initializeArguments(Argument(from));
 
-	return thermalNoise;
+    return thermalNoise;
 }
 
-void BasePhyLayer::sendControlMsgToMac(cMessage* msg) {
-	if(msg->getKind() == CHANNEL_SENSE_REQUEST) {
-		if(channelInfo.isRecording()) {
-			channelInfo.stopRecording();
-		}
-	}
-	sendControlMessageUp(msg);
+void BasePhyLayer::sendControlMsgToMac(omnetpp::cMessage* msg) {
+    if(msg->getKind() == CHANNEL_SENSE_REQUEST) {
+        if(channelInfo.isRecording()) {
+            channelInfo.stopRecording();
+        }
+    }
+    sendControlMessageUp(msg);
 }
 
 void BasePhyLayer::sendUp(AirFrame* frame, DeciderResult* result) {
 
-	coreEV << "Decapsulating MacPacket from Airframe with ID " << frame->getId() << " and sending it up to MAC." << endl;
+    coreEV << "Decapsulating MacPacket from Airframe with ID " << frame->getId() << " and sending it up to MAC." << std::endl;
 
-	cMessage* packet = frame->decapsulate();
+    omnetpp::cMessage* packet = frame->decapsulate();
 
-	assert(packet);
+    assert(packet);
 
-	setUpControlInfo(packet, result);
+    setUpControlInfo(packet, result);
 
-	sendMacPktUp(packet);
+    sendMacPktUp(packet);
 }
 
-simtime_t BasePhyLayer::getSimTime() {
+omnetpp::simtime_t BasePhyLayer::getSimTime() {
 
-	return simTime();
+    return omnetpp::simTime();
 }
 
-void BasePhyLayer::cancelScheduledMessage(cMessage* msg) {
-	if(msg->isScheduled()){
-		cancelEvent(msg);
-	} else {
-		EV << "Warning: Decider wanted to cancel a scheduled message but message"
-		   << " wasn't actually scheduled. Message is: " << msg << endl;
-	}
+void BasePhyLayer::cancelScheduledMessage(omnetpp::cMessage* msg) {
+    if(msg->isScheduled()){
+        cancelEvent(msg);
+    } else {
+        EV << "Warning: Decider wanted to cancel a scheduled message but message"
+                << " wasn't actually scheduled. Message is: " << msg << std::endl;
+    }
 }
 
-void BasePhyLayer::rescheduleMessage(cMessage* msg, simtime_t_cref t) {
-	cancelScheduledMessage(msg);
-	scheduleAt(t, msg);
+void BasePhyLayer::rescheduleMessage(omnetpp::cMessage* msg, omnetpp::simtime_t_cref t) {
+    cancelScheduledMessage(msg);
+    scheduleAt(t, msg);
 }
 
 void BasePhyLayer::drawCurrent(double amount, int activity) {
-	BatteryAccess::drawCurrent(amount, activity);
+    BatteryAccess::drawCurrent(amount, activity);
 }
 
 BaseWorldUtility* BasePhyLayer::getWorldUtility() {
-	return world;
+    return world;
 }
 
 void BasePhyLayer::recordScalar(const char *name, double value, const char *unit) {
-	ChannelAccess::recordScalar(name, value, unit);
+    ChannelAccess::recordScalar(name, value, unit);
 }
 
 /**
  * Attaches a "control info" (PhyToMac) structure (object) to the message pMsg.
  */
-cObject *const BasePhyLayer::setUpControlInfo(cMessage *const pMsg, DeciderResult *const pDeciderResult)
+omnetpp::cObject *const BasePhyLayer::setUpControlInfo(omnetpp::cMessage *const pMsg, DeciderResult *const pDeciderResult)
 {
-	return PhyToMacControlInfo::setControlInfo(pMsg, pDeciderResult);
+    return PhyToMacControlInfo::setControlInfo(pMsg, pDeciderResult);
 }

@@ -60,7 +60,7 @@ void USB::initialize(int stage)
             return;
 
         // get a pointer to the TraCI module
-        cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
+        cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
         TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
 
@@ -81,13 +81,13 @@ void USB::initialize(int stage)
 
         // register signals
         Signal_initialize_withTraCI = registerSignal("initialize_withTraCI");
-        simulation.getSystemModule()->subscribe("initialize_withTraCI", this);
+        omnetpp::getSimulation()->getSystemModule()->subscribe("initialize_withTraCI", this);
 
         Signal_executeEachTS = registerSignal("executeEachTS");
-        simulation.getSystemModule()->subscribe("executeEachTS", this);
+        omnetpp::getSimulation()->getSystemModule()->subscribe("executeEachTS", this);
 
-        USBevents = new cMessage("USBevents", KIND_TIMER);
-        USBInterrupt = new cMessage("USBInterrupt", KIND_TIMER);
+        USBevents = new omnetpp::cMessage("USBevents", KIND_TIMER);
+        USBInterrupt = new omnetpp::cMessage("USBInterrupt", KIND_TIMER);
 
         if(listUSBdevices)
         {
@@ -111,7 +111,7 @@ void USB::finish()
         if(r != 0)
             error("Cannot Release Interface! %s", libusb_error_name(r));
 
-        std::cout << "Interface " << target_interfaceNumber << " Released." << endl;
+        std::cout << "Interface " << target_interfaceNumber << " Released." << std::endl;
 
         libusb_close(dev_handle); //close the device we opened
     }
@@ -120,12 +120,12 @@ void USB::finish()
         libusb_exit(ctx); //close the libusb session
 
     // unsubscribe
-    simulation.getSystemModule()->unsubscribe("initialize_withTraCI", this);
-    simulation.getSystemModule()->unsubscribe("executeEachTS", this);
+    omnetpp::getSimulation()->getSystemModule()->unsubscribe("initialize_withTraCI", this);
+    omnetpp::getSimulation()->getSystemModule()->unsubscribe("executeEachTS", this);
 }
 
 
-void USB::handleMessage(cMessage *msg)
+void USB::handleMessage(omnetpp::cMessage *msg)
 {
     if (msg == USBevents)
     {
@@ -140,7 +140,7 @@ void USB::handleMessage(cMessage *msg)
             std::cout.flush();
         }
 
-        scheduleAt(simTime() + 0.5, USBevents);
+        scheduleAt(omnetpp::simTime() + 0.5, USBevents);
     }
     else if(msg == USBInterrupt)
     {
@@ -164,12 +164,12 @@ void USB::handleMessage(cMessage *msg)
             }
         }
 
-        scheduleAt(simTime() + 0.2, USBInterrupt);
+        scheduleAt(omnetpp::simTime() + 0.2, USBInterrupt);
     }
 }
 
 
-void USB::receiveSignal(cComponent *source, simsignal_t signalID, long i)
+void USB::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t signalID, long i, cObject* details)
 {
     Enter_Method_Silent();
 
@@ -224,7 +224,7 @@ void USB::getUSBdevices(bool listUSBdevicesDetailed)
     libusb_device **devs; //pointer to pointer of device, used to retrieve a list of devices
     ssize_t cnt = libusb_get_device_list(ctx, &devs); //get the list of devices
     if(cnt < 0)
-        std::cout << "Get Device Error" << endl;
+        std::cout << "Get Device Error" << std::endl;
 
     // iterate over each found USB device
     for(ssize_t i = 0; i < cnt; i++)
@@ -278,7 +278,7 @@ std::vector<std::string> USB::USBidTostr(uint16_t idVendor, uint16_t idProduct)
     if(USBids.empty())
     {
         // usbids is downloaded from http://www.linux-usb.org/usb.ids
-        boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+        boost::filesystem::path VENTOS_FullPath = omnetpp::getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
         boost::filesystem::path usbids_FullPath = VENTOS_FullPath / "src/interfacing/DB/USBidentificationCodes";
 
         std::ifstream in(usbids_FullPath.string().c_str());
@@ -577,7 +577,7 @@ void USB::EnableHotPlug()
     std::cout.flush();
 
     // start monitoring events
-    scheduleAt(simTime() + 0.5, USBevents);
+    scheduleAt(omnetpp::simTime() + 0.5, USBevents);
 }
 
 
@@ -588,7 +588,7 @@ int USB::hotplug_callback(libusb_context *ctx, libusb_device *dev, libusb_hotplu
 
     rc = libusb_get_device_descriptor(dev, &desc);
     if (LIBUSB_SUCCESS != rc)
-        throw cRuntimeError("Error getting device descriptor");
+        throw omnetpp::cRuntimeError("Error getting device descriptor");
 
     printf("Device %04x:%04x attached ...\n", desc.idVendor, desc.idProduct);
     std::cout.flush();
@@ -601,7 +601,7 @@ int USB::hotplug_callback(libusb_context *ctx, libusb_device *dev, libusb_hotplu
 
     rc = libusb_open(dev, &hotPlugHandle);
     if (LIBUSB_SUCCESS != rc)
-        throw cRuntimeError("Error opening device");
+        throw omnetpp::cRuntimeError("Error opening device");
 
     return 0;
 }
@@ -641,11 +641,11 @@ void USB::startSniffing()
     int r = libusb_kernel_driver_active(dev_handle, target_interfaceNumber);
     if(r == 1)
     {
-        std::cout << "Kernel Driver Active" << endl;
+        std::cout << "Kernel Driver Active" << std::endl;
 
         // detach it (seems to be just like rmmod?)
         if(libusb_detach_kernel_driver(dev_handle, target_interfaceNumber) == 0)
-            std::cout << "Kernel Driver Detached!" << endl;
+            std::cout << "Kernel Driver Detached!" << std::endl;
 
         int cfg = -1;
         libusb_get_configuration(dev_handle, &cfg);
@@ -663,7 +663,7 @@ void USB::startSniffing()
     if(r < 0)
         error("Cannot claim interface! %s", libusb_error_name(r));
 
-    std::cout << "Interface " << target_interfaceNumber << " Claimed." << endl;
+    std::cout << "Interface " << target_interfaceNumber << " Claimed." << std::endl;
 
     libusb_device* thisDev = libusb_get_device(dev_handle);
     EPPacketSize = libusb_get_max_packet_size(thisDev, target_interruptEP);
@@ -671,7 +671,7 @@ void USB::startSniffing()
         error("libusb_get_max_packet_size failed!");
 
     // start getting data events
-    scheduleAt(simTime() + 0.00001, USBInterrupt);
+    scheduleAt(omnetpp::simTime() + 0.00001, USBInterrupt);
 }
 
 

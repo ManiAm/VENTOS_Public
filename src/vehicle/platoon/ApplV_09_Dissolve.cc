@@ -29,7 +29,7 @@
 
 namespace VENTOS {
 
-void ApplVPlatoonMg::dissolve_handleSelfMsg(cMessage* msg)
+void ApplVPlatoonMg::dissolve_handleSelfMsg(omnetpp::cMessage* msg)
 {
     if(msg == plnTIMER12)
     {
@@ -63,14 +63,14 @@ void ApplVPlatoonMg::dissolve_DataFSM(PlatoonMsg* wsm)
 
         // send a unicast DISSOLVE message my follower
         PlatoonMsg* dataMsg = prepareData(lastVeh, DISSOLVE, plnID);
-        EV << "### " << SUMOID << ": sent DISSOLVE to followers." << endl;
+        EV << "### " << SUMOID << ": sent DISSOLVE to followers." << std::endl;
         sendDelayed(dataMsg, individualOffset, lowerLayerOut);
         reportCommandToStat(dataMsg);
 
         vehicleState = state_waitForDissolveAck;
         reportStateToStat();
 
-        scheduleAt(simTime() + 1., plnTIMER12);
+        scheduleAt(omnetpp::simTime() + 1., plnTIMER12);
     }
     else if(vehicleState == state_waitForDissolveAck)
     {
@@ -98,7 +98,7 @@ void ApplVPlatoonMg::dissolve_DataFSM(PlatoonMsg* wsm)
         {
             // send ACK
             PlatoonMsg* dataMsg = prepareData(wsm->getSender(), ACK, wsm->getSendingPlatoonID());
-            EV << "### " << SUMOID << ": sent ACK." << endl;
+            EV << "### " << SUMOID << ": sent ACK." << std::endl;
             sendDelayed(dataMsg, individualOffset, lowerLayerOut);
             reportCommandToStat(dataMsg);
 

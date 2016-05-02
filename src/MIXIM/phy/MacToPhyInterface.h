@@ -62,7 +62,7 @@ public:
 	 * specified state, or smaller zero if the radio could
 	 * not be switched (propably because it is already switching.
 	 */
-	virtual simtime_t setRadioState(int rs) = 0;
+	virtual omnetpp::simtime_t setRadioState(int rs) = 0;
 
 	/**
 	 * @brief Returns the current state of the channel. See ChannelState

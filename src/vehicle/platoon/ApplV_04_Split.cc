@@ -29,7 +29,7 @@
 
 namespace VENTOS {
 
-void ApplVPlatoonMg::split_handleSelfMsg(cMessage* msg)
+void ApplVPlatoonMg::split_handleSelfMsg(omnetpp::cMessage* msg)
 {
     if(!splitEnabled)
         return;
@@ -100,12 +100,12 @@ void ApplVPlatoonMg::split_handleSelfMsg(cMessage* msg)
             // send a unicast GAP_CREATED to the old leader
             // we need this in follower/leader leave only. Other maneuvers ignore this
             PlatoonMsg* dataMsg = prepareData(oldPlnID, GAP_CREATED, oldPlnID);
-            EV << "### " << SUMOID << ": sent GAP_CREATED." << endl;
+            EV << "### " << SUMOID << ": sent GAP_CREATED." << std::endl;
             sendDelayed(dataMsg, individualOffset, lowerLayerOut);
             reportCommandToStat(dataMsg);
         }
         else
-            scheduleAt(simTime() + 0.1, plnTIMER8a);
+            scheduleAt(omnetpp::simTime() + 0.1, plnTIMER8a);
     }
 }
 
@@ -130,7 +130,7 @@ void ApplVPlatoonMg::splitMonitor()
         }
     }
 
-    scheduleAt(simTime() + 0.1, mgrTIMER);
+    scheduleAt(omnetpp::simTime() + 0.1, mgrTIMER);
 }
 
 
@@ -161,14 +161,14 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
 
         // send a unicast SPLIT_REQ to the follower
         PlatoonMsg* dataMsg = prepareData(splittingVehicle, SPLIT_REQ, plnID);
-        EV << "### " << SUMOID << ": sent SPLIT_REQ." << endl;
+        EV << "### " << SUMOID << ": sent SPLIT_REQ." << std::endl;
         sendDelayed(dataMsg, individualOffset, lowerLayerOut);
         reportCommandToStat(dataMsg);
 
         vehicleState = state_waitForSplitReply;
         reportStateToStat();
 
-        scheduleAt(simTime() + 1., plnTIMER4);
+        scheduleAt(omnetpp::simTime() + 1., plnTIMER4);
     }
     else if(vehicleState == state_waitForSplitReply)
     {
@@ -188,14 +188,14 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
     {
         // send CHANGE_PL to the splitting vehicle (last two parameters are data attached to this ucommand)
         PlatoonMsg* dataMsg = prepareData(splittingVehicle, CHANGE_PL, plnID, (-splittingDepth), splittingVehicle);
-        EV << "### " << SUMOID << ": sent CHANGE_PL." << endl;
+        EV << "### " << SUMOID << ": sent CHANGE_PL." << std::endl;
         sendDelayed(dataMsg, individualOffset, lowerLayerOut);
         reportCommandToStat(dataMsg);
 
         vehicleState = state_waitForAck;
         reportStateToStat();
 
-        scheduleAt(simTime() + 5., plnTIMER6);
+        scheduleAt(omnetpp::simTime() + 5., plnTIMER6);
     }
     else if(vehicleState == state_waitForAck)
     {
@@ -235,7 +235,7 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
         {
             // decrease Tg
             PlatoonMsg* dataMsg = prepareData("multicast", CHANGE_Tg, plnID, TG1);
-            EV << "### " << SUMOID << ": sent CHANGE_Tg with value " << TG1 << endl;
+            EV << "### " << SUMOID << ": sent CHANGE_Tg with value " << TG1 << std::endl;
             sendDelayed(dataMsg, individualOffset, lowerLayerOut);
             reportCommandToStat(dataMsg);
         }
@@ -244,7 +244,7 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
         // we send two data to our follower:
         // 1) splitCaller 2) our platoon member list
         PlatoonMsg* dataMsg = prepareData(splittingVehicle, SPLIT_DONE, plnID, splitCaller, "", secondPlnMembersList);
-        EV << "### " << SUMOID << ": sent SPLIT_DONE." << endl;
+        EV << "### " << SUMOID << ": sent SPLIT_DONE." << std::endl;
         sendDelayed(dataMsg, individualOffset, lowerLayerOut);
         reportCommandToStat(dataMsg);
 
@@ -277,8 +277,8 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
         {
             std::string targetVeh = *it;
             PlatoonMsg* dataMsg = prepareData(targetVeh, CHANGE_PL, plnID, (-splittingDepth), splittingVehicle);
-            EV << "### " << SUMOID << ": sent CHANGE_PL." << endl;
-            simtime_t offset = dblrand() * maxOffset;
+            EV << "### " << SUMOID << ": sent CHANGE_PL." << std::endl;
+            omnetpp::simtime_t offset = dblrand() * maxOffset;
             sendDelayed(dataMsg, offset, lowerLayerOut);
             reportCommandToStat(dataMsg);
 
@@ -288,7 +288,7 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
         vehicleState = state_waitForAllAcks2;
         reportStateToStat();
 
-        scheduleAt(simTime() + 1., plnTIMER7);
+        scheduleAt(omnetpp::simTime() + 1., plnTIMER7);
     }
     else if(vehicleState == state_waitForAllAcks2)
     {
@@ -320,14 +320,14 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
         {
             // send SPLIT_ACCEPT
             PlatoonMsg* dataMsg = prepareData(plnID, SPLIT_ACCEPT, plnID);
-            EV << "### " << SUMOID << ": sent SPLIT_ACCEPT." << endl;
+            EV << "### " << SUMOID << ": sent SPLIT_ACCEPT." << std::endl;
             sendDelayed(dataMsg, individualOffset, lowerLayerOut);
             reportCommandToStat(dataMsg);
 
             vehicleState = state_waitForCHANGEPL;
             reportStateToStat();
 
-            scheduleAt(simTime() + 1., plnTIMER5);
+            scheduleAt(omnetpp::simTime() + 1., plnTIMER5);
         }
     }
     else if(vehicleState == state_waitForCHANGEPL)
@@ -358,14 +358,14 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
     {
         // send ACK
         PlatoonMsg* dataMsg = prepareData(oldPlnID, ACK, plnID);
-        EV << "### " << SUMOID << ": sent ACK." << endl;
+        EV << "### " << SUMOID << ": sent ACK." << std::endl;
         sendDelayed(dataMsg, individualOffset, lowerLayerOut);
         reportCommandToStat(dataMsg);
 
         vehicleState = state_waitForSplitDone;
         reportStateToStat();
 
-        scheduleAt(simTime() + 1., plnTIMER8);
+        scheduleAt(omnetpp::simTime() + 1., plnTIMER8);
     }
     else if(vehicleState == state_waitForSplitDone)
     {
@@ -410,7 +410,7 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
             // MyCircularBufferSplit.clear();
 
             // check each 0.1s to see if the gap is big enough
-            scheduleAt(simTime() + .1, plnTIMER8a);
+            scheduleAt(omnetpp::simTime() + .1, plnTIMER8a);
         }
     }
 }

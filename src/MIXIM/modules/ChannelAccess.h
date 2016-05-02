@@ -82,7 +82,7 @@ protected:
 	/**
 	 * @brief Calculates the propagation delay to the passed receiving nic.
 	 */
-	simtime_t calculatePropagationDelay(const NicEntry* nic);
+	omnetpp::simtime_t calculatePropagationDelay(const NicEntry* nic);
 
 	/** @brief Sends a message to all nics connected to this one.
 	 *
@@ -93,7 +93,7 @@ protected:
 	 * depending on which ConnectionManager module is used, the messages are
 	 * send via sendDirect() or to the respective gates.
 	 **/
-	void sendToChannel(cPacket *msg);
+	void sendToChannel(omnetpp::cPacket *msg);
 
 public:
 	/**
@@ -119,7 +119,7 @@ public:
 	 * ChannelAccess is subscribed to position changes and informs the
 	 * ConnectionManager.
 	 */
-	virtual void receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj);
+	virtual void receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t signalID, omnetpp::cObject *obj, cObject* details);
 
 	/**
 	 * @brief Returns the host's mobility module.

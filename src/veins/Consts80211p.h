@@ -103,19 +103,19 @@ const uint64_t PHY_HDR_BITRATE = 3000000;
  *
  * as defined in Table 17-15 OFDM PHY characteristics in the IEEE 802.11-2007 standard
  */
-const SimTime SLOTLENGTH_11P = SimTime().setRaw(13000000UL);
+const omnetpp::SimTime SLOTLENGTH_11P = omnetpp::SimTime().setRaw(13000000UL);
 
 /** @brief Short interframe space
  *
  * as defined in Table 17-15 OFDM PHY characteristics in the IEEE 802.11-2007 standard
  */
-const SimTime SIFS_11P = SimTime().setRaw(32000000UL);
+const omnetpp::SimTime SIFS_11P = omnetpp::SimTime().setRaw(32000000UL);
 
 /** @brief Time it takes to switch from Rx to Tx Mode
  *
  * as defined in Table 17-15 OFDM PHY characteristics in the IEEE 802.11-2007 standard
  */
-const SimTime RADIODELAY_11P = SimTime().setRaw(1000000UL);
+const omnetpp::SimTime RADIODELAY_11P = omnetpp::SimTime().setRaw(1000000UL);
 
 /** @brief Contention Window minimal size
  *
@@ -133,14 +133,14 @@ const unsigned CWMAX_11P = 1023;
  *
  * as defined in Table H.1 in the IEEE 1609.4-2010 standard
  */
-const SimTime SWITCHING_INTERVAL_11P = SimTime().setRaw(50000000000UL);
+const omnetpp::SimTime SWITCHING_INTERVAL_11P = omnetpp::SimTime().setRaw(50000000000UL);
 
 /** @brief 1609.4 slot length
  *
  * as defined in Table H.1 in the IEEE 1609.4-2010 standard
  * It is the sum of SyncTolerance and MaxChSwitchTime as defined in 6.2.5 in the IEEE 1609.4-2010 Standard
  */
-const SimTime GUARD_INTERVAL_11P = SimTime().setRaw(4000000000UL);
+const omnetpp::SimTime GUARD_INTERVAL_11P = omnetpp::SimTime().setRaw(4000000000UL);
 
 
 namespace Channels {

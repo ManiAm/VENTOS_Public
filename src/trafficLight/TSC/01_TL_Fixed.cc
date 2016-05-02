@@ -57,7 +57,7 @@ void TrafficLightFixed::finish()
 }
 
 
-void TrafficLightFixed::handleMessage(cMessage *msg)
+void TrafficLightFixed::handleMessage(omnetpp::cMessage *msg)
 {
     super::handleMessage(msg);
 }
@@ -71,7 +71,7 @@ void TrafficLightFixed::initialize_withTraCI()
     if (TLControlMode != TL_Fix_Time)
         return;
 
-    std::cout << endl << "Fixed-time traffic signal control ... " << endl << endl;
+    std::cout << std::endl << "Fixed-time traffic signal control ... " << std::endl << std::endl;
 
     for (auto &TL : TLList)
     {

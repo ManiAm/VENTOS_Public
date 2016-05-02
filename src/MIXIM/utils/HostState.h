@@ -15,7 +15,6 @@
 #define HOSTSTATE_H
 
 #include <omnetpp.h>
-
 #include "MiXiMDefs.h"
 
 /**
@@ -32,7 +31,7 @@
  *
  * @ingroup power
  */
-class MIXIM_API HostState : public cObject
+class MIXIM_API HostState : public omnetpp::cObject
 {
 public:
     /**

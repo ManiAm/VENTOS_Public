@@ -10,8 +10,6 @@
 #include <arpa/inet.h>
 #endif
 
-#include <cenvir.h>
-#include <cexception.h>
 #include <algorithm>
 #include <functional>
 
@@ -60,7 +58,7 @@ int TraCIConnection::startServer(std::string SUMOexe, std::string SUMOconfig, st
     // auto-set seed, if requested
     if (seed == -1)
     {
-        const char* seed_s = cSimulation::getActiveSimulation()->getEnvir()->getConfigEx()->getVariable(CFGVAR_RUNNUMBER);
+        const char* seed_s = omnetpp::getEnvir()->getConfigEx()->getVariable(CFGVAR_RUNNUMBER);
         seed = atoi(seed_s);
     }
 
@@ -86,11 +84,11 @@ int TraCIConnection::startServer(std::string SUMOexe, std::string SUMOconfig, st
 int TraCIConnection::getFreeEphemeralPort()
 {
     if (initsocketlibonce() != 0)
-        throw cRuntimeError("Could not init socketlib");
+        throw omnetpp::cRuntimeError("Could not init socketlib");
 
     SOCKET sock = ::socket(AF_INET, SOCK_STREAM, 0);
     if (sock < 0)
-        throw cRuntimeError("Failed to create socket: %s", strerror(errno));
+        throw omnetpp::cRuntimeError("Failed to create socket: %s", strerror(errno));
 
     struct sockaddr_in serv_addr;
     struct sockaddr* serv_addr_p = (struct sockaddr*)&serv_addr;
@@ -100,11 +98,11 @@ int TraCIConnection::getFreeEphemeralPort()
     serv_addr.sin_port = 0;   // get a random Ephemeral port
 
     if (::bind(sock, serv_addr_p, sizeof(serv_addr)) < 0)
-        throw cRuntimeError("Failed to bind socket: %s", strerror(errno));
+        throw omnetpp::cRuntimeError("Failed to bind socket: %s", strerror(errno));
 
     socklen_t len = sizeof(serv_addr);
     if (getsockname(sock, serv_addr_p, &len) < 0)
-        throw cRuntimeError("Failed to get hostname: %s", strerror(errno));
+        throw omnetpp::cRuntimeError("Failed to get hostname: %s", strerror(errno));
 
     int port = ntohs(serv_addr.sin_port);
 
@@ -162,7 +160,7 @@ void TraCIConnection::TraCILauncher(std::string commandLine)
 
     // fork failed
     if(child_pid < 0)
-        throw cRuntimeError("fork() failed!");
+        throw omnetpp::cRuntimeError("fork() failed!");
 
     // in child process
     if(child_pid == 0)
@@ -175,10 +173,10 @@ void TraCIConnection::TraCILauncher(std::string commandLine)
         int r = system(commandLine.c_str());
 
         if (r == -1)
-            throw cRuntimeError("Running \"%s\" failed during system()", commandLine.c_str());
+            throw omnetpp::cRuntimeError("Running \"%s\" failed during system()", commandLine.c_str());
 
         if (WEXITSTATUS(r) != 0)
-            throw cRuntimeError("Error launching TraCI server (\"%s\"): exited with code %d.", commandLine.c_str(), WEXITSTATUS(r));
+            throw omnetpp::cRuntimeError("Error launching TraCI server (\"%s\"): exited with code %d.", commandLine.c_str(), WEXITSTATUS(r));
 
         exit(1);
     }
@@ -199,7 +197,7 @@ TraCIConnection* TraCIConnection::connect(const char* host, int port)
     std::cout.flush();
 
     if (initsocketlibonce() != 0)
-        throw cRuntimeError("Could not init socketlib");
+        throw omnetpp::cRuntimeError("Could not init socketlib");
 
     in_addr addr;
     struct hostent* host_ent;
@@ -211,7 +209,7 @@ TraCIConnection* TraCIConnection::connect(const char* host, int port)
     else if ((host_ent = gethostbyname(host)))
         addr = *((struct in_addr*) host_ent->h_addr_list[0]);
     else
-        throw cRuntimeError("Invalid TraCI server address: %s", host);
+        throw omnetpp::cRuntimeError("Invalid TraCI server address: %s", host);
 
     sockaddr_in address;
     sockaddr* address_p = (sockaddr*)&address;
@@ -221,7 +219,8 @@ TraCIConnection* TraCIConnection::connect(const char* host, int port)
     address.sin_addr.s_addr = addr.s_addr;
 
     SOCKET* socketPtr = new SOCKET();
-    if (*socketPtr < 0) throw cRuntimeError("Could not create socket to connect to TraCI server");
+    if (*socketPtr < 0)
+        throw omnetpp::cRuntimeError("Could not create socket to connect to TraCI server");
 
     for (int tries = 1; tries <= 10; ++tries)
     {
@@ -238,7 +237,7 @@ TraCIConnection* TraCIConnection::connect(const char* host, int port)
         int sleepDuration = tries*.25 + 1;
 
         if (tries >= 10)
-            throw cRuntimeError(msg.c_str());
+            throw omnetpp::cRuntimeError(msg.c_str());
         else if (tries == 3)
             std::cout << msg << " -- Will retry in " << sleepDuration << " second(s). \n" << std::flush;
 
@@ -266,12 +265,12 @@ TraCIBuffer TraCIConnection::query(uint8_t commandGroupId, const TraCIBuffer& bu
     std::string description; obuf >> description;
 
     if (result == RTYPE_NOTIMPLEMENTED)
-        throw cRuntimeError("TraCI server reported command 0x%2x not implemented (\"%s\"). Might need newer version.",
+        throw omnetpp::cRuntimeError("TraCI server reported command 0x%2x not implemented (\"%s\"). Might need newer version.",
                 commandGroupId,
                 description.c_str());
 
     if (result == RTYPE_ERR)
-        throw cRuntimeError("TraCI server reported throw cRuntimeError executing command 0x%2x (\"%s\").",
+        throw omnetpp::cRuntimeError("TraCI server reported throw cRuntimeError executing command 0x%2x (\"%s\").",
                 commandGroupId,
                 description.c_str());
 
@@ -302,7 +301,7 @@ TraCIBuffer TraCIConnection::queryOptional(uint8_t commandGroupId, const TraCIBu
 std::string TraCIConnection::receiveMessage()
 {
     if (!socketPtr)
-        throw cRuntimeError("Not connected to TraCI server");
+        throw omnetpp::cRuntimeError("Not connected to TraCI server");
 
     uint32_t msgLength;
 
@@ -369,7 +368,7 @@ std::string TraCIConnection::receiveMessage()
 void TraCIConnection::sendMessage(std::string buf)
 {
     if (!socketPtr)
-        throw cRuntimeError("Not connected to TraCI server");
+        throw omnetpp::cRuntimeError("Not connected to TraCI server");
 
     {
         uint32_t msgLength = sizeof(uint32_t) + buf.length();
@@ -430,7 +429,7 @@ std::string makeTraCICommand(uint8_t commandId, const TraCIBuffer& buf)
 void TraCIConnection::terminateSimulation()
 {
     // get a pointer to TraCI module
-    cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
+    omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
     ASSERT(module);
     TraCI_Commands *TraCI = static_cast<TraCI_Commands *>(module);
     ASSERT(TraCI);

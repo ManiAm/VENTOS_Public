@@ -2,7 +2,7 @@
 #include "Signal_.h"
 #include <cassert>
 
-Signal::Signal(simtime_t_cref sendingStart, simtime_t_cref duration):
+Signal::Signal(omnetpp::simtime_t_cref sendingStart, omnetpp::simtime_t_cref duration):
 	senderModuleID(-1), senderFromGateID(-1), receiverModuleID(-1), receiverToGateID(-1),
 	sendingStart(sendingStart), duration(duration),
 	propagationDelay(0),
@@ -129,31 +129,31 @@ Signal::~Signal()
 	}
 }
 
-simtime_t_cref Signal::getSendingStart() const {
+omnetpp::simtime_t_cref Signal::getSendingStart() const {
 	return sendingStart;
 }
 
-simtime_t Signal::getSendingEnd() const {
+omnetpp::simtime_t Signal::getSendingEnd() const {
 	return sendingStart + duration;
 }
 
-simtime_t Signal::getReceptionStart() const {
+omnetpp::simtime_t Signal::getReceptionStart() const {
 	return sendingStart + propagationDelay;
 }
 
-simtime_t Signal::getReceptionEnd() const {
+omnetpp::simtime_t Signal::getReceptionEnd() const {
 	return sendingStart + propagationDelay + duration;
 }
 
-simtime_t_cref Signal::getDuration() const{
+omnetpp::simtime_t_cref Signal::getDuration() const{
 	return duration;
 }
 
-simtime_t_cref Signal::getPropagationDelay() const {
+omnetpp::simtime_t_cref Signal::getPropagationDelay() const {
 	return propagationDelay;
 }
 
-void Signal::setPropagationDelay(simtime_t_cref delay) {
+void Signal::setPropagationDelay(omnetpp::simtime_t_cref delay) {
 	assert(propagationDelay == 0);
 	assert(!txBitrate);
 
@@ -187,21 +187,21 @@ void Signal::setBitrate(Mapping *bitrate)
 	this->bitrate = bitrate;
 }
 
-cGate *Signal::getSendingGate() const
+omnetpp::cGate *Signal::getSendingGate() const
 {
     if (senderFromGateID < 0) return NULL;
-    cModule *const mod = getSendingModule();
+    omnetpp::cModule *const mod = getSendingModule();
     return !mod ? NULL : mod->gate(senderFromGateID);
 }
 
-cGate *Signal::getReceptionGate() const
+omnetpp::cGate *Signal::getReceptionGate() const
 {
     if (receiverToGateID < 0) return NULL;
-    cModule *const mod = getReceptionModule();
+    omnetpp::cModule *const mod = getReceptionModule();
     return !mod ? NULL : mod->gate(receiverToGateID);
 }
 
-void Signal::setReceptionSenderInfo(const cMessage *const pMsg)
+void Signal::setReceptionSenderInfo(const omnetpp::cMessage *const pMsg)
 {
 	if (!pMsg)
 		return;

@@ -79,7 +79,7 @@ public:
     virtual void initialize(int);
 
     /** @brief Called every time a message arrives*/
-    virtual void handleMessage( cMessage* );
+    virtual void handleMessage( omnetpp::cMessage* );
 
     /** @brief Called when the simulation has finished.*/
     virtual void finish();
@@ -98,23 +98,23 @@ protected:
     /*@{ */
 
     /** @brief Handle self messages such as timer... */
-    virtual void handleSelfMsg(cMessage* msg) = 0;
+    virtual void handleSelfMsg(omnetpp::cMessage* msg) = 0;
 
     /** @brief Handle messages from upper layer
      *
      * This function is pure virtual here, because there is no
      * reasonable guess what to do with it by default.
      */
-    virtual void handleUpperMsg(cMessage *msg) = 0;
+    virtual void handleUpperMsg(omnetpp::cMessage *msg) = 0;
 
     /** @brief Handle messages from lower layer */
-    virtual void handleLowerMsg(cMessage *msg) = 0;
+    virtual void handleLowerMsg(omnetpp::cMessage *msg) = 0;
 
     /** @brief Handle control messages from lower layer */
-    virtual void handleLowerControl(cMessage *msg) = 0;
+    virtual void handleLowerControl(omnetpp::cMessage *msg) = 0;
 
     /** @brief Handle control messages from upper layer */
-    virtual void handleUpperControl(cMessage *msg) = 0;
+    virtual void handleUpperControl(omnetpp::cMessage *msg) = 0;
 
     /*@}*/
 
@@ -138,7 +138,7 @@ protected:
      * You have to take care of encapsulation We recommend that you
      * use a pair of functions called encapsMsg/decapsMsg.
      */
-    void sendDown(cMessage *msg);
+    void sendDown(omnetpp::cMessage *msg);
 
     /** @brief Sends a message to the upper layer
      *
@@ -147,17 +147,17 @@ protected:
      * superflous frames. We recommend that you use a pair of
      * functions decapsMsg/encapsMsg.
      */
-    void sendUp(cMessage *msg);
+    void sendUp(omnetpp::cMessage *msg);
 
     /** @brief Sends a control message to an upper layer */
-    void sendControlUp(cMessage *msg);
+    void sendControlUp(omnetpp::cMessage *msg);
 
     /** @brief Sends a control message to a lower layer */
-    void sendControlDown(cMessage *msg);
+    void sendControlDown(omnetpp::cMessage *msg);
 
     void recordPacket(PassedMessage::direction_t dir,
                       PassedMessage::gates_t gate,
-                      const cMessage *m);
+                      const omnetpp::cMessage *m);
 
 // private:
 //   	void recordPacket(bool in, MsgType type, const cMessage *);

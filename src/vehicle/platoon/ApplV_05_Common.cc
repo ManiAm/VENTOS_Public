@@ -29,7 +29,7 @@
 
 namespace VENTOS {
 
-void ApplVPlatoonMg::common_handleSelfMsg(cMessage* msg)
+void ApplVPlatoonMg::common_handleSelfMsg(omnetpp::cMessage* msg)
 {
 
 
@@ -53,7 +53,7 @@ void ApplVPlatoonMg::common_DataFSM(PlatoonMsg* wsm)
             {
                 // send ACK
                 PlatoonMsg* dataMsg = prepareData(wsm->getSender(), ACK, wsm->getSendingPlatoonID());
-                EV << "### " << SUMOID << ": sent ACK." << endl;
+                EV << "### " << SUMOID << ": sent ACK." << std::endl;
                 sendDelayed(dataMsg, individualOffset, lowerLayerOut);
                 reportCommandToStat(dataMsg);
 
@@ -73,7 +73,7 @@ void ApplVPlatoonMg::common_DataFSM(PlatoonMsg* wsm)
             {
                 // send ACK
                 PlatoonMsg* dataMsg = prepareData(wsm->getSender(), ACK, wsm->getSendingPlatoonID());
-                EV << "### " << SUMOID << ": sent ACK." << endl;
+                EV << "### " << SUMOID << ": sent ACK." << std::endl;
                 sendDelayed(dataMsg, individualOffset, lowerLayerOut);
                 reportCommandToStat(dataMsg);
             }

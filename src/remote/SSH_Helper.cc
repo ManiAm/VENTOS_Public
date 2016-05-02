@@ -58,7 +58,7 @@ double SSH_Helper::rebootDev(ssh_channel SSH_channel, int timeOut)
     ASSERT(SSH_channel);
 
     if(timeOut <= 0)
-        throw cRuntimeError("timeOut value is wrong!");
+        throw omnetpp::cRuntimeError("timeOut value is wrong!");
 
     // start measuring boot time here
     Htime_t startBoot = std::chrono::high_resolution_clock::now();
@@ -70,7 +70,7 @@ double SSH_Helper::rebootDev(ssh_channel SSH_channel, int timeOut)
         char buffer[1000];
         int nbytes = sprintf (buffer, "%s \n", "sudo reboot");
         if (ssh_channel_write(SSH_channel, buffer, nbytes) != nbytes)
-            throw cRuntimeError("SSH error in writing command to shell");
+            throw omnetpp::cRuntimeError("SSH error in writing command to shell");
     }
 
     Htime_t startPing = std::chrono::high_resolution_clock::now();
@@ -94,7 +94,7 @@ double SSH_Helper::rebootDev(ssh_channel SSH_channel, int timeOut)
         Htime_t currentTime = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double, std::milli> fp_ms = currentTime - startPing;
         if(fp_ms.count() > timeOut)
-            throw cRuntimeError("dev reboot timeout!");
+            throw omnetpp::cRuntimeError("dev reboot timeout!");
     }
 
     // end measuring boot time here
@@ -134,7 +134,7 @@ void SSH_Helper::getSudo(ssh_channel SSH_channel)
     }
     catch (const std::exception& ex)
     {
-        throw cRuntimeError("Cannot get sudo access @%s", dev_hostName.c_str());
+        throw omnetpp::cRuntimeError("Cannot get sudo access @%s", dev_hostName.c_str());
     }
 }
 
@@ -156,7 +156,7 @@ std::string SSH_Helper::run_command(ssh_channel SSH_channel, std::string command
     ASSERT(SSH_channel);
 
     if(command == "")
-        throw cRuntimeError("command is empty!");
+        throw omnetpp::cRuntimeError("command is empty!");
 
     {
         std::lock_guard<std::mutex> lock(lock_SSH_Session);
@@ -166,7 +166,7 @@ std::string SSH_Helper::run_command(ssh_channel SSH_channel, std::string command
         int nbytes = sprintf (buffer, "%s ; echo $? ; echo %s \n", command.c_str(), EOCMD);
         int nwritten = ssh_channel_write(SSH_channel, buffer, nbytes);
         if (nwritten != nbytes)
-            throw cRuntimeError("SSH error in writing command to shell");
+            throw omnetpp::cRuntimeError("SSH error in writing command to shell");
     }
 
     std::string command_output = "";
@@ -268,7 +268,7 @@ std::string SSH_Helper::run_command(ssh_channel SSH_channel, std::string command
             }
 
             // let the user know
-            throw cRuntimeError("Command '%s' failed @%s", command.c_str(), dev_hostName.c_str());
+            throw omnetpp::cRuntimeError("Command '%s' failed @%s", command.c_str(), dev_hostName.c_str());
         }
 
         if(!blocking && active_threads > 0)

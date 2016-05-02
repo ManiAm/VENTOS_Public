@@ -32,11 +32,14 @@
 #include "NistErrorRate.h"
 #include "ConstsPhy.h"
 
+
 namespace Veins {
 
-simtime_t Decider80211p::processNewSignal(AirFrame* msg) {
+omnetpp::simtime_t Decider80211p::processNewSignal(AirFrame* msg) {
 
-    AirFrame11p *frame = check_and_cast<AirFrame11p *>(msg);
+    EV_STATICCONTEXT
+
+    AirFrame11p *frame = omnetpp::check_and_cast<AirFrame11p *>(msg);
 
     // get the receiving power of the Signal at start-time and center frequency
     Signal& signal = frame->getSignal();
@@ -53,7 +56,7 @@ simtime_t Decider80211p::processNewSignal(AirFrame* msg) {
         //annotate the frame, so that we won't try decoding it at its end
         frame->setUnderSensitivity(true);
         //check channel busy status. a superposition of low power frames might turn channel status to busy
-        if (cca(simTime(), NULL) == false) {
+        if (cca(omnetpp::simTime(), NULL) == false) {
             setChannelIdleStatus(false);
         }
         return signal.getReceptionEnd();
@@ -65,18 +68,18 @@ simtime_t Decider80211p::processNewSignal(AirFrame* msg) {
         if (phy11p->getRadioState() == Radio::TX) {
             frame->setBitError(true);
             frame->setWasTransmitting(true);
-            DBG_D11P << "AirFrame: " << frame->getId() << " (" << recvPower << ") received, while already sending. Setting BitErrors to true" << std::endl;
+            EV << "AirFrame: " << frame->getId() << " (" << recvPower << ") received, while already sending. Setting BitErrors to true" << std::endl;
         }
         else {
 
             if (!currentSignal.first) {
                 //NIC is not yet synced to any frame, so lock and try to decode this frame
                 currentSignal.first = frame;
-                DBG_D11P << "AirFrame: " << frame->getId() << " with (" << recvPower << " > " << sensitivity << ") -> Trying to receive AirFrame." << std::endl;
+                EV << "AirFrame: " << frame->getId() << " with (" << recvPower << " > " << sensitivity << ") -> Trying to receive AirFrame." << std::endl;
             }
             else {
                 //NIC is currently trying to decode another frame. this frame will be simply treated as interference
-                DBG_D11P << "AirFrame: " << frame->getId() << " with (" << recvPower << " > " << sensitivity << ") -> Already synced to another AirFrame. Treating AirFrame as interference." << std::endl;
+                EV << "AirFrame: " << frame->getId() << " with (" << recvPower << " > " << sensitivity << ") -> Already synced to another AirFrame. Treating AirFrame as interference." << std::endl;
             }
 
 
@@ -98,7 +101,7 @@ int Decider80211p::getSignalState(AirFrame* frame) {
     }
 }
 
-double Decider80211p::calcChannelSenseRSSI(simtime_t_cref start, simtime_t_cref end) {
+double Decider80211p::calcChannelSenseRSSI(omnetpp::simtime_t_cref start, omnetpp::simtime_t_cref end) {
 
     Mapping* rssiMap = calculateRSSIMapping(start, end);
 
@@ -121,8 +124,8 @@ void Decider80211p::calculateSinrAndSnrMapping(AirFrame* frame, Mapping **sinrMa
     /* calculate Noise-Strength-Mapping */
     Signal& signal = frame->getSignal();
 
-    simtime_t start = signal.getReceptionStart();
-    simtime_t end   = signal.getReceptionEnd();
+    omnetpp::simtime_t start = signal.getReceptionStart();
+    omnetpp::simtime_t end   = signal.getReceptionEnd();
 
     //call BaseDecider function to get Noise plus Interference mapping
     Mapping* noiseInterferenceMap = calculateRSSIMapping(start, end, frame);
@@ -145,7 +148,7 @@ void Decider80211p::calculateSinrAndSnrMapping(AirFrame* frame, Mapping **sinrMa
 
 }
 
-Mapping* Decider80211p::calculateNoiseRSSIMapping(simtime_t_cref start, simtime_t_cref end, AirFrame *exclude) {
+Mapping* Decider80211p::calculateNoiseRSSIMapping(omnetpp::simtime_t_cref start, omnetpp::simtime_t_cref end, AirFrame *exclude) {
 
     // create an empty mapping
     Mapping* resultMap = MappingUtils::createMapping(Argument::MappedZero(), DimensionSet::timeDomain());
@@ -180,6 +183,8 @@ Mapping* Decider80211p::calculateNoiseRSSIMapping(simtime_t_cref start, simtime_
 
 DeciderResult* Decider80211p::checkIfSignalOk(AirFrame* frame) {
 
+    EV_STATICCONTEXT
+
     Mapping* sinrMap = 0;
     Mapping *snrMap = 0;
 
@@ -193,8 +198,8 @@ DeciderResult* Decider80211p::checkIfSignalOk(AirFrame* frame) {
     assert(sinrMap);
 
     Signal& s = frame->getSignal();
-    simtime_t start = s.getReceptionStart();
-    simtime_t end = s.getReceptionEnd();
+    omnetpp::simtime_t start = s.getReceptionStart();
+    omnetpp::simtime_t end = s.getReceptionEnd();
 
     //compute receive power
     Argument st(DimensionSet::timeFreqDomain());
@@ -232,22 +237,22 @@ DeciderResult* Decider80211p::checkIfSignalOk(AirFrame* frame) {
     switch (packetOk(snirMin, snrMin, frame->getBitLength(), payloadBitrate)) {
 
     case DECODED:
-        DBG_D11P << "Packet is fine! We can decode it" << std::endl;
+        EV << "Packet is fine! We can decode it" << std::endl;
         result = new DeciderResult80211(true, payloadBitrate, snirMin, recvPower_dBm, false);
         break;
 
     case NOT_DECODED:
         if (!collectCollisionStats) {
-            DBG_D11P << "Packet has bit Errors. Lost " << std::endl;
+            EV << "Packet has bit Errors. Lost " << std::endl;
         }
         else {
-            DBG_D11P << "Packet has bit Errors due to low power. Lost " << std::endl;
+            EV << "Packet has bit Errors due to low power. Lost " << std::endl;
         }
         result = new DeciderResult80211(false, payloadBitrate, snirMin, recvPower_dBm, false);
         break;
 
     case COLLISION:
-        DBG_D11P << "Packet has bit Errors due to collision. Lost " << std::endl;
+        EV << "Packet has bit Errors due to collision. Lost " << std::endl;
         collisions++;
         result = new DeciderResult80211(false, payloadBitrate, snirMin, recvPower_dBm, true);
         break;
@@ -293,7 +298,7 @@ enum Decider80211p::PACKET_OK_RESULT Decider80211p::packetOk(double snirMin, dou
 
     //probability of no bit error in the PLCP header
 
-    double rand = dblrand();
+    double rand = omnetpp::cSimulation::getActiveSimulation()->getContext()->dblrand();
 
     if (!collectCollisionStats) {
         if (rand > headerNoError)
@@ -319,7 +324,7 @@ enum Decider80211p::PACKET_OK_RESULT Decider80211p::packetOk(double snirMin, dou
 
     //probability of no bit error in the rest of the packet
 
-    rand = dblrand();
+    rand = omnetpp::cSimulation::getActiveSimulation()->getContext()->dblrand();
 
     if (!collectCollisionStats) {
         if (rand > packetOkSinr) {
@@ -352,7 +357,9 @@ enum Decider80211p::PACKET_OK_RESULT Decider80211p::packetOk(double snirMin, dou
 }
 
 
-bool Decider80211p::cca(simtime_t_cref time, AirFrame* exclude) {
+bool Decider80211p::cca(omnetpp::simtime_t_cref time, AirFrame* exclude) {
+    EV_STATICCONTEXT
+
     AirFrameVector airFrames;
 
     // collect all AirFrames that intersect with [start, end]
@@ -408,16 +415,17 @@ bool Decider80211p::cca(simtime_t_cref time, AirFrame* exclude) {
     min.setTime(time);
     min.setArgValue(Dimension::frequency(), centerFrequency - 5e6);
 
-    DBG_D11P << MappingUtils::findMin(*resultMap, min, min) << " > " << ccaThreshold << " = " << (bool)(MappingUtils::findMin(*resultMap, min, min) > ccaThreshold) << std::endl;
+    EV << MappingUtils::findMin(*resultMap, min, min) << " > " << ccaThreshold << " = " << (bool)(MappingUtils::findMin(*resultMap, min, min) > ccaThreshold) << std::endl;
     bool isChannelIdle = MappingUtils::findMin(*resultMap, min, min) < ccaThreshold;
     delete resultMap;
     return isChannelIdle;
 }
 
 
-simtime_t Decider80211p::processSignalEnd(AirFrame* msg) {
+omnetpp::simtime_t Decider80211p::processSignalEnd(AirFrame* msg) {
+    EV_STATICCONTEXT
 
-    AirFrame11p *frame = check_and_cast<AirFrame11p *>(msg);
+    AirFrame11p *frame = omnetpp::check_and_cast<AirFrame11p *>(msg);
 
     // here the Signal is finally processed
     Signal& signal = frame->getSignal();
@@ -463,43 +471,43 @@ simtime_t Decider80211p::processSignalEnd(AirFrame* msg) {
     }
 
     if (result->isSignalCorrect()) {
-        DBG_D11P << "packet was received correctly, it is now handed to upper layer...\n";
+        EV << "packet was received correctly, it is now handed to upper layer...\n";
         // go on with processing this AirFrame, send it to the Mac-Layer
         phy->sendUp(frame, result);
     }
     else {
         if (frame->getUnderSensitivity()) {
-            DBG_D11P << "packet was not detected by the card. power was under sensitivity threshold\n";
+            EV << "packet was not detected by the card. power was under sensitivity threshold\n";
         }
         else if (whileSending) {
-            DBG_D11P << "packet was received while sending, sending it as control message to upper layer\n";
-            phy->sendControlMsgToMac(new cMessage("Error",RECWHILESEND));
+            EV << "packet was received while sending, sending it as control message to upper layer\n";
+            phy->sendControlMsgToMac(new omnetpp::cMessage("Error",RECWHILESEND));
         }
         else {
-            DBG_D11P << "packet was not received correctly, sending it as control message to upper layer\n";
+            EV << "packet was not received correctly, sending it as control message to upper layer\n";
             if (((DeciderResult80211 *)result)->isCollision()) {
-                phy->sendControlMsgToMac(new cMessage("Error", Decider80211p::COLLISION));
+                phy->sendControlMsgToMac(new omnetpp::cMessage("Error", Decider80211p::COLLISION));
             }
             else {
-                phy->sendControlMsgToMac(new cMessage("Error",BITERROR));
+                phy->sendControlMsgToMac(new omnetpp::cMessage("Error",BITERROR));
             }
         }
         delete result;
     }
 
     if (phy11p->getRadioState() == Radio::TX) {
-        DBG_D11P << "I'm currently sending\n";
+        EV << "I'm currently sending\n";
     }
     //check if channel is idle now
     //we declare channel busy if CCA tells us so, or if we are currently
     //decoding a frame
-    else if (cca(simTime(), frame) == false || currentSignal.first != 0) {
-        DBG_D11P << "Channel not yet idle!\n";
+    else if (cca(omnetpp::simTime(), frame) == false || currentSignal.first != 0) {
+        EV << "Channel not yet idle!\n";
     }
     else {
         //might have been idle before (when the packet rxpower was below sens)
         if (isChannelIdle != true) {
-            DBG_D11P << "Channel idle now!\n";
+            EV << "Channel idle now!\n";
             setChannelIdleStatus(true);
         }
     }
@@ -509,8 +517,11 @@ simtime_t Decider80211p::processSignalEnd(AirFrame* msg) {
 void Decider80211p::setChannelIdleStatus(bool isIdle) {
     isChannelIdle = isIdle;
     channelStateChanged();
-    if (isIdle) phy->sendControlMsgToMac(new cMessage("ChannelStatus",Mac80211pToPhy11pInterface::CHANNEL_IDLE));
-    else phy->sendControlMsgToMac(new cMessage("ChannelStatus",Mac80211pToPhy11pInterface::CHANNEL_BUSY));
+
+    if (isIdle)
+        phy->sendControlMsgToMac(new omnetpp::cMessage("ChannelStatus",Mac80211pToPhy11pInterface::CHANNEL_IDLE));
+    else
+        phy->sendControlMsgToMac(new omnetpp::cMessage("ChannelStatus",Mac80211pToPhy11pInterface::CHANNEL_BUSY));
 }
 
 void Decider80211p::changeFrequency(double freq) {
@@ -539,13 +550,14 @@ void Decider80211p::switchToTx() {
             currentSignal.first = 0;
         }
         else {
-            opp_error("Decider80211p: mac layer requested phy to transmit a frame while currently receiving another");
+            throw omnetpp::cRuntimeError("Decider80211p: mac layer requested phy to transmit a frame while currently receiving another");
         }
     }
 }
 
-void Decider80211p::finish() {
-    simtime_t totalTime = simTime() - myStartTime;
+void Decider80211p::finish()
+{
+    omnetpp::simtime_t totalTime = omnetpp::simTime() - myStartTime;
     phy->recordScalar("busyTime", myBusyTime / totalTime.dbl());
     if (collectCollisionStats) {
         phy->recordScalar("ncollisions", collisions);

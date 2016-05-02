@@ -32,7 +32,8 @@
  *
  * @author Karl Wessel
  */
-class MIXIM_API MacToNetwControlInfo : public cObject {
+class MIXIM_API MacToNetwControlInfo : public omnetpp::cObject
+{
 protected:
 	/** @brief The bit error rate for this packet.*/
 	double bitErrorRate;
@@ -118,16 +119,21 @@ public:
      * @param pMsg		The message where the "control info" shall be attached.
      * @param pSrcAddr	The MAC address of the message sender.
      */
-    static cObject *const setControlInfo(cMessage *const pMsg, const LAddress::L2Type& pSrcAddr) {
+    static omnetpp::cObject *const setControlInfo(omnetpp::cMessage *const pMsg, const LAddress::L2Type& pSrcAddr)
+    {
     	MacToNetwControlInfo *const cCtrlInfo = new MacToNetwControlInfo(pSrcAddr);
     	pMsg->setControlInfo(cCtrlInfo);
 
     	return cCtrlInfo;
     }
-    static const LAddress::L2Type& getAddress(cMessage *const pMsg) {
+
+    static const LAddress::L2Type& getAddress(omnetpp::cMessage *const pMsg)
+    {
     	return getAddressFromControlInfo(pMsg->getControlInfo());
     }
-    static const LAddress::L2Type& getAddressFromControlInfo(cObject *const pCtrlInfo) {
+
+    static const LAddress::L2Type& getAddressFromControlInfo(omnetpp::cObject *const pCtrlInfo)
+    {
     	MacToNetwControlInfo *const cCtrlInfo = dynamic_cast<MacToNetwControlInfo *const>(pCtrlInfo);
 
     	if (cCtrlInfo)

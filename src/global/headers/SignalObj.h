@@ -33,7 +33,7 @@
 
 namespace VENTOS {
 
-class MacStat : public cObject, noncopyable
+class MacStat : public omnetpp::cObject, omnetpp::noncopyable
 {
 public:
     std::vector<long> vec;
@@ -45,7 +45,7 @@ public:
 };
 
 
-class systemData : public cObject, noncopyable
+class systemData : public omnetpp::cObject, omnetpp::noncopyable
 {
     std::string edge;
     std::string node;
@@ -101,7 +101,7 @@ public:
 
 
 // for beacons
-class data : public cObject, noncopyable
+class data : public omnetpp::cObject, omnetpp::noncopyable
 {
 public:
     std::string sender;
@@ -117,7 +117,7 @@ public:
 };
 
 
-class CurrentVehicleState : public cObject, noncopyable
+class CurrentVehicleState : public omnetpp::cObject, omnetpp::noncopyable
 {
 public:
     std::string name;
@@ -131,7 +131,7 @@ public:
 };
 
 
-class CurrentPlnMsg : public cObject, noncopyable
+class CurrentPlnMsg : public omnetpp::cObject, omnetpp::noncopyable
 {
 public:
     PlatoonMsg *msg;
@@ -145,7 +145,7 @@ public:
 };
 
 
-class PlnManeuver : public cObject, noncopyable
+class PlnManeuver : public omnetpp::cObject, omnetpp::noncopyable
 {
 public:
     std::string from;
@@ -162,7 +162,7 @@ public:
 
 
 // is used to send CRL pieces to an RSU or vehicle
-class CRLPiecesData : public cObject, noncopyable
+class CRLPiecesData : public omnetpp::cObject, omnetpp::noncopyable
 {
   public:
     std::string name;  // Recipient name

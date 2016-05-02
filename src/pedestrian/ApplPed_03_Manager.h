@@ -41,12 +41,12 @@ class ApplPedManager : public ApplPedBeacon
         ~ApplPedManager();
 		virtual void initialize(int stage);
         virtual void finish();
-        virtual void receiveSignal(cComponent* source, simsignal_t signalID, cObject* obj);
+        virtual void receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, cObject* obj, cObject* details);
 
 	protected:
         // Methods
-        virtual void handleLowerMsg(cMessage*);
-        virtual void handleSelfMsg(cMessage*);
+        virtual void handleLowerMsg(omnetpp::cMessage*);
+        virtual void handleSelfMsg(omnetpp::cMessage*);
         virtual void handlePositionUpdate(cObject*);
 
 		virtual void onBeaconVehicle(BeaconVehicle*);

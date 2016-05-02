@@ -29,7 +29,7 @@
 
 namespace VENTOS {
 
-void ApplVPlatoonMg::entry_handleSelfMsg(cMessage* msg)
+void ApplVPlatoonMg::entry_handleSelfMsg(omnetpp::cMessage* msg)
 {
     if(!entryEnabled)
         return;
@@ -50,7 +50,7 @@ void ApplVPlatoonMg::entry_handleSelfMsg(cMessage* msg)
             vehicleState = state_waitForLaneChange;
             reportStateToStat();
 
-            scheduleAt(simTime() + 0.1, plnTIMER0);
+            scheduleAt(omnetpp::simTime() + 0.1, plnTIMER0);
         }
     }
     else if(msg == plnTIMER0 && vehicleState == state_waitForLaneChange)
@@ -91,7 +91,7 @@ void ApplVPlatoonMg::entry_handleSelfMsg(cMessage* msg)
             reportStateToStat();
         }
         else
-            scheduleAt(simTime() + 0.1, plnTIMER0);
+            scheduleAt(omnetpp::simTime() + 0.1, plnTIMER0);
     }
 }
 

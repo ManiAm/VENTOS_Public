@@ -29,7 +29,7 @@
 
 namespace VENTOS {
 
-void ApplVPlatoonMg::merge_handleSelfMsg(cMessage* msg)
+void ApplVPlatoonMg::merge_handleSelfMsg(omnetpp::cMessage* msg)
 {
     if(!mergeEnabled)
         return;
@@ -81,7 +81,7 @@ void ApplVPlatoonMg::merge_handleSelfMsg(cMessage* msg)
                 }
             }
             else
-                scheduleAt(simTime() + 0.1, plnTIMER1a);
+                scheduleAt(omnetpp::simTime() + 0.1, plnTIMER1a);
         }
     }
     else if(msg == plnTIMER2)
@@ -151,7 +151,7 @@ void ApplVPlatoonMg::merge_BeaconFSM(BeaconVehicle* wsm)
 
         // send a unicast MERGE_REQ to its platoon leader
         PlatoonMsg* dataMsg = prepareData(leadingPlnID, MERGE_REQ, leadingPlnID, -1, "", plnMembersList);
-        EV << "### " << SUMOID << ": sent MERGE_REQ." << endl;
+        EV << "### " << SUMOID << ": sent MERGE_REQ." << std::endl;
         sendDelayed(dataMsg, individualOffset, lowerLayerOut);
         reportCommandToStat(dataMsg);
 
@@ -163,7 +163,7 @@ void ApplVPlatoonMg::merge_BeaconFSM(BeaconVehicle* wsm)
         reportManeuverToStat(SUMOID, leadingPlnID, "Merge_Request");
 
         // start plnTIMER1
-        scheduleAt(simTime() + 1., plnTIMER1);
+        scheduleAt(omnetpp::simTime() + 1., plnTIMER1);
     }
 }
 
@@ -210,7 +210,7 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
 
         // MyCircularBufferMerge.clear();
 
-        scheduleAt(simTime() + .1, plnTIMER1a);
+        scheduleAt(omnetpp::simTime() + .1, plnTIMER1a);
     }
     else if(vehicleState == state_waitForCatchup)
     {
@@ -220,7 +220,7 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
         {
             // send MERGE_REJECT
             PlatoonMsg* dataMsg = prepareData(wsm->getSender(), MERGE_REJECT, wsm->getSendingPlatoonID());
-            EV << "### " << SUMOID << ": sent MERGE_REJECT." << endl;
+            EV << "### " << SUMOID << ": sent MERGE_REJECT." << std::endl;
             sendDelayed(dataMsg, individualOffset, lowerLayerOut);
             reportCommandToStat(dataMsg);
         }
@@ -234,7 +234,7 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
 
         // send unicast MERGE_DONE
         PlatoonMsg* dataMsg = prepareData(plnID, MERGE_DONE, plnID);
-        EV << "### " << SUMOID << ": sent MERGE_DONE." << endl;
+        EV << "### " << SUMOID << ": sent MERGE_DONE." << std::endl;
         sendDelayed(dataMsg, individualOffset, lowerLayerOut);
         reportCommandToStat(dataMsg);
 
@@ -247,7 +247,7 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
     {
         // send CHANGE_PL to all my followers (last two parameters are data attached to this ucommand)
         PlatoonMsg* dataMsg = prepareData("multicast", CHANGE_PL, leadingPlnID, leadingPlnDepth+1, leadingPlnID);
-        EV << "### " << SUMOID << ": sent CHANGE_PL." << endl;
+        EV << "### " << SUMOID << ": sent CHANGE_PL." << std::endl;
         sendDelayed(dataMsg, individualOffset, lowerLayerOut);
         reportCommandToStat(dataMsg);
 
@@ -255,7 +255,7 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
         reportStateToStat();
 
         // start plnTIMER2
-        scheduleAt(simTime() + 1., plnTIMER2);
+        scheduleAt(omnetpp::simTime() + 1., plnTIMER2);
     }
     else if(vehicleState == state_waitForAllAcks)
     {
@@ -285,7 +285,7 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
             {
                 // send MERGE_REJECT
                 PlatoonMsg* dataMsg = prepareData(wsm->getSender(), MERGE_REJECT, wsm->getSendingPlatoonID());
-                EV << "### " << SUMOID << ": sent MERGE_REJECT." << endl;
+                EV << "### " << SUMOID << ": sent MERGE_REJECT." << std::endl;
                 sendDelayed(dataMsg, individualOffset, lowerLayerOut);
                 reportCommandToStat(dataMsg);
             }
@@ -305,7 +305,7 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
     {
         // send MERGE_ACCEPT
         PlatoonMsg* dataMsg = prepareData(secondPlnMembersList.front().c_str(), MERGE_ACCEPT, secondPlnMembersList.front().c_str());
-        EV << "### " << SUMOID << ": sent MERGE_ACCEPT." << endl;
+        EV << "### " << SUMOID << ": sent MERGE_ACCEPT." << std::endl;
         sendDelayed(dataMsg, individualOffset, lowerLayerOut);
         reportCommandToStat(dataMsg);
 
@@ -316,7 +316,7 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
         reportStateToStat();
 
         // start plnTIMER3 (we wait for 5 seconds!)
-        scheduleAt(simTime() + 5., plnTIMER3);
+        scheduleAt(omnetpp::simTime() + 5., plnTIMER3);
     }
     else if(vehicleState == state_waitForMergeDone)
     {
@@ -338,7 +338,7 @@ void ApplVPlatoonMg::merge_DataFSM(PlatoonMsg* wsm)
         {
             // increase Tg
             PlatoonMsg* dataMsg = prepareData("multicast", CHANGE_Tg, plnID, TG2);
-            EV << "### " << SUMOID << ": sent CHANGE_Tg with value " << TG2 << endl;
+            EV << "### " << SUMOID << ": sent CHANGE_Tg with value " << TG2 << std::endl;
             sendDelayed(dataMsg, individualOffset, lowerLayerOut);
             reportCommandToStat(dataMsg);
         }

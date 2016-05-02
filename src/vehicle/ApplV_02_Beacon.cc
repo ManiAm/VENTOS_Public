@@ -71,9 +71,9 @@ void ApplVBeacon::initialize(int stage)
         if(SUMOType == "TypeObstacle")
             VANETenabled = false;
 
-        VehicleBeaconEvt = new cMessage("BeaconEvt", KIND_TIMER);
+        VehicleBeaconEvt = new omnetpp::cMessage("BeaconEvt", KIND_TIMER);
         if (VANETenabled)
-            scheduleAt(simTime() + offSet, VehicleBeaconEvt);
+            scheduleAt(omnetpp::simTime() + offSet, VehicleBeaconEvt);
 
         plnID = "";
         myPlnDepth = -1;
@@ -99,7 +99,7 @@ void ApplVBeacon::finish()
 }
 
 
-void ApplVBeacon::handleSelfMsg(cMessage* msg)
+void ApplVBeacon::handleSelfMsg(omnetpp::cMessage* msg)
 {
     super::handleSelfMsg(msg);
 
@@ -118,8 +118,8 @@ void ApplVBeacon::handleSelfMsg(cMessage* msg)
             // receive a copy of the beacon (for now, only RSUs are registered)
             if(signalBeaconing)
             {
-                simsignal_t Signal_beaconSignaling = registerSignal("beaconSignaling");
-                nodePtr->emit(Signal_beaconSignaling, beaconMsg);
+                omnetpp::simsignal_t Signal_beaconSignaling = registerSignal("beaconSignaling");
+                this->getParentModule()->emit(Signal_beaconSignaling, beaconMsg);
             }
             // broadcast the beacon wirelessly using IEEE 802.11p
             else
@@ -127,7 +127,7 @@ void ApplVBeacon::handleSelfMsg(cMessage* msg)
         }
 
         // schedule for next beacon broadcast
-        scheduleAt(simTime() + beaconInterval, VehicleBeaconEvt);
+        scheduleAt(omnetpp::simTime() + beaconInterval, VehicleBeaconEvt);
     }
 }
 

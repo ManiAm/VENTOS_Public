@@ -60,9 +60,9 @@ public:
     ~Router();
     virtual void initialize(int stage);
     virtual void finish();
-    virtual void handleMessage(cMessage* msg);
-    virtual void receiveSignal(cComponent *, simsignal_t, cObject *);
-    virtual void receiveSignal(cComponent *source, simsignal_t signalID, long i);
+    virtual void handleMessage(omnetpp::cMessage* msg);
+    virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, cObject *, cObject* details);
+    virtual void receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t signalID, long i, cObject* details);
 
     int createTime; //The duration over which vehicles are created
     int currentVehicleCount; //The current number of vehicles in the sim
@@ -81,7 +81,7 @@ protected:
     boost::filesystem::path SUMO_FullPath;
 
     //Edge-removal Algo
-    cMessage* routerMsg;
+    omnetpp::cMessage* routerMsg;
     void issueStop(std::string vehID, std::string edgeID, double position, int laneIndex); //Tells a vehicle to stop on the given edge
     void issueStart(std::string vehID); //Tells a vehicle to resume
     void checkEdgeRemovals(); //Check for vehicles on disabled edges
@@ -116,9 +116,9 @@ protected:
 
     //Message passing
     TraCI_Commands* TraCI;    //Link to TraCI
-    simsignal_t Signal_system;      //Receives signals to here
+    omnetpp::simsignal_t Signal_system;      //Receives signals to here
 
-    simsignal_t Signal_executeEachTS;
+    omnetpp::simsignal_t Signal_executeEachTS;
 
     int debugLevel;
 

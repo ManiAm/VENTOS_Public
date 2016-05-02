@@ -35,17 +35,17 @@
  */
 namespace Veins {
 
-class ObstacleControl : public cSimpleModule
+class ObstacleControl : public omnetpp::cSimpleModule
 {
 public:
     ~ObstacleControl();
     void initialize(int stage);
     int numInitStages() const { return 2; }
     void finish();
-    void handleMessage(cMessage *msg);
-    void handleSelfMsg(cMessage *msg);
+    void handleMessage(omnetpp::cMessage *msg);
+    void handleSelfMsg(omnetpp::cMessage *msg);
 
-    void addFromXml(cXMLElement* xml);
+    void addFromXml(omnetpp::cXMLElement* xml);
     void addFromTypeAndShape(std::string id, std::string typeId, std::vector<Coord> shape);
     void add(Obstacle obstacle);
     void erase(const Obstacle* obstacle);
@@ -89,7 +89,7 @@ protected:
     typedef std::map<CacheKey, double> CacheEntries;
 
     bool debug; /**< whether to emit debug messages */
-    cXMLElement* obstaclesXml; /**< obstacles to add at startup */
+    omnetpp::cXMLElement* obstaclesXml; /**< obstacles to add at startup */
 
     Obstacles obstacles;
     AnnotationManager* annotations;
@@ -106,7 +106,7 @@ public:
     }
 
     ObstacleControl* getIfExists() {
-        return dynamic_cast<ObstacleControl*>(simulation.getModuleByPath("obstacles"));
+        return dynamic_cast<ObstacleControl*>(omnetpp::getSimulation()->getModuleByPath("obstacles"));
     }
 };
 

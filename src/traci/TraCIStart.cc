@@ -39,7 +39,6 @@
 // why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header
 #undef ev
 #include "boost/filesystem.hpp"
-#define ev  (*cSimulation::getActiveEnvir())
 
 namespace VENTOS {
 
@@ -74,12 +73,12 @@ void TraCI_Start::initialize(int stage)
         // no need to bring up SUMO
         if(connectAt == -1)
         {
-            executeOneTimestepTrigger = new cMessage("step");
+            executeOneTimestepTrigger = new omnetpp::cMessage("step");
             scheduleAt(updateInterval, executeOneTimestepTrigger);
         }
         else
         {
-            connectAndStartTrigger = new cMessage("connect");
+            connectAndStartTrigger = new omnetpp::cMessage("connect");
             scheduleAt(connectAt, connectAndStartTrigger);
 
             firstStepAt = par("firstStepAt");
@@ -87,7 +86,7 @@ void TraCI_Start::initialize(int stage)
                 firstStepAt = connectAt + updateInterval;
             ASSERT(firstStepAt > connectAt);
 
-            executeOneTimestepTrigger = new cMessage("step");
+            executeOneTimestepTrigger = new omnetpp::cMessage("step");
             scheduleAt(firstStepAt, executeOneTimestepTrigger);
 
             host = par("host").stdstringValue();
@@ -120,11 +119,11 @@ void TraCI_Start::initialize(int stage)
             subscribedVehicles.clear();
             subscribedPedestrians.clear();
 
-            cModule *module = simulation.getSystemModule()->getSubmodule("world");
+            cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("world");
             world = static_cast<BaseWorldUtility*>(module);
             ASSERT(world);
 
-            module = simulation.getSystemModule()->getSubmodule("connMan");
+            module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("connMan");
             cc = static_cast<ConnectionManager*>(module);
             ASSERT(cc);
 
@@ -154,7 +153,7 @@ void TraCI_Start::finish()
 }
 
 
-void TraCI_Start::handleMessage(cMessage *msg)
+void TraCI_Start::handleMessage(omnetpp::cMessage *msg)
 {
     super::handleMessage(msg);
 
@@ -168,15 +167,15 @@ void TraCI_Start::handleMessage(cMessage *msg)
             executeOneTimestep();
 
         // notify other modules to run one simulation TS
-        simsignal_t Signal_executeEachTS = registerSignal("executeEachTS");
+        omnetpp::simsignal_t Signal_executeEachTS = registerSignal("executeEachTS");
         this->emit(Signal_executeEachTS, 0);
 
         // we reached max simtime and should terminate OMNET++ simulation
         // upon calling endSimulation(), TraCI_Start::finish() will close TraCI connection
-        if(terminate != -1 && simTime().dbl() >= terminate)
+        if(terminate != -1 && omnetpp::simTime().dbl() >= terminate)
             endSimulation();
 
-        scheduleAt(simTime() + updateInterval, executeOneTimestepTrigger);
+        scheduleAt(omnetpp::simTime() + updateInterval, executeOneTimestepTrigger);
     }
     else
         error("TraCI_Start received unknown self-message");
@@ -216,7 +215,7 @@ void TraCI_Start::init_traci()
     std::string serverVersionS = versionS.second;
 
     if (apiVersionS == 10)
-        std::cout << "  SUMO TraCI server \"" << serverVersionS << "\" reports API version " << apiVersionS << endl;
+        std::cout << "  SUMO TraCI server \"" << serverVersionS << "\" reports API version " << apiVersionS << std::endl;
     else
         error("TraCI server \"%s\" reports API version %d, which is unsupported.", serverVersionS.c_str(), apiVersionS);
 
@@ -228,13 +227,13 @@ void TraCI_Start::init_traci()
     double x2 = boundaries[2];  // x2
     double y2 = boundaries[3];  // y2
 
-    std::cout << "  TraCI reports network boundaries (" << x1 << "," << y1 << ")-(" << x2 << "," << y2 << ")" << endl;
+    std::cout << "  TraCI reports network boundaries (" << x1 << "," << y1 << ")-(" << x2 << "," << y2 << ")" << std::endl;
 
     netbounds1 = TraCICoord(x1, y1);
     netbounds2 = TraCICoord(x2, y2);
 
     if ((traci2omnet(netbounds2).x > world->getPgs()->x) || (traci2omnet(netbounds1).y > world->getPgs()->y))
-        std::cout << "WARNING: Playground size (" << world->getPgs()->x << ", " << world->getPgs()->y << ") might be too small for vehicle at network bounds (" << traci2omnet(netbounds2).x << ", " << traci2omnet(netbounds1).y << ")" << endl;
+        std::cout << "WARNING: Playground size (" << world->getPgs()->x << ", " << world->getPgs()->y << ") might be too small for vehicle at network bounds (" << traci2omnet(netbounds2).x << ", " << traci2omnet(netbounds1).y << ")" << std::endl;
 
     {
         // subscribe to list of departed and arrived vehicles, as well as simulation time
@@ -280,11 +279,11 @@ void TraCI_Start::init_traci()
     }
 
     // call AddVehicle to insert flows if needed
-    simsignal_t Signal_addFlow = registerSignal("addFlow");
+    omnetpp::simsignal_t Signal_addFlow = registerSignal("addFlow");
     this->emit(Signal_addFlow, 0);
 
     std::cout << "  Initializing modules with TraCI support ..." << std::endl;
-    simsignal_t Signal_initialize_withTraCI = registerSignal("initialize_withTraCI");
+    omnetpp::simsignal_t Signal_initialize_withTraCI = registerSignal("initialize_withTraCI");
     this->emit(Signal_initialize_withTraCI, 1);
 
     initRoi();
@@ -335,7 +334,7 @@ void TraCI_Start::initRoi()
 void TraCI_Start::roiRSUs()
 {
     // get a pointer to the first RSU
-    cModule *module = simulation.getSystemModule()->getSubmodule("RSU", 0);
+    omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("RSU", 0);
     // no RSUs in the network
     if(module == NULL)
         return;
@@ -346,7 +345,7 @@ void TraCI_Start::roiRSUs()
     // iterate over RSUs
     for(int i = 0; i < RSUcount; ++i)
     {
-        module = simulation.getSystemModule()->getSubmodule("RSU", i);
+        module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("RSU", i);
         cModule *mob =  module->getSubmodule("mobility");
         double centerX = mob->par("x").doubleValue();
         double centerY = mob->par("y").doubleValue();
@@ -396,7 +395,7 @@ void TraCI_Start::drawRoi()
 
 uint32_t TraCI_Start::getCurrentTimeMs()
 {
-    return static_cast<uint32_t>(round(simTime().dbl() * 1000));
+    return static_cast<uint32_t>(round(omnetpp::simTime().dbl() * 1000));
 }
 
 
@@ -595,7 +594,7 @@ void TraCI_Start::processVehicleSubscription(std::string objectId, TraCIBuffer& 
         // module existed - update position
         for (cModule::SubmoduleIterator iter(mod); !iter.end(); iter++)
         {
-            cModule* submod = iter();
+            cModule* submod = *iter;
             ifInetTraCIMobilityCallNextPosition(submod, p, edge, speed, angle);
             TraCIMobilityMod* mm = dynamic_cast<TraCIMobilityMod*>(submod);
             if (mm)
@@ -689,7 +688,7 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
 
                     departedNodes node = it->second;
 
-                    std::cout << "t=" << simTime().dbl() << ": " << node.vehicleId
+                    std::cout << "t=" << omnetpp::simTime().dbl() << ": " << node.vehicleId
                             << " of type " << node.vehicleTypeId << " arrived. "
                             << "Inserting it again on edge " << node.routeId
                             << " in pos " << node.pos
@@ -698,7 +697,7 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
                             << std::endl;
 
                     addedNodes.erase(it);  // remove this entry before adding
-                    vehicleAdd(node.vehicleId, node.vehicleTypeId, node.routeId, (simTime().dbl() * 1000)+1, node.pos, node.speed, node.lane);
+                    vehicleAdd(node.vehicleId, node.vehicleTypeId, node.routeId, (omnetpp::simTime().dbl() * 1000)+1, node.pos, node.speed, node.lane);
                 }
             }
 
@@ -768,7 +767,7 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
                 cModule* mod = getManagedModule(idstring);
                 for (cModule::SubmoduleIterator iter(mod); !iter.end(); iter++)
                 {
-                    cModule* submod = iter();
+                    cModule* submod = *iter;
                     TraCIMobilityMod* mm = dynamic_cast<TraCIMobilityMod*>(submod);
                     if (!mm) continue;
                     mm->changeParkingState(true);
@@ -790,7 +789,7 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
                 cModule* mod = getManagedModule(idstring);
                 for (cModule::SubmoduleIterator iter(mod); !iter.end(); iter++)
                 {
-                    cModule* submod = iter();
+                    cModule* submod = *iter;
                     TraCIMobilityMod* mm = dynamic_cast<TraCIMobilityMod*>(submod);
                     if (!mm) continue;
                     mm->changeParkingState(false);
@@ -816,7 +815,7 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
 }
 
 
-cModule* TraCI_Start::getManagedModule(std::string nodeId)
+omnetpp::cModule* TraCI_Start::getManagedModule(std::string nodeId)
 {
     if (hosts.find(nodeId) == hosts.end())
         return 0;
@@ -956,7 +955,7 @@ void TraCI_Start::addModule(std::string nodeId, const Coord& position, std::stri
     if (!parentmod)
         error("Parent Module not found");
 
-    cModuleType* nodeType = cModuleType::get(type.c_str());
+    omnetpp::cModuleType* nodeType = omnetpp::cModuleType::get(type.c_str());
     if (!nodeType)
         error("Module Type \"%s\" not found", type.c_str());
 
@@ -977,12 +976,12 @@ void TraCI_Start::addModule(std::string nodeId, const Coord& position, std::stri
     mod->getSubmodule("appl")->par("SUMOControllerType") = SUMOControllerType;
     mod->getSubmodule("appl")->par("SUMOControllerNumber") = SUMOControllerNumber;
 
-    mod->scheduleStart(simTime() + updateInterval);
+    mod->scheduleStart(omnetpp::simTime() + updateInterval);
 
     // pre-initialize TraCIMobilityMod
     for (cModule::SubmoduleIterator iter(mod); !iter.end(); iter++)
     {
-        cModule* submod = iter();
+        cModule* submod = *iter;
         ifInetTraCIMobilityCallPreInitialize(submod, nodeId, position, road_id, speed, angle);
         TraCIMobilityMod* mm = dynamic_cast<TraCIMobilityMod*>(submod);
         if (!mm) continue;
@@ -995,7 +994,7 @@ void TraCI_Start::addModule(std::string nodeId, const Coord& position, std::stri
     // post-initialize TraCIMobilityMod
     for (cModule::SubmoduleIterator iter(mod); !iter.end(); iter++)
     {
-        cModule* submod = iter();
+        cModule* submod = *iter;
         TraCIMobilityMod* mm = dynamic_cast<TraCIMobilityMod*>(submod);
         if (!mm) continue;
         mm->changePosition();
@@ -1137,7 +1136,7 @@ void TraCI_Start::saveVehicleData(std::string vID)
     // full collection
     if(vehicleDataLevel == 1)
     {
-        timeStep = (simTime()-updateInterval).dbl();
+        timeStep = (omnetpp::simTime()-updateInterval).dbl();
         vType = vehicleGetTypeID(vID);
         lane = vehicleGetLaneID(vID);
         pos = vehicleGetLanePosition(vID);
@@ -1198,7 +1197,7 @@ void TraCI_Start::saveVehicleData(std::string vID)
     // router scenario
     else if(vehicleDataLevel == 2)
     {
-        timeStep = (simTime()-updateInterval).dbl();
+        timeStep = (omnetpp::simTime()-updateInterval).dbl();
         vType = vehicleGetTypeID(vID);
         lane = vehicleGetLaneID(vID);
         pos = vehicleGetLanePosition(vID);
@@ -1208,7 +1207,7 @@ void TraCI_Start::saveVehicleData(std::string vID)
     // traffic light scenario
     else if(vehicleDataLevel == 3)
     {
-        timeStep = (simTime()-updateInterval).dbl();
+        timeStep = (omnetpp::simTime()-updateInterval).dbl();
         lane = vehicleGetLaneID(vID);
         speed = vehicleGetSpeed(vID);
         linkStatus = vehicleGetTLLinkStatus(vID);
@@ -1216,7 +1215,7 @@ void TraCI_Start::saveVehicleData(std::string vID)
     // CACC vehicle stream
     else if(vehicleDataLevel == 4)
     {
-        timeStep = (simTime()-updateInterval).dbl();
+        timeStep = (omnetpp::simTime()-updateInterval).dbl();
         pos = vehicleGetLanePosition(vID);
         speed = vehicleGetSpeed(vID);
         accel = vehicleGetCurrentAccel(vID);
@@ -1243,19 +1242,19 @@ void TraCI_Start::vehiclesDataToFile()
 
     boost::filesystem::path filePath;
 
-    if(ev.isGUI())
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI())
     {
         filePath = "results/gui/vehicleData.txt";
     }
     else
     {
         // get the current run number
-        int currentRun = ev.getConfigEx()->getActiveRunNumber();
+        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
         std::ostringstream fileName;
 
         if(vehicleDataLevel == 2)
         {
-            cModule *module = simulation.getSystemModule()->getSubmodule("router");
+            cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("router");
             Router *router = static_cast< Router* >(module);
 
             int TLMode = (*router->net->TLs.begin()).second->TLLogicMode;
@@ -1274,19 +1273,19 @@ void TraCI_Start::vehiclesDataToFile()
     FILE *filePtr = fopen (filePath.string().c_str(), "w");
 
     // write simulation parameters at the beginning of the file in CMD mode
-    if(!ev.isGUI())
+    if(!omnetpp::cSimulation::getActiveEnvir()->isGUI())
     {
         // get the current config name
-        std::string configName = ev.getConfigEx()->getVariable("configname");
+        std::string configName = omnetpp::getEnvir()->getConfigEx()->getVariable("configname");
 
         // get number of total runs in this config
-        int totalRun = ev.getConfigEx()->getNumRunsInConfig(configName.c_str());
+        int totalRun = omnetpp::getEnvir()->getConfigEx()->getNumRunsInConfig(configName.c_str());
 
         // get the current run number
-        int currentRun = ev.getConfigEx()->getActiveRunNumber();
+        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
 
         // get all iteration variables
-        std::vector<std::string> iterVar = ev.getConfigEx()->unrollConfig(configName.c_str(), false);
+        std::vector<std::string> iterVar = omnetpp::getEnvir()->getConfigEx()->unrollConfig(configName.c_str(), false);
 
         // write to file
         fprintf (filePtr, "configName      %s\n", configName.c_str());

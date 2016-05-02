@@ -70,7 +70,7 @@ void ApplVPlatoonFormed::finish()
 }
 
 
-void ApplVPlatoonFormed::handleSelfMsg(cMessage* msg)
+void ApplVPlatoonFormed::handleSelfMsg(omnetpp::cMessage* msg)
 {
     // pass it down!
     super::handleSelfMsg(msg);
@@ -90,7 +90,7 @@ void ApplVPlatoonFormed::onBeaconVehicle(BeaconVehicle* wsm)
     {
         if( std::string(wsm->getPlatoonID()) != "" && wsm->getPlatoonDepth() == 0 )
         {
-            EV << "This beacon is from a platoon leader. I will join ..." << endl;
+            EV << "This beacon is from a platoon leader. I will join ..." << std::endl;
             plnID = wsm->getPlatoonID();
 
             // change the color to blue
@@ -103,7 +103,7 @@ void ApplVPlatoonFormed::onBeaconVehicle(BeaconVehicle* wsm)
     else if( isBeaconFromMyPlatoonLeader(wsm) )
     {
         // do nothing!
-        EV << "This beacon is from my platoon leader ..." << endl;
+        EV << "This beacon is from my platoon leader ..." << std::endl;
     }
     // I received a beacon from another platoon
     else if( std::string(wsm->getPlatoonID()) != plnID )

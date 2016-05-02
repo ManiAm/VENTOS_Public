@@ -41,7 +41,8 @@ void BaseApplLayer::initialize(int stage)
 /**
  * Send message down to lower layer
  **/
-void BaseApplLayer::sendDelayedDown(cMessage *msg, simtime_t_cref delay) {
+void BaseApplLayer::sendDelayedDown(omnetpp::cMessage *msg, omnetpp::simtime_t_cref delay)
+{
     recordPacket(PassedMessage::OUTGOING, PassedMessage::LOWER_DATA, msg);
     sendDelayed(msg, delay, lowerLayerOut);
 }

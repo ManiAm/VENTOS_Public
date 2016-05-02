@@ -79,10 +79,10 @@ void BLE_Dump::initialize(int stage)
     {
         // register signals
         Signal_initialize_withTraCI = registerSignal("initialize_withTraCI");
-        simulation.getSystemModule()->subscribe("initialize_withTraCI", this);
+        omnetpp::getSimulation()->getSystemModule()->subscribe("initialize_withTraCI", this);
 
         Signal_executeEachTS = registerSignal("executeEachTS");
-        simulation.getSystemModule()->subscribe("executeEachTS", this);
+        omnetpp::getSimulation()->getSystemModule()->subscribe("executeEachTS", this);
 
         dump_On = par("dump_On").boolValue();
     }
@@ -94,19 +94,19 @@ void BLE_Dump::finish()
     super::finish();
 
     // unsubscribe
-    simulation.getSystemModule()->unsubscribe("initialize_withTraCI", this);
-    simulation.getSystemModule()->unsubscribe("executeEachTS", this);
+    omnetpp::getSimulation()->getSystemModule()->unsubscribe("initialize_withTraCI", this);
+    omnetpp::getSimulation()->getSystemModule()->unsubscribe("executeEachTS", this);
 }
 
 
-void BLE_Dump::handleMessage(cMessage *msg)
+void BLE_Dump::handleMessage(omnetpp::cMessage *msg)
 {
     super::handleMessage(msg);
 
 }
 
 
-void BLE_Dump::receiveSignal(cComponent *source, simsignal_t signalID, long i)
+void BLE_Dump::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t signalID, long i, cObject* details)
 {
     Enter_Method_Silent();
 

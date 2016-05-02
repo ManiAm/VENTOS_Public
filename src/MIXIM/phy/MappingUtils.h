@@ -101,7 +101,7 @@ template<template <typename> class Interpolator>
 class TimeMappingIterator:public MappingIterator {
 protected:
     /** @brief The templated InterpolateableMap the underlying Mapping uses std::map as storage type.*/
-    typedef InterpolateableMap< Interpolator< std::map<simtime_t, argument_value_t> > >
+    typedef InterpolateableMap< Interpolator< std::map<omnetpp::simtime_t, argument_value_t> > >
     interpolator_map_type;
     typedef typename interpolator_map_type::interpolator_type    interpolator_type;
     typedef typename interpolator_map_type::mapped_type          mapped_type;
@@ -130,9 +130,9 @@ protected:
     bool         atPreStep;
 protected:
     void updateNextPos() {
-        simtime_t t = valueIt.getNextPosition();
+        omnetpp::simtime_t t = valueIt.getNextPosition();
         if(isStepMapping && !atPreStep) {
-            t.setRaw(SIMTIME_RAW(t) - 1);
+            t.setRaw(t.raw() - 1);
         }
         nextPosition.setTime(t);
     }
@@ -289,7 +289,7 @@ template<template <typename> class Interpolator>
 class TimeMapping:public Mapping {
 protected:
     /** @brief The templated InterpolateableMap the underlying Mapping uses std::map as storage type.*/
-    typedef InterpolateableMap< Interpolator< std::map<simtime_t, argument_value_t> > >
+    typedef InterpolateableMap< Interpolator< std::map<omnetpp::simtime_t, argument_value_t> > >
     interpolator_map_type;
     typedef typename interpolator_map_type::interpolator_type    interpolator_type;
     typedef typename interpolator_map_type::mapped_type          mapped_type;
@@ -1898,17 +1898,17 @@ public:
      */
     static void addDiscontinuity(Mapping* m,
             const Argument& pos, Argument::mapped_type_cref value,
-            simtime_t_cref limitTime, Argument::mapped_type_cref limitValue);
+            omnetpp::simtime_t_cref limitTime, Argument::mapped_type_cref limitValue);
 
     /**
      * @brief returns the closest value of simtime before passed value
      */
-    static simtime_t pre(simtime_t_cref t);
+    static omnetpp::simtime_t pre(omnetpp::simtime_t_cref t);
 
     /**
      * @brief returns the closest value of simtime after passed values
      */
-    static simtime_t post(simtime_t_cref t);
+    static omnetpp::simtime_t post(omnetpp::simtime_t_cref t);
 };
 
 
@@ -2074,7 +2074,7 @@ public:
 template<class Base, class Iterator>
 class BaseDelayedIterator: public Base {
 protected:
-    simtime_t delay;
+    omnetpp::simtime_t delay;
 
     Argument position;
     Argument nextPosition;
@@ -2097,7 +2097,7 @@ protected:
     }
 
 public:
-    BaseDelayedIterator(Iterator* it, simtime_t_cref delay):
+    BaseDelayedIterator(Iterator* it, omnetpp::simtime_t_cref delay):
         Base(it), delay(delay) {
 
         updatePosition();
@@ -2161,7 +2161,7 @@ template<class Base>
 class BaseDelayedMapping: public Base {
 protected:
     Base* mapping;
-    simtime_t delay;
+    omnetpp::simtime_t delay;
 
 
 protected:
@@ -2172,7 +2172,7 @@ protected:
     }
 
 public:
-    BaseDelayedMapping(Base* mapping, simtime_t_cref delay):
+    BaseDelayedMapping(Base* mapping, omnetpp::simtime_t_cref delay):
         Base(mapping->getDimensionSet()), mapping(mapping), delay(delay) {}
 
     virtual ~BaseDelayedMapping() {}
@@ -2192,14 +2192,14 @@ public:
     /**
      * @brief Returns the delay used by this mapping.
      */
-    virtual simtime_t_cref getDelay() const {
+    virtual omnetpp::simtime_t_cref getDelay() const {
         return delay;
     }
 
     /**
      * @brief Changes the delay to the passed value.
      */
-    virtual void delayMapping(simtime_t_cref d) {
+    virtual void delayMapping(omnetpp::simtime_t_cref d) {
         delay = d;
     }
 };
@@ -2215,7 +2215,7 @@ public:
  */
 class MIXIM_API ConstDelayedMapping: public BaseDelayedMapping<ConstMapping> {
 public:
-    ConstDelayedMapping(ConstMapping* mapping, simtime_t_cref delay):
+    ConstDelayedMapping(ConstMapping* mapping, omnetpp::simtime_t_cref delay):
         BaseDelayedMapping<ConstMapping>(mapping, delay) {}
 
     virtual ~ConstDelayedMapping() {}
@@ -2236,7 +2236,7 @@ public:
  */
 class MIXIM_API DelayedMapping: public BaseDelayedMapping<Mapping> {
 public:
-    DelayedMapping(Mapping* mapping, simtime_t_cref delay):
+    DelayedMapping(Mapping* mapping, omnetpp::simtime_t_cref delay):
         BaseDelayedMapping<Mapping>(mapping, delay) {}
 
     virtual ~DelayedMapping() {}

@@ -21,9 +21,12 @@
 #include "TwoRayInterferenceModel.h"
 #include "AirFrame_m.h"
 
-#define debugEV (ev.isDisabled()||!debug) ? ev : ev << "PhyLayer(TwoRayInterferenceModel): "
+#define debugEV EV << "PhyLayer(TwoRayInterferenceModel): "
 
-void TwoRayInterferenceModel::filterSignal(AirFrame *frame, const Coord& senderPos, const Coord& receiverPos) {
+void TwoRayInterferenceModel::filterSignal(AirFrame *frame, const Coord& senderPos, const Coord& receiverPos)
+{
+    EV_STATICCONTEXT
+
 	Signal& s = frame->getSignal();
 
 	const Coord senderPos2D(senderPos.x, senderPos.y);
@@ -35,7 +38,7 @@ void TwoRayInterferenceModel::filterSignal(AirFrame *frame, const Coord& senderP
 	double d = senderPos2D.distance(receiverPos2D);
 	double ht = senderPos.z, hr = receiverPos.z;
 
-	debugEV << "(ht, hr) = (" << ht << ", " << hr << ")" << endl;
+	debugEV << "(ht, hr) = (" << ht << ", " << hr << ")" << std::endl;
 
 	double d_dir = sqrt( pow (d,2) + pow((ht - hr),2) ); // direct distance
 	double d_ref = sqrt( pow (d,2) + pow((ht + hr),2) ); // distance via ground reflection
@@ -47,16 +50,18 @@ void TwoRayInterferenceModel::filterSignal(AirFrame *frame, const Coord& senderP
 
 	//is the signal defined to attenuate over frequency?
 	bool hasFrequency = s.getTransmissionPower()->getDimensionSet().hasDimension(Dimension::frequency());
-	debugEV << "Signal contains frequency dimension: " << (hasFrequency ? "yes" : "no") << endl;
+	debugEV << "Signal contains frequency dimension: " << (hasFrequency ? "yes" : "no") << std::endl;
 
 	assert(hasFrequency);
 
-	debugEV << "Add TwoRayInterferenceModel attenuation (gamma, d, d_dir, d_ref) = (" << gamma << ", " << d << ", " << d_dir << ", " << d_ref << ")" << endl;
+	debugEV << "Add TwoRayInterferenceModel attenuation (gamma, d, d_dir, d_ref) = (" << gamma << ", " << d << ", " << d_dir << ", " << d_ref << ")" << std::endl;
 
         s.addAttenuation(new TwoRayInterferenceModel::Mapping(gamma, d, d_dir, d_ref, debug));
 }
 
-double TwoRayInterferenceModel::Mapping::getValue(const Argument& pos) const {
+double TwoRayInterferenceModel::Mapping::getValue(const Argument& pos) const
+{
+    EV_STATICCONTEXT
 
 	assert(pos.hasArgVal(Dimension::frequency()));
 	double freq = pos.getArgValue(Dimension::frequency());
@@ -68,6 +73,6 @@ double TwoRayInterferenceModel::Mapping::getValue(const Argument& pos) const {
 					+ pow(gamma,2) * pow(sin(phi),2))
 				))
 			, 2);
-	debugEV << "Add attenuation for (freq, lambda, phi, gamma, att) = (" << freq << ", " << lambda << ", " << phi << ", " << gamma << ", " << (1/att) << ", " << FWMath::mW2dBm(att) << ")" << endl;
+	debugEV << "Add attenuation for (freq, lambda, phi, gamma, att) = (" << freq << ", " << lambda << ", " << phi << ", " << gamma << ", " << (1/att) << ", " << FWMath::mW2dBm(att) << ")" << std::endl;
 	return 1/att;
 }

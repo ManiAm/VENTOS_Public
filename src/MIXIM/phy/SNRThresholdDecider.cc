@@ -4,14 +4,18 @@
 #include "AirFrame_m.h"
 #include "Mapping.h"
 
-simtime_t SNRThresholdDecider::processNewSignal(AirFrame* frame)
+#define deciderEV EV << "[Host " << myIndex << "] - PhyLayer(Decider): "
+
+omnetpp::simtime_t SNRThresholdDecider::processNewSignal(AirFrame* frame)
 {
+    EV_STATICCONTEXT
+
 	//the rssi level changes therefore we need to check if we can
 	//answer an ongoing ChannelSenseRequest now
 	channelStateChanged();
 
 	if(currentSignal.first != 0) {
-		deciderEV << "Already receiving another AirFrame!" << endl;
+		deciderEV << "Already receiving another AirFrame!" << std::endl;
 		return notAgain;
 	}
 
@@ -26,21 +30,21 @@ simtime_t SNRThresholdDecider::processNewSignal(AirFrame* frame)
 	//Therefore we use MappingUtils "post"-method to ask for the receiving power
 	//at the correct position.
 	Signal& signal = frame->getSignal();
-	simtime_t receivingStart = MappingUtils::post(signal.getReceptionStart());
+	omnetpp::simtime_t receivingStart = MappingUtils::post(signal.getReceptionStart());
 	double recvPower = signal.getReceivingPower()->getValue(Argument(receivingStart));
 
 	// check whether signal is strong enough to receive
 	if ( recvPower < sensitivity )
 	{
 		deciderEV << "Signal is to weak (" << recvPower << " < " << sensitivity
-				<< ") -> do not receive." << endl;
+				<< ") -> do not receive." << std::endl;
 		// Signal too weak, we can't receive it, tell PhyLayer that we don't want it again
 		return notAgain;
 	}
 
 	// Signal is strong enough, receive this Signal and schedule it
 	deciderEV << "Signal is strong enough (" << recvPower << " > " << sensitivity
-			<< ") -> Trying to receive AirFrame." << endl;
+			<< ") -> Trying to receive AirFrame." << std::endl;
 
 	currentSignal.first = frame;
 	currentSignal.second = EXPECT_END;
@@ -49,19 +53,21 @@ simtime_t SNRThresholdDecider::processNewSignal(AirFrame* frame)
 }
 
 // TODO: for now we check a larger mapping within an interval
-bool SNRThresholdDecider::checkIfAboveThreshold(Mapping* map, simtime_t_cref start, simtime_t_cref end)
+bool SNRThresholdDecider::checkIfAboveThreshold(Mapping* map, omnetpp::simtime_t_cref start, omnetpp::simtime_t_cref end)
 {
+    EV_STATICCONTEXT
+
 	assert(map);
 
 	if(debug){
-		deciderEV << "Checking if SNR is above Threshold of " << snrThreshold << endl;
+		deciderEV << "Checking if SNR is above Threshold of " << snrThreshold << std::endl;
 	}
 
 	// check every entry in the mapping against threshold value
 	ConstMappingIterator* it = map->createConstIterator(Argument(start));
 	// check if values at start-time fulfill snrThreshold-criterion
 	if(debug){
-		deciderEV << "SNR at time " << start << " is " << it->getValue() << endl;
+		deciderEV << "SNR at time " << start << " is " << it->getValue() << std::endl;
 	}
 	if ( it->getValue() <= snrThreshold ){
 		delete it;
@@ -73,7 +79,7 @@ bool SNRThresholdDecider::checkIfAboveThreshold(Mapping* map, simtime_t_cref sta
 		it->next();
 
 		if(debug){
-			deciderEV << "SNR at time " << it->getPosition().getTime() << " is " << it->getValue() << endl;
+			deciderEV << "SNR at time " << it->getPosition().getTime() << " is " << it->getValue() << std::endl;
 		}
 
 		// perform the check for smaller entry
@@ -85,7 +91,7 @@ bool SNRThresholdDecider::checkIfAboveThreshold(Mapping* map, simtime_t_cref sta
 
 	it->iterateTo(Argument(end));
 	if(debug){
-		deciderEV << "SNR at time " << end << " is " << it->getValue() << endl;
+		deciderEV << "SNR at time " << end << " is " << it->getValue() << std::endl;
 	}
 
 	if ( it->getValue() <= snrThreshold ){
@@ -97,9 +103,10 @@ bool SNRThresholdDecider::checkIfAboveThreshold(Mapping* map, simtime_t_cref sta
 	return true;
 }
 
-ChannelState SNRThresholdDecider::getChannelState() {
+ChannelState SNRThresholdDecider::getChannelState()
+{
 
-	simtime_t now = phy->getSimTime();
+    omnetpp::simtime_t now = phy->getSimTime();
 	double rssiValue = calcChannelSenseRSSI(now, now);
 
 	return ChannelState(isIdleRSSI(rssiValue), rssiValue);
@@ -117,21 +124,21 @@ void SNRThresholdDecider::answerCSR(CSRInfo& requestInfo)
 	requestInfo.canAnswerAt = -1;
 }
 
-simtime_t SNRThresholdDecider::canAnswerCSR(const CSRInfo& requestInfo) {
+omnetpp::simtime_t SNRThresholdDecider::canAnswerCSR(const CSRInfo& requestInfo) {
 	const ChannelSenseRequest* request = requestInfo.getRequest();
 	assert(request);
 
 	if(request->getSenseMode() == UNTIL_TIMEOUT) {
-		opp_error("SNRThresholdDecider received an UNTIL_TIMEOUT ChannelSenseRequest.\n"
+	    throw omnetpp::cRuntimeError("SNRThresholdDecider received an UNTIL_TIMEOUT ChannelSenseRequest.\n"
 				  "SNRThresholdDecider can only handle UNTIL_IDLE or UNTIL_BUSY requests because it "
 				  "implements only instantaneous sensing where UNTIL_TIMEOUT requests "
 				  "don't make sense. Please refer to ChannelSenseRequests documentation "
 				  "for details.");
 	}
 
-	simtime_t requestTimeout = requestInfo.getSenseStart() + request->getSenseTimeout();
+	omnetpp::simtime_t requestTimeout = requestInfo.getSenseStart() + request->getSenseTimeout();
 
-	simtime_t now = phy->getSimTime();
+	omnetpp::simtime_t now = phy->getSimTime();
 
 	ConstMapping* rssiMapping = calculateRSSIMapping(now, requestTimeout);
 
@@ -144,7 +151,7 @@ simtime_t SNRThresholdDecider::canAnswerCSR(const CSRInfo& requestInfo) {
 		   || request->getSenseMode() == UNTIL_BUSY);
 	bool untilIdle = request->getSenseMode() == UNTIL_IDLE;
 
-	simtime_t answerTime = requestTimeout;
+	omnetpp::simtime_t answerTime = requestTimeout;
 	//check if the current rssi value enables us to answer the request
 	if(isIdleRSSI(it->getValue()) == untilIdle) {
 		answerTime = now;
@@ -168,8 +175,10 @@ simtime_t SNRThresholdDecider::canAnswerCSR(const CSRInfo& requestInfo) {
 	return answerTime;
 }
 
-simtime_t SNRThresholdDecider::processSignalEnd(AirFrame* frame)
+omnetpp::simtime_t SNRThresholdDecider::processSignalEnd(AirFrame* frame)
 {
+    EV_STATICCONTEXT
+
 	assert(frame == currentSignal.first);
 	// here the Signal is finally processed
 
@@ -178,8 +187,8 @@ simtime_t SNRThresholdDecider::processSignalEnd(AirFrame* frame)
 	assert(snrMap);
 
 	const Signal& signal = frame->getSignal();
-	simtime_t start = signal.getReceptionStart();
-	simtime_t end = signal.getReceptionEnd();
+	omnetpp::simtime_t start = signal.getReceptionStart();
+	omnetpp::simtime_t end = signal.getReceptionEnd();
 
 	// NOTE: Since this decider does not consider the amount of time when the signal's SNR is
 	// below the threshold even the smallest (normally insignificant) drop causes this decider
@@ -194,12 +203,12 @@ simtime_t SNRThresholdDecider::processSignalEnd(AirFrame* frame)
 	// i.e. the Decider has received it correctly
 	if (aboveThreshold)
 	{
-		deciderEV << "SNR is above threshold("<<snrThreshold<<") -> sending up." << endl;
+		deciderEV << "SNR is above threshold("<<snrThreshold<<") -> sending up." << std::endl;
 		// go on with processing this AirFrame, send it to the Mac-Layer
 		phy->sendUp(frame, new DeciderResult(true));
 	} else
 	{
-		deciderEV << "SNR is below threshold("<<snrThreshold<<") -> dropped." << endl;
+		deciderEV << "SNR is below threshold("<<snrThreshold<<") -> dropped." << std::endl;
 	}
 
 	delete snrMap;

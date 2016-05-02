@@ -69,7 +69,7 @@ void BaseMobility::initialize(int stage)
     if (stage == 0){
         hasPar("coreDebug") ? coreDebug = par("coreDebug").boolValue() : coreDebug = false;
 
-        coreEV << "initializing BaseMobility stage " << stage << endl;
+        coreEV << "initializing BaseMobility stage " << stage << std::endl;
 
         hasPar("scaleNodeByDepth") ? scaleNodeByDepth
                 = par("scaleNodeByDepth").boolValue()
@@ -80,7 +80,7 @@ void BaseMobility::initialize(int stage)
         if (world == NULL)
             error("Could not find BaseWorldUtility module");
 
-        coreEV << "initializing BaseUtility stage " << stage << endl; // for node position
+        coreEV << "initializing BaseUtility stage " << stage << std::endl; // for node position
 
         if (hasPar("updateInterval")) {
             updateInterval = par("updateInterval");
@@ -100,7 +100,7 @@ void BaseMobility::initialize(int stage)
         double z = hasPar("z") ? par("z").doubleValue() : -1;
 
         // get a pointer to the TraCI module
-        cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
+        omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
         VENTOS::TraCI_Commands *TraCI = static_cast<VENTOS::TraCI_Commands *>(module);
 
         // and then change coordinates to omnet
@@ -113,7 +113,7 @@ void BaseMobility::initialize(int stage)
 
         // set start-position and start-time (i.e. current simulation-time) of the Move
         move.setStart(pos);
-        coreEV << "start pos: " << move.getStartPos().info() << endl;
+        coreEV << "start pos: " << move.getStartPos().info() << std::endl;
 
         //check whether position is within the playground
         if (!isInBoundary(move.getStartPos(), Coord::ZERO, *world->getPgs())) {
@@ -125,7 +125,7 @@ void BaseMobility::initialize(int stage)
         move.setDirectionByVector(Coord::ZERO);
     }
     else if (stage == 1){
-        coreEV << "initializing BaseMobility stage " << stage << endl;
+        coreEV << "initializing BaseMobility stage " << stage << std::endl;
 
         // no scaling even if bgb is set for the world
         //        //get playground scaling
@@ -155,7 +155,7 @@ void BaseMobility::initialize(int stage)
         //        }
 
         //get original display of host
-        cDisplayString& disp = findHost()->getDisplayString();
+        omnetpp::cDisplayString& disp = findHost()->getDisplayString();
 
         //get host width and height
         if (disp.containsTag("b")) {
@@ -173,10 +173,10 @@ void BaseMobility::initialize(int stage)
 
         if (move.getSpeed() > 0 && updateInterval > 0)
         {
-            coreEV << "Host is moving, speed=" << move.getSpeed() << " updateInterval=" << updateInterval << endl;
-            moveMsg = new cMessage("move", MOVE_HOST);
+            coreEV << "Host is moving, speed=" << move.getSpeed() << " updateInterval=" << updateInterval << std::endl;
+            moveMsg = new omnetpp::cMessage("move", MOVE_HOST);
             //host moves the first time after some random delay to avoid synchronized movements
-            scheduleAt(simTime() + uniform(0, updateInterval), moveMsg);
+            scheduleAt(omnetpp::simTime() + uniform(0, updateInterval), moveMsg);
         }
     }
 }
@@ -215,7 +215,7 @@ const char* BaseMobility::iconSizeToTag(double size)
     }
 }
 
-void BaseMobility::handleMessage(cMessage * msg)
+void BaseMobility::handleMessage(omnetpp::cMessage * msg)
 {
     if (!msg->isSelfMessage())
         error("mobility modules can only receive self messages");
@@ -229,13 +229,13 @@ void BaseMobility::handleMessage(cMessage * msg)
 
 
 
-void BaseMobility::handleSelfMsg(cMessage * msg)
+void BaseMobility::handleSelfMsg(omnetpp::cMessage * msg)
 {
     makeMove();
     updatePosition();
 
     if( !moveMsg->isScheduled() && move.getSpeed() > 0) {
-        scheduleAt(simTime() + updateInterval, msg);
+        scheduleAt(omnetpp::simTime() + updateInterval, msg);
     } else {
         delete msg;
         moveMsg = NULL;
@@ -244,9 +244,9 @@ void BaseMobility::handleSelfMsg(cMessage * msg)
 
 
 
-void BaseMobility::handleBorderMsg(cMessage * msg)
+void BaseMobility::handleBorderMsg(omnetpp::cMessage * msg)
 {
-    coreEV << "start MOVE_TO_BORDER:" << move.info() << endl;
+    coreEV << "start MOVE_TO_BORDER:" << move.info() << std::endl;
 
     BorderMsg* bMsg = static_cast<BorderMsg*>(msg);
 
@@ -262,7 +262,7 @@ void BaseMobility::handleBorderMsg(cMessage * msg)
 
     case PLACERANDOMLY:
         move.setStart(bMsg->getStartPos());
-        coreEV << "new random position: " << move.getStartPos().info() << endl;
+        coreEV << "new random position: " << move.getStartPos().info() << std::endl;
         break;
 
     case RAISEERROR:
@@ -280,18 +280,18 @@ void BaseMobility::handleBorderMsg(cMessage * msg)
 
     delete bMsg;
 
-    coreEV << "end MOVE_TO_BORDER:" << move.info() << endl;
+    coreEV << "end MOVE_TO_BORDER:" << move.info() << std::endl;
 }
 
 
 
 void BaseMobility::updatePosition() {
-    EV << "updatePosition: " << move.info() << endl;
+    EV << "updatePosition: " << move.info() << std::endl;
 
     //publish the the new move
     emit(mobilityStateChangedSignal, this);
 
-    if(ev.isGUI())
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI())
     {
         std::ostringstream osDisplayTag;
 #ifdef __APPLE__
@@ -299,7 +299,7 @@ void BaseMobility::updatePosition() {
 #else
         const int          iPrecis        = 5;
 #endif
-        cDisplayString&    disp           = findHost()->getDisplayString();
+        omnetpp::cDisplayString&    disp           = findHost()->getDisplayString();
 
         // setup output stream
         osDisplayTag << std::fixed; osDisplayTag.precision(iPrecis);
@@ -557,7 +557,7 @@ BaseMobility::BorderHandling BaseMobility::checkIfOutside( Coord targetPos,
         }
     }
 
-    coreEV << "checkIfOutside, outside="<<outside<<" borderStep: " << borderStep.info() << endl;
+    coreEV << "checkIfOutside, outside="<<outside<<" borderStep: " << borderStep.info() << std::endl;
 
     return outside;
 }
@@ -572,7 +572,7 @@ void BaseMobility::goToBorder(BorderPolicy policy, BorderHandling wo,
     coreEV << "goToBorder: startPos: " << move.getStartPos().info()
     	                   << " borderStep: " << borderStep.info()
     	                   << " BorderPolicy: " << policy
-    	                   << " BorderHandling: " << wo << endl;
+    	                   << " BorderHandling: " << wo << std::endl;
 
     switch( wo ) {
     case X_SMALLER:
@@ -690,7 +690,7 @@ void BaseMobility::goToBorder(BorderPolicy policy, BorderHandling wo,
     coreEV << "goToBorder: startPos: " << move.getStartPos().info()
     	                   << " borderStep: " << borderStep.info()
     	                   << " borderStart: " << borderStart.info()
-    	                   << " factor: " << factor << endl;
+    	                   << " factor: " << factor << std::endl;
 }
 
 
@@ -711,19 +711,19 @@ bool BaseMobility::handleIfOutside(BorderPolicy policy, Coord& stepTarget,
     if( wo == NOWHERE )
         return false;
 
-    coreEV << "handleIfOutside:stepTarget = " << stepTarget.info() << endl;
+    coreEV << "handleIfOutside:stepTarget = " << stepTarget.info() << std::endl;
 
     // new start position after the host reaches the border
     Coord borderStart;
     // new direction the host has to move to
     Coord borderDirection;
     // time to reach the border
-    simtime_t borderInterval;
+    omnetpp::simtime_t borderInterval;
 
     coreEV << "old values: stepTarget: " << stepTarget.info()
     	                   << " step: " << step.info()
     	                   << " targetPos: " << targetPos.info()
-    	                   << " angle: " << angle << endl;
+    	                   << " angle: " << angle << std::endl;
 
     // which border policy is to be followed
     switch (policy){
@@ -742,7 +742,7 @@ bool BaseMobility::handleIfOutside(BorderPolicy policy, Coord& stepTarget,
 
     coreEV << "new values: stepTarget: " << stepTarget.info()
     	                   << " step: " << step.info()
-    	                   << " angle: " << angle << endl;
+    	                   << " angle: " << angle << std::endl;
 
     // calculate the step to reach the border
     goToBorder(policy, wo, borderStep, borderStart);
@@ -776,7 +776,7 @@ bool BaseMobility::handleIfOutside(BorderPolicy policy, Coord& stepTarget,
 
     coreEV << "border handled, borderStep: "<< borderStep.info()
     	                   << "borderStart: " << borderStart.info()
-    	                   << " stepTarget " << stepTarget.info() << endl;
+    	                   << " stepTarget " << stepTarget.info() << std::endl;
 
     // create a border self message and schedule it appropriately
     BorderMsg *bMsg = new BorderMsg("borderMove", MOVE_TO_BORDER);
@@ -784,7 +784,7 @@ bool BaseMobility::handleIfOutside(BorderPolicy policy, Coord& stepTarget,
     bMsg->setStartPos(borderStart);
     bMsg->setDirection(borderDirection);
 
-    scheduleAt(simTime() + borderInterval, bMsg);
+    scheduleAt(omnetpp::simTime() + borderInterval, bMsg);
 
     return true;
 }

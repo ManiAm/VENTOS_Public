@@ -37,7 +37,7 @@ public:
     virtual ~TrafficLight_LQF_MWM_Cycle();
     virtual void initialize(int);
     virtual void finish();
-    virtual void handleMessage(cMessage *);
+    virtual void handleMessage(omnetpp::cMessage *);
 
 protected:
     void virtual initialize_withTraCI();

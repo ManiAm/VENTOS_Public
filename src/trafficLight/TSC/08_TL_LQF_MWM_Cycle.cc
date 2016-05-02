@@ -75,7 +75,7 @@ void TrafficLight_LQF_MWM_Cycle::initialize(int stage)
     if(stage == 0)
     {
         nextGreenIsNewCycle = false;
-        intervalChangeEVT = new cMessage("intervalChangeEVT", 1);
+        intervalChangeEVT = new omnetpp::cMessage("intervalChangeEVT", 1);
     }
 }
 
@@ -86,7 +86,7 @@ void TrafficLight_LQF_MWM_Cycle::finish()
 }
 
 
-void TrafficLight_LQF_MWM_Cycle::handleMessage(cMessage *msg)
+void TrafficLight_LQF_MWM_Cycle::handleMessage(omnetpp::cMessage *msg)
 {
     super::handleMessage(msg);
 
@@ -104,7 +104,7 @@ void TrafficLight_LQF_MWM_Cycle::handleMessage(cMessage *msg)
             error("intervalDuration is <= 0");
 
         // Schedule next light change event:
-        scheduleAt(simTime().dbl() + intervalDuration, intervalChangeEVT);
+        scheduleAt(omnetpp::simTime().dbl() + intervalDuration, intervalChangeEVT);
     }
 }
 
@@ -117,7 +117,7 @@ void TrafficLight_LQF_MWM_Cycle::initialize_withTraCI()
     if(TLControlMode != TL_LQF_MWM_Cycle)
         return;
 
-    std::cout << endl << "Multi-class LQF-MWM-Cycle traffic signal control ..." << endl << endl;
+    std::cout << std::endl << "Multi-class LQF-MWM-Cycle traffic signal control ..." << std::endl << std::endl;
 
     // find the RSU module that controls this TL
     findRSU("C");
@@ -135,7 +135,7 @@ void TrafficLight_LQF_MWM_Cycle::initialize_withTraCI()
     currentInterval = greenInterval.front().greenString;
     intervalDuration = greenInterval.front().greenTime;
 
-    scheduleAt(simTime().dbl() + intervalDuration, intervalChangeEVT);
+    scheduleAt(omnetpp::simTime().dbl() + intervalDuration, intervalChangeEVT);
 
     for (auto &TL : TLList)
     {
@@ -148,11 +148,11 @@ void TrafficLight_LQF_MWM_Cycle::initialize_withTraCI()
         updateTLstate(TL, "init", currentInterval);
     }
 
-    if(ev.isGUI() && debugLevel > 0)
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 0)
     {
         char buff[300];
-        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalDuration);
-        std::cout << endl << buff << endl << endl;
+        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", omnetpp::simTime().dbl(), currentInterval.c_str(), omnetpp::simTime().dbl(), omnetpp::simTime().dbl() + intervalDuration);
+        std::cout << std::endl << buff << std::endl << std::endl;
         std::cout.flush();
     }
 }
@@ -209,11 +209,11 @@ void TrafficLight_LQF_MWM_Cycle::chooseNextInterval()
     else
         chooseNextGreenInterval();
 
-    if(ev.isGUI() && debugLevel > 0)
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 0)
     {
         char buff[300];
-        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalDuration);
-        std::cout << buff << endl << endl;
+        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", omnetpp::simTime().dbl(), currentInterval.c_str(), omnetpp::simTime().dbl(), omnetpp::simTime().dbl() + intervalDuration);
+        std::cout << buff << std::endl << std::endl;
         std::cout.flush();
     }
 }
@@ -380,9 +380,9 @@ void TrafficLight_LQF_MWM_Cycle::calculatePhases(std::string TLid)
     );
     greenInterval.erase( rme, greenInterval.end() );
     int newSize = greenInterval.size();
-    if(ev.isGUI() && debugLevel > 1 && oldSize != newSize)
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 1 && oldSize != newSize)
     {
-        std::cout << ">>> " << oldSize - newSize << " phase(s) removed due to zero queue size!" << endl << endl;
+        std::cout << ">>> " << oldSize - newSize << " phase(s) removed due to zero queue size!" << std::endl << std::endl;
         std::cout.flush();
     }
 
@@ -390,17 +390,17 @@ void TrafficLight_LQF_MWM_Cycle::calculatePhases(std::string TLid)
     for (auto &i : greenInterval)
         i.greenTime = std::min(std::max(i.greenTime, minGreenTime), maxGreenTime);
 
-    if(ev.isGUI() && debugLevel > 1)
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 1)
     {
-        std::cout << "Selected green intervals for this cycle: " << endl;
+        std::cout << "Selected green intervals for this cycle: " << std::endl;
         for (auto &i : greenInterval)
             std::cout << "movement: " << i.greenString
             << ", maxVehCount= " << i.maxVehCount
             << ", totalWeight= " << i.totalWeight
             << ", oneCount= " << i.oneCount
-            << ", green= " << i.greenTime << "s" << endl;
+            << ", green= " << i.greenTime << "s" << std::endl;
 
-        std::cout << endl;
+        std::cout << std::endl;
         std::cout.flush();
     }
 }

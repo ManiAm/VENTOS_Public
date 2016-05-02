@@ -81,7 +81,7 @@ void TrafficLightOJF::initialize(int stage)
 
     if(stage == 0)
     {
-        intervalChangeEVT = new cMessage("intervalChangeEVT", 1);
+        intervalChangeEVT = new omnetpp::cMessage("intervalChangeEVT", 1);
     }
 }
 
@@ -92,7 +92,7 @@ void TrafficLightOJF::finish()
 }
 
 
-void TrafficLightOJF::handleMessage(cMessage *msg)
+void TrafficLightOJF::handleMessage(omnetpp::cMessage *msg)
 {
     super::handleMessage(msg);
 
@@ -107,7 +107,7 @@ void TrafficLightOJF::handleMessage(cMessage *msg)
             error("intervalDuration is <= 0");
 
         // Schedule next light change event:
-        scheduleAt(simTime().dbl() + intervalDuration, intervalChangeEVT);
+        scheduleAt(omnetpp::simTime().dbl() + intervalDuration, intervalChangeEVT);
     }
 }
 
@@ -119,13 +119,13 @@ void TrafficLightOJF::initialize_withTraCI()
     if(TLControlMode != TL_OJF)
         return;
 
-    std::cout << endl << "Low delay traffic signal control ... " << endl << endl;
+    std::cout << std::endl << "Low delay traffic signal control ... " << std::endl << std::endl;
 
     // set initial values
     currentInterval = phase1_5;
     intervalDuration = minGreenTime;
 
-    scheduleAt(simTime().dbl() + intervalDuration, intervalChangeEVT);
+    scheduleAt(omnetpp::simTime().dbl() + intervalDuration, intervalChangeEVT);
 
     // get all non-conflicting movements in allMovements vector
     TrafficLightAllowedMoves::getMovements("C");
@@ -144,11 +144,11 @@ void TrafficLightOJF::initialize_withTraCI()
         updateTLstate(TL, "init", currentInterval);
     }
 
-    if(ev.isGUI() && debugLevel > 0)
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 0)
     {
         char buff[300];
-        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalDuration);
-        std::cout << buff << endl << endl;
+        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", omnetpp::simTime().dbl(), currentInterval.c_str(), omnetpp::simTime().dbl(), omnetpp::simTime().dbl() + intervalDuration);
+        std::cout << buff << std::endl << std::endl;
         std::cout.flush();
     }
 }
@@ -203,11 +203,11 @@ void TrafficLightOJF::chooseNextInterval()
     else
         chooseNextGreenInterval();
 
-    if(ev.isGUI() && debugLevel > 0)
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 0)
     {
         char buff[300];
-        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalDuration);
-        std::cout << buff << endl << endl;
+        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", omnetpp::simTime().dbl(), currentInterval.c_str(), omnetpp::simTime().dbl(), omnetpp::simTime().dbl() + intervalDuration);
+        std::cout << buff << std::endl << std::endl;
         std::cout.flush();
     }
 }
@@ -216,9 +216,9 @@ void TrafficLightOJF::chooseNextInterval()
 void TrafficLightOJF::chooseNextGreenInterval()
 {
     // for debugging
-    if(ev.isGUI() && debugLevel > 1)
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 1)
     {
-        std::cout << "Accumulated delay of vehicles on each lane: " << endl;
+        std::cout << "Accumulated delay of vehicles on each lane: " << std::endl;
         for(auto &y : laneDelay)
         {
             std::map<std::string,double> vehs = y.second;
@@ -235,9 +235,9 @@ void TrafficLightOJF::chooseNextGreenInterval()
                 totalDelay = totalDelay + z.second;
             }
 
-            std::cout << " --> total delay = " << totalDelay << endl;
+            std::cout << " --> total delay = " << totalDelay << std::endl;
         }
-        std::cout << endl;
+        std::cout << std::endl;
         std::cout.flush();
     }
 
@@ -288,16 +288,16 @@ void TrafficLightOJF::chooseNextGreenInterval()
 
     // allocate enough green time to move all delayed vehicle
     int maxVehCount = entry.maxVehCount;
-    if(ev.isGUI() && debugLevel > 1)
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 1)
     {
         std::cout << "Maximum of " << maxVehCount << " vehicle(s) are waiting. ";
         std::cout.flush();
     }
     double greenTime = (double)maxVehCount * (minGreenTime / 5.);
     nextGreenTime = std::min(std::max(greenTime, minGreenTime), maxGreenTime);  // bound green time
-    if(ev.isGUI() && debugLevel > 1)
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 1)
     {
-        std::cout << "Next green time is " << nextGreenTime << endl << endl;
+        std::cout << "Next green time is " << nextGreenTime << std::endl << std::endl;
         std::cout.flush();
     }
 
@@ -346,9 +346,9 @@ void TrafficLightOJF::chooseNextGreenInterval()
     else
     {
         intervalDuration = nextGreenTime;
-        if(ev.isGUI() && debugLevel > 0)
+        if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 0)
         {
-            std::cout << ">>> Continue the last green interval." << endl << endl;
+            std::cout << ">>> Continue the last green interval." << std::endl << std::endl;
             std::cout.flush();
         }
     }

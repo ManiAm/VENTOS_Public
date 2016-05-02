@@ -33,7 +33,7 @@ namespace VENTOS {
 EdgeCosts::EdgeCosts()
 {
     // get a pointer to router module
-    cModule *module = simulation.getSystemModule()->getSubmodule("router");
+    omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("router");
     EWMARate = module->par("EWMARate").doubleValue();
     laneCostsMode = static_cast<LaneCostsMode>(module->par("LaneCostsMode").longValue());
 
@@ -44,7 +44,7 @@ EdgeCosts::EdgeCosts()
 EdgeCosts::EdgeCosts(std::map<int, int> dataSet)
 {
     // get a pointer to router module
-    cModule *module = simulation.getSystemModule()->getSubmodule("router");
+    omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("router");
     EWMARate = module->par("EWMARate").doubleValue();
     laneCostsMode = static_cast<LaneCostsMode>(module->par("LaneCostsMode").longValue());
 

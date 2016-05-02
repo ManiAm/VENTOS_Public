@@ -58,7 +58,7 @@ void ApplVManager::initialize(int stage)
         errorRelSpeed = par("errorRelSpeed").doubleValue();
 
         // get the ptr of the Statistics module
-        cModule *module = simulation.getSystemModule()->getSubmodule("statistics");
+        cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("statistics");
         Statistics *StatPtr = static_cast<Statistics *>(module);
         if(StatPtr == NULL)
             error("can not get a pointer to the Statistics module.");
@@ -87,7 +87,7 @@ void ApplVManager::initialize(int stage)
 
         // turn off 'strategic' and 'speed gain' lane change in all TL (default is 10 01 01 01 01)
         // todo: is this necessary? lane change causes fault detection in LD
-        module = simulation.getSystemModule()->getSubmodule("TrafficLight");
+        module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TrafficLight");
         int TLControlMode = module->par("TLControlMode").longValue();
         if(TLControlMode != TL_Router && TLControlMode != TL_OFF)
         {
@@ -109,7 +109,7 @@ void ApplVManager::finish()
 }
 
 
-void ApplVManager::receiveSignal(cComponent* source, simsignal_t signalID, cObject* obj)
+void ApplVManager::receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, omnetpp::cObject* obj, cObject* details)
 {
     Enter_Method_Silent();
 
@@ -119,17 +119,17 @@ void ApplVManager::receiveSignal(cComponent* source, simsignal_t signalID, cObje
     }
     // pass it up, if we do not know how to handle the signal
     else
-        super::receiveSignal(source, signalID, obj);
+        super::receiveSignal(source, signalID, obj, details);
 }
 
 
-void ApplVManager::handleSelfMsg(cMessage* msg)
+void ApplVManager::handleSelfMsg(omnetpp::cMessage* msg)
 {
     super::handleSelfMsg(msg);
 }
 
 
-void ApplVManager::handleLowerMsg(cMessage* msg)
+void ApplVManager::handleLowerMsg(omnetpp::cMessage* msg)
 {
     // vehicles other than CACC should ignore the received msg
     if( !VANETenabled )
@@ -140,7 +140,7 @@ void ApplVManager::handleLowerMsg(cMessage* msg)
 
     // check if jamming attack is effective?
     // todo: change this later
-    cModule *module = simulation.getSystemModule()->getSubmodule("adversary", 0);
+    cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("adversary", 0);
 
     if(module != NULL)
     {
@@ -149,7 +149,7 @@ void ApplVManager::handleLowerMsg(cMessage* msg)
         bool jammingActive = applModule->par("jammingAttack").boolValue();
         double AttackT = applModule->par("AttackT").doubleValue();
 
-        if(jammingActive && simTime().dbl() > AttackT)
+        if(jammingActive && omnetpp::simTime().dbl() > AttackT)
         {
             delete msg;
             return;
@@ -175,8 +175,8 @@ void ApplVManager::handleLowerMsg(cMessage* msg)
             if(reportBeaconsData)
             {
                 data *pair = new data(wsm->getSender(), SUMOID, 0);
-                simsignal_t Signal_beacon = registerSignal("beacon");
-                nodePtr->emit(Signal_beacon, pair);
+                omnetpp::simsignal_t Signal_beacon = registerSignal("beacon");
+                this->getParentModule()->emit(Signal_beacon, pair);
             }
         }
         // drop the beacon, and report it to statistics
@@ -188,8 +188,8 @@ void ApplVManager::handleLowerMsg(cMessage* msg)
             if(reportBeaconsData)
             {
                 data *pair = new data(wsm->getSender(), SUMOID, 1);
-                simsignal_t Signal_beacon = registerSignal("beacon");
-                nodePtr->emit(Signal_beacon, pair);
+                omnetpp::simsignal_t Signal_beacon = registerSignal("beacon");
+                this->getParentModule()->emit(Signal_beacon, pair);
             }
         }
     }
@@ -230,7 +230,7 @@ void ApplVManager::handlePositionUpdate(cObject* obj)
 {
     super::handlePositionUpdate(obj);
 
-    ChannelMobilityPtrType const mobility = check_and_cast<ChannelMobilityPtrType>(obj);
+    ChannelMobilityPtrType const mobility = omnetpp::check_and_cast<ChannelMobilityPtrType>(obj);
     curPosition = mobility->getCurrentPosition();
 }
 
@@ -238,7 +238,7 @@ void ApplVManager::handlePositionUpdate(cObject* obj)
 // simulate packet loss in application layer
 bool ApplVManager::dropBeacon(double time, std::string vehicle, double plr)
 {
-    if(simTime().dbl() >= time)
+    if(omnetpp::simTime().dbl() >= time)
     {
         // vehicle == "" --> drop beacon in all vehicles
         // vehicle == SUMOID --> drop beacon only in specified vehicle
@@ -281,7 +281,7 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
         if( isBeaconFromLeading(wsm) )
         {
             char buffer [200];
-            sprintf (buffer, "%f#%f#%f#%f#%s#%s", (double)wsm->getSpeed(), (double)wsm->getAccel(), (double)wsm->getMaxDecel(), (simTime().dbl())*1000, wsm->getSender(), "preceding");
+            sprintf (buffer, "%f#%f#%f#%f#%s#%s", (double)wsm->getSpeed(), (double)wsm->getAccel(), (double)wsm->getMaxDecel(), (omnetpp::simTime().dbl())*1000, wsm->getSender(), "preceding");
             TraCI->vehicleSetControllerParameters(SUMOID, buffer);
         }
     }
@@ -298,7 +298,7 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
             if( isBeaconFromLeading(wsm) )
             {
                 char buffer [200];
-                sprintf (buffer, "%f#%f#%f#%f#%s#%s", (double)wsm->getSpeed(), (double)wsm->getAccel(), (double)wsm->getMaxDecel(), (simTime().dbl())*1000, wsm->getSender(), "preceding");
+                sprintf (buffer, "%f#%f#%f#%f#%s#%s", (double)wsm->getSpeed(), (double)wsm->getAccel(), (double)wsm->getMaxDecel(), (omnetpp::simTime().dbl())*1000, wsm->getSender(), "preceding");
                 TraCI->vehicleSetControllerParameters(SUMOID, buffer);
             }
         }
@@ -309,7 +309,7 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
             if( isBeaconFromMyPlatoonLeader(wsm) )
             {
                 char buffer [200];
-                sprintf (buffer, "%f#%f#%f#%f#%s#%s", (double)wsm->getSpeed(), (double)wsm->getAccel(), (double)wsm->getMaxDecel(), (simTime().dbl())*1000, wsm->getSender(), "leader");
+                sprintf (buffer, "%f#%f#%f#%f#%s#%s", (double)wsm->getSpeed(), (double)wsm->getAccel(), (double)wsm->getMaxDecel(), (omnetpp::simTime().dbl())*1000, wsm->getSender(), "leader");
                 TraCI->vehicleSetControllerParameters(SUMOID, buffer);
             }
         }
@@ -327,7 +327,7 @@ void ApplVManager::onBeaconPedestrian(BeaconPedestrian* wsm)
     // super::onBeaconPedestrian(wsm);
 
     char buffer [200];
-    sprintf (buffer, "%f#%f#%f#%f#%s#%s", (double)wsm->getSpeed(), (double)wsm->getAccel(), (double)wsm->getMaxDecel(), (simTime().dbl())*1000, wsm->getSender(), "preceding");
+    sprintf (buffer, "%f#%f#%f#%f#%s#%s", (double)wsm->getSpeed(), (double)wsm->getAccel(), (double)wsm->getMaxDecel(), (omnetpp::simTime().dbl())*1000, wsm->getSender(), "preceding");
 }
 
 

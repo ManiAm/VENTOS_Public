@@ -4,7 +4,7 @@
 #include "BaseWorldUtility.h"
 
 #ifndef ccEV
-#define ccEV (ev.isDisabled()||!coreDebug) ? ev : ev << getName() << ": "
+#define ccEV EV << getName() << ": "
 #endif
 
 Define_Module(ConnectionManager);
@@ -33,7 +33,7 @@ double ConnectionManager::calcInterfDist()
 					       / (16.0*M_PI*M_PI*minReceivePower),
 					     1.0 / alpha);
 
-	ccEV << "max interference distance:" << interfDistance << endl;
+	ccEV << "max interference distance:" << interfDistance << std::endl;
 
 	return interfDistance;
 }

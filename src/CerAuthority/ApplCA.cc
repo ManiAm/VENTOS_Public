@@ -96,10 +96,10 @@ void ApplCA::initialize(int stage)
         // register Magic_Req signal and subscribe it globally.
         // Magic cars emit this signal to request CRL from CA.
         Signal_Magic_Req = registerSignal("Magic_Req");
-        simulation.getSystemModule()->subscribe("Magic_Req", this);
+        omnetpp::getSimulation()->getSystemModule()->subscribe("Magic_Req", this);
 
-        Timer1 = new cMessage("Timer_Initial_Wait_CA", KIND_TIMER);
-        scheduleAt(simTime() + InitialWait, Timer1);
+        Timer1 = new omnetpp::cMessage("Timer_Initial_Wait_CA", KIND_TIMER);
+        scheduleAt(omnetpp::simTime() + InitialWait, Timer1);
     }
 }
 
@@ -116,7 +116,7 @@ void ApplCA::finish()
 }
 
 
-void ApplCA::handleSelfMsg(cMessage *msg)
+void ApplCA::handleSelfMsg(omnetpp::cMessage *msg)
 {
     if(msg == Timer1)
         createCRL();
@@ -125,7 +125,7 @@ void ApplCA::handleSelfMsg(cMessage *msg)
 }
 
 
-void ApplCA::receiveSignal(cComponent* source, simsignal_t signalID, cObject *obj)
+void ApplCA::receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, omnetpp::cObject *obj, cObject* details)
 {
     Enter_Method_Silent();
 
@@ -136,17 +136,17 @@ void ApplCA::receiveSignal(cComponent* source, simsignal_t signalID, cObject *ob
 
         if(PiecesCRL.size() > 0)
         {
-            std::cout <<  "    sending the CRL ..." << endl;
+            std::cout <<  "    sending the CRL ..." << std::endl;
 
             CRLPiecesData *data = new CRLPiecesData(source->getFullName(), EnableShuffle ? shuffle(PiecesCRL): PiecesCRL);
 
             // note that all magic cars in the network will receive this signal, but only
             // the magic car that sent the Magic_Req will store this
-            simsignal_t Signal_Magic_Res = registerSignal("Magic_Res");
+            omnetpp::simsignal_t Signal_Magic_Res = registerSignal("Magic_Res");
             this->emit(Signal_Magic_Res, data);
         }
         else
-            std::cout  <<  "    CRL is empty!" << endl;
+            std::cout  <<  "    CRL is empty!" << std::endl;
     }
 }
 
@@ -179,7 +179,7 @@ void ApplCA::CalculateMatrixA()
         }
     }
 
-    std::cout << endl << Matrix_A << endl;
+    std::cout << std::endl << Matrix_A << std::endl;
 }
 
 
@@ -237,9 +237,9 @@ std::vector<std::string> ApplCA::NOerasure(std::ostringstream &CRLbytes)
     else
         n = (len / NoSegments) + 1;
 
-    std::cout << "    This means that each segment has maximum of " << n << " bytes." << endl;
+    std::cout << "    This means that each segment has maximum of " << n << " bytes." << std::endl;
 
-    if(ev.isGUI() && false)
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && false)
     {
         for(unsigned long i=0; i<len; i++)
         {
@@ -268,7 +268,7 @@ std::vector<std::string> ApplCA::NOerasure(std::ostringstream &CRLbytes)
     if(len % NoSegments != 0)
         tmp.push_back(oss.str());
 
-    std::cout << endl << endl;
+    std::cout << std::endl << std::endl;
 
     return tmp;
 }
@@ -278,11 +278,11 @@ std::vector<std::string> ApplCA::erasure(std::ostringstream &CRLbytes)
 {
     printf(">>> %s is applying erasure code on CRL \n", moduleName.c_str());
 
-    std::cout << "    Step 1: M is " << M << ", so we split CRL bytes into " << M << "-byte segments." << endl;
+    std::cout << "    Step 1: M is " << M << ", so we split CRL bytes into " << M << "-byte segments." << std::endl;
 
     unsigned long len = CRLbytes.str().size();
 
-    if(ev.isGUI() && false)
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && false)
     {
         for(unsigned long i=0; i<len; i++)
         {
@@ -290,28 +290,28 @@ std::vector<std::string> ApplCA::erasure(std::ostringstream &CRLbytes)
             if(i != 0 && (i+1)%M == 0) std::cout << "\n";
         }
 
-        std::cout << endl << endl;
+        std::cout << std::endl << std::endl;
     }
 
     int L;
 
     if(len % M == 0)
     {
-        std::cout << "    We have " << len << " bytes which is multiple of M (padding is not needed)." << endl;
+        std::cout << "    We have " << len << " bytes which is multiple of M (padding is not needed)." << std::endl;
         L = len / M;
         pad = 0;
-        std::cout << "    Number of parts (L) = " << L << endl;
+        std::cout << "    Number of parts (L) = " << L << std::endl;
     }
     else
     {
-        std::cout << "    We have " << len << " bytes which is not multiple of M (padding will be added in the last part)." << endl;
+        std::cout << "    We have " << len << " bytes which is not multiple of M (padding will be added in the last part)." << std::endl;
         L = (len / M) + 1;
         pad = M - (len % M);
-        std::cout << "    Number of parts (L) = " << L << endl;
-        std::cout << "    Number of padding (pad) = " << pad << endl;
+        std::cout << "    Number of parts (L) = " << L << std::endl;
+        std::cout << "    Number of padding (pad) = " << pad << std::endl;
     }
 
-    std::cout << "    Now we construct Matrix B and put each segment vertically" << endl;
+    std::cout << "    Now we construct Matrix B and put each segment vertically" << std::endl;
 
     Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> Matrix_B;
     Matrix_B.resize(M,L);
@@ -326,7 +326,7 @@ std::vector<std::string> ApplCA::erasure(std::ostringstream &CRLbytes)
         Matrix_B(row,col) = (unsigned int)CRLbytes.str().at(i);
     }
 
-    std::cout << "\n    Step 2: We calculate Matrix W = Matrix A * Matrix B:" << endl;
+    std::cout << "\n    Step 2: We calculate Matrix W = Matrix A * Matrix B:" << std::endl;
 
     Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> Matrix_W;
     Matrix_W.resize(N,L);
@@ -351,10 +351,10 @@ std::vector<std::string> ApplCA::erasure(std::ostringstream &CRLbytes)
     }
      */
 
-    std::cout << "    Matrix W is " << Matrix_W.rows() << " by " << Matrix_W.cols() << endl;
-    std::cout << "    Each row of Matrix W is a CRL piece. We have " << N << " pieces in total" << endl;
-    std::cout << "    CA sends each of the pieces separately to the RSUs." << endl;
-    std::cout << "    Any M = " << M << " out of N = " << N << " CRL pieces is enough for re-construction of the original CRL." << endl;
+    std::cout << "    Matrix W is " << Matrix_W.rows() << " by " << Matrix_W.cols() << std::endl;
+    std::cout << "    Each row of Matrix W is a CRL piece. We have " << N << " pieces in total" << std::endl;
+    std::cout << "    CA sends each of the pieces separately to the RSUs." << std::endl;
+    std::cout << "    Any M = " << M << " out of N = " << N << " CRL pieces is enough for re-construction of the original CRL." << std::endl;
 
     std::vector<std::string> tmp;
     std::ostringstream oss;
@@ -421,7 +421,7 @@ void ApplCA::sendPiecesToRSUs()
     printf(">>> %s is sending CRL pieces to each RSU \n\n", moduleName.c_str());
 
     // get a pointer to the first RSU
-    cModule *module = simulation.getSystemModule()->getSubmodule("RSU", 0);
+    omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("RSU", 0);
     if(module == NULL)
         error("No RSU module was found in the network!");
 
@@ -432,30 +432,30 @@ void ApplCA::sendPiecesToRSUs()
     {
         if(!EnableShuffle)
         {
-            cModule *rmodule = simulation.getSystemModule()->getSubmodule("RSU", i);
+            cModule *rmodule = omnetpp::getSimulation()->getSystemModule()->getSubmodule("RSU", i);
             if(rmodule == NULL)
                 error("RSU %d was found in the network!", i);
 
             CRLPiecesData *data = new CRLPiecesData(rmodule->getFullName(), PiecesCRL);
 
             // note that all RSUs will receive this signal
-            simsignal_t Signal_CRL_pieces = registerSignal("CRL_pieces");
-            this->emit(Signal_CRL_pieces, data);
+            omnetpp::simsignal_t Signal_CRL_pieces = registerSignal("CRL_pieces");
+            this->getParentModule()->emit(Signal_CRL_pieces, data);
         }
         else
         {
             // shuffle PiecesCRL
             std::vector<CRL_Piece *> PiecesCRL_shuffled= shuffle(PiecesCRL);  // passing by value!
 
-            cModule *rmodule = simulation.getSystemModule()->getSubmodule("RSU", i);
+            cModule *rmodule = omnetpp::getSimulation()->getSystemModule()->getSubmodule("RSU", i);
             if(rmodule == NULL)
                 error("RSU %d was found in the network!", i);
 
             CRLPiecesData *data = new CRLPiecesData(rmodule->getFullName(), PiecesCRL_shuffled);
 
             // note that all RSUs will receive this signal
-            simsignal_t Signal_CRL_pieces = registerSignal("CRL_pieces");
-            this->emit(Signal_CRL_pieces, data);
+            omnetpp::simsignal_t Signal_CRL_pieces = registerSignal("CRL_pieces");
+            this->getParentModule()->emit(Signal_CRL_pieces, data);
         }
     }
 }

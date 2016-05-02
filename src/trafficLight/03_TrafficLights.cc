@@ -62,7 +62,7 @@ void TrafficLights::finish()
 }
 
 
-void TrafficLights::handleMessage(cMessage *msg)
+void TrafficLights::handleMessage(omnetpp::cMessage *msg)
 {
     super::handleMessage(msg);
 }

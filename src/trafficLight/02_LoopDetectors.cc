@@ -61,7 +61,7 @@ void LoopDetectors::finish()
 }
 
 
-void LoopDetectors::handleMessage(cMessage *msg)
+void LoopDetectors::handleMessage(omnetpp::cMessage *msg)
 {
     super::handleMessage(msg);
 }
@@ -131,14 +131,14 @@ void LoopDetectors::saveLDsData()
 
     boost::filesystem::path filePath;
 
-    if(ev.isGUI())
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI())
     {
         filePath = "results/gui/loopDetector.txt";
     }
     else
     {
         // get the current run number
-        int currentRun = ev.getConfigEx()->getActiveRunNumber();
+        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
         std::ostringstream fileName;
         fileName << std::setfill('0') << std::setw(3) << currentRun << "_loopDetector.txt";
         filePath = "results/cmd/" + fileName.str();
@@ -147,19 +147,19 @@ void LoopDetectors::saveLDsData()
     FILE *filePtr = fopen (filePath.string().c_str(), "w");
 
     // write simulation parameters at the beginning of the file in CMD mode
-    if(!ev.isGUI())
+    if(!omnetpp::cSimulation::getActiveEnvir()->isGUI())
     {
         // get the current config name
-        std::string configName = ev.getConfigEx()->getVariable("configname");
+        std::string configName = omnetpp::getEnvir()->getConfigEx()->getVariable("configname");
 
         // get number of total runs in this config
-        int totalRun = ev.getConfigEx()->getNumRunsInConfig(configName.c_str());
+        int totalRun = omnetpp::getEnvir()->getConfigEx()->getNumRunsInConfig(configName.c_str());
 
         // get the current run number
-        int currentRun = ev.getConfigEx()->getActiveRunNumber();
+        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
 
         // get all iteration variables
-        std::vector<std::string> iterVar = ev.getConfigEx()->unrollConfig(configName.c_str(), false);
+        std::vector<std::string> iterVar = omnetpp::getEnvir()->getConfigEx()->unrollConfig(configName.c_str(), false);
 
         // write to file
         fprintf (filePtr, "configName      %s\n", configName.c_str());

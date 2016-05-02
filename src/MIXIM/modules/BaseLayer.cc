@@ -71,7 +71,7 @@ void BaseLayer::initialize(int stage)
  *
  * @sa handleUpperMsg, handleLowerMsg, handleSelfMsg
  **/
-void BaseLayer::handleMessage(cMessage* msg)
+void BaseLayer::handleMessage(omnetpp::cMessage* msg)
 {
     if (msg->isSelfMessage()){
         handleSelfMsg(msg);
@@ -95,28 +95,28 @@ void BaseLayer::handleMessage(cMessage* msg)
          * it would be wrong to forward the message to one of these gates,
          * as they actually don't exist, so raise an error instead.
          */
-        opp_error("No self message and no gateID?? Check configuration.");
+        throw omnetpp::cRuntimeError("No self message and no gateID?? Check configuration.");
     } else {
         /* msg->getArrivalGateId() should be valid, but it isn't recognized
          * here. This could signal the case that this class is extended
          * with extra gates, but handleMessage() isn't overridden to
          * check for the new gate(s).
          */
-        opp_error("Unknown gateID?? Check configuration or override handleMessage().");
+        throw omnetpp::cRuntimeError("Unknown gateID?? Check configuration or override handleMessage().");
     }
 }
 
-void BaseLayer::sendDown(cMessage *msg) {
+void BaseLayer::sendDown(omnetpp::cMessage *msg) {
     recordPacket(PassedMessage::OUTGOING,PassedMessage::LOWER_DATA,msg);
     send(msg, lowerLayerOut);
 }
 
-void BaseLayer::sendUp(cMessage *msg) {
+void BaseLayer::sendUp(omnetpp::cMessage *msg) {
     recordPacket(PassedMessage::OUTGOING,PassedMessage::UPPER_DATA,msg);
     send(msg, upperLayerOut);
 }
 
-void BaseLayer::sendControlUp(cMessage *msg) {
+void BaseLayer::sendControlUp(omnetpp::cMessage *msg) {
     recordPacket(PassedMessage::OUTGOING,PassedMessage::UPPER_CONTROL,msg);
     if (gate(upperControlOut)->isPathOK())
         send(msg, upperControlOut);
@@ -126,7 +126,7 @@ void BaseLayer::sendControlUp(cMessage *msg) {
     }
 }
 
-void BaseLayer::sendControlDown(cMessage *msg) {
+void BaseLayer::sendControlDown(omnetpp::cMessage *msg) {
     recordPacket(PassedMessage::OUTGOING,PassedMessage::LOWER_CONTROL,msg);
     if (gate(lowerControlOut)->isPathOK())
         send(msg, lowerControlOut);
@@ -138,7 +138,7 @@ void BaseLayer::sendControlDown(cMessage *msg) {
 
 void BaseLayer::recordPacket(PassedMessage::direction_t dir,
                              PassedMessage::gates_t     gate,
-                             const cMessage*            msg) {
+                             const omnetpp::cMessage*            msg) {
     if (passedMsg == NULL)
         return;
     passedMsg->direction = dir;

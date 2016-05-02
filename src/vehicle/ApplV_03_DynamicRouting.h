@@ -44,10 +44,10 @@ public:
     ~ApplVDynamicRouting();
     virtual void initialize(int stage);
     virtual void finish();
-    virtual void receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj);
+    virtual void receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t signalID, omnetpp::cObject *obj, cObject* details);
 
 protected:
-    virtual void handleSelfMsg(cMessage*);
+    virtual void handleSelfMsg(omnetpp::cMessage*);
     virtual void handlePositionUpdate(cObject*);
 
 private:
@@ -70,9 +70,9 @@ protected:
     void reroute();
 
     // Class variables
-    cMessage* sendSystemMsgEvt;
-    simsignal_t Signal_router;
-    simsignal_t Signal_system;
+    omnetpp::cMessage* sendSystemMsgEvt;
+    omnetpp::simsignal_t Signal_router;
+    omnetpp::simsignal_t Signal_system;
 
     // Routing
     std::string targetNode;

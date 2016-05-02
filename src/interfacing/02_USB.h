@@ -77,8 +77,8 @@ public:
     virtual ~USB();
     virtual void finish();
     virtual void initialize(int);
-    virtual void handleMessage(cMessage *);
-    virtual void receiveSignal(cComponent *, simsignal_t, long);
+    virtual void handleMessage(omnetpp::cMessage *);
+    virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, long, cObject* details);
 
 public:
     void getUSBdevices(bool);
@@ -117,8 +117,8 @@ private:
 
     // variables
     TraCI_Commands *TraCI;
-    simsignal_t Signal_initialize_withTraCI;
-    simsignal_t Signal_executeEachTS;
+    omnetpp::simsignal_t Signal_initialize_withTraCI;
+    omnetpp::simsignal_t Signal_executeEachTS;
 
     libusb_context *ctx = NULL;  // a libusb session
     static libusb_device_handle *hotPlugHandle;
@@ -149,8 +149,8 @@ private:
             {0xff, "VENDOR_SPEC"}
     };
 
-    cMessage* USBevents;
-    cMessage* USBInterrupt;
+    omnetpp::cMessage* USBevents;
+    omnetpp::cMessage* USBInterrupt;
 };
 
 }

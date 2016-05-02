@@ -45,16 +45,16 @@ void Cobalt::initialize(int stage)
     if(stage ==0)
     {
         // get a pointer to the TraCI module
-        cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
+        cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
         ASSERT(module);
         TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
 
         Signal_initialize_withTraCI = registerSignal("initialize_withTraCI");
-        simulation.getSystemModule()->subscribe("initialize_withTraCI", this);
+        omnetpp::getSimulation()->getSystemModule()->subscribe("initialize_withTraCI", this);
 
         Signal_executeEachTS = registerSignal("executeEachTS");
-        simulation.getSystemModule()->subscribe("executeEachTS", this);
+        omnetpp::getSimulation()->getSystemModule()->subscribe("executeEachTS", this);
 
         on = par("on").boolValue();
 
@@ -71,13 +71,13 @@ void Cobalt::finish()
 }
 
 
-void Cobalt::handleMessage(cMessage *msg)
+void Cobalt::handleMessage(omnetpp::cMessage *msg)
 {
 
 }
 
 
-void Cobalt::receiveSignal(cComponent *source, simsignal_t signalID, long i)
+void Cobalt::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t signalID, long i, cObject* details)
 {
     if(!on)
         return;
@@ -113,7 +113,7 @@ void Cobalt::executeEachTimestep()
         for(auto& entry : result)
         {
             std::cout << entry.get_printable_oid() << " = ";
-            std::cout << entry.get_printable_value() << endl;
+            std::cout << entry.get_printable_value() << std::endl;
         }
 
         wasExecuted = true;
@@ -129,16 +129,16 @@ void Cobalt::init_cobalt()
     ASSERT(cobaltSNMP);
 
     Snmp_pp::Vb name = cobaltSNMP->SNMPget(sysName);
-    std::cout << "Name: " << name.get_printable_value() << endl;
+    std::cout << "Name: " << name.get_printable_value() << std::endl;
 
     Snmp_pp::Vb company = cobaltSNMP->SNMPget(sysContact);
-    std::cout << "Company: " << company.get_printable_value() << endl;
+    std::cout << "Company: " << company.get_printable_value() << std::endl;
 
     Snmp_pp::Vb address = cobaltSNMP->SNMPget(sysLocation);
-    std::cout << "Address: " << address.get_printable_value() << endl;
+    std::cout << "Address: " << address.get_printable_value() << std::endl;
 
     Snmp_pp::Vb upTime = cobaltSNMP->SNMPget(sysUpTime);
-    std::cout << "UpTime: " << upTime.get_printable_value() << endl << endl;
+    std::cout << "UpTime: " << upTime.get_printable_value() << std::endl << std::endl;
 }
 
 }

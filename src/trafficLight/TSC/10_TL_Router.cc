@@ -36,7 +36,8 @@ Phase::Phase(double duration, std::string state): duration(duration), state(stat
 
 void Phase::print() // Print a phase
 {
-    if(ev.isGUI()) std::cout << "duration: "<< std::setw(4) << std::left << duration << " phase: " << std::setw(12) << std::left << state << std::endl;
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI())
+        std::cout << "duration: "<< std::setw(4) << std::left << duration << " phase: " << std::setw(12) << std::left << state << std::endl;
 }
 
 std::string setState(std::string state, int index, char value)    //Writes given char at specified index on the state,
@@ -179,7 +180,7 @@ void TrafficLightRouter::initialize(int stage)
 
     if(stage == 0)
     {
-        cModule *rmodule = simulation.getSystemModule()->getSubmodule("router");
+        cModule *rmodule = omnetpp::getSimulation()->getSystemModule()->getSubmodule("router");
         router = static_cast< Router* >(rmodule);
 
         HighDensityRecalculateFrequency = par("HighDensityRecalculateFrequency").doubleValue();
@@ -191,24 +192,24 @@ void TrafficLightRouter::initialize(int stage)
         switch(TLLogicMode)
         {
         case FIXED:
-            TLSwitchEvent = new cMessage("tl switch evt");
+            TLSwitchEvent = new omnetpp::cMessage("tl switch evt");
             scheduleAt(phases[0]->duration, TLSwitchEvent);
             break;
 
         case HIGHDENSITY:
-            TLEvent = new cMessage("tl evt");   //Create a new internal message
-            scheduleAt(simTime() + HighDensityRecalculateFrequency, TLEvent); //Schedule them to start sending
-            TLSwitchEvent = new cMessage("tl switch evt");
+            TLEvent = new omnetpp::cMessage("tl evt");   //Create a new internal message
+            scheduleAt(omnetpp::simTime() + HighDensityRecalculateFrequency, TLEvent); //Schedule them to start sending
+            TLSwitchEvent = new omnetpp::cMessage("tl switch evt");
             scheduleAt(phases[0]->duration, TLSwitchEvent);
             break;
 
         case LOWDENSITY:
-            TLSwitchEvent = new cMessage("tl switch evt");
+            TLSwitchEvent = new omnetpp::cMessage("tl switch evt");
             scheduleAt(phases[0]->duration, TLSwitchEvent);
             break;
 
         case COOPERATIVE:
-            TLSwitchEvent = new cMessage("tl switch evt");
+            TLSwitchEvent = new omnetpp::cMessage("tl switch evt");
             scheduleAt(1, TLSwitchEvent);
         }
 
@@ -228,9 +229,9 @@ void TrafficLightRouter::switchToPhase(int phaseSwitch, double greenDuration, in
 
     nextDuration = greenDuration;
 
-    if(ev.isGUI() && debugLevel > 2)
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 2)
     {
-        std::cout << "Switching to transition phase " << (currentPhase + 1) % phases.size() << endl;
+        std::cout << "Switching to transition phase " << (currentPhase + 1) % phases.size() << std::endl;
         std::cout.flush();
     }
 
@@ -238,11 +239,11 @@ void TrafficLightRouter::switchToPhase(int phaseSwitch, double greenDuration, in
 
     TraCI->TLSetPhaseDuration(id, 10000000);
 
-    TLSwitchEvent = new cMessage("tl transition evt");
-    scheduleAt(simTime().dbl() + yellowDuration, TLSwitchEvent);
+    TLSwitchEvent = new omnetpp::cMessage("tl transition evt");
+    scheduleAt(omnetpp::simTime().dbl() + yellowDuration, TLSwitchEvent);
 }
 
-void TrafficLightRouter::handleMessage(cMessage* msg)  //Internal messages to self
+void TrafficLightRouter::handleMessage(omnetpp::cMessage* msg)  //Internal messages to self
 {
     super::handleMessage(msg);
 
@@ -253,9 +254,9 @@ void TrafficLightRouter::handleMessage(cMessage* msg)  //Internal messages to se
     {
         if(msg->isName("tl evt"))   //Out-of-sync TL Algorithms take place here
         {
-            if(ev.isGUI() && debugLevel > 2)
+            if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 2)
             {
-                std::cout << "TL " << id << " got an asynchronous self-message at t=" << simTime().dbl() << endl;
+                std::cout << "TL " << id << " got an asynchronous self-message at t=" << omnetpp::simTime().dbl() << std::endl;
                 std::cout.flush();
             }
 
@@ -263,9 +264,9 @@ void TrafficLightRouter::handleMessage(cMessage* msg)  //Internal messages to se
         }
         else if(msg->isName("tl switch evt"))   //Operations in sync with normal phase switching happens here
         {
-            if(ev.isGUI() && debugLevel > 2)
+            if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 2)
             {
-                std::cout << "TL " << id << " got a synchronous self-message at t=" << simTime().dbl() << endl;
+                std::cout << "TL " << id << " got a synchronous self-message at t=" << omnetpp::simTime().dbl() << std::endl;
                 std::cout.flush();
             }
 
@@ -274,27 +275,27 @@ void TrafficLightRouter::handleMessage(cMessage* msg)  //Internal messages to se
         else if(msg->isName("tl transition evt"))
         {
 
-            if(ev.isGUI() && debugLevel > 2)
+            if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 2)
             {
-                std::cout << "TL " << id << " got a transition self-message at t=" << simTime().dbl() << endl;
+                std::cout << "TL " << id << " got a transition self-message at t=" << omnetpp::simTime().dbl() << std::endl;
                 std::cout.flush();
             }
 
             currentPhase = nextPhase;
             TraCI->TLSetPhaseIndex(id, currentPhase);           //Manually switch to the yellow phase in SUMO
 
-            if(ev.isGUI() && debugLevel > 2)
+            if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 2)
             {
-                std::cout << "Switching to actual phase " << currentPhase << endl;
+                std::cout << "Switching to actual phase " << currentPhase << std::endl;
                 std::cout.flush();
             }
 
-            lastSwitchTime = simTime().dbl();
+            lastSwitchTime = omnetpp::simTime().dbl();
 
             TraCI->TLSetPhaseDuration(id, 10000000);
 
-            TLSwitchEvent = new cMessage("tl switch evt");
-            scheduleAt(simTime().dbl() + nextDuration, TLSwitchEvent);
+            TLSwitchEvent = new omnetpp::cMessage("tl switch evt");
+            scheduleAt(omnetpp::simTime().dbl() + nextDuration, TLSwitchEvent);
 
         }
     }
@@ -330,8 +331,8 @@ void TrafficLightRouter::ASynchronousMessage()
     if(TLLogicMode == HIGHDENSITY)
     {
         HighDensityRecalculate();   //Call the recalculate function, and schedule the next execution
-        TLEvent = new cMessage("tl evt");
-        scheduleAt(simTime() + HighDensityRecalculateFrequency, TLEvent);
+        TLEvent = new omnetpp::cMessage("tl evt");
+        scheduleAt(omnetpp::simTime() + HighDensityRecalculateFrequency, TLEvent);
     }
 }
 
@@ -361,9 +362,9 @@ void TrafficLightRouter::HighDensityRecalculate()
 
     if(total > 0)  //If there are vehicles on the lane
     {
-        if(ev.isGUI() && debugLevel > 2)
+        if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 2)
         {
-            std::cout << "For TL " << id << " at t=" << simTime().dbl() << ": " << endl;
+            std::cout << "For TL " << id << " at t=" << omnetpp::simTime().dbl() << ": " << std::endl;
             std::cout.flush();
         }
 
@@ -376,9 +377,9 @@ void TrafficLightRouter::HighDensityRecalculate()
                 if(duration < 3)    //If the duration is too short, set it to a minimum
                     duration = 3;
 
-                if(ev.isGUI() && debugLevel > 2)
+                if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 2)
                 {
-                    std::cout << "    Phase " << i << " set to " << duration << endl;
+                    std::cout << "    Phase " << i << " set to " << duration << std::endl;
                     std::cout.flush();
                 }
 
@@ -516,9 +517,9 @@ void TrafficLightRouter::FlowRateRecalculate()
 
     if(maxFlowTime >= MinPhaseDuration) //if any vehicles will arrive before the light's max duration, maxFlowTime will have been set
     {
-        if(ev.isGUI() && debugLevel > 2)
+        if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 2)
         {
-            std::cout << "Switching tl " << id << " to phase " << maxFlowPhase << " for " << maxFlowTime << " seconds" << endl;
+            std::cout << "Switching tl " << id << " to phase " << maxFlowPhase << " for " << maxFlowTime << " seconds" << std::endl;
             std::cout.flush();
         }
 
@@ -533,14 +534,14 @@ void TrafficLightRouter::LowDensityRecalculate()
 {
     if(LowDensityVehicleCheck())
     {
-        if(ev.isGUI() && debugLevel > 2)
+        if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 2)
         {
-            std::cout << "Extending tl " << id << " by " << LowDensityExtendTime << " seconds" << endl;
+            std::cout << "Extending tl " << id << " by " << LowDensityExtendTime << " seconds" << std::endl;
             std::cout.flush();
         }
 
-        TLSwitchEvent = new cMessage("tl switch evt");
-        scheduleAt(simTime().dbl() + LowDensityExtendTime, TLSwitchEvent);
+        TLSwitchEvent = new omnetpp::cMessage("tl switch evt");
+        scheduleAt(omnetpp::simTime().dbl() + LowDensityExtendTime, TLSwitchEvent);
     }
     else    //Otherwise, switch to the next phase immediately
     {
@@ -560,7 +561,7 @@ bool TrafficLightRouter::LowDensityVehicleCheck()    //This function assumes it'
      * Add a totaloffset double to each variable, which can be added to any call working on tl logic
      * Reset to previous duration
      */
-    if ((simTime().dbl() - lastSwitchTime) > MaxPhaseDuration)
+    if ((omnetpp::simTime().dbl() - lastSwitchTime) > MaxPhaseDuration)
         return false;
 
     std::vector<Edge*>& edges = net->nodes[id]->inEdges; //Get all edges going into the TL
@@ -607,15 +608,14 @@ void TrafficLightRouter::finish()
 
 void TrafficLightRouter::print() // Print a node
 {
-    if(ev.isGUI()) std::cout<<"id: "<< std::setw(4) << std::left << id <<
-            "type: " << std::left << type <<
-            "  programID: "<< std::setw(4) << std::left << programID <<
-            "offset: "<< std::setw(4) << std::left << offset;
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI())
+        std::cout<<"id: "<< std::setw(4) << std::left << id <<
+        "type: " << std::left << type <<
+        "  programID: "<< std::setw(4) << std::left << programID <<
+        "offset: "<< std::setw(4) << std::left << offset;
 
     for(std::vector<Phase*>::iterator it = phases.begin(); it != phases.end(); it++)
-    {
         (*it)->print();
-    }
 }
 
 

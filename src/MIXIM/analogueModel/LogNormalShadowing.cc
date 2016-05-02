@@ -17,25 +17,25 @@
 #include "Mapping.h"
 #include "AirFrame_m.h"
 
-LogNormalShadowing::LogNormalShadowing(double mean, double stdDev, simtime_t_cref interval):
+LogNormalShadowing::LogNormalShadowing(double mean, double stdDev, omnetpp::simtime_t_cref interval):
 	mean(mean), stdDev(stdDev), interval(interval)
 { }
 
 LogNormalShadowing::~LogNormalShadowing() {}
 
 double LogNormalShadowing::randomLogNormalGain() const {
-	return FWMath::dBm2mW(-1.0 * normal(mean, stdDev));
+	return FWMath::dBm2mW(-1.0 * omnetpp::cSimulation::getActiveSimulation()->getContext()->normal(mean, stdDev));
 }
 
 void LogNormalShadowing::filterSignal(AirFrame *frame, const Coord& sendersPos, const Coord& receiverPos) {
 	Signal&   signal = frame->getSignal();
-	simtime_t start  = signal.getReceptionStart();
-	simtime_t end    = signal.getReceptionEnd();
+	omnetpp::simtime_t start  = signal.getReceptionStart();
+	omnetpp::simtime_t end    = signal.getReceptionEnd();
 	Mapping*  att    = MappingUtils::createMapping(DimensionSet::timeDomain(), Mapping::LINEAR);
 
 	Argument pos;
 
-	for(simtime_t t = start; t <= end; t += interval)
+	for(omnetpp::simtime_t t = start; t <= end; t += interval)
 	{
 		pos.setTime(t);
 		att->appendValue(pos, randomLogNormalGain());

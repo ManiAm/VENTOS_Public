@@ -56,7 +56,7 @@ public:
     virtual void finish();
 
 protected:
-    virtual void handleSelfMsg(cMessage*);
+    virtual void handleSelfMsg(omnetpp::cMessage*);
     virtual void handlePositionUpdate(cObject*);
 
     virtual void onBeaconVehicle(BeaconVehicle*);
@@ -89,14 +89,14 @@ private:
     const std::string uCommandToStr(int);
 
     // merge
-    void merge_handleSelfMsg(cMessage* msg);
+    void merge_handleSelfMsg(omnetpp::cMessage* msg);
     void merge_BeaconFSM(BeaconVehicle *wsm = NULL);
     void merge_DataFSM(PlatoonMsg *wsm = NULL);
     void RemoveFollowerFromList_Merge(std::string);
     bool CatchUpDone();
 
     // split
-    void split_handleSelfMsg(cMessage* msg);
+    void split_handleSelfMsg(omnetpp::cMessage* msg);
     void split_BeaconFSM(BeaconVehicle *wsm = NULL);
     void split_DataFSM(PlatoonMsg *wsm = NULL);
     void splitMonitor();
@@ -104,27 +104,27 @@ private:
     bool GapCreated();
 
     // common operations in maneuvers
-    void common_handleSelfMsg(cMessage* msg);
+    void common_handleSelfMsg(omnetpp::cMessage* msg);
     void common_BeaconFSM(BeaconVehicle *wsm = NULL);
     void common_DataFSM(PlatoonMsg *wsm = NULL);
 
     // entry
-    void entry_handleSelfMsg(cMessage* msg);
+    void entry_handleSelfMsg(omnetpp::cMessage* msg);
     void entry_BeaconFSM(BeaconVehicle *wsm);
     void entry_DataFSM(PlatoonMsg *wsm = NULL);
 
     // leader leave
-    void leaderLeave_handleSelfMsg(cMessage* msg);
+    void leaderLeave_handleSelfMsg(omnetpp::cMessage* msg);
     void leaderLeave_BeaconFSM(BeaconVehicle *wsm = NULL);
     void leaderLeave_DataFSM(PlatoonMsg *wsm = NULL);
 
     // follower leave
-    void followerLeave_handleSelfMsg(cMessage* msg);
+    void followerLeave_handleSelfMsg(omnetpp::cMessage* msg);
     void followerLeave_BeaconFSM(BeaconVehicle *wsm = NULL);
     void followerLeave_DataFSM(PlatoonMsg *wsm = NULL);
 
     // dissolve
-    void dissolve_handleSelfMsg(cMessage* msg);
+    void dissolve_handleSelfMsg(omnetpp::cMessage* msg);
     void dissolve_BeaconFSM(BeaconVehicle *wsm = NULL);
     void dissolve_DataFSM(PlatoonMsg *wsm = NULL);
 
@@ -207,8 +207,8 @@ private:
     NearestVehicle *leastFront;
     NearestVehicle *leastBack;
 
-    cMessage* entryManeuverEvt;
-    cMessage* plnTIMER0;
+    omnetpp::cMessage* entryManeuverEvt;
+    omnetpp::cMessage* plnTIMER0;
 
     // merge
     int mergeReqAttempts;
@@ -216,10 +216,10 @@ private:
     int leadingPlnDepth;
     std::deque<std::string> secondPlnMembersList;
 
-    cMessage* plnTIMER1;
-    cMessage* plnTIMER1a;
-    cMessage* plnTIMER2;
-    cMessage* plnTIMER3;
+    omnetpp::cMessage* plnTIMER1;
+    omnetpp::cMessage* plnTIMER1a;
+    omnetpp::cMessage* plnTIMER2;
+    omnetpp::cMessage* plnTIMER3;
 
     // split
     std::string splittingVehicle;
@@ -229,25 +229,25 @@ private:
     int TotalACKsRx;
     int splitCaller;
 
-    cMessage* plnTIMER4;
-    cMessage* plnTIMER5;
-    cMessage* plnTIMER6;
-    cMessage* plnTIMER7;
-    cMessage* plnTIMER8;
-    cMessage* plnTIMER8a;
-    cMessage* mgrTIMER;
+    omnetpp::cMessage* plnTIMER4;
+    omnetpp::cMessage* plnTIMER5;
+    omnetpp::cMessage* plnTIMER6;
+    omnetpp::cMessage* plnTIMER7;
+    omnetpp::cMessage* plnTIMER8;
+    omnetpp::cMessage* plnTIMER8a;
+    omnetpp::cMessage* mgrTIMER;
 
     // leader leave
-    cMessage* plnTIMER9;
+    omnetpp::cMessage* plnTIMER9;
 
     // follower leave
     int RemainingSplits;
 
-    cMessage* plnTIMER10;
-    cMessage* plnTIMER11;
+    omnetpp::cMessage* plnTIMER10;
+    omnetpp::cMessage* plnTIMER11;
 
     // dissolve
-    cMessage* plnTIMER12;
+    omnetpp::cMessage* plnTIMER12;
     std::string lastVeh;
 };
 

@@ -52,7 +52,7 @@ void TrafficLightActuated::initialize(int stage)
         passageTime = par("passageTime").doubleValue();
         greenExtension = par("greenExtension").boolValue();
 
-        intervalChangeEVT = new cMessage("intervalChangeEVT", 1);
+        intervalChangeEVT = new omnetpp::cMessage("intervalChangeEVT", 1);
     }
 }
 
@@ -63,7 +63,7 @@ void TrafficLightActuated::finish()
 }
 
 
-void TrafficLightActuated::handleMessage(cMessage *msg)
+void TrafficLightActuated::handleMessage(omnetpp::cMessage *msg)
 {
     super::handleMessage(msg);
 
@@ -78,7 +78,7 @@ void TrafficLightActuated::handleMessage(cMessage *msg)
             error("intervalDuration is <= 0");
 
         // Schedule next light change event:
-        scheduleAt(simTime().dbl() + intervalDuration, intervalChangeEVT);
+        scheduleAt(omnetpp::simTime().dbl() + intervalDuration, intervalChangeEVT);
     }
 }
 
@@ -91,14 +91,14 @@ void TrafficLightActuated::initialize_withTraCI()
     if(TLControlMode != TL_TrafficActuated)
         return;
 
-    std::cout << endl << "Traffic-actuated traffic signal control ..."  << endl;
+    std::cout << std::endl << "Traffic-actuated traffic signal control ..."  << std::endl;
 
     // set initial values
     currentInterval = phase1_5;
     intervalDuration = minGreenTime;
     intervalElapseTime = 0;
 
-    scheduleAt(simTime().dbl() + intervalDuration, intervalChangeEVT);
+    scheduleAt(omnetpp::simTime().dbl() + intervalDuration, intervalChangeEVT);
 
     for (auto &TL : TLList)
     {
@@ -126,7 +126,7 @@ void TrafficLightActuated::initialize_withTraCI()
             // check if not greater than Gmin
             if(pass > minGreenTime)
             {
-                std::cout << "WARNING: loop detector (" << LD.second << ") is far away! Passage time is greater than Gmin." << endl;
+                std::cout << "WARNING: loop detector (" << LD.second << ") is far away! Passage time is greater than Gmin." << std::endl;
                 pass = minGreenTime;
             }
             // set it for each lane
@@ -143,11 +143,11 @@ void TrafficLightActuated::initialize_withTraCI()
     else
         error("passageTime value is not set correctly!");
 
-    if(ev.isGUI() && debugLevel > 0)
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 0)
     {
         char buff[300];
-        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalDuration);
-        std::cout << endl << buff << endl << endl;
+        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", omnetpp::simTime().dbl(), currentInterval.c_str(), omnetpp::simTime().dbl(), omnetpp::simTime().dbl() + intervalDuration);
+        std::cout << std::endl << buff << std::endl << std::endl;
         std::cout.flush();
     }
 }
@@ -219,11 +219,11 @@ void TrafficLightActuated::chooseNextInterval()
         // update TL status for this phase
         updateTLstate("C", "red");
 
-        if(ev.isGUI() && debugLevel > 0)
+        if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 0)
         {
             char buff[300];
-            sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalDuration);
-            std::cout << buff << endl << endl;
+            sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", omnetpp::simTime().dbl(), currentInterval.c_str(), omnetpp::simTime().dbl(), omnetpp::simTime().dbl() + intervalDuration);
+            std::cout << buff << std::endl << std::endl;
             std::cout.flush();
         }
     }
@@ -242,11 +242,11 @@ void TrafficLightActuated::chooseNextInterval()
         intervalElapseTime = 0.0;
         intervalDuration = minGreenTime;
 
-        if(ev.isGUI() && debugLevel > 0)
+        if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 0)
         {
             char buff[300];
-            sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalDuration);
-            std::cout << buff << endl << endl;
+            sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", omnetpp::simTime().dbl(), currentInterval.c_str(), omnetpp::simTime().dbl(), omnetpp::simTime().dbl() + intervalDuration);
+            std::cout << buff << std::endl << std::endl;
             std::cout.flush();
         }
     }
@@ -258,21 +258,21 @@ void TrafficLightActuated::chooseNextInterval()
 void TrafficLightActuated::chooseNextGreenInterval()
 {
     // print for debugging
-    if(ev.isGUI() && debugLevel > 1)
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 1)
     {
-        std::cout << "SimTime: " << std::setprecision(2) << std::fixed << simTime().dbl() << " | Passage time value per lane: ";
+        std::cout << "SimTime: " << std::setprecision(2) << std::fixed << omnetpp::simTime().dbl() << " | Passage time value per lane: ";
         for (auto &LD : passageTimePerLane)
             std::cout << LD.first << " (" << LD.second << ") | ";
-        std::cout << endl;
+        std::cout << std::endl;
         std::cout.flush();
     }
 
     // get loop detector information
     std::map<std::string,double> LastActuatedTime;
 
-    if(ev.isGUI() && debugLevel > 1)
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 1)
     {
-        std::cout << "SimTime: " << std::setprecision(2) << std::fixed << simTime().dbl() << " | Actuated LDs (lane, elapsed time): ";
+        std::cout << "SimTime: " << std::setprecision(2) << std::fixed << omnetpp::simTime().dbl() << " | Actuated LDs (lane, elapsed time): ";
         std::cout.flush();
     }
 
@@ -283,14 +283,14 @@ void TrafficLightActuated::chooseNextGreenInterval()
         LastActuatedTime[LD.first] = elapsedT;
 
         // print for debugging
-        if(ev.isGUI() && abs(simTime().dbl() - (elapsedT + updateInterval)) >= updateInterval && debugLevel > 1)
+        if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && abs(omnetpp::simTime().dbl() - (elapsedT + updateInterval)) >= updateInterval && debugLevel > 1)
         {
             std::cout << LD.first << " (" << elapsedT << ") | ";
             std::cout.flush();
         }
     }
 
-    std::cout << endl;
+    std::cout << std::endl;
 
     bool extend = false;
     std::string nextInterval;
@@ -472,17 +472,17 @@ void TrafficLightActuated::chooseNextGreenInterval()
             intervalDuration = 0.0001;
             intervalElapseTime = maxGreenTime;
 
-            if(ev.isGUI() && debugLevel > 0)
+            if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 0)
             {
-                std::cout << ">>> Green extension offset is too small. Terminating the current phase ..." << endl << endl;
+                std::cout << ">>> Green extension offset is too small. Terminating the current phase ..." << std::endl << std::endl;
                 std::cout.flush();
             }
         }
         else
         {
-            if(ev.isGUI() && debugLevel > 0)
+            if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 0)
             {
-                std::cout << ">>> Extending green for both movements by " << intervalDuration << "s" << endl << endl;
+                std::cout << ">>> Extending green for both movements by " << intervalDuration << "s" << std::endl << std::endl;
                 std::cout.flush();
             }
         }
@@ -499,11 +499,11 @@ void TrafficLightActuated::chooseNextGreenInterval()
         // update TL status for this phase
         updateTLstate("C", "yellow");
 
-        if(ev.isGUI() && debugLevel > 0)
+        if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 0)
         {
             char buff[300];
-            sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalDuration);
-            std::cout << buff << endl << endl;
+            sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", omnetpp::simTime().dbl(), currentInterval.c_str(), omnetpp::simTime().dbl(), omnetpp::simTime().dbl() + intervalDuration);
+            std::cout << buff << std::endl << std::endl;
             std::cout.flush();
         }
     }

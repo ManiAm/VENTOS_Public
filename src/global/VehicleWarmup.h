@@ -38,9 +38,9 @@ class Warmup : public BaseApplLayer
 	public:
 		virtual ~Warmup();
 		virtual void initialize(int stage);
-        virtual void handleMessage(cMessage *msg);
+        virtual void handleMessage(omnetpp::cMessage *msg);
 		virtual void finish();
-	    virtual void receiveSignal(cComponent *, simsignal_t, long);
+	    virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, long, cObject* details);
 
 	private:
         bool DoWarmup();
@@ -59,10 +59,10 @@ class Warmup : public BaseApplLayer
         int numVehicles;
 
         // class variables
-        simsignal_t Signal_executeEachTS;
+        omnetpp::simsignal_t Signal_executeEachTS;
         double startTime;     // the time that Warmup starts
         bool IsWarmUpFinished;
-        cMessage* finishingWarmup;
+        omnetpp::cMessage* finishingWarmup;
 };
 
 }

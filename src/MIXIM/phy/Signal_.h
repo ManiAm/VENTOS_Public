@@ -50,11 +50,11 @@ protected:
 	/** @brief Receiver gate id, additional definition here because BasePhyLayer will do some selfMessages with AirFrame. */
 	int receiverToGateID;
 	/** @brief The start of the signal transmission at the sender module.*/
-	simtime_t sendingStart;
+	omnetpp::simtime_t sendingStart;
 	/** @brief The duration of the signal transmission.*/
-	simtime_t duration;
+	omnetpp::simtime_t duration;
 	/** @brief The propagation delay of the transmission. */
-	simtime_t propagationDelay;
+	omnetpp::simtime_t propagationDelay;
 
 	/** @brief Stores the function which describes the power of the signal*/
 	ConstMapping* power;
@@ -93,7 +93,7 @@ public:
 	/**
 	 * @brief Initializes a signal with the specified start and length.
 	 */
-	Signal(simtime_t_cref start = -1.0, simtime_t_cref length = -1.0);
+	Signal(omnetpp::simtime_t_cref start = -1.0, omnetpp::simtime_t_cref length = -1.0);
 
 	/**
 	 * @brief Overwrites the copy constructor to make sure that the
@@ -119,42 +119,42 @@ public:
 	 * @brief Returns the point in time when the sending of the Signal started
 	 * at the sender module.
 	 */
-	simtime_t_cref getSendingStart() const;
+	omnetpp::simtime_t_cref getSendingStart() const;
 
 	/**
 	 * @brief Returns the point in time when the sending of the Signal ended
 	 * at the sender module.
 	 */
-	simtime_t getSendingEnd() const;
+	omnetpp::simtime_t getSendingEnd() const;
 
 	/**
 	 * @brief Returns the point in time when the receiving of the Signal started
 	 * at the receiver module. Already includes the propagation delay.
 	 */
-	simtime_t getReceptionStart() const;
+	omnetpp::simtime_t getReceptionStart() const;
 
 	/**
 	 * @brief Returns the point in time when the receiving of the Signal ended
 	 * at the receiver module. Already includes the propagation delay.
 	 */
-	simtime_t getReceptionEnd() const;
+	omnetpp::simtime_t getReceptionEnd() const;
 
 	/**
 	 * @brief Returns the duration of the signal transmission.
 	 */
-	simtime_t_cref getDuration() const;
+	omnetpp::simtime_t_cref getDuration() const;
 
 	/**
 	 * @brief Returns the propagation delay of the signal.
 	 */
-	simtime_t_cref getPropagationDelay() const;
+	omnetpp::simtime_t_cref getPropagationDelay() const;
 
 	/**
 	 * @brief Sets the propagation delay of the signal.
 	 *
 	 * This should be only set by the sending physical layer.
 	 */
-	void setPropagationDelay(simtime_t_cref delay);
+	void setPropagationDelay(omnetpp::simtime_t_cref delay);
 
 	/**
 	 * @brief Sets the function representing the transmission power
@@ -252,31 +252,31 @@ public:
 	 * has not been sent/received yet, or if the module was deleted
 	 * in the meantime.
 	 */
-	cModule *getReceptionModule() const {return receiverModuleID < 0 ? NULL : simulation.getModule(receiverModuleID);}
+	omnetpp::cModule *getReceptionModule() const {return receiverModuleID < 0 ? NULL : omnetpp::getSimulation()->getModule(receiverModuleID);}
 
 	/**
 	 * Returns pointers to the gate from which the signal was sent and
 	 * on which gate it arrived. A NULL pointer is returned
 	 * for new (unsent) signal.
 	 */
-	cGate *getReceptionGate() const;
+	omnetpp::cGate *getReceptionGate() const;
 
 	/**
 	 * Returns a pointer to the sender module. It returns NULL if the signal
 	 * has not been sent/received yet, or if the sender module got deleted
 	 * in the meantime.
 	 */
-	cModule *getSendingModule() const {return senderModuleID < 0 ? NULL : simulation.getModule(senderModuleID);}
+	omnetpp::cModule *getSendingModule() const {return senderModuleID < 0 ? NULL : omnetpp::getSimulation()->getModule(senderModuleID);}
 
 	/**
 	 * Returns pointers to the gate from which the signal was sent and
 	 * on which gate it arrived. A NULL pointer is returned
 	 * for new (unsent) signal.
 	 */
-	cGate *getSendingGate() const;
+	omnetpp::cGate *getSendingGate() const;
 
 	/** @brief Saves the arrival sender module information form message. */
-	void setReceptionSenderInfo(const cMessage *const pMsg);
+	void setReceptionSenderInfo(const omnetpp::cMessage *const pMsg);
 };
 
 #endif /*SIGNAL_H_*/

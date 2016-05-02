@@ -35,8 +35,9 @@ void BaseWorldUtility::initialize(int stage) {
 	else if(stage == 1) {
 		//check if necessary modules are there
 		//Connection Manager
-		if(!FindModule<BaseConnectionManager*>::findGlobalModule()) {
-			opp_warning("Could not find a connection manager module in the network!");
+		if(!FindModule<BaseConnectionManager*>::findGlobalModule())
+		{
+		    throw omnetpp::cRuntimeError("Could not find a connection manager module in the network!");
 		}
 	}
 }
@@ -51,16 +52,21 @@ void BaseWorldUtility::initializeIfNecessary()
                                par("playgroundSizeY").doubleValue(),
                                use2DFlag ? 0. : par("playgroundSizeZ").doubleValue());
 
-	if(playgroundSize.x < 0) {
-		opp_error("Playground size in X direction is invalid: "\
+	if(playgroundSize.x < 0)
+	{
+	    throw omnetpp::cRuntimeError("Playground size in X direction is invalid: "\
 				  "(%f). Should be greater than or equal to zero.", playgroundSize.x);
 	}
-	if(playgroundSize.y < 0) {
-		opp_error("Playground size in Y direction is invalid: "\
+
+	if(playgroundSize.y < 0)
+	{
+	    throw omnetpp::cRuntimeError("Playground size in Y direction is invalid: "\
 				  "(%f). Should be greater than or equal to zero.", playgroundSize.y);
 	}
-	if(!use2DFlag && playgroundSize.z < 0) {
-		opp_error("Playground size in Z direction is invalid: "\
+
+	if(!use2DFlag && playgroundSize.z < 0)
+	{
+	    throw omnetpp::cRuntimeError("Playground size in Z direction is invalid: "\
 				  "(%f). Should be greater than or equal to zero.", playgroundSize.z);
 	}
 

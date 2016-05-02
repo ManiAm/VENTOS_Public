@@ -45,10 +45,10 @@ void ApplRSUManager::initialize(int stage)
 	{
         // register signal
         Signal_executeEachTS = registerSignal("executeEachTS");
-        simulation.getSystemModule()->subscribe("executeEachTS", this);
+        omnetpp::getSimulation()->getSystemModule()->subscribe("executeEachTS", this);
 
         Signal_beaconSignaling = registerSignal("beaconSignaling");
-        simulation.getSystemModule()->subscribe("beaconSignaling", this);
+        omnetpp::getSimulation()->getSystemModule()->subscribe("beaconSignaling", this);
 	}
 }
 
@@ -58,12 +58,12 @@ void ApplRSUManager::finish()
     super::finish();
 
     // unsubscribe
-    simulation.getSystemModule()->unsubscribe("executeEachTS", this);
-    simulation.getSystemModule()->unsubscribe("beaconSignaling", this);
+    omnetpp::getSimulation()->getSystemModule()->unsubscribe("executeEachTS", this);
+    omnetpp::getSimulation()->getSystemModule()->unsubscribe("beaconSignaling", this);
 }
 
 
-void ApplRSUManager::receiveSignal(cComponent *source, simsignal_t signalID, long i)
+void ApplRSUManager::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t signalID, long i, cObject* details)
 {
     Enter_Method_Silent();
 
@@ -74,13 +74,13 @@ void ApplRSUManager::receiveSignal(cComponent *source, simsignal_t signalID, lon
 }
 
 
-void ApplRSUManager::receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj)
+void ApplRSUManager::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t signalID, cObject *obj, cObject* details)
 {
     Enter_Method_Silent();
 
     if(signalID == Signal_beaconSignaling)
     {
-        cMessage* msg = static_cast<cMessage *>(obj);
+        omnetpp::cMessage* msg = static_cast<omnetpp::cMessage *>(obj);
         if (msg == NULL) return;
 
         // treat this as a normal msg
@@ -89,18 +89,18 @@ void ApplRSUManager::receiveSignal(cComponent *source, simsignal_t signalID, cOb
     }
     // pass it up, if we do not know how to handle the signal
     else
-        super::receiveSignal(source, signalID, obj);
+        super::receiveSignal(source, signalID, obj, details);
 }
 
 
-void ApplRSUManager::handleSelfMsg(cMessage* msg)
+void ApplRSUManager::handleSelfMsg(omnetpp::cMessage* msg)
 {
     super::handleSelfMsg(msg);
 
 }
 
 
-void ApplRSUManager::handleLowerMsg(cMessage* msg)
+void ApplRSUManager::handleLowerMsg(omnetpp::cMessage* msg)
 {
     // make sure msg is of type WaveShortMessage
     Veins::WaveShortMessage* wsm = dynamic_cast<Veins::WaveShortMessage*>(msg);

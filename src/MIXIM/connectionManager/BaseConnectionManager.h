@@ -20,7 +20,7 @@
  * @author Christoph Sommer ("unregisterNic()"-method)
  * @sa ChannelAccess
  */
-class MIXIM_API BaseConnectionManager : public cSimpleModule
+class MIXIM_API BaseConnectionManager : public omnetpp::cSimpleModule
 {
 private:
 	/**
@@ -357,7 +357,7 @@ public:
 	 * If you want to do your own stuff at the registration of a nic see
 	 * "registerNicExt()".
 	 */
-	bool registerNic(cModule* nic, ChannelAccess* chAccess, const Coord* nicPos);
+	bool registerNic(omnetpp::cModule* nic, ChannelAccess* chAccess, const Coord* nicPos);
 
 	/**
 	 * @brief Unregisters a NIC such that its connections aren't managed by the CM
@@ -371,7 +371,7 @@ public:
 	 * @param nic the NIC module to be unregistered
 	 * @return returns true if the NIC was unregistered successfully
 	 */
-	bool unregisterNic(cModule* nic);
+	bool unregisterNic(omnetpp::cModule* nic);
 
 	/** @brief Updates the position information of a registered nic.*/
 	void updateNicPos(int nicID, const Coord* newPos);
@@ -380,7 +380,7 @@ public:
 	const NicEntry::GateList& getGateList( int nicID) const;
 
 	/** @brief Returns the ingate of the with id==targetID, or 0 if not in range*/
-	const cGate* getOutGateTo(const NicEntry* nic, const NicEntry* targetNic) const;
+	const omnetpp::cGate* getOutGateTo(const NicEntry* nic, const NicEntry* targetNic) const;
 };
 
 #endif /*BASECONNECTIONMANAGER_H_*/

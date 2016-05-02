@@ -24,20 +24,19 @@
 #include "ChannelAccess.h"
 
 #ifndef nicEV
-#define nicEV (ev.isDisabled()||!coreDebug) ? ev : ev << "NicEntry: "
+#define nicEV EV << "NicEntry: "
 #endif
 
-using std::endl;
 
 void NicEntryDirect::connectTo(NicEntry* other)
 {
-    cModule* otherPtr = other->nicPtr;
+    omnetpp::cModule* otherPtr = other->nicPtr;
 
-    nicEV <<"connecting nic #"<<nicId<< " and #"<<other->nicId<<endl;
+    nicEV << "connecting nic #" << nicId << " and #" << other->nicId << std::endl;
 
-    cGate *radioGate=NULL;
+    omnetpp::cGate *radioGate=NULL;
     if( (radioGate = otherPtr->gate("radioIn")) == NULL )
-		throw cRuntimeError("Nic has no radioIn gate!");
+		throw omnetpp::cRuntimeError("Nic has no radioIn gate!");
 
     outConns[other] = radioGate->getPathStartGate();
 }
@@ -45,6 +44,6 @@ void NicEntryDirect::connectTo(NicEntry* other)
 
 void NicEntryDirect::disconnectFrom(NicEntry* other)
 {
-    nicEV <<"disconnecting nic #"<<nicId<< " and #"<<other->nicId<<endl;
+    nicEV << "disconnecting nic #" << nicId << " and #" << other->nicId << std::endl;
     outConns.erase(other);
 }

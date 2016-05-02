@@ -57,211 +57,213 @@ namespace Veins {
  * @see PhyLayer80211p
  * @see Decider80211p
  */
-class Mac1609_4 : public BaseMacLayer,
-	public WaveAppToMac1609_4Interface {
+class Mac1609_4 : public BaseMacLayer, public WaveAppToMac1609_4Interface
+{
+public:
 
-	public:
+    enum t_access_category
+    {
+        AC_BK = 0,
+        AC_BE = 1,
+        AC_VI = 2,
+        AC_VO = 3
+    };
 
-		enum t_access_category {
-			AC_BK = 0,
-			AC_BE = 1,
-			AC_VI = 2,
-			AC_VO = 3
-		};
+    class EDCA
+    {
+    public:
+        class EDCAQueue
+        {
+        public:
 
-		class EDCA {
-			public:
-				class EDCAQueue {
-					public:
+            std::queue<WaveShortMessage*> queue;
+            int aifsn; //number of aifs slots for this queue
+            int cwMin; //minimum contention window
+            int cwMax; //maximum contention size
+            int cwCur; //current contention window
+            int currentBackoff; //current Backoff value for this queue
+            bool txOP;
 
-						std::queue<WaveShortMessage*> queue;
-						int aifsn; //number of aifs slots for this queue
-						int cwMin; //minimum contention window
-						int cwMax; //maximum contention size
-						int cwCur; //current contention window
-						int currentBackoff; //current Backoff value for this queue
-						bool txOP;
+            EDCAQueue() {	};
+            EDCAQueue(int aifsn,int cwMin, int cwMax, t_access_category ac):aifsn(aifsn),cwMin(cwMin),cwMax(cwMax),cwCur(cwMin),currentBackoff(0),txOP(false)
+            {	};
+        };
 
-						EDCAQueue() {	};
-						EDCAQueue(int aifsn,int cwMin, int cwMax, t_access_category ac):aifsn(aifsn),cwMin(cwMin),cwMax(cwMax),cwCur(cwMin),currentBackoff(0),txOP(false) {
-						};
-				};
+        EDCA(omnetpp::cModule *owner, t_channel channelType, int maxQueueLength = 0): owner(owner), numQueues(0),maxQueueSize(maxQueueLength),channelType(channelType)
+        {
+            statsNumInternalContention = 0;
+            statsNumBackoff = 0;
+            statsSlotsBackoff = 0;
+        };
+        /*
+         * Currently you have to call createQueue in the right order. First Call is priority 0, second 1 and so on...
+         */
+        int createQueue(int aifsn, int cwMin, int cwMax,t_access_category);
+        int queuePacket(t_access_category AC,WaveShortMessage* cmsg);
+        void backoff(t_access_category ac);
+        omnetpp::simtime_t startContent(omnetpp::simtime_t idleSince, bool guardActive);
+        void stopContent(bool allowBackoff, bool generateTxOp);
+        void postTransmit(t_access_category);
+        void revokeTxOPs();
 
-				EDCA(t_channel channelType,int maxQueueLength = 0):numQueues(0),maxQueueSize(maxQueueLength),channelType(channelType) {
-					statsNumInternalContention = 0;
-					statsNumBackoff = 0;
-					statsSlotsBackoff = 0;
-				};
-				/*
-				 * Currently you have to call createQueue in the right order. First Call is priority 0, second 1 and so on...
-				 */
-				int createQueue(int aifsn, int cwMin, int cwMax,t_access_category);
-				int queuePacket(t_access_category AC,WaveShortMessage* cmsg);
-				void backoff(t_access_category ac);
-				simtime_t startContent(simtime_t idleSince, bool guardActive);
-				void stopContent(bool allowBackoff, bool generateTxOp);
-				void postTransmit(t_access_category);
-				void revokeTxOPs();
+        void cleanUp();
 
-				void cleanUp();
+        /** @brief return the next packet to send, send all lower Queues into backoff */
+        WaveShortMessage* initiateTransmit(omnetpp::simtime_t idleSince);
 
-				/** @brief return the next packet to send, send all lower Queues into backoff */
-				WaveShortMessage* initiateTransmit(simtime_t idleSince);
+    public:
+        cModule *owner;
+        std::map<t_access_category,EDCAQueue> myQueues;
+        int numQueues;
+        uint32_t maxQueueSize;
+        omnetpp::simtime_t lastStart; //when we started the last contention;
+        t_channel channelType;
 
-			public:
-				std::map<t_access_category,EDCAQueue> myQueues;
-				int numQueues;
-				uint32_t maxQueueSize;
-				simtime_t lastStart; //when we started the last contention;
-				t_channel channelType;
+        /** @brief Stats */
+        long statsNumInternalContention;
+        long statsNumBackoff;
+        long statsSlotsBackoff;
 
-				/** @brief Stats */
-				long statsNumInternalContention;
-				long statsNumBackoff;
-				long statsSlotsBackoff;
+        /** @brief Id for debug messages */
+        std::string myId;
+    };
 
-				/** @brief Id for debug messages */
-				std::string myId;
-		};
+public:
+    ~Mac1609_4() { };
 
-	public:
-		~Mac1609_4() { };
+    void changeServiceChannel(int channelNumber);
 
-		void changeServiceChannel(int channelNumber);
+    /**
+     * @brief Change the default tx power the NIC card is using
+     *
+     * @param txPower_mW the tx power to be set in mW
+     */
+    void setTxPower(double txPower_mW);
 
-		/**
-		 * @brief Change the default tx power the NIC card is using
-		 *
-		 * @param txPower_mW the tx power to be set in mW
-		 */
-		void setTxPower(double txPower_mW);
+    /**
+     * @brief Change the default MCS the NIC card is using
+     *
+     * @param mcs the default modulation and coding scheme
+     * to use
+     */
+    void setMCS(enum PHY_MCS mcs);
 
-		/**
-		 * @brief Change the default MCS the NIC card is using
-		 *
-		 * @param mcs the default modulation and coding scheme
-		 * to use
-		 */
-		void setMCS(enum PHY_MCS mcs);
-
-		/**
-		 * @brief Change the phy layer carrier sense threshold.
-		 *
-		 * @param ccaThreshold_dBm the cca threshold in dBm
-		 */
-		void setCCAThreshold(double ccaThreshold_dBm);
-
-	protected:
-		/** @brief States of the channel selecting operation.*/
-
-	protected:
-		/** @brief Initialization of the module and some variables.*/
-		virtual void initialize(int);
-
-		/** @brief Delete all dynamically allocated objects of the module.*/
-		virtual void finish();
-
-		/** @brief Handle messages from lower layer.*/
-		virtual void handleLowerMsg(cMessage*);
-
-		/** @brief Handle messages from upper layer.*/
-		virtual void handleUpperMsg(cMessage*);
-
-		/** @brief Handle control messages from upper layer.*/
-		virtual void handleUpperControl(cMessage* msg);
+    /**
+     * @brief Change the phy layer carrier sense threshold.
+     *
+     * @param ccaThreshold_dBm the cca threshold in dBm
+     */
+    void setCCAThreshold(double ccaThreshold_dBm);
 
 
-		/** @brief Handle self messages such as timers.*/
-		virtual void handleSelfMsg(cMessage*);
+protected:
+    /** @brief Initialization of the module and some variables.*/
+    virtual void initialize(int);
 
-		/** @brief Handle control messages from lower layer.*/
-		virtual void handleLowerControl(cMessage* msg);
+    /** @brief Delete all dynamically allocated objects of the module.*/
+    virtual void finish();
 
-		/** @brief Set a state for the channel selecting operation.*/
-		void setActiveChannel(t_channel state);
+    /** @brief Handle messages from lower layer.*/
+    virtual void handleLowerMsg(omnetpp::cMessage*);
 
-		simtime_t timeLeftInSlot() const;
-		simtime_t timeLeftTillGuardOver() const;
+    /** @brief Handle messages from upper layer.*/
+    virtual void handleUpperMsg(omnetpp::cMessage*);
 
-		bool guardActive() const;
+    /** @brief Handle control messages from upper layer.*/
+    virtual void handleUpperControl(omnetpp::cMessage* msg);
 
-		void attachSignal(Mac80211Pkt* mac, simtime_t startTime, double frequency, uint64_t datarate, double txPower_mW);
-		Signal* createSignal(simtime_t start, simtime_t length, double power, uint64_t bitrate, double frequency);
 
-		/** @brief maps a application layer priority (up) to an EDCA access category. */
-		t_access_category mapPriority(int prio);
+    /** @brief Handle self messages such as timers.*/
+    virtual void handleSelfMsg(omnetpp::cMessage*);
 
-		void channelBusy();
-		void channelBusySelf(bool generateTxOp);
-		void channelIdle(bool afterSwitch = false);
+    /** @brief Handle control messages from lower layer.*/
+    virtual void handleLowerControl(omnetpp::cMessage* msg);
 
-		void setParametersForBitrate(uint64_t bitrate);
+    /** @brief Set a state for the channel selecting operation.*/
+    void setActiveChannel(t_channel state);
 
-		simtime_t getFrameDuration(int payloadLengthBits, enum PHY_MCS mcs = MCS_DEFAULT) const;
+    omnetpp::simtime_t timeLeftInSlot() const;
+    omnetpp::simtime_t timeLeftTillGuardOver() const;
 
-	protected:
-		/** @brief Self message to indicate that the current channel shall be switched.*/
-		cMessage* nextChannelSwitch;
+    bool guardActive() const;
 
-		/** @brief Self message to wake up at next MacEvent */
-		cMessage* nextMacEvent;
+    void attachSignal(Mac80211Pkt* mac, omnetpp::simtime_t startTime, double frequency, uint64_t datarate, double txPower_mW);
+    Signal* createSignal(omnetpp::simtime_t start, omnetpp::simtime_t length, double power, uint64_t bitrate, double frequency);
 
-		/** @brief Last time the channel went idle */
-		simtime_t lastIdle;
-		simtime_t lastBusy;
+    /** @brief maps a application layer priority (up) to an EDCA access category. */
+    t_access_category mapPriority(int prio);
 
-		/** @brief Current state of the channel selecting operation.*/
-		t_channel activeChannel;
+    void channelBusy();
+    void channelBusySelf(bool generateTxOp);
+    void channelIdle(bool afterSwitch = false);
 
-		/** @brief access category of last sent packet */
-		t_access_category lastAC;
+    void setParametersForBitrate(uint64_t bitrate);
 
-		/** @brief Stores the frequencies in Hz that are associated to the channel numbers.*/
-		std::map<int,double> frequency;
+    omnetpp::simtime_t getFrameDuration(int payloadLengthBits, enum PHY_MCS mcs = MCS_DEFAULT) const;
 
-		int headerLength;
+protected:
+    /** @brief Self message to indicate that the current channel shall be switched.*/
+    omnetpp::cMessage* nextChannelSwitch;
 
-		bool useSCH;
-		int mySCH;
+    /** @brief Self message to wake up at next MacEvent */
+    omnetpp::cMessage* nextMacEvent;
 
-		std::map<t_channel,EDCA*> myEDCA;
+    /** @brief Last time the channel went idle */
+    omnetpp::simtime_t lastIdle;
+    omnetpp::simtime_t lastBusy;
 
-		bool idleChannel;
+    /** @brief Current state of the channel selecting operation.*/
+    t_channel activeChannel;
 
-		/** @brief stats */
-		long statsReceivedPackets;
-		long statsReceivedBroadcasts;
-		long statsSentPackets;
-		long statsTXRXLostPackets;
-		long statsSNIRLostPackets;
-		long statsDroppedPackets;
-		long statsNumTooLittleTime;
-		long statsNumInternalContention;
-		long statsNumBackoff;
-		long statsSlotsBackoff;
-		simtime_t statsTotalBusyTime;
+    /** @brief access category of last sent packet */
+    t_access_category lastAC;
 
-		/** @brief This MAC layers MAC address.*/
-		int myMacAddress;
+    /** @brief Stores the frequencies in Hz that are associated to the channel numbers.*/
+    std::map<int,double> frequency;
 
-		/** @brief The power (in mW) to transmit with.*/
-		double txPower;
+    int headerLength;
 
-		/** @brief the bit rate at which we transmit */
-		uint64_t bitrate;
+    bool useSCH;
+    int mySCH;
 
-		/** @brief N_DBPS, derived from bitrate, for frame length calculation */
-		double n_dbps;
+    std::map<t_channel,EDCA*> myEDCA;
 
-		/** @brief Id for debug messages */
-		std::string myId;
+    bool idleChannel;
 
-		Mac80211pToPhy11pInterface* phy11p;
+    /** @brief stats */
+    long statsReceivedPackets;
+    long statsReceivedBroadcasts;
+    long statsSentPackets;
+    long statsTXRXLostPackets;
+    long statsSNIRLostPackets;
+    long statsDroppedPackets;
+    long statsNumTooLittleTime;
+    long statsNumInternalContention;
+    long statsNumBackoff;
+    long statsSlotsBackoff;
+    omnetpp::simtime_t statsTotalBusyTime;
 
-		//tell to anybody which is interested when the channel turns busy or idle
-		simsignal_t sigChannelBusy;
-		//tell to anybody which is interested when a collision occurred
-		simsignal_t sigCollision;
+    /** @brief This MAC layers MAC address.*/
+    int myMacAddress;
+
+    /** @brief The power (in mW) to transmit with.*/
+    double txPower;
+
+    /** @brief the bit rate at which we transmit */
+    uint64_t bitrate;
+
+    /** @brief N_DBPS, derived from bitrate, for frame length calculation */
+    double n_dbps;
+
+    /** @brief Id for debug messages */
+    std::string myId;
+
+    Mac80211pToPhy11pInterface* phy11p;
+
+    //tell to anybody which is interested when the channel turns busy or idle
+    omnetpp::simsignal_t sigChannelBusy;
+    //tell to anybody which is interested when a collision occurred
+    omnetpp::simsignal_t sigCollision;
 };
 
 }

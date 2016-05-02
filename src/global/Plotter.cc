@@ -48,7 +48,7 @@ void Plotter::initialize(int stage)
             return;
 
         // get a pointer to the TraCI module
-        cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
+        cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
         TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
 
@@ -117,7 +117,7 @@ void Plotter::finish()
 }
 
 
-void Plotter::handleMessage(cMessage *msg)
+void Plotter::handleMessage(omnetpp::cMessage *msg)
 {
 
 }

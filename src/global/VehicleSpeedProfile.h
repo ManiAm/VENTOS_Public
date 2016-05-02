@@ -38,7 +38,7 @@ class SpeedProfile : public BaseApplLayer
 	public:
 		virtual ~SpeedProfile();
 		virtual void initialize(int stage);
-        virtual void handleMessage(cMessage *msg);
+        virtual void handleMessage(omnetpp::cMessage *msg);
 		virtual void finish();
 
 	public:

@@ -8,6 +8,7 @@ import VENTOS.src.MIXIM.modules.*;
 module bicycle
 {
     parameters:
+        @signal[beaconSignaling]();
         
     gates:
         input radioIn; // gate for sendDirect

@@ -49,7 +49,7 @@ void Statistics::initialize(int stage)
     if(stage == 0)
     {
         // get a pointer to the TraCI module
-        cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
+        cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
         TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
 
@@ -59,25 +59,25 @@ void Statistics::initialize(int stage)
 
         // register signals
         Signal_initialize_withTraCI = registerSignal("initialize_withTraCI");
-        simulation.getSystemModule()->subscribe("initialize_withTraCI", this);
+        omnetpp::getSimulation()->getSystemModule()->subscribe("initialize_withTraCI", this);
 
         Signal_executeEachTS = registerSignal("executeEachTS");
-        simulation.getSystemModule()->subscribe("executeEachTS", this);
+        omnetpp::getSimulation()->getSystemModule()->subscribe("executeEachTS", this);
 
         Signal_MacStats = registerSignal("MacStats");
-        simulation.getSystemModule()->subscribe("MacStats", this);
+        omnetpp::getSimulation()->getSystemModule()->subscribe("MacStats", this);
 
         Signal_SentPlatoonMsg = registerSignal("SentPlatoonMsg");
-        simulation.getSystemModule()->subscribe("SentPlatoonMsg", this);
+        omnetpp::getSimulation()->getSystemModule()->subscribe("SentPlatoonMsg", this);
 
         Signal_VehicleState = registerSignal("VehicleState");
-        simulation.getSystemModule()->subscribe("VehicleState", this);
+        omnetpp::getSimulation()->getSystemModule()->subscribe("VehicleState", this);
 
         Signal_PlnManeuver = registerSignal("PlnManeuver");
-        simulation.getSystemModule()->subscribe("PlnManeuver", this);
+        omnetpp::getSimulation()->getSystemModule()->subscribe("PlnManeuver", this);
 
         Signal_beacon = registerSignal("beacon");
-        simulation.getSystemModule()->subscribe("beacon", this);
+        omnetpp::getSimulation()->getSystemModule()->subscribe("beacon", this);
     }
 }
 
@@ -97,18 +97,18 @@ void Statistics::finish()
     }
 
     // unsubscribe
-    simulation.getSystemModule()->unsubscribe("initialize_withTraCI", this);
-    simulation.getSystemModule()->unsubscribe("executeEachTS", this);
+    omnetpp::getSimulation()->getSystemModule()->unsubscribe("initialize_withTraCI", this);
+    omnetpp::getSimulation()->getSystemModule()->unsubscribe("executeEachTS", this);
 }
 
 
-void Statistics::handleMessage(cMessage *msg)
+void Statistics::handleMessage(omnetpp::cMessage *msg)
 {
 
 }
 
 
-void Statistics::receiveSignal(cComponent *source, simsignal_t signalID, long i)
+void Statistics::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t signalID, long i, cObject* details)
 {
     Enter_Method_Silent();
 
@@ -123,7 +123,7 @@ void Statistics::receiveSignal(cComponent *source, simsignal_t signalID, long i)
 }
 
 
-void Statistics::receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj)
+void Statistics::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t signalID, cObject *obj, cObject* details)
 {
     Enter_Method_Silent();
 
@@ -138,13 +138,13 @@ void Statistics::receiveSignal(cComponent *source, simsignal_t signalID, cObject
         // its a new entry, so we add it
         if(counter == Vec_MacStat.end())
         {
-            MacStatEntry *tmp = new MacStatEntry(simTime().dbl(), source->getFullName(), m->vec);
+            MacStatEntry *tmp = new MacStatEntry(omnetpp::simTime().dbl(), source->getFullName(), m->vec);
             Vec_MacStat.push_back(*tmp);
         }
         // if found, just update the existing fields
         else
         {
-            counter->time = simTime().dbl();
+            counter->time = omnetpp::simTime().dbl();
             counter->MacStatsVec = m->vec;
         }
     }
@@ -153,7 +153,7 @@ void Statistics::receiveSignal(cComponent *source, simsignal_t signalID, cObject
         CurrentVehicleState *state = dynamic_cast<CurrentVehicleState*>(obj);
         ASSERT(state);
 
-        plnManagement *tmp = new plnManagement(simTime().dbl(), state->name, "-", state->state, "-", "-");
+        plnManagement *tmp = new plnManagement(omnetpp::simTime().dbl(), state->name, "-", state->state, "-", "-");
         Vec_plnManagement.push_back(*tmp);
     }
     else if(reportPlnManagerData && signalID == Signal_SentPlatoonMsg)
@@ -161,7 +161,7 @@ void Statistics::receiveSignal(cComponent *source, simsignal_t signalID, cObject
         CurrentPlnMsg* plnMsg = dynamic_cast<CurrentPlnMsg*>(obj);
         ASSERT(plnMsg);
 
-        plnManagement *tmp = new plnManagement(simTime().dbl(), plnMsg->msg->getSender(), plnMsg->msg->getRecipient(), plnMsg->type, plnMsg->msg->getSendingPlatoonID(), plnMsg->msg->getReceivingPlatoonID());
+        plnManagement *tmp = new plnManagement(omnetpp::simTime().dbl(), plnMsg->msg->getSender(), plnMsg->msg->getRecipient(), plnMsg->type, plnMsg->msg->getSendingPlatoonID(), plnMsg->msg->getReceivingPlatoonID());
         Vec_plnManagement.push_back(*tmp);
     }
     else if(reportPlnManagerData && signalID == Signal_PlnManeuver)
@@ -169,7 +169,7 @@ void Statistics::receiveSignal(cComponent *source, simsignal_t signalID, cObject
         PlnManeuver* com = dynamic_cast<PlnManeuver*>(obj);
         ASSERT(com);
 
-        plnStat *tmp = new plnStat(simTime().dbl(), com->from, com->to, com->maneuver);
+        plnStat *tmp = new plnStat(omnetpp::simTime().dbl(), com->from, com->to, com->maneuver);
         Vec_plnStat.push_back(*tmp);
     }
     else if(reportBeaconsData && signalID == Signal_beacon)
@@ -177,7 +177,7 @@ void Statistics::receiveSignal(cComponent *source, simsignal_t signalID, cObject
         data *m = static_cast<data *>(obj);
         ASSERT(m);
 
-        BeaconStat *tmp = new BeaconStat(simTime().dbl(), m->sender, m->receiver, m->dropped);
+        BeaconStat *tmp = new BeaconStat(omnetpp::simTime().dbl(), m->sender, m->receiver, m->dropped);
         Vec_Beacons.push_back(*tmp);
     }
 }
@@ -202,14 +202,14 @@ void Statistics::MAClayerToFile()
 
     boost::filesystem::path filePath;
 
-    if(ev.isGUI())
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI())
     {
         filePath = "results/gui/MACdata.txt";
     }
     else
     {
         // get the current run number
-        int currentRun = ev.getConfigEx()->getActiveRunNumber();
+        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
         std::ostringstream fileName;
         fileName << std::setfill('0') << std::setw(3) << currentRun << "_MACdata.txt";
         filePath = "results/cmd/" + fileName.str();
@@ -218,19 +218,19 @@ void Statistics::MAClayerToFile()
     FILE *filePtr = fopen (filePath.string().c_str(), "w");
 
     // write simulation parameters at the beginning of the file in CMD mode
-    if(!ev.isGUI())
+    if(!omnetpp::cSimulation::getActiveEnvir()->isGUI())
     {
         // get the current config name
-        std::string configName = ev.getConfigEx()->getVariable("configname");
+        std::string configName = omnetpp::getEnvir()->getConfigEx()->getVariable("configname");
 
         // get number of total runs in this config
-        int totalRun = ev.getConfigEx()->getNumRunsInConfig(configName.c_str());
+        int totalRun = omnetpp::getEnvir()->getConfigEx()->getNumRunsInConfig(configName.c_str());
 
         // get the current run number
-        int currentRun = ev.getConfigEx()->getActiveRunNumber();
+        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
 
         // get all iteration variables
-        std::vector<std::string> iterVar = ev.getConfigEx()->unrollConfig(configName.c_str(), false);
+        std::vector<std::string> iterVar = omnetpp::getEnvir()->getConfigEx()->unrollConfig(configName.c_str(), false);
 
         // write to file
         fprintf (filePtr, "configName      %s\n", configName.c_str());
@@ -283,14 +283,14 @@ void Statistics::plnManageToFile()
 
     boost::filesystem::path filePath;
 
-    if(ev.isGUI())
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI())
     {
         filePath = "results/gui/plnManage.txt";
     }
     else
     {
         // get the current run number
-        int currentRun = ev.getConfigEx()->getActiveRunNumber();
+        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
         std::ostringstream fileName;
         fileName << std::setfill('0') << std::setw(3) << currentRun << "_plnManage.txt";
         filePath = "results/cmd/" + fileName.str();
@@ -299,19 +299,19 @@ void Statistics::plnManageToFile()
     FILE *filePtr = fopen (filePath.string().c_str(), "w");
 
     // write simulation parameters at the beginning of the file in CMD mode
-    if(!ev.isGUI())
+    if(!omnetpp::cSimulation::getActiveEnvir()->isGUI())
     {
         // get the current config name
-        std::string configName = ev.getConfigEx()->getVariable("configname");
+        std::string configName = omnetpp::getEnvir()->getConfigEx()->getVariable("configname");
 
         // get number of total runs in this config
-        int totalRun = ev.getConfigEx()->getNumRunsInConfig(configName.c_str());
+        int totalRun = omnetpp::getEnvir()->getConfigEx()->getNumRunsInConfig(configName.c_str());
 
         // get the current run number
-        int currentRun = ev.getConfigEx()->getActiveRunNumber();
+        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
 
         // get all iteration variables
-        std::vector<std::string> iterVar = ev.getConfigEx()->unrollConfig(configName.c_str(), false);
+        std::vector<std::string> iterVar = omnetpp::getEnvir()->getConfigEx()->unrollConfig(configName.c_str(), false);
 
         // write to file
         fprintf (filePtr, "configName      %s\n", configName.c_str());
@@ -361,14 +361,14 @@ void Statistics::plnStatToFile()
 
     boost::filesystem::path filePath;
 
-    if(ev.isGUI())
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI())
     {
         filePath = "results/gui/plnStat.txt";
     }
     else
     {
         // get the current run number
-        int currentRun = ev.getConfigEx()->getActiveRunNumber();
+        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
         std::ostringstream fileName;
         fileName << std::setfill('0') << std::setw(3) << currentRun << "_plnStat.txt";
         filePath = "results/cmd/" + fileName.str();
@@ -377,19 +377,19 @@ void Statistics::plnStatToFile()
     FILE *filePtr = fopen (filePath.string().c_str(), "w");
 
     // write simulation parameters at the beginning of the file in CMD mode
-    if(!ev.isGUI())
+    if(!omnetpp::cSimulation::getActiveEnvir()->isGUI())
     {
         // get the current config name
-        std::string configName = ev.getConfigEx()->getVariable("configname");
+        std::string configName = omnetpp::getEnvir()->getConfigEx()->getVariable("configname");
 
         // get number of total runs in this config
-        int totalRun = ev.getConfigEx()->getNumRunsInConfig(configName.c_str());
+        int totalRun = omnetpp::getEnvir()->getConfigEx()->getNumRunsInConfig(configName.c_str());
 
         // get the current run number
-        int currentRun = ev.getConfigEx()->getActiveRunNumber();
+        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
 
         // get all iteration variables
-        std::vector<std::string> iterVar = ev.getConfigEx()->unrollConfig(configName.c_str(), false);
+        std::vector<std::string> iterVar = omnetpp::getEnvir()->getConfigEx()->unrollConfig(configName.c_str(), false);
 
         // write to file
         fprintf (filePtr, "configName      %s\n", configName.c_str());
@@ -432,14 +432,14 @@ void Statistics::beaconToFile()
 
     boost::filesystem::path filePath;
 
-    if(ev.isGUI())
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI())
     {
         filePath = "results/gui/beaconsStat.txt";
     }
     else
     {
         // get the current run number
-        int currentRun = ev.getConfigEx()->getActiveRunNumber();
+        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
         std::ostringstream fileName;
         fileName << std::setfill('0') << std::setw(3) << currentRun << "_beaconsStat.txt";
         filePath = "results/cmd/" + fileName.str();
@@ -448,19 +448,19 @@ void Statistics::beaconToFile()
     FILE *filePtr = fopen (filePath.string().c_str(), "w");
 
     // write simulation parameters at the beginning of the file in CMD mode
-    if(!ev.isGUI())
+    if(!omnetpp::cSimulation::getActiveEnvir()->isGUI())
     {
         // get the current config name
-        std::string configName = ev.getConfigEx()->getVariable("configname");
+        std::string configName = omnetpp::getEnvir()->getConfigEx()->getVariable("configname");
 
         // get number of total runs in this config
-        int totalRun = ev.getConfigEx()->getNumRunsInConfig(configName.c_str());
+        int totalRun = omnetpp::getEnvir()->getConfigEx()->getNumRunsInConfig(configName.c_str());
 
         // get the current run number
-        int currentRun = ev.getConfigEx()->getActiveRunNumber();
+        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
 
         // get all iteration variables
-        std::vector<std::string> iterVar = ev.getConfigEx()->unrollConfig(configName.c_str(), false);
+        std::vector<std::string> iterVar = omnetpp::getEnvir()->getConfigEx()->unrollConfig(configName.c_str(), false);
 
         // write to file
         fprintf (filePtr, "configName      %s\n", configName.c_str());

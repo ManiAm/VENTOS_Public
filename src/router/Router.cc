@@ -94,11 +94,11 @@ void Router::initialize(int stage)
     if(stage == 0)
     {
         // get a pointer to the TraCI module
-        cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
+        omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
         TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
 
-        debugLevel = simulation.getSystemModule()->par("debugLevel").longValue();
+        debugLevel = omnetpp::getSimulation()->getSystemModule()->par("debugLevel").longValue();
 
         EWMARate = par("EWMARate").doubleValue();
         TLLookahead = par("TLLookahead").doubleValue();
@@ -120,10 +120,10 @@ void Router::initialize(int stage)
 
         // register and subscribe to signals
         Signal_system = registerSignal("system");
-        simulation.getSystemModule()->subscribe("system", this);
+        omnetpp::getSimulation()->getSystemModule()->subscribe("system", this);
 
         Signal_executeEachTS = registerSignal("executeEachTS");
-        simulation.getSystemModule()->subscribe("executeEachTS", this);
+        omnetpp::getSimulation()->getSystemModule()->subscribe("executeEachTS", this);
 
         // get the file paths
         SUMO_FullPath = TraCI->getSUMOFullDir();
@@ -147,20 +147,20 @@ void Router::initialize(int stage)
                 EdgeRemovals.push_back(EdgeRemoval(edgeID, start, end, pos, laneIndex, false));
             }
 
-            if(ev.isGUI() && debugLevel > 1)
+            if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 1)
             {
-                std::cout << "Loaded " << EdgeRemovals.size() << " accidents from " << AccidentFile << endl;
+                std::cout << "Loaded " << EdgeRemovals.size() << " accidents from " << AccidentFile << std::endl;
                 std::cout.flush();
             }
 
             if(EdgeRemovals.size() > 0)
             {
-                routerMsg = new cMessage("routerMsg");   //Create a new internal message
+                routerMsg = new omnetpp::cMessage("routerMsg");   //Create a new internal message
                 scheduleAt(AccidentCheckInterval, routerMsg); //Schedule them to start sending
             }
             else
             {
-                std::cout << "Accidents are enabled but no accidents were read in!" << endl;
+                std::cout << "Accidents are enabled but no accidents were read in!" << std::endl;
             }
         }
 
@@ -191,9 +191,9 @@ void Router::initialize(int stage)
                     nonReroutingVehicles->insert(vehNum);
                 NonReroutingFile.close();
 
-                if(ev.isGUI() && debugLevel > 1)
+                if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 1)
                 {
-                    std::cout << "Loaded " << numNonRerouting << " nonRerouting vehicles from file " << NonReroutingFileName << endl;
+                    std::cout << "Loaded " << numNonRerouting << " nonRerouting vehicles from file " << NonReroutingFileName << std::endl;
                     std::cout.flush();
                 }
             }
@@ -203,12 +203,12 @@ void Router::initialize(int stage)
                 std::ofstream NonReroutingFile;
                 NonReroutingFile.open(NonReroutingFileName.c_str());
                 for(std::string veh : *nonReroutingVehicles)
-                    NonReroutingFile << veh << endl;
+                    NonReroutingFile << veh << std::endl;
                 NonReroutingFile.close();
 
-                if(ev.isGUI() && debugLevel > 1)
+                if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 1)
                 {
-                    std::cout << "Created " << numNonRerouting << "-vehicle nonRerouting file " << NonReroutingFileName << endl;
+                    std::cout << "Created " << numNonRerouting << "-vehicle nonRerouting file " << NonReroutingFileName << std::endl;
                     std::cout.flush();
                 }
             }
@@ -225,9 +225,9 @@ void Router::initialize(int stage)
         {
             std::string TravelTimesFileName = VENTOS_FullPath.string() + "results/router/" + filePrefix.str() + ".txt";
 
-            if(ev.isGUI() && debugLevel > 1)
+            if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 1)
             {
-                std::cout << "Opened edge-weights file at " << TravelTimesFileName << endl;
+                std::cout << "Opened edge-weights file at " << TravelTimesFileName << std::endl;
                 std::cout.flush();
             }
 
@@ -245,12 +245,12 @@ void Router::finish()
         LaneCostsToFile();
 
     // unsubscribe
-    simulation.getSystemModule()->unsubscribe("executeEachTS", this);
+    omnetpp::getSimulation()->getSystemModule()->unsubscribe("executeEachTS", this);
 }
 
 
 //Receives a signal every time-step
-void Router::receiveSignal(cComponent *source, simsignal_t signalID, long i)
+void Router::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t signalID, long i, cObject* details)
 {
     Enter_Method_Silent();
 
@@ -263,12 +263,12 @@ void Router::receiveSignal(cComponent *source, simsignal_t signalID, long i)
 }
 
 
-void Router::handleMessage(cMessage* msg)
+void Router::handleMessage(omnetpp::cMessage* msg)
 {
     checkEdgeRemovals();
 
-    routerMsg = new cMessage("routerMsg");   //Create a new internal message
-    scheduleAt(simTime().dbl() + AccidentCheckInterval, routerMsg); //Schedule them to start sending
+    routerMsg = new omnetpp::cMessage("routerMsg");   //Create a new internal message
+    scheduleAt(omnetpp::simTime().dbl() + AccidentCheckInterval, routerMsg); //Schedule them to start sending
 }
 
 
@@ -276,28 +276,28 @@ void Router::receiveDijkstraRequest(Edge* origin, Node* destination, std::string
 {
     std::string key = origin->id + "#" + destination->id;
 
-    if(dijkstraTimes.find(key) == dijkstraTimes.end() || (simTime().dbl() - dijkstraTimes[key]) > dijkstraOutdateTime)
+    if(dijkstraTimes.find(key) == dijkstraTimes.end() || (omnetpp::simTime().dbl() - dijkstraTimes[key]) > dijkstraOutdateTime)
     {
-        dijkstraTimes[key] = simTime().dbl();
+        dijkstraTimes[key] = omnetpp::simTime().dbl();
         dijkstraRoutes[key] = getRoute(origin, destination, sender);
 
-        if(ev.isGUI() && debugLevel > 2)
+        if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 2)
         {
-            std::cout << "Created dijkstra's route from " << origin->id << " to " << destination->id << " at t=" << simTime().dbl() << endl;
+            std::cout << "Created dijkstra's route from " << origin->id << " to " << destination->id << " at t=" << omnetpp::simTime().dbl() << std::endl;
             std::cout.flush();
         }
     }
     else
     {
-        if(ev.isGUI() && debugLevel > 2)
+        if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 2)
         {
-            std::cout << "Using old dijkstras route at t=" << simTime().dbl() << endl;
+            std::cout << "Using old dijkstras route at t=" << omnetpp::simTime().dbl() << std::endl;
             std::cout.flush();
         }
     }
 
     // Systemdata wants string edge, string node, string sender, int requestType, string recipient, list<string> edgeList
-    simsignal_t Signal_router = registerSignal("router");
+    omnetpp::simsignal_t Signal_router = registerSignal("router");
     this->emit(Signal_router, new systemData("", "", "router", DIJKSTRA, sender, dijkstraRoutes[key]));
 }
 
@@ -308,13 +308,13 @@ void Router::receiveHypertreeRequest(Edge* origin, Node* destination, std::strin
 
     // Return memoization only if the vehicle has traveled less than X intersections, otherwise recalculate a new one
     if(hypertreeMemo.find(destination->id) == hypertreeMemo.end() /*&&  if old hyperpath is less than 60 second old*/)
-        hypertreeMemo[destination->id] = buildHypertree(simTime().dbl(), destination);
+        hypertreeMemo[destination->id] = buildHypertree(omnetpp::simTime().dbl(), destination);
 
-    std::string nextEdge = hypertreeMemo[destination->id]->transition[key(origin->from, origin->to, simTime().dbl())];
+    std::string nextEdge = hypertreeMemo[destination->id]->transition[key(origin->from, origin->to, omnetpp::simTime().dbl())];
     if(nextEdge != "end")
         info.push_back(nextEdge);
 
-    simsignal_t Signal_router = registerSignal("router");
+    omnetpp::simsignal_t Signal_router = registerSignal("router");
     this->emit(Signal_router, new systemData("", "", "router", HYPERTREE, sender, info));
 }
 
@@ -323,9 +323,9 @@ void Router::receiveDoneRequest(std::string sender)
     //Decrement vehicle count, print
     currentVehicleCount--;
 
-    if(ev.isGUI() && debugLevel > 0)
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 0)
     {
-        std::cout << currentVehicleCount << " vehicles left." << endl;
+        std::cout << currentVehicleCount << " vehicles left." << std::endl;
         std::cout.flush();
     }
 
@@ -333,8 +333,8 @@ void Router::receiveDoneRequest(std::string sender)
     //int currentRun = ev.getConfigEx()->getActiveRunNumber();
     if(collectVehicleTimeData)
     {
-        vehicleTravelTimes[sender] = simTime().dbl() - vehicleTravelTimes[sender];
-        vehicleTravelTimesFile << sender << " " << vehicleTravelTimes[sender] << endl;
+        vehicleTravelTimes[sender] = omnetpp::simTime().dbl() - vehicleTravelTimes[sender];
+        vehicleTravelTimesFile << sender << " " << vehicleTravelTimes[sender] << std::endl;
     }
 
     if(currentVehicleCount == 0)
@@ -353,7 +353,7 @@ void Router::receiveDoneRequest(std::string sender)
             }
 
             avg /= count;
-            std::cout << "Average vehicle travel time was " << avg << " seconds." << endl;
+            std::cout << "Average vehicle travel time was " << avg << " seconds." << std::endl;
             vehicleTravelTimesFile.close();
 
             int TLMode = (*net->TLs.begin()).second->TLLogicMode;
@@ -362,7 +362,7 @@ void Router::receiveDoneRequest(std::string sender)
             std::ofstream outfile;
             std::string fileName = VENTOS_FullPath.string() + "results/router/AverageTravelTimes.txt";
             outfile.open(fileName.c_str(), std::ofstream::app);  //Open the edgeWeights file
-            outfile << filePrefix.str() <<": " << avg << " " << simTime().dbl() << endl;
+            outfile << filePrefix.str() <<": " << avg << " " << omnetpp::simTime().dbl() << std::endl;
             outfile.close();
         }
 
@@ -373,10 +373,10 @@ void Router::receiveDoneRequest(std::string sender)
 
 void Router::receiveStartedRequest(std::string sender)
 {
-    vehicleTravelTimes[sender] = simTime().dbl();
+    vehicleTravelTimes[sender] = omnetpp::simTime().dbl();
 }
 
-void Router::receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj)
+void Router::receiveSignal(cComponent *source, omnetpp::simsignal_t signalID, cObject *obj, cObject* details)
 {
     if(signalID != Signal_system)
     {
@@ -426,7 +426,7 @@ void Router::issueStart(std::string vehID)
 
 void Router::checkEdgeRemovals()
 {
-    int curTime = simTime().dbl();
+    int curTime = omnetpp::simTime().dbl();
 
     for(EdgeRemoval& er : EdgeRemovals)
     {
@@ -512,9 +512,9 @@ void Router::parseLaneCostsFile()
         }
 
         net->edges.at(edgeName)->travelTimes = EdgeCosts(m);
-        if(ev.isGUI() && debugLevel > 1)
+        if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 1)
         {
-            std::cout << "Loaded costs for " << edgeName << ": " << net->edges.at(edgeName)->travelTimes.average << endl;
+            std::cout << "Loaded costs for " << edgeName << ": " << net->edges.at(edgeName)->travelTimes.average << std::endl;
             std::cout.flush();
         }
     }
@@ -535,7 +535,7 @@ void Router::LaneCostsToFile()
         if(name != "") //If it has a name (empty-ID histograms occur when vehicles update in an intersection)
         {
             EdgeCosts& ec = pair.second->travelTimes;
-            outFile << name << " " << ec.count << endl; //Write the edge ID and its number of data points
+            outFile << name << " " << ec.count << std::endl; //Write the edge ID and its number of data points
             for(auto& pair2 : ec.data)
                 //for(map<int, int>::iterator it2 = hist->data.begin(); it2 != hist->data.end(); it2++)
             {
@@ -543,7 +543,7 @@ void Router::LaneCostsToFile()
                 int count = pair2.second;
                 outFile << time << " " << count << "  ";    //And then write each data point followed by the number of occurrences
             }
-            outFile << endl;
+            outFile << std::endl;
         }
     }
 }
@@ -561,25 +561,25 @@ void Router::laneCostsData()
             {
                 if(vehicleEdges[vehicle] != curEdge)
                 {
-                    if(ev.isGUI() && debugLevel > 2)
+                    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 2)
                     {
-                        std::cout << vehicle << " changes lanes to " << curEdge << " at t=" << simTime().dbl() << "(" << vehicleLaneChangeCount[vehicle] << ")" << endl;
+                        std::cout << vehicle << " changes lanes to " << curEdge << " at t=" << omnetpp::simTime().dbl() << "(" << vehicleLaneChangeCount[vehicle] << ")" << std::endl;
                         std::cout.flush();
                     }
 
-                    double time = simTime().dbl() - vehicleTimes[vehicle];
+                    double time = omnetpp::simTime().dbl() - vehicleTimes[vehicle];
                     net->edges.at(vehicleEdges[vehicle])->travelTimes.insert(time);
                     vehicleEdges[vehicle] = curEdge;
-                    vehicleTimes[vehicle] = simTime().dbl();
+                    vehicleTimes[vehicle] = omnetpp::simTime().dbl();
                     ++vehicleLaneChangeCount[vehicle];
                     if(UseHysteresis && vehicleLaneChangeCount[vehicle] == HysteresisCount)
                     {
                         vehicleLaneChangeCount[vehicle] = 0;
 
                         sendRerouteSignal(vehicle);
-                        if(ev.isGUI() && debugLevel > 1)
+                        if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 1)
                         {
-                            std::cout << "Hystereis rerouting " << vehicle << " at t=" << simTime().dbl() << endl;
+                            std::cout << "Hystereis rerouting " << vehicle << " at t=" << omnetpp::simTime().dbl() << std::endl;
                             std::cout.flush();
                         }
                     }
@@ -588,7 +588,7 @@ void Router::laneCostsData()
             else
             {
                 vehicleEdges[vehicle] = curEdge;
-                vehicleTimes[vehicle] = simTime().dbl();
+                vehicleTimes[vehicle] = omnetpp::simTime().dbl();
                 vehicleLaneChangeCount[vehicle] = 0;
             }
         }
@@ -624,9 +624,9 @@ Hypertree* Router::buildHypertree(int startTime, Node* destination)
         }
     }
 
-    if(ev.isGUI() && debugLevel > 2)
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 2)
     {
-        std::cout << "Generating a hypertree for " << destination->id << endl;
+        std::cout << "Generating a hypertree for " << destination->id << std::endl;
         std::cout.flush();
     }
 
@@ -735,7 +735,7 @@ std::list<std::string> Router::getRoute(Edge* origin, Node* destination, std::st
             {
                 double newCost = parent->curCost + curLaneCost;                     // Time to get to the junction is the time we get to the edge plus the edge cost
                 if(newCost < TLLookahead)
-                    newCost += net->junctionCost(newCost + simTime().dbl(), parent, *child); // The cost at the junction is calculated from when we'd arrive there
+                    newCost += net->junctionCost(newCost + omnetpp::simTime().dbl(), parent, *child); // The cost at the junction is calculated from when we'd arrive there
                 if(!(*child)->visited && newCost < (*child)->curCost)               // If we haven't finished the edge and out new cost is lower
                 {
                     (*child)->curCost = newCost;    // Cost to the child is newCost
@@ -757,10 +757,10 @@ std::list<std::string> Router::getRoute(Edge* origin, Node* destination, std::st
         }
     }// While heap isn't empty
 
-    if(ev.isGUI() && debugLevel > 0)
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 0)
     {
         // Either destination cannot be reached or vehicle is on an edge with an accident. Route will not be changed.
-        std::cout << "t=" << simTime().dbl() << ": " << "Pathing failed from " << origin->id << " to " << destination->id << endl;
+        std::cout << "t=" << omnetpp::simTime().dbl() << ": " << "Pathing failed from " << origin->id << " to " << destination->id << std::endl;
         std::cout.flush();
     }
 

@@ -9,7 +9,7 @@ bool DeciderResult::isSignalCorrect() const {
 Decider::Decider(DeciderToPhyInterface* phy):
 	phy(phy), notAgain(-1) {}
 
-simtime_t Decider::processSignal(AirFrame* s) {
+omnetpp::simtime_t Decider::processSignal(AirFrame* s) {
 
 	return -1;
 }
@@ -19,7 +19,7 @@ ChannelState Decider::getChannelState() {
 	return ChannelState();
 }
 
-simtime_t Decider::handleChannelSenseRequest(ChannelSenseRequest* request) {
+omnetpp::simtime_t Decider::handleChannelSenseRequest(ChannelSenseRequest* request) {
 
 	return -1;
 }

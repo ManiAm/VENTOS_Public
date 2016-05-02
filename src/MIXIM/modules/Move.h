@@ -33,14 +33,14 @@
  *
  * @author Andreas Koepke, Michael Swigulski
  **/
-class MIXIM_API Move : public cObject {
+class MIXIM_API Move : public omnetpp::cObject {
 protected:
     /** @brief Start position of the host (in meters)**/
     Coord startPos;
     /** @brief Last position which was set. */
     Coord lastPos;
     /** @brief start time at which host started at startPos **/
-    simtime_t startTime;
+    omnetpp::simtime_t startTime;
     /** @brief direction the host is moving to, must be normalized **/
     Coord direction;
     /** @brief speed of the host in meters per second **/
@@ -89,7 +89,7 @@ public:
 	/**
 	 * @brief Returns start time, i.e. time point of the start at start position.
 	 */
-	simtime_t_cref getStartTime() const
+	omnetpp::simtime_t_cref getStartTime() const
 	{
 		return startTime;
 	}
@@ -97,7 +97,7 @@ public:
 	/**
 	 * @brief Sets start position (components in meters) and start time.
 	 */
-	void setStart(const Coord& startPos, simtime_t_cref startTime)
+	void setStart(const Coord& startPos, omnetpp::simtime_t_cref startTime)
 	{
 		this->lastPos   = startPos;
 		this->startPos  = startPos;
@@ -110,7 +110,7 @@ public:
 	 */
 	void setStart(const Coord& startPos)
 	{
-		setStart(startPos, simTime());
+		setStart(startPos, omnetpp::simTime());
 	}
 
 	/**
@@ -157,7 +157,7 @@ public:
      * an unintended result.
      *
      */
-    virtual Coord getPositionAt(simtime_t_cref actualTime = simTime()) const
+    virtual Coord getPositionAt(omnetpp::simtime_t_cref actualTime = omnetpp::simTime()) const
     {
     	// if speed is very close to 0.0, the host is practically standing still
     	if ( FWMath::close(speed, 0.0) ) return startPos;

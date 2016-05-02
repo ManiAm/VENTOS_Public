@@ -20,12 +20,12 @@ void ifInetTraCIMobilityCallNextPosition(cModule* mod, const Coord& p, const std
 
 #else // not WITH_INET
 
-void ifInetTraCIMobilityCallPreInitialize(cModule* mod, const std::string& nodeId, const Coord& position, const std::string& road_id, double speed, double angle) {
+void ifInetTraCIMobilityCallPreInitialize(omnetpp::cModule* mod, const std::string& nodeId, const Coord& position, const std::string& road_id, double speed, double angle) {
 	return;
 }
 
 
-void ifInetTraCIMobilityCallNextPosition(cModule* mod, const Coord& p, const std::string& edge, double speed, double angle) {
+void ifInetTraCIMobilityCallNextPosition(omnetpp::cModule* mod, const Coord& p, const std::string& edge, double speed, double angle) {
 	return;
 }
 

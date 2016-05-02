@@ -60,7 +60,7 @@ void BLE_Advertisement::finish()
 }
 
 
-void BLE_Advertisement::handleMessage(cMessage *msg)
+void BLE_Advertisement::handleMessage(omnetpp::cMessage *msg)
 {
     super::handleMessage(msg);
 

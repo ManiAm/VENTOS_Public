@@ -69,7 +69,7 @@ protected:
     DeciderToPhyInterface* phy;
 
     /** @brief simtime that tells the Phy-Layer not to pass an AirFrame again */
-    const simtime_t notAgain;
+    const omnetpp::simtime_t notAgain;
 
     /** @brief Defines what an AirFrameVector shall be here */
     typedef DeciderToPhyInterface::AirFrameVector AirFrameVector;
@@ -87,7 +87,7 @@ public:
      * @brief This function processes a AirFrame given by the PhyLayer and
      * returns the time point when Decider wants to be given the AirFrame again.
      */
-    virtual simtime_t processSignal(AirFrame* frame);
+    virtual omnetpp::simtime_t processSignal(AirFrame* frame);
 
     /**
      * @brief A function that returns information about the channel state
@@ -110,7 +110,7 @@ public:
      * and "answers" by calling the "sendControlMsg"-function on the
      * DeciderToPhyInterface, i.e. telling the PhyLayer to send it back.
      */
-    virtual simtime_t handleChannelSenseRequest(ChannelSenseRequest* request);
+    virtual omnetpp::simtime_t handleChannelSenseRequest(ChannelSenseRequest* request);
 
     /**
      * @brief Method to be called by an OMNeT-module during its own finish(),

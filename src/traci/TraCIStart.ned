@@ -9,6 +9,10 @@ simple TraCIStart
         @display("i=block/network2");
         @class(VENTOS::TraCI_Start);
         
+        @signal[initialize_withTraCI]();        
+        @signal[executeEachTS]();
+        @signal[addFlow]();
+        
         bool debug = default(false);           // emit debug messages?
         
         string host = default("localhost");    // sumo-launchd.py server hostname

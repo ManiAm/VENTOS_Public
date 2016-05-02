@@ -51,19 +51,19 @@ void AddFixNode::initialize(int stage)
     if(stage ==0)
     {
         // get a pointer to the TraCI module
-        cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
+        omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
         TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
 
         Signal_initialize_withTraCI = registerSignal("initialize_withTraCI");
-        simulation.getSystemModule()->subscribe("initialize_withTraCI", this);
+        omnetpp::getSimulation()->getSystemModule()->subscribe("initialize_withTraCI", this);
     }
 }
 
 
 void AddFixNode::finish()
 {
-    cModule *module = simulation.getSystemModule()->getSubmodule("connMan");
+    omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("connMan");
     ConnectionManager *cc = static_cast<ConnectionManager*>(module);
     ASSERT(cc);
 
@@ -78,18 +78,18 @@ void AddFixNode::finish()
     }
 
     // unsubscribe
-    simulation.getSystemModule()->unsubscribe("initialize_withTraCI", this);
-    simulation.getSystemModule()->unsubscribe("executeEachTS", this);
+    omnetpp::getSimulation()->getSystemModule()->unsubscribe("initialize_withTraCI", this);
+    omnetpp::getSimulation()->getSystemModule()->unsubscribe("executeEachTS", this);
 }
 
 
-void AddFixNode::handleMessage(cMessage *msg)
+void AddFixNode::handleMessage(omnetpp::cMessage *msg)
 {
 
 }
 
 
-void AddFixNode::receiveSignal(cComponent *source, simsignal_t signalID, long i)
+void AddFixNode::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t signalID, long i, cObject* details)
 {
     Enter_Method_Silent();
 
@@ -122,11 +122,11 @@ void AddFixNode::beginLoading()
 void AddFixNode::printLoadedStatistics()
 {
     std::cout << std::endl;
-    std::cout << ">>> AddFixNode is done adding nodes. Here is a summary: " << endl;
+    std::cout << ">>> AddFixNode is done adding nodes. Here is a summary: " << std::endl;
     std::cout.flush();
 
     // get a pointer to the first RSU
-    cModule *module = simulation.getSystemModule()->getSubmodule("RSU", 0);
+    omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("RSU", 0);
     if(module != NULL)
     {
         // how many RSUs are in the network?
@@ -137,7 +137,7 @@ void AddFixNode::printLoadedStatistics()
         for(int i = 0; i < RSUcount; ++i)
         {
             // get a pointer to the RSU
-            module = simulation.getSystemModule()->getSubmodule("RSU", i);
+            module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("RSU", i);
 
             // get OMNET id
             std::string fullId = module->getFullName();
@@ -153,7 +153,7 @@ void AddFixNode::printLoadedStatistics()
     }
 
     // get a pointer to the first Adversary
-    module = simulation.getSystemModule()->getSubmodule("adversary", 0);
+    module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("adversary", 0);
     if(module != NULL)
     {
         // how many Adversaries are in the network?
@@ -164,7 +164,7 @@ void AddFixNode::printLoadedStatistics()
         for(int i = 0; i < advCount; ++i)
         {
             // get a pointer to the RSU
-            module = simulation.getSystemModule()->getSubmodule("adversary", i);
+            module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("adversary", i);
 
             // get OMNET id
             std::string fullId = module->getFullName();
@@ -176,7 +176,7 @@ void AddFixNode::printLoadedStatistics()
     }
 
     // get a pointer to the first CA
-    module = simulation.getSystemModule()->getSubmodule("CA", 0);
+    module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("CA", 0);
     if(module != NULL)
     {
         // how many Adversaries are in the network?
@@ -187,7 +187,7 @@ void AddFixNode::printLoadedStatistics()
         for(int i = 0; i < CACount; ++i)
         {
             // get a pointer to the CA
-            module = simulation.getSystemModule()->getSubmodule("CA", i);
+            module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("CA", i);
 
             // get OMNET id
             std::string fullId = module->getFullName();
@@ -212,7 +212,7 @@ void AddFixNode::addAdversary(int num)
     if (!parentMod)
         error("Parent Module not found");
 
-    cModuleType* nodeType = cModuleType::get("VENTOS.src.adversary.Adversary");
+    omnetpp::cModuleType* nodeType = omnetpp::cModuleType::get("VENTOS.src.adversary.Adversary");
 
     for(int i = 0; i < num; i++)
     {
@@ -222,7 +222,7 @@ void AddFixNode::addAdversary(int num)
         mod->finalizeParameters();
         mod->getDisplayString().updateWith("i=old/comp_a");
         mod->buildInside();
-        mod->scheduleStart(simTime());
+        mod->scheduleStart(omnetpp::simTime());
         mod->callInitialize();
     }
 
@@ -230,7 +230,7 @@ void AddFixNode::addAdversary(int num)
     for(int i = 0; i < num; i++)
     {
         // get a reference to this adversary
-        cModule *module = simulation.getSystemModule()->getSubmodule("adversary", i);
+        omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("adversary", i);
         ASSERT(module);
 
         // get ID
@@ -258,7 +258,7 @@ void AddFixNode::addCA(int num)
     if (!parentMod)
         error("Parent Module not found");
 
-    cModuleType* nodeType = cModuleType::get("VENTOS.src.CerAuthority.CA");
+    omnetpp::cModuleType* nodeType = omnetpp::cModuleType::get("VENTOS.src.CerAuthority.CA");
 
     for(int i = 0; i < num; i++)
     {
@@ -268,7 +268,7 @@ void AddFixNode::addCA(int num)
         mod->finalizeParameters();
         mod->getDisplayString().updateWith("i=old/comp_a");
         mod->buildInside();
-        mod->scheduleStart(simTime());
+        mod->scheduleStart(omnetpp::simTime());
         mod->callInitialize();
     }
 }
@@ -284,7 +284,7 @@ void AddFixNode::addRSU(int num)
     if (!parentMod)
         error("Parent Module not found");
 
-    cModuleType* nodeType = cModuleType::get("VENTOS.src.rsu.RSU");
+    omnetpp::cModuleType* nodeType = omnetpp::cModuleType::get("VENTOS.src.rsu.RSU");
 
     std::list<std::string> TLList = TraCI->TLGetIDList();
 
@@ -312,7 +312,7 @@ void AddFixNode::addRSU(int num)
         // then set the myTLid parameter
         mod->getSubmodule("appl")->par("myTLid") = myTLid;
 
-        mod->scheduleStart(simTime());
+        mod->scheduleStart(omnetpp::simTime());
         mod->callInitialize();
 
         // store the cModule of this RSU
@@ -324,7 +324,7 @@ void AddFixNode::addRSU(int num)
     for(int i = 0; i < num; i++)
     {
         // get a reference to this RSU
-        cModule *module = simulation.getSystemModule()->getSubmodule("RSU", i);
+        cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("RSU", i);
         ASSERT(module);
 
         // get SUMOID

@@ -39,7 +39,7 @@ public:
     ~ApplRSUAID();
     virtual void initialize(int stage);
     virtual void finish();
-    virtual void handleSelfMsg(cMessage* msg);
+    virtual void handleSelfMsg(omnetpp::cMessage* msg);
 
 protected:
     void virtual executeEachTimeStep();

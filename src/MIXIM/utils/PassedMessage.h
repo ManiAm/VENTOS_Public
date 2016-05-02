@@ -6,7 +6,8 @@
 #include <omnetpp.h>
 #include "MiXiMDefs.h"
 
-class MIXIM_API PassedMessage : public cObject {
+class MIXIM_API PassedMessage : public omnetpp::cObject
+{
  public:
     enum gates_t {
         UPPER_DATA,
@@ -29,7 +30,7 @@ class MIXIM_API PassedMessage : public cObject {
         case LOWER_DATA: s = "LOWER_DATA"; break;
         case LOWER_CONTROL: s = "LOWER_CONTROL"; break;
         default:
-            opp_error("PassedMessage::gateToString: got invalid value");
+            throw omnetpp::cRuntimeError("PassedMessage::gateToString: got invalid value");
             s = 0;
             break;
         }

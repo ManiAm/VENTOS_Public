@@ -29,7 +29,7 @@
 
 namespace VENTOS {
 
-void ApplVPlatoonMg::leaderLeave_handleSelfMsg(cMessage* msg)
+void ApplVPlatoonMg::leaderLeave_handleSelfMsg(omnetpp::cMessage* msg)
 {
     if(!leaderLeaveEnabled)
         return;
@@ -63,7 +63,7 @@ void ApplVPlatoonMg::leaderLeave_DataFSM(PlatoonMsg *wsm)
     {
         // send a multicast VOTE_LEADER to all followers
         PlatoonMsg* dataMsg = prepareData("multicast", VOTE_LEADER, plnID);
-        EV << "### " << SUMOID << ": sent VOTE_LEADER." << endl;
+        EV << "### " << SUMOID << ": sent VOTE_LEADER." << std::endl;
         sendDelayed(dataMsg, individualOffset, lowerLayerOut);
         reportCommandToStat(dataMsg);
 
@@ -72,7 +72,7 @@ void ApplVPlatoonMg::leaderLeave_DataFSM(PlatoonMsg *wsm)
 
         reportManeuverToStat(SUMOID, "-", "LLeave_Start");
 
-        scheduleAt(simTime() + 1., plnTIMER9);
+        scheduleAt(omnetpp::simTime() + 1., plnTIMER9);
     }
     else if(vehicleState == state_waitForVoteReply)
     {
@@ -128,7 +128,7 @@ void ApplVPlatoonMg::leaderLeave_DataFSM(PlatoonMsg *wsm)
             {
                 // send ELECTED_LEADER
                 PlatoonMsg* dataMsg = prepareData(plnID, ELECTED_LEADER, plnID, myPlnDepth);
-                EV << "### " << SUMOID << ": sent ELECTED_LEADER." << endl;
+                EV << "### " << SUMOID << ": sent ELECTED_LEADER." << std::endl;
                 sendDelayed(dataMsg, individualOffset, lowerLayerOut);
                 reportCommandToStat(dataMsg);
             }

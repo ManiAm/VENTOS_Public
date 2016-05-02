@@ -43,18 +43,13 @@ void ApplRSUBase::initialize(int stage)
 
     if (stage==0)
     {
-        // get the ptr of the current module
-        nodePtr = this->getParentModule();
-        if(nodePtr == NULL)
-            error("can not get a pointer to the module.");
-
         // get a pointer to the TraCI module
-        cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
+        cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
         TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
 
         // get a pointer to the TrafficLight module
-        TLptr = simulation.getSystemModule()->getSubmodule("TrafficLight");
+        TLptr = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TrafficLight");
         ASSERT(TLptr);
         TLControlMode = TLptr->par("TLControlMode").longValue();
         minGreenTime = TLptr->par("minGreenTime").doubleValue();
@@ -90,8 +85,8 @@ void ApplRSUBase::initialize(int stage)
 
         if (sendBeacons)
         {
-            RSUBeaconEvt = new cMessage("RSUBeaconEvt", KIND_TIMER);
-            scheduleAt(simTime() + offSet, RSUBeaconEvt);
+            RSUBeaconEvt = new omnetpp::cMessage("RSUBeaconEvt", KIND_TIMER);
+            scheduleAt(omnetpp::simTime() + offSet, RSUBeaconEvt);
         }
     }
 }
@@ -102,23 +97,23 @@ void ApplRSUBase::finish()
     super::finish();
 
     // unsubscribe
-    simulation.getSystemModule()->unsubscribe("executeEachTS", this);
+    omnetpp::getSimulation()->getSystemModule()->unsubscribe("executeEachTS", this);
 }
 
 
-void ApplRSUBase::handleSelfMsg(cMessage* msg)
+void ApplRSUBase::handleSelfMsg(omnetpp::cMessage* msg)
 {
     if (msg == RSUBeaconEvt)
     {
         BeaconRSU* beaconMsg = prepareBeacon();
 
-        EV << "## Created beacon msg for " << myFullId << endl;
+        EV << "## Created beacon msg for " << myFullId << std::endl;
 
         // send it
         sendDelayed(beaconMsg, individualOffset, lowerLayerOut);
 
         // schedule for next beacon broadcast
-        scheduleAt(simTime() + beaconInterval, RSUBeaconEvt);
+        scheduleAt(omnetpp::simTime() + beaconInterval, RSUBeaconEvt);
     }
 }
 

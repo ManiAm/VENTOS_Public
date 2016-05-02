@@ -104,7 +104,7 @@ protected:
 	double* angleOfArrival;
 
 	/** @brief Delay on a fading path. */
-	simtime_t* delay;
+	omnetpp::simtime_t* delay;
 
 	/** @brief Carrier frequency to be used. */
 	double carrierFrequency;
@@ -118,8 +118,7 @@ public:
 	 * on a path, the hosts move, the carrier frequency used and the
 	 * interval in which to defien attenuation entries in.	 *
 	 */
-	JakesFading(int fadingPaths, simtime_t_cref delayRMS,
-				double carrierFrequency, simtime_t_cref interval);
+	JakesFading(int fadingPaths, omnetpp::simtime_t_cref delayRMS, double carrierFrequency, omnetpp::simtime_t_cref interval);
 	virtual ~JakesFading();
 
 	virtual void filterSignal(AirFrame *, const Coord&, const Coord&);

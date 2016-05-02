@@ -8,6 +8,9 @@ import VENTOS.src.MIXIM.modules.*;
 module vehicle
 {
     parameters:
+        @signal[VehicleState]();
+        @signal[beaconSignaling]();
+        @signal[system]();
         
     gates:
         input radioIn; // gate for sendDirect
@@ -17,12 +20,12 @@ module vehicle
             parameters:
                 @display("p=60,50");
         }
-
+        
         nic: Nic80211p_Mod {
             parameters:
                 @display("p=60,166");
         }
-
+        
         mobility: TraCIMobilityMod {
             parameters:
                 @display("p=130,172;i=block/cogwheel");
@@ -33,7 +36,7 @@ module vehicle
         nic.upperLayerIn <-- appl.lowerLayerOut;
         nic.upperControlOut --> appl.lowerControlIn;
         nic.upperControlIn <-- appl.lowerControlOut;
-
+        
         radioIn --> nic.radioIn;
 }
 

@@ -113,12 +113,12 @@ public:
 };
 
 
-class TraCI_Commands : public cSimpleModule
+class TraCI_Commands : public omnetpp::cSimpleModule
 {
 public:
     virtual ~TraCI_Commands();
     virtual void initialize(int stage);
-    virtual void handleMessage(cMessage *msg);
+    virtual void handleMessage(omnetpp::cMessage *msg);
     virtual void finish();
 
     // ################################################################
@@ -433,7 +433,7 @@ protected:
     TraCICoord netbounds2;   /* network boundaries as reported by TraCI (x2, y2) */
 
 private:
-    typedef cSimpleModule super;
+    typedef omnetpp::cSimpleModule super;
 
     bool logTraCIcommands;
     int margin;

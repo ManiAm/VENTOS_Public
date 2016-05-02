@@ -47,12 +47,12 @@ void Tracking::initialize(int stage)
             return;
 
         // get a pointer to the TraCI module
-        cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
+        cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
         TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
 
         Signal_initialize_withTraCI = registerSignal("initialize_withTraCI");
-        simulation.getSystemModule()->subscribe("initialize_withTraCI", this);
+        omnetpp::getSimulation()->getSystemModule()->subscribe("initialize_withTraCI", this);
 
         zoom = par("zoom").doubleValue();
         if(zoom < 0)
@@ -70,7 +70,7 @@ void Tracking::initialize(int stage)
         trackingLane = par("trackingLane").stringValue();
         windowsOffset = par("windowsOffset").doubleValue();
 
-        updataGUI = new cMessage("updataGUI", 1);
+        updataGUI = new omnetpp::cMessage("updataGUI", 1);
     }
 }
 
@@ -78,12 +78,12 @@ void Tracking::initialize(int stage)
 void Tracking::finish()
 {
     // unsubscribe
-    simulation.getSystemModule()->unsubscribe("initialize_withTraCI", this);
-    simulation.getSystemModule()->unsubscribe("executeEachTS", this);
+    omnetpp::getSimulation()->getSystemModule()->unsubscribe("initialize_withTraCI", this);
+    omnetpp::getSimulation()->getSystemModule()->unsubscribe("executeEachTS", this);
 }
 
 
-void Tracking::receiveSignal(cComponent *source, simsignal_t signalID, long i)
+void Tracking::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t signalID, long i, cObject* details)
 {
     Enter_Method_Silent();
 
@@ -115,7 +115,7 @@ void Tracking::receiveSignal(cComponent *source, simsignal_t signalID, long i)
 }
 
 
-void Tracking::handleMessage(cMessage *msg)
+void Tracking::handleMessage(omnetpp::cMessage *msg)
 {
     if (msg == updataGUI)
     {
@@ -161,7 +161,7 @@ void Tracking::TrackingGUI()
     else
         error("not a valid mode!");
 
-    scheduleAt(simTime() + trackingInterval, updataGUI);
+    scheduleAt(omnetpp::simTime() + trackingInterval, updataGUI);
 }
 
 }

@@ -27,10 +27,6 @@
 #include "Mac80211pToPhy11pInterface.h"
 #include "Decider80211pToPhy80211pInterface.h"
 
-#ifndef DBG_D11P
-#define DBG_D11P EV
-#endif
-//#define DBG_D11P std::cerr << "[" << simTime().raw() << "] " << myPath << ".Dec "
 
 namespace Veins {
 
@@ -131,7 +127,7 @@ protected:
      */
     virtual DeciderResult* checkIfSignalOk(AirFrame* frame);
 
-    virtual simtime_t processNewSignal(AirFrame* frame);
+    virtual omnetpp::simtime_t processNewSignal(AirFrame* frame);
 
     /**
      * @brief Processes a received AirFrame.
@@ -142,7 +138,7 @@ protected:
      *
      * @return	usually return a value for: 'do not pass it again'
      */
-    virtual simtime_t processSignalEnd(AirFrame* frame);
+    virtual omnetpp::simtime_t processSignalEnd(AirFrame* frame);
 
     /** @brief computes if packet is ok or has errors*/
     enum PACKET_OK_RESULT packetOk(double snirMin, double snrMin, int lengthMPDU, double bitrate);
@@ -156,7 +152,7 @@ protected:
      * Returns the maximum RSSI value inside the ChannelSenseRequest time
      * interval and the channel the Decider currently listens to.
      */
-    virtual double calcChannelSenseRSSI(simtime_t_cref min, simtime_t_cref max);
+    virtual double calcChannelSenseRSSI(omnetpp::simtime_t_cref min, omnetpp::simtime_t_cref max);
 
     /**
      * @brief Calculates a SNR-Mapping for a Signal.
@@ -181,7 +177,7 @@ protected:
      * exclude is omitted OR to calculate a Noise-Strength-Mapping in case the
      * AirFrame of the received Signal is passed as parameter exclude.
      */
-    Mapping* calculateNoiseRSSIMapping(simtime_t_cref start, simtime_t_cref end, AirFrame *frame);
+    Mapping* calculateNoiseRSSIMapping(omnetpp::simtime_t_cref start, omnetpp::simtime_t_cref end, AirFrame *frame);
 
 public:
 
@@ -202,7 +198,7 @@ public:
                 allowTxDuringRx(allowTxDuringRx),
                 centerFrequency(centerFrequency),
                 myBusyTime(0),
-                myStartTime(simTime().dbl()),
+                myStartTime(omnetpp::simTime().dbl()),
                 collectCollisionStats(collectCollisionStatistics),
                 collisions(0) {
         phy11p = dynamic_cast<Decider80211pToPhy80211pInterface*>(phy);
@@ -214,7 +210,7 @@ public:
         this->myPath = myPath;
     }
 
-    bool cca(simtime_t_cref, AirFrame*);
+    bool cca(omnetpp::simtime_t_cref, AirFrame*);
     int getSignalState(AirFrame* frame);
     virtual ~Decider80211p();
 

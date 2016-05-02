@@ -52,7 +52,7 @@ class NicEntryDebug: public NicEntry
      */
     bool checkFreeGates;
 
-    typedef std::vector<cGate* > GateStack;
+    typedef std::vector<omnetpp::cGate* > GateStack;
     /** @brief In Gates that were once used but are not connected now */
     GateStack freeInGates;
 
@@ -66,7 +66,7 @@ class NicEntryDebug: public NicEntry
 	 * This checks the list of free in gates, if one is available it is
 	 * returned. Otherwise, a new in gate is added to the nic.
 	 */
-    cGate* requestInGate(void);
+    omnetpp::cGate* requestInGate(void);
 
     /**
      * @brief Returns a free out gate of the nic
@@ -74,7 +74,7 @@ class NicEntryDebug: public NicEntry
 	 * returns a free out gate. If none is available it is created. See
 	 * NicEntry::requestInGate for a detailed description
      */
-    cGate* requestOutGate(void);
+    omnetpp::cGate* requestOutGate(void);
 
     /**
      * @brief Collects all free gates with a certain pattern as names and puts

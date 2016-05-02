@@ -43,11 +43,11 @@ public:
     ~ApplAdversary();
     virtual void initialize(int stage);
     virtual void finish();
-    virtual void receiveSignal(cComponent* source, simsignal_t signalID, cObject* obj);
+    virtual void receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, cObject* obj, cObject* details);
 
 protected:
-    virtual void handleLowerMsg(cMessage* msg);
-    virtual void handleSelfMsg(cMessage* msg);
+    virtual void handleLowerMsg(omnetpp::cMessage* msg);
+    virtual void handleSelfMsg(omnetpp::cMessage* msg);
     virtual void handlePositionUpdate(cObject* obj);
 
 private:
@@ -59,7 +59,6 @@ private:
 
 protected:
     // NED variables
-    cModule *nodePtr;   // pointer to the Node
     TraCI_Commands* TraCI;
 
     // NED variables
@@ -72,7 +71,7 @@ protected:
     int myId;
     const char *myFullId;
     Coord curPosition;  // current position from mobility module (not from sumo)
-    cMessage* JammingEvt;
+    omnetpp::cMessage* JammingEvt;
     static const simsignalwrap_t mobilityStateChangedSignal;
 };
 

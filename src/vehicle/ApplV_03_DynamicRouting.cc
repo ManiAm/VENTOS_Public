@@ -54,7 +54,7 @@ void ApplVDynamicRouting::initialize(int stage)
 
     if (stage == 0)
     {
-        debugLevel = simulation.getSystemModule()->par("debugLevel").longValue();
+        debugLevel = omnetpp::getSimulation()->getSystemModule()->par("debugLevel").longValue();
         requestInterval = par("requestInterval").doubleValue();
         hypertreeUpdateInterval = par("hypertreeUpdateInterval").doubleValue();
         maxOffset = par("maxSystemOffset").doubleValue();
@@ -63,7 +63,7 @@ void ApplVDynamicRouting::initialize(int stage)
         routingMode = static_cast<RouterMessage>(par("routingMode").longValue());
 
         // get the rootFilePath
-        cModule *module = simulation.getSystemModule()->getSubmodule("router");
+        omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("router");
         router = static_cast< Router* >(module);
         std::string rootFilePath = TraCI->getSUMOFullDir();
         rootFilePath += "/Vehicles" + std::to_string(router->totalVehicleCount) + ".xml";
@@ -86,9 +86,9 @@ void ApplVDynamicRouting::initialize(int stage)
         if(find(router->nonReroutingVehicles->begin(), router->nonReroutingVehicles->end(), SUMOID.substr(1, SUMOID.length() - 1)) != router->nonReroutingVehicles->end())
         {
             requestReroutes = false;
-            if(ev.isGUI() && debugLevel > 1)
+            if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 1)
             {
-                std::cout << SUMOID << " is not routing" << endl;
+                std::cout << SUMOID << " is not routing" << std::endl;
                 std::cout.flush();
             }
         }
@@ -99,17 +99,17 @@ void ApplVDynamicRouting::initialize(int stage)
 
         //Register to receive signals from the router
         Signal_router = registerSignal("router");
-        simulation.getSystemModule()->subscribe("router", this);
+        omnetpp::getSimulation()->getSystemModule()->subscribe("router", this);
 
         //Prepare to send a system message
         Signal_system = registerSignal("system");
-        nodePtr->emit(Signal_system, new systemData("", "", SUMOID, STARTED, std::string("system")));
+        this->getParentModule()->emit(Signal_system, new systemData("", "", SUMOID, STARTED, std::string("system")));
 
         //Slightly offset all vehicles (0-4 seconds)
         double systemOffset = dblrand() * maxOffset;
 
-        sendSystemMsgEvt = new cMessage("systemmsg evt");   //Create a new internal message
-        scheduleAt(simTime() + systemOffset, sendSystemMsgEvt); //Schedule them to start sending
+        sendSystemMsgEvt = new omnetpp::cMessage("systemmsg evt");   //Create a new internal message
+        scheduleAt(omnetpp::simTime() + systemOffset, sendSystemMsgEvt); //Schedule them to start sending
     }
 }
 
@@ -121,16 +121,16 @@ void ApplVDynamicRouting::finish()
     if(!requestRoutes)
         return;
 
-    if(ev.isGUI() && debugLevel > 0)
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 0)
     {
-        std::cout << std::endl <<"t=" << simTime().dbl() << ": " << SUMOID << " took " << simTime().dbl() - entryTime << " seconds to complete its route." << endl;
+        std::cout << std::endl <<"t=" << omnetpp::simTime().dbl() << ": " << SUMOID << " took " << omnetpp::simTime().dbl() - entryTime << " seconds to complete its route." << std::endl;
         std::cout.flush();
     }
 
-    router->vehicleEndTimesFile << SUMOID << " " << simTime().dbl() << endl;
+    router->vehicleEndTimesFile << SUMOID << " " << omnetpp::simTime().dbl() << std::endl;
 
     //Prepare to send a system message
-    nodePtr->emit(Signal_system, new systemData("", "", SUMOID, DONE, std::string("system")));
+    this->getParentModule()->emit(Signal_system, new systemData("", "", SUMOID, DONE, std::string("system")));
 
     if(requestReroutes)
     {
@@ -140,11 +140,11 @@ void ApplVDynamicRouting::finish()
             delete sendSystemMsgEvt;
     }
 
-    simulation.getSystemModule()->unsubscribe("router",this);
-    simulation.getSystemModule()->unsubscribe("system",this);
+    omnetpp::getSimulation()->getSystemModule()->unsubscribe("router",this);
+    omnetpp::getSimulation()->getSystemModule()->unsubscribe("system",this);
 }
 
-void ApplVDynamicRouting::handleSelfMsg(cMessage* msg)  //Internal messages to self
+void ApplVDynamicRouting::handleSelfMsg(omnetpp::cMessage* msg)  //Internal messages to self
 {
     super::handleSelfMsg(msg);    //Pass it down
 
@@ -161,9 +161,9 @@ void ApplVDynamicRouting::handleSelfMsg(cMessage* msg)  //Internal messages to s
 
 void ApplVDynamicRouting::reroute()
 {
-    if(ev.isGUI() && debugLevel > 1)
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 1)
     {
-        std::cout << "Rerouting " << SUMOID << " at t=" << simTime().dbl() << endl;
+        std::cout << "Rerouting " << SUMOID << " at t=" << omnetpp::simTime().dbl() << std::endl;
         std::cout.flush();
     }
 
@@ -171,18 +171,18 @@ void ApplVDynamicRouting::reroute()
 
     if(routingMode == DIJKSTRA)
     {
-        nodePtr->emit(Signal_system, new systemData(TraCI->vehicleGetEdgeID(SUMOID), targetNode, SUMOID, DIJKSTRA, std::string("system")));
+        this->getParentModule()->emit(Signal_system, new systemData(TraCI->vehicleGetEdgeID(SUMOID), targetNode, SUMOID, DIJKSTRA, std::string("system")));
         if(!router->UseHysteresis)
-            scheduleAt(simTime() + requestInterval, sendSystemMsgEvt);// schedule for next beacon broadcast
+            scheduleAt(omnetpp::simTime() + requestInterval, sendSystemMsgEvt);// schedule for next beacon broadcast
     }
     else if(routingMode == HYPERTREE)
     {
-        nodePtr->emit(Signal_system, new systemData(TraCI->vehicleGetEdgeID(SUMOID), targetNode, SUMOID, HYPERTREE, std::string("system")));
-        scheduleAt(simTime() + hypertreeUpdateInterval, sendSystemMsgEvt);// schedule for next beacon broadcast
+        this->getParentModule()->emit(Signal_system, new systemData(TraCI->vehicleGetEdgeID(SUMOID), targetNode, SUMOID, HYPERTREE, std::string("system")));
+        scheduleAt(omnetpp::simTime() + hypertreeUpdateInterval, sendSystemMsgEvt);// schedule for next beacon broadcast
     }
 }
 
-void ApplVDynamicRouting::receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj) //Ran upon receiving signals
+void ApplVDynamicRouting::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t signalID, omnetpp::cObject *obj, cObject* details) //Ran upon receiving signals
 {
     if(signalID == Signal_router)   //If the signal is of type router
     {
@@ -193,12 +193,12 @@ void ApplVDynamicRouting::receiveSignal(cComponent *source, simsignal_t signalID
             {
                 std::list<std::string> sRoute = s->getInfo(); //Copy the info from the signal (breaks if we don't do this, for some reason)
 
-                if(ev.isGUI() && debugLevel > 1)
+                if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 1)
                 {
                     std::cout << SUMOID << " got route ";
                     for(std::string s : sRoute)
                         std::cout << s << " ";
-                    std::cout << endl;
+                    std::cout << std::endl;
                     std::cout.flush();
                 }
 

@@ -29,7 +29,7 @@
  */
 namespace Veins {
 
-class AnnotationDummy : public cSimpleModule
+class AnnotationDummy : public omnetpp::cSimpleModule
 {
 	public:
 		~AnnotationDummy();

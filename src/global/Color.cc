@@ -796,7 +796,7 @@ RGB Color::colorNameToRGB(std::string colorName)
 {
     auto it = RGBcolorCodes.find(colorName);
     if(it == RGBcolorCodes.end())
-        throw cRuntimeError("color %s is unknown!", colorName.c_str());
+        throw omnetpp::cRuntimeError("color %s is unknown!", colorName.c_str());
 
     return it->second;
 }
@@ -992,7 +992,7 @@ RGB Color::hsv2rgb(double hue, double saturation, double value)
 HSV Color::getUniqueHSVColor()
 {
     if(uniqueColors.empty())
-        throw cRuntimeError("No more colors exist!");
+        throw omnetpp::cRuntimeError("No more colors exist!");
 
     HSV color = uniqueColors.back();
     uniqueColors.pop_back();
@@ -1006,7 +1006,7 @@ std::vector<double> Color::generateColorShades(unsigned int num_shades)
     const double minSaturation = 40.0;
 
     if(num_shades <= 0)
-        throw cRuntimeError("num_shades is not right!");
+        throw omnetpp::cRuntimeError("num_shades is not right!");
 
     std::vector<double> v;
 

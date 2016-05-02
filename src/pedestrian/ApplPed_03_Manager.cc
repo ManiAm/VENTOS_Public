@@ -59,7 +59,7 @@ void ApplPedManager::finish()
 }
 
 
-void ApplPedManager::receiveSignal(cComponent* source, simsignal_t signalID, cObject* obj)
+void ApplPedManager::receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, cObject* obj, cObject* details)
 {
     Enter_Method_Silent();
 
@@ -70,13 +70,13 @@ void ApplPedManager::receiveSignal(cComponent* source, simsignal_t signalID, cOb
 }
 
 
-void ApplPedManager::handleSelfMsg(cMessage* msg)
+void ApplPedManager::handleSelfMsg(omnetpp::cMessage* msg)
 {
     super::handleSelfMsg(msg);
 }
 
 
-void ApplPedManager::handleLowerMsg(cMessage* msg)
+void ApplPedManager::handleLowerMsg(omnetpp::cMessage* msg)
 {
     // make sure msg is of type WaveShortMessage
     Veins::WaveShortMessage* wsm = dynamic_cast<Veins::WaveShortMessage*>(msg);
@@ -110,7 +110,7 @@ void ApplPedManager::handlePositionUpdate(cObject* obj)
     // pass it down
     super::handlePositionUpdate(obj);
 
-    ChannelMobilityPtrType const mobility = check_and_cast<ChannelMobilityPtrType>(obj);
+    ChannelMobilityPtrType const mobility = omnetpp::check_and_cast<ChannelMobilityPtrType>(obj);
     curPosition = mobility->getCurrentPosition();
 }
 

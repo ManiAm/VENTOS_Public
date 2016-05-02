@@ -44,13 +44,8 @@ void ApplAdversary::initialize(int stage)
 
 	if (stage==0)
 	{
-        // get the ptr of the current module
-        nodePtr = this->getParentModule();
-        if(nodePtr == NULL)
-            error("can not get a pointer to the module.");
-
         // get a pointer to the TraCI module
-        cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
+        cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
         TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
 
@@ -64,7 +59,7 @@ void ApplAdversary::initialize(int stage)
 		replayAttack = par("replayAttack").boolValue();
 		jammingAttack = par("jammingAttack").boolValue();
 
-        JammingEvt = new cMessage("Jamming Event");
+        JammingEvt = new omnetpp::cMessage("Jamming Event");
 
         if(jammingAttack)
 	    {
@@ -72,18 +67,18 @@ void ApplAdversary::initialize(int stage)
 	    }
 
         // comment this to speedup simulation
-        // nodePtr->subscribe(mobilityStateChangedSignal, this);
+        // this->getParentModule()->subscribe(mobilityStateChangedSignal, this);
 	}
 }
 
 
 void ApplAdversary::finish()
 {
-    // nodePtr->unsubscribe(mobilityStateChangedSignal, this);
+    // this->getParentModule()->unsubscribe(mobilityStateChangedSignal, this);
 }
 
 
-void ApplAdversary::receiveSignal(cComponent* source, simsignal_t signalID, cObject* obj)
+void ApplAdversary::receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, cObject* obj, cObject* details)
 {
     Enter_Method_Silent();
 
@@ -94,25 +89,25 @@ void ApplAdversary::receiveSignal(cComponent* source, simsignal_t signalID, cObj
 }
 
 
-void ApplAdversary::handleSelfMsg(cMessage* msg)
+void ApplAdversary::handleSelfMsg(omnetpp::cMessage* msg)
 {
     if(msg == JammingEvt)
     {
-        if(simTime().dbl() >= AttackT)
+        if(omnetpp::simTime().dbl() >= AttackT)
         {
             DoJammingAttack();
         }
 
         // schedule for next jamming attack
-        scheduleAt(simTime() + 0.001, JammingEvt);
+        scheduleAt(omnetpp::simTime() + 0.001, JammingEvt);
     }
 }
 
 
-void ApplAdversary::handleLowerMsg(cMessage* msg)
+void ApplAdversary::handleLowerMsg(omnetpp::cMessage* msg)
 {
     // Attack time has not arrived yet!
-    if(simTime().dbl() < AttackT)
+    if(omnetpp::simTime().dbl() < AttackT)
         return;
 
     // make sure msg is of type WaveShortMessage
@@ -124,7 +119,7 @@ void ApplAdversary::handleLowerMsg(cMessage* msg)
         BeaconVehicle* wsm = dynamic_cast<BeaconVehicle*>(msg);
         ASSERT(wsm);
 
-        EV << "######### received a beacon!" << endl;
+        EV << "######### received a beacon!" << std::endl;
 
         if(falsificationAttack)
         {
@@ -142,7 +137,7 @@ void ApplAdversary::handleLowerMsg(cMessage* msg)
 
 void ApplAdversary::handlePositionUpdate(cObject* obj)
 {
-    ChannelMobilityPtrType const mobility = check_and_cast<ChannelMobilityPtrType>(obj);
+    ChannelMobilityPtrType const mobility = omnetpp::check_and_cast<ChannelMobilityPtrType>(obj);
     curPosition = mobility->getCurrentPosition();
 }
 
@@ -163,7 +158,7 @@ void ApplAdversary::DoFalsificationAttack(BeaconVehicle* wsm)
     // send it
     sendDelayed(FalseMsg, 0., lowerLayerOut);
 
-    EV << "## Altered msg is sent." << endl;
+    EV << "## Altered msg is sent." << std::endl;
 }
 
 
@@ -177,7 +172,7 @@ void ApplAdversary::DoReplayAttack(BeaconVehicle * wsm)
     double delay = 10;
     sendDelayed(FalseMsg, delay, lowerLayerOut);
 
-    EV << "## Altered msg is sent with delay of " << delay << endl;
+    EV << "## Altered msg is sent with delay of " << delay << std::endl;
 }
 
 

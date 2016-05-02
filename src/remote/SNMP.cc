@@ -29,7 +29,6 @@
 #include <platdep/sockets.h>
 
 #include "SNMP.h"
-#include <omnetpp.h>
 
 // un-defining ev!
 // why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header
@@ -53,7 +52,7 @@ SNMP::SNMP(std::string host, std::string port)
     Snmp_pp::IpAddress IPAddress(host.c_str());
 
     if(!IPAddress.valid())
-        throw cRuntimeError("IP address %s is not valid!", IPAddress.get_printable());
+        throw omnetpp::cRuntimeError("IP address %s is not valid!", IPAddress.get_printable());
 
     std::cout << std::endl << "Pinging " << IPAddress.get_printable() << " ... ";
     std::cout.flush();
@@ -63,7 +62,7 @@ SNMP::SNMP(std::string host, std::string port)
     int result = system(cmd.c_str());
 
     if(result != 0)
-        throw cRuntimeError("device at %s is not responding!", IPAddress.get_printable());
+        throw omnetpp::cRuntimeError("device at %s is not responding!", IPAddress.get_printable());
 
     std::cout << "Done! \n";
     std::cout << "Creating SNMP session ... ";
@@ -74,7 +73,7 @@ SNMP::SNMP(std::string host, std::string port)
     int status;   // return status
     SNMP_session = new Snmp_pp::Snmp(status, randomPort);  // create a SNMP++ session
     if (status != SNMP_CLASS_SUCCESS) // check creation status
-        throw cRuntimeError("%s", SNMP_session->error_msg(status));  // if fail, print error string
+        throw omnetpp::cRuntimeError("%s", SNMP_session->error_msg(status));  // if fail, print error string
 
     std::cout << "Done! -- ephemeral port " << randomPort << "\n";
     std::cout.flush();
@@ -96,7 +95,7 @@ SNMP::SNMP(std::string host, std::string port)
     std::cout << std::endl;
 
     // construct the snmp log file path
-    boost::filesystem::path VENTOS_FullPath = cSimulation::getActiveSimulation()->getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+    boost::filesystem::path VENTOS_FullPath = omnetpp::getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
     std::ostringstream fileName;
     fileName << "snmp_" << IPAddress.get_printable() << "_" << randomPort << ".log";
     boost::filesystem::path logFilePath = VENTOS_FullPath / "results" / fileName.str();
@@ -121,11 +120,11 @@ SNMP::SNMP(std::string host, std::string port)
 int SNMP::getFreeEphemeralPort()
 {
     if (initsocketlibonce() != 0)
-        throw cRuntimeError("Could not init socketlib");
+        throw omnetpp::cRuntimeError("Could not init socketlib");
 
     SOCKET sock = ::socket(AF_INET, SOCK_DGRAM, 0);
     if (sock < 0)
-        throw cRuntimeError("Failed to create socket: %s", strerror(errno));
+        throw omnetpp::cRuntimeError("Failed to create socket: %s", strerror(errno));
 
     struct sockaddr_in serv_addr;
     struct sockaddr* serv_addr_p = (struct sockaddr*)&serv_addr;
@@ -135,11 +134,11 @@ int SNMP::getFreeEphemeralPort()
     serv_addr.sin_port = 0;   // get a random Ephemeral port
 
     if (::bind(sock, serv_addr_p, sizeof(serv_addr)) < 0)
-        throw cRuntimeError("Failed to bind socket: %s", strerror(errno));
+        throw omnetpp::cRuntimeError("Failed to bind socket: %s", strerror(errno));
 
     socklen_t len = sizeof(serv_addr);
     if (getsockname(sock, serv_addr_p, &len) < 0)
-        throw cRuntimeError("Failed to get hostname: %s", strerror(errno));
+        throw omnetpp::cRuntimeError("Failed to get hostname: %s", strerror(errno));
 
     int port = ntohs(serv_addr.sin_port);
 
@@ -155,7 +154,7 @@ Snmp_pp::Vb SNMP::SNMPget(std::string OID, int instance)
     ASSERT(SNMP_session);
 
     if(instance < 0)
-        throw cRuntimeError("instance in SNMPget is less than zero!");
+        throw omnetpp::cRuntimeError("instance in SNMPget is less than zero!");
 
     // add the instance to the end of oid
     OID = OID + "." + std::to_string(instance);
@@ -231,7 +230,7 @@ Snmp_pp::Vb SNMP::SNMPset(std::string OID, std::string value, int instance)
     ASSERT(SNMP_session);
 
     if(instance < 0)
-        throw cRuntimeError("instance in SNMPget is less than zero!");
+        throw omnetpp::cRuntimeError("instance in SNMPget is less than zero!");
 
     // add the instance to the end of oid
     OID = OID + "." + std::to_string(instance);

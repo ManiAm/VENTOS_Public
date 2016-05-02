@@ -43,7 +43,7 @@ class SumoBinary : public BaseApplLayer
 	public:
 		virtual ~SumoBinary() {};
         virtual void initialize(int stage);
-        virtual void handleMessage(cMessage *msg);
+        virtual void handleMessage(omnetpp::cMessage *msg);
         virtual void finish();
 
 	protected:

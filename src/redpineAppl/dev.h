@@ -43,8 +43,8 @@ public:
         return 1;
     }
     virtual void finish();
-    virtual void handleMessage(cMessage *msg);
-    virtual void receiveSignal(cComponent *, simsignal_t, long);
+    virtual void handleMessage(omnetpp::cMessage *msg);
+    virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, long, cObject* details);
 
 public:
     void substituteParams(std::string &);

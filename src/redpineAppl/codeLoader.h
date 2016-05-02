@@ -46,8 +46,8 @@ public:
     virtual ~codeLoader();
     virtual void initialize(int stage);
     virtual void finish();
-    virtual void handleMessage(cMessage *msg);
-    virtual void receiveSignal(cComponent *, simsignal_t, long);
+    virtual void handleMessage(omnetpp::cMessage *msg);
+    virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, long, cObject* details);
 
 private:
     void make_connection();
@@ -69,8 +69,8 @@ private:
     boost::filesystem::path remoteDir_SourceCode = "";
     boost::filesystem::path redpineAppl_FullPath;
 
-    simsignal_t Signal_executeEachTS;
-    simsignal_t Signal_initialize_withTraCI;
+    omnetpp::simsignal_t Signal_executeEachTS;
+    omnetpp::simsignal_t Signal_initialize_withTraCI;
 
     // active SSH sessions
     std::vector< std::pair<cModule *, SSH_Helper *> > active_SSH;

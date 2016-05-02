@@ -42,13 +42,8 @@ void ApplVBase::initialize(int stage)
 
     if (stage==0)
     {
-        // get the ptr of the current module
-        nodePtr = this->getParentModule();
-        if(nodePtr == NULL)
-            error("can not get a pointer to the module.");
-
         // get a pointer to the TraCI module
-        cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
+        omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
         TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
 
@@ -72,7 +67,7 @@ void ApplVBase::initialize(int stage)
         SUMOControllerNumber = par("SUMOControllerNumber").longValue();
 
         // store the time of entry
-        entryTime = simTime().dbl();
+        entryTime = omnetpp::simTime().dbl();
     }
 }
 
@@ -83,7 +78,7 @@ void ApplVBase::finish()
 }
 
 
-void ApplVBase::handleSelfMsg(cMessage* msg)
+void ApplVBase::handleSelfMsg(omnetpp::cMessage* msg)
 {
 
 }

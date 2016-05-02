@@ -59,7 +59,7 @@ void ApplBikeManager::finish()
 }
 
 
-void ApplBikeManager::receiveSignal(cComponent* source, simsignal_t signalID, cObject* obj)
+void ApplBikeManager::receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, cObject* obj, cObject* details)
 {
     Enter_Method_Silent();
 
@@ -70,13 +70,13 @@ void ApplBikeManager::receiveSignal(cComponent* source, simsignal_t signalID, cO
 }
 
 
-void ApplBikeManager::handleSelfMsg(cMessage* msg)
+void ApplBikeManager::handleSelfMsg(omnetpp::cMessage* msg)
 {
     super::handleSelfMsg(msg);
 }
 
 
-void ApplBikeManager::handleLowerMsg(cMessage* msg)
+void ApplBikeManager::handleLowerMsg(omnetpp::cMessage* msg)
 {
     // make sure msg is of type WaveShortMessage
     Veins::WaveShortMessage* wsm = dynamic_cast<Veins::WaveShortMessage*>(msg);
@@ -111,7 +111,7 @@ void ApplBikeManager::handlePositionUpdate(cObject* obj)
 {
     super::handlePositionUpdate(obj);
 
-    ChannelMobilityPtrType const mobility = check_and_cast<ChannelMobilityPtrType>(obj);
+    ChannelMobilityPtrType const mobility = omnetpp::check_and_cast<ChannelMobilityPtrType>(obj);
     curPosition = mobility->getCurrentPosition();
 }
 

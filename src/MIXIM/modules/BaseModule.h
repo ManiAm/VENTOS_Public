@@ -29,13 +29,13 @@
 #include "HostState.h"
 
 #ifndef debugEV
-#define debugEV_clear (ev.isDisabled()||!debug) ? ev : ev
-#define debugEV (ev.isDisabled()||!debug) ? ev : ev << logName() << "::" << getClassName() << ": "
+#define debugEV_clear EV
+#define debugEV EV << logName() << "::" << getClassName() << ": "
 #endif
 
 #ifndef coreEV
-#define coreEV_clear (ev.isDisabled()||!coreDebug) ? ev : ev
-#define coreEV (ev.isDisabled()||!coreDebug) ? ev : ev << logName() << "::" << getClassName() <<": "
+#define coreEV_clear EV
+#define coreEV EV << logName() << "::" << getClassName() << ": "
 #endif
 
 /**
@@ -70,7 +70,8 @@
  * @author Steffen Sroka
  * @author Andreas Koepke
  */
-class MIXIM_API BaseModule: public cSimpleModule, public cListener {
+class MIXIM_API BaseModule: public omnetpp::cSimpleModule, public omnetpp::cListener
+{
 protected:
     /** @brief Debug switch for all other modules*/
     bool debug;
@@ -114,7 +115,7 @@ protected:
         cSimpleModule::finish();
     }
 
-    virtual void finish(cComponent* component, simsignal_t signalID) {
+    virtual void finish(omnetpp::cComponent* component, omnetpp::simsignal_t signalID) {
         cListener::finish(component, signalID);
     }
 public:
@@ -163,7 +164,14 @@ public:
      * In this base class just handle the host state switching and
      * some debug notifications
      */
-    virtual void receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj);
+    using cListener::receiveSignal;
+
+    virtual void receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t signalID, cObject *obj, cObject* details);
+
+    virtual void receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t signalID, cObject *obj)
+    {
+        receiveSignal(source, signalID, obj, 0);
+    }
 };
 
 #endif

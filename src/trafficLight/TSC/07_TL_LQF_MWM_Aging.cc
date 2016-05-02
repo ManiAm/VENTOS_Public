@@ -74,7 +74,7 @@ void TrafficLight_LQF_MWM_Aging::initialize(int stage)
 
     if(stage == 0)
     {
-        intervalChangeEVT = new cMessage("intervalChangeEVT", 1);
+        intervalChangeEVT = new omnetpp::cMessage("intervalChangeEVT", 1);
     }
 }
 
@@ -85,7 +85,7 @@ void TrafficLight_LQF_MWM_Aging::finish()
 }
 
 
-void TrafficLight_LQF_MWM_Aging::handleMessage(cMessage *msg)
+void TrafficLight_LQF_MWM_Aging::handleMessage(omnetpp::cMessage *msg)
 {
     super::handleMessage(msg);
 
@@ -100,7 +100,7 @@ void TrafficLight_LQF_MWM_Aging::handleMessage(cMessage *msg)
             error("intervalDuration is <= 0");
 
         // Schedule next light change event:
-        scheduleAt(simTime().dbl() + intervalDuration, intervalChangeEVT);
+        scheduleAt(omnetpp::simTime().dbl() + intervalDuration, intervalChangeEVT);
     }
 }
 
@@ -113,7 +113,7 @@ void TrafficLight_LQF_MWM_Aging::initialize_withTraCI()
     if(TLControlMode != TL_LQF_MWM_Aging)
         return;
 
-    std::cout << endl << "Multi-class LQF-MWM-Aging traffic signal control ..." << endl << endl;
+    std::cout << std::endl << "Multi-class LQF-MWM-Aging traffic signal control ..." << std::endl << std::endl;
 
     // find the RSU module that controls this TL
     findRSU("C");
@@ -128,7 +128,7 @@ void TrafficLight_LQF_MWM_Aging::initialize_withTraCI()
     currentInterval = phase1_5;
     intervalDuration = minGreenTime;
 
-    scheduleAt(simTime().dbl() + intervalDuration, intervalChangeEVT);
+    scheduleAt(omnetpp::simTime().dbl() + intervalDuration, intervalChangeEVT);
 
     for (auto &TL : TLList)
     {
@@ -141,11 +141,11 @@ void TrafficLight_LQF_MWM_Aging::initialize_withTraCI()
         updateTLstate(TL, "init", currentInterval);
     }
 
-    if(ev.isGUI() && debugLevel > 0)
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 0)
     {
         char buff[300];
-        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalDuration);
-        std::cout << endl << buff << endl << endl;
+        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", omnetpp::simTime().dbl(), currentInterval.c_str(), omnetpp::simTime().dbl(), omnetpp::simTime().dbl() + intervalDuration);
+        std::cout << std::endl << buff << std::endl << std::endl;
         std::cout.flush();
     }
 }
@@ -200,11 +200,11 @@ void TrafficLight_LQF_MWM_Aging::chooseNextInterval()
     else
         chooseNextGreenInterval();
 
-    if(ev.isGUI() && debugLevel > 0)
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 0)
     {
         char buff[300];
-        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", simTime().dbl(), currentInterval.c_str(), simTime().dbl(), simTime().dbl() + intervalDuration);
-        std::cout << buff << endl << endl;
+        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", omnetpp::simTime().dbl(), currentInterval.c_str(), omnetpp::simTime().dbl(), omnetpp::simTime().dbl() + intervalDuration);
+        std::cout << buff << std::endl << std::endl;
         std::cout.flush();
     }
 }
@@ -318,7 +318,7 @@ void TrafficLight_LQF_MWM_Aging::chooseNextGreenInterval()
             found = true;
         }
 
-        if(ev.isGUI() && debugLevel > 1)
+        if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 1)
         {
             printf("Max delay in phase %s is %0.2f \n", maxDelayPerPhase.top().phase.c_str(), maxDelay);
 
@@ -337,7 +337,7 @@ void TrafficLight_LQF_MWM_Aging::chooseNextGreenInterval()
     double greenTime = (double)maxVehCount * (minGreenTime / 5.);
     nextGreenTime = std::min(std::max(greenTime, minGreenTime), maxGreenTime);  // bound green time
 
-    if(ev.isGUI() && debugLevel > 1)
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 1)
     {
         printf("\n");
 
@@ -357,7 +357,7 @@ void TrafficLight_LQF_MWM_Aging::chooseNextGreenInterval()
         printf(", oneCount= %d", finalChoice.oneCount);
         printf(", green= %0.2fs \n", nextGreenTime);
 
-        std::cout << endl;
+        std::cout << std::endl;
         std::cout.flush();
     }
 
@@ -391,9 +391,9 @@ void TrafficLight_LQF_MWM_Aging::chooseNextGreenInterval()
     else
     {
         intervalDuration = nextGreenTime;
-        if(ev.isGUI() && debugLevel > 0)
+        if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 0)
         {
-            std::cout << ">>> Continue the last green interval." << endl << endl;
+            std::cout << ">>> Continue the last green interval." << std::endl << std::endl;
             std::cout.flush();
         }
     }

@@ -35,7 +35,7 @@ Lane::Lane(std::string id, double speed, double length):
 Edge::Edge(std::string id, Node* from, Node* to, int priority, std::vector<Lane*> lanes):
                   id(id), from(from), to(to), priority(priority), lanes(lanes)
 {
-    debugLevel = simulation.getSystemModule()->par("debugLevel").longValue();
+    debugLevel = omnetpp::getSimulation()->getSystemModule()->par("debugLevel").longValue();
 
     numLanes = lanes.size();
     speed = 0;
@@ -59,7 +59,7 @@ double Edge::getCost()
     if(travelTimes.average > 0)
         return travelTimes.average;
 
-    if(ev.isGUI() && debugLevel > 2)
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 2)
     {
         std::cout << "Using length / speed for cost of edge " << id << std::endl;
         std::cout.flush();

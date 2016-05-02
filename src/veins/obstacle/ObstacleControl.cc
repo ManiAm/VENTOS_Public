@@ -57,7 +57,7 @@ void ObstacleControl::finish() {
     obstacles.clear();
 }
 
-void ObstacleControl::handleMessage(cMessage *msg) {
+void ObstacleControl::handleMessage(omnetpp::cMessage *msg) {
     if (msg->isSelfMessage()) {
         handleSelfMsg(msg);
         return;
@@ -65,19 +65,19 @@ void ObstacleControl::handleMessage(cMessage *msg) {
     error("ObstacleControl doesn't handle messages from other modules");
 }
 
-void ObstacleControl::handleSelfMsg(cMessage *msg) {
+void ObstacleControl::handleSelfMsg(omnetpp::cMessage *msg) {
     error("ObstacleControl doesn't handle self-messages");
 }
 
-void ObstacleControl::addFromXml(cXMLElement* xml) {
+void ObstacleControl::addFromXml(omnetpp::cXMLElement* xml) {
     std::string rootTag = xml->getTagName();
     if (rootTag != "obstacles") {
-        opp_error("Obstacle definition root tag was \"%s\", but expected \"obstacles\"", rootTag.c_str());
+        throw omnetpp::cRuntimeError("Obstacle definition root tag was \"%s\", but expected \"obstacles\"", rootTag.c_str());
     }
 
-    cXMLElementList list = xml->getChildren();
-    for (cXMLElementList::const_iterator i = list.begin(); i != list.end(); ++i) {
-        cXMLElement* e = *i;
+    omnetpp::cXMLElementList list = xml->getChildren();
+    for (omnetpp::cXMLElementList::const_iterator i = list.begin(); i != list.end(); ++i) {
+        omnetpp::cXMLElement* e = *i;
 
         std::string tag = e->getTagName();
 
@@ -111,10 +111,11 @@ void ObstacleControl::addFromXml(cXMLElement* xml) {
 
             Obstacle obs(id, type, getAttenuationPerCut(type), getAttenuationPerMeter(type));
             std::vector<Coord> sh;
-            cStringTokenizer st(shape.c_str());
-            while (st.hasMoreTokens()) {
+            omnetpp::cStringTokenizer st(shape.c_str());
+            while (st.hasMoreTokens())
+            {
                 std::string xy = st.nextToken();
-                std::vector<double> xya = cStringTokenizer(xy.c_str(), ",").asDoubleVector();
+                std::vector<double> xya = omnetpp::cStringTokenizer(xy.c_str(), ",").asDoubleVector();
                 ASSERT(xya.size() == 2);
                 sh.push_back(Coord(xya[0], xya[1]));
             }
@@ -122,7 +123,7 @@ void ObstacleControl::addFromXml(cXMLElement* xml) {
             add(obs);
         }
         else {
-            throw cRuntimeError("Found unknown tag in obstacle definition: \"%s\"", tag.c_str());
+            throw omnetpp::cRuntimeError("Found unknown tag in obstacle definition: \"%s\"", tag.c_str());
         }
     }
 
@@ -130,7 +131,7 @@ void ObstacleControl::addFromXml(cXMLElement* xml) {
 
 void ObstacleControl::addFromTypeAndShape(std::string id, std::string typeId, std::vector<Coord> shape) {
     if (!isTypeSupported(typeId)) {
-        opp_error("Unsupported obstacle type: \"%s\"", typeId.c_str());
+        throw omnetpp::cRuntimeError("Unsupported obstacle type: \"%s\"", typeId.c_str());
     }
     Obstacle obs(id, typeId, getAttenuationPerCut(typeId), getAttenuationPerMeter(typeId));
     obs.setShape(shape);
@@ -181,13 +182,11 @@ void ObstacleControl::erase(const Obstacle* obstacle) {
 double ObstacleControl::calculateAttenuation(const Coord& senderPos, const Coord& receiverPos) const {
     Enter_Method_Silent();
 
-    if ((perCut.size() == 0) || (perMeter.size() == 0)) {
-        opp_error("Unable to use SimpleObstacleShadowing: No obstacle types have been configured");
-    }
+    if ((perCut.size() == 0) || (perMeter.size() == 0))
+        throw omnetpp::cRuntimeError("Unable to use SimpleObstacleShadowing: No obstacle types have been configured");
 
-    if (obstacles.size() == 0) {
-        opp_error("Unable to use SimpleObstacleShadowing: No obstacles have been added");
-    }
+    if (obstacles.size() == 0)
+        throw omnetpp::cRuntimeError("Unable to use SimpleObstacleShadowing: No obstacles have been added");
 
     // return cached result, if available
     CacheKey cacheKey(senderPos, receiverPos);

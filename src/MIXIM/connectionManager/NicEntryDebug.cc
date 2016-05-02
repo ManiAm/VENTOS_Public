@@ -25,24 +25,22 @@
 #include "FindModule.h"
 
 #ifndef nicEV
-#define nicEV (ev.isDisabled()||!coreDebug) ? ev : ev << "NicEntry: "
+#define nicEV EV << "NicEntry: "
 #endif
 
-using std::endl;
-
 void NicEntryDebug::connectTo(NicEntry* other) {
-	nicEV<<"connecting nic #"<<nicId<< " and #"<<other->nicId<<endl;
+	nicEV << "connecting nic #" << nicId << " and #" <<other->nicId << std::endl;
 
 	NicEntryDebug* otherNic = (NicEntryDebug*) other;
 
-	cGate *localoutgate = requestOutGate();
+	omnetpp::cGate *localoutgate = requestOutGate();
 	localoutgate->connectTo(otherNic->requestInGate());
 	outConns[other] = localoutgate->getPathStartGate();
 }
 
 
 void NicEntryDebug::disconnectFrom(NicEntry* other) {
-	nicEV<<"disconnecting nic #"<<nicId<< " and #"<<other->nicId<<endl;
+	nicEV << "disconnecting nic #" << nicId << " and #" << other->nicId << std::endl;
 
 	NicEntryDebug* otherNic = (NicEntryDebug*) other;
 
@@ -51,7 +49,7 @@ void NicEntryDebug::disconnectFrom(NicEntry* other) {
 	//no need to check whether entry is valid; is already check by ConnectionManager isConnected
 	//get the hostGate
 	//order is phyGate->nicGate->hostGate
-	cGate* hostGate = p->second->getNextGate()->getNextGate();
+	omnetpp::cGate* hostGate = p->second->getNextGate()->getNextGate();
 
 	// release local out gate
 	freeOutGates.push_back(hostGate);
@@ -69,16 +67,16 @@ void NicEntryDebug::disconnectFrom(NicEntry* other) {
 
 int NicEntryDebug::collectGates(const char* pattern, GateStack& gates)
 {
-	cModule* host = nicPtr->getParentModule();
+    omnetpp::cModule* host = nicPtr->getParentModule();
 	int i = 1;
 	char gateName[20];
 	//create the unique name for the gate (composed of the nic module id and a counter)
 	sprintf(gateName, pattern, nicId, i);
 	while(host->hasGate(gateName))
 	{
-		cGate* hostGate = host->gate(gateName);
+	    omnetpp::cGate* hostGate = host->gate(gateName);
 		if(hostGate->isConnectedOutside()) {
-			opp_error("Gate %s is still connected but not registered with this "
+		    throw omnetpp::cRuntimeError("Gate %s is still connected but not registered with this "
 					  "NicEntry. Either the last NicEntry for this NIC did not "
 					  "clean up correctly or another gate creation module is "
 					  "interfering with this one!", gateName);
@@ -99,21 +97,21 @@ void NicEntryDebug::collectFreeGates()
 		return;
 
 	inCnt = collectGates("in%d-%d", freeInGates);
-	nicEV << "found " << inCnt << " already existing usable in-gates." << endl;
+	nicEV << "found " << inCnt << " already existing usable in-gates." << std::endl;
 
 
 	outCnt = collectGates("out%d-%d", freeOutGates);
-	nicEV << "found " << inCnt << " already existing usable out-gates." << endl;
+	nicEV << "found " << inCnt << " already existing usable out-gates." << std::endl;
 
 	checkFreeGates = false;
 }
 
 
-cGate* NicEntryDebug::requestInGate(void) {
+omnetpp::cGate* NicEntryDebug::requestInGate(void) {
 	collectFreeGates();
 
 	// gate of the host
-	cGate *hostGate;
+	omnetpp::cGate *hostGate;
 
 	if (!freeInGates.empty()) {
 		hostGate = freeInGates.back();
@@ -128,14 +126,14 @@ cGate* NicEntryDebug::requestInGate(void) {
 		sprintf(gateName, "in%d-%d", nicId, inCnt);
 
 		// create a new gate for the host module
-		nicPtr->getParentModule()->addGate(gateName, cGate::INPUT);
+		nicPtr->getParentModule()->addGate(gateName, omnetpp::cGate::INPUT);
 		hostGate = nicPtr->getParentModule()->gate(gateName);
 
 		// gate of the nic
-		cGate *nicGate;
+		omnetpp::cGate *nicGate;
 
 		// create a new gate for the nic module
-		nicPtr->addGate(gateName, cGate::INPUT);
+		nicPtr->addGate(gateName, omnetpp::cGate::INPUT);
 		nicGate = nicPtr->gate(gateName);
 
 		// connect the hist gate with the nic gate
@@ -144,7 +142,7 @@ cGate* NicEntryDebug::requestInGate(void) {
 		// pointer to the phy module
 		ChannelAccess* phyModule;
 		// gate of the phy module
-		cGate *phyGate;
+		omnetpp::cGate *phyGate;
 
 		// to avoid unnecessary dynamic_casting we check for a "phy"-named submodule first
 		if ((phyModule = dynamic_cast<ChannelAccess *> (nicPtr->getSubmodule("phy"))) == NULL)
@@ -152,7 +150,7 @@ cGate* NicEntryDebug::requestInGate(void) {
 		assert(phyModule != 0);
 
 		// create a new gate for the phy module
-		phyModule->addGate(gateName, cGate::INPUT);
+		phyModule->addGate(gateName, omnetpp::cGate::INPUT);
 		phyGate = phyModule->gate(gateName);
 
 		// connect the nic gate (the gate of the compound module) to
@@ -163,11 +161,11 @@ cGate* NicEntryDebug::requestInGate(void) {
 	return hostGate;
 }
 
-cGate* NicEntryDebug::requestOutGate(void) {
+omnetpp::cGate* NicEntryDebug::requestOutGate(void) {
 	collectFreeGates();
 
 	// gate of the host
-	cGate *hostGate;
+	omnetpp::cGate *hostGate;
 
 	if (!freeOutGates.empty()) {
 		hostGate = freeOutGates.back();
@@ -182,13 +180,13 @@ cGate* NicEntryDebug::requestOutGate(void) {
 		sprintf(gateName, "out%d-%d", nicId, outCnt);
 
 		// create a new gate for the host module
-		nicPtr->getParentModule()->addGate(gateName, cGate::OUTPUT);
+		nicPtr->getParentModule()->addGate(gateName, omnetpp::cGate::OUTPUT);
 		hostGate = nicPtr->getParentModule()->gate(gateName);
 
 		// gate of the nic
-		cGate *nicGate;
+		omnetpp::cGate *nicGate;
 		// create a new gate for the nic module
-		nicPtr->addGate(gateName, cGate::OUTPUT);
+		nicPtr->addGate(gateName, omnetpp::cGate::OUTPUT);
 		nicGate = nicPtr->gate(gateName);
 
 		// connect the hist gate with the nic gate
@@ -197,7 +195,7 @@ cGate* NicEntryDebug::requestOutGate(void) {
 		// pointer to the phy module
 		ChannelAccess* phyModule;
 		// gate of the phy module
-		cGate *phyGate;
+		omnetpp::cGate *phyGate;
 
 		// to avoid unnecessary dynamic_casting we check for a "phy"-named submodule first
 		if ((phyModule = dynamic_cast<ChannelAccess *> (nicPtr->getSubmodule("phy"))) == NULL)
@@ -205,7 +203,7 @@ cGate* NicEntryDebug::requestOutGate(void) {
 		assert(phyModule != 0);
 
 		// create a new gate for the phy module
-		phyModule->addGate(gateName, cGate::OUTPUT);
+		phyModule->addGate(gateName, omnetpp::cGate::OUTPUT);
 		phyGate = phyModule->gate(gateName);
 
 		// connect the nic gate (the gate of the compound module) to

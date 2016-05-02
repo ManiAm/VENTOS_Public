@@ -25,7 +25,6 @@
 #define M_FAR 0.75
 #define DIS_THRESHOLD 80
 
-//#define debugEV (ev.isDisabled()||!debug) ? ev : ev << "PhyLayer(NakagamiFading): "
 #define debugEV std::cerr << "PhyLayer(NakagamiFading): "
 
 /**
@@ -34,21 +33,21 @@
 void NakagamiFading::filterSignal(AirFrame *frame, const Coord& senderPos, const Coord& receiverPos) {
 	Signal& s = frame->getSignal();
 
-	debugEV << "Add NakagamiFading ..." << endl;
+	debugEV << "Add NakagamiFading ..." << std::endl;
 
 	// get average TX power
 	// FIXME: really use average power (instead of max)
-	debugEV << "Finding max TX power ..." << endl;
+	debugEV << "Finding max TX power ..." << std::endl;
 	double sendPower_mW;
 	{
 		double maxPower_mW = 0;
 		ConstMappingIterator* it = s.getReceivingPower()->createConstIterator();
 		while(1) {
 			double v = it->getValue();
-			debugEV << "Power at " << it->getPosition() << " is " << v << endl;
+			debugEV << "Power at " << it->getPosition() << " is " << v << std::endl;
 			if (v > maxPower_mW) {
 				maxPower_mW = v;
-				debugEV << "New max power" << endl;
+				debugEV << "New max power" << std::endl;
 			}
 			if (!it->hasNext()) break;
 			it->next();
@@ -56,7 +55,7 @@ void NakagamiFading::filterSignal(AirFrame *frame, const Coord& senderPos, const
 		delete it;
 		sendPower_mW = maxPower_mW;
 	}
-	debugEV << "TX power is " << FWMath::mW2dBm(sendPower_mW) << " dBm" << endl;
+	debugEV << "TX power is " << FWMath::mW2dBm(sendPower_mW) << " dBm" << std::endl;
 
 	// get m value
 	double m = this->m;
@@ -70,15 +69,15 @@ void NakagamiFading::filterSignal(AirFrame *frame, const Coord& senderPos, const
 	}
 
 	// calculate average RX power
-	double recvPower_mW = gamma_d(m, sendPower_mW/1000 / m) * 1000.0;
-	if (recvPower_mW > sendPower_mW) {
+	double recvPower_mW = omnetpp::cSimulation::getActiveSimulation()->getContext()->gamma_d(m, sendPower_mW/1000 / m) * 1000.0;
+	if (recvPower_mW > sendPower_mW)
 		recvPower_mW = sendPower_mW;
-	}
-	debugEV << "RX power is " << FWMath::mW2dBm(recvPower_mW) << " dBm" << endl;
+
+	debugEV << "RX power is " << FWMath::mW2dBm(recvPower_mW) << " dBm" << std::endl;
 
 	// infer average attenuation
 	double factor = recvPower_mW/sendPower_mW;
-	debugEV << "factor is: " << factor << " (i.e. " << FWMath::mW2dBm(factor) << " dB)" << endl;
+	debugEV << "factor is: " << factor << " (i.e. " << FWMath::mW2dBm(factor) << " dB)" << std::endl;
 
 	// create (and add) mapping that reflects this factor
 	bool hasFrequency = s.getTransmissionPower()->getDimensionSet().hasDimension(Dimension::frequency());

@@ -1,7 +1,7 @@
 
 #include "SimpleObstacleShadowing.h"
 
-#define debugEV (ev.isDisabled()||!debug) ? ev : ev << "PhyLayer(SimpleObstacleShadowing): "
+#define debugEV EV << "PhyLayer(SimpleObstacleShadowing): "
 
 #if 0
 SimplePathlossConstMapping::SimplePathlossConstMapping(const DimensionSet& dimensions,
@@ -34,16 +34,20 @@ SimpleObstacleShadowing::SimpleObstacleShadowing(Veins::ObstacleControl& obstacl
 	playgroundSize(playgroundSize),
 	debug(debug)
 {
-	if (useTorus) opp_error("SimpleObstacleShadowing does not work on torus-shaped playgrounds");
+	if (useTorus)
+	    throw omnetpp::cRuntimeError("SimpleObstacleShadowing does not work on torus-shaped playgrounds");
 }
 
 
-void SimpleObstacleShadowing::filterSignal(AirFrame *frame, const Coord& sendersPos, const Coord& receiverPos) {
+void SimpleObstacleShadowing::filterSignal(AirFrame *frame, const Coord& sendersPos, const Coord& receiverPos)
+{
+    EV_STATICCONTEXT
+
 	Signal& s = frame->getSignal();
 
 	double factor = obstacleControl.calculateAttenuation(sendersPos, receiverPos);
 
-	debugEV << "value is: " << factor << endl;
+	debugEV << "value is: " << factor << std::endl;
 
 	bool hasFrequency = s.getTransmissionPower()->getDimensionSet().hasDimension(Dimension::frequency());
 	const DimensionSet& domain = hasFrequency ? DimensionSet::timeFreqDomain() : DimensionSet::timeDomain();

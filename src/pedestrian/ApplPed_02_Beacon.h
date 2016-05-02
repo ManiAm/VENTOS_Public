@@ -41,7 +41,7 @@ public:
     virtual void finish();
 
 protected:
-    virtual void handleSelfMsg(cMessage*);
+    virtual void handleSelfMsg(omnetpp::cMessage*);
     virtual void handlePositionUpdate(cObject*);
 
 private:
@@ -67,8 +67,8 @@ protected:
     int dataPriority;
 
     // Class variables
-    simtime_t individualOffset;
-    cMessage* PedestrianBeaconEvt;
+    omnetpp::simtime_t individualOffset;
+    omnetpp::cMessage* PedestrianBeaconEvt;
 
 private:
     typedef ApplPedBase super;

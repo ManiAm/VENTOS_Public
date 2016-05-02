@@ -39,7 +39,7 @@ void Mac1609_4_Mod::initialize(int stage)
     if (stage == 0)
     {
         // get a pointer to the Statistics module
-        cModule *module = simulation.getSystemModule()->getSubmodule("statistics");
+        cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("statistics");
         ASSERT(module);
 
         reportMAClayerData = module->par("reportMAClayerData").boolValue();
@@ -53,20 +53,20 @@ void Mac1609_4_Mod::finish()
 }
 
 
-void Mac1609_4_Mod::handleSelfMsg(cMessage* msg)
+void Mac1609_4_Mod::handleSelfMsg(omnetpp::cMessage* msg)
 {
     Mac1609_4::handleSelfMsg(msg);
 }
 
 
-void Mac1609_4_Mod::handleUpperControl(cMessage* msg)
+void Mac1609_4_Mod::handleUpperControl(omnetpp::cMessage* msg)
 {
     Mac1609_4::handleUpperControl(msg);
 }
 
 
 // all messages from application layer are sent to this method!
-void Mac1609_4_Mod::handleUpperMsg(cMessage* msg)
+void Mac1609_4_Mod::handleUpperMsg(omnetpp::cMessage* msg)
 {
     Mac1609_4::handleUpperMsg(msg);
 
@@ -94,18 +94,18 @@ void Mac1609_4_Mod::handleUpperMsg(cMessage* msg)
 
     // send a signal to statistics
     MacStat *vec = new MacStat(MacStats);
-    simsignal_t Signal_MacStats = registerSignal("MacStats");
+    omnetpp::simsignal_t Signal_MacStats = registerSignal("MacStats");
     this->getParentModule()->getParentModule()->emit(Signal_MacStats, vec);
 }
 
 
-void Mac1609_4_Mod::handleLowerControl(cMessage* msg)
+void Mac1609_4_Mod::handleLowerControl(omnetpp::cMessage* msg)
 {
     Mac1609_4::handleLowerControl(msg);
 }
 
 
-void Mac1609_4_Mod::handleLowerMsg(cMessage* msg)
+void Mac1609_4_Mod::handleLowerMsg(omnetpp::cMessage* msg)
 {
     Mac1609_4::handleLowerMsg(msg);
 }

@@ -44,10 +44,10 @@ void TrafficLightManager::initialize(int stage)
     if(stage == 0)
     {
         Signal_initialize_withTraCI = registerSignal("initialize_withTraCI");
-        simulation.getSystemModule()->subscribe("initialize_withTraCI", this);
+        omnetpp::getSimulation()->getSystemModule()->subscribe("initialize_withTraCI", this);
 
         Signal_executeEachTS = registerSignal("executeEachTS");
-        simulation.getSystemModule()->subscribe("executeEachTS", this);
+        omnetpp::getSimulation()->getSystemModule()->subscribe("executeEachTS", this);
     }
 }
 
@@ -57,19 +57,19 @@ void TrafficLightManager::finish()
     super::finish();
 
     // unsubscribe
-    simulation.getSystemModule()->unsubscribe("initialize_withTraCI", this);
-    simulation.getSystemModule()->unsubscribe("executeEachTS", this);
+    omnetpp::getSimulation()->getSystemModule()->unsubscribe("initialize_withTraCI", this);
+    omnetpp::getSimulation()->getSystemModule()->unsubscribe("executeEachTS", this);
 }
 
 
-void TrafficLightManager::handleMessage(cMessage *msg)
+void TrafficLightManager::handleMessage(omnetpp::cMessage *msg)
 {
     super::handleMessage(msg);
 
 }
 
 
-void TrafficLightManager::receiveSignal(cComponent *source, simsignal_t signalID, long i)
+void TrafficLightManager::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t signalID, long i, cObject* details)
 {
     Enter_Method_Silent();
 

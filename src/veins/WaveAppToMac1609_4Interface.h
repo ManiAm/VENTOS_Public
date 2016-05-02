@@ -34,7 +34,8 @@ namespace Veins {
  *
  * @ingroup macLayer
  */
-class WaveAppToMac1609_4Interface {
+class WaveAppToMac1609_4Interface
+{
 	public:
 
 		virtual void changeServiceChannel(int channelNumber) = 0;

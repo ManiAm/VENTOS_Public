@@ -291,7 +291,7 @@ protected:
     typedef std::map<key_type, mapped_type> container_type;
     typedef container_type::value_type      value_type;
     /** @brief Stores the time dimension in Omnet's time type */
-    simtime_t      time;
+    omnetpp::simtime_t      time;
 
     /** @brief Maps the dimensions of this Argument to their values. */
     container_type values;
@@ -341,24 +341,24 @@ protected:
      * @brief Initialize this argument with the passed value for
      * the time dimension.
      */
-    Argument(simtime_t_cref timeVal = 0);
+    Argument(omnetpp::simtime_t_cref timeVal = 0);
 
     /**
      * @brief Initializes the Argument with the dimensions of the
      * passed DimensionSet set to zero, and the passed value for the
      * time (or zero, if omitted).
      */
-    Argument(const DimensionSet& dims, simtime_t_cref timeVal = SIMTIME_ZERO);
+    Argument(const DimensionSet& dims, omnetpp::simtime_t_cref timeVal = SIMTIME_ZERO);
 
     /**
      * @brief Returns the time value of this argument.
      */
-    simtime_t_cref getTime() const;
+    omnetpp::simtime_t_cref getTime() const;
 
     /**
      * @brief Changes the time value of this argument.
      */
-    void setTime(simtime_t_cref time);
+    void setTime(omnetpp::simtime_t_cref time);
 
     /**
      * @brief Returns true if this Argument has a value for the
@@ -711,7 +711,7 @@ private:
         return osToStr.str();
     }
 
-    std::string toString(simtime_t_cref v, unsigned int length) const {
+    std::string toString(omnetpp::simtime_t_cref v, unsigned int length) const {
         return toString(SIMTIME_DBL(v), length);
     }
 
@@ -829,20 +829,20 @@ public:
                 if (!osDimHead.str().empty())
                     out << ", ";
             }
-            out << osDimHead.str() << endl;
+            out << osDimHead.str() << std::endl;
         }
 
         ConstMappingIterator* it = m.createConstIterator();
 
         if(!it->inRange()) {
-            out << "Mapping is empty." << endl;
+            out << "Mapping is empty." << std::endl;
             return out;
         }
 
         Argument min = it->getPosition();
         Argument max = it->getPosition();
 
-        typedef std::set<simtime_t>         t_time_container_type;
+        typedef std::set<omnetpp::simtime_t>         t_time_container_type;
         typedef std::set<argument_value_t>  t_value_container_type;
 
         t_time_container_type  timePositions;
@@ -897,14 +897,14 @@ public:
 
         if(!bIs2Dim && !bOnlyDimFound) {
             if (!bOnlyDimFound && pOnlyDim != NULL) {
-                out << "map contains no " << pOnlyDim->getName() << " dimension!" << endl;
+                out << "map contains no " << pOnlyDim->getName() << " dimension!" << std::endl;
             }
             else
-                out << "domain - min=" << min << " max=" << max << endl;
+                out << "domain - min=" << min << " max=" << max << std::endl;
             return out;
         }
         if (bOnlyDimFound && otherPositions.empty()) {
-            out << "Defines no own key entries for " << pOnlyDim->getName() << " dimension! That does NOT mean it doesn't define any attenuation." << endl;
+            out << "Defines no own key entries for " << pOnlyDim->getName() << " dimension! That does NOT mean it doesn't define any attenuation." << std::endl;
             return out;
         }
 

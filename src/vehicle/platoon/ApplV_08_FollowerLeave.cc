@@ -29,7 +29,7 @@
 
 namespace VENTOS {
 
-void ApplVPlatoonMg::followerLeave_handleSelfMsg(cMessage* msg)
+void ApplVPlatoonMg::followerLeave_handleSelfMsg(omnetpp::cMessage* msg)
 {
     if(!followerLeaveEnabled)
         return;
@@ -71,7 +71,7 @@ void ApplVPlatoonMg::followerLeave_handleSelfMsg(cMessage* msg)
             reportStateToStat();
         }
         else
-            scheduleAt(simTime() + .1, plnTIMER11);
+            scheduleAt(omnetpp::simTime() + .1, plnTIMER11);
     }
 }
 
@@ -93,7 +93,7 @@ void ApplVPlatoonMg::followerLeave_DataFSM(PlatoonMsg *wsm)
     {
         // send a unicast LEAVE_REQ to the leader
         PlatoonMsg* dataMsg = prepareData(plnID, LEAVE_REQ, plnID, myPlnDepth);
-        EV << "### " << SUMOID << ": sent LEAVE_REQ." << endl;
+        EV << "### " << SUMOID << ": sent LEAVE_REQ." << std::endl;
         sendDelayed(dataMsg, individualOffset, lowerLayerOut);
         reportCommandToStat(dataMsg);
 
@@ -102,7 +102,7 @@ void ApplVPlatoonMg::followerLeave_DataFSM(PlatoonMsg *wsm)
 
         reportManeuverToStat(SUMOID, plnID, "FLeave_Request");
 
-        scheduleAt(simTime() + 5., plnTIMER10);
+        scheduleAt(omnetpp::simTime() + 5., plnTIMER10);
     }
     else if(vehicleState == state_waitForLeaveReply)
     {
@@ -131,7 +131,7 @@ void ApplVPlatoonMg::followerLeave_DataFSM(PlatoonMsg *wsm)
 
             // now we should wait for the leader to do the split(s), and make us a free agent.
             // we check every 0.1s to see if we are free agent
-            scheduleAt(simTime() + .1, plnTIMER11);
+            scheduleAt(omnetpp::simTime() + .1, plnTIMER11);
         }
     }
     else if(vehicleState == state_platoonLeader)
@@ -149,7 +149,7 @@ void ApplVPlatoonMg::followerLeave_DataFSM(PlatoonMsg *wsm)
             // send LEAVE_ACCEPT
             // lastFollower notifies the leaving vehicle if it is the last follower or not!
             PlatoonMsg* dataMsg = prepareData(wsm->getSender(), LEAVE_ACCEPT, plnID, lastFollower);
-            EV << "### " << SUMOID << ": sent LEAVE_ACCEPT." << endl;
+            EV << "### " << SUMOID << ": sent LEAVE_ACCEPT." << std::endl;
             sendDelayed(dataMsg, individualOffset, lowerLayerOut);
             reportCommandToStat(dataMsg);
 

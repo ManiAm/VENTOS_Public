@@ -32,141 +32,124 @@
  */
 namespace Veins {
 
-class AnnotationManager : public cSimpleModule
+class AnnotationManager : public omnetpp::cSimpleModule
 {
-	public:
-		class Group;
+public:
+    class Group;
 
-		class Annotation {
-			public:
-				Annotation()
-					: group(0)
-#if OMNETPP_CANVAS_VERSION == 0x20140709
-					, figure(0)
-#endif
-				{}
-				virtual ~Annotation() {}
+    class Annotation
+    {
+    public:
+        Annotation() : group(0), figure(0) {}
+        virtual ~Annotation() {}
 
-			protected:
-				friend class AnnotationManager;
+    protected:
+        friend class AnnotationManager;
+        Group* group;
+        mutable omnetpp::cFigure* figure;
+        mutable std::list<std::string> traciPoiIds;
+        mutable std::list<std::string> traciLineIds;
+        mutable std::list<std::string> traciPolygonsIds;
 
-				Group* group;
+    };
 
-#if OMNETPP_CANVAS_VERSION == 0x20140709
-				mutable cFigure* figure;
-#else
-				mutable std::list<cModule*> dummyObjects;
-#endif
+    class Point : public Annotation
+    {
+    public:
+        Point(Coord pos, std::string color, std::string text) : pos(pos), color(color), text(text) {}
+        virtual ~Point() {}
 
-				mutable std::list<std::string> traciPoiIds;
-				mutable std::list<std::string> traciLineIds;
-				mutable std::list<std::string> traciPolygonsIds;
+    protected:
+        friend class AnnotationManager;
 
-		};
+        Coord pos;
+        std::string color;
+        std::string text;
+    };
 
-		class Point : public Annotation {
-			public:
-				Point(Coord pos, std::string color, std::string text) : pos(pos), color(color), text(text) {}
-				virtual ~Point() {}
+    class Line : public Annotation
+    {
+    public:
+        Line(Coord p1, Coord p2, std::string color) : p1(p1), p2(p2), color(color) {}
+        virtual ~Line() {}
 
-			protected:
-				friend class AnnotationManager;
+    protected:
+        friend class AnnotationManager;
 
-				Coord pos;
-				std::string color;
-				std::string text;
-		};
+        Coord p1;
+        Coord p2;
+        std::string color;
+    };
 
-		class Line : public Annotation {
-			public:
-				Line(Coord p1, Coord p2, std::string color) : p1(p1), p2(p2), color(color) {}
-				virtual ~Line() {}
+    class Polygon : public Annotation
+    {
+    public:
+        Polygon(std::list<Coord> coords, std::string color) : coords(coords), color(color) {}
+        virtual ~Polygon() {}
 
-			protected:
-				friend class AnnotationManager;
+    protected:
+        friend class AnnotationManager;
 
-				Coord p1;
-				Coord p2;
-				std::string color;
-		};
+        std::list<Coord> coords;
+        std::string color;
+    };
 
-		class Polygon : public Annotation {
-			public:
-				Polygon(std::list<Coord> coords, std::string color) : coords(coords), color(color) {}
-				virtual ~Polygon() {}
+    class Group
+    {
+    public:
+        Group(std::string title) : title(title) {}
+        virtual ~Group() {}
 
-			protected:
-				friend class AnnotationManager;
+    protected:
+        friend class AnnotationManager;
+        std::string title;
+    };
 
-				std::list<Coord> coords;
-				std::string color;
-		};
+    ~AnnotationManager();
+    void initialize();
+    void finish();
+    void handleMessage(omnetpp::cMessage *msg);
+    void handleSelfMsg(omnetpp::cMessage *msg);
+    void handleParameterChange(const char *parname);
 
-		class Group {
-			public:
-				Group(std::string title) : title(title) {}
-				virtual ~Group() {}
+    void addFromXml(omnetpp::cXMLElement* xml);
+    Group* createGroup(std::string title = "untitled");
+    Point* drawPoint(Coord p, std::string color, std::string text, Group* group = 0);
+    Line* drawLine(Coord p1, Coord p2, std::string color, Group* group = 0);
+    Polygon* drawPolygon(std::list<Coord> coords, std::string color, Group* group = 0);
+    Polygon* drawPolygon(std::vector<Coord> coords, std::string color, Group* group = 0);
+    void drawBubble(Coord p1, std::string text);
+    void erase(const Annotation* annotation);
+    void eraseAll(Group* group = 0);
+    void scheduleErase(omnetpp::simtime_t deltaT, Annotation* annotation);
 
-			protected:
-				friend class AnnotationManager;
+    void show(const Annotation* annotation);
+    void hide(const Annotation* annotation);
+    void showAll(Group* group = 0);
+    void hideAll(Group* group = 0);
 
-				std::string title;
-		};
+    protected:
+    typedef std::list<Annotation*> Annotations;
+    typedef std::list<Group*> Groups;
 
-		~AnnotationManager();
-		void initialize();
-		void finish();
-		void handleMessage(cMessage *msg);
-		void handleSelfMsg(cMessage *msg);
-		void handleParameterChange(const char *parname);
+    bool debug; /**< whether to emit debug messages */
+    omnetpp::cXMLElement* annotationsXml; /**< annotations to add at startup */
 
-		void addFromXml(cXMLElement* xml);
-		Group* createGroup(std::string title = "untitled");
-		Point* drawPoint(Coord p, std::string color, std::string text, Group* group = 0);
-		Line* drawLine(Coord p1, Coord p2, std::string color, Group* group = 0);
-		Polygon* drawPolygon(std::list<Coord> coords, std::string color, Group* group = 0);
-		Polygon* drawPolygon(std::vector<Coord> coords, std::string color, Group* group = 0);
-		void drawBubble(Coord p1, std::string text);
-		void erase(const Annotation* annotation);
-		void eraseAll(Group* group = 0);
-		void scheduleErase(simtime_t deltaT, Annotation* annotation);
+    std::list<omnetpp::cMessage*> scheduledEraseEvts;
 
-#if OMNETPP_CANVAS_VERSION == 0x20140709
-#else
-		cModule* createDummyModule(std::string displayString);
-		cModule* createDummyModuleLine(Coord p1, Coord p2, std::string color);
-#endif
+    Annotations annotations;
+    Groups groups;
 
-		void show(const Annotation* annotation);
-		void hide(const Annotation* annotation);
-		void showAll(Group* group = 0);
-		void hideAll(Group* group = 0);
-
-	protected:
-		typedef std::list<Annotation*> Annotations;
-		typedef std::list<Group*> Groups;
-
-		bool debug; /**< whether to emit debug messages */
-		cXMLElement* annotationsXml; /**< annotations to add at startup */
-
-		std::list<cMessage*> scheduledEraseEvts;
-
-		Annotations annotations;
-		Groups groups;
-
-#if OMNETPP_CANVAS_VERSION == 0x20140709
-		cGroupFigure* annotationLayer;
-#endif
-
+    omnetpp::cGroupFigure* annotationLayer;
 };
 
 
 class AnnotationManagerAccess
 {
-    public:
-        AnnotationManager* getIfExists() {
-            return FindModule<AnnotationManager*>::findGlobalModule();
-        };
+public:
+    AnnotationManager* getIfExists() {
+        return FindModule<AnnotationManager*>::findGlobalModule();
+    };
 };
 
 }

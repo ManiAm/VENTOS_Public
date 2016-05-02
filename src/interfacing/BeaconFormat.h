@@ -64,63 +64,63 @@ public:
     iBeacon(std::vector<std::string> str)
     {
         if(str.size() != 9)
-            throw cRuntimeError("Number of arguments in iBeacon should be 9");
+            throw omnetpp::cRuntimeError("Number of arguments in iBeacon should be 9");
 
         std::vector<std::string> tokens;
 
-        tokens = cStringTokenizer(str[0].c_str()).asVector();
+        tokens = omnetpp::cStringTokenizer(str[0].c_str()).asVector();
         if(tokens.size() == 3)
             this->advFlags = str[0];
         else
-            throw cRuntimeError("advFlags should be 3 bytes!");
+            throw omnetpp::cRuntimeError("advFlags should be 3 bytes!");
 
-        tokens = cStringTokenizer(str[1].c_str()).asVector();
+        tokens = omnetpp::cStringTokenizer(str[1].c_str()).asVector();
         if(tokens.size() == 2)
             this->advHeader = str[1];
         else
-            throw cRuntimeError("advHeader should be 2 bytes!");
+            throw omnetpp::cRuntimeError("advHeader should be 2 bytes!");
 
-        tokens = cStringTokenizer(str[2].c_str()).asVector();
+        tokens = omnetpp::cStringTokenizer(str[2].c_str()).asVector();
         if(tokens.size() == 2)
             this->companyId = str[2];
         else
-            throw cRuntimeError("companyId should be 2 bytes!");
+            throw omnetpp::cRuntimeError("companyId should be 2 bytes!");
 
-        tokens = cStringTokenizer(str[3].c_str()).asVector();
+        tokens = omnetpp::cStringTokenizer(str[3].c_str()).asVector();
         if(tokens.size() == 1)
             this->iBeaconType = str[3];
         else
-            throw cRuntimeError("iBeaconType should be 1 byte!");
+            throw omnetpp::cRuntimeError("iBeaconType should be 1 byte!");
 
-        tokens = cStringTokenizer(str[4].c_str()).asVector();
+        tokens = omnetpp::cStringTokenizer(str[4].c_str()).asVector();
         if(tokens.size() == 1)
             this->iBeaconLenght = str[4];
         else
-            throw cRuntimeError("iBeaconLenght should be 1 byte!");
+            throw omnetpp::cRuntimeError("iBeaconLenght should be 1 byte!");
 
-        tokens = cStringTokenizer(str[5].c_str()).asVector();
+        tokens = omnetpp::cStringTokenizer(str[5].c_str()).asVector();
         if(tokens.size() == 16)
             this->UUID = str[5];
         else
-            throw cRuntimeError("UUID should be 16 bytes!");
+            throw omnetpp::cRuntimeError("UUID should be 16 bytes!");
 
-        tokens = cStringTokenizer(str[6].c_str()).asVector();
+        tokens = omnetpp::cStringTokenizer(str[6].c_str()).asVector();
         if(tokens.size() == 2)
             this->majorNumber = str[6];
         else
-            throw cRuntimeError("majorNumber should be 2 bytes!");
+            throw omnetpp::cRuntimeError("majorNumber should be 2 bytes!");
 
-        tokens = cStringTokenizer(str[7].c_str()).asVector();
+        tokens = omnetpp::cStringTokenizer(str[7].c_str()).asVector();
         if(tokens.size() == 2)
             this->minorNumber = str[7];
         else
-            throw cRuntimeError("minorNumber should be 2 bytes!");
+            throw omnetpp::cRuntimeError("minorNumber should be 2 bytes!");
 
-        tokens = cStringTokenizer(str[8].c_str()).asVector();
+        tokens = omnetpp::cStringTokenizer(str[8].c_str()).asVector();
         if(tokens.size() == 1)
             this->TXpower = str[8];
         else
-            throw cRuntimeError("TXpower should be 1 byte!");
+            throw omnetpp::cRuntimeError("TXpower should be 1 byte!");
 
         for(auto i : str)
             this->payload += (i + " ");
@@ -148,51 +148,51 @@ public:
     AltBeacon(std::vector<std::string> str)
     {
         if(str.size() != 7)
-            throw cRuntimeError("Number of arguments in AltBeacon should be 7");
+            throw omnetpp::cRuntimeError("Number of arguments in AltBeacon should be 7");
 
         std::vector<std::string> tokens;
 
-        tokens = cStringTokenizer(str[0].c_str()).asVector();
+        tokens = omnetpp::cStringTokenizer(str[0].c_str()).asVector();
         if(tokens.size() == 1)
             this->adLength = str[0];
         else
-            throw cRuntimeError("adLength should be 1 byte!");
+            throw omnetpp::cRuntimeError("adLength should be 1 byte!");
 
-        tokens = cStringTokenizer(str[1].c_str()).asVector();
+        tokens = omnetpp::cStringTokenizer(str[1].c_str()).asVector();
         if(tokens.size() == 1)
             this->adType = str[1];
         else
-            throw cRuntimeError("adType should be 1 byte!");
+            throw omnetpp::cRuntimeError("adType should be 1 byte!");
 
-        tokens = cStringTokenizer(str[2].c_str()).asVector();
+        tokens = omnetpp::cStringTokenizer(str[2].c_str()).asVector();
         if(tokens.size() == 2)
             this->MFGID = str[2];
         else
-            throw cRuntimeError("MFGID should be 2 bytes!");
+            throw omnetpp::cRuntimeError("MFGID should be 2 bytes!");
 
-        tokens = cStringTokenizer(str[3].c_str()).asVector();
+        tokens = omnetpp::cStringTokenizer(str[3].c_str()).asVector();
         if(tokens.size() == 2)
             this->beaconCode = str[3];
         else
-            throw cRuntimeError("beaconCode should be 2 bytes!");
+            throw omnetpp::cRuntimeError("beaconCode should be 2 bytes!");
 
-        tokens = cStringTokenizer(str[4].c_str()).asVector();
+        tokens = omnetpp::cStringTokenizer(str[4].c_str()).asVector();
         if(tokens.size() == 20)
             this->beaconID = str[4];
         else
-            throw cRuntimeError("beaconID should be 20 bytes!");
+            throw omnetpp::cRuntimeError("beaconID should be 20 bytes!");
 
-        tokens = cStringTokenizer(str[5].c_str()).asVector();
+        tokens = omnetpp::cStringTokenizer(str[5].c_str()).asVector();
         if(tokens.size() == 1)
             this->refRSSI = str[5];
         else
-            throw cRuntimeError("refRSSI should be 1 byte!");
+            throw omnetpp::cRuntimeError("refRSSI should be 1 byte!");
 
-        tokens = cStringTokenizer(str[6].c_str()).asVector();
+        tokens = omnetpp::cStringTokenizer(str[6].c_str()).asVector();
         if(tokens.size() == 1)
             this->MFGRSVD = str[6];
         else
-            throw cRuntimeError("MFGRSVD should be 1 byte!");
+            throw omnetpp::cRuntimeError("MFGRSVD should be 1 byte!");
 
         for(auto i : str)
             this->payload += (i + " ");

@@ -41,7 +41,7 @@
 
 namespace Veins {
 
-Define_Module(PhyLayer80211p);
+Define_Module(Veins::PhyLayer80211p);
 
 /** This is needed to circumvent a bug in MiXiM that allows different header length interpretations for receiving and sending airframes*/
 void PhyLayer80211p::initialize(int stage) {
@@ -53,7 +53,7 @@ void PhyLayer80211p::initialize(int stage) {
     BasePhyLayer::initialize(stage);
     if (stage == 0) {
         if (par("headerLength").longValue() != PHY_HDR_TOTAL_LENGTH) {
-            opp_error("The header length of the 802.11p standard is 46bit, please change your omnetpp.ini accordingly by either setting it to 46bit or removing the entry");
+            throw omnetpp::cRuntimeError("The header length of the 802.11p standard is 46bit, please change your omnetpp.ini accordingly by either setting it to 46bit or removing the entry");
         }
         //erase the RadioStateAnalogueModel
         analogueModels.erase(analogueModels.begin());
@@ -100,15 +100,15 @@ AnalogueModel* PhyLayer80211p::getAnalogueModelFromName(std::string name, Parame
 AnalogueModel* PhyLayer80211p::initializeLogNormalShadowing(ParameterMap& params) {
     double mean = params["mean"].doubleValue();
     double stdDev = params["stdDev"].doubleValue();
-    simtime_t interval = params["interval"].doubleValue();
+    omnetpp::simtime_t interval = params["interval"].doubleValue();
 
     return new LogNormalShadowing(mean, stdDev, interval);
 }
 
 AnalogueModel* PhyLayer80211p::initializeJakesFading(ParameterMap& params) {
     int fadingPaths = params["fadingPaths"].longValue();
-    simtime_t delayRMS = params["delayRMS"].doubleValue();
-    simtime_t interval = params["interval"].doubleValue();
+    omnetpp::simtime_t delayRMS = params["delayRMS"].doubleValue();
+    omnetpp::simtime_t interval = params["interval"].doubleValue();
 
     double carrierFrequency = 5.890e+9;
     if (params.count("carrierFrequency") > 0) {
@@ -136,12 +136,12 @@ AnalogueModel* PhyLayer80211p::initializeBreakpointPathlossModel(ParameterMap& p
     {
         // set alpha1
         alpha1 = it->second.doubleValue();
-        coreEV << "createPathLossModel(): alpha1 set from config.xml to " << alpha1 << endl;
+        coreEV << "createPathLossModel(): alpha1 set from config.xml to " << alpha1 << std::endl;
         // check whether alpha is not smaller than specified in ConnectionManager
         if(cc->hasPar("alpha") && alpha1 < cc->par("alpha").doubleValue())
         {
             // throw error
-            opp_error("TestPhyLayer::createPathLossModel(): alpha can't be smaller than specified in \
+            throw omnetpp::cRuntimeError("TestPhyLayer::createPathLossModel(): alpha can't be smaller than specified in \
 	               ConnectionManager. Please adjust your config.xml file accordingly");
         }
     }
@@ -159,12 +159,12 @@ AnalogueModel* PhyLayer80211p::initializeBreakpointPathlossModel(ParameterMap& p
     {
         // set alpha2
         alpha2 = it->second.doubleValue();
-        coreEV << "createPathLossModel(): alpha2 set from config.xml to " << alpha2 << endl;
+        coreEV << "createPathLossModel(): alpha2 set from config.xml to " << alpha2 << std::endl;
         // check whether alpha is not smaller than specified in ConnectionManager
         if(cc->hasPar("alpha") && alpha2 < cc->par("alpha").doubleValue())
         {
             // throw error
-            opp_error("TestPhyLayer::createPathLossModel(): alpha can't be smaller than specified in \
+            throw omnetpp::cRuntimeError("TestPhyLayer::createPathLossModel(): alpha can't be smaller than specified in \
 	               ConnectionManager. Please adjust your config.xml file accordingly");
         }
     }
@@ -172,7 +172,7 @@ AnalogueModel* PhyLayer80211p::initializeBreakpointPathlossModel(ParameterMap& p
     if ( it != params.end() ) // parameter alpha1 has been specified in config.xml
     {
         breakpointDistance = it->second.doubleValue();
-        coreEV << "createPathLossModel(): breakpointDistance set from config.xml to " << alpha2 << endl;
+        coreEV << "createPathLossModel(): breakpointDistance set from config.xml to " << alpha2 << std::endl;
         // check whether alpha is not smaller than specified in ConnectionManager
     }
 
@@ -183,13 +183,13 @@ AnalogueModel* PhyLayer80211p::initializeBreakpointPathlossModel(ParameterMap& p
     {
         // set carrierFrequency
         carrierFrequency = it->second.doubleValue();
-        coreEV << "createPathLossModel(): carrierFrequency set from config.xml to " << carrierFrequency << endl;
+        coreEV << "createPathLossModel(): carrierFrequency set from config.xml to " << carrierFrequency << std::endl;
 
         // check whether carrierFrequency is not smaller than specified in ConnectionManager
         if(cc->hasPar("carrierFrequency") && carrierFrequency < cc->par("carrierFrequency").doubleValue())
         {
             // throw error
-            opp_error("TestPhyLayer::createPathLossModel(): carrierFrequency can't be smaller than specified in \
+            throw omnetpp::cRuntimeError("TestPhyLayer::createPathLossModel(): carrierFrequency can't be smaller than specified in \
 	               ConnectionManager. Please adjust your config.xml file accordingly");
         }
     }
@@ -199,17 +199,17 @@ AnalogueModel* PhyLayer80211p::initializeBreakpointPathlossModel(ParameterMap& p
         {
             // set carrierFrequency according to ConnectionManager
             carrierFrequency = cc->par("carrierFrequency").doubleValue();
-            coreEV << "createPathLossModel(): carrierFrequency set from ConnectionManager to " << carrierFrequency << endl;
+            coreEV << "createPathLossModel(): carrierFrequency set from ConnectionManager to " << carrierFrequency << std::endl;
         }
         else // carrierFrequency has not been specified in ConnectionManager
         {
             // keep carrierFrequency at default value
-            coreEV << "createPathLossModel(): carrierFrequency set from default value to " << carrierFrequency << endl;
+            coreEV << "createPathLossModel(): carrierFrequency set from default value to " << carrierFrequency << std::endl;
         }
     }
 
     if(alpha1 ==-1 || alpha2==-1 || breakpointDistance==-1 || L01==-1 || L02==-1) {
-        opp_error("Undefined parameters for breakpointPathlossModel. Please check your configuration.");
+        throw omnetpp::cRuntimeError("Undefined parameters for breakpointPathlossModel. Please check your configuration.");
     }
 
     return new BreakpointPathlossModel(L01, L02, alpha1, alpha2, breakpointDistance, carrierFrequency, useTorus, playgroundSize, coreDebug);
@@ -247,13 +247,13 @@ AnalogueModel* PhyLayer80211p::initializeSimplePathlossModel(ParameterMap& param
     {
         // set alpha
         alpha = it->second.doubleValue();
-        coreEV << "createPathLossModel(): alpha set from config.xml to " << alpha << endl;
+        coreEV << "createPathLossModel(): alpha set from config.xml to " << alpha << std::endl;
 
         // check whether alpha is not smaller than specified in ConnectionManager
         if(cc->hasPar("alpha") && alpha < cc->par("alpha").doubleValue())
         {
             // throw error
-            opp_error("TestPhyLayer::createPathLossModel(): alpha can't be smaller than specified in \
+            throw omnetpp::cRuntimeError("TestPhyLayer::createPathLossModel(): alpha can't be smaller than specified in \
 	               ConnectionManager. Please adjust your config.xml file accordingly");
         }
     }
@@ -263,12 +263,12 @@ AnalogueModel* PhyLayer80211p::initializeSimplePathlossModel(ParameterMap& param
         {
             // set alpha according to ConnectionManager
             alpha = cc->par("alpha").doubleValue();
-            coreEV << "createPathLossModel(): alpha set from ConnectionManager to " << alpha << endl;
+            coreEV << "createPathLossModel(): alpha set from ConnectionManager to " << alpha << std::endl;
         }
         else // alpha has not been specified in ConnectionManager
         {
             // keep alpha at default value
-            coreEV << "createPathLossModel(): alpha set from default value to " << alpha << endl;
+            coreEV << "createPathLossModel(): alpha set from default value to " << alpha << std::endl;
         }
     }
 
@@ -279,13 +279,13 @@ AnalogueModel* PhyLayer80211p::initializeSimplePathlossModel(ParameterMap& param
     {
         // set carrierFrequency
         carrierFrequency = it->second.doubleValue();
-        coreEV << "createPathLossModel(): carrierFrequency set from config.xml to " << carrierFrequency << endl;
+        coreEV << "createPathLossModel(): carrierFrequency set from config.xml to " << carrierFrequency << std::endl;
 
         // check whether carrierFrequency is not smaller than specified in ConnectionManager
         if(cc->hasPar("carrierFrequency") && carrierFrequency < cc->par("carrierFrequency").doubleValue())
         {
             // throw error
-            opp_error("TestPhyLayer::createPathLossModel(): carrierFrequency can't be smaller than specified in \
+            throw omnetpp::cRuntimeError("TestPhyLayer::createPathLossModel(): carrierFrequency can't be smaller than specified in \
 	               ConnectionManager. Please adjust your config.xml file accordingly");
         }
     }
@@ -295,12 +295,12 @@ AnalogueModel* PhyLayer80211p::initializeSimplePathlossModel(ParameterMap& param
         {
             // set carrierFrequency according to ConnectionManager
             carrierFrequency = cc->par("carrierFrequency").doubleValue();
-            coreEV << "createPathLossModel(): carrierFrequency set from ConnectionManager to " << carrierFrequency << endl;
+            coreEV << "createPathLossModel(): carrierFrequency set from ConnectionManager to " << carrierFrequency << std::endl;
         }
         else // carrierFrequency has not been specified in ConnectionManager
         {
             // keep carrierFrequency at default value
-            coreEV << "createPathLossModel(): carrierFrequency set from default value to " << carrierFrequency << endl;
+            coreEV << "createPathLossModel(): carrierFrequency set from default value to " << carrierFrequency << std::endl;
         }
     }
 
@@ -337,13 +337,13 @@ AnalogueModel* PhyLayer80211p::initializeSimpleObstacleShadowing(ParameterMap& p
     {
         // set carrierFrequency
         carrierFrequency = it->second.doubleValue();
-        coreEV << "initializeSimpleObstacleShadowing(): carrierFrequency set from config.xml to " << carrierFrequency << endl;
+        coreEV << "initializeSimpleObstacleShadowing(): carrierFrequency set from config.xml to " << carrierFrequency << std::endl;
 
         // check whether carrierFrequency is not smaller than specified in ConnectionManager
         if(cc->hasPar("carrierFrequency") && carrierFrequency < cc->par("carrierFrequency").doubleValue())
         {
             // throw error
-            opp_error("initializeSimpleObstacleShadowing(): carrierFrequency can't be smaller than specified in ConnectionManager. Please adjust your config.xml file accordingly");
+            throw omnetpp::cRuntimeError("initializeSimpleObstacleShadowing(): carrierFrequency can't be smaller than specified in ConnectionManager. Please adjust your config.xml file accordingly");
         }
     }
     else // carrierFrequency has not been specified in config.xml
@@ -352,17 +352,18 @@ AnalogueModel* PhyLayer80211p::initializeSimpleObstacleShadowing(ParameterMap& p
         {
             // set carrierFrequency according to ConnectionManager
             carrierFrequency = cc->par("carrierFrequency").doubleValue();
-            coreEV << "createPathLossModel(): carrierFrequency set from ConnectionManager to " << carrierFrequency << endl;
+            coreEV << "createPathLossModel(): carrierFrequency set from ConnectionManager to " << carrierFrequency << std::endl;
         }
         else // carrierFrequency has not been specified in ConnectionManager
         {
             // keep carrierFrequency at default value
-            coreEV << "createPathLossModel(): carrierFrequency set from default value to " << carrierFrequency << endl;
+            coreEV << "createPathLossModel(): carrierFrequency set from default value to " << carrierFrequency << std::endl;
         }
     }
 
     ObstacleControl* obstacleControlP = ObstacleControlAccess().getIfExists();
-    if (!obstacleControlP) opp_error("initializeSimpleObstacleShadowing(): cannot find ObstacleControl module");
+    if (!obstacleControlP)
+        throw omnetpp::cRuntimeError("initializeSimpleObstacleShadowing(): cannot find ObstacleControl module");
 
     return new SimpleObstacleShadowing(*obstacleControlP, carrierFrequency, useTorus, playgroundSize, coreDebug);
 }
@@ -379,17 +380,17 @@ void PhyLayer80211p::changeListeningFrequency(double freq) {
     assert(dec);
     dec->changeFrequency(freq);
 }
-void PhyLayer80211p::handleSelfMessage(cMessage* msg) {
+void PhyLayer80211p::handleSelfMessage(omnetpp::cMessage* msg) {
 
     switch(msg->getKind()) {
     //transmission overBasePhyLayer::
     case TX_OVER: {
         assert(msg == txOverTimer);
-        sendControlMsgToMac(new cMessage("Transmission over", TX_OVER));
+        sendControlMsgToMac(new omnetpp::cMessage("Transmission over", TX_OVER));
         //check if there is another packet on the chan, and change the chan-state to idle
         Decider80211p* dec = dynamic_cast<Decider80211p*>(decider);
         assert(dec);
-        if (dec->cca(simTime(),NULL)) {
+        if (dec->cca(omnetpp::simTime(),NULL)) {
             //chan is idle
             DBG << "Channel idle after transmit!\n";
             dec->setChannelIdleStatus(true);
@@ -420,7 +421,7 @@ void PhyLayer80211p::handleSelfMessage(cMessage* msg) {
         break;
     }
 }
-AirFrame *PhyLayer80211p::encapsMsg(cPacket *macPkt)
+AirFrame *PhyLayer80211p::encapsMsg(omnetpp::cPacket *macPkt)
 {
     // the cMessage passed must be a MacPacket... but no cast needed here
     // MacPkt* pkt = static_cast<MacPkt*>(msg);
@@ -474,7 +475,7 @@ int PhyLayer80211p::getRadioState() {
     return BasePhyLayer::getRadioState();
 };
 
-simtime_t PhyLayer80211p::setRadioState(int rs) {
+omnetpp::simtime_t PhyLayer80211p::setRadioState(int rs) {
     if (rs == Radio::TX)
         decider->switchToTx();
     return BasePhyLayer::setRadioState(rs);

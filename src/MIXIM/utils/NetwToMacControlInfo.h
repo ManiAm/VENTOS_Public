@@ -39,7 +39,7 @@
  * @ingroup netwLayer
  * @author Daniel Willkomm
  **/
-class MIXIM_API NetwToMacControlInfo : public cObject
+class MIXIM_API NetwToMacControlInfo : public omnetpp::cObject
 {
   protected:
     /** @brief MAC address of the sending or receiving node*/
@@ -47,9 +47,7 @@ class MIXIM_API NetwToMacControlInfo : public cObject
 
   public:
     /** @brief Default constructor*/
-    NetwToMacControlInfo(const LAddress::L2Type& addr = LAddress::L2NULL())
-      : cObject()
-      , nextHopMac(addr)
+    NetwToMacControlInfo(const LAddress::L2Type& addr = LAddress::L2NULL()) : omnetpp::cObject() , nextHopMac(addr)
     {
     };
 
@@ -85,7 +83,7 @@ class MIXIM_API NetwToMacControlInfo : public cObject
      * @param pMsg		The message where the "control info" shall be attached.
      * @param pDestAddr	The MAC address of the message receiver.
      */
-    static cObject *const setControlInfo(cMessage *const pMsg, const LAddress::L2Type& pDestAddr);
+    static omnetpp::cObject *const setControlInfo(omnetpp::cMessage *const pMsg, const LAddress::L2Type& pDestAddr);
     /**
      * @brief Extracts the MAC address from the "control info" structure (object).
      *
@@ -94,7 +92,7 @@ class MIXIM_API NetwToMacControlInfo : public cObject
      * @param pCtrlInfo	The "control info" structure (object) prev. set by NetwToMacControlInfo::setControlInfo().
      * @return The MAC address of message receiver.
      */
-    static const LAddress::L2Type& getDestFromControlInfo(const cObject *const pCtrlInfo);
+    static const LAddress::L2Type& getDestFromControlInfo(const omnetpp::cObject *const pCtrlInfo);
 };
 
 

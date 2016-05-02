@@ -41,7 +41,7 @@ public:
     virtual void finish();
 
 protected:
-    virtual void handleSelfMsg(cMessage*);
+    virtual void handleSelfMsg(omnetpp::cMessage*);
     virtual void handlePositionUpdate(cObject*);
 
     virtual void onBeaconVehicle(BeaconVehicle*);

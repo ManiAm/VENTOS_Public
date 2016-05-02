@@ -55,7 +55,7 @@ void TrafficLightAllowedMoves::finish()
 }
 
 
-void TrafficLightAllowedMoves::handleMessage(cMessage *msg)
+void TrafficLightAllowedMoves::handleMessage(omnetpp::cMessage *msg)
 {
     super::handleMessage(msg);
 }
@@ -111,7 +111,7 @@ void TrafficLightAllowedMoves::getMovements(std::string TLid)
         }
 
         fclose(filePtr);
-        std::cout << "Done!" << endl << endl;
+        std::cout << "Done!" << std::endl << std::endl;
     }
     else
         generateAllAllowedMovements();
@@ -119,7 +119,7 @@ void TrafficLightAllowedMoves::getMovements(std::string TLid)
     if(allMovements.empty())
         error("allMovements vector is empty!");
 
-    if(ev.isGUI() && debugLevel > 2)
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 2)
         allMovementBatch(14);
 }
 
@@ -410,7 +410,7 @@ void TrafficLightAllowedMoves::generateAllAllowedMovements()
         }
     }
 
-    std::cout << allMovements.size() << " movements found!" << endl;
+    std::cout << allMovements.size() << " movements found!" << std::endl;
 
     // write allMovements to file
     std::cout << "Writing to file ... " << std::flush;
@@ -424,7 +424,7 @@ void TrafficLightAllowedMoves::generateAllAllowedMovements()
     }
 
     fclose(filePtr);
-    std::cout << "Done!" << endl << endl;
+    std::cout << "Done!" << std::endl << std::endl;
 }
 
 

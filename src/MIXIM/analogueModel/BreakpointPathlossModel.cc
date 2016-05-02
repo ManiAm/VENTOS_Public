@@ -2,16 +2,19 @@
 #include "BreakpointPathlossModel.h"
 #include "AirFrame_m.h"
 
-#define debugEV (ev.isDisabled()||!debug) ? ev : ev << "PhyLayer(BreakpointPathlossModel): "
+#define debugEV EV << "PhyLayer(BreakpointPathlossModel): "
 
-void BreakpointPathlossModel::filterSignal(AirFrame *frame, const Coord& sendersPos, const Coord& receiverPos) {
+void BreakpointPathlossModel::filterSignal(AirFrame *frame, const Coord& sendersPos, const Coord& receiverPos)
+{
+    EV_STATICCONTEXT
+
 	Signal& signal = frame->getSignal();
 
 	/** Calculate the distance factor */
 	double distance = useTorus ? receiverPos.sqrTorusDist(sendersPos, playgroundSize)
 								  : receiverPos.sqrdist(sendersPos);
 	distance = sqrt(distance);
-	debugEV << "distance is: " << distance << endl;
+	debugEV << "distance is: " << distance << std::endl;
 
 	if(distance <= 1.0) {
 		//attenuation is negligible
@@ -32,7 +35,7 @@ void BreakpointPathlossModel::filterSignal(AirFrame *frame, const Coord& senders
 		attenuation = attenuation * pow(distance/breakpointDistance, alpha2);
 	}
 	attenuation = 1/attenuation;
-	debugEV << "attenuation is: " << attenuation << endl;
+	debugEV << "attenuation is: " << attenuation << std::endl;
 
 	if(debug) {
 	  pathlosses.record(10*log10(attenuation)); // in dB

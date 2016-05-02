@@ -71,7 +71,7 @@ public:
     virtual ~Bluetooth();
     virtual void finish();
     virtual void initialize(int);
-    virtual void handleMessage(cMessage *);
+    virtual void handleMessage(omnetpp::cMessage *);
 
 protected:
     void initialize_withTraCI();

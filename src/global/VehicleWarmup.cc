@@ -43,23 +43,23 @@ void Warmup::initialize(int stage)
     if(stage ==0)
     {
         // get a pointer to the TraCI module
-        cModule *module = simulation.getSystemModule()->getSubmodule("TraCI");
+        cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
         ASSERT(module);
         TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
 
         // get a pointer to the VehicleSpeedProfile module
-        module = simulation.getSystemModule()->getSubmodule("speedprofile");
+        module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("speedprofile");
         ASSERT(module);
         SpeedProfilePtr = static_cast<SpeedProfile *>(module);
 
         // get totoal vehicles from addMobileNode module
-        module = simulation.getSystemModule()->getSubmodule("addMobileNode");
+        module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("addMobileNode");
         ASSERT(module);
         numVehicles = module->par("numVehicles").longValue();
 
         Signal_executeEachTS = registerSignal("executeEachTS");
-        simulation.getSystemModule()->subscribe("executeEachTS", this);
+        omnetpp::getSimulation()->getSystemModule()->subscribe("executeEachTS", this);
 
         on = par("on").boolValue();
         laneId = par("laneId").stringValue();
@@ -71,7 +71,7 @@ void Warmup::initialize(int stage)
         IsWarmUpFinished = false;
 
         if(on)
-            finishingWarmup = new cMessage("finishingWarmup", 1);
+            finishingWarmup = new omnetpp::cMessage("finishingWarmup", 1);
     }
 }
 
@@ -79,21 +79,21 @@ void Warmup::initialize(int stage)
 void Warmup::finish()
 {
     // unsubscribe
-    simulation.getSystemModule()->unsubscribe("executeEachTS", this);
+    omnetpp::getSimulation()->getSystemModule()->unsubscribe("executeEachTS", this);
 }
 
 
-void Warmup::handleMessage(cMessage *msg)
+void Warmup::handleMessage(omnetpp::cMessage *msg)
 {
     if (msg == finishingWarmup)
     {
         IsWarmUpFinished = true;
-        std::cout << "t=" << simTime().dbl() << ": Warm-up phase finished." << endl;
+        std::cout << "t=" << omnetpp::simTime().dbl() << ": Warm-up phase finished." << std::endl;
     }
 }
 
 
-void Warmup::receiveSignal(cComponent *source, simsignal_t signalID, long i)
+void Warmup::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t signalID, long i, cObject* details)
 {
     Enter_Method_Silent();
 
@@ -130,9 +130,9 @@ bool Warmup::DoWarmup()
     // store the current simulation time as startTime
     if(startTime == -1)
     {
-        startTime = simTime().dbl();
+        startTime = omnetpp::simTime().dbl();
         std::cout << std::endl;
-        std::cout << "t=" << simTime().dbl() << ": Warm-up phase is started ..." << endl;
+        std::cout << "t=" << omnetpp::simTime().dbl() << ": Warm-up phase is started ..." << std::endl;
     }
 
     // get the first leading vehicle
@@ -152,8 +152,8 @@ bool Warmup::DoWarmup()
         // if all vehicles are in the simulation, then wait for waitingTime before finishing warm-up
         if(n == numVehicles)
         {
-            scheduleAt(simTime() + waitingTime, finishingWarmup);
-            std::cout << "t=" << simTime().dbl() << ": Waiting for " << waitingTime << "s before finishing warm-up ..." << endl;
+            scheduleAt(omnetpp::simTime() + waitingTime, finishingWarmup);
+            std::cout << "t=" << omnetpp::simTime().dbl() << ": Waiting for " << waitingTime << "s before finishing warm-up ..." << std::endl;
         }
     }
 

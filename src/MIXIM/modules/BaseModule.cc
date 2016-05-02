@@ -49,15 +49,18 @@ void BaseModule::initialize(int stage) {
     }
 }
 
-void BaseModule::receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj) {
+void BaseModule::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t signalID, omnetpp::cObject *obj, cObject* details) {
 	Enter_Method_Silent();
-	if (signalID == catHostStateSignal) {
+	if (signalID == catHostStateSignal)
+	{
 		const HostState *const pHostState = dynamic_cast<const HostState *const>(obj);
-		if (pHostState) {
+		if (pHostState)
+		{
 			handleHostState(*pHostState);
 		}
-		else {
-			opp_warning("Got catHostStateSignal but obj was not a HostState pointer?");
+		else
+		{
+		    throw omnetpp::cRuntimeError("Got catHostStateSignal but obj was not a HostState pointer?");
 		}
 	}
 }
@@ -82,12 +85,12 @@ void BaseModule::switchHostState(HostState::States state)
 	emit(catHostStateSignal, &hostState);
 }
 
-cModule *const BaseModule::findHost(void)
+omnetpp::cModule *const BaseModule::findHost(void)
 {
 	return FindModule<>::findHost(this);
 }
 
-const cModule *const BaseModule::findHost(void) const
+const omnetpp::cModule *const BaseModule::findHost(void) const
 {
 	return FindModule<>::findHost(this);
 }

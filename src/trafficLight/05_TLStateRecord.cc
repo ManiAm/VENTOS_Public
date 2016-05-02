@@ -78,7 +78,7 @@ void TLStateRecord::finish()
 }
 
 
-void TLStateRecord::handleMessage(cMessage *msg)
+void TLStateRecord::handleMessage(omnetpp::cMessage *msg)
 {
     super::handleMessage(msg);
 }
@@ -106,7 +106,7 @@ void TLStateRecord::updateTLstate(std::string TLid, std::string stage, std::stri
         phaseTL[TLid] = 1;
 
         // Initialize status in this TL
-        currentStatusTL *entry = new currentStatusTL(1 /*cycle number*/, currentInterval, -1, simTime().dbl(), -1, -1, -1, laneListTL[TLid].first, -1);
+        currentStatusTL *entry = new currentStatusTL(1 /*cycle number*/, currentInterval, -1, omnetpp::simTime().dbl(), -1, -1, -1, laneListTL[TLid].first, -1);
         statusTL.insert( std::make_pair(std::make_pair(TLid,1), *entry) );
     }
     else
@@ -118,7 +118,7 @@ void TLStateRecord::updateTLstate(std::string TLid, std::string stage, std::stri
 
         if(stage == "yellow")
         {
-            (location->second).yellowStart = simTime().dbl();
+            (location->second).yellowStart = omnetpp::simTime().dbl();
             (location->second).greenLength = (location->second).yellowStart - (location->second).greenStart;
 
             // get green duration
@@ -134,7 +134,7 @@ void TLStateRecord::updateTLstate(std::string TLid, std::string stage, std::stri
         }
         else if(stage == "red")
         {
-            (location->second).redStart = simTime().dbl();
+            (location->second).redStart = omnetpp::simTime().dbl();
 
             // get yellow duration
             double yellow_duration = (location->second).redStart - (location->second).yellowStart;
@@ -146,7 +146,7 @@ void TLStateRecord::updateTLstate(std::string TLid, std::string stage, std::stri
         else if(stage == "phaseEnd")
         {
             // update TL status for this phase
-            (location->second).phaseEnd = simTime().dbl();
+            (location->second).phaseEnd = omnetpp::simTime().dbl();
 
             // get red duration
             double red_duration = (location->second).phaseEnd - (location->second).redStart;
@@ -187,7 +187,7 @@ void TLStateRecord::updateTLstate(std::string TLid, std::string stage, std::stri
             location2->second = location2->second + 1;
 
             // update status for the new phase
-            currentStatusTL *entry = new currentStatusTL(cycleNumber, currentInterval, -1, simTime().dbl(), -1, -1, -1, lan.size(), -1);
+            currentStatusTL *entry = new currentStatusTL(cycleNumber, currentInterval, -1, omnetpp::simTime().dbl(), -1, -1, -1, lan.size(), -1);
             statusTL.insert( std::make_pair(std::make_pair(TLid,location2->second), *entry) );
         }
         else error("stage is not recognized!");
@@ -202,14 +202,14 @@ void TLStateRecord::saveTLPhasingData()
 
     boost::filesystem::path filePath;
 
-    if(ev.isGUI())
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI())
     {
         filePath = "results/gui/TLphasingData.txt";
     }
     else
     {
         // get the current run number
-        int currentRun = ev.getConfigEx()->getActiveRunNumber();
+        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
         std::ostringstream fileName;
         fileName << std::setfill('0') << std::setw(3) << currentRun << "_TLphasingData.txt";
         filePath = "results/cmd/" + fileName.str();
@@ -218,19 +218,19 @@ void TLStateRecord::saveTLPhasingData()
     FILE *filePtr = fopen (filePath.string().c_str(), "w");
 
     // write simulation parameters at the beginning of the file in CMD mode
-    if(!ev.isGUI())
+    if(!omnetpp::cSimulation::getActiveEnvir()->isGUI())
     {
         // get the current config name
-        std::string configName = ev.getConfigEx()->getVariable("configname");
+        std::string configName = omnetpp::getEnvir()->getConfigEx()->getVariable("configname");
 
         // get number of total runs in this config
-        int totalRun = ev.getConfigEx()->getNumRunsInConfig(configName.c_str());
+        int totalRun = omnetpp::getEnvir()->getConfigEx()->getNumRunsInConfig(configName.c_str());
 
         // get the current run number
-        int currentRun = ev.getConfigEx()->getActiveRunNumber();
+        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
 
         // get all iteration variables
-        std::vector<std::string> iterVar = ev.getConfigEx()->unrollConfig(configName.c_str(), false);
+        std::vector<std::string> iterVar = omnetpp::getEnvir()->getConfigEx()->unrollConfig(configName.c_str(), false);
 
         // write to file
         fprintf (filePtr, "configName      %s\n", configName.c_str());

@@ -39,8 +39,8 @@ class ApplRSUCRL : public ApplRSUAID
     virtual ~ApplRSUCRL();
     virtual void initialize(int);
     virtual void finish();
-    virtual void receiveSignal(cComponent *, simsignal_t, cObject *);
-	virtual void handleSelfMsg(cMessage *);
+    virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, cObject *, cObject* details);
+	virtual void handleSelfMsg(omnetpp::cMessage *);
 
   protected:
     void virtual executeEachTimeStep();
@@ -58,7 +58,7 @@ class ApplRSUCRL : public ApplRSUAID
     void broadcastCRL_Mask();
     void broadcastCRL_Maskv2();
 
-    void recieveBeacon(cMessage *);
+    void recieveBeacon(omnetpp::cMessage *);
     void sendBeacon();
     int Maximum();
     int IsExist(int);
@@ -74,11 +74,11 @@ class ApplRSUCRL : public ApplRSUAID
     double bitrate;
 
     // variables
-	cMessage *Timer1;   // beacon
-	cMessage *Timer2;   // CRL_Interval
-	cMessage *Timer3;
+    omnetpp::cMessage *Timer1 = NULL;   // beacon
+    omnetpp::cMessage *Timer2 = NULL;   // CRL_Interval
+    omnetpp::cMessage *Timer3 = NULL;
 
-    simsignal_t Signal_CRL_pieces;
+    omnetpp::simsignal_t Signal_CRL_pieces;
 
 	int totalPieces = -1;
     unsigned int forCounter = 0;  // save forCounter between calls

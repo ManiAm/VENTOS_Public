@@ -66,9 +66,9 @@ void ApplBikeBeacon::initialize(int stage)
         offSet = offSet + floor(offSet/0.050)*0.050;
         individualOffset = dblrand() * maxOffset;
 
-        BicycleBeaconEvt = new cMessage("BeaconEvt", KIND_TIMER);
+        BicycleBeaconEvt = new omnetpp::cMessage("BeaconEvt", KIND_TIMER);
         if (VANETenabled)
-            scheduleAt(simTime() + offSet, BicycleBeaconEvt);
+            scheduleAt(omnetpp::simTime() + offSet, BicycleBeaconEvt);
     }
 }
 
@@ -88,7 +88,7 @@ void ApplBikeBeacon::finish()
 }
 
 
-void ApplBikeBeacon::handleSelfMsg(cMessage* msg)
+void ApplBikeBeacon::handleSelfMsg(omnetpp::cMessage* msg)
 {
     super::handleSelfMsg(msg);
 
@@ -103,8 +103,8 @@ void ApplBikeBeacon::handleSelfMsg(cMessage* msg)
             // receive a copy of the beacon (for now, only RSUs are registered)
             if(signalBeaconing)
             {
-                simsignal_t Signal_beaconSignaling = registerSignal("beaconSignaling");
-                nodePtr->emit(Signal_beaconSignaling, beaconMsg);
+                omnetpp::simsignal_t Signal_beaconSignaling = registerSignal("beaconSignaling");
+                this->getParentModule()->emit(Signal_beaconSignaling, beaconMsg);
             }
             // broadcast the beacon wirelessly using IEEE 802.11p
             else
@@ -112,7 +112,7 @@ void ApplBikeBeacon::handleSelfMsg(cMessage* msg)
         }
 
         // schedule for next beacon broadcast
-        scheduleAt(simTime() + beaconInterval, BicycleBeaconEvt);
+        scheduleAt(omnetpp::simTime() + beaconInterval, BicycleBeaconEvt);
     }
 }
 

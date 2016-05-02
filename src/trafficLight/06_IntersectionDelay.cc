@@ -74,7 +74,7 @@ void IntersectionDelay::finish()
 }
 
 
-void IntersectionDelay::handleMessage(cMessage *msg)
+void IntersectionDelay::handleMessage(omnetpp::cMessage *msg)
 {
     super::handleMessage(msg);
 }
@@ -194,9 +194,9 @@ void IntersectionDelay::vehiclesDelayEach(std::string vID)
             if(offset == 0 && continuingDrive == 1 && laneID == currentLane)
             {
                 loc->second.lastLane = laneID;
-                loc->second.intersectionEntrance = simTime().dbl();
+                loc->second.intersectionEntrance = omnetpp::simTime().dbl();
 
-                if(ev.isGUI() && debugLevel > 2)
+                if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 2)
                 {
                     printf("*** %-10s is approaching TL %s on lane %s \n", vID.c_str(), loc->second.TLid.c_str(), laneID.c_str());
                     std::cout.flush();
@@ -221,9 +221,9 @@ void IntersectionDelay::vehiclesDelayEach(std::string vID)
         if(allIncomingLanes.find(currentLane) == allIncomingLanes.end())
         {
             loc->second.crossedIntersection = true;
-            loc->second.crossedTime = simTime().dbl();
+            loc->second.crossedTime = omnetpp::simTime().dbl();
 
-            if(ev.isGUI() && debugLevel > 2)
+            if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 2)
             {
                 printf("*** %-10s crossed TL %s on lane %s \n", vID.c_str(), loc->second.TLid.c_str(), loc->second.lastLane.c_str());
                 std::cout.flush();
@@ -235,10 +235,10 @@ void IntersectionDelay::vehiclesDelayEach(std::string vID)
     if(loc->second.startDeccel == -1 && !loc->second.crossedIntersection)
     {
         double speed = TraCI->vehicleGetSpeed(vID);
-        loc->second.lastSpeeds.push_back( std::make_pair(simTime().dbl(), speed) );
+        loc->second.lastSpeeds.push_back( std::make_pair(omnetpp::simTime().dbl(), speed) );
 
         double accel = TraCI->vehicleGetCurrentAccel(vID);
-        loc->second.lastAccels.push_back( std::make_pair(simTime().dbl(), accel) );
+        loc->second.lastAccels.push_back( std::make_pair(omnetpp::simTime().dbl(), accel) );
 
         char signal = TraCI->vehicleGetTLLinkStatus(vID);
         loc->second.lastSignals.push_back(signal);
@@ -270,7 +270,7 @@ void IntersectionDelay::vehiclesDelayEach(std::string vID)
 
                 loc->second.lastSignals.clear();
 
-                if(ev.isGUI() && debugLevel > 2)
+                if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 2)
                 {
                     printf("*** %-10s is decelerating on lane %s \n", vID.c_str(), loc->second.lastLane.c_str());
                     std::cout.flush();
@@ -295,7 +295,7 @@ void IntersectionDelay::vehiclesDelayEach(std::string vID)
     if(loc->second.startDeccel != -1 && loc->second.startStopping == -1 && !loc->second.crossedIntersection)
     {
         double speed = TraCI->vehicleGetSpeed(vID);
-        loc->second.lastSpeeds.push_back( std::make_pair(simTime().dbl(), speed) );
+        loc->second.lastSpeeds.push_back( std::make_pair(omnetpp::simTime().dbl(), speed) );
 
         if(loc->second.lastSpeeds.full())
         {
@@ -314,7 +314,7 @@ void IntersectionDelay::vehiclesDelayEach(std::string vID)
                 loc->second.startStopping = loc->second.lastSpeeds[0].first;
                 loc->second.lastSpeeds.clear();
 
-                if(ev.isGUI() && debugLevel > 2)
+                if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 2)
                 {
                     printf("*** %-10s is stopping on lane %s. \n", vID.c_str(), loc->second.lastLane.c_str());
                     std::cout.flush();
@@ -327,7 +327,7 @@ void IntersectionDelay::vehiclesDelayEach(std::string vID)
     if(loc->second.startDeccel != -1 && loc->second.startAccel == -1 && loc->second.crossedIntersection)
     {
         double speed = TraCI->vehicleGetSpeed(vID);
-        loc->second.lastSpeeds2.push_back( std::make_pair(simTime().dbl(), speed) );
+        loc->second.lastSpeeds2.push_back( std::make_pair(omnetpp::simTime().dbl(), speed) );
 
         if(loc->second.lastSpeeds2.full())
         {
@@ -339,7 +339,7 @@ void IntersectionDelay::vehiclesDelayEach(std::string vID)
             loc->second.startAccel = loc->second.lastSpeeds2[0].first;
             loc->second.lastSpeeds2.clear();
 
-            if(ev.isGUI() && debugLevel > 2)
+            if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 2)
             {
                 printf("*** %-10s is accelerating on lane %s. \n", vID.c_str(), loc->second.lastLane.c_str());
                 std::cout.flush();
@@ -352,7 +352,7 @@ void IntersectionDelay::vehiclesDelayEach(std::string vID)
     if(loc->second.startDeccel != -1 && loc->second.startAccel != -1 && loc->second.endDelay == -1 && loc->second.crossedIntersection)
     {
         if(TraCI->vehicleGetSpeed(vID) >= loc->second.oldSpeed)
-            loc->second.endDelay = simTime().dbl();
+            loc->second.endDelay = omnetpp::simTime().dbl();
         else return;
     }
 }
@@ -363,12 +363,12 @@ void IntersectionDelay::vehiclesAccuDelay(std::string vID, std::map<std::string,
     // as long as the vehicle does not cross the intersection
     if(!loc->second.crossedIntersection)
     {
-        loc->second.accumDelay = simTime().dbl() - loc->second.startDeccel;
+        loc->second.accumDelay = omnetpp::simTime().dbl() - loc->second.startDeccel;
 
         if(loc->second.accumDelay < 0)
             error("accumulated delay can not be negative for vehicle %s", vID.c_str());
 
-        if(loc->second.accumDelay > simTime().dbl())
+        if(loc->second.accumDelay > omnetpp::simTime().dbl())
             error("accumulated delay can not be greater than the current simTime for vehicle %s", vID.c_str());
 
         // update accumDelay of this vehicle in laneDelay
@@ -419,14 +419,14 @@ void IntersectionDelay::vehiclesDelayToFile()
 {
     boost::filesystem::path filePath;
 
-    if(ev.isGUI())
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI())
     {
         filePath = "results/gui/vehDelay.txt";
     }
     else
     {
         // get the current run number
-        int currentRun = ev.getConfigEx()->getActiveRunNumber();
+        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
         std::ostringstream fileName;
         fileName << std::setfill('0') << std::setw(3) << currentRun << "_vehDelay.txt";
         filePath = "results/cmd/" + fileName.str();
@@ -435,19 +435,19 @@ void IntersectionDelay::vehiclesDelayToFile()
     FILE *filePtr = fopen (filePath.string().c_str(), "w");
 
     // write simulation parameters at the beginning of the file in CMD mode
-    if(!ev.isGUI())
+    if(!omnetpp::cSimulation::getActiveEnvir()->isGUI())
     {
         // get the current config name
-        std::string configName = ev.getConfigEx()->getVariable("configname");
+        std::string configName = omnetpp::getEnvir()->getConfigEx()->getVariable("configname");
 
         // get number of total runs in this config
-        int totalRun = ev.getConfigEx()->getNumRunsInConfig(configName.c_str());
+        int totalRun = omnetpp::getEnvir()->getConfigEx()->getNumRunsInConfig(configName.c_str());
 
         // get the current run number
-        int currentRun = ev.getConfigEx()->getActiveRunNumber();
+        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
 
         // get all iteration variables
-        std::vector<std::string> iterVar = ev.getConfigEx()->unrollConfig(configName.c_str(), false);
+        std::vector<std::string> iterVar = omnetpp::getEnvir()->getConfigEx()->unrollConfig(configName.c_str(), false);
 
         // write to file
         fprintf (filePtr, "configName      %s\n", configName.c_str());

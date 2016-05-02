@@ -62,7 +62,7 @@ void ApplV_AID::finish()
 
 
 // handle my own SelfMsg
-void ApplV_AID::handleSelfMsg(cMessage* msg)
+void ApplV_AID::handleSelfMsg(omnetpp::cMessage* msg)
 {
     super::handleSelfMsg(msg);
 }
@@ -88,7 +88,7 @@ void ApplV_AID::onBeaconRSU(BeaconRSU* wsm)
     {
         LaneChangeMsg* dataMsg = ApplV_AID::prepareData(wsm->getSender(), laneChanges);
         sendDelayed(dataMsg, individualOffset, lowerLayerOut);
-        EV << "### " << SUMOID << ": sent ClaneChangeMsg message." << endl;
+        EV << "### " << SUMOID << ": sent ClaneChangeMsg message." << std::endl;
 
         laneChanges.clear();
        // lastLaneName = TraCI->commandGetLaneId(SUMOID);
@@ -148,7 +148,7 @@ void ApplV_AID::handlePositionUpdate(cObject* obj)
     {
         std::ostringstream str;
         toX =  ( TraCI->vehicleGetPosition(SUMOID) ).x;
-        str << fromLane <<  "#" << toLane << "#" << fromX << "#" << toX << "#" << simTime().dbl();
+        str << fromLane <<  "#" << toLane << "#" << fromX << "#" << toX << "#" << omnetpp::simTime().dbl();
         laneChanges.push_back( str.str() );
 
         fromLane = toLane;

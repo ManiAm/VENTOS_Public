@@ -2,7 +2,7 @@
 #include "SimplePathlossModel.h"
 #include "AirFrame_m.h"
 
-#define splmEV (ev.isDisabled()||!debug) ? ev : ev << "PhyLayer(SimplePathlossModel): "
+#define splmEV EV << "PhyLayer(SimplePathlossModel): "
 
 SimplePathlossConstMapping::SimplePathlossConstMapping(const DimensionSet& dimensions,
 													   SimplePathlossModel* model,
@@ -29,13 +29,15 @@ double SimplePathlossConstMapping::getValue(const Argument& pos) const
 
 void SimplePathlossModel::filterSignal(AirFrame *frame, const Coord& sendersPos, const Coord& receiverPos)
 {
+    EV_STATICCONTEXT
+
 	Signal& signal = frame->getSignal();
 
 	/** Calculate the distance factor */
 	double sqrDistance = useTorus ? receiverPos.sqrTorusDist(sendersPos, playgroundSize)
 								  : receiverPos.sqrdist(sendersPos);
 
-	splmEV << "sqrdistance is: " << sqrDistance << endl;
+	splmEV << "sqrdistance is: " << sqrDistance << std::endl;
 
 	if(sqrDistance <= 1.0) {
 		//attenuation is negligible
@@ -46,15 +48,15 @@ void SimplePathlossModel::filterSignal(AirFrame *frame, const Coord& sendersPos,
 	// the actual effect of the wavelength on the attenuation is
 	// calculated in SimplePathlossConstMappings "getValue()" method).
 	double wavelength = (BaseWorldUtility::speedOfLight()/carrierFrequency);
-	splmEV << "wavelength is: " << wavelength << endl;
+	splmEV << "wavelength is: " << wavelength << std::endl;
 
 	// the part of the attenuation only depending on the distance
 	double distFactor = pow(sqrDistance, -pathLossAlphaHalf) / (16.0 * M_PI * M_PI);
-	splmEV << "distance factor is: " << distFactor << endl;
+	splmEV << "distance factor is: " << distFactor << std::endl;
 
 	//is our signal to attenuate defined over frequency?
 	bool hasFrequency = signal.getTransmissionPower()->getDimensionSet().hasDimension(Dimension::frequency());
-	splmEV << "Signal contains frequency dimension: " << (hasFrequency ? "yes" : "no") << endl;
+	splmEV << "Signal contains frequency dimension: " << (hasFrequency ? "yes" : "no") << std::endl;
 
 	const DimensionSet& domain = hasFrequency ? DimensionSet::timeFreqDomain() : DimensionSet::timeDomain();
 
@@ -72,6 +74,8 @@ void SimplePathlossModel::filterSignal(AirFrame *frame, const Coord& sendersPos,
 
 double SimplePathlossModel::calcPathloss(const Coord& receiverPos, const Coord& sendersPos)
 {
+    EV_STATICCONTEXT
+
 	/*
 	 * maybe we can reuse an already calculated value for the square-distance
 	 * at this point.
@@ -80,28 +84,22 @@ double SimplePathlossModel::calcPathloss(const Coord& receiverPos, const Coord& 
 	double sqrdistance = 0.0;
 
 	if (useTorus)
-	{
 		sqrdistance = receiverPos.sqrTorusDist(sendersPos, playgroundSize);
-	} else
-	{
+	else
 		sqrdistance = receiverPos.sqrdist(sendersPos);
-	}
 
-	splmEV << "sqrdistance is: " << sqrdistance << endl;
+	splmEV << "sqrdistance is: " << sqrdistance << std::endl;
 
 	double attenuation = 1.0;
 	// wavelength in metres
 	double wavelength = (BaseWorldUtility::speedOfLight()/carrierFrequency);
 
-	splmEV << "wavelength is: " << wavelength << endl;
+	splmEV << "wavelength is: " << wavelength << std::endl;
 
 	if (sqrdistance > 1.0)
-	{
-		attenuation = (wavelength * wavelength) / (16.0 * M_PI * M_PI)
-						* (pow(sqrdistance, -1.0*pathLossAlphaHalf));
-	}
+		attenuation = (wavelength * wavelength) / (16.0 * M_PI * M_PI) * (pow(sqrdistance, -1.0*pathLossAlphaHalf));
 
-	splmEV << "attenuation is: " << attenuation << endl;
+	splmEV << "attenuation is: " << attenuation << std::endl;
 
 	return attenuation;
 }

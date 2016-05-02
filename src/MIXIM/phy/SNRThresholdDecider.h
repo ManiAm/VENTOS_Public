@@ -52,7 +52,7 @@ protected:
 	 *
 	 *
 	 */
-	virtual bool checkIfAboveThreshold(Mapping* map, simtime_t_cref start, simtime_t_cref end);
+	virtual bool checkIfAboveThreshold(Mapping* map, omnetpp::simtime_t_cref start, omnetpp::simtime_t_cref end);
 
 	/**
 	 * @brief Processes a new Signal. Returns the time it wants to
@@ -65,7 +65,7 @@ protected:
 	 * Also checks if the new AirFrame changed the power level in the way
 	 * that we can answer an ongoing channel sense request.
 	 */
-	virtual simtime_t processNewSignal(AirFrame* frame);
+	virtual omnetpp::simtime_t processNewSignal(AirFrame* frame);
 
 	/**
 	 * @brief Processes a received AirFrame.
@@ -76,13 +76,13 @@ protected:
 	 *
 	 * @return	usually return a value for: 'do not pass it again'
 	 */
-	virtual simtime_t processSignalEnd(AirFrame* frame);
+	virtual omnetpp::simtime_t processSignalEnd(AirFrame* frame);
 
 	/**
 	 * @brief Returns point in time when the ChannelSenseRequest of the passed CSRInfo can be answered
 	 * (e.g. because channel state changed or timeout is reached).
 	 */
-	virtual simtime_t canAnswerCSR(const CSRInfo& requestInfo);
+	virtual omnetpp::simtime_t canAnswerCSR(const CSRInfo& requestInfo);
 
 	/**
 	 * @brief Answers the ChannelSenseRequest (CSR) from the passed CSRInfo.

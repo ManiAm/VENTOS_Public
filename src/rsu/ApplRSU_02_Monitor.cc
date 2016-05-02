@@ -33,7 +33,6 @@
 // why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header
 #undef ev
 #include "boost/filesystem.hpp"
-#define ev  (*cSimulation::getActiveEnvir())
 
 namespace VENTOS {
 
@@ -89,7 +88,7 @@ void ApplRSUMonitor::initialize(int stage)
                 if(pass > minGreenTime)
                 {
                     std::cout << std::endl;
-                    std::cout << "WARNING (" << myFullId << "): Passage time is greater than Gmin in lane " << lane << endl;
+                    std::cout << "WARNING (" << myFullId << "): Passage time is greater than Gmin in lane " << lane << std::endl;
                     pass = minGreenTime;
                 }
 
@@ -118,7 +117,7 @@ void ApplRSUMonitor::finish()
 }
 
 
-void ApplRSUMonitor::handleSelfMsg(cMessage* msg)
+void ApplRSUMonitor::handleSelfMsg(omnetpp::cMessage* msg)
 {
     super::handleSelfMsg(msg);
 }
@@ -196,7 +195,7 @@ template <typename T> void ApplRSUMonitor::onBeaconAny(T wsm)
             // the vehicle is visiting the intersection more than once
             else if (counter != Vec_detectedVehicles.end() && counter->leaveTime != -1)
             {
-                counter->entryTime = simTime().dbl();
+                counter->entryTime = omnetpp::simTime().dbl();
                 counter->entrySpeed = wsm->getSpeed();
                 counter->pos = wsm->getPos();
                 counter->leaveTime = -1;
@@ -204,7 +203,7 @@ template <typename T> void ApplRSUMonitor::onBeaconAny(T wsm)
             else
             {
                 // Add entry
-                detectedVehicleEntry *tmp = new detectedVehicleEntry(sender, wsm->getSenderType(), lane, wsm->getPos(), myTLid, simTime().dbl(), -1, wsm->getSpeed());
+                detectedVehicleEntry *tmp = new detectedVehicleEntry(sender, wsm->getSenderType(), lane, wsm->getPos(), myTLid, omnetpp::simTime().dbl(), -1, wsm->getSpeed());
                 Vec_detectedVehicles.push_back(*tmp);
             }
 
@@ -222,7 +221,7 @@ template <typename T> void ApplRSUMonitor::onBeaconAny(T wsm)
 
             if(counter->leaveTime == -1)
             {
-                counter->leaveTime = simTime().dbl();
+                counter->leaveTime = omnetpp::simTime().dbl();
 
                 LaneInfoRemove(counter->lane, sender);
             }
@@ -235,14 +234,14 @@ void ApplRSUMonitor::saveVehApproach()
 {
     boost::filesystem::path filePath;
 
-    if(ev.isGUI())
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI())
     {
         filePath = "results/gui/vehApproach.txt";
     }
     else
     {
         // get the current run number
-        int currentRun = ev.getConfigEx()->getActiveRunNumber();
+        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
         std::ostringstream fileName;
         fileName << std::setfill('0') << std::setw(3) << currentRun << "_vehApproach.txt";
         filePath = "results/cmd/" + fileName.str();
@@ -251,19 +250,19 @@ void ApplRSUMonitor::saveVehApproach()
     FILE *filePtr = fopen (filePath.string().c_str(), "w");
 
     // write simulation parameters at the beginning of the file in CMD mode
-    if(!ev.isGUI())
+    if(!omnetpp::cSimulation::getActiveEnvir()->isGUI())
     {
         // get the current config name
-        std::string configName = ev.getConfigEx()->getVariable("configname");
+        std::string configName = omnetpp::getEnvir()->getConfigEx()->getVariable("configname");
 
         // get number of total runs in this config
-        int totalRun = ev.getConfigEx()->getNumRunsInConfig(configName.c_str());
+        int totalRun = omnetpp::getEnvir()->getConfigEx()->getNumRunsInConfig(configName.c_str());
 
         // get the current run number
-        int currentRun = ev.getConfigEx()->getActiveRunNumber();
+        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
 
         // get all iteration variables
-        std::vector<std::string> iterVar = ev.getConfigEx()->unrollConfig(configName.c_str(), false);
+        std::vector<std::string> iterVar = omnetpp::getEnvir()->getConfigEx()->unrollConfig(configName.c_str(), false);
 
         // write to file
         fprintf (filePtr, "configName      %s\n", configName.c_str());
@@ -314,10 +313,10 @@ void ApplRSUMonitor::LaneInfoAdd(std::string lane, std::string sender, std::stri
 
     // this is the first vehicle on this lane
     if(loc->second.totalVehCount == 1)
-        loc->second.firstDetectedTime = simTime().dbl();
+        loc->second.firstDetectedTime = omnetpp::simTime().dbl();
 
     // update detectedTime
-    loc->second.lastDetectedTime = simTime().dbl();
+    loc->second.lastDetectedTime = omnetpp::simTime().dbl();
 
     // get stopping speed threshold
     double stoppingDelayThreshold = 0;
@@ -330,7 +329,7 @@ void ApplRSUMonitor::LaneInfoAdd(std::string lane, std::string sender, std::stri
     int vehStatus = speed > stoppingDelayThreshold ? VEH_STATUS_Driving : VEH_STATUS_Waiting;
 
     // add it to vehicle list on this lane
-    allVehiclesEntry *newVeh = new allVehiclesEntry( senderType, vehStatus, simTime().dbl(), speed );
+    allVehiclesEntry *newVeh = new allVehiclesEntry( senderType, vehStatus, omnetpp::simTime().dbl(), speed );
     loc->second.allVehicles.insert( std::make_pair(sender, *newVeh) );
 
     // get the approach speed from the beacon

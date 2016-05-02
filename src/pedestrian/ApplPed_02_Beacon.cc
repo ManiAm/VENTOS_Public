@@ -66,9 +66,9 @@ void ApplPedBeacon::initialize(int stage)
         offSet = offSet + floor(offSet/0.050)*0.050;
         individualOffset = dblrand() * maxOffset;
 
-        PedestrianBeaconEvt = new cMessage("BeaconEvt", KIND_TIMER);
+        PedestrianBeaconEvt = new omnetpp::cMessage("BeaconEvt", KIND_TIMER);
         if (VANETenabled)
-            scheduleAt(simTime() + offSet, PedestrianBeaconEvt);
+            scheduleAt(omnetpp::simTime() + offSet, PedestrianBeaconEvt);
     }
 }
 
@@ -88,7 +88,7 @@ void ApplPedBeacon::finish()
 }
 
 
-void ApplPedBeacon::handleSelfMsg(cMessage* msg)
+void ApplPedBeacon::handleSelfMsg(omnetpp::cMessage* msg)
 {
     super::handleSelfMsg(msg);
 
@@ -103,7 +103,7 @@ void ApplPedBeacon::handleSelfMsg(cMessage* msg)
         }
 
         // schedule for next beacon broadcast
-        scheduleAt(simTime() + beaconInterval, PedestrianBeaconEvt);
+        scheduleAt(omnetpp::simTime() + beaconInterval, PedestrianBeaconEvt);
     }
 }
 
