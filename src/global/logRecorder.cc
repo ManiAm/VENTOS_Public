@@ -1,8 +1,8 @@
 /****************************************************************************/
-/// @file    ApplBike_01_Base.cc
+/// @file    logRecorder.cc
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
-/// @date    August 2013
+/// @date    May 2016
 ///
 /****************************************************************************/
 // VENTOS, Vehicular Network Open Simulator; see http:?
@@ -25,70 +25,87 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "ApplBike_01_Base.h"
+#include <logRecorder.h>
 
 namespace VENTOS {
 
-Define_Module(VENTOS::ApplBikeBase);
+Define_Module(VENTOS::logRecorder);
 
-ApplBikeBase::~ApplBikeBase()
+logRecorder::~logRecorder()
 {
 
 }
 
-void ApplBikeBase::initialize(int stage)
-{
-	super::initialize(stage);
 
-	if (stage==0)
-	{
+void logRecorder::initialize(int stage)
+{
+    if(stage == 0)
+    {
         // get a pointer to the TraCI module
         cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
         TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
 
-        // get a pointer to traffic light
-        module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TrafficLight");
-        TLControlMode = module->par("TLControlMode").longValue();
+        Signal_initialize_withTraCI = registerSignal("initialize_withTraCI");
+        omnetpp::getSimulation()->getSystemModule()->subscribe("initialize_withTraCI", this);
 
-        headerLength = par("headerLength").longValue();
+        Signal_executeEachTS = registerSignal("executeEachTS");
+        omnetpp::getSimulation()->getSystemModule()->subscribe("executeEachTS", this);
 
-        // bike id in omnet++
-		myId = getParentModule()->getIndex();
-        // bike full id in omnet++
-		myFullId = getParentModule()->getFullName();
-        // bike id in sumo
-        SUMOID = par("SUMOID").stdstringValue();
-        // bike type in sumo
-        SUMOType = par("SUMOType").stdstringValue();
-        // vehicle class in sumo
-        vehicleClass = par("vehicleClass").stdstringValue();
-        // vehicle class code
-        vehicleClassEnum = par("vehicleClassEnum").longValue();
 
-        // store the time of entry
-        entryTime = omnetpp::simTime().dbl();
-	}
+
+
+        char *argv[] = {"program name", "arg1", "arg2", NULL};
+        int argc = sizeof(argv) / sizeof(char*) - 1;
+
+        QApplication a(argc, argv);
+        QLabel label;
+        label.setText("Hello World");
+        label.setWindowModality(Qt::WindowModal);
+        label.show();
+        a.exec();
+
+    }
 }
 
 
-void ApplBikeBase::finish()
+void logRecorder::finish()
+{
+
+
+}
+
+
+void logRecorder::handleMessage(omnetpp::cMessage *msg)
 {
 
 }
 
 
-void ApplBikeBase::handleSelfMsg(omnetpp::cMessage* msg)
+void logRecorder::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t signalID, long i, cObject* details)
+{
+    Enter_Method_Silent();
+
+    if(signalID == Signal_initialize_withTraCI)
+    {
+        initialize_withTraCI();
+    }
+    else if(signalID == Signal_executeEachTS)
+    {
+        executeEachTimeStep();
+    }
+}
+
+
+void logRecorder::initialize_withTraCI()
 {
 
 }
 
 
-// is called, every time the position of vehicle changes
-void ApplBikeBase::handlePositionUpdate(cObject* obj)
+void logRecorder::executeEachTimeStep()
 {
 
 }
 
 }
-

@@ -1,7 +1,8 @@
 /****************************************************************************/
-/// @file    TL_FMSC.h
+/// @file    logRecorder.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
-/// @date    Jul 2015
+/// @author  second author name
+/// @date    May 2016
 ///
 /****************************************************************************/
 // VENTOS, Vehicular Network Open Simulator; see http:?
@@ -24,32 +25,35 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef TRAFFICLIGHTFMSC_H
-#define TRAFFICLIGHTFMSC_H
+#ifndef LOGRECORDER_H
+#define LOGRECORDER_H
 
-#include <08_TL_LQF_MWM_Cycle.h>
+#include <BaseApplLayer.h>
+#include "TraCICommands.h"
+
+#include <QApplication>
+#include <QLabel>
 
 namespace VENTOS {
 
-class TrafficLight_FMSC : public TrafficLight_LQF_MWM_Cycle
+class logRecorder : public BaseApplLayer
 {
   public:
-    virtual ~TrafficLight_FMSC();
-    virtual void initialize(int);
-    virtual void finish();
-    virtual void handleMessage(omnetpp::cMessage *);
+      virtual ~logRecorder();
+      virtual void finish();
+      virtual void initialize(int);
+      virtual void handleMessage(omnetpp::cMessage *);
+      virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, long, cObject* details);
 
   protected:
     void virtual initialize_withTraCI();
     void virtual executeEachTimeStep();
 
   private:
-    void chooseNextInterval();
-    void chooseNextGreenInterval();
+      TraCI_Commands *TraCI;
 
-  private:
-    typedef TrafficLight_LQF_MWM_Cycle super;
-    double nextGreenTime;
+      omnetpp::simsignal_t Signal_initialize_withTraCI;
+      omnetpp::simsignal_t Signal_executeEachTS;
 };
 
 }

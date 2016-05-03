@@ -26,6 +26,10 @@
 								<option id="gnu.cpp.compiler.option.include.paths.1752179671" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/rapidxml-1.13}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/UFT}&quot;"/>
+									<listOptionValue builtIn="false" value="/usr/include/qt4"/>
+									<listOptionValue builtIn="false" value="/usr/include/qt4/Qt"/>
+									<listOptionValue builtIn="false" value="/usr/include/qt4/QtCore"/>
+									<listOptionValue builtIn="false" value="/usr/include/qt4/QtGui"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1661494006" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
@@ -56,6 +60,10 @@
 								<option id="gnu.cpp.compiler.option.include.paths.381188907" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/rapidxml-1.13}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/UFT}&quot;"/>
+									<listOptionValue builtIn="false" value="/usr/include/qt4"/>
+									<listOptionValue builtIn="false" value="/usr/include/qt4/Qt"/>
+									<listOptionValue builtIn="false" value="/usr/include/qt4/QtCore"/>
+									<listOptionValue builtIn="false" value="/usr/include/qt4/QtGui"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1765741350" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
@@ -102,6 +110,10 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/rapidxml-1.13}&quot;"/>
 									<listOptionValue builtIn="false" value="/home/mani/Desktop/VENTOS/src/trafficLightCobalt"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/UFT}&quot;"/>
+									<listOptionValue builtIn="false" value="/usr/include/qt4"/>
+									<listOptionValue builtIn="false" value="/usr/include/qt4/Qt"/>
+									<listOptionValue builtIn="false" value="/usr/include/QtCore"/>
+									<listOptionValue builtIn="false" value="/usr/include/QtGui"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.542034100" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
@@ -132,6 +144,10 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/rapidxml-1.13}&quot;"/>
 									<listOptionValue builtIn="false" value="/home/mani/Desktop/VENTOS/src/trafficLightCobalt"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/UFT}&quot;"/>
+									<listOptionValue builtIn="false" value="/usr/include/qt4"/>
+									<listOptionValue builtIn="false" value="/usr/include/qt4/Qt"/>
+									<listOptionValue builtIn="false" value="/usr/include/QtCore"/>
+									<listOptionValue builtIn="false" value="/usr/include/QtGui"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.386813417" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
