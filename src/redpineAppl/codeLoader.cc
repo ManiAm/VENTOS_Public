@@ -34,7 +34,6 @@ namespace VENTOS {
 
 Define_Module(VENTOS::codeLoader);
 
-
 codeLoader::~codeLoader()
 {
 
@@ -78,6 +77,13 @@ void codeLoader::initialize(int stage)
         remoteDir_SourceCode = par("remoteDir_SourceCode").stringValue();
         if(remoteDir_SourceCode == "")
             error("remoteDir_SourceCode is empty!");
+
+        numDev = par("numDev").longValue();
+        if(numDev < 0)
+            error("numDev should be >= 0");
+
+        // add remote device modules into omnet
+        addDevs();
     }
 }
 
@@ -135,12 +141,9 @@ void codeLoader::executeEachTimestep()
 }
 
 
-void codeLoader::make_connection()
+void codeLoader::addDevs()
 {
-    int numDev = par("numDev").longValue();
-    if(numDev < 0)
-        error("numDev should be >= 0");
-    else if(numDev == 0)
+    if(numDev == 0)
         return;
 
     cModule* parentMod = getParentModule();
@@ -157,8 +160,15 @@ void codeLoader::make_connection()
         mod->getDisplayString().updateWith("p=0,0");
         mod->buildInside();
         mod->scheduleStart(omnetpp::simTime());
-        mod->callInitialize();
+        // mod->callInitialize();   // no need to call initialize at this point
     }
+}
+
+
+void codeLoader::make_connection()
+{
+    if(numDev == 0)
+        return;
 
     // make connection to each device in a separate child thread
     std::vector<std::thread> workers;

@@ -36,7 +36,6 @@
 // why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header
 #undef ev
 #include "boost/filesystem.hpp"
-#define ev  (*cSimulation::getActiveEnvir())
 
 namespace VENTOS {
 
@@ -50,6 +49,7 @@ public:
     virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, long, cObject* details);
 
 private:
+    void addDevs();
     void make_connection();
     void init_board(cModule *, SSH_Helper *);
     void init_test(cModule *, SSH_Helper *);
@@ -63,6 +63,7 @@ private:
     // NED variables
     TraCI_Commands *TraCI;  // pointer to the TraCI module
     bool on;
+    int numDev;
 
     std::string initScriptName = "";
     boost::filesystem::path remoteDir_Driver = "";
