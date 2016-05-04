@@ -123,7 +123,7 @@ void ConstSpeedMobility::makeMove()
 
     }
     else{
-	error("step cannot be bigger than numSteps");
+        throw omnetpp::cRuntimeError("step cannot be bigger than numSteps");
     }
 
     //    fixIfHostGetsOutside();

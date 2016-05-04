@@ -49,7 +49,7 @@ void BaseMacLayer::initialize(int stage)
     {
         // get handle to phy layer
         if ((phy = FindModule<MacToPhyInterface*>::findSubModule(getParentModule())) == NULL) {
-            error("Could not find a PHY module.");
+            throw omnetpp::cRuntimeError("Could not find a PHY module.");
         }
         headerLength    = par("headerLength");
         phyHeaderLength = phy->getPhyHeaderLength();

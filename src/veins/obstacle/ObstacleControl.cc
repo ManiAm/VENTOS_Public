@@ -62,11 +62,11 @@ void ObstacleControl::handleMessage(omnetpp::cMessage *msg) {
         handleSelfMsg(msg);
         return;
     }
-    error("ObstacleControl doesn't handle messages from other modules");
+    throw omnetpp::cRuntimeError("ObstacleControl doesn't handle messages from other modules");
 }
 
 void ObstacleControl::handleSelfMsg(omnetpp::cMessage *msg) {
-    error("ObstacleControl doesn't handle self-messages");
+    throw omnetpp::cRuntimeError("ObstacleControl doesn't handle self-messages");
 }
 
 void ObstacleControl::addFromXml(omnetpp::cXMLElement* xml) {
@@ -246,7 +246,7 @@ double ObstacleControl::calculateAttenuation(const Coord& senderPos, const Coord
 double ObstacleControl::getAttenuationPerCut(std::string type) {
     if (perCut.find(type) != perCut.end()) return perCut[type];
     else {
-        error("Obstacle type %s unknown", type.c_str());
+        throw omnetpp::cRuntimeError("Obstacle type %s unknown", type.c_str());
         return -1;
     }
 }
@@ -254,7 +254,7 @@ double ObstacleControl::getAttenuationPerCut(std::string type) {
 double ObstacleControl::getAttenuationPerMeter(std::string type) {
     if (perMeter.find(type) != perMeter.end()) return perMeter[type];
     else {
-        error("Obstacle type %s unknown", type.c_str());
+        throw omnetpp::cRuntimeError("Obstacle type %s unknown", type.c_str());
         return -1;
     }
 }

@@ -358,7 +358,7 @@ void MeasureTrafficParams::measureTrafficParameters()
                     auto u = laneTotalVehCount.find(lane);
 
                     if(u == laneTotalVehCount.end())
-                        error("lane %s does not exist in laneTotalVehCount", lane.c_str());
+                        throw omnetpp::cRuntimeError("lane %s does not exist in laneTotalVehCount", lane.c_str());
 
                     (*u).second.second.totalVehCount = (*u).second.second.totalVehCount + 1;
 

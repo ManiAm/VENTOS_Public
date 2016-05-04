@@ -97,7 +97,7 @@ void TrafficLight_LQF_MWM_Aging::handleMessage(omnetpp::cMessage *msg)
         chooseNextInterval();
 
         if(intervalDuration <= 0)
-            error("intervalDuration is <= 0");
+            throw omnetpp::cRuntimeError("intervalDuration is <= 0");
 
         // Schedule next light change event:
         scheduleAt(omnetpp::simTime().dbl() + intervalDuration, intervalChangeEVT);
@@ -216,7 +216,7 @@ void TrafficLight_LQF_MWM_Aging::chooseNextGreenInterval()
     std::map<std::string /*lane*/, laneInfoEntry> laneInfo = RSUptr->laneInfo;
 
     if(laneInfo.empty())
-        error("LaneInfo is empty! Is active detection on in %s ?", RSUptr->getFullName());
+        throw omnetpp::cRuntimeError("LaneInfo is empty! Is active detection on in %s ?", RSUptr->getFullName());
 
     // batch of all non-conflicting movements, sorted by total weight + oneCount per batch
     std::priority_queue< sortedEntryLQF /*type of each element*/, std::vector<sortedEntryLQF> /*container*/, sortCompareLQF > sortedMovements;
@@ -249,13 +249,13 @@ void TrafficLight_LQF_MWM_Aging::chooseNextGreenInterval()
                     // get the corresponding lane for this link
                     auto itt = linkToLane.find(std::make_pair("C",linkNumber));
                     if(itt == linkToLane.end())
-                        error("linkNumber %s is not found in TL %s", linkNumber, "C");
+                        throw omnetpp::cRuntimeError("linkNumber %s is not found in TL %s", linkNumber, "C");
                     std::string lane = itt->second;
 
                     // find this lane in laneInfo
                     auto res = laneInfo.find(lane);
                     if(res == laneInfo.end())
-                        error("Can not find lane %s in laneInfo!", lane.c_str());
+                        throw omnetpp::cRuntimeError("Can not find lane %s in laneInfo!", lane.c_str());
 
                     // get all queued vehicles on this lane
                     auto vehicles = (*res).second.allVehicles;
@@ -274,7 +274,7 @@ void TrafficLight_LQF_MWM_Aging::chooseNextGreenInterval()
                             // total weight of entities on this lane
                             auto loc = classWeight.find(vType);
                             if(loc == classWeight.end())
-                                error("entity %s with type %s does not have a weight in classWeight map!", vID.c_str(), vType.c_str());
+                                throw omnetpp::cRuntimeError("entity %s with type %s does not have a weight in classWeight map!", vID.c_str(), vType.c_str());
                             totalWeight += loc->second;
 
                             // max delay in this movement

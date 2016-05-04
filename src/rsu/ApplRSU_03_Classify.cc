@@ -49,7 +49,7 @@ void ApplRSUCLASSIFY::initialize(int stage)
 
         trainError = par("trainError").doubleValue();
         if(trainError < 0)
-            error("trainError value is not correct!");
+            throw omnetpp::cRuntimeError("trainError value is not correct!");
 
         // construct file name for training data
         std::stringstream stream;
@@ -58,13 +58,13 @@ void ApplRSUCLASSIFY::initialize(int stage)
 
         GPSerror = par("GPSerror").doubleValue();
         if(GPSerror < 0)
-            error("GPSerror value is not correct!");
+            throw omnetpp::cRuntimeError("GPSerror value is not correct!");
 
         debugLevel = omnetpp::getSimulation()->getSystemModule()->par("debugLevel").longValue();
 
         // we need this RSU to be associated with a TL
         if(myTLid == "")
-            error("The id of %s does not match with any TL. Check RSUsLocation.xml file!", myFullId);
+            throw omnetpp::cRuntimeError("The id of %s does not match with any TL. Check RSUsLocation.xml file!", myFullId);
 
         // for each incoming lane in this TL
         std::list<std::string> lan = TraCI->TLGetControlledLanes(myTLid);
@@ -170,7 +170,7 @@ void ApplRSUCLASSIFY::initializeGnuPlot()
     // get a pointer to the plotter module
     cModule *pmodule = omnetpp::getSimulation()->getSystemModule()->getSubmodule("plotter");
     if(pmodule == NULL)
-        error("plotter module is not found!");
+        throw omnetpp::cRuntimeError("plotter module is not found!");
 
     // get a pointer to the class
     Plotter *pltPtr = static_cast<Plotter *>(pmodule);
@@ -181,7 +181,7 @@ void ApplRSUCLASSIFY::initializeGnuPlot()
 
     // we need feature in GNUPLOT 5.0 and above
     if(pltPtr->vers < 5)
-        error("GNUPLOT version should be >= 5");
+        throw omnetpp::cRuntimeError("GNUPLOT version should be >= 5");
 
     // get a reference to gnuplot pipe
     plotterPtr = pltPtr->pipeGnuPlot;
@@ -474,7 +474,7 @@ void ApplRSUCLASSIFY::onBeaconAny(beaconGeneral wsm)
         std::string lane = wsm->getLane();
         auto it2 = classLabel.find(lane);
         if(it2 == classLabel.end())
-            error("class %s not found in classLabel!", lane.c_str());
+            throw omnetpp::cRuntimeError("class %s not found in classLabel!", lane.c_str());
 
         // push to labels
         labels.push_back(it2->second);
@@ -492,7 +492,7 @@ void ApplRSUCLASSIFY::onBeaconAny(beaconGeneral wsm)
     // get the real label
     auto re = classLabel.find(lane);
     if(re == classLabel.end())
-        error("class %s not found!", lane.c_str());
+        throw omnetpp::cRuntimeError("class %s not found!", lane.c_str());
     unsigned int real_label = re->second;
 
     // print debug information

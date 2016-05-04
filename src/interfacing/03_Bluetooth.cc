@@ -115,7 +115,7 @@ void Bluetooth::executeEachTimestep()
             // get the first available BT device
             dev_id = hci_get_route(NULL);
             if (dev_id < 0)
-                error("Device is not available");
+                throw omnetpp::cRuntimeError("Device is not available");
         }
 
         int scanLength = par("BT_scan_length").longValue();
@@ -139,13 +139,13 @@ void Bluetooth::getLocalDevs()
     /* Open HCI socket  */
     int ctl;
     if ((ctl = socket(AF_BLUETOOTH, SOCK_RAW, BTPROTO_HCI)) < 0)
-        error("Can't open HCI socket");
+        throw omnetpp::cRuntimeError("Can't open HCI socket");
 
     struct hci_dev_list_req *dl;
     if (!(dl = (hci_dev_list_req *) malloc(HCI_MAX_DEV * sizeof(struct hci_dev_req) + sizeof(uint16_t))))
     {
         close(ctl);
-        error("Can't allocate memory");
+        throw omnetpp::cRuntimeError("Can't allocate memory");
     }
 
     dl->dev_num = HCI_MAX_DEV;
@@ -154,7 +154,7 @@ void Bluetooth::getLocalDevs()
     if (ioctl(ctl, HCIGETDEVLIST, (void *) dl) < 0)
     {
         close(ctl);
-        error("Can't get device list");
+        throw omnetpp::cRuntimeError("Can't get device list");
     }
 
     // count how many BT devices
@@ -288,12 +288,12 @@ std::string Bluetooth::cmd_name(int dev_id)
     // open device
     int dd = hci_open_dev(dev_id);
     if(dd < 0)
-        error("Can not open device!");
+        throw omnetpp::cRuntimeError("Can not open device!");
 
     char name[249];
 
     if (hci_read_local_name(dd, sizeof(name), name, 1000) < 0)
-        error("Can't read local name: %s (%d)\n", strerror(errno), errno);
+        throw omnetpp::cRuntimeError("Can't read local name: %s (%d)\n", strerror(errno), errno);
 
     for (int i = 0; i < 248 && name[i]; i++)
     {
@@ -314,12 +314,12 @@ std::string Bluetooth::cmd_class(int dev_id)
     // open device
     int dd = hci_open_dev(dev_id);
     if(dd < 0)
-        error("Can not open device!");
+        throw omnetpp::cRuntimeError("Can not open device!");
 
     // get device class
     uint8_t cls[3];
     if (hci_read_class_of_dev(dd, cls, 1000) < 0)
-        error("Can't read class of device on hci%d: %s (%d) \n", dev_id, strerror(errno), errno);
+        throw omnetpp::cRuntimeError("Can't read class of device on hci%d: %s (%d) \n", dev_id, strerror(errno), errno);
 
     hci_close_dev(dd);
 
@@ -439,11 +439,11 @@ std::string Bluetooth::cmd_company(int dev_id)
     // open device
     int dd = hci_open_dev(dev_id);
     if(dd < 0)
-        error("Can not open device!");
+        throw omnetpp::cRuntimeError("Can not open device!");
 
     struct hci_version ver;
     if (hci_read_local_version(dd, &ver, 1000) < 0)
-        error("Can't read version info: %s (%d) \n", strerror(errno), errno);
+        throw omnetpp::cRuntimeError("Can't read version info: %s (%d) \n", strerror(errno), errno);
 
     char buffer[200];
     sprintf (buffer, "%s (%d)", bt_compidtostr(ver.manufacturer), ver.manufacturer);
@@ -459,7 +459,7 @@ void Bluetooth::cmd_up(int hdev)
     /* Open HCI socket  */
     int ctl;
     if ((ctl = socket(AF_BLUETOOTH, SOCK_RAW, BTPROTO_HCI)) < 0)
-        error("Can't open HCI socket.");
+        throw omnetpp::cRuntimeError("Can't open HCI socket.");
 
     /* Start HCI device */
     if (ioctl(ctl, HCIDEVUP, hdev) < 0)
@@ -470,7 +470,7 @@ void Bluetooth::cmd_up(int hdev)
             return;
         }
 
-        error("Can't init device hci%d: %s (%d) \n", hdev, strerror(errno), errno);
+        throw omnetpp::cRuntimeError("Can't init device hci%d: %s (%d) \n", hdev, strerror(errno), errno);
     }
 }
 
@@ -480,13 +480,13 @@ void Bluetooth::cmd_down(int hdev)
     /* Open HCI socket  */
     int ctl;
     if ((ctl = socket(AF_BLUETOOTH, SOCK_RAW, BTPROTO_HCI)) < 0)
-        error("Can't open HCI socket.");
+        throw omnetpp::cRuntimeError("Can't open HCI socket.");
 
     /* Stop HCI device */
     if (ioctl(ctl, HCIDEVDOWN, hdev) < 0)
     {
         close(ctl);
-        error("Can't down device hci%d: %s (%d) \n", hdev, strerror(errno), errno);
+        throw omnetpp::cRuntimeError("Can't down device hci%d: %s (%d) \n", hdev, strerror(errno), errno);
     }
 
     close(ctl);
@@ -497,13 +497,13 @@ bool Bluetooth::isDown(int hdev)
 {
     int ctl;
     if ((ctl = socket(AF_BLUETOOTH, SOCK_RAW, BTPROTO_HCI)) < 0)
-        error("Can't open HCI socket.");
+        throw omnetpp::cRuntimeError("Can't open HCI socket.");
 
     struct hci_dev_info di;
     di.dev_id = hdev;
 
     if (ioctl(ctl, HCIGETDEVINFO, (void *) &di) < 0)
-        error("can not get dev info!");
+        throw omnetpp::cRuntimeError("can not get dev info!");
 
     if (!hci_test_bit(HCI_UP, &di.flags))
         return true;
@@ -517,7 +517,7 @@ void Bluetooth::piscan(int hdev, std::string scan)
     /* Open HCI socket  */
     int ctl;
     if ((ctl = socket(AF_BLUETOOTH, SOCK_RAW, BTPROTO_HCI)) < 0)
-        error("Can't open HCI socket");
+        throw omnetpp::cRuntimeError("Can't open HCI socket");
 
     struct hci_dev_req dr;
     dr.dev_id  = hdev;
@@ -532,7 +532,7 @@ void Bluetooth::piscan(int hdev, std::string scan)
         dr.dev_opt = SCAN_PAGE | SCAN_INQUIRY;  // Enable Page and Inquiry scan
 
     if (ioctl(ctl, HCISETSCAN, (unsigned long) &dr) < 0)
-        error("Can't set scan mode on hci%d: %s (%d) \n", hdev, strerror(errno), errno);
+        throw omnetpp::cRuntimeError("Can't set scan mode on hci%d: %s (%d) \n", hdev, strerror(errno), errno);
 }
 
 
@@ -549,7 +549,7 @@ void Bluetooth::loadCachedDevices()
     {
         std::vector<std::string> tokens = omnetpp::cStringTokenizer(line.c_str(), ",,").asVector();
         if(tokens.size() < 3)
-            error("file format is not correct!");
+            throw omnetpp::cRuntimeError("file format is not correct!");
 
         std::string BTaddr = tokens[0] ;
         std::string BTname = tokens[1];
@@ -581,7 +581,7 @@ void Bluetooth::saveCachedDevices()
 
     FILE *filePtr = fopen (cached_BT_devices_filePATH.string().c_str(), "w");
     if(!filePtr)
-        error("can not open file for writing!");
+        throw omnetpp::cRuntimeError("can not open file for writing!");
 
     for(auto &i : allBTdevices)
         fprintf (filePtr, "%s  ,,  %s  ,,  %s \n", i.first.c_str(), i.second.name.c_str(), i.second.timeStamp.c_str());
@@ -595,7 +595,7 @@ void Bluetooth::scan(int dev_id, int len)
 {
     int sock = hci_open_dev(dev_id);
     if (sock < 0)
-        error("HCI device open failed");
+        throw omnetpp::cRuntimeError("HCI device open failed");
 
     int max_rsp = 255;  // at most max_rsp devices will be returned
     int flags = IREQ_CACHE_FLUSH; // the cache of previously detected devices is flushed before performing the current inquiry
@@ -611,7 +611,7 @@ void Bluetooth::scan(int dev_id, int len)
 
     if(num_rsp < 0)
     {
-        error("Inquiry failed");
+        throw omnetpp::cRuntimeError("Inquiry failed");
     }
     else if(num_rsp == 0)
     {
@@ -800,14 +800,14 @@ void Bluetooth::serviceDiscovery(std::string bdaddr, uint16_t UUID)
 void Bluetooth::cmd_cmd(int dev_id, uint8_t ogf, uint16_t ocf, std::string payload)
 {
     if (dev_id < 0)
-        error("Not a valid device");
+        throw omnetpp::cRuntimeError("Not a valid device");
 
     int dd = hci_open_dev(dev_id);
     if (dd < 0)
-        error("Device open failed");
+        throw omnetpp::cRuntimeError("Device open failed");
 
     if(payload == "")
-        error("payload is empty!");
+        throw omnetpp::cRuntimeError("payload is empty!");
 
     std::cout << std::endl << ">>> Sending command on hci" << dev_id << "... \n" << std::flush;
 
@@ -827,7 +827,7 @@ void Bluetooth::cmd_cmd(int dev_id, uint8_t ogf, uint16_t ocf, std::string paylo
     if (setsockopt(dd, SOL_HCI, HCI_FILTER, &flt, sizeof(flt)) < 0)
     {
         hci_close_dev(dd);
-        error("HCI filter setup failed");
+        throw omnetpp::cRuntimeError("HCI filter setup failed");
     }
 
     printf("    < HCI Command: ogf 0x%02x, ocf 0x%04x, plen %d \n", ogf, ocf, len);
@@ -837,14 +837,14 @@ void Bluetooth::cmd_cmd(int dev_id, uint8_t ogf, uint16_t ocf, std::string paylo
     if (hci_send_cmd(dd, ogf, ocf, len, buf) < 0)
     {
         hci_close_dev(dd);
-        error("Send failed");
+        throw omnetpp::cRuntimeError("Send failed");
     }
 
     len = read(dd, buf, sizeof(buf));
     if (len < 0)
     {
         hci_close_dev(dd);
-        error("Read failed");
+        throw omnetpp::cRuntimeError("Read failed");
     }
 
     hci_event_hdr *hdr = (hci_event_hdr *)(buf + 1);

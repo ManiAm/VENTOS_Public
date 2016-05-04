@@ -71,7 +71,7 @@ void BaseModule::handleHostState(const HostState& state)
 		return;
 
 	if(state.get() != HostState::ACTIVE) {
-		error("Hosts state changed to something else than active which"
+	    throw omnetpp::cRuntimeError("Hosts state changed to something else than active which"
 			  " is not handled by this module. Either handle this state"
 			  " correctly or if this module really isn't affected by the"
 			  " hosts state set the parameter \"notAffectedByHostState\""

@@ -149,15 +149,15 @@ void ApplVPlatoonMg::split_DataFSM(PlatoonMsg *wsm)
     if(vehicleState == state_sendSplitReq)
     {
         if(plnSize == -1)
-            error("WTH! platoon size is -1!");
+            throw omnetpp::cRuntimeError("WTH! platoon size is -1!");
 
         // check if splittingDepth is valid
         if(splittingDepth <= 0 || splittingDepth >= plnSize)
-            error("splitting depth is wrong!");
+            throw omnetpp::cRuntimeError("splitting depth is wrong!");
 
         // check if splittingVehicle is valid
         if(splittingVehicle == "")
-            error("splitting vehicle is not known!");
+            throw omnetpp::cRuntimeError("splitting vehicle is not known!");
 
         // send a unicast SPLIT_REQ to the follower
         PlatoonMsg* dataMsg = prepareData(splittingVehicle, SPLIT_REQ, plnID);

@@ -2942,7 +2942,7 @@ std::string TraCI_Commands::getSUMOFullDir()
     boost::filesystem::path dir = SUMOconfigFullPath.parent_path();
 
     if( !boost::filesystem::exists( dir ) )
-        error("SUMO directory is not found in %s", dir.string().c_str());
+        throw omnetpp::cRuntimeError("SUMO directory is not found in %s", dir.string().c_str());
 
     return dir.string();
 }
@@ -2955,7 +2955,7 @@ std::string  TraCI_Commands::getSUMOConfigFullPath()
     boost::filesystem::path SUMOconfigFullPath = VENTOS_FullPath / SUMOconfig;
 
     if( !boost::filesystem::exists(SUMOconfigFullPath) || !boost::filesystem::is_regular_file(SUMOconfigFullPath) )
-        error("SUMO configure file is not found in %s", SUMOconfigFullPath.string().c_str());
+        throw omnetpp::cRuntimeError("SUMO configure file is not found in %s", SUMOconfigFullPath.string().c_str());
 
     return SUMOconfigFullPath.string();
 }
@@ -2995,7 +2995,7 @@ void TraCI_Commands::updateTraCIlog(std::string state, uint8_t commandGroupId, u
         }
 
         if(!found)
-            error("pair (%x, %x) is not found in exchangedTraCIcommands \n", commandGroupId, commandId);
+            throw omnetpp::cRuntimeError("pair (%x, %x) is not found in exchangedTraCIcommands \n", commandGroupId, commandId);
 
         it->completeAt = t;
     }
@@ -3038,7 +3038,7 @@ void TraCI_Commands::TraCIexchangeToFile()
         // search for command name in TraCIcommandsMap
         auto it = TraCIcommandsMap.find(std::make_pair(y.commandGroupId, y.commandId));
         if(it == TraCIcommandsMap.end())
-            error("can not find pair (0x%x, 0x%x) in TraCIcommandsMap", y.commandGroupId, y.commandId);
+            throw omnetpp::cRuntimeError("can not find pair (0x%x, 0x%x) in TraCIcommandsMap", y.commandGroupId, y.commandId);
 
         // make the log more readable :)
         if(y.timeStamp != oldTime)

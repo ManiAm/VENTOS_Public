@@ -92,7 +92,7 @@ void TrafficLightManager::initialize_withTraCI()
     // check if the TLControlMode number is valid?
     if(TLControlMode < 0 || TLControlMode > 10)
     {
-        error("Invalid TLControlMode!");
+        throw omnetpp::cRuntimeError("Invalid TLControlMode!");
     }
 }
 

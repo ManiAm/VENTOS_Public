@@ -59,7 +59,7 @@ void Plotter::initialize(int stage)
 #endif
 
         if(pipeGnuPlot == NULL)
-            error("Could not open pipe for write!");
+            throw omnetpp::cRuntimeError("Could not open pipe for write!");
 
         getVersion();
 
@@ -79,12 +79,12 @@ void Plotter::getVersion()
 {
     FILE* pipversion = popen("gnuplot --version", "r");
     if (!pipversion)
-        error("can not open pipe!");
+        throw omnetpp::cRuntimeError("can not open pipe!");
 
     char lineversion[128];
     memset (lineversion, 0, sizeof(lineversion));
     if (!fgets(lineversion, sizeof(lineversion), pipversion))
-        error("fgets error!");
+        throw omnetpp::cRuntimeError("fgets error!");
 
     std::cout << std::endl << "GNUPLOT Version: " << lineversion << std::endl;
 

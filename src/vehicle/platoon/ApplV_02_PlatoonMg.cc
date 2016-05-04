@@ -48,7 +48,7 @@ void ApplVPlatoonMg::initialize(int stage)
             return;
 
         if(!VANETenabled)
-            error("This vehicle is not VANET-enabled!");
+            throw omnetpp::cRuntimeError("This vehicle is not VANET-enabled!");
 
         maxPlnSize = par("maxPlatoonSize").longValue();
         optPlnSize = par("optPlatoonSize").longValue();
@@ -209,7 +209,7 @@ void ApplVPlatoonMg::onData(PlatoonMsg* wsm)
 PlatoonMsg*  ApplVPlatoonMg::prepareData(std::string receiver, uCommands type, std::string receivingPlatoonID, double dblValue, std::string strValue, std::deque<std::string> vecValue)
 {
     if(plnMode != platoonManagement)
-        error("This application mode does not support platoon management!");
+        throw omnetpp::cRuntimeError("This application mode does not support platoon management!");
 
     PlatoonMsg* wsm = new PlatoonMsg("platoonMsg");
 
@@ -249,7 +249,7 @@ PlatoonMsg*  ApplVPlatoonMg::prepareData(std::string receiver, uCommands type, s
 void ApplVPlatoonMg::updateColorDepth()
 {
     if(plnSize <= 0)
-        error("plnSize is not right!");
+        throw omnetpp::cRuntimeError("plnSize is not right!");
 
     if(plnSize == 1)
         return;
@@ -341,13 +341,13 @@ void ApplVPlatoonMg::reportManeuverToStat(std::string from, std::string to, std:
 void ApplVPlatoonMg::splitFromPlatoon(int depth)
 {
     if(!VANETenabled)
-        error("This vehicle is not VANET-enabled!");
+        throw omnetpp::cRuntimeError("This vehicle is not VANET-enabled!");
 
     if(vehicleState != state_platoonLeader)
-        error("only platoon leader can initiate split!");
+        throw omnetpp::cRuntimeError("only platoon leader can initiate split!");
 
     if(depth <= 0 || depth > plnSize-1)
-        error("depth of splitting vehicle is invalid!");
+        throw omnetpp::cRuntimeError("depth of splitting vehicle is invalid!");
 
     if(!busy && splitEnabled)
     {
@@ -368,7 +368,7 @@ void ApplVPlatoonMg::splitFromPlatoon(int depth)
 void ApplVPlatoonMg::leavePlatoon()
 {
     if(!VANETenabled)
-        error("This vehicle is not VANET-enabled!");
+        throw omnetpp::cRuntimeError("This vehicle is not VANET-enabled!");
 
     // if I am leader
     if(vehicleState == state_platoonLeader)
@@ -397,17 +397,17 @@ void ApplVPlatoonMg::leavePlatoon()
         }
     }
     else
-        error("vehicle should be in leader or follower states!");
+        throw omnetpp::cRuntimeError("vehicle should be in leader or follower states!");
 }
 
 
 void ApplVPlatoonMg::dissolvePlatoon()
 {
     if(!VANETenabled)
-        error("This vehicle is not VANET-enabled!");
+        throw omnetpp::cRuntimeError("This vehicle is not VANET-enabled!");
 
     if(vehicleState != state_platoonLeader)
-        error("only platoon leader can break-up the platoon!");
+        throw omnetpp::cRuntimeError("only platoon leader can break-up the platoon!");
 
     if(plnSize <= 1 || busy)
         return;

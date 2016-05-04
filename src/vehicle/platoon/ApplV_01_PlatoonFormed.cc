@@ -49,7 +49,7 @@ void ApplVPlatoonFormed::initialize(int stage)
 	        return;
 
         if(!VANETenabled)
-            error("This vehicle is not VANET-enabled!");
+            throw omnetpp::cRuntimeError("This vehicle is not VANET-enabled!");
 
 	    preDefinedPlatoonID = par("preDefinedPlatoonID").stringValue();
 

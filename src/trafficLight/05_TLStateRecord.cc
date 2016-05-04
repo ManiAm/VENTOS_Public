@@ -51,15 +51,15 @@ void TLStateRecord::initialize(int stage)
         maxCycleLength = par("maxCycleLength").doubleValue();
 
         if(minGreenTime <= 0)
-            error("minGreenTime value is wrong!");
+            throw omnetpp::cRuntimeError("minGreenTime value is wrong!");
         if(maxGreenTime <= 0 || maxGreenTime < minGreenTime)
-            error("maxGreenTime value is wrong!");
+            throw omnetpp::cRuntimeError("maxGreenTime value is wrong!");
         if(yellowTime <= 0)
-            error("yellowTime value is wrong!");
+            throw omnetpp::cRuntimeError("yellowTime value is wrong!");
         if(redTime <= 0)
-            error("redTime value is wrong!");
+            throw omnetpp::cRuntimeError("redTime value is wrong!");
         if( maxCycleLength < (minGreenTime + yellowTime + redTime) )
-            error("maxCycleLength value is wrong!");
+            throw omnetpp::cRuntimeError("maxCycleLength value is wrong!");
 
         collectTLPhasingData = par("collectTLPhasingData").boolValue();
 
@@ -114,7 +114,7 @@ void TLStateRecord::updateTLstate(std::string TLid, std::string stage, std::stri
         // get a reference to this TL
         auto location = statusTL.find( std::make_pair(TLid,phaseTL[TLid]) );
         if(location == statusTL.end())
-            error("This TLid is not found!");
+            throw omnetpp::cRuntimeError("This TLid is not found!");
 
         if(stage == "yellow")
         {
@@ -126,11 +126,11 @@ void TLStateRecord::updateTLstate(std::string TLid, std::string stage, std::stri
 
             //            // todo: make sure green interval is above G_min
             //            if(green_duration - minGreenTime < 0)
-            //                error("green interval is less than minGreenTime = %0.3f", minGreenTime);
+            //                throw omnetpp::cRuntimeError("green interval is less than minGreenTime = %0.3f", minGreenTime);
             //
             //            // make sure green interval is below G_max
             //            if(green_duration - maxGreenTime > 0)
-            //                error("green interval is greater than maxGreenTime = %0.3f", maxGreenTime);
+            //                throw omnetpp::cRuntimeError("green interval is greater than maxGreenTime = %0.3f", maxGreenTime);
         }
         else if(stage == "red")
         {
@@ -141,7 +141,7 @@ void TLStateRecord::updateTLstate(std::string TLid, std::string stage, std::stri
 
             // todo:
             //            if( fabs(yellow_duration - yellowTime) < 0.0001 )
-            //                error("yellow interval is not %0.3f", yellowTime);
+            //                throw omnetpp::cRuntimeError("yellow interval is not %0.3f", yellowTime);
         }
         else if(stage == "phaseEnd")
         {
@@ -153,7 +153,7 @@ void TLStateRecord::updateTLstate(std::string TLid, std::string stage, std::stri
 
             // todo:
             //            if(red_duration - redTime != 0)
-            //                error("red interval is not %0.3f", redTime);
+            //                throw omnetpp::cRuntimeError("red interval is not %0.3f", redTime);
 
             // get all incoming lanes for this TLid
             std::list<std::string> lan = laneListTL[TLid].second;
@@ -190,7 +190,7 @@ void TLStateRecord::updateTLstate(std::string TLid, std::string stage, std::stri
             currentStatusTL *entry = new currentStatusTL(cycleNumber, currentInterval, -1, omnetpp::simTime().dbl(), -1, -1, -1, lan.size(), -1);
             statusTL.insert( std::make_pair(std::make_pair(TLid,location2->second), *entry) );
         }
-        else error("stage is not recognized!");
+        else throw omnetpp::cRuntimeError("stage is not recognized!");
     }
 }
 

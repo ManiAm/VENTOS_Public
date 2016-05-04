@@ -143,7 +143,7 @@ void BLE_Dump::executeEachTimestep()
             // get the first available BT device
             dev_id = hci_get_route(NULL);
             if (dev_id < 0)
-                error("Device is not available");
+                throw omnetpp::cRuntimeError("Device is not available");
         }
 
         int scan_type = par("BLE_scan_type").longValue();
@@ -171,7 +171,7 @@ void BLE_Dump::lescanEnable(int dev_id, uint8_t scan_type, uint16_t interval, ui
 {
     int dd = hci_open_dev(dev_id);
     if (dd < 0)
-        error("Can't open device");
+        throw omnetpp::cRuntimeError("Can't open device");
 
     std::cout << ">>> Enabling BLE scan on hci" << dev_id << " ... \n";
     std::cout << "    Scan type: " << (int)scan_type;
@@ -186,7 +186,7 @@ void BLE_Dump::lescanEnable(int dev_id, uint8_t scan_type, uint16_t interval, ui
     if (err < 0)
     {
         hci_close_dev(dd);
-        error("Set scan parameters failed: %s", strerror(errno));
+        throw omnetpp::cRuntimeError("Set scan parameters failed: %s", strerror(errno));
     }
 
     uint8_t filter_dup = 0x00;  // do not filter duplicates
@@ -194,7 +194,7 @@ void BLE_Dump::lescanEnable(int dev_id, uint8_t scan_type, uint16_t interval, ui
     if (err < 0)
     {
         hci_close_dev(dd);
-        error("Enable scan failed");
+        throw omnetpp::cRuntimeError("Enable scan failed");
     }
 
     hci_close_dev(dd);
@@ -205,14 +205,14 @@ void BLE_Dump::lescanDisable(int dev_id)
 {
     int dd = hci_open_dev(dev_id);
     if (dd < 0)
-        error("Can't open device");
+        throw omnetpp::cRuntimeError("Can't open device");
 
     uint8_t filter_dup = 0x00;  // do not filter duplicates
     int err = hci_le_set_scan_enable(dd, 0x00 /*disable*/, filter_dup, 1000 /*timeout*/);
     if (err < 0)
     {
         hci_close_dev(dd);
-        error("Disable scan failed");
+        throw omnetpp::cRuntimeError("Disable scan failed");
     }
 
     hci_close_dev(dd);
@@ -223,17 +223,17 @@ int BLE_Dump::open_socket(int dev_id)
 {
     int dd = hci_open_dev(dev_id);
     if (dd < 0)
-        error("Can't open device");
+        throw omnetpp::cRuntimeError("Can't open device");
 
     struct hci_dev_info di;
     if (hci_devinfo(dev_id, &di) < 0)
-        error("Can't get device info");
+        throw omnetpp::cRuntimeError("Can't get device info");
 
     int opt = hci_test_bit(HCI_RAW, &di.flags);
     if (ioctl(dd, HCISETRAW, opt) < 0)
     {
         if (errno == EACCES)
-            error("Can't access device");
+            throw omnetpp::cRuntimeError("Can't access device");
     }
 
     hci_close_dev(dd);
@@ -241,15 +241,15 @@ int BLE_Dump::open_socket(int dev_id)
     /* Create HCI socket */
     int sk = socket(AF_BLUETOOTH, SOCK_RAW, BTPROTO_HCI);
     if (sk < 0)
-        error("Can't create raw socket");
+        throw omnetpp::cRuntimeError("Can't create raw socket");
 
     opt = 1;
     if (setsockopt(sk, SOL_HCI, HCI_DATA_DIR, &opt, sizeof(opt)) < 0)
-        error("Can't enable data direction info");
+        throw omnetpp::cRuntimeError("Can't enable data direction info");
 
     opt = 1;
     if (setsockopt(sk, SOL_HCI, HCI_TIME_STAMP, &opt, sizeof(opt)) < 0)
-        error("Can't enable time stamp");
+        throw omnetpp::cRuntimeError("Can't enable time stamp");
 
     /* Setup filter */
     struct hci_filter flt;
@@ -257,7 +257,7 @@ int BLE_Dump::open_socket(int dev_id)
     hci_filter_all_ptypes(&flt);
     hci_filter_all_events(&flt);
     if (setsockopt(sk, SOL_HCI, HCI_FILTER, &flt, sizeof(flt)) < 0)
-        error("Can't set filter");
+        throw omnetpp::cRuntimeError("Can't set filter");
 
     /* Bind socket to the HCI device */
     struct sockaddr_hci addr;
@@ -265,10 +265,10 @@ int BLE_Dump::open_socket(int dev_id)
     addr.hci_family = AF_BLUETOOTH;
     addr.hci_dev = dev_id;
     if (bind(sk, (struct sockaddr *) &addr, sizeof(addr)) < 0)
-        error("Can't attach to device hci%d. %s(%d) \n", dev_id, strerror(errno), errno);
+        throw omnetpp::cRuntimeError("Can't attach to device hci%d. %s(%d) \n", dev_id, strerror(errno), errno);
 
     if(sk < 0)
-        error("Socket number is invalid");
+        throw omnetpp::cRuntimeError("Socket number is invalid");
 
     return sk;
 }
@@ -281,7 +281,7 @@ void BLE_Dump::process_frames(int dev_id, int sock, int timeout)
     int snap_len = SNAP_LEN_BT;
     char *buf = (char *) malloc(snap_len + hdr_size);
     if (!buf)
-        error("Can't allocate data buffer");
+        throw omnetpp::cRuntimeError("Can't allocate data buffer");
 
     struct frame frm;
     frm.data = buf + hdr_size;
@@ -290,7 +290,7 @@ void BLE_Dump::process_frames(int dev_id, int sock, int timeout)
     if (!ctrl)
     {
         free(buf);
-        error("Can't allocate control buffer");
+        throw omnetpp::cRuntimeError("Can't allocate control buffer");
     }
 
     struct msghdr msg;
@@ -351,7 +351,7 @@ void BLE_Dump::process_frames(int dev_id, int sock, int timeout)
             if (errno == EAGAIN || errno == EINTR)
                 continue;
 
-            error("Receive failed");
+            throw omnetpp::cRuntimeError("Receive failed");
         }
 
         /* Process control message */

@@ -49,15 +49,15 @@ void ApplRSUCRL::initialize(int stage)
 
         CRL_Interval = par("CRL_Interval");
         if(CRL_Interval <= 0)
-            error("value for CRL_Interval is incorrect !!");
+            throw omnetpp::cRuntimeError("value for CRL_Interval is incorrect !!");
 
         beacon_Interval = par("beacon_Interval").doubleValue();
         if(beacon_Interval <= 0)
-            error("value for beacon_Interval is incorrect !!");
+            throw omnetpp::cRuntimeError("value for beacon_Interval is incorrect !!");
 
         I2V_tho = par("I2V_tho");
         if(I2V_tho < 0)
-            error("value for I2V_tho is incorrect !!");
+            throw omnetpp::cRuntimeError("value for I2V_tho is incorrect !!");
 
         // get a pointer to the MAC submodule
         cModule *nicPtr = this->getParentModule()->getSubmodule("nic");
@@ -173,7 +173,7 @@ void ApplRSUCRL::handleSelfMsg(omnetpp::cMessage *msg)
         }
     }
     else
-        error("Unknown message! -> delete, kind: %d", msg->getKind());
+        throw omnetpp::cRuntimeError("Unknown message! -> delete, kind: %d", msg->getKind());
 }
 
 

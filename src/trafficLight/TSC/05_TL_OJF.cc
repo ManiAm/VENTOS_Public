@@ -104,7 +104,7 @@ void TrafficLightOJF::handleMessage(omnetpp::cMessage *msg)
         chooseNextInterval();
 
         if(intervalDuration <= 0)
-            error("intervalDuration is <= 0");
+            throw omnetpp::cRuntimeError("intervalDuration is <= 0");
 
         // Schedule next light change event:
         scheduleAt(omnetpp::simTime().dbl() + intervalDuration, intervalChangeEVT);

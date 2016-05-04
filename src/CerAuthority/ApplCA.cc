@@ -52,17 +52,17 @@ void ApplCA::initialize(int stage)
 
         InitialWait = par("InitialWait").longValue();
         if(InitialWait < 0)
-            error("value for InitialWait is incorrect !!");
+            throw omnetpp::cRuntimeError("value for InitialWait is incorrect !!");
 
         CRLsize = par("CRLsize").longValue();
         if(CRLsize <= 0)
-            error("value for CRLsize is incorrect !!");
+            throw omnetpp::cRuntimeError("value for CRLsize is incorrect !!");
 
         EnableShuffle = par("EnableShuffle").boolValue();
 
         Pseudonym_lifeTime = par("Pseudonym_lifeTime").doubleValue();
         if(Pseudonym_lifeTime <= 0)
-            error("value for Pseudonym_lifeTime is incorrect !!");
+            throw omnetpp::cRuntimeError("value for Pseudonym_lifeTime is incorrect !!");
 
         ErasureCode = par("ErasureCode").boolValue();
 
@@ -71,7 +71,7 @@ void ApplCA::initialize(int stage)
             NoSegments = par("NoSegments").longValue();
 
             if(NoSegments <= 0)
-                error("Value of NoSegments is incorrect! Check configuration file.");
+                throw omnetpp::cRuntimeError("Value of NoSegments is incorrect! Check configuration file.");
 
             totalPieces = NoSegments;
         }
@@ -81,10 +81,10 @@ void ApplCA::initialize(int stage)
             M = par("M").longValue();
 
             if(N <= 0 || N >= 256)
-                error("Value of N is not correct! Check configuration file.");
+                throw omnetpp::cRuntimeError("Value of N is not correct! Check configuration file.");
 
             if(M <= 0 || M > N)
-                error("Value of M is not correct! Check configuration file.");
+                throw omnetpp::cRuntimeError("Value of M is not correct! Check configuration file.");
 
             totalPieces = N;
 
@@ -121,7 +121,7 @@ void ApplCA::handleSelfMsg(omnetpp::cMessage *msg)
     if(msg == Timer1)
         createCRL();
     else
-        error("Unknown message! -> delete, kind: %d", msg->getKind());
+        throw omnetpp::cRuntimeError("Unknown message! -> delete, kind: %d", msg->getKind());
 }
 
 
@@ -423,7 +423,7 @@ void ApplCA::sendPiecesToRSUs()
     // get a pointer to the first RSU
     omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("RSU", 0);
     if(module == NULL)
-        error("No RSU module was found in the network!");
+        throw omnetpp::cRuntimeError("No RSU module was found in the network!");
 
     // how many RSUs are in the network?
     int RSUcount = module->getVectorSize();
@@ -434,7 +434,7 @@ void ApplCA::sendPiecesToRSUs()
         {
             cModule *rmodule = omnetpp::getSimulation()->getSystemModule()->getSubmodule("RSU", i);
             if(rmodule == NULL)
-                error("RSU %d was found in the network!", i);
+                throw omnetpp::cRuntimeError("RSU %d was found in the network!", i);
 
             CRLPiecesData *data = new CRLPiecesData(rmodule->getFullName(), PiecesCRL);
 
@@ -449,7 +449,7 @@ void ApplCA::sendPiecesToRSUs()
 
             cModule *rmodule = omnetpp::getSimulation()->getSystemModule()->getSubmodule("RSU", i);
             if(rmodule == NULL)
-                error("RSU %d was found in the network!", i);
+                throw omnetpp::cRuntimeError("RSU %d was found in the network!", i);
 
             CRLPiecesData *data = new CRLPiecesData(rmodule->getFullName(), PiecesCRL_shuffled);
 

@@ -59,7 +59,7 @@ void SpeedProfile::initialize(int stage)
         trajectoryPath = par("trajectoryPath").stringValue();
 
         if(startTime < 0 && startTime != -1)
-            error("startTime in SpeedProfile is not correct!");
+            throw omnetpp::cRuntimeError("startTime in SpeedProfile is not correct!");
 
         old_speed = -1;
         lastProfileVehicle = "";
@@ -182,7 +182,7 @@ void SpeedProfile::Change()
         AccelDecel(startTime+5, minSpeed, normalSpeed);
     }
     else
-        error("not a valid speed profile mode!");
+        throw omnetpp::cRuntimeError("not a valid speed profile mode!");
 }
 
 
@@ -280,7 +280,7 @@ void SpeedProfile::ExTrajectory(double startT)
         f2 = fopen (trajectoryPath.c_str(), "r");
 
         if (f2 == NULL)
-            error("external trajectory file does not exists! Check trajectoryPath variable.");
+            throw omnetpp::cRuntimeError("external trajectory file does not exists! Check trajectoryPath variable.");
 
         fileOpened = true;
     }

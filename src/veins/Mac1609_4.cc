@@ -251,7 +251,7 @@ void Mac1609_4::handleUpperMsg(omnetpp::cMessage* msg)
 {
 	WaveShortMessage* thisMsg;
 	if ((thisMsg = dynamic_cast<WaveShortMessage*>(msg)) == NULL)
-		error("WaveMac only accepts WaveShortMessages");
+	    throw omnetpp::cRuntimeError("WaveMac only accepts WaveShortMessages");
 
 	t_access_category ac = mapPriority(thisMsg->getPriority());
 

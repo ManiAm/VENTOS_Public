@@ -51,16 +51,16 @@ void IntersectionDelay::initialize(int stage)
         lastValueBuffSize = par("lastValueBuffSize").longValue();
 
         if(deccelDelayThreshold >= 0)
-            error("deccelDelayThreshold is not set correctly!");
+            throw omnetpp::cRuntimeError("deccelDelayThreshold is not set correctly!");
 
         if(vehStoppingDelayThreshold < 0)
-            error("vehStoppingDelayThreshold is not set correctly!");
+            throw omnetpp::cRuntimeError("vehStoppingDelayThreshold is not set correctly!");
 
         if(bikeStoppingDelayThreshold < 0)
-            error("bikeStoppingDelayThreshold is not set correctly!");
+            throw omnetpp::cRuntimeError("bikeStoppingDelayThreshold is not set correctly!");
 
         if(lastValueBuffSize < 1)
-            error("lastValueBuffSize is not set correctly!");
+            throw omnetpp::cRuntimeError("lastValueBuffSize is not set correctly!");
     }
 }
 
@@ -366,10 +366,10 @@ void IntersectionDelay::vehiclesAccuDelay(std::string vID, std::map<std::string,
         loc->second.accumDelay = omnetpp::simTime().dbl() - loc->second.startDeccel;
 
         if(loc->second.accumDelay < 0)
-            error("accumulated delay can not be negative for vehicle %s", vID.c_str());
+            throw omnetpp::cRuntimeError("accumulated delay can not be negative for vehicle %s", vID.c_str());
 
         if(loc->second.accumDelay > omnetpp::simTime().dbl())
-            error("accumulated delay can not be greater than the current simTime for vehicle %s", vID.c_str());
+            throw omnetpp::cRuntimeError("accumulated delay can not be greater than the current simTime for vehicle %s", vID.c_str());
 
         // update accumDelay of this vehicle in laneDelay
         auto loc2 = laneDelay[loc->second.lastLane].find(vID);

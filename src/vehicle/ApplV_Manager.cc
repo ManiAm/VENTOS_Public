@@ -61,7 +61,7 @@ void ApplVManager::initialize(int stage)
         cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("statistics");
         Statistics *StatPtr = static_cast<Statistics *>(module);
         if(StatPtr == NULL)
-            error("can not get a pointer to the Statistics module.");
+            throw omnetpp::cRuntimeError("can not get a pointer to the Statistics module.");
 
         reportBeaconsData = StatPtr->par("reportBeaconsData").boolValue();
 
@@ -289,7 +289,7 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
     else if(SUMOControllerType == SUMO_TAG_CF_CACC && SUMOControllerNumber == 2)
     {
         if(plnMode == platoonOff)
-            error("no platoon leader is present! check plnMode!");
+            throw omnetpp::cRuntimeError("no platoon leader is present! check plnMode!");
 
         // I am platoon leader
         // get data from my leading vehicle
@@ -316,7 +316,7 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
     }
     else
     {
-        error("not a valid control type or control number!");
+        throw omnetpp::cRuntimeError("not a valid control type or control number!");
     }
 }
 

@@ -124,7 +124,7 @@ void ApplVPlatoonMg::followerLeave_DataFSM(PlatoonMsg *wsm)
             else if(wsm->getDblValue() == 1)
                 reportManeuverToStat(SUMOID, "-", "LFLeave_Start");
             else
-                error("Unknwon value!");
+                throw omnetpp::cRuntimeError("Unknwon value!");
 
             vehicleState = state_platoonFollower;
             reportStateToStat();
@@ -140,7 +140,7 @@ void ApplVPlatoonMg::followerLeave_DataFSM(PlatoonMsg *wsm)
         if (wsm->getType() == LEAVE_REQ && wsm->getRecipient() == SUMOID)
         {
             if(wsm->getDblValue() <= 0 || wsm->getDblValue() >= plnSize)
-                error("depth of the follower is not right!");
+                throw omnetpp::cRuntimeError("depth of the follower is not right!");
 
             busy = true;
 

@@ -61,7 +61,8 @@ void ChannelAccess::initialize( int stage )
 
         cModule* nic = getParentModule();
         cc = getConnectionManager(nic);
-        if( cc == NULL ) error("Could not find connectionmanager module");
+        if( cc == NULL )
+            throw omnetpp::cRuntimeError("Could not find connectionmanager module");
         isRegistered = false;
     }
 

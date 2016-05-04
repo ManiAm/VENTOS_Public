@@ -217,7 +217,7 @@ template <typename T> void ApplRSUMonitor::onBeaconAny(T wsm)
             std::vector<detectedVehicleEntry>::iterator counter = std::find(Vec_detectedVehicles.begin(), Vec_detectedVehicles.end(), *searchFor);
 
             if (counter == Vec_detectedVehicles.end())
-                error("vehicle %s does not exist in the queue!", sender.c_str());
+                throw omnetpp::cRuntimeError("vehicle %s does not exist in the queue!", sender.c_str());
 
             if(counter->leaveTime == -1)
             {
@@ -306,7 +306,7 @@ void ApplRSUMonitor::LaneInfoAdd(std::string lane, std::string sender, std::stri
     // look for this lane in laneInfo map
     std::map<std::string, laneInfoEntry>::iterator loc = laneInfo.find(lane);
     if(loc == laneInfo.end())
-        error("lane %s does not exist in laneInfo map!", lane.c_str());
+        throw omnetpp::cRuntimeError("lane %s does not exist in laneInfo map!", lane.c_str());
 
     // update total vehicle count
     loc->second.totalVehCount = loc->second.totalVehCount + 1;
@@ -357,12 +357,12 @@ void ApplRSUMonitor::LaneInfoUpdate(std::string lane, std::string sender, std::s
     // look for this lane in laneInfo map
     std::map<std::string, laneInfoEntry>::iterator loc = laneInfo.find(lane);
     if(loc == laneInfo.end())
-        error("lane %s does not exist in laneInfo map!", lane.c_str());
+        throw omnetpp::cRuntimeError("lane %s does not exist in laneInfo map!", lane.c_str());
 
     // look for this vehicle in this lane
     std::map<std::string, allVehiclesEntry>::iterator ref = loc->second.allVehicles.find(sender);
     if(ref == loc->second.allVehicles.end())
-        error("vehicle %s was not added into lane %s in laneInfo map!", sender.c_str(), lane.c_str());
+        throw omnetpp::cRuntimeError("vehicle %s was not added into lane %s in laneInfo map!", sender.c_str(), lane.c_str());
 
 
     // get stopping speed threshold
@@ -385,12 +385,12 @@ void ApplRSUMonitor::LaneInfoRemove(std::string lane, std::string sender)
     // look for this lane in laneInfo map
     std::map<std::string, laneInfoEntry>::iterator loc = laneInfo.find(lane);
     if(loc == laneInfo.end())
-        error("lane %s does not exist in laneInfo map!", lane.c_str());
+        throw omnetpp::cRuntimeError("lane %s does not exist in laneInfo map!", lane.c_str());
 
     // look for this vehicle in this lane
     std::map<std::string, allVehiclesEntry>::iterator ref = loc->second.allVehicles.find(sender);
     if(ref == loc->second.allVehicles.end())
-        error("vehicle %s was not added into lane %s in laneInfo map!", sender.c_str(), lane.c_str());
+        throw omnetpp::cRuntimeError("vehicle %s was not added into lane %s in laneInfo map!", sender.c_str(), lane.c_str());
 
     // remove it from the vehicles list
     loc->second.allVehicles.erase(ref);

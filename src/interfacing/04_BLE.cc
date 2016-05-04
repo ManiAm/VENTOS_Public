@@ -101,7 +101,7 @@ void BLE::executeEachTimestep()
             // get the first available BT device
             dev_id = hci_get_route(NULL);
             if (dev_id < 0)
-                error("Device is not available");
+                throw omnetpp::cRuntimeError("Device is not available");
         }
 
         int scan_type = par("BLE_scan_type").longValue();
@@ -134,7 +134,7 @@ void BLE::loadCachedDevices()
     {
         std::vector<std::string> tokens = omnetpp::cStringTokenizer(line.c_str(), ",,").asVector();
         if(tokens.size() < 3)
-            error("file format is not correct!");
+            throw omnetpp::cRuntimeError("file format is not correct!");
 
         std::string BTaddr = tokens[0] ;
         std::string BTname = tokens[1];
@@ -166,7 +166,7 @@ void BLE::saveCachedDevices()
 
     FILE *filePtr = fopen (cached_LEBT_devices_filePATH.string().c_str(), "w");
     if(!filePtr)
-        error("can not open file for writing!");
+        throw omnetpp::cRuntimeError("can not open file for writing!");
 
     for(auto &i : allLEBTdevices)
         fprintf (filePtr, "%s  ,,  %s  ,,  %s \n", i.first.c_str(), i.second.name.c_str(), i.second.timeStamp.c_str());
@@ -179,7 +179,7 @@ void BLE::lescan(int dev_id, uint8_t scan_type, uint16_t interval, uint16_t wind
 {
     int dd = hci_open_dev(dev_id);
     if (dd < 0)
-        error("Could not open device");
+        throw omnetpp::cRuntimeError("Could not open device");
 
     std::cout << std::endl << ">>> Scanning Bluetooth LE devices on hci" << dev_id << " for " << scan_time << " seconds... \n";
     std::cout << "    Scan type: " << (int)scan_type;
@@ -194,7 +194,7 @@ void BLE::lescan(int dev_id, uint8_t scan_type, uint16_t interval, uint16_t wind
     if (err < 0)
     {
         hci_close_dev(dd);
-        error("Set scan parameters failed: %s", strerror(errno));
+        throw omnetpp::cRuntimeError("Set scan parameters failed: %s", strerror(errno));
     }
 
     uint8_t filter_dup = 1;   // filter duplicates
@@ -202,7 +202,7 @@ void BLE::lescan(int dev_id, uint8_t scan_type, uint16_t interval, uint16_t wind
     if (err < 0)
     {
         hci_close_dev(dd);
-        error("Enable scan failed");
+        throw omnetpp::cRuntimeError("Enable scan failed");
     }
 
     struct hci_filter of;
@@ -210,7 +210,7 @@ void BLE::lescan(int dev_id, uint8_t scan_type, uint16_t interval, uint16_t wind
     if (getsockopt(dd, SOL_HCI, HCI_FILTER, &of, &olen) < 0)
     {
         hci_close_dev(dd);
-        error("Could not get socket options");
+        throw omnetpp::cRuntimeError("Could not get socket options");
     }
 
     struct hci_filter nf;
@@ -221,7 +221,7 @@ void BLE::lescan(int dev_id, uint8_t scan_type, uint16_t interval, uint16_t wind
     if (setsockopt(dd, SOL_HCI, HCI_FILTER, &nf, sizeof(nf)) < 0)
     {
         hci_close_dev(dd);
-        error("Could not set socket options");
+        throw omnetpp::cRuntimeError("Could not set socket options");
     }
 
     auto rsp = print_advertising_devices(dd, scan_time);
@@ -268,7 +268,7 @@ void BLE::lescan(int dev_id, uint8_t scan_type, uint16_t interval, uint16_t wind
     if (err < 0)
     {
         hci_close_dev(dd);
-        error("Disable scan failed");
+        throw omnetpp::cRuntimeError("Disable scan failed");
     }
 
     hci_close_dev(dd);
@@ -453,11 +453,11 @@ uint16_t BLE::leCreateConnection(std::string str_bdaddr)
 {
     int dev_id = hci_get_route(NULL);
     if (dev_id < 0)
-        error("Device is not available");
+        throw omnetpp::cRuntimeError("Device is not available");
 
     int dd = hci_open_dev(dev_id);
     if (dd < 0)
-        error("Could not open device");
+        throw omnetpp::cRuntimeError("Could not open device");
 
     uint16_t interval = htobs(0x0004);
     uint16_t window = htobs(0x0004);
@@ -483,7 +483,7 @@ uint16_t BLE::leCreateConnection(std::string str_bdaddr)
     if (err < 0)
     {
         hci_close_dev(dd);
-        error("Could not create connection");
+        throw omnetpp::cRuntimeError("Could not create connection");
     }
 
     printf("Connection handle %d \n", handle);

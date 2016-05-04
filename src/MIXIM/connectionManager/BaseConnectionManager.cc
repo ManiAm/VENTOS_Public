@@ -402,7 +402,7 @@ void BaseConnectionManager::updateNicPos(int nicID, const Coord* newPos)
 {
     NicEntries::iterator ItNic = nics.find(nicID);
     if (ItNic == nics.end())
-        error("No nic with this ID (%d) is registered with this ConnectionManager.", nicID);
+        throw omnetpp::cRuntimeError("No nic with this ID (%d) is registered with this ConnectionManager.", nicID);
 
     Coord oldPos = ItNic->second->pos;
     ItNic->second->pos = *newPos;
@@ -414,7 +414,7 @@ const NicEntry::GateList& BaseConnectionManager::getGateList(int nicID) const
 {
     NicEntries::const_iterator ItNic = nics.find(nicID);
     if (ItNic == nics.end())
-        error("No nic with this ID (%d) is registered with this ConnectionManager.", nicID);
+        throw omnetpp::cRuntimeError("No nic with this ID (%d) is registered with this ConnectionManager.", nicID);
 
     return ItNic->second->getGateList();
 }
@@ -424,7 +424,7 @@ const omnetpp::cGate* BaseConnectionManager::getOutGateTo(const NicEntry* nic,
 {
     NicEntries::const_iterator ItNic = nics.find(nic->nicId);
     if (ItNic == nics.end())
-        error("No nic with this ID (%d) is registered with this ConnectionManager.", nic->nicId);
+        throw omnetpp::cRuntimeError("No nic with this ID (%d) is registered with this ConnectionManager.", nic->nicId);
 
     return ItNic->second->getOutGateTo(targetNic);
 }

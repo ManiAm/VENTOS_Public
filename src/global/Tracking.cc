@@ -56,15 +56,15 @@ void Tracking::initialize(int stage)
 
         zoom = par("zoom").doubleValue();
         if(zoom < 0)
-            error("zoom value is not correct!");
+            throw omnetpp::cRuntimeError("zoom value is not correct!");
 
         initialWindowsOffset = par("initialWindowsOffset").doubleValue();
         if(initialWindowsOffset < 0)
-            error("Initial Windows Offset value is not correct!");
+            throw omnetpp::cRuntimeError("Initial Windows Offset value is not correct!");
 
         trackingInterval = par("trackingInterval").doubleValue();
         if(trackingInterval <= 0)
-            error("Tracking interval should be positive!");
+            throw omnetpp::cRuntimeError("Tracking interval should be positive!");
 
         trackingV = par("trackingV").stdstringValue();
         trackingLane = par("trackingLane").stringValue();
@@ -159,7 +159,7 @@ void Tracking::TrackingGUI()
         }
     }
     else
-        error("not a valid mode!");
+        throw omnetpp::cRuntimeError("not a valid mode!");
 
     scheduleAt(omnetpp::simTime() + trackingInterval, updataGUI);
 }

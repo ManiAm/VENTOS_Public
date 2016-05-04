@@ -49,7 +49,7 @@ void TrafficLightWebster::initialize(int stage)
     {
         alpha = par("alpha").doubleValue();
         if(alpha < 0 || alpha > 1)
-            error("alpha value should be [0,1]");
+            throw omnetpp::cRuntimeError("alpha value should be [0,1]");
 
         intervalChangeEVT = new omnetpp::cMessage("intervalChangeEVT", 1);
 
@@ -79,7 +79,7 @@ void TrafficLightWebster::handleMessage(omnetpp::cMessage *msg)
         chooseNextInterval();
 
         if(intervalDuration <= 0)
-            error("intervalDuration is <= 0");
+            throw omnetpp::cRuntimeError("intervalDuration is <= 0");
 
         // Schedule next light change event:
         scheduleAt(omnetpp::simTime().dbl() + intervalDuration, intervalChangeEVT);
@@ -310,7 +310,7 @@ void TrafficLightWebster::calculateGreenSplits()
 
     if(Y < 0)
     {
-        error("WTH! total critical v/c is negative!");
+        throw omnetpp::cRuntimeError("WTH! total critical v/c is negative!");
     }
     // no TD in any directions. Give G_min to each phase
     else if(Y == 0)
@@ -372,7 +372,7 @@ void TrafficLightWebster::calculateGreenSplits()
     }
     else if(Y >= 1)
     {
-        error("total critical v/c >= 1. Saturation flow might be low ?!");
+        throw omnetpp::cRuntimeError("total critical v/c >= 1. Saturation flow might be low ?!");
     }
 }
 

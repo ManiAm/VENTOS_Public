@@ -75,7 +75,7 @@ void USB::initialize(int stage)
         // start a libusb session
         int r = libusb_init(&ctx); // initialize a library session
         if(r < 0)
-            error("failed to initialize libusb: %s\n", libusb_error_name(r));
+            throw omnetpp::cRuntimeError("failed to initialize libusb: %s\n", libusb_error_name(r));
 
         libusb_set_debug(ctx, 3); // set verbosity level to 3, as suggested in the documentation
 
@@ -109,7 +109,7 @@ void USB::finish()
     {
         int r = libusb_release_interface(dev_handle, target_interfaceNumber);
         if(r != 0)
-            error("Cannot Release Interface! %s", libusb_error_name(r));
+            throw omnetpp::cRuntimeError("Cannot Release Interface! %s", libusb_error_name(r));
 
         std::cout << "Interface " << target_interfaceNumber << " Released." << std::endl;
 
@@ -216,7 +216,7 @@ void USB::getUSBdevices(bool listUSBdevicesDetailed)
         // start a libusb session
         int r = libusb_init(&ctx); // initialize a library session
         if(r < 0)
-            error("failed to initialize libusb: %s\n", libusb_error_name(r));
+            throw omnetpp::cRuntimeError("failed to initialize libusb: %s\n", libusb_error_name(r));
 
         libusb_set_debug(ctx, 3); // set verbosity level to 3, as suggested in the documentation
     }
@@ -239,7 +239,7 @@ void USB::getUSBdevices(bool listUSBdevicesDetailed)
         libusb_device_descriptor desc;
         int r = libusb_get_device_descriptor(devs[i], &desc);
         if (r < 0)
-            error("failed to get device descriptor");
+            throw omnetpp::cRuntimeError("failed to get device descriptor");
 
         // decode vendorID and productID
         std::vector<std::string> names = USBidTostr(desc.idVendor, desc.idProduct);
@@ -283,7 +283,7 @@ std::vector<std::string> USB::USBidTostr(uint16_t idVendor, uint16_t idProduct)
 
         std::ifstream in(usbids_FullPath.string().c_str());
         if(in.fail())
-            error("cannot open file sniff_usb_ids at %s", usbids_FullPath.string().c_str());
+            throw omnetpp::cRuntimeError("cannot open file sniff_usb_ids at %s", usbids_FullPath.string().c_str());
 
         std::string line;
         usb_vender *v = NULL;
@@ -316,7 +316,7 @@ std::vector<std::string> USB::USBidTostr(uint16_t idVendor, uint16_t idProduct)
                         if(USBids.find(*v) == USBids.end())
                             USBids[*v] = std::vector<usb_device>();
                         else
-                            error("vender %d exists more than once!", vendor_id);
+                            throw omnetpp::cRuntimeError("vender %d exists more than once!", vendor_id);
                     }
                     // device
                     else if(*beg == "")
@@ -336,7 +336,7 @@ std::vector<std::string> USB::USBidTostr(uint16_t idVendor, uint16_t idProduct)
                             if(it != USBids.end())
                                 (it->second).push_back(*d);
                             else
-                                error("vendor does not exist for %d", device_id);
+                                throw omnetpp::cRuntimeError("vendor does not exist for %d", device_id);
                         }
                     }
                 }
@@ -553,14 +553,14 @@ void USB::EnableHotPlug()
     if (!libusb_has_capability (LIBUSB_CAP_HAS_HOTPLUG))
     {
         libusb_exit (NULL);
-        error("Hotplug capabilities are not supported on this platform");
+        throw omnetpp::cRuntimeError("Hotplug capabilities are not supported on this platform");
     }
 
     rc = libusb_hotplug_register_callback(ctx, LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED, (libusb_hotplug_flag)0, vendor_id, product_id, class_id, hotplug_callback, NULL, &hp[0]);
     if (rc < 0)
     {
         libusb_exit (NULL);
-        error("Error registering callback 0");
+        throw omnetpp::cRuntimeError("Error registering callback 0");
     }
 
     std::cout << "HOTPLUG_EVENT_DEVICE_ARRIVED registered!" << std::endl;
@@ -570,7 +570,7 @@ void USB::EnableHotPlug()
     if (rc < 0)
     {
         libusb_exit (NULL);
-        error("Error registering callback 1");
+        throw omnetpp::cRuntimeError("Error registering callback 1");
     }
 
     std::cout << "HOTPLUG_EVENT_DEVICE_LEFT registered!" << std::endl;
@@ -626,12 +626,12 @@ void USB::startSniffing()
 {
     // make sure ctx is not NULL
     if(ctx == NULL)
-        error("No libusb session is established!");
+        throw omnetpp::cRuntimeError("No libusb session is established!");
 
     // open the USB device that we are looking for
     dev_handle = libusb_open_device_with_vid_pid(ctx, target_vendor_id, target_product_id);
     if(dev_handle == NULL)
-        error("Cannot open USB device %04x:%04x. Check 'target_vendor_id' and 'target_product_id'", target_vendor_id, target_product_id);
+        throw omnetpp::cRuntimeError("Cannot open USB device %04x:%04x. Check 'target_vendor_id' and 'target_product_id'", target_vendor_id, target_product_id);
 
     printf("Device %04x:%04x opened ...\n", target_vendor_id, target_product_id);
 
@@ -654,21 +654,21 @@ void USB::startSniffing()
             std::cout << "Setting device configuration to 1." << std::endl;
             r = libusb_set_configuration(dev_handle, 1);
             if (r < 0)
-                error("libusb_set_configuration error: %s", libusb_error_name(r));
+                throw omnetpp::cRuntimeError("libusb_set_configuration error: %s", libusb_error_name(r));
         }
     }
 
     // claim interface of device
     r = libusb_claim_interface(dev_handle, target_interfaceNumber);
     if(r < 0)
-        error("Cannot claim interface! %s", libusb_error_name(r));
+        throw omnetpp::cRuntimeError("Cannot claim interface! %s", libusb_error_name(r));
 
     std::cout << "Interface " << target_interfaceNumber << " Claimed." << std::endl;
 
     libusb_device* thisDev = libusb_get_device(dev_handle);
     EPPacketSize = libusb_get_max_packet_size(thisDev, target_interruptEP);
     if(EPPacketSize < 0)
-        error("libusb_get_max_packet_size failed!");
+        throw omnetpp::cRuntimeError("libusb_get_max_packet_size failed!");
 
     // start getting data events
     scheduleAt(omnetpp::simTime() + 0.00001, USBInterrupt);
@@ -690,7 +690,7 @@ void USB::bulk(libusb_device_handle *devh)
     //            1000);   // TIMEOUT_MS
     //
     //    if (bytes_received < 0)
-    //        error("Error receiving descriptor");
+    //        throw omnetpp::cRuntimeError("Error receiving descriptor");
     //
     //    printf("Received %u bytes from the USB device:\n", bytes_received);
     //    for(int i = 0; i < bytes_received; i++)
@@ -733,7 +733,7 @@ void USB::bulk(libusb_device_handle *devh)
     //            5000);  // TIMEOUT_MS
     //
     //    if (bytes_received < 0)
-    //        error("Error receiving Feature report: %s", libusb_error_name(bytes_received));
+    //        throw omnetpp::cRuntimeError("Error receiving Feature report: %s", libusb_error_name(bytes_received));
     //
     //    printf("Feature report data received:\n");
     //    for(int i = 0; i < bytes_received; i++)

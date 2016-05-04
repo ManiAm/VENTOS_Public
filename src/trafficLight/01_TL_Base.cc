@@ -89,7 +89,7 @@ void TrafficLightBase::findRSU(std::string TLid)
     // get a pointer to the first RSU
     cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("RSU", 0);
     if(module == NULL)
-        error("No RSU module was found in the network!");
+        throw omnetpp::cRuntimeError("No RSU module was found in the network!");
 
     // how many RSUs are in the network?
     int RSUcount = module->getVectorSize();
@@ -107,7 +107,7 @@ void TrafficLightBase::findRSU(std::string TLid)
         {
             RSUptr = static_cast<ApplRSUMonitor *>(appl);
             if(RSUptr == NULL)
-                error("Can not get a reference to our RSU!");
+                throw omnetpp::cRuntimeError("Can not get a reference to our RSU!");
 
             found = true;
             break;
@@ -115,7 +115,7 @@ void TrafficLightBase::findRSU(std::string TLid)
     }
 
     if(!found)
-        error("TL %s does not have any RSU!", TLid.c_str());
+        throw omnetpp::cRuntimeError("TL %s does not have any RSU!", TLid.c_str());
 }
 
 

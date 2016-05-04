@@ -150,7 +150,7 @@ void ApplVCoordinator::coordinator()
         scenario9();
     }
     else
-        error("not a valid coordination mode!");
+        throw omnetpp::cRuntimeError("not a valid coordination mode!");
 
     scheduleAt(omnetpp::simTime() + 0.1, platoonCoordination);
 }
@@ -301,7 +301,7 @@ void ApplVCoordinator::scenario5()
 void ApplVCoordinator::scenario6()
 {
     if(omnetpp::cSimulation::getActiveEnvir()->isGUI())
-        error("Run coordination mode 3 in command-line, not GUI!");
+        throw omnetpp::cRuntimeError("Run coordination mode 3 in command-line, not GUI!");
 
     // get the current run number
     int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();

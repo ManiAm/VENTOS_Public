@@ -113,7 +113,7 @@ void TrafficLightLQF_NoStarv::initialize(int stage)
         maxQueueSize = par("maxQueueSize").longValue();
 
         if(maxQueueSize <= 0 && maxQueueSize != -1)
-            error("maxQueueSize value is set incorrectly!");
+            throw omnetpp::cRuntimeError("maxQueueSize value is set incorrectly!");
 
         nextGreenIsNewCycle = false;
         intervalChangeEVT = new omnetpp::cMessage("intervalChangeEVT", 1);
@@ -145,7 +145,7 @@ void TrafficLightLQF_NoStarv::handleMessage(omnetpp::cMessage *msg)
         chooseNextInterval();
 
         if(intervalDuration <= 0)
-            error("intervalDuration is <= 0");
+            throw omnetpp::cRuntimeError("intervalDuration is <= 0");
 
         // Schedule next light change event:
         scheduleAt(omnetpp::simTime().dbl() + intervalDuration, intervalChangeEVT);
@@ -439,7 +439,7 @@ void TrafficLightLQF_NoStarv::calculatePhases(std::string TLid)
 
     // throw error if cycle contains more than 4 phases:
     if (greenInterval.size() > 4)
-        error("cycle contains %d phases which is more than 4!", greenInterval.size());
+        throw omnetpp::cRuntimeError("cycle contains %d phases which is more than 4!", greenInterval.size());
 
     int newSize = greenInterval.size();
     if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 1 && oldSize != newSize)

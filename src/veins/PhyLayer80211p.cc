@@ -86,7 +86,8 @@ AnalogueModel* PhyLayer80211p::getAnalogueModelFromName(std::string name, Parame
     }
     else if (name == "TwoRayInterferenceModel")
     {
-        if (world->use2D()) error("The TwoRayInterferenceModel uses nodes' z-position as the antenna height over ground. Refusing to work in a 2D world");
+        if (world->use2D())
+            throw omnetpp::cRuntimeError("The TwoRayInterferenceModel uses nodes' z-position as the antenna height over ground. Refusing to work in a 2D world");
         return initializeTwoRayInterferenceModel(params);
     }
     else if (name == "NakagamiFading")

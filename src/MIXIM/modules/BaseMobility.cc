@@ -78,7 +78,7 @@ void BaseMobility::initialize(int stage)
         // get utility pointers (world and host)
         world = FindModule<BaseWorldUtility*>::findGlobalModule();
         if (world == NULL)
-            error("Could not find BaseWorldUtility module");
+            throw omnetpp::cRuntimeError("Could not find BaseWorldUtility module");
 
         coreEV << "initializing BaseUtility stage " << stage << std::endl; // for node position
 
@@ -117,7 +117,7 @@ void BaseMobility::initialize(int stage)
 
         //check whether position is within the playground
         if (!isInBoundary(move.getStartPos(), Coord::ZERO, *world->getPgs())) {
-            error("node position specified in omnetpp.ini exceeds playgroundsize");
+            throw omnetpp::cRuntimeError("node position specified in omnetpp.ini exceeds playgroundsize");
         }
 
         // set speed and direction of the Move
@@ -218,7 +218,7 @@ const char* BaseMobility::iconSizeToTag(double size)
 void BaseMobility::handleMessage(omnetpp::cMessage * msg)
 {
     if (!msg->isSelfMessage())
-        error("mobility modules can only receive self messages");
+        throw omnetpp::cRuntimeError("mobility modules can only receive self messages");
 
     if(msg->getKind() == MOVE_TO_BORDER){
         handleBorderMsg(msg);
@@ -266,11 +266,11 @@ void BaseMobility::handleBorderMsg(omnetpp::cMessage * msg)
         break;
 
     case RAISEERROR:
-        error("node moved outside the playground");
+        throw omnetpp::cRuntimeError("node moved outside the playground");
         break;
 
     default:
-        error("Unknown BorderPolicy!");
+        throw omnetpp::cRuntimeError("Unknown BorderPolicy!");
         break;
     }
 
@@ -381,7 +381,7 @@ void BaseMobility::reflectCoordinate(BorderHandling border, Coord& c)
 
     case NOWHERE:
     default:
-        error("wrong border handling case!");
+        throw omnetpp::cRuntimeError("wrong border handling case!");
         break;
     }
 }
@@ -415,7 +415,7 @@ void BaseMobility::reflectIfOutside(BorderHandling wo, Coord& stepTarget,
 
     case NOWHERE:
     default:
-        error("wrong border handling case!");
+        throw omnetpp::cRuntimeError("wrong border handling case!");
         break;
     }
 }
@@ -445,7 +445,7 @@ void BaseMobility::wrapIfOutside(BorderHandling wo,
 
     case NOWHERE:
     default:
-        error("wrong border handling case!");
+        throw omnetpp::cRuntimeError("wrong border handling case!");
         break;
     }
 }
@@ -683,7 +683,7 @@ void BaseMobility::goToBorder(BorderPolicy policy, BorderHandling wo,
 
     default:
         factor = 0;
-        error("invalid state in goToBorder switch!");
+        throw omnetpp::cRuntimeError("invalid state in goToBorder switch!");
         break;
     }
 
@@ -770,7 +770,7 @@ bool BaseMobility::handleIfOutside(BorderPolicy policy, Coord& stepTarget,
         break;
 
     default:
-        error("unknown BorderPolicy");
+        throw omnetpp::cRuntimeError("unknown BorderPolicy");
         break;
     }
 

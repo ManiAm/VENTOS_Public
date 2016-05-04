@@ -156,7 +156,7 @@ void Ethernet::listInterfaces()
     char errbuf[PCAP_ERRBUF_SIZE];
     pcap_if_t *alldevs;
     if (pcap_findalldevs(&alldevs, errbuf) == -1)
-        error("There is a problem with pcap_findalldevs: %s\n", errbuf);
+        throw omnetpp::cRuntimeError("There is a problem with pcap_findalldevs: %s\n", errbuf);
 
     /* iterate over all devices */
     for(pcap_if_t *dev = alldevs; dev != NULL; dev = dev->next)
@@ -248,7 +248,7 @@ std::string Ethernet::serverPortTostr(int port)
         boost::filesystem::path services_FullPath = VENTOS_FullPath / "src/interfacing/DB/ServerPorts";
         std::ifstream in(services_FullPath.string().c_str());
         if(in.fail())
-            error("cannot open file sniff_services at %s", services_FullPath.string().c_str());
+            throw omnetpp::cRuntimeError("cannot open file sniff_services at %s", services_FullPath.string().c_str());
 
         std::string line;
         while(getline(in, line))
@@ -294,7 +294,7 @@ std::string Ethernet::OUITostr(const u_int8_t MACaddr[])
 
         std::ifstream in(manuf_FullPath.string().c_str());
         if(in.fail())
-            error("cannot open file sniff_manuf at %s", manuf_FullPath.string().c_str());
+            throw omnetpp::cRuntimeError("cannot open file sniff_manuf at %s", manuf_FullPath.string().c_str());
 
         std::string line;
         while(getline(in, line))
@@ -330,7 +330,7 @@ void Ethernet::initSniffing()
     // check if interface is valid!
     auto iterfacePtr = allDev.find(interface);
     if(iterfacePtr == allDev.end())
-        error("%s is not capturable!", interface.c_str());
+        throw omnetpp::cRuntimeError("%s is not capturable!", interface.c_str());
 
     printf(">>> Capturing started on %s with filter \"%s\" ...\n", interface.c_str(), filter_exp.c_str());
     std::cout.flush();
@@ -339,17 +339,17 @@ void Ethernet::initSniffing()
     char errbuf[PCAP_ERRBUF_SIZE];
     pcap_handle = pcap_create(interface.c_str(), errbuf);
     if (pcap_handle == NULL)
-        error("pcap_create failed! %s", errbuf);
+        throw omnetpp::cRuntimeError("pcap_create failed! %s", errbuf);
 
     // maximum size of packets to capture in bytes
     int status = pcap_set_snaplen(pcap_handle, SNAP_LEN);
     if (status < 0)
-        error("pcap_set_snaplen failed!");
+        throw omnetpp::cRuntimeError("pcap_set_snaplen failed!");
 
     // set card in promiscuous mode?
     status = pcap_set_promisc(pcap_handle, 1);
     if (status < 0)
-        error("pcap_set_promisc failed!");
+        throw omnetpp::cRuntimeError("pcap_set_promisc failed!");
 
     /* call the packet handler function directly when a packet is received without wait the timeout.
        In immediate mode packets get delivered to the application as soon as they
@@ -357,33 +357,33 @@ void Ethernet::initSniffing()
        sensitive live captures. */
     status = pcap_set_immediate_mode(pcap_handle, 1);  // todo: not supported on Ubuntu 12.04
     if (status < 0)
-        error("pcap_set_immediate_mode failed!");
+        throw omnetpp::cRuntimeError("pcap_set_immediate_mode failed!");
 
     // time to wait for packets in milliseconds before read times out -- ignored if immediate mode is set
     // check this link: http://www.tcpdump.org/manpages/pcap_set_timeout.3pcap.txt
     status = pcap_set_timeout(pcap_handle, 10000);
     if (status < 0)
-        error("pcap_set_timeout failed!");
+        throw omnetpp::cRuntimeError("pcap_set_timeout failed!");
 
     // buffer size in byte (1 MB = 1048576 B)
     status = pcap_set_buffer_size(pcap_handle, 1048576);
     if (status < 0)
-        error("pcap_set_buffer_size failed!");
+        throw omnetpp::cRuntimeError("pcap_set_buffer_size failed!");
 
     pcap_activate(pcap_handle);
 
     /* make sure we're capturing on an Ethernet device [2] */
     if (pcap_datalink(pcap_handle) != DLT_EN10MB)
-        error("%s is not an Ethernet", interface.c_str());
+        throw omnetpp::cRuntimeError("%s is not an Ethernet", interface.c_str());
 
     /* compile the filter expression */
     struct bpf_program fp;
     if (pcap_compile(pcap_handle, &fp, filter_exp.c_str(), 0, iterfacePtr->second.netMask) == -1)
-        error("Couldn't parse filter %s: %s\n", filter_exp.c_str(), pcap_geterr(pcap_handle));
+        throw omnetpp::cRuntimeError("Couldn't parse filter %s: %s\n", filter_exp.c_str(), pcap_geterr(pcap_handle));
 
     /* apply the compiled filter */
     if (pcap_setfilter(pcap_handle, &fp) == -1)
-        error("Couldn't install filter %s: %s\n", filter_exp.c_str(), pcap_geterr(pcap_handle));
+        throw omnetpp::cRuntimeError("Couldn't install filter %s: %s\n", filter_exp.c_str(), pcap_geterr(pcap_handle));
 
     pcap_freecode(&fp);
 }
@@ -392,7 +392,7 @@ void Ethernet::initSniffing()
 void Ethernet::startSniffing()
 {
     if(pcap_handle == NULL)
-        error("pcap_handle is invalid!");
+        throw omnetpp::cRuntimeError("pcap_handle is invalid!");
 
     struct pcap_pkthdr *header;
     const u_char *pkt_data;
@@ -405,7 +405,7 @@ void Ethernet::startSniffing()
 
         // if an error occurred
         if(res < 0)
-            error("Error reading the packets: %s \n", pcap_geterr(pcap_handle));
+            throw omnetpp::cRuntimeError("Error reading the packets: %s \n", pcap_geterr(pcap_handle));
         // if the timeout set with pcap_open_live() has elapsed.
         // In this case pkt_header and pkt_data don't point to a valid packet
         else if(res == 0)
@@ -428,7 +428,7 @@ void Ethernet::startSniffing()
             struct pcap_stat stat;
 
             if(pcap_stats(pcap_handle, &stat) < 0)
-                error("Error setting the mode");
+                throw omnetpp::cRuntimeError("Error setting the mode");
 
             // if either changed
             if(stat.ps_recv != old_received || stat.ps_drop != old_dropped || old_timeOut != timeOutCount || framesQueue.size() != old_buffSize)

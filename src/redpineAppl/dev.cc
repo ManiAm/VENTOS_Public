@@ -97,7 +97,7 @@ void dev::substituteParams(std::string &content)
     const std::string& from = "# [params]";
     size_t start_pos = content.find(from);
     if(start_pos == std::string::npos)
-        error("cannot find %s in the string!", from.c_str());
+        throw omnetpp::cRuntimeError("cannot find %s in the string!", from.c_str());
     content.replace(start_pos, from.length(), buffer.str().c_str());
 }
 

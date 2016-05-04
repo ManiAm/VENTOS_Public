@@ -75,7 +75,7 @@ void TrafficLightActuated::handleMessage(omnetpp::cMessage *msg)
         chooseNextInterval();
 
         if(intervalDuration <= 0)
-            error("intervalDuration is <= 0");
+            throw omnetpp::cRuntimeError("intervalDuration is <= 0");
 
         // Schedule next light change event:
         scheduleAt(omnetpp::simTime().dbl() + intervalDuration, intervalChangeEVT);
@@ -141,7 +141,7 @@ void TrafficLightActuated::initialize_withTraCI()
             passageTimePerLane[LD.first] = passageTime;
     }
     else
-        error("passageTime value is not set correctly!");
+        throw omnetpp::cRuntimeError("passageTime value is not set correctly!");
 
     if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 0)
     {

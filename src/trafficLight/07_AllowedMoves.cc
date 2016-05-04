@@ -81,7 +81,7 @@ void TrafficLightAllowedMoves::getMovements(std::string TLid)
     LINKSIZE = allLinks.size();
 
     if(LINKSIZE == 0)
-        error("LINKSIZE can not be zero for this TL!");
+        throw omnetpp::cRuntimeError("LINKSIZE can not be zero for this TL!");
 
     boost::filesystem::path dir (TraCI->getSUMOFullDir());
     movementsFilePath = dir / "allMovements.txt";
@@ -117,7 +117,7 @@ void TrafficLightAllowedMoves::getMovements(std::string TLid)
         generateAllAllowedMovements();
 
     if(allMovements.empty())
-        error("allMovements vector is empty!");
+        throw omnetpp::cRuntimeError("allMovements vector is empty!");
 
     if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 2)
         allMovementBatch(14);

@@ -89,7 +89,7 @@ void BLE_Advertisement::executeEachTimestep()
             // get the first available BT device
             dev_id = hci_get_route(NULL);
             if (dev_id < 0)
-                error("Device is not available");
+                throw omnetpp::cRuntimeError("Device is not available");
         }
 
         int minInterval = par("BLE_minInterval").longValue();
@@ -131,11 +131,11 @@ void BLE_Advertisement:: advertiseBeacon(int dev_id, int minInterval, int maxInt
 void BLE_Advertisement::no_le_adv(int hdev)
 {
     if (hdev < 0)
-        error("Not a valid device");
+        throw omnetpp::cRuntimeError("Not a valid device");
 
     int dd = hci_open_dev(hdev);
     if (dd < 0)
-        error("Could not open device");
+        throw omnetpp::cRuntimeError("Could not open device");
 
     std::cout << std::endl << ">>> Disabling LE advertising on hci" << hdev << "... \n" << std::flush;
 
@@ -157,7 +157,7 @@ void BLE_Advertisement::no_le_adv(int hdev)
     if (ret < 0)
     {
         hci_close_dev(dd);
-        error("Can't set advertise mode on hci%d: %s (%d)\n", hdev, strerror(errno), errno);
+        throw omnetpp::cRuntimeError("Can't set advertise mode on hci%d: %s (%d)\n", hdev, strerror(errno), errno);
     }
 
     hci_close_dev(dd);
@@ -170,11 +170,11 @@ void BLE_Advertisement::no_le_adv(int hdev)
 void BLE_Advertisement::le_adv(int hdev, uint16_t minInterval, uint16_t maxInterval, uint8_t ADVtype, uint8_t channel)
 {
     if (hdev < 0)
-        error("Not a valid device");
+        throw omnetpp::cRuntimeError("Not a valid device");
 
     int dd = hci_open_dev(hdev);
     if (dd < 0)
-        error("Could not open device");
+        throw omnetpp::cRuntimeError("Could not open device");
 
     std::cout << std::endl << ">>> Enabling LE advertising on hci" << hdev << "... \n";
     std::cout << "    Min interval: " << minInterval;
@@ -206,7 +206,7 @@ void BLE_Advertisement::le_adv(int hdev, uint16_t minInterval, uint16_t maxInter
     if (ret < 0)
     {
         hci_close_dev(dd);
-        error("Can't set advertise mode on hci%d: %s (%d)\n", hdev, strerror(errno), errno);
+        throw omnetpp::cRuntimeError("Can't set advertise mode on hci%d: %s (%d)\n", hdev, strerror(errno), errno);
     }
 
     le_set_advertise_enable_cp advertise_cp;
@@ -225,7 +225,7 @@ void BLE_Advertisement::le_adv(int hdev, uint16_t minInterval, uint16_t maxInter
     if (ret < 0)
     {
         hci_close_dev(dd);
-        error("Can't set advertise mode on hci%d: %s (%d)\n", hdev, strerror(errno), errno);
+        throw omnetpp::cRuntimeError("Can't set advertise mode on hci%d: %s (%d)\n", hdev, strerror(errno), errno);
     }
 
     hci_close_dev(dd);
@@ -322,7 +322,7 @@ std::string BLE_Advertisement::generateBeacon(int beaconType)
         payload = msg->size + " " + msg->payload;
     }
     else
-        error("beaconType %d is not valid!", beaconType);
+        throw omnetpp::cRuntimeError("beaconType %d is not valid!", beaconType);
 
     return payload;
 }

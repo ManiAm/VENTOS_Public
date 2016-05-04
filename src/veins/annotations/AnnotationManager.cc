@@ -86,7 +86,7 @@ void AnnotationManager::handleMessage(omnetpp::cMessage *msg)
         return;
     }
 
-    error("AnnotationManager doesn't handle messages from other modules");
+    throw omnetpp::cRuntimeError("AnnotationManager doesn't handle messages from other modules");
 }
 
 void AnnotationManager::handleSelfMsg(omnetpp::cMessage *msg)
@@ -103,7 +103,7 @@ void AnnotationManager::handleSelfMsg(omnetpp::cMessage *msg)
         return;
     }
 
-    error("unknown self message type");
+    throw omnetpp::cRuntimeError("unknown self message type");
 }
 
 void AnnotationManager::handleParameterChange(const char *parname)
@@ -190,7 +190,7 @@ void AnnotationManager::addFromXml(omnetpp::cXMLElement* xml)
         }
         else
         {
-            error("while reading annotations xml: expected 'line' or 'poly', but got '%s'", tag.c_str());
+            throw omnetpp::cRuntimeError("while reading annotations xml: expected 'line' or 'poly', but got '%s'", tag.c_str());
         }
     }
 
@@ -364,7 +364,7 @@ void AnnotationManager::show(const Annotation* annotation)
         annotation->traciPolygonsIds.push_back(nameBuilder.str());
     }
     else {
-        error("unknown Annotation type");
+        throw omnetpp::cRuntimeError("unknown Annotation type");
     }
 }
 

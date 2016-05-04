@@ -132,14 +132,14 @@ protected:
 
     virtual void handleSelfMsg(omnetpp::cMessage* msg)
     {
-        error("BaseMacLayer does not handle self messages");
+        throw omnetpp::cRuntimeError("BaseMacLayer does not handle self messages");
     };
 
     virtual void handleLowerControl(omnetpp::cMessage* msg);
 
     virtual void handleUpperControl(omnetpp::cMessage* msg)
     {
-        error("BaseMacLayer does not handle control messages from upper layers");
+        throw omnetpp::cRuntimeError("BaseMacLayer does not handle control messages from upper layers");
     };
 
 

@@ -207,7 +207,7 @@ void TraCIMobilityMod::updateDisplayString()
         getParentModule()->getDisplayString().setTagArg("b", 5, "1");
     }
     else
-        error("Unknown vClass type '%d'", vClassEnum);
+        throw omnetpp::cRuntimeError("Unknown vClass type '%d'", vClassEnum);
 
     if (angle < -M_PI + 0.5 * M_PI_4 * 1)
     {
@@ -276,7 +276,7 @@ void TraCIMobilityMod::fixIfHostGetsOutside()
 	bool outsideY = (pos.y < 0) || (pos.y >= playgroundSizeY());
 	bool outsideZ = (!world->use2D()) && ((pos.z < 0) || (pos.z >= playgroundSizeZ()));
 	if (outsideX || outsideY || outsideZ)
-		error("Tried moving host to (%f, %f) which is outside the playground", pos.x, pos.y);
+	    throw omnetpp::cRuntimeError("Tried moving host to (%f, %f) which is outside the playground", pos.x, pos.y);
 
 	handleIfOutside(RAISEERROR, pos, dummy, dummy, dum);
 }

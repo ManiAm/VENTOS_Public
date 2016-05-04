@@ -18,7 +18,7 @@ double ConnectionManager::calcInterfDist()
 	//maximum transmission power possible
 	double pMax             = par("pMax").doubleValue();
 	if (pMax <=0) {
-		error("Max transmission power is <=0!");
+	    throw omnetpp::cRuntimeError("Max transmission power is <=0!");
 	}
 	//minimum signal attenuation threshold
 	double sat              = par("sat").doubleValue();

@@ -178,7 +178,7 @@ void TraCI_Start::handleMessage(omnetpp::cMessage *msg)
         scheduleAt(omnetpp::simTime() + updateInterval, executeOneTimestepTrigger);
     }
     else
-        error("TraCI_Start received unknown self-message");
+        throw omnetpp::cRuntimeError("TraCI_Start received unknown self-message");
 }
 
 
@@ -188,7 +188,7 @@ void TraCI_Start::init_traci()
     std::string SUMOexe = par("SUMOexe").stringValue();
     // check if this file exists?
     if( !boost::filesystem::exists(SUMOexe) )
-        error("SUMO executable not found at %s. Check SUMOexe variable!", SUMOexe.c_str());
+        throw omnetpp::cRuntimeError("SUMO executable not found at %s. Check SUMOexe variable!", SUMOexe.c_str());
 
     std::string switches = "";
 
@@ -217,7 +217,7 @@ void TraCI_Start::init_traci()
     if (apiVersionS == 10)
         std::cout << "  SUMO TraCI server \"" << serverVersionS << "\" reports API version " << apiVersionS << std::endl;
     else
-        error("TraCI server \"%s\" reports API version %d, which is unsupported.", serverVersionS.c_str(), apiVersionS);
+        throw omnetpp::cRuntimeError("TraCI server \"%s\" reports API version %d, which is unsupported.", serverVersionS.c_str(), apiVersionS);
 
     // query road network boundaries from SUMO
     double *boundaries = simulationGetNetBoundary();
@@ -432,7 +432,7 @@ void TraCI_Start::processSubcriptionResult(TraCIBuffer& buf)
     else if (commandId_resp == RESPONSE_SUBSCRIBE_SIM_VARIABLE)
         processSimSubscription(objectId_resp, buf);
     else
-        error("Received unhandled subscription result");
+        throw omnetpp::cRuntimeError("Received unhandled subscription result");
 }
 
 
@@ -461,9 +461,9 @@ void TraCI_Start::processVehicleSubscription(std::string objectId, TraCIBuffer& 
             if (isSubscribed)
             {
                 if (isokay == RTYPE_NOTIMPLEMENTED)
-                    error("TraCI server reported subscribing to vehicle variable 0x%2x not implemented (\"%s\"). Might need newer version.", variable1_resp, errormsg.c_str());
+                    throw omnetpp::cRuntimeError("TraCI server reported subscribing to vehicle variable 0x%2x not implemented (\"%s\"). Might need newer version.", variable1_resp, errormsg.c_str());
 
-                error("TraCI server reported error subscribing to vehicle variable 0x%2x (\"%s\").", variable1_resp, errormsg.c_str());
+                throw omnetpp::cRuntimeError("TraCI server reported error subscribing to vehicle variable 0x%2x (\"%s\").", variable1_resp, errormsg.c_str());
             }
         }
         else if (variable1_resp == ID_LIST)
@@ -472,7 +472,7 @@ void TraCI_Start::processVehicleSubscription(std::string objectId, TraCIBuffer& 
             ASSERT(varType == TYPE_STRINGLIST);
             uint32_t count; buf >> count;  // count: number of active vehicles
             if(count != activeVehicleCount)
-                error("Mismatched number of active vehicles! Do you have vehicle accident?");
+                throw omnetpp::cRuntimeError("Mismatched number of active vehicles! Do you have vehicle accident?");
             std::set<std::string> drivingVehicles;
             for (uint32_t i = 0; i < count; ++i)
             {
@@ -549,7 +549,7 @@ void TraCI_Start::processVehicleSubscription(std::string objectId, TraCIBuffer& 
         }
         else
         {
-            error("Received unhandled vehicle subscription result");
+            throw omnetpp::cRuntimeError("Received unhandled vehicle subscription result");
         }
     }
 
@@ -561,7 +561,7 @@ void TraCI_Start::processVehicleSubscription(std::string objectId, TraCIBuffer& 
 
     Coord p = traci2omnet(TraCICoord(px, py));
     if ((p.x < 0) || (p.y < 0))
-        error("received bad node position (%.2f, %.2f), translated to (%.2f, %.2f)", px, py, p.x, p.y);
+        throw omnetpp::cRuntimeError("received bad node position (%.2f, %.2f), translated to (%.2f, %.2f)", px, py, p.x, p.y);
 
     double angle = traci2omnetAngle(angle_traci);
 
@@ -617,9 +617,9 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
             ASSERT(varType == TYPE_STRING);
             std::string description; buf >> description;
             if (isokay == RTYPE_NOTIMPLEMENTED)
-                error("TraCI server reported subscribing to variable 0x%2x not implemented (\"%s\"). Might need newer version.", variable1_resp, description.c_str());
+                throw omnetpp::cRuntimeError("TraCI server reported subscribing to variable 0x%2x not implemented (\"%s\"). Might need newer version.", variable1_resp, description.c_str());
 
-            error("TraCI server reported error subscribing to variable 0x%2x (\"%s\").", variable1_resp, description.c_str());
+            throw omnetpp::cRuntimeError("TraCI server reported error subscribing to variable 0x%2x (\"%s\").", variable1_resp, description.c_str());
         }
 
         if (variable1_resp == VAR_DEPARTED_VEHICLES_IDS)
@@ -645,7 +645,7 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
 
                     auto it = addedNodes.find(idstring);
                     if(it != addedNodes.end())
-                        error("%s was added before!", idstring.c_str());
+                        throw omnetpp::cRuntimeError("%s was added before!", idstring.c_str());
                     else
                         addedNodes.insert(std::make_pair(idstring, *node));
                 }
@@ -684,7 +684,7 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
                 {
                     auto it = addedNodes.find(idstring);
                     if(it == addedNodes.end())
-                        error("cannot find %s in the addedNodes map!", idstring.c_str());
+                        throw omnetpp::cRuntimeError("cannot find %s in the addedNodes map!", idstring.c_str());
 
                     departedNodes node = it->second;
 
@@ -809,7 +809,7 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
         }
         else
         {
-            error("Received unhandled sim subscription result");
+            throw omnetpp::cRuntimeError("Received unhandled sim subscription result");
         }
     }
 }
@@ -854,7 +854,7 @@ bool TraCI_Start::isInRegionOfInterest(const TraCICoord& position, std::string r
 void TraCI_Start::deleteManagedModule(std::string nodeId)
 {
     cModule* mod = getManagedModule(nodeId);
-    if (!mod) error("no vehicle with Id \"%s\" found", nodeId.c_str());
+    if (!mod) throw omnetpp::cRuntimeError("no vehicle with Id \"%s\" found", nodeId.c_str());
 
     cModule* nic = mod->getSubmodule("nic");
     if (nic)
@@ -935,12 +935,12 @@ void TraCI_Start::addModule(std::string nodeId, const Coord& position, std::stri
         vClassEnum = SVC_PEDESTRIAN;
     }
     else
-        error("Unknown vClass '%s' for vehicle '%s'. Change vClass in traffic demand file based on global/Appl.h",
+        throw omnetpp::cRuntimeError("Unknown vClass '%s' for vehicle '%s'. Change vClass in traffic demand file based on global/Appl.h",
                 vClass.c_str(),
                 nodeId.c_str());
 
     if (hosts.find(nodeId) != hosts.end())
-        error("tried adding duplicate module");
+        throw omnetpp::cRuntimeError("tried adding duplicate module");
 
     double option1 = hosts.size() / (hosts.size() + unEquippedHosts.size() + 1.0);
     double option2 = (hosts.size() + 1) / (hosts.size() + unEquippedHosts.size() + 1.0);
@@ -953,11 +953,11 @@ void TraCI_Start::addModule(std::string nodeId, const Coord& position, std::stri
 
     cModule* parentmod = getParentModule();
     if (!parentmod)
-        error("Parent Module not found");
+        throw omnetpp::cRuntimeError("Parent Module not found");
 
     omnetpp::cModuleType* nodeType = omnetpp::cModuleType::get(type.c_str());
     if (!nodeType)
-        error("Module Type \"%s\" not found", type.c_str());
+        throw omnetpp::cRuntimeError("Module Type \"%s\" not found", type.c_str());
 
     //TODO: this trashes the vectsize member of the cModule, although nobody seems to use it
     int32_t nodeVectorIndex = nextNodeVectorIndex++;
@@ -1056,7 +1056,7 @@ void TraCI_Start::addPedestriansToOMNET()
     ////            buf >> signals;
     ////            numRead++;
     //        } else {
-    //            error("Received unhandled pedestrian subscription result");
+    //            throw omnetpp::cRuntimeError("Received unhandled pedestrian subscription result");
     //        }
     //    }
     //
@@ -1067,7 +1067,7 @@ void TraCI_Start::addPedestriansToOMNET()
     //    if (numRead != 4) return;
     //
     //    Coord p = connection->traci2omnet(TraCICoord(px, py));
-    //    if ((p.x < 0) || (p.y < 0)) error("received bad node position (%.2f, %.2f), translated to (%.2f, %.2f)", px, py, p.x, p.y);
+    //    if ((p.x < 0) || (p.y < 0)) throw omnetpp::cRuntimeError("received bad node position (%.2f, %.2f), translated to (%.2f, %.2f)", px, py, p.x, p.y);
     //
     //    double angle = connection->traci2omnetAngle(angle_traci);
     //
@@ -1168,7 +1168,7 @@ void TraCI_Start::saveVehicleData(std::string vID)
             CFMode = "Stopped";
             break;
         default:
-            error("Not a valid CFModel!");
+            throw omnetpp::cRuntimeError("Not a valid CFModel!");
             break;
         }
 

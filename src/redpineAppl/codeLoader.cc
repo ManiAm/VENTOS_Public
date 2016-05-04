@@ -69,19 +69,19 @@ void codeLoader::initialize(int stage)
 
         initScriptName = par("initScriptName").stringValue();
         if(initScriptName == "")
-            error("initScriptName is empty!");
+            throw omnetpp::cRuntimeError("initScriptName is empty!");
 
         remoteDir_Driver = par("remoteDir_Driver").stringValue();
         if(remoteDir_Driver == "")
-            error("remoteDir_Driver is empty!");
+            throw omnetpp::cRuntimeError("remoteDir_Driver is empty!");
 
         remoteDir_SourceCode = par("remoteDir_SourceCode").stringValue();
         if(remoteDir_SourceCode == "")
-            error("remoteDir_SourceCode is empty!");
+            throw omnetpp::cRuntimeError("remoteDir_SourceCode is empty!");
 
         numDev = par("numDev").longValue();
         if(numDev < 0)
-            error("numDev should be >= 0");
+            throw omnetpp::cRuntimeError("numDev should be >= 0");
 
         // add remote device modules into omnet
         addDevs();
@@ -149,7 +149,7 @@ void codeLoader::addDevs()
 
     cModule* parentMod = getParentModule();
     if (!parentMod)
-        error("Parent Module not found");
+        throw omnetpp::cRuntimeError("Parent Module not found");
 
     omnetpp::cModuleType* nodeType = omnetpp::cModuleType::get("VENTOS.src.redpineAppl.dev");
 

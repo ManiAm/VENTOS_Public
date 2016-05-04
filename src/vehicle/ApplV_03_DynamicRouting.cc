@@ -81,7 +81,7 @@ void ApplVDynamicRouting::initialize(int stage)
         if((std::string)attr->name() == "destination")  //Double-check
             targetNode = attr->value(); //And save it
         else
-            error("XML formatted wrong! Some vehicle was missing its destination!");
+            throw omnetpp::cRuntimeError("XML formatted wrong! Some vehicle was missing its destination!");
 
         if(find(router->nonReroutingVehicles->begin(), router->nonReroutingVehicles->end(), SUMOID.substr(1, SUMOID.length() - 1)) != router->nonReroutingVehicles->end())
         {
