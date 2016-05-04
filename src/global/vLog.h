@@ -38,9 +38,12 @@
 
 #include <omnetpp.h>
 #include <cassert>
+#include "boost/format.hpp"
 
 #include <QApplication>
 #include <QLabel>
+
+#undef emit   // name conflict with emit on omnetpp
 
 namespace VENTOS {
 
@@ -124,6 +127,11 @@ public:
         delete out;
     }
 
+    void setLog(uint8_t logLevel)
+    {
+        this->systemLogLevel = logLevel;
+    }
+
     void flush()
     {
         out->flush();
@@ -159,6 +167,7 @@ public:
 
         return *this;
     }
+
 
 private:
     void updateQtWin();
