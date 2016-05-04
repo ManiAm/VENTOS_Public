@@ -27,8 +27,77 @@
 
 #include <vLog.h>
 #include <algorithm>
+#include "vLog_streambuf.h"
 
 namespace VENTOS {
+
+Define_Module(VENTOS::vLog);
+
+vLog::~vLog()
+{
+    // making sure to flush the remaining data in buffer
+    *out << std::flush;
+    delete out;
+}
+
+
+void vLog::initialize(int stage)
+{
+    super::initialize(stage);
+
+    if(stage ==0)
+    {
+        systemLogLevel = par("systemLogLevel").longValue();
+        logRecordCMD = par("logRecordCMD").boolValue();
+
+        // creating an std::ostream object
+        vlog_streambuf *buff = new vlog_streambuf(std::cout);
+        out = new std::ostream(buff);
+
+        categories.clear();
+    }
+}
+
+
+void vLog::finish()
+{
+
+}
+
+
+void vLog::handleMessage(omnetpp::cMessage *msg)
+{
+
+}
+
+
+vLog& vLog::setLog(uint8_t logLevel, std::string category)
+{
+    // add the category name
+    if(category != "")
+    {
+        auto it = find (categories.begin(), categories.end(), category);
+        // the category name already exist
+        if(it == categories.end())
+        {
+            // add the new category name
+            categories.push_back(category);
+
+            updateQtWin();
+        }
+    }
+
+    this->lastLogLevel = logLevel;
+
+    return *this;
+}
+
+
+void vLog::flush()
+{
+    out->flush();
+}
+
 
 void vLog::updateQtWin()
 {

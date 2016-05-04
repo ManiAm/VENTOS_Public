@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    vLog.h
+/// @file    vLog_streambuf.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    May 2016
@@ -25,25 +25,13 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef LOGRECORDER_H
-#define LOGRECORDER_H
+#ifndef VLOGSTREAMBUF_H
+#define VLOGSTREAMBUF_H
 
-#define   WARNING_LOG   0b00000001
-#define   INFO_LOG      0b00000010
-#define   ERROR_LOG     0b00000100
-#define   DEBUG_LOG     0b00001000
-#define   EVENT_LOG     0b00010000   // event log
-#define   ALL_LOG       0b11111111
-#define   NO_LOG        0b00000000
-
-#include <omnetpp.h>
 #include <cassert>
-#include "boost/format.hpp"
-
-#include <QApplication>
-#include <QLabel>
-
-#undef emit   // name conflict with emit on omnetpp
+#include <streambuf>
+#include <ostream>
+#include <vector>
 
 namespace VENTOS {
 
@@ -104,79 +92,6 @@ protected:
             return 0;
         else return -1;
     }
-};
-
-
-class vLog
-{
-public:
-    vLog(uint8_t logLevel) {
-
-        // creating an std::ostream object
-        vlog_streambuf *buff = new vlog_streambuf(std::cout);
-        out = new std::ostream(buff);
-
-        this->systemLogLevel = logLevel;
-
-        categories.clear();
-    }
-
-    ~vLog() {
-        // making sure to flush the remaining data in buffer
-        *out << std::flush;
-        delete out;
-    }
-
-    void setLog(uint8_t logLevel)
-    {
-        this->systemLogLevel = logLevel;
-    }
-
-    void flush()
-    {
-        out->flush();
-    }
-
-    template<typename T>
-    vLog& operator << (const T& inv)
-    {
-        if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && (systemLogLevel & lastLogLevel) != 0)
-            *out << inv;
-
-        return *this;
-    }
-
-    // overloading the subscript operator
-    vLog& operator() (uint8_t logLevel = INFO_LOG, std::string cat = "")
-    {
-        // add the category name
-        if(cat != "")
-        {
-            auto it = find (categories.begin(), categories.end(), cat);
-            // the category name already exist
-            if(it == categories.end())
-            {
-                // add the new category name
-                categories.push_back(cat);
-
-                updateQtWin();
-            }
-        }
-
-        this->lastLogLevel = logLevel;
-
-        return *this;
-    }
-
-
-private:
-    void updateQtWin();
-
-private:
-    std::ostream *out;
-    std::vector<std::string> categories;
-    uint8_t systemLogLevel;
-    uint8_t lastLogLevel;
 };
 
 }

@@ -1,8 +1,8 @@
 /****************************************************************************/
-/// @file    BLE_Dump.h
+/// @file    vLog.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
-/// @date    Feb 2016
+/// @date    May 2016
 ///
 /****************************************************************************/
 // VENTOS, Vehicular Network Open Simulator; see http:?
@@ -25,43 +25,60 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef SNIFFBLUETOOTHDUMP
-#define SNIFFBLUETOOTHDUMP
+#ifndef LOGRECORDER_H
+#define LOGRECORDER_H
 
-#include "05_BLE_Advertisement.h"
+#include <BaseApplLayer.h>
+#include <omnetpp.h>
+#include "boost/format.hpp"
+
+#include <QApplication>
+#include <QLabel>
+#undef emit   // name conflict with emit on omnetpp
 
 namespace VENTOS {
 
-class BLE_Dump : public BLE_Advertisement
+#define   WARNING_LOG   0b00000001
+#define   INFO_LOG      0b00000010
+#define   ERROR_LOG     0b00000100
+#define   DEBUG_LOG     0b00001000
+#define   EVENT_LOG     0b00010000   // event log
+#define   ALL_LOG       0b11111111
+#define   NO_LOG        0b00000000
+
+class vLog : public BaseApplLayer
 {
 public:
-    virtual ~BLE_Dump();
+    virtual ~vLog();
+    virtual void initialize(int stage);
     virtual void finish();
-    virtual void initialize(int);
-    virtual void handleMessage(omnetpp::cMessage *);
-    virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, long, cObject* details);
+    virtual void handleMessage(omnetpp::cMessage *msg);
 
-protected:
-    void initialize_withTraCI();
-    void executeEachTimestep();
+    template<typename T>
+    vLog& operator << (const T& inv)
+    {
+        if( logRecordCMD || omnetpp::cSimulation::getActiveEnvir()->isGUI() )
+            if( (systemLogLevel & lastLogLevel) != 0 )
+                *out << inv;
+
+        return *this;
+    }
+
+    vLog& setLog(uint8_t logLevel = INFO_LOG, std::string cat = "");
+    void flush();
 
 private:
-    void lescanEnable(int dev_id, uint8_t scan_type, uint16_t interval, uint16_t window, uint8_t own_type, uint8_t filter_policy);
-    void lescanDisable(int dev_id);
-    int open_socket(int dev_id);
-    void process_frames(int dev_id, int sock, int timeout);
-    void hex_dump(struct frame *frm);
-    void hci_dump(struct frame *frm);
+    void updateQtWin();
 
 private:
-    typedef BLE_Advertisement super;
+    typedef BaseApplLayer super;
 
-    // NED variables
-    bool dump_On;
-    int BLE_dump_deviceID;
+    uint8_t systemLogLevel = 0;
+    bool logRecordCMD;
 
-    omnetpp::simsignal_t Signal_initialize_withTraCI;
-    omnetpp::simsignal_t Signal_executeEachTS;
+    std::ostream *out;
+    std::vector<std::string> categories;
+    uint8_t lastLogLevel = INFO_LOG;
 };
 
 }
