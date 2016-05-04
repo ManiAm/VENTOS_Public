@@ -32,8 +32,6 @@
 #include "TraCICommands.h"
 #include "SSH_Helper.h"
 
-// un-defining ev!
-// why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header
 #undef ev
 #include "boost/filesystem.hpp"
 

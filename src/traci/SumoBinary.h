@@ -33,7 +33,6 @@
 
 #undef ev
 #include "boost/filesystem.hpp"
-#define ev  (*cSimulation::getActiveEnvir())
 
 
 namespace VENTOS {

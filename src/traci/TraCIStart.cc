@@ -35,8 +35,6 @@
 #include <algorithm>
 #include <iomanip>
 
-// un-defining ev!
-// why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header
 #undef ev
 #include "boost/filesystem.hpp"
 
