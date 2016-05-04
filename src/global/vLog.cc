@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    logRecorder.cc
+/// @file    vLog.cc
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    May 2016
@@ -25,36 +25,17 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <logRecorder.h>
+#include <vLog.h>
+#include <algorithm>
 
 namespace VENTOS {
 
-Define_Module(VENTOS::logRecorder);
-
-logRecorder::~logRecorder()
+void vLog::updateQtWin()
 {
+    unsigned int size = categories.size();
 
-}
-
-
-void logRecorder::initialize(int stage)
-{
-    if(stage == 0)
+    if(size == 1)
     {
-        // get a pointer to the TraCI module
-        cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
-        TraCI = static_cast<TraCI_Commands *>(module);
-        ASSERT(TraCI);
-
-        Signal_initialize_withTraCI = registerSignal("initialize_withTraCI");
-        omnetpp::getSimulation()->getSystemModule()->subscribe("initialize_withTraCI", this);
-
-        Signal_executeEachTS = registerSignal("executeEachTS");
-        omnetpp::getSimulation()->getSystemModule()->subscribe("executeEachTS", this);
-
-
-
-
         char *argv[] = {"program name", "arg1", "arg2", NULL};
         int argc = sizeof(argv) / sizeof(char*) - 1;
 
@@ -64,48 +45,11 @@ void logRecorder::initialize(int stage)
         label.setWindowModality(Qt::WindowModal);
         label.show();
         a.exec();
-
     }
-}
-
-
-void logRecorder::finish()
-{
-
-
-}
-
-
-void logRecorder::handleMessage(omnetpp::cMessage *msg)
-{
-
-}
-
-
-void logRecorder::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t signalID, long i, cObject* details)
-{
-    Enter_Method_Silent();
-
-    if(signalID == Signal_initialize_withTraCI)
+    else if(size > 1)
     {
-        initialize_withTraCI();
+
     }
-    else if(signalID == Signal_executeEachTS)
-    {
-        executeEachTimeStep();
-    }
-}
-
-
-void logRecorder::initialize_withTraCI()
-{
-
-}
-
-
-void logRecorder::executeEachTimeStep()
-{
-
 }
 
 }

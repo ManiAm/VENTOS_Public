@@ -25,6 +25,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
+#include <vLog.h>
 #include "codeLoader.h"
 #include <thread>
 #include <fstream>
@@ -155,6 +156,7 @@ void codeLoader::addDevs()
     for(int i = 0; i < numDev; i++)
     {
         cModule* mod = nodeType->create("dev", parentMod, numDev, i);
+
         mod->finalizeParameters();
         mod->getDisplayString().updateWith("i=old/x_yellow");
         mod->getDisplayString().updateWith("p=0,0");

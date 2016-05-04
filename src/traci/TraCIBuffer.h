@@ -13,23 +13,35 @@ bool isBigEndian();
 /**
  * Byte-buffer that stores values in TraCI byte-order
  */
-class TraCIBuffer {
+class TraCIBuffer
+{
 	public:
 		TraCIBuffer();
 		TraCIBuffer(std::string buf);
 
-		template<typename T> T read() {
+		template<typename T>
+		T read()
+		{
 			T buf_to_return;
 			unsigned char *p_buf_to_return = reinterpret_cast<unsigned char*>(&buf_to_return);
 
-			if (isBigEndian()) {
-				for (size_t i=0; i<sizeof(buf_to_return); ++i) {
-					if (eof()) throw omnetpp::cRuntimeError("Attempted to read past end of byte buffer");
+			if (isBigEndian())
+			{
+				for (size_t i=0; i<sizeof(buf_to_return); ++i)
+				{
+					if (eof())
+					    throw omnetpp::cRuntimeError("Attempted to read past end of byte buffer");
+
 					p_buf_to_return[i] = buf[buf_index++];
 				}
-			} else {
-				for (size_t i=0; i<sizeof(buf_to_return); ++i) {
-					if (eof()) throw omnetpp::cRuntimeError("Attempted to read past end of byte buffer");
+			}
+			else
+			{
+				for (size_t i=0; i<sizeof(buf_to_return); ++i)
+				{
+					if (eof())
+					    throw omnetpp::cRuntimeError("Attempted to read past end of byte buffer");
+
 					p_buf_to_return[sizeof(buf_to_return)-1-i] = buf[buf_index++];
 				}
 			}
@@ -37,31 +49,40 @@ class TraCIBuffer {
 			return buf_to_return;
 		}
 
-		template<typename T> void write(T inv) {
+		template<typename T>
+		void write(T inv)
+		{
 			unsigned char *p_buf_to_send = reinterpret_cast<unsigned char*>(&inv);
 
-			if (isBigEndian()) {
-				for (size_t i=0; i<sizeof(inv); ++i) {
+			if (isBigEndian())
+			{
+				for (size_t i=0; i<sizeof(inv); ++i)
 					buf += p_buf_to_send[i];
-				}
-			} else {
-				for (size_t i=0; i<sizeof(inv); ++i) {
+			}
+			else
+			{
+				for (size_t i=0; i<sizeof(inv); ++i)
 					buf += p_buf_to_send[sizeof(inv)-1-i];
-				}
 			}
 		}
 
-		template<typename T> T read(T& out) {
+		template<typename T>
+		T read(T& out)
+		{
 			out = read<T>();
 			return out;
 		}
 
-		template<typename T> TraCIBuffer& operator >>(T& out) {
+		template<typename T>
+		TraCIBuffer& operator >>(T& out)
+		{
 			out = read<T>();
 			return *this;
 		}
 
-		template<typename T> TraCIBuffer& operator <<(const T& inv) {
+		template<typename T>
+		TraCIBuffer& operator <<(const T& inv)
+		{
 			write(inv);
 			return *this;
 		}

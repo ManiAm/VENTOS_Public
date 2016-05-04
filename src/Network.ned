@@ -26,20 +26,16 @@ network Network
 
         @display("bgb=489,359");
     submodules:
-        logrecorder: logRecorder {
-            parameters:
-                @display("p=48,47;i=old/floppy2");
-        }
         world: BaseWorldUtility {
             parameters:
                 playgroundSizeX = playgroundSizeX;
                 playgroundSizeY = playgroundSizeY;
                 playgroundSizeZ = playgroundSizeZ;
-                @display("p=144,44;i=misc/globe");
+                @display("p=48,44;i=misc/globe");
         }
         connMan: ConnectionManager {
             parameters:
-                @display("p=245,44;i=abstract/multicast");
+                @display("p=149,44;i=abstract/multicast");
         }
         TraCI: TraCIStart {
             parameters:
@@ -67,7 +63,7 @@ network Network
         }
         statistics: Statistics {
             parameters:
-                @display("p=337,44;i=block/timer");
+                @display("p=241,44;i=block/timer");
         }
         router: Router {
             parameters:
@@ -83,7 +79,7 @@ network Network
         }
         plotter: Plotter {
             parameters:
-                @display("p=432,44;i=block/app");
+                @display("p=336,44;i=block/app");
         }
         Ethernet: Ethernet {
             parameters:
