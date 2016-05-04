@@ -135,7 +135,7 @@ void TraCIMobilityMod::preInitialize(std::string external_id, const Coord& posit
 	isPreInitialized = true;
 }
 
-void TraCIMobilityMod::nextPosition(const Coord& position, std::string road_id, double speed, double angle, VehicleSignal signals)
+void TraCIMobilityMod::nextPosition(const Coord& position, std::string road_id, double speed, double angle, VehicleSignal vehSignals)
 {
 	if (debug) EV << "nextPosition " << position.x << " " << position.y << " " << road_id << " " << speed << " " << angle << std::endl;
 	isPreInitialized = false;
@@ -143,7 +143,7 @@ void TraCIMobilityMod::nextPosition(const Coord& position, std::string road_id, 
 	this->road_id = road_id;
 	this->speed = speed;
 	this->angle = angle;
-	this->signals = signals;
+	this->vehSignals = vehSignals;
 
 	changePosition();
 }

@@ -444,7 +444,7 @@ void TraCI_Start::processVehicleSubscription(std::string objectId, TraCIBuffer& 
     std::string edge;
     double speed;
     double angle_traci;
-    int signals;
+    int vehSignals;
     int numRead = 0;
 
     uint8_t variableNumber_resp; buf >> variableNumber_resp;
@@ -544,7 +544,7 @@ void TraCI_Start::processVehicleSubscription(std::string objectId, TraCIBuffer& 
         {
             uint8_t varType; buf >> varType;
             ASSERT(varType == TYPE_INTEGER);
-            buf >> signals;
+            buf >> vehSignals;
             numRead++;
         }
         else

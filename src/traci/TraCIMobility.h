@@ -58,8 +58,8 @@ class TraCIMobilityMod : public BaseMobility
 		virtual void finish();
 		virtual void handleSelfMsg(omnetpp::cMessage *msg);
 
-		virtual void preInitialize(std::string external_id, const Coord& position, std::string road_id = "", double speed = -1, double angle = -1);
-		virtual void nextPosition(const Coord& position, std::string road_id = "", double speed = -1, double angle = -1, VehicleSignal signals = VEH_SIGNAL_UNDEF);
+		virtual void preInitialize(std::string, const Coord&, std::string = "", double = -1, double = -1);
+		virtual void nextPosition(const Coord&, std::string = "", double = -1, double = -1, VehicleSignal = VEH_SIGNAL_UNDEF);
 		virtual void changePosition();
 		virtual void changeParkingState(bool);
 		virtual void updateDisplayString();
@@ -83,9 +83,9 @@ class TraCIMobilityMod : public BaseMobility
 			return speed;
 		}
 		virtual VehicleSignal getSignals() const {
-			if (signals == -1)
+			if (vehSignals == -1)
 			    throw omnetpp::cRuntimeError("TraCIMobility::getSignals called with no signals set yet");
-			return signals;
+			return vehSignals;
 		}
 		/**
 		 * returns angle in rads, 0 being east, with -M_PI <= angle < M_PI.
@@ -129,7 +129,7 @@ class TraCIMobilityMod : public BaseMobility
 		std::string road_id; /**< updated by nextPosition() */
 		double speed; /**< updated by nextPosition() */
 		double angle; /**< updated by nextPosition() */
-		VehicleSignal signals; /**<updated by nextPosition() */
+		VehicleSignal vehSignals; /**<updated by nextPosition() */
 
 		omnetpp::cMessage* startAccidentMsg;
 		omnetpp::cMessage* stopAccidentMsg;
