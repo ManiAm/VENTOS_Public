@@ -1,7 +1,7 @@
 
 #include "SimpleObstacleShadowing.h"
 
-#define debugEV EV << "PhyLayer(SimpleObstacleShadowing): "
+#define debugEV2 EV << "PhyLayer(SimpleObstacleShadowing): "
 
 #if 0
 SimplePathlossConstMapping::SimplePathlossConstMapping(const DimensionSet& dimensions,
@@ -47,7 +47,7 @@ void SimpleObstacleShadowing::filterSignal(AirFrame *frame, const Coord& senders
 
 	double factor = obstacleControl.calculateAttenuation(sendersPos, receiverPos);
 
-	debugEV << "value is: " << factor << std::endl;
+	debugEV2 << "value is: " << factor << std::endl;
 
 	bool hasFrequency = s.getTransmissionPower()->getDimensionSet().hasDimension(Dimension::frequency());
 	const DimensionSet& domain = hasFrequency ? DimensionSet::timeFreqDomain() : DimensionSet::timeDomain();
