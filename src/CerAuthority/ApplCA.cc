@@ -143,7 +143,7 @@ void ApplCA::receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t sig
             // note that all magic cars in the network will receive this signal, but only
             // the magic car that sent the Magic_Req will store this
             omnetpp::simsignal_t Signal_Magic_Res = registerSignal("Magic_Res");
-            this->emit(Signal_Magic_Res, data);
+            this->getParentModule()->emit(Signal_Magic_Res, data);
         }
         else
             std::cout  <<  "    CRL is empty!" << std::endl;

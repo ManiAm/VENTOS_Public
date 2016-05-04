@@ -40,16 +40,16 @@ namespace VENTOS {
 
 class ApplCA : public BaseApplLayer
 {
-  public:
+public:
     virtual ~ApplCA();
     virtual void initialize(int);
     virtual void finish();
-	virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, omnetpp::cObject *, cObject* details);
+    virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, omnetpp::cObject *, cObject* details);
 
-  protected:
+protected:
     virtual void handleSelfMsg(omnetpp::cMessage* msg);
 
-  private:
+private:
     void CalculateMatrixA();
     void createCRL();
     std::vector<std::string> NOerasure(std::ostringstream &);
@@ -58,11 +58,11 @@ class ApplCA : public BaseApplLayer
     void sendPiecesToRSUs();
     std::vector<CRL_Piece *> shuffle(std::vector<CRL_Piece *>);
 
-  public:
+public:
     // all entities use the same Matrix_A
     Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> Matrix_A;
 
-  private:
+private:
     bool active;
     bool ErasureCode;
     double Pseudonym_lifeTime;
@@ -71,15 +71,15 @@ class ApplCA : public BaseApplLayer
     int M;
     int N;
 
-	int InitialWait;
-	int CRLsize;
-	bool EnableShuffle;
+    int InitialWait;
+    int CRLsize;
+    bool EnableShuffle;
     int pad;   // how many padding are added
 
     std::string moduleName;
     omnetpp::cMessage *Timer1;
     omnetpp::simsignal_t Signal_Magic_Req;
-	std::vector<CRL_Piece *> PiecesCRL;
+    std::vector<CRL_Piece *> PiecesCRL;
 };
 
 }
