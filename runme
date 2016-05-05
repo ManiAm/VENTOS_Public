@@ -464,7 +464,7 @@ if [[ "$OS" == "Ubuntu" ]]; then
     echo ""
     echo "Check 3D visualization libraries for OMNET++"
     echo "============================================"
-    libs=("qt4-qmake" "libqt4-dev" "libqt4-opengl-dev" "openscenegraph" "libopenscenegraph-dev" "openscenegraph-plugin-osgearth" "osgearth" "osgearth-data" "libosgearth-dev")
+    libs=("libqt4-dev" "qt4-qmake" "libqt4-opengl-dev" "openscenegraph" "libopenscenegraph-dev" "openscenegraph-plugin-osgearth" "osgearth" "osgearth-data" "libosgearth-dev")
     install_LIB_linux libs[@]
 
 elif [[ "$OS" == "Mac OS X" ]]; then
