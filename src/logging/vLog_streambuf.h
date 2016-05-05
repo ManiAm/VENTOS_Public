@@ -33,14 +33,14 @@
 #include <ostream>
 #include <vector>
 
+// how to use:
+// vlog_streambuf *buff = new vlog_streambuf(std::cout);
+// std::ostream *out = new std::ostream(buff);
+
 namespace VENTOS {
 
 class vlog_streambuf : public std::streambuf
 {
-private:
-
-    std::ostream &sink_;
-    std::vector<char> buffer_;
 
 public:
 
@@ -92,6 +92,10 @@ protected:
             return 0;
         else return -1;
     }
+
+private:
+    std::ostream &sink_;
+    std::vector<char> buffer_;
 };
 
 }

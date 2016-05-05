@@ -27,7 +27,12 @@
 
 #include <vLog.h>
 #include <algorithm>
-#include "vLog_streambuf.h"
+
+#include "mainWindow.h"
+#include <QApplication>
+#include <qtextedit.h>
+#include <debugStream.h>
+#undef emit   // name conflict with emit on omnetpp
 
 namespace VENTOS {
 
@@ -36,8 +41,7 @@ Define_Module(VENTOS::vLog);
 vLog::~vLog()
 {
     // making sure to flush the remaining data in buffer
-    *out << std::flush;
-    delete out;
+    flush();
 }
 
 
@@ -50,11 +54,11 @@ void vLog::initialize(int stage)
         systemLogLevel = par("systemLogLevel").longValue();
         logRecordCMD = par("logRecordCMD").boolValue();
 
-        // creating an std::ostream object
-        vlog_streambuf *buff = new vlog_streambuf(std::cout);
-        out = new std::ostream(buff);
+        // default output stream
+        vLogStreams["std::cout"] =  &std::cout;
 
-        categories.clear();
+        // todo
+        updateQtWin();
     }
 }
 
@@ -71,23 +75,22 @@ void vLog::handleMessage(omnetpp::cMessage *msg)
 }
 
 
-vLog& vLog::setLog(uint8_t logLevel, std::string category)
+vLog& vLog::setLog(uint8_t logLevel, std::string category, std::string subcategory)
 {
-    // add the category name
-    if(category != "")
-    {
-        auto it = find (categories.begin(), categories.end(), category);
-        // the category name already exist
-        if(it == categories.end())
-        {
-            // add the new category name
-            categories.push_back(category);
+    if(category == "")
+        throw omnetpp::cRuntimeError("category name can't be empty!");
 
-            updateQtWin();
-        }
+    auto it = vLogStreams.find(category);
+    // new category?
+    if(it == vLogStreams.end())
+    {
+        // creating a new std::ostringstream for this new category
+        std::ostringstream *oss = new std::ostringstream;
+        vLogStreams[category] = oss;
     }
 
-    this->lastLogLevel = logLevel;
+    lastLogLevel = logLevel;
+    lastCategory = category;
 
     return *this;
 }
@@ -95,25 +98,38 @@ vLog& vLog::setLog(uint8_t logLevel, std::string category)
 
 void vLog::flush()
 {
-    out->flush();
+    for(auto &i : vLogStreams)
+        i.second->flush();
 }
 
 
 void vLog::updateQtWin()
 {
-    unsigned int size = categories.size();
+    unsigned int size = vLogStreams.size();
 
     if(size == 1)
     {
         char *argv[] = {"program name", "arg1", "arg2", NULL};
         int argc = sizeof(argv) / sizeof(char*) - 1;
 
-        QApplication a(argc, argv);
-        QLabel label;
-        label.setText("Hello World");
-        label.setWindowModality(Qt::WindowModal);
-        label.show();
-        a.exec();
+        QApplication QTapplication(argc, argv);
+
+        mainWindow *mw = new mainWindow();
+
+        QTextEdit *myTextEdit = new QTextEdit(mw);
+        myTextEdit->setReadOnly(true);
+        myTextEdit->adjustSize();
+
+        // redirect std::ostringstream to a QTextEdit
+        std::ostringstream oss;
+        QDebugStream qout(oss, myTextEdit);
+
+        // show the main window
+        mw->show();
+
+        oss << "Send this to the Text Edit! yohoooooo" << std::endl;
+
+        QTapplication.exec();
     }
     else if(size > 1)
     {

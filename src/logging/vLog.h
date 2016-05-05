@@ -32,10 +32,6 @@
 #include <omnetpp.h>
 #include "boost/format.hpp"
 
-#include <QApplication>
-#include <QLabel>
-#undef emit   // name conflict with emit on omnetpp
-
 namespace VENTOS {
 
 #define   WARNING_LOG   0b00000001
@@ -45,6 +41,7 @@ namespace VENTOS {
 #define   EVENT_LOG     0b00010000   // event log
 #define   ALL_LOG       0b11111111
 #define   NO_LOG        0b00000000
+
 
 class vLog : public BaseApplLayer
 {
@@ -58,13 +55,21 @@ public:
     vLog& operator << (const T& inv)
     {
         if( logRecordCMD || omnetpp::cSimulation::getActiveEnvir()->isGUI() )
+        {
             if( (systemLogLevel & lastLogLevel) != 0 )
-                *out << inv;
+            {
+                auto it = vLogStreams.find(lastCategory);
+                if(it == vLogStreams.end())
+                    throw omnetpp::cRuntimeError("category is unknown!");
+
+                *(it->second) << inv;
+            }
+        }
 
         return *this;
     }
 
-    vLog& setLog(uint8_t logLevel = INFO_LOG, std::string cat = "");
+    vLog& setLog(uint8_t logLevel = INFO_LOG, std::string cat = "std::cout", std::string subcat = "");
     void flush();
 
 private:
@@ -74,11 +79,11 @@ private:
     typedef BaseApplLayer super;
 
     uint8_t systemLogLevel = 0;
-    bool logRecordCMD;
+    bool logRecordCMD = false;
 
-    std::ostream *out;
-    std::vector<std::string> categories;
+    std::map<std::string /*category name*/, std::ostream *> vLogStreams;
     uint8_t lastLogLevel = INFO_LOG;
+    std::string lastCategory = "std::cout";
 };
 
 }
