@@ -108,7 +108,6 @@
 							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.base.754676775" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base">
 								<option id="gnu.cpp.compiler.option.include.paths.1084852223" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/rapidxml-1.13}&quot;"/>
-									<listOptionValue builtIn="false" value="/home/mani/Desktop/VENTOS/src/trafficLightCobalt"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/UFT}&quot;"/>
 									<listOptionValue builtIn="false" value="/usr/include/qt4"/>
 									<listOptionValue builtIn="false" value="/usr/include/qt4/Qt"/>
@@ -142,12 +141,11 @@
 							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.base.1960820108" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base.754676775">
 								<option id="gnu.cpp.compiler.option.include.paths.107534975" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/rapidxml-1.13}&quot;"/>
-									<listOptionValue builtIn="false" value="/home/mani/Desktop/VENTOS/src/trafficLightCobalt"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/UFT}&quot;"/>
 									<listOptionValue builtIn="false" value="/usr/include/qt4"/>
 									<listOptionValue builtIn="false" value="/usr/include/qt4/Qt"/>
-									<listOptionValue builtIn="false" value="/usr/include/QtCore"/>
-									<listOptionValue builtIn="false" value="/usr/include/QtGui"/>
+									<listOptionValue builtIn="false" value="/usr/include/qt4/QtCore"/>
+									<listOptionValue builtIn="false" value="/usr/include/qt4/QtGui"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.386813417" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
