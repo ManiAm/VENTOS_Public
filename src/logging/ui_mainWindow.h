@@ -14,24 +14,36 @@ public:
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
 
+    QVBoxLayout *verticalLayout;
+    QTabWidget *tabWidget1;
+
     void setupUi(QMainWindow *MainWindow)
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName("MainWindow");
 
         MainWindow->resize(400, 300);
+        MainWindow->setAutoFillBackground(false);
+        MainWindow->setStyleSheet(QString::fromUtf8(""));
+        MainWindow->setUnifiedTitleAndToolBarOnMac(true);
+        MainWindow->setWindowTitle(QApplication::translate("MainWindow", "MainWindow", 0));
 
         QIcon icon;
         icon.addFile(QString::fromUtf8("log_128.png"), QSize(), QIcon::Normal, QIcon::Off);
         MainWindow->setWindowIcon(icon);
 
-        MainWindow->setAutoFillBackground(false);
-        MainWindow->setStyleSheet(QString::fromUtf8(""));
-        MainWindow->setUnifiedTitleAndToolBarOnMac(true);
-
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName("centralWidget");
         MainWindow->setCentralWidget(centralWidget);
+
+        verticalLayout = new QVBoxLayout(centralWidget);
+        verticalLayout->setSpacing(6);
+        verticalLayout->setContentsMargins(11, 11, 11, 11);
+        verticalLayout->setObjectName("verticalLayout");
+
+        tabWidget1 = new QTabWidget(centralWidget);
+        tabWidget1->setObjectName("tabWidget1");
+        verticalLayout->addWidget(tabWidget1);
 
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName("menuBar");
@@ -46,14 +58,7 @@ public:
         statusBar->setObjectName("statusBar");
         MainWindow->setStatusBar(statusBar);
 
-        retranslateUi(MainWindow);
-
         QMetaObject::connectSlotsByName(MainWindow);
-    }
-
-    void retranslateUi(QMainWindow *MainWindow)
-    {
-        MainWindow->setWindowTitle(QApplication::translate("MainWindow", "MainWindow", 0));
     }
 };
 

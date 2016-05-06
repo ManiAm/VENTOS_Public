@@ -27,12 +27,12 @@
 
 #include <vLog.h>
 #include <algorithm>
+#include <thread>
 
-#include "mainWindow.h"
 #include <QApplication>
-#include <qtextedit.h>
-#include <debugStream.h>
+#include "mainWindow.h"
 #undef emit   // name conflict with emit on omnetpp
+
 
 namespace VENTOS {
 
@@ -56,9 +56,6 @@ void vLog::initialize(int stage)
 
         // default output stream
         vLogStreams["std::cout"] =  &std::cout;
-
-        // todo
-        updateQtWin();
     }
 }
 
@@ -77,15 +74,49 @@ void vLog::handleMessage(omnetpp::cMessage *msg)
 
 vLog& vLog::setLog(uint8_t logLevel, std::string category, std::string subcategory)
 {
+    std::lock_guard<std::mutex> lock(lock_log);
+
     if(category == "")
         throw omnetpp::cRuntimeError("category name can't be empty!");
 
     auto it = vLogStreams.find(category);
-    // new category?
+    // this is a new category
     if(it == vLogStreams.end())
     {
+        static mainWindow *logWindow = NULL;
+
+        // brings up the Qt window
+        if(vLogStreams.size() == 1)
+        {
+            // run the QT application event loop in a child thread
+            std::thread thd = std::thread([&]() {
+
+                char *argv[] = {"program name", "arg1", "arg2", NULL};
+                int argc = sizeof(argv) / sizeof(char*) - 1;
+
+                QApplication QTapplication(argc, argv);
+
+                logWindow = new mainWindow();
+                logWindow->show();
+
+                QTapplication.exec();
+            });
+
+            thd.detach();
+
+            // wait for the thread to set the logWindow pointer
+            while(!logWindow);
+
+            //while(!logWindow->isActiveWindow());
+        }
+
+        logWindow->addTab(category);
+
         // creating a new std::ostringstream for this new category
         std::ostringstream *oss = new std::ostringstream;
+        // and redirect it to the associated textedit
+        logWindow->redirectStream(oss, category);
+        // add this to vLogStreams
         vLogStreams[category] = oss;
     }
 
@@ -98,43 +129,10 @@ vLog& vLog::setLog(uint8_t logLevel, std::string category, std::string subcatego
 
 void vLog::flush()
 {
+    std::lock_guard<std::mutex> lock(lock_log);
+
     for(auto &i : vLogStreams)
         i.second->flush();
-}
-
-
-void vLog::updateQtWin()
-{
-    unsigned int size = vLogStreams.size();
-
-    if(size == 1)
-    {
-        char *argv[] = {"program name", "arg1", "arg2", NULL};
-        int argc = sizeof(argv) / sizeof(char*) - 1;
-
-        QApplication QTapplication(argc, argv);
-
-        mainWindow *mw = new mainWindow();
-
-        QTextEdit *myTextEdit = new QTextEdit(mw);
-        myTextEdit->setReadOnly(true);
-        myTextEdit->adjustSize();
-
-        // redirect std::ostringstream to a QTextEdit
-        std::ostringstream oss;
-        QDebugStream qout(oss, myTextEdit);
-
-        // show the main window
-        mw->show();
-
-        oss << "Send this to the Text Edit! yohoooooo" << std::endl;
-
-        QTapplication.exec();
-    }
-    else if(size > 1)
-    {
-
-    }
 }
 
 }

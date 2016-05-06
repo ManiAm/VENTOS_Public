@@ -31,6 +31,7 @@
 #include <BaseApplLayer.h>
 #include <omnetpp.h>
 #include "boost/format.hpp"
+#include <mutex>
 
 namespace VENTOS {
 
@@ -51,17 +52,21 @@ public:
     virtual void finish();
     virtual void handleMessage(omnetpp::cMessage *msg);
 
+    // overloading the << operator
     template<typename T>
     vLog& operator << (const T& inv)
     {
+        std::lock_guard<std::mutex> lock(lock_log);
+
         if( logRecordCMD || omnetpp::cSimulation::getActiveEnvir()->isGUI() )
         {
             if( (systemLogLevel & lastLogLevel) != 0 )
             {
                 auto it = vLogStreams.find(lastCategory);
                 if(it == vLogStreams.end())
-                    throw omnetpp::cRuntimeError("category is unknown!");
+                    throw omnetpp::cRuntimeError("can't find the category in vLogStreams map!");
 
+                // use the stream associated with this category
                 *(it->second) << inv;
             }
         }
@@ -73,11 +78,9 @@ public:
     void flush();
 
 private:
-    void updateQtWin();
-
-private:
     typedef BaseApplLayer super;
 
+    std::mutex lock_log;
     uint8_t systemLogLevel = 0;
     bool logRecordCMD = false;
 
