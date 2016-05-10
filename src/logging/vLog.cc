@@ -29,10 +29,8 @@
 #include <algorithm>
 #include <thread>
 
-#include <QApplication>
+#include <gtkmm/application.h>
 #include "mainWindow.h"
-#undef emit   // name conflict with emit on omnetpp
-
 
 namespace VENTOS {
 
@@ -89,17 +87,17 @@ vLog& vLog::setLog(uint8_t logLevel, std::string category, std::string subcatego
         if(vLogStreams.size() == 1)
         {
             // run the QT application event loop in a child thread
-            std::thread thd = std::thread([&]() {
+            std::thread thd = std::thread([=]() {
 
-                char *argv[] = {"program name", "arg1", "arg2", NULL};
-                int argc = sizeof(argv) / sizeof(char*) - 1;
+                auto app = Gtk::Application::create("org.gtkmm.example");
 
-                QApplication QTapplication(argc, argv);
+                char *argv[] = {"arg1", "arg2", nullptr};
+                int argc = 1;
 
                 logWindow = new mainWindow();
-                logWindow->show();
 
-                QTapplication.exec();
+                //Shows the window and returns when it is closed.
+                return app->run(*logWindow, argc, argv);
             });
 
             thd.detach();
@@ -107,16 +105,20 @@ vLog& vLog::setLog(uint8_t logLevel, std::string category, std::string subcatego
             // wait for the thread to set the logWindow pointer
             while(!logWindow);
 
-            //while(!logWindow->isActiveWindow());
+            // wait for the window to become visible
+            bool visible = false;
+            while(!visible)
+                logWindow->get_property("visible", visible);
         }
 
-        logWindow->addTab(category);
-
-        // creating a new std::ostringstream for this new category
+        // creating a new output stream for this new category
         std::ostringstream *oss = new std::ostringstream;
-        // and redirect it to the associated textedit
-        logWindow->redirectStream(oss, category);
-        // add this to vLogStreams
+
+        // adding a new tab with name 'category' and
+        // redirect oss to the associated text view
+        logWindow->addTab(category, oss);
+
+        // finally, adding oss to vLogStreams
         vLogStreams[category] = oss;
     }
 

@@ -1,27 +1,43 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
 
-#include <QMainWindow>
-#include "ui_mainWindow.h"
-#include <sstream>
+#ifndef MAINWINDOW
+#define MAINWINDOW
+
+#include <gtkmm/window.h>
+#include <gtkmm/button.h>
+#include <gtkmm/box.h>
+#include <gtkmm/notebook.h>
+#include <gtkmm/label.h>
+#include <gtkmm/buttonbox.h>
+#include <gtkmm/scrolledwindow.h>
+#include <gtkmm/textview.h>
+
+//#include <gtkmm.h>
 
 namespace VENTOS {
 
-class mainWindow : public QMainWindow
+class mainWindow : public Gtk::Window
 {
-    //Q_OBJECT
 
 public:
-    explicit mainWindow(QWidget *parent = 0);
-    ~mainWindow();
+    mainWindow();
+    virtual ~mainWindow();
 
-    void addTab(std::string);
-    void redirectStream(std::ostringstream *&, std::string);
+    void addTab(std::string, std::ostringstream *&);
 
-private:
-    Ui_MainWindow *ui;
+protected:
+    //Signal handlers:
+    void on_button_quit();
+
+protected:
+    Glib::RefPtr<Gtk::TextBuffer> m_refTextBuffer;
+
+    // widgets
+    Gtk::Box m_VBox;
+    Gtk::Notebook m_Notebook;
+    Gtk::ButtonBox m_ButtonBox;
+    Gtk::Button m_Button_Quit;
 };
 
 }
 
-#endif // MAINWINDOW_H
+#endif

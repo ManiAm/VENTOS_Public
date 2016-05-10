@@ -4,15 +4,14 @@
 #include <iostream>
 #include <streambuf>
 #include <string>
-#include "qtextedit.h"
 
 namespace VENTOS {
 
 class QDebugStream : public std::basic_streambuf<char>
 {
 public:
-    QDebugStream(std::ostream &stream, QTextEdit* text_edit) : m_stream(stream) {
-        log_window = text_edit;
+    QDebugStream(std::ostream &stream, Glib::RefPtr<Gtk::TextBuffer> buff) : m_stream(stream) {
+        textBuffer = buff;
         m_old_buf = stream.rdbuf();
         stream.rdbuf(this);
     }
@@ -20,7 +19,10 @@ public:
     ~QDebugStream() {
         // output anything that is left
         if (!m_string.empty())
-            log_window->append(m_string.c_str());
+        {
+            auto it = textBuffer->end();
+            textBuffer->insert(it, m_string);
+        }
 
         m_stream.rdbuf(m_old_buf);
     }
@@ -30,7 +32,9 @@ protected:
     virtual int_type overflow(int_type v) {
         if (v == '\n')
         {
-            log_window->append(m_string.c_str());
+            auto it = textBuffer->end();
+            textBuffer->insert(it, m_string);
+
             m_string.erase(m_string.begin(), m_string.end());
         }
         else
@@ -49,7 +53,10 @@ protected:
             if (pos != (int)std::string::npos)
             {
                 std::string tmp(m_string.begin(), m_string.begin() + pos);
-                log_window->append(tmp.c_str());
+
+                auto it = textBuffer->end();
+                textBuffer->insert(it, tmp);
+
                 m_string.erase(m_string.begin(), m_string.begin() + pos + 1);
             }
         }
@@ -61,7 +68,7 @@ private:
     std::ostream &m_stream;
     std::streambuf *m_old_buf;
     std::string m_string;
-    QTextEdit* log_window;
+    Glib::RefPtr<Gtk::TextBuffer> textBuffer;
 };
 
 }

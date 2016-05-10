@@ -1,59 +1,71 @@
 
 #include "mainWindow.h"
-#include <debugStream.h>
-#include <cassert>
+#include <iostream>
+#include "debugStream.h"
 
 namespace VENTOS {
 
-mainWindow::mainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui_MainWindow)
+mainWindow::mainWindow() :
+        m_VBox(Gtk::ORIENTATION_VERTICAL),
+        m_Button_Quit("_Close", true)
 {
-    ui->setupUi(this);
+    set_title("Log window");
+    set_border_width(1);
+    set_default_size(400, 200);
+    set_icon_from_file("log_128.png");
+
+    add(m_VBox);
+
+    // create the Notebook
+    m_Notebook.set_border_width(1);
+
+    // add notebook to VBox
+    m_VBox.pack_start(m_Notebook);
+
+    // add a quit button at the bottom
+    m_VBox.pack_start(m_ButtonBox, Gtk::PACK_SHRINK);
+    m_ButtonBox.pack_start(m_Button_Quit, Gtk::PACK_SHRINK);
+    m_Button_Quit.signal_clicked().connect(sigc::mem_fun(*this, &mainWindow::on_button_quit) );
+
+    show_all_children();
 }
 
 
 mainWindow::~mainWindow()
 {
-    delete ui;
+
 }
 
 
-void mainWindow::addTab(std::string category)
+void mainWindow::on_button_quit()
 {
-    // find the 'tab widget' in the Qt window
-    QTabWidget * tabWidget1 = this->findChild<QTabWidget *>("tabWidget1");
-    assert(tabWidget1);
-
-    // add a new tab
-    QWidget *tab = new QWidget();
-    tab->setObjectName(category.c_str());
-    tabWidget1->addTab(tab, QString());
-    tabWidget1->setTabText(tabWidget1->indexOf(tab), QApplication::translate("MainWindow", category.c_str(), 0));
-
-    // set the layout of tab to vertical
-    QVBoxLayout *verticalLayout = new QVBoxLayout(tab);
-    verticalLayout->setSpacing(6);
-    verticalLayout->setContentsMargins(11, 11, 11, 11);
-    verticalLayout->setObjectName("verticalLayout");
-
-    // add a new 'text edit' inside the tab
-    QTextEdit *textEdit = new QTextEdit(tab);
-    textEdit->setObjectName(category.c_str());
-    textEdit->setAcceptDrops(false);
-    textEdit->setReadOnly(true);
-    verticalLayout->addWidget(textEdit);
-
-    //    tabWidget11->setCurrentIndex(1);
+    hide();
 }
 
 
-void mainWindow::redirectStream(std::ostringstream *&stream, std::string category)
+void mainWindow::addTab(std::string category, std::ostringstream *&stream)
 {
-    // find the 'text edit' in the Qt window
-    QTextEdit * textEdit = this->findChild<QTextEdit *>(category.c_str());
-    assert(textEdit);
+    // create a ScrolledWindow
+    Gtk::ScrolledWindow *m_ScrolledWindow = new Gtk::ScrolledWindow();
+    // only show the scroll bars when they are necessary:
+    m_ScrolledWindow->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
 
-    // re-direct stream to textEdit
-    QDebugStream qout(*stream, textEdit);
+    // add the TextView inside ScrolledWindow
+    Gtk::TextView *m_TextView = new Gtk::TextView();
+    m_ScrolledWindow->add(*m_TextView);
+
+    // create Notebook pages
+    m_Notebook.append_page(*m_ScrolledWindow, category.c_str());
+
+    // create a text buffer for text view
+    m_refTextBuffer = Gtk::TextBuffer::create();
+    m_refTextBuffer->set_text("");
+    m_TextView->set_buffer(m_refTextBuffer);
+
+    // re-direct stream to the m_refTextBuffer
+    new QDebugStream(*stream, m_refTextBuffer);
+
+    show_all_children();
 }
 
 }
