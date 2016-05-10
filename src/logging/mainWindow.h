@@ -22,7 +22,7 @@ public:
     mainWindow();
     virtual ~mainWindow();
 
-    void addTab(std::string, std::ostringstream *&);
+    std::ostream* addTab(std::string);
 
 protected:
     //Signal handlers:

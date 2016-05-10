@@ -43,7 +43,7 @@ void mainWindow::on_button_quit()
 }
 
 
-void mainWindow::addTab(std::string category, std::ostringstream *&stream)
+std::ostream* mainWindow::addTab(std::string category)
 {
     // create a ScrolledWindow
     Gtk::ScrolledWindow *m_ScrolledWindow = new Gtk::ScrolledWindow();
@@ -63,9 +63,12 @@ void mainWindow::addTab(std::string category, std::ostringstream *&stream)
     m_TextView->set_buffer(m_refTextBuffer);
 
     // re-direct stream to the m_refTextBuffer
-    new QDebugStream(*stream, m_refTextBuffer);
+    debugStream *buff = new debugStream(m_refTextBuffer);
+    std::ostream *out = new std::ostream(buff);
 
     show_all_children();
+
+    return out;
 }
 
 }

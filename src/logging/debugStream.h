@@ -1,76 +1,102 @@
-#ifndef QDEBUGSTREAM_H
-#define QDEBUGSTREAM_H
+/****************************************************************************/
+/// @file    debugStream.h
+/// @author  Mani Amoozadeh <maniam@ucdavis.edu>
+/// @author  second author name
+/// @date    May 2016
+///
+/****************************************************************************/
+// VENTOS, Vehicular Network Open Simulator; see http:?
+// Copyright (C) 2013-2015
+/****************************************************************************/
+//
+// This file is part of VENTOS.
+// VENTOS is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//
 
-#include <iostream>
+#ifndef DEBUGSTREAM_H
+#define DEBUGSTREAM_H
+
+#include <cassert>
 #include <streambuf>
-#include <string>
+#include <vector>
 
 namespace VENTOS {
 
-class QDebugStream : public std::basic_streambuf<char>
+class debugStream : public std::streambuf
 {
 public:
-    QDebugStream(std::ostream &stream, Glib::RefPtr<Gtk::TextBuffer> buff) : m_stream(stream) {
-        textBuffer = buff;
-        m_old_buf = stream.rdbuf();
-        stream.rdbuf(this);
+    explicit debugStream(Glib::RefPtr<Gtk::TextBuffer> buff, std::size_t buff_sz = 512) : textBuffer(buff), buffer_(buff_sz + 1)
+    {
+        char *base = &buffer_.front();
+        setp(base, base + buffer_.size() - 1); // -1 to make overflow() easier
     }
 
-    ~QDebugStream() {
-        // output anything that is left
-        if (!m_string.empty())
-        {
-            auto it = textBuffer->end();
-            textBuffer->insert(it, m_string);
-        }
-
-        m_stream.rdbuf(m_old_buf);
-    }
+    debugStream(const debugStream &);
+    debugStream &operator= (const debugStream &);
 
 protected:
 
-    virtual int_type overflow(int_type v) {
-        if (v == '\n')
+    // overflow is called whenever pptr() == epptr()
+    virtual int_type overflow(int_type ch)
+    {
+        if (ch != traits_type::eof())
         {
+            // making sure 'pptr' have not passed 'epptr'
+            assert(std::less_equal<char *>()(pptr(), epptr()));
+
+            *pptr() = ch;
+            pbump(1);  // advancing the write position
+
+            std::ptrdiff_t n = pptr() - pbase();
+            pbump(-n);
+
+            // inserting the first n characters pointed by pbase() into the sink_
+            std::ostringstream sink_;
+            sink_.write(pbase(), n);
+
             auto it = textBuffer->end();
-            textBuffer->insert(it, m_string);
+            textBuffer->insert(it, sink_.str());
 
-            m_string.erase(m_string.begin(), m_string.end());
+            return ch;
         }
-        else
-            m_string += v;
 
-        return v;
+        return traits_type::eof();
     }
 
-    virtual std::streamsize xsputn(const char *p, std::streamsize n) {
-        m_string.append(p, p + n);
+    // write the current buffered data to the target, even when the buffer isn't full.
+    // This could happen when the std::flush manipulator is used on the stream
+    virtual int sync()
+    {
+        std::ptrdiff_t n = pptr() - pbase();
+        pbump(-n);
 
-        int pos = 0;
-        while (pos != (int)std::string::npos)
-        {
-            pos = m_string.find('\n');
-            if (pos != (int)std::string::npos)
-            {
-                std::string tmp(m_string.begin(), m_string.begin() + pos);
+        // inserting the first n characters pointed by pbase() into the sink_
+        std::ostringstream sink_;
+        sink_.write(pbase(), n);
 
-                auto it = textBuffer->end();
-                textBuffer->insert(it, tmp);
+        auto it = textBuffer->end();
+        textBuffer->insert(it, sink_.str());
 
-                m_string.erase(m_string.begin(), m_string.begin() + pos + 1);
-            }
-        }
-
-        return n;
+        return 0;
     }
 
 private:
-    std::ostream &m_stream;
-    std::streambuf *m_old_buf;
-    std::string m_string;
     Glib::RefPtr<Gtk::TextBuffer> textBuffer;
+    std::vector<char> buffer_;
 };
 
 }
 
-#endif // QDEBUGSTREAM_H
+#endif

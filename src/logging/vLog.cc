@@ -111,12 +111,9 @@ vLog& vLog::setLog(uint8_t logLevel, std::string category, std::string subcatego
                 logWindow->get_property("visible", visible);
         }
 
-        // creating a new output stream for this new category
-        std::ostringstream *oss = new std::ostringstream;
-
         // adding a new tab with name 'category' and
         // redirect oss to the associated text view
-        logWindow->addTab(category, oss);
+        std::ostream *oss = logWindow->addTab(category);
 
         // finally, adding oss to vLogStreams
         vLogStreams[category] = oss;
