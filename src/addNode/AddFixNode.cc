@@ -27,12 +27,10 @@
 
 #include "AddFixNode.h"
 #include "ConnectionManager.h"
+#include <vlog.h>
 
-// un-defining ev!
-// why? http://stackoverflow.com/questions/24103469/cant-include-the-boost-filesystem-header
 #undef ev
 #include "boost/filesystem.hpp"
-#define ev  (*cSimulation::getActiveEnvir())
 
 namespace VENTOS {
 
@@ -121,9 +119,8 @@ void AddFixNode::beginLoading()
 
 void AddFixNode::printLoadedStatistics()
 {
-    std::cout << std::endl;
-    std::cout << ">>> AddFixNode is done adding nodes. Here is a summary: " << std::endl;
-    std::cout.flush();
+    vlog::INFO() << "\n>>> AddFixNode is done adding nodes. Here is a summary: \n";
+    vlog::flush();
 
     // get a pointer to the first RSU
     omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("RSU", 0);
@@ -131,7 +128,7 @@ void AddFixNode::printLoadedStatistics()
     {
         // how many RSUs are in the network?
         int RSUcount = module->getVectorSize();
-        printf("  %d RSU modules are added: ", RSUcount);
+        vlog::INFO() << boost::format("  %1% RSU modules are added: ") % RSUcount;
 
         // iterate over modules
         for(int i = 0; i < RSUcount; ++i)
@@ -146,10 +143,10 @@ void AddFixNode::printLoadedStatistics()
             cModule *appl =  module->getSubmodule("appl");
             std::string SUMOID = appl->par("SUMOID").stringValue();
 
-            printf("%s (%s), ", fullId.c_str(), SUMOID.c_str());
+            vlog::INFO() << boost::format("%1% %2%, ") % fullId % SUMOID;
         }
 
-        printf("\n");
+        vlog::INFO() << "\n";
     }
 
     // get a pointer to the first Adversary
@@ -158,7 +155,7 @@ void AddFixNode::printLoadedStatistics()
     {
         // how many Adversaries are in the network?
         int advCount = module->getVectorSize();
-        printf("  %d adversary modules are added: ", advCount);
+        vlog::INFO() << boost::format("  %1% adversary modules are added: ") % advCount;
 
         // iterate over modules
         for(int i = 0; i < advCount; ++i)
@@ -172,7 +169,7 @@ void AddFixNode::printLoadedStatistics()
             printf("%s, ", fullId.c_str());
         }
 
-        printf("\n");
+        vlog::INFO() << "\n";
     }
 
     // get a pointer to the first CA
@@ -181,7 +178,7 @@ void AddFixNode::printLoadedStatistics()
     {
         // how many Adversaries are in the network?
         int CACount = module->getVectorSize();
-        printf("  %d CA modules are added: ", CACount);
+        vlog::INFO() << boost::format("  %1% CA modules are added: ") % CACount;
 
         // iterate over modules
         for(int i = 0; i < CACount; ++i)
@@ -192,13 +189,13 @@ void AddFixNode::printLoadedStatistics()
             // get OMNET id
             std::string fullId = module->getFullName();
 
-            printf("%s, ", fullId.c_str());
+            vlog::INFO() << boost::format("%s, ") % fullId;
         }
 
-        printf("\n");
+        vlog::INFO() << "\n";
     }
 
-    std::cout.flush();
+    vlog::flush();
 }
 
 
@@ -206,11 +203,11 @@ void AddFixNode::printLoadedStatistics()
 void AddFixNode::addAdversary(int num)
 {
     if(num <= 0)
-        error("num should be > 0");
+        throw omnetpp::cRuntimeError("num should be > 0");
 
     cModule* parentMod = getParentModule();
     if (!parentMod)
-        error("Parent Module not found");
+        throw omnetpp::cRuntimeError("Parent Module not found");
 
     omnetpp::cModuleType* nodeType = omnetpp::cModuleType::get("VENTOS.src.adversary.Adversary");
 
@@ -252,11 +249,11 @@ void AddFixNode::addAdversary(int num)
 void AddFixNode::addCA(int num)
 {
     if(num <= 0)
-        error("num should be > 0");
+        throw omnetpp::cRuntimeError("num should be > 0");
 
     cModule* parentMod = getParentModule();
     if (!parentMod)
-        error("Parent Module not found");
+        throw omnetpp::cRuntimeError("Parent Module not found");
 
     omnetpp::cModuleType* nodeType = omnetpp::cModuleType::get("VENTOS.src.CerAuthority.CA");
 
@@ -278,11 +275,11 @@ void AddFixNode::addCA(int num)
 void AddFixNode::addRSU(int num)
 {
     if(num <= 0)
-        error("num should be > 0");
+        throw omnetpp::cRuntimeError("num should be > 0");
 
     cModule* parentMod = getParentModule();
     if (!parentMod)
-        error("Parent Module not found");
+        throw omnetpp::cRuntimeError("Parent Module not found");
 
     omnetpp::cModuleType* nodeType = omnetpp::cModuleType::get("VENTOS.src.rsu.RSU");
 

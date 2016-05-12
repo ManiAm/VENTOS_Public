@@ -34,6 +34,7 @@
 #include <cmath>
 #include <algorithm>
 #include <iomanip>
+#include <vlog.h>
 
 #undef ev
 #include "boost/filesystem.hpp"
@@ -46,15 +47,6 @@ TraCI_Start::TraCI_Start() : world(0),
         cc(0),
         connectAndStartTrigger(0),
         executeOneTimestepTrigger(0) { }
-
-
-TraCI_Start::~TraCI_Start()
-{
-    cancelAndDelete(connectAndStartTrigger);
-    cancelAndDelete(executeOneTimestepTrigger);
-
-    delete connection;
-}
 
 
 void TraCI_Start::initialize(int stage)
@@ -148,6 +140,11 @@ void TraCI_Start::finish()
 
     while (hosts.begin() != hosts.end())
         deleteManagedModule(hosts.begin()->first);
+
+    cancelAndDelete(connectAndStartTrigger);
+    cancelAndDelete(executeOneTimestepTrigger);
+
+    delete connection;
 }
 
 
@@ -212,10 +209,11 @@ void TraCI_Start::init_traci()
     uint32_t apiVersionS = versionS.first;
     std::string serverVersionS = versionS.second;
 
-    if (apiVersionS == 10)
-        std::cout << "  SUMO TraCI server \"" << serverVersionS << "\" reports API version " << apiVersionS << std::endl;
-    else
-        throw omnetpp::cRuntimeError("TraCI server \"%s\" reports API version %d, which is unsupported.", serverVersionS.c_str(), apiVersionS);
+    vlog::INFO() << boost::format("  TraCI server \"%1%\" reports API version %2% \n") % serverVersionS % apiVersionS;
+    vlog::flush();
+
+    if (apiVersionS != 10)
+        throw omnetpp::cRuntimeError("Unsupported TraCI server API version!");
 
     // query road network boundaries from SUMO
     double *boundaries = simulationGetNetBoundary();
@@ -225,13 +223,14 @@ void TraCI_Start::init_traci()
     double x2 = boundaries[2];  // x2
     double y2 = boundaries[3];  // y2
 
-    std::cout << "  TraCI reports network boundaries (" << x1 << "," << y1 << ")-(" << x2 << "," << y2 << ")" << std::endl;
+    vlog::INFO() << boost::format("  TraCI reports network boundaries (%1%,%2%)-(%3%,%4%) \n") % x1 % y1 % x2 % y2;
+    vlog::flush();
 
     netbounds1 = TraCICoord(x1, y1);
     netbounds2 = TraCICoord(x2, y2);
 
     if ((traci2omnet(netbounds2).x > world->getPgs()->x) || (traci2omnet(netbounds1).y > world->getPgs()->y))
-        std::cout << "WARNING: Playground size (" << world->getPgs()->x << ", " << world->getPgs()->y << ") might be too small for vehicle at network bounds (" << traci2omnet(netbounds2).x << ", " << traci2omnet(netbounds1).y << ")" << std::endl;
+        vlog::WARNING() << boost::format("  WARNING: Playground size (%1%,%2%) might be too small for vehicle at network bounds (%3%,%4%) \n") % world->getPgs()->x % world->getPgs()->y % traci2omnet(netbounds2).x % traci2omnet(netbounds1).y;
 
     {
         // subscribe to list of departed and arrived vehicles, as well as simulation time
@@ -280,7 +279,9 @@ void TraCI_Start::init_traci()
     omnetpp::simsignal_t Signal_addFlow = registerSignal("addFlow");
     this->emit(Signal_addFlow, 0);
 
-    std::cout << "  Initializing modules with TraCI support ..." << std::endl;
+    vlog::INFO() << "  Initializing modules with TraCI support ... \n";
+    vlog::flush();
+
     omnetpp::simsignal_t Signal_initialize_withTraCI = registerSignal("initialize_withTraCI");
     this->emit(Signal_initialize_withTraCI, 1);
 
@@ -686,13 +687,9 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
 
                     departedNodes node = it->second;
 
-                    std::cout << "t=" << omnetpp::simTime().dbl() << ": " << node.vehicleId
-                            << " of type " << node.vehicleTypeId << " arrived. "
-                            << "Inserting it again on edge " << node.routeId
-                            << " in pos " << node.pos
-                            << " with entrySpeed of " << node.speed
-                            << " from lane " << node.lane
-                            << std::endl;
+                    vlog::EVENT() << boost::format("t=%1%: %2% of type %3% arrived. Inserting it again on edge %4% in pos %5% with entrySpeed of %6% from lane %7% \n")
+                    % omnetpp::simTime().dbl() % node.vehicleId % node.vehicleTypeId % node.routeId % node.pos % node.speed % node.lane;
+                    vlog::flush();
 
                     addedNodes.erase(it);  // remove this entry before adding
                     vehicleAdd(node.vehicleId, node.vehicleTypeId, node.routeId, (omnetpp::simTime().dbl() * 1000)+1, node.pos, node.speed, node.lane);
@@ -852,7 +849,8 @@ bool TraCI_Start::isInRegionOfInterest(const TraCICoord& position, std::string r
 void TraCI_Start::deleteManagedModule(std::string nodeId)
 {
     cModule* mod = getManagedModule(nodeId);
-    if (!mod) throw omnetpp::cRuntimeError("no vehicle with Id \"%s\" found", nodeId.c_str());
+    if (!mod)
+        throw omnetpp::cRuntimeError("no vehicle with Id \"%s\" found", nodeId.c_str());
 
     cModule* nic = mod->getSubmodule("nic");
     if (nic)
@@ -933,9 +931,7 @@ void TraCI_Start::addModule(std::string nodeId, const Coord& position, std::stri
         vClassEnum = SVC_PEDESTRIAN;
     }
     else
-        throw omnetpp::cRuntimeError("Unknown vClass '%s' for vehicle '%s'. Change vClass in traffic demand file based on global/Appl.h",
-                vClass.c_str(),
-                nodeId.c_str());
+        throw omnetpp::cRuntimeError("Unknown vClass '%s' for vehicle '%s'. Change vClass in traffic demand file based on global/Appl.h", vClass.c_str(), nodeId.c_str());
 
     if (hosts.find(nodeId) != hosts.end())
         throw omnetpp::cRuntimeError("tried adding duplicate module");
@@ -967,6 +963,7 @@ void TraCI_Start::addModule(std::string nodeId, const Coord& position, std::stri
     std::string vehType = vehicleGetTypeID(nodeId);  // get vehicle type
     int SUMOControllerType = vehicleTypeGetControllerType(vehType); // get controller type
     int SUMOControllerNumber = vehicleTypeGetControllerNumber(vehType);  // get controller number from SUMO
+
     mod->getSubmodule("appl")->par("SUMOID") = nodeId;
     mod->getSubmodule("appl")->par("SUMOType") = vehType;
     mod->getSubmodule("appl")->par("vehicleClass") = vClass;

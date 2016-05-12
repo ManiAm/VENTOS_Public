@@ -124,7 +124,7 @@ void AddMobileNode::beginLoading()
     // find the method in map
     auto i = funcMap.find(funcName.c_str());
     if(i == funcMap.end())
-        error("Method %s not found!", funcName.c_str());
+        throw omnetpp::cRuntimeError("Method %s not found!", funcName.c_str());
 
     // and then call it
     pfunc f = i->second;
@@ -136,39 +136,37 @@ void AddMobileNode::beginLoading()
 
 void AddMobileNode::printLoadedStatistics()
 {
-    std::cout << std::endl;
-    std::cout << ">>> AddMobileNode is done adding nodes. Here is a summary: " << std::endl;
-    std::cout.flush();
+    vlog::INFO() << "\n>>> AddMobileNode is done adding nodes. Here is a summary: \n";
+    vlog::flush();
 
     //###################################
     // Get the list of all possible route
     //###################################
 
     std::list<std::string> loadedRouteList = TraCI->routeGetIDList();
-    printf("  %lu routes are loaded: ", loadedRouteList.size());
+    vlog::INFO() << boost::format("  %1% routes are loaded: ") % loadedRouteList.size();
     for(std::string route : loadedRouteList)
-        printf("%s, ", route.c_str());
+        vlog::INFO() << boost::format("%1%, ") % route;
 
-    printf("\n");
+    vlog::INFO() << "\n";
 
     //##################################
     // Get the list of all vehicle types
     //##################################
 
     std::list<std::string> loadedVehTypeList = TraCI->vehicleTypeGetIDList();
-    printf("  %lu vehicle/bike types are loaded: ", loadedVehTypeList.size());
+    vlog::INFO() << boost::format("  %1% vehicle/bike types are loaded: ") % loadedVehTypeList.size();
     for(std::string type : loadedVehTypeList)
-        printf("%s, ", type.c_str());
+        vlog::INFO() << boost::format("%1%, ") % type;
 
-    printf("\n");
+    vlog::INFO() << "\n";
 
     //#############################
     // Get the list of all vehicles
     //#############################
 
     std::list<std::string> loadedVehList = TraCI->simulationGetLoadedVehiclesIDList();
-    printf("  %lu vehicles/bikes are loaded out of which: \n", loadedVehList.size());
-
+    vlog::INFO() << boost::format("  %1% vehicles/bikes are loaded out of which: \n") % loadedVehList.size();
     // get vehicle/bike type distribution
     std::list<std::string> loadedVehType;
     for(std::string vehID : loadedVehList)
@@ -182,10 +180,10 @@ void AddMobileNode::printLoadedStatistics()
     for(std::string type : loadedVehTypeListUnique)
     {
         int count = std::count(loadedVehType.begin(), loadedVehType.end(), type);
-        printf("      %d nodes are added of type \"%s\" \n", count, type.c_str());
+        vlog::INFO() << boost::format("      %1% nodes are added of type \"%2%\" \n") % count % type;
     }
 
-    printf("\n");
+    vlog::INFO() << "\n";
 
     // get route distribution
     std::list<std::string> loadedVehRoute;
@@ -200,10 +198,10 @@ void AddMobileNode::printLoadedStatistics()
     for(std::string route : loadedVehRouteListUnique)
     {
         int count = std::count(loadedVehRoute.begin(), loadedVehRoute.end(), route);
-        printf("      %d nodes have route \"%s\" \n", count, route.c_str());
+        vlog::INFO() << boost::format("      %1% nodes have route \"%2%\" \n") % count % route;
     }
 
-    std::cout.flush();
+    vlog::flush();
 }
 
 
@@ -499,7 +497,7 @@ void AddMobileNode::Scenario8()
         }
 
         if(readCount < 5)
-            error("XML formatted wrong! Not enough elements given for some vehicle.");
+            throw omnetpp::cRuntimeError("XML formatted wrong! Not enough elements given for some vehicle.");
 
         r->net->vehicles[id] = new Vehicle(id, type, origin, destination, depart);
 
@@ -665,26 +663,26 @@ void AddMobileNode::Scenario10()
     {
         vehClassDistribution = omnetpp::cStringTokenizer(par("vehClassDist").stringValue(), ",").asDoubleVector();
         if(vehClassDistribution.size() != 2)
-            error("Two values should be specified for vehicle class distribution!");
+            throw omnetpp::cRuntimeError("Two values should be specified for vehicle class distribution!");
 
         // make sure vehicle class distributions are set correctly
         double totalDist = 0;
         for(double i : vehClassDistribution)
             totalDist += i;
         if(totalDist != 100)
-            error("vehicle class distributions do not add up to 100 percent!");
+            throw omnetpp::cRuntimeError("vehicle class distributions do not add up to 100 percent!");
     }
 
     std::vector<double> vehRouteDistribution;
     vehRouteDistribution = omnetpp::cStringTokenizer(par("vehRouteDist").stringValue(), ",").asDoubleVector();
     if(vehRouteDistribution.size() != 3)
-        error("Three values should be specified for vehicle route distribution!");
+        throw omnetpp::cRuntimeError("Three values should be specified for vehicle route distribution!");
     // make sure vehicle route distributions are set correctly
     double totalDist = 0;
     for(double i : vehRouteDistribution)
         totalDist += i;
     if(totalDist != 100)
-        error("vehicle route distributions do not add up to 100 percent!");
+        throw omnetpp::cRuntimeError("vehicle route distributions do not add up to 100 percent!");
 
     bool bike = par("bike").boolValue();
     std::vector<double> bikeRouteDistribution;
@@ -692,14 +690,14 @@ void AddMobileNode::Scenario10()
     {
         bikeRouteDistribution = omnetpp::cStringTokenizer(par("bikeRouteDist").stringValue(), ",").asDoubleVector();
         if(bikeRouteDistribution.size() != 3)
-            error("Three values should be specified for bike route distribution!");
+            throw omnetpp::cRuntimeError("Three values should be specified for bike route distribution!");
 
         // make sure vehicle bike route distributions are set correctly
         totalDist = 0;
         for(double i : bikeRouteDistribution)
             totalDist += i;
         if(totalDist != 100)
-            error("bike route distributions do not add up to 100 percent!");
+            throw omnetpp::cRuntimeError("bike route distributions do not add up to 100 percent!");
     }
 
     // mersenne twister engine (seed is fixed to make tests reproducible)
@@ -991,26 +989,26 @@ void AddMobileNode::Scenario11()
     {
         vehClassDistribution = omnetpp::cStringTokenizer(par("vehClassDist").stringValue(), ",").asDoubleVector();
         if(vehClassDistribution.size() != 2)
-            error("Two values should be specified for vehicle class distribution!");
+            throw omnetpp::cRuntimeError("Two values should be specified for vehicle class distribution!");
 
         // make sure vehicle class distributions are set correctly
         double totalDist = 0;
         for(double i : vehClassDistribution)
             totalDist += i;
         if(totalDist != 100)
-            error("vehicle class distributions do not add up to 100 percent!");
+            throw omnetpp::cRuntimeError("vehicle class distributions do not add up to 100 percent!");
     }
 
     std::vector<double> vehRouteDistribution;
     vehRouteDistribution = omnetpp::cStringTokenizer(par("vehRouteDist").stringValue(), ",").asDoubleVector();
     if(vehRouteDistribution.size() != 3)
-        error("Three values should be specified for vehicle route distribution!");
+        throw omnetpp::cRuntimeError("Three values should be specified for vehicle route distribution!");
     // make sure vehicle route distributions are set correctly
     double totalDist = 0;
     for(double i : vehRouteDistribution)
         totalDist += i;
     if(totalDist != 100)
-        error("vehicle route distributions do not add up to 100 percent!");
+        throw omnetpp::cRuntimeError("vehicle route distributions do not add up to 100 percent!");
 
     bool bike = par("bike").boolValue();
     std::vector<double> bikeRouteDistribution;
@@ -1018,14 +1016,14 @@ void AddMobileNode::Scenario11()
     {
         bikeRouteDistribution = omnetpp::cStringTokenizer(par("bikeRouteDist").stringValue(), ",").asDoubleVector();
         if(bikeRouteDistribution.size() != 3)
-            error("Three values should be specified for bike route distribution!");
+            throw omnetpp::cRuntimeError("Three values should be specified for bike route distribution!");
 
         // make sure vehicle bike route distributions are set correctly
         totalDist = 0;
         for(double i : bikeRouteDistribution)
             totalDist += i;
         if(totalDist != 100)
-            error("bike route distributions do not add up to 100 percent!");
+            throw omnetpp::cRuntimeError("bike route distributions do not add up to 100 percent!");
     }
 
     // mersenne twister engine (seed is fixed to make tests reproducible)
@@ -1357,14 +1355,14 @@ void AddMobileNode::Scenario12()
     {
         vehClassDistribution = omnetpp::cStringTokenizer(par("vehClassDist").stringValue(), ",").asDoubleVector();
         if(vehClassDistribution.size() != 2)
-            error("Two values should be specified for vehicle class distribution!");
+            throw omnetpp::cRuntimeError("Two values should be specified for vehicle class distribution!");
 
         // make sure vehicle class distributions are set correctly
         double totalDist = 0;
         for(double i : vehClassDistribution)
             totalDist += i;
         if(totalDist != 100)
-            error("vehicle class distributions do not add up to 100 percent!");
+            throw omnetpp::cRuntimeError("vehicle class distributions do not add up to 100 percent!");
     }
 
     // add a single bike (north to south)

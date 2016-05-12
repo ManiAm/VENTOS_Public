@@ -28,6 +28,7 @@
 #ifndef ADDMOBILENODE_H
 #define ADDMOBILENODE_H
 
+#include <vlog.h>
 #include "BaseApplLayer.h"
 #include "TraCICommands.h"
 

@@ -49,7 +49,6 @@ SSH_Helper::SSH_Helper(std::string host, int port, std::string username, std::st
 {
     active_threads = 0;
     terminating = false;
-
 }
 
 
@@ -229,8 +228,11 @@ std::string SSH_Helper::run_command(ssh_channel SSH_channel, std::string command
                     boost::replace_all(cOutput, "\r\n", "\n");
                     boost::replace_all(cOutput, "\n", "\n    ");  // add indentation to the rest of the lines
 
-                    std::cout << cOutput;
-                    std::cout.flush();
+                    {
+                        std::lock_guard<std::mutex> lock(vlog::lock_log);
+                        vlog::EVENT(dev_hostName) << cOutput;
+                        vlog::flush();
+                    }
                 }
 
                 // save output
@@ -248,8 +250,9 @@ std::string SSH_Helper::run_command(ssh_channel SSH_channel, std::string command
         // add two new lines for readability
         if(printOutput)
         {
-            printf("\n\n");
-            std::cout.flush();
+            std::lock_guard<std::mutex> lock(vlog::lock_log);
+            vlog::EVENT(dev_hostName) << "\n\n";
+            vlog::flush();
         }
 
         // last command failed
@@ -263,8 +266,9 @@ std::string SSH_Helper::run_command(ssh_channel SSH_channel, std::string command
                 boost::replace_all(command_output, "\r\n", "\n");
                 boost::replace_all(command_output, "\n", "\n    ");
 
-                printf("%s \n\n", command_output.c_str());
-                std::cout.flush();
+                std::lock_guard<std::mutex> lock(vlog::lock_log);
+                vlog::EVENT(dev_hostName) << command_output << " \n\n";
+                vlog::flush();
             }
 
             // let the user know

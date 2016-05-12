@@ -93,7 +93,6 @@ class TraCI_Start :  public TraCI_Commands
 {
 public:
     TraCI_Start();
-    ~TraCI_Start();
 
     virtual void initialize(int stage);
     virtual int numInitStages() const

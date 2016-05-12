@@ -189,21 +189,14 @@ void MeasureTrafficParams::CheckDetectors()
             AD_queue[lane] = it;
     }
 
-    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 0)
-    {
-        printf("\n");
+    vlog::INFO() << boost::format("\n>>> %1% loop detectors are added out of which: \n") % str.size();
+    vlog::INFO() << boost::format("  %1% are demand loop detectors \n") % LD_demand.size();
+    vlog::INFO() << boost::format("  %1% are actuated loop detectors \n") % LD_actuated.size();
 
-        printf(">>> %lu loop detectors are added out of which: \n", str.size());
-        printf("  %lu are demand loop detectors \n", LD_demand.size());
-        printf("  %lu are actuated loop detectors \n", LD_actuated.size());
+    vlog::INFO() << boost::format("\n>>> %1% area detectors are added out of which: \n") % str2.size();
+    vlog::INFO() << boost::format("  %1% are used for queue measurement \n") % AD_queue.size();
 
-        printf("\n");
-
-        printf(">>> %lu area detectors are added out of which: \n", str2.size());
-        printf("  %lu are used for queue measurement \n", AD_queue.size());
-
-        std::cout.flush();
-    }
+    vlog::flush();
 
     // make sure we have all detectors we need
     for (auto &it : TLList)
@@ -226,15 +219,15 @@ void MeasureTrafficParams::CheckDetectors()
 
             // traffic-actuated TSC needs one actuated LD on each incoming lane
             if( TLControlMode == TL_TrafficActuated && LD_actuated.find(lane) == LD_actuated.end() )
-                std::cout << "WARNING: no loop detector found on lane (" << lane << "). No actuation is available for this lane." << std::endl;
+                vlog::WARNING() << boost::format("WARNING: no loop detector found on lane (%1%). No actuation is available for this lane. \n") % lane;
 
             // if we are measuring queue length then make sure we have an area detector in each lane
             if( measureIntersectionQueue && AD_queue.find(lane) == AD_queue.end() )
-                std::cout << "WARNING: no area detector found on lane (" << lane << "). No queue measurement is available for this lane." << std::endl;
+                vlog::WARNING() << boost::format("WARNING: no area detector found on lane (%1%). No queue measurement is available for this lane. \n") % lane;
 
             // if we are measuring traffic demand using loop detectors then make sure we have an LD on each lane
             if( measureTrafficDemand && LD_demand.find(lane) == LD_demand.end() )
-                std::cout << "WARNING: no loop detector found on lane (" << lane << "). No traffic demand measurement is available for this lane." << std::endl;
+                vlog::WARNING() << boost::format("WARNING: no loop detector found on lane (%1%). No traffic demand measurement is available for this lane. \n") % lane;
         }
     }
 }
@@ -443,11 +436,8 @@ void MeasureTrafficParams::updateTrafficDemand()
                 (location->second).clear();
             }
 
-            if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 1)
-            {
-                std::cout << ">>> Traffic demand measurement restarted for lane " << lane << std::endl << std::endl;
-                std::cout.flush();
-            }
+            vlog::DEBUG() << boost::format(">>> Traffic demand measurement restarted for lane %1% \n\n ") % lane;
+            vlog::flush();
         }
 
         if(TD != 0)

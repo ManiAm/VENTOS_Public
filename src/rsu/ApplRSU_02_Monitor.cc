@@ -85,8 +85,9 @@ void ApplRSUMonitor::initialize(int stage)
                 // check if not greater than Gmin
                 if(pass > minGreenTime)
                 {
-                    std::cout << std::endl;
-                    std::cout << "WARNING (" << myFullId << "): Passage time is greater than Gmin in lane " << lane << std::endl;
+                    vlog::WARNING() << boost::format("\nWARNING: Passage time in lane %1% which is controller by %2% is greater than Gmin \n") % lane % myFullId;
+                    vlog::flush();
+
                     pass = minGreenTime;
                 }
 
@@ -97,9 +98,8 @@ void ApplRSUMonitor::initialize(int stage)
         }
         else if(!TLlist.empty())
         {
-            printf("\n");
-            printf("%s's name (%s) does not match with any of %lu TLs \n", myFullId, SUMOID.c_str(), TLlist.size());
-            std::cout.flush();
+            vlog::WARNING() << boost::format("\n%1%'s name (%2%) does not match with any of %3% TLs \n") % myFullId % SUMOID % TLlist.size();
+            vlog::flush();
         }
     }
 }
