@@ -124,7 +124,10 @@ vlog& vlog::EVENT(std::string category, std::string subcategory)
 
 void vlog::flush()
 {
-    objPtr->sendToLogWindow(std::string("3||") + "-");
+    std::cout.flush();
+
+    if(!objPtr->allCategories.empty())
+        objPtr->sendToLogWindow(std::string("3||") + "-");
 }
 
 
