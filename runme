@@ -1023,7 +1023,7 @@ if [[ "$OS" == "Ubuntu" ]]; then
         boostLIB="libboost-all-dev"
     fi
     
-    libs=("$boostLIB" "libssl-dev" "libcurl4-gnutls-dev" "libbluetooth-dev")
+    libs=("$boostLIB" "libssl-dev" "libcurl4-gnutls-dev" "libbluetooth-dev" "libgtkmm-3.0-dev")
     install_LIB_linux libs[@]
 
 elif [[ "$OS" == "Mac OS X" ]]; then
@@ -1140,6 +1140,87 @@ if [[ "$result" == "2" ]]; then
     cd ..
 fi
 
+
+echo ""
+echo "check eigen"
+echo "==========="
+
+# Eigen consists only of header files, hence there is nothing to compile before you can use it. The header files will be copied into /usr/local/include.
+
+if [ -d "/usr/local/include/eigen3" ]; then
+    echo "eigen is already installed!"
+else
+    if [ ! -d "eigen" ]; then
+        echo "downloading eigen"
+        curl -o eigen.zip -LOk https://github.com/RLovelett/eigen/archive/master.zip
+        unzip eigen.zip -d eigen > /dev/null
+    fi
+
+    cd eigen
+    cd eigen-master
+    if [[ $? -ne 0 ]]; then
+        exit 1
+    fi
+
+    echo "installing eigen ..."
+    mkdir build
+    cd build
+    cmake ../ > /dev/null
+    if [[ $? -ne 0 ]]; then
+        exit 1
+    fi
+    echo $sudoPass | sudo -S make install > /dev/null
+
+    cd ..
+    cd ..
+    cd ..
+fi
+
+echo ""
+echo "check snmp++"
+echo "============"
+
+# libsnmp++ library will be copied into /usr/local/lib and the header files will be copied into /usr/local/include.
+
+if [[ "$OS" == "Ubuntu" ]]; then
+    getLibVersions_Linux "libsnmp++" "33.0.5"
+
+elif [[ "$OS" == "Mac OS X" ]]; then
+    getLibVersions_Mac "libsnmp++" "33.0.5"
+fi
+
+result=$?
+#if [[ ("$result" == "1") || ("$result" == "2") ]]; then
+if [[ 1 ]]; then
+    if [ ! -f "snmp++-3.3.5.tar.gz" ]; then
+        # download snmp++ API
+        echo "downloading snmp++"
+        curl -o snmp.tar.gz http://www.agentpp.com/download/snmp++-3.3.5.tar.gz
+        mkdir snmp
+        tar zxf snmp.tar.gz -C snmp --strip 1 
+    fi
+
+    cd snmp
+    if [[ $? -ne 0 ]]; then
+        exit 1
+    fi
+
+    # make executable (Mac OS X)
+    chmod +x build-aux/install-sh
+
+    echo "installing snmp++ ..."
+    ./configure > /dev/null
+    make > /dev/null
+    if [[ $? -ne 0 ]]; then
+        exit 1
+    fi
+    echo $sudoPass | sudo -S make install > /dev/null
+
+    cd ..
+else
+    echo "snmp++ is already installed!"
+fi
+
 echo ""
 echo "Check libpcap"
 echo "============="
@@ -1230,86 +1311,6 @@ else
 fi
 
 echo ""
-echo "check snmp++"
-echo "============"
-
-# libsnmp++ library will be copied into /usr/local/lib and the header files will be copied into /usr/local/include.
-
-if [[ "$OS" == "Ubuntu" ]]; then
-    getLibVersions_Linux "libsnmp++" "33.0.5"
-
-elif [[ "$OS" == "Mac OS X" ]]; then
-    getLibVersions_Mac "libsnmp++" "33.0.5"
-fi
-
-result=$?
-#if [[ ("$result" == "1") || ("$result" == "2") ]]; then
-if [[ 1 ]]; then
-    if [ ! -f "snmp++-3.3.5.tar.gz" ]; then
-        # download snmp++ API
-        echo "downloading snmp++"
-        curl -o snmp.tar.gz http://www.agentpp.com/download/snmp++-3.3.5.tar.gz
-        mkdir snmp
-        tar zxf snmp.tar.gz -C snmp --strip 1 
-    fi
-
-    cd snmp
-    if [[ $? -ne 0 ]]; then
-        exit 1
-    fi
-
-    # make executable (Mac OS X)
-    chmod +x build-aux/install-sh
-
-    echo "installing snmp++ ..."
-    ./configure > /dev/null
-    make > /dev/null
-    if [[ $? -ne 0 ]]; then
-        exit 1
-    fi
-    echo $sudoPass | sudo -S make install > /dev/null
-
-    cd ..
-else
-    echo "snmp++ is already installed!"
-fi
-
-echo ""
-echo "check eigen"
-echo "==========="
-
-# Eigen consists only of header files, hence there is nothing to compile before you can use it. The header files will be copied into /usr/local/include.
-
-if [ -d "/usr/local/include/eigen3" ]; then
-    echo "eigen is already installed!"
-else
-    if [ ! -d "eigen" ]; then
-        echo "downloading eigen"
-        curl -o eigen.zip -LOk https://github.com/RLovelett/eigen/archive/master.zip
-        unzip eigen.zip -d eigen > /dev/null
-    fi
-
-    cd eigen
-    cd eigen-master
-    if [[ $? -ne 0 ]]; then
-        exit 1
-    fi
-
-    echo "installing eigen ..."
-    mkdir build
-    cd build
-    cmake ../ > /dev/null
-    if [[ $? -ne 0 ]]; then
-        exit 1
-    fi
-    echo $sudoPass | sudo -S make install > /dev/null
-
-    cd ..
-    cd ..
-    cd ..
-fi
-
-echo ""
 echo "Check libssh"
 echo "============"
 
@@ -1355,7 +1356,6 @@ if [[ 1 ]]; then
         exit 1
     fi
 
-    cd ..
     cd ..
     cd ..
 else
