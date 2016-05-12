@@ -42,6 +42,7 @@
 namespace VENTOS {
 
 std::mutex SSH::lock_prompt;
+std::mutex SSH::lock_verify;
 
 SSH::~SSH()
 {
@@ -69,8 +70,14 @@ SSH::SSH(std::string host, int port, std::string username, std::string password,
     if(username == "")
         throw omnetpp::cRuntimeError("username is empty!");
 
+    {
+        std::lock_guard<std::mutex> lock(vlog::lock_log);
+        vlog::EVENT(host) << boost::format(">>> Connecting to %1% ... \n\n") % host;
+        vlog::flush();
+    }
+
     this->dev_hostName = host;
-    this->dev_port = port;;
+    this->dev_port = port;
     this->dev_username = username;
     this->dev_password = password;
 
@@ -91,42 +98,51 @@ SSH::SSH(std::string host, int port, std::string username, std::string password,
 
     if(printOutput)
     {
-        printf("    SSH to %s@%s at port %d \n", username.c_str(), host.c_str(), port);
-        std::cout.flush();
+        std::lock_guard<std::mutex> lock(vlog::lock_log);
+        vlog::EVENT(host) << boost::format("    SSH to %1%@%2% at port %3% \n") % username % host % port;
+        vlog::flush();
     }
 
     int rc = ssh_connect(SSH_session);
     if (rc != SSH_OK)
         throw omnetpp::cRuntimeError("%s", ssh_get_error(SSH_session));
 
-    // verify the server's identity
-    if (verify_knownhost() < 0)
     {
-        ssh_disconnect(SSH_session);
-        ssh_free(SSH_session);
-        throw omnetpp::cRuntimeError("oh no!");
+        // one SSH connection at a time -- because this might prompt the user
+        std::lock_guard<std::mutex> lock(lock_verify);
+
+        // verify the server's identity
+        if (verify_knownhost() < 0)
+        {
+            ssh_disconnect(SSH_session);
+            ssh_free(SSH_session);
+            throw omnetpp::cRuntimeError("Cannot verify the host!");
+        }
     }
 
     if(printOutput)
     {
+        std::lock_guard<std::mutex> lock(vlog::lock_log);
+
         // get the protocol version of the session
-        printf("    SSH version @%s --> %d \n", host.c_str(), ssh_get_version(SSH_session));
-        std::cout.flush();
+        vlog::EVENT(dev_hostName) << boost::format("    SSH version @%1% --> %2% \n") % host % ssh_get_version(SSH_session);
 
         // get the server banner
-        printf("    Server banner @%s: \n        %s \n", host.c_str(), ssh_get_serverbanner(SSH_session));
-        std::cout.flush();
+        vlog::EVENT(dev_hostName) << boost::format("    Server banner @%1%: \n        %2% \n") % host % ssh_get_serverbanner(SSH_session);
 
         // get issue banner
         char *str = ssh_get_issue_banner(SSH_session);
         if(str)
-            std::cout << "    Issue banner: " << str << std::endl;
+            vlog::EVENT(dev_hostName) << boost::format("    Issue banner: %1% \n") % str % ssh_get_serverbanner(SSH_session);
+
+        vlog::flush();
     }
 
     if(printOutput)
     {
-        printf("    Authenticating to %s ... Please wait \n", host.c_str());
-        std::cout.flush();
+        std::lock_guard<std::mutex> lock(vlog::lock_log);
+        vlog::EVENT(dev_hostName) << boost::format("    Authenticating to %1% ... Please wait \n") % host;
+        vlog::flush();
     }
 
     authenticate(password);
@@ -152,8 +168,9 @@ void SSH::checkHost(std::string host, bool printOutput)
 
     if(printOutput)
     {
-        std::cout << "    Pinging " << IPAddress << "\n";
-        std::cout.flush();
+        std::lock_guard<std::mutex> lock(vlog::lock_log);
+        vlog::EVENT(dev_hostName) << "    Pinging " << IPAddress << "\n";
+        vlog::flush();
     }
 
     // test if IPAdd is alive?
@@ -188,51 +205,71 @@ int SSH::verify_knownhost()
         break; /* ok */
 
     case SSH_SERVER_KNOWN_CHANGED:
-        fprintf(stderr, "Host key for server changed: it is now:\n");
+        std::cout << "Host key for server changed: it is now: \n";
         ssh_print_hexa("Public key hash", hash, hlen);
-        fprintf(stderr, "For security reasons, connection will be stopped\n");
+        std::cout << "For security reasons, connection will be stopped. \n";
+        std::cout.flush();
         free(hash);
         return -1;
 
     case SSH_SERVER_FOUND_OTHER:
-        fprintf(stderr, "The host key for this server was not found but an other type of key exists.\n");
-        fprintf(stderr, "An attacker might change the default server key to confuse your client into thinking the key does not exist\n");
+        std::cout << "The host key for this server was not found but an other type of key exists. \n";
+        std::cout << "An attacker might change the default server key to confuse your client into thinking the key does not exist. \n";
+        std::cout.flush();
         free(hash);
         return -1;
 
     case SSH_SERVER_FILE_NOT_FOUND:
-        fprintf(stderr, "Could not find known host file.\n");
-        fprintf(stderr, "If you accept the host key here, the file will be automatically created.\n");
+        std::cout << "Could not find known host file. \n";
+        std::cout << "If you accept the host key here, the file will be automatically created. \n";
+        std::cout.flush();
         /* fallback to SSH_SERVER_NOT_KNOWN behavior */
 
     case SSH_SERVER_NOT_KNOWN:
     {
         char *hexa = ssh_get_hexa(hash, hlen);
-        fprintf(stderr,"The server is unknown. Do you trust the host key?\n");
-        fprintf(stderr, "Public key hash: %s\n", hexa);
+        std::cout << boost::format("The authenticity of host '%1% (%2%)' can't be established. \n") % dev_hostName % dev_hostIP;
+        std::cout << "Public key hash is " << hexa << " \n";
         free(hexa);
-        char buf[10];
-        if (fgets(buf, sizeof(buf), stdin) == NULL)
+
+        std::cout << "Are you sure you want to continue connecting (yes/no)? ";
+        std::cout.flush();
+
+        while(true)
         {
-            free(hash);
-            return -1;
+            std::string answer;
+            getline(std::cin, answer);
+
+            if(answer == "no")
+            {
+                free(hash);
+                return -1;
+            }
+            else if(answer == "yes")
+            {
+                if (ssh_write_knownhost(SSH_session) < 0)
+                {
+                    free(hash);
+                    return -1;
+                }
+
+                // insert a new line for improving readability
+                std::cout << "\n";
+                std::cout.flush();
+
+                break; // break out of loop
+            }
+            else
+            {
+                std::cout << "Please type 'yes' or 'no': ";
+                std::cout.flush();
+            }
         }
-        if (strncasecmp(buf, "yes", 3) != 0)
-        {
-            free(hash);
-            return -1;
-        }
-        if (ssh_write_knownhost(SSH_session) < 0)
-        {
-            fprintf(stderr, "Error %s\n", strerror(errno));
-            free(hash);
-            return -1;
-        }
+
         break;
     }
 
     case SSH_SERVER_ERROR:
-        fprintf(stderr, "Error %s", ssh_get_error(SSH_session));
         free(hash);
         return -1;
     }
@@ -634,8 +671,12 @@ ssh_channel SSH::openShell(std::string shellName, bool interactive, bool keepAli
 
     std::string shell_mode = interactive ? "interactive" : "non-interactive";
     std::string keepAlive_mode = keepAlive ? "with" : "without";
-    printf(">>> Opening %s shell '%s' %s keepAlive. \n\n", shell_mode.c_str(), shellName.c_str(), keepAlive_mode.c_str());
-    std::cout.flush();
+
+    {
+        std::lock_guard<std::mutex> lock(vlog::lock_log);
+        vlog::EVENT(dev_hostName) << boost::format(">>> Opening %1% shell '%2%' %3% keepAlive. \n\n") % shell_mode % shellName % keepAlive_mode;
+        vlog::flush();
+    }
 
     // read the greeting message from remote shell and redirect it to /dev/null
     char buffer[1000];

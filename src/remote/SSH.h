@@ -29,6 +29,7 @@
 #define SSHCONNECT_H_
 
 #include <string>
+#include <vlog.h>
 
 #include <libssh/libsshpp.hpp>
 #include <libssh/sftp.h>
@@ -86,6 +87,7 @@ protected:
 
 private:
     static std::mutex lock_prompt;  // all SSH connections share the same lock
+    static std::mutex lock_verify;
 
 };
 
