@@ -31,6 +31,7 @@
 #include <cassert>
 #include <streambuf>
 #include <vector>
+#include <thread>  // todo: remove late
 
 namespace VENTOS {
 
@@ -68,6 +69,7 @@ protected:
 
             auto it = textBuffer->end();
             textBuffer->insert(it, sink_.str());
+            std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
             return ch;
         }
@@ -88,6 +90,7 @@ protected:
 
         auto it = textBuffer->end();
         textBuffer->insert(it, sink_.str());
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
         return 0;
     }

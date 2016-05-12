@@ -56,36 +56,6 @@
 								<option id="gnu.cpp.compiler.option.include.paths.381188907" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/rapidxml-1.13}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/UFT}&quot;"/>
-									<listOptionValue builtIn="false" value="/usr/include/gtkmm-3.0"/>
-									<listOptionValue builtIn="false" value="/usr/include/gtk-3.0"/>
-									<listOptionValue builtIn="false" value="/usr/include/gtk-3.0/unix-print"/>
-									<listOptionValue builtIn="false" value="/usr/include/gdkmm-3.0"/>
-									<listOptionValue builtIn="false" value="/usr/include/gdk-pixbuf-2.0"/>
-									<listOptionValue builtIn="false" value="/usr/include/atk-1.0"/>
-									<listOptionValue builtIn="false" value="/usr/include/glibmm-2.4"/>
-									<listOptionValue builtIn="false" value="/usr/include/glib-2.0"/>
-									<listOptionValue builtIn="false" value="/usr/include/sigc++-2.0"/>
-									<listOptionValue builtIn="false" value="/usr/include/atkmm-1.6"/>
-									<listOptionValue builtIn="false" value="/usr/include/giomm-2.4"/>
-									<listOptionValue builtIn="false" value="/usr/include/pangomm-1.4"/>
-									<listOptionValue builtIn="false" value="/usr/include/pango-1.0"/>
-									<listOptionValue builtIn="false" value="/usr/include/cairomm-1.0"/>
-									<listOptionValue builtIn="false" value="/usr/include/cairo"/>
-									<listOptionValue builtIn="false" value="/usr/include/pixman-1"/>
-									<listOptionValue builtIn="false" value="/usr/include/freetype2"/>
-									<listOptionValue builtIn="false" value="/usr/include/libpng12"/>
-									<listOptionValue builtIn="false" value="/usr/include/at-spi2-atk/2.0"/>
-									<listOptionValue builtIn="false" value="/usr/include/gio-unix-2.0/"/>
-									<listOptionValue builtIn="false" value="/usr/include/harfbuzz"/>
-									<listOptionValue builtIn="false" value="/usr/lib/x86_64-linux-gnu/gtkmm-3.0/include"/>
-									<listOptionValue builtIn="false" value="/usr/lib/x86_64-linux-gnu/gdkmm-3.0/include"/>
-									<listOptionValue builtIn="false" value="/usr/lib/x86_64-linux-gnu/gdkmm-2.4/include"/>
-									<listOptionValue builtIn="false" value="/usr/lib/x86_64-linux-gnu/glibmm-2.4/include"/>
-									<listOptionValue builtIn="false" value="/usr/lib/x86_64-linux-gnu/glib-2.0/include"/>
-									<listOptionValue builtIn="false" value="/usr/lib/x86_64-linux-gnu/sigc++-2.0/include"/>
-									<listOptionValue builtIn="false" value="/usr/lib/x86_64-linux-gnu/pangomm-1.4/include"/>
-									<listOptionValue builtIn="false" value="/usr/lib/x86_64-linux-gnu/giomm-2.4/include"/>
-									<listOptionValue builtIn="false" value="/usr/lib/x86_64-linux-gnu/cairomm-1.0/include"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1765741350" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
@@ -99,8 +69,59 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
+					<folderInfo id="org.omnetpp.cdt.gnu.config.debug.1233576214.423324761" name="/" resourcePath="src/loggingWindow">
+						<toolChain id="org.omnetpp.cdt.gnu.toolchain.debug.2094865819" name="GCC for OMNeT++" superClass="org.omnetpp.cdt.gnu.toolchain.debug" unusedChildren="">
+							<targetPlatform binaryParser="org.eclipse.cdt.core.ELF;org.eclipse.cdt.core.MachO64;org.eclipse.cdt.core.PE" id="org.omnetpp.cdt.targetPlatform" isAbstract="false" name="Windows, Linux, Mac" osList="win32,linux,macosx" superClass="org.omnetpp.cdt.targetPlatform"/>
+							<tool id="cdt.managedbuild.tool.gnu.archiver.base.1808542656" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base.339881682"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.base.1297431613" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base.891298597">
+								<option id="gnu.cpp.compiler.option.include.paths.1106740708" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/UFT}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/rapidxml-1.13}&quot;"/>
+									<listOptionValue builtIn="false" value="/usr/include/gtkmm-3.0"/>
+									<listOptionValue builtIn="false" value="/usr/lib/x86_64-linux-gnu/gtkmm-3.0/include"/>
+									<listOptionValue builtIn="false" value="/usr/include/atkmm-1.6"/>
+									<listOptionValue builtIn="false" value="/usr/include/giomm-2.4"/>
+									<listOptionValue builtIn="false" value="/usr/lib/x86_64-linux-gnu/giomm-2.4/include"/>
+									<listOptionValue builtIn="false" value="/usr/include/pangomm-1.4"/>
+									<listOptionValue builtIn="false" value="/usr/lib/x86_64-linux-gnu/pangomm-1.4/include"/>
+									<listOptionValue builtIn="false" value="/usr/include/gtk-3.0"/>
+									<listOptionValue builtIn="false" value="/usr/include/cairomm-1.0"/>
+									<listOptionValue builtIn="false" value="/usr/lib/x86_64-linux-gnu/cairomm-1.0/include"/>
+									<listOptionValue builtIn="false" value="/usr/include/gdk-pixbuf-2.0"/>
+									<listOptionValue builtIn="false" value="/usr/include/gtk-3.0/unix-print"/>
+									<listOptionValue builtIn="false" value="/usr/include/gdkmm-3.0"/>
+									<listOptionValue builtIn="false" value="/usr/lib/x86_64-linux-gnu/gdkmm-3.0/include"/>
+									<listOptionValue builtIn="false" value="/usr/include/atk-1.0"/>
+									<listOptionValue builtIn="false" value="/usr/include/glibmm-2.4"/>
+									<listOptionValue builtIn="false" value="/usr/lib/x86_64-linux-gnu/glibmm-2.4/include"/>
+									<listOptionValue builtIn="false" value="/usr/include/glib-2.0"/>
+									<listOptionValue builtIn="false" value="/usr/lib/x86_64-linux-gnu/glib-2.0/include"/>
+									<listOptionValue builtIn="false" value="/usr/include/sigc++-2.0"/>
+									<listOptionValue builtIn="false" value="/usr/lib/x86_64-linux-gnu/sigc++-2.0/include"/>
+									<listOptionValue builtIn="false" value="/usr/include/pango-1.0"/>
+									<listOptionValue builtIn="false" value="/usr/include/cairo"/>
+									<listOptionValue builtIn="false" value="/usr/include/pixman-1"/>
+									<listOptionValue builtIn="false" value="/usr/include/freetype2"/>
+									<listOptionValue builtIn="false" value="/usr/include/libpng12"/>
+									<listOptionValue builtIn="false" value="/usr/include/at-spi2-atk/2.0"/>
+									<listOptionValue builtIn="false" value="/usr/include/gio-unix-2.0/"/>
+									<listOptionValue builtIn="false" value="/usr/include/harfbuzz"/>
+								</option>
+								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.925322797" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.c.compiler.base.1410933119" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base.1812747346">
+								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1137855328" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.c.linker.base.187213536" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base.644867262"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.base.1825405507" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.base.1063414241"/>
+							<tool id="cdt.managedbuild.tool.gnu.assembler.base.2000719014" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.base.1902141683">
+								<option id="gnu.both.asm.option.include.paths.626446117" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath"/>
+								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.225066727" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
+							</tool>
+						</toolChain>
+					</folderInfo>
 					<sourceEntries>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="src"/>
+						<entry excluding="loggingWindow" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -160,34 +181,6 @@
 								<option id="gnu.cpp.compiler.option.include.paths.107534975" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/rapidxml-1.13}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/UFT}&quot;"/>
-									<listOptionValue builtIn="false" value="/usr/include/gtkmm-3.0"/>
-									<listOptionValue builtIn="false" value="/usr/include/glibmm-2.4"/>
-									<listOptionValue builtIn="false" value="/usr/include/glib-2.0"/>
-									<listOptionValue builtIn="false" value="/usr/include/sigc++-2.0"/>
-									<listOptionValue builtIn="false" value="/usr/lib/x86_64-linux-gnu/glib-2.0/include"/>
-									<listOptionValue builtIn="false" value="/usr/lib/x86_64-linux-gnu/glibmm-2.4/include"/>
-									<listOptionValue builtIn="false" value="/usr/lib/x86_64-linux-gnu/sigc++-2.0/include"/>
-									<listOptionValue builtIn="false" value="/usr/lib/x86_64-linux-gnu/gdkmm-3.0/include"/>
-									<listOptionValue builtIn="false" value="/usr/lib/x86_64-linux-gnu/gtkmm-3.0/include"/>
-									<listOptionValue builtIn="false" value="/usr/lib/x86_64-linux-gnu/gdkmm-2.4/include"/>
-									<listOptionValue builtIn="false" value="/usr/lib/x86_64-linux-gnu/pangomm-1.4/include"/>
-									<listOptionValue builtIn="false" value="/usr/include/atkmm-1.6"/>
-									<listOptionValue builtIn="false" value="/usr/include/giomm-2.4"/>
-									<listOptionValue builtIn="false" value="/usr/lib/x86_64-linux-gnu/giomm-2.4/include"/>
-									<listOptionValue builtIn="false" value="/usr/include/pangomm-1.4"/>
-									<listOptionValue builtIn="false" value="/usr/include/gtk-3.0"/>
-									<listOptionValue builtIn="false" value="/usr/include/cairomm-1.0"/>
-									<listOptionValue builtIn="false" value="/usr/include/gdk-pixbuf-2.0"/>
-									<listOptionValue builtIn="false" value="/usr/include/gdkmm-3.0"/>
-									<listOptionValue builtIn="false" value="/usr/include/atk-1.0"/>
-									<listOptionValue builtIn="false" value="/usr/include/pango-1.0"/>
-									<listOptionValue builtIn="false" value="/usr/lib/x86_64-linux-gnu/cairomm-1.0/include"/>
-									<listOptionValue builtIn="false" value="/usr/include/cairo"/>
-									<listOptionValue builtIn="false" value="/usr/include/freetype2"/>
-									<listOptionValue builtIn="false" value="/usr/include/libpng12"/>
-									<listOptionValue builtIn="false" value="/usr/include/at-spi2-atk/2.0"/>
-									<listOptionValue builtIn="false" value="/usr/include/gio-unix-2.0/"/>
-									<listOptionValue builtIn="false" value="/usr/include/harfbuzz"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.386813417" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
@@ -201,8 +194,59 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
+					<folderInfo id="org.omnetpp.cdt.gnu.config.release.2024318725.239907747" name="/" resourcePath="src/loggingWindow">
+						<toolChain id="org.omnetpp.cdt.gnu.toolchain.release.329082946" name="GCC for OMNeT++" superClass="org.omnetpp.cdt.gnu.toolchain.release" unusedChildren="">
+							<targetPlatform binaryParser="org.eclipse.cdt.core.ELF;org.eclipse.cdt.core.MachO64;org.eclipse.cdt.core.PE" id="org.omnetpp.cdt.targetPlatform" isAbstract="false" name="Windows, Linux, Mac" osList="win32,linux,macosx" superClass="org.omnetpp.cdt.targetPlatform"/>
+							<tool id="cdt.managedbuild.tool.gnu.archiver.base.1833231458" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base.1216016979"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.base.1353026619" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base.1960820108">
+								<option id="gnu.cpp.compiler.option.include.paths.50152788" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/rapidxml-1.13}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/VENTOS/UFT}&quot;"/>
+									<listOptionValue builtIn="false" value="/usr/include/gtkmm-3.0"/>
+									<listOptionValue builtIn="false" value="/usr/lib/x86_64-linux-gnu/gtkmm-3.0/include"/>
+									<listOptionValue builtIn="false" value="/usr/include/atkmm-1.6"/>
+									<listOptionValue builtIn="false" value="/usr/include/giomm-2.4"/>
+									<listOptionValue builtIn="false" value="/usr/lib/x86_64-linux-gnu/giomm-2.4/include"/>
+									<listOptionValue builtIn="false" value="/usr/include/pangomm-1.4"/>
+									<listOptionValue builtIn="false" value="/usr/lib/x86_64-linux-gnu/pangomm-1.4/include"/>
+									<listOptionValue builtIn="false" value="/usr/include/gtk-3.0"/>
+									<listOptionValue builtIn="false" value="/usr/include/cairomm-1.0"/>
+									<listOptionValue builtIn="false" value="/usr/lib/x86_64-linux-gnu/cairomm-1.0/include"/>
+									<listOptionValue builtIn="false" value="/usr/include/gdk-pixbuf-2.0"/>
+									<listOptionValue builtIn="false" value="/usr/include/gtk-3.0/unix-print"/>
+									<listOptionValue builtIn="false" value="/usr/include/gdkmm-3.0"/>
+									<listOptionValue builtIn="false" value="/usr/lib/x86_64-linux-gnu/gdkmm-3.0/include"/>
+									<listOptionValue builtIn="false" value="/usr/include/atk-1.0"/>
+									<listOptionValue builtIn="false" value="/usr/include/glibmm-2.4"/>
+									<listOptionValue builtIn="false" value="/usr/lib/x86_64-linux-gnu/glibmm-2.4/include"/>
+									<listOptionValue builtIn="false" value="/usr/include/glib-2.0"/>
+									<listOptionValue builtIn="false" value="/usr/lib/x86_64-linux-gnu/glib-2.0/include"/>
+									<listOptionValue builtIn="false" value="/usr/include/sigc++-2.0"/>
+									<listOptionValue builtIn="false" value="/usr/lib/x86_64-linux-gnu/sigc++-2.0/include"/>
+									<listOptionValue builtIn="false" value="/usr/include/pango-1.0"/>
+									<listOptionValue builtIn="false" value="/usr/include/cairo"/>
+									<listOptionValue builtIn="false" value="/usr/include/pixman-1"/>
+									<listOptionValue builtIn="false" value="/usr/include/freetype2"/>
+									<listOptionValue builtIn="false" value="/usr/include/libpng12"/>
+									<listOptionValue builtIn="false" value="/usr/include/at-spi2-atk/2.0"/>
+									<listOptionValue builtIn="false" value="/usr/include/gio-unix-2.0/"/>
+									<listOptionValue builtIn="false" value="/usr/include/harfbuzz"/>
+								</option>
+								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1803968320" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.c.compiler.base.1519625895" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base.1378267806">
+								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.310666953" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.c.linker.base.560260934" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base.947659669"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.base.634943555" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.base.876913176"/>
+							<tool id="cdt.managedbuild.tool.gnu.assembler.base.596403785" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.base.352065619">
+								<option id="gnu.both.asm.option.include.paths.637437756" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath"/>
+								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1964525848" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
+							</tool>
+						</toolChain>
+					</folderInfo>
 					<sourceEntries>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="src"/>
+						<entry excluding="loggingWindow" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

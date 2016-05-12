@@ -6,7 +6,6 @@
 #include <gtkmm/button.h>
 #include <gtkmm/box.h>
 #include <gtkmm/notebook.h>
-#include <gtkmm/label.h>
 #include <gtkmm/buttonbox.h>
 #include <gtkmm/scrolledwindow.h>
 #include <gtkmm/textview.h>
@@ -22,14 +21,20 @@ public:
     mainWindow();
     virtual ~mainWindow();
 
-    std::ostream* addTab(std::string);
-
 protected:
-    //Signal handlers:
+    // signal handler
     void on_button_quit();
 
+private:
+    void start_TCP_server();
+    void listenToClient();
+    void addTab(std::string);
+    void writeStr(std::string, std::string &);
+    void flushStr();
+
 protected:
-    Glib::RefPtr<Gtk::TextBuffer> m_refTextBuffer;
+    std::map<std::string /*category name*/, std::ostream *> vLogStreams;
+    int newsockfd;
 
     // widgets
     Gtk::Box m_VBox;

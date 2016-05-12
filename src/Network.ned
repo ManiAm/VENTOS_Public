@@ -27,7 +27,7 @@ network Network
 
         @display("bgb=489,359");
     submodules:
-        vLogging: vLog {
+        vLogging: vlog {
             parameters:
                 @display("p=48,48;i=old/floppy2");
         }

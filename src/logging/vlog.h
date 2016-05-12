@@ -43,48 +43,64 @@ namespace VENTOS {
 #define   ALL_LOG       0b11111111
 #define   NO_LOG        0b00000000
 
-
-class vLog : public BaseApplLayer
+class vlog : public BaseApplLayer
 {
 public:
-    virtual ~vLog();
+    virtual ~vlog();
     virtual void initialize(int stage);
     virtual void finish();
     virtual void handleMessage(omnetpp::cMessage *msg);
 
     // overloading the << operator
     template<typename T>
-    vLog& operator << (const T& inv)
+    vlog& operator << (const T& inv)
     {
-        std::lock_guard<std::mutex> lock(lock_log);
-
         if( logRecordCMD || omnetpp::cSimulation::getActiveEnvir()->isGUI() )
         {
             if( (systemLogLevel & lastLogLevel) != 0 )
             {
-                auto it = vLogStreams.find(lastCategory);
-                if(it == vLogStreams.end())
-                    throw omnetpp::cRuntimeError("can't find the category in vLogStreams map!");
-
-                // use the stream associated with this category
-                *(it->second) << inv;
+                if(lastCategory == "std::cout")
+                    std::cout << inv;
+                else
+                {
+                    std::ostringstream tmp;
+                    tmp << inv;
+                    sendToLogWindow(std::string("2||") + lastCategory + "||" + tmp.str());
+                }
             }
         }
 
         return *this;
     }
 
-    vLog& setLog(uint8_t logLevel = INFO_LOG, std::string cat = "std::cout", std::string subcat = "");
-    void flush();
+    static vlog& WARNING(std::string category = "std::cout", std::string subcategory = "");
+    static vlog& INFO(std::string category = "std::cout", std::string subcategory = "");
+    static vlog& ERROR(std::string category = "std::cout", std::string subcategory = "");
+    static vlog& DEBUG(std::string category = "std::cout", std::string subcategory = "");
+    static vlog& EVENT(std::string category = "std::cout", std::string subcategory = "");
+
+    static void flush();
 
 private:
-    typedef BaseApplLayer super;
+    vlog& setLog(uint8_t logLevel, std::string cat, std::string subcat);
+    void start_TCP_client();
+    void sendToLogWindow(std::string);
 
-    std::mutex lock_log;
+public:
+    static std::mutex lock_log; // global lock
+
+private:
+    // NED variables
     uint8_t systemLogLevel = 0;
     bool logRecordCMD = false;
 
-    std::map<std::string /*category name*/, std::ostream *> vLogStreams;
+    typedef BaseApplLayer super;
+
+    std::vector <std::string> allCategories;
+    static vlog *objPtr;
+    pid_t child_pid = -1;
+    int* socketPtr = NULL;
+
     uint8_t lastLogLevel = INFO_LOG;
     std::string lastCategory = "std::cout";
 };
