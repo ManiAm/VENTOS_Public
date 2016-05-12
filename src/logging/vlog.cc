@@ -176,9 +176,7 @@ vlog& vlog::setLog(uint8_t logLevel, std::string category, std::string subcatego
         }
         else
         {
-            std::cout << "\n>>> Opening the 'log window' process ... \n";
-            std::cout << boost::format("  Parent PID %1% \n") % getpid();
-            std::cout << boost::format("  Child  PID %1% \n") % child_pid;
+            std::cout << "\n>>> logWindow started in process " << child_pid << " \n";
             std::cout.flush();
 
             start_TCP_client();
@@ -242,7 +240,7 @@ void vlog::start_TCP_client()
 
         int sleepDuration = tries * .25 + 1;
 
-        std::cout << boost::format("  Could not connect to the TCP server: %1% -- retry in %2% seconds. \n") % strerror(sock_errno()) % sleepDuration;
+        std::cout << boost::format("    Could not connect to the TCP server: %1% -- retry in %2% seconds. \n") % strerror(sock_errno()) % sleepDuration;
         std::cout.flush();
 
         std::this_thread::sleep_for(std::chrono::seconds(sleepDuration));
@@ -255,9 +253,6 @@ void vlog::start_TCP_client()
         int x = 1;
         ::setsockopt(*socketPtr, IPPROTO_TCP, TCP_NODELAY, (const char*) &x, sizeof(x));
     }
-
-    std::cout << "  Successfully connected. \n\n";
-    std::cout.flush();
 }
 
 

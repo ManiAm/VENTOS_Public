@@ -87,6 +87,9 @@ void mainWindow::on_button_quit()
 
 void mainWindow::start_TCP_server()
 {
+    std::cout << "    (logWindow) starting the TCP server. \n";
+    std::cout.flush();
+
     // create a socket
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0)
@@ -124,8 +127,8 @@ void mainWindow::start_TCP_server()
     if (newsockfd < 0)
         throw std::runtime_error("ERROR on accept");
 
-    //std::cout << "Server: got connection from " << inet_ntoa(cli_addr.sin_addr) << " port " << ntohs(cli_addr.sin_port) << "\n";
-    //std::cout.flush();
+    std::cout << "    (logWindow) incoming connection from " << inet_ntoa(cli_addr.sin_addr) << " port " << ntohs(cli_addr.sin_port) << ". \n";
+    std::cout.flush();
 
     // close the welcoming socket
     ::close(sockfd);
@@ -134,6 +137,9 @@ void mainWindow::start_TCP_server()
 
 void mainWindow::listenToClient()
 {
+    std::cout << "    (logWindow) waiting for requests ... \n\n";
+    std::cout.flush();
+
     while(true)
     {
         char buffer[1000];
