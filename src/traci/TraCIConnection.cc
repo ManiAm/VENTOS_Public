@@ -16,6 +16,9 @@
 #include "TraCIConnection.h"
 #include "TraCIConstants.h"
 #include "TraCICommands.h"
+#include <thread>
+#include <vlog.h>
+
 
 namespace VENTOS {
 
@@ -45,7 +48,7 @@ TraCIConnection::~TraCIConnection()
 #if defined(_WIN32) || defined(__WIN32__) || defined(WIN32) || defined(__CYGWIN__) || defined(_WIN64)
 #else
     // send SIGINT
-    if (child_pid)
+    if (child_pid > 0)
         kill(child_pid, 15);
 #endif
 }
@@ -62,9 +65,8 @@ int TraCIConnection::startServer(std::string SUMOexe, std::string SUMOconfig, st
         seed = atoi(seed_s);
     }
 
-    std::cout << std::endl;
-    printf(">>> Starting SUMO TraCI server on port %d with seed %d ... \n", port, seed);
-    std::cout.flush();
+    vlog::INFO() << boost::format("\n>>> Starting SUMO TraCI server on port %1% with seed %2% ... \n") % port % seed;
+    vlog::flush();
 
     // assemble commandLine
     std::ostringstream commandLine;
@@ -160,7 +162,7 @@ void TraCIConnection::TraCILauncher(std::string commandLine)
 
     // fork failed
     if(child_pid < 0)
-        throw omnetpp::cRuntimeError("fork() failed!");
+        throw omnetpp::cRuntimeError("fork failed!");
 
     // in child process
     if(child_pid == 0)
@@ -182,8 +184,9 @@ void TraCIConnection::TraCILauncher(std::string commandLine)
     }
     else
     {
-        printf("  Parent PID %d \n", getpid());
-        printf("  Child  PID %d \n", child_pid);
+        vlog::INFO() << boost::format("  Parent PID %1% \n") % getpid();
+        vlog::INFO() << boost::format("  Child  PID %1% \n") % child_pid;
+        vlog::flush();
     }
 
 #endif
@@ -192,9 +195,8 @@ void TraCIConnection::TraCILauncher(std::string commandLine)
 
 TraCIConnection* TraCIConnection::connect(const char* host, int port)
 {
-    std::cout << std::endl;
-    printf(">>> Connecting to TraCI server on port %d ... \n", port);
-    std::cout.flush();
+    vlog::INFO() << boost::format("\n>>> Connecting to TraCI server on port %1% ... \n") % port;
+    vlog::flush();
 
     if (initsocketlibonce() != 0)
         throw omnetpp::cRuntimeError("Could not init socketlib");
@@ -222,7 +224,11 @@ TraCIConnection* TraCIConnection::connect(const char* host, int port)
     if (*socketPtr < 0)
         throw omnetpp::cRuntimeError("Could not create socket to connect to TraCI server");
 
-    for (int tries = 1; tries <= 10; ++tries)
+    // wait for 1 second and then try connecting to TraCI server
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+
+    int tries = 1;
+    for (; tries <= 10; ++tries)
     {
         *socketPtr = ::socket(AF_INET, SOCK_STREAM, 0);
         if (::connect(*socketPtr, address_p, sizeof(address)) >= 0)
@@ -230,19 +236,16 @@ TraCIConnection* TraCIConnection::connect(const char* host, int port)
 
         closesocket(socket(socketPtr));
 
-        std::stringstream ss;
-        ss << "Could not connect to TraCI server; error message: " << sock_errno() << ": " << strerror(sock_errno());
-        std::string msg = ss.str();
+        int sleepDuration = tries * .25 + 1;
 
-        int sleepDuration = tries*.25 + 1;
+        vlog::INFO() << boost::format("  Could not connect to the TraCI server: %1% -- retry in %2% seconds. \n") % strerror(sock_errno()) % sleepDuration;
+        vlog::flush();
 
-        if (tries >= 10)
-            throw omnetpp::cRuntimeError(msg.c_str());
-        else if (tries == 3)
-            std::cout << msg << " -- Will retry in " << sleepDuration << " second(s). \n" << std::flush;
-
-        sleep(sleepDuration);
+        std::this_thread::sleep_for(std::chrono::seconds(sleepDuration));
     }
+
+    if(tries == 11)
+        throw omnetpp::cRuntimeError("Could not connect to TraCI server after 10 retries!");
 
     {
         int x = 1;
@@ -265,14 +268,10 @@ TraCIBuffer TraCIConnection::query(uint8_t commandGroupId, const TraCIBuffer& bu
     std::string description; obuf >> description;
 
     if (result == RTYPE_NOTIMPLEMENTED)
-        throw omnetpp::cRuntimeError("TraCI server reported command 0x%2x not implemented (\"%s\"). Might need newer version.",
-                commandGroupId,
-                description.c_str());
+        throw omnetpp::cRuntimeError("TraCI server reported command 0x%2x not implemented (\"%s\"). Might need newer version.", commandGroupId, description.c_str());
 
     if (result == RTYPE_ERR)
-        throw omnetpp::cRuntimeError("TraCI server reported throw cRuntimeError executing command 0x%2x (\"%s\").",
-                commandGroupId,
-                description.c_str());
+        throw omnetpp::cRuntimeError("TraCI server reported throw cRuntimeError executing command 0x%2x (\"%s\").", commandGroupId, description.c_str());
 
     ASSERT(result == RTYPE_OK);
 
@@ -314,19 +313,13 @@ std::string TraCIConnection::receiveMessage()
             if (receivedBytes > 0)
                 bytesRead += receivedBytes;
             else if (receivedBytes == 0)
-            {
-                printf("ERROR in receiveMessage: Connection to TraCI server closed unexpectedly.\n");
-                std::cout.flush();
-                terminateSimulation();
-            }
+                terminateSimulation("ERROR in receiveMessage: Connection to TraCI server closed unexpectedly. \n\n");
             else
             {
                 if (sock_errno() == EINTR) continue;
                 if (sock_errno() == EAGAIN) continue;
 
-                printf("ERROR in receiveMessage: Connection to TraCI server lost: %d: %s\n", sock_errno(), strerror(sock_errno()));
-                std::cout.flush();
-                terminateSimulation();
+                terminateSimulation("ERROR in receiveMessage: Connection to TraCI server closed unexpectedly. \n\n");
             }
         }
 
@@ -344,19 +337,13 @@ std::string TraCIConnection::receiveMessage()
             if (receivedBytes > 0)
                 bytesRead += receivedBytes;
             else if (receivedBytes == 0)
-            {
-                printf("ERROR in receiveMessage: Connection to TraCI server closed unexpectedly.\n");
-                std::cout.flush();
-                terminateSimulation();
-            }
+                terminateSimulation("ERROR in receiveMessage: Connection to TraCI server closed unexpectedly. \n\n");
             else
             {
                 if (sock_errno() == EINTR) continue;
                 if (sock_errno() == EAGAIN) continue;
 
-                printf("ERROR in receiveMessage: Connection to TraCI server lost: %d: %s\n", sock_errno(), strerror(sock_errno()));
-                std::cout.flush();
-                terminateSimulation();
+                terminateSimulation("ERROR in receiveMessage: Connection to TraCI server closed unexpectedly. \n\n");
             }
         }
     }
@@ -385,9 +372,7 @@ void TraCIConnection::sendMessage(std::string buf)
                 if (sock_errno() == EINTR) continue;
                 if (sock_errno() == EAGAIN) continue;
 
-                printf("ERROR in sendMessage: Connection to TraCI server lost: %d: %s\n", sock_errno(), strerror(sock_errno()));
-                std::cout.flush();
-                terminateSimulation();
+                terminateSimulation("ERROR in receiveMessage: Connection to TraCI server closed unexpectedly. \n\n");
             }
         }
     }
@@ -404,9 +389,7 @@ void TraCIConnection::sendMessage(std::string buf)
                 if (sock_errno() == EINTR) continue;
                 if (sock_errno() == EAGAIN) continue;
 
-                printf("ERROR in sendMessage: Connection to TraCI server lost: %d: %s\n", sock_errno(), strerror(sock_errno()));
-                std::cout.flush();
-                terminateSimulation();
+                terminateSimulation("ERROR in receiveMessage: Connection to TraCI server closed unexpectedly. \n\n");
             }
         }
     }
@@ -426,8 +409,11 @@ std::string makeTraCICommand(uint8_t commandId, const TraCIBuffer& buf)
 }
 
 
-void TraCIConnection::terminateSimulation()
+void TraCIConnection::terminateSimulation(std::string err)
 {
+    vlog::ERROR() << "\n" << err;
+    vlog::flush();
+
     // get a pointer to TraCI module
     omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
     ASSERT(module);
