@@ -227,6 +227,9 @@ void vlog::start_TCP_client()
     if (*socketPtr < 0)
         throw omnetpp::cRuntimeError("Could not create socket to connect to TCP server");
 
+    // wait for 1 second and then try connecting to TCP server
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+
     int tries = 1;
     for (; tries <= 10; ++tries)
     {
