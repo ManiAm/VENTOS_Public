@@ -282,7 +282,7 @@ void vlog::sendToLogWindow(std::string msg)
         return;
     }
 
-    if(std::string(rx_buffer) != "got it!")
+    if(std::string(rx_buffer) != "ok!")
     {
         std::cout << "\n\nServer's response msg is wrong! \n";
         std::cout.flush();
