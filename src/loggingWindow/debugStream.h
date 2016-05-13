@@ -31,7 +31,6 @@
 #include <cassert>
 #include <streambuf>
 #include <vector>
-#include "mutex"
 #include <gtkmm/main.h>
 
 namespace VENTOS {
@@ -70,8 +69,6 @@ protected:
             sink_.write(pbase(), n);
 
             {
-                std::lock_guard<std::mutex> lock(lock_buffer);
-
                 auto textBuffer = m_TextView->get_buffer();
                 auto iter = textBuffer->end();
                 textBuffer->insert(iter, sink_.str());
@@ -102,8 +99,6 @@ protected:
         sink_.write(pbase(), n);
 
         {
-            std::lock_guard<std::mutex> lock(lock_buffer);
-
             auto textBuffer = m_TextView->get_buffer();
             auto iter = textBuffer->end();
             textBuffer->insert(iter, sink_.str());
@@ -122,10 +117,7 @@ protected:
 private:
     Gtk::TextView *m_TextView;
     std::vector<char> buffer_;
-    static std::mutex lock_buffer;
 };
-
-std::mutex debugStream::lock_buffer;
 
 }
 
