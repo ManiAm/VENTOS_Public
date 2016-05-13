@@ -31,14 +31,16 @@
 #include <cassert>
 #include <streambuf>
 #include <vector>
-#include <thread>  // todo: remove late
+#include "mutex"
+#include <gtkmm/main.h>
 
 namespace VENTOS {
 
 class debugStream : public std::streambuf
 {
 public:
-    explicit debugStream(Glib::RefPtr<Gtk::TextBuffer> buff, std::size_t buff_sz = 512) : textBuffer(buff), buffer_(buff_sz + 1)
+
+    explicit debugStream(Gtk::TextView *tw, std::size_t buff_sz = 512) : m_TextView(tw), buffer_(buff_sz + 1)
     {
         char *base = &buffer_.front();
         setp(base, base + buffer_.size() - 1); // -1 to make overflow() easier
@@ -67,9 +69,20 @@ protected:
             std::ostringstream sink_;
             sink_.write(pbase(), n);
 
-            auto it = textBuffer->end();
-            textBuffer->insert(it, sink_.str());
-            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            {
+                std::lock_guard<std::mutex> lock(lock_buffer);
+
+                auto textBuffer = m_TextView->get_buffer();
+                auto iter = textBuffer->end();
+                textBuffer->insert(iter, sink_.str());
+
+                // scroll the last inserted line into view.
+                auto iter2 = textBuffer->end();
+                iter2.set_line_offset(0);  // Beginning of last line
+                auto mark = textBuffer->get_mark("last_line");
+                textBuffer->move_mark(mark, iter2);
+                m_TextView->scroll_to(mark);
+            }
 
             return ch;
         }
@@ -88,17 +101,31 @@ protected:
         std::ostringstream sink_;
         sink_.write(pbase(), n);
 
-        auto it = textBuffer->end();
-        textBuffer->insert(it, sink_.str());
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        {
+            std::lock_guard<std::mutex> lock(lock_buffer);
+
+            auto textBuffer = m_TextView->get_buffer();
+            auto iter = textBuffer->end();
+            textBuffer->insert(iter, sink_.str());
+
+            // scroll the last inserted line into view.
+            auto iter2 = textBuffer->end();
+            iter2.set_line_offset(0);  // Beginning of last line
+            auto mark = textBuffer->get_mark("last_line");
+            textBuffer->move_mark(mark, iter2);
+            m_TextView->scroll_to(mark);
+        }
 
         return 0;
     }
 
 private:
-    Glib::RefPtr<Gtk::TextBuffer> textBuffer;
+    Gtk::TextView *m_TextView;
     std::vector<char> buffer_;
+    static std::mutex lock_buffer;
 };
+
+std::mutex debugStream::lock_buffer;
 
 }
 
