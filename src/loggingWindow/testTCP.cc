@@ -123,7 +123,7 @@ int main(int argc, char* argv[])
         if (n < 0)
             throw std::runtime_error("Reading error from socket");
 
-        if(std::string(rx_buffer) != "got it!")
+        if(std::string(rx_buffer) != "ok!")
             throw std::runtime_error("Server's response msg is wrong!");
     }
 
