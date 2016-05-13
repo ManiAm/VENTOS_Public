@@ -26,13 +26,39 @@
 //
 
 #include "mainWindow.h"
+#include "iostream"
+#include <glibmm/exception.h>
 
 int main(int argc, char* argv[])
 {
-    auto app = Gtk::Application::create(argc, argv, "org.gtkmm.example");
+    try
+    {
+        auto app = Gtk::Application::create(argc, argv, "org.gtkmm.example");
 
-    VENTOS::mainWindow logWindow;
+        VENTOS::mainWindow logWindow;
 
-    // Shows the window and returns when it is closed.
-    return app->run(logWindow, argc, argv);
+        // Shows the window and returns when it is closed
+        return app->run(logWindow, argc, argv);
+    }
+    catch(const Glib::Exception& ex)
+    {
+        std::cout << ex.what() << std::endl;
+        std::cout.flush();
+
+        return 1;
+    }
+    catch(const std::exception& ex)
+    {
+        std::cout << ex.what() << std::endl;
+        std::cout.flush();
+
+        return 1;
+    }
+    catch(...)
+    {
+        std::cout << "Exception is thrown! \n";
+        std::cout.flush();
+
+        return 1;
+    }
 }
