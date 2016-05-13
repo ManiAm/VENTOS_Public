@@ -674,7 +674,7 @@ ssh_channel SSH::openShell(std::string shellName, bool interactive, bool keepAli
 
     {
         std::lock_guard<std::mutex> lock(vlog::lock_log);
-        vlog::EVENT(dev_hostName) << boost::format(">>> Opening %1% shell '%2%' %3% keepAlive. \n\n") % shell_mode % shellName % keepAlive_mode;
+        vlog::DEBUG(dev_hostName) << boost::format(">>> Opening %1% shell '%2%' %3% keepAlive. \n\n") % shell_mode % shellName % keepAlive_mode;
         vlog::flush();
     }
 
