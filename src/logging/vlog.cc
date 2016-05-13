@@ -127,7 +127,7 @@ void vlog::flush()
     std::cout.flush();
 
     if(!objPtr->allCategories.empty())
-        objPtr->sendToLogWindow(std::string("3||") + "-");
+        objPtr->sendToLogWindow(std::to_string(CMD_FLUSH) + "||" + "-");
 }
 
 
@@ -139,7 +139,7 @@ vlog& vlog::setLog(uint8_t logLevel, std::string category, std::string subcatego
     if(category == "std::cout")
     {
         lastLogLevel = logLevel;
-        lastCategory = category;
+        lastCategory = "std::cout";
 
         return *this;
     }
@@ -185,17 +185,41 @@ vlog& vlog::setLog(uint8_t logLevel, std::string category, std::string subcatego
         initLogWindow = true;
     }
 
-    auto it = find(allCategories.begin(), allCategories.end(), category);
+    auto it = allCategories.find(category);
     if(it == allCategories.end())
     {
         // adding a new tab with name 'category'
-        sendToLogWindow(std::string("1||") + category);
+        sendToLogWindow(std::to_string(CMD_ADD_TAB) + "||" + category);
 
-        allCategories.push_back(category);
+        std::vector <std::string> *vec = new std::vector <std::string>;
+        vec->push_back("default");  // adding the default subcategory
+        allCategories[category] = vec;
+    }
+
+    if(subcategory == "")
+        throw omnetpp::cRuntimeError("subcategory name can't be empty!");
+
+    // look for the category name
+    auto itt = allCategories.find(category);
+    if(itt == allCategories.end())
+        throw omnetpp::cRuntimeError("category does not exist!");
+
+    std::vector<std::string> *subcats = itt->second;
+    auto ii = find(subcats->begin(), subcats->end(), subcategory);
+    if(ii == subcats->end())
+    {
+        if(subcats->size() == 2)  // todo: increase this in future
+            throw omnetpp::cRuntimeError("You can't add more than 2 sub-categories!");
+
+        // adding a new text view inside this category
+        sendToLogWindow(std::to_string(CMD_ADD_SUB_TEXTVIEW) + "||" + category + "||" + subcategory);
+
+        subcats->push_back(subcategory);
     }
 
     lastLogLevel = logLevel;
     lastCategory = category;
+    lastSubcategory = subcategory;
 
     return *this;
 }
@@ -258,35 +282,31 @@ void vlog::start_TCP_client()
 
 void vlog::sendToLogWindow(std::string msg)
 {
-    // fill the buffer
-    char tx_buffer[1000];
-    sprintf (tx_buffer, "%s", msg.c_str());
-
-    // sending the msg to the TCP server
-    int n = write(*socketPtr, tx_buffer, strlen(tx_buffer));
-    if (n < 0)
+    try
     {
-        std::cout << "\n\nWriting error to socket \n";
-        std::cout.flush();
-        return;
+        // fill the buffer
+        char tx_buffer[1000];
+        sprintf (tx_buffer, "%s", msg.c_str());
+
+        // sending the msg to the TCP server
+        int n = ::send(*socketPtr, tx_buffer, strlen(tx_buffer), MSG_NOSIGNAL);
+        if (n < 0)
+            throw std::runtime_error("ERROR writing to socket");
+
+        // receiving msg from the TCP server
+        char rx_buffer[100];
+        bzero(rx_buffer, 100);
+        n = ::recv(*socketPtr, rx_buffer, 99, MSG_NOSIGNAL);
+        if (n < 0)
+            throw std::runtime_error("ERROR reading from socket");
+
+        std::string res = rx_buffer;
+        if(res != "" && res != "ok!")
+            throw omnetpp::cRuntimeError("Command execution error in logWindow: %s \n", res.c_str());
     }
-
-    // receiving msg from the TCP server
-    char rx_buffer[20];
-    bzero(rx_buffer, 20);
-    n = read(*socketPtr, rx_buffer, 19);
-    if (n < 0)
+    catch(const std::runtime_error& ex)
     {
-        std::cout << "\n\nReading error from socket \n";
-        std::cout.flush();
-        return;
-    }
-
-    if(std::string(rx_buffer) != "ok!")
-    {
-        std::cout << "\n\nServer's response msg is wrong! \n";
-        std::cout.flush();
-        return;
+        // runtime_error exceptions are ignores!
     }
 }
 

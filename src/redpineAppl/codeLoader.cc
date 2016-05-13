@@ -250,19 +250,20 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
     // should we reboot this dev before proceeding?
     if(module->par("rebootAtStart").boolValue())
     {
+        ssh_channel rebootShell = board->openShell("rebootShell");  // open a shell
+
         {
             std::lock_guard<std::mutex> lock(vlog::lock_log);
-            vlog::EVENT(board->getHostName(), "shell1") << ">>> Re-booting device ... Please wait \n\n";
+            vlog::EVENT(board->getHostName()) << ">>> Re-booting device ... Please wait \n\n";
             vlog::flush();
         }
 
-        ssh_channel rebootShell = board->openShell("rebootShell");  // open a shell
         double duration_ms = board->rebootDev(rebootShell, 40000);
         board->closeShell(rebootShell);  // close the shell
 
         {
             std::lock_guard<std::mutex> lock(vlog::lock_log);
-            vlog::EVENT(board->getHostName(), "1") << boost::format(">>> Device is up and running! Boot time ~ %1% seconds. Reconnecting ... \n\n") % (duration_ms / 1000.);
+            vlog::EVENT(board->getHostName()) << boost::format(">>> Device is up and running! Boot time ~ %1% seconds. Reconnecting ... \n\n") % (duration_ms / 1000.);
             vlog::flush();
         }
 
@@ -282,7 +283,7 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
 
     {
         std::lock_guard<std::mutex> lock(vlog::lock_log);
-        vlog::EVENT(board->getHostName(), "shell1") << boost::format(">>> Copying the init script to %1% ... \n\n") % remoteDir_Driver;
+        vlog::EVENT(board->getHostName()) << boost::format(">>> Copying the init script to %1% ... \n\n") % remoteDir_Driver;
         vlog::flush();
     }
 
@@ -307,7 +308,7 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
 
     {
         std::lock_guard<std::mutex> lock(vlog::lock_log);
-        vlog::EVENT(board->getHostName(), "shell1") << boost::format(">>> Syncing source codes with %1% ... \n\n") % remoteDir_SourceCode;
+        vlog::EVENT(board->getHostName()) << boost::format(">>> Syncing source codes with %1% ... \n\n") % remoteDir_SourceCode;
         vlog::flush();
     }
 
@@ -326,7 +327,7 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
 
     {
         std::lock_guard<std::mutex> lock(vlog::lock_log);
-        vlog::EVENT(board->getHostName(), "shell1") << boost::format(">>> Compiling application %1% ... \n\n") % applName;
+        vlog::EVENT(board->getHostName()) << boost::format(">>> Compiling application %1% ... \n\n") % applName;
         vlog::flush();
     }
 
@@ -343,7 +344,7 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
 
     {
         std::lock_guard<std::mutex> lock(vlog::lock_log);
-        vlog::EVENT(board->getHostName(), "shell1") << boost::format(">>> Running the init script %1% ... \n\n") % initScriptName;
+        vlog::EVENT(board->getHostName()) << boost::format(">>> Running the init script %1% ... \n\n") % initScriptName;
         vlog::flush();
     }
 
@@ -356,7 +357,7 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
 
     {
         std::lock_guard<std::mutex> lock(vlog::lock_log);
-        vlog::EVENT(board->getHostName(), "shell1") << ">>> Start 1609 stack in WAVE mode ... \n\n";
+        vlog::EVENT(board->getHostName()) << ">>> Start 1609 stack in WAVE mode ... \n\n";
         vlog::flush();
     }
 
@@ -372,7 +373,7 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
 
     {
         std::lock_guard<std::mutex> lock(vlog::lock_log);
-        vlog::EVENT(board->getHostName(), "shell2") << boost::format(">>> Running application %1% ... \n\n") % applName;
+        vlog::EVENT(board->getHostName(), "cat2") << boost::format(">>> Running application %1% ... \n\n") % applName;
         vlog::flush();
     }
 

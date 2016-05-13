@@ -44,6 +44,14 @@
 
 namespace VENTOS {
 
+enum logWindowCMD
+{
+    CMD_ADD_TAB,
+    CMD_ADD_SUB_TEXTVIEW,
+    CMD_INSERT_TXT,
+    CMD_FLUSH,
+};
+
 class mainWindow : public Gtk::Window
 {
 
@@ -58,10 +66,12 @@ protected:
 private:
     void start_TCP_server();
     void listenToClient(mainWindow *);
+
     void callDispatcher();
     void processCMD();
     void addTab(std::string);
-    void writeStr(std::string, std::string &);
+    void addSubTextView(std::string, std::string);
+    void writeStr(std::string, std::string, std::string &);
     void flushStr();
 
 protected:
@@ -77,7 +87,7 @@ protected:
 
     Glib::Dispatcher m_Dispatcher;
 
-    std::map<std::string /*category name*/, std::ostream *> vLogStreams;
+    std::map< std::pair<std::string /*category name*/, std::string /*subcategory name*/>, std::ostream *> vLogStreams;
     int newsockfd;
     std::string rx_cmd = "";
 };

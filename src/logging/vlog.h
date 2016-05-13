@@ -35,6 +35,14 @@
 
 namespace VENTOS {
 
+enum logWindowCMD
+{
+    CMD_ADD_TAB,
+    CMD_ADD_SUB_TEXTVIEW,
+    CMD_INSERT_TXT,
+    CMD_FLUSH,
+};
+
 #define   WARNING_LOG   0b00000001
 #define   INFO_LOG      0b00000010
 #define   ERROR_LOG     0b00000100
@@ -65,7 +73,7 @@ public:
                 {
                     std::ostringstream tmp;
                     tmp << inv;
-                    sendToLogWindow(std::string("2||") + lastCategory + "||" + tmp.str());
+                    sendToLogWindow(std::to_string(CMD_INSERT_TXT) + "||" + lastCategory + "||" + lastSubcategory + "||" + tmp.str());
                 }
             }
         }
@@ -73,11 +81,11 @@ public:
         return *this;
     }
 
-    static vlog& WARNING(std::string category = "std::cout", std::string subcategory = "");
-    static vlog& INFO(std::string category = "std::cout", std::string subcategory = "");
-    static vlog& ERROR(std::string category = "std::cout", std::string subcategory = "");
-    static vlog& DEBUG(std::string category = "std::cout", std::string subcategory = "");
-    static vlog& EVENT(std::string category = "std::cout", std::string subcategory = "");
+    static vlog& WARNING(std::string category = "std::cout", std::string subcategory = "default");
+    static vlog& INFO(std::string category = "std::cout", std::string subcategory = "default");
+    static vlog& ERROR(std::string category = "std::cout", std::string subcategory = "default");
+    static vlog& DEBUG(std::string category = "std::cout", std::string subcategory = "default");
+    static vlog& EVENT(std::string category = "std::cout", std::string subcategory = "default");
 
     static void flush();
 
@@ -96,13 +104,14 @@ private:
 
     typedef BaseApplLayer super;
 
-    std::vector <std::string> allCategories;
+    std::map< std::string, std::vector <std::string> * > allCategories;
     static vlog *objPtr;
     pid_t child_pid = -1;
     int* socketPtr = NULL;
 
     uint8_t lastLogLevel = INFO_LOG;
     std::string lastCategory = "std::cout";
+    std::string lastSubcategory = "default";
 };
 
 }

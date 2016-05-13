@@ -149,7 +149,7 @@ void mainWindow::listenToClient(mainWindow *windowPtr)
             char buffer[1000];
             bzero(buffer, 1000);
 
-            int n = read(newsockfd, buffer, 999);
+            int n = ::recv(newsockfd, buffer, 999, MSG_NOSIGNAL);
             if (n < 0)
                 throw std::runtime_error("ERROR reading from socket");
             else if(n == 0)
@@ -164,7 +164,9 @@ void mainWindow::listenToClient(mainWindow *windowPtr)
             }
 
             // send() function sends the response
-            send(newsockfd, response.c_str(), response.size(), 0);
+            n = ::send(newsockfd, response.c_str(), response.size(), MSG_NOSIGNAL);
+            if (n < 0)
+                throw std::runtime_error("ERROR writing to socket");
 
             response = "";
         }
@@ -211,18 +213,25 @@ void mainWindow::processCMD()
         if(strs.size() <= 1)
             throw std::runtime_error("Received msg is not formated correctly!");
 
-        if(strs[0] == "1")
+        if(strs[0] == std::to_string(CMD_ADD_TAB))
             addTab(strs[1]);
-        else if(strs[0] == "2")
-            writeStr(strs[1], strs[2]);
-        else if(strs[0] == "3")
+        else if(strs[0] == std::to_string(CMD_ADD_SUB_TEXTVIEW))
+            addSubTextView(strs[1], strs[2]);
+        else if(strs[0] == std::to_string(CMD_INSERT_TXT))
+            writeStr(strs[1], strs[2], strs[3]);
+        else if(strs[0] == std::to_string(CMD_FLUSH))
             flushStr();
         else
             throw std::runtime_error("Invalid command number!");
     }
-    catch(...)
+    catch(const std::exception& ex)
     {
-        response = "error!";
+        response = ex.what();
+
+        // notify listenToClient thread to proceed
+        cv.notify_one();
+
+        return;
     }
 
     response = "ok!";
@@ -234,9 +243,9 @@ void mainWindow::processCMD()
 
 void mainWindow::addTab(std::string category)
 {
-    auto it = vLogStreams.find(category);
+    auto it = vLogStreams.find(std::make_pair(category, "default"));
     if(it != vLogStreams.end())
-        throw std::runtime_error("category already exists!");
+        throw std::runtime_error("addTab: category/subcategory pair already exists!");
 
     // create a ScrolledWindow
     Gtk::ScrolledWindow *m_ScrolledWindow = new Gtk::ScrolledWindow();
@@ -258,17 +267,28 @@ void mainWindow::addTab(std::string category)
     debugStream *buff = new debugStream(m_TextView);
     std::ostream *out = new std::ostream(buff);
 
-    vLogStreams[category] = out;
+    vLogStreams[std::make_pair(category, "default")] = out;
 
     show_all_children();
 }
 
 
-void mainWindow::writeStr(std::string category, std::string &msg)
+void mainWindow::addSubTextView(std::string category, std::string subcategory)
 {
-    auto it = vLogStreams.find(category);
+    auto it = vLogStreams.find(std::make_pair(category, subcategory));
+    if(it != vLogStreams.end())
+        throw std::runtime_error("addSubTextView: category/subcategory pair already exists!");
+
+
+
+}
+
+
+void mainWindow::writeStr(std::string category, std::string subcategory, std::string &msg)
+{
+    auto it = vLogStreams.find(std::make_pair(category, subcategory));
     if(it == vLogStreams.end())
-        throw std::runtime_error("category does not exist!");
+        throw std::runtime_error("writeStr: category/subcategory pair does not exist!");
 
     *(it->second) << msg;
 }
