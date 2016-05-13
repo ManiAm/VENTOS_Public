@@ -27,6 +27,7 @@
 
 #include "mainWindow.h"
 #include <iostream>
+#include "thread"
 #include "debugStream.h"
 
 #include <stdexcept>
@@ -38,7 +39,8 @@
 namespace VENTOS {
 
 mainWindow::mainWindow() : m_VBox(Gtk::ORIENTATION_VERTICAL),
-        m_Button_Quit("_Close", true)
+        m_Button_Quit("_Close", true),
+        m_Dispatcher()
 {
     set_title("Log window");
     set_border_width(1);
@@ -58,17 +60,14 @@ mainWindow::mainWindow() : m_VBox(Gtk::ORIENTATION_VERTICAL),
     m_ButtonBox.pack_start(m_Button_Quit, Gtk::PACK_SHRINK);
     m_Button_Quit.signal_clicked().connect(sigc::mem_fun(*this, &mainWindow::on_button_quit) );
 
+    // Connect the handler to the dispatcher.
+    m_Dispatcher.connect(sigc::mem_fun(*this, &mainWindow::processCMD));
+
     show_all_children();
 
     start_TCP_server();
 
-    std::thread thd = std::thread([=]() mutable {
-        listenToClient();
-
-        // we are done
-        ::close(newsockfd);
-    });
-
+    std::thread thd(&mainWindow::listenToClient, this, this);
     thd.detach();
 }
 
@@ -81,6 +80,9 @@ mainWindow::~mainWindow()
 
 void mainWindow::on_button_quit()
 {
+    if(newsockfd)
+        ::close(newsockfd);
+
     hide();
 }
 
@@ -135,41 +137,79 @@ void mainWindow::start_TCP_server()
 }
 
 
-void mainWindow::listenToClient()
+void mainWindow::listenToClient(mainWindow *windowPtr)
 {
     std::cout << "    (logWindow) waiting for requests ... \n\n";
     std::cout.flush();
 
-    while(true)
+    try
     {
-        char buffer[1000];
-        bzero(buffer, 1000);
+        while(true)
+        {
+            char buffer[1000];
+            bzero(buffer, 1000);
 
-        int n = read(newsockfd, buffer, 999);
-        if (n < 0)
-            throw std::runtime_error("ERROR reading from socket");
-        else if(n == 0)
-            break;
+            int n = read(newsockfd, buffer, 999);
+            if (n < 0)
+                throw std::runtime_error("ERROR reading from socket");
+            else if(n == 0)
+                break;
+
+            rx_cmd = std::string(buffer);
+
+            {
+                std::unique_lock<std::mutex> lck(mtx);
+                windowPtr->callDispatcher();  // notify the mainWindow
+                cv.wait(lck);  // wait for mainWindow to notify us
+            }
+
+            // send() function sends the response
+            send(newsockfd, response.c_str(), response.size(), 0);
+
+            response = "";
+        }
+
+        // we are done
+        ::close(newsockfd);
+    }
+    catch(const std::exception& ex)
+    {
+        std::cout << ex.what() << std::endl;
+        std::cout.flush();
+
+        return;
+    }
+}
+
+
+void mainWindow::callDispatcher()
+{
+    m_Dispatcher.emit();
+}
+
+
+void mainWindow::processCMD()
+{
+    try
+    {
+        if(rx_cmd == "")
+            throw std::runtime_error("Received msg is empty!");
 
         // tokenize the buffer
-        std::string line (buffer);
         std::vector<std::string> strs;
         std::string delimiter = "||";
         size_t pos = 0;
         std::string token;
-        while ((pos = line.find(delimiter)) != std::string::npos)
+        while ((pos = rx_cmd.find(delimiter)) != std::string::npos)
         {
-            token = line.substr(0, pos);
+            token = rx_cmd.substr(0, pos);
             strs.push_back(token);
-            line.erase(0, pos + delimiter.length());
+            rx_cmd.erase(0, pos + delimiter.length());
         }
-        strs.push_back(line);
+        strs.push_back(rx_cmd);
 
         if(strs.size() <= 1)
-        {
-            send(newsockfd, "msg error!", 10, 0);
             throw std::runtime_error("Received msg is not formated correctly!");
-        }
 
         if(strs[0] == "1")
             addTab(strs[1]);
@@ -179,10 +219,16 @@ void mainWindow::listenToClient()
             flushStr();
         else
             throw std::runtime_error("Invalid command number!");
-
-        // send() function sends the 7 bytes of the string to the new socket
-        send(newsockfd, "got it!", 7, 0);
     }
+    catch(...)
+    {
+        response = "error!";
+    }
+
+    response = "ok!";
+
+    // notify listenToClient thread to proceed
+    cv.notify_one();
 }
 
 
@@ -204,13 +250,12 @@ void mainWindow::addTab(std::string category)
     // create Notebook pages
     m_Notebook.append_page(*m_ScrolledWindow, category.c_str());
 
-    // create a text buffer for text view
-    Glib::RefPtr<Gtk::TextBuffer> m_refTextBuffer = Gtk::TextBuffer::create();
-    m_refTextBuffer->set_text("");
-    m_TextView->set_buffer(m_refTextBuffer);
+    // Create a text buffer mark to scroll the last inserted line into view
+    Glib::RefPtr<Gtk::TextBuffer> m_refTextBuffer = m_TextView->get_buffer();
+    m_refTextBuffer->create_mark("last_line", m_refTextBuffer->end(), /* left_gravity= */ true);
 
     // re-direct stream to the m_refTextBuffer
-    debugStream *buff = new debugStream(m_refTextBuffer);
+    debugStream *buff = new debugStream(m_TextView);
     std::ostream *out = new std::ostream(buff);
 
     vLogStreams[category] = out;

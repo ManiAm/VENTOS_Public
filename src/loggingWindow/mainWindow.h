@@ -28,6 +28,9 @@
 #ifndef MAINWINDOW
 #define MAINWINDOW
 
+#include <mutex>              // std::mutex, std::unique_lock
+#include <condition_variable> // std::condition_variable
+
 #include <gtkmm/window.h>
 #include <gtkmm/button.h>
 #include <gtkmm/box.h>
@@ -35,6 +38,7 @@
 #include <gtkmm/buttonbox.h>
 #include <gtkmm/scrolledwindow.h>
 #include <gtkmm/textview.h>
+#include <glibmm/dispatcher.h>
 
 //#include <gtkmm.h>
 
@@ -53,20 +57,29 @@ protected:
 
 private:
     void start_TCP_server();
-    void listenToClient();
+    void listenToClient(mainWindow *);
+    void callDispatcher();
+    void processCMD();
     void addTab(std::string);
     void writeStr(std::string, std::string &);
     void flushStr();
 
 protected:
-    std::map<std::string /*category name*/, std::ostream *> vLogStreams;
-    int newsockfd;
-
     // widgets
     Gtk::Box m_VBox;
     Gtk::Notebook m_Notebook;
     Gtk::ButtonBox m_ButtonBox;
     Gtk::Button m_Button_Quit;
+
+    std::mutex mtx;
+    std::condition_variable cv;
+    std::string response = "";
+
+    Glib::Dispatcher m_Dispatcher;
+
+    std::map<std::string /*category name*/, std::ostream *> vLogStreams;
+    int newsockfd;
+    std::string rx_cmd = "";
 };
 
 }
