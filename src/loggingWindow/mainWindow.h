@@ -67,7 +67,6 @@ private:
     void start_TCP_server();
     void listenToClient(mainWindow *);
 
-    void callDispatcher();
     void processCMD();
     void addTab(std::string);
     void addSubTextView(std::string, std::string);
@@ -76,18 +75,15 @@ private:
 
 protected:
     // widgets
-    Gtk::Box m_VBox;
-    Gtk::Notebook m_Notebook;
-    Gtk::ButtonBox m_ButtonBox;
-    Gtk::Button m_Button_Quit;
+    Gtk::Notebook *m_Notebook;
+    Glib::Dispatcher *m_Dispatcher;
 
     std::mutex mtx;
     std::condition_variable cv;
     std::string response = "";
 
-    Glib::Dispatcher m_Dispatcher;
-
     std::map< std::pair<std::string /*category name*/, std::string /*subcategory name*/>, std::ostream *> vLogStreams;
+    std::map< std::string, Gtk::Box *> notebookBox;
     int newsockfd;
     std::string rx_cmd = "";
 };

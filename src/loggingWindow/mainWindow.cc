@@ -38,30 +38,35 @@
 
 namespace VENTOS {
 
-mainWindow::mainWindow() : m_VBox(Gtk::ORIENTATION_VERTICAL),
-        m_Button_Quit("_Close", true),
-        m_Dispatcher()
+mainWindow::mainWindow()
 {
     set_title("Log window");
     set_border_width(1);
     set_default_size(550, 400 /*height*/);
     set_icon_from_file("log_128.png");
 
-    add(m_VBox);
+    Gtk::Box *m_VBox = new Gtk::Box(Gtk::ORIENTATION_VERTICAL);
+    add(*m_VBox);
 
-    // create the Notebook
-    m_Notebook.set_border_width(1);
+    // create the Notebook and add it to m_VBox
+    m_Notebook = new Gtk::Notebook();
+    m_Notebook->set_border_width(1);
+    m_VBox->pack_start(*m_Notebook);
 
-    // add notebook to VBox
-    m_VBox.pack_start(m_Notebook);
+    // create a ButtonBox and add it to m_VBox
+    Gtk::ButtonBox *m_ButtonBox = new Gtk::ButtonBox();
+    m_VBox->pack_start(*m_ButtonBox, Gtk::PACK_SHRINK);
 
-    // add a quit button at the bottom
-    m_VBox.pack_start(m_ButtonBox, Gtk::PACK_SHRINK);
-    m_ButtonBox.pack_start(m_Button_Quit, Gtk::PACK_SHRINK);
-    m_Button_Quit.signal_clicked().connect(sigc::mem_fun(*this, &mainWindow::on_button_quit) );
+    // create a quit button and add it to m_ButtonBox
+    Gtk::Button *m_Button_Quit = new Gtk::Button("_Close", true);
+    m_ButtonBox->pack_start(*m_Button_Quit, Gtk::PACK_SHRINK);
 
-    // Connect the handler to the dispatcher.
-    m_Dispatcher.connect(sigc::mem_fun(*this, &mainWindow::processCMD));
+    // emit signal on clicking the button
+    m_Button_Quit->signal_clicked().connect(sigc::mem_fun(*this, &mainWindow::on_button_quit) );
+
+    // create a dispatcher and connect it to processCMD
+    m_Dispatcher = new Glib::Dispatcher();
+    m_Dispatcher->connect(sigc::mem_fun(*this, &mainWindow::processCMD));
 
     show_all_children();
 
@@ -146,29 +151,46 @@ void mainWindow::listenToClient(mainWindow *windowPtr)
     {
         while(true)
         {
-            char buffer[1000];
-            bzero(buffer, 1000);
-
-            int n = ::recv(newsockfd, buffer, 999, MSG_NOSIGNAL);
+            // receive the message length
+            uint32_t rcvDataLength = 0;
+            int n = ::recv(newsockfd, &rcvDataLength, sizeof(uint32_t), MSG_NOSIGNAL);
             if (n < 0)
-                throw std::runtime_error("ERROR reading from socket");
+                throw std::runtime_error("ERROR reading msg size from socket");
             else if(n == 0)
                 break;
 
-            rx_cmd = std::string(buffer);
+            rcvDataLength = ntohl(rcvDataLength);
+
+            char rx_buffer[rcvDataLength+1];
+            bzero(rx_buffer, rcvDataLength+1);
+
+            n = ::recv(newsockfd, rx_buffer, rcvDataLength, MSG_NOSIGNAL);
+            if (n < 0)
+                throw std::runtime_error("ERROR reading msg from socket");
+            else if(n == 0)
+                break;
 
             {
                 std::unique_lock<std::mutex> lck(mtx);
-                windowPtr->callDispatcher();  // notify the mainWindow
-                cv.wait(lck);  // wait for mainWindow to notify us
+
+                // updating the received command string
+                rx_cmd = std::string(rx_buffer);
+                // call the dispatcher in mainWindow
+                windowPtr->m_Dispatcher->emit();
+
+                // wait for mainWindow to notify us
+                cv.wait(lck);
             }
 
-            // send() function sends the response
+            if(response == "")
+                throw std::runtime_error("response msg is empty!");
+
+            // sending the response
             n = ::send(newsockfd, response.c_str(), response.size(), MSG_NOSIGNAL);
             if (n < 0)
-                throw std::runtime_error("ERROR writing to socket");
+                throw std::runtime_error("ERROR sending response to socket");
 
-            response = "";
+            response = "";  // reset response
         }
 
         // we are done
@@ -176,17 +198,11 @@ void mainWindow::listenToClient(mainWindow *windowPtr)
     }
     catch(const std::exception& ex)
     {
-        std::cout << ex.what() << std::endl;
+        std::cout << std::endl << ex.what() << std::endl;
         std::cout.flush();
 
         return;
     }
-}
-
-
-void mainWindow::callDispatcher()
-{
-    m_Dispatcher.emit();
 }
 
 
@@ -247,19 +263,28 @@ void mainWindow::addTab(std::string category)
     if(it != vLogStreams.end())
         throw std::runtime_error("addTab: category/subcategory pair already exists!");
 
-    // create a ScrolledWindow
+    // creating a horizontal box
+    Gtk::Box *m_VBox_tx = new Gtk::Box(Gtk::ORIENTATION_HORIZONTAL, 10);
+    m_VBox_tx->set_homogeneous(true);
+
+    // adding the horizontal box to Notebook
+    m_Notebook->append_page(*m_VBox_tx, category.c_str());
+
+    // creating a ScrolledWindow
     Gtk::ScrolledWindow *m_ScrolledWindow = new Gtk::ScrolledWindow();
     // only show the scroll bars when they are necessary:
     m_ScrolledWindow->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
+    // add shadow to the border
+    m_ScrolledWindow->set_shadow_type(Gtk::SHADOW_ETCHED_IN);
+
+    // adding the m_ScrolledWindow to the box
+    m_VBox_tx->pack_start(*m_ScrolledWindow, Gtk::PACK_EXPAND_WIDGET);
 
     // add the TextView inside ScrolledWindow
     Gtk::TextView *m_TextView = new Gtk::TextView();
     m_ScrolledWindow->add(*m_TextView);
 
-    // create Notebook pages
-    m_Notebook.append_page(*m_ScrolledWindow, category.c_str());
-
-    // Create a text buffer mark to scroll the last inserted line into view
+    // create a text buffer mark to scroll the last inserted line into view
     Glib::RefPtr<Gtk::TextBuffer> m_refTextBuffer = m_TextView->get_buffer();
     m_refTextBuffer->create_mark("last_line", m_refTextBuffer->end(), /* left_gravity= */ true);
 
@@ -267,6 +292,9 @@ void mainWindow::addTab(std::string category)
     debugStream *buff = new debugStream(m_TextView);
     std::ostream *out = new std::ostream(buff);
 
+    // save m_VBox_tx for later access
+    notebookBox[category] = m_VBox_tx;
+    // save associated stream
     vLogStreams[std::make_pair(category, "default")] = out;
 
     show_all_children();
@@ -279,8 +307,36 @@ void mainWindow::addSubTextView(std::string category, std::string subcategory)
     if(it != vLogStreams.end())
         throw std::runtime_error("addSubTextView: category/subcategory pair already exists!");
 
+    // creating a ScrolledWindow
+    Gtk::ScrolledWindow *m_ScrolledWindow = new Gtk::ScrolledWindow();
+    // only show the scroll bars when they are necessary:
+    m_ScrolledWindow->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
+    // add shadow to the border
+    m_ScrolledWindow->set_shadow_type(Gtk::SHADOW_ETCHED_IN);
 
+    // find the box
+    auto itt = notebookBox.find(category);
+    if(itt == notebookBox.end())
+        throw std::runtime_error("cannot find the box object!");
 
+    // adding the m_ScrolledWindow to the box
+    (itt->second)->pack_start(*m_ScrolledWindow, Gtk::PACK_EXPAND_WIDGET);
+
+    // add the TextView inside ScrolledWindow
+    Gtk::TextView *m_TextView = new Gtk::TextView();
+    m_ScrolledWindow->add(*m_TextView);
+
+    // create a text buffer mark to scroll the last inserted line into view
+    Glib::RefPtr<Gtk::TextBuffer> m_refTextBuffer = m_TextView->get_buffer();
+    m_refTextBuffer->create_mark("last_line", m_refTextBuffer->end(), /* left_gravity= */ true);
+
+    // re-direct stream to the m_refTextBuffer
+    debugStream *buff = new debugStream(m_TextView);
+    std::ostream *out = new std::ostream(buff);
+
+    vLogStreams[std::make_pair(category, subcategory)] = out;
+
+    show_all_children();
 }
 
 
