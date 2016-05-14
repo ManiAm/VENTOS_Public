@@ -284,25 +284,27 @@ void vlog::sendToLogWindow(std::string msg)
 {
     try
     {
-        // fill the buffer
-        char tx_buffer[1000];
-        sprintf (tx_buffer, "%s", msg.c_str());
-
-        // sending the msg to the TCP server
-        int n = ::send(*socketPtr, tx_buffer, strlen(tx_buffer), MSG_NOSIGNAL);
+        // sending the msg size first
+        uint32_t dataLength = htonl(msg.size());
+        int n = ::send(*socketPtr, &dataLength, sizeof(uint32_t), MSG_NOSIGNAL);
         if (n < 0)
-            throw std::runtime_error("ERROR writing to socket");
+            throw std::runtime_error("ERROR sending msg size to socket");
+
+        // then sending the msg itself
+        n = ::send(*socketPtr, msg.c_str(), msg.size(), MSG_NOSIGNAL);
+        if (n < 0)
+            throw std::runtime_error("ERROR sending msg to socket");
 
         // receiving msg from the TCP server
         char rx_buffer[100];
         bzero(rx_buffer, 100);
         n = ::recv(*socketPtr, rx_buffer, 99, MSG_NOSIGNAL);
         if (n < 0)
-            throw std::runtime_error("ERROR reading from socket");
+            throw std::runtime_error("ERROR reading response from socket");
 
         std::string res = rx_buffer;
-        if(res != "" && res != "ok!")
-            throw omnetpp::cRuntimeError("Command execution error in logWindow: %s \n", res.c_str());
+        if(res != "ok!")
+            throw omnetpp::cRuntimeError("Command execution error in logWindow: %s", res.c_str());
     }
     catch(const std::runtime_error& ex)
     {
