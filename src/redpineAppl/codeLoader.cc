@@ -313,10 +313,10 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
     }
 
     board->createDir(remoteDir_SourceCode);  // create a directory to store all our source codes
-    board->createDir(remoteDir_SourceCode / "libs");  // create an empty sub-directory called libs
 
-    board->syncDir(redpineAppl_FullPath / "headers", remoteDir_SourceCode); // copy local folder 'header'
+    board->syncDir(redpineAppl_FullPath / "headers", remoteDir_SourceCode); // copy local folder 'headers'
     board->syncDir(redpineAppl_FullPath / "sampleAppl", remoteDir_SourceCode); // copy local folder 'sampleAppl'
+    board->syncDir(redpineAppl_FullPath / "libs", remoteDir_SourceCode); // create local folder 'libs'
 
     //##################################
     // Step 3: remotely compile the code
@@ -331,12 +331,8 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
         vlog::flush();
     }
 
-    // -std=c99 or -std=gnu99
-    char command[500];
-    sprintf(command, "gcc -std=c99 %s.c -o %s ../libs/lib_rsi_wave_api.a ../libs/libdsrc.a -lpthread -I ../headers -I ../headers/DSRC_J2735/ -I ../headers/rsi_wave_api/", applName.c_str(), applName.c_str());
-
     board->run_command_blocking(shell1, "cd " + (remoteDir_SourceCode / "sampleAppl").string());
-    board->run_command_blocking(shell1, command, true, board->getHostName());
+    board->run_command_blocking(shell1, "make " + applName, true, board->getHostName());
 
     //########################################################
     // Step 4: remotely run the script in the remoteDir_Driver
