@@ -258,7 +258,7 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
             vlog::flush();
         }
 
-        double duration_ms = board->rebootDev(rebootShell, 40000);
+        double duration_ms = board->rebootDev(rebootShell, 40000 /*max waiting time*/);
         board->closeShell(rebootShell);  // close the shell
 
         {

@@ -1,2 +1,2 @@
-This folder should contain the required libraries in sampleAppl
-including 'libdsrc.a' and 'lib_rsi_wave_api.a'
+This folder should contain the required libraries of programs in sampleAppl
+To run DSRC applications, you need 'libdsrc.a' and 'lib_rsi_wave_api.a' libraries
