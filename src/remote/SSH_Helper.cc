@@ -138,19 +138,19 @@ void SSH_Helper::getSudo(ssh_channel SSH_channel)
 }
 
 
-std::string SSH_Helper::run_command_nonblocking(ssh_channel SSH_channel, std::string command, bool printOutput)
+std::string SSH_Helper::run_command_nonblocking(ssh_channel SSH_channel, std::string command, bool printOutput, std::string category, std::string subcategory)
 {
-    return run_command(SSH_channel, command, false, printOutput);
+    return run_command(SSH_channel, command, false, printOutput, category, subcategory);
 }
 
 
-std::string SSH_Helper::run_command_blocking(ssh_channel SSH_channel, std::string command, bool printOutput)
+std::string SSH_Helper::run_command_blocking(ssh_channel SSH_channel, std::string command, bool printOutput, std::string category, std::string subcategory)
 {
-    return run_command(SSH_channel, command, true, printOutput);
+    return run_command(SSH_channel, command, true, printOutput, category, subcategory);
 }
 
 
-std::string SSH_Helper::run_command(ssh_channel SSH_channel, std::string command, bool blocking, bool printOutput)
+std::string SSH_Helper::run_command(ssh_channel SSH_channel, std::string command, bool blocking, bool printOutput, std::string category, std::string subcategory)
 {
     ASSERT(SSH_channel);
 
@@ -230,7 +230,7 @@ std::string SSH_Helper::run_command(ssh_channel SSH_channel, std::string command
 
                     {
                         std::lock_guard<std::mutex> lock(vlog::lock_log);
-                        vlog::EVENT(dev_hostName) << cOutput;
+                        vlog::EVENT(category, subcategory) << cOutput;
                         vlog::flush();
                     }
                 }

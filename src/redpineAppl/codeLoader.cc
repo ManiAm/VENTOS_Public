@@ -195,7 +195,7 @@ void codeLoader::make_connection()
                 active_SSH.push_back( std::make_pair(module, board) );
             }
 
-            // adding a new line
+            // adding a new line to improve readability
             {
                 std::lock_guard<std::mutex> lock(vlog::lock_log);
                 vlog::EVENT(board->getHostName()) << "\n";
@@ -336,7 +336,7 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
     sprintf(command, "gcc -std=c99 %s.c -o %s ../libs/lib_rsi_wave_api.a ../libs/libdsrc.a -lpthread -I ../headers -I ../headers/DSRC_J2735/ -I ../headers/rsi_wave_api/", applName.c_str(), applName.c_str());
 
     board->run_command_blocking(shell1, "cd " + (remoteDir_SourceCode / "sampleAppl").string());
-    board->run_command_blocking(shell1, command);
+    board->run_command_blocking(shell1, command, true, board->getHostName());
 
     //########################################################
     // Step 4: remotely run the script in the remoteDir_Driver
@@ -349,7 +349,7 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
     }
 
     board->run_command_blocking(shell1, "cd " + remoteDir_Driver.string());
-    board->run_command_blocking(shell1, "sudo ./" + initScriptName, true);
+    board->run_command_blocking(shell1, "sudo ./" + initScriptName, true, board->getHostName());
 
     //###############################################
     // Step 5: remotely start 1609 stack in WAVE mode
@@ -362,7 +362,7 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
     }
 
     board->run_command_blocking(shell1, "cd " + remoteDir_Driver.string());
-    board->run_command_nonblocking(shell1, "if ! pgrep rsi_1609 > /dev/null; then sudo ./rsi_1609; fi", true);
+    board->run_command_nonblocking(shell1, "if ! pgrep rsi_1609 > /dev/null; then sudo ./rsi_1609; fi", true, board->getHostName());
 
     // put the main thread to sleep -- let the last non-blocking command to run for a while
     std::this_thread::sleep_for(std::chrono::milliseconds(5000));
@@ -373,12 +373,12 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
 
     {
         std::lock_guard<std::mutex> lock(vlog::lock_log);
-        vlog::EVENT(board->getHostName(), "cat2") << boost::format(">>> Running application %1% ... \n\n") % applName;
+        vlog::EVENT(board->getHostName(), "shell2") << boost::format(">>> Running application %1% ... \n\n") % applName;
         vlog::flush();
     }
 
     board->run_command_blocking(shell2, "cd " + (remoteDir_SourceCode / "sampleAppl").string());
-    board->run_command_nonblocking(shell2, "sudo ./" + applName, true);
+    board->run_command_nonblocking(shell2, "sudo ./" + applName, true, board->getHostName(), "shell2");
 }
 
 

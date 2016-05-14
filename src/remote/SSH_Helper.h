@@ -46,14 +46,14 @@ public:
     // switch to sudo space
     void getSudo(ssh_channel);
 
-    std::string run_command_nonblocking(ssh_channel, std::string, bool = false);
-    std::string run_command_blocking(ssh_channel, std::string, bool = false);
+    std::string run_command_nonblocking(ssh_channel, std::string, bool = false, std::string = "std::cout", std::string = "default");
+    std::string run_command_blocking(ssh_channel, std::string, bool = false, std::string = "std::cout", std::string = "default");
 
     // active number of threads in this SSH session
     int getNumActiveThreads();
 
 private:
-    std::string run_command(ssh_channel, std::string, bool, bool);
+    std::string run_command(ssh_channel, std::string, bool, bool, std::string, std::string);
     int isFinished(std::string);
 
 private:
