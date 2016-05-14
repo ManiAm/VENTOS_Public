@@ -288,8 +288,9 @@ void mainWindow::addTab(std::string category)
     Glib::RefPtr<Gtk::TextBuffer> m_refTextBuffer = m_TextView->get_buffer();
     m_refTextBuffer->create_mark("last_line", m_refTextBuffer->end(), /* left_gravity= */ true);
 
-    // re-direct stream to the m_refTextBuffer
+    // making my own stream buffer
     debugStream *buff = new debugStream(m_TextView);
+    // re-direct ostream to my own stream buffer
     std::ostream *out = new std::ostream(buff);
 
     // save m_VBox_tx for later access
@@ -330,8 +331,9 @@ void mainWindow::addSubTextView(std::string category, std::string subcategory)
     Glib::RefPtr<Gtk::TextBuffer> m_refTextBuffer = m_TextView->get_buffer();
     m_refTextBuffer->create_mark("last_line", m_refTextBuffer->end(), /* left_gravity= */ true);
 
-    // re-direct stream to the m_refTextBuffer
+    // making my own stream buffer
     debugStream *buff = new debugStream(m_TextView);
+    // re-direct ostream to my own stream buffer
     std::ostream *out = new std::ostream(buff);
 
     vLogStreams[std::make_pair(category, subcategory)] = out;

@@ -279,6 +279,7 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
     //#################################################
     // Step 1: copy the init script to remoteDir_Driver
     //#################################################
+
     boost::filesystem::path script_FullPath = redpineAppl_FullPath / initScriptName;
 
     {
@@ -321,6 +322,7 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
     //##################################
     // Step 3: remotely compile the code
     //##################################
+
     std::string applName = module->par("applName").stringValue();
     if(applName == "")
         throw omnetpp::cRuntimeError("applName is empty!");
