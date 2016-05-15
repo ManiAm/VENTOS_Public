@@ -59,7 +59,7 @@ SSH::~SSH()
 
 
 // constructor
-SSH::SSH(std::string host, int port, std::string username, std::string password, bool printOutput)
+SSH::SSH(std::string host, int port, std::string username, std::string password, bool printOutput, std::string cat, std::string sub)
 {
     if(host == "")
         throw omnetpp::cRuntimeError("host is empty!");
@@ -70,16 +70,13 @@ SSH::SSH(std::string host, int port, std::string username, std::string password,
     if(username == "")
         throw omnetpp::cRuntimeError("username is empty!");
 
-    {
-        std::lock_guard<std::mutex> lock(vlog::lock_log);
-        vlog::EVENT(host) << boost::format(">>> Connecting to %1% ... \n\n") % host;
-        vlog::flush();
-    }
-
     this->dev_hostName = host;
     this->dev_port = port;
     this->dev_username = username;
     this->dev_password = password;
+
+    this->category = cat;
+    this->subcategory = sub;
 
     checkHost(host, printOutput);
 
@@ -97,11 +94,7 @@ SSH::SSH(std::string host, int port, std::string username, std::string password,
     ssh_options_set(SSH_session, SSH_OPTIONS_LOG_VERBOSITY, &verbosity);
 
     if(printOutput)
-    {
-        std::lock_guard<std::mutex> lock(vlog::lock_log);
-        vlog::EVENT(host) << boost::format("    SSH to %1%@%2% at port %3% \n") % username % host % port;
-        vlog::flush();
-    }
+        EVENT_LOG_C(category, subcategory) << boost::format("    SSH to %1%@%2% at port %3% \n") % username % host % port << std::flush;
 
     int rc = ssh_connect(SSH_session);
     if (rc != SSH_OK)
@@ -122,28 +115,22 @@ SSH::SSH(std::string host, int port, std::string username, std::string password,
 
     if(printOutput)
     {
-        std::lock_guard<std::mutex> lock(vlog::lock_log);
-
         // get the protocol version of the session
-        vlog::EVENT(dev_hostName) << boost::format("    SSH version @%1% --> %2% \n") % host % ssh_get_version(SSH_session);
+        EVENT_LOG_C(category, subcategory) << boost::format("    SSH version is %1% \n") % ssh_get_version(SSH_session);
 
         // get the server banner
-        vlog::EVENT(dev_hostName) << boost::format("    Server banner @%1%: \n        %2% \n") % host % ssh_get_serverbanner(SSH_session);
+        EVENT_LOG_C(category, subcategory) << boost::format("    Server banner is %1% \n") % ssh_get_serverbanner(SSH_session);
 
         // get issue banner
         char *str = ssh_get_issue_banner(SSH_session);
         if(str)
-            vlog::EVENT(dev_hostName) << boost::format("    Issue banner: %1% \n") % str % ssh_get_serverbanner(SSH_session);
+            EVENT_LOG_C(category, subcategory) << boost::format("    Issue banner is %1% \n") % str % ssh_get_serverbanner(SSH_session);
 
-        vlog::flush();
+        EVENT_LOG_C(category, subcategory) << std::flush;
     }
 
     if(printOutput)
-    {
-        std::lock_guard<std::mutex> lock(vlog::lock_log);
-        vlog::EVENT(dev_hostName) << boost::format("    Authenticating to %1% ... Please wait \n") % host;
-        vlog::flush();
-    }
+        EVENT_LOG_C(category, subcategory) << boost::format("    Authenticating ... Please wait \n") << std::flush;
 
     authenticate(password);
 
@@ -167,11 +154,7 @@ void SSH::checkHost(std::string host, bool printOutput)
     this->dev_hostIP = IPAddress;
 
     if(printOutput)
-    {
-        std::lock_guard<std::mutex> lock(vlog::lock_log);
-        vlog::EVENT(dev_hostName) << "    Pinging " << IPAddress << "\n";
-        vlog::flush();
-    }
+        EVENT_LOG_C(category, subcategory) << "    Pinging " << IPAddress << "\n" << std::flush;
 
     // test if IPAdd is alive?
     std::string cmd = "ping -c 1 -s 1 " + std::string(IPAddress) + " > /dev/null 2>&1";
@@ -669,14 +652,9 @@ ssh_channel SSH::openShell(std::string shellName, bool interactive, bool keepAli
         }
     }
 
-    std::string shell_mode = interactive ? "interactive" : "non-interactive";
-    std::string keepAlive_mode = keepAlive ? "with" : "without";
-
-    {
-        std::lock_guard<std::mutex> lock(vlog::lock_log);
-        vlog::DEBUG(dev_hostName) << boost::format(">>> Opening %1% shell '%2%' %3% keepAlive. \n\n") % shell_mode % shellName % keepAlive_mode;
-        vlog::flush();
-    }
+    //std::string shell_mode = interactive ? "interactive" : "non-interactive";
+    //std::string keepAlive_mode = keepAlive ? "with" : "without";
+    //DEBUG_LOG_C(category, subcategory) << boost::format("===[ Opening %1% shell '%2%' %3% keepAlive ]=== \n\n") % shell_mode % shellName % keepAlive_mode << std::flush;
 
     // read the greeting message from remote shell and redirect it to /dev/null
     char buffer[1000];

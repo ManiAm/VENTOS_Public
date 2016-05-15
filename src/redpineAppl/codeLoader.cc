@@ -184,10 +184,21 @@ void codeLoader::make_connection()
         std::string username = module->par("username").stringValue();
         std::string password = module->par("password").stringValue();
 
+        if(host == "")
+            throw omnetpp::cRuntimeError("host is empty!");
+
+        if(port <= 0)
+            throw omnetpp::cRuntimeError("port number is invalid!");
+
+        if(username == "")
+            throw omnetpp::cRuntimeError("username is empty!");
+
         workers.push_back(std::thread([=]() {  // pass by value
 
+            EVENT_LOG_C(host, "default") << boost::format("===[ Connecting to %1% ... ]=== \n\n") % host << std::flush;
+
             // create SSH connection to the dev
-            SSH_Helper *board = new SSH_Helper(host, port, username, password, true);
+            SSH_Helper *board = new SSH_Helper(host, port, username, password, true, host, "default");
             ASSERT(board);
 
             {
@@ -196,11 +207,7 @@ void codeLoader::make_connection()
             }
 
             // adding a new line to improve readability
-            {
-                std::lock_guard<std::mutex> lock(vlog::lock_log);
-                vlog::EVENT(board->getHostName()) << "\n";
-                vlog::flush();
-            }
+            EVENT_LOG_C(board->getHostName(), "default") << "\n" << std::flush;
 
         }));
     }
@@ -252,23 +259,16 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
     {
         ssh_channel rebootShell = board->openShell("rebootShell");  // open a shell
 
-        {
-            std::lock_guard<std::mutex> lock(vlog::lock_log);
-            vlog::EVENT(board->getHostName()) << ">>> Re-booting device ... Please wait \n\n";
-            vlog::flush();
-        }
+        EVENT_LOG_C(board->getHostName(), "default") << "===[ Re-booting device ... Please wait ]=== \n\n" << std::flush;
 
         double duration_ms = board->rebootDev(rebootShell, 40000 /*max waiting time*/);
         board->closeShell(rebootShell);  // close the shell
 
-        {
-            std::lock_guard<std::mutex> lock(vlog::lock_log);
-            vlog::EVENT(board->getHostName()) << boost::format(">>> Device is up and running! Boot time ~ %1% seconds. Reconnecting ... \n\n") % (duration_ms / 1000.);
-            vlog::flush();
-        }
+        EVENT_LOG_C(board->getHostName(), "default") << boost::format("===[ Device is up and running! Boot time ~ %1% seconds ]=== \n\n") % (duration_ms / 1000.) << std::flush;
 
         // previous SSH connection is lost. Re-connect to the dev
-        board = new SSH_Helper(board->getHostName(), board->getPort(), board->getUsername(), board->getPassword());
+        EVENT_LOG_C(board->getHostName(), "default") << boost::format("===[ Reconnecting to %1% ... ]=== \n\n") % board->getHostName() << std::flush;
+        board = new SSH_Helper(board->getHostName(), board->getPort(), board->getUsername(), board->getPassword(), false, board->getHostName(), "default");
         ASSERT(board);
     }
 
@@ -282,11 +282,7 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
 
     boost::filesystem::path script_FullPath = redpineAppl_FullPath / initScriptName;
 
-    {
-        std::lock_guard<std::mutex> lock(vlog::lock_log);
-        vlog::EVENT(board->getHostName()) << boost::format(">>> Copying the init script to %1% ... \n\n") % remoteDir_Driver;
-        vlog::flush();
-    }
+    EVENT_LOG_C(board->getHostName(), "default") << boost::format("===[ Copying the init script to %1% ... ]=== \n\n") % remoteDir_Driver << std::flush;
 
     // read file contents into a string
     std::ifstream ifs(script_FullPath.c_str());
@@ -307,11 +303,7 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
     // Step 2: copying new/modified source codes to remoteDir_SourceCode
     //##################################################################
 
-    {
-        std::lock_guard<std::mutex> lock(vlog::lock_log);
-        vlog::EVENT(board->getHostName()) << boost::format(">>> Syncing source codes with %1% ... \n\n") % remoteDir_SourceCode;
-        vlog::flush();
-    }
+    EVENT_LOG_C(board->getHostName(), "default") << boost::format("===[ Syncing source codes with %1% ... ]=== \n\n") % remoteDir_SourceCode << std::flush;
 
     board->createDir(remoteDir_SourceCode);  // create a directory to store all our source codes
 
@@ -327,11 +319,7 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
     if(applName == "")
         throw omnetpp::cRuntimeError("applName is empty!");
 
-    {
-        std::lock_guard<std::mutex> lock(vlog::lock_log);
-        vlog::EVENT(board->getHostName()) << boost::format(">>> Compiling application %1% ... \n\n") % applName;
-        vlog::flush();
-    }
+    EVENT_LOG_C(board->getHostName(), "default") << boost::format("===[ Compiling application %1% ... ]=== \n\n") % applName << std::flush;
 
     board->run_command_blocking(shell1, "cd " + (remoteDir_SourceCode / "sampleAppl").string());
     board->run_command_blocking(shell1, "make " + applName, true, board->getHostName());
@@ -340,11 +328,7 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
     // Step 4: remotely run the script in the remoteDir_Driver
     //########################################################
 
-    {
-        std::lock_guard<std::mutex> lock(vlog::lock_log);
-        vlog::EVENT(board->getHostName()) << boost::format(">>> Running the init script %1% ... \n\n") % initScriptName;
-        vlog::flush();
-    }
+    EVENT_LOG_C(board->getHostName(), "default") << boost::format("===[ Running the init script %1% ... ]=== \n\n") % initScriptName << std::flush;
 
     board->run_command_blocking(shell1, "cd " + remoteDir_Driver.string());
     board->run_command_blocking(shell1, "sudo ./" + initScriptName, true, board->getHostName());
@@ -353,11 +337,7 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
     // Step 5: remotely start 1609 stack in WAVE mode
     //###############################################
 
-    {
-        std::lock_guard<std::mutex> lock(vlog::lock_log);
-        vlog::EVENT(board->getHostName()) << ">>> Start 1609 stack in WAVE mode ... \n\n";
-        vlog::flush();
-    }
+    EVENT_LOG_C(board->getHostName(), "default") << "===[ Start 1609 stack in WAVE mode ... ]=== \n\n" << std::flush;
 
     board->run_command_blocking(shell1, "cd " + remoteDir_Driver.string());
     board->run_command_nonblocking(shell1, "if ! pgrep rsi_1609 > /dev/null; then sudo ./rsi_1609; fi", true, board->getHostName());
@@ -369,11 +349,7 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
     // Step 6: remotely run the code
     //##############################
 
-    {
-        std::lock_guard<std::mutex> lock(vlog::lock_log);
-        vlog::EVENT(board->getHostName(), "shell2") << boost::format(">>> Running application %1% ... \n\n") % applName;
-        vlog::flush();
-    }
+    EVENT_LOG_C(board->getHostName(), "shell2") << boost::format("===[ Running application %1% ... ]=== \n\n") % applName << std::flush;
 
     board->run_command_blocking(shell2, "cd " + (remoteDir_SourceCode / "sampleAppl").string());
     board->run_command_nonblocking(shell2, "sudo ./" + applName, true, board->getHostName(), "shell2");

@@ -136,37 +136,36 @@ void AddMobileNode::beginLoading()
 
 void AddMobileNode::printLoadedStatistics()
 {
-    vlog::INFO() << "\n>>> AddMobileNode is done adding nodes. Here is a summary: \n";
-    vlog::flush();
+    INFO_LOG << "\n>>> AddMobileNode is done adding nodes. Here is a summary: \n" << std::flush;
 
     //###################################
     // Get the list of all possible route
     //###################################
 
     std::list<std::string> loadedRouteList = TraCI->routeGetIDList();
-    vlog::INFO() << boost::format("  %1% routes are loaded: ") % loadedRouteList.size();
+    INFO_LOG << boost::format("  %1% routes are loaded: ") % loadedRouteList.size();
     for(std::string route : loadedRouteList)
-        vlog::INFO() << boost::format("%1%, ") % route;
+        INFO_LOG << boost::format("%1%, ") % route;
 
-    vlog::INFO() << "\n";
+    INFO_LOG << "\n";
 
     //##################################
     // Get the list of all vehicle types
     //##################################
 
     std::list<std::string> loadedVehTypeList = TraCI->vehicleTypeGetIDList();
-    vlog::INFO() << boost::format("  %1% vehicle/bike types are loaded: ") % loadedVehTypeList.size();
+    INFO_LOG << boost::format("  %1% vehicle/bike types are loaded: ") % loadedVehTypeList.size();
     for(std::string type : loadedVehTypeList)
-        vlog::INFO() << boost::format("%1%, ") % type;
+        INFO_LOG << boost::format("%1%, ") % type;
 
-    vlog::INFO() << "\n";
+    INFO_LOG << "\n";
 
     //#############################
     // Get the list of all vehicles
     //#############################
 
     std::list<std::string> loadedVehList = TraCI->simulationGetLoadedVehiclesIDList();
-    vlog::INFO() << boost::format("  %1% vehicles/bikes are loaded out of which: \n") % loadedVehList.size();
+    INFO_LOG << boost::format("  %1% vehicles/bikes are loaded out of which: \n") % loadedVehList.size();
     // get vehicle/bike type distribution
     std::list<std::string> loadedVehType;
     for(std::string vehID : loadedVehList)
@@ -180,10 +179,10 @@ void AddMobileNode::printLoadedStatistics()
     for(std::string type : loadedVehTypeListUnique)
     {
         int count = std::count(loadedVehType.begin(), loadedVehType.end(), type);
-        vlog::INFO() << boost::format("      %1% nodes are added of type \"%2%\" \n") % count % type;
+        INFO_LOG << boost::format("      %1% nodes are added of type \"%2%\" \n") % count % type;
     }
 
-    vlog::INFO() << "\n";
+    INFO_LOG << "\n";
 
     // get route distribution
     std::list<std::string> loadedVehRoute;
@@ -198,10 +197,10 @@ void AddMobileNode::printLoadedStatistics()
     for(std::string route : loadedVehRouteListUnique)
     {
         int count = std::count(loadedVehRoute.begin(), loadedVehRoute.end(), route);
-        vlog::INFO() << boost::format("      %1% nodes have route \"%2%\" \n") % count % route;
+        INFO_LOG << boost::format("      %1% nodes have route \"%2%\" \n") % count % route;
     }
 
-    vlog::flush();
+    FLUSH_LOG;
 }
 
 

@@ -37,7 +37,7 @@ namespace VENTOS {
 class SSH_Helper : public SSH
 {
 public:
-    SSH_Helper(std::string, int, std::string, std::string, bool = false);
+    SSH_Helper(std::string, int, std::string, std::string, bool = false, std::string = "std::cout", std::string = "default");
     virtual ~SSH_Helper();
 
     // sends sudo reboot to the remote dev

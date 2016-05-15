@@ -132,11 +132,11 @@ void ApplCA::receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t sig
     // we receive a Magic_Req signal from magic vehicle.
     if(signalID == Signal_Magic_Req)
     {
-        vlog::EVENT() << boost::format("\n>>> %s receives a CRL request signal from %s \n") % moduleName % source->getFullName();
+        EVENT_LOG << boost::format("\n>>> %s receives a CRL request signal from %s \n") % moduleName % source->getFullName();
 
         if(PiecesCRL.size() > 0)
         {
-            vlog::EVENT() << "    sending the CRL ... \n";
+            EVENT_LOG << "    sending the CRL ... \n";
 
             CRLPiecesData *data = new CRLPiecesData(source->getFullName(), EnableShuffle ? shuffle(PiecesCRL): PiecesCRL);
 
@@ -146,9 +146,9 @@ void ApplCA::receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t sig
             this->getParentModule()->emit(Signal_Magic_Res, data);
         }
         else
-            vlog::EVENT() << "    CRL is empty! \n";
+            EVENT_LOG << "    CRL is empty! \n";
 
-        vlog::flush();
+        FLUSH_LOG;
     }
 }
 
@@ -156,8 +156,7 @@ void ApplCA::receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t sig
 // Calculate Matrix A when Erasure Code is enabled. This matrix is N by M.
 void ApplCA::CalculateMatrixA()
 {
-    vlog::EVENT() << boost::format("\n>>> %1% is calculating Matrix_A --> N is %2% and M is %3% \n") % moduleName % N % M;
-    vlog::flush();
+    EVENT_LOG << boost::format("\n>>> %1% is calculating Matrix_A --> N is %2% and M is %3% \n") % moduleName % N % M << std::flush;
 
     Matrix_A.resize(N,M);
 
@@ -182,15 +181,13 @@ void ApplCA::CalculateMatrixA()
         }
     }
 
-    vlog::DEBUG() << "\n" << Matrix_A << "\n";
-    vlog::flush();
+    DEBUG_LOG << "\n" << Matrix_A << "\n" << std::flush;
 }
 
 
 void ApplCA::createCRL()
 {
-    vlog::EVENT() << boost::format("\n>>> %1% is creating a CRL of size %2% \n") % moduleName % CRLsize;
-    vlog::flush();
+    EVENT_LOG << boost::format("\n>>> %1% is creating a CRL of size %2% \n") % moduleName % CRLsize << std::flush;
 
     // CRL consists of one or more certificates
     std::vector<Certificate *> CRL;
@@ -217,8 +214,7 @@ void ApplCA::createCRL()
     boost::archive::text_oarchive oa(CRLbytes);
     oa << CRL;
 
-    vlog::EVENT() << boost::format(">>> %1% converted the CRL into a raw data of %2% bytes \n") % moduleName % CRLbytes.str().size();
-    vlog::flush();
+    EVENT_LOG << boost::format(">>> %1% converted the CRL into a raw data of %2% bytes \n") % moduleName % CRLbytes.str().size() << std::flush;
 
     // Step 2: encode CRL
     std::vector<std::string> EncodedCRL = ErasureCode ? erasure(CRLbytes): NOerasure(CRLbytes);
@@ -233,7 +229,7 @@ void ApplCA::createCRL()
 
 std::vector<std::string> ApplCA::NOerasure(std::ostringstream &CRLbytes)
 {
-    vlog::EVENT() << boost::format(">>> %1% is dividing CRL message into %2% segments (Erasure code is disabled) \n") % moduleName % NoSegments;
+    EVENT_LOG << boost::format(">>> %1% is dividing CRL message into %2% segments (Erasure code is disabled) \n") % moduleName % NoSegments;
 
     unsigned long len = CRLbytes.str().size();
     int n;   // number of bytes in each pieces
@@ -243,7 +239,7 @@ std::vector<std::string> ApplCA::NOerasure(std::ostringstream &CRLbytes)
     else
         n = (len / NoSegments) + 1;
 
-    vlog::DEBUG() << boost::format("    This means that each segment has maximum of %1% bytes. \n") % n;
+    DEBUG_LOG << boost::format("    This means that each segment has maximum of %1% bytes. \n") % n;
 
     if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && false)
     {
@@ -274,8 +270,7 @@ std::vector<std::string> ApplCA::NOerasure(std::ostringstream &CRLbytes)
     if(len % NoSegments != 0)
         tmp.push_back(oss.str());
 
-    vlog::EVENT() << "\n \n";
-    vlog::flush();
+    EVENT_LOG << "\n \n" << std::flush;
 
     return tmp;
 }
@@ -283,9 +278,9 @@ std::vector<std::string> ApplCA::NOerasure(std::ostringstream &CRLbytes)
 
 std::vector<std::string> ApplCA::erasure(std::ostringstream &CRLbytes)
 {
-    vlog::EVENT() << boost::format(">>> %1% is applying erasure code on CRL \n") % moduleName;
+    EVENT_LOG << boost::format(">>> %1% is applying erasure code on CRL \n") % moduleName;
 
-    vlog::DEBUG() << boost::format("    Step 1: M is %1%, so we split CRL bytes into %2%-byte segments. \n") % M % M;
+    DEBUG_LOG << boost::format("    Step 1: M is %1%, so we split CRL bytes into %2%-byte segments. \n") % M % M;
 
     unsigned long len = CRLbytes.str().size();
 

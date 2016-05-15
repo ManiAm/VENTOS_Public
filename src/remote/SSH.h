@@ -48,7 +48,7 @@ namespace VENTOS {
 class SSH
 {
 public:
-    SSH(std::string, int, std::string, std::string, bool = false);
+    SSH(std::string, int, std::string, std::string, bool = false, std::string = "std::cout", std::string = "default");
     virtual ~SSH();
 
     void copyFile_SFTP(boost::filesystem::path, boost::filesystem::path);
@@ -79,6 +79,9 @@ protected:
     int dev_port = -1;
     std::string dev_username = "";
     std::string dev_password = "";
+
+    std::string category = "";
+    std::string subcategory = "";
 
     ssh_session SSH_session;
     sftp_session SFTP_session;

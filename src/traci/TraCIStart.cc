@@ -209,8 +209,7 @@ void TraCI_Start::init_traci()
     uint32_t apiVersionS = versionS.first;
     std::string serverVersionS = versionS.second;
 
-    vlog::INFO() << boost::format("  TraCI server \"%1%\" reports API version %2% \n") % serverVersionS % apiVersionS;
-    vlog::flush();
+    INFO_LOG << boost::format("  TraCI server \"%1%\" reports API version %2% \n") % serverVersionS % apiVersionS << std::flush;
 
     if (apiVersionS != 10)
         throw omnetpp::cRuntimeError("Unsupported TraCI server API version!");
@@ -223,14 +222,13 @@ void TraCI_Start::init_traci()
     double x2 = boundaries[2];  // x2
     double y2 = boundaries[3];  // y2
 
-    vlog::INFO() << boost::format("  TraCI reports network boundaries (%1%,%2%)-(%3%,%4%) \n") % x1 % y1 % x2 % y2;
-    vlog::flush();
+    INFO_LOG << boost::format("  TraCI reports network boundaries (%1%,%2%)-(%3%,%4%) \n") % x1 % y1 % x2 % y2 << std::flush;
 
     netbounds1 = TraCICoord(x1, y1);
     netbounds2 = TraCICoord(x2, y2);
 
     if ((traci2omnet(netbounds2).x > world->getPgs()->x) || (traci2omnet(netbounds1).y > world->getPgs()->y))
-        vlog::WARNING() << boost::format("  WARNING: Playground size (%1%,%2%) might be too small for vehicle at network bounds (%3%,%4%) \n") % world->getPgs()->x % world->getPgs()->y % traci2omnet(netbounds2).x % traci2omnet(netbounds1).y;
+        WARNING_LOG << boost::format("  WARNING: Playground size (%1%,%2%) might be too small for vehicle at network bounds (%3%,%4%) \n") % world->getPgs()->x % world->getPgs()->y % traci2omnet(netbounds2).x % traci2omnet(netbounds1).y;
 
     {
         // subscribe to list of departed and arrived vehicles, as well as simulation time
@@ -279,8 +277,7 @@ void TraCI_Start::init_traci()
     omnetpp::simsignal_t Signal_addFlow = registerSignal("addFlow");
     this->emit(Signal_addFlow, 0);
 
-    vlog::INFO() << "  Initializing modules with TraCI support ... \n";
-    vlog::flush();
+    INFO_LOG << "  Initializing modules with TraCI support ... \n" << std::flush;
 
     omnetpp::simsignal_t Signal_initialize_withTraCI = registerSignal("initialize_withTraCI");
     this->emit(Signal_initialize_withTraCI, 1);
@@ -687,9 +684,8 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
 
                     departedNodes node = it->second;
 
-                    vlog::EVENT() << boost::format("t=%1%: %2% of type %3% arrived. Inserting it again on edge %4% in pos %5% with entrySpeed of %6% from lane %7% \n")
-                    % omnetpp::simTime().dbl() % node.vehicleId % node.vehicleTypeId % node.routeId % node.pos % node.speed % node.lane;
-                    vlog::flush();
+                    EVENT_LOG << boost::format("t=%1%: %2% of type %3% arrived. Inserting it again on edge %4% in pos %5% with entrySpeed of %6% from lane %7% \n")
+                    % omnetpp::simTime().dbl() % node.vehicleId % node.vehicleTypeId % node.routeId % node.pos % node.speed % node.lane << std::flush;
 
                     addedNodes.erase(it);  // remove this entry before adding
                     vehicleAdd(node.vehicleId, node.vehicleTypeId, node.routeId, (omnetpp::simTime().dbl() * 1000)+1, node.pos, node.speed, node.lane);

@@ -119,8 +119,7 @@ void AddFixNode::beginLoading()
 
 void AddFixNode::printLoadedStatistics()
 {
-    vlog::INFO() << "\n>>> AddFixNode is done adding nodes. Here is a summary: \n";
-    vlog::flush();
+    INFO_LOG << "\n>>> AddFixNode is done adding nodes. Here is a summary: \n" << std::flush;
 
     // get a pointer to the first RSU
     omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("RSU", 0);
@@ -128,7 +127,7 @@ void AddFixNode::printLoadedStatistics()
     {
         // how many RSUs are in the network?
         int RSUcount = module->getVectorSize();
-        vlog::INFO() << boost::format("  %1% RSU modules are added: ") % RSUcount;
+        INFO_LOG << boost::format("  %1% RSU modules are added: ") % RSUcount;
 
         // iterate over modules
         for(int i = 0; i < RSUcount; ++i)
@@ -143,10 +142,10 @@ void AddFixNode::printLoadedStatistics()
             cModule *appl =  module->getSubmodule("appl");
             std::string SUMOID = appl->par("SUMOID").stringValue();
 
-            vlog::INFO() << boost::format("%1% %2%, ") % fullId % SUMOID;
+            INFO_LOG << boost::format("%1% %2%, ") % fullId % SUMOID;
         }
 
-        vlog::INFO() << "\n";
+        INFO_LOG << "\n";
     }
 
     // get a pointer to the first Adversary
@@ -155,7 +154,7 @@ void AddFixNode::printLoadedStatistics()
     {
         // how many Adversaries are in the network?
         int advCount = module->getVectorSize();
-        vlog::INFO() << boost::format("  %1% adversary modules are added: ") % advCount;
+        INFO_LOG << boost::format("  %1% adversary modules are added: ") % advCount;
 
         // iterate over modules
         for(int i = 0; i < advCount; ++i)
@@ -169,7 +168,7 @@ void AddFixNode::printLoadedStatistics()
             printf("%s, ", fullId.c_str());
         }
 
-        vlog::INFO() << "\n";
+        INFO_LOG << "\n";
     }
 
     // get a pointer to the first CA
@@ -178,7 +177,7 @@ void AddFixNode::printLoadedStatistics()
     {
         // how many Adversaries are in the network?
         int CACount = module->getVectorSize();
-        vlog::INFO() << boost::format("  %1% CA modules are added: ") % CACount;
+        INFO_LOG << boost::format("  %1% CA modules are added: ") % CACount;
 
         // iterate over modules
         for(int i = 0; i < CACount; ++i)
@@ -189,13 +188,13 @@ void AddFixNode::printLoadedStatistics()
             // get OMNET id
             std::string fullId = module->getFullName();
 
-            vlog::INFO() << boost::format("%s, ") % fullId;
+            INFO_LOG << boost::format("%s, ") % fullId;
         }
 
-        vlog::INFO() << "\n";
+        INFO_LOG << "\n";
     }
 
-    vlog::flush();
+    FLUSH_LOG;
 }
 
 
