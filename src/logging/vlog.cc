@@ -145,8 +145,25 @@ void vlog::FLUSH(std::string category, std::string subcategory)
 }
 
 
+bool vlog::logActive()
+{
+    if( logRecordCMD || omnetpp::cSimulation::getActiveEnvir()->isGUI() )
+    {
+        if( (systemLogLevel & lastLogLevel) != 0 )
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
 vlog& vlog::setLog(uint8_t logLevel, std::string category, std::string subcategory)
 {
+    if(!logActive())
+        return *this;
+
     if(category == "")
         throw omnetpp::cRuntimeError("category name can't be empty!");
 

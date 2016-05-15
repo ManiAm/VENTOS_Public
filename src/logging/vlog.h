@@ -48,18 +48,15 @@ public:
     template<typename T>
     vlog& operator << (const T& inv)
     {
-        if( logRecordCMD || omnetpp::cSimulation::getActiveEnvir()->isGUI() )
+        if(logActive())
         {
-            if( (systemLogLevel & lastLogLevel) != 0 )
+            if(lastCategory == "std::cout")
+                std::cout << inv;
+            else
             {
-                if(lastCategory == "std::cout")
-                    std::cout << inv;
-                else
-                {
-                    std::ostringstream tmp;
-                    tmp << inv;
-                    sendToLogWindow(std::to_string(CMD_INSERT_TXT) + "||" + lastCategory + "||" + lastSubcategory + "||" + tmp.str());
-                }
+                std::ostringstream tmp;
+                tmp << inv;
+                sendToLogWindow(std::to_string(CMD_INSERT_TXT) + "||" + lastCategory + "||" + lastSubcategory + "||" + tmp.str());
             }
         }
 
@@ -69,21 +66,18 @@ public:
     // overloading the << operator to accept std::endl and std::flush
     vlog& operator << (std::ostream& (*pf) (std::ostream&))
     {
-        if( logRecordCMD || omnetpp::cSimulation::getActiveEnvir()->isGUI() )
+        if(logActive())
         {
-            if( (systemLogLevel & lastLogLevel) != 0 )
+            if(lastCategory == "std::cout")
+                std::cout << pf;
+            else
             {
-                if(lastCategory == "std::cout")
-                    std::cout << pf;
+                if(pf == (std::basic_ostream<char>& (*)(std::basic_ostream<char>&)) &std::endl)
+                    sendToLogWindow(std::to_string(CMD_INSERT_TXT) + "||" + lastCategory + "||" + lastSubcategory + "||" + "\n");
+                else if(pf == (std::basic_ostream<char>& (*)(std::basic_ostream<char>&)) &std::flush)
+                    sendToLogWindow(std::to_string(CMD_FLUSH) + "||" + lastCategory + "||" + lastSubcategory);
                 else
-                {
-                    if(pf == (std::basic_ostream<char>& (*)(std::basic_ostream<char>&)) &std::endl)
-                        sendToLogWindow(std::to_string(CMD_INSERT_TXT) + "||" + lastCategory + "||" + lastSubcategory + "||" + "\n");
-                    else if(pf == (std::basic_ostream<char>& (*)(std::basic_ostream<char>&)) &std::flush)
-                        sendToLogWindow(std::to_string(CMD_FLUSH) + "||" + lastCategory + "||" + lastSubcategory);
-                    else
-                        throw omnetpp::cRuntimeError("The string manipulator is not supported!");
-                }
+                    throw omnetpp::cRuntimeError("The string manipulator is not supported!");
             }
         }
 
@@ -98,6 +92,7 @@ public:
     static void FLUSH(std::string category = "std::cout", std::string subcategory = "default");
 
 private:
+    bool logActive();
     vlog& setLog(uint8_t logLevel, std::string cat, std::string subcat);
     void start_TCP_client();
     void sendToLogWindow(std::string);
