@@ -47,7 +47,7 @@ SSH_Helper::~SSH_Helper()
 
 // constructor
 SSH_Helper::SSH_Helper(std::string host, int port, std::string username, std::string password, bool printOutput, std::string cat, std::string sub) :
-                SSH(host, port, username, password, printOutput, cat, sub)
+                                SSH(host, port, username, password, printOutput, cat, sub)
 {
     active_threads = 0;
     terminating = false;
@@ -178,8 +178,8 @@ std::string SSH_Helper::run_command(ssh_channel SSH_channel, std::string command
         // read the output from remote shell
         char buffer[1000];
         bool identFirstLine = false;
-        int returnCode = -1;
-        long int numEOF = 0;
+        int returnCode = 2;  // default return code is error
+        int numEOF = 0;
         while (ssh_channel_is_open(SSH_channel) && !ssh_channel_is_eof(SSH_channel) && !terminating)
         {
             int nbytes = 0;
@@ -199,10 +199,11 @@ std::string SSH_Helper::run_command(ssh_channel SSH_channel, std::string command
             // time-out in non-blocking commands
             else if(nbytes == 0 && !blocking)
             {
-                numEOF++;
-
-                // keep yielding to other threads as long as we do not print anything!
-                if(numEOF > 20)
+                if(numEOF < 10)
+                    numEOF++;
+                // keep yielding to other threads if we
+                // do not print anything for 10 * 100ms = 1 second
+                else
                     std::this_thread::yield();
             }
             // buffer has data
