@@ -50,8 +50,19 @@ Define_Module(VENTOS::vlog);
 vlog::~vlog()
 {
     // making sure to flush the remaining data in buffer
+    std::cout.flush();
     if(socketPtr)
-        objPtr->flush();
+    {
+        // iterate over all categories/sub-categories and flush each
+        for(auto &ii : allCategories)
+        {
+            std::string category = ii.first;
+            std::vector<std::string> *subcats = ii.second;
+
+            for(auto &jj : *subcats)
+                objPtr->sendToLogWindow(std::to_string(CMD_FLUSH) + "||" + category + "||" + jj);
+        }
+    }
 
 #if defined(_WIN32) || defined(__WIN32__) || defined(WIN32) || defined(__CYGWIN__) || defined(_WIN64)
 #else
@@ -94,40 +105,43 @@ void vlog::handleMessage(omnetpp::cMessage *msg)
 
 vlog& vlog::WARNING(std::string category, std::string subcategory)
 {
-    return objPtr->setLog(WARNING_LOG, category, subcategory);
+    return objPtr->setLog(WARNING_LOG_VAL, category, subcategory);
 }
 
 
 vlog& vlog::INFO(std::string category, std::string subcategory)
 {
-    return objPtr->setLog(INFO_LOG, category, subcategory);
+    return objPtr->setLog(INFO_LOG_VAL, category, subcategory);
 }
 
 
 vlog& vlog::ERROR(std::string category, std::string subcategory)
 {
-    return objPtr->setLog(ERROR_LOG, category, subcategory);
+    return objPtr->setLog(ERROR_LOG_VAL, category, subcategory);
 }
 
 
 vlog& vlog::DEBUG(std::string category, std::string subcategory)
 {
-    return objPtr->setLog(DEBUG_LOG, category, subcategory);
+    return objPtr->setLog(DEBUG_LOG_VAL, category, subcategory);
 }
 
 
 vlog& vlog::EVENT(std::string category, std::string subcategory)
 {
-    return objPtr->setLog(EVENT_LOG, category, subcategory);
+    return objPtr->setLog(EVENT_LOG_VAL, category, subcategory);
 }
 
 
-void vlog::flush()
+void vlog::FLUSH(std::string category, std::string subcategory)
 {
-    std::cout.flush();
+    if(category == "")
+        throw omnetpp::cRuntimeError("category name can't be empty!");
 
-    if(!objPtr->allCategories.empty())
-        objPtr->sendToLogWindow(std::to_string(CMD_FLUSH) + "||" + "-");
+    if(category == "std::cout")
+        std::cout.flush();
+    else
+        objPtr->sendToLogWindow(std::to_string(CMD_FLUSH) + "||" + category + "||" + subcategory);
 }
 
 

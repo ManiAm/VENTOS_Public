@@ -71,7 +71,7 @@ private:
     void addTab(std::string);
     void addSubTextView(std::string, std::string);
     void writeStr(std::string, std::string, std::string &);
-    void flushStr();
+    void flushStr(std::string, std::string);
 
 protected:
     // widgets

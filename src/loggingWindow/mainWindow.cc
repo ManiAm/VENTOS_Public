@@ -42,7 +42,7 @@ mainWindow::mainWindow()
 {
     set_title("Log window");
     set_border_width(1);
-    set_default_size(550, 400 /*height*/);
+    set_default_size(800, 500 /*height*/);
     set_icon_from_file("log_128.png");
 
     Gtk::Box *m_VBox = new Gtk::Box(Gtk::ORIENTATION_VERTICAL);
@@ -236,7 +236,7 @@ void mainWindow::processCMD()
         else if(strs[0] == std::to_string(CMD_INSERT_TXT))
             writeStr(strs[1], strs[2], strs[3]);
         else if(strs[0] == std::to_string(CMD_FLUSH))
-            flushStr();
+            flushStr(strs[1], strs[2]);
         else
             throw std::runtime_error("Invalid command number!");
     }
@@ -352,10 +352,13 @@ void mainWindow::writeStr(std::string category, std::string subcategory, std::st
 }
 
 
-void mainWindow::flushStr()
+void mainWindow::flushStr(std::string category, std::string subcategory)
 {
-    for(auto &i : vLogStreams)
-        (i.second)->flush();
+    auto it = vLogStreams.find(std::make_pair(category, subcategory));
+    if(it == vLogStreams.end())
+        throw std::runtime_error("writeStr: category/subcategory pair does not exist!");
+
+    (it->second)->flush();
 }
 
 
