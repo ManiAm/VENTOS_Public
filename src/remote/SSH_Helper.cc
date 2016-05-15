@@ -29,6 +29,7 @@
 #include <fstream>
 #include <boost/algorithm/string.hpp>
 #include <omnetpp.h>
+#include <vlog.h>
 
 namespace VENTOS {
 

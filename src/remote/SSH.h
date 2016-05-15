@@ -29,7 +29,6 @@
 #define SSHCONNECT_H_
 
 #include <string>
-#include <vlog.h>
 
 #include <libssh/libsshpp.hpp>
 #include <libssh/sftp.h>

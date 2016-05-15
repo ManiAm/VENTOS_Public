@@ -30,7 +30,6 @@
 
 #include <BaseApplLayer.h>
 #include <ChannelAccess.h>
-#include <vlog.h>
 #include <WaveAppToMac1609_4Interface.h>
 #include "TraCICommands.h"
 #include "Certificate.h"

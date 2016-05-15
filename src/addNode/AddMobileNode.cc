@@ -29,6 +29,7 @@
 #include "Router.h"
 #include <algorithm>
 #include <random>
+#include <vlog.h>
 
 namespace VENTOS {
 

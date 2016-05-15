@@ -38,6 +38,7 @@
 #include <thread>
 #include "utf8.h"
 #include <omnetpp.h>
+#include <vlog.h>
 
 namespace VENTOS {
 

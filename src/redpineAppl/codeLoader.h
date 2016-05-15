@@ -29,7 +29,6 @@
 #define CODELOADER_H_
 
 #include <BaseApplLayer.h>
-#include <vlog.h>
 #include "TraCICommands.h"
 #include "SSH_Helper.h"
 

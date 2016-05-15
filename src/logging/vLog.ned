@@ -9,6 +9,6 @@ simple vlog
         
         int headerLength = default(88bit) @unit(bit); //header length of the application 
         int systemLogLevel = default(255);
-        bool logRecordCMD = default(false);
+        bool logRecordCMD = default(false);  // show logs in cmd_env?
 }
 
