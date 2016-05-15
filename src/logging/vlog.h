@@ -32,24 +32,9 @@
 #include <omnetpp.h>
 #include "boost/format.hpp"
 #include <mutex>
+#include "vlogConst.h"
 
 namespace VENTOS {
-
-enum logWindowCMD
-{
-    CMD_ADD_TAB,
-    CMD_ADD_SUB_TEXTVIEW,
-    CMD_INSERT_TXT,
-    CMD_FLUSH,
-};
-
-#define   WARNING_LOG   0b00000001
-#define   INFO_LOG      0b00000010
-#define   ERROR_LOG     0b00000100
-#define   DEBUG_LOG     0b00001000
-#define   EVENT_LOG     0b00010000   // event log
-#define   ALL_LOG       0b11111111
-#define   NO_LOG        0b00000000
 
 class vlog : public BaseApplLayer
 {
@@ -81,13 +66,36 @@ public:
         return *this;
     }
 
+    // overloading the << operator to accept std::endl and std::flush
+    vlog& operator << (std::ostream& (*pf) (std::ostream&))
+    {
+        if( logRecordCMD || omnetpp::cSimulation::getActiveEnvir()->isGUI() )
+        {
+            if( (systemLogLevel & lastLogLevel) != 0 )
+            {
+                if(lastCategory == "std::cout")
+                    std::cout << pf;
+                else
+                {
+                    if(pf == (std::basic_ostream<char>& (*)(std::basic_ostream<char>&)) &std::endl)
+                        sendToLogWindow(std::to_string(CMD_INSERT_TXT) + "||" + lastCategory + "||" + lastSubcategory + "||" + "\n");
+                    else if(pf == (std::basic_ostream<char>& (*)(std::basic_ostream<char>&)) &std::flush)
+                        sendToLogWindow(std::to_string(CMD_FLUSH) + "||" + lastCategory + "||" + lastSubcategory);
+                    else
+                        throw omnetpp::cRuntimeError("The string manipulator is not supported!");
+                }
+            }
+        }
+
+        return *this;
+    }
+
     static vlog& WARNING(std::string category = "std::cout", std::string subcategory = "default");
     static vlog& INFO(std::string category = "std::cout", std::string subcategory = "default");
     static vlog& ERROR(std::string category = "std::cout", std::string subcategory = "default");
     static vlog& DEBUG(std::string category = "std::cout", std::string subcategory = "default");
     static vlog& EVENT(std::string category = "std::cout", std::string subcategory = "default");
-
-    static void flush();
+    static void FLUSH(std::string category = "std::cout", std::string subcategory = "default");
 
 private:
     vlog& setLog(uint8_t logLevel, std::string cat, std::string subcat);
@@ -109,7 +117,7 @@ private:
     pid_t child_pid = -1;
     int* socketPtr = NULL;
 
-    uint8_t lastLogLevel = INFO_LOG;
+    uint8_t lastLogLevel = INFO_LOG_VAL;
     std::string lastCategory = "std::cout";
     std::string lastSubcategory = "default";
 };
