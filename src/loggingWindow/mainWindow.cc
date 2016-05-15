@@ -83,15 +83,6 @@ mainWindow::~mainWindow()
 }
 
 
-void mainWindow::on_button_quit()
-{
-    if(newsockfd)
-        ::close(newsockfd);
-
-    hide();
-}
-
-
 void mainWindow::start_TCP_server()
 {
     std::cout << "    (logWindow) starting the TCP server. \n";
@@ -282,6 +273,13 @@ void mainWindow::addTab(std::string category)
 
     // add the TextView inside ScrolledWindow
     Gtk::TextView *m_TextView = new Gtk::TextView();
+
+    // change default font throughout the m_TextView
+    Pango::FontDescription fdesc;
+    fdesc.set_family("monospace");
+    fdesc.set_size(10 * PANGO_SCALE);
+    m_TextView->override_font(fdesc);
+
     m_ScrolledWindow->add(*m_TextView);
 
     // create a text buffer mark to scroll the last inserted line into view
@@ -325,6 +323,13 @@ void mainWindow::addSubTextView(std::string category, std::string subcategory)
 
     // add the TextView inside ScrolledWindow
     Gtk::TextView *m_TextView = new Gtk::TextView();
+
+    // change default font throughout the m_TextView
+    Pango::FontDescription fdesc;
+    fdesc.set_family("monospace");
+    fdesc.set_size(10 * PANGO_SCALE);
+    m_TextView->override_font(fdesc);
+
     m_ScrolledWindow->add(*m_TextView);
 
     // create a text buffer mark to scroll the last inserted line into view
@@ -361,5 +366,13 @@ void mainWindow::flushStr(std::string category, std::string subcategory)
     (it->second)->flush();
 }
 
+
+void mainWindow::on_button_quit()
+{
+    if(newsockfd)
+        ::close(newsockfd);
+
+    hide();
+}
 
 }
