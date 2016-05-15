@@ -100,12 +100,18 @@ private:
         auto iter = textBuffer->end();
         textBuffer->insert(iter, sink_.str());
 
-        // scroll the last inserted line into view.
+        // scroll the last inserted line into view
         auto iter2 = textBuffer->end();
         iter2.set_line_offset(0);  // Beginning of last line
         auto mark = textBuffer->get_mark("last_line");
         textBuffer->move_mark(mark, iter2);
         m_TextView->scroll_to(mark);
+    }
+
+    void addTextFormatting()
+    {
+
+
     }
 
 private:

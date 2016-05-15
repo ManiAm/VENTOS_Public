@@ -254,47 +254,17 @@ void mainWindow::addTab(std::string category)
     if(it != vLogStreams.end())
         throw std::runtime_error("addTab: category/subcategory pair already exists!");
 
-    // creating a horizontal box
+    // creating a horizontal box and add it to notebook
     Gtk::Box *m_VBox_tx = new Gtk::Box(Gtk::ORIENTATION_HORIZONTAL, 10);
     m_VBox_tx->set_homogeneous(true);
-
-    // adding the horizontal box to Notebook
     m_Notebook->append_page(*m_VBox_tx, category.c_str());
-
-    // creating a ScrolledWindow
-    Gtk::ScrolledWindow *m_ScrolledWindow = new Gtk::ScrolledWindow();
-    // only show the scroll bars when they are necessary:
-    m_ScrolledWindow->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
-    // add shadow to the border
-    m_ScrolledWindow->set_shadow_type(Gtk::SHADOW_ETCHED_IN);
-
-    // adding the m_ScrolledWindow to the box
-    m_VBox_tx->pack_start(*m_ScrolledWindow, Gtk::PACK_EXPAND_WIDGET);
-
-    // add the TextView inside ScrolledWindow
-    Gtk::TextView *m_TextView = new Gtk::TextView();
-
-    // change default font throughout the m_TextView
-    Pango::FontDescription fdesc;
-    fdesc.set_family("monospace");
-    fdesc.set_size(10 * PANGO_SCALE);
-    m_TextView->override_font(fdesc);
-
-    m_ScrolledWindow->add(*m_TextView);
-
-    // create a text buffer mark to scroll the last inserted line into view
-    Glib::RefPtr<Gtk::TextBuffer> m_refTextBuffer = m_TextView->get_buffer();
-    m_refTextBuffer->create_mark("last_line", m_refTextBuffer->end(), /* left_gravity= */ true);
-
-    // making my own stream buffer
-    debugStream *buff = new debugStream(m_TextView);
-    // re-direct ostream to my own stream buffer
-    std::ostream *out = new std::ostream(buff);
 
     // save m_VBox_tx for later access
     notebookBox[category] = m_VBox_tx;
-    // save associated stream
-    vLogStreams[std::make_pair(category, "default")] = out;
+
+    // create a new textview and add it to the box
+    Gtk::ScrolledWindow *m_ScrolledWindow = createTextView(category, "default");
+    m_VBox_tx->pack_start(*m_ScrolledWindow, Gtk::PACK_EXPAND_WIDGET);
 
     show_all_children();
 }
@@ -306,20 +276,27 @@ void mainWindow::addSubTextView(std::string category, std::string subcategory)
     if(it != vLogStreams.end())
         throw std::runtime_error("addSubTextView: category/subcategory pair already exists!");
 
+    // find the horizontal box
+    auto itt = notebookBox.find(category);
+    if(itt == notebookBox.end())
+        throw std::runtime_error("cannot find the box object!");
+
+    // create a new textview and add it to the box
+    Gtk::ScrolledWindow *m_ScrolledWindow = createTextView(category, subcategory);
+    (itt->second)->pack_start(*m_ScrolledWindow, Gtk::PACK_EXPAND_WIDGET);
+
+    show_all_children();
+}
+
+
+Gtk::ScrolledWindow * mainWindow::createTextView(std::string category, std::string subcategory)
+{
     // creating a ScrolledWindow
     Gtk::ScrolledWindow *m_ScrolledWindow = new Gtk::ScrolledWindow();
     // only show the scroll bars when they are necessary:
     m_ScrolledWindow->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
     // add shadow to the border
     m_ScrolledWindow->set_shadow_type(Gtk::SHADOW_ETCHED_IN);
-
-    // find the box
-    auto itt = notebookBox.find(category);
-    if(itt == notebookBox.end())
-        throw std::runtime_error("cannot find the box object!");
-
-    // adding the m_ScrolledWindow to the box
-    (itt->second)->pack_start(*m_ScrolledWindow, Gtk::PACK_EXPAND_WIDGET);
 
     // add the TextView inside ScrolledWindow
     Gtk::TextView *m_TextView = new Gtk::TextView();
@@ -341,9 +318,10 @@ void mainWindow::addSubTextView(std::string category, std::string subcategory)
     // re-direct ostream to my own stream buffer
     std::ostream *out = new std::ostream(buff);
 
+    // save the associated stream
     vLogStreams[std::make_pair(category, subcategory)] = out;
 
-    show_all_children();
+    return m_ScrolledWindow;
 }
 
 

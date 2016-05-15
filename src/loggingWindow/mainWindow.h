@@ -70,6 +70,7 @@ private:
     void processCMD();
     void addTab(std::string);
     void addSubTextView(std::string, std::string);
+    Gtk::ScrolledWindow * createTextView(std::string, std::string);
     void writeStr(std::string, std::string, std::string &);
     void flushStr(std::string, std::string);
 
