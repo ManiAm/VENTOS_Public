@@ -60,7 +60,7 @@ private:
 
     // NED variables
     TraCI_Commands *TraCI;  // pointer to the TraCI module
-    bool on;
+    bool active;
     int numDev;
 
     std::string initScriptName = "";

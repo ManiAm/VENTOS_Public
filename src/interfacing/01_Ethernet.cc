@@ -50,8 +50,8 @@ void Ethernet::initialize(int stage)
 
     if(stage == 0)
     {
-        on = par("on").boolValue();
-        if(!on)
+        active = par("active").boolValue();
+        if(!active)
             return;
 
         // get a pointer to the TraCI module
@@ -79,7 +79,7 @@ void Ethernet::initialize(int stage)
 
 void Ethernet::finish()
 {
-    if(!on)
+    if(!active)
         return;
 
     if(pcap_handle != NULL)
@@ -122,7 +122,7 @@ void Ethernet::executeEachTimestep()
 {
     // run this code only once
     static bool wasExecuted = false;
-    if (on && !wasExecuted)
+    if (active && !wasExecuted)
     {
         initSniffing();
 

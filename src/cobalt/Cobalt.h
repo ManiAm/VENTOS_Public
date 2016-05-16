@@ -56,7 +56,7 @@ private:
     TraCI_Commands *TraCI;  // pointer to the TraCI module
     omnetpp::simsignal_t Signal_executeEachTS;
     omnetpp::simsignal_t Signal_initialize_withTraCI;
-    bool on;
+    bool active;
 
     SNMP *cobaltSNMP = NULL;
 };

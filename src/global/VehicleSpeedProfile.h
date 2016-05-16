@@ -48,7 +48,7 @@ class SpeedProfile : public BaseApplLayer
 
         // NED variables
         TraCI_Commands *TraCI;
-        bool on;
+        bool active;
         double startTime;  // the time that speed profiling starts
 	    int mode;
 	    std::string laneId;

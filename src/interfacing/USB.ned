@@ -8,7 +8,7 @@ simple USB
         @display("i=block/network2");
         
         int headerLength = default(88bit) @unit(bit); //header length of the application 
-        bool on = default(false);
+        bool active = default(false);
         
         bool listUSBdevices = default(false);
         bool listUSBdevicesDetailed = default(false);

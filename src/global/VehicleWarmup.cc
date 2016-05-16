@@ -61,7 +61,7 @@ void Warmup::initialize(int stage)
         Signal_executeEachTS = registerSignal("executeEachTS");
         omnetpp::getSimulation()->getSystemModule()->subscribe("executeEachTS", this);
 
-        on = par("on").boolValue();
+        active = par("active").boolValue();
         laneId = par("laneId").stringValue();
         stopPosition = par("stopPosition").doubleValue() * numVehicles;
         warmUpSpeed = par("warmUpSpeed").doubleValue();
@@ -70,7 +70,7 @@ void Warmup::initialize(int stage)
         startTime = -1;
         IsWarmUpFinished = false;
 
-        if(on)
+        if(active)
             finishingWarmup = new omnetpp::cMessage("finishingWarmup", 1);
     }
 }
@@ -99,8 +99,8 @@ void Warmup::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t sig
 
     if(signalID == Signal_executeEachTS)
     {
-        // if warm-up is on and not finished
-        if(on && !IsWarmUpFinished)
+        // if warm-up is active and not finished
+        if(active && !IsWarmUpFinished)
         {
             if(!finishingWarmup->isScheduled())
             {

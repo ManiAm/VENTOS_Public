@@ -8,7 +8,7 @@ simple Cobalt
         @display("i=block/network2");
         
         int headerLength = default(88bit) @unit(bit); //header length of the application 
-        bool on = default(false);   
+        bool active = default(false);   
         string host = default("localhost"); 
         string port = default("");
 }

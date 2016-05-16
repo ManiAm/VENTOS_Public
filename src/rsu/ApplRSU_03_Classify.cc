@@ -176,7 +176,7 @@ void ApplRSUCLASSIFY::initializeGnuPlot()
     Plotter *pltPtr = static_cast<Plotter *>(pmodule);
     ASSERT(pltPtr);
 
-    if( !pltPtr->par("on").boolValue() )
+    if( !pltPtr->par("active").boolValue() )
         return;
 
     // we need feature in GNUPLOT 5.0 and above

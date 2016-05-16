@@ -8,7 +8,7 @@ simple Ethernet
         @display("i=block/network2");
         
         int headerLength = default(88bit) @unit(bit); //header length of the application 
-        bool on = default(false);
+        bool active = default(false);
         
         string interface = default("eth0");
         string filter_exp = default("ip");

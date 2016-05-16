@@ -7,7 +7,7 @@ simple Warmup
         @class(VENTOS::Warmup);
         @display("i=block/network2");
         
-        bool on = default(false);
+        bool active = default(false);
         
         string laneId = default("1to2_0");
         double stopPosition = default(9); 

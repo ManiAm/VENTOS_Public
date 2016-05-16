@@ -53,7 +53,7 @@ class Plotter : public BaseApplLayer
 
   private:
       TraCI_Commands *TraCI;
-      bool on;
+      bool active;
 };
 
 }

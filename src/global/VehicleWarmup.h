@@ -51,7 +51,7 @@ class Warmup : public BaseApplLayer
         SpeedProfile *SpeedProfilePtr;
 
         // NED variables
-        bool on;
+        bool active;
         std::string laneId;
         double stopPosition;  // the position that first vehicle should stop waiting for others
         double warmUpSpeed;

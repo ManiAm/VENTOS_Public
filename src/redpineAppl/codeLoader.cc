@@ -47,8 +47,8 @@ void codeLoader::initialize(int stage)
 
     if(stage ==0)
     {
-        on = par("on").boolValue();
-        if(!on)
+        active = par("active").boolValue();
+        if(!active)
             return;
 
         // get a pointer to the TraCI module
@@ -108,7 +108,7 @@ void codeLoader::handleMessage(omnetpp::cMessage *msg)
 
 void codeLoader::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t signalID, long i, cObject* details)
 {
-    if(!on)
+    if(!active)
         return;
 
     Enter_Method_Silent();
@@ -134,7 +134,7 @@ void codeLoader::executeEachTimestep()
 {
     // run this code only once
     static bool wasExecuted = false;
-    if (on && !wasExecuted)
+    if (active && !wasExecuted)
     {
         make_connection();
         wasExecuted = true;

@@ -42,9 +42,9 @@ void Plotter::initialize(int stage)
 {
     if(stage == 0)
     {
-        on = par("on").boolValue();
+        active = par("active").boolValue();
 
-        if(!on)
+        if(!active)
             return;
 
         // get a pointer to the TraCI module
@@ -64,7 +64,7 @@ void Plotter::initialize(int stage)
         getVersion();
 
         // interactive gnuplot terminals: x11, wxt, qt (wxt and qt offer nicer output and a wider range of features)
-        // persist: keep the windows open even on simulation termination
+        // persist: keep the windows open even after simulation termination
         // noraise: updating is done in the background
         // link: http://gnuplot.sourceforge.net/docs_4.2/node441.html
         // fprintf(pipeGnuPlot, "set term wxt enhanced 0 font 'Helvetica,' noraise\n");
@@ -106,7 +106,7 @@ void Plotter::getVersion()
 
 void Plotter::finish()
 {
-    if(!on)
+    if(!active)
         return;
 
 #ifdef WIN32

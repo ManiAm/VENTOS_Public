@@ -105,7 +105,7 @@ private:
     typedef BaseApplLayer super;
 
     // NED variables
-    bool on;
+    bool active;
     bool listUSBdevices;
     bool hotPlug;
 

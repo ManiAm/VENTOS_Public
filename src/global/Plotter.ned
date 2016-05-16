@@ -7,6 +7,6 @@ simple Plotter
         @class(VENTOS::Plotter);
         @display("i=block/network2");
         
-        bool on = default(false);
+        bool active = default(false);
 }
 

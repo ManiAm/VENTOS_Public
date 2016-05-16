@@ -104,7 +104,7 @@ private:
     typedef BaseApplLayer super;
 
     // NED variables
-    bool on;
+    bool active;
     std::string interface;
     std::string filter_exp;
     bool printCaptured;

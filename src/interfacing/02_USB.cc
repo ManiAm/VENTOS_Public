@@ -52,8 +52,8 @@ void USB::initialize(int stage)
 
     if(stage == 0)
     {
-        on = par("on").boolValue();
-        if(!on)
+        active = par("active").boolValue();
+        if(!active)
             return;
 
         // get a pointer to the TraCI module
@@ -98,7 +98,7 @@ void USB::initialize(int stage)
 
 void USB::finish()
 {
-    if(!on)
+    if(!active)
         return;
 
     // release the claimed interface
@@ -191,7 +191,7 @@ void USB::executeEachTimestep()
 {
     // run this code only once
     static bool wasExecuted = false;
-    if (on && !wasExecuted)
+    if (active && !wasExecuted)
     {
         if(hotPlug)
             EnableHotPlug();

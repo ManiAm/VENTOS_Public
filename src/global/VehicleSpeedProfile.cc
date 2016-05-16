@@ -48,7 +48,7 @@ void SpeedProfile::initialize(int stage)
         TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
 
-        on = par("on").boolValue();
+        active = par("active").boolValue();
         startTime = par("startTime").doubleValue();
         laneId = par("laneId").stringValue();
         mode = par("mode").longValue();
@@ -83,8 +83,8 @@ void SpeedProfile::handleMessage(omnetpp::cMessage *msg)
 
 void SpeedProfile::Change()
 {
-    // if speedProfiling is not on, return
-    if (!on)
+    // if speedProfiling is not active, return
+    if (!active)
         return;
 
     // get a list of all vehicles

@@ -7,7 +7,7 @@ simple SpeedProfile
         @class(VENTOS::SpeedProfile);
         @display("i=block/network2");
         
-        bool on = default(false);
+        bool active = default(false);
                 
         // mode = 0: fixed speed
         // mode = 1: accel/decel pulse

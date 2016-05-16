@@ -56,9 +56,9 @@ void Cobalt::initialize(int stage)
         Signal_executeEachTS = registerSignal("executeEachTS");
         omnetpp::getSimulation()->getSystemModule()->subscribe("executeEachTS", this);
 
-        on = par("on").boolValue();
+        active = par("active").boolValue();
 
-        if(on)
+        if(active)
             init_cobalt();
     }
 }
@@ -79,7 +79,7 @@ void Cobalt::handleMessage(omnetpp::cMessage *msg)
 
 void Cobalt::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t signalID, long i, cObject* details)
 {
-    if(!on)
+    if(!active)
         return;
 
     Enter_Method_Silent();
@@ -105,7 +105,7 @@ void Cobalt::executeEachTimestep()
 {
     // run this code only once
     static bool wasExecuted = false;
-    if (on && !wasExecuted)
+    if (active && !wasExecuted)
     {
         cobaltSNMP->SNMPset("1.3.6.1.2.1.1.4", "manoo");
 
