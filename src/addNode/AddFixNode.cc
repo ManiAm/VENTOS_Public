@@ -101,33 +101,38 @@ void AddFixNode::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t
 void AddFixNode::beginLoading()
 {
     int numRSUs = par("numRSUs").longValue();
+    int numCA = par("numCA").longValue();
+    int numAdversary = par("numAdversary").longValue();
+
+    if(numRSUs > 0 || numCA > 0 || numAdversary > 0)
+        DEBUG_LOG << "\n>>> AddFixNode is adding nodes to the simulation ... \n" << std::flush;
+
     if(numRSUs > 0)
         addRSU(numRSUs);
 
-    int numCA = par("numCA").longValue();
     if(numCA > 0)
         addCA(numCA);
 
-    int numAdversary = par("numAdversary").longValue();
     if(numAdversary > 0)
         addAdversary(numAdversary);
 
     if(numRSUs > 0 || numCA > 0 || numAdversary > 0)
+    {
+        DEBUG_LOG << "\n>>> AddFixNode is done adding nodes. Here is a summary: \n" << std::flush;
         printLoadedStatistics();
+    }
 }
 
 
 void AddFixNode::printLoadedStatistics()
 {
-    INFO_LOG << "\n>>> AddFixNode is done adding nodes. Here is a summary: \n" << std::flush;
-
     // get a pointer to the first RSU
     omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("RSU", 0);
     if(module != NULL)
     {
         // how many RSUs are in the network?
         int RSUcount = module->getVectorSize();
-        INFO_LOG << boost::format("  %1% RSU modules are added: ") % RSUcount;
+        DEBUG_LOG << boost::format("  %1% RSU modules are added: ") % RSUcount;
 
         // iterate over modules
         for(int i = 0; i < RSUcount; ++i)
@@ -142,10 +147,10 @@ void AddFixNode::printLoadedStatistics()
             cModule *appl =  module->getSubmodule("appl");
             std::string SUMOID = appl->par("SUMOID").stringValue();
 
-            INFO_LOG << boost::format("%1% %2%, ") % fullId % SUMOID;
+            DEBUG_LOG << boost::format("%1% %2%, ") % fullId % SUMOID;
         }
 
-        INFO_LOG << "\n";
+        DEBUG_LOG << "\n";
     }
 
     // get a pointer to the first Adversary
@@ -154,7 +159,7 @@ void AddFixNode::printLoadedStatistics()
     {
         // how many Adversaries are in the network?
         int advCount = module->getVectorSize();
-        INFO_LOG << boost::format("  %1% adversary modules are added: ") % advCount;
+        DEBUG_LOG << boost::format("  %1% adversary modules are added: ") % advCount;
 
         // iterate over modules
         for(int i = 0; i < advCount; ++i)
@@ -168,7 +173,7 @@ void AddFixNode::printLoadedStatistics()
             printf("%s, ", fullId.c_str());
         }
 
-        INFO_LOG << "\n";
+        DEBUG_LOG << "\n";
     }
 
     // get a pointer to the first CA
@@ -177,7 +182,7 @@ void AddFixNode::printLoadedStatistics()
     {
         // how many Adversaries are in the network?
         int CACount = module->getVectorSize();
-        INFO_LOG << boost::format("  %1% CA modules are added: ") % CACount;
+        DEBUG_LOG << boost::format("  %1% CA modules are added: ") % CACount;
 
         // iterate over modules
         for(int i = 0; i < CACount; ++i)
@@ -188,10 +193,10 @@ void AddFixNode::printLoadedStatistics()
             // get OMNET id
             std::string fullId = module->getFullName();
 
-            INFO_LOG << boost::format("%s, ") % fullId;
+            DEBUG_LOG << boost::format("%s, ") % fullId;
         }
 
-        INFO_LOG << "\n";
+        DEBUG_LOG << "\n";
     }
 
     FLUSH_LOG;
