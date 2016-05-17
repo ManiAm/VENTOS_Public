@@ -31,6 +31,7 @@
 #include <BaseApplLayer.h>
 #include "TraCICommands.h"
 #include "ApplRSU_02_Monitor.h"
+#include "vlog.h"
 
 #undef ev
 #include "boost/filesystem.hpp"

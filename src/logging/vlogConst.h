@@ -45,41 +45,41 @@ enum logWindowCMD
 
 // logs are redirected to the standard output stream (std::cout)
 
-#define WARNING_LOG \
+#define LOG_WARNING \
         std::lock_guard<std::mutex>{vlog::lock_log}, vlog::WARNING()
 
-#define INFO_LOG \
+#define LOG_INFO \
         std::lock_guard<std::mutex>{vlog::lock_log}, vlog::INFO()
 
-#define ERROR_LOG \
+#define LOG_ERROR \
         std::lock_guard<std::mutex>{vlog::lock_log}, vlog::ERROR()
 
-#define DEBUG_LOG \
+#define LOG_DEBUG \
         std::lock_guard<std::mutex>{vlog::lock_log}, vlog::DEBUG()
 
-#define EVENT_LOG \
+#define LOG_EVENT \
         std::lock_guard<std::mutex>{vlog::lock_log}, vlog::EVENT()
 
-#define FLUSH_LOG \
+#define LOG_FLUSH \
         std::lock_guard<std::mutex>{vlog::lock_log}, vlog::FLUSH()
 
 // logs are redirected to the 'logWindow'. You can control it using category and subcategory
 
-#define WARNING_LOG_C(category, subcategory) \
+#define LOG_WARNING_C(category, subcategory) \
         std::lock_guard<std::mutex>{vlog::lock_log}, vlog::WARNING(category, subcategory)
 
-#define INFO_LOG_C(category, subcategory) \
+#define LOG_INFO_C(category, subcategory) \
         std::lock_guard<std::mutex>{vlog::lock_log}, vlog::INFO(category, subcategory)
 
-#define ERROR_LOG_C(category, subcategory) \
+#define LOG_ERROR_C(category, subcategory) \
         std::lock_guard<std::mutex>{vlog::lock_log}, vlog::ERROR(category, subcategory)
 
-#define DEBUG_LOG_C(category, subcategory) \
+#define LOG_DEBUG_C(category, subcategory) \
         std::lock_guard<std::mutex>{vlog::lock_log}, vlog::DEBUG(category, subcategory)
 
-#define EVENT_LOG_C(category, subcategory) \
+#define LOG_EVENT_C(category, subcategory) \
         std::lock_guard<std::mutex>{vlog::lock_log}, vlog::EVENT(category, subcategory)
 
-#define FLUSH_LOG_C(category, subcategory) \
+#define LOG_FLUSH_C(category, subcategory) \
         std::lock_guard<std::mutex>{vlog::lock_log}, vlog::FLUSH(category, subcategory)
 }

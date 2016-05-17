@@ -95,7 +95,7 @@ SSH::SSH(std::string host, int port, std::string username, std::string password,
     ssh_options_set(SSH_session, SSH_OPTIONS_LOG_VERBOSITY, &verbosity);
 
     if(printOutput)
-        EVENT_LOG_C(category, subcategory) << boost::format("    SSH to %1%@%2% at port %3% \n") % username % host % port << std::flush;
+        LOG_EVENT_C(category, subcategory) << boost::format("    SSH to %1%@%2% at port %3% \n") % username % host % port << std::flush;
 
     int rc = ssh_connect(SSH_session);
     if (rc != SSH_OK)
@@ -117,21 +117,21 @@ SSH::SSH(std::string host, int port, std::string username, std::string password,
     if(printOutput)
     {
         // get the protocol version of the session
-        EVENT_LOG_C(category, subcategory) << boost::format("    SSH version is %1% \n") % ssh_get_version(SSH_session);
+        LOG_EVENT_C(category, subcategory) << boost::format("    SSH version is %1% \n") % ssh_get_version(SSH_session);
 
         // get the server banner
-        EVENT_LOG_C(category, subcategory) << boost::format("    Server banner is %1% \n") % ssh_get_serverbanner(SSH_session);
+        LOG_EVENT_C(category, subcategory) << boost::format("    Server banner is %1% \n") % ssh_get_serverbanner(SSH_session);
 
         // get issue banner
         char *str = ssh_get_issue_banner(SSH_session);
         if(str)
-            EVENT_LOG_C(category, subcategory) << boost::format("    Issue banner is %1% \n") % str % ssh_get_serverbanner(SSH_session);
+            LOG_EVENT_C(category, subcategory) << boost::format("    Issue banner is %1% \n") % str % ssh_get_serverbanner(SSH_session);
 
-        EVENT_LOG_C(category, subcategory) << std::flush;
+        LOG_EVENT_C(category, subcategory) << std::flush;
     }
 
     if(printOutput)
-        EVENT_LOG_C(category, subcategory) << boost::format("    Authenticating ... Please wait \n") << std::flush;
+        LOG_EVENT_C(category, subcategory) << boost::format("    Authenticating ... Please wait \n") << std::flush;
 
     authenticate(password);
 
@@ -155,7 +155,7 @@ void SSH::checkHost(std::string host, bool printOutput)
     this->dev_hostIP = IPAddress;
 
     if(printOutput)
-        EVENT_LOG_C(category, subcategory) << "    Pinging " << IPAddress << "\n" << std::flush;
+        LOG_EVENT_C(category, subcategory) << "    Pinging " << IPAddress << "\n" << std::flush;
 
     // test if IPAdd is alive?
     std::string cmd = "ping -c 1 -s 1 " + std::string(IPAddress) + " > /dev/null 2>&1";

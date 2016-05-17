@@ -102,7 +102,7 @@ void AddMobileNode::receiveSignal(omnetpp::cComponent *source, omnetpp::simsigna
 
 void AddMobileNode::beginLoading()
 {
-    DEBUG_LOG << "\n>>> AddMobileNode is adding nodes to the simulation ... \n" << std::flush;
+    LOG_DEBUG << "\n>>> AddMobileNode is adding nodes to the simulation ... \n" << std::flush;
 
     // create a map of functions
     typedef void (AddMobileNode::*pfunc)(void);
@@ -133,7 +133,7 @@ void AddMobileNode::beginLoading()
     pfunc f = i->second;
     (this->*f)();
 
-    DEBUG_LOG << "\n>>> AddMobileNode is done adding nodes. Here is a summary: \n" << std::flush;
+    LOG_DEBUG << "\n>>> AddMobileNode is done adding nodes. Here is a summary: \n" << std::flush;
     printLoadedStatistics();
 }
 
@@ -145,29 +145,29 @@ void AddMobileNode::printLoadedStatistics()
     //###################################
 
     std::list<std::string> loadedRouteList = TraCI->routeGetIDList();
-    DEBUG_LOG << boost::format("  %1% routes are loaded: \n      ") % loadedRouteList.size();
+    LOG_DEBUG << boost::format("  %1% routes are loaded: \n      ") % loadedRouteList.size();
     for(std::string route : loadedRouteList)
-        DEBUG_LOG << boost::format("%1%, ") % route;
+        LOG_DEBUG << boost::format("%1%, ") % route;
 
-    DEBUG_LOG << "\n";
+    LOG_DEBUG << "\n";
 
     //##################################
     // Get the list of all vehicle types
     //##################################
 
     std::list<std::string> loadedVehTypeList = TraCI->vehicleTypeGetIDList();
-    DEBUG_LOG << boost::format("  %1% vehicle/bike types are loaded: \n      ") % loadedVehTypeList.size();
+    LOG_DEBUG << boost::format("  %1% vehicle/bike types are loaded: \n      ") % loadedVehTypeList.size();
     for(std::string type : loadedVehTypeList)
-        DEBUG_LOG << boost::format("%1%, ") % type;
+        LOG_DEBUG << boost::format("%1%, ") % type;
 
-    DEBUG_LOG << "\n";
+    LOG_DEBUG << "\n";
 
     //#############################
     // Get the list of all vehicles
     //#############################
 
     std::list<std::string> loadedVehList = TraCI->simulationGetLoadedVehiclesIDList();
-    DEBUG_LOG << boost::format("  %1% vehicles/bikes are loaded: \n") % loadedVehList.size();
+    LOG_DEBUG << boost::format("  %1% vehicles/bikes are loaded: \n") % loadedVehList.size();
     // get vehicle/bike type distribution
     std::list<std::string> loadedVehType;
     for(std::string vehID : loadedVehList)
@@ -181,10 +181,10 @@ void AddMobileNode::printLoadedStatistics()
     for(std::string type : loadedVehTypeListUnique)
     {
         int count = std::count(loadedVehType.begin(), loadedVehType.end(), type);
-        DEBUG_LOG << boost::format("      %1% nodes are added of type \"%2%\" \n") % count % type;
+        LOG_DEBUG << boost::format("      %1% nodes are added of type \"%2%\" \n") % count % type;
     }
 
-    DEBUG_LOG << "\n";
+    LOG_DEBUG << "\n";
 
     // get route distribution
     std::list<std::string> loadedVehRoute;
@@ -199,10 +199,10 @@ void AddMobileNode::printLoadedStatistics()
     for(std::string route : loadedVehRouteListUnique)
     {
         int count = std::count(loadedVehRoute.begin(), loadedVehRoute.end(), route);
-        DEBUG_LOG << boost::format("      %1% nodes have route \"%2%\" \n") % count % route;
+        LOG_DEBUG << boost::format("      %1% nodes have route \"%2%\" \n") % count % route;
     }
 
-    FLUSH_LOG;
+    LOG_FLUSH;
 }
 
 

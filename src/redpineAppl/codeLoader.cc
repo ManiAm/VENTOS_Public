@@ -195,7 +195,7 @@ void codeLoader::make_connection()
 
         workers.push_back(std::thread([=]() {  // pass by value
 
-            EVENT_LOG_C(host, "default") << boost::format("===[ Connecting to %1% ... ]=== \n\n") % host << std::flush;
+            LOG_EVENT_C(host, "default") << boost::format("===[ Connecting to %1% ... ]=== \n\n") % host << std::flush;
 
             // create SSH connection to the dev
             SSH_Helper *board = new SSH_Helper(host, port, username, password, true, host, "default");
@@ -207,7 +207,7 @@ void codeLoader::make_connection()
             }
 
             // adding a new line to improve readability
-            EVENT_LOG_C(board->getHostName(), "default") << "\n" << std::flush;
+            LOG_EVENT_C(board->getHostName(), "default") << "\n" << std::flush;
 
         }));
     }
@@ -259,15 +259,15 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
     {
         ssh_channel rebootShell = board->openShell("rebootShell");  // open a shell
 
-        EVENT_LOG_C(board->getHostName(), "default") << "===[ Re-booting device ... Please wait ]=== \n\n" << std::flush;
+        LOG_EVENT_C(board->getHostName(), "default") << "===[ Re-booting device ... Please wait ]=== \n\n" << std::flush;
 
         double duration_ms = board->rebootDev(rebootShell, 40000 /*max waiting time*/);
         board->closeShell(rebootShell);  // close the shell
 
-        EVENT_LOG_C(board->getHostName(), "default") << boost::format("===[ Device is up and running! Boot time ~ %1% seconds ]=== \n\n") % (duration_ms / 1000.) << std::flush;
+        LOG_EVENT_C(board->getHostName(), "default") << boost::format("===[ Device is up and running! Boot time ~ %1% seconds ]=== \n\n") % (duration_ms / 1000.) << std::flush;
 
         // previous SSH connection is lost. Re-connect to the dev
-        EVENT_LOG_C(board->getHostName(), "default") << boost::format("===[ Reconnecting to %1% ... ]=== \n\n") % board->getHostName() << std::flush;
+        LOG_EVENT_C(board->getHostName(), "default") << boost::format("===[ Reconnecting to %1% ... ]=== \n\n") % board->getHostName() << std::flush;
         board = new SSH_Helper(board->getHostName(), board->getPort(), board->getUsername(), board->getPassword(), false, board->getHostName(), "default");
         ASSERT(board);
     }
@@ -282,7 +282,7 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
 
     boost::filesystem::path script_FullPath = redpineAppl_FullPath / initScriptName;
 
-    EVENT_LOG_C(board->getHostName(), "default") << boost::format("===[ Copying the init script to %1% ... ]=== \n\n") % remoteDir_Driver << std::flush;
+    LOG_EVENT_C(board->getHostName(), "default") << boost::format("===[ Copying the init script to %1% ... ]=== \n\n") % remoteDir_Driver << std::flush;
 
     // read file contents into a string
     std::ifstream ifs(script_FullPath.c_str());
@@ -303,7 +303,7 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
     // Step 2: copying new/modified source codes to remoteDir_SourceCode
     //##################################################################
 
-    EVENT_LOG_C(board->getHostName(), "default") << boost::format("===[ Syncing source codes with %1% ... ]=== \n\n") % remoteDir_SourceCode << std::flush;
+    LOG_EVENT_C(board->getHostName(), "default") << boost::format("===[ Syncing source codes with %1% ... ]=== \n\n") % remoteDir_SourceCode << std::flush;
 
     board->createDir(remoteDir_SourceCode);  // create a directory to store all our source codes
 
@@ -319,7 +319,7 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
     if(applName == "")
         throw omnetpp::cRuntimeError("applName is empty!");
 
-    EVENT_LOG_C(board->getHostName(), "default") << boost::format("===[ Compiling application %1% ... ]=== \n\n") % applName << std::flush;
+    LOG_EVENT_C(board->getHostName(), "default") << boost::format("===[ Compiling application %1% ... ]=== \n\n") % applName << std::flush;
 
     board->run_command_blocking(shell1, "cd " + (remoteDir_SourceCode / "sampleAppl").string());
     board->run_command_blocking(shell1, "make " + applName, true, board->getHostName());
@@ -328,7 +328,7 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
     // Step 4: remotely run the script in the remoteDir_Driver
     //########################################################
 
-    EVENT_LOG_C(board->getHostName(), "default") << boost::format("===[ Running the init script %1% ... ]=== \n\n") % initScriptName << std::flush;
+    LOG_EVENT_C(board->getHostName(), "default") << boost::format("===[ Running the init script %1% ... ]=== \n\n") % initScriptName << std::flush;
 
     board->run_command_blocking(shell1, "cd " + remoteDir_Driver.string());
     board->run_command_blocking(shell1, "sudo ./" + initScriptName, true, board->getHostName());
@@ -337,7 +337,7 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
     // Step 5: remotely start 1609 stack in WAVE mode
     //###############################################
 
-    EVENT_LOG_C(board->getHostName(), "default") << "===[ Start 1609 stack in WAVE mode ... ]=== \n\n" << std::flush;
+    LOG_EVENT_C(board->getHostName(), "default") << "===[ Start 1609 stack in WAVE mode ... ]=== \n\n" << std::flush;
 
     board->run_command_blocking(shell1, "cd " + remoteDir_Driver.string());
     board->run_command_nonblocking(shell1, "if ! pgrep rsi_1609 > /dev/null; then sudo ./rsi_1609; fi", true, board->getHostName());
@@ -349,7 +349,7 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
     // Step 6: remotely run the code
     //##############################
 
-    EVENT_LOG_C(board->getHostName(), "shell2") << boost::format("===[ Running application %1% ... ]=== \n\n") % applName << std::flush;
+    LOG_EVENT_C(board->getHostName(), "shell2") << boost::format("===[ Running application %1% ... ]=== \n\n") % applName << std::flush;
 
     board->run_command_blocking(shell2, "cd " + (remoteDir_SourceCode / "sampleAppl").string());
     board->run_command_nonblocking(shell2, "sudo ./" + applName, true, board->getHostName(), "shell2");

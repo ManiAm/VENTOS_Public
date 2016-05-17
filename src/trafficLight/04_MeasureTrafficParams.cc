@@ -189,14 +189,14 @@ void MeasureTrafficParams::CheckDetectors()
             AD_queue[lane] = it;
     }
 
-    INFO_LOG << boost::format("\n>>> %1% loop detectors are added out of which: \n") % str.size();
-    INFO_LOG << boost::format("  %1% are demand loop detectors \n") % LD_demand.size();
-    INFO_LOG << boost::format("  %1% are actuated loop detectors \n") % LD_actuated.size();
+    LOG_INFO << boost::format("\n>>> %1% loop detectors are added out of which: \n") % str.size();
+    LOG_INFO << boost::format("  %1% are demand loop detectors \n") % LD_demand.size();
+    LOG_INFO << boost::format("  %1% are actuated loop detectors \n") % LD_actuated.size();
 
-    INFO_LOG << boost::format("\n>>> %1% area detectors are added out of which: \n") % str2.size();
-    INFO_LOG << boost::format("  %1% are used for queue measurement \n") % AD_queue.size();
+    LOG_INFO << boost::format("\n>>> %1% area detectors are added out of which: \n") % str2.size();
+    LOG_INFO << boost::format("  %1% are used for queue measurement \n") % AD_queue.size();
 
-    FLUSH_LOG;
+    LOG_FLUSH;
 
     // make sure we have all detectors we need
     for (auto &it : TLList)
@@ -219,15 +219,15 @@ void MeasureTrafficParams::CheckDetectors()
 
             // traffic-actuated TSC needs one actuated LD on each incoming lane
             if( TLControlMode == TL_TrafficActuated && LD_actuated.find(lane) == LD_actuated.end() )
-                WARNING_LOG << boost::format("WARNING: no loop detector found on lane (%1%). No actuation is available for this lane. \n") % lane;
+                LOG_WARNING << boost::format("WARNING: no loop detector found on lane (%1%). No actuation is available for this lane. \n") % lane;
 
             // if we are measuring queue length then make sure we have an area detector in each lane
             if( measureIntersectionQueue && AD_queue.find(lane) == AD_queue.end() )
-                WARNING_LOG << boost::format("WARNING: no area detector found on lane (%1%). No queue measurement is available for this lane. \n") % lane;
+                LOG_WARNING << boost::format("WARNING: no area detector found on lane (%1%). No queue measurement is available for this lane. \n") % lane;
 
             // if we are measuring traffic demand using loop detectors then make sure we have an LD on each lane
             if( measureTrafficDemand && LD_demand.find(lane) == LD_demand.end() )
-                WARNING_LOG << boost::format("WARNING: no loop detector found on lane (%1%). No traffic demand measurement is available for this lane. \n") % lane;
+                LOG_WARNING << boost::format("WARNING: no loop detector found on lane (%1%). No traffic demand measurement is available for this lane. \n") % lane;
         }
     }
 }
@@ -436,7 +436,7 @@ void MeasureTrafficParams::updateTrafficDemand()
                 (location->second).clear();
             }
 
-            DEBUG_LOG << boost::format(">>> Traffic demand measurement restarted for lane %1% \n\n ") % lane << std::flush;
+            LOG_DEBUG << boost::format(">>> Traffic demand measurement restarted for lane %1% \n\n ") % lane << std::flush;
         }
 
         if(TD != 0)

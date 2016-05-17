@@ -231,7 +231,7 @@ std::string SSH_Helper::run_command(ssh_channel SSH_channel, std::string command
                     boost::replace_all(cOutput, "\r\n", "\n");
                     boost::replace_all(cOutput, "\n", "\n    ");  // add indentation to the rest of the lines
 
-                    EVENT_LOG_C(category, subcategory) << cOutput << std::flush;
+                    LOG_EVENT_C(category, subcategory) << cOutput << std::flush;
                 }
 
                 // save output
@@ -248,7 +248,7 @@ std::string SSH_Helper::run_command(ssh_channel SSH_channel, std::string command
 
         // add two new lines for readability
         if(printOutput)
-            EVENT_LOG_C(category, subcategory) << "\n\n" << std::flush;
+            LOG_EVENT_C(category, subcategory) << "\n\n" << std::flush;
 
         // last command failed
         if(returnCode == 2)
@@ -261,7 +261,7 @@ std::string SSH_Helper::run_command(ssh_channel SSH_channel, std::string command
                 boost::replace_all(command_output, "\r\n", "\n");
                 boost::replace_all(command_output, "\n", "\n    ");
 
-                EVENT_LOG_C(category, subcategory) << command_output << " \n\n" << std::flush;
+                LOG_EVENT_C(category, subcategory) << command_output << " \n\n" << std::flush;
             }
 
             // let the user know

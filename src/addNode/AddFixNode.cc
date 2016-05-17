@@ -105,7 +105,7 @@ void AddFixNode::beginLoading()
     int numAdversary = par("numAdversary").longValue();
 
     if(numRSUs > 0 || numCA > 0 || numAdversary > 0)
-        DEBUG_LOG << "\n>>> AddFixNode is adding nodes to the simulation ... \n" << std::flush;
+        LOG_DEBUG << "\n>>> AddFixNode is adding nodes to the simulation ... \n" << std::flush;
 
     if(numRSUs > 0)
         addRSU(numRSUs);
@@ -118,7 +118,7 @@ void AddFixNode::beginLoading()
 
     if(numRSUs > 0 || numCA > 0 || numAdversary > 0)
     {
-        DEBUG_LOG << "\n>>> AddFixNode is done adding nodes. Here is a summary: \n" << std::flush;
+        LOG_DEBUG << "\n>>> AddFixNode is done adding nodes. Here is a summary: \n" << std::flush;
         printLoadedStatistics();
     }
 }
@@ -132,7 +132,7 @@ void AddFixNode::printLoadedStatistics()
     {
         // how many RSUs are in the network?
         int RSUcount = module->getVectorSize();
-        DEBUG_LOG << boost::format("  %1% RSU modules are added: ") % RSUcount;
+        LOG_DEBUG << boost::format("  %1% RSU modules are added: ") % RSUcount;
 
         // iterate over modules
         for(int i = 0; i < RSUcount; ++i)
@@ -147,10 +147,10 @@ void AddFixNode::printLoadedStatistics()
             cModule *appl =  module->getSubmodule("appl");
             std::string SUMOID = appl->par("SUMOID").stringValue();
 
-            DEBUG_LOG << boost::format("%1% %2%, ") % fullId % SUMOID;
+            LOG_DEBUG << boost::format("%1% %2%, ") % fullId % SUMOID;
         }
 
-        DEBUG_LOG << "\n";
+        LOG_DEBUG << "\n";
     }
 
     // get a pointer to the first Adversary
@@ -159,7 +159,7 @@ void AddFixNode::printLoadedStatistics()
     {
         // how many Adversaries are in the network?
         int advCount = module->getVectorSize();
-        DEBUG_LOG << boost::format("  %1% adversary modules are added: ") % advCount;
+        LOG_DEBUG << boost::format("  %1% adversary modules are added: ") % advCount;
 
         // iterate over modules
         for(int i = 0; i < advCount; ++i)
@@ -173,7 +173,7 @@ void AddFixNode::printLoadedStatistics()
             printf("%s, ", fullId.c_str());
         }
 
-        DEBUG_LOG << "\n";
+        LOG_DEBUG << "\n";
     }
 
     // get a pointer to the first CA
@@ -182,7 +182,7 @@ void AddFixNode::printLoadedStatistics()
     {
         // how many Adversaries are in the network?
         int CACount = module->getVectorSize();
-        DEBUG_LOG << boost::format("  %1% CA modules are added: ") % CACount;
+        LOG_DEBUG << boost::format("  %1% CA modules are added: ") % CACount;
 
         // iterate over modules
         for(int i = 0; i < CACount; ++i)
@@ -193,13 +193,13 @@ void AddFixNode::printLoadedStatistics()
             // get OMNET id
             std::string fullId = module->getFullName();
 
-            DEBUG_LOG << boost::format("%s, ") % fullId;
+            LOG_DEBUG << boost::format("%s, ") % fullId;
         }
 
-        DEBUG_LOG << "\n";
+        LOG_DEBUG << "\n";
     }
 
-    FLUSH_LOG;
+    LOG_FLUSH;
 }
 
 

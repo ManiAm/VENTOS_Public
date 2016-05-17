@@ -65,7 +65,7 @@ int TraCIConnection::startServer(std::string SUMOexe, std::string SUMOconfig, st
         seed = atoi(seed_s);
     }
 
-    INFO_LOG << boost::format("\n>>> Starting SUMO TraCI server on port %1% with seed %2% ... \n") % port % seed << std::flush;
+    LOG_INFO << boost::format("\n>>> Starting SUMO TraCI server on port %1% with seed %2% ... \n") % port % seed << std::flush;
 
     // assemble commandLine
     std::ostringstream commandLine;
@@ -183,9 +183,9 @@ void TraCIConnection::TraCILauncher(std::string commandLine)
     }
     else
     {
-        INFO_LOG << boost::format("  Parent PID %1% \n") % getpid();
-        INFO_LOG << boost::format("  Child  PID %1% \n") % child_pid;
-        FLUSH_LOG;
+        LOG_INFO << boost::format("  Parent PID %1% \n") % getpid();
+        LOG_INFO << boost::format("  Child  PID %1% \n") % child_pid;
+        LOG_FLUSH;
     }
 
 #endif
@@ -194,7 +194,7 @@ void TraCIConnection::TraCILauncher(std::string commandLine)
 
 TraCIConnection* TraCIConnection::connect(const char* host, int port)
 {
-    INFO_LOG << boost::format("\n>>> Connecting to TraCI server on port %1% ... \n") % port << std::flush;
+    LOG_INFO << boost::format("\n>>> Connecting to TraCI server on port %1% ... \n") % port << std::flush;
 
     if (initsocketlibonce() != 0)
         throw omnetpp::cRuntimeError("Could not init socketlib");
@@ -236,7 +236,7 @@ TraCIConnection* TraCIConnection::connect(const char* host, int port)
 
         int sleepDuration = tries * .25 + 1;
 
-        INFO_LOG << boost::format("  Could not connect to the TraCI server: %1% -- retry in %2% seconds. \n") % strerror(sock_errno()) % sleepDuration << std::flush;
+        LOG_INFO << boost::format("  Could not connect to the TraCI server: %1% -- retry in %2% seconds. \n") % strerror(sock_errno()) % sleepDuration << std::flush;
 
         std::this_thread::sleep_for(std::chrono::seconds(sleepDuration));
     }
@@ -408,7 +408,7 @@ std::string makeTraCICommand(uint8_t commandId, const TraCIBuffer& buf)
 
 void TraCIConnection::terminateSimulation(std::string err)
 {
-    ERROR_LOG << "\n" << err << std::flush;
+    LOG_ERROR << "\n" << err << std::flush;
 
     // get a pointer to TraCI module
     omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
