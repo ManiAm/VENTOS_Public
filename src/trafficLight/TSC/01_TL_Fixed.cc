@@ -71,7 +71,7 @@ void TrafficLightFixed::initialize_withTraCI()
     if (TLControlMode != TL_Fix_Time)
         return;
 
-    std::cout << std::endl << "Fixed-time traffic signal control ... " << std::endl << std::endl;
+    LOG_INFO << "\nFixed-time traffic signal control ... \n" << std::flush;
 
     for (auto &TL : TLList)
     {

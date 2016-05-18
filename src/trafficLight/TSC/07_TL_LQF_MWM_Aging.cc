@@ -113,10 +113,10 @@ void TrafficLight_LQF_MWM_Aging::initialize_withTraCI()
     if(TLControlMode != TL_LQF_MWM_Aging)
         return;
 
-    std::cout << std::endl << "Multi-class LQF-MWM-Aging traffic signal control ..." << std::endl << std::endl;
+    LOG_INFO << "\nMulti-class LQF-MWM-Aging traffic signal control ... \n" << std::flush;
 
     // find the RSU module that controls this TL
-    findRSU("C");
+    RSUptr = findRSU("C");
 
     // make sure RSUptr is pointing to our corresponding RSU
     ASSERT(RSUptr);
@@ -141,13 +141,8 @@ void TrafficLight_LQF_MWM_Aging::initialize_withTraCI()
         updateTLstate(TL, "init", currentInterval);
     }
 
-    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 0)
-    {
-        char buff[300];
-        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", omnetpp::simTime().dbl(), currentInterval.c_str(), omnetpp::simTime().dbl(), omnetpp::simTime().dbl() + intervalDuration);
-        std::cout << std::endl << buff << std::endl << std::endl;
-        std::cout.flush();
-    }
+    LOG_DEBUG << boost::format("\nSimTime: %1% | Planned interval: %2% | Start time: %1% | End time: %3% \n")
+    % omnetpp::simTime().dbl() % currentInterval % (omnetpp::simTime().dbl() + intervalDuration) << std::flush;
 }
 
 
@@ -158,6 +153,14 @@ void TrafficLight_LQF_MWM_Aging::executeEachTimeStep()
 
     if(TLControlMode != TL_LQF_MWM_Aging)
         return;
+
+    // todo: delate later
+    for(auto &p : vehDelay)
+    {
+        if(p.second.vehType == "bicycle")
+            std::cout << boost::format("%1% (%2%) \n") % p.first % p.second.waitingDelay;
+    }
+    std::cout.flush();
 }
 
 
@@ -200,13 +203,8 @@ void TrafficLight_LQF_MWM_Aging::chooseNextInterval()
     else
         chooseNextGreenInterval();
 
-    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 0)
-    {
-        char buff[300];
-        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", omnetpp::simTime().dbl(), currentInterval.c_str(), omnetpp::simTime().dbl(), omnetpp::simTime().dbl() + intervalDuration);
-        std::cout << buff << std::endl << std::endl;
-        std::cout.flush();
-    }
+    LOG_DEBUG << boost::format("\nSimTime: %1% | Planned interval: %2% | Start time: %1% | End time: %3% \n")
+    % omnetpp::simTime().dbl() % currentInterval % (omnetpp::simTime().dbl() + intervalDuration) << std::flush;
 }
 
 
@@ -220,13 +218,11 @@ void TrafficLight_LQF_MWM_Aging::chooseNextGreenInterval()
 
     // batch of all non-conflicting movements, sorted by total weight + oneCount per batch
     std::priority_queue< sortedEntryLQF /*type of each element*/, std::vector<sortedEntryLQF> /*container*/, sortCompareLQF > sortedMovements;
-
     // clear the priority queue
     sortedMovements = std::priority_queue < sortedEntryLQF, std::vector<sortedEntryLQF>, sortCompareLQF >();
 
-    // maximum delay in each phase
+    // second priority queue to sort the maximum delay in each phase
     std::priority_queue< sortedEntryDelayLQF, std::vector<sortedEntryDelayLQF>, CompareDelay > maxDelayPerPhase;
-
     // clear the priority queue
     maxDelayPerPhase = std::priority_queue< sortedEntryDelayLQF, std::vector<sortedEntryDelayLQF>, CompareDelay > ();
 
@@ -280,7 +276,7 @@ void TrafficLight_LQF_MWM_Aging::chooseNextGreenInterval()
                             // max delay in this movement
                             auto ii = vehDelay.find(vID);
                             if(ii != vehDelay.end())
-                                maxDelay = std::max(maxDelay, ii->second.accumDelay);  // todo: should we consider waiting time only?
+                                maxDelay = std::max(maxDelay, ii->second.waitingDelay);  // todo: should we consider waiting time only?
                         }
                     }
                 }
@@ -296,7 +292,7 @@ void TrafficLight_LQF_MWM_Aging::chooseNextGreenInterval()
         sortedEntryLQF *entry = new sortedEntryLQF(totalWeight, oneCount, maxVehCount, phase);
         sortedMovements.push(*entry);
 
-        // add this batch of movements to priority_queue
+        // add this batch of movements to the second priority_queue
         sortedEntryDelayLQF *entry2 = new sortedEntryDelayLQF(totalWeight, oneCount, maxVehCount, maxDelay, phase);
         maxDelayPerPhase.push(*entry2);
     }
@@ -304,29 +300,22 @@ void TrafficLight_LQF_MWM_Aging::chooseNextGreenInterval()
     // get the movement batch with the highest weight + delay + oneCount
     sortedEntryLQF bestChoice = sortedMovements.top();
 
-    // bestChoice selects the phase with the highest total weight.
+    // bestChoice is the phase with the highest total weight, but not necessarily the longest delay.
     // We need to check the max delay in each phase too!
     sortedEntryLQF finalChoice = bestChoice;
-    bool found = false;
+    double maxDelay = 0;
     while(!maxDelayPerPhase.empty())
     {
-        double maxDelay = maxDelayPerPhase.top().maxDelay;
-        // do we exceed 'max delay' in a phase?
-        if(!found && maxDelay + yellowTime + redTime > 20)
+        maxDelay = maxDelayPerPhase.top().maxDelay;
+
+        // todo: delete later
+        LOG_DEBUG << maxDelay << "\n" << std::flush;
+
+        // do we exceed the 'max delay = 20s' in a phase?
+        if(maxDelay + yellowTime + redTime > 20)
         {
             finalChoice = maxDelayPerPhase.top();
-            found = true;
-        }
-
-        if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 1)
-        {
-            printf("Max delay in phase %s is %0.2f \n", maxDelayPerPhase.top().phase.c_str(), maxDelay);
-
-            // todo
-            // max delay in this movement
-            auto ii = vehDelay.find("bike1");
-            if(ii != vehDelay.end())
-                std::cout << "bike delay is " << ii->second.accumDelay << std::endl;
+            break;
         }
 
         maxDelayPerPhase.pop();
@@ -337,28 +326,26 @@ void TrafficLight_LQF_MWM_Aging::chooseNextGreenInterval()
     double greenTime = (double)maxVehCount * (minGreenTime / 5.);
     nextGreenTime = std::min(std::max(greenTime, minGreenTime), maxGreenTime);  // bound green time
 
-    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 1)
+    if(LOG_ACTIVE(DEBUG_LOG_VAL))
     {
-        printf("\n");
-
         if(bestChoice.phase == finalChoice.phase)
-        {
-            printf("The following phase has the highest totalWeight out of %lu phases: \n", phases.size());
-        }
+            LOG_DEBUG << boost::format("\nThe following phase has the highest totalWeight out of %1% phases: \n") % phases.size();
         else
         {
-            printf("Phase %s will not be scheduled! \n", bestChoice.phase.c_str());
-            printf("Max delay in phase %s exceeds %ds \n", finalChoice.phase.c_str(), 20);
+            LOG_DEBUG << boost::format("\nPhase %1% will not be scheduled! \n") % bestChoice.phase;
+            LOG_DEBUG << boost::format("Max delay= %1% in phase %2% exceeds %3%s \n") % maxDelay % finalChoice.phase % 20;
+
+            LOG_DEBUG << "Bikes delay are: ";
+            for(auto &p : vehDelay)
+            {
+                if(p.second.vehType == "bicycle")
+                    LOG_DEBUG << boost::format("%1% (%2%), ") % p.first % p.second.accumDelay;
+            }
+            LOG_DEBUG << "\n";
         }
 
-        printf("phase= %s", finalChoice.phase.c_str());
-        printf(", maxVehCount= %d", finalChoice.maxVehCount);
-        printf(", totalWeight= %0.2f", finalChoice.totalWeight);
-        printf(", oneCount= %d", finalChoice.oneCount);
-        printf(", green= %0.2fs \n", nextGreenTime);
-
-        std::cout << std::endl;
-        std::cout.flush();
+        LOG_DEBUG << boost::format("phase= %1%, maxVehCount= %2%, totalWeight= %3%, oneCount= %4%, green= %5% \n")
+        % finalChoice.phase % finalChoice.maxVehCount % finalChoice.totalWeight % finalChoice.oneCount % nextGreenTime << std::flush;
     }
 
     // this will be the next green interval
@@ -391,11 +378,7 @@ void TrafficLight_LQF_MWM_Aging::chooseNextGreenInterval()
     else
     {
         intervalDuration = nextGreenTime;
-        if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 0)
-        {
-            std::cout << ">>> Continue the last green interval." << std::endl << std::endl;
-            std::cout.flush();
-        }
+        LOG_DEBUG << ">>> Continue the last green interval. \n" << std::flush;
     }
 }
 

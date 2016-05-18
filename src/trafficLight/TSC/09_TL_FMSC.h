@@ -49,6 +49,7 @@ class TrafficLight_FMSC : public TrafficLight_LQF_MWM_Cycle
 
   private:
     typedef TrafficLight_LQF_MWM_Cycle super;
+    ApplRSUMonitor *RSUptr = NULL;
     double nextGreenTime;
 };
 

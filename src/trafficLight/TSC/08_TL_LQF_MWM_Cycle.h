@@ -50,6 +50,7 @@ private:
 
 private:
     typedef TrafficLight_LQF_MWM_Aging super;
+    ApplRSUMonitor *RSUptr;
     std::vector<greenIntervalInfo_LQF> greenInterval;
     bool nextGreenIsNewCycle;
 };

@@ -52,9 +52,6 @@ void TrafficLightBase::initialize(int stage)
         updateInterval = TraCI->par("updateInterval").doubleValue();
         TLControlMode = par("TLControlMode").longValue();
         debugLevel = omnetpp::getSimulation()->getSystemModule()->par("debugLevel").longValue();
-
-        // initialize RSUptr with NULL
-        RSUptr = NULL;
     }
 }
 
@@ -84,7 +81,7 @@ void TrafficLightBase::executeEachTimeStep()
 }
 
 
-void TrafficLightBase::findRSU(std::string TLid)
+ApplRSUMonitor * TrafficLightBase::findRSU(std::string TLid)
 {
     // get a pointer to the first RSU
     cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("RSU", 0);
@@ -96,6 +93,7 @@ void TrafficLightBase::findRSU(std::string TLid)
 
     // iterate over RSUs
     bool found = false;
+    ApplRSUMonitor *RSUptr = NULL;
     for(int i = 0; i < RSUcount; ++i)
     {
         module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("RSU", i);
@@ -116,7 +114,8 @@ void TrafficLightBase::findRSU(std::string TLid)
 
     if(!found)
         throw omnetpp::cRuntimeError("TL %s does not have any RSU!", TLid.c_str());
-}
 
+    return RSUptr;
+}
 
 }

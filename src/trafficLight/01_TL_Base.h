@@ -49,11 +49,10 @@ public:
 protected:
     virtual void initialize_withTraCI();
     virtual void executeEachTimeStep();
-    void findRSU(std::string);
+    ApplRSUMonitor * findRSU(std::string);
 
 protected:
     TraCI_Commands *TraCI;
-    ApplRSUMonitor *RSUptr;
 
     int TLControlMode;
     int debugLevel;

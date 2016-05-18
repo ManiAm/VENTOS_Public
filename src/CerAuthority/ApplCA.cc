@@ -242,14 +242,14 @@ std::vector<std::string> ApplCA::NOerasure(std::ostringstream &CRLbytes)
 
     LOG_DEBUG << boost::format("    This means that each segment has maximum of %1% bytes. \n") % n;
 
-    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && false)
+    if(LOG_ACTIVE(DEBUG_LOG_VAL) && false)
     {
         for(unsigned long i=0; i<len; i++)
         {
             std::cout << (unsigned int)CRLbytes.str().at(i) << " ";
 
             if(i != 0 && (i+1)%n == 0)
-                std::cout << "  -   ";
+                LOG_DEBUG << "  -   ";
         }
     }
 

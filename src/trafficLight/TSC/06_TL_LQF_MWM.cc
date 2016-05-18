@@ -85,10 +85,10 @@ void TrafficLight_LQF_MWM::initialize_withTraCI()
     if(TLControlMode != TL_LQF_MWM)
         return;
 
-    std::cout << std::endl << "Multi-class LQF-MWM traffic signal control ..." << std::endl << std::endl;
+    LOG_INFO << "\nMulti-class LQF-MWM traffic signal control ... \n" << std::flush;
 
     // find the RSU module that controls this TL
-    findRSU("C");
+    RSUptr = findRSU("C");
 
     // make sure RSUptr is pointing to our corresponding RSU
     ASSERT(RSUptr);
@@ -113,13 +113,8 @@ void TrafficLight_LQF_MWM::initialize_withTraCI()
         updateTLstate(TL, "init", currentInterval);
     }
 
-    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 0)
-    {
-        char buff[300];
-        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", omnetpp::simTime().dbl(), currentInterval.c_str(), omnetpp::simTime().dbl(), omnetpp::simTime().dbl() + intervalDuration);
-        std::cout << std::endl << buff << std::endl << std::endl;
-        std::cout.flush();
-    }
+    LOG_DEBUG << boost::format("\nSimTime: %1% | Planned interval: %2% | Start time: %1% | End time: %3% \n")
+    % omnetpp::simTime().dbl() % currentInterval % (omnetpp::simTime().dbl() + intervalDuration) << std::flush;
 }
 
 
@@ -172,13 +167,8 @@ void TrafficLight_LQF_MWM::chooseNextInterval()
     else
         chooseNextGreenInterval();
 
-    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 0)
-    {
-        char buff[300];
-        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", omnetpp::simTime().dbl(), currentInterval.c_str(), omnetpp::simTime().dbl(), omnetpp::simTime().dbl() + intervalDuration);
-        std::cout << buff << std::endl << std::endl;
-        std::cout.flush();
-    }
+    LOG_DEBUG << boost::format("\nSimTime: %1% | Planned interval: %2% | Start time: %1% | End time: %3% \n")
+    % omnetpp::simTime().dbl() % currentInterval % (omnetpp::simTime().dbl() + intervalDuration) << std::flush;
 }
 
 
@@ -192,7 +182,6 @@ void TrafficLight_LQF_MWM::chooseNextGreenInterval()
 
     // batch of all non-conflicting movements, sorted by total weight + oneCount per batch
     std::priority_queue< sortedEntryLQF /*type of each element*/, std::vector<sortedEntryLQF> /*container*/, sortCompareLQF > sortedMovements;
-
     // clear the priority queue
     sortedMovements = std::priority_queue < sortedEntryLQF, std::vector<sortedEntryLQF>, sortCompareLQF >();
 

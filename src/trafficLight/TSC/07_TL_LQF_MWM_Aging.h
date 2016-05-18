@@ -50,6 +50,7 @@ private:
 
 private:
     typedef TrafficLight_LQF_MWM super;
+    ApplRSUMonitor *RSUptr = NULL;
     double nextGreenTime;
 };
 

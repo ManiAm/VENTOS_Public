@@ -160,7 +160,7 @@ void TrafficLightLQF_NoStarv::initialize_withTraCI()
     if(TLControlMode != TL_LQF)
         return;
 
-    std::cout << std::endl << "Longest Queue traffic signal control ..." << std::endl << std::endl;
+    LOG_INFO << "\nLongest Queue traffic signal control ... \n" << std::flush;
 
     // get all non-conflicting movements in allMovements vector
     TrafficLightAllowedMoves::getMovements("C");
@@ -186,13 +186,8 @@ void TrafficLightLQF_NoStarv::initialize_withTraCI()
         updateTLstate(TL, "init", currentInterval);
     }
 
-    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 0)
-    {
-        char buff[300];
-        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", omnetpp::simTime().dbl(), currentInterval.c_str(), omnetpp::simTime().dbl(), omnetpp::simTime().dbl() + intervalDuration);
-        std::cout << buff << std::endl << std::endl;
-        std::cout.flush();
-    }
+    LOG_DEBUG << boost::format("\nSimTime: %1% | Planned interval: %2% | Start time: %1% | End time: %3% \n")
+    % omnetpp::simTime().dbl() % currentInterval % (omnetpp::simTime().dbl() + intervalDuration) << std::flush;
 }
 
 
@@ -327,7 +322,6 @@ void TrafficLightLQF_NoStarv::calculatePhases(std::string TLid)
 
     // batch of all non-conflicting movements, sorted by total queue size per batch
     std::priority_queue< sortedEntryQ /*type of each element*/, std::vector<sortedEntryQ> /*container*/, sortCompareQ > sortedMovements;
-
     // clear the priority queue
     sortedMovements = std::priority_queue < sortedEntryQ, std::vector<sortedEntryQ>, sortCompareQ >();
 

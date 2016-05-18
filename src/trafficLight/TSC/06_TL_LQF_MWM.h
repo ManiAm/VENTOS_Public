@@ -119,6 +119,7 @@ protected:
 
 private:
     typedef TrafficLightOJF super;
+    ApplRSUMonitor *RSUptr = NULL;
     double nextGreenTime;
 };
 
