@@ -276,32 +276,9 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
     ssh_channel shell1 = board->openShell("shell1", true);
     ssh_channel shell2 = board->openShell("shell2", true);
 
-    //#################################################
-    // Step 1: copy the init script to remoteDir_Driver
-    //#################################################
-
-    boost::filesystem::path script_FullPath = redpineAppl_FullPath / initScriptName;
-
-    LOG_EVENT_C(board->getHostName(), "default") << boost::format("===[ Copying the init script to %1% ... ]=== \n\n") % remoteDir_Driver << std::flush;
-
-    // read file contents into a string
-    std::ifstream ifs(script_FullPath.c_str());
-    std::string content( (std::istreambuf_iterator<char>(ifs) ),
-            (std::istreambuf_iterator<char>()    ) );
-
-    // get a pointer to the dev class
-    dev *devPtr = static_cast<dev *>(module);
-    ASSERT(devPtr);
-
-    // ask dev to substitute its parameters in the init script
-    devPtr->substituteParams(content);
-
-    // do the copying
-    board->copyFileStr_SFTP(initScriptName, content, remoteDir_Driver);
-
-    //##################################################################
-    // Step 2: copying new/modified source codes to remoteDir_SourceCode
-    //##################################################################
+    //##########################################################
+    // copying new/modified source codes to remoteDir_SourceCode
+    //##########################################################
 
     LOG_EVENT_C(board->getHostName(), "default") << boost::format("===[ Syncing source codes with %1% ... ]=== \n\n") % remoteDir_SourceCode << std::flush;
 
@@ -311,9 +288,9 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
     board->syncDir(redpineAppl_FullPath / "sampleAppl", remoteDir_SourceCode); // copy local folder 'sampleAppl'
     board->syncDir(redpineAppl_FullPath / "libs", remoteDir_SourceCode); // create local folder 'libs'
 
-    //##################################
-    // Step 3: remotely compile the code
-    //##################################
+    //##########################
+    // remotely compile the code
+    //##########################
 
     std::string applName = module->par("applName").stringValue();
     if(applName == "")
@@ -324,30 +301,56 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
     board->run_command_blocking(shell1, "cd " + (remoteDir_SourceCode / "sampleAppl").string());
     board->run_command_blocking(shell1, "make " + applName, true, board->getHostName());
 
-    //########################################################
-    // Step 4: remotely run the script in the remoteDir_Driver
-    //########################################################
+    if(module->par("loadDriver").boolValue())
+    {
+        //#########################################
+        // copy the init script to remoteDir_Driver
+        //#########################################
 
-    LOG_EVENT_C(board->getHostName(), "default") << boost::format("===[ Running the init script %1% ... ]=== \n\n") % initScriptName << std::flush;
+        boost::filesystem::path script_FullPath = redpineAppl_FullPath / initScriptName;
 
-    board->run_command_blocking(shell1, "cd " + remoteDir_Driver.string());
-    board->run_command_blocking(shell1, "sudo ./" + initScriptName, true, board->getHostName());
+        LOG_EVENT_C(board->getHostName(), "default") << boost::format("===[ Copying the init script to %1% ... ]=== \n\n") % remoteDir_Driver << std::flush;
 
-    //###############################################
-    // Step 5: remotely start 1609 stack in WAVE mode
-    //###############################################
+        // read file contents into a string
+        std::ifstream ifs(script_FullPath.c_str());
+        std::string content( (std::istreambuf_iterator<char>(ifs) ),
+                (std::istreambuf_iterator<char>()    ) );
 
-    LOG_EVENT_C(board->getHostName(), "default") << "===[ Start 1609 stack in WAVE mode ... ]=== \n\n" << std::flush;
+        // get a pointer to the dev class
+        dev *devPtr = static_cast<dev *>(module);
+        ASSERT(devPtr);
 
-    board->run_command_blocking(shell1, "cd " + remoteDir_Driver.string());
-    board->run_command_nonblocking(shell1, "if ! pgrep rsi_1609 > /dev/null; then sudo ./rsi_1609; fi", true, board->getHostName());
+        // ask dev to substitute its parameters in the init script
+        devPtr->substituteParams(content);
 
-    // put the main thread to sleep -- let the last non-blocking command to run for a while
-    std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+        // do the copying
+        board->copyFileStr_SFTP(initScriptName, content, remoteDir_Driver);
 
-    //##############################
-    // Step 6: remotely run the code
-    //##############################
+        //################################################
+        // remotely run the script in the remoteDir_Driver
+        //################################################
+
+        LOG_EVENT_C(board->getHostName(), "default") << boost::format("===[ Running the init script %1% ... ]=== \n\n") % initScriptName << std::flush;
+
+        board->run_command_blocking(shell1, "cd " + remoteDir_Driver.string());
+        board->run_command_blocking(shell1, "sudo ./" + initScriptName, true, board->getHostName());
+
+        //#######################################
+        // remotely start 1609 stack in WAVE mode
+        //#######################################
+
+        LOG_EVENT_C(board->getHostName(), "default") << "===[ Start 1609 stack in WAVE mode ... ]=== \n\n" << std::flush;
+
+        board->run_command_blocking(shell1, "cd " + remoteDir_Driver.string());
+        board->run_command_nonblocking(shell1, "if ! pgrep rsi_1609 > /dev/null; then sudo ./rsi_1609; fi", true, board->getHostName());
+
+        // put the main thread to sleep -- let the last non-blocking command to run for a while
+        std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+    }
+
+    //######################
+    // remotely run the code
+    //######################
 
     LOG_EVENT_C(board->getHostName(), "shell2") << boost::format("===[ Running application %1% ... ]=== \n\n") % applName << std::flush;
 
