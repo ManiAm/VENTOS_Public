@@ -26,6 +26,7 @@
 //
 
 #include <01_Ethernet.h>
+#include "vlog.h"
 #include <fstream>
 #include <thread>
 #include <chrono>
@@ -126,7 +127,8 @@ void Ethernet::executeEachTimestep()
     {
         initSniffing();
 
-        // launch a thread to do the sniffing
+        // launch a thread to do the sniffing.
+        // the captured frames are pushed into the framesQueue vector
         std::thread t1(&Ethernet::startSniffing, this);
         t1.detach();
 
@@ -134,7 +136,7 @@ void Ethernet::executeEachTimestep()
     }
 
     {
-        std::lock_guard<std::mutex> lock(theLock);
+        std::lock_guard<std::mutex> lock(vectorLock);
 
         if(!framesQueue.empty())
         {
@@ -148,7 +150,7 @@ void Ethernet::executeEachTimestep()
 
 void Ethernet::listInterfaces()
 {
-    std::cout << std::endl << ">>> List of all interfaces on this machine: " << std::endl;
+    LOG_INFO << "\n>>> List of all interfaces on this machine: \n\n";
 
     char errbuf[PCAP_ERRBUF_SIZE];
     pcap_if_t *alldevs;
@@ -158,7 +160,7 @@ void Ethernet::listInterfaces()
     /* iterate over all devices */
     for(pcap_if_t *dev = alldevs; dev != NULL; dev = dev->next)
     {
-        printf("Interface: %-15s", dev->name);
+        LOG_INFO << boost::format("Interface: %|-15|") % dev->name;
 
         /* check if the device captureble*/
         for (pcap_addr_t *dev_addr = dev->addresses; dev_addr != NULL; dev_addr = dev_addr->next)
@@ -167,7 +169,7 @@ void Ethernet::listInterfaces()
             {
                 uint32_t netAdd = ( (struct sockaddr_in *)(dev_addr->addr) )->sin_addr.s_addr;
                 uint32_t netMask = ( (struct sockaddr_in *)(dev_addr->netmask) )->sin_addr.s_addr;
-                printf("Address: %-16s  NetMask: %-16s", IPaddrTostr(netAdd).c_str(), IPaddrTostr(netMask).c_str());
+                LOG_INFO << boost::format("Address: %|-16|  NetMask: %|-16|") % IPaddrTostr(netAdd) % IPaddrTostr(netMask);
 
                 // add interface information
                 devDesc *des = new devDesc(netAdd, netMask);
@@ -178,14 +180,14 @@ void Ethernet::listInterfaces()
         }
 
         if (dev->description)
-            printf("%-40s", dev->description);
+            LOG_INFO << boost::format("%|-40|") % dev->description;
         else
-            printf("%-40s", "No description available");
+            LOG_INFO << boost::format("%|-40|") % "No description available";
 
-        printf("\n");
+        LOG_INFO << "\n";
     }
 
-    printf("\n");
+    LOG_INFO << "\n" << std::flush;
 
     pcap_freealldevs(alldevs);
 
@@ -321,7 +323,7 @@ std::string Ethernet::OUITostr(const u_int8_t MACaddr[])
 }
 
 
-// very useful information: http://pcap.man.potaroo.net/
+// useful information: http://pcap.man.potaroo.net/
 void Ethernet::initSniffing()
 {
     // check if interface is valid!
@@ -329,8 +331,7 @@ void Ethernet::initSniffing()
     if(iterfacePtr == allDev.end())
         throw omnetpp::cRuntimeError("%s is not capturable!", interface.c_str());
 
-    printf(">>> Capturing started on %s with filter \"%s\" ...\n", interface.c_str(), filter_exp.c_str());
-    std::cout.flush();
+    LOG_INFO << boost::format(">>> Capturing started on %1% with filter \"%2%\" ...\n") % interface % filter_exp << std::flush;
 
     // if something happens, place error string here
     char errbuf[PCAP_ERRBUF_SIZE];
@@ -411,7 +412,7 @@ void Ethernet::startSniffing()
         }
         else if(res == 1)
         {
-            std::lock_guard<std::mutex> lock(theLock);
+            std::lock_guard<std::mutex> lock(vectorLock);
             framesQueue.push_back( std::make_pair(header,pkt_data) );
         }
 
@@ -427,13 +428,9 @@ void Ethernet::startSniffing()
             if(pcap_stats(pcap_handle, &stat) < 0)
                 throw omnetpp::cRuntimeError("Error setting the mode");
 
-            // if either changed
+            // print if any changes detected!
             if(stat.ps_recv != old_received || stat.ps_drop != old_dropped || old_timeOut != timeOutCount || framesQueue.size() != old_buffSize)
-            {
-                printf("\n");
-                printf("received: %u, dropped: %u, timeOut: %lu, in buffer: %lu \n", stat.ps_recv, stat.ps_drop, timeOutCount, framesQueue.size());
-                std::cout.flush();
-            }
+                LOG_INFO << boost::format("\nreceived: %1%, dropped: %2%, timeOut: %3%, in buffer: %4% \n") % stat.ps_recv % stat.ps_drop % timeOutCount % framesQueue.size();
 
             old_received = stat.ps_recv;
             old_dropped  = stat.ps_drop;

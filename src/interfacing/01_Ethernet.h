@@ -116,7 +116,7 @@ private:
     omnetpp::simsignal_t Signal_initialize_withTraCI;
     omnetpp::simsignal_t Signal_executeEachTS;
     pcap_t *pcap_handle = NULL;
-    std::mutex theLock;
+    std::mutex vectorLock;
 
     std::map<std::string, devDesc> allDev;
     std::map<std::string, std::string> OUI;
