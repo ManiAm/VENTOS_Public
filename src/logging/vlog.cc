@@ -145,14 +145,18 @@ void vlog::FLUSH(std::string category, std::string subcategory)
 }
 
 
-bool vlog::logActive()
+bool vlog::ISLOGACTIVE(uint8_t userLogLevel)
+{
+    objPtr->logActive(userLogLevel);
+}
+
+
+bool vlog::logActive(uint8_t userLogLevel)
 {
     if( logRecordCMD || omnetpp::cSimulation::getActiveEnvir()->isGUI() )
     {
-        if( (systemLogLevel & lastLogLevel) != 0 )
-        {
+        if( (systemLogLevel & userLogLevel) != 0 )
             return true;
-        }
     }
 
     return false;
@@ -161,7 +165,7 @@ bool vlog::logActive()
 
 vlog& vlog::setLog(uint8_t logLevel, std::string category, std::string subcategory)
 {
-    if(!logActive())
+    if(!logActive(lastLogLevel))
         return *this;
 
     if(category == "")

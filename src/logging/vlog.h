@@ -48,7 +48,7 @@ public:
     template<typename T>
     vlog& operator << (const T& inv)
     {
-        if(logActive())
+        if(logActive(lastLogLevel))
         {
             if(lastCategory == "std::cout")
                 std::cout << inv;
@@ -66,7 +66,7 @@ public:
     // overloading the << operator to accept std::endl and std::flush
     vlog& operator << (std::ostream& (*pf) (std::ostream&))
     {
-        if(logActive())
+        if(logActive(lastLogLevel))
         {
             if(lastCategory == "std::cout")
                 std::cout << pf;
@@ -90,9 +90,10 @@ public:
     static vlog& DEBUG(std::string category = "std::cout", std::string subcategory = "default");
     static vlog& EVENT(std::string category = "std::cout", std::string subcategory = "default");
     static void FLUSH(std::string category = "std::cout", std::string subcategory = "default");
+    static bool ISLOGACTIVE(uint8_t);
 
 private:
-    bool logActive();
+    bool logActive(uint8_t);
     vlog& setLog(uint8_t logLevel, std::string cat, std::string subcat);
     void start_TCP_client();
     void sendToLogWindow(std::string);

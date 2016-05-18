@@ -43,6 +43,10 @@ enum logWindowCMD
 #define   ALL_LOG_VAL       0b11111111
 #define   NO_LOG_VAL        0b00000000
 
+// check if a particular logLevel is active?
+#define LOG_ACTIVE(logLevel) \
+        std::lock_guard<std::mutex>{vlog::lock_log}, vlog::ISLOGACTIVE(logLevel)
+
 // logs are redirected to the standard output stream (std::cout)
 
 #define LOG_WARNING \
