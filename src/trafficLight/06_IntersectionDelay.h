@@ -45,6 +45,10 @@ public:
     double startStopping;
     double startAccel;
     double endDelay;
+
+    // delay components
+    double decelDelay;
+    double waitingDelay;
     double accumDelay;
 
     // temporary buffers for storing last speed/accel/signal
@@ -54,7 +58,7 @@ public:
     boost::circular_buffer<char> lastSignals;
 
     delayEntry(std::string str0, std::string str1, std::string str2, double d0, bool b1, double d1,
-            double d2, double d3, double d4, double d5, double d6, double d7,
+            double d2, double d3, double d4, double d5, double d6, double d7, double d8, double d9,
             boost::circular_buffer<std::pair<double,double>> CB_speed,
             boost::circular_buffer<std::pair<double,double>> CB_speed2,
             boost::circular_buffer<std::pair<double,double>> CB_accel,
@@ -71,7 +75,10 @@ public:
         this->startStopping = d4;
         this->startAccel = d5;
         this->endDelay = d6;
-        this->accumDelay = d7;
+
+        this->waitingDelay = d7;
+        this->waitingDelay = d8;
+        this->accumDelay = d9;
 
         this->lastSpeeds = CB_speed;
         this->lastSpeeds2 = CB_speed2;
@@ -95,8 +102,8 @@ protected:
 
 private:
     void vehiclesDelay();
-    void vehiclesDelayEach(std::string);
-    void vehiclesAccuDelay(std::string, std::map<std::string, delayEntry>::iterator);
+    void vehiclesDelayStart(std::string);
+    void vehiclesDelayDuration(std::string);
     void vehiclesDelayToFile();
 
 protected:

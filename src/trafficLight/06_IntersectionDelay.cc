@@ -146,18 +146,20 @@ void IntersectionDelay::vehiclesDelay()
                 CB_sig.clear();
 
                 delayEntry *entry = new delayEntry(vehType, "" /*TLid*/, "" /*lastLane*/, -1 /*entrance*/, false /*crossed?*/, -1 /*crossedT*/,
-                        -1 /*old speed*/, -1 /*startDeccel*/, -1 /*startStopping*/, -1 /*startAccel*/, -1 /*endDelay*/, 0 /*accumulated delay so far*/,
+                        -1 /*old speed*/, -1 /*startDeccel*/, -1 /*startStopping*/, -1 /*startAccel*/, -1 /*endDelay*/,
+                        0 /*decel delay*/, 0 /*waiting delay*/, 0 /*accumulated delay so far*/,
                         CB_speed, CB_speed2, CB_accel, CB_sig);
                 vehDelay.insert( std::make_pair(vID, *entry) );
             }
 
-            vehiclesDelayEach(vID);
+            vehiclesDelayStart(vID);
+            vehiclesDelayDuration(vID);
         }
     }
 }
 
 
-void IntersectionDelay::vehiclesDelayEach(std::string vID)
+void IntersectionDelay::vehiclesDelayStart(std::string vID)
 {
     // get a pointer to the vehicle
     auto loc = vehDelay.find(vID);
@@ -281,9 +283,6 @@ void IntersectionDelay::vehiclesDelayEach(std::string vID)
         else return;
     }
 
-    // update accumulated delay for this vehicle
-    vehiclesAccuDelay(vID, loc);
-
     double stoppingDelayThreshold = 0;
     if(loc->second.vehType == "bicycle")
         stoppingDelayThreshold = bikeStoppingDelayThreshold;
@@ -358,18 +357,42 @@ void IntersectionDelay::vehiclesDelayEach(std::string vID)
 }
 
 
-void IntersectionDelay::vehiclesAccuDelay(std::string vID, std::map<std::string, delayEntry>::iterator loc)
+void IntersectionDelay::vehiclesDelayDuration(std::string vID)
 {
+    // get a pointer to the vehicle
+    auto loc = vehDelay.find(vID);
+
+    if(loc->second.startDeccel == -1)
+        return;
+
     // as long as the vehicle does not cross the intersection
     if(!loc->second.crossedIntersection)
     {
+        // update deceleration delay duration
+        if(loc->second.startStopping != -1)
+            loc->second.decelDelay = loc->second.startStopping - loc->second.startDeccel;
+        else if(loc->second.startAccel != -1)
+            loc->second.decelDelay = loc->second.startAccel - loc->second.startDeccel;
+        else
+            loc->second.decelDelay = omnetpp::simTime().dbl() - loc->second.startDeccel;
+        if(loc->second.decelDelay < 0 || loc->second.decelDelay > omnetpp::simTime().dbl())
+            throw omnetpp::cRuntimeError("deceleration delay value is incorrect for vehicle %s", vID.c_str());
+
+        // update waiting delay duration
+        if(loc->second.startStopping != -1)
+        {
+            if(loc->second.startAccel != -1)
+                loc->second.waitingDelay = loc->second.startAccel - loc->second.startStopping;
+            else
+                loc->second.waitingDelay = omnetpp::simTime().dbl() - loc->second.startStopping;
+            if(loc->second.waitingDelay < 0 || loc->second.waitingDelay > omnetpp::simTime().dbl())
+                throw omnetpp::cRuntimeError("waiting delay value is incorrect for vehicle %s", vID.c_str());
+        }
+
+        // update accumulated delay duration
         loc->second.accumDelay = omnetpp::simTime().dbl() - loc->second.startDeccel;
-
-        if(loc->second.accumDelay < 0)
-            throw omnetpp::cRuntimeError("accumulated delay can not be negative for vehicle %s", vID.c_str());
-
-        if(loc->second.accumDelay > omnetpp::simTime().dbl())
-            throw omnetpp::cRuntimeError("accumulated delay can not be greater than the current simTime for vehicle %s", vID.c_str());
+        if(loc->second.accumDelay < 0 || loc->second.accumDelay > omnetpp::simTime().dbl())
+            throw omnetpp::cRuntimeError("accumulated delay value is incorrect for vehicle %s", vID.c_str());
 
         // update accumDelay of this vehicle in laneDelay
         auto loc2 = laneDelay[loc->second.lastLane].find(vID);
@@ -391,9 +414,11 @@ void IntersectionDelay::vehiclesAccuDelay(std::string vID, std::map<std::string,
                 (*loc3).second = loc->second.accumDelay;
         }
     }
-    // as soon as the vehicle crossed the intersection, we set accumulated delay to zero
+    // as soon as the vehicle crossed the intersection, we reset the delays
     else
     {
+        loc->second.decelDelay = 0;
+        loc->second.waitingDelay = 0;
         loc->second.accumDelay = 0;
 
         // remove the vehicle from laneDelay (if exists)
