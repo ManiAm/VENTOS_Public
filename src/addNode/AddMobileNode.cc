@@ -133,8 +133,11 @@ void AddMobileNode::beginLoading()
     pfunc f = i->second;
     (this->*f)();
 
-    LOG_DEBUG << "\n>>> AddMobileNode is done adding nodes. Here is a summary: \n" << std::flush;
-    printLoadedStatistics();
+    if(LOG_ACTIVE(DEBUG_LOG_VAL))
+    {
+        LOG_DEBUG << "\n>>> AddMobileNode is done adding nodes. Here is a summary: \n" << std::flush;
+        printLoadedStatistics();
+    }
 }
 
 

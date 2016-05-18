@@ -116,7 +116,7 @@ void AddFixNode::beginLoading()
     if(numAdversary > 0)
         addAdversary(numAdversary);
 
-    if(numRSUs > 0 || numCA > 0 || numAdversary > 0)
+    if( LOG_ACTIVE(DEBUG_LOG_VAL) & (numRSUs > 0 || numCA > 0 || numAdversary > 0) )
     {
         LOG_DEBUG << "\n>>> AddFixNode is done adding nodes. Here is a summary: \n" << std::flush;
         printLoadedStatistics();
