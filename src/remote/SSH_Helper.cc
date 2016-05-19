@@ -47,7 +47,7 @@ SSH_Helper::~SSH_Helper()
 
 // constructor
 SSH_Helper::SSH_Helper(std::string host, int port, std::string username, std::string password, bool printOutput, std::string cat, std::string sub) :
-                                SSH(host, port, username, password, printOutput, cat, sub)
+                                                                                SSH(host, port, username, password, printOutput, cat, sub)
 {
     active_threads = 0;
     terminating = false;
@@ -164,7 +164,7 @@ std::string SSH_Helper::run_command(ssh_channel SSH_channel, std::string command
 
         // run the command in shell
         char buffer[1000];
-        int nbytes = sprintf (buffer, "%s ; echo $? ; echo %s \n", command.c_str(), EOCMD);
+        int nbytes = sprintf (buffer, "%s ; echo ""; echo $? ; echo %s \n", command.c_str(), EOCMD);
         int nwritten = ssh_channel_write(SSH_channel, buffer, nbytes);
         if (nwritten != nbytes)
             throw omnetpp::cRuntimeError("SSH error in writing command to shell");
@@ -177,9 +177,9 @@ std::string SSH_Helper::run_command(ssh_channel SSH_channel, std::string command
 
         // read the output from remote shell
         char buffer[1000];
-        bool identFirstLine = false;
         int returnCode = 2;  // default return code is error
         int numEOF = 0;
+        bool removeFirstLine = false;
         while (ssh_channel_is_open(SSH_channel) && !ssh_channel_is_eof(SSH_channel) && !terminating)
         {
             int nbytes = 0;
@@ -212,34 +212,49 @@ std::string SSH_Helper::run_command(ssh_channel SSH_channel, std::string command
                 // reset numEOF
                 numEOF = 0;
 
+                // get the current output
+                std::string cOutput = "";
+                for (int ii = 0; ii < nbytes; ii++)
+                    cOutput += static_cast<char>(buffer[ii]);
+                // and append it to previous output
+                command_output += cOutput;
+
+                // tokenize all lines in the command_output
+                // todo: is this efficient?
+                std::istringstream inputStr(command_output);
+                std::string line = "";
+                std::vector<std::string> tokens;
+                while(std::getline(inputStr, line))
+                    tokens.push_back(line);
+
                 // print what we have received so far in buffer
                 if(printOutput)
                 {
-                    std::string cOutput = "";
-                    for (int ii = 0; ii < nbytes; ii++)
-                        cOutput += static_cast<char>(buffer[ii]);
-
-                    // add indentation to the first line
-                    if(!identFirstLine)
+                    // remove the first line of output
+                    if(!removeFirstLine)
                     {
-                        cOutput = "    " + cOutput;
-                        identFirstLine = true;
+                        // wait for at least two lines
+                        if(tokens.size() >= 2)
+                        {
+                            // ignore the first line (tokens[0]) and
+                            // print the remaining lines
+                            for(unsigned int h = 1; h < tokens.size(); h++)
+                                LOG_EVENT_C(category, subcategory) << tokens[h];
+
+                            LOG_FLUSH_C(category, subcategory);
+
+                            removeFirstLine = true;
+                        }
                     }
-
-                    // substituting all \r\n with \n
-                    // Windows = CR LF, Linux = LF, MAC < 0SX = CR
-                    boost::replace_all(cOutput, "\r\n", "\n");
-                    boost::replace_all(cOutput, "\n", "\n    ");  // add indentation to the rest of the lines
-
-                    LOG_EVENT_C(category, subcategory) << cOutput << std::flush;
+                    else
+                    {
+                        LOG_EVENT_C(category, subcategory) << cOutput;
+                        LOG_FLUSH_C(category, subcategory);
+                    }
                 }
 
-                // save output
-                for (int ii = 0; ii < nbytes; ii++)
-                    command_output += static_cast<char>(buffer[ii]);
-
                 // monitor command output and look for EOCMD
-                returnCode = isFinished(command_output);  // todo: make it more efficient? we test the whole command_output every timeh;
+                returnCode = isFinished(tokens);
 
                 if(returnCode == 1 || returnCode == 2)
                     break;
@@ -287,19 +302,12 @@ std::string SSH_Helper::run_command(ssh_channel SSH_channel, std::string command
 // 0: command is still running
 // 1: command execution is finished without error
 // 2: command execution is finished with error
-int SSH_Helper::isFinished(std::string multiLineStr)
+int SSH_Helper::isFinished(std::vector<std::string>& tokens)
 {
-    // tokenize all lines
-    std::istringstream inputStr(multiLineStr);
-    std::string line = "";
-    std::vector<std::string> tokens;
-    while(std::getline(inputStr, line))
-        tokens.push_back(line);
-
     if(tokens.size() <= 1)
         return 0;
 
-    // note: start parsing tokens vector from the second entry!
+    // start parsing tokens vector from the second entry!
     for(unsigned int ii = 1; ii < tokens.size(); ii++)
     {
         std::size_t pos = tokens[ii].find(EOCMD);

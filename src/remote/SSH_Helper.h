@@ -54,7 +54,7 @@ public:
 
 private:
     std::string run_command(ssh_channel, std::string, bool, bool, std::string, std::string);
-    int isFinished(std::string);
+    int isFinished(std::vector<std::string> &);
 
 private:
     typedef std::chrono::high_resolution_clock::time_point Htime_t;
