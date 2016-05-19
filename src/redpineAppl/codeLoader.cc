@@ -364,6 +364,33 @@ void codeLoader::init_test(cModule *module, SSH_Helper *board)
     ASSERT(module);
     ASSERT(board);
 
+
+
+    boost::filesystem::path script_FullPath = redpineAppl_FullPath / "testScript";
+
+    LOG_EVENT_C(board->getHostName(), "default") << boost::format("===[ Copying the init script to %1% ... ]=== \n\n") % "/home/" << std::flush;
+
+    // read file contents into a string
+    std::ifstream ifs(script_FullPath.c_str());
+    std::string content( (std::istreambuf_iterator<char>(ifs) ),
+            (std::istreambuf_iterator<char>()    ) );
+
+    // do the copying
+    board->copyFileStr_SFTP("testScript", content, "/home/rubinet");
+
+
+
+
+
+    LOG_EVENT_C(board->getHostName(), "default") << boost::format("===[ Running the init script %1% ... ]=== \n\n") % "testScript" << std::flush;
+
+    ssh_channel shell1 = board->openShell("shell1", true);
+    board->run_command_blocking(shell1, "cd /home/rubinet");
+    board->run_command_blocking(shell1, "./testScript", true, board->getHostName());
+
+
+
+
     //ssh_channel shell1 = board->openShell("shell1", true);
 
     //board->run_command(shell1, "[[ $- == *i* ]] && echo 'Interactive' || echo 'Not interactive'", 5, true);
