@@ -148,7 +148,7 @@ void TrafficLight_LQF_MWM_Cycle::initialize_withTraCI()
         updateTLstate(TL, "init", currentInterval);
     }
 
-    LOG_DEBUG << boost::format("\nSimTime: %1% | Planned interval: %2% | Start time: %1% | End time: %3% \n")
+    LOG_DEBUG << boost::format("\n    SimTime: %1% | Planned interval: %2% | Start time: %1% | End time: %3% \n")
     % omnetpp::simTime().dbl() % currentInterval % (omnetpp::simTime().dbl() + intervalDuration) << std::flush;
 }
 
@@ -204,7 +204,7 @@ void TrafficLight_LQF_MWM_Cycle::chooseNextInterval()
     else
         chooseNextGreenInterval();
 
-    LOG_DEBUG << boost::format("\nSimTime: %1% | Planned interval: %2% | Start time: %1% | End time: %3% \n")
+    LOG_DEBUG << boost::format("\n    SimTime: %1% | Planned interval: %2% | Start time: %1% | End time: %3% \n")
     % omnetpp::simTime().dbl() % currentInterval % (omnetpp::simTime().dbl() + intervalDuration) << std::flush;
 }
 
@@ -245,6 +245,8 @@ void TrafficLight_LQF_MWM_Cycle::chooseNextGreenInterval()
 
 void TrafficLight_LQF_MWM_Cycle::calculatePhases(std::string TLid)
 {
+    LOG_DEBUG << "\n>>> New cycle calculation ... \n" << std::flush;
+
     // get all incoming lanes for this TL only
     std::map<std::string /*lane*/, laneInfoEntry> laneInfo = RSUptr->laneInfo;
 
@@ -370,24 +372,23 @@ void TrafficLight_LQF_MWM_Cycle::calculatePhases(std::string TLid)
     greenInterval.erase( rme, greenInterval.end() );
     int newSize = greenInterval.size();
     if(oldSize != newSize)
-        LOG_DEBUG << ">>> " << oldSize - newSize << " phase(s) removed due to zero queue size! \n\n" << std::flush;
+        LOG_DEBUG << "\n    " << oldSize - newSize << " phase(s) removed due to zero queue size! \n" << std::flush;
 
     // make sure the green splits are bounded
     for (auto &i : greenInterval)
         i.greenTime = std::min(std::max(i.greenTime, minGreenTime), maxGreenTime);
 
-    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 1)
+    if(LOG_ACTIVE(DEBUG_LOG_VAL))
     {
-        std::cout << "Selected green intervals for this cycle: " << std::endl;
+        LOG_DEBUG << "\n    Selected green intervals for this cycle: \n";
         for (auto &i : greenInterval)
-            std::cout << "movement: " << i.greenString
+            LOG_DEBUG << "        movement: " << i.greenString
             << ", maxVehCount= " << i.maxVehCount
             << ", totalWeight= " << i.totalWeight
             << ", oneCount= " << i.oneCount
-            << ", green= " << i.greenTime << "s" << std::endl;
+            << ", green= " << i.greenTime << "s \n";
 
-        std::cout << std::endl;
-        std::cout.flush();
+        LOG_FLUSH;
     }
 }
 

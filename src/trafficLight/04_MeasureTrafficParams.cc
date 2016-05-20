@@ -436,7 +436,7 @@ void MeasureTrafficParams::updateTrafficDemand()
                 (location->second).clear();
             }
 
-            LOG_DEBUG << boost::format(">>> Traffic demand measurement restarted for lane %1% \n\n ") % lane << std::flush;
+            LOG_DEBUG << boost::format("\n>>> Traffic demand measurement restarted for lane %1% \n") % lane << std::flush;
         }
 
         if(TD != 0)

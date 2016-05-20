@@ -186,7 +186,7 @@ void TrafficLightLQF_NoStarv::initialize_withTraCI()
         updateTLstate(TL, "init", currentInterval);
     }
 
-    LOG_DEBUG << boost::format("\nSimTime: %1% | Planned interval: %2% | Start time: %1% | End time: %3% \n")
+    LOG_DEBUG << boost::format("\n    SimTime: %1% | Planned interval: %2% | Start time: %1% | End time: %3% \n")
     % omnetpp::simTime().dbl() % currentInterval % (omnetpp::simTime().dbl() + intervalDuration) << std::flush;
 }
 
@@ -242,13 +242,8 @@ void TrafficLightLQF_NoStarv::chooseNextInterval()
     else
         chooseNextGreenInterval();
 
-    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 0)
-    {
-        char buff[300];
-        sprintf(buff, "SimTime: %4.2f | Planned interval: %s | Start time: %4.2f | End time: %4.2f", omnetpp::simTime().dbl(), currentInterval.c_str(), omnetpp::simTime().dbl(), omnetpp::simTime().dbl() + intervalDuration);
-        std::cout << buff << std::endl << std::endl;
-        std::cout.flush();
-    }
+    LOG_DEBUG << boost::format("\n    SimTime: %1% | Planned interval: %2% | Start time: %1% | End time: %3% \n")
+    % omnetpp::simTime().dbl() % currentInterval % (omnetpp::simTime().dbl() + intervalDuration) << std::flush;
 }
 
 
@@ -294,12 +289,7 @@ void TrafficLightLQF_NoStarv::chooseNextGreenInterval()
     else
     {
         intervalDuration = greenInterval.front().greenTime;
-
-        if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 0)
-        {
-            std::cout << ">>> Continue the last green interval." << std::endl << std::endl;
-            std::cout.flush();
-        }
+        LOG_DEBUG << ">>> Continue the last green interval. \n\n" << std::flush;
     }
 }
 
@@ -307,17 +297,19 @@ void TrafficLightLQF_NoStarv::chooseNextGreenInterval()
 // calculate all phases (up to 4)
 void TrafficLightLQF_NoStarv::calculatePhases(std::string TLid)
 {
-    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 1)
+    LOG_DEBUG << "\n>>> New cycle calculation ... \n" << std::flush;
+
+    if(LOG_ACTIVE(DEBUG_LOG_VAL))
     {
-        std::cout << "Queue size per lane: ";
+        LOG_DEBUG << "\n    Queue size per lane: ";
         for(auto& entry : laneQueueSize)
         {
             std::string lane = entry.first;
             int qSize = entry.second.second;
             if(qSize != 0)
-                std::cout << lane << " (" << qSize << ") | ";
+                LOG_DEBUG << lane << " (" << qSize << ") | ";
         }
-        std::cout << std::endl << std::endl;
+        LOG_DEBUG << "\n";
     }
 
     // batch of all non-conflicting movements, sorted by total queue size per batch
@@ -436,26 +428,20 @@ void TrafficLightLQF_NoStarv::calculatePhases(std::string TLid)
         throw omnetpp::cRuntimeError("cycle contains %d phases which is more than 4!", greenInterval.size());
 
     int newSize = greenInterval.size();
-    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 1 && oldSize != newSize)
-    {
-        std::cout << ">>> " << oldSize - newSize << " phase(s) removed due to zero queue size!" << std::endl << std::endl;
-        std::cout.flush();
-    }
+    if(oldSize != newSize)
+        LOG_DEBUG << "\n    " << oldSize - newSize << " phase(s) removed due to zero queue size! \n" << std::flush;
 
     // make sure the green splits are bounded
     for (auto &i : greenInterval)
         i.greenTime = std::min(std::max(i.greenTime, minGreenTime), maxGreenTime);
 
-    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 1)
+    if(LOG_ACTIVE(DEBUG_LOG_VAL))
     {
-        std::cout << "Selected green intervals for this cycle: " << std::endl;
+        LOG_DEBUG << "\n    Selected green intervals for this cycle: \n";
         for (auto &i : greenInterval)
-            std::cout << "Movement " << i.greenString
-            << " with maxVehCount of " << i.maxVehCount
-            << " for " << i.greenTime << "s" << std::endl;
+            LOG_DEBUG << boost::format("        Movement %1% with maxVehCount of %2% for %3%s \n") % i.greenString % i.maxVehCount % i.greenTime;
 
-        std::cout << std::endl;
-        std::cout.flush();
+        LOG_FLUSH;
     }
 }
 

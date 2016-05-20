@@ -167,13 +167,15 @@ void TrafficLight_LQF_MWM::chooseNextInterval()
     else
         chooseNextGreenInterval();
 
-    LOG_DEBUG << boost::format("\nSimTime: %1% | Planned interval: %2% | Start time: %1% | End time: %3% \n")
+    LOG_DEBUG << boost::format("\n    SimTime: %1% | Planned interval: %2% | Start time: %1% | End time: %3% \n")
     % omnetpp::simTime().dbl() % currentInterval % (omnetpp::simTime().dbl() + intervalDuration) << std::flush;
 }
 
 
 void TrafficLight_LQF_MWM::chooseNextGreenInterval()
 {
+    LOG_DEBUG << "\n>>> New phase calculation ... \n" << std::flush;
+
     // get all incoming lanes for this TL only
     std::map<std::string /*lane*/, laneInfoEntry> laneInfo = RSUptr->laneInfo;
 
@@ -254,18 +256,13 @@ void TrafficLight_LQF_MWM::chooseNextGreenInterval()
     double greenTime = (double)maxVehCount * (minGreenTime / 5.);
     nextGreenTime = std::min(std::max(greenTime, minGreenTime), maxGreenTime);  // bound green time
 
-    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 1)
-    {
-        printf("The following phase has the highest totalWeight out of %lu phases: \n", phases.size());
-        printf("phase= %s", entry.phase.c_str());
-        printf(", maxVehCount= %d", entry.maxVehCount);
-        printf(", totalWeight= %0.2f", entry.totalWeight);
-        printf(", oneCount= %d", entry.oneCount);
-        printf(", green= %0.2fs \n", nextGreenTime);
-
-        std::cout << std::endl;
-        std::cout.flush();
-    }
+    LOG_DEBUG << boost::format("\n    The following phase has the highest totalWeight out of %1% phases: \n") % phases.size();
+    LOG_DEBUG << "        phase= " << entry.phase.c_str();
+    LOG_DEBUG << ", maxVehCount= " << entry.maxVehCount;
+    LOG_DEBUG << ", totalWeight= " << entry.totalWeight;
+    LOG_DEBUG << ", oneCount= " << entry.oneCount;
+    LOG_DEBUG << ", green= " << nextGreenTime;
+    LOG_DEBUG << "\n" << std::flush;
 
     // this will be the next green interval
     nextGreenInterval = entry.phase;
@@ -297,11 +294,7 @@ void TrafficLight_LQF_MWM::chooseNextGreenInterval()
     else
     {
         intervalDuration = nextGreenTime;
-        if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 0)
-        {
-            std::cout << ">>> Continue the last green interval." << std::endl << std::endl;
-            std::cout.flush();
-        }
+        LOG_DEBUG << "\n    Continue the last green interval. \n" << std::flush;
     }
 }
 

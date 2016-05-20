@@ -116,7 +116,7 @@ void TrafficLightWebster::initialize_withTraCI()
         updateTLstate(TL, "init", currentInterval);
     }
 
-    LOG_DEBUG << boost::format("\nSimTime: %1% | Planned interval: %2% | Start time: %1% | End time: %3% \n")
+    LOG_DEBUG << boost::format("\n    SimTime: %1% | Planned interval: %2% | Start time: %1% | End time: %3% \n")
     % omnetpp::simTime().dbl() % currentInterval % (omnetpp::simTime().dbl() + intervalDuration) << std::flush;
 }
 
@@ -173,7 +173,7 @@ void TrafficLightWebster::chooseNextInterval()
     else
         chooseNextGreenInterval();
 
-    LOG_DEBUG << boost::format("\nSimTime: %1% | Planned interval: %2% | Start time: %1% | End time: %3% \n")
+    LOG_DEBUG << boost::format("\n    SimTime: %1% | Planned interval: %2% | Start time: %1% | End time: %3% \n")
     % omnetpp::simTime().dbl() % currentInterval % (omnetpp::simTime().dbl() + intervalDuration) << std::flush;
 }
 
@@ -215,9 +215,11 @@ void TrafficLightWebster::chooseNextGreenInterval()
 
 void TrafficLightWebster::calculateGreenSplits()
 {
+    LOG_DEBUG << "\n>>> New cycle calculation ... \n" << std::flush;
+
     if(LOG_ACTIVE(DEBUG_LOG_VAL))
     {
-        LOG_DEBUG << ">>> Measured traffic demands at the beginning of this cycle: ";
+        LOG_DEBUG << "\n    Measured traffic demands at the beginning of this cycle: ";
 
         for(auto &y : laneTD)
         {
@@ -242,7 +244,7 @@ void TrafficLightWebster::calculateGreenSplits()
             }
         }
 
-        LOG_DEBUG << "\n\n" << std::flush;
+        LOG_DEBUG << "\n \n" << std::flush;
     }
 
     std::vector<double> critical;
@@ -289,7 +291,7 @@ void TrafficLightWebster::calculateGreenSplits()
     }
 
     // print Y_i for each phase
-    LOG_DEBUG << ">>> critical v/c for each phase: ";
+    LOG_DEBUG << "    critical v/c for each phase: ";
     int activePhases = 0;
     for(double y : critical)
     {
@@ -305,7 +307,7 @@ void TrafficLightWebster::calculateGreenSplits()
     // no TD in any directions. Give G_min to each phase
     else if(Y == 0)
     {
-        LOG_DEBUG << boost::format(">>> Total critical v/c is zero! Set green split for each phase to G_min=%1% \n\n") % minGreenTime << std::flush;
+        LOG_DEBUG << boost::format("    Total critical v/c is zero! Set green split for each phase to G_min=%1% \n") % minGreenTime << std::flush;
 
         // green split for each phase
         for (std::string prog : phases)
@@ -321,13 +323,17 @@ void TrafficLightWebster::calculateGreenSplits()
 
         double cycle = ((1.5*totalLoss) + 5) / (1 - Y);  // cycle length
 
-        LOG_DEBUG << boost::format(">>> Webster Calculation: \ntotal critical v/c=%1%, total loss time=%2%, cycle length=%3% \n") << Y << totalLoss << cycle << std::flush;
+        LOG_DEBUG << boost::format("    Webster Calculation: \n");
+        LOG_DEBUG << boost::format("        total critical v/c=%1% \n") % Y;
+        LOG_DEBUG << boost::format("        total loss time=%1% \n") % totalLoss;
+        LOG_DEBUG << boost::format("        cycle length=%1% \n") % cycle;
+        LOG_DEBUG << "\n" << std::flush;
 
         // make sure that cycle length is not too big.
         // this happens when Y is too close to 1
         if(cycle > maxCycleLength)
         {
-            LOG_WARNING << "WARNING: cycle length exceeds max C_y=" << maxCycleLength << "\n";
+            LOG_WARNING << "    WARNING: cycle length exceeds max C_y=" << maxCycleLength << "\n";
             cycle = maxCycleLength;
         }
 
@@ -344,10 +350,10 @@ void TrafficLightWebster::calculateGreenSplits()
 
         if(LOG_ACTIVE(DEBUG_LOG_VAL))
         {
-            LOG_DEBUG << "Updating green splits for each phase: ";
+            LOG_DEBUG << "    Updating green splits for each phase: ";
             for(auto &y : greenSplit)
                 LOG_DEBUG << y.second << ", ";
-            LOG_DEBUG << "\n\n" << std::flush;
+            LOG_DEBUG << "\n" << std::flush;
         }
     }
     else if(Y >= 1)

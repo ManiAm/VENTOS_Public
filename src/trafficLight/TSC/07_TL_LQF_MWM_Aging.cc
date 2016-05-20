@@ -203,13 +203,15 @@ void TrafficLight_LQF_MWM_Aging::chooseNextInterval()
     else
         chooseNextGreenInterval();
 
-    LOG_DEBUG << boost::format("\nSimTime: %1% | Planned interval: %2% | Start time: %1% | End time: %3% \n")
+    LOG_DEBUG << boost::format("\n    SimTime: %1% | Planned interval: %2% | Start time: %1% | End time: %3% \n")
     % omnetpp::simTime().dbl() % currentInterval % (omnetpp::simTime().dbl() + intervalDuration) << std::flush;
 }
 
 
 void TrafficLight_LQF_MWM_Aging::chooseNextGreenInterval()
 {
+    LOG_DEBUG << "\n>>> New phase calculation ... \n" << std::flush;
+
     // get all incoming lanes for this TL only
     std::map<std::string /*lane*/, laneInfoEntry> laneInfo = RSUptr->laneInfo;
 
@@ -329,11 +331,11 @@ void TrafficLight_LQF_MWM_Aging::chooseNextGreenInterval()
     if(LOG_ACTIVE(DEBUG_LOG_VAL))
     {
         if(bestChoice.phase == finalChoice.phase)
-            LOG_DEBUG << boost::format("\nThe following phase has the highest totalWeight out of %1% phases: \n") % phases.size();
+            LOG_DEBUG << boost::format("\n    The following phase has the highest totalWeight out of %1% phases: \n") % phases.size();
         else
         {
-            LOG_DEBUG << boost::format("\nPhase %1% will not be scheduled! \n") % bestChoice.phase;
-            LOG_DEBUG << boost::format("Max delay= %1% in phase %2% exceeds %3%s \n") % maxDelay % finalChoice.phase % 20;
+            LOG_DEBUG << boost::format("\n    Phase %1% will not be scheduled!") % bestChoice.phase;
+            LOG_DEBUG << boost::format("\n    Max delay= %1% in phase %2% exceeds %3%s \n") % maxDelay % finalChoice.phase % 20;
 
             LOG_DEBUG << "Bikes delay are: ";
             for(auto &p : vehDelay)
@@ -344,7 +346,7 @@ void TrafficLight_LQF_MWM_Aging::chooseNextGreenInterval()
             LOG_DEBUG << "\n";
         }
 
-        LOG_DEBUG << boost::format("phase= %1%, maxVehCount= %2%, totalWeight= %3%, oneCount= %4%, green= %5% \n")
+        LOG_DEBUG << boost::format("        phase= %1%, maxVehCount= %2%, totalWeight= %3%, oneCount= %4%, green= %5% \n")
         % finalChoice.phase % finalChoice.maxVehCount % finalChoice.totalWeight % finalChoice.oneCount % nextGreenTime << std::flush;
     }
 
@@ -378,7 +380,7 @@ void TrafficLight_LQF_MWM_Aging::chooseNextGreenInterval()
     else
     {
         intervalDuration = nextGreenTime;
-        LOG_DEBUG << ">>> Continue the last green interval. \n" << std::flush;
+        LOG_DEBUG << "\n    Continue the last green interval. \n" << std::flush;
     }
 }
 
