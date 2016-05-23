@@ -164,7 +164,7 @@ std::string SSH_Helper::run_command(ssh_channel SSH_channel, std::string command
 
         // run the command in shell
         char buffer[1000];
-        int nbytes = sprintf (buffer, "%s ; echo ""; echo $? ; echo %s \n", command.c_str(), EOCMD);
+        int nbytes = sprintf (buffer, "%s ; ret=$? ; echo "" ; echo $ret ; echo %s \n", command.c_str(), EOCMD);
         int nwritten = ssh_channel_write(SSH_channel, buffer, nbytes);
         if (nwritten != nbytes)
             throw omnetpp::cRuntimeError("SSH error in writing command to shell");
