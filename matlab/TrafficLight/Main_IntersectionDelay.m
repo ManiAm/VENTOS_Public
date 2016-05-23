@@ -6,10 +6,10 @@ clc;    % position the cursor at the top of the screen
 addpath ../libs
 
 % path to folder
-basePATH = '../../results/cmd/4_LQF_MWM_starvation';
+basePATH = '../../results/cmd/5_LQF_MWM_all/3_full_poisson_balanced_routeDist_70_30';
 
 % what to plot?
-option = 4;
+option = 5;
 
 TLqueuingData = dir([basePATH, '/*_TLqueuingData.txt']);
 TLphasingData = dir([basePATH, '/*_TLphasingData.txt']);
@@ -112,8 +112,8 @@ elseif(option == 4)
     disp('plotting the LQF-MWM starvation problem ...');
     PlotStarvation(runNumber, timeSteps_D, delayDist, perClassFairness, perLaneFairness, runTotal);
 elseif(option == 5)
-    disp('plotting the performance of LQF_MWM and LQF_MWM2 ...');
-    PlotLQFMWM(runNumber, timeSteps_MQ, maxQueueSize, delayDist, runTotal);
+    disp('plotting the performance of LQF_MWM, LQF_MWM_Aging and LQF_MWM_Cycle ...');
+    PlotLQFMWM(runNumber, timeSteps_MQ, maxQueueSize, timeSteps_D, aveDelayPassenger, aveDelayEmergency, delayDist, runTotal);
 elseif(option == 6)
     disp('plotting the performance of FMSC ...');
     PlotFMSC(runNumber, timeSteps_MQ, maxQueueSize, delayDist, runTotal);
