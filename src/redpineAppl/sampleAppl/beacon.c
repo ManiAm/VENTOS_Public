@@ -90,7 +90,7 @@ bsm_t *bsm_message = NULL;
 int sockfd = -1;
 struct ifreq if_idx;
 struct ifreq if_mac;
-char *myIPaddr = NULL;
+char myIPaddr[20];
 
 int main(void)
 {
@@ -437,7 +437,8 @@ void init_socket()
     strncpy(if_ip.ifr_name, ifName, IFNAMSIZ-1);
     if(ioctl(sockfd, SIOCGIFADDR, &if_ip) < 0)
         perror("SIOCGIFADDR");
-    myIPaddr = inet_ntoa(((struct sockaddr_in *)&if_ip.ifr_addr)->sin_addr);
+    char *ipv4 = inet_ntoa(((struct sockaddr_in *)&if_ip.ifr_addr)->sin_addr);
+    strcpy(myIPaddr, ipv4);
     printf("    IPv4 address is %s \n", myIPaddr);
 
     /* Get the subnet mask of ifName */
