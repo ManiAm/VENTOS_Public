@@ -47,7 +47,7 @@ SSH_Helper::~SSH_Helper()
 
 // constructor
 SSH_Helper::SSH_Helper(std::string host, int port, std::string username, std::string password, bool printOutput, std::string cat, std::string sub) :
-                                                                                SSH(host, port, username, password, printOutput, cat, sub)
+                                                                                                                                                                SSH(host, port, username, password, printOutput, cat, sub)
 {
     active_threads = 0;
     terminating = false;
@@ -162,9 +162,9 @@ std::string SSH_Helper::run_command(ssh_channel SSH_channel, std::string command
     {
         std::lock_guard<std::mutex> lock(lock_SSH_Session);
 
-        // run the command in shell
+        // run the command
         char buffer[1000];
-        int nbytes = sprintf (buffer, "%s ; ret=$? ; echo "" ; echo $ret ; echo %s \n", command.c_str(), EOCMD);
+        int nbytes = sprintf (buffer, "%s ; ret=$? ; echo "" ; echo %s ; echo $ret \n", command.c_str(), EOCMD);
         int nwritten = ssh_channel_write(SSH_channel, buffer, nbytes);
         if (nwritten != nbytes)
             throw omnetpp::cRuntimeError("SSH error in writing command to shell");
@@ -177,9 +177,11 @@ std::string SSH_Helper::run_command(ssh_channel SSH_channel, std::string command
 
         // read the output from remote shell
         char buffer[1000];
-        int returnCode = 2;  // default return code is error
         int numEOF = 0;
-        bool removeFirstLine = false;
+        int indexCmdBegin = -1;
+        int indexCmdEnd = -1;
+        bool endFound = false;
+        int indexPrintStart = -1;
         while (ssh_channel_is_open(SSH_channel) && !ssh_channel_is_eof(SSH_channel) && !terminating)
         {
             int nbytes = 0;
@@ -212,75 +214,111 @@ std::string SSH_Helper::run_command(ssh_channel SSH_channel, std::string command
                 // reset numEOF
                 numEOF = 0;
 
-                // get the current output
-                std::string cOutput = "";
+                // iterate over characters that we have received in the last SSH read
                 for (int ii = 0; ii < nbytes; ii++)
-                    cOutput += static_cast<char>(buffer[ii]);
-                // and append it to previous output
-                command_output += cOutput;
+                {
+                    char ch = static_cast<char>(buffer[ii]);
+                    command_output += ch;
+                }
 
-                // tokenize all lines in the command_output
-                // todo: is this efficient?
-                std::istringstream inputStr(command_output);
-                std::string line = "";
-                std::vector<std::string> tokens;
-                while(std::getline(inputStr, line))
-                    tokens.push_back(line);
+                // look for the beginning of command output
+                if(indexCmdBegin == -1)
+                {
+                    std::size_t pos = command_output.find("\n");
+                    if(pos != std::string::npos && pos != command_output.size() - 1)
+                    {
+                        indexCmdBegin = pos + 1;
+                        indexCmdEnd = indexCmdBegin;
+                        indexPrintStart = indexCmdBegin;
+                    }
+                }
+
+                // look for the end of command output
+                if(!endFound && indexCmdEnd != -1)
+                {
+                    std::size_t pos = command_output.find(EOCMD, indexCmdEnd);
+                    if(pos != std::string::npos)
+                    {
+                        indexCmdEnd = pos - 1;
+                        endFound = true;
+                    }
+                    else
+                        indexCmdEnd = command_output.size()- 1; // points to the last character
+                }
+
+                ASSERT(indexCmdEnd >= indexCmdBegin);
 
                 // print what we have received so far in buffer
                 if(printOutput)
                 {
-                    // remove the first line of output
-                    if(!removeFirstLine)
+                    if(indexPrintStart != -1 && indexCmdEnd != -1)
                     {
-                        // wait for at least two lines
-                        if(tokens.size() >= 2)
-                        {
-                            // ignore the first line (tokens[0]) and
-                            // print the remaining lines
-                            for(unsigned int h = 1; h < tokens.size(); h++)
-                                LOG_EVENT_C(category, subcategory) << tokens[h];
+                        std::string cOutput = "";
+                        for(int h = indexPrintStart; h <= indexCmdEnd; h++)
+                            cOutput += command_output[h];
 
-                            LOG_FLUSH_C(category, subcategory);
-
-                            removeFirstLine = true;
-                        }
-                    }
-                    else
-                    {
                         LOG_EVENT_C(category, subcategory) << cOutput;
                         LOG_FLUSH_C(category, subcategory);
+
+                        indexPrintStart = indexCmdEnd + 1;
                     }
                 }
 
-                // monitor command output and look for EOCMD
-                returnCode = isFinished(tokens);
+                if(endFound)
+                {
+                    // look for return code
+                    std::string remain = command_output.substr(indexCmdEnd+1);
 
-                if(returnCode == 1 || returnCode == 2)
-                    break;
+                    // tokenize
+                    std::istringstream inputStr(remain);
+                    std::string line = "";
+                    std::vector<std::string> tokens;
+                    while(std::getline(inputStr, line))
+                        tokens.push_back(line);
+
+                    // 0: command is still running
+                    // 1: command execution is finished without error
+                    // 2: command execution is finished with error
+                    int returnCode = 0;
+                    if(tokens.size() >= 2)
+                    {
+                        try
+                        {
+                            if (std::stoi(tokens[1]) != 0)
+                                returnCode = 2;
+                            else
+                                returnCode = 1;
+                        }
+                        catch (const std::exception& ex)
+                        {
+                            returnCode = 2;
+                        }
+                    }
+
+                    if(returnCode == 1)
+                        break;
+                    // last command failed
+                    if(returnCode == 2)
+                    {
+                        // if we have not already printed the output
+                        if(!printOutput)
+                        {
+                            if(indexCmdBegin != -1 && indexCmdEnd != -1)
+                            {
+                                std::string cOutput = "";
+                                for(int h = indexCmdBegin; h <= indexCmdEnd; h++)
+                                    cOutput += command_output[h];
+
+                                LOG_EVENT_C(category, subcategory) << cOutput;
+                                LOG_FLUSH_C(category, subcategory);
+                            }
+                        }
+
+                        // let the user know
+                        throw omnetpp::cRuntimeError("Command '%s' failed @%s", command.c_str(), dev_hostName.c_str());
+                    }
+                }
             }
-        }
-
-        // add two new lines for readability
-        if(printOutput)
-            LOG_EVENT_C(category, subcategory) << "\n\n" << std::flush;
-
-        // last command failed
-        if(returnCode == 2)
-        {
-            // if we have not already printed the output
-            if(!printOutput)
-            {
-                // format output
-                command_output = "    " + command_output;
-                boost::replace_all(command_output, "\r\n", "\n");
-                boost::replace_all(command_output, "\n", "\n    ");
-
-                LOG_EVENT_C(category, subcategory) << command_output << " \n\n" << std::flush;
-            }
-
-            // let the user know
-            throw omnetpp::cRuntimeError("Command '%s' failed @%s", command.c_str(), dev_hostName.c_str());
         }
 
         if(!blocking && active_threads > 0)
@@ -296,39 +334,6 @@ std::string SSH_Helper::run_command(ssh_channel SSH_channel, std::string command
         thd.join();
 
     return command_output;
-}
-
-
-// 0: command is still running
-// 1: command execution is finished without error
-// 2: command execution is finished with error
-int SSH_Helper::isFinished(std::vector<std::string>& tokens)
-{
-    if(tokens.size() <= 1)
-        return 0;
-
-    // start parsing tokens vector from the second entry!
-    for(unsigned int ii = 1; ii < tokens.size(); ii++)
-    {
-        std::size_t pos = tokens[ii].find(EOCMD);
-        // EOCMD is found
-        if(pos != std::string::npos)
-        {
-            try
-            {
-                if (std::stoi(tokens[ii-1]) != 0)
-                    return 2;
-                else
-                    return 1;
-            }
-            catch (const std::exception& ex)
-            {
-                return 2;
-            }
-        }
-    }
-
-    return 0;
 }
 
 

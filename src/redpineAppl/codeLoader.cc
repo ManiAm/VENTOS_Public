@@ -364,8 +364,6 @@ void codeLoader::init_test(cModule *module, SSH_Helper *board)
     ASSERT(module);
     ASSERT(board);
 
-
-
     boost::filesystem::path script_FullPath = redpineAppl_FullPath / "testScript";
 
     LOG_EVENT_C(board->getHostName(), "default") << boost::format("===[ Copying the init script to %1% ... ]=== \n\n") % "/home/" << std::flush;
