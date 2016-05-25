@@ -177,7 +177,7 @@ int main(void)
     initialPosition->posAccuracy_size = 0x01;
     initialPosition->posAccuracy[0] = 0x03;
 
-    // todo: where this variable is bing used?
+    // todo: where this variable is being used?
     rTCMPackage = malloc(sizeof(rTCMPackage_t));
     if(!rTCMPackage)
         perror("malloc");
@@ -297,6 +297,7 @@ int main(void)
     init_socket();
 
     int msgCount = 0;
+    printf("\n");   // adding a new line to improve readability
 
     // main loop
     while(1)
@@ -314,8 +315,6 @@ int main(void)
             close(fd);
         }
 
-        printf("Emergency break applied. Sending a message... \n");
-
         struct timeval tv;
         gettimeofday(&tv, NULL);
         time_t current_time = tv.tv_sec;
@@ -328,11 +327,11 @@ int main(void)
         int pay_load_len = 0;
         if(bsm_create(bsm_message, pay_load, &pay_load_len) == SUCCESS)
         {
-            printf("    %d. BSM message created of size %d... ", msgCount, pay_load_len);
+            printf("%02ld/%02ld/%ld %02ld:%02ld:%02ld BSM message #%d created of size %d... ", date->month, date->day, date->year, date->hour, date->minute, date->second, msgCount, pay_load_len);
         }
         else
         {
-            printf("    BSM message encoding failed. \n");
+            printf("BSM message encoding failed. \n");
             break;
         }
 
@@ -418,11 +417,14 @@ void init_socket()
     char ifName[IFNAMSIZ];
     strcpy(ifName, "eth0");  // default interface
 
+    // add new line to improve readability
+    printf("\n");
+
     /* Open RAW socket to send on */
     printf("Opening interface %s ... ", ifName);
     if ((sockfd = socket(AF_PACKET, SOCK_RAW, IPPROTO_RAW)) == -1)
         perror("socket");
-    printf("done! \n");
+    printf("Done! \n");
 
     /* Get the index of the interface to send on */
     memset(&if_idx, 0, sizeof(struct ifreq));
