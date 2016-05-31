@@ -1,4 +1,25 @@
 
-all: main.cc mainWindow.cc testTCP.cc
-	g++ -std=c++11 -o logWindow main.cc mainWindow.cc -I. `pkg-config gtkmm-3.0 --cflags --libs`
-	g++ -std=c++11 -o testTCP testTCP.cc
+all: mainWin testMainWin
+
+
+
+# link command for mainWin
+mainWin: main.o mainWindow.o 
+	g++ -o mainWindow main.o mainWindow.o -I. `pkg-config gtkmm-3.0 --libs`
+
+# compile
+main.o : main.cc mainWindow.h
+	g++ -std=c++11 -c -o main.o main.cc -I. `pkg-config gtkmm-3.0 --cflags`
+
+mainWindow.o : mainWindow.cc mainWindow.h debugStream.h
+		g++ -std=c++11 -c -o mainWindow.o mainWindow.cc -I. `pkg-config gtkmm-3.0 --cflags`
+
+
+
+# link command for mainwin
+testMainWin: testTCP.o
+	g++ -o testTCP testTCP.o
+	
+# compile
+testTCP.o : testTCP.cc sockets.h
+	g++ -std=c++11 -c -o testTCP.o testTCP.cc

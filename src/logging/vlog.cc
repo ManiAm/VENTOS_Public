@@ -199,7 +199,7 @@ vlog& vlog::setLog(uint8_t logLevel, std::string category, std::string subcatego
 
             // run 'logWindow' inside this child process
             // if execution is successful then child will be blocked at this line
-            int r = system("src/loggingWindow/logWindow");  // relative path to logWindow
+            int r = system("src/loggingWindow/mainWindow");  // relative path to logWindow
 
             if (r == -1)
                 throw omnetpp::cRuntimeError("Running logWindow failed during system()");
