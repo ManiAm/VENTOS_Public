@@ -599,5 +599,3 @@ int rsi_wavecombo_wsmp_queue_init(int local_srv_index);
 int rsi_wavecombo_msgqueue_deinit(void);
 
 #endif
-
-

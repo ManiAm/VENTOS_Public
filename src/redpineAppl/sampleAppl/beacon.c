@@ -26,15 +26,6 @@
 #include "rsi_wave_util.h"
 #include "BSM_create.h"
 
-#include <arpa/inet.h>
-#include <linux/if_packet.h>
-#include <sys/ioctl.h>
-#include <sys/socket.h>
-#include <net/if.h>
-
-#include <netinet/ether.h>
-#include <netinet/ip.h>
-#include <netinet/udp.h>
 
 #define OPERATING_CLASS            17
 #define CONTROL_CHANNEL            178
@@ -56,18 +47,6 @@
 #define AVAILABLE                  0
 #define REJECTED                   1
 
-#define MY_DEST_MAC0    0x00
-#define MY_DEST_MAC1    0x00
-#define MY_DEST_MAC2    0x00
-#define MY_DEST_MAC3    0x00
-#define MY_DEST_MAC4    0x00
-#define MY_DEST_MAC5    0x00
-
-#define BUF_SIZ     1024
-
-void init_socket();
-int sendToVENTOS(char *msg);
-unsigned short csum(unsigned short *buf, int nwords);
 void sigint(int sigint);
 asn_dec_rval_t J2735_decode(void*, int);
 
@@ -86,11 +65,6 @@ pathPrediction_t *pathPrediction = NULL;
 vehiclesafetyExtension_t *vehiclesafetyextension = NULL;
 bsm_t *bsm_message = NULL;
 
-// global variables -- used by socket
-int sockfd = -1;
-struct ifreq if_idx;
-struct ifreq if_mac;
-char myIPaddr[20];
 
 int main(void)
 {
@@ -105,17 +79,20 @@ int main(void)
     write(fd, status_buf, strlen(status_buf));
     close(fd);
 
+    //  initialize message queues to send requests to 1609 stack
     printf("Initialization Queue... ");
     int status = rsi_wavecombo_msgqueue_init();
     if(status == FAILURE)
         return 1;
 
+    //  initialize the management information base (MIB) in 1609 stack
     printf("Initializing MIB... ");
     status = rsi_wavecombo_1609mib_init();
     if(status == FAILURE)
         return 1;
     printf("Done! \n");
 
+    //  send channel synchronization parameters to Wave Combo Module
     printf("Calling update sync params... ");
     status = rsi_wavecombo_update_channel_sync_params(OPERATING_CLASS, CONTROL_CHANNEL, CCH_INTERVEL, SCH_INTERVEL, SYNC_TOLERANCE, MAX_SWITCH_TIME);
     if(status == FAILURE)
@@ -128,18 +105,22 @@ int main(void)
     //        return 1;
     //    printf("Done! \n");
 
+    //  get a local service index for this user from 1609 stack
     lsi = rsi_wavecombo_local_service_index_request();
     if(lsi <= 0)
         return 1;
 
+    // initialize message queue to receive wsm packets from 1609 stack
     status = rsi_wavecombo_wsmp_queue_init(lsi);
 
+    //  indicating that a higher layer entity requests a short message service
     printf("Sending WSMP service request... ");
     status = rsi_wavecombo_wsmp_service_req(ADD, lsi, psid);
     if(status == FAILURE)
         return 1;
     printf("Done! \n");
 
+    //  request stack to allocate radio resources to the indicated service channel
     printf("Sending SCH service request... ");
     status = rsi_wavecombo_sch_start_req(172, RATE_6, 1, 255);
     if(status == FAILURE)
@@ -293,9 +274,6 @@ int main(void)
 
     sprintf(status_buf, "/sys/class/gpio/gpio%d/value", gpio9);
 
-    // initialization of socket
-    init_socket();
-
     int msgCount = 0;
     printf("\n");   // adding a new line to improve readability
 
@@ -357,8 +335,7 @@ int main(void)
         char peer_mac_address[6] = {0xff,0xff,0xff,0xff,0xff,0xff};
         memcpy(wsm->peer_mac_address, peer_mac_address, 6);
 
-        sendToVENTOS("testing");
-
+        // sending the WSMP packet
         status = rsi_wavecombo_wsmp_msg_send(wsm);
         if(status < 0)
             printf("Failed! \n");
@@ -393,153 +370,6 @@ int main(void)
 
     status = rsi_wavecombo_wsmp_service_req(DELETE, lsi, psid);
     rsi_wavecombo_msgqueue_deinit();
-
-    return 0;
-}
-
-
-unsigned short csum(unsigned short *buf, int nwords)
-{
-    unsigned long sum;
-    for(sum = 0; nwords > 0; nwords--)
-        sum += *buf++;
-
-    sum = (sum >> 16) + (sum &0xffff);
-    sum += (sum >> 16);
-
-    return (unsigned short)(~sum);
-}
-
-
-void init_socket()
-{
-    /* Get interface name */
-    char ifName[IFNAMSIZ];
-    strcpy(ifName, "eth0");  // default interface
-
-    // add new line to improve readability
-    printf("\n");
-
-    /* Open RAW socket to send on */
-    printf("Opening interface %s ... ", ifName);
-    if ((sockfd = socket(AF_PACKET, SOCK_RAW, IPPROTO_RAW)) == -1)
-        perror("socket");
-    printf("Done! \n");
-
-    /* Get the index of the interface to send on */
-    memset(&if_idx, 0, sizeof(struct ifreq));
-    strncpy(if_idx.ifr_name, ifName, IFNAMSIZ-1);
-    if (ioctl(sockfd, SIOCGIFINDEX, &if_idx) < 0)
-        perror("SIOCGIFINDEX");
-    printf("    Interface index is %d \n", if_idx.ifr_ifindex);
-
-    /* Get the IPv4 address attached to ifName */
-    struct ifreq if_ip;
-    memset(&if_ip, 0, sizeof(struct ifreq));
-    strncpy(if_ip.ifr_name, ifName, IFNAMSIZ-1);
-    if(ioctl(sockfd, SIOCGIFADDR, &if_ip) < 0)
-        perror("SIOCGIFADDR");
-    char *ipv4 = inet_ntoa(((struct sockaddr_in *)&if_ip.ifr_addr)->sin_addr);
-    strcpy(myIPaddr, ipv4);
-    printf("    IPv4 address is %s \n", myIPaddr);
-
-    /* Get the subnet mask of ifName */
-    struct ifreq if_subnet;
-    memset(&if_subnet, 0, sizeof(struct ifreq));
-    strncpy(if_subnet.ifr_name, ifName, IFNAMSIZ-1);
-    if(ioctl(sockfd, SIOCGIFNETMASK, &if_subnet) < 0)
-        perror("SIOCGIFNETMASK");
-    char *mySubnet = inet_ntoa(((struct sockaddr_in *)&if_subnet.ifr_addr)->sin_addr);
-    printf("    Subnet mask is %s \n", mySubnet);
-
-    /* Get the MAC address of the interface to send on */
-    memset(&if_mac, 0, sizeof(struct ifreq));
-    strncpy(if_mac.ifr_name, "eth0", IFNAMSIZ-1);
-    if (ioctl(sockfd, SIOCGIFHWADDR, &if_mac) < 0)
-        printf("    MAC address is %02x:%02x:%02x:%02x:%02x:%02x \n",
-                (unsigned char) if_mac.ifr_hwaddr.sa_data[0],
-                (unsigned char) if_mac.ifr_hwaddr.sa_data[1],
-                (unsigned char) if_mac.ifr_hwaddr.sa_data[2],
-                (unsigned char) if_mac.ifr_hwaddr.sa_data[3],
-                (unsigned char) if_mac.ifr_hwaddr.sa_data[4],
-                (unsigned char) if_mac.ifr_hwaddr.sa_data[5]);
-}
-
-
-int sendToVENTOS(char *msg)
-{
-    /* Construct the Ethernet header */
-    char sendbuf[BUF_SIZ];
-    memset(sendbuf, 0, BUF_SIZ);
-    struct ether_header *eh = (struct ether_header *) sendbuf;
-    // fill-in the source MAC address
-    eh->ether_shost[0] = ((uint8_t *)&if_mac.ifr_hwaddr.sa_data)[0];
-    eh->ether_shost[1] = ((uint8_t *)&if_mac.ifr_hwaddr.sa_data)[1];
-    eh->ether_shost[2] = ((uint8_t *)&if_mac.ifr_hwaddr.sa_data)[2];
-    eh->ether_shost[3] = ((uint8_t *)&if_mac.ifr_hwaddr.sa_data)[3];
-    eh->ether_shost[4] = ((uint8_t *)&if_mac.ifr_hwaddr.sa_data)[4];
-    eh->ether_shost[5] = ((uint8_t *)&if_mac.ifr_hwaddr.sa_data)[5];
-    // fill-in the destination MAC address
-    eh->ether_dhost[0] = MY_DEST_MAC0;
-    eh->ether_dhost[1] = MY_DEST_MAC1;
-    eh->ether_dhost[2] = MY_DEST_MAC2;
-    eh->ether_dhost[3] = MY_DEST_MAC3;
-    eh->ether_dhost[4] = MY_DEST_MAC4;
-    eh->ether_dhost[5] = MY_DEST_MAC5;
-
-    /* Ethertype field */
-    eh->ether_type = htons(ETH_P_IP);
-    int tx_len = 0;
-    tx_len += sizeof(struct ether_header);
-
-    /* Construct the IP Header */
-    struct iphdr *iph = (struct iphdr *) (sendbuf + sizeof(struct ether_header));
-    iph->ihl = 5;
-    iph->version = 4;
-    iph->tos = 16; // Low delay
-    iph->id = htons(54321);
-    iph->ttl = 25; // hops
-    iph->protocol = 17; // UDP
-    iph->saddr = inet_addr(myIPaddr); // Source IP address
-    iph->daddr = inet_addr("192.168.60.111"); // Destination IP address
-    tx_len += sizeof(struct iphdr);
-
-    /* Construct the UDP Header */
-    struct udphdr *udph = (struct udphdr *) (sendbuf + sizeof(struct iphdr) + sizeof(struct ether_header));
-    udph->source = htons(3423);
-    udph->dest = htons(5342);
-    udph->check = 0; // skip
-    tx_len += sizeof(struct udphdr);
-
-    /* Packet data: dead beef */
-    sendbuf[tx_len++] = 0xde;
-    sendbuf[tx_len++] = 0xad;
-    sendbuf[tx_len++] = 0xbe;
-    sendbuf[tx_len++] = 0xef;
-
-    /* Length of UDP payload and header */
-    udph->len = htons(tx_len - sizeof(struct ether_header) - sizeof(struct iphdr));
-    /* Length of IP payload and header */
-    iph->tot_len = htons(tx_len - sizeof(struct ether_header));
-    /* Calculate IP checksum on completed header */
-    iph->check = csum( (unsigned short *)(sendbuf+sizeof(struct ether_header)), sizeof(struct iphdr)/2 );
-
-    /* Index of the network device */
-    struct sockaddr_ll socket_address;
-    socket_address.sll_ifindex = if_idx.ifr_ifindex;
-    /* Address length */
-    socket_address.sll_halen = ETH_ALEN;
-    /* Destination MAC */
-    socket_address.sll_addr[0] = MY_DEST_MAC0;
-    socket_address.sll_addr[1] = MY_DEST_MAC1;
-    socket_address.sll_addr[2] = MY_DEST_MAC2;
-    socket_address.sll_addr[3] = MY_DEST_MAC3;
-    socket_address.sll_addr[4] = MY_DEST_MAC4;
-    socket_address.sll_addr[5] = MY_DEST_MAC5;
-
-    /* Send packet */
-    if (sendto(sockfd, sendbuf, tx_len, 0, (struct sockaddr*)&socket_address, sizeof(struct sockaddr_ll)) < 0)
-        printf("Send failed \n");
 
     return 0;
 }
