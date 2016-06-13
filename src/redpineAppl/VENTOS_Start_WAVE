@@ -86,7 +86,11 @@ echo ""
 echo "Inserting modules into kernel"
 echo "============================="
 
-modu=("onebox_common_gpl.ko" "wlan.ko" "wlan_wep.ko" "wlan_tkip.ko" "wlan_ccmp.ko" "wlan_acl.ko" "wlan_xauth.ko" "wlan_scan_sta.ko" "onebox_wlan_nongpl.ko" "onebox_wlan_gpl.ko")
+modu=("onebox_common_gpl.ko")
+insert_module modu[@]
+
+# load WLAN modules
+modu=("wlan.ko" "wlan_wep.ko" "wlan_tkip.ko" "wlan_ccmp.ko" "wlan_acl.ko" "wlan_xauth.ko" "wlan_scan_sta.ko" "onebox_wlan_nongpl.ko" "onebox_wlan_gpl.ko")
 insert_module modu[@]
 
 
@@ -103,6 +107,7 @@ for i in "${TOKENS[@]}"; do
     echo "$i"
 done
 
+# load common HAL modules
 echo ""
 modu=("onebox_nongpl.ko	$PARAMS" "onebox_gpl.ko")
 insert_module modu[@]
