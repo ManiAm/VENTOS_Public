@@ -40,7 +40,7 @@ typedef struct Blob1
     uint16  	SecMark;
     int   		Lat;
     int   		Long;
-    short int   	Elev;
+    short int   Elev;
     uint32  	Accuracy;
     uint16  	Speed;
     uint16  	Heading;
@@ -175,4 +175,3 @@ int fullPositionVector(FullPositionVector_t **initialPosition,initialPosition_t 
 int vehiclesafetyExtension(VehicleSafetyExtension_t **safetyExt,vehiclesafetyExtension_t *safetyExt_data);
 
 #endif
-

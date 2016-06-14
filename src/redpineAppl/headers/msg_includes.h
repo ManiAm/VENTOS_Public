@@ -17,12 +17,12 @@
 #include "wsm_include.h"
 
 void* receive_response();
-void*  insertInMIBTable(uint8 *current,long type);
+void* insertInMIBTable(uint8 *current,long type);
 void show_result();
 _rsi_16093_WSMServiceRequestTableEntry_t* searchInMIBTable(uint8 *psid,uint8 type);
 _rsi_16093_CchServiceRequestTableEntry_t* deleteCchEntryInMIBTable(uint16 local_index);
 _rsi_16093_UserAvailableServiceTableEntry_t* searchPSIDMIB(uint8 *psid,int *pos);
-_rsi_16093_UserAvailableServiceTableEntry_t*  update16093MIB(uint8 *mib_buf);
+_rsi_16093_UserAvailableServiceTableEntry_t* update16093MIB(uint8 *mib_buf);
 void free_queues(long type);
 void update_user_service_status(void);
 void queue_response_pkt(uint8 *rxPkt,uint8 offset);

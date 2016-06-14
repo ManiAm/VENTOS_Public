@@ -163,7 +163,7 @@ int main(void)
 
     while(1)
     {
-        printf("Listening... \n\n");
+        printf("\nListening... \n");
         int length = rsi_wavecombo_receive_wsmp_packet(buff_rx, 1300);
         if(length > 0)
         {
@@ -194,16 +194,17 @@ int main(void)
 }
 
 
-void process_wsmp(char *buf,int len)
+void process_wsmp(char *buf, int len)
 {
     int psid_len = 0;
-    while( buf[14] & (0x80>>psid_len++) );
+    while( buf[14] & (0x80 >> psid_len++) );
 
     int payload_len = len - WSMP_PAY_LOAD_OFFSET - psid_len;
+    printf("payload length: %d \n", payload_len );
     asn_dec_rval_t Rval = J2735_decode(buf + WSMP_PAY_LOAD_OFFSET + psid_len, payload_len);
     if(Rval.Message != NULL)
     {
-        BasicSafetyMessage_t *bsm_brk =(BasicSafetyMessage_t *) Rval.Message;
+        BasicSafetyMessage_t *bsm_brk = (BasicSafetyMessage_t *) Rval.Message;
         blob_t *blob_brk = (blob_t *) bsm_brk->blob1.buf;
         if(blob_brk == NULL)
         {
