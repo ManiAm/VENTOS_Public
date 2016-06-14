@@ -288,6 +288,15 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
     board->syncDir(redpineAppl_FullPath / "sampleAppl", remoteDir_SourceCode); // copy local folder 'sampleAppl'
     board->syncDir(redpineAppl_FullPath / "libs", remoteDir_SourceCode); // create local folder 'libs'
 
+    //################################
+    // updating timestamp on all files  -- todo: using ntp is more efficient?
+    //################################
+
+    LOG_EVENT_C(board->getHostName(), "default") << "===[ Updating timestamps of files ... ]=== \n\n" << std::flush;
+
+    board->run_command_blocking(shell1, "cd " + (remoteDir_SourceCode / "sampleAppl").string());
+    board->run_command_blocking(shell1, "find . -exec touch {} \\;", false, board->getHostName());
+
     //##########################
     // remotely compile the code
     //##########################
