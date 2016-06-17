@@ -12,8 +12,9 @@ simple Ethernet
         
         string interface = default("eth0");
         string filter_exp = default("ip");
-        bool printCaptured = default(false);
-        bool printDataPayload = default(false);
-        bool printStat = default(false);
+        
+        bool printStat = default(false);         // print capturing statistics: # of frames, # timeOuts, etc.
+        bool printCaptured = default(false);     // print the header of captured packets 
+        bool printDataPayload = default(false);  // print the data payload -- TCP, UDP, ICMP
 }
 

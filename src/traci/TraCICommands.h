@@ -201,7 +201,7 @@ public:
     void vehicleSetMaxAccel(std::string, double);
     void vehicleSetMaxDecel(std::string, double);
     void vehicleSetTimeGap(std::string, double);
-    void vehicleAdd(std::string, std::string, std::string, int32_t, double, double, uint8_t);
+    void vehicleAdd(std::string, std::string, std::string, int32_t, double, double, uint8_t, std::string = "");
     void vehicleRemove(std::string, uint8_t);
     void vehicleSetControllerParameters(std::string, std::string);  // new command [set the controller's parameters for this vehicle]
     void vehicleSetErrorGap(std::string, double);                   // new command [set an error value for the gap]
@@ -399,6 +399,12 @@ public:
 
 
     // ################################################################
+    //                     Hardware in the loop
+    // ################################################################
+    std::string ip2vehicleId(std::string);
+
+
+    // ################################################################
     //                       SUMO directory
     // ################################################################
 
@@ -431,6 +437,10 @@ protected:
     TraCIConnection* connection = NULL;
     TraCICoord netbounds1;   /* network boundaries as reported by TraCI (x1, y1) */
     TraCICoord netbounds2;   /* network boundaries as reported by TraCI (x2, y2) */
+
+    // all hardware in the loop vehicles that are represented by redpine HW board
+    std::map<std::string /*veh id*/, std::string /*ip address*/> HIL_vehicles;
+    std::map<std::string /*ip address*/, std::string /*veh id*/> HIL_ip_vehId_mapping;
 
 private:
     typedef omnetpp::cSimpleModule super;

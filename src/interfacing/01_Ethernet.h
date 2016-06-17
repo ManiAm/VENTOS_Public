@@ -88,7 +88,7 @@ private:
 
     void initSniffing();
     void startSniffing();
-    void got_packet(const struct pcap_pkthdr *header, const u_char *packet);
+    void process_packet(const struct pcap_pkthdr *header, const u_char *packet);
 
     void processARP(const u_char *packet);
     void processIPv4(const u_char *packet);
@@ -112,11 +112,12 @@ private:
     bool printStat;
 
     // variables
-    TraCI_Commands *TraCI;
+    TraCI_Commands *TraCI = NULL;
     omnetpp::simsignal_t Signal_initialize_withTraCI;
     omnetpp::simsignal_t Signal_executeEachTS;
     pcap_t *pcap_handle = NULL;
     std::mutex vectorLock;
+    std::mutex vectorLock2;
 
     std::map<std::string, devDesc> allDev;
     std::map<std::string, std::string> OUI;

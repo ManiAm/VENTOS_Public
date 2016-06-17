@@ -987,7 +987,7 @@ void TraCI_Commands::vehicleSetTimeGap(std::string nodeId, double value)
 }
 
 
-void TraCI_Commands::vehicleAdd(std::string vehicleId, std::string vehicleTypeId, std::string routeId, int32_t depart, double pos, double speed, uint8_t lane)
+void TraCI_Commands::vehicleAdd(std::string vehicleId, std::string vehicleTypeId, std::string routeId, int32_t depart, double pos, double speed, uint8_t lane, std::string ipAddress)
 {
     updateTraCIlog("commandStart", CMD_SET_VEHICLE_VARIABLE, ADD);
 
@@ -1011,11 +1011,23 @@ void TraCI_Commands::vehicleAdd(std::string vehicleId, std::string vehicleTypeId
             << variableTypeD
             << speed         // departure speed
             << variableTypeB
-            << lane);          // departure lane
+            << lane);        // departure lane
 
     ASSERT(buf.eof());
 
     updateTraCIlog("commandComplete", CMD_SET_VEHICLE_VARIABLE, ADD);
+
+    if(vehicleTypeId == "TypeHIL")
+    {
+        if(ipAddress == "")
+            throw omnetpp::cRuntimeError("No IP address is specified for vehicle %s", vehicleId.c_str());
+
+        HIL_vehicles[vehicleId] = ipAddress;
+
+        // change vehicle color to red!
+        RGB newColor = Color::colorNameToRGB("red");
+        vehicleSetColor(vehicleId, newColor);
+    }
 }
 
 
@@ -2923,6 +2935,20 @@ double TraCI_Commands::omnet2traciAngle(double angle) const
     while (angle >= 180) angle -= 360;
 
     return angle;
+}
+
+
+// ################################################################
+//                     Hardware in the loop
+// ################################################################
+
+std::string TraCI_Commands::ip2vehicleId(std::string ipAddress)
+{
+    auto ii = HIL_ip_vehId_mapping.find(ipAddress);
+    if(ii != HIL_ip_vehId_mapping.end())
+        return ii->second;
+    else
+        return "";
 }
 
 

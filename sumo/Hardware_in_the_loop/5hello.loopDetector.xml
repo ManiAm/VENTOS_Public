@@ -1,0 +1,7 @@
+<additional xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo-sim.org/xsd/additional_file.xsd">
+
+   <inductionLoop id="detector1" lane="1to2_0" pos="550" freq="50" file="NUL"/>
+   <inductionLoop id="detector2" lane="1to2_0" pos="1800" freq="50" file="NUL"/>
+   <inductionLoop id="detector3" lane="1to2_0" pos="3400" freq="50" file="NUL"/>
+
+</additional>

@@ -26,7 +26,7 @@
 //
 
 #include "ApplV_Manager.h"
-#include <Statistics.h>
+#include "Statistics.h"
 #include "SignalObj.h"
 
 namespace VENTOS {
@@ -141,7 +141,6 @@ void ApplVManager::handleLowerMsg(omnetpp::cMessage* msg)
     // check if jamming attack is effective?
     // todo: change this later
     cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("adversary", 0);
-
     if(module != NULL)
     {
         cModule *applModule = module->getSubmodule("appl");
@@ -157,10 +156,10 @@ void ApplVManager::handleLowerMsg(omnetpp::cMessage* msg)
     }
 
     // make sure msg is of type WaveShortMessage
-    Veins::WaveShortMessage* wsm = dynamic_cast<Veins::WaveShortMessage*>(msg);
-    ASSERT(wsm);
+    Veins::WaveShortMessage* check_msg = dynamic_cast<Veins::WaveShortMessage*>(msg);
+    ASSERT(check_msg);
 
-    if (std::string(wsm->getName()) == "beaconVehicle")
+    if (std::string(msg->getName()) == "beaconVehicle")
     {
         BeaconVehicle* wsm = dynamic_cast<BeaconVehicle*>(msg);
         ASSERT(wsm);
@@ -193,7 +192,7 @@ void ApplVManager::handleLowerMsg(omnetpp::cMessage* msg)
             }
         }
     }
-    else if (std::string(wsm->getName()) == "beaconPedestrian")
+    else if (std::string(msg->getName()) == "beaconPedestrian")
     {
         BeaconPedestrian* wsm = dynamic_cast<BeaconPedestrian*>(msg);
         ASSERT(wsm);
@@ -202,7 +201,7 @@ void ApplVManager::handleLowerMsg(omnetpp::cMessage* msg)
 
         ApplVManager::onBeaconPedestrian(wsm);
     }
-    else if (std::string(wsm->getName()) == "beaconRSU")
+    else if (std::string(msg->getName()) == "beaconRSU")
     {
         BeaconRSU* wsm = dynamic_cast<BeaconRSU*>(msg);
         ASSERT(wsm);
@@ -211,7 +210,7 @@ void ApplVManager::handleLowerMsg(omnetpp::cMessage* msg)
 
         ApplVManager::onBeaconRSU(wsm);
     }
-    else if(std::string(wsm->getName()) == "platoonMsg")
+    else if(std::string(msg->getName()) == "platoonMsg")
     {
         PlatoonMsg* wsm = dynamic_cast<PlatoonMsg*>(msg);
         ASSERT(wsm);
@@ -220,6 +219,8 @@ void ApplVManager::handleLowerMsg(omnetpp::cMessage* msg)
 
         ApplVManager::onData(wsm);
     }
+    else
+        throw omnetpp::cRuntimeError("Vehicle %s received unsupported msg %s!", SUMOID.c_str(), msg->getName());
 
     delete msg;
 }
@@ -257,6 +258,13 @@ bool ApplVManager::dropBeacon(double time, std::string vehicle, double plr)
     }
     else
         return false;
+}
+
+
+void ApplVManager::receiveDataFromBoard(redpineData* data)
+{
+    // pass it down
+    super::receiveDataFromBoard(data);
 }
 
 

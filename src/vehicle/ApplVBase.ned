@@ -17,6 +17,9 @@ simple ApplVBase like IBaseApplLayer
         int vehicleClassEnum = default(-1);
         int SUMOControllerType = default(-1);
         int SUMOControllerNumber = default(-1);
+        
+        bool isHIL = default(false);
+        string IPaddress = default("");
 
     gates:
         input lowerLayerIn;    // from mac layer

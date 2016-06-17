@@ -1,8 +1,8 @@
 
 package VENTOS.src.vehicle.platoon;
-import VENTOS.src.vehicle.ApplVAID;
+import VENTOS.src.vehicle.ApplVRedpine;
 
-simple ApplVPlatoonFormed extends ApplVAID
+simple ApplVPlatoonFormed extends ApplVRedpine
 {
     parameters:
         @class(VENTOS::ApplVPlatoonFormed); 

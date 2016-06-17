@@ -1,8 +1,8 @@
 /****************************************************************************/
-/// @file    AddMobileNode.h
+/// @file    ApplV_redpine.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
-/// @date    Apr 2016
+/// @date    Jun 2016
 ///
 /****************************************************************************/
 // VENTOS, Vehicular Network Open Simulator; see http:?
@@ -25,53 +25,34 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef ADDMOBILENODE_H
-#define ADDMOBILENODE_H
+#ifndef ApplVREDPINE_H
+#define ApplVREDPINE_H
 
-#include "BaseApplLayer.h"
-#include "TraCICommands.h"
+#include "ApplV_04_AID.h"
+#include "RedpineData_m.h"
 
 namespace VENTOS {
 
-class AddMobileNode : public BaseApplLayer
+class ApplVRedpine : public ApplV_AID
 {
 public:
-    virtual ~AddMobileNode();
+    ~ApplVRedpine();
     virtual void initialize(int stage);
-    virtual void handleMessage(omnetpp::cMessage *msg);
     virtual void finish();
-    virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, long, cObject* details);
+    virtual void receiveDataFromBoard(redpineData*);
+
+protected:
+    virtual void handleSelfMsg(omnetpp::cMessage*);
+    virtual void handlePositionUpdate(omnetpp::cObject*);
+
+    virtual void onBeaconVehicle(BeaconVehicle*);
+    virtual void onBeaconRSU(BeaconRSU*);
+    virtual void onData(PlatoonMsg*);
 
 private:
-    void beginLoading();
-    void printLoadedStatistics();
+    typedef ApplV_AID super;
 
-    void Scenario1();
-    void Scenario2();
-    void Scenario3();
-    void Scenario4();
-    void Scenario5();
-    void Scenario6();
-    void Scenario7();
-    void Scenario8();
-    void Scenario9();
-    void Scenario10();
-    void Scenario11();
-    void Scenario12();
-
-    void addFlow();
-    std::string getFullPathToSumoRou(std::string);
-
-private:
-    typedef BaseApplLayer super;
-
-    TraCI_Commands *TraCI;
-    int mode;
-    double terminate;
-
-    // class variables
-    omnetpp::simsignal_t Signal_initialize_withTraCI;
-    omnetpp::simsignal_t Signal_addFlow;
+    bool EEBL;
 };
 
 }

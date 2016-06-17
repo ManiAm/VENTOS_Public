@@ -25,15 +25,17 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <01_Ethernet.h>
-#include "vlog.h"
 #include <fstream>
 #include <thread>
 #include <chrono>
-#include "boost/format.hpp"
-
+#include <boost/format.hpp>
 #undef ev
 #include "boost/filesystem.hpp"
+
+#include "01_Ethernet.h"
+#include "ApplV_Manager.h"
+#include "vlog.h"
+#include "RedpineData_m.h"
 
 namespace VENTOS {
 
@@ -138,10 +140,11 @@ void Ethernet::executeEachTimestep()
     {
         std::lock_guard<std::mutex> lock(vectorLock);
 
-        if(!framesQueue.empty())
+        // process all frames in framesQueue
+        while(!framesQueue.empty())
         {
             auto &frame = framesQueue.back();
-            got_packet(frame.first, frame.second);
+            process_packet(frame.first, frame.second);
             framesQueue.pop_back();
         }
     }
@@ -413,7 +416,20 @@ void Ethernet::startSniffing()
         else if(res == 1)
         {
             std::lock_guard<std::mutex> lock(vectorLock);
-            framesQueue.push_back( std::make_pair(header,pkt_data) );
+
+            // copy both header and pht_data
+            // check this: http://www.winpcap.org/pipermail/winpcap-users/2008-August/002700.html
+
+            // copy header into header_copy
+            struct pcap_pkthdr *header_copy = (pcap_pkthdr *) malloc(sizeof(struct pcap_pkthdr));
+            *header_copy = *header;
+
+            u_char *pkt_data_copy = new u_char[header->caplen];
+            // copy pkt_data into pkt_data_copy
+            for (unsigned int ii = 0; ii < header->caplen; ii++)
+                pkt_data_copy[ii] = pkt_data[ii];
+
+            framesQueue.push_back( std::make_pair(header_copy, pkt_data_copy) );
         }
 
         // getting statistics
@@ -430,7 +446,7 @@ void Ethernet::startSniffing()
 
             // print if any changes detected!
             if(stat.ps_recv != old_received || stat.ps_drop != old_dropped || old_timeOut != timeOutCount || framesQueue.size() != old_buffSize)
-                LOG_INFO << boost::format("\nreceived: %1%, dropped: %2%, timeOut: %3%, in buffer: %4% \n") % stat.ps_recv % stat.ps_drop % timeOutCount % framesQueue.size();
+                LOG_INFO << boost::format("\nreceived: %1%, dropped: %2%, timeOut: %3%, in buffer: %4% \n") % stat.ps_recv % stat.ps_drop % timeOutCount % framesQueue.size() << std::flush;
 
             old_received = stat.ps_recv;
             old_dropped  = stat.ps_drop;
@@ -444,9 +460,10 @@ void Ethernet::startSniffing()
 }
 
 
-void Ethernet::got_packet(const struct pcap_pkthdr *header, const u_char *packet)
+void Ethernet::process_packet(const struct pcap_pkthdr *header, const u_char *packet)
 {
-    static int count = 1;  /* packet counter */
+    /* packet counter */
+    static int count = 1;
 
     /* convert the timestamp to readable format */
     time_t local_tv_sec = header->ts.tv_sec;
@@ -462,7 +479,7 @@ void Ethernet::got_packet(const struct pcap_pkthdr *header, const u_char *packet
     /* define Ethernet header */
     const struct ether_header *p = (struct ether_header*)(packet);
 
-    /* what packet type we have..*/
+    /* what packet type we have */
     if (ntohs (p->ether_type) == ETHERTYPE_ARP)
     {
         if(printCaptured)
@@ -498,9 +515,13 @@ void Ethernet::got_packet(const struct pcap_pkthdr *header, const u_char *packet
     }
     else
     {
-        printf("Invalid Ethernet type %x", ntohs(p->ether_type));
+        printf("Invalid Ethernet type %x \n", ntohs(p->ether_type));
         return;
     }
+
+    // deallocate memory
+    free((struct pcap_pkthdr *) header);
+    free((u_char *) packet);
 }
 
 
@@ -657,9 +678,34 @@ void Ethernet::processUDP(const u_char *packet, const struct ip *ip_packet)
     int size_payload = ntohs(ip_packet->ip_len) - (size_ip + 8);
     if(printCaptured) printf("Payload (%d bytes)\n", size_payload);
 
-    /* Print payload data; it might be binary, so don't just treat it as a string. */
+    /* print payload data; it might be binary, so don't just treat it as a string */
     if (size_payload > 0 && printDataPayload)
         print_dataPayload(payload, size_payload);
+
+    // extract the source IP address
+    uint32_t sAdd = ( (struct in_addr)(ip_packet->ip_src) ).s_addr;
+    // check if IP address corresponds to a HIL vehicle
+    std::string vehID = TraCI->ip2vehicleId( IPaddrTostr(sAdd) );
+    if(vehID != "")
+    {
+        // get a pointer to the vehicle
+        cModule *module = omnetpp::getSimulation()->getSystemModule()->getModuleByPath(vehID.c_str());
+        ASSERT(module);
+        module = module->getSubmodule("appl");
+        ASSERT(module);
+        ApplVManager *vehPtr = static_cast<ApplVManager *>(module);
+        ASSERT(vehPtr);
+
+        // preparing a message
+        redpineData* data = new redpineData("redpineData");
+        data->setSrcPort(ntohs(udp->uh_sport));
+        data->setDataArraySize(size_payload);
+        for (int ii = 0; ii < size_payload; ii++)
+            data->setData(ii, payload[ii]);
+
+        // send the payload to the vehicle
+        vehPtr->receiveDataFromBoard(data);
+    }
 }
 
 

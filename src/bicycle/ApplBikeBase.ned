@@ -20,6 +20,9 @@ simple ApplBikeBase like IBaseApplLayer
         // it makes the job simpler for TraCIstart.cc
         int SUMOControllerType = default(-1);
         int SUMOControllerNumber = default(-1);
+        
+        bool isHIL = default(false);
+        string IPaddress = default("");
 
     gates:
         input lowerLayerIn;    // from mac layer

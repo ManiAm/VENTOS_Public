@@ -967,6 +967,27 @@ void TraCI_Start::addModule(std::string nodeId, const Coord& position, std::stri
     mod->getSubmodule("appl")->par("SUMOControllerType") = SUMOControllerType;
     mod->getSubmodule("appl")->par("SUMOControllerNumber") = SUMOControllerNumber;
 
+    if(vehType == "TypeHIL")
+    {
+        auto ii = HIL_vehicles.find(nodeId);
+        if(ii == HIL_vehicles.end())
+            throw omnetpp::cRuntimeError("Vehicle %s is not listed as HIL!", nodeId.c_str());
+
+        mod->getSubmodule("appl")->par("isHIL") = true;
+        mod->getSubmodule("appl")->par("IPaddress") = ii->second;
+
+        // save ipAddress <--> omnetId mapping
+        auto jj = HIL_ip_vehId_mapping.find(ii->second);
+        if(jj != HIL_ip_vehId_mapping.end())
+            throw omnetpp::cRuntimeError("IP address '%s' is not unique!", ii->second.c_str());
+        HIL_ip_vehId_mapping[ii->second] = mod->getFullName();
+    }
+    else
+    {
+        mod->getSubmodule("appl")->par("isHIL") = false;
+        mod->getSubmodule("appl")->par("IPaddress") = "";
+    }
+
     mod->scheduleStart(omnetpp::simTime() + updateInterval);
 
     // pre-initialize TraCIMobilityMod

@@ -109,6 +109,7 @@ void AddMobileNode::beginLoading()
     std::map<std::string, pfunc> funcMap;
     funcMap["Scenario1"] = &AddMobileNode::Scenario1;
     funcMap["Scenario2"] = &AddMobileNode::Scenario2;
+    funcMap["Scenario3"] = &AddMobileNode::Scenario3;
     funcMap["Scenario4"] = &AddMobileNode::Scenario4;
     funcMap["Scenario5"] = &AddMobileNode::Scenario5;
     funcMap["Scenario6"] = &AddMobileNode::Scenario6;
@@ -285,6 +286,28 @@ void AddMobileNode::Scenario2()
     //                    return;
     //            }
     //        }
+}
+
+
+// hardware in the loop scenario
+void AddMobileNode::Scenario3()
+{
+    int numVehicles = par("numVehicles").longValue();
+    std::string vehiclesType = "";
+
+    int depart = 0;
+
+    for(int i=1; i<=numVehicles; i++)
+    {
+        char vehicleName[90];
+        sprintf(vehicleName, "veh%d", i);
+        depart = depart + 1000;
+
+        if(i == 5)
+            TraCI->vehicleAdd(vehicleName, "TypeHIL", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/, "192.168.60.42");
+        else
+            TraCI->vehicleAdd(vehicleName, "TypeManual", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
+    }
 }
 
 

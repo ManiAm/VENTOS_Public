@@ -28,11 +28,11 @@
 #ifndef APPLVPLATOONFORMED_H
 #define APPLVPLATOONFORMED_H
 
-#include "ApplV_04_AID.h"
+#include "ApplV_05_redpine.h"
 
 namespace VENTOS {
 
-class ApplVPlatoonFormed : public ApplV_AID
+class ApplVPlatoonFormed : public ApplVRedpine
 {
 public:
     ~ApplVPlatoonFormed();
@@ -60,7 +60,7 @@ protected:
     };
 
 private:
-    typedef ApplV_AID super;
+    typedef ApplVRedpine super;
 };
 
 }
