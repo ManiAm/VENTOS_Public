@@ -487,7 +487,7 @@ private:
             {{0xa4, 0x48}, "vehicleGetTimeGap"},
             {{0xa4, 0x49}, "vehicleGetClass"},
             {{0xa4, 0x68}, "vehicleGetLeader"},
-            {{0xa4, 0x70}, "vehicleGetCurrentAccel"},
+            {{0xa4, 0x74}, "vehicleGetCurrentAccel"},
             {{0xa4, 0x71}, "vehicleGetCarFollowingMode"},
             {{0xa4, 0x72}, "vehicleGetTLID"},
             {{0xa4, 0x73}, "vehicleGetTLLinkStatus"},

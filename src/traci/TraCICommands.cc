@@ -714,11 +714,11 @@ std::vector<std::string> TraCI_Commands::vehicleGetLeader(std::string nodeId, do
 
 double TraCI_Commands::vehicleGetCurrentAccel(std::string nodeId)
 {
-    updateTraCIlog("commandStart", CMD_GET_VEHICLE_VARIABLE, 0x70);
+    updateTraCIlog("commandStart", CMD_GET_VEHICLE_VARIABLE, 0x74);
 
-    double result = genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, 0x70, RESPONSE_GET_VEHICLE_VARIABLE);
+    double result = genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, 0x74, RESPONSE_GET_VEHICLE_VARIABLE);
 
-    updateTraCIlog("commandComplete", CMD_GET_VEHICLE_VARIABLE, 0x70);
+    updateTraCIlog("commandComplete", CMD_GET_VEHICLE_VARIABLE, 0x74);
     return result;
 }
 
