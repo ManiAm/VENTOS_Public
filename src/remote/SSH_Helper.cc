@@ -46,8 +46,8 @@ SSH_Helper::~SSH_Helper()
 
 
 // constructor
-SSH_Helper::SSH_Helper(std::string host, int port, std::string username, std::string password, bool printOutput, std::string cat, std::string sub) :
-                                                                                                                                                                SSH(host, port, username, password, printOutput, cat, sub)
+SSH_Helper::SSH_Helper(std::string host, int port, std::string username, std::string password,
+        bool printOutput, std::string cat, std::string sub) : SSH(host, port, username, password, printOutput, cat, sub)
 {
     active_threads = 0;
     terminating = false;

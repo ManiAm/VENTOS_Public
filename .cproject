@@ -115,7 +115,7 @@
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.base.187213536" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base.644867262"/>
 							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.base.1825405507" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.base.1063414241"/>
 							<tool id="cdt.managedbuild.tool.gnu.assembler.base.2000719014" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.base.1902141683">
-								<option id="gnu.both.asm.option.include.paths.626446117" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath"/>
+								<option id="gnu.both.asm.option.include.paths.626446117" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths"/>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.225066727" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
 						</toolChain>
@@ -240,7 +240,7 @@
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.base.560260934" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base.947659669"/>
 							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.base.634943555" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.base.876913176"/>
 							<tool id="cdt.managedbuild.tool.gnu.assembler.base.596403785" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.base.352065619">
-								<option id="gnu.both.asm.option.include.paths.637437756" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath"/>
+								<option id="gnu.both.asm.option.include.paths.637437756" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths"/>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1964525848" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
 						</toolChain>

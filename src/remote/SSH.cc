@@ -651,11 +651,26 @@ ssh_channel SSH::openShell(std::string shellName, bool interactive, bool keepAli
             ssh_channel_free(SSH_channel);
             throw omnetpp::cRuntimeError("SSH error in openShell");
         }
-    }
+    } // end of mutex lock
 
     //std::string shell_mode = interactive ? "interactive" : "non-interactive";
     //std::string keepAlive_mode = keepAlive ? "with" : "without";
     //DEBUG_LOG_C(category, subcategory) << boost::format("===[ Opening %1% shell '%2%' %3% keepAlive ]=== \n\n") % shell_mode % shellName % keepAlive_mode << std::flush;
+
+
+
+
+    //ssh_channel shell1 = board->openShell("shell1", true);
+
+    // check if a shell is interactive or not
+    //board->run_command(shell1, "[[ $- == *i* ]] && echo 'Interactive' || echo 'Not interactive'", 5, true);
+    //board->run_command(shell1, "shopt -q login_shell && echo 'Login shell' || echo 'Not login shell'", 5, true);
+
+    // running tmux application to keep the shell alive
+    //board->run_command(shell1, "tmux set -g status off", 10, true);
+    //board->run_command(shell1, "tmux", 10, true);
+
+
 
     // read the greeting message from remote shell and redirect it to /dev/null
     char buffer[1000];
