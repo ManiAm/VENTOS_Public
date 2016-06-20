@@ -67,10 +67,6 @@ void codeLoader::initialize(int stage)
         boost::filesystem::path VENTOS_FullPath = omnetpp::getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
         redpineAppl_FullPath = VENTOS_FullPath / "src" / "redpineAppl";
 
-        initScriptName = par("initScriptName").stringValue();
-        if(initScriptName == "")
-            throw omnetpp::cRuntimeError("initScriptName is empty!");
-
         remoteDir_Driver = par("remoteDir_Driver").stringValue();
         if(remoteDir_Driver == "")
             throw omnetpp::cRuntimeError("remoteDir_Driver is empty!");
@@ -185,13 +181,13 @@ void codeLoader::make_connection()
         std::string password = module->par("password").stringValue();
 
         if(host == "")
-            throw omnetpp::cRuntimeError("host is empty!");
+            throw omnetpp::cRuntimeError("host is empty for dev %d", ii);
 
         if(port <= 0)
-            throw omnetpp::cRuntimeError("port number is invalid!");
+            throw omnetpp::cRuntimeError("port number is invalid for dev %d", ii);
 
         if(username == "")
-            throw omnetpp::cRuntimeError("username is empty!");
+            throw omnetpp::cRuntimeError("username is empty for dev %d", ii);
 
         workers.push_back(std::thread([=]() {  // pass by value
 
@@ -224,9 +220,7 @@ void codeLoader::make_connection()
     workers.clear();
     for(auto &ii : active_SSH)
     {
-        // todo: make sure it is redpine board
-        //workers.push_back( std::thread (&codeLoader::init_test, this, ii.first, ii.second) );
-
+        // todo: make sure it is redpine board. We can SSH to any remote host!
         workers.push_back( std::thread (&codeLoader::init_board, this, ii.first, ii.second) );
     }
 
@@ -284,9 +278,9 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
 
     board->createDir(remoteDir_SourceCode);  // create a directory to store all our source codes
 
-    board->syncDir(redpineAppl_FullPath / "headers", remoteDir_SourceCode); // copy local folder 'headers'
-    board->syncDir(redpineAppl_FullPath / "sampleAppl", remoteDir_SourceCode); // copy local folder 'sampleAppl'
-    board->syncDir(redpineAppl_FullPath / "libs", remoteDir_SourceCode); // create local folder 'libs'
+    board->syncDir(redpineAppl_FullPath / "headers", remoteDir_SourceCode);  // copy local folder 'headers'
+    board->syncDir(redpineAppl_FullPath / "sampleAppl", remoteDir_SourceCode);  // copy local folder 'sampleAppl'
+    board->syncDir(redpineAppl_FullPath / "libs", remoteDir_SourceCode);  // create local folder 'libs'
 
     //################################
     // updating timestamp on all files  -- todo: using ntp is more efficient?
@@ -310,51 +304,45 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
     board->run_command_blocking(shell1, "cd " + (remoteDir_SourceCode / "sampleAppl").string());
     board->run_command_blocking(shell1, "make " + applName, true, board->getHostName());
 
+    //########################################
+    // copy the init files to remoteDir_Driver
+    //########################################
+
+    LOG_EVENT_C(board->getHostName(), "default") << boost::format("===[ Copying the init files to %1% ... ]=== \n\n") % remoteDir_Driver << std::flush;
+
+    // copy the local init folder to remoteDir_Driver
+    board->syncDir(redpineAppl_FullPath / "init", remoteDir_Driver);
+
+    boost::filesystem::path script_FullPath = redpineAppl_FullPath / "init" / "load_drivers";
+
+    // read file contents into a string
+    std::ifstream ifs(script_FullPath.c_str());
+    std::string content( (std::istreambuf_iterator<char>(ifs) ),
+            (std::istreambuf_iterator<char>() ) );
+
+    // get a pointer to the dev class
+    dev *devPtr = static_cast<dev *>(module);
+    ASSERT(devPtr);
+
+    // ask dev to substitute its parameters in the load_drivers script
+    devPtr->substituteParams(content);
+
+    // copy the load_drivers script to remoteDir_Driver
+    board->copyFileStr_SFTP("load_drivers", content, remoteDir_Driver / "init");
+
+    //##################################
+    // loading necessary drivers for 11p
+    //##################################
+
     if(module->par("loadDriver").boolValue())
     {
-        //#########################################
-        // copy the init script to remoteDir_Driver
-        //#########################################
+        LOG_EVENT_C(board->getHostName(), "default") << "===[ Loading driver ... ]=== \n\n" << std::flush;
 
-        boost::filesystem::path script_FullPath = redpineAppl_FullPath / initScriptName;
-
-        LOG_EVENT_C(board->getHostName(), "default") << boost::format("===[ Copying the init script to %1% ... ]=== \n\n") % remoteDir_Driver << std::flush;
-
-        // read file contents into a string
-        std::ifstream ifs(script_FullPath.c_str());
-        std::string content( (std::istreambuf_iterator<char>(ifs) ),
-                (std::istreambuf_iterator<char>()    ) );
-
-        // get a pointer to the dev class
-        dev *devPtr = static_cast<dev *>(module);
-        ASSERT(devPtr);
-
-        // ask dev to substitute its parameters in the init script
-        devPtr->substituteParams(content);
-
-        // do the copying
-        board->copyFileStr_SFTP(initScriptName, content, remoteDir_Driver);
-
-        //################################################
-        // remotely run the script in the remoteDir_Driver
-        //################################################
-
-        LOG_EVENT_C(board->getHostName(), "default") << boost::format("===[ Running the init script %1% ... ]=== \n\n") % initScriptName << std::flush;
-
-        board->run_command_blocking(shell1, "cd " + remoteDir_Driver.string());
-        board->run_command_blocking(shell1, "sudo ./" + initScriptName, true, board->getHostName());
-
-        //#######################################
-        // remotely start 1609 stack in WAVE mode
-        //#######################################
-
-        LOG_EVENT_C(board->getHostName(), "default") << "===[ Start 1609 stack in WAVE mode ... ]=== \n\n" << std::flush;
-
-        board->run_command_blocking(shell1, "cd " + remoteDir_Driver.string());
-        board->run_command_nonblocking(shell1, "if ! pgrep rsi_1609 > /dev/null; then sudo ./rsi_1609; fi", true, board->getHostName());
+        board->run_command_blocking(shell1, "cd " + (remoteDir_Driver / "init").string());
+        board->run_command_nonblocking(shell1, "sudo ./run_init", true, board->getHostName());
 
         // put the main thread to sleep -- let the last non-blocking command to run for a while
-        std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+        std::this_thread::sleep_for(std::chrono::milliseconds(10000));
     }
 
     //######################
@@ -365,47 +353,6 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
 
     board->run_command_blocking(shell2, "cd " + (remoteDir_SourceCode / "sampleAppl").string());
     board->run_command_nonblocking(shell2, "sudo ./" + applName, true, board->getHostName(), "shell2");
-}
-
-
-void codeLoader::init_test(cModule *module, SSH_Helper *board)
-{
-    ASSERT(module);
-    ASSERT(board);
-
-    boost::filesystem::path script_FullPath = redpineAppl_FullPath / "testScript";
-
-    LOG_EVENT_C(board->getHostName(), "default") << boost::format("===[ Copying the init script to %1% ... ]=== \n\n") % "/home/" << std::flush;
-
-    // read file contents into a string
-    std::ifstream ifs(script_FullPath.c_str());
-    std::string content( (std::istreambuf_iterator<char>(ifs) ),
-            (std::istreambuf_iterator<char>()    ) );
-
-    // do the copying
-    board->copyFileStr_SFTP("testScript", content, "/home/rubinet");
-
-
-
-
-
-    LOG_EVENT_C(board->getHostName(), "default") << boost::format("===[ Running the init script %1% ... ]=== \n\n") % "testScript" << std::flush;
-
-    ssh_channel shell1 = board->openShell("shell1", true);
-    board->run_command_blocking(shell1, "cd /home/rubinet");
-    board->run_command_blocking(shell1, "./testScript", true, board->getHostName());
-
-
-
-
-    //ssh_channel shell1 = board->openShell("shell1", true);
-
-    //board->run_command(shell1, "[[ $- == *i* ]] && echo 'Interactive' || echo 'Not interactive'", 5, true);
-    //board->run_command(shell1, "shopt -q login_shell && echo 'Login shell' || echo 'Not login shell'", 5, true);
-
-    //board->run_command(shell1, "tmux set -g status off", 10, true);
-    //board->run_command(shell1, "tmux", 10, true);
-
 }
 
 }

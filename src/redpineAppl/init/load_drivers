@@ -17,40 +17,6 @@
 #
 
 
-if [ "$EUID" -ne 0 ]; then 
-  printf "\e[1;31mRun the script with sudo permission! \e[0m \n\n"
-  exit 1
-fi
-
-echo "Bash version is: $BASH_VERSION"
-
-
-##############
-## Check OS ##
-##############
-
-OS='unknown'
-CODENAME='unknown'
-VER='unknown'
-ARCH='unknown'
-
-# get current OS information
-if [[ "$OSTYPE" == "linux-gnu" || "$OSTYPE" == "linux-gnueabihf" ]]; then
-    # Ubuntu
-    OS=$(lsb_release -si)
-    VER=$(lsb_release -sr)
-    CODENAME=$(lsb_release -sc)
-    ARCH=$(uname -m)
-elif [[ "$OSTYPE" == "darwin"* ]]; then
-    # Mac OSX
-    OS=$(sw_vers -productName)
-    VER=$(sw_vers -productVersion)
-    ARCH=$(uname -m)
-fi
-
-echo "Detected OS:" $OSTYPE $OS $VER "("$CODENAME")", $ARCH
-
-
 ##################
 ## function def ##
 ##################
@@ -81,6 +47,8 @@ insert_module ()
 ####################
 ## Starting point ##
 ####################
+
+cd ..
 
 echo ""
 echo "Inserting modules into kernel"
@@ -176,4 +144,3 @@ fi
 if [[ $? -ne 0 ]]; then
     exit 1
 fi
-

@@ -50,7 +50,6 @@ private:
     void addDevs();
     void make_connection();
     void init_board(cModule *, SSH_Helper *);
-    void init_test(cModule *, SSH_Helper *);
 
     void initialize_withTraCI();
     void executeEachTimestep();

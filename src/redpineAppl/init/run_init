@@ -1,0 +1,68 @@
+#!/bin/bash
+
+# @file run_init
+# @author  
+# @author  Mani Amoozadeh
+# @date    Apr 2016
+#
+# @section LICENSE
+#
+# This software embodies materials and concepts that are confidential to Redpine
+# Signals and is made available solely pursuant to the terms of a written license
+# agreement with Redpine Signals
+#
+# @section DESCRIPTION
+#
+# This bash script prepare the Redpine board to run WAVE applications
+#
+
+
+if [ "$EUID" -ne 0 ]; then 
+  printf "\e[1;31mRun the script with sudo permission! \e[0m \n\n"
+  exit 1
+fi
+
+echo "Bash version is: $BASH_VERSION"
+
+
+##############
+## Check OS ##
+##############
+
+OS='unknown'
+CODENAME='unknown'
+VER='unknown'
+ARCH='unknown'
+
+# get current OS information
+if [[ "$OSTYPE" == "linux-gnu" || "$OSTYPE" == "linux-gnueabihf" ]]; then
+    # Ubuntu
+    OS=$(lsb_release -si)
+    VER=$(lsb_release -sr)
+    CODENAME=$(lsb_release -sc)
+    ARCH=$(uname -m)
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+    # Mac OSX
+    OS=$(sw_vers -productName)
+    VER=$(sw_vers -productVersion)
+    ARCH=$(uname -m)
+fi
+
+echo "Detected OS:" $OSTYPE $OS $VER "("$CODENAME")", $ARCH
+
+
+####################
+## Starting point ##
+####################
+
+# loading driver
+./load_drivers
+
+echo ""
+echo "Running 1609"
+echo "============"
+
+# run the 1609 executable
+if ! pgrep rsi_1609 > /dev/null; then 
+    sudo ../rsi_1609
+fi
