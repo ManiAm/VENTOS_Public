@@ -50,6 +50,10 @@ protected:
     virtual void onData(PlatoonMsg*);
 
 private:
+    void print_dataPayload(const u_char *payload, int len);
+    void print_hex_ascii_line(const u_char *payload, int len, int offset);
+
+private:
     typedef ApplV_AID super;
 
     bool EEBL;
