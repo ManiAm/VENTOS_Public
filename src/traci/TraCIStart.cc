@@ -967,12 +967,9 @@ void TraCI_Start::addModule(std::string nodeId, const Coord& position, std::stri
     mod->getSubmodule("appl")->par("SUMOControllerType") = SUMOControllerType;
     mod->getSubmodule("appl")->par("SUMOControllerNumber") = SUMOControllerNumber;
 
-    if(vehType == "TypeHIL")
+    auto ii = HIL_vehicles.find(nodeId);
+    if(ii != HIL_vehicles.end())
     {
-        auto ii = HIL_vehicles.find(nodeId);
-        if(ii == HIL_vehicles.end())
-            throw omnetpp::cRuntimeError("Vehicle %s is not listed as HIL!", nodeId.c_str());
-
         mod->getSubmodule("appl")->par("isHIL") = true;
         mod->getSubmodule("appl")->par("IPaddress") = ii->second;
 

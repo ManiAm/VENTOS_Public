@@ -1017,17 +1017,8 @@ void TraCI_Commands::vehicleAdd(std::string vehicleId, std::string vehicleTypeId
 
     updateTraCIlog("commandComplete", CMD_SET_VEHICLE_VARIABLE, ADD);
 
-    if(vehicleTypeId == "TypeHIL")
-    {
-        if(ipAddress == "")
-            throw omnetpp::cRuntimeError("No IP address is specified for vehicle %s", vehicleId.c_str());
-
+    if(ipAddress != "")
         HIL_vehicles[vehicleId] = ipAddress;
-
-        // change vehicle color to red!
-        RGB newColor = Color::colorNameToRGB("red");
-        vehicleSetColor(vehicleId, newColor);
-    }
 }
 
 
