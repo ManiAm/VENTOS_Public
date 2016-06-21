@@ -81,11 +81,11 @@ void ApplVRedpine::receiveDataFromBoard(redpineData* data)
     for(unsigned int i = 0; i < data->getDataArraySize(); i++)
         payload[i] = data->getData(i);
 
+    // print the payload
     print_dataPayload(payload, data->getDataArraySize());
+    std::cout << std::endl << std::flush;
 
     delete[] payload;
-
-    std::cout << std::endl << std::flush;
 }
 
 
@@ -110,7 +110,7 @@ void ApplVRedpine::onData(PlatoonMsg* wsm)
 }
 
 
-/* print packet payload data (avoid printing binary data) */
+// print packet payload data (avoid printing binary data)
 void ApplVRedpine::print_dataPayload(const u_char *payload, int len)
 {
     // double-check again
