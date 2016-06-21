@@ -1,6 +1,6 @@
 /****************************************************************************/
-/// @file    BSM_create.h
-/// @author
+/// @file    test_init.c
+/// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author
 /// @date
 ///
@@ -12,16 +12,17 @@
 // agreement with Redpine Signals
 //
 
-#ifndef __BSM_H__
-#define __BSM_H__
 
-#include "utils.h"
-#include "BasicSafetyMessage.h"
-
-typedef struct
+int main(void)
 {
-    char				*blob;
-    vehiclesafetyExtension_t	*extention;//op
-}bsm_t;
+    signal(SIGINT, sigint);
 
-#endif
+    return 0;
+}
+
+
+void sigint(int signum)
+{
+
+    exit(0);
+}
