@@ -282,15 +282,6 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
     board->syncDir(redpineAppl_FullPath / "sampleAppl", remoteDir_SourceCode);  // copy local folder 'sampleAppl'
     board->syncDir(redpineAppl_FullPath / "libs", remoteDir_SourceCode);  // create local folder 'libs'
 
-    //################################
-    // updating timestamp on all files  -- todo: using ntp is more efficient?
-    //################################
-
-    LOG_EVENT_C(board->getHostName(), "default") << "===[ Updating timestamps of files ... ]=== \n\n" << std::flush;
-
-    board->run_command_blocking(shell1, "cd " + (remoteDir_SourceCode / "sampleAppl").string());
-    board->run_command_blocking(shell1, "find . -exec touch {} \\;", false, board->getHostName());
-
     //##########################
     // remotely compile the code
     //##########################
@@ -302,7 +293,7 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
     LOG_EVENT_C(board->getHostName(), "default") << boost::format("===[ Compiling application %1% ... ]=== \n\n") % applName << std::flush;
 
     board->run_command_blocking(shell1, "cd " + (remoteDir_SourceCode / "sampleAppl").string());
-    board->run_command_blocking(shell1, "make " + applName, true, board->getHostName());
+    board->run_command_blocking(shell1, "make -B " + applName, true, board->getHostName());  // todo: forcing make is not good
 
     //#########################################
     // copy the init folder to remoteDir_Driver
