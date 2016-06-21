@@ -71,7 +71,7 @@ int main(void)
 {
     signal(SIGINT, sigint);
 
-    // un-exporting at the beginning
+    // unexporting gpio9
     int fd = open("/sys/class/gpio/unexport", O_WRONLY);
     if(fd == -1)
         perror("closed");
@@ -80,17 +80,20 @@ int main(void)
     write(fd, status_buf, strlen(status_buf));
     close(fd);
 
-    printf("Initialization Queue... ");
+    // initialize message queues to send requests to 1609 stack
+    printf("Initializing Queue... ");
     int status = rsi_wavecombo_msgqueue_init();
     if(status == FAILURE)
         return 1;
 
+    // initialize the management information base (MIB) in 1609 stack
     printf("Initializing MIB... ");
     status = rsi_wavecombo_1609mib_init();
     if(status == FAILURE)
         return 1;
     printf("Done! \n");
 
+    // send channel synchronization parameters to Wave Combo Module
     printf("Calling update sync params... ");
     status = rsi_wavecombo_update_channel_sync_params(OPERATING_CLASS, CONTROL_CHANNEL, CCH_INTERVEL, SCH_INTERVEL, SYNC_TOLERANCE, MAX_SWITCH_TIME);
     if(status == FAILURE)
@@ -103,18 +106,24 @@ int main(void)
     //        return 1;
     //    printf("Done! \n");
 
+    // get a local service index for this user from 1609 stack
     lsi = rsi_wavecombo_local_service_index_request();
     if(lsi <= 0)
         return 1;
 
+    // initialize message queue to receive wsm packets from 1609 stack
     status = rsi_wavecombo_wsmp_queue_init(lsi);
+    if(status == FAILURE)
+        return 1;
 
+    // indicating that a higher layer entity requests a short message service
     printf("Sending WSMP service request... ");
     status = rsi_wavecombo_wsmp_service_req(ADD, lsi, psid);
     if(status == FAILURE)
         return 1;
     printf("Done! \n");
 
+    // request stack to allocate radio resources to the indicated service channel
     printf("Sending SCH service request... ");
     status = rsi_wavecombo_sch_start_req(172, RATE_6, 1, 255);
     if(status == FAILURE)
@@ -183,6 +192,7 @@ int main(void)
     initialPosition->posAccuracy_size = 0x01;
     initialPosition->posAccuracy[0] = 0x03;
 
+    // todo: where this variable is being used?
     rTCMPackage = malloc(sizeof(rTCMPackage_t));
     if(!rTCMPackage)
         perror("malloc");
@@ -354,6 +364,7 @@ int main(void)
     free(vehiclesafetyextension);
     free(bsm_message);
 
+    // unexporting gpio9
     fd = open("/sys/class/gpio/unexport", O_WRONLY);
     if(fd == -1)
         perror("open");
@@ -400,6 +411,7 @@ void sigint(int signum)
     if(bsm_message)
         free(bsm_message);
 
+    // unexporting gpio9
     int fd = open("/sys/class/gpio/unexport", O_WRONLY);
     if(fd == -1)
         perror("open");
@@ -413,4 +425,3 @@ void sigint(int signum)
 
     exit(0);
 }
-

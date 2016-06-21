@@ -88,7 +88,7 @@ if [[ $? -ne 0 ]]; then
    	exit 1
 fi
 	
-# check if all drivers are loaded
+# check if all drivers are loaded or not
 ./test_init
 
 # if not, then load the drivers
