@@ -1,8 +1,8 @@
 /****************************************************************************/
-/// @file    beacon.c
+/// @file    eebl_rx_tx.c
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author
-/// @date
+/// @date    Jun 2016
 ///
 /****************************************************************************/
 // @section LICENSE
@@ -50,7 +50,7 @@
 void sigint(int sigint);
 asn_dec_rval_t J2735_decode(void*, int);
 
-// global variables -- to be accessible in sigint
+// defined globally to be accessible in sigint
 int gpio9 = 9;
 int lsi = 0;
 char psid[4] = {0x20};
@@ -307,7 +307,7 @@ int main(void)
         int pay_load_len = 0;
         if(bsm_create(bsm_message, pay_load, &pay_load_len) == SUCCESS)
         {
-            printf("%02ld/%02ld/%ld %02ld:%02ld:%02ld BSM message #%d created of size %d... ", date->month, date->day, date->year, date->hour, date->minute, date->second, msgCount, pay_load_len);
+            printf("%02ld/%02ld/%ld %02ld:%02ld:%02ld BSM message #%2d created of size %d... ", date->month, date->day, date->year, date->hour, date->minute, date->second, msgCount, pay_load_len);
         }
         else
         {
@@ -363,6 +363,7 @@ int main(void)
     free(vehiclesafetyextension);
     free(bsm_message);
 
+    // unexporting gpio9
     fd = open("/sys/class/gpio/unexport", O_WRONLY);
     if(fd == -1)
         perror("open");
@@ -409,6 +410,7 @@ void sigint(int signum)
     if(bsm_message)
         free(bsm_message);
 
+    // unexporting gpio9
     int fd = open("/sys/class/gpio/unexport", O_WRONLY);
     if(fd == -1)
         perror("open");

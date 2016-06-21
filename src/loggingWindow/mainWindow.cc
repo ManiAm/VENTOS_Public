@@ -42,7 +42,7 @@ mainWindow::mainWindow()
 {
     set_title("Log window");
     set_border_width(1);
-    set_default_size(1050, 500 /*height*/);
+    set_default_size(1070, 500 /*height*/);
     set_icon_from_file("log_128.png");
 
     Gtk::Box *m_VBox = new Gtk::Box(Gtk::ORIENTATION_VERTICAL);
