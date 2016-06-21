@@ -304,16 +304,16 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
     board->run_command_blocking(shell1, "cd " + (remoteDir_SourceCode / "sampleAppl").string());
     board->run_command_blocking(shell1, "make " + applName, true, board->getHostName());
 
-    //########################################
-    // copy the init files to remoteDir_Driver
-    //########################################
+    //#########################################
+    // copy the init folder to remoteDir_Driver
+    //#########################################
 
-    LOG_EVENT_C(board->getHostName(), "default") << boost::format("===[ Copying the init files to %1% ... ]=== \n\n") % remoteDir_Driver << std::flush;
+    LOG_EVENT_C(board->getHostName(), "default") << boost::format("===[ Copying the init folder to %1% ... ]=== \n\n") % remoteDir_Driver << std::flush;
 
     // copy the local init folder to remoteDir_Driver
     board->syncDir(redpineAppl_FullPath / "init", remoteDir_Driver);
 
-    boost::filesystem::path script_FullPath = redpineAppl_FullPath / "init" / "load_drivers";
+    boost::filesystem::path script_FullPath = redpineAppl_FullPath / "init" / "run_init";
 
     // read file contents into a string
     std::ifstream ifs(script_FullPath.c_str());
@@ -324,26 +324,32 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
     dev *devPtr = static_cast<dev *>(module);
     ASSERT(devPtr);
 
-    // ask dev to substitute its parameters in the load_drivers script
+    // ask dev to substitute its parameters in the run_init script
     devPtr->substituteParams(content);
 
-    // copy the load_drivers script to remoteDir_Driver
-    board->copyFileStr_SFTP("load_drivers", content, remoteDir_Driver / "init");
+    // copy the run_init script to remoteDir_Driver
+    board->copyFileStr_SFTP("run_init", content, remoteDir_Driver / "init");
 
-    //##################################
-    // loading necessary drivers for 11p
-    //##################################
+    //#########################################################
+    // remotely run the run_init script in the remoteDir_Driver
+    //#########################################################
 
-    if(module->par("loadDriver").boolValue())
-    {
-        LOG_EVENT_C(board->getHostName(), "default") << "===[ Loading driver ... ]=== \n\n" << std::flush;
+    LOG_EVENT_C(board->getHostName(), "default") << "===[ Running the run_init script ... ]=== \n\n" << std::flush;
 
-        board->run_command_blocking(shell1, "cd " + (remoteDir_Driver / "init").string());
-        board->run_command_nonblocking(shell1, "sudo ./run_init", true, board->getHostName());
+    board->run_command_blocking(shell1, "cd " + (remoteDir_Driver / "init").string());
+    board->run_command_blocking(shell1, "sudo ./run_init", true, board->getHostName());
 
-        // put the main thread to sleep -- let the last non-blocking command to run for a while
-        std::this_thread::sleep_for(std::chrono::milliseconds(10000));
-    }
+    //#######################################
+    // remotely start 1609 stack in WAVE mode
+    //#######################################
+
+    LOG_EVENT_C(board->getHostName(), "default") << "===[ Start 1609 stack in WAVE mode ... ]=== \n\n" << std::flush;
+
+    board->run_command_blocking(shell1, "cd " + remoteDir_Driver.string());
+    board->run_command_nonblocking(shell1, "if ! pgrep rsi_1609 > /dev/null; then sudo ./rsi_1609; fi", true, board->getHostName());
+
+    // put the main thread to sleep -- let the last non-blocking command to run for a while
+    std::this_thread::sleep_for(std::chrono::milliseconds(7000));
 
     //######################
     // remotely run the code
