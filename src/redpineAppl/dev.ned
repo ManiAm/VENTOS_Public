@@ -15,7 +15,6 @@ simple dev
         string password = default(""); 
         string applName = default("");
         bool rebootAtStart = default(false);
-        bool loadDriver = default(true);
         
         // Driver Mode:
         // 1  END-TO-END mode, 
