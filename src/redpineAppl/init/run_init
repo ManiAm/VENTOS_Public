@@ -82,99 +82,111 @@ insert_module ()
 ## Starting point ##
 ####################
 
-cd ..
-
-echo ""
-echo "Inserting modules into kernel"
-echo "============================="
-
-modu=("onebox_common_gpl.ko")
-insert_module modu[@]
-
-# load WLAN modules
-modu=("wlan.ko" "wlan_wep.ko" "wlan_tkip.ko" "wlan_ccmp.ko" "wlan_acl.ko" "wlan_xauth.ko" "wlan_scan_sta.ko" "onebox_wlan_nongpl.ko" "onebox_wlan_gpl.ko")
-insert_module modu[@]
-
-
-echo ""
-echo "Loading parameters"
-echo "=================="
-
-# Do not delete/change the following line!
-# [params]
-
-# show each parameter in a separate line
-IFS=' ' read -ra TOKENS <<< "$PARAMS"
-for i in "${TOKENS[@]}"; do
-    echo "$i"
-done
-
-# load common HAL modules
-echo ""
-modu=("onebox_nongpl.ko	$PARAMS" "onebox_gpl.ko")
-insert_module modu[@]
-
-
-echo ""
-echo "ANT_SEL REG value"
-echo "================="
-
-sleep 1
-
-./onebox_util rpine0 ant_sel 2
+# build the test_init program
+make -B all
 if [[ $? -ne 0 ]]; then
-    exit 1
+   	exit 1
 fi
+	
+# check if all drivers are loaded
+./test_init
 
-sleep 1
-
-./onebox_util rpine0 ant_sel 5
+# if not, then load the drivers
 if [[ $? -ne 0 ]]; then
-    exit 1
-fi
 
-echo ""
-echo "Next step"
-echo "========="
+	cd ..
 
-sleep 0.5
+	echo ""
+	echo "Inserting modules into kernel"
+	echo "============================="
 
-./onebox_util rpine0 create_vap wifi0 wave
-if [[ $? -ne 0 ]]; then
-    exit 1
-fi
+	modu=("onebox_common_gpl.ko")
+	insert_module modu[@]
 
-sleep 0.5
+	# load WLAN modules
+	modu=("wlan.ko" "wlan_wep.ko" "wlan_tkip.ko" "wlan_ccmp.ko" "wlan_acl.ko" "wlan_xauth.ko" "wlan_scan_sta.ko" "onebox_wlan_nongpl.ko" "onebox_wlan_gpl.ko")
+	insert_module modu[@]
 
-sleep 1
+	echo ""
+	echo "Loading parameters"
+	echo "=================="
 
-./onebox_util rpine0 set_country 840
-if [[ $? -ne 0 ]]; then
-    exit 1
-fi
+	# Do not delete/change the following line!
+	# [params]
 
-sleep 0.5
+	# show each parameter in a separate line
+	IFS=' ' read -ra TOKENS <<< "$PARAMS"
+	for i in "${TOKENS[@]}"; do
+    	echo "$i"
+	done
 
-ifconfig wifi0 up
-if [[ $? -ne 0 ]]; then
-    exit 1
-fi
+	# load common HAL modules
+	echo ""
+	modu=("onebox_nongpl.ko	$PARAMS" "onebox_gpl.ko")
+	insert_module modu[@]
 
-echo ""
-echo "Running WAVE"
-echo "============"
+	echo ""
+	echo "ANT_SEL REG value"
+	echo "================="
 
-iwpriv wifi0 mode 8
-if [[ $? -ne 0 ]]; then
-    exit 1
-fi
+	sleep 1
 
-./onebox_util rpine0 set_chwidth 16
-if [[ $? -ne 0 ]]; then
-    exit 1
-fi
+	./onebox_util rpine0 ant_sel 2
+	if [[ $? -ne 0 ]]; then
+    	exit 1
+	fi
 
-./onebox_util rpine0 set_channel 178
-if [[ $? -ne 0 ]]; then
-    exit 1
+	sleep 1
+
+	./onebox_util rpine0 ant_sel 5
+	if [[ $? -ne 0 ]]; then
+    	exit 1
+	fi
+
+	echo ""
+	echo "Next step"
+	echo "========="
+
+	sleep 0.5
+
+	./onebox_util rpine0 create_vap wifi0 wave
+	if [[ $? -ne 0 ]]; then
+    	exit 1
+	fi
+
+	sleep 0.5
+
+	sleep 1
+
+	./onebox_util rpine0 set_country 840
+	if [[ $? -ne 0 ]]; then
+    	exit 1
+	fi
+
+	sleep 0.5
+
+	ifconfig wifi0 up
+	if [[ $? -ne 0 ]]; then
+    	exit 1
+	fi
+
+	echo ""
+	echo "Running WAVE"
+	echo "============"
+
+	iwpriv wifi0 mode 8
+	if [[ $? -ne 0 ]]; then
+    	exit 1
+	fi
+
+	./onebox_util rpine0 set_chwidth 16
+	if [[ $? -ne 0 ]]; then
+    	exit 1
+	fi
+
+	./onebox_util rpine0 set_channel 178
+	if [[ $? -ne 0 ]]; then
+    	exit 1
+	fi
+
 fi
