@@ -27,7 +27,7 @@
 
 namespace VENTOS;
 
-packet redpineData 
+packet redpineData
 {
 	int srcPort;
 	unsigned char data[]; // generated redpineData class keeps the array size internally

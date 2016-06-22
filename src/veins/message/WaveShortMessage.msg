@@ -26,28 +26,13 @@ class noncobject Coord;
 namespace Veins;
 
 packet WaveShortMessage {
-	//Version of the Wave Short Message
-	int wsmVersion = 0;
-	//Determine which security mechanism was used
-	int securityType = 0;
-	//Channel Number on which this packet was sent
-	int channelNumber;
-	//Data rate with which this packet was sent
-	int dataRate = 1;
-	//Power Level with which this packet was sent
-	int priority = 3;
-	//Unique number to identify the service
-	int psid = 0;
-	//Provider Service Context
-	string psc = "Service with some Data";
-	//Length of Wave Short Message
-	int wsmLength;
-	//Data of Wave Short Message
-	string wsmData = "Some Data";
-
-	int senderAddress = 0;
-	int recipientAddress = -1;
-	int serial = 0;
-	Coord senderPos;
-	simtime_t timestamp = 0;
+	int wsmVersion = 0;    // Version of the Wave Short Message
+	int securityType = 0;  // Determine which security mechanism was used
+	int channelNumber;     // Channel Number on which this packet was sent
+	int dataRate = 1;      // Data rate with which this packet was sent
+	int priority = 3;      // Power Level with which this packet was sent
+	int psid = 0;          // Unique number to identify the service
+	string psc = "Service with some Data"; // Provider Service Context
+	int wsmLength;            // Length of Wave Short Message
+	unsigned char data[];  // Data of Wave Short Message
 }

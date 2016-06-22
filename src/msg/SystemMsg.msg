@@ -37,7 +37,7 @@ packet SystemMsg extends WaveShortMessage
 {
     string sender;
 	string recipient;
-    int requestType;	//0 = pathing request
+    int requestType; // 0 = pathing request
     string edge;
     int target;
 };
