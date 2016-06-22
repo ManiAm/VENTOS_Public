@@ -75,6 +75,8 @@ void ApplVRedpine::handlePositionUpdate(cObject* obj)
 
 void ApplVRedpine::receiveDataFromBoard(redpineData* data)
 {
+    Enter_Method("");
+
     std::cout << SUMOID << " received a EEBL msg of size " << data->getDataArraySize() << std::endl;
 
     u_char *payload = new u_char[data->getDataArraySize()];
@@ -86,9 +88,20 @@ void ApplVRedpine::receiveDataFromBoard(redpineData* data)
     //std::cout << std::endl << std::flush;
 
     delete[] payload;
+    delete data;
 
-    // set speed to zero
+    // stopping the vehicle
     TraCI->vehicleSetSpeed(SUMOID, 0);
+
+    // prepare a 'basic safety message'
+    BSM* wsm = new BSM("BSM");
+    wsm->setSender(SUMOID.c_str());
+    wsm->setSenderType(SUMOType.c_str());
+    Coord cord = TraCI->vehicleGetPosition(SUMOID);
+    wsm->setPos(cord);
+
+    // and broadcast it to nearby vehicles
+    send(wsm, lowerLayerOut);
 }
 
 
@@ -110,6 +123,24 @@ void ApplVRedpine::onData(PlatoonMsg* wsm)
 {
     // pass it down
     super::onData(wsm);
+}
+
+
+void ApplVRedpine::onHIL(BSM* wsm)
+{
+    // check the received data and act on it.
+    // all wsm messages here are EEBL for now.
+    // we stop, as soon as we receive a EEBL msg.
+    // todo: we should decode the received msg
+
+    // if msg is coming from my leading vehicle
+    std::vector<std::string> leaderv = TraCI->vehicleGetLeader(SUMOID, sonarDist);
+    std::string leader = leaderv[0];
+    if(leader == wsm->getSender())
+    {
+        TraCI->vehicleSetMaxDecel(SUMOID, 4);
+        TraCI->vehicleSetSpeed(SUMOID, 0);
+    }
 }
 
 

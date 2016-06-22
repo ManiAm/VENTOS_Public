@@ -30,6 +30,7 @@
 
 #include "ApplV_04_AID.h"
 #include "RedpineData_m.h"
+#include "BSM_m.h"
 
 namespace VENTOS {
 
@@ -48,6 +49,7 @@ protected:
     virtual void onBeaconVehicle(BeaconVehicle*);
     virtual void onBeaconRSU(BeaconRSU*);
     virtual void onData(PlatoonMsg*);
+    virtual void onHIL(BSM*);
 
 private:
     void print_dataPayload(const u_char *payload, int len);

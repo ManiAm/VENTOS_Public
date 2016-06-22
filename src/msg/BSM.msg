@@ -1,5 +1,5 @@
 //****************************************************************************/
-/// @file    RedpineData.msg
+/// @file    BSM.msg
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    Jun 2016
@@ -25,10 +25,19 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
+cplusplus {{
+#include "WaveShortMessage_m.h"
+#include <Coord.h>
+}}
+
+class Veins::WaveShortMessage;
+class noncobject Coord;
+
 namespace VENTOS;
 
-packet redpineData
+packet BSM extends WaveShortMessage 
 {
-	int srcPort;
-	unsigned char data[]; // generated redpineData class keeps the array size internally
+	string sender;
+	string senderType;
+	Coord pos;
 };

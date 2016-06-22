@@ -219,6 +219,13 @@ void ApplVManager::handleLowerMsg(omnetpp::cMessage* msg)
 
         ApplVManager::onData(wsm);
     }
+    else if (std::string(msg->getName()) == "BSM")
+    {
+        BSM* wsm = dynamic_cast<BSM*>(msg);
+        ASSERT(wsm);
+
+        ApplVManager::onHIL(wsm);
+    }
     else
         throw omnetpp::cRuntimeError("Vehicle %s received unsupported msg %s!", SUMOID.c_str(), msg->getName());
 
@@ -350,6 +357,13 @@ void ApplVManager::onData(PlatoonMsg* wsm)
 {
     // pass it down
     super::onData(wsm);
+}
+
+
+void ApplVManager::onHIL(BSM* wsm)
+{
+    // pass it down
+    super::onHIL(wsm);
 }
 
 }

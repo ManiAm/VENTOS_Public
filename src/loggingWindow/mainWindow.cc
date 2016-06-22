@@ -79,7 +79,8 @@ mainWindow::mainWindow()
 
 mainWindow::~mainWindow()
 {
-
+    if(newsockfd)
+        ::close(newsockfd);
 }
 
 
@@ -347,9 +348,6 @@ void mainWindow::flushStr(std::string category, std::string subcategory)
 
 void mainWindow::on_button_quit()
 {
-    if(newsockfd)
-        ::close(newsockfd);
-
     hide();
 }
 
