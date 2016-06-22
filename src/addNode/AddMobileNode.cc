@@ -305,7 +305,7 @@ void AddMobileNode::Scenario3()
 
         if(i == 3)
         {
-            TraCI->vehicleAdd(vehicleName, "TypeHIL", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/, "192.168.60.42");
+            TraCI->vehicleAdd(vehicleName, "TypeHIL", "route1", depart, -5 /*pos*/, 0 /*speed*/, 0 /*lane*/, "192.168.60.42");
 
             // change vehicle color to red!
             RGB newColor = Color::colorNameToRGB("red");
@@ -314,14 +314,14 @@ void AddMobileNode::Scenario3()
         else if(i == 4)
         {
             // HIL vehicle with lower deccel capability
-            TraCI->vehicleAdd(vehicleName, "TypeHIL2", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/, "192.168.60.43");
+            TraCI->vehicleAdd(vehicleName, "TypeHIL2", "route1", depart, -5 /*pos*/, 0 /*speed*/, 0 /*lane*/, "192.168.60.43");
 
             // change vehicle color to green!
             RGB newColor = Color::colorNameToRGB("green");
             TraCI->vehicleSetColor(vehicleName, newColor);
         }
         else
-            TraCI->vehicleAdd(vehicleName, "TypeManual", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
+            TraCI->vehicleAdd(vehicleName, "TypeManual", "route1", depart, -5 /*pos*/, 0 /*speed*/, 0 /*lane*/);
     }
 }
 

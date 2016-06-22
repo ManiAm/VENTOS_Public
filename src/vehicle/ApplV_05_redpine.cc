@@ -75,17 +75,20 @@ void ApplVRedpine::handlePositionUpdate(cObject* obj)
 
 void ApplVRedpine::receiveDataFromBoard(redpineData* data)
 {
-    std::cout << SUMOID << " received a msg of size " << data->getDataArraySize() << std::endl;
+    std::cout << SUMOID << " received a EEBL msg of size " << data->getDataArraySize() << std::endl;
 
     u_char *payload = new u_char[data->getDataArraySize()];
     for(unsigned int i = 0; i < data->getDataArraySize(); i++)
         payload[i] = data->getData(i);
 
     // print the payload
-    print_dataPayload(payload, data->getDataArraySize());
-    std::cout << std::endl << std::flush;
+    //print_dataPayload(payload, data->getDataArraySize());
+    //std::cout << std::endl << std::flush;
 
     delete[] payload;
+
+    // set speed to zero
+    TraCI->vehicleSetSpeed(SUMOID, 0);
 }
 
 

@@ -274,7 +274,7 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
     super::onBeaconVehicle(wsm);
 
     // model is Krauss (TypeManual)
-    if(SUMOControllerType == SUMO_TAG_CF_KRAUSS)
+    if(SUMOControllerType == SUMO_TAG_CF_KRAUSS || SUMOControllerType == SUMO_TAG_CF_KRAUSS_ORIG1)
     {
         // we ignore all received BeaconVehicles
     }

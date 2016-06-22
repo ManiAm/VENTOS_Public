@@ -11,9 +11,9 @@
       <carFollowing-Krauss accel="3.0" decel="5.0" sigma="0" tau="1.64" />
   </vType>  
   
-    <!-- Manual driving vehicle with lower decel value -represent a HIL vehicle -->
+  <!-- Manual driving vehicle with lower decel value -represent a HIL vehicle -->
   <vType id="TypeHIL2" length="5.0" minGap="2.0" maxSpeed="30.0" vClass="passenger">
-      <carFollowing-Krauss accel="3.0" decel="3.0" sigma="0" tau="1.64" />
+      <carFollowing-KraussOrig1 accel="3.0" decel="3.0" sigma="0" tau="1.64" />
   </vType> 
 
   <route id="route1" edges="1to2" />  
