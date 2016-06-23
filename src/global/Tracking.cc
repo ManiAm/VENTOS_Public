@@ -26,6 +26,7 @@
 //
 
 #include "Tracking.h"
+#include <algorithm>
 
 Define_Module(VENTOS::Tracking);
 
@@ -55,7 +56,7 @@ void Tracking::initialize(int stage)
         omnetpp::getSimulation()->getSystemModule()->subscribe("initialize_withTraCI", this);
 
         zoom = par("zoom").doubleValue();
-        if(zoom < 0)
+        if(zoom < 100)
             throw omnetpp::cRuntimeError("zoom value is not correct!");
 
         initialWindowsOffset = par("initialWindowsOffset").doubleValue();
@@ -92,25 +93,8 @@ void Tracking::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t s
         // todo:
         // first check if we are really running in GUI mode
 
-        if(mode < 0)
-            return;
-
-        if(mode == 0)
-        {
-            TraCI->GUISetZoom("View #0", zoom);
-            return;
-        }
-
-        if(mode == 1 || mode == 2)
-        {
-            // zoom-in GUI
-            TraCI->GUISetZoom("View #0", zoom);
-
-            // adjust Windows initially
-            TraCI->GUISetOffset("View #0", initialWindowsOffset, 0.);
-
+        if(mode >= 0)
             TrackingGUI();
-        }
     }
 }
 
@@ -118,24 +102,87 @@ void Tracking::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t s
 void Tracking::handleMessage(omnetpp::cMessage *msg)
 {
     if (msg == updataGUI)
-    {
         TrackingGUI();
-    }
 }
 
 
 void Tracking::TrackingGUI()
 {
-    if(mode == 1)
+    // zoom in
+    if(mode == 0)
     {
+        // adjust Windows
+        TraCI->GUISetOffset("View #0", initialWindowsOffset, 0.);
+        // zoom in to show the beginning of lane
+        TraCI->GUISetZoom("View #0", zoom);
+
+        return;
+    }
+    // zoom in slowly
+    else if(mode == 1)
+    {
+        static bool wasExecuted = false;
+        if(!wasExecuted)
+        {
+            TraCI->GUISetOffset("View #0", 5112, 2666);  // adjust Windows
+            wasExecuted = true;
+        }
+
+        static double currentZoom = 100.;
+        const static double steps = (zoom - 100. /*base zoom level*/) / 100.;
+        currentZoom += steps;  // gradually increase the zoom
+
+        TraCI->GUISetZoom("View #0", currentZoom);
+
+        // stop the zooming
+        if(currentZoom >= zoom)
+            return;
+    }
+    // track a specific vehicle
+    else if(mode == 2)
+    {
+        static bool vehFound = false;
+        if(!vehFound)
+        {
+            std::list<std::string> vehs = TraCI->vehicleGetIDList();
+            auto it = std::find(vehs.begin(), vehs.end(), trackingV);
+            // vehicle has not shown up yet!
+            if(it == vehs.end())
+            {
+                scheduleAt(omnetpp::simTime() + trackingInterval, updataGUI);
+                return;
+            }
+            else
+            {
+                vehFound = true;
+
+                // adjust Windows
+                TraCI->GUISetOffset("View #0", initialWindowsOffset, 0.);
+                // zoom in GUI
+                TraCI->GUISetZoom("View #0", zoom);
+            }
+        }
+
         // get vehicle position in SUMO coordinates
         Coord co = TraCI->vehicleGetPosition(trackingV);
 
         if(co.x > 0)
             TraCI->GUISetOffset("View #0", co.x, co.y);
     }
-    else if(mode == 2)
+    // move windows frame when all vehicles exit
+    else if(mode == 3)
     {
+        // run this code only once
+        static bool wasExecuted = false;
+        if (!wasExecuted)
+        {
+            // adjust Windows
+            TraCI->GUISetOffset("View #0", initialWindowsOffset, 0.);
+            // zoom in GUI
+            TraCI->GUISetZoom("View #0", zoom);
+            wasExecuted = true;
+        }
+
         // get a list of vehicles on this lane!
         std::list<std::string> myList = TraCI->laneGetLastStepVehicleIDs(trackingLane.c_str());
 
@@ -165,4 +212,3 @@ void Tracking::TrackingGUI()
 }
 
 }
-
