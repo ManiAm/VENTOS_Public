@@ -93,15 +93,18 @@ void ApplVRedpine::receiveDataFromBoard(redpineData* data)
     // stopping the vehicle
     TraCI->vehicleSetSpeed(SUMOID, 0);
 
-    // prepare a 'basic safety message'
-    BSM* wsm = new BSM("BSM");
-    wsm->setSender(SUMOID.c_str());
-    wsm->setSenderType(SUMOType.c_str());
-    Coord cord = TraCI->vehicleGetPosition(SUMOID);
-    wsm->setPos(cord);
+    if(EEBL)
+    {
+        // prepare a 'basic safety message'
+        BSM* wsm = new BSM("BSM");
+        wsm->setSender(SUMOID.c_str());
+        wsm->setSenderType(SUMOType.c_str());
+        Coord cord = TraCI->vehicleGetPosition(SUMOID);
+        wsm->setPos(cord);
 
-    // and broadcast it to nearby vehicles
-    send(wsm, lowerLayerOut);
+        // and broadcast it to nearby vehicles
+        send(wsm, lowerLayerOut);
+    }
 }
 
 
