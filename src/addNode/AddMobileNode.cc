@@ -296,14 +296,13 @@ void AddMobileNode::Scenario3()
     std::string vehiclesType = "";
 
     int depart = 0;
-
     for(int i=0; i<numVehicles; i++)
     {
         char vehicleName[90];
-        sprintf(vehicleName, "veh%d", i);
+        sprintf(vehicleName, "veh_ns_%d", i);
         depart = depart + 1000;
 
-        if(i == 3)
+        if(i == 1)
         {
             TraCI->vehicleAdd(vehicleName, "TypeHIL", "route1", depart, -5 /*pos*/, 0 /*speed*/, 0 /*lane*/, "192.168.60.42");
 
@@ -311,10 +310,14 @@ void AddMobileNode::Scenario3()
             RGB newColor = Color::colorNameToRGB("red");
             TraCI->vehicleSetColor(vehicleName, newColor);
         }
-        else if(i == 4)
+        else if(i == 2)
         {
             // HIL vehicle with lower deccel capability
             TraCI->vehicleAdd(vehicleName, "TypeHIL2", "route1", depart, -5 /*pos*/, 0 /*speed*/, 0 /*lane*/, "192.168.60.43");
+
+            // alter 'lane change' mode to disable lane-changing
+            int32_t bitset = TraCI->vehicleBuildLaneChangeMode(00, 01, 00, 01, 01);
+            TraCI->vehicleSetLaneChangeMode(vehicleName, bitset);
 
             // change vehicle color to green!
             RGB newColor = Color::colorNameToRGB("green");
@@ -322,6 +325,16 @@ void AddMobileNode::Scenario3()
         }
         else
             TraCI->vehicleAdd(vehicleName, "TypeManual", "route1", depart, -5 /*pos*/, 0 /*speed*/, 0 /*lane*/);
+    }
+
+    depart = 0;
+    for(int i=0; i<numVehicles; i++)
+    {
+        char vehicleName[90];
+        sprintf(vehicleName, "veh_sn_%d", i);
+        depart = depart + 1000;
+
+        TraCI->vehicleAdd(vehicleName, "TypeManual", "route2", depart, -5 /*pos*/, 0 /*speed*/, 0 /*lane*/);
     }
 }
 
