@@ -124,7 +124,7 @@ void Tracking::TrackingGUI()
         static bool wasExecuted = false;
         if(!wasExecuted)
         {
-            TraCI->GUISetOffset("View #0", 5112, 2666);  // adjust Windows
+            TraCI->GUISetOffset("View #0", 5072, 2721);  // adjust Windows
             wasExecuted = true;
         }
 
