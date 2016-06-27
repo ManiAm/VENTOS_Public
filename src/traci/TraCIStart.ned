@@ -18,7 +18,7 @@ simple TraCIStart
         string host = default("localhost");    // sumo-launchd.py server hostname
         string SUMOexe = default("/home/mani/Desktop/VENTOS_SUMO/sumo/bin/sumo-guiD");   // sumoD: comamnd-line interface    sumo-guiD; graphical interface
         string SUMOconfig = default("");       // SUMO configure file relative path
-        bool quitOnEnd = default(true);        // quits the GUI when the simulation stops
+        bool quitOnEnd = default(false);        // quits the GUI when the simulation stops
         bool startAfterLoading = default(true);  // start the simulation after loading
         bool CMDstepLog = default(true);         // show console output of current simulation step
         int seed = default(0);       // seed value to set in launch configuration, if missing (-1: current run number)
