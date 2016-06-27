@@ -189,14 +189,20 @@ void MeasureTrafficParams::CheckDetectors()
             AD_queue[lane] = it;
     }
 
-    LOG_INFO << boost::format("\n>>> %1% loop detectors are added out of which: \n") % str.size();
-    LOG_INFO << boost::format("  %1% are demand loop detectors \n") % LD_demand.size();
-    LOG_INFO << boost::format("  %1% are actuated loop detectors \n") % LD_actuated.size();
+    if(str.size() > 0)
+    {
+        LOG_INFO << boost::format("\n>>> %1% loop detectors are added out of which: \n") % str.size();
+        LOG_INFO << boost::format("  %1% are demand loop detectors \n") % LD_demand.size();
+        LOG_INFO << boost::format("  %1% are actuated loop detectors \n") % LD_actuated.size();
+        LOG_FLUSH;
+    }
 
-    LOG_INFO << boost::format("\n>>> %1% area detectors are added out of which: \n") % str2.size();
-    LOG_INFO << boost::format("  %1% are used for queue measurement \n") % AD_queue.size();
-
-    LOG_FLUSH;
+    if(str2.size() > 0)
+    {
+        LOG_INFO << boost::format("\n>>> %1% area detectors are added out of which: \n") % str2.size();
+        LOG_INFO << boost::format("  %1% are used for queue measurement \n") % AD_queue.size();
+        LOG_FLUSH;
+    }
 
     // make sure we have all detectors we need
     for (auto &it : TLList)
