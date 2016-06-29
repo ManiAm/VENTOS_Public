@@ -402,6 +402,7 @@ public:
     //                     Hardware in the loop
     // ################################################################
     std::string ip2vehicleId(std::string);
+    std::string vehicleId2ip(std::string);
 
 
     // ################################################################

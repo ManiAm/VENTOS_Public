@@ -2943,6 +2943,16 @@ std::string TraCI_Commands::ip2vehicleId(std::string ipAddress)
 }
 
 
+std::string TraCI_Commands::vehicleId2ip(std::string id)
+{
+    auto ii = HIL_vehicles.find(id);
+    if(ii != HIL_vehicles.end())
+        return ii->second;
+    else
+        return "";
+}
+
+
 // ################################################################
 //                       SUMO directory
 // ################################################################

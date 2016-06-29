@@ -229,8 +229,6 @@ void codeLoader::make_connection()
         t.join();
     });
 
-    std::cout << "All done! \n" << std::flush;
-
     // delete all SSH sessions that have no active threads
     for(auto &ii : active_SSH)
     {
