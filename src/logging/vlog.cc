@@ -147,7 +147,7 @@ void vlog::FLUSH(std::string category, std::string subcategory)
 
 bool vlog::ISLOGACTIVE(uint8_t userLogLevel)
 {
-    objPtr->logActive(userLogLevel);
+    return objPtr->logActive(userLogLevel);
 }
 
 
@@ -214,7 +214,7 @@ vlog& vlog::setLog(uint8_t logLevel, std::string category, std::string subcatego
             std::cout << "\n>>> logWindow started in process " << child_pid << " \n";
             std::cout.flush();
 
-            start_TCP_client();
+            connect_to_TCP_server();
         }
 
         initLogWindow = true;
@@ -260,7 +260,7 @@ vlog& vlog::setLog(uint8_t logLevel, std::string category, std::string subcatego
 }
 
 
-void vlog::start_TCP_client()
+void vlog::connect_to_TCP_server()
 {
     if (initsocketlibonce() != 0)
         throw omnetpp::cRuntimeError("Could not init socketlib");
@@ -308,10 +308,11 @@ void vlog::start_TCP_client()
     if(tries == 11)
         throw omnetpp::cRuntimeError("Could not connect to the TCP server after 10 retries!");
 
-    {
-        int x = 1;
-        ::setsockopt(*socketPtr, IPPROTO_TCP, TCP_NODELAY, (const char*) &x, sizeof(x));
-    }
+    // disable the 'Nagle' buffering algorithm. It should only be set for applications
+    // that send frequent small bursts of information without getting an immediate
+    // response, where timely delivery of data is required
+    int x = 1;
+    ::setsockopt(*socketPtr, IPPROTO_TCP, TCP_NODELAY, (const char*) &x, sizeof(x));
 }
 
 
@@ -343,7 +344,8 @@ void vlog::sendToLogWindow(std::string msg)
     }
     catch(const std::runtime_error& ex)
     {
-        // runtime_error exceptions are ignores!
+        LOG_INFO << std::endl << ex.what() << std::endl << std::flush;
+        return;
     }
 }
 

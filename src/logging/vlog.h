@@ -95,7 +95,7 @@ public:
 private:
     bool logActive(uint8_t);
     vlog& setLog(uint8_t logLevel, std::string cat, std::string subcat);
-    void start_TCP_client();
+    void connect_to_TCP_server();
     void sendToLogWindow(std::string);
 
 public:
