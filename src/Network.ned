@@ -25,7 +25,7 @@ network Network
         // debug info is only available in OMNET GUI mode
         int debugLevel = default(0);
 
-        @display("bgb=489,359");
+        @display("bgb=489,453");
     submodules:
         vLogging: vlog {
             parameters:
@@ -56,7 +56,7 @@ network Network
         }
         addMobileNode: AddMobileNode {
             parameters:
-                @display("p=387,135;i=old/bwsink");
+                @display("p=337,135;i=old/bwsink");
         }
         warmup: Warmup {
             parameters:
@@ -96,11 +96,15 @@ network Network
         }
         Bluetooth: BLE_Dump {
             parameters:
-                @display("p=245,299;i=block/mac");
+                @display("p=245,299;i=device/wifilaptop");
+        }
+        dataExchange: dataExchange {
+            parameters:
+                @display("p=144,391;i=block/ifcard");
         }
         codeLoader: codeLoader {
             parameters:
-                @display("p=337,299;i=block/mac");
+                @display("p=48,391;i=block/ifcard");
         }
 
     connections allowunconnected:
