@@ -1,5 +1,5 @@
 
-package VENTOS.src.addNode;
+package VENTOS.src.nodeInsertion;
 
 simple AddMobileNode
 {
@@ -15,7 +15,8 @@ simple AddMobileNode
         // mode = 4: for router
         // mode = 5: platoon management
         // mode = 6: bi-directional control
-        int mode = default(-1);        
+        int mode = default(-1);     
+        int submode = default(-1);   
         
         int numVehicles = default(10);
         string vehiclesType = default("Type_CACC1");

@@ -67,6 +67,7 @@ private:
 
     TraCI_Commands *TraCI;
     int mode;
+    int submode;
     double terminate;
 
     // class variables

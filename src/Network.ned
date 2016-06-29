@@ -5,7 +5,7 @@ import VENTOS.src.MIXIM.connectionManager.*;
 import VENTOS.src.traci.*;
 import VENTOS.src.global.*;
 import VENTOS.src.logging.*;
-import VENTOS.src.addNode.*;
+import VENTOS.src.nodeInsertion.*;
 import VENTOS.src.router.*;
 import VENTOS.src.interfacing.*;
 import VENTOS.src.redpineAppl.*;
