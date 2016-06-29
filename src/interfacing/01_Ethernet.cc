@@ -33,9 +33,8 @@
 #include "boost/filesystem.hpp"
 
 #include "01_Ethernet.h"
-#include "ApplV_Manager.h"
 #include "vlog.h"
-#include "RedpineData_m.h"
+
 
 namespace VENTOS {
 
@@ -681,31 +680,6 @@ void Ethernet::processUDP(const u_char *packet, const struct ip *ip_packet)
     /* print payload data; it might be binary, so don't just treat it as a string */
     if (size_payload > 0 && printDataPayload)
         print_dataPayload(payload, size_payload);
-
-    // extract the source IP address
-    uint32_t sAdd = ( (struct in_addr)(ip_packet->ip_src) ).s_addr;
-    // check if IP address corresponds to a HIL vehicle
-    std::string vehID = TraCI->ip2vehicleId( IPaddrTostr(sAdd) );
-    if(vehID != "")
-    {
-        // get a pointer to the vehicle
-        cModule *module = omnetpp::getSimulation()->getSystemModule()->getModuleByPath(vehID.c_str());
-        ASSERT(module);
-        module = module->getSubmodule("appl");
-        ASSERT(module);
-        ApplVManager *vehPtr = static_cast<ApplVManager *>(module);
-        ASSERT(vehPtr);
-
-        // preparing a message
-        redpineData* data = new redpineData("redpineData");
-        data->setSrcPort(ntohs(udp->uh_sport));
-        data->setDataArraySize(size_payload);
-        for (int ii = 0; ii < size_payload; ii++)
-            data->setData(ii, payload[ii]);
-
-        // send the payload to the vehicle
-        vehPtr->receiveDataFromBoard(data);
-    }
 }
 
 
