@@ -59,9 +59,13 @@ void Tracking::initialize(int stage)
         if(zoom < 100)
             throw omnetpp::cRuntimeError("zoom value is not correct!");
 
-        initialWindowsOffset = par("initialWindowsOffset").doubleValue();
-        if(initialWindowsOffset < 0)
-            throw omnetpp::cRuntimeError("Initial Windows Offset value is not correct!");
+        winOffsetX = par("winOffsetX").doubleValue();
+        if(winOffsetX < 0)
+            throw omnetpp::cRuntimeError("winOffsetX value is not correct!");
+
+        winOffsetY = par("winOffsetY").doubleValue();
+        if(winOffsetY < 0)
+            throw omnetpp::cRuntimeError("winOffsetY value is not correct!");
 
         trackingInterval = par("trackingInterval").doubleValue();
         if(trackingInterval <= 0)
@@ -112,7 +116,7 @@ void Tracking::TrackingGUI()
     if(mode == 0)
     {
         // adjust Windows
-        TraCI->GUISetOffset("View #0", initialWindowsOffset, 0.);
+        TraCI->GUISetOffset("View #0", winOffsetX, winOffsetY);
         // zoom in to show the beginning of lane
         TraCI->GUISetZoom("View #0", zoom);
 
@@ -124,7 +128,8 @@ void Tracking::TrackingGUI()
         static bool wasExecuted = false;
         if(!wasExecuted)
         {
-            TraCI->GUISetOffset("View #0", 5072, 2721);  // adjust Windows
+            // adjust Windows
+            TraCI->GUISetOffset("View #0", winOffsetX, winOffsetY);
             wasExecuted = true;
         }
 
@@ -157,7 +162,7 @@ void Tracking::TrackingGUI()
                 vehFound = true;
 
                 // adjust Windows
-                TraCI->GUISetOffset("View #0", initialWindowsOffset, 0.);
+                TraCI->GUISetOffset("View #0", winOffsetX, winOffsetY);
                 // zoom in GUI
                 TraCI->GUISetZoom("View #0", zoom);
             }
@@ -177,7 +182,7 @@ void Tracking::TrackingGUI()
         if (!wasExecuted)
         {
             // adjust Windows
-            TraCI->GUISetOffset("View #0", initialWindowsOffset, 0.);
+            TraCI->GUISetOffset("View #0", winOffsetX, winOffsetY);
             // zoom in GUI
             TraCI->GUISetZoom("View #0", zoom);
             wasExecuted = true;

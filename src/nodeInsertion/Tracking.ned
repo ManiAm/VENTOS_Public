@@ -15,7 +15,8 @@ simple Tracking
         int mode = default(-1);                
                 
         double zoom = default(11512);
-        double initialWindowsOffset = default(130);
+        double winOffsetX = default(0);
+        double winOffsetY = default(0);
         double trackingInterval = default(1);
         string trackingV = default("veh3");       // in mode 2
         string trackingLane = default("1to2_0");  // in mode 3

@@ -35,32 +35,33 @@ namespace VENTOS {
 
 class Tracking : public BaseApplLayer
 {
-	public:
-		virtual ~Tracking();
-		virtual void initialize(int stage);
-        virtual void handleMessage(omnetpp::cMessage *msg);
-		virtual void finish();
-        virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, long, cObject* details);
+public:
+    virtual ~Tracking();
+    virtual void initialize(int stage);
+    virtual void handleMessage(omnetpp::cMessage *msg);
+    virtual void finish();
+    virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, long, cObject* details);
 
-	private:
-        void TrackingGUI();
+private:
+    void TrackingGUI();
 
-	private:
-        // NED variables
-        TraCI_Commands *TraCI;  // pointer to the TraCI module
-        omnetpp::simsignal_t Signal_initialize_withTraCI;
+private:
+    // NED variables
+    TraCI_Commands *TraCI;  // pointer to the TraCI module
+    omnetpp::simsignal_t Signal_initialize_withTraCI;
 
-        // NED variables (GUI)
-        int mode;
-        double zoom;
-        double initialWindowsOffset;
-        double trackingInterval;
-        std::string trackingV;
-        std::string trackingLane;
-        double windowsOffset;
+    // NED variables (GUI)
+    int mode;
+    double zoom;
+    double winOffsetX;
+    double winOffsetY;
+    double trackingInterval;
+    std::string trackingV;
+    std::string trackingLane;
+    double windowsOffset;
 
-        // class variables
-        omnetpp::cMessage* updataGUI = NULL;
+    // class variables
+    omnetpp::cMessage* updataGUI = NULL;
 };
 
 }
