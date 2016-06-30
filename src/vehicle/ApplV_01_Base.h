@@ -32,6 +32,7 @@
 #include <ChannelAccess.h>
 #include <WaveAppToMac1609_4Interface.h>
 #include "TraCICommands.h"
+#include "dataExchange.h"
 
 namespace VENTOS {
 
@@ -52,6 +53,7 @@ private:
 protected:
     // NED variables
     TraCI_Commands* TraCI;
+    dataExchange* ExbCI;
 
     // module info
     int myId;

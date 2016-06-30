@@ -89,7 +89,7 @@ private:
 
     int sockfd;  // welcoming socket
     std::vector<int> connections_fromBoard;
-    std::vector<dataEntry> receivedData;
+    std::vector<dataEntry *> receivedData;
     std::mutex lock_vector;
 
     std::map<std::string, int *> connections_fromVENTOS;

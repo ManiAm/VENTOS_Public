@@ -29,7 +29,7 @@
 #define ApplVREDPINE_H
 
 #include "ApplV_04_AID.h"
-#include "RedpineData_m.h"
+#include "dataExchange.h"
 #include "BSM_m.h"
 
 namespace VENTOS {
@@ -40,7 +40,7 @@ public:
     ~ApplVRedpine();
     virtual void initialize(int stage);
     virtual void finish();
-    virtual void receiveDataFromBoard(redpineData*);
+    virtual void receiveDataFromBoard(dataEntry *);
 
 protected:
     virtual void handleSelfMsg(omnetpp::cMessage*);
@@ -52,12 +52,14 @@ protected:
     virtual void onHIL(BSM*);
 
 private:
-    void print_dataPayload(const u_char *payload, int len);
-    void print_hex_ascii_line(const u_char *payload, int len, int offset);
+    void checkForHardBreak();
 
 private:
     typedef ApplV_AID super;
 
+protected:
+    bool isHIL;
+    bool hardBreakingDetection;
     bool EEBL;
 };
 

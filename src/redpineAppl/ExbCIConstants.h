@@ -1,13 +1,13 @@
-//****************************************************************************/
-/// @file    RedpineData.msg
+/****************************************************************************/
+/// @file    ExbCIConstants.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    Jun 2016
 ///
-//****************************************************************************/
+/****************************************************************************/
 // VENTOS, Vehicular Network Open Simulator; see http:?
 // Copyright (C) 2013-2015
-//****************************************************************************/
+/****************************************************************************/
 //
 // This file is part of VENTOS.
 // VENTOS is free software; you can redistribute it and/or modify
@@ -25,10 +25,8 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-namespace VENTOS;
+#define HARD_BREAK_START  0xa4
+#define HARD_BREAK_END    0xb4
 
-packet redpineData
-{
-	int srcPort;
-	unsigned char data[]; // generated redpineData class keeps the array size internally
-};
+#define EEBL_RECV         0xc4
+

@@ -48,8 +48,6 @@
 #include "vlog.h"
 #include "dataExchange.h"
 #include "ApplV_Manager.h"
-#include "RedpineData_m.h"
-
 
 namespace VENTOS {
 
@@ -160,29 +158,22 @@ void dataExchange::executeEachTimestep()
             auto &frame = receivedData.back();
 
             // check if IP address corresponds to a HIL vehicle
-            std::string vehID = TraCI->ip2vehicleId(frame.ipv4);
-            if(vehID != "")
-            {
-                // get a pointer to the vehicle
-                cModule *module = omnetpp::getSimulation()->getSystemModule()->getModuleByPath(vehID.c_str());
-                ASSERT(module);
-                module = module->getSubmodule("appl");
-                ASSERT(module);
-                ApplVManager *vehPtr = static_cast<ApplVManager *>(module);
-                ASSERT(vehPtr);
+            std::string vehID = TraCI->ip2vehicleId(frame->ipv4);
+            if(vehID == "")
+                throw omnetpp::cRuntimeError("IP address %s does not belong to a HIL vehicle!", frame->ipv4.c_str());
 
-                // preparing a message
-                redpineData* data = new redpineData("redpineData");
-                data->setSrcPort(frame.port);
-                data->setDataArraySize(frame.bufferLength);
-                for (unsigned int ii = 0; ii < frame.bufferLength; ii++)
-                    data->setData(ii, frame.buffer[ii]);
+            // get a pointer to the vehicle
+            cModule *module = omnetpp::getSimulation()->getSystemModule()->getModuleByPath(vehID.c_str());
+            ASSERT(module);
+            module = module->getSubmodule("appl");
+            ASSERT(module);
+            ApplVManager *vehPtr = static_cast<ApplVManager *>(module);
+            ASSERT(vehPtr);
 
-                // send the payload to the vehicle
-                vehPtr->receiveDataFromBoard(data);
-            }
+            // send the payload to the vehicle
+            vehPtr->receiveDataFromBoard(frame);
 
-            free(frame.buffer);
+            // remove it from the vector
             receivedData.pop_back();
         }
     }
@@ -291,7 +282,7 @@ void dataExchange::recvDataFromBoard(int clientRecvSock, std::string ipv4, uint1
 
                 // save the received data
                 dataEntry *entry = new dataEntry(rx_buffer, rcvDataLength, ipv4, remote_port);
-                receivedData.push_back(*entry);
+                receivedData.push_back(entry);
             }
         }
 
@@ -309,7 +300,7 @@ void dataExchange::recvDataFromBoard(int clientRecvSock, std::string ipv4, uint1
 // connecting to the remote TCP server on the board -- to send data to the board
 void dataExchange::connect_to_TCP_server(std::string ipv4)
 {
-    LOG_INFO << ">>> (dataExchange) connecting to TCP server on board " << ipv4 << " at port " << board_serverPort << ". \n" << std::flush;
+    LOG_INFO << ">>> (dataExchange) connecting to TCP server on board " << ipv4 << " at port " << board_serverPort << ". \n\n" << std::flush;
 
     if (initsocketlibonce() != 0)
         throw omnetpp::cRuntimeError("Could not init socketlib");

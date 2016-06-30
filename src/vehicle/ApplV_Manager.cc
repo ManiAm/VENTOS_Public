@@ -95,8 +95,12 @@ void ApplVManager::initialize(int stage)
             TraCI->vehicleSetLaneChangeMode(SUMOID, bitset);   // alter 'lane change' mode
         }
 
-        // comment this to speed-up the simulation
-        //findHost()->subscribe(mobilityStateChangedSignal, this);
+        // monitor mobility on HIL vehicles
+        if(isHIL && hardBreakingDetection)
+        {
+            findHost()->subscribe(mobilityStateChangedSignal, this);
+            LOG_INFO << boost::format(">>> %1% is subscribed to mobilityStateChangedSignal. \n") % SUMOID << std::flush;
+        }
     }
 }
 
@@ -105,7 +109,8 @@ void ApplVManager::finish()
 {
     super::finish();
 
-    //findHost()->unsubscribe(mobilityStateChangedSignal, this);
+    if(isHIL && hardBreakingDetection)
+        findHost()->unsubscribe(mobilityStateChangedSignal, this);
 }
 
 
@@ -237,9 +242,6 @@ void ApplVManager::handleLowerMsg(omnetpp::cMessage* msg)
 void ApplVManager::handlePositionUpdate(cObject* obj)
 {
     super::handlePositionUpdate(obj);
-
-    ChannelMobilityPtrType const mobility = omnetpp::check_and_cast<ChannelMobilityPtrType>(obj);
-    curPosition = mobility->getCurrentPosition();
 }
 
 
@@ -268,7 +270,7 @@ bool ApplVManager::dropBeacon(double time, std::string vehicle, double plr)
 }
 
 
-void ApplVManager::receiveDataFromBoard(redpineData* data)
+void ApplVManager::receiveDataFromBoard(dataEntry* data)
 {
     // pass it down
     super::receiveDataFromBoard(data);

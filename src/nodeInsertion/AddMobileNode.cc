@@ -307,7 +307,7 @@ void AddMobileNode::Scenario3()
         TraCI->vehicleAdd(vehicleName, "TypeManual", "route2", depart, -5 /*pos*/, 0 /*speed*/, 0 /*lane*/);
     }
 
-    // one external board
+    // one board -- showing communication board <--> VENTOS
     if(submode == 1)
     {
         depart = 0;

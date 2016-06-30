@@ -26,6 +26,7 @@
 //
 
 #include "ApplV_05_redpine.h"
+#include "ExbCIConstants.h"
 
 namespace VENTOS {
 
@@ -43,8 +44,9 @@ void ApplVRedpine::initialize(int stage)
 
     if (stage == 0)
     {
+        isHIL = par("isHIL").boolValue();
+        hardBreakingDetection = par("hardBreakingDetection").boolValue();
         EEBL = par("EEBL").boolValue();
-
     }
 }
 
@@ -52,8 +54,6 @@ void ApplVRedpine::initialize(int stage)
 void ApplVRedpine::finish()
 {
     super::finish();
-
-    //findHost()->unsubscribe(mobilityStateChangedSignal, this);
 }
 
 
@@ -68,26 +68,22 @@ void ApplVRedpine::handlePositionUpdate(cObject* obj)
 {
     super::handlePositionUpdate(obj);
 
-    ChannelMobilityPtrType const mobility = omnetpp::check_and_cast<ChannelMobilityPtrType>(obj);
-    curPosition = mobility->getCurrentPosition();
+    // if this vehicle is HIL and hardBreakingDetection is active
+    if(isHIL && hardBreakingDetection)
+        checkForHardBreak();
 }
 
 
-void ApplVRedpine::receiveDataFromBoard(redpineData* data)
+// data from a HIL board
+void ApplVRedpine::receiveDataFromBoard(dataEntry* data)
 {
     Enter_Method("");
 
-    std::cout << SUMOID << " received a EEBL msg of size " << data->getDataArraySize() << std::endl;
+    std::cout << SUMOID << " received a msg of size " << data->bufferLength << std::endl;
 
-    u_char *payload = new u_char[data->getDataArraySize()];
-    for(unsigned int i = 0; i < data->getDataArraySize(); i++)
-        payload[i] = data->getData(i);
+    // todo: process data
 
-    // print the payload
-    //print_dataPayload(payload, data->getDataArraySize());
-    //std::cout << std::endl << std::flush;
-
-    delete[] payload;
+    // deallocate memory
     delete data;
 
     // stopping the vehicle
@@ -129,127 +125,54 @@ void ApplVRedpine::onData(PlatoonMsg* wsm)
 }
 
 
+// data from a HIL vehicle in the simulation
 void ApplVRedpine::onHIL(BSM* wsm)
 {
     // check the received data and act on it.
     // all wsm messages here are EEBL for now.
-    // we stop, as soon as we receive a EEBL msg.
-    // todo: we should decode the received msg
+    // the vehicle stops as soon as it receives a EEBL msg.
+    // todo: we should decode the received msg to get the msg type
 
     // if msg is coming from my leading vehicle
     std::vector<std::string> leaderv = TraCI->vehicleGetLeader(SUMOID, sonarDist);
     std::string leader = leaderv[0];
     if(leader == wsm->getSender())
     {
-        TraCI->vehicleSetMaxDecel(SUMOID, 4);
+        // signal the reception of EEBL to the corresponding board.
+        // This LED notifies the driver about the hard break
+        unsigned char data[1] = {EEBL_RECV};
+        ExbCI->sendDataToBoard(SUMOID, data, 1);
+
+        // stop immediately
+        TraCI->vehicleSetMaxDecel(SUMOID, 5);
         TraCI->vehicleSetSpeed(SUMOID, 0);
     }
 }
 
 
-// print packet payload data (avoid printing binary data)
-void ApplVRedpine::print_dataPayload(const u_char *payload, int len)
+void ApplVRedpine::checkForHardBreak()
 {
-    // double-check again
-    if (len <= 0)
-        return;
+    static bool breakStarts = false;
 
-    int line_width = 16;   /* number of bytes per line */
-    int offset = 0;        /* zero-based offset counter */
-    const u_char *ch = payload;
-
-    /* data fits on one line */
-    if (len <= line_width)
+    // as soon as the vehicle breaks hard
+    if(!breakStarts && TraCI->vehicleGetCurrentAccel(SUMOID) == -5)
     {
-        print_hex_ascii_line(ch, len, offset);
-        return;
+        // signal 'break start' to the corresponding board
+        unsigned char data[1] = {HARD_BREAK_START};
+        ExbCI->sendDataToBoard(SUMOID, data, 1);
+
+        breakStarts = true;
     }
 
-    int len_rem = len;
-    int line_len;
-
-    /* data spans multiple lines */
-    for ( ;; )
+    // end of breaking -- vehicle stops completely
+    if(breakStarts && TraCI->vehicleGetCurrentAccel(SUMOID) == 0)
     {
-        /* compute current line length */
-        line_len = line_width % len_rem;
+        // signal 'break end' to the corresponding board
+        unsigned char data[1] = {HARD_BREAK_END};
+        ExbCI->sendDataToBoard(SUMOID, data, 1);
 
-        /* print line */
-        print_hex_ascii_line(ch, line_len, offset);
-
-        /* compute total remaining */
-        len_rem = len_rem - line_len;
-
-        /* shift pointer to remaining bytes to print */
-        ch = ch + line_len;
-
-        /* add offset */
-        offset = offset + line_width;
-
-        /* check if we have line width chars or less */
-        if (len_rem <= line_width)
-        {
-            /* print last line and get out */
-            print_hex_ascii_line(ch, len_rem, offset);
-            break;
-        }
+        breakStarts = false;
     }
-}
-
-
-/*
- * print data in rows of 16 bytes: offset   hex   ascii
- *
- * 00000   47 45 54 20 2f 20 48 54  54 50 2f 31 2e 31 0d 0a   GET / HTTP/1.1..
- */
-void ApplVRedpine::print_hex_ascii_line(const u_char *payload, int len, int offset)
-{
-    int i;
-    int gap;
-    const u_char *ch;
-
-    /* offset */
-    printf("            %05d   ", offset);
-
-    /* hex */
-    ch = payload;
-    for(i = 0; i < len; i++)
-    {
-        printf("%02x ", *ch);
-        ch++;
-        /* print extra space after 8th byte for visual aid */
-        if (i == 7)
-            printf(" ");
-    }
-
-    /* print space to handle line less than 8 bytes */
-    if (len < 8)
-        printf(" ");
-
-    /* fill hex gap with spaces if not full line */
-    if (len < 16)
-    {
-        gap = 16 - len;
-        for (i = 0; i < gap; i++)
-        {
-            printf("   ");
-        }
-    }
-
-    printf("   ");
-
-    /* ascii (if printable) */
-    ch = payload;
-    for(i = 0; i < len; i++)
-    {
-        if (isprint(*ch))
-            printf("%c", *ch);
-        else
-            printf(".");
-        ch++;
-    }
-
-    printf("\n");
 }
 
 }
