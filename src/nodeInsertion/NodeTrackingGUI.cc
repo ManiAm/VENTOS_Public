@@ -134,7 +134,7 @@ void Tracking::TrackingGUI()
         }
 
         static double currentZoom = 100.;
-        const static double steps = (zoom - 100. /*base zoom level*/) / 100.;
+        const static double steps = (zoom - 100. /*base zoom level*/) / 200.;
         currentZoom += steps;  // gradually increase the zoom
 
         TraCI->GUISetZoom("View #0", currentZoom);
