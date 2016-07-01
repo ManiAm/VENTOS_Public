@@ -199,7 +199,7 @@ void TraCI_Start::init_traci()
     int seed = par("seed").longValue();
 
     // start 'SUMO TraCI server' first
-    int port = TraCIConnection::startServer(SUMOexe, getSUMOConfigFullPath(), switches, seed);
+    int port = TraCIConnection::startSUMO(SUMOexe, getSUMOConfigFullPath(), switches, seed);
 
     // then connect to the 'SUMO TraCI server'
     connection = TraCIConnection::connect(host.c_str(), port);
@@ -209,7 +209,7 @@ void TraCI_Start::init_traci()
     uint32_t apiVersionS = versionS.first;
     std::string serverVersionS = versionS.second;
 
-    LOG_INFO << boost::format("  TraCI server \"%1%\" reports API version %2% \n") % serverVersionS % apiVersionS << std::flush;
+    LOG_INFO << boost::format("    TraCI server \"%1%\" reports API version %2% \n") % serverVersionS % apiVersionS << std::flush;
 
     if (apiVersionS != 11)
         throw omnetpp::cRuntimeError("Unsupported TraCI server API version!");
@@ -222,7 +222,7 @@ void TraCI_Start::init_traci()
     double x2 = boundaries[2];  // x2
     double y2 = boundaries[3];  // y2
 
-    LOG_INFO << boost::format("  TraCI reports network boundaries (%1%,%2%)-(%3%,%4%) \n") % x1 % y1 % x2 % y2 << std::flush;
+    LOG_INFO << boost::format("    TraCI reports network boundaries (%1%,%2%)-(%3%,%4%) \n") % x1 % y1 % x2 % y2 << std::flush;
 
     netbounds1 = TraCICoord(x1, y1);
     netbounds2 = TraCICoord(x2, y2);
@@ -277,7 +277,7 @@ void TraCI_Start::init_traci()
     omnetpp::simsignal_t Signal_addFlow = registerSignal("addFlow");
     this->emit(Signal_addFlow, 0);
 
-    LOG_INFO << "  Initializing modules with TraCI support ... \n" << std::flush;
+    LOG_INFO << "    Initializing modules with TraCI support ... \n" << std::flush;
 
     omnetpp::simsignal_t Signal_initialize_withTraCI = registerSignal("initialize_withTraCI");
     this->emit(Signal_initialize_withTraCI, 1);

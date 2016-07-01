@@ -183,6 +183,13 @@ vlog& vlog::setLog(uint8_t logLevel, std::string category, std::string subcatego
 
     if(!initLogWindow)
     {
+        // relative path to logWindow
+        std::string commandLine = "src/loggingWindow/mainWindow";
+
+        std::cout << "\n>>> Starting logWindow process ... \n";
+        std::cout << "    Executable file: " << commandLine << " \n";
+        std::cout.flush();
+
         // create a child process
         // forking creates an exact copy of the parent process at the time of forking.
         child_pid = fork();
@@ -199,7 +206,7 @@ vlog& vlog::setLog(uint8_t logLevel, std::string category, std::string subcatego
 
             // run 'logWindow' inside this child process
             // if execution is successful then child will be blocked at this line
-            int r = system("src/loggingWindow/mainWindow");  // relative path to logWindow
+            int r = system(commandLine.c_str());
 
             if (r == -1)
                 throw omnetpp::cRuntimeError("Running logWindow failed during system()");
@@ -211,7 +218,7 @@ vlog& vlog::setLog(uint8_t logLevel, std::string category, std::string subcatego
         }
         else
         {
-            std::cout << "\n>>> logWindow started in process " << child_pid << " \n";
+            std::cout << "    logWindow has started successfully in process " << child_pid << " \n";
             std::cout.flush();
 
             connect_to_TCP_server();

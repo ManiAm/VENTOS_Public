@@ -54,7 +54,7 @@ TraCIConnection::~TraCIConnection()
 }
 
 
-int TraCIConnection::startServer(std::string SUMOexe, std::string SUMOconfig, std::string switches, int seed)
+int TraCIConnection::startSUMO(std::string SUMOexe, std::string SUMOconfig, std::string switches, int seed)
 {
     int port = TraCIConnection::getFreeEphemeralPort();
 
@@ -65,7 +65,12 @@ int TraCIConnection::startServer(std::string SUMOexe, std::string SUMOconfig, st
         seed = atoi(seed_s);
     }
 
-    LOG_INFO << boost::format("\n>>> Starting SUMO TraCI server on port %1% with seed %2% ... \n") % port % seed << std::flush;
+    LOG_INFO << "\n>>> Starting SUMO process ... \n";
+    LOG_INFO << boost::format("    Executable file: %1% \n") % SUMOexe;
+    LOG_INFO << boost::format("    Config file: %1% \n") % SUMOconfig;
+    LOG_INFO << boost::format("    Switches: %1% \n") % switches;
+    LOG_INFO << boost::format("    TraCI server: port= %1%, seed= %2% \n") % port % seed;
+    LOG_FLUSH;
 
     // assemble commandLine
     std::ostringstream commandLine;
@@ -75,46 +80,6 @@ int TraCIConnection::startServer(std::string SUMOexe, std::string SUMOconfig, st
             << " --configuration-file " << SUMOconfig
             << switches;
 
-    TraCIConnection::TraCILauncher(commandLine.str());
-
-    return port;
-}
-
-
-// get a random Ephemeral port from the system
-int TraCIConnection::getFreeEphemeralPort()
-{
-    if (initsocketlibonce() != 0)
-        throw omnetpp::cRuntimeError("Could not init socketlib");
-
-    SOCKET sock = ::socket(AF_INET, SOCK_STREAM, 0);
-    if (sock < 0)
-        throw omnetpp::cRuntimeError("Failed to create socket: %s", strerror(errno));
-
-    struct sockaddr_in serv_addr;
-    struct sockaddr* serv_addr_p = (struct sockaddr*)&serv_addr;
-    memset(serv_addr_p, 0, sizeof(serv_addr));
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-    serv_addr.sin_port = 0;   // get a random Ephemeral port
-
-    if (::bind(sock, serv_addr_p, sizeof(serv_addr)) < 0)
-        throw omnetpp::cRuntimeError("Failed to bind socket: %s", strerror(errno));
-
-    socklen_t len = sizeof(serv_addr);
-    if (getsockname(sock, serv_addr_p, &len) < 0)
-        throw omnetpp::cRuntimeError("Failed to get hostname: %s", strerror(errno));
-
-    int port = ntohs(serv_addr.sin_port);
-
-    closesocket(sock);
-
-    return port;
-}
-
-
-void TraCIConnection::TraCILauncher(std::string commandLine)
-{
 #if defined(_WIN32) || defined(__WIN32__) || defined(WIN32) || defined(__CYGWIN__) || defined(_WIN64)
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
@@ -171,24 +136,57 @@ void TraCIConnection::TraCILauncher(std::string commandLine)
 
         // run SUMO server inside this child process
         // if execution is successful then child will be blocked at this line
-        int r = system(commandLine.c_str());
+        int r = system(commandLine.str().c_str());
 
         if (r == -1)
-            throw omnetpp::cRuntimeError("Running \"%s\" failed during system()", commandLine.c_str());
+            throw omnetpp::cRuntimeError("Running \"%s\" failed during system()", commandLine.str().c_str());
 
         if (WEXITSTATUS(r) != 0)
-            throw omnetpp::cRuntimeError("Error launching TraCI server (\"%s\"): exited with code %d.", commandLine.c_str(), WEXITSTATUS(r));
+            throw omnetpp::cRuntimeError("Error launching TraCI server (\"%s\"): exited with code %d.", commandLine.str().c_str(), WEXITSTATUS(r));
 
         exit(1);
     }
     else
     {
-        LOG_INFO << boost::format("  Parent PID %1% \n") % getpid();
-        LOG_INFO << boost::format("  Child  PID %1% \n") % child_pid;
+        LOG_INFO << boost::format("    SUMO has started successfully in process %1%  \n") % child_pid;
         LOG_FLUSH;
     }
 
 #endif
+
+    return port;
+}
+
+
+// get a random Ephemeral port from the system
+int TraCIConnection::getFreeEphemeralPort()
+{
+    if (initsocketlibonce() != 0)
+        throw omnetpp::cRuntimeError("Could not init socketlib");
+
+    SOCKET sock = ::socket(AF_INET, SOCK_STREAM, 0);
+    if (sock < 0)
+        throw omnetpp::cRuntimeError("Failed to create socket: %s", strerror(errno));
+
+    struct sockaddr_in serv_addr;
+    struct sockaddr* serv_addr_p = (struct sockaddr*)&serv_addr;
+    memset(serv_addr_p, 0, sizeof(serv_addr));
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    serv_addr.sin_port = 0;   // get a random Ephemeral port
+
+    if (::bind(sock, serv_addr_p, sizeof(serv_addr)) < 0)
+        throw omnetpp::cRuntimeError("Failed to bind socket: %s", strerror(errno));
+
+    socklen_t len = sizeof(serv_addr);
+    if (getsockname(sock, serv_addr_p, &len) < 0)
+        throw omnetpp::cRuntimeError("Failed to get hostname: %s", strerror(errno));
+
+    int port = ntohs(serv_addr.sin_port);
+
+    closesocket(sock);
+
+    return port;
 }
 
 
@@ -236,7 +234,7 @@ TraCIConnection* TraCIConnection::connect(const char* host, int port)
 
         int sleepDuration = tries * .25 + 1;
 
-        LOG_INFO << boost::format("  Could not connect to the TraCI server: %1% -- retry in %2% seconds. \n") % strerror(sock_errno()) % sleepDuration << std::flush;
+        LOG_INFO << boost::format("    Could not connect to the TraCI server: %1% -- retry in %2% seconds. \n") % strerror(sock_errno()) % sleepDuration << std::flush;
 
         std::this_thread::sleep_for(std::chrono::seconds(sleepDuration));
     }

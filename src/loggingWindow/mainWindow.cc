@@ -130,13 +130,14 @@ void mainWindow::start_TCP_server()
     std::cout.flush();
 
     // close the welcoming socket
+    // only one client (VENTOS) is allowed to connect to this TCP server
     ::close(sockfd);
 }
 
 
 void mainWindow::listenToClient(mainWindow *windowPtr)
 {
-    std::cout << "    (logWindow) waiting for requests ... \n\n";
+    std::cout << "    (logWindow) waiting for log messages from VENTOS ... \n\n";
     std::cout.flush();
 
     try
