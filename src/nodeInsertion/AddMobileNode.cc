@@ -307,7 +307,7 @@ void AddMobileNode::Scenario3()
         TraCI->vehicleAdd(vehicleName, "TypeManual", "route2", depart, -5 /*pos*/, 0 /*speed*/, 0 /*lane*/);
     }
 
-    // one board -- showing communication board <--> VENTOS
+    // one board -- showing board 2 VENTOS communication
     if(submode == 1)
     {
         depart = 0;
@@ -329,8 +329,33 @@ void AddMobileNode::Scenario3()
                 TraCI->vehicleAdd(vehicleName, "TypeManual", "route1", depart, -5 /*pos*/, 0 /*speed*/, 0 /*lane*/);
         }
     }
-    // two external boards
+    // one board -- showing VENTOS 2 board communication
     else if(submode == 2)
+    {
+        depart = 0;
+        for(int i=0; i<numVehicles; i++)
+        {
+            char vehicleName[90];
+            sprintf(vehicleName, "veh_ns_%d", i);
+            depart = depart + 1000;
+
+            if(i == 1)
+            {
+                TraCI->vehicleAdd(vehicleName, "TypeHIL", "route1", depart, -5 /*pos*/, 0 /*speed*/, 0 /*lane*/, "192.168.60.42");
+
+                // change vehicle color to red!
+                RGB newColor = Color::colorNameToRGB("red");
+                TraCI->vehicleSetColor(vehicleName, newColor);
+
+                // make the vehicle stop
+                TraCI->vehicleSetStop(vehicleName, "416208103#1", 50 /*stop pos*/, 0 /*lane id*/, 100 /*wait*/, 0 /*flag*/);
+            }
+            else
+                TraCI->vehicleAdd(vehicleName, "TypeManual", "route1", depart, -5 /*pos*/, 0 /*speed*/, 0 /*lane*/);
+        }
+    }
+    // two external boards for showing EEBL
+    else if(submode == 3)
     {
         depart = 0;
         for(int i=0; i<numVehicles; i++)

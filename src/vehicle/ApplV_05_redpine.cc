@@ -144,7 +144,7 @@ void ApplVRedpine::onHIL(BSM* wsm)
         ExbCI->sendDataToBoard(SUMOID, data, 1);
 
         // stop immediately
-        TraCI->vehicleSetMaxDecel(SUMOID, 5);
+        TraCI->vehicleSetMaxDecel(SUMOID, 4); // increase max decel from default 3 to 4
         TraCI->vehicleSetSpeed(SUMOID, 0);
     }
 }
@@ -154,8 +154,10 @@ void ApplVRedpine::checkForHardBreak()
 {
     static bool breakStarts = false;
 
+    double accel = TraCI->vehicleGetCurrentAccel(SUMOID);
+
     // as soon as the vehicle breaks hard
-    if(!breakStarts && TraCI->vehicleGetCurrentAccel(SUMOID) == -5)
+    if(!breakStarts && accel <= -3)  // todo: how to check if veh breaks hard?
     {
         // signal 'break start' to the corresponding board
         unsigned char data[1] = {HARD_BREAK_START};
@@ -165,7 +167,7 @@ void ApplVRedpine::checkForHardBreak()
     }
 
     // end of breaking -- vehicle stops completely
-    if(breakStarts && TraCI->vehicleGetCurrentAccel(SUMOID) == 0)
+    if(breakStarts && accel == 0)
     {
         // signal 'break end' to the corresponding board
         unsigned char data[1] = {HARD_BREAK_END};
