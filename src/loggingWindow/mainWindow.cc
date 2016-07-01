@@ -94,6 +94,10 @@ void mainWindow::start_TCP_server()
     if (sockfd < 0)
         throw std::runtime_error("ERROR opening socket");
 
+    // the purpose of SO_REUSEADDR/SO_REUSEPORT is to allow to reuse the port even if the process crash or been killed
+    int optval = 1;
+    setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, (const void *)&optval , sizeof(int));
+
     // clear address structure
     struct sockaddr_in serv_addr;
     bzero((char *) &serv_addr, sizeof(serv_addr));
