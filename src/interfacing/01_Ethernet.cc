@@ -413,15 +413,15 @@ void Ethernet::startSniffing()
         {
             std::lock_guard<std::mutex> lock(vectorLock);
 
-            // copy both header and pht_data
+            // we need to make a copy from 'header' and 'pkt_data'
             // check this: http://www.winpcap.org/pipermail/winpcap-users/2008-August/002700.html
 
             // copy header into header_copy
-            struct pcap_pkthdr *header_copy = (pcap_pkthdr *) malloc(sizeof(struct pcap_pkthdr));
+             pcap_pkthdr *header_copy = new pcap_pkthdr();
             *header_copy = *header;
 
-            u_char *pkt_data_copy = new u_char[header->caplen];
             // copy pkt_data into pkt_data_copy
+            u_char *pkt_data_copy = new u_char[header->caplen];
             for (unsigned int ii = 0; ii < header->caplen; ii++)
                 pkt_data_copy[ii] = pkt_data[ii];
 

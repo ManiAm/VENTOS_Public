@@ -170,7 +170,7 @@ void AddFixNode::printLoadedStatistics()
             // get OMNET id
             std::string fullId = module->getFullName();
 
-            printf("%s, ", fullId.c_str());
+            LOG_DEBUG << fullId << ", ";
         }
 
         LOG_DEBUG << "\n";

@@ -32,6 +32,7 @@
 #include "boost/filesystem.hpp"
 
 #include "SNMP.h"
+#include "vlog.h"
 
 namespace VENTOS {
 
@@ -51,8 +52,7 @@ SNMP::SNMP(std::string host, std::string port)
     if(!IPAddress.valid())
         throw omnetpp::cRuntimeError("IP address %s is not valid!", IPAddress.get_printable());
 
-    std::cout << std::endl << "Pinging " << IPAddress.get_printable() << " ... ";
-    std::cout.flush();
+    LOG_DEBUG << "\nPinging " << IPAddress.get_printable() << " ... " << std::flush;
 
     // test if IPAdd is alive?
     std::string cmd = "ping -c 1 -s 1 " + std::string(IPAddress.get_printable()) + " > /dev/null 2>&1";
@@ -61,9 +61,9 @@ SNMP::SNMP(std::string host, std::string port)
     if(result != 0)
         throw omnetpp::cRuntimeError("device at %s is not responding!", IPAddress.get_printable());
 
-    std::cout << "Done! \n";
-    std::cout << "Creating SNMP session ... ";
-    std::cout.flush();
+    LOG_DEBUG << "Done! \n";
+
+    LOG_DEBUG << "Creating SNMP session ... " << std::flush;
 
     int randomPort = getFreeEphemeralPort();
 
@@ -72,8 +72,7 @@ SNMP::SNMP(std::string host, std::string port)
     if (status != SNMP_CLASS_SUCCESS) // check creation status
         throw omnetpp::cRuntimeError("%s", SNMP_session->error_msg(status));  // if fail, print error string
 
-    std::cout << "Done! -- ephemeral port " << randomPort << "\n";
-    std::cout.flush();
+    LOG_DEBUG << "Done! -- ephemeral port " << randomPort << "\n" << std::flush;
 
     Snmp_pp::UdpAddress address(IPAddress);
     address.set_port(std::stoi(port));         // SNMP port for Econolite virtual controller
@@ -88,16 +87,14 @@ SNMP::SNMP(std::string host, std::string port)
     Snmp_pp::OctetStr wcommunity("private");
     ctarget->set_writecommunity(wcommunity);   // write community name
 
-    std::cout << "Connected to " << ctarget->get_address().get_printable();
-    std::cout << std::endl;
+    LOG_DEBUG << "Connected to " << ctarget->get_address().get_printable() << "\n";
 
     // construct the snmp log file path
     boost::filesystem::path VENTOS_FullPath = omnetpp::getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
     std::ostringstream fileName;
     fileName << "snmp_" << IPAddress.get_printable() << "_" << randomPort << ".log";
     boost::filesystem::path logFilePath = VENTOS_FullPath / "results" / fileName.str();
-    std::cout << "Logging at " << logFilePath.string();
-    std::cout << std::endl << std::endl;
+    LOG_DEBUG << "Logging at " << logFilePath.string() << "\n\n";
 
     // set the log file
     Snmp_pp::AgentLogImpl *logFile = new Snmp_pp::AgentLogImpl(logFilePath.string().c_str());
@@ -165,7 +162,7 @@ Snmp_pp::Vb SNMP::SNMPget(std::string OID, int instance)
     int status = SNMP_session->get(pdu, *ctarget);   // invoke a SNMP++ get
 
     if (status != SNMP_CLASS_SUCCESS)
-        std::cout << SNMP_session->error_msg(status) << std::endl;
+        throw omnetpp::cRuntimeError("%s \n", SNMP_session->error_msg(status));
     else
         pdu.get_vb(vb,0);   // extract the variable binding from PDU
 
@@ -215,7 +212,7 @@ std::vector<Snmp_pp::Vb> SNMP::SNMPwalk(std::string OID)
     }
 
     if (status != SNMP_ERROR_NO_SUCH_NAME)
-        std::cout << "SNMP++ snmpWalk Error, " << SNMP_session->error_msg(status) << std::endl;
+        throw omnetpp::cRuntimeError("SNMP++ snmpWalk Error: %s \n", SNMP_session->error_msg(status));
 
     return collection;
 }
@@ -243,7 +240,7 @@ Snmp_pp::Vb SNMP::SNMPset(std::string OID, std::string value, int instance)
     int status = SNMP_session->set(pdu, *ctarget);     // invoke a SNMP++ set
 
     if (status != SNMP_CLASS_SUCCESS)
-        std::cout << SNMP_session->error_msg(status) << std::endl;
+        throw omnetpp::cRuntimeError("%s", SNMP_session->error_msg(status));
     else
         pdu.get_vb(vb,0);   // extract the variable binding from PDU
 

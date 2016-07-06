@@ -33,12 +33,13 @@
 #include <arpa/inet.h>
 #endif
 
-#include "SSH.h"
 #include <fstream>
 #include <thread>
+
+#include "SSH.h"
 #include "utf8.h"
 #include <omnetpp.h>
-#include <vlog.h>
+#include "vlog.h"
 
 namespace VENTOS {
 
@@ -189,35 +190,35 @@ int SSH::verify_knownhost()
         break; /* ok */
 
     case SSH_SERVER_KNOWN_CHANGED:
-        std::cout << "Host key for server changed: it is now: \n";
+        LOG_WARNING << "Host key for server changed: it is now: \n";
         ssh_print_hexa("Public key hash", hash, hlen);
-        std::cout << "For security reasons, connection will be stopped. \n";
-        std::cout.flush();
+        LOG_WARNING << "For security reasons, connection will be stopped. \n";
+        LOG_FLUSH;
         free(hash);
         return -1;
 
     case SSH_SERVER_FOUND_OTHER:
-        std::cout << "The host key for this server was not found but an other type of key exists. \n";
-        std::cout << "An attacker might change the default server key to confuse your client into thinking the key does not exist. \n";
-        std::cout.flush();
+        LOG_WARNING << "The host key for this server was not found but an other type of key exists. \n";
+        LOG_WARNING << "An attacker might change the default server key to confuse your client into thinking the key does not exist. \n";
+        LOG_FLUSH;
         free(hash);
         return -1;
 
     case SSH_SERVER_FILE_NOT_FOUND:
-        std::cout << "Could not find known host file. \n";
-        std::cout << "If you accept the host key here, the file will be automatically created. \n";
-        std::cout.flush();
+        LOG_WARNING << "Could not find known host file. \n";
+        LOG_WARNING << "If you accept the host key here, the file will be automatically created. \n";
+        LOG_FLUSH;
         /* fallback to SSH_SERVER_NOT_KNOWN behavior */
 
     case SSH_SERVER_NOT_KNOWN:
     {
         char *hexa = ssh_get_hexa(hash, hlen);
-        std::cout << boost::format("The authenticity of host '%1% (%2%)' can't be established. \n") % dev_hostName % dev_hostIP;
-        std::cout << "Public key hash is " << hexa << " \n";
+        LOG_WARNING << boost::format("The authenticity of host '%1% (%2%)' can't be established. \n") % dev_hostName % dev_hostIP;
+        LOG_WARNING << "Public key hash is " << hexa << " \n";
         free(hexa);
 
-        std::cout << "Are you sure you want to continue connecting (yes/no)? ";
-        std::cout.flush();
+        LOG_WARNING << "Are you sure you want to continue connecting (yes/no)? ";
+        LOG_FLUSH;
 
         while(true)
         {
@@ -238,15 +239,13 @@ int SSH::verify_knownhost()
                 }
 
                 // insert a new line for improving readability
-                std::cout << "\n";
-                std::cout.flush();
+                LOG_WARNING << "\n" << std::flush;
 
                 break; // break out of loop
             }
             else
             {
-                std::cout << "Please type 'yes' or 'no': ";
-                std::cout.flush();
+                LOG_WARNING << "Please type 'yes' or 'no': " << std::flush;
             }
         }
 
@@ -316,8 +315,7 @@ void SSH::authenticate(std::string password)
             else if (rc == SSH_AUTH_SUCCESS)
                 return;
 
-            printf("    Username/password combination is not correct. Try again! \n");
-            std::cout.flush();
+            LOG_INFO << "    Username/password combination is not correct. Try again! \n" << std::flush;
         }
 
         // if we are here then the password did not work!
@@ -342,8 +340,7 @@ void SSH::authenticate(std::string password)
             else if (rc == SSH_AUTH_SUCCESS)
                 return;
 
-            printf("    Username/password combination is not correct. Try again! \n");
-            std::cout.flush();
+            LOG_INFO << "    Username/password combination is not correct. Try again! \n" << std::flush;
         }
     }
 }
@@ -360,10 +357,10 @@ int SSH::authenticate_kbdint()
         const char *instruction = ssh_userauth_kbdint_getinstruction(SSH_session);
         int nprompts = ssh_userauth_kbdint_getnprompts(SSH_session);
         if (strlen(name) > 0)
-            printf("%s\n", name);
+            LOG_INFO << name << "\n";
 
         if (strlen(instruction) > 0)
-            printf("%s\n", instruction);
+            LOG_INFO << instruction << "\n";
 
         for (int iprompt = 0; iprompt < nprompts; iprompt++)
         {
@@ -372,7 +369,7 @@ int SSH::authenticate_kbdint()
             if (echo)
             {
                 char buffer[128], *ptr;
-                printf("%s", prompt);
+                LOG_INFO << prompt;
 
                 if (fgets(buffer, sizeof(buffer), stdin) == NULL)
                     return SSH_AUTH_ERROR;
