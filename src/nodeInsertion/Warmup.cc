@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    VehicleWarmup.cc
+/// @file    Warmup.cc
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    August 2013
@@ -26,6 +26,7 @@
 //
 
 #include "Warmup.h"
+#include "vlog.h"
 
 namespace VENTOS {
 
@@ -88,7 +89,7 @@ void Warmup::handleMessage(omnetpp::cMessage *msg)
     if (msg == finishingWarmup)
     {
         IsWarmUpFinished = true;
-        std::cout << "t=" << omnetpp::simTime().dbl() << ": Warm-up phase finished." << std::endl;
+        LOG_EVENT << "t=" << omnetpp::simTime().dbl() << ": Warm-up phase finished. \n";
     }
 }
 
@@ -131,8 +132,7 @@ bool Warmup::DoWarmup()
     if(startTime == -1)
     {
         startTime = omnetpp::simTime().dbl();
-        std::cout << std::endl;
-        std::cout << "t=" << omnetpp::simTime().dbl() << ": Warm-up phase is started ..." << std::endl;
+        LOG_EVENT << "\nt=" << omnetpp::simTime().dbl() << ": Warm-up phase is started ... \n";
     }
 
     // get the first leading vehicle
@@ -153,7 +153,7 @@ bool Warmup::DoWarmup()
         if(n == numVehicles)
         {
             scheduleAt(omnetpp::simTime() + waitingTime, finishingWarmup);
-            std::cout << "t=" << omnetpp::simTime().dbl() << ": Waiting for " << waitingTime << "s before finishing warm-up ..." << std::endl;
+            LOG_EVENT << "t=" << omnetpp::simTime().dbl() << ": Waiting for " << waitingTime << "s before finishing warm-up ... \n";
         }
     }
 

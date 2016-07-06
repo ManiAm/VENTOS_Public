@@ -25,8 +25,9 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <05_BLE_Advertisement.h>
-#include <BeaconFormat.h>
+#include "05_BLE_Advertisement.h"
+#include "BeaconFormat.h"
+
 #include <linux/errno.h>       // include this at the end!
 
 namespace VENTOS {

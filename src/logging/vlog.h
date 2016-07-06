@@ -28,11 +28,11 @@
 #ifndef LOGRECORDER_H
 #define LOGRECORDER_H
 
-#include <BaseApplLayer.h>
+#include "BaseApplLayer.h"
+#include "vlogConst.h"
 #include <omnetpp.h>
 #include "boost/format.hpp"
 #include <mutex>
-#include "vlogConst.h"
 
 namespace VENTOS {
 

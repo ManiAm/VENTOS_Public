@@ -26,6 +26,7 @@
 //
 
 #include "SpeedProfile.h"
+#include "vlog.h"
 
 namespace VENTOS {
 
@@ -97,7 +98,7 @@ void SpeedProfile::Change()
     if(startTime == -1)
     {
         startTime = omnetpp::simTime().dbl();
-        std::cout << "t=" << omnetpp::simTime().dbl() << ": Speed profiling phase is started ..." << std::endl;
+        LOG_EVENT << "t=" << omnetpp::simTime().dbl() << ": Speed profiling phase is started ... \n";
     }
     // if user specifies a startTime, we should wait for it
     else if(startTime > omnetpp::simTime().dbl())

@@ -25,11 +25,12 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <nodeInsertion/AddMobileNode.h>
+#include "AddMobileNode.h"
 #include "Router.h"
+#include "vlog.h"
+
 #include <algorithm>
 #include <random>
-#include <vlog.h>
 
 namespace VENTOS {
 

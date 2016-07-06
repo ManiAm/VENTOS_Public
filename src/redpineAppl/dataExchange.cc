@@ -45,9 +45,9 @@
 #include <thread>
 #include <fstream>
 
-#include "vlog.h"
 #include "dataExchange.h"
 #include "ApplV_Manager.h"
+#include "vlog.h"
 
 namespace VENTOS {
 
@@ -339,8 +339,7 @@ void dataExchange::connect_to_TCP_server(std::string ipv4)
 
         int sleepDuration = tries * .25 + 1;
 
-        std::cout << boost::format("    Could not connect to the TCP server: %1% -- retry in %2% seconds. \n") % strerror(sock_errno()) % sleepDuration;
-        std::cout.flush();
+        LOG_INFO << boost::format("    Could not connect to the TCP server: %1% -- retry in %2% seconds. \n") % strerror(sock_errno()) % sleepDuration << std::flush;
 
         std::this_thread::sleep_for(std::chrono::seconds(sleepDuration));
     }

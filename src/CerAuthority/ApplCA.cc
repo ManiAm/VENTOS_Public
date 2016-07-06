@@ -28,7 +28,7 @@
 #include "ApplCA.h"
 #include "FiniteFieldMath.h"
 #include "SignalObj.h"
-#include <vlog.h>
+#include "vlog.h"
 
 namespace VENTOS {
 

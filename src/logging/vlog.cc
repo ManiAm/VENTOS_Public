@@ -36,9 +36,10 @@
 #include <arpa/inet.h>
 #endif
 
-#include <vlog.h>
 #include <algorithm>
-#include "thread"
+#include <thread>
+
+#include "vlog.h"
 
 namespace VENTOS {
 

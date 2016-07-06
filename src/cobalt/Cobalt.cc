@@ -27,6 +27,7 @@
 
 #include "Cobalt.h"
 #include "MIB_OBJ_ASC.h"
+#include "vlog.h"
 
 namespace VENTOS {
 
@@ -112,8 +113,8 @@ void Cobalt::executeEachTimestep()
         std::vector<Snmp_pp::Vb> result = cobaltSNMP->SNMPwalk("1.3.6.1.4.1.1206.4.2.1.11.1");
         for(auto& entry : result)
         {
-            std::cout << entry.get_printable_oid() << " = ";
-            std::cout << entry.get_printable_value() << std::endl;
+            LOG_INFO << entry.get_printable_oid() << " = ";
+            LOG_INFO << entry.get_printable_value() << "\n";
         }
 
         wasExecuted = true;
@@ -129,16 +130,16 @@ void Cobalt::init_cobalt()
     ASSERT(cobaltSNMP);
 
     Snmp_pp::Vb name = cobaltSNMP->SNMPget(sysName);
-    std::cout << "Name: " << name.get_printable_value() << std::endl;
+    LOG_INFO << "Name: " << name.get_printable_value() << "\n";
 
     Snmp_pp::Vb company = cobaltSNMP->SNMPget(sysContact);
-    std::cout << "Company: " << company.get_printable_value() << std::endl;
+    LOG_INFO << "Company: " << company.get_printable_value() << "\n";
 
     Snmp_pp::Vb address = cobaltSNMP->SNMPget(sysLocation);
-    std::cout << "Address: " << address.get_printable_value() << std::endl;
+    LOG_INFO << "Address: " << address.get_printable_value() << "\n";
 
     Snmp_pp::Vb upTime = cobaltSNMP->SNMPget(sysUpTime);
-    std::cout << "UpTime: " << upTime.get_printable_value() << std::endl << std::endl;
+    LOG_INFO << "UpTime: " << upTime.get_printable_value() << "\n\n";
 }
 
 }

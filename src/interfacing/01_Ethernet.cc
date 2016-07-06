@@ -25,16 +25,15 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
+#include "01_Ethernet.h"
+#include "vlog.h"
+
 #include <fstream>
 #include <thread>
 #include <chrono>
 #include <boost/format.hpp>
 #undef ev
 #include "boost/filesystem.hpp"
-
-#include "01_Ethernet.h"
-#include "vlog.h"
-
 
 namespace VENTOS {
 
@@ -192,8 +191,6 @@ void Ethernet::listInterfaces()
     LOG_INFO << "\n" << std::flush;
 
     pcap_freealldevs(alldevs);
-
-    std::cout.flush();
 }
 
 

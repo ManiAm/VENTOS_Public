@@ -26,6 +26,7 @@
 #include "TraCIMobility.h"
 #include "ObstacleControl.h"
 #include "Router.h"
+#include "vlog.h"
 
 #include <rapidxml.hpp>
 #include <rapidxml_utils.hpp>
@@ -34,7 +35,6 @@
 #include <cmath>
 #include <algorithm>
 #include <iomanip>
-#include <vlog.h>
 
 #undef ev
 #include "boost/filesystem.hpp"

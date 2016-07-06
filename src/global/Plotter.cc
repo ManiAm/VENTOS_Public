@@ -25,7 +25,9 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <Plotter.h>
+#include "Plotter.h"
+#include "vlog.h"
+
 #include <algorithm>
 
 namespace VENTOS {
@@ -86,7 +88,7 @@ void Plotter::getVersion()
     if (!fgets(lineversion, sizeof(lineversion), pipversion))
         throw omnetpp::cRuntimeError("fgets error!");
 
-    std::cout << std::endl << "GNUPLOT Version: " << lineversion << std::endl;
+    LOG_INFO << "\nGNUPLOT Version: " << lineversion << std::endl;
 
     // now parsing lineversion (gnuplot 5.0 patchlevel 1)
     sscanf(lineversion, "gnuplot %lf", &vers);

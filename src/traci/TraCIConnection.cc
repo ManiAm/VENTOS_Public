@@ -12,12 +12,12 @@
 
 #include <algorithm>
 #include <functional>
+#include <thread>
 
 #include "TraCIConnection.h"
 #include "TraCIConstants.h"
 #include "TraCICommands.h"
-#include <thread>
-#include <vlog.h>
+#include "vlog.h"
 
 
 namespace VENTOS {

@@ -28,10 +28,10 @@
 #define WANT_WINSOCK2
 #include <platdep/sockets.h>
 
-#include "SNMP.h"
-
 #undef ev
 #include "boost/filesystem.hpp"
+
+#include "SNMP.h"
 
 namespace VENTOS {
 
