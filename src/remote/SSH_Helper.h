@@ -43,17 +43,18 @@ public:
     // sends sudo reboot to the remote dev
     double rebootDev(ssh_channel, int);
 
-    // switch to sudo space
+    // switch to sudo
     void getSudo(ssh_channel);
 
-    std::string run_command_nonblocking(ssh_channel, std::string, bool = false, std::string = "std::cout", std::string = "default");
-    std::string run_command_blocking(ssh_channel, std::string, bool = false, std::string = "std::cout", std::string = "default");
+    void run_command_nonblocking(ssh_channel, std::string, bool = false, std::string = "std::cout", std::string = "default");
+    void run_command_blocking(ssh_channel, std::string, bool = false, std::string = "std::cout", std::string = "default");
+    int run_command_blocking_NoRunCheck(ssh_channel, std::string, bool = false, std::string = "std::cout", std::string = "default");
 
     // active number of threads in this SSH session
     int getNumActiveThreads();
 
 private:
-    std::string run_command(ssh_channel, std::string, bool, bool, std::string, std::string);
+    int run_command(ssh_channel, std::string, bool, bool, bool, std::string, std::string);
 
 private:
     typedef std::chrono::high_resolution_clock::time_point Htime_t;

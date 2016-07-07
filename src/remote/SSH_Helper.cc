@@ -109,51 +109,84 @@ double SSH_Helper::rebootDev(ssh_channel SSH_channel, int timeOut)
 
 void SSH_Helper::getSudo(ssh_channel SSH_channel)
 {
-    std::string output = run_command_blocking(SSH_channel, "sudo -n uptime 2>&1 | grep 'load' | wc -l");
+    LOG_EVENT_C(category, subcategory) << "    Do we have sudo access?... " << std::flush;
 
-    // get the second line of the output
-    std::istringstream inputStr(output);
-    std::string secondLine = "";
-    std::getline(inputStr, secondLine);
-    std::getline(inputStr, secondLine);
+    // -n' The -n (non-interactive) option prevents sudo from prompting the user for a password.
+    // If a password is required for the command to run, sudo will display an error message and exit.
+    int ret = run_command_blocking_NoRunCheck(SSH_channel, "sudo -n uptime", false);
 
-    try
+    // we can sudo
+    if (ret == 1)
     {
-        // we are either in sudo mode or sudo doesn't require pass
-        if (std::stoi(secondLine) > 0)
+        // do nothing
+        LOG_EVENT_C(category, subcategory) << "Yes! \n" << std::flush;
+    }
+    // we can not sudo
+    else if(ret == 2)
+    {
+        LOG_EVENT_C(category, subcategory) << "No! \n" << std::flush;
+        LOG_EVENT_C(category, subcategory) << "    Acquiring sudo... " << std::flush;
+
+        std::stringstream cmd;
+        cmd << boost::format("echo %1% | sudo -S uptime") % this->dev_password;
+        ret = run_command_blocking_NoRunCheck(SSH_channel, cmd.str(), false);
+
+        if(ret == 1)
         {
-            //run_command_blocking(SSH_channel, "sudo su");  // todo: this loops forever cause after sudo su, echo EOCMD is never executed!
+            // successfully switched to sudo
+            LOG_EVENT_C(category, subcategory) << "Done! \n" << std::flush;
         }
-        // we need password
-        else
+        else if(ret == 2)
         {
+            LOG_EVENT_C(category, subcategory) << "Failed! \n" << std::flush;
+            LOG_EVENT_C(category, subcategory) << "Change the sudo password in config. \n" << std::flush;
+
             std::string password;
             std::cout << "sudo password @" + dev_hostName + ": ";
             getline(std::cin, password);
 
-            // echo $sudoPass | sudo -S apt-get  todo
+            std::stringstream cmd;
+            cmd << boost::format("echo %1% | sudo -S uptime") % password;
+            ret = run_command_blocking_NoRunCheck(SSH_channel, cmd.str(), false);
+
+            if(ret == 1)
+            {
+                // successfully switched to sudo
+                LOG_EVENT_C(category, subcategory) << "Successfully acquired sudo \n" << std::flush;
+            }
+            else
+                throw omnetpp::cRuntimeError("Can not get sudo @%s", dev_hostName.c_str());
         }
+        else
+            throw omnetpp::cRuntimeError("Unknown return code in getSudo @%s", dev_hostName.c_str());
     }
-    catch (const std::exception& ex)
-    {
-        throw omnetpp::cRuntimeError("Cannot get sudo access @%s", dev_hostName.c_str());
-    }
+    else
+        throw omnetpp::cRuntimeError("Unknown return code in getSudo @%s", dev_hostName.c_str());
+
+    // add new line for readability
+    LOG_EVENT_C(category, subcategory) << "\n" << std::flush;
 }
 
 
-std::string SSH_Helper::run_command_nonblocking(ssh_channel SSH_channel, std::string command, bool printOutput, std::string category, std::string subcategory)
+void SSH_Helper::run_command_nonblocking(ssh_channel SSH_channel, std::string command, bool printOutput, std::string category, std::string subcategory)
 {
-    return run_command(SSH_channel, command, false, printOutput, category, subcategory);
+    run_command(SSH_channel, command, false /*non-blocking*/, true /*run check*/, printOutput, category, subcategory);
 }
 
 
-std::string SSH_Helper::run_command_blocking(ssh_channel SSH_channel, std::string command, bool printOutput, std::string category, std::string subcategory)
+void SSH_Helper::run_command_blocking(ssh_channel SSH_channel, std::string command, bool printOutput, std::string category, std::string subcategory)
 {
-    return run_command(SSH_channel, command, true, printOutput, category, subcategory);
+    run_command(SSH_channel, command, true /*blocking*/, true /*run check*/, printOutput, category, subcategory);
 }
 
 
-std::string SSH_Helper::run_command(ssh_channel SSH_channel, std::string command, bool blocking, bool printOutput, std::string category, std::string subcategory)
+int SSH_Helper::run_command_blocking_NoRunCheck(ssh_channel SSH_channel, std::string command, bool printOutput, std::string category, std::string subcategory)
+{
+    return run_command(SSH_channel, command, true /*blocking*/, false /*no run check*/, printOutput, category, subcategory);
+}
+
+
+int SSH_Helper::run_command(ssh_channel SSH_channel, std::string command, bool blocking, bool runCheck, bool printOutput, std::string category, std::string subcategory)
 {
     ASSERT(SSH_channel);
 
@@ -165,19 +198,21 @@ std::string SSH_Helper::run_command(ssh_channel SSH_channel, std::string command
 
         // run the command
         char buffer[1000];
-        int nbytes = sprintf (buffer, "%s ; ret=$? ; echo "" ; echo %s ; echo $ret \n", command.c_str(), EOCMD);
+        int nbytes = sprintf (buffer, "%s ; ret=$? ; echo "" ; echo -n %s ; echo %s ; echo $ret \n", command.c_str(), EOCMD, EOCMD);
         int nwritten = ssh_channel_write(SSH_channel, buffer, nbytes);
         if (nwritten != nbytes)
             throw omnetpp::cRuntimeError("SSH error in writing command to shell");
     }
 
-    std::string command_output = "";
+    int returnCode = 0;
+    int *returnCodePtr = &returnCode;
 
     // run the loop in a child thread
     std::thread thd = std::thread([=]() mutable {  // pass by value
 
         // read the output from remote shell
         char buffer[1000];
+        std::string command_output = "";
         int numEOF = 0;
         int indexCmdBegin = -1;
         int indexCmdEnd = -1;
@@ -237,7 +272,7 @@ std::string SSH_Helper::run_command(ssh_channel SSH_channel, std::string command
                 // look for the end of command output
                 if(!endFound && indexCmdEnd != -1)
                 {
-                    std::size_t pos = command_output.find(EOCMD, indexCmdEnd);
+                    std::size_t pos = command_output.find(std::string(EOCMD) + EOCMD, indexCmdBegin);
                     if(pos != std::string::npos)
                     {
                         indexCmdEnd = pos - 1;
@@ -280,26 +315,35 @@ std::string SSH_Helper::run_command(ssh_channel SSH_channel, std::string command
                     // 0: command is still running
                     // 1: command execution is finished without error
                     // 2: command execution is finished with error
-                    int returnCode = 0;
                     if(tokens.size() >= 2)
                     {
                         try
                         {
                             if (std::stoi(tokens[1]) != 0)
-                                returnCode = 2;
+                                *returnCodePtr = 2;
                             else
-                                returnCode = 1;
+                                *returnCodePtr = 1;
                         }
                         catch (const std::exception& ex)
                         {
-                            returnCode = 2;
+                            LOG_ERROR << "\n" << tokens.size() << " tokens are: \n";
+                            for(auto ii : tokens)
+                                LOG_ERROR << ii << "\n";
+                            LOG_FLUSH;
+
+                            throw omnetpp::cRuntimeError("Error during parsing tokens @%s", dev_hostName.c_str());
                         }
                     }
 
-                    if(returnCode == 1)
+                    if(*returnCodePtr == 1)
                         break;
+
+                    // last command failed but runCheck is off
+                    if(*returnCodePtr == 2 && !runCheck)
+                        break;
+
                     // last command failed
-                    if(returnCode == 2)
+                    if(*returnCodePtr == 2 && runCheck)
                     {
                         // if we have not already printed the output
                         if(!printOutput)
@@ -334,7 +378,7 @@ std::string SSH_Helper::run_command(ssh_channel SSH_channel, std::string command
     else
         thd.join();
 
-    return command_output;
+    return *returnCodePtr;
 }
 
 

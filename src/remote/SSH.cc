@@ -193,6 +193,7 @@ int SSH::verify_knownhost()
         LOG_WARNING << "Host key for server changed: it is now: \n";
         ssh_print_hexa("Public key hash", hash, hlen);
         LOG_WARNING << "For security reasons, connection will be stopped. \n";
+        LOG_WARNING << "Try removing the host key from known hosts using 'ssh-keygen -R " << this->dev_hostIP << "' \n";
         LOG_FLUSH;
         free(hash);
         return -1;
@@ -606,6 +607,10 @@ ssh_channel SSH::openShell(std::string shellName, bool interactive, bool keepAli
     {
         std::lock_guard<std::mutex> lock(lock_SSH_Session);
 
+        std::string shell_mode = interactive ? "interactive" : "non-interactive";
+        std::string keepAlive_mode = keepAlive ? "with" : "without";
+        LOG_EVENT_C(category, subcategory) << boost::format("    Opening %1% shell '%2%' %3% keepAlive \n") % shell_mode % shellName % keepAlive_mode << std::flush;
+
         SSH_channel = ssh_channel_new(SSH_session);
         if (SSH_channel == NULL)
             throw omnetpp::cRuntimeError("SSH error in openShell");
@@ -648,14 +653,8 @@ ssh_channel SSH::openShell(std::string shellName, bool interactive, bool keepAli
             ssh_channel_free(SSH_channel);
             throw omnetpp::cRuntimeError("SSH error in openShell");
         }
+
     } // end of mutex lock
-
-    //std::string shell_mode = interactive ? "interactive" : "non-interactive";
-    //std::string keepAlive_mode = keepAlive ? "with" : "without";
-    //DEBUG_LOG_C(category, subcategory) << boost::format("===[ Opening %1% shell '%2%' %3% keepAlive ]=== \n\n") % shell_mode % shellName % keepAlive_mode << std::flush;
-
-
-
 
     //ssh_channel shell1 = board->openShell("shell1", true);
 
@@ -666,8 +665,6 @@ ssh_channel SSH::openShell(std::string shellName, bool interactive, bool keepAli
     // running tmux application to keep the shell alive
     //board->run_command(shell1, "tmux set -g status off", 10, true);
     //board->run_command(shell1, "tmux", 10, true);
-
-
 
     // read the greeting message from remote shell and redirect it to /dev/null
     char buffer[1000];

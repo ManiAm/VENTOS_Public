@@ -13,7 +13,7 @@
 #
 # @section DESCRIPTION
 #
-# This bash script prepare the Redpine board to run WAVE applications
+# This bash script loads the necessary drivers
 #
 
 
