@@ -247,39 +247,49 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
     ASSERT(module);
     ASSERT(board);
 
-    // should we reboot this dev before proceeding?
+    //###########################
+    // should we reboot this dev?
+    //###########################
+
     if(module->par("rebootAtStart").boolValue())
     {
-        ssh_channel rebootShell = board->openShell("rebootShell");  // open a shell
+        LOG_EVENT_C(board->getHostName(), "default") << "===[ Re-booting device ... ]=== \n\n" << std::flush;
 
-        LOG_EVENT_C(board->getHostName(), "default") << "===[ Re-booting device ... Please wait ]=== \n\n" << std::flush;
+        // open a shell and get sudo access
+        ssh_channel rebootShell = board->openShell("rebootShell");
+        board->getSudo(rebootShell);
 
+        LOG_EVENT_C(board->getHostName(), "default") << "    Sending the reboot command ... Please wait \n" << std::flush;
         double duration_ms = board->rebootDev(rebootShell, 40000 /*max waiting time*/);
         board->closeShell(rebootShell);  // close the shell
 
         LOG_EVENT_C(board->getHostName(), "default") << boost::format("    Device is up and running! Boot time ~ %1% seconds \n") % (duration_ms / 1000.) << std::flush;
 
         // previous SSH connection is lost. Re-connect to the dev
-        LOG_EVENT_C(board->getHostName(), "default") << boost::format("    Reconnecting to %1% ... \n") % board->getHostName() << std::flush;
+        LOG_EVENT_C(board->getHostName(), "default") << boost::format("    Reconnecting to %1% ... \n\n") % board->getHostName() << std::flush;
+        LOG_EVENT_C(board->getHostName(), "default") << boost::format("===[ Connecting to %1% ... ]=== \n\n") % board->getHostName() << std::flush;
+
         board = new SSH_Helper(board->getHostName(), board->getPort(), board->getUsername(), board->getPassword(), true, board->getHostName(), "default");
         ASSERT(board);
+
+        // adding new line for readability
+        LOG_EVENT_C(board->getHostName(), "default") << "\n" << std::flush;
     }
 
-    //########################################
+    //#########################################
     // opening shells and acquiring sudo access
-    //########################################
+    //#########################################
 
     LOG_EVENT_C(board->getHostName(), "default") << "===[ Opening shells and acquiring sudo access ... ]=== \n\n" << std::flush;
 
-    // open the first shell
-    ssh_channel shell1 = board->openShell("shell1", true);
-    // get sudo access
+    ssh_channel shell1 = board->openShell("shell1");
     board->getSudo(shell1);
 
-    // open the second shell
-    ssh_channel shell2 = board->openShell("shell2", true);
-    // get sudo access
+    ssh_channel shell2 = board->openShell("shell2");
     board->getSudo(shell2);
+
+    // adding new line for readability
+    LOG_EVENT_C(board->getHostName(), "default") << "\n" << std::flush;
 
     //##########################################################
     // copying new/modified source codes to remoteDir_SourceCode
@@ -345,7 +355,7 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
     // remotely start 1609 stack in WAVE mode
     //#######################################
 
-    LOG_EVENT_C(board->getHostName(), "default") << "===[ Start 1609 stack in WAVE mode ... ]=== \n\n" << std::flush;
+    LOG_EVENT_C(board->getHostName(), "default") << "===[ Running the 1609 stack ... ]=== \n\n" << std::flush;
 
     board->run_command_blocking(shell1, "cd " + (remoteDir_Driver / "init").string());
     board->run_command_nonblocking(shell1, "sudo ./run_1609", true, board->getHostName());

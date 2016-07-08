@@ -11,7 +11,7 @@ simple codeLoader
         bool active = default(false);   
         int numDev = default(0);
                
-        string remoteDir_Driver = default("");
-        string remoteDir_SourceCode = default("");
+        string remoteDir_Driver = default("/home/release");
+        string remoteDir_SourceCode = default("/home/VENTOS");        
 }
 

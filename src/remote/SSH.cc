@@ -190,9 +190,10 @@ int SSH::verify_knownhost()
         break; /* ok */
 
     case SSH_SERVER_KNOWN_CHANGED:
-        LOG_WARNING << "Host key for server changed: it is now: \n";
+        LOG_WARNING << "Host key for server changed and it is now: \n";
         ssh_print_hexa("Public key hash", hash, hlen);
         LOG_WARNING << "For security reasons, connection will be stopped. \n";
+        LOG_WARNING << "This might happen when you switch between the boards with the same IP address. \n";
         LOG_WARNING << "Try removing the host key from known hosts using 'ssh-keygen -R " << this->dev_hostIP << "' \n";
         LOG_FLUSH;
         free(hash);

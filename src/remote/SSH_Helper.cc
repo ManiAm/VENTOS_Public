@@ -162,9 +162,6 @@ void SSH_Helper::getSudo(ssh_channel SSH_channel)
     }
     else
         throw omnetpp::cRuntimeError("Unknown return code in getSudo @%s", dev_hostName.c_str());
-
-    // add new line for readability
-    LOG_EVENT_C(category, subcategory) << "\n" << std::flush;
 }
 
 
@@ -201,7 +198,7 @@ int SSH_Helper::run_command(ssh_channel SSH_channel, std::string command, bool b
         int nbytes = sprintf (buffer, "%s ; ret=$? ; echo "" ; echo -n %s ; echo %s ; echo $ret \n", command.c_str(), EOCMD, EOCMD);
         int nwritten = ssh_channel_write(SSH_channel, buffer, nbytes);
         if (nwritten != nbytes)
-            throw omnetpp::cRuntimeError("SSH error in writing command to shell");
+            throw omnetpp::cRuntimeError("SSH error in writing command to shell: %s", command.c_str());
     }
 
     int returnCode = 0;
