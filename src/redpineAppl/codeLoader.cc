@@ -257,7 +257,7 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
 
         // open a shell and get sudo access
         ssh_channel rebootShell = board->openShell("rebootShell");
-        board->getSudo(rebootShell);
+        board->checkSudo(rebootShell);
 
         LOG_EVENT_C(board->getHostName(), "default") << "    Sending the reboot command ... Please wait \n" << std::flush;
         double duration_ms = board->rebootDev(rebootShell, 40000 /*max waiting time*/);
@@ -283,10 +283,10 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
     LOG_EVENT_C(board->getHostName(), "default") << "===[ Opening shells and acquiring sudo access ... ]=== \n\n" << std::flush;
 
     ssh_channel shell1 = board->openShell("shell1");
-    board->getSudo(shell1);
+    board->checkSudo(shell1);
 
     ssh_channel shell2 = board->openShell("shell2");
-    board->getSudo(shell2);
+    board->checkSudo(shell2);
 
     // adding new line for readability
     LOG_EVENT_C(board->getHostName(), "default") << "\n" << std::flush;

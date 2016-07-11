@@ -44,7 +44,7 @@ public:
     double rebootDev(ssh_channel, int);
 
     // switch to sudo
-    void getSudo(ssh_channel);
+    void checkSudo(ssh_channel);
 
     void run_command_nonblocking(ssh_channel, std::string, bool = false, std::string = "std::cout", std::string = "default");
     void run_command_blocking(ssh_channel, std::string, bool = false, std::string = "std::cout", std::string = "default");
@@ -61,6 +61,7 @@ private:
 
     std::atomic<int> active_threads;  // number of active threads in this SSH session
     std::atomic<bool> terminating;
+    std::string sudoPassword = "";
 };
 
 }

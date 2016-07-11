@@ -107,9 +107,9 @@ double SSH_Helper::rebootDev(ssh_channel SSH_channel, int timeOut)
 }
 
 
-void SSH_Helper::getSudo(ssh_channel SSH_channel)
+void SSH_Helper::checkSudo(ssh_channel SSH_channel)
 {
-    LOG_EVENT_C(category, subcategory) << "    Do we have sudo access?... " << std::flush;
+    LOG_EVENT_C(category, subcategory) << "    Do we have root permission?... " << std::flush;
 
     // -n' The -n (non-interactive) option prevents sudo from prompting the user for a password.
     // If a password is required for the command to run, sudo will display an error message and exit.
@@ -118,47 +118,63 @@ void SSH_Helper::getSudo(ssh_channel SSH_channel)
     // we can sudo
     if (ret == 1)
     {
-        // do nothing
         LOG_EVENT_C(category, subcategory) << "Yes! \n" << std::flush;
     }
     // we can not sudo
     else if(ret == 2)
     {
         LOG_EVENT_C(category, subcategory) << "No! \n" << std::flush;
-        LOG_EVENT_C(category, subcategory) << "    Acquiring sudo... " << std::flush;
+        LOG_EVENT_C(category, subcategory) << "    Can we acquire root permission using sudo?... " << std::flush;
 
-        std::stringstream cmd;
-        cmd << boost::format("echo %1% | sudo -S uptime") % this->dev_password;
-        ret = run_command_blocking_NoRunCheck(SSH_channel, cmd.str(), false);
-
-        if(ret == 1)
+        if(this->dev_password != "")
         {
-            // successfully switched to sudo
-            LOG_EVENT_C(category, subcategory) << "Done! \n" << std::flush;
-        }
-        else if(ret == 2)
-        {
-            LOG_EVENT_C(category, subcategory) << "Failed! \n" << std::flush;
-            LOG_EVENT_C(category, subcategory) << "Change the sudo password in config. \n" << std::flush;
-
-            std::string password;
-            std::cout << "sudo password @" + dev_hostName + ": ";
-            getline(std::cin, password);
-
             std::stringstream cmd;
-            cmd << boost::format("echo %1% | sudo -S uptime") % password;
+            cmd << boost::format("echo %1% | sudo -S uptime") % this->dev_password;
             ret = run_command_blocking_NoRunCheck(SSH_channel, cmd.str(), false);
-
             if(ret == 1)
             {
                 // successfully switched to sudo
-                LOG_EVENT_C(category, subcategory) << "Successfully acquired sudo \n" << std::flush;
+                LOG_EVENT_C(category, subcategory) << "Yes! \n" << std::flush;
+                return;
+            }
+        }
+
+        if(this->sudoPassword != "")
+        {
+            std::stringstream cmd;
+            cmd << boost::format("echo %1% | sudo -S uptime") % this->sudoPassword;
+            ret = run_command_blocking_NoRunCheck(SSH_channel, cmd.str(), false);
+            if(ret == 1)
+            {
+                // successfully switched to sudo
+                LOG_EVENT_C(category, subcategory) << "Yes! \n" << std::flush;
+                return;
+            }
+        }
+
+        {
+            // only one SSH connection should access this
+            std::lock_guard<std::mutex> lock(lock_prompt);
+
+            // dev_password and sudoPassword are both empty
+            LOG_EVENT_C(category, subcategory) << "Asking the user! \n" << std::flush;
+            LOG_EVENT_C(category, subcategory) << "    Please provide the sudo password in the input console ... \n" << std::flush;
+
+            std::cout << boost::format("sudo Password for %1%@%2%: ") % dev_username % dev_hostName << std::flush;
+            getline(std::cin, sudoPassword);
+
+            std::stringstream cmd;
+            cmd << boost::format("echo %1% | sudo -S uptime") % this->sudoPassword;
+            ret = run_command_blocking_NoRunCheck(SSH_channel, cmd.str(), false);
+            if(ret == 1)
+            {
+                // successfully switched to sudo
+                LOG_EVENT_C(category, subcategory) << "    Great! We have sudo access now \n" << std::flush;
+                return;
             }
             else
-                throw omnetpp::cRuntimeError("Can not get sudo @%s", dev_hostName.c_str());
+                throw omnetpp::cRuntimeError("Can not get sudo access @%s", dev_hostName.c_str());
         }
-        else
-            throw omnetpp::cRuntimeError("Unknown return code in getSudo @%s", dev_hostName.c_str());
     }
     else
         throw omnetpp::cRuntimeError("Unknown return code in getSudo @%s", dev_hostName.c_str());

@@ -67,7 +67,7 @@ public:
 
 private:
     void checkHost(std::string host, bool);
-    void authenticate(std::string password);
+    void authenticate();
     int authenticate_kbdint();
     int verify_knownhost();
     void createSession_SFTP();
@@ -79,6 +79,7 @@ protected:
     std::string dev_username = "";
     std::string dev_password = "";
 
+    bool printOutput = false;
     std::string category = "";
     std::string subcategory = "";
 
@@ -86,11 +87,7 @@ protected:
     sftp_session SFTP_session;
 
     std::mutex lock_SSH_Session;  // control access to SSH session
-
-private:
     static std::mutex lock_prompt;  // all SSH connections share the same lock
-    static std::mutex lock_verify;
-
 };
 
 }

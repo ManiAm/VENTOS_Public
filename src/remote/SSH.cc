@@ -44,7 +44,6 @@
 namespace VENTOS {
 
 std::mutex SSH::lock_prompt;
-std::mutex SSH::lock_verify;
 
 SSH::~SSH()
 {
@@ -61,7 +60,7 @@ SSH::~SSH()
 
 
 // constructor
-SSH::SSH(std::string host, int port, std::string username, std::string password, bool printOutput, std::string cat, std::string sub)
+SSH::SSH(std::string host, int port, std::string username, std::string password, bool pOutput, std::string cat, std::string sub)
 {
     if(host == "")
         throw omnetpp::cRuntimeError("host is empty!");
@@ -77,6 +76,7 @@ SSH::SSH(std::string host, int port, std::string username, std::string password,
     this->dev_username = username;
     this->dev_password = password;
 
+    this->printOutput = pOutput;
     this->category = cat;
     this->subcategory = sub;
 
@@ -102,17 +102,15 @@ SSH::SSH(std::string host, int port, std::string username, std::string password,
     if (rc != SSH_OK)
         throw omnetpp::cRuntimeError("%s", ssh_get_error(SSH_session));
 
-    {
-        // one SSH connection at a time -- because this might prompt the user
-        std::lock_guard<std::mutex> lock(lock_verify);
+    // verify the server's identity
+    if(printOutput)
+        LOG_EVENT_C(category, subcategory) << boost::format("    Verifying host %1% ... \n") % host << std::flush;
 
-        // verify the server's identity
-        if (verify_knownhost() < 0)
-        {
-            ssh_disconnect(SSH_session);
-            ssh_free(SSH_session);
-            throw omnetpp::cRuntimeError("Cannot verify the host!");
-        }
+    if (verify_knownhost() < 0)
+    {
+        ssh_disconnect(SSH_session);
+        ssh_free(SSH_session);
+        throw omnetpp::cRuntimeError("Cannot verify the host!");
     }
 
     if(printOutput)
@@ -134,7 +132,10 @@ SSH::SSH(std::string host, int port, std::string username, std::string password,
     if(printOutput)
         LOG_EVENT_C(category, subcategory) << boost::format("    Authenticating ... Please wait \n") << std::flush;
 
-    authenticate(password);
+    authenticate();
+
+    if(printOutput)
+        LOG_EVENT_C(category, subcategory) << boost::format("    Successfully connected to %1% \n") % host << std::flush;
 
     // create a new SFTP session for file transfer
     createSession_SFTP();
@@ -187,39 +188,50 @@ int SSH::verify_knownhost()
     switch (state)
     {
     case SSH_SERVER_KNOWN_OK:
-        break; /* ok */
+        free(hash);
+        return 0;
 
     case SSH_SERVER_KNOWN_CHANGED:
-        LOG_WARNING << "Host key for server changed and it is now: \n";
-        ssh_print_hexa("Public key hash", hash, hlen);
-        LOG_WARNING << "For security reasons, connection will be stopped. \n";
-        LOG_WARNING << "This might happen when you switch between the boards with the same IP address. \n";
-        LOG_WARNING << "Try removing the host key from known hosts using 'ssh-keygen -R " << this->dev_hostIP << "' \n";
-        LOG_FLUSH;
+    {
+        char *hexa = ssh_get_hexa(hash, hlen);
+        LOG_WARNING_C(category, subcategory) << "    Host key for server changed. \n";
+        LOG_WARNING_C(category, subcategory) << "    Public key hash is now " << hexa << " \n";
+        LOG_WARNING_C(category, subcategory) << "    For security reasons, connection will be stopped. \n";
+        LOG_WARNING_C(category, subcategory) << "    This might happen when you switch between the boards with the same IP address. \n";
+        LOG_WARNING_C(category, subcategory) << "    Try removing the host key from known hosts using 'ssh-keygen -R " << this->dev_hostIP << "' \n";
+        LOG_FLUSH_C(category, subcategory);
         free(hash);
+        free(hexa);
         return -1;
+    }
 
     case SSH_SERVER_FOUND_OTHER:
-        LOG_WARNING << "The host key for this server was not found but an other type of key exists. \n";
-        LOG_WARNING << "An attacker might change the default server key to confuse your client into thinking the key does not exist. \n";
-        LOG_FLUSH;
+        LOG_WARNING_C(category, subcategory) << "    The host key for this server was not found but an other type of key exists. \n";
+        LOG_WARNING_C(category, subcategory) << "    An attacker might change the default server key to confuse your client into thinking the key does not exist. \n";
+        LOG_FLUSH_C(category, subcategory);
         free(hash);
         return -1;
 
     case SSH_SERVER_FILE_NOT_FOUND:
-        LOG_WARNING << "Could not find known host file. \n";
-        LOG_WARNING << "If you accept the host key here, the file will be automatically created. \n";
-        LOG_FLUSH;
+        LOG_WARNING_C(category, subcategory) << "    Could not find known host file. \n";
+        LOG_WARNING_C(category, subcategory) << "    If you accept the host key here, the file will be automatically created. \n";
+        LOG_FLUSH_C(category, subcategory);
         /* fallback to SSH_SERVER_NOT_KNOWN behavior */
 
     case SSH_SERVER_NOT_KNOWN:
     {
+        // one SSH connection at a time -- because this might prompt the user
+        std::lock_guard<std::mutex> lock(lock_prompt);
+
         char *hexa = ssh_get_hexa(hash, hlen);
-        LOG_WARNING << boost::format("The authenticity of host '%1% (%2%)' can't be established. \n") % dev_hostName % dev_hostIP;
-        LOG_WARNING << "Public key hash is " << hexa << " \n";
+        LOG_WARNING_C(category, subcategory) << boost::format("    The authenticity of host '%1% (%2%)' can't be established. \n") % dev_hostName % dev_hostIP;
+        LOG_WARNING_C(category, subcategory) << "    Public key hash is " << hexa << " \n";
+        LOG_WARNING_C(category, subcategory) << "    Check the input console to proceed ... \n";
+        LOG_FLUSH_C(category, subcategory);
+        free(hash);
         free(hexa);
 
-        LOG_WARNING << "Are you sure you want to continue connecting (yes/no)? ";
+        LOG_WARNING << boost::format("Are you sure you want to continue connecting to %1% (yes/no)? ") % dev_hostName;
         LOG_FLUSH;
 
         while(true)
@@ -228,30 +240,22 @@ int SSH::verify_knownhost()
             getline(std::cin, answer);
 
             if(answer == "no")
-            {
-                free(hash);
                 return -1;
-            }
             else if(answer == "yes")
             {
                 if (ssh_write_knownhost(SSH_session) < 0)
-                {
-                    free(hash);
                     return -1;
-                }
 
                 // insert a new line for improving readability
                 LOG_WARNING << "\n" << std::flush;
 
-                break; // break out of loop
+                return 0; // break out of loop
             }
             else
-            {
                 LOG_WARNING << "Please type 'yes' or 'no': " << std::flush;
-            }
         }
 
-        break;
+        break;  // dummy break
     }
 
     case SSH_SERVER_ERROR:
@@ -260,11 +264,11 @@ int SSH::verify_knownhost()
     }
 
     free(hash);
-    return 0;
+    return -1;  // unknown code
 }
 
 
-void SSH::authenticate(std::string password)
+void SSH::authenticate()
 {
     // Try to authenticate through the "none" method
     int rc = 0;
@@ -278,6 +282,31 @@ void SSH::authenticate(std::string password)
 
     // this requires the function ssh_userauth_none() to be called before the methods are available.
     int method = ssh_userauth_list(SSH_session, NULL);
+
+    if(printOutput)
+    {
+        LOG_EVENT_C(category, subcategory) << "    Supported authentication methods: ";
+
+        if(method & SSH_AUTH_METHOD_NONE)
+            LOG_EVENT_C(category, subcategory) << "None, ";
+
+        if(method & SSH_AUTH_METHOD_PASSWORD)
+            LOG_EVENT_C(category, subcategory) << "Password, ";
+
+        if(method & SSH_AUTH_METHOD_PUBLICKEY)
+            LOG_EVENT_C(category, subcategory) << "Public Key, ";
+
+        if(method & SSH_AUTH_METHOD_HOSTBASED)
+            LOG_EVENT_C(category, subcategory) << "Host based, ";
+
+        if(method & SSH_AUTH_METHOD_INTERACTIVE)
+            LOG_EVENT_C(category, subcategory) << "Interactive, ";
+
+        if(method & SSH_AUTH_METHOD_GSSAPI_MIC)
+            LOG_EVENT_C(category, subcategory) << "GSSAPI, ";
+
+        LOG_EVENT_C(category, subcategory) << "\n" << std::flush;
+    }
 
     // Try to authenticate with public key first
     if (method & SSH_AUTH_METHOD_PUBLICKEY)
@@ -303,21 +332,21 @@ void SSH::authenticate(std::string password)
     if (method & SSH_AUTH_METHOD_PASSWORD)
     {
         // if password is provided then try it
-        if(password != "")
+        if(this->dev_password != "")
         {
             // make sure the password is in UFT-8
             std::string temp;
-            utf8::replace_invalid(password.begin(), password.end(), back_inserter(temp));
-            password = temp;
+            utf8::replace_invalid(this->dev_password.begin(), this->dev_password.end(), back_inserter(temp));
+            this->dev_password = temp;
 
             // Authenticate ourselves
-            rc = ssh_userauth_password(SSH_session, NULL, password.c_str());
+            rc = ssh_userauth_password(SSH_session, NULL, this->dev_password.c_str());
             if (rc == SSH_AUTH_ERROR)
                 throw omnetpp::cRuntimeError("Authentication failed.");
             else if (rc == SSH_AUTH_SUCCESS)
                 return;
 
-            LOG_INFO << "    Username/password combination is not correct. Try again! \n" << std::flush;
+            LOG_INFO << "Username/password combination is not correct. Try again! \n" << std::flush;
         }
 
         // if we are here then the password did not work!
@@ -327,22 +356,22 @@ void SSH::authenticate(std::string password)
             // only one SSH connection should access this
             std::lock_guard<std::mutex> lock(lock_prompt);
 
-            std::cout << "    Password @" + dev_hostName + ": ";
-            getline(std::cin, password);
+            std::cout << boost::format("SSH Password for %1%@%2%: ") % dev_username % dev_hostName << std::flush;
+            getline(std::cin, this->dev_password);
 
             // make sure the password is in UFT-8
             std::string temp;
-            utf8::replace_invalid(password.begin(), password.end(), back_inserter(temp));
-            password = temp;
+            utf8::replace_invalid(this->dev_password.begin(), this->dev_password.end(), back_inserter(temp));
+            this->dev_password = temp;
 
             // Authenticate ourselves
-            rc = ssh_userauth_password(SSH_session, NULL, password.c_str());
+            rc = ssh_userauth_password(SSH_session, NULL, this->dev_password.c_str());
             if (rc == SSH_AUTH_ERROR)
                 throw omnetpp::cRuntimeError("Authentication failed.");
             else if (rc == SSH_AUTH_SUCCESS)
                 return;
 
-            LOG_INFO << "    Username/password combination is not correct. Try again! \n" << std::flush;
+            LOG_INFO << "Username/password combination is not correct. Try again! \n" << std::flush;
         }
     }
 }
