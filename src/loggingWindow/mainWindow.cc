@@ -42,7 +42,7 @@ mainWindow::mainWindow()
 {
     set_title("Log window");
     set_border_width(1);
-    set_default_size(1070, 500 /*height*/);
+    set_default_size(1200, 500 /*height*/);
     set_icon_from_file("log_128.png");
 
     Gtk::Box *m_VBox = new Gtk::Box(Gtk::ORIENTATION_VERTICAL);
@@ -312,6 +312,9 @@ Gtk::ScrolledWindow * mainWindow::createTextView(std::string category, std::stri
     fdesc.set_family("monospace");
     fdesc.set_size(10 * PANGO_SCALE);
     m_TextView->override_font(fdesc);
+
+    // make the text view not editable
+    m_TextView->set_editable(false);
 
     m_ScrolledWindow->add(*m_TextView);
 
