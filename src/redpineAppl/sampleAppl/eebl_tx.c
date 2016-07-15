@@ -15,50 +15,31 @@
 #define _BSD_SOURCE
 
 #include <signal.h>
-#include <pthread.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <sys/fcntl.h>
-#include <sys/time.h>
+#include <time.h>
+#include <sys/time.h>   // struct timeval
+#include <unistd.h>     // sleep
 
 #include "rsi_wave_util.h"
 #include "BSM_create.h"
 
-
-#define OPERATING_CLASS            17
-#define CONTROL_CHANNEL            178
-#define CCH_INTERVEL               50
-#define SCH_INTERVEL               50
-#define SYNC_TOLERANCE             02
-#define MAX_SWITCH_TIME            02
-#define ADD                        01
-#define DELETE                     02
-#define CCH_INTERVAL               1
-#define SCH_INTERVAL               2
-#define CCH_AND_SCH_INTERVAL       3
-#define RSI_CCH_SERVICE_REQUEST    0x19
-#define RSI_USER_SERVICE_REQUEST   0x20
-#define RSI_WSMP_SEND              0x21
-#define RSI_AVAIL_SRVC             0x27
-#define SUCCESSS                   0
-#define FAILURE                    -1
-#define AVAILABLE                  0
-#define REJECTED                   1
-
-
+// forward declarations
 void sigint(int sigint);
-asn_dec_rval_t J2735_decode(void*, int);
+int bsm_create(bsm_t *, char *, int *);
+
+int lsi = 0;
+uint8 psid[4] = {0x20};
+int no_of_tx = 0;
+char *pay_load = NULL;
+int gpio9 = 9;
 
 // defined globally to be accessible in sigint
-int gpio9 = 9;
-int lsi = 0;
-char psid[4] = {0x20};
-char *pay_load = NULL;
 blob_t *blob = NULL;
-char *time_buf = NULL;
 ddate_t *date = NULL;
+char *time_buf = NULL;
 initialPosition_t *initialPosition = NULL;
 rTCMPackage_t *rTCMPackage = NULL;
 path_t *path = NULL;
@@ -67,42 +48,41 @@ vehiclesafetyExtension_t *vehiclesafetyextension = NULL;
 bsm_t *bsm_message = NULL;
 
 
-int main(void)
+int main(int argc, char *argv[])
 {
     signal(SIGINT, sigint);
 
-    // unexporting gpio9
-    int fd = open("/sys/class/gpio/unexport", O_WRONLY);
-    if(fd == -1)
-        perror("closed");
-    char status_buf[80] = {0};
-    sprintf(status_buf, "%d", gpio9);
-    write(fd, status_buf, strlen(status_buf));
-    close(fd);
+    if(argc < 3)
+    {
+        printf("Provide 'channel number' and 'data rate' command line arg. \n");
+        return 1;
+    }
+
+    // --[ WAVE initialization - start ]--
 
     // initialize message queues to send requests to 1609 stack
     printf("Initializing Queue... ");
     int status = rsi_wavecombo_msgqueue_init();
-    if(status == FAILURE)
+    if(status == FAIL)
         return 1;
 
     // initialize the management information base (MIB) in 1609 stack
     printf("Initializing MIB... ");
     status = rsi_wavecombo_1609mib_init();
-    if(status == FAILURE)
+    if(status == FAIL)
         return 1;
     printf("Done! \n");
 
     // send channel synchronization parameters to Wave Combo Module
     printf("Calling update sync params... ");
     status = rsi_wavecombo_update_channel_sync_params(OPERATING_CLASS, CONTROL_CHANNEL, CCH_INTERVEL, SCH_INTERVEL, SYNC_TOLERANCE, MAX_SWITCH_TIME);
-    if(status == FAILURE)
+    if(status == FAIL)
         return 1;
     printf("Done! \n");
 
     //    printf("Setting UTC... ");
     //    status = rsi_wavecombo_set_utc();
-    //    if(status == FAILURE)
+    //    if(status == FAIL)
     //        return 1;
     //    printf("Done! \n");
 
@@ -113,35 +93,33 @@ int main(void)
 
     // initialize message queue to receive wsm packets from 1609 stack
     status = rsi_wavecombo_wsmp_queue_init(lsi);
-    if(status == FAILURE)
+    if(status == FAIL)
         return 1;
 
     // indicating that a higher layer entity requests a short message service
     printf("Sending WSMP service request... ");
     status = rsi_wavecombo_wsmp_service_req(ADD, lsi, psid);
-    if(status == FAILURE)
+    if(status == FAIL)
         return 1;
     printf("Done! \n");
 
     // request stack to allocate radio resources to the indicated service channel
     printf("Sending SCH service request... ");
-    status = rsi_wavecombo_sch_start_req(172, RATE_6, 1, 255);
-    if(status == FAILURE)
+    status = rsi_wavecombo_sch_start_req(atoi(argv[1]), atoi(argv[2]), 1, 255);
+    if(status == FAIL)
         return 1;
     printf("Done! \n");
 
-    // ##########################
-    // start of memory allocation
-    // ##########################
+    // --[ WAVE initialization - end ]--
 
-    pay_load = malloc(512);
-    if(!pay_load)
-        perror("malloc");
-    memset(pay_load,0,512);
+    // --[ making bsm_message - start ]--
 
     blob = malloc(sizeof(blob_t));
     if(!blob)
+    {
         perror("malloc");
+        return 1;
+    }
     memset(blob,0,sizeof(sizeof(blob_t)));
 
     blob->MsgCnt = 0;
@@ -170,9 +148,18 @@ int main(void)
         perror("malloc");
     memset(date,0,sizeof(ddate_t));
 
+    struct timeval tv;
+    gettimeofday(&tv,NULL);
+    time_t current_time = tv.tv_sec;
+    strftime(time_buf,50,"%Y %d %m %H %M %S",localtime(&current_time));
+    sscanf(time_buf,"%ld %ld %ld %ld %ld %ld", &date->year, &date->day, &date->month, &date->hour, &date->minute, &date->second);
+
     initialPosition = malloc(sizeof(initialPosition_t));
     if(!initialPosition)
+    {
         perror("malloc");
+        return 1;
+    }
     memset(initialPosition,0,sizeof(initialPosition_t));
 
     initialPosition->utcTime    = date;
@@ -192,21 +179,12 @@ int main(void)
     initialPosition->posAccuracy_size = 0x01;
     initialPosition->posAccuracy[0] = 0x03;
 
-    // todo: where this variable is being used?
-    rTCMPackage = malloc(sizeof(rTCMPackage_t));
-    if(!rTCMPackage)
-        perror("malloc");
-    memset(rTCMPackage,0,sizeof(rTCMPackage_t));
-
-    rTCMPackage->anchorPoint = initialPosition;
-    rTCMPackage->rtcmHeader_size = 0x1;
-    rTCMPackage->rtcmHeader[0] = 0x42;
-    rTCMPackage->msg1001_size = 0x01;
-    rTCMPackage->msg1001[0] = 0x01;
-
     path = malloc(sizeof(path_t));
     if(!path)
+    {
         perror("malloc");
+        return 1;
+    }
     memset(path,0,sizeof(path_t));
 
     path->crumbData.present = 1;
@@ -229,15 +207,35 @@ int main(void)
 
     pathPrediction = malloc(sizeof(pathPrediction_t));
     if(!pathPrediction)
+    {
         perror("malloc");
+        return 1;
+    }
     memset(pathPrediction,0,sizeof(pathPrediction_t));
 
     pathPrediction->radiusOfCurve = 0x3;
     pathPrediction->confidence = 0x3;
 
+    rTCMPackage = malloc(sizeof(rTCMPackage_t));
+    if(!rTCMPackage)
+    {
+        perror("malloc");
+        return 1;
+    }
+    memset(rTCMPackage,0,sizeof(rTCMPackage_t));
+
+    rTCMPackage->anchorPoint = initialPosition;
+    rTCMPackage->rtcmHeader_size = 0x1;
+    rTCMPackage->rtcmHeader[0] = 0x42;
+    rTCMPackage->msg1001_size = 0x01;
+    rTCMPackage->msg1001[0] = 0x01;
+
     vehiclesafetyextension = malloc(sizeof(vehiclesafetyExtension_t));
     if(!vehiclesafetyextension)
+    {
         perror("malloc");
+        return 1;
+    }
     memset(vehiclesafetyextension, 0, sizeof(vehiclesafetyExtension_t));
 
     vehiclesafetyextension->events = 128;
@@ -247,20 +245,26 @@ int main(void)
 
     bsm_message = malloc(sizeof(bsm_t));
     if(!bsm_message)
+    {
         perror("malloc");
+        return 1;
+    }
     memset(bsm_message, 0, sizeof(sizeof(bsm_t)));
 
     bsm_message->blob = (char *) blob;
     bsm_message->extention = vehiclesafetyextension;
 
-    // ########################
-    // end of memory allocation
-    // ########################
+    // --[ making bsm_message - end ]--
+
+    // --[ making gpio9 ready - start ]--
 
     printf("Exporting the GPIO pin... ");
     fd = open("/sys/class/gpio/export", O_WRONLY);
     if(fd == -1)
+    {
         perror("open:export");
+        return 1;
+    }
     sprintf(status_buf, "%d", gpio9);
     write(fd, status_buf, strlen(status_buf));
     close(fd);
@@ -270,10 +274,23 @@ int main(void)
     sprintf(status_buf, "/sys/class/gpio/gpio%d/direction", gpio9);
     fd = open(status_buf, O_WRONLY);
     if(fd == -1)
+    {
         perror("open:direction");
+        return 1;
+    }
     write(fd, "in", 2);
     close(fd);
     printf("Done! \n");
+
+    // --[ making gpio9 ready - end ]--
+
+    pay_load = malloc(512);
+    if(!pay_load)
+    {
+        perror("malloc");
+        return 1;
+    }
+    memset(pay_load,0,512);
 
     sprintf(status_buf,"/sys/class/gpio/gpio%d/value", gpio9);
 
@@ -287,42 +304,38 @@ int main(void)
             // we need to open this every time!
             fd = open(status_buf, O_RDONLY);
             if(fd == -1)
+            {
                 perror("open:value");
+                return 1;
+            }
 
             read(fd, &switch_status, 1);
             close(fd);
         }
 
-        printf("Emergency break applied. Sending 5 messages... \n");
+        printf("\nEmergency break applied. Sending 5 messages... \n");
+
+        ++no_of_tx;
 
         for(int i = 1; i <= 5; i++)
         {
-            int pay_load_len = 0;
-
-            struct timeval tv;
-            gettimeofday(&tv,NULL);
-            time_t current_time = tv.tv_sec;
-            strftime(time_buf,50,"%Y %d %m %H %M %S",localtime(&current_time));
-            sscanf(time_buf,"%ld %ld %ld %ld %ld %ld", &date->year, &date->day, &date->month, &date->hour, &date->minute, &date->second);
             blob->MsgCnt = i;
-
-            if(bsm_create(bsm_message, pay_load, &pay_load_len) == SUCCESS)
+            int pay_load_len = 0;
+            if(bsm_create(bsm_message, pay_load, &pay_load_len) != SUCCESS)
             {
-                printf("    %d. BSM message created of size %d... ", i, pay_load_len);
-            }
-            else
-            {
-                printf("    BSM message encoding failed. \n");
-                break;
+                printf("BSM message encoding failed. \n");
+                return 1;
             }
 
             waveShortMessage *wsm = malloc(sizeof(waveShortMessage));
             if(!wsm)
+            {
                 perror("malloc");
-
+                return 1;
+            }
             memset(wsm,0,sizeof(waveShortMessage));
 
-            wsm->dataRate 	  = RATE_6;
+            wsm->dataRate 	  = atoi(argv[2]);
             wsm->txPwr   	  = 15;
             wsm->psid[0] 	  = psid[0];
             wsm->psid[1] 	  = psid[1];
@@ -331,12 +344,12 @@ int main(void)
             wsm->priority 	  = 3;
             wsm->wsm_expiry_time = 50;
             wsm->wsm_length = pay_load_len;
-            wsm->channelNumber = 172;
-
+            wsm->channelNumber = atoi(argv[1]);
             memcpy(wsm->WSM_Data, pay_load, pay_load_len);
-
             char peer_mac_address[6] = {0xff,0xff,0xff,0xff,0xff,0xff};
             memcpy(wsm->peer_mac_address, peer_mac_address, 6);
+
+            printf("  Sending BSM msg #%3d of size %d... ", no_of_tx, pay_load_len);
 
             status = rsi_wavecombo_wsmp_msg_send(wsm);
             if(status < 0)
@@ -344,36 +357,10 @@ int main(void)
             else
                 printf("Sent! \n");
 
-            sleep(1);
             free(wsm);
+            sleep(1);
         }
     }
-
-    // ############
-    // finishing up
-    // ############
-
-    free(pay_load);
-    free(blob);
-    free(time_buf);
-    free(date);
-    free(initialPosition);
-    free(rTCMPackage);
-    free(path);
-    free(pathPrediction);
-    free(vehiclesafetyextension);
-    free(bsm_message);
-
-    // unexporting gpio9
-    fd = open("/sys/class/gpio/unexport", O_WRONLY);
-    if(fd == -1)
-        perror("open");
-    sprintf(status_buf, "%d", gpio9);
-    write(fd, status_buf, strlen(status_buf));
-    close(fd);
-
-    status = rsi_wavecombo_wsmp_service_req(DELETE, lsi, psid);
-    rsi_wavecombo_msgqueue_deinit();
 
     return 0;
 }
@@ -381,6 +368,8 @@ int main(void)
 
 void sigint(int signum)
 {
+    printf("\nTotal Tx: %d \n", no_of_tx);
+
     if(pay_load)
         free(pay_load);
 
@@ -420,7 +409,7 @@ void sigint(int signum)
     write(fd, status_buf, strlen(status_buf));
     close(fd);
 
-    int status = rsi_wavecombo_wsmp_service_req(DELETE , lsi, psid);
+    rsi_wavecombo_wsmp_service_req(DELETE , lsi, psid);
     rsi_wavecombo_msgqueue_deinit();
 
     exit(0);

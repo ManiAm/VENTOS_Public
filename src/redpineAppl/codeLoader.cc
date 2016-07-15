@@ -307,7 +307,24 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
     // remotely compile the code
     //##########################
 
-    std::string applName = module->par("applName").stringValue();
+    std::string cmdLine = module->par("applName").stringValue();
+
+    // separating application name from command-line arguments
+    std::istringstream iss(cmdLine, std::istringstream::in);
+    std::string word;
+    std::string applName = "";
+    std::string arguments = "";
+    int counter = 0;
+    while(iss >> word)
+    {
+        counter++;
+        if(counter == 1)
+            applName = word;
+        else
+            arguments = arguments + " " + word;
+    }
+
+    // make sure application name is not empty
     if(applName == "")
         throw omnetpp::cRuntimeError("applName is empty!");
 
@@ -370,7 +387,7 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
     LOG_EVENT_C(board->getHostName(), "shell2") << boost::format("===[ Running application %1% ... ]=== \n\n") % applName << std::flush;
 
     board->run_command_blocking(shell2, "cd " + (remoteDir_SourceCode / "sampleAppl").string());
-    board->run_command_nonblocking(shell2, "sudo ./" + applName, true, board->getHostName(), "shell2");
+    board->run_command_nonblocking(shell2, "sudo ./" + applName + arguments, true, board->getHostName(), "shell2");
 }
 
 }

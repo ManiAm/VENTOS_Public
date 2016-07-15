@@ -185,14 +185,14 @@ typedef struct //WaveShortMessage
 
 enum Action
 {
-    ADD =1,
+    ADD = 1,
     DELETE,
     CHANGE
 };
 
 enum ChannelInterval
 {
-    CCH_Interval,
+    CCH_Interval = 1,
     SCH_Interval,
     both
 };
