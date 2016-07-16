@@ -26,19 +26,20 @@
 
 // forward declarations
 void sigint(int sigint);
+void freeResources();
 int rsa_create(rsa_t *, char *, int *);
 
+// global variables
 int lsi = 0;
 uint8 psid[4]={0xe0,0x52,0x53,0x41};
 int no_of_tx = 0;
-char *pay_load = NULL;
 
-// defined globally to be accessible in sigint
-waveShortMessage *wsm = NULL;
-rsa_t *rsa_message = NULL;
-initialPosition_t *initialPosition = NULL;
-ddate_t *date = NULL;	
+// global variables - rsa_message
 char *time_buf = NULL;
+ddate_t *date = NULL;
+initialPosition_t *initialPosition = NULL;
+rsa_t *rsa_message = NULL;
+char *pay_load = NULL;
 
 
 int main(int argc, char *argv[])
@@ -108,14 +109,6 @@ int main(int argc, char *argv[])
 
     // --[ making rsa_message - start ]--
 
-    rsa_message = malloc(sizeof(rsa_t));
-    if(!rsa_message)
-    {
-        perror("malloc");
-        return 1;
-    }
-    memset(rsa_message,0,sizeof(sizeof(rsa_t)));
-
     time_buf = malloc(50);
     if(!time_buf)
     {
@@ -160,6 +153,14 @@ int main(int argc, char *argv[])
     initialPosition->posAccuracy_size = 0x00;
     initialPosition->posAccuracy[0] = 0x00;
 
+    rsa_message = malloc(sizeof(rsa_t));
+    if(!rsa_message)
+    {
+        perror("malloc");
+        return 1;
+    }
+    memset(rsa_message,0,sizeof(sizeof(rsa_t)));
+
     rsa_message->id 	= _DSRCmsgID_roadSideAlert;
     rsa_message->event 	= 6952;
     rsa_message->extent 	= _Extent_useFor100meters;
@@ -194,7 +195,7 @@ int main(int argc, char *argv[])
     // adding new line to improve readability
     printf("\n");
 
-    while(1)
+    for(int i = 1; i <= 10; i++)
     {
         rsa_message->cnt = ++no_of_tx;
         int pay_load_len = 0;
@@ -205,7 +206,7 @@ int main(int argc, char *argv[])
             return 1;
         }
 
-        wsm = malloc(sizeof(waveShortMessage));
+        waveShortMessage *wsm = malloc(sizeof(waveShortMessage));
         if(!wsm)
         {
             perror("malloc");
@@ -239,11 +240,12 @@ int main(int argc, char *argv[])
         sleep(1);
     }
 
+    freeResources();
     return 0;
 }
 
 
-void sigint(int signum)
+void freeResources()
 {
     printf("\nTotal Tx: %d \n", no_of_tx);
 
@@ -264,7 +266,11 @@ void sigint(int signum)
 
     rsi_wavecombo_wsmp_service_req(DELETE, lsi, psid);
     rsi_wavecombo_msgqueue_deinit();
-
-    exit(0);
 }
 
+
+void sigint(int signum)
+{
+    freeResources();
+    exit(0);
+}

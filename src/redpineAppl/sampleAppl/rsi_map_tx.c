@@ -25,23 +25,24 @@
 #include "MAP_create.h"
 
 void sigint(int sigint);
+void freeResources();
 int map_create(map_t *, char *, int *);
 
+// global variables
 int lsi = 0;
 uint8 psid[4] = {0xbf, 0xf0};
 int no_of_tx = 0;
-char *pay_load = NULL;
 
-// defined globally to be accessible in sigint
-waveShortMessage *wsm = NULL;
-map_t *map_message = NULL;
-zone_t *zone = NULL;
-nodeList_t *laneset = NULL;
-approaches_t *approaches[6];
+// global variables - map_message
 position3D_t *position = NULL;
+approaches_t *approaches[6];
+nodeList_t *laneset = NULL;
+zone_t *zone = NULL;
+signalControlZone_t *signalControlZone[6];
 intersections_t *intersections[6];	
 dataParameters_t  *parameter = NULL;
-signalControlZone_t *signalControlZone[6];
+map_t *map_message = NULL;
+char *pay_load = NULL;
 
 
 int main(int argc,char *argv[])
@@ -270,7 +271,7 @@ int main(int argc,char *argv[])
     // adding new line to improve readability
     printf("\n");
 
-    while(1)
+    for(int i = 1; i <= 10; i++)
     {
         map_message->msgCnt = ++no_of_tx;
         int pay_load_len = 0;
@@ -281,7 +282,7 @@ int main(int argc,char *argv[])
             return 1;
         }
 
-        wsm = malloc(sizeof(waveShortMessage));
+        waveShortMessage *wsm = malloc(sizeof(waveShortMessage));
         if(!wsm)
         {
             perror("malloc");
@@ -315,11 +316,12 @@ int main(int argc,char *argv[])
         sleep(1);
     }
 
+    freeResources();
     return 0;
 }
 
 
-void sigint(int signum)
+void freeResources()
 {
     printf("\nTotal Tx: %d \n", no_of_tx);
 
@@ -352,6 +354,11 @@ void sigint(int signum)
 
     rsi_wavecombo_wsmp_service_req(DELETE, lsi, psid);
     rsi_wavecombo_msgqueue_deinit();
+}
 
+
+void sigint(int signum)
+{
+    freeResources();
     exit(0);
 }

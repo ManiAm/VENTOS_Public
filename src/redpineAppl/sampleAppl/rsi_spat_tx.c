@@ -25,18 +25,19 @@
 #include "SPAT_create.h"
 
 void sigint(int sigint);
+void freeResources();
 int spat_create(spat_t *, char *, int *);
 
+// global variables
 int lsi = 0;
 uint8 psid[4]={0xbf,0xe0};
 int no_of_tx = 0;
-char *pay_load = NULL;
 
-// defined globally to be accessible in sigint
-waveShortMessage *wsm = NULL;
-spat_t	*spat_message = NULL;
+// global variables - spat_message
 movementState_t *movementState[6];
-intersectionState_t *intersectionState[6];	
+intersectionState_t *intersectionState[6];
+spat_t *spat_message = NULL;
+char *pay_load = NULL;
 
 
 int main(int argc, char *argv[])
@@ -236,17 +237,17 @@ int main(int argc, char *argv[])
     // adding new line to improve readability
     printf("\n");
 
-    while(1)
+    for(int i = 1; i <= 10; i++)
     {
         ++no_of_tx;
         int pay_load_len = 0;
-        if(spat_create(spat_message,pay_load,&pay_load_len) != SUCCESS)
+        if(spat_create(spat_message, pay_load, &pay_load_len) != SUCCESS)
         {
             printf("MAP message encoding failed. \n");
             return 1;
         }
 
-        wsm = malloc(sizeof(waveShortMessage));
+        waveShortMessage *wsm = malloc(sizeof(waveShortMessage));
         if(!wsm)
         {
             perror("malloc");
@@ -263,7 +264,7 @@ int main(int argc, char *argv[])
         wsm->priority 	  = 3;
         wsm->wsm_expiry_time = 50;
         wsm->wsm_length = pay_load_len;
-        memcpy(wsm->WSM_Data,pay_load,pay_load_len);
+        memcpy(wsm->WSM_Data, pay_load, pay_load_len);
         char peer_mac_address[6] = {0xff,0xff,0xff,0xff,0xff,0xff};
         memcpy(wsm->peer_mac_address,peer_mac_address,6);
         wsm->channelNumber = atoi(argv[1]);
@@ -280,11 +281,12 @@ int main(int argc, char *argv[])
         sleep(1);
     }
 
+    freeResources();
     return 0;
 }
 
 
-void sigint(int signum)
+void freeResources()
 {
     printf("\nTotal Tx: %d \n", no_of_tx);
 
@@ -304,6 +306,11 @@ void sigint(int signum)
 
     rsi_wavecombo_wsmp_service_req(DELETE, lsi, psid);
     rsi_wavecombo_msgqueue_deinit();
+}
 
+
+void sigint(int signum)
+{
+    freeResources();
     exit(0);
 }

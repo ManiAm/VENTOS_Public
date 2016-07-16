@@ -26,25 +26,25 @@
 
 // forward declarations
 void sigint(int sigint);
+void freeResources();
 int bsm_create(bsm_t *, char *, int *);
 
+// global variables
 int lsi = 0;
 uint8 psid[4]={0x20};
 int no_of_tx = 0;
-char *pay_load = NULL;
 
-// defined globally to be accessible in sigint
-waveShortMessage *wsm = NULL;
-bsm_t *bsm_message = NULL;
-initialPosition_t *initialPosition = NULL;
-ddate_t *date = NULL;	
+// global variables - bsm_message
+blob_t *blob = NULL;
 char *time_buf = NULL;
+ddate_t *date = NULL;
+initialPosition_t *initialPosition = NULL;
 path_t *path = NULL;
-crumbData_t crumbData;
-rTCMPackage_t *rTCMPackage=NULL;
 pathPrediction_t *pathPrediction=NULL;
+rTCMPackage_t *rTCMPackage=NULL;
 vehiclesafetyExtension_t *vehiclesafetyextension=NULL;
-blob_t *blob = NULL;	
+bsm_t *bsm_message = NULL;
+char *pay_load = NULL;
 
 
 int main(int argc,char *argv[])
@@ -272,7 +272,7 @@ int main(int argc,char *argv[])
     // adding new line to improve readability
     printf("\n");
 
-    while(1)
+    for(int i = 1; i <= 10; i++)
     {
         blob->MsgCnt = ++no_of_tx;
         int pay_load_len = 0;
@@ -283,7 +283,7 @@ int main(int argc,char *argv[])
             return 1;
         }
 
-        wsm = malloc(sizeof(waveShortMessage));
+        waveShortMessage *wsm = malloc(sizeof(waveShortMessage));
         if(!wsm)
         {
             perror("malloc");
@@ -317,11 +317,13 @@ int main(int argc,char *argv[])
         sleep(1);
     }
 
+    freeResources();
+
     return 0;
 }
 
 
-void sigint(int signum)
+void freeResources()
 {
     printf("\nTotal Tx: %d \n", no_of_tx);
 
@@ -357,6 +359,11 @@ void sigint(int signum)
 
     rsi_wavecombo_wsmp_service_req(DELETE, lsi, psid);
     rsi_wavecombo_msgqueue_deinit();
+}
 
+
+void sigint(int signum)
+{
+    freeResources();
     exit(0);
 }

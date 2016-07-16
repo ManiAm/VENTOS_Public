@@ -17,17 +17,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <unistd.h>
 
 #include "rsi_wave_util.h"
 #include "MAP_create.h"
 
 // forward declarations
 void sigint(int sigint);
+void process_wsmp(uint8 *, int);
 asn_dec_rval_t J2735_decode(void *, int);
 void J2735_print(void *, int);
 void J2735_free(void *, int);
-void process_wsmp(uint8 *, int);
 
+// global variables
 uint8 *buff_rx = NULL;
 int lsi = 0;
 uint8 psid[4] = {0xbf, 0xf0};

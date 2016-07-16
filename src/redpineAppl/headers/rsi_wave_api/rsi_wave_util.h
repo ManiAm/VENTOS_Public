@@ -192,7 +192,7 @@ enum Action
 
 enum ChannelInterval
 {
-    CCH_Interval = 1,
+    CCH_Interval,
     SCH_Interval,
     both
 };

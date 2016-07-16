@@ -17,6 +17,7 @@
 #include <signal.h>
 #include <string.h>
 #include <stdio.h>
+#include <time.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/fcntl.h>
@@ -29,23 +30,23 @@
 void sigint(int sigint);
 int bsm_create(bsm_t *, char *, int *);
 
-// defined globally to be accessible in sigint
-uint8 lsi = 0;
-char psid[4] = {0x20};
+// global variables
+int lsi = 0;
+uint8 psid[4] = {0x20};
 int no_of_tx = 0;
-char *pay_load = NULL;
 int gpio9 = 9;
 
-// defined globally to be accessible in sigint
+// global variables - bsm_message
 blob_t *blob = NULL;
 char *time_buf = NULL;
 ddate_t *date = NULL;
 initialPosition_t *initialPosition = NULL;
-rTCMPackage_t *rTCMPackage = NULL;
 path_t *path = NULL;
 pathPrediction_t *pathPrediction = NULL;
+rTCMPackage_t *rTCMPackage = NULL;
 vehiclesafetyExtension_t *vehiclesafetyextension = NULL;
 bsm_t *bsm_message = NULL;
+char *pay_load = NULL;
 
 
 int main(void)
@@ -258,8 +259,10 @@ int main(void)
 
     // --[ making gpio9 ready - start ]--
 
+    char status_buf[80] = {0};
+
     printf("Exporting the GPIO pin... ");
-    fd = open("/sys/class/gpio/export", O_WRONLY);
+    int fd = open("/sys/class/gpio/export", O_WRONLY);
     if(fd == -1)
     {
         perror("open:export");

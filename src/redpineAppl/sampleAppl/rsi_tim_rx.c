@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <unistd.h>
 
 #include "rsi_wave_util.h"
 #include "dsrc_util.h"
@@ -24,14 +25,15 @@
 
 // forward declarations
 void sigint(int sigint);
+void process_wsmp(uint8 *, int);
 asn_dec_rval_t J2735_decode(void*, int);
 void J2735_print(void *, int);
 void J2735_free(void *, int);
-void process_wsmp(uint8 *, int);
 
+// global variables
 uint8 *buff_rx = NULL;
 int lsi = 0;
-uint8 psid[4] = {0x20};
+uint8 psid[4] = {0x80,0x03};
 int no_of_rx = 0;
 
 
@@ -90,8 +92,9 @@ int main(int argc, char *argv[])
         return 1;
     printf("Done! \n");
 
-    printf("Sending CCH service request ... ");
-    status = rsi_wavecombo_cch_service_req(lsi, ADD, both, 0);
+    // request stack to allocate radio resources to the indicated service channel
+    printf("Sending SCH service request... ");
+    status = rsi_wavecombo_sch_start_req(atoi(argv[1]), atoi(argv[2]), 1, 255);
     if(status == FAIL)
         return 1;
     printf("Done! \n");
@@ -141,7 +144,6 @@ void sigint(int signum)
         free(buff_rx);
 
     rsi_wavecombo_wsmp_service_req(DELETE, lsi, psid);
-    rsi_wavecombo_cch_service_req(lsi, DELETE, both, 0);
     rsi_wavecombo_msgqueue_deinit();
 
     exit(0);

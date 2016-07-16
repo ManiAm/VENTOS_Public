@@ -26,20 +26,20 @@
 
 // forward declarations
 void sigint(int sigint);
+void freeResources();
 int tim_create(dsrc_tim *, char *, int *);
 
+// global variables
 int lsi = 0;
 uint8 psid[4]={0x80,0x03};
 int no_of_tx = 0;
-char *pay_load = NULL;
 
-// defined globally to be accessible in sigint
-waveShortMessage *wsm = NULL;
-dsrc_tim *tim_message = NULL;
-dataFrames_t *dataFrames[5];
+// global variables - tim_message
 position_t *position;
 validRegion_t *region[2]; 
-char pktid[10] = {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x10,0x00};
+dataFrames_t *dataFrames[5];
+dsrc_tim *tim_message = NULL;
+char *pay_load = NULL;
 
 
 int main(int argc, char *argv[])
@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
 
     // send channel synchronization parameters to Wave Combo Module
     printf("Calling update sync params... ");
-    status = rsi_wavecombo_update_channel_sync_params(OPERATING_CLASS,CONTROL_CHANNEL,CCH_INTERVEL,SCH_INTERVEL,SYNC_TOLERANCE,MAX_SWITCH_TIME);
+    status = rsi_wavecombo_update_channel_sync_params(OPERATING_CLASS, CONTROL_CHANNEL, CCH_INTERVEL, SCH_INTERVEL, SYNC_TOLERANCE, MAX_SWITCH_TIME);
     if(status == FAIL)
         return 1;
     printf("Done! \n");
@@ -93,13 +93,14 @@ int main(int argc, char *argv[])
 
     // indicating that a higher layer entity requests a short message service
     printf("Sending WSMP service request... ");
-    status = rsi_wavecombo_wsmp_service_req(ADD,lsi,psid);
+    status = rsi_wavecombo_wsmp_service_req(ADD, lsi, psid);
     if(status == FAIL)
         return 1;
     printf("Done! \n");
 
-    printf("Sending CCH service request... ");
-    status = rsi_wavecombo_cch_service_req(lsi, ADD, both, 0);
+    // request stack to allocate radio resources to the indicated service channel
+    printf("Sending SCH service request... ");
+    status = rsi_wavecombo_sch_start_req(atoi(argv[1]), atoi(argv[2]), 1, 255);
     if(status == FAIL)
         return 1;
     printf("Done! \n");
@@ -188,6 +189,8 @@ int main(int argc, char *argv[])
     }
     memset(tim_message,0,sizeof(dsrc_tim));
 
+    char pktid[10] = {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x10,0x00};
+
     tim_message->msgID = _DSRCmsgID_travelerInformation;
     tim_message->packetID_size = 9;
     tim_message->packetID = pktid;
@@ -213,7 +216,7 @@ int main(int argc, char *argv[])
     // adding new line to improve readability
     printf("\n");
 
-    while(1)
+    for(int i = 1; i <= 10; i++)
     {
         ++no_of_tx;
         int pay_load_len = 0;
@@ -224,7 +227,7 @@ int main(int argc, char *argv[])
             return 1;
         }
 
-        wsm = malloc(sizeof(waveShortMessage));
+        waveShortMessage *wsm = malloc(sizeof(waveShortMessage));
         if(!wsm)
         {
             perror("malloc");
@@ -258,11 +261,12 @@ int main(int argc, char *argv[])
         sleep(1);
     }
 
+    freeResources();
     return 0;
 }
 
 
-void sigint(int signum)
+void freeResources()
 {
     printf("\nTotal Tx: %d \n", no_of_tx);
 
@@ -284,8 +288,12 @@ void sigint(int signum)
         free(position);
 
     rsi_wavecombo_wsmp_service_req(DELETE, lsi, psid);
-    rsi_wavecombo_cch_service_req(lsi, DELETE, both, 0);
     rsi_wavecombo_msgqueue_deinit();
+}
 
+
+void sigint(int signum)
+{
+    freeResources();
     exit(0);
 }

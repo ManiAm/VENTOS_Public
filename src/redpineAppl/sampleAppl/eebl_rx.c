@@ -32,7 +32,7 @@ asn_dec_rval_t J2735_decode(void *, int);
 void J2735_print(void *, int);
 void J2735_free(void *, int);
 
-// defined globally to be accessible in sigint
+// global variables
 uint8 *buff_rx = NULL;
 int lsi = 0;
 uint8 psid[4] = {0x20};
@@ -106,8 +106,10 @@ int main(int argc, char *argv[])
 
     // --[ making gpio6 ready - start ]--
 
+    char status_buf[80] = {0};
+
     printf("Exporting the GPIO pin... ");
-    fd = open("/sys/class/gpio/export", O_WRONLY);
+    int fd = open("/sys/class/gpio/export", O_WRONLY);
     if(fd == -1)
     {
         perror("open:export");

@@ -1,8 +1,9 @@
-# gcc C dialect: https://gcc.gnu.org/onlinedocs/gcc/C-Dialect-Options.html
-# gcc default is -std=gnu90. check here: http://stackoverflow.com/questions/14737104/what-is-the-default-c-mode-for-the-current-gcc-especially-on-ubuntu
+# default C dialect for gcc is -std=gnu90
+# https://gcc.gnu.org/onlinedocs/gcc/C-Dialect-Options.html
+# http://stackoverflow.com/questions/14737104/what-is-the-default-c-mode-for-the-current-gcc-especially-on-ubuntu
 
 LIBS = ../libs/lib_rsi_wave_api.a ../libs/libdsrc.a
-HEADERS = -I ../headers -I ../headers/SAE_J2735/ -I ../headers/SAE_J2735_messages/ -I ../headers/rsi_wave_api/
+HEADERS = -I ../headers -I ../headers/SAE_J2735 -I ../headers/SAE_J2735_messages -I ../headers/rsi_wave_api
 
 # SAE J2735 'Basic Safety Message (BSM)' over WSM
 rsi_bsm_rx: rsi_bsm_rx.c

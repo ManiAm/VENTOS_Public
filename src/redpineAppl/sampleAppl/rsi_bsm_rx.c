@@ -17,7 +17,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <unistd.h>    // sleep
+#include <unistd.h>
 
 #include "rsi_wave_util.h"
 #include "BSM_create.h"
@@ -29,6 +29,7 @@ asn_dec_rval_t J2735_decode(void *, int);
 void J2735_print(void *, int);
 void J2735_free(void *, int);
 
+// global variables
 uint8 *buff_rx = NULL;
 int lsi = 0;
 uint8 psid[4] = {0x20};
