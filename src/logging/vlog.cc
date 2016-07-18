@@ -352,7 +352,8 @@ void vlog::sendToLogWindow(std::string msg)
     }
     catch(const std::runtime_error& ex)
     {
-        LOG_INFO << std::endl << ex.what() << std::endl << std::flush;
+        // ignore
+        // LOG_INFO << std::endl << ex.what() << std::endl << std::flush;
         return;
     }
 }

@@ -86,56 +86,67 @@ mainWindow::~mainWindow()
 
 void mainWindow::start_TCP_server()
 {
-    std::cout << "    (logWindow) starting the TCP server. \n";
-    std::cout.flush();
+    try
+    {
+        std::cout << "    (logWindow) starting the TCP server. \n";
+        std::cout.flush();
 
-    // create a socket
-    int sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (sockfd < 0)
-        throw std::runtime_error("ERROR opening socket");
+        // create a socket
+        int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+        if (sockfd < 0)
+            throw std::runtime_error("ERROR opening socket");
 
-    // the purpose of SO_REUSEADDR/SO_REUSEPORT is to allow to reuse the port even if the process crash or been killed
-    int optval = 1;
-    setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, (const void *)&optval , sizeof(int));
+        // the purpose of SO_REUSEADDR/SO_REUSEPORT is to allow to reuse the port even if the process crash or been killed
+        int optval = 1;
+        setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, (const void *)&optval , sizeof(int));
 
-    // clear address structure
-    struct sockaddr_in serv_addr;
-    bzero((char *) &serv_addr, sizeof(serv_addr));
+        // clear address structure
+        struct sockaddr_in serv_addr;
+        bzero((char *) &serv_addr, sizeof(serv_addr));
 
-    /* setup the host_addr structure for use in bind call */
-    // server byte order
-    serv_addr.sin_family = AF_INET;
+        /* setup the host_addr structure for use in bind call */
+        // server byte order
+        serv_addr.sin_family = AF_INET;
 
-    // automatically be filled with current host's IP address
-    serv_addr.sin_addr.s_addr = INADDR_ANY;
+        // automatically be filled with current host's IP address
+        serv_addr.sin_addr.s_addr = INADDR_ANY;
 
-    // convert short integer value for port must be converted into network byte order
-    serv_addr.sin_port = htons(45676);
+        // convert short integer value for port must be converted into network byte order
+        serv_addr.sin_port = htons(45676);
 
-    // This bind() call will bind  the socket to the current IP address on port, portno
-    if (bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
-        throw std::runtime_error("ERROR on binding");
+        // This bind() call will bind  the socket to the current IP address on port, portno
+        if (bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
+            throw std::runtime_error("ERROR on binding");
 
-    // This listen() call tells the socket to listen to the incoming connections.
-    listen(sockfd, 0 /*backlog*/);
+        // This listen() call tells the socket to listen to the incoming connections.
+        listen(sockfd, 0 /*backlog*/);
 
-    struct sockaddr_in cli_addr;
-    socklen_t clilen = sizeof(cli_addr);
+        struct sockaddr_in cli_addr;
+        socklen_t clilen = sizeof(cli_addr);
 
-    // The accept() returns a new socket file descriptor for the accepted connection.
-    // So, the original socket file descriptor can continue to be used
-    // for accepting new connections while the new socker file descriptor is used for
-    // communicating with the connected client.
-    newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
-    if (newsockfd < 0)
-        throw std::runtime_error("ERROR on accept");
+        // The accept() returns a new socket file descriptor for the accepted connection.
+        // So, the original socket file descriptor can continue to be used
+        // for accepting new connections while the new socker file descriptor is used for
+        // communicating with the connected client.
+        newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
+        if (newsockfd < 0)
+            throw std::runtime_error("ERROR on accept");
 
-    std::cout << "    (logWindow) incoming connection from " << inet_ntoa(cli_addr.sin_addr) << " port " << ntohs(cli_addr.sin_port) << ". \n";
-    std::cout.flush();
+        std::cout << "    (logWindow) incoming connection from " << inet_ntoa(cli_addr.sin_addr) << " port " << ntohs(cli_addr.sin_port) << ". \n";
+        std::cout.flush();
 
-    // close the welcoming socket
-    // only one client (VENTOS) is allowed to connect to this TCP server
-    ::close(sockfd);
+        // close the welcoming socket
+        // only one client (VENTOS) is allowed to connect to this TCP server
+        ::close(sockfd);
+    }
+    catch(const std::exception& ex)
+    {
+        // silently ignore the exceptions
+        //std::cout << std::endl << ex.what() << std::endl;
+        //std::cout.flush();
+
+        return;
+    }
 }
 
 
@@ -195,8 +206,9 @@ void mainWindow::listenToClient(mainWindow *windowPtr)
     }
     catch(const std::exception& ex)
     {
-        std::cout << std::endl << ex.what() << std::endl;
-        std::cout.flush();
+        // silently ignore the exceptions
+        //std::cout << std::endl << ex.what() << std::endl;
+        //std::cout.flush();
 
         return;
     }

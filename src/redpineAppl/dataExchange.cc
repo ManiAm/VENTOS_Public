@@ -246,7 +246,8 @@ void dataExchange::start_TCP_server()
     }
     catch(const std::exception& ex)
     {
-        LOG_INFO << std::endl << ex.what() << std::endl << std::flush;
+        // silently ignore the exceptions
+        // LOG_INFO << std::endl << ex.what() << std::endl << std::flush;
         return;
     }
 }
@@ -385,7 +386,8 @@ void dataExchange::sendDataToBoard(std::string id, unsigned char *data, unsigned
     }
     catch(const std::exception& ex)
     {
-        LOG_INFO << std::endl << ex.what() << std::endl << std::flush;
+        // ignore error message
+        // LOG_INFO << std::endl << ex.what() << std::endl << std::flush;
         return;
     }
 }
