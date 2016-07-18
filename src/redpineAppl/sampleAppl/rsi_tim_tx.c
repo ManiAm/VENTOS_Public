@@ -52,6 +52,12 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    if(atoi(argv[1]) != 178)
+    {
+        printf("TIM messages are sent on channel '178' only!");
+        return 1;
+    }
+
     // --[ WAVE initialization - start ]--
 
     // initialize message queues to send requests to 1609 stack
@@ -98,14 +104,14 @@ int main(int argc, char *argv[])
         return 1;
     printf("Done! \n");
 
-    // request stack to allocate radio resources to the indicated service channel
-    printf("Sending SCH service request... ");
-    status = rsi_wavecombo_sch_start_req(atoi(argv[1]), atoi(argv[2]), 1, 255);
+    // indicates that a higher layer entity requests uninterrupted access to the control channel
+    printf("Sending CCH service request... ");
+    status = rsi_wavecombo_cch_service_req(lsi, ADD, 3, 0);
     if(status == FAIL)
         return 1;
     printf("Done! \n");
 
-    // --[ WAVE initialization - start ]--
+    // --[ WAVE initialization - end ]--
 
     // --[ making tim_message - start ]--
 
