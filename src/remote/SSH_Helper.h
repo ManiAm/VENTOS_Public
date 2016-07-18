@@ -46,15 +46,15 @@ public:
     // switch to sudo
     void checkSudo(ssh_channel);
 
-    void run_command_nonblocking(ssh_channel, std::string, bool = false, std::string = "std::cout", std::string = "default");
-    void run_command_blocking(ssh_channel, std::string, bool = false, std::string = "std::cout", std::string = "default");
-    int run_command_blocking_NoRunCheck(ssh_channel, std::string, bool = false, std::string = "std::cout", std::string = "default");
+    void run_nonblocking(ssh_channel, std::string, bool = false, std::string = "std::cout", std::string = "default");
+    void run_blocking(ssh_channel, std::string, bool = false, std::string = "std::cout", std::string = "default");
+    int run_blocking_NoRunCheck(ssh_channel, std::string, bool = false, std::string = "std::cout", std::string = "default");
 
-    // active number of threads in this SSH session
+    // active number of running threads in this SSH session
     int getNumActiveThreads();
 
 private:
-    int run_command(ssh_channel, std::string, bool, bool, bool, std::string, std::string);
+    int run(ssh_channel, std::string, bool, bool, bool, std::string, std::string);
 
 private:
     typedef std::chrono::high_resolution_clock::time_point Htime_t;

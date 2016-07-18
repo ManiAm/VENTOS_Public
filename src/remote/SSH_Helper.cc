@@ -111,9 +111,9 @@ void SSH_Helper::checkSudo(ssh_channel SSH_channel)
 {
     LOG_EVENT_C(category, subcategory) << "    Do we have root permission?... " << std::flush;
 
-    // -n' The -n (non-interactive) option prevents sudo from prompting the user for a password.
+    // The -n (non-interactive) option prevents sudo from prompting the user for a password.
     // If a password is required for the command to run, sudo will display an error message and exit.
-    int ret = run_command_blocking_NoRunCheck(SSH_channel, "sudo -n uptime", false);
+    int ret = run_blocking_NoRunCheck(SSH_channel, "sudo -n uptime", false);
 
     // we can sudo
     if (ret == 1)
@@ -130,7 +130,7 @@ void SSH_Helper::checkSudo(ssh_channel SSH_channel)
         {
             std::stringstream cmd;
             cmd << boost::format("echo %1% | sudo -S uptime") % this->dev_password;
-            ret = run_command_blocking_NoRunCheck(SSH_channel, cmd.str(), false);
+            ret = run_blocking_NoRunCheck(SSH_channel, cmd.str(), false);
             if(ret == 1)
             {
                 // successfully switched to sudo
@@ -143,7 +143,7 @@ void SSH_Helper::checkSudo(ssh_channel SSH_channel)
         {
             std::stringstream cmd;
             cmd << boost::format("echo %1% | sudo -S uptime") % this->sudoPassword;
-            ret = run_command_blocking_NoRunCheck(SSH_channel, cmd.str(), false);
+            ret = run_blocking_NoRunCheck(SSH_channel, cmd.str(), false);
             if(ret == 1)
             {
                 // successfully switched to sudo
@@ -165,7 +165,7 @@ void SSH_Helper::checkSudo(ssh_channel SSH_channel)
 
             std::stringstream cmd;
             cmd << boost::format("echo %1% | sudo -S uptime") % this->sudoPassword;
-            ret = run_command_blocking_NoRunCheck(SSH_channel, cmd.str(), false);
+            ret = run_blocking_NoRunCheck(SSH_channel, cmd.str(), false);
             if(ret == 1)
             {
                 // successfully switched to sudo
@@ -181,25 +181,25 @@ void SSH_Helper::checkSudo(ssh_channel SSH_channel)
 }
 
 
-void SSH_Helper::run_command_nonblocking(ssh_channel SSH_channel, std::string command, bool printOutput, std::string category, std::string subcategory)
+void SSH_Helper::run_nonblocking(ssh_channel SSH_channel, std::string command, bool printOutput, std::string category, std::string subcategory)
 {
-    run_command(SSH_channel, command, false /*non-blocking*/, true /*run check*/, printOutput, category, subcategory);
+    run(SSH_channel, command, false /*non-blocking*/, true /*run check*/, printOutput, category, subcategory);
 }
 
 
-void SSH_Helper::run_command_blocking(ssh_channel SSH_channel, std::string command, bool printOutput, std::string category, std::string subcategory)
+void SSH_Helper::run_blocking(ssh_channel SSH_channel, std::string command, bool printOutput, std::string category, std::string subcategory)
 {
-    run_command(SSH_channel, command, true /*blocking*/, true /*run check*/, printOutput, category, subcategory);
+    run(SSH_channel, command, true /*blocking*/, true /*run check*/, printOutput, category, subcategory);
 }
 
 
-int SSH_Helper::run_command_blocking_NoRunCheck(ssh_channel SSH_channel, std::string command, bool printOutput, std::string category, std::string subcategory)
+int SSH_Helper::run_blocking_NoRunCheck(ssh_channel SSH_channel, std::string command, bool printOutput, std::string category, std::string subcategory)
 {
-    return run_command(SSH_channel, command, true /*blocking*/, false /*no run check*/, printOutput, category, subcategory);
+    return run(SSH_channel, command, true /*blocking*/, false /*no run check*/, printOutput, category, subcategory);
 }
 
 
-int SSH_Helper::run_command(ssh_channel SSH_channel, std::string command, bool blocking, bool runCheck, bool printOutput, std::string category, std::string subcategory)
+int SSH_Helper::run(ssh_channel SSH_channel, std::string command, bool blocking, bool runCheck, bool printOutput, std::string category, std::string subcategory)
 {
     ASSERT(SSH_channel);
 

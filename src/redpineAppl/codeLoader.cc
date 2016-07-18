@@ -204,7 +204,7 @@ void codeLoader::make_connection()
             }
 
             // adding a new line to improve readability
-            LOG_EVENT_C(board->getHostName(), "default") << "\n" << std::flush;
+            LOG_EVENT_C(host, "default") << "\n" << std::flush;
 
         }));
     }
@@ -221,7 +221,7 @@ void codeLoader::make_connection()
     workers.clear();
     for(auto &ii : active_SSH)
     {
-        // todo: make sure it is redpine board. We can SSH to any remote host!
+        // todo: make sure that the remote board is redpine!
         workers.push_back( std::thread (&codeLoader::init_board, this, ii.first, ii.second) );
     }
 
@@ -230,15 +230,28 @@ void codeLoader::make_connection()
         t.join();
     });
 
-    // delete all SSH sessions that have no active threads
+    LOG_EVENT << ">>> Number of active SSH connections is " << active_SSH.size() << "\n";
+
+    // loop through all active SSH connections
     for(auto &ii : active_SSH)
     {
+        LOG_EVENT << "    " << ii.second->getHostName() << ": ";
+
+        // delete this SSH sessions if it has no active threads
         if(ii.second->getNumActiveThreads() == 0)
         {
+            LOG_EVENT << "No running command. Terminating this SSH session... ";
+
             delete ii.second;
             ii.second = NULL;  // make SSH pointer NULL
+
+            LOG_EVENT << "Done! \n";
         }
+        else
+            LOG_EVENT << ii.second->getNumActiveThreads() << " commands are running. \n";
     }
+
+    LOG_FLUSH;
 }
 
 
@@ -330,8 +343,8 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
 
     LOG_EVENT_C(board->getHostName(), "default") << boost::format("===[ Compiling application %1% ... ]=== \n\n") % applName << std::flush;
 
-    board->run_command_blocking(shell1, "cd " + (remoteDir_SourceCode / "sampleAppl").string());
-    board->run_command_blocking(shell1, "make -B " + applName, true, board->getHostName());  // todo: forcing make is not good
+    board->run_blocking(shell1, "cd " + (remoteDir_SourceCode / "sampleAppl").string());
+    board->run_blocking(shell1, "make -B " + applName, true, board->getHostName());  // todo: forcing make is not good
 
     //#########################################
     // copy the init folder to remoteDir_Driver
@@ -365,8 +378,8 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
 
     LOG_EVENT_C(board->getHostName(), "default") << "===[ Running the run_init script ... ]=== \n\n" << std::flush;
 
-    board->run_command_blocking(shell1, "cd " + (remoteDir_Driver / "init").string());
-    board->run_command_blocking(shell1, "sudo ./run_init", true, board->getHostName());
+    board->run_blocking(shell1, "cd " + (remoteDir_Driver / "init").string());
+    board->run_blocking(shell1, "sudo ./run_init", true, board->getHostName());
 
     //#######################################
     // remotely start 1609 stack in WAVE mode
@@ -374,8 +387,8 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
 
     LOG_EVENT_C(board->getHostName(), "default") << "===[ Running the 1609 stack ... ]=== \n\n" << std::flush;
 
-    board->run_command_blocking(shell1, "cd " + (remoteDir_Driver / "init").string());
-    board->run_command_nonblocking(shell1, "sudo ./run_1609", true, board->getHostName());
+    board->run_blocking(shell1, "cd " + (remoteDir_Driver / "init").string());
+    board->run_nonblocking(shell1, "sudo ./run_1609", true, board->getHostName());
 
     // put the main thread to sleep -- let the last non-blocking command to run for a while
     std::this_thread::sleep_for(std::chrono::milliseconds(7000));  // todo: if run_1609 is already running then no need to wait
@@ -386,8 +399,8 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
 
     LOG_EVENT_C(board->getHostName(), "shell2") << boost::format("===[ Running application %1% ... ]=== \n\n") % applName << std::flush;
 
-    board->run_command_blocking(shell2, "cd " + (remoteDir_SourceCode / "sampleAppl").string());
-    board->run_command_nonblocking(shell2, "sudo ./" + applName + arguments, true, board->getHostName(), "shell2");
+    board->run_blocking(shell2, "cd " + (remoteDir_SourceCode / "sampleAppl").string());
+    board->run_nonblocking(shell2, "sudo ./" + applName + arguments, true, board->getHostName(), "shell2");
 }
 
 }
