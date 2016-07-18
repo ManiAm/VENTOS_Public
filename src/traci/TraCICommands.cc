@@ -725,11 +725,11 @@ double TraCI_Commands::vehicleGetCurrentAccel(std::string nodeId)
 
 int TraCI_Commands::vehicleGetCarFollowingMode(std::string nodeId)
 {
-    updateTraCIlog("commandStart", CMD_GET_VEHICLE_VARIABLE, 0x71);
+    updateTraCIlog("commandStart", CMD_GET_VEHICLE_VARIABLE, 0x75);
 
-    int result = genericGetInt(CMD_GET_VEHICLE_VARIABLE, nodeId, 0x71, RESPONSE_GET_VEHICLE_VARIABLE);
+    int result = genericGetInt(CMD_GET_VEHICLE_VARIABLE, nodeId, 0x75, RESPONSE_GET_VEHICLE_VARIABLE);
 
-    updateTraCIlog("commandComplete", CMD_GET_VEHICLE_VARIABLE, 0x71);
+    updateTraCIlog("commandComplete", CMD_GET_VEHICLE_VARIABLE, 0x75);
     return result;
 }
 
