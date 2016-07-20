@@ -113,7 +113,7 @@ void SSH_Helper::checkSudo(ssh_channel SSH_channel)
 
     // The -n (non-interactive) option prevents sudo from prompting the user for a password.
     // If a password is required for the command to run, sudo will display an error message and exit.
-    int ret = run_blocking_NoRunCheck(SSH_channel, "sudo -n uptime", false);
+    int ret = run_blocking_NoRunCheck(SSH_channel, "sudo -n uptime");
 
     // we can sudo
     if (ret == 1)
@@ -130,7 +130,7 @@ void SSH_Helper::checkSudo(ssh_channel SSH_channel)
         {
             std::stringstream cmd;
             cmd << boost::format("echo %1% | sudo -S uptime") % this->dev_password;
-            ret = run_blocking_NoRunCheck(SSH_channel, cmd.str(), false);
+            ret = run_blocking_NoRunCheck(SSH_channel, cmd.str());
             if(ret == 1)
             {
                 // successfully switched to sudo
@@ -143,7 +143,7 @@ void SSH_Helper::checkSudo(ssh_channel SSH_channel)
         {
             std::stringstream cmd;
             cmd << boost::format("echo %1% | sudo -S uptime") % this->sudoPassword;
-            ret = run_blocking_NoRunCheck(SSH_channel, cmd.str(), false);
+            ret = run_blocking_NoRunCheck(SSH_channel, cmd.str());
             if(ret == 1)
             {
                 // successfully switched to sudo
@@ -165,7 +165,7 @@ void SSH_Helper::checkSudo(ssh_channel SSH_channel)
 
             std::stringstream cmd;
             cmd << boost::format("echo %1% | sudo -S uptime") % this->sudoPassword;
-            ret = run_blocking_NoRunCheck(SSH_channel, cmd.str(), false);
+            ret = run_blocking_NoRunCheck(SSH_channel, cmd.str());
             if(ret == 1)
             {
                 // successfully switched to sudo
@@ -312,6 +312,11 @@ int SSH_Helper::run(ssh_channel SSH_channel, std::string command, bool blocking,
                         indexPrintStart = indexCmdEnd + 1;
                     }
                 }
+
+                // for debugging purpose
+                // std::cout << "indexCmdBegin: " << indexCmdBegin << ", indexCmdEnd: " << indexCmdEnd << ", endFound: " << endFound << "\n";
+                // std::cout << command_output << "\n\n";
+                // std::cout.flush();
 
                 if(endFound)
                 {

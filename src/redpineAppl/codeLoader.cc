@@ -387,11 +387,26 @@ void codeLoader::init_board(cModule *module, SSH_Helper *board)
 
     LOG_EVENT_C(board->getHostName(), "default") << "===[ Running the 1609 stack ... ]=== \n\n" << std::flush;
 
+    // check if rsi_1609 is running on the board or not
     board->run_blocking(shell1, "cd " + (remoteDir_Driver / "init").string());
-    board->run_nonblocking(shell1, "sudo ./run_1609", true, board->getHostName());
 
-    // put the main thread to sleep -- let the last non-blocking command to run for a while
-    std::this_thread::sleep_for(std::chrono::milliseconds(7000));  // todo: if run_1609 is already running then no need to wait
+    int running = board->run_blocking_NoRunCheck(shell1, "if pgrep rsi_1609 > /dev/null; then true; else false; fi");
+
+    if(running == 0)
+    {
+        throw omnetpp::cRuntimeError("Invalid return value from the command!");
+    }
+    else if(running == 1)
+    {
+        LOG_EVENT_C(board->getHostName(), "default") << "rsi_1609 is already running! \n" << std::flush;
+    }
+    else if(running == 2)
+    {
+        // run rsi_1609
+        board->run_nonblocking(shell1, "sudo ../rsi_1609", true, board->getHostName());
+        // and let it run for a while
+        std::this_thread::sleep_for(std::chrono::milliseconds(6000));
+    }
 
     //######################
     // remotely run the code
