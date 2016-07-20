@@ -31,7 +31,7 @@ int rsa_create(rsa_t *, char *, int *);
 
 // global variables
 int lsi = 0;
-uint8 psid[4]={0xe0,0x52,0x53,0x41};
+uint8 psid[4] = {0xe0, 0x52, 0x53, 0x41};
 int no_of_tx = 0;
 
 // global variables - rsa_message
@@ -70,13 +70,13 @@ int main(int argc, char *argv[])
 
     // send channel synchronization parameters to Wave Combo Module
     printf("Calling update sync params... ");
-    status = rsi_wavecombo_update_channel_sync_params(OPERATING_CLASS,CONTROL_CHANNEL,CCH_INTERVEL,SCH_INTERVEL,SYNC_TOLERANCE,MAX_SWITCH_TIME);
+    status = rsi_wavecombo_update_channel_sync_params(OPERATING_CLASS, CONTROL_CHANNEL, CCH_INTERVEL, SCH_INTERVEL, SYNC_TOLERANCE, MAX_SWITCH_TIME);
     if(status == FAIL)
         return 1;
     printf("Done! \n");
 
     //printf("Setting UTC... ");
-    //status=rsi_wavecombo_set_utc();
+    //status = rsi_wavecombo_set_utc();
     //if(status == FAIL)
     //  return 1;
     //  printf("Done! \n");
@@ -93,19 +93,19 @@ int main(int argc, char *argv[])
 
     // indicating that a higher layer entity requests a short message service
     printf("Sending WSMP service request... ");
-    status = rsi_wavecombo_wsmp_service_req(ADD,lsi,psid);
+    status = rsi_wavecombo_wsmp_service_req(ADD, lsi, psid);
     if(status == FAIL)
         return 1;
     printf("Done! \n");
 
     // request stack to allocate radio resources to the indicated service channel
     printf("Sending SCH service request... ");
-    status = rsi_wavecombo_sch_start_req(atoi(argv[1]) ,atoi(argv[2]) ,1 ,255);
+    status = rsi_wavecombo_sch_start_req(atoi(argv[1]), atoi(argv[2]), 1, 255);
     if(status == FAIL)
         return 1;
     printf("Done! \n");
 
-    // --[ WAVE initialization - start ]--
+    // --[ WAVE initialization - end ]--
 
     // --[ making rsa_message - start ]--
 
@@ -214,7 +214,7 @@ int main(int argc, char *argv[])
         }
         memset(wsm,0,sizeof(waveShortMessage));
 
-        wsm->dataRate 	  = atoi(argv[2]);//RATE_12;
+        wsm->dataRate 	  = atoi(argv[2]);
         wsm->txPwr   	  = 15;
         wsm->psid[0] 	  = psid[0];
         wsm->psid[1] 	  = psid[1];
@@ -223,9 +223,9 @@ int main(int argc, char *argv[])
         wsm->priority 	  = 3;
         wsm->wsm_expiry_time = 50;
         wsm->wsm_length = pay_load_len;
-        memcpy(wsm->WSM_Data,pay_load,pay_load_len);
+        memcpy(wsm->WSM_Data, pay_load, pay_load_len);
         char peer_mac_address[6] = {0xff,0xff,0xff,0xff,0xff,0xff};
-        memcpy(wsm->peer_mac_address,peer_mac_address,6);
+        memcpy(wsm->peer_mac_address, peer_mac_address, 6);
         wsm->channelNumber = atoi(argv[1]);
 
         printf("Sending RSA msg #%3d of size %d... ", no_of_tx, pay_load_len);

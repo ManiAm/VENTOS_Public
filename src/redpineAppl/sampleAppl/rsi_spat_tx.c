@@ -24,13 +24,14 @@
 #include "dsrc_util.h"
 #include "SPAT_create.h"
 
+// forward declarations
 void sigint(int sigint);
 void freeResources();
 int spat_create(spat_t *, char *, int *);
 
 // global variables
 int lsi = 0;
-uint8 psid[4]={0xbf,0xe0};
+uint8 psid[4] = {0xbf, 0xe0};
 int no_of_tx = 0;
 
 // global variables - spat_message
@@ -57,6 +58,7 @@ int main(int argc, char *argv[])
     int status = rsi_wavecombo_msgqueue_init();
     if(status == FAIL)
         return 1;
+    printf("Done! \n");
 
     // initialize the management information base (MIB) in 1609 stack
     printf("Initializing MIB... ");
@@ -216,7 +218,7 @@ int main(int argc, char *argv[])
         perror("malloc");
         return 1;
     }
-    memset(spat_message,0,sizeof(sizeof(spat_t)));
+    memset(spat_message,0,sizeof(spat_t));
 
     spat_message->name_size = 0x02;
     spat_message->name[0] = 0x42;
@@ -224,7 +226,7 @@ int main(int argc, char *argv[])
     spat_message->count = 0x01;
     spat_message->intersectionState[0] = intersectionState[0];
 
-    // --[ making spat_message - start ]--
+    // --[ making spat_message - end ]--
 
     pay_load = malloc(512);
     if(!pay_load)
@@ -243,7 +245,7 @@ int main(int argc, char *argv[])
         int pay_load_len = 0;
         if(spat_create(spat_message, pay_load, &pay_load_len) != SUCCESS)
         {
-            printf("MAP message encoding failed. \n");
+            printf("SPAT message encoding failed. \n");
             return 1;
         }
 
@@ -266,7 +268,7 @@ int main(int argc, char *argv[])
         wsm->wsm_length = pay_load_len;
         memcpy(wsm->WSM_Data, pay_load, pay_load_len);
         char peer_mac_address[6] = {0xff,0xff,0xff,0xff,0xff,0xff};
-        memcpy(wsm->peer_mac_address,peer_mac_address,6);
+        memcpy(wsm->peer_mac_address, peer_mac_address, 6);
         wsm->channelNumber = atoi(argv[1]);
 
         printf("Sending SPAT msg #%3d of size %d... ", no_of_tx, pay_load_len);

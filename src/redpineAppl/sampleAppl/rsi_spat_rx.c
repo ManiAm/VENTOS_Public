@@ -26,14 +26,14 @@
 // forward declarations
 void sigint(int sigint);
 void process_wsmp(uint8 *, int);
-asn_dec_rval_t J2735_decode(void* ,int );
+asn_dec_rval_t J2735_decode(void *, int);
 void J2735_print(void *, int);
 void J2735_free(void *, int);
 
 // global variables
 uint8 *buff_rx = NULL;
 int lsi = 0;
-uint8 psid[4]={0xbf,0xe0};
+uint8 psid[4] = {0xbf, 0xe0};
 int no_of_rx = 0;
 
 
@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
 
     // send channel synchronization parameters to Wave Combo Module
     printf("Calling update sync params... ");
-    status = rsi_wavecombo_update_channel_sync_params(OPERATING_CLASS,CONTROL_CHANNEL,CCH_INTERVEL,SCH_INTERVEL,SYNC_TOLERANCE,MAX_SWITCH_TIME);
+    status = rsi_wavecombo_update_channel_sync_params(OPERATING_CLASS, CONTROL_CHANNEL, CCH_INTERVEL, SCH_INTERVEL, SYNC_TOLERANCE, MAX_SWITCH_TIME);
     if(status == FAIL)
         return 1;
     printf("Done! \n");
@@ -108,6 +108,9 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    // adding new line to improve readability
+    printf("\n");
+
     while(1)
     {
         int length = rsi_wavecombo_receive_wsmp_packet(buff_rx, 1300);
@@ -131,8 +134,8 @@ void process_wsmp(uint8 *buf, int len)
     int payload_len = len - WSMP_PAY_LOAD_OFFSET - psid_len;
     asn_dec_rval_t Rval = J2735_decode(buf + WSMP_PAY_LOAD_OFFSET + psid_len, payload_len);
 
-    J2735_print(Rval.Message,Rval.Type);
-    J2735_free(Rval.Message,Rval.Type);
+    J2735_print(Rval.Message, Rval.Type);
+    J2735_free(Rval.Message, Rval.Type);
 }
 
 

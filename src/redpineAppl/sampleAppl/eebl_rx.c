@@ -72,11 +72,11 @@ int main(int argc, char *argv[])
         return 1;
     printf("Done! \n");
 
-    //    printf("Setting UTC... ");
-    //    status = rsi_wavecombo_set_utc();
-    //    if(status == FAIL)
-    //        return 1;
-    //    printf("Done! \n");
+    //printf("Setting UTC... ");
+    //status = rsi_wavecombo_set_utc();
+    //if(status == FAIL)
+    //  return 1;
+    //  printf("Done! \n");
 
     // get a local service index for this user from 1609 stack
     lsi = rsi_wavecombo_local_service_index_request();
@@ -159,7 +159,7 @@ int main(int argc, char *argv[])
 void process_wsmp(uint8 *buf, int len)
 {
     int psid_len = 0;
-    while( buf[14] & (0x80 >> psid_len++) );
+    while(buf[14] & (0x80 >> psid_len++));
 
     int payload_len = len - WSMP_PAY_LOAD_OFFSET - psid_len;
     asn_dec_rval_t Rval = J2735_decode(buf + WSMP_PAY_LOAD_OFFSET + psid_len, payload_len);

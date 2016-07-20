@@ -26,14 +26,14 @@
 // forward declarations
 void sigint(int sigint);
 void process_wsmp(uint8 *, int);
-asn_dec_rval_t J2735_decode(void*, int);
+asn_dec_rval_t J2735_decode(void *, int);
 void J2735_print(void *, int);
 void J2735_free(void *, int);
 
 // global variables
 uint8 *buff_rx = NULL;
 int lsi = 0;
-uint8 psid[4] = {0x80,0x03};
+uint8 psid[4] = {0x80, 0x03};
 int no_of_rx = 0;
 
 
@@ -113,6 +113,9 @@ int main(int argc, char *argv[])
         perror("malloc");
         return 1;
     }
+
+    // adding new line to improve readability
+    printf("\n");
 
     while(1)
     {

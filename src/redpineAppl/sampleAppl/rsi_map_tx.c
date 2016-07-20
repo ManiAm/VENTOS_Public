@@ -24,6 +24,7 @@
 #include "dsrc_util.h"  // Data_PR_zones
 #include "MAP_create.h"
 
+// forward declarations
 void sigint(int sigint);
 void freeResources();
 int map_create(map_t *, char *, int *);
@@ -51,7 +52,7 @@ int main(int argc,char *argv[])
 
     if(argc < 3)
     {
-        printf("Provide 'channel number' and 'data rate' command line arg. \n");
+        printf("Provide 'channel number' and 'data rate' command line arg.\n");
         return 1;
     }
 
@@ -62,6 +63,7 @@ int main(int argc,char *argv[])
     int status = rsi_wavecombo_msgqueue_init();
     if(status == FAIL)
         return 1;
+    printf("Done! \n");
 
     // initialize the management information base (MIB) in 1609 stack
     printf("Initializing MIB... ");
@@ -301,7 +303,7 @@ int main(int argc,char *argv[])
         wsm->wsm_length = pay_load_len;
         memcpy(wsm->WSM_Data, pay_load, pay_load_len);
         char peer_mac_address[6] = {0xff,0xff,0xff,0xff,0xff,0xff};
-        memcpy(wsm->peer_mac_address,peer_mac_address,6);
+        memcpy(wsm->peer_mac_address, peer_mac_address, 6);
         wsm->channelNumber = atoi(argv[1]);
 
         printf("Sending MAP msg #%3d of size %d... ", no_of_tx, pay_load_len);

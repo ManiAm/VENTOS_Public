@@ -31,7 +31,7 @@ int bsm_create(bsm_t *, char *, int *);
 
 // global variables
 int lsi = 0;
-uint8 psid[4]={0x20};
+uint8 psid[4] = {0x20};
 int no_of_tx = 0;
 
 // global variables - bsm_message
@@ -47,13 +47,13 @@ bsm_t *bsm_message = NULL;
 char *pay_load = NULL;
 
 
-int main(int argc,char *argv[])
+int main(int argc, char *argv[])
 {
     signal(SIGINT, sigint);
 
     if(argc < 3)
     {
-        printf("Provide 'channel number' and 'data rate' command line arg.\n");
+        printf("Provide 'channel number' and 'data rate' command line arg. \n");
         return 1;
     }
 
@@ -75,16 +75,16 @@ int main(int argc,char *argv[])
 
     // send channel synchronization parameters to Wave Combo Module
     printf("Calling update sync params... ");
-    status = rsi_wavecombo_update_channel_sync_params(OPERATING_CLASS,CONTROL_CHANNEL,CCH_INTERVEL,SCH_INTERVEL,SYNC_TOLERANCE,MAX_SWITCH_TIME);
+    status = rsi_wavecombo_update_channel_sync_params(OPERATING_CLASS, CONTROL_CHANNEL, CCH_INTERVEL, SCH_INTERVEL, SYNC_TOLERANCE, MAX_SWITCH_TIME);
     if(status == FAIL)
         return 1;
     printf("Done! \n");
 
     //printf("Setting UTC... ");
-    //status=rsi_wavecombo_set_utc();
+    //status = rsi_wavecombo_set_utc();
     //if(status == FAIL)
-    //	return 1;
-    //	printf("Done! \n");
+    //  return 1;
+    //  printf("Done! \n");
 
     // get a local service index for this user from 1609 stack
     lsi = rsi_wavecombo_local_service_index_request();
@@ -98,14 +98,14 @@ int main(int argc,char *argv[])
 
     // indicating that a higher layer entity requests a short message service
     printf("Sending WSMP service request... ");
-    status = rsi_wavecombo_wsmp_service_req(ADD,lsi,psid);
+    status = rsi_wavecombo_wsmp_service_req(ADD, lsi, psid);
     if(status == FAIL)
         return 1;
     printf("Done! \n");
 
     // request stack to allocate radio resources to the indicated service channel
     printf("Sending SCH service request... ");
-    status = rsi_wavecombo_sch_start_req(atoi(argv[1]) ,atoi(argv[2]) ,1 ,255);
+    status = rsi_wavecombo_sch_start_req(atoi(argv[1]), atoi(argv[2]), 1, 255);
     if(status == FAIL)
         return 1;
     printf("Done! \n");
@@ -318,7 +318,6 @@ int main(int argc,char *argv[])
     }
 
     freeResources();
-
     return 0;
 }
 
