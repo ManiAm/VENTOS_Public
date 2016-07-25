@@ -31,6 +31,39 @@ namespace VENTOS {
 
 Define_Module(VENTOS::TrafficLight_LQF_MWM);
 
+class sortedEntryLQF_MWM
+{
+public:
+    int oneCount;
+    int maxVehCount;
+    double totalWeight;
+    std::string phase;
+
+    sortedEntryLQF_MWM(double d1, int i1, int i2, std::string p)
+    {
+        this->totalWeight = d1;
+        this->oneCount = i1;
+        this->maxVehCount = i2;
+        this->phase = p;
+    }
+};
+
+
+class sortCompareLQF_MWM
+{
+public:
+    bool operator()(sortedEntryLQF_MWM p1, sortedEntryLQF_MWM p2)
+    {
+        if( p1.totalWeight < p2.totalWeight )
+            return true;
+        else if( p1.totalWeight == p2.totalWeight && p1.oneCount < p2.oneCount)
+            return true;
+        else
+            return false;
+    }
+};
+
+
 TrafficLight_LQF_MWM::~TrafficLight_LQF_MWM()
 {
 
@@ -134,6 +167,7 @@ void TrafficLight_LQF_MWM::chooseNextInterval()
     {
         currentInterval = "red";
 
+        // change all 'y' to 'r'
         std::string str = TraCI->TLGetState("C");
         std::string nextInterval = "";
         for(char& c : str) {
@@ -183,9 +217,9 @@ void TrafficLight_LQF_MWM::chooseNextGreenInterval()
         throw omnetpp::cRuntimeError("LaneInfo is empty! Is active detection on in %s ?", RSUptr->getFullName());
 
     // batch of all non-conflicting movements, sorted by total weight + oneCount per batch
-    std::priority_queue< sortedEntryLQF /*type of each element*/, std::vector<sortedEntryLQF> /*container*/, sortCompareLQF > sortedMovements;
+    std::priority_queue< sortedEntryLQF_MWM /*type of each element*/, std::vector<sortedEntryLQF_MWM> /*container*/, sortCompareLQF_MWM > sortedMovements;
     // clear the priority queue
-    sortedMovements = std::priority_queue < sortedEntryLQF, std::vector<sortedEntryLQF>, sortCompareLQF >();
+    sortedMovements = std::priority_queue < sortedEntryLQF_MWM, std::vector<sortedEntryLQF_MWM>, sortCompareLQF_MWM >();
 
     for(std::string phase : phases)
     {
@@ -244,12 +278,12 @@ void TrafficLight_LQF_MWM::chooseNextGreenInterval()
         }
 
         // add this batch of movements to priority_queue
-        sortedEntryLQF *entry = new sortedEntryLQF(totalWeight, oneCount, maxVehCount, phase);
+        sortedEntryLQF_MWM *entry = new sortedEntryLQF_MWM(totalWeight, oneCount, maxVehCount, phase);
         sortedMovements.push(*entry);
     }
 
     // get the movement batch with the highest weight + delay + oneCount
-    sortedEntryLQF entry = sortedMovements.top();
+    sortedEntryLQF_MWM entry = sortedMovements.top();
 
     // allocate enough green time to move all vehicles
     int maxVehCount = entry.maxVehCount;

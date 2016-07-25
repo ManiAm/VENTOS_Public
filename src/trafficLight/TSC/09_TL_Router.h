@@ -28,13 +28,14 @@
 #ifndef TRAFFICLIGHTROUTER_H
 #define TRAFFICLIGHTROUTER_H
 
-#include <09_TL_FMSC.h>
+#include "08_TL_FMSC.h"
 #include "Net.h"
 #include <vector>
 
 namespace VENTOS {
 
 class TraCI_Commands;
+class Node;
 class Net;
 
 class Phase

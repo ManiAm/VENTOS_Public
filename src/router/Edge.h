@@ -29,9 +29,10 @@
 #define EDGE_H
 
 #include <vector>
+#include <omnetpp.h>
+
 #include "Node.h"
 #include "EdgeCosts.h"
-#include <omnetpp.h>
 
 namespace VENTOS {
 

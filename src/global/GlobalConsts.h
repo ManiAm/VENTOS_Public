@@ -182,7 +182,6 @@ enum TLControlTypes {
     TL_OJF,
     TL_LQF_MWM,
     TL_LQF_MWM_Aging,
-    TL_LQF_MWM_Cycle,
     TL_FMSC,
     TL_Router
 };

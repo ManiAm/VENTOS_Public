@@ -186,7 +186,7 @@ void TrafficLightOJF::chooseNextInterval()
     {
         // update TL status for this phase
         if(nextGreenInterval == firstGreen["C"])
-            updateTLstate("C", "phaseEnd", nextGreenInterval, true);   // todo: the notion of cycle?
+            updateTLstate("C", "phaseEnd", nextGreenInterval, true);  // todo: notion of cycle?
         else
             updateTLstate("C", "phaseEnd", nextGreenInterval);
 

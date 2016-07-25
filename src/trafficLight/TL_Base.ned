@@ -17,8 +17,7 @@ simple TL_Base
         // TLControlMode = 5: OJF (lowest delay)
         // TLControlMode = 6: LQF_MWM (has starvation)
         // TLControlMode = 7: LQF_MWM_Aging
-        // TLControlMode = 8: LQF_MWM_Cycle
-        // TLControlMode = 9: FMSC
-        // TLControlMode = 10: router
+        // TLControlMode = 8: LQF_FMSC
+        // TLControlMode = 9: router
         int TLControlMode = default(0);
 }

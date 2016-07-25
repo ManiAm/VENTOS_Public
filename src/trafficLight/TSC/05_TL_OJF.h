@@ -27,7 +27,7 @@
 #ifndef TRAFFICLIGHTOJF_H
 #define TRAFFICLIGHTOJF_H
 
-#include <04_TL_LQF_NoStarv.h>
+#include "04_TL_LQF_NoStarv.h"
 
 namespace VENTOS {
 
@@ -49,6 +49,8 @@ class TrafficLightOJF : public TrafficLightLQF_NoStarv
 
   private:
     typedef TrafficLightLQF_NoStarv super;
+
+    std::string phase1_5 = "grgrGgrgrrgrgrGgrgrrrrrr";
     double nextGreenTime;
 };
 

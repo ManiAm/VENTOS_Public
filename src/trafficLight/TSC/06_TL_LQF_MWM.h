@@ -30,62 +30,9 @@
 #ifndef TRAFFICLIGHTLQFMWM_H
 #define TRAFFICLIGHTLQFMWM_H
 
-#include <05_TL_OJF.h>
+#include "05_TL_OJF.h"
 
 namespace VENTOS {
-
-class greenIntervalInfo_LQF
-{
-public:
-    int maxVehCount;
-    double totalWeight;
-    int oneCount;
-    double greenTime;
-    std::string greenString;
-
-    greenIntervalInfo_LQF(int i1, double d0, int i2, double d1, std::string str)
-    {
-        this->maxVehCount = i1;
-        this->totalWeight = d0;
-        this->oneCount = i2;
-        this->greenTime = d1;
-        this->greenString = str;
-    }
-};
-
-
-class sortedEntryLQF
-{
-public:
-    int oneCount;
-    int maxVehCount;
-    double totalWeight;
-    std::string phase;
-
-    sortedEntryLQF(double d1, int i1, int i2, std::string p)
-    {
-        this->totalWeight = d1;
-        this->oneCount = i1;
-        this->maxVehCount = i2;
-        this->phase = p;
-    }
-};
-
-
-class sortCompareLQF
-{
-public:
-    bool operator()(sortedEntryLQF p1, sortedEntryLQF p2)
-    {
-        if( p1.totalWeight < p2.totalWeight )
-            return true;
-        else if( p1.totalWeight == p2.totalWeight && p1.oneCount < p2.oneCount)
-            return true;
-        else
-            return false;
-    }
-};
-
 
 class TrafficLight_LQF_MWM : public TrafficLightOJF
 {
@@ -114,6 +61,16 @@ protected:
             {"bus", 10},
             {"truck", 1}
     };
+
+    std::string phase1_5 = "grgrGgrgrrgrgrGgrgrrrrrr";
+    std::string phase2_5 = "gGgGGgrgrrgrgrrgrgrrrrrG";
+    std::string phase1_6 = "grgrrgrgrrgGgGGgrgrrrGrr";
+    std::string phase2_6 = "gGgGrgrgrrgGgGrgrgrrrGrG";
+
+    std::string phase3_7 = "grgrrgrgrGgrgrrgrgrGrrrr";
+    std::string phase3_8 = "grgrrgrgrrgrgrrgGgGGrrGr";
+    std::string phase4_7 = "grgrrgGgGGgrgrrgrgrrGrrr";
+    std::string phase4_8 = "grgrrgGgGrgrgrrgGgGrGrGr";
 
     std::vector<std::string> phases = {phase1_5, phase2_5, phase1_6, phase2_6, phase3_7, phase3_8, phase4_7, phase4_8};
 

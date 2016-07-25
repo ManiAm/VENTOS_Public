@@ -28,7 +28,7 @@
 #ifndef TRAFFICLIGHTACTUATED_H
 #define TRAFFICLIGHTACTUATED_H
 
-#include <02_TL_Adaptive_Webster.h>
+#include "02_TL_Adaptive_Webster.h"
 
 namespace VENTOS {
 
@@ -48,7 +48,9 @@ class TrafficLightActuated : public TrafficLightWebster
     void chooseNextInterval();
     void chooseNextGreenInterval();
 
-  protected:
+  private:
+    typedef TrafficLightWebster super;
+
     std::string phase1_5 = "grgrGgrgrrgrgrGgrgrrrrrr";
     std::string phase2_5 = "gGgGGgrgrrgrgrrgrgrrrrrG";
     std::string phase1_6 = "grgrrgrgrrgGgGGgrgrrrGrr";
@@ -58,9 +60,6 @@ class TrafficLightActuated : public TrafficLightWebster
     std::string phase3_8 = "grgrrgrgrrgrgrrgGgGGrrGr";
     std::string phase4_7 = "grgrrgGgGGgrgrrgrgrrGrrr";
     std::string phase4_8 = "grgrrgGgGrgrgrrgGgGrGrGr";
-
-  private:
-    typedef TrafficLightWebster super;
 
     // NED variables
     double passageTime;

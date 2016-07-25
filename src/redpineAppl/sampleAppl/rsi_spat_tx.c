@@ -241,14 +241,6 @@ int main(int argc, char *argv[])
 
     for(int i = 1; i <= 10; i++)
     {
-        ++no_of_tx;
-        int pay_load_len = 0;
-        if(spat_create(spat_message, pay_load, &pay_load_len) != SUCCESS)
-        {
-            printf("SPAT message encoding failed. \n");
-            return 1;
-        }
-
         waveShortMessage *wsm = malloc(sizeof(waveShortMessage));
         if(!wsm)
         {
@@ -256,6 +248,14 @@ int main(int argc, char *argv[])
             return 1;
         }
         memset(wsm,0,sizeof(waveShortMessage));
+
+        ++no_of_tx;
+        int pay_load_len = 0;
+        if(spat_create(spat_message, pay_load, &pay_load_len) != SUCCESS)
+        {
+            printf("SPAT message encoding failed. \n");
+            return 1;
+        }
 
         wsm->dataRate 	  = atoi(argv[2]);
         wsm->txPwr   	  = 15;

@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    TL_LQF_MWM_Cycle.h
+/// @file    TL_FMSC.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @date    Jul 2015
 ///
@@ -24,17 +24,37 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef TRAFFICLIGHTLQFMWMCYCLE_H
-#define TRAFFICLIGHTLQFMWMCYCLE_H
+#ifndef TRAFFICLIGHTFMSC_H
+#define TRAFFICLIGHTFMSC_H
 
-#include <07_TL_LQF_MWM_Aging.h>
+#include "07_TL_LQF_MWM_Aging.h"
 
 namespace VENTOS {
 
-class TrafficLight_LQF_MWM_Cycle : public TrafficLight_LQF_MWM_Aging
+class greenInterval_FMSC
 {
 public:
-    virtual ~TrafficLight_LQF_MWM_Cycle();
+    int maxVehCount;
+    double totalWeight;
+    int oneCount;
+    double greenTime;
+    std::string greenString;
+
+    greenInterval_FMSC(int i1, double d0, int i2, double d1, std::string str)
+    {
+        this->maxVehCount = i1;
+        this->totalWeight = d0;
+        this->oneCount = i2;
+        this->greenTime = d1;
+        this->greenString = str;
+    }
+};
+
+
+class TrafficLight_FMSC : public TrafficLight_LQF_MWM_Aging
+{
+public:
+    virtual ~TrafficLight_FMSC();
     virtual void initialize(int);
     virtual void finish();
     virtual void handleMessage(omnetpp::cMessage *);
@@ -51,7 +71,7 @@ private:
 private:
     typedef TrafficLight_LQF_MWM_Aging super;
     ApplRSUMonitor *RSUptr;
-    std::vector<greenIntervalInfo_LQF> greenInterval;
+    std::vector<greenInterval_FMSC> greenInterval;
     bool nextGreenIsNewCycle;
 };
 

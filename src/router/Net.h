@@ -33,6 +33,7 @@
 #include <iostream>
 #include <sstream>
 #include <algorithm> // For sort
+
 #include "Router.h"
 #include "Vehicle.h"
 #include "EdgeCosts.h"
@@ -40,6 +41,10 @@
 #include "rapidxml_utils.hpp"
 
 namespace VENTOS {
+
+class Edge;
+class Node;
+class TrafficLightRouter;
 
 class Connection
 {

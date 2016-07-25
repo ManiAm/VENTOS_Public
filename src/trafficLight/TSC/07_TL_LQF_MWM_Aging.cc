@@ -28,22 +28,55 @@
 
 namespace VENTOS {
 
-class sortedEntryDelayLQF : public sortedEntryLQF
+class sortedEntryLQF_MWM_Aging
+{
+public:
+    int oneCount;
+    int maxVehCount;
+    double totalWeight;
+    std::string phase;
+
+    sortedEntryLQF_MWM_Aging(double d1, int i1, int i2, std::string p)
+    {
+        this->totalWeight = d1;
+        this->oneCount = i1;
+        this->maxVehCount = i2;
+        this->phase = p;
+    }
+};
+
+
+class sortCompareLQF_MWM_Aging
+{
+public:
+    bool operator()(sortedEntryLQF_MWM_Aging p1, sortedEntryLQF_MWM_Aging p2)
+    {
+        if( p1.totalWeight < p2.totalWeight )
+            return true;
+        else if( p1.totalWeight == p2.totalWeight && p1.oneCount < p2.oneCount)
+            return true;
+        else
+            return false;
+    }
+};
+
+
+class sortedEntryDelay_LQF_MWM_Aging : public sortedEntryLQF_MWM_Aging
 {
 public:
     double maxDelay;
 
-    sortedEntryDelayLQF(double d1, int i1, int i2, double d2, std::string p) : sortedEntryLQF(d1, i1, i2, p)
+    sortedEntryDelay_LQF_MWM_Aging(double d1, int i1, int i2, double d2, std::string p) : sortedEntryLQF_MWM_Aging(d1, i1, i2, p)
     {
         this->maxDelay = d2;
     }
 };
 
 
-class CompareDelay
+class CompareDelay_LQF_MWM_Aging
 {
 public:
-    bool operator()(sortedEntryDelayLQF n1, sortedEntryDelayLQF n2)
+    bool operator()(sortedEntryDelay_LQF_MWM_Aging n1, sortedEntryDelay_LQF_MWM_Aging n2)
     {
         if (n1.maxDelay < n2.maxDelay)
             return true;
@@ -219,14 +252,14 @@ void TrafficLight_LQF_MWM_Aging::chooseNextGreenInterval()
         throw omnetpp::cRuntimeError("LaneInfo is empty! Is active detection on in %s ?", RSUptr->getFullName());
 
     // batch of all non-conflicting movements, sorted by total weight + oneCount per batch
-    std::priority_queue< sortedEntryLQF /*type of each element*/, std::vector<sortedEntryLQF> /*container*/, sortCompareLQF > sortedMovements;
+    std::priority_queue< sortedEntryLQF_MWM_Aging /*type of each element*/, std::vector<sortedEntryLQF_MWM_Aging> /*container*/, sortCompareLQF_MWM_Aging > sortedMovements;
     // clear the priority queue
-    sortedMovements = std::priority_queue < sortedEntryLQF, std::vector<sortedEntryLQF>, sortCompareLQF >();
+    sortedMovements = std::priority_queue < sortedEntryLQF_MWM_Aging, std::vector<sortedEntryLQF_MWM_Aging>, sortCompareLQF_MWM_Aging >();
 
     // second priority queue to sort the maximum delay in each phase
-    std::priority_queue< sortedEntryDelayLQF, std::vector<sortedEntryDelayLQF>, CompareDelay > maxDelayPerPhase;
+    std::priority_queue< sortedEntryDelay_LQF_MWM_Aging, std::vector<sortedEntryDelay_LQF_MWM_Aging>, CompareDelay_LQF_MWM_Aging > maxDelayPerPhase;
     // clear the priority queue
-    maxDelayPerPhase = std::priority_queue< sortedEntryDelayLQF, std::vector<sortedEntryDelayLQF>, CompareDelay > ();
+    maxDelayPerPhase = std::priority_queue< sortedEntryDelay_LQF_MWM_Aging, std::vector<sortedEntryDelay_LQF_MWM_Aging>, CompareDelay_LQF_MWM_Aging > ();
 
     for(std::string phase : phases)
     {
@@ -291,20 +324,20 @@ void TrafficLight_LQF_MWM_Aging::chooseNextGreenInterval()
         }
 
         // add this batch of movements to priority_queue
-        sortedEntryLQF *entry = new sortedEntryLQF(totalWeight, oneCount, maxVehCount, phase);
+        sortedEntryLQF_MWM_Aging *entry = new sortedEntryLQF_MWM_Aging(totalWeight, oneCount, maxVehCount, phase);
         sortedMovements.push(*entry);
 
         // add this batch of movements to the second priority_queue
-        sortedEntryDelayLQF *entry2 = new sortedEntryDelayLQF(totalWeight, oneCount, maxVehCount, maxDelay, phase);
+        sortedEntryDelay_LQF_MWM_Aging *entry2 = new sortedEntryDelay_LQF_MWM_Aging(totalWeight, oneCount, maxVehCount, maxDelay, phase);
         maxDelayPerPhase.push(*entry2);
     }
 
     // get the movement batch with the highest weight + delay + oneCount
-    sortedEntryLQF bestChoice = sortedMovements.top();
+    sortedEntryLQF_MWM_Aging bestChoice = sortedMovements.top();
 
     // bestChoice is the phase with the highest total weight, but not necessarily the longest delay.
     // We need to check the max delay in each phase too!
-    sortedEntryLQF finalChoice = bestChoice;
+    sortedEntryLQF_MWM_Aging finalChoice = bestChoice;
     double maxDelay = 0;
     while(!maxDelayPerPhase.empty())
     {

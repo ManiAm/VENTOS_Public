@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    TL_LQF_MWM_Cycle.cc
+/// @file    TL_LQF_FMSC.cc
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @date    Jul 2015
 ///
@@ -24,24 +24,61 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "08_TL_LQF_MWM_Cycle.h"
+#include <08_TL_FMSC.h>
 #include <queue>
 
 namespace VENTOS {
 
-Define_Module(VENTOS::TrafficLight_LQF_MWM_Cycle);
+Define_Module(VENTOS::TrafficLight_FMSC);
+
+class sortedEntry_FMSC
+{
+public:
+    int oneCount;
+    int maxVehCount;
+    double totalDelay;
+    double totalWeight;
+    std::string phase;
+
+    sortedEntry_FMSC(double d1, double d2, int i1, int i2, std::string p)
+    {
+        this->totalWeight = d1;
+        this->totalDelay = d2;
+        this->oneCount = i1;
+        this->maxVehCount = i2;
+        this->phase = p;
+    }
+};
+
+
+class sortCompare_FMSC
+{
+public:
+    bool operator()(sortedEntry_FMSC p1, sortedEntry_FMSC p2)
+    {
+        if( p1.totalWeight < p2.totalWeight )
+            return true;
+        else if( p1.totalWeight == p2.totalWeight && p1.totalDelay < p2.totalDelay)
+            return true;
+        else if( p1.totalWeight == p2.totalWeight && p1.totalDelay == p2.totalDelay && p1.oneCount < p2.oneCount)
+            return true;
+        else
+            return false;
+    }
+};
+
 
 // using a 'functor' rather than a 'function'
 // Reason: to be able to pass an additional argument (bestMovement) to predicate
-struct servedLQF
+struct served_FMSC
 {
 public:
-    servedLQF(std::string str)
+    served_FMSC(std::string str)
 {
         this->thisPhase = str;
 }
 
-    bool operator () (const sortedEntryLQF v)
+    bool operator () (const sortedEntry_FMSC v)
     {
         std::string phase = v.phase;
 
@@ -59,17 +96,17 @@ private:
 };
 
 
-TrafficLight_LQF_MWM_Cycle::~TrafficLight_LQF_MWM_Cycle()
+TrafficLight_FMSC::~TrafficLight_FMSC()
 {
 
 }
 
 
-void TrafficLight_LQF_MWM_Cycle::initialize(int stage)
+void TrafficLight_FMSC::initialize(int stage)
 {
     super::initialize(stage);
 
-    if(TLControlMode != TL_LQF_MWM_Cycle)
+    if(TLControlMode != TL_FMSC)
         return;
 
     if(stage == 0)
@@ -80,17 +117,17 @@ void TrafficLight_LQF_MWM_Cycle::initialize(int stage)
 }
 
 
-void TrafficLight_LQF_MWM_Cycle::finish()
+void TrafficLight_FMSC::finish()
 {
     super::finish();
 }
 
 
-void TrafficLight_LQF_MWM_Cycle::handleMessage(omnetpp::cMessage *msg)
+void TrafficLight_FMSC::handleMessage(omnetpp::cMessage *msg)
 {
     super::handleMessage(msg);
 
-    if(TLControlMode != TL_LQF_MWM_Cycle)
+    if(TLControlMode != TL_FMSC)
         return;
 
     if (msg == intervalChangeEVT)
@@ -109,12 +146,12 @@ void TrafficLight_LQF_MWM_Cycle::handleMessage(omnetpp::cMessage *msg)
 }
 
 
-void TrafficLight_LQF_MWM_Cycle::initialize_withTraCI()
+void TrafficLight_FMSC::initialize_withTraCI()
 {
     // call parent
     super::initialize_withTraCI();
 
-    if(TLControlMode != TL_LQF_MWM_Cycle)
+    if(TLControlMode != TL_FMSC)
         return;
 
     LOG_INFO << "\nMulti-class LQF-MWM-Cycle traffic signal control ... \n" << std::flush;
@@ -153,22 +190,23 @@ void TrafficLight_LQF_MWM_Cycle::initialize_withTraCI()
 }
 
 
-void TrafficLight_LQF_MWM_Cycle::executeEachTimeStep()
+void TrafficLight_FMSC::executeEachTimeStep()
 {
     // call parent
     super::executeEachTimeStep();
 
-    if(TLControlMode != TL_LQF_MWM_Cycle)
+    if(TLControlMode != TL_FMSC)
         return;
 }
 
 
-void TrafficLight_LQF_MWM_Cycle::chooseNextInterval()
+void TrafficLight_FMSC::chooseNextInterval()
 {
     if (currentInterval == "yellow")
     {
         currentInterval = "red";
 
+        // change all 'y' to 'r'
         std::string str = TraCI->TLGetState("C");
         std::string nextInterval = "";
         for(char& c : str) {
@@ -209,7 +247,7 @@ void TrafficLight_LQF_MWM_Cycle::chooseNextInterval()
 }
 
 
-void TrafficLight_LQF_MWM_Cycle::chooseNextGreenInterval()
+void TrafficLight_FMSC::chooseNextGreenInterval()
 {
     // Remove current old phase:
     greenInterval.erase(greenInterval.begin());
@@ -243,7 +281,7 @@ void TrafficLight_LQF_MWM_Cycle::chooseNextGreenInterval()
 }
 
 
-void TrafficLight_LQF_MWM_Cycle::calculatePhases(std::string TLid)
+void TrafficLight_FMSC::calculatePhases(std::string TLid)
 {
     LOG_DEBUG << "\n>>> New cycle calculation ... \n" << std::flush;
 
@@ -254,13 +292,14 @@ void TrafficLight_LQF_MWM_Cycle::calculatePhases(std::string TLid)
         throw omnetpp::cRuntimeError("LaneInfo is empty! Is active detection on in %s ?", RSUptr->getFullName());
 
     // batch of all non-conflicting movements, sorted by total weight + oneCount per batch
-    std::priority_queue< sortedEntryLQF /*type of each element*/, std::vector<sortedEntryLQF> /*container*/, sortCompareLQF > sortedMovements;
+    std::priority_queue< sortedEntry_FMSC /*type of each element*/, std::vector<sortedEntry_FMSC> /*container*/, sortCompare_FMSC > sortedMovements;
     // clear the priority queue
-    sortedMovements = std::priority_queue < sortedEntryLQF, std::vector<sortedEntryLQF>, sortCompareLQF >();
+    sortedMovements = std::priority_queue < sortedEntry_FMSC, std::vector<sortedEntry_FMSC>, sortCompare_FMSC >();
 
     for(std::string phase : phases)
     {
         double totalWeight = 0;  // total weight for each batch
+        double totalDelay = 0;
         int oneCount = 0;
         int maxVehCount = 0;
 
@@ -303,6 +342,11 @@ void TrafficLight_LQF_MWM_Cycle::calculatePhases(std::string TLid)
                             if(loc == classWeight.end())
                                 throw omnetpp::cRuntimeError("entity %s with type %s does not have a weight in classWeight map!", vID.c_str(), vType.c_str());
                             totalWeight += loc->second;
+
+                            // total delay in this lane
+                            auto locc = laneDelay[lane].find(vID);
+                            if(locc != laneDelay[lane].end())
+                                totalDelay += locc->second;
                         }
                     }
                 }
@@ -315,12 +359,12 @@ void TrafficLight_LQF_MWM_Cycle::calculatePhases(std::string TLid)
         }
 
         // add this batch of movements to priority_queue
-        sortedEntryLQF *entry = new sortedEntryLQF(totalWeight, oneCount, maxVehCount, phase);
+        sortedEntry_FMSC *entry = new sortedEntry_FMSC(totalWeight, totalDelay, oneCount, maxVehCount, phase);
         sortedMovements.push(*entry);
     }
 
     // copy sortedMovements to a vector for iteration:
-    std::vector<sortedEntryLQF> batchMovementVector;
+    std::vector<sortedEntry_FMSC> batchMovementVector;
     while(!sortedMovements.empty())
     {
         batchMovementVector.push_back(sortedMovements.top());
@@ -331,14 +375,14 @@ void TrafficLight_LQF_MWM_Cycle::calculatePhases(std::string TLid)
     while(!batchMovementVector.empty())
     {
         // Always select the first movement because it will be the best(?):
-        sortedEntryLQF entry = batchMovementVector.front();
+        sortedEntry_FMSC entry = batchMovementVector.front();
         std::string nextInterval = entry.phase;
 
-        greenIntervalInfo_LQF *entry2 = new greenIntervalInfo_LQF(entry.maxVehCount, entry.totalWeight, entry.oneCount, 0.0, entry.phase);
+        greenInterval_FMSC *entry2 = new greenInterval_FMSC(entry.maxVehCount, entry.totalWeight, entry.oneCount, 0.0, entry.phase);
         greenInterval.push_back(*entry2);
 
         // Now delete these movements because they should never occur again:
-        batchMovementVector.erase( std::remove_if(batchMovementVector.begin(), batchMovementVector.end(), servedLQF(nextInterval)), batchMovementVector.end() );
+        batchMovementVector.erase( std::remove_if(batchMovementVector.begin(), batchMovementVector.end(), served_FMSC(nextInterval)), batchMovementVector.end() );
     }
 
     // calculate number of vehicles in the intersection
@@ -361,7 +405,7 @@ void TrafficLight_LQF_MWM_Cycle::calculatePhases(std::string TLid)
     // If no green time (0s) is given to a phase, then this queue is empty and useless:
     int oldSize = greenInterval.size();
     auto rme = std::remove_if(greenInterval.begin(), greenInterval.end(),
-            [](const greenIntervalInfo_LQF v)
+            [](const greenInterval_FMSC v)
             {
         if (v.greenTime == 0.0)
             return true;

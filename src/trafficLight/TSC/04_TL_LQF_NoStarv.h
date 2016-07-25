@@ -27,18 +27,18 @@
 #ifndef TRAFFICLIGHTLQFNOSTARV_H
 #define TRAFFICLIGHTLQFNOSTARV_H
 
-#include <03_TL_TrafficActuated.h>
+#include "03_TL_TrafficActuated.h"
 
 namespace VENTOS {
 
-class greenIntervalInfo_Maxqueue
+class greenInterval_LQF
 {
 public:
     int maxVehCount;
     double greenTime;
     std::string greenString;
 
-    greenIntervalInfo_Maxqueue(int i1, double d1, std::string str)
+    greenInterval_LQF(int i1, double d1, std::string str)
     {
         this->maxVehCount = i1;
         this->greenTime = d1;
@@ -68,7 +68,7 @@ private:
     typedef TrafficLightActuated super;
     int maxQueueSize;
     bool nextGreenIsNewCycle;
-    std::vector<greenIntervalInfo_Maxqueue> greenInterval;
+    std::vector<greenInterval_LQF> greenInterval;
 };
 
 }

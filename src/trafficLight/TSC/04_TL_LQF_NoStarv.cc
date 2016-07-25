@@ -31,7 +31,7 @@ namespace VENTOS {
 
 Define_Module(VENTOS::TrafficLightLQF_NoStarv);
 
-class sortedEntryQ
+class sortedEntry_LQF
 {
 public:
     int oneCount;
@@ -39,7 +39,7 @@ public:
     int maxVehCount;
     std::vector<int> batchMovements;
 
-    sortedEntryQ(int i1, int i2, int i3, std::vector<int> bm)
+    sortedEntry_LQF(int i1, int i2, int i3, std::vector<int> bm)
     {
         this->oneCount = i1;
         this->totalQueue = i2;
@@ -49,10 +49,10 @@ public:
 };
 
 
-class sortCompareQ
+class sortCompare_LQF
 {
 public:
-    bool operator()(sortedEntryQ p1, sortedEntryQ p2)
+    bool operator()(sortedEntry_LQF p1, sortedEntry_LQF p2)
     {
         if(p1.totalQueue < p2.totalQueue)
             return true;
@@ -66,15 +66,15 @@ public:
 
 // using a 'functor' rather than a 'function'
 // Reason: to be able to pass an additional argument (bestMovement) to predicate
-struct servedLQ
+struct served_LQF
 {
 public:
-    servedLQ(std::vector<int> best)
+    served_LQF(std::vector<int> best)
 {
         bestMovement.swap(best);
 }
 
-    bool operator () (const sortedEntryQ v)
+    bool operator () (const sortedEntry_LQF v)
     {
         for (unsigned int linkNumber = 0; linkNumber < v.batchMovements.size(); linkNumber++)
         {
@@ -313,9 +313,9 @@ void TrafficLightLQF_NoStarv::calculatePhases(std::string TLid)
     }
 
     // batch of all non-conflicting movements, sorted by total queue size per batch
-    std::priority_queue< sortedEntryQ /*type of each element*/, std::vector<sortedEntryQ> /*container*/, sortCompareQ > sortedMovements;
+    std::priority_queue< sortedEntry_LQF /*type of each element*/, std::vector<sortedEntry_LQF> /*container*/, sortCompare_LQF > sortedMovements;
     // clear the priority queue
-    sortedMovements = std::priority_queue < sortedEntryQ, std::vector<sortedEntryQ>, sortCompareQ >();
+    sortedMovements = std::priority_queue < sortedEntry_LQF, std::vector<sortedEntry_LQF>, sortCompare_LQF >();
 
     for(unsigned int i = 0; i < allMovements.size(); ++i)  // row
     {
@@ -344,12 +344,12 @@ void TrafficLightLQF_NoStarv::calculatePhases(std::string TLid)
         }
 
         // add this batch of movements to priority_queue
-        sortedEntryQ *entry = new sortedEntryQ(oneCount, totalQueueRow, maxVehCount, allMovements[i]);
+        sortedEntry_LQF *entry = new sortedEntry_LQF(oneCount, totalQueueRow, maxVehCount, allMovements[i]);
         sortedMovements.push(*entry);
     }
 
     // copy sortedMovements to a vector for iteration:
-    std::vector<sortedEntryQ> batchMovementVector;
+    std::vector<sortedEntry_LQF> batchMovementVector;
     while(!sortedMovements.empty())
     {
         batchMovementVector.push_back(sortedMovements.top());
@@ -386,11 +386,11 @@ void TrafficLightLQF_NoStarv::calculatePhases(std::string TLid)
             continue;
         }
 
-        greenIntervalInfo_Maxqueue *entry = new greenIntervalInfo_Maxqueue(batchMovementVector.front().maxVehCount, 0.0, nextInterval);
+        greenInterval_LQF *entry = new greenInterval_LQF(batchMovementVector.front().maxVehCount, 0.0, nextInterval);
         greenInterval.push_back(*entry);
 
         // Now delete these movements because they should never occur again:
-        batchMovementVector.erase( std::remove_if(batchMovementVector.begin(), batchMovementVector.end(), servedLQ(bestMovement)), batchMovementVector.end() );
+        batchMovementVector.erase( std::remove_if(batchMovementVector.begin(), batchMovementVector.end(), served_LQF(bestMovement)), batchMovementVector.end() );
     }
 
     // calculate number of vehicles in the intersection
@@ -413,7 +413,7 @@ void TrafficLightLQF_NoStarv::calculatePhases(std::string TLid)
     // If no green time (0s) is given to a phase, then this queue is empty and useless:
     int oldSize = greenInterval.size();
     auto rme = std::remove_if(greenInterval.begin(), greenInterval.end(),
-            [](const greenIntervalInfo_Maxqueue v)
+            [](const greenInterval_LQF v)
             {
         if (v.greenTime == 0.0)
             return true;
