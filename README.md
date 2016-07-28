@@ -41,11 +41,11 @@ In Mac OS, type `git` in terminal and choose the Install button in the window th
 Running VENTOS from IDE
 -----------------------
 
-**Step 1:** Open params1_General.ini file and change the absolute path of SUMO executable accordingly.
+**Step 1:** Open src/traci/TraCIStart.ned file and change the absolute path of SUMO executable accordingly.
 
-    Network.TraCI.SUMOexe = "/home/mani/Desktop/VENTOS_SUMO/sumo/bin/sumo-guiD"
+    string SUMOexe = default("/home/mani/Desktop/VENTOS_SUMO/sumo/bin/sumo-guiD");
 
-SUMO binaries (`sumo-guiD` and `sumoD`) are located in SUMO bin folder. sumo-guiD is the GUI version that provides a graphical interface to SUMO, and is visible while the OMNET++ simulation is running (and is very useful for debugging purposes). On the other hands, sumoD is the command-line version which is faster. Note that you can not use the official SUMO binaries since we have extended the TraCI commands, car-following models, etc. Using the official SUMO binaries will probably give you run-time error.
+You can either select sumo-guiD or sumoD. SUMO binaries (`sumo-guiD` and `sumoD`) are located in SUMO bin folder. sumo-guiD is the GUI version that provides a graphical interface to SUMO, and is visible while the OMNET++ simulation is running (and is very useful for debugging purposes). On the other hands, sumoD is the command-line version which is faster. Note that you can not use the official SUMO binaries since we have extended the TraCI commands, car-following models, etc. Using the official SUMO binaries will probably give you run-time error.
 
 **Step 2:** Run the VENTOS project by right clicking on the project name in the IDE and choose: 
 
