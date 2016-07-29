@@ -6,7 +6,7 @@ clc;    % position the cursor at the top of the screen
 addpath ../libs
 
 % path to folder
-basePATH = '../../results/cmd/5_LQF_MWM_all/3_full_poisson_balanced_routeDist_70_30';
+basePATH = '../../results/cmd/5_FMSC_Compare/3_full_poisson_balanced_routeDist_70_30';
 
 % what to plot?
 option = 5;

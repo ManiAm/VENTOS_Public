@@ -35,7 +35,7 @@ class greenInterval_FMSC
 {
 public:
     int maxVehCount;
-    double maxWeight;
+    double totalWeight;
     int oneCount;
     double greenTime;
     std::string greenString;
@@ -43,7 +43,7 @@ public:
     greenInterval_FMSC(int i1, double d0, int i2, double d1, std::string str)
     {
         this->maxVehCount = i1;
-        this->maxWeight = d0;
+        this->totalWeight = d0;
         this->oneCount = i2;
         this->greenTime = d1;
         this->greenString = str;

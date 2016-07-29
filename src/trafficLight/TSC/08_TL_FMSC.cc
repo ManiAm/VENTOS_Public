@@ -37,12 +37,12 @@ public:
     int oneCount;
     int maxVehCount;
     double totalDelay;
-    double maxWeight;
+    double totalWeight;
     std::string phase;
 
     sortedEntry_FMSC(double d1, double d2, int i1, int i2, std::string p)
     {
-        this->maxWeight = d1;
+        this->totalWeight = d1;
         this->totalDelay = d2;
         this->oneCount = i1;
         this->maxVehCount = i2;
@@ -56,11 +56,11 @@ class sortCompare_FMSC
 public:
     bool operator()(sortedEntry_FMSC p1, sortedEntry_FMSC p2)
     {
-        if( p1.maxWeight < p2.maxWeight )
+        if( p1.totalWeight < p2.totalWeight )
             return true;
-        else if( p1.maxWeight == p2.maxWeight && p1.totalDelay < p2.totalDelay)
+        else if( p1.totalWeight == p2.totalWeight && p1.totalDelay < p2.totalDelay)
             return true;
-        else if( p1.maxWeight == p2.maxWeight && p1.totalDelay == p2.totalDelay && p1.oneCount < p2.oneCount)
+        else if( p1.totalWeight == p2.totalWeight && p1.totalDelay == p2.totalDelay && p1.oneCount < p2.oneCount)
             return true;
         else
             return false;
@@ -298,7 +298,7 @@ void TrafficLight_FMSC::calculatePhases(std::string TLid)
 
     for(std::string phase : phases)
     {
-        double maxWeight = 0;   // maximum weight of all waiting entities in all movements in this phase
+        double totalWeight = 0;  // total weight of all waiting entities in all movements in this phase
         double totalDelay = 0;  // total delay of all waiting entities in all movements in this phase
         int oneCount = 0;
         int maxVehCount = 0;
@@ -337,11 +337,11 @@ void TrafficLight_FMSC::calculatePhases(std::string TLid)
                             std::string vID = entry.first;
                             std::string vType = entry.second.vehType;
 
-                            // maximum weight of entities on this lane
+                            // total weight of entities on this lane
                             auto loc = classWeight.find(vType);
                             if(loc == classWeight.end())
                                 throw omnetpp::cRuntimeError("entity %s with type %s does not have a weight in classWeight map!", vID.c_str(), vType.c_str());
-                            maxWeight = std::max(maxWeight, loc->second);
+                            totalWeight += loc->second;
 
                             // total delay in this lane
                             auto locc = laneDelay[lane].find(vID);
@@ -359,7 +359,7 @@ void TrafficLight_FMSC::calculatePhases(std::string TLid)
         }
 
         // add this batch of movements to priority_queue
-        sortedEntry_FMSC *entry = new sortedEntry_FMSC(maxWeight, totalDelay, oneCount, maxVehCount, phase);
+        sortedEntry_FMSC *entry = new sortedEntry_FMSC(totalWeight, totalDelay, oneCount, maxVehCount, phase);
         sortedMovements.push(*entry);
     }
 
@@ -378,7 +378,7 @@ void TrafficLight_FMSC::calculatePhases(std::string TLid)
         sortedEntry_FMSC entry = batchMovementVector.front();
         std::string nextInterval = entry.phase;
 
-        greenInterval_FMSC *entry2 = new greenInterval_FMSC(entry.maxVehCount, entry.maxWeight, entry.oneCount, 0.0, entry.phase);
+        greenInterval_FMSC *entry2 = new greenInterval_FMSC(entry.maxVehCount, entry.totalWeight, entry.oneCount, 0.0, entry.phase);
         greenInterval.push_back(*entry2);
 
         // Now delete these movements because they should never occur again:
@@ -428,7 +428,7 @@ void TrafficLight_FMSC::calculatePhases(std::string TLid)
         for (auto &i : greenInterval)
             LOG_DEBUG << "        movement: " << i.greenString
             << ", maxVehCount= " << i.maxVehCount
-            << ", maxWeight= " << i.maxWeight
+            << ", totalWeight= " << i.totalWeight
             << ", oneCount= " << i.oneCount
             << ", green= " << i.greenTime << "s \n";
 
