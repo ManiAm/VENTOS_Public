@@ -36,13 +36,10 @@
 #include <arpa/inet.h>
 #endif
 
-#include <stdexcept>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
 #include <thread>
 #include <cassert>
+#include <iostream>
 #include "boost/format.hpp"
 
 SOCKET socket(void* ptr)

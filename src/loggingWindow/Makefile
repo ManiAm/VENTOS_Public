@@ -5,7 +5,7 @@ all: mainWin testMainWin
 
 # link command for mainWin
 mainWin: main.o mainWindow.o 
-	g++ -o mainWindow main.o mainWindow.o -I. `pkg-config gtkmm-3.0 --libs`
+	g++ -o mainWindow main.o mainWindow.o -I. -lpthread `pkg-config gtkmm-3.0 --libs`
 
 # compile
 main.o : main.cc mainWindow.h
