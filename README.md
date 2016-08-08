@@ -128,9 +128,8 @@ After `detaching` your tmux session, you can safely logoff from the remote machi
     sudo apt-get install filezilla
     
 
-=======
-
-## Contact Info
+Contact Info
+------------
 
 + [Mani Amoozadeh](mailto:maniam@ucdavis.edu)
 
