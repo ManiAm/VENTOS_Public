@@ -5,9 +5,10 @@ VENTOS is an integrated C++ simulator for studying traffic flows in Vehicular Ad
 
   Ubuntu    |     Mac OS X
 :---------: | :------------------:
-15          | El Capitan (10.11)
-14          | Yosemite (10.10)
-12          |
+12          | Yosemite (10.10)
+14          | El Capitan (10.11)
+15          | 
+16          |
 
 
 Installing VENTOS
@@ -25,9 +26,11 @@ In Mac OS, type `git` in terminal and choose the Install button in the window th
 
     git clone https://github.com/ManiAm/VENTOS
 
-**Step 3:** Go to the VENTOS folder and run the `runme` script. This bash script checks your system and installs the required packages and libraries. Script execution takes some time, so be patient. **Do not run the script using sudo.** Some of the commands need sudo access and you need to type your sudo password at least once. The script might show you many compile-time warning messages and you can safely ignore many of them.
+**Step 3:** Go to the VENTOS folder and run the `runme` script. This bash script checks your system and installs the required packages and libraries. **Do not run the script as sudo.**
 
     ./runme
+
+Script execution takes some time, so be patient. Note that the script might show you many compile-time warning messages and you can safely ignore many of them.
 
 **Step 4:** You can run the Eclipse IDE using the desktop shortcut, application launcher or typing `omnetpp` in terminal. The first time you run OMNET++, Eclipse IDE asks you to select a workspace. Select the folder that you will use to store all your project files. If you have intention to store all your projects on Desktop, then change the workspace to Desktop. Also check "Use this as the default and do not ask again".
 

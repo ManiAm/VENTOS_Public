@@ -53,7 +53,7 @@ if [[ "$OSTYPE" == "linux-gnu" || "$OSTYPE" == "linux-gnueabihf" ]]; then
     CODENAME=$(lsb_release -sc)
     ARCH=$(uname -m)
 elif [[ "$OSTYPE" == "darwin"* ]]; then
-    # Mac OSX
+    # Mac OS X
     OS=$(sw_vers -productName)
     VER=$(sw_vers -productVersion)
     ARCH=$(uname -m)
@@ -66,20 +66,27 @@ arrIN=(${VER//./ })  # split version into array x.y.z --> x | y | z
 VER_major=${arrIN[0]}
 VER_minor=${arrIN[1]}
 
-if [[ ("$OSTYPE" == "linux-gnu" && "$OS" == "Ubuntu" && "$VER_major" == "15" && "$VER_minor" == "10") ]]; then
+# Ubuntu 16.04
+if [[ ("$OSTYPE" == "linux-gnu" && "$OS" == "Ubuntu" && "$VER_major" == "16" && "$VER_minor" == "04") ]]; then
     echo "Starting script ..."
 
+# Ubuntu 15.10
+elif [[ ("$OSTYPE" == "linux-gnu" && "$OS" == "Ubuntu" && "$VER_major" == "15" && "$VER_minor" == "10") ]]; then
+    echo "Starting script ..."
+
+# Ubuntu 14.04
 elif [[ ("$OSTYPE" == "linux-gnu" && "$OS" == "Ubuntu" && "$VER_major" == "14" && "$VER_minor" == "04") ]]; then
     echo "Starting script ..."
 
+# Ubuntu 12.04
 elif [[ ("$OSTYPE" == "linux-gnu" && "$OS" == "Ubuntu" && "$VER_major" == "12" && "$VER_minor" == "04") ]]; then
     echo "Starting script ..."
 
-# Yosemiti
+# Yosemiti (Mac OS 10.10)
 elif [[ ("$OSTYPE" == "darwin"* && "$OS" == "Mac OS X" && "$VER_major" == "10" && "$VER_minor" == "10") ]]; then
     echo "Starting script ..."
 
-# El Capitan
+# El Capitan (Mac OS 10.11)
 elif [[ ("$OSTYPE" == "darwin"* && "$OS" == "Mac OS X" && "$VER_major" == "10" && "$VER_minor" == "11") ]]; then
     echo "Starting script ..."
 
@@ -395,20 +402,45 @@ if [[ "$result" == "2" ]]; then
 
     if [[ "$OS" == "Ubuntu" ]]; then
         echo "java version should be >= 1.7"
-        echo "[1] install OpenJDK 1.7"
+        echo "[1] install OpenJDK 1.7/1.8"
         echo "[2] install Oracle Java 1.8"
         echo -n "your selection? [1] "
         read answer
         if [[ ("$answer" == "") || ("$answer" == "1") ]]; then
-            echo $sudoPass | sudo -S apt-get --force-yes --yes install openjdk-7-jre
+            # check if openjdk-8-jre has any candidates
+            check=$(apt-cache policy openjdk-8-jre | grep 'Candidate: (none)')
+            if [[ "" == "$check" ]]; then
+                echo $sudoPass | sudo -S apt-get --force-yes --yes install openjdk-8-jre
+                if [[ $? -ne 0 ]]; then
+                    exit 1
+                fi
+            else
+                # check if openjdk-7-jre has any candidates
+                check=$(apt-cache policy openjdk-7-jre | grep 'Candidate: (none)')
+                if [[ "" == "$check" ]]; then
+                    echo $sudoPass | sudo -S apt-get --force-yes --yes install openjdk-7-jre
+                    if [[ $? -ne 0 ]]; then
+                        exit 1
+                    fi
+                else
+                    echo "openjdk-8-jre and openjdk-7-jre do not have any candidates for installation!"
+                    exit 1
+                fi
+            fi
         elif [[ "$answer" == "2" ]]; then
             echo $sudoPass | sudo -S add-apt-repository -y ppa:webupd8team/java > /dev/null
             echo $sudoPass | sudo -S apt-get update > /dev/null
+            if [[ $? -ne 0 ]]; then
+                exit 1
+            fi
             # accept the Oracle JDK8 license automatically 
             echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
             echo $sudoPass | sudo -S apt-get --force-yes --yes install oracle-java8-installer
             # set the Java environment variables
-            echo $sudoPass | sudo -S apt-get install oracle-java8-set-default > /dev/null       
+            echo $sudoPass | sudo -S apt-get install oracle-java8-set-default > /dev/null  
+            if [[ $? -ne 0 ]]; then
+                exit 1
+            fi     
         else
             exit 1;
         fi
