@@ -129,7 +129,6 @@ protected:
     virtual void onBeaconBicycle(BeaconBicycle*);
     virtual void onBeaconPedestrian(BeaconPedestrian*);
     virtual void onBeaconRSU(BeaconRSU*);
-    virtual void onData(LaneChangeMsg*);
 
 private:
     template <typename T> void onBeaconAny(T wsm);

@@ -227,8 +227,8 @@ void TraCI_Start::init_traci()
     netbounds1 = TraCICoord(x1, y1);
     netbounds2 = TraCICoord(x2, y2);
 
-    if ((traci2omnet(netbounds2).x > world->getPgs()->x) || (traci2omnet(netbounds1).y > world->getPgs()->y))
-        LOG_WARNING << boost::format("  WARNING: Playground size (%1%,%2%) might be too small for vehicle at network bounds (%3%,%4%) \n") % world->getPgs()->x % world->getPgs()->y % traci2omnet(netbounds2).x % traci2omnet(netbounds1).y;
+    if ((traci2omnetCoord(netbounds2).x > world->getPgs()->x) || (traci2omnetCoord(netbounds1).y > world->getPgs()->y))
+        LOG_WARNING << boost::format("  WARNING: Playground size (%1%,%2%) might be too small for vehicle at network bounds (%3%,%4%) \n") % world->getPgs()->x % world->getPgs()->y % traci2omnetCoord(netbounds2).x % traci2omnetCoord(netbounds1).y;
 
     {
         // subscribe to list of departed and arrived vehicles, as well as simulation time
@@ -555,7 +555,7 @@ void TraCI_Start::processVehicleSubscription(std::string objectId, TraCIBuffer& 
     // make sure we got updates for all attributes
     if (numRead != 5) return;
 
-    Coord p = traci2omnet(TraCICoord(px, py));
+    Coord p = traci2omnetCoord(TraCICoord(px, py));
     if ((p.x < 0) || (p.y < 0))
         throw omnetpp::cRuntimeError("received bad node position (%.2f, %.2f), translated to (%.2f, %.2f)", px, py, p.x, p.y);
 
@@ -842,7 +842,7 @@ bool TraCI_Start::isInRegionOfInterest(const TraCICoord& position, std::string r
 }
 
 
-void TraCI_Start::deleteManagedModule(std::string nodeId)
+void TraCI_Start::deleteManagedModule(std::string nodeId /*sumo id*/)
 {
     cModule* mod = getManagedModule(nodeId);
     if (!mod)
@@ -851,6 +851,18 @@ void TraCI_Start::deleteManagedModule(std::string nodeId)
     cModule* nic = mod->getSubmodule("nic");
     if (nic)
         cc->unregisterNic(nic);
+
+    // remove mapping of SUMO id and OMNET++ id
+    auto i1 = SUMOid_OMNETid_mapping.find(nodeId);
+    if(i1 == SUMOid_OMNETid_mapping.end())
+        throw omnetpp::cRuntimeError("SUMO id %s does not exist in the network!", nodeId.c_str());
+    SUMOid_OMNETid_mapping.erase(i1);
+
+    // remove mapping of OMNET++ id and SUMO id
+    auto i2 = OMNETid_SUMOid_mapping.find(mod->getFullName());
+    if(i2 == OMNETid_SUMOid_mapping.end())
+        throw omnetpp::cRuntimeError("OMNET++ id %s does not exist in the network!", mod->getFullName());
+    OMNETid_SUMOid_mapping.erase(i2);
 
     hosts.erase(nodeId);
     mod->callFinish();
@@ -868,7 +880,7 @@ bool TraCI_Start::isModuleUnequipped(std::string nodeId)
 
 
 // name: host; Car; i=vehicle.gif
-void TraCI_Start::addModule(std::string nodeId, const Coord& position, std::string road_id, double speed, double angle)
+void TraCI_Start::addModule(std::string nodeId /*sumo id*/, const Coord& position, std::string road_id, double speed, double angle)
 {
     std::string type = "";
     std::string name = "";
@@ -967,17 +979,17 @@ void TraCI_Start::addModule(std::string nodeId, const Coord& position, std::stri
     mod->getSubmodule("appl")->par("SUMOControllerType") = SUMOControllerType;
     mod->getSubmodule("appl")->par("SUMOControllerNumber") = SUMOControllerNumber;
 
-    auto ii = HIL_vehicles.find(nodeId);
-    if(ii != HIL_vehicles.end())
+    auto ii = vehId_ipv4_mapping.find(nodeId);
+    if(ii != vehId_ipv4_mapping.end())
     {
         mod->getSubmodule("appl")->par("isHIL") = true;
         mod->getSubmodule("appl")->par("IPaddress") = ii->second;
 
         // save ipAddress <--> omnetId mapping
-        auto jj = HIL_ip_vehId_mapping.find(ii->second);
-        if(jj != HIL_ip_vehId_mapping.end())
+        auto jj = ipv4_vehId_mapping.find(ii->second);
+        if(jj != ipv4_vehId_mapping.end())
             throw omnetpp::cRuntimeError("IP address '%s' is not unique!", ii->second.c_str());
-        HIL_ip_vehId_mapping[ii->second] = mod->getFullName();
+        ipv4_vehId_mapping[ii->second] = mod->getFullName();
     }
     else
     {
@@ -1008,6 +1020,18 @@ void TraCI_Start::addModule(std::string nodeId, const Coord& position, std::stri
         if (!mm) continue;
         mm->changePosition();
     }
+
+    // save mapping of SUMO id and OMNET++ id
+    auto i1 = SUMOid_OMNETid_mapping.find(nodeId);
+    if(i1 != SUMOid_OMNETid_mapping.end())
+        throw omnetpp::cRuntimeError("SUMO id %s already exists in the network!", nodeId.c_str());
+    SUMOid_OMNETid_mapping[nodeId] = mod->getFullName();
+
+    // save mapping of OMNET++ id and SUMO id
+    auto i2 = OMNETid_SUMOid_mapping.find(mod->getFullName());
+    if(i2 != OMNETid_SUMOid_mapping.end())
+        throw omnetpp::cRuntimeError("OMNET++ id %s already exists in the network!", mod->getFullName());
+    OMNETid_SUMOid_mapping[mod->getFullName()] = nodeId;
 }
 
 

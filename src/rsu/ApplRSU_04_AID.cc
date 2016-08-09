@@ -142,10 +142,8 @@ void ApplRSUAID::onBeaconRSU(BeaconRSU* wsm)
 }
 
 
-void ApplRSUAID::onData(LaneChangeMsg* wsm)
+void ApplRSUAID::onLanechange(LaneChangeMsg* wsm)
 {
-    super::onData(wsm);
-
     if(!enableAID)
         return;
 

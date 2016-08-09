@@ -49,7 +49,6 @@ class ApplRSUCRL : public ApplRSUAID
     virtual void onBeaconBicycle(BeaconBicycle*);
     virtual void onBeaconPedestrian(BeaconPedestrian*);
     virtual void onBeaconRSU(BeaconRSU*);
-    virtual void onData(LaneChangeMsg*);
 
     void recieveCRL(std::vector<CRL_Piece *>);
 

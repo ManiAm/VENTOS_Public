@@ -48,7 +48,7 @@ protected:
     virtual void onBeaconBicycle(BeaconBicycle*);
     virtual void onBeaconPedestrian(BeaconPedestrian*);
     virtual void onBeaconRSU(BeaconRSU*);
-    virtual void onData(LaneChangeMsg*);
+    virtual void onLanechange(LaneChangeMsg*);
 
 private:
     void incidentDetectionToFile();

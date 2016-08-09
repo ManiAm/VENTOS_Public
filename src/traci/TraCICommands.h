@@ -388,21 +388,25 @@ public:
 
 
     // ################################################################
-    //                      coordinate conversion
+    //                      SUMO-OMNET conversion
     // ################################################################
 
-    double traci2omnetAngle(double angle) const;    // convert TraCI angle to OMNeT++ angle (in rad)
-    double omnet2traciAngle(double angle) const;    // convert OMNeT++ angle (in rad) to TraCI angle
+    std::string traci2omnetId(std::string SUMOid) const;   // convert SUMO id to OMNET++ id
+    std::string omnet2traciId(std::string omnetid) const;  // convert OMNET++ id to SUMO id
 
-    Coord traci2omnet(TraCICoord coord) const;      // convert TraCI coordinates to OMNeT++ coordinates
-    TraCICoord omnet2traci(Coord coord) const;      // convert OMNeT++ coordinates to TraCI coordinates
+    Coord traci2omnetCoord(TraCICoord coord) const;  // convert TraCI coordinates to OMNeT++ coordinates
+    TraCICoord omnet2traciCoord(Coord coord) const;  // convert OMNeT++ coordinates to TraCI coordinates
+
+    double traci2omnetAngle(double angle) const;  // convert TraCI angle to OMNeT++ angle (in rad)
+    double omnet2traciAngle(double angle) const;  // convert OMNeT++ angle (in rad) to TraCI angle
 
 
     // ################################################################
-    //                     Hardware in the loop
+    //                    Hardware in the loop (HIL)
     // ################################################################
-    std::string ip2vehicleId(std::string);
-    std::string vehicleId2ip(std::string);
+
+    std::string ip2vehicleId(std::string ip) const;   // HIL ipv4 address --> OMNET++ id of emulated vehicle
+    std::string vehicleId2ip(std::string vID) const;  // SUMO id of emulated vehicle --> HIL ipv4 address
 
 
     // ################################################################
@@ -439,9 +443,13 @@ protected:
     TraCICoord netbounds1;   /* network boundaries as reported by TraCI (x1, y1) */
     TraCICoord netbounds2;   /* network boundaries as reported by TraCI (x2, y2) */
 
-    // all hardware in the loop vehicles that are represented by redpine HW board
-    std::map<std::string /*veh id*/, std::string /*ip address*/> HIL_vehicles;
-    std::map<std::string /*ip address*/, std::string /*veh id*/> HIL_ip_vehId_mapping;
+    // storing the mapping between vehicle ids and the corresponding SUMO ids
+    std::map<std::string /*veh SUMO id*/, std::string /*veh OMNET id*/> SUMOid_OMNETid_mapping;
+    std::map<std::string /*veh OMNET id*/, std::string /*veh SUMO id*/> OMNETid_SUMOid_mapping;
+
+    // storing the mapping between emulated vehicle ids and the corresponding HIL board ipv4 address
+    std::map<std::string /*veh SUMO id*/, std::string /*ip address*/> vehId_ipv4_mapping;
+    std::map<std::string /*ip address*/, std::string /*veh OMNET++ id*/> ipv4_vehId_mapping;
 
 private:
     typedef omnetpp::cSimpleModule super;

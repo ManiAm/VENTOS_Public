@@ -61,7 +61,7 @@ protected:
 
     virtual void onBeaconVehicle(BeaconVehicle*);
     virtual void onBeaconRSU(BeaconRSU*);
-    virtual void onData(PlatoonMsg* wsm);
+    virtual void onPlatoonMsg(PlatoonMsg* wsm);
 
     void splitFromPlatoon(int);
     void leavePlatoon();

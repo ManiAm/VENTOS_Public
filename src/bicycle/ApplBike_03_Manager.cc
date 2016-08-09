@@ -94,13 +94,6 @@ void ApplBikeManager::handleLowerMsg(omnetpp::cMessage* msg)
         ASSERT(wsm);
 
     }
-    else if(std::string(wsm->getName()) == "platoonMsg")
-    {
-        PlatoonMsg* wsm = dynamic_cast<PlatoonMsg*>(msg);
-        ASSERT(wsm);
-
-        ApplBikeManager::onData(wsm);
-    }
 
     delete msg;
 }
@@ -129,14 +122,6 @@ void ApplBikeManager::onBeaconRSU(BeaconRSU* wsm)
     // pass it down
     //super::onBeaconRSU(wsm);
 }
-
-
-void ApplBikeManager::onData(PlatoonMsg* wsm)
-{
-    // pass it down
-    //super::onData(wsm);
-}
-
 
 }
 

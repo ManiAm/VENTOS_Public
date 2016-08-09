@@ -139,7 +139,7 @@ void ApplRSUManager::handleLowerMsg(omnetpp::cMessage* msg)
         LaneChangeMsg* wsm = dynamic_cast<LaneChangeMsg*>(msg);
         ASSERT(wsm);
 
-        ApplRSUManager::onData(wsm);
+        ApplRSUManager::onLanechange(wsm);
     }
 
     delete msg;
@@ -176,9 +176,9 @@ void ApplRSUManager::onBeaconRSU(BeaconRSU* wsm)
 }
 
 
-void ApplRSUManager::onData(LaneChangeMsg* wsm)
+void ApplRSUManager::onLanechange(LaneChangeMsg* wsm)
 {
-    super::onData(wsm);
+    super::onLanechange(wsm);
 }
 
 }

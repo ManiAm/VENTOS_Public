@@ -48,8 +48,7 @@ protected:
 
     virtual void onBeaconVehicle(BeaconVehicle*);
     virtual void onBeaconRSU(BeaconRSU*);
-    virtual void onData(PlatoonMsg*);
-    virtual void onHIL(BSM*);
+    virtual void onBSM(BSM*);
 
 private:
     void checkForHardBreak();
@@ -59,7 +58,7 @@ private:
 
 protected:
     bool isHIL;
-    bool hardBreakingDetection;
+    bool hardBreakDetection;
     bool EEBL;
 };
 

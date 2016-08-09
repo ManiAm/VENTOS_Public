@@ -88,10 +88,10 @@ void ApplVCoordinator::onBeaconRSU(BeaconRSU* wsm)
 }
 
 
-void ApplVCoordinator::onData(PlatoonMsg* wsm)
+void ApplVCoordinator::onPlatoonMsg(PlatoonMsg* wsm)
 {
     // pass it down
-    super::onData(wsm);
+    super::onPlatoonMsg(wsm);
 }
 
 

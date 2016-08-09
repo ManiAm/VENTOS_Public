@@ -120,10 +120,10 @@ void ApplVPlatoonFormed::onBeaconRSU(BeaconRSU* wsm)
 }
 
 
-void ApplVPlatoonFormed::onData(PlatoonMsg* wsm)
+void ApplVPlatoonFormed::onPlatoonMsg(PlatoonMsg* wsm)
 {
-    // pass it down!
-    super::onData(wsm);
+
+
 }
 
 

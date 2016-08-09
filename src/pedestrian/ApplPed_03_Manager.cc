@@ -92,13 +92,6 @@ void ApplPedManager::handleLowerMsg(omnetpp::cMessage* msg)
         BeaconRSU* wsm = dynamic_cast<BeaconRSU*>(msg);
         ASSERT(wsm);
     }
-    else if(std::string(wsm->getName()) == "platoonMsg")
-    {
-        PlatoonMsg* wsm = dynamic_cast<PlatoonMsg*>(msg);
-        ASSERT(wsm);
-
-        ApplPedManager::onData(wsm);
-    }
 
     delete msg;
 }
@@ -127,14 +120,6 @@ void ApplPedManager::onBeaconRSU(BeaconRSU* wsm)
     // pass it down
     //super::onBeaconRSU(wsm);
 }
-
-
-void ApplPedManager::onData(PlatoonMsg* wsm)
-{
-    // pass it down
-    //super::onData(wsm);
-}
-
 
 }
 

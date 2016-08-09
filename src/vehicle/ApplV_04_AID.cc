@@ -96,12 +96,6 @@ void ApplV_AID::onBeaconRSU(BeaconRSU* wsm)
 }
 
 
-void ApplV_AID::onData(PlatoonMsg* wsm)
-{
-    // no need to pass this down
-}
-
-
 LaneChangeMsg*  ApplV_AID::prepareData(std::string receiver, std::deque<std::string> vecValue)
 {
     LaneChangeMsg* wsm = new LaneChangeMsg("laneChangeMsg");

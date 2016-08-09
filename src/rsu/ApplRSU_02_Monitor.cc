@@ -154,12 +154,6 @@ void ApplRSUMonitor::onBeaconRSU(BeaconRSU* wsm)
 }
 
 
-void ApplRSUMonitor::onData(LaneChangeMsg* wsm)
-{
-
-}
-
-
 // update variables upon reception of any beacon (vehicle, bike, pedestrian)
 template <typename T> void ApplRSUMonitor::onBeaconAny(T wsm)
 {

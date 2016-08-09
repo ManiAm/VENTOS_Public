@@ -75,6 +75,9 @@ private:
     void recvDataFromBoard(int, std::string, uint16_t);
     void connect_to_TCP_server(std::string);
 
+    void print_dataPayload(const u_char *payload, int len);
+    void print_hex_ascii_line(const u_char *payload, int len, int offset);
+
 private:
     typedef BaseApplLayer super;
 

@@ -46,7 +46,6 @@ protected:
 
     virtual void onBeaconVehicle(BeaconVehicle*);
     virtual void onBeaconRSU(BeaconRSU*);
-    virtual void onData(PlatoonMsg* wsm);
 
     LaneChangeMsg* prepareData(std::string, std::deque<std::string>);
 

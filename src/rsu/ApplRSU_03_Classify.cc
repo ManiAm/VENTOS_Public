@@ -159,12 +159,6 @@ void ApplRSUCLASSIFY::onBeaconRSU(BeaconRSU* wsm)
 }
 
 
-void ApplRSUCLASSIFY::onData(LaneChangeMsg* wsm)
-{
-    super::onData(wsm);
-}
-
-
 void ApplRSUCLASSIFY::initializeGnuPlot()
 {
     // get a pointer to the plotter module

@@ -104,7 +104,7 @@ void BaseMobility::initialize(int stage)
         VENTOS::TraCI_Commands *TraCI = static_cast<VENTOS::TraCI_Commands *>(module);
 
         // and then change coordinates to omnet
-        Coord posOmnet = TraCI->traci2omnet(VENTOS::TraCICoord(x,y));
+        Coord posOmnet = TraCI->traci2omnetCoord(VENTOS::TraCICoord(x,y));
 
         //set position with values from parameters if available
         if(x > -1) pos.x = posOmnet.x;

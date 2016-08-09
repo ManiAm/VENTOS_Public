@@ -188,10 +188,10 @@ void ApplVPlatoonMg::onBeaconRSU(BeaconRSU* wsm)
 }
 
 
-void ApplVPlatoonMg::onData(PlatoonMsg* wsm)
+void ApplVPlatoonMg::onPlatoonMsg(PlatoonMsg* wsm)
 {
     // pass it down!
-    super::onData(wsm);
+    super::onPlatoonMsg(wsm);
 
     if(plnMode != platoonManagement)
         return;

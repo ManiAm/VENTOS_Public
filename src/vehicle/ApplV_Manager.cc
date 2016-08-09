@@ -96,7 +96,7 @@ void ApplVManager::initialize(int stage)
         }
 
         // monitor mobility on HIL vehicles
-        if(isHIL && hardBreakingDetection)
+        if(isHIL && hardBreakDetection)
         {
             findHost()->subscribe(mobilityStateChangedSignal, this);
             LOG_INFO << boost::format(">>> %1% is subscribed to mobilityStateChangedSignal. \n") % SUMOID << std::flush;
@@ -109,7 +109,7 @@ void ApplVManager::finish()
 {
     super::finish();
 
-    if(isHIL && hardBreakingDetection)
+    if(isHIL && hardBreakDetection)
         findHost()->unsubscribe(mobilityStateChangedSignal, this);
 }
 
@@ -222,14 +222,14 @@ void ApplVManager::handleLowerMsg(omnetpp::cMessage* msg)
 
         PlatoonCount++;
 
-        ApplVManager::onData(wsm);
+        ApplVManager::onPlatoonMsg(wsm);
     }
     else if (std::string(msg->getName()) == "BSM")
     {
         BSM* wsm = dynamic_cast<BSM*>(msg);
         ASSERT(wsm);
 
-        ApplVManager::onHIL(wsm);
+        ApplVManager::onBSM(wsm);
     }
     else
         throw omnetpp::cRuntimeError("Vehicle %s received unsupported msg %s!", SUMOID.c_str(), msg->getName());
@@ -355,17 +355,17 @@ void ApplVManager::onBeaconRSU(BeaconRSU* wsm)
 }
 
 
-void ApplVManager::onData(PlatoonMsg* wsm)
+void ApplVManager::onPlatoonMsg(PlatoonMsg* wsm)
 {
     // pass it down
-    super::onData(wsm);
+    super::onPlatoonMsg(wsm);
 }
 
 
-void ApplVManager::onHIL(BSM* wsm)
+void ApplVManager::onBSM(BSM* wsm)
 {
     // pass it down
-    super::onHIL(wsm);
+    super::onBSM(wsm);
 }
 
 }

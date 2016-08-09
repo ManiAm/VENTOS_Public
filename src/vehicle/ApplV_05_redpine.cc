@@ -45,7 +45,7 @@ void ApplVRedpine::initialize(int stage)
     if (stage == 0)
     {
         isHIL = par("isHIL").boolValue();
-        hardBreakingDetection = par("hardBreakingDetection").boolValue();
+        hardBreakDetection = par("hardBreakDetection").boolValue();
         EEBL = par("EEBL").boolValue();
     }
 }
@@ -68,25 +68,24 @@ void ApplVRedpine::handlePositionUpdate(cObject* obj)
 {
     super::handlePositionUpdate(obj);
 
-    // if this vehicle is HIL and hardBreakingDetection is active
-    if(isHIL && hardBreakingDetection)
+    // if this is an emulated vehicle and hardBreakDetection is active
+    if(isHIL && hardBreakDetection)
         checkForHardBreak();
 }
 
 
-// data from a HIL board
+// data from the corresponding HIL board
 void ApplVRedpine::receiveDataFromBoard(dataEntry* data)
 {
     Enter_Method("");
 
-    std::cout << SUMOID << " received a msg of size " << data->bufferLength << std::endl;
-
-    // todo: process data
+    // todo: react based on the type of data
 
     // deallocate memory
     delete data;
 
-    // stopping the vehicle
+    // the button is pressed on the HIL board, so this
+    // vehicle should stop immediately
     TraCI->vehicleSetSpeed(SUMOID, 0);
 
     if(EEBL)
@@ -118,15 +117,7 @@ void ApplVRedpine::onBeaconRSU(BeaconRSU* wsm)
 }
 
 
-void ApplVRedpine::onData(PlatoonMsg* wsm)
-{
-    // pass it down
-    super::onData(wsm);
-}
-
-
-// data from a HIL vehicle in the simulation
-void ApplVRedpine::onHIL(BSM* wsm)
+void ApplVRedpine::onBSM(BSM* wsm)
 {
     // check the received data and act on it.
     // all wsm messages here are EEBL for now.

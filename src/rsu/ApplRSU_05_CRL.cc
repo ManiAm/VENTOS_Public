@@ -213,12 +213,6 @@ void ApplRSUCRL::onBeaconRSU(BeaconRSU* wsm)
 }
 
 
-void ApplRSUCRL::onData(LaneChangeMsg* wsm)
-{
-    super::onData(wsm);
-}
-
-
 // Receive CRL from the CA
 void ApplRSUCRL::recieveCRL(std::vector<CRL_Piece *> data)
 {

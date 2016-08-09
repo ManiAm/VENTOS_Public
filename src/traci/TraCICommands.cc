@@ -1018,7 +1018,7 @@ void TraCI_Commands::vehicleAdd(std::string vehicleId, std::string vehicleTypeId
     updateTraCIlog("commandComplete", CMD_SET_VEHICLE_VARIABLE, ADD);
 
     if(ipAddress != "")
-        HIL_vehicles[vehicleId] = ipAddress;
+        vehId_ipv4_mapping[vehicleId] = ipAddress;
 }
 
 
@@ -2448,7 +2448,7 @@ void TraCI_Commands::addPoi(std::string poiId, std::string poiType, const RGB co
 
     TraCIBuffer p;
 
-    TraCICoord pos = omnet2traci(pos_);
+    TraCICoord pos = omnet2traciCoord(pos_);
     p << static_cast<uint8_t>(ADD) << poiId;
     p << static_cast<uint8_t>(TYPE_COMPOUND) << static_cast<int32_t>(4);
     p << static_cast<uint8_t>(TYPE_STRING) << poiType;
@@ -2706,7 +2706,7 @@ Coord TraCI_Commands::genericGetCoord(uint8_t commandId, std::string objectId, u
 
     ASSERT(buf.eof());
 
-    return traci2omnet(TraCICoord(x, y));
+    return traci2omnetCoord(TraCICoord(x, y));
 }
 
 
@@ -2734,7 +2734,7 @@ std::list<Coord> TraCI_Commands::genericGetCoordList(uint8_t commandId, std::str
     for (uint32_t i = 0; i < count; i++) {
         double x; buf >> x;
         double y; buf >> y;
-        res.push_back(traci2omnet(TraCICoord(x, y)));
+        res.push_back(traci2omnetCoord(TraCICoord(x, y)));
     }
 
     ASSERT(buf.eof());
@@ -2882,16 +2882,36 @@ uint8_t* TraCI_Commands::genericGetArrayUnsignedInt(uint8_t commandId, std::stri
 
 
 // ################################################################
-//                      coordinate conversion
+//                      SUMO-OMNET conversion
 // ################################################################
 
-Coord TraCI_Commands::traci2omnet(TraCICoord coord) const
+std::string TraCI_Commands::traci2omnetId(std::string SUMOid) const
+{
+    auto ii = SUMOid_OMNETid_mapping.find(SUMOid);
+    if(ii != SUMOid_OMNETid_mapping.end())
+        return ii->second;
+    else
+        return "";
+}
+
+
+std::string TraCI_Commands::omnet2traciId(std::string omnetid) const
+{
+    auto ii = OMNETid_SUMOid_mapping.find(omnetid);
+    if(ii != OMNETid_SUMOid_mapping.end())
+        return ii->second;
+    else
+        return "";
+}
+
+
+Coord TraCI_Commands::traci2omnetCoord(TraCICoord coord) const
 {
     return Coord(coord.x - netbounds1.x + margin, (netbounds2.y - netbounds1.y) - (coord.y - netbounds1.y) + margin);
 }
 
 
-TraCICoord TraCI_Commands::omnet2traci(Coord coord) const
+TraCICoord TraCI_Commands::omnet2traciCoord(Coord coord) const
 {
     return TraCICoord(coord.x + netbounds1.x - margin, (netbounds2.y - netbounds1.y) - (coord.y - netbounds1.y) + margin);
 }
@@ -2930,23 +2950,23 @@ double TraCI_Commands::omnet2traciAngle(double angle) const
 
 
 // ################################################################
-//                     Hardware in the loop
+//                    Hardware in the loop (HIL)
 // ################################################################
 
-std::string TraCI_Commands::ip2vehicleId(std::string ipAddress)
+std::string TraCI_Commands::ip2vehicleId(std::string ipAddress) const
 {
-    auto ii = HIL_ip_vehId_mapping.find(ipAddress);
-    if(ii != HIL_ip_vehId_mapping.end())
+    auto ii = ipv4_vehId_mapping.find(ipAddress);
+    if(ii != ipv4_vehId_mapping.end())
         return ii->second;
     else
         return "";
 }
 
 
-std::string TraCI_Commands::vehicleId2ip(std::string id)
+std::string TraCI_Commands::vehicleId2ip(std::string id) const
 {
-    auto ii = HIL_vehicles.find(id);
-    if(ii != HIL_vehicles.end())
+    auto ii = vehId_ipv4_mapping.find(id);
+    if(ii != vehId_ipv4_mapping.end())
         return ii->second;
     else
         return "";

@@ -117,7 +117,6 @@ protected:
     virtual void onBeaconBicycle(BeaconBicycle*);
     virtual void onBeaconPedestrian(BeaconPedestrian*);
     virtual void onBeaconRSU(BeaconRSU*);
-    virtual void onData(LaneChangeMsg*);
 
 private:
     void initializeGnuPlot();

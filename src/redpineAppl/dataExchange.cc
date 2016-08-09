@@ -170,6 +170,15 @@ void dataExchange::executeEachTimestep()
             ApplVManager *vehPtr = static_cast<ApplVManager *>(module);
             ASSERT(vehPtr);
 
+            // should we print the received data?
+            if(module->par("print_HIL2Sim"))
+            {
+                std::string SUMOid = TraCI->omnet2traciId(vehID);
+                LOG_EVENT << boost::format("\n%1% (%2%) received the following msg of size %3% from %4%: \n") % SUMOid % vehID % frame->bufferLength % frame->ipv4;
+                print_dataPayload(frame->buffer, frame->bufferLength);
+                LOG_FLUSH;
+            }
+
             // send the payload to the vehicle
             vehPtr->receiveDataFromBoard(frame);
 
@@ -359,10 +368,10 @@ void dataExchange::connect_to_TCP_server(std::string ipv4)
 }
 
 
-void dataExchange::sendDataToBoard(std::string id, unsigned char *data, unsigned int data_length)
+void dataExchange::sendDataToBoard(std::string SUMOid, unsigned char *data, unsigned int data_length)
 {
     // check if IP address corresponds to a HIL vehicle
-    std::string ipv4 = TraCI->vehicleId2ip(id);
+    std::string ipv4 = TraCI->vehicleId2ip(SUMOid);
     if(ipv4 == "")
         throw omnetpp::cRuntimeError("Vehicle id does not match any of the HIL vehicles!");
 
@@ -390,6 +399,127 @@ void dataExchange::sendDataToBoard(std::string id, unsigned char *data, unsigned
         // LOG_INFO << std::endl << ex.what() << std::endl << std::flush;
         return;
     }
+
+    // get a pointer to the vehicle
+    std::string omnetId = TraCI->traci2omnetId(SUMOid);
+    cModule *module = omnetpp::getSimulation()->getSystemModule()->getModuleByPath(omnetId.c_str());
+    ASSERT(module);
+    module = module->getSubmodule("appl");
+    ASSERT(module);
+
+    // should we print the sent data?
+    if(module->par("print_Sim2HIL"))
+    {
+        LOG_EVENT << boost::format("\nThe following msg of size %1% is sent to %2% (%3%): \n") % data_length % ipv4 % SUMOid;
+        print_dataPayload(data, data_length);
+        LOG_FLUSH;
+    }
+}
+
+
+/* print packet payload data (avoid printing binary data) */
+void dataExchange::print_dataPayload(const u_char *payload, int len)
+{
+    // double-check again
+    if (len <= 0)
+        return;
+
+    int line_width = 16;   /* number of bytes per line */
+    int offset = 0;        /* zero-based offset counter */
+    const u_char *ch = payload;
+
+    /* data fits on one line */
+    if (len <= line_width)
+    {
+        print_hex_ascii_line(ch, len, offset);
+        return;
+    }
+
+    int len_rem = len;
+    int line_len;
+
+    /* data spans multiple lines */
+    for ( ;; )
+    {
+        /* compute current line length */
+        line_len = line_width % len_rem;
+
+        /* print line */
+        print_hex_ascii_line(ch, line_len, offset);
+
+        /* compute total remaining */
+        len_rem = len_rem - line_len;
+
+        /* shift pointer to remaining bytes to print */
+        ch = ch + line_len;
+
+        /* add offset */
+        offset = offset + line_width;
+
+        /* check if we have line width chars or less */
+        if (len_rem <= line_width)
+        {
+            /* print last line and get out */
+            print_hex_ascii_line(ch, len_rem, offset);
+            break;
+        }
+    }
+}
+
+
+/*
+ * print data in rows of 16 bytes: offset   hex   ascii
+ *
+ * 00000   47 45 54 20 2f 20 48 54  54 50 2f 31 2e 31 0d 0a   GET / HTTP/1.1..
+ */
+void dataExchange::print_hex_ascii_line(const u_char *payload, int len, int offset)
+{
+    int i;
+    int gap;
+    const u_char *ch;
+
+    /* offset */
+    printf("            %05d   ", offset);
+
+    /* hex */
+    ch = payload;
+    for(i = 0; i < len; i++)
+    {
+        printf("%02x ", *ch);
+        ch++;
+        /* print extra space after 8th byte for visual aid */
+        if (i == 7)
+            printf(" ");
+    }
+
+    /* print space to handle line less than 8 bytes */
+    if (len < 8)
+        printf(" ");
+
+    /* fill hex gap with spaces if not full line */
+    if (len < 16)
+    {
+        gap = 16 - len;
+        for (i = 0; i < gap; i++)
+        {
+            printf("   ");
+        }
+    }
+
+    printf("   ");
+
+    /* ascii (if printable) */
+    ch = payload;
+    for(i = 0; i < len; i++)
+    {
+        if (isprint(*ch))
+            printf("%c", *ch);
+        else
+            printf(".");
+        ch++;
+    }
+
+    printf("\n");
 }
 
 }

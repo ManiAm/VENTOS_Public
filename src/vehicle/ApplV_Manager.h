@@ -49,8 +49,8 @@ protected:
     virtual void onBeaconVehicle(BeaconVehicle*);
     virtual void onBeaconPedestrian(BeaconPedestrian*);
     virtual void onBeaconRSU(BeaconRSU*);
-    virtual void onData(PlatoonMsg*);
-    virtual void onHIL(BSM*);
+    virtual void onPlatoonMsg(PlatoonMsg*);
+    virtual void onBSM(BSM*);
 
 private:
     bool dropBeacon(double time, std::string vehicle, double plr);

@@ -51,7 +51,6 @@ class ApplPedManager : public ApplPedBeacon
 
 		virtual void onBeaconVehicle(BeaconVehicle*);
         virtual void onBeaconRSU(BeaconRSU*);
-        virtual void onData(PlatoonMsg* wsm);
 
 	protected:
         // NED variable
