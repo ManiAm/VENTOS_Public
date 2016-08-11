@@ -28,7 +28,7 @@
 #ifndef SSHOS_H_
 #define SSHOS_H_
 
-#include "SSH.h"
+#include <SSH/SSH.h>
 #include <thread>
 #include <atomic>
 

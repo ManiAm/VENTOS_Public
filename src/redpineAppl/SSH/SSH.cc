@@ -36,7 +36,7 @@
 #include <fstream>
 #include <thread>
 
-#include "SSH.h"
+#include <SSH/SSH.h>
 #include "utf8.h"
 #include <omnetpp.h>
 #include "vlog.h"

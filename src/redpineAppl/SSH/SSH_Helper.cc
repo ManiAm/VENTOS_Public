@@ -25,12 +25,12 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "SSH_Helper.h"
 #include "vlog.h"
 
 #include <fstream>
 #include <boost/algorithm/string.hpp>
 #include <omnetpp.h>
+#include <SSH/SSH_Helper.h>
 
 namespace VENTOS {
 
