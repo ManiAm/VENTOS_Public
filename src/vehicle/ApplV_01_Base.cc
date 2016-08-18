@@ -29,6 +29,8 @@
 
 namespace VENTOS {
 
+const simsignalwrap_t ApplVBase::mobilityStateChangedSignal = simsignalwrap_t(MIXIM_SIGNAL_MOBILITY_CHANGE_NAME);
+
 Define_Module(VENTOS::ApplVBase);
 
 ApplVBase::~ApplVBase()

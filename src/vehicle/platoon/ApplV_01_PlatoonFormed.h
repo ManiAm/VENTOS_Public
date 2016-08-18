@@ -28,11 +28,11 @@
 #ifndef APPLVPLATOONFORMED_H
 #define APPLVPLATOONFORMED_H
 
-#include "ApplV_05_redpine.h"
+#include <ApplV_05_OBU.h>
 
 namespace VENTOS {
 
-class ApplVPlatoonFormed : public ApplVRedpine
+class ApplVPlatoonFormed : public ApplVOBU
 {
 public:
     ~ApplVPlatoonFormed();
@@ -60,7 +60,7 @@ protected:
     };
 
 private:
-    typedef ApplVRedpine super;
+    typedef ApplVOBU super;
 };
 
 }

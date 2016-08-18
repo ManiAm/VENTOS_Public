@@ -982,7 +982,7 @@ void TraCI_Start::addModule(std::string nodeId /*sumo id*/, const Coord& positio
     auto ii = vehId_ipv4_mapping.find(nodeId);
     if(ii != vehId_ipv4_mapping.end())
     {
-        mod->getSubmodule("appl")->par("isHIL") = true;
+        mod->getSubmodule("appl")->par("hasOBU") = true;
         mod->getSubmodule("appl")->par("IPaddress") = ii->second;
 
         // save ipAddress <--> omnetId mapping
@@ -993,7 +993,7 @@ void TraCI_Start::addModule(std::string nodeId /*sumo id*/, const Coord& positio
     }
     else
     {
-        mod->getSubmodule("appl")->par("isHIL") = false;
+        mod->getSubmodule("appl")->par("hasOBU") = false;
         mod->getSubmodule("appl")->par("IPaddress") = "";
     }
 

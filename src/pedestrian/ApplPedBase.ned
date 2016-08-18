@@ -21,7 +21,7 @@ simple ApplPedBase like IBaseApplLayer
         int SUMOControllerType = default(-1);
         int SUMOControllerNumber = default(-1);
         
-        bool isHIL = default(false);
+        bool hasOBU = default(false);
         string IPaddress = default("");
 
     gates:

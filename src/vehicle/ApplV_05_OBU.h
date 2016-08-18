@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    ApplV_redpine.h
+/// @file    ApplV_OBU.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    Jun 2016
@@ -25,8 +25,8 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef ApplVREDPINE_H
-#define ApplVREDPINE_H
+#ifndef ApplVOBU_H
+#define ApplVOBU_H
 
 #include "ApplV_04_AID.h"
 #include "dataExchange.h"
@@ -34,13 +34,13 @@
 
 namespace VENTOS {
 
-class ApplVRedpine : public ApplV_AID
+class ApplVOBU : public ApplV_AID
 {
 public:
-    ~ApplVRedpine();
+    ~ApplVOBU();
     virtual void initialize(int stage);
     virtual void finish();
-    virtual void receiveDataFromBoard(dataEntry *);
+    virtual void receiveDataFromOBU(dataEntry *);
 
 protected:
     virtual void handleSelfMsg(omnetpp::cMessage*);
@@ -51,14 +51,14 @@ protected:
     virtual void onBSM(BSM*);
 
 private:
-    void checkForHardBreak();
+    void checkForwardCollision();
 
 private:
     typedef ApplV_AID super;
 
 protected:
-    bool isHIL;
-    bool hardBreakDetection;
+    bool hasOBU;
+    bool forwardCollisionDetection;
     bool EEBL;
 };
 

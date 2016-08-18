@@ -25,7 +25,7 @@ network Network
         // debug info is only available in OMNET GUI mode
         int debugLevel = default(0);
 
-        @display("bgb=489,453");
+        @display("bgb=529,453");
     submodules:
         vLogging: vlog {
             parameters:
@@ -56,15 +56,11 @@ network Network
         }
         addMobileNode: AddMobileNode {
             parameters:
-                @display("p=337,135;i=old/bwsink");
-        }
-        warmup: Warmup {
-            parameters:
-                @display("p=48,212;i=block/table");
+                @display("p=354,135;i=old/bwsink");
         }
         speedprofile: SpeedProfile {
             parameters:
-                @display("p=144,212;i=block/table");
+                @display("p=471,132;i=block/table");
         }
         statistics: Statistics {
             parameters:
@@ -72,15 +68,15 @@ network Network
         }
         router: Router {
             parameters:
-                @display("p=245,212;i=block/broadcast");
+                @display("p=48,213;i=block/broadcast");
         }
         TrafficLight: TL_Manager {
             parameters:
-                @display("p=337,212;i=block/broadcast");
+                @display("p=144,213;i=block/broadcast");
         }
         cobalt: Cobalt {
             parameters:
-                @display("p=432,212;i=block/broadcast");
+                @display("p=245,213;i=block/broadcast");
         }
         plotter: Plotter {
             parameters:

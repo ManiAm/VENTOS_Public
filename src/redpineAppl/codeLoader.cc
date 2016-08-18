@@ -230,28 +230,17 @@ void codeLoader::make_connection()
         t.join();
     });
 
-    LOG_EVENT << ">>> Number of active SSH connections is " << active_SSH.size() << "\n";
-
     // loop through all active SSH connections
     for(auto &ii : active_SSH)
     {
-        LOG_EVENT << "    " << ii.second->getHostName() << ": ";
-
         // delete this SSH sessions if it has no active threads
         if(ii.second->getNumActiveThreads() == 0)
         {
-            LOG_EVENT << "No running command. Terminating this SSH session... ";
-
+            // No running command. Terminating this SSH session
             delete ii.second;
             ii.second = NULL;  // make SSH pointer NULL
-
-            LOG_EVENT << "Done! \n";
         }
-        else
-            LOG_EVENT << ii.second->getNumActiveThreads() << " commands are running. \n";
     }
-
-    LOG_FLUSH;
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    VehicleSpeedProfile.h
+/// @file    SpeedProfile.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    August 2013
@@ -35,45 +35,61 @@ namespace VENTOS {
 
 class SpeedProfile : public BaseApplLayer
 {
-	public:
-		virtual ~SpeedProfile();
-		virtual void initialize(int stage);
-        virtual void handleMessage(omnetpp::cMessage *msg);
-		virtual void finish();
+public:
+    virtual void initialize(int stage);
+    virtual void handleMessage(omnetpp::cMessage *msg);
+    virtual void finish();
+    virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, long, cObject* details);
 
-	public:
-        void Change();
+private:
+    void eachTimeStep();
+    bool DoWarmup();
+    void DoSpeedProfile();
 
-	private:
+    void AccelDecel(double, double, double);
+    void AccelDecelZikZak(double, double, double);
+    void AccelDecelPeriodic(double, double, double, double);
+    void ExTrajectory(double);
 
-        // NED variables
-        TraCI_Commands *TraCI;
-        bool active;
-        double startTime;  // the time that speed profiling starts
-	    int mode;
-	    std::string laneId;
-	    double minSpeed;
-        double normalSpeed;
-        double maxSpeed;
-        double switchTime;
-        std::string trajectoryPath;
+private:
 
-	    // class variables
-        std::string profileVehicle;
-        std::string lastProfileVehicle;
-	    double old_speed;
-	    double old_time;
+    // NED variables
+    bool active;
+    int mode;
+    std::string laneId;
+    std::string vehId;
+    double startTime;  // the time that speed profiling starts
+    int numVehicles;
 
-        bool fileOpened;
-        bool endOfFile;
-        FILE *f2;
+    bool warmUp;
+    double stopPosition;  // the position that first vehicle should stop waiting for others
+    double warmUpSpeed;
+    double waitingTime;
 
-	    // method
-	    void AccelDecel(double, double, double);
-	    void AccelDecelZikZak(double, double, double);
-        void AccelDecelPeriodic(double, double, double, double);
-	    void ExTrajectory(double);
+    double minSpeed;
+    double normalSpeed;
+    double maxSpeed;
+    double switchTime;
+    std::string trajectoryPath;
+
+    // class variables
+    TraCI_Commands *TraCI;
+    omnetpp::simsignal_t Signal_executeEachTS;
+
+    bool IsWarmUpFinished;
+    omnetpp::cMessage* finishingWarmup;
+
+    std::string profileVehicle;
+    std::string lastProfileVehicle;
+    double startTimeTrajectory;
+    double old_speed;
+    double old_time;
+
+    bool fileOpened;
+    bool endOfFile;
+    FILE *f2;
 };
+
 }
 
 #endif

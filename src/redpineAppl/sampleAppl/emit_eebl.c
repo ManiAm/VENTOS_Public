@@ -30,6 +30,12 @@
 void sigint(int sigint);
 int bsm_create(bsm_t *, char *, int *);
 
+// forward declaration --VENTOS
+void connectAppl2VENTOS(char *hostname, int remote_server_port, char *applName);
+int sendToVENTOS(unsigned char *sendbuf, int tx_len);
+void LED_init();
+void LED_blink();
+
 // global variables
 int lsi = 0;
 uint8 psid[4] = {0x20};
@@ -104,6 +110,11 @@ int main(void)
     if(status == FAIL)
         return 1;
     printf("Done! \n");
+
+    // connect this application to VENTOS
+    connectAppl2VENTOS("192.168.60.30" /*ip address of VENTOS*/,
+            34676 /*port number VENTOS is listening to*/,
+            "application_1" /*application name*/);
 
     // --[ WAVE initialization - end ]--
 
@@ -358,6 +369,96 @@ int main(void)
     }
 
     return 0;
+}
+
+
+// todo: run this in a thread
+void receive_VENTOS()
+{
+    // todo: remove this
+    LED_init();
+
+
+//    if(rx_buffer[0] == Signal_ForwardCollisionWarning)
+//    {
+//        int tx_len = 1;
+//        unsigned char sendbuf[BUF_SIZ];
+//        memset(sendbuf, 0, BUF_SIZ);
+//        sendbuf[0] = Signal_EmergencyBreak;
+//
+//        // send emergency break signal to the car
+//        sendToVENTOS(sendbuf, tx_len);
+//
+//        LED_blink();
+//    }
+//    else if(rx_buffer[0] == Signal_EEBL)
+//    {
+//        int tx_len = 1;
+//        unsigned char sendbuf[BUF_SIZ];
+//        memset(sendbuf, 0, BUF_SIZ);
+//        sendbuf[0] = Signal_EmergencyBreak;
+//
+//        // send emergency break signal to the car
+//        sendToVENTOS(sendbuf, tx_len);
+//
+//        LED_blink();
+//    }
+
+
+
+    //        // turn on LED
+    //        if(rx_buffer[0] == HARD_BREAK_START)
+    //            system("echo 1 > /sys/class/gpio/gpio6/value");
+    //        // turn off LED
+    //        else if(rx_buffer[0] == HARD_BREAK_END)
+    //            system("echo 0 > /sys/class/gpio/gpio6/value");
+    //        // EEBL received from the leading vehicle
+    //        else if(!blinking && rx_buffer[0] == EEBL_RECV)
+    //            LED_blink();
+
+}
+
+
+void LED_init()
+{
+    int gpio6 = 6;
+    char status_buf[80] = {0};
+
+    // Exporting the GPIO pin
+    int fd = open("/sys/class/gpio/export", O_WRONLY);
+    if(fd == -1)
+    {
+        perror("open:export");
+        exit (1);
+    }
+    sprintf(status_buf, "%d", gpio6);
+    write(fd, status_buf, strlen(status_buf));
+    close(fd);
+
+    // Feeding direction 'out' to GPIO
+    sprintf(status_buf, "/sys/class/gpio/gpio%d/direction", gpio6);
+    fd = open(status_buf, O_WRONLY);
+    if(fd == -1)
+    {
+        perror("open:direction");
+        exit (1);
+    }
+    write(fd, "out", 3);
+    close(fd);
+}
+
+
+void LED_blink()
+{
+    int i = 0;
+    for(i = 1; i <= 5; i++)
+    {
+        system("echo 1 > /sys/class/gpio/gpio6/value");
+        usleep(500000);
+
+        system("echo 0 > /sys/class/gpio/gpio6/value");
+        usleep(500000);
+    }
 }
 
 

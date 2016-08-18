@@ -297,7 +297,7 @@ void AddMobileNode::Scenario3()
     int numVehicles = par("numVehicles").longValue();
     std::string vehiclesType = "";
 
-    // background traffic
+    // background traffic in the other direction
     int depart = 0;
     for(int i=0; i<numVehicles; i++)
     {
@@ -308,7 +308,7 @@ void AddMobileNode::Scenario3()
         TraCI->vehicleAdd(vehicleName, "TypeManual", "route2", depart, -5 /*pos*/, 0 /*speed*/, 0 /*lane*/);
     }
 
-    // one board -- showing board 2 VENTOS communication
+    // one board -- emergency break
     if(submode == 1)
     {
         depart = 0;
@@ -318,9 +318,10 @@ void AddMobileNode::Scenario3()
             sprintf(vehicleName, "veh_ns_%d", i);
             depart = depart + 1000;
 
+            // second vehicle has OBU
             if(i == 1)
             {
-                TraCI->vehicleAdd(vehicleName, "TypeHIL", "route1", depart, -5 /*pos*/, 0 /*speed*/, 0 /*lane*/, "192.168.60.42");
+                TraCI->vehicleAdd(vehicleName, "TypeEmulated", "route1", depart, -5 /*pos*/, 0 /*speed*/, 0 /*lane*/, "192.168.60.43");
 
                 // change vehicle color to red!
                 RGB newColor = Color::colorNameToRGB("red");
@@ -330,7 +331,7 @@ void AddMobileNode::Scenario3()
                 TraCI->vehicleAdd(vehicleName, "TypeManual", "route1", depart, -5 /*pos*/, 0 /*speed*/, 0 /*lane*/);
         }
     }
-    // one board -- showing VENTOS 2 board communication
+    // one board -- forward collision warning
     else if(submode == 2)
     {
         depart = 0;
@@ -340,16 +341,27 @@ void AddMobileNode::Scenario3()
             sprintf(vehicleName, "veh_ns_%d", i);
             depart = depart + 1000;
 
+            // second vehicle is obstacle
             if(i == 1)
             {
-                TraCI->vehicleAdd(vehicleName, "TypeHIL", "route1", depart, -5 /*pos*/, 0 /*speed*/, 0 /*lane*/, "192.168.60.42");
+                TraCI->vehicleAdd(vehicleName, "TypeObstacle", "route1", depart, -5 /*pos*/, 0 /*speed*/, 0 /*lane*/);
+
+                // change vehicle color to gray!
+                RGB newColor = Color::colorNameToRGB("gray");
+                TraCI->vehicleSetColor(vehicleName, newColor);
+            }
+            // third vehicle has OBU (back vehicle)
+            else if(i == 2)
+            {
+                TraCI->vehicleAdd(vehicleName, "TypeEmulated", "route1", depart, -5 /*pos*/, 0 /*speed*/, 0 /*lane*/, "192.168.60.43");
+
+                // alter 'lane change' mode to disable lane-changing
+                int32_t bitset = TraCI->vehicleBuildLaneChangeMode(00, 01, 00, 01, 01);
+                TraCI->vehicleSetLaneChangeMode(vehicleName, bitset);
 
                 // change vehicle color to red!
                 RGB newColor = Color::colorNameToRGB("red");
                 TraCI->vehicleSetColor(vehicleName, newColor);
-
-                // make the vehicle stop
-                TraCI->vehicleSetStop(vehicleName, "416208103#1", 50 /*stop pos*/, 0 /*lane id*/, 100 /*wait*/, 0 /*flag*/);
             }
             else
                 TraCI->vehicleAdd(vehicleName, "TypeManual", "route1", depart, -5 /*pos*/, 0 /*speed*/, 0 /*lane*/);
@@ -365,18 +377,19 @@ void AddMobileNode::Scenario3()
             sprintf(vehicleName, "veh_ns_%d", i);
             depart = depart + 1000;
 
+            // second vehicle has OBU (front vehicle)
             if(i == 1)
             {
-                TraCI->vehicleAdd(vehicleName, "TypeHIL", "route1", depart, -5 /*pos*/, 0 /*speed*/, 0 /*lane*/, "192.168.60.42");
+                TraCI->vehicleAdd(vehicleName, "TypeEmulated", "route1", depart, -5 /*pos*/, 0 /*speed*/, 0 /*lane*/, "192.168.60.42");
 
                 // change vehicle color to red!
                 RGB newColor = Color::colorNameToRGB("red");
                 TraCI->vehicleSetColor(vehicleName, newColor);
             }
+            // third vehicle has OBU (back vehicle)
             else if(i == 2)
             {
-                // HIL vehicle with lower deccel capability
-                TraCI->vehicleAdd(vehicleName, "TypeHIL2", "route1", depart, -5 /*pos*/, 0 /*speed*/, 0 /*lane*/, "192.168.60.43");
+                TraCI->vehicleAdd(vehicleName, "TypeEmulated", "route1", depart, -5 /*pos*/, 0 /*speed*/, 0 /*lane*/, "192.168.60.43");
 
                 // alter 'lane change' mode to disable lane-changing
                 int32_t bitset = TraCI->vehicleBuildLaneChangeMode(00, 01, 00, 01, 01);

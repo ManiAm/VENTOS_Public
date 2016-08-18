@@ -6,7 +6,7 @@ simple ApplVRedpine extends ApplVAID
     parameters:
         @class(VENTOS::ApplVRedpine);       
         
-        bool hardBreakDetection = default(false);
+        bool forwardCollisionDetection = default(false);
         bool EEBL = default(false);
         
         bool print_HIL2Sim = default(false);

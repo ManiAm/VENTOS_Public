@@ -39,7 +39,7 @@ public:
     virtual void initialize(int stage);
     virtual void finish();
     virtual void receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, omnetpp::cObject* obj, cObject* details);
-    virtual void receiveDataFromBoard(dataEntry*);
+    virtual void receiveDataFromOBU(dataEntry*);
 
 protected:
     virtual void handleLowerMsg(omnetpp::cMessage*);
@@ -76,8 +76,6 @@ protected:
     long BeaconRSUCount;
     long PlatoonCount;
     long BeaconPedCount;
-
-    static const simsignalwrap_t mobilityStateChangedSignal;
 };
 
 }

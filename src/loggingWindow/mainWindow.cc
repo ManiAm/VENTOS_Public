@@ -152,7 +152,7 @@ void mainWindow::start_TCP_server()
 
 void mainWindow::listenToClient(mainWindow *windowPtr)
 {
-    std::cout << "    (logWindow) waiting for log messages from VENTOS ... \n\n";
+    std::cout << "    (logWindow) waiting for log messages from VENTOS ... \n";
     std::cout.flush();
 
     try

@@ -2,7 +2,7 @@
 # https://gcc.gnu.org/onlinedocs/gcc/C-Dialect-Options.html
 # http://stackoverflow.com/questions/14737104/what-is-the-default-c-mode-for-the-current-gcc-especially-on-ubuntu
 
-LIBS = ../libs/lib_rsi_wave_api.a ../libs/libdsrc.a
+LIBS = ../libs/lib_rsi_wave_api.a ../libs/libdsrc.a ../libs/libventos.a
 HEADERS = -I ../headers -I ../headers/SAE_J2735 -I ../headers/SAE_J2735_messages -I ../headers/rsi_wave_api
 
 # SAE J2735 'Basic Safety Message (BSM)' over WSM

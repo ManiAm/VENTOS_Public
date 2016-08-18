@@ -10,7 +10,6 @@ simple dataExchange
         int headerLength = default(88bit) @unit(bit); //header length of the application 
         bool active = default(false);
         int VENTOS_serverPort = default(34676);
-        int board_serverPort = default(34677);
         int numBacklog = default(10);
 }
 

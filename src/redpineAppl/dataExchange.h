@@ -34,7 +34,26 @@
 
 namespace VENTOS {
 
-// class for holding incoming data from a board
+class ConnEntry
+{
+public:
+    std::string role;
+    std::string name;
+    int port;  // remote TCP server port that is listening to data coming from VENTOS
+    int incommingSocket;  // socket used for receiving data from OBU
+    int outgoingSocket;   // socket used for sending data to OBU
+
+    ConnEntry(std::string str1, std::string str2, int p, int s1, int s2)
+    {
+        this->role = str1;
+        this->name = str2;
+        this->port = p;
+        this->incommingSocket = s1;
+        this->outgoingSocket = s2;
+    }
+};
+
+// class for holding incoming data from OBU
 class dataEntry
 {
 public:
@@ -72,8 +91,9 @@ private:
     void executeEachTimestep();
 
     void start_TCP_server();
-    void recvDataFromBoard(int, std::string, uint16_t);
-    void connect_to_TCP_server(std::string);
+    void recvParams(int, std::string, uint16_t);
+    void recvDataFromOBU(int, std::string, uint16_t);
+    void connect_to_TCP_server(std::string, int, std::string);
 
     void print_dataPayload(const u_char *payload, int len);
     void print_hex_ascii_line(const u_char *payload, int len, int offset);
@@ -84,18 +104,16 @@ private:
     TraCI_Commands *TraCI;  // pointer to the TraCI module
     bool active;
     int VENTOS_serverPort;
-    int board_serverPort;
     int numBacklog;
 
     omnetpp::simsignal_t Signal_executeEachTS;
     omnetpp::simsignal_t Signal_initialize_withTraCI;
 
     int sockfd;  // welcoming socket
-    std::vector<int> connections_fromBoard;
+    std::map<std::string /*ip address of OBU*/, std::vector<ConnEntry> > connections;
     std::vector<dataEntry *> receivedData;
+    std::mutex lock_map;
     std::mutex lock_vector;
-
-    std::map<std::string, int *> connections_fromVENTOS;
 };
 
 }

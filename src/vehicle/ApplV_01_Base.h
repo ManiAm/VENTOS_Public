@@ -68,6 +68,8 @@ protected:
     // Class variables
     Coord curPosition;  // current position from mobility module (not from sumo)
     double entryTime;
+
+    static const simsignalwrap_t mobilityStateChangedSignal;
 };
 
 }

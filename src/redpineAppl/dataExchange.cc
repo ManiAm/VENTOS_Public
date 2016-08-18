@@ -77,10 +77,6 @@ void dataExchange::initialize(int stage)
         if(numBacklog < 0)
             throw omnetpp::cRuntimeError("numBacklog should be >= 0");
 
-        board_serverPort = par("board_serverPort").longValue();
-        if(board_serverPort < 0)
-            throw omnetpp::cRuntimeError("board_serverPort number is invalid!");
-
         // get a pointer to the TraCI module
         cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
         ASSERT(module);
@@ -102,8 +98,10 @@ void dataExchange::finish()
     if(sockfd)
         ::close(sockfd);
 
-    for(auto i : connections_fromBoard)
-        ::close(i);
+    // close all sockets opened for incoming connections
+    for(auto i : connections)
+        for(auto j : i.second)
+            ::close(j.incommingSocket);
 }
 
 
@@ -157,10 +155,14 @@ void dataExchange::executeEachTimestep()
         {
             auto &frame = receivedData.back();
 
-            // check if IP address corresponds to a HIL vehicle
+            // check if IP address corresponds to an emulated vehicle
             std::string vehID = TraCI->ip2vehicleId(frame->ipv4);
             if(vehID == "")
-                throw omnetpp::cRuntimeError("IP address %s does not belong to a HIL vehicle!", frame->ipv4.c_str());
+            {
+                LOG_WARNING << boost::format("\nWARNING: Emulated vehicle for OBU %1% does not exist in the simulation! \n") % frame->ipv4;
+                receivedData.pop_back(); // remove it from the vector
+                continue;
+            }
 
             // get a pointer to the vehicle
             cModule *module = omnetpp::getSimulation()->getSystemModule()->getModuleByPath(vehID.c_str());
@@ -180,7 +182,7 @@ void dataExchange::executeEachTimestep()
             }
 
             // send the payload to the vehicle
-            vehPtr->receiveDataFromBoard(frame);
+            vehPtr->receiveDataFromOBU(frame);
 
             // remove it from the vector
             receivedData.pop_back();
@@ -189,7 +191,7 @@ void dataExchange::executeEachTimestep()
 }
 
 
-// start a local TCP server -- to receive data from boards
+// start a local TCP server -- to receive data from all OBUs
 void dataExchange::start_TCP_server()
 {
     // create a socket
@@ -239,18 +241,14 @@ void dataExchange::start_TCP_server()
 
             std::string ipv4 = inet_ntoa(cli_addr.sin_addr);
             uint16_t remote_port = ntohs(cli_addr.sin_port);
-            LOG_INFO << ">>> (dataExchange) incoming connection from board " << ipv4 << " at port " << remote_port << ". \n" << std::flush;
+            LOG_INFO << boost::format("\n>>> Incoming connection from board %1% at port %2% \n") % ipv4 % remote_port << std::flush;
 
-            // save the socket fd
-            connections_fromBoard.push_back(clientRecvSock);
+            // get all necessary parameters from the incoming connections
+            recvParams(clientRecvSock, ipv4, remote_port);
 
             // create a new thread specifically for this connection
-            std::thread client_thd(&dataExchange::recvDataFromBoard, this, clientRecvSock, ipv4, remote_port);
+            std::thread client_thd(&dataExchange::recvDataFromOBU, this, clientRecvSock, ipv4, remote_port);
             client_thd.detach();
-
-            // connect to the remote TCP server on this board
-            std::thread server_thd(&dataExchange::connect_to_TCP_server, this, ipv4);
-            server_thd.detach();
         }
     }
     catch(const std::exception& ex)
@@ -262,7 +260,99 @@ void dataExchange::start_TCP_server()
 }
 
 
-void dataExchange::recvDataFromBoard(int clientRecvSock, std::string ipv4, uint16_t remote_port)
+void dataExchange::recvParams(int clientRecvSock, std::string ipv4, uint16_t remote_port)
+{
+    std::string role = "";
+    std::string name = "";
+    int remote_TCP_server_port = -1;
+
+    try
+    {
+        for(int RecvData = 1; RecvData <= 3; RecvData++)
+        {
+            // receive the message length
+            uint32_t rcvDataLength = 0;
+            int n = ::recv(clientRecvSock, &rcvDataLength, sizeof(uint32_t), MSG_NOSIGNAL);
+            if (n < 0)
+                throw std::runtime_error("ERROR reading msg size from socket");
+            else if(n == 0)
+                break;
+
+            rcvDataLength = ntohl(rcvDataLength);
+
+            unsigned char rx_buffer[rcvDataLength+1];
+            bzero(rx_buffer, rcvDataLength+1);
+
+            n = ::recv(clientRecvSock, &rx_buffer, rcvDataLength, MSG_NOSIGNAL);
+            if (n < 0)
+                throw std::runtime_error("ERROR reading msg from socket");
+            else if(n == 0)
+                break;
+
+            // the first received data is 'role' (driver, application)
+            if(RecvData == 1)
+                role = reinterpret_cast<char*>(rx_buffer);
+            // the second received data is 'name'
+            else if(RecvData == 2)
+                name = reinterpret_cast<char*>(rx_buffer);
+            // the third received data is 'TCP port #' that OBU is listening to
+            else if(RecvData == 3)
+                remote_TCP_server_port = std::stoi(reinterpret_cast<char*>(rx_buffer));
+        }
+    }
+    catch(const std::exception& ex)
+    {
+        LOG_INFO << std::endl << ex.what() << std::endl << std::flush;
+        throw omnetpp::cRuntimeError("ERROR in receiving parameters from incoming connection %s:%d", ipv4.c_str(), remote_port);
+    }
+
+    LOG_INFO << boost::format("    role: %1%, name: %2%, remote TCP server port: %3% \n") % role % name % remote_TCP_server_port << std::flush;
+
+    if(role != "driver" && role != "application")
+        throw omnetpp::cRuntimeError("Unknown role name '%s'", role.c_str());
+
+    {
+        // protect simultaneous access to connections map
+        std::lock_guard<std::mutex> lock(lock_map);
+
+        // save the new incoming connection
+        ConnEntry *entry = new ConnEntry(role, name, remote_TCP_server_port, clientRecvSock, -1);
+        auto it = connections.find(ipv4);
+        if(it == connections.end())
+        {
+            std::vector<ConnEntry> vec = {*entry};
+            connections[ipv4] = vec;
+        }
+        else
+            it->second.push_back(*entry);
+
+        if(role == "application")
+        {
+            auto it = connections.find(ipv4);
+            if(it == connections.end())
+                throw std::runtime_error("IP address does not exist in connections map");
+
+            // Warn the user if the driver has not made any incoming connection so far
+            bool found = false;
+            for(auto &kk : it->second)
+                if(kk.role == "driver") found = true;
+            if(!found)
+                LOG_WARNING << "\n>>> No incoming connection has been made from the driver! \n" << std::flush;
+
+            // connect to the TCP server on OBU
+            std::thread server_thd(&dataExchange::connect_to_TCP_server, this, ipv4, remote_TCP_server_port, name);
+            server_thd.detach();
+        }
+    }  // end of lock_map protection
+}
+
+
+// if OBU #x is running two applications, then three threads are
+// assigned to receive data from OBU #x
+// thread 1: driver
+// thread 2: application 1
+// thread 3: application 2
+void dataExchange::recvDataFromOBU(int clientRecvSock, std::string ipv4, uint16_t remote_port)
 {
     try
     {
@@ -307,10 +397,11 @@ void dataExchange::recvDataFromBoard(int clientRecvSock, std::string ipv4, uint1
 }
 
 
-// connecting to the remote TCP server on the board -- to send data to the board
-void dataExchange::connect_to_TCP_server(std::string ipv4)
+// connecting to the remote TCP server running on OBU
+// each application on an OBU is running a TCP server
+void dataExchange::connect_to_TCP_server(std::string ipv4, int port, std::string name)
 {
-    LOG_INFO << ">>> (dataExchange) connecting to TCP server on board " << ipv4 << " at port " << board_serverPort << ". \n\n" << std::flush;
+    LOG_INFO << boost::format("\n>>> Connecting to TCP server (%1%) on board %2% at port %3% \n") % name % ipv4 % port << std::flush;
 
     if (initsocketlibonce() != 0)
         throw omnetpp::cRuntimeError("Could not init socketlib");
@@ -327,7 +418,7 @@ void dataExchange::connect_to_TCP_server(std::string ipv4)
     sockaddr* address_p = (sockaddr*)&address;
     memset(address_p, 0, sizeof(address));
     address.sin_family = AF_INET;
-    address.sin_port = htons(board_serverPort);
+    address.sin_port = htons(port);
     address.sin_addr.s_addr = addr.s_addr;
 
     int* socketPtr = new int();
@@ -363,8 +454,29 @@ void dataExchange::connect_to_TCP_server(std::string ipv4)
     int x = 1;
     ::setsockopt(*socketPtr, IPPROTO_TCP, TCP_NODELAY, (const char*) &x, sizeof(x));
 
-    // save <ipv4,socket> pair
-    connections_fromVENTOS[ipv4] = socketPtr;
+    {
+        // protect simultaneous access to connections map
+        std::lock_guard<std::mutex> lock(lock_map);
+
+        // update outgoingSocket in the connections map
+        auto it = connections.find(ipv4);
+        if(it == connections.end())
+            throw omnetpp::cRuntimeError("No incoming connections from OBU %s", ipv4.c_str());
+        // iterate over all incoming connections from this OBU
+        bool found = false;
+        for(auto &ii : it->second)
+        {
+            // look for the entry corresponding to incoming connection
+            if(ii.port == port)
+            {
+                ii.outgoingSocket = *socketPtr;
+                found = true;
+                break;
+            }
+        }
+        if(!found)
+            throw omnetpp::cRuntimeError("Could not find the incoming connection for port %d", port);
+    }
 }
 
 
@@ -374,31 +486,6 @@ void dataExchange::sendDataToBoard(std::string SUMOid, unsigned char *data, unsi
     std::string ipv4 = TraCI->vehicleId2ip(SUMOid);
     if(ipv4 == "")
         throw omnetpp::cRuntimeError("Vehicle id does not match any of the HIL vehicles!");
-
-    // check for the corresponding socket
-    auto conn = connections_fromVENTOS.find(ipv4);
-    if(conn == connections_fromVENTOS.end())
-        throw omnetpp::cRuntimeError("No connections exists to host %s", ipv4.c_str());
-
-    try
-    {
-        // sending the msg size first
-        uint32_t dataLength = htonl(data_length);
-        int n = ::send(*(conn->second), &dataLength, sizeof(uint32_t), MSG_NOSIGNAL);
-        if (n < 0)
-            throw std::runtime_error("ERROR sending msg size to socket");
-
-        // then sending the msg itself
-        n = ::send(*(conn->second), data, data_length, MSG_NOSIGNAL);
-        if (n < 0)
-            throw std::runtime_error("ERROR sending msg to socket");
-    }
-    catch(const std::exception& ex)
-    {
-        // ignore error message
-        // LOG_INFO << std::endl << ex.what() << std::endl << std::flush;
-        return;
-    }
 
     // get a pointer to the vehicle
     std::string omnetId = TraCI->traci2omnetId(SUMOid);
@@ -414,6 +501,50 @@ void dataExchange::sendDataToBoard(std::string SUMOid, unsigned char *data, unsi
         print_dataPayload(data, data_length);
         LOG_FLUSH;
     }
+
+    auto ii = connections.find(ipv4);
+    if(ii == connections.end())
+        throw omnetpp::cRuntimeError("No connection exists to host %s", ipv4.c_str());
+
+    // the data is sent to all TCP servers (application 1, application 2, etc.) on the remote OBU
+    std::vector<std::thread> workers;
+    for(auto &conn : ii->second)
+    {
+        if(conn.role == "application" && conn.outgoingSocket != -1)
+        {
+            workers.push_back(std::thread([=]() {  // pass by value
+
+                try
+                {
+                    // sending the msg size first
+                    uint32_t dataLength = htonl(data_length);
+                    int n = ::send(conn.outgoingSocket, &dataLength, sizeof(uint32_t), MSG_NOSIGNAL);
+                    if (n < 0)
+                        throw std::runtime_error("ERROR sending msg size to socket");
+
+                    // then sending the msg itself
+                    n = ::send(conn.outgoingSocket, data, data_length, MSG_NOSIGNAL);
+                    if (n < 0)
+                        throw std::runtime_error("ERROR sending msg to socket");
+                }
+                catch(const std::exception& ex)
+                {
+                    // ignore error message
+                    // LOG_INFO << std::endl << ex.what() << std::endl << std::flush;
+                    return;
+                }
+
+            }));
+        }
+    }
+
+    if(workers.empty())
+        throw omnetpp::cRuntimeError("No outgoing socket found to host %s", ipv4.c_str());
+
+    // wait for all threads to finish
+    std::for_each(workers.begin(), workers.end(), [](std::thread &t) {
+        t.join();
+    });
 }
 
 

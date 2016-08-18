@@ -7,7 +7,7 @@ simple SpeedProfile
         @class(VENTOS::SpeedProfile);
         @display("i=block/network2");
         
-        bool active = default(false);
+        bool active = default(false);      
                 
         // mode = 0: fixed speed
         // mode = 1: accel/decel pulse
@@ -18,8 +18,14 @@ simple SpeedProfile
         // mode = 6: real stop-and-go traffic flow data (external file)
         int mode = default(3);
         
-        string laneId = default("1to2_0");      
-        double startTime = default(-1s) @unit(s);
+        string laneId = default("1to2_0");   
+        string vehId = default("");   
+        double startTime = default(-1s) @unit(s);  // -1: simulation start
+        
+        bool warmUp = default(false);        
+        double stopPosition = default(9); 
+        double warmUpSpeed = default(0);  
+        double waitingTime = default(15);  // waiting time after all vehicles enter the simulation        
                 
         double minSpeed = default(5);
         double normalSpeed = default(20);

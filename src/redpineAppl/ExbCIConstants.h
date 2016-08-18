@@ -25,8 +25,8 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#define HARD_BREAK_START  0xa4
-#define HARD_BREAK_END    0xb4
+#define Signal_ForwardCollisionWarning  0xa4
+#define Signal_EmergencyBreak           0xb4
+#define Signal_EEBL                     0xc4
 
-#define EEBL_RECV         0xc4
 

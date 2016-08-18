@@ -31,8 +31,6 @@
 
 namespace VENTOS {
 
-const simsignalwrap_t ApplVManager::mobilityStateChangedSignal = simsignalwrap_t(MIXIM_SIGNAL_MOBILITY_CHANGE_NAME);
-
 Define_Module(VENTOS::ApplVManager);
 
 ApplVManager::~ApplVManager()
@@ -94,13 +92,6 @@ void ApplVManager::initialize(int stage)
             int32_t bitset = TraCI->vehicleBuildLaneChangeMode(00, 01, 00, 01, 01);
             TraCI->vehicleSetLaneChangeMode(SUMOID, bitset);   // alter 'lane change' mode
         }
-
-        // monitor mobility on HIL vehicles
-        if(isHIL && hardBreakDetection)
-        {
-            findHost()->subscribe(mobilityStateChangedSignal, this);
-            LOG_INFO << boost::format(">>> %1% is subscribed to mobilityStateChangedSignal. \n") % SUMOID << std::flush;
-        }
     }
 }
 
@@ -108,9 +99,6 @@ void ApplVManager::initialize(int stage)
 void ApplVManager::finish()
 {
     super::finish();
-
-    if(isHIL && hardBreakDetection)
-        findHost()->unsubscribe(mobilityStateChangedSignal, this);
 }
 
 
@@ -270,10 +258,10 @@ bool ApplVManager::dropBeacon(double time, std::string vehicle, double plr)
 }
 
 
-void ApplVManager::receiveDataFromBoard(dataEntry* data)
+void ApplVManager::receiveDataFromOBU(dataEntry* data)
 {
     // pass it down
-    super::receiveDataFromBoard(data);
+    super::receiveDataFromOBU(data);
 }
 
 
