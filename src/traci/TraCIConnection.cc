@@ -242,10 +242,13 @@ TraCIConnection* TraCIConnection::connect(const char* host, int port)
     if(tries == 11)
         throw omnetpp::cRuntimeError("Could not connect to TraCI server after 10 retries!");
 
-    {
-        int x = 1;
-        ::setsockopt(*socketPtr, IPPROTO_TCP, TCP_NODELAY, (const char*) &x, sizeof(x));
-    }
+    // TCP_NODELAY: disable the Nagle algorithm. This means that segments are always
+    // sent as soon as possible, even if there is only a small amount of data.
+    // When not set, data is buffered until there is a sufficient amount to send out,
+    // thereby avoiding the frequent sending of small packets, which results
+    // in poor utilization of the network.
+    int x = 1;
+    ::setsockopt(*socketPtr, IPPROTO_TCP, TCP_NODELAY, (const char*) &x, sizeof(x));
 
     return new TraCIConnection(socketPtr);
 }

@@ -12,6 +12,9 @@
 // agreement with Redpine Signals
 //
 
+// check here: http://stackoverflow.com/questions/5378778/what-does-d-xopen-source-do-mean
+#define _XOPEN_SOURCE 700
+// check here: http://stackoverflow.com/questions/10053788/implicit-declaration-of-function-usleep
 #define _BSD_SOURCE
 
 #include <signal.h>
@@ -22,25 +25,52 @@
 #include <unistd.h>
 #include <sys/fcntl.h>
 #include <sys/time.h>
+#include <pthread.h>   // multi-threading
+#include <stdbool.h>   // boolean
 
 #include "rsi_wave_util.h"
 #include "BSM_create.h"
 
+// ARM OS supports 'System V IPC' only and not 'POSIX IPC'
+#include <sys/ipc.h>
+#include <sys/msg.h>
+
+struct msgbuf
+{
+    long mtype;     /* message type, a positive number (cannot be zero). */
+    struct msgbody
+    {
+        unsigned char buff[4096];
+        int mlen;
+    } mdata;
+};
+
+#define BUF_SIZ 1024
+
+#define Signal_ForwardCollisionWarning  0xa4
+#define Signal_EmergencyBreak           0xb4
+#define Signal_EEBL                     0xc4
+
 // forward declarations
+void init_GPIO();
 void sigint(int sigint);
 int bsm_create(bsm_t *, char *, int *);
 
 // forward declaration --VENTOS
-void connectAppl2VENTOS(char *hostname, int remote_server_port, char *applName);
+int connectAppl2VENTOS(char *hostname, int remote_server_port, char *applName);
 int sendToVENTOS(unsigned char *sendbuf, int tx_len);
-void LED_init();
+void recvFromVENTOS();
 void LED_blink();
+int disconnectVENTOS();
 
 // global variables
 int lsi = 0;
 uint8 psid[4] = {0x20};
 int no_of_tx = 0;
-int gpio9 = 9;
+int gpio6 = 6;  // LED
+int gpio9 = 9;  // Push bottom
+int mq;  // message queue descriptor
+pthread_t thread_id;
 
 // global variables - bsm_message
 blob_t *blob = NULL;
@@ -59,7 +89,7 @@ int main(void)
 {
     signal(SIGINT, sigint);
 
-    // --[ WAVE initialization - start ]--
+    printf("===[ WAVE stack initialization ... ]=== \n\n");
 
     // initialize message queues to send requests to 1609 stack
     printf("Initializing Queue... ");
@@ -111,14 +141,32 @@ int main(void)
         return 1;
     printf("Done! \n");
 
+    printf("\n===[ GPIO initialization ... ]=== \n\n");
+
+    init_GPIO();
+
+    printf("\n===[ Establish bi-directional connection with VENTOS ... ]=== \n\n");
+
     // connect this application to VENTOS
-    connectAppl2VENTOS("192.168.60.30" /*ip address of VENTOS*/,
+    int server_port = connectAppl2VENTOS("192.168.60.30" /*ip address of VENTOS*/,
             34676 /*port number VENTOS is listening to*/,
             "application_1" /*application name*/);
 
-    // --[ WAVE initialization - end ]--
+    if(server_port != -1)
+    {
+        // open the message queue that was opened by libventos
+        mq = msgget(server_port, 0);
+        if(mq < 0)
+        {
+            perror("ERROR opening message queue");
+            exit (1);
+        }
 
-    // --[ making bsm_message - start ]--
+        // create a thread that handles received data from VENTOS
+        pthread_create(&thread_id, NULL, recvFromVENTOS, NULL);
+    }
+
+    printf("\n===[ Generating BSM message ... ]=== \n\n");
 
     blob = malloc(sizeof(blob_t));
     if(!blob)
@@ -266,37 +314,7 @@ int main(void)
     bsm_message->blob = (char *) blob;
     bsm_message->extention = vehiclesafetyextension;
 
-    // --[ making bsm_message - end ]--
-
-    // --[ making gpio9 ready - start ]--
-
-    char status_buf[80] = {0};
-
-    printf("Exporting the GPIO pin... ");
-    int fd = open("/sys/class/gpio/export", O_WRONLY);
-    if(fd == -1)
-    {
-        perror("open:export");
-        return 1;
-    }
-    sprintf(status_buf, "%d", gpio9);
-    write(fd, status_buf, strlen(status_buf));
-    close(fd);
-    printf("Done! \n");
-
-    printf("Feeding direction 'in' to GPIO... ");
-    sprintf(status_buf, "/sys/class/gpio/gpio%d/direction", gpio9);
-    fd = open(status_buf, O_WRONLY);
-    if(fd == -1)
-    {
-        perror("open:direction");
-        return 1;
-    }
-    write(fd, "in", 2);
-    close(fd);
-    printf("Done! \n");
-
-    // --[ making gpio9 ready - end ]--
+    printf("\n===[ Start polling the switch status ... ]=== \n\n");
 
     pay_load = malloc(512);
     if(!pay_load)
@@ -306,6 +324,7 @@ int main(void)
     }
     memset(pay_load, 0, 512);
 
+    char status_buf[80] = {0};
     sprintf(status_buf, "/sys/class/gpio/gpio%d/value", gpio9);
 
     while(1)
@@ -316,7 +335,7 @@ int main(void)
         while(switch_status != '0')
         {
             // we need to open this every time!
-            fd = open(status_buf, O_RDONLY);
+            int fd = open(status_buf, O_RDONLY);
             if(fd == -1)
             {
                 perror("open:value");
@@ -325,6 +344,14 @@ int main(void)
             read(fd, &switch_status, 1);
             close(fd);
         }
+
+        // prepare an emergency break signal
+        int tx_len = 1;
+        unsigned char sendbuf[BUF_SIZ];
+        memset(sendbuf, 0, BUF_SIZ);
+        sendbuf[0] = Signal_EmergencyBreak;
+        // and send it to the car
+        sendToVENTOS(sendbuf, tx_len);
 
         blob->MsgCnt = ++no_of_tx;
         int pay_load_len = 0;
@@ -356,7 +383,7 @@ int main(void)
         char peer_mac_address[6] = {0xff,0xff,0xff,0xff,0xff,0xff};
         memcpy(wsm->peer_mac_address, peer_mac_address, 6);
 
-        printf("  Sending BSM msg #%3d of size %d... ", no_of_tx, pay_load_len);
+        printf("Sending BSM msg #%3d of size %d... ", no_of_tx, pay_load_len);
 
         status = rsi_wavecombo_wsmp_msg_send(wsm);
         if(status < 0)
@@ -372,59 +399,12 @@ int main(void)
 }
 
 
-// todo: run this in a thread
-void receive_VENTOS()
+void init_GPIO()
 {
-    // todo: remove this
-    LED_init();
-
-
-//    if(rx_buffer[0] == Signal_ForwardCollisionWarning)
-//    {
-//        int tx_len = 1;
-//        unsigned char sendbuf[BUF_SIZ];
-//        memset(sendbuf, 0, BUF_SIZ);
-//        sendbuf[0] = Signal_EmergencyBreak;
-//
-//        // send emergency break signal to the car
-//        sendToVENTOS(sendbuf, tx_len);
-//
-//        LED_blink();
-//    }
-//    else if(rx_buffer[0] == Signal_EEBL)
-//    {
-//        int tx_len = 1;
-//        unsigned char sendbuf[BUF_SIZ];
-//        memset(sendbuf, 0, BUF_SIZ);
-//        sendbuf[0] = Signal_EmergencyBreak;
-//
-//        // send emergency break signal to the car
-//        sendToVENTOS(sendbuf, tx_len);
-//
-//        LED_blink();
-//    }
-
-
-
-    //        // turn on LED
-    //        if(rx_buffer[0] == HARD_BREAK_START)
-    //            system("echo 1 > /sys/class/gpio/gpio6/value");
-    //        // turn off LED
-    //        else if(rx_buffer[0] == HARD_BREAK_END)
-    //            system("echo 0 > /sys/class/gpio/gpio6/value");
-    //        // EEBL received from the leading vehicle
-    //        else if(!blinking && rx_buffer[0] == EEBL_RECV)
-    //            LED_blink();
-
-}
-
-
-void LED_init()
-{
-    int gpio6 = 6;
     char status_buf[80] = {0};
 
     // Exporting the GPIO pin
+    printf("Exporting the GPIO6 pin... ");
     int fd = open("/sys/class/gpio/export", O_WRONLY);
     if(fd == -1)
     {
@@ -434,8 +414,10 @@ void LED_init()
     sprintf(status_buf, "%d", gpio6);
     write(fd, status_buf, strlen(status_buf));
     close(fd);
+    printf("Done! \n");
 
     // Feeding direction 'out' to GPIO
+    printf("Feeding direction 'out' to GPIO6... ");
     sprintf(status_buf, "/sys/class/gpio/gpio%d/direction", gpio6);
     fd = open(status_buf, O_WRONLY);
     if(fd == -1)
@@ -445,6 +427,73 @@ void LED_init()
     }
     write(fd, "out", 3);
     close(fd);
+    printf("Done! \n");
+
+    // -------------------------------------------
+
+    printf("Exporting the GPIO9 pin... ");
+    fd = open("/sys/class/gpio/export", O_WRONLY);
+    if(fd == -1)
+    {
+        perror("open:export");
+        exit (1);
+    }
+    sprintf(status_buf, "%d", gpio9);
+    write(fd, status_buf, strlen(status_buf));
+    close(fd);
+    printf("Done! \n");
+
+    printf("Feeding direction 'in' to GPIO9... ");
+    sprintf(status_buf, "/sys/class/gpio/gpio%d/direction", gpio9);
+    fd = open(status_buf, O_WRONLY);
+    if(fd == -1)
+    {
+        perror("open:direction");
+        exit (1);
+    }
+    write(fd, "in", 2);
+    close(fd);
+    printf("Done! \n");
+}
+
+
+void recvFromVENTOS()
+{
+    while(true)
+    {
+        struct msgbuf recv_msg;
+        int rc = msgrcv(mq, &recv_msg, sizeof(recv_msg.mdata), 0, 0);
+        if (rc == -1)
+        {
+            perror("ERROR in msgrcv");
+            exit(1);
+        }
+
+        if(recv_msg.mdata.mlen == 1 && recv_msg.mdata.buff[0] == Signal_ForwardCollisionWarning)
+        {
+            int tx_len = 1;
+            unsigned char sendbuf[BUF_SIZ];
+            memset(sendbuf, 0, BUF_SIZ);
+            sendbuf[0] = Signal_EmergencyBreak;
+
+            // send emergency break signal to the car
+            sendToVENTOS(sendbuf, tx_len);
+
+            LED_blink();
+        }
+        else if(recv_msg.mdata.mlen == 1 && recv_msg.mdata.buff[0] == Signal_EEBL)
+        {
+            int tx_len = 1;
+            unsigned char sendbuf[BUF_SIZ];
+            memset(sendbuf, 0, BUF_SIZ);
+            sendbuf[0] = Signal_EmergencyBreak;
+
+            // send emergency break signal to the car
+            sendToVENTOS(sendbuf, tx_len);
+
+            LED_blink();
+        }
+    }
 }
 
 
@@ -454,10 +503,10 @@ void LED_blink()
     for(i = 1; i <= 5; i++)
     {
         system("echo 1 > /sys/class/gpio/gpio6/value");
-        usleep(500000);
+        usleep(500000);  // 0.5 second
 
         system("echo 0 > /sys/class/gpio/gpio6/value");
-        usleep(500000);
+        usleep(500000);  // 0.5 second
     }
 }
 
@@ -496,17 +545,27 @@ void sigint(int signum)
     if(bsm_message)
         free(bsm_message);
 
-    // unexporting gpio9
+    // unexporting gpio6
     int fd = open("/sys/class/gpio/unexport", O_WRONLY);
     if(fd == -1)
         perror("open");
     char status_buf[80] = {0};
+    sprintf(status_buf, "%d", gpio6);
+    write(fd, status_buf, strlen(status_buf));
+    close(fd);
+
+    // unexporting gpio9
+    fd = open("/sys/class/gpio/unexport", O_WRONLY);
+    if(fd == -1)
+        perror("open");
     sprintf(status_buf, "%d", gpio9);
     write(fd, status_buf, strlen(status_buf));
     close(fd);
 
     rsi_wavecombo_wsmp_service_req(DELETE , lsi, psid);
     rsi_wavecombo_msgqueue_deinit();
+
+    disconnectVENTOS();
 
     exit(0);
 }

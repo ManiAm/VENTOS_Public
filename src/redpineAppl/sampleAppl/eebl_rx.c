@@ -26,6 +26,7 @@
 #include "BSM_create.h"
 
 // forward declarations
+void init_GPIO();
 void sigint(int sigint);
 void process_wsmp(uint8 *, int);
 asn_dec_rval_t J2735_decode(void *, int);
@@ -37,7 +38,7 @@ uint8 *buff_rx = NULL;
 int lsi = 0;
 uint8 psid[4] = {0x20};
 int no_of_rx = 0;
-int gpio6 = 6;
+int gpio6 = 6;  // LED
 
 
 int main(int argc, char *argv[])
@@ -102,37 +103,9 @@ int main(int argc, char *argv[])
         return 1;
     printf("Done! \n");
 
+    init_GPIO();
+
     // --[ WAVE initialization - end ]--
-
-    // --[ making gpio6 ready - start ]--
-
-    char status_buf[80] = {0};
-
-    printf("Exporting the GPIO pin... ");
-    int fd = open("/sys/class/gpio/export", O_WRONLY);
-    if(fd == -1)
-    {
-        perror("open:export");
-        return 1;
-    }
-    sprintf(status_buf, "%d", gpio6);
-    write(fd, status_buf, strlen(status_buf));
-    close(fd);
-    printf("Done! \n");
-
-    printf("Feeding direction 'out' to GPIO... ");
-    sprintf(status_buf, "/sys/class/gpio/gpio%d/direction", gpio6);
-    fd = open(status_buf, O_WRONLY);
-    if(fd == -1)
-    {
-        perror("open:direction");
-        return 1;
-    }
-    write(fd, "out", 3);
-    close(fd);
-    printf("Done! \n");
-
-    // --[ making gpio6 ready - end ]--
 
     buff_rx = malloc(1300);
     if(!buff_rx)
@@ -153,6 +126,36 @@ int main(int argc, char *argv[])
     }
 
     return 0;
+}
+
+
+void init_GPIO()
+{
+    char status_buf[80] = {0};
+
+    printf("Exporting the GPIO6 pin... ");
+    int fd = open("/sys/class/gpio/export", O_WRONLY);
+    if(fd == -1)
+    {
+        perror("open:export");
+        exit (1);
+    }
+    sprintf(status_buf, "%d", gpio6);
+    write(fd, status_buf, strlen(status_buf));
+    close(fd);
+    printf("Done! \n");
+
+    printf("Feeding direction 'out' to GPIO6... ");
+    sprintf(status_buf, "/sys/class/gpio/gpio%d/direction", gpio6);
+    fd = open(status_buf, O_WRONLY);
+    if(fd == -1)
+    {
+        perror("open:direction");
+        exit (1);
+    }
+    write(fd, "out", 3);
+    close(fd);
+    printf("Done! \n");
 }
 
 

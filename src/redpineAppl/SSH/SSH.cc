@@ -96,7 +96,7 @@ SSH::SSH(std::string host, int port, std::string username, std::string password,
     ssh_options_set(SSH_session, SSH_OPTIONS_LOG_VERBOSITY, &verbosity);
 
     if(printOutput)
-        LOG_EVENT_C(category, subcategory) << boost::format("    SSH to %1%@%2% at port %3% \n") % username % host % port << std::flush;
+        LOG_EVENT_C(category, subcategory) << boost::format("SSH to %1%@%2% at port %3% \n") % username % host % port << std::flush;
 
     int rc = ssh_connect(SSH_session);
     if (rc != SSH_OK)
@@ -104,7 +104,7 @@ SSH::SSH(std::string host, int port, std::string username, std::string password,
 
     // verify the server's identity
     if(printOutput)
-        LOG_EVENT_C(category, subcategory) << boost::format("    Verifying host %1% ... \n") % host << std::flush;
+        LOG_EVENT_C(category, subcategory) << boost::format("Verifying host %1% ... \n") % host << std::flush;
 
     if (verify_knownhost() < 0)
     {
@@ -116,26 +116,26 @@ SSH::SSH(std::string host, int port, std::string username, std::string password,
     if(printOutput)
     {
         // get the protocol version of the session
-        LOG_EVENT_C(category, subcategory) << boost::format("    SSH version is %1% \n") % ssh_get_version(SSH_session);
+        LOG_EVENT_C(category, subcategory) << boost::format("SSH version is %1% \n") % ssh_get_version(SSH_session);
 
         // get the server banner
-        LOG_EVENT_C(category, subcategory) << boost::format("    Server banner is %1% \n") % ssh_get_serverbanner(SSH_session);
+        LOG_EVENT_C(category, subcategory) << boost::format("Server banner is %1% \n") % ssh_get_serverbanner(SSH_session);
 
         // get issue banner
         char *str = ssh_get_issue_banner(SSH_session);
         if(str)
-            LOG_EVENT_C(category, subcategory) << boost::format("    Issue banner is %1% \n") % str % ssh_get_serverbanner(SSH_session);
+            LOG_EVENT_C(category, subcategory) << boost::format("Issue banner is %1% \n") % str % ssh_get_serverbanner(SSH_session);
 
         LOG_EVENT_C(category, subcategory) << std::flush;
     }
 
     if(printOutput)
-        LOG_EVENT_C(category, subcategory) << boost::format("    Authenticating ... Please wait \n") << std::flush;
+        LOG_EVENT_C(category, subcategory) << boost::format("Authenticating ... Please wait \n") << std::flush;
 
     authenticate();
 
     if(printOutput)
-        LOG_EVENT_C(category, subcategory) << boost::format("    Successfully connected to %1% \n") % host << std::flush;
+        LOG_EVENT_C(category, subcategory) << boost::format("Successfully connected to %1% \n") % host << std::flush;
 
     // create a new SFTP session for file transfer
     createSession_SFTP();
@@ -157,7 +157,7 @@ void SSH::checkHost(std::string host, bool printOutput)
     this->dev_hostIP = IPAddress;
 
     if(printOutput)
-        LOG_EVENT_C(category, subcategory) << "    Pinging " << IPAddress << "\n" << std::flush;
+        LOG_EVENT_C(category, subcategory) << "Pinging " << IPAddress << "\n" << std::flush;
 
     // test if IPAdd is alive?
     std::string cmd = "ping -c 1 -s 1 " + std::string(IPAddress) + " > /dev/null 2>&1";
@@ -194,11 +194,11 @@ int SSH::verify_knownhost()
     case SSH_SERVER_KNOWN_CHANGED:
     {
         char *hexa = ssh_get_hexa(hash, hlen);
-        LOG_WARNING_C(category, subcategory) << "    Host key for server changed. \n";
-        LOG_WARNING_C(category, subcategory) << "    Public key hash is now " << hexa << " \n";
-        LOG_WARNING_C(category, subcategory) << "    For security reasons, connection will be stopped. \n";
-        LOG_WARNING_C(category, subcategory) << "    This might happen when you switch between the boards with the same IP address. \n";
-        LOG_WARNING_C(category, subcategory) << "    Try removing the host key from known hosts using 'ssh-keygen -R " << this->dev_hostIP << "' \n";
+        LOG_WARNING_C(category, subcategory) << "Host key for server changed. \n";
+        LOG_WARNING_C(category, subcategory) << "Public key hash is now " << hexa << " \n";
+        LOG_WARNING_C(category, subcategory) << "For security reasons, connection will be stopped. \n";
+        LOG_WARNING_C(category, subcategory) << "This might happen when you switch between the boards with the same IP address. \n";
+        LOG_WARNING_C(category, subcategory) << "Try removing the host key from known hosts using 'ssh-keygen -R " << this->dev_hostIP << "' \n";
         LOG_FLUSH_C(category, subcategory);
         free(hash);
         free(hexa);
@@ -206,15 +206,15 @@ int SSH::verify_knownhost()
     }
 
     case SSH_SERVER_FOUND_OTHER:
-        LOG_WARNING_C(category, subcategory) << "    The host key for this server was not found but an other type of key exists. \n";
-        LOG_WARNING_C(category, subcategory) << "    An attacker might change the default server key to confuse your client into thinking the key does not exist. \n";
+        LOG_WARNING_C(category, subcategory) << "The host key for this server was not found but an other type of key exists. \n";
+        LOG_WARNING_C(category, subcategory) << "An attacker might change the default server key to confuse your client into thinking the key does not exist. \n";
         LOG_FLUSH_C(category, subcategory);
         free(hash);
         return -1;
 
     case SSH_SERVER_FILE_NOT_FOUND:
-        LOG_WARNING_C(category, subcategory) << "    Could not find known host file. \n";
-        LOG_WARNING_C(category, subcategory) << "    If you accept the host key here, the file will be automatically created. \n";
+        LOG_WARNING_C(category, subcategory) << "Could not find known host file. \n";
+        LOG_WARNING_C(category, subcategory) << "If you accept the host key here, the file will be automatically created. \n";
         LOG_FLUSH_C(category, subcategory);
         /* fallback to SSH_SERVER_NOT_KNOWN behavior */
 
@@ -224,9 +224,9 @@ int SSH::verify_knownhost()
         std::lock_guard<std::mutex> lock(lock_prompt);
 
         char *hexa = ssh_get_hexa(hash, hlen);
-        LOG_WARNING_C(category, subcategory) << boost::format("    The authenticity of host '%1% (%2%)' can't be established. \n") % dev_hostName % dev_hostIP;
-        LOG_WARNING_C(category, subcategory) << "    Public key hash is " << hexa << " \n";
-        LOG_WARNING_C(category, subcategory) << "    Check the input console to proceed ... \n";
+        LOG_WARNING_C(category, subcategory) << boost::format("The authenticity of host '%1% (%2%)' can't be established. \n") % dev_hostName % dev_hostIP;
+        LOG_WARNING_C(category, subcategory) << "Public key hash is " << hexa << " \n";
+        LOG_WARNING_C(category, subcategory) << "Check the input console to proceed ... \n";
         LOG_FLUSH_C(category, subcategory);
         free(hash);
         free(hexa);
@@ -285,7 +285,7 @@ void SSH::authenticate()
 
     if(printOutput)
     {
-        LOG_EVENT_C(category, subcategory) << "    Supported authentication methods: ";
+        LOG_EVENT_C(category, subcategory) << "Supported authentication methods: ";
 
         if(method & SSH_AUTH_METHOD_NONE)
             LOG_EVENT_C(category, subcategory) << "None, ";
@@ -639,7 +639,7 @@ ssh_channel SSH::openShell(std::string shellName, bool interactive, bool keepAli
 
         std::string shell_mode = interactive ? "interactive" : "non-interactive";
         std::string keepAlive_mode = keepAlive ? "with" : "without";
-        LOG_EVENT_C(category, subcategory) << boost::format("    Opening %1% shell '%2%' %3% keepAlive \n") % shell_mode % shellName % keepAlive_mode << std::flush;
+        LOG_EVENT_C(category, subcategory) << boost::format("Opening %1% shell '%2%' %3% keepAlive \n") % shell_mode % shellName % keepAlive_mode << std::flush;
 
         SSH_channel = ssh_channel_new(SSH_session);
         if (SSH_channel == NULL)

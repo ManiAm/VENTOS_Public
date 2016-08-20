@@ -448,9 +448,11 @@ void dataExchange::connect_to_TCP_server(std::string ipv4, int port, std::string
     if(tries == 11)
         throw omnetpp::cRuntimeError("Could not connect to the TCP server after 10 retries!");
 
-    // disable the 'Nagle' buffering algorithm. It should only be set for applications
-    // that send frequent small bursts of information without getting an immediate
-    // response, where timely delivery of data is required
+    // TCP_NODELAY: disable the Nagle algorithm. This means that segments are always
+    // sent as soon as possible, even if there is only a small amount of data.
+    // When not set, data is buffered until there is a sufficient amount to send out,
+    // thereby avoiding the frequent sending of small packets, which results
+    // in poor utilization of the network.
     int x = 1;
     ::setsockopt(*socketPtr, IPPROTO_TCP, TCP_NODELAY, (const char*) &x, sizeof(x));
 

@@ -27,6 +27,7 @@
 #include "BSM_create.h"
 
 // forward declarations
+void init_GPIO();
 void sigint(int sigint);
 int bsm_create(bsm_t *, char *, int *);
 
@@ -34,7 +35,7 @@ int bsm_create(bsm_t *, char *, int *);
 int lsi = 0;
 uint8 psid[4] = {0x20};
 int no_of_tx = 0;
-int gpio9 = 9;
+int gpio9 = 9; // Push bottom
 
 // global variables - bsm_message
 blob_t *blob = NULL;
@@ -110,6 +111,8 @@ int main(int argc, char *argv[])
     if(status == FAIL)
         return 1;
     printf("Done! \n");
+
+    init_GPIO();
 
     // --[ WAVE initialization - end ]--
 
@@ -257,36 +260,6 @@ int main(int argc, char *argv[])
 
     // --[ making bsm_message - end ]--
 
-    // --[ making gpio9 ready - start ]--
-
-    char status_buf[80] = {0};
-
-    printf("Exporting the GPIO pin... ");
-    int fd = open("/sys/class/gpio/export", O_WRONLY);
-    if(fd == -1)
-    {
-        perror("open:export");
-        return 1;
-    }
-    sprintf(status_buf, "%d", gpio9);
-    write(fd, status_buf, strlen(status_buf));
-    close(fd);
-    printf("Done! \n");
-
-    printf("Feeding direction 'in' to GPIO... ");
-    sprintf(status_buf, "/sys/class/gpio/gpio%d/direction", gpio9);
-    fd = open(status_buf, O_WRONLY);
-    if(fd == -1)
-    {
-        perror("open:direction");
-        return 1;
-    }
-    write(fd, "in", 2);
-    close(fd);
-    printf("Done! \n");
-
-    // --[ making gpio9 ready - end ]--
-
     pay_load = malloc(512);
     if(!pay_load)
     {
@@ -295,6 +268,7 @@ int main(int argc, char *argv[])
     }
     memset(pay_load,0,512);
 
+    char status_buf[80] = {0};
     sprintf(status_buf,"/sys/class/gpio/gpio%d/value", gpio9);
 
     while(1)
@@ -305,7 +279,7 @@ int main(int argc, char *argv[])
         while(switch_status != '0')
         {
             // we need to open this every time!
-            fd = open(status_buf, O_RDONLY);
+            int fd = open(status_buf, O_RDONLY);
             if(fd == -1)
             {
                 perror("open:value");
@@ -350,13 +324,13 @@ int main(int argc, char *argv[])
             char peer_mac_address[6] = {0xff,0xff,0xff,0xff,0xff,0xff};
             memcpy(wsm->peer_mac_address, peer_mac_address, 6);
 
-            printf("  Sending BSM msg #%3d of size %d... ", ++no_of_tx, pay_load_len);
+            printf("Sending BSM msg #%3d of size %d... ", ++no_of_tx, pay_load_len);
 
             status = rsi_wavecombo_wsmp_msg_send(wsm);
             if(status < 0)
                 printf("Failed! \n");
             else
-                printf("Sent! \n");
+                printf("Done! \n");
 
             free(wsm);
             sleep(1);
@@ -364,6 +338,36 @@ int main(int argc, char *argv[])
     }
 
     return 0;
+}
+
+
+void init_GPIO()
+{
+    char status_buf[80] = {0};
+
+    printf("Exporting the GPIO9 pin... ");
+    int fd = open("/sys/class/gpio/export", O_WRONLY);
+    if(fd == -1)
+    {
+        perror("open:export");
+        exit (1);
+    }
+    sprintf(status_buf, "%d", gpio9);
+    write(fd, status_buf, strlen(status_buf));
+    close(fd);
+    printf("Done! \n");
+
+    printf("Feeding direction 'in' to GPIO9... ");
+    sprintf(status_buf, "/sys/class/gpio/gpio%d/direction", gpio9);
+    fd = open(status_buf, O_WRONLY);
+    if(fd == -1)
+    {
+        perror("open:direction");
+        exit (1);
+    }
+    write(fd, "in", 2);
+    close(fd);
+    printf("Done! \n");
 }
 
 

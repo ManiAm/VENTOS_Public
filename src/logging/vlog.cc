@@ -316,9 +316,11 @@ void vlog::connect_to_TCP_server()
     if(tries == 11)
         throw omnetpp::cRuntimeError("Could not connect to the TCP server after 10 retries!");
 
-    // disable the 'Nagle' buffering algorithm. It should only be set for applications
-    // that send frequent small bursts of information without getting an immediate
-    // response, where timely delivery of data is required
+    // TCP_NODELAY: disable the Nagle algorithm. This means that segments are always
+    // sent as soon as possible, even if there is only a small amount of data.
+    // When not set, data is buffered until there is a sufficient amount to send out,
+    // thereby avoiding the frequent sending of small packets, which results
+    // in poor utilization of the network.
     int x = 1;
     ::setsockopt(*socketPtr, IPPROTO_TCP, TCP_NODELAY, (const char*) &x, sizeof(x));
 }
@@ -345,6 +347,8 @@ void vlog::sendToLogWindow(std::string msg)
         n = ::recv(*socketPtr, rx_buffer, 99, MSG_NOSIGNAL);
         if (n < 0)
             throw std::runtime_error("ERROR reading response from socket");
+        else if (n == 0)
+            throw omnetpp::cRuntimeError("No response from the logWindow! Is logWindow closed?");
 
         std::string res = rx_buffer;
         if(res != "ok!")

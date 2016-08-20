@@ -109,7 +109,7 @@ double SSH_Helper::rebootDev(ssh_channel SSH_channel, int timeOut)
 
 void SSH_Helper::checkSudo(ssh_channel SSH_channel)
 {
-    LOG_EVENT_C(category, subcategory) << "    Do we have root permission?... " << std::flush;
+    LOG_EVENT_C(category, subcategory) << "Do we have root permission?... " << std::flush;
 
     // The -n (non-interactive) option prevents sudo from prompting the user for a password.
     // If a password is required for the command to run, sudo will display an error message and exit.
@@ -124,7 +124,7 @@ void SSH_Helper::checkSudo(ssh_channel SSH_channel)
     else if(ret == 2)
     {
         LOG_EVENT_C(category, subcategory) << "No! \n" << std::flush;
-        LOG_EVENT_C(category, subcategory) << "    Can we acquire root permission using sudo?... " << std::flush;
+        LOG_EVENT_C(category, subcategory) << "Can we acquire root permission using sudo?... " << std::flush;
 
         if(this->dev_password != "")
         {
@@ -158,7 +158,7 @@ void SSH_Helper::checkSudo(ssh_channel SSH_channel)
 
             // dev_password and sudoPassword are both empty
             LOG_EVENT_C(category, subcategory) << "Asking the user! \n" << std::flush;
-            LOG_EVENT_C(category, subcategory) << "    Please provide the sudo password in the input console ... \n" << std::flush;
+            LOG_EVENT_C(category, subcategory) << "Please provide the sudo password in the input console ... \n" << std::flush;
 
             std::cout << boost::format("sudo Password for %1%@%2%: ") % dev_username % dev_hostName << std::flush;
             getline(std::cin, sudoPassword);
@@ -169,7 +169,7 @@ void SSH_Helper::checkSudo(ssh_channel SSH_channel)
             if(ret == 1)
             {
                 // successfully switched to sudo
-                LOG_EVENT_C(category, subcategory) << "    Great! We have sudo access now \n" << std::flush;
+                LOG_EVENT_C(category, subcategory) << "Great! We have sudo access now \n" << std::flush;
                 return;
             }
             else
