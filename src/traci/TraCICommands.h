@@ -448,8 +448,8 @@ protected:
     std::map<std::string /*veh OMNET id*/, std::string /*veh SUMO id*/> OMNETid_SUMOid_mapping;
 
     // storing the mapping between emulated vehicle ids and the corresponding HIL board ipv4 address
-    std::map<std::string /*veh SUMO id*/, std::string /*ip address*/> vehId_ipv4_mapping;
-    std::map<std::string /*ip address*/, std::string /*veh OMNET++ id*/> ipv4_vehId_mapping;
+    std::map<std::string /*veh SUMO id*/, std::string /*ip address*/> SUMOid_ipv4_mapping;
+    std::map<std::string /*ip address*/, std::string /*veh OMNET++ id*/> ipv4_OMNETid_mapping;
 
 private:
     typedef omnetpp::cSimpleModule super;

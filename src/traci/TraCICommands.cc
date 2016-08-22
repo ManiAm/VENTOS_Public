@@ -1018,7 +1018,7 @@ void TraCI_Commands::vehicleAdd(std::string vehicleId, std::string vehicleTypeId
     updateTraCIlog("commandComplete", CMD_SET_VEHICLE_VARIABLE, ADD);
 
     if(ipAddress != "")
-        vehId_ipv4_mapping[vehicleId] = ipAddress;
+        SUMOid_ipv4_mapping[vehicleId] = ipAddress;
 }
 
 
@@ -2955,8 +2955,8 @@ double TraCI_Commands::omnet2traciAngle(double angle) const
 
 std::string TraCI_Commands::ip2vehicleId(std::string ipAddress) const
 {
-    auto ii = ipv4_vehId_mapping.find(ipAddress);
-    if(ii != ipv4_vehId_mapping.end())
+    auto ii = ipv4_OMNETid_mapping.find(ipAddress);
+    if(ii != ipv4_OMNETid_mapping.end())
         return ii->second;
     else
         return "";
@@ -2965,8 +2965,8 @@ std::string TraCI_Commands::ip2vehicleId(std::string ipAddress) const
 
 std::string TraCI_Commands::vehicleId2ip(std::string id) const
 {
-    auto ii = vehId_ipv4_mapping.find(id);
-    if(ii != vehId_ipv4_mapping.end())
+    auto ii = SUMOid_ipv4_mapping.find(id);
+    if(ii != SUMOid_ipv4_mapping.end())
         return ii->second;
     else
         return "";

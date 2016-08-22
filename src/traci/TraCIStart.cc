@@ -864,6 +864,21 @@ void TraCI_Start::deleteManagedModule(std::string nodeId /*sumo id*/)
         throw omnetpp::cRuntimeError("OMNET++ id %s does not exist in the network!", mod->getFullName());
     OMNETid_SUMOid_mapping.erase(i2);
 
+    // remove mapping of SUMO id and IPv4 -- for emulated vehicle
+    auto i3 = SUMOid_ipv4_mapping.find(nodeId);
+    // if this vehicle is emulated
+    if(i3 != SUMOid_ipv4_mapping.end())
+    {
+        std::string ipv4 = i3->second;
+        SUMOid_ipv4_mapping.erase(i3);
+
+        // then remove mapping of IPv4 and OMNET id
+        auto i4 = ipv4_OMNETid_mapping.find(ipv4);
+        if(i4 == ipv4_OMNETid_mapping.end())
+            throw omnetpp::cRuntimeError("IP address '%s' does not exist in the map!", ipv4.c_str());
+        ipv4_OMNETid_mapping.erase(i4);
+    }
+
     hosts.erase(nodeId);
     mod->callFinish();
     mod->deleteModule();
@@ -979,17 +994,17 @@ void TraCI_Start::addModule(std::string nodeId /*sumo id*/, const Coord& positio
     mod->getSubmodule("appl")->par("SUMOControllerType") = SUMOControllerType;
     mod->getSubmodule("appl")->par("SUMOControllerNumber") = SUMOControllerNumber;
 
-    auto ii = vehId_ipv4_mapping.find(nodeId);
-    if(ii != vehId_ipv4_mapping.end())
+    auto ii = SUMOid_ipv4_mapping.find(nodeId);
+    if(ii != SUMOid_ipv4_mapping.end())
     {
         mod->getSubmodule("appl")->par("hasOBU") = true;
         mod->getSubmodule("appl")->par("IPaddress") = ii->second;
 
         // save ipAddress <--> omnetId mapping
-        auto jj = ipv4_vehId_mapping.find(ii->second);
-        if(jj != ipv4_vehId_mapping.end())
+        auto jj = ipv4_OMNETid_mapping.find(ii->second);
+        if(jj != ipv4_OMNETid_mapping.end())
             throw omnetpp::cRuntimeError("IP address '%s' is not unique!", ii->second.c_str());
-        ipv4_vehId_mapping[ii->second] = mod->getFullName();
+        ipv4_OMNETid_mapping[ii->second] = mod->getFullName();
     }
     else
     {

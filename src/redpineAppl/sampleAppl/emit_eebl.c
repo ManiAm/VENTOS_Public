@@ -403,7 +403,6 @@ void init_GPIO()
 {
     char status_buf[80] = {0};
 
-    // Exporting the GPIO pin
     printf("Exporting the GPIO6 pin... ");
     int fd = open("/sys/class/gpio/export", O_WRONLY);
     if(fd == -1)
@@ -416,7 +415,6 @@ void init_GPIO()
     close(fd);
     printf("Done! \n");
 
-    // Feeding direction 'out' to GPIO
     printf("Feeding direction 'out' to GPIO6... ");
     sprintf(status_buf, "/sys/class/gpio/gpio%d/direction", gpio6);
     fd = open(status_buf, O_WRONLY);
