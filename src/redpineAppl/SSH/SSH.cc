@@ -239,9 +239,9 @@ int SSH::verify_knownhost()
             std::string answer;
             getline(std::cin, answer);
 
-            if(answer == "no")
+            if(answer == "no" || answer == "n")
                 return -1;
-            else if(answer == "yes")
+            else if(answer == "yes" || answer == "y")
             {
                 if (ssh_write_knownhost(SSH_session) < 0)
                     return -1;
