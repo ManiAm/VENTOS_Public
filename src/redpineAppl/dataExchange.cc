@@ -324,7 +324,14 @@ void dataExchange::recvParams(int clientRecvSock, std::string ipv4, uint16_t rem
             connections[ipv4] = vec;
         }
         else
+        {
+            // make sure the 'name' is unique in this OBU
+            for(auto &itt : it->second)
+                if(itt.name == name)
+                    throw omnetpp::cRuntimeError("Application name '%s' already exists on OBU %s", name.c_str(), ipv4.c_str());
+
             it->second.push_back(*entry);
+        }
 
         if(role == "application")
         {
