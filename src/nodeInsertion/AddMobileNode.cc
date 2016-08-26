@@ -308,10 +308,12 @@ void AddMobileNode::Scenario3()
         TraCI->vehicleAdd(vehicleName, "TypeManual", "route2", depart, -5 /*pos*/, 0 /*speed*/, 0 /*lane*/);
     }
 
+    // reset depart
+    depart = 0;
+
     // one board -- emergency break
     if(submode == 1)
     {
-        depart = 0;
         for(int i=0; i<numVehicles; i++)
         {
             char vehicleName[90];
@@ -334,7 +336,6 @@ void AddMobileNode::Scenario3()
     // one board -- forward collision warning
     else if(submode == 2)
     {
-        depart = 0;
         for(int i=0; i<numVehicles; i++)
         {
             char vehicleName[90];
@@ -370,7 +371,6 @@ void AddMobileNode::Scenario3()
     // two external boards for showing EEBL
     else if(submode == 3)
     {
-        depart = 0;
         for(int i=0; i<numVehicles; i++)
         {
             char vehicleName[90];
