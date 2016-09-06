@@ -58,7 +58,7 @@ int bsm_create(bsm_t *, char *, int *);
 
 // forward declaration --VENTOS
 int connectAppl2VENTOS(char *hostname, int remote_server_port, char *applName);
-int sendToVENTOS(unsigned char *sendbuf, int tx_len);
+int sendIntegerToVENTOS(int n);
 void recvFromVENTOS();
 void LED_blink();
 int disconnectVENTOS();
@@ -148,23 +148,13 @@ int main(void)
     printf("\n===[ Establish bi-directional connection with VENTOS ... ]=== \n\n");
 
     // connect this application to VENTOS
-    int server_port = connectAppl2VENTOS("192.168.60.30" /*ip address of VENTOS*/,
+    mq = connectAppl2VENTOS("192.168.60.30" /*ip address of VENTOS*/,
             34676 /*port number VENTOS is listening to*/,
             "application_1" /*application name*/);
 
-    if(server_port != -1)
-    {
-        // open the message queue that was opened by libventos
-        mq = msgget(server_port, 0);
-        if(mq < 0)
-        {
-            perror("ERROR opening message queue");
-            exit (1);
-        }
-
-        // create a thread that handles received data from VENTOS
+    // if successful, create a thread that handles received data from VENTOS
+    if(mq != -1)
         pthread_create(&thread_id, NULL, recvFromVENTOS, NULL);
-    }
 
     printf("\n===[ Generating BSM message ... ]=== \n\n");
 
@@ -345,13 +335,9 @@ int main(void)
             close(fd);
         }
 
-        // prepare an emergency break signal
-        int tx_len = 1;
-        unsigned char sendbuf[BUF_SIZ];
-        memset(sendbuf, 0, BUF_SIZ);
-        sendbuf[0] = Signal_EmergencyBreak;
-        // and send it to the car
-        sendToVENTOS(sendbuf, tx_len);
+        // send 'emergency break signal'
+        printf("\nSending 'Emergency Break' signal to VENTOS. \n");
+        sendIntegerToVENTOS(Signal_EmergencyBreak);
 
         blob->MsgCnt = ++no_of_tx;
         int pay_load_len = 0;
@@ -389,7 +375,7 @@ int main(void)
         if(status < 0)
             printf("Failed! \n");
         else
-            printf("Sent! \n");
+            printf("Done! \n");
 
         free(wsm);
         sleep(1);
@@ -469,25 +455,15 @@ void recvFromVENTOS()
 
         if(recv_msg.mdata.mlen == 1 && recv_msg.mdata.buff[0] == Signal_ForwardCollisionWarning)
         {
-            int tx_len = 1;
-            unsigned char sendbuf[BUF_SIZ];
-            memset(sendbuf, 0, BUF_SIZ);
-            sendbuf[0] = Signal_EmergencyBreak;
-
             // send emergency break signal to the car
-            sendToVENTOS(sendbuf, tx_len);
+            sendIntegerToVENTOS(Signal_EmergencyBreak);
 
             LED_blink();
         }
         else if(recv_msg.mdata.mlen == 1 && recv_msg.mdata.buff[0] == Signal_EEBL)
         {
-            int tx_len = 1;
-            unsigned char sendbuf[BUF_SIZ];
-            memset(sendbuf, 0, BUF_SIZ);
-            sendbuf[0] = Signal_EmergencyBreak;
-
             // send emergency break signal to the car
-            sendToVENTOS(sendbuf, tx_len);
+            sendIntegerToVENTOS(Signal_EmergencyBreak);
 
             LED_blink();
         }

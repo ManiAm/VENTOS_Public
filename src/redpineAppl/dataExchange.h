@@ -39,7 +39,7 @@ class ConnEntry
 public:
     std::string role;
     std::string name;
-    int port;  // remote TCP server port that is listening to data coming from VENTOS
+    int port;             // remote TCP server port that is listening to data coming from VENTOS
     int incommingSocket;  // socket used for receiving data from OBU
     int outgoingSocket;   // socket used for sending data to OBU
 
@@ -53,17 +53,21 @@ public:
     }
 };
 
+
 // class for holding incoming data from OBU
 class dataEntry
 {
 public:
+    int type;
     unsigned char *buffer;
     uint32_t bufferLength;
     std::string ipv4;
     uint16_t port;
 
-    dataEntry(unsigned char *buffer, uint32_t bufferLength, std::string ipv4, uint16_t port)
+    dataEntry(int type, unsigned char *buffer, uint32_t bufferLength, std::string ipv4, uint16_t port)
     {
+        this->type = type;
+
         // copy buffer
         this->buffer = new unsigned char[bufferLength + 1];
         std::copy(buffer, buffer + bufferLength, this->buffer);
@@ -84,7 +88,11 @@ public:
     virtual void handleMessage(omnetpp::cMessage *msg);
     virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, long, cObject* details);
 
-    void sendDataToBoard(std::string, unsigned char *, unsigned int);
+    void sendSignalEEBL(std::string SUMOid);
+    void sendSignalFCW(std::string SUMOid);
+
+    int signalType(dataEntry* data);
+    int wsmPayloadType(dataEntry* data);
 
 private:
     void initialize_withTraCI();
@@ -94,6 +102,8 @@ private:
     void recvParams(int, std::string, uint16_t);
     void recvDataFromOBU(int, std::string, uint16_t);
     void connect_to_TCP_server(std::string, int, std::string);
+
+    void sendDataToBoard(std::string, unsigned char *, unsigned int);
 
     void print_dataPayload(const u_char *payload, int len);
     void print_hex_ascii_line(const u_char *payload, int len, int offset);

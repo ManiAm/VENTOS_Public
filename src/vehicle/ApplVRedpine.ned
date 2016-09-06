@@ -1,13 +1,13 @@
 
 package VENTOS.src.vehicle;
 
-simple ApplVRedpine extends ApplVAID
+simple ApplVOBU extends ApplVAID
 {
     parameters:
-        @class(VENTOS::ApplVRedpine);       
+        @class(VENTOS::ApplVOBU);       
         
         bool forwardCollisionDetection = default(false);
-        bool EEBL = default(false);
+        bool EEBL_Active = default(false);
         
         bool print_HIL2Sim = default(false);
         bool print_Sim2HIL = default(false);

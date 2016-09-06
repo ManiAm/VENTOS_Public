@@ -25,7 +25,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <ApplV_05_OBU.h>
+#include "ApplV_05_OBU.h"
 #include "ExbCIConstants.h"
 
 namespace VENTOS {
@@ -46,7 +46,7 @@ void ApplVOBU::initialize(int stage)
     {
         hasOBU = par("hasOBU").boolValue();
         forwardCollisionDetection = par("forwardCollisionDetection").boolValue();
-        EEBL = par("EEBL").boolValue();
+        EEBL_Active = par("EEBL_Active").boolValue();
 
         // all emulated vehicles are subscribed to mobilityStateChangedSignal in
         // order to detect forward collision
@@ -91,7 +91,7 @@ void ApplVOBU::receiveDataFromOBU(dataEntry* data)
     Enter_Method("");
 
     // 'emergency break' signal is received from the OBU
-    if(data->bufferLength == 1 && *(data->buffer) == Signal_EmergencyBreak)
+    if(ExbCI->signalType(data) == Signal_EmergencyBreak)
     {
         LOG_INFO << boost::format("\n%1%: 'Emergency Break' signal received from OBU. \n") % SUMOID << std::flush;
 
@@ -99,10 +99,10 @@ void ApplVOBU::receiveDataFromOBU(dataEntry* data)
         TraCI->vehicleSetMaxDecel(SUMOID, 7);
         TraCI->vehicleSetSpeed(SUMOID, 0);
     }
-    // WSM message is received from the OBU
-    else if(*(data->buffer) == 0x34)  // todo: how to detect a WSM message?
+    // BSM message is received from the OBU
+    else if(ExbCI->wsmPayloadType(data) == SAE_BSM)
     {
-        if(EEBL)
+        if(EEBL_Active)
         {
             // prepare a 'Basic Safety Message (BSM)'
             BSM* wsm = new BSM("BSM");
@@ -115,9 +115,8 @@ void ApplVOBU::receiveDataFromOBU(dataEntry* data)
             send(wsm, lowerLayerOut);
         }
     }
-    // todo
-    //else
-    //    throw omnetpp::cRuntimeError("Unknown data of size %d from OBU %s", data->bufferLength, data->ipv4.c_str());
+    else
+        throw omnetpp::cRuntimeError("Unknown data type %d of size %d from OBU %s", data->type, data->bufferLength, data->ipv4.c_str());
 
     // deallocate memory
     delete data;
@@ -140,10 +139,8 @@ void ApplVOBU::onBeaconRSU(BeaconRSU* wsm)
 
 void ApplVOBU::onBSM(BSM* wsm)
 {
-    // check the received data and act on it.
-    // all wsm messages here are EEBL for now.
-    // the vehicle stops as soon as it receives a EEBL msg.
-    // todo: we should decode the received msg to get the msg type
+    // todo: check the BSM content first.
+    // if emergency break flag is set then proceed
 
     // get the leading vehicle
     std::vector<std::string> leaderv = TraCI->vehicleGetLeader(SUMOID, sonarDist);
@@ -154,11 +151,8 @@ void ApplVOBU::onBSM(BSM* wsm)
     {
         // if I have an OBU
         if(hasOBU)
-        {
             // send EEBL signal to my OBU
-            unsigned char data[1] = {Signal_EEBL};
-            ExbCI->sendDataToBoard(SUMOID, data, 1);
-        }
+            ExbCI->sendSignalEEBL(SUMOID);
     }
 }
 
@@ -198,8 +192,7 @@ void ApplVOBU::checkForwardCollision()
             LOG_INFO << boost::format("\n%1%: 'Forward Collision Warning' signal sent to OBU. \n") % SUMOID << std::flush;
 
             // send ForwardCollisionWarning signal to the OBU
-            unsigned char data[1] = {Signal_ForwardCollisionWarning};
-            ExbCI->sendDataToBoard(SUMOID, data, 1);
+            ExbCI->sendSignalFCW(SUMOID);
 
             forwardCollisionDetected = true;
         }

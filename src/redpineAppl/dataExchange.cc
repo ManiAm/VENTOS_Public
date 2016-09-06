@@ -48,6 +48,8 @@
 #include "dataExchange.h"
 #include "ApplV_Manager.h"
 #include "vlog.h"
+#include "ExbCIConstants.h"
+
 
 namespace VENTOS {
 
@@ -160,6 +162,11 @@ void dataExchange::executeEachTimestep()
             if(vehID == "")
             {
                 LOG_WARNING << boost::format("\nWARNING: Emulated vehicle for OBU %1% does not exist in the simulation! \n") % frame->ipv4;
+
+                LOG_WARNING << boost::format("The following msg of type %1% and size %2% is discarded: \n") % frame->type % frame->bufferLength;
+                print_dataPayload(frame->buffer, frame->bufferLength);
+                LOG_FLUSH;
+
                 receivedData.pop_back(); // remove it from the vector
                 continue;
             }
@@ -176,7 +183,7 @@ void dataExchange::executeEachTimestep()
             if(module->par("print_HIL2Sim"))
             {
                 std::string SUMOid = TraCI->omnet2traciId(vehID);
-                LOG_EVENT << boost::format("\n%1% (%2%) received the following msg of size %3% from %4%: \n") % SUMOid % vehID % frame->bufferLength % frame->ipv4;
+                LOG_EVENT << boost::format("\n%1% (%2%) received the following msg of type %3% and size %4% from %5%: \n") % SUMOid % vehID % frame->type % frame->bufferLength % frame->ipv4;
                 print_dataPayload(frame->buffer, frame->bufferLength);
                 LOG_FLUSH;
             }
@@ -219,7 +226,7 @@ void dataExchange::start_TCP_server()
 
     // this bind() call will bind  the socket to the current IP address on port, portno
     if (bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
-        throw omnetpp::cRuntimeError("ERROR on binding");
+        throw omnetpp::cRuntimeError("dataExchange: ERROR on binding");
 
     // this listen() call tells the socket to listen to the incoming connections.
     listen(sockfd, numBacklog);
@@ -270,9 +277,19 @@ void dataExchange::recvParams(int clientRecvSock, std::string ipv4, uint16_t rem
     {
         for(int RecvData = 1; RecvData <= 3; RecvData++)
         {
+            // receive the message type
+            uint32_t rcvDataType = 0;
+            int n = ::recv(clientRecvSock, &rcvDataType, sizeof(uint32_t), MSG_NOSIGNAL);
+            if (n < 0)
+                throw std::runtime_error("ERROR reading msg type from socket");
+            else if(n == 0)
+                break;
+
+            rcvDataType = ntohl(rcvDataType);
+
             // receive the message length
             uint32_t rcvDataLength = 0;
-            int n = ::recv(clientRecvSock, &rcvDataLength, sizeof(uint32_t), MSG_NOSIGNAL);
+            n = ::recv(clientRecvSock, &rcvDataLength, sizeof(uint32_t), MSG_NOSIGNAL);
             if (n < 0)
                 throw std::runtime_error("ERROR reading msg size from socket");
             else if(n == 0)
@@ -365,9 +382,19 @@ void dataExchange::recvDataFromOBU(int clientRecvSock, std::string ipv4, uint16_
     {
         while(true)
         {
+            // receive the message type
+            uint32_t rcvDataType = 0;
+            int n = ::recv(clientRecvSock, &rcvDataType, sizeof(uint32_t), MSG_NOSIGNAL);
+            if (n < 0)
+                throw std::runtime_error("ERROR reading msg type from socket");
+            else if(n == 0)
+                break;
+
+            rcvDataType = ntohl(rcvDataType);
+
             // receive the message length
             uint32_t rcvDataLength = 0;
-            int n = ::recv(clientRecvSock, &rcvDataLength, sizeof(uint32_t), MSG_NOSIGNAL);
+            n = ::recv(clientRecvSock, &rcvDataLength, sizeof(uint32_t), MSG_NOSIGNAL);
             if (n < 0)
                 throw std::runtime_error("ERROR reading msg size from socket");
             else if(n == 0)
@@ -388,7 +415,7 @@ void dataExchange::recvDataFromOBU(int clientRecvSock, std::string ipv4, uint16_
                 std::lock_guard<std::mutex> lock(lock_vector);
 
                 // save the received data
-                dataEntry *entry = new dataEntry(rx_buffer, rcvDataLength, ipv4, remote_port);
+                dataEntry *entry = new dataEntry(rcvDataType, rx_buffer, rcvDataLength, ipv4, remote_port);
                 receivedData.push_back(entry);
             }
         }
@@ -554,6 +581,82 @@ void dataExchange::sendDataToBoard(std::string SUMOid, unsigned char *data, unsi
     std::for_each(workers.begin(), workers.end(), [](std::thread &t) {
         t.join();
     });
+}
+
+
+void dataExchange::sendSignalEEBL(std::string SUMOid)
+{
+    unsigned char data[1] = {Signal_EEBL};
+    sendDataToBoard(SUMOid, data, 1);
+}
+
+
+void dataExchange::sendSignalFCW(std::string SUMOid)
+{
+    unsigned char data[1] = {Signal_ForwardCollisionWarning};
+    sendDataToBoard(SUMOid, data, 1);
+}
+
+
+int dataExchange::signalType(dataEntry* data)
+{
+    if(data->type != TYPE_INTEGER)
+        return -1;
+
+    try
+    {
+        return std::stoi(reinterpret_cast<char*>(data->buffer));
+    }
+    catch(const std::exception& ex)
+    {
+        // bad-formatted integer string!
+        return -1;
+    }
+
+    return -1;
+}
+
+
+int dataExchange::wsmPayloadType(dataEntry* data)
+{
+    if(data->type != TYPE_WSMP_SEND_MESSAGE)
+        return -1;
+
+    // todo:
+    // should I check the psid to get the payload type?
+    // or do I need to parse the payload and find it out?
+
+
+
+    return -1;
+
+
+    //    int psid_len = 0;
+    //    while(buf[14] & (0x80 >> psid_len++));
+    //
+    //    int payload_len = len - WSMP_PAY_LOAD_OFFSET - psid_len;
+    //    asn_dec_rval_t Rval = J2735_decode(buf + WSMP_PAY_LOAD_OFFSET + psid_len, payload_len);
+    //
+    //    if(Rval.Message != NULL)
+    //    {
+    //        BasicSafetyMessage_t *bsm_brk = (BasicSafetyMessage_t *) Rval.Message;
+    //        blob_t *blob_brk = (blob_t *) bsm_brk->blob1.buf;
+    //        if(blob_brk != NULL && blob_brk->Brakes == 1)
+    //        {
+    //            // turn on LED
+    //            system("echo 1 > /sys/class/gpio/gpio6/value");
+    //
+    //            // wait for 0.5 second
+    //            usleep(500000);
+    //
+    //            // turn off LED
+    //            system("echo 0 > /sys/class/gpio/gpio6/value");
+    //        }
+    //
+    //        J2735_print(Rval.Message, Rval.Type);
+    //        J2735_free(Rval.Message, Rval.Type);
+    //    }
+
 }
 
 

@@ -59,7 +59,7 @@ private:
 protected:
     bool hasOBU;
     bool forwardCollisionDetection;
-    bool EEBL;
+    bool EEBL_Active;
 };
 
 }
