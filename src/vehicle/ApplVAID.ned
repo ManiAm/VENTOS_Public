@@ -1,7 +1,7 @@
 
 package VENTOS.src.vehicle;
 
-simple ApplVAID extends ApplVSystem
+simple ApplVAID extends ApplVDynamicRouting
 {
     parameters:
         @class(VENTOS::ApplVAID);       

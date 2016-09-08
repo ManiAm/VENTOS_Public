@@ -8,7 +8,6 @@ import VENTOS.src.logging.*;
 import VENTOS.src.nodeInsertion.*;
 import VENTOS.src.router.*;
 import VENTOS.src.interfacing.*;
-import VENTOS.src.redpineAppl.*;
 import VENTOS.src.trafficLight.*;
 import VENTOS.src.cobalt.*;
 import VENTOS.src.veins.*;
@@ -25,7 +24,7 @@ network Network
         // debug info is only available in OMNET GUI mode
         int debugLevel = default(0);
 
-        @display("bgb=529,453");
+        @display("bgb=529,367");
     submodules:
         vLogging: vlog {
             parameters:
@@ -93,14 +92,6 @@ network Network
         Bluetooth: BLE_Dump {
             parameters:
                 @display("p=245,299;i=device/wifilaptop");
-        }
-        dataExchange: dataExchange {
-            parameters:
-                @display("p=144,391;i=block/ifcard");
-        }
-        codeLoader: codeLoader {
-            parameters:
-                @display("p=48,391;i=block/ifcard");
         }
 
     connections allowunconnected:

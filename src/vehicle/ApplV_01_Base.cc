@@ -49,11 +49,6 @@ void ApplVBase::initialize(int stage)
         TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
 
-        // get a pointer to the dataExchange module
-        module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("dataExchange");
-        ExbCI = static_cast<dataExchange *>(module);
-        ASSERT(ExbCI);
-
         headerLength = par("headerLength").longValue();
 
         // vehicle id in omnet++

@@ -212,13 +212,6 @@ void ApplVManager::handleLowerMsg(omnetpp::cMessage* msg)
 
         ApplVManager::onPlatoonMsg(wsm);
     }
-    else if (std::string(msg->getName()) == "BSM")
-    {
-        BSM* wsm = dynamic_cast<BSM*>(msg);
-        ASSERT(wsm);
-
-        ApplVManager::onBSM(wsm);
-    }
     else
         throw omnetpp::cRuntimeError("Vehicle %s received unsupported msg %s!", SUMOID.c_str(), msg->getName());
 
@@ -255,13 +248,6 @@ bool ApplVManager::dropBeacon(double time, std::string vehicle, double plr)
     }
     else
         return false;
-}
-
-
-void ApplVManager::receiveDataFromOBU(dataEntry* data)
-{
-    // pass it down
-    super::receiveDataFromOBU(data);
 }
 
 
@@ -349,12 +335,4 @@ void ApplVManager::onPlatoonMsg(PlatoonMsg* wsm)
     super::onPlatoonMsg(wsm);
 }
 
-
-void ApplVManager::onBSM(BSM* wsm)
-{
-    // pass it down
-    super::onBSM(wsm);
 }
-
-}
-

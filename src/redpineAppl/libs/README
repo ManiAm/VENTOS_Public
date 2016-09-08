@@ -1,6 +1,0 @@
-This folder should contain the required libraries for programs in sampleAppl folder.
-To run DSRC applications, you need the following libraries:
-
-'libdsrc.a'
-'lib_rsi_wave_api.a'
-'libventos.a'

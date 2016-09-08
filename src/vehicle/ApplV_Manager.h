@@ -39,7 +39,6 @@ public:
     virtual void initialize(int stage);
     virtual void finish();
     virtual void receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, omnetpp::cObject* obj, cObject* details);
-    virtual void receiveDataFromOBU(dataEntry*);
 
 protected:
     virtual void handleLowerMsg(omnetpp::cMessage*);
@@ -50,7 +49,6 @@ protected:
     virtual void onBeaconPedestrian(BeaconPedestrian*);
     virtual void onBeaconRSU(BeaconRSU*);
     virtual void onPlatoonMsg(PlatoonMsg*);
-    virtual void onBSM(BSM*);
 
 private:
     bool dropBeacon(double time, std::string vehicle, double plr);

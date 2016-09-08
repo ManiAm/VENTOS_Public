@@ -1,7 +1,7 @@
 
 package VENTOS.src.vehicle;
 
-simple ApplVSystem extends ApplVBeacon
+simple ApplVDynamicRouting extends ApplVBeacon
 {
     parameters:
         @class(VENTOS::ApplVDynamicRouting);

@@ -1,8 +1,8 @@
 
 package VENTOS.src.vehicle.platoon;
-import VENTOS.src.vehicle.ApplVOBU;
+import VENTOS.src.vehicle.ApplVAID;
 
-simple ApplVPlatoonFormed extends ApplVOBU
+simple ApplVPlatoonFormed extends ApplVAID
 {
     parameters:
         @class(VENTOS::ApplVPlatoonFormed); 
