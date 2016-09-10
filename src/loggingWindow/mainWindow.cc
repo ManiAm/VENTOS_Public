@@ -36,14 +36,19 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+#include "boost/filesystem.hpp"
+
 namespace VENTOS {
 
-mainWindow::mainWindow()
+mainWindow::mainWindow(std::string filePath)
 {
+    boost::filesystem::path full_path(filePath);
+    std::string logoPath = (full_path.parent_path() / "log_128.png").string();
+
     set_title("Log window");
     set_border_width(1);
     set_default_size(1200, 500 /*height*/);
-    set_icon_from_file("log_128.png");
+    set_icon_from_file(logoPath.c_str());
 
     Gtk::Box *m_VBox = new Gtk::Box(Gtk::ORIENTATION_VERTICAL);
     add(*m_VBox);

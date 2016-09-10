@@ -45,45 +45,45 @@ enum logWindowCMD
 
 // check if a particular logLevel is active?
 #define LOG_ACTIVE(logLevel) \
-        std::lock_guard<std::mutex>{vlog::lock_log}, vlog::ISLOGACTIVE(logLevel)
+        std::lock_guard<std::mutex>{VENTOS::vlog::lock_log}, VENTOS::vlog::ISLOGACTIVE(logLevel)
 
 // logs are redirected to the standard output stream (std::cout)
 
 #define LOG_WARNING \
-        std::lock_guard<std::mutex>{vlog::lock_log}, vlog::WARNING()
+        std::lock_guard<std::mutex>{VENTOS::vlog::lock_log}, VENTOS::vlog::WARNING()
 
 #define LOG_INFO \
-        std::lock_guard<std::mutex>{vlog::lock_log}, vlog::INFO()
+        std::lock_guard<std::mutex>{VENTOS::vlog::lock_log}, VENTOS::vlog::INFO()
 
 #define LOG_ERROR \
-        std::lock_guard<std::mutex>{vlog::lock_log}, vlog::ERROR()
+        std::lock_guard<std::mutex>{VENTOS::vlog::lock_log}, VENTOS::vlog::ERROR()
 
 #define LOG_DEBUG \
-        std::lock_guard<std::mutex>{vlog::lock_log}, vlog::DEBUG()
+        std::lock_guard<std::mutex>{VENTOS::vlog::lock_log}, VENTOS::vlog::DEBUG()
 
 #define LOG_EVENT \
-        std::lock_guard<std::mutex>{vlog::lock_log}, vlog::EVENT()
+        std::lock_guard<std::mutex>{VENTOS::vlog::lock_log}, VENTOS::vlog::EVENT()
 
 #define LOG_FLUSH \
-        std::lock_guard<std::mutex>{vlog::lock_log}, vlog::FLUSH()
+        std::lock_guard<std::mutex>{VENTOS::vlog::lock_log}, VENTOS::vlog::FLUSH()
 
 // logs are redirected to the 'logWindow'. You can control it using category and subcategory
 
 #define LOG_WARNING_C(category, subcategory) \
-        std::lock_guard<std::mutex>{vlog::lock_log}, vlog::WARNING(category, subcategory)
+        std::lock_guard<std::mutex>{VENTOS::vlog::lock_log}, VENTOS::vlog::WARNING(category, subcategory)
 
 #define LOG_INFO_C(category, subcategory) \
-        std::lock_guard<std::mutex>{vlog::lock_log}, vlog::INFO(category, subcategory)
+        std::lock_guard<std::mutex>{VENTOS::vlog::lock_log}, VENTOS::vlog::INFO(category, subcategory)
 
 #define LOG_ERROR_C(category, subcategory) \
-        std::lock_guard<std::mutex>{vlog::lock_log}, vlog::ERROR(category, subcategory)
+        std::lock_guard<std::mutex>{VENTOS::vlog::lock_log}, VENTOS::vlog::ERROR(category, subcategory)
 
 #define LOG_DEBUG_C(category, subcategory) \
-        std::lock_guard<std::mutex>{vlog::lock_log}, vlog::DEBUG(category, subcategory)
+        std::lock_guard<std::mutex>{VENTOS::vlog::lock_log}, VENTOS::vlog::DEBUG(category, subcategory)
 
 #define LOG_EVENT_C(category, subcategory) \
-        std::lock_guard<std::mutex>{vlog::lock_log}, vlog::EVENT(category, subcategory)
+        std::lock_guard<std::mutex>{VENTOS::vlog::lock_log}, VENTOS::vlog::EVENT(category, subcategory)
 
 #define LOG_FLUSH_C(category, subcategory) \
-        std::lock_guard<std::mutex>{vlog::lock_log}, vlog::FLUSH(category, subcategory)
+        std::lock_guard<std::mutex>{VENTOS::vlog::lock_log}, VENTOS::vlog::FLUSH(category, subcategory)
 }

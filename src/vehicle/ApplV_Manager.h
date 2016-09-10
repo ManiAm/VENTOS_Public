@@ -50,7 +50,6 @@ protected:
     virtual void onBeaconRSU(BeaconRSU*);
     virtual void onPlatoonMsg(PlatoonMsg*);
 
-private:
     bool dropBeacon(double time, std::string vehicle, double plr);
 
 private:

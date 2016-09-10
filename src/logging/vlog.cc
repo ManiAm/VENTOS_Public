@@ -38,8 +38,8 @@
 
 #include <algorithm>
 #include <thread>
-
 #include "vlog.h"
+
 
 namespace VENTOS {
 
@@ -83,6 +83,7 @@ void vlog::initialize(int stage)
 
     if(stage == 0)
     {
+        loggingWindowPath = par("loggingWindowPath").stringValue();
         systemLogLevel = par("systemLogLevel").longValue();
         logRecordCMD = par("logRecordCMD").boolValue();
 
@@ -184,11 +185,8 @@ vlog& vlog::setLog(uint8_t logLevel, std::string category, std::string subcatego
 
     if(!initLogWindow)
     {
-        // relative path to logWindow
-        std::string commandLine = "src/loggingWindow/mainWindow";
-
         std::cout << "\n>>> Starting logWindow process ... \n";
-        std::cout << "    Executable file: " << commandLine << " \n";
+        std::cout << "    Executable file: " << loggingWindowPath << " \n";
         std::cout.flush();
 
         // create a child process
@@ -207,7 +205,7 @@ vlog& vlog::setLog(uint8_t logLevel, std::string category, std::string subcatego
 
             // run 'logWindow' inside this child process
             // if execution is successful then child will be blocked at this line
-            int r = system(commandLine.c_str());
+            int r = system(loggingWindowPath.c_str());
 
             if (r == -1)
                 throw omnetpp::cRuntimeError("Running logWindow failed during system()");

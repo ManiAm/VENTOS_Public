@@ -56,7 +56,7 @@ class mainWindow : public Gtk::Window
 {
 
 public:
-    mainWindow();
+    mainWindow(std::string filePath);
     virtual ~mainWindow();
 
 protected:

@@ -103,6 +103,7 @@ public:
 
 private:
     // NED variables
+    std::string loggingWindowPath = "";
     uint8_t systemLogLevel = 0;
     bool logRecordCMD = false;
 
