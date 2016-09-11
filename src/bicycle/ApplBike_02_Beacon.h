@@ -49,7 +49,7 @@ private:
 
 protected:
     // NED
-    bool VANETenabled;
+    bool DSRCenabled;
 
     // NED variables (beaconing parameters)
     bool sendBeacons;

@@ -229,7 +229,7 @@ void ApplVCoordinator::scenario4()
     if(entryTime > stopTime)
     {
         entryEnabled = false;
-        VANETenabled = false;
+        DSRCenabled = false;
     }
 
     if(omnetpp::simTime().dbl() == 40)

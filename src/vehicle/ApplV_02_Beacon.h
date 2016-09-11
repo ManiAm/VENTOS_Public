@@ -56,7 +56,7 @@ private:
 
 protected:
     // NED
-    bool VANETenabled;
+    bool DSRCenabled;
     double sonarDist;
 
     // NED variables (beaconing parameters)

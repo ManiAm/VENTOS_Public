@@ -7,7 +7,7 @@ simple ApplVBeacon extends ApplVBase
         @class(VENTOS::ApplVBeacon);
         @display("i=block/app2");
         
-        bool VANETenabled = default(true); // if false, vehicle beaconing is off throughout the simulation and you can not turn it on again!
+        bool DSRCenabled = default(true); // if false, vehicle beaconing is off throughout the simulation and you can not turn it on again!
         double sonarDist = default(900);
         
         // vehicle beacon msg parameters

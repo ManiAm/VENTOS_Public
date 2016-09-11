@@ -125,7 +125,7 @@ void ApplVManager::handleSelfMsg(omnetpp::cMessage* msg)
 void ApplVManager::handleLowerMsg(omnetpp::cMessage* msg)
 {
     // vehicles other than CACC should ignore the received msg
-    if( !VANETenabled )
+    if( !DSRCenabled )
     {
         delete msg;
         return;

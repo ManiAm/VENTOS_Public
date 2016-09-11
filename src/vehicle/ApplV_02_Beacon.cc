@@ -44,7 +44,7 @@ void ApplVBeacon::initialize(int stage)
     if (stage == 0)
     {
         // NED
-        VANETenabled = par("VANETenabled").boolValue();
+        DSRCenabled = par("DSRCenabled").boolValue();
         sonarDist = par("sonarDist").doubleValue();
 
         // NED variables (beaconing parameters)
@@ -69,10 +69,10 @@ void ApplVBeacon::initialize(int stage)
 
         // vehicles of type "TypeObstacle" do not broadcast
         if(SUMOType == "TypeObstacle")
-            VANETenabled = false;
+            DSRCenabled = false;
 
         VehicleBeaconEvt = new omnetpp::cMessage("BeaconEvt", KIND_TIMER);
-        if (VANETenabled)
+        if (DSRCenabled)
             scheduleAt(omnetpp::simTime() + offSet, VehicleBeaconEvt);
 
         plnID = "";
@@ -83,7 +83,7 @@ void ApplVBeacon::initialize(int stage)
         WATCH(plnID);
         WATCH(myPlnDepth);
         WATCH(plnSize);
-        WATCH(VANETenabled);
+        WATCH(DSRCenabled);
     }
 }
 
@@ -105,8 +105,8 @@ void ApplVBeacon::handleSelfMsg(omnetpp::cMessage* msg)
 
     if (msg == VehicleBeaconEvt)
     {
-        // make sure VANETenabled is true
-        if(VANETenabled && sendBeacons)
+        // make sure DSRCenabled is true
+        if(DSRCenabled && sendBeacons)
         {
             BeaconVehicle* beaconMsg = prepareBeacon();
 

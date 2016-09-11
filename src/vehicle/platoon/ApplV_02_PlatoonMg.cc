@@ -47,7 +47,7 @@ void ApplVPlatoonMg::initialize(int stage)
         if(plnMode != platoonManagement)
             return;
 
-        if(!VANETenabled)
+        if(!DSRCenabled)
             throw omnetpp::cRuntimeError("This vehicle is not VANET-enabled!");
 
         maxPlnSize = par("maxPlatoonSize").longValue();
@@ -340,7 +340,7 @@ void ApplVPlatoonMg::reportManeuverToStat(std::string from, std::string to, std:
 // only platoon leader can call this method!
 void ApplVPlatoonMg::splitFromPlatoon(int depth)
 {
-    if(!VANETenabled)
+    if(!DSRCenabled)
         throw omnetpp::cRuntimeError("This vehicle is not VANET-enabled!");
 
     if(vehicleState != state_platoonLeader)
@@ -367,7 +367,7 @@ void ApplVPlatoonMg::splitFromPlatoon(int depth)
 
 void ApplVPlatoonMg::leavePlatoon()
 {
-    if(!VANETenabled)
+    if(!DSRCenabled)
         throw omnetpp::cRuntimeError("This vehicle is not VANET-enabled!");
 
     // if I am leader
@@ -403,7 +403,7 @@ void ApplVPlatoonMg::leavePlatoon()
 
 void ApplVPlatoonMg::dissolvePlatoon()
 {
-    if(!VANETenabled)
+    if(!DSRCenabled)
         throw omnetpp::cRuntimeError("This vehicle is not VANET-enabled!");
 
     if(vehicleState != state_platoonLeader)

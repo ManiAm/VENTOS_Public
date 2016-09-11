@@ -44,7 +44,7 @@ void ApplPedBeacon::initialize(int stage)
     if (stage == 0)
     {
         // NED
-        VANETenabled = par("VANETenabled").boolValue();
+        DSRCenabled = par("DSRCenabled").boolValue();
 
         // NED variables (beaconing parameters)
         sendBeacons = par("sendBeacons").boolValue();
@@ -67,7 +67,7 @@ void ApplPedBeacon::initialize(int stage)
         individualOffset = dblrand() * maxOffset;
 
         PedestrianBeaconEvt = new omnetpp::cMessage("BeaconEvt", KIND_TIMER);
-        if (VANETenabled)
+        if (DSRCenabled)
             scheduleAt(omnetpp::simTime() + offSet, PedestrianBeaconEvt);
     }
 }
@@ -94,7 +94,7 @@ void ApplPedBeacon::handleSelfMsg(omnetpp::cMessage* msg)
 
     if (msg == PedestrianBeaconEvt)
     {
-        if(VANETenabled && sendBeacons)
+        if(DSRCenabled && sendBeacons)
         {
             BeaconPedestrian* beaconMsg = ApplPedBeacon::prepareBeacon();
 

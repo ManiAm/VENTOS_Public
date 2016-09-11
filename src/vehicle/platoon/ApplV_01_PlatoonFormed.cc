@@ -48,7 +48,7 @@ void ApplVPlatoonFormed::initialize(int stage)
 	    if(plnMode != platoonFormed)
 	        return;
 
-        if(!VANETenabled)
+        if(!DSRCenabled)
             throw omnetpp::cRuntimeError("This vehicle is not VANET-enabled!");
 
 	    preDefinedPlatoonID = par("preDefinedPlatoonID").stringValue();

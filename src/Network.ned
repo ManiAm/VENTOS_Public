@@ -4,6 +4,7 @@ import VENTOS.src.MIXIM.modules.*;
 import VENTOS.src.MIXIM.connectionManager.*;
 import VENTOS.src.traci.*;
 import VENTOS.src.global.*;
+import VENTOS.src.gettingStarted.*;
 import VENTOS.src.logging.*;
 import VENTOS.src.nodeInsertion.*;
 import VENTOS.src.router.*;
@@ -92,6 +93,10 @@ network Network
         Bluetooth: BLE_Dump {
             parameters:
                 @display("p=245,299;i=device/wifilaptop");
+        }
+        tutorial: tutorial {
+            parameters:
+                @display("p=337,299;i=old/ring");
         }
 
     connections allowunconnected:
