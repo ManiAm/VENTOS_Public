@@ -62,9 +62,13 @@ void tutorial::initialize(int stage)
 
 void tutorial::finish()
 {
-    // unsubscribe from both signals
-    omnetpp::getSimulation()->getSystemModule()->unsubscribe("initialize_withTraCI", this);
-    omnetpp::getSimulation()->getSystemModule()->unsubscribe("executeEachTS", this);
+    // unsubscribe from initialize_withTraCI signal
+    if(omnetpp::getSimulation()->getSystemModule()->isSubscribed("initialize_withTraCI", this))
+        omnetpp::getSimulation()->getSystemModule()->unsubscribe("initialize_withTraCI", this);
+
+    // unsubscribe from executeEachTS signal
+    if(omnetpp::getSimulation()->getSystemModule()->isSubscribed("executeEachTS", this))
+        omnetpp::getSimulation()->getSystemModule()->unsubscribe("executeEachTS", this);
 }
 
 void tutorial::handleMessage(omnetpp::cMessage *msg)

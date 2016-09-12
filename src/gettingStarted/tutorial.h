@@ -38,7 +38,7 @@ namespace VENTOS {
 class tutorial : public BaseApplLayer
 {
 public:
-    // class deconstructor
+    // class destructor
     virtual ~tutorial();
     // OMNET++ invokes this method when tutorial.ned module is created.
     virtual void initialize(int);
@@ -52,9 +52,9 @@ public:
     virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, long, cObject* details);
 
 private:
-    // This method is similar to initialize method but you can use the TraCI interface to communicate with SUMO. In the initialize method, TraCI is still closed.
+    // This method is similar to initialize method but you have access to the TraCI interface to communicate with SUMO. In the initialize method, TraCI is still closed.
     void initialize_withTraCI();
-    // This method is called in every simulation time step. For example if time step is 1s, then every 1s this methods is called
+    // This method is called in every simulation time step.
     void executeEachTimestep();
 
 private:

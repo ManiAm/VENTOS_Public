@@ -1,4 +1,4 @@
-// tutorial.ned
+
 package VENTOS.src.gettingStarted;
 
 simple tutorial
@@ -6,4 +6,5 @@ simple tutorial
     parameters:
         @class(VENTOS::tutorial);
 }
+
 
