@@ -128,13 +128,6 @@ public:
     std::pair<uint32_t, std::string> getVersion();
 
     // ################################################################
-    //                      simulation control
-    // ################################################################
-
-    void simulationTerminate();
-    std::pair<TraCIBuffer, uint32_t> simulationTimeStep(uint32_t targetTime);
-
-    // ################################################################
     //                          subscription
     // ################################################################
 
@@ -150,6 +143,7 @@ public:
     // CMD_GET_SIM_VARIABLE
     uint32_t simulationGetLoadedVehiclesCount();
     std::list<std::string> simulationGetLoadedVehiclesIDList();
+    uint32_t simulationGetDepartedVehiclesCount();
     double* simulationGetNetBoundary();
     uint32_t simulationGetMinExpectedNumber();
     uint32_t simulationGetArrivedNumber();
@@ -416,6 +410,14 @@ public:
     std::string getSUMOFullDir();
     std::string getSUMOConfigFullPath();
 
+protected:
+    // ################################################################
+    //                      simulation control
+    // ################################################################
+
+    void simulationTerminate();
+    std::pair<TraCIBuffer, uint32_t> simulationTimeStep(uint32_t targetTime);
+
 private:
     // ################################################################
     //                    generic methods for getters
@@ -469,6 +471,7 @@ private:
 
             {{0xab, 0x71}, "simulationGetLoadedVehiclesCount"},
             {{0xab, 0x72}, "simulationGetLoadedVehiclesIDList"},
+            {{0xab, 0x73}, "simulationGetDepartedVehiclesCount"},
             {{0xab, 0x7c}, "simulationGetNetBoundary"},
             {{0xab, 0x7d}, "simulationGetMinExpectedNumber"},
             {{0xab, 0x79}, "simulationGetArrivedNumber"},
