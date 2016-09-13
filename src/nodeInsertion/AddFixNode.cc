@@ -101,105 +101,21 @@ void AddFixNode::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t
 void AddFixNode::beginLoading()
 {
     int numRSUs = par("numRSUs").longValue();
-    int numCA = par("numCA").longValue();
+    int numObstacles = par("numObstacles").longValue();
     int numAdversary = par("numAdversary").longValue();
-
-    if(numRSUs > 0 || numCA > 0 || numAdversary > 0)
-        LOG_DEBUG << "\n>>> AddFixNode is adding nodes to the simulation ... \n" << std::flush;
+    int numCA = par("numCA").longValue();
 
     if(numRSUs > 0)
         addRSU(numRSUs);
 
-    if(numCA > 0)
-        addCA(numCA);
+    if(numObstacles > 0)
+        addObstacle(numObstacles);
 
     if(numAdversary > 0)
         addAdversary(numAdversary);
 
-    if( LOG_ACTIVE(DEBUG_LOG_VAL) & (numRSUs > 0 || numCA > 0 || numAdversary > 0) )
-    {
-        LOG_DEBUG << "\n>>> AddFixNode is done adding nodes. Here is a summary: \n" << std::flush;
-        printLoadedStatistics();
-    }
-}
-
-
-void AddFixNode::printLoadedStatistics()
-{
-    // get a pointer to the first RSU
-    omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("RSU", 0);
-    if(module != NULL)
-    {
-        // how many RSUs are in the network?
-        int RSUcount = module->getVectorSize();
-        LOG_DEBUG << boost::format("  %1% RSU modules are added: ") % RSUcount;
-
-        // iterate over modules
-        for(int i = 0; i < RSUcount; ++i)
-        {
-            // get a pointer to the RSU
-            module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("RSU", i);
-
-            // get OMNET id
-            std::string fullId = module->getFullName();
-
-            // get SUMO id
-            cModule *appl =  module->getSubmodule("appl");
-            std::string SUMOID = appl->par("SUMOID").stringValue();
-
-            LOG_DEBUG << boost::format("%1% %2%, ") % fullId % SUMOID;
-        }
-
-        LOG_DEBUG << "\n";
-    }
-
-    // get a pointer to the first Adversary
-    module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("adversary", 0);
-    if(module != NULL)
-    {
-        // how many Adversaries are in the network?
-        int advCount = module->getVectorSize();
-        LOG_DEBUG << boost::format("  %1% adversary modules are added: ") % advCount;
-
-        // iterate over modules
-        for(int i = 0; i < advCount; ++i)
-        {
-            // get a pointer to the RSU
-            module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("adversary", i);
-
-            // get OMNET id
-            std::string fullId = module->getFullName();
-
-            LOG_DEBUG << fullId << ", ";
-        }
-
-        LOG_DEBUG << "\n";
-    }
-
-    // get a pointer to the first CA
-    module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("CA", 0);
-    if(module != NULL)
-    {
-        // how many Adversaries are in the network?
-        int CACount = module->getVectorSize();
-        LOG_DEBUG << boost::format("  %1% CA modules are added: ") % CACount;
-
-        // iterate over modules
-        for(int i = 0; i < CACount; ++i)
-        {
-            // get a pointer to the CA
-            module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("CA", i);
-
-            // get OMNET id
-            std::string fullId = module->getFullName();
-
-            LOG_DEBUG << boost::format("%s, ") % fullId;
-        }
-
-        LOG_DEBUG << "\n";
-    }
-
-    LOG_FLUSH;
+    if(numCA > 0)
+        addCA(numCA);
 }
 
 
@@ -209,11 +125,24 @@ void AddFixNode::addAdversary(int num)
     if(num <= 0)
         throw omnetpp::cRuntimeError("num should be > 0");
 
+    if(LOG_ACTIVE(DEBUG_LOG_VAL))
+    {
+        LOG_DEBUG << boost::format("\n>>> AddFixNode is adding %1% adversary modules: ") % num;
+
+        // iterate over modules
+        for(int i = 0; i < num; ++i)
+            LOG_DEBUG << boost::format("adversary[%1%], ") % i;
+
+        LOG_DEBUG << "\n";
+
+        LOG_FLUSH;
+    }
+
     cModule* parentMod = getParentModule();
     if (!parentMod)
         throw omnetpp::cRuntimeError("Parent Module not found");
 
-    omnetpp::cModuleType* nodeType = omnetpp::cModuleType::get("VENTOS.src.adversary.Adversary");
+    omnetpp::cModuleType* nodeType = omnetpp::cModuleType::get(par("moduleAdversary").stringValue());
 
     for(int i = 0; i < num; i++)
     {
@@ -255,11 +184,24 @@ void AddFixNode::addCA(int num)
     if(num <= 0)
         throw omnetpp::cRuntimeError("num should be > 0");
 
+    if(LOG_ACTIVE(DEBUG_LOG_VAL))
+    {
+        LOG_DEBUG << boost::format("\n>>> AddFixNode is adding %1% CA modules: ") % num;
+
+        // iterate over modules
+        for(int i = 0; i < num; ++i)
+            LOG_DEBUG << boost::format("CA[%1%], ") % i;
+
+        LOG_DEBUG << "\n";
+
+        LOG_FLUSH;
+    }
+
     cModule* parentMod = getParentModule();
     if (!parentMod)
         throw omnetpp::cRuntimeError("Parent Module not found");
 
-    omnetpp::cModuleType* nodeType = omnetpp::cModuleType::get("VENTOS.src.CerAuthority.CA");
+    omnetpp::cModuleType* nodeType = omnetpp::cModuleType::get(par("moduleCA").stringValue());
 
     for(int i = 0; i < num; i++)
     {
@@ -275,17 +217,58 @@ void AddFixNode::addCA(int num)
 }
 
 
+void AddFixNode::addObstacle(int num)
+{
+    if(num <= 0)
+        throw omnetpp::cRuntimeError("num should be > 0");
+
+    if(LOG_ACTIVE(DEBUG_LOG_VAL))
+    {
+        LOG_DEBUG << boost::format("\n>>> AddFixNode is adding %1% Obstacle modules: ") % num;
+
+        // iterate over modules
+        for(int i = 0; i < num; ++i)
+            LOG_DEBUG << boost::format("Obstacle[%1%], ") % i;
+
+        LOG_DEBUG << "\n";
+
+        LOG_FLUSH;
+    }
+
+    cModule* parentMod = getParentModule();
+    if (!parentMod)
+        throw omnetpp::cRuntimeError("Parent Module not found");
+
+    // todo
+
+
+}
+
+
 // add RSU modules to OMNET/SUMO (without moving them to the correct position)
 void AddFixNode::addRSU(int num)
 {
     if(num <= 0)
         throw omnetpp::cRuntimeError("num should be > 0");
 
+    if(LOG_ACTIVE(DEBUG_LOG_VAL))
+    {
+        LOG_DEBUG << boost::format("\n>>> AddFixNode is adding %1% RSU modules: ") % num;
+
+        // iterate over modules
+        for(int i = 0; i < num; ++i)
+            LOG_DEBUG << boost::format("RSU[%1%], ") % i;
+
+        LOG_DEBUG << "\n";
+
+        LOG_FLUSH;
+    }
+
     cModule* parentMod = getParentModule();
     if (!parentMod)
         throw omnetpp::cRuntimeError("Parent Module not found");
 
-    omnetpp::cModuleType* nodeType = omnetpp::cModuleType::get("VENTOS.src.rsu.RSU");
+    omnetpp::cModuleType* nodeType = omnetpp::cModuleType::get(par("moduleRSU").stringValue());
 
     std::list<std::string> TLList = TraCI->TLGetIDList();
 
@@ -319,7 +302,6 @@ void AddFixNode::addRSU(int num)
         // store the cModule of this RSU
         RSUhosts[i] = mod;
     }
-
 
     // now we draw RSUs in SUMO (using a circle to show radio coverage)
     for(int i = 0; i < num; i++)
@@ -362,4 +344,3 @@ void AddFixNode::addCircle(std::string name, std::string type, const RGB color, 
 }
 
 }
-

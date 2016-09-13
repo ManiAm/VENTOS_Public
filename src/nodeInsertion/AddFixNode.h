@@ -60,10 +60,10 @@ public:
 
 private:
     void beginLoading();
-    void printLoadedStatistics();
 
     void addAdversary(int num = 1);
     void addCA(int num = 1);
+    void addObstacle(int num = 1);
 
     void addRSU(int num = 1);
     void addCircle(std::string, std::string, const RGB, bool, Coord*, double);
