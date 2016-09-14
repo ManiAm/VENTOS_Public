@@ -1343,58 +1343,6 @@ else
 fi
 
 echo ""
-echo "Check libssh"
-echo "============"
-
-if [[ "$OS" == "Ubuntu" ]]; then
-    libs=("libssh-dev")
-    install_LIB_linux libs[@]
-fi
-
-getLibVersions_Linux "libssh" "0.1.0"
-result=$?
-#if [[ ("$result" == "1") || ("$result" == "2") ]]; then
-if [[ 1 ]]; then
-
-    # check if directory exists
-    if [ ! -d "libssh" ]; then
-        # cloning git
-        if ! git clone git://git.libssh.org/projects/libssh.git; then
-            exit 1
-        fi
-        # make sure the folder is created
-        if [[ ! -d "libssh" ]]; then
-            echo "libssh folder does not exist!"
-            exit 1
-        fi
-    else
-        echo "libssh folder already exists!"
-    fi
-
-    cd libssh
-    if [[ $? -ne 0 ]]; then
-        exit 1
-    fi
-
-    echo "installing libssh ..."
-    mkdir _build
-    cd _build
-    cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Debug -DWITH_STATIC_LIB=ON ../ > /dev/null
-    if [[ $? -ne 0 ]]; then
-        exit 1
-    fi
-    echo $sudoPass | sudo -S make install > /dev/null
-    if [[ $? -ne 0 ]]; then
-        exit 1
-    fi
-
-    cd ..
-    cd ..
-else
-    echo "libssh is already installed!"
-fi
-
-echo ""
 echo "check shark"
 echo "==========="
 
