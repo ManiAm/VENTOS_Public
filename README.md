@@ -41,8 +41,8 @@ Script execution takes some time, so be patient. Note that the script might show
 **Step 6:** Now you can build the VENTOS project. Use Ctrl+B or right-click on the project name and choose "Build Project". Wait for a while and then check the console windows at the bottom of the Eclipse IDE to make sure no errors occurred.
 
 
-Running VENTOS from IDE
------------------------
+Running Simulation from IDE
+---------------------------
 
 **Step 1:** Open src/traci/TraCIStart.ned file and change the absolute path of SUMO executable accordingly.
 
@@ -57,8 +57,8 @@ You can either select sumo-guiD or sumoD. SUMO binaries (`sumo-guiD` and `sumoD`
 Choose 'OMNET++ Simulation' and click on 'New launch configuration' button at the top left. Give this configuration a name like myConfig. In Executable, choose opp_run and in 'Ini file(s)' choose one of the ini files in the project like params2_CACC.ini. From 'Config name' choose a configuration from the drop down list like CACCVehicleStream1. Leave the rest of the options to default. Click Apply and then click Run.
 
 
-Running VENTOS from Command-line
---------------------------------
+Running Simulation from Command-line
+------------------------------------
 
 The Eclipse IDE launcher helps you start the simulation easily by building the command line and the environment for your program automatically. Sometimes it would be great to start the simulation from outside the IDE. To get the command line used for running the simulation, run the simulation from the IDE. Go to 'debug view' and right click on your program and select 'properties'. The IDE shows the currently used command line such as:
 
@@ -78,8 +78,8 @@ OMNET has a utility program called opp_runall which allows you to execute a simu
 The -j option is used to specify the maximum number of parallel runs allowed. opp_runall basically expands the -r option; for example, a simulation command line containing -r 0..2,8,10 will generate 5 commands with the -r 0, -r 1, -r 2, -r 8 and -r 10 options, respectively.
 
 
-Running VENTOS on a Remote Server
----------------------------------
+Running Simulation on a Remote Server
+-------------------------------------
 
 You can run the project on a remote server (Ubuntu Server preferably). 
 
