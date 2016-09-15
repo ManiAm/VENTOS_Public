@@ -15,8 +15,8 @@ simple BasePhyLayer like IWirelessPhy
         double thermalNoise = default(-110dBm) @unit(dBm);	//the strength of the thermal noise [dBm]
         bool useThermalNoise = default(true);			//should thermal noise be considered?
 
-        xml analogueModels = default(xmldoc("src/veins/config.xml")); 			//Specification of the analogue models to use and their parameters
-        xml decider = default(xmldoc("src/veins/config.xml"));					//Specification of the decider to use and its parameters
+        xml analogueModels = default(xmldoc("config.xml")); 	//Specification of the analogue models to use and their parameters
+        xml decider = default(xmldoc("config.xml"));			//Specification of the decider to use and its parameters
 
 		double sensitivity = default(-89dBm) @unit(dBm);	//The sensitivity of the physical layer [dBm]
 
