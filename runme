@@ -388,12 +388,18 @@ if [[ "$OS" == "Mac OS X" ]]; then
     brew cask list > /dev/null 2> /dev/null
 fi
 
+# refresh the databse of available packages
+# fixes ocational problem with java installation
+if [[ "$OS" == "Ubuntu" ]]; then
+    echo "updating available packages ..."
+    echo $sudoPass | sudo -S apt-get update > /dev/null 2> /dev/null
+fi
+
 # check java version
 version=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}')
 if [[ "" != "$version" ]]; then
     echo "java version is" $version
 fi
-
 # should we install java?
 version=$(echo $version | sed 's/_.*$//') # remove the _
 vercomp "$version" "1.7"
@@ -408,16 +414,16 @@ if [[ "$result" == "2" ]]; then
         read answer
         if [[ ("$answer" == "") || ("$answer" == "1") ]]; then
             # check if openjdk-8-jre has any candidates
-            check=$(apt-cache policy openjdk-8-jre | grep 'Candidate: (none)')
-            if [[ "" == "$check" ]]; then
+            check=$(apt-cache policy openjdk-8-jre | grep 'Candidate:' | awk '{print $2}')
+            if [[ "" != "$check" && "(none)" != "$check" ]]; then
                 echo $sudoPass | sudo -S apt-get --force-yes --yes install openjdk-8-jre
                 if [[ $? -ne 0 ]]; then
                     exit 1
                 fi
             else
                 # check if openjdk-7-jre has any candidates
-                check=$(apt-cache policy openjdk-7-jre | grep 'Candidate: (none)')
-                if [[ "" == "$check" ]]; then
+                check=$(apt-cache policy openjdk-7-jre | grep 'Candidate:' | awk '{print $2}')
+                if [[ "" != "$check" && "(none)" != "$check" ]]; then
                     echo $sudoPass | sudo -S apt-get --force-yes --yes install openjdk-7-jre
                     if [[ $? -ne 0 ]]; then
                         exit 1
@@ -456,12 +462,6 @@ fi
 if [[ "$OS" == "Mac OS X" ]]; then
 libs=("Caskroom/versions/java6")
     install_LIB_Mac libs[@]
-fi
-
-if [[ "$OS" == "Ubuntu" ]]; then
-    # refresh the databse of available packages
-    echo "updating available packages ..."
-    echo $sudoPass | sudo -S apt-get update > /dev/null 2> /dev/null
 fi
 
 echo ""
