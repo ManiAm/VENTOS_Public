@@ -11,8 +11,8 @@ VENTOS is an integrated C++ simulator for studying traffic flows in Vehicular Ad
 16          |
 
 
-Installing VENTOS
------------------
+Installation
+------------
 
 Follow these instructions to install VENTOS (and its prerequisites) on your OS.
 
