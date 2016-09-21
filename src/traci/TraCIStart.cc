@@ -179,12 +179,6 @@ void TraCI_Start::handleMessage(omnetpp::cMessage *msg)
 
 void TraCI_Start::init_traci()
 {
-    // get SUMO executable
-    std::string SUMOexe = par("SUMOexe").stringValue();
-    // check if this file exists?
-    if( !boost::filesystem::exists(SUMOexe) )
-        throw omnetpp::cRuntimeError("SUMO executable not found at %s. Check SUMOexe variable!", SUMOexe.c_str());
-
     std::string switches = "";
 
     if(par("quitOnEnd").boolValue())
@@ -199,7 +193,7 @@ void TraCI_Start::init_traci()
     int seed = par("seed").longValue();
 
     // start 'SUMO TraCI server' first
-    int port = TraCIConnection::startSUMO(SUMOexe, getSUMOConfigFullPath(), switches, seed);
+    int port = TraCIConnection::startSUMO(getFullPath_SUMOExe(par("SUMOapplication").stringValue()), getFullPath_SUMOConfig(), switches, seed);
 
     // then connect to the 'SUMO TraCI server'
     connection = TraCIConnection::connect(host.c_str(), port);
@@ -283,8 +277,10 @@ void TraCI_Start::init_traci()
     this->emit(Signal_initialize_withTraCI, 1);
 
     initRoi();
+
     if(par("roiSquareSizeRSU").doubleValue() > 0)
         roiRSUs(); // this method should be called after sending initialize_withTraCI so that all RSUs are built
+
     drawRoi();
 }
 

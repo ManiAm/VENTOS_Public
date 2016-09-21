@@ -13,16 +13,17 @@ simple TraCIStart
         @signal[executeEachTS]();
         @signal[addFlow]();
         
-        bool debug = default(false);           // emit debug messages?
+        bool debug = default(false);  // emit debug messages?
         
-        string host = default("localhost");    // sumo-launchd.py server hostname
-        string SUMOexe = default("/home/mani/Desktop/VENTOS_SUMO/sumo/bin/sumo-guiD");   // sumoD: comamnd-line interface    sumo-guiD; graphical interface
-        string SUMOconfig = default("");       // SUMO configure file relative path
-        bool quitOnEnd = default(false);        // quits the GUI when the simulation stops
-        bool startAfterLoading = default(true);  // start the simulation after loading
-        bool CMDstepLog = default(true);         // show console output of current simulation step
-        int seed = default(0);       // seed value to set in launch configuration, if missing (-1: current run number)
-        int margin = default(25);    // margin to add to all received vehicle positions 
+        string host = default("localhost");  // TraCI server hostname
+        string SUMOapplication = default("sumo-guiD");   // sumoD: command-line interface    sumo-guiD: graphical interface
+        string SUMOconfig = default("");     // relative path to the SUMO configure file
+        
+        // SUMO switches
+        bool quitOnEnd = default(false);         // sumo-gui is closed when the simulation stops
+        bool startAfterLoading = default(true);  // SUMO simulation starts right after loading
+        bool CMDstepLog = default(true);         // simulation log is printed at the end of each step
+        int seed = default(0);  // seed for random generation (-1: current run number)
         
         double connectAt @unit("s") = default(0s);        // when to connect to TraCI server (must be the initial timestep of the server). -1 means no SUMO!
         double firstStepAt @unit("s") = default(-1s);     // when to start synchronizing with the TraCI server (-1: immediately after connecting)
@@ -31,26 +32,27 @@ simple TraCIStart
         double terminate = default(-1s) @unit(s);   // maximum simulation time. -1 means simulate forever!
         bool autoShutdown = default(true);          // Shutdown module as soon as no more vehicles are in the simulation        
         bool TraCIclosed = default(false);          // for internal use
-        bool equilibrium_vehicle = default(false);
+        bool equilibrium_vehicle = default(false);  // arrived vehicles are re-inserted again
         
-        bool logTraCIcommands = default(false);        
-        bool collectVehiclesData = default(false);
+        bool logTraCIcommands = default(false);     // logging all exchanged TraCI commands    
+        bool collectVehiclesData = default(false);  // collecting vehicle data in each step
         int vehicleDataLevel = default(1);   // 1:record full vehicle data    2:for router scenario   3:for TL
         
-        string vehicleModuleType = default("VENTOS.src.vehicle.vehicle");    // module type to be used in the simulation for each managed vehicle
-        string vehicleModuleName = default("V");                             // module name to be used in the simulation for each managed vehicle
-        string vehicleModuleDisplayString = default("");                     // module displayString to be used in the simulation for each managed vehicle  
-        
-        string bikeModuleType = default("VENTOS.src.bicycle.bicycle");  // module type to be used in the simulation for each managed bicycle       
-        string bikeModuleName = default("B");                           // module name to be used in the simulation for each managed bicycle        
-        string bikeModuleDisplayString = default("");                   // module displayString to be used in the simulation for each managed bicycle
+        int margin = default(25);   // margin to add to all received vehicle positions 
                 
-        string pedModuleType = default("VENTOS.src.pedestrian.pedestrian");   // module type to be used in the simulation for each managed pedestrian       
-        string pedModuleName = default("P");                                  // module name to be used in the simulation for each managed pedestrian        
-        string pedModuleDisplayString = default("");                          // module displayString to be used in the simulation for each managed pedestrian
+        string vehicleModuleType = default("VENTOS.src.vehicle.vehicle");   // OMNET++ module type for vehicles
+        string vehicleModuleName = default("V");                            // OMNET++ module name for vehicles 
+        string vehicleModuleDisplayString = default("");                    // OMNET++ module displayString for each vehicle  
         
-        double penetrationRate = default(1);          //the probability of a vehicle being equipped with Car2X technology
-        bool useRouteDistributions = default(false);
+        string bikeModuleType = default("VENTOS.src.bicycle.bicycle");  // OMNET++ module type for bikes       
+        string bikeModuleName = default("B");                           // OMNET++ module name for bikes        
+        string bikeModuleDisplayString = default("");                   // OMNET++ module displayString for bikes
+                
+        string pedModuleType = default("VENTOS.src.pedestrian.pedestrian");   // OMNET++ module type for pedestrians       
+        string pedModuleName = default("P");                                  // OMNET++ module name for pedestrians        
+        string pedModuleDisplayString = default("");                          // OMNET++ module displayString for pedestrians
+        
+        double penetrationRate = default(1);   // the probability of a vehicle being DSRC-enabled
         
         string roiRoads = default("");  // which roads (e.g. "hwy1 hwy2") are considered to consitute the region of interest, if not empty
         string roiRects = default("");  // which rectangles (e.g. "0,0-10,10 20,20-30,30) are considered to consitute the region of interest, if not empty (in SUMO coordinate)

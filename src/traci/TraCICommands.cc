@@ -31,6 +31,7 @@
 #include <cmath>
 #include <iomanip>
 #include <algorithm>
+#include "boost/format.hpp"
 
 #undef ev
 #include "boost/filesystem.hpp"
@@ -71,7 +72,7 @@ void TraCI_Commands::handleMessage(omnetpp::cMessage *msg)
 
 
 // ################################################################
-//                           Python interaction
+//                      simulation control
 // ################################################################
 
 std::pair<uint32_t, std::string> TraCI_Commands::getVersion()
@@ -99,10 +100,6 @@ std::pair<uint32_t, std::string> TraCI_Commands::getVersion()
     return std::make_pair(apiVersion, serverVersion);
 }
 
-
-// ################################################################
-//                      simulation control
-// ################################################################
 
 void TraCI_Commands::simulationTerminate()
 {
@@ -3002,7 +2999,46 @@ std::string TraCI_Commands::vehicleId2ip(std::string id) const
 //                       SUMO directory
 // ################################################################
 
-std::string TraCI_Commands::getSUMOFullDir()
+std::string TraCI_Commands::getFullPath_SUMOExe(std::string sumoAppl)
+{
+    std::ostringstream str;
+    str << boost::format("exec bash -c 'which %1%'") % sumoAppl;
+
+    FILE* pip = popen(str.str().c_str(), "r");
+    if (!pip)
+        throw omnetpp::cRuntimeError("cannot open pipe: ", str.str().c_str());
+
+    char output[10000];
+    memset (output, 0, sizeof(output));
+    if (!fgets(output, sizeof(output), pip))
+        throw omnetpp::cRuntimeError("SUMO application can not be found: %s. Check 'SUMOapplication' parameter", sumoAppl.c_str());
+
+    std::string SUMOexeFullPath = std::string(output);
+    // remove new line character at the end
+    SUMOexeFullPath.erase(std::remove(SUMOexeFullPath.begin(), SUMOexeFullPath.end(), '\n'), SUMOexeFullPath.end());
+
+    // check if this file exists?
+    if( !boost::filesystem::exists(SUMOexeFullPath) )
+        throw omnetpp::cRuntimeError("SUMO executable not found at %s", SUMOexeFullPath.c_str());
+
+    return SUMOexeFullPath;
+}
+
+
+std::string TraCI_Commands::getFullPath_SUMOConfig()
+{
+    boost::filesystem::path VENTOS_FullPath = omnetpp::getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+    std::string SUMOconfig = par("SUMOconfig").stringValue();
+    boost::filesystem::path SUMOconfigFullPath = VENTOS_FullPath / SUMOconfig;
+
+    if( !boost::filesystem::exists(SUMOconfigFullPath) || !boost::filesystem::is_regular_file(SUMOconfigFullPath) )
+        throw omnetpp::cRuntimeError("SUMO configure file is not found in %s", SUMOconfigFullPath.string().c_str());
+
+    return SUMOconfigFullPath.string();
+}
+
+
+std::string TraCI_Commands::getDir_SUMOConfig()
 {
     boost::filesystem::path VENTOS_FullPath = omnetpp::getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
     std::string SUMOconfig = par("SUMOconfig").stringValue();
@@ -3015,19 +3051,6 @@ std::string TraCI_Commands::getSUMOFullDir()
         throw omnetpp::cRuntimeError("SUMO directory is not found in %s", dir.string().c_str());
 
     return dir.string();
-}
-
-
-std::string  TraCI_Commands::getSUMOConfigFullPath()
-{
-    boost::filesystem::path VENTOS_FullPath = omnetpp::getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-    std::string SUMOconfig = par("SUMOconfig").stringValue();
-    boost::filesystem::path SUMOconfigFullPath = VENTOS_FullPath / SUMOconfig;
-
-    if( !boost::filesystem::exists(SUMOconfigFullPath) || !boost::filesystem::is_regular_file(SUMOconfigFullPath) )
-        throw omnetpp::cRuntimeError("SUMO configure file is not found in %s", SUMOconfigFullPath.string().c_str());
-
-    return SUMOconfigFullPath.string();
 }
 
 // ################################################################

@@ -581,11 +581,11 @@ void AddMobileNode::Scenario8()
     Router *r = static_cast< Router* >(module);
 
     std::string vehFile = ("/Vehicles" + std::to_string(r->totalVehicleCount) + ".xml");
-    std::string xmlFileName = TraCI->getSUMOFullDir();
+    std::string xmlFileName = TraCI->getDir_SUMOConfig();
     xmlFileName += vehFile;
 
     if( !boost::filesystem::exists(xmlFileName) )
-        generateVehicles(TraCI->getSUMOFullDir(), r);
+        generateVehicles(TraCI->getDir_SUMOConfig(), r);
 
     rapidxml::file<> xmlFile( xmlFileName.c_str() );          // Convert our file to a rapid-xml readable object
     rapidxml::xml_document<> doc;                             // Build a rapidxml doc
@@ -1595,7 +1595,7 @@ void AddMobileNode::Scenario12()
 void AddMobileNode::addFlow()
 {
     // get full path to the sumo.cfg file
-    std::string sumoConfig = TraCI->getSUMOConfigFullPath();
+    std::string sumoConfig = TraCI->getFullPath_SUMOConfig();
 
     // read sumo.cfg file and get the path to rou file
     std::string sumoRou = getFullPathToSumoRou(sumoConfig);

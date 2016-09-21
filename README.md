@@ -32,29 +32,36 @@ In Mac OS, type `git` in terminal and choose the Install button in the window th
 
 Script execution takes some time, so be patient. Note that the script might show you many compile-time warning messages and you can safely ignore many of them.
 
-**Step 4:** You can run the Eclipse IDE using the desktop shortcut, application launcher or typing `omnetpp` in terminal. The first time you run OMNET++, Eclipse IDE asks you to select a workspace. Select the folder that you will use to store all your project files. If you have intention to store all your projects on Desktop, then change the workspace to Desktop. Also check "Use this as the default and do not ask again".
+**Step 4:** Open the OMNET++ desktop launcher uisng the following commands:
+
+    cd ~/Desktop
+    gedit ./opensim-ide.desktop
+
+Replace the line starting with `Exec` with the following
+
+    Exec=bash -i -c '/home/mani/Desktop/omnetpp-5.0/ide/omnetpp;$SHELL'
+
+Double-clicking the OMNET++ dektop shortcut opens the Eclipse IDE in an interacive shell which loads .bashrc with all the environment variables defined in previous step.
+
+**Step 5:** You can run the Eclipse IDE using the desktop shortcut or typing `omnetpp` in terminal. The first time you run OMNET++, Eclipse IDE asks you to select a workspace. Select the folder that you will use to store all your project files. If you have intention to store all your projects on Desktop, then change the workspace to Desktop. Also check "Use this as the default and do not ask again".
 
 "Introduction to OMNET++" page will appear. Click on "Workbench". Then it asks you to install INET framework or import some examples into your workspace. Uncheck them both since we do not need them for the time being.
 
-**Step 5:** Now you can import VENTOS project into the OMNET++ IDE. Choose "File->Import" from the menu. Choose "General->Existing Projects into Workspace" from the upcoming dialog and proceed with "Next". Choose "Select root directory" and select the VENTOS folder. "VENTOS" should appear in the "Projects" section. Unselect "Copy project into workspace" if the VENTOS folder is already in your workspace. Click "Finish".
+**Step 6:** Now you can import VENTOS project into the OMNET++ IDE. Choose "File->Import" from the menu. Choose "General->Existing Projects into Workspace" from the upcoming dialog and proceed with "Next". Choose "Select root directory" and select the VENTOS folder. "VENTOS" should appear in the "Projects" section. Unselect "Copy project into workspace" if the VENTOS folder is already in your workspace. Click "Finish".
 
-**Step 6:** Now you can build the VENTOS project. Use Ctrl+B or right-click on the project name and choose "Build Project". Wait for a while and then check the console windows at the bottom of the Eclipse IDE to make sure no errors occurred.
+**Step 7:** Now you can build the VENTOS project. Use Ctrl+B or right-click on the project name and choose "Build Project". Wait for a while and then check the console windows at the bottom of the Eclipse IDE to make sure no errors occurred.
 
 
 Running Simulation from IDE
 ---------------------------
 
-**Step 1:** Open src/traci/TraCIStart.ned file and change the absolute path of SUMO executable accordingly.
-
-    string SUMOexe = default("/home/mani/Desktop/VENTOS_SUMO/sumo/bin/sumo-guiD");
-
-You can either select sumo-guiD or sumoD. SUMO binaries (`sumo-guiD` and `sumoD`) are located in SUMO bin folder. sumo-guiD is the GUI version that provides a graphical interface to SUMO, and is visible while the OMNET++ simulation is running (and is very useful for debugging purposes). On the other hands, sumoD is the command-line version which is faster. Note that you can not use the official SUMO binaries since we have extended the TraCI commands, car-following models, etc. Using the official SUMO binaries will probably give you run-time error.
-
-**Step 2:** Run the VENTOS project by right clicking on the project name in the IDE and choose: 
+Run the VENTOS project by right clicking on the project name in the IDE and choose: 
 
     "Run as" -> "Run configurations..."
 
 Choose 'OMNET++ Simulation' and click on 'New launch configuration' button at the top left. Give this configuration a name like myConfig. In Executable, choose opp_run and in 'Ini file(s)' choose one of the ini files in the project like params2_CACC.ini. From 'Config name' choose a configuration from the drop down list like CACCVehicleStream1. Leave the rest of the options to default. Click Apply and then click Run.
+
+**Note:** You can either select sumo-guiD (with visualization) or sumoD (command-line) for road-traffic simulation by changing the SUMOapplication parameter in src/traci/TraCIStart.ned module. Note that you can not use the official SUMO binaries since VENTOS has extended the TraCI commands, car-following models, etc. Using the official SUMO binaries will probably give you run-time error.
 
 
 Running Simulation from Command-line

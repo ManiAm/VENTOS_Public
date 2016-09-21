@@ -126,7 +126,7 @@ void Router::initialize(int stage)
         omnetpp::getSimulation()->getSystemModule()->subscribe("executeEachTS", this);
 
         // get the file paths
-        SUMO_FullPath = TraCI->getSUMOFullDir();
+        SUMO_FullPath = TraCI->getDir_SUMOConfig();
         if( !boost::filesystem::exists( SUMO_FullPath ) )
             throw omnetpp::cRuntimeError("SUMO directory is not valid! Check it again.");
 

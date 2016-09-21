@@ -54,7 +54,7 @@ TraCIConnection::~TraCIConnection()
 }
 
 
-int TraCIConnection::startSUMO(std::string SUMOexe, std::string SUMOconfig, std::string switches, int seed)
+int TraCIConnection::startSUMO(std::string SUMOapplication, std::string SUMOconfig, std::string switches, int seed)
 {
     int port = TraCIConnection::getFreeEphemeralPort();
 
@@ -66,7 +66,7 @@ int TraCIConnection::startSUMO(std::string SUMOexe, std::string SUMOconfig, std:
     }
 
     LOG_INFO << "\n>>> Starting SUMO process ... \n";
-    LOG_INFO << boost::format("    Executable file: %1% \n") % SUMOexe;
+    LOG_INFO << boost::format("    Executable file: %1% \n") % SUMOapplication;
     LOG_INFO << boost::format("    Config file: %1% \n") % SUMOconfig;
     LOG_INFO << boost::format("    Switches: %1% \n") % switches;
     LOG_INFO << boost::format("    TraCI server: port= %1%, seed= %2% \n") % port % seed;
@@ -74,7 +74,7 @@ int TraCIConnection::startSUMO(std::string SUMOexe, std::string SUMOconfig, std:
 
     // assemble commandLine
     std::ostringstream commandLine;
-    commandLine << SUMOexe
+    commandLine << SUMOapplication
             << " --remote-port " << port
             << " --seed " << seed
             << " --configuration-file " << SUMOconfig

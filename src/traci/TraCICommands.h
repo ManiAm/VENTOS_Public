@@ -122,12 +122,6 @@ public:
     virtual void finish();
 
     // ################################################################
-    //                           python interaction
-    // ################################################################
-
-    std::pair<uint32_t, std::string> getVersion();
-
-    // ################################################################
     //                          subscription
     // ################################################################
 
@@ -380,7 +374,6 @@ public:
     double personGetSpeed(std::string);
     std::string personGetNextEdge(std::string);
 
-
     // ################################################################
     //                      SUMO-OMNET conversion
     // ################################################################
@@ -394,7 +387,6 @@ public:
     double traci2omnetAngle(double angle) const;  // convert TraCI angle to OMNeT++ angle (in rad)
     double omnet2traciAngle(double angle) const;  // convert OMNeT++ angle (in rad) to TraCI angle
 
-
     // ################################################################
     //                    Hardware in the loop (HIL)
     // ################################################################
@@ -402,19 +394,20 @@ public:
     std::string ip2vehicleId(std::string ip) const;   // HIL ipv4 address --> OMNET++ id of emulated vehicle
     std::string vehicleId2ip(std::string vID) const;  // SUMO id of emulated vehicle --> HIL ipv4 address
 
-
     // ################################################################
     //                       SUMO directory
     // ################################################################
 
-    std::string getSUMOFullDir();
-    std::string getSUMOConfigFullPath();
+    std::string getFullPath_SUMOExe(std::string);
+    std::string getFullPath_SUMOConfig();
+    std::string getDir_SUMOConfig();
 
 protected:
     // ################################################################
     //                      simulation control
     // ################################################################
 
+    std::pair<uint32_t, std::string> getVersion();
     void simulationTerminate();
     std::pair<TraCIBuffer, uint32_t> simulationTimeStep(uint32_t targetTime);
 
