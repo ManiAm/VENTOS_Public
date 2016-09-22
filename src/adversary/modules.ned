@@ -1,8 +1,8 @@
 
 package VENTOS.src.adversary;
 
-import VENTOS.src.global.*;
-import VENTOS.src.MIXIM.modules.*;
+import VENTOS.src.global.Nic80211p_Mod;
+import VENTOS.src.global.ConstSpeedMobility;
 
 module Adversary
 {
@@ -33,4 +33,27 @@ module Adversary
         nic.upperControlIn <-- appl.lowerControlOut;
 
         radioIn --> nic.radioIn;
+}
+
+
+import VENTOS.src.MIXIM.modules.IBaseApplLayer;
+
+simple ApplAdversary like IBaseApplLayer
+{
+    parameters:
+        @class(VENTOS::ApplAdversary);
+        
+        bool active = default(false); 
+        int headerLength = default(256bit) @unit(bit); // header length of the application 
+          
+        double AttackT = default(100);
+        bool falsificationAttack = default(false);  
+        bool replayAttack = default(false); 
+        bool jammingAttack = default(false);  
+
+    gates:
+        input lowerLayerIn;    // from mac layer
+        output lowerLayerOut;  // to mac layer
+        input lowerControlIn;
+        output lowerControlOut;
 }

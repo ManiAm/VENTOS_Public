@@ -23,3 +23,8 @@ testMainWin: testTCP.o
 # compile
 testTCP.o : testTCP.cc sockets.h
 	g++ -std=c++11 -c -o testTCP.o testTCP.cc
+	
+clean:
+	rm -rf main.o
+	rm -rf mainWindow.o
+	rm -rf testTCP.o

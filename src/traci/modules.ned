@@ -1,7 +1,23 @@
 
-// This file is adopted from TraCIScenarioManagerLaunchd.ned in Veins framework
-
 package VENTOS.src.traci;
+
+import VENTOS.src.MIXIM.modules.BaseMobility;
+
+// Copyright (C) 2006-2012 Christoph Sommer <christoph.sommer@uibk.ac.at>
+simple TraCIMobilityMod extends BaseMobility
+{
+    parameters:
+        @class(VENTOS::TraCIMobilityMod);
+        @display("i=block/cogwheel");
+
+        bool debug = default(false);  // debug switch
+        double antennaPositionOffset @unit("m") = default(0.0m);  // position offset of the antenna of the front of the car
+        int accidentCount = default(0);  // number of accidents
+        double accidentStart @unit("s") = default(uniform(30s,60s));  // time until first accident, relative to departure time
+        volatile double accidentDuration @unit("s") = default(uniform(30s,60s));  // duration of accident
+        volatile double accidentInterval @unit("s") = default(uniform(30s,60s));  // time between accidents
+}
+
 
 simple TraCIStart
 {
@@ -57,4 +73,20 @@ simple TraCIStart
         string roiRoads = default("");  // which roads (e.g. "hwy1 hwy2") are considered to consitute the region of interest, if not empty
         string roiRects = default("");  // which rectangles (e.g. "0,0-10,10 20,20-30,30) are considered to consitute the region of interest, if not empty (in SUMO coordinate)
         double roiSquareSizeRSU = default(0);
+}
+
+
+simple SumoBinary
+{
+    parameters:
+        @class(VENTOS::SumoBinary);
+        @display("i=block/network2");
+        
+        bool update;
+        
+        string SUMO_GUI_FileName;
+        string SUMO_CMD_FileName;
+        string SUMO_GUI_URL;
+        string SUMO_CMD_URL;
+        string SUMO_Version_URL;
 }
