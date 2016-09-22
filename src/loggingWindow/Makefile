@@ -28,3 +28,5 @@ clean:
 	rm -rf main.o
 	rm -rf mainWindow.o
 	rm -rf testTCP.o
+	rm -rf mainWindow
+	rm -rf testTCP
