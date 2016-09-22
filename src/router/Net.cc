@@ -140,7 +140,7 @@ int Net::nextAcceptingPhase(double time, Edge* start, Edge* end)
 
 void Net::LoadHelloNet(std::string netBase)
 {
-    omnetpp::cModuleType* moduleType = omnetpp::cModuleType::get("VENTOS.src.trafficLight.TSC.TL_Router");    //Get the TL module
+    omnetpp::cModuleType* moduleType = omnetpp::cModuleType::get("VENTOS.src.trafficLight.TL_Router");    //Get the TL module
 
     std::string netFile = netBase + "/hello.net.xml";
 
