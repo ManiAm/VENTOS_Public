@@ -281,8 +281,8 @@ void ApplRSUCLASSIFY::draw(beaconGeneral &wsm, unsigned int real_label)
                         << std::endl;
 
                 // prints datablock value
-//                fprintf(plotterPtr, "set print \n");
-//                fprintf(plotterPtr, "print $data%d \n", j.second.counter);
+                //                fprintf(plotterPtr, "set print \n");
+                //                fprintf(plotterPtr, "print $data%d \n", j.second.counter);
             }
         }
 
@@ -330,53 +330,46 @@ int ApplRSUCLASSIFY::loadTrainer()
     kc_model = new shark::KernelClassifier<shark::RealVector> (kernel);
 
     // Training of a multi-class SVM by the one-versus-all (OVA) method
-    shark::AbstractSvmTrainer<shark::RealVector, unsigned int> *trainer[1];
-    trainer[0]  = new shark::McSvmOVATrainer<shark::RealVector>(kernel, 10.0, true /*with bias*/);
-    //  trainer[1]  = new shark::McSvmOVATrainer<shark::RealVector>(kernel, 10.0, false  /*without bias*/);
+    shark::CSvmTrainer<shark::RealVector, unsigned int> *trainer = new shark::CSvmTrainer<shark::RealVector, unsigned int>(kernel, 10.0, true /*with bias*/);
+    trainer->setMcSvmType(shark::McSvm::OVA);
 
-    // Training of a binary-class SVM
-    // shark::CSvmTrainer<shark::RealVector> trainer(kernel, 1000.0 /*regularization parameter*/, true /*with bias*/);
+    std::string bias = trainer->trainOffset() ? "_withBias" : "_withoutBias";
+    std::stringstream stream;
+    stream << std::fixed << std::setprecision(3) << trainError;
+    std::string fileName = trainer->name() + bias + "_" + stream.str() + ".model";
+    boost::filesystem::path filePath = "results/ML/" + fileName;
 
-    for (int i = 0; i <= 0; i++)
+    // check if this model was trained before
+    std::ifstream ifs(filePath.string());
+    if(!ifs.fail())
     {
-        std::string bias = trainer[i]->trainOffset() ? "_withBias" : "_withoutBias";
-        std::stringstream stream;
-        stream << std::fixed << std::setprecision(3) << trainError;
-        std::string fileName = trainer[i]->name() + bias + "_" + stream.str() + ".model";
-        boost::filesystem::path filePath = "results/ML/" + fileName;
+        std::cout << std::endl;
+        std::cout << "loading " << fileName << " from disk... ";
+        shark::TextInArchive ia(ifs);
+        kc_model->read(ia);
+        ifs.close();
+        std::cout << "done \n";
+    }
+    else
+    {
+        int status = trainClassifier(trainer);
 
-        // check if this model was trained before
-        std::ifstream ifs(filePath.string());
-        if(!ifs.fail())
-        {
-            std::cout << std::endl;
-            std::cout << "loading " << fileName << " from disk... ";
-            shark::TextInArchive ia(ifs);
-            kc_model->read(ia);
-            ifs.close();
-            std::cout << "done \n";
-        }
-        else
-        {
-            int status = trainClassifier(trainer[i]);
+        // check if training was successful
+        if(status == -1)
+            return -1;
 
-            // check if training was successful
-            if(status == -1)
-                return -1;
-
-            // save the model to file
-            std::ofstream ofs(filePath.string());
-            shark::TextOutArchive oa(ofs);
-            kc_model->write(oa);
-            ofs.close();
-        }
+        // save the model to file
+        std::ofstream ofs(filePath.string());
+        shark::TextOutArchive oa(ofs);
+        kc_model->write(oa);
+        ofs.close();
     }
 
     return 0;
 }
 
 
-int ApplRSUCLASSIFY::trainClassifier(shark::AbstractSvmTrainer<shark::RealVector, unsigned int> *trainer)
+int ApplRSUCLASSIFY::trainClassifier(shark::CSvmTrainer<shark::RealVector, unsigned int> *trainer)
 {
     // load sampleData only once
     if(sampleData.elements().empty())

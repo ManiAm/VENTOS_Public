@@ -41,15 +41,7 @@
 #include <shark/Rng/GlobalRng.h>
 #include <shark/Models/Converter.h>
 #include <shark/Models/Kernels/GaussianRbfKernel.h>
-#include <shark/Algorithms/Trainers/McSvmOVATrainer.h>
-#include <shark/Algorithms/Trainers/McSvmCSTrainer.h>
-#include <shark/Algorithms/Trainers/McSvmWWTrainer.h>
-#include <shark/Algorithms/Trainers/McSvmLLWTrainer.h>
-#include <shark/Algorithms/Trainers/McSvmADMTrainer.h>
-#include <shark/Algorithms/Trainers/McSvmATSTrainer.h>
-#include <shark/Algorithms/Trainers/McSvmATMTrainer.h>
-#include <shark/Algorithms/Trainers/McSvmMMRTrainer.h>
-#include <shark/Algorithms/Trainers/McReinforcedSvmTrainer.h>
+#include <shark/Algorithms/Trainers/CSvmTrainer.h>
 
 #undef ev
 #include "boost/filesystem.hpp"
@@ -122,7 +114,7 @@ private:
     void initializeGnuPlot();
     template <typename beaconGeneral> void draw(beaconGeneral &, unsigned int);
     int loadTrainer();
-    int trainClassifier(shark::AbstractSvmTrainer<shark::RealVector, unsigned int> *);
+    int trainClassifier(shark::CSvmTrainer<shark::RealVector, unsigned int> *);
     template <typename beaconGeneral> void onBeaconAny(beaconGeneral);
     template <typename beaconGeneral> unsigned int makePrediction(beaconGeneral);
     template <typename beaconGeneral> void addError(beaconGeneral &, double);
