@@ -10,13 +10,13 @@ VENTOS is an integrated C++ simulator for studying traffic flows in Vehicular Ad
 15          | 
 16          |
 
-We recommend installing VENTOS on the latest version of Ubuntu [link](http://www.ubuntu.com/download/desktop). If you don't have Ubuntu on your machine, then you can install it on a Virtual Machine (VM) such as Oracle VirtualBox (video [here](https://www.youtube.com/watch?v=lUXzhf7Kwow)) or you can install it in a dual-boot setup. If you do not use VENTOS often, then the virtual machine would be a good option. This avoids reboots and enables easy data-exchange between Ubuntu and your host OS. Moreover, you can save the VM state using snapshots and roll back to the previous functioning state if something goes wrong. One big disadvantage of using Ubuntu on a VM is slow speed because your available computer resources (CPU, RAM, etc.) are shared between two OSes. Hence, if you use VENTOS often, then a dual-boot setup is more suitable.
+We recommend installing VENTOS on the latest version of Ubuntu ([here](http://www.ubuntu.com/download/desktop)). If you don't have Ubuntu on your computer, then you can install it on a Virtual Machine (VM) such as Oracle VirtualBox (video [here](https://www.youtube.com/watch?v=lUXzhf7Kwow)) or you can install it in a dual-boot setup. If you do not use VENTOS often, then the VM would be a good option. This avoids reboots and enables easy data-exchange between Ubuntu and your host OS. Moreover, you can save the VM state using snapshots and roll back to the previous functioning state if something goes wrong. One big disadvantage of using a VM is slow speed because your available computer resources (CPU, RAM, etc.) are shared between two OSes. Hence, if you use VENTOS often, then a dual-boot setup is more suitable.
 
 
 Installation
 ------------
 
-Follow these instructions to install VENTOS (and its prerequisites) on your OS. You can also follow the installation in [this](https://www.youtube.com/watch?v=lUXzhf7Kwow) video.
+Follow these instructions to install VENTOS (and its prerequisites) on your OS. You can also follow the installation in [this](https://www.youtube.com/watch?v=lUXzhf7Kwow) video. You need patience and a fast Internet. The installation process takes more than one hour!
 
 **Step 1:** If you do not have git installed on your machine, then install it. In Ubuntu, simply run the following command in terminal: 
 
