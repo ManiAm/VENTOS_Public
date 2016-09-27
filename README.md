@@ -1,7 +1,7 @@
 VENTOS
 ======
 
-VENTOS is an integrated C++ simulator for studying traffic flows in Vehicular Ad-hoc Networks (VANETs). You can find more information [here](http://rubinet.ece.ucdavis.edu/projects/ventos). Currently we support the following operating systems:
+VENTOS is an integrated C++ simulator for studying vehicular traffic flows, collaborative driving, and interactions between vehicles and infrastructure through DSRC-enabled wireless communication capability. You can find more information [here](http://rubinet.ece.ucdavis.edu/projects/ventos). Currently we support the following operating systems:
 
   Ubuntu    |     Mac OS X
 :---------: | :------------------:
@@ -16,7 +16,7 @@ We recommend installing VENTOS on the latest version of Ubuntu ([here](http://ww
 Installation
 ------------
 
-Follow these instructions to install VENTOS (and its prerequisites) on your OS. You can also follow the installation in [this](https://www.youtube.com/watch?v=lUXzhf7Kwow) video. You need patience and a fast Internet. The installation process takes more than one hour!
+Follow these instructions to install VENTOS (and its prerequisites) on your OS. You can also follow the installation instructions in [this](https://www.youtube.com/watch?v=LzKJREeBKlQ) video. You need patience and a fast Internet. The installation process takes more than one hour!
 
 **Step 1:** If you do not have git installed on your machine, then install it. In Ubuntu, simply run the following command in terminal: 
 
@@ -34,16 +34,16 @@ In Mac OS, type `git` in terminal and choose the Install button in the window th
 
 Script execution takes some time, so be patient. Note that the script might show you many compile-time warning messages and you can safely ignore many of them.
 
-**Step 4:** Open the OMNET++ desktop launcher uisng the following commands:
+**Step 4:** Open the OMNET++ desktop launcher using the following commands:
 
     cd ~/Desktop
     gedit ./opensim-ide.desktop
 
-Replace the line starting with `Exec` with the following
+Replace the line starting with `Exec` with the following. Save the file and then close it.
 
     Exec=bash -i -c '/home/mani/Desktop/omnetpp-5.0/ide/omnetpp;$SHELL'
 
-Double-clicking the OMNET++ dektop shortcut opens the Eclipse IDE in an interacive shell which loads .bashrc with all the environment variables defined in previous step.
+Now double-clicking the OMNET++ dektop shortcut opens the Eclipse IDE in an interacive shell which loads .bashrc with all the environment variables defined in previous step.
 
 **Step 5:** You can run the Eclipse IDE using the desktop shortcut or typing `omnetpp` in terminal. The first time you run OMNET++, Eclipse IDE asks you to select a workspace. Select the folder that you will use to store all your project files. If you have intention to store all your projects on Desktop, then change the workspace to Desktop. Also check "Use this as the default and do not ask again".
 
