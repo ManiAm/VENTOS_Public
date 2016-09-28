@@ -1,35 +1,8 @@
-/****************************************************************************/
-/// @file    tutorial.cc
-/// @author  Mani Amoozadeh <maniam@ucdavis.edu>
-/// @author  second author name
-/// @date    Sep 2016
-///
-/****************************************************************************/
-// VENTOS, Vehicular Network Open Simulator; see http:?
-// Copyright (C) 2013-2015
-/****************************************************************************/
-//
-// This file is part of VENTOS.
-// VENTOS is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation; either version 2 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-//
-
-#include "tutorial.h"
+#include "tutorial.h"  // including the header file above
 
 namespace VENTOS {
 
-// This macro registers this class with OMNET++
+// Define_Module macro registers this class with OMNET++
 Define_Module(VENTOS::tutorial);
 
 tutorial::~tutorial()
@@ -80,12 +53,12 @@ void tutorial::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t s
 {
     Enter_Method_Silent();
 
-    // if we receive Signal_executeEachTS then call method executeEachTimestep()
+    // if Signal_executeEachTS is received, then call executeEachTimestep() method
     if(signalID == Signal_executeEachTS)
     {
         tutorial::executeEachTimestep();
     }
-    // if we receive Signal_initialize_withTraCI then call method initialize_withTraCI()
+    // if Signal_initialize_withTraCI is received, then call initialize_withTraCI() method
     else if(signalID == Signal_initialize_withTraCI)
     {
         tutorial::initialize_withTraCI();
