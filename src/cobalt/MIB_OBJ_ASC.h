@@ -30,30 +30,6 @@
 
 namespace VENTOS {
 
-/*
-
-To specify an object to an SNMP agent, both the Object ID (which defines the type of object) and
-the instance (the specific object of the given type) need to be provided.
-
-For non-tabular or scalar objects, the instance is 0. For example sysDescr is a scalar object under
-the system group in RFC1213-MIB and it should be specified as sysDescr.0 in Object ID field of MibBrowser.
-
-For tabular objects, the instance is defined in the MIB as index, and it is a sequence of one or more objects.
-For example, tcpConnTable under tcp group of RFC1213-MIB has five columns: tcpConnState, tcpConnLocalAddress,
-tcpConnLocalPort, tcpConnRemAddress, tcpConnRemPort
-
-tcpConnState     tcpConnLocalAddress     tcpConnLocalPort     tcpConnRemAddress     tcpConnRemPort
---------------------------------------------------------------------------------------------------
-listen(2)         0.0.0.0                 21                   0.0.0.0               0
-closeWait(8)      192.168.1.78            1156                 192.168.4.144         80
-
-To simulate SNMP agents use "Verax SNMP Agent Simulator".
-Download at http://www.veraxsystems.com/en/products/free-snmp-agent-simulator
-Then run the console by sudo /etc/init.d/verax-snmpsimulator console
-Then type 'show'
-
-*/
-
 
 /*
 ####################
