@@ -41,11 +41,11 @@ function PlotStarvation(runNumber, timeSteps_D, delayDist, perClassFairness, per
     if(runNumber == runTotal)    
         subplot(1,2,2);
     
-        b = bar([cell2mat(perClassFairness{1,1}), ...
-            cell2mat(perClassFairness{1,2}) ; ...
+        b = bar([cell2mat(perClassFairness{2,1}), ...
+            cell2mat(perClassFairness{2,2}) ; ...
             
-            cell2mat(perLaneFairness{1,1}),  ...
-            cell2mat(perLaneFairness{1,2})], 'k');       
+            cell2mat(perLaneFairness{2,1}),  ...
+            cell2mat(perLaneFairness{2,2})], 'k');       
         
         %b(1).BarWidth = 0.3;
         
@@ -55,7 +55,7 @@ function PlotStarvation(runNumber, timeSteps_D, delayDist, perClassFairness, per
         set(gca, 'XTickLabel', {'Inter-class'; 'Inter-lane'});
     
         % set the axis limit
-        %set(gca, 'YLim', [0 1]);
+        set(gca, 'YLim', [0.4 1]);
     
         % set font size
         set(gca, 'FontSize', 20);

@@ -6,10 +6,10 @@ clc;    % position the cursor at the top of the screen
 addpath ../libs
 
 % path to folder
-basePATH = '../../results/cmd/5_FMSC_Compare/3_full_poisson_balanced_routeDist_70_30';
+basePATH = '../../results/cmd/4_LQF_MWM_starvation';
 
 % what to plot?
-option = 5;
+option = 4;
 
 TLqueuingData = dir([basePATH, '/*_TLqueuingData.txt']);
 TLphasingData = dir([basePATH, '/*_TLphasingData.txt']);
