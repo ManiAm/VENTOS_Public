@@ -25,11 +25,11 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "tutorial.h"
+#include "tutorial.h"  // including the header file above
 
 namespace VENTOS {
 
-// This macro registers this class with OMNET++
+// Define_Module macro registers this class with OMNET++
 Define_Module(VENTOS::tutorial);
 
 tutorial::~tutorial()
@@ -80,12 +80,12 @@ void tutorial::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t s
 {
     Enter_Method_Silent();
 
-    // if we receive Signal_executeEachTS then call method executeEachTimestep()
+    // if Signal_executeEachTS is received, then call executeEachTimestep() method
     if(signalID == Signal_executeEachTS)
     {
         tutorial::executeEachTimestep();
     }
-    // if we receive Signal_initialize_withTraCI then call method initialize_withTraCI()
+    // if Signal_initialize_withTraCI is received, then call initialize_withTraCI() method
     else if(signalID == Signal_initialize_withTraCI)
     {
         tutorial::initialize_withTraCI();
