@@ -249,9 +249,6 @@ vlog& vlog::setLog(uint8_t logLevel, std::string category, std::string subcatego
     auto ii = find(subcats->begin(), subcats->end(), subcategory);
     if(ii == subcats->end())
     {
-        if(subcats->size() == 2)  // todo: increase this in future
-            throw omnetpp::cRuntimeError("You can't add more than 2 sub-categories!");
-
         // adding a new text view inside this category
         sendToLogWindow(std::to_string(CMD_ADD_SUB_TEXTVIEW) + "||" + category + "||" + subcategory);
 
