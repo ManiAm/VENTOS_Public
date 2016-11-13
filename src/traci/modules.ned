@@ -29,6 +29,7 @@ simple TraCIStart
         @signal[executeEachTS]();
         @signal[addFlow]();
         
+        bool active = default(false);
         bool debug = default(false);  // emit debug messages?
         
         string host = default("localhost");  // TraCI server hostname
@@ -41,7 +42,7 @@ simple TraCIStart
         bool CMDstepLog = default(true);         // simulation log is printed at the end of each step
         int seed = default(0);  // seed for random generation (-1: current run number)
         
-        double connectAt @unit("s") = default(0s);        // when to connect to TraCI server (must be the initial timestep of the server). -1 means no SUMO!
+        double connectAt @unit("s") = default(0s);        // when to connect to TraCI server (must be the initial timestep of the server).
         double firstStepAt @unit("s") = default(-1s);     // when to start synchronizing with the TraCI server (-1: immediately after connecting)
         double updateInterval @unit("s") = default(0.1s); // time interval of hosts' position updates
         

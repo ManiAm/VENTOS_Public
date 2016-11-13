@@ -55,19 +55,22 @@ void TraCI_Start::initialize(int stage)
 
     if (stage == 1)
     {
+        active = par("active").boolValue();
         debug = par("debug");
-        connectAt = par("connectAt");
         terminate = par("terminate").doubleValue();
         updateInterval = par("updateInterval");
 
         // no need to bring up SUMO
-        if(connectAt == -1)
+        if(!active)
         {
             executeOneTimestepTrigger = new omnetpp::cMessage("step");
             scheduleAt(updateInterval, executeOneTimestepTrigger);
         }
         else
         {
+            connectAt = par("connectAt");
+            ASSERT(connectAt.dbl() >= 0);
+
             connectAndStartTrigger = new omnetpp::cMessage("connect");
             scheduleAt(connectAt, connectAndStartTrigger);
 
@@ -158,7 +161,7 @@ void TraCI_Start::handleMessage(omnetpp::cMessage *msg)
     }
     else if (msg == executeOneTimestepTrigger)
     {
-        if (connectAt != -1)
+        if (active)
             executeOneTimestep();
 
         // notify other modules to run one simulation TS
