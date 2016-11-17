@@ -42,7 +42,7 @@ private:
     void terminateSimulation(std::string);
 
 private:
-    void* socketPtr;
+    static void* socketPtr;
     static pid_t child_pid;
 };
 

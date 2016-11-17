@@ -23,6 +23,7 @@
 namespace VENTOS {
 
 pid_t TraCIConnection::child_pid = -1;
+void* TraCIConnection::socketPtr = NULL;
 
 SOCKET socket(void* ptr)
 {
@@ -31,8 +32,9 @@ SOCKET socket(void* ptr)
 }
 
 
-TraCIConnection::TraCIConnection(void* ptr) : socketPtr(ptr)
+TraCIConnection::TraCIConnection(void* ptr)
 {
+    this->socketPtr = ptr;
     ASSERT(socketPtr);
 }
 
@@ -192,6 +194,9 @@ int TraCIConnection::getFreeEphemeralPort()
 
 TraCIConnection* TraCIConnection::connect(const char* host, int port)
 {
+    if(socketPtr)
+        throw omnetpp::cRuntimeError("There is already an active connection to SUMO! Why calling 'connect' twice ?!");
+
     LOG_INFO << boost::format("\n>>> Connecting to TraCI server on port %1% ... \n") % port << std::flush;
 
     if (initsocketlibonce() != 0)
@@ -298,7 +303,7 @@ TraCIBuffer TraCIConnection::queryOptional(uint8_t commandGroupId, const TraCIBu
 std::string TraCIConnection::receiveMessage()
 {
     if (!socketPtr)
-        throw omnetpp::cRuntimeError("Not connected to TraCI server");
+        throw omnetpp::cRuntimeError("Not connected to TraCI server. Is 'Network.TraCI.active' set to true ?");
 
     uint32_t msgLength;
 
@@ -353,7 +358,7 @@ std::string TraCIConnection::receiveMessage()
 void TraCIConnection::sendMessage(std::string buf)
 {
     if (!socketPtr)
-        throw omnetpp::cRuntimeError("Not connected to TraCI server");
+        throw omnetpp::cRuntimeError("Not connected to TraCI server. Is 'Network.TraCI.active' set to true ?");
 
     {
         uint32_t msgLength = sizeof(uint32_t) + buf.length();
