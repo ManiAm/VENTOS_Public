@@ -60,6 +60,8 @@ private:
 private:
     // You can access the TraCI interface using this pointer
     TraCI_Commands *TraCI;
+    // Controls if the module should be active or not
+    bool active;
     // This module is subscribed to the following two signals. The first signal notifies the module that the TraCI interface has been established. The second signal notifies the module that one simulation time step is executed
     omnetpp::simsignal_t Signal_initialize_withTraCI;
     omnetpp::simsignal_t Signal_executeEachTS;

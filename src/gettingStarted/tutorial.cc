@@ -41,22 +41,27 @@ void tutorial::initialize(int stage)
 {
     if(stage == 0)
     {
-        // get a pointer to the TraCI module
-        cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
-        // make sure module TraCI exists
-        ASSERT(module);
-        // get a pointer to TraCI class
-        TraCI = static_cast<TraCI_Commands *>(module);
-        // make sure the TraCI pointer is not null
-        ASSERT(TraCI);
+        active = par("active").boolValue();
 
-        // register and subscribe to Signal_initialize_withTraCI
-        Signal_initialize_withTraCI = registerSignal("initialize_withTraCI");
-        omnetpp::getSimulation()->getSystemModule()->subscribe("initialize_withTraCI", this);
+        if(active)
+        {
+            // get a pointer to the TraCI module
+            cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
+            // make sure module TraCI exists
+            ASSERT(module);
+            // get a pointer to TraCI class
+            TraCI = static_cast<TraCI_Commands *>(module);
+            // make sure the TraCI pointer is not null
+            ASSERT(TraCI);
 
-        // register and subscribe to Signal_executeEachTS
-        Signal_executeEachTS = registerSignal("executeEachTS");
-        omnetpp::getSimulation()->getSystemModule()->subscribe("executeEachTS", this);
+            // register and subscribe to Signal_initialize_withTraCI
+            Signal_initialize_withTraCI = registerSignal("initialize_withTraCI");
+            omnetpp::getSimulation()->getSystemModule()->subscribe("initialize_withTraCI", this);
+
+            // register and subscribe to Signal_executeEachTS
+            Signal_executeEachTS = registerSignal("executeEachTS");
+            omnetpp::getSimulation()->getSystemModule()->subscribe("executeEachTS", this);
+        }
     }
 }
 
