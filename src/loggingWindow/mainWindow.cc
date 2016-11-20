@@ -188,10 +188,11 @@ void mainWindow::listenToClient(mainWindow *windowPtr)
 
                 // updating the received command string
                 rx_cmd = std::string(rx_buffer);
-                // call the dispatcher in mainWindow
+
+                // call the dispatcher in mainWindow -- this will call 'processCMD' method
                 windowPtr->m_Dispatcher->emit();
 
-                // wait for mainWindow to notify us
+                // wait here for mainWindow to notify us
                 cv.wait(lck);
             }
 
@@ -222,6 +223,9 @@ void mainWindow::listenToClient(mainWindow *windowPtr)
 
 void mainWindow::processCMD()
 {
+    // check answer by DanielKO: http://stackoverflow.com/questions/19142368/what-happens-if-i-call-wait-on-a-notified-condition-variable
+    std::lock_guard<std::mutex> lck(mtx);
+
     try
     {
         if(rx_cmd == "")
