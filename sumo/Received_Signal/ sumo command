@@ -1,0 +1,1 @@
+netconvertD --node-files=1hello.nod.xml --edge-files=2hello.edg.xml --output-file=3hello.net.xml
