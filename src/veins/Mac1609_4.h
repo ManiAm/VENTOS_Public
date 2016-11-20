@@ -201,6 +201,9 @@ protected:
 
     omnetpp::simtime_t getFrameDuration(int payloadLengthBits, enum PHY_MCS mcs = MCS_DEFAULT) const;
 
+private:
+    bool reportMAClayerData;
+
 protected:
     /** @brief Self message to indicate that the current channel shall be switched.*/
     omnetpp::cMessage* nextChannelSwitch;

@@ -436,6 +436,9 @@ omnetpp::simtime_t Decider80211p::processSignalEnd(AirFrame* msg) {
 
     double recvPower_dBm = 10*log10(signal.getReceivingPower()->getValue(start));
 
+    //todo
+    std::cout << recvPower_dBm << std::endl;
+
     bool whileSending = false;
 
     //remove this frame from our current signals

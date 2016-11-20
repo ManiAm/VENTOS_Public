@@ -1,7 +1,7 @@
 
 package VENTOS.src.adversary;
 
-import VENTOS.src.global.Nic80211p_Mod;
+import VENTOS.src.veins.Nic80211p;
 import VENTOS.src.global.ConstSpeedMobility;
 
 module Adversary
@@ -17,7 +17,7 @@ module Adversary
                 @display("p=60,50");
         }
 
-        nic: Nic80211p_Mod {
+        nic: Nic80211p {
             parameters:
                 @display("p=60,166");
         }

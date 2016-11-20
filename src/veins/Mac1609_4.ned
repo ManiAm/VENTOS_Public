@@ -35,7 +35,7 @@ import VENTOS.src.MIXIM.modules.BaseMacLayer;
 simple Mac1609_4 extends BaseMacLayer
 {
     parameters:
-        @class(Mac1609_4);
+        @class(Veins::Mac1609_4);
         // signal informing interested application about channel busy state
         @signal[sigChannelBusy](type=bool);
         // signal informing interested application about a collision
