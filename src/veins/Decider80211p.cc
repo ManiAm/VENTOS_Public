@@ -82,7 +82,6 @@ omnetpp::simtime_t Decider80211p::processNewSignal(AirFrame* msg) {
                 EV << "AirFrame: " << frame->getId() << " with (" << recvPower << " > " << sensitivity << ") -> Already synced to another AirFrame. Treating AirFrame as interference." << std::endl;
             }
 
-
             //channel turned busy
             //measure communication density
             myBusyTime += signal.getDuration().dbl();
@@ -137,7 +136,7 @@ void Decider80211p::calculateSinrAndSnrMapping(AirFrame* frame, Mapping **sinrMa
     ConstMapping* recvPowerMap = signal.getReceivingPower();
     assert(recvPowerMap);
 
-    //TODO: handle noise of zero (must not devide with zero!)
+    //TODO: handle noise of zero (must not divide with zero!)
     *sinrMap = MappingUtils::divide( *recvPowerMap, *noiseInterferenceMap, Argument::MappedZero() );
     *snrMap = MappingUtils::divide( *recvPowerMap, *noiseMap, Argument::MappedZero() );
 
