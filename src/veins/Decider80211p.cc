@@ -436,9 +436,6 @@ omnetpp::simtime_t Decider80211p::processSignalEnd(AirFrame* msg) {
 
     double recvPower_dBm = 10*log10(signal.getReceivingPower()->getValue(start));
 
-    //todo
-    std::cout << recvPower_dBm << std::endl;
-
     bool whileSending = false;
 
     //remove this frame from our current signals
@@ -475,6 +472,7 @@ omnetpp::simtime_t Decider80211p::processSignalEnd(AirFrame* msg) {
 
     if (result->isSignalCorrect()) {
         EV << "packet was received correctly, it is now handed to upper layer...\n";
+
         // go on with processing this AirFrame, send it to the Mac-Layer
         phy->sendUp(frame, result);
     }

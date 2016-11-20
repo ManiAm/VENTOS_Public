@@ -158,7 +158,17 @@ simple ApplVPlatoonMg extends ApplVPlatoonFormed
 }
 
 
-simple ApplVManager extends ApplVPlatoonMg
+simple ApplVMsgControl extends ApplVPlatoonMg
+{
+    parameters:
+        @class(VENTOS::ApplVMsgControl);
+        @display("i=block/app2");
+        
+        bool printCtrlData = default(false);
+}
+
+
+simple ApplVManager extends ApplVMsgControl
 {
     parameters:
         @class(VENTOS::ApplVManager);

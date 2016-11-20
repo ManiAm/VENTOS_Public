@@ -574,6 +574,7 @@ void Mac1609_4::handleLowerMsg(omnetpp::cMessage* msg)
     //pass information about received frame to the upper layers
     DeciderResult80211 *macRes = dynamic_cast<DeciderResult80211 *>(PhyToMacControlInfo::getDeciderResult(msg));
     ASSERT(macRes);
+
     DeciderResult80211 *res = new DeciderResult80211(*macRes);
     wsm->setControlInfo(new PhyToMacControlInfo(res));
 

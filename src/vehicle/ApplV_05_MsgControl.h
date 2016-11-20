@@ -1,8 +1,8 @@
 /****************************************************************************/
-/// @file    ApplV_Manager.h
+/// @file    ApplV_05_MsgControl.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
-/// @date    August 2013
+/// @date    Nov 2016
 ///
 /****************************************************************************/
 // VENTOS, Vehicular Network Open Simulator; see http:?
@@ -25,54 +25,35 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef ApplVMANAGER_H
-#define ApplVMANAGER_H
+#ifndef ApplVMSGCONTROL_H
+#define ApplVMSGCONTROL_H
 
-#include "ApplV_05_MsgControl.h"
+#include "ApplV_10_Coordinator.h"
 
 namespace VENTOS {
 
-class ApplVManager : public ApplVMsgControl
+class ApplVMsgControl : public ApplVCoordinator
 {
 public:
-    ~ApplVManager();
+    ~ApplVMsgControl();
     virtual void initialize(int stage);
     virtual void finish();
-    virtual void receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, omnetpp::cObject* obj, cObject* details);
 
 protected:
-    virtual void handleLowerMsg(omnetpp::cMessage*);
     virtual void handleSelfMsg(omnetpp::cMessage*);
-    virtual void handlePositionUpdate(omnetpp::cObject*);
+    virtual void handlePositionUpdate(cObject*);
 
     virtual void onBeaconVehicle(BeaconVehicle*);
     virtual void onBeaconPedestrian(BeaconPedestrian*);
     virtual void onBeaconRSU(BeaconRSU*);
     virtual void onPlatoonMsg(PlatoonMsg*);
 
-    bool dropBeacon(double time, std::string vehicle, double plr);
+private:
+    void getControlInfo(Veins::WaveShortMessage *);
 
 private:
-    typedef ApplVMsgControl super;
-
-protected:
-    // NED variables (packet loss ratio)
-    double droppT;
-    std::string droppV;
-    double plr;
-
-    // NED variables (measurement error)
-    bool measurementError;
-    double errorGap;
-    double errorRelSpeed;
-
-    bool reportBeaconsData;
-
-    long BeaconVehCount;
-    long BeaconVehDropped;
-    long BeaconRSUCount;
-    long PlatoonCount;
-    long BeaconPedCount;
+    typedef ApplVCoordinator super;
+    bool printCtrlData;
 };
 
 }
