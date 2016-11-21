@@ -83,8 +83,8 @@ void USB::initialize(int stage)
         Signal_executeEachTS = registerSignal("executeEachTS");
         omnetpp::getSimulation()->getSystemModule()->subscribe("executeEachTS", this);
 
-        USBevents = new omnetpp::cMessage("USBevents", KIND_TIMER);
-        USBInterrupt = new omnetpp::cMessage("USBInterrupt", KIND_TIMER);
+        USBevents = new omnetpp::cMessage("USBevents", TYPE_TIMER);
+        USBInterrupt = new omnetpp::cMessage("USBInterrupt", TYPE_TIMER);
 
         if(listUSBdevices)
         {

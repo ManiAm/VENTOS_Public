@@ -50,7 +50,7 @@ void ApplVCoordinator::initialize(int stage)
 
         coordinationMode = par("coordinationMode").longValue();
 
-        platoonCoordination = new omnetpp::cMessage("coordination timer", KIND_TIMER);
+        platoonCoordination = new omnetpp::cMessage("coordination timer", TYPE_TIMER);
         scheduleAt(omnetpp::simTime(), platoonCoordination);
     }
 }

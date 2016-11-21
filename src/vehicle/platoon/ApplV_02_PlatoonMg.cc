@@ -48,7 +48,7 @@ void ApplVPlatoonMg::initialize(int stage)
             return;
 
         if(!DSRCenabled)
-            throw omnetpp::cRuntimeError("This vehicle is not VANET-enabled!");
+            throw omnetpp::cRuntimeError("This vehicle is not DSRC-enabled!");
 
         maxPlnSize = par("maxPlatoonSize").longValue();
         optPlnSize = par("optPlatoonSize").longValue();
@@ -74,11 +74,11 @@ void ApplVPlatoonMg::initialize(int stage)
         // ----------------------
         if(entryEnabled)
         {
-            entryManeuverEvt = new omnetpp::cMessage("EntryEvt", KIND_TIMER);
+            entryManeuverEvt = new omnetpp::cMessage("EntryEvt", TYPE_TIMER);
             //double offset = dblrand() * 10;
             scheduleAt(omnetpp::simTime() + 4., entryManeuverEvt); // todo: no offset for now!
 
-            plnTIMER0 = new omnetpp::cMessage("listening to beacons", KIND_TIMER);
+            plnTIMER0 = new omnetpp::cMessage("listening to beacons", TYPE_TIMER);
         }
 
         // used in merge maneuver
@@ -87,10 +87,10 @@ void ApplVPlatoonMg::initialize(int stage)
         leadingPlnID = "";
         leadingPlnDepth = -1;
 
-        plnTIMER1  = new omnetpp::cMessage("wait for merge reply", KIND_TIMER);
-        plnTIMER1a = new omnetpp::cMessage("wait to catchup", KIND_TIMER);
-        plnTIMER2  = new omnetpp::cMessage("wait for followers ack", KIND_TIMER);
-        plnTIMER3  = new omnetpp::cMessage("wait for merge done", KIND_TIMER);
+        plnTIMER1  = new omnetpp::cMessage("wait for merge reply", TYPE_TIMER);
+        plnTIMER1a = new omnetpp::cMessage("wait to catchup", TYPE_TIMER);
+        plnTIMER2  = new omnetpp::cMessage("wait for followers ack", TYPE_TIMER);
+        plnTIMER3  = new omnetpp::cMessage("wait for merge done", TYPE_TIMER);
 
         // used in split maneuver
         // ----------------------
@@ -101,29 +101,29 @@ void ApplVPlatoonMg::initialize(int stage)
         TotalACKsRx = 0;
         splitCaller = -1;
 
-        plnTIMER4  = new omnetpp::cMessage("wait for split reply", KIND_TIMER);
-        plnTIMER6  = new omnetpp::cMessage("wait for free agent ACK", KIND_TIMER);
-        plnTIMER7  = new omnetpp::cMessage("wait for all ACKs", KIND_TIMER);
-        plnTIMER5  = new omnetpp::cMessage("wait for change_pl", KIND_TIMER);
-        plnTIMER8  = new omnetpp::cMessage("wait for split done", KIND_TIMER);
-        plnTIMER8a = new omnetpp::cMessage("wait for enough gap", KIND_TIMER);
+        plnTIMER4  = new omnetpp::cMessage("wait for split reply", TYPE_TIMER);
+        plnTIMER6  = new omnetpp::cMessage("wait for free agent ACK", TYPE_TIMER);
+        plnTIMER7  = new omnetpp::cMessage("wait for all ACKs", TYPE_TIMER);
+        plnTIMER5  = new omnetpp::cMessage("wait for change_pl", TYPE_TIMER);
+        plnTIMER8  = new omnetpp::cMessage("wait for split done", TYPE_TIMER);
+        plnTIMER8a = new omnetpp::cMessage("wait for enough gap", TYPE_TIMER);
 
-        mgrTIMER = new omnetpp::cMessage("manager", KIND_TIMER);
+        mgrTIMER = new omnetpp::cMessage("manager", TYPE_TIMER);
         scheduleAt(omnetpp::simTime() + 0.1, mgrTIMER);
 
         // used in leader leave
         // --------------------
-        plnTIMER9 = new omnetpp::cMessage("wait for VOTE reply", KIND_TIMER);
+        plnTIMER9 = new omnetpp::cMessage("wait for VOTE reply", TYPE_TIMER);
 
         // used in follower leave
         // ----------------------
         RemainingSplits = 0;
-        plnTIMER10 = new omnetpp::cMessage("wait for leave reply", KIND_TIMER);
-        plnTIMER11 = new omnetpp::cMessage("wait for split completion", KIND_TIMER);
+        plnTIMER10 = new omnetpp::cMessage("wait for leave reply", TYPE_TIMER);
+        plnTIMER11 = new omnetpp::cMessage("wait for split completion", TYPE_TIMER);
 
         // used in dissolve
         // ----------------
-        plnTIMER12 = new omnetpp::cMessage("wait for DISSOLVE ACK", KIND_TIMER);
+        plnTIMER12 = new omnetpp::cMessage("wait for DISSOLVE ACK", TYPE_TIMER);
     }
 }
 
@@ -211,7 +211,7 @@ PlatoonMsg*  ApplVPlatoonMg::prepareData(std::string receiver, uCommands type, s
     if(plnMode != platoonManagement)
         throw omnetpp::cRuntimeError("This application mode does not support platoon management!");
 
-    PlatoonMsg* wsm = new PlatoonMsg("platoonMsg");
+    PlatoonMsg* wsm = new PlatoonMsg("platoonMsg", TYPE_PLATOON_DATA);
 
     // add header length
     wsm->addBitLength(headerLength);
@@ -420,6 +420,4 @@ void ApplVPlatoonMg::dissolvePlatoon()
     dissolve_DataFSM();
 }
 
-
 }
-

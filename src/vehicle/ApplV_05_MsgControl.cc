@@ -68,9 +68,12 @@ void ApplVMsgControl::onBeaconVehicle(BeaconVehicle* wsm)
 {
     super::onBeaconVehicle(wsm);
 
-    Veins::WaveShortMessage* msg = dynamic_cast<Veins::WaveShortMessage*>(wsm);
-    ASSERT(msg);
-    getControlInfo(msg);
+    if(printCtrlData)
+    {
+        Veins::WaveShortMessage* msg = dynamic_cast<Veins::WaveShortMessage*>(wsm);
+        ASSERT(msg);
+        getControlInfo(msg);
+    }
 }
 
 
@@ -78,9 +81,12 @@ void ApplVMsgControl::onBeaconPedestrian(BeaconPedestrian* wsm)
 {
     // super::onBeaconPedestrian(wsm);
 
-    Veins::WaveShortMessage* msg = dynamic_cast<Veins::WaveShortMessage*>(wsm);
-    ASSERT(msg);
-    getControlInfo(msg);
+    if(printCtrlData)
+    {
+        Veins::WaveShortMessage* msg = dynamic_cast<Veins::WaveShortMessage*>(wsm);
+        ASSERT(msg);
+        getControlInfo(msg);
+    }
 }
 
 
@@ -88,9 +94,12 @@ void ApplVMsgControl::onBeaconRSU(BeaconRSU* wsm)
 {
     super::onBeaconRSU(wsm);
 
-    Veins::WaveShortMessage* msg = dynamic_cast<Veins::WaveShortMessage*>(wsm);
-    ASSERT(msg);
-    getControlInfo(msg);
+    if(printCtrlData)
+    {
+        Veins::WaveShortMessage* msg = dynamic_cast<Veins::WaveShortMessage*>(wsm);
+        ASSERT(msg);
+        getControlInfo(msg);
+    }
 }
 
 
@@ -98,39 +107,42 @@ void ApplVMsgControl::onPlatoonMsg(PlatoonMsg* wsm)
 {
     super::onPlatoonMsg(wsm);
 
-    Veins::WaveShortMessage* msg = dynamic_cast<Veins::WaveShortMessage*>(wsm);
-    ASSERT(msg);
-    getControlInfo(msg);
+    if(printCtrlData)
+    {
+        Veins::WaveShortMessage* msg = dynamic_cast<Veins::WaveShortMessage*>(wsm);
+        ASSERT(msg);
+        getControlInfo(msg);
+    }
 }
 
 
 void ApplVMsgControl::getControlInfo(Veins::WaveShortMessage *msg)
 {
-    if(printCtrlData)
-    {
-        // get the control info attached to this msg
-        PhyToMacControlInfo *control = (PhyToMacControlInfo *) msg->getControlInfo();
-        ASSERT(control);
-        DeciderResult80211 *decider = dynamic_cast<DeciderResult80211 *> (control->getDeciderResult());
-        ASSERT(decider);
+    if(!printCtrlData)
+        return;
 
-        // print
-        LOG_EVENT_C(SUMOID, "default") << boost::format("%1%: Received msg '%2%' with ") % omnetpp::simTime().dbl() % msg->getFullName();
-        LOG_EVENT_C(SUMOID, "default") << boost::format("Bitrate: '%.2f', Received power '%4.3f' dBm, SNR: '%.3f', collision: '%d' \n") % decider->getBitrate() % decider->getRecvPower_dBm() % decider->getSnr() % decider->isCollision();
-        LOG_FLUSH_C(SUMOID, "default");
+    // get the control info attached to this msg
+    PhyToMacControlInfo *control = (PhyToMacControlInfo *) msg->getControlInfo();
+    ASSERT(control);
+    DeciderResult80211 *decider = dynamic_cast<DeciderResult80211 *> (control->getDeciderResult());
+    ASSERT(decider);
 
-        /*
-         * bitrate: the bit-rate of the transmission of the packet
-         * snr: the signal to noise ratio of the transmission
-         * recvPower_dBm: the received power in dBm
-         *                Please note that this is NOT the RSSI. The RSSI is an indicator
-         *                of the quality of the signal which is not standardized, and
-         *                different vendors can define different indicators. This value
-         *                indicates the power that the frame had when received by the
-         *                NIC card, WITHOUT noise floor and WITHOUT interference
-         * collision: if the uncorrect decoding was due to low power or collision
-         */
-    }
+    // print
+    LOG_EVENT_C(SUMOID, "default") << boost::format("%.2f: Received msg '%s' with ") % omnetpp::simTime().dbl() % msg->getFullName();
+    LOG_EVENT_C(SUMOID, "default") << boost::format("Bitrate: '%.2f', Received power '%4.3f' dBm, SNR: '%.3f', collision: '%d' \n") % decider->getBitrate() % decider->getRecvPower_dBm() % decider->getSnr() % decider->isCollision();
+    LOG_FLUSH_C(SUMOID, "default");
+
+    /*
+     * bitrate: the bit-rate of the transmission of the packet
+     * snr: the signal to noise ratio of the transmission
+     * recvPower_dBm: the received power in dBm
+     *                Please note that this is NOT the RSSI. The RSSI is an indicator
+     *                of the quality of the signal which is not standardized, and
+     *                different vendors can define different indicators. This value
+     *                indicates the power that the frame had when received by the
+     *                NIC card, WITHOUT noise floor and WITHOUT interference
+     * collision: if the uncorrect decoding was due to low power or collision
+     */
 }
 
 
@@ -138,7 +150,6 @@ void ApplVMsgControl::getControlInfo(Veins::WaveShortMessage *msg)
 void ApplVMsgControl::handlePositionUpdate(cObject* obj)
 {
     super::handlePositionUpdate(obj);
-
 }
 
 }

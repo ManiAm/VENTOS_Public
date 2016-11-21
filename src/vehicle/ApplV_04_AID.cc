@@ -41,8 +41,8 @@ void ApplV_AID::initialize(int stage)
 {
     super::initialize(stage);
 
-	if (stage == 0)
-	{
+    if (stage == 0)
+    {
         AID = par("AID").boolValue();
 
         fromLane = "";
@@ -51,7 +51,7 @@ void ApplV_AID::initialize(int stage)
         toX = 0;
 
         laneChanges.clear();
-	}
+    }
 }
 
 
@@ -91,14 +91,14 @@ void ApplV_AID::onBeaconRSU(BeaconRSU* wsm)
         EV << "### " << SUMOID << ": sent ClaneChangeMsg message." << std::endl;
 
         laneChanges.clear();
-       // lastLaneName = TraCI->commandGetLaneId(SUMOID);
+        // lastLaneName = TraCI->commandGetLaneId(SUMOID);
     }
 }
 
 
 LaneChangeMsg*  ApplV_AID::prepareData(std::string receiver, std::deque<std::string> vecValue)
 {
-    LaneChangeMsg* wsm = new LaneChangeMsg("laneChangeMsg");
+    LaneChangeMsg* wsm = new LaneChangeMsg("laneChange", TYPE_LANECHANGE_DATA);
 
     // add header length
     wsm->addBitLength(headerLength);
@@ -151,4 +151,3 @@ void ApplV_AID::handlePositionUpdate(cObject* obj)
 }
 
 }
-

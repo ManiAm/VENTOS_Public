@@ -71,7 +71,7 @@ void ApplVBeacon::initialize(int stage)
         if(SUMOType == "TypeObstacle")
             DSRCenabled = false;
 
-        VehicleBeaconEvt = new omnetpp::cMessage("BeaconEvt", KIND_TIMER);
+        VehicleBeaconEvt = new omnetpp::cMessage("BeaconEvt", TYPE_TIMER);
         if (DSRCenabled)
             scheduleAt(omnetpp::simTime() + offSet, VehicleBeaconEvt);
 
@@ -134,7 +134,7 @@ void ApplVBeacon::handleSelfMsg(omnetpp::cMessage* msg)
 
 BeaconVehicle*  ApplVBeacon::prepareBeacon()
 {
-    BeaconVehicle* wsm = new BeaconVehicle("beaconVehicle");
+    BeaconVehicle* wsm = new BeaconVehicle("beaconVehicle", TYPE_BEACON_VEHICLE);
 
     // add header length
     wsm->addBitLength(headerLength);

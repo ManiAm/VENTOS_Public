@@ -99,7 +99,7 @@ void ApplCA::initialize(int stage)
         Signal_Magic_Req = registerSignal("Magic_Req");
         omnetpp::getSimulation()->getSystemModule()->subscribe("Magic_Req", this);
 
-        Timer1 = new omnetpp::cMessage("Timer_Initial_Wait_CA", KIND_TIMER);
+        Timer1 = new omnetpp::cMessage("Timer_Initial_Wait_CA", TYPE_TIMER);
         scheduleAt(omnetpp::simTime() + InitialWait, Timer1);
     }
 }
@@ -391,7 +391,7 @@ std::vector<CRL_Piece *> ApplCA::addHeader(std::vector<std::string> vec)
     for(unsigned int i=0; i< vec.size(); i++)
     {
         // create the packet for transmitting a certificate
-        CRL_Piece *pkt = new CRL_Piece(moduleName.c_str());
+        CRL_Piece *pkt = new CRL_Piece(moduleName.c_str(), TYPE_CRL_PIECE);
 
         pkt->setCRLversion(1);
         pkt->setTimestamp(0);
@@ -453,7 +453,7 @@ void ApplCA::sendPiecesToRSUs()
 
             cModule *rmodule = omnetpp::getSimulation()->getSystemModule()->getSubmodule("RSU", i);
             if(rmodule == NULL)
-                throw omnetpp::cRuntimeError("RSU %d was found in the network!", i);
+                throw omnetpp::cRuntimeError("RSU %d was not found in the network!", i);
 
             CRLPiecesData *data = new CRLPiecesData(rmodule->getFullName(), PiecesCRL_shuffled);
 

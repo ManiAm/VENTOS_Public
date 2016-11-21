@@ -124,7 +124,7 @@ void ApplVManager::handleSelfMsg(omnetpp::cMessage* msg)
 
 void ApplVManager::handleLowerMsg(omnetpp::cMessage* msg)
 {
-    // vehicles other than CACC should ignore the received msg
+    // Only DSRC-enabled vehicles accept this msg
     if( !DSRCenabled )
     {
         delete msg;
@@ -148,11 +148,7 @@ void ApplVManager::handleLowerMsg(omnetpp::cMessage* msg)
         }
     }
 
-    // make sure msg is of type WaveShortMessage
-    Veins::WaveShortMessage* check_msg = dynamic_cast<Veins::WaveShortMessage*>(msg);
-    ASSERT(check_msg);
-
-    if (std::string(msg->getName()) == "beaconVehicle")
+    if (msg->getKind() == TYPE_BEACON_VEHICLE)
     {
         BeaconVehicle* wsm = dynamic_cast<BeaconVehicle*>(msg);
         ASSERT(wsm);
@@ -185,7 +181,7 @@ void ApplVManager::handleLowerMsg(omnetpp::cMessage* msg)
             }
         }
     }
-    else if (std::string(msg->getName()) == "beaconPedestrian")
+    else if (msg->getKind() == TYPE_BEACON_PEDESTRIAN)
     {
         BeaconPedestrian* wsm = dynamic_cast<BeaconPedestrian*>(msg);
         ASSERT(wsm);
@@ -194,7 +190,7 @@ void ApplVManager::handleLowerMsg(omnetpp::cMessage* msg)
 
         ApplVManager::onBeaconPedestrian(wsm);
     }
-    else if (std::string(msg->getName()) == "beaconRSU")
+    else if (msg->getKind() == TYPE_BEACON_RSU)
     {
         BeaconRSU* wsm = dynamic_cast<BeaconRSU*>(msg);
         ASSERT(wsm);
@@ -203,7 +199,7 @@ void ApplVManager::handleLowerMsg(omnetpp::cMessage* msg)
 
         ApplVManager::onBeaconRSU(wsm);
     }
-    else if(std::string(msg->getName()) == "platoonMsg")
+    else if(msg->getKind() == TYPE_PLATOON_DATA)
     {
         PlatoonMsg* wsm = dynamic_cast<PlatoonMsg*>(msg);
         ASSERT(wsm);
@@ -213,7 +209,7 @@ void ApplVManager::handleLowerMsg(omnetpp::cMessage* msg)
         ApplVManager::onPlatoonMsg(wsm);
     }
     else
-        throw omnetpp::cRuntimeError("Vehicle %s received unsupported msg %s!", SUMOID.c_str(), msg->getName());
+        throw omnetpp::cRuntimeError("Vehicle %s received unsupported msg %s of type %d!", SUMOID.c_str(), msg->getName(), msg->getKind());
 
     delete msg;
 }

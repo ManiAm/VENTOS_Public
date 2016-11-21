@@ -66,7 +66,7 @@ void ApplPedBeacon::initialize(int stage)
         offSet = offSet + floor(offSet/0.050)*0.050;
         individualOffset = dblrand() * maxOffset;
 
-        PedestrianBeaconEvt = new omnetpp::cMessage("BeaconEvt", KIND_TIMER);
+        PedestrianBeaconEvt = new omnetpp::cMessage("BeaconEvt", TYPE_TIMER);
         if (DSRCenabled)
             scheduleAt(omnetpp::simTime() + offSet, PedestrianBeaconEvt);
     }
@@ -110,7 +110,7 @@ void ApplPedBeacon::handleSelfMsg(omnetpp::cMessage* msg)
 
 BeaconPedestrian*  ApplPedBeacon::prepareBeacon()
 {
-    BeaconPedestrian* wsm = new BeaconPedestrian("beaconPedestrian");
+    BeaconPedestrian* wsm = new BeaconPedestrian("beaconPedestrian", TYPE_BEACON_PEDESTRIAN);
 
     // add header length
     wsm->addBitLength(headerLength);

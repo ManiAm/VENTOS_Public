@@ -102,39 +102,35 @@ void ApplRSUManager::handleSelfMsg(omnetpp::cMessage* msg)
 
 void ApplRSUManager::handleLowerMsg(omnetpp::cMessage* msg)
 {
-    // make sure msg is of type WaveShortMessage
-    Veins::WaveShortMessage* wsm = dynamic_cast<Veins::WaveShortMessage*>(msg);
-    ASSERT(wsm);
-
-    if (std::string(wsm->getName()) == "beaconVehicle")
+    if (msg->getKind() == TYPE_BEACON_VEHICLE)
     {
         BeaconVehicle* wsm = dynamic_cast<BeaconVehicle*>(msg);
         ASSERT(wsm);
 
         ApplRSUManager::onBeaconVehicle(wsm);
     }
-    else if (std::string(wsm->getName()) == "beaconBicycle")
+    else if (msg->getKind() == TYPE_BEACON_BICYCLE)
     {
         BeaconBicycle* wsm = dynamic_cast<BeaconBicycle*>(msg);
         ASSERT(wsm);
 
         ApplRSUManager::onBeaconBicycle(wsm);
     }
-    else if (std::string(wsm->getName()) == "beaconPedestrian")
+    else if (msg->getKind() == TYPE_BEACON_PEDESTRIAN)
     {
         BeaconPedestrian* wsm = dynamic_cast<BeaconPedestrian*>(msg);
         ASSERT(wsm);
 
         ApplRSUManager::onBeaconPedestrian(wsm);
     }
-    else if (std::string(wsm->getName()) == "beaconRSU")
+    else if (msg->getKind() == TYPE_BEACON_RSU)
     {
         BeaconRSU* wsm = dynamic_cast<BeaconRSU*>(msg);
         ASSERT(wsm);
 
         ApplRSUManager::onBeaconRSU(wsm);
     }
-    else if(std::string(wsm->getName()) == "laneChangeMsg")
+    else if(msg->getKind() == TYPE_LANECHANGE_DATA)
     {
         LaneChangeMsg* wsm = dynamic_cast<LaneChangeMsg*>(msg);
         ASSERT(wsm);

@@ -110,11 +110,7 @@ void ApplAdversary::handleLowerMsg(omnetpp::cMessage* msg)
     if(omnetpp::simTime().dbl() < AttackT)
         return;
 
-    // make sure msg is of type WaveShortMessage
-    Veins::WaveShortMessage* wsm = dynamic_cast<Veins::WaveShortMessage*>(msg);
-    ASSERT(wsm);
-
-    if ( std::string(wsm->getName()) == "beaconVehicle" )
+    if (msg->getKind() == TYPE_BEACON_VEHICLE)
     {
         BeaconVehicle* wsm = dynamic_cast<BeaconVehicle*>(msg);
         ASSERT(wsm);

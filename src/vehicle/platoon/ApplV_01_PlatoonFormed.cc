@@ -49,7 +49,7 @@ void ApplVPlatoonFormed::initialize(int stage)
 	        return;
 
         if(!DSRCenabled)
-            throw omnetpp::cRuntimeError("This vehicle is not VANET-enabled!");
+            throw omnetpp::cRuntimeError("This vehicle is not DSRC-enabled!");
 
 	    preDefinedPlatoonID = par("preDefinedPlatoonID").stringValue();
 
@@ -122,8 +122,7 @@ void ApplVPlatoonFormed::onBeaconRSU(BeaconRSU* wsm)
 
 void ApplVPlatoonFormed::onPlatoonMsg(PlatoonMsg* wsm)
 {
-
-
+    // do not pass it down any more!
 }
 
 

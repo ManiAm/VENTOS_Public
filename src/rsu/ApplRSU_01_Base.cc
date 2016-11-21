@@ -85,7 +85,7 @@ void ApplRSUBase::initialize(int stage)
 
         if (sendBeacons)
         {
-            RSUBeaconEvt = new omnetpp::cMessage("RSUBeaconEvt", KIND_TIMER);
+            RSUBeaconEvt = new omnetpp::cMessage("RSUBeaconEvt", TYPE_TIMER);
             scheduleAt(omnetpp::simTime() + offSet, RSUBeaconEvt);
         }
     }
@@ -126,7 +126,7 @@ void ApplRSUBase::executeEachTimeStep()
 
 BeaconRSU* ApplRSUBase::prepareBeacon()
 {
-    BeaconRSU* wsm = new BeaconRSU("beaconRSU");
+    BeaconRSU* wsm = new BeaconRSU("beaconRSU", TYPE_BEACON_RSU);
 
     // add header length
     wsm->addBitLength(headerLength);

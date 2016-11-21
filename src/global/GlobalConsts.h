@@ -25,13 +25,21 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef CONSTSVENTOS_H
-#define CONSTSVENTOS_H
+#ifndef GLOBALCONSTS_H
+#define GLOBALCONSTS_H
 
 namespace VENTOS {
 
-enum WaveApplMessageKinds {
-    KIND_TIMER,
+enum WaveApplMessageTypes {
+    TYPE_TIMER,
+    TYPE_BEACON_VEHICLE,     // beaconVehicle
+    TYPE_BEACON_BICYCLE,     // beaconBicycle
+    TYPE_BEACON_PEDESTRIAN,  // beaconPedestrian
+    TYPE_BEACON_RSU,         // beaconRSU
+    TYPE_LANECHANGE_DATA,    // laneChange
+    TYPE_PLATOON_DATA,       // platoonMsg
+    TYPE_CRL_PIECE,
+    TYPE_SAEJ2735_BSM,
 };
 
 enum ControllerTypes {
