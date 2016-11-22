@@ -47,7 +47,7 @@ mainWindow::mainWindow(std::string filePath)
 
     set_title("Log window");
     set_border_width(1);
-    set_default_size(1200, 500 /*height*/);
+    set_default_size(1200, 550 /*height*/);
     set_icon_from_file(logoPath.c_str());
 
     Gtk::Box *m_VBox = new Gtk::Box(Gtk::ORIENTATION_VERTICAL);
