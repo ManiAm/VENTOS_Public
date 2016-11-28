@@ -1,4 +1,4 @@
-package VENTOS.src.nodeInsertion;
+package VENTOS.src.addNode;
 
 simple AddFixNode
 {

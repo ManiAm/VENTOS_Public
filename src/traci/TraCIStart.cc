@@ -274,7 +274,7 @@ void TraCI_Start::init_traci()
     omnetpp::simsignal_t Signal_addFlow = registerSignal("addFlow");
     this->emit(Signal_addFlow, 0);
 
-    LOG_INFO << "    Initializing modules with TraCI support ... \n" << std::flush;
+    LOG_INFO << "    Initializing modules with TraCI support ... \n\n" << std::flush;
 
     omnetpp::simsignal_t Signal_initialize_withTraCI = registerSignal("initialize_withTraCI");
     this->emit(Signal_initialize_withTraCI, 1);
