@@ -202,6 +202,7 @@ protected:
     omnetpp::simtime_t getFrameDuration(int payloadLengthBits, enum PHY_MCS mcs = MCS_DEFAULT) const;
 
 private:
+    void reportMACStat();
     bool reportMAClayerData;
 
 protected:

@@ -335,33 +335,8 @@ void Mac1609_4::handleUpperMsg(omnetpp::cMessage* msg)
         myEDCA[chan]->backoff(ac);
 
     // Mani
-
     if(reportMAClayerData)
-    {
-        std::vector<long> MacStats;
-
-        MacStats.push_back(statsDroppedPackets);        // packet was dropped in Mac
-        MacStats.push_back(statsNumTooLittleTime);      // Too little time in this interval. Will not schedule nextMacEvent
-        MacStats.push_back(statsNumInternalContention); // there was already another packet ready.
-        // we have to go increase CW and go into backoff.
-        // It's called internal contention and its wonderful
-        MacStats.push_back(statsNumBackoff);
-        MacStats.push_back(statsSlotsBackoff);
-        MacStats.push_back(statsTotalBusyTime.dbl());
-
-        MacStats.push_back(statsSentPackets);
-
-        MacStats.push_back(statsSNIRLostPackets);     // A packet was not received due to biterrors
-        MacStats.push_back(statsTXRXLostPackets);     // A packet was not received because we were sending while receiving
-
-        MacStats.push_back(statsReceivedPackets);     // Received a data packet addressed to me
-        MacStats.push_back(statsReceivedBroadcasts);  // Received a broadcast data packet
-
-        // send a signal to statistics
-        VENTOS::MacStat *vec = new VENTOS::MacStat(MacStats);
-        omnetpp::simsignal_t Signal_MacStats = registerSignal("MacStats");
-        this->getParentModule()->getParentModule()->emit(Signal_MacStats, vec);
-    }
+        reportMACStat();
 }
 
 void Mac1609_4::handleLowerControl(omnetpp::cMessage* msg)
@@ -418,6 +393,10 @@ void Mac1609_4::handleLowerControl(omnetpp::cMessage* msg)
         emit(sigCollision, true);
 
     delete msg;
+
+    // Mani
+    if(reportMAClayerData)
+        reportMACStat();
 }
 
 void Mac1609_4::setActiveChannel(t_channel state)
@@ -581,9 +560,9 @@ void Mac1609_4::handleLowerMsg(omnetpp::cMessage* msg)
     long dest = macPkt->getDestAddr();
 
     EV << "Received frame name= " << macPkt->getName()
-	                << ", myState=" << " src=" << macPkt->getSrcAddr()
-	                << " dst=" << macPkt->getDestAddr() << " myAddr="
-	                << myMacAddress << std::endl;
+	                                        << ", myState=" << " src=" << macPkt->getSrcAddr()
+	                                        << " dst=" << macPkt->getDestAddr() << " myAddr="
+	                                        << myMacAddress << std::endl;
 
     if (macPkt->getDestAddr() == myMacAddress)
     {
@@ -1002,6 +981,34 @@ omnetpp::simtime_t Mac1609_4::getFrameDuration(int payloadLengthBits, enum PHY_M
     }
 
     return duration;
+}
+
+
+void Mac1609_4::reportMACStat()
+{
+    std::vector<long> MacStats;
+
+    MacStats.push_back(statsDroppedPackets);        // packet was dropped in Mac
+    MacStats.push_back(statsNumTooLittleTime);      // Too little time in this interval. Will not schedule nextMacEvent
+    MacStats.push_back(statsNumInternalContention); // there was already another packet ready.
+    // we have to go increase CW and go into backoff.
+    // It's called internal contention and its wonderful
+    MacStats.push_back(statsNumBackoff);
+    MacStats.push_back(statsSlotsBackoff);
+    MacStats.push_back(statsTotalBusyTime.dbl());
+
+    MacStats.push_back(statsSentPackets);
+
+    MacStats.push_back(statsSNIRLostPackets);     // A packet was not received due to biterrors
+    MacStats.push_back(statsTXRXLostPackets);     // A packet was not received because we were sending while receiving
+
+    MacStats.push_back(statsReceivedPackets);     // Received a data packet addressed to me
+    MacStats.push_back(statsReceivedBroadcasts);  // Received a broadcast data packet
+
+    // send a signal to statistics
+    VENTOS::MacStat *vec = new VENTOS::MacStat(MacStats);
+    omnetpp::simsignal_t Signal_MacStats = registerSignal("MacStats");
+    this->getParentModule()->getParentModule()->emit(Signal_MacStats, vec);
 }
 
 }
