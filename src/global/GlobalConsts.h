@@ -40,6 +40,7 @@ enum WaveApplMessageTypes {
     TYPE_PLATOON_DATA,       // platoonMsg
     TYPE_CRL_PIECE,
     TYPE_SAEJ2735_BSM,
+    TYPE_BROADCAST_DATA,
 };
 
 enum ControllerTypes {
