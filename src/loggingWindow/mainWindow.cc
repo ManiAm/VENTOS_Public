@@ -281,17 +281,32 @@ void mainWindow::addTab(std::string category)
     if(it != vLogStreams.end())
         throw std::runtime_error("addTab: category/subcategory pair already exists!");
 
-    // creating a horizontal box and add it to notebook
-    Gtk::Box *m_VBox_tx = new Gtk::Box(Gtk::ORIENTATION_HORIZONTAL, 10);
-    m_VBox_tx->set_homogeneous(true);
-    m_Notebook->append_page(*m_VBox_tx, category.c_str());
+    // creating a horizontal box
+    Gtk::Box *m_HBox_tx = new Gtk::Box(Gtk::ORIENTATION_HORIZONTAL, 10);
+    m_HBox_tx->set_homogeneous(true);
 
-    // save m_VBox_tx for later access
-    notebookBox[category] = m_VBox_tx;
+    // iterate over notebook tabs and find a good pos to insert the new tab
+    int pos = 0;
+    for(pos = 0; pos < m_Notebook->get_n_pages(); pos++)
+    {
+        Gtk::Widget &pageWidget = * m_Notebook->get_nth_page(pos);
+        std::string tabName = m_Notebook->get_tab_label_text(pageWidget);
+
+        if(tabName > category)
+            break;
+    }
+
+    // insert a new tab
+    m_Notebook->insert_page(*m_HBox_tx, category.c_str(), pos);
+    m_Notebook->set_tab_reorderable(*m_HBox_tx, true);
+    m_Notebook->set_show_border(true);
+
+    // save m_HBox_tx for later access
+    notebookBox[category] = m_HBox_tx;
 
     // create a new textview and add it to the box
     Gtk::ScrolledWindow *m_ScrolledWindow = createTextView(category, "default");
-    m_VBox_tx->pack_start(*m_ScrolledWindow, Gtk::PACK_EXPAND_WIDGET);
+    m_HBox_tx->pack_start(*m_ScrolledWindow, Gtk::PACK_EXPAND_WIDGET);
 
     show_all_children();
 }
