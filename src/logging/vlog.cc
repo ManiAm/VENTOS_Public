@@ -38,6 +38,7 @@
 
 #include <algorithm>
 #include <thread>
+#include <sys/poll.h>
 #include "vlog.h"
 
 
@@ -336,18 +337,31 @@ void vlog::sendToLogWindow(std::string msg)
         if (n < 0)
             throw std::runtime_error("ERROR sending msg to socket");
 
-        // receiving msg from the TCP server
-        char rx_buffer[100];
-        bzero(rx_buffer, 100);
-        n = ::recv(*socketPtr, rx_buffer, 99, MSG_NOSIGNAL);
-        if (n < 0)
-            throw std::runtime_error("ERROR reading response from socket");
-        else if (n == 0)
-            throw omnetpp::cRuntimeError("No response from the logWindow! Is logWindow closed?");
+        // wait for response from logWindow
+        struct pollfd poll[1];
+        poll[0].fd = *socketPtr;
+        poll[0].events = POLLIN | POLLPRI;
+        int rv = ::poll(poll, 1, 1000);
 
-        std::string res = rx_buffer;
-        if(res != "ok!")
-            throw omnetpp::cRuntimeError("Command execution error in logWindow: %s", res.c_str());
+        if (rv == -1)
+            throw std::runtime_error("ERROR reading response from socket");
+        else if (rv == 0)
+            throw std::runtime_error("No response from the logWindow after 1 second! Is logWindow closed?");
+        else // we receive data from the TCP server
+        {
+            char rx_buffer[100];
+            bzero(rx_buffer, 100);
+
+            n = ::recv(*socketPtr, rx_buffer, 99, MSG_NOSIGNAL);
+            if (n < 0)
+                throw std::runtime_error("ERROR reading response from socket");
+            else if (n == 0)
+                throw omnetpp::cRuntimeError("No response from the logWindow! Is logWindow closed?");
+
+            std::string res = rx_buffer;
+            if(res != "ok!")
+                throw omnetpp::cRuntimeError("Command execution error in logWindow: %s", res.c_str());
+        }
     }
     catch(const std::runtime_error& ex)
     {
