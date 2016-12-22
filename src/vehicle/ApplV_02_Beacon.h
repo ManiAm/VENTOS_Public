@@ -49,7 +49,7 @@ protected:
     bool isBeaconFromMyPlatoonLeader(BeaconVehicle*);
 
 private:
-    BeaconVehicle* prepareBeacon();
+    BeaconVehicle* generateBeacon();
 
 private:
     typedef ApplVBase super;
@@ -75,7 +75,7 @@ protected:
 
     // Class variables
     omnetpp::simtime_t individualOffset;
-    omnetpp::cMessage* VehicleBeaconEvt;
+    omnetpp::cMessage* vehicleBeaconEvt = NULL;
 
     std::string plnID;
     int myPlnDepth;

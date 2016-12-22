@@ -131,8 +131,8 @@ class TraCIMobilityMod : public BaseMobility
 		double angle; /**< updated by nextPosition() */
 		VehicleSignal vehSignals; /**<updated by nextPosition() */
 
-		omnetpp::cMessage* startAccidentMsg;
-		omnetpp::cMessage* stopAccidentMsg;
+		omnetpp::cMessage* startAccidentMsg = NULL;
+		omnetpp::cMessage* stopAccidentMsg = NULL;
 		double last_speed;
 
 		const static simsignalwrap_t parkingStateChangedSignal;

@@ -90,13 +90,11 @@ void ApplPedBeacon::finish()
 
 void ApplPedBeacon::handleSelfMsg(omnetpp::cMessage* msg)
 {
-    super::handleSelfMsg(msg);
-
     if (msg == PedestrianBeaconEvt)
     {
         if(DSRCenabled && sendBeacons)
         {
-            BeaconPedestrian* beaconMsg = ApplPedBeacon::prepareBeacon();
+            BeaconPedestrian* beaconMsg = ApplPedBeacon::generateBeacon();
 
             // send it
             sendDelayed(beaconMsg, individualOffset, lowerLayerOut);
@@ -105,10 +103,12 @@ void ApplPedBeacon::handleSelfMsg(omnetpp::cMessage* msg)
         // schedule for next beacon broadcast
         scheduleAt(omnetpp::simTime() + beaconInterval, PedestrianBeaconEvt);
     }
+    else
+        super::handleSelfMsg(msg);
 }
 
 
-BeaconPedestrian*  ApplPedBeacon::prepareBeacon()
+BeaconPedestrian*  ApplPedBeacon::generateBeacon()
 {
     BeaconPedestrian* wsm = new BeaconPedestrian("beaconPedestrian", TYPE_BEACON_PEDESTRIAN);
 

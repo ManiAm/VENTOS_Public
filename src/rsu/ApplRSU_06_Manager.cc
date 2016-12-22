@@ -96,7 +96,6 @@ void ApplRSUManager::receiveSignal(omnetpp::cComponent *source, omnetpp::simsign
 void ApplRSUManager::handleSelfMsg(omnetpp::cMessage* msg)
 {
     super::handleSelfMsg(msg);
-
 }
 
 

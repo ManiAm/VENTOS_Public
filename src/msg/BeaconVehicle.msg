@@ -47,4 +47,5 @@ packet BeaconVehicle extends WaveShortMessage
 	string lane;
 	string platoonID;
 	int platoonDepth;
+	int density;
 };

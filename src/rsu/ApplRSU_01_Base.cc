@@ -105,7 +105,7 @@ void ApplRSUBase::handleSelfMsg(omnetpp::cMessage* msg)
 {
     if (msg == RSUBeaconEvt)
     {
-        BeaconRSU* beaconMsg = prepareBeacon();
+        BeaconRSU* beaconMsg = generateBeacon();
 
         EV << "## Created beacon msg for " << myFullId << std::endl;
 
@@ -115,6 +115,8 @@ void ApplRSUBase::handleSelfMsg(omnetpp::cMessage* msg)
         // schedule for next beacon broadcast
         scheduleAt(omnetpp::simTime() + beaconInterval, RSUBeaconEvt);
     }
+    else
+        throw omnetpp::cRuntimeError("Can't handle msg %s of kind %d", msg->getFullName(), msg->getKind());
 }
 
 
@@ -124,7 +126,7 @@ void ApplRSUBase::executeEachTimeStep()
 }
 
 
-BeaconRSU* ApplRSUBase::prepareBeacon()
+BeaconRSU* ApplRSUBase::generateBeacon()
 {
     BeaconRSU* wsm = new BeaconRSU("beaconRSU", TYPE_BEACON_RSU);
 

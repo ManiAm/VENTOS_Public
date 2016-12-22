@@ -149,8 +149,6 @@ void TraCI_Start::finish()
 
 void TraCI_Start::handleMessage(omnetpp::cMessage *msg)
 {
-    super::handleMessage(msg);
-
     if (msg == connectAndStartTrigger)
     {
         init_traci();
@@ -172,7 +170,7 @@ void TraCI_Start::handleMessage(omnetpp::cMessage *msg)
         scheduleAt(omnetpp::simTime() + updateInterval, executeOneTimestepTrigger);
     }
     else
-        throw omnetpp::cRuntimeError("TraCI_Start received unknown self-message");
+        super::handleMessage(msg);
 }
 
 

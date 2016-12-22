@@ -119,11 +119,6 @@ void ApplRSUCRL::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t
 
 void ApplRSUCRL::handleSelfMsg(omnetpp::cMessage *msg)
 {
-    super::handleSelfMsg(msg);
-
-    if(CRLdistAlg < 0)
-        return;
-
     if(msg == Timer2)
     {
         broadcastCRL();
@@ -173,7 +168,7 @@ void ApplRSUCRL::handleSelfMsg(omnetpp::cMessage *msg)
         }
     }
     else
-        throw omnetpp::cRuntimeError("Unknown message! -> delete, kind: %d", msg->getKind());
+        super::handleSelfMsg(msg);
 }
 
 

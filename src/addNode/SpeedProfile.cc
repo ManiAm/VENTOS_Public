@@ -99,6 +99,7 @@ void SpeedProfile::handleMessage(omnetpp::cMessage *msg)
     {
         IsWarmUpFinished = true;
         LOG_EVENT << "t=" << omnetpp::simTime().dbl() << ": Warm-up phase finished. \n" << std::flush;
+        delete msg;
     }
 }
 

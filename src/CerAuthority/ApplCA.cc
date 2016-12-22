@@ -110,7 +110,10 @@ void ApplCA::finish()
     if(!active)
         return;
 
-    cancelAndDelete(Timer1);
+    if(Timer1->isScheduled())
+        cancelAndDelete(Timer1);
+    else
+        delete(Timer1);
 
     for(unsigned int i = 0; i < PiecesCRL.size(); i++)
         delete PiecesCRL[i];
@@ -120,9 +123,12 @@ void ApplCA::finish()
 void ApplCA::handleSelfMsg(omnetpp::cMessage *msg)
 {
     if(msg == Timer1)
+    {
         createCRL();
+        delete msg;
+    }
     else
-        throw omnetpp::cRuntimeError("Unknown message! -> delete, kind: %d", msg->getKind());
+        throw omnetpp::cRuntimeError("Can't handle msg %s of kind %d", msg->getFullName(), msg->getKind());
 }
 
 

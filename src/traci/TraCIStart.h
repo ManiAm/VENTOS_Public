@@ -182,8 +182,8 @@ private:
     std::list<std::string> allPedestrians;
     std::set<std::string> unEquippedHosts;
 
-    omnetpp::cMessage* connectAndStartTrigger; /**< self-message scheduled for when to connect to TraCI server and start running */
-    omnetpp::cMessage* executeOneTimestepTrigger; /**< self-message scheduled for when to next call executeOneTimestep */
+    omnetpp::cMessage* connectAndStartTrigger = NULL; /**< self-message scheduled for when to connect to TraCI server and start running */
+    omnetpp::cMessage* executeOneTimestepTrigger = NULL; /**< self-message scheduled for when to next call executeOneTimestep */
 
     std::list<std::string> roiRoads; /**< which roads (e.g. "hwy1 hwy2") are considered to consitute the region of interest, if not empty */
     std::list<std::pair<TraCICoord, TraCICoord> > roiRects; /**< which rectangles (e.g. "0,0-10,10 20,20-30,30) are considered to consitute the region of interest, if not empty */

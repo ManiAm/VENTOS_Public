@@ -65,12 +65,7 @@ void TrafficLightActuated::finish()
 
 void TrafficLightActuated::handleMessage(omnetpp::cMessage *msg)
 {
-    super::handleMessage(msg);
-
-    if(TLControlMode != TL_TrafficActuated)
-        return;
-
-    if (msg == intervalChangeEVT)
+    if (TLControlMode == TL_TrafficActuated && msg == intervalChangeEVT)
     {
         chooseNextInterval();
 
@@ -80,6 +75,8 @@ void TrafficLightActuated::handleMessage(omnetpp::cMessage *msg)
         // Schedule next light change event:
         scheduleAt(omnetpp::simTime().dbl() + intervalDuration, intervalChangeEVT);
     }
+    else
+        super::handleMessage(msg);
 }
 
 

@@ -64,13 +64,10 @@ void ApplVCoordinator::finish()
 
 void ApplVCoordinator::handleSelfMsg(omnetpp::cMessage* msg)
 {
-    super::handleSelfMsg(msg);
-
-    if(plnMode != platoonManagement)
-        return;
-
-    if(msg == platoonCoordination)
+    if(plnMode == platoonManagement && msg == platoonCoordination)
         coordinator();
+    else
+        super::handleSelfMsg(msg);
 }
 
 

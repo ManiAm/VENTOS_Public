@@ -70,7 +70,7 @@ protected:
     void reroute();
 
     // Class variables
-    omnetpp::cMessage* sendSystemMsgEvt;
+    omnetpp::cMessage* sendSystemMsgEvt = NULL;
     omnetpp::simsignal_t Signal_router;
     omnetpp::simsignal_t Signal_system;
 

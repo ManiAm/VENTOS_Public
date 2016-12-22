@@ -54,7 +54,7 @@ class TrafficLightWebster : public TrafficLightFixed
     std::string nextGreenInterval;
     std::string currentInterval;
 
-    omnetpp::cMessage* intervalChangeEVT;
+    omnetpp::cMessage* intervalChangeEVT = NULL;
 
   private:
     typedef TrafficLightFixed super;

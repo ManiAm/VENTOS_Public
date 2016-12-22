@@ -62,7 +62,7 @@ private:
 private:
     typedef ApplVPlatoonMg super;
     int coordinationMode;
-    omnetpp::cMessage* platoonCoordination;
+    omnetpp::cMessage* platoonCoordination = NULL;
     static double stopTime;
 };
 

@@ -207,8 +207,8 @@ private:
     NearestVehicle *leastFront;
     NearestVehicle *leastBack;
 
-    omnetpp::cMessage* entryManeuverEvt;
-    omnetpp::cMessage* plnTIMER0;
+    omnetpp::cMessage* entryManeuverEvt = NULL;
+    omnetpp::cMessage* plnTIMER0 = NULL;
 
     // merge
     int mergeReqAttempts;
@@ -216,10 +216,10 @@ private:
     int leadingPlnDepth;
     std::deque<std::string> secondPlnMembersList;
 
-    omnetpp::cMessage* plnTIMER1;
-    omnetpp::cMessage* plnTIMER1a;
-    omnetpp::cMessage* plnTIMER2;
-    omnetpp::cMessage* plnTIMER3;
+    omnetpp::cMessage* plnTIMER1 = NULL;
+    omnetpp::cMessage* plnTIMER1a = NULL;
+    omnetpp::cMessage* plnTIMER2 = NULL;
+    omnetpp::cMessage* plnTIMER3 = NULL;
 
     // split
     std::string splittingVehicle;
@@ -229,25 +229,25 @@ private:
     int TotalACKsRx;
     int splitCaller;
 
-    omnetpp::cMessage* plnTIMER4;
-    omnetpp::cMessage* plnTIMER5;
-    omnetpp::cMessage* plnTIMER6;
-    omnetpp::cMessage* plnTIMER7;
-    omnetpp::cMessage* plnTIMER8;
-    omnetpp::cMessage* plnTIMER8a;
-    omnetpp::cMessage* mgrTIMER;
+    omnetpp::cMessage* plnTIMER4 = NULL;
+    omnetpp::cMessage* plnTIMER5 = NULL;
+    omnetpp::cMessage* plnTIMER6 = NULL;
+    omnetpp::cMessage* plnTIMER7 = NULL;
+    omnetpp::cMessage* plnTIMER8 = NULL;
+    omnetpp::cMessage* plnTIMER8a = NULL;
+    omnetpp::cMessage* mgrTIMER = NULL;
 
     // leader leave
-    omnetpp::cMessage* plnTIMER9;
+    omnetpp::cMessage* plnTIMER9 = NULL;
 
     // follower leave
     int RemainingSplits;
 
-    omnetpp::cMessage* plnTIMER10;
-    omnetpp::cMessage* plnTIMER11;
+    omnetpp::cMessage* plnTIMER10 = NULL;
+    omnetpp::cMessage* plnTIMER11 = NULL;
 
     // dissolve
-    omnetpp::cMessage* plnTIMER12;
+    omnetpp::cMessage* plnTIMER12 = NULL;
     std::string lastVeh;
 };
 

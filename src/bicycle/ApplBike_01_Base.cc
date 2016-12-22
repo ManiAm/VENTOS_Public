@@ -80,7 +80,7 @@ void ApplBikeBase::finish()
 
 void ApplBikeBase::handleSelfMsg(omnetpp::cMessage* msg)
 {
-
+    throw omnetpp::cRuntimeError("Can't handle msg %s of kind %d", msg->getFullName(), msg->getKind());
 }
 
 

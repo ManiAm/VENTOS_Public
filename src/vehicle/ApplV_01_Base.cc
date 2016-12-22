@@ -82,7 +82,7 @@ void ApplVBase::finish()
 
 void ApplVBase::handleSelfMsg(omnetpp::cMessage* msg)
 {
-
+    throw omnetpp::cRuntimeError("Can't handle msg %s of kind %d", msg->getFullName(), msg->getKind());
 }
 
 

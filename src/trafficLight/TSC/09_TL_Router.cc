@@ -243,16 +243,12 @@ void TrafficLightRouter::switchToPhase(int phaseSwitch, double greenDuration, in
     scheduleAt(omnetpp::simTime().dbl() + yellowDuration, TLSwitchEvent);
 }
 
-void TrafficLightRouter::handleMessage(omnetpp::cMessage* msg)  //Internal messages to self
+void TrafficLightRouter::handleMessage(omnetpp::cMessage* msg)
 {
-    super::handleMessage(msg);
-
-    if(TLControlMode != TL_Router)
-        return;
-
-    if(!done)
+    // Out-of-sync TL Algorithms take place here
+    if(TLControlMode == TL_Router && msg->isName("tl evt"))
     {
-        if(msg->isName("tl evt"))   //Out-of-sync TL Algorithms take place here
+        if(!done)
         {
             if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 2)
             {
@@ -262,7 +258,13 @@ void TrafficLightRouter::handleMessage(omnetpp::cMessage* msg)  //Internal messa
 
             ASynchronousMessage();
         }
-        else if(msg->isName("tl switch evt"))   //Operations in sync with normal phase switching happens here
+
+        delete msg;
+    }
+    // Operations in sync with normal phase switching happens here
+    else if(TLControlMode == TL_Router && msg->isName("tl switch evt"))
+    {
+        if(!done)
         {
             if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 2)
             {
@@ -272,9 +274,13 @@ void TrafficLightRouter::handleMessage(omnetpp::cMessage* msg)  //Internal messa
 
             SynchronousMessage();
         }
-        else if(msg->isName("tl transition evt"))
-        {
 
+        delete msg;
+    }
+    else if(TLControlMode == TL_Router && msg->isName("tl transition evt"))
+    {
+        if(!done)
+        {
             if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 2)
             {
                 std::cout << "TL " << id << " got a transition self-message at t=" << omnetpp::simTime().dbl() << std::endl;
@@ -282,7 +288,7 @@ void TrafficLightRouter::handleMessage(omnetpp::cMessage* msg)  //Internal messa
             }
 
             currentPhase = nextPhase;
-            TraCI->TLSetPhaseIndex(id, currentPhase);           //Manually switch to the yellow phase in SUMO
+            TraCI->TLSetPhaseIndex(id, currentPhase);  // Manually switch to the yellow phase in SUMO
 
             if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 2)
             {
@@ -296,11 +302,12 @@ void TrafficLightRouter::handleMessage(omnetpp::cMessage* msg)  //Internal messa
 
             TLSwitchEvent = new omnetpp::cMessage("tl switch evt");
             scheduleAt(omnetpp::simTime().dbl() + nextDuration, TLSwitchEvent);
-
         }
-    }
 
-    delete msg;
+        delete msg;
+    }
+    else
+        super::handleMessage(msg);
 }
 
 //Messages sent whenever a phase expires

@@ -144,19 +144,16 @@ void ApplVDynamicRouting::finish()
     omnetpp::getSimulation()->getSystemModule()->unsubscribe("system",this);
 }
 
-void ApplVDynamicRouting::handleSelfMsg(omnetpp::cMessage* msg)  //Internal messages to self
+void ApplVDynamicRouting::handleSelfMsg(omnetpp::cMessage* msg)
 {
-    super::handleSelfMsg(msg);    //Pass it down
-
-    if(!requestRoutes)
-        return;
-
-    //If it's a system message
-    if (msg == sendSystemMsgEvt)
+    // If it's a system message
+    if (requestRoutes && msg == sendSystemMsgEvt)
     {
         if(requestReroutes || (routingMode == DIJKSTRA and numReroutes == 0))
             reroute();
     }
+    else
+        super::handleSelfMsg(msg);
 }
 
 void ApplVDynamicRouting::reroute()

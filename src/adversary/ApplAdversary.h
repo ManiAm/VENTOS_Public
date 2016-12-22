@@ -71,7 +71,7 @@ protected:
     int myId;
     const char *myFullId;
     Coord curPosition;  // current position from mobility module (not from sumo)
-    omnetpp::cMessage* JammingEvt;
+    omnetpp::cMessage* JammingEvt = NULL;
     static const simsignalwrap_t mobilityStateChangedSignal;
 };
 

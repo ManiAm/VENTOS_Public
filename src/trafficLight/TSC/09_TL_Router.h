@@ -67,8 +67,8 @@ public:
     Net* net;
 
     //OmNET
-    omnetpp::cMessage* TLEvent;
-    omnetpp::cMessage* TLSwitchEvent;
+    omnetpp::cMessage* TLEvent = NULL;
+    omnetpp::cMessage* TLSwitchEvent = NULL;
     void print();
 
     void build(std::string id, std::string type, std::string programID, double offset, std::vector<Phase*>& phases, Net* net);

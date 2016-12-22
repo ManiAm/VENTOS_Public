@@ -45,7 +45,7 @@ protected:
     virtual void handlePositionUpdate(cObject*);
 
 private:
-    BeaconPedestrian* prepareBeacon();
+    BeaconPedestrian* generateBeacon();
 
 protected:
     // NED
@@ -68,7 +68,7 @@ protected:
 
     // Class variables
     omnetpp::simtime_t individualOffset;
-    omnetpp::cMessage* PedestrianBeaconEvt;
+    omnetpp::cMessage* PedestrianBeaconEvt = NULL;
 
 private:
     typedef ApplPedBase super;

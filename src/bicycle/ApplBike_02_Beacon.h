@@ -45,7 +45,7 @@ protected:
     virtual void handlePositionUpdate(cObject*);
 
 private:
-    BeaconBicycle* prepareBeacon();
+    BeaconBicycle* generateBeacon();
 
 protected:
     // NED
@@ -67,7 +67,7 @@ protected:
 
     // Class variables
     omnetpp::simtime_t individualOffset;
-    omnetpp::cMessage* BicycleBeaconEvt;
+    omnetpp::cMessage* BicycleBeaconEvt = NULL;
 
 private:
     typedef ApplBikeBase super;

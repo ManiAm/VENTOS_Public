@@ -36,8 +36,7 @@ Define_Module(VENTOS::Router);
 
 //Generates n random unique ints in range [rangeMin, rangeMax)
 //Not a very efficient implementation, but it shouldn't matter much
-std::set<std::string>* randomUniqueVehiclesInRange(int numInts, int rangeMin, int rangeMax)
-        {
+std::set<std::string>* randomUniqueVehiclesInRange(int numInts, int rangeMin, int rangeMax) {
     std::vector<int>* initialInts = new std::vector<int>;
     for(int i = rangeMin; i < rangeMax; i++)
         initialInts->push_back(i);
@@ -50,7 +49,7 @@ std::set<std::string>* randomUniqueVehiclesInRange(int numInts, int rangeMin, in
         randInts->insert(std::to_string(initialInts->at(i) + 1));
 
     return randInts;
-        }
+}
 
 std::string key(Node* n1, Node* n2, int time)
 {
@@ -254,7 +253,7 @@ void Router::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t sig
 {
     Enter_Method_Silent();
 
-    //Runs once per timestep
+    // Runs once per timestep
     if(signalID == Signal_executeEachTS)
     {
         if(laneCostsMode == MODE_EWMA || laneCostsMode == MODE_RECORD || UseHysteresis)

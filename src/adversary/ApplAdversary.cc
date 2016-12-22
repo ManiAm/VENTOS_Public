@@ -94,9 +94,7 @@ void ApplAdversary::handleSelfMsg(omnetpp::cMessage* msg)
     if(msg == JammingEvt)
     {
         if(omnetpp::simTime().dbl() >= AttackT)
-        {
             DoJammingAttack();
-        }
 
         // schedule for next jamming attack
         scheduleAt(omnetpp::simTime() + 0.001, JammingEvt);

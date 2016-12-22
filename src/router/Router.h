@@ -82,7 +82,7 @@ protected:
     boost::filesystem::path SUMO_FullPath;
 
     //Edge-removal Algo
-    omnetpp::cMessage* routerMsg;
+    omnetpp::cMessage* routerMsg = NULL;
     void issueStop(std::string vehID, std::string edgeID, double position, int laneIndex); //Tells a vehicle to stop on the given edge
     void issueStart(std::string vehID); //Tells a vehicle to resume
     void checkEdgeRemovals(); //Check for vehicles on disabled edges

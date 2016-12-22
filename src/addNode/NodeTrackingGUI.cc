@@ -106,7 +106,9 @@ void Tracking::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t s
 void Tracking::handleMessage(omnetpp::cMessage *msg)
 {
     if (msg == updataGUI)
+    {
         TrackingGUI();
+    }
 }
 
 

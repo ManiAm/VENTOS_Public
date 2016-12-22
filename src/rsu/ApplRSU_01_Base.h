@@ -48,7 +48,7 @@ public:
 
 protected:
     virtual void executeEachTimeStep();
-    BeaconRSU* prepareBeacon();
+    BeaconRSU* generateBeacon();
 
 protected:
     // NED variables
@@ -72,7 +72,7 @@ protected:
     double myCoordY;    // my Y coordinate in SUMO
 
     omnetpp::simtime_t individualOffset;
-    omnetpp::cMessage* RSUBeaconEvt;
+    omnetpp::cMessage* RSUBeaconEvt = NULL;
 
     int TLControlMode = -1;
     double minGreenTime = -1;

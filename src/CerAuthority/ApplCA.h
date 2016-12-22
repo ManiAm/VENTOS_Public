@@ -77,7 +77,7 @@ private:
     int pad;   // how many padding are added
 
     std::string moduleName;
-    omnetpp::cMessage *Timer1;
+    omnetpp::cMessage *Timer1 = NULL;
     omnetpp::simsignal_t Signal_Magic_Req;
     std::vector<CRL_Piece *> PiecesCRL;
 };

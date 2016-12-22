@@ -71,9 +71,9 @@ void ApplVBeacon::initialize(int stage)
         if(SUMOType == "TypeObstacle")
             DSRCenabled = false;
 
-        VehicleBeaconEvt = new omnetpp::cMessage("BeaconEvt", TYPE_TIMER);
+        vehicleBeaconEvt = new omnetpp::cMessage("BeaconEvt", TYPE_TIMER);
         if (DSRCenabled)
-            scheduleAt(omnetpp::simTime() + offSet, VehicleBeaconEvt);
+            scheduleAt(omnetpp::simTime() + offSet, vehicleBeaconEvt);
 
         plnID = "";
         myPlnDepth = -1;
@@ -92,23 +92,21 @@ void ApplVBeacon::finish()
 {
     super::finish();
 
-    if (VehicleBeaconEvt->isScheduled())
-        cancelAndDelete(VehicleBeaconEvt);
+    if (vehicleBeaconEvt->isScheduled())
+        cancelAndDelete(vehicleBeaconEvt);
     else
-        delete VehicleBeaconEvt;
+        delete vehicleBeaconEvt;
 }
 
 
 void ApplVBeacon::handleSelfMsg(omnetpp::cMessage* msg)
 {
-    super::handleSelfMsg(msg);
-
-    if (msg == VehicleBeaconEvt)
+    if (msg == vehicleBeaconEvt)
     {
         // make sure DSRCenabled is true
         if(DSRCenabled && sendBeacons)
         {
-            BeaconVehicle* beaconMsg = prepareBeacon();
+            BeaconVehicle* beaconMsg = generateBeacon();
 
             // fill-in the related fields to platoon
             beaconMsg->setPlatoonID(plnID.c_str());
@@ -127,12 +125,14 @@ void ApplVBeacon::handleSelfMsg(omnetpp::cMessage* msg)
         }
 
         // schedule for next beacon broadcast
-        scheduleAt(omnetpp::simTime() + beaconInterval, VehicleBeaconEvt);
+        scheduleAt(omnetpp::simTime() + beaconInterval, vehicleBeaconEvt);
     }
+    else
+        super::handleSelfMsg(msg);
 }
 
 
-BeaconVehicle*  ApplVBeacon::prepareBeacon()
+BeaconVehicle*  ApplVBeacon::generateBeacon()
 {
     BeaconVehicle* wsm = new BeaconVehicle("beaconVehicle", TYPE_BEACON_VEHICLE);
 
@@ -144,13 +144,10 @@ BeaconVehicle*  ApplVBeacon::prepareBeacon()
 
     wsm->setWsmVersion(1);
     wsm->setSecurityType(1);
-
     wsm->setChannelNumber(Veins::Channels::CCH);
-
     wsm->setDataRate(1);
     wsm->setPriority(beaconPriority);
     wsm->setPsid(0);
-
     // wsm->setSerial(serial);
     // wsm->setTimestamp(simTime());
 

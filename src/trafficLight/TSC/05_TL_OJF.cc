@@ -95,12 +95,7 @@ void TrafficLightOJF::finish()
 
 void TrafficLightOJF::handleMessage(omnetpp::cMessage *msg)
 {
-    super::handleMessage(msg);
-
-    if(TLControlMode != TL_OJF)
-        return;
-
-    if (msg == intervalChangeEVT)
+    if (TLControlMode == TL_OJF && msg == intervalChangeEVT)
     {
         chooseNextInterval();
 
@@ -110,6 +105,8 @@ void TrafficLightOJF::handleMessage(omnetpp::cMessage *msg)
         // Schedule next light change event:
         scheduleAt(omnetpp::simTime().dbl() + intervalDuration, intervalChangeEVT);
     }
+    else
+        super::handleMessage(msg);
 }
 
 

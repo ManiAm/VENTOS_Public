@@ -125,12 +125,7 @@ void TrafficLight_FMSC::finish()
 
 void TrafficLight_FMSC::handleMessage(omnetpp::cMessage *msg)
 {
-    super::handleMessage(msg);
-
-    if(TLControlMode != TL_FMSC)
-        return;
-
-    if (msg == intervalChangeEVT)
+    if (TLControlMode == TL_FMSC && msg == intervalChangeEVT)
     {
         if(greenInterval.empty())
             calculatePhases("C");
@@ -143,6 +138,8 @@ void TrafficLight_FMSC::handleMessage(omnetpp::cMessage *msg)
         // Schedule next light change event:
         scheduleAt(omnetpp::simTime().dbl() + intervalDuration, intervalChangeEVT);
     }
+    else
+        super::handleMessage(msg);
 }
 
 

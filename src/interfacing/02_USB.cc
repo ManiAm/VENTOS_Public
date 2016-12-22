@@ -163,6 +163,8 @@ void USB::handleMessage(omnetpp::cMessage *msg)
 
         scheduleAt(omnetpp::simTime() + 0.2, USBInterrupt);
     }
+    else
+        throw omnetpp::cRuntimeError("Can't handle msg %s of kind %d", msg->getFullName(), msg->getKind());
 }
 
 

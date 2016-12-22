@@ -132,12 +132,7 @@ void TrafficLightLQF_NoStarv::finish()
 
 void TrafficLightLQF_NoStarv::handleMessage(omnetpp::cMessage *msg)
 {
-    super::handleMessage(msg);
-
-    if(TLControlMode != TL_LQF)
-        return;
-
-    if (msg == intervalChangeEVT)
+    if (TLControlMode == TL_LQF && msg == intervalChangeEVT)
     {
         if(greenInterval.empty())
             calculatePhases("C");
@@ -150,6 +145,8 @@ void TrafficLightLQF_NoStarv::handleMessage(omnetpp::cMessage *msg)
         // Schedule next light change event:
         scheduleAt(omnetpp::simTime().dbl() + intervalDuration, intervalChangeEVT);
     }
+    else
+        super::handleMessage(msg);
 }
 
 

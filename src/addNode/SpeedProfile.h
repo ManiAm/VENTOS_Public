@@ -77,7 +77,7 @@ private:
     omnetpp::simsignal_t Signal_executeEachTS;
 
     bool IsWarmUpFinished;
-    omnetpp::cMessage* finishingWarmup;
+    omnetpp::cMessage* finishingWarmup = NULL;
 
     std::string profileVehicle;
     std::string lastProfileVehicle;

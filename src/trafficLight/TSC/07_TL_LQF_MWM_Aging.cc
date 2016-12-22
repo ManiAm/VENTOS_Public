@@ -120,12 +120,7 @@ void TrafficLight_LQF_MWM_Aging::finish()
 
 void TrafficLight_LQF_MWM_Aging::handleMessage(omnetpp::cMessage *msg)
 {
-    super::handleMessage(msg);
-
-    if(TLControlMode != TL_LQF_MWM_Aging)
-        return;
-
-    if (msg == intervalChangeEVT)
+    if (TLControlMode == TL_LQF_MWM_Aging && msg == intervalChangeEVT)
     {
         chooseNextInterval();
 
@@ -135,6 +130,8 @@ void TrafficLight_LQF_MWM_Aging::handleMessage(omnetpp::cMessage *msg)
         // Schedule next light change event:
         scheduleAt(omnetpp::simTime().dbl() + intervalDuration, intervalChangeEVT);
     }
+    else
+        super::handleMessage(msg);
 }
 
 

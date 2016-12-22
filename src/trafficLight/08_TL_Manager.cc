@@ -65,7 +65,6 @@ void TrafficLightManager::finish()
 void TrafficLightManager::handleMessage(omnetpp::cMessage *msg)
 {
     super::handleMessage(msg);
-
 }
 
 

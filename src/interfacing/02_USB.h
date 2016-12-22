@@ -149,8 +149,8 @@ private:
             {0xff, "VENDOR_SPEC"}
     };
 
-    omnetpp::cMessage* USBevents;
-    omnetpp::cMessage* USBInterrupt;
+    omnetpp::cMessage* USBevents = NULL;
+    omnetpp::cMessage* USBInterrupt = NULL;
 };
 
 }

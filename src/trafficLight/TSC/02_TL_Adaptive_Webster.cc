@@ -69,12 +69,7 @@ void TrafficLightWebster::finish()
 
 void TrafficLightWebster::handleMessage(omnetpp::cMessage *msg)
 {
-    super::handleMessage(msg);
-
-    if(TLControlMode != TL_Adaptive_Webster)
-        return;
-
-    if (msg == intervalChangeEVT)
+    if (TLControlMode == TL_Adaptive_Webster && msg == intervalChangeEVT)
     {
         chooseNextInterval();
 
@@ -84,6 +79,8 @@ void TrafficLightWebster::handleMessage(omnetpp::cMessage *msg)
         // Schedule next light change event:
         scheduleAt(omnetpp::simTime().dbl() + intervalDuration, intervalChangeEVT);
     }
+    else
+        super::handleMessage(msg);
 }
 
 

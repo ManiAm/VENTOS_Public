@@ -78,26 +78,20 @@ void ApplBikeBeacon::finish()
     super::finish();
 
     if (BicycleBeaconEvt->isScheduled())
-    {
         cancelAndDelete(BicycleBeaconEvt);
-    }
     else
-    {
         delete BicycleBeaconEvt;
-    }
 }
 
 
 void ApplBikeBeacon::handleSelfMsg(omnetpp::cMessage* msg)
 {
-    super::handleSelfMsg(msg);
-
     if (msg == BicycleBeaconEvt)
     {
         // make sure DSRCenabled is true
         if(DSRCenabled && sendBeacons)
         {
-            BeaconBicycle* beaconMsg = prepareBeacon();
+            BeaconBicycle* beaconMsg = generateBeacon();
 
             // send the beacon as a signal. Any module registered to this signal can
             // receive a copy of the beacon (for now, only RSUs are registered)
@@ -114,10 +108,12 @@ void ApplBikeBeacon::handleSelfMsg(omnetpp::cMessage* msg)
         // schedule for next beacon broadcast
         scheduleAt(omnetpp::simTime() + beaconInterval, BicycleBeaconEvt);
     }
+    else
+        super::handleSelfMsg(msg);
 }
 
 
-BeaconBicycle*  ApplBikeBeacon::prepareBeacon()
+BeaconBicycle*  ApplBikeBeacon::generateBeacon()
 {
     BeaconBicycle* wsm = new BeaconBicycle("beaconBicycle", TYPE_BEACON_BICYCLE);
 
