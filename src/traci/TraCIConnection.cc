@@ -151,6 +151,10 @@ int TraCIConnection::startSUMO(std::string SUMOapplication, std::string SUMOconf
     else
     {
         LOG_INFO << boost::format("    SUMO has started successfully in process %1%  \n") % child_pid;
+
+        // show SUMO version
+        LOG_INFO << boost::format("    %1%  \n") % getSUMOversion(SUMOapplication);
+
         LOG_FLUSH;
     }
 
@@ -427,6 +431,43 @@ void TraCIConnection::terminateSimulation(std::string err)
 
     // end the simulation
     TraCI->endSimulation();
+}
+
+
+std::string TraCIConnection::getSUMOversion(std::string path)
+{
+    // get the local version
+    char command[100];
+    sprintf(command, "%s -V", path.c_str());
+
+    FILE* pipe = popen(command, "r");
+    if (!pipe)
+        throw omnetpp::cRuntimeError("ERROR: can not open pipe");
+
+    char buffer[128];
+    std::string result = "";
+    while(!feof(pipe))
+    {
+        if(fgets(buffer, 128, pipe) != NULL)
+            result += buffer;
+    }
+    pclose(pipe);
+
+    if(result == "")
+        throw omnetpp::cRuntimeError("ERROR: pipe output is empty!");
+
+    // get the first line
+    std::stringstream ss(result);
+    std::string to = "";
+    while( std::getline(ss, to) )
+    {
+        break;
+    }
+
+    if(to == "")
+        throw omnetpp::cRuntimeError("ERROR: first line of output is empty!");
+
+    return to;
 }
 
 }

@@ -40,6 +40,7 @@ public:
 private:
     TraCIConnection(void*);
     void terminateSimulation(std::string);
+    static std::string getSUMOversion(std::string path);
 
 private:
     static void* socketPtr;
