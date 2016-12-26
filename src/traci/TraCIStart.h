@@ -22,6 +22,7 @@
 #define TRACISTART_H
 
 #include <queue>
+
 #include "BaseWorldUtility.h"
 #include "ConnectionManager.h"
 #include "TraCICommands.h"
@@ -91,47 +92,6 @@ public:
 
 class TraCI_Start :  public TraCI_Commands
 {
-public:
-    TraCI_Start();
-
-    virtual void initialize(int stage);
-    virtual int numInitStages() const
-    {
-        return std::max(cSimpleModule::numInitStages(), 2);
-    }
-    virtual void finish();
-    virtual void handleMessage(omnetpp::cMessage *msg);
-
-private:
-    void init_traci();
-    void initRoi();
-    void roiRSUs();
-    void drawRoi();
-
-    uint32_t getCurrentTimeMs();  // get current simulation time (in ms)
-    void executeOneTimestep();    // read and execute all commands for the next timestep
-
-    void processSimSubscription(std::string objectId, TraCIBuffer& buf);
-    void processVehicleSubscription(std::string objectId, TraCIBuffer& buf);
-    void processSubcriptionResult(TraCIBuffer& buf);
-
-    void addModule(std::string nodeId, const Coord& position, std::string road_id = "", double speed = -1, double angle = -1);
-    void addPedestriansToOMNET();
-    void deleteManagedModule(std::string nodeId);
-
-    /** returns a pointer to the managed module named moduleName, or 0 if no module can be found */
-    cModule* getManagedModule(std::string nodeId);
-    /** returns true if this vehicle is Unequipped */
-    bool isModuleUnequipped(std::string nodeId);
-    /**
-     * returns whether a given position lies within the simulation's region of interest.
-     * Modules are destroyed and re-created as managed vehicles leave and re-enter the ROI
-     */
-    bool isInRegionOfInterest(const TraCICoord& position, std::string road_id, double speed, double angle);
-
-    void saveVehicleData(std::string);
-    void vehiclesDataToFile();
-
 private:
     typedef TraCI_Commands super;
 
@@ -193,6 +153,47 @@ private:
     bool equilibrium_vehicle;
     std::map<std::string, departedNodes> addedNodes;
     std::vector<VehicleData> Vec_vehiclesData;
+
+public:
+    TraCI_Start();
+
+    virtual void initialize(int stage);
+    virtual int numInitStages() const
+    {
+        return std::max(cSimpleModule::numInitStages(), 2);
+    }
+    virtual void finish();
+    virtual void handleMessage(omnetpp::cMessage *msg);
+
+private:
+    void init_traci();
+    void initRoi();
+    void roiRSUs();
+    void drawRoi();
+
+    uint32_t getCurrentTimeMs();  // get current simulation time (in ms)
+    void executeOneTimestep();    // read and execute all commands for the next timestep
+
+    void processSimSubscription(std::string objectId, TraCIBuffer& buf);
+    void processVehicleSubscription(std::string objectId, TraCIBuffer& buf);
+    void processSubcriptionResult(TraCIBuffer& buf);
+
+    void addModule(std::string nodeId, const Coord& position, std::string road_id = "", double speed = -1, double angle = -1);
+    void addPedestriansToOMNET();
+    void deleteManagedModule(std::string nodeId);
+
+    /** returns a pointer to the managed module named moduleName, or 0 if no module can be found */
+    cModule* getManagedModule(std::string nodeId);
+    /** returns true if this vehicle is Unequipped */
+    bool isModuleUnequipped(std::string nodeId);
+    /**
+     * returns whether a given position lies within the simulation's region of interest.
+     * Modules are destroyed and re-created as managed vehicles leave and re-enter the ROI
+     */
+    bool isInRegionOfInterest(const TraCICoord& position, std::string road_id, double speed, double angle);
+
+    void saveVehicleData(std::string);
+    void vehiclesDataToFile();
 };
 
 }

@@ -28,7 +28,7 @@
 #ifndef COLOR_H
 #define COLOR_H
 
-#include <omnetpp.h>
+#include "omnetpp.h"
 
 namespace VENTOS {
 
@@ -49,6 +49,11 @@ struct HSL
 
 class Color
 {
+private:
+    // colors in HSV model
+    static std::vector<HSV> uniqueColors;
+    static const std::map<std::string, RGB> RGBcolorCodes;
+
 public:
     static RGB colorNameToRGB(std::string tkColorName);
 
@@ -61,11 +66,6 @@ public:
     static HSV getUniqueHSVColor();
     static std::vector<double> generateColorShades(unsigned int);
     unsigned long createRGB(int r, int g, int b);
-
-private:
-    // colors in HSV model
-    static std::vector<HSV> uniqueColors;
-    static const std::map<std::string, RGB> RGBcolorCodes;
 };
 
 }

@@ -25,11 +25,8 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "mainWindow.h"
 #include <iostream>
-#include "thread"
-#include "debugStream.h"
-
+#include <thread>
 #include <stdexcept>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -37,6 +34,9 @@
 #include <arpa/inet.h>
 
 #include "boost/filesystem.hpp"
+
+#include "mainWindow.h"
+#include "debugStream.h"
 
 namespace VENTOS {
 

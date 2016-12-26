@@ -25,13 +25,14 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef SNIFFUSB
-#define SNIFFUSB
+#ifndef SNIFFUSB_H
+#define SNIFFUSB_H
 
-#include <BaseApplLayer.h>
-#include "TraCICommands.h"
 #include <unordered_map>
 #include <libusb-1.0/libusb.h>
+
+#include "BaseApplLayer.h"
+#include "TraCICommands.h"
 
 namespace VENTOS {
 
@@ -73,34 +74,6 @@ public:
 
 class USB : public BaseApplLayer
 {
-public:
-    virtual ~USB();
-    virtual void finish();
-    virtual void initialize(int);
-    virtual void handleMessage(omnetpp::cMessage *);
-    virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, long, cObject* details);
-
-public:
-    void getUSBdevices(bool);
-
-private:
-    void initialize_withTraCI();
-    void executeEachTimestep();
-
-    std::vector<std::string> USBidTostr(uint16_t, uint16_t);
-    std::string USBversionTostr(uint16_t version);
-    std::string USBspeedTostr(int speed);
-    void printConfDesc(libusb_device *);
-    std::string EPAddTostr(uint8_t add);
-    std::string EPAttTostr(uint8_t att);
-
-    void EnableHotPlug();
-    static int hotplug_callback(libusb_context *ctx, libusb_device *dev, libusb_hotplug_event event, void *user_data);
-    static int hotplug_callback_detach(libusb_context *ctx, libusb_device *dev, libusb_hotplug_event event, void *user_data);
-
-    void startSniffing();
-    void bulk(libusb_device_handle *devh);
-
 private:
     typedef BaseApplLayer super;
 
@@ -151,6 +124,33 @@ private:
 
     omnetpp::cMessage* USBevents = NULL;
     omnetpp::cMessage* USBInterrupt = NULL;
+
+public:
+    virtual ~USB();
+    virtual void finish();
+    virtual void initialize(int);
+    virtual void handleMessage(omnetpp::cMessage *);
+    virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, long, cObject* details);
+
+    void getUSBdevices(bool);
+
+private:
+    void initialize_withTraCI();
+    void executeEachTimestep();
+
+    std::vector<std::string> USBidTostr(uint16_t, uint16_t);
+    std::string USBversionTostr(uint16_t version);
+    std::string USBspeedTostr(int speed);
+    void printConfDesc(libusb_device *);
+    std::string EPAddTostr(uint8_t add);
+    std::string EPAttTostr(uint8_t att);
+
+    void EnableHotPlug();
+    static int hotplug_callback(libusb_context *ctx, libusb_device *dev, libusb_hotplug_event event, void *user_data);
+    static int hotplug_callback_detach(libusb_context *ctx, libusb_device *dev, libusb_hotplug_event event, void *user_data);
+
+    void startSniffing();
+    void bulk(libusb_device_handle *devh);
 };
 
 }

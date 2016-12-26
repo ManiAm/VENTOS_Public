@@ -25,11 +25,11 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "04_BLE.h"
-
 #include <fstream>
 #include <boost/algorithm/string/trim.hpp>
 #include <linux/errno.h>
+
+#include "04_BLE.h"
 
 namespace VENTOS {
 

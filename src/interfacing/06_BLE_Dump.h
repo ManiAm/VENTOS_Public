@@ -25,8 +25,8 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef SNIFFBLUETOOTHDUMP
-#define SNIFFBLUETOOTHDUMP
+#ifndef SNIFFBLUETOOTHDUMP_H
+#define SNIFFBLUETOOTHDUMP_H
 
 #include "05_BLE_Advertisement.h"
 
@@ -34,6 +34,16 @@ namespace VENTOS {
 
 class BLE_Dump : public BLE_Advertisement
 {
+private:
+    typedef BLE_Advertisement super;
+
+    // NED variables
+    bool dump_On;
+    int BLE_dump_deviceID;
+
+    omnetpp::simsignal_t Signal_initialize_withTraCI;
+    omnetpp::simsignal_t Signal_executeEachTS;
+
 public:
     virtual ~BLE_Dump();
     virtual void finish();
@@ -52,16 +62,6 @@ private:
     void process_frames(int dev_id, int sock, int timeout);
     void hex_dump(struct frame *frm);
     void hci_dump(struct frame *frm);
-
-private:
-    typedef BLE_Advertisement super;
-
-    // NED variables
-    bool dump_On;
-    int BLE_dump_deviceID;
-
-    omnetpp::simsignal_t Signal_initialize_withTraCI;
-    omnetpp::simsignal_t Signal_executeEachTS;
 };
 
 }

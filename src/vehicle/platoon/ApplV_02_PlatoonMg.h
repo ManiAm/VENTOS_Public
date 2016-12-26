@@ -50,84 +50,6 @@ public:
 
 class ApplVPlatoonMg : public ApplVPlatoonFormed
 {
-public:
-    ~ApplVPlatoonMg();
-    virtual void initialize(int stage);
-    virtual void finish();
-
-protected:
-    virtual void handleSelfMsg(omnetpp::cMessage*);
-    virtual void handlePositionUpdate(cObject*);
-
-    virtual void onBeaconVehicle(BeaconVehicle*);
-    virtual void onBeaconRSU(BeaconRSU*);
-    virtual void onPlatoonMsg(PlatoonMsg* wsm);
-
-    void splitFromPlatoon(int);
-    void leavePlatoon();
-    void dissolvePlatoon();
-
-private:
-    enum uCommands
-    {
-        MERGE_REQ, MERGE_ACCEPT, MERGE_REJECT, MERGE_DONE,
-        SPLIT_REQ, SPLIT_ACCEPT, SPLIT_REJECT, SPLIT_DONE,
-        CHANGE_PL, CHANGE_Tg,
-        VOTE_LEADER, ELECTED_LEADER, DISSOLVE,
-        LEAVE_REQ, LEAVE_ACCEPT, LEAVE_REJECT, GAP_CREATED,
-        ACK,
-    };
-
-    PlatoonMsg* prepareData( std::string, uCommands, std::string, double db = -1, std::string str = "", std::deque<std::string> vec = std::deque<std::string>() );
-    void updateColorDepth();
-
-    // Reporting to statistics
-    void reportStateToStat();
-    void reportCommandToStat(PlatoonMsg*);
-    void reportManeuverToStat(std::string, std::string, std::string);
-    const std::string stateToStr(int);
-    const std::string uCommandToStr(int);
-
-    // merge
-    void merge_handleSelfMsg(omnetpp::cMessage* msg);
-    void merge_BeaconFSM(BeaconVehicle *wsm = NULL);
-    void merge_DataFSM(PlatoonMsg *wsm = NULL);
-    void RemoveFollowerFromList_Merge(std::string);
-    bool CatchUpDone();
-
-    // split
-    void split_handleSelfMsg(omnetpp::cMessage* msg);
-    void split_BeaconFSM(BeaconVehicle *wsm = NULL);
-    void split_DataFSM(PlatoonMsg *wsm = NULL);
-    void splitMonitor();
-    void RemoveFollowerFromList_Split(std::string);
-    bool GapCreated();
-
-    // common operations in maneuvers
-    void common_handleSelfMsg(omnetpp::cMessage* msg);
-    void common_BeaconFSM(BeaconVehicle *wsm = NULL);
-    void common_DataFSM(PlatoonMsg *wsm = NULL);
-
-    // entry
-    void entry_handleSelfMsg(omnetpp::cMessage* msg);
-    void entry_BeaconFSM(BeaconVehicle *wsm);
-    void entry_DataFSM(PlatoonMsg *wsm = NULL);
-
-    // leader leave
-    void leaderLeave_handleSelfMsg(omnetpp::cMessage* msg);
-    void leaderLeave_BeaconFSM(BeaconVehicle *wsm = NULL);
-    void leaderLeave_DataFSM(PlatoonMsg *wsm = NULL);
-
-    // follower leave
-    void followerLeave_handleSelfMsg(omnetpp::cMessage* msg);
-    void followerLeave_BeaconFSM(BeaconVehicle *wsm = NULL);
-    void followerLeave_DataFSM(PlatoonMsg *wsm = NULL);
-
-    // dissolve
-    void dissolve_handleSelfMsg(omnetpp::cMessage* msg);
-    void dissolve_BeaconFSM(BeaconVehicle *wsm = NULL);
-    void dissolve_DataFSM(PlatoonMsg *wsm = NULL);
-
 protected:
     // NED variables
     int maxPlnSize;
@@ -249,6 +171,84 @@ private:
     // dissolve
     omnetpp::cMessage* plnTIMER12 = NULL;
     std::string lastVeh;
+
+    enum uCommands
+    {
+        MERGE_REQ, MERGE_ACCEPT, MERGE_REJECT, MERGE_DONE,
+        SPLIT_REQ, SPLIT_ACCEPT, SPLIT_REJECT, SPLIT_DONE,
+        CHANGE_PL, CHANGE_Tg,
+        VOTE_LEADER, ELECTED_LEADER, DISSOLVE,
+        LEAVE_REQ, LEAVE_ACCEPT, LEAVE_REJECT, GAP_CREATED,
+        ACK,
+    };
+
+public:
+    ~ApplVPlatoonMg();
+    virtual void initialize(int stage);
+    virtual void finish();
+
+protected:
+    virtual void handleSelfMsg(omnetpp::cMessage*);
+    virtual void handlePositionUpdate(cObject*);
+
+    virtual void onBeaconVehicle(BeaconVehicle*);
+    virtual void onBeaconRSU(BeaconRSU*);
+    virtual void onPlatoonMsg(PlatoonMsg* wsm);
+
+    void splitFromPlatoon(int);
+    void leavePlatoon();
+    void dissolvePlatoon();
+
+private:
+    PlatoonMsg* prepareData( std::string, uCommands, std::string, double db = -1, std::string str = "", std::deque<std::string> vec = std::deque<std::string>() );
+    void updateColorDepth();
+
+    // Reporting to statistics
+    void reportStateToStat();
+    void reportCommandToStat(PlatoonMsg*);
+    void reportManeuverToStat(std::string, std::string, std::string);
+    const std::string stateToStr(int);
+    const std::string uCommandToStr(int);
+
+    // merge
+    void merge_handleSelfMsg(omnetpp::cMessage* msg);
+    void merge_BeaconFSM(BeaconVehicle *wsm = NULL);
+    void merge_DataFSM(PlatoonMsg *wsm = NULL);
+    void RemoveFollowerFromList_Merge(std::string);
+    bool CatchUpDone();
+
+    // split
+    void split_handleSelfMsg(omnetpp::cMessage* msg);
+    void split_BeaconFSM(BeaconVehicle *wsm = NULL);
+    void split_DataFSM(PlatoonMsg *wsm = NULL);
+    void splitMonitor();
+    void RemoveFollowerFromList_Split(std::string);
+    bool GapCreated();
+
+    // common operations in maneuvers
+    void common_handleSelfMsg(omnetpp::cMessage* msg);
+    void common_BeaconFSM(BeaconVehicle *wsm = NULL);
+    void common_DataFSM(PlatoonMsg *wsm = NULL);
+
+    // entry
+    void entry_handleSelfMsg(omnetpp::cMessage* msg);
+    void entry_BeaconFSM(BeaconVehicle *wsm);
+    void entry_DataFSM(PlatoonMsg *wsm = NULL);
+
+    // leader leave
+    void leaderLeave_handleSelfMsg(omnetpp::cMessage* msg);
+    void leaderLeave_BeaconFSM(BeaconVehicle *wsm = NULL);
+    void leaderLeave_DataFSM(PlatoonMsg *wsm = NULL);
+
+    // follower leave
+    void followerLeave_handleSelfMsg(omnetpp::cMessage* msg);
+    void followerLeave_BeaconFSM(BeaconVehicle *wsm = NULL);
+    void followerLeave_DataFSM(PlatoonMsg *wsm = NULL);
+
+    // dissolve
+    void dissolve_handleSelfMsg(omnetpp::cMessage* msg);
+    void dissolve_BeaconFSM(BeaconVehicle *wsm = NULL);
+    void dissolve_DataFSM(PlatoonMsg *wsm = NULL);
 };
 
 }

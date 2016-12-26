@@ -28,8 +28,9 @@
 #ifndef MEASURETRAFFICPARAMS_H
 #define MEASURETRAFFICPARAMS_H
 
-#include <03_TrafficLights.h>
 #include <boost/circular_buffer.hpp>
+
+#include <03_TrafficLights.h>
 
 namespace VENTOS {
 
@@ -88,22 +89,6 @@ public:
 
 class MeasureTrafficParams : public TrafficLights
 {
-public:
-    virtual ~MeasureTrafficParams();
-    virtual void initialize(int);
-    virtual void finish();
-    virtual void handleMessage(omnetpp::cMessage *);
-
-protected:
-    void virtual initialize_withTraCI();
-    void virtual executeEachTimeStep();
-    void updateTrafficDemand();
-
-private:
-    void CheckDetectors();
-    void measureTrafficParameters();
-    void saveTLQueueingData();
-
 protected:
     // loop detector ids used for measuring incoming traffic demand
     std::unordered_map<std::string /*lane*/, std::pair<std::string /*LD id*/, double /*last actuation*/>> LD_demand;
@@ -141,6 +126,22 @@ private:
     bool collectTLQueuingData;
 
     std::vector<queueDataEntryDetailed> Vec_queueSize;
+
+public:
+    virtual ~MeasureTrafficParams();
+    virtual void initialize(int);
+    virtual void finish();
+    virtual void handleMessage(omnetpp::cMessage *);
+
+protected:
+    void virtual initialize_withTraCI();
+    void virtual executeEachTimeStep();
+    void updateTrafficDemand();
+
+private:
+    void CheckDetectors();
+    void measureTrafficParameters();
+    void saveTLQueueingData();
 };
 
 }

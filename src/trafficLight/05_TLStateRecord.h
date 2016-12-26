@@ -62,22 +62,7 @@ public:
 
 class TLStateRecord : public MeasureTrafficParams
 {
-  public:
-    virtual ~TLStateRecord();
-    virtual void initialize(int);
-    virtual void finish();
-    virtual void handleMessage(omnetpp::cMessage *);
-
-  protected:
-    void virtual initialize_withTraCI();
-    void virtual executeEachTimeStep();
-
-    void updateTLstate(std::string, std::string, std::string = "", bool = false);
-
-  private:
-    void saveTLPhasingData();
-
-  protected:
+protected:
     // NED variables
     double minGreenTime;
     double maxGreenTime;
@@ -90,9 +75,24 @@ class TLStateRecord : public MeasureTrafficParams
     // current status of each TL in each phase
     std::map<std::pair<std::string /*TLid*/, int /*phase number*/>, currentStatusTL> statusTL;
 
-  private:
+private:
     typedef MeasureTrafficParams super;
     bool collectTLPhasingData;
+
+public:
+    virtual ~TLStateRecord();
+    virtual void initialize(int);
+    virtual void finish();
+    virtual void handleMessage(omnetpp::cMessage *);
+
+protected:
+    void virtual initialize_withTraCI();
+    void virtual executeEachTimeStep();
+
+    void updateTLstate(std::string, std::string, std::string = "", bool = false);
+
+private:
+    void saveTLPhasingData();
 };
 
 }

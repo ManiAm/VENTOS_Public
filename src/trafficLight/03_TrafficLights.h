@@ -28,25 +28,15 @@
 #ifndef TRAFFICLIGHTS_H
 #define TRAFFICLIGHTS_H
 
-#include <02_LoopDetectors.h>
 #include <unordered_map>
+
+#include <02_LoopDetectors.h>
 
 namespace VENTOS {
 
 class TrafficLights : public LoopDetectors
 {
-public:
-    virtual ~TrafficLights();
-    virtual void initialize(int);
-    virtual void finish();
-    virtual void handleMessage(omnetpp::cMessage *);
-
 protected:
-    void virtual initialize_withTraCI();
-    void virtual executeEachTimeStep();
-
-protected:
-
     // list of all traffic lights in the network
     std::list<std::string> TLList;
 
@@ -66,6 +56,16 @@ protected:
 
 private:
     typedef LoopDetectors super;
+
+public:
+    virtual ~TrafficLights();
+    virtual void initialize(int);
+    virtual void finish();
+    virtual void handleMessage(omnetpp::cMessage *);
+
+protected:
+    void virtual initialize_withTraCI();
+    void virtual executeEachTimeStep();
 };
 
 }

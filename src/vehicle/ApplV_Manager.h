@@ -34,24 +34,6 @@ namespace VENTOS {
 
 class ApplVManager : public ApplVMsgControl
 {
-public:
-    ~ApplVManager();
-    virtual void initialize(int stage);
-    virtual void finish();
-    virtual void receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, omnetpp::cObject* obj, cObject* details);
-
-protected:
-    virtual void handleLowerMsg(omnetpp::cMessage*);
-    virtual void handleSelfMsg(omnetpp::cMessage*);
-    virtual void handlePositionUpdate(omnetpp::cObject*);
-
-    virtual void onBeaconVehicle(BeaconVehicle*);
-    virtual void onBeaconPedestrian(BeaconPedestrian*);
-    virtual void onBeaconRSU(BeaconRSU*);
-    virtual void onPlatoonMsg(PlatoonMsg*);
-
-    bool dropBeacon(double time, std::string vehicle, double plr);
-
 private:
     typedef ApplVMsgControl super;
 
@@ -73,6 +55,24 @@ protected:
     long BeaconRSUCount;
     long PlatoonCount;
     long BeaconPedCount;
+
+public:
+    ~ApplVManager();
+    virtual void initialize(int stage);
+    virtual void finish();
+    virtual void receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, omnetpp::cObject* obj, cObject* details);
+
+protected:
+    virtual void handleLowerMsg(omnetpp::cMessage*);
+    virtual void handleSelfMsg(omnetpp::cMessage*);
+    virtual void handlePositionUpdate(omnetpp::cObject*);
+
+    virtual void onBeaconVehicle(BeaconVehicle*);
+    virtual void onBeaconPedestrian(BeaconPedestrian*);
+    virtual void onBeaconRSU(BeaconRSU*);
+    virtual void onPlatoonMsg(PlatoonMsg*);
+
+    bool dropBeacon(double time, std::string vehicle, double plr);
 };
 
 }

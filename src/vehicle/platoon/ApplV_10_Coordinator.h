@@ -34,6 +34,13 @@ namespace VENTOS {
 
 class ApplVCoordinator : public ApplVPlatoonMg
 {
+private:
+    typedef ApplVPlatoonMg super;
+
+    int coordinationMode;
+    omnetpp::cMessage* platoonCoordination = NULL;
+    static double stopTime;
+
 public:
     ~ApplVCoordinator();
     virtual void initialize(int stage);
@@ -58,12 +65,6 @@ private:
     void scenario7();
     void scenario8();
     void scenario9();
-
-private:
-    typedef ApplVPlatoonMg super;
-    int coordinationMode;
-    omnetpp::cMessage* platoonCoordination = NULL;
-    static double stopTime;
 };
 
 }

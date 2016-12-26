@@ -25,8 +25,9 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "03_TL_TrafficActuated.h"
 #include <iomanip>
+
+#include "03_TL_TrafficActuated.h"
 
 namespace VENTOS {
 

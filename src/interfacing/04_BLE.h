@@ -25,8 +25,8 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef SNIFFBLUETOOTHLE
-#define SNIFFBLUETOOTHLE
+#ifndef SNIFFBLUETOOTHLE_H
+#define SNIFFBLUETOOTHLE_H
 
 #include "03_Bluetooth.h"
 
@@ -34,6 +34,17 @@ namespace VENTOS {
 
 class BLE : public Bluetooth
 {
+private:
+    typedef Bluetooth super;
+
+    // NED variables
+    bool BLE_on;
+
+    boost::filesystem::path cached_LEBT_devices_filePATH;
+
+    // stores all LE BT devices (cached and newly detected)
+    std::map<std::string /*BT address*/, BTdevEntry> allLEBTdevices;
+
 public:
     virtual ~BLE();
     virtual void finish();
@@ -56,17 +67,6 @@ private:
     int parse_appearance(uint8_t* data, size_t size);
 
     uint16_t leCreateConnection(std::string bdaddr);
-
-private:
-    typedef Bluetooth super;
-
-    // NED variables
-    bool BLE_on;
-
-    boost::filesystem::path cached_LEBT_devices_filePATH;
-
-    // stores all LE BT devices (cached and newly detected)
-    std::map<std::string /*BT address*/, BTdevEntry> allLEBTdevices;
 };
 
 }

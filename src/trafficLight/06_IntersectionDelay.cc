@@ -24,8 +24,9 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "06_IntersectionDelay.h"
 #include <iomanip>
+
+#include "06_IntersectionDelay.h"
 
 namespace VENTOS {
 

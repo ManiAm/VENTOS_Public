@@ -25,14 +25,14 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "02_USB.h"
-
 #include <fstream>
 #include <boost/tokenizer.hpp>
 #include <boost/algorithm/string.hpp>
 
 #undef ev
 #include "boost/filesystem.hpp"
+
+#include "02_USB.h"
 
 namespace VENTOS {
 

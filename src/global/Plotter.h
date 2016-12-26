@@ -28,13 +28,24 @@
 #ifndef PLOTTER_H
 #define PLOTTER_H
 
-#include <BaseApplLayer.h>
+#include "BaseApplLayer.h"
 #include "TraCICommands.h"
 
 namespace VENTOS {
 
 class Plotter : public BaseApplLayer
 {
+public:
+    FILE *pipeGnuPlot = NULL;  // other modules can use pipe to access gnuplot
+
+    double vers = 0.0;
+    int majvers = 0;
+    int minvers = 0;
+
+private:
+    TraCI_Commands *TraCI;
+    bool active;
+
   public:
       virtual ~Plotter();
       virtual void finish();
@@ -43,17 +54,6 @@ class Plotter : public BaseApplLayer
 
   private:
       void getVersion();
-
-  public:
-      FILE *pipeGnuPlot = NULL;  // other modules can use pipe to access gnuplot
-
-      double vers = 0.0;
-      int majvers = 0;
-      int minvers = 0;
-
-  private:
-      TraCI_Commands *TraCI;
-      bool active;
 };
 
 }

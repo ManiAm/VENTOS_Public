@@ -34,6 +34,10 @@ namespace VENTOS {
 
 class ApplVMsgControl : public ApplVCoordinator
 {
+private:
+    typedef ApplVCoordinator super;
+    bool printCtrlData;
+
 public:
     ~ApplVMsgControl();
     virtual void initialize(int stage);
@@ -50,10 +54,6 @@ protected:
 
 private:
     void getControlInfo(Veins::WaveShortMessage *);
-
-private:
-    typedef ApplVCoordinator super;
-    bool printCtrlData;
 };
 
 }

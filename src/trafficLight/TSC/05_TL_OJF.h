@@ -33,25 +33,25 @@ namespace VENTOS {
 
 class TrafficLightOJF : public TrafficLightLQF_NoStarv
 {
-  public:
+private:
+    typedef TrafficLightLQF_NoStarv super;
+
+    std::string phase1_5 = "grgrGgrgrrgrgrGgrgrrrrrr";
+    double nextGreenTime;
+
+public:
     virtual ~TrafficLightOJF();
     virtual void initialize(int);
     virtual void finish();
     virtual void handleMessage(omnetpp::cMessage *);
 
-  protected:
+protected:
     void virtual initialize_withTraCI();
     void virtual executeEachTimeStep();
 
-  private:
+private:
     void chooseNextInterval();
     void chooseNextGreenInterval();
-
-  private:
-    typedef TrafficLightLQF_NoStarv super;
-
-    std::string phase1_5 = "grgrGgrgrrgrgrGgrgrrrrrr";
-    double nextGreenTime;
 };
 
 }

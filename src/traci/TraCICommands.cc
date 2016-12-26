@@ -25,9 +25,6 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "TraCICommands.h"
-#include "TraCIConstants.h"
-
 #include <cmath>
 #include <iomanip>
 #include <algorithm>
@@ -35,6 +32,9 @@
 
 #undef ev
 #include "boost/filesystem.hpp"
+
+#include "TraCICommands.h"
+#include "TraCIConstants.h"
 
 namespace VENTOS {
 

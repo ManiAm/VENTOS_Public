@@ -27,13 +27,19 @@
 #ifndef TRAFFICLIGHTLQFMWMAGING_H
 #define TRAFFICLIGHTLQFMWMAGING_H
 
-#include "06_TL_LQF_MWM.h"
 #include <queue>
+
+#include "06_TL_LQF_MWM.h"
 
 namespace VENTOS {
 
 class TrafficLight_LQF_MWM_Aging : public TrafficLight_LQF_MWM
 {
+private:
+    typedef TrafficLight_LQF_MWM super;
+    ApplRSUMonitor *RSUptr = NULL;
+    double nextGreenTime;
+
 public:
     virtual ~TrafficLight_LQF_MWM_Aging();
     virtual void initialize(int);
@@ -47,11 +53,6 @@ protected:
 private:
     void chooseNextInterval();
     void chooseNextGreenInterval();
-
-private:
-    typedef TrafficLight_LQF_MWM super;
-    ApplRSUMonitor *RSUptr = NULL;
-    double nextGreenTime;
 };
 
 }

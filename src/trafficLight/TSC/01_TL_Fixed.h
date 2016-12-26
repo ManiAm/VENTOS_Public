@@ -33,21 +33,21 @@ namespace VENTOS {
 
 class TrafficLightFixed : public TrafficLightAllowedMoves
 {
-  public:
+protected:
+    std::map<std::string /*TLid*/, std::string /*first green interval*/> firstGreen;
+
+private:
+    typedef TrafficLightAllowedMoves super;
+
+public:
     virtual ~TrafficLightFixed();
     virtual void initialize(int);
     virtual void finish();
     virtual void handleMessage(omnetpp::cMessage *);
 
-  protected:
+protected:
     void virtual initialize_withTraCI();
     void virtual executeEachTimeStep();
-
-  protected:
-    std::map<std::string /*TLid*/, std::string /*first green interval*/> firstGreen;
-
-  private:
-      typedef TrafficLightAllowedMoves super;
 };
 
 }

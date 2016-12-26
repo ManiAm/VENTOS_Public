@@ -25,15 +25,11 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef SNIFFBLUETOOTH
-#define SNIFFBLUETOOTH
+#ifndef SNIFFBLUETOOTH_H
+#define SNIFFBLUETOOTH_H
 
 // BT specifications:
 // https://www.bluetooth.com/specifications/adopted-specifications
-
-#include <BaseApplLayer.h>
-#include "TraCICommands.h"
-#include <01_Ethernet.h>
 
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/hci.h>
@@ -45,6 +41,10 @@
 
 #undef ev
 #include "boost/filesystem.hpp"
+
+#include "BaseApplLayer.h"
+#include "TraCICommands.h"
+#include "01_Ethernet.h"
 
 namespace VENTOS {
 
@@ -64,41 +64,6 @@ public:
 
 class Bluetooth : public BaseApplLayer
 {
-public:
-    virtual ~Bluetooth();
-    virtual void finish();
-    virtual void initialize(int);
-    virtual void handleMessage(omnetpp::cMessage *);
-
-protected:
-    void initialize_withTraCI();
-    void executeEachTimestep();
-
-    void getLocalDevs();
-    void print_dev_info(struct hci_dev_info *di);
-    std::string cmd_name(int);
-    std::string cmd_class(int);
-    std::string cmd_class(uint8_t dev_class[3]);
-    std::string cmd_company(int);
-
-    void cmd_up(int hdev);
-    void cmd_down(int hdev);
-    bool isDown(int hdev);
-    void piscan(int hdev, std::string scan);
-
-    const std::string currentDateTime();
-
-    void cmd_cmd(int dev_id, uint8_t ogf, uint16_t ocf, std::string payload);
-    void hex_dump(std::string pref, int width, unsigned char *buf, int len);
-
-private:
-    void loadCachedDevices();
-    void saveCachedDevices();
-
-    void scan(int dev_id, int len);
-
-    void serviceDiscovery(std::string, uint16_t = 0);
-
 protected:
     // variables
     TraCI_Commands *TraCI;
@@ -258,6 +223,41 @@ private:
             {14,"Generic_Health_Manager"},
             {15,"Personal_Mobility_Device"},
     };
+
+public:
+    virtual ~Bluetooth();
+    virtual void finish();
+    virtual void initialize(int);
+    virtual void handleMessage(omnetpp::cMessage *);
+
+protected:
+    void initialize_withTraCI();
+    void executeEachTimestep();
+
+    void getLocalDevs();
+    void print_dev_info(struct hci_dev_info *di);
+    std::string cmd_name(int);
+    std::string cmd_class(int);
+    std::string cmd_class(uint8_t dev_class[3]);
+    std::string cmd_company(int);
+
+    void cmd_up(int hdev);
+    void cmd_down(int hdev);
+    bool isDown(int hdev);
+    void piscan(int hdev, std::string scan);
+
+    const std::string currentDateTime();
+
+    void cmd_cmd(int dev_id, uint8_t ogf, uint16_t ocf, std::string payload);
+    void hex_dump(std::string pref, int width, unsigned char *buf, int len);
+
+private:
+    void loadCachedDevices();
+    void saveCachedDevices();
+
+    void scan(int dev_id, int len);
+
+    void serviceDiscovery(std::string, uint16_t = 0);
 };
 
 }

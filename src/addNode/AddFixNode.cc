@@ -25,12 +25,12 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
+#undef ev
+#include "boost/filesystem.hpp"
+
 #include "AddFixNode.h"
 #include "ConnectionManager.h"
 #include "vlog.h"
-
-#undef ev
-#include "boost/filesystem.hpp"
 
 namespace VENTOS {
 

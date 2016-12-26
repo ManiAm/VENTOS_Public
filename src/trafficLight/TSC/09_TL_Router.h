@@ -28,9 +28,10 @@
 #ifndef TRAFFICLIGHTROUTER_H
 #define TRAFFICLIGHTROUTER_H
 
+#include <vector>
+
 #include "08_TL_FMSC.h"
 #include "Net.h"
-#include <vector>
 
 namespace VENTOS {
 

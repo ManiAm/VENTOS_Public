@@ -28,9 +28,9 @@
 #ifndef APPLVBASE_H_
 #define APPLVBASE_H_
 
-#include <BaseApplLayer.h>
-#include <ChannelAccess.h>
-#include <WaveAppToMac1609_4Interface.h>
+#include "BaseApplLayer.h"
+#include "ChannelAccess.h"
+#include "WaveAppToMac1609_4Interface.h"
 #include "TraCICommands.h"
 
 class dataExchange;
@@ -39,15 +39,6 @@ namespace VENTOS {
 
 class ApplVBase : public BaseApplLayer
 {
-public:
-    ~ApplVBase();
-    virtual void initialize(int stage);
-    virtual void finish();
-
-protected:
-    virtual void handleSelfMsg(omnetpp::cMessage* msg);
-    virtual void handlePositionUpdate(cObject* obj);
-
 private:
     typedef BaseApplLayer super;
 
@@ -70,6 +61,15 @@ protected:
     double entryTime;
 
     static const simsignalwrap_t mobilityStateChangedSignal;
+
+public:
+    ~ApplVBase();
+    virtual void initialize(int stage);
+    virtual void finish();
+
+protected:
+    virtual void handleSelfMsg(omnetpp::cMessage* msg);
+    virtual void handlePositionUpdate(cObject* obj);
 };
 
 }

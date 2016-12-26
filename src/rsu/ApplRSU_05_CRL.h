@@ -35,34 +35,7 @@ namespace VENTOS {
 
 class ApplRSUCRL : public ApplRSUAID
 {
-  public:
-    virtual ~ApplRSUCRL();
-    virtual void initialize(int);
-    virtual void finish();
-    virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, cObject *, cObject* details);
-	virtual void handleSelfMsg(omnetpp::cMessage *);
-
-  protected:
-    void virtual executeEachTimeStep();
-
-    virtual void onBeaconVehicle(BeaconVehicle*);
-    virtual void onBeaconBicycle(BeaconBicycle*);
-    virtual void onBeaconPedestrian(BeaconPedestrian*);
-    virtual void onBeaconRSU(BeaconRSU*);
-
-    void recieveCRL(std::vector<CRL_Piece *>);
-
-  private:
-    void broadcastCRL();
-    void broadcastCRL_Mask();
-    void broadcastCRL_Maskv2();
-
-    void recieveBeacon(omnetpp::cMessage *);
-    void sendBeacon();
-    int Maximum();
-    int IsExist(int);
-
-  private:
+private:
     typedef ApplRSUAID super;
 
     // parameters
@@ -79,10 +52,10 @@ class ApplRSUCRL : public ApplRSUAID
 
     omnetpp::simsignal_t Signal_CRL_pieces;
 
-	int totalPieces = -1;
+    int totalPieces = -1;
     unsigned int forCounter = 0;  // save forCounter between calls
-	std::vector<CRL_Piece *> PiecesCRLfromCA;
-	bool AnyoneNeedCRL = false;
+    std::vector<CRL_Piece *> PiecesCRLfromCA;
+    bool AnyoneNeedCRL = false;
     int *broadcastMask;  // for ICE
 
     enum ApplRSU_States
@@ -94,6 +67,33 @@ class ApplRSUCRL : public ApplRSUAID
     };
 
     ApplRSU_States state = STATE_IDLE;  // state of the RSU
+
+public:
+    virtual ~ApplRSUCRL();
+    virtual void initialize(int);
+    virtual void finish();
+    virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, cObject *, cObject* details);
+    virtual void handleSelfMsg(omnetpp::cMessage *);
+
+protected:
+    void virtual executeEachTimeStep();
+
+    virtual void onBeaconVehicle(BeaconVehicle*);
+    virtual void onBeaconBicycle(BeaconBicycle*);
+    virtual void onBeaconPedestrian(BeaconPedestrian*);
+    virtual void onBeaconRSU(BeaconRSU*);
+
+    void recieveCRL(std::vector<CRL_Piece *>);
+
+private:
+    void broadcastCRL();
+    void broadcastCRL_Mask();
+    void broadcastCRL_Maskv2();
+
+    void recieveBeacon(omnetpp::cMessage *);
+    void sendBeacon();
+    int Maximum();
+    int IsExist(int);
 };
 
 }

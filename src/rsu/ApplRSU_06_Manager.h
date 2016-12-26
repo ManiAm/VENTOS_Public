@@ -34,6 +34,13 @@ namespace VENTOS {
 
 class ApplRSUManager : public ApplRSUCRL
 {
+private:
+    typedef ApplRSUCRL super;
+
+    omnetpp::simsignal_t Signal_executeEachTS;
+    omnetpp::simsignal_t Signal_beaconSignaling;
+    static const simsignalwrap_t mobilityStateChangedSignal;
+
 public:
     ~ApplRSUManager();
     virtual void initialize(int stage);
@@ -51,13 +58,6 @@ protected:
     virtual void onBeaconPedestrian(BeaconPedestrian*);
     virtual void onBeaconRSU(BeaconRSU*);
     virtual void onLanechange(LaneChangeMsg*);
-
-private:
-    typedef ApplRSUCRL super;
-
-    omnetpp::simsignal_t Signal_executeEachTS;
-    omnetpp::simsignal_t Signal_beaconSignaling;
-    static const simsignalwrap_t mobilityStateChangedSignal;
 };
 
 }

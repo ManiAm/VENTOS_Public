@@ -25,8 +25,8 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef ADVERTISEBEACON
-#define ADVERTISEBEACON
+#ifndef ADVERTISEBEACON_H
+#define ADVERTISEBEACON_H
 
 #include "04_BLE.h"
 
@@ -34,6 +34,12 @@ namespace VENTOS {
 
 class BLE_Advertisement : public BLE
 {
+private:
+    typedef BLE super;
+
+    // NED variables
+    bool BLE_advertisement;
+
 public:
     virtual ~BLE_Advertisement();
     virtual void finish();
@@ -49,12 +55,6 @@ private:
     void no_le_adv(int hdev);
     void le_adv(int hdev, uint16_t minInterval, uint16_t maxInterval, uint8_t ADVtype, uint8_t channelNumber);
     std::string generateBeacon(int);
-
-private:
-    typedef BLE super;
-
-    // NED variables
-    bool BLE_advertisement;
 };
 
 }

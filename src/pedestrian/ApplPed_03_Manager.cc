@@ -43,11 +43,11 @@ void ApplPedManager::initialize(int stage)
 {
     super::initialize(stage);
 
-	if (stage == 0)
-	{
+    if (stage == 0)
+    {
 
         // findHost()->subscribe(mobilityStateChangedSignal, this);
-	}
+    }
 }
 
 

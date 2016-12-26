@@ -37,29 +37,29 @@ namespace VENTOS {
 
 class ApplPedManager : public ApplPedBeacon
 {
-	public:
-        ~ApplPedManager();
-		virtual void initialize(int stage);
-        virtual void finish();
-        virtual void receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, cObject* obj, cObject* details);
+protected:
+    // NED variable
+    bool SUMOvehicleDebug;
 
-	protected:
-        // Methods
-        virtual void handleLowerMsg(omnetpp::cMessage*);
-        virtual void handleSelfMsg(omnetpp::cMessage*);
-        virtual void handlePositionUpdate(cObject*);
+    static const simsignalwrap_t mobilityStateChangedSignal;
 
-		virtual void onBeaconVehicle(BeaconVehicle*);
-        virtual void onBeaconRSU(BeaconRSU*);
+private:
+    typedef ApplPedBeacon super;
 
-	protected:
-        // NED variable
-        bool SUMOvehicleDebug;
+public:
+    ~ApplPedManager();
+    virtual void initialize(int stage);
+    virtual void finish();
+    virtual void receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, cObject* obj, cObject* details);
 
-        static const simsignalwrap_t mobilityStateChangedSignal;
+protected:
+    // Methods
+    virtual void handleLowerMsg(omnetpp::cMessage*);
+    virtual void handleSelfMsg(omnetpp::cMessage*);
+    virtual void handlePositionUpdate(cObject*);
 
-	private:
-	    typedef ApplPedBeacon super;
+    virtual void onBeaconVehicle(BeaconVehicle*);
+    virtual void onBeaconRSU(BeaconRSU*);
 };
 
 }

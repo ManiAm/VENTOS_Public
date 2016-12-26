@@ -27,9 +27,11 @@
 //   (at your option) any later version.
 //
 /****************************************************************************/
+
 #ifndef TRACICONSTANTS_H
 #define TRACICONSTANTS_H
 
+namespace VENTOS {
 
 // ****************************************
 // VERSION
@@ -791,5 +793,6 @@
 // track vehicle
 #define VAR_TRACK_VEHICLE 0xa6
 
+}
 
 #endif

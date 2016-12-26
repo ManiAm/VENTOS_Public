@@ -28,36 +28,19 @@
 #ifndef APPLCA_H_
 #define APPLCA_H_
 
-#include <BaseApplLayer.h>
-#include <ChannelAccess.h>
-#include <WaveAppToMac1609_4Interface.h>
+#include <eigen3/Eigen/Dense>
+
+#include "BaseApplLayer.h"
+#include "ChannelAccess.h"
+#include "WaveAppToMac1609_4Interface.h"
 #include "TraCICommands.h"
 #include "Certificate.h"
 #include "CRL_Piece_m.h"
-#include <eigen3/Eigen/Dense>
 
 namespace VENTOS {
 
 class ApplCA : public BaseApplLayer
 {
-public:
-    virtual ~ApplCA();
-    virtual void initialize(int);
-    virtual void finish();
-    virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, omnetpp::cObject *, cObject* details);
-
-protected:
-    virtual void handleSelfMsg(omnetpp::cMessage* msg);
-
-private:
-    void CalculateMatrixA();
-    void createCRL();
-    std::vector<std::string> NOerasure(std::ostringstream &);
-    std::vector<std::string> erasure(std::ostringstream &);
-    std::vector<CRL_Piece *> addHeader(std::vector<std::string>);
-    void sendPiecesToRSUs();
-    std::vector<CRL_Piece *> shuffle(std::vector<CRL_Piece *>);
-
 public:
     // all entities use the same Matrix_A
     Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic> Matrix_A;
@@ -80,6 +63,24 @@ private:
     omnetpp::cMessage *Timer1 = NULL;
     omnetpp::simsignal_t Signal_Magic_Req;
     std::vector<CRL_Piece *> PiecesCRL;
+
+public:
+    virtual ~ApplCA();
+    virtual void initialize(int);
+    virtual void finish();
+    virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, omnetpp::cObject *, cObject* details);
+
+protected:
+    virtual void handleSelfMsg(omnetpp::cMessage* msg);
+
+private:
+    void CalculateMatrixA();
+    void createCRL();
+    std::vector<std::string> NOerasure(std::ostringstream &);
+    std::vector<std::string> erasure(std::ostringstream &);
+    std::vector<CRL_Piece *> addHeader(std::vector<std::string>);
+    void sendPiecesToRSUs();
+    std::vector<CRL_Piece *> shuffle(std::vector<CRL_Piece *>);
 };
 
 }

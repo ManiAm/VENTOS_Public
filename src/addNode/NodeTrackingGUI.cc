@@ -25,8 +25,8 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "NodeTrackingGUI.h"
 #include <algorithm>
+#include "NodeTrackingGUI.h"
 
 Define_Module(VENTOS::Tracking);
 

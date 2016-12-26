@@ -17,9 +17,8 @@
  * part of:     framework implementation developed by tkn
  **************************************************************************/
 
-
 #include "ConstSpeedMobility.h"
-#include <FWMath.h>
+#include "FWMath.h"
 
 namespace VENTOS {
 
@@ -35,21 +34,23 @@ void ConstSpeedMobility::initialize(int stage)
 {
     BaseMobility::initialize(stage);
 
-    if (stage == 0) {
+    if (stage == 0)
+    {
         move.setSpeed(par("speed").doubleValue());
 
         if(move.getSpeed() <= 0)
-        	move.setSpeed(0);
+            move.setSpeed(0);
 
-		numSteps = 0;
-		step = -1;
-		stepSize = Coord(0,0,0);
+        numSteps = 0;
+        step = -1;
+        stepSize = Coord(0,0,0);
 
-		debugEV << "Initialize: move speed: " << move.getSpeed() << " (" << par("speed").doubleValue() << ")"
-           << " pos: " << move.info() << std::endl;
+        debugEV << "Initialize: move speed: " << move.getSpeed() << " (" << par("speed").doubleValue() << ")"
+                << " pos: " << move.info() << std::endl;
     }
-    else if( stage == 1 ){
-    	stepTarget = move.getStartPos();
+    else if( stage == 1 )
+    {
+        stepTarget = move.getStartPos();
     }
 }
 
@@ -60,19 +61,19 @@ void ConstSpeedMobility::initialize(int stage)
  */
 void ConstSpeedMobility::setTargetPosition()
 {
-	debugEV << "start setTargetPosistion: " << move.info() << std::endl;
+    debugEV << "start setTargetPosistion: " << move.info() << std::endl;
 
-    do{
-	targetPos = getRandomPosition();
+    do
+    {
+        targetPos = getRandomPosition();
 
-	double distance = move.getStartPos().distance(targetPos);
-	omnetpp::simtime_t totalTime = distance / move.getSpeed();
-	numSteps = FWMath::round(totalTime / updateInterval);
+        double distance = move.getStartPos().distance(targetPos);
+        omnetpp::simtime_t totalTime = distance / move.getSpeed();
+        numSteps = FWMath::round(totalTime / updateInterval);
 
-	debugEV << "new targetPos: " << targetPos.info() << " distance=" << distance
-	   << " totalTime=" << totalTime << " numSteps=" << numSteps << std::endl;
-    }
-    while( numSteps == 0 );
+        debugEV << "new targetPos: " << targetPos.info() << " distance=" << distance
+                << " totalTime=" << totalTime << " numSteps=" << numSteps << std::endl;
+    } while( numSteps == 0 );
 
     stepSize = targetPos - move.getStartPos();
 
@@ -98,43 +99,35 @@ void ConstSpeedMobility::makeMove()
     // increment number of steps
     step++;
 
-    if( step == numSteps ){
-		// last step
-		//stepSize.x =
-		// step forward
-		move.setStart(stepTarget, omnetpp::simTime());
+    if( step == numSteps )
+    {
+        // last step
+        //stepSize.x =
+        // step forward
+        move.setStart(stepTarget, omnetpp::simTime());
 
-		debugEV << "stepping forward. step #=" << step
-		   << " startPos: " << move.getStartPos().info() << std::endl;
+        debugEV << "stepping forward. step #=" << step
+                << " startPos: " << move.getStartPos().info() << std::endl;
 
 
-		// get new target position
-		debugEV << "destination reached.\n"
-		   << move.info() << std::endl;
-		setTargetPosition();
+        // get new target position
+        debugEV << "destination reached.\n"
+                << move.info() << std::endl;
+        setTargetPosition();
     }
-    else if( step < numSteps ){
-		// step forward
-		move.setStart(stepTarget, omnetpp::simTime());
-		stepTarget += stepSize;
+    else if( step < numSteps )
+    {
+        // step forward
+        move.setStart(stepTarget, omnetpp::simTime());
+        stepTarget += stepSize;
 
-		debugEV << "stepping forward. step #=" << step
-		   << " startPos: " << move.getStartPos().info() << std::endl;
-
+        debugEV << "stepping forward. step #=" << step
+                << " startPos: " << move.getStartPos().info() << std::endl;
     }
-    else{
+    else
+    {
         throw omnetpp::cRuntimeError("step cannot be bigger than numSteps");
     }
-
-    //    fixIfHostGetsOutside();
 }
 
-/*
-void ConstSpeedMobility::fixIfHostGetsOutside()
-{
-    double dummy;
-
-    handleIfOutside( PLACERANDOMLY, stepTarget, targetPos, stepSize, dummy );
-}
-*/
 }

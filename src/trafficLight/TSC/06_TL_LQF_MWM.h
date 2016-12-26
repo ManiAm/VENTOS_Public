@@ -36,20 +36,6 @@ namespace VENTOS {
 
 class TrafficLight_LQF_MWM : public TrafficLightOJF
 {
-public:
-    virtual ~TrafficLight_LQF_MWM();
-    virtual void initialize(int);
-    virtual void finish();
-    virtual void handleMessage(omnetpp::cMessage *);
-
-protected:
-    void virtual initialize_withTraCI();
-    void virtual executeEachTimeStep();
-
-private:
-    void chooseNextInterval();
-    void chooseNextGreenInterval();
-
 protected:
     // vehicle type should be identical to vehicle type in beacon field
     std::map<std::string /*vehicleType*/, double /*weight*/> classWeight =
@@ -78,6 +64,20 @@ private:
     typedef TrafficLightOJF super;
     ApplRSUMonitor *RSUptr = NULL;
     double nextGreenTime;
+
+public:
+    virtual ~TrafficLight_LQF_MWM();
+    virtual void initialize(int);
+    virtual void finish();
+    virtual void handleMessage(omnetpp::cMessage *);
+
+protected:
+    void virtual initialize_withTraCI();
+    void virtual executeEachTimeStep();
+
+private:
+    void chooseNextInterval();
+    void chooseNextGreenInterval();
 };
 
 }

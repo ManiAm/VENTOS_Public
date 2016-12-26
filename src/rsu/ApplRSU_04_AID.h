@@ -28,13 +28,22 @@
 #ifndef APPLRSUAID_H_
 #define APPLRSUAID_H_
 
-#include "ApplRSU_03_Classify.h"
 #include <eigen3/Eigen/Dense>
+#include "ApplRSU_03_Classify.h"
 
 namespace VENTOS {
 
 class ApplRSUAID : public ApplRSUCLASSIFY
 {
+private:
+    typedef ApplRSUCLASSIFY super;
+
+    bool enableAID;
+    bool printIncidentDetection;
+
+    static Eigen::MatrixXi tableCount;
+    static Eigen::MatrixXd tableProb;
+
 public:
     ~ApplRSUAID();
     virtual void initialize(int stage);
@@ -52,15 +61,6 @@ protected:
 
 private:
     void incidentDetectionToFile();
-
-private:
-    typedef ApplRSUCLASSIFY super;
-
-    bool enableAID;
-    bool printIncidentDetection;
-
-    static Eigen::MatrixXi tableCount;
-    static Eigen::MatrixXd tableProb;
 };
 
 }

@@ -28,17 +28,22 @@
 #ifndef SNMPCONNECT_H_
 #define SNMPCONNECT_H_
 
-#include "vector"
-#include <omnetpp.h>
+#include <vector>
+#include "omnetpp.h"
 
 #include <sys/socket.h>    // solve 'unknown type name socklen_t' in Mac OS X:
 #define STDCXX_98_HEADERS
 #include "snmp_pp/snmp_pp.h"
 
+
 namespace VENTOS {
 
 class SNMP
 {
+private:
+    Snmp_pp::Snmp *SNMP_session = NULL;
+    Snmp_pp::CTarget *ctarget = NULL;
+
 public:
     SNMP(std::string, std::string);
     virtual ~SNMP();
@@ -49,10 +54,6 @@ public:
 
 private:
     int getFreeEphemeralPort();
-
-private:
-    Snmp_pp::Snmp *SNMP_session = NULL;
-    Snmp_pp::CTarget *ctarget = NULL;
 };
 
 }

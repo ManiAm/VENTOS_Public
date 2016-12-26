@@ -34,7 +34,7 @@ namespace VENTOS {
 
 class LoopDetectorData
 {
-  public:
+public:
     std::string detectorName;
     std::string lane;
     std::string vehicleName;
@@ -54,8 +54,7 @@ class LoopDetectorData
         this->leaveSpeed = leaveS;
     }
 
-    friend bool operator== (const LoopDetectorData &v1, const LoopDetectorData &v2)
-    {
+    friend bool operator== (const LoopDetectorData &v1, const LoopDetectorData &v2) {
         return ( v1.detectorName == v2.detectorName && v1.vehicleName == v2.vehicleName );
     }
 };
@@ -63,26 +62,26 @@ class LoopDetectorData
 
 class LoopDetectors : public TrafficLightBase
 {
-  public:
-    virtual ~LoopDetectors();
-    virtual void initialize(int);
-    virtual void finish();
-    virtual void handleMessage(omnetpp::cMessage *);
-
-  protected:
-    void virtual initialize_withTraCI();
-    void virtual executeEachTimeStep();
-
-  private:
-    void collectLDsData();
-    void saveLDsData();
-
-  private:
+private:
     typedef TrafficLightBase super;
 
     bool collectInductionLoopData;
     std::list<std::string> AllLDs;
     std::vector<LoopDetectorData> Vec_loopDetectors;
+
+public:
+    virtual ~LoopDetectors();
+    virtual void initialize(int);
+    virtual void finish();
+    virtual void handleMessage(omnetpp::cMessage *);
+
+protected:
+    void virtual initialize_withTraCI();
+    void virtual executeEachTimeStep();
+
+private:
+    void collectLDsData();
+    void saveLDsData();
 };
 
 }

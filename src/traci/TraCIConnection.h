@@ -1,9 +1,10 @@
+
 #ifndef TRACICONNECTION_H_
 #define TRACICONNECTION_H_
 
 #include <stdint.h>
-#include "Coord.h"
 
+#include "Coord.h"
 #include "TraCIBuffer.h"
 #include "TraCICoord.h"
 
@@ -11,6 +12,10 @@ namespace VENTOS {
 
 class TraCIConnection
 {
+private:
+    static void* socketPtr;
+    static pid_t child_pid;
+
 public:
     static int startSUMO(std::string SUMOexe, std::string SUMOconfig, std::string switches, int seed);
     static int getFreeEphemeralPort();
@@ -41,10 +46,6 @@ private:
     TraCIConnection(void*);
     void terminateSimulation(std::string);
     static std::string getSUMOversion(std::string path);
-
-private:
-    static void* socketPtr;
-    static pid_t child_pid;
 };
 
 /**

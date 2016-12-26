@@ -28,8 +28,6 @@
 #ifndef APPLRSUCLASSIFY_H_
 #define APPLRSUCLASSIFY_H_
 
-#include "ApplRSU_02_Monitor.h"
-#include <Plotter.h>
 #include <boost/circular_buffer.hpp>
 
 #undef ev
@@ -45,6 +43,9 @@
 
 #undef ev
 #include "boost/filesystem.hpp"
+
+#include "ApplRSU_02_Monitor.h"
+#include "Plotter.h"
 
 namespace VENTOS {
 
@@ -96,31 +97,6 @@ public:
 
 class ApplRSUCLASSIFY : public ApplRSUMonitor
 {
-public:
-    ~ApplRSUCLASSIFY();
-    virtual void initialize(int stage);
-    virtual void finish();
-    virtual void handleSelfMsg(omnetpp::cMessage* msg);
-
-protected:
-    void virtual executeEachTimeStep();
-
-    virtual void onBeaconVehicle(BeaconVehicle*);
-    virtual void onBeaconBicycle(BeaconBicycle*);
-    virtual void onBeaconPedestrian(BeaconPedestrian*);
-    virtual void onBeaconRSU(BeaconRSU*);
-
-private:
-    void initializeGnuPlot();
-    template <typename beaconGeneral> void draw(beaconGeneral &, unsigned int);
-    int loadTrainer();
-    int trainClassifier(shark::CSvmTrainer<shark::RealVector, unsigned int> *);
-    template <typename beaconGeneral> void onBeaconAny(beaconGeneral);
-    template <typename beaconGeneral> unsigned int makePrediction(beaconGeneral);
-    template <typename beaconGeneral> void addError(beaconGeneral &, double);
-    void saveSampleToFile();
-    void saveClassificationResults();
-
 private:
     typedef ApplRSUMonitor super;
 
@@ -166,6 +142,31 @@ private:
      *     level 1: beacons of the same class
      *     level 2: different entities within each class */
     std::map< unsigned int /*class label*/, std::map< std::string /*entity id*/, dataBlockEntry > > dataBlockCounter;
+
+public:
+    ~ApplRSUCLASSIFY();
+    virtual void initialize(int stage);
+    virtual void finish();
+    virtual void handleSelfMsg(omnetpp::cMessage* msg);
+
+protected:
+    void virtual executeEachTimeStep();
+
+    virtual void onBeaconVehicle(BeaconVehicle*);
+    virtual void onBeaconBicycle(BeaconBicycle*);
+    virtual void onBeaconPedestrian(BeaconPedestrian*);
+    virtual void onBeaconRSU(BeaconRSU*);
+
+private:
+    void initializeGnuPlot();
+    template <typename beaconGeneral> void draw(beaconGeneral &, unsigned int);
+    int loadTrainer();
+    int trainClassifier(shark::CSvmTrainer<shark::RealVector, unsigned int> *);
+    template <typename beaconGeneral> void onBeaconAny(beaconGeneral);
+    template <typename beaconGeneral> unsigned int makePrediction(beaconGeneral);
+    template <typename beaconGeneral> void addError(beaconGeneral &, double);
+    void saveSampleToFile();
+    void saveClassificationResults();
 };
 
 }

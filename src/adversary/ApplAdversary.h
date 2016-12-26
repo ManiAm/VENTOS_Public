@@ -28,9 +28,9 @@
 #ifndef APPLADVERSARY_H_
 #define APPLADVERSARY_H_
 
-#include <BaseApplLayer.h>
-#include <ChannelAccess.h>
-#include <WaveAppToMac1609_4Interface.h>
+#include "BaseApplLayer.h"
+#include "ChannelAccess.h"
+#include "WaveAppToMac1609_4Interface.h"
 #include "TraCICommands.h"
 #include "BeaconVehicle_m.h"
 #include "DummyMsg_m.h"
@@ -39,6 +39,23 @@ namespace VENTOS {
 
 class ApplAdversary : public BaseApplLayer
 {
+protected:
+    // NED variables
+    TraCI_Commands* TraCI;
+
+    // NED variables
+    double AttackT;
+    bool falsificationAttack;
+    bool replayAttack;
+    bool jammingAttack;
+
+    // Class variables
+    int myId;
+    const char *myFullId;
+    Coord curPosition;  // current position from mobility module (not from sumo)
+    omnetpp::cMessage* JammingEvt = NULL;
+    static const simsignalwrap_t mobilityStateChangedSignal;
+
 public:
     ~ApplAdversary();
     virtual void initialize(int stage);
@@ -56,23 +73,6 @@ private:
     void DoJammingAttack();
 
     DummyMsg* CreateDummyMessage();
-
-protected:
-    // NED variables
-    TraCI_Commands* TraCI;
-
-    // NED variables
-    double AttackT;
-    bool falsificationAttack;
-    bool replayAttack;
-    bool jammingAttack;
-
-    // Class variables
-    int myId;
-    const char *myFullId;
-    Coord curPosition;  // current position from mobility module (not from sumo)
-    omnetpp::cMessage* JammingEvt = NULL;
-    static const simsignalwrap_t mobilityStateChangedSignal;
 };
 
 }

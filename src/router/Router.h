@@ -105,7 +105,7 @@ protected:
     int timePeriodMax;     //Max time for hypertrees
     Hypertree* buildHypertree(int startTime, Node* destination);    //Builds a hypertree to the destination, bounded between the start time and timePeriodMax;
     std::list<std::string> getRoute(Edge* origin, Node* destination, std::string vName);       //Returns a list of edges between origin and destination, using dijskstra's
-                                                                                //or an empty list if they're not connected
+    //or an empty list if they're not connected
     void receiveDijkstraRequest(Edge* origin, Node* destination, std::string sender);
     void receiveHypertreeRequest(Edge* origin, Node* destination, std::string sender);
     void receiveDoneRequest(std::string sender);

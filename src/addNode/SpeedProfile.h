@@ -25,8 +25,8 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef SPEEDPROFILE
-#define SPEEDPROFILE
+#ifndef SPEEDPROFILE_H
+#define SPEEDPROFILE_H
 
 #include "BaseApplLayer.h"
 #include "TraCICommands.h"
@@ -35,24 +35,7 @@ namespace VENTOS {
 
 class SpeedProfile : public BaseApplLayer
 {
-public:
-    virtual void initialize(int stage);
-    virtual void handleMessage(omnetpp::cMessage *msg);
-    virtual void finish();
-    virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, long, cObject* details);
-
 private:
-    void eachTimeStep();
-    bool DoWarmup();
-    void DoSpeedProfile();
-
-    void AccelDecel(double, double, double);
-    void AccelDecelZikZak(double, double, double);
-    void AccelDecelPeriodic(double, double, double, double);
-    void ExTrajectory(double);
-
-private:
-
     // NED variables
     bool active;
     int mode;
@@ -88,6 +71,22 @@ private:
     bool fileOpened;
     bool endOfFile;
     FILE *f2;
+
+public:
+    virtual void initialize(int stage);
+    virtual void handleMessage(omnetpp::cMessage *msg);
+    virtual void finish();
+    virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, long, cObject* details);
+
+private:
+    void eachTimeStep();
+    bool DoWarmup();
+    void DoSpeedProfile();
+
+    void AccelDecel(double, double, double);
+    void AccelDecelZikZak(double, double, double);
+    void AccelDecelPeriodic(double, double, double, double);
+    void ExTrajectory(double);
 };
 
 }

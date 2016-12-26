@@ -1,3 +1,4 @@
+
 #ifndef VEINS_MOBILITY_TRACI_TRACICOORD_H_
 #define VEINS_MOBILITY_TRACI_TRACICOORD_H_
 
@@ -15,4 +16,4 @@ struct TraCICoord {
 
 }
 
-#endif /* VEINS_MOBILITY_TRACI_TRACICOORD_H_ */
+#endif

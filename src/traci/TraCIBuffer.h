@@ -1,9 +1,11 @@
+
 #ifndef VEINS_MOBILITY_TRACI_TRACIBUFFER_H_
 #define VEINS_MOBILITY_TRACI_TRACIBUFFER_H_
 
 #include <cstddef>
 #include <string>
-#include <omnetpp.h>
+
+#include "omnetpp.h"
 #include "TraCICoord.h"
 
 namespace VENTOS {
@@ -15,87 +17,87 @@ bool isBigEndian();
  */
 class TraCIBuffer
 {
-	public:
-		TraCIBuffer();
-		TraCIBuffer(std::string buf);
+private:
+    std::string buf;
+    size_t buf_index;
 
-		template<typename T>
-		T read()
-		{
-			T buf_to_return;
-			unsigned char *p_buf_to_return = reinterpret_cast<unsigned char*>(&buf_to_return);
+public:
+    TraCIBuffer();
+    TraCIBuffer(std::string buf);
 
-			if (isBigEndian())
-			{
-				for (size_t i=0; i<sizeof(buf_to_return); ++i)
-				{
-					if (eof())
-					    throw omnetpp::cRuntimeError("Attempted to read past end of byte buffer");
+    template<typename T>
+    T read()
+    {
+        T buf_to_return;
+        unsigned char *p_buf_to_return = reinterpret_cast<unsigned char*>(&buf_to_return);
 
-					p_buf_to_return[i] = buf[buf_index++];
-				}
-			}
-			else
-			{
-				for (size_t i=0; i<sizeof(buf_to_return); ++i)
-				{
-					if (eof())
-					    throw omnetpp::cRuntimeError("Attempted to read past end of byte buffer");
+        if (isBigEndian())
+        {
+            for (size_t i=0; i<sizeof(buf_to_return); ++i)
+            {
+                if (eof())
+                    throw omnetpp::cRuntimeError("Attempted to read past end of byte buffer");
 
-					p_buf_to_return[sizeof(buf_to_return)-1-i] = buf[buf_index++];
-				}
-			}
+                p_buf_to_return[i] = buf[buf_index++];
+            }
+        }
+        else
+        {
+            for (size_t i=0; i<sizeof(buf_to_return); ++i)
+            {
+                if (eof())
+                    throw omnetpp::cRuntimeError("Attempted to read past end of byte buffer");
 
-			return buf_to_return;
-		}
+                p_buf_to_return[sizeof(buf_to_return)-1-i] = buf[buf_index++];
+            }
+        }
 
-		template<typename T>
-		void write(T inv)
-		{
-			unsigned char *p_buf_to_send = reinterpret_cast<unsigned char*>(&inv);
+        return buf_to_return;
+    }
 
-			if (isBigEndian())
-			{
-				for (size_t i=0; i<sizeof(inv); ++i)
-					buf += p_buf_to_send[i];
-			}
-			else
-			{
-				for (size_t i=0; i<sizeof(inv); ++i)
-					buf += p_buf_to_send[sizeof(inv)-1-i];
-			}
-		}
+    template<typename T>
+    void write(T inv)
+    {
+        unsigned char *p_buf_to_send = reinterpret_cast<unsigned char*>(&inv);
 
-		template<typename T>
-		T read(T& out)
-		{
-			out = read<T>();
-			return out;
-		}
+        if (isBigEndian())
+        {
+            for (size_t i=0; i<sizeof(inv); ++i)
+                buf += p_buf_to_send[i];
+        }
+        else
+        {
+            for (size_t i=0; i<sizeof(inv); ++i)
+                buf += p_buf_to_send[sizeof(inv)-1-i];
+        }
+    }
 
-		template<typename T>
-		TraCIBuffer& operator >>(T& out)
-		{
-			out = read<T>();
-			return *this;
-		}
+    template<typename T>
+    T read(T& out)
+    {
+        out = read<T>();
+        return out;
+    }
 
-		template<typename T>
-		TraCIBuffer& operator <<(const T& inv)
-		{
-			write(inv);
-			return *this;
-		}
+    template<typename T>
+    TraCIBuffer& operator >>(T& out)
+    {
+        out = read<T>();
+        return *this;
+    }
 
-		bool eof() const;
-		void set(std::string buf);
-		void clear();
-		std::string str() const;
-		std::string hexStr() const;
+    template<typename T>
+    TraCIBuffer& operator <<(const T& inv)
+    {
+        write(inv);
+        return *this;
+    }
 
-	private:
-		std::string buf;
-		size_t buf_index;
+    bool eof() const;
+    void set(std::string buf);
+    void clear();
+    std::string str() const;
+    std::string hexStr() const;
 };
 
 template<> void TraCIBuffer::write(std::string inv);
@@ -105,4 +107,4 @@ template<> TraCICoord TraCIBuffer::read();
 
 }
 
-#endif /* VEINS_MOBILITY_TRACI_TRACIBUFFER_H_ */
+#endif

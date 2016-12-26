@@ -24,8 +24,9 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "04_TL_LQF_NoStarv.h"
 #include <queue>
+
+#include "04_TL_LQF_NoStarv.h"
 
 namespace VENTOS {
 

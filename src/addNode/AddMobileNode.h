@@ -35,6 +35,18 @@ namespace VENTOS {
 
 class AddMobileNode : public BaseApplLayer
 {
+private:
+    typedef BaseApplLayer super;
+
+    TraCI_Commands *TraCI;
+    int mode;
+    int submode;
+    double terminate;
+
+    // class variables
+    omnetpp::simsignal_t Signal_initialize_withTraCI;
+    omnetpp::simsignal_t Signal_addFlow;
+
 public:
     virtual ~AddMobileNode();
     virtual void initialize(int stage);
@@ -61,18 +73,6 @@ private:
 
     void addFlow();
     std::string getFullPathToSumoRou(std::string);
-
-private:
-    typedef BaseApplLayer super;
-
-    TraCI_Commands *TraCI;
-    int mode;
-    int submode;
-    double terminate;
-
-    // class variables
-    omnetpp::simsignal_t Signal_initialize_withTraCI;
-    omnetpp::simsignal_t Signal_addFlow;
 };
 
 }

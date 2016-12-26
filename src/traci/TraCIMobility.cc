@@ -18,11 +18,11 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "TraCIMobility.h"
-
 #include <limits>
 #include <iostream>
 #include <sstream>
+
+#include "TraCIMobility.h"
 
 namespace {
     const double MY_INFINITY = (std::numeric_limits<double>::has_infinity ? std::numeric_limits<double>::infinity() : std::numeric_limits<double>::max());

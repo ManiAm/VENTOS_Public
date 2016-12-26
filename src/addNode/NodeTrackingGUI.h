@@ -25,8 +25,8 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef TRACKING
-#define TRACKING
+#ifndef TRACKING_H
+#define TRACKING_H
 
 #include "BaseApplLayer.h"
 #include "TraCICommands.h"
@@ -35,16 +35,6 @@ namespace VENTOS {
 
 class Tracking : public BaseApplLayer
 {
-public:
-    virtual ~Tracking();
-    virtual void initialize(int stage);
-    virtual void handleMessage(omnetpp::cMessage *msg);
-    virtual void finish();
-    virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, long, cObject* details);
-
-private:
-    void TrackingGUI();
-
 private:
     // NED variables
     TraCI_Commands *TraCI;  // pointer to the TraCI module
@@ -62,6 +52,16 @@ private:
 
     // class variables
     omnetpp::cMessage* updataGUI = NULL;
+
+public:
+    virtual ~Tracking();
+    virtual void initialize(int stage);
+    virtual void handleMessage(omnetpp::cMessage *msg);
+    virtual void finish();
+    virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, long, cObject* details);
+
+private:
+    void TrackingGUI();
 };
 
 }

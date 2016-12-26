@@ -35,20 +35,6 @@ namespace VENTOS {
 
 class ApplV_AID : public ApplVDynamicRouting
 {
-public:
-    ~ApplV_AID();
-    virtual void initialize(int stage);
-    virtual void finish();
-
-protected:
-    virtual void handleSelfMsg(omnetpp::cMessage*);
-    virtual void handlePositionUpdate(cObject*);
-
-    virtual void onBeaconVehicle(BeaconVehicle*);
-    virtual void onBeaconRSU(BeaconRSU*);
-
-    LaneChangeMsg* prepareData(std::string, std::deque<std::string>);
-
 private:
     typedef ApplVDynamicRouting super;
 
@@ -63,6 +49,20 @@ protected:
     double toX;
 
     std::deque<std::string> laneChanges;
+
+public:
+    ~ApplV_AID();
+    virtual void initialize(int stage);
+    virtual void finish();
+
+protected:
+    virtual void handleSelfMsg(omnetpp::cMessage*);
+    virtual void handlePositionUpdate(cObject*);
+
+    virtual void onBeaconVehicle(BeaconVehicle*);
+    virtual void onBeaconRSU(BeaconRSU*);
+
+    LaneChangeMsg* prepareData(std::string, std::deque<std::string>);
 };
 
 }

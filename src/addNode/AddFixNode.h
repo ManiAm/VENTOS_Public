@@ -29,7 +29,7 @@
 #define AddFixNode_H_
 
 #include "TraCICommands.h"
-#include <BaseApplLayer.h>
+#include "BaseApplLayer.h"
 
 namespace VENTOS {
 
@@ -51,6 +51,13 @@ public:
 
 class AddFixNode : public BaseApplLayer
 {
+private:
+    typedef BaseApplLayer super;
+
+    TraCI_Commands *TraCI;
+    omnetpp::simsignal_t Signal_initialize_withTraCI;
+    std::map<int, cModule*> RSUhosts; // vector of all RSUs managed by us
+
 public:
     virtual ~AddFixNode();
     virtual void initialize(int stage);
@@ -67,13 +74,6 @@ private:
 
     void addRSU(int num = 1);
     void addCircle(std::string, std::string, const RGB, bool, Coord*, double);
-
-private:
-    typedef BaseApplLayer super;
-
-    TraCI_Commands *TraCI;
-    omnetpp::simsignal_t Signal_initialize_withTraCI;
-    std::map<int, cModule*> RSUhosts; /**< vector of all RSUs managed by us */
 };
 
 }

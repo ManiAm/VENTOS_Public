@@ -25,13 +25,13 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "ApplRSU_02_Monitor.h"
-
 #include <algorithm>
 #include <iomanip>
 
 #undef ev
 #include "boost/filesystem.hpp"
+
+#include "ApplRSU_02_Monitor.h"
 
 namespace VENTOS {
 

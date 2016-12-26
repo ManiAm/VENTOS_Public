@@ -33,22 +33,22 @@ namespace VENTOS {
 
 class TrafficLightManager : public TrafficLightRouter
 {
-  public:
+private:
+    typedef TrafficLightRouter super;
+
+    omnetpp::simsignal_t Signal_initialize_withTraCI;
+    omnetpp::simsignal_t Signal_executeEachTS;
+
+public:
     virtual ~TrafficLightManager();
     virtual void initialize(int);
     virtual void finish();
     virtual void handleMessage(omnetpp::cMessage *);
     virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, long, cObject* details);
 
-  protected:
+protected:
     void virtual initialize_withTraCI();
     void virtual executeEachTimeStep();
-
-  private:
-    typedef TrafficLightRouter super;
-
-    omnetpp::simsignal_t Signal_initialize_withTraCI;
-    omnetpp::simsignal_t Signal_executeEachTS;
 };
 
 }

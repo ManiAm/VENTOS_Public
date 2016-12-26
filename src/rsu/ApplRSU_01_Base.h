@@ -28,8 +28,8 @@
 #ifndef APPLRSU_H_
 #define APPLRSU_H_
 
-#include <BaseApplLayer.h>
-#include <WaveAppToMac1609_4Interface.h>
+#include "BaseApplLayer.h"
+#include "WaveAppToMac1609_4Interface.h"
 #include "TraCICommands.h"
 #include "BeaconRSU_m.h"
 #include "vlog.h"
@@ -40,16 +40,6 @@ class RSUAdd;
 
 class ApplRSUBase : public BaseApplLayer
 {
-public:
-    ~ApplRSUBase();
-    virtual void initialize(int stage);
-    virtual void finish();
-    virtual void handleSelfMsg(omnetpp::cMessage* msg);
-
-protected:
-    virtual void executeEachTimeStep();
-    BeaconRSU* generateBeacon();
-
 protected:
     // NED variables
     TraCI_Commands* TraCI;
@@ -79,6 +69,16 @@ protected:
 
 private:
     typedef BaseApplLayer super;
+
+public:
+    ~ApplRSUBase();
+    virtual void initialize(int stage);
+    virtual void finish();
+    virtual void handleSelfMsg(omnetpp::cMessage* msg);
+
+protected:
+    virtual void executeEachTimeStep();
+    BeaconRSU* generateBeacon();
 };
 
 }

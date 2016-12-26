@@ -28,24 +28,15 @@
 #ifndef APPLPEDBASE_H_
 #define APPLPEDBASE_H_
 
-#include <BaseApplLayer.h>
-#include <ChannelAccess.h>
-#include <WaveAppToMac1609_4Interface.h>
+#include "BaseApplLayer.h"
+#include "ChannelAccess.h"
+#include "WaveAppToMac1609_4Interface.h"
 #include "TraCICommands.h"
 
 namespace VENTOS {
 
 class ApplPedBase : public BaseApplLayer
 {
-public:
-    ~ApplPedBase();
-    virtual void initialize(int stage);
-    virtual void finish();
-
-protected:
-    virtual void handleSelfMsg(omnetpp::cMessage* msg);
-    virtual void handlePositionUpdate(cObject* obj);
-
 protected:
     // NED variables
     TraCI_Commands* TraCI;
@@ -64,6 +55,15 @@ protected:
 
 private:
     typedef BaseApplLayer super;
+
+public:
+    ~ApplPedBase();
+    virtual void initialize(int stage);
+    virtual void finish();
+
+protected:
+    virtual void handleSelfMsg(omnetpp::cMessage* msg);
+    virtual void handlePositionUpdate(cObject* obj);
 };
 
 }

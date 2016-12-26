@@ -24,11 +24,11 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "05_TL_OJF.h"
-
 #include <algorithm>
 #include <iomanip>
 #include <queue>
+
+#include "05_TL_OJF.h"
 
 namespace VENTOS {
 

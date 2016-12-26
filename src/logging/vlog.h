@@ -28,16 +28,37 @@
 #ifndef LOGRECORDER_H
 #define LOGRECORDER_H
 
-#include "BaseApplLayer.h"
-#include "vlogConst.h"
-#include <omnetpp.h>
 #include "boost/format.hpp"
 #include <mutex>
+
+#include "BaseApplLayer.h"
+#include "vlogConst.h"
+#include "omnetpp.h"
 
 namespace VENTOS {
 
 class vlog : public BaseApplLayer
 {
+public:
+    static std::mutex lock_log; // global lock
+
+private:
+    // NED variables
+    std::string loggingWindowPath = "";
+    uint8_t systemLogLevel = 0;
+    bool logRecordCMD = false;
+
+    typedef BaseApplLayer super;
+
+    std::map< std::string, std::vector <std::string> * > allCategories;
+    static vlog *objPtr;
+    pid_t child_pid = -1;
+    int* socketPtr = NULL;
+
+    uint8_t lastLogLevel = INFO_LOG_VAL;
+    std::string lastCategory = "std::cout";
+    std::string lastSubcategory = "default";
+
 public:
     virtual ~vlog();
     virtual void initialize(int stage);
@@ -97,26 +118,6 @@ private:
     vlog& setLog(uint8_t logLevel, std::string cat, std::string subcat);
     void connect_to_TCP_server();
     void sendToLogWindow(std::string);
-
-public:
-    static std::mutex lock_log; // global lock
-
-private:
-    // NED variables
-    std::string loggingWindowPath = "";
-    uint8_t systemLogLevel = 0;
-    bool logRecordCMD = false;
-
-    typedef BaseApplLayer super;
-
-    std::map< std::string, std::vector <std::string> * > allCategories;
-    static vlog *objPtr;
-    pid_t child_pid = -1;
-    int* socketPtr = NULL;
-
-    uint8_t lastLogLevel = INFO_LOG_VAL;
-    std::string lastCategory = "std::cout";
-    std::string lastSubcategory = "default";
 };
 
 }

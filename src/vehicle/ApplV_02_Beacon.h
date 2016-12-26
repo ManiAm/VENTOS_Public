@@ -28,9 +28,10 @@
 #ifndef ApplVBeacon_H
 #define ApplVBeacon_H
 
+#include <deque>
+
 #include "ApplV_01_Base.h"
 #include "BeaconVehicle_m.h"
-#include <deque>
 
 namespace VENTOS {
 

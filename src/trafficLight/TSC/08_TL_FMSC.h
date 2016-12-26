@@ -53,6 +53,12 @@ public:
 
 class TrafficLight_FMSC : public TrafficLight_LQF_MWM_Aging
 {
+private:
+    typedef TrafficLight_LQF_MWM_Aging super;
+    ApplRSUMonitor *RSUptr;
+    std::vector<greenInterval_FMSC> greenInterval;
+    bool nextGreenIsNewCycle;
+
 public:
     virtual ~TrafficLight_FMSC();
     virtual void initialize(int);
@@ -67,12 +73,6 @@ private:
     void chooseNextInterval();
     void chooseNextGreenInterval();
     void calculatePhases(std::string);
-
-private:
-    typedef TrafficLight_LQF_MWM_Aging super;
-    ApplRSUMonitor *RSUptr;
-    std::vector<greenInterval_FMSC> greenInterval;
-    bool nextGreenIsNewCycle;
 };
 
 }

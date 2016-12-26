@@ -27,15 +27,25 @@
 #ifndef TRAFFICLIGHTALLOWEDMOVES_H
 #define TRAFFICLIGHTALLOWEDMOVES_H
 
-#include <06_IntersectionDelay.h>
-
 #undef ev
 #include "boost/filesystem.hpp"
+
+#include <06_IntersectionDelay.h>
 
 namespace VENTOS {
 
 class TrafficLightAllowedMoves : public IntersectionDelay
 {
+protected:
+    int rightTurns[8] = {0, 2, 5, 7, 10, 12, 15, 17};
+    std::vector< std::vector<int> > allMovements;
+
+private:
+    typedef IntersectionDelay super;
+
+    int LINKSIZE;
+    boost::filesystem::path movementsFilePath;
+
 public:
     virtual ~TrafficLightAllowedMoves();
     virtual void initialize(int);
@@ -50,16 +60,6 @@ protected:
 private:
     void generateAllAllowedMovements();
     void allMovementBatch(unsigned int linkNumber);
-
-protected:
-    int rightTurns[8] = {0, 2, 5, 7, 10, 12, 15, 17};
-    std::vector< std::vector<int> > allMovements;
-
-private:
-    typedef IntersectionDelay super;
-
-    int LINKSIZE;
-    boost::filesystem::path movementsFilePath;
 };
 
 }

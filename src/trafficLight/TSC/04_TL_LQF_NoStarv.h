@@ -49,6 +49,12 @@ public:
 
 class TrafficLightLQF_NoStarv : public TrafficLightActuated
 {
+private:
+    typedef TrafficLightActuated super;
+    int maxQueueSize;
+    bool nextGreenIsNewCycle;
+    std::vector<greenInterval_LQF> greenInterval;
+
 public:
     virtual ~TrafficLightLQF_NoStarv();
     virtual void initialize(int);
@@ -63,12 +69,6 @@ private:
     void chooseNextInterval();
     void chooseNextGreenInterval();
     void calculatePhases(std::string);
-
-private:
-    typedef TrafficLightActuated super;
-    int maxQueueSize;
-    bool nextGreenIsNewCycle;
-    std::vector<greenInterval_LQF> greenInterval;
 };
 
 }

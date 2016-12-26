@@ -35,18 +35,6 @@ namespace VENTOS {
 
 class ApplBikeBeacon : public ApplBikeBase
 {
-public:
-    ~ApplBikeBeacon();
-    virtual void initialize(int stage);
-    virtual void finish();
-
-protected:
-    virtual void handleSelfMsg(omnetpp::cMessage*);
-    virtual void handlePositionUpdate(cObject*);
-
-private:
-    BeaconBicycle* generateBeacon();
-
 protected:
     // NED
     bool DSRCenabled;
@@ -71,6 +59,18 @@ protected:
 
 private:
     typedef ApplBikeBase super;
+
+public:
+    ~ApplBikeBeacon();
+    virtual void initialize(int stage);
+    virtual void finish();
+
+protected:
+    virtual void handleSelfMsg(omnetpp::cMessage*);
+    virtual void handlePositionUpdate(cObject*);
+
+private:
+    BeaconBicycle* generateBeacon();
 };
 
 }

@@ -34,21 +34,7 @@ namespace VENTOS {
 
 class TrafficLightActuated : public TrafficLightWebster
 {
-  public:
-    virtual ~TrafficLightActuated();
-    virtual void initialize(int);
-    virtual void finish();
-    virtual void handleMessage(omnetpp::cMessage *);
-
-  protected:
-    void virtual initialize_withTraCI();
-    void virtual executeEachTimeStep();
-
-  private:
-    void chooseNextInterval();
-    void chooseNextGreenInterval();
-
-  private:
+private:
     typedef TrafficLightWebster super;
 
     std::string phase1_5 = "grgrGgrgrrgrgrGgrgrrrrrr";
@@ -68,6 +54,20 @@ class TrafficLightActuated : public TrafficLightWebster
 
     // class variables
     std::map<std::string,double> passageTimePerLane;
+
+public:
+    virtual ~TrafficLightActuated();
+    virtual void initialize(int);
+    virtual void finish();
+    virtual void handleMessage(omnetpp::cMessage *);
+
+protected:
+    void virtual initialize_withTraCI();
+    void virtual executeEachTimeStep();
+
+private:
+    void chooseNextInterval();
+    void chooseNextGreenInterval();
 };
 
 }

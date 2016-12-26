@@ -90,22 +90,6 @@ public:
 
 class IntersectionDelay : public TLStateRecord
 {
-public:
-    virtual ~IntersectionDelay();
-    virtual void initialize(int);
-    virtual void finish();
-    virtual void handleMessage(omnetpp::cMessage *);
-
-protected:
-    void virtual initialize_withTraCI();
-    void virtual executeEachTimeStep();
-
-private:
-    void vehiclesDelay();
-    void vehiclesDelayStart(std::string);
-    void vehiclesDelayDuration(std::string);
-    void vehiclesDelayToFile();
-
 protected:
     bool collectVehDelay;
     double deccelDelayThreshold;
@@ -122,6 +106,22 @@ protected:
 
 private:
     typedef TLStateRecord super;
+
+public:
+    virtual ~IntersectionDelay();
+    virtual void initialize(int);
+    virtual void finish();
+    virtual void handleMessage(omnetpp::cMessage *);
+
+protected:
+    void virtual initialize_withTraCI();
+    void virtual executeEachTimeStep();
+
+private:
+    void vehiclesDelay();
+    void vehiclesDelayStart(std::string);
+    void vehiclesDelayDuration(std::string);
+    void vehiclesDelayToFile();
 };
 
 }

@@ -28,7 +28,7 @@
 #ifndef COBALT_H_
 #define COBALT_H_
 
-#include <BaseApplLayer.h>
+#include "BaseApplLayer.h"
 #include "TraCICommands.h"
 #include "SNMP.h"
 
@@ -36,6 +36,17 @@ namespace VENTOS {
 
 class Cobalt : public BaseApplLayer
 {
+private:
+    typedef BaseApplLayer super;
+
+    // NED variables
+    TraCI_Commands *TraCI;  // pointer to the TraCI module
+    omnetpp::simsignal_t Signal_executeEachTS;
+    omnetpp::simsignal_t Signal_initialize_withTraCI;
+    bool active;
+
+    SNMP *cobaltSNMP = NULL;
+
 public:
     virtual ~Cobalt();
     virtual void initialize(int stage);
@@ -48,17 +59,6 @@ private:
 
     void initialize_withTraCI();
     void executeEachTimestep();
-
-private:
-    typedef BaseApplLayer super;
-
-    // NED variables
-    TraCI_Commands *TraCI;  // pointer to the TraCI module
-    omnetpp::simsignal_t Signal_executeEachTS;
-    omnetpp::simsignal_t Signal_initialize_withTraCI;
-    bool active;
-
-    SNMP *cobaltSNMP = NULL;
 };
 
 }

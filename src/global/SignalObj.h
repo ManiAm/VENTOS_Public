@@ -55,17 +55,15 @@ class systemData : public omnetpp::cObject, omnetpp::noncopyable
     std::list<std::string> edgeList;
 
 public:
-    systemData(std::string e, std::string n, std::string s, int r, std::string re)
-{
+    systemData(std::string e, std::string n, std::string s, int r, std::string re) {
         edge = e;
         node = n;
         sender = s;
         requestType = r;
         recipient = re;
-}
+    }
 
-    systemData(std::string e, std::string n, std::string s, int r, std::string re, std::list<std::string> el)
-    {
+    systemData(std::string e, std::string n, std::string s, int r, std::string re, std::list<std::string> el) {
         edge = e;
         node = n;
         sender = s;
@@ -73,30 +71,35 @@ public:
         recipient = re;
         edgeList = el;
     }
+
     std::string getEdge()
     {
         return edge;
     }
+
     std::string getNode()
     {
         return node;
     }
+
     const char* getSender()
     {
         return sender.c_str();
     }
+
     int getRequestType()
     {
         return requestType;
     }
+
     const char* getRecipient()
     {
         return recipient.c_str();
     }
-    std::list<std::string> getInfo()
-            {
+
+    std::list<std::string> getInfo() {
         return edgeList;
-            }
+    }
 };
 
 
@@ -164,7 +167,7 @@ public:
 // is used to send CRL pieces to an RSU or vehicle
 class CRLPiecesData : public omnetpp::cObject, omnetpp::noncopyable
 {
-  public:
+public:
     std::string name;  // Recipient name
     std::vector<CRL_Piece *> data;
 

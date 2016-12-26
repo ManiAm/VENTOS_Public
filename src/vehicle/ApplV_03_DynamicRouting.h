@@ -40,16 +40,6 @@ class Hypertree;
 
 class ApplVDynamicRouting : public ApplVBeacon
 {
-public:
-    ~ApplVDynamicRouting();
-    virtual void initialize(int stage);
-    virtual void finish();
-    virtual void receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t signalID, omnetpp::cObject *obj, cObject* details);
-
-protected:
-    virtual void handleSelfMsg(omnetpp::cMessage*);
-    virtual void handlePositionUpdate(cObject*);
-
 private:
     typedef ApplVBeacon super;
 
@@ -67,7 +57,6 @@ protected:
     int numReroutes;
 
     Router* router;
-    void reroute();
 
     // Class variables
     omnetpp::cMessage* sendSystemMsgEvt = NULL;
@@ -77,6 +66,17 @@ protected:
     // Routing
     std::string targetNode;
     Hypertree* ht;
+
+public:
+    ~ApplVDynamicRouting();
+    virtual void initialize(int stage);
+    virtual void finish();
+    virtual void receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t signalID, omnetpp::cObject *obj, cObject* details);
+
+protected:
+    virtual void handleSelfMsg(omnetpp::cMessage*);
+    virtual void handlePositionUpdate(cObject*);
+    void reroute();
 };
 
 }

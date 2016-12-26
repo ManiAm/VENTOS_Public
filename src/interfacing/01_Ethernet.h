@@ -25,12 +25,10 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef SNIFFETHERNET
-#define SNIFFETHERNET
+#ifndef SNIFFETHERNET_H
+#define SNIFFETHERNET_H
 
-#include <BaseApplLayer.h>
-#include "TraCICommands.h"
-#include "pcap.h"
+#include <pcap.h>
 #include <mutex>
 
 #include <arpa/inet.h>     // inet_ntoa
@@ -44,6 +42,9 @@
 #include <netinet/tcp.h>         // tcphdr
 #include <netinet/udp.h>         // udphdr
 #include <netinet/ip_icmp.h>     // icmphdr
+
+#include "BaseApplLayer.h"
+#include "TraCICommands.h"
 
 namespace VENTOS {
 
@@ -66,6 +67,30 @@ public:
 
 class Ethernet : public BaseApplLayer
 {
+private:
+    typedef BaseApplLayer super;
+
+    // NED variables
+    bool active;
+    std::string interface;
+    std::string filter_exp;
+    bool printCaptured;
+    bool printDataPayload;
+    bool printStat;
+
+    // variables
+    TraCI_Commands *TraCI = NULL;
+    omnetpp::simsignal_t Signal_initialize_withTraCI;
+    omnetpp::simsignal_t Signal_executeEachTS;
+    pcap_t *pcap_handle = NULL;
+    std::mutex vectorLock;
+    std::mutex vectorLock2;
+
+    std::map<std::string, devDesc> allDev;
+    std::map<std::string, std::string> OUI;
+    std::map<int, std::string> portNumber;
+    std::vector< std::pair<struct pcap_pkthdr *, const u_char *> > framesQueue;
+
 public:
     virtual ~Ethernet();
     virtual void finish();
@@ -73,7 +98,6 @@ public:
     virtual void handleMessage(omnetpp::cMessage *);
     virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, long, cObject* details);
 
-public:
     void listInterfaces();
     std::string OUITostr(const u_int8_t MACData[]);
 
@@ -99,30 +123,6 @@ private:
 
     void print_dataPayload(const u_char *payload, int len);
     void print_hex_ascii_line(const u_char *payload, int len, int offset);
-
-private:
-    typedef BaseApplLayer super;
-
-    // NED variables
-    bool active;
-    std::string interface;
-    std::string filter_exp;
-    bool printCaptured;
-    bool printDataPayload;
-    bool printStat;
-
-    // variables
-    TraCI_Commands *TraCI = NULL;
-    omnetpp::simsignal_t Signal_initialize_withTraCI;
-    omnetpp::simsignal_t Signal_executeEachTS;
-    pcap_t *pcap_handle = NULL;
-    std::mutex vectorLock;
-    std::mutex vectorLock2;
-
-    std::map<std::string, devDesc> allDev;
-    std::map<std::string, std::string> OUI;
-    std::map<int, std::string> portNumber;
-    std::vector< std::pair<struct pcap_pkthdr *, const u_char *> > framesQueue;
 };
 
 }

@@ -63,9 +63,9 @@ public:
 
     // overload == for search
     friend bool operator== (const detectedVehicleEntry &v1, const detectedVehicleEntry &v2)
-            {
+                    {
         return ( v1.vehicleName == v2.vehicleName );
-            }
+                    }
 
     // overload < for sort
     friend bool operator < (const detectedVehicleEntry &v1, const detectedVehicleEntry &v2)
@@ -117,6 +117,23 @@ public:
 class ApplRSUMonitor : public ApplRSUBase
 {
 public:
+    // collected info per lane by this RSU. Note that each RSU has
+    // a local copy of laneInfo that contains the lane info for this specific TL
+    std::map<std::string /*lane*/, laneInfoEntry> laneInfo;
+
+private:
+    typedef ApplRSUBase super;
+
+    bool activeDetection;
+    bool collectVehApproach;
+
+    // all incoming lanes for the intersection that this RSU belongs to
+    std::map<std::string /*lane*/, std::string /*TLid*/> lanesTL;
+
+    // keeping track of detected vehicles (common in all RSUs) - used by all RSUs
+    static std::vector<detectedVehicleEntry> Vec_detectedVehicles;
+
+public:
     ~ApplRSUMonitor();
     virtual void initialize(int stage);
     virtual void finish();
@@ -138,21 +155,6 @@ private:
     void LaneInfoAdd(std::string lane, std::string sender, std::string senderType, double speed);
     void LaneInfoUpdate(std::string lane, std::string sender, std::string senderType, double speed);
     void LaneInfoRemove(std::string counter, std::string sender);
-
-public:
-    std::map<std::string /*lane*/, laneInfoEntry> laneInfo;   // collected info per lane by this RSU. Note that each RSU has
-    // a local copy of laneInfo that contains the lane info for this specific TL
-private:
-    typedef ApplRSUBase super;
-
-    bool activeDetection;
-    bool collectVehApproach;
-
-    // all incoming lanes for the intersection that this RSU belongs to
-    std::map<std::string /*lane*/, std::string /*TLid*/> lanesTL;
-
-    // keeping track of detected vehicles (common in all RSUs)
-    static std::vector<detectedVehicleEntry> Vec_detectedVehicles;  // used by all RSUs
 };
 
 }

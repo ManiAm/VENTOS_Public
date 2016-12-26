@@ -27,6 +27,7 @@
 #include <fstream>
 #include <list>
 #include <stdexcept>
+
 #include "BaseMobility.h"
 #include "TraCICommands.h"
 
@@ -46,98 +47,97 @@
  *
  * @ingroup mobility
  */
-namespace VENTOS
-{
+namespace VENTOS {
 
 class TraCIMobilityMod : public BaseMobility
 {
-	public:
+protected:
+    TraCI_Commands* TraCI;
+    int vClassEnum;
+
+    bool debug; /**< whether to emit debug messages */
+    int accidentCount; /**< number of accidents */
+
+    bool isPreInitialized; /**< true if preInitialize() has been called immediately before initialize() */
+
+    std::string external_id; /**< updated by setExternalId() */
+    double antennaPositionOffset; /**< front offset for the antenna on this car */
+
+    omnetpp::simtime_t lastUpdate; /**< updated by nextPosition() */
+    Coord roadPosition; /**< position of front bumper, updated by nextPosition() */
+    std::string road_id; /**< updated by nextPosition() */
+    double speed; /**< updated by nextPosition() */
+    double angle; /**< updated by nextPosition() */
+    VehicleSignal vehSignals; /**<updated by nextPosition() */
+
+    omnetpp::cMessage* startAccidentMsg = NULL;
+    omnetpp::cMessage* stopAccidentMsg = NULL;
+    double last_speed;
+
+    const static simsignalwrap_t parkingStateChangedSignal;
+
+    bool isParking;
+
+public:
     TraCIMobilityMod() : BaseMobility(), isPreInitialized(false) { }
-		~TraCIMobilityMod() { }
-		virtual void initialize(int);
-		virtual void finish();
-		virtual void handleSelfMsg(omnetpp::cMessage *msg);
+    ~TraCIMobilityMod() { }
+    virtual void initialize(int);
+    virtual void finish();
+    virtual void handleSelfMsg(omnetpp::cMessage *msg);
 
-		virtual void preInitialize(std::string, const Coord&, std::string = "", double = -1, double = -1);
-		virtual void nextPosition(const Coord&, std::string = "", double = -1, double = -1, VehicleSignal = VEH_SIGNAL_UNDEF);
-		virtual void changePosition();
-		virtual void changeParkingState(bool);
-		virtual void updateDisplayString();
-		virtual void setExternalId(std::string external_id) { this->external_id = external_id; }
-		virtual std::string getExternalId() const {
-			if (external_id == "")
-			    throw omnetpp::cRuntimeError("TraCIMobility::getExternalId called with no external_id set yet");
-			return external_id;
-		}
-		virtual double getAntennaPositionOffset() const { return antennaPositionOffset; }
-		virtual Coord getPositionAt(const omnetpp::simtime_t& t) const { return move.getPositionAt(t); }
-		virtual bool getParkingState() const { return isParking; }
-		virtual std::string getRoadId() const {
-			if (road_id == "")
-			    throw omnetpp::cRuntimeError("TraCIMobility::getRoadId called with no road_id set yet");
-			return road_id;
-		}
-		virtual double getSpeed() const {
-			if (speed == -1)
-			    throw omnetpp::cRuntimeError("TraCIMobility::getSpeed called with no speed set yet");
-			return speed;
-		}
-		virtual VehicleSignal getSignals() const {
-			if (vehSignals == -1)
-			    throw omnetpp::cRuntimeError("TraCIMobility::getSignals called with no signals set yet");
-			return vehSignals;
-		}
-		/**
-		 * returns angle in rads, 0 being east, with -M_PI <= angle < M_PI.
-		 */
-		virtual double getAngleRad() const {
-			if (angle == M_PI)
-			    throw omnetpp::cRuntimeError("TraCIMobility::getAngleRad called with no angle set yet");
-			return angle;
-		}
+    virtual void preInitialize(std::string, const Coord&, std::string = "", double = -1, double = -1);
+    virtual void nextPosition(const Coord&, std::string = "", double = -1, double = -1, VehicleSignal = VEH_SIGNAL_UNDEF);
+    virtual void changePosition();
+    virtual void changeParkingState(bool);
+    virtual void updateDisplayString();
+    virtual void setExternalId(std::string external_id) { this->external_id = external_id; }
+    virtual std::string getExternalId() const {
+        if (external_id == "")
+            throw omnetpp::cRuntimeError("TraCIMobility::getExternalId called with no external_id set yet");
+        return external_id;
+    }
+    virtual double getAntennaPositionOffset() const { return antennaPositionOffset; }
+    virtual Coord getPositionAt(const omnetpp::simtime_t& t) const { return move.getPositionAt(t); }
+    virtual bool getParkingState() const { return isParking; }
+    virtual std::string getRoadId() const {
+        if (road_id == "")
+            throw omnetpp::cRuntimeError("TraCIMobility::getRoadId called with no road_id set yet");
+        return road_id;
+    }
+    virtual double getSpeed() const {
+        if (speed == -1)
+            throw omnetpp::cRuntimeError("TraCIMobility::getSpeed called with no speed set yet");
+        return speed;
+    }
+    virtual VehicleSignal getSignals() const {
+        if (vehSignals == -1)
+            throw omnetpp::cRuntimeError("TraCIMobility::getSignals called with no signals set yet");
+        return vehSignals;
+    }
+    /**
+     * returns angle in rads, 0 being east, with -M_PI <= angle < M_PI.
+     */
+    virtual double getAngleRad() const {
+        if (angle == M_PI)
+            throw omnetpp::cRuntimeError("TraCIMobility::getAngleRad called with no angle set yet");
+        return angle;
+    }
 
-	protected:
-        virtual void fixIfHostGetsOutside(); /**< called after each read to check for (and handle) invalid positions */
+protected:
+    virtual void fixIfHostGetsOutside(); /**< called after each read to check for (and handle) invalid positions */
 
-        /**
-         * Returns the amount of CO2 emissions in grams/second, calculated for an average Car
-         * @param v speed in m/s
-         * @param a acceleration in m/s^2
-         * @returns emission in g/s
-         */
-        double calculateCO2emission(double v, double a) const;
+    /**
+     * Returns the amount of CO2 emissions in grams/second, calculated for an average Car
+     * @param v speed in m/s
+     * @param a acceleration in m/s^2
+     * @returns emission in g/s
+     */
+    double calculateCO2emission(double v, double a) const;
 
-        /**
-         * Calculates where the antenna of this car is, given its front bumper position
-         */
-        Coord calculateAntennaPosition(const Coord& vehiclePos) const;
-
-	protected:
-        TraCI_Commands* TraCI;
-        int vClassEnum;
-
-		bool debug; /**< whether to emit debug messages */
-		int accidentCount; /**< number of accidents */
-
-		bool isPreInitialized; /**< true if preInitialize() has been called immediately before initialize() */
-
-		std::string external_id; /**< updated by setExternalId() */
-		double antennaPositionOffset; /**< front offset for the antenna on this car */
-
-		omnetpp::simtime_t lastUpdate; /**< updated by nextPosition() */
-		Coord roadPosition; /**< position of front bumper, updated by nextPosition() */
-		std::string road_id; /**< updated by nextPosition() */
-		double speed; /**< updated by nextPosition() */
-		double angle; /**< updated by nextPosition() */
-		VehicleSignal vehSignals; /**<updated by nextPosition() */
-
-		omnetpp::cMessage* startAccidentMsg = NULL;
-		omnetpp::cMessage* stopAccidentMsg = NULL;
-		double last_speed;
-
-		const static simsignalwrap_t parkingStateChangedSignal;
-
-		bool isParking;
+    /**
+     * Calculates where the antenna of this car is, given its front bumper position
+     */
+    Coord calculateAntennaPosition(const Coord& vehiclePos) const;
 };
 
 }

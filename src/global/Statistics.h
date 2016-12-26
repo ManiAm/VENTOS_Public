@@ -28,9 +28,9 @@
 #ifndef STATISTICS_H
 #define STATISTICS_H
 
-#include <BaseApplLayer.h>
-#include <ChannelAccess.h>
-#include <WaveAppToMac1609_4Interface.h>
+#include "BaseApplLayer.h"
+#include "ChannelAccess.h"
+#include "WaveAppToMac1609_4Interface.h"
 #include "TraCICommands.h"
 
 namespace VENTOS {
@@ -116,27 +116,6 @@ public:
 
 class Statistics : public BaseApplLayer
 {
-public:
-    virtual ~Statistics();
-    virtual void finish();
-    virtual void initialize(int);
-    virtual void handleMessage(omnetpp::cMessage *);
-    virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, long, cObject* details);
-    virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, cObject *, cObject* details);
-
-private:
-    void initialize_withTraCI();
-    void executeEachTimestep();
-
-    void MAClayerToFile();
-
-    void plnManageToFile();
-    void plnStatToFile();
-
-    void beaconToFile();
-
-    int getNodeIndex(std::string);
-
 private:
     // NED variables
     bool reportMAClayerData;
@@ -160,6 +139,27 @@ private:
     std::vector<plnManagement> Vec_plnManagement;
     std::vector<plnStat> Vec_plnStat;
     std::vector<BeaconStat> Vec_Beacons;
+
+public:
+    virtual ~Statistics();
+    virtual void finish();
+    virtual void initialize(int);
+    virtual void handleMessage(omnetpp::cMessage *);
+    virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, long, cObject* details);
+    virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, cObject *, cObject* details);
+
+private:
+    void initialize_withTraCI();
+    void executeEachTimestep();
+
+    void MAClayerToFile();
+
+    void plnManageToFile();
+    void plnStatToFile();
+
+    void beaconToFile();
+
+    int getNodeIndex(std::string);
 };
 
 }

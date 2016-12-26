@@ -28,29 +28,19 @@
 #ifndef TRAFFICLIGHTBASE_H
 #define TRAFFICLIGHTBASE_H
 
-#include <BaseApplLayer.h>
+#undef ev
+#include "boost/filesystem.hpp"
+
+#include "BaseApplLayer.h"
 #include "TraCICommands.h"
 #include "ApplRSU_02_Monitor.h"
 #include "vlog.h"
 
-#undef ev
-#include "boost/filesystem.hpp"
 
 namespace VENTOS {
 
 class TrafficLightBase : public BaseApplLayer
 {
-public:
-    virtual ~TrafficLightBase();
-    virtual void initialize(int);
-    virtual void finish();
-    virtual void handleMessage(omnetpp::cMessage *);
-
-protected:
-    virtual void initialize_withTraCI();
-    virtual void executeEachTimeStep();
-    ApplRSUMonitor * findRSU(std::string);
-
 protected:
     TraCI_Commands *TraCI;
 
@@ -61,6 +51,16 @@ protected:
 private:
     typedef BaseApplLayer super;
 
+public:
+    virtual ~TrafficLightBase();
+    virtual void initialize(int);
+    virtual void finish();
+    virtual void handleMessage(omnetpp::cMessage *);
+
+protected:
+    virtual void initialize_withTraCI();
+    virtual void executeEachTimeStep();
+    ApplRSUMonitor * findRSU(std::string);
 };
 
 }

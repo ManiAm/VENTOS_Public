@@ -37,6 +37,10 @@ namespace VENTOS {
 
 class ApplBikeManager : public ApplBikeBeacon
 {
+private:
+    typedef ApplBikeBeacon super;
+    static const simsignalwrap_t mobilityStateChangedSignal;
+
 public:
     ~ApplBikeManager();
     virtual void initialize(int stage);
@@ -51,10 +55,6 @@ protected:
 
     virtual void onBeaconVehicle(BeaconVehicle*);
     virtual void onBeaconRSU(BeaconRSU*);
-
-private:
-    typedef ApplBikeBeacon super;
-    static const simsignalwrap_t mobilityStateChangedSignal;
 };
 
 }

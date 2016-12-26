@@ -20,6 +20,13 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
+#include <cmath>
+#include <algorithm>
+#include <iomanip>
+
+#undef ev
+#include "boost/filesystem.hpp"
+
 #include "TraCIStart.h"
 #include "TraCIConstants.h"
 #include "TraCIScenarioManagerInet.h"
@@ -27,13 +34,6 @@
 #include "ObstacleControl.h"
 #include "Router.h"
 #include "vlog.h"
-
-#include <cmath>
-#include <algorithm>
-#include <iomanip>
-
-#undef ev
-#include "boost/filesystem.hpp"
 
 namespace VENTOS {
 

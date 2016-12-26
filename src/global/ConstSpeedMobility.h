@@ -17,7 +17,6 @@
  * part of:     framework implementation developed by tkn
  **************************************************************************/
 
-
 #ifndef CONST_SPEED_MOBILITY_H
 #define CONST_SPEED_MOBILITY_H
 
@@ -40,7 +39,7 @@ namespace VENTOS {
  */
 class ConstSpeedMobility : public BaseMobility
 {
-  protected:
+protected:
     /** @name parameters to handle the movement of the host*/
     /*@{*/
     /** @brief Size of a step*/
@@ -54,23 +53,18 @@ class ConstSpeedMobility : public BaseMobility
     Coord targetPos;
     Coord stepTarget;
 
-    //    double lastStep;
-
-  public:
-    //Module_Class_Members( ConstSpeedMobility, BaseMobility, 0 );
-
+public:
     /** @brief Initializes mobility model parameters.*/
     virtual void initialize(int);
 
-  protected:
+protected:
     /** @brief Calculate the target position to move to*/
     virtual void setTargetPosition();
 
     /** @brief Move the host*/
     virtual void makeMove();
-
-    //    void fixIfHostGetsOutside();
 };
+
 }
 
 #endif
