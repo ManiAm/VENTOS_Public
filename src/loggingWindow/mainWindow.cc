@@ -56,6 +56,7 @@ mainWindow::mainWindow(std::string filePath)
     // create the Notebook and add it to m_VBox
     m_Notebook = new Gtk::Notebook();
     m_Notebook->set_border_width(1);
+    m_Notebook->set_scrollable(true);  // tab label area will have arrows for scrolling if there are too many tabs to fit in the area.
     m_VBox->pack_start(*m_Notebook);
 
     // create a ButtonBox and add it to m_VBox
@@ -300,6 +301,7 @@ void mainWindow::addTab(std::string category)
     m_Notebook->insert_page(*m_HBox_tx, category.c_str(), pos);
     m_Notebook->set_tab_reorderable(*m_HBox_tx, true);
     m_Notebook->set_show_border(true);
+    m_Notebook->set_border_width(5); // border for the whole notebook
 
     // save m_HBox_tx for later access
     notebookBox[category] = m_HBox_tx;
@@ -349,8 +351,8 @@ Gtk::ScrolledWindow * mainWindow::createTextView(std::string category, std::stri
     fdesc.set_size(10 * PANGO_SCALE);
     m_TextView->override_font(fdesc);
 
-    // make the text view not editable
-    m_TextView->set_editable(false);
+    m_TextView->set_editable(false);  // make the text view not editable
+    m_TextView->set_border_width(5);
 
     m_ScrolledWindow->add(*m_TextView);
 
