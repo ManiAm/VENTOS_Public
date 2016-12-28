@@ -30,7 +30,6 @@
 
 namespace VENTOS {
 
-
 /*
 ####################
 Module: RFC1213-MIB

@@ -30,7 +30,7 @@
 
 #include <boost/circular_buffer.hpp>
 
-#include <03_TrafficLights.h>
+#include "trafficLight/03_TrafficLights.h"
 
 namespace VENTOS {
 

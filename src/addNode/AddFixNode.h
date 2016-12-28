@@ -28,8 +28,8 @@
 #ifndef AddFixNode_H_
 #define AddFixNode_H_
 
-#include "TraCICommands.h"
-#include "BaseApplLayer.h"
+#include "traci/TraCICommands.h"
+#include "MIXIM/modules/BaseApplLayer.h"
 
 namespace VENTOS {
 

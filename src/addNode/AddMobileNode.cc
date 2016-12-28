@@ -28,9 +28,9 @@
 #include <algorithm>
 #include <random>
 
-#include "AddMobileNode.h"
-#include "Router.h"
-#include "vlog.h"
+#include "addNode/AddMobileNode.h"
+#include "router/Router.h"
+#include "logging/vlog.h"
 
 namespace VENTOS {
 

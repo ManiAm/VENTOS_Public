@@ -40,7 +40,7 @@
 #include <thread>
 #include <sys/poll.h>
 
-#include "vlog.h"
+#include "logging/vlog.h"
 
 
 namespace VENTOS {

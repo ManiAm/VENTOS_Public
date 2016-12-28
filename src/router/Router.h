@@ -36,13 +36,13 @@
 #include <set>
 #include <map>
 
-#include "09_TL_Router.h"
-#include "BaseApplLayer.h"
-#include "Node.h"
-#include "Edge.h"
-#include "Net.h"
-#include "Hypertree.h"
-#include "ApplV_02_Beacon.h"
+#include "MIXIM/modules/BaseApplLayer.h"
+#include "router/Node.h"
+#include "router/Edge.h"
+#include "router/Net.h"
+#include "router/Hypertree.h"
+#include "trafficLight/TSC/09_Router.h"
+#include "vehicle/02_Beacon.h"
 
 namespace VENTOS {
 

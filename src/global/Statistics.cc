@@ -30,9 +30,9 @@
  * in the simulation (like vehicles and bikes).
  * */
 
-#include "Statistics.h"
-#include "ApplRSU_06_Manager.h"
-#include "SignalObj.h"
+#include "global/Statistics.h"
+#include "rsu/06_Manager.h"
+#include "global/SignalObj.h"
 
 namespace VENTOS {
 

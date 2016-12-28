@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    Histogram.h
+/// @file    EdgeCosts.h
 /// @author  Dylan Smith <dilsmith@ucdavis.edu>
 /// @author  second author here
 /// @date    August 2013
@@ -32,7 +32,8 @@
 #include <map>
 #include <iostream>
 #include <map>
-#include "GlobalConsts.h"
+
+#include "global/GlobalConsts.h"
 
 namespace VENTOS {
 

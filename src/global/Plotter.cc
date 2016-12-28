@@ -27,8 +27,8 @@
 
 #include <algorithm>
 
-#include "Plotter.h"
-#include "vlog.h"
+#include "global/Plotter.h"
+#include "logging/vlog.h"
 
 namespace VENTOS {
 

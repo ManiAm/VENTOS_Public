@@ -43,8 +43,8 @@
 #include <netinet/udp.h>         // udphdr
 #include <netinet/ip_icmp.h>     // icmphdr
 
-#include "BaseApplLayer.h"
-#include "TraCICommands.h"
+#include "MIXIM/modules/BaseApplLayer.h"
+#include "traci/TraCICommands.h"
 
 namespace VENTOS {
 

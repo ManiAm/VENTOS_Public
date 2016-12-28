@@ -26,7 +26,7 @@
 //
 
 #include <algorithm>
-#include "Color.h"
+#include "global/Color.h"
 
 namespace VENTOS {
 

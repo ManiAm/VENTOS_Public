@@ -27,7 +27,7 @@
 #ifndef INTERSECTIONDELAY_H
 #define INTERSECTIONDELAY_H
 
-#include "05_TLStateRecord.h"
+#include "trafficLight/05_TLStateRecord.h"
 
 namespace VENTOS {
 

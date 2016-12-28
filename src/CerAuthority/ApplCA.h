@@ -30,12 +30,12 @@
 
 #include <eigen3/Eigen/Dense>
 
-#include "BaseApplLayer.h"
-#include "ChannelAccess.h"
-#include "WaveAppToMac1609_4Interface.h"
-#include "TraCICommands.h"
-#include "Certificate.h"
-#include "CRL_Piece_m.h"
+#include "MIXIM/modules/BaseApplLayer.h"
+#include "MIXIM/modules/ChannelAccess.h"
+#include "veins/WaveAppToMac1609_4Interface.h"
+#include "traci/TraCICommands.h"
+#include "CerAuthority/Certificate.h"
+#include "msg/CRL_Piece_m.h"
 
 namespace VENTOS {
 

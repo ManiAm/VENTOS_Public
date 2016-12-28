@@ -25,9 +25,9 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "Cobalt.h"
-#include "MIB_OBJ_ASC.h"
-#include "vlog.h"
+#include "cobalt/Cobalt.h"
+#include "cobalt/MIB_OBJ_ASC.h"
+#include "logging/vlog.h"
 
 namespace VENTOS {
 

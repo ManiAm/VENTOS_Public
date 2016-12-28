@@ -34,11 +34,12 @@
 #include <sstream>
 #include <algorithm> // For sort
 
-#include "Router.h"
-#include "Vehicle.h"
-#include "EdgeCosts.h"
 #include "rapidxml.hpp"
 #include "rapidxml_utils.hpp"
+
+#include "router/Router.h"
+#include "router/Vehicle.h"
+#include "router/EdgeCosts.h"
 
 namespace VENTOS {
 

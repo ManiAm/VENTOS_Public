@@ -17,8 +17,8 @@
  * part of:     framework implementation developed by tkn
  **************************************************************************/
 
-#include "ConstSpeedMobility.h"
-#include "FWMath.h"
+#include "global/ConstSpeedMobility.h"
+#include "MIXIM/utils/FWMath.h"
 
 namespace VENTOS {
 

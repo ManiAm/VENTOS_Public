@@ -1,11 +1,16 @@
+/****************************************************************************/
+/// @file    TraCIStart.h
+/// @author  Mani Amoozadeh   <maniam@ucdavis.edu>
+/// @author  Christoph Sommer <mail@christoph-sommer.de>
+/// @date    August 2013
+///
+/****************************************************************************/
+// VENTOS, Vehicular Network Open Simulator; see http:?
+// Copyright (C) 2013-2015
+/****************************************************************************/
 //
-// Copyright (C) 2006-2012 Christoph Sommer <christoph.sommer@uibk.ac.at>
-//
-// Second author 2: Mani Amoozadeh <maniam@ucdavis.edu>
-//
-// Documentation for these modules is at http://veins.car2x.org/
-//
-// This program is free software; you can redistribute it and/or modify
+// This file is part of VENTOS.
+// VENTOS is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
@@ -27,13 +32,14 @@
 #undef ev
 #include "boost/filesystem.hpp"
 
-#include "TraCIStart.h"
-#include "TraCIConstants.h"
-#include "TraCIScenarioManagerInet.h"
-#include "TraCIMobility.h"
-#include "ObstacleControl.h"
-#include "Router.h"
-#include "vlog.h"
+#include "traci/TraCIStart.h"
+#include "traci/TraCIConstants.h"
+#include "traci/TraCIScenarioManagerInet.h"
+#include "traci/TraCIMobility.h"
+
+#include "veins/obstacle/ObstacleControl.h"
+#include "router/Router.h"
+#include "logging/vlog.h"
 
 namespace VENTOS {
 

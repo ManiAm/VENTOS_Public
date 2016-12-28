@@ -28,7 +28,7 @@
 #ifndef TLSTATERECORD_H
 #define TLSTATERECORD_H
 
-#include <04_MeasureTrafficParams.h>
+#include "trafficLight/04_MeasureTrafficParams.h"
 
 namespace VENTOS {
 

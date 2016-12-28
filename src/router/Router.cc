@@ -28,8 +28,8 @@
 #include <stdlib.h>
 #include <queue>
 
-#include "SignalObj.h"
-#include "Router.h"
+#include "global/SignalObj.h"
+#include "router/Router.h"
 
 namespace VENTOS {
 

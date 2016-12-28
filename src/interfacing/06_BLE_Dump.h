@@ -28,7 +28,7 @@
 #ifndef SNIFFBLUETOOTHDUMP_H
 #define SNIFFBLUETOOTHDUMP_H
 
-#include "05_BLE_Advertisement.h"
+#include "interfacing/05_BLE_Advertisement.h"
 
 namespace VENTOS {
 

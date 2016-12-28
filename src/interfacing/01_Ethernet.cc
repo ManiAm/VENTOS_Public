@@ -25,8 +25,8 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "01_Ethernet.h"
-#include "vlog.h"
+#include "interfacing/01_Ethernet.h"
+#include "logging/vlog.h"
 
 #include <fstream>
 #include <thread>

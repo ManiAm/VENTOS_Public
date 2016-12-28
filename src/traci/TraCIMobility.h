@@ -28,8 +28,8 @@
 #include <list>
 #include <stdexcept>
 
-#include "BaseMobility.h"
-#include "TraCICommands.h"
+#include "MIXIM/modules/BaseMobility.h"
+#include "traci/TraCICommands.h"
 
 /**
  * @brief

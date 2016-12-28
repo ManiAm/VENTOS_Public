@@ -31,8 +31,8 @@
 #include <vector>
 #include <omnetpp.h>
 
-#include "Node.h"
-#include "EdgeCosts.h"
+#include "router/Node.h"
+#include "router/EdgeCosts.h"
 
 namespace VENTOS {
 

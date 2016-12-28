@@ -33,8 +33,8 @@
 #undef ev
 #include "boost/filesystem.hpp"
 
-#include "TraCICommands.h"
-#include "TraCIConstants.h"
+#include "traci/TraCICommands.h"
+#include "traci/TraCIConstants.h"
 
 namespace VENTOS {
 

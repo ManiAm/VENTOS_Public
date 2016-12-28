@@ -29,7 +29,7 @@
 #include <boost/algorithm/string/trim.hpp>
 #include <linux/errno.h>
 
-#include "04_BLE.h"
+#include "interfacing/04_BLE.h"
 
 namespace VENTOS {
 

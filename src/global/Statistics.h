@@ -28,10 +28,10 @@
 #ifndef STATISTICS_H
 #define STATISTICS_H
 
-#include "BaseApplLayer.h"
-#include "ChannelAccess.h"
-#include "WaveAppToMac1609_4Interface.h"
-#include "TraCICommands.h"
+#include "MIXIM/modules/BaseApplLayer.h"
+#include "MIXIM/modules/ChannelAccess.h"
+#include "veins/WaveAppToMac1609_4Interface.h"
+#include "traci/TraCICommands.h"
 
 namespace VENTOS {
 

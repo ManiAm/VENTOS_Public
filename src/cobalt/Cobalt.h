@@ -28,9 +28,9 @@
 #ifndef COBALT_H_
 #define COBALT_H_
 
-#include "BaseApplLayer.h"
-#include "TraCICommands.h"
-#include "SNMP.h"
+#include "MIXIM/modules/BaseApplLayer.h"
+#include "traci/TraCICommands.h"
+#include "cobalt/SNMP.h"
 
 namespace VENTOS {
 

@@ -31,8 +31,8 @@
 #include <unordered_map>
 #include <libusb-1.0/libusb.h>
 
-#include "BaseApplLayer.h"
-#include "TraCICommands.h"
+#include "MIXIM/modules/BaseApplLayer.h"
+#include "traci/TraCICommands.h"
 
 namespace VENTOS {
 

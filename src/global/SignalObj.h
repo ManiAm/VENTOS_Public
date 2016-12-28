@@ -28,8 +28,8 @@
 #ifndef SIGNALOBJ_H
 #define SIGNALOBJ_H
 
-#include "PlatoonMsg_m.h"
-#include "CRL_Piece_m.h"
+#include "msg/PlatoonMsg_m.h"
+#include "msg/CRL_Piece_m.h"
 
 namespace VENTOS {
 

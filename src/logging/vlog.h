@@ -31,8 +31,8 @@
 #include "boost/format.hpp"
 #include <mutex>
 
-#include "BaseApplLayer.h"
-#include "vlogConst.h"
+#include "MIXIM/modules/BaseApplLayer.h"
+#include "logging/vlogConst.h"
 #include "omnetpp.h"
 
 namespace VENTOS {

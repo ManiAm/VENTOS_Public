@@ -25,10 +25,10 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "ApplCA.h"
-#include "FiniteFieldMath.h"
-#include "SignalObj.h"
-#include "vlog.h"
+#include "CerAuthority/ApplCA.h"
+#include "CerAuthority/FiniteFieldMath.h"
+#include "global/SignalObj.h"
+#include "logging/vlog.h"
 
 namespace VENTOS {
 

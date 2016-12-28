@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    Tracking.h
+/// @file    NodeTrackingGUI.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    August 2013
@@ -28,8 +28,8 @@
 #ifndef TRACKING_H
 #define TRACKING_H
 
-#include "BaseApplLayer.h"
-#include "TraCICommands.h"
+#include "MIXIM/modules/BaseApplLayer.h"
+#include "traci/TraCICommands.h"
 
 namespace VENTOS {
 

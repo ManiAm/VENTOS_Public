@@ -28,9 +28,9 @@
 #undef ev
 #include "boost/filesystem.hpp"
 
-#include "AddFixNode.h"
-#include "ConnectionManager.h"
-#include "vlog.h"
+#include "addNode/AddFixNode.h"
+#include "MIXIM/connectionManager/ConnectionManager.h"
+#include "logging/vlog.h"
 
 namespace VENTOS {
 

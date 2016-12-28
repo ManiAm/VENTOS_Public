@@ -26,7 +26,7 @@
 
 #include <boost/graph/adjacency_list.hpp>
 
-#include "07_AllowedMoves.h"
+#include "trafficLight/07_AllowedMoves.h"
 
 namespace VENTOS {
 

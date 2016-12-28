@@ -32,13 +32,13 @@
 #include <ctime>
 #include <ratio>
 
-#include "TraCIConnection.h"
-#include "TraCIBuffer.h"
-#include "Color.h"
-#include "TraCICoord.h"
+#include "traci/TraCIConnection.h"
+#include "traci/TraCIBuffer.h"
+#include "traci/TraCICoord.h"
 
-#include "Coord.h"
-#include "GlobalConsts.h"
+#include "MIXIM/utils/Coord.h"
+#include "global/Color.h"
+#include "global/GlobalConsts.h"
 
 namespace VENTOS {
 

@@ -28,12 +28,12 @@
 #ifndef APPLADVERSARY_H_
 #define APPLADVERSARY_H_
 
-#include "BaseApplLayer.h"
-#include "ChannelAccess.h"
-#include "WaveAppToMac1609_4Interface.h"
-#include "TraCICommands.h"
-#include "BeaconVehicle_m.h"
-#include "DummyMsg_m.h"
+#include "MIXIM/modules/BaseApplLayer.h"
+#include "MIXIM/modules/ChannelAccess.h"
+#include "veins/WaveAppToMac1609_4Interface.h"
+#include "traci/TraCICommands.h"
+#include "msg/BeaconVehicle_m.h"
+#include "msg/DummyMsg_m.h"
 
 namespace VENTOS {
 

@@ -26,7 +26,7 @@
 
 #include <iomanip>
 
-#include "06_IntersectionDelay.h"
+#include "trafficLight/06_IntersectionDelay.h"
 
 namespace VENTOS {
 

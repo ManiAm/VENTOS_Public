@@ -32,7 +32,7 @@
 #undef ev
 #include "boost/filesystem.hpp"
 
-#include "02_USB.h"
+#include "interfacing/02_USB.h"
 
 namespace VENTOS {
 

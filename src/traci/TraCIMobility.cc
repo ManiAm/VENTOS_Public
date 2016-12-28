@@ -22,7 +22,7 @@
 #include <iostream>
 #include <sstream>
 
-#include "TraCIMobility.h"
+#include "traci/TraCIMobility.h"
 
 namespace {
     const double MY_INFINITY = (std::numeric_limits<double>::has_infinity ? std::numeric_limits<double>::infinity() : std::numeric_limits<double>::max());

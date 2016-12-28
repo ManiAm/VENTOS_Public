@@ -30,7 +30,7 @@
 #include <sys/ioctl.h>
 #include <linux/errno.h>
 
-#include "03_Bluetooth.h"
+#include "interfacing/03_Bluetooth.h"
 
 namespace VENTOS {
 

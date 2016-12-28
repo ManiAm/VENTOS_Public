@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    Tracking.cc
+/// @file    NodeTrackingGUI.cc
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    August 2013
@@ -26,7 +26,7 @@
 //
 
 #include <algorithm>
-#include "NodeTrackingGUI.h"
+#include "addNode/NodeTrackingGUI.h"
 
 Define_Module(VENTOS::Tracking);
 

@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    SniffBluetoothLE.h
+/// @file    BLE.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    Feb 2016
@@ -28,7 +28,7 @@
 #ifndef SNIFFBLUETOOTHLE_H
 #define SNIFFBLUETOOTHLE_H
 
-#include "03_Bluetooth.h"
+#include "interfacing/03_Bluetooth.h"
 
 namespace VENTOS {
 

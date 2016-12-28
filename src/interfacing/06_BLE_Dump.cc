@@ -28,7 +28,7 @@
 #include <sys/ioctl.h>
 #include <sys/poll.h>
 
-#include "06_BLE_Dump.h"
+#include "interfacing/06_BLE_Dump.h"
 
 namespace VENTOS {
 

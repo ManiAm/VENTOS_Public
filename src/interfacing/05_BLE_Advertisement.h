@@ -28,7 +28,7 @@
 #ifndef ADVERTISEBEACON_H
 #define ADVERTISEBEACON_H
 
-#include "04_BLE.h"
+#include "interfacing/04_BLE.h"
 
 namespace VENTOS {
 

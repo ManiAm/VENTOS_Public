@@ -42,9 +42,9 @@
 #undef ev
 #include "boost/filesystem.hpp"
 
-#include "BaseApplLayer.h"
-#include "TraCICommands.h"
-#include "01_Ethernet.h"
+#include "MIXIM/modules/BaseApplLayer.h"
+#include "traci/TraCICommands.h"
+#include "interfacing/01_Ethernet.h"
 
 namespace VENTOS {
 

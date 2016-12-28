@@ -31,8 +31,8 @@
 #undef ev
 #include "boost/filesystem.hpp"
 
-#include "SNMP.h"
-#include "vlog.h"
+#include "cobalt/SNMP.h"
+#include "logging/vlog.h"
 
 
 namespace VENTOS {
