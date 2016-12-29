@@ -286,19 +286,23 @@ void mainWindow::addTab(std::string category)
     Gtk::Box *m_HBox_tx = new Gtk::Box(Gtk::ORIENTATION_HORIZONTAL, 10);
     m_HBox_tx->set_homogeneous(true);
 
+    // add text formatting to tab name
+    Gtk::Label *label = addTextFormatting(category);
+
     // iterate over notebook tabs and find a good pos to insert the new tab
     int pos = 0;
     for(pos = 0; pos < m_Notebook->get_n_pages(); pos++)
     {
         Gtk::Widget &pageWidget = * m_Notebook->get_nth_page(pos);
+        // getting the tab text (all markups are removed)
         std::string tabName = m_Notebook->get_tab_label_text(pageWidget);
 
-        if(tabName > category)
+        if(tabName > label->get_text())
             break;
     }
 
     // insert a new tab
-    m_Notebook->insert_page(*m_HBox_tx, category.c_str(), pos);
+    m_Notebook->insert_page(*m_HBox_tx, *label, pos);
     m_Notebook->set_tab_reorderable(*m_HBox_tx, true);
     m_Notebook->set_show_border(true);
     m_Notebook->set_border_width(5); // border for the whole notebook
@@ -311,6 +315,58 @@ void mainWindow::addTab(std::string category)
     m_HBox_tx->pack_start(*m_ScrolledWindow, Gtk::PACK_EXPAND_WIDGET);
 
     show_all_children();
+}
+
+
+// apply formatting to the tab name
+Gtk::Label * mainWindow::addTextFormatting(std::string text)
+{
+    if(text == "")
+        throw std::runtime_error("'text' passed to addTextFormatting method is empty.");
+
+    // tokenize 'text' based on new line
+    std::vector<std::string> tokenize_text;
+    std::stringstream ss(text);
+    std::string to = "";
+    while( std::getline(ss, to) )
+        tokenize_text.push_back(to);
+
+    Gtk::Label *label = Gtk::manage(new Gtk::Label);
+
+    if(tokenize_text.size() == 0)
+    {
+        throw std::runtime_error("ERROR in tokenizing text string.");
+    }
+    // single-line label
+    if(tokenize_text.size() == 1)
+    {
+        // font size is 'large'
+        char markup[1000];
+        sprintf( markup, "<span size=\"large\">%s</span>", tokenize_text[0].c_str() );
+
+        label->set_markup(markup);
+    }
+    // multi-line label
+    else if(tokenize_text.size() > 1)
+    {
+        char markup[1000];
+        std::string result = "";
+
+        // first line has a 'large' font size
+        sprintf( markup, "<span size=\"large\">%s</span>", tokenize_text[0].c_str() );
+        result += markup;
+
+        // subsequent lines have 'blue' color
+        for(unsigned int i = 1; i < tokenize_text.size(); i++)
+        {
+            sprintf( markup, "\n<span foreground=\"blue\">%s</span>", tokenize_text[i].c_str() );
+            result += markup;
+        }
+
+        label->set_markup(result);
+    }
+
+    return label;
 }
 
 
