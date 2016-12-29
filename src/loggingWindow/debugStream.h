@@ -37,12 +37,18 @@ namespace VENTOS {
 
 class debugStream : public std::streambuf
 {
+private:
+    Gtk::TextView *m_TextView;
+    std::vector<char> buffer_;
+
 public:
 
     explicit debugStream(Gtk::TextView *tw, std::size_t buff_sz = 512) : m_TextView(tw), buffer_(buff_sz + 1)
     {
         char *base = &buffer_.front();
         setp(base, base + buffer_.size() - 1); // -1 to make overflow() easier
+
+        defineTags();
     }
 
     debugStream(const debugStream &);
@@ -68,6 +74,7 @@ protected:
             std::ostringstream sink_;
             sink_.write(pbase(), n);
 
+            // append sink_ to the text view
             updateTextView(sink_);
 
             return ch;
@@ -87,12 +94,34 @@ protected:
         std::ostringstream sink_;
         sink_.write(pbase(), n);
 
+        // append sink_ to the text view
         updateTextView(sink_);
 
         return 0;
     }
 
 private:
+
+    void defineTags()
+    {
+        auto textBuffer = m_TextView->get_buffer();
+
+        {
+            auto tag = textBuffer->create_tag("red_text");
+            tag->property_foreground() = "red";
+        }
+
+        {
+            auto tag = textBuffer->create_tag("red_text_bold");
+            tag->property_foreground() = "red";
+            tag->property_weight() = PANGO_WEIGHT_BOLD;
+        }
+
+        {
+            auto tag = textBuffer->create_tag("green_text");
+            tag->property_foreground() = "green";
+        }
+    }
 
     void updateTextView(std::ostringstream & sink_)
     {
@@ -106,17 +135,29 @@ private:
         auto mark = textBuffer->get_mark("last_line");
         textBuffer->move_mark(mark, iter2);
         m_TextView->scroll_to(mark);
+
+        addTextFormatting();
     }
 
     void addTextFormatting()
     {
+        auto textBuffer = m_TextView->get_buffer();
+        auto end_iter = textBuffer->end();
 
+        {
+            Gtk::TextIter match_start;
+            Gtk::TextIter match_end;
+            if( end_iter.backward_search("ERROR", Gtk::TEXT_SEARCH_CASE_INSENSITIVE, match_start, match_end) )
+                textBuffer->apply_tag_by_name("red_text", match_start, match_end);
+        }
 
+        {
+            Gtk::TextIter match_start;
+            Gtk::TextIter match_end;
+            if( end_iter.backward_search(">>>>", Gtk::TEXT_SEARCH_CASE_INSENSITIVE, match_start, match_end) )
+                textBuffer->apply_tag_by_name("green_text", match_start, match_end);
+        }
     }
-
-private:
-    Gtk::TextView *m_TextView;
-    std::vector<char> buffer_;
 };
 
 }

@@ -224,7 +224,8 @@ void mainWindow::listenToClient(mainWindow *windowPtr)
 
 void mainWindow::processCMD()
 {
-    // check answer by DanielKO: http://stackoverflow.com/questions/19142368/what-happens-if-i-call-wait-on-a-notified-condition-variable
+    // check answer by DanielKO:
+    // http://stackoverflow.com/questions/19142368/what-happens-if-i-call-wait-on-a-notified-condition-variable
     std::lock_guard<std::mutex> lck(mtx);
 
     try
@@ -307,7 +308,7 @@ void mainWindow::addTab(std::string category)
     m_Notebook->set_show_border(true);
     m_Notebook->set_border_width(5); // border for the whole notebook
 
-    // save m_HBox_tx for later access
+    // save m_HBox_tx for later access in addSubTextView method
     notebookBox[category] = m_HBox_tx;
 
     // create a new textview and add it to the box
@@ -319,6 +320,7 @@ void mainWindow::addTab(std::string category)
 
 
 // apply formatting to the tab name
+// check this: https://developer.gnome.org/pango/unstable/PangoMarkupFormat.html
 Gtk::Label * mainWindow::addTextFormatting(std::string text)
 {
     if(text == "")
@@ -370,31 +372,12 @@ Gtk::Label * mainWindow::addTextFormatting(std::string text)
 }
 
 
-void mainWindow::addSubTextView(std::string category, std::string subcategory)
-{
-    auto it = vLogStreams.find(std::make_pair(category, subcategory));
-    if(it != vLogStreams.end())
-        throw std::runtime_error("addSubTextView: category/subcategory pair already exists!");
-
-    // find the horizontal box
-    auto itt = notebookBox.find(category);
-    if(itt == notebookBox.end())
-        throw std::runtime_error("cannot find the box object!");
-
-    // create a new textview and add it to the box
-    Gtk::ScrolledWindow *m_ScrolledWindow = createTextView(category, subcategory);
-    (itt->second)->pack_start(*m_ScrolledWindow, Gtk::PACK_EXPAND_WIDGET);
-
-    show_all_children();
-}
-
-
 Gtk::ScrolledWindow * mainWindow::createTextView(std::string category, std::string subcategory)
 {
     // creating a ScrolledWindow
     Gtk::ScrolledWindow *m_ScrolledWindow = new Gtk::ScrolledWindow();
     // only show the scroll bars when they are necessary:
-    m_ScrolledWindow->set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
+    m_ScrolledWindow->set_policy(Gtk::POLICY_NEVER /*hscrollbar*/, Gtk::POLICY_AUTOMATIC /*vscrollbar*/);
     // add shadow to the border
     m_ScrolledWindow->set_shadow_type(Gtk::SHADOW_ETCHED_IN);
 
@@ -409,6 +392,7 @@ Gtk::ScrolledWindow * mainWindow::createTextView(std::string category, std::stri
 
     m_TextView->set_editable(false);  // make the text view not editable
     m_TextView->set_border_width(5);
+    m_TextView->set_wrap_mode(Gtk::WRAP_WORD);
 
     m_ScrolledWindow->add(*m_TextView);
 
@@ -425,6 +409,25 @@ Gtk::ScrolledWindow * mainWindow::createTextView(std::string category, std::stri
     vLogStreams[std::make_pair(category, subcategory)] = out;
 
     return m_ScrolledWindow;
+}
+
+
+void mainWindow::addSubTextView(std::string category, std::string subcategory)
+{
+    auto it = vLogStreams.find(std::make_pair(category, subcategory));
+    if(it != vLogStreams.end())
+        throw std::runtime_error("addSubTextView: category/subcategory pair already exists!");
+
+    // find the horizontal box
+    auto itt = notebookBox.find(category);
+    if(itt == notebookBox.end())
+        throw std::runtime_error("cannot find the box object!");
+
+    // create a new textview and add it to the box
+    Gtk::ScrolledWindow *m_ScrolledWindow = createTextView(category, subcategory);
+    (itt->second)->pack_start(*m_ScrolledWindow, Gtk::PACK_EXPAND_WIDGET);
+
+    show_all_children();
 }
 
 
