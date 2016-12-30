@@ -129,14 +129,19 @@ private:
         auto iter = textBuffer->end();
         textBuffer->insert(iter, sink_.str());
 
-        // scroll the last inserted line into view
+        addTextFormatting();
+
+        // get an iterator to the end of textBuffer
         auto iter2 = textBuffer->end();
-        iter2.set_line_offset(0);  // Beginning of last line
+        // move the iterator to the beginning of last line
+        iter2.set_line_offset(0);
+
+        // move 'last_line' mark to the beginning of the last line
         auto mark = textBuffer->get_mark("last_line");
         textBuffer->move_mark(mark, iter2);
-        m_TextView->scroll_to(mark);
 
-        addTextFormatting();
+        // scroll the last inserted line into view
+        m_TextView->scroll_to(mark);
     }
 
     void addTextFormatting()
@@ -144,17 +149,20 @@ private:
         auto textBuffer = m_TextView->get_buffer();
         auto end_iter = textBuffer->end();
 
+        auto mark = textBuffer->get_mark("last_line");
+        Gtk::TextIter limit = textBuffer->get_iter_at_mark(mark);
+
         {
             Gtk::TextIter match_start;
             Gtk::TextIter match_end;
-            if( end_iter.backward_search("ERROR", Gtk::TEXT_SEARCH_CASE_INSENSITIVE, match_start, match_end) )
+            if( end_iter.backward_search("ERROR", Gtk::TEXT_SEARCH_CASE_INSENSITIVE, match_start, match_end, limit) )
                 textBuffer->apply_tag_by_name("red_text", match_start, match_end);
         }
 
         {
             Gtk::TextIter match_start;
             Gtk::TextIter match_end;
-            if( end_iter.backward_search(">>>>", Gtk::TEXT_SEARCH_CASE_INSENSITIVE, match_start, match_end) )
+            if( end_iter.backward_search(">>>>", Gtk::TEXT_SEARCH_CASE_INSENSITIVE, match_start, match_end, limit) )
                 textBuffer->apply_tag_by_name("green_text", match_start, match_end);
         }
     }

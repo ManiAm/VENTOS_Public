@@ -397,8 +397,8 @@ Gtk::ScrolledWindow * mainWindow::createTextView(std::string category, std::stri
     m_ScrolledWindow->add(*m_TextView);
 
     // create a text buffer mark to scroll the last inserted line into view
-    Glib::RefPtr<Gtk::TextBuffer> m_refTextBuffer = m_TextView->get_buffer();
-    m_refTextBuffer->create_mark("last_line", m_refTextBuffer->end(), /* left_gravity= */ true);
+    auto textBuffer = m_TextView->get_buffer();
+    textBuffer->create_mark("last_line", textBuffer->end(), /* left_gravity= */ true);
 
     // making my own stream buffer
     debugStream *buff = new debugStream(m_TextView);
