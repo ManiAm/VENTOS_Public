@@ -377,7 +377,7 @@ Gtk::ScrolledWindow * mainWindow::createTextView(std::string category, std::stri
     // creating a ScrolledWindow
     Gtk::ScrolledWindow *m_ScrolledWindow = new Gtk::ScrolledWindow();
     // only show the scroll bars when they are necessary:
-    m_ScrolledWindow->set_policy(Gtk::POLICY_NEVER /*hscrollbar*/, Gtk::POLICY_AUTOMATIC /*vscrollbar*/);
+    m_ScrolledWindow->set_policy(Gtk::POLICY_AUTOMATIC /*hscrollbar*/, Gtk::POLICY_AUTOMATIC /*vscrollbar*/);
     // add shadow to the border
     m_ScrolledWindow->set_shadow_type(Gtk::SHADOW_ETCHED_IN);
 
@@ -392,7 +392,7 @@ Gtk::ScrolledWindow * mainWindow::createTextView(std::string category, std::stri
 
     m_TextView->set_editable(false);  // make the text view not editable
     m_TextView->set_border_width(5);
-    m_TextView->set_wrap_mode(Gtk::WRAP_WORD);
+    // m_TextView->set_wrap_mode(Gtk::WRAP_WORD);
 
     m_ScrolledWindow->add(*m_TextView);
 
