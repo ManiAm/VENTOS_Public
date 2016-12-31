@@ -323,7 +323,7 @@ void AddMobileNode::Scenario3()
             // second vehicle has OBU
             if(i == 1)
             {
-                TraCI->vehicleAdd(vehicleName, "TypeEmulated", "route1", depart, -5 /*pos*/, 0 /*speed*/, 0 /*lane*/, "192.168.60.43");
+                TraCI->vehicleAdd(vehicleName, "TypeEmulated", "route1", depart, -5 /*pos*/, 0 /*speed*/, 0 /*lane*/, "192.168.60.42");
 
                 // change vehicle color to red!
                 RGB newColor = Color::colorNameToRGB("red");
@@ -354,7 +354,7 @@ void AddMobileNode::Scenario3()
             // third vehicle has OBU (back vehicle)
             else if(i == 2)
             {
-                TraCI->vehicleAdd(vehicleName, "TypeEmulated", "route1", depart, -5 /*pos*/, 0 /*speed*/, 0 /*lane*/, "192.168.60.43");
+                TraCI->vehicleAdd(vehicleName, "TypeEmulated", "route1", depart, -5 /*pos*/, 0 /*speed*/, 0 /*lane*/, "192.168.60.42");
 
                 // alter 'lane change' mode to disable lane-changing
                 int32_t bitset = TraCI->vehicleBuildLaneChangeMode(00, 01, 00, 01, 01);
