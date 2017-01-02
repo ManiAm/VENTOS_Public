@@ -148,6 +148,21 @@ void ApplVManager::handleLowerMsg(omnetpp::cMessage* msg)
         }
     }
 
+    onMessageType(msg);
+
+    delete msg;
+}
+
+
+// is called, every time the position of vehicle changes
+void ApplVManager::handlePositionUpdate(cObject* obj)
+{
+    super::handlePositionUpdate(obj);
+}
+
+
+void ApplVManager::onMessageType(omnetpp::cMessage* msg)
+{
     if (msg->getKind() == TYPE_BEACON_VEHICLE)
     {
         BeaconVehicle* wsm = dynamic_cast<BeaconVehicle*>(msg);
@@ -157,7 +172,7 @@ void ApplVManager::handleLowerMsg(omnetpp::cMessage* msg)
 
         if( plr == 0 || !dropBeacon(droppT, droppV, plr) )
         {
-            ApplVManager::onBeaconVehicle(wsm);
+            onBeaconVehicle(wsm);
 
             // report reception to statistics
             if(reportBeaconsData)
@@ -188,7 +203,7 @@ void ApplVManager::handleLowerMsg(omnetpp::cMessage* msg)
 
         BeaconPedCount++;
 
-        ApplVManager::onBeaconPedestrian(wsm);
+        onBeaconPedestrian(wsm);
     }
     else if (msg->getKind() == TYPE_BEACON_RSU)
     {
@@ -197,7 +212,7 @@ void ApplVManager::handleLowerMsg(omnetpp::cMessage* msg)
 
         BeaconRSUCount++;
 
-        ApplVManager::onBeaconRSU(wsm);
+        onBeaconRSU(wsm);
     }
     else if(msg->getKind() == TYPE_PLATOON_DATA)
     {
@@ -206,19 +221,10 @@ void ApplVManager::handleLowerMsg(omnetpp::cMessage* msg)
 
         PlatoonCount++;
 
-        ApplVManager::onPlatoonMsg(wsm);
+        onPlatoonMsg(wsm);
     }
     else
         throw omnetpp::cRuntimeError("Vehicle %s received unsupported msg %s of type %d!", SUMOID.c_str(), msg->getName(), msg->getKind());
-
-    delete msg;
-}
-
-
-// is called, every time the position of vehicle changes
-void ApplVManager::handlePositionUpdate(cObject* obj)
-{
-    super::handlePositionUpdate(obj);
 }
 
 

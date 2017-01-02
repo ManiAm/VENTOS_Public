@@ -72,6 +72,7 @@ protected:
     virtual void onBeaconRSU(BeaconRSU*);
     virtual void onPlatoonMsg(PlatoonMsg*);
 
+    void onMessageType(omnetpp::cMessage* msg);
     bool dropBeacon(double time, std::string vehicle, double plr);
 };
 
