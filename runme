@@ -342,9 +342,9 @@ done
 END
 
 # get current directory
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+VENTOS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # change directory to VENTOS
-cd $DIR
+cd $VENTOS_DIR
 # change directory to parent of VENTOS (Desktop)
 cd ..
 # make directory in tmp to store all downloaded files
@@ -882,7 +882,7 @@ fi
 # http://sumo.dlr.de/wiki/Installing/MacOS_Build_w_Homebrew
 
 # change directory to VENTOS
-cd $DIR
+cd $VENTOS_DIR
 if [[ $? -ne 0 ]]; then
     exit 1
 fi
@@ -1035,7 +1035,7 @@ fi # end of SUMO installation
 ###############################
 
 # change directory to VENTOS
-cd $DIR
+cd $VENTOS_DIR
 if [[ $? -ne 0 ]]; then
     exit 1
 fi
@@ -1224,10 +1224,10 @@ fi
 result=$?
 #if [[ ("$result" == "1") || ("$result" == "2") ]]; then
 if [[ 1 ]]; then
-    if [ ! -f "snmp++-3.3.5.tar.gz" ]; then
+    if [ ! -f "snmp.tar.gz" ]; then
         # download snmp++ API
         echo "downloading snmp++"
-        curl -o snmp.tar.gz http://www.agentpp.com/download/snmp++-3.3.5.tar.gz
+        lftp -e 'pget -n 2 snmp++-3.3.8.tar.gz -o /tmp/VENTOS_tmp/snmp.tar.gz; bye' -p 28 -u userftp,userftp ftp://rubinet.ece.ucdavis.edu/download
         mkdir snmp
         tar zxf snmp.tar.gz -C snmp --strip 1 
     fi
@@ -1401,7 +1401,7 @@ fi
 ######################
 
 # change directory to VENTOS
-cd $DIR
+cd $VENTOS_DIR
 if [[ $? -ne 0 ]]; then
     exit 1
 fi
