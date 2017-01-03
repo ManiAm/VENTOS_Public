@@ -148,6 +148,7 @@ private:
     {
         auto textBuffer = m_TextView->get_buffer();
         auto end_iter = textBuffer->end();
+        auto search_iter = end_iter;
 
         auto mark = textBuffer->get_mark("last_line");
         Gtk::TextIter limit = textBuffer->get_iter_at_mark(mark);
@@ -155,15 +156,21 @@ private:
         {
             Gtk::TextIter match_start;
             Gtk::TextIter match_end;
-            if( end_iter.backward_search("ERROR", Gtk::TEXT_SEARCH_CASE_INSENSITIVE, match_start, match_end, limit) )
-                textBuffer->apply_tag_by_name("red_text", match_start, match_end);
+            while( search_iter.backward_search(">>>>", Gtk::TEXT_SEARCH_CASE_INSENSITIVE, match_start, match_end, limit) )
+            {
+                textBuffer->apply_tag_by_name("green_text", match_start, match_end);
+                search_iter = match_start;
+            }
         }
 
         {
             Gtk::TextIter match_start;
             Gtk::TextIter match_end;
-            if( end_iter.backward_search(">>>>", Gtk::TEXT_SEARCH_CASE_INSENSITIVE, match_start, match_end, limit) )
-                textBuffer->apply_tag_by_name("green_text", match_start, match_end);
+            while( search_iter.backward_search("ERROR", Gtk::TEXT_SEARCH_CASE_INSENSITIVE, match_start, match_end, limit) )
+            {
+                textBuffer->apply_tag_by_name("red_text", match_start, match_end);
+                search_iter = match_start;
+            }
         }
     }
 };
