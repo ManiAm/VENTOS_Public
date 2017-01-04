@@ -107,6 +107,16 @@ private:
         auto textBuffer = m_TextView->get_buffer();
 
         {
+            auto tag = textBuffer->create_tag("green_text");
+            tag->property_foreground() = "green";
+        }
+
+        {
+            auto tag = textBuffer->create_tag("orange_text");
+            tag->property_foreground() = "orange";
+        }
+
+        {
             auto tag = textBuffer->create_tag("red_text");
             tag->property_foreground() = "red";
         }
@@ -115,11 +125,6 @@ private:
             auto tag = textBuffer->create_tag("red_text_bold");
             tag->property_foreground() = "red";
             tag->property_weight() = PANGO_WEIGHT_BOLD;
-        }
-
-        {
-            auto tag = textBuffer->create_tag("green_text");
-            tag->property_foreground() = "green";
         }
     }
 
@@ -159,6 +164,16 @@ private:
             while( search_iter.backward_search(">>>>", Gtk::TEXT_SEARCH_CASE_INSENSITIVE, match_start, match_end, limit) )
             {
                 textBuffer->apply_tag_by_name("green_text", match_start, match_end);
+                search_iter = match_start;
+            }
+        }
+
+        {
+            Gtk::TextIter match_start;
+            Gtk::TextIter match_end;
+            while( search_iter.backward_search("WARNING", Gtk::TEXT_SEARCH_CASE_INSENSITIVE, match_start, match_end, limit) )
+            {
+                textBuffer->apply_tag_by_name("orange_text", match_start, match_end);
                 search_iter = match_start;
             }
         }
