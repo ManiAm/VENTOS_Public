@@ -151,6 +151,9 @@ BeaconPedestrian*  ApplPedBeacon::generateBeacon()
     // set current lane
     wsm->setLane( TraCI->personGetEdgeID(SUMOID).c_str() );
 
+    // set heading
+    wsm->setAngle( TraCI->personGetAngle(SUMOID) );
+
     return wsm;
 }
 

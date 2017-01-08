@@ -45,7 +45,6 @@ packet BeaconBicycle extends WaveShortMessage
 	double accel;
 	double maxDecel;
 	string lane;
-	string platoonID;
-	int platoonDepth;
+	double angle;
 };
 

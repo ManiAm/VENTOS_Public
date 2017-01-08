@@ -26,8 +26,8 @@
 //
 
 cplusplus {{
-#include "WaveShortMessage_m.h"
-#include <Coord.h>
+        #include "WaveShortMessage_m.h"
+        #include <Coord.h>
 }}
 
 class Veins::WaveShortMessage;
@@ -37,14 +37,13 @@ namespace VENTOS;
 
 packet BeaconPedestrian extends WaveShortMessage 
 {
-	string sender;
-    string senderType;
-	string recipient;
-	Coord pos;
-	double speed;
-	double accel;
-	double maxDecel;
-	string lane;
-	string platoonID;
-	int platoonDepth;
+        string sender;
+        string senderType;
+        string recipient;
+        Coord pos;
+        double speed;
+        double accel;
+        double maxDecel;
+        string lane;
+        double angle;
 };

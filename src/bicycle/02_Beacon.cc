@@ -156,6 +156,9 @@ BeaconBicycle*  ApplBikeBeacon::generateBeacon()
     // set current lane
     wsm->setLane( TraCI->vehicleGetLaneID(SUMOID).c_str() );
 
+    // set heading
+    wsm->setAngle( TraCI->vehicleGetAngle(SUMOID) );
+
     return wsm;
 }
 
