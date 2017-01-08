@@ -267,7 +267,7 @@ void ApplRSUCLASSIFY::loadTrainer()
     if(trainingData.elements().empty())
     {
         collectTrainingData = true;
-        std::cout << "No training data exists! Run the simulation to collect training data. \n";
+        std::cout << "No training data exists! Keep running the simulation to collect training data. \n";
         return;
     }
     else
@@ -324,7 +324,7 @@ void ApplRSUCLASSIFY::trainClassifier(shark::CSvmTrainer<shark::RealVector, unsi
 {
     std::stringstream modelName;
     modelName << boost::format("%s_%s_%0.3f") % trainer->name() % (trainer->trainOffset() ? "withOffset" : "withoutOffset") % trainError;
-    std::cout << ">>> Training '" << modelName.str() << "' model... \n" << std::flush;
+    std::cout << ">>> Training '" << modelName.str() << "' model... Please wait \n" << std::flush;
 
     // start training
     // training takes around 20 min for 29162 training samples collected during 300s with training error 0m
@@ -502,7 +502,7 @@ void ApplRSUCLASSIFY::addError(beaconGeneral &wsm, double maxError)
 
 void ApplRSUCLASSIFY::saveTrainingDataToFile()
 {
-    printf("Saving collected training data into '%s' \n", trainingFilePath.c_str());
+    printf("\nSaving collected training data into '%s' \n", trainingFilePath.c_str());
     printf("Re-run the simulation to train the model ... \n");
 
     FILE *filePtr = fopen (trainingFilePath.string().c_str(), "w");
