@@ -298,7 +298,7 @@ void mainWindow::addTab(std::string category)
         // getting the tab text (all markups are removed)
         std::string tabName = m_Notebook->get_tab_label_text(pageWidget);
 
-        if(tabName > label->get_text())
+        if(label->get_text() < tabName)
             break;
     }
 

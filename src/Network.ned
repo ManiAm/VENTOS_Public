@@ -78,10 +78,6 @@ network Network
             parameters:
                 @display("p=245,213;i=block/broadcast");
         }
-        plotter: Plotter {
-            parameters:
-                @display("p=432,47;i=block/app");
-        }
         Ethernet: Ethernet {
             parameters:
                 @display("p=48,299;i=block/network");

@@ -45,7 +45,6 @@
 #include "boost/filesystem.hpp"
 
 #include "rsu/02_Monitor.h"
-#include "global/Plotter.h"
 
 namespace VENTOS {
 
@@ -133,7 +132,7 @@ private:
             {"EC_4", 11}
     };
 
-    shark::ClassificationDataset sampleData;
+    shark::ClassificationDataset trainingData;
     shark::KernelClassifier<shark::RealVector> *kc_model;
     std::map< std::string /*entity id*/, boost::circular_buffer<unsigned int> > predictionQueue;
     std::map< std::string /*entity id*/, std::vector<resultEntry> > classifyResults;
@@ -159,14 +158,19 @@ protected:
 
 private:
     void initializeGnuPlot();
-    template <typename beaconGeneral> void draw(beaconGeneral &, unsigned int);
-    int loadTrainer();
-    int trainClassifier(shark::CSvmTrainer<shark::RealVector, unsigned int> *);
+    double getGnuPlotVersion();
+
+    void loadTrainer();
+    void readTrainingSamples();
+    void trainClassifier(shark::CSvmTrainer<shark::RealVector, unsigned int> *);
     template <typename beaconGeneral> void onBeaconAny(beaconGeneral);
     template <typename beaconGeneral> unsigned int makePrediction(beaconGeneral);
     template <typename beaconGeneral> void addError(beaconGeneral &, double);
-    void saveSampleToFile();
+
+    void saveTrainingDataToFile();
     void saveClassificationResults();
+
+    template <typename beaconGeneral> void draw(beaconGeneral &, unsigned int);
 };
 
 }

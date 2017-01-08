@@ -48,6 +48,7 @@ protected:
     virtual void handlePositionUpdate(cObject*);
 
     virtual void onBeaconVehicle(BeaconVehicle*);
+    virtual void onBeaconBicycle(BeaconBicycle*);
     virtual void onBeaconPedestrian(BeaconPedestrian*);
     virtual void onBeaconRSU(BeaconRSU*);
     virtual void onPlatoonMsg(PlatoonMsg*);

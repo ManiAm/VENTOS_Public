@@ -52,9 +52,10 @@ protected:
 
     long BeaconVehCount;
     long BeaconVehDropped;
+    long BeaconBikeCount;
+    long BeaconPedCount;
     long BeaconRSUCount;
     long PlatoonCount;
-    long BeaconPedCount;
 
 public:
     ~ApplVManager();
@@ -68,6 +69,7 @@ protected:
     virtual void handlePositionUpdate(omnetpp::cObject*);
 
     virtual void onBeaconVehicle(BeaconVehicle*);
+    virtual void onBeaconBicycle(BeaconBicycle*);
     virtual void onBeaconPedestrian(BeaconPedestrian*);
     virtual void onBeaconRSU(BeaconRSU*);
     virtual void onPlatoonMsg(PlatoonMsg*);

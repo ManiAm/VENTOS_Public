@@ -86,7 +86,7 @@ void ApplRSUMonitor::initialize(int stage)
                 // check if not greater than Gmin
                 if(pass > minGreenTime)
                 {
-                    LOG_WARNING << boost::format("\nWARNING: Passage time in lane %1% which is controller by %2% is greater than Gmin \n") % lane % myFullId << std::flush;
+                    LOG_WARNING << boost::format("\nWARNING: Passage time in lane %1% which is controlled by %2% is greater than Gmin \n") % lane % myFullId << std::flush;
 
                     pass = minGreenTime;
                 }

@@ -13,16 +13,6 @@ simple ConstSpeedMobility extends BaseMobility
 }
 
 
-simple Plotter
-{
-    parameters:
-        @class(VENTOS::Plotter);
-        @display("i=block/network2");
-        
-        bool active = default(false);
-}
-
-
 simple Statistics
 {
     parameters:

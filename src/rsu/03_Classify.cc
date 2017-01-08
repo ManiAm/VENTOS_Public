@@ -47,14 +47,13 @@ void ApplRSUCLASSIFY::initialize(int stage)
         if(!classifier)
             return;
 
+        // we need this RSU to be associated with a TL
+        if(myTLid == "")
+            throw omnetpp::cRuntimeError("The id of %s does not match with any TL. Check RSUsLocation.xml file!", myFullId);
+
         trainError = par("trainError").doubleValue();
         if(trainError < 0)
             throw omnetpp::cRuntimeError("trainError value is not correct!");
-
-        // construct file name for training data
-        std::stringstream stream;
-        stream << std::fixed << std::setprecision(3) << trainError;
-        trainingFilePath = "results/ML/trainData_" + stream.str() + ".txt";
 
         GPSerror = par("GPSerror").doubleValue();
         if(GPSerror < 0)
@@ -62,34 +61,27 @@ void ApplRSUCLASSIFY::initialize(int stage)
 
         debugLevel = omnetpp::getSimulation()->getSystemModule()->par("debugLevel").longValue();
 
-        // we need this RSU to be associated with a TL
-        if(myTLid == "")
-            throw omnetpp::cRuntimeError("The id of %s does not match with any TL. Check RSUsLocation.xml file!", myFullId);
+        // construct file name for training data
+        std::stringstream fileName;
+        fileName << boost::format("trainData_%0.3f.txt") % trainError;
+        trainingFilePath = boost::filesystem::path("results") / "ML" / fileName.str();
 
         // for each incoming lane in this TL
         std::list<std::string> lan = TraCI->TLGetControlledLanes(myTLid);
-
         // remove duplicate entries
         lan.unique();
-
         // for each incoming lane
-        for(std::list<std::string>::iterator it2 = lan.begin(); it2 != lan.end(); ++it2)
-            lanesTL[*it2] = myTLid;
+        for(auto &it : lan)
+            lanesTL[it] = myTLid;
+
+        double version = getGnuPlotVersion();
+        // we need feature in GNUPLOT 5.0 and above
+        if(version < 5)
+            throw omnetpp::cRuntimeError("GNUPLOT version should be >= 5");
 
         initializeGnuPlot();
 
-        int status = loadTrainer();
-        // cannot load trainer from the disk and there is no training data
-        if(status == -1)
-        {
-            collectTrainingData = true;
-            std::cout << "Cannot train the algorithm! Run simulation to collect training data!" << std::endl;
-        }
-        else
-        {
-            collectTrainingData = false;
-            std::cout << "Training was successful." << std::endl;
-        }
+        loadTrainer();
     }
 }
 
@@ -99,18 +91,15 @@ void ApplRSUCLASSIFY::finish()
     super::finish();
 
     if(collectTrainingData)
-    {
-        saveSampleToFile();
-
-        // at the end of simulation, we can start training
-        int status = loadTrainer();
-        if(status == -1)
-            std::cout << "Cannot train the algorithm!" << std::endl;
-        else
-            std::cout << "Training was successful." << std::endl;
-    }
+        saveTrainingDataToFile();
     else
         saveClassificationResults();
+
+#ifdef WIN32
+    _pclose(plotterPtr);
+#else
+    pclose(plotterPtr);
+#endif
 }
 
 
@@ -161,25 +150,20 @@ void ApplRSUCLASSIFY::onBeaconRSU(BeaconRSU* wsm)
 
 void ApplRSUCLASSIFY::initializeGnuPlot()
 {
-    // get a pointer to the plotter module
-    cModule *pmodule = omnetpp::getSimulation()->getSystemModule()->getSubmodule("plotter");
-    if(pmodule == NULL)
-        throw omnetpp::cRuntimeError("plotter module is not found!");
+#ifdef WIN32
+    plotterPtr = _popen("pgnuplot -persist", "w");
+#else
+    plotterPtr = popen("gnuplot", "w");
+#endif
 
-    // get a pointer to the class
-    Plotter *pltPtr = static_cast<Plotter *>(pmodule);
-    ASSERT(pltPtr);
+    if(plotterPtr == NULL)
+        throw omnetpp::cRuntimeError("Could not open pipe for write!");
 
-    if( !pltPtr->par("active").boolValue() )
-        return;
-
-    // we need feature in GNUPLOT 5.0 and above
-    if(pltPtr->vers < 5)
-        throw omnetpp::cRuntimeError("GNUPLOT version should be >= 5");
-
-    // get a reference to gnuplot pipe
-    plotterPtr = pltPtr->pipeGnuPlot;
-    ASSERT(plotterPtr);
+    // interactive gnuplot terminals: x11, wxt, qt (wxt and qt offer nicer output and a wider range of features)
+    // persist: keep the windows open even after simulation termination
+    // noraise: updating is done in the background
+    // link: http://gnuplot.sourceforge.net/docs_4.2/node441.html
+    // fprintf(plotterPtr, "set term wxt enhanced 0 font 'Helvetica,' noraise\n");
 
     // set title name
     fprintf(plotterPtr, "set title 'Sample Points' \n");
@@ -190,11 +174,11 @@ void ApplRSUCLASSIFY::initializeGnuPlot()
     fprintf(plotterPtr, "set zlabel 'Speed' offset -2 rotate left \n");
 
     // change ticks
-    //   fprintf(pipe, "set xtics 20 \n");
-    //   fprintf(pipe, "set ytics 20 \n");
+    // fprintf(pipe, "set xtics 20 \n");
+    // fprintf(pipe, "set ytics 20 \n");
 
     // set range
-    //   fprintf(pipe, "set yrange [885:902] \n");
+    // fprintf(pipe, "set yrange [885:902] \n");
 
     // set grid and border
     fprintf(plotterPtr, "set grid \n");
@@ -207,211 +191,145 @@ void ApplRSUCLASSIFY::initializeGnuPlot()
 }
 
 
-template <typename beaconGeneral>
-void ApplRSUCLASSIFY::draw(beaconGeneral &wsm, unsigned int real_label)
+double ApplRSUCLASSIFY::getGnuPlotVersion()
 {
-    auto it1 = dataBlockCounter.find(real_label);
-    // this label already exists
-    if(it1 != dataBlockCounter.end())
+    FILE* pipversion = popen("gnuplot --version", "r");
+    if (!pipversion)
+        throw omnetpp::cRuntimeError("can not open pipe!");
+
+    char lineversion[128];
+    memset (lineversion, 0, sizeof(lineversion));
+    if (!fgets(lineversion, sizeof(lineversion), pipversion))
+        throw omnetpp::cRuntimeError("fgets error!");
+
+    // now parsing lineversion (gnuplot 5.0 patchlevel 1)
+    double vers = 0.0;
+    sscanf(lineversion, "gnuplot %lf", &vers);
+
+    int majvers = 0;
+    int minvers = 0;
+
+    int pos = -1;
+    char* restvers = NULL;
+    if (sscanf(lineversion, "gnuplot %d.%d %n", &majvers, &minvers, &pos) >= 2)
     {
-        // search for vehicle name in the nested map
-        auto it2 = (it1->second).find(wsm->getSender());
-        // this vehicle already exists
-        if(it2 != (it1->second).end())
-        {
-            // append the new point to the datablock
-            fprintf(plotterPtr, "set print $data%d append \n", (it2->second).counter);
-            fprintf(plotterPtr, "print \"%0.2f %0.2f %0.2f\" \n", wsm->getPos().x, wsm->getPos().y, wsm->getSpeed());
-        }
-        else
-        {
-            int size = 0;
-            for(auto i : dataBlockCounter)
-                for(auto j : i.second)
-                    size++;
-
-            auto firstElement = it1->second.begin();  // get the first element of the nested map
-            HSV color = firstElement->second.color;   // get the color in this block
-            dataBlockEntry *entry = new dataBlockEntry(size + 1, color);
-            (it1->second).insert( std::make_pair(wsm->getSender(), *entry) );
-
-            // update color shades
-            std::vector<double> shades = Color::generateColorShades(it1->second.size());
-            int counter = 0;
-            for(auto &c : it1->second)
-            {
-                c.second.color.saturation = shades[counter];
-                counter++;
-            }
-
-            // creating a new datablock
-            fprintf(plotterPtr, "$data%d << EOD \n", size + 1);
-            fprintf(plotterPtr, "%0.2f %0.2f %0.2f \n", wsm->getPos().x, wsm->getPos().y, wsm->getSpeed());
-            fprintf(plotterPtr, "EOD \n");
-        }
-    }
-    else
-    {
-        int size = 0;
-        for(auto i : dataBlockCounter)
-            for(auto j : i.second)
-                size++;
-
-        HSV color = Color::getUniqueHSVColor();
-        dataBlockEntry *entry = new dataBlockEntry(size + 1, color);
-        dataBlockCounter[real_label].insert( std::make_pair(wsm->getSender(), *entry) );
-
-        // creating a new datablock
-        fprintf(plotterPtr, "$data%d << EOD \n", size + 1);
-        fprintf(plotterPtr, "%0.2f %0.2f %0.2f \n", wsm->getPos().x, wsm->getPos().y, wsm->getSpeed());
-        fprintf(plotterPtr, "EOD \n");
+        assert(pos>=0);
+        restvers = lineversion+pos;
     }
 
-    // debugging
-    if(false)
-    {
-        for(auto &i : dataBlockCounter)
-        {
-            std::cout << "label: " << i.first << std::endl;
-            for(auto &j : i.second)
-            {
-                std::cout << "    Id: " << j.first
-                        << ", blockNum: " << j.second.counter
-                        << ", color: (" << j.second.color.hue << "," << j.second.color.saturation << "," << j.second.color.value << ")"
-                        << std::endl;
+    pclose(pipversion);
+    pipversion = NULL;
 
-                // prints datablock value
-                //                fprintf(plotterPtr, "set print \n");
-                //                fprintf(plotterPtr, "print $data%d \n", j.second.counter);
-            }
-        }
-
-        std::cout << std::endl;
-    }
-
-    // merge all small datablocks
-    fprintf(plotterPtr, "undefine $dataAll \n");
-    fprintf(plotterPtr, "set print $dataAll \n");
-    for(auto &i : dataBlockCounter)
-    {
-        for(auto &j : i.second)
-        {
-            fprintf(plotterPtr, "print $data%d \n", j.second.counter);
-            fprintf(plotterPtr, "print \"\" \n");
-        }
-    }
-
-    // make plot
-    fprintf(plotterPtr, "splot ");
-
-    int index = 0;
-    for(auto &i : dataBlockCounter)
-    {
-        for(auto &j : i.second)
-        {
-            // get the color for this block
-            HSV color = j.second.color;
-            fprintf(plotterPtr, "'$dataAll' index %d using 1:2:3 with points pointtype 7 pointsize 1 linecolor rgbcolor hsv2rgb(%f,%f,%f) linewidth 1 title 'class %d',", index, color.hue/360, color.saturation/100, color.value/100, i.first);
-            index++;
-        }
-    }
-
-    // complete the splot command
-    fprintf(plotterPtr, " \n");
-
-    fflush(plotterPtr);
+    return vers;
 }
 
 
-int ApplRSUCLASSIFY::loadTrainer()
+void ApplRSUCLASSIFY::loadTrainer()
 {
-    shark::GaussianRbfKernel<> *kernel = new shark::GaussianRbfKernel<shark::RealVector> (0.5 /*kernel bandwidth parameter*/);
+    auto kernel = new shark::GaussianRbfKernel<shark::RealVector> (0.5 /*gamma: kernel bandwidth parameter*/, false /*unconstrained*/);
 
     kc_model = new shark::KernelClassifier<shark::RealVector> (kernel);
 
     // Training of a multi-class SVM by the one-versus-all (OVA) method
-    shark::CSvmTrainer<shark::RealVector, unsigned int> *trainer = new shark::CSvmTrainer<shark::RealVector, unsigned int>(kernel, 10.0, true /*with bias*/);
+    auto trainer = new shark::CSvmTrainer<shark::RealVector, unsigned int>(kernel, 10.0 /*regularization parameter*/, true /*with offset*/);
     trainer->setMcSvmType(shark::McSvm::OVA);
 
-    std::string bias = trainer->trainOffset() ? "_withBias" : "_withoutBias";
-    std::stringstream stream;
-    stream << std::fixed << std::setprecision(3) << trainError;
-    std::string fileName = trainer->name() + bias + "_" + stream.str() + ".model";
-    boost::filesystem::path filePath = "results/ML/" + fileName;
+    std::stringstream fileName;
+    fileName << boost::format("%s_%s_%0.3f.model") % trainer->name() % (trainer->trainOffset() ? "withOffset" : "withoutOffset") % trainError;
+    boost::filesystem::path filePath = boost::filesystem::path("results") / "ML" / fileName.str();
+
+    std::cout << "\n>>> Looking for '" << fileName.str() << "'... ";
 
     // check if this model was trained before
     std::ifstream ifs(filePath.string());
     if(!ifs.fail())
     {
-        std::cout << std::endl;
-        std::cout << "loading " << fileName << " from disk... ";
+        std::cout << "found! \n\n";
+
         shark::TextInArchive ia(ifs);
         kc_model->read(ia);
         ifs.close();
-        std::cout << "done \n";
+
+        collectTrainingData = false;
+        return;
+    }
+
+    std::cout << "not found! \n\n";
+
+    // read training data
+    if(trainingData.elements().empty())
+    {
+        std::cout << ">>> Reading training samples... " << std::flush;
+        readTrainingSamples();
+    }
+
+    // if no training data is present, then collect!
+    if(trainingData.elements().empty())
+    {
+        collectTrainingData = true;
+        std::cout << "No training data exists! Run the simulation to collect training data. \n";
+        return;
     }
     else
     {
-        int status = trainClassifier(trainer);
+        collectTrainingData = false;
 
-        // check if training was successful
-        if(status == -1)
-            return -1;
+        trainClassifier(trainer);
 
-        // save the model to file
+        std::cout << ">>> Saving the training model to file for future runs! \n\n";
+
+        // save the model to file for future runs
         std::ofstream ofs(filePath.string());
         shark::TextOutArchive oa(ofs);
         kc_model->write(oa);
         ofs.close();
     }
-
-    return 0;
 }
 
 
-int ApplRSUCLASSIFY::trainClassifier(shark::CSvmTrainer<shark::RealVector, unsigned int> *trainer)
+void ApplRSUCLASSIFY::readTrainingSamples()
 {
-    // load sampleData only once
-    if(sampleData.elements().empty())
+    try
     {
-        try
-        {
-            std::cout << "reading training samples... " << std::flush;
-            // Load data from external file
-            shark::importCSV(sampleData, trainingFilePath.string(), shark::LAST_COLUMN /*label position*/, ' ' /*separator*/);
-            std::cout << sampleData.elements().size() << " samples fetched! \n" << std::flush;
-        }
-        catch (std::exception& e)
-        {
-            std::cout << std::endl << e.what() << std::endl;
-            return -1;
-        }
-
-        std::cout << "number of classes: " << numberOfClasses(sampleData) << std::endl;
-        int classCount = 0;
-        for(auto i : classSizes(sampleData))
-        {
-            std::printf("  class %-2d: %-5lu, ", classCount, i);
-            classCount++;
-
-            if(classCount % 3 == 0)
-                std::cout << std::endl;
-        }
-
-        std::cout << "shuffling training samples... " << std::flush;
-        sampleData.shuffle();   // shuffle sampleData
-        std::cout << "done \n" << std::flush;
+        // Load data from external file
+        shark::importCSV(trainingData, trainingFilePath.string(), shark::LAST_COLUMN /*label position*/, ' ' /*separator*/);
+    }
+    catch (std::exception& e)
+    {
+        std::cout << e.what() << std::endl;
+        return;
     }
 
-    std::printf("training model %10s %s... \n",
-            trainer->name().c_str(),
-            trainer->trainOffset()? "with bias":"without bias");
-    std::cout.flush();
+    std::cout << "done! \n";
+    std::cout << trainingData.elements().size() << " samples fetched! \n" << std::flush;
+
+    std::cout << "number of classes: " << numberOfClasses(trainingData) << std::endl;
+    int classCount = 0;
+    for(auto i : classSizes(trainingData))
+    {
+        std::printf("  class %-2d: %-5lu, ", classCount, i);
+        classCount++;
+
+        if(classCount % 3 == 0)
+            std::cout << std::endl;
+    }
+
+    std::cout << "shuffling training samples... " << std::flush;
+    trainingData.shuffle();   // shuffle trainingData
+    std::cout << "done! \n\n" << std::flush;
+}
+
+
+void ApplRSUCLASSIFY::trainClassifier(shark::CSvmTrainer<shark::RealVector, unsigned int> *trainer)
+{
+    std::stringstream modelName;
+    modelName << boost::format("%s_%s_%0.3f") % trainer->name() % (trainer->trainOffset() ? "withOffset" : "withoutOffset") % trainError;
+    std::cout << ">>> Training '" << modelName.str() << "' model... \n" << std::flush;
 
     // start training
     // training takes around 20 min for 29162 training samples collected during 300s with training error 0m
     // for training error of 3m, training takes around 50 min!
-    trainer->train(*kc_model, sampleData);
+    trainer->train(*kc_model, trainingData);
 
     std::printf("  iterations= %d, accuracy= %f, time= %g seconds \n",
             (int)trainer->solutionProperties().iterations,
@@ -422,12 +340,10 @@ int ApplRSUCLASSIFY::trainClassifier(shark::CSvmTrainer<shark::RealVector, unsig
 
     // evaluate the model on training set
     shark::ZeroOneLoss<unsigned int> loss; // 0-1 loss
-    shark::Data<unsigned int> output = (*kc_model)(sampleData.inputs());
-    double train_error = loss.eval(sampleData.labels(), output);
+    shark::Data<unsigned int> output = (*kc_model)(trainingData.inputs());
+    double train_error = loss.eval(trainingData.labels(), output);
 
-    std::cout << train_error << std::endl << std::flush;
-
-    return 0;
+    std::cout << train_error << "\n\n" << std::flush;
 }
 
 
@@ -435,15 +351,13 @@ int ApplRSUCLASSIFY::trainClassifier(shark::CSvmTrainer<shark::RealVector, unsig
 template <typename beaconGeneral>
 void ApplRSUCLASSIFY::onBeaconAny(beaconGeneral wsm)
 {
-    // on one of the incoming lanes?
     std::string lane = wsm->getLane();
     auto it = lanesTL.find(lane);
-
-    // not on any incoming lanes
+    // return if this vehicle is not on any incoming lanes
     if(it == lanesTL.end())
         return;
-
-    // I do not control this lane!
+    // return if I do not control this lane. I might have received
+    // this beacon from my nearby intersections
     if(it->second != myTLid)
         return;
 
@@ -458,7 +372,6 @@ void ApplRSUCLASSIFY::onBeaconAny(beaconGeneral wsm)
         samples.push_back(*m);
 
         // get class label
-        std::string lane = wsm->getLane();
         auto it2 = classLabel.find(lane);
         if(it2 == classLabel.end())
             throw omnetpp::cRuntimeError("class %s not found in classLabel!", lane.c_str());
@@ -509,7 +422,7 @@ void ApplRSUCLASSIFY::onBeaconAny(beaconGeneral wsm)
         xr->second.push_back(*res);
 
     // draw samples on West direction in Gnuplot
-    if(plotterPtr != NULL && lane.find("WC") != std::string::npos)
+    if(lane.find("WC") != std::string::npos)
         draw(wsm, real_label);
 }
 
@@ -587,8 +500,11 @@ void ApplRSUCLASSIFY::addError(beaconGeneral &wsm, double maxError)
 }
 
 
-void ApplRSUCLASSIFY::saveSampleToFile()
+void ApplRSUCLASSIFY::saveTrainingDataToFile()
 {
+    printf("Saving collected training data into '%s' \n", trainingFilePath.c_str());
+    printf("Re-run the simulation to train the model ... \n");
+
     FILE *filePtr = fopen (trainingFilePath.string().c_str(), "w");
 
     for(unsigned int i = 0; i < samples.size(); ++i)
@@ -661,6 +577,122 @@ void ApplRSUCLASSIFY::saveClassificationResults()
     }
 
     fclose(filePtr);
+}
+
+
+template <typename beaconGeneral>
+void ApplRSUCLASSIFY::draw(beaconGeneral &wsm, unsigned int real_label)
+{
+    auto it1 = dataBlockCounter.find(real_label);
+    // this label already exists
+    if(it1 != dataBlockCounter.end())
+    {
+        // search for vehicle name in the nested map
+        auto it2 = (it1->second).find(wsm->getSender());
+        // this vehicle already exists
+        if(it2 != (it1->second).end())
+        {
+            // append the new point to the datablock
+            fprintf(plotterPtr, "set print $data%d append \n", (it2->second).counter);
+            fprintf(plotterPtr, "print \"%0.2f %0.2f %0.2f\" \n", wsm->getPos().x, wsm->getPos().y, wsm->getSpeed());
+        }
+        else
+        {
+            int size = 0;
+            for(auto i : dataBlockCounter)
+                for(auto j : i.second)
+                    size++;
+
+            auto firstElement = it1->second.begin();  // get the first element of the nested map
+            HSV color = firstElement->second.color;   // get the color in this block
+            dataBlockEntry *entry = new dataBlockEntry(size + 1, color);
+            (it1->second).insert( std::make_pair(wsm->getSender(), *entry) );
+
+            // update color shades
+            std::vector<double> shades = Color::generateColorShades(it1->second.size());
+            int counter = 0;
+            for(auto &c : it1->second)
+            {
+                c.second.color.saturation = shades[counter];
+                counter++;
+            }
+
+            // creating a new datablock
+            fprintf(plotterPtr, "$data%d << EOD \n", size + 1);
+            fprintf(plotterPtr, "%0.2f %0.2f %0.2f \n", wsm->getPos().x, wsm->getPos().y, wsm->getSpeed());
+            fprintf(plotterPtr, "EOD \n");
+        }
+    }
+    else
+    {
+        int size = 0;
+        for(auto i : dataBlockCounter)
+            for(auto j : i.second)
+                size++;
+
+        HSV color = Color::getUniqueHSVColor();
+        dataBlockEntry *entry = new dataBlockEntry(size + 1, color);
+        dataBlockCounter[real_label].insert( std::make_pair(wsm->getSender(), *entry) );
+
+        // creating a new datablock
+        fprintf(plotterPtr, "$data%d << EOD \n", size + 1);
+        fprintf(plotterPtr, "%0.2f %0.2f %0.2f \n", wsm->getPos().x, wsm->getPos().y, wsm->getSpeed());
+        fprintf(plotterPtr, "EOD \n");
+    }
+
+    // debugging
+    if(false)
+    {
+        for(auto &i : dataBlockCounter)
+        {
+            std::cout << "label: " << i.first << std::endl;
+            for(auto &j : i.second)
+            {
+                std::cout << "    Id: " << j.first
+                        << ", blockNum: " << j.second.counter
+                        << ", color: (" << j.second.color.hue << "," << j.second.color.saturation << "," << j.second.color.value << ")"
+                        << std::endl;
+
+                // prints datablock value
+                // fprintf(plotterPtr, "set print \n");
+                // fprintf(plotterPtr, "print $data%d \n", j.second.counter);
+            }
+        }
+
+        std::cout << std::endl;
+    }
+
+    // merge all small datablocks
+    fprintf(plotterPtr, "undefine $dataAll \n");
+    fprintf(plotterPtr, "set print $dataAll \n");
+    for(auto &i : dataBlockCounter)
+    {
+        for(auto &j : i.second)
+        {
+            fprintf(plotterPtr, "print $data%d \n", j.second.counter);
+            fprintf(plotterPtr, "print \"\" \n");
+        }
+    }
+
+    // make plot
+    fprintf(plotterPtr, "splot ");
+
+    int index = 0;
+    for(auto &i : dataBlockCounter)
+    {
+        for(auto &j : i.second)
+        {
+            // get the color for this block
+            HSV color = j.second.color;
+            fprintf(plotterPtr, "'$dataAll' index %d using 1:2:3 with points pointtype 7 pointsize 1 linecolor rgbcolor hsv2rgb(%f,%f,%f) linewidth 1 title 'class %d',", index, color.hue/360, color.saturation/100, color.value/100, i.first);
+            index++;
+        }
+    }
+
+    // complete the splot command
+    fprintf(plotterPtr, " \n");
+
+    fflush(plotterPtr);
 }
 
 }

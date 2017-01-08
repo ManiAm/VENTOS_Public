@@ -77,6 +77,19 @@ void ApplVMsgControl::onBeaconVehicle(BeaconVehicle* wsm)
 }
 
 
+void ApplVMsgControl::onBeaconBicycle(BeaconBicycle* wsm)
+{
+    // super::onBeaconBicycle(wsm);
+
+    if(printCtrlData)
+    {
+        Veins::WaveShortMessage* msg = dynamic_cast<Veins::WaveShortMessage*>(wsm);
+        ASSERT(msg);
+        getControlInfo(msg);
+    }
+}
+
+
 void ApplVMsgControl::onBeaconPedestrian(BeaconPedestrian* wsm)
 {
     // super::onBeaconPedestrian(wsm);

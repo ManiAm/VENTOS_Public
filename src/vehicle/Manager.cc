@@ -196,6 +196,15 @@ void ApplVManager::onMessageType(omnetpp::cMessage* msg)
             }
         }
     }
+    else if (msg->getKind() == TYPE_BEACON_BICYCLE)
+    {
+        BeaconBicycle* wsm = dynamic_cast<BeaconBicycle*>(msg);
+        ASSERT(wsm);
+
+        BeaconBikeCount++;
+
+        onBeaconBicycle(wsm);
+    }
     else if (msg->getKind() == TYPE_BEACON_PEDESTRIAN)
     {
         BeaconPedestrian* wsm = dynamic_cast<BeaconPedestrian*>(msg);
@@ -311,6 +320,13 @@ void ApplVManager::onBeaconVehicle(BeaconVehicle* wsm)
     {
         throw omnetpp::cRuntimeError("not a valid control type or control number!");
     }
+}
+
+
+void ApplVManager::onBeaconBicycle(BeaconBicycle* wsm)
+{
+    // pass it down
+    super::onBeaconBicycle(wsm);
 }
 
 
