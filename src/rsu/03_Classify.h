@@ -48,18 +48,20 @@
 
 namespace VENTOS {
 
-class sample_type
+class sample_t
 {
 public:
     double xPos;
     double yPos;
     double speed;
+    double angle;
 
-    sample_type(double x, double y, double z)
+    sample_t(double x, double y, double z, double w)
     {
         this->xPos = x;
         this->yPos = y;
         this->speed = z;
+        this->angle = w;
     }
 };
 
@@ -107,7 +109,7 @@ private:
 
     FILE *plotterPtr = NULL;
     boost::filesystem::path trainingFilePath;
-    std::vector<sample_type> samples;
+    std::vector<sample_t> samples;
     std::vector<int> labels;
 
     // all incoming lanes for the intersection that this RSU belongs to

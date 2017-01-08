@@ -276,7 +276,7 @@ void ApplRSUCLASSIFY::loadTrainer()
 
         trainClassifier(trainer);
 
-        std::cout << ">>> Saving the training model to file for future runs! \n\n";
+        std::cout << ">>> Saving the training model to file for future runs! \n";
 
         // save the model to file for future runs
         std::ofstream ofs(filePath.string());
@@ -326,9 +326,8 @@ void ApplRSUCLASSIFY::trainClassifier(shark::CSvmTrainer<shark::RealVector, unsi
     modelName << boost::format("%s_%s_%0.3f") % trainer->name() % (trainer->trainOffset() ? "withOffset" : "withoutOffset") % trainError;
     std::cout << ">>> Training '" << modelName.str() << "' model... Please wait \n" << std::flush;
 
-    // start training
-    // training takes around 20 min for 29162 training samples collected during 300s with training error 0m
-    // for training error of 3m, training takes around 50 min!
+    // start training --- on Mars server, the training takes around 20 min for 29162 training samples collected
+    // during 300s with training error 0m. For training error of 3m, training takes around 50 min!
     trainer->train(*kc_model, trainingData);
 
     std::printf("  iterations= %d, accuracy= %f, time= %g seconds \n",
@@ -368,7 +367,7 @@ void ApplRSUCLASSIFY::onBeaconAny(beaconGeneral wsm)
             addError(wsm, trainError);
 
         // make an instance and push it to samples
-        sample_type *m = new sample_type(wsm->getPos().x, wsm->getPos().y, wsm->getSpeed());
+        sample_t *m = new sample_t(wsm->getPos().x, wsm->getPos().y, wsm->getSpeed(), wsm->getAngle());
         samples.push_back(*m);
 
         // get class label
@@ -399,10 +398,11 @@ void ApplRSUCLASSIFY::onBeaconAny(beaconGeneral wsm)
     std::string sender = wsm->getSender();
     if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 1)
     {
-        printf("%0.3f, %0.3f, %06.3f --> predicted label: %2d, true label: %2d, sender: %s \n",
+        printf("%0.3f, %0.3f, %06.3f, %0.3f --> predicted label: %2d, true label: %2d, sender: %s \n",
                 wsm->getPos().x,
                 wsm->getPos().y,
                 wsm->getSpeed(),
+                wsm->getAngle(),
                 predicted_label,
                 real_label,
                 sender.c_str());
@@ -430,13 +430,14 @@ void ApplRSUCLASSIFY::onBeaconAny(beaconGeneral wsm)
 template <typename beaconGeneral>
 unsigned int ApplRSUCLASSIFY::makePrediction(beaconGeneral wsm)
 {
-    // we have 3 features, thus shark_sample should be 1 * 3
-    shark::blas::matrix<double, shark::blas::row_major> shark_sample(1,3);
+    // we have 4 features, thus shark_sample should be 1 * 4
+    shark::blas::matrix<double, shark::blas::row_major> shark_sample(1,4);
 
     // retrieve info from beacon
     shark_sample(0,0) = wsm->getPos().x;
     shark_sample(0,1) = wsm->getPos().y;
     shark_sample(0,2) = wsm->getSpeed();
+    shark_sample(0,3) = wsm->getAngle();
 
     // make prediction
     unsigned int predicted_label = (*kc_model)(shark_sample)[0];
@@ -477,18 +478,19 @@ void ApplRSUCLASSIFY::addError(beaconGeneral &wsm, double maxError)
     double posX = wsm->getPos().x;
     double posY = wsm->getPos().y;
     double speed = wsm->getSpeed();
+    // double angle = wsm->getAngle();
 
     double r = 0;
 
     // Produce a random double in the range [0,1) using generator 0, then scale it to -1 <= r < 1
     r = (dblrand() - 0.5) * 2;
     // add error to posX
-    posX = posX + (r * maxError);
+    posX += (r * maxError);
 
     // Produce a random double in the range [0,1) using generator 0, then scale it to -1 <= r < 1
     r = (dblrand() - 0.5) * 2;
     // add error to posY
-    posY = posY + (r * maxError);
+    posY += (r * maxError);
 
     // Produce a random double in the range [0,1) using generator 0, then scale it to -1 <= r < 1
     r = (dblrand() - 0.5) * 2;
@@ -508,7 +510,7 @@ void ApplRSUCLASSIFY::saveTrainingDataToFile()
     FILE *filePtr = fopen (trainingFilePath.string().c_str(), "w");
 
     for(unsigned int i = 0; i < samples.size(); ++i)
-        fprintf (filePtr, "%f %f %f %d \n", samples[i].xPos, samples[i].yPos, samples[i].speed, labels[i]);
+        fprintf (filePtr, "%0.3f %0.3f %0.3f %0.3f %d \n", samples[i].xPos, samples[i].yPos, samples[i].speed, samples[i].angle, labels[i]);
 
     fclose(filePtr);
 }
