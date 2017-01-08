@@ -390,6 +390,17 @@ double TraCI_Commands::vehicleGetSpeed(std::string nodeId)
     return result;
 }
 
+
+double TraCI_Commands::vehicleGetAngle(std::string nodeId)
+{
+    updateTraCIlog("commandStart", CMD_GET_VEHICLE_VARIABLE,VAR_ANGLE);
+
+    double result = genericGetDouble(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_ANGLE, RESPONSE_GET_VEHICLE_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_VEHICLE_VARIABLE,VAR_ANGLE);
+    return result;
+}
+
 // value = 1 * stopped + 2  * parking + 4 * triggered + 8 * containerTriggered +
 //        16 * busstop + 32 * containerstop
 
@@ -2533,6 +2544,17 @@ Coord TraCI_Commands::personGetPosition(std::string pId)
     Coord result = genericGetCoordv2(CMD_GET_PERSON_VARIABLE, pId, VAR_POSITION, RESPONSE_GET_PERSON_VARIABLE);
 
     updateTraCIlog("commandComplete", CMD_GET_PERSON_VARIABLE, VAR_POSITION);
+    return result;
+}
+
+
+double TraCI_Commands::personGetAngle(std::string pId)
+{
+    updateTraCIlog("commandStart", CMD_GET_PERSON_VARIABLE, VAR_ANGLE);
+
+    double result = genericGetDouble(CMD_GET_PERSON_VARIABLE, pId, VAR_ANGLE, RESPONSE_GET_PERSON_VARIABLE);
+
+    updateTraCIlog("commandComplete", CMD_GET_PERSON_VARIABLE, VAR_ANGLE);
     return result;
 }
 

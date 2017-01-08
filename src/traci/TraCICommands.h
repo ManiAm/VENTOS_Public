@@ -155,6 +155,7 @@ private:
             {{0xa4, 0x00}, "vehicleGetIDList"},
             {{0xa4, 0x01}, "vehicleGetIDCount"},
             {{0xa4, 0x40}, "vehicleGetSpeed"},
+            {{0xa4, 0x43}, "vehicleGetAngle"},
             {{0xa4, 0x5b}, "vehicleGetStopState"},
             {{0xa4, 0x42}, "vehicleGetPosition"},
             {{0xa4, 0x50}, "vehicleGetEdgeID"},
@@ -304,6 +305,7 @@ private:
             {{0xae, 0x01}, "personGetIDCount"},
             {{0xae, 0x4f}, "personGetTypeID"},
             {{0xae, 0x42}, "personGetPosition"},
+            {{0xae, 0x43}, "personGetAngle"},
             {{0xae, 0x50}, "personGetEdgeID"},
             {{0xae, 0x56}, "personGetEdgePosition"},
             {{0xae, 0x40}, "personGetSpeed"},
@@ -345,6 +347,7 @@ public:
     std::list<std::string> vehicleGetIDList();
     uint32_t vehicleGetIDCount();
     double vehicleGetSpeed(std::string);
+    double vehicleGetAngle(std::string);
     uint8_t vehicleGetStopState(std::string);
     Coord vehicleGetPosition(std::string);
     std::string vehicleGetEdgeID(std::string);
@@ -564,6 +567,7 @@ public:
     uint32_t personGetIDCount();
     std::string personGetTypeID(std::string);
     Coord personGetPosition(std::string);
+    double personGetAngle(std::string);
     std::string personGetEdgeID(std::string);
     double personGetEdgePosition(std::string);
     double personGetSpeed(std::string);
