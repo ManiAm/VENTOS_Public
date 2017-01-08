@@ -244,7 +244,7 @@ void ApplRSUCLASSIFY::loadTrainer()
     std::ifstream ifs(filePath.string());
     if(!ifs.fail())
     {
-        std::cout << "found! \n\n";
+        std::cout << "found! \n";
 
         shark::TextInArchive ia(ifs);
         kc_model->read(ia);
@@ -254,12 +254,12 @@ void ApplRSUCLASSIFY::loadTrainer()
         return;
     }
 
-    std::cout << "not found! \n\n";
+    std::cout << "not found! \n";
 
     // read training data
     if(trainingData.elements().empty())
     {
-        std::cout << ">>> Reading training samples... " << std::flush;
+        std::cout << "\n>>> Reading training samples... " << std::flush;
         readTrainingSamples();
     }
 
