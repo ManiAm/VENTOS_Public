@@ -74,12 +74,8 @@ void ApplRSUCLASSIFY::initialize(int stage)
         for(auto &it : lan)
             lanesTL[it] = myTLid;
 
-        double version = getGnuPlotVersion();
-        // we need feature in GNUPLOT 5.0 and above
-        if(version < 5)
-            throw omnetpp::cRuntimeError("GNUPLOT version should be >= 5");
-
-        initializeGnuPlot();
+        if(omnetpp::cSimulation::getActiveEnvir()->isGUI())
+            initializeGnuPlot();
 
         loadTrainer();
     }
@@ -150,6 +146,11 @@ void ApplRSUCLASSIFY::onBeaconRSU(BeaconRSU* wsm)
 
 void ApplRSUCLASSIFY::initializeGnuPlot()
 {
+    double version = getGnuPlotVersion();
+    // we need feature in GNUPLOT 5.0 and above
+    if(version < 5)
+        throw omnetpp::cRuntimeError("GNUPLOT version should be >= 5");
+
 #ifdef WIN32
     plotterPtr = _popen("pgnuplot -persist", "w");
 #else
@@ -422,7 +423,7 @@ void ApplRSUCLASSIFY::onBeaconAny(beaconGeneral wsm)
         xr->second.push_back(*res);
 
     // draw samples on West direction in Gnuplot
-    if(lane.find("WC") != std::string::npos)
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && lane.find("WC") != std::string::npos)
         draw(wsm, real_label);
 }
 
@@ -585,6 +586,8 @@ void ApplRSUCLASSIFY::saveClassificationResults()
 template <typename beaconGeneral>
 void ApplRSUCLASSIFY::draw(beaconGeneral &wsm, unsigned int real_label)
 {
+    ASSERT(plotterPtr);
+
     auto it1 = dataBlockCounter.find(real_label);
     // this label already exists
     if(it1 != dataBlockCounter.end())
