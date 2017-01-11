@@ -63,4 +63,5 @@ simple Mac1609_4 extends BaseMacLayer
         double txPower = default(20mW) @unit(mW);
         
         int queueSize = default(0);
+        bool record_MAC_stat = default(false);
 }

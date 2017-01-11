@@ -1,5 +1,6 @@
 //
 // Copyright (C) 2012 David Eckhoff <eckhoff@cs.fau.de>
+// Second Author: Mani Amoozadeh <maniam@ucdavis.edu>
 //
 // Documentation for these modules is at http://veins.car2x.org/
 //
@@ -18,18 +19,20 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "Mac1609_4.h"
 #include <iterator>
+#include <boost/filesystem.hpp>  // Mani
+
+#include "Mac1609_4.h"
 #include "DeciderResult80211.h"
 #include "PhyToMacControlInfo.h"
 #include "PhyControlMessage_m.h"
 
-// Mani
-#include "SignalObj.h"
 
 namespace Veins {
 
 Define_Module(Veins::Mac1609_4);
+
+std::map<std::string, MAC_stat_entry_t> Mac1609_4::global_MAC_stat;
 
 
 void Mac1609_4::initialize(int stage)
@@ -38,8 +41,7 @@ void Mac1609_4::initialize(int stage)
 
     if (stage == 0)
     {
-        phy11p = FindModule<Mac80211pToPhy11pInterface*>::findSubModule(
-                getParentModule());
+        phy11p = FindModule<Mac80211pToPhy11pInterface*>::findSubModule(getParentModule());
         assert(phy11p);
 
         //this is required to circumvent double precision issues with constants from CONST80211p.h
@@ -56,21 +58,24 @@ void Mac1609_4::initialize(int stage)
         //mac-adresses
         myMacAddress = intuniform(0,0xFFFFFFFE);
         myId = getParentModule()->getParentModule()->getFullPath();
-        //create frequency mappings
-        frequency.insert(std::pair<int, double>(Channels::CRIT_SOL, 5.86e9));
-        frequency.insert(std::pair<int, double>(Channels::SCH1, 5.87e9));
-        frequency.insert(std::pair<int, double>(Channels::SCH2, 5.88e9));
-        frequency.insert(std::pair<int, double>(Channels::CCH, 5.89e9));
-        frequency.insert(std::pair<int, double>(Channels::SCH3, 5.90e9));
-        frequency.insert(std::pair<int, double>(Channels::SCH4, 5.91e9));
-        frequency.insert(std::pair<int, double>(Channels::HPPS, 5.92e9));
+        mySUMOID = getParentModule()->getParentModule()->getSubmodule("appl")->par("SUMOID").stringValue();
+        if(mySUMOID == "")
+            throw omnetpp::cRuntimeError("SUMO ID %s is invalid!", mySUMOID.c_str());
 
-        //create two edca systems
+        //create frequency mappings
+        frequency[Channels::CRIT_SOL] = 5.86e9;
+        frequency[Channels::SCH1] = 5.87e9;
+        frequency[Channels::SCH2] = 5.88e9;
+        frequency[Channels::CCH] = 5.89e9;
+        frequency[Channels::SCH3] = 5.90e9;
+        frequency[Channels::SCH4] = 5.91e9;
+        frequency[Channels::HPPS] = 5.92e9;
+
+        //create two EDCA systems
 
         myEDCA[type_CCH] = new EDCA(this, type_CCH, par("queueSize").longValue());
         myEDCA[type_CCH]->myId = myId;
         myEDCA[type_CCH]->myId.append(" CCH");
-
         myEDCA[type_CCH]->createQueue(2,(((CWMIN_11P+1)/4)-1),(((CWMIN_11P +1)/2)-1),AC_VO);
         myEDCA[type_CCH]->createQueue(3,(((CWMIN_11P+1)/2)-1),CWMIN_11P,AC_VI);
         myEDCA[type_CCH]->createQueue(6,CWMIN_11P,CWMAX_11P,AC_BE);
@@ -144,12 +149,7 @@ void Mac1609_4::initialize(int stage)
         channelIdle(true);
 
         // Mani
-
-        // get a pointer to the Statistics module
-        cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("statistics");
-        ASSERT(module);
-
-        reportMAClayerData = module->par("reportMAClayerData").boolValue();
+        record_MAC_stat = par("record_MAC_stat").boolValue();
     }
 }
 
@@ -335,8 +335,8 @@ void Mac1609_4::handleUpperMsg(omnetpp::cMessage* msg)
         myEDCA[chan]->backoff(ac);
 
     // Mani
-    if(reportMAClayerData)
-        reportMACStat();
+    if(record_MAC_stat)
+        record_MAC_stat_func();
 }
 
 void Mac1609_4::handleLowerControl(omnetpp::cMessage* msg)
@@ -395,8 +395,8 @@ void Mac1609_4::handleLowerControl(omnetpp::cMessage* msg)
     delete msg;
 
     // Mani
-    if(reportMAClayerData)
-        reportMACStat();
+    if(record_MAC_stat)
+        record_MAC_stat_func();
 }
 
 void Mac1609_4::setActiveChannel(t_channel state)
@@ -428,19 +428,27 @@ void Mac1609_4::finish()
     if (nextChannelSwitch && nextChannelSwitch->isScheduled())
         cancelAndDelete(nextChannelSwitch);
 
-    //stats
-    recordScalar("ReceivedUnicastPackets",statsReceivedPackets);
-    recordScalar("ReceivedBroadcasts",statsReceivedBroadcasts);
-    recordScalar("SentPackets",statsSentPackets);
-    recordScalar("SNIRLostPackets",statsSNIRLostPackets);
-    recordScalar("RXTXLostPackets",statsTXRXLostPackets);
-    recordScalar("TotalLostPackets",statsSNIRLostPackets+statsTXRXLostPackets);
-    recordScalar("DroppedPacketsInMac",statsDroppedPackets);
-    recordScalar("TooLittleTime",statsNumTooLittleTime);
-    recordScalar("TimesIntoBackoff",statsNumBackoff);
-    recordScalar("SlotsBackoff",statsSlotsBackoff);
-    recordScalar("NumInternalContention",statsNumInternalContention);
-    recordScalar("totalBusyTime",statsTotalBusyTime.dbl());
+    // stats
+    //    recordScalar("ReceivedUnicastPackets",statsReceivedPackets);
+    //    recordScalar("ReceivedBroadcasts",statsReceivedBroadcasts);
+    //    recordScalar("SentPackets",statsSentPackets);
+    //    recordScalar("SNIRLostPackets",statsSNIRLostPackets);
+    //    recordScalar("RXTXLostPackets",statsTXRXLostPackets);
+    //    recordScalar("TotalLostPackets",statsSNIRLostPackets+statsTXRXLostPackets);
+    //    recordScalar("DroppedPacketsInMac",statsDroppedPackets);
+    //    recordScalar("TooLittleTime",statsNumTooLittleTime);
+    //    recordScalar("TimesIntoBackoff",statsNumBackoff);
+    //    recordScalar("SlotsBackoff",statsSlotsBackoff);
+    //    recordScalar("NumInternalContention",statsNumInternalContention);
+    //    recordScalar("totalBusyTime",statsTotalBusyTime.dbl());
+
+    // run this code only once
+    static bool wasExecuted = false;
+    if(record_MAC_stat && !wasExecuted)
+    {
+        save_MAC_stat();
+        wasExecuted = true;
+    }
 }
 
 void Mac1609_4::attachSignal(Mac80211Pkt* mac, omnetpp::simtime_t startTime, double frequency, uint64_t datarate, double txPower_mW)
@@ -560,9 +568,9 @@ void Mac1609_4::handleLowerMsg(omnetpp::cMessage* msg)
     long dest = macPkt->getDestAddr();
 
     EV << "Received frame name= " << macPkt->getName()
-	                                        << ", myState=" << " src=" << macPkt->getSrcAddr()
-	                                        << " dst=" << macPkt->getDestAddr() << " myAddr="
-	                                        << myMacAddress << std::endl;
+	                                                                        << ", myState=" << " src=" << macPkt->getSrcAddr()
+	                                                                        << " dst=" << macPkt->getDestAddr() << " myAddr="
+	                                                                        << myMacAddress << std::endl;
 
     if (macPkt->getDestAddr() == myMacAddress)
     {
@@ -984,31 +992,110 @@ omnetpp::simtime_t Mac1609_4::getFrameDuration(int payloadLengthBits, enum PHY_M
 }
 
 
-void Mac1609_4::reportMACStat()
+void Mac1609_4::record_MAC_stat_func()
 {
-    std::vector<long> MacStats;
+    MAC_stat_entry_t entry = {};
 
-    MacStats.push_back(statsDroppedPackets);        // packet was dropped in Mac
-    MacStats.push_back(statsNumTooLittleTime);      // Too little time in this interval. Will not schedule nextMacEvent
-    MacStats.push_back(statsNumInternalContention); // there was already another packet ready.
-    // we have to go increase CW and go into backoff.
-    // It's called internal contention and its wonderful
-    MacStats.push_back(statsNumBackoff);
-    MacStats.push_back(statsSlotsBackoff);
-    MacStats.push_back(statsTotalBusyTime.dbl());
+    entry.last_stat_time = omnetpp::simTime().dbl();
+    entry.statsDroppedPackets = statsDroppedPackets;
+    entry.statsNumTooLittleTime = statsNumTooLittleTime;
+    entry.statsNumInternalContention = statsNumInternalContention;
+    entry.statsNumBackoff = statsNumBackoff;
+    entry.statsSlotsBackoff = statsSlotsBackoff;
+    entry.statsTotalBusyTime = statsTotalBusyTime.dbl();
+    entry.statsSentPackets = statsSentPackets;
+    entry.statsSNIRLostPackets = statsSNIRLostPackets;
+    entry.statsTXRXLostPackets = statsTXRXLostPackets;
+    entry.statsReceivedPackets = statsReceivedPackets;
+    entry.statsReceivedBroadcasts = statsReceivedBroadcasts;
 
-    MacStats.push_back(statsSentPackets);
+    auto it = global_MAC_stat.find(mySUMOID);
+    if(it == global_MAC_stat.end())
+        global_MAC_stat[mySUMOID] = entry;
+    else
+        it->second = entry;
+}
 
-    MacStats.push_back(statsSNIRLostPackets);     // A packet was not received due to biterrors
-    MacStats.push_back(statsTXRXLostPackets);     // A packet was not received because we were sending while receiving
 
-    MacStats.push_back(statsReceivedPackets);     // Received a data packet addressed to me
-    MacStats.push_back(statsReceivedBroadcasts);  // Received a broadcast data packet
+// Mani
+void Mac1609_4::save_MAC_stat()
+{
+    if(global_MAC_stat.empty())
+        return;
 
-    // send a signal to statistics
-    VENTOS::MacStat *vec = new VENTOS::MacStat(MacStats);
-    omnetpp::simsignal_t Signal_MacStats = registerSignal("MacStats");
-    this->getParentModule()->getParentModule()->emit(Signal_MacStats, vec);
+    boost::filesystem::path filePath;
+
+    if(omnetpp::cSimulation::getActiveEnvir()->isGUI())
+    {
+        filePath = "results/gui/MACdata.txt";
+    }
+    else
+    {
+        // get the current run number
+        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
+        std::ostringstream fileName;
+        fileName << std::setfill('0') << std::setw(3) << currentRun << "_MACdata.txt";
+        filePath = "results/cmd/" + fileName.str();
+    }
+
+    FILE *filePtr = fopen (filePath.string().c_str(), "w");
+
+    // write simulation parameters at the beginning of the file in CMD mode
+    if(!omnetpp::cSimulation::getActiveEnvir()->isGUI())
+    {
+        // get the current config name
+        std::string configName = omnetpp::getEnvir()->getConfigEx()->getVariable("configname");
+
+        // get number of total runs in this config
+        int totalRun = omnetpp::getEnvir()->getConfigEx()->getNumRunsInConfig(configName.c_str());
+
+        // get the current run number
+        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
+
+        // get all iteration variables
+        std::vector<std::string> iterVar = omnetpp::getEnvir()->getConfigEx()->unrollConfig(configName.c_str(), false);
+
+        // write to file
+        fprintf (filePtr, "configName      %s\n", configName.c_str());
+        fprintf (filePtr, "totalRun        %d\n", totalRun);
+        fprintf (filePtr, "currentRun      %d\n", currentRun);
+        fprintf (filePtr, "currentConfig   %s\n\n\n", iterVar[currentRun].c_str());
+    }
+
+    // write header
+    fprintf (filePtr, "%-20s","lastStatTime");
+    fprintf (filePtr, "%-20s","vehicleName");
+    fprintf (filePtr, "%-20s","DroppedPackets");
+    fprintf (filePtr, "%-20s","NumTooLittleTime");
+    fprintf (filePtr, "%-30s","NumInternalContention");
+    fprintf (filePtr, "%-20s","NumBackoff");
+    fprintf (filePtr, "%-20s","SlotsBackoff");
+    fprintf (filePtr, "%-20s","TotalBusyTime");
+    fprintf (filePtr, "%-20s","SentPackets");
+    fprintf (filePtr, "%-20s","SNIRLostPackets");
+    fprintf (filePtr, "%-20s","TXRXLostPackets");
+    fprintf (filePtr, "%-20s","ReceivedPackets");
+    fprintf (filePtr, "%-20s\n\n","ReceivedBroadcasts");
+
+    // write body
+    for(auto &y : global_MAC_stat)
+    {
+        fprintf (filePtr, "%-20.8f ", y.second.last_stat_time);
+        fprintf (filePtr, "%-20s ", y.first.c_str());
+        fprintf (filePtr, "%-20ld ", y.second.statsDroppedPackets);
+        fprintf (filePtr, "%-20ld ", y.second.statsNumTooLittleTime);
+        fprintf (filePtr, "%-30ld ", y.second.statsNumInternalContention);
+        fprintf (filePtr, "%-20ld ", y.second.statsNumBackoff);
+        fprintf (filePtr, "%-20ld ", y.second.statsSlotsBackoff);
+        fprintf (filePtr, "%-20.8f ", y.second.statsTotalBusyTime);
+        fprintf (filePtr, "%-20ld ", y.second.statsSentPackets);
+        fprintf (filePtr, "%-20ld ", y.second.statsSNIRLostPackets);
+        fprintf (filePtr, "%-20ld ", y.second.statsTXRXLostPackets);
+        fprintf (filePtr, "%-20ld ", y.second.statsReceivedPackets);
+        fprintf (filePtr, "%-20ld\n", y.second.statsReceivedBroadcasts);
+    }
+
+    fclose(filePtr);
 }
 
 }

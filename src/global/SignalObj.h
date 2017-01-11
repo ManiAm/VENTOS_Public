@@ -33,18 +33,6 @@
 
 namespace VENTOS {
 
-class MacStat : public omnetpp::cObject, omnetpp::noncopyable
-{
-public:
-    std::vector<long> vec;
-
-    MacStat( std::vector<long> v)
-    {
-        vec.swap(v);
-    }
-};
-
-
 class systemData : public omnetpp::cObject, omnetpp::noncopyable
 {
     std::string edge;

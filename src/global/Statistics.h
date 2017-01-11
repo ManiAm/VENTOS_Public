@@ -35,26 +35,6 @@
 
 namespace VENTOS {
 
-class MacStatEntry
-{
-public:
-    double time;
-    std::string name;
-    std::vector<long> MacStatsVec;
-
-    MacStatEntry(double t, std::string str, std::vector<long> v)
-    {
-        this->time = t;
-        this->name = str;
-        MacStatsVec.swap(v);
-    }
-
-    friend bool operator== (const MacStatEntry &v1, const MacStatEntry &v2)
-    {
-        return ( v1.name == v2.name );
-    }
-};
-
 
 class plnManagement
 {
@@ -118,7 +98,6 @@ class Statistics : public BaseApplLayer
 {
 private:
     // NED variables
-    bool reportMAClayerData;
     bool reportPlnManagerData;
     bool reportBeaconsData;
 
@@ -128,14 +107,13 @@ private:
     // class variables (signals)
     omnetpp::simsignal_t Signal_initialize_withTraCI;
     omnetpp::simsignal_t Signal_executeEachTS;
-    omnetpp::simsignal_t Signal_MacStats;
+
     omnetpp::simsignal_t Signal_SentPlatoonMsg;
     omnetpp::simsignal_t Signal_VehicleState;
     omnetpp::simsignal_t Signal_PlnManeuver;
     omnetpp::simsignal_t Signal_beacon;
 
     // class variables (vectors)
-    std::vector<MacStatEntry> Vec_MacStat;
     std::vector<plnManagement> Vec_plnManagement;
     std::vector<plnStat> Vec_plnStat;
     std::vector<BeaconStat> Vec_Beacons;
@@ -151,8 +129,6 @@ public:
 private:
     void initialize_withTraCI();
     void executeEachTimestep();
-
-    void MAClayerToFile();
 
     void plnManageToFile();
     void plnStatToFile();

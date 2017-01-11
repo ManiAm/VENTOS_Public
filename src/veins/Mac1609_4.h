@@ -40,6 +40,30 @@
 
 namespace Veins {
 
+typedef struct MAC_stat_entry
+{
+    double last_stat_time;
+
+    long statsDroppedPackets;        // packet was dropped in Mac
+    long statsNumTooLittleTime;      // Too little time in this interval. Will not schedule nextMacEvent
+    long statsNumInternalContention; // there was already another packet ready.
+    // we have to go increase CW and go into backoff.
+    // It's called internal contention and its wonderful
+    long statsNumBackoff;
+    long statsSlotsBackoff;
+    double statsTotalBusyTime;
+
+    long statsSentPackets;
+
+    long statsSNIRLostPackets;     // A packet was not received due to bit-errors
+    long statsTXRXLostPackets;     // A packet was not received because we were sending while receiving
+
+    long statsReceivedPackets;     // Received a data packet addressed to me
+    long statsReceivedBroadcasts;  // Received a broadcast data packet
+
+} MAC_stat_entry_t;
+
+
 /**
  * @brief
  * Manages timeslots for CCH and SCH listening and sending.
@@ -202,8 +226,11 @@ protected:
     omnetpp::simtime_t getFrameDuration(int payloadLengthBits, enum PHY_MCS mcs = MCS_DEFAULT) const;
 
 private:
-    void reportMACStat();
-    bool reportMAClayerData;
+    void record_MAC_stat_func();
+    void save_MAC_stat();
+    static std::map<std::string, MAC_stat_entry_t> global_MAC_stat;
+    std::string mySUMOID;
+    bool record_MAC_stat;
 
 protected:
     /** @brief Self message to indicate that the current channel shall be switched.*/
