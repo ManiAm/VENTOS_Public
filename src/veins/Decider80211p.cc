@@ -557,11 +557,11 @@ void Decider80211p::switchToTx() {
 
 void Decider80211p::finish()
 {
-    omnetpp::simtime_t totalTime = omnetpp::simTime() - myStartTime;
-    phy->recordScalar("busyTime", myBusyTime / totalTime.dbl());
-    if (collectCollisionStats) {
-        phy->recordScalar("ncollisions", collisions);
-    }
+    // omnetpp::simtime_t totalTime = omnetpp::simTime() - myStartTime;
+    // phy->recordScalar("busyTime", myBusyTime / totalTime.dbl());
+    // if (collectCollisionStats) {
+    //    phy->recordScalar("ncollisions", collisions);
+    // }
 }
 
 Decider80211p::~Decider80211p() {}
