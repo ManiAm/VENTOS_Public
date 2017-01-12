@@ -1,5 +1,7 @@
-*.sca
+# Ignore everything
+*
 
-# VENTOS generate files
-cached_*
+# But not these files...
+!.gitignore
+!README
 

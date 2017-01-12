@@ -8,11 +8,11 @@ clc;
 for iteration=1:3
 
 if (iteration == 1)
-     basePATH = '../results/ML/cmd/02_trainError0m';
+     basePATH = '../results/02_trainError0m';
 elseif (iteration == 2)
-     basePATH = '../results/ML/cmd/03_trainError3m';
+     basePATH = '../results/03_trainError3m';
 elseif(iteration == 3)
-     basePATH = '../results/ML/cmd/04_trainError5m';
+     basePATH = '../results/04_trainError5m';
 end
 
 repetition = 5;

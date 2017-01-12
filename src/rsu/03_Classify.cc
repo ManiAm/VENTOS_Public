@@ -64,7 +64,7 @@ void ApplRSUCLASSIFY::initialize(int stage)
         // construct file name for training data
         std::stringstream fileName;
         fileName << boost::format("trainData_%0.3f.txt") % trainError;
-        trainingFilePath = boost::filesystem::path("results") / "ML" / fileName.str();
+        trainingFilePath = boost::filesystem::path("results") / fileName.str();
 
         // for each incoming lane in this TL
         std::list<std::string> lan = TraCI->TLGetControlledLanes(myTLid);
@@ -237,7 +237,7 @@ void ApplRSUCLASSIFY::loadTrainer()
 
     std::stringstream fileName;
     fileName << boost::format("%s_%s_%0.3f.model") % trainer->name() % (trainer->trainOffset() ? "withOffset" : "withoutOffset") % trainError;
-    boost::filesystem::path filePath = boost::filesystem::path("results") / "ML" / fileName.str();
+    boost::filesystem::path filePath = boost::filesystem::path("results") / fileName.str();
 
     std::cout << "\n>>> Looking for '" << fileName.str() << "'... ";
 
@@ -522,22 +522,17 @@ void ApplRSUCLASSIFY::saveClassificationResults()
     if(classifyResults.empty())
         return;
 
-    boost::filesystem::path filePath;
+    int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
 
-    if(omnetpp::cSimulation::getActiveEnvir()->isGUI())
-    {
-        filePath = "results/ML/classificationResults.txt";
-    }
-    else
-    {
-        // get the current run number
-        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
-        std::ostringstream fileName;
-        fileName << std::setfill('0') << std::setw(3) << currentRun << "_classificationResults.txt";
-        filePath = "results/ML/cmd/" + fileName.str();
-    }
+    std::ostringstream fileName;
+    fileName << boost::format("%03d_classificationResults.txt") % currentRun;
 
-    FILE *filePtr = fopen (filePath.string().c_str(), "w");
+    boost::filesystem::path filePath ("results");
+    filePath /= fileName.str();
+
+    FILE *filePtr = fopen (filePath.c_str(), "w");
+    if (!filePtr)
+        throw omnetpp::cRuntimeError("Cannot create file '%s'", filePath.c_str());
 
     // write simulation parameters at the beginning of the file in CMD mode
     if(!omnetpp::cSimulation::getActiveEnvir()->isGUI())
