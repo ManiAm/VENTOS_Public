@@ -74,7 +74,7 @@ void Bluetooth::initialize(int stage)
             return;
 
         boost::filesystem::path VENTOS_FullPath = omnetpp::getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-        cached_BT_devices_filePATH = VENTOS_FullPath / "results/cached_BT_devices";
+        cached_BT_devices_filePATH = VENTOS_FullPath / "results" / "cached_BT_devices.txt";
     }
 }
 

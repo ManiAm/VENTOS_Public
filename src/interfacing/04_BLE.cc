@@ -58,7 +58,7 @@ void BLE::initialize(int stage)
             return;
 
         boost::filesystem::path VENTOS_FullPath = omnetpp::getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-        cached_LEBT_devices_filePATH = VENTOS_FullPath / "results/cached_LEBT_devices";
+        cached_LEBT_devices_filePATH = VENTOS_FullPath / "results" / "cached_LEBT_devices.txt";
     }
 }
 
