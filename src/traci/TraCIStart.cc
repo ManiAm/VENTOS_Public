@@ -1078,6 +1078,9 @@ void TraCI_Start::addModule(std::string nodeId /*sumo id*/, const Coord& positio
         std::vector<std::string> record_tokenize;
         for(std::string appl : records)
         {
+            if(appl == "")
+                throw omnetpp::cRuntimeError("Invalid record_list format in vehicle '%s'", nodeId.c_str());
+
             // remove leading and trailing spaces from the string
             boost::trim(appl);
 
