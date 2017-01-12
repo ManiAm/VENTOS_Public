@@ -59,44 +59,6 @@ public:
 };
 
 
-class VehicleData
-{
-public:
-    double time;
-    std::string vehicleName;
-    std::string vehicleType;
-    std::string lane;
-    double pos;
-    double speed;
-    double accel;
-    std::string CFMode;
-    double timeGapSetting;
-    double spaceGap;
-    double timeGap;
-    std::string TLid;  // TLid that controls this vehicle
-    char linkStatus;  // status of the TL
-
-    VehicleData(double t, std::string str1, std::string str2, std::string str3,
-            double d2, double d3, double d4, std::string str4, double d3a, double d5, double d6,
-            std::string str5, char st)
-    {
-        this->time = t;
-        this->vehicleName = str1;
-        this->vehicleType = str2;
-        this->lane = str3;
-        this->pos = d2;
-        this->speed = d3;
-        this->accel = d4;
-        this->CFMode = str4;
-        this->timeGapSetting = d3a;
-        this->spaceGap = d5;
-        this->timeGap = d6;
-        this->TLid = str5;
-        this->linkStatus = st;
-    }
-};
-
-
 class TraCI_Start :  public TraCI_Commands
 {
 private:
@@ -105,8 +67,6 @@ private:
     // NED
     BaseWorldUtility* world;
     ConnectionManager* cc;
-    bool collectVehiclesData;
-    int vehicleDataLevel;
 
     bool active;
     bool debug;                /**< whether to emit debug messages */
@@ -156,10 +116,38 @@ private:
     std::list<std::pair<TraCICoord, TraCICoord> > roiRects; /**< which rectangles (e.g. "0,0-10,10 20,20-30,30) are considered to consitute the region of interest, if not empty */
     double roiSquareSizeRSU;
 
-    // class variables
     bool equilibrium_vehicle;
-    std::map<std::string, departedNodes> addedNodes;
-    std::vector<VehicleData> Vec_vehiclesData;
+    std::map<std::string /*SUMO id*/, departedNodes> departedVehicles;
+
+    std::string record_file = "";  // file name for saving veh stat
+
+    typedef struct veh_status_entry
+    {
+        bool active;  // should we record stat for this vehicle?
+        std::vector<std::string> record_list;  // type of data we need to record for this vehicle
+    } veh_status_entry_t;
+
+    std::map<std::string /*SUMO id*/, veh_status_entry_t> record_status;
+
+    typedef struct veh_data_entry
+    {
+        double timeStep;
+        std::string id;
+        std::string type;
+        std::string lane;
+        double lanePos;
+        double speed;
+        double accel;
+        std::string CFMode;
+        double timeGapSetting;
+        double spaceGap;
+        double timeGap;
+        std::string TLid;  // TLid that controls this vehicle. Empty string means the vehicle is not controlled by any TLid
+        char linkStat;     // status of the TL ahead (character 'n' means no TL ahead)
+    } veh_data_entry_t;
+
+    std::vector<veh_data_entry_t> collected_veh_data;
+    std::map<std::string, int /*order*/> allColumns;
 
 public:
     TraCI_Start();
@@ -199,8 +187,8 @@ private:
      */
     bool isInRegionOfInterest(const TraCICoord& position, std::string road_id, double speed, double angle);
 
-    void saveVehicleData(std::string);
-    void vehiclesDataToFile();
+    void record_Veh_data(std::string);
+    void save_Veh_data_toFile();
 };
 
 }

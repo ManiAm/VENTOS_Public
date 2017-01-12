@@ -1,15 +1,17 @@
 
+// Copyright (C) 2006-2012 Christoph Sommer <christoph.sommer@uibk.ac.at>
+// Second author: Mani Amoozadeh <maniam@ucdavis.edu>
+
 package VENTOS.src.traci;
 
 import VENTOS.src.MIXIM.modules.BaseMobility;
 
-// Copyright (C) 2006-2012 Christoph Sommer <christoph.sommer@uibk.ac.at>
 simple TraCIMobilityMod extends BaseMobility
 {
     parameters:
         @class(VENTOS::TraCIMobilityMod);
         @display("i=block/cogwheel");
-
+        
         bool debug = default(false);  // debug switch
         double antennaPositionOffset @unit("m") = default(0.0m);  // position offset of the antenna of the front of the car
         int accidentCount = default(0);  // number of accidents
@@ -50,13 +52,10 @@ simple TraCIStart
         bool autoShutdown = default(true);          // Shutdown module as soon as no more vehicles are in the simulation        
         bool TraCIclosed = default(false);          // for internal use
         bool equilibrium_vehicle = default(false);  // arrived vehicles are re-inserted again
-        
-        bool logTraCIcommands = default(false);     // logging all exchanged TraCI commands    
-        bool collectVehiclesData = default(false);  // collecting vehicle data in each step
-        int vehicleDataLevel = default(1);   // 1:record full vehicle data    2:for router scenario   3:for TL
+        bool logTraCIcommands = default(false);     // logging all exchanged TraCI commands
         
         int margin = default(25);   // margin to add to all received vehicle positions 
-                
+        
         string vehicleModuleType = default("VENTOS.src.vehicle.vehicle");   // OMNET++ module type for vehicles
         string vehicleModuleName = default("V");                            // OMNET++ module name for vehicles 
         string vehicleModuleDisplayString = default("");                    // OMNET++ module displayString for each vehicle  
@@ -64,7 +63,7 @@ simple TraCIStart
         string bikeModuleType = default("VENTOS.src.bicycle.bicycle");  // OMNET++ module type for bikes       
         string bikeModuleName = default("B");                           // OMNET++ module name for bikes        
         string bikeModuleDisplayString = default("");                   // OMNET++ module displayString for bikes
-                
+        
         string pedModuleType = default("VENTOS.src.pedestrian.pedestrian");   // OMNET++ module type for pedestrians       
         string pedModuleName = default("P");                                  // OMNET++ module name for pedestrians        
         string pedModuleDisplayString = default("");                          // OMNET++ module displayString for pedestrians
@@ -74,20 +73,4 @@ simple TraCIStart
         string roiRoads = default("");  // which roads (e.g. "hwy1 hwy2") are considered to consitute the region of interest, if not empty
         string roiRects = default("");  // which rectangles (e.g. "0,0-10,10 20,20-30,30) are considered to consitute the region of interest, if not empty (in SUMO coordinate)
         double roiSquareSizeRSU = default(0);
-}
-
-
-simple SumoBinary
-{
-    parameters:
-        @class(VENTOS::SumoBinary);
-        @display("i=block/network2");
-        
-        bool update;
-        
-        string SUMO_GUI_FileName;
-        string SUMO_CMD_FileName;
-        string SUMO_GUI_URL;
-        string SUMO_CMD_URL;
-        string SUMO_Version_URL;
 }

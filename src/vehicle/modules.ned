@@ -11,6 +11,10 @@ module vehicle
         @signal[beaconSignaling]();
         @signal[system]();
         
+        bool record_stat = default(false);
+        string record_list = default("timeStep | id | lane | lanePos | speed");
+        string record_file = default("");
+        
     gates:
         input radioIn; // gate for sendDirect
         
