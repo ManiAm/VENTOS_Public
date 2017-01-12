@@ -229,7 +229,6 @@ private:
     void record_MAC_stat_func();
     void save_MAC_stat_toFile();
     static std::map<std::string, MAC_stat_entry_t> global_MAC_stat;
-    std::string mySUMOID;
     bool record_stat;
 
 protected:

@@ -59,9 +59,6 @@ void Mac1609_4::initialize(int stage)
         //mac-adresses
         myMacAddress = intuniform(0,0xFFFFFFFE);
         myId = getParentModule()->getParentModule()->getFullPath();
-        mySUMOID = getParentModule()->getParentModule()->getSubmodule("appl")->par("SUMOID").stringValue();
-        if(mySUMOID == "")
-            throw omnetpp::cRuntimeError("SUMO ID %s is invalid!", mySUMOID.c_str());
 
         //create frequency mappings
         frequency[Channels::CRIT_SOL] = 5.86e9;
@@ -1010,9 +1007,9 @@ void Mac1609_4::record_MAC_stat_func()
     entry.statsReceivedPackets = statsReceivedPackets;
     entry.statsReceivedBroadcasts = statsReceivedBroadcasts;
 
-    auto it = global_MAC_stat.find(mySUMOID);
+    auto it = global_MAC_stat.find(myId);
     if(it == global_MAC_stat.end())
-        global_MAC_stat[mySUMOID] = entry;
+        global_MAC_stat[myId] = entry;
     else
         it->second = entry;
 }
