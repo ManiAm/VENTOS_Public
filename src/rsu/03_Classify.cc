@@ -86,16 +86,22 @@ void ApplRSUCLASSIFY::finish()
 {
     super::finish();
 
+    if(!classifier)
+        return;
+
     if(collectTrainingData)
         saveTrainingDataToFile();
     else
         saveClassificationResults();
 
+    if(plotterPtr)
+    {
 #ifdef WIN32
-    _pclose(plotterPtr);
+        _pclose(plotterPtr);
 #else
-    pclose(plotterPtr);
+        pclose(plotterPtr);
 #endif
+    }
 }
 
 
