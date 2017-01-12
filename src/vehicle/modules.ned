@@ -180,6 +180,7 @@ simple ApplVManager extends ApplVMsgControl
         
         bool SUMOvehicleDebug = default(false);  // controling SUMO debug output for "each vehicle"
         bool degradeToACC = default(true);
+        bool record_beacon_stat = default(false);
         
         // beacon loss ratio in application layer
         double plr = default(0);  // packet loss ratio (percent) in each simulation timeStep

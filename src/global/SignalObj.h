@@ -91,23 +91,6 @@ public:
 };
 
 
-// for beacons
-class data : public omnetpp::cObject, omnetpp::noncopyable
-{
-public:
-    std::string sender;
-    std::string receiver;
-    bool dropped;
-
-    data(std::string str1, std::string str2, bool d)
-    {
-        this->sender = str1;
-        this->receiver = str2;
-        this->dropped = d;
-    }
-};
-
-
 class CurrentVehicleState : public omnetpp::cObject, omnetpp::noncopyable
 {
 public:

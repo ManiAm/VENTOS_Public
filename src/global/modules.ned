@@ -19,5 +19,4 @@ simple Statistics
         @class(VENTOS::Statistics);
         
         bool reportPlnManagerData = default(false);
-        bool reportBeaconsData = default(false);
 }

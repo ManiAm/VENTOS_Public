@@ -76,30 +76,11 @@ public:
 };
 
 
-class BeaconStat
-{
-public:
-    double time;
-    std::string senderID;
-    std::string receiverID;
-    bool dropped;
-
-    BeaconStat(double t, std::string str1, std::string str2, bool b)
-    {
-        this->time = t;
-        this->senderID = str1;
-        this->receiverID = str2;
-        this->dropped = b;
-    }
-};
-
-
 class Statistics : public BaseApplLayer
 {
 private:
     // NED variables
     bool reportPlnManagerData;
-    bool reportBeaconsData;
 
     // NED variables
     TraCI_Commands *TraCI;
@@ -111,12 +92,10 @@ private:
     omnetpp::simsignal_t Signal_SentPlatoonMsg;
     omnetpp::simsignal_t Signal_VehicleState;
     omnetpp::simsignal_t Signal_PlnManeuver;
-    omnetpp::simsignal_t Signal_beacon;
 
     // class variables (vectors)
     std::vector<plnManagement> Vec_plnManagement;
     std::vector<plnStat> Vec_plnStat;
-    std::vector<BeaconStat> Vec_Beacons;
 
 public:
     virtual ~Statistics();
@@ -132,10 +111,6 @@ private:
 
     void plnManageToFile();
     void plnStatToFile();
-
-    void beaconToFile();
-
-    int getNodeIndex(std::string);
 };
 
 }

@@ -37,6 +37,16 @@ class ApplVManager : public ApplVMsgControl
 private:
     typedef ApplVMsgControl super;
 
+    typedef struct BeaconStat
+    {
+        double time;
+        std::string senderID;
+        std::string receiverID;
+        bool dropped;
+    } BeaconStat_t;
+
+    static std::vector<BeaconStat_t> Vec_Beacons;
+
 protected:
     // NED variables (packet loss ratio)
     double droppT;
@@ -48,7 +58,7 @@ protected:
     double errorGap;
     double errorRelSpeed;
 
-    bool reportBeaconsData;
+    bool record_beacon_stat;
 
     long BeaconVehCount;
     long BeaconVehDropped;
@@ -76,6 +86,9 @@ protected:
 
     void onMessageType(omnetpp::cMessage* msg);
     bool dropBeacon(double time, std::string vehicle, double plr);
+
+private:
+    void save_beacon_stat_toFile();
 };
 
 }

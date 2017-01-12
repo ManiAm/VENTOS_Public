@@ -26,10 +26,11 @@
 //
 
 #include "vehicle/Manager.h"
-#include "global/Statistics.h"
 #include "global/SignalObj.h"
 
 namespace VENTOS {
+
+std::vector<ApplVManager::BeaconStat_t> ApplVManager::Vec_Beacons;
 
 Define_Module(VENTOS::ApplVManager);
 
@@ -55,13 +56,7 @@ void ApplVManager::initialize(int stage)
         errorGap = par("errorGap").doubleValue();
         errorRelSpeed = par("errorRelSpeed").doubleValue();
 
-        // get the ptr of the Statistics module
-        cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("statistics");
-        Statistics *StatPtr = static_cast<Statistics *>(module);
-        if(StatPtr == NULL)
-            throw omnetpp::cRuntimeError("can not get a pointer to the Statistics module.");
-
-        reportBeaconsData = StatPtr->par("reportBeaconsData").boolValue();
+        record_beacon_stat = par("record_beacon_stat").boolValue();
 
         BeaconVehCount = 0;
         BeaconVehDropped = 0;
@@ -85,7 +80,7 @@ void ApplVManager::initialize(int stage)
 
         // turn off 'strategic' and 'speed gain' lane change in all TL (default is 10 01 01 01 01)
         // todo: is this necessary? lane change causes fault detection in LD
-        module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TrafficLight");
+        omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TrafficLight");
         int TLControlMode = module->par("TLControlMode").longValue();
         if(TLControlMode != TL_Router && TLControlMode != TL_OFF)
         {
@@ -99,6 +94,9 @@ void ApplVManager::initialize(int stage)
 void ApplVManager::finish()
 {
     super::finish();
+
+    if(record_beacon_stat)
+        save_beacon_stat_toFile();
 }
 
 
@@ -175,11 +173,10 @@ void ApplVManager::onMessageType(omnetpp::cMessage* msg)
             onBeaconVehicle(wsm);
 
             // report reception to statistics
-            if(reportBeaconsData)
+            if(record_beacon_stat)
             {
-                data *pair = new data(wsm->getSender(), SUMOID, 0);
-                omnetpp::simsignal_t Signal_beacon = registerSignal("beacon");
-                this->getParentModule()->emit(Signal_beacon, pair);
+                BeaconStat_t entry = {omnetpp::simTime().dbl(), wsm->getSender() /*sender*/, SUMOID /*receiver*/, 0 /*dropped?*/};
+                Vec_Beacons.push_back(entry);
             }
         }
         // drop the beacon, and report it to statistics
@@ -188,11 +185,10 @@ void ApplVManager::onMessageType(omnetpp::cMessage* msg)
             BeaconVehDropped++;
 
             // report drop to statistics
-            if(reportBeaconsData)
+            if(record_beacon_stat)
             {
-                data *pair = new data(wsm->getSender(), SUMOID, 1);
-                omnetpp::simsignal_t Signal_beacon = registerSignal("beacon");
-                this->getParentModule()->emit(Signal_beacon, pair);
+                BeaconStat_t entry = {omnetpp::simTime().dbl(), wsm->getSender() /*sender*/, SUMOID /*receiver*/, 1 /*dropped?*/};
+                Vec_Beacons.push_back(entry);
             }
         }
     }
@@ -351,6 +347,63 @@ void ApplVManager::onPlatoonMsg(PlatoonMsg* wsm)
 {
     // pass it down
     super::onPlatoonMsg(wsm);
+}
+
+
+void ApplVManager::save_beacon_stat_toFile()
+{
+    if(Vec_Beacons.empty())
+        return;
+
+    int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
+
+    std::ostringstream fileName;
+    fileName << boost::format("%03d_beaconsStat.txt") % currentRun;
+
+    boost::filesystem::path filePath ("results");
+    filePath /= fileName.str();
+
+    FILE *filePtr = fopen (filePath.c_str(), "w");
+    if (!filePtr)
+        throw omnetpp::cRuntimeError("Cannot create file '%s'", filePath.c_str());
+
+    // write simulation parameters at the beginning of the file in CMD mode
+    if(!omnetpp::cSimulation::getActiveEnvir()->isGUI())
+    {
+        // get the current config name
+        std::string configName = omnetpp::getEnvir()->getConfigEx()->getVariable("configname");
+
+        // get number of total runs in this config
+        int totalRun = omnetpp::getEnvir()->getConfigEx()->getNumRunsInConfig(configName.c_str());
+
+        // get the current run number
+        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
+
+        // get all iteration variables
+        std::vector<std::string> iterVar = omnetpp::getEnvir()->getConfigEx()->unrollConfig(configName.c_str(), false);
+
+        // write to file
+        fprintf (filePtr, "configName      %s\n", configName.c_str());
+        fprintf (filePtr, "totalRun        %d\n", totalRun);
+        fprintf (filePtr, "currentRun      %d\n", currentRun);
+        fprintf (filePtr, "currentConfig   %s\n\n\n", iterVar[currentRun].c_str());
+    }
+
+    // write header
+    fprintf (filePtr, "%-12s","timeStep");
+    fprintf (filePtr, "%-20s","from");
+    fprintf (filePtr, "%-20s","to");
+    fprintf (filePtr, "%-20s\n\n","dropped");
+
+    for(auto &y : Vec_Beacons)
+    {
+        fprintf (filePtr, "%-12.2f", y.time);
+        fprintf (filePtr, "%-20s", y.senderID.c_str());
+        fprintf (filePtr, "%-20s", y.receiverID.c_str());
+        fprintf (filePtr, "%-20d \n", y.dropped);
+    }
+
+    fclose(filePtr);
 }
 
 }
