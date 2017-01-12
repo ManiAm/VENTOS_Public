@@ -1062,7 +1062,6 @@ void TraCI_Start::addModule(std::string nodeId /*sumo id*/, const Coord& positio
         throw omnetpp::cRuntimeError("'%s' already exist in record_status", nodeId.c_str());
     else
     {
-        record_file = mod->par("record_file").stringValue();
         bool active = mod->par("record_stat").boolValue();
         std::string record_list = mod->par("record_list").stringValue();
 
@@ -1335,10 +1334,13 @@ void TraCI_Start::save_Veh_data_toFile()
     if(collected_veh_data.empty())
         return;
 
+    // file name for saving vehicles statistics
+    std::string veh_stat_file = par("veh_stat_file").stringValue();
+
     boost::filesystem::path filePath ("results");
 
     // no file name specified
-    if(record_file == "")
+    if(veh_stat_file == "")
     {
         int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
 
@@ -1348,7 +1350,7 @@ void TraCI_Start::save_Veh_data_toFile()
         filePath /= fileName.str();
     }
     else
-        filePath /= record_file;
+        filePath /= veh_stat_file;
 
     FILE *filePtr = fopen (filePath.c_str(), "w");
     if (!filePtr)

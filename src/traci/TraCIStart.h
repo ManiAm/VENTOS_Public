@@ -69,7 +69,7 @@ private:
     ConnectionManager* cc;
 
     bool active;
-    bool debug;                /**< whether to emit debug messages */
+    bool debug;   /**< whether to emit debug messages */
     omnetpp::simtime_t connectAt;       /**< when to connect to TraCI server (must be the initial timestep of the server) */
     omnetpp::simtime_t firstStepAt;     /**< when to start synchronizing with the TraCI server (-1: immediately after connecting) */
     omnetpp::simtime_t updateInterval;  /**< time interval of hosts' position updates */
@@ -78,7 +78,7 @@ private:
 
     // NED variables
     double terminate;
-    bool autoShutdown;    /**< Shutdown module as soon as no more vehicles are in the simulation */
+    bool autoShutdown;  /**< Shutdown module as soon as no more vehicles are in the simulation */
 
     // NED (vehicles)
     std::string vehicleModuleType;
@@ -112,14 +112,12 @@ private:
     omnetpp::cMessage* connectAndStartTrigger = NULL; /**< self-message scheduled for when to connect to TraCI server and start running */
     omnetpp::cMessage* executeOneTimestepTrigger = NULL; /**< self-message scheduled for when to next call executeOneTimestep */
 
-    std::list<std::string> roiRoads; /**< which roads (e.g. "hwy1 hwy2") are considered to consitute the region of interest, if not empty */
-    std::list<std::pair<TraCICoord, TraCICoord> > roiRects; /**< which rectangles (e.g. "0,0-10,10 20,20-30,30) are considered to consitute the region of interest, if not empty */
+    std::list<std::string> roiRoads; /**< which roads (e.g. "hwy1 hwy2") are considered to constitute the region of interest, if not empty */
+    std::list<std::pair<TraCICoord, TraCICoord> > roiRects; /**< which rectangles (e.g. "0,0-10,10 20,20-30,30) are considered to constitute the region of interest, if not empty */
     double roiSquareSizeRSU;
 
     bool equilibrium_vehicle;
     std::map<std::string /*SUMO id*/, departedNodes> departedVehicles;
-
-    std::string record_file = "";  // file name for saving veh stat
 
     typedef struct veh_status_entry
     {

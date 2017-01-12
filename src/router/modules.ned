@@ -10,7 +10,7 @@ simple Router
         
         bool enableRouter = default(false);
         bool collectVehicleTimeData = default(false);
-      
+        
         double leftTurnCost = default(6.0);
         double rightTurnCost = default(4.0);
         double straightCost = default(2.0);
@@ -22,10 +22,10 @@ simple Router
         double ReroutingVehiclePercent = default(0.2);
         bool UseHysteresis = default(true);        
         double EWMARate = default(0.2);
-                
+        
         int LaneCostsMode = default(0);
         int HysteresisCount = default(4);
-
+        
         bool UseAccidents = default(false);
         int AccidentCheckInterval = default(5);
         

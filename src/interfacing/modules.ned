@@ -6,7 +6,7 @@ simple Ethernet
         @class(VENTOS::Ethernet);
         @display("i=block/network2");
         
-        int headerLength = default(88bit) @unit(bit); //header length of the application 
+        int headerLength = default(88bit) @unit(bit); // header length of the application 
         bool active = default(false);
         
         string interface = default("eth0");
@@ -24,7 +24,7 @@ simple USB
         @class(VENTOS::USB);
         @display("i=block/network2");
         
-        int headerLength = default(88bit) @unit(bit); //header length of the application 
+        int headerLength = default(88bit) @unit(bit); // header length of the application 
         bool active = default(false);
         
         bool listUSBdevices = default(false);
@@ -32,9 +32,9 @@ simple USB
         bool hotPlug = default(false);
         
         int target_vendor_id = default(0x0);
-		int target_product_id = default(0x0);
-		int target_interfaceNumber = default(0);
-		int target_interruptEP = default(0x80);
+        int target_product_id = default(0x0);
+        int target_interfaceNumber = default(0);
+        int target_interruptEP = default(0x80);
 }
 
 
@@ -44,10 +44,10 @@ simple Bluetooth
         @class(VENTOS::Bluetooth);
         @display("i=block/network2");
         
-        int headerLength = default(88bit) @unit(bit); //header length of the application
+        int headerLength = default(88bit) @unit(bit); // header length of the application
         
         bool listLocalDevices = default(false);
-                
+        
         bool BT_on = default(false);
         int BT_scan_deviceID = default(-1);        
         int BT_scan_length = default(8);
@@ -65,7 +65,7 @@ simple BLE extends Bluetooth
         int BLE_scan_time = default(10s) @unit(s);
         
         // BLE parameters: check page 973 (1255 of document) of BT spec 4.1
-
+        
         // 0x00: Passive scanning. No SCAN_REQ packets shall be sent
         // 0x01: Active scanning. SCAN_REQ packets may be sent
         int BLE_scan_type = default(0x01);
@@ -98,7 +98,7 @@ simple BLE_Advertisement extends BLE
     parameters:
         @class(VENTOS::BLE_Advertisement);
         @display("i=block/network2");
-       
+        
         bool BLE_advertisement = default(false);        
         int BLE_adv_deviceID = default(-1);     
         

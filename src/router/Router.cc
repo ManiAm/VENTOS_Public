@@ -148,10 +148,7 @@ void Router::initialize(int stage)
             }
 
             if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 1)
-            {
-                std::cout << "Loaded " << EdgeRemovals.size() << " accidents from " << AccidentFile << std::endl;
-                std::cout.flush();
-            }
+                std::cout << "Loaded " << EdgeRemovals.size() << " accidents from " << AccidentFile << std::endl << std::flush;
 
             if(EdgeRemovals.size() > 0)
             {
@@ -159,9 +156,7 @@ void Router::initialize(int stage)
                 scheduleAt(AccidentCheckInterval, routerMsg); //Schedule them to start sending
             }
             else
-            {
-                std::cout << "Accidents are enabled but no accidents were read in!" << std::endl;
-            }
+                std::cout << "Accidents are enabled but no accidents were read in! \n";
         }
 
         int ltc = par("leftTurnCost").doubleValue();
@@ -172,9 +167,6 @@ void Router::initialize(int stage)
     }
     else if (stage == 1)
     {
-        std::ostringstream filePrefix;
-        int TLMode = (*net->TLs.begin()).second->TLLogicMode;
-        filePrefix << totalVehicleCount << "_" << nonReroutingVehiclePercent << "_" << TLMode;
         if(nonReroutingVehiclePercent > 0)
         {
             int numNonRerouting = (double)totalVehicleCount * nonReroutingVehiclePercent;
@@ -192,10 +184,7 @@ void Router::initialize(int stage)
                 NonReroutingFile.close();
 
                 if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 1)
-                {
-                    std::cout << "Loaded " << numNonRerouting << " nonRerouting vehicles from file " << NonReroutingFileName << std::endl;
-                    std::cout.flush();
-                }
+                    std::cout << "Loaded " << numNonRerouting << " nonRerouting vehicles from file " << NonReroutingFileName << std::endl << std::flush;
             }
             else
             {
@@ -207,16 +196,18 @@ void Router::initialize(int stage)
                 NonReroutingFile.close();
 
                 if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 1)
-                {
-                    std::cout << "Created " << numNonRerouting << "-vehicle nonRerouting file " << NonReroutingFileName << std::endl;
-                    std::cout.flush();
-                }
+                    std::cout << "Created " << numNonRerouting << "-vehicle nonRerouting file " << NonReroutingFileName << std::endl << std::flush;
             }
         }
         else
-        {
             nonReroutingVehicles = new std::set<std::string>();
-        }
+
+        int TLMode = (*net->TLs.begin()).second->TLLogicMode;
+        std::ostringstream filePrefix;
+        filePrefix << totalVehicleCount << "_" << nonReroutingVehiclePercent << "_" << TLMode;
+
+        // set the veh_stat_file
+        TraCI->par("veh_stat_file") = filePrefix.str() + "_vehicleData.txt";
 
         std::string endTimeFile = VENTOS_FullPath.string() + "results/router/" + filePrefix.str() + "_endTimes.txt";
         vehicleEndTimesFile.open(endTimeFile.c_str());
@@ -226,12 +217,9 @@ void Router::initialize(int stage)
             std::string TravelTimesFileName = VENTOS_FullPath.string() + "results/router/" + filePrefix.str() + ".txt";
 
             if(omnetpp::cSimulation::getActiveEnvir()->isGUI() && debugLevel > 1)
-            {
-                std::cout << "Opened edge-weights file at " << TravelTimesFileName << std::endl;
-                std::cout.flush();
-            }
+                std::cout << "Opened edge-weights file at " << TravelTimesFileName << std::endl << std::flush;
 
-            vehicleTravelTimesFile.open(TravelTimesFileName.c_str());  //Open the edgeWeights file
+            vehicleTravelTimesFile.open(TravelTimesFileName.c_str());  // Open the edgeWeights file
         }
 
         parseLaneCostsFile();
