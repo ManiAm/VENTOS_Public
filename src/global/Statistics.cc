@@ -172,22 +172,17 @@ void Statistics::plnManageToFile()
     if(Vec_plnManagement.empty())
         return;
 
-    boost::filesystem::path filePath;
+    int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
 
-    if(omnetpp::cSimulation::getActiveEnvir()->isGUI())
-    {
-        filePath = "results/gui/plnManage.txt";
-    }
-    else
-    {
-        // get the current run number
-        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
-        std::ostringstream fileName;
-        fileName << std::setfill('0') << std::setw(3) << currentRun << "_plnManage.txt";
-        filePath = "results/cmd/" + fileName.str();
-    }
+    std::ostringstream fileName;
+    fileName << boost::format("%03d_plnManage.txt") % currentRun;
 
-    FILE *filePtr = fopen (filePath.string().c_str(), "w");
+    boost::filesystem::path filePath ("results");
+    filePath /= fileName.str();
+
+    FILE *filePtr = fopen (filePath.c_str(), "w");
+    if (!filePtr)
+        throw omnetpp::cRuntimeError("Cannot create file '%s'", filePath.c_str());
 
     // write simulation parameters at the beginning of the file in CMD mode
     if(!omnetpp::cSimulation::getActiveEnvir()->isGUI())
@@ -233,11 +228,11 @@ void Statistics::plnManageToFile()
             oldTime = y.time;
         }
 
-        fprintf (filePtr, "%-10.2f ", y.time);
-        fprintf (filePtr, "%-15s ", y.sender.c_str());
-        fprintf (filePtr, "%-17s ", y.receiver.c_str());
-        fprintf (filePtr, "%-30s ", y.type.c_str());
-        fprintf (filePtr, "%-18s ", y.sendingPlnID.c_str());
+        fprintf (filePtr, "%-10.2f", y.time);
+        fprintf (filePtr, "%-15s", y.sender.c_str());
+        fprintf (filePtr, "%-17s", y.receiver.c_str());
+        fprintf (filePtr, "%-30s", y.type.c_str());
+        fprintf (filePtr, "%-18s", y.sendingPlnID.c_str());
         fprintf (filePtr, "%-20s\n", y.receivingPlnID.c_str());
     }
 
@@ -250,22 +245,17 @@ void Statistics::plnStatToFile()
     if(Vec_plnStat.empty())
         return;
 
-    boost::filesystem::path filePath;
+    int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
 
-    if(omnetpp::cSimulation::getActiveEnvir()->isGUI())
-    {
-        filePath = "results/gui/plnStat.txt";
-    }
-    else
-    {
-        // get the current run number
-        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
-        std::ostringstream fileName;
-        fileName << std::setfill('0') << std::setw(3) << currentRun << "_plnStat.txt";
-        filePath = "results/cmd/" + fileName.str();
-    }
+    std::ostringstream fileName;
+    fileName << boost::format("%03d_plnStat.txt") % currentRun;
 
-    FILE *filePtr = fopen (filePath.string().c_str(), "w");
+    boost::filesystem::path filePath ("results");
+    filePath /= fileName.str();
+
+    FILE *filePtr = fopen (filePath.c_str(), "w");
+    if (!filePtr)
+        throw omnetpp::cRuntimeError("Cannot create file '%s'", filePath.c_str());
 
     // write simulation parameters at the beginning of the file in CMD mode
     if(!omnetpp::cSimulation::getActiveEnvir()->isGUI())
@@ -306,9 +296,9 @@ void Statistics::plnStatToFile()
             oldPln = y.from;
         }
 
-        fprintf (filePtr, "%-10.2f ", y.time);
-        fprintf (filePtr, "%-20s ", y.from.c_str());
-        fprintf (filePtr, "%-20s ", y.to.c_str());
+        fprintf (filePtr, "%-10.2f", y.time);
+        fprintf (filePtr, "%-20s", y.from.c_str());
+        fprintf (filePtr, "%-20s", y.to.c_str());
         fprintf (filePtr, "%-20s\n", y.maneuver.c_str());
     }
 
@@ -321,22 +311,17 @@ void Statistics::beaconToFile()
     if(Vec_Beacons.empty())
         return;
 
-    boost::filesystem::path filePath;
+    int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
 
-    if(omnetpp::cSimulation::getActiveEnvir()->isGUI())
-    {
-        filePath = "results/gui/beaconsStat.txt";
-    }
-    else
-    {
-        // get the current run number
-        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
-        std::ostringstream fileName;
-        fileName << std::setfill('0') << std::setw(3) << currentRun << "_beaconsStat.txt";
-        filePath = "results/cmd/" + fileName.str();
-    }
+    std::ostringstream fileName;
+    fileName << boost::format("%03d_beaconsStat.txt") % currentRun;
 
-    FILE *filePtr = fopen (filePath.string().c_str(), "w");
+    boost::filesystem::path filePath ("results");
+    filePath /= fileName.str();
+
+    FILE *filePtr = fopen (filePath.c_str(), "w");
+    if (!filePtr)
+        throw omnetpp::cRuntimeError("Cannot create file '%s'", filePath.c_str());
 
     // write simulation parameters at the beginning of the file in CMD mode
     if(!omnetpp::cSimulation::getActiveEnvir()->isGUI())
@@ -368,9 +353,9 @@ void Statistics::beaconToFile()
 
     for(auto &y : Vec_Beacons)
     {
-        fprintf (filePtr, "%-12.2f ", y.time);
-        fprintf (filePtr, "%-20s ", y.senderID.c_str());
-        fprintf (filePtr, "%-20s ", y.receiverID.c_str());
+        fprintf (filePtr, "%-12.2f", y.time);
+        fprintf (filePtr, "%-20s", y.senderID.c_str());
+        fprintf (filePtr, "%-20s", y.receiverID.c_str());
         fprintf (filePtr, "%-20d \n", y.dropped);
     }
 

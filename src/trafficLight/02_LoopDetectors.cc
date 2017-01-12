@@ -130,22 +130,17 @@ void LoopDetectors::saveLDsData()
     if(Vec_loopDetectors.empty())
         return;
 
-    boost::filesystem::path filePath;
+    int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
 
-    if(omnetpp::cSimulation::getActiveEnvir()->isGUI())
-    {
-        filePath = "results/gui/loopDetector.txt";
-    }
-    else
-    {
-        // get the current run number
-        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
-        std::ostringstream fileName;
-        fileName << std::setfill('0') << std::setw(3) << currentRun << "_loopDetector.txt";
-        filePath = "results/cmd/" + fileName.str();
-    }
+    std::ostringstream fileName;
+    fileName << boost::format("%03d_loopDetector.txt") % currentRun;
 
-    FILE *filePtr = fopen (filePath.string().c_str(), "w");
+    boost::filesystem::path filePath ("results");
+    filePath /= fileName.str();
+
+    FILE *filePtr = fopen (filePath.c_str(), "w");
+    if (!filePtr)
+        throw omnetpp::cRuntimeError("Cannot create file '%s'", filePath.c_str());
 
     // write simulation parameters at the beginning of the file in CMD mode
     if(!omnetpp::cSimulation::getActiveEnvir()->isGUI())
@@ -181,12 +176,12 @@ void LoopDetectors::saveLDsData()
     // write body
     for(auto& y : Vec_loopDetectors)
     {
-        fprintf (filePtr, "%-30s ", y.detectorName.c_str());
-        fprintf (filePtr, "%-20s ", y.lane.c_str());
-        fprintf (filePtr, "%-20s ", y.vehicleName.c_str());
-        fprintf (filePtr, "%-20.2f ", y.entryTime);
-        fprintf (filePtr, "%-20.2f ", y.leaveTime);
-        fprintf (filePtr, "%-20.2f ", y.entrySpeed);
+        fprintf (filePtr, "%-30s", y.detectorName.c_str());
+        fprintf (filePtr, "%-20s", y.lane.c_str());
+        fprintf (filePtr, "%-20s", y.vehicleName.c_str());
+        fprintf (filePtr, "%-20.2f", y.entryTime);
+        fprintf (filePtr, "%-20.2f", y.leaveTime);
+        fprintf (filePtr, "%-20.2f", y.entrySpeed);
         fprintf (filePtr, "%-20.2f\n", y.leaveSpeed);
     }
 

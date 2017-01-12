@@ -9,7 +9,7 @@ NoRun = 7;
 path = '';
 
 for s=1:NoRun
-    path = sprintf('%s_%d.txt','../results/cmd/diffPLR,Tg=0.71/speed-gap', s-1);    
+    path = sprintf('%s_%d.txt','../results/diffPLR,Tg=0.71/speed-gap', s-1);    
     file_id = fopen(path);
     formatSpec = '%d %s %f %f %f %f %f %f';
     C_text = textscan(file_id, formatSpec, 'HeaderLines', 2);

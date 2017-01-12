@@ -221,22 +221,17 @@ template <typename T> void ApplRSUMonitor::onBeaconAny(T wsm)
 
 void ApplRSUMonitor::saveVehApproach()
 {
-    boost::filesystem::path filePath;
+    int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
 
-    if(omnetpp::cSimulation::getActiveEnvir()->isGUI())
-    {
-        filePath = "results/gui/vehApproach.txt";
-    }
-    else
-    {
-        // get the current run number
-        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
-        std::ostringstream fileName;
-        fileName << std::setfill('0') << std::setw(3) << currentRun << "_vehApproach.txt";
-        filePath = "results/cmd/" + fileName.str();
-    }
+    std::ostringstream fileName;
+    fileName << boost::format("%03d_vehApproach.txt") % currentRun;
 
-    FILE *filePtr = fopen (filePath.string().c_str(), "w");
+    boost::filesystem::path filePath ("results");
+    filePath /= fileName.str();
+
+    FILE *filePtr = fopen (filePath.c_str(), "w");
+    if (!filePtr)
+        throw omnetpp::cRuntimeError("Cannot create file '%s'", filePath.c_str());
 
     // write simulation parameters at the beginning of the file in CMD mode
     if(!omnetpp::cSimulation::getActiveEnvir()->isGUI())
@@ -272,17 +267,17 @@ void ApplRSUMonitor::saveVehApproach()
     fprintf (filePtr, "%-15s\n\n","leaveTime");
 
     // write body
-    for(std::vector<detectedVehicleEntry>::iterator y = Vec_detectedVehicles.begin(); y != Vec_detectedVehicles.end(); ++y)
+    for(auto y : Vec_detectedVehicles)
     {
-        fprintf (filePtr, "%-20s ", (*y).vehicleName.c_str());
-        fprintf (filePtr, "%-20s ", (*y).vehicleType.c_str());
-        fprintf (filePtr, "%-13s ", (*y).lane.c_str());
-        fprintf (filePtr, "%-15.2f ", (*y).pos.x);
-        fprintf (filePtr, "%-15.2f ", (*y).pos.y);
-        fprintf (filePtr, "%-15s ", (*y).TLid.c_str());
-        fprintf (filePtr, "%-15.2f ", (*y).entryTime);
-        fprintf (filePtr, "%-15.2f", (*y).entrySpeed);
-        fprintf (filePtr, "%-15.2f\n", (*y).leaveTime);
+        fprintf (filePtr, "%-20s", y.vehicleName.c_str());
+        fprintf (filePtr, "%-20s", y.vehicleType.c_str());
+        fprintf (filePtr, "%-13s", y.lane.c_str());
+        fprintf (filePtr, "%-15.2f", y.pos.x);
+        fprintf (filePtr, "%-15.2f", y.pos.y);
+        fprintf (filePtr, "%-15s", y.TLid.c_str());
+        fprintf (filePtr, "%-15.2f", y.entryTime);
+        fprintf (filePtr, "%-15.2f", y.entrySpeed);
+        fprintf (filePtr, "%-15.2f\n", y.leaveTime);
     }
 
     fclose(filePtr);

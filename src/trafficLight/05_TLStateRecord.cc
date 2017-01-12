@@ -201,22 +201,17 @@ void TLStateRecord::saveTLPhasingData()
     if(statusTL.empty())
         return;
 
-    boost::filesystem::path filePath;
+    int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
 
-    if(omnetpp::cSimulation::getActiveEnvir()->isGUI())
-    {
-        filePath = "results/gui/TLphasingData.txt";
-    }
-    else
-    {
-        // get the current run number
-        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
-        std::ostringstream fileName;
-        fileName << std::setfill('0') << std::setw(3) << currentRun << "_TLphasingData.txt";
-        filePath = "results/cmd/" + fileName.str();
-    }
+    std::ostringstream fileName;
+    fileName << boost::format("%03d_TLphasingData.txt") % currentRun;
 
-    FILE *filePtr = fopen (filePath.string().c_str(), "w");
+    boost::filesystem::path filePath ("results");
+    filePath /= fileName.str();
+
+    FILE *filePtr = fopen (filePath.c_str(), "w");
+    if (!filePtr)
+        throw omnetpp::cRuntimeError("Cannot create file '%s'", filePath.c_str());
 
     // write simulation parameters at the beginning of the file in CMD mode
     if(!omnetpp::cSimulation::getActiveEnvir()->isGUI())

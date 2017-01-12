@@ -31,11 +31,11 @@ x2 = 250;
 for s=1:2   
     
     if(s == 1)
-        path = '../results/gui/speed-gap-CACC-Tg=0.6.txt';
+        path = '../results/speed-gap-CACC-Tg=0.6.txt';
     elseif(s == 2)
-        path = '../results/gui/speed-gap-CACC-Tg=0.8.txt';
+        path = '../results/speed-gap-CACC-Tg=0.8.txt';
     elseif(s == 3)
-        path = '../results/gui/speed-gapCACC.txt';
+        path = '../results/speed-gapCACC.txt';
     end
     
     file_id = fopen(path);

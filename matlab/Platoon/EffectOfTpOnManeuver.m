@@ -13,7 +13,7 @@ LFLeaveCount = 0;
 MFLeaveCount = 0;
 
 for run=0:2
-    filePath = sprintf('../results/cmd/%d_plnStat.txt', run);
+    filePath = sprintf('../results/%d_plnStat.txt', run);
     file_id = fopen(filePath);
     formatSpec = '%f %s %s %s';
     C_text = textscan(file_id, formatSpec, 'HeaderLines', 3);

@@ -92,27 +92,17 @@ void ApplRSUAID::executeEachTimeStep()
 
 void ApplRSUAID::incidentDetectionToFile()
 {
-    boost::filesystem::path filePath;
+    int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
 
-    if(omnetpp::cSimulation::getActiveEnvir()->isGUI())
-    {
-        filePath = "results/gui/IncidentTable.txt";
-    }
-    else
-    {
-        // get the current run number
-        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
-        std::ostringstream fileName;
-        fileName << std::setfill('0') << std::setw(3) << currentRun << "_IncidentTable.txt";
-        filePath = "results/cmd/" + fileName.str();
-    }
+    std::ostringstream fileName;
+    fileName << boost::format("%03d_IncidentTable.txt") % currentRun;
+
+    boost::filesystem::path filePath ("results");
+    filePath /= fileName.str();
 
     std::ofstream filePtr( filePath.string().c_str() );
-
     if (filePtr.is_open())
-    {
         filePtr << tableCount;
-    }
 
     filePtr.close();
 }

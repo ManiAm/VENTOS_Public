@@ -51,7 +51,7 @@ legend(handle, 'Location','NorthEastOutside');
 
 % ---------------------------------------------------------------
 
-file_id = fopen('../results/gui/06.beacon_interval_droped_p.txt');
+file_id = fopen('../results/06.beacon_interval_droped_p.txt');
 formatSpec = '%s %f %f';
 C_text = textscan(file_id, formatSpec, 'HeaderLines', 3);
 fclose(file_id);
@@ -81,7 +81,7 @@ ylabel('Dropped beacons (proceeding)', 'FontSize', 19);
  
 % ---------------------------------------------------------------
 
-file_id = fopen('../results/gui/05.beacon_interval_droped_o.txt');
+file_id = fopen('../results/05.beacon_interval_droped_o.txt');
 formatSpec = '%s %f %f';
 C_text = textscan(file_id, formatSpec, 'HeaderLines', 3);
 fclose(file_id);

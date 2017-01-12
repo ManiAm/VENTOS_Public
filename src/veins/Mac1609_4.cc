@@ -21,6 +21,7 @@
 
 #include <iterator>
 #include <boost/filesystem.hpp>  // Mani
+#include <boost/format.hpp>  // Mani
 
 #include "Mac1609_4.h"
 #include "DeciderResult80211.h"
@@ -568,9 +569,9 @@ void Mac1609_4::handleLowerMsg(omnetpp::cMessage* msg)
     long dest = macPkt->getDestAddr();
 
     EV << "Received frame name= " << macPkt->getName()
-	                                                                        << ", myState=" << " src=" << macPkt->getSrcAddr()
-	                                                                        << " dst=" << macPkt->getDestAddr() << " myAddr="
-	                                                                        << myMacAddress << std::endl;
+	                                                                                << ", myState=" << " src=" << macPkt->getSrcAddr()
+	                                                                                << " dst=" << macPkt->getDestAddr() << " myAddr="
+	                                                                                << myMacAddress << std::endl;
 
     if (macPkt->getDestAddr() == myMacAddress)
     {
@@ -1023,22 +1024,17 @@ void Mac1609_4::save_MAC_stat_toFile()
     if(global_MAC_stat.empty())
         return;
 
-    boost::filesystem::path filePath;
+    int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
 
-    if(omnetpp::cSimulation::getActiveEnvir()->isGUI())
-    {
-        filePath = "results/gui/MACdata.txt";
-    }
-    else
-    {
-        // get the current run number
-        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
-        std::ostringstream fileName;
-        fileName << std::setfill('0') << std::setw(3) << currentRun << "_MACdata.txt";
-        filePath = "results/cmd/" + fileName.str();
-    }
+    std::ostringstream fileName;
+    fileName << boost::format("%03d_MACdata.txt") % currentRun;
 
-    FILE *filePtr = fopen (filePath.string().c_str(), "w");
+    boost::filesystem::path filePath ("results");
+    filePath /= fileName.str();
+
+    FILE *filePtr = fopen (filePath.c_str(), "w");
+    if (!filePtr)
+        throw omnetpp::cRuntimeError("Cannot create file '%s'", filePath.c_str());
 
     // write simulation parameters at the beginning of the file in CMD mode
     if(!omnetpp::cSimulation::getActiveEnvir()->isGUI())
@@ -1080,18 +1076,18 @@ void Mac1609_4::save_MAC_stat_toFile()
     // write body
     for(auto &y : global_MAC_stat)
     {
-        fprintf (filePtr, "%-20.8f ", y.second.last_stat_time);
-        fprintf (filePtr, "%-20s ", y.first.c_str());
-        fprintf (filePtr, "%-20ld ", y.second.statsDroppedPackets);
-        fprintf (filePtr, "%-20ld ", y.second.statsNumTooLittleTime);
-        fprintf (filePtr, "%-30ld ", y.second.statsNumInternalContention);
-        fprintf (filePtr, "%-20ld ", y.second.statsNumBackoff);
-        fprintf (filePtr, "%-20ld ", y.second.statsSlotsBackoff);
-        fprintf (filePtr, "%-20.8f ", y.second.statsTotalBusyTime);
-        fprintf (filePtr, "%-20ld ", y.second.statsSentPackets);
-        fprintf (filePtr, "%-20ld ", y.second.statsSNIRLostPackets);
-        fprintf (filePtr, "%-20ld ", y.second.statsTXRXLostPackets);
-        fprintf (filePtr, "%-20ld ", y.second.statsReceivedPackets);
+        fprintf (filePtr, "%-20.8f", y.second.last_stat_time);
+        fprintf (filePtr, "%-20s", y.first.c_str());
+        fprintf (filePtr, "%-20ld", y.second.statsDroppedPackets);
+        fprintf (filePtr, "%-20ld", y.second.statsNumTooLittleTime);
+        fprintf (filePtr, "%-30ld", y.second.statsNumInternalContention);
+        fprintf (filePtr, "%-20ld", y.second.statsNumBackoff);
+        fprintf (filePtr, "%-20ld", y.second.statsSlotsBackoff);
+        fprintf (filePtr, "%-20.8f", y.second.statsTotalBusyTime);
+        fprintf (filePtr, "%-20ld", y.second.statsSentPackets);
+        fprintf (filePtr, "%-20ld", y.second.statsSNIRLostPackets);
+        fprintf (filePtr, "%-20ld", y.second.statsTXRXLostPackets);
+        fprintf (filePtr, "%-20ld", y.second.statsReceivedPackets);
         fprintf (filePtr, "%-20ld\n", y.second.statsReceivedBroadcasts);
     }
 

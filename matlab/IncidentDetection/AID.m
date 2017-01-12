@@ -5,7 +5,7 @@ clc;   % position the cursor at the top of the screen
 
 % -------------------------------------------------------------------
 
-A = importdata('../results/gui/AID_tableCount.txt');
+A = importdata('../results/AID_tableCount.txt');
 
 Z(:,1) = A(1,:);
 Z(:,2) = A(2,:);  

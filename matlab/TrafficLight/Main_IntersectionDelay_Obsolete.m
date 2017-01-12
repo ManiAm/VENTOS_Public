@@ -11,7 +11,7 @@ runTotal = 3;
 
 for runNumber = 0:runTotal-1
 
-basePATH = '../results/cmd/full_fix_web_adap_balanced_newFormat';
+basePATH = '../results/full_fix_web_adap_balanced_newFormat';
 path = sprintf('%s/%d_vehicleData.txt', basePATH, runNumber);
 path2 = sprintf('%s/%d_intersectionData.txt', basePATH, runNumber);
 

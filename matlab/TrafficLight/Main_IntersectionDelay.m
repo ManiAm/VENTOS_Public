@@ -6,7 +6,7 @@ clc;    % position the cursor at the top of the screen
 addpath ../libs
 
 % path to folder
-basePATH = '../../results/cmd/4_LQF_MWM_starvation';
+basePATH = '../../results/4_LQF_MWM_starvation';
 
 % what to plot?
 option = 4;

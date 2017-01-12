@@ -9,7 +9,7 @@ clc;    % position the cursor at the top of the screen
 % effect of platoon size of throughput
 
 for run=0:3
-    filePath = sprintf('../results/cmd/plnSize_on_throu/%d_loopDetector.txt', run);
+    filePath = sprintf('../results/plnSize_on_throu/%d_loopDetector.txt', run);
     file_id = fopen(filePath);
     formatSpec = '%s %s %f %f %f %f';
     C_text = textscan(file_id, formatSpec, 'HeaderLines', 2);
@@ -107,7 +107,7 @@ grid on;
 % ----------------------------------------------------------
 
 for run=0:2
-    filePath = sprintf('../results/cmd/TP_on_throu/%d_loopDetector.txt', run);
+    filePath = sprintf('../results/TP_on_throu/%d_loopDetector.txt', run);
     file_id = fopen(filePath);
     formatSpec = '%s %s %f %f %f %f';
     C_text = textscan(file_id, formatSpec, 'HeaderLines', 2);

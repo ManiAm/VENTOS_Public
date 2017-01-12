@@ -443,22 +443,20 @@ void IntersectionDelay::vehiclesDelayDuration(std::string vID)
 
 void IntersectionDelay::vehiclesDelayToFile()
 {
-    boost::filesystem::path filePath;
+    if(vehDelay.empty())
+        return;
 
-    if(omnetpp::cSimulation::getActiveEnvir()->isGUI())
-    {
-        filePath = "results/gui/vehDelay.txt";
-    }
-    else
-    {
-        // get the current run number
-        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
-        std::ostringstream fileName;
-        fileName << std::setfill('0') << std::setw(3) << currentRun << "_vehDelay.txt";
-        filePath = "results/cmd/" + fileName.str();
-    }
+    int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
 
-    FILE *filePtr = fopen (filePath.string().c_str(), "w");
+    std::ostringstream fileName;
+    fileName << boost::format("%03d_vehDelay.txt") % currentRun;
+
+    boost::filesystem::path filePath ("results");
+    filePath /= fileName.str();
+
+    FILE *filePtr = fopen (filePath.c_str(), "w");
+    if (!filePtr)
+        throw omnetpp::cRuntimeError("Cannot create file '%s'", filePath.c_str());
 
     // write simulation parameters at the beginning of the file in CMD mode
     if(!omnetpp::cSimulation::getActiveEnvir()->isGUI())
