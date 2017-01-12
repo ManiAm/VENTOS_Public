@@ -149,7 +149,7 @@ void Mac1609_4::initialize(int stage)
         channelIdle(true);
 
         // Mani
-        record_MAC_stat = par("record_MAC_stat").boolValue();
+        record_stat = par("record_stat").boolValue();
     }
 }
 
@@ -335,7 +335,7 @@ void Mac1609_4::handleUpperMsg(omnetpp::cMessage* msg)
         myEDCA[chan]->backoff(ac);
 
     // Mani
-    if(record_MAC_stat)
+    if(record_stat)
         record_MAC_stat_func();
 }
 
@@ -395,7 +395,7 @@ void Mac1609_4::handleLowerControl(omnetpp::cMessage* msg)
     delete msg;
 
     // Mani
-    if(record_MAC_stat)
+    if(record_stat)
         record_MAC_stat_func();
 }
 
@@ -444,9 +444,9 @@ void Mac1609_4::finish()
 
     // run this code only once
     static bool wasExecuted = false;
-    if(record_MAC_stat && !wasExecuted)
+    if(record_stat && !wasExecuted)
     {
-        save_MAC_stat();
+        save_MAC_stat_toFile();
         wasExecuted = true;
     }
 }
@@ -1018,7 +1018,7 @@ void Mac1609_4::record_MAC_stat_func()
 
 
 // Mani
-void Mac1609_4::save_MAC_stat()
+void Mac1609_4::save_MAC_stat_toFile()
 {
     if(global_MAC_stat.empty())
         return;
