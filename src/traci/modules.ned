@@ -52,7 +52,7 @@ simple TraCIStart
         bool autoShutdown = default(true);          // Shutdown module as soon as no more vehicles are in the simulation        
         bool TraCIclosed = default(false);          // for internal use
         bool equilibrium_vehicle = default(false);  // arrived vehicles are re-inserted again
-        bool logTraCIcommands = default(false);     // logging all exchanged TraCI commands
+        bool record_TraCI_activity = default(false);     // logging all exchanged TraCI commands
         
         int margin = default(25);   // margin to add to all received vehicle positions 
         

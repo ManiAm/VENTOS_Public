@@ -42,7 +42,7 @@
 
 namespace VENTOS {
 
-class bestLanesEntry
+typedef struct bestLanesEntry
 {
 public:
     std::string laneId;
@@ -51,22 +51,11 @@ public:
     int offset;
     int continuingDrive;
     std::vector<std::string> best;
-
-    bestLanesEntry()
-    {
-        this->laneId = "";
-        this->length = -1;
-        this->occupation = -1;
-        this->offset = -1;
-        this->continuingDrive = -1;
-        this->best.clear();
-    }
-};
+} bestLanesEntry_t;
 
 
-class linkEntry
+typedef struct linkEntry
 {
-public:
     std::string consecutive1;
     std::string consecutive2;
     int priority;
@@ -75,42 +64,7 @@ public:
     std::string state;
     std::string direction;
     double length;
-
-    linkEntry()
-    {
-        this->consecutive1 = "";
-        this->consecutive2 = "";
-        this->priority = -1;
-        this->opened = -1;
-        this->approachingFoe = -1;
-        this->state = "";
-        this->direction = "";
-        this->length = -1;
-    }
-};
-
-
-typedef std::chrono::high_resolution_clock::time_point Htime_t;
-
-// logging TraCI command exchange
-class TraCIcommandEntry
-{
-public:
-    double timeStamp;
-    Htime_t sentAt;
-    Htime_t completeAt;
-    uint8_t commandGroupId;
-    uint8_t commandId;
-
-    TraCIcommandEntry(double ts, Htime_t st, Htime_t et, uint8_t cg, uint8_t c)
-    {
-        this->timeStamp = ts;
-        this->sentAt = st;
-        this->completeAt = et;
-        this->commandGroupId = cg;
-        this->commandId = c;
-    }
-};
+} linkEntry_t;
 
 
 class TraCI_Commands : public omnetpp::cSimpleModule
@@ -132,185 +86,22 @@ protected:
 private:
     typedef omnetpp::cSimpleModule super;
 
-    bool logTraCIcommands;
+    typedef std::chrono::high_resolution_clock::time_point Htime_t;
+
+    // logging TraCI command exchange
+    typedef struct TraCIcommandEntry
+    {
+        double timeStamp;
+        Htime_t sentAt;
+        Htime_t completeAt;
+        uint8_t commandGroupId;
+        uint8_t commandId;
+        std::string commandName;
+    } TraCIcommandEntry_t;
+
     int margin;
-    std::vector<TraCIcommandEntry> exchangedTraCIcommands;
-
-    std::map<std::pair<uint8_t /*command group*/, uint8_t /*command*/>, std::string /*command str*/> TraCIcommandsMap = {
-
-            {{0x00, 0xff}, "getVersion"},
-            {{0x02, 0xff}, "simulationTimeStep"},
-            {{0x7f, 0xff}, "simulationTerminate"},
-
-            {{0xdb, 0xff}, "simulationSubscribe"},
-            {{0xd4, 0xff}, "vehicleSubscribe"},
-
-            {{0xab, 0x71}, "simulationGetLoadedVehiclesCount"},
-            {{0xab, 0x72}, "simulationGetLoadedVehiclesIDList"},
-            {{0xab, 0x73}, "simulationGetDepartedVehiclesCount"},
-            {{0xab, 0x7c}, "simulationGetNetBoundary"},
-            {{0xab, 0x7d}, "simulationGetMinExpectedNumber"},
-            {{0xab, 0x79}, "simulationGetArrivedNumber"},
-
-            {{0xa4, 0x00}, "vehicleGetIDList"},
-            {{0xa4, 0x01}, "vehicleGetIDCount"},
-            {{0xa4, 0x40}, "vehicleGetSpeed"},
-            {{0xa4, 0x43}, "vehicleGetAngle"},
-            {{0xa4, 0x5b}, "vehicleGetStopState"},
-            {{0xa4, 0x42}, "vehicleGetPosition"},
-            {{0xa4, 0x50}, "vehicleGetEdgeID"},
-            {{0xa4, 0x51}, "vehicleGetLaneID"},
-            {{0xa4, 0x52}, "vehicleGetLaneIndex"},
-            {{0xa4, 0x56}, "vehicleGetLanePosition"},
-            {{0xa4, 0x4f}, "vehicleGetTypeID"},
-            {{0xa4, 0x53}, "vehicleGetRouteID"},
-            {{0xa4, 0x54}, "vehicleGetRoute"},
-            {{0xa4, 0x69}, "vehicleGetRouteIndex"},
-            {{0xa4, 0xb2}, "vehicleGetBestLanes"},
-            {{0xa4, 0x45}, "vehicleGetColor"},
-            {{0xa4, 0x5b}, "vehicleGetSignalStatus"},
-            {{0xa4, 0x44}, "vehicleGetLength"},
-            {{0xa4, 0x4c}, "vehicleGetMinGap"},
-            {{0xa4, 0x46}, "vehicleGetMaxAccel"},
-            {{0xa4, 0x47}, "vehicleGetMaxDecel"},
-            {{0xa4, 0x48}, "vehicleGetTimeGap"},
-            {{0xa4, 0x49}, "vehicleGetClass"},
-            {{0xa4, 0x68}, "vehicleGetLeader"},
-            {{0xa4, 0x74}, "vehicleGetCurrentAccel"},
-            {{0xa4, 0x71}, "vehicleGetCarFollowingMode"},
-            {{0xa4, 0x72}, "vehicleGetTLID"},
-            {{0xa4, 0x73}, "vehicleGetTLLinkStatus"},
-
-            {{0xc4, 0x12}, "vehicleSetStop"},
-            {{0xc4, 0x19}, "vehicleResume"},
-            {{0xc4, 0x40}, "vehicleSetSpeed"},
-            {{0xc4, 0xb6}, "vehicleSetLaneChangeMode"},
-            {{0xc4, 0x13}, "vehicleChangeLane"},
-            {{0xc4, 0x57}, "vehicleSetRoute"},
-            {{0xc4, 0x53}, "vehicleSetRouteID"},
-            {{0xc4, 0x45}, "vehicleSetColor"},
-            {{0xc4, 0x49}, "vehicleSetClass"},
-            {{0xc4, 0x46}, "vehicleSetMaxAccel"},
-            {{0xc4, 0x47}, "vehicleSetMaxDecel"},
-            {{0xc4, 0x48}, "vehicleSetTimeGap"},
-            {{0xc4, 0x80}, "vehicleAdd"},
-            {{0xc4, 0x81}, "vehicleRemove"},
-            {{0xc4, 0x15}, "vehicleSetControllerParameters"},
-            {{0xc4, 0x20}, "vehicleSetErrorGap"},
-            {{0xc4, 0x21}, "vehicleSetErrorRelSpeed"},
-            {{0xc4, 0x17}, "vehicleSetDowngradeToACC"},
-            {{0xc4, 0x16}, "vehicleSetDebug"},
-
-            {{0xa5, 0x00}, "vehicleTypeGetIDList"},
-            {{0xa5, 0x01}, "vehicleTypeGetIDCount"},
-            {{0xa5, 0x44}, "vehicleTypeGetLength"},
-            {{0xa5, 0x41}, "vehicleTypeGetMaxSpeed"},
-            {{0xa5, 0x02}, "vehicleTypeGetControllerType"},
-            {{0xa5, 0x03}, "vehicleTypeGetControllerNumber"},
-
-            {{0xc5, 0x41}, "vehicleTypeSetMaxSpeed"},
-            {{0xc5, 0x22}, "vehicleTypeSetVint"},
-            {{0xc5, 0x23}, "vehicleTypeSetComfAccel"},
-            {{0xc5, 0x24}, "vehicleTypeSetComfDecel"},
-
-            {{0xa6, 0x00}, "routeGetIDList"},
-            {{0xa6, 0x01}, "routeGetIDCount"},
-            {{0xa6, 0x54}, "routeGetEdges"},
-
-            {{0xc6, 0x0e}, "routeAdd"},
-
-            {{0xaa, 0x00}, "edgeGetIDList"},
-            {{0xaa, 0x01}, "edgeGetIDCount"},
-            {{0xaa, 0x5a}, "edgeGetMeanTravelTime"},
-            {{0xaa, 0x10}, "edgeGetLastStepVehicleNumber"},
-            {{0xaa, 0x12}, "edgeGetLastStepVehicleIDs"},
-            {{0xaa, 0x11}, "edgeGetLastStepMeanVehicleSpeed"},
-            {{0xaa, 0x15}, "edgeGetLastStepMeanVehicleLength"},
-            {{0xaa, 0x1a}, "edgeGetLastStepPersonIDs"},
-
-            {{0xca, 0x58}, "edgeSetGlobalTravelTime"},
-
-            {{0xa3, 0x00}, "laneGetIDList"},
-            {{0xa3, 0x01}, "laneGetIDCount"},
-            {{0xa3, 0x30}, "laneGetLinkNumber"},
-            {{0xa3, 0x33}, "laneGetLinks"},
-            {{0xa3, 0x34}, "laneGetAllowedClasses"},
-            {{0xa3, 0x31}, "laneGetEdgeID"},
-            {{0xa3, 0x44}, "laneGetLength"},
-            {{0xa3, 0x41}, "laneGetMaxSpeed"},
-            {{0xa3, 0x10}, "laneGetLastStepVehicleNumber"},
-            {{0xa3, 0x12}, "laneGetLastStepVehicleIDs"},
-            {{0xa3, 0x11}, "laneGetLastStepMeanVehicleSpeed"},
-            {{0xa3, 0x15}, "laneGetLastStepMeanVehicleLength"},
-
-            {{0xc3, 0x41}, "laneSetMaxSpeed"},
-
-            {{0xa0, 0x00}, "LDGetIDList"},
-            {{0xa0, 0x01}, "LDGetIDCount"},
-            {{0xa0, 0x51}, "LDGetLaneID"},
-            {{0xa0, 0x42}, "LDGetPosition"},
-            {{0xa0, 0x10}, "LDGetLastStepVehicleNumber"},
-            {{0xa0, 0x12}, "LDGetLastStepVehicleIDs"},
-            {{0xa0, 0x11}, "LDGetLastStepMeanVehicleSpeed"},
-            {{0xa0, 0x16}, "LDGetElapsedTimeLastDetection"},
-            {{0xa0, 0x17}, "LDGetLastStepVehicleData"},
-            {{0xa0, 0x13}, "LDGetLastStepOccupancy"},
-
-            {{0xad, 0x00}, "LADGetIDList"},
-            {{0xad, 0x01}, "LADGetIDCount"},
-            {{0xad, 0x51}, "LADGetLaneID"},
-            {{0xad, 0x10}, "LADGetLastStepVehicleNumber"},
-            {{0xad, 0x12}, "LADGetLastStepVehicleIDs"},
-            {{0xad, 0x11}, "LADGetLastStepMeanVehicleSpeed"},
-            {{0xad, 0x14}, "LADGetLastStepVehicleHaltingNumber"},
-            {{0xad, 0x19}, "LADGetLastStepJamLengthInMeter"},
-
-            {{0xa2, 0x00}, "TLGetIDList"},
-            {{0xa2, 0x01}, "TLGetIDCount"},
-            {{0xa2, 0x26}, "TLGetControlledLanes"},
-            {{0xa2, 0x27}, "TLGetControlledLinks"},
-            {{0xa2, 0x29}, "TLGetProgram"},
-            {{0xa2, 0x28}, "TLGetPhase"},
-            {{0xa2, 0x20}, "TLGetState"},
-            {{0xa2, 0x24}, "TLGetPhaseDuration"},
-            {{0xa2, 0x2d}, "TLGetNextSwitchTime"},
-
-            {{0xc2, 0x23}, "TLSetProgram"},
-            {{0xc2, 0x22}, "TLSetPhaseIndex"},
-            {{0xc2, 0x24}, "TLSetPhaseDuration"},
-            {{0xc2, 0x20}, "TLSetState"},
-
-            {{0xa9, 0x00}, "junctionGetIDList"},
-            {{0xa9, 0x01}, "junctionGetIDCount"},
-            {{0xa9, 0x42}, "junctionGetPosition"},
-
-            {{0xac, 0xa1}, "GUIGetOffset"},
-            {{0xac, 0xa3}, "GUIGetBoundry"},
-
-            {{0xcc, 0xa0}, "GUISetZoom"},
-            {{0xcc, 0xa1}, "GUISetOffset"},
-            {{0xcc, 0xa6}, "GUISetTrackVehicle"},
-
-            {{0xa8, 0x00}, "polygonGetIDList"},
-            {{0xa8, 0x01}, "polygonGetIDCount"},
-            {{0xa8, 0x4e}, "polygonGetShape"},
-            {{0xa8, 0x4f}, "polygonGetTypeID"},
-
-            {{0xc8, 0x80}, "polygonAdd"},
-            {{0xc8, 0x55}, "polygonSetFilled"},
-
-            {{0xc7, 0x80}, "addPoi"},
-
-            {{0xae, 0x00}, "personGetIDList"},
-            {{0xae, 0x01}, "personGetIDCount"},
-            {{0xae, 0x4f}, "personGetTypeID"},
-            {{0xae, 0x42}, "personGetPosition"},
-            {{0xae, 0x43}, "personGetAngle"},
-            {{0xae, 0x50}, "personGetEdgeID"},
-            {{0xae, 0x56}, "personGetEdgePosition"},
-            {{0xae, 0x40}, "personGetSpeed"},
-            {{0xae, 0xc1}, "personGetNextEdge"}
-    };
+    bool record_TraCI_activity;
+    std::vector<TraCIcommandEntry_t> exchangedTraCIcommands;
 
 public:
     virtual ~TraCI_Commands();
@@ -358,7 +149,7 @@ public:
     std::string vehicleGetRouteID(std::string);
     std::list<std::string> vehicleGetRoute(std::string);
     uint32_t vehicleGetRouteIndex(std::string);
-    std::map<int,bestLanesEntry> vehicleGetBestLanes(std::string);
+    std::map<int,bestLanesEntry_t> vehicleGetBestLanes(std::string);
     uint8_t* vehicleGetColor(std::string);
     uint32_t vehicleGetSignalStatus(std::string);
     double vehicleGetLength(std::string);
@@ -450,7 +241,7 @@ public:
     std::list<std::string> laneGetIDList();
     uint32_t laneGetIDCount();
     uint8_t laneGetLinkNumber(std::string);
-    std::map<int,linkEntry> laneGetLinks(std::string);
+    std::map<int,linkEntry_t> laneGetLinks(std::string);
     std::list<std::string> laneGetAllowedClasses(std::string);
     std::string laneGetEdgeID(std::string);
     double laneGetLength(std::string);
@@ -628,8 +419,8 @@ private:
     uint8_t* genericGetArrayUnsignedInt(uint8_t, std::string, uint8_t, uint8_t);
 
     // method used internally to log TraCI exchange
-    void updateTraCIlog(std::string, uint8_t, uint8_t);
-    void TraCIexchangeToFile();
+    void record_TraCI_activity_func(std::string, uint8_t, uint8_t, std::string);
+    void save_TraCI_activity_toFile();
 };
 
 }
