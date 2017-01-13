@@ -129,7 +129,7 @@ void Mac1609_4::initialize(int stage)
             setActiveChannel(type_CCH);
         }
 
-        //stats
+        // stats
         statsReceivedPackets = 0;
         statsReceivedBroadcasts = 0;
         statsSentPackets = 0;
@@ -148,6 +148,11 @@ void Mac1609_4::initialize(int stage)
 
         // Mani
         record_stat = par("record_stat").boolValue();
+
+        // get a pointer to the TraCI module
+        cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
+        TraCI = static_cast<VENTOS::TraCI_Commands *>(module);
+        ASSERT(TraCI);
     }
 }
 
@@ -1033,11 +1038,19 @@ void Mac1609_4::save_MAC_stat_toFile()
     if (!filePtr)
         throw omnetpp::cRuntimeError("Cannot create file '%s'", filePath.c_str());
 
-    // write simulation parameters at the beginning of the file in CMD mode
-    if(!omnetpp::cSimulation::getActiveEnvir()->isGUI())
+    // write simulation parameters at the beginning of the file
     {
         // get the current config name
         std::string configName = omnetpp::getEnvir()->getConfigEx()->getVariable("configname");
+
+        std::string iniFile = omnetpp::getEnvir()->getConfigEx()->getVariable("inifile");
+
+        // PID of the simulation process
+        std::string processid = omnetpp::getEnvir()->getConfigEx()->getVariable("processid");
+
+        // globally unique identifier for the run, produced by
+        // concatenating the configuration name, run number, date/time, etc.
+        std::string runID = omnetpp::getEnvir()->getConfigEx()->getVariable("runid");
 
         // get number of total runs in this config
         int totalRun = omnetpp::getEnvir()->getConfigEx()->getNumRunsInConfig(configName.c_str());
@@ -1050,9 +1063,15 @@ void Mac1609_4::save_MAC_stat_toFile()
 
         // write to file
         fprintf (filePtr, "configName      %s\n", configName.c_str());
+        fprintf (filePtr, "iniFile         %s\n", iniFile.c_str());
+        fprintf (filePtr, "processID       %s\n", processid.c_str());
+        fprintf (filePtr, "runID           %s\n", runID.c_str());
         fprintf (filePtr, "totalRun        %d\n", totalRun);
         fprintf (filePtr, "currentRun      %d\n", currentRun);
-        fprintf (filePtr, "currentConfig   %s\n\n\n", iterVar[currentRun].c_str());
+        fprintf (filePtr, "currentConfig   %s\n", iterVar[currentRun].c_str());
+        fprintf (filePtr, "startDateTime   %s\n", TraCI->simulationGetStartTime().c_str());
+        fprintf (filePtr, "endDateTime     %s\n", TraCI->simulationGetEndTime().c_str());
+        fprintf (filePtr, "duration        %s\n\n\n", TraCI->simulationGetDuration().c_str());
     }
 
     // write header

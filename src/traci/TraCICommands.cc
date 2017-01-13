@@ -101,14 +101,11 @@ std::pair<uint32_t, std::string> TraCI_Commands::getVersion()
 }
 
 
-void TraCI_Commands::simulationTerminate()
+void TraCI_Commands::close_TraCI_connection()
 {
     record_TraCI_activity_func("commandStart", CMD_CLOSE, 0xff, "simulationTerminate");
 
-    TraCIBuffer buf = connection->query(CMD_CLOSE, TraCIBuffer() << 0);
-
-    uint32_t count;
-    buf >> count;
+    TraCIBuffer buf = connection->query(CMD_CLOSE, TraCIBuffer());
 
     record_TraCI_activity_func("commandComplete", CMD_CLOSE, 0xff, "simulationTerminate");
 }
@@ -2613,6 +2610,217 @@ std::string TraCI_Commands::personGetNextEdge(std::string pId)
 
 
 // ################################################################
+//                      SUMO-OMNET conversion
+// ################################################################
+
+std::string TraCI_Commands::traci2omnetId(std::string SUMOid) const
+{
+    auto ii = SUMOid_OMNETid_mapping.find(SUMOid);
+    if(ii != SUMOid_OMNETid_mapping.end())
+        return ii->second;
+    else
+        return "";
+}
+
+
+std::string TraCI_Commands::omnet2traciId(std::string omnetid) const
+{
+    auto ii = OMNETid_SUMOid_mapping.find(omnetid);
+    if(ii != OMNETid_SUMOid_mapping.end())
+        return ii->second;
+    else
+        return "";
+}
+
+
+Coord TraCI_Commands::traci2omnetCoord(TraCICoord coord) const
+{
+    return Coord(coord.x - netbounds1.x + margin, (netbounds2.y - netbounds1.y) - (coord.y - netbounds1.y) + margin);
+}
+
+
+TraCICoord TraCI_Commands::omnet2traciCoord(Coord coord) const
+{
+    return TraCICoord(coord.x + netbounds1.x - margin, (netbounds2.y - netbounds1.y) - (coord.y - netbounds1.y) + margin);
+}
+
+
+double TraCI_Commands::traci2omnetAngle(double angle) const
+{
+    // rotate angle so 0 is east (in TraCI's angle interpretation 0 is north, 90 is east)
+    angle = 90 - angle;
+
+    // convert to rad
+    angle = angle * M_PI / 180.0;
+
+    // normalize angle to -M_PI <= angle < M_PI
+    while (angle < -M_PI) angle += 2 * M_PI;
+    while (angle >= M_PI) angle -= 2 * M_PI;
+
+    return angle;
+}
+
+
+double TraCI_Commands::omnet2traciAngle(double angle) const
+{
+    // convert to degrees
+    angle = angle * 180 / M_PI;
+
+    // rotate angle so 0 is south (in OMNeT++'s angle interpretation 0 is east, 90 is north)
+    angle = 90 - angle;
+
+    // normalize angle to -180 <= angle < 180
+    while (angle < -180) angle += 360;
+    while (angle >= 180) angle -= 360;
+
+    return angle;
+}
+
+
+// ################################################################
+//                    Hardware in the loop (HIL)
+// ################################################################
+
+std::string TraCI_Commands::ip2vehicleId(std::string ipAddress) const
+{
+    auto ii = ipv4_OMNETid_mapping.find(ipAddress);
+    if(ii != ipv4_OMNETid_mapping.end())
+        return ii->second;
+    else
+        return "";
+}
+
+
+std::string TraCI_Commands::vehicleId2ip(std::string id) const
+{
+    auto ii = SUMOid_ipv4_mapping.find(id);
+    if(ii != SUMOid_ipv4_mapping.end())
+        return ii->second;
+    else
+        return "";
+}
+
+
+// ################################################################
+//                       SUMO directory
+// ################################################################
+
+std::string TraCI_Commands::getFullPath_SUMOExe(std::string sumoAppl)
+{
+    std::ostringstream str;
+    str << boost::format("exec bash -c 'which %1%'") % sumoAppl;
+
+    FILE* pip = popen(str.str().c_str(), "r");
+    if (!pip)
+        throw omnetpp::cRuntimeError("cannot open pipe: ", str.str().c_str());
+
+    char output[10000];
+    memset (output, 0, sizeof(output));
+    if (!fgets(output, sizeof(output), pip))
+        throw omnetpp::cRuntimeError("SUMO application can not be found: %s. Check 'SUMOapplication' parameter", sumoAppl.c_str());
+
+    std::string SUMOexeFullPath = std::string(output);
+    // remove new line character at the end
+    SUMOexeFullPath.erase(std::remove(SUMOexeFullPath.begin(), SUMOexeFullPath.end(), '\n'), SUMOexeFullPath.end());
+
+    // check if this file exists?
+    if( !boost::filesystem::exists(SUMOexeFullPath) )
+        throw omnetpp::cRuntimeError("SUMO executable not found at %s", SUMOexeFullPath.c_str());
+
+    return SUMOexeFullPath;
+}
+
+
+std::string TraCI_Commands::getFullPath_SUMOConfig()
+{
+    boost::filesystem::path VENTOS_FullPath = omnetpp::getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+    std::string SUMOconfig = par("SUMOconfig").stringValue();
+    boost::filesystem::path SUMOconfigFullPath = VENTOS_FullPath / SUMOconfig;
+
+    if( !boost::filesystem::exists(SUMOconfigFullPath) || !boost::filesystem::is_regular_file(SUMOconfigFullPath) )
+        throw omnetpp::cRuntimeError("SUMO configure file is not found in %s", SUMOconfigFullPath.string().c_str());
+
+    return SUMOconfigFullPath.string();
+}
+
+
+std::string TraCI_Commands::getDir_SUMOConfig()
+{
+    boost::filesystem::path VENTOS_FullPath = omnetpp::getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
+    std::string SUMOconfig = par("SUMOconfig").stringValue();
+    boost::filesystem::path SUMOconfigFullPath = VENTOS_FullPath / SUMOconfig;
+
+    // get the directory
+    boost::filesystem::path dir = SUMOconfigFullPath.parent_path();
+
+    if( !boost::filesystem::exists( dir ) )
+        throw omnetpp::cRuntimeError("SUMO directory is not found in %s", dir.string().c_str());
+
+    return dir.string();
+}
+
+// ################################################################
+//                             Other
+// ################################################################
+
+void TraCI_Commands::terminate_simulation(bool TraCIclosed)
+{
+    // is used in TraCI_Start::finish()
+    this->TraCIclosed = TraCIclosed;
+
+    // current date/time based on current system
+    // is show the number of sec since January 1,1970
+    time_t now = time(0);
+
+    tm *ltm = localtime(&now);
+
+    std::ostringstream dateTime;
+    dateTime << boost::format("%4d%02d%02d-%02d:%02d:%02d") % (1900 + ltm->tm_year)
+                    % (1 + ltm->tm_mon)
+                    % (ltm->tm_mday)
+                    % (ltm->tm_hour)
+                    % (ltm->tm_min)
+                    % (ltm->tm_sec);
+
+    simEndDateTime = dateTime.str();
+
+    // record simulation end time
+    simEndTime = std::chrono::high_resolution_clock::now();
+
+    // TraCI connection is closed in TraCI_Start::finish()
+    endSimulation();
+}
+
+
+std::string TraCI_Commands::simulationGetStartTime()
+{
+    return simStartDateTime;
+}
+
+
+std::string TraCI_Commands::simulationGetEndTime()
+{
+    return simEndDateTime;
+}
+
+
+std::string TraCI_Commands::simulationGetDuration()
+{
+    std::chrono::duration<double, std::milli> fp_ms = simEndTime - simStartTime;
+    int duration_ms = fp_ms.count();
+
+    int seconds = (int) (duration_ms / 1000) % 60 ;
+    int minutes = (int) ((duration_ms / (1000*60)) % 60);
+    int hours   = (int) ((duration_ms / (1000*60*60)) % 24);
+
+    std::ostringstream duration;
+    duration << boost::format("%1% hour, %2% minute, %3% second") % hours % minutes % seconds;
+
+    return duration.str();
+}
+
+
+// ################################################################
 //                    generic methods for getters
 // ################################################################
 
@@ -2933,156 +3141,6 @@ uint8_t* TraCI_Commands::genericGetArrayUnsignedInt(uint8_t commandId, std::stri
     return color;
 }
 
-
-// ################################################################
-//                      SUMO-OMNET conversion
-// ################################################################
-
-std::string TraCI_Commands::traci2omnetId(std::string SUMOid) const
-{
-    auto ii = SUMOid_OMNETid_mapping.find(SUMOid);
-    if(ii != SUMOid_OMNETid_mapping.end())
-        return ii->second;
-    else
-        return "";
-}
-
-
-std::string TraCI_Commands::omnet2traciId(std::string omnetid) const
-{
-    auto ii = OMNETid_SUMOid_mapping.find(omnetid);
-    if(ii != OMNETid_SUMOid_mapping.end())
-        return ii->second;
-    else
-        return "";
-}
-
-
-Coord TraCI_Commands::traci2omnetCoord(TraCICoord coord) const
-{
-    return Coord(coord.x - netbounds1.x + margin, (netbounds2.y - netbounds1.y) - (coord.y - netbounds1.y) + margin);
-}
-
-
-TraCICoord TraCI_Commands::omnet2traciCoord(Coord coord) const
-{
-    return TraCICoord(coord.x + netbounds1.x - margin, (netbounds2.y - netbounds1.y) - (coord.y - netbounds1.y) + margin);
-}
-
-
-double TraCI_Commands::traci2omnetAngle(double angle) const
-{
-    // rotate angle so 0 is east (in TraCI's angle interpretation 0 is north, 90 is east)
-    angle = 90 - angle;
-
-    // convert to rad
-    angle = angle * M_PI / 180.0;
-
-    // normalize angle to -M_PI <= angle < M_PI
-    while (angle < -M_PI) angle += 2 * M_PI;
-    while (angle >= M_PI) angle -= 2 * M_PI;
-
-    return angle;
-}
-
-
-double TraCI_Commands::omnet2traciAngle(double angle) const
-{
-    // convert to degrees
-    angle = angle * 180 / M_PI;
-
-    // rotate angle so 0 is south (in OMNeT++'s angle interpretation 0 is east, 90 is north)
-    angle = 90 - angle;
-
-    // normalize angle to -180 <= angle < 180
-    while (angle < -180) angle += 360;
-    while (angle >= 180) angle -= 360;
-
-    return angle;
-}
-
-
-// ################################################################
-//                    Hardware in the loop (HIL)
-// ################################################################
-
-std::string TraCI_Commands::ip2vehicleId(std::string ipAddress) const
-{
-    auto ii = ipv4_OMNETid_mapping.find(ipAddress);
-    if(ii != ipv4_OMNETid_mapping.end())
-        return ii->second;
-    else
-        return "";
-}
-
-
-std::string TraCI_Commands::vehicleId2ip(std::string id) const
-{
-    auto ii = SUMOid_ipv4_mapping.find(id);
-    if(ii != SUMOid_ipv4_mapping.end())
-        return ii->second;
-    else
-        return "";
-}
-
-
-// ################################################################
-//                       SUMO directory
-// ################################################################
-
-std::string TraCI_Commands::getFullPath_SUMOExe(std::string sumoAppl)
-{
-    std::ostringstream str;
-    str << boost::format("exec bash -c 'which %1%'") % sumoAppl;
-
-    FILE* pip = popen(str.str().c_str(), "r");
-    if (!pip)
-        throw omnetpp::cRuntimeError("cannot open pipe: ", str.str().c_str());
-
-    char output[10000];
-    memset (output, 0, sizeof(output));
-    if (!fgets(output, sizeof(output), pip))
-        throw omnetpp::cRuntimeError("SUMO application can not be found: %s. Check 'SUMOapplication' parameter", sumoAppl.c_str());
-
-    std::string SUMOexeFullPath = std::string(output);
-    // remove new line character at the end
-    SUMOexeFullPath.erase(std::remove(SUMOexeFullPath.begin(), SUMOexeFullPath.end(), '\n'), SUMOexeFullPath.end());
-
-    // check if this file exists?
-    if( !boost::filesystem::exists(SUMOexeFullPath) )
-        throw omnetpp::cRuntimeError("SUMO executable not found at %s", SUMOexeFullPath.c_str());
-
-    return SUMOexeFullPath;
-}
-
-
-std::string TraCI_Commands::getFullPath_SUMOConfig()
-{
-    boost::filesystem::path VENTOS_FullPath = omnetpp::getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-    std::string SUMOconfig = par("SUMOconfig").stringValue();
-    boost::filesystem::path SUMOconfigFullPath = VENTOS_FullPath / SUMOconfig;
-
-    if( !boost::filesystem::exists(SUMOconfigFullPath) || !boost::filesystem::is_regular_file(SUMOconfigFullPath) )
-        throw omnetpp::cRuntimeError("SUMO configure file is not found in %s", SUMOconfigFullPath.string().c_str());
-
-    return SUMOconfigFullPath.string();
-}
-
-
-std::string TraCI_Commands::getDir_SUMOConfig()
-{
-    boost::filesystem::path VENTOS_FullPath = omnetpp::getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-    std::string SUMOconfig = par("SUMOconfig").stringValue();
-    boost::filesystem::path SUMOconfigFullPath = VENTOS_FullPath / SUMOconfig;
-
-    // get the directory
-    boost::filesystem::path dir = SUMOconfigFullPath.parent_path();
-
-    if( !boost::filesystem::exists( dir ) )
-        throw omnetpp::cRuntimeError("SUMO directory is not found in %s", dir.string().c_str());
-
-    return dir.string();
-}
 
 // ################################################################
 //               logging TraCI commands exchange

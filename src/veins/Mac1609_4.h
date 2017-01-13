@@ -37,9 +37,11 @@
 
 #include "Mac80211Pkt_m.h"
 #include "WaveShortMessage_m.h"
+#include "traci/TraCICommands.h"
 
 namespace Veins {
 
+// Mani
 typedef struct MAC_stat_entry
 {
     double last_stat_time;
@@ -228,6 +230,7 @@ protected:
 private:
     void record_MAC_stat_func();
     void save_MAC_stat_toFile();
+    VENTOS::TraCI_Commands* TraCI;
     static std::map<std::string, MAC_stat_entry_t> global_MAC_stat;
     bool record_stat;
 

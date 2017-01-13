@@ -71,6 +71,7 @@ TraCIConnection::~TraCIConnection()
     {
         closesocket(socket(socketPtr));
         delete static_cast<SOCKET*>(socketPtr);
+        socketPtr = NULL;
     }
 
 #if defined(_WIN32) || defined(__WIN32__) || defined(WIN32) || defined(__CYGWIN__) || defined(_WIN64)
@@ -225,7 +226,7 @@ int TraCIConnection::getFreeEphemeralPort()
 TraCIConnection* TraCIConnection::connect(const char* host, int port)
 {
     if(socketPtr)
-        throw omnetpp::cRuntimeError("There is already an active connection to SUMO! Why calling 'connect' twice ?!");
+         throw omnetpp::cRuntimeError("There is already an active connection to SUMO! Why calling 'connect' twice ?!");
 
     LOG_INFO << boost::format("\n>>> Connecting to TraCI server on port %1% ... \n") % port << std::flush;
 
@@ -452,11 +453,8 @@ void TraCIConnection::terminateSimulation(std::string err)
     TraCI_Commands *TraCI = static_cast<TraCI_Commands *>(module);
     ASSERT(TraCI);
 
-    // set TraCIclosed flag that is used in the finish()
-    TraCI->par("TraCIclosed") = true;
-
     // end the simulation
-    TraCI->endSimulation();
+    TraCI->terminate_simulation(true /*TraCIclosed?*/);
 }
 
 

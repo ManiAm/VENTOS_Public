@@ -70,10 +70,18 @@ typedef struct linkEntry
 class TraCI_Commands : public omnetpp::cSimpleModule
 {
 protected:
+    typedef std::chrono::high_resolution_clock::time_point Htime_t;
+
     // these variables are set by TraCIStart class
     TraCIConnection* connection = NULL;
     TraCICoord netbounds1;   /* network boundaries as reported by TraCI (x1, y1) */
     TraCICoord netbounds2;   /* network boundaries as reported by TraCI (x2, y2) */
+
+    bool TraCIclosed = false;
+    std::string simStartDateTime = "";
+    std::string simEndDateTime = "";
+    Htime_t simStartTime;
+    Htime_t simEndTime;
 
     // storing the mapping between vehicle ids and the corresponding SUMO ids
     std::map<std::string /*veh SUMO id*/, std::string /*veh OMNET id*/> SUMOid_OMNETid_mapping;
@@ -85,8 +93,6 @@ protected:
 
 private:
     typedef omnetpp::cSimpleModule super;
-
-    typedef std::chrono::high_resolution_clock::time_point Htime_t;
 
     // logging TraCI command exchange
     typedef struct TraCIcommandEntry
@@ -392,13 +398,22 @@ public:
     std::string getFullPath_SUMOConfig();
     std::string getDir_SUMOConfig();
 
+    // ################################################################
+    //                             Other
+    // ################################################################
+
+    void terminate_simulation(bool TraCIclosed = false);
+    std::string simulationGetStartTime();
+    std::string simulationGetEndTime();
+    std::string simulationGetDuration();
+
 protected:
     // ################################################################
     //                      simulation control
     // ################################################################
 
     std::pair<uint32_t, std::string> getVersion();
-    void simulationTerminate();
+    void close_TraCI_connection();
     std::pair<TraCIBuffer, uint32_t> simulationTimeStep(uint32_t targetTime);
 
 private:

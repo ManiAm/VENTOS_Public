@@ -150,7 +150,7 @@ protected:
 private:
     template <typename T> void onBeaconAny(T wsm);
     void getAllLanes();
-    static void saveVehApproach();  // used by all RSUs
+    void saveVehApproach();  // used by all RSUs
 
     void LaneInfoAdd(std::string lane, std::string sender, std::string senderType, double speed);
     void LaneInfoUpdate(std::string lane, std::string sender, std::string senderType, double speed);

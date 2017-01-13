@@ -50,7 +50,6 @@ simple TraCIStart
         
         double terminate = default(-1s) @unit(s);   // maximum simulation time. -1 means simulate forever!
         bool autoShutdown = default(true);          // Shutdown module as soon as no more vehicles are in the simulation        
-        bool TraCIclosed = default(false);          // for internal use
         bool equilibrium_vehicle = default(false);  // arrived vehicles are re-inserted again
         
         string veh_stat_file = default("");

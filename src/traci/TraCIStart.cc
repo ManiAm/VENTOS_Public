@@ -134,10 +134,11 @@ void TraCI_Start::finish()
     save_Veh_data_toFile();
 
     // if the TraCI link was not closed due to error
-    if(!par("TraCIclosed").boolValue())
+    if(!TraCIclosed)
     {
+        // close TraCI interface with SUMO
         if (connection)
-            TraCIBuffer buf = connection->query(CMD_CLOSE, TraCIBuffer());
+            close_TraCI_connection();
     }
 
     while (hosts.begin() != hosts.end())
@@ -154,6 +155,26 @@ void TraCI_Start::handleMessage(omnetpp::cMessage *msg)
 {
     if (msg == connectAndStartTrigger)
     {
+        if(simStartDateTime == "")
+        {
+            // current date/time based on current system
+            // is show the number of sec since January 1,1970
+            time_t now = time(0);
+
+            tm *ltm = localtime(&now);
+
+            std::ostringstream dateTime;
+            dateTime << boost::format("%4d%02d%02d-%02d:%02d:%02d") % (1900 + ltm->tm_year)
+                            % (1 + ltm->tm_mon)
+                            % (ltm->tm_mday)
+                            % (ltm->tm_hour)
+                            % (ltm->tm_min)
+                            % (ltm->tm_sec);
+
+            simStartDateTime = dateTime.str();
+            simStartTime = std::chrono::high_resolution_clock::now();
+        }
+
         init_traci();
     }
     else if (msg == executeOneTimestepTrigger)
@@ -166,9 +187,8 @@ void TraCI_Start::handleMessage(omnetpp::cMessage *msg)
         this->emit(Signal_executeEachTS, 0);
 
         // we reached max simtime and should terminate OMNET++ simulation
-        // upon calling endSimulation(), TraCI_Start::finish() will close TraCI connection
         if(terminate != -1 && omnetpp::simTime().dbl() >= terminate)
-            endSimulation();
+            terminate_simulation();
 
         scheduleAt(omnetpp::simTime() + updateInterval, executeOneTimestepTrigger);
     }
@@ -710,7 +730,7 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
                     int count2 = personGetIDCount();
                     // terminate if all departed vehicles have arrived
                     if (count > 0 && count1 + count2 == 0)
-                        endSimulation();
+                        terminate_simulation();
                 }
             }
         }
@@ -1356,11 +1376,19 @@ void TraCI_Start::save_Veh_data_toFile()
     if (!filePtr)
         throw omnetpp::cRuntimeError("Cannot create file '%s'", filePath.c_str());
 
-    // write simulation parameters at the beginning of the file in CMD mode
-    if(!omnetpp::cSimulation::getActiveEnvir()->isGUI())
+    // write simulation parameters at the beginning of the file
     {
         // get the current config name
         std::string configName = omnetpp::getEnvir()->getConfigEx()->getVariable("configname");
+
+        std::string iniFile = omnetpp::getEnvir()->getConfigEx()->getVariable("inifile");
+
+        // PID of the simulation process
+        std::string processid = omnetpp::getEnvir()->getConfigEx()->getVariable("processid");
+
+        // globally unique identifier for the run, produced by
+        // concatenating the configuration name, run number, date/time, etc.
+        std::string runID = omnetpp::getEnvir()->getConfigEx()->getVariable("runid");
 
         // get number of total runs in this config
         int totalRun = omnetpp::getEnvir()->getConfigEx()->getNumRunsInConfig(configName.c_str());
@@ -1373,9 +1401,15 @@ void TraCI_Start::save_Veh_data_toFile()
 
         // write to file
         fprintf (filePtr, "configName      %s\n", configName.c_str());
+        fprintf (filePtr, "iniFile         %s\n", iniFile.c_str());
+        fprintf (filePtr, "processID       %s\n", processid.c_str());
+        fprintf (filePtr, "runID           %s\n", runID.c_str());
         fprintf (filePtr, "totalRun        %d\n", totalRun);
         fprintf (filePtr, "currentRun      %d\n", currentRun);
-        fprintf (filePtr, "currentConfig   %s\n\n\n", iterVar[currentRun].c_str());
+        fprintf (filePtr, "currentConfig   %s\n", iterVar[currentRun].c_str());
+        fprintf (filePtr, "startDateTime   %s\n", simulationGetStartTime().c_str());
+        fprintf (filePtr, "endDateTime     %s\n", simulationGetEndTime().c_str());
+        fprintf (filePtr, "duration        %s\n\n\n", simulationGetDuration().c_str());
     }
 
     std::string columns_sorted[allColumns.size()];
