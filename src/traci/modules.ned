@@ -55,19 +55,7 @@ simple TraCIStart
         string veh_stat_file = default("");
         bool record_TraCI_activity = default(false);     // logging all exchanged TraCI commands
         
-        int margin = default(25);   // margin to add to all received vehicle positions 
-        
-        string vehicleModuleType = default("VENTOS.src.vehicle.vehicle");   // OMNET++ module type for vehicles
-        string vehicleModuleName = default("V");                            // OMNET++ module name for vehicles 
-        string vehicleModuleDisplayString = default("");                    // OMNET++ module displayString for each vehicle  
-        
-        string bikeModuleType = default("VENTOS.src.bicycle.bicycle");  // OMNET++ module type for bikes       
-        string bikeModuleName = default("B");                           // OMNET++ module name for bikes        
-        string bikeModuleDisplayString = default("");                   // OMNET++ module displayString for bikes
-        
-        string pedModuleType = default("VENTOS.src.pedestrian.pedestrian");   // OMNET++ module type for pedestrians       
-        string pedModuleName = default("P");                                  // OMNET++ module name for pedestrians        
-        string pedModuleDisplayString = default("");                          // OMNET++ module displayString for pedestrians
+        int margin = default(25);   // margin to add to all received vehicle positions
         
         double penetrationRate = default(1);   // the probability of a vehicle being DSRC-enabled
         

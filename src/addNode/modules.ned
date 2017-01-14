@@ -1,5 +1,28 @@
 package VENTOS.src.addNode;
 
+simple AddNode
+{
+    parameters:
+        @class(VENTOS::AddNode);
+        @display("i=block/network2");
+        
+        int headerLength = default(256bit) @unit(bit); //header length of the application 
+        
+        
+        string vehicleModuleType = default("VENTOS.src.vehicle.vehicle");   // OMNET++ module type for vehicles
+        string vehicleModuleName = default("V");                            // OMNET++ module name for vehicles 
+        string vehicleModuleDisplayString = default("");                    // OMNET++ module displayString for each vehicle  
+        
+        string bikeModuleType = default("VENTOS.src.bicycle.bicycle");  // OMNET++ module type for bikes       
+        string bikeModuleName = default("B");                           // OMNET++ module name for bikes        
+        string bikeModuleDisplayString = default("");                   // OMNET++ module displayString for bikes
+        
+        string pedModuleType = default("VENTOS.src.pedestrian.pedestrian");   // OMNET++ module type for pedestrians       
+        string pedModuleName = default("P");                                  // OMNET++ module name for pedestrians        
+        string pedModuleDisplayString = default("");                          // OMNET++ module displayString for pedestrians        
+}
+
+
 simple AddFixNode
 {
     parameters:
@@ -67,7 +90,7 @@ simple SpeedProfile
         @display("i=block/network2");
         
         bool active = default(false);      
-                
+        
         // mode = 0: fixed speed
         // mode = 1: accel/decel pulse
         // mode = 2: accel/decel pulse (extreme)
@@ -85,7 +108,7 @@ simple SpeedProfile
         double stopPosition = default(9); 
         double warmUpSpeed = default(0);  
         double waitingTime = default(15);  // waiting time after all vehicles enter the simulation        
-                
+        
         double minSpeed = default(5);
         double normalSpeed = default(20);
         double maxSpeed = default(30);
@@ -106,7 +129,7 @@ simple Tracking
         // trackingMode =  2: track a specific vehicle
         // trackingMode =  3: move windows frame when all vehicles exit
         int mode = default(-1);                
-                
+        
         double zoom = default(11512);
         double winOffsetX = default(0);
         double winOffsetY = default(0);

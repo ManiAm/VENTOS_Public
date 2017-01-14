@@ -89,17 +89,21 @@ void TraCI_Start::initialize(int stage)
 
             autoShutdown = par("autoShutdown");
 
-            vehicleModuleType = par("vehicleModuleType").stdstringValue();
-            vehicleModuleName = par("vehicleModuleName").stdstringValue();
-            vehicleModuleDisplayString = par("vehicleModuleDisplayString").stdstringValue();
+            // get a pointer to the AddNode module
+            cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("addNode");
+            ASSERT(module);
 
-            bikeModuleType = par("bikeModuleType").stringValue();
-            bikeModuleName = par("bikeModuleName").stringValue();
-            bikeModuleDisplayString = par("bikeModuleDisplayString").stringValue();
+            vehicleModuleType = module->par("vehicleModuleType").stdstringValue();
+            vehicleModuleName = module->par("vehicleModuleName").stdstringValue();
+            vehicleModuleDisplayString = module->par("vehicleModuleDisplayString").stdstringValue();
 
-            pedModuleType = par("pedModuleType").stringValue();
-            pedModuleName = par("pedModuleName").stringValue();
-            pedModuleDisplayString = par("pedModuleDisplayString").stringValue();
+            bikeModuleType = module->par("bikeModuleType").stringValue();
+            bikeModuleName = module->par("bikeModuleName").stringValue();
+            bikeModuleDisplayString = module->par("bikeModuleDisplayString").stringValue();
+
+            pedModuleType = module->par("pedModuleType").stringValue();
+            pedModuleName = module->par("pedModuleName").stringValue();
+            pedModuleDisplayString = module->par("pedModuleDisplayString").stringValue();
 
             penetrationRate = par("penetrationRate").doubleValue();
 
@@ -112,7 +116,7 @@ void TraCI_Start::initialize(int stage)
             subscribedVehicles.clear();
             subscribedPedestrians.clear();
 
-            cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("world");
+            module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("world");
             world = static_cast<BaseWorldUtility*>(module);
             ASSERT(world);
 

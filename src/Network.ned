@@ -44,23 +44,27 @@ network Network
         }
         TraCI: TraCIStart {
             parameters:
-                @display("p=144,135");
+                @display("p=48,135");
         }
         Tracking: Tracking {
             parameters:
-                @display("p=48,135;i=block/circle");
+                @display("p=337,135;i=block/circle");
+        }
+        addNode: AddNode {
+            parameters:
+                @display("p=144,135;i=old/bwsink");
         }
         addFixNode: AddFixNode {
             parameters:
-                @display("p=245,135;i=old/bwsink");
+                @display("p=487,299;i=old/bwsink");
         }
         addMobileNode: AddMobileNode {
             parameters:
-                @display("p=354,135;i=old/bwsink");
+                @display("p=487,216;i=old/bwsink");
         }
         speedprofile: SpeedProfile {
             parameters:
-                @display("p=471,132;i=block/table");
+                @display("p=245,135;i=block/table");
         }
         statistics: Statistics {
             parameters:
