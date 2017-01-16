@@ -38,9 +38,6 @@ namespace VENTOS {
 class ApplPedManager : public ApplPedBeacon
 {
 protected:
-    // NED variable
-    bool SUMOvehicleDebug;
-
     static const simsignalwrap_t mobilityStateChangedSignal;
 
 private:

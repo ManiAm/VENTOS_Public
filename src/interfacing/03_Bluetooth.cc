@@ -258,7 +258,7 @@ void Bluetooth::print_dev_info(struct hci_dev_info *di)
             di->features[6], di->features[7]);
 
     printf("\tBLE support: ");
-    std::string featuresStr = lmp_featurestostr(di->features, "\t\t", 63);
+    std::string featuresStr = lmp_featurestostr(di->features, (char *)"\t\t", 63);
     if(featuresStr.find("LE support") != std::string::npos)
         printf("Yes \n");
     else

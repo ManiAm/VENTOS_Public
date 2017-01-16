@@ -1,8 +1,8 @@
 /****************************************************************************/
-/// @file    MsgControl.h
+/// @file    ApplV_10_Coordinator.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
-/// @date    Nov 2016
+/// @date    August 2013
 ///
 /****************************************************************************/
 // VENTOS, Vehicular Network Open Simulator; see http:?
@@ -25,21 +25,24 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef ApplVMSGCONTROL_H
-#define ApplVMSGCONTROL_H
+#ifndef APPLVCOORDINATOR_H
+#define APPLVCOORDINATOR_H
 
-#include "vehicle/platoon/10_Coordinator.h"
+#include "vehicle/06_PlatoonMg.h"
 
 namespace VENTOS {
 
-class ApplVMsgControl : public ApplVCoordinator
+class ApplVCoordinator : public ApplVPlatoonMg
 {
 private:
-    typedef ApplVCoordinator super;
-    bool printCtrlData;
+    typedef ApplVPlatoonMg super;
+
+    int coordinationMode;
+    omnetpp::cMessage* platoonCoordination = NULL;
+    static double stopTime;
 
 public:
-    ~ApplVMsgControl();
+    ~ApplVCoordinator();
     virtual void initialize(int stage);
     virtual void finish();
 
@@ -48,13 +51,20 @@ protected:
     virtual void handlePositionUpdate(cObject*);
 
     virtual void onBeaconVehicle(BeaconVehicle*);
-    virtual void onBeaconBicycle(BeaconBicycle*);
-    virtual void onBeaconPedestrian(BeaconPedestrian*);
     virtual void onBeaconRSU(BeaconRSU*);
-    virtual void onPlatoonMsg(PlatoonMsg*);
+    virtual void onPlatoonMsg(PlatoonMsg* wsm);
 
 private:
-    void getControlInfo(Veins::WaveShortMessage *);
+    void coordinator();
+
+    void scenario2();
+    void scenario3();
+    void scenario4();
+    void scenario5();
+    void scenario6();
+    void scenario7();
+    void scenario8();
+    void scenario9();
 };
 
 }

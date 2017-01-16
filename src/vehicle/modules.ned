@@ -14,6 +14,9 @@ module vehicle
         bool record_stat = default(false);
         string record_list = default("timeStep | id | lane | lanePos | speed");
         
+        bool SUMOvehicleDebug = default(false);  // controling SUMO debug output
+        bool degradeToACC = default(true);
+        
     gates:
         input radioIn; // gate for sendDirect
         
@@ -56,7 +59,6 @@ simple ApplVBase like IBaseApplLayer
         string SUMOID = default("");
         string SUMOType = default("");
         string vehicleClass = default("");
-        int vehicleClassEnum = default(-1);
         int SUMOControllerType = default(-1);
         int SUMOControllerNumber = default(-1);
         
@@ -177,8 +179,6 @@ simple ApplVManager extends ApplVMsgControl
         @class(VENTOS::ApplVManager);
         @display("i=block/app2");
         
-        bool SUMOvehicleDebug = default(false);  // controling SUMO debug output for "each vehicle"
-        bool degradeToACC = default(true);
         bool record_beacon_stat = default(false);
         
         // beacon loss ratio in application layer

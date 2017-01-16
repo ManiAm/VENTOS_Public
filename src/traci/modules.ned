@@ -29,7 +29,6 @@ simple TraCIStart
         
         @signal[initialize_withTraCI]();        
         @signal[executeEachTS]();
-        @signal[addFlow]();
         
         bool active = default(false);
         bool debug = default(false);  // emit debug messages?

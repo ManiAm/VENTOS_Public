@@ -45,7 +45,6 @@ private:
 
     // class variables
     omnetpp::simsignal_t Signal_initialize_withTraCI;
-    omnetpp::simsignal_t Signal_addFlow;
 
 public:
     virtual ~AddMobileNode();
@@ -56,7 +55,6 @@ public:
 
 private:
     void beginLoading();
-    void printLoadedStatistics();
 
     void Scenario1();
     void Scenario2();
@@ -70,9 +68,6 @@ private:
     void Scenario10();
     void Scenario11();
     void Scenario12();
-
-    void addFlow();
-    std::string getFullPathToSumoRou(std::string);
 };
 
 }

@@ -67,8 +67,8 @@ void ApplVBeacon::initialize(int stage)
         offSet = offSet + floor(offSet/0.050)*0.050;
         individualOffset = dblrand() * maxOffset;
 
-        // vehicles of type "TypeObstacle" do not broadcast
-        if(SUMOType == "TypeObstacle")
+        // obstacles do not broadcast
+        if(vehicleClass == "custom1")
             DSRCenabled = false;
 
         vehicleBeaconEvt = new omnetpp::cMessage("BeaconEvt", TYPE_TIMER);

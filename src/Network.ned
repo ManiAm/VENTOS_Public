@@ -54,10 +54,6 @@ network Network
             parameters:
                 @display("p=144,135;i=old/bwsink");
         }
-        addFixNode: AddFixNode {
-            parameters:
-                @display("p=487,299;i=old/bwsink");
-        }
         addMobileNode: AddMobileNode {
             parameters:
                 @display("p=487,216;i=old/bwsink");

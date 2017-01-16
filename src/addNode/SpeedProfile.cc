@@ -246,6 +246,10 @@ void SpeedProfile::DoSpeedProfile()
     {
         TraCI->vehicleSetMaxDecel(profileVehicle, 20.);
         TraCI->vehicleSetSpeed(profileVehicle, 0.);
+
+        // todo: change vehicle color to gray! -- for HIL
+        RGB newColor = Color::colorNameToRGB("gray");
+        TraCI->vehicleSetColor(profileVehicle, newColor);
     }
     else if(mode == 2)
     {

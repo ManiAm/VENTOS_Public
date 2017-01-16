@@ -28,7 +28,7 @@
 #ifndef APPLVPLATOONMG_H
 #define APPLVPLATOONMG_H
 
-#include "vehicle/platoon/01_PlatoonFormed.h"
+#include "vehicle/05_PlatoonFormed.h"
 
 namespace VENTOS {
 
@@ -116,26 +116,21 @@ protected:
         state_waitForDissolveAck,
     };
 
-    states vehicleState;
+    states vehicleState = state_idle;
 
 private:
     typedef ApplVPlatoonFormed super;
 
-    bool busy;
+    bool busy = false;
 
-    // entry
-    double leastDistFront;
-    double leastDistBack;
-    NearestVehicle *leastFront;
-    NearestVehicle *leastBack;
-
+    // --[ entry ]--
     omnetpp::cMessage* entryManeuverEvt = NULL;
     omnetpp::cMessage* plnTIMER0 = NULL;
 
-    // merge
-    int mergeReqAttempts;
-    std::string leadingPlnID;
-    int leadingPlnDepth;
+    // --[ merge ]--
+    int mergeReqAttempts = 0;
+    std::string leadingPlnID = "";
+    int leadingPlnDepth = -1;
     std::deque<std::string> secondPlnMembersList;
 
     omnetpp::cMessage* plnTIMER1 = NULL;
@@ -143,13 +138,13 @@ private:
     omnetpp::cMessage* plnTIMER2 = NULL;
     omnetpp::cMessage* plnTIMER3 = NULL;
 
-    // split
-    std::string splittingVehicle;
-    int splittingDepth;
-    std::string oldPlnID;
-    int TotalPLSent;
-    int TotalACKsRx;
-    int splitCaller;
+    // --[ split ]--
+    std::string splittingVehicle = "";
+    int splittingDepth = -1;
+    std::string oldPlnID = "";
+    int TotalPLSent = 0;
+    int TotalACKsRx = 0;
+    int splitCaller = -1;
 
     omnetpp::cMessage* plnTIMER4 = NULL;
     omnetpp::cMessage* plnTIMER5 = NULL;
@@ -159,18 +154,18 @@ private:
     omnetpp::cMessage* plnTIMER8a = NULL;
     omnetpp::cMessage* mgrTIMER = NULL;
 
-    // leader leave
+    // --[ leader leave ]--
     omnetpp::cMessage* plnTIMER9 = NULL;
 
-    // follower leave
-    int RemainingSplits;
+    // --[ follower leave ]--
+    int RemainingSplits = 0;
 
     omnetpp::cMessage* plnTIMER10 = NULL;
     omnetpp::cMessage* plnTIMER11 = NULL;
 
-    // dissolve
+    // --[ dissolve ]--
     omnetpp::cMessage* plnTIMER12 = NULL;
-    std::string lastVeh;
+    std::string lastVeh = "";
 
     enum uCommands
     {

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<addNode id="add_0">
+
+  <rsu id="RSU0" pos="500,14,0"/>
+  <rsu id="RSU1" pos="1400,14,0"/>
+  <rsu id="RSU2" pos="2300,14,0"/>
+  <rsu id="RSU3" pos="3200,14,0"/>
+  <rsu id="RSU4" pos="4100,14,0"/>
+  <rsu id="RSU5" pos="5000,14,0"/>
+  <rsu id="RSU6" pos="5900,14,0"/>
+  <rsu id="RSU7" pos="6800,14,0"/>
+  
+  <obstacle id="stopped_veh" time="50" length="5" edge="1to2" lane="1" lanePos="3200" color="red" />
+  
+  <!-- lane is DEPART_LANE_RANDOM and laneChaneMode is 533 (do no cooperative changes)  -->
+  <vehicle_flow id="veh" type="TypeManual" route="route1" begin="0" number="2000" lane="-2" laneChangeMode="533" distribution="deterministic" period="9" />
+  
+</addNode>
+
+

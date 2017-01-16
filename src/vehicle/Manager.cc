@@ -64,8 +64,8 @@ void ApplVManager::initialize(int stage)
         PlatoonCount = 0;
 
         // set parameters in SUMO
-        TraCI->vehicleSetDebug(SUMOID, par("SUMOvehicleDebug").boolValue());
-        TraCI->vehicleSetDowngradeToACC(SUMOID, par("degradeToACC").boolValue());
+        TraCI->vehicleSetDebug(SUMOID, getParentModule()->par("SUMOvehicleDebug").boolValue());
+        TraCI->vehicleSetDowngradeToACC(SUMOID, getParentModule()->par("degradeToACC").boolValue());
 
         if(measurementError)
         {

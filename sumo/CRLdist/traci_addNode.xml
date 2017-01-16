@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<addNode id="add_0">
+
+  <ca id="certificate_authority" pos="1070,0,0"/>
+  
+  <rsu id="RSU0" pos="403.30,1271.46,0"/>
+  <rsu id="RSU1" pos="1778.41,2223.92,0"/>
+  <rsu id="RSU2" pos="2888.35,2219.63,0"/>
+  <rsu id="RSU3" pos="1963.90,1463.26,0"/>
+  <rsu id="RSU4" pos="3201.40,916.57,0"/>
+  <rsu id="RSU5" pos="4927.74,639.66,0"/>
+  
+</addNode>
+
+

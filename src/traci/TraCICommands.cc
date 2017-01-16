@@ -346,6 +346,13 @@ uint32_t TraCI_Commands::simulationGetArrivedNumber()
 }
 
 
+// todo
+double TraCI_Commands::simulationGetTimeStep()
+{
+    return 0.1;
+}
+
+
 // ################################################################
 //                            vehicle
 // ################################################################
@@ -976,6 +983,36 @@ void TraCI_Commands::vehicleSetClass(std::string nodeId, std::string vClass)
 }
 
 
+void TraCI_Commands::vehicleSetLength(std::string nodeId, double value)
+{
+    record_TraCI_activity_func("commandStart", CMD_SET_VEHICLE_VARIABLE, VAR_LENGTH, "vehicleSetLength");
+
+    uint8_t variableId = VAR_LENGTH;
+    uint8_t variableType = TYPE_DOUBLE;
+
+    TraCIBuffer buf = connection->query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
+
+    ASSERT(buf.eof());
+
+    record_TraCI_activity_func("commandComplete", CMD_SET_VEHICLE_VARIABLE, VAR_LENGTH, "vehicleSetLength");
+}
+
+
+void TraCI_Commands::vehicleSetWidth(std::string nodeId, double value)
+{
+    record_TraCI_activity_func("commandStart", CMD_SET_VEHICLE_VARIABLE, VAR_WIDTH, "vehicleSetWidth");
+
+    uint8_t variableId = VAR_WIDTH;
+    uint8_t variableType = TYPE_DOUBLE;
+
+    TraCIBuffer buf = connection->query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
+
+    ASSERT(buf.eof());
+
+    record_TraCI_activity_func("commandComplete", CMD_SET_VEHICLE_VARIABLE, VAR_WIDTH, "vehicleSetWidth");
+}
+
+
 void TraCI_Commands::vehicleSetMaxAccel(std::string nodeId, double value)
 {
     record_TraCI_activity_func("commandStart", CMD_SET_VEHICLE_VARIABLE, VAR_ACCEL, "vehicleSetMaxAccel");
@@ -1022,7 +1059,7 @@ void TraCI_Commands::vehicleSetTimeGap(std::string nodeId, double value)
 }
 
 
-void TraCI_Commands::vehicleAdd(std::string vehicleId, std::string vehicleTypeId, std::string routeId, int32_t depart, double pos, double speed, uint8_t lane, std::string ipAddress)
+void TraCI_Commands::vehicleAdd(std::string vehicleId, std::string vehicleTypeId, std::string routeId, int32_t depart, double pos, double speed, uint8_t lane)
 {
     record_TraCI_activity_func("commandStart", CMD_SET_VEHICLE_VARIABLE, ADD, "vehicleAdd");
 
@@ -1051,9 +1088,6 @@ void TraCI_Commands::vehicleAdd(std::string vehicleId, std::string vehicleTypeId
     ASSERT(buf.eof());
 
     record_TraCI_activity_func("commandComplete", CMD_SET_VEHICLE_VARIABLE, ADD, "vehicleAdd");
-
-    if(ipAddress != "")
-        SUMOid_ipv4_mapping[vehicleId] = ipAddress;
 }
 
 
@@ -2681,6 +2715,22 @@ double TraCI_Commands::omnet2traciAngle(double angle) const
 //                    Hardware in the loop (HIL)
 // ################################################################
 
+void TraCI_Commands::add2Emulated(std::string id, std::string ipAddress)
+{
+    if(ipAddress == "")
+        throw omnetpp::cRuntimeError("ip address is empty");
+
+    if(id == "")
+        throw omnetpp::cRuntimeError("vehicle id is empty");
+
+    auto it = SUMOid_ipv4_mapping.find(id);
+    if(it != SUMOid_ipv4_mapping.end())
+        throw omnetpp::cRuntimeError("vehicle id %s is already an emulated vehicle", id.c_str());
+
+    SUMOid_ipv4_mapping[id] = ipAddress;
+}
+
+
 std::string TraCI_Commands::ip2vehicleId(std::string ipAddress) const
 {
     auto ii = ipv4_OMNETid_mapping.find(ipAddress);
@@ -2776,11 +2826,11 @@ void TraCI_Commands::terminate_simulation(bool TraCIclosed)
 
     std::ostringstream dateTime;
     dateTime << boost::format("%4d%02d%02d-%02d:%02d:%02d") % (1900 + ltm->tm_year)
-                    % (1 + ltm->tm_mon)
-                    % (ltm->tm_mday)
-                    % (ltm->tm_hour)
-                    % (ltm->tm_min)
-                    % (ltm->tm_sec);
+                            % (1 + ltm->tm_mon)
+                            % (ltm->tm_mday)
+                            % (ltm->tm_hour)
+                            % (ltm->tm_min)
+                            % (ltm->tm_sec);
 
     simEndDateTime = dateTime.str();
 

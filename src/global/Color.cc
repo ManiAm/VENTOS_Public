@@ -796,7 +796,7 @@ RGB Color::colorNameToRGB(std::string colorName)
 {
     auto it = RGBcolorCodes.find(colorName);
     if(it == RGBcolorCodes.end())
-        throw omnetpp::cRuntimeError("color %s is unknown!", colorName.c_str());
+        throw omnetpp::cRuntimeError("color '%s' is unknown! Check 'global/Color.cc' file for a list of available colors. Note that color name is case-sensitive.", colorName.c_str());
 
     return it->second;
 }

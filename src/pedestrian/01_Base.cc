@@ -63,8 +63,6 @@ void ApplPedBase::initialize(int stage)
         SUMOType = par("SUMOType").stringValue();
         // vehicle class in sumo
         vehicleClass = par("vehicleClass").stringValue();
-        // vehicle class code
-        vehicleClassEnum = par("vehicleClassEnum").longValue();
 
         // store the time of entry
         entryTime = omnetpp::simTime().dbl();

@@ -1,0 +1,509 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- balanced traffic. routeDist="70,30,0" -->
+<addNode id="add_0">
+  
+  <!-- RSU SUMO id should be identical to TL id -->
+  <rsu id="C" pos="900,900,0"/>
+  
+  
+  
+  <!-- vehicle flow arrival during [0,400) with poisson dist and lambda=200 veh/h -->
+  <vehicle_flow id="veh_200_N_0_400" type="passenger,emergency" typeDist="90,10" route="movement2,movement5,route1" routeDist="70,30,0" lane="-5" begin="0" end="400" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_200_S_0_400" type="passenger,emergency" typeDist="90,10" route="movement6,movement1,route2" routeDist="70,30,0" lane="-5" begin="0" end="400" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_200_W_0_400" type="passenger,emergency" typeDist="90,10" route="movement8,movement3,route3" routeDist="70,30,0" lane="-5" begin="0" end="400" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_200_E_0_400" type="passenger,emergency" typeDist="90,10" route="movement4,movement7,route4" routeDist="70,30,0" lane="-5" begin="0" end="400" distribution="poisson" lambda="200" seed="43" />
+  
+  <!-- bike flow arrival during [0,400) with poisson dist and lambda=100 veh/h -->
+  <vehicle_flow id="bike_100_N_0_400" type="bicycle" route="movement2,movement5,route1" routeDist="100,0,0" lane="-5" lanePos="600" begin="0" end="400" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_S_0_400" type="bicycle" route="movement6,movement1,route2" routeDist="100,0,0" lane="-5" lanePos="600" begin="0" end="400" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_W_0_400" type="bicycle" route="movement8,movement3,route3" routeDist="100,0,0" lane="-5" lanePos="600" begin="0" end="400" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_E_0_400" type="bicycle" route="movement4,movement7,route4" routeDist="100,0,0" lane="-5" lanePos="600" begin="0" end="400" distribution="poisson" lambda="100" seed="43" />
+  
+  
+  
+  <!-- vehicle flow arrival during [400,800) with poisson dist and lambda=400 veh/h -->
+  <vehicle_flow id="veh_400_N_400_800" type="passenger,emergency" typeDist="90,10" route="movement2,movement5,route1" routeDist="70,30,0" lane="-5" begin="400" end="800" distribution="poisson" lambda="400" seed="43" />
+  <vehicle_flow id="veh_400_S_400_800" type="passenger,emergency" typeDist="90,10" route="movement6,movement1,route2" routeDist="70,30,0" lane="-5" begin="400" end="800" distribution="poisson" lambda="400" seed="43" />
+  <vehicle_flow id="veh_400_W_400_800" type="passenger,emergency" typeDist="90,10" route="movement8,movement3,route3" routeDist="70,30,0" lane="-5" begin="400" end="800" distribution="poisson" lambda="400" seed="43" />
+  <vehicle_flow id="veh_400_E_400_800" type="passenger,emergency" typeDist="90,10" route="movement4,movement7,route4" routeDist="70,30,0" lane="-5" begin="400" end="800" distribution="poisson" lambda="400" seed="43" />
+  
+  <!-- bike flow arrival during [400,800) with poisson dist and lambda=100 veh/h -->
+  <vehicle_flow id="bike_100_N_400_800" type="bicycle" route="movement2,movement5,route1" routeDist="100,0,0" lane="-5" lanePos="600" begin="400" end="800" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_S_400_800" type="bicycle" route="movement6,movement1,route2" routeDist="100,0,0" lane="-5" lanePos="600" begin="400" end="800" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_W_400_800" type="bicycle" route="movement8,movement3,route3" routeDist="100,0,0" lane="-5" lanePos="600" begin="400" end="800" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_E_400_800" type="bicycle" route="movement4,movement7,route4" routeDist="100,0,0" lane="-5" lanePos="600" begin="400" end="800" distribution="poisson" lambda="100" seed="43" />
+  
+  
+  
+  <!-- vehicle flow arrival during [800,1200) with poisson dist and lambda=600 veh/h -->
+  <vehicle_flow id="veh_600_N_800_1200" type="passenger,emergency" typeDist="90,10" route="movement2,movement5,route1" routeDist="70,30,0" lane="-5" begin="800" end="1200" distribution="poisson" lambda="600" seed="43" />
+  <vehicle_flow id="veh_600_S_800_1200" type="passenger,emergency" typeDist="90,10" route="movement6,movement1,route2" routeDist="70,30,0" lane="-5" begin="800" end="1200" distribution="poisson" lambda="600" seed="43" />
+  <vehicle_flow id="veh_600_W_800_1200" type="passenger,emergency" typeDist="90,10" route="movement8,movement3,route3" routeDist="70,30,0" lane="-5" begin="800" end="1200" distribution="poisson" lambda="600" seed="43" />
+  <vehicle_flow id="veh_600_E_800_1200" type="passenger,emergency" typeDist="90,10" route="movement4,movement7,route4" routeDist="70,30,0" lane="-5" begin="800" end="1200" distribution="poisson" lambda="600" seed="43" />
+  
+  <!-- bike flow arrival during [800,1200) with poisson dist and lambda=100 veh/h -->
+  <vehicle_flow id="bike_100_N_800_1200" type="bicycle" route="movement2,movement5,route1" routeDist="100,0,0" lane="-5" lanePos="600" begin="800" end="1200" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_S_800_1200" type="bicycle" route="movement6,movement1,route2" routeDist="100,0,0" lane="-5" lanePos="600" begin="800" end="1200" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_W_800_1200" type="bicycle" route="movement8,movement3,route3" routeDist="100,0,0" lane="-5" lanePos="600" begin="800" end="1200" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_E_800_1200" type="bicycle" route="movement4,movement7,route4" routeDist="100,0,0" lane="-5" lanePos="600" begin="800" end="1200" distribution="poisson" lambda="100" seed="43" />
+  
+  
+  
+  <!-- vehicle flow arrival during [1200,1600) with poisson dist and lambda=800 veh/h -->
+  <vehicle_flow id="veh_800_N_1200_1600" type="passenger,emergency" typeDist="90,10" route="movement2,movement5,route1" routeDist="70,30,0" lane="-5" begin="1200" end="1600" distribution="poisson" lambda="800" seed="43" />
+  <vehicle_flow id="veh_800_S_1200_1600" type="passenger,emergency" typeDist="90,10" route="movement6,movement1,route2" routeDist="70,30,0" lane="-5" begin="1200" end="1600" distribution="poisson" lambda="800" seed="43" />
+  <vehicle_flow id="veh_800_W_1200_1600" type="passenger,emergency" typeDist="90,10" route="movement8,movement3,route3" routeDist="70,30,0" lane="-5" begin="1200" end="1600" distribution="poisson" lambda="800" seed="43" />
+  <vehicle_flow id="veh_800_E_1200_1600" type="passenger,emergency" typeDist="90,10" route="movement4,movement7,route4" routeDist="70,30,0" lane="-5" begin="1200" end="1600" distribution="poisson" lambda="800" seed="43" />
+  
+  <!-- bike flow arrival during [1200,1600) with poisson dist and lambda=100 veh/h -->
+  <vehicle_flow id="bike_100_N_1200_1600" type="bicycle" route="movement2,movement5,route1" routeDist="100,0,0" lane="-5" lanePos="600" begin="1200" end="1600" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_S_1200_1600" type="bicycle" route="movement6,movement1,route2" routeDist="100,0,0" lane="-5" lanePos="600" begin="1200" end="1600" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_W_1200_1600" type="bicycle" route="movement8,movement3,route3" routeDist="100,0,0" lane="-5" lanePos="600" begin="1200" end="1600" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_E_1200_1600" type="bicycle" route="movement4,movement7,route4" routeDist="100,0,0" lane="-5" lanePos="600" begin="1200" end="1600" distribution="poisson" lambda="100" seed="43" />
+  
+  
+  
+  <!-- vehicle flow arrival during [1600,2000) with poisson dist and lambda=1000 veh/h -->
+  <vehicle_flow id="veh_1000_N_1600_2000" type="passenger,emergency" typeDist="90,10" route="movement2,movement5,route1" routeDist="70,30,0" lane="-5" begin="1600" end="2000" distribution="poisson" lambda="1000" seed="43" />
+  <vehicle_flow id="veh_1000_S_1600_2000" type="passenger,emergency" typeDist="90,10" route="movement6,movement1,route2" routeDist="70,30,0" lane="-5" begin="1600" end="2000" distribution="poisson" lambda="1000" seed="43" />
+  <vehicle_flow id="veh_1000_W_1600_2000" type="passenger,emergency" typeDist="90,10" route="movement8,movement3,route3" routeDist="70,30,0" lane="-5" begin="1600" end="2000" distribution="poisson" lambda="1000" seed="43" />
+  <vehicle_flow id="veh_1000_E_1600_2000" type="passenger,emergency" typeDist="90,10" route="movement4,movement7,route4" routeDist="70,30,0" lane="-5" begin="1600" end="2000" distribution="poisson" lambda="1000" seed="43" />
+  
+  <!-- bike flow arrival during [1600,2000) with poisson dist and lambda=100 veh/h -->
+  <vehicle_flow id="bike_100_N_1600_2000" type="bicycle" route="movement2,movement5,route1" routeDist="100,0,0" lane="-5" lanePos="600" begin="1200" end="1600" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_S_1600_2000" type="bicycle" route="movement6,movement1,route2" routeDist="100,0,0" lane="-5" lanePos="600" begin="1200" end="1600" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_W_1600_2000" type="bicycle" route="movement8,movement3,route3" routeDist="100,0,0" lane="-5" lanePos="600" begin="1200" end="1600" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_E_1600_2000" type="bicycle" route="movement4,movement7,route4" routeDist="100,0,0" lane="-5" lanePos="600" begin="1200" end="1600" distribution="poisson" lambda="100" seed="43" />
+  
+  
+  
+  <!-- vehicle flow arrival during [2000,2400) with poisson dist and lambda=800 veh/h -->
+  <vehicle_flow id="veh_800_N_2000_2400" type="passenger,emergency" typeDist="90,10" route="movement2,movement5,route1" routeDist="70,30,0" lane="-5" begin="2000" end="2400" distribution="poisson" lambda="800" seed="43" />
+  <vehicle_flow id="veh_800_S_2000_2400" type="passenger,emergency" typeDist="90,10" route="movement6,movement1,route2" routeDist="70,30,0" lane="-5" begin="2000" end="2400" distribution="poisson" lambda="800" seed="43" />
+  <vehicle_flow id="veh_800_W_2000_2400" type="passenger,emergency" typeDist="90,10" route="movement8,movement3,route3" routeDist="70,30,0" lane="-5" begin="2000" end="2400" distribution="poisson" lambda="800" seed="43" />
+  <vehicle_flow id="veh_800_E_2000_2400" type="passenger,emergency" typeDist="90,10" route="movement4,movement7,route4" routeDist="70,30,0" lane="-5" begin="2000" end="2400" distribution="poisson" lambda="800" seed="43" />
+  
+  <!-- bike flow arrival during [2000,2400) with poisson dist and lambda=100 veh/h -->
+  <vehicle_flow id="bike_100_N_2000_2400" type="bicycle" route="movement2,movement5,route1" routeDist="100,0,0" lane="-5" lanePos="600" begin="2000" end="2400" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_S_2000_2400" type="bicycle" route="movement6,movement1,route2" routeDist="100,0,0" lane="-5" lanePos="600" begin="2000" end="2400" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_W_2000_2400" type="bicycle" route="movement8,movement3,route3" routeDist="100,0,0" lane="-5" lanePos="600" begin="2000" end="2400" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_E_2000_2400" type="bicycle" route="movement4,movement7,route4" routeDist="100,0,0" lane="-5" lanePos="600" begin="2000" end="2400" distribution="poisson" lambda="100" seed="43" />
+  
+  
+  
+  <!-- vehicle flow arrival during [2400,2800) with poisson dist and lambda=600 veh/h -->
+  <vehicle_flow id="veh_600_N_2400_2800" type="passenger,emergency" typeDist="90,10" route="movement2,movement5,route1" routeDist="70,30,0" lane="-5" begin="2400" end="2800" distribution="poisson" lambda="600" seed="43" />
+  <vehicle_flow id="veh_600_S_2400_2800" type="passenger,emergency" typeDist="90,10" route="movement6,movement1,route2" routeDist="70,30,0" lane="-5" begin="2400" end="2800" distribution="poisson" lambda="600" seed="43" />
+  <vehicle_flow id="veh_600_W_2400_2800" type="passenger,emergency" typeDist="90,10" route="movement8,movement3,route3" routeDist="70,30,0" lane="-5" begin="2400" end="2800" distribution="poisson" lambda="600" seed="43" />
+  <vehicle_flow id="veh_600_E_2400_2800" type="passenger,emergency" typeDist="90,10" route="movement4,movement7,route4" routeDist="70,30,0" lane="-5" begin="2400" end="2800" distribution="poisson" lambda="600" seed="43" />
+  
+  <!-- bike flow arrival during [2400,2800) with poisson dist and lambda=100 veh/h -->
+  <vehicle_flow id="bike_100_N_2400_2800" type="bicycle" route="movement2,movement5,route1" routeDist="100,0,0" lane="-5" lanePos="600" begin="2400" end="2800" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_S_2400_2800" type="bicycle" route="movement6,movement1,route2" routeDist="100,0,0" lane="-5" lanePos="600" begin="2400" end="2800" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_W_2400_2800" type="bicycle" route="movement8,movement3,route3" routeDist="100,0,0" lane="-5" lanePos="600" begin="2400" end="2800" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_E_2400_2800" type="bicycle" route="movement4,movement7,route4" routeDist="100,0,0" lane="-5" lanePos="600" begin="2400" end="2800" distribution="poisson" lambda="100" seed="43" />
+  
+  
+  
+  <!-- vehicle flow arrival during [2800,3200) with poisson dist and lambda=400 veh/h -->
+  <vehicle_flow id="veh_400_N_2800_3200" type="passenger,emergency" typeDist="90,10" route="movement2,movement5,route1" routeDist="70,30,0" lane="-5" begin="2800" end="3200" distribution="poisson" lambda="400" seed="43" />
+  <vehicle_flow id="veh_400_S_2800_3200" type="passenger,emergency" typeDist="90,10" route="movement6,movement1,route2" routeDist="70,30,0" lane="-5" begin="2800" end="3200" distribution="poisson" lambda="400" seed="43" />
+  <vehicle_flow id="veh_400_W_2800_3200" type="passenger,emergency" typeDist="90,10" route="movement8,movement3,route3" routeDist="70,30,0" lane="-5" begin="2800" end="3200" distribution="poisson" lambda="400" seed="43" />
+  <vehicle_flow id="veh_400_E_2800_3200" type="passenger,emergency" typeDist="90,10" route="movement4,movement7,route4" routeDist="70,30,0" lane="-5" begin="2800" end="3200" distribution="poisson" lambda="400" seed="43" />
+  
+  <!-- bike flow arrival during [2800,3200) with poisson dist and lambda=100 veh/h -->
+  <vehicle_flow id="bike_100_N_2800_3200" type="bicycle" route="movement2,movement5,route1" routeDist="100,0,0" lane="-5" lanePos="600" begin="2800" end="3200" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_S_2800_3200" type="bicycle" route="movement6,movement1,route2" routeDist="100,0,0" lane="-5" lanePos="600" begin="2800" end="3200" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_W_2800_3200" type="bicycle" route="movement8,movement3,route3" routeDist="100,0,0" lane="-5" lanePos="600" begin="2800" end="3200" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_E_2800_3200" type="bicycle" route="movement4,movement7,route4" routeDist="100,0,0" lane="-5" lanePos="600" begin="2800" end="3200" distribution="poisson" lambda="100" seed="43" />
+      
+      
+      
+  <!-- vehicle flow arrival during [3200,3600) with poisson dist and lambda=200 veh/h -->
+  <vehicle_flow id="veh_200_N_3200_3600" type="passenger,emergency" typeDist="90,10" route="movement2,movement5,route1" routeDist="70,30,0" lane="-5" begin="3200" end="3600" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_200_S_3200_3600" type="passenger,emergency" typeDist="90,10" route="movement6,movement1,route2" routeDist="70,30,0" lane="-5" begin="3200" end="3600" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_200_W_3200_3600" type="passenger,emergency" typeDist="90,10" route="movement8,movement3,route3" routeDist="70,30,0" lane="-5" begin="3200" end="3600" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_200_E_3200_3600" type="passenger,emergency" typeDist="90,10" route="movement4,movement7,route4" routeDist="70,30,0" lane="-5" begin="3200" end="3600" distribution="poisson" lambda="200" seed="43" />
+  
+  <!-- bike flow arrival during [3200,3600) with poisson dist and lambda=100 veh/h -->
+  <vehicle_flow id="bike_100_N_3200_3600" type="bicycle" route="movement2,movement5,route1" routeDist="100,0,0" lane="-5" lanePos="600" begin="3200" end="3600" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_S_3200_3600" type="bicycle" route="movement6,movement1,route2" routeDist="100,0,0" lane="-5" lanePos="600" begin="3200" end="3600" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_W_3200_3600" type="bicycle" route="movement8,movement3,route3" routeDist="100,0,0" lane="-5" lanePos="600" begin="3200" end="3600" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_E_3200_3600" type="bicycle" route="movement4,movement7,route4" routeDist="100,0,0" lane="-5" lanePos="600" begin="3200" end="3600" distribution="poisson" lambda="100" seed="43" />
+      
+</addNode>
+
+
+
+<!-- balanced traffic. routeDist="50,50,0" -->
+<addNode id="add_1">
+  
+  <!-- RSU SUMO id should be identical to TL id -->
+  <rsu id="C" pos="900,900,0"/>
+  
+  
+  
+  <!-- vehicle flow arrival during [0,400) with poisson dist and lambda=200 veh/h -->
+  <vehicle_flow id="veh_200_N_0_400" type="passenger,emergency" typeDist="90,10" route="movement2,movement5,route1" routeDist="50,50,0" lane="-5" begin="0" end="400" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_200_S_0_400" type="passenger,emergency" typeDist="90,10" route="movement6,movement1,route2" routeDist="50,50,0" lane="-5" begin="0" end="400" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_200_W_0_400" type="passenger,emergency" typeDist="90,10" route="movement8,movement3,route3" routeDist="50,50,0" lane="-5" begin="0" end="400" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_200_E_0_400" type="passenger,emergency" typeDist="90,10" route="movement4,movement7,route4" routeDist="50,50,0" lane="-5" begin="0" end="400" distribution="poisson" lambda="200" seed="43" />
+  
+  <!-- bike flow arrival during [0,400) with poisson dist and lambda=100 veh/h -->
+  <vehicle_flow id="bike_100_N_0_400" type="bicycle" route="movement2,movement5,route1" routeDist="100,0,0" lane="-5" lanePos="600" begin="0" end="400" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_S_0_400" type="bicycle" route="movement6,movement1,route2" routeDist="100,0,0" lane="-5" lanePos="600" begin="0" end="400" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_W_0_400" type="bicycle" route="movement8,movement3,route3" routeDist="100,0,0" lane="-5" lanePos="600" begin="0" end="400" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_E_0_400" type="bicycle" route="movement4,movement7,route4" routeDist="100,0,0" lane="-5" lanePos="600" begin="0" end="400" distribution="poisson" lambda="100" seed="43" />
+  
+  
+  
+  <!-- vehicle flow arrival during [400,800) with poisson dist and lambda=400 veh/h -->
+  <vehicle_flow id="veh_400_N_400_800" type="passenger,emergency" typeDist="90,10" route="movement2,movement5,route1" routeDist="50,50,0" lane="-5" begin="400" end="800" distribution="poisson" lambda="400" seed="43" />
+  <vehicle_flow id="veh_400_S_400_800" type="passenger,emergency" typeDist="90,10" route="movement6,movement1,route2" routeDist="50,50,0" lane="-5" begin="400" end="800" distribution="poisson" lambda="400" seed="43" />
+  <vehicle_flow id="veh_400_W_400_800" type="passenger,emergency" typeDist="90,10" route="movement8,movement3,route3" routeDist="50,50,0" lane="-5" begin="400" end="800" distribution="poisson" lambda="400" seed="43" />
+  <vehicle_flow id="veh_400_E_400_800" type="passenger,emergency" typeDist="90,10" route="movement4,movement7,route4" routeDist="50,50,0" lane="-5" begin="400" end="800" distribution="poisson" lambda="400" seed="43" />
+  
+  <!-- bike flow arrival during [400,800) with poisson dist and lambda=100 veh/h -->
+  <vehicle_flow id="bike_100_N_400_800" type="bicycle" route="movement2,movement5,route1" routeDist="100,0,0" lane="-5" lanePos="600" begin="400" end="800" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_S_400_800" type="bicycle" route="movement6,movement1,route2" routeDist="100,0,0" lane="-5" lanePos="600" begin="400" end="800" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_W_400_800" type="bicycle" route="movement8,movement3,route3" routeDist="100,0,0" lane="-5" lanePos="600" begin="400" end="800" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_E_400_800" type="bicycle" route="movement4,movement7,route4" routeDist="100,0,0" lane="-5" lanePos="600" begin="400" end="800" distribution="poisson" lambda="100" seed="43" />
+  
+  
+  
+  <!-- vehicle flow arrival during [800,1200) with poisson dist and lambda=600 veh/h -->
+  <vehicle_flow id="veh_600_N_800_1200" type="passenger,emergency" typeDist="90,10" route="movement2,movement5,route1" routeDist="50,50,0" lane="-5" begin="800" end="1200" distribution="poisson" lambda="600" seed="43" />
+  <vehicle_flow id="veh_600_S_800_1200" type="passenger,emergency" typeDist="90,10" route="movement6,movement1,route2" routeDist="50,50,0" lane="-5" begin="800" end="1200" distribution="poisson" lambda="600" seed="43" />
+  <vehicle_flow id="veh_600_W_800_1200" type="passenger,emergency" typeDist="90,10" route="movement8,movement3,route3" routeDist="50,50,0" lane="-5" begin="800" end="1200" distribution="poisson" lambda="600" seed="43" />
+  <vehicle_flow id="veh_600_E_800_1200" type="passenger,emergency" typeDist="90,10" route="movement4,movement7,route4" routeDist="50,50,0" lane="-5" begin="800" end="1200" distribution="poisson" lambda="600" seed="43" />
+  
+  <!-- bike flow arrival during [800,1200) with poisson dist and lambda=100 veh/h -->
+  <vehicle_flow id="bike_100_N_800_1200" type="bicycle" route="movement2,movement5,route1" routeDist="100,0,0" lane="-5" lanePos="600" begin="800" end="1200" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_S_800_1200" type="bicycle" route="movement6,movement1,route2" routeDist="100,0,0" lane="-5" lanePos="600" begin="800" end="1200" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_W_800_1200" type="bicycle" route="movement8,movement3,route3" routeDist="100,0,0" lane="-5" lanePos="600" begin="800" end="1200" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_E_800_1200" type="bicycle" route="movement4,movement7,route4" routeDist="100,0,0" lane="-5" lanePos="600" begin="800" end="1200" distribution="poisson" lambda="100" seed="43" />
+  
+  
+  
+  <!-- vehicle flow arrival during [1200,1600) with poisson dist and lambda=800 veh/h -->
+  <vehicle_flow id="veh_800_N_1200_1600" type="passenger,emergency" typeDist="90,10" route="movement2,movement5,route1" routeDist="50,50,0" lane="-5" begin="1200" end="1600" distribution="poisson" lambda="800" seed="43" />
+  <vehicle_flow id="veh_800_S_1200_1600" type="passenger,emergency" typeDist="90,10" route="movement6,movement1,route2" routeDist="50,50,0" lane="-5" begin="1200" end="1600" distribution="poisson" lambda="800" seed="43" />
+  <vehicle_flow id="veh_800_W_1200_1600" type="passenger,emergency" typeDist="90,10" route="movement8,movement3,route3" routeDist="50,50,0" lane="-5" begin="1200" end="1600" distribution="poisson" lambda="800" seed="43" />
+  <vehicle_flow id="veh_800_E_1200_1600" type="passenger,emergency" typeDist="90,10" route="movement4,movement7,route4" routeDist="50,50,0" lane="-5" begin="1200" end="1600" distribution="poisson" lambda="800" seed="43" />
+  
+  <!-- bike flow arrival during [1200,1600) with poisson dist and lambda=100 veh/h -->
+  <vehicle_flow id="bike_100_N_1200_1600" type="bicycle" route="movement2,movement5,route1" routeDist="100,0,0" lane="-5" lanePos="600" begin="1200" end="1600" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_S_1200_1600" type="bicycle" route="movement6,movement1,route2" routeDist="100,0,0" lane="-5" lanePos="600" begin="1200" end="1600" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_W_1200_1600" type="bicycle" route="movement8,movement3,route3" routeDist="100,0,0" lane="-5" lanePos="600" begin="1200" end="1600" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_E_1200_1600" type="bicycle" route="movement4,movement7,route4" routeDist="100,0,0" lane="-5" lanePos="600" begin="1200" end="1600" distribution="poisson" lambda="100" seed="43" />
+  
+  
+  
+  <!-- vehicle flow arrival during [1600,2000) with poisson dist and lambda=1000 veh/h -->
+  <vehicle_flow id="veh_1000_N_1600_2000" type="passenger,emergency" typeDist="90,10" route="movement2,movement5,route1" routeDist="50,50,0" lane="-5" begin="1600" end="2000" distribution="poisson" lambda="1000" seed="43" />
+  <vehicle_flow id="veh_1000_S_1600_2000" type="passenger,emergency" typeDist="90,10" route="movement6,movement1,route2" routeDist="50,50,0" lane="-5" begin="1600" end="2000" distribution="poisson" lambda="1000" seed="43" />
+  <vehicle_flow id="veh_1000_W_1600_2000" type="passenger,emergency" typeDist="90,10" route="movement8,movement3,route3" routeDist="50,50,0" lane="-5" begin="1600" end="2000" distribution="poisson" lambda="1000" seed="43" />
+  <vehicle_flow id="veh_1000_E_1600_2000" type="passenger,emergency" typeDist="90,10" route="movement4,movement7,route4" routeDist="50,50,0" lane="-5" begin="1600" end="2000" distribution="poisson" lambda="1000" seed="43" />
+  
+  <!-- bike flow arrival during [1600,2000) with poisson dist and lambda=100 veh/h -->
+  <vehicle_flow id="bike_100_N_1600_2000" type="bicycle" route="movement2,movement5,route1" routeDist="100,0,0" lane="-5" lanePos="600" begin="1200" end="1600" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_S_1600_2000" type="bicycle" route="movement6,movement1,route2" routeDist="100,0,0" lane="-5" lanePos="600" begin="1200" end="1600" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_W_1600_2000" type="bicycle" route="movement8,movement3,route3" routeDist="100,0,0" lane="-5" lanePos="600" begin="1200" end="1600" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_E_1600_2000" type="bicycle" route="movement4,movement7,route4" routeDist="100,0,0" lane="-5" lanePos="600" begin="1200" end="1600" distribution="poisson" lambda="100" seed="43" />
+  
+  
+  
+  <!-- vehicle flow arrival during [2000,2400) with poisson dist and lambda=800 veh/h -->
+  <vehicle_flow id="veh_800_N_2000_2400" type="passenger,emergency" typeDist="90,10" route="movement2,movement5,route1" routeDist="50,50,0" lane="-5" begin="2000" end="2400" distribution="poisson" lambda="800" seed="43" />
+  <vehicle_flow id="veh_800_S_2000_2400" type="passenger,emergency" typeDist="90,10" route="movement6,movement1,route2" routeDist="50,50,0" lane="-5" begin="2000" end="2400" distribution="poisson" lambda="800" seed="43" />
+  <vehicle_flow id="veh_800_W_2000_2400" type="passenger,emergency" typeDist="90,10" route="movement8,movement3,route3" routeDist="50,50,0" lane="-5" begin="2000" end="2400" distribution="poisson" lambda="800" seed="43" />
+  <vehicle_flow id="veh_800_E_2000_2400" type="passenger,emergency" typeDist="90,10" route="movement4,movement7,route4" routeDist="50,50,0" lane="-5" begin="2000" end="2400" distribution="poisson" lambda="800" seed="43" />
+  
+  <!-- bike flow arrival during [2000,2400) with poisson dist and lambda=100 veh/h -->
+  <vehicle_flow id="bike_100_N_2000_2400" type="bicycle" route="movement2,movement5,route1" routeDist="100,0,0" lane="-5" lanePos="600" begin="2000" end="2400" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_S_2000_2400" type="bicycle" route="movement6,movement1,route2" routeDist="100,0,0" lane="-5" lanePos="600" begin="2000" end="2400" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_W_2000_2400" type="bicycle" route="movement8,movement3,route3" routeDist="100,0,0" lane="-5" lanePos="600" begin="2000" end="2400" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_E_2000_2400" type="bicycle" route="movement4,movement7,route4" routeDist="100,0,0" lane="-5" lanePos="600" begin="2000" end="2400" distribution="poisson" lambda="100" seed="43" />
+  
+  
+  
+  <!-- vehicle flow arrival during [2400,2800) with poisson dist and lambda=600 veh/h -->
+  <vehicle_flow id="veh_600_N_2400_2800" type="passenger,emergency" typeDist="90,10" route="movement2,movement5,route1" routeDist="50,50,0" lane="-5" begin="2400" end="2800" distribution="poisson" lambda="600" seed="43" />
+  <vehicle_flow id="veh_600_S_2400_2800" type="passenger,emergency" typeDist="90,10" route="movement6,movement1,route2" routeDist="50,50,0" lane="-5" begin="2400" end="2800" distribution="poisson" lambda="600" seed="43" />
+  <vehicle_flow id="veh_600_W_2400_2800" type="passenger,emergency" typeDist="90,10" route="movement8,movement3,route3" routeDist="50,50,0" lane="-5" begin="2400" end="2800" distribution="poisson" lambda="600" seed="43" />
+  <vehicle_flow id="veh_600_E_2400_2800" type="passenger,emergency" typeDist="90,10" route="movement4,movement7,route4" routeDist="50,50,0" lane="-5" begin="2400" end="2800" distribution="poisson" lambda="600" seed="43" />
+  
+  <!-- bike flow arrival during [2400,2800) with poisson dist and lambda=100 veh/h -->
+  <vehicle_flow id="bike_100_N_2400_2800" type="bicycle" route="movement2,movement5,route1" routeDist="100,0,0" lane="-5" lanePos="600" begin="2400" end="2800" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_S_2400_2800" type="bicycle" route="movement6,movement1,route2" routeDist="100,0,0" lane="-5" lanePos="600" begin="2400" end="2800" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_W_2400_2800" type="bicycle" route="movement8,movement3,route3" routeDist="100,0,0" lane="-5" lanePos="600" begin="2400" end="2800" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_E_2400_2800" type="bicycle" route="movement4,movement7,route4" routeDist="100,0,0" lane="-5" lanePos="600" begin="2400" end="2800" distribution="poisson" lambda="100" seed="43" />
+  
+  
+  
+  <!-- vehicle flow arrival during [2800,3200) with poisson dist and lambda=400 veh/h -->
+  <vehicle_flow id="veh_400_N_2800_3200" type="passenger,emergency" typeDist="90,10" route="movement2,movement5,route1" routeDist="50,50,0" lane="-5" begin="2800" end="3200" distribution="poisson" lambda="400" seed="43" />
+  <vehicle_flow id="veh_400_S_2800_3200" type="passenger,emergency" typeDist="90,10" route="movement6,movement1,route2" routeDist="50,50,0" lane="-5" begin="2800" end="3200" distribution="poisson" lambda="400" seed="43" />
+  <vehicle_flow id="veh_400_W_2800_3200" type="passenger,emergency" typeDist="90,10" route="movement8,movement3,route3" routeDist="50,50,0" lane="-5" begin="2800" end="3200" distribution="poisson" lambda="400" seed="43" />
+  <vehicle_flow id="veh_400_E_2800_3200" type="passenger,emergency" typeDist="90,10" route="movement4,movement7,route4" routeDist="50,50,0" lane="-5" begin="2800" end="3200" distribution="poisson" lambda="400" seed="43" />
+  
+  <!-- bike flow arrival during [2800,3200) with poisson dist and lambda=100 veh/h -->
+  <vehicle_flow id="bike_100_N_2800_3200" type="bicycle" route="movement2,movement5,route1" routeDist="100,0,0" lane="-5" lanePos="600" begin="2800" end="3200" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_S_2800_3200" type="bicycle" route="movement6,movement1,route2" routeDist="100,0,0" lane="-5" lanePos="600" begin="2800" end="3200" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_W_2800_3200" type="bicycle" route="movement8,movement3,route3" routeDist="100,0,0" lane="-5" lanePos="600" begin="2800" end="3200" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_E_2800_3200" type="bicycle" route="movement4,movement7,route4" routeDist="100,0,0" lane="-5" lanePos="600" begin="2800" end="3200" distribution="poisson" lambda="100" seed="43" />
+      
+      
+      
+  <!-- vehicle flow arrival during [3200,3600) with poisson dist and lambda=200 veh/h -->
+  <vehicle_flow id="veh_200_N_3200_3600" type="passenger,emergency" typeDist="90,10" route="movement2,movement5,route1" routeDist="50,50,0" lane="-5" begin="3200" end="3600" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_200_S_3200_3600" type="passenger,emergency" typeDist="90,10" route="movement6,movement1,route2" routeDist="50,50,0" lane="-5" begin="3200" end="3600" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_200_W_3200_3600" type="passenger,emergency" typeDist="90,10" route="movement8,movement3,route3" routeDist="50,50,0" lane="-5" begin="3200" end="3600" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_200_E_3200_3600" type="passenger,emergency" typeDist="90,10" route="movement4,movement7,route4" routeDist="50,50,0" lane="-5" begin="3200" end="3600" distribution="poisson" lambda="200" seed="43" />
+  
+  <!-- bike flow arrival during [3200,3600) with poisson dist and lambda=100 veh/h -->
+  <vehicle_flow id="bike_100_N_3200_3600" type="bicycle" route="movement2,movement5,route1" routeDist="100,0,0" lane="-5" lanePos="600" begin="3200" end="3600" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_S_3200_3600" type="bicycle" route="movement6,movement1,route2" routeDist="100,0,0" lane="-5" lanePos="600" begin="3200" end="3600" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_W_3200_3600" type="bicycle" route="movement8,movement3,route3" routeDist="100,0,0" lane="-5" lanePos="600" begin="3200" end="3600" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_E_3200_3600" type="bicycle" route="movement4,movement7,route4" routeDist="100,0,0" lane="-5" lanePos="600" begin="3200" end="3600" distribution="poisson" lambda="100" seed="43" />
+      
+</addNode>
+
+
+
+<!-- unbalanced traffic. routeDist="70,30,0" -->
+<!-- traffic in main street (W,E) increases and then descreses. traffic in side street (S,N) is fix. no bike in side strret -->
+<addNode id="add_2">
+  
+  <!-- RSU SUMO id should be identical to TL id -->
+  <rsu id="C" pos="900,900,0"/>
+  
+  
+  
+  <!-- vehicle flow arrival during [0,400) with poisson dist and lambda=200 veh/h -->
+  <vehicle_flow id="veh_200_N_0_400" type="passenger,emergency" typeDist="90,10" route="movement2,movement5,route1" routeDist="70,30,0" lane="-5" begin="0" end="400" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_200_S_0_400" type="passenger,emergency" typeDist="90,10" route="movement6,movement1,route2" routeDist="70,30,0" lane="-5" begin="0" end="400" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_200_W_0_400" type="passenger,emergency" typeDist="90,10" route="movement8,movement3,route3" routeDist="70,30,0" lane="-5" begin="0" end="400" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_200_E_0_400" type="passenger,emergency" typeDist="90,10" route="movement4,movement7,route4" routeDist="70,30,0" lane="-5" begin="0" end="400" distribution="poisson" lambda="200" seed="43" />
+  
+  <!-- bike flow arrival during [0,400) with poisson dist and lambda=100 veh/h -->
+  <vehicle_flow id="bike_100_W_0_400" type="bicycle" route="movement8,movement3,route3" routeDist="100,0,0" lane="-5" lanePos="600" begin="0" end="400" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_E_0_400" type="bicycle" route="movement4,movement7,route4" routeDist="100,0,0" lane="-5" lanePos="600" begin="0" end="400" distribution="poisson" lambda="100" seed="43" />
+  
+  
+  
+  <!-- vehicle flow arrival during [400,800) with poisson dist and lambda=400 veh/h on main street -->
+  <vehicle_flow id="veh_200_N_400_800" type="passenger,emergency" typeDist="90,10" route="movement2,movement5,route1" routeDist="70,30,0" lane="-5" begin="400" end="800" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_200_S_400_800" type="passenger,emergency" typeDist="90,10" route="movement6,movement1,route2" routeDist="70,30,0" lane="-5" begin="400" end="800" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_400_W_400_800" type="passenger,emergency" typeDist="90,10" route="movement8,movement3,route3" routeDist="70,30,0" lane="-5" begin="400" end="800" distribution="poisson" lambda="400" seed="43" />
+  <vehicle_flow id="veh_400_E_400_800" type="passenger,emergency" typeDist="90,10" route="movement4,movement7,route4" routeDist="70,30,0" lane="-5" begin="400" end="800" distribution="poisson" lambda="400" seed="43" />
+  
+  <!-- bike flow arrival during [400,800) with poisson dist and lambda=100 veh/h -->
+  <vehicle_flow id="bike_100_W_400_800" type="bicycle" route="movement8,movement3,route3" routeDist="100,0,0" lane="-5" lanePos="600" begin="400" end="800" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_E_400_800" type="bicycle" route="movement4,movement7,route4" routeDist="100,0,0" lane="-5" lanePos="600" begin="400" end="800" distribution="poisson" lambda="100" seed="43" />
+  
+  
+  
+  <!-- vehicle flow arrival during [800,1200) with poisson dist and lambda=600 veh/h on main street -->
+  <vehicle_flow id="veh_200_N_800_1200" type="passenger,emergency" typeDist="90,10" route="movement2,movement5,route1" routeDist="70,30,0" lane="-5" begin="800" end="1200" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_200_S_800_1200" type="passenger,emergency" typeDist="90,10" route="movement6,movement1,route2" routeDist="70,30,0" lane="-5" begin="800" end="1200" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_600_W_800_1200" type="passenger,emergency" typeDist="90,10" route="movement8,movement3,route3" routeDist="70,30,0" lane="-5" begin="800" end="1200" distribution="poisson" lambda="600" seed="43" />
+  <vehicle_flow id="veh_600_E_800_1200" type="passenger,emergency" typeDist="90,10" route="movement4,movement7,route4" routeDist="70,30,0" lane="-5" begin="800" end="1200" distribution="poisson" lambda="600" seed="43" />
+  
+  <!-- bike flow arrival during [800,1200) with poisson dist and lambda=100 veh/h -->
+  <vehicle_flow id="bike_100_W_800_1200" type="bicycle" route="movement8,movement3,route3" routeDist="100,0,0" lane="-5" lanePos="600" begin="800" end="1200" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_E_800_1200" type="bicycle" route="movement4,movement7,route4" routeDist="100,0,0" lane="-5" lanePos="600" begin="800" end="1200" distribution="poisson" lambda="100" seed="43" />
+  
+  
+  
+  <!-- vehicle flow arrival during [1200,1600) with poisson dist and lambda=800 veh/h on main street -->
+  <vehicle_flow id="veh_200_N_1200_1600" type="passenger,emergency" typeDist="90,10" route="movement2,movement5,route1" routeDist="70,30,0" lane="-5" begin="1200" end="1600" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_200_S_1200_1600" type="passenger,emergency" typeDist="90,10" route="movement6,movement1,route2" routeDist="70,30,0" lane="-5" begin="1200" end="1600" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_800_W_1200_1600" type="passenger,emergency" typeDist="90,10" route="movement8,movement3,route3" routeDist="70,30,0" lane="-5" begin="1200" end="1600" distribution="poisson" lambda="800" seed="43" />
+  <vehicle_flow id="veh_800_E_1200_1600" type="passenger,emergency" typeDist="90,10" route="movement4,movement7,route4" routeDist="70,30,0" lane="-5" begin="1200" end="1600" distribution="poisson" lambda="800" seed="43" />
+  
+  <!-- bike flow arrival during [1200,1600) with poisson dist and lambda=100 veh/h -->
+  <vehicle_flow id="bike_100_W_1200_1600" type="bicycle" route="movement8,movement3,route3" routeDist="100,0,0" lane="-5" lanePos="600" begin="1200" end="1600" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_E_1200_1600" type="bicycle" route="movement4,movement7,route4" routeDist="100,0,0" lane="-5" lanePos="600" begin="1200" end="1600" distribution="poisson" lambda="100" seed="43" />
+  
+  
+  
+  <!-- vehicle flow arrival during [1600,2000) with poisson dist and lambda=1000 veh/h on main street -->
+  <vehicle_flow id="veh_200_N_1600_2000" type="passenger,emergency" typeDist="90,10" route="movement2,movement5,route1" routeDist="70,30,0" lane="-5" begin="1600" end="2000" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_200_S_1600_2000" type="passenger,emergency" typeDist="90,10" route="movement6,movement1,route2" routeDist="70,30,0" lane="-5" begin="1600" end="2000" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_1000_W_1600_2000" type="passenger,emergency" typeDist="90,10" route="movement8,movement3,route3" routeDist="70,30,0" lane="-5" begin="1600" end="2000" distribution="poisson" lambda="1000" seed="43" />
+  <vehicle_flow id="veh_1000_E_1600_2000" type="passenger,emergency" typeDist="90,10" route="movement4,movement7,route4" routeDist="70,30,0" lane="-5" begin="1600" end="2000" distribution="poisson" lambda="1000" seed="43" />
+  
+  <!-- bike flow arrival during [1600,2000) with poisson dist and lambda=100 veh/h -->
+  <vehicle_flow id="bike_100_W_1600_2000" type="bicycle" route="movement8,movement3,route3" routeDist="100,0,0" lane="-5" lanePos="600" begin="1200" end="1600" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_E_1600_2000" type="bicycle" route="movement4,movement7,route4" routeDist="100,0,0" lane="-5" lanePos="600" begin="1200" end="1600" distribution="poisson" lambda="100" seed="43" />
+  
+  
+  
+  <!-- vehicle flow arrival during [2000,2400) with poisson dist and lambda=800 veh/h on main street -->
+  <vehicle_flow id="veh_200_N_2000_2400" type="passenger,emergency" typeDist="90,10" route="movement2,movement5,route1" routeDist="70,30,0" lane="-5" begin="2000" end="2400" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_200_S_2000_2400" type="passenger,emergency" typeDist="90,10" route="movement6,movement1,route2" routeDist="70,30,0" lane="-5" begin="2000" end="2400" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_800_W_2000_2400" type="passenger,emergency" typeDist="90,10" route="movement8,movement3,route3" routeDist="70,30,0" lane="-5" begin="2000" end="2400" distribution="poisson" lambda="800" seed="43" />
+  <vehicle_flow id="veh_800_E_2000_2400" type="passenger,emergency" typeDist="90,10" route="movement4,movement7,route4" routeDist="70,30,0" lane="-5" begin="2000" end="2400" distribution="poisson" lambda="800" seed="43" />
+  
+  <!-- bike flow arrival during [2000,2400) with poisson dist and lambda=100 veh/h -->
+  <vehicle_flow id="bike_100_W_2000_2400" type="bicycle" route="movement8,movement3,route3" routeDist="100,0,0" lane="-5" lanePos="600" begin="2000" end="2400" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_E_2000_2400" type="bicycle" route="movement4,movement7,route4" routeDist="100,0,0" lane="-5" lanePos="600" begin="2000" end="2400" distribution="poisson" lambda="100" seed="43" />
+  
+  
+  
+  <!-- vehicle flow arrival during [2400,2800) with poisson dist and lambda=600 veh/h on main street -->
+  <vehicle_flow id="veh_200_N_2400_2800" type="passenger,emergency" typeDist="90,10" route="movement2,movement5,route1" routeDist="70,30,0" lane="-5" begin="2400" end="2800" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_200_S_2400_2800" type="passenger,emergency" typeDist="90,10" route="movement6,movement1,route2" routeDist="70,30,0" lane="-5" begin="2400" end="2800" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_600_W_2400_2800" type="passenger,emergency" typeDist="90,10" route="movement8,movement3,route3" routeDist="70,30,0" lane="-5" begin="2400" end="2800" distribution="poisson" lambda="600" seed="43" />
+  <vehicle_flow id="veh_600_E_2400_2800" type="passenger,emergency" typeDist="90,10" route="movement4,movement7,route4" routeDist="70,30,0" lane="-5" begin="2400" end="2800" distribution="poisson" lambda="600" seed="43" />
+  
+  <!-- bike flow arrival during [2400,2800) with poisson dist and lambda=100 veh/h -->
+  <vehicle_flow id="bike_100_W_2400_2800" type="bicycle" route="movement8,movement3,route3" routeDist="100,0,0" lane="-5" lanePos="600" begin="2400" end="2800" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_E_2400_2800" type="bicycle" route="movement4,movement7,route4" routeDist="100,0,0" lane="-5" lanePos="600" begin="2400" end="2800" distribution="poisson" lambda="100" seed="43" />
+  
+  
+  
+  <!-- vehicle flow arrival during [2800,3200) with poisson dist and lambda=400 veh/h on main street -->
+  <vehicle_flow id="veh_200_N_2800_3200" type="passenger,emergency" typeDist="90,10" route="movement2,movement5,route1" routeDist="70,30,0" lane="-5" begin="2800" end="3200" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_200_S_2800_3200" type="passenger,emergency" typeDist="90,10" route="movement6,movement1,route2" routeDist="70,30,0" lane="-5" begin="2800" end="3200" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_400_W_2800_3200" type="passenger,emergency" typeDist="90,10" route="movement8,movement3,route3" routeDist="70,30,0" lane="-5" begin="2800" end="3200" distribution="poisson" lambda="400" seed="43" />
+  <vehicle_flow id="veh_400_E_2800_3200" type="passenger,emergency" typeDist="90,10" route="movement4,movement7,route4" routeDist="70,30,0" lane="-5" begin="2800" end="3200" distribution="poisson" lambda="400" seed="43" />
+  
+  <!-- bike flow arrival during [2800,3200) with poisson dist and lambda=100 veh/h -->
+  <vehicle_flow id="bike_100_W_2800_3200" type="bicycle" route="movement8,movement3,route3" routeDist="100,0,0" lane="-5" lanePos="600" begin="2800" end="3200" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_E_2800_3200" type="bicycle" route="movement4,movement7,route4" routeDist="100,0,0" lane="-5" lanePos="600" begin="2800" end="3200" distribution="poisson" lambda="100" seed="43" />
+      
+      
+      
+  <!-- vehicle flow arrival during [3200,3600) with poisson dist and lambda=200 veh/h on main street -->
+  <vehicle_flow id="veh_200_N_3200_3600" type="passenger,emergency" typeDist="90,10" route="movement2,movement5,route1" routeDist="70,30,0" lane="-5" begin="3200" end="3600" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_200_S_3200_3600" type="passenger,emergency" typeDist="90,10" route="movement6,movement1,route2" routeDist="70,30,0" lane="-5" begin="3200" end="3600" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_200_W_3200_3600" type="passenger,emergency" typeDist="90,10" route="movement8,movement3,route3" routeDist="70,30,0" lane="-5" begin="3200" end="3600" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_200_E_3200_3600" type="passenger,emergency" typeDist="90,10" route="movement4,movement7,route4" routeDist="70,30,0" lane="-5" begin="3200" end="3600" distribution="poisson" lambda="200" seed="43" />
+  
+  <!-- bike flow arrival during [3200,3600) with poisson dist and lambda=100 veh/h -->
+  <vehicle_flow id="bike_100_W_3200_3600" type="bicycle" route="movement8,movement3,route3" routeDist="100,0,0" lane="-5" lanePos="600" begin="3200" end="3600" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_E_3200_3600" type="bicycle" route="movement4,movement7,route4" routeDist="100,0,0" lane="-5" lanePos="600" begin="3200" end="3600" distribution="poisson" lambda="100" seed="43" />
+      
+</addNode>
+
+
+
+<!-- unbalanced traffic. routeDist="50,50,0" -->
+<!-- traffic in main street (W,E) increases and then descreses. traffic in side street (S,N) is fix. no bike in side strret -->
+<addNode id="add_3">
+  
+  <!-- RSU SUMO id should be identical to TL id -->
+  <rsu id="C" pos="900,900,0"/>
+  
+  
+  
+  <!-- vehicle flow arrival during [0,400) with poisson dist and lambda=200 veh/h -->
+  <vehicle_flow id="veh_200_N_0_400" type="passenger,emergency" typeDist="90,10" route="movement2,movement5,route1" routeDist="50,50,0" lane="-5" begin="0" end="400" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_200_S_0_400" type="passenger,emergency" typeDist="90,10" route="movement6,movement1,route2" routeDist="50,50,0" lane="-5" begin="0" end="400" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_200_W_0_400" type="passenger,emergency" typeDist="90,10" route="movement8,movement3,route3" routeDist="50,50,0" lane="-5" begin="0" end="400" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_200_E_0_400" type="passenger,emergency" typeDist="90,10" route="movement4,movement7,route4" routeDist="50,50,0" lane="-5" begin="0" end="400" distribution="poisson" lambda="200" seed="43" />
+  
+  <!-- bike flow arrival during [0,400) with poisson dist and lambda=100 veh/h -->
+  <vehicle_flow id="bike_100_W_0_400" type="bicycle" route="movement8,movement3,route3" routeDist="100,0,0" lane="-5" lanePos="600" begin="0" end="400" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_E_0_400" type="bicycle" route="movement4,movement7,route4" routeDist="100,0,0" lane="-5" lanePos="600" begin="0" end="400" distribution="poisson" lambda="100" seed="43" />
+  
+  
+  
+  <!-- vehicle flow arrival during [400,800) with poisson dist and lambda=400 veh/h on main street -->
+  <vehicle_flow id="veh_200_N_400_800" type="passenger,emergency" typeDist="90,10" route="movement2,movement5,route1" routeDist="50,50,0" lane="-5" begin="400" end="800" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_200_S_400_800" type="passenger,emergency" typeDist="90,10" route="movement6,movement1,route2" routeDist="50,50,0" lane="-5" begin="400" end="800" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_400_W_400_800" type="passenger,emergency" typeDist="90,10" route="movement8,movement3,route3" routeDist="50,50,0" lane="-5" begin="400" end="800" distribution="poisson" lambda="400" seed="43" />
+  <vehicle_flow id="veh_400_E_400_800" type="passenger,emergency" typeDist="90,10" route="movement4,movement7,route4" routeDist="50,50,0" lane="-5" begin="400" end="800" distribution="poisson" lambda="400" seed="43" />
+  
+  <!-- bike flow arrival during [400,800) with poisson dist and lambda=100 veh/h -->
+  <vehicle_flow id="bike_100_W_400_800" type="bicycle" route="movement8,movement3,route3" routeDist="100,0,0" lane="-5" lanePos="600" begin="400" end="800" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_E_400_800" type="bicycle" route="movement4,movement7,route4" routeDist="100,0,0" lane="-5" lanePos="600" begin="400" end="800" distribution="poisson" lambda="100" seed="43" />
+  
+  
+  
+  <!-- vehicle flow arrival during [800,1200) with poisson dist and lambda=600 veh/h on main street -->
+  <vehicle_flow id="veh_200_N_800_1200" type="passenger,emergency" typeDist="90,10" route="movement2,movement5,route1" routeDist="50,50,0" lane="-5" begin="800" end="1200" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_200_S_800_1200" type="passenger,emergency" typeDist="90,10" route="movement6,movement1,route2" routeDist="50,50,0" lane="-5" begin="800" end="1200" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_600_W_800_1200" type="passenger,emergency" typeDist="90,10" route="movement8,movement3,route3" routeDist="50,50,0" lane="-5" begin="800" end="1200" distribution="poisson" lambda="600" seed="43" />
+  <vehicle_flow id="veh_600_E_800_1200" type="passenger,emergency" typeDist="90,10" route="movement4,movement7,route4" routeDist="50,50,0" lane="-5" begin="800" end="1200" distribution="poisson" lambda="600" seed="43" />
+  
+  <!-- bike flow arrival during [800,1200) with poisson dist and lambda=100 veh/h -->
+  <vehicle_flow id="bike_100_W_800_1200" type="bicycle" route="movement8,movement3,route3" routeDist="100,0,0" lane="-5" lanePos="600" begin="800" end="1200" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_E_800_1200" type="bicycle" route="movement4,movement7,route4" routeDist="100,0,0" lane="-5" lanePos="600" begin="800" end="1200" distribution="poisson" lambda="100" seed="43" />
+  
+  
+  
+  <!-- vehicle flow arrival during [1200,1600) with poisson dist and lambda=800 veh/h on main street -->
+  <vehicle_flow id="veh_200_N_1200_1600" type="passenger,emergency" typeDist="90,10" route="movement2,movement5,route1" routeDist="50,50,0" lane="-5" begin="1200" end="1600" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_200_S_1200_1600" type="passenger,emergency" typeDist="90,10" route="movement6,movement1,route2" routeDist="50,50,0" lane="-5" begin="1200" end="1600" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_800_W_1200_1600" type="passenger,emergency" typeDist="90,10" route="movement8,movement3,route3" routeDist="50,50,0" lane="-5" begin="1200" end="1600" distribution="poisson" lambda="800" seed="43" />
+  <vehicle_flow id="veh_800_E_1200_1600" type="passenger,emergency" typeDist="90,10" route="movement4,movement7,route4" routeDist="50,50,0" lane="-5" begin="1200" end="1600" distribution="poisson" lambda="800" seed="43" />
+  
+  <!-- bike flow arrival during [1200,1600) with poisson dist and lambda=100 veh/h -->
+  <vehicle_flow id="bike_100_W_1200_1600" type="bicycle" route="movement8,movement3,route3" routeDist="100,0,0" lane="-5" lanePos="600" begin="1200" end="1600" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_E_1200_1600" type="bicycle" route="movement4,movement7,route4" routeDist="100,0,0" lane="-5" lanePos="600" begin="1200" end="1600" distribution="poisson" lambda="100" seed="43" />
+  
+  
+  
+  <!-- vehicle flow arrival during [1600,2000) with poisson dist and lambda=1000 veh/h on main street -->
+  <vehicle_flow id="veh_200_N_1600_2000" type="passenger,emergency" typeDist="90,10" route="movement2,movement5,route1" routeDist="50,50,0" lane="-5" begin="1600" end="2000" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_200_S_1600_2000" type="passenger,emergency" typeDist="90,10" route="movement6,movement1,route2" routeDist="50,50,0" lane="-5" begin="1600" end="2000" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_1000_W_1600_2000" type="passenger,emergency" typeDist="90,10" route="movement8,movement3,route3" routeDist="50,50,0" lane="-5" begin="1600" end="2000" distribution="poisson" lambda="1000" seed="43" />
+  <vehicle_flow id="veh_1000_E_1600_2000" type="passenger,emergency" typeDist="90,10" route="movement4,movement7,route4" routeDist="50,50,0" lane="-5" begin="1600" end="2000" distribution="poisson" lambda="1000" seed="43" />
+  
+  <!-- bike flow arrival during [1600,2000) with poisson dist and lambda=100 veh/h -->
+  <vehicle_flow id="bike_100_W_1600_2000" type="bicycle" route="movement8,movement3,route3" routeDist="100,0,0" lane="-5" lanePos="600" begin="1200" end="1600" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_E_1600_2000" type="bicycle" route="movement4,movement7,route4" routeDist="100,0,0" lane="-5" lanePos="600" begin="1200" end="1600" distribution="poisson" lambda="100" seed="43" />
+  
+  
+  
+  <!-- vehicle flow arrival during [2000,2400) with poisson dist and lambda=800 veh/h on main street -->
+  <vehicle_flow id="veh_200_N_2000_2400" type="passenger,emergency" typeDist="90,10" route="movement2,movement5,route1" routeDist="50,50,0" lane="-5" begin="2000" end="2400" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_200_S_2000_2400" type="passenger,emergency" typeDist="90,10" route="movement6,movement1,route2" routeDist="50,50,0" lane="-5" begin="2000" end="2400" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_800_W_2000_2400" type="passenger,emergency" typeDist="90,10" route="movement8,movement3,route3" routeDist="50,50,0" lane="-5" begin="2000" end="2400" distribution="poisson" lambda="800" seed="43" />
+  <vehicle_flow id="veh_800_E_2000_2400" type="passenger,emergency" typeDist="90,10" route="movement4,movement7,route4" routeDist="50,50,0" lane="-5" begin="2000" end="2400" distribution="poisson" lambda="800" seed="43" />
+  
+  <!-- bike flow arrival during [2000,2400) with poisson dist and lambda=100 veh/h -->
+  <vehicle_flow id="bike_100_W_2000_2400" type="bicycle" route="movement8,movement3,route3" routeDist="100,0,0" lane="-5" lanePos="600" begin="2000" end="2400" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_E_2000_2400" type="bicycle" route="movement4,movement7,route4" routeDist="100,0,0" lane="-5" lanePos="600" begin="2000" end="2400" distribution="poisson" lambda="100" seed="43" />
+  
+  
+  
+  <!-- vehicle flow arrival during [2400,2800) with poisson dist and lambda=600 veh/h on main street -->
+  <vehicle_flow id="veh_200_N_2400_2800" type="passenger,emergency" typeDist="90,10" route="movement2,movement5,route1" routeDist="50,50,0" lane="-5" begin="2400" end="2800" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_200_S_2400_2800" type="passenger,emergency" typeDist="90,10" route="movement6,movement1,route2" routeDist="50,50,0" lane="-5" begin="2400" end="2800" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_600_W_2400_2800" type="passenger,emergency" typeDist="90,10" route="movement8,movement3,route3" routeDist="50,50,0" lane="-5" begin="2400" end="2800" distribution="poisson" lambda="600" seed="43" />
+  <vehicle_flow id="veh_600_E_2400_2800" type="passenger,emergency" typeDist="90,10" route="movement4,movement7,route4" routeDist="50,50,0" lane="-5" begin="2400" end="2800" distribution="poisson" lambda="600" seed="43" />
+  
+  <!-- bike flow arrival during [2400,2800) with poisson dist and lambda=100 veh/h -->
+  <vehicle_flow id="bike_100_W_2400_2800" type="bicycle" route="movement8,movement3,route3" routeDist="100,0,0" lane="-5" lanePos="600" begin="2400" end="2800" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_E_2400_2800" type="bicycle" route="movement4,movement7,route4" routeDist="100,0,0" lane="-5" lanePos="600" begin="2400" end="2800" distribution="poisson" lambda="100" seed="43" />
+  
+  
+  
+  <!-- vehicle flow arrival during [2800,3200) with poisson dist and lambda=400 veh/h on main street -->
+  <vehicle_flow id="veh_200_N_2800_3200" type="passenger,emergency" typeDist="90,10" route="movement2,movement5,route1" routeDist="50,50,0" lane="-5" begin="2800" end="3200" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_200_S_2800_3200" type="passenger,emergency" typeDist="90,10" route="movement6,movement1,route2" routeDist="50,50,0" lane="-5" begin="2800" end="3200" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_400_W_2800_3200" type="passenger,emergency" typeDist="90,10" route="movement8,movement3,route3" routeDist="50,50,0" lane="-5" begin="2800" end="3200" distribution="poisson" lambda="400" seed="43" />
+  <vehicle_flow id="veh_400_E_2800_3200" type="passenger,emergency" typeDist="90,10" route="movement4,movement7,route4" routeDist="50,50,0" lane="-5" begin="2800" end="3200" distribution="poisson" lambda="400" seed="43" />
+  
+  <!-- bike flow arrival during [2800,3200) with poisson dist and lambda=100 veh/h -->
+  <vehicle_flow id="bike_100_W_2800_3200" type="bicycle" route="movement8,movement3,route3" routeDist="100,0,0" lane="-5" lanePos="600" begin="2800" end="3200" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_E_2800_3200" type="bicycle" route="movement4,movement7,route4" routeDist="100,0,0" lane="-5" lanePos="600" begin="2800" end="3200" distribution="poisson" lambda="100" seed="43" />
+      
+      
+      
+  <!-- vehicle flow arrival during [3200,3600) with poisson dist and lambda=200 veh/h on main street -->
+  <vehicle_flow id="veh_200_N_3200_3600" type="passenger,emergency" typeDist="90,10" route="movement2,movement5,route1" routeDist="50,50,0" lane="-5" begin="3200" end="3600" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_200_S_3200_3600" type="passenger,emergency" typeDist="90,10" route="movement6,movement1,route2" routeDist="50,50,0" lane="-5" begin="3200" end="3600" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_200_W_3200_3600" type="passenger,emergency" typeDist="90,10" route="movement8,movement3,route3" routeDist="50,50,0" lane="-5" begin="3200" end="3600" distribution="poisson" lambda="200" seed="43" />
+  <vehicle_flow id="veh_200_E_3200_3600" type="passenger,emergency" typeDist="90,10" route="movement4,movement7,route4" routeDist="50,50,0" lane="-5" begin="3200" end="3600" distribution="poisson" lambda="200" seed="43" />
+  
+  <!-- bike flow arrival during [3200,3600) with poisson dist and lambda=100 veh/h -->
+  <vehicle_flow id="bike_100_W_3200_3600" type="bicycle" route="movement8,movement3,route3" routeDist="100,0,0" lane="-5" lanePos="600" begin="3200" end="3600" distribution="poisson" lambda="100" seed="43" />
+  <vehicle_flow id="bike_100_E_3200_3600" type="bicycle" route="movement4,movement7,route4" routeDist="100,0,0" lane="-5" lanePos="600" begin="3200" end="3600" distribution="poisson" lambda="100" seed="43" />
+      
+</addNode>

@@ -41,12 +41,137 @@ private:
     TraCI_Commands *TraCI;
     omnetpp::simsignal_t Signal_initialize_withTraCI;
 
+    double terminate = 0;
+    double SUMO_timeStep = 0;
+
+    const std::string adversary_tag = "adversary";
+    const std::string ca_tag = "ca";
+    const std::string rsu_tag = "rsu";
+    const std::string obstacle_tag = "obstacle";
+    const std::string vehicle_tag = "vehicle";
+    const std::string vehicle_flow_tag = "vehicle_flow";
+
+    std::string id;
+
+    typedef struct adversaryEntry
+    {
+        std::string id_str;
+        double pos_x;
+        double pos_y;
+        double pos_z;
+    } adversaryEntry_t;
+
+    std::map<std::string, adversaryEntry_t> allAdversary;
+
+    typedef struct CAEntry
+    {
+        std::string id_str;
+        double pos_x;
+        double pos_y;
+        double pos_z;
+    } CAEntry_t;
+
+    std::map<std::string, CAEntry_t> allCA;
+
+    typedef struct RSUEntry
+    {
+        std::string id_str;
+        double pos_x;
+        double pos_y;
+        double pos_z;
+        cModule* module;
+    } RSUEntry_t;
+
+    std::map<std::string, RSUEntry_t> allRSU;
+
+    typedef struct obstacleEntry
+    {
+        std::string id_str;
+        int time;
+        int length;
+        std::string edge_str;
+        int lane;
+        double lanePos;
+        std::string color;
+    } obstacleEntry_t;
+
+    std::map<std::string, obstacleEntry_t> allObstacle;
+
+    typedef struct vehicleEntry
+    {
+        std::string id_str;
+        std::string type_str;
+        std::string route_str;
+        std::string color_str;
+        std::string status_str;
+        double depart;
+        double departSpeed;
+        double departPos;
+        int departLane;
+        int laneChangeMode;
+    } vehicleEntry_t;
+
+    std::map<std::string, vehicleEntry_t> allVehicle;
+
+    typedef struct vehicleFlowEntry
+    {
+        std::string id_str;
+        std::vector<std::string> type_str_tokenize;
+        std::vector<double> typeDist_tokenize;
+        std::string color_str;
+        std::vector<std::string> route_str_tokenize;
+        std::vector<double> routeDist_tokenize;
+        double speed;
+        int lane;
+        double lanePos;
+        int laneChangeMode;
+        int number;
+        double begin;
+        double end;
+        int seed;
+        std::string distribution_str;
+        double period;
+        double lambda;
+        double probability;
+    } vehicleFlowEntry_t;
+
+    std::map<std::string, vehicleFlowEntry_t> allVehicleFlow;
+
 public:
     virtual ~AddNode();
     virtual void initialize(int stage);
     virtual void handleMessage(omnetpp::cMessage *msg);
     virtual void finish();
     virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, long, cObject* details);
+
+private:
+    void readInsertion(std::string);
+    void printLoadedStatistics();
+
+    void parseAdversary(rapidxml::xml_node<> *);
+    void addAdversary();
+
+    void parseCA(rapidxml::xml_node<> *);
+    void addCA();
+
+    void parseRSU(rapidxml::xml_node<> *);
+    void addRSU();
+
+    void parseObstacle(rapidxml::xml_node<> *);
+    void addObstacle();
+
+    void parseVehicle(rapidxml::xml_node<> *);
+    void addVehicle();
+
+    void parseVehicleFlow(rapidxml::xml_node<> *);
+    void addVehicleFlow();
+    std::string getVehType(vehicleFlowEntry_t, double);
+    std::string getVehRoute(vehicleFlowEntry_t, double);
+
+    void parseEmulated(rapidxml::xml_node<> *);
+    void addEmulated();
+
+    void addCircle(std::string, std::string, const RGB, bool, Coord*, double);
 };
 
 }

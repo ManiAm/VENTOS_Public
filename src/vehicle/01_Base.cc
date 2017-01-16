@@ -61,8 +61,6 @@ void ApplVBase::initialize(int stage)
         SUMOType = par("SUMOType").stringValue();
         // vehicle class in sumo
         vehicleClass = par("vehicleClass").stringValue();
-        // vehicle class code
-        vehicleClassEnum = par("vehicleClassEnum").longValue();
         // get controller type from SUMO
         SUMOControllerType = par("SUMOControllerType").longValue();
         // get controller number from SUMO

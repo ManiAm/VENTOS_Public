@@ -135,6 +135,7 @@ public:
     double* simulationGetNetBoundary();
     uint32_t simulationGetMinExpectedNumber();
     uint32_t simulationGetArrivedNumber();
+    double simulationGetTimeStep();  // new command
 
     // ################################################################
     //                            vehicle
@@ -181,10 +182,12 @@ public:
     void vehicleSetRouteID(std::string, std::string);
     void vehicleSetColor(std::string, const RGB);
     void vehicleSetClass(std::string, std::string);
+    void vehicleSetLength(std::string, double);
+    void vehicleSetWidth(std::string, double);
     void vehicleSetMaxAccel(std::string, double);
     void vehicleSetMaxDecel(std::string, double);
     void vehicleSetTimeGap(std::string, double);
-    void vehicleAdd(std::string, std::string, std::string, int32_t, double, double, uint8_t, std::string = "");
+    void vehicleAdd(std::string, std::string, std::string, int32_t, double, double, uint8_t);
     void vehicleRemove(std::string, uint8_t);
     void vehicleSetControllerParameters(std::string, std::string);  // new command [set the controller's parameters for this vehicle]
     void vehicleSetErrorGap(std::string, double);                   // new command [set an error value for the gap]
@@ -387,6 +390,7 @@ public:
     //                    Hardware in the loop (HIL)
     // ################################################################
 
+    void add2Emulated(std::string vID, std::string ip);
     std::string ip2vehicleId(std::string ip) const;   // HIL ipv4 address --> OMNET++ id of emulated vehicle
     std::string vehicleId2ip(std::string vID) const;  // SUMO id of emulated vehicle --> HIL ipv4 address
 

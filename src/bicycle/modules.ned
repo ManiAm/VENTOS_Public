@@ -53,12 +53,6 @@ simple ApplBikeBase like IBaseApplLayer
         string SUMOID = default("");
         string SUMOType = default("");
         string vehicleClass = default("");
-        int vehicleClassEnum = default(-1);
-        
-        // bike does not need these two varibales but
-        // it makes the job simpler for TraCIstart.cc
-        int SUMOControllerType = default(-1);
-        int SUMOControllerNumber = default(-1);
         
         bool hasOBU = default(false);
         string IPaddress = default("");

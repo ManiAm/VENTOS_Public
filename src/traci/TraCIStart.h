@@ -80,6 +80,11 @@ private:
     double terminate;
     bool autoShutdown;  /**< Shutdown module as soon as no more vehicles are in the simulation */
 
+    // NED (obstacle)
+    std::string obstacleModuleType;
+    std::string obstacleModuleName;
+    std::string obstacleModuleDisplayString;
+
     // NED (vehicles)
     std::string vehicleModuleType;
     std::string vehicleModuleName;
@@ -172,7 +177,8 @@ private:
     void processSubcriptionResult(TraCIBuffer& buf);
 
     void addModule(std::string nodeId, const Coord& position, std::string road_id = "", double speed = -1, double angle = -1);
-    void addPedestriansToOMNET();
+    void addVehicle(std::string nodeId, std::string type, std::string name, std::string displayString, std::string vClass, const Coord& position, std::string road_id, double speed, double angle);
+    void addPedestrian();
     void deleteManagedModule(std::string nodeId);
 
     /** returns a pointer to the managed module named moduleName, or 0 if no module can be found */

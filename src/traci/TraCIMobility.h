@@ -53,7 +53,7 @@ class TraCIMobilityMod : public BaseMobility
 {
 protected:
     TraCI_Commands* TraCI;
-    int vClassEnum;
+    std::string vClass = "";
 
     bool debug; /**< whether to emit debug messages */
     int accidentCount; /**< number of accidents */

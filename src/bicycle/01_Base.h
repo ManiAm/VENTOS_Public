@@ -48,7 +48,6 @@ protected:
     std::string SUMOID;
     std::string SUMOType;
     std::string vehicleClass;
-    int vehicleClassEnum;
 
     Coord curPosition;  // current position from mobility module (not from sumo)
     double entryTime;

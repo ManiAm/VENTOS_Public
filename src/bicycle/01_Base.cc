@@ -63,8 +63,6 @@ void ApplBikeBase::initialize(int stage)
         SUMOType = par("SUMOType").stdstringValue();
         // vehicle class in sumo
         vehicleClass = par("vehicleClass").stdstringValue();
-        // vehicle class code
-        vehicleClassEnum = par("vehicleClassEnum").longValue();
 
         // store the time of entry
         entryTime = omnetpp::simTime().dbl();

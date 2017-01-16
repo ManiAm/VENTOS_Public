@@ -93,17 +93,21 @@ void TraCI_Start::initialize(int stage)
             cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("addNode");
             ASSERT(module);
 
-            vehicleModuleType = module->par("vehicleModuleType").stdstringValue();
-            vehicleModuleName = module->par("vehicleModuleName").stdstringValue();
-            vehicleModuleDisplayString = module->par("vehicleModuleDisplayString").stdstringValue();
+            obstacleModuleType = module->par("obstacle_ModuleType").stdstringValue();
+            obstacleModuleName = module->par("obstacle_ModuleName").stdstringValue();
+            obstacleModuleDisplayString = module->par("obstacle_ModuleDisplayString").stdstringValue();
 
-            bikeModuleType = module->par("bikeModuleType").stringValue();
-            bikeModuleName = module->par("bikeModuleName").stringValue();
-            bikeModuleDisplayString = module->par("bikeModuleDisplayString").stringValue();
+            vehicleModuleType = module->par("vehicle_ModuleType").stdstringValue();
+            vehicleModuleName = module->par("vehicle_ModuleName").stdstringValue();
+            vehicleModuleDisplayString = module->par("vehicle_ModuleDisplayString").stdstringValue();
 
-            pedModuleType = module->par("pedModuleType").stringValue();
-            pedModuleName = module->par("pedModuleName").stringValue();
-            pedModuleDisplayString = module->par("pedModuleDisplayString").stringValue();
+            bikeModuleType = module->par("bike_ModuleType").stringValue();
+            bikeModuleName = module->par("bike_ModuleName").stringValue();
+            bikeModuleDisplayString = module->par("bike_ModuleDisplayString").stringValue();
+
+            pedModuleType = module->par("ped_ModuleType").stringValue();
+            pedModuleName = module->par("ped_ModuleName").stringValue();
+            pedModuleDisplayString = module->par("ped_ModuleDisplayString").stringValue();
 
             penetrationRate = par("penetrationRate").doubleValue();
 
@@ -169,11 +173,11 @@ void TraCI_Start::handleMessage(omnetpp::cMessage *msg)
 
             std::ostringstream dateTime;
             dateTime << boost::format("%4d%02d%02d-%02d:%02d:%02d") % (1900 + ltm->tm_year)
-                            % (1 + ltm->tm_mon)
-                            % (ltm->tm_mday)
-                            % (ltm->tm_hour)
-                            % (ltm->tm_min)
-                            % (ltm->tm_sec);
+                                                            % (1 + ltm->tm_mon)
+                                                            % (ltm->tm_mday)
+                                                            % (ltm->tm_hour)
+                                                            % (ltm->tm_min)
+                                                            % (ltm->tm_sec);
 
             simStartDateTime = dateTime.str();
             simStartTime = std::chrono::high_resolution_clock::now();
@@ -298,10 +302,6 @@ void TraCI_Start::init_traci()
             obstacles->addFromTypeAndShape(id, typeId, shape);
         }
     }
-
-    // call AddVehicle to insert flows if needed
-    omnetpp::simsignal_t Signal_addFlow = registerSignal("addFlow");
-    this->emit(Signal_addFlow, 0);
 
     LOG_INFO << "    Initializing modules with TraCI support ... \n\n" << std::flush;
 
@@ -439,7 +439,7 @@ void TraCI_Start::executeOneTimestep()
         allPedestrians.clear();
         allPedestrians = personGetIDList();
         if(!allPedestrians.empty())
-            addPedestriansToOMNET();
+            addPedestrian();
     }
 }
 
@@ -927,68 +927,8 @@ bool TraCI_Start::isModuleUnequipped(std::string nodeId)
 }
 
 
-// name: host; Car; i=vehicle.gif
 void TraCI_Start::addModule(std::string nodeId /*sumo id*/, const Coord& position, std::string road_id, double speed, double angle)
 {
-    std::string type = "";
-    std::string name = "";
-    std::string displayString = "";
-
-    std::string vClass = vehicleGetClass(nodeId);
-    int vClassEnum = -1;
-
-    if(vClass == "passenger")
-    {
-        type = vehicleModuleType;
-        name =  vehicleModuleName;
-        displayString = vehicleModuleDisplayString;
-        vClassEnum = SVC_PASSENGER;
-    }
-    else if(vClass == "private")
-    {
-        type = vehicleModuleType;
-        name =  vehicleModuleName;
-        displayString = vehicleModuleDisplayString;
-        vClassEnum = SVC_PRIVATE;
-    }
-    else if(vClass == "emergency")
-    {
-        type = vehicleModuleType;
-        name =  vehicleModuleName;
-        displayString = vehicleModuleDisplayString;
-        vClassEnum = SVC_EMERGENCY;
-    }
-    else if(vClass == "bus")
-    {
-        type = vehicleModuleType;
-        name =  vehicleModuleName;
-        displayString = vehicleModuleDisplayString;
-        vClassEnum = SVC_BUS;
-    }
-    else if(vClass == "truck")
-    {
-        type = vehicleModuleType;
-        name =  vehicleModuleName;
-        displayString = vehicleModuleDisplayString;
-        vClassEnum = SVC_TRUCK;
-    }
-    else if(vClass == "bicycle")
-    {
-        type = bikeModuleType;
-        name =  bikeModuleName;
-        displayString = bikeModuleDisplayString;
-        vClassEnum = SVC_BICYCLE;
-    }
-    else if(vClass == "pedestrian")  // todo: should we handle pedestrian separately?
-    {
-        type = pedModuleType;
-        name = pedModuleName;
-        displayString = pedModuleDisplayString;
-        vClassEnum = SVC_PEDESTRIAN;
-    }
-    else
-        throw omnetpp::cRuntimeError("Unknown vClass '%s' for vehicle '%s'. Change vClass in traffic demand file based on global/Appl.h", vClass.c_str(), nodeId.c_str());
-
     if (hosts.find(nodeId) != hosts.end())
         throw omnetpp::cRuntimeError("tried adding duplicate module");
 
@@ -1001,6 +941,61 @@ void TraCI_Start::addModule(std::string nodeId /*sumo id*/, const Coord& positio
         return;
     }
 
+    std::string vClass = vehicleGetClass(nodeId);
+
+    // reserved for obstacles
+    if(vClass == "custom1")
+    {
+        addVehicle(nodeId,
+                obstacleModuleType,
+                obstacleModuleName,
+                obstacleModuleDisplayString,
+                vClass,
+                position,
+                road_id,
+                speed,
+                angle);
+    }
+    // all motor vehicles
+    else if(vClass == "passenger" || vClass == "private" || vClass == "emergency" || vClass == "bus" || vClass == "truck")
+    {
+        addVehicle(nodeId,
+                vehicleModuleType,
+                vehicleModuleName,
+                vehicleModuleDisplayString,
+                vClass,
+                position,
+                road_id,
+                speed,
+                angle);
+    }
+    else if(vClass == "bicycle")
+    {
+        addVehicle(nodeId,
+                bikeModuleType,
+                bikeModuleName,
+                bikeModuleDisplayString,
+                vClass,
+                position,
+                road_id,
+                speed,
+                angle);
+    }
+    // todo
+    else if(vClass == "pedestrian")
+    {
+        //pedModuleType;
+        //pedModuleName;
+        //pedModuleDisplayString;
+        // calling addPedestrian() method
+    }
+    else
+        throw omnetpp::cRuntimeError("Unknown vClass '%s' for vehicle '%s'", vClass.c_str(), nodeId.c_str());
+}
+
+
+void TraCI_Start::addVehicle(std::string nodeId /*sumo id*/, std::string type, std::string name, std::string displayString, std::string vClass, const Coord& position, std::string road_id, double speed, double angle)
+{
     cModule* parentmod = getParentModule();
     if (!parentmod)
         throw omnetpp::cRuntimeError("Parent Module not found");
@@ -1016,16 +1011,34 @@ void TraCI_Start::addModule(std::string nodeId /*sumo id*/, const Coord& positio
     mod->getDisplayString().parse(displayString.c_str());
     mod->buildInside();
 
-    std::string vehType = vehicleGetTypeID(nodeId);  // get vehicle type
-    int SUMOControllerType = vehicleTypeGetControllerType(vehType); // get controller type
-    int SUMOControllerNumber = vehicleTypeGetControllerNumber(vehType);  // get controller number from SUMO
+    if(vClass == "bicycle")
+    {
+        mod->getSubmodule("appl")->par("SUMOID") = nodeId;
+        mod->getSubmodule("appl")->par("SUMOType") = vehicleGetTypeID(nodeId);
+        mod->getSubmodule("appl")->par("vehicleClass") = vClass;
+    }
+    // obstacle
+    else if(vClass == "custom1")
+    {
+        mod->getSubmodule("appl")->par("SUMOID") = nodeId;
+        mod->getSubmodule("appl")->par("SUMOType") = vehicleGetTypeID(nodeId);
+        mod->getSubmodule("appl")->par("vehicleClass") = vClass;
 
-    mod->getSubmodule("appl")->par("SUMOID") = nodeId;
-    mod->getSubmodule("appl")->par("SUMOType") = vehType;
-    mod->getSubmodule("appl")->par("vehicleClass") = vClass;
-    mod->getSubmodule("appl")->par("vehicleClassEnum") = vClassEnum;
-    mod->getSubmodule("appl")->par("SUMOControllerType") = SUMOControllerType;
-    mod->getSubmodule("appl")->par("SUMOControllerNumber") = SUMOControllerNumber;
+        mod->getSubmodule("appl")->par("SUMOControllerType") = -1;
+        mod->getSubmodule("appl")->par("SUMOControllerNumber") = -1;
+    }
+    // any other motor vehicle
+    else
+    {
+        std::string vehType = vehicleGetTypeID(nodeId);
+
+        mod->getSubmodule("appl")->par("SUMOID") = nodeId;
+        mod->getSubmodule("appl")->par("SUMOType") = vehType;
+        mod->getSubmodule("appl")->par("vehicleClass") = vClass;
+
+        mod->getSubmodule("appl")->par("SUMOControllerType") = vehicleTypeGetControllerType(vehType);
+        mod->getSubmodule("appl")->par("SUMOControllerNumber") = vehicleTypeGetControllerNumber(vehType);
+    }
 
     auto ii = SUMOid_ipv4_mapping.find(nodeId);
     if(ii != SUMOid_ipv4_mapping.end())
@@ -1119,8 +1132,8 @@ void TraCI_Start::addModule(std::string nodeId /*sumo id*/, const Coord& positio
 }
 
 
-// todo: work on pedestrian
-void TraCI_Start::addPedestriansToOMNET()
+
+void TraCI_Start::addPedestrian()
 {
     //cout << simTime().dbl() << ": " << allPedestrians.size() << endl;
 

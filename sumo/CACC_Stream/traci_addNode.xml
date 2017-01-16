@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<addNode id="add_0">
+
+  <vehicle_flow id="veh" type="TypeManual" route="route1" begin="0" number="10" distribution="deterministic" period="1" />
+  
+</addNode>
+
+
+<addNode id="add_1">
+
+  <vehicle_flow id="veh" type="TypeACC1" route="route1" begin="0" number="10" distribution="deterministic" period="1" />
+  
+</addNode>
+
+
+<addNode id="add_2">
+
+  <vehicle_flow id="veh" type="TypeCACC1" route="route1" begin="0" number="10" distribution="deterministic" period="1" />
+  
+</addNode>
+
+
+<addNode id="add_3">
+
+  <vehicle_flow id="veh" type="TypeCACC2" route="route1" begin="0" number="10" distribution="deterministic" period="1" />
+  
+</addNode>
+
+
+
+<addNode id="add_4">
+
+  <vehicle_flow id="veh" type="TypeCACC3" route="route1" begin="0" number="10" distribution="deterministic" period="1" />
+  
+</addNode>
+
+
+
+<addNode id="add_5">
+
+  <vehicle_flow id="veh" type="TypeManual" route="route1" begin="0" number="30" distribution="deterministic" period="1" />
+  
+</addNode>
+

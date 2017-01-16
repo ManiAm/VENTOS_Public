@@ -7,41 +7,35 @@ simple AddNode
         @display("i=block/network2");
         
         int headerLength = default(256bit) @unit(bit); //header length of the application 
+        string id = default("");      
         
+        string adversary_ModuleType = default("VENTOS.src.adversary.Adversary");
+        string adversary_ModuleName = default("ADV");
+        string adversary_ModuleDisplayString = default("i=old/comp_a");        
         
-        string vehicleModuleType = default("VENTOS.src.vehicle.vehicle");   // OMNET++ module type for vehicles
-        string vehicleModuleName = default("V");                            // OMNET++ module name for vehicles 
-        string vehicleModuleDisplayString = default("");                    // OMNET++ module displayString for each vehicle  
+        string CA_ModuleType = default("VENTOS.src.CerAuthority.CA");        
+        string CA_ModuleName = default("CA");
+        string CA_ModuleDisplayString = default("i=old/comp_a");   
         
-        string bikeModuleType = default("VENTOS.src.bicycle.bicycle");  // OMNET++ module type for bikes       
-        string bikeModuleName = default("B");                           // OMNET++ module name for bikes        
-        string bikeModuleDisplayString = default("");                   // OMNET++ module displayString for bikes
+        string RSU_ModuleType = default("VENTOS.src.rsu.RSU");
+        string RSU_ModuleName = default("RSU");
+        string RSU_ModuleDisplayString = default("i=device/antennatower");       
         
-        string pedModuleType = default("VENTOS.src.pedestrian.pedestrian");   // OMNET++ module type for pedestrians       
-        string pedModuleName = default("P");                                  // OMNET++ module name for pedestrians        
-        string pedModuleDisplayString = default("");                          // OMNET++ module displayString for pedestrians        
-}
-
-
-simple AddFixNode
-{
-    parameters:
-        @class(VENTOS::AddFixNode);
-        @display("i=block/network2");
+        string obstacle_ModuleType = default("VENTOS.src.vehicle.vehicle");
+        string obstacle_ModuleName = default("OBS"); 
+        string obstacle_ModuleDisplayString = default("");           
         
-        int headerLength = default(256bit) @unit(bit); //header length of the application   
+        string vehicle_ModuleType = default("VENTOS.src.vehicle.vehicle");
+        string vehicle_ModuleName = default("V"); 
+        string vehicle_ModuleDisplayString = default("");  
         
-        int numRSUs = default(0);
-        string moduleRSU = default("VENTOS.src.rsu.RSU");
+        string bike_ModuleType = default("VENTOS.src.bicycle.bicycle");       
+        string bike_ModuleName = default("B");        
+        string bike_ModuleDisplayString = default("");
         
-        int numObstacles = default(0);
-        string moduleObstacle = default("VENTOS.src.vehicle.vehicle");
-        
-        int numAdversary = default(0);
-        string moduleAdversary = default("VENTOS.src.adversary.Adversary");
-        
-        int numCA = default(0);
-        string moduleCA = default("VENTOS.src.CerAuthority.CA");
+        string ped_ModuleType = default("VENTOS.src.pedestrian.pedestrian");      
+        string ped_ModuleName = default("P");        
+        string ped_ModuleDisplayString = default("");       
 }
 
 

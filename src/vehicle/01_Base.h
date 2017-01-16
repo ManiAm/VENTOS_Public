@@ -52,7 +52,6 @@ protected:
     std::string SUMOID;
     std::string SUMOType;
     std::string vehicleClass;
-    int vehicleClassEnum;
     int SUMOControllerType;
     int SUMOControllerNumber;
 

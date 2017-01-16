@@ -5,11 +5,6 @@
   <vType id="TypeManual" length="5.0" minGap="2.0" maxSpeed="30.0">
       <carFollowing-Krauss accel="3.0" decel="5.0" sigma="0" tau="1.64" />
   </vType> 
-  
-  <!-- Obstacle -->
-  <vType id="TypeObstacle" length="5.0" minGap="2.0" maxSpeed="30.0">
-      <carFollowing-Krauss accel="3.0" decel="5.0" sigma="0" tau="1.64" />
-  </vType> 
 
   <route id="route1" edges="1to2" />  
 
