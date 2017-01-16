@@ -428,24 +428,20 @@ void Router::checkEdgeRemovals()
 
                 // Find the closest vehicle behind the accident location
                 std::string laneID = er.edge + "_" + std::to_string(er.laneIndex); // Construct the accident lane ID
-                std::list<std::string> vehicleIDs = TraCI->laneGetLastStepVehicleIDs(laneID); // Get the vehicles on that lane
+                auto vehicleIDs = TraCI->laneGetLastStepVehicleIDs(laneID); // Get the vehicles on that lane
 
-                if(!vehicleIDs.empty()) // If there are vehicles on that link
+                for (std::vector<std::string>::reverse_iterator veh = vehicleIDs.rbegin(); veh != vehicleIDs.rend(); ++veh)
                 {
-                    vehicleIDs.reverse(); // Reverse the list so it can start from the further end
-                    for(std::string veh : vehicleIDs)
+                    if(TraCI->vehicleGetLanePosition(*veh) + 100 < er.pos) // Here, we ask the vehicle to stop at the location 100 meters ahead of its current position to avoid the error of " too close to stop". This is not ideal, but it works for the purpose
                     {
-                        if(TraCI->vehicleGetLanePosition(veh) + 100 < er.pos) // Here, we ask the vehicle to stop at the location 100 meters ahead of its current position to avoid the error of " too close to stop". This is not ideal, but it works for the purpose
-                        {
-                            //if(veh == "v22")
-                            //std::cout << "Found it!" << std::endl;
-                            issueStop(veh, er.edge, TraCI->vehicleGetLanePosition(veh) + 100, er.laneIndex);
-                            // Change its color to red
-                            RGB newColor = Color::colorNameToRGB("red");
-                            TraCI->vehicleSetColor(veh, newColor);
-                            er.blocked = true;
-                            break;
-                        }
+                        //if(veh == "v22")
+                        //std::cout << "Found it!" << std::endl;
+                        issueStop(*veh, er.edge, TraCI->vehicleGetLanePosition(*veh) + 100, er.laneIndex);
+                        // Change its color to red
+                        RGB newColor = Color::colorNameToRGB("red");
+                        TraCI->vehicleSetColor(*veh, newColor);
+                        er.blocked = true;
+                        break;
                     }
                 }
             }
@@ -455,19 +451,20 @@ void Router::checkEdgeRemovals()
             if(er.blocked == true)
             {
                 std::string laneID = er.edge + "_" + std::to_string(er.laneIndex);
-                std::list<std::string> vehicleIDs = TraCI->laneGetLastStepVehicleIDs(laneID);
+                auto vehicleIDs = TraCI->laneGetLastStepVehicleIDs(laneID);
 
-                for(std::string veh : vehicleIDs)
+                for(auto &veh : vehicleIDs)
                 {
                     uint8_t state= TraCI->vehicleGetStopState(veh);
-                    //std::cout << "Vehicle: " << veh << ", State:" << state << std::endl;
 
                     if(state == 5) // Find a stopped and triggered vehicle
                     {
                         issueStart(veh);
+
                         // Change its color to white denotes the vehicle starts to moving again
                         RGB newColor = Color::colorNameToRGB("white");
                         TraCI->vehicleSetColor(veh, newColor);
+
                         er.blocked = false;
                         break;
                     }
@@ -538,9 +535,9 @@ void Router::LaneCostsToFile()
 
 void Router::laneCostsData()
 {
-    std::list<std::string> vList = TraCI->vehicleGetIDList();
+    auto vList = TraCI->vehicleGetIDList();
 
-    for(std::string vehicle : vList)
+    for(auto &vehicle : vList)
     {
         std::string curEdge = TraCI->vehicleGetEdgeID(vehicle);
         if(curEdge != "")

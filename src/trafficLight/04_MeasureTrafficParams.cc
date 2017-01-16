@@ -100,10 +100,11 @@ void MeasureTrafficParams::initialize_withTraCI()
         std::string TLid = it;
 
         // get all incoming lanes
-        std::list<std::string> lan = TraCI->TLGetControlledLanes(it);
+        auto lan = TraCI->TLGetControlledLanes(it);
 
         // remove duplicate entries
-        lan.unique();
+        sort( lan.begin(), lan.end() );
+        lan.erase( unique( lan.begin(), lan.end() ), lan.end() );
 
         queueDataEntry *entry = new queueDataEntry(0, 0, std::numeric_limits<int>::max(), lan.size());
         queueSizeTL.insert( std::make_pair(TLid, *entry) );
@@ -165,7 +166,7 @@ void MeasureTrafficParams::executeEachTimeStep()
 void MeasureTrafficParams::CheckDetectors()
 {
     // get all loop detectors
-    std::list<std::string> str = TraCI->LDGetIDList();
+    auto str = TraCI->LDGetIDList();
 
     // for each loop detector
     for (auto &it : str)
@@ -179,7 +180,7 @@ void MeasureTrafficParams::CheckDetectors()
     }
 
     // get all area detectors
-    std::list<std::string> str2 = TraCI->LADGetIDList();
+    auto str2 = TraCI->LADGetIDList();
 
     // for each area detector detector
     for (auto &it : str2)
@@ -210,10 +211,11 @@ void MeasureTrafficParams::CheckDetectors()
     {
         std::string TLid = it;
 
-        std::list<std::string> lan = TraCI->TLGetControlledLanes(TLid);
+        auto lan = TraCI->TLGetControlledLanes(TLid);
 
         // remove duplicate entries
-        lan.unique();
+        sort( lan.begin(), lan.end() );
+        lan.erase( unique( lan.begin(), lan.end() ), lan.end() );
 
         // for each incoming lane
         for(auto &it2 : lan)

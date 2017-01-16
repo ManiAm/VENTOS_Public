@@ -38,14 +38,14 @@ class TrafficLights : public LoopDetectors
 {
 protected:
     // list of all traffic lights in the network
-    std::list<std::string> TLList;
+    std::vector<std::string> TLList;
 
     // list of all 'incoming lanes' in each TL
-    std::unordered_map< std::string /*TLid*/, std::pair<int /*lane count*/, std::list<std::string>> > laneListTL;
+    std::unordered_map< std::string /*TLid*/, std::pair<int /*lane count*/, std::vector<std::string>> > laneListTL;
     // list of all 'bike lanes' in each TL
-    std::unordered_map< std::string /*TLid*/, std::list<std::string> > bikeLaneListTL;
+    std::unordered_map< std::string /*TLid*/, std::vector<std::string> > bikeLaneListTL;
     // list of all 'side walks' in each TL
-    std::unordered_map< std::string /*TLid*/, std::list<std::string> > sideWalkListTL;
+    std::unordered_map< std::string /*TLid*/, std::vector<std::string> > sideWalkListTL;
 
     // all incoming lanes in all traffic lights
     std::unordered_map<std::string /*lane*/, std::string /*TLid*/> allIncomingLanes;

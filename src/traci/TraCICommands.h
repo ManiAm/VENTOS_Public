@@ -130,7 +130,7 @@ public:
 
     // CMD_GET_SIM_VARIABLE
     uint32_t simulationGetLoadedVehiclesCount();
-    std::list<std::string> simulationGetLoadedVehiclesIDList();
+    std::vector<std::string> simulationGetLoadedVehiclesIDList();
     uint32_t simulationGetDepartedVehiclesCount();
     double* simulationGetNetBoundary();
     uint32_t simulationGetMinExpectedNumber();
@@ -142,7 +142,7 @@ public:
     // ################################################################
 
     // CMD_GET_VEHICLE_VARIABLE
-    std::list<std::string> vehicleGetIDList();
+    std::vector<std::string> vehicleGetIDList();
     uint32_t vehicleGetIDCount();
     double vehicleGetSpeed(std::string);
     double vehicleGetAngle(std::string);
@@ -154,7 +154,7 @@ public:
     double vehicleGetLanePosition(std::string);
     std::string vehicleGetTypeID(std::string);
     std::string vehicleGetRouteID(std::string);
-    std::list<std::string> vehicleGetRoute(std::string);
+    std::vector<std::string> vehicleGetRoute(std::string);
     uint32_t vehicleGetRouteIndex(std::string);
     std::map<int,bestLanesEntry_t> vehicleGetBestLanes(std::string);
     uint8_t* vehicleGetColor(std::string);
@@ -200,7 +200,7 @@ public:
     // ################################################################
 
     // CMD_GET_VEHICLETYPE_VARIABLE
-    std::list<std::string> vehicleTypeGetIDList();
+    std::vector<std::string> vehicleTypeGetIDList();
     uint32_t vehicleTypeGetIDCount();
     double vehicleTypeGetLength(std::string);
     double vehicleTypeGetMaxSpeed(std::string);
@@ -218,9 +218,9 @@ public:
     // ################################################################
 
     // CMD_GET_ROUTE_VARIABLE
-    std::list<std::string> routeGetIDList();
+    std::vector<std::string> routeGetIDList();
     uint32_t routeGetIDCount();
-    std::list<std::string> routeGetEdges(std::string);
+    std::vector<std::string> routeGetEdges(std::string);
 
     // CMD_SET_ROUTE_VARIABLE
     void routeAdd(std::string, std::list<std::string>);
@@ -230,14 +230,14 @@ public:
     // ################################################################
 
     // CMD_GET_EDGE_VARIABLE
-    std::list<std::string> edgeGetIDList();
+    std::vector<std::string> edgeGetIDList();
     uint32_t edgeGetIDCount();
     double edgeGetMeanTravelTime(std::string);
     uint32_t edgeGetLastStepVehicleNumber(std::string);
-    std::list<std::string> edgeGetLastStepVehicleIDs(std::string);
+    std::vector<std::string> edgeGetLastStepVehicleIDs(std::string);
     double edgeGetLastStepMeanVehicleSpeed(std::string);
     double edgeGetLastStepMeanVehicleLength(std::string);
-    std::list<std::string> edgeGetLastStepPersonIDs(std::string);
+    std::vector<std::string> edgeGetLastStepPersonIDs(std::string);
 
     // CMD_SET_EDGE_VARIABLE
     void edgeSetGlobalTravelTime(std::string, int32_t, int32_t, double);
@@ -247,16 +247,16 @@ public:
     // ################################################################
 
     // CMD_GET_LANE_VARIABLE
-    std::list<std::string> laneGetIDList();
+    std::vector<std::string> laneGetIDList();
     uint32_t laneGetIDCount();
     uint8_t laneGetLinkNumber(std::string);
     std::map<int,linkEntry_t> laneGetLinks(std::string);
-    std::list<std::string> laneGetAllowedClasses(std::string);
+    std::vector<std::string> laneGetAllowedClasses(std::string);
     std::string laneGetEdgeID(std::string);
     double laneGetLength(std::string);
     double laneGetMaxSpeed(std::string);
     uint32_t laneGetLastStepVehicleNumber(std::string);
-    std::list<std::string> laneGetLastStepVehicleIDs(std::string);
+    std::vector<std::string> laneGetLastStepVehicleIDs(std::string);
     double laneGetLastStepMeanVehicleSpeed(std::string);
     double laneGetLastStepMeanVehicleLength(std::string);
 
@@ -268,12 +268,12 @@ public:
     // ################################################################
 
     // CMD_GET_INDUCTIONLOOP_VARIABLE
-    std::list<std::string> LDGetIDList();
+    std::vector<std::string> LDGetIDList();
     uint32_t LDGetIDCount(std::string);
     std::string LDGetLaneID(std::string);
     double LDGetPosition(std::string);
     uint32_t LDGetLastStepVehicleNumber(std::string);
-    std::list<std::string> LDGetLastStepVehicleIDs(std::string);
+    std::vector<std::string> LDGetLastStepVehicleIDs(std::string);
     double LDGetLastStepMeanVehicleSpeed(std::string);
     double LDGetElapsedTimeLastDetection(std::string);
     std::vector<std::string> LDGetLastStepVehicleData(std::string);
@@ -284,11 +284,11 @@ public:
     // ################################################################
 
     // CMD_GET_AREAL_DETECTOR_VARIABLE
-    std::list<std::string> LADGetIDList();
+    std::vector<std::string> LADGetIDList();
     uint32_t LADGetIDCount(std::string);
     std::string LADGetLaneID(std::string);
     uint32_t LADGetLastStepVehicleNumber(std::string);
-    std::list<std::string> LADGetLastStepVehicleIDs(std::string);
+    std::vector<std::string> LADGetLastStepVehicleIDs(std::string);
     double LADGetLastStepMeanVehicleSpeed(std::string);
     uint32_t LADGetLastStepVehicleHaltingNumber(std::string);
     double LADGetLastStepJamLengthInMeter(std::string);
@@ -298,9 +298,9 @@ public:
     // ################################################################
 
     // CMD_GET_TL_VARIABLE
-    std::list<std::string> TLGetIDList();
+    std::vector<std::string> TLGetIDList();
     uint32_t TLGetIDCount();
-    std::list<std::string> TLGetControlledLanes(std::string);
+    std::vector<std::string> TLGetControlledLanes(std::string);
     std::map<int,std::vector<std::string>> TLGetControlledLinks(std::string);
     std::string TLGetProgram(std::string);
     uint32_t TLGetPhase(std::string);
@@ -319,7 +319,7 @@ public:
     // ################################################################
 
     // CMD_GET_JUNCTION_VARIABLE
-    std::list<std::string> junctionGetIDList();
+    std::vector<std::string> junctionGetIDList();
     uint32_t junctionGetIDCount();
     Coord junctionGetPosition(std::string);
 
@@ -341,9 +341,9 @@ public:
     // ################################################################
 
     // CMD_GET_POLYGON_VARIABLE
-    std::list<std::string> polygonGetIDList();
+    std::vector<std::string> polygonGetIDList();
     uint32_t polygonGetIDCount();
-    std::list<Coord> polygonGetShape(std::string);
+    std::vector<Coord> polygonGetShape(std::string);
     std::string polygonGetTypeID(std::string);
 
     // CMD_SET_POLYGON_VARIABLE
@@ -363,7 +363,7 @@ public:
     // ################################################################
 
     // CMD_GET_PERSON
-    std::list<std::string> personGetIDList();
+    std::vector<std::string> personGetIDList();
     uint32_t personGetIDCount();
     std::string personGetTypeID(std::string);
     Coord personGetPosition(std::string);
@@ -428,9 +428,9 @@ private:
     double genericGetDouble(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
     int32_t genericGetInt(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
     std::string genericGetString(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
-    std::list<std::string> genericGetStringList(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
+    std::vector<std::string> genericGetStringVector(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
     Coord genericGetCoord(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
-    std::list<Coord> genericGetCoordList(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
+    std::vector<Coord> genericGetCoordVector(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
 
     uint8_t genericGetUnsignedByte(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);
     Coord genericGetCoordv2(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId);

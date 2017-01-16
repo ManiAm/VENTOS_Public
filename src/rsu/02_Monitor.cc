@@ -56,7 +56,7 @@ void ApplRSUMonitor::initialize(int stage)
         collectVehApproach = par("collectVehApproach").boolValue();
 
         // get a list of all TLs
-        std::list<std::string> TLlist = TraCI->TLGetIDList();
+        auto TLlist = TraCI->TLGetIDList();
 
         // look for myTLid in TL list
         auto it = std::find(TLlist.begin(), TLlist.end(), myTLid);
@@ -64,10 +64,11 @@ void ApplRSUMonitor::initialize(int stage)
         if(it != TLlist.end())
         {
             // for each incoming lane in this TL
-            std::list<std::string> lan = TraCI->TLGetControlledLanes(myTLid);
+            auto lan = TraCI->TLGetControlledLanes(myTLid);
 
             // remove duplicate entries
-            lan.unique();
+            sort( lan.begin(), lan.end() );
+            lan.erase( unique( lan.begin(), lan.end() ), lan.end() );
 
             // for each incoming lane
             for(auto &it2 :lan)

@@ -151,7 +151,7 @@ void Tracking::TrackingGUI()
         static bool vehFound = false;
         if(!vehFound)
         {
-            std::list<std::string> vehs = TraCI->vehicleGetIDList();
+            auto vehs = TraCI->vehicleGetIDList();
             auto it = std::find(vehs.begin(), vehs.end(), trackingV);
             // vehicle has not shown up yet!
             if(it == vehs.end())
@@ -191,12 +191,12 @@ void Tracking::TrackingGUI()
         }
 
         // get a list of vehicles on this lane!
-        std::list<std::string> myList = TraCI->laneGetLastStepVehicleIDs(trackingLane.c_str());
+        auto myList = TraCI->laneGetLastStepVehicleIDs(trackingLane.c_str());
 
         if(!myList.empty())
         {
             // iterator pointing to the last element
-            std::list<std::string>::iterator it = myList.end();
+            auto it = myList.end();
             --it;
 
             // get the first inserted vehicle on this lane

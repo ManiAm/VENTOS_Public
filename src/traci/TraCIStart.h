@@ -111,7 +111,7 @@ private:
     std::map<std::string, cModule*> hosts; /**< vector of all hosts managed by us */
     std::set<std::string> subscribedVehicles; /**< all vehicles we have already subscribed to */
     std::set<std::string> subscribedPedestrians; /**< all pedestrians we have already subscribed to */
-    std::list<std::string> allPedestrians;
+    std::vector<std::string> allPedestrians;
     std::set<std::string> unEquippedHosts;
 
     omnetpp::cMessage* connectAndStartTrigger = NULL; /**< self-message scheduled for when to connect to TraCI server and start running */

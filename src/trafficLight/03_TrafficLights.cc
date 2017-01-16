@@ -81,15 +81,16 @@ void TrafficLights::initialize_withTraCI()
         std::string TLid = it;
 
         // get all incoming lanes
-        std::list<std::string> lan = TraCI->TLGetControlledLanes(it);
+        auto lan = TraCI->TLGetControlledLanes(it);
 
         // remove duplicate entries
-        lan.unique();
+        sort( lan.begin(), lan.end() );
+        lan.erase( unique( lan.begin(), lan.end() ), lan.end() );
 
         laneListTL[TLid] = std::make_pair(lan.size(),lan);
 
-        std::list<std::string> bikeLaneList;
-        std::list<std::string> sideWalkList;
+        std::vector<std::string> bikeLaneList;
+        std::vector<std::string> sideWalkList;
 
         // for each incoming lane
         for(auto &it2 : lan)
@@ -99,7 +100,7 @@ void TrafficLights::initialize_withTraCI()
             allIncomingLanes[lane] = TLid;
 
             // store all bike lanes and side walks
-            std::list<std::string> allowedClasses = TraCI->laneGetAllowedClasses(lane);
+            auto allowedClasses = TraCI->laneGetAllowedClasses(lane);
             if(allowedClasses.size() == 1 && allowedClasses.front() == "bicycle")
                 bikeLaneList.push_back(lane);
             else if(allowedClasses.size() == 1 && allowedClasses.front() == "pedestrian")

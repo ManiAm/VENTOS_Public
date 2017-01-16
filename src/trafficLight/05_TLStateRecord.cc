@@ -157,7 +157,7 @@ void TLStateRecord::updateTLstate(std::string TLid, std::string stage, std::stri
             //                throw omnetpp::cRuntimeError("red interval is not %0.3f", redTime);
 
             // get all incoming lanes for this TLid
-            std::list<std::string> lan = laneListTL[TLid].second;
+            auto lan = laneListTL[TLid].second;
 
             // for each incoming lane
             int totalQueueSize = 0;

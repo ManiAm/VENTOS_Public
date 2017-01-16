@@ -98,7 +98,7 @@ protected:
     int lastValueBuffSize;
 
     // class variables
-    std::list<std::string> lanesList;  // list of all lanes in the network
+    std::vector<std::string> lanesList;  // list of all lanes in the network
 
     std::map<std::string /*vehID*/, delayEntry> vehDelay;   // vehicle intersection delay
     std::map<std::string /*lane*/, std::map<std::string /*vehID*/, double /*accum delay of vehID*/>> laneDelay;  // accumulated delay of each vehicle on each incoming lane

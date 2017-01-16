@@ -286,17 +286,16 @@ void TraCI_Start::init_traci()
     if (obstacles)
     {
         // get list of polygons
-        std::list<std::string> ids = polygonGetIDList();
+        auto ids = polygonGetIDList();
 
-        for (std::list<std::string>::iterator i = ids.begin(); i != ids.end(); ++i)
+        for (auto &id : ids)
         {
-            std::string id = *i;
             std::string typeId = polygonGetTypeID(id);
 
             if (!obstacles->isTypeSupported(typeId))
                 continue;
 
-            std::list<Coord> coords = polygonGetShape(id);
+            auto coords = polygonGetShape(id);
             std::vector<Coord> shape;
             std::copy(coords.begin(), coords.end(), std::back_inserter(shape));
             obstacles->addFromTypeAndShape(id, typeId, shape);

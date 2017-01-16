@@ -66,7 +66,7 @@ private:
     typedef TrafficLightBase super;
 
     bool collectInductionLoopData;
-    std::list<std::string> AllLDs;
+    std::vector<std::string> AllLDs;
     std::vector<LoopDetectorData> Vec_loopDetectors;
 
 public:

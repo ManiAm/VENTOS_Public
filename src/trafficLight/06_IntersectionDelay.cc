@@ -115,9 +115,9 @@ void IntersectionDelay::vehiclesDelay()
     for(auto &i : lanesList)
     {
         // get all vehicles on lane i
-        std::list<std::string> allVeh = TraCI->laneGetLastStepVehicleIDs( i.c_str() );
+        auto allVeh = TraCI->laneGetLastStepVehicleIDs( i.c_str() );
 
-        for(std::list<std::string>::reverse_iterator k = allVeh.rbegin(); k != allVeh.rend(); ++k)
+        for(std::vector<std::string>::reverse_iterator k = allVeh.rbegin(); k != allVeh.rend(); ++k)
         {
             std::string vID = k->c_str();
 

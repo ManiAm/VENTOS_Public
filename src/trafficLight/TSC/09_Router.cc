@@ -357,7 +357,7 @@ void TrafficLightRouter::HighDensityRecalculate()
         std::vector<Lane*>* lanes = &(*edge)->lanes;
         for(std::vector<Lane*>::iterator lane = lanes->begin(); lane != lanes->end(); lane++)    //For each lane
         {
-            std::list<std::string> vehicleIDs = TraCI->laneGetLastStepVehicleIDs((*lane)->id); //Get all vehicles on that lane
+            auto vehicleIDs = TraCI->laneGetLastStepVehicleIDs((*lane)->id); //Get all vehicles on that lane
             int vehCount = vehicleIDs.size();   //And the number of vehicles on that lane
             for(std::vector<int>::iterator it = (*lane)->greenPhases.begin(); it != (*lane)->greenPhases.end(); it++)    //Each element of greenPhases is a phase that lets that lane move
             {
@@ -415,13 +415,11 @@ void TrafficLightRouter::FlowRateRecalculate()
     {
         for(Lane*& lane1 : edge1->lanes) //For each lane on those edges
         {
-
-            //TraCI->laneGetIDList(lane1->id)
             for(std::string& vehicle : TraCI->laneGetLastStepVehicleIDs(lane1->id))   //For each vehicle on those lanes
             {
-                std::list<std::string> route = TraCI->vehicleGetRoute(vehicle);    //Get the vehicle's route
+                auto route = TraCI->vehicleGetRoute(vehicle);    //Get the vehicle's route
                 while(route.front().compare(edge1->id) != 0) //Remove edges it's already traveled (TODO: this doesn't check for cycles!)
-                    route.pop_front();
+                    //  route.pop_front();  todo: remove commnet
 
                 if(route.size() > 1)    //If 1 entry, vehicle will vanish at the end of the edge, so we don't count it
                 {
@@ -441,9 +439,9 @@ void TrafficLightRouter::FlowRateRecalculate()
             {
                 for(std::string& vehicle : TraCI->laneGetLastStepVehicleIDs(lane2->id))   //For each vehicle on those lanes
                 {
-                    std::list<std::string> route = TraCI->vehicleGetRoute(vehicle);    //Get the vehicle's route
+                    auto route = TraCI->vehicleGetRoute(vehicle);    //Get the vehicle's route
                     while(route.front().compare(edge2->id) != 0) //Remove edges it's already traveled (TODO: this doesn't check for cycles!)
-                        route.pop_front();
+                        // route.pop_front();   todo: remove commnet
 
                     if(route.size() > 2)    //If < 3 entry, vehicle will vanish at the end of the edge, so we don't count it
                     {
@@ -580,12 +578,12 @@ bool TrafficLightRouter::LowDensityVehicleCheck()    //This function assumes it'
         {
             if(find((*lane)->greenPhases.begin(), (*lane)->greenPhases.end(), currentPhase) != (*lane)->greenPhases.end()) //If this lane has a green
             {
-                std::list<std::string> vehicleIDs = TraCI->laneGetLastStepVehicleIDs((*lane)->id); //If so, get all vehicles on this lane
-                for(std::list<std::string>::iterator vehicle = vehicleIDs.begin(); vehicle != vehicleIDs.end(); vehicle++)    //For each vehicle
+                auto vehicleIDs = TraCI->laneGetLastStepVehicleIDs((*lane)->id); //If so, get all vehicles on this lane
+                for(auto &vehicle : vehicleIDs)    //For each vehicle
                 {
-                    if(TraCI->vehicleGetSpeed(*vehicle) > 0.01)  //If that vehicle is not stationary
+                    if(TraCI->vehicleGetSpeed(vehicle) > 0.01)  //If that vehicle is not stationary
                     {
-                        double pos = TraCI->vehicleGetLanePosition(*vehicle);
+                        double pos = TraCI->vehicleGetLanePosition(vehicle);
                         double length = (*edge)->length;
                         double speed = (*edge)->speed;
                         double timeLeft = (length - pos) / speed;   //Calculate how long until it hits the intersection, based off speed and distance

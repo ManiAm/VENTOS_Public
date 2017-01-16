@@ -122,7 +122,7 @@ void SpeedProfile::eachTimeStep()
     if(vehId == "")
     {
         // get a list of all vehicles on lane 'laneId'
-        std::list<std::string> veh = TraCI->laneGetLastStepVehicleIDs(laneId);
+        auto veh = TraCI->laneGetLastStepVehicleIDs(laneId);
 
         // return if no vehicle exist
         if(veh.empty())
@@ -137,7 +137,7 @@ void SpeedProfile::eachTimeStep()
         static bool vehEntered = false;
         if(!vehEntered)
         {
-            std::list<std::string> all = TraCI->vehicleGetIDList();
+            auto all = TraCI->vehicleGetIDList();
 
             // iterate over all vehicles
             for(auto &ii: all)
@@ -246,10 +246,6 @@ void SpeedProfile::DoSpeedProfile()
     {
         TraCI->vehicleSetMaxDecel(profileVehicle, 20.);
         TraCI->vehicleSetSpeed(profileVehicle, 0.);
-
-        // todo: change vehicle color to gray! -- for HIL
-        RGB newColor = Color::colorNameToRGB("gray");
-        TraCI->vehicleSetColor(profileVehicle, newColor);
     }
     else if(mode == 2)
     {

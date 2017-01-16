@@ -200,12 +200,12 @@ uint32_t TraCI_Commands::simulationGetLoadedVehiclesCount()
 }
 
 
-std::list<std::string> TraCI_Commands::simulationGetLoadedVehiclesIDList()
+std::vector<std::string> TraCI_Commands::simulationGetLoadedVehiclesIDList()
 {
     record_TraCI_activity_func("commandStart", CMD_GET_SIM_VARIABLE, VAR_LOADED_VEHICLES_IDS, "simulationGetLoadedVehiclesIDList");
 
     uint8_t resultTypeId = TYPE_STRINGLIST;
-    std::list<std::string> res;
+    std::vector<std::string> res;
 
     TraCIBuffer buf = connection->query(CMD_GET_SIM_VARIABLE, TraCIBuffer() << static_cast<uint8_t>(VAR_LOADED_VEHICLES_IDS) << std::string("sim0"));
 
@@ -362,11 +362,11 @@ double TraCI_Commands::simulationGetTimeStep()
 // #########################
 
 // gets a list of all vehicles in the network (alphabetically!!!)
-std::list<std::string> TraCI_Commands::vehicleGetIDList()
+std::vector<std::string> TraCI_Commands::vehicleGetIDList()
 {
     record_TraCI_activity_func("commandStart", CMD_GET_VEHICLE_VARIABLE, ID_LIST, "vehicleGetIDList");
 
-    std::list<std::string> result = genericGetStringList(CMD_GET_VEHICLE_VARIABLE, "", ID_LIST, RESPONSE_GET_VEHICLE_VARIABLE);
+    auto result = genericGetStringVector(CMD_GET_VEHICLE_VARIABLE, "", ID_LIST, RESPONSE_GET_VEHICLE_VARIABLE);
 
     record_TraCI_activity_func("commandComplete", CMD_GET_VEHICLE_VARIABLE, ID_LIST, "vehicleGetIDList");
     return result;
@@ -501,11 +501,11 @@ std::string TraCI_Commands::vehicleGetRouteID(std::string nodeId)
 }
 
 
-std::list<std::string> TraCI_Commands::vehicleGetRoute(std::string nodeId)
+std::vector<std::string> TraCI_Commands::vehicleGetRoute(std::string nodeId)
 {
     record_TraCI_activity_func("commandStart", CMD_GET_VEHICLE_VARIABLE, VAR_EDGES, "vehicleGetRoute");
 
-    std::list<std::string> result = genericGetStringList(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_EDGES, RESPONSE_GET_VEHICLE_VARIABLE);
+    auto result = genericGetStringVector(CMD_GET_VEHICLE_VARIABLE, nodeId, VAR_EDGES, RESPONSE_GET_VEHICLE_VARIABLE);
 
     record_TraCI_activity_func("commandComplete", CMD_GET_VEHICLE_VARIABLE, VAR_EDGES, "vehicleGetRoute");
     return result;
@@ -1221,11 +1221,11 @@ void TraCI_Commands::vehicleSetDebug(std::string nodeId, bool value)
 // CMD_GET_VEHICLETYPE_VARIABLE
 // ############################
 
-std::list<std::string> TraCI_Commands::vehicleTypeGetIDList()
+std::vector<std::string> TraCI_Commands::vehicleTypeGetIDList()
 {
     record_TraCI_activity_func("commandStart", CMD_GET_VEHICLETYPE_VARIABLE, ID_LIST, "vehicleTypeGetIDList");
 
-    std::list<std::string> result = genericGetStringList(CMD_GET_VEHICLETYPE_VARIABLE, "", ID_LIST, RESPONSE_GET_VEHICLETYPE_VARIABLE);
+    auto result = genericGetStringVector(CMD_GET_VEHICLETYPE_VARIABLE, "", ID_LIST, RESPONSE_GET_VEHICLETYPE_VARIABLE);
 
     record_TraCI_activity_func("commandComplete", CMD_GET_VEHICLETYPE_VARIABLE, ID_LIST, "vehicleTypeGetIDList");
     return result;
@@ -1356,11 +1356,11 @@ void TraCI_Commands::vehicleTypeSetComfDecel(std::string nodeId, double speed)
 // CMD_GET_ROUTE_VARIABLE
 // ######################
 
-std::list<std::string> TraCI_Commands::routeGetIDList()
+std::vector<std::string> TraCI_Commands::routeGetIDList()
 {
     record_TraCI_activity_func("commandStart", CMD_GET_ROUTE_VARIABLE, ID_LIST, "routeGetIDList");
 
-    std::list<std::string> result = genericGetStringList(CMD_GET_ROUTE_VARIABLE, "", ID_LIST, RESPONSE_GET_ROUTE_VARIABLE);
+    auto result = genericGetStringVector(CMD_GET_ROUTE_VARIABLE, "", ID_LIST, RESPONSE_GET_ROUTE_VARIABLE);
 
     record_TraCI_activity_func("commandComplete", CMD_GET_ROUTE_VARIABLE, ID_LIST, "routeGetIDList");
     return result;
@@ -1378,11 +1378,11 @@ uint32_t TraCI_Commands::routeGetIDCount()
 }
 
 
-std::list<std::string> TraCI_Commands::routeGetEdges(std::string routeID)
+std::vector<std::string> TraCI_Commands::routeGetEdges(std::string routeID)
 {
     record_TraCI_activity_func("commandStart", CMD_GET_ROUTE_VARIABLE, VAR_EDGES, "routeGetEdges");
 
-    std::list<std::string> result = genericGetStringList(CMD_GET_ROUTE_VARIABLE, routeID, VAR_EDGES, RESPONSE_GET_ROUTE_VARIABLE);
+    auto result = genericGetStringVector(CMD_GET_ROUTE_VARIABLE, routeID, VAR_EDGES, RESPONSE_GET_ROUTE_VARIABLE);
 
     record_TraCI_activity_func("commandComplete", CMD_GET_ROUTE_VARIABLE, VAR_EDGES, "routeGetEdges");
     return result;
@@ -1424,11 +1424,11 @@ void TraCI_Commands::routeAdd(std::string name, std::list<std::string> route)
 // CMD_GET_EDGE_VARIABLE
 // ######################
 
-std::list<std::string> TraCI_Commands::edgeGetIDList()
+std::vector<std::string> TraCI_Commands::edgeGetIDList()
 {
     record_TraCI_activity_func("commandStart", CMD_GET_EDGE_VARIABLE, ID_LIST, "edgeGetIDList");
 
-    std::list<std::string> result = genericGetStringList(CMD_GET_EDGE_VARIABLE, "", ID_LIST, RESPONSE_GET_EDGE_VARIABLE);
+    auto result = genericGetStringVector(CMD_GET_EDGE_VARIABLE, "", ID_LIST, RESPONSE_GET_EDGE_VARIABLE);
 
     record_TraCI_activity_func("commandComplete", CMD_GET_EDGE_VARIABLE, ID_LIST, "edgeGetIDList");
     return result;
@@ -1468,11 +1468,11 @@ uint32_t TraCI_Commands::edgeGetLastStepVehicleNumber(std::string Id)
 }
 
 
-std::list<std::string> TraCI_Commands::edgeGetLastStepVehicleIDs(std::string Id)
+std::vector<std::string> TraCI_Commands::edgeGetLastStepVehicleIDs(std::string Id)
 {
     record_TraCI_activity_func("commandStart", CMD_GET_EDGE_VARIABLE, LAST_STEP_VEHICLE_ID_LIST, "edgeGetLastStepVehicleIDs");
 
-    std::list<std::string> result = genericGetStringList(CMD_GET_EDGE_VARIABLE, Id, LAST_STEP_VEHICLE_ID_LIST, RESPONSE_GET_EDGE_VARIABLE);
+    auto result = genericGetStringVector(CMD_GET_EDGE_VARIABLE, Id, LAST_STEP_VEHICLE_ID_LIST, RESPONSE_GET_EDGE_VARIABLE);
 
     record_TraCI_activity_func("commandComplete", CMD_GET_EDGE_VARIABLE, LAST_STEP_VEHICLE_ID_LIST, "edgeGetLastStepVehicleIDs");
     return result;
@@ -1501,11 +1501,11 @@ double TraCI_Commands::edgeGetLastStepMeanVehicleLength(std::string Id)
 }
 
 
-std::list<std::string> TraCI_Commands::edgeGetLastStepPersonIDs(std::string Id)
+std::vector<std::string> TraCI_Commands::edgeGetLastStepPersonIDs(std::string Id)
 {
     record_TraCI_activity_func("commandStart", CMD_GET_EDGE_VARIABLE, LAST_STEP_PERSON_ID_LIST, "edgeGetLastStepPersonIDs");
 
-    std::list<std::string> result = genericGetStringList(CMD_GET_EDGE_VARIABLE, Id, 0x1a, RESPONSE_GET_EDGE_VARIABLE);
+    auto result = genericGetStringVector(CMD_GET_EDGE_VARIABLE, Id, 0x1a, RESPONSE_GET_EDGE_VARIABLE);
 
     record_TraCI_activity_func("commandComplete", CMD_GET_EDGE_VARIABLE, LAST_STEP_PERSON_ID_LIST, "edgeGetLastStepPersonIDs");
     return result;
@@ -1547,11 +1547,11 @@ void TraCI_Commands::edgeSetGlobalTravelTime(std::string edgeId, int32_t beginT,
 // #####################
 
 // gets a list of all lanes in the network
-std::list<std::string> TraCI_Commands::laneGetIDList()
+std::vector<std::string> TraCI_Commands::laneGetIDList()
 {
     record_TraCI_activity_func("commandStart", CMD_GET_LANE_VARIABLE, ID_LIST, "laneGetIDList");
 
-    std::list<std::string> result = genericGetStringList(CMD_GET_LANE_VARIABLE, "", ID_LIST, RESPONSE_GET_LANE_VARIABLE);
+    auto result = genericGetStringVector(CMD_GET_LANE_VARIABLE, "", ID_LIST, RESPONSE_GET_LANE_VARIABLE);
 
     record_TraCI_activity_func("commandComplete", CMD_GET_LANE_VARIABLE, ID_LIST, "laneGetIDList");
     return result;
@@ -1672,11 +1672,11 @@ std::map<int,linkEntry_t> TraCI_Commands::laneGetLinks(std::string laneId)
 }
 
 
-std::list<std::string> TraCI_Commands::laneGetAllowedClasses(std::string laneId)
+std::vector<std::string> TraCI_Commands::laneGetAllowedClasses(std::string laneId)
 {
     record_TraCI_activity_func("commandStart", CMD_GET_LANE_VARIABLE, LANE_ALLOWED, "laneGetAllowedClasses");
 
-    std::list<std::string> result = genericGetStringList(CMD_GET_LANE_VARIABLE, laneId, LANE_ALLOWED, RESPONSE_GET_LANE_VARIABLE);
+    auto result = genericGetStringVector(CMD_GET_LANE_VARIABLE, laneId, LANE_ALLOWED, RESPONSE_GET_LANE_VARIABLE);
 
     record_TraCI_activity_func("commandComplete", CMD_GET_LANE_VARIABLE, LANE_ALLOWED, "laneGetAllowedClasses");
     return result;
@@ -1727,11 +1727,11 @@ uint32_t TraCI_Commands::laneGetLastStepVehicleNumber(std::string laneId)
 }
 
 
-std::list<std::string> TraCI_Commands::laneGetLastStepVehicleIDs(std::string laneId)
+std::vector<std::string> TraCI_Commands::laneGetLastStepVehicleIDs(std::string laneId)
 {
     record_TraCI_activity_func("commandStart", CMD_GET_LANE_VARIABLE, LAST_STEP_VEHICLE_ID_LIST, "laneGetLastStepVehicleIDs");
 
-    std::list<std::string> result = genericGetStringList(CMD_GET_LANE_VARIABLE, laneId, LAST_STEP_VEHICLE_ID_LIST, RESPONSE_GET_LANE_VARIABLE);
+    auto result = genericGetStringVector(CMD_GET_LANE_VARIABLE, laneId, LAST_STEP_VEHICLE_ID_LIST, RESPONSE_GET_LANE_VARIABLE);
 
     record_TraCI_activity_func("commandComplete", CMD_GET_LANE_VARIABLE, LAST_STEP_VEHICLE_ID_LIST, "laneGetLastStepVehicleIDs");
     return result;
@@ -1787,11 +1787,11 @@ void TraCI_Commands::laneSetMaxSpeed(std::string laneId, double value)
 // CMD_GET_INDUCTIONLOOP_VARIABLE
 // ###############################
 
-std::list<std::string> TraCI_Commands::LDGetIDList()
+std::vector<std::string> TraCI_Commands::LDGetIDList()
 {
     record_TraCI_activity_func("commandStart", CMD_GET_INDUCTIONLOOP_VARIABLE, ID_LIST, "LDGetIDList");
 
-    std::list<std::string> result = genericGetStringList(CMD_GET_INDUCTIONLOOP_VARIABLE, "", ID_LIST, RESPONSE_GET_INDUCTIONLOOP_VARIABLE);
+    auto result = genericGetStringVector(CMD_GET_INDUCTIONLOOP_VARIABLE, "", ID_LIST, RESPONSE_GET_INDUCTIONLOOP_VARIABLE);
 
     record_TraCI_activity_func("commandComplete", CMD_GET_INDUCTIONLOOP_VARIABLE, ID_LIST, "LDGetIDList");
     return result;
@@ -1842,11 +1842,11 @@ uint32_t TraCI_Commands::LDGetLastStepVehicleNumber(std::string loopId)
 }
 
 
-std::list<std::string> TraCI_Commands::LDGetLastStepVehicleIDs(std::string loopId)
+std::vector<std::string> TraCI_Commands::LDGetLastStepVehicleIDs(std::string loopId)
 {
     record_TraCI_activity_func("commandStart", CMD_GET_INDUCTIONLOOP_VARIABLE, LAST_STEP_VEHICLE_ID_LIST, "LDGetLastStepVehicleIDs");
 
-    std::list<std::string> result = genericGetStringList(CMD_GET_INDUCTIONLOOP_VARIABLE, loopId, LAST_STEP_VEHICLE_ID_LIST, RESPONSE_GET_INDUCTIONLOOP_VARIABLE);
+    auto result = genericGetStringVector(CMD_GET_INDUCTIONLOOP_VARIABLE, loopId, LAST_STEP_VEHICLE_ID_LIST, RESPONSE_GET_INDUCTIONLOOP_VARIABLE);
 
     record_TraCI_activity_func("commandComplete", CMD_GET_INDUCTIONLOOP_VARIABLE, LAST_STEP_VEHICLE_ID_LIST, "LDGetLastStepVehicleIDs");
     return result;
@@ -1973,11 +1973,11 @@ double TraCI_Commands::LDGetLastStepOccupancy(std::string loopId)
 // CMD_GET_AREAL_DETECTOR_VARIABLE
 // ###############################
 
-std::list<std::string> TraCI_Commands::LADGetIDList()
+std::vector<std::string> TraCI_Commands::LADGetIDList()
 {
     record_TraCI_activity_func("commandStart", CMD_GET_AREAL_DETECTOR_VARIABLE, ID_LIST, "LADGetIDList");
 
-    std::list<std::string> result = genericGetStringList(CMD_GET_AREAL_DETECTOR_VARIABLE, "", ID_LIST, RESPONSE_GET_AREAL_DETECTOR_VARIABLE);
+    auto result = genericGetStringVector(CMD_GET_AREAL_DETECTOR_VARIABLE, "", ID_LIST, RESPONSE_GET_AREAL_DETECTOR_VARIABLE);
 
     record_TraCI_activity_func("commandComplete", CMD_GET_AREAL_DETECTOR_VARIABLE, ID_LIST, "LADGetIDList");
     return result;
@@ -2017,11 +2017,11 @@ uint32_t TraCI_Commands::LADGetLastStepVehicleNumber(std::string loopId)
 }
 
 
-std::list<std::string> TraCI_Commands::LADGetLastStepVehicleIDs(std::string loopId)
+std::vector<std::string> TraCI_Commands::LADGetLastStepVehicleIDs(std::string loopId)
 {
     record_TraCI_activity_func("commandStart", CMD_GET_AREAL_DETECTOR_VARIABLE, LAST_STEP_VEHICLE_ID_LIST, "LADGetLastStepVehicleIDs");
 
-    std::list<std::string> result = genericGetStringList(CMD_GET_AREAL_DETECTOR_VARIABLE, loopId, LAST_STEP_VEHICLE_ID_LIST, RESPONSE_GET_AREAL_DETECTOR_VARIABLE);
+    auto result = genericGetStringVector(CMD_GET_AREAL_DETECTOR_VARIABLE, loopId, LAST_STEP_VEHICLE_ID_LIST, RESPONSE_GET_AREAL_DETECTOR_VARIABLE);
 
     record_TraCI_activity_func("commandComplete", CMD_GET_AREAL_DETECTOR_VARIABLE, LAST_STEP_VEHICLE_ID_LIST, "LADGetLastStepVehicleIDs");
     return result;
@@ -2068,11 +2068,11 @@ double TraCI_Commands::LADGetLastStepJamLengthInMeter(std::string loopId)
 // CMD_GET_TL_VARIABLE
 // ###################
 
-std::list<std::string> TraCI_Commands::TLGetIDList()
+std::vector<std::string> TraCI_Commands::TLGetIDList()
 {
     record_TraCI_activity_func("commandStart", CMD_GET_TL_VARIABLE, ID_LIST, "TLGetIDList");
 
-    std::list<std::string> result = genericGetStringList(CMD_GET_TL_VARIABLE, "", ID_LIST, RESPONSE_GET_TL_VARIABLE);
+    auto result = genericGetStringVector(CMD_GET_TL_VARIABLE, "", ID_LIST, RESPONSE_GET_TL_VARIABLE);
 
     record_TraCI_activity_func("commandComplete", CMD_GET_TL_VARIABLE, ID_LIST, "TLGetIDList");
     return result;
@@ -2090,11 +2090,11 @@ uint32_t TraCI_Commands::TLGetIDCount()
 }
 
 
-std::list<std::string> TraCI_Commands::TLGetControlledLanes(std::string TLid)
+std::vector<std::string> TraCI_Commands::TLGetControlledLanes(std::string TLid)
 {
     record_TraCI_activity_func("commandStart", CMD_GET_TL_VARIABLE, TL_CONTROLLED_LANES, "TLGetControlledLanes");
 
-    std::list<std::string> result = genericGetStringList(CMD_GET_TL_VARIABLE, TLid, TL_CONTROLLED_LANES, RESPONSE_GET_TL_VARIABLE);
+    auto result = genericGetStringVector(CMD_GET_TL_VARIABLE, TLid, TL_CONTROLLED_LANES, RESPONSE_GET_TL_VARIABLE);
 
     record_TraCI_activity_func("commandComplete", CMD_GET_TL_VARIABLE, TL_CONTROLLED_LANES, "TLGetControlledLanes");
     return result;
@@ -2277,11 +2277,11 @@ void TraCI_Commands::TLSetState(std::string TLid, std::string value)
 // CMD_GET_JUNCTION_VARIABLE
 // #########################
 
-std::list<std::string> TraCI_Commands::junctionGetIDList()
+std::vector<std::string> TraCI_Commands::junctionGetIDList()
 {
     record_TraCI_activity_func("commandStart", CMD_GET_JUNCTION_VARIABLE, ID_LIST, "junctionGetIDList");
 
-    std::list<std::string> result = genericGetStringList(CMD_GET_JUNCTION_VARIABLE, "", ID_LIST, RESPONSE_GET_JUNCTION_VARIABLE);
+    auto result = genericGetStringVector(CMD_GET_JUNCTION_VARIABLE, "", ID_LIST, RESPONSE_GET_JUNCTION_VARIABLE);
 
     record_TraCI_activity_func("commandComplete", CMD_GET_JUNCTION_VARIABLE, ID_LIST, "junctionGetIDList");
     return result;
@@ -2395,11 +2395,11 @@ void TraCI_Commands::GUISetTrackVehicle(std::string viewID, std::string nodeId)
 // CMD_GET_POLYGON_VARIABLE
 // ########################
 
-std::list<std::string> TraCI_Commands::polygonGetIDList()
+std::vector<std::string> TraCI_Commands::polygonGetIDList()
 {
     record_TraCI_activity_func("commandStart", CMD_GET_POLYGON_VARIABLE, ID_LIST, "polygonGetIDList");
 
-    std::list<std::string> result = genericGetStringList(CMD_GET_POLYGON_VARIABLE, "", ID_LIST, RESPONSE_GET_POLYGON_VARIABLE);
+    auto result = genericGetStringVector(CMD_GET_POLYGON_VARIABLE, "", ID_LIST, RESPONSE_GET_POLYGON_VARIABLE);
 
     record_TraCI_activity_func("commandComplete", CMD_GET_POLYGON_VARIABLE, ID_LIST, "polygonGetIDList");
     return result;
@@ -2417,11 +2417,11 @@ uint32_t TraCI_Commands::polygonGetIDCount()
 }
 
 
-std::list<Coord> TraCI_Commands::polygonGetShape(std::string polyId)
+std::vector<Coord> TraCI_Commands::polygonGetShape(std::string polyId)
 {
     record_TraCI_activity_func("commandStart", CMD_GET_POLYGON_VARIABLE, VAR_SHAPE, "polygonGetShape");
 
-    std::list<Coord> result = genericGetCoordList(CMD_GET_POLYGON_VARIABLE, polyId, VAR_SHAPE, RESPONSE_GET_POLYGON_VARIABLE);
+    auto result = genericGetCoordVector(CMD_GET_POLYGON_VARIABLE, polyId, VAR_SHAPE, RESPONSE_GET_POLYGON_VARIABLE);
 
     record_TraCI_activity_func("commandComplete", CMD_GET_POLYGON_VARIABLE, VAR_SHAPE, "polygonGetShape");
     return result;
@@ -2544,11 +2544,11 @@ void TraCI_Commands::addPoi(std::string poiId, std::string poiType, const RGB co
 // CMD_GET_PERSON
 // ##############
 
-std::list<std::string> TraCI_Commands::personGetIDList()
+std::vector<std::string> TraCI_Commands::personGetIDList()
 {
     record_TraCI_activity_func("commandStart", CMD_GET_PERSON_VARIABLE, ID_LIST, "personGetIDList");
 
-    std::list<std::string> result = genericGetStringList(CMD_GET_PERSON_VARIABLE, "", ID_LIST, RESPONSE_GET_PERSON_VARIABLE);
+    auto result = genericGetStringVector(CMD_GET_PERSON_VARIABLE, "", ID_LIST, RESPONSE_GET_PERSON_VARIABLE);
 
     record_TraCI_activity_func("commandComplete", CMD_GET_PERSON_VARIABLE, ID_LIST, "personGetIDList");
     return result;
@@ -2958,10 +2958,10 @@ std::string TraCI_Commands::genericGetString(uint8_t commandId, std::string obje
 }
 
 
-std::list<std::string> TraCI_Commands::genericGetStringList(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId)
+std::vector<std::string> TraCI_Commands::genericGetStringVector(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId)
 {
     uint8_t resultTypeId = TYPE_STRINGLIST;
-    std::list<std::string> res;
+    std::vector<std::string> res;
 
     TraCIBuffer buf = connection->query(commandId, TraCIBuffer() << variableId << objectId);
 
@@ -3021,10 +3021,10 @@ Coord TraCI_Commands::genericGetCoord(uint8_t commandId, std::string objectId, u
 }
 
 
-std::list<Coord> TraCI_Commands::genericGetCoordList(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId)
+std::vector<Coord> TraCI_Commands::genericGetCoordVector(uint8_t commandId, std::string objectId, uint8_t variableId, uint8_t responseId)
 {
     uint8_t resultTypeId = TYPE_POLYGON;
-    std::list<Coord> res;
+    std::vector<Coord> res;
 
     TraCIBuffer buf = connection->query(commandId, TraCIBuffer() << variableId << objectId);
 

@@ -330,7 +330,7 @@ void AddMobileNode::Scenario8()
 
         r->net->vehicles[id] = new Vehicle(id, type, origin, destination, depart);
 
-        std::list<std::string> routeList = TraCI->routeGetIDList();   //Get all the routes so far
+        auto routeList = TraCI->routeGetIDList();   //Get all the routes so far
         if(std::find(routeList.begin(), routeList.end(), origin) == routeList.end())
         {
             std::list<std::string> startRoute;
