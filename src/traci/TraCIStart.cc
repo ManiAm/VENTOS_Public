@@ -731,6 +731,7 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
                     int count1 = simulationGetMinExpectedNumber();
                     // get number of pedestrians
                     int count2 = personGetIDCount();
+
                     // terminate if all departed vehicles have arrived
                     if (count > 0 && count1 + count2 == 0)
                         terminate_simulation();
@@ -1010,40 +1011,13 @@ void TraCI_Start::addVehicle(std::string nodeId /*sumo id*/, std::string type, s
     mod->getDisplayString().parse(displayString.c_str());
     mod->buildInside();
 
-    if(vClass == "bicycle")
-    {
-        mod->getSubmodule("appl")->par("SUMOID") = nodeId;
-        mod->getSubmodule("appl")->par("SUMOType") = vehicleGetTypeID(nodeId);
-        mod->getSubmodule("appl")->par("vehicleClass") = vClass;
-    }
-    // obstacle
-    else if(vClass == "custom1")
-    {
-        mod->getSubmodule("appl")->par("SUMOID") = nodeId;
-        mod->getSubmodule("appl")->par("SUMOType") = vehicleGetTypeID(nodeId);
-        mod->getSubmodule("appl")->par("vehicleClass") = vClass;
-
-        mod->getSubmodule("appl")->par("SUMOControllerType") = -1;
-        mod->getSubmodule("appl")->par("SUMOControllerNumber") = -1;
-    }
-    // any other motor vehicle
-    else
-    {
-        std::string vehType = vehicleGetTypeID(nodeId);
-
-        mod->getSubmodule("appl")->par("SUMOID") = nodeId;
-        mod->getSubmodule("appl")->par("SUMOType") = vehType;
-        mod->getSubmodule("appl")->par("vehicleClass") = vClass;
-
-        mod->getSubmodule("appl")->par("SUMOControllerType") = vehicleTypeGetControllerType(vehType);
-        mod->getSubmodule("appl")->par("SUMOControllerNumber") = vehicleTypeGetControllerNumber(vehType);
-    }
-
+    bool hasOBU_val = false;
+    std::string IPaddress_val = "";
     auto ii = SUMOid_ipv4_mapping.find(nodeId);
     if(ii != SUMOid_ipv4_mapping.end())
     {
-        mod->getSubmodule("appl")->par("hasOBU") = true;
-        mod->getSubmodule("appl")->par("IPaddress") = ii->second;
+        hasOBU_val = true;
+        IPaddress_val = ii->second;
 
         // save ipAddress <--> omnetId mapping
         auto jj = ipv4_OMNETid_mapping.find(ii->second);
@@ -1051,10 +1025,40 @@ void TraCI_Start::addVehicle(std::string nodeId /*sumo id*/, std::string type, s
             throw omnetpp::cRuntimeError("IP address '%s' is not unique!", ii->second.c_str());
         ipv4_OMNETid_mapping[ii->second] = mod->getFullName();
     }
+
+    if(vClass == "bicycle")
+    {
+        mod->par("SUMOID") = nodeId;
+        mod->par("SUMOType") = vehicleGetTypeID(nodeId);
+        mod->par("vehicleClass") = vClass;
+
+        mod->par("hasOBU") = hasOBU_val;
+        mod->par("IPaddress") = IPaddress_val;
+    }
+    // obstacle
+    else if(vClass == "custom1")
+    {
+        mod->par("SUMOID") = nodeId;
+        mod->par("SUMOType") = vehicleGetTypeID(nodeId);
+        mod->par("vehicleClass") = vClass;
+
+        mod->par("hasOBU") = hasOBU_val;
+        mod->par("IPaddress") = IPaddress_val;
+    }
+    // any other motor vehicle
     else
     {
-        mod->getSubmodule("appl")->par("hasOBU") = false;
-        mod->getSubmodule("appl")->par("IPaddress") = "";
+        std::string vehType = vehicleGetTypeID(nodeId);
+
+        mod->par("SUMOID") = nodeId;
+        mod->par("SUMOType") = vehType;
+        mod->par("vehicleClass") = vClass;
+
+        mod->par("hasOBU") = hasOBU_val;
+        mod->par("IPaddress") = IPaddress_val;
+
+        mod->par("SUMOControllerType") = vehicleTypeGetControllerType(vehType);
+        mod->par("SUMOControllerNumber") = vehicleTypeGetControllerNumber(vehType);
     }
 
     mod->scheduleStart(omnetpp::simTime() + updateInterval);

@@ -32,6 +32,7 @@
 #include "MIXIM/modules/ChannelAccess.h"
 #include "veins/WaveAppToMac1609_4Interface.h"
 #include "traci/TraCICommands.h"
+#include "global/Statistics.h"
 
 class dataExchange;
 
@@ -45,6 +46,7 @@ private:
 protected:
     // NED variables
     TraCI_Commands* TraCI;
+    VENTOS::Statistics* STAT;
 
     // module info
     int myId;
@@ -52,6 +54,10 @@ protected:
     std::string SUMOID;
     std::string SUMOType;
     std::string vehicleClass;
+
+    bool hasOBU;
+    std::string IPaddress;
+
     int SUMOControllerType;
     int SUMOControllerNumber;
 

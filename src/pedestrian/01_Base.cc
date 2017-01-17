@@ -47,10 +47,6 @@ void ApplPedBase::initialize(int stage)
         TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
 
-        // get a pointer to the traffic light
-        module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TrafficLight");
-        TLControlMode = module->par("TLControlMode").longValue();
-
         headerLength = par("headerLength").longValue();
 
         // pedestrian id in omnet++
@@ -58,11 +54,14 @@ void ApplPedBase::initialize(int stage)
 		// pedestrian full id in omnet++
 		myFullId = getParentModule()->getFullName();
         // pedestrian id in sumo
-        SUMOID = par("SUMOID").stringValue();
+        SUMOID = getParentModule()->par("SUMOID").stringValue();
         // pedestrian type in sumo
-        SUMOType = par("SUMOType").stringValue();
+        SUMOType = getParentModule()->par("SUMOType").stringValue();
         // vehicle class in sumo
-        vehicleClass = par("vehicleClass").stringValue();
+        vehicleClass = getParentModule()->par("vehicleClass").stringValue();
+
+        hasOBU = getParentModule()->par("hasOBU").boolValue();
+        IPaddress = getParentModule()->par("IPaddress").stringValue();
 
         // store the time of entry
         entryTime = omnetpp::simTime().dbl();

@@ -40,7 +40,6 @@ class ApplPedBase : public BaseApplLayer
 protected:
     // NED variables
     TraCI_Commands* TraCI;
-    int TLControlMode;
 
     // module info
     int myId;
@@ -48,6 +47,8 @@ protected:
     std::string SUMOID;
     std::string SUMOType;
     std::string vehicleClass;
+    bool hasOBU;
+    std::string IPaddress;
 
     Coord curPosition;  // current position from mobility module (not from sumo)
     double entryTime;

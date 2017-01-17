@@ -7,12 +7,21 @@ import VENTOS.src.traci.TraCIMobilityMod;
 module vehicle
 {
     parameters:
-        @signal[VehicleState]();
         @signal[beaconSignaling]();
         @signal[system]();
         
         bool record_stat = default(false);
         string record_list = default("timeStep | id | lane | lanePos | speed");
+        
+        string SUMOID = default("");
+        string SUMOType = default("");
+        string vehicleClass = default("");
+        
+        bool hasOBU = default(false);
+        string IPaddress = default("");
+        
+        int SUMOControllerType = default(-1);
+        int SUMOControllerNumber = default(-1);
         
         bool SUMOvehicleDebug = default(false);  // controling SUMO debug output
         bool degradeToACC = default(true);
@@ -55,15 +64,6 @@ simple ApplVBase like IBaseApplLayer
         
         int headerLength = default(256bit) @unit(bit); //header length of the application        
         bool debug = default(false); //whether to print debug output
-        
-        string SUMOID = default("");
-        string SUMOType = default("");
-        string vehicleClass = default("");
-        int SUMOControllerType = default(-1);
-        int SUMOControllerNumber = default(-1);
-        
-        bool hasOBU = default(false);
-        string IPaddress = default("");
 
     gates:
         input lowerLayerIn;    // from mac layer
@@ -135,6 +135,8 @@ simple ApplVPlatoonFormed extends ApplVAID
         // plnMode = 2: pre-defined platoon
         // plnMode = 3: platoon management is active
         int plnMode = default(1);
+        
+        bool record_platoon_stat = default(false);
         
         string preDefinedPlatoonID = default("CACC1"); // only in plnMode = 2
 }

@@ -49,6 +49,11 @@ void ApplVBase::initialize(int stage)
         TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
 
+        // get a pointer to the Statistics module
+        module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("statistics");
+        STAT = static_cast<VENTOS::Statistics *>(module);
+        ASSERT(STAT);
+
         headerLength = par("headerLength").longValue();
 
         // vehicle id in omnet++
@@ -56,15 +61,19 @@ void ApplVBase::initialize(int stage)
         // vehicle full id in omnet++
         myFullId = getParentModule()->getFullName();
         // vehicle id in sumo
-        SUMOID = par("SUMOID").stringValue();
+        SUMOID = getParentModule()->par("SUMOID").stringValue();
         // vehicle type in sumo
-        SUMOType = par("SUMOType").stringValue();
+        SUMOType = getParentModule()->par("SUMOType").stringValue();
         // vehicle class in sumo
-        vehicleClass = par("vehicleClass").stringValue();
+        vehicleClass = getParentModule()->par("vehicleClass").stringValue();
+
+        hasOBU = getParentModule()->par("hasOBU").boolValue();
+        IPaddress = getParentModule()->par("IPaddress").stringValue();
+
         // get controller type from SUMO
-        SUMOControllerType = par("SUMOControllerType").longValue();
+        SUMOControllerType = getParentModule()->par("SUMOControllerType").longValue();
         // get controller number from SUMO
-        SUMOControllerNumber = par("SUMOControllerNumber").longValue();
+        SUMOControllerNumber = getParentModule()->par("SUMOControllerNumber").longValue();
 
         // store the time of entry
         entryTime = omnetpp::simTime().dbl();

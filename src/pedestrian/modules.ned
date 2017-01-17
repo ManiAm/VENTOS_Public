@@ -9,6 +9,16 @@ module pedestrian
     parameters:
         @signal[beaconSignaling]();
         
+        bool record_stat = default(false);
+        string record_list = default("timeStep | id | lane | lanePos | speed");
+        
+        string SUMOID = default("");
+        string SUMOType = default("");
+        string vehicleClass = default("");
+        
+        bool hasOBU = default(false);
+        string IPaddress = default("");
+        
     gates:
         input radioIn; // gate for sendDirect
         
@@ -46,13 +56,6 @@ simple ApplPedBase like IBaseApplLayer
         
         int headerLength = default(88bit) @unit(bit); //header length of the application        
         bool debug = default(false); //whether to print debug output
-        
-        string SUMOID = default("");
-        string SUMOType = default("");
-        string vehicleClass = default("");
-        
-        bool hasOBU = default(false);
-        string IPaddress = default("");
 
     gates:
         input lowerLayerIn;    // from mac layer

@@ -47,10 +47,6 @@ void ApplBikeBase::initialize(int stage)
         TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
 
-        // get a pointer to traffic light
-        module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TrafficLight");
-        TLControlMode = module->par("TLControlMode").longValue();
-
         headerLength = par("headerLength").longValue();
 
         // bike id in omnet++
@@ -58,11 +54,14 @@ void ApplBikeBase::initialize(int stage)
         // bike full id in omnet++
 		myFullId = getParentModule()->getFullName();
         // bike id in sumo
-        SUMOID = par("SUMOID").stdstringValue();
+        SUMOID = getParentModule()->par("SUMOID").stdstringValue();
         // bike type in sumo
-        SUMOType = par("SUMOType").stdstringValue();
+        SUMOType = getParentModule()->par("SUMOType").stdstringValue();
         // vehicle class in sumo
-        vehicleClass = par("vehicleClass").stdstringValue();
+        vehicleClass = getParentModule()->par("vehicleClass").stdstringValue();
+
+        hasOBU = getParentModule()->par("hasOBU").boolValue();
+        IPaddress = getParentModule()->par("IPaddress").stringValue();
 
         // store the time of entry
         entryTime = omnetpp::simTime().dbl();
