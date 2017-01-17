@@ -95,7 +95,7 @@ private:
     typedef struct obstacleEntry
     {
         std::string id_str;
-        int time;
+        double time;
         int length;
         std::string edge_str;
         int lane;

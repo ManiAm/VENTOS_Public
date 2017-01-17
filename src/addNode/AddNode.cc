@@ -645,10 +645,10 @@ void AddNode::parseObstacle(rapidxml::xml_node<> *pNode)
             boost::trim(time_str);
         }
 
-        int time = 0;
+        double time = 0;
         try
         {
-            time = boost::lexical_cast<int>(time_str);
+            time = boost::lexical_cast<double>(time_str);
         }
         catch (boost::bad_lexical_cast const&)
         {
