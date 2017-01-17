@@ -28,7 +28,6 @@
 #ifndef SIGNALOBJ_H
 #define SIGNALOBJ_H
 
-#include "msg/PlatoonMsg_m.h"
 #include "msg/CRL_Piece_m.h"
 
 namespace VENTOS {
@@ -91,50 +90,6 @@ public:
 };
 
 
-class CurrentVehicleState : public omnetpp::cObject, omnetpp::noncopyable
-{
-public:
-    std::string name;
-    std::string state;
-
-    CurrentVehicleState(std::string str1, std::string str2)
-    {
-        this->name = str1;
-        this->state = str2;
-    }
-};
-
-
-class CurrentPlnMsg : public omnetpp::cObject, omnetpp::noncopyable
-{
-public:
-    PlatoonMsg *msg;
-    std::string type;
-
-    CurrentPlnMsg(PlatoonMsg *m, std::string str)
-    {
-        this->msg = m;
-        this->type = str;
-    }
-};
-
-
-class PlnManeuver : public omnetpp::cObject, omnetpp::noncopyable
-{
-public:
-    std::string from;
-    std::string to;
-    std::string maneuver;
-
-    PlnManeuver(std::string str1, std::string str2, std::string str3)
-    {
-        this->from = str1;
-        this->to = str2;
-        this->maneuver = str3;
-    }
-};
-
-
 // is used to send CRL pieces to an RSU or vehicle
 class CRLPiecesData : public omnetpp::cObject, omnetpp::noncopyable
 {
@@ -152,4 +107,3 @@ public:
 }
 
 #endif
-

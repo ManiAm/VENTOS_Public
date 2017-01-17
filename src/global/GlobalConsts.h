@@ -71,80 +71,22 @@ enum CFMODES {
     Mode_Stopped
 };
 
-enum SUMOVehicleClass {
-    /// @brief vehicles ignoring classes
-    SVC_IGNORING = 0,
-
-    /// @name vehicle ownership
-    //@{
-
-    /// @brief private vehicles
-    SVC_PRIVATE = 1,
-    /// @brief public emergency vehicles
-    SVC_EMERGENCY = 1 << 1,
-    /// @brief authorities vehicles
-    SVC_AUTHORITY = 1 << 2,
-    /// @brief army vehicles
-    SVC_ARMY = 1 << 3,
-    /// @brief vip vehicles
-    SVC_VIP = 1 << 4,
-    //@}
-
-
-    /// @name vehicle size
-    //@{
-
-    /// @brief vehicle is a passenger car (a "normal" car)
-    SVC_PASSENGER = 1 << 5,
-    /// @brief vehicle is a HOV
-    SVC_HOV = 1 << 6,
-    /// @brief vehicle is a taxi
-    SVC_TAXI = 1 << 7,
-    /// @brief vehicle is a bus
-    SVC_BUS = 1 << 8,
-    /// @brief vehicle is a coach
-    SVC_COACH = 1 << 9,
-    /// @brief vehicle is a small delivery vehicle
-    SVC_DELIVERY = 1 << 10,
-    /// @brief vehicle is a large transport vehicle
-    SVC_TRUCK = 1 << 11,
-    /// @brief vehicle is a large transport vehicle
-    SVC_TRAILER = 1 << 12,
-    /// @brief vehicle is a light rail
-    SVC_TRAM = 1 << 13,
-    /// @brief vehicle is a city rail
-    SVC_RAIL_URBAN = 1 << 14,
-    /// @brief vehicle is a not electrified rail
-    SVC_RAIL = 1 << 15,
-    /// @brief vehicle is a (possibly fast moving) electric rail
-    SVC_RAIL_ELECTRIC = 1 << 16,
-
-    /// @brief vehicle is a motorcycle
-    SVC_MOTORCYCLE = 1 << 17,
-    /// @brief vehicle is a moped
-    SVC_MOPED = 1 << 18,
-    /// @brief vehicle is a bicycle
-    SVC_BICYCLE = 1 << 19,
-    /// @brief is a pedestrian
-    SVC_PEDESTRIAN = 1 << 20,
-    /// @brief is an electric vehicle
-    SVC_E_VEHICLE = 1 << 21,
-    /// @brief is an arbitrary ship
-    SVC_SHIP = 1 << 22,
-    /// @brief is a user-defined type
-    SVC_CUSTOM1 = 1 << 23,
-    /// @brief is a user-defined type
-    SVC_CUSTOM2 = 1 << 24,
-    //@}
-
-    /// @brief classes which (normally) do not drive on normal roads
-    SVC_NON_ROAD = SVC_TRAM | SVC_RAIL | SVC_RAIL_URBAN | SVC_RAIL_ELECTRIC | SVC_SHIP
-};
-
 enum VehicleStatus {
     VEH_STATUS_Driving = 0,
     VEH_STATUS_Waiting,
     VEH_STATUS_Parking,
+};
+
+enum CRLdistAlgorithm {
+    CRL_RSU_Only,
+    CRL_C2C_Epidemic,
+    CRL_MPB,
+    CRL_ICE,
+    CRL_ICEv2,
+    CRL_Broadcast,
+    CRL_BBroadcast,
+    CRL_C2C_Epidemic_Ideal,
+    CRL_NewMPB,
 };
 
 // SUMO signaling for vehicles
@@ -182,63 +124,6 @@ enum VehicleSignal {
     VEH_SIGNAL_EMERGENCY_YELLOW = 8192
 };
 
-enum TLControlTypes {
-    TL_OFF,
-    TL_Fix_Time,
-    TL_Adaptive_Webster,
-    TL_TrafficActuated,
-    TL_LQF,
-    TL_OJF,
-    TL_LQF_MWM,
-    TL_LQF_MWM_Aging,
-    TL_FMSC,
-    TL_Router
-};
-
-enum CRLdistAlgorithm {
-    CRL_RSU_Only,
-    CRL_C2C_Epidemic,
-    CRL_MPB,
-    CRL_ICE,
-    CRL_ICEv2,
-    CRL_Broadcast,
-    CRL_BBroadcast,
-    CRL_C2C_Epidemic_Ideal,
-    CRL_NewMPB,
-};
-
-// LinkState in SUMO
-enum LinkState {
-    /// @brief The link has green light, may pass
-    LINKSTATE_TL_GREEN_MAJOR = 'G',
-    /// @brief The link has green light, has to brake
-    LINKSTATE_TL_GREEN_MINOR = 'g',
-    /// @brief The link has red light (must brake)
-    LINKSTATE_TL_RED = 'r',
-    /// @brief The link has red light (must brake) but indicates upcoming green
-    LINKSTATE_TL_REDYELLOW = 'u',
-    /// @brief The link has yellow light, may pass
-    LINKSTATE_TL_YELLOW_MAJOR = 'Y',
-    /// @brief The link has yellow light, has to brake anyway
-    LINKSTATE_TL_YELLOW_MINOR = 'y',
-    /// @brief The link is controlled by a tls which is off and blinks, has to brake
-    LINKSTATE_TL_OFF_BLINKING = 'o',
-    /// @brief The link is controlled by a tls which is off, not blinking, may pass
-    LINKSTATE_TL_OFF_NOSIGNAL = 'O',
-    /// @brief This is an uncontrolled, major link, may pass
-    LINKSTATE_MAJOR = 'M',
-    /// @brief This is an uncontrolled, minor link, has to brake
-    LINKSTATE_MINOR = 'm',
-    /// @brief This is an uncontrolled, right-before-left link
-    LINKSTATE_EQUAL = '=',
-    /// @brief This is an uncontrolled, minor link, has to stop
-    LINKSTATE_STOP = 's',
-    /// @brief This is an uncontrolled, all-way stop link.
-    LINKSTATE_ALLWAY_STOP = 'w',
-    /// @brief This is a dead end link
-    LINKSTATE_DEADEND = '-'
-};
-
 enum LaneCostsMode {
     MODE_NOTHING,
     MODE_RECORD,
@@ -255,4 +140,3 @@ enum RouterMessage {
 }
 
 #endif
-

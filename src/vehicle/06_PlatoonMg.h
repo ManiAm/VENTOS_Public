@@ -32,22 +32,6 @@
 
 namespace VENTOS {
 
-class NearestVehicle
-{
-public:
-    char name[20];
-    int depth;
-    double dist;
-
-    NearestVehicle(const char *str, int n, double x)
-    {
-        strcpy(this->name, str);
-        this->depth = n;
-        this->dist = x;
-    }
-};
-
-
 class ApplVPlatoonMg : public ApplVPlatoonFormed
 {
 protected:
@@ -67,7 +51,7 @@ protected:
     bool leaderLeaveEnabled;
 
     // Variables
-    enum states
+    typedef enum states_num
     {
         state_idle,             // 0
         state_platoonLeader,    // 1
@@ -114,9 +98,9 @@ protected:
         // dissolve
         state_sendDissolve,
         state_waitForDissolveAck,
-    };
+    } states_num_t;
 
-    states vehicleState = state_idle;
+    states_num_t vehicleState = state_idle;
 
 private:
     typedef ApplVPlatoonFormed super;
@@ -167,7 +151,7 @@ private:
     omnetpp::cMessage* plnTIMER12 = NULL;
     std::string lastVeh = "";
 
-    enum uCommands
+    typedef enum uCommand
     {
         MERGE_REQ, MERGE_ACCEPT, MERGE_REJECT, MERGE_DONE,
         SPLIT_REQ, SPLIT_ACCEPT, SPLIT_REJECT, SPLIT_DONE,
@@ -175,7 +159,7 @@ private:
         VOTE_LEADER, ELECTED_LEADER, DISSOLVE,
         LEAVE_REQ, LEAVE_ACCEPT, LEAVE_REJECT, GAP_CREATED,
         ACK,
-    };
+    } uCommand_t;
 
 public:
     ~ApplVPlatoonMg();
@@ -195,10 +179,10 @@ protected:
     void dissolvePlatoon();
 
 private:
-    PlatoonMsg* prepareData( std::string, uCommands, std::string, double db = -1, std::string str = "", std::deque<std::string> vec = std::deque<std::string>() );
+    PlatoonMsg* prepareData( std::string, uCommand_t, std::string, double db = -1, std::string str = "", std::deque<std::string> vec = std::deque<std::string>() );
     void updateColorDepth();
 
-    // Reporting to statistics
+    // reporting to statistics
     void reportStateToStat();
     void reportCommandToStat(PlatoonMsg*);
     void reportManeuverToStat(std::string, std::string, std::string);

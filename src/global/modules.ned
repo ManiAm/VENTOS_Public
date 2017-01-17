@@ -17,6 +17,4 @@ simple Statistics
 {
     parameters:
         @class(VENTOS::Statistics);
-        
-        bool reportPlnManagerData = default(false);
 }

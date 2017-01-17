@@ -45,11 +45,6 @@ void TraCIMobilityMod::initialize(int stage)
         TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
 
-        // get the ptr of the current module
-        module = this->getParentModule()->getSubmodule("appl");
-        ASSERT(module);
-        vClass = module->par("vehicleClass").stringValue();
-
 		debug = par("debug");
 		antennaPositionOffset = par("antennaPositionOffset");
 		accidentCount = par("accidentCount");
@@ -181,90 +176,63 @@ void TraCIMobilityMod::changeParkingState(bool newState)
 
 void TraCIMobilityMod::updateDisplayString()
 {
-//    ASSERT(-M_PI <= angle);
-//    ASSERT(angle < M_PI);
-//
-//    // if this is a motor vehicle (we visualize all types of motor vehicles the same)
-//    if(vClassEnum == SVC_PASSENGER || vClassEnum == SVC_PRIVATE || vClassEnum == SVC_EMERGENCY || vClassEnum == SVC_BUS || vClassEnum == SVC_TRUCK)
-//    {
-//        getParentModule()->getDisplayString().setTagArg("b", 2, "rect");
-//        getParentModule()->getDisplayString().setTagArg("b", 3, "red");
-//        getParentModule()->getDisplayString().setTagArg("b", 4, "black");
-//        getParentModule()->getDisplayString().setTagArg("b", 5, "1");
-//    }
-//    // if this is a bicycle
-//    else if(vClassEnum == SVC_BICYCLE)
-//    {
-//        getParentModule()->getDisplayString().setTagArg("b", 2, "rect");
-//        getParentModule()->getDisplayString().setTagArg("b", 3, "yellow");
-//        getParentModule()->getDisplayString().setTagArg("b", 4, "black");
-//        getParentModule()->getDisplayString().setTagArg("b", 5, "1");
-//    }
-//    // if this is a pedestrian
-//    else if(vClassEnum == SVC_PEDESTRIAN)
-//    {
-//        getParentModule()->getDisplayString().setTagArg("b", 2, "rect");
-//        getParentModule()->getDisplayString().setTagArg("b", 3, "green");
-//        getParentModule()->getDisplayString().setTagArg("b", 4, "black");
-//        getParentModule()->getDisplayString().setTagArg("b", 5, "1");
-//    }
-//    else
-//        throw omnetpp::cRuntimeError("Unknown vClass type '%d'", vClassEnum);
-//
-//    if (angle < -M_PI + 0.5 * M_PI_4 * 1)
-//    {
-//        getParentModule()->getDisplayString().setTagArg("t", 0, "\u2190");
-//        getParentModule()->getDisplayString().setTagArg("b", 0, "4");
-//        getParentModule()->getDisplayString().setTagArg("b", 1, "2");
-//    }
-//    else if (angle < -M_PI + 0.5 * M_PI_4 * 3)
-//    {
-//        getParentModule()->getDisplayString().setTagArg("t", 0, "\u2199");
-//        getParentModule()->getDisplayString().setTagArg("b", 0, "3");
-//        getParentModule()->getDisplayString().setTagArg("b", 1, "3");
-//    }
-//    else if (angle < -M_PI + 0.5 * M_PI_4 * 5)
-//    {
-//        getParentModule()->getDisplayString().setTagArg("t", 0, "\u2193");
-//        getParentModule()->getDisplayString().setTagArg("b", 0, "2");
-//        getParentModule()->getDisplayString().setTagArg("b", 1, "4");
-//    }
-//    else if (angle < -M_PI + 0.5 * M_PI_4 * 7)
-//    {
-//        getParentModule()->getDisplayString().setTagArg("t", 0, "\u2198");
-//        getParentModule()->getDisplayString().setTagArg("b", 0, "3");
-//        getParentModule()->getDisplayString().setTagArg("b", 1, "3");
-//    }
-//    else if (angle < -M_PI + 0.5 * M_PI_4 * 9)
-//    {
-//        getParentModule()->getDisplayString().setTagArg("t", 0, "\u2192");
-//        getParentModule()->getDisplayString().setTagArg("b", 0, "4");
-//        getParentModule()->getDisplayString().setTagArg("b", 1, "2");
-//    }
-//    else if (angle < -M_PI + 0.5 * M_PI_4 * 11)
-//    {
-//        getParentModule()->getDisplayString().setTagArg("t", 0, "\u2197");
-//        getParentModule()->getDisplayString().setTagArg("b", 0, "3");
-//        getParentModule()->getDisplayString().setTagArg("b", 1, "3");
-//    }
-//    else if (angle < -M_PI + 0.5 * M_PI_4 * 13)
-//    {
-//        getParentModule()->getDisplayString().setTagArg("t", 0, "\u2191");
-//        getParentModule()->getDisplayString().setTagArg("b", 0, "2");
-//        getParentModule()->getDisplayString().setTagArg("b", 1, "4");
-//    }
-//    else if (angle < -M_PI + 0.5 * M_PI_4 * 15)
-//    {
-//        getParentModule()->getDisplayString().setTagArg("t", 0, "\u2196");
-//        getParentModule()->getDisplayString().setTagArg("b", 0, "3");
-//        getParentModule()->getDisplayString().setTagArg("b", 1, "3");
-//    }
-//    else
-//    {
-//        getParentModule()->getDisplayString().setTagArg("t", 0, "\u2190");
-//        getParentModule()->getDisplayString().setTagArg("b", 0, "4");
-//        getParentModule()->getDisplayString().setTagArg("b", 1, "2");
-//    }
+    ASSERT(-M_PI <= angle);
+    ASSERT(angle < M_PI);
+
+    if (angle < -M_PI + 0.5 * M_PI_4 * 1)
+    {
+        getParentModule()->getDisplayString().setTagArg("t", 0, "\u2190");
+        getParentModule()->getDisplayString().setTagArg("b", 0, "4");
+        getParentModule()->getDisplayString().setTagArg("b", 1, "2");
+    }
+    else if (angle < -M_PI + 0.5 * M_PI_4 * 3)
+    {
+        getParentModule()->getDisplayString().setTagArg("t", 0, "\u2199");
+        getParentModule()->getDisplayString().setTagArg("b", 0, "3");
+        getParentModule()->getDisplayString().setTagArg("b", 1, "3");
+    }
+    else if (angle < -M_PI + 0.5 * M_PI_4 * 5)
+    {
+        getParentModule()->getDisplayString().setTagArg("t", 0, "\u2193");
+        getParentModule()->getDisplayString().setTagArg("b", 0, "2");
+        getParentModule()->getDisplayString().setTagArg("b", 1, "4");
+    }
+    else if (angle < -M_PI + 0.5 * M_PI_4 * 7)
+    {
+        getParentModule()->getDisplayString().setTagArg("t", 0, "\u2198");
+        getParentModule()->getDisplayString().setTagArg("b", 0, "3");
+        getParentModule()->getDisplayString().setTagArg("b", 1, "3");
+    }
+    else if (angle < -M_PI + 0.5 * M_PI_4 * 9)
+    {
+        getParentModule()->getDisplayString().setTagArg("t", 0, "\u2192");
+        getParentModule()->getDisplayString().setTagArg("b", 0, "4");
+        getParentModule()->getDisplayString().setTagArg("b", 1, "2");
+    }
+    else if (angle < -M_PI + 0.5 * M_PI_4 * 11)
+    {
+        getParentModule()->getDisplayString().setTagArg("t", 0, "\u2197");
+        getParentModule()->getDisplayString().setTagArg("b", 0, "3");
+        getParentModule()->getDisplayString().setTagArg("b", 1, "3");
+    }
+    else if (angle < -M_PI + 0.5 * M_PI_4 * 13)
+    {
+        getParentModule()->getDisplayString().setTagArg("t", 0, "\u2191");
+        getParentModule()->getDisplayString().setTagArg("b", 0, "2");
+        getParentModule()->getDisplayString().setTagArg("b", 1, "4");
+    }
+    else if (angle < -M_PI + 0.5 * M_PI_4 * 15)
+    {
+        getParentModule()->getDisplayString().setTagArg("t", 0, "\u2196");
+        getParentModule()->getDisplayString().setTagArg("b", 0, "3");
+        getParentModule()->getDisplayString().setTagArg("b", 1, "3");
+    }
+    else
+    {
+        getParentModule()->getDisplayString().setTagArg("t", 0, "\u2190");
+        getParentModule()->getDisplayString().setTagArg("b", 0, "4");
+        getParentModule()->getDisplayString().setTagArg("b", 1, "2");
+    }
 }
 
 

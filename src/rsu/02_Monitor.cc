@@ -107,6 +107,7 @@ void ApplRSUMonitor::finish()
 {
     super::finish();
 
+    // only one of the RSUs print the results
     static bool wasExecuted = false;
     if (activeDetection && collectVehApproach && !wasExecuted)
     {

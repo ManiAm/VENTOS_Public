@@ -48,6 +48,19 @@ protected:
     int debugLevel;
     double updateInterval;
 
+    enum TLControlTypes {
+        TL_OFF,
+        TL_Fix_Time,
+        TL_Adaptive_Webster,
+        TL_TrafficActuated,
+        TL_LQF,
+        TL_OJF,
+        TL_LQF_MWM,
+        TL_LQF_MWM_Aging,
+        TL_FMSC,
+        TL_Router
+    };
+
 private:
     typedef BaseApplLayer super;
 

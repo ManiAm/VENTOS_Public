@@ -138,7 +138,7 @@ void ApplVPlatoonMg::handleSelfMsg(omnetpp::cMessage* msg)
     else if(plnMode == platoonManagement && msg == plnTIMER9)
         leaderLeave_handleSelfMsg(msg);
     else if(plnMode == platoonManagement && (msg == plnTIMER10 || msg == plnTIMER11))
-            followerLeave_handleSelfMsg(msg);
+        followerLeave_handleSelfMsg(msg);
     else if(plnMode == platoonManagement && msg == plnTIMER12)
         dissolve_handleSelfMsg(msg);
     else
@@ -192,7 +192,7 @@ void ApplVPlatoonMg::onPlatoonMsg(PlatoonMsg* wsm)
 }
 
 
-PlatoonMsg*  ApplVPlatoonMg::prepareData(std::string receiver, uCommands type, std::string receivingPlatoonID, double dblValue, std::string strValue, std::deque<std::string> vecValue)
+PlatoonMsg*  ApplVPlatoonMg::prepareData(std::string receiver, uCommand_t type, std::string receivingPlatoonID, double dblValue, std::string strValue, std::deque<std::string> vecValue)
 {
     if(plnMode != platoonManagement)
         throw omnetpp::cRuntimeError("This application mode does not support platoon management!");
@@ -230,7 +230,7 @@ PlatoonMsg*  ApplVPlatoonMg::prepareData(std::string receiver, uCommands type, s
 }
 
 
-// change follower blue color to show depth
+// change the blue color of the follower to show depth
 // only platoon leader can call this!
 void ApplVPlatoonMg::updateColorDepth()
 {
@@ -258,9 +258,11 @@ void ApplVPlatoonMg::updateColorDepth()
 
 void ApplVPlatoonMg::reportStateToStat()
 {
-    CurrentVehicleState *state = new CurrentVehicleState(SUMOID.c_str(), stateToStr(vehicleState).c_str());
-    omnetpp::simsignal_t Signal_VehicleState = registerSignal("VehicleState");
-    this->getParentModule()->emit(Signal_VehicleState, state);
+    if(record_platoon_stat)
+    {
+        plnManagement_t tmp = {omnetpp::simTime().dbl(), SUMOID, "-", stateToStr(vehicleState), "-", "-"};
+        STAT->global_plnManagement_stat.push_back(tmp);
+    }
 }
 
 
@@ -293,9 +295,11 @@ const std::string ApplVPlatoonMg::stateToStr(int s)
 
 void ApplVPlatoonMg::reportCommandToStat(PlatoonMsg* dataMsg)
 {
-    CurrentPlnMsg *plnMsg = new CurrentPlnMsg(dataMsg, uCommandToStr(dataMsg->getType()).c_str());
-    omnetpp::simsignal_t Signal_SentPlatoonMsg = registerSignal("SentPlatoonMsg");
-    this->getParentModule()->emit(Signal_SentPlatoonMsg, plnMsg);
+    if(record_platoon_stat)
+    {
+        plnManagement_t tmp = {omnetpp::simTime().dbl(), dataMsg->getSender(), dataMsg->getRecipient(), uCommandToStr(dataMsg->getType()), dataMsg->getSendingPlatoonID(), dataMsg->getReceivingPlatoonID()};
+        STAT->global_plnManagement_stat.push_back(tmp);
+    }
 }
 
 
@@ -316,9 +320,11 @@ const std::string ApplVPlatoonMg::uCommandToStr(int c)
 
 void ApplVPlatoonMg::reportManeuverToStat(std::string from, std::string to, std::string maneuver)
 {
-    PlnManeuver *com = new PlnManeuver(from.c_str(), to.c_str(), maneuver.c_str());
-    omnetpp::simsignal_t Signal_PlnManeuver = registerSignal("PlnManeuver");
-    this->getParentModule()->emit(Signal_PlnManeuver, com);
+    if(record_platoon_stat)
+    {
+        plnStat_t tmp = {omnetpp::simTime().dbl(), from, to, maneuver};
+        STAT->global_plnData_stat.push_back(tmp);
+    }
 }
 
 

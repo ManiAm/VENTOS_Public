@@ -53,6 +53,8 @@ void ApplVPlatoonFormed::initialize(int stage)
 
 	    preDefinedPlatoonID = par("preDefinedPlatoonID").stringValue();
 
+	    record_platoon_stat = par("record_platoon_stat").boolValue();
+
 	    // I am the platoon leader.
 	    if(SUMOID == preDefinedPlatoonID)
 	    {

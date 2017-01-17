@@ -36,6 +36,7 @@
 
 namespace VENTOS {
 
+
 Define_Module(VENTOS::Statistics);
 
 Statistics::~Statistics()
@@ -53,38 +54,23 @@ void Statistics::initialize(int stage)
         TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
 
-        reportPlnManagerData = par("reportPlnManagerData").boolValue();
-
         // register signals
         Signal_initialize_withTraCI = registerSignal("initialize_withTraCI");
         omnetpp::getSimulation()->getSystemModule()->subscribe("initialize_withTraCI", this);
-
-        Signal_executeEachTS = registerSignal("executeEachTS");
-        omnetpp::getSimulation()->getSystemModule()->subscribe("executeEachTS", this);
-
-        Signal_SentPlatoonMsg = registerSignal("SentPlatoonMsg");
-        omnetpp::getSimulation()->getSystemModule()->subscribe("SentPlatoonMsg", this);
-
-        Signal_VehicleState = registerSignal("VehicleState");
-        omnetpp::getSimulation()->getSystemModule()->subscribe("VehicleState", this);
-
-        Signal_PlnManeuver = registerSignal("PlnManeuver");
-        omnetpp::getSimulation()->getSystemModule()->subscribe("PlnManeuver", this);
     }
 }
 
 
 void Statistics::finish()
 {
-    if(reportPlnManagerData)
-    {
-        plnManageToFile();
-        plnStatToFile();
-    }
+    save_beacon_stat_toFile();
+    save_MAC_stat_toFile();
+
+    save_plnManage_toFile();
+    save_plnStat_toFile();
 
     // unsubscribe
     omnetpp::getSimulation()->getSystemModule()->unsubscribe("initialize_withTraCI", this);
-    omnetpp::getSimulation()->getSystemModule()->unsubscribe("executeEachTS", this);
 }
 
 
@@ -98,44 +84,9 @@ void Statistics::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t
 {
     Enter_Method_Silent();
 
-    if(signalID == Signal_executeEachTS)
-    {
-        Statistics::executeEachTimestep();
-    }
-    else if(signalID == Signal_initialize_withTraCI)
+    if(signalID == Signal_initialize_withTraCI)
     {
         Statistics::initialize_withTraCI();
-    }
-}
-
-
-void Statistics::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t signalID, cObject *obj, cObject* details)
-{
-    Enter_Method_Silent();
-
-    if(reportPlnManagerData && signalID == Signal_VehicleState)
-    {
-        CurrentVehicleState *state = dynamic_cast<CurrentVehicleState*>(obj);
-        ASSERT(state);
-
-        plnManagement *tmp = new plnManagement(omnetpp::simTime().dbl(), state->name, "-", state->state, "-", "-");
-        Vec_plnManagement.push_back(*tmp);
-    }
-    else if(reportPlnManagerData && signalID == Signal_SentPlatoonMsg)
-    {
-        CurrentPlnMsg* plnMsg = dynamic_cast<CurrentPlnMsg*>(obj);
-        ASSERT(plnMsg);
-
-        plnManagement *tmp = new plnManagement(omnetpp::simTime().dbl(), plnMsg->msg->getSender(), plnMsg->msg->getRecipient(), plnMsg->type, plnMsg->msg->getSendingPlatoonID(), plnMsg->msg->getReceivingPlatoonID());
-        Vec_plnManagement.push_back(*tmp);
-    }
-    else if(reportPlnManagerData && signalID == Signal_PlnManeuver)
-    {
-        PlnManeuver* com = dynamic_cast<PlnManeuver*>(obj);
-        ASSERT(com);
-
-        plnStat *tmp = new plnStat(omnetpp::simTime().dbl(), com->from, com->to, com->maneuver);
-        Vec_plnStat.push_back(*tmp);
     }
 }
 
@@ -152,9 +103,170 @@ void Statistics::executeEachTimestep()
 }
 
 
-void Statistics::plnManageToFile()
+void Statistics::save_beacon_stat_toFile()
 {
-    if(Vec_plnManagement.empty())
+    if(global_Beacon_stat.empty())
+        return;
+
+    int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
+
+    std::ostringstream fileName;
+    fileName << boost::format("%03d_beaconsStat.txt") % currentRun;
+
+    boost::filesystem::path filePath ("results");
+    filePath /= fileName.str();
+
+    FILE *filePtr = fopen (filePath.c_str(), "w");
+    if (!filePtr)
+        throw omnetpp::cRuntimeError("Cannot create file '%s'", filePath.c_str());
+
+    // write simulation parameters at the beginning of the file
+    {
+        // get the current config name
+        std::string configName = omnetpp::getEnvir()->getConfigEx()->getVariable("configname");
+
+        std::string iniFile = omnetpp::getEnvir()->getConfigEx()->getVariable("inifile");
+
+        // PID of the simulation process
+        std::string processid = omnetpp::getEnvir()->getConfigEx()->getVariable("processid");
+
+        // globally unique identifier for the run, produced by
+        // concatenating the configuration name, run number, date/time, etc.
+        std::string runID = omnetpp::getEnvir()->getConfigEx()->getVariable("runid");
+
+        // get number of total runs in this config
+        int totalRun = omnetpp::getEnvir()->getConfigEx()->getNumRunsInConfig(configName.c_str());
+
+        // get the current run number
+        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
+
+        // get all iteration variables
+        std::vector<std::string> iterVar = omnetpp::getEnvir()->getConfigEx()->unrollConfig(configName.c_str(), false);
+
+        // write to file
+        fprintf (filePtr, "configName      %s\n", configName.c_str());
+        fprintf (filePtr, "iniFile         %s\n", iniFile.c_str());
+        fprintf (filePtr, "processID       %s\n", processid.c_str());
+        fprintf (filePtr, "runID           %s\n", runID.c_str());
+        fprintf (filePtr, "totalRun        %d\n", totalRun);
+        fprintf (filePtr, "currentRun      %d\n", currentRun);
+        fprintf (filePtr, "currentConfig   %s\n", iterVar[currentRun].c_str());
+        fprintf (filePtr, "startDateTime   %s\n", TraCI->simulationGetStartTime().c_str());
+        fprintf (filePtr, "endDateTime     %s\n", TraCI->simulationGetEndTime().c_str());
+        fprintf (filePtr, "duration        %s\n\n\n", TraCI->simulationGetDuration().c_str());
+    }
+
+    // write header
+    fprintf (filePtr, "%-12s","timeStep");
+    fprintf (filePtr, "%-20s","from");
+    fprintf (filePtr, "%-20s","to");
+    fprintf (filePtr, "%-20s\n\n","dropped");
+
+    for(auto &y : global_Beacon_stat)
+    {
+        fprintf (filePtr, "%-12.2f", y.time);
+        fprintf (filePtr, "%-20s", y.senderID.c_str());
+        fprintf (filePtr, "%-20s", y.receiverID.c_str());
+        fprintf (filePtr, "%-20d \n", y.dropped);
+    }
+
+    fclose(filePtr);
+}
+
+
+void Statistics::save_MAC_stat_toFile()
+{
+    if(global_MAC_stat.empty())
+        return;
+
+    int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
+
+    std::ostringstream fileName;
+    fileName << boost::format("%03d_MACdata.txt") % currentRun;
+
+    boost::filesystem::path filePath ("results");
+    filePath /= fileName.str();
+
+    FILE *filePtr = fopen (filePath.c_str(), "w");
+    if (!filePtr)
+        throw omnetpp::cRuntimeError("Cannot create file '%s'", filePath.c_str());
+
+    // write simulation parameters at the beginning of the file
+    {
+        // get the current config name
+        std::string configName = omnetpp::getEnvir()->getConfigEx()->getVariable("configname");
+
+        std::string iniFile = omnetpp::getEnvir()->getConfigEx()->getVariable("inifile");
+
+        // PID of the simulation process
+        std::string processid = omnetpp::getEnvir()->getConfigEx()->getVariable("processid");
+
+        // globally unique identifier for the run, produced by
+        // concatenating the configuration name, run number, date/time, etc.
+        std::string runID = omnetpp::getEnvir()->getConfigEx()->getVariable("runid");
+
+        // get number of total runs in this config
+        int totalRun = omnetpp::getEnvir()->getConfigEx()->getNumRunsInConfig(configName.c_str());
+
+        // get the current run number
+        int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
+
+        // get all iteration variables
+        std::vector<std::string> iterVar = omnetpp::getEnvir()->getConfigEx()->unrollConfig(configName.c_str(), false);
+
+        // write to file
+        fprintf (filePtr, "configName      %s\n", configName.c_str());
+        fprintf (filePtr, "iniFile         %s\n", iniFile.c_str());
+        fprintf (filePtr, "processID       %s\n", processid.c_str());
+        fprintf (filePtr, "runID           %s\n", runID.c_str());
+        fprintf (filePtr, "totalRun        %d\n", totalRun);
+        fprintf (filePtr, "currentRun      %d\n", currentRun);
+        fprintf (filePtr, "currentConfig   %s\n", iterVar[currentRun].c_str());
+        fprintf (filePtr, "startDateTime   %s\n", TraCI->simulationGetStartTime().c_str());
+        fprintf (filePtr, "endDateTime     %s\n", TraCI->simulationGetEndTime().c_str());
+        fprintf (filePtr, "duration        %s\n\n\n", TraCI->simulationGetDuration().c_str());
+    }
+
+    // write header
+    fprintf (filePtr, "%-20s","lastStatTime");
+    fprintf (filePtr, "%-20s","vehicleName");
+    fprintf (filePtr, "%-20s","DroppedPackets");
+    fprintf (filePtr, "%-20s","NumTooLittleTime");
+    fprintf (filePtr, "%-30s","NumInternalContention");
+    fprintf (filePtr, "%-20s","NumBackoff");
+    fprintf (filePtr, "%-20s","SlotsBackoff");
+    fprintf (filePtr, "%-20s","TotalBusyTime");
+    fprintf (filePtr, "%-20s","SentPackets");
+    fprintf (filePtr, "%-20s","SNIRLostPackets");
+    fprintf (filePtr, "%-20s","TXRXLostPackets");
+    fprintf (filePtr, "%-20s","ReceivedPackets");
+    fprintf (filePtr, "%-20s\n\n","ReceivedBroadcasts");
+
+    // write body
+    for(auto &y : global_MAC_stat)
+    {
+        fprintf (filePtr, "%-20.8f", y.second.last_stat_time);
+        fprintf (filePtr, "%-20s", y.first.c_str());
+        fprintf (filePtr, "%-20ld", y.second.statsDroppedPackets);
+        fprintf (filePtr, "%-20ld", y.second.statsNumTooLittleTime);
+        fprintf (filePtr, "%-30ld", y.second.statsNumInternalContention);
+        fprintf (filePtr, "%-20ld", y.second.statsNumBackoff);
+        fprintf (filePtr, "%-20ld", y.second.statsSlotsBackoff);
+        fprintf (filePtr, "%-20.8f", y.second.statsTotalBusyTime);
+        fprintf (filePtr, "%-20ld", y.second.statsSentPackets);
+        fprintf (filePtr, "%-20ld", y.second.statsSNIRLostPackets);
+        fprintf (filePtr, "%-20ld", y.second.statsTXRXLostPackets);
+        fprintf (filePtr, "%-20ld", y.second.statsReceivedPackets);
+        fprintf (filePtr, "%-20ld\n", y.second.statsReceivedBroadcasts);
+    }
+
+    fclose(filePtr);
+}
+
+
+void Statistics::save_plnManage_toFile()
+{
+    if(global_plnManagement_stat.empty())
         return;
 
     int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
@@ -217,7 +329,7 @@ void Statistics::plnManageToFile()
     double oldTime = -1;
 
     // write body
-    for(auto &y : Vec_plnManagement)
+    for(auto &y : global_plnManagement_stat)
     {
         // make the log more readable :)
         if(y.sender != oldSender || y.time != oldTime)
@@ -239,9 +351,9 @@ void Statistics::plnManageToFile()
 }
 
 
-void Statistics::plnStatToFile()
+void Statistics::save_plnStat_toFile()
 {
-    if(Vec_plnStat.empty())
+    if(global_plnData_stat.empty())
         return;
 
     int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
@@ -301,7 +413,7 @@ void Statistics::plnStatToFile()
     std::string oldPln = "";
 
     // write body
-    for(auto &y : Vec_plnStat)
+    for(auto &y : global_plnData_stat)
     {
         if(y.from != oldPln)
         {

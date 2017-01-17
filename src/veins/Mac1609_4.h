@@ -38,33 +38,9 @@
 #include "Mac80211Pkt_m.h"
 #include "WaveShortMessage_m.h"
 #include "traci/TraCICommands.h"
+#include "global/Statistics.h"
 
 namespace Veins {
-
-// Mani
-typedef struct MAC_stat_entry
-{
-    double last_stat_time;
-
-    long statsDroppedPackets;        // packet was dropped in Mac
-    long statsNumTooLittleTime;      // Too little time in this interval. Will not schedule nextMacEvent
-    long statsNumInternalContention; // there was already another packet ready.
-    // we have to go increase CW and go into backoff.
-    // It's called internal contention and its wonderful
-    long statsNumBackoff;
-    long statsSlotsBackoff;
-    double statsTotalBusyTime;
-
-    long statsSentPackets;
-
-    long statsSNIRLostPackets;     // A packet was not received due to bit-errors
-    long statsTXRXLostPackets;     // A packet was not received because we were sending while receiving
-
-    long statsReceivedPackets;     // Received a data packet addressed to me
-    long statsReceivedBroadcasts;  // Received a broadcast data packet
-
-} MAC_stat_entry_t;
-
 
 /**
  * @brief
@@ -229,9 +205,8 @@ protected:
 
 private:
     void record_MAC_stat_func();
-    void save_MAC_stat_toFile();
     VENTOS::TraCI_Commands* TraCI;
-    static std::map<std::string, MAC_stat_entry_t> global_MAC_stat;
+    VENTOS::Statistics* STAT;
     bool record_stat;
 
 protected:

@@ -36,66 +36,72 @@
 namespace VENTOS {
 
 
-class plnManagement
+typedef struct MAC_stat_entry
 {
-public:
+    double last_stat_time;
+
+    long statsDroppedPackets;        // packet was dropped in Mac
+    long statsNumTooLittleTime;      // Too little time in this interval. Will not schedule nextMacEvent
+    long statsNumInternalContention; // there was already another packet ready.
+    // we have to go increase CW and go into backoff.
+    // It's called internal contention and its wonderful
+    long statsNumBackoff;
+    long statsSlotsBackoff;
+    double statsTotalBusyTime;
+
+    long statsSentPackets;
+
+    long statsSNIRLostPackets;     // A packet was not received due to bit-errors
+    long statsTXRXLostPackets;     // A packet was not received because we were sending while receiving
+
+    long statsReceivedPackets;     // Received a data packet addressed to me
+    long statsReceivedBroadcasts;  // Received a broadcast data packet
+
+} MAC_stat_entry_t;
+
+typedef struct BeaconStat
+{
+    double time;
+    std::string senderID;
+    std::string receiverID;
+    bool dropped;
+} BeaconStat_t;
+
+typedef struct plnManagement
+{
     double time;
     std::string sender;
     std::string receiver;
     std::string type;
     std::string sendingPlnID;
     std::string receivingPlnID;
+} plnManagement_t;
 
-    plnManagement(double t, std::string str1, std::string str2, std::string str3, std::string str4, std::string str5)
-    {
-        this->time = t;
-        this->sender = str1;
-        this->receiver = str2;
-        this->type = str3;
-        this->sendingPlnID = str4;
-        this->receivingPlnID = str5;
-    }
-};
-
-
-class plnStat
+typedef struct plnStat
 {
 public:
     double time;
     std::string from;
     std::string to;
     std::string maneuver;
-
-    plnStat(double t, std::string str1, std::string str2, std::string str3)
-    {
-        this->time = t;
-        this->from = str1;
-        this->to = str2;
-        this->maneuver = str3;
-    }
-};
+} plnStat_t;
 
 
 class Statistics : public BaseApplLayer
 {
-private:
-    // NED variables
-    bool reportPlnManagerData;
+public:
+    std::map<std::string, MAC_stat_entry_t> global_MAC_stat;
+    std::vector<BeaconStat_t> global_Beacon_stat;
 
+    std::vector<plnManagement_t> global_plnManagement_stat;
+    std::vector<plnStat_t> global_plnData_stat;
+
+private:
     // NED variables
     TraCI_Commands *TraCI;
 
     // class variables (signals)
     omnetpp::simsignal_t Signal_initialize_withTraCI;
-    omnetpp::simsignal_t Signal_executeEachTS;
-
-    omnetpp::simsignal_t Signal_SentPlatoonMsg;
-    omnetpp::simsignal_t Signal_VehicleState;
-    omnetpp::simsignal_t Signal_PlnManeuver;
-
-    // class variables (vectors)
-    std::vector<plnManagement> Vec_plnManagement;
-    std::vector<plnStat> Vec_plnStat;
 
 public:
     virtual ~Statistics();
@@ -103,14 +109,16 @@ public:
     virtual void initialize(int);
     virtual void handleMessage(omnetpp::cMessage *);
     virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, long, cObject* details);
-    virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, cObject *, cObject* details);
 
 private:
     void initialize_withTraCI();
     void executeEachTimestep();
 
-    void plnManageToFile();
-    void plnStatToFile();
+    void save_plnManage_toFile();
+    void save_plnStat_toFile();
+
+    void save_MAC_stat_toFile();
+    void save_beacon_stat_toFile();
 };
 
 }

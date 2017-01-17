@@ -37,6 +37,7 @@ class ApplVPlatoonFormed : public ApplV_AID
 protected:
     int plnMode;
     std::string preDefinedPlatoonID;
+    bool record_platoon_stat;
 
     enum platooningMode
     {
