@@ -21,21 +21,21 @@ simple AddNode
         string RSU_ModuleName = default("RSU");
         string RSU_ModuleDisplayString = default("i=device/antennatower");       
         
-        string obstacle_ModuleType = default("VENTOS.src.vehicle.vehicle");
+        string obstacle_ModuleType = default("VENTOS.src.obstacle.obstacle");
         string obstacle_ModuleName = default("OBS"); 
-        string obstacle_ModuleDisplayString = default("");           
+        string obstacle_ModuleDisplayString = default("i=status/error");           
         
         string vehicle_ModuleType = default("VENTOS.src.vehicle.vehicle");
         string vehicle_ModuleName = default("V"); 
-        string vehicle_ModuleDisplayString = default("");  
+        string vehicle_ModuleDisplayString = default("b=3,3,rect,red,black,1");  
         
         string bike_ModuleType = default("VENTOS.src.bicycle.bicycle");       
         string bike_ModuleName = default("B");        
-        string bike_ModuleDisplayString = default("");
+        string bike_ModuleDisplayString = default("b=3,3,rect,yellow,black,1");
         
         string ped_ModuleType = default("VENTOS.src.pedestrian.pedestrian");      
         string ped_ModuleName = default("P");        
-        string ped_ModuleDisplayString = default("");       
+        string ped_ModuleDisplayString = default("b=3,3,rect,green,black,1");       
 }
 
 

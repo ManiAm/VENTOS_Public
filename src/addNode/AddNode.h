@@ -50,6 +50,7 @@ private:
     const std::string obstacle_tag = "obstacle";
     const std::string vehicle_tag = "vehicle";
     const std::string vehicle_flow_tag = "vehicle_flow";
+    const std::string emulated_tag = "emulated";
 
     std::string id;
 
@@ -136,6 +137,15 @@ private:
     } vehicleFlowEntry_t;
 
     std::map<std::string, vehicleFlowEntry_t> allVehicleFlow;
+
+    typedef struct emulatedEntry
+    {
+        std::string id_str;
+        std::string ip_str;
+        std::string color_str;
+    } emulatedEntry_t;
+
+    std::map<std::string, emulatedEntry_t> allEmulated;
 
 public:
     virtual ~AddNode();

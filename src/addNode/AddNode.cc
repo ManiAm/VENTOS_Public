@@ -158,7 +158,8 @@ void AddNode::readInsertion(std::string addNodePath)
                 nodeName != rsu_tag &&
                 nodeName != obstacle_tag &&
                 nodeName != vehicle_tag &&
-                nodeName != vehicle_flow_tag)
+                nodeName != vehicle_flow_tag &&
+                nodeName != emulated_tag)
             throw omnetpp::cRuntimeError("'%s' is not a valid node in id '%s'", this->id.c_str());
     }
 
@@ -500,7 +501,7 @@ void AddNode::addRSU()
     omnetpp::cModuleType* nodeType = omnetpp::cModuleType::get(par("RSU_ModuleType"));
 
     // get all traffic lights in the network
-    std::list<std::string> TLList = TraCI->TLGetIDList();
+    auto TLList = TraCI->TLGetIDList();
 
     int i = 0;
     for(auto &entry : allRSU)
@@ -728,8 +729,7 @@ void AddNode::parseVehicle(rapidxml::xml_node<> *pNode)
                     attName != "departSpeed" &&
                     attName != "departPos" &&
                     attName != "departLane" &&
-                    attName != "laneChangeMode" &&
-                    attName != "ip")
+                    attName != "laneChangeMode")
                 throw omnetpp::cRuntimeError("'%s' is not a valid attribute in node '%s'", attName.c_str(), vehicle_tag.c_str());
         }
 
@@ -1520,22 +1520,86 @@ void AddNode::addVehicleFlow()
 
 void AddNode::parseEmulated(rapidxml::xml_node<> *pNode)
 {
+    // Iterate over all 'emulated' nodes
+    for(rapidxml::xml_node<> *cNode = pNode->first_node(emulated_tag.c_str()); cNode; cNode = cNode->next_sibling())
+    {
+        if(std::string(cNode->name()) != emulated_tag)
+            continue;
 
+        // format checking: Iterate over all attributes in this node
+        for(rapidxml::xml_attribute<> *cAttr1 = cNode->first_attribute(); cAttr1; cAttr1 = cAttr1->next_attribute())
+        {
+            std::string attName = cAttr1->name();
 
+            if(attName != "id" &&
+                    attName != "ip" &&
+                    attName != "color")
+                throw omnetpp::cRuntimeError("'%s' is not a valid attribute in node '%s'", attName.c_str(), emulated_tag.c_str());
+        }
+
+        rapidxml::xml_attribute<> *cAttr = cNode->first_attribute("id");
+        if(!cAttr)
+            throw omnetpp::cRuntimeError("'id' attribute is not found in %s node", emulated_tag.c_str());
+        std::string id_str = cAttr->value();
+        boost::trim(id_str);
+
+        cAttr = cNode->first_attribute("ip");
+        if(!cAttr)
+            throw omnetpp::cRuntimeError("'ip' attribute is not found in %s node", emulated_tag.c_str());
+        std::string ip_str = cAttr->value();
+        boost::trim(ip_str);
+
+        std::string color_str = "yellow";
+        cAttr = cNode->first_attribute("color");
+        if(cAttr)
+        {
+            color_str = cAttr->value();
+            boost::trim(color_str);
+        }
+
+        auto it = allEmulated.find(id_str);
+        if(it == allEmulated.end())
+        {
+            emulatedEntry entry = {};
+
+            entry.id_str = id_str;
+            entry.ip_str = ip_str;
+            entry.color_str = color_str;
+
+            allEmulated.insert(std::make_pair(id_str, entry));
+        }
+        else
+            throw omnetpp::cRuntimeError("Multiple %s with the same 'id' %s is not allowed!", emulated_tag.c_str(), id_str.c_str());
+    }
 }
 
 
 void AddNode::addEmulated()
 {
-    // todo: make sure its not an obstacle!
-    // get all inserted vehicles and check if the id exists!
-    // check for duplicate ids
+    if(allEmulated.empty())
+        return;
 
-    TraCI->add2Emulated("" /*vehicleId*/, "" /*ipAddress*/);
+    unsigned int num = allEmulated.size();
 
-    // change the color here
+    LOG_DEBUG << boost::format("\n>>> AddNode is marking %1% nodes as emulated ... \n") % num << std::flush;
 
+    auto loadedVehList = TraCI->simulationGetLoadedVehiclesIDList();
 
+    for(auto &entry : allEmulated)
+    {
+        std::string vehID = entry.second.id_str;
+
+        // make sure the emulated vehicle is one of the inserted vehicles
+        auto it = std::find(loadedVehList.begin(), loadedVehList.end(), vehID);
+        if(it == loadedVehList.end())
+            throw omnetpp::cRuntimeError("Node '%s' marked as emulated does not exist", vehID.c_str());
+
+        TraCI->add2Emulated(vehID, entry.second.ip_str);
+
+        // change its color
+        RGB newColor = Color::colorNameToRGB(entry.second.color_str);
+        TraCI->vehicleSetColor(vehID, newColor);
+    }
 }
 
 
@@ -1615,7 +1679,7 @@ void AddNode::printLoadedStatistics()
     // Get the list of all possible route
     //###################################
 
-    std::list<std::string> loadedRouteList = TraCI->routeGetIDList();
+    auto loadedRouteList = TraCI->routeGetIDList();
     LOG_DEBUG << boost::format("  %1% routes are loaded: \n      ") % loadedRouteList.size();
     for(std::string route : loadedRouteList)
         LOG_DEBUG << boost::format("%1%, ") % route;
@@ -1626,7 +1690,7 @@ void AddNode::printLoadedStatistics()
     // Get the list of all vehicle types
     //##################################
 
-    std::list<std::string> loadedVehTypeList = TraCI->vehicleTypeGetIDList();
+    auto loadedVehTypeList = TraCI->vehicleTypeGetIDList();
     LOG_DEBUG << boost::format("  %1% vehicle/bike types are loaded: \n      ") % loadedVehTypeList.size();
     for(std::string type : loadedVehTypeList)
         LOG_DEBUG << boost::format("%1%, ") % type;
@@ -1637,7 +1701,7 @@ void AddNode::printLoadedStatistics()
     // Get the list of all vehicles
     //#############################
 
-    std::list<std::string> loadedVehList = TraCI->simulationGetLoadedVehiclesIDList();
+    auto loadedVehList = TraCI->simulationGetLoadedVehiclesIDList();
     LOG_DEBUG << boost::format("  %1% vehicles/bikes are loaded: \n") % loadedVehList.size();
     // get vehicle/bike type distribution
     std::list<std::string> loadedVehType;
