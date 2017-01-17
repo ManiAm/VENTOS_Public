@@ -31,6 +31,11 @@
 #include "traci/TraCICommands.h"
 #include "MIXIM/modules/BaseApplLayer.h"
 
+#define LANECHANGEMODE_DEFAULT   597  // 10 01 01 01 01
+#define LANECHANGEMODE_STOPPED   69   // 00 01 00 01 01
+#define LANECHANGEMODE_OBSTACLE  0
+
+
 namespace VENTOS {
 
 class AddNode : public BaseApplLayer

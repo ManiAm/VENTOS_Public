@@ -193,7 +193,13 @@ void AddNode::readInsertion(std::string addNodePath)
     parseVehicleFlow(pNode);
     parseEmulated(pNode);
 
-    if(allAdversary.empty() && allCA.empty() && allObstacle.empty() && allRSU.empty() && allVehicle.empty() && allVehicleFlow.empty())
+    if(allAdversary.empty() &&
+            allCA.empty() &&
+            allRSU.empty() &&
+            allObstacle.empty() &&
+            allVehicle.empty() &&
+            allVehicleFlow.empty() &&
+            allEmulated.empty())
         LOG_WARNING << boost::format("\nWARNING: Add node with id '%1%' is empty! \n") % this->id << std::flush;
 
     addAdversary();
@@ -715,24 +721,26 @@ void AddNode::addObstacle()
 
     for(auto &entry : allObstacle)
     {
+        std::string vehID = entry.second.id_str;
+
         // todo: adding corresponding route for obstacle
 
         // now we add a vehicle as obstacle
-        TraCI->vehicleAdd(entry.second.id_str, "DEFAULT_VEHTYPE", "route1", entry.second.time, entry.second.lanePos, 0, entry.second.lane);
+        TraCI->vehicleAdd(vehID, "DEFAULT_VEHTYPE", "route1", (int32_t)(entry.second.time * 1000), entry.second.lanePos, 0, entry.second.lane);
 
         // and make it stop on the lane!
-        TraCI->vehicleSetSpeed(entry.second.id_str, 0.);
-        TraCI->vehicleSetLaneChangeMode(entry.second.id_str, 0);
+        TraCI->vehicleSetSpeed(vehID, 0.);
+        TraCI->vehicleSetLaneChangeMode(vehID, LANECHANGEMODE_OBSTACLE);
 
         // and change its color
         RGB newColor = Color::colorNameToRGB(entry.second.color);
-        TraCI->vehicleSetColor(entry.second.id_str, newColor);
+        TraCI->vehicleSetColor(vehID, newColor);
 
         // change veh class to "custome1"
-        TraCI->vehicleSetClass(entry.second.id_str, "custom1");
+        TraCI->vehicleSetClass(vehID, "custom1");
 
         // change veh length
-        TraCI->vehicleSetLength(entry.second.id_str, entry.second.length);
+        TraCI->vehicleSetLength(vehID, entry.second.length);
     }
 }
 
@@ -872,7 +880,7 @@ void AddNode::parseVehicle(rapidxml::xml_node<> *pNode)
             throw omnetpp::cRuntimeError("'departLane' attribute is badly formatted in %s node: %s", vehicle_flow_tag.c_str(), departLane_str.c_str());
         }
 
-        std::string laneChangeMode_str = "597";
+        std::string laneChangeMode_str = std::to_string(LANECHANGEMODE_DEFAULT);
         cAttr = cNode->first_attribute("laneChangeMode");
         if(cAttr)
         {
@@ -924,32 +932,41 @@ void AddNode::addVehicle()
 
     unsigned int num = allVehicle.size();
 
-    LOG_DEBUG << boost::format("\n>>> AddNode is adding %1% ovehicle modules ... \n") % num << std::flush;
+    LOG_DEBUG << boost::format("\n>>> AddNode is adding %1% vehicle modules ... \n") % num << std::flush;
 
     for(auto &entry : allVehicle)
     {
-        // todo:
-        // now we add a vehicle
-        //TraCI->vehicleAdd(entry.second.id_str, "DEFAULT_VEHTYPE", "route1", entry.second.time, entry.second.lanePos, 0, entry.second.lane);
+        std::string vehID = entry.second.id_str;
 
-        // and make it stop on the lane!
-        TraCI->vehicleSetSpeed(entry.second.id_str, 0.);
-        TraCI->vehicleSetLaneChangeMode(entry.second.id_str, 0);
+        // now we add a vehicle
+        TraCI->vehicleAdd(vehID,
+                entry.second.type_str,
+                entry.second.route_str,
+                (int32_t)(entry.second.depart * 1000),
+                entry.second.departPos,
+                entry.second.departSpeed,
+                entry.second.departLane);
 
         // and change its color
-        //RGB newColor = Color::colorNameToRGB(entry.second.color);
-        //TraCI->vehicleSetColor(entry.second.id_str, newColor);
+        RGB newColor = Color::colorNameToRGB(entry.second.color_str);
+        TraCI->vehicleSetColor(vehID, newColor);
 
-        // change veh class to "custome1"
-        //TraCI->vehicleSetClass(entry.second.id_str, "custom1");
+        // change lane change mode
+        if(entry.second.laneChangeMode != LANECHANGEMODE_DEFAULT)
+            TraCI->vehicleSetLaneChangeMode(vehID, entry.second.laneChangeMode);
 
-        // change veh length
-        //TraCI->vehicleSetLength(entry.second.id_str, entry.second.length);
+        if(entry.second.status_str == "stopped")
+        {
+            TraCI->vehicleSetSpeed(vehID, 0);
 
-
-        // if status is stopped
-        // TraCI->vehicleSetSpeed("Veh_0", 0);
-        // TraCI->vehicleSetLaneChangeMode("Veh_0", 0b1000010101);
+            // no lane change during stopped
+            TraCI->vehicleSetLaneChangeMode(vehID, LANECHANGEMODE_STOPPED);
+        }
+        else if(entry.second.status_str == "parked")
+        {
+            // todo
+            // TraCI->vehicleSetStop(vehID, "1to2", entry.second.departPos, entry.second.departLane, 30, 1);
+        }
     }
 }
 
@@ -1168,7 +1185,7 @@ void AddNode::parseVehicleFlow(rapidxml::xml_node<> *pNode)
             throw omnetpp::cRuntimeError("'lanePos' attribute is badly formatted in %s node: %s", vehicle_flow_tag.c_str(), lanePos_str.c_str());
         }
 
-        std::string laneChangeMode_str = "597";
+        std::string laneChangeMode_str = std::to_string(LANECHANGEMODE_DEFAULT);
         cAttr = cNode->first_attribute("laneChangeMode");
         if(cAttr)
         {
@@ -1477,7 +1494,7 @@ void AddNode::addVehicleFlow()
                 TraCI->vehicleSetColor(vehID, newColor);
 
                 // change lane change mode
-                if(entry.second.laneChangeMode != 597)
+                if(entry.second.laneChangeMode != LANECHANGEMODE_DEFAULT)
                     TraCI->vehicleSetLaneChangeMode(vehID, entry.second.laneChangeMode);
 
                 depart += entry.second.period;
@@ -1526,7 +1543,7 @@ void AddNode::addVehicleFlow()
                     TraCI->vehicleSetColor(vehID, newColor);
 
                     // change lane change mode
-                    if(entry.second.laneChangeMode != 597)
+                    if(entry.second.laneChangeMode != LANECHANGEMODE_DEFAULT)
                         TraCI->vehicleSetLaneChangeMode(vehID, entry.second.laneChangeMode);
 
                     vehCount++;
@@ -1767,7 +1784,7 @@ void AddNode::printLoadedStatistics()
         LOG_DEBUG << boost::format("      %1% nodes have route \"%2%\" \n") % count % route;
     }
 
-    LOG_FLUSH;
+    LOG_DEBUG << "\n" << std::flush;
 }
 
 }
