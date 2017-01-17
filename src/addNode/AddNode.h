@@ -60,6 +60,7 @@ private:
         double pos_x;
         double pos_y;
         double pos_z;
+        cModule* module;
     } adversaryEntry_t;
 
     std::map<std::string, adversaryEntry_t> allAdversary;
@@ -70,6 +71,7 @@ private:
         double pos_x;
         double pos_y;
         double pos_z;
+        cModule* module;
     } CAEntry_t;
 
     std::map<std::string, CAEntry_t> allCA;

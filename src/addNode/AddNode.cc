@@ -77,6 +77,28 @@ void AddNode::finish()
     ConnectionManager *cc = static_cast<ConnectionManager*>(module);
     ASSERT(cc);
 
+    // delete all adversary modules in omnet
+    for(auto &i : allAdversary)
+    {
+        cModule* mod = i.second.module;
+        ASSERT(mod);
+
+        cc->unregisterNic(mod->getSubmodule("nic"));
+        mod->callFinish();
+        mod->deleteModule();
+    }
+
+    // delete all CA modules in omnet
+    for(auto &i : allCA)
+    {
+        cModule* mod = i.second.module;
+        ASSERT(mod);
+
+        cc->unregisterNic(mod->getSubmodule("nic"));
+        mod->callFinish();
+        mod->deleteModule();
+    }
+
     // delete all RSU modules in omnet
     for(auto &i : allRSU)
     {
@@ -291,6 +313,9 @@ void AddNode::addAdversary()
         mod->scheduleStart(omnetpp::simTime());
         mod->callInitialize();
 
+        // store the cModule
+        entry.second.module = mod;
+
         i++;
     }
 
@@ -302,7 +327,7 @@ void AddNode::addAdversary()
         omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule(par("adversary_ModuleName"), i);
         ASSERT(module);
 
-        // get the radius of this RSU
+        // get the radius
         double radius = atof( module->getDisplayString().getTagArg("r",0) );
 
         Coord *center = new Coord(entry.second.pos_x, entry.second.pos_y);
@@ -412,6 +437,11 @@ void AddNode::addCA()
 
         mod->scheduleStart(omnetpp::simTime());
         mod->callInitialize();
+
+        // store the cModule
+        entry.second.module = mod;
+
+        i++;
     }
 }
 
