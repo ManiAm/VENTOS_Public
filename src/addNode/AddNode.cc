@@ -279,6 +279,13 @@ void AddNode::parseAdversary(rapidxml::xml_node<> *pNode)
         auto it = allAdversary.find(id_str);
         if(it == allAdversary.end())
         {
+            // check if the new node has overlap with any of the existing nodes
+            for(auto &entry : allAdversary)
+            {
+                if(entry.second.pos_x == pos_x && entry.second.pos_y == pos_y && entry.second.pos_z == pos_z)
+                    LOG_WARNING << boost::format("WARNING: Adversary '%s' is placed on top of '%s'. \n") % id_str % entry.second.id_str;
+            }
+
             adversaryEntry_t entry = {id_str, pos_x, pos_y, pos_z};
             allAdversary.insert(std::make_pair(id_str, entry));
         }
@@ -404,6 +411,13 @@ void AddNode::parseCA(rapidxml::xml_node<> *pNode)
         auto it = allCA.find(id_str);
         if(it == allCA.end())
         {
+            // check if the new node has overlap with any of the existing nodes
+            for(auto &entry : allCA)
+            {
+                if(entry.second.pos_x == pos_x && entry.second.pos_y == pos_y && entry.second.pos_z == pos_z)
+                    LOG_WARNING << boost::format("WARNING: CA '%s' is placed on top of '%s'. \n") % id_str % entry.second.id_str;
+            }
+
             CAEntry_t entry = {id_str, pos_x, pos_y, pos_z};
             allCA.insert(std::make_pair(id_str, entry));
         }
@@ -512,6 +526,13 @@ void AddNode::parseRSU(rapidxml::xml_node<> *pNode)
         auto it = allRSU.find(id_str);
         if(it == allRSU.end())
         {
+            // check if the new node has overlap with any of the existing nodes
+            for(auto &entry : allRSU)
+            {
+                if(entry.second.pos_x == pos_x && entry.second.pos_y == pos_y && entry.second.pos_z == pos_z)
+                    LOG_WARNING << boost::format("WARNING: RSU '%s' is placed on top of '%s'. \n") % id_str % entry.second.id_str;
+            }
+
             RSUEntry_t entry = {id_str, pos_x, pos_y, pos_z};
             allRSU.insert(std::make_pair(id_str, entry));
         }
@@ -701,6 +722,13 @@ void AddNode::parseObstacle(rapidxml::xml_node<> *pNode)
         auto it = allObstacle.find(id_str);
         if(it == allObstacle.end())
         {
+            // check if the new node has overlap with any of the existing nodes
+            for(auto &entry : allObstacle)
+            {
+                if(entry.second.edge_str == edge_str && entry.second.lane == lane && entry.second.lanePos == lanePos)
+                    LOG_WARNING << boost::format("WARNING: Obstacle '%s' is placed on top of '%s'. \n") % id_str % entry.second.id_str;
+            }
+
             obstacleEntry_t entry = {id_str, time, length, edge_str, lane, lanePos, color_str};
             allObstacle.insert(std::make_pair(id_str, entry));
         }
