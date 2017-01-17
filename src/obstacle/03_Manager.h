@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    Base.h
+/// @file    Manager.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    August 2013
@@ -25,56 +25,36 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef APPLVBASE_H_
-#define APPLVBASE_H_
+#ifndef ApplOBSTACLEMANAGER_H
+#define ApplOBSTACLEMANAGER_H
 
-#include "MIXIM/modules/BaseApplLayer.h"
-#include "MIXIM/modules/ChannelAccess.h"
-#include "veins/WaveAppToMac1609_4Interface.h"
-#include "traci/TraCICommands.h"
-#include "global/Statistics.h"
-
-class dataExchange;
+#include "obstacle/02_Beacon.h"
+#include "msg/BeaconVehicle_m.h"
+#include "msg/BeaconRSU_m.h"
+#include "msg/PlatoonMsg_m.h"
 
 namespace VENTOS {
 
-class ApplVBase : public BaseApplLayer
+class ApplObstacleManager : public ApplObstacleBeacon
 {
 private:
-    typedef BaseApplLayer super;
-
-protected:
-    // NED variables
-    TraCI_Commands* TraCI;
-    VENTOS::Statistics* STAT;
-
-    // module info
-    int myId;
-    const char *myFullId;
-    std::string SUMOID;
-    std::string SUMOType;
-    std::string vehicleClass;
-
-    bool hasOBU;
-    std::string IPaddress;
-
-    int SUMOControllerType;
-    int SUMOControllerNumber;
-
-    // Class variables
-    Coord curPosition;  // current position from mobility module (not from sumo)
-    double entryTime;
-
+    typedef ApplObstacleBeacon super;
     static const simsignalwrap_t mobilityStateChangedSignal;
 
 public:
-    ~ApplVBase();
+    ~ApplObstacleManager();
     virtual void initialize(int stage);
     virtual void finish();
+    virtual void receiveSignal(omnetpp::cComponent* source, omnetpp::simsignal_t signalID, cObject* obj, cObject* details);
 
 protected:
-    virtual void handleSelfMsg(omnetpp::cMessage* msg);
-    virtual void handlePositionUpdate(cObject* obj);
+    // Methods
+    virtual void handleLowerMsg(omnetpp::cMessage*);
+    virtual void handleSelfMsg(omnetpp::cMessage*);
+    virtual void handlePositionUpdate(cObject*);
+
+    virtual void onBeaconVehicle(BeaconVehicle*);
+    virtual void onBeaconRSU(BeaconRSU*);
 };
 
 }

@@ -25,18 +25,18 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "bicycle/01_Base.h"
+#include "obstacle/01_Base.h"
 
 namespace VENTOS {
 
-Define_Module(VENTOS::ApplBikeBase);
+Define_Module(VENTOS::ApplObstacleBase);
 
-ApplBikeBase::~ApplBikeBase()
+ApplObstacleBase::~ApplObstacleBase()
 {
 
 }
 
-void ApplBikeBase::initialize(int stage)
+void ApplObstacleBase::initialize(int stage)
 {
 	super::initialize(stage);
 
@@ -69,20 +69,20 @@ void ApplBikeBase::initialize(int stage)
 }
 
 
-void ApplBikeBase::finish()
+void ApplObstacleBase::finish()
 {
 
 }
 
 
-void ApplBikeBase::handleSelfMsg(omnetpp::cMessage* msg)
+void ApplObstacleBase::handleSelfMsg(omnetpp::cMessage* msg)
 {
     throw omnetpp::cRuntimeError("Can't handle msg %s of kind %d", msg->getFullName(), msg->getKind());
 }
 
 
 // is called, every time the position of vehicle changes
-void ApplBikeBase::handlePositionUpdate(cObject* obj)
+void ApplObstacleBase::handlePositionUpdate(cObject* obj)
 {
 
 }

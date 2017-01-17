@@ -1,5 +1,5 @@
 /****************************************************************************/
-/// @file    Base.h
+/// @file    Beacon.h
 /// @author  Mani Amoozadeh <maniam@ucdavis.edu>
 /// @author  second author name
 /// @date    August 2013
@@ -25,56 +25,50 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef APPLVBASE_H_
-#define APPLVBASE_H_
+#ifndef ApplOBSTACLEBeacon_H
+#define ApplOBSTACLEBeacon_H
 
-#include "MIXIM/modules/BaseApplLayer.h"
-#include "MIXIM/modules/ChannelAccess.h"
-#include "veins/WaveAppToMac1609_4Interface.h"
-#include "traci/TraCICommands.h"
-#include "global/Statistics.h"
-
-class dataExchange;
+#include "obstacle/01_Base.h"
+#include "msg/BeaconObstacle_m.h"
 
 namespace VENTOS {
 
-class ApplVBase : public BaseApplLayer
+class ApplObstacleBeacon : public ApplObstacleBase
 {
-private:
-    typedef BaseApplLayer super;
-
 protected:
-    // NED variables
-    TraCI_Commands* TraCI;
-    VENTOS::Statistics* STAT;
+    // NED
+    bool DSRCenabled;
 
-    // module info
-    int myId;
-    const char *myFullId;
-    std::string SUMOID;
-    std::string SUMOType;
-    std::string vehicleClass;
+    // NED variables (beaconing parameters)
+    bool sendBeacons;
+    double beaconInterval;
+    double maxOffset;
+    int beaconLengthBits;
+    int beaconPriority;
 
-    bool hasOBU;
-    std::string IPaddress;
-
-    int SUMOControllerType;
-    int SUMOControllerNumber;
+    // NED variables (data message parameters)
+    int dataLengthBits;
+    bool dataOnSch;
+    int dataPriority;
 
     // Class variables
-    Coord curPosition;  // current position from mobility module (not from sumo)
-    double entryTime;
+    omnetpp::simtime_t individualOffset;
+    omnetpp::cMessage* ObstacleBeaconEvt = NULL;
 
-    static const simsignalwrap_t mobilityStateChangedSignal;
+private:
+    typedef ApplObstacleBase super;
 
 public:
-    ~ApplVBase();
+    ~ApplObstacleBeacon();
     virtual void initialize(int stage);
     virtual void finish();
 
 protected:
-    virtual void handleSelfMsg(omnetpp::cMessage* msg);
-    virtual void handlePositionUpdate(cObject* obj);
+    virtual void handleSelfMsg(omnetpp::cMessage*);
+    virtual void handlePositionUpdate(cObject*);
+
+private:
+    BeaconObstacle* generateBeacon();
 };
 
 }

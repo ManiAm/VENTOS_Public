@@ -25,28 +25,21 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#ifndef APPLVBASE_H_
-#define APPLVBASE_H_
+#ifndef APPLOBSTACLEBASE_H_
+#define APPLOBSTACLEBASE_H_
 
 #include "MIXIM/modules/BaseApplLayer.h"
 #include "MIXIM/modules/ChannelAccess.h"
 #include "veins/WaveAppToMac1609_4Interface.h"
 #include "traci/TraCICommands.h"
-#include "global/Statistics.h"
-
-class dataExchange;
 
 namespace VENTOS {
 
-class ApplVBase : public BaseApplLayer
+class ApplObstacleBase : public BaseApplLayer
 {
-private:
-    typedef BaseApplLayer super;
-
 protected:
     // NED variables
     TraCI_Commands* TraCI;
-    VENTOS::Statistics* STAT;
 
     // module info
     int myId;
@@ -58,23 +51,20 @@ protected:
     bool hasOBU;
     std::string IPaddress;
 
-    int SUMOControllerType;
-    int SUMOControllerNumber;
-
-    // Class variables
     Coord curPosition;  // current position from mobility module (not from sumo)
     double entryTime;
 
-    static const simsignalwrap_t mobilityStateChangedSignal;
-
 public:
-    ~ApplVBase();
+    ~ApplObstacleBase();
     virtual void initialize(int stage);
     virtual void finish();
 
 protected:
     virtual void handleSelfMsg(omnetpp::cMessage* msg);
     virtual void handlePositionUpdate(cObject* obj);
+
+private:
+    typedef BaseApplLayer super;
 };
 
 }

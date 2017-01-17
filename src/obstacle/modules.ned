@@ -1,10 +1,10 @@
 
-package VENTOS.src.bicycle;
+package VENTOS.src.obstacle;
 
 import VENTOS.src.veins.Nic80211p;
 import VENTOS.src.traci.TraCIMobilityMod;
 
-module bicycle
+module obstacle
 {
     parameters:
         @signal[beaconSignaling]();
@@ -23,7 +23,7 @@ module bicycle
         input radioIn; // gate for sendDirect
         
     submodules:
-        appl: ApplBikeManager {    // <applType> like IBaseApplLayer {
+        appl: ApplObstacleManager {    // <applType> like IBaseApplLayer {
             parameters:
                 @display("p=60,50");
         }
@@ -49,10 +49,10 @@ module bicycle
 
 import VENTOS.src.MIXIM.modules.IBaseApplLayer;
 
-simple ApplBikeBase like IBaseApplLayer
+simple ApplObstacleBase like IBaseApplLayer
 {
     parameters:
-        @class(VENTOS::ApplBikeBase);
+        @class(VENTOS::ApplObstacleBase);
         
         int headerLength = default(256bit) @unit(bit); //header length of the application        
         bool debug = default(false); //whether to print debug output
@@ -65,10 +65,10 @@ simple ApplBikeBase like IBaseApplLayer
 }
 
 
-simple ApplBikeBeacon extends ApplBikeBase
+simple ApplObstacleBeacon extends ApplObstacleBase
 {
     parameters:
-        @class(VENTOS::ApplBikeBeacon);
+        @class(VENTOS::ApplObstacleBeacon);
         @display("i=block/app2");
         
         bool DSRCenabled = default(true);  // non-changable during simulation
@@ -79,18 +79,16 @@ simple ApplBikeBeacon extends ApplBikeBase
         int beaconLengthBits = default(512bit) @unit(bit); //the length of a beacon packet
         int beaconPriority = default(3); //the access category of the beacon messages
         
-        bool signalBeaconing = default(false);
-        
-        // Bicycle data msg parameters
+        // data msg parameters
         bool dataOnSch = default(true); //tells the applayer whether to use a service channel for datapackets or the control channel
         int dataLengthBits = default(1024bit) @unit(bit); //the length of a data packet
         int dataPriority = default(2); //the access category for data packets  
 }
 
 
-simple ApplBikeManager extends ApplBikeBeacon
+simple ApplObstacleManager extends ApplObstacleBeacon
 {
     parameters:
-        @class(VENTOS::ApplBikeManager);
+        @class(VENTOS::ApplObstacleManager);
         @display("i=block/app2");
 }
