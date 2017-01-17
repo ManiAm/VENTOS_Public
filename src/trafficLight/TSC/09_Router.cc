@@ -419,7 +419,7 @@ void TrafficLightRouter::FlowRateRecalculate()
             {
                 auto route = TraCI->vehicleGetRoute(vehicle);    //Get the vehicle's route
                 while(route.front().compare(edge1->id) != 0) //Remove edges it's already traveled (TODO: this doesn't check for cycles!)
-                    //  route.pop_front();  todo: remove commnet
+                    route.erase(std::remove(route.begin(), route.end(), route[0]), route.end());
 
                 if(route.size() > 1)    //If 1 entry, vehicle will vanish at the end of the edge, so we don't count it
                 {
@@ -441,7 +441,7 @@ void TrafficLightRouter::FlowRateRecalculate()
                 {
                     auto route = TraCI->vehicleGetRoute(vehicle);    //Get the vehicle's route
                     while(route.front().compare(edge2->id) != 0) //Remove edges it's already traveled (TODO: this doesn't check for cycles!)
-                        // route.pop_front();   todo: remove commnet
+                        route.erase(std::remove(route.begin(), route.end(), route[0]), route.end());
 
                     if(route.size() > 2)    //If < 3 entry, vehicle will vanish at the end of the edge, so we don't count it
                     {
