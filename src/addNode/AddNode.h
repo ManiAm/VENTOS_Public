@@ -95,12 +95,14 @@ private:
     typedef struct obstacleEntry
     {
         std::string id_str;
-        double time;
         int length;
         std::string edge_str;
         int lane;
         double lanePos;
-        std::string color;
+        std::string color_str;
+        double begin;
+        double end;
+        double duration;
     } obstacleEntry_t;
 
     std::map<std::string, obstacleEntry_t> allObstacle;

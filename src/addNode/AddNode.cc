@@ -117,7 +117,12 @@ void AddNode::finish()
 
 void AddNode::handleMessage(omnetpp::cMessage *msg)
 {
-
+    if(msg->isSelfMessage() && msg->getKind() == TYPE_TIMER)
+    {
+        // remove the obstacle vehicle from SUMO
+        std::string vehID = msg->getName();
+        TraCI->vehicleRemove(vehID, 2);
+    }
 }
 
 
@@ -628,7 +633,15 @@ void AddNode::parseObstacle(rapidxml::xml_node<> *pNode)
         {
             std::string attName = cAttr1->name();
 
-            if(attName != "id" && attName != "time" && attName != "length" && attName != "edge" && attName != "lane" && attName != "lanePos" && attName != "color")
+            if(attName != "id" &&
+                    attName != "length" &&
+                    attName != "edge" &&
+                    attName != "lane" &&
+                    attName != "lanePos" &&
+                    attName != "color" &&
+                    attName != "begin" &&
+                    attName != "end" &&
+                    attName != "duration")
                 throw omnetpp::cRuntimeError("'%s' is not a valid attribute in node '%s'", attName.c_str(), obstacle_tag.c_str());
         }
 
@@ -636,24 +649,6 @@ void AddNode::parseObstacle(rapidxml::xml_node<> *pNode)
         if(!cAttr)
             throw omnetpp::cRuntimeError("'id' attribute is not found in %s node", obstacle_tag.c_str());
         std::string id_str = cAttr->value();
-
-        std::string time_str = "0";
-        cAttr = cNode->first_attribute("time");
-        if(cAttr)
-        {
-            time_str = cAttr->value();
-            boost::trim(time_str);
-        }
-
-        double time = 0;
-        try
-        {
-            time = boost::lexical_cast<double>(time_str);
-        }
-        catch (boost::bad_lexical_cast const&)
-        {
-            throw omnetpp::cRuntimeError("'time' attribute is badly formatted in %s node: %s", obstacle_tag.c_str(), time_str.c_str());
-        }
 
         std::string length_str = "5";
         cAttr = cNode->first_attribute("length");
@@ -719,6 +714,70 @@ void AddNode::parseObstacle(rapidxml::xml_node<> *pNode)
             boost::trim(color_str);
         }
 
+        std::string begin_str = "0";
+        cAttr = cNode->first_attribute("begin");
+        if(cAttr)
+        {
+            begin_str = cAttr->value();
+            boost::trim(begin_str);
+        }
+
+        double begin = 0;
+        try
+        {
+            begin = boost::lexical_cast<double>(begin_str);
+        }
+        catch (boost::bad_lexical_cast const&)
+        {
+            throw omnetpp::cRuntimeError("'begin' attribute is badly formatted in %s node: %s", obstacle_tag.c_str(), begin_str.c_str());
+        }
+
+        double end = -1;
+        double duration = -1;
+
+        if((cAttr = cNode->first_attribute("end")))
+        {
+            std::string end_str = cAttr->value();
+            boost::trim(end_str);
+
+            try
+            {
+                end = boost::lexical_cast<double>(end_str);
+            }
+            catch (boost::bad_lexical_cast const&)
+            {
+                throw omnetpp::cRuntimeError("'end' attribute is badly formatted in %s node: %s", obstacle_tag.c_str(), end_str.c_str());
+            }
+
+            if(end <= begin)
+                throw omnetpp::cRuntimeError("'end' value is less than 'begin' in %s node: %s", obstacle_tag.c_str(), end_str.c_str());
+
+            cAttr = cNode->first_attribute("duration");
+            if(cAttr)
+                throw omnetpp::cRuntimeError("'duration' attribute is redundant when 'end' is present in %s node", obstacle_tag.c_str());
+        }
+        else if((cAttr = cNode->first_attribute("duration")))
+        {
+            std::string duration_str = cAttr->value();
+            boost::trim(duration_str);
+
+            try
+            {
+                duration = boost::lexical_cast<double>(duration_str);
+            }
+            catch (boost::bad_lexical_cast const&)
+            {
+                throw omnetpp::cRuntimeError("'duration' attribute is badly formatted in %s node: %s", obstacle_tag.c_str(), duration_str.c_str());
+            }
+
+            if(duration <= 0)
+                throw omnetpp::cRuntimeError("'duration' value should be positive in %s node: %s", obstacle_tag.c_str(), duration_str.c_str());
+
+            cAttr = cNode->first_attribute("end");
+            if(cAttr)
+                throw omnetpp::cRuntimeError("'end' attribute is redundant when 'duration' is present in %s node", obstacle_tag.c_str());
+        }
+
         auto it = allObstacle.find(id_str);
         if(it == allObstacle.end())
         {
@@ -729,7 +788,18 @@ void AddNode::parseObstacle(rapidxml::xml_node<> *pNode)
                     LOG_WARNING << boost::format("WARNING: Obstacle '%s' is placed on top of '%s'. \n") % id_str % entry.second.id_str;
             }
 
-            obstacleEntry_t entry = {id_str, time, length, edge_str, lane, lanePos, color_str};
+            obstacleEntry_t entry = {};
+
+            entry.id_str = id_str;
+            entry.length = length;
+            entry.edge_str = edge_str;
+            entry.lane = lane;
+            entry.lanePos = lanePos;
+            entry.color_str = color_str;
+            entry.begin = begin;
+            entry.end = end;
+            entry.duration = duration;
+
             allObstacle.insert(std::make_pair(id_str, entry));
         }
         else
@@ -754,14 +824,14 @@ void AddNode::addObstacle()
         // todo: adding corresponding route for obstacle
 
         // now we add a vehicle as obstacle
-        TraCI->vehicleAdd(vehID, "DEFAULT_VEHTYPE", "route1", (int32_t)(entry.second.time * 1000), entry.second.lanePos, 0, entry.second.lane);
+        TraCI->vehicleAdd(vehID, "DEFAULT_VEHTYPE", "route1", (int32_t)(entry.second.begin * 1000), entry.second.lanePos, 0, entry.second.lane);
 
         // and make it stop on the lane!
         TraCI->vehicleSetSpeed(vehID, 0.);
         TraCI->vehicleSetLaneChangeMode(vehID, LANECHANGEMODE_OBSTACLE);
 
         // and change its color
-        RGB newColor = Color::colorNameToRGB(entry.second.color);
+        RGB newColor = Color::colorNameToRGB(entry.second.color_str);
         TraCI->vehicleSetColor(vehID, newColor);
 
         // change veh class to "custome1"
@@ -769,6 +839,17 @@ void AddNode::addObstacle()
 
         // change veh length
         TraCI->vehicleSetLength(vehID, entry.second.length);
+
+        if(entry.second.end != -1)
+        {
+            omnetpp::cMessage* obstacleRemobalEvt = new omnetpp::cMessage(vehID.c_str(), TYPE_TIMER);
+            scheduleAt(omnetpp::simTime() + entry.second.end, obstacleRemobalEvt);
+        }
+        else if(entry.second.duration != -1)
+        {
+            omnetpp::cMessage* obstacleRemobalEvt = new omnetpp::cMessage(vehID.c_str(), TYPE_TIMER);
+            scheduleAt(omnetpp::simTime() + entry.second.begin + entry.second.duration, obstacleRemobalEvt);
+        }
     }
 }
 
