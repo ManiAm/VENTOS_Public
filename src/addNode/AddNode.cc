@@ -565,19 +565,12 @@ void AddNode::addRSU()
     // get all traffic lights in the network
     auto TLList = TraCI->TLGetIDList();
 
+    // get all junctions in the network
+    auto junctionList = TraCI->junctionGetIDList();
+
     int i = 0;
     for(auto &entry : allRSU)
     {
-        // create an array of RSUs
-        cModule* mod = nodeType->create(par("RSU_ModuleName"), parentMod, num, i);
-        mod->finalizeParameters();
-        mod->getDisplayString().parse(par("RSU_ModuleDisplayString"));
-        mod->buildInside();
-
-        mod->getSubmodule("mobility")->par("x") = entry.second.pos_x;
-        mod->getSubmodule("mobility")->par("y") = entry.second.pos_y;
-        mod->getSubmodule("mobility")->par("z") = entry.second.pos_z;
-
         // check if any TLid is associated with this RSU
         std::string myTLid = "";
         for(std::string TLid : TLList)
@@ -589,9 +582,36 @@ void AddNode::addRSU()
             }
         }
 
-        // then set the myTLid parameter
-        mod->getSubmodule("appl")->par("myTLid") = myTLid;
+        if(myTLid != "")
+        {
+            // look for the junction with the same name
+            auto junc = std::find(junctionList.begin(), junctionList.end(), myTLid);
 
+            if(junc != junctionList.end())
+            {
+                auto coord = TraCI->junctionGetPosition(myTLid);
+
+                // calculate the distance from this RSU to the center of the intersection
+                double rsu_x = entry.second.pos_x;
+                double rsu_y = entry.second.pos_y;
+                double dist = sqrt(pow(rsu_x - coord.x, 2.) + pow(rsu_y - coord.y, 2.));
+
+                if(dist > 100)
+                    LOG_WARNING << boost::format("\nWARNING: RSU '%s' is not aligned with the intersection. \n") % entry.second.id_str;
+            }
+        }
+
+        // create an array of RSUs
+        cModule* mod = nodeType->create(par("RSU_ModuleName"), parentMod, num, i);
+        mod->finalizeParameters();
+        mod->getDisplayString().parse(par("RSU_ModuleDisplayString"));
+        mod->buildInside();
+
+        mod->getSubmodule("mobility")->par("x") = entry.second.pos_x;
+        mod->getSubmodule("mobility")->par("y") = entry.second.pos_y;
+        mod->getSubmodule("mobility")->par("z") = entry.second.pos_z;
+
+        mod->getSubmodule("appl")->par("myTLid") = myTLid;
         mod->getSubmodule("appl")->par("SUMOID") = entry.second.id_str;
 
         mod->scheduleStart(omnetpp::simTime());
