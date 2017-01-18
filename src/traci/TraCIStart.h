@@ -36,29 +36,6 @@
 
 namespace VENTOS {
 
-// used for equilibrium logic
-class departedNodes
-{
-public:
-    std::string vehicleId;
-    std::string vehicleTypeId;
-    std::string routeId;
-    double pos;
-    double speed;
-    uint32_t lane;
-
-    departedNodes(std::string str1, std::string str2, std::string str3, double d1, double d2, uint32_t i2)
-    {
-        this->vehicleId = str1;
-        this->vehicleTypeId = str2;
-        this->routeId = str3;
-        this->pos = d1;
-        this->speed = d2;
-        this->lane = i2;
-    }
-};
-
-
 class TraCI_Start :  public TraCI_Commands
 {
 private:
@@ -67,6 +44,7 @@ private:
     // NED
     BaseWorldUtility* world;
     ConnectionManager* cc;
+    cModule *addNode_module;
 
     bool active;
     bool debug;   /**< whether to emit debug messages */
@@ -74,38 +52,16 @@ private:
     omnetpp::simtime_t firstStepAt;     /**< when to start synchronizing with the TraCI server (-1: immediately after connecting) */
     omnetpp::simtime_t updateInterval;  /**< time interval of hosts' position updates */
 
-    std::string host;
-
     // NED variables
     double terminate;
     bool autoShutdown;  /**< Shutdown module as soon as no more vehicles are in the simulation */
-
-    // NED (obstacle)
-    std::string obstacleModuleType;
-    std::string obstacleModuleName;
-    std::string obstacleModuleDisplayString;
-
-    // NED (vehicles)
-    std::string vehicleModuleType;
-    std::string vehicleModuleName;
-    std::string vehicleModuleDisplayString;
-
-    // NED (bicycles)
-    std::string bikeModuleType;
-    std::string bikeModuleName;
-    std::string bikeModuleDisplayString;
-
-    // NED (pedestrians)
-    std::string pedModuleType;
-    std::string pedModuleName;
-    std::string pedModuleDisplayString;
 
     double penetrationRate;
 
     // class variables
     uint32_t activeVehicleCount; /**< number of vehicles, be it parking or driving **/
     uint32_t parkingVehicleCount; /**< number of parking vehicles, derived from parking start/end events */
-    uint32_t drivingVehicleCount; /**< number of driving, as reported by sumo */
+    uint32_t drivingVehicleCount; /**< number of driving, as reported by SUMO */
 
     size_t nextNodeVectorIndex; /**< next OMNeT++ module vector index to use */
     std::map<std::string, cModule*> hosts; /**< vector of all hosts managed by us */
@@ -120,6 +76,17 @@ private:
     std::list<std::string> roiRoads; /**< which roads (e.g. "hwy1 hwy2") are considered to constitute the region of interest, if not empty */
     std::list<std::pair<TraCICoord, TraCICoord> > roiRects; /**< which rectangles (e.g. "0,0-10,10 20,20-30,30) are considered to constitute the region of interest, if not empty */
     double roiSquareSizeRSU;
+
+    // used for equilibrium logic
+    typedef struct departedNodes
+    {
+        std::string vehicleId;
+        std::string vehicleTypeId;
+        std::string routeId;
+        double pos;
+        double speed;
+        uint32_t lane;
+    } departedNodes_t;
 
     bool equilibrium_vehicle;
     std::map<std::string /*SUMO id*/, departedNodes> departedVehicles;

@@ -33,7 +33,6 @@ simple TraCIStart
         bool active = default(false);
         bool debug = default(false);  // emit debug messages?
         
-        string host = default("localhost");  // TraCI server hostname
         string SUMOapplication = default("sumo-guiD");   // sumoD: command-line interface    sumo-guiD: graphical interface
         string SUMOconfig = default("");     // relative path to the SUMO configure file
         

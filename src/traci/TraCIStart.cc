@@ -85,29 +85,7 @@ void TraCI_Start::initialize(int stage)
             executeOneTimestepTrigger = new omnetpp::cMessage("step");
             scheduleAt(firstStepAt, executeOneTimestepTrigger);
 
-            host = par("host").stdstringValue();
-
             autoShutdown = par("autoShutdown");
-
-            // get a pointer to the AddNode module
-            cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("addNode");
-            ASSERT(module);
-
-            obstacleModuleType = module->par("obstacle_ModuleType").stdstringValue();
-            obstacleModuleName = module->par("obstacle_ModuleName").stdstringValue();
-            obstacleModuleDisplayString = module->par("obstacle_ModuleDisplayString").stdstringValue();
-
-            vehicleModuleType = module->par("vehicle_ModuleType").stdstringValue();
-            vehicleModuleName = module->par("vehicle_ModuleName").stdstringValue();
-            vehicleModuleDisplayString = module->par("vehicle_ModuleDisplayString").stdstringValue();
-
-            bikeModuleType = module->par("bike_ModuleType").stringValue();
-            bikeModuleName = module->par("bike_ModuleName").stringValue();
-            bikeModuleDisplayString = module->par("bike_ModuleDisplayString").stringValue();
-
-            pedModuleType = module->par("ped_ModuleType").stringValue();
-            pedModuleName = module->par("ped_ModuleName").stringValue();
-            pedModuleDisplayString = module->par("ped_ModuleDisplayString").stringValue();
 
             penetrationRate = par("penetrationRate").doubleValue();
 
@@ -120,13 +98,17 @@ void TraCI_Start::initialize(int stage)
             subscribedVehicles.clear();
             subscribedPedestrians.clear();
 
-            module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("world");
+            cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("world");
             world = static_cast<BaseWorldUtility*>(module);
             ASSERT(world);
 
             module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("connMan");
             cc = static_cast<ConnectionManager*>(module);
             ASSERT(cc);
+
+            // get a pointer to the AddNode module
+            addNode_module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("addNode");
+            ASSERT(addNode_module);
 
             equilibrium_vehicle = par("equilibrium_vehicle").boolValue();
             departedVehicles.clear();
@@ -173,11 +155,11 @@ void TraCI_Start::handleMessage(omnetpp::cMessage *msg)
 
             std::ostringstream dateTime;
             dateTime << boost::format("%4d%02d%02d-%02d:%02d:%02d") % (1900 + ltm->tm_year)
-                                                            % (1 + ltm->tm_mon)
-                                                            % (ltm->tm_mday)
-                                                            % (ltm->tm_hour)
-                                                            % (ltm->tm_min)
-                                                            % (ltm->tm_sec);
+                                                                    % (1 + ltm->tm_mon)
+                                                                    % (ltm->tm_mday)
+                                                                    % (ltm->tm_hour)
+                                                                    % (ltm->tm_min)
+                                                                    % (ltm->tm_sec);
 
             simStartDateTime = dateTime.str();
             simStartTime = std::chrono::high_resolution_clock::now();
@@ -232,7 +214,7 @@ void TraCI_Start::init_traci()
     int port = TraCIConnection::startSUMO(getFullPath_SUMOExe(appl), getFullPath_SUMOConfig(), switches, seed);
 
     // then connect to the 'SUMO TraCI server'
-    connection = TraCIConnection::connect(host.c_str(), port);
+    connection = TraCIConnection::connect("localhost", port);
 
     // get the version of SUMO TraCI API
     std::pair<uint32_t, std::string> versionS = getVersion();
@@ -494,8 +476,10 @@ void TraCI_Start::processVehicleSubscription(std::string objectId, TraCIBuffer& 
             uint8_t varType; buf >> varType;
             ASSERT(varType == TYPE_STRINGLIST);
             uint32_t count; buf >> count;  // count: number of active vehicles
-            if(count != activeVehicleCount)
-                throw omnetpp::cRuntimeError("Mismatched number of active vehicles! Do you have vehicle accident?");
+
+            if(count > activeVehicleCount)
+                throw omnetpp::cRuntimeError("SUMO is reporting a higher vehicle count.");
+
             std::set<std::string> drivingVehicles;
             for (uint32_t i = 0; i < count; ++i)
             {
@@ -531,6 +515,20 @@ void TraCI_Start::processVehicleSubscription(std::string objectId, TraCIBuffer& 
                 std::vector<uint8_t> variables;
                 TraCIBuffer buf = vehicleSubscribe(0, 0x7FFFFFFF, *i, variables);
                 ASSERT(buf.eof());
+
+                // vehicle removal (manual or due to an accident)
+                if(count < activeVehicleCount)
+                {
+                    // check if this object has been deleted already (e.g. because it was outside the ROI)
+                    cModule* mod = getManagedModule(*i);
+                    if (mod) deleteManagedModule(*i);
+
+                    if(unEquippedHosts.find(*i) != unEquippedHosts.end())
+                        unEquippedHosts.erase(*i);
+
+                    activeVehicleCount--;
+                    drivingVehicleCount--;
+                }
             }
         }
         else if (variable1_resp == VAR_POSITION)
@@ -657,19 +655,20 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
                 if(equilibrium_vehicle)
                 {
                     // saving information for later use
-                    // todo: always set entryPos and entrySpeed to 0
-                    departedNodes *node = new departedNodes(idstring,
-                            vehicleGetTypeID(idstring),
-                            vehicleGetRouteID(idstring),
-                            0 /*vehicleGetLanePosition(idstring)*/,
-                            0 /*vehicleGetSpeed(idstring)*/,
-                            vehicleGetLaneIndex(idstring));
+                    departedNodes node = {};
+
+                    node.vehicleId = idstring;
+                    node.vehicleTypeId = vehicleGetTypeID(idstring);
+                    node.routeId = vehicleGetRouteID(idstring);
+                    node.pos = 0; /*vehicleGetLanePosition(idstring)*/  // todo
+                    node.speed = 0; /*vehicleGetSpeed(idstring)*/       // todo
+                    node.lane = vehicleGetLaneIndex(idstring);
 
                     auto it = departedVehicles.find(idstring);
                     if(it != departedVehicles.end())
                         throw omnetpp::cRuntimeError("%s was added before!", idstring.c_str());
                     else
-                        departedVehicles.insert(std::make_pair(idstring, *node));
+                        departedVehicles.insert(std::make_pair(idstring, node));
                 }
             }
 
@@ -947,9 +946,9 @@ void TraCI_Start::addModule(std::string nodeId /*sumo id*/, const Coord& positio
     if(vClass == "custom1")
     {
         addVehicle(nodeId,
-                obstacleModuleType,
-                obstacleModuleName,
-                obstacleModuleDisplayString,
+                addNode_module->par("obstacle_ModuleType").stringValue(),
+                addNode_module->par("obstacle_ModuleName").stdstringValue(),
+                addNode_module->par("obstacle_ModuleDisplayString").stdstringValue(),
                 vClass,
                 position,
                 road_id,
@@ -960,9 +959,9 @@ void TraCI_Start::addModule(std::string nodeId /*sumo id*/, const Coord& positio
     else if(vClass == "passenger" || vClass == "private" || vClass == "emergency" || vClass == "bus" || vClass == "truck")
     {
         addVehicle(nodeId,
-                vehicleModuleType,
-                vehicleModuleName,
-                vehicleModuleDisplayString,
+                addNode_module->par("vehicle_ModuleType").stdstringValue(),
+                addNode_module->par("vehicle_ModuleName").stdstringValue(),
+                addNode_module->par("vehicle_ModuleDisplayString").stdstringValue(),
                 vClass,
                 position,
                 road_id,
@@ -972,9 +971,9 @@ void TraCI_Start::addModule(std::string nodeId /*sumo id*/, const Coord& positio
     else if(vClass == "bicycle")
     {
         addVehicle(nodeId,
-                bikeModuleType,
-                bikeModuleName,
-                bikeModuleDisplayString,
+                addNode_module->par("bike_ModuleType").stringValue(),
+                addNode_module->par("bike_ModuleName").stringValue(),
+                addNode_module->par("bike_ModuleDisplayString").stringValue(),
                 vClass,
                 position,
                 road_id,
@@ -984,10 +983,11 @@ void TraCI_Start::addModule(std::string nodeId /*sumo id*/, const Coord& positio
     // todo
     else if(vClass == "pedestrian")
     {
-        //pedModuleType;
-        //pedModuleName;
-        //pedModuleDisplayString;
-        // calling addPedestrian() method
+        // calling addPedestrian() method?
+
+        //addNode_module->par("ped_ModuleType").stringValue();
+        //addNode_module->par("ped_ModuleName").stringValue();
+        //addNode_module->par("ped_ModuleDisplayString").stringValue();
     }
     else
         throw omnetpp::cRuntimeError("Unknown vClass '%s' for vehicle '%s'", vClass.c_str(), nodeId.c_str());
