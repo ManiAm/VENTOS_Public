@@ -110,6 +110,9 @@ void ApplCA::finish()
     if(!active)
         return;
 
+    // unsubscribe from Magic_Req
+    omnetpp::getSimulation()->getSystemModule()->unsubscribe("Magic_Req", this);
+
     if(Timer1->isScheduled())
         cancelAndDelete(Timer1);
     else
