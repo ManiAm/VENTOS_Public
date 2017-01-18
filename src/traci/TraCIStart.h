@@ -139,9 +139,9 @@ private:
     uint32_t getCurrentTimeMs();  // get current simulation time (in ms)
     void executeOneTimestep();    // read and execute all commands for the next timestep
 
+    void processSubcriptionResult(TraCIBuffer& buf);
     void processSimSubscription(std::string objectId, TraCIBuffer& buf);
     void processVehicleSubscription(std::string objectId, TraCIBuffer& buf);
-    void processSubcriptionResult(TraCIBuffer& buf);
 
     void addModule(std::string nodeId, const Coord& position, std::string road_id = "", double speed = -1, double angle = -1);
     void addVehicle(std::string nodeId, std::string type, std::string name, std::string displayString, std::string vClass, const Coord& position, std::string road_id, double speed, double angle);

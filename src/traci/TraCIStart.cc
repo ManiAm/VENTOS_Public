@@ -155,11 +155,11 @@ void TraCI_Start::handleMessage(omnetpp::cMessage *msg)
 
             std::ostringstream dateTime;
             dateTime << boost::format("%4d%02d%02d-%02d:%02d:%02d") % (1900 + ltm->tm_year)
-                                                                    % (1 + ltm->tm_mon)
-                                                                    % (ltm->tm_mday)
-                                                                    % (ltm->tm_hour)
-                                                                    % (ltm->tm_min)
-                                                                    % (ltm->tm_sec);
+                                                                            % (1 + ltm->tm_mon)
+                                                                            % (ltm->tm_mday)
+                                                                            % (ltm->tm_hour)
+                                                                            % (ltm->tm_min)
+                                                                            % (ltm->tm_sec);
 
             simStartDateTime = dateTime.str();
             simStartTime = std::chrono::high_resolution_clock::now();
@@ -243,7 +243,7 @@ void TraCI_Start::init_traci()
         LOG_WARNING << boost::format("  WARNING: Playground size (%1%,%2%) might be too small for vehicle at network bounds (%3%,%4%) \n") % world->getPgs()->x % world->getPgs()->y % traci2omnetCoord(netbounds2).x % traci2omnetCoord(netbounds1).y;
 
     {
-        // subscribe to list of departed and arrived vehicles, as well as simulation time
+        // subscribe to a bunch of stuff in simulation
         std::vector<uint8_t> variables {VAR_DEPARTED_VEHICLES_IDS,
             VAR_ARRIVED_VEHICLES_IDS,
             VAR_TIME_STEP,
@@ -257,7 +257,7 @@ void TraCI_Start::init_traci()
     }
 
     {
-        // subscribe to list of vehicle ids
+        // subscribe to a list of vehicle ids
         std::vector<uint8_t> variables {ID_LIST};
         TraCIBuffer buf = vehicleSubscribe(0, 0x7FFFFFFF, "", variables);
         processSubcriptionResult(buf);
@@ -432,195 +432,12 @@ void TraCI_Start::processSubcriptionResult(TraCIBuffer& buf)
     uint8_t commandId_resp; buf >> commandId_resp;
     std::string objectId_resp; buf >> objectId_resp;
 
-    if (commandId_resp == RESPONSE_SUBSCRIBE_VEHICLE_VARIABLE)
-        processVehicleSubscription(objectId_resp, buf);
-    else if (commandId_resp == RESPONSE_SUBSCRIBE_SIM_VARIABLE)
+    if (commandId_resp == RESPONSE_SUBSCRIBE_SIM_VARIABLE)
         processSimSubscription(objectId_resp, buf);
+    else if (commandId_resp == RESPONSE_SUBSCRIBE_VEHICLE_VARIABLE)
+        processVehicleSubscription(objectId_resp, buf);
     else
         throw omnetpp::cRuntimeError("Received unhandled subscription result");
-}
-
-
-void TraCI_Start::processVehicleSubscription(std::string objectId, TraCIBuffer& buf)
-{
-    bool isSubscribed = (subscribedVehicles.find(objectId) != subscribedVehicles.end());
-    double px;
-    double py;
-    std::string edge;
-    double speed;
-    double angle_traci;
-    int vehSignals;
-    int numRead = 0;
-
-    uint8_t variableNumber_resp; buf >> variableNumber_resp;
-    for (uint8_t j = 0; j < variableNumber_resp; ++j)
-    {
-        uint8_t variable1_resp; buf >> variable1_resp;
-        uint8_t isokay; buf >> isokay;
-
-        if (isokay != RTYPE_OK)
-        {
-            uint8_t varType; buf >> varType;
-            ASSERT(varType == TYPE_STRING);
-            std::string errormsg; buf >> errormsg;
-            if (isSubscribed)
-            {
-                if (isokay == RTYPE_NOTIMPLEMENTED)
-                    throw omnetpp::cRuntimeError("TraCI server reported subscribing to vehicle variable 0x%2x not implemented (\"%s\"). Might need newer version.", variable1_resp, errormsg.c_str());
-
-                throw omnetpp::cRuntimeError("TraCI server reported error subscribing to vehicle variable 0x%2x (\"%s\").", variable1_resp, errormsg.c_str());
-            }
-        }
-        else if (variable1_resp == ID_LIST)
-        {
-            uint8_t varType; buf >> varType;
-            ASSERT(varType == TYPE_STRINGLIST);
-            uint32_t count; buf >> count;  // count: number of active vehicles
-
-            if(count > activeVehicleCount)
-                throw omnetpp::cRuntimeError("SUMO is reporting a higher vehicle count.");
-
-            std::set<std::string> drivingVehicles;
-            for (uint32_t i = 0; i < count; ++i)
-            {
-                std::string idstring; buf >> idstring;
-                drivingVehicles.insert(idstring);
-
-                // collecting data from this vehicle in this timeStep
-                record_Veh_data(idstring);
-            }
-
-            // check for vehicles that need subscribing to
-            std::set<std::string> needSubscribe;
-            std::set_difference(drivingVehicles.begin(), drivingVehicles.end(), subscribedVehicles.begin(), subscribedVehicles.end(), std::inserter(needSubscribe, needSubscribe.begin()));
-            for (std::set<std::string>::const_iterator i = needSubscribe.begin(); i != needSubscribe.end(); ++i)
-            {
-                subscribedVehicles.insert(*i);
-
-                // subscribe to some attributes of the vehicle
-                std::vector<uint8_t> variables {VAR_POSITION, VAR_ROAD_ID, VAR_SPEED, VAR_ANGLE, VAR_SIGNALS};
-                TraCIBuffer buf = vehicleSubscribe(0, 0x7FFFFFFF, *i, variables);
-                processSubcriptionResult(buf);
-                ASSERT(buf.eof());
-            }
-
-            // check for vehicles that need unsubscribing from
-            std::set<std::string> needUnsubscribe;
-            std::set_difference(subscribedVehicles.begin(), subscribedVehicles.end(), drivingVehicles.begin(), drivingVehicles.end(), std::inserter(needUnsubscribe, needUnsubscribe.begin()));
-            for (std::set<std::string>::const_iterator i = needUnsubscribe.begin(); i != needUnsubscribe.end(); ++i)
-            {
-                subscribedVehicles.erase(*i);
-
-                // unsubscribe
-                std::vector<uint8_t> variables;
-                TraCIBuffer buf = vehicleSubscribe(0, 0x7FFFFFFF, *i, variables);
-                ASSERT(buf.eof());
-
-                // vehicle removal (manual or due to an accident)
-                if(count < activeVehicleCount)
-                {
-                    // check if this object has been deleted already (e.g. because it was outside the ROI)
-                    cModule* mod = getManagedModule(*i);
-                    if (mod) deleteManagedModule(*i);
-
-                    if(unEquippedHosts.find(*i) != unEquippedHosts.end())
-                        unEquippedHosts.erase(*i);
-
-                    activeVehicleCount--;
-                    drivingVehicleCount--;
-                }
-            }
-        }
-        else if (variable1_resp == VAR_POSITION)
-        {
-            uint8_t varType; buf >> varType;
-            ASSERT(varType == POSITION_2D);
-            buf >> px;
-            buf >> py;
-            numRead++;
-        }
-        else if (variable1_resp == VAR_ROAD_ID)
-        {
-            uint8_t varType; buf >> varType;
-            ASSERT(varType == TYPE_STRING);
-            buf >> edge;
-            numRead++;
-        }
-        else if (variable1_resp == VAR_SPEED)
-        {
-            uint8_t varType; buf >> varType;
-            ASSERT(varType == TYPE_DOUBLE);
-            buf >> speed;
-            numRead++;
-        }
-        else if (variable1_resp == VAR_ANGLE)
-        {
-            uint8_t varType; buf >> varType;
-            ASSERT(varType == TYPE_DOUBLE);
-            buf >> angle_traci;
-            numRead++;
-        }
-        else if (variable1_resp == VAR_SIGNALS)
-        {
-            uint8_t varType; buf >> varType;
-            ASSERT(varType == TYPE_INTEGER);
-            buf >> vehSignals;
-            numRead++;
-        }
-        else
-        {
-            throw omnetpp::cRuntimeError("Received unhandled vehicle subscription result");
-        }
-    }
-
-    // bail out if we didn't want to receive these subscription results
-    if (!isSubscribed) return;
-
-    // make sure we got updates for all attributes
-    if (numRead != 5) return;
-
-    Coord p = traci2omnetCoord(TraCICoord(px, py));
-    if ((p.x < 0) || (p.y < 0))
-        throw omnetpp::cRuntimeError("received bad node position (%.2f, %.2f), translated to (%.2f, %.2f)", px, py, p.x, p.y);
-
-    double angle = traci2omnetAngle(angle_traci);
-
-    cModule* mod = getManagedModule(objectId);
-
-    // is it in the ROI?
-    bool inRoi = isInRegionOfInterest(TraCICoord(px, py), edge, speed, angle);
-    if (!inRoi)
-    {
-        // vehicle leaving the region of interest
-        if (mod)
-            deleteManagedModule(objectId);
-        // vehicle (un-equipped) leaving the region of interest
-        else if(unEquippedHosts.find(objectId) != unEquippedHosts.end())
-            unEquippedHosts.erase(objectId);
-
-        return;
-    }
-
-    if (isModuleUnequipped(objectId))
-        return;
-
-    // no such module - need to create
-    if (!mod)
-    {
-        addModule(objectId, p, edge, speed, angle);
-    }
-    else
-    {
-        // module existed - update position
-        for (cModule::SubmoduleIterator iter(mod); !iter.end(); iter++)
-        {
-            cModule* submod = *iter;
-            ifInetTraCIMobilityCallNextPosition(submod, p, edge, speed, angle);
-            TraCIMobilityMod* mm = dynamic_cast<TraCIMobilityMod*>(submod);
-            if (mm)
-                mm->nextPosition(p, edge, speed, angle);
-        }
-    }
 }
 
 
@@ -827,6 +644,189 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
         else
         {
             throw omnetpp::cRuntimeError("Received unhandled sim subscription result");
+        }
+    }
+}
+
+
+void TraCI_Start::processVehicleSubscription(std::string objectId, TraCIBuffer& buf)
+{
+    bool isSubscribed = (subscribedVehicles.find(objectId) != subscribedVehicles.end());
+    double px;
+    double py;
+    std::string edge;
+    double speed;
+    double angle_traci;
+    int vehSignals;
+    int numRead = 0;
+
+    uint8_t variableNumber_resp; buf >> variableNumber_resp;
+    for (uint8_t j = 0; j < variableNumber_resp; ++j)
+    {
+        uint8_t variable1_resp; buf >> variable1_resp;
+        uint8_t isokay; buf >> isokay;
+
+        if (isokay != RTYPE_OK)
+        {
+            uint8_t varType; buf >> varType;
+            ASSERT(varType == TYPE_STRING);
+            std::string errormsg; buf >> errormsg;
+            if (isSubscribed)
+            {
+                if (isokay == RTYPE_NOTIMPLEMENTED)
+                    throw omnetpp::cRuntimeError("TraCI server reported subscribing to vehicle variable 0x%2x not implemented (\"%s\"). Might need newer version.", variable1_resp, errormsg.c_str());
+
+                throw omnetpp::cRuntimeError("TraCI server reported error subscribing to vehicle variable 0x%2x (\"%s\").", variable1_resp, errormsg.c_str());
+            }
+        }
+        else if (variable1_resp == ID_LIST)
+        {
+            uint8_t varType; buf >> varType;
+            ASSERT(varType == TYPE_STRINGLIST);
+            uint32_t count; buf >> count;  // count: number of active vehicles
+
+            if(count > activeVehicleCount)
+                throw omnetpp::cRuntimeError("SUMO is reporting a higher vehicle count.");
+
+            std::set<std::string> drivingVehicles;
+            for (uint32_t i = 0; i < count; ++i)
+            {
+                std::string idstring; buf >> idstring;
+                drivingVehicles.insert(idstring);
+
+                // collecting data from this vehicle in this timeStep
+                record_Veh_data(idstring);
+            }
+
+            // check for vehicles that need subscribing to
+            std::set<std::string> needSubscribe;
+            std::set_difference(drivingVehicles.begin(), drivingVehicles.end(), subscribedVehicles.begin(), subscribedVehicles.end(), std::inserter(needSubscribe, needSubscribe.begin()));
+            for (std::set<std::string>::const_iterator i = needSubscribe.begin(); i != needSubscribe.end(); ++i)
+            {
+                subscribedVehicles.insert(*i);
+
+                // subscribe to some attributes of the vehicle
+                std::vector<uint8_t> variables {VAR_POSITION, VAR_ROAD_ID, VAR_SPEED, VAR_ANGLE, VAR_SIGNALS};
+                TraCIBuffer buf = vehicleSubscribe(0, 0x7FFFFFFF, *i, variables);
+                processSubcriptionResult(buf);
+                ASSERT(buf.eof());
+            }
+
+            // check for vehicles that need unsubscribing from
+            std::set<std::string> needUnsubscribe;
+            std::set_difference(subscribedVehicles.begin(), subscribedVehicles.end(), drivingVehicles.begin(), drivingVehicles.end(), std::inserter(needUnsubscribe, needUnsubscribe.begin()));
+            for (std::set<std::string>::const_iterator i = needUnsubscribe.begin(); i != needUnsubscribe.end(); ++i)
+            {
+                subscribedVehicles.erase(*i);
+
+                // unsubscribe
+                std::vector<uint8_t> variables;
+                TraCIBuffer buf = vehicleSubscribe(0, 0x7FFFFFFF, *i, variables);
+                ASSERT(buf.eof());
+
+                // vehicle removal (manual or due to an accident)
+                if(count < activeVehicleCount)
+                {
+                    // check if this object has been deleted already (e.g. because it was outside the ROI)
+                    cModule* mod = getManagedModule(*i);
+                    if (mod) deleteManagedModule(*i);
+
+                    if(unEquippedHosts.find(*i) != unEquippedHosts.end())
+                        unEquippedHosts.erase(*i);
+
+                    activeVehicleCount--;
+                    drivingVehicleCount--;
+                }
+            }
+        }
+        else if (variable1_resp == VAR_POSITION)
+        {
+            uint8_t varType; buf >> varType;
+            ASSERT(varType == POSITION_2D);
+            buf >> px;
+            buf >> py;
+            numRead++;
+        }
+        else if (variable1_resp == VAR_ROAD_ID)
+        {
+            uint8_t varType; buf >> varType;
+            ASSERT(varType == TYPE_STRING);
+            buf >> edge;
+            numRead++;
+        }
+        else if (variable1_resp == VAR_SPEED)
+        {
+            uint8_t varType; buf >> varType;
+            ASSERT(varType == TYPE_DOUBLE);
+            buf >> speed;
+            numRead++;
+        }
+        else if (variable1_resp == VAR_ANGLE)
+        {
+            uint8_t varType; buf >> varType;
+            ASSERT(varType == TYPE_DOUBLE);
+            buf >> angle_traci;
+            numRead++;
+        }
+        else if (variable1_resp == VAR_SIGNALS)
+        {
+            uint8_t varType; buf >> varType;
+            ASSERT(varType == TYPE_INTEGER);
+            buf >> vehSignals;
+            numRead++;
+        }
+        else
+        {
+            throw omnetpp::cRuntimeError("Received unhandled vehicle subscription result");
+        }
+    }
+
+    // bail out if we didn't want to receive these subscription results
+    if (!isSubscribed) return;
+
+    // make sure we got updates for all attributes
+    if (numRead != 5) return;
+
+    Coord p = traci2omnetCoord(TraCICoord(px, py));
+    if ((p.x < 0) || (p.y < 0))
+        throw omnetpp::cRuntimeError("received bad node position (%.2f, %.2f), translated to (%.2f, %.2f)", px, py, p.x, p.y);
+
+    double angle = traci2omnetAngle(angle_traci);
+
+    cModule* mod = getManagedModule(objectId);
+
+    // is it in the ROI?
+    bool inRoi = isInRegionOfInterest(TraCICoord(px, py), edge, speed, angle);
+    if (!inRoi)
+    {
+        // vehicle leaving the region of interest
+        if (mod)
+            deleteManagedModule(objectId);
+        // vehicle (un-equipped) leaving the region of interest
+        else if(unEquippedHosts.find(objectId) != unEquippedHosts.end())
+            unEquippedHosts.erase(objectId);
+
+        return;
+    }
+
+    if (isModuleUnequipped(objectId))
+        return;
+
+    // no such module - need to create
+    if (!mod)
+    {
+        addModule(objectId, p, edge, speed, angle);
+    }
+    else
+    {
+        // module existed - update position
+        for (cModule::SubmoduleIterator iter(mod); !iter.end(); iter++)
+        {
+            cModule* submod = *iter;
+            ifInetTraCIMobilityCallNextPosition(submod, p, edge, speed, angle);
+            TraCIMobilityMod* mm = dynamic_cast<TraCIMobilityMod*>(submod);
+            if (mm)
+                mm->nextPosition(p, edge, speed, angle);
         }
     }
 }

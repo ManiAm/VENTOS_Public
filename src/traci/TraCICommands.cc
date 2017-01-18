@@ -1133,6 +1133,11 @@ void TraCI_Commands::vehicleRemove(std::string nodeId, uint8_t reason)
 
     ASSERT(buf.eof());
 
+    // unsubscribe the removed vehicle
+    std::vector<uint8_t> variables;
+    buf = vehicleSubscribe(0, 0x7FFFFFFF, nodeId, variables);
+    ASSERT(buf.eof());
+
     record_TraCI_activity_func("commandComplete", CMD_SET_VEHICLE_VARIABLE, REMOVE, "vehicleRemove");
 }
 
