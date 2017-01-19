@@ -154,12 +154,13 @@ void TraCI_Start::handleMessage(omnetpp::cMessage *msg)
             tm *ltm = localtime(&now);
 
             std::ostringstream dateTime;
-            dateTime << boost::format("%4d%02d%02d-%02d:%02d:%02d") % (1900 + ltm->tm_year)
-                                                                            % (1 + ltm->tm_mon)
-                                                                            % (ltm->tm_mday)
-                                                                            % (ltm->tm_hour)
-                                                                            % (ltm->tm_min)
-                                                                            % (ltm->tm_sec);
+            dateTime << boost::format("%4d%02d%02d-%02d:%02d:%02d") %
+                    (1900 + ltm->tm_year) %
+                    (1 + ltm->tm_mon) %
+                    (ltm->tm_mday) %
+                    (ltm->tm_hour) %
+                    (ltm->tm_min) %
+                    (ltm->tm_sec);
 
             simStartDateTime = dateTime.str();
             simStartTime = std::chrono::high_resolution_clock::now();
@@ -244,9 +245,9 @@ void TraCI_Start::init_traci()
 
     {
         // subscribe to a bunch of stuff in simulation
-        std::vector<uint8_t> variables {VAR_DEPARTED_VEHICLES_IDS,
+        std::vector<uint8_t> variables {VAR_TIME_STEP,
+            VAR_DEPARTED_VEHICLES_IDS,
             VAR_ARRIVED_VEHICLES_IDS,
-            VAR_TIME_STEP,
             VAR_TELEPORT_STARTING_VEHICLES_IDS,
             VAR_TELEPORT_ENDING_VEHICLES_IDS,
             VAR_PARKING_STARTING_VEHICLES_IDS,
@@ -459,7 +460,15 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
             throw omnetpp::cRuntimeError("TraCI server reported error subscribing to variable 0x%2x (\"%s\").", variable1_resp, description.c_str());
         }
 
-        if (variable1_resp == VAR_DEPARTED_VEHICLES_IDS)
+        if (variable1_resp == VAR_TIME_STEP)
+        {
+            uint8_t varType; buf >> varType;
+            ASSERT(varType == TYPE_INTEGER);
+            uint32_t serverTimestep; buf >> serverTimestep; // serverTimestep: current timestep reported by server in ms
+            uint32_t omnetTimestep = getCurrentTimeMs();
+            ASSERT(omnetTimestep == serverTimestep);
+        }
+        else if (variable1_resp == VAR_DEPARTED_VEHICLES_IDS)
         {
             uint8_t varType; buf >> varType;
             ASSERT(varType == TYPE_STRINGLIST);
@@ -632,14 +641,6 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
 
             parkingVehicleCount -= count;
             drivingVehicleCount += count;
-        }
-        else if (variable1_resp == VAR_TIME_STEP)
-        {
-            uint8_t varType; buf >> varType;
-            ASSERT(varType == TYPE_INTEGER);
-            uint32_t serverTimestep; buf >> serverTimestep; // serverTimestep: current timestep reported by server in ms
-            uint32_t omnetTimestep = getCurrentTimeMs();
-            ASSERT(omnetTimestep == serverTimestep);
         }
         else
         {
