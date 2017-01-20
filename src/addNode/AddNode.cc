@@ -933,6 +933,7 @@ void AddNode::parseVehicle(rapidxml::xml_node<> *pNode)
                     attName != "route" &&
                     attName != "from" &&
                     attName != "to" &&
+                    attName != "via" &&
                     attName != "color" &&
                     attName != "status" &&
                     attName != "depart" &&
@@ -1177,8 +1178,24 @@ void AddNode::addVehicle()
 
     for(auto &entry : allVehicle)
     {
-        std::string vehRouteID = getVehRoute(entry.second);
         std::string vehID = entry.second.id_str;
+        std::string route_str = entry.second.routeID_str;
+        std::string from_str = entry.second.from_str;
+        std::string to_str = entry.second.to_str;
+
+        std::string vehRouteID = "";
+        if(route_str != "") vehRouteID = route_str;
+        else if(from_str != "" && to_str != "")
+        {
+            // append 'from_str', 'via_str' and 'to_str'
+            std::vector<std::string> allEdges = {from_str};
+            allEdges.insert(allEdges.end(), entry.second.via_str_tokenize.begin(), entry.second.via_str_tokenize.end());
+            allEdges.push_back(to_str);
+
+            vehRouteID = getShortestRoute(allEdges);
+        }
+        else
+            throw omnetpp::cRuntimeError("'route' or 'from/to' attributes should be defined in node '%s'", vehicle_tag.c_str());
 
         // now we add a vehicle
         TraCI->vehicleAdd(vehID,
@@ -1213,73 +1230,61 @@ void AddNode::addVehicle()
 }
 
 
-std::string AddNode::getVehRoute(vehicleEntry_t entry)
+// calculates the shortest route that passes through all edges
+std::string AddNode::getShortestRoute(std::vector<std::string> edges)
 {
-    if(entry.routeID_str != "")
-        return entry.routeID_str;
-    else if(entry.from_str != "" && entry.to_str != "")
-    {
-        if(entry.via_str_tokenize.empty())
-            return getShortestRoute(entry.from_str, entry.to_str).routeID;
-        // if 'via' attribute is present
-        else
-        {
-            std::string firstVia = entry.via_str_tokenize[0];
-            std::string lastVia = entry.via_str_tokenize.back().c_str();
+    static std::map<std::string /*routeID*/, std::vector<std::string> /*route edges*/> subRoutes;
+    static std::vector<std::string> defined_routes;
 
-            // route from 'from_str' to 'firstVia'
-            auto route_firstPart = getShortestRoute(entry.from_str, firstVia).routeEdges;
-
-            for(unsigned int i = 1; i < entry.via_str_tokenize.size(); i++)
-            {
-
-            }
-
-            // route from 'lastVia' to 'to_via'
-            auto route_lastPart = getShortestRoute(lastVia, entry.to_str).routeEdges;
-        }
-    }
-    else
-        throw omnetpp::cRuntimeError("'route' or 'from/to' attributes should be defined in node '%s'", vehicle_tag.c_str());
-
-    return "";
-}
-
-
-AddNode::routeDef_t AddNode::getShortestRoute(std::string from_str, std::string to_str)
-{
-    static std::map<std::string /*routeID*/, std::vector<std::string> /*route edges*/> allRoutes;
-
-    // construct the route ID
     std::ostringstream routeName;
-    routeName << boost::format("%s_%s") % from_str % to_str;
+    for(auto &edge : edges)
+        routeName << edge << "_";
     std::string routeName_str = routeName.str();
 
-    // did we calculate the route between 'from_str' and 'to_str' before?
-    auto it = allRoutes.find(routeName_str);
-    if(it != allRoutes.end())
+    // is this route defined in SUMO before?
+    auto it = std::find(defined_routes.begin(), defined_routes.end(), routeName_str);
+    if(it != defined_routes.end())
+        return *it;
+
+    std::vector<std::string> finalRoute;
+    for(unsigned int i = 0; i < edges.size()-1; i++)
     {
-        routeDef_t route_result = {};
-        route_result.routeID = it->first;
-        route_result.routeEdges = it->second;
-        return route_result;
+        // construct the route ID
+        std::ostringstream routeName;
+        routeName << boost::format("%s_%s") % edges[i] % edges[i+1];
+        std::string routeName_str = routeName.str();
+
+        // did we calculate the route before?
+        auto it = subRoutes.find(routeName_str);
+        if(it != subRoutes.end())
+        {
+            if(!finalRoute.empty())
+                finalRoute.pop_back();
+
+            finalRoute.insert(finalRoute.end(), it->second.begin(), it->second.end());
+        }
+        else
+        {
+            // get the shortest route between these two edges
+            auto shortest_route = TraCI->routeShortest(edges[i], edges[i+1]);
+            routeCalculation++;
+
+            if(!finalRoute.empty())
+                finalRoute.pop_back();
+
+            finalRoute.insert(finalRoute.end(), shortest_route.begin(), shortest_route.end());
+
+            // push it into allRouteIDs
+            subRoutes[routeName_str] = shortest_route;
+        }
     }
 
-    // get the shortest route from edge 'from_str' to edge 'to_str'
-    auto shortest_route = TraCI->routeShortest(from_str, to_str);
-    routeCalculation++;
-
     // define it in SUMO
-    TraCI->routeAdd(routeName_str, shortest_route);
+    TraCI->routeAdd(routeName_str, finalRoute);
 
-    // push it into allRouteIDs
-    allRoutes[routeName_str] = shortest_route;
+    defined_routes.push_back(routeName_str);
 
-    routeDef_t route_result = {};
-    route_result.routeID = routeName_str;
-    route_result.routeEdges = shortest_route;
-
-    return route_result;
+    return routeName_str;
 }
 
 

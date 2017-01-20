@@ -183,16 +183,9 @@ private:
     void parseObstacle(rapidxml::xml_node<> *);
     void addObstacle();
 
-    typedef struct routeDef
-    {
-        std::string routeID;
-        std::vector<std::string> routeEdges;
-    } routeDef_t;
-
     void parseVehicle(rapidxml::xml_node<> *);
     void addVehicle();
-    std::string getVehRoute(vehicleEntry_t);
-    routeDef_t getShortestRoute(std::string, std::string);
+    std::string getShortestRoute(std::vector<std::string>);
 
     void parseVehicleFlow(rapidxml::xml_node<> *);
     void addVehicleFlow();

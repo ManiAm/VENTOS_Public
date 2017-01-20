@@ -11,6 +11,10 @@
   <rsu id="RSU4" pos="3201.40,916.57,0"/>
   <rsu id="RSU5" pos="4927.74,639.66,0"/>
   
+  <vehicle id="veh0" type="TypeManual" from="5788351#0" to="-23981217#2" via="41514575#1" depart="0" />
+  <vehicle id="veh1" type="TypeManual" from="5788351#0" to="-23981217#2" via="41514575#1" depart="5" />
+  <vehicle id="veh2" type="TypeManual" from="5788351#0" to="-23981217#2" depart="10"/>
+  
 </addNode>
 
 

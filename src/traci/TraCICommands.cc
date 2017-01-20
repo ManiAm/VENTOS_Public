@@ -1379,21 +1379,26 @@ std::vector<std::string> TraCI_Commands::routeGetEdges(std::string routeID)
 // todo: calculate the shortest route between 'from_edge' and 'to_edge'
 std::vector<std::string> TraCI_Commands::routeShortest(std::string from_edge, std::string to_edge)
 {
+    static int counter = 0;
+    std::string route_name = "newRoute" + std::to_string(counter);
+    std::string veh_name = "new_veh" + std::to_string(counter);
+
     // create a new route that consists of 'from_edge'
     std::vector<std::string> newRoute = {from_edge};
-    routeAdd("newRoute", newRoute);
+    routeAdd(route_name, newRoute);
 
     // add a vehicle with that route
-    vehicleAdd("tmp_veh", "DEFAULT_VEHTYPE", "newRoute", 0, 0, 0, -4 /*lane*/);
+    vehicleAdd(veh_name, "DEFAULT_VEHTYPE", route_name, 0, 0, 0, -4 /*lane*/);
 
     // compute a new route to the destination
-    vehicleChangeTarget("tmp_veh", to_edge);
+    vehicleChangeTarget(veh_name, to_edge);
 
     // retrieve the edges of the new route
-    auto route = vehicleGetRoute("tmp_veh");
+    auto route = vehicleGetRoute(veh_name);
 
-    vehicleRemove("tmp_veh", 2);
+    vehicleRemove(veh_name, 2);
 
+    counter++;
     return route;
 }
 
