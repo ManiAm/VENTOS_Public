@@ -1105,38 +1105,6 @@ void TraCI_Commands::vehicleAdd(std::string vehicleId, std::string vehicleTypeId
 }
 
 
-// todo:
-//void TraCI_Commands::vehicleAddSimple(std::string vehicleId, std::string vehicleTypeId, std::string routeId, simtime_t emitTime_st, double emitPosition, double emitSpeed, int8_t emitLane)
-//{
-//    record_TraCI_activity_func("commandStart", , );
-
-//    bool success = false;
-//    uint8_t variableId = ADD;
-//    uint8_t variableType = TYPE_COMPOUND;
-//    int32_t count = 6;
-//    int32_t emitTime = (emitTime_st < 0) ? (-1) : (floor(emitTime_st.dbl() * 1000));
-//
-//    TraCIBuffer buf = connection->queryOptional(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << vehicleId
-//            << variableType << count
-//            << (uint8_t)TYPE_STRING
-//            << vehicleTypeId
-//            << (uint8_t)TYPE_STRING
-//            << routeId
-//            << (uint8_t)TYPE_INTEGER
-//            << emitTime
-//            << (uint8_t)TYPE_DOUBLE
-//            << emitPosition
-//            << (uint8_t)TYPE_DOUBLE
-//            << emitSpeed
-//            << (uint8_t)TYPE_BYTE
-//            << emitLane, success);
-//
-//    ASSERT(buf.eof());
-
-//    record_TraCI_activity_func("commandComplete");
-//}
-
-
 void TraCI_Commands::vehicleRemove(std::string nodeId, uint8_t reason)
 {
     record_TraCI_activity_func("commandStart", CMD_SET_VEHICLE_VARIABLE, REMOVE, "vehicleRemove");
