@@ -158,7 +158,7 @@ void ApplVCoordinator::scenario2()
 {
     if(omnetpp::simTime().dbl() == 37)
     {
-        TraCI->vehicleSetSpeed("veh1", 20.);
+        TraCI->vehicleSetSpeed("veh.0", 20.);
     }
     else if(omnetpp::simTime().dbl() == 59)
     {
@@ -187,12 +187,12 @@ void ApplVCoordinator::scenario3()
 {
     if(omnetpp::simTime().dbl() == 26)
     {
-        TraCI->vehicleSetSpeed("veh1", 20.);
+        TraCI->vehicleSetSpeed("veh.0", 20.);
     }
     // leader leaves
     else if(omnetpp::simTime().dbl() == 49)
     {
-        if(SUMOID == "veh1")
+        if(SUMOID == "veh.0")
         {
             super::leavePlatoon();
         }
@@ -200,7 +200,7 @@ void ApplVCoordinator::scenario3()
     // last follower leaves
     else if(omnetpp::simTime().dbl() == 68)
     {
-        if(SUMOID == "veh6")
+        if(SUMOID == "veh.5")
         {
             super::leavePlatoon();
         }
@@ -208,7 +208,7 @@ void ApplVCoordinator::scenario3()
     // middle follower leaves
     else if(omnetpp::simTime().dbl() == 80)
     {
-        if(SUMOID == "veh3")
+        if(SUMOID == "veh.2")
         {
             super::leavePlatoon();
         }
@@ -231,8 +231,8 @@ void ApplVCoordinator::scenario4()
 
     if(omnetpp::simTime().dbl() == 40)
     {
-        TraCI->vehicleSetSpeed("veh1", 20.);
-        TraCI->vehicleSetSpeed("veh6", 20.);
+        TraCI->vehicleSetSpeed("veh.0", 20.);
+        TraCI->vehicleSetSpeed("veh.5", 20.);
     }
     else if(omnetpp::simTime().dbl() == 55)
     {
@@ -249,7 +249,7 @@ void ApplVCoordinator::scenario4()
     // leader leaves
     else if(omnetpp::simTime().dbl() == 140)
     {
-        if(SUMOID == "veh1")
+        if(SUMOID == "veh.0")
         {
             super::leavePlatoon();
         }
@@ -277,14 +277,14 @@ void ApplVCoordinator::scenario5()
 {
     if(omnetpp::simTime().dbl() == 40)
     {
-        TraCI->vehicleSetSpeed("veh1", 20.);
+        TraCI->vehicleSetSpeed("veh.0", 20.);
     }
     else if(omnetpp::simTime().dbl() == 73)
     {
         // disable automatic merging
         mergeEnabled = false;
 
-        if(SUMOID == "veh1")
+        if(SUMOID == "veh.0")
             splitFromPlatoon(5);
     }
     else if(omnetpp::simTime().dbl() == 118)
@@ -307,14 +307,14 @@ void ApplVCoordinator::scenario6()
     {
         if(omnetpp::simTime().dbl() == 40)
         {
-            TraCI->vehicleSetSpeed("veh1", 20.);
+            TraCI->vehicleSetSpeed("veh.0", 20.);
         }
         else if(omnetpp::simTime().dbl() == 73)
         {
             // disable automatic merging
             mergeEnabled = false;
 
-            if(SUMOID == "veh1")
+            if(SUMOID == "veh.0")
                 splitFromPlatoon(9);
         }
         else if(omnetpp::simTime().dbl() == 118)
@@ -327,14 +327,14 @@ void ApplVCoordinator::scenario6()
     {
         if(omnetpp::simTime().dbl() == 40)
         {
-            TraCI->vehicleSetSpeed("veh1", 20.);
+            TraCI->vehicleSetSpeed("veh.0", 20.);
         }
         else if(omnetpp::simTime().dbl() == 73)
         {
             // disable automatic merging
             mergeEnabled = false;
 
-            if(SUMOID == "veh1")
+            if(SUMOID == "veh.0")
                 splitFromPlatoon(8);
         }
         else if(omnetpp::simTime().dbl() == 118)
@@ -347,14 +347,14 @@ void ApplVCoordinator::scenario6()
     {
         if(omnetpp::simTime().dbl() == 40)
         {
-            TraCI->vehicleSetSpeed("veh1", 20.);
+            TraCI->vehicleSetSpeed("veh.0", 20.);
         }
         else if(omnetpp::simTime().dbl() == 73)
         {
             // disable automatic merging
             mergeEnabled = false;
 
-            if(SUMOID == "veh1")
+            if(SUMOID == "veh.0")
                 splitFromPlatoon(7);
         }
         else if(omnetpp::simTime().dbl() == 118)
@@ -367,14 +367,14 @@ void ApplVCoordinator::scenario6()
     {
         if(omnetpp::simTime().dbl() == 40)
         {
-            TraCI->vehicleSetSpeed("veh1", 20.);
+            TraCI->vehicleSetSpeed("veh.0", 20.);
         }
         else if(omnetpp::simTime().dbl() == 73)
         {
             // disable automatic merging
             mergeEnabled = false;
 
-            if(SUMOID == "veh1")
+            if(SUMOID == "veh.0")
                 splitFromPlatoon(6);
         }
         else if(omnetpp::simTime().dbl() == 118)
@@ -387,14 +387,14 @@ void ApplVCoordinator::scenario6()
     {
         if(omnetpp::simTime().dbl() == 40)
         {
-            TraCI->vehicleSetSpeed("veh1", 20.);
+            TraCI->vehicleSetSpeed("veh.0", 20.);
         }
         else if(omnetpp::simTime().dbl() == 73)
         {
             // disable automatic merging
             mergeEnabled = false;
 
-            if(SUMOID == "veh1")
+            if(SUMOID == "veh.0")
                 splitFromPlatoon(5);
         }
         else if(omnetpp::simTime().dbl() == 118)
@@ -407,14 +407,14 @@ void ApplVCoordinator::scenario6()
     {
         if(omnetpp::simTime().dbl() == 40)
         {
-            TraCI->vehicleSetSpeed("veh1", 20.);
+            TraCI->vehicleSetSpeed("veh.0", 20.);
         }
         else if(omnetpp::simTime().dbl() == 73)
         {
             // disable automatic merging
             mergeEnabled = false;
 
-            if(SUMOID == "veh1")
+            if(SUMOID == "veh.0")
                 splitFromPlatoon(4);
         }
         else if(omnetpp::simTime().dbl() == 118)
@@ -427,14 +427,14 @@ void ApplVCoordinator::scenario6()
     {
         if(omnetpp::simTime().dbl() == 40)
         {
-            TraCI->vehicleSetSpeed("veh1", 20.);
+            TraCI->vehicleSetSpeed("veh.0", 20.);
         }
         else if(omnetpp::simTime().dbl() == 73)
         {
             // disable automatic merging
             mergeEnabled = false;
 
-            if(SUMOID == "veh1")
+            if(SUMOID == "veh.0")
                 splitFromPlatoon(3);
         }
         else if(omnetpp::simTime().dbl() == 118)
@@ -447,14 +447,14 @@ void ApplVCoordinator::scenario6()
     {
         if(omnetpp::simTime().dbl() == 40)
         {
-            TraCI->vehicleSetSpeed("veh1", 20.);
+            TraCI->vehicleSetSpeed("veh.0", 20.);
         }
         else if(omnetpp::simTime().dbl() == 73)
         {
             // disable automatic merging
             mergeEnabled = false;
 
-            if(SUMOID == "veh1")
+            if(SUMOID == "veh.0")
                 splitFromPlatoon(2);
         }
         else if(omnetpp::simTime().dbl() == 118)
@@ -467,14 +467,14 @@ void ApplVCoordinator::scenario6()
     {
         if(omnetpp::simTime().dbl() == 40)
         {
-            TraCI->vehicleSetSpeed("veh1", 20.);
+            TraCI->vehicleSetSpeed("veh.0", 20.);
         }
         else if(omnetpp::simTime().dbl() == 73)
         {
             // disable automatic merging
             mergeEnabled = false;
 
-            if(SUMOID == "veh1")
+            if(SUMOID == "veh.0")
                 splitFromPlatoon(1);
         }
         else if(omnetpp::simTime().dbl() == 118)
@@ -490,18 +490,18 @@ void ApplVCoordinator::scenario6()
     {
         if(omnetpp::simTime().dbl() == 40)
         {
-            TraCI->vehicleSetSpeed("veh1", 20.);
+            TraCI->vehicleSetSpeed("veh.0", 20.);
         }
         else if(omnetpp::simTime().dbl() == 73)
         {
             // leader leaves
-            if(SUMOID == "veh1")
+            if(SUMOID == "veh.0")
                 leavePlatoon();
         }
         else if(omnetpp::simTime().dbl() == 118)
         {
             // last follower leaves
-            if(SUMOID == "veh10")
+            if(SUMOID == "veh.9")
                 leavePlatoon();
         }
     }
@@ -509,16 +509,16 @@ void ApplVCoordinator::scenario6()
     {
         if(omnetpp::simTime().dbl() == 40)
         {
-            TraCI->vehicleSetSpeed("veh1", 20.);
+            TraCI->vehicleSetSpeed("veh.0", 20.);
         }
         else if(omnetpp::simTime().dbl() == 73)
         {
-            if(SUMOID == "veh3")
+            if(SUMOID == "veh.2")
                 leavePlatoon();
         }
         else if(omnetpp::simTime().dbl() == 118)
         {
-            if(SUMOID == "veh6")
+            if(SUMOID == "veh.5")
                 leavePlatoon();
         }
     }
@@ -526,16 +526,16 @@ void ApplVCoordinator::scenario6()
     {
         if(omnetpp::simTime().dbl() == 40)
         {
-            TraCI->vehicleSetSpeed("veh1", 20.);
+            TraCI->vehicleSetSpeed("veh.0", 20.);
         }
         else if(omnetpp::simTime().dbl() == 73)
         {
-            if(SUMOID == "veh7")
+            if(SUMOID == "veh.6")
                 leavePlatoon();
         }
         else if(omnetpp::simTime().dbl() == 118)
         {
-            if(SUMOID == "veh5")
+            if(SUMOID == "veh.4")
                 leavePlatoon();
         }
     }
@@ -543,16 +543,16 @@ void ApplVCoordinator::scenario6()
     {
         if(omnetpp::simTime().dbl() == 40)
         {
-            TraCI->vehicleSetSpeed("veh1", 20.);
+            TraCI->vehicleSetSpeed("veh.0", 20.);
         }
         else if(omnetpp::simTime().dbl() == 73)
         {
-            if(SUMOID == "veh8")
+            if(SUMOID == "veh.7")
                 leavePlatoon();
         }
         else if(omnetpp::simTime().dbl() == 118)
         {
-            if(SUMOID == "veh4")
+            if(SUMOID == "veh.3")
                 leavePlatoon();
         }
     }
@@ -563,14 +563,14 @@ void ApplVCoordinator::scenario7()
 {
     if(omnetpp::simTime().dbl() == 40)
     {
-        TraCI->vehicleSetSpeed("veh1", 20.);
+        TraCI->vehicleSetSpeed("veh.0", 20.);
     }
     else if(omnetpp::simTime().dbl() == 73)
     {
         // disable automatic merging
         mergeEnabled = false;
 
-        if(SUMOID == "veh1")
+        if(SUMOID == "veh.0")
             splitFromPlatoon(4);
     }
     else if(omnetpp::simTime().dbl() == 118)
@@ -586,7 +586,7 @@ void ApplVCoordinator::scenario8()
     if(omnetpp::simTime().dbl() == 40)
     {
         optPlnSize = 10;
-        TraCI->vehicleSetSpeed("veh1", 20.);
+        TraCI->vehicleSetSpeed("veh.0", 20.);
     }
     else if(omnetpp::simTime().dbl() == 73)
     {
@@ -608,7 +608,7 @@ void ApplVCoordinator::scenario9()
 {
     if(omnetpp::simTime().dbl() == 40)
     {
-        TraCI->vehicleSetSpeed("veh1", 20.);
+        TraCI->vehicleSetSpeed("veh.0", 20.);
     }
     else if(omnetpp::simTime().dbl() == 73)
     {
@@ -616,7 +616,7 @@ void ApplVCoordinator::scenario9()
         mergeEnabled = false;
 
         // leader leaves
-        if(SUMOID == "veh1")
+        if(SUMOID == "veh.0")
             dissolvePlatoon();
         //leavePlatoon();
     }

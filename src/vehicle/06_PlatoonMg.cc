@@ -207,12 +207,7 @@ PlatoonMsg*  ApplVPlatoonMg::prepareData(std::string receiver, uCommand_t type, 
 
     wsm->setWsmVersion(1);
     wsm->setSecurityType(1);
-
-    if(dataOnSch)
-        wsm->setChannelNumber(Veins::Channels::SCH1);
-    else
-        wsm->setChannelNumber(Veins::Channels::CCH);
-
+    wsm->setChannelNumber(Veins::Channels::CCH);
     wsm->setDataRate(1);
     wsm->setPriority(dataPriority);
     wsm->setPsid(0);
