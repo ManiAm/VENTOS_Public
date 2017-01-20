@@ -203,6 +203,8 @@ void TraCI_Start::init_traci()
 
     int seed = par("seed").longValue();
 
+    bool runSUMO = par("runSUMO").boolValue();
+
     std::string appl = par("SUMOapplication").stringValue();
     if(appl != "sumo" && appl != "sumoD" && appl != "sumo-gui" && appl != "sumo-guiD")
         throw omnetpp::cRuntimeError("SUMOapplication parameter is not set correctly!: %s", appl.c_str());
@@ -212,10 +214,10 @@ void TraCI_Start::init_traci()
         appl = "sumo";
 
     // start 'SUMO TraCI server' first
-    int port = TraCIConnection::startSUMO(getFullPath_SUMOExe(appl), getFullPath_SUMOConfig(), switches, seed);
+    int port = TraCIConnection::startSUMO(getFullPath_SUMOExe(appl), getFullPath_SUMOConfig(), switches, seed, runSUMO);
 
     // then connect to the 'SUMO TraCI server'
-    connection = TraCIConnection::connect("localhost", port);
+    connection = TraCIConnection::connect("localhost", port, runSUMO);
 
     // get the version of SUMO TraCI API
     std::pair<uint32_t, std::string> versionS = getVersion();

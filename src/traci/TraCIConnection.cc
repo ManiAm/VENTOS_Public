@@ -83,7 +83,7 @@ TraCIConnection::~TraCIConnection()
 }
 
 
-int TraCIConnection::startSUMO(std::string SUMOapplication, std::string SUMOconfig, std::string switches, int seed)
+int TraCIConnection::startSUMO(std::string SUMOapplication, std::string SUMOconfig, std::string switches, int seed, bool runSUMO)
 {
     int port = TraCIConnection::getFreeEphemeralPort();
 
@@ -94,13 +94,6 @@ int TraCIConnection::startSUMO(std::string SUMOapplication, std::string SUMOconf
         seed = atoi(seed_s);
     }
 
-    LOG_INFO << "\n>>> Starting SUMO process ... \n";
-    LOG_INFO << boost::format("    Executable file: %1% \n") % SUMOapplication;
-    LOG_INFO << boost::format("    Config file: %1% \n") % SUMOconfig;
-    LOG_INFO << boost::format("    Switches: %1% \n") % switches;
-    LOG_INFO << boost::format("    TraCI server: port= %1%, seed= %2% \n") % port % seed;
-    LOG_FLUSH;
-
     // assemble commandLine
     std::ostringstream commandLine;
     commandLine << SUMOapplication
@@ -108,6 +101,22 @@ int TraCIConnection::startSUMO(std::string SUMOapplication, std::string SUMOconf
             << " --seed " << seed
             << " --configuration-file " << SUMOconfig
             << switches;
+
+    if(!runSUMO)
+    {
+        LOG_INFO << "\n>>> Run SUMO with the following command ... \n";
+        LOG_INFO << boost::format("    %1% \n") % commandLine.str();
+        LOG_FLUSH;
+
+        return port;
+    }
+
+    LOG_INFO << "\n>>> Starting SUMO process ... \n";
+    LOG_INFO << boost::format("    Executable file: %1% \n") % SUMOapplication;
+    LOG_INFO << boost::format("    Config file: %1% \n") % SUMOconfig;
+    LOG_INFO << boost::format("    Switches: %1% \n") % switches;
+    LOG_INFO << boost::format("    TraCI server: port= %1%, seed= %2% \n") % port % seed;
+    LOG_FLUSH;
 
 #if defined(_WIN32) || defined(__WIN32__) || defined(WIN32) || defined(__CYGWIN__) || defined(_WIN64)
     STARTUPINFO si;
@@ -223,12 +232,10 @@ int TraCIConnection::getFreeEphemeralPort()
 }
 
 
-TraCIConnection* TraCIConnection::connect(const char* host, int port)
+TraCIConnection* TraCIConnection::connect(const char* host, int port, bool runSUMO)
 {
     if(socketPtr)
-         throw omnetpp::cRuntimeError("There is already an active connection to SUMO! Why calling 'connect' twice ?!");
-
-    LOG_INFO << boost::format("\n>>> Connecting to TraCI server on port %1% ... \n") % port << std::flush;
+        throw omnetpp::cRuntimeError("There is already an active connection to SUMO! Why calling 'connect' twice ?!");
 
     if (initsocketlibonce() != 0)
         throw omnetpp::cRuntimeError("Could not init socketlib");
@@ -256,11 +263,24 @@ TraCIConnection* TraCIConnection::connect(const char* host, int port)
     if (*socketPtr < 0)
         throw omnetpp::cRuntimeError("Could not create socket to connect to TraCI server");
 
-    // wait for 1 second and then try connecting to TraCI server
-    std::this_thread::sleep_for(std::chrono::seconds(1));
+    // do not run SUMO automatically
+    if(!runSUMO)
+    {
+        do
+        {
+            std::cout << "\nPress ENTER to connect to SUMO ...";
+        } while (std::cin.get() != '\n');
+    }
+    else
+        // wait for 1 second and then try connecting to TraCI server
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+
+    LOG_INFO << boost::format("\n>>> Connecting to TraCI server on port %1% ... \n") % port << std::flush;
+
+    const int maxRetry = 10;
 
     int tries = 1;
-    for (; tries <= 10; ++tries)
+    for (; tries <= maxRetry; ++tries)
     {
         *socketPtr = ::socket(AF_INET, SOCK_STREAM, 0);
         if (::connect(*socketPtr, address_p, sizeof(address)) >= 0)
@@ -275,8 +295,8 @@ TraCIConnection* TraCIConnection::connect(const char* host, int port)
         std::this_thread::sleep_for(std::chrono::seconds(sleepDuration));
     }
 
-    if(tries == 11)
-        throw omnetpp::cRuntimeError("Could not connect to TraCI server after 10 retries!");
+    if(tries == maxRetry+1)
+        throw omnetpp::cRuntimeError("Could not connect to TraCI server after %d retries!", maxRetry);
 
     // TCP_NODELAY: disable the Nagle algorithm. This means that segments are always
     // sent as soon as possible, even if there is only a small amount of data.

@@ -31,6 +31,7 @@ simple TraCIStart
         @signal[executeEachTS]();
         
         bool active = default(false);
+        bool runSUMO = default(true);
         bool debug = default(false);  // emit debug messages?
         
         string SUMOapplication = default("sumo-guiD");   // sumoD: command-line interface    sumo-guiD: graphical interface
