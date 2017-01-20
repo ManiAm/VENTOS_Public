@@ -333,8 +333,7 @@ void AddMobileNode::Scenario8()
         auto routeList = TraCI->routeGetIDList();   //Get all the routes so far
         if(std::find(routeList.begin(), routeList.end(), origin) == routeList.end())
         {
-            std::list<std::string> startRoute;
-            startRoute.push_back(origin);   //With just the starting edge
+            std::vector<std::string> startRoute = {origin}; //With just the starting edge
             TraCI->routeAdd(origin /*route ID*/, startRoute);   //And add it to the simulation
         }
 

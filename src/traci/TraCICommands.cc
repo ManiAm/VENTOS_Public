@@ -952,6 +952,20 @@ void TraCI_Commands::vehicleSetRouteID(std::string nodeId, std::string routeID)
 }
 
 
+void TraCI_Commands::vehicleChangeTarget(std::string nodeId, std::string destEdgeID)
+{
+    record_TraCI_activity_func("commandStart", CMD_SET_VEHICLE_VARIABLE, CMD_CHANGETARGET, "vehicleChangeTarget");
+
+    uint8_t variableId = CMD_CHANGETARGET;
+    uint8_t variableType = TYPE_STRING;
+    TraCIBuffer buf = connection->query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << destEdgeID);
+
+    ASSERT(buf.eof());
+
+    record_TraCI_activity_func("commandComplete", CMD_SET_VEHICLE_VARIABLE, CMD_CHANGETARGET, "vehicleChangeTarget");
+}
+
+
 void TraCI_Commands::vehicleSetColor(std::string nodeId, const RGB color)
 {
     record_TraCI_activity_func("commandStart", CMD_SET_VEHICLE_VARIABLE, VAR_COLOR, "vehicleSetColor");
@@ -1394,11 +1408,33 @@ std::vector<std::string> TraCI_Commands::routeGetEdges(std::string routeID)
 }
 
 
+// todo: calculate the shortest route between 'from_edge' and 'to_edge'
+std::vector<std::string> TraCI_Commands::routeShortest(std::string from_edge, std::string to_edge)
+{
+    // create a new route that consists of 'from_edge'
+    std::vector<std::string> newRoute = {from_edge};
+    routeAdd("newRoute", newRoute);
+
+    // add a vehicle with that route
+    vehicleAdd("tmp_veh", "DEFAULT_VEHTYPE", "newRoute", 0, 0, 0, -4 /*lane*/);
+
+    // compute a new route to the destination
+    vehicleChangeTarget("tmp_veh", to_edge);
+
+    // retrieve the edges of the new route
+    auto route = vehicleGetRoute("tmp_veh");
+
+    vehicleRemove("tmp_veh", 2);
+
+    return route;
+}
+
+
 // #######################
 // CMD_SET_ROUTE_VARIABLE
 // #######################
 
-void TraCI_Commands::routeAdd(std::string name, std::list<std::string> route)
+void TraCI_Commands::routeAdd(std::string name, std::vector<std::string> route)
 {
     record_TraCI_activity_func("commandStart", CMD_SET_ROUTE_VARIABLE, ADD, "routeAdd");
 

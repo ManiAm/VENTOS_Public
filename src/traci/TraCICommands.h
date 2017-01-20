@@ -180,6 +180,7 @@ public:
     void vehicleChangeLane(std::string, uint8_t, double);
     void vehicleSetRoute(std::string, std::list<std::string> value);
     void vehicleSetRouteID(std::string, std::string);
+    void vehicleChangeTarget(std::string, std::string);
     void vehicleSetColor(std::string, const RGB);
     void vehicleSetClass(std::string, std::string);
     void vehicleSetLength(std::string, double);
@@ -221,9 +222,10 @@ public:
     std::vector<std::string> routeGetIDList();
     uint32_t routeGetIDCount();
     std::vector<std::string> routeGetEdges(std::string);
+    std::vector<std::string> routeShortest(std::string, std::string);  // new command
 
     // CMD_SET_ROUTE_VARIABLE
-    void routeAdd(std::string, std::list<std::string>);
+    void routeAdd(std::string, std::vector<std::string>);
 
     // ################################################################
     //                              edge
