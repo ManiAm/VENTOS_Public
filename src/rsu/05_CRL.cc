@@ -275,7 +275,7 @@ void ApplRSUCRL::broadcastCRL()
         // sendDelayed(pkt, individualOffset, lowerLayerOut);  --> todo
 
         // start over if all pieces are broadcasted
-        if(forCounter >= PiecesCRLfromCA.size())
+        if(forCounter >= PiecesCRLfromCA.size()-1)
             forCounter = 0;
         else
             forCounter++;
