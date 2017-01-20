@@ -864,14 +864,25 @@ void AddNode::addObstacle()
 
     LOG_DEBUG << boost::format("\n>>> AddNode is adding %1% obstacle modules ... \n") % num << std::flush;
 
+    auto allRouteIDs = TraCI->routeGetIDList();
+
     for(auto &entry : allObstacle)
     {
         std::string vehID = entry.second.id_str;
 
-        // todo: adding corresponding route for obstacle
+        // create a new route that consists of 'edge_str'
+        std::vector<std::string> newRoute = {entry.second.edge_str};
+        std::string route_name = "OBS_" + entry.second.edge_str + "_route";
+
+        // if not added into route list
+        if(std::find(allRouteIDs.begin(), allRouteIDs.end(), route_name) == allRouteIDs.end())
+        {
+            TraCI->routeAdd(route_name, newRoute);
+            allRouteIDs.push_back(route_name);
+        }
 
         // now we add a vehicle as obstacle
-        TraCI->vehicleAdd(vehID, "DEFAULT_VEHTYPE", "route1", (int32_t)(entry.second.begin * 1000), entry.second.lanePos, 0, entry.second.lane);
+        TraCI->vehicleAdd(vehID, "DEFAULT_VEHTYPE", route_name, (int32_t)(entry.second.begin * 1000), entry.second.lanePos, 0, entry.second.lane);
 
         // and make it stop on the lane!
         TraCI->vehicleSetSpeed(vehID, 0.);
@@ -886,6 +897,9 @@ void AddNode::addObstacle()
 
         // change veh length
         TraCI->vehicleSetLength(vehID, entry.second.length);
+
+        // change veh shape
+        // todo: update to new version of sumo and set shape
 
         if(entry.second.end != -1)
         {
