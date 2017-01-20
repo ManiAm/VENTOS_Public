@@ -402,6 +402,14 @@ std::vector<CRL_Piece *> ApplCA::addHeader(std::vector<std::string> vec)
         // create the packet for transmitting a certificate
         CRL_Piece *pkt = new CRL_Piece(moduleName.c_str(), TYPE_CRL_PIECE);
 
+        // set the WSM parameters
+        pkt->setWsmVersion(1);
+        pkt->setSecurityType(1);
+        pkt->setChannelNumber(Veins::Channels::CCH);
+        pkt->setDataRate(1);
+        pkt->setPriority(1);
+        pkt->setPsid(0);
+
         pkt->setCRLversion(1);
         pkt->setTimestamp(0);
         pkt->setSeqNo(ISeqNo++);

@@ -214,6 +214,12 @@ void ApplVManager::onMessageType(omnetpp::cMessage* msg)
 
         onPlatoonMsg(wsm);
     }
+    // todo
+    else if(msg->getKind() == TYPE_CRL_PIECE)
+    {
+
+
+    }
     else
         throw omnetpp::cRuntimeError("Vehicle %s received unsupported msg %s of type %d!", SUMOID.c_str(), msg->getName(), msg->getKind());
 }
