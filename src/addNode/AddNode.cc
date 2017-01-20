@@ -917,6 +917,8 @@ void AddNode::parseVehicle(rapidxml::xml_node<> *pNode)
             if(attName != "id" &&
                     attName != "type" &&
                     attName != "route" &&
+                    attName != "from" &&
+                    attName != "to" &&
                     attName != "color" &&
                     attName != "status" &&
                     attName != "depart" &&
@@ -939,11 +941,77 @@ void AddNode::parseVehicle(rapidxml::xml_node<> *pNode)
         std::string type_str = cAttr->value();
         boost::trim(type_str);
 
-        cAttr = cNode->first_attribute("route");
-        if(!cAttr)
-            throw omnetpp::cRuntimeError("'route' attribute is not found in %s node", vehicle_tag.c_str());
-        std::string route_str = cAttr->value();
-        boost::trim(route_str);
+        std::string routeID_str = "";
+        std::string from_str = "";
+        std::string to_str = "";
+
+        if((cAttr = cNode->first_attribute("route")))
+        {
+            routeID_str = cAttr->value();
+            boost::trim(routeID_str);
+
+            cAttr = cNode->first_attribute("from");
+            if(cAttr)
+                throw omnetpp::cRuntimeError("'from' attribute is redundant when 'route' is present in %s node", vehicle_tag.c_str());
+
+            cAttr = cNode->first_attribute("to");
+            if(cAttr)
+                throw omnetpp::cRuntimeError("'to' attribute is redundant when 'route' is present in %s node", vehicle_tag.c_str());
+        }
+        else if((cAttr = cNode->first_attribute("from")))
+        {
+            from_str = cAttr->value();
+            boost::trim(from_str);
+
+            cAttr = cNode->first_attribute("to");
+            if(!cAttr)
+                throw omnetpp::cRuntimeError("'to' attribute does not exist in %s node", vehicle_tag.c_str());
+
+            to_str = cAttr->value();
+            boost::trim(to_str);
+
+            cAttr = cNode->first_attribute("route");
+            if(cAttr)
+                throw omnetpp::cRuntimeError("'route' attribute is redundant when 'from/to' is present in %s node", vehicle_tag.c_str());
+        }
+        else if((cAttr = cNode->first_attribute("to")))
+        {
+            to_str = cAttr->value();
+            boost::trim(to_str);
+
+            cAttr = cNode->first_attribute("from");
+            if(!cAttr)
+                throw omnetpp::cRuntimeError("'from' attribute does not exist in %s node", vehicle_tag.c_str());
+
+            from_str = cAttr->value();
+            boost::trim(from_str);
+
+            cAttr = cNode->first_attribute("route");
+            if(cAttr)
+                throw omnetpp::cRuntimeError("'route' attribute is redundant when 'from/to' is present in %s node", vehicle_tag.c_str());
+        }
+        else
+            throw omnetpp::cRuntimeError("either 'route' or 'from/to' attributes should be defined in %s node", vehicle_tag.c_str());
+
+        std::string via_str = "";
+        std::vector<std::string> via_str_tokenize;
+        cAttr = cNode->first_attribute("via");
+        if(cAttr)
+        {
+            std::string via_str = cAttr->value();
+            boost::trim(via_str);
+
+            // tokenize via_str
+            boost::split(via_str_tokenize, via_str, boost::is_any_of(","));
+
+            // remove leading/trailing space
+            for(auto &entry : via_str_tokenize)
+            {
+                boost::trim(entry);
+                if(entry == "")
+                    throw omnetpp::cRuntimeError("'via' attribute is not formatted correctly in %s node", vehicle_tag.c_str());
+            }
+        }
 
         std::string color_str = "yellow";
         cAttr = cNode->first_attribute("color");
@@ -1018,7 +1086,7 @@ void AddNode::parseVehicle(rapidxml::xml_node<> *pNode)
             throw omnetpp::cRuntimeError("'departPos' attribute is badly formatted in %s node: %s", vehicle_tag.c_str(), departPos_str.c_str());
         }
 
-        std::string departLane_str = "0";
+        std::string departLane_str = "-5"; // DEPART_LANE_BEST_FREE
         cAttr = cNode->first_attribute("departLane");
         if(cAttr)
         {
@@ -1064,7 +1132,10 @@ void AddNode::parseVehicle(rapidxml::xml_node<> *pNode)
 
             entry.id_str = id_str;
             entry.type_str = type_str;
-            entry.route_str = route_str;
+            entry.routeID_str = routeID_str;
+            entry.from_str = from_str;
+            entry.to_str = to_str;
+            entry.via_str_tokenize = via_str_tokenize;
             entry.color_str = color_str;
             entry.status_str = status_str;
             entry.depart = depart;
@@ -1092,13 +1163,14 @@ void AddNode::addVehicle()
 
     for(auto &entry : allVehicle)
     {
+        std::string vehRouteID = getVehRoute(entry.second);
         std::string vehID = entry.second.id_str;
 
         // now we add a vehicle
         TraCI->vehicleAdd(vehID,
                 entry.second.type_str,
-                entry.second.route_str,
-                (int32_t)(entry.second.depart * 1000),
+                vehRouteID,
+                (int32_t)(entry.second.depart*1000),
                 entry.second.departPos,
                 entry.second.departSpeed,
                 entry.second.departLane);
@@ -1124,6 +1196,76 @@ void AddNode::addVehicle()
             // TraCI->vehicleSetStop(vehID, "1to2", entry.second.departPos, entry.second.departLane, 30, 1);
         }
     }
+}
+
+
+std::string AddNode::getVehRoute(vehicleEntry_t entry)
+{
+    if(entry.routeID_str != "")
+        return entry.routeID_str;
+    else if(entry.from_str != "" && entry.to_str != "")
+    {
+        if(entry.via_str_tokenize.empty())
+            return getShortestRoute(entry.from_str, entry.to_str).routeID;
+        // if 'via' attribute is present
+        else
+        {
+            std::string firstVia = entry.via_str_tokenize[0];
+            std::string lastVia = entry.via_str_tokenize.back().c_str();
+
+            // route from 'from_str' to 'firstVia'
+            auto route_firstPart = getShortestRoute(entry.from_str, firstVia).routeEdges;
+
+            for(unsigned int i = 1; i < entry.via_str_tokenize.size(); i++)
+            {
+
+            }
+
+            // route from 'lastVia' to 'to_via'
+            auto route_lastPart = getShortestRoute(lastVia, entry.to_str).routeEdges;
+        }
+    }
+    else
+        throw omnetpp::cRuntimeError("'route' or 'from/to' attributes should be defined in node '%s'", vehicle_tag.c_str());
+
+    return "";
+}
+
+
+AddNode::routeDef_t AddNode::getShortestRoute(std::string from_str, std::string to_str)
+{
+    static std::map<std::string /*routeID*/, std::vector<std::string> /*route edges*/> allRoutes;
+
+    // construct the route ID
+    std::ostringstream routeName;
+    routeName << boost::format("%s_%s") % from_str % to_str;
+    std::string routeName_str = routeName.str();
+
+    // did we calculate the route between 'from_str' and 'to_str' before?
+    auto it = allRoutes.find(routeName_str);
+    if(it != allRoutes.end())
+    {
+        routeDef_t route_result = {};
+        route_result.routeID = it->first;
+        route_result.routeEdges = it->second;
+        return route_result;
+    }
+
+    // get the shortest route from edge 'from_str' to edge 'to_str'
+    auto shortest_route = TraCI->routeShortest(from_str, to_str);
+    routeCalculation++;
+
+    // define it in SUMO
+    TraCI->routeAdd(routeName_str, shortest_route);
+
+    // push it into allRouteIDs
+    allRoutes[routeName_str] = shortest_route;
+
+    routeDef_t route_result = {};
+    route_result.routeID = routeName_str;
+    route_result.routeEdges = shortest_route;
+
+    return route_result;
 }
 
 
@@ -1179,7 +1321,11 @@ void AddNode::parseVehicleFlow(rapidxml::xml_node<> *pNode)
 
         // remove leading/trailing space
         for(auto &entry : type_str_tokenize)
+        {
             boost::trim(entry);
+            if(entry == "")
+                throw omnetpp::cRuntimeError("'type' attribute is not formatted correctly in %s node", vehicle_flow_tag.c_str());
+        }
 
         std::string typeDist_str = "";
         std::vector<double> typeDist_tokenize;
@@ -1234,22 +1380,26 @@ void AddNode::parseVehicleFlow(rapidxml::xml_node<> *pNode)
         cAttr = cNode->first_attribute("route");
         if(!cAttr)
             throw omnetpp::cRuntimeError("'route' attribute is not found in %s node", vehicle_flow_tag.c_str());
-        std::string route_str = cAttr->value();
-        boost::trim(route_str);
+        std::string routeID_str = cAttr->value();
+        boost::trim(routeID_str);
 
-        // tokenize route
-        std::vector<std::string> route_str_tokenize;
-        boost::split(route_str_tokenize, route_str, boost::is_any_of(","));
+        // tokenize routeID
+        std::vector<std::string> routeID_str_tokenize;
+        boost::split(routeID_str_tokenize, routeID_str, boost::is_any_of(","));
 
         // remove leading/trailing space
-        for(auto &entry : route_str_tokenize)
+        for(auto &entry : routeID_str_tokenize)
+        {
             boost::trim(entry);
+            if(entry == "")
+                throw omnetpp::cRuntimeError("'route' attribute is not formatted correctly in %s node", vehicle_flow_tag.c_str());
+        }
 
         std::string routeDist_str = "";
         std::vector<double> routeDist_tokenize;
 
         // we have multiple routes
-        if(route_str_tokenize.size() > 1)
+        if(routeID_str_tokenize.size() > 1)
         {
             cAttr = cNode->first_attribute("routeDist");
             if(!cAttr)
@@ -1261,7 +1411,7 @@ void AddNode::parseVehicleFlow(rapidxml::xml_node<> *pNode)
             std::vector<std::string> routeDist_str_tokenize;
             boost::split(routeDist_str_tokenize, routeDist_str, boost::is_any_of(","));
 
-            if(route_str_tokenize.size() != routeDist_str_tokenize.size())
+            if(routeID_str_tokenize.size() != routeDist_str_tokenize.size())
                 throw omnetpp::cRuntimeError("'route' and 'routeDist' attributes do not match in %s node", vehicle_flow_tag.c_str());
 
             double sum = 0;
@@ -1305,7 +1455,7 @@ void AddNode::parseVehicleFlow(rapidxml::xml_node<> *pNode)
             throw omnetpp::cRuntimeError("'speed' attribute is badly formatted in %s node: %s", vehicle_flow_tag.c_str(), speed_str.c_str());
         }
 
-        std::string lane_str = "0";
+        std::string lane_str = "-5";  // DEPART_LANE_BEST_FREE
         cAttr = cNode->first_attribute("lane");
         if(cAttr)
         {
@@ -1563,7 +1713,7 @@ void AddNode::parseVehicleFlow(rapidxml::xml_node<> *pNode)
             entry.type_str_tokenize = type_str_tokenize;
             entry.typeDist_tokenize = typeDist_tokenize;
             entry.color_str = color_str;
-            entry.route_str_tokenize = route_str_tokenize;
+            entry.routeID_str_tokenize = routeID_str_tokenize;
             entry.routeDist_tokenize = routeDist_tokenize;
             entry.speed = speed;
             entry.lane = lane;
@@ -1635,8 +1785,8 @@ void AddNode::addVehicleFlow()
                     vehType = getVehType(entry.second, rnd_type);
                 }
 
-                std::string vehRoute = entry.second.route_str_tokenize[0];
-                if(entry.second.route_str_tokenize.size() > 1)
+                std::string vehRoute = entry.second.routeID_str_tokenize[0];
+                if(entry.second.routeID_str_tokenize.size() > 1)
                 {
                     double rnd_route = vehRouteDist(generator);
                     vehRoute = getVehRoute(entry.second, rnd_route);
@@ -1684,8 +1834,8 @@ void AddNode::addVehicleFlow()
                         vehType = getVehType(entry.second, rnd_type);
                     }
 
-                    std::string vehRoute = entry.second.route_str_tokenize[0];
-                    if(entry.second.route_str_tokenize.size() > 1)
+                    std::string vehRoute = entry.second.routeID_str_tokenize[0];
+                    if(entry.second.routeID_str_tokenize.size() > 1)
                     {
                         double rnd_route = vehRouteDist(generator);
                         vehRoute = getVehRoute(entry.second, rnd_route);
@@ -1718,6 +1868,56 @@ void AddNode::addVehicleFlow()
 
         }
     }
+}
+
+
+std::string AddNode::getVehType(vehicleFlowEntry_t entry, double rnd)
+{
+    std::string vehType = "";
+    double lowerBound = 0;
+    double upperBound = entry.typeDist_tokenize[0]/100.;
+
+    for(unsigned int i = 0; i < entry.typeDist_tokenize.size(); i++)
+    {
+        if(rnd >= lowerBound && rnd < upperBound)
+        {
+            vehType = entry.type_str_tokenize[i];
+            break;
+        }
+
+        lowerBound += entry.typeDist_tokenize[i]/100.;
+        upperBound += entry.typeDist_tokenize[i+1]/100.;
+    }
+
+    if(vehType == "")
+        throw omnetpp::cRuntimeError("vehType cannot be empty");
+
+    return vehType;
+}
+
+
+std::string AddNode::getVehRoute(vehicleFlowEntry_t entry, double rnd)
+{
+    std::string vehRoute = "";
+    double lowerBound = 0;
+    double upperBound = entry.routeDist_tokenize[0]/100.;
+
+    for(unsigned int i = 0; i < entry.routeDist_tokenize.size(); i++)
+    {
+        if(rnd >= lowerBound && rnd < upperBound)
+        {
+            vehRoute = entry.routeID_str_tokenize[i];
+            break;
+        }
+
+        lowerBound += entry.routeDist_tokenize[i]/100.;
+        upperBound += entry.routeDist_tokenize[i+1]/100.;
+    }
+
+    if(vehRoute == "")
+        throw omnetpp::cRuntimeError("vehRoute cannot be empty");
+
+    return vehRoute;
 }
 
 
@@ -1806,56 +2006,6 @@ void AddNode::addEmulated()
 }
 
 
-std::string AddNode::getVehType(vehicleFlowEntry_t entry, double rnd)
-{
-    std::string vehType = "";
-    double lowerBound = 0;
-    double upperBound = entry.typeDist_tokenize[0]/100.;
-
-    for(unsigned int i = 0; i < entry.typeDist_tokenize.size(); i++)
-    {
-        if(rnd >= lowerBound && rnd < upperBound)
-        {
-            vehType = entry.type_str_tokenize[i];
-            break;
-        }
-
-        lowerBound += entry.typeDist_tokenize[i]/100.;
-        upperBound += entry.typeDist_tokenize[i+1]/100.;
-    }
-
-    if(vehType == "")
-        throw omnetpp::cRuntimeError("vehType cannot be empty");
-
-    return vehType;
-}
-
-
-std::string AddNode::getVehRoute(vehicleFlowEntry_t entry, double rnd)
-{
-    std::string vehRoute = "";
-    double lowerBound = 0;
-    double upperBound = entry.routeDist_tokenize[0]/100.;
-
-    for(unsigned int i = 0; i < entry.routeDist_tokenize.size(); i++)
-    {
-        if(rnd >= lowerBound && rnd < upperBound)
-        {
-            vehRoute = entry.route_str_tokenize[i];
-            break;
-        }
-
-        lowerBound += entry.routeDist_tokenize[i]/100.;
-        upperBound += entry.routeDist_tokenize[i+1]/100.;
-    }
-
-    if(vehRoute == "")
-        throw omnetpp::cRuntimeError("vehRoute cannot be empty");
-
-    return vehRoute;
-}
-
-
 void AddNode::addCircle(std::string name, std::string type, const RGB color, bool filled, Coord *center, double radius)
 {
     std::list<TraCICoord> circlePoints;
@@ -1877,6 +2027,8 @@ void AddNode::addCircle(std::string name, std::string type, const RGB color, boo
 void AddNode::printLoadedStatistics()
 {
     LOG_DEBUG << "\n>>> AddNode is done adding nodes. Here is a summary: \n" << std::flush;
+
+    LOG_DEBUG << boost::format("  Number of shortest route calculation: %d \n") % routeCalculation;
 
     //###################################
     // Get the list of all possible route

@@ -48,6 +48,7 @@ private:
 
     double terminate = 0;
     double SUMO_timeStep = 0;
+    int routeCalculation = 0;
 
     const std::string adversary_tag = "adversary";
     const std::string ca_tag = "ca";
@@ -111,7 +112,10 @@ private:
     {
         std::string id_str;
         std::string type_str;
-        std::string route_str;
+        std::string routeID_str;
+        std::string from_str;
+        std::string to_str;
+        std::vector<std::string> via_str_tokenize;
         std::string color_str;
         std::string status_str;
         double depart;
@@ -129,7 +133,7 @@ private:
         std::vector<std::string> type_str_tokenize;
         std::vector<double> typeDist_tokenize;
         std::string color_str;
-        std::vector<std::string> route_str_tokenize;
+        std::vector<std::string> routeID_str_tokenize;
         std::vector<double> routeDist_tokenize;
         double speed;
         int lane;
@@ -179,8 +183,16 @@ private:
     void parseObstacle(rapidxml::xml_node<> *);
     void addObstacle();
 
+    typedef struct routeDef
+    {
+        std::string routeID;
+        std::vector<std::string> routeEdges;
+    } routeDef_t;
+
     void parseVehicle(rapidxml::xml_node<> *);
     void addVehicle();
+    std::string getVehRoute(vehicleEntry_t);
+    routeDef_t getShortestRoute(std::string, std::string);
 
     void parseVehicleFlow(rapidxml::xml_node<> *);
     void addVehicleFlow();
