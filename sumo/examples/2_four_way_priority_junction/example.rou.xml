@@ -1,0 +1,56 @@
+
+<routes>
+
+  <!-- passenger vehicle -->
+  <vType id="passenger" length="5.0" minGap="2.0" maxSpeed="30.0" vClass="passenger">
+      <carFollowing-Krauss accel="3.0" decel="5.0" sigma="0" tau="1.64" />
+  </vType> 
+  
+  <!-- emergency vehicle -->
+  <vType id="emergency" length="10.0" minGap="2.0" maxSpeed="30.0" vClass="emergency">
+      <carFollowing-Krauss accel="3.0" decel="5.0" sigma="0" tau="1.64" />
+  </vType> 
+  
+  <!-- bus -->
+  <vType id="bus" length="10.0" minGap="4.0" maxSpeed="15.0" vClass="bus">
+      <carFollowing-Krauss accel="2.0" decel="3.0" sigma="0" tau="2.0" />
+  </vType> 
+  
+  <!-- truck -->
+  <vType id="truck" length="10.0" minGap="4.0" maxSpeed="15.0" vClass="truck">
+      <carFollowing-Krauss accel="2.0" decel="3.0" sigma="0" tau="2.0" />
+  </vType> 
+  
+  <!-- bicycle -->
+  <vType id="bicycle" length="1.6" width="0.6" minGap="0.5" maxSpeed="4.2" vClass="bicycle" guiShape="bicycle">
+  </vType>
+    
+  <!-- pedestrian -->
+  <vType id="pedestrian" length="0.3" width="0.6" minGap="1.5" maxSpeed="1.4" vClass="pedestrian" guiShape="pedestrian" color="red">
+  </vType>
+  
+  <!-- North inbound -->
+  <route id="movement2" edges="NC CS" />     <!-- Through -->
+  <route id="route1" edges="NC CW" />        <!-- Right -->
+  <route id="movement5" edges="NC CE" />     <!-- Left -->
+  <route id="u_turn1" edges="NC CN" />       <!-- U Turn -->
+
+  <!-- South inbound -->
+  <route id="movement6" edges="SC CN" />     <!-- Through -->
+  <route id="route2" edges="SC CE" />        <!-- Right -->
+  <route id="movement1" edges="SC CW" />     <!-- Left -->
+  <route id="u_turn1" edges="SC CS" />       <!-- U Turn -->
+  
+  <!-- West inbound -->
+  <route id="movement8" edges="WC CE" />     <!-- Through -->
+  <route id="route3" edges="WC CS" />        <!-- Right -->
+  <route id="movement3" edges="WC CN" />     <!-- Left -->
+  <route id="u_turn1" edges="WC CW" />       <!-- U Turn -->
+  
+  <!-- East inbound -->
+  <route id="movement4" edges="EC CW" />     <!-- Through -->
+  <route id="route4" edges="EC CN" />        <!-- Right -->
+  <route id="movement7" edges="EC CS" />     <!-- Left -->  
+  <route id="u_turn1" edges="EC CE" />       <!-- U Turn -->
+
+</routes>

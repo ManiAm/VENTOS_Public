@@ -1,0 +1,12 @@
+
+<connections>
+
+    <connection from="EC" to="CW" fromLane="2" toLane="2"/>
+    <connection from="EC" to="CW" fromLane="3" toLane="3"/>
+
+    <connection from="WC" to="CE" fromLane="2" toLane="2"/>
+    <connection from="WC" to="CE" fromLane="3" toLane="3"/>
+
+    <crossing node="C" edges="CE EC" priority="1" width="6.00"/>
+    
+</connections>

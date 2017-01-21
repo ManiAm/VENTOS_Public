@@ -1,0 +1,1 @@
+netconvert --node-files=example.nod.xml --edge-files=example.edg.xml --output-file=example.net.xml --connection-files=example.con.xml

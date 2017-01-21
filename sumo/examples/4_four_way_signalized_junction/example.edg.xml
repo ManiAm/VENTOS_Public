@@ -1,0 +1,15 @@
+<edges>
+
+    <!-- incoming edges -->
+    <edge id="EC" from="E" to="C" numLanes="3" speed="30" priority="3" />
+    <edge id="WC" from="W" to="C" numLanes="3" speed="30" priority="3" />
+    <edge id="NC" from="N" to="C" numLanes="3" speed="30" priority="2" />
+    <edge id="SC" from="S" to="C" numLanes="3" speed="30" priority="2" />
+
+    <!-- outgoing edges -->
+    <edge id="CE" from="C" to="E" numLanes="3" speed="30" priority="1" />
+    <edge id="CW" from="C" to="W" numLanes="3" speed="30" priority="1" />
+    <edge id="CN" from="C" to="N" numLanes="3" speed="30" priority="1" />
+    <edge id="CS" from="C" to="S" numLanes="3" speed="30" priority="1" />
+    
+</edges>
