@@ -54,7 +54,5 @@ simple ConnectionManager
         
         // send directly to the node or create separate gates for every connection
         bool sendDirect = default(true);
-        // should the maximum interference distance be displayed for each node?
-        bool drawMaxIntfDist = default(true);
 }
 

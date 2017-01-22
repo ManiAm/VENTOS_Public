@@ -3,12 +3,15 @@ package VENTOS.src.veins;
 
 module Nic80211p
 {
+    parameters:
+        bool drawMaxIntfDist = default(true);           
+            
     gates:
-        input upperLayerIn; // to upper layers
-        output upperLayerOut; // from upper layers
+        input upperLayerIn;     // to upper layers
+        output upperLayerOut;   // from upper layers
         output upperControlOut; // control information 
-        input upperControlIn; // control information 
-        input radioIn; // radioIn gate for sendDirect
+        input upperControlIn;   // control information 
+        input radioIn;          // radioIn gate for sendDirect
 
     submodules:
         phy80211p: PhyLayer80211p {
