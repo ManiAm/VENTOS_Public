@@ -806,7 +806,7 @@ char TraCI_Commands::vehicleGetTLLinkStatus(std::string nodeId)
 
 // Let the vehicle stop at the given edge, at the given position and lane.
 // The vehicle will stop for the given duration.
-void TraCI_Commands::vehicleSetStop(std::string nodeId, std::string edgeId, double stopPos, uint8_t laneId, double waitT, uint8_t flag)
+void TraCI_Commands::vehicleSetStop(std::string nodeId, std::string edgeId, double stopPos, uint8_t laneId, int32_t duration, uint8_t flag)
 {
     record_TraCI_activity_func("commandStart", CMD_SET_VEHICLE_VARIABLE, CMD_STOP, "vehicleSetStop");
 
@@ -817,7 +817,6 @@ void TraCI_Commands::vehicleSetStop(std::string nodeId, std::string edgeId, doub
     uint8_t stopPosT = TYPE_DOUBLE;
     uint8_t stopLaneT = TYPE_BYTE;
     uint8_t durationT = TYPE_INTEGER;
-    uint32_t duration = waitT * 1000;
     uint8_t flagT = TYPE_BYTE;
 
     TraCIBuffer buf = connection->query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId
@@ -1024,6 +1023,19 @@ void TraCI_Commands::vehicleSetWidth(std::string nodeId, double value)
     ASSERT(buf.eof());
 
     record_TraCI_activity_func("commandComplete", CMD_SET_VEHICLE_VARIABLE, VAR_WIDTH, "vehicleSetWidth");
+}
+
+
+void TraCI_Commands::vehicleSetSignalStatus(std::string nodeId, int32_t bitset)
+{
+    record_TraCI_activity_func("commandStart", CMD_SET_VEHICLE_VARIABLE, VAR_SIGNALS, "vehicleSetSignalStatus");
+
+    uint8_t variableId = VAR_SIGNALS;
+    uint8_t variableType = TYPE_INTEGER;
+    TraCIBuffer buf = connection->query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << bitset);
+    ASSERT(buf.eof());
+
+    record_TraCI_activity_func("commandComplete", CMD_SET_VEHICLE_VARIABLE, VAR_SIGNALS, "vehicleSetSignalStatus");
 }
 
 
@@ -2840,11 +2852,11 @@ void TraCI_Commands::terminate_simulation(bool TraCIclosed)
 
     std::ostringstream dateTime;
     dateTime << boost::format("%4d%02d%02d-%02d:%02d:%02d") % (1900 + ltm->tm_year)
-                            % (1 + ltm->tm_mon)
-                            % (ltm->tm_mday)
-                            % (ltm->tm_hour)
-                            % (ltm->tm_min)
-                            % (ltm->tm_sec);
+                                    % (1 + ltm->tm_mon)
+                                    % (ltm->tm_mday)
+                                    % (ltm->tm_hour)
+                                    % (ltm->tm_min)
+                                    % (ltm->tm_sec);
 
     simEndDateTime = dateTime.str();
 

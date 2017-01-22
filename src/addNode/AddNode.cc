@@ -61,9 +61,11 @@ void AddNode::initialize(int stage)
 
         // get a pointer to the TraCI module
         omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
-        terminate = module->par("terminate").doubleValue();
         TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
+
+        terminate = module->par("terminate").doubleValue();
+        updateInterval = module->par("updateInterval").doubleValue();
 
         Signal_initialize_withTraCI = registerSignal("initialize_withTraCI");
         omnetpp::getSimulation()->getSystemModule()->subscribe("initialize_withTraCI", this);
@@ -117,12 +119,15 @@ void AddNode::finish()
 
 void AddNode::handleMessage(omnetpp::cMessage *msg)
 {
-    if(msg->isSelfMessage() && msg->getKind() == TYPE_TIMER)
+    if(msg->isSelfMessage() && msg->getKind() == TYPE_TIMER_OBSTACLE)
     {
-        // remove the obstacle vehicle from SUMO
         std::string vehID = msg->getName();
+
+        // remove the obstacle vehicle from SUMO
         TraCI->vehicleRemove(vehID, 2);
     }
+    else
+        throw omnetpp::cRuntimeError("Cannot handle msg '%s' of type '%d'", msg->getFullName(), msg->getKind());
 }
 
 
@@ -954,7 +959,11 @@ void AddNode::addObstacle()
 
         // and make it stop on the lane!
         TraCI->vehicleSetSpeed(vehID, 0.);
-        TraCI->vehicleSetLaneChangeMode(vehID, LANECHANGEMODE_OBSTACLE);
+
+        if(!entry.second.onRoad)
+            TraCI->vehicleSetStop(vehID, entry.second.edge_str, entry.second.lanePos, entry.second.lane, std::numeric_limits<int32_t>::max() /*duration*/, 1 /*parking*/);
+        else
+            TraCI->vehicleSetLaneChangeMode(vehID, LANECHANGEMODE_OBSTACLE);
 
         // and change its color
         RGB newColor = Color::colorNameToRGB(entry.second.color_str);
@@ -962,6 +971,9 @@ void AddNode::addObstacle()
 
         // change veh class to "custome1"
         TraCI->vehicleSetClass(vehID, "custom1");
+
+        // turn off all signals
+        TraCI->vehicleSetSignalStatus(vehID, 0);
 
         // change veh length
         TraCI->vehicleSetLength(vehID, entry.second.length);
@@ -971,13 +983,13 @@ void AddNode::addObstacle()
 
         if(entry.second.end != -1)
         {
-            omnetpp::cMessage* obstacleRemobalEvt = new omnetpp::cMessage(vehID.c_str(), TYPE_TIMER);
-            scheduleAt(omnetpp::simTime() + entry.second.end, obstacleRemobalEvt);
+            omnetpp::cMessage* obstacleRemobalEvt = new omnetpp::cMessage(vehID.c_str(), TYPE_TIMER_OBSTACLE);
+            scheduleAt(omnetpp::simTime() + updateInterval + entry.second.end, obstacleRemobalEvt);
         }
         else if(entry.second.duration != -1)
         {
-            omnetpp::cMessage* obstacleRemobalEvt = new omnetpp::cMessage(vehID.c_str(), TYPE_TIMER);
-            scheduleAt(omnetpp::simTime() + entry.second.begin + entry.second.duration, obstacleRemobalEvt);
+            omnetpp::cMessage* obstacleRemobalEvt = new omnetpp::cMessage(vehID.c_str(), TYPE_TIMER_OBSTACLE);
+            scheduleAt(omnetpp::simTime() + updateInterval + entry.second.begin + entry.second.duration, obstacleRemobalEvt);
         }
     }
 }
@@ -1312,7 +1324,7 @@ void AddNode::addVehicle()
             // get all edges for this route
             std::vector<std::string> edges = TraCI->routeGetEdges(vehRouteID);
 
-            TraCI->vehicleSetStop(vehID, edges[0], entry.second.departPos, entry.second.departLane, entry.second.duration, 1 /*parking*/);
+            TraCI->vehicleSetStop(vehID, edges[0], entry.second.departPos, entry.second.departLane, 1000*entry.second.duration, 1 /*parking*/);
         }
         else
         {

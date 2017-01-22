@@ -47,6 +47,7 @@ private:
     omnetpp::simsignal_t Signal_initialize_withTraCI;
 
     double terminate = 0;
+    double updateInterval;
     double SUMO_timeStep = 0;
     int routeCalculation = 0;
 
@@ -59,6 +60,11 @@ private:
     const std::string emulated_tag = "emulated";
 
     std::string id;
+
+    enum timer_types
+    {
+        TYPE_TIMER_OBSTACLE
+    };
 
     typedef struct adversaryEntry
     {

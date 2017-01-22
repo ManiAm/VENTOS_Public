@@ -172,7 +172,7 @@ public:
     char vehicleGetTLLinkStatus(std::string);         // new command [return the TL status ahead: g, G, Y, R]  // todo: remove this command once implemented by SUMO
 
     // CMD_SET_VEHICLE_VARIABLE
-    void vehicleSetStop(std::string, std::string, double, uint8_t, double, uint8_t);  // adds or modifies a stop with the given parameters
+    void vehicleSetStop(std::string, std::string, double, uint8_t, int32_t, uint8_t);  // adds or modifies a stop with the given parameters
     void vehicleResume(std::string);
     void vehicleSetSpeed(std::string, double);
     int32_t vehicleBuildLaneChangeMode(uint8_t, uint8_t, uint8_t, uint8_t, uint8_t);
@@ -185,6 +185,7 @@ public:
     void vehicleSetClass(std::string, std::string);
     void vehicleSetLength(std::string, double);
     void vehicleSetWidth(std::string, double);
+    void vehicleSetSignalStatus(std::string, int32_t);
     void vehicleSetMaxAccel(std::string, double);
     void vehicleSetMaxDecel(std::string, double);
     void vehicleSetTimeGap(std::string, double);
