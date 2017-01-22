@@ -484,7 +484,7 @@ void AddNode::parseRSU(rapidxml::xml_node<> *pNode)
         {
             std::string attName = cAttr1->name();
 
-            if(attName != "id" && attName != "pos")
+            if(attName != "id" && attName != "pos" && attName != "drawMaxIntfDist" && attName != "color" && attName != "filled")
                 throw omnetpp::cRuntimeError("'%s' is not a valid attribute in node '%s'", attName.c_str(), rsu_tag.c_str());
         }
 
@@ -528,6 +528,44 @@ void AddNode::parseRSU(rapidxml::xml_node<> *pNode)
             throw omnetpp::cRuntimeError("'pos' attribute is badly formatted in %s node: %s", rsu_tag.c_str(), pos_str.c_str());
         }
 
+        bool drawMaxIntfDist = true;
+        cAttr = cNode->first_attribute("drawMaxIntfDist");
+        if(cAttr)
+        {
+            std::string drawMaxIntfDist_str = cAttr->value();
+            boost::trim(drawMaxIntfDist_str);
+
+            if(drawMaxIntfDist_str == "true")
+                drawMaxIntfDist = true;
+            else if(drawMaxIntfDist_str == "false")
+                drawMaxIntfDist = false;
+            else
+                throw omnetpp::cRuntimeError("'drawMaxIntfDist' attribute is badly formatted in %s node: %s", rsu_tag.c_str(), drawMaxIntfDist_str.c_str());
+        }
+
+        std::string color_str = "green";
+        cAttr = cNode->first_attribute("color");
+        if(cAttr)
+        {
+            color_str = cAttr->value();
+            boost::trim(color_str);
+        }
+
+        bool filled = false;
+        cAttr = cNode->first_attribute("filled");
+        if(cAttr)
+        {
+            std::string filled_str = cAttr->value();
+            boost::trim(filled_str);
+
+            if(filled_str == "true")
+                filled = true;
+            else if(filled_str == "false")
+                filled = false;
+            else
+                throw omnetpp::cRuntimeError("'filled' attribute is badly formatted in %s node: %s", rsu_tag.c_str(), filled_str.c_str());
+        }
+
         auto it = allRSU.find(id_str);
         if(it == allRSU.end())
         {
@@ -538,7 +576,15 @@ void AddNode::parseRSU(rapidxml::xml_node<> *pNode)
                     LOG_WARNING << boost::format("WARNING: RSU '%s' is placed on top of '%s'. \n") % id_str % entry.second.id_str;
             }
 
-            RSUEntry_t entry = {id_str, pos_x, pos_y, pos_z};
+            RSUEntry_t entry = {};
+            entry.id_str = id_str;
+            entry.pos_x = pos_x;
+            entry.pos_y = pos_y;
+            entry.pos_z = pos_z;
+            entry.drawMaxIntfDist = drawMaxIntfDist;
+            entry.color_str = color_str;
+            entry.filled = filled;
+
             allRSU.insert(std::make_pair(id_str, entry));
         }
         else
@@ -641,6 +687,8 @@ void AddNode::addRSU()
         mod->getSubmodule("appl")->par("myTLid") = myTLid;
         mod->getSubmodule("appl")->par("SUMOID") = entry.second.id_str;
 
+        mod->getSubmodule("nic")->par("drawMaxIntfDist") = entry.second.drawMaxIntfDist;
+
         mod->scheduleStart(omnetpp::simTime());
         mod->callInitialize();
 
@@ -661,8 +709,11 @@ void AddNode::addRSU()
         // get the radius of this RSU
         double radius = atof( module->getDisplayString().getTagArg("r",0) );
 
-        Coord *center = new Coord(entry.second.pos_x, entry.second.pos_y);
-        addCircle(entry.second.id_str, par("RSU_ModuleName"), Color::colorNameToRGB("green"), 0, center, radius);
+        if(entry.second.drawMaxIntfDist && radius > 0)
+        {
+            Coord *center = new Coord(entry.second.pos_x, entry.second.pos_y);
+            addCircle(entry.second.id_str, par("RSU_ModuleName"), Color::colorNameToRGB(entry.second.color_str), entry.second.filled, center, radius);
+        }
     }
 }
 
@@ -685,6 +736,7 @@ void AddNode::parseObstacle(rapidxml::xml_node<> *pNode)
                     attName != "edge" &&
                     attName != "lane" &&
                     attName != "lanePos" &&
+                    attName != "onRoad" &&
                     attName != "color" &&
                     attName != "begin" &&
                     attName != "end" &&
@@ -751,6 +803,21 @@ void AddNode::parseObstacle(rapidxml::xml_node<> *pNode)
         catch (boost::bad_lexical_cast const&)
         {
             throw omnetpp::cRuntimeError("'lanePos' attribute is badly formatted in %s node: %s", obstacle_tag.c_str(), lanePos_str.c_str());
+        }
+
+        bool onRoad = true;
+        cAttr = cNode->first_attribute("onRoad");
+        if(cAttr)
+        {
+            std::string onRoad_str = cAttr->value();
+            boost::trim(onRoad_str);
+
+            if(onRoad_str == "true")
+                onRoad = true;
+            else if(onRoad_str == "false")
+                onRoad = false;
+            else
+                throw omnetpp::cRuntimeError("'onRoad' attribute is badly formatted in %s node: %s", obstacle_tag.c_str(), onRoad_str.c_str());
         }
 
         std::string color_str = "red";
@@ -842,6 +909,7 @@ void AddNode::parseObstacle(rapidxml::xml_node<> *pNode)
             entry.edge_str = edge_str;
             entry.lane = lane;
             entry.lanePos = lanePos;
+            entry.onRoad = onRoad;
             entry.color_str = color_str;
             entry.begin = begin;
             entry.end = end;
@@ -936,6 +1004,7 @@ void AddNode::parseVehicle(rapidxml::xml_node<> *pNode)
                     attName != "via" &&
                     attName != "color" &&
                     attName != "status" &&
+                    attName != "duration" &&
                     attName != "depart" &&
                     attName != "departSpeed" &&
                     attName != "departPos" &&
@@ -1042,6 +1111,30 @@ void AddNode::parseVehicle(rapidxml::xml_node<> *pNode)
         {
             status_str = cAttr->value();
             boost::trim(status_str);
+
+            if(status_str != "stopped" && status_str != "parked")
+                throw omnetpp::cRuntimeError("'status' attribute is unknown in %s node: %s", vehicle_tag.c_str(), status_str.c_str());
+        }
+
+        double duration = -1;
+        cAttr = cNode->first_attribute("duration");
+        if(cAttr)
+        {
+            std::string duration_str = cAttr->value();
+            boost::trim(duration_str);
+
+            try
+            {
+                duration = boost::lexical_cast<double>(duration_str);
+            }
+            catch (boost::bad_lexical_cast const&)
+            {
+                throw omnetpp::cRuntimeError("'duration' attribute is badly formatted in %s node: %s", vehicle_tag.c_str(), duration_str.c_str());
+            }
+
+            cAttr = cNode->first_attribute("status");
+            if(!cAttr)
+                throw omnetpp::cRuntimeError("'status' attribute is required when 'duration' is present in %s node", vehicle_tag.c_str());
         }
 
         std::string depart_str = "0";
@@ -1153,6 +1246,7 @@ void AddNode::parseVehicle(rapidxml::xml_node<> *pNode)
             entry.via_str_tokenize = via_str_tokenize;
             entry.color_str = color_str;
             entry.status_str = status_str;
+            entry.duration = duration;
             entry.depart = depart;
             entry.departSpeed = departSpeed;
             entry.departPos = departPos;
@@ -1206,14 +1300,6 @@ void AddNode::addVehicle()
                 entry.second.departSpeed,
                 entry.second.departLane);
 
-        // and change its color
-        RGB newColor = Color::colorNameToRGB(entry.second.color_str);
-        TraCI->vehicleSetColor(vehID, newColor);
-
-        // change lane change mode
-        if(entry.second.laneChangeMode != LANECHANGEMODE_DEFAULT)
-            TraCI->vehicleSetLaneChangeMode(vehID, entry.second.laneChangeMode);
-
         if(entry.second.status_str == "stopped")
         {
             TraCI->vehicleSetSpeed(vehID, 0);
@@ -1223,9 +1309,21 @@ void AddNode::addVehicle()
         }
         else if(entry.second.status_str == "parked")
         {
-            // todo
-            // TraCI->vehicleSetStop(vehID, "1to2", entry.second.departPos, entry.second.departLane, 30, 1);
+            // get all edges for this route
+            std::vector<std::string> edges = TraCI->routeGetEdges(vehRouteID);
+
+            TraCI->vehicleSetStop(vehID, edges[0], entry.second.departPos, entry.second.departLane, entry.second.duration, 1 /*parking*/);
         }
+        else
+        {
+            // change lane change mode
+            if(entry.second.laneChangeMode != LANECHANGEMODE_DEFAULT)
+                TraCI->vehicleSetLaneChangeMode(vehID, entry.second.laneChangeMode);
+        }
+
+        // and change its color
+        RGB newColor = Color::colorNameToRGB(entry.second.color_str);
+        TraCI->vehicleSetColor(vehID, newColor);
     }
 }
 

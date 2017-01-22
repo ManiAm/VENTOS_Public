@@ -88,6 +88,9 @@ private:
         double pos_x;
         double pos_y;
         double pos_z;
+        bool drawMaxIntfDist;
+        std::string color_str;
+        bool filled;
         cModule* module;
     } RSUEntry_t;
 
@@ -96,10 +99,11 @@ private:
     typedef struct obstacleEntry
     {
         std::string id_str;
-        int length;
         std::string edge_str;
         int lane;
         double lanePos;
+        bool onRoad;
+        int length;
         std::string color_str;
         double begin;
         double end;
@@ -118,6 +122,7 @@ private:
         std::vector<std::string> via_str_tokenize;
         std::string color_str;
         std::string status_str;
+        double duration;
         double depart;
         double departSpeed;
         double departPos;
