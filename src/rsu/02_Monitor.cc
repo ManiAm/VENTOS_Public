@@ -55,32 +55,24 @@ void ApplRSUMonitor::initialize(int stage)
         activeDetection = par("activeDetection").boolValue();
         collectVehApproach = par("collectVehApproach").boolValue();
 
-        // get a list of all TLs
-        auto TLlist = TraCI->TLGetIDList();
-
-        // look for myTLid in TL list
-        auto it = std::find(TLlist.begin(), TLlist.end(), myTLid);
-
-        if(it != TLlist.end())
+        if(myTLid != "")
         {
             // for each incoming lane in this TL
-            auto lan = TraCI->TLGetControlledLanes(myTLid);
+            auto lanes = TraCI->TLGetControlledLanes(myTLid);
 
             // remove duplicate entries
-            sort( lan.begin(), lan.end() );
-            lan.erase( unique( lan.begin(), lan.end() ), lan.end() );
+            sort( lanes.begin(), lanes.end() );
+            lanes.erase( unique( lanes.begin(), lanes.end() ), lanes.end() );
 
             // for each incoming lane
-            for(auto &it2 :lan)
+            for(auto &lane :lanes)
             {
-                std::string lane = it2;
-
                 lanesTL[lane] = myTLid;
 
                 // get the max speed on this lane
                 double maxV = TraCI->laneGetMaxSpeed(lane);
 
-                // calculate initial passageTime for this lane
+                // calculate initial passageTime for this lane -- passage time is used in actuated TSC
                 // todo: change fix value
                 double pass = 35. / maxV;
 
@@ -93,12 +85,16 @@ void ApplRSUMonitor::initialize(int stage)
                 }
 
                 // add this lane to the laneInfo map
-                laneInfoEntry *entry = new laneInfoEntry(myTLid, 0, 0, pass, 0, std::map<std::string, allVehiclesEntry>());
-                laneInfo.insert( std::make_pair(lane, *entry) );
+                laneInfoEntry_t entry = {};
+                entry.TLid = myTLid;
+                entry.passageTime = pass;
+                laneInfo.insert( std::make_pair(lane, entry) );
             }
         }
-        else if(!TLlist.empty())
-            LOG_WARNING << boost::format("\n%1%'s name (%2%) does not match with any of %3% TLs \n") % myFullId % SUMOID % TLlist.size() << std::flush;
+
+        // todo
+        // else if(!TLlist.empty())
+        //    LOG_WARNING << boost::format("\n%1%'s name (%2%) does not match with any of %3% TLs \n") % myFullId % SUMOID % TLlist.size() << std::flush;
     }
 }
 
@@ -107,11 +103,11 @@ void ApplRSUMonitor::finish()
 {
     super::finish();
 
-    // only one of the RSUs print the results
+    // only one of the RSUs prints the results
     static bool wasExecuted = false;
     if (activeDetection && collectVehApproach && !wasExecuted)
     {
-        saveVehApproach();
+        save_VehApproach_toFile();
         wasExecuted = true;
     }
 }
@@ -162,7 +158,6 @@ void ApplRSUMonitor::onBeaconRSU(BeaconRSU* wsm)
 // update variables upon reception of any beacon (vehicle, bike, pedestrian)
 template <typename T> void ApplRSUMonitor::onBeaconAny(T wsm)
 {
-    std::string sender = wsm->getSender();
     Coord pos = wsm->getPos();
 
     // todo: change from fix values
@@ -170,6 +165,7 @@ template <typename T> void ApplRSUMonitor::onBeaconAny(T wsm)
     // Coordinates can be locations of the middle of the LD ( 851.1 <= x <= 948.8 and 851.1 <= y <= 948.8)
     if ( (pos.x >= 486.21) && (pos.x <= 1313.91) && (pos.y >= 486.21) && (pos.y <= 1313.85) )
     {
+        std::string sender = wsm->getSender();
         std::string lane = wsm->getLane();
 
         // If on one of the incoming lanes
@@ -179,12 +175,18 @@ template <typename T> void ApplRSUMonitor::onBeaconAny(T wsm)
             const detectedVehicleEntry *searchFor = new detectedVehicleEntry(sender);
             std::vector<detectedVehicleEntry>::iterator counter = std::find(Vec_detectedVehicles.begin(), Vec_detectedVehicles.end(), *searchFor);
 
+            if(counter == Vec_detectedVehicles.end())
+            {
+                // Add entry
+                detectedVehicleEntry *tmp = new detectedVehicleEntry(sender, wsm->getSenderType(), lane, wsm->getPos(), myTLid, omnetpp::simTime().dbl(), -1, wsm->getSpeed());
+                Vec_detectedVehicles.push_back(*tmp);
+
+                LaneInfoAdd(lane, sender, wsm->getSenderType(), wsm->getSpeed());
+            }
             // we have already added this vehicle
-            if (counter != Vec_detectedVehicles.end() && counter->leaveTime == -1)
+            else if (counter != Vec_detectedVehicles.end() && counter->leaveTime == -1)
             {
                 LaneInfoUpdate(lane, sender, wsm->getSenderType(), wsm->getSpeed());
-
-                return;
             }
             // the vehicle is visiting the intersection more than once
             else if (counter != Vec_detectedVehicles.end() && counter->leaveTime != -1)
@@ -193,17 +195,11 @@ template <typename T> void ApplRSUMonitor::onBeaconAny(T wsm)
                 counter->entrySpeed = wsm->getSpeed();
                 counter->pos = wsm->getPos();
                 counter->leaveTime = -1;
-            }
-            else
-            {
-                // Add entry
-                detectedVehicleEntry *tmp = new detectedVehicleEntry(sender, wsm->getSenderType(), lane, wsm->getPos(), myTLid, omnetpp::simTime().dbl(), -1, wsm->getSpeed());
-                Vec_detectedVehicles.push_back(*tmp);
-            }
 
-            LaneInfoAdd(lane, sender, wsm->getSenderType(), wsm->getSpeed());
+                LaneInfoAdd(lane, sender, wsm->getSenderType(), wsm->getSpeed());
+            }
         }
-        // Else exiting queue area, so log the leave time
+        // vehicle is exiting the queue area --log the leave time
         else
         {
             // search queue for this vehicle
@@ -224,7 +220,107 @@ template <typename T> void ApplRSUMonitor::onBeaconAny(T wsm)
 }
 
 
-void ApplRSUMonitor::saveVehApproach()
+// add a new vehicle
+void ApplRSUMonitor::LaneInfoAdd(std::string lane, std::string sender, std::string senderType, double speed)
+{
+    // look for this lane in laneInfo map
+    std::map<std::string, laneInfoEntry>::iterator loc = laneInfo.find(lane);
+    if(loc == laneInfo.end())
+        throw omnetpp::cRuntimeError("lane %s does not exist in laneInfo map!", lane.c_str());
+
+    // update total vehicle count
+    loc->second.totalVehCount = loc->second.totalVehCount + 1;
+
+    // this is the first vehicle on this lane
+    if(loc->second.totalVehCount == 1)
+        loc->second.firstDetectedTime = omnetpp::simTime().dbl();
+
+    // update detectedTime
+    loc->second.lastDetectedTime = omnetpp::simTime().dbl();
+
+    // get stopping speed threshold
+    double stoppingDelayThreshold = 0;
+    if(senderType == "bicycle")
+        stoppingDelayThreshold = TLptr->par("bikeStoppingDelayThreshold").doubleValue();
+    else
+        stoppingDelayThreshold = TLptr->par("vehStoppingDelayThreshold").doubleValue();
+
+    // get vehicle status
+    int vehStatus = speed > stoppingDelayThreshold ? VEH_STATUS_Driving : VEH_STATUS_Waiting;
+
+    // add it to vehicle list on this lane
+    allVehiclesEntry_t newVeh = {};
+    newVeh.entrySpeed = speed;
+    newVeh.entryTime = omnetpp::simTime().dbl();
+    newVeh.vehStatus = vehStatus;
+    newVeh.vehType = senderType;
+    loc->second.allVehicles.insert( std::make_pair(sender, newVeh) );
+
+    // get the approach speed from the beacon
+    double approachSpeed = speed;
+    // update passage time for this lane
+    if(approachSpeed > 0)
+    {
+        // calculate passageTime for this lane
+        // todo: change fix value
+        double pass = 35. / approachSpeed;
+        // check if not greater than Gmin
+        if(pass > minGreenTime)
+            pass = minGreenTime;
+
+        // update passage time
+        std::map<std::string, laneInfoEntry>::iterator location = laneInfo.find(lane);
+        location->second.passageTime = pass;
+    }
+}
+
+
+// update vehStatus of vehicles in laneInfo
+void ApplRSUMonitor::LaneInfoUpdate(std::string lane, std::string sender, std::string senderType, double speed)
+{
+    // look for this lane in laneInfo map
+    std::map<std::string, laneInfoEntry>::iterator loc = laneInfo.find(lane);
+    if(loc == laneInfo.end())
+        throw omnetpp::cRuntimeError("lane %s does not exist in laneInfo map!", lane.c_str());
+
+    // look for this vehicle in this lane
+    std::map<std::string, allVehiclesEntry>::iterator ref = loc->second.allVehicles.find(sender);
+    if(ref == loc->second.allVehicles.end())
+        throw omnetpp::cRuntimeError("vehicle %s was not added into lane %s in laneInfo map!", sender.c_str(), lane.c_str());
+
+    // get stopping speed threshold
+    double stoppingDelayThreshold = 0;
+    if(senderType == "bicycle")
+        stoppingDelayThreshold = TLptr->par("bikeStoppingDelayThreshold").doubleValue();
+    else
+        stoppingDelayThreshold = TLptr->par("vehStoppingDelayThreshold").doubleValue();
+
+    // get vehicle status
+    int vehStatus = speed > stoppingDelayThreshold ? VEH_STATUS_Driving : VEH_STATUS_Waiting;
+
+    ref->second.vehStatus = vehStatus;
+}
+
+
+// removing an existing vehicle
+void ApplRSUMonitor::LaneInfoRemove(std::string lane, std::string sender)
+{
+    // look for this lane in laneInfo map
+    std::map<std::string, laneInfoEntry>::iterator loc = laneInfo.find(lane);
+    if(loc == laneInfo.end())
+        throw omnetpp::cRuntimeError("lane %s does not exist in laneInfo map!", lane.c_str());
+
+    // look for this vehicle in this lane
+    std::map<std::string, allVehiclesEntry>::iterator ref = loc->second.allVehicles.find(sender);
+    if(ref == loc->second.allVehicles.end())
+        throw omnetpp::cRuntimeError("vehicle %s was not added into lane %s in laneInfo map!", sender.c_str(), lane.c_str());
+
+    // remove it from the vehicles list
+    loc->second.allVehicles.erase(ref);
+}
+
+
+void ApplRSUMonitor::save_VehApproach_toFile()
 {
     int currentRun = omnetpp::getEnvir()->getConfigEx()->getActiveRunNumber();
 
@@ -300,103 +396,6 @@ void ApplRSUMonitor::saveVehApproach()
     }
 
     fclose(filePtr);
-}
-
-
-// add a new vehicle
-void ApplRSUMonitor::LaneInfoAdd(std::string lane, std::string sender, std::string senderType, double speed)
-{
-    // look for this lane in laneInfo map
-    std::map<std::string, laneInfoEntry>::iterator loc = laneInfo.find(lane);
-    if(loc == laneInfo.end())
-        throw omnetpp::cRuntimeError("lane %s does not exist in laneInfo map!", lane.c_str());
-
-    // update total vehicle count
-    loc->second.totalVehCount = loc->second.totalVehCount + 1;
-
-    // this is the first vehicle on this lane
-    if(loc->second.totalVehCount == 1)
-        loc->second.firstDetectedTime = omnetpp::simTime().dbl();
-
-    // update detectedTime
-    loc->second.lastDetectedTime = omnetpp::simTime().dbl();
-
-    // get stopping speed threshold
-    double stoppingDelayThreshold = 0;
-    if(senderType == "bicycle")
-        stoppingDelayThreshold = TLptr->par("bikeStoppingDelayThreshold").doubleValue();
-    else
-        stoppingDelayThreshold = TLptr->par("vehStoppingDelayThreshold").doubleValue();
-
-    // get vehicle status
-    int vehStatus = speed > stoppingDelayThreshold ? VEH_STATUS_Driving : VEH_STATUS_Waiting;
-
-    // add it to vehicle list on this lane
-    allVehiclesEntry *newVeh = new allVehiclesEntry( senderType, vehStatus, omnetpp::simTime().dbl(), speed );
-    loc->second.allVehicles.insert( std::make_pair(sender, *newVeh) );
-
-    // get the approach speed from the beacon
-    double approachSpeed = speed;
-    // update passage time for this lane
-    if(approachSpeed > 0)
-    {
-        // calculate passageTime for this lane
-        // todo: change fix value
-        double pass = 35. / approachSpeed;
-        // check if not greater than Gmin
-        if(pass > minGreenTime)
-            pass = minGreenTime;
-
-        // update passage time
-        std::map<std::string, laneInfoEntry>::iterator location = laneInfo.find(lane);
-        location->second.passageTime = pass;
-    }
-}
-
-
-// update vehStatus of vehicles in laneInfo
-void ApplRSUMonitor::LaneInfoUpdate(std::string lane, std::string sender, std::string senderType, double speed)
-{
-    // look for this lane in laneInfo map
-    std::map<std::string, laneInfoEntry>::iterator loc = laneInfo.find(lane);
-    if(loc == laneInfo.end())
-        throw omnetpp::cRuntimeError("lane %s does not exist in laneInfo map!", lane.c_str());
-
-    // look for this vehicle in this lane
-    std::map<std::string, allVehiclesEntry>::iterator ref = loc->second.allVehicles.find(sender);
-    if(ref == loc->second.allVehicles.end())
-        throw omnetpp::cRuntimeError("vehicle %s was not added into lane %s in laneInfo map!", sender.c_str(), lane.c_str());
-
-
-    // get stopping speed threshold
-    double stoppingDelayThreshold = 0;
-    if(senderType == "bicycle")
-        stoppingDelayThreshold = TLptr->par("bikeStoppingDelayThreshold").doubleValue();
-    else
-        stoppingDelayThreshold = TLptr->par("vehStoppingDelayThreshold").doubleValue();
-
-    // get vehicle status
-    int vehStatus = speed > stoppingDelayThreshold ? VEH_STATUS_Driving : VEH_STATUS_Waiting;
-
-    ref->second.vehStatus = vehStatus;
-}
-
-
-// removing an existing vehicle
-void ApplRSUMonitor::LaneInfoRemove(std::string lane, std::string sender)
-{
-    // look for this lane in laneInfo map
-    std::map<std::string, laneInfoEntry>::iterator loc = laneInfo.find(lane);
-    if(loc == laneInfo.end())
-        throw omnetpp::cRuntimeError("lane %s does not exist in laneInfo map!", lane.c_str());
-
-    // look for this vehicle in this lane
-    std::map<std::string, allVehiclesEntry>::iterator ref = loc->second.allVehicles.find(sender);
-    if(ref == loc->second.allVehicles.end())
-        throw omnetpp::cRuntimeError("vehicle %s was not added into lane %s in laneInfo map!", sender.c_str(), lane.c_str());
-
-    // remove it from the vehicles list
-    loc->second.allVehicles.erase(ref);
 }
 
 }

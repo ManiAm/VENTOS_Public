@@ -44,7 +44,7 @@ void ApplBikeBeacon::initialize(int stage)
     if (stage == 0)
     {
         // NED
-        DSRCenabled = par("DSRCenabled").boolValue();
+        DSRCenabled = getParentModule()->par("DSRCenabled").boolValue();
 
         // NED variables (beaconing parameters)
         sendBeacons = par("sendBeacons").boolValue();

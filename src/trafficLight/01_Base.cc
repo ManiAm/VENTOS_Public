@@ -97,12 +97,12 @@ ApplRSUMonitor * TrafficLightBase::findRSU(std::string TLid)
     for(int i = 0; i < RSUcount; ++i)
     {
         module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("RSU", i);
-        cModule *appl =  module->getSubmodule("appl");
-        std::string myTLid = appl->par("myTLid").stringValue();
+        std::string myTLid = module->par("myTLid").stringValue();
 
         // we found our RSU
         if(myTLid == TLid)
         {
+            cModule *appl =  module->getSubmodule("appl");
             RSUptr = static_cast<ApplRSUMonitor *>(appl);
             if(RSUptr == NULL)
                 throw omnetpp::cRuntimeError("Can not get a reference to our RSU!");

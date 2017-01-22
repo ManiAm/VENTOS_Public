@@ -16,6 +16,7 @@ module obstacle
         string SUMOType = default("");
         string vehicleClass = default("");
         
+        bool DSRCenabled = default(false);
         bool hasOBU = default(false);
         string IPaddress = default("");
         
@@ -70,8 +71,6 @@ simple ApplObstacleBeacon extends ApplObstacleBase
     parameters:
         @class(VENTOS::ApplObstacleBeacon);
         @display("i=block/app2");
-        
-        bool DSRCenabled = default(false);  // non-changable during simulation
                 
         bool sendBeacons = default(false); //tell the applayer to periodically send beacons
         volatile double beaconInterval = default(0.1s) @unit(s); //the intervall between 2 beacon messages

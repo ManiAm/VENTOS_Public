@@ -7,6 +7,10 @@ import VENTOS.src.global.ConstSpeedMobility;
 module RSU
 {
     parameters:
+        bool DSRCenabled = default(true);
+        
+        string myTLid = default("");    
+        string SUMOID = default(""); 
 
     gates:
         input radioIn; // gate for sendDirect
@@ -52,9 +56,6 @@ simple ApplRSUBase like IBaseApplLayer
         double maxOffset = default(0.005s) @unit(s); //the maximum delay of messages sent down to avoid synchronous channel access
         int beaconLengthBits = default(512bit) @unit(bit); //the length of a beacon packet
         int beaconPriority = default(3); //the access category of the beacon messages  
-        
-        string myTLid = default("");    
-        string SUMOID = default(""); 
 
     gates:
         input lowerLayerIn;     // from mac layer

@@ -62,56 +62,33 @@ public:
     }
 
     // overload == for search
-    friend bool operator== (const detectedVehicleEntry &v1, const detectedVehicleEntry &v2)
-                    {
+    friend bool operator== (const detectedVehicleEntry &v1, const detectedVehicleEntry &v2) {
         return ( v1.vehicleName == v2.vehicleName );
-                    }
+    }
 
     // overload < for sort
-    friend bool operator < (const detectedVehicleEntry &v1, const detectedVehicleEntry &v2)
-    {
+    friend bool operator < (const detectedVehicleEntry &v1, const detectedVehicleEntry &v2) {
         return (v1.vehicleType < v2.vehicleType);
     }
 };
 
-class allVehiclesEntry
+typedef struct allVehiclesEntry
 {
-public:
     std::string vehType;
     int vehStatus;    // driving, waiting ?
     double entryTime;
     double entrySpeed;
+} allVehiclesEntry_t;
 
-    allVehiclesEntry(std::string str1, int i1, double d1, double d2)
-    {
-        this->vehType = str1;
-        this->vehStatus = i1;
-        this->entryTime = d1;
-        this->entrySpeed = d2;
-    }
-};
-
-
-class laneInfoEntry
+typedef struct laneInfoEntry
 {
-public:
     std::string TLid;
     double firstDetectedTime;
     double lastDetectedTime;
     double passageTime;
     int totalVehCount;
     std::map<std::string /*vehicle id*/, allVehiclesEntry> allVehicles;
-
-    laneInfoEntry(std::string str1, double d1, double d2, double d3, int i1, std::map<std::string, allVehiclesEntry> mapV)
-    {
-        this->TLid = str1;
-        this->firstDetectedTime = d1;
-        this->lastDetectedTime = d2;
-        this->passageTime = d3;
-        this->totalVehCount = i1;
-        this->allVehicles = mapV;
-    }
-};
+} laneInfoEntry_t;
 
 
 class ApplRSUMonitor : public ApplRSUBase
@@ -119,7 +96,7 @@ class ApplRSUMonitor : public ApplRSUBase
 public:
     // collected info per lane by this RSU. Note that each RSU has
     // a local copy of laneInfo that contains the lane info for this specific TL
-    std::map<std::string /*lane*/, laneInfoEntry> laneInfo;
+    std::map<std::string /*lane*/, laneInfoEntry_t> laneInfo;
 
 private:
     typedef ApplRSUBase super;
@@ -130,7 +107,7 @@ private:
     // all incoming lanes for the intersection that this RSU belongs to
     std::map<std::string /*lane*/, std::string /*TLid*/> lanesTL;
 
-    // keeping track of detected vehicles (common in all RSUs) - used by all RSUs
+    // keeping track of detected vehicles --used by all RSUs
     static std::vector<detectedVehicleEntry> Vec_detectedVehicles;
 
 public:
@@ -149,12 +126,12 @@ protected:
 
 private:
     template <typename T> void onBeaconAny(T wsm);
-    void getAllLanes();
-    void saveVehApproach();  // used by all RSUs
 
     void LaneInfoAdd(std::string lane, std::string sender, std::string senderType, double speed);
     void LaneInfoUpdate(std::string lane, std::string sender, std::string senderType, double speed);
     void LaneInfoRemove(std::string counter, std::string sender);
+
+    void save_VehApproach_toFile();
 };
 
 }

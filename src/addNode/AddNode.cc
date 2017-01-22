@@ -684,8 +684,8 @@ void AddNode::addRSU()
         mod->getSubmodule("mobility")->par("y") = entry.second.pos_y;
         mod->getSubmodule("mobility")->par("z") = entry.second.pos_z;
 
-        mod->getSubmodule("appl")->par("myTLid") = myTLid;
-        mod->getSubmodule("appl")->par("SUMOID") = entry.second.id_str;
+        mod->par("myTLid") = myTLid;
+        mod->par("SUMOID") = entry.second.id_str;
 
         mod->getSubmodule("nic")->par("drawMaxIntfDist") = entry.second.drawMaxIntfDist;
 

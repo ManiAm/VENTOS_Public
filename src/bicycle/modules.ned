@@ -16,6 +16,7 @@ module bicycle
         string SUMOType = default("");
         string vehicleClass = default("");
         
+        bool DSRCenabled = default(true);
         bool hasOBU = default(false);
         string IPaddress = default("");
         
@@ -70,8 +71,6 @@ simple ApplBikeBeacon extends ApplBikeBase
     parameters:
         @class(VENTOS::ApplBikeBeacon);
         @display("i=block/app2");
-        
-        bool DSRCenabled = default(true);  // non-changable during simulation
                 
         bool sendBeacons = default(false); //tell the applayer to periodically send beacons
         volatile double beaconInterval = default(0.1s) @unit(s); //the intervall between 2 beacon messages

@@ -44,7 +44,7 @@ void ApplVBeacon::initialize(int stage)
     if (stage == 0)
     {
         // NED
-        DSRCenabled = par("DSRCenabled").boolValue();
+        DSRCenabled = getParentModule()->par("DSRCenabled").boolValue();
         sonarDist = par("sonarDist").doubleValue();
 
         // NED variables (beaconing parameters)

@@ -68,9 +68,9 @@ void ApplRSUBase::initialize(int stage)
         myFullId = getParentModule()->getFullName();
 
         // id in SUMO
-        SUMOID = par("SUMOID").stringValue();
+        SUMOID = getParentModule()->par("SUMOID").stringValue();
 
-        myTLid = par("myTLid").stringValue();   // TLid that this RSU belongs to (this parameter is set by AddRSU)
+        myTLid = getParentModule()->par("myTLid").stringValue();   // TLid that this RSU belongs to (this parameter is set by AddRSU)
                                                 // empty string means this RSU is not associated with any TL
 
         // my X coordinate in SUMO
