@@ -1422,9 +1422,9 @@ void AddNode::parseVehicleFlow(rapidxml::xml_node<> *pNode)
                     attName != "from" &&
                     attName != "to" &&
                     attName != "via" &&
-                    attName != "speed" &&
-                    attName != "lane" &&
-                    attName != "lanePos" &&
+                    attName != "departLane" &&
+                    attName != "departPos" &&
+                    attName != "departSpeed" &&
                     attName != "laneChangeMode" &&
                     attName != "number" &&
                     attName != "begin" &&
@@ -1503,6 +1503,78 @@ void AddNode::parseVehicleFlow(rapidxml::xml_node<> *pNode)
                 throw omnetpp::cRuntimeError("'typeDist' values do not add up to 100 percent in %s node: %s", vehicle_flow_tag.c_str(), typeDist_str.c_str());
         }
 
+        std::string routeID_str = "";
+        std::string from_str = "";
+        std::string to_str = "";
+
+        if((cAttr = cNode->first_attribute("route")))
+        {
+            routeID_str = cAttr->value();
+            boost::trim(routeID_str);
+
+            cAttr = cNode->first_attribute("from");
+            if(cAttr)
+                throw omnetpp::cRuntimeError("'from' attribute is redundant when 'route' is present in %s node", vehicle_flow_tag.c_str());
+
+            cAttr = cNode->first_attribute("to");
+            if(cAttr)
+                throw omnetpp::cRuntimeError("'to' attribute is redundant when 'route' is present in %s node", vehicle_flow_tag.c_str());
+        }
+        else if((cAttr = cNode->first_attribute("from")))
+        {
+            from_str = cAttr->value();
+            boost::trim(from_str);
+
+            cAttr = cNode->first_attribute("to");
+            if(!cAttr)
+                throw omnetpp::cRuntimeError("'to' attribute does not exist in %s node", vehicle_flow_tag.c_str());
+
+            to_str = cAttr->value();
+            boost::trim(to_str);
+
+            cAttr = cNode->first_attribute("route");
+            if(cAttr)
+                throw omnetpp::cRuntimeError("'route' attribute is redundant when 'from/to' is present in %s node", vehicle_flow_tag.c_str());
+        }
+        else if((cAttr = cNode->first_attribute("to")))
+        {
+            to_str = cAttr->value();
+            boost::trim(to_str);
+
+            cAttr = cNode->first_attribute("from");
+            if(!cAttr)
+                throw omnetpp::cRuntimeError("'from' attribute does not exist in %s node", vehicle_flow_tag.c_str());
+
+            from_str = cAttr->value();
+            boost::trim(from_str);
+
+            cAttr = cNode->first_attribute("route");
+            if(cAttr)
+                throw omnetpp::cRuntimeError("'route' attribute is redundant when 'from/to' is present in %s node", vehicle_flow_tag.c_str());
+        }
+        else
+            throw omnetpp::cRuntimeError("either 'route' or 'from/to' attributes should be defined in %s node", vehicle_flow_tag.c_str());
+
+        std::string via_str = "";
+        std::vector<std::string> via_str_tokenize;
+        cAttr = cNode->first_attribute("via");
+        if(cAttr)
+        {
+            std::string via_str = cAttr->value();
+            boost::trim(via_str);
+
+            // tokenize via_str
+            boost::split(via_str_tokenize, via_str, boost::is_any_of(","));
+
+            // remove leading/trailing space
+            for(auto &entry : via_str_tokenize)
+            {
+                boost::trim(entry);
+                if(entry == "")
+                    throw omnetpp::cRuntimeError("'via' attribute is not formatted correctly in %s node", vehicle_flow_tag.c_str());
+            }
+        }
+
         std::string color_str = "yellow";
         cAttr = cNode->first_attribute("color");
         if(cAttr)
@@ -1511,65 +1583,58 @@ void AddNode::parseVehicleFlow(rapidxml::xml_node<> *pNode)
             boost::trim(color_str);
         }
 
-        // todo
-        cAttr = cNode->first_attribute("route");
-        if(!cAttr)
-            throw omnetpp::cRuntimeError("'route' attribute is not found in %s node", vehicle_flow_tag.c_str());
-        std::string routeID_str = cAttr->value();
-        boost::trim(routeID_str);
-
-        std::string speed_str = "0";
-        cAttr = cNode->first_attribute("speed");
+        std::string departLane_str = "-5";  // DEPART_LANE_BEST_FREE
+        cAttr = cNode->first_attribute("departLane");
         if(cAttr)
         {
-            speed_str = cAttr->value();
-            boost::trim(speed_str);
+            departLane_str = cAttr->value();
+            boost::trim(departLane_str);
         }
 
-        double speed = 0;
+        int departLane = 0;
         try
         {
-            speed = boost::lexical_cast<double>(speed_str);
+            departLane = boost::lexical_cast<int>(departLane_str);
         }
         catch (boost::bad_lexical_cast const&)
         {
-            throw omnetpp::cRuntimeError("'speed' attribute is badly formatted in %s node: %s", vehicle_flow_tag.c_str(), speed_str.c_str());
+            throw omnetpp::cRuntimeError("'departLane' attribute is badly formatted in %s node: %s", vehicle_flow_tag.c_str(), departLane_str.c_str());
         }
 
-        std::string lane_str = "-5";  // DEPART_LANE_BEST_FREE
-        cAttr = cNode->first_attribute("lane");
+        std::string departPos_str = "0";
+        cAttr = cNode->first_attribute("departPos");
         if(cAttr)
         {
-            lane_str = cAttr->value();
-            boost::trim(lane_str);
+            departPos_str = cAttr->value();
+            boost::trim(departPos_str);
         }
 
-        int lane = 0;
+        double departPos = 0;
         try
         {
-            lane = boost::lexical_cast<int>(lane_str);
+            departPos = boost::lexical_cast<double>(departPos_str);
         }
         catch (boost::bad_lexical_cast const&)
         {
-            throw omnetpp::cRuntimeError("'lane' attribute is badly formatted in %s node: %s", vehicle_flow_tag.c_str(), lane_str.c_str());
+            throw omnetpp::cRuntimeError("'departPos' attribute is badly formatted in %s node: %s", vehicle_flow_tag.c_str(), departPos_str.c_str());
         }
 
-        std::string lanePos_str = "0";
-        cAttr = cNode->first_attribute("lanePos");
+        std::string departSpeed_str = "0";
+        cAttr = cNode->first_attribute("departSpeed");
         if(cAttr)
         {
-            lanePos_str = cAttr->value();
-            boost::trim(lanePos_str);
+            departSpeed_str = cAttr->value();
+            boost::trim(departSpeed_str);
         }
 
-        double lanePos = 0;
+        double departSpeed = 0;
         try
         {
-            lanePos = boost::lexical_cast<double>(lanePos_str);
+            departSpeed = boost::lexical_cast<double>(departSpeed_str);
         }
         catch (boost::bad_lexical_cast const&)
         {
-            throw omnetpp::cRuntimeError("'lanePos' attribute is badly formatted in %s node: %s", vehicle_flow_tag.c_str(), lanePos_str.c_str());
+            throw omnetpp::cRuntimeError("'departSpeed' attribute is badly formatted in %s node: %s", vehicle_flow_tag.c_str(), departSpeed_str.c_str());
         }
 
         std::string laneChangeMode_str = std::to_string(LANECHANGEMODE_DEFAULT);
@@ -1794,10 +1859,12 @@ void AddNode::parseVehicleFlow(rapidxml::xml_node<> *pNode)
             entry.type_str_tokenize = type_str_tokenize;
             entry.typeDist_tokenize = typeDist_tokenize;
             entry.routeID_str = routeID_str;
+            entry.from = from_str;
+            entry.to = to_str;
             entry.color_str = color_str;
-            entry.speed = speed;
-            entry.lane = lane;
-            entry.lanePos = lanePos;
+            entry.departLane = departLane;
+            entry.departPos = departPos;
+            entry.departSpeed = departSpeed;
             entry.laneChangeMode = laneChangeMode;
             entry.number = number;
             entry.begin = begin;
@@ -1844,6 +1911,9 @@ void AddNode::addVehicleFlow()
 
         int maxVehNum = (entry.second.number != -1) ? entry.second.number : std::numeric_limits<int>::max();
 
+        // todo: compute veh route if from, to, via is present
+        // get from vehicle
+
         if(entry.second.distribution_str == "deterministic")
         {
             double depart = begin;
@@ -1864,7 +1934,7 @@ void AddNode::addVehicleFlow()
                 }
 
                 // now we add a vehicle as obstacle
-                TraCI->vehicleAdd(vehID, vehType, entry.second.routeID_str, (int32_t)(depart*1000), entry.second.lanePos, entry.second.speed, entry.second.lane);
+                TraCI->vehicleAdd(vehID, vehType, entry.second.routeID_str, (int32_t)(depart*1000), entry.second.departPos, entry.second.departSpeed, entry.second.departLane);
 
                 // change its color
                 RGB newColor = Color::colorNameToRGB(entry.second.color_str);
@@ -1906,7 +1976,7 @@ void AddNode::addVehicleFlow()
                     }
 
                     // now we add a vehicle
-                    TraCI->vehicleAdd(vehID, vehType, entry.second.routeID_str, (int32_t)(depart*1000), entry.second.lanePos, entry.second.speed, entry.second.lane);
+                    TraCI->vehicleAdd(vehID, vehType, entry.second.routeID_str, (int32_t)(depart*1000), entry.second.departPos, entry.second.departSpeed, entry.second.departLane);
 
                     // change its color
                     RGB newColor = Color::colorNameToRGB(entry.second.color_str);
@@ -1976,15 +2046,15 @@ void AddNode::parseVehicleEmission(rapidxml::xml_node<> *pNode)
             if(attName != "id" &&
                     attName != "type" &&
                     attName != "typeDist" &&
-                    attName != "color" &&
                     attName != "route" &&
                     attName != "routeDist" &&
-                    attName != "speed" &&
-                    attName != "lane" &&
-                    attName != "lanePos" &&
+                    attName != "color" &&
+                    attName != "departLane" &&
+                    attName != "departPos" &&
+                    attName != "departSpeed" &&
                     attName != "laneChangeMode" &&
-                    attName != "number" &&
                     attName != "begin" &&
+                    attName != "number" &&
                     attName != "end" &&
                     attName != "distribution" &&
                     attName != "period" &&
@@ -2128,58 +2198,58 @@ void AddNode::parseVehicleEmission(rapidxml::xml_node<> *pNode)
                 throw omnetpp::cRuntimeError("'routeDist' values do not add up to 100 percent in %s node: %s", vehicle_emission_tag.c_str(), routeDist_str.c_str());
         }
 
-        std::string speed_str = "0";
-        cAttr = cNode->first_attribute("speed");
+        std::string departLane_str = "-5";  // DEPART_LANE_BEST_FREE
+        cAttr = cNode->first_attribute("departLane");
         if(cAttr)
         {
-            speed_str = cAttr->value();
-            boost::trim(speed_str);
+            departLane_str = cAttr->value();
+            boost::trim(departLane_str);
         }
 
-        double speed = 0;
+        int departLane = 0;
         try
         {
-            speed = boost::lexical_cast<double>(speed_str);
+            departLane = boost::lexical_cast<int>(departLane_str);
         }
         catch (boost::bad_lexical_cast const&)
         {
-            throw omnetpp::cRuntimeError("'speed' attribute is badly formatted in %s node: %s", vehicle_emission_tag.c_str(), speed_str.c_str());
+            throw omnetpp::cRuntimeError("'departLane' attribute is badly formatted in %s node: %s", vehicle_emission_tag.c_str(), departLane_str.c_str());
         }
 
-        std::string lane_str = "-5";  // DEPART_LANE_BEST_FREE
-        cAttr = cNode->first_attribute("lane");
+        std::string departPos_str = "0";
+        cAttr = cNode->first_attribute("departPos");
         if(cAttr)
         {
-            lane_str = cAttr->value();
-            boost::trim(lane_str);
+            departPos_str = cAttr->value();
+            boost::trim(departPos_str);
         }
 
-        int lane = 0;
+        double departPos = 0;
         try
         {
-            lane = boost::lexical_cast<int>(lane_str);
+            departPos = boost::lexical_cast<double>(departPos_str);
         }
         catch (boost::bad_lexical_cast const&)
         {
-            throw omnetpp::cRuntimeError("'lane' attribute is badly formatted in %s node: %s", vehicle_emission_tag.c_str(), lane_str.c_str());
+            throw omnetpp::cRuntimeError("'departPos' attribute is badly formatted in %s node: %s", vehicle_emission_tag.c_str(), departPos_str.c_str());
         }
 
-        std::string lanePos_str = "0";
-        cAttr = cNode->first_attribute("lanePos");
+        std::string departSpeed_str = "0";
+        cAttr = cNode->first_attribute("departSpeed");
         if(cAttr)
         {
-            lanePos_str = cAttr->value();
-            boost::trim(lanePos_str);
+            departSpeed_str = cAttr->value();
+            boost::trim(departSpeed_str);
         }
 
-        double lanePos = 0;
+        double departSpeed = 0;
         try
         {
-            lanePos = boost::lexical_cast<double>(lanePos_str);
+            departSpeed = boost::lexical_cast<double>(departSpeed_str);
         }
         catch (boost::bad_lexical_cast const&)
         {
-            throw omnetpp::cRuntimeError("'lanePos' attribute is badly formatted in %s node: %s", vehicle_emission_tag.c_str(), lanePos_str.c_str());
+            throw omnetpp::cRuntimeError("'departSpeed' attribute is badly formatted in %s node: %s", vehicle_emission_tag.c_str(), departSpeed_str.c_str());
         }
 
         std::string laneChangeMode_str = std::to_string(LANECHANGEMODE_DEFAULT);
@@ -2406,9 +2476,9 @@ void AddNode::parseVehicleEmission(rapidxml::xml_node<> *pNode)
             entry.color_str = color_str;
             entry.routeID_str_tokenize = routeID_str_tokenize;
             entry.routeDist_tokenize = routeDist_tokenize;
-            entry.speed = speed;
-            entry.lane = lane;
-            entry.lanePos = lanePos;
+            entry.departLane = departLane;
+            entry.departPos = departPos;
+            entry.departSpeed = departSpeed;
             entry.laneChangeMode = laneChangeMode;
             entry.number = number;
             entry.begin = begin;
@@ -2484,7 +2554,7 @@ void AddNode::addVehicleEmission()
                 }
 
                 // now we add a vehicle as obstacle
-                TraCI->vehicleAdd(vehID, vehType, vehRoute, (int32_t)(depart*1000), entry.second.lanePos, entry.second.speed, entry.second.lane);
+                TraCI->vehicleAdd(vehID, vehType, vehRoute, (int32_t)(depart*1000), entry.second.departPos, entry.second.departSpeed, entry.second.departLane);
 
                 // change its color
                 RGB newColor = Color::colorNameToRGB(entry.second.color_str);
@@ -2533,7 +2603,7 @@ void AddNode::addVehicleEmission()
                     }
 
                     // now we add a vehicle
-                    TraCI->vehicleAdd(vehID, vehType, vehRoute, (int32_t)(depart*1000), entry.second.lanePos, entry.second.speed, entry.second.lane);
+                    TraCI->vehicleAdd(vehID, vehType, vehRoute, (int32_t)(depart*1000), entry.second.departPos, entry.second.departSpeed, entry.second.departLane);
 
                     // change its color
                     RGB newColor = Color::colorNameToRGB(entry.second.color_str);
