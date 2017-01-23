@@ -57,6 +57,7 @@ private:
     const std::string obstacle_tag = "obstacle";
     const std::string vehicle_tag = "vehicle";
     const std::string vehicle_flow_tag = "vehicle_flow";
+    const std::string vehicle_emission_tag = "vehicle_emission";
     const std::string emulated_tag = "emulated";
 
     std::string id;
@@ -127,13 +128,13 @@ private:
         std::string to_str;
         std::vector<std::string> via_str_tokenize;
         std::string color_str;
+        double depart;
+        int departLane;
+        double departPos;
+        double departSpeed;
+        int laneChangeMode;
         std::string status_str;
         double duration;
-        double depart;
-        double departSpeed;
-        double departPos;
-        int departLane;
-        int laneChangeMode;
     } vehicleEntry_t;
 
     std::map<std::string, vehicleEntry_t> allVehicle;
@@ -144,8 +145,10 @@ private:
         std::vector<std::string> type_str_tokenize;
         std::vector<double> typeDist_tokenize;
         std::string color_str;
-        std::vector<std::string> routeID_str_tokenize;
-        std::vector<double> routeDist_tokenize;
+        std::string routeID_str;
+        std::string from;
+        std::string to;
+        std::string via;
         double speed;
         int lane;
         double lanePos;
@@ -161,6 +164,15 @@ private:
     } vehicleFlowEntry_t;
 
     std::map<std::string, vehicleFlowEntry_t> allVehicleFlow;
+
+    // does not have 'from', 'to', 'via'
+    typedef struct vehicleEmissionEntry : vehicleFlowEntry
+    {
+        std::vector<std::string> routeID_str_tokenize;
+        std::vector<double> routeDist_tokenize;
+    } vehicleEmissionEntry_t;
+
+    std::map<std::string, vehicleEmissionEntry_t> allVehicleEmission;
 
     typedef struct emulatedEntry
     {
@@ -201,7 +213,10 @@ private:
     void parseVehicleFlow(rapidxml::xml_node<> *);
     void addVehicleFlow();
     std::string getVehType(vehicleFlowEntry_t, double);
-    std::string getVehRoute(vehicleFlowEntry_t, double);
+
+    void parseVehicleEmission(rapidxml::xml_node<> *);
+    void addVehicleEmission();
+    std::string getVehRoute(vehicleEmissionEntry_t, double);
 
     void parseEmulated(rapidxml::xml_node<> *);
     void addEmulated();
