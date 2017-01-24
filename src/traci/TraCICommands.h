@@ -161,6 +161,7 @@ public:
     uint32_t vehicleGetSignalStatus(std::string);
     double vehicleGetLength(std::string);
     double vehicleGetMinGap(std::string);
+    double vehicleGetMaxSpeed(std::string);
     double vehicleGetMaxAccel(std::string);
     double vehicleGetMaxDecel(std::string);
     double vehicleGetTimeGap(std::string);
@@ -181,6 +182,7 @@ public:
     void vehicleSetRoute(std::string, std::list<std::string> value);
     void vehicleSetRouteID(std::string, std::string);
     void vehicleChangeTarget(std::string, std::string);
+    void vehicleMoveTo(std::string, std::string, double);
     void vehicleSetColor(std::string, const RGB);
     void vehicleSetClass(std::string, std::string);
     void vehicleSetLength(std::string, double);
