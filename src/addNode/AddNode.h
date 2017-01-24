@@ -64,7 +64,8 @@ private:
 
     enum timer_types
     {
-        TYPE_TIMER_OBSTACLE
+        TYPE_TIMER_OBSTACLE,
+        TYPE_TIMER_STOPPED_VEHICLE
     };
 
     typedef struct adversaryEntry

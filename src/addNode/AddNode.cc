@@ -126,6 +126,22 @@ void AddNode::handleMessage(omnetpp::cMessage *msg)
         // remove the obstacle vehicle from SUMO
         TraCI->vehicleRemove(vehID, 2);
     }
+    else if(msg->isSelfMessage() && msg->getKind() == TYPE_TIMER_STOPPED_VEHICLE)
+    {
+        std::string vehID = msg->getName();
+
+        auto it = allVehicle.find(vehID);
+        if(it == allVehicle.end())
+            throw omnetpp::cRuntimeError("Cannot find veh '%s' in the map", vehID);
+
+        // set the lane change mode
+        TraCI->vehicleSetLaneChangeMode(vehID, it->second.laneChangeMode);
+
+        // get the max speed
+        double vMax = TraCI->vehicleGetMaxSpeed(vehID);
+
+        TraCI->vehicleSetSpeed(vehID, vMax);
+    }
     else
         throw omnetpp::cRuntimeError("Cannot handle msg '%s' of type '%d'", msg->getFullName(), msg->getKind());
 }
@@ -986,13 +1002,13 @@ void AddNode::addObstacle()
 
         if(entry.second.end != -1)
         {
-            omnetpp::cMessage* obstacleRemobalEvt = new omnetpp::cMessage(vehID.c_str(), TYPE_TIMER_OBSTACLE);
-            scheduleAt(omnetpp::simTime() + updateInterval + entry.second.end, obstacleRemobalEvt);
+            omnetpp::cMessage* evt = new omnetpp::cMessage(vehID.c_str(), TYPE_TIMER_OBSTACLE);
+            scheduleAt(omnetpp::simTime() + 2*updateInterval + entry.second.end, evt);
         }
         else if(entry.second.duration != -1)
         {
-            omnetpp::cMessage* obstacleRemobalEvt = new omnetpp::cMessage(vehID.c_str(), TYPE_TIMER_OBSTACLE);
-            scheduleAt(omnetpp::simTime() + updateInterval + entry.second.begin + entry.second.duration, obstacleRemobalEvt);
+            omnetpp::cMessage* evt = new omnetpp::cMessage(vehID.c_str(), TYPE_TIMER_OBSTACLE);
+            scheduleAt(omnetpp::simTime() + 2*updateInterval + entry.second.begin + entry.second.duration, evt);
         }
     }
 }
@@ -1321,13 +1337,21 @@ void AddNode::addVehicle()
 
             // no lane change during stopped
             TraCI->vehicleSetLaneChangeMode(vehID, LANECHANGEMODE_STOPPED);
+
+            if(entry.second.duration != -1)
+            {
+                omnetpp::cMessage* evt = new omnetpp::cMessage(vehID.c_str(), TYPE_TIMER_STOPPED_VEHICLE);
+                scheduleAt(omnetpp::simTime() + 2*updateInterval + entry.second.depart + entry.second.duration, evt);
+            }
         }
         else if(entry.second.status_str == "parked")
         {
             // get all edges for this route
             std::vector<std::string> edges = TraCI->routeGetEdges(vehRouteID);
 
-            TraCI->vehicleSetStop(vehID, edges[0], entry.second.departPos, entry.second.departLane, 1000*entry.second.duration, 1 /*parking*/);
+            double duration = (entry.second.duration != -1) ? 1000*entry.second.duration : std::numeric_limits<int32_t>::max();
+
+            TraCI->vehicleSetStop(vehID, edges[0], entry.second.departPos, entry.second.departLane, (int32_t)duration, 1 /*parking*/);
         }
         else
         {
