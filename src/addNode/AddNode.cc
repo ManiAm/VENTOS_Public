@@ -257,10 +257,10 @@ void AddNode::parseAdversary(rapidxml::xml_node<> *pNode)
             continue;
 
         std::vector<std::string> validAttr = {"id", "pos"};
-        validityCheck(adversary_tag, cNode, validAttr);
+        validityCheck(cNode, validAttr);
 
-        std::string id_str = getAttrValue_string(adversary_tag, cNode, "id");
-        Coord pos = getAttrValue_coord(adversary_tag, cNode, "pos");
+        std::string id_str = getAttrValue_string(cNode, "id");
+        Coord pos = getAttrValue_coord(cNode, "pos");
 
         auto it = allAdversary.find(id_str);
         if(it == allAdversary.end())
@@ -346,10 +346,10 @@ void AddNode::parseCA(rapidxml::xml_node<> *pNode)
             continue;
 
         std::vector<std::string> validAttr = {"id", "pos"};
-        validityCheck(ca_tag, cNode, validAttr);
+        validityCheck(cNode, validAttr);
 
-        std::string id_str = getAttrValue_string(ca_tag, cNode, "id");
-        Coord pos = getAttrValue_coord(ca_tag, cNode, "pos");
+        std::string id_str = getAttrValue_string(cNode, "id");
+        Coord pos = getAttrValue_coord(cNode, "pos");
 
         auto it = allCA.find(id_str);
         if(it == allCA.end())
@@ -418,13 +418,13 @@ void AddNode::parseRSU(rapidxml::xml_node<> *pNode)
             continue;
 
         std::vector<std::string> validAttr = {"id", "pos", "drawMaxIntfDist", "color", "filled"};
-        validityCheck(rsu_tag, cNode, validAttr);
+        validityCheck(cNode, validAttr);
 
-        std::string id_str = getAttrValue_string(rsu_tag, cNode, "id");
-        Coord pos = getAttrValue_coord(rsu_tag, cNode, "pos");
-        bool drawMaxIntfDist = getAttrValue_bool(rsu_tag, cNode, "drawMaxIntfDist", false, true);
-        std::string color_str = getAttrValue_string(rsu_tag, cNode, "color", false, "green");
-        bool filled = getAttrValue_bool(rsu_tag, cNode, "filled", false, false);
+        std::string id_str = getAttrValue_string(cNode, "id");
+        Coord pos = getAttrValue_coord(cNode, "pos");
+        bool drawMaxIntfDist = getAttrValue_bool(cNode, "drawMaxIntfDist", false, true);
+        std::string color_str = getAttrValue_string(cNode, "color", false, "green");
+        bool filled = getAttrValue_bool(cNode, "filled", false, false);
 
         auto it = allRSU.find(id_str);
         if(it == allRSU.end())
@@ -587,18 +587,18 @@ void AddNode::parseObstacle(rapidxml::xml_node<> *pNode)
             continue;
 
         std::vector<std::string> validAttr = {"id", "length", "edge", "lane", "lanePos", "onRoad", "color", "begin", "end", "duration"};
-        validityCheck(obstacle_tag, cNode, validAttr);
+        validityCheck(cNode, validAttr);
 
-        std::string id_str = getAttrValue_string(obstacle_tag, cNode, "id");
-        int length = getAttrValue_int(obstacle_tag, cNode, "length", false, 5);
-        std::string edge_str = getAttrValue_string(obstacle_tag, cNode, "edge");
-        int lane = getAttrValue_int(obstacle_tag, cNode, "lane");
-        double lanePos = getAttrValue_double(obstacle_tag, cNode, "lanePos");
-        bool onRoad = getAttrValue_bool(obstacle_tag, cNode, "onRoad", false, true);
-        std::string color_str = getAttrValue_string(obstacle_tag, cNode, "color", false, "red");
-        double begin = getAttrValue_double(obstacle_tag, cNode, "begin", false, 0);
-        double end = getAttrValue_double(obstacle_tag, cNode, "end", false, -1);
-        double duration = getAttrValue_double(obstacle_tag, cNode, "duration", false, -1);
+        std::string id_str = getAttrValue_string(cNode, "id");
+        int length = getAttrValue_int(cNode, "length", false, 5);
+        std::string edge_str = getAttrValue_string(cNode, "edge");
+        int lane = getAttrValue_int(cNode, "lane");
+        double lanePos = getAttrValue_double(cNode, "lanePos");
+        bool onRoad = getAttrValue_bool(cNode, "onRoad", false, true);
+        std::string color_str = getAttrValue_string(cNode, "color", false, "red");
+        double begin = getAttrValue_double(cNode, "begin", false, 0);
+        double end = getAttrValue_double(cNode, "end", false, -1);
+        double duration = getAttrValue_double(cNode, "duration", false, -1);
 
         if(cNode->first_attribute("end") && cNode->first_attribute("duration"))
             throw omnetpp::cRuntimeError("attribute 'duration' and 'end' cannot be present together in element '%s'", obstacle_tag.c_str());
@@ -724,22 +724,22 @@ void AddNode::parseVehicle(rapidxml::xml_node<> *pNode)
 
         std::vector<std::string> validAttr = {"id", "type", "route", "from", "to", "via", "color",
                 "depart", "departLane", "departPos", "departSpeed", "laneChangeMode", "status", "duration"};
-        validityCheck(vehicle_tag, cNode, validAttr);
+        validityCheck(cNode, validAttr);
 
-        std::string id_str = getAttrValue_string(vehicle_tag, cNode, "id");
-        std::string type_str = getAttrValue_string(vehicle_tag, cNode, "type");
-        std::string routeID_str = getAttrValue_string(vehicle_tag, cNode, "route", false, "");
-        std::string from_str = getAttrValue_string(vehicle_tag, cNode, "from", false, "");
-        std::string to_str = getAttrValue_string(vehicle_tag, cNode, "to", false, "");
-        std::vector<std::string> via_str_tokenize = getAttrValue_stringVector(vehicle_tag, cNode, "via", false, std::vector<std::string>());
-        std::string color_str = getAttrValue_string(vehicle_tag, cNode, "color", false, "yellow");
-        double depart = getAttrValue_double(vehicle_tag, cNode, "depart", false, 0);
-        int departLane = getAttrValue_int(vehicle_tag, cNode, "departLane", false, -5 /*DEPART_LANE_BEST_FREE*/);
-        double departPos = getAttrValue_double(vehicle_tag, cNode, "departPos", false, 0);
-        double departSpeed = getAttrValue_double(vehicle_tag, cNode, "departSpeed", false, 0);
-        int laneChangeMode = getAttrValue_int(vehicle_tag, cNode, "laneChangeMode", false, LANECHANGEMODE_DEFAULT);
-        std::string status_str = getAttrValue_string(vehicle_tag, cNode, "status", false, "");
-        double duration = getAttrValue_double(vehicle_tag, cNode, "duration", false, -1);
+        std::string id_str = getAttrValue_string(cNode, "id");
+        std::string type_str = getAttrValue_string(cNode, "type");
+        std::string routeID_str = getAttrValue_string(cNode, "route", false, "");
+        std::string from_str = getAttrValue_string(cNode, "from", false, "");
+        std::string to_str = getAttrValue_string(cNode, "to", false, "");
+        std::vector<std::string> via_str_tokenize = getAttrValue_stringVector(cNode, "via", false, std::vector<std::string>());
+        std::string color_str = getAttrValue_string(cNode, "color", false, "yellow");
+        double depart = getAttrValue_double(cNode, "depart", false, 0);
+        int departLane = getAttrValue_int(cNode, "departLane", false, -5 /*DEPART_LANE_BEST_FREE*/);
+        double departPos = getAttrValue_double(cNode, "departPos", false, 0);
+        double departSpeed = getAttrValue_double(cNode, "departSpeed", false, 0);
+        int laneChangeMode = getAttrValue_int(cNode, "laneChangeMode", false, LANECHANGEMODE_DEFAULT);
+        std::string status_str = getAttrValue_string(cNode, "status", false, "");
+        double duration = getAttrValue_double(cNode, "duration", false, -1);
 
         if( !cNode->first_attribute("route") && !cNode->first_attribute("from") && !cNode->first_attribute("to") )
             throw omnetpp::cRuntimeError("either 'route' or 'from/to' attributes should be defined in element '%s'", vehicle_tag.c_str());
@@ -934,28 +934,28 @@ void AddNode::parseVehicleFlow(rapidxml::xml_node<> *pNode)
         std::vector<std::string> validAttr = {"id", "type", "typeDist", "color", "route", "from", "to", "via", "departLane",
                 "departPos", "departSpeed", "laneChangeMode", "number", "begin", "end", "distribution",
                 "period", "lambda", "seed", "probability"};
-        validityCheck(vehicle_flow_tag, cNode, validAttr);
+        validityCheck(cNode, validAttr);
 
-        std::string id_str = getAttrValue_string(vehicle_flow_tag, cNode, "id");
-        std::vector<std::string> type_str_tokenize = getAttrValue_stringVector(vehicle_flow_tag, cNode, "type");
-        std::vector<double> typeDist_tokenize = getAttrValue_doubleVector(vehicle_flow_tag, cNode, "typeDist", false, std::vector<double>());
-        std::string routeID_str = getAttrValue_string(vehicle_flow_tag, cNode, "route", false, "");
-        std::string from_str = getAttrValue_string(vehicle_flow_tag, cNode, "from", false, "");
-        std::string to_str = getAttrValue_string(vehicle_flow_tag, cNode, "to", false, "");
-        std::vector<std::string> via_str_tokenize = getAttrValue_stringVector(vehicle_flow_tag, cNode, "via", false, std::vector<std::string>());
-        std::string color_str = getAttrValue_string(vehicle_flow_tag, cNode, "color", false, "yellow");
-        int departLane = getAttrValue_int(vehicle_flow_tag, cNode, "departLane", false, -5 /*DEPART_LANE_BEST_FREE*/);
-        double departPos = getAttrValue_double(vehicle_flow_tag, cNode, "departPos", false, 0);
-        double departSpeed = getAttrValue_double(vehicle_flow_tag, cNode, "departSpeed", false, 0);
-        int laneChangeMode = getAttrValue_int(vehicle_flow_tag, cNode, "laneChangeMode", false, LANECHANGEMODE_DEFAULT);
-        double begin = getAttrValue_double(vehicle_flow_tag, cNode, "begin", false, 0);
-        int number = getAttrValue_int(vehicle_flow_tag, cNode, "number", false, -1);
-        double end = getAttrValue_double(vehicle_flow_tag, cNode, "end", false, (terminate != -1) ? terminate : std::numeric_limits<int32_t>::max());
-        int seed = getAttrValue_int(vehicle_flow_tag, cNode, "seed", false, 0);
-        std::string distribution_str = getAttrValue_string(vehicle_flow_tag, cNode, "distribution");
-        double period = getAttrValue_double(vehicle_flow_tag, cNode, "period", false, -1);
-        double lambda = getAttrValue_double(vehicle_flow_tag, cNode, "lambda", false, -1);
-        double probability = getAttrValue_double(vehicle_flow_tag, cNode, "probability", false, -1);
+        std::string id_str = getAttrValue_string(cNode, "id");
+        std::vector<std::string> type_str_tokenize = getAttrValue_stringVector(cNode, "type");
+        std::vector<double> typeDist_tokenize = getAttrValue_doubleVector(cNode, "typeDist", false, std::vector<double>());
+        std::string routeID_str = getAttrValue_string(cNode, "route", false, "");
+        std::string from_str = getAttrValue_string(cNode, "from", false, "");
+        std::string to_str = getAttrValue_string(cNode, "to", false, "");
+        std::vector<std::string> via_str_tokenize = getAttrValue_stringVector(cNode, "via", false, std::vector<std::string>());
+        std::string color_str = getAttrValue_string(cNode, "color", false, "yellow");
+        int departLane = getAttrValue_int(cNode, "departLane", false, -5 /*DEPART_LANE_BEST_FREE*/);
+        double departPos = getAttrValue_double(cNode, "departPos", false, 0);
+        double departSpeed = getAttrValue_double(cNode, "departSpeed", false, 0);
+        int laneChangeMode = getAttrValue_int(cNode, "laneChangeMode", false, LANECHANGEMODE_DEFAULT);
+        double begin = getAttrValue_double(cNode, "begin", false, 0);
+        int number = getAttrValue_int(cNode, "number", false, -1);
+        double end = getAttrValue_double(cNode, "end", false, (terminate != -1) ? terminate : std::numeric_limits<int32_t>::max());
+        int seed = getAttrValue_int(cNode, "seed", false, 0);
+        std::string distribution_str = getAttrValue_string(cNode, "distribution");
+        double period = getAttrValue_double(cNode, "period", false, -1);
+        double lambda = getAttrValue_double(cNode, "lambda", false, -1);
+        double probability = getAttrValue_double(cNode, "probability", false, -1);
 
         // we have multiple types
         if(type_str_tokenize.size() > 1)
@@ -1272,28 +1272,28 @@ void AddNode::parseVehicleMultiFlow(rapidxml::xml_node<> *pNode)
         std::vector<std::string> validAttr = {"id", "type", "typeDist", "route", "routeDist", "color", "departLane",
                 "departPos", "departSpeed", "laneChangeMode", "begin", "number", "end", "distribution",
                 "period", "lambda", "seed", "probability"};
-        validityCheck(vehicle_multiFlow_tag, cNode, validAttr);
+        validityCheck(cNode, validAttr);
 
-        std::string id_str = getAttrValue_string(vehicle_multiFlow_tag, cNode, "id");
-        std::vector<std::string> type_str_tokenize = getAttrValue_stringVector(vehicle_multiFlow_tag, cNode, "type");
-        std::vector<double> typeDist_tokenize = getAttrValue_doubleVector(vehicle_multiFlow_tag, cNode, "typeDist", false, std::vector<double>());
+        std::string id_str = getAttrValue_string(cNode, "id");
+        std::vector<std::string> type_str_tokenize = getAttrValue_stringVector(cNode, "type");
+        std::vector<double> typeDist_tokenize = getAttrValue_doubleVector(cNode, "typeDist", false, std::vector<double>());
         // route is mandatory here
-        std::vector<std::string> routeID_str_tokenize = getAttrValue_stringVector(vehicle_multiFlow_tag, cNode, "route");
+        std::vector<std::string> routeID_str_tokenize = getAttrValue_stringVector(cNode, "route");
         // we now have route distribution
-        std::vector<double> routeDist_tokenize = getAttrValue_doubleVector(vehicle_multiFlow_tag, cNode, "routeDist", false, std::vector<double>());
-        std::string color_str = getAttrValue_string(vehicle_multiFlow_tag, cNode, "color", false, "yellow");
-        int departLane = getAttrValue_int(vehicle_multiFlow_tag, cNode, "departLane", false, -5 /*DEPART_LANE_BEST_FREE*/);
-        double departPos = getAttrValue_double(vehicle_multiFlow_tag, cNode, "departPos", false, 0);
-        double departSpeed = getAttrValue_double(vehicle_multiFlow_tag, cNode, "departSpeed", false, 0);
-        int laneChangeMode = getAttrValue_int(vehicle_multiFlow_tag, cNode, "laneChangeMode", false, LANECHANGEMODE_DEFAULT);
-        double begin = getAttrValue_double(vehicle_multiFlow_tag, cNode, "begin", false, 0);
-        int number = getAttrValue_int(vehicle_multiFlow_tag, cNode, "number", false, -1);
-        double end = getAttrValue_double(vehicle_multiFlow_tag, cNode, "end", false, (terminate != -1) ? terminate : std::numeric_limits<int32_t>::max());
-        int seed = getAttrValue_int(vehicle_multiFlow_tag, cNode, "seed", false, 0);
-        std::string distribution_str = getAttrValue_string(vehicle_multiFlow_tag, cNode, "distribution");
-        double period = getAttrValue_double(vehicle_multiFlow_tag, cNode, "period", false, -1);
-        double lambda = getAttrValue_double(vehicle_multiFlow_tag, cNode, "lambda", false, -1);
-        double probability = getAttrValue_double(vehicle_multiFlow_tag, cNode, "probability", false, -1);
+        std::vector<double> routeDist_tokenize = getAttrValue_doubleVector(cNode, "routeDist", false, std::vector<double>());
+        std::string color_str = getAttrValue_string(cNode, "color", false, "yellow");
+        int departLane = getAttrValue_int(cNode, "departLane", false, -5 /*DEPART_LANE_BEST_FREE*/);
+        double departPos = getAttrValue_double(cNode, "departPos", false, 0);
+        double departSpeed = getAttrValue_double(cNode, "departSpeed", false, 0);
+        int laneChangeMode = getAttrValue_int(cNode, "laneChangeMode", false, LANECHANGEMODE_DEFAULT);
+        double begin = getAttrValue_double(cNode, "begin", false, 0);
+        int number = getAttrValue_int(cNode, "number", false, -1);
+        double end = getAttrValue_double(cNode, "end", false, (terminate != -1) ? terminate : std::numeric_limits<int32_t>::max());
+        int seed = getAttrValue_int(cNode, "seed", false, 0);
+        std::string distribution_str = getAttrValue_string(cNode, "distribution");
+        double period = getAttrValue_double(cNode, "period", false, -1);
+        double lambda = getAttrValue_double(cNode, "lambda", false, -1);
+        double probability = getAttrValue_double(cNode, "probability", false, -1);
 
         // we have multiple types
         if(type_str_tokenize.size() > 1)
@@ -1615,36 +1615,12 @@ void AddNode::parseEmulated(rapidxml::xml_node<> *pNode)
         if(std::string(cNode->name()) != emulated_tag)
             continue;
 
-        // format checking: Iterate over all attributes in this node
-        for(rapidxml::xml_attribute<> *cAttr1 = cNode->first_attribute(); cAttr1; cAttr1 = cAttr1->next_attribute())
-        {
-            std::string attName = cAttr1->name();
+        std::vector<std::string> validAttr = {"id", "ip", "color"};
+        validityCheck(cNode, validAttr);
 
-            if(attName != "id" &&
-                    attName != "ip" &&
-                    attName != "color")
-                throw omnetpp::cRuntimeError("'%s' is not a valid attribute in node '%s'", attName.c_str(), emulated_tag.c_str());
-        }
-
-        rapidxml::xml_attribute<> *cAttr = cNode->first_attribute("id");
-        if(!cAttr)
-            throw omnetpp::cRuntimeError("'id' attribute is not found in %s node", emulated_tag.c_str());
-        std::string id_str = cAttr->value();
-        boost::trim(id_str);
-
-        cAttr = cNode->first_attribute("ip");
-        if(!cAttr)
-            throw omnetpp::cRuntimeError("'ip' attribute is not found in %s node", emulated_tag.c_str());
-        std::string ip_str = cAttr->value();
-        boost::trim(ip_str);
-
-        std::string color_str = "yellow";
-        cAttr = cNode->first_attribute("color");
-        if(cAttr)
-        {
-            color_str = cAttr->value();
-            boost::trim(color_str);
-        }
+        std::string id_str = getAttrValue_string(cNode, "id");
+        std::string ip_str = getAttrValue_string(cNode, "ip");
+        std::string color_str = getAttrValue_string(cNode, "color", false, "yellow");
 
         auto it = allEmulated.find(id_str);
         if(it == allEmulated.end())
@@ -1782,8 +1758,10 @@ void AddNode::printLoadedStatistics()
 }
 
 
-void AddNode::validityCheck(std::string tag, rapidxml::xml_node<> *cNode, std::vector<std::string> names)
+void AddNode::validityCheck(rapidxml::xml_node<> *cNode, std::vector<std::string> names)
 {
+    std::string tag = cNode->name();
+
     // format checking: Iterate over all attributes in this node
     for(rapidxml::xml_attribute<> *cAttr1 = cNode->first_attribute(); cAttr1; cAttr1 = cAttr1->next_attribute())
     {
@@ -1795,8 +1773,10 @@ void AddNode::validityCheck(std::string tag, rapidxml::xml_node<> *cNode, std::v
 }
 
 
-std::string AddNode::getAttrValue_string(std::string tag, rapidxml::xml_node<> *cNode, std::string attr, bool mandatory, std::string defaultVal)
+std::string AddNode::getAttrValue_string(rapidxml::xml_node<> *cNode, std::string attr, bool mandatory, std::string defaultVal)
 {
+    std::string tag = cNode->name();
+
     auto cAttr = cNode->first_attribute(attr.c_str());
     if(!cAttr)
     {
@@ -1813,8 +1793,10 @@ std::string AddNode::getAttrValue_string(std::string tag, rapidxml::xml_node<> *
 }
 
 
-Coord AddNode::getAttrValue_coord(std::string tag, rapidxml::xml_node<> *cNode, std::string attr, bool mandatory, Coord defaultVal)
+Coord AddNode::getAttrValue_coord(rapidxml::xml_node<> *cNode, std::string attr, bool mandatory, Coord defaultVal)
 {
+    std::string tag = cNode->name();
+
     auto cAttr = cNode->first_attribute(attr.c_str());
     if(!cAttr)
     {
@@ -1859,8 +1841,10 @@ Coord AddNode::getAttrValue_coord(std::string tag, rapidxml::xml_node<> *cNode, 
 }
 
 
-bool AddNode::getAttrValue_bool(std::string tag, rapidxml::xml_node<> *cNode, std::string attr, bool mandatory, bool defaultVal)
+bool AddNode::getAttrValue_bool(rapidxml::xml_node<> *cNode, std::string attr, bool mandatory, bool defaultVal)
 {
+    std::string tag = cNode->name();
+
     auto cAttr = cNode->first_attribute(attr.c_str());
     if(!cAttr)
     {
@@ -1882,8 +1866,10 @@ bool AddNode::getAttrValue_bool(std::string tag, rapidxml::xml_node<> *cNode, st
 }
 
 
-int AddNode::getAttrValue_int(std::string tag, rapidxml::xml_node<> *cNode, std::string attr, bool mandatory, int defaultVal)
+int AddNode::getAttrValue_int(rapidxml::xml_node<> *cNode, std::string attr, bool mandatory, int defaultVal)
 {
+    std::string tag = cNode->name();
+
     auto cAttr = cNode->first_attribute(attr.c_str());
     if(!cAttr)
     {
@@ -1910,8 +1896,10 @@ int AddNode::getAttrValue_int(std::string tag, rapidxml::xml_node<> *cNode, std:
 }
 
 
-double AddNode::getAttrValue_double(std::string tag, rapidxml::xml_node<> *cNode, std::string attr, bool mandatory, double defaultVal)
+double AddNode::getAttrValue_double(rapidxml::xml_node<> *cNode, std::string attr, bool mandatory, double defaultVal)
 {
+    std::string tag = cNode->name();
+
     auto cAttr = cNode->first_attribute(attr.c_str());
     if(!cAttr)
     {
@@ -1938,8 +1926,10 @@ double AddNode::getAttrValue_double(std::string tag, rapidxml::xml_node<> *cNode
 }
 
 
-std::vector<std::string> AddNode::getAttrValue_stringVector(std::string tag, rapidxml::xml_node<> *cNode, std::string attr, bool mandatory, std::vector<std::string> defaultVal)
+std::vector<std::string> AddNode::getAttrValue_stringVector(rapidxml::xml_node<> *cNode, std::string attr, bool mandatory, std::vector<std::string> defaultVal)
 {
+    std::string tag = cNode->name();
+
     auto cAttr = cNode->first_attribute(attr.c_str());
     if(!cAttr)
     {
@@ -1969,8 +1959,10 @@ std::vector<std::string> AddNode::getAttrValue_stringVector(std::string tag, rap
 }
 
 
-std::vector<double> AddNode::getAttrValue_doubleVector(std::string tag, rapidxml::xml_node<> *cNode, std::string attr, bool mandatory, std::vector<double> defaultVal)
+std::vector<double> AddNode::getAttrValue_doubleVector(rapidxml::xml_node<> *cNode, std::string attr, bool mandatory, std::vector<double> defaultVal)
 {
+    std::string tag = cNode->name();
+
     auto cAttr = cNode->first_attribute(attr.c_str());
     if(!cAttr)
     {

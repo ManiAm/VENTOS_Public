@@ -224,14 +224,14 @@ private:
 
     void addCircle(std::string, std::string, const RGB, bool, Coord*, double);
 
-    void validityCheck(std::string, rapidxml::xml_node<> *, std::vector<std::string>);
-    std::string getAttrValue_string(std::string, rapidxml::xml_node<> *, std::string, bool = true, std::string = "");
-    Coord getAttrValue_coord(std::string, rapidxml::xml_node<> *, std::string, bool = true, Coord = Coord(0,0,0));
-    bool getAttrValue_bool(std::string, rapidxml::xml_node<> *, std::string, bool = true, bool = false);
-    int getAttrValue_int(std::string, rapidxml::xml_node<> *, std::string, bool = true, int = 0);
-    double getAttrValue_double(std::string, rapidxml::xml_node<> *, std::string, bool = true, double = 0);
-    std::vector<std::string> getAttrValue_stringVector(std::string, rapidxml::xml_node<> *, std::string, bool = true, std::vector<std::string> = std::vector<std::string>());
-    std::vector<double> getAttrValue_doubleVector(std::string, rapidxml::xml_node<> *, std::string, bool = true, std::vector<double> = std::vector<double>());
+    void validityCheck(rapidxml::xml_node<> *, std::vector<std::string>);
+    std::string getAttrValue_string(rapidxml::xml_node<> *, std::string, bool = true, std::string = "");
+    Coord getAttrValue_coord(rapidxml::xml_node<> *, std::string, bool = true, Coord = Coord(0,0,0));
+    bool getAttrValue_bool(rapidxml::xml_node<> *, std::string, bool = true, bool = false);
+    int getAttrValue_int(rapidxml::xml_node<> *, std::string, bool = true, int = 0);
+    double getAttrValue_double(rapidxml::xml_node<> *, std::string, bool = true, double = 0);
+    std::vector<std::string> getAttrValue_stringVector(rapidxml::xml_node<> *, std::string, bool = true, std::vector<std::string> = std::vector<std::string>());
+    std::vector<double> getAttrValue_doubleVector(rapidxml::xml_node<> *, std::string, bool = true, std::vector<double> = std::vector<double>());
 };
 
 }
