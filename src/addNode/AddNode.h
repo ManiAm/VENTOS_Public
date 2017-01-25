@@ -57,7 +57,7 @@ private:
     const std::string obstacle_tag = "obstacle";
     const std::string vehicle_tag = "vehicle";
     const std::string vehicle_flow_tag = "vehicle_flow";
-    const std::string vehicle_emission_tag = "vehicle_emission";
+    const std::string vehicle_multiFlow_tag = "vehicle_multiflow";
     const std::string emulated_tag = "emulated";
 
     std::string id;
@@ -146,9 +146,9 @@ private:
         std::vector<std::string> type_str_tokenize;
         std::vector<double> typeDist_tokenize;
         std::string routeID_str;
-        std::string from;
-        std::string to;
-        std::string via;
+        std::string from_str;
+        std::string to_str;
+        std::vector<std::string> via_str_tokenize;
         std::string color_str;
         int departLane;
         double departPos;
@@ -167,13 +167,13 @@ private:
     std::map<std::string, vehicleFlowEntry_t> allVehicleFlow;
 
     // does not have 'from', 'to', 'via'
-    typedef struct vehicleEmissionEntry : vehicleFlowEntry
+    typedef struct vehicleMultiFlowEntry : vehicleFlowEntry
     {
         std::vector<std::string> routeID_str_tokenize;
         std::vector<double> routeDist_tokenize;
-    } vehicleEmissionEntry_t;
+    } vehicleMultiFlowEntry_t;
 
-    std::map<std::string, vehicleEmissionEntry_t> allVehicleEmission;
+    std::map<std::string, vehicleMultiFlowEntry_t> allVehicleMultiFlow;
 
     typedef struct emulatedEntry
     {
@@ -215,14 +215,23 @@ private:
     void addVehicleFlow();
     std::string getVehType(vehicleFlowEntry_t, double);
 
-    void parseVehicleEmission(rapidxml::xml_node<> *);
-    void addVehicleEmission();
-    std::string getVehRoute(vehicleEmissionEntry_t, double);
+    void parseVehicleMultiFlow(rapidxml::xml_node<> *);
+    void addVehicleMultiFlow();
+    std::string getVehRoute(vehicleMultiFlowEntry_t, double);
 
     void parseEmulated(rapidxml::xml_node<> *);
     void addEmulated();
 
     void addCircle(std::string, std::string, const RGB, bool, Coord*, double);
+
+    void validityCheck(std::string, rapidxml::xml_node<> *, std::vector<std::string>);
+    std::string getAttrValue_string(std::string, rapidxml::xml_node<> *, std::string, bool = true, std::string = "");
+    Coord getAttrValue_coord(std::string, rapidxml::xml_node<> *, std::string, bool = true, Coord = Coord(0,0,0));
+    bool getAttrValue_bool(std::string, rapidxml::xml_node<> *, std::string, bool = true, bool = false);
+    int getAttrValue_int(std::string, rapidxml::xml_node<> *, std::string, bool = true, int = 0);
+    double getAttrValue_double(std::string, rapidxml::xml_node<> *, std::string, bool = true, double = 0);
+    std::vector<std::string> getAttrValue_stringVector(std::string, rapidxml::xml_node<> *, std::string, bool = true, std::vector<std::string> = std::vector<std::string>());
+    std::vector<double> getAttrValue_doubleVector(std::string, rapidxml::xml_node<> *, std::string, bool = true, std::vector<double> = std::vector<double>());
 };
 
 }

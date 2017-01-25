@@ -14,7 +14,7 @@
   <obstacle id="stopped_veh" edge="1to2" lane="1" lanePos="3200" color="red" />
   
   <!-- lane is DEPART_LANE_RANDOM and laneChaneMode is 533 (do no cooperative changes)  -->
-  <vehicle_flow id="veh" type="TypeManual" route="route1" begin="0" number="2000" lane="-2" laneChangeMode="533" distribution="deterministic" period="9" />
+  <vehicle_flow id="veh" type="TypeManual" route="route1" begin="0" number="2000" departLane="-2" laneChangeMode="533" distribution="deterministic" period="9" />
   
 </addNode>
 
