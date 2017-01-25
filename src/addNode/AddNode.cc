@@ -1816,28 +1816,26 @@ Coord AddNode::getAttrValue_coord(rapidxml::xml_node<> *cNode, std::string attr,
     if(pos.size() != 3)
         throw omnetpp::cRuntimeError("attribute '%s' in element '%s' should be in the \"x,y,z\" format", attr.c_str(), tag.c_str());
 
-    double pos_x = 0, pos_y = 0, pos_z = 0;
-
     try
     {
         std::string pos_x_str = pos[0];
         boost::trim(pos_x_str);
-        pos_x = boost::lexical_cast<double>(pos_x_str);
+        double pos_x = boost::lexical_cast<double>(pos_x_str);
 
         std::string pos_y_str = pos[1];
         boost::trim(pos_y_str);
-        pos_y = boost::lexical_cast<double>(pos_y_str);
+        double pos_y = boost::lexical_cast<double>(pos_y_str);
 
         std::string pos_z_str = pos[2];
         boost::trim(pos_z_str);
-        pos_z = boost::lexical_cast<double>(pos_z_str);
+        double pos_z = boost::lexical_cast<double>(pos_z_str);
+
+        return Coord(pos_x, pos_y, pos_z);
     }
     catch (boost::bad_lexical_cast const&)
     {
         throw omnetpp::cRuntimeError("attribute '%s' is badly formatted in element %s: %s", attr.c_str(), tag.c_str(), coord_str.c_str());
     }
-
-    return Coord(pos_x, pos_y, pos_z);
 }
 
 
@@ -1882,17 +1880,14 @@ int AddNode::getAttrValue_int(rapidxml::xml_node<> *cNode, std::string attr, boo
     std::string val_str = cAttr->value();
     boost::trim(val_str);
 
-    int val = 0;
     try
     {
-        val = boost::lexical_cast<int>(val_str);
+        return boost::lexical_cast<int>(val_str);
     }
     catch (boost::bad_lexical_cast const&)
     {
         throw omnetpp::cRuntimeError("attribute '%s' is badly formatted in element %s: %s", attr.c_str(), tag.c_str(), val_str.c_str());
     }
-
-    return val;
 }
 
 
@@ -1912,17 +1907,14 @@ double AddNode::getAttrValue_double(rapidxml::xml_node<> *cNode, std::string att
     std::string val_str = cAttr->value();
     boost::trim(val_str);
 
-    double val = 0;
     try
     {
-        val = boost::lexical_cast<double>(val_str);
+        return boost::lexical_cast<double>(val_str);
     }
     catch (boost::bad_lexical_cast const&)
     {
         throw omnetpp::cRuntimeError("attribute '%s' is badly formatted in element %s: %s", attr.c_str(), tag.c_str(), val_str.c_str());
     }
-
-    return val;
 }
 
 
