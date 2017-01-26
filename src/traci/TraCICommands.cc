@@ -346,10 +346,29 @@ uint32_t TraCI_Commands::simulationGetArrivedNumber()
 }
 
 
-// todo
-double TraCI_Commands::simulationGetTimeStep()
+uint32_t TraCI_Commands::simulationGetTimeStep()
 {
-    return 0.1;
+    record_TraCI_activity_func("commandStart", CMD_GET_SIM_VARIABLE, VAR_DELTA_T, "simulationGetTimeStep");
+
+    TraCIBuffer buf = connection->query(CMD_GET_SIM_VARIABLE, TraCIBuffer() << static_cast<uint8_t>(VAR_DELTA_T) << std::string("sim0"));
+
+    uint8_t cmdLength_resp; buf >> cmdLength_resp;
+    uint8_t commandId_resp; buf >> commandId_resp;
+    ASSERT(commandId_resp == RESPONSE_GET_SIM_VARIABLE);
+    uint8_t variableId_resp; buf >> variableId_resp;
+    ASSERT(variableId_resp == VAR_DELTA_T);
+    std::string simId; buf >> simId;
+    uint8_t typeId_resp; buf >> typeId_resp;
+    ASSERT(typeId_resp == TYPE_INTEGER);
+
+    uint32_t val;
+    buf >> val;
+
+    ASSERT(buf.eof());
+
+    record_TraCI_activity_func("commandComplete", CMD_GET_SIM_VARIABLE, VAR_DELTA_T, "simulationGetTimeStep");
+
+    return val;
 }
 
 

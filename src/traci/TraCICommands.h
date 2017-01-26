@@ -135,7 +135,7 @@ public:
     double* simulationGetNetBoundary();
     uint32_t simulationGetMinExpectedNumber();
     uint32_t simulationGetArrivedNumber();
-    double simulationGetTimeStep();  // new command
+    uint32_t simulationGetTimeStep();
 
     // ################################################################
     //                            vehicle
