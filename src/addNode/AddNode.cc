@@ -160,7 +160,7 @@ void AddNode::receiveSignal(omnetpp::cComponent *source, omnetpp::simsignal_t si
         if ( !boost::filesystem::exists(addNodePath) )
             throw omnetpp::cRuntimeError("File '%s' does not exist!", addNodePath.c_str());
 
-        SUMO_timeStep = TraCI->simulationGetTimeStep();
+        SUMO_timeStep = TraCI->simulationGetTimeStep() / 1000.;
 
         readInsertion(addNodePath.string());
     }
@@ -227,6 +227,7 @@ void AddNode::readInsertion(std::string addNodePath)
             allObstacle.empty() &&
             allVehicle.empty() &&
             allVehicleFlow.empty() &&
+            allVehicleMultiFlow.empty() &&
             allEmulated.empty())
         LOG_WARNING << boost::format("\nWARNING: Add node with id '%1%' is empty! \n") % this->id << std::flush;
 
