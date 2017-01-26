@@ -277,10 +277,8 @@ TraCIConnection* TraCIConnection::connect(const char* host, int port, bool runSU
 
     LOG_INFO << boost::format("\n>>> Connecting to TraCI server on port %1% ... \n") % port << std::flush;
 
-    const int maxRetry = 10;
-
-    int tries = 1;
-    for (; tries <= maxRetry; ++tries)
+    const int MAX_RETRY = 10;
+    for (int tries = 1; ; ++tries)
     {
         *socketPtr = ::socket(AF_INET, SOCK_STREAM, 0);
         if (::connect(*socketPtr, address_p, sizeof(address)) >= 0)
@@ -290,13 +288,13 @@ TraCIConnection* TraCIConnection::connect(const char* host, int port, bool runSU
 
         int sleepDuration = tries * .25 + 1;
 
-        LOG_INFO << boost::format("    Could not connect to the TraCI server: %1% -- retry in %2% seconds. \n") % strerror(sock_errno()) % sleepDuration << std::flush;
+        LOG_INFO << boost::format("    Could not connect to the TraCI server: %1% -- retry %2%/%3% in %4% seconds. \n") % strerror(sock_errno()) % tries % MAX_RETRY % sleepDuration << std::flush;
+
+        if(tries == MAX_RETRY)
+            throw omnetpp::cRuntimeError("Could not connect to TraCI server after %d retries!", MAX_RETRY);
 
         std::this_thread::sleep_for(std::chrono::seconds(sleepDuration));
     }
-
-    if(tries == maxRetry+1)
-        throw omnetpp::cRuntimeError("Could not connect to TraCI server after %d retries!", maxRetry);
 
     // TCP_NODELAY: disable the Nagle algorithm. This means that segments are always
     // sent as soon as possible, even if there is only a small amount of data.
