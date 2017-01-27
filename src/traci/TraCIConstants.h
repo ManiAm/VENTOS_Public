@@ -36,7 +36,7 @@ namespace VENTOS {
 // ****************************************
 // VERSION
 // ****************************************
-#define TRACI_VERSION 10
+#define TRACI_VERSION 12
 
 
 // ****************************************
@@ -59,6 +59,9 @@ namespace VENTOS {
 
 // command: slow down
 #define CMD_SLOWDOWN 0x14
+
+// command: set sublane (vehicle)
+#define CMD_CHANGESUBLANE 0x15
 
 // command: change target
 #define CMD_CHANGETARGET 0x31
@@ -406,10 +409,13 @@ namespace VENTOS {
 #define ID_COUNT 0x01
 
 // subscribe object variables (get: all)
-#define OBJECT_VARIABLES_SUBSCRIPTION 0x02
+#define AUTOMATIC_VARIABLES_SUBSCRIPTION 0x02
 
 // subscribe context variables (get: all)
-#define SURROUNDING_VARIABLES_SUBSCRIPTION 0x03
+#define AUTOMATIC_CONTEXT_SUBSCRIPTION 0x03
+
+// generic attributes (get/set: all)
+#define GENERIC_ATTRIBUTE 0x03
 
 // last step vehicle number (get: induction loops, multi-entry/multi-exit detector, lanes, edges)
 #define LAST_STEP_VEHICLE_NUMBER 0x10
@@ -501,6 +507,8 @@ namespace VENTOS {
 // list of not allowed vehicle classes (get&set: lanes)
 #define LANE_DISALLOWED 0x35
 
+// slope (get: edge, lane, vehicle, person)
+#define VAR_SLOPE 0x36
 
 // speed (get: vehicle)
 #define VAR_SPEED 0x40
@@ -625,6 +633,17 @@ namespace VENTOS {
 // maximum speed regarding max speed on the current lane and speed factor (get: vehicle)
 #define VAR_ALLOWED_SPEED 0xb7
 
+// position (1D lateral position relative to center of the current lane) (get: vehicle)
+#define VAR_LANEPOSITION_LAT 0xb8
+
+// get/set prefered lateral alignment within the lane (vehicle)
+#define VAR_LATALIGNMENT 0xb9
+
+// get/set maximum lateral speed (vehicle, vtypes)
+#define VAR_MAXSPEED_LAT 0xba
+
+// get/set minimum lateral gap (vehicle, vtypes)
+#define VAR_MINGAP_LAT 0xbb
 
 // current CO2 emission of a node (get: vehicle, lane, edge)
 #define VAR_CO2EMISSION 0x60
@@ -662,8 +681,14 @@ namespace VENTOS {
 //current waiting time (get: vehicle, lane)
 #define VAR_WAITING_TIME 0x7a
 
+// upcoming traffic lights (get: vehicle)
+#define VAR_NEXT_TLS 0x70
+
 // current time step (get: simulation)
 #define VAR_TIME_STEP 0x70
+
+// current electricity consumption of a node (get: vehicle, lane, edge)
+#define VAR_ELECTRICITYCONSUMPTION 0x71
 
 // number of loaded vehicles (get: simulation)
 #define VAR_LOADED_VEHICLES_NUMBER 0x71
