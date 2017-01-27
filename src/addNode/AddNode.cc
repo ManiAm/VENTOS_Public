@@ -1322,6 +1322,14 @@ void AddNode::parseVehicleMultiFlow(rapidxml::xml_node<> *pNode)
 
             if(sum != 100)
                 throw omnetpp::cRuntimeError("'routeDist' values do not add up to 100 percent in element '%s'", vehicle_multiFlow_tag.c_str());
+
+            std::string lastFirstEdge = (TraCI->routeGetEdges(routeID_str_tokenize[0]))[0];
+            for(unsigned int i = 1; i < routeID_str_tokenize.size(); i++)
+            {
+                auto firstEdge = (TraCI->routeGetEdges(routeID_str_tokenize[i]))[0];
+                if(firstEdge != lastFirstEdge)
+                    throw omnetpp::cRuntimeError("all routeIDs should have the same starting edge in element '%s'", vehicle_multiFlow_tag.c_str());
+            }
         }
 
         if(laneChangeMode < 0)
