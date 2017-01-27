@@ -3307,7 +3307,7 @@ void TraCI_Commands::record_TraCI_activity_func(std::string state, uint8_t comma
             throw omnetpp::cRuntimeError("pair (%x, %x) is not found in exchangedTraCIcommands \n", commandGroupId, commandId);
     }
     else
-        throw omnetpp::cRuntimeError("unknown state '%s' in record_TraCI_activity_func method", state);
+        throw omnetpp::cRuntimeError("unknown state '%s' in record_TraCI_activity_func method", state.c_str());
 }
 
 

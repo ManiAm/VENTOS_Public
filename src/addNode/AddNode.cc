@@ -132,7 +132,7 @@ void AddNode::handleMessage(omnetpp::cMessage *msg)
 
         auto it = allVehicle.find(vehID);
         if(it == allVehicle.end())
-            throw omnetpp::cRuntimeError("Cannot find veh '%s' in the map", vehID);
+            throw omnetpp::cRuntimeError("Cannot find veh '%s' in the map", vehID.c_str());
 
         // set the lane change mode
         TraCI->vehicleSetLaneChangeMode(vehID, it->second.laneChangeMode);
