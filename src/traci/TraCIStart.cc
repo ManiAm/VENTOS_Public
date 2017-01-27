@@ -1051,17 +1051,15 @@ void TraCI_Start::addVehicle(std::string nodeId /*sumo id*/, std::string type, s
     // any other motor vehicle
     else
     {
-        std::string vehType = vehicleGetTypeID(nodeId);
-
         mod->par("SUMOID") = nodeId;
-        mod->par("SUMOType") = vehType;
+        mod->par("SUMOType") = vehicleGetTypeID(nodeId);
         mod->par("vehicleClass") = vClass;
 
         mod->par("hasOBU") = hasOBU_val;
         mod->par("IPaddress") = IPaddress_val;
 
-        mod->par("SUMOControllerType") = vehicleTypeGetControllerType(vehType);
-        mod->par("SUMOControllerNumber") = vehicleTypeGetControllerNumber(vehType);
+        mod->par("SUMOControllerType") = vehicleGetControllerType(nodeId);
+        mod->par("SUMOControllerNumber") = vehicleGetControllerNumber(nodeId);
     }
 
     mod->scheduleStart(omnetpp::simTime() + updateInterval);
@@ -1264,20 +1262,21 @@ void TraCI_Start::record_Veh_data(std::string vID)
     if(!it->second.active)
         return;
 
-    veh_data_entry entry = {-1 /*timestep*/,
-            "n/a" /*id*/,
-            "n/a" /*type*/,
-            "n/a" /*lane*/,
-            -1 /*lanePos*/,
-            -1 /*speed*/,
-            std::numeric_limits<double>::infinity() /*accel*/,
-            "n/a" /*CFMode*/,
-            -1 /*timeGapSetting*/,
-            -2 /*spaceGap*/,
-            -2 /*timeGap*/,
-            "n/a" /*TLid*/,
-            '\0' /*linkStat*/
-    };
+    veh_data_entry entry = {};
+
+    entry.timeStep = -1;
+    entry.id = "n/a";
+    entry.type = "n/a";
+    entry.lane = "n/a";
+    entry.lanePos = -1;
+    entry.speed = -1;
+    entry.accel = std::numeric_limits<double>::infinity();
+    entry.CFMode = "n/a";
+    entry.timeGapSetting = -1;
+    entry.spaceGap = -2;
+    entry.timeGap = -2;
+    entry.TLid = "n/a";
+    entry.linkStat = '\0';
 
     // list of data need to be recorded for this vehicle
     std::vector<std::string> record_list = it->second.record_list;
@@ -1354,9 +1353,23 @@ void TraCI_Start::record_Veh_data(std::string vID)
                 entry.timeGap = -1;
         }
         else if(record == "tlid")
-            entry.TLid = vehicleGetTLID(vID);
+        {
+            std::vector<TL_info_t> res = vehicleGetNextTLS(vID);
+
+            if(!res.empty())
+                entry.TLid = res[0].TLS_id;
+            else
+                entry.TLid = "";
+        }
         else if(record == "linkstat")
-            entry.linkStat = vehicleGetTLLinkStatus(vID);
+        {
+            std::vector<TL_info_t> res = vehicleGetNextTLS(vID);
+
+            if(!res.empty())
+                entry.linkStat = res[0].linkState;
+            else
+                entry.linkStat = 'n';
+        }
         else
             throw omnetpp::cRuntimeError("'%s' is not a valid record name in veh '%s'", record.c_str(), vID.c_str());
 

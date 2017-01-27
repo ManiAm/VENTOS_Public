@@ -44,7 +44,6 @@ namespace VENTOS {
 
 typedef struct bestLanesEntry
 {
-public:
     std::string laneId;
     double length;
     double occupation;
@@ -65,6 +64,14 @@ typedef struct linkEntry
     std::string direction;
     double length;
 } linkEntry_t;
+
+typedef struct TL_info
+{
+    std::string TLS_id;
+    uint32_t TLS_link_index;
+    double TLS_distance;
+    uint8_t linkState;
+}TL_info_t;
 
 
 class TraCI_Commands : public omnetpp::cSimpleModule
@@ -167,10 +174,11 @@ public:
     double vehicleGetTimeGap(std::string);
     std::string vehicleGetClass(std::string);
     std::vector<std::string> vehicleGetLeader(std::string, double);
-    double vehicleGetCurrentAccel(std::string);       // new command
-    int vehicleGetCarFollowingMode(std::string);      // new command [returns the current ACC/CACC car following mode]
-    std::string vehicleGetTLID(std::string);          // new command [returns the id of the TL ahead]          // todo: remove this command from here and SUMO
-    char vehicleGetTLLinkStatus(std::string);         // new command [return the TL status ahead: g, G, Y, R]  // todo: remove this command once implemented by SUMO
+    std::vector<TL_info_t> vehicleGetNextTLS(std::string);
+    double vehicleGetCurrentAccel(std::string);     // new command [returns the current acceleration of the vehicle]
+    int vehicleGetCarFollowingMode(std::string);    // new command [returns the current ACC/CACC car following mode]
+    int vehicleGetControllerType(std::string);      // new command [returns the car-following model type -- ACC/CACC]
+    int vehicleGetControllerNumber(std::string);    // new command [returns the car-following model sub-type -- CACC 1, CACC 2]
 
     // CMD_SET_VEHICLE_VARIABLE
     void vehicleSetStop(std::string, std::string, double, uint8_t, int32_t, uint8_t);  // adds or modifies a stop with the given parameters
@@ -188,16 +196,21 @@ public:
     void vehicleSetLength(std::string, double);
     void vehicleSetWidth(std::string, double);
     void vehicleSetSignalStatus(std::string, int32_t);
+    void vehicleSetMaxSpeed(std::string, double);
     void vehicleSetMaxAccel(std::string, double);
     void vehicleSetMaxDecel(std::string, double);
     void vehicleSetTimeGap(std::string, double);
     void vehicleAdd(std::string, std::string, std::string, int32_t, double, double, uint8_t);
     void vehicleRemove(std::string, uint8_t);
+
     void vehicleSetControllerParameters(std::string, std::string);  // new command [set the controller's parameters for this vehicle]
     void vehicleSetErrorGap(std::string, double);                   // new command [set an error value for the gap]
     void vehicleSetErrorRelSpeed(std::string, double);              // new command [set an error value for relative speed]
     void vehicleSetDowngradeToACC(std::string, bool);               // new command [should the controller degrade to ACC ?]
     void vehicleSetDebug(std::string, bool);                        // new command [should the debug info be printed in the SUMO output console ?]
+    void vehicleSetVint(std::string, double);                       // new command
+    void vehicleSetComfAccel(std::string, double);                  // new command
+    void vehicleSetComfDecel(std::string, double);                  // new command
 
     // ################################################################
     //                          vehicle type
@@ -208,14 +221,6 @@ public:
     uint32_t vehicleTypeGetIDCount();
     double vehicleTypeGetLength(std::string);
     double vehicleTypeGetMaxSpeed(std::string);
-    int vehicleTypeGetControllerType(std::string);      // new command
-    int vehicleTypeGetControllerNumber(std::string);    // new command
-
-    // CMD_SET_VEHICLETYPE_VARIABLE
-    void vehicleTypeSetMaxSpeed(std::string, double);
-    void vehicleTypeSetVint(std::string, double);       // new command
-    void vehicleTypeSetComfAccel(std::string, double);  // new command
-    void vehicleTypeSetComfDecel(std::string, double);  // new command
 
     // ################################################################
     //                              route

@@ -189,9 +189,10 @@ void AddMobileNode::Scenario6()
     int depart = 0;
 
     TraCI->laneSetMaxSpeed("1to2_0", 400.);
-    TraCI->vehicleTypeSetMaxSpeed("TypeCACC1", 400.);
-    TraCI->vehicleTypeSetVint("TypeCACC1", 400.);
-    TraCI->vehicleTypeSetComfAccel("TypeCACC1", 400.);
+    // change of API!
+    // TraCI->vehicleTypeSetMaxSpeed("TypeCACC1", 400.);
+    // TraCI->vehicleTypeSetVint("TypeCACC1", 400.);
+    // TraCI->vehicleTypeSetComfAccel("TypeCACC1", 400.);
 
     for(int i=0; i<numVehicles; i++)
     {

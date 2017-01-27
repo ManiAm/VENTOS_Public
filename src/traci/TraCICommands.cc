@@ -784,6 +784,69 @@ std::vector<std::string> TraCI_Commands::vehicleGetLeader(std::string nodeId, do
 }
 
 
+std::vector<TL_info_t> TraCI_Commands::vehicleGetNextTLS(std::string nodeId)
+{
+    record_TraCI_activity_func("commandStart", CMD_GET_VEHICLE_VARIABLE, VAR_NEXT_TLS, "vehicleGetNextTLS");
+
+    uint8_t resultTypeId = TYPE_COMPOUND;
+    uint8_t variableId = VAR_NEXT_TLS;
+    uint8_t responseId = RESPONSE_GET_VEHICLE_VARIABLE;
+
+    TraCIBuffer buf = connection->query(CMD_GET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId);
+
+    uint8_t cmdLength; buf >> cmdLength;
+    if (cmdLength == 0) {
+        uint32_t cmdLengthX;
+        buf >> cmdLengthX;
+    }
+    uint8_t commandId_r; buf >> commandId_r;
+    ASSERT(commandId_r == responseId);
+    uint8_t varId; buf >> varId;
+    ASSERT(varId == variableId);
+    std::string objectId_r; buf >> objectId_r;
+    ASSERT(objectId_r == nodeId);
+
+    uint8_t resType_r; buf >> resType_r;
+    ASSERT(resType_r == resultTypeId);
+    uint32_t count; buf >> count;
+
+    // now we start getting real data that we are looking for
+    std::vector<TL_info_t> res;
+
+    uint8_t typeI; buf >> typeI;
+    uint32_t NoTLs; buf >> NoTLs;
+
+    for(uint32_t i = 0; i < NoTLs; ++i)
+    {
+        TL_info_t entry = {};
+
+        uint8_t typeI2; buf >> typeI2;
+        std::string TLS_id; buf >> TLS_id;
+        entry.TLS_id = TLS_id;
+
+        uint8_t typeI3; buf >> typeI3;
+        uint32_t TLS_link_index; buf >> TLS_link_index;
+        entry.TLS_link_index = TLS_link_index;
+
+        uint8_t typeI4; buf >> typeI4;
+        double TLS_distance; buf >> TLS_distance;
+        entry.TLS_distance = TLS_distance;
+
+        uint8_t typeI5; buf >> typeI5;
+        uint8_t linkState; buf >> linkState;
+        entry.linkState = linkState;
+
+        res.push_back(entry);
+    }
+
+    ASSERT(buf.eof());
+
+    record_TraCI_activity_func("commandComplete", CMD_GET_VEHICLE_VARIABLE, VAR_NEXT_TLS, "vehicleGetNextTLS");
+
+    return res;
+}
+
+
 double TraCI_Commands::vehicleGetCurrentAccel(std::string nodeId)
 {
     record_TraCI_activity_func("commandStart", CMD_GET_VEHICLE_VARIABLE, 0x74, "vehicleGetCurrentAccel");
@@ -806,27 +869,25 @@ int TraCI_Commands::vehicleGetCarFollowingMode(std::string nodeId)
 }
 
 
-std::string TraCI_Commands::vehicleGetTLID(std::string nodeId)
+int TraCI_Commands::vehicleGetControllerType(std::string nodeId)
 {
-    record_TraCI_activity_func("commandStart", CMD_GET_VEHICLE_VARIABLE, 0x72, "vehicleGetTLID");
+    record_TraCI_activity_func("commandStart", CMD_GET_VEHICLE_VARIABLE, 0x72, "vehicleTypeGetControllerType");
 
-    std::string result = genericGetString(CMD_GET_VEHICLE_VARIABLE, nodeId, 0x72, RESPONSE_GET_VEHICLE_VARIABLE);
+    int result = genericGetInt(CMD_GET_VEHICLE_VARIABLE, nodeId, 0x72, RESPONSE_GET_VEHICLE_VARIABLE);
 
-    record_TraCI_activity_func("commandComplete", CMD_GET_VEHICLE_VARIABLE, 0x72, "vehicleGetTLID");
+    record_TraCI_activity_func("commandComplete", CMD_GET_VEHICLE_VARIABLE, 0x72, "vehicleTypeGetControllerType");
     return result;
 }
 
 
-char TraCI_Commands::vehicleGetTLLinkStatus(std::string nodeId)
+int TraCI_Commands::vehicleGetControllerNumber(std::string nodeId)
 {
-    record_TraCI_activity_func("commandStart", CMD_GET_VEHICLE_VARIABLE, 0x73, "vehicleGetTLLinkStatus");
+    record_TraCI_activity_func("commandStart", CMD_GET_VEHICLE_VARIABLE, 0x73, "vehicleTypeGetControllerNumber");
 
     int result = genericGetInt(CMD_GET_VEHICLE_VARIABLE, nodeId, 0x73, RESPONSE_GET_VEHICLE_VARIABLE);
 
-    record_TraCI_activity_func("commandComplete", CMD_GET_VEHICLE_VARIABLE, 0x73, "vehicleGetTLLinkStatus");
-
-    // covert to character
-    return (char)result;
+    record_TraCI_activity_func("commandComplete", CMD_GET_VEHICLE_VARIABLE, 0x73, "vehicleTypeGetControllerNumber");
+    return result;
 }
 
 
@@ -1090,6 +1151,21 @@ void TraCI_Commands::vehicleSetSignalStatus(std::string nodeId, int32_t bitset)
 }
 
 
+void TraCI_Commands::vehicleSetMaxSpeed(std::string nodeId, double value)
+{
+    record_TraCI_activity_func("commandStart", CMD_SET_VEHICLE_VARIABLE, VAR_MAXSPEED, "vehicleSetMaxSpeed");
+
+    uint8_t variableId = VAR_MAXSPEED;
+    uint8_t variableType = TYPE_DOUBLE;
+
+    TraCIBuffer buf = connection->query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
+
+    ASSERT(buf.eof());
+
+    record_TraCI_activity_func("commandComplete", CMD_SET_VEHICLE_VARIABLE, VAR_MAXSPEED, "vehicleSetMaxSpeed");
+}
+
+
 void TraCI_Commands::vehicleSetMaxAccel(std::string nodeId, double value)
 {
     record_TraCI_activity_func("commandStart", CMD_SET_VEHICLE_VARIABLE, VAR_ACCEL, "vehicleSetMaxAccel");
@@ -1262,6 +1338,48 @@ void TraCI_Commands::vehicleSetDebug(std::string nodeId, bool value)
 }
 
 
+void TraCI_Commands::vehicleSetVint(std::string nodeId, double value)
+{
+    record_TraCI_activity_func("commandStart", CMD_SET_VEHICLE_VARIABLE, 0x22, "vehicleSetVint");
+
+    uint8_t variableId = 0x22;
+    uint8_t variableType = TYPE_DOUBLE;
+
+    TraCIBuffer buf = connection->query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
+
+    ASSERT(buf.eof());
+
+    record_TraCI_activity_func("commandComplete", CMD_SET_VEHICLE_VARIABLE, 0x22, "vehicleSetVint");
+}
+
+
+void TraCI_Commands::vehicleSetComfAccel(std::string nodeId, double speed)
+{
+    record_TraCI_activity_func("commandStart", CMD_SET_VEHICLE_VARIABLE, 0x23, "vehicleSetComfAccel");
+
+    uint8_t variableId = 0x23;
+    uint8_t variableType = TYPE_DOUBLE;
+    TraCIBuffer buf = connection->query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << speed);
+
+    ASSERT(buf.eof());
+
+    record_TraCI_activity_func("commandComplete", CMD_SET_VEHICLE_VARIABLE, 0x23, "vehicleSetComfAccel");
+}
+
+
+void TraCI_Commands::vehicleSetComfDecel(std::string nodeId, double speed)
+{
+    record_TraCI_activity_func("commandStart", CMD_SET_VEHICLE_VARIABLE, 0x24, "vehicleSetComfDecel");
+
+    uint8_t variableId = 0x24;
+    uint8_t variableType = TYPE_DOUBLE;
+    TraCIBuffer buf = connection->query(CMD_SET_VEHICLE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << speed);
+
+    ASSERT(buf.eof());
+
+    record_TraCI_activity_func("commandComplete", CMD_SET_VEHICLE_VARIABLE, 0x24, "vehicleSetComfDecel");
+}
+
 
 // ################################################################
 //                          vehicle type
@@ -1312,89 +1430,6 @@ double TraCI_Commands::vehicleTypeGetMaxSpeed(std::string nodeId)
 
     record_TraCI_activity_func("commandComplete", CMD_GET_VEHICLETYPE_VARIABLE, VAR_MAXSPEED, "vehicleTypeGetMaxSpeed");
     return result;
-}
-
-
-int TraCI_Commands::vehicleTypeGetControllerType(std::string nodeId)
-{
-    record_TraCI_activity_func("commandStart", CMD_GET_VEHICLETYPE_VARIABLE, 0x02, "vehicleTypeGetControllerType");
-
-    int result = genericGetInt(CMD_GET_VEHICLETYPE_VARIABLE, nodeId, 0x02, RESPONSE_GET_VEHICLETYPE_VARIABLE);
-
-    record_TraCI_activity_func("commandComplete", CMD_GET_VEHICLETYPE_VARIABLE, 0x02, "vehicleTypeGetControllerType");
-    return result;
-}
-
-
-int TraCI_Commands::vehicleTypeGetControllerNumber(std::string nodeId)
-{
-    record_TraCI_activity_func("commandStart", CMD_GET_VEHICLETYPE_VARIABLE, 0x03, "vehicleTypeGetControllerNumber");
-
-    int result = genericGetInt(CMD_GET_VEHICLETYPE_VARIABLE, nodeId, 0x03, RESPONSE_GET_VEHICLETYPE_VARIABLE);
-
-    record_TraCI_activity_func("commandComplete", CMD_GET_VEHICLETYPE_VARIABLE, 0x03, "vehicleTypeGetControllerNumber");
-    return result;
-}
-
-
-// ############################
-// CMD_SET_VEHICLETYPE_VARIABLE
-// ############################
-
-void TraCI_Commands::vehicleTypeSetMaxSpeed(std::string nodeId, double speed)
-{
-    record_TraCI_activity_func("commandStart", CMD_SET_VEHICLETYPE_VARIABLE, VAR_MAXSPEED, "vehicleTypeSetMaxSpeed");
-
-    uint8_t variableId = VAR_MAXSPEED;
-    uint8_t variableType = TYPE_DOUBLE;
-    TraCIBuffer buf = connection->query(CMD_SET_VEHICLETYPE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << speed);
-
-    ASSERT(buf.eof());
-
-    record_TraCI_activity_func("commandComplete", CMD_SET_VEHICLETYPE_VARIABLE, VAR_MAXSPEED, "vehicleTypeSetMaxSpeed");
-}
-
-
-void TraCI_Commands::vehicleTypeSetVint(std::string nodeId, double value)
-{
-    record_TraCI_activity_func("commandStart", CMD_SET_VEHICLETYPE_VARIABLE, 0x22, "vehicleTypeSetVint");
-
-    uint8_t variableId = 0x22;
-    uint8_t variableType = TYPE_DOUBLE;
-
-    TraCIBuffer buf = connection->query(CMD_SET_VEHICLETYPE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << value);
-
-    ASSERT(buf.eof());
-
-    record_TraCI_activity_func("commandComplete", CMD_SET_VEHICLETYPE_VARIABLE, 0x22, "vehicleTypeSetVint");
-}
-
-
-void TraCI_Commands::vehicleTypeSetComfAccel(std::string nodeId, double speed)
-{
-    record_TraCI_activity_func("commandStart", CMD_SET_VEHICLETYPE_VARIABLE, 0x23, "vehicleTypeSetComfAccel");
-
-    uint8_t variableId = 0x23;
-    uint8_t variableType = TYPE_DOUBLE;
-    TraCIBuffer buf = connection->query(CMD_SET_VEHICLETYPE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << speed);
-
-    ASSERT(buf.eof());
-
-    record_TraCI_activity_func("commandComplete", CMD_SET_VEHICLETYPE_VARIABLE, 0x23, "vehicleTypeSetComfAccel");
-}
-
-
-void TraCI_Commands::vehicleTypeSetComfDecel(std::string nodeId, double speed)
-{
-    record_TraCI_activity_func("commandStart", CMD_SET_VEHICLETYPE_VARIABLE, 0x24, "vehicleTypeSetComfDecel");
-
-    uint8_t variableId = 0x24;
-    uint8_t variableType = TYPE_DOUBLE;
-    TraCIBuffer buf = connection->query(CMD_SET_VEHICLETYPE_VARIABLE, TraCIBuffer() << variableId << nodeId << variableType << speed);
-
-    ASSERT(buf.eof());
-
-    record_TraCI_activity_func("commandComplete", CMD_SET_VEHICLETYPE_VARIABLE, 0x24, "vehicleTypeSetComfDecel");
 }
 
 

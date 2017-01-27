@@ -243,7 +243,11 @@ void IntersectionDelay::vehiclesDelayStart(std::string vID)
         double accel = TraCI->vehicleGetCurrentAccel(vID);
         loc->second.lastAccels.push_back( std::make_pair(omnetpp::simTime().dbl(), accel) );
 
-        char signal = TraCI->vehicleGetTLLinkStatus(vID);
+        char signal = 'n';
+        std::vector<TL_info_t> res = TraCI->vehicleGetNextTLS(vID);
+        if(!res.empty())
+            signal = res[0].linkState;
+
         loc->second.lastSignals.push_back(signal);
 
         if(loc->second.lastAccels.full())
