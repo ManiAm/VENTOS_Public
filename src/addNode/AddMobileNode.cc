@@ -102,17 +102,8 @@ void AddMobileNode::beginLoading()
     // create a map of functions
     typedef void (AddMobileNode::*pfunc)(void);
     std::map<std::string, pfunc> funcMap;
-    funcMap["Scenario1"] = &AddMobileNode::Scenario1;
-    funcMap["Scenario2"] = &AddMobileNode::Scenario2;
-    funcMap["Scenario3"] = &AddMobileNode::Scenario3;
-    funcMap["Scenario4"] = &AddMobileNode::Scenario4;
-    funcMap["Scenario5"] = &AddMobileNode::Scenario5;
     funcMap["Scenario6"] = &AddMobileNode::Scenario6;
-    funcMap["Scenario7"] = &AddMobileNode::Scenario7;
     funcMap["Scenario8"] = &AddMobileNode::Scenario8;
-    funcMap["Scenario9"] = &AddMobileNode::Scenario9;
-    funcMap["Scenario10"] = &AddMobileNode::Scenario10;
-    funcMap["Scenario11"] = &AddMobileNode::Scenario11;
     funcMap["Scenario12"] = &AddMobileNode::Scenario12;
 
     // construct the method name
@@ -128,46 +119,6 @@ void AddMobileNode::beginLoading()
     // and then call it
     pfunc f = i->second;
     (this->*f)();
-}
-
-
-// adding 'numVehicles' vehicles with type 'vehiclesType'
-// according to deterministic distribution every 'interval'
-void AddMobileNode::Scenario1()
-{
-
-}
-
-
-// adding 'numVehicles' vehicles with type 'vehiclesType'
-// according to Poisson distribution with rate lambda
-void AddMobileNode::Scenario2()
-{
-
-
-}
-
-
-// hardware in the loop scenario
-void AddMobileNode::Scenario3()
-{
-
-
-}
-
-
-// CRL distribution
-void AddMobileNode::Scenario4()
-{
-
-
-}
-
-
-// todo: change this scenario (background traffic)
-void AddMobileNode::Scenario5()
-{
-
 }
 
 
@@ -189,10 +140,6 @@ void AddMobileNode::Scenario6()
     int depart = 0;
 
     TraCI->laneSetMaxSpeed("1to2_0", 400.);
-    // change of API!
-    // TraCI->vehicleTypeSetMaxSpeed("TypeCACC1", 400.);
-    // TraCI->vehicleTypeSetVint("TypeCACC1", 400.);
-    // TraCI->vehicleTypeSetComfAccel("TypeCACC1", 400.);
 
     for(int i=0; i<numVehicles; i++)
     {
@@ -202,10 +149,12 @@ void AddMobileNode::Scenario6()
 
         TraCI->vehicleAdd(vehicleName, "TypeCACC1", "route1", depart, 0 /*pos*/, 0 /*speed*/, 0 /*lane*/);
 
+        TraCI->vehicleSetMaxSpeed(vehicleName, 400.);
+        TraCI->vehicleSetVint(vehicleName, 400.);
+        TraCI->vehicleSetComfAccel(vehicleName, 400.);
+
         if(i == 0)
-        {
             TraCI->vehicleSetSpeed(vehicleName, 20.);
-        }
         else
         {
             TraCI->vehicleSetSpeed(vehicleName, 400.);
@@ -213,17 +162,8 @@ void AddMobileNode::Scenario6()
         }
 
         if(i % plnSize == 0)
-        {
             TraCI->vehicleSetTimeGap(vehicleName, plnSpace);
-        }
     }
-}
-
-
-// incident detection
-void AddMobileNode::Scenario7()
-{
-
 }
 
 
@@ -349,26 +289,6 @@ void AddMobileNode::Scenario8()
             TraCI->vehicleSetColor(id, newColor);
         }
     }
-}
-
-
-void AddMobileNode::Scenario9()
-{
-
-}
-
-
-// balanced traffic
-void AddMobileNode::Scenario10()
-{
-
-}
-
-
-// unbalanced traffic
-void AddMobileNode::Scenario11()
-{
-
 }
 
 

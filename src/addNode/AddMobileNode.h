@@ -56,17 +56,8 @@ public:
 private:
     void beginLoading();
 
-    void Scenario1();
-    void Scenario2();
-    void Scenario3();
-    void Scenario4();
-    void Scenario5();
     void Scenario6();
-    void Scenario7();
     void Scenario8();
-    void Scenario9();
-    void Scenario10();
-    void Scenario11();
     void Scenario12();
 };
 
