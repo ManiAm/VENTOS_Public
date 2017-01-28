@@ -127,9 +127,9 @@ public:
     // ################################################################
 
     // CMD_SUBSCRIBE_SIM_VARIABLE
-    TraCIBuffer simulationSubscribe(uint32_t beginTime, uint32_t endTime, std::string objectId, std::vector<uint8_t> variables);
+    TraCIBuffer subscribeSimulation(uint32_t beginTime, uint32_t endTime, std::string objectId, std::vector<uint8_t> variables);
     // CMD_SUBSCRIBE_VEHICLE_VARIABLE
-    TraCIBuffer vehicleSubscribe(uint32_t beginTime, uint32_t endTime, std::string objectId, std::vector<uint8_t> variables);
+    TraCIBuffer subscribeVehicle(uint32_t beginTime, uint32_t endTime, std::string objectId, std::vector<uint8_t> variables);
 
     // ################################################################
     //                            simulation
@@ -365,7 +365,7 @@ public:
     //                               POI
     // ################################################################
 
-    void addPoi(std::string, std::string, const RGB, int32_t, const Coord&);
+    void poiAdd(std::string, std::string, const RGB, int32_t, const Coord&);
 
 
     // ################################################################

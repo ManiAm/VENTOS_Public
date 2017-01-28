@@ -254,7 +254,7 @@ void TraCI_Start::init_traci()
             VAR_TELEPORT_ENDING_VEHICLES_IDS,
             VAR_PARKING_STARTING_VEHICLES_IDS,
             VAR_PARKING_ENDING_VEHICLES_IDS};
-        TraCIBuffer buf = simulationSubscribe(0, 0x7FFFFFFF, "", variables);
+        TraCIBuffer buf = subscribeSimulation(0, 0x7FFFFFFF, "", variables);
         processSubcriptionResult(buf);
         ASSERT(buf.eof());
     }
@@ -262,7 +262,7 @@ void TraCI_Start::init_traci()
     {
         // subscribe to a list of vehicle ids
         std::vector<uint8_t> variables {ID_LIST};
-        TraCIBuffer buf = vehicleSubscribe(0, 0x7FFFFFFF, "", variables);
+        TraCIBuffer buf = subscribeVehicle(0, 0x7FFFFFFF, "", variables);
         processSubcriptionResult(buf);
         ASSERT(buf.eof());
     }
@@ -518,7 +518,7 @@ void TraCI_Start::processSimSubscription(std::string objectId, TraCIBuffer& buf)
 
                     // unsubscribe
                     std::vector<uint8_t> variables;
-                    TraCIBuffer buf = vehicleSubscribe(0, 0x7FFFFFFF, idstring, variables);
+                    TraCIBuffer buf = subscribeVehicle(0, 0x7FFFFFFF, idstring, variables);
                     ASSERT(buf.eof());
                 }
 
@@ -710,7 +710,7 @@ void TraCI_Start::processVehicleSubscription(std::string objectId, TraCIBuffer& 
 
                 // subscribe to some attributes of the vehicle
                 std::vector<uint8_t> variables {VAR_POSITION, VAR_ROAD_ID, VAR_SPEED, VAR_ANGLE, VAR_SIGNALS};
-                TraCIBuffer buf = vehicleSubscribe(0, 0x7FFFFFFF, *i, variables);
+                TraCIBuffer buf = subscribeVehicle(0, 0x7FFFFFFF, *i, variables);
                 processSubcriptionResult(buf);
                 ASSERT(buf.eof());
             }
@@ -724,7 +724,7 @@ void TraCI_Start::processVehicleSubscription(std::string objectId, TraCIBuffer& 
 
                 // unsubscribe
                 std::vector<uint8_t> variables;
-                TraCIBuffer buf = vehicleSubscribe(0, 0x7FFFFFFF, *i, variables);
+                TraCIBuffer buf = subscribeVehicle(0, 0x7FFFFFFF, *i, variables);
                 ASSERT(buf.eof());
 
                 // vehicle removal (manual or due to an accident)

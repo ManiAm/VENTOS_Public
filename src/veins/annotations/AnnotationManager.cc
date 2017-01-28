@@ -311,7 +311,7 @@ void AnnotationManager::show(const Annotation* annotation)
         omnetpp::cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
         VENTOS::TraCI_Commands *TraCI = static_cast<VENTOS::TraCI_Commands *>(module);
         ASSERT(TraCI);
-        TraCI->addPoi(nameBuilder.str(), "Annotation", VENTOS::Color::colorNameToRGB(o->color), 6, o->pos);
+        TraCI->poiAdd(nameBuilder.str(), "Annotation", VENTOS::Color::colorNameToRGB(o->color), 6, o->pos);
         annotation->traciPoiIds.push_back(nameBuilder.str());
     }
     else if (const Line* l = dynamic_cast<const Line*>(annotation))

@@ -131,7 +131,7 @@ std::pair<TraCIBuffer, uint32_t> TraCI_Commands::simulationTimeStep(uint32_t tar
 // ################################################################
 
 // CMD_SUBSCRIBE_SIM_VARIABLE
-TraCIBuffer TraCI_Commands::simulationSubscribe(uint32_t beginTime, uint32_t endTime, std::string objectId, std::vector<uint8_t> variables)
+TraCIBuffer TraCI_Commands::subscribeSimulation(uint32_t beginTime, uint32_t endTime, std::string objectId, std::vector<uint8_t> variables)
 {
     record_TraCI_activity_func("commandStart", CMD_SUBSCRIBE_SIM_VARIABLE, 0xff, "simulationSubscribe");
 
@@ -149,7 +149,7 @@ TraCIBuffer TraCI_Commands::simulationSubscribe(uint32_t beginTime, uint32_t end
 
 
 // CMD_SUBSCRIBE_VEHICLE_VARIABLE
-TraCIBuffer TraCI_Commands::vehicleSubscribe(uint32_t beginTime, uint32_t endTime, std::string objectId, std::vector<uint8_t> variables)
+TraCIBuffer TraCI_Commands::subscribeVehicle(uint32_t beginTime, uint32_t endTime, std::string objectId, std::vector<uint8_t> variables)
 {
     record_TraCI_activity_func("commandStart", CMD_SUBSCRIBE_VEHICLE_VARIABLE, 0xff, "vehicleSubscribe");
 
@@ -1256,7 +1256,7 @@ void TraCI_Commands::vehicleRemove(std::string nodeId, uint8_t reason)
 
     // unsubscribe the removed vehicle
     std::vector<uint8_t> variables;
-    buf = vehicleSubscribe(0, 0x7FFFFFFF, nodeId, variables);
+    buf = subscribeVehicle(0, 0x7FFFFFFF, nodeId, variables);
     ASSERT(buf.eof());
 
     record_TraCI_activity_func("commandComplete", CMD_SET_VEHICLE_VARIABLE, REMOVE, "vehicleRemove");
@@ -2627,7 +2627,7 @@ void TraCI_Commands::polygonSetFilled(std::string polyId, uint8_t filled)
 //                               POI
 // ################################################################
 
-void TraCI_Commands::addPoi(std::string poiId, std::string poiType, const RGB color, int32_t layer, const Coord& pos_)
+void TraCI_Commands::poiAdd(std::string poiId, std::string poiType, const RGB color, int32_t layer, const Coord& pos_)
 {
     record_TraCI_activity_func("commandStart", CMD_SET_POI_VARIABLE, ADD, "addPoi");
 
