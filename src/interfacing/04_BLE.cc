@@ -30,6 +30,8 @@
 #include <linux/errno.h>
 
 #include "interfacing/04_BLE.h"
+#include "interfacing/DB/util.h"
+
 
 namespace VENTOS {
 
@@ -328,7 +330,7 @@ std::map<std::string /*BT add*/, std::vector<std::string>> BLE::print_advertisin
             {
                 // get Manufacturer
                 const u_int8_t BTaddr[3] = {(&info->bdaddr)->b[5], (&info->bdaddr)->b[4], (&info->bdaddr)->b[3]};
-                std::string OUI = EtherPtr->OUITostr(BTaddr);
+                std::string OUI = util::OUITostr(BTaddr);
 
                 // get RSSI value
                 //int RSSI = (char)info->data[info->length];

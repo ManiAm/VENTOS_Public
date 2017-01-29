@@ -31,6 +31,7 @@
 #include <linux/errno.h>
 
 #include "interfacing/03_Bluetooth.h"
+#include "interfacing/util.h"
 
 namespace VENTOS {
 
@@ -52,12 +53,6 @@ void Bluetooth::initialize(int stage)
         cModule *module = omnetpp::getSimulation()->getSystemModule()->getSubmodule("TraCI");
         TraCI = static_cast<TraCI_Commands *>(module);
         ASSERT(TraCI);
-
-        // get a pointer to SniffEthernet module
-        // we need to call OUITostr
-        cModule *module2 = omnetpp::getSimulation()->getSystemModule()->getSubmodule("Ethernet");
-        EtherPtr = static_cast<Ethernet *>(module2);
-        ASSERT(EtherPtr);
 
         listLocalDevices = par("listLocalDevices").boolValue();
 
@@ -218,7 +213,7 @@ void Bluetooth::print_dev_info(struct hci_dev_info *di)
 
     // show OUI lookup name
     const u_int8_t BTaddr[3] = {(&di->bdaddr)->b[5], (&di->bdaddr)->b[4], (&di->bdaddr)->b[3]};
-    std::string OUI = EtherPtr->OUITostr(BTaddr);
+    std::string OUI = util::OUITostr(BTaddr);
     printf("\tOUI: %s \n", OUI.c_str());
 
     // return the HCI device flags string given its code
@@ -640,7 +635,7 @@ void Bluetooth::scan(int dev_id, int len)
 
             // show Manufacturer
             const u_int8_t BTaddr[3] = {(&(ii+i)->bdaddr)->b[5], (&(ii+i)->bdaddr)->b[4], (&(ii+i)->bdaddr)->b[3]};
-            std::string OUI = EtherPtr->OUITostr(BTaddr);
+            std::string OUI = util::OUITostr(BTaddr);
             printf("    OUI: %s \n", OUI.c_str());
 
             // get device class

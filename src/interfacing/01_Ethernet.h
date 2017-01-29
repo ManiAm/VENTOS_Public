@@ -82,13 +82,10 @@ private:
     TraCI_Commands *TraCI = NULL;
     omnetpp::simsignal_t Signal_initialize_withTraCI;
     omnetpp::simsignal_t Signal_executeEachTS;
+
     pcap_t *pcap_handle = NULL;
     std::mutex vectorLock;
-    std::mutex vectorLock2;
-
     std::map<std::string, devDesc> allDev;
-    std::map<std::string, std::string> OUI;
-    std::map<int, std::string> portNumber;
     std::vector< std::pair<struct pcap_pkthdr *, const u_char *> > framesQueue;
 
 public:
@@ -98,17 +95,11 @@ public:
     virtual void handleMessage(omnetpp::cMessage *);
     virtual void receiveSignal(omnetpp::cComponent *, omnetpp::simsignal_t, long, cObject* details);
 
-    void listInterfaces();
-    std::string OUITostr(const u_int8_t MACData[]);
-
 private:
     void initialize_withTraCI();
     void executeEachTimestep();
 
-    std::string MACaddrTostr(const u_int8_t MACData[]);
-    std::string IPaddrTostr(const u_int8_t addr[]);
-    std::string IPaddrTostr(uint32_t addr);
-    std::string serverPortTostr(int port);
+    void listInterfaces();
 
     void initSniffing();
     void startSniffing();

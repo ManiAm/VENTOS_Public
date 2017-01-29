@@ -25,15 +25,17 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include "interfacing/01_Ethernet.h"
-#include "logging/vlog.h"
-
 #include <fstream>
 #include <thread>
 #include <chrono>
 #include <boost/format.hpp>
 #undef ev
 #include "boost/filesystem.hpp"
+
+#include "interfacing/01_Ethernet.h"
+#include "logging/vlog.h"
+#include "interfacing/DB/util.h"
+
 
 namespace VENTOS {
 
@@ -170,7 +172,7 @@ void Ethernet::listInterfaces()
             {
                 uint32_t netAdd = ( (struct sockaddr_in *)(dev_addr->addr) )->sin_addr.s_addr;
                 uint32_t netMask = ( (struct sockaddr_in *)(dev_addr->netmask) )->sin_addr.s_addr;
-                LOG_INFO << boost::format("Address: %|-16|  NetMask: %|-16|") % IPaddrTostr(netAdd) % IPaddrTostr(netMask);
+                LOG_INFO << boost::format("Address: %|-16|  NetMask: %|-16|") % util::IPaddrTostr(netAdd) % util::IPaddrTostr(netMask);
 
                 // add interface information
                 devDesc *des = new devDesc(netAdd, netMask);
@@ -191,134 +193,6 @@ void Ethernet::listInterfaces()
     LOG_INFO << "\n" << std::flush;
 
     pcap_freealldevs(alldevs);
-}
-
-
-std::string Ethernet::MACaddrTostr(const u_int8_t MACaddr[])
-{
-    boost::format fmt("%02X:%02X:%02X:%02X:%02X:%02X");
-
-    for (int i = 0; i != 6; ++i)
-        fmt % static_cast<unsigned int>(MACaddr[i]);
-
-    return fmt.str();
-}
-
-
-// u_int8_t arp_spa[4];
-std::string Ethernet::IPaddrTostr(const u_int8_t IPaddr[])
-{
-    boost::format fmt("%u.%u.%u.%u");
-
-    for(int i = 0; i < 4; ++i)
-        fmt % static_cast<unsigned int>(IPaddr[i]);
-
-    return fmt.str();
-}
-
-
-// u_int32_t saddr
-std::string Ethernet::IPaddrTostr(uint32_t IPaddr)
-{
-    in_addr srcAdd;
-    srcAdd.s_addr = IPaddr;
-
-    return inet_ntoa(srcAdd);
-
-    //    Alternative implementation
-    //    std::stringstream finalAdd;
-    //
-    //    finalAdd << (addr & 0xFF) << ".";
-    //    finalAdd << (addr >> 8 & 0xFF) << ".";
-    //    finalAdd << (addr >> 16 & 0xFF) << ".";
-    //    finalAdd << (addr >> 24 & 0xFF);
-    //
-    //    return finalAdd.str();
-}
-
-
-std::string Ethernet::serverPortTostr(int port)
-{
-    if(portNumber.empty())
-    {
-        // services files in Linux is in /etc/services
-        boost::filesystem::path VENTOS_FullPath = omnetpp::getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-        boost::filesystem::path services_FullPath = VENTOS_FullPath / "src/interfacing/DB/ServerPorts";
-        std::ifstream in(services_FullPath.string().c_str());
-        if(in.fail())
-            throw omnetpp::cRuntimeError("cannot open file sniff_services at %s", services_FullPath.string().c_str());
-
-        std::string line;
-        while(getline(in, line))
-        {
-            std::vector<std::string> lineToken = omnetpp::cStringTokenizer(line.c_str()).asVector();
-
-            if(lineToken.size() < 2)
-                continue;
-
-            std::vector<std::string> port_prot = omnetpp::cStringTokenizer(lineToken[1].c_str(), "/").asVector();
-
-            if(port_prot.size() != 2)
-                continue;
-
-            try
-            {
-                auto it = portNumber.find(std::stoi(port_prot[0]));
-                if(it == portNumber.end())
-                    portNumber[std::stoi(port_prot[0])] = lineToken[0];
-            }
-            catch(std::exception e)
-            {
-                // do nothing!
-            }
-        }
-    }
-
-    auto it = portNumber.find(port);
-
-    if(it != portNumber.end())
-        return it->second;
-    else return "?";
-}
-
-
-std::string Ethernet::OUITostr(const u_int8_t MACaddr[])
-{
-    if(OUI.empty())
-    {
-        // OUI is downloaded from https://www.wireshark.org/tools/oui-lookup.html
-        boost::filesystem::path VENTOS_FullPath = omnetpp::getEnvir()->getConfig()->getConfigEntry("network").getBaseDirectory();
-        boost::filesystem::path manuf_FullPath = VENTOS_FullPath / "src/interfacing/DB/OUI";
-
-        std::ifstream in(manuf_FullPath.string().c_str());
-        if(in.fail())
-            throw omnetpp::cRuntimeError("cannot open file sniff_manuf at %s", manuf_FullPath.string().c_str());
-
-        std::string line;
-        while(getline(in, line))
-        {
-            std::vector<std::string> lineToken = omnetpp::cStringTokenizer(line.c_str()).asVector();
-
-            if(lineToken.size() < 2)
-                continue;
-
-            auto it = OUI.find(lineToken[0]);
-            if(it == OUI.end())
-                OUI[lineToken[0]] = lineToken[1];
-        }
-    }
-
-    // get the first three octet
-    boost::format fmt("%02X:%02X:%02X");
-
-    for (int i = 0; i != 3; ++i)
-        fmt % static_cast<unsigned int>(MACaddr[i]);
-
-    auto it = OUI.find(fmt.str());
-    if(it != OUI.end())
-        return it->second;
-    else
-        return "?";
 }
 
 
@@ -480,8 +354,8 @@ void Ethernet::process_packet(const struct pcap_pkthdr *header, const u_char *pa
     {
         if(printCaptured)
         {
-            printf("Src MAC: %s (%s), ", MACaddrTostr(p->ether_shost).c_str(), OUITostr(p->ether_shost).c_str());
-            printf("Dst MAC: %s (%s), ", MACaddrTostr(p->ether_dhost).c_str(), OUITostr(p->ether_dhost).c_str());
+            printf("Src MAC: %s (%s), ", util::MACaddrTostr(p->ether_shost).c_str(), util::OUITostr(p->ether_shost).c_str());
+            printf("Dst MAC: %s (%s), ", util::MACaddrTostr(p->ether_dhost).c_str(), util::OUITostr(p->ether_dhost).c_str());
             printf("Type: ETHERTYPE_ARP \n");
         }
 
@@ -491,8 +365,8 @@ void Ethernet::process_packet(const struct pcap_pkthdr *header, const u_char *pa
     {
         if(printCaptured)
         {
-            printf("Src MAC: %s (%s), ", MACaddrTostr(p->ether_shost).c_str(), OUITostr(p->ether_shost).c_str());
-            printf("Dst MAC: %s (%s), ", MACaddrTostr(p->ether_dhost).c_str(), OUITostr(p->ether_dhost).c_str());
+            printf("Src MAC: %s (%s), ", util::MACaddrTostr(p->ether_shost).c_str(), util::OUITostr(p->ether_shost).c_str());
+            printf("Dst MAC: %s (%s), ", util::MACaddrTostr(p->ether_dhost).c_str(), util::OUITostr(p->ether_dhost).c_str());
             printf("Type: ETHERTYPE_IP \n");
         }
 
@@ -502,8 +376,8 @@ void Ethernet::process_packet(const struct pcap_pkthdr *header, const u_char *pa
     {
         if(printCaptured)
         {
-            printf("Src MAC: %s (%s), ", MACaddrTostr(p->ether_shost).c_str(), OUITostr(p->ether_shost).c_str());
-            printf("Dst MAC: %s (%s), ", MACaddrTostr(p->ether_dhost).c_str(), OUITostr(p->ether_dhost).c_str());
+            printf("Src MAC: %s (%s), ", util::MACaddrTostr(p->ether_shost).c_str(), util::OUITostr(p->ether_shost).c_str());
+            printf("Dst MAC: %s (%s), ", util::MACaddrTostr(p->ether_dhost).c_str(), util::OUITostr(p->ether_dhost).c_str());
             printf("Type: ETHERTYPE_IPV6 \n");
         }
 
@@ -538,11 +412,11 @@ void Ethernet::processARP(const u_char *packet)
 
         // print payload information
         printf("                    ");
-        printf("SenderHrwAdd: %s, ", MACaddrTostr(arp->arp_sha).c_str());
-        printf("SenderProtAdd: %s \n", IPaddrTostr(arp->arp_spa).c_str());
+        printf("SenderHrwAdd: %s, ", util::MACaddrTostr(arp->arp_sha).c_str());
+        printf("SenderProtAdd: %s \n", util::IPaddrTostr(arp->arp_spa).c_str());
         printf("                    ");
-        printf("TargetHrwAdd: %s, ", MACaddrTostr(arp->arp_tha).c_str());
-        printf("TargetProtAdd: %s", IPaddrTostr(arp->arp_tpa).c_str());
+        printf("TargetHrwAdd: %s, ", util::MACaddrTostr(arp->arp_tha).c_str());
+        printf("TargetProtAdd: %s", util::IPaddrTostr(arp->arp_tpa).c_str());
     }
 }
 
@@ -571,8 +445,8 @@ void Ethernet::processIPv4(const u_char *packet)
         /* print source and destination IP addresses */
         uint32_t sAdd = ( (struct in_addr)(ip_packet->ip_src) ).s_addr;
         uint32_t dAdd = ( (struct in_addr)(ip_packet->ip_dst) ).s_addr;
-        printf("From: %s, ", IPaddrTostr(sAdd).c_str());
-        printf("To: %s, ", IPaddrTostr(dAdd).c_str());
+        printf("From: %s, ", util::IPaddrTostr(sAdd).c_str());
+        printf("To: %s, ", util::IPaddrTostr(dAdd).c_str());
     }
 
     /* determine protocol */
@@ -629,8 +503,8 @@ void Ethernet::processTCP(const u_char *packet, const struct ip *ip_packet)
     {
         printf("\n        TCP segment --> ");
 
-        printf("Src port: %d (%s), ", ntohs(tcp->th_sport), serverPortTostr(ntohs(tcp->th_sport)).c_str());
-        printf("Dst port: %d (%s), ", ntohs(tcp->th_dport), serverPortTostr(ntohs(tcp->th_dport)).c_str());
+        printf("Src port: %d (%s), ", ntohs(tcp->th_sport), util::serverPortTostr(ntohs(tcp->th_sport)).c_str());
+        printf("Dst port: %d (%s), ", ntohs(tcp->th_dport), util::serverPortTostr(ntohs(tcp->th_dport)).c_str());
     }
 
     /* compute tcp payload (segment) offset */
@@ -663,8 +537,8 @@ void Ethernet::processUDP(const u_char *packet, const struct ip *ip_packet)
     {
         printf("\n        UDP datagram --> ");
 
-        printf("Src port: %d (%s), ", ntohs(udp->uh_sport), serverPortTostr(ntohs(udp->uh_sport)).c_str());
-        printf("Dst port: %d (%s), ", ntohs(udp->uh_dport), serverPortTostr(ntohs(udp->uh_dport)).c_str());
+        printf("Src port: %d (%s), ", ntohs(udp->uh_sport), util::serverPortTostr(ntohs(udp->uh_sport)).c_str());
+        printf("Dst port: %d (%s), ", ntohs(udp->uh_dport), util::serverPortTostr(ntohs(udp->uh_dport)).c_str());
     }
 
     /* compute udp payload offset */

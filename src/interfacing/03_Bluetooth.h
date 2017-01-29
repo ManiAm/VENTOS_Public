@@ -44,7 +44,6 @@
 
 #include "MIXIM/modules/BaseApplLayer.h"
 #include "traci/TraCICommands.h"
-#include "interfacing/01_Ethernet.h"
 
 namespace VENTOS {
 
@@ -67,7 +66,6 @@ class Bluetooth : public BaseApplLayer
 protected:
     // variables
     TraCI_Commands *TraCI;
-    Ethernet *EtherPtr;
 
 private:
     typedef BaseApplLayer super;
