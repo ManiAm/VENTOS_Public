@@ -90,8 +90,8 @@ void AddNode::finish()
         mod->deleteModule();
     }
 
-    // delete all CA modules in omnet
-    for(auto &i : allCA)
+    // delete all RSU modules in omnet
+    for(auto &i : allRSU)
     {
         cModule* mod = i.second.module;
         ASSERT(mod);
@@ -101,8 +101,8 @@ void AddNode::finish()
         mod->deleteModule();
     }
 
-    // delete all RSU modules in omnet
-    for(auto &i : allRSU)
+    // delete all CA modules in omnet
+    for(auto &i : allCA)
     {
         cModule* mod = i.second.module;
         ASSERT(mod);
@@ -202,42 +202,42 @@ void AddNode::readInsertion(std::string addNodePath)
         std::string nodeName = cNode->name();
 
         if(nodeName != adversary_tag &&
-                nodeName != ca_tag &&
                 nodeName != rsu_tag &&
                 nodeName != obstacle_tag &&
                 nodeName != vehicle_tag &&
                 nodeName != vehicle_flow_tag &&
                 nodeName != vehicle_multiFlow_tag &&
+                nodeName != ca_tag &&
                 nodeName != emulated_tag)
             throw omnetpp::cRuntimeError("'%s' is not a valid node in id '%s'", this->id.c_str());
     }
 
     parseAdversary(pNode);
-    parseCA(pNode);
     parseRSU(pNode);
     parseObstacle(pNode);
     parseVehicle(pNode);
     parseVehicleFlow(pNode);
     parseVehicleMultiFlow(pNode);
+    parseCA(pNode);
     parseEmulated(pNode);
 
     if(allAdversary.empty() &&
-            allCA.empty() &&
             allRSU.empty() &&
             allObstacle.empty() &&
             allVehicle.empty() &&
             allVehicleFlow.empty() &&
             allVehicleMultiFlow.empty() &&
+            allCA.empty() &&
             allEmulated.empty())
         LOG_WARNING << boost::format("\nWARNING: Add node with id '%1%' is empty! \n") % this->id << std::flush;
 
     addAdversary();
-    addCA();
     addRSU();
     addObstacle();
     addVehicle();
     addVehicleFlow();
     addVehicleMultiFlow();
+    addCA();
     addEmulated(); // should be called last!
 
     if(!allVehicle.empty() || !allVehicleFlow.empty() || !allVehicleMultiFlow.empty())
@@ -257,11 +257,14 @@ void AddNode::parseAdversary(rapidxml::xml_node<> *pNode)
         if(std::string(cNode->name()) != adversary_tag)
             continue;
 
-        std::vector<std::string> validAttr = {"id", "pos"};
+        std::vector<std::string> validAttr = {"id", "pos", "drawMaxIntfDist"};
         validityCheck(cNode, validAttr);
 
         std::string id_str = getAttrValue_string(cNode, "id");
         Coord pos = getAttrValue_coord(cNode, "pos");
+        bool drawMaxIntfDist = getAttrValue_bool(cNode, "drawMaxIntfDist", false, true);
+        std::string color_str = getAttrValue_string(cNode, "color", false, "green");
+        bool filled = getAttrValue_bool(cNode, "filled", false, false);
 
         auto it = allAdversary.find(id_str);
         if(it == allAdversary.end())
@@ -273,7 +276,15 @@ void AddNode::parseAdversary(rapidxml::xml_node<> *pNode)
                     LOG_WARNING << boost::format("WARNING: Adversary '%s' is placed on top of '%s'. \n") % id_str % entry.second.id_str;
             }
 
-            adversaryEntry_t entry = {id_str, pos.x, pos.y, pos.z};
+            adversaryEntry_t entry = {};
+            entry.id_str = id_str;
+            entry.pos_x = pos.x;
+            entry.pos_y = pos.y;
+            entry.pos_z = pos.z;
+            entry.drawMaxIntfDist = drawMaxIntfDist;
+            entry.color_str = color_str;
+            entry.filled = filled;
+
             allAdversary.insert(std::make_pair(id_str, entry));
         }
         else
@@ -310,6 +321,8 @@ void AddNode::addAdversary()
         mod->getSubmodule("mobility")->par("y") = entry.second.pos_y;
         mod->getSubmodule("mobility")->par("z") = entry.second.pos_z;
 
+        mod->getSubmodule("nic")->par("drawMaxIntfDist") = entry.second.drawMaxIntfDist;
+
         mod->scheduleStart(omnetpp::simTime());
         mod->callInitialize();
 
@@ -330,80 +343,11 @@ void AddNode::addAdversary()
         // get the radius
         double radius = atof( module->getDisplayString().getTagArg("r",0) );
 
-        Coord *center = new Coord(entry.second.pos_x, entry.second.pos_y);
-        addCircle(entry.second.id_str, par("adversary_ModuleName"), Color::colorNameToRGB("green"), 1, center, radius);
-
-        i++;
-    }
-}
-
-
-void AddNode::parseCA(rapidxml::xml_node<> *pNode)
-{
-    // Iterate over all 'CA' nodes
-    for(rapidxml::xml_node<> *cNode = pNode->first_node(ca_tag.c_str()); cNode; cNode = cNode->next_sibling())
-    {
-        if(std::string(cNode->name()) != ca_tag)
-            continue;
-
-        std::vector<std::string> validAttr = {"id", "pos"};
-        validityCheck(cNode, validAttr);
-
-        std::string id_str = getAttrValue_string(cNode, "id");
-        Coord pos = getAttrValue_coord(cNode, "pos");
-
-        auto it = allCA.find(id_str);
-        if(it == allCA.end())
+        if(entry.second.drawMaxIntfDist && radius > 0)
         {
-            // check if the new node has overlap with any of the existing nodes
-            for(auto &entry : allCA)
-            {
-                if(entry.second.pos_x == pos.x && entry.second.pos_y == pos.y && entry.second.pos_z == pos.z)
-                    LOG_WARNING << boost::format("WARNING: CA '%s' is placed on top of '%s'. \n") % id_str % entry.second.id_str;
-            }
-
-            CAEntry_t entry = {id_str, pos.x, pos.y, pos.z};
-            allCA.insert(std::make_pair(id_str, entry));
+            Coord *center = new Coord(entry.second.pos_x, entry.second.pos_y);
+            addCircle(entry.second.id_str, par("adversary_ModuleName"), Color::colorNameToRGB(entry.second.color_str), entry.second.filled, center, radius);
         }
-        else
-            throw omnetpp::cRuntimeError("Multiple '%s' with the same 'id' %s is not allowed!", ca_tag.c_str(), id_str.c_str());
-    }
-}
-
-
-void AddNode::addCA()
-{
-    if(allCA.empty())
-        return;
-
-    unsigned int num = allCA.size();
-
-    LOG_DEBUG << boost::format("\n>>> AddNode is adding %1% CA modules ... \n") % num << std::flush;
-
-    cModule* parentMod = getParentModule();
-    if (!parentMod)
-        throw omnetpp::cRuntimeError("Parent Module not found");
-
-    omnetpp::cModuleType* nodeType = omnetpp::cModuleType::get(par("CA_ModuleType"));
-
-    int i = 0;
-    for(auto &entry : allCA)
-    {
-        // create an array of adversaries
-        cModule* mod = nodeType->create(par("CA_ModuleName"), parentMod, num, i);
-        mod->finalizeParameters();
-        mod->getDisplayString().parse(par("adversary_ModuleDisplayString"));
-        mod->buildInside();
-
-        mod->getSubmodule("mobility")->par("x") = entry.second.pos_x;
-        mod->getSubmodule("mobility")->par("y") = entry.second.pos_y;
-        mod->getSubmodule("mobility")->par("z") = entry.second.pos_z;
-
-        mod->scheduleStart(omnetpp::simTime());
-        mod->callInitialize();
-
-        // store the cModule
-        entry.second.module = mod;
 
         i++;
     }
@@ -575,6 +519,8 @@ void AddNode::addRSU()
             Coord *center = new Coord(entry.second.pos_x, entry.second.pos_y);
             addCircle(entry.second.id_str, par("RSU_ModuleName"), Color::colorNameToRGB(entry.second.color_str), entry.second.filled, center, radius);
         }
+
+        i++;
     }
 }
 
@@ -1613,6 +1559,83 @@ std::string AddNode::getVehRoute(vehicleMultiFlowEntry_t entry, double rnd)
         throw omnetpp::cRuntimeError("vehRoute cannot be empty");
 
     return vehRoute;
+}
+
+
+void AddNode::parseCA(rapidxml::xml_node<> *pNode)
+{
+    // Iterate over all 'CA' nodes
+    for(rapidxml::xml_node<> *cNode = pNode->first_node(ca_tag.c_str()); cNode; cNode = cNode->next_sibling())
+    {
+        if(std::string(cNode->name()) != ca_tag)
+            continue;
+
+        std::vector<std::string> validAttr = {"id", "pos"};
+        validityCheck(cNode, validAttr);
+
+        std::string id_str = getAttrValue_string(cNode, "id");
+        Coord pos = getAttrValue_coord(cNode, "pos");
+
+        auto it = allCA.find(id_str);
+        if(it == allCA.end())
+        {
+            // check if the new node has overlap with any of the existing nodes
+            for(auto &entry : allCA)
+            {
+                if(entry.second.pos_x == pos.x && entry.second.pos_y == pos.y && entry.second.pos_z == pos.z)
+                    LOG_WARNING << boost::format("WARNING: CA '%s' is placed on top of '%s'. \n") % id_str % entry.second.id_str;
+            }
+
+            CAEntry_t entry = {};
+            entry.id_str = id_str;
+            entry.pos_x = pos.x;
+            entry.pos_y = pos.y;
+            entry.pos_z = pos.z;
+
+            allCA.insert(std::make_pair(id_str, entry));
+        }
+        else
+            throw omnetpp::cRuntimeError("Multiple '%s' with the same 'id' %s is not allowed!", ca_tag.c_str(), id_str.c_str());
+    }
+}
+
+
+void AddNode::addCA()
+{
+    if(allCA.empty())
+        return;
+
+    unsigned int num = allCA.size();
+
+    LOG_DEBUG << boost::format("\n>>> AddNode is adding %1% CA modules ... \n") % num << std::flush;
+
+    cModule* parentMod = getParentModule();
+    if (!parentMod)
+        throw omnetpp::cRuntimeError("Parent Module not found");
+
+    omnetpp::cModuleType* nodeType = omnetpp::cModuleType::get(par("CA_ModuleType"));
+
+    int i = 0;
+    for(auto &entry : allCA)
+    {
+        // create an array of adversaries
+        cModule* mod = nodeType->create(par("CA_ModuleName"), parentMod, num, i);
+        mod->finalizeParameters();
+        mod->getDisplayString().parse(par("adversary_ModuleDisplayString"));
+        mod->buildInside();
+
+        mod->getSubmodule("mobility")->par("x") = entry.second.pos_x;
+        mod->getSubmodule("mobility")->par("y") = entry.second.pos_y;
+        mod->getSubmodule("mobility")->par("z") = entry.second.pos_z;
+
+        mod->scheduleStart(omnetpp::simTime());
+        mod->callInitialize();
+
+        // store the cModule
+        entry.second.module = mod;
+
+        i++;
+    }
 }
 
 

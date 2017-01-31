@@ -52,13 +52,13 @@ private:
     int routeCalculation = 0;
 
     const std::string adversary_tag = "adversary";
-    const std::string ca_tag = "ca";
     const std::string rsu_tag = "rsu";
     const std::string obstacle_tag = "obstacle";
     const std::string vehicle_tag = "vehicle";
     const std::string vehicle_flow_tag = "vehicle_flow";
     const std::string vehicle_multiFlow_tag = "vehicle_multiflow";
     const std::string emulated_tag = "emulated";
+    const std::string ca_tag = "ca";
 
     std::string id;
 
@@ -74,21 +74,13 @@ private:
         double pos_x;
         double pos_y;
         double pos_z;
+        bool drawMaxIntfDist;
+        std::string color_str;
+        bool filled;
         cModule* module;
     } adversaryEntry_t;
 
     std::map<std::string, adversaryEntry_t> allAdversary;
-
-    typedef struct CAEntry
-    {
-        std::string id_str;
-        double pos_x;
-        double pos_y;
-        double pos_z;
-        cModule* module;
-    } CAEntry_t;
-
-    std::map<std::string, CAEntry_t> allCA;
 
     typedef struct RSUEntry
     {
@@ -184,6 +176,17 @@ private:
 
     std::map<std::string, emulatedEntry_t> allEmulated;
 
+    typedef struct CAEntry
+    {
+        std::string id_str;
+        double pos_x;
+        double pos_y;
+        double pos_z;
+        cModule* module;
+    } CAEntry_t;
+
+    std::map<std::string, CAEntry_t> allCA;
+
 public:
     virtual ~AddNode();
     virtual void initialize(int stage);
@@ -197,9 +200,6 @@ private:
 
     void parseAdversary(rapidxml::xml_node<> *);
     void addAdversary();
-
-    void parseCA(rapidxml::xml_node<> *);
-    void addCA();
 
     void parseRSU(rapidxml::xml_node<> *);
     void addRSU();
@@ -218,6 +218,9 @@ private:
     void parseVehicleMultiFlow(rapidxml::xml_node<> *);
     void addVehicleMultiFlow();
     std::string getVehRoute(vehicleMultiFlowEntry_t, double);
+
+    void parseCA(rapidxml::xml_node<> *);
+    void addCA();
 
     void parseEmulated(rapidxml::xml_node<> *);
     void addEmulated();
