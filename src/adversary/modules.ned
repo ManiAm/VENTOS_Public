@@ -7,6 +7,7 @@ import VENTOS.src.global.ConstSpeedMobility;
 module Adversary
 {
     parameters:
+        bool DSRCenabled = default(true);
 
     gates:
         input radioIn; // gate for sendDirect
@@ -26,6 +27,7 @@ module Adversary
             parameters:
                 @display("p=130,172;i=block/cogwheel");
         }
+        
     connections:
         nic.upperLayerOut --> appl.lowerLayerIn;
         nic.upperLayerIn <-- appl.lowerLayerOut;

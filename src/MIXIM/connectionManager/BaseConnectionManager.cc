@@ -332,7 +332,7 @@ bool BaseConnectionManager::registerNic(cModule* nic, ChannelAccess* chAccess, c
 
     updateConnections(nicID, nicPos, nicPos);
 
-    if(nic->par("drawMaxIntfDist"))
+    if(nic->par("drawMaxIntfDist") && nic->getParentModule()->par("DSRCenabled").boolValue())
         nic->getParentModule()->getDisplayString().setTagArg("r", 0, maxInterferenceDistance);
 
     return sendDirect;

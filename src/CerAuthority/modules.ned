@@ -8,6 +8,7 @@ module CA
 {
     parameters:
         @signal[CRL_pieces]();
+        bool DSRCenabled = default(true);
         
     gates:
         input radioIn; // gate for sendDirect
