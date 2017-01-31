@@ -31,7 +31,7 @@
 #include <linux/errno.h>
 
 #include "interfacing/03_Bluetooth.h"
-#include "interfacing/util.h"
+#include "interfacing/DB/util.h"
 
 namespace VENTOS {
 
