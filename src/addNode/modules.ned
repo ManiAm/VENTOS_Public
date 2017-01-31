@@ -11,7 +11,7 @@ simple AddNode
         
         string adversary_ModuleType = default("VENTOS.src.adversary.Adversary");
         string adversary_ModuleName = default("ADV");
-        string adversary_ModuleDisplayString = default("i=old/comp_a");        
+        string adversary_ModuleDisplayString = default("i=status/red");        
         
         string CA_ModuleType = default("VENTOS.src.CerAuthority.CA");        
         string CA_ModuleName = default("CA");
@@ -35,7 +35,7 @@ simple AddNode
         
         string ped_ModuleType = default("VENTOS.src.pedestrian.pedestrian");      
         string ped_ModuleName = default("P");        
-        string ped_ModuleDisplayString = default("b=3,3,rect,green,black,1");       
+        string ped_ModuleDisplayString = default("i=abstract/person");       
 }
 
 
